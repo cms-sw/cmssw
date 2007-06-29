@@ -5,8 +5,8 @@
  *  Basic analyzer class which accesses 1D DTRecHits
  *  and plot resolution comparing reconstructed and simulated quantities
  *
- *  $Date: 2006/06/06 15:58:29 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/08/04 10:34:57 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -18,7 +18,7 @@
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
-
+#include "Histograms.h"
 
 #include <vector>
 #include <map>
@@ -122,6 +122,46 @@ private:
 	       std::map<DTWireId, std::vector<type> > recHitsPerWire,
 	       int step);
 
+  HRes1DHit *hRes_S1RPhi;  // RecHits, 1. step, RPh
+  HRes1DHit *hRes_S2RPhi;     // RecHits, 2. step, RPhi
+  HRes1DHit *hRes_S3RPhi;     // RecHits, 3. step, RPhi
+
+  HRes1DHit *hRes_S1RZ;         // RecHits, 1. step, RZ
+  HRes1DHit *hRes_S2RZ;	    // RecHits, 2. step, RZ
+  HRes1DHit *hRes_S3RZ;	    // RecHits, 3. step, RZ
+
+  HRes1DHit *hRes_S1RZ_W0;   // RecHits, 1. step, RZ, wheel 0
+  HRes1DHit *hRes_S2RZ_W0;   // RecHits, 2. step, RZ, wheel 0
+  HRes1DHit *hRes_S3RZ_W0;   // RecHits, 3. step, RZ, wheel 0
+
+  HRes1DHit *hRes_S1RZ_W1;   // RecHits, 1. step, RZ, wheel +-1
+  HRes1DHit *hRes_S2RZ_W1;   // RecHits, 2. step, RZ, wheel +-1
+  HRes1DHit *hRes_S3RZ_W1;   // RecHits, 3. step, RZ, wheel +-1
+
+  HRes1DHit *hRes_S1RZ_W2;   // RecHits, 1. step, RZ, wheel +-2
+  HRes1DHit *hRes_S2RZ_W2;   // RecHits, 2. step, RZ, wheel +-2
+  HRes1DHit *hRes_S3RZ_W2;   // RecHits, 3. step, RZ, wheel +-2
+
+
+  HEff1DHit *hEff_S1RPhi;     // RecHits, 1. step, RPhi
+  HEff1DHit *hEff_S2RPhi;     // RecHits, 2. step, RPhi
+  HEff1DHit *hEff_S3RPhi;     // RecHits, 3. step, RPhi
+
+  HEff1DHit *hEff_S1RZ;         // RecHits, 1. step, RZ
+  HEff1DHit *hEff_S2RZ;	    // RecHits, 2. step, RZ
+  HEff1DHit *hEff_S3RZ;	    // RecHits, 3. step, RZ
+
+  HEff1DHit *hEff_S1RZ_W0;   // RecHits, 1. step, RZ, wheel 0
+  HEff1DHit *hEff_S2RZ_W0;   // RecHits, 2. step, RZ, wheel 0
+  HEff1DHit *hEff_S3RZ_W0;   // RecHits, 3. step, RZ, wheel 0
+
+  HEff1DHit *hEff_S1RZ_W1;   // RecHits, 1. step, RZ, wheel +-1
+  HEff1DHit *hEff_S2RZ_W1;   // RecHits, 2. step, RZ, wheel +-1
+  HEff1DHit *hEff_S3RZ_W1;   // RecHits, 3. step, RZ, wheel +-1
+
+  HEff1DHit *hEff_S1RZ_W2;   // RecHits, 1. step, RZ, wheel +-2
+  HEff1DHit *hEff_S2RZ_W2;   // RecHits, 2. step, RZ, wheel +-2
+  HEff1DHit *hEff_S3RZ_W2;   // RecHits, 3. step, RZ, wheel +-2
 };
 #endif
 

@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineDbClient.h,v 1.1 2007/04/04 07:21:08 bainbrid Exp $
+// Last commit: $Id: $
 
 #ifndef DQM_SiStripCommissioningDbClients_SiStripCommissioningOfflineDbClient_H
 #define DQM_SiStripCommissioningDbClients_SiStripCommissioningOfflineDbClient_H
@@ -28,9 +28,8 @@ class SiStripCommissioningOfflineDbClient : public SiStripCommissioningOfflineCl
   
  protected:
   
-  void createCommissioningHistograms();
-  void testUploadToDb();
-  void uploadToDb();
+  void processHistos( DaqMonitorBEInterface* const,
+		      const std::vector<std::string>& );
 
  private:
 

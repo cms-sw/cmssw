@@ -1,25 +1,20 @@
-<use name=DataFormats/SiStripCommon>
-<use name=CalibFormats/SiStripObjects>
-<use name=CondFormats/SiStripObjects>
 <use name=DQM/SiStripCommissioningClients>
-<use name=DQMServices/Core>
-<use name=DQMServices/UI>
+<use name=DataFormats/SiStripCommon>
+<use name=OnlineDB/SiStripConfigDb>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/PluginManager>
 <use name=FWCore/ServiceRegistry>
-<use name=OnlineDB/SiStripConfigDb>
-<use name=OnlineDB/SiStripESSources>
 <use name=boost>
 <use name=xdaq>
 <lib name=xgi>
 
 <export>
   <lib name=DQMSiStripCommissioningDbClients>
-  <use name=DataFormats/SiStripCommon>
   <use name=DQM/SiStripCommissioningClients>
+  <use name=DataFormats/SiStripCommon>
+  <use name=OnlineDB/SiStripConfigDb>
   <use name=FWCore/MessageLogger>
   <use name=FWCore/ServiceRegistry>
-  <use name=OnlineDB/SiStripConfigDb>
   <use name=boost>
   <use name=xdaq>
   <lib name=xgi>

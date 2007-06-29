@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct  2 22:45:32 EDT 2006
-// $Id: L1ExtraParticlesProd.cc,v 1.10 2007/04/30 19:56:51 wsun Exp $
+// $Id: L1ExtraParticlesProd.cc,v 1.8 2007/04/04 18:59:23 wsun Exp $
 //
 //
 
@@ -26,17 +26,17 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 
-#include "L1Trigger/L1Scales/interface/L1CaloEtScale.h"
-#include "L1Trigger/L1Scales/interface/L1EmEtScaleRcd.h"
-#include "L1Trigger/L1Scales/interface/L1JetEtScaleRcd.h"
-// #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
-// #include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
-// #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
+// #include "L1Trigger/L1Scales/interface/L1CaloEtScale.h"
+// #include "L1Trigger/L1Scales/interface/L1EmEtScaleRcd.h"
+// #include "L1Trigger/L1Scales/interface/L1JetEtScaleRcd.h"
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
+#include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuTriggerScales.h"
-// #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
-// #include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
+// #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuTriggerScales.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -148,9 +148,9 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 
    if( produceMuonParticles_ )
    {
-     L1MuTriggerScales muScales ;
-//      ESHandle< L1MuTriggerScales > muScales ;
-//      iSetup.get< L1MuTriggerScalesRcd >().get( muScales ) ;
+//       L1MuTriggerScales muScales ;
+     ESHandle< L1MuTriggerScales > muScales ;
+     iSetup.get< L1MuTriggerScalesRcd >().get( muScales ) ;
 
       Handle< L1MuGMTReadoutCollection > hwMuCollection ;
       iEvent.getByLabel( muonSource_, hwMuCollection ) ;
@@ -178,18 +178,18 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 
 	 if( !muItr->empty() )
 	 {
-	   double pt = muScales.getPtScale()->getLowEdge( muItr->ptIndex() ) ;
-	   // double pt = muScales->getPtScale()->getLowEdge( muItr->ptIndex() ) ;
+	   //	    double pt = muScales.getPtScale()->getLowEdge( muItr->ptIndex() ) ;
+	    double pt = muScales->getPtScale()->getLowEdge( muItr->ptIndex() ) ;
 
 	    // To keep x and y components non-zero.
-	    // if( pt == 0. ) // protect against roundoff, not only for pt=0
+	    if( pt == 0. )
 	    {
-	       pt += 1.e-6 ;
+	       pt = 1.e-6 ;
 	    }
 
 	    double eta =
-	      muScales.getGMTEtaScale()->getCenter( muItr->etaIndex() ) ;
-	    // muScales->getGMTEtaScale()->getCenter( muItr->etaIndex() ) ;
+// 	       muScales.getGMTEtaScale()->getCenter( muItr->etaIndex() ) ;
+	       muScales->getGMTEtaScale()->getCenter( muItr->etaIndex() ) ;
 	    double tanThOver2 = exp( -eta ) ;
 	    double pz = pt * ( 1. - tanThOver2 * tanThOver2 ) /
 	       ( 2. * tanThOver2 ) ;
@@ -198,8 +198,8 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 	    double e = sqrt( p * p + muonMassGeV_ * muonMassGeV_ ) ;
 
 	    double phi =
-	      muScales.getPhiScale()->getLowEdge( muItr->phiIndex() ) ;
-	    // muScales->getPhiScale()->getLowEdge( muItr->phiIndex() ) ;
+// 	       muScales.getPhiScale()->getLowEdge( muItr->phiIndex() ) ;
+	       muScales->getPhiScale()->getLowEdge( muItr->phiIndex() ) ;
 
 	    math::XYZTLorentzVector p4( pt * cos( phi ),
 					pt * sin( phi ),
@@ -458,9 +458,9 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 	 ( ( double ) phiIndex + 0.5 ) * gctEtSumPhiBinWidth_ + gctPhiOffset_ ;
 
       // To keep x and y components non-zero.
-      // if( etMiss == 0. ) // protect against roundoff, not only for et=0
+      if( etMiss == 0. )
       {
-	 etMiss += 1.e-6 ;
+	 etMiss = 1.e-6 ;
       }
 
       math::XYZTLorentzVector p4( etMiss * cos( phi ),
@@ -489,9 +489,9 @@ L1ExtraParticlesProd::gctLorentzVector( const double& et,
 {
    // To keep x and y components non-zero.
    double etCorr = et ;
-   // if( etCorr == 0. ) // protect against roundoff, not only for et=0
+   if( etCorr == 0. )
    {
-      etCorr += 1.e-6 ;
+      etCorr = 1.e-6 ;
    }
 
    // Central/tau jets and EM have etaIndex = 0-6 for eta = 0-3.

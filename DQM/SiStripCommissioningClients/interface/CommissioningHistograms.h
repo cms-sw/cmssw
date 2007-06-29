@@ -61,11 +61,7 @@ class CommissioningHistograms {
 
   // ---------- Generic static methods for clients ----------
   
-  /** Extracts run number from list of MonitorElements. */
-  static uint32_t runNumber( DaqMonitorBEInterface* const,
-			     const std::vector<std::string>& );
-  
-  /** Extracts run type from list of MonitorElements. */
+  /** Extracts run type from list of histograms. */
   static sistrip::RunType runType( DaqMonitorBEInterface* const,
 				   const std::vector<std::string>& );
   
@@ -94,13 +90,6 @@ class CommissioningHistograms {
 			   sistrip::Presentation>, 
 			   std::pair<std::string,
 			   sistrip::Granularity> ); 
-  
-  /** */
-  void remove( std::string pattern = "" ); 
-  
-  /** */
-  void save( std::string filename,
-	     uint32_t run_number = 0 ); 
   
  protected:
 
@@ -145,7 +134,7 @@ class CommissioningHistograms {
   /** Record of collation histos that have been created. */
   HistosMap histos_;
   
-  /** Map b/w FED and FEC keys from histo dirs/names. */
+  /** Mapping between FED and FEC keys. */
   FedToFecMap mapping_;
   
   sistrip::RunType task_;

@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-"
 /*
- * $Id: EcalSelectiveReadout.h,v 1.5 2006/06/14 12:00:30 pgras Exp $
+ * $Id: EcalSelectiveReadout.h,v 1.6 2007/02/14 18:37:04 pgras Exp $
  */
 
 #ifndef ECALSELECTIVEREADOUT_H
@@ -121,14 +121,12 @@ public:
   /** Constructs a ecalselectivereadout.
    * Neighbours are taken in a trigger tower matrix of size
    * 2(dEta+1))x2(dPhi+1) around a 'center' tower.
-   * @param thresholds thresholds for the trigger tower classification
    * @param dEta neighborhood extend in number of trigger towers along eta
    * @param dPhi neighborgooh extend in number if trigger towers along phi
    * in 'low interest', 'single' or 'center. First element is the lower
    * threshold, second element is the higher one.
    */
-  EcalSelectiveReadout(const std::vector<double>& thresholds,
-                             int dEta = 1, int dPhi = 1);
+  EcalSelectiveReadout(int dEta = 1, int dPhi = 1);
 
   //method(s)
   
@@ -251,7 +249,6 @@ private:
 #ifndef ECALSELECTIVEREADOUT_NOGEOM
   const CaloGeometry * theGeometry;
 #endif //ECALSELECTIVEREADOUT_NOGEOM not defined
-  std::vector<double> threshold;
   towerInterest_t towerInterest[nTriggerTowersInEta][nTriggerTowersInPhi];
   towerInterest_t supercrystalInterest[nEndcaps][nSupercrystalXBins][nSupercrystalYBins];
   int dEta;

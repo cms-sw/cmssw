@@ -57,14 +57,14 @@ void SiStripClustersDSVBuilder::produce( edm::Event& event,
   //Retrieve RefGetter with demand from event
   edm::Handle< RefGetter > demandclusters;
   event.getByLabel(inputModuleLabel_,demandclusters);
- 
+  
   //Construct product
   auto_ptr<DSV> dsv(new DSV);
   RefGetter::const_iterator iregion = demandclusters->begin();
   for(;iregion!=demandclusters->end();++iregion) {
-    vector<SiStripCluster>::const_iterator icluster = iregion->begin();
-    for (;icluster!=iregion->end();icluster++) {
-      DetSet& detset = dsv->find_or_insert(icluster->geographicalId());
+    vector<SiStripCluster>::const_iterator icluster = iregion->first;
+    for (;icluster!=iregion->second;icluster++) {
+      DetSet detset = dsv->find_or_insert(icluster->geographicalId());
       detset.push_back(*icluster);
     }
   }

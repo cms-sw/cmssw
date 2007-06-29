@@ -46,9 +46,15 @@ $SCRAMGenUtils::SCRAM_CMD=$SCRAM_CMD;
 print "DATA:OWNHEADER=^(.+?)\\/src\\/(.+?)\\.[^\\.]+:\"\$1/.+?/\$2\.h\"\n";
 print "DATA:BASE_DIR=${release}/${src}\n";
 $flags="-I${release}/${src}";
-if($releasetop ne $release){print "DATA:BASE_DIR=${releasetop}/${src}\n";$flags.=" -I${releasetop}/${src}";}
+my $dev=0;
+if($releasetop ne $release)
+{
+  $dev=1;
+  print "DATA:BASE_DIR=${releasetop}/${src}\n";
+  $flags.=" -I${releasetop}/${src}";
+}
 
-my $tmprel=&SCRAMGenUtils::createTmpReleaseArea($releasetop);
+my $tmprel=&SCRAMGenUtils::createTmpReleaseArea($releasetop,$dev);
 {
   if(-f "${release}/tmp/${arch}/Makefile")
   {
@@ -105,6 +111,8 @@ print "DATA:COMPILER_FLAGS=$flags\n";
 my $tmpl_compile_support=&checkTemplateCompilationSupport ();
 my $def_compile_support=&checkDefineCompilationSupport ();
 if(($tmpl_compile_support==0) || ($def_compile_support==0)){&genSkip ("${release}/${src}");}
+print "DATA:SKIP_FILES=.*?\/classes.h\n";
+print "DATA:SKIP_INCLUDES=.*?\/interface\/config.h:classlib\/sysapi\/system\.h\n";
 &final_exit(0);
 
 sub final_exit ()
@@ -313,6 +321,7 @@ sub safename_based_on_subsystem_package ()
 
 sub checkTemplateCompilationSupport ()
 {
+  return 0;
   my $dir=&SCRAMGenUtils::getTmpDir();
   system("echo \"template <class  T>class A{A(T t){std::cout <<std::endl;}};\" > ${dir}/test.cc");
   my $data=`cd ${dir}; $cxx -c -fsyntax-only test.cc 2>&1`;

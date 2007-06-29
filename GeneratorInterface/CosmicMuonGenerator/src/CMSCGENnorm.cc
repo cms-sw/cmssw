@@ -30,7 +30,7 @@ int CMSCGENnorm::events_n100cos(double energy, double theta)
 
 float CMSCGENnorm::norm(int n100cos)
 { 
-  flux = 2.59e-3 ; // +- 0.18e-3 [1/m**2/sr/GeV/s]
+  flux = 2.63e-3 ; // +- 0.06e-3 [1/m**2/sr/GeV/s]
 
   n = n100cos ; // [1/sr/GeV]
   

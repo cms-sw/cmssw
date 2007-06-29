@@ -10,19 +10,22 @@ such code sees the Run class, which is a proxy for RunPrincipal.
 The major internal component of the RunPrincipal
 is the DataBlock.
 
-$Id: RunPrincipal.h,v 1.9 2007/04/09 22:18:55 wdd Exp $
+$Id: RunPrincipal.h,v 1.11 2007/06/05 04:02:30 wmtan Exp $
 
 ----------------------------------------------------------------------*/
+
+#include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "FWCore/Framework/interface/Principal.h"
 
 namespace edm {
+  class UnscheduledHandler;
   class RunPrincipal : private Principal {
   typedef Principal Base;
   public:
     RunPrincipal(RunNumber_t const& id,
-	ProductRegistry const& reg,
+	boost::shared_ptr<ProductRegistry const> reg,
 	ProcessConfiguration const& pc,
 	ProcessHistoryID const& hist = ProcessHistoryID(),
 	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader)) :
@@ -64,6 +67,8 @@ namespace edm {
     using Base::put;
     using Base::size;
     using Base::store;
+
+    void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler>) {}
 
   private:
     virtual bool unscheduledFill(Provenance const&) const {return false;}

@@ -40,7 +40,6 @@ TSiStripMatchedRecHit::clone( const TrajectoryStateOnSurface& ts) const
 			  gdet,tkDir);
       
       if (better == 0) {
-	std::cout << "fallit il matching" << std::endl;
 	//dm::LogWarning("TSiStripMatchedRecHit") << "Refitting of a matched rechit returns NULL";
 	return this->clone();
       }

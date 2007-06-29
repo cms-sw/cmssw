@@ -6,7 +6,6 @@ enum DDSolidShape { dd_not_init,
                     ddbox, ddtubs, ddtrap, ddcons,
                     ddpolycone_rz, ddpolyhedra_rz,
 		    ddpolycone_rrz, ddpolyhedra_rrz,
-		    ddtorus,
                     ddunion, ddsubtraction, ddintersection,
 		    ddreflected,
 		    ddshapeless,
@@ -22,7 +21,6 @@ struct DDSolidShapesName {
       "Box", "Tube(section)", "Trapezoid", "Cone(section)",
       "Polycone_rz", "Polyhedra_rz",
       "Polycone_rrz", "Polyhedra_rrz",
-      "Torus",
       "UnionSolid", "SubtractionSolid", "IntersectionSolid",
       "ReflectedSolid", 
       "ShapelessSolid",
@@ -61,27 +59,24 @@ struct DDSolidShapesName {
       return ddpolyhedra_rrz;
       break;
     case 9:
-      return ddtorus;
-      break;
-    case 10:
       return ddunion;
       break;
-    case 11:
+    case 10:
       return ddsubtraction;
       break;
-    case 12:
+    case 11:
       return ddintersection;
       break;
-    case 13:
+    case 12:
       return ddreflected;
       break;
-    case 14:
+    case 13:
       return ddshapeless;
       break;
-    case 15:
+    case 14:
       return ddpseudotrap;
       break;
-    case 16:
+    case 15:
       return ddtrunctubs;
       break;
     default:

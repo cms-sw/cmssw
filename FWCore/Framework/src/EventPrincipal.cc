@@ -7,7 +7,7 @@
 namespace edm {
   EventPrincipal::EventPrincipal(EventID const& id,
 	Timestamp const& time,
-	ProductRegistry const& reg,
+	boost::shared_ptr<ProductRegistry const> reg,
         boost::shared_ptr<LuminosityBlockPrincipal> lbp,
 	ProcessConfiguration const& pc,
 	ProcessHistoryID const& hist,
@@ -19,7 +19,7 @@ namespace edm {
 
   EventPrincipal::EventPrincipal(EventID const& id,
 	Timestamp const& time,
-	ProductRegistry const& reg,
+	boost::shared_ptr<ProductRegistry const> reg,
 	LuminosityBlockNumber_t lumi,
 	ProcessConfiguration const& pc,
 	ProcessHistoryID const& hist,

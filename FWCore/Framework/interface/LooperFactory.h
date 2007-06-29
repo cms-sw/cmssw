@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 18:01:38 EDT 2005
-// $Id: LooperFactory.h,v 1.5 2007/02/10 19:14:12 chrjones Exp $
+// $Id: LooperFactory.h,v 1.6 2007/04/09 23:13:18 chrjones Exp $
 //
 
 // system include files
@@ -59,6 +59,16 @@ namespace edm {
         void addFinderTo(EventSetupProvider& iProvider, boost::shared_ptr<T> iComponent, const EventSetupRecordIntervalFinder*) 
       {
           boost::shared_ptr<EventSetupRecordIntervalFinder> pFinder(iComponent);
+
+          ComponentDescription description = pFinder->descriptionForFinder();
+          description.isSource_=true;
+          description.isLooper_=true;
+          if(description.label_ =="@main_looper") {
+            //remove the 'hidden' label so that es_prefer statements will work
+            description.label_ ="";
+          }
+          pFinder->setDescriptionForFinder(description);
+          
           iProvider.add(pFinder);
       }
       template<class T>

@@ -19,8 +19,8 @@
   * [LUT 1(127)] [LUT 2(127)] ...
   * </pre>
   *
-  * $Date: 2007/04/16 17:31:56 $
-  * $Revision: 1.8 $
+  * $Date: 2007/04/17 03:31:45 $
+  * $Revision: 1.9 $
   * \author M. Weinberger -- TAMU
   * \author Tulika Bose and Greg Landsberg -- Brown
   */
@@ -36,7 +36,7 @@ public:
   virtual void releaseConditions() const {}
   
 private:
-  static const int nluts = 46005, INPUT_LUT_SIZE = 128;
+  static const int nluts = 46007, INPUT_LUT_SIZE = 128;
   int GetLUTID(HcalSubdetector id, int ieta, int iphi, int depth) const;
   void AllocateLUTs();
   void getRecHitCalib(const char* filename);

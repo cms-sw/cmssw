@@ -14,15 +14,13 @@
 
 class EntryData
 {
-  friend std::ostream& operator << (std::ostream& os, const EntryData& c);
-  
 public:
   //----- Constructor / destructor 
   EntryData();
   ~EntryData();
 
   void fill( const std::vector<ALIstring>& wordlist );
- 
+
  // Access DATA MEMBERS
   const ALIstring& longOptOName() const { return fLongOptOName; }
   const ALIstring& shortOptOName() const { return fShortOptOName; }

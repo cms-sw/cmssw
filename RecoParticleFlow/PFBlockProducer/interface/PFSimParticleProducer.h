@@ -99,6 +99,10 @@ class PFSimParticleProducer : public edm::EDProducer {
   
   /// process particles on/off
   bool   processParticles_;
-};
+
+  /// verbose ?
+  bool   verbose_;
+
+};  
 
 #endif

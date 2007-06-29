@@ -6,8 +6,8 @@
  *     performing a refit
  *
  *
- *  $Date: 2006/10/10 01:25:15 $
- *  $Revision: 1.7 $ 
+ *  $Date: 2007/04/30 15:24:13 $
+ *  $Revision: 1.8 $ 
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -93,7 +93,8 @@ vector<Trajectory> MuonTrackConverter::convert(const reco::Track& t) const {
   TrajectoryStateOnSurface firstState = tsTransform.innerStateOnSurface(t,*theService->trackingGeometry(), &*theService->magneticField());
 
   if ( hits.front()->geographicalId().det() == DetId::Tracker ) {
-    firstState = theRefitter->propagator()->propagate(firstState, hits.front()->det()->surface());
+    firstState = theService->propagator(theRefitter->propagatorAlongMomentum())->propagate(firstState, 
+											   hits.front()->det()->surface());
   }
 
   if ( !firstState.isValid() ) return result;

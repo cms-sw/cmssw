@@ -41,7 +41,6 @@
 #include "DDLShapelessSolid.h" 
 #include "DDLSpecPar.h"
 #include "DDLString.h"
-#include "DDLTorus.h"
 #include "DDLTrapezoid.h"
 #include "DDLTubs.h"
 #include "DDLVector.h"
@@ -70,9 +69,8 @@
 DDLElementRegistry::DDLElementRegistry()
 { }
 
-DDLElementRegistry::~DDLElementRegistry() { 
-
-}
+DDLElementRegistry::~DDLElementRegistry()
+{ }
 
 // -------------------------------------------------------------------------
 // Implementation
@@ -81,6 +79,7 @@ DDLElementRegistry::~DDLElementRegistry() {
 // This initializes and acts as the singleton instance of DDLElementRegistry.
 DDLElementRegistry* DDLElementRegistry::instance()
 {
+  //static std::string defaultElement = "******";
   static DDLElementRegistry reg;
   static bool isInit=false;
   if (!isInit) {
@@ -133,10 +132,6 @@ DDXMLElement* DDLElementRegistry::getElement(const std::string& name)
       else if (name == "Tubs" || name == "Tube" || name == "TruncTubs")
         {
       	  myret = new DDLTubs;
-        }
-      else if (name == "Torus")
-        {
-      	  myret = new DDLTorus;
         }
       else if (name == "ReflectionSolid")
         {

@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: Entry.cc,v 1.22 2006/12/19 00:37:04 wmtan Exp $
+// $Id: Entry.cc,v 1.23 2007/01/20 00:09:56 wmtan Exp $
 //
 // definition of Entry's function members
 // ----------------------------------------------------------------------
@@ -856,7 +856,8 @@ namespace edm {
     void Entry::throwValueError(const char* expectedType) const
     {
       throw edm::Exception(errors::Configuration, "ValueError")
-        << "type of " << name_ << " is not " << expectedType;
+        << "type of " << name_ << " is expected to be " << expectedType
+        << " but declared as " << sTypeTranslations.table_[type];
     }
 
     void Entry::throwEntryError(const char* expectedType,

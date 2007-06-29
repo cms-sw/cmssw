@@ -6,15 +6,15 @@
 /** \class SteppingHelixStateInfo
  *  Holder of SteppingHelixState information
  *
- *  $Date: 2007/05/11 04:51:09 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/05/13 03:28:44 $
+ *  $Revision: 1.12 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Wed Jan  3 16:01:24 CST 2007
-// $Id: SteppingHelixStateInfo.h,v 1.11 2007/05/11 04:51:09 slava77 Exp $
+// $Id: SteppingHelixStateInfo.h,v 1.12 2007/05/13 03:28:44 slava77 Exp $
 //
 //
 
@@ -52,7 +52,9 @@ class SteppingHelixStateInfo {
 
   static const std::string ResultName[MAX_RESULT];
 
-  SteppingHelixStateInfo(): isComplete(0), isValid_(0), status_(UNDEFINED) {}
+  SteppingHelixStateInfo(): 
+    path_(0), radPath(0), dir(0), magVol(0), field(0), dEdx(0), dEdXPrime(0), radX0(1e12),
+    isComplete(0), isValid_(0), hasErrorPropagated_(0), status_(UNDEFINED) {}
   SteppingHelixStateInfo(const FreeTrajectoryState& fts);
 
   TrajectoryStateOnSurface getStateOnSurface(const Surface& surf, bool returnTangentPlane = false) const;

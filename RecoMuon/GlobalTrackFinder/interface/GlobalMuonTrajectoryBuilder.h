@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2007/05/04 15:57:41 $
- *  $Revision: 1.56 $
+ *  $Date: 2007/05/25 17:05:08 $
+ *  $Revision: 1.57 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -48,6 +48,8 @@ class TrackTransformer;
 class GlobalMuonRSTrajectoryBuilder;
 class TrajectoryFitter;
 class MuonTrackingRegionBuilder;
+
+#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
@@ -180,6 +182,8 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
 
     GlobalMuonMonitorInterface* dataMonitor;
 
-    
+    NavigationSchool*  theNavigationSchool;
+    unsigned long long theCacheId_DG;
+    unsigned long long theCacheId_MG;
 };
 #endif

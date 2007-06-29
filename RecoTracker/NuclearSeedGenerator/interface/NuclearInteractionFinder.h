@@ -1,16 +1,6 @@
 #ifndef CD_NuclearInteractionFinder_H_
 #define CD_NuclearInteractionFinder_H_
 
-//----------------------------------------------------------------------------
-//! \class NuclearInteractionFinder
-//! \brief Class used to obtain vector of all compatible TMs associated to a trajectory to be used by the NuclearTester.
-//! 
-//!
-//! \description The method run gets all compatible TMs of all TMs associated of a trajectory. 
-//! Then it uses the NuclearTester class to decide whether the trajectory has interacted nuclearly or not.
-//! It finally returns a pair of the TM where the nuclear interaction occurs and all compatible TMs associated.
-//-----------------------------------------------------------------------------
-
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
@@ -31,13 +21,7 @@
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-
 #include "RecoTracker/NuclearSeedGenerator/interface/NuclearTester.h"
-#include "RecoTracker/NuclearSeedGenerator/interface/SeedFromNuclearInteraction.h"
-#include "RecoTracker/NuclearSeedGenerator/interface/TangentCircle.h"
-
-#include <boost/shared_ptr.hpp>
 
 class NuclearInteractionFinder {
 private:
@@ -48,58 +32,38 @@ private:
   typedef std::vector<Trajectory> TrajectoryContainer;
   typedef TrajectoryMeasurement::ConstRecHitPointer    ConstRecHitPointer;
 
-  /// get the seeds at the interaction point
-  void fillSeeds( const std::pair<TrajectoryMeasurement, std::vector<TrajectoryMeasurement> >& tmPairs );
-
-  /// Improve the seeds with a third RecHit
-  void improveSeeds();
-
-  /// Find compatible TM of a TM with error rescaled by rescaleFactor
-  std::vector<TrajectoryMeasurement>
-         findCompatibleMeasurements( const TM& lastMeas, double rescaleFactor) const;
-
-  std::vector<TrajectoryMeasurement>
-         findMeasurementsFromTSOS(const TSOS& currentState, const TM& lastMeas) const;
-
-  /// Calculate the parameters of the circle representing the primary track at the interaction point
-  void definePrimaryCircle(std::vector<TrajectoryMeasurement>::const_iterator it_meas);
-
 public:
 
   NuclearInteractionFinder(){}
-
   NuclearInteractionFinder(const edm::EventSetup& es, const edm::ParameterSet& iConfig);
-
   virtual ~NuclearInteractionFinder();
-
-  /// Run the Finder
-  bool  run(const Trajectory& traj);
-
+  std::vector<std::pair< TM, std::vector<TM> > > run(const TrajectoryContainer& vTraj) const;
+  std::vector<TrajectoryMeasurement>
+         findCompatibleMeasurements( const TM& lastMeas, double rescaleFactor) const;
+  std::vector<TrajectoryMeasurement>
+         findMeasurementsFromTSOS(const TSOS& currentState, const TM& lastMeas) const;
+  //TSOS stateWithLargeError(const TSOS& state, double min_pt,  int sign) const;
   void setEvent(const edm::Event& event) const;
-
-  /// Fill output with persistent nuclear seeds
-  void getPersistentSeeds( std::auto_ptr<TrajectorySeedCollection>& output );
 
 private:
 
   const Propagator*               thePropagator;
+  const TrajectoryStateUpdator*   theUpdator;
   const MeasurementEstimator*     theEstimator;
   const MeasurementTracker*       theMeasurementTracker;
   const LayerMeasurements*        theLayerMeasurements;
   const GeometricSearchTracker*   theGeomSearchTracker;
   const NavigationSchool*         theNavigationSchool;
   edm::ESHandle<MagneticField>    theMagField;
+  edm::ESHandle<TrackerGeometry>  trackerGeom;
 
-  NuclearTester*                             nuclTester;
-  SeedFromNuclearInteraction*                currentSeed;
-  std::vector<SeedFromNuclearInteraction>    allSeeds;
-  TangentCircle*                             thePrimaryCircle;
+  NuclearTester*  nuclTester;
 
   // parameters
-  double        ptMin;
-  unsigned int  maxPrimaryHits;
-  double        rescaleErrorFactor;
-  bool          checkCompletedTrack; /**< If set to true check all the tracks, even those reaching the edge of the tracker */
+  double ptMin;
+  unsigned int maxPrimaryHits;
+  double rescaleErrorFactor;
+  bool checkCompletedTrack;
 
 };
 #endif

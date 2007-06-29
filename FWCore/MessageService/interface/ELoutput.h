@@ -18,6 +18,7 @@
 //  4/4/01 mf 	Removed moduleOfInterest and moduleToExclude, in favor
 //		of using base class method.
 //  6/23/03 mf  changeFile(), flush() 
+//  6/11/07 mf  changed default for emitAtStart to false  
 //
 // ----------------------------------------------------------------------
 
@@ -51,8 +52,8 @@ public:
   // ---  Birth/death:
   //
   ELoutput();
-  ELoutput( std::ostream & os, bool emitAtStart = true );
-  ELoutput( const ELstring & fileName, bool emitAtStart = true );
+  ELoutput( std::ostream & os, bool emitAtStart = false );	// 6/11/07 mf
+  ELoutput( const ELstring & fileName, bool emitAtStart = false );
   ELoutput( const ELoutput & orig );
   virtual ~ELoutput();
 

@@ -1,13 +1,13 @@
 /// \file TrackerAlignableId.cc
 ///
-///  $Revision: 1.10 $
-///  $Date: 2007/05/11 19:59:48 $
-///  (last update by $Author: cklae $)
+///  $Revision: 1.7 $
+///  $Date: 2006/10/19 17:09:12 $
+///  (last update by $Author: flucke $)
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/AlignableDet.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
@@ -23,10 +23,16 @@
 
 
 //__________________________________________________________________________________________________
+TrackerAlignableId::TrackerAlignableId()
+{
+}
+
+
+//__________________________________________________________________________________________________
 uint32_t TrackerAlignableId::alignableId( const Alignable* alignable ) const
 {
 
-  return alignable ? firstDetId(*alignable) : 0;
+  return firstDetId(alignable);
 
 }
 
@@ -39,7 +45,7 @@ int TrackerAlignableId::alignableTypeId( const Alignable* alignable ) const
 
   int alignableObjectId = alignable->alignableObjectId();
 
-  if ( AlignableObjectId::invalid == alignableObjectId ) 
+  if ( !alignableObjectId ) 
 	throw cms::Exception("LogicError") << "Unknown Alignable type";
 
   return alignableObjectId;
@@ -51,7 +57,7 @@ int TrackerAlignableId::alignableTypeId( const Alignable* alignable ) const
 /// first GeomDet and the type ID (i.e. Rod, Layer, etc.) 
 TrackerAlignableId::UniqueId TrackerAlignableId::alignableUniqueId( const Alignable* alignable ) const
 {
-  return UniqueId( alignableId(alignable), alignableTypeId(alignable) );
+  return std::make_pair(this->alignableId(alignable), this->alignableTypeId(alignable));
 }
 
 
@@ -60,7 +66,14 @@ TrackerAlignableId::UniqueId TrackerAlignableId::alignableUniqueId( const Aligna
 std::pair<int,int> TrackerAlignableId::typeAndLayerFromAlignable( const Alignable* alignable) const
 {
 
-  return alignable ? typeAndLayerFromDetId( firstDet(*alignable).geomDetId() ) : std::make_pair(0,0);
+  if ( alignable ) 
+	{
+	  const AlignableDet* alignableDet = firstDet(alignable);
+	  if ( alignableDet ) 
+		return typeAndLayerFromDetId( alignableDet->geomDetId() );
+	}
+
+  return std::make_pair(0,0);
 
 }
 
@@ -124,7 +137,7 @@ std::pair<int,int> TrackerAlignableId::typeAndLayerFromDetId( const DetId& detId
 
 //__________________________________________________________________________________________________
 // Return string name corresponding to alignable
-const std::string& TrackerAlignableId::alignableTypeName( const Alignable* alignable ) const
+const std::string TrackerAlignableId::alignableTypeName( const Alignable* alignable ) const
 {
   if (alignable)
     return this->alignableTypeIdToName( alignable->alignableObjectId() );
@@ -134,34 +147,44 @@ const std::string& TrackerAlignableId::alignableTypeName( const Alignable* align
 }
 
 //__________________________________________________________________________________________________
-const std::string&
-TrackerAlignableId::alignableTypeIdToName( int id ) const
+const std::string 
+TrackerAlignableId::alignableTypeIdToName( const int& id ) const
 {
 
-  static AlignableObjectId alignableObjectId;
+  AlignableObjectId alignableObjectId;
   return alignableObjectId.typeToName( id );
 
 }
 
 //__________________________________________________________________________________________________
 // recursively get first Alignable Det of an Alignable
-const Alignable& TrackerAlignableId::firstDet( const Alignable& alignable ) const
+const AlignableDet* TrackerAlignableId::firstDet( const Alignable* alignable ) const
 {
 
-  if ( AlignableObjectId::AlignableDet == alignable.alignableObjectId() ||
-       AlignableObjectId::AlignableDetUnit == alignable.alignableObjectId() )
-    return alignable;
+  // Check if this is already an AlignableDet
+  const AlignableDet* alignableDet = dynamic_cast<const AlignableDet*>( alignable );
+  if ( alignableDet ) return ( alignableDet );
 
-  return firstDet( *alignable.components().front() );
+  // Otherwise, retrieve components
+  const AlignableComposite* composite = dynamic_cast<const AlignableComposite*>( alignable );
+  return  firstDet( composite->components().front() );
 
 }
 
 //__________________________________________________________________________________________________
 // get integer identifier corresponding to 1st Det of alignable
-uint32_t TrackerAlignableId::firstDetId( const Alignable& alignable ) const
+uint32_t TrackerAlignableId::firstDetId( const Alignable* alignable ) const
 {
 
-  return firstDet( alignable ).geomDetId().rawId();
+  uint32_t geomDetId = 0;
+
+  if ( alignable ) 
+	{
+	  const AlignableDet* alignableDet = firstDet( alignable );
+	  if ( alignableDet ) geomDetId = alignableDet->geomDetId().rawId();
+	}
+
+  return geomDetId;
 
 }
 

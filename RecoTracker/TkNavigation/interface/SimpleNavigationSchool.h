@@ -50,30 +50,30 @@ protected:
   BNLCType  theBarrelNLC;
   FNLCType  theForwardNLC;
 
-  virtual void linkBarrelLayers( SymmetricLayerFinder& symFinder);
-  virtual void linkForwardLayers( SymmetricLayerFinder& symFinder);
+  void linkBarrelLayers( SymmetricLayerFinder& symFinder);
+  void linkForwardLayers( SymmetricLayerFinder& symFinder);
 
-  virtual void linkNextForwardLayer( BarrelDetLayer*, FDLC&);
+  void linkNextForwardLayer( BarrelDetLayer*, FDLC&);
 
-  virtual void linkNextLargerLayer( BDLI, BDLI, BDLC&);
+  void linkNextLargerLayer( BDLI, BDLI, BDLC&);
 
-  virtual void linkNextBarrelLayer( ForwardDetLayer* fl, BDLC&);
+  void linkNextBarrelLayer( ForwardDetLayer* fl, BDLC&);
 
-  virtual void linkOuterGroup( ForwardDetLayer* fl,
+  void linkOuterGroup( ForwardDetLayer* fl,
 		       const FDLC& group,
 		       FDLC& reachableFL);
 
-  virtual void linkWithinGroup( FDLI fl, const FDLC& group, FDLC& reachableFL);
+  void linkWithinGroup( FDLI fl, const FDLC& group, FDLC& reachableFL);
   
-  virtual ConstFDLI outerRadiusIncrease( FDLI fl, const FDLC& group);
+  ConstFDLI outerRadiusIncrease( FDLI fl, const FDLC& group);
 
-  virtual std::vector<FDLC> splitForwardLayers();
+  std::vector<FDLC> splitForwardLayers();
 
-  virtual float barrelLength();
+  float barrelLength();
 
-  virtual void establishInverseRelations();
+  void establishInverseRelations();
 
-  virtual void linkNextLayerInGroup( FDLI fli, const FDLC& group, FDLC& reachableFL);
+  void linkNextLayerInGroup( FDLI fli, const FDLC& group, FDLC& reachableFL);
 
   const MagneticField* theField;
   const GeometricSearchTracker* theTracker;

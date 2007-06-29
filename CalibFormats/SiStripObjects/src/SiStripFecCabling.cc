@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFecCabling.cc,v 1.21 2007/05/15 13:20:14 bainbrid Exp $
+// Last commit: $Id: SiStripFecCabling.cc,v 1.19 2007/03/21 09:54:21 bainbrid Exp $
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
@@ -56,9 +56,7 @@ void SiStripFecCabling::buildFecCabling( const SiStripFedCabling& fed_cabling ) 
       }
     }
   }
-  LogTrace(mlCabling_)
-    << "[SiStripFecCabling::" << __func__ << "]"
-    << " Finished building FEC cabling";
+  
 }
 
 // -----------------------------------------------------------------------------
@@ -100,8 +98,6 @@ void SiStripFecCabling::connections( std::vector<FedChannelConnection>& conns ) 
 // -----------------------------------------------------------------------------
 //
 const SiStripModule& SiStripFecCabling::module( const FedChannelConnection& conn ) const {
-
-  std::stringstream ss;
   std::vector<SiStripFecCrate>::const_iterator icrate = crates().begin();
   while ( icrate != crates().end() && icrate->fecCrate() != conn.fecCrate() ) { icrate++; }
   if ( icrate != crates().end() ) { 
@@ -118,29 +114,26 @@ const SiStripModule& SiStripFecCabling::module( const FedChannelConnection& conn
 	  while ( imod != iccu->modules().end() && imod->ccuChan() != conn.ccuChan() ) { imod++; }
 	  if ( imod != iccu->modules().end() ) { 
 	    return *imod;
-	  } else { 
-	    ss << "[SiStripFecCabling::" << __func__ << "]"
-	       << " CCU channel " << conn.ccuChan() 
-	       << " not found!"; }
-	} else { 
-	  ss << "[SiStripFecCabling::" << __func__ << "]"
-	     << " CCU address " << conn.ccuAddr() 
-	     << " not found!"; }
-      } else { 
-	ss << "[SiStripFecCabling::" << __func__ << "]"
-	   << " FEC ring " << conn.fecRing() 
-	   << " not found!"; }
-    } else { 
-      ss << "[SiStripFecCabling::" << __func__ << "]"
-	 << " FEC slot " << conn.fecSlot() 
-	 << " not found!"; }
-  } else { 
-    ss << "[SiStripFecCabling::" << __func__ << "]"
-       << " FEC crate " << conn.fecCrate() 
-       << " not found!"; 
-  }
-
-  if ( !ss.str().empty() ) { edm::LogWarning(mlCabling_) << ss.str(); }
+	  } else { edm::LogWarning(mlCabling_)
+	    << "[SiStripFecCabling::" << __func__ << "]"
+	    << " CCU channel " << conn.ccuChan() 
+	    << " not found!"; }
+	} else { edm::LogWarning(mlCabling_)
+	  << "[SiStripFecCabling::" << __func__ << "]"
+	  << " CCU address " << conn.ccuAddr() 
+	  << " not found!"; }
+      } else { edm::LogWarning(mlCabling_)
+	<< "[SiStripFecCabling::" << __func__ << "]"
+	<< " FEC ring " << conn.fecRing() 
+	<< " not found!"; }
+    } else { edm::LogWarning(mlCabling_)
+      << "[SiStripFecCabling::" << __func__ << "]"
+      << " FEC slot " << conn.fecSlot() 
+      << " not found!"; }
+  } else { edm::LogWarning(mlCabling_)
+    << "[SiStripFecCabling::" << __func__ << "]"
+    << " FEC crate " << conn.fecCrate() 
+    << " not found!"; }
   static FedChannelConnection temp;
   static const SiStripModule module(temp);
   return module;
@@ -171,8 +164,7 @@ NumberOfDevices SiStripFecCabling::countDevices() const {
   
   NumberOfDevices num_of_devices; // simple container class used for counting
 
-  std::vector<uint16_t> fed_ids; 
-  std::vector<uint16_t>::iterator ifed;
+  std::vector<uint16_t> fed_ids; std::vector<uint16_t>::iterator ifed;
   for ( std::vector<SiStripFecCrate>::const_iterator icrate = this->crates().begin(); icrate != this->crates().end(); icrate++ ) {
     for ( std::vector<SiStripFec>::const_iterator ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++ ) {
       for ( std::vector<SiStripRing>::const_iterator iring = ifec->rings().begin(); iring != ifec->rings().end(); iring++ ) {
@@ -201,12 +193,9 @@ NumberOfDevices SiStripFecCabling::countDevices() const {
 	    for ( uint16_t ipair = 0; ipair < imod->nApvPairs(); ipair++ ) {
 	      uint16_t fed_id = imod->fedCh(ipair).first;
 	      if ( fed_id ) { 
+		ifed = find ( fed_ids.begin(), fed_ids.end(), fed_id );
+		if ( ifed != fed_ids.end() ) { num_of_devices.nFedIds_++; }
 		num_of_devices.nFedChans_++;
-		ifed = find( fed_ids.begin(), fed_ids.end(), fed_id );
-		if ( ifed == fed_ids.end() ) { 
-		  num_of_devices.nFedIds_++; 
-		  fed_ids.push_back(fed_id); 
-		}
 	      }
 	    }
 

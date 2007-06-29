@@ -1,8 +1,8 @@
 /**
  *  Class: GlobalCosmicMuonTrajectoryBuilder
  *
- *  $Date: 2007/02/23 21:57:26 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/03/21 18:23:29 $
+ *  $Revision: 1.6 $
  *  \author Chang Liu  -  Purdue University <Chang.Liu@cern.ch>
  *
  **/
@@ -78,6 +78,8 @@ void GlobalCosmicMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
       tkTrajsAvailable = false;
     }
 
+  theTrackTransformer->setServices(theService->eventSetup());
+
 }
 
 //
@@ -99,16 +101,23 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
 
   if ( !match(*muTrack,*tkTrack).first ) return result;
   std::vector<Trajectory> muTrajs;
-  if (muCand.first == 0) muTrajs = theTrackTransformer->transform(*muTrack);
-  else if ( !muCand.first->isValid() ) muTrajs = theTrackTransformer->transform(*muTrack);
+  if (muCand.first == 0) { 
+     muTrajs = theTrackTransformer->transform(*muTrack);
+  }
+  else if ( !muCand.first->isValid() ) {
+     muTrajs = theTrackTransformer->transform(*muTrack);
+  }
   else muTrajs.push_back(*muCand.first);
+
   LogTrace(metname) <<"There're "<<muTrajs.size()<<" muon Trajectory";
   if ( muTrajs.empty() ) return result;
   ConstRecHitContainer muRecHits = muTrajs.front().recHits();
   LogTrace(metname)<<"mu RecHits: "<<muRecHits.size();
 
   std::vector<Trajectory> tkTrajs;
-  if (!tkTrajsAvailable) tkTrajs = theTrackTransformer->transform(*tkTrack);
+  if (!tkTrajsAvailable) {
+     tkTrajs = theTrackTransformer->transform(*tkTrack);
+  } 
   else tkTrajs = *allTrackerTrajs;
   LogTrace(metname) <<"Converted "<<tkTrajs.size()<<" tracker Trajectory";
 

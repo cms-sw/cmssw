@@ -1,7 +1,0 @@
-# -*- toolbox -*-
-< doc type=BuildSystem::ToolDoc version=1.0>
-< Tool name=hydjet1_1 version=1.0>
-< lib name=hydjet>
-< lib name=jetset73hydjet>
-< use name=f77compiler>
-< /Tool>

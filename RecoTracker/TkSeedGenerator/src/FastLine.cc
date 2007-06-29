@@ -32,13 +32,16 @@ FastLine::FastLine(const GlobalPoint& outerHit,
 void FastLine::createLineParameters() {
 
   double rphi0 = 0., rphi1 = 0.;
+
   if(theRho > 0.) {
-    rphi0 = theRho*acos(1. - theInnerHit.perp2()/(2.*theRho*theRho));
-    rphi1 = theRho*acos(1. - theOuterHit.perp2()/(2.*theRho*theRho));
+    if (fabs( 1. - theInnerHit.perp2()/(2.*theRho*theRho) ) > 1.) rphi0 = theInnerHit.perp();
+    else rphi0 = theRho*acos(1. - theInnerHit.perp2()/(2.*theRho*theRho));
+    if (fabs(1. - theOuterHit.perp2()/(2.*theRho*theRho) ) >1.) rphi1 = theInnerHit.perp();
+    else rphi1 = theRho*acos(1. - theOuterHit.perp2()/(2.*theRho*theRho));
   } else {
     rphi0 = theInnerHit.perp();
     rphi1 = theOuterHit.perp();
-  }
+  } 
 
   double n1 = theInnerHit.z() - theOuterHit.z();
   double n2 = -(rphi0 - rphi1);

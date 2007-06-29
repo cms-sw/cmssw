@@ -176,11 +176,13 @@ namespace cms{
 	  theInitialState->innerState( *it);
       
 	// temporary protection againt invalid initial states
-	if (! initState.first.isValid() || initState.second == 0) {
-          //cout << "invalid innerState, will not make TrackCandidate" << endl;
-          continue;
-        }
-
+	//CC
+	//if (! initState.first.isValid() || initState.second == 0) {
+        //  //cout << "invalid innerState, will not make TrackCandidate" << endl;
+        //  continue;
+        //}
+        if (initState.first.isValid() && initState.second != 0) {
+	
 	PTrajectoryStateOnDet* state = TrajectoryStateTransform().persistentState( initState.first,
 										   initState.second->geographicalId().rawId());
 	//	FitTester fitTester(es);
@@ -189,7 +191,10 @@ namespace cms{
 	output->push_back(TrackCandidate(recHits,it->seed(),*state));
 	seedLocations3.push_back(seedLocations2[seednr]);
         delete state;
+	
+	} 
 	seednr++;
+	
        }
       
       

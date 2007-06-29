@@ -1,5 +1,5 @@
 /**----------------------------------------------------------------------
-  $Id: Principal.cc,v 1.7 2007/05/26 18:58:50 wmtan Exp $
+  $Id: Principal.cc,v 1.8 2007/05/29 19:27:01 wmtan Exp $
   ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -30,7 +30,7 @@ using ROOT::Reflex::Type;
 
 namespace edm {
 
-  Principal::Principal(ProductRegistry const& reg,
+  Principal::Principal(boost::shared_ptr<ProductRegistry const> reg,
 		       ProcessConfiguration const& pc,
 		       ProcessHistoryID const& hist,
 		       boost::shared_ptr<DelayedReader> rtrv) :
@@ -40,7 +40,7 @@ namespace edm {
     processConfiguration_(pc),
     processHistoryModified_(false),
     groups_(),
-    preg_(&reg),
+    preg_(reg),
     store_(rtrv),
     size_(0)
   {
@@ -50,7 +50,7 @@ namespace edm {
       bool found = history.getMapped(processHistoryID_, *processHistoryPtr_);
       assert(found);
     }
-    groups_.resize(reg.maxID());
+    groups_.resize(reg->maxID());
   }
 
   Principal::~Principal() {

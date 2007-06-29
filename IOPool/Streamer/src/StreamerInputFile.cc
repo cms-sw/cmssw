@@ -102,7 +102,8 @@ StreamerInputFile::openStreamerFile(const std::string& name) {
     }
     catch (seal::Error& se ) {
       throw cms::Exception("StreamerInputFile","StreamerInputFile")
-        << "Error Opening Streamer Input File: " << name << "\n";
+        << "Error Opening Streamer Input File: " << name << "\n"
+        << se.explain() << "\n";
     }
   }
   else {
@@ -124,7 +125,8 @@ seal::IOSize StreamerInputFile::readBytes(char *buf, seal::IOSize nBytes)
   }
   catch (seal::Error& ce) {
     throw cms::Exception("StreamerInputFile","StreamerInputFile")
-      << "Failed reading streamer file in function readBytes\n";
+      << "Failed reading streamer file in function readBytes\n"
+      << ce.explain() << "\n";
   }
   return n;
 }
@@ -177,7 +179,8 @@ bool StreamerInputFile::next()
         }
         catch (seal::Error& ce) {
           throw cms::Exception("StreamerInputFile","StreamerInputFile")
-            << "Failed reading streamer file in function next\n";
+            << "Failed reading streamer file in function next\n"
+            << ce.explain() << "\n";
         }
 
         ++indexIter_b;

@@ -38,6 +38,7 @@ FamosProducer::FamosProducer(edm::ParameterSet const & p)
     produces<edm::PCaloHitContainer>("EcalHitsEE");
     produces<edm::PCaloHitContainer>("EcalHitsES");
     produces<edm::PCaloHitContainer>("HcalHits");
+    produces<edm::SimTrackContainer>("MuonSimTracks");
     famosManager_ = new FamosManager(p);
 
 }
@@ -136,6 +137,7 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    TrajectoryManager * tracker = famosManager_->trackerManager();
 
    std::auto_ptr<edm::SimTrackContainer> p1(new edm::SimTrackContainer);
+   std::auto_ptr<edm::SimTrackContainer> m1(new edm::SimTrackContainer);
    std::auto_ptr<edm::SimVertexContainer> p2(new edm::SimVertexContainer);
    std::auto_ptr<edm::PSimHitContainer> p3(new edm::PSimHitContainer);
    std::auto_ptr<edm::PCaloHitContainer> p4(new edm::PCaloHitContainer);
@@ -143,7 +145,7 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    std::auto_ptr<edm::PCaloHitContainer> p6(new edm::PCaloHitContainer); 
    std::auto_ptr<edm::PCaloHitContainer> p7(new edm::PCaloHitContainer);
 
-   fevt->load(*p1);
+   fevt->load(*p1,*m1);
    fevt->load(*p2);
    //   fevt->print();
    tracker->loadSimHits(*p3);
@@ -156,6 +158,7 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    }
 
    iEvent.put(p1);
+   iEvent.put(m1,"MuonSimTracks");
    iEvent.put(p2);
    iEvent.put(p3,"TrackerHits");
    iEvent.put(p4,"EcalHitsEB");

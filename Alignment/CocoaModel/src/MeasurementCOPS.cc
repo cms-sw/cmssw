@@ -61,9 +61,9 @@ void MeasurementCOPS::calculateSimulatedValue( ALIbool firstTime )
     } 
   }
 #endif
-  std::cout << (vocite == OptOList().end()) << " vocite " << (*vocite)->name() << std::endl;
-  while( vocite != OptOList().end() ) {
-    if( ALIUtils::debug >= -2) std::cout << std::endl << "@@@@ LR:OBJECT " << (*vocite)->name() << std::endl;  
+
+  while( (*vocite) !=  *(OptOList().end()) ) {
+    if( ALIUtils::debug >= 2) std::cout << std::endl << "@@@@ LR:OBJECT " << (*vocite)->name() << std::endl;  
     isec ++;
 
     //---------- Get the behaviour of the object w.r.t the measurement (if it reflects the light, let it traverse it, ...)

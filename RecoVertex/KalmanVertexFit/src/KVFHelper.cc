@@ -16,20 +16,19 @@ double KVFHelper::vertexChi2(const VertexState & vertexA,
   GlobalPoint fnPosition = vertexB.position();
 //   cout << inPosition<< fnPosition<<endl;
 
-  AlgebraicVector3 oldVertexPositionV;
-  oldVertexPositionV(0) = inPosition.x();
-  oldVertexPositionV(1) = inPosition.y();
-  oldVertexPositionV(2) = inPosition.z();
+  AlgebraicVector oldVertexPositionV(3);
+  oldVertexPositionV[0] = inPosition.x();
+  oldVertexPositionV[1] = inPosition.y();
+  oldVertexPositionV[2] = inPosition.z();
 
-  AlgebraicVector3 newVertexPositionV;
-  newVertexPositionV(0) = fnPosition.x();
-  newVertexPositionV(1) = fnPosition.y();
-  newVertexPositionV(2) = fnPosition.z();
+  AlgebraicVector newVertexPositionV(3);
+  newVertexPositionV[0] = fnPosition.x();
+  newVertexPositionV[1] = fnPosition.y();
+  newVertexPositionV[2] = fnPosition.z();
 
+  AlgebraicVector positionResidual = newVertexPositionV - oldVertexPositionV;
 
-  AlgebraicVector3 positionResidual = newVertexPositionV - oldVertexPositionV;
-
-  return ROOT::Math::Similarity(positionResidual, vertexA.weight().matrix_new());
+  return vertexA.weight().matrix().similarity(positionResidual);
 }
 
 
@@ -43,11 +42,11 @@ float KVFHelper::trackParameterChi2(
 	const RefCountedLinearizedTrackState linTrack,
 	const RefCountedRefittedTrackState refittedTrackState) const
 {
-  AlgebraicVector5 parameterResiduals = linTrack->predictedStateParameters() -
+  AlgebraicVector parameterResiduals = linTrack->predictedStateParameters() -
   	linTrack->refittedParamFromEquation(refittedTrackState);
-  AlgebraicSymMatrix55 trackParametersWeight = linTrack->predictedStateWeight();
+  AlgebraicSymMatrix trackParametersWeight = linTrack->predictedStateWeight();
 
-  float lChi2 = ROOT::Math::Similarity(parameterResiduals, trackParametersWeight);
+  float lChi2 =trackParametersWeight.similarity(parameterResiduals);
   return (lChi2);
 }
 

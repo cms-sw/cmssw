@@ -81,10 +81,8 @@ L1RCT::L1RCT(std::string lutFile,
   rctTestOutputFile_(rctTestOutputFile)  
 {
   transcoder_ = transcoder;
-  patternTest_ = false;
   lut = new L1RCTLookupTables(lutFile, transcoder);
   makeCrates();
-  patternTest_ = false;
 }
 
 void L1RCT::setGctEmScale(const L1CaloEtScale* scale){
@@ -139,22 +137,6 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
   vector<vector<vector<unsigned short> > > barrel(18,vector<vector<unsigned short> >(7,vector<unsigned short>(64)));
   vector<vector<unsigned short> > hf(18,vector<unsigned short>(8));
 
-  // fills input vectors with 0's in case ecal or hcal collection not used
-  for (int i = 0; i < 18; i++)
-    {
-      for (int j = 0; j < 7; j++)
-	{
-	  for (int k = 0; k < 64; k++)
-	    {
-	      barrel.at(i).at(j).at(k) = 0;
-	    }
-	}
-      for (int j = 0; j < 8; j++)
-	{
-	  hf.at(i).at(j) = 0;
-	}
-    }
-
   int nEcalDigi = ecalCollection.size();
   if (nEcalDigi>4032) {nEcalDigi=4032;}
   for (int i = 0; i < nEcalDigi; i++){
@@ -184,7 +166,7 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
 //same for hcal, once we get the hcal digis, just need to add 32 to towers:
 // just copied and pasted and changed names where necessary
   int nHcalDigi = hcalCollection.size();
-  //if (nHcalDigi != 4176){ std::cout << "L1RCT: Warning: There are " << nHcalDigi << "hcal digis instead of 4176!" << std::endl;}
+  if (nHcalDigi != 4176){ std::cout << "There are " << nHcalDigi << " instead of 4176!" << std::endl;}
   // incl HF 4032 + 144 = 4176
   for (int i = 0; i < nHcalDigi; i++){
     short ieta = (short) hcalCollection[i].id().ieta(); 
@@ -226,7 +208,6 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
       else { std::cout << "L1RCT: hf out of range!"; }
     }
   }
-  
   input(barrel,hf);
 
   saveRCTInput(barrel);
@@ -515,12 +496,9 @@ L1CaloEmCollection L1RCT::getIsolatedEGObjects(int crate){
     //rank = energy;
     //if (rank > 0x3f) rank = 0x3f;
     //  }
-
-    //L1CaloEmCand isoCand(rank, rgn, crd, crate, 1);
-    L1CaloEmCand isoCand(rank, rgn, crd, crate, 1, i, 0);  // includes emcand index
-
+    L1CaloEmCand isoCand(rank, rgn, crd, crate, 1);
+    // L1CaloEmCand isoCand(energy, rgn, crd, crate, 1);  // uses 7-bit energy as rank here, temporarily
     // std::cout << "card " << crd << "region " << rgn << "energy " << energy << std::endl;
-
     isoEmCands.push_back(isoCand);
   }
   return isoEmCands;
@@ -546,9 +524,8 @@ L1CaloEmCollection L1RCT::getNonisolatedEGObjects(int crate){
     //	rank = energy;
     //	if (rank > 0x3f) rank = 0x3f;
     //      }
-
-    //L1CaloEmCand nonIsoCand(rank, rgn, crd, crate, 0);
-    L1CaloEmCand nonIsoCand(rank, rgn, crd, crate, 0, i, 0);  // includes emcand index
+    L1CaloEmCand nonIsoCand(rank, rgn, crd, crate, 0);
+    //L1CaloEmCand nonIsoCand(energy, rgn, crd, crate, 0);  // uses 7-bit energy as rank here, temporarily
     nonIsoEmCands.push_back(nonIsoCand);
   }
   return nonIsoEmCands;

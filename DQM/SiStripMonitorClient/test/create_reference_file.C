@@ -6,7 +6,7 @@
 #include <TH1.h>
 
 
-void create_reference(const char* fname1, const char* fname2)
+void create_reference_file(const char* fname1, const char* fname2)
 {
   TFile* file1 = new TFile(fname1);
   if (!file1) return;

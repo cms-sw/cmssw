@@ -18,8 +18,7 @@ SummaryHistogramFactory<T>::SummaryHistogramFactory() :
   gran_(sistrip::UNKNOWN_GRAN),
   generator_(0) 
 {
-  LogTrace(mlSummaryPlots_) 
-    << "[SummaryHistogramFactory::" << __func__ << "]";
+  LogTrace(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]";
 } 
 
 // -----------------------------------------------------------------------------

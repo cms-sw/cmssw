@@ -27,7 +27,7 @@ void CosmicMuonGenerator::initialize(){
     if (Debug) std::cout << "  starting point radius at surface = " << SurfaceRadius << " mm" << std::endl;
     
     //set energy and angle limits for CMSCGEN, give same seed as above 
-    Cosmics->initialize(MinE, MaxE, MinTheta, MaxTheta, RanSeed, TIFOnly_constant, TIFOnly_linear);
+    Cosmics->initialize(MinP, MaxP, MinTheta, MaxTheta, RanSeed, TIFOnly_constant, TIFOnly_linear);
    
 #if ROOT_INTERACTIVE
   // book histos
@@ -53,7 +53,7 @@ void CosmicMuonGenerator::nextEvent(){
 	bool   badMomentumGenerated = true;
 	while (badMomentumGenerated){
 	  Cosmics->generate(); //dice one event now
-	  E = TMath::Abs( Cosmics->energy_times_charge() ); 
+	  E = sqrt(Cosmics->momentum_times_charge()*Cosmics->momentum_times_charge() + MuonMass*MuonMass);
 	  Theta = TMath::ACos( Cosmics->cos_theta() ) ; //angle has to be in RAD here
 	  Ngen+=1.;   //count number of initial cosmic events (in surface area), vertices will be added later
 	    badMomentumGenerated = false;
@@ -79,7 +79,7 @@ void CosmicMuonGenerator::nextEvent(){
     
     // complete event at surface
     int                             id =  13; // mu-
-    if (Cosmics->energy_times_charge() >0.) id = -13; // mu+
+    if (Cosmics->momentum_times_charge() >0.) id = -13; // mu+
     double absMom = sqrt(E*E - MuonMass*MuonMass);
     double verMom = absMom*cos(Theta);
     double horMom = absMom*sin(Theta);
@@ -93,8 +93,8 @@ void CosmicMuonGenerator::nextEvent(){
     OneMuoEvt.create(id, Px, Py, Pz, E, MuonMass, Vx, Vy, Vz, T0); 
     // if angles are ok, propagate to target
     if (goodOrientation()) OneMuoEvt.propagate(ElossScaleFactor, RadiusOfTarget, ZDistOfTarget, TrackerOnly, MTCCHalf);
-    // if cosmic hits target test also if E>Emin_CMS; the default is MinE_surface=MinE_CMS, thus no bias from access shaft
-    if (OneMuoEvt.hitTarget() && OneMuoEvt.e() > MinE_CMS){
+    // if cosmic hits target test also if P>Pmin_CMS; the default is MinP_surface=MinP_CMS, thus no bias from access shaft
+    if (OneMuoEvt.hitTarget() && sqrt(OneMuoEvt.e()*OneMuoEvt.e() - MuonMass*MuonMass) > MinP_CMS){
       Nsel+=1.; //count number of generated and accepted events  
       notSelected = false;
       }
@@ -136,11 +136,11 @@ void CosmicMuonGenerator::terminate(){
     int n100cos =  Norm->events_n100cos(0., 0.); //get final amount of cosmics in defined range for normalisation of flux
     std::cout << "       events with ~100 GeV and 1 - cos(theta) < 1/2pi: " << n100cos << std::endl;
     std::cout << std::endl;
-    std::cout << "       energy range:  " << MinE             << " ... " << MaxE << " GeV" << std::endl;
-    std::cout << "       theta  range:  " << MinTheta*Rad2Deg << " ... " << MaxTheta*Rad2Deg << " deg" << std::endl; 
-    std::cout << "       phi    range:  " << MinPhi*Rad2Deg   << " ... " << MaxPhi*Rad2Deg << " deg" << std::endl;
-    std::cout << "       time   range:  " << MinT0            << " ... " << MaxT0 << " ns" << std::endl;
-    std::cout << "       energy  loss:  " << ElossScaleFactor*100. << "%" << std::endl;
+    std::cout << "       momentum range: " << MinP             << " ... " << MaxP << " GeV" << std::endl;
+    std::cout << "       theta  range:   " << MinTheta*Rad2Deg << " ... " << MaxTheta*Rad2Deg << " deg" << std::endl; 
+    std::cout << "       phi    range:   " << MinPhi*Rad2Deg   << " ... " << MaxPhi*Rad2Deg << " deg" << std::endl;
+    std::cout << "       time   range:   " << MinT0            << " ... " << MaxT0 << " ns" << std::endl;
+    std::cout << "       energy  loss:   " << ElossScaleFactor*100. << "%" << std::endl;
     std::cout << std::endl;
     double area = 1.e-6*Pi*SurfaceRadius*SurfaceRadius; // area on surface [m^2] 
     std::cout << "       area of initial cosmics on surface:   " << area << " m^2" << std::endl;
@@ -148,21 +148,21 @@ void CosmicMuonGenerator::terminate(){
        
     if(n100cos>0){
       // rate: corrected for area and selection-Eff. and normalized to known flux, integration over solid angle (dOmega) is implicit
-      // flux is normalised with respect to known flux of vertical 100GeV muons in area at suface level (see CosMuoNorm.cc for docu)
+      // flux is normalised with respect to known flux of vertical 100GeV muons in area at suface level 
       // rate seen by detector is lower than rate at surface area, so has to be corrected for selection-Eff.
       // normalisation factor has unit [1/s/m^2] 
       // rate = N/time --> normalization factor gives 1/runtime/area 
       // normalization with respect to number of actually diced events (Ndiced)
       EventRate= (Ndiced * Norm->norm(n100cos)) * area * selEff;
       rateErr_stat = EventRate/sqrt( (double) n100cos);  // stat. rate error 
-      rateErr_syst = EventRate/2.59e-3 * 0.18e-3;  // syst. rate error, from error of known flux 
+      rateErr_syst = EventRate/2.63e-3 * 0.06e-3;  // syst. rate error, from error of known flux 
 
       // normalisation in region 1.-cos(theta) < 1./(2.*Pi), if MaxTheta even lower correct for this
       if(MaxTheta<0.572){
 	double spacean = 2.*Pi*(1.-cos(MaxTheta));
 	EventRate= (Ndiced * Norm->norm(n100cos)) * area * selEff * spacean;
 	rateErr_stat = EventRate/sqrt( (double) n100cos);  // rate error 
-	rateErr_syst = EventRate/2.59e-3 * 0.18e-3;  // syst. rate error, from error of known flux 
+	rateErr_syst = EventRate/2.63e-3 * 0.06e-3;  // syst. rate error, from error of known flux 
       }
 
     }else{
@@ -185,11 +185,11 @@ void CosmicMuonGenerator::terminate(){
 }
 
 void CosmicMuonGenerator::checkIn(){
-  if (MinE < 0.){ NumberOfEvents = 0;
+  if (MinP < 0.){ NumberOfEvents = 0;
     std::cout << "  CMG-ERR: min.energy is out of range (0 GeV ... inf]" << std::endl << std::endl; }
-  if (MaxE < 0.){ NumberOfEvents = 0;
+  if (MaxP < 0.){ NumberOfEvents = 0;
     std::cout << "  CMG-ERR: max.energy is out of range (0 GeV ... inf]" << std::endl << std::endl; }
-  if (MaxE <= MinE){ NumberOfEvents = 0;
+  if (MaxP <= MinP){ NumberOfEvents = 0;
     std::cout << "  CMG-ERR: max.energy is not greater than min.energy" << std::endl << std::endl; }
   if (MinTheta < 0.){ NumberOfEvents = 0;
     std::cout << "  CMG-ERR: min.theta is out of range [0 deg ... 90 deg)" << std::endl << std::endl; }
@@ -318,11 +318,11 @@ void CosmicMuonGenerator::setNumberOfEvents(unsigned int N){ if (NotInitialized)
 
 void CosmicMuonGenerator::setRanSeed(int N){ if (NotInitialized) RanSeed = N; }
 
-void CosmicMuonGenerator::setMinE(double E){ if (NotInitialized) MinE = E; }
+void CosmicMuonGenerator::setMinP(double P){ if (NotInitialized) MinP = P; }
 
-void CosmicMuonGenerator::setMinE_CMS(double E){ if (NotInitialized) MinE_CMS = E; }
+void CosmicMuonGenerator::setMinP_CMS(double P){ if (NotInitialized) MinP_CMS = P; }
 
-void CosmicMuonGenerator::setMaxE(double E){ if (NotInitialized) MaxE = E; }
+void CosmicMuonGenerator::setMaxP(double P){ if (NotInitialized) MaxP = P; }
 
 void CosmicMuonGenerator::setMinTheta(double Theta){ if (NotInitialized) MinTheta = Theta*Deg2Rad; }
 

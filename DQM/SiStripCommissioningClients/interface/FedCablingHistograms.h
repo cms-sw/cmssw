@@ -16,8 +16,7 @@ class FedCablingHistograms : public CommissioningHistograms {
   FedCablingHistograms( DaqMonitorBEInterface* );
   virtual ~FedCablingHistograms();
   
-  typedef SummaryPlotFactory<FedCablingAnalysis*> Factory;
-  typedef std::map<uint32_t,FedCablingAnalysis*> Analyses;
+  typedef SummaryHistogramFactory<FedCablingAnalysis> Factory;
 
   /** */
   void histoAnalysis( bool debug );
@@ -30,7 +29,7 @@ class FedCablingHistograms : public CommissioningHistograms {
 
  protected: 
   
-  Analyses data_;
+  std::map<uint32_t,FedCablingAnalysis> data_;
   
   std::auto_ptr<Factory> factory_;
 

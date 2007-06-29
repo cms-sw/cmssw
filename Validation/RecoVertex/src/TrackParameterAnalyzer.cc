@@ -23,11 +23,6 @@ TrackParameterAnalyzer::TrackParameterAnalyzer(const edm::ParameterSet& iConfig)
   recoTrackProducer_   = iConfig.getUntrackedParameter<std::string>("recoTrackProducer");
   // open output file to store histograms}
   outputFile_   = iConfig.getUntrackedParameter<std::string>("outputFile");
-  TString tversion(edm::getReleaseVersion());
-  tversion = tversion.Remove(0,1);
-  tversion = tversion.Remove(tversion.Length()-1,tversion.Length());
-  outputFile_  = std::string(tversion)+"_"+outputFile_;
-
   rootFile_ = TFile::Open(outputFile_.c_str(),"RECREATE"); 
   verbose_= iConfig.getUntrackedParameter<bool>("verbose", false);
   simUnit_=1.0;  //  starting from  CMSSW_1_2_x, I think

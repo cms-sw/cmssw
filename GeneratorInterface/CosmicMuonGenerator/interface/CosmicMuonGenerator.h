@@ -27,11 +27,11 @@ public:
     // set default control parameters
     NumberOfEvents = 100;
     RanSeed = 135799468;
-    MinE =     2.;
-    MinE_CMS =     MinE;
-    MaxE =   10000.;
+    MinP =     3.;
+    MinP_CMS =     MinP;
+    MaxP =   3000.;
     MinTheta =  0.*Deg2Rad;
-    MaxTheta = 88.*Deg2Rad;
+    MaxTheta = 84.26*Deg2Rad;
     MinPhi =    0.*Deg2Rad;
     MaxPhi =  360.*Deg2Rad;
     MinT0  = -12.5;
@@ -83,9 +83,9 @@ private:
   // default control parameters
   unsigned int NumberOfEvents; // number of events to be generated
   int    RanSeed; // seed of random number generator
-  double MinE;     // min. E     [GeV]
-  double MinE_CMS; // min. E at CMS surface    [GeV]; default is MinE_CMS=MinE, thus no bias from access-shaft
-  double MaxE;     // max. E     [GeV]
+  double MinP;     // min. E     [GeV]
+  double MinP_CMS; // min. E at CMS surface    [GeV]; default is MinE_CMS=MinE, thus no bias from access-shaft
+  double MaxP;     // max. E     [GeV]
   double MinTheta; // min. theta [rad]
   double MaxTheta; // max. theta [rad]
   double MinPhi;   // min. phi   [rad]
@@ -125,9 +125,9 @@ public:
   // set parameters
   void setNumberOfEvents(unsigned int N);
   void setRanSeed(int N);
-  void setMinE(double E);
-  void setMinE_CMS(double E);
-  void setMaxE(double E);
+  void setMinP(double P);
+  void setMinP_CMS(double P);
+  void setMaxP(double P);
   void setMinTheta(double Theta);
   void setMaxTheta(double Theta);
   void setMinPhi(double Phi);

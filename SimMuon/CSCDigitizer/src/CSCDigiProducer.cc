@@ -58,6 +58,12 @@ CSCDigiProducer::CSCDigiProducer(const edm::ParameterSet& ps)
 }
 
 
+CSCDigiProducer::~CSCDigiProducer()
+{
+  delete theStripConditions;
+}
+
+
 void CSCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
 
   edm::Handle<CrossingFrame> cf;

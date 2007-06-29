@@ -866,7 +866,7 @@ sub removeCommentCXX ()
 	if(defined $x2){$x1.="//${x2}";$x2=undef;}
       }
       if(defined $x1){$i=removeCommentType1CXX ($cache,$i,$line,$x1);}
-      elsif(defined $x2){$i=removeCommentType2CXX ($cache,$i,$line,$x2);}
+      elsif(defined $x2){if($x2!~/\s*INCLUDECHECKER\s*:\s*SKIP/i){$i=removeCommentType2CXX ($cache,$i,$line,$x2);}}
       elsif($cache->{tmp}{comments}[$i] eq ""){$cache->{tmp}{comments}[$i]=0;}
     }
   }

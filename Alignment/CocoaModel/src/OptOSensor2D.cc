@@ -16,7 +16,6 @@
 #include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
 #endif
 #include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
-#include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeBox.h"
 
 #include <iostream>
 #include <iomanip>
@@ -407,7 +406,7 @@ ALIdouble* OptOSensor2D::convertPointToLocalCoordinates( const CLHEP::Hep3Vector
   //----- Y value
   CLHEP::Hep3Vector YAxism(0.,1.,0.);
   YAxism*=rmt;
-  if( ALIUtils::debug >= 5)
+  if( ALIUtils::debug >= 5) 
 ALIUtils::dump3v(YAxism , "YAxism");
   interslc[1] = (point - (this)->centreGlob() ) * YAxism;
   
@@ -442,14 +441,3 @@ void OptOSensor2D::fillIguana()
   IgCocoaFileMgr::getInstance().addSolid( *this, "BOX", spar, col);
 }
 #endif
-
-
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void OptOSensor2D::constructSolidShape()
-{
-  ALIdouble go;
-  GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
-  gomgr->getGlobalOptionValue("VisScale", go );
-
-  theSolidShape = new CocoaSolidShapeBox( "Box", go*4.*cm/m, go*4.*cm/m, go*1.*cm/m ); //COCOA internal units are meters
-}

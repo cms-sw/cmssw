@@ -28,13 +28,17 @@
 #include <xercesc/sax/SAXParseException.hpp>
 #include <xercesc/sax/SAXException.hpp>
 
-// Seal timer
-#include "SealUtil/SealTimer.h"
+// COBRA timing
+//#include "Utilities/Notification/interface/TimerProxy.h"
+//#include "Utilities/Notification/interface/TimingReport.h"
 
+#include "SealUtil/SealTimer.h"
 
 #include <iostream>
 #include <vector>
 #include <string>
+#include <algorithm>
+#include <iterator>
 
 // ---------------------------------------------------------------------------
 //  DDLSAX2Handler: Constructors and Destructor
@@ -60,9 +64,11 @@ void DDLSAX2ExpressionHandler::startElement(const XMLCh* const uri
   ++elementCount_;
   attrCount_ += attrs.getLength();
 
-  pElementName = StrX(qname).localForm();
+  //char * tmpc = XMLString::transcode(qname);
+  pElementName = StrX(qname).stringForm();//std::string(tmpc);
+  //  delete[] tmpc; tmpc=0;
 
-  if (pElementName == "Constant") 
+  if (pElementName == "Constant") // && pInConstantsSection)
     {
       ++elementTypeCounter_[pElementName];
       DCOUT_V('P', std::string("DetectorDescription/Parser/interface/DDLSAX2ExpressionHandler: start ") + pElementName);
@@ -70,10 +76,10 @@ void DDLSAX2ExpressionHandler::startElement(const XMLCh* const uri
       std::string varName, varValue;
       for (unsigned int i = 0; i < numAtts; ++i)
 	{
-	  std::string myattname(StrX(attrs.getLocalName(i)).localForm());
-	  std::string myvalue(StrX(attrs.getValue(i)).localForm());
+	  std::string myattname = StrX(attrs.getLocalName(i)).stringForm();
+	  std::string myvalue = StrX(attrs.getValue(i)).stringForm();
 
-	  std::string myQName(StrX(attrs.getQName(i)).localForm());
+	  std::string myQName = StrX(attrs.getQName(i)).stringForm();
 	  DCOUT_V('P', std::string("DetectorDescription/Parser/interface/DDLSAX2ExpressionHandler: ") + "getLocalName = " + myattname + "  getValue = " +  myvalue + "   getQName = " + myQName);
 
 	  // attributes unit and quantity are not used right now.

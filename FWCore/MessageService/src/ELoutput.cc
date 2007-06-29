@@ -56,6 +56,11 @@
 //			impose limits.  This is to implement the LogSystem
 //			feature:  Those messages are never to be ignored.
 //
+//  3 6/11/07  mf	In emit():  In preamble mode, do not break and indent 
+//			even if exceeding nominal line length.
+//
+//  4 6/11/07  mf	In log():  After the message, add a %MSG on its own line 
+//
 // ----------------------------------------------------------------------
 
 
@@ -507,6 +512,15 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
   }
 #endif
 
+  // And after the message, add a %MSG on its own line
+  // Change log 4  6/11/07 mf
+
+  if  ( !msg.is_verbatim() ) 
+  {
+    emit ("\n%MSG");
+  }
+  
+
   // Done; message has been fully processed; separate, flush, and leave
   //
 
@@ -562,8 +576,11 @@ void ELoutput::emit( const ELstring & s, bool nl )  {
       #ifdef ELoutput_EMIT_TRACE
 	std::cerr << "[][][] in emit: about to << to *os \n";
       #endif
+      #ifdef HEADERS_BROKEN_INTO_LINES_AND_INDENTED
+      // Change log 3: Removed this code 6/11/07 mf
       (*os) << newline << indent;
       charsOnLine = indent.length();
+      #endif
       if (second != ' ')  {
 	(*os) << ' ';
 	charsOnLine++;

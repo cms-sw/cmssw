@@ -3,9 +3,9 @@
 /** \class InOutConversionTrackFinder
  **  
  **
- **  $Id: InOutConversionTrackFinder.h,v 1.4 2006/11/14 11:55:11 nancy Exp $ 
- **  $Date: 2006/11/14 11:55:11 $ 
- **  $Revision: 1.4 $
+ **  $Id: InOutConversionTrackFinder.h,v 1.5 2006/12/19 17:35:31 nancy Exp $ 
+ **  $Date: 2006/12/19 17:35:31 $ 
+ **  $Revision: 1.5 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -16,6 +16,7 @@
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 //#include "DataFormats/TrackCandidate/interface/TrackCandidateSuperClusterAssociation.h"
 //
+#include "RecoTracker/CkfPattern/interface/RedundantSeedCleaner.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackFinder.h"
 
@@ -61,6 +62,8 @@ class InOutConversionTrackFinder : public ConversionTrackFinder {
  TransientInitialStateEstimator* theInitialState_; 
 
  const TrackerGeometry* trackerGeom;
+
+ RedundantSeedCleaner*  theSeedCleaner_;
 
 
 };

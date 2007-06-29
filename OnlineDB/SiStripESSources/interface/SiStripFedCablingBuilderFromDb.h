@@ -1,4 +1,6 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.h,v 1.10 2007/03/19 10:44:49 bainbrid Exp $
+// Latest tag:  $Name: TIF_190307 $
+// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h,v $
 
 #ifndef OnlineDB_SiStripESSources_SiStripFedCablingBuilderFromDb_H
 #define OnlineDB_SiStripESSources_SiStripFedCablingBuilderFromDb_H
@@ -9,7 +11,6 @@
 #include "boost/cstdint.hpp"
 #include <vector>
 #include <string>
-#include <ctime>
 
 class SiStripFedCabling;
 class SiStripFecCabling;
@@ -24,25 +25,11 @@ class SiStripFedCablingBuilderFromDb : public SiStripFedCablingESSource {
   SiStripFedCablingBuilderFromDb( const edm::ParameterSet& );
   virtual ~SiStripFedCablingBuilderFromDb(); 
 
-  // -------------------- Methods to build FED cabling --------------------
+  // -------------------- Methods to build FED/FEC cabling --------------------
   
   /** Builds FED cabling using info from configuration database. */
   virtual SiStripFedCabling* makeFedCabling();
   
-  // -------------------- Convert b/w FED and FEC cabling --------------------
-  
-  /** Utility method that takes a FEC cabling object as input and
-      returns (as an arg) the corresponding FED cabling object. */
-  static void getFedCabling( const SiStripFecCabling&, 
-			     SiStripFedCabling& );
-  
-  /** Utility method that takes a FED cabling object as input and
-      returns (as an arg) the corresponding FEC cabling object. */
-  static void getFecCabling( const SiStripFedCabling&, 
-			     SiStripFecCabling& );
-  
-  // -------------------- Methods to build FEC cabling --------------------
-
   /** Generic method which builds FEC cabling. Call ones of the three
       methods below depending on the cabling "source" parameter
       (connections, devices, detids). */
@@ -78,6 +65,18 @@ class SiStripFedCablingBuilderFromDb : public SiStripFedCablingESSource {
   static void buildFecCablingFromDetIds( SiStripConfigDb* const,
 					 SiStripFecCabling&,
 					 SiStripConfigDb::DcuDetIdMap& );
+
+  // -------------------- Utility methods --------------------
+  
+  /** Utility method that takes a FEC cabling object as input and
+      returns (as an arg) the corresponding FED cabling object. */
+  static void getFedCabling( const SiStripFecCabling&, 
+			     SiStripFedCabling& );
+  
+  /** Utility method that takes a FED cabling object as input and
+      returns (as an arg) the corresponding FEC cabling object. */
+  static void getFecCabling( const SiStripFedCabling&, 
+			     SiStripFecCabling& );
   
  protected:
 
@@ -95,11 +94,7 @@ class SiStripFedCablingBuilderFromDb : public SiStripFedCablingESSource {
   
   /** Defines "source" (conns, devices, detids) of cabling info. */
   sistrip::CablingSource source_;
-
- public:
-
-  static time_t timer_;
-
+  
 };
 
 #endif // OnlineDB_SiStripESSources_SiStripFedCablingBuilderFromDb_H

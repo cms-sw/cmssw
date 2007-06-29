@@ -1,27 +1,30 @@
+#include "TFile.h"
+#include "TTree.h"
+
 #include "IORawData/SiStripInputSources/interface/TBRUInputSource.h"
+#include "TBRU.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "IORawData/SiStripInputSources/src/TBRU.h"
+//#include "FWCore/PluginManager/interface/PluginCapabilities.h"
+
 #include "interface/evb/include/i2oEVBMsgs.h"
 #include "interface/shared/include/i2oXFunctionCodes.h"
 #include "interface/shared/include/frl_header.h"
 #include "interface/shared/include/fed_header.h"
 #include "interface/shared/include/fed_trailer.h"
 #include "Fed9UUtils.hh"
-#include "ICExDecl.hh"
-#include "TFile.h"
-#include "TTree.h"
 #include <iostream>
 #include <sstream>
+using namespace  Fed9U;
 
-using namespace Fed9U;
-using namespace ICUtils;
+#include "ICExDecl.hh"
+using namespace  ICUtils;
+ClassImp(TBRU)
+
 using namespace edm;
 using namespace std;
 using namespace sistrip;
-
-ClassImp(TBRU)
 
 TBRUInputSource::TBRUInputSource(const edm::ParameterSet & pset, edm::InputSourceDescription const& desc) : 
   edm::ExternalInputSource(pset,desc),

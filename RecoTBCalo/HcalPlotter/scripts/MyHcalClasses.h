@@ -14,20 +14,6 @@
     int               iphi;
     int               depth;
   }
-    MyHcalDetId;
-
-
-  typedef struct {
-   
-    int               fiber;
-    int               fiberChan;
-    int               crate;
-  
-    int Slot;
-    char tb;
-  } 
-    MyElectronicsId;
-
-
+  MyHcalDetId;
 
 #endif // MYHCALCLASSES_INCLUDED

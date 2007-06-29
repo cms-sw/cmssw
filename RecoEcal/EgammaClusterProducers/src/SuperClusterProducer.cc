@@ -101,11 +101,12 @@ void SuperClusterProducer::produceSuperclustersForECALPart(edm::Event& evt,
 							   std::string superclusterCollection)
 {
   // get the cluster collection out and turn it to a BasicClusterRefVector:
-  reco::BasicClusterRefVector *clusterRefVector = getClusterRefVector(evt, clusterProducer, clusterCollection);
+  reco::BasicClusterRefVector *clusterRefVector_p = new reco::BasicClusterRefVector;
+  getClusterRefVector(evt, clusterProducer, clusterCollection, clusterRefVector_p);
 
   // run the brem recovery and get the SC collection
   std::auto_ptr<reco::SuperClusterCollection> 
-    superclusters_ap(new reco::SuperClusterCollection(bremAlgo_p->makeSuperClusters(*clusterRefVector)));
+    superclusters_ap(new reco::SuperClusterCollection(bremAlgo_p->makeSuperClusters(*clusterRefVector_p)));
 
   // count the total energy and the number of superclusters
   reco::SuperClusterCollection::iterator it;
@@ -117,11 +118,12 @@ void SuperClusterProducer::produceSuperclustersForECALPart(edm::Event& evt,
 
   // put the SC collection in the event
   evt.put(superclusters_ap, superclusterCollection);
+
+  delete clusterRefVector_p;
 }
 
 
-reco::BasicClusterRefVector *
-SuperClusterProducer::getClusterRefVector(edm::Event& evt, std::string clusterProducer_, std::string clusterCollection_)
+void SuperClusterProducer::getClusterRefVector(edm::Event& evt, std::string clusterProducer_, std::string clusterCollection_, reco::BasicClusterRefVector *clusterRefVector_p)
 {  
   edm::Handle<reco::BasicClusterCollection> bccHandle;
   try
@@ -130,23 +132,20 @@ SuperClusterProducer::getClusterRefVector(edm::Event& evt, std::string clusterPr
       if (!(bccHandle.isValid()))
 	{
 	  edm::LogError("SuperClusterProducerError") << "could not get a handle on the BasicCluster Collection!";
-	  return 0;
+	  clusterRefVector_p = 0;
 	}
     } 
   catch ( cms::Exception& ex )
     {
       edm::LogError("SuperClusterProducerError") << "Error! can't get the product " << clusterCollection_.c_str(); 
-      return 0;
+      clusterRefVector_p = 0;
     }
 
   const reco::BasicClusterCollection *clusterCollection_p = bccHandle.product();
-  reco::BasicClusterRefVector *clusterRefVector_p = new reco::BasicClusterRefVector;
   for (unsigned int i = 0; i < clusterCollection_p->size(); i++)
     {
       clusterRefVector_p->push_back(reco::BasicClusterRef(bccHandle, i));
     }
-
-  return clusterRefVector_p;
 }                               
 
 

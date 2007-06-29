@@ -79,11 +79,6 @@ public:
   /// Resets the generator seed according to the argument.
   void setSeed( long seed );
 
-  /// Return a vector of random numbers (gaussian distribution)
-  const std::vector<float> gaussianRandomVector( float sigmaX, float sigmaY, float sigmaZ ) const;
-  /// Return a vector of random numbers (flat distribution)
-  const std::vector<float> flatRandomVector( float sigmaX, float sigmaY, float sigmaZ ) const;
-
 private:
 
   /// Unique random number generator
@@ -91,6 +86,11 @@ private:
 
   /// Initialisation of all parameters
   void init_(); 
+
+  /// Return a vector of random numbers (gaussian distribution)
+  const std::vector<float> gaussianRandomVector_( float sigmaX, float sigmaY, float sigmaZ ) const;
+  /// Return a vector of random numbers (flat distribution)
+  const std::vector<float> flatRandomVector_( float sigmaX, float sigmaY, float sigmaZ ) const;
 
   int m_modified; // Indicates if a modification was performed
 

@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1Region.h,v 1.5 2007/04/25 15:43:40 chinhan Exp $
+// $Id: FastL1Region.h,v 1.1 2007/04/02 13:49:19 beaudett Exp $
 //
 
 // user include files
@@ -38,17 +38,13 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
-
+#include "Geometry/CaloEventSetup/plugins/CaloTowerConstituentsMapBuilder.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 
-#include "Geometry/CaloTopology/interface/CaloTowerConstituentsMap.h"
-
 #include "FastSimulation/L1CaloTriggerProducer/interface/FastL1RegionMap.h"
-//#include "FastSimulation/L1CaloTriggerProducer/interface/FastL1BitInfo.h"
-//#include "FastSimulation/L1CaloTriggerProducer/interface/FastL1BitInfoFwrd.h"
 
 struct FastL1Config {
   double JetSeedEtThreshold;
@@ -68,10 +64,6 @@ struct FastL1Config {
   double MuonNoiseLevel; 
   double CrystalEBThreshold;
   double CrystalEEThreshold;
-
-  double TowerEMLSB;
-  double TowerHadLSB;
-  double JetLSB;
 
   double TowerEBThreshold;
   double TowerEEThreshold;
@@ -100,7 +92,6 @@ class FastL1Region {
 
   void SetParameters(FastL1Config);
   void FillTower(const CaloTower& t, int& tid); 
-  void FillTowerZero(const CaloTower& t, int& tid); 
   void FillTower_Scaled(const CaloTower& t, int& tid); 
   void FillEMCrystals(const edm::Event&, const edm::EventSetup&,FastL1RegionMap* m_RMap);
   void Dump();
@@ -153,10 +144,6 @@ class FastL1Region {
 
   std::pair<int, int> GetTowerNorthEtaPhi(int ieta, int iphi); 
 
-  //FastL1BitInfo getBitInfo() { return BitInfo; }
-
-  // public - has to bechanged!!!
-  //FastL1BitInfo BitInfo;
 
  private:
   void SetTauBit(edm::Event const& e);
@@ -200,9 +187,5 @@ class FastL1Region {
 
   FastL1Config Config;
 };
-
-
-double 
-TPEnergyRound(double et, double Resol, double thres);
 
 #endif

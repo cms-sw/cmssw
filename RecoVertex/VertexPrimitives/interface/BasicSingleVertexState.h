@@ -21,7 +21,7 @@ public:
   		const double & weightInMix = 1.0);
   BasicSingleVertexState(const GlobalPoint & pos, const GlobalWeight & posWeight,
   		const double & weightInMix = 1.0);
-  BasicSingleVertexState(const AlgebraicVector3 & weightTimesPosition,
+  BasicSingleVertexState(const AlgebraicVector & weightTimesPosition,
 		const GlobalWeight & posWeight,
   		const double & weightInMix = 1.0);
 
@@ -35,7 +35,7 @@ public:
   GlobalPoint position() const;
   GlobalError error() const;
   GlobalWeight weight() const;
-  AlgebraicVector3 weightTimesPosition() const;
+  AlgebraicVector weightTimesPosition() const;
   double weightInMixture() const;
 
   /** conversion to VertexSeed
@@ -55,7 +55,7 @@ private:
   mutable bool theErrAvailable;
   mutable GlobalWeight theWeight;
   mutable bool theWeightAvailable;
-  mutable AlgebraicVector3 theWeightTimesPos;
+  mutable AlgebraicVector theWeightTimesPos;
   mutable bool theWeightTimesPosAvailable;
 
   bool isValid;
