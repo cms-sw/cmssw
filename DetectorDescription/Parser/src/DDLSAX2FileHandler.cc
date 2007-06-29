@@ -169,14 +169,7 @@ void DDLSAX2FileHandler::dumpElementTypeCounter()
 
 void DDLSAX2FileHandler::createDDConstants() const
 {
-  try {
-    DDConstant::createConstantsFromEvaluator();
-  }
-  catch(DDException & e) {
-    std::string msg ("caught in DDLSAX2FileHandler::createDDConstants():\n");
-    msg = msg + e.what();
-    throw DDException(msg);
-  }
+  DDConstant::createConstantsFromEvaluator();
 }
 
 std::string& DDLSAX2FileHandler::parent() 

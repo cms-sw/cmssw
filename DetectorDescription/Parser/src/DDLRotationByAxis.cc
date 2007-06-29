@@ -84,14 +84,8 @@ void DDLRotationByAxis::processElement (const std::string& name
 	  clear();
 	  loadAttributes(name, names, values, nmspace);
 	}
-      try {	
-	DDRotation rot = DDrot(getDDName(nmspace), ddr);
-      } catch (DDException & e) {
-	std::string msg(e.what());
-	msg += "\nDDLRotationByAxis failed to create a DDrot.";
-	throwError(msg);
-      }
-
+      DDRotation rot = DDrot(getDDName(nmspace), ddr);
+      
       clear();
     }
   else { } //let the parent handle the clearing, etc.

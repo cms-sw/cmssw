@@ -3,7 +3,7 @@
                              -------------------
     begin                : Tue Aug 6 2002
     email                : case@ucdhep.ucdavis.edu
- ***************************************************************************/
+***************************************************************************/
 
 /***************************************************************************
  *                                                                         *
@@ -58,52 +58,52 @@ void DDLRotationAndReflection::processElement (const std::string& name, const st
 
   DDXMLAttribute atts = getAttributeSet();
 
-//   try {
-   if ((name == "Rotation") && isLeftHanded(x, y, z, nmspace) == 0)
-     {
-       DDRotationMatrix* ddr = new DDRotationMatrix(x, y, z);
-       DDRotation ddrot = DDrot(getDDName(nmspace), ddr);
-       DCOUT_V ('p', "Rotation created: " << ddrot << std::endl);
-     }
-   else if ((name == "Rotation")  && isLeftHanded(x, y, z, nmspace) == 1)
-     {
-       std::string msg("\nDDLRotationAndReflection attempted to make a");
-       msg += " left-handed rotation with a Rotation element. If";
-       msg += " you meant to make a reflection, use ReflectionRotation";
-       msg += " elements, otherwise, please check your matrix.  Other";
-       msg += " errors may follow.  Rotation  matrix not created.";
-       edm::LogError("DetectorDescription_Parser_Rotation_and_Reflection") << msg << std::endl; // this could become a throwWarning or something.
-     }
-   else if (name == "ReflectionRotation" && isLeftHanded(x, y, z, nmspace) == 1) 
-     {
-       ExprEvalInterface & ev = ExprEvalSingleton::instance();
-       DDRotation ddrot = 
-	 DDrotReflect(getDDName(nmspace)
-		      , ev.eval(nmspace, atts.find("thetaX")->second)
-		      , ev.eval(nmspace, atts.find("phiX")->second)
-		      , ev.eval(nmspace, atts.find("thetaY")->second)
-		      , ev.eval(nmspace, atts.find("phiY")->second)
-		      , ev.eval(nmspace, atts.find("thetaZ")->second)
-		      , ev.eval(nmspace, atts.find("phiZ")->second));
-       DCOUT_V ('p', "Rotation created: " << ddrot << std::endl);
-     }
-   else if (name == "ReflectionRotation" && isLeftHanded(x, y, z, nmspace) == 0)
-     {
-       std::string msg("WARNING:  Attempted to make a right-handed");
-       msg += " rotation using a ReflectionRotation element. ";
-       msg += " If you meant to make a Rotation, use Rotation";
-       msg += " elements, otherwise, please check your matrix.";
-       msg += "  Other errors may follow.  ReflectionRotation";
-       msg += " matrix not created.";
-       edm::LogError("DetectorDescription_Parser_Rotation_and_Reflection") << msg << std::endl; // this could be a throwWarning or something.
-     }
-   else
-     {
-       std::string msg = "\nDDLRotationAndReflection::processElement tried to process wrong element.";
-       throwError(msg);
-     }
+
+  if ((name == "Rotation") && isLeftHanded(x, y, z, nmspace) == 0)
+    {
+      DDRotationMatrix* ddr = new DDRotationMatrix(x, y, z);
+      DDRotation ddrot = DDrot(getDDName(nmspace), ddr);
+      DCOUT_V ('p', "Rotation created: " << ddrot << std::endl);
+    }
+  else if ((name == "Rotation")  && isLeftHanded(x, y, z, nmspace) == 1)
+    {
+      std::string msg("\nDDLRotationAndReflection attempted to make a");
+      msg += " left-handed rotation with a Rotation element. If";
+      msg += " you meant to make a reflection, use ReflectionRotation";
+      msg += " elements, otherwise, please check your matrix.  Other";
+      msg += " errors may follow.  Rotation  matrix not created.";
+      edm::LogError("DetectorDescription_Parser_Rotation_and_Reflection") << msg << std::endl; // this could become a throwWarning or something.
+    }
+  else if (name == "ReflectionRotation" && isLeftHanded(x, y, z, nmspace) == 1) 
+    {
+      ExprEvalInterface & ev = ExprEvalSingleton::instance();
+      DDRotation ddrot = 
+	DDrotReflect(getDDName(nmspace)
+		     , ev.eval(nmspace, atts.find("thetaX")->second)
+		     , ev.eval(nmspace, atts.find("phiX")->second)
+		     , ev.eval(nmspace, atts.find("thetaY")->second)
+		     , ev.eval(nmspace, atts.find("phiY")->second)
+		     , ev.eval(nmspace, atts.find("thetaZ")->second)
+		     , ev.eval(nmspace, atts.find("phiZ")->second));
+      DCOUT_V ('p', "Rotation created: " << ddrot << std::endl);
+    }
+  else if (name == "ReflectionRotation" && isLeftHanded(x, y, z, nmspace) == 0)
+    {
+      std::string msg("WARNING:  Attempted to make a right-handed");
+      msg += " rotation using a ReflectionRotation element. ";
+      msg += " If you meant to make a Rotation, use Rotation";
+      msg += " elements, otherwise, please check your matrix.";
+      msg += "  Other errors may follow.  ReflectionRotation";
+      msg += " matrix not created.";
+      edm::LogError("DetectorDescription_Parser_Rotation_and_Reflection") << msg << std::endl; // this could be a throwWarning or something.
+    }
+  else
+    {
+      std::string msg = "\nDDLRotationAndReflection::processElement tried to process wrong element.";
+      throwError(msg);
+    }
   // after a rotation or reflection rotation has been processed, clear it
-    clear();
+  clear();
 
   DCOUT_V('P', "DDLRotationAndReflection::processElement completed");
 }
@@ -178,24 +178,24 @@ int DDLRotationAndReflection::isLeftHanded (DD3Vector x, DD3Vector y, DD3Vector 
   
   if (1.0-std::abs(check)>tol) {
     std::cout << "DDLRotationAndReflection Coordinate axes forming rotation matrix "
-	 << getDDName(nmspace) 
-	 << " are not orthonormal.(tolerance=" << tol 
-	 << " check=" << std::abs(check)  << ")" 
-	 << std::endl
-	 << " thetaX=" << (atts.find("thetaX")->second) 
-	 << ' ' << ev.eval(nmspace, atts.find("thetaX")->second)/deg << std::endl
-	 << " phiX=" << (atts.find("phiX")->second) 
-	 << ' ' << ev.eval(nmspace, atts.find("phiX")->second)/deg << std::endl
-	 << " thetaY=" << (atts.find("thetaY")->second) 
-	 << ' ' << ev.eval(nmspace, atts.find("thetaY")->second)/deg << std::endl
-	 << " phiY=" << (atts.find("phiY")->second)
-	 << ' ' << ev.eval(nmspace, atts.find("phiY")->second)/deg << std::endl
-	 << " thetaZ=" << (atts.find("thetaZ")->second)
-	 << ' ' << ev.eval(nmspace, atts.find("thetaZ")->second)/deg << std::endl
-	 << " phiZ=" << (atts.find("phiZ")->second)
-	 << ' ' << ev.eval(nmspace, atts.find("phiZ")->second)/deg 
-	 << std::endl
-	 << "  WAS NOT CREATED!" << std::endl;
+	      << getDDName(nmspace) 
+	      << " are not orthonormal.(tolerance=" << tol 
+	      << " check=" << std::abs(check)  << ")" 
+	      << std::endl
+	      << " thetaX=" << (atts.find("thetaX")->second) 
+	      << ' ' << ev.eval(nmspace, atts.find("thetaX")->second)/deg << std::endl
+	      << " phiX=" << (atts.find("phiX")->second) 
+	      << ' ' << ev.eval(nmspace, atts.find("phiX")->second)/deg << std::endl
+	      << " thetaY=" << (atts.find("thetaY")->second) 
+	      << ' ' << ev.eval(nmspace, atts.find("thetaY")->second)/deg << std::endl
+	      << " phiY=" << (atts.find("phiY")->second)
+	      << ' ' << ev.eval(nmspace, atts.find("phiY")->second)/deg << std::endl
+	      << " thetaZ=" << (atts.find("thetaZ")->second)
+	      << ' ' << ev.eval(nmspace, atts.find("thetaZ")->second)/deg << std::endl
+	      << " phiZ=" << (atts.find("phiZ")->second)
+	      << ' ' << ev.eval(nmspace, atts.find("phiZ")->second)/deg 
+	      << std::endl
+	      << "  WAS NOT CREATED!" << std::endl;
     ret = -1;
   }
   else if (1.0+check<=tol) {
