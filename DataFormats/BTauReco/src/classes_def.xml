@@ -139,11 +139,9 @@
 
   <class name="reco::JetCrystalsAssociation"/>
   <class name="reco::JetCrystalsAssociationCollection"/>
-  <!-- these are TOO LONG and trash something causing a bad SEGFAULT during CMSSW initialization
   <class name="reco::JetCrystalsAssociationRef"/>
   <class name="reco::JetCrystalsAssociationRefProd"/>
   <class name="reco::JetCrystalsAssociationRefVector"/>
-  -->
   <class name="edm::Wrapper<reco::JetCrystalsAssociationCollection>"/>
 
   <class name="reco::JetEisolAssociation"/>

@@ -33,13 +33,16 @@ class TauRegionalPixelSeedGenerator : public TrackingRegionProducer {
     
     explicit TauRegionalPixelSeedGenerator(const edm::ParameterSet& conf_){
       edm::LogInfo ("TauRegionalPixelSeedGenerator")<<"Enter the TauRegionalPixelSeedGenerator";
-      ptmin=conf_.getParameter<double>("ptMin");
-      originradius=conf_.getParameter<double>("originRadius");
-      halflength=conf_.getParameter<double>("originHalfLength");
-      vertexSrc=conf_.getParameter<string>("vertexSrc");
-      deltaEta = conf_.getParameter<double>("deltaEtaRegion");
-      deltaPhi = conf_.getParameter<double>("deltaPhiRegion");
-      jetSrc = conf_.getParameter<edm::InputTag>("JetSrc");
+
+      edm::ParameterSet regionPSet = conf_.getParameter<edm::ParameterSet>("RegionPSet");
+
+      ptmin=regionPSet.getParameter<double>("ptMin");
+      originradius=regionPSet.getParameter<double>("originRadius");
+      halflength=regionPSet.getParameter<double>("originHalfLength");
+      vertexSrc=regionPSet.getParameter<string>("vertexSrc");
+      deltaEta = regionPSet.getParameter<double>("deltaEtaRegion");
+      deltaPhi = regionPSet.getParameter<double>("deltaPhiRegion");
+      jetSrc = regionPSet.getParameter<edm::InputTag>("JetSrc");
     }
   
     virtual ~TauRegionalPixelSeedGenerator() {}

@@ -22,14 +22,10 @@ namespace reco {
   typedef math::PtEtaPhiELorentzVectorRefProd    EMLorentzVectorRefProd;
   typedef math::PtEtaPhiELorentzVectorRefVector  EMLorentzVectorRefVector;
 
-  /* this triggers a bug in ROOM/CMSSW dictionaries:
-   * registering for autoload a class whose name is longer than 1035 characters causes a buffer overflow
-
   typedef
-    std::pair<edm::RefToBase<Jet>, EMLorentzVectorRefVector> JetCrystalsAssociationCollection;
+    std::pair<edm::RefToBase<Jet>, EMLorentzVectorRefVector> JetCrystalsAssociation;
 
-  */
-
+  /*
   struct JetCrystalsAssociation :
     public std::pair<edm::RefToBase<Jet>, EMLorentzVectorRefVector>
   {
@@ -47,7 +43,7 @@ namespace reco {
     JetCrystalsAssociation(const JetCrystalsAssociation & _pair) :
       base_class(_pair) { }
   };
-
+  */
   typedef
   std::vector<JetCrystalsAssociation> JetCrystalsAssociationCollection;
 
