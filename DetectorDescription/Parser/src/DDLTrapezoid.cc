@@ -64,11 +64,10 @@ void DDLTrapezoid::processElement (const std::string& name, const std::string& n
   else if (atts.find("dy1") != atts.end())
     dy2 = ev.eval(nmspace, atts.find("dy1")->second);
 
-  try {
-    if (name == "Trapezoid")
-      {
-        DDSolid myTrap = 
-	  DDSolidFactory::trap(getDDName(nmspace)
+  if (name == "Trapezoid")
+    {
+      DDSolid myTrap = 
+	DDSolidFactory::trap(getDDName(nmspace)
 			     , ev.eval(nmspace, atts.find("dz")->second)
 			     , theta
 			     , phi
@@ -81,12 +80,12 @@ void DDLTrapezoid::processElement (const std::string& name, const std::string& n
 			     , ev.eval(nmspace, atts.find("tl2")->second)
 			     , ev.eval(nmspace, atts.find("alp2")->second)
 			     );
-
-      }
-    else if (name == "Trd1") 
-      {
-        DDSolid myTrd1 = 
-	  DDSolidFactory::trap(getDDName(nmspace)
+      
+    }
+  else if (name == "Trd1") 
+    {
+      DDSolid myTrd1 = 
+	DDSolidFactory::trap(getDDName(nmspace)
 			     , ev.eval(nmspace, atts.find("dz")->second)
 			     , 0
 			     , 0
@@ -99,19 +98,14 @@ void DDLTrapezoid::processElement (const std::string& name, const std::string& n
 			     , ev.eval(nmspace, atts.find("dx2")->second)
 			     , 0
 			     );
-      }
-    else
-      {
-        std::string msg = "\nDDLTrapezoid::processElement failed to process element of name: " 
-	  + name
-	  + ".  It can only process Trapezoid and Trd1.";
-        throwError(msg);
-      }
-  } catch (DDException& e) {
-    std::string msg = e.what();
-    msg += std::string("\nDDLParser, Call failed to DDSolidFactory.");
-    throwError(msg);
-  }
+    }
+  else
+    {
+      std::string msg = "\nDDLTrapezoid::processElement failed to process element of name: " 
+	+ name
+	+ ".  It can only process Trapezoid and Trd1.";
+      throwError(msg);
+    }
 
   DDLSolid::setReference(nmspace);
 

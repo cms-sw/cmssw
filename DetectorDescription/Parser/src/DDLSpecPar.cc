@@ -224,16 +224,10 @@ void DDLSpecPar::processElement (const std::string& type, const std::string& nms
 
   DCOUT_V('p', "DDLSpecPar::processElement\n\tname " << getDDName(nmspace) << "\n\tpartsels.size() = " << myPartSelector->size() << "\n\tsvt " << svt);
 
-  try {
-    DDSpecifics ds(getDDName(nmspace), 
-		   partsels,
-		   svt,
-		   doRegex);
-  } catch (DDException & e) {
-    std::string msg(e.what());
-    msg += "\nDDLSpecPar failed to created a DDSpecifics.";
-    throwError(msg);
-  }
+  DDSpecifics ds(getDDName(nmspace), 
+		 partsels,
+		 svt,
+		 doRegex);
 
   myParameter->clear();
   myPartSelector->clear();

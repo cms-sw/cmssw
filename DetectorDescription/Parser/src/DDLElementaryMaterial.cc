@@ -47,16 +47,12 @@ void DDLElementaryMaterial::processElement (const std::string& type, const std::
 
   ExprEvalInterface & ev = ExprEvalSingleton::instance();
   DDXMLAttribute atts = getAttributeSet();
-  try {
-    DDMaterial mat = DDMaterial(getDDName(nmspace)
-      , ev.eval(nmspace, atts.find("atomicNumber")->second)
-      , ev.eval(nmspace, atts.find("atomicWeight")->second)
-      , ev.eval(nmspace, atts.find("density")->second));
-  } catch (DDException & e) {
-    std::string msg = e.what();
-    msg += "\nDDLElementaryMaterial failed to make DDMaterial.";
-    throwError(msg);
-  }
+
+  DDMaterial mat = DDMaterial(getDDName(nmspace)
+			      , ev.eval(nmspace, atts.find("atomicNumber")->second)
+			      , ev.eval(nmspace, atts.find("atomicWeight")->second)
+			      , ev.eval(nmspace, atts.find("density")->second));
+
   DDLMaterial::setReference(nmspace);
   clear();
 

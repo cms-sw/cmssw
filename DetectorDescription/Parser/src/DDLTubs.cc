@@ -52,48 +52,42 @@ void DDLTubs::processElement (const std::string& name, const std::string& nmspac
   ExprEvalInterface & ev = ExprEvalSingleton::instance();
   DDXMLAttribute atts = getAttributeSet();
 
-  try {
-    if (name == "Tubs")
-      {
-        DDSolid myTubs = DDSolidFactory::tubs (getDDName(nmspace)
-		, ev.eval(nmspace, atts.find("dz")->second)
-		, ev.eval(nmspace, atts.find("rMin")->second)
-		, ev.eval(nmspace, atts.find("rMax")->second)
-		, ev.eval(nmspace, atts.find("startPhi")->second)
-		, ev.eval(nmspace, atts.find("deltaPhi")->second)
-		);
-      }
-    else if (name == "Tube")
-      {
-        DDSolid myTubs = DDSolidFactory::tubs (getDDName(nmspace)
-	       , ev.eval(nmspace, atts.find("dz")->second)
-	       , ev.eval(nmspace, atts.find("rMin")->second)
-	       , ev.eval(nmspace, atts.find("rMax")->second)
-	       , 0
-	       , 360*deg
-	       );
-      }
-    else if (name == "TruncTubs")
-      {      
-        DDSolid myTT = DDSolidFactory::truncTubs (getDDName(nmspace)
-	      , ev.eval(nmspace, atts.find("zHalf")->second)	
-              , ev.eval(nmspace, atts.find("rMin")->second)
-	      , ev.eval(nmspace, atts.find("rMax")->second)
-	      , ev.eval(nmspace, atts.find("startPhi")->second)  //0. // startPhi
-	      , ev.eval(nmspace, atts.find("deltaPhi")->second)
-	      , ev.eval(nmspace, atts.find("cutAtStart")->second)
-	      , ev.eval(nmspace, atts.find("cutAtDelta")->second)
-	      , false); // cutInside
-      }
-    else
-      {
-	std::string msg = "\nDDLTubs::processElement could not process element.";
-	throwError(msg);
-      }
-  } catch (DDException& e)
+
+  if (name == "Tubs")
     {
-      std::string msg(e.what());
-      msg += std::string("\nDDLTubs call failed to DDSolidFactory.");
+      DDSolid myTubs = DDSolidFactory::tubs (getDDName(nmspace)
+					     , ev.eval(nmspace, atts.find("dz")->second)
+					     , ev.eval(nmspace, atts.find("rMin")->second)
+					     , ev.eval(nmspace, atts.find("rMax")->second)
+					     , ev.eval(nmspace, atts.find("startPhi")->second)
+					     , ev.eval(nmspace, atts.find("deltaPhi")->second)
+					     );
+    }
+  else if (name == "Tube")
+    {
+      DDSolid myTubs = DDSolidFactory::tubs (getDDName(nmspace)
+					     , ev.eval(nmspace, atts.find("dz")->second)
+					     , ev.eval(nmspace, atts.find("rMin")->second)
+					     , ev.eval(nmspace, atts.find("rMax")->second)
+					     , 0
+					     , 360*deg
+					     );
+    }
+  else if (name == "TruncTubs")
+    {      
+      DDSolid myTT = DDSolidFactory::truncTubs (getDDName(nmspace)
+						, ev.eval(nmspace, atts.find("zHalf")->second)	
+						, ev.eval(nmspace, atts.find("rMin")->second)
+						, ev.eval(nmspace, atts.find("rMax")->second)
+						, ev.eval(nmspace, atts.find("startPhi")->second)  //0. // startPhi
+						, ev.eval(nmspace, atts.find("deltaPhi")->second)
+						, ev.eval(nmspace, atts.find("cutAtStart")->second)
+						, ev.eval(nmspace, atts.find("cutAtDelta")->second)
+						, false); // cutInside
+    }
+  else
+    {
+      std::string msg = "\nDDLTubs::processElement could not process element.";
       throwError(msg);
     }
   DDLSolid::setReference(nmspace);

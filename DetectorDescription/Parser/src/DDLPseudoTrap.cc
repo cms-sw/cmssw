@@ -48,21 +48,15 @@ void DDLPseudoTrap::processElement (const std::string& type, const std::string& 
   ExprEvalInterface & ev = ExprEvalSingleton::instance();
   DDXMLAttribute atts = getAttributeSet();
 
-  try {
-    DDSolid myTrap = DDSolidFactory::pseudoTrap(getDDName(nmspace)
-		      , ev.eval(nmspace, atts.find("dx1")->second)
-		      , ev.eval(nmspace, atts.find("dx2")->second)
-		      , ev.eval(nmspace, atts.find("dy1")->second)
-		      , ev.eval(nmspace, atts.find("dy2")->second)
-		      , ev.eval(nmspace, atts.find("dz")->second)
-		      , ev.eval(nmspace, atts.find("radius")->second)
-		      , (atts.find("atMinusZ")->second == "true") ? true : false
-		      );
-  } catch (DDException & e) {
-    std::string msg(e.what());
-    msg += "\nDDLPseudoTrap failed call to DDSolidFactory.";
-    throwError(msg);
-  }
+  DDSolid myTrap = DDSolidFactory::pseudoTrap(getDDName(nmspace)
+					      , ev.eval(nmspace, atts.find("dx1")->second)
+					      , ev.eval(nmspace, atts.find("dx2")->second)
+					      , ev.eval(nmspace, atts.find("dy1")->second)
+					      , ev.eval(nmspace, atts.find("dy2")->second)
+					      , ev.eval(nmspace, atts.find("dz")->second)
+					      , ev.eval(nmspace, atts.find("radius")->second)
+					      , (atts.find("atMinusZ")->second == "true") ? true : false
+					      );
 
   DDLSolid::setReference(nmspace);
 

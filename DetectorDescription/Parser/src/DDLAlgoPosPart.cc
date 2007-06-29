@@ -32,8 +32,6 @@
 #include <string>
 #include <iostream>
 
-
-
 // Default constructor
 DDLAlgoPosPart::DDLAlgoPosPart()
 {
@@ -45,8 +43,7 @@ DDLAlgoPosPart::~DDLAlgoPosPart()
 }
 
 // Upon encountering the end tag of the AlgoPosPart we should have in the meantime
-// hit two rLogicalPart calls and one of Rotation or rRotation and a Translation.
-// So, retrieve them and make the call to DDCore.
+// hit rParent, rChild, ParS and ParE.
 void DDLAlgoPosPart::processElement (const std::string& type, const std::string& nmspace)
 {
   DCOUT_V('P', "DDLAlgoPosPart::processElement started");
@@ -56,8 +53,7 @@ void DDLAlgoPosPart::processElement (const std::string& type, const std::string&
   DDXMLElement* myChild   = DDLElementRegistry::getElement("rChild");
   DDXMLElement* myParS    = DDLElementRegistry::getElement("ParS");
   DDXMLElement* myParE    = DDLElementRegistry::getElement("ParE");
-  
-  
+
   ExprEvalInterface & ev = ExprEvalSingleton::instance();
   
   DDXMLAttribute atts = getAttributeSet();
@@ -67,7 +63,6 @@ void DDLAlgoPosPart::processElement (const std::string& type, const std::string&
   int ic = static_cast<int> ((atts.find("incr") == atts.end() ? 0.0 : ev.eval(nmspace, atts.find("incr")->second)));
   int ed = static_cast<int> ((atts.find("end") == atts.end() ? 0.0 : ev.eval(nmspace, atts.find("end")->second)));
   
-
   // get actual DDLogicalPart objects.
   DDLogicalPart parent(DDName(myParent->getDDName(nmspace)));
   DDLogicalPart self(DDName(myChild->getDDName(nmspace)));
@@ -128,42 +123,10 @@ void DDLAlgoPosPart::processElement (const std::string& type, const std::string&
 	  parS[atts.find("name")->second] = tvect;
 	}
     }
-
-  try {
-    algo.setParameters(st,ed,ic,parS,parE);
-  }
-  catch (DDException& e)
-    {
-      std::string msg(e.what());
-      msg += std::string("\n\tDDLParser, algo.setParameters failed ")
-	+ "\n\t\talgo=" +  std::string(getDDName(nmspace, "algo" ))
-	+ "\n\t\tparent=" + std::string(myParent->getDDName(nmspace))
-	+ "\n\t\tself=" + std::string(myChild->getDDName(nmspace));
-      throwError(msg);
-
-    }
-  catch (...) {
-    std::string msg = "Unknown error (...) caught in DDLAlgoPosPart.";
-    throwError(msg);
-  }
-
-  try
-    {  
-      DDalgoPosPart(self, parent, algo);
-    }
-  catch (DDException& e)
-    {
-      std::string msg(e.what());
-      msg += std::string("\n\tDDLParser, DDalgoPosPart failed")
-	+ "\n\t\talgo=" + std::string(getDDName(nmspace, "algo"))
-	+ "\n\t\tparent=" + std::string(myParent->getDDName(nmspace))
-	+ "\n\t\tself=" + std::string(myChild->getDDName(nmspace));
-      throwError(msg);
-    }
-  catch (...) {
-    std::cout << "something really bad happened in DDalgoPosPart call." << std::endl;
-  }
-
+  
+  algo.setParameters(st,ed,ic,parS,parE);
+  DDalgoPosPart(self, parent, algo);
+  
   // clear all "children" and attributes
   myChild->clear();
   myParent->clear();
@@ -171,7 +134,7 @@ void DDLAlgoPosPart::processElement (const std::string& type, const std::string&
   myParE->clear();
   // after an AlgoPosPart, we are sure it can be cleared.
   clear();
-
+  
   DCOUT_V('P', "DDLAlgoPosPart::processElement completed");
 }
 

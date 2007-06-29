@@ -95,22 +95,11 @@ void DDLSAX2FileHandler::startElement(const XMLCh* const uri
       attrValues.push_back(std::string(StrX(attrs.getValue(i)).localForm()));
     }
 
-  if (myElement != NULL)
-    {
-      DDLParser* beingParsed = DDLParser::instance();
-      std::string nmspace = getnmspace(extractFileName( beingParsed->getCurrFileName()));
-      myElement->loadAttributes(myElementName, attrNames, attrValues, nmspace);
-      //  initialize text
-      myElement->loadText(std::string()); 
-    }
-
-  else 
-    {
-      std::string s = "DDLSAX2FileHandler::startElement ERROR No pointer returned from";
-      s += " DDLElementRegistry::getElement( name ).  MAJOR PROBLEM.  ";
-      s += "  This should never be seen!  Element is " + myElementName;
-      throw DDException(s);
-    }
+  DDLParser* beingParsed = DDLParser::instance();
+  std::string nmspace = getnmspace(extractFileName( beingParsed->getCurrFileName()));
+  myElement->loadAttributes(myElementName, attrNames, attrValues, nmspace);
+  //  initialize text
+  myElement->loadText(std::string()); 
   t_.item(std::string("DDLSAX2FileHandler::startElement(...)")).chrono().stop();
   DCOUT_V('P', "DDLSAX2FileHandler::startElement completed");
 }
@@ -126,26 +115,9 @@ void DDLSAX2FileHandler::endElement(const XMLCh* const uri
 
   DDXMLElement* myElement = DDLElementRegistry::getElement(myElementName);
   DDLParser* beingParsed = DDLParser::instance();
-  if (myElement != NULL)
-    {
-      std::string nmspace = getnmspace(extractFileName( beingParsed->getCurrFileName()));
-      DDCurrentNamespace::ns() = nmspace;
-      try {
-	myElement->processElement(myElementName, nmspace);
-      }
-      catch (DDException & e) {
-        std::string s(e.what());
-	s+="\nDDLSAX2FileHandler::endElement call to processElement Failed.";
-	myElement->throwError(s);
-      }
-    }
-  else 
-    {
-      std::string s = "DDLSAX2FileHandler::endElement ERROR No pointer returned from";
-      s += " DDLElement::getElement( name ).  MAJOR PROBLEM.  ";
-      s += "  This should never be seen!  Element is " + myElementName;
-      throw DDException(s);
-    }
+  std::string nmspace = getnmspace(extractFileName( beingParsed->getCurrFileName()));
+  DDCurrentNamespace::ns() = nmspace;
+  myElement->processElement(myElementName, nmspace);
   DCOUT_V('P', "DDLSAX2FileHandler::endElement completed");
   names_.pop_back();
 }

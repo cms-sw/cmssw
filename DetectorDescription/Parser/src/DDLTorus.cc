@@ -49,21 +49,14 @@ void DDLTorus::processElement (const std::string& name, const std::string& nmspa
   ExprEvalInterface & ev = ExprEvalSingleton::instance();
   DDXMLAttribute atts = getAttributeSet();
 
-  try {
-        DDSolid myTorus = 
-	  DDSolidFactory::torus(getDDName(nmspace)
-				, ev.eval(nmspace, atts.find("innerRadius")->second)
-				, ev.eval(nmspace, atts.find("outerRadius")->second)
-				, ev.eval(nmspace, atts.find("torusRadius")->second)
-				, ev.eval(nmspace, atts.find("startPhi")->second)
-				, ev.eval(nmspace, atts.find("deltaPhi")->second)
-			     );
-  } catch (DDException& e) {
-    std::string msg = e.what();
-    msg += std::string("\nDDLParser, Call failed to DDSolidFactory.");
-    throwError(msg);
-  }
-
+  DDSolid myTorus = 
+    DDSolidFactory::torus(getDDName(nmspace)
+			  , ev.eval(nmspace, atts.find("innerRadius")->second)
+			  , ev.eval(nmspace, atts.find("outerRadius")->second)
+			  , ev.eval(nmspace, atts.find("torusRadius")->second)
+			  , ev.eval(nmspace, atts.find("startPhi")->second)
+			  , ev.eval(nmspace, atts.find("deltaPhi")->second)
+			  );
   DDLSolid::setReference(nmspace);
 
   DCOUT_V('P', "DDLTorus::processElement completed");

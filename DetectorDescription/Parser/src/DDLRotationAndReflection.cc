@@ -34,6 +34,9 @@
 #include <string>
 #include <cmath>
 
+// CMSSW Framework Dependency
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 // Default constructor
 DDLRotationAndReflection::DDLRotationAndReflection() 
 {
@@ -55,7 +58,7 @@ void DDLRotationAndReflection::processElement (const std::string& name, const st
 
   DDXMLAttribute atts = getAttributeSet();
 
-  try {
+//   try {
    if ((name == "Rotation") && isLeftHanded(x, y, z, nmspace) == 0)
      {
        DDRotationMatrix* ddr = new DDRotationMatrix(x, y, z);
@@ -69,7 +72,7 @@ void DDLRotationAndReflection::processElement (const std::string& name, const st
        msg += " you meant to make a reflection, use ReflectionRotation";
        msg += " elements, otherwise, please check your matrix.  Other";
        msg += " errors may follow.  Rotation  matrix not created.";
-       std::cout << msg << std::endl; // this could become a throwWarning or something.
+       edm::LogError("DetectorDescription_Parser_Rotation_and_Reflection") << msg << std::endl; // this could become a throwWarning or something.
      }
    else if (name == "ReflectionRotation" && isLeftHanded(x, y, z, nmspace) == 1) 
      {
@@ -92,18 +95,13 @@ void DDLRotationAndReflection::processElement (const std::string& name, const st
        msg += " elements, otherwise, please check your matrix.";
        msg += "  Other errors may follow.  ReflectionRotation";
        msg += " matrix not created.";
-       std::cout << msg << std::endl; // this could be a throwWarning or something.
+       edm::LogError("DetectorDescription_Parser_Rotation_and_Reflection") << msg << std::endl; // this could be a throwWarning or something.
      }
    else
      {
        std::string msg = "\nDDLRotationAndReflection::processElement tried to process wrong element.";
        throwError(msg);
      }
-  } catch (DDException & e) {
-    std::string msg(e.what());
-    msg += "\nDDLRotationAndReflection failed to created requested DD object.";
-    throwError(msg);
-  }
   // after a rotation or reflection rotation has been processed, clear it
     clear();
 

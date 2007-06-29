@@ -58,7 +58,7 @@ void DDLBooleanSolid::processElement (const std::string& name, const std::string
   DDXMLElement* myrRotation  = DDLElementRegistry::getElement("rRotation"); // get rRotation child
 
   ExprEvalInterface & ev = ExprEvalSingleton::instance();
-  DDXMLAttribute atts;
+  DDXMLAttribute atts = getAttributeSet();
 
   DDName ddn1, ddn2;
   double x=0.0, y=0.0, z=0.0;
@@ -69,36 +69,28 @@ void DDLBooleanSolid::processElement (const std::string& name, const std::string
   if (myrSolid->size() == 0) 
     {
       // do the solids using the attributes only.
-      try {
+      if ( atts.find("firstSolid") != atts.end() && atts.find("secondSolid") != atts.end() ) {
 	ddn1 = getDDName(nmspace, "firstSolid");
 	ddn2 = getDDName(nmspace, "secondSolid");
+      } else {
+	std::string s ("DDLBooleanSolid did not find any solids with which to form a boolean solid.");
+	s += dumpBooleanSolid(name, nmspace);
+	throwError( s );
       }
-      catch ( ... )
-	{
-	  std::string msg("Problem with BooleanSolid. ");
-	  msg+= nmspace + " The element in question reads:\n";
-	  msg+= dumpBooleanSolid(name, nmspace);
-	  throwError(msg);
-	}
     }
-  else 
+  else if (myrSolid->size() == 2)
     {
-      // okay, they do not exist, go ahead and do it using internal elements.
-      try {
-	ddn1 = myrSolid->getDDName(nmspace, "name", 0);
-	ddn2 = myrSolid->getDDName(nmspace, "name", 1);
-      }
-      catch ( DDException& e) {
-	  std::string msg = std::string(e.what());
-	  msg+="\nProblem with BooleanSolid. ";
-	  msg+="  The element in question reads: \n";
-	  msg+= dumpBooleanSolid(name, nmspace);
-	  throwError(msg);
-	}
+      ddn1 = myrSolid->getDDName(nmspace, "name", 0);
+      ddn2 = myrSolid->getDDName(nmspace, "name", 1);
+    } else {
+      std::string s("DDLBooleanSolid did not find any solids with which to form a boolean solid.");
+      s += dumpBooleanSolid(name, nmspace);
+      throwError( s );
     }
 
   if (myTranslation->size() > 0)
     {
+      atts.clear();
       atts = myTranslation->getAttributeSet();
       x = ev.eval(nmspace, atts.find("x")->second);
       y = ev.eval(nmspace, atts.find("y")->second);
@@ -111,41 +103,34 @@ void DDLBooleanSolid::processElement (const std::string& name, const std::string
     }
 
 
-  // FIXME SOMEDAY! This should not have to if ... better overall design needed?
-  // Justification:  why repeat (copy-paste) all of the above for each sub-class
-  // that is, if I subclassed this class.
-  // I could template, maybe, so that the template type < T > would be the 
-  // function to call... hmmm
   DDSolid theSolid;
-  try {
-    if (name == "UnionSolid") {
-      theSolid = DDSolidFactory::unionSolid (getDDName(nmspace)
+
+  if (name == "UnionSolid") {
+    theSolid = DDSolidFactory::unionSolid (getDDName(nmspace)
 					   , DDSolid(ddn1)
 					   , DDSolid(ddn2)
 					   , DDTranslation(x, y, z)
 					   , ddrot
 					   );	       
-    }
-    else if (name == "SubtractionSolid") {
-      theSolid = DDSolidFactory::subtraction (getDDName(nmspace)
+  }
+  else if (name == "SubtractionSolid") {
+    theSolid = DDSolidFactory::subtraction (getDDName(nmspace)
 					    , DDSolid(ddn1)
 					    , DDSolid(ddn2)
 					    , DDTranslation(x, y, z)
 					    , ddrot
 					    );	       
-    }
-    else if (name == "IntersectionSolid") {
-      theSolid = DDSolidFactory::intersection (getDDName(nmspace)
+  }
+  else if (name == "IntersectionSolid") {
+    theSolid = DDSolidFactory::intersection (getDDName(nmspace)
 					     , DDSolid(ddn1)
 					     , DDSolid(ddn2)
 					     , DDTranslation(x, y, z)
 					     , ddrot
 					     );	       
-    }
-  } catch(DDException& e) {
-    std::string msg = e.what();
-    msg += "\nDDLBooleanSolid failed call to DDSolidFactory.\n";
-    throwError(msg);
+  }
+  else {
+    throw DDException("DDLBooleanSolid was asked to do something other than Union-, Subtraction- or IntersectionSolid?");
   }
   
   DDLSolid::setReference(nmspace);

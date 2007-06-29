@@ -162,14 +162,7 @@ void DDLMap::do_makeName(char const* str, char const* end)
 void DDLMap::do_makeDouble(char const* str, char const* end)
 {
   std::string ts(str, end);
-  try {
-    pDouble = ExprEvalSingleton::instance().eval(pNameSpace, ts);
-  }
-  catch ( ... ) {
-    std::string e("In makeDouble of DDLMap");
-    e+= " failed to evaluate " + ts + " using ExprEvalSingleton in MakeDouble";
-    errorOut(e.c_str());
-  }
+  pDouble = ExprEvalSingleton::instance().eval(pNameSpace, ts);
 }
 
 void DDLMap::errorOut(const char* str)

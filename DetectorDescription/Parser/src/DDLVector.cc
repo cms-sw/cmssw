@@ -177,15 +177,8 @@ ReadMapType< std::vector<std::string> > & DDLVector::getMapOfStrVectors()
 void DDLVector::do_makeDouble(char const* str, char const* end)
 {
   std::string ts(str, end);
-  try {
-    double td = ExprEvalSingleton::instance().eval(pNameSpace, ts);
-    pVector.push_back(td);
-  }
-  catch ( ... ) {
-    std::string e("\n\tIn makeDouble of DDLVector failed to evaluate ");
-    e+= ts;
-    errorOut(ts.c_str());
-  }
+  double td = ExprEvalSingleton::instance().eval(pNameSpace, ts);
+  pVector.push_back(td);
 }
 
 void DDLVector::do_makeString(char const* str, char const* end)

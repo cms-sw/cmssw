@@ -256,14 +256,18 @@ DDLogicalPart DDDividedPolyconePhi::makeDDLogicalPart( const int copyNo ) const
   solname = DDName(div_.parent().ddname().name() + "_DIVCHILD" 
 		   , div_.parent().ddname().ns());
   DDSolid sol(solname);
-  if (!sol.isDefined().second)
+  if (!sol.isDefined().second) {
     ddpolycone = DDSolidFactory::polycone(solname
 					  , msol.startPhi()+div_.offset()
 					  , compWidth_
 					  , localzVec
 					  , localrMinVec
 					  , localrMaxVec);
-  DDLogicalPart ddlp = DDLogicalPart(solname, usemat, ddpolycone);
+  }
+  DDLogicalPart ddlp(solname);
+  if (!ddlp.isDefined().second) {
+    ddlp = DDLogicalPart(solname, usemat, ddpolycone);
+  }
   DCOUT_V ('P', " DDDividedPolyconePhi::makeDDLogicalPart() lp:" << ddlp);
   return ddlp;
 }

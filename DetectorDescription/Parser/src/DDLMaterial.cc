@@ -40,7 +40,6 @@ DDLMaterial::~DDLMaterial()
 {
 }
 
-// Upon ending a Box element, call DDCore giving the box name, and dimensions.
 void DDLMaterial::setReference (const std::string& nmspace)
 {
   // in case it there were any rMaterials
@@ -59,7 +58,6 @@ void DDLMaterial::setReference (const std::string& nmspace)
     }
   // clear THIS material's values.
   clear();
-
 
   DCOUT_V('P', "DDLMaterial::setReference completed");
 }

@@ -45,20 +45,15 @@ void DDLCone::processElement (const std::string& type, const std::string& nmspac
   DCOUT_V('P', "DDLCone::processElement started");
   ExprEvalInterface & ev = ExprEvalSingleton::instance();
   DDXMLAttribute atts = getAttributeSet();
-  try {
-    DDSolid ddcone = DDSolidFactory::cons(getDDName(nmspace)
-			  , ev.eval(nmspace, atts.find("dz")->second)
-			  , ev.eval(nmspace, atts.find("rMin1")->second)
-			  , ev.eval(nmspace, atts.find("rMax1")->second)
-			  , ev.eval(nmspace, atts.find("rMin2")->second)
-			  , ev.eval(nmspace, atts.find("rMax2")->second)
-			  , ev.eval(nmspace, atts.find("startPhi")->second)
-			  , ev.eval(nmspace, atts.find("deltaPhi")->second));
-  } catch (DDException & e) {
-    std::string msg = e.what();
-    msg += "\nDDLCone call to DDSolidFactory failed.\n";
-    throwError(msg);
-  }
+
+  DDSolid ddcone = DDSolidFactory::cons(getDDName(nmspace)
+					, ev.eval(nmspace, atts.find("dz")->second)
+					, ev.eval(nmspace, atts.find("rMin1")->second)
+					, ev.eval(nmspace, atts.find("rMax1")->second)
+					, ev.eval(nmspace, atts.find("rMin2")->second)
+					, ev.eval(nmspace, atts.find("rMax2")->second)
+					, ev.eval(nmspace, atts.find("startPhi")->second)
+					, ev.eval(nmspace, atts.find("deltaPhi")->second));
 
   DDLSolid::setReference(nmspace);
 

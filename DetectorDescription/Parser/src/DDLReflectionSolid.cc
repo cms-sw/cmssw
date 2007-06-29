@@ -61,14 +61,8 @@ void DDLReflectionSolid::processElement (const std::string& name, const std::str
       std::cout << "The element to look for is " << getDDName(nmspace) << std::endl;
     }
 
-  try {
-    DDSolid solid = DDSolid(myrSolid->getDDName(nmspace));
-    DDSolid ddreflsol = DDSolidFactory::reflection(getDDName(nmspace), solid);
-  } catch (DDException & e) {
-    std::string msg(e.what());
-    msg += "\nDDLReflectionSolid failed call to DDSolidFactory.";
-    throwError(msg);
-  }
+  DDSolid solid = DDSolid(myrSolid->getDDName(nmspace));
+  DDSolid ddreflsol = DDSolidFactory::reflection(getDDName(nmspace), solid);
 
   DDLSolid::setReference(nmspace);
 

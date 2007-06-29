@@ -48,20 +48,13 @@ void DDLBox::processElement (const std::string& type, const std::string& nmspace
   ExprEvalInterface & ev = ExprEvalSingleton::instance();
   DDXMLAttribute atts = getAttributeSet();
   
-  try {
-    DDName ddname = getDDName(nmspace);
-    DDSolid ddbox = DDSolidFactory::box(ddname
-			, ev.eval(nmspace, atts.find("dx")->second)
-			, ev.eval(nmspace, atts.find("dy")->second)
-			, ev.eval(nmspace, atts.find("dz")->second));
-    // Attempt to make sure Solid elements can be in LogicalPart elements.
-    DDLSolid::setReference(nmspace);
-  } catch (DDException& e)
-    {
-      std::string msg(e.what());
-      msg += std::string("\n\tDDLParser, Call failed to DDSolidFactory.");
-      throwError(msg);
-    }
+  DDName ddname = getDDName(nmspace);
+  DDSolid ddbox = DDSolidFactory::box(ddname
+				      , ev.eval(nmspace, atts.find("dx")->second)
+				      , ev.eval(nmspace, atts.find("dy")->second)
+				      , ev.eval(nmspace, atts.find("dz")->second));
+  // Attempt to make sure Solid elements can be in LogicalPart elements.
+  DDLSolid::setReference(nmspace);
 
   DCOUT_V('P', "DDLBox::processElement completed");
 }

@@ -78,6 +78,7 @@ void DDDividedGeometryObject::checkParametersValidity()
     std::string s = "DDDividedGeometryObject::checkParametersValidity() :";
     s+= "\n ERROR - the LogicalPart of the parent must be ";
     s+= "\n         defined before a division can occur.";
+    s+= "\n         Parent= " + div_.parent().toString();
     throw DDException(s);
   }
 

@@ -304,7 +304,9 @@ DDLogicalPart DDDividedPolyhedraPhi::makeDDLogicalPart( const int copyNo ) const
 				       , msol.rMaxVec()
 				       );
     }
-  DDLogicalPart ddlp(solname, usemat, dsol);
+  DDLogicalPart ddlp(solname);
+  if (!ddlp.isDefined().second)
+    DDLogicalPart ddlp2 = DDLogicalPart(solname, usemat, dsol);
   DCOUT_V ('P', "DDDividedPolyhedraPhi::makeDDLogicalPart() ddlp = " << ddlp);
   return ddlp;
 }

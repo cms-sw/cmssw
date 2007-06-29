@@ -26,7 +26,7 @@ DDDividedTubsRho::DDDividedTubsRho( const DDDivision & div)
   :  DDDividedGeometryObject::DDDividedGeometryObject( div )
 {
   checkParametersValidity();
-  setType( "DivisionTubsRhoRho" );
+  setType( "DivisionTubsRho" );
   DDTubs msol = (DDTubs)(div_.parent().solid());
 
   if( divisionType_ == DivWIDTH )

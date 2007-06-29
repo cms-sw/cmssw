@@ -51,16 +51,6 @@ void DDLCompositeMaterial::preProcessElement (const std::string& type, const std
   DDLElementRegistry::getElement("rMaterial")->clear();
 }
 
-// Upon encountering the end of CompositeMaterial elements
-// October 3, 2002:  DO NOT follow the instructions March 7,
-// 2002 because actually, we need to CLEAR all MaterialFractions
-// at the end of this method AND we can clear out this
-// CompositeMaterial only when there is more than one.
-// March 7, 2002: at this point all of this is simply for 
-// DEBUG purposes.  This could be defaulted to DDLElement's
-// processElement (i.e. removed from this class entirely).
-// if it is not deemed necessary to see all the details of 
-// the components after the CompositeMaterial is built.
 void DDLCompositeMaterial::processElement (const std::string& type, const std::string& nmspace)
 {
   DCOUT_V('P', "DDLCompositeMaterial::processElement started");
@@ -72,14 +62,8 @@ void DDLCompositeMaterial::processElement (const std::string& type, const std::s
   DDName ddn = getDDName(nmspace);
   DDMaterial mat;
 
-  try {
-    mat = DDMaterial(ddn, ev.eval(nmspace, atts.find("density")->second));
-  } catch (DDException& e) {
-    std::string msg = e.what();
-    msg += "\nDDLCompositeMaterial failed to create a DDMaterial.\n";
-    throwError(msg);
-  }
-
+  mat = DDMaterial(ddn, ev.eval(nmspace, atts.find("density")->second));
+  
   // Get references to relevant DDL elements that are needed.
   DDXMLElement* myMF = DDLElementRegistry::getElement("MaterialFraction");
   DDXMLElement* myrMaterial = DDLElementRegistry::getElement("rMaterial");
@@ -101,24 +85,16 @@ void DDLCompositeMaterial::processElement (const std::string& type, const std::s
     {
       std::string msg = "/nDDLCompositeMaterial::processElement found that the ";
       msg += "number of MaterialFractions does not match the number ";
-      msg += "of rMaterial names.";
+      msg += "of rMaterial names for ";
+      msg += ddn.ns() + ":" + ddn.name() + ".";
       throwError(msg);
     }
-  try {
-    for (size_t i = 0; i < myrMaterial->size(); ++i)
-      {
-	atts = myMF->getAttributeSet(i);
-	mat.addMaterial(myrMaterial->getDDName(nmspace, "name", i)
-			, ev.eval(nmspace, atts.find("fraction")->second));
-      }
-  } catch (DDException & e) {
-    std::string msg = e.what();
-    msg += "\nDDLCompositeMaterial failed to add one or more MaterialFractions.";
-    throwError(msg);
-  } catch ( ... ) {
-    std::string msg = "\nDDLCompositeMaterial UNKNOWN failure when trying to add one or more MaterialFractions.";
-    throwError(msg);
-  }
+  for (size_t i = 0; i < myrMaterial->size(); ++i)
+    {
+      atts = myMF->getAttributeSet(i);
+      mat.addMaterial(myrMaterial->getDDName(nmspace, "name", i)
+		      , ev.eval(nmspace, atts.find("fraction")->second));
+    }
 
   // clears and sets new reference to THIS material.
   DDLMaterial::setReference(nmspace);

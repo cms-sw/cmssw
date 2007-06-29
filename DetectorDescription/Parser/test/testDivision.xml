@@ -91,10 +91,12 @@
   <Division name="divpolyconephi" parent="testLogicalParts:pczsect3" 
 	  axis="phi" offset="0*deg" width="60*deg"/>
 
-  <!-- trigger some errors -->
-  <!--Division name="divconszfail" parent="testLogicalParts:pczsect" 
+  <!-- trigger some errors un-comment to check them...-->
+<!--
+  <Division name="divconszfail" parent="testLogicalParts:pczsect" 
 	  axis="z" nReplicas="2" width="500*cm"/>
   <Division name="divconszfail" parent="testLogicalParts:pcrz" 
-  	  axis="z" nReplicas="3" width="500*cm"/-->
+  	  axis="z" nReplicas="3" width="500*cm"/>
+-->
   </PosPartSection>
 </DDDefinition>

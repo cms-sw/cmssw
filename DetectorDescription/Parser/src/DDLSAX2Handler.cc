@@ -27,6 +27,9 @@
 #include <vector>
 #include <string>
 
+// CMSSW Framework Dependency
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 // ---------------------------------------------------------------------------
 //  DDLSAX2Handler: Constructors and Destructor
 // ---------------------------------------------------------------------------
@@ -38,12 +41,12 @@ DDLSAX2Handler::DDLSAX2Handler() :
   , spaceCount_(0)
   , sawErrors_(false)
 {
-  //  std::cout << " DDLSAX2Handler constructed " << std::endl;
+
 }
 
 DDLSAX2Handler::~DDLSAX2Handler()
 {
-  //  std::cout << " DDLSAX2Handler destructed " << std::endl;
+
 }
 
 // ---------------------------------------------------------------------------
@@ -106,37 +109,41 @@ void DDLSAX2Handler::dumpStats(const std::string& fname)
 
 // ---------------------------------------------------------------------------
 //  DDLSAX2Handler: Overrides of the SAX ErrorHandler interface
+//  Implements ALL required by the Xerces ErrorHandler interface as of 2007-06-26.
 // ---------------------------------------------------------------------------
 void DDLSAX2Handler::error(const SAXParseException& e)
 {
   sawErrors_ = true;
-  std::cout << "\nError at file " << StrX(e.getSystemId())
-       << ", line " << e.getLineNumber()
-       << ", char " << e.getColumnNumber()
-       << "\n  Message: " << StrX(e.getMessage()) << std::endl;
+  edm::LogError("DetectorDescription_Parser_DDLSAX2Handler") 
+    << "\nError at file " << StrX(e.getSystemId())
+    << ", line " << e.getLineNumber()
+    << ", char " << e.getColumnNumber()
+    << "\n  Message: " << StrX(e.getMessage()) << std::endl;
+  //  throw DDException(std::string("Unrecoverable Error: ") + std::string(StrX(e.getMessage()).localForm()));     
 }
 
 void DDLSAX2Handler::fatalError(const SAXParseException& e)
 {
   sawErrors_ = true;
-  std::cout << "\nFatal Error at file " << StrX(e.getSystemId())
-       << ", line " << e.getLineNumber()
-       << ", char " << e.getColumnNumber()
-       << "\n  Message: " 
+  edm::LogError("DetectorDescription_Parser_DDLSAX2Handler") 
+    << "\nFatal Error at file " << StrX(e.getSystemId())
+    << ", line " << e.getLineNumber()
+    << ", char " << e.getColumnNumber()
+    << "\n  Message: " 
     << StrX(e.getMessage()) << std::endl;
-//   std::cout << "Continue (1=yes,0=no)? ";
-//   int i;
-//   cin >> i;
-//  if (!i)
-    throw DDException(std::string("Unrecoverable Error: ") + std::string(StrX(e.getMessage()).localForm()));     
+  throw DDException(std::string("DetectorDescription_Parser_Unrecoverable_Error_from_Xerces: "))
+    << std::string(StrX(e.getMessage()).localForm())
+    << " file: " << std::string(StrX(e.getSystemId()).localForm())
+    << " line: " << e.getLineNumber() << " col: " << e.getColumnNumber();
 }
 
 void DDLSAX2Handler::warning(const SAXParseException& e)
 {
-  std::cout << "\nWarning at file " << StrX(e.getSystemId())
-       << ", line " << e.getLineNumber()
-       << ", char " << e.getColumnNumber()
-       << "\n  Message: " << StrX(e.getMessage()) << std::endl;
+  edm::LogWarning("DetectorDescription_Parser_DDLSAX2Handler") 
+    << "\nWarning at file " << StrX(e.getSystemId())
+    << ", line " << e.getLineNumber()
+    << ", char " << e.getColumnNumber()
+    << "\n  Message: " << StrX(e.getMessage()) << std::endl;
 }
 
 std::string DDLSAX2Handler::getnmspace(const std::string& fname)

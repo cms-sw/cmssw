@@ -145,25 +145,17 @@ void DDLPosPart::processElement (const std::string& type, const std::string& nms
   DCOUT_V('p', "  parentDDName    : " << myParent->getDDName(nmspace));
   DCOUT_V('p', "  selfDDName      : " << myChild->getDDName(nmspace));
 
-  {
-    // DDPosPart pospart = 
-    const DDXMLAttribute & atts = getAttributeSet();
-    std::string copyno = "";
-    if (atts.find("copyNumber") != atts.end())
-      copyno = atts.find("copyNumber")->second;
+  const DDXMLAttribute & atts = getAttributeSet();
+  std::string copyno = "";
+  if (atts.find("copyNumber") != atts.end())
+    copyno = atts.find("copyNumber")->second;
     
-    try {
-      DDpos(DDLogicalPart(myChild->getDDName(nmspace))
-	    , DDLogicalPart(myParent->getDDName(nmspace))
-	    , copyno
-	    , myDDTranslation
-	    , *myDDRotation);
-    } catch (DDException & e) {
-      std::string msg(e.what());
-      msg += "\nDDLPosPart failed to make a DDPosPart.";
-      throwError(msg);
-    }
-  }
+  DDpos(DDLogicalPart(myChild->getDDName(nmspace))
+	, DDLogicalPart(myParent->getDDName(nmspace))
+	, copyno
+	, myDDTranslation
+	, *myDDRotation);
+
   // clear all "children" and attributes
   myParent->clear();
   myChild->clear();

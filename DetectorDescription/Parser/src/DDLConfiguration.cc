@@ -93,25 +93,7 @@ int DDLConfiguration::readConfig(const std::string& filename)
   // Set these to the flags for the configuration file.
 
   parser_->setContentHandler(&configHandler_);
+  parser_->parse(filename.c_str());
 
-  try {
-    parser_->parse(filename.c_str());
-  }
-  catch (const XMLException& toCatch) {
-    std::cout << "\nXMLException: parsing '" << filename << "'\n"
-	 << "Exception message is: \n"
-	 << std::string(StrX(toCatch.getMessage()).localForm()) << "\n" ;
-    return -1;
-  }
-  catch (...)
-    {
-      std::cout << "\nUnexpected exception during parsing: '" << filename << "'\n";
-      return 4;
-    }
-
-  //   std::vector<std::string> fnames = configHandler_.getFileNames();
-  //   std::cout << "there are " << fnames.size() << " files." << std::endl;
-  //   for (size_t i = 0; i < fnames.size(); ++i)
-  //     std::cout << "url=" << configHandler_.getURLs()[i] << " file=" << configHandler_.getFileNames()[i] << std::endl;
   return 0;
 }

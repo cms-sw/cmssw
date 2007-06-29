@@ -46,13 +46,8 @@ void DDLShapelessSolid::processElement (const std::string& type, const std::stri
 {
   DCOUT_V('P', "DDLShapelessSolid::processElement started");
 
-  try {
-    DDSolid dds = DDSolidFactory::shapeless(getDDName(nmspace));
-  } catch (DDException & e) {
-    std::string msg(e.what());
-    msg += "\nDDLShapelessSolid failed call to DDSolidFactory.";
-    throwError(msg);
-  }
+  DDSolid dds = DDSolidFactory::shapeless(getDDName(nmspace));
+    
   DDLSolid::setReference(nmspace);
 
   DCOUT_V('P', "DDLShapelessSolid::processElement completed");

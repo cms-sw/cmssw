@@ -98,18 +98,7 @@ void DDLLogicalPart::processElement (const std::string& type, const std::string&
   else
     cat = catMap_["unspecified"];
 
-  try {
-    DDLogicalPart lp(getDDName(nmspace), myMaterial, mySolid, cat);
-  } catch (DDException& e) {
-    std::string msg = e.what();
-    msg += "\nDDLLogicalPart failed to create DDLogicalPart.\n";
-    msg += "\n\tname: " + atts.find("name")->second;
-    msg += "\n\tsolid: " + (myrSolid->getDDName(nmspace)).ns() 
-      + ":" + (myrSolid->getDDName(nmspace)).name();
-    msg += "\n\tmaterial: " + (myrMaterial->getDDName(nmspace)).ns() 
-      + ":" + (myrMaterial->getDDName(nmspace)).name() + "\n";
-    throwError(msg);
-  }
+  DDLogicalPart lp(getDDName(nmspace), myMaterial, mySolid, cat);
 
   // clear all "children" and attributes
   myrMaterial->clear();

@@ -40,15 +40,9 @@ void DDLNumeric::processElement (const std::string& name, const std::string& nms
 
   if (parent() == "ConstantsSection" || parent() == "DDDefinition")
     {
-      try {
-	DDNumeric ddnum ( getDDName(nmspace), new double(ExprEvalSingleton::instance().eval(nmspace, getAttributeSet().find("value")->second)) );
-      } catch (DDException & e) {
-	std::string msg(e.what());
-	msg += "\nDDLNumeric failed to create a DDNumeric.";
-	throwError(msg);
-      }  
+      DDNumeric ddnum ( getDDName(nmspace), new double(ExprEvalSingleton::instance().eval(nmspace, getAttributeSet().find("value")->second)) );
       clear();
-    }
+    } // else, save it, don't clear it, because some other element (parent node) will use it.
 
   DCOUT_V('P', "DDLNumeric::processElement completed");
 }

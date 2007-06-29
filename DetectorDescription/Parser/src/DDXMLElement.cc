@@ -329,15 +329,10 @@ bool DDXMLElement::isEmpty () const
   return (attributes_.size() == 0 ? true : false);
 }
 
-void DDXMLElement::throwError(const std::string& keyMessage, DDException * e) const 
+void DDXMLElement::throwError( const std::string& keyMessage ) const 
 {
-  //FIXME someday see if this will fly...  if (e == 0) { 
     std::string msg = keyMessage + "\n";
     msg += " Element " + DDLParser::instance()->getDDLSAX2FileHandler()->self() +"\n";
     msg += " File " + DDLParser::instance()->getCurrFileName() + ".\n";
     throw DDException(msg);
-//    }
-//    DDException* newe = new DDException(keyMessage);
-//    e->add(newe);
-//    throw (*e);
 }

@@ -53,7 +53,6 @@ void DDLAlgorithm::preProcessElement (const std::string& name, const std::string
   DDLElementRegistry::getElement("Vector")->clear();
 }
 
-
 void DDLAlgorithm::processElement (const std::string& name, const std::string& nmspace)
 {
   DCOUT_V('P',"DDLAlgorithm::processElement started");
@@ -86,28 +85,12 @@ void DDLAlgorithm::processElement (const std::string& name, const std::string& n
 
   DDAlgorithmHandler handler;
   atts = getAttributeSet();
-  try {
-    DDLVector* tv= dynamic_cast<DDLVector*> (myVector);
-    DDLMap* tm= dynamic_cast<DDLMap*> (myMap);
-    handler.initialize( algoName, lp, nArgs, tv->getMapOfVectors(), tm->getMapOfMaps(), sArgs, tv->getMapOfStrVectors() );
-    handler.execute();
-  }
-  catch (const DDException & e) {
-    std::string msg = e.what();
-    msg += "\nDDLParser (DDLAlgorithm) caught DDException.";
-    msg += "\nReference: <" + name + " name=\"" + (atts.find("name")->second);
-    msg += "\">";
-    msg += " in namespace " + nmspace + "\n";
-    throwError(msg);  
-  }
-  catch ( ... ) {
-    std::string msg("DetectorDescription/Parser/interface/DDLParser (DDLAlgorithm) failed with unknown error.");
-    msg+= "Reference: <" + name + " name=\"" + atts.find("name")->second;
-    msg+= "\" nEntries=\"" + atts.find("nEntries")->second + "\">";
-    msg+= " in namespace " + nmspace + "\n";
-    throwError(msg);
-  }
+  DDLVector* tv= dynamic_cast<DDLVector*> (myVector);
+  DDLMap* tm= dynamic_cast<DDLMap*> (myMap);
+  handler.initialize( algoName, lp, nArgs, tv->getMapOfVectors(), tm->getMapOfMaps(), sArgs, tv->getMapOfStrVectors() );
+  handler.execute();
 
+  // clear used/referred to elements.
   myString->clear();
   myNumeric->clear();
   myVector->clear();

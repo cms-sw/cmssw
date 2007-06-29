@@ -41,17 +41,12 @@ void DDLString::processElement (const std::string& name, const std::string& nmsp
     {
       // I do not like "newing" things without my control.  But this is
       // the only way I was able to get this to work.
-      try {
-	std::string * ts = new std::string((getAttributeSet().find("value"))->second);
-	DDName ddn = getDDName(nmspace);
-	DDString (ddn 
-		  , ts
-		  );
-      } catch (DDException & e) {
-	std::string msg(e.what());
-        msg += "\nDDLString failed to create a DDString.";
-	throwError(msg);
-      }
+
+      std::string * ts = new std::string((getAttributeSet().find("value"))->second);
+      DDName ddn = getDDName(nmspace);
+      DDString (ddn 
+		, ts
+		);
 
       clear();
     }

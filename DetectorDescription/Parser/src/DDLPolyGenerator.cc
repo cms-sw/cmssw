@@ -67,75 +67,70 @@ void DDLPolyGenerator::processElement (const std::string& name, const std::strin
 
   // if z is empty, then it better not have been a polycone defined
   // by RZPoints, instead, it must be a ZSection defined polycone.
-  try {
-   if (z.size() == 0 )
-     {
-       // get zSection information, note, we already have a z declared above
-       // and we will use r for rmin.  In this case, no use "trying" because
-       // it better be there!
-       std::vector<double> rMax;
+  if (z.size() == 0 )
+    {
+      // get zSection information, note, we already have a z declared above
+      // and we will use r for rmin.  In this case, no use "trying" because
+      // it better be there!
+      std::vector<double> rMax;
 
-       for (size_t i = 0; i < myZSection->size(); ++i)
-	 {
-	   atts = myZSection->getAttributeSet(i);
-	   z.push_back(ev.eval(nmspace, atts.find("z")->second));
-	   r.push_back(ev.eval(nmspace, atts.find("rMin")->second));
-	   rMax.push_back(ev.eval(nmspace, atts.find("rMax")->second));
-	 }
-       atts = getAttributeSet();
-       if (name == "Polycone") // defined with ZSections 
-	 {
-	   DDSolid ddpolycone = 
-	     DDSolidFactory::polycone(getDDName(nmspace)
-		    , ev.eval(nmspace, atts.find("startPhi")->second)
-		    , ev.eval(nmspace, atts.find("deltaPhi")->second)
-		    , z
-		    , r
-		    , rMax);
-	 }
-       else if (name == "Polyhedra")  // defined with ZSections
-	 {
-	   DDSolid ddpolyhedra = 
-	     DDSolidFactory::polyhedra(getDDName(nmspace)
-		    , int (ev.eval(nmspace, atts.find("numSide")->second))
-		    , ev.eval(nmspace, atts.find("startPhi")->second)
-		    , ev.eval(nmspace, atts.find("deltaPhi")->second)
-		    , z
-		    , r
-		    , rMax);
-	 }
+      for (size_t i = 0; i < myZSection->size(); ++i)
+	{
+	  atts = myZSection->getAttributeSet(i);
+	  z.push_back(ev.eval(nmspace, atts.find("z")->second));
+	  r.push_back(ev.eval(nmspace, atts.find("rMin")->second));
+	  rMax.push_back(ev.eval(nmspace, atts.find("rMax")->second));
+	}
+      atts = getAttributeSet();
+      if (name == "Polycone") // defined with ZSections 
+	{
+	  DDSolid ddpolycone = 
+	    DDSolidFactory::polycone(getDDName(nmspace)
+				     , ev.eval(nmspace, atts.find("startPhi")->second)
+				     , ev.eval(nmspace, atts.find("deltaPhi")->second)
+				     , z
+				     , r
+				     , rMax);
+	}
+      else if (name == "Polyhedra")  // defined with ZSections
+	{
+	  DDSolid ddpolyhedra = 
+	    DDSolidFactory::polyhedra(getDDName(nmspace)
+				      , int (ev.eval(nmspace, atts.find("numSide")->second))
+				      , ev.eval(nmspace, atts.find("startPhi")->second)
+				      , ev.eval(nmspace, atts.find("deltaPhi")->second)
+				      , z
+				      , r
+				      , rMax);
+	}
 
-     }
-   else if (name == "Polycone") // defined with RZPoints
-     {
-       atts = getAttributeSet();
-       DDSolid ddpolycone = 
-	 DDSolidFactory::polycone(getDDName(nmspace)
-		, ev.eval(nmspace, atts.find("startPhi")->second)
-		, ev.eval(nmspace, atts.find("deltaPhi")->second)
-		, z
-		, r);
-     }
-   else if (name == "Polyhedra") // defined with RZPoints
-     {
-       atts = getAttributeSet();
-       DDSolid ddpolyhedra = 
-	 DDSolidFactory::polyhedra(getDDName(nmspace)
-		, int (ev.eval(nmspace, atts.find("numSide")->second))
-		, ev.eval(nmspace, atts.find("startPhi")->second)
-		, ev.eval(nmspace, atts.find("deltaPhi")->second)
-		, z
-		, r);
-     }
-   else
-     {
-       std::string msg = "\nDDLPolyGenerator::processElement was called with incorrect name of solid: " + name;
-       throwError(msg);
-     }
-  } catch (DDException & e) {
-    std::string msg("\nDDLPolyGenerator failed when calling the DDSolidFactory.");
-    throwError(msg);
-  }
+    }
+  else if (name == "Polycone") // defined with RZPoints
+    {
+      atts = getAttributeSet();
+      DDSolid ddpolycone = 
+	DDSolidFactory::polycone(getDDName(nmspace)
+				 , ev.eval(nmspace, atts.find("startPhi")->second)
+				 , ev.eval(nmspace, atts.find("deltaPhi")->second)
+				 , z
+				 , r);
+    }
+  else if (name == "Polyhedra") // defined with RZPoints
+    {
+      atts = getAttributeSet();
+      DDSolid ddpolyhedra = 
+	DDSolidFactory::polyhedra(getDDName(nmspace)
+				  , int (ev.eval(nmspace, atts.find("numSide")->second))
+				  , ev.eval(nmspace, atts.find("startPhi")->second)
+				  , ev.eval(nmspace, atts.find("deltaPhi")->second)
+				  , z
+				  , r);
+    }
+  else
+    {
+      std::string msg = "\nDDLPolyGenerator::processElement was called with incorrect name of solid: " + name;
+      throwError(msg);
+    }
   DDLSolid::setReference(nmspace);
 
   // clear out RZPoint element accumulator and ZSections
