@@ -3,25 +3,24 @@
 /**
  * Author: Shahram Rahatlou, University of Rome & INFN
  * Created: 22 Feb 2006
- * $Id: $
+ * $Id: EcalXtalGroupId.h,v 1.3 2006/02/23 16:56:34 rahatlou Exp $
  **/
 
 class EcalXtalGroupId {
-  public:
-    EcalXtalGroupId();
-    EcalXtalGroupId(const unsigned int& id);
-    virtual ~EcalXtalGroupId();
-    bool operator>(const EcalXtalGroupId& rhs) const{ return ( id_>rhs.id() ); }
-    bool operator>=(const EcalXtalGroupId& rhs) const { return ( id_>=rhs.id() ); }
-    bool operator==(const EcalXtalGroupId& rhs) const { return ( id_==rhs.id() ); }
-    bool operator<(const EcalXtalGroupId& rhs) const { return ( id_<rhs.id() ); }
-    bool operator<=(const EcalXtalGroupId& rhs) const { return ( id_<=rhs.id() ); }
-    //EcalXtalGroupId& operator=(const EcalXtalGroupId& rhs) { return EcalXtalGroupId(rhs); }
-    void operator=(const EcalXtalGroupId& rhs) { id_ = rhs.id_; }
+public:
+  EcalXtalGroupId()  : id_(0){}
+  EcalXtalGroupId(const unsigned int& id)  : id_(id){}
 
-    const unsigned int id() const { return id_; }
-  private:
-    unsigned int id_;
+  bool operator>(const EcalXtalGroupId& rhs) const{ return ( id_>rhs.id() ); }
+  bool operator>=(const EcalXtalGroupId& rhs) const { return ( id_>=rhs.id() ); }
+  bool operator==(const EcalXtalGroupId& rhs) const { return ( id_==rhs.id() ); }
+  bool operator<(const EcalXtalGroupId& rhs) const { return ( id_<rhs.id() ); }
+  bool operator<=(const EcalXtalGroupId& rhs) const { return ( id_<=rhs.id() ); }
+    
+  const unsigned int id() const { return id_; }
 
+private:
+  unsigned int id_;
+  
 };
 #endif
