@@ -14,7 +14,10 @@
 
  <class name="EcalADCToGeVConstant"/>
 
- <class name="EcalGainRatios"/>
+ <class name="EcalGainRatios">
+  <field name="m_hashedCont" transient="true"/>
+ </class>
+
  <class name="EcalMGPAGainRatio"/>
  <class name="EcalIntercalibConstants"/>
 
