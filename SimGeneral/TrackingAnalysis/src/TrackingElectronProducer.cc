@@ -141,7 +141,7 @@ void TrackingElectronProducer::produce(Event &event, const EventSetup &) {
       addG4Track(tkp, *it);
     }
 
-    std::vector<PSimHit> hits = tkp.trackPSimHit();
+    //    std::vector<PSimHit> hits = tkp.trackPSimHit();
     /*
     // count matched hits
     int totsimhit = 0;
