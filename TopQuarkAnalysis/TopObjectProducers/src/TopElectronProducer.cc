@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck, Steven Lowette
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopElectronProducer.cc,v 1.7 2007/06/14 19:34:24 jlamb Exp $
+// $Id: TopElectronProducer.cc,v 1.8 2007/06/23 07:25:14 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopElectronProducer.h"
@@ -14,6 +14,9 @@
 
 #include "TopQuarkAnalysis/TopLeptonSelection/interface/TopLeptonLRCalc.h"
 #include "TopQuarkAnalysis/TopObjectResolutions/interface/TopObjectResolutionCalc.h"
+#include "TopQuarkAnalysis/TopLeptonSelection/interface/TopLeptonTrackerIsolationPt.h"
+#include "TopQuarkAnalysis/TopLeptonSelection/interface/TopLeptonCaloIsolationEnergy.h"
+
 
 #include <vector>
 #include <memory>
@@ -73,11 +76,22 @@ void TopElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     theLeptonLRCalc_ = new TopLeptonLRCalc(iSetup, electronLRFile_, "");
   }
 
+  //for isolation calculation:
+  TopLeptonTrackerIsolationPt trackIsoCalc(iSetup);
+  TopLeptonCaloIsolationEnergy caloIsoCalc(iSetup);    
+
+
   // loop over electrons
   std::vector<TopElectron> * topElectrons = new std::vector<TopElectron>(); 
   for (size_t e = 0; e < electrons.size(); ++e) {
     // construct the TopElectron
     TopElectron anElectron(electrons[e]);
+    
+    //add isolation info:
+    anElectron.setTrackIso(trackIsoCalc.calculate(anElectron,iEvent));
+    anElectron.setCaloIso(caloIsoCalc.calculate(anElectron,iEvent));
+    
+
     // match to generated final state electrons
     if (doGenMatch_) {
       // initialize best match as null
