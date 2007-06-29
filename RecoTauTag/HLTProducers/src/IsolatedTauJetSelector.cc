@@ -83,7 +83,6 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
 	    JetTracksAssociationRef     jetTracks = myIsolJet->jtaRef();
 	    JetTag myTag(1.);
 	    taggedJets++;
-	    myCollection->push_back(myTag);
 	    const CaloJet* pippo = dynamic_cast<const CaloJet*>(myIsolJet->jet().get());
 	    myJetCollection->push_back(*pippo);
 	  }
