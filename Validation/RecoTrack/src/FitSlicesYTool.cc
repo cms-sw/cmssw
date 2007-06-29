@@ -2,7 +2,10 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 using namespace std;
-FitSlicesYTool::FitSlicesYTool(TH2F* h){
+
+FitSlicesYTool::FitSlicesYTool(MonitorElement* me)
+{ 
+  TH2F * h =dynamic_cast<TH2F*>(&(**((MonitorElementRootH2 *)me)));
   h->FitSlicesY();
   string name(h->GetName());
   h0 = (TH1*)gDirectory->Get((name+"_0").c_str());
@@ -10,6 +13,15 @@ FitSlicesYTool::FitSlicesYTool(TH2F* h){
   h2 = (TH1*)gDirectory->Get((name+"_2").c_str());
   h3 = (TH1*)gDirectory->Get((name+"_chi2").c_str());
 }
+
+// FitSlicesYTool::FitSlicesYTool(TH2F* h){
+//   h->FitSlicesY();
+//   string name(h->GetName());
+//   h0 = (TH1*)gDirectory->Get((name+"_0").c_str());
+//   h1 = (TH1*)gDirectory->Get((name+"_1").c_str());
+//   h2 = (TH1*)gDirectory->Get((name+"_2").c_str());
+//   h3 = (TH1*)gDirectory->Get((name+"_chi2").c_str());
+// }
 FitSlicesYTool::~FitSlicesYTool(){
   delete h0;  
   delete h1;  

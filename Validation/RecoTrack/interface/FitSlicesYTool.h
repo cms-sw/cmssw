@@ -4,20 +4,22 @@
 /** \class FitSlicesYTool
  *  Class to fill Monitor Elements using the ROOT FitSlicesY tool
  *
- *  $Date: 2007/03/26 10:13:49 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/26 15:01:35 $
+ *  $Revision: 1.3 $
  *  \author cerati
  */
 
 #include <TH2F.h>
 #include <TH1F.h>
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/CoreROOT/interface/MonitorElementRootT.h"
 #include <string>
 
 class FitSlicesYTool {
  public:
+  FitSlicesYTool(MonitorElement*);
   /// Constructor: needs a TH2F
-  FitSlicesYTool(TH2F*);
+  /*   FitSlicesYTool(TH2F*); */
   /// Destructor
   ~FitSlicesYTool();
   /// Fill the ME with the mean value of the gaussian fit in each slice

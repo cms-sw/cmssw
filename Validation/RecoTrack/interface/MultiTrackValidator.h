@@ -4,8 +4,8 @@
 /** \class MultiTrackValidator
  *  Class that prodecs histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2007/06/23 16:12:00 $
- *  $Revision: 1.28 $
+ *  $Date: 2007/06/29 14:28:10 $
+ *  $Revision: 1.29 $
  *  \author cerati
  */
 
@@ -129,20 +129,16 @@ class MultiTrackValidator : public edm::EDAnalyzer {
       }
     } else {
       throw cms::Exception("MultiTrackValidator") << "Different number of bins!";
-    }    
+    }
   }
 
-  void copy2D(TH2F* th2, MonitorElement * me){
-    if (th2->GetNbinsX()==me->getNbinsX()&&th2->GetNbinsY()==me->getNbinsY()){
-      for (int binX=0;binX!=me->getNbinsX();binX++){
-	for (int binY=0;binY!=me->getNbinsY();binY++){
-	  th2->SetBinContent(binX+1,binY+1,me->getBinContent(binX+1,binY+1));
-	  //th2->SetBinError(binY+1,binY+1,me->getBinError(binX+1,binY+1));
-	}
-      }
-    } else {
-      throw cms::Exception("MultiTrackValidator") << "Different number of bins!";
-    }        
+  void doProfileX(MonitorElement * th2m, MonitorElement* me)
+  {
+    MonitorElementRootH2 * meh2 = dynamic_cast<MonitorElementRootH2*>(th2m);
+    if (!meh2)   {throw cms::Exception("MultiTrackValidator") << "no cast to rootH2"; }
+    TH2F * h = dynamic_cast<TH2F*>(&(**meh2));
+    if (!h)    {throw cms::Exception("MultiTrackValidator") << "no cast to h2"; }
+    doProfileX(h, me);
   }
  
 };
