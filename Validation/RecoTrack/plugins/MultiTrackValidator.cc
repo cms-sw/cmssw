@@ -15,7 +15,8 @@
 
 #include "Math/ProbFuncMathMore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include <TF1.h>
 
 using namespace std;
@@ -128,6 +129,9 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       if (associators[ww]=="TrackAssociatorByChi2"){
 	h_assochi2.push_back( dbe_->book1D("assocChi2","track association #chi^{2}",1000000,0,100000) );
 	h_assochi2_prob.push_back(dbe_->book1D("assocChi2_prob","probability of association #chi^{2}",100,0,1));
+      } else if (associators[ww]=="TrackAssociatorByHits"){
+	h_assocFraction.push_back( dbe_->book1D("assocFraction","fraction of shared hits",200,0,2) );
+	h_assocSharedHit.push_back(dbe_->book1D("assocSharedHit","number of shared hits",20,0,20));
       }
 
       chi2_vs_nhits.push_back( dbe_->book2D("chi2_vs_nhits","#chi^{2} vs nhits",25,0,25,100,0,10) );
@@ -200,10 +204,6 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
     setup.get<TrackAssociatorRecord>().get(associators[w],theAssociator);
     associator.push_back( (const TrackAssociatorBase *) theAssociator.product() );
   }
-  
-  edm::ESHandle<TrackAssociatorBase> theAssociatorForParamAtPca;
-  setup.get<TrackAssociatorRecord>().get("TrackAssociatorByChi2",theAssociatorForParamAtPca);
-  associatorForParamAtPca = (const TrackAssociatorByChi2 *) theAssociatorForParamAtPca.product();
 }
 
 void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup& setup){
@@ -254,7 +254,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       int st=0;
       for (TrackingParticleCollection::size_type i=0; i<tPCeff.size(); i++){
 	TrackingParticleRef tp(TPCollectionHeff, i);
-	//if (!selectTPs4Efficiency( *tp )) continue;
 	if (tp->charge()==0) continue;
 	st++;
 	h_ptSIM[w]->Fill(sqrt(tp->momentum().perp2()));
@@ -269,7 +268,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	      rt = simRecColl[tp];
 	      if (rt.size()!=0) {
 		reco::TrackRef t = rt.begin()->first;
-		//if ( !selectRecoTracks( *t ) ) continue;//FIXME? TRY WITH SECOND?
 		ats++;
 		totASSeta[w][f]++;
 		edm::LogVerbatim("TrackValidator") << "TrackingParticle #" << st << " with pt=" << t->pt() 
@@ -292,7 +290,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
               rt = simRecColl[tp];
 	      if (rt.size()!=0) {
 		reco::TrackRef t = rt.begin()->first;
-		//if ( !selectRecoTracks( *t ) ) continue;//FIXME? TRY WITH SECOND?
 		totASSpT[w][f]++;
 	      }
 	    }
@@ -314,7 +311,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       int rT=0;
       for(reco::TrackCollection::size_type i=0; i<tC.size(); ++i){
 	reco::TrackRef track(trackCollection, i);
-	//if ( !selectRecoTracks( *track ) ) continue;
 	rT++;
 
 	std::vector<std::pair<TrackingParticleRef, double> > tp;
@@ -326,7 +322,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    if(recSimColl.find(track) != recSimColl.end()){
 	      tp = recSimColl[track];
 	      if (tp.size()!=0) {
-		//if (!selectTPs4FakeRate( *tp.begin()->first )) continue;//FIXME? TRY WITH SECOND?
 		totASS2eta[w][f]++;
 		edm::LogVerbatim("TrackValidator") << "reco::Track #" << rT << " with pt=" << track->pt() 
 						   << " associated with quality:" << tp.begin()->second <<"\n";
@@ -345,7 +340,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    if(recSimColl.find(track) != recSimColl.end()){
               tp = recSimColl[track];
 	      if (tp.size()!=0) {
-		//if (!selectTPs4FakeRate( *tp.begin()->first )) continue;//FIXME? TRY WITH SECOND?
 		at++;
 		totASS2pT[w][f]++;
 	      }
@@ -366,6 +360,11 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    h_assochi2[www]->Fill(assocChi2);
 	    h_assochi2_prob[www]->Fill(chisquared_prob((assocChi2)*5,5));
 	  }
+	  else if (associators[ww]=="TrackAssociatorByHits"){
+	    double fraction = tp.begin()->second;
+	    h_assocFraction[www]->Fill(fraction);
+	    h_assocSharedHit[www]->Fill(fraction*track->numberOfValidHits());
+	  }
     
 	  //nchi2 and hits global distributions
 	  h_nchi2[w]->Fill(track->normalizedChi2());
@@ -374,20 +373,29 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  chi2_vs_nhits[w]->Fill(track->numberOfValidHits(),track->normalizedChi2());
 	  h_charge[w]->Fill( track->charge() );
 	
+	  //compute tracking particle parameters at point of closest approach to the beamline
+	  edm::ESHandle<MagneticField> theMF;
+	  setup.get<IdealMagneticFieldRecord>().get(theMF);
+	  FreeTrajectoryState 
+	    ftsAtProduction(GlobalPoint(tpr->vertex().x(),tpr->vertex().y(),tpr->vertex().z()),
+			    GlobalVector(assocTrack->momentum().x(),assocTrack->momentum().y(),assocTrack->momentum().z()),
+			    TrackCharge(track->charge()),
+			    theMF.product());
+	  TSCPBuilderNoMaterial tscpBuilder;
+	  TrajectoryStateClosestToPoint tsAtClosestApproach 
+	    = tscpBuilder(ftsAtProduction,GlobalPoint(0,0,0));//as in TrackProducerAlgorithm
+	  GlobalPoint v = tsAtClosestApproach.theState().position();
+	  GlobalVector p = tsAtClosestApproach.theState().momentum();
+
+	  double qoverpSim = tsAtClosestApproach.charge()/p.mag();
+	  double lambdaSim = M_PI/2-p.theta();
+	  double phiSim    = p.phi();
+	  double dxySim    = (-v.x()*sin(p.phi())+v.y()*cos(p.phi()));
+	  double dszSim    = v.z()*p.perp()/p.mag() - (v.x()*p.x()+v.y()*p.y())/p.perp() * p.z()/p.mag();
+	  double d0Sim     = -dxySim;
+	  double dzSim     = dszSim*p.mag()/p.perp();
 
 	  // eta residue; pt, k, theta, phi0, d0, dz pulls
-	  Basic3DVector<double> momAtVtx(assocTrack->momentum().x(),assocTrack->momentum().y(),assocTrack->momentum().z());
-	  Basic3DVector<double> vert = (Basic3DVector<double>) tpr->vertex();
-
-	  reco::TrackBase::ParameterVector sParameters=
-	    associatorForParamAtPca->parametersAtClosestApproachGeom(vert, momAtVtx, track->charge());
-
-	  double qoverpSim = sParameters[0];
-	  double lambdaSim = sParameters[1];
-	  double phiSim    = sParameters[2];
-	  double d0Sim     = -sParameters[3];
-	  double dzSim     = sParameters[4]*momAtVtx.mag()/momAtVtx.perp();
-
 	  double qoverpPull=(track->qoverp()-qoverpSim)/track->qoverpError();
 	  double thetaPull=(track->lambda()-lambdaSim)/track->thetaError();
 	  double phi0Pull=(track->phi()-phiSim)/track->phiError();

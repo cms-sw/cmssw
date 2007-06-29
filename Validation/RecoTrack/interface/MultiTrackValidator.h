@@ -4,8 +4,8 @@
 /** \class MultiTrackValidator
  *  Class that prodecs histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2007/06/09 16:32:33 $
- *  $Revision: 1.27 $
+ *  $Date: 2007/06/23 16:12:00 $
+ *  $Revision: 1.28 $
  *  \author cerati
  */
 
@@ -94,6 +94,8 @@ class MultiTrackValidator : public edm::EDAnalyzer {
 
   //assoc chi2
   std::vector<MonitorElement*> h_assochi2, h_assochi2_prob;
+  //assoc hits
+  std::vector<MonitorElement*> h_assocFraction, h_assocSharedHit;
 
   //chi2 and #hit vs eta: to be used with doProfileX
   std::vector<MonitorElement*> chi2_vs_eta, nhits_vs_eta, nlosthits_vs_eta;
@@ -117,7 +119,6 @@ class MultiTrackValidator : public edm::EDAnalyzer {
   edm::ESHandle<MagneticField> theMF;
 
   std::vector<const TrackAssociatorBase*> associator;
-  const TrackAssociatorByChi2 * associatorForParamAtPca;
   
   void doProfileX(TH2 * th2, MonitorElement* me){
     if (th2->GetNbinsX()==me->getNbinsX()){
