@@ -31,7 +31,7 @@ using namespace reco;
 class TauRegionalPixelSeedGenerator : public TrackingRegionProducer {
   public:
     
-    explicit TauRegionalPixelSeedGenerator(const edm::ParameterSet& conf){
+    explicit TauRegionalPixelSeedGenerator(const edm::ParameterSet& conf_){
       edm::LogInfo ("TauRegionalPixelSeedGenerator")<<"Enter the TauRegionalPixelSeedGenerator";
       ptmin=conf_.getParameter<double>("ptMin");
       originradius=conf_.getParameter<double>("originRadius");
