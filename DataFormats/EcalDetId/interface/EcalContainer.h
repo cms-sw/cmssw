@@ -63,18 +63,19 @@ namespace detailsEcalContainer{
 
 
 template<typename T>
-clall EcalContainer {
+class EcalContainer {
+public:
   typedef EcalContainer<T> self;
   typedef T Item;
   typedef Item value_type;
   
-  template<typename Iter>
-    void load(Iter b, Iter e) const {
-    const_cast<self&>(*this).load(b,e);
-  }
+//  template<typename Iter>
+//    void load(Iter b, Iter e) const {
+//    const_cast<self&>(*this).load(b,e);
+//  }
   
   template<typename Iter>
-    void load(Iter b, Iter e) const {
+    void load(Iter b, Iter e) {
     if (m_barrel.empty()) {
       m_barrel.resize(EBDetId::SIZE_HASH);
       m_endcap.resize(EEDetId::SIZE_HASH);     
