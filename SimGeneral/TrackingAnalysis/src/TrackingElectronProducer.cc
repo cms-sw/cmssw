@@ -140,6 +140,30 @@ void TrackingElectronProducer::produce(Event &event, const EventSetup &) {
 	    = (*ie).begin(); it != (*ie).end(); it++ ) {
       addG4Track(tkp, *it);
     }
+
+    // count matched hits
+    int totsimhit = 0;
+    int oldlay = 0;
+    int newlay = 0;
+    int olddet = 0;
+    int newdet = 0;
+    std::vector<PSimHit> hits = tkp.trackPSimHit();
+    for ( std::vector<PSimHit>::const_iterator ih = hits.begin(); 
+	  ih != hits.end(); ih++ ) {
+      unsigned int detid = (*ih).detUnitId();
+      DetId detId = DetId(detid);
+      oldlay = newlay;
+      olddet = newdet;
+      newlay = layerFromDetid(detid);
+      newdet = detId.subdetId();
+      
+      // Count hits using layers for glued detectors
+      if (oldlay != newlay || (oldlay==newlay && olddet!=newdet) ) {
+	totsimhit++;
+      }
+    }
+    tkp.setMatchedHit(totsimhit);
+
     (*trackingParticles).push_back(tkp);
     trackingParticleMap[tk] = ntp++;
   }
@@ -206,5 +230,47 @@ TrackingElectronProducer::addG4Track(TrackingParticle& e,
     e.addPSimHit(*ih);
   }
 }
-  
+
+
+int TrackingElectronProducer::layerFromDetid(const unsigned int& detid ) {
+  DetId detId = DetId(detid);
+  int layerNumber=0;
+  unsigned int subdetId = static_cast<unsigned int>(detId.subdetId());
+  if ( subdetId == StripSubdetector::TIB)
+    {
+      TIBDetId tibid(detId.rawId());
+      layerNumber = tibid.layer();
+    }
+  else if ( subdetId ==  StripSubdetector::TOB )
+    {
+      TOBDetId tobid(detId.rawId());
+      layerNumber = tobid.layer();
+    }
+  else if ( subdetId ==  StripSubdetector::TID)
+    {
+      TIDDetId tidid(detId.rawId());
+      layerNumber = tidid.wheel();
+    }
+  else if ( subdetId ==  StripSubdetector::TEC )
+    {
+      TECDetId tecid(detId.rawId());
+      layerNumber = tecid.wheel();
+    }
+  else if ( subdetId ==  PixelSubdetector::PixelBarrel )
+    {
+      PXBDetId pxbid(detId.rawId());
+      layerNumber = pxbid.layer();
+    }
+  else if ( subdetId ==  PixelSubdetector::PixelEndcap )
+    {
+      PXFDetId pxfid(detId.rawId());
+      layerNumber = pxfid.disk();
+    }
+  else
+    edm::LogVerbatim("TrackingTruthProducer") << "Unknown subdetid: " <<  subdetId;
+
+  return layerNumber;
+}
+
+
 // DEFINE_FWK_MODULE(TrackingElectronProducer);

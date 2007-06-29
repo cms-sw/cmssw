@@ -19,11 +19,15 @@
 class TrackingElectronProducer : public edm::EDProducer {
 
 public:
+
   explicit TrackingElectronProducer( const edm::ParameterSet & );
 //  ~TrackingElectronProducer() { TimingReport::current()->dump(std::cout); }
 
 private:
+
   void produce( edm::Event &, const edm::EventSetup & );
+
+  int layerFromDetid(const unsigned int&);
 
   void listElectrons(const TrackingParticleCollection & tPC) const;
 
