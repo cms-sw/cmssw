@@ -1,15 +1,14 @@
 #include "IOPool/Streamer/interface/StreamerInputFile.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "IOPool/Streamer/interface/StreamerInputIndexFile.h"
-#include "IOPool/Streamer/interface/StreamerFileIO.h"
-#include "DataFormats/Common/interface/Wrapper.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 #include "SealBase/IOError.h"
 
+#include <iostream>
+
 using namespace edm;
-using namespace std;
 
 StreamerInputFile::~StreamerInputFile()
 {
@@ -215,7 +214,7 @@ bool StreamerInputFile::openNextFile() {
      // If start message was already there, then compare the
      // previous and new headers
      if (startMsg_ != NULL) {  
-        FDEBUG(10) << "Comparing Header" << endl;
+        FDEBUG(10) << "Comparing Header" << std::endl;
         if (!compareHeader())
         {
             return false;

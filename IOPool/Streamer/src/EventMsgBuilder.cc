@@ -1,4 +1,5 @@
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
+#include "IOPool/Streamer/interface/EventMessage.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
 
 EventMsgBuilder::EventMsgBuilder(void* buf, uint32 size,

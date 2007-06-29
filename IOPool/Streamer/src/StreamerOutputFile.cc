@@ -1,7 +1,6 @@
 #include "IOPool/Streamer/interface/StreamerOutputFile.h"
 #include "IOPool/Streamer/interface/EOFRecordBuilder.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "IOPool/Streamer/interface/MsgTools.h"
 
   OutputFile::OutputFile(const std::string& name):
   current_offset_(1), 

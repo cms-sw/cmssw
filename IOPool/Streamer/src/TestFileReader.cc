@@ -1,21 +1,18 @@
 
 #include "IOPool/Streamer/interface/TestFileReader.h"
-#include "IOPool/Streamer/interface/BufferArea.h"
+#include "IOPool/Streamer/interface/InitMessage.h"
+#include "IOPool/Streamer/interface/EventMessage.h"
 #include "IOPool/Streamer/interface/HLTInfo.h"
-#include "IOPool/Streamer/interface/ClassFiller.h"
 #include "IOPool/Streamer/interface/StreamDeserializer.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "IOPool/Streamer/interface/MsgHeader.h"
 #include "IOPool/Streamer/interface/Utilities.h"
 
 #include "boost/bind.hpp"
-#include "boost/scoped_array.hpp"
 
 #include <algorithm>
 #include <cstdlib>
 #include <iterator>
 
-using namespace std;
 using namespace edm;
 
 namespace edmtestp
@@ -131,20 +128,20 @@ namespace edmtestp
 	// that are on the queue.
 
 	BufHelper data(len);
-	//cout << "allocated frag " << len << endl;
+	//std::cout << "allocated frag " << len << std::endl;
 	ist_.read((char*)data.get(),len);
-	//cout << "read frag to " << (void*)data.get() << endl;
+	//std::cout << "read frag to " << (void*)data.get() << std::endl;
 	if(!ist_ || ist_.eof()) cerr << "got end!!!!" << endl;
         //HEREHERE need a real event number here for id
 	stor::FragEntry* msg = 
 	  new (b.buffer()) stor::FragEntry(data.get(),data.get(),len,1,1,Header::EVENT,0,1,0);
         assert(msg); // Suppresses compiler warning about unused variable
 	//new (b.buffer()) stor::FragEntry(0,0,len);
-	//cout << "make entry for frag " << (void*)msg << " " << msg->buffer_address_ << endl;
+	//std::cout << "make entry for frag " << (void*)msg << " " << msg->buffer_address_ << endl;
 	data.release();
-	//cout << "release frag" << endl;
+	//std::cout << "release frag" << endl;
 	b.commit(sizeof(stor::FragEntry));
-	//cout << "commit frag " << sizeof(stor::FragEntry) << endl;
+	//std::cout << "commit frag " << sizeof(stor::FragEntry) << endl;
 	//sleep(2);
       } **/
   }

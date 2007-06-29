@@ -1,7 +1,7 @@
 #include "IOPool/Streamer/interface/StreamerOutputIndexFile.h"
 #include "IOPool/Streamer/interface/EOFRecordBuilder.h"
-#include "IOPool/Streamer/interface/MsgTools.h"
 
+#include <fstream>
 
  StreamerOutputIndexFile::StreamerOutputIndexFile(const std::string& name): 
  indexfile_(new OutputFile(name))

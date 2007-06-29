@@ -10,8 +10,6 @@
 
 #define MAX_STRING_SIZE 10000
 
-using namespace std;
-
 /**
  * Constructor.
  */
@@ -137,7 +135,7 @@ std::string DQMEventMsgView::subFolderName(uint32 const subFolderIndex) const
 /**
  * Returns the number of monitor elements in the specified subfolder.
  */
-uint32 DQMEventMsgView::meCount(string const& subFolderName) const
+uint32 DQMEventMsgView::meCount(std::string const& subFolderName) const
 {
   // lookup the index of the specified subfolder
   std::map<std::string, uint32>::const_iterator subFolderIter;

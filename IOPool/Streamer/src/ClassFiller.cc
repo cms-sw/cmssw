@@ -12,8 +12,6 @@
 #include <set>
 #include <algorithm>
 
-using namespace std;
-
 namespace edm {
   std::string getName(ROOT::Reflex::Type& cc) {
     return cc.Name(ROOT::Reflex::SCOPED);

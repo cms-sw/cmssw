@@ -19,7 +19,7 @@
 
 #include "zlib.h"
 
-using namespace std;
+#include <iostream>
 
 namespace edm
 {
@@ -54,7 +54,7 @@ namespace edm
         << initView.code() << "\n";
 
     //Get the process name and store if for Protocol version 4 and above.
-    if ( initView.protocolVersion() > 3) {
+    if (initView.protocolVersion() > 3) {
 
          processName_ = initView.processName();
          protocolVersion_ = initView.protocolVersion();
@@ -68,13 +68,12 @@ namespace edm
     TBuffer xbuf(TBuffer::kRead, initView.descLength(),
                  (char*)initView.descData(),kFALSE);
     RootDebug tracer(10,10);
-    auto_ptr<SendJobHeader> sd((SendJobHeader*)xbuf.ReadObjectAny(desc));
+    std::auto_ptr<SendJobHeader> sd((SendJobHeader*)xbuf.ReadObjectAny(desc));
 
-    if(sd.get()==0) 
-      {
+    if(sd.get()==0) {
         throw cms::Exception("StreamTranslation","Registry deserialization error")
           << "Could not read the initial product registry list\n";
-      }
+    }
 
     return sd;  
   }
@@ -96,7 +95,7 @@ namespace edm
          << eventView.size() << " "
          << eventView.eventLength() << " "
          << eventView.eventData()
-         << endl;
+         << std::endl;
     // uncompress if we need to
     // 78 was a dummy value (for no uncompressed) - should be 0 for uncompressed
     // need to get rid of this when 090 MTCC streamers are gotten rid of
@@ -116,7 +115,7 @@ namespace edm
       dest_.resize(dest_size);
       unsigned char* pos = (unsigned char*) &dest_[0];
       unsigned char* from = (unsigned char*) eventView.eventData();
-      copy(from,from+dest_size,pos);
+      std::copy(from,from+dest_size,pos);
     }
     //TBuffer xbuf(TBuffer::kRead, dest_size,
     //             (char*) &dest[0],kFALSE);
@@ -126,15 +125,15 @@ namespace edm
     xbuf_.SetBuffer(&dest_[0],dest_size,kFALSE);
     RootDebug tracer(10,10);
 
-    auto_ptr<SendEvent> sd((SendEvent*)xbuf_.ReadObjectAny(tc_));
+    std::auto_ptr<SendEvent> sd((SendEvent*)xbuf_.ReadObjectAny(tc_));
 
     if(sd.get()==0) {
         throw cms::Exception("StreamTranslation","Event deserialization error")
           << "got a null event from input stream\n";
     }
 
-    FDEBUG(5) << "Got event: " << sd->id_ << " " << sd->prods_.size() << endl;
-    auto_ptr<EventPrincipal> ep(new EventPrincipal(sd->id_,
+    FDEBUG(5) << "Got event: " << sd->id_ << " " << sd->prods_.size() << std::endl;
+    std::auto_ptr<EventPrincipal> ep(new EventPrincipal(sd->id_,
                                                    sd->time_,
                                                    productRegistry,
                                                    eventView.lumi(),
@@ -145,7 +144,7 @@ namespace edm
 
     SendProds::iterator spi(sd->prods_.begin()),spe(sd->prods_.end());
     for(; spi != spe; ++spi) {
-        FDEBUG(10) << "check prodpair" << endl;
+        FDEBUG(10) << "check prodpair" << std::endl;
         if(spi->prov() == 0)
           throw cms::Exception("StreamTranslation","EmptyProvenance");
         if(spi->desc() == 0)
@@ -155,38 +154,38 @@ namespace edm
              << " " << spi->desc()->productInstanceName()
              << " " << spi->desc()->productID()
              << " " << spi->prov()->productID_
-             << endl;
+             << std::endl;
 
         if(spi->prod()==0) {
-            FDEBUG(10) << "Product is null" << endl;
+            FDEBUG(10) << "Product is null" << std::endl;
             continue;
             throw cms::Exception("StreamTranslation","EmptyProduct");
         }
 
-        auto_ptr<EDProduct>
+        std::auto_ptr<EDProduct>
           aprod(const_cast<EDProduct*>(spi->prod()));
-        auto_ptr<BranchEntryDescription>
+        std::auto_ptr<BranchEntryDescription>
           aedesc(const_cast<BranchEntryDescription*>(spi->prov()));
-        auto_ptr<BranchDescription>
+        std::auto_ptr<BranchDescription>
           adesc(const_cast<BranchDescription*>(spi->desc()));
 
-        auto_ptr<Provenance> aprov(new Provenance(*(adesc.get()), *(aedesc.get())));
+        std::auto_ptr<Provenance> aprov(new Provenance(*(adesc.get()), *(aedesc.get())));
         if(aprov->isPresent()) {
-          FDEBUG(10) << "addgroup next " << aprov->productID() << endl;
-          FDEBUG(10) << "addgroup next " << aprov->event().productID_ << endl;
+          FDEBUG(10) << "addgroup next " << aprov->productID() << std::endl;
+          FDEBUG(10) << "addgroup next " << aprov->event().productID_ << std::endl;
           ep->addGroup(aprod, aprov);
-          FDEBUG(10) << "addgroup done" << endl;
+          FDEBUG(10) << "addgroup done" << std::endl;
         } else {
-          FDEBUG(10) << "addgroup empty next " << aprov->productID() << endl;
+          FDEBUG(10) << "addgroup empty next " << aprov->productID() << std::endl;
           FDEBUG(10) << "addgroup empty next " << aprov->event().productID_ 
-                                               << endl;
+                                               << std::endl;
           ep->addGroup(aprov);
-          FDEBUG(10) << "addgroup empty done" << endl;
+          FDEBUG(10) << "addgroup empty done" << std::endl;
         }
         spi->clear();
     }
 
-    FDEBUG(10) << "Size = " << ep->numEDProducts() << endl;
+    FDEBUG(10) << "Size = " << ep->numEDProducts() << std::endl;
 
     return ep;     
   }
@@ -209,34 +208,30 @@ namespace edm
     unsigned long uncompressedSize = expectedFullSize;
     FDEBUG(1) << "Uncompress: original size = " << origSize
               << ", compressed size = " << inputSize
-              << endl;
+              << std::endl;
     outputBuffer.resize(origSize);
     int ret = uncompress(&outputBuffer[0], &uncompressedSize,
                          inputBuffer, inputSize); // do not need compression level
-    //cout<<"unCompress Return value: "<<ret<< " Okay = " << Z_OK << endl;
-    if(ret == Z_OK)
-      {
+    //std::cout << "unCompress Return value: " << ret << " Okay = " << Z_OK << std::endl;
+    if(ret == Z_OK) {
         // check the length against original uncompressed length
         FDEBUG(10) << " original size = " << origSize << " final size = " 
-                   << uncompressedSize << endl;
-        if(origSize != uncompressedSize)
-          {
-            cerr << "deserializeEvent: Problem with uncompress, original size = "
-                 << origSize << " uncompress size = " << uncompressedSize << endl;
+                   << uncompressedSize << std::endl;
+        if(origSize != uncompressedSize) {
+            std::cerr << "deserializeEvent: Problem with uncompress, original size = "
+                 << origSize << " uncompress size = " << uncompressedSize << std::endl;
             // we throw an error and return without event! null pointer
             throw cms::Exception("StreamDeserialization","Uncompression error")
               << "mismatch event lengths should be" << origSize << " got "
               << uncompressedSize << "\n";
-          }
-      }
-    else
-      {
+        }
+    } else {
         // we throw an error and return without event! null pointer
-        cerr << "deserializeEvent: Problem with uncompress, return value = "
-             << ret << endl;
+        std::cerr << "deserializeEvent: Problem with uncompress, return value = "
+             << ret << std::endl;
         throw cms::Exception("StreamDeserialization","Uncompression error")
             << "Error code = " << ret << "\n ";
-      }
+    }
 
     return (unsigned int) uncompressedSize;
   }

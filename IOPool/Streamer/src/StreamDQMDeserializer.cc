@@ -9,10 +9,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "IOPool/Streamer/interface/StreamDQMDeserializer.h"
 #include "IOPool/Streamer/interface/StreamDeserializer.h"
-
-#include "zlib.h"
-
-using namespace std;
+#include <iostream>
 
 namespace edm
 {
@@ -47,11 +44,11 @@ namespace edm
          << dqmEventView.size() << " "
          << dqmEventView.eventLength() << " "
          << dqmEventView.eventAddress()
-         << endl;
+         << std::endl;
 
 
     // create the folder name to TObject map
-    auto_ptr<DQMEvent::TObjectTable> tablePtr(new DQMEvent::TObjectTable());
+    std::auto_ptr<DQMEvent::TObjectTable> tablePtr(new DQMEvent::TObjectTable());
 
     // fetch the number of subfolders
     uint32 subFolderCount = dqmEventView.subFolderCount();

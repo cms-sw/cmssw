@@ -1,14 +1,6 @@
-// $Id:$
+// $Id: StreamerFileWriter.cc,v 1.14 2007/02/01 07:56:54 klute Exp $
 
 #include "IOPool/Streamer/src/StreamerFileWriter.h"
-#include "IOPool/Streamer/interface/EventStreamOutput.h"
-#include "IOPool/Streamer/interface/InitMessage.h"
-
-#include <iostream>
-#include <vector>
-#include <string>
-
-using namespace std;
 
 namespace edm
 {
@@ -23,7 +15,7 @@ StreamerFileWriter::StreamerFileWriter(edm::ParameterSet const& ps):
   }
 
 
-StreamerFileWriter::StreamerFileWriter(string const& fileName, string const& indexFileName):
+StreamerFileWriter::StreamerFileWriter(std::string const& fileName, std::string const& indexFileName):
   stream_writer_(new StreamerOutputFile(fileName)),
   index_writer_(new StreamerOutputIndexFile(indexFileName)),
   hltCount_(0),

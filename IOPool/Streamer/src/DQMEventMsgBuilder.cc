@@ -6,9 +6,8 @@
  */
 
 #include "IOPool/Streamer/interface/DQMEventMsgBuilder.h"
+#include "IOPool/Streamer/interface/MsgHeader.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
-using namespace std;
 
 /**
  * Constructor.

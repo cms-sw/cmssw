@@ -1,9 +1,8 @@
+#include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/src/StreamerFileReader.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Catalog/interface/FileCatalog.h"
 
-using namespace std;
 using namespace edm;
 
 namespace edm
@@ -49,7 +48,7 @@ namespace edm
 
  const EventMsgView* StreamerFileReader::getNextEvent()
  {
-    if (! stream_reader_->next() )
+    if (!stream_reader_->next() )
     {
         return 0;
     }

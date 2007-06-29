@@ -10,24 +10,23 @@
 #include <sstream>
 
 using namespace edm;
-using namespace std;
 
 namespace edmtest
 {
-  typedef boost::shared_ptr<ofstream> OutPtr;
-  typedef vector<char> SaveArea;
+  typedef boost::shared_ptr<std::ofstream> OutPtr;
+  typedef std::vector<char> SaveArea;
 
-  string makeFileName(const string& base, int num)
+  std::string makeFileName(const std::string& base, int num)
   {
-    ostringstream ost;
+    std::ostringstream ost;
     ost << base << num << ".dat";
     return ost.str();
   }
 
-  OutPtr makeFile(const string name,int num)
+  OutPtr makeFile(const std::string name,int num)
   {
-    OutPtr p(new ofstream(makeFileName(name,num).c_str(),
-			  ios_base::binary | ios_base::out));
+    OutPtr p(new std::ofstream(makeFileName(name,num).c_str(),
+			  std::ios_base::binary | std::ios_base::out));
 
     if(!(*p))
       {
@@ -40,9 +39,9 @@ namespace edmtest
 
   struct Worker
   {
-    Worker(const string& s, int m);
+    Worker(const std::string& s, int m);
 
-    string filename_;
+    std::string filename_;
     int file_num_;
     int cnt_;
     int max_;
@@ -54,7 +53,7 @@ namespace edmtest
     void writeReg();
   };
 
-  Worker::Worker(const string& s,int m):
+  Worker::Worker(const std::string& s,int m):
     filename_(s),
     file_num_(),
     cnt_(0),
@@ -96,7 +95,7 @@ namespace edmtest
 
   TestConsumer::TestConsumer(edm::ParameterSet const& ps, 
 			     edm::EventBuffer* buf):
-    worker_(new Worker(ps.getParameter<string>("fileName"),
+    worker_(new Worker(ps.getParameter<std::string>("fileName"),
 		       ps.getUntrackedParameter<int>("numPerFile",1<<31))),
     bufs_(buf)
   {

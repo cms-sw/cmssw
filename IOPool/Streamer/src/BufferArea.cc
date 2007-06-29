@@ -4,8 +4,6 @@
 #include <memory>
 #include <list>
 
-using namespace std;
-
 namespace edm {
 
 namespace 
@@ -29,7 +27,7 @@ namespace
 
   EventBuffer* getEventBuffer(int es, int qd)
   {
-    auto_ptr<EventBuffer> b(new EventBuffer(es,qd));
+    std::auto_ptr<EventBuffer> b(new EventBuffer(es,qd));
     holder.v_.push_front(b.get());
     return b.release();
   }

@@ -1,5 +1,6 @@
-// $Id: EOFRecordBuilder.cc,v 1.6 2006/10/11 14:30:25 klute Exp $
+// $Id: EOFRecordBuilder.cc,v 1.7 2007/01/22 22:12:04 wmtan Exp $
 #include "IOPool/Streamer/interface/EOFRecordBuilder.h"
+#include "IOPool/Streamer/interface/EOFRecord.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
 
 EOFRecordBuilder::EOFRecordBuilder(uint32 run, uint32 events,

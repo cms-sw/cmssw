@@ -1,18 +1,16 @@
 
 #include "IOPool/Streamer/interface/Utilities.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "IOPool/Streamer/interface/Messages.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "IOPool/Streamer/interface/StreamDeserializer.h"
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/DebugMacros.h"
 
 //#include <typeinfo>
 #include <fstream>
-#include <iostream>
-
-using namespace std;
 
 namespace edm
 {
@@ -63,7 +61,7 @@ namespace edm
   std::auto_ptr<SendJobHeader>
   JobHeaderDecoder::decodeJobHeader(InitMsg const& msg)
   {
-    FDEBUG(6) << "StreamInput: decodeRegistry" << endl;
+    FDEBUG(6) << "StreamInput: decodeRegistry" << std::endl;
 
     if(msg.getCode()!=MsgCode::INIT)
       throw cms::Exception("HeaderDecode","EventStreamerInput")
@@ -75,7 +73,7 @@ namespace edm
     //buf_.SetBuffer((char*)msg.data(),msg.getDataSize(),kFALSE);
     TBuffer xbuf(TBuffer::kRead,msg.getDataSize(),(char*)msg.data(),kFALSE);
     RootDebug tracer(10,10);
-    auto_ptr<SendJobHeader> sd((SendJobHeader*)xbuf.ReadObjectAny(desc_));
+    std::auto_ptr<SendJobHeader> sd((SendJobHeader*)xbuf.ReadObjectAny(desc_));
 
     if(sd.get()==0) {
 	throw cms::Exception("HeaderDecode","DecodeProductList")
@@ -94,7 +92,7 @@ namespace edm
     // the next line seems to be not good.  what if the productdesc is
     // already there? it looks like I replace it.  maybe that it correct
 
-    FDEBUG(6) << "registryIsSubset: Product List: " << endl;
+    FDEBUG(6) << "registryIsSubset: Product List: " << std::endl;
     for(;i != e; ++i) {
 	typedef edm::ProductRegistry::ProductList plist;
 	// the new products must be contained in the old registry
@@ -126,7 +124,7 @@ namespace edm
     bool rc = true;
     SendDescs::const_iterator i(sd.descs_.begin()),e(sd.descs_.end());
 
-    FDEBUG(6) << "registryIsSubset: Product List: " << endl;
+    FDEBUG(6) << "registryIsSubset: Product List: " << std::endl;
     for(;i != e; ++i) {
 	// the new products must be contained in the old registry
 	// form a branchkey from the *i branchdescription,
@@ -167,7 +165,7 @@ namespace edm
   std::auto_ptr<SendJobHeader> readHeaderFromStream(ifstream& ist)
   {
     JobHeaderDecoder decoder;
-    vector<char> regdata(1000*1000);
+    std::vector<char> regdata(1000*1000);
 
     //int len;
     //ist.read((char*)&len,sizeof(int));
@@ -191,7 +189,7 @@ namespace edm
 
     uint32 headerSize = head.size();
     //Bring the pointer at start of Start Message/start of file
-    ist.seekg(0, ios::beg);
+    ist.seekg(0, std::ios::beg);
     ist.read(&regdata[0], headerSize);
 
     //if(!ist)
@@ -209,7 +207,7 @@ namespace edm
   edm::ProductRegistry getRegFromFile(std::string const& filename)
   {
     edm::ProductRegistry pr;
-    ifstream ist(filename.c_str(),ios_base::binary | ios_base::in);
+    ifstream ist(filename.c_str(), std::ios_base::binary | std::ios_base::in);
 
     if(!ist)
       {

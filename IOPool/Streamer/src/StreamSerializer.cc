@@ -6,8 +6,9 @@
  */
 
 #include "IOPool/Streamer/interface/StreamSerializer.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "TClass.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
-#include "IOPool/Streamer/interface/EventMsgBuilder.h"
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
@@ -15,8 +16,6 @@
 
 #include "zlib.h"
 #include <cstdlib>
-
-using namespace std;
 
 namespace edm
 {
@@ -46,19 +45,19 @@ namespace edm
    */
   int StreamSerializer::serializeRegistry(InitMsgBuilder& initMessage)
   {
-    FDEBUG(6) << "StreamSerializer::serializeRegistry" << endl;
+    FDEBUG(6) << "StreamSerializer::serializeRegistry" << std::endl;
     TClass* prog_reg = getTClass(typeid(SendJobHeader));
     SendJobHeader sd;
 
     OutputModule::Selections::const_iterator i(selections_->begin()),e(selections_->end());
 
-    FDEBUG(9) << "Product List: " << endl;
+    FDEBUG(9) << "Product List: " << std::endl;
 
     for(; i != e; ++i)  
       {
         sd.descs_.push_back(**i);
         FDEBUG(9) << "StreamOutput got product = " << (*i)->className()
-                  << endl;
+                  << std::endl;
       }
 
     TBuffer rootbuf(TBuffer::kWrite,initMessage.bufferSize(),
@@ -198,11 +197,11 @@ namespace edm
 #if 0
    if(ptr_ != data_.ptr_)
 	{
-	cerr << "ROOT reset the buffer!!!!\n";
+	std::cerr << "ROOT reset the buffer!!!!\n";
 	data_.ptr_ = ptr_; // ROOT may have reset our data pointer!!!!
 	}
 #endif
-   // copy(rootbuf_.Buffer(),rootbuf_.Buffer()+rootbuf_.Length(),
+   // std::copy(rootbuf_.Buffer(),rootbuf_.Buffer()+rootbuf_.Length(),
    //	eventMessage.eventAddr());
    // eventMessage.setEventLength(rootbuf.Length()); 
 
@@ -254,15 +253,15 @@ namespace edm
 	FDEBUG(1) << " original size = " << inputSize
 		  << " final size = " << dest_size
 		  << " ratio = " << double(dest_size)/double(inputSize)
-		  << endl;
+		  << std::endl;
       }
     else
       {
         // compression failed, return a size of zero
         FDEBUG(9) <<"Compression Return value: "<<ret
-		  << " Okay = " << Z_OK << endl;
+		  << " Okay = " << Z_OK << std::endl;
         // do we throw an exception here?
-        cerr <<"Compression Return value: "<<ret<< " Okay = " << Z_OK << endl;
+        std::cerr <<"Compression Return value: "<<ret<< " Okay = " << Z_OK << std::endl;
       }
 
     return resultSize;

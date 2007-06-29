@@ -1,5 +1,7 @@
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include <iostream>
+#include <iterator>
 
 InitMsgView::InitMsgView(void* buf):
   buf_((uint8*)buf),head_(buf)

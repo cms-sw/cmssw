@@ -1,9 +1,9 @@
 #include "IOPool/Streamer/interface/StreamDQMInputFile.h"
+#include "IOPool/Streamer/interface/MsgTools.h"
 #include "FWCore/Utilities/interface/Exception.h"
 //#include "FWCore/Utilities/interface/DebugMacros.h"
 
 using namespace edm;
-using namespace std;
 
 StreamDQMInputFile::~StreamDQMInputFile()
 {
@@ -56,7 +56,7 @@ int StreamDQMInputFile::readDQMEventMessage() {
   if (eventSize > sizeof(DQMEventMsgView)) {
     //Lets read the whole thing again
     nWant = eventSize;
-    ist_->seekg(last_pos, ios::beg);
+    ist_->seekg(last_pos, std::ios::beg);
     ist_->read(&eventBuf_[0], nWant);
     if (ist_->eof() || static_cast<unsigned int>(ist_->gcount()) < nWant) {
         return 0;
@@ -66,7 +66,7 @@ int StreamDQMInputFile::readDQMEventMessage() {
   if (currentEvMsg_ != NULL) {delete currentEvMsg_;}
   currentEvMsg_ = new DQMEventMsgView((void*)&eventBuf_[0]);
   uint32 new_len = last_pos + eventSize; 
-  ist_->seekg(new_len, ios::beg);
+  ist_->seekg(new_len, std::ios::beg);
   return 1;
 }
 

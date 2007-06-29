@@ -9,8 +9,6 @@
 #include "IOPool/Streamer/interface/ConsRegMessage.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-using namespace std;
-
 /**
  * Constructor for the consumer registration request builder.
  */
@@ -25,9 +23,9 @@ ConsRegRequestBuilder::ConsRegRequestBuilder(void* buf, uint32 bufSize,
 
   // update the buffer pointer to just beyond the header
   bufPtr = buf_ + sizeof(Header);
-  //cout << "bufPtr = 0x" << hex << ((uint32) bufPtr) << dec << endl;
-  //cout << "buf_ = 0x" << hex << ((uint32) buf_) << dec << endl;
-  //cout << "bufSize_ = " << bufSize_ << endl;
+  //std::cout << "bufPtr = 0x" << hex << ((uint32) bufPtr) << dec << std::endl;
+  //std::cout << "buf_ = 0x" << hex << ((uint32) buf_) << dec << std::endl;
+  //std::cout << "bufSize_ = " << bufSize_ << std::endl;
   assert(((uint32) (bufPtr - buf_)) <= bufSize_);
 
   // copy the consumer name into the message
@@ -55,8 +53,8 @@ ConsRegRequestBuilder::ConsRegRequestBuilder(void* buf, uint32 bufSize,
   bufPtr += len;
 
   // create the message header now that we now the full size
-  //cout << "bufPtr = 0x" << hex << ((uint32) bufPtr) << dec << endl;
-  //cout << "buf_ = 0x" << hex << ((uint32) buf_) << dec << endl;
+  //std::cout << "bufPtr = 0x" << hex << ((uint32) bufPtr) << dec << std::endl;
+  //std::cout << "buf_ = 0x" << hex << ((uint32) buf_) << dec << std::endl;
   new (buf_) Header(Header::CONS_REG_REQUEST, (bufPtr - buf_));
 }
 

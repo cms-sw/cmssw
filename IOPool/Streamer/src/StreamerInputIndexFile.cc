@@ -3,10 +3,9 @@
 #include "FWCore/Utilities/interface/DebugMacros.h"
 
 #include<fstream>
+#include<iostream>
 
 using namespace edm;
-using namespace std;
-
 
 StreamerInputIndexFile::~StreamerInputIndexFile()
 {
@@ -18,7 +17,7 @@ StreamerInputIndexFile::~StreamerInputIndexFile()
 }
 
 StreamerInputIndexFile::StreamerInputIndexFile(const std::string& name):
-  ist_(new ifstream(name.c_str(), ios_base::binary | ios_base::in)),
+  ist_(new std::ifstream(name.c_str(), std::ios_base::binary | std::ios_base::in)),
   startMsg_(0),
   eof_(false),
   eventBufPtr_(0),
@@ -28,7 +27,7 @@ StreamerInputIndexFile::StreamerInputIndexFile(const std::string& name):
   indexes_(0)
 {
 
-  FDEBUG(10) <<"Opening Index file"<<endl;
+  FDEBUG(10) << "Opening Index file" << std::endl;
   if (!ist_->is_open()) {
        throw cms::Exception ("StreamerInputIndexFile","StreamerInputIndexFile")
           << "Error Opening Input File: "<< name<< "\n";
@@ -54,7 +53,7 @@ StreamerInputIndexFile::StreamerInputIndexFile(const std::vector<std::string>& n
 {
    for (unsigned int i=0; i!=names.size(); ++i) 
    {
-     ist_ = new ifstream(names.at(i).c_str(), ios_base::binary | ios_base::in);
+     ist_ = new std::ifstream(names.at(i).c_str(), std::ios_base::binary | std::ios_base::in);
      if (!ist_->is_open())
      {
        throw cms::Exception ("StreamerInputIndexFile","StreamerInputIndexFile")
@@ -95,7 +94,7 @@ void StreamerInputIndexFile::readStartMessage() {
   }
   uint32 headerSize = head.size();
   //Bring the pointer at start of Start Message (Starts after file header magic+reserved)
-  ist_->seekg(sizeof(StartIndexRecordHeader), ios::beg);
+  ist_->seekg(sizeof(StartIndexRecordHeader), std::ios::beg);
   if (headerBuf_.size() < (sizeof(StartIndexRecordHeader) + headerSize))
     headerBuf_.resize(sizeof(StartIndexRecordHeader) + headerSize);
   ist_->read((char*)&headerBuf_[sizeof(StartIndexRecordHeader)], headerSize);
@@ -114,7 +113,7 @@ void StreamerInputIndexFile::readStartMessage() {
   ist_->clear();
   //Bring ist_ at the end of record
   headerSize = (startMsg_->getInit())->headerSize(); 
-  ist_->seekg(sizeof(StartIndexRecordHeader)+headerSize, ios::beg);
+  ist_->seekg(sizeof(StartIndexRecordHeader)+headerSize, std::ios::beg);
 
   eventHeaderSize_ = (startMsg_->getInit())->eventHeaderSize();
 }
@@ -142,7 +141,7 @@ int StreamerInputIndexFile::readEventMessage()  {
 
   if (code != Header::EVENT) /** Not an event message should return */
      {
-     FDEBUG(10) << "Not an event Message "<<endl;
+     FDEBUG(10) << "Not an event Message "<< std::endl;
      return 0;
      }
 

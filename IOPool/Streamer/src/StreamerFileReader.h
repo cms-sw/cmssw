@@ -3,7 +3,6 @@
 
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
-#include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/StreamerInputFile.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

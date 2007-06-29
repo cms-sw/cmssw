@@ -1,12 +1,7 @@
-// $Id: StreamerOutputService.cc,v 1.19 2007/01/22 22:04:53 wmtan Exp $
+// $Id: StreamerOutputService.cc,v 1.20 2007/02/01 07:56:55 klute Exp $
 
-#include "IOPool/Streamer/interface/EventStreamOutput.h"
 #include "IOPool/Streamer/interface/StreamerOutputService.h"
-#include "IOPool/Streamer/interface/InitMsgBuilder.h"
-#include "IOPool/Streamer/interface/EventMsgBuilder.h"
-#include "IOPool/Streamer/interface/EOFRecordBuilder.h"
 #include "IOPool/Streamer/interface/MsgTools.h"
-#include "IOPool/Streamer/interface/DumpTools.h"
 
 // to stat files and directories
 #include <sys/types.h>
@@ -16,12 +11,7 @@
 #include <stdio.h>
 
 #include <fstream>
-#include <iostream>
-#include <vector>
-#include <string>
 #include <sstream>
-
-using namespace std;
 
 namespace edm
 {
@@ -107,7 +97,7 @@ void StreamerOutputService::init(std::string fileName, unsigned int maxFileSize,
      {
        newFileName << (fileNameCounter_ % nLogicalDisk_) << "/";
        lockFileName_ = newFileName.str() + ".lock";
-       ofstream *lockFile = new ofstream(lockFileName_.c_str(), ios_base::ate | ios_base::out | ios_base::app);
+       std::ofstream *lockFile = new std::ofstream(lockFileName_.c_str(), std::ios_base::ate | std::ios_base::out | std::ios_base::app);
        delete(lockFile);
      }
 
@@ -132,7 +122,7 @@ void StreamerOutputService::init(std::string fileName, unsigned int maxFileSize,
    char* pos = &saved_initmsg_[0];
    unsigned char* from = view.startAddress();
    unsigned int dsize = view.size();
-   copy(from, from + dsize, pos);
+   std::copy(from, from + dsize, pos);
 
    // initialize event selector
    initializeSelection(view);
@@ -185,13 +175,13 @@ StreamerOutputService::~StreamerOutputService()
     closedFiles_ += ", ";
     closedFiles_ += fileName_;
 
-    std::cout << "#    name                             evt        size     " << endl;
+    std::cout << "#    name                             evt        size     " << std::endl;
     for(std::list<std::string>::const_iterator it = files_.begin(), itEnd = files_.end();
 	  it != itEnd; ++it) {
-      std::cout << *it << endl;
+      std::cout << *it << std::endl;
     }
-    std::cout << "Disk Usage = " << diskUsage_ << endl;
-    std::cout << "Closed files = " << closedFiles_ << endl;
+    std::cout << "Disk Usage = " << diskUsage_ << std::endl;
+    std::cout << "Closed files = " << closedFiles_ << std::endl;
   }
 
 void StreamerOutputService::stop()
@@ -248,7 +238,7 @@ void StreamerOutputService::closeFile(EventMsgView const& eview)
 
     ++fileNameCounter_;
 
-    string tobeclosedFile = fileName_;
+    std::string tobeclosedFile = fileName_;
 
     std::ostringstream newFileName;
     newFileName << path_ << "/";
@@ -256,8 +246,8 @@ void StreamerOutputService::closeFile(EventMsgView const& eview)
 	newFileName << (fileNameCounter_ % nLogicalDisk_) << "/";
 	remove(lockFileName_.c_str());
 	lockFileName_ = newFileName.str() + ".lock";
-	ofstream *lockFile =
-	  new ofstream(lockFileName_.c_str(), ios_base::ate | ios_base::out | ios_base::app);
+	std::ofstream *lockFile =
+	  new std::ofstream(lockFileName_.c_str(), std::ios_base::ate | std::ios_base::out | std::ios_base::app);
 	delete(lockFile);
     }
 
@@ -307,7 +297,7 @@ bool StreamerOutputService::wantsEvent(EventMsgView const& eventView)
     cout << ")\n";
     */
     int num_paths = eventView.hltCount();
-    //cout <<"num_paths: "<<num_paths<<endl;
+    //std::cout << "num_paths: " << num_paths << std::endl;
     bool rc = (eventSelector_->wantAll() || eventSelector_->acceptEvent(&hlt_out[0], num_paths));
     //std::cout << "====================== " << std::endl;
     //std::cout << "return selector code = " << rc << std::endl;
@@ -319,7 +309,7 @@ bool StreamerOutputService::wantsEvent(EventMsgView const& eventView)
   {
     std::ostringstream ofilename;
     ofilename << mpath_ << "/" << filen_ << "." << fileNameCounter_ << ".smry";
-    ofstream of(ofilename.str().c_str());
+    std::ofstream of(ofilename.str().c_str());
     of << fileName_;
     of.close();
   }

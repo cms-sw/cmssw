@@ -1,7 +1,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: EventStreamOutput.cc,v 1.27 2007/05/01 03:11:48 wmtan Exp $
+// $Id: EventStreamOutput.cc,v 1.28 2007/05/29 19:35:26 wmtan Exp $
 //
 // Class EventStreamOutput module
 //
@@ -10,8 +10,8 @@
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Common/interface/BasicHandle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "IOPool/Streamer/interface/EventStreamOutput.h"
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
 #include "IOPool/Streamer/interface/Messages.h"
@@ -20,13 +20,9 @@
 #include "TBuffer.h"
 #include "TClass.h"
 
-#include <iostream>
-#include <vector>
 #include <memory>
 #include <string>
 #include <list>
-
-using namespace std;
 
 namespace edm
 {
@@ -36,7 +32,7 @@ namespace edm
     TBuffer rootbuf(TBuffer::kRead,msg.getDataSize(),msg.data(),kFALSE);
 
     RootDebug tracer(10,10);
-    auto_ptr<SendEvent> sd((SendEvent*)rootbuf.ReadObjectAny(send_event_));
+    std::auto_ptr<SendEvent> sd((SendEvent*)rootbuf.ReadObjectAny(send_event_));
 
     if(sd.get()==0)
       {
@@ -44,7 +40,7 @@ namespace edm
 	  << "got a null event from input stream\n";
       }
 
-    cout << "Got event: " << sd->id_ << endl;
+    std::cout << "Got event: " << sd->id_ << std::endl;
 
     SendProds::iterator spi(sd->prods_.begin()),spe(sd->prods_.end());
     for(; spi != spe; ++spi)
@@ -60,7 +56,7 @@ namespace edm
 	     << " " << spi->desc()->className()
 	     << " " << spi->desc()->productID()
 	     << " " << spi->prov()->productID_
-	     << endl;
+	     << std::endl;
 
       }
   }
@@ -76,7 +72,7 @@ namespace edm
     prod_reg_buf_(100 * 1000),
     prod_reg_len_()
   {
-    FDEBUG(6) << "StreamOutput constructor" << endl;
+    FDEBUG(6) << "StreamOutput constructor" << std::endl;
     // unsure whether or not we need to do the declareStreamer call or not
     //fillStreamers(reg);
     loadExtraClasses();
@@ -90,17 +86,17 @@ namespace edm
 
   void EventStreamerImpl::serializeRegistry(Selections const& prods)
   {
-    FDEBUG(6) << "StreamOutput: serializeRegistry" << endl;
+    FDEBUG(6) << "StreamOutput: serializeRegistry" << std::endl;
     TClass* prog_reg = getTClass(typeid(SendJobHeader));
     SendJobHeader sd;
 
     Selections::const_iterator i(prods.begin()),e(prods.end());
 
-    FDEBUG(9) << "Product List: " << endl;
+    FDEBUG(9) << "Product List: " << std::endl;
     for(; i != e; ++i) {
 	sd.descs_.push_back(**i);
 	FDEBUG(9) << "StreamOutput got product = " << (*i)->className()
-		  << endl;
+		  << std::endl;
     }
 
     InitMsg im(&prod_reg_buf_[0],prod_reg_buf_.size(),true);
@@ -176,13 +172,13 @@ namespace edm
     }
 
 #if 0
-    FDEBUG(11) << "-----Dump start" << endl;
+    FDEBUG(11) << "-----Dump start" << std::endl;
     for(SendProds::iterator pii = se.prods_.begin(), piiEnd = se.prods_.end(); pii != piiEnd; ++pii)
-      cout << "Prov:"
+      std::cout << "Prov:"
 	   << " " << pii->desc()->className()
 	   << " " << pii->desc()->productID()
-	   << endl;      
-    FDEBUG(11) << "-----Dump end" << endl;
+	   << std::endl;      
+    FDEBUG(11) << "-----Dump end" << std::endl;
 #endif
 
     EventBuffer::ProducerBuffer b(*bufs_);

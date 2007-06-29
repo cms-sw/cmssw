@@ -1,6 +1,4 @@
 #include "IOPool/Streamer/interface/StreamDQMOutputFile.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "IOPool/Streamer/interface/MsgTools.h"
 
   StreamDQMOutputFile::~StreamDQMOutputFile() 
   {

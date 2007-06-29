@@ -1,17 +1,16 @@
-// $Id: StreamerStatService.cc,v 1.5 2006/10/11 14:39:32 klute Exp $
+// $Id: StreamerStatService.cc,v 1.6 2007/01/22 22:04:53 wmtan Exp $
 #include "IOPool/Streamer/interface/StreamerStatService.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include <fstream>
 #include <sstream>
-
-using namespace std;
 
 namespace edm
 {
 
 StreamerStatReadService::StreamerStatReadService(std::string statFileName):
   statFileName_(statFileName),
-  statFile_(new ifstream(statFileName_.c_str()))
+  statFile_(new std::ifstream(statFileName_.c_str()))
   {
    if(!statFile_->is_open()) {
        throw cms::Exception("StreamerStatReadService","StreamerStatReadService")
@@ -128,10 +127,10 @@ void StreamerStatWriteService::setRunNumber(uint32 run)
 	       << summary_.startDate_   << ind 
 	       << summary_.startTime_   << ind 
 	       << summary_.endDate_     << ind 
-	       << summary_.endTime_     << endl;
+	       << summary_.endTime_     << std::endl;
    std::string currentStatString (currentStat.str());
    
-   ofstream *statFile = new ofstream(statFileName_.c_str(), ios_base::ate | ios_base::out | ios_base::app);
+   std::ofstream *statFile = new std::ofstream(statFileName_.c_str(), std::ios_base::ate | std::ios_base::out | std::ios_base::app);
    statFile->write((char*)&currentStatString[0], currentStatString.length());
    statFile->close();
    delete(statFile);

@@ -9,10 +9,7 @@
 #include "IOPool/Streamer/interface/StreamDQMSerializer.h"
 #include "IOPool/Streamer/interface/StreamSerializer.h"
 
-#include "zlib.h"
 #include <cstdlib>
-
-using namespace std;
 
 namespace edm
 {
