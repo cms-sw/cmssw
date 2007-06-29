@@ -10,8 +10,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2007/05/10 17:36:17 $
-// $Revision: 1.37 $
+// $Date: 2007/05/22 19:42:31 $
+// $Revision: 1.38 $
 //
 
 #include <vector>
@@ -164,10 +164,6 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
     
     std::vector<Trajectory> CloudTrajectories;
     
-    RoadSearchCloud::SeedRefs theSeeds = cloud->seeds();
-    RoadSearchCloud::SeedRefs::const_iterator iseed;
-
-    //recHits.sort(TrackingRecHitLessFromGlobalPosition(((TrackingGeometry*)(&(*tracker))),alongMomentum));
     if (!NoFieldCosmic_){
       recHits.sort(TrackingRecHitLessFromGlobalPosition(tracker.product(),alongMomentum));
     }
