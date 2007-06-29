@@ -1,0 +1,10 @@
+<use name=DataFormats/TrackingRecHit>
+<use name=RecoTracker/RoadMapRecord>
+<use name=DataFormats/Common>
+<use name=rootrflx>
+<export>
+  <lib name=DataFormatsRoadSearchSeed>
+  <use name=DataFormats/TrackingRecHit>
+  <use name=RecoTracker/RoadMapRecord>
+</export>
+
