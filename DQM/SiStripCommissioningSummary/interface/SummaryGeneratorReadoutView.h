@@ -13,7 +13,8 @@ class SummaryGeneratorReadoutView : public SummaryGenerator {
 
  public:
 
-  SummaryGeneratorReadoutView() {;}
+  SummaryGeneratorReadoutView();
+
   virtual ~SummaryGeneratorReadoutView() {;}
 
   /** */

@@ -15,6 +15,11 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 // 
+SummaryGeneratorControlView::SummaryGeneratorControlView() :
+  SummaryGenerator("SummaryGeneratorControlView") {;}
+
+// -----------------------------------------------------------------------------
+// 
 void SummaryGeneratorControlView::fill( const std::string& top_level_dir,
 					const sistrip::Granularity& granularity,
 					const uint32_t& device_key, 
@@ -50,23 +55,6 @@ void SummaryGeneratorControlView::fill( const std::string& top_level_dir,
     << "TEST " 
     << "top " << top 
     << "path " << path;
-  
-  // Check path is "within" top-level directory structure 
-//   if ( ( ( path.fecCrate() == top.fecCrate() ) || 
-// 	 ( top.fecCrate() == sistrip::invalid_ ) ) && 
-//        path.fecCrate() != sistrip::invalid_ &&
-//        ( ( path.fecSlot()  == top.fecSlot()  ) || 
-// 	 ( top.fecSlot()  == sistrip::invalid_ ) ) && 
-//        path.fecSlot()  != sistrip::invalid_ &&
-//        ( ( path.fecRing()  == top.fecRing()  ) || 
-// 	 ( top.fecRing()  == sistrip::invalid_ ) ) && 
-//        path.fecRing()  != sistrip::invalid_ && 
-//        ( ( path.ccuAddr()  == top.ccuAddr()  ) || 
-// 	 ( top.ccuAddr()  == sistrip::invalid_ ) ) && 
-//        path.ccuAddr()  != sistrip::invalid_ &&
-//        ( ( path.ccuChan()  == top.ccuChan()  ) || 
-// 	 ( top.ccuChan()  == sistrip::invalid_ ) ) && 
-//        path.ccuChan()  != sistrip::invalid_ ) { 
   
   if ( top.isValid() &&
        path.isValid() &&

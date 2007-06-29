@@ -35,7 +35,7 @@ void FedCablingTask::book() {
   for ( uint16_t iter = 0; iter < 2; iter++ ) {
       
     // Define number of histo bins and title
-    if ( iter == 0 )      { nbins = 1024; extra_info = sistrip::fedId_; }
+    if ( iter == 0 )      { nbins = 1024; extra_info = sistrip::feDriver_; }
     else if ( iter == 1 ) { nbins = 96;   extra_info = sistrip::fedChannel_; }
     else {
       edm::LogWarning(mlDqmSource_)

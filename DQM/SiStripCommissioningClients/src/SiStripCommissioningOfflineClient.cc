@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.11 2007/06/19 12:29:22 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.12 2007/06/21 15:41:31 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningOfflineClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -21,7 +21,7 @@
 #include <sstream>
 #include "TProfile.h"
 
-//#define DO_SUMMARY
+#define DO_SUMMARY
 
 using namespace sistrip;
 
@@ -183,6 +183,15 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
     << " Found " << contents.size() 
     << " directories containing MonitorElements in "
     << inputFiles_.size() << " root files";
+  std::stringstream sss;
+  std::vector<std::string>::iterator jstr = contents.begin();
+  for ( ; jstr != contents.end(); jstr++ ) {
+    sss << " " << *jstr << std::endl;
+  }
+  LogTrace(mlDqmClient_)
+    << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+    << " Dump of contents: " << std::endl
+    << sss.str();
   
   // Extract run type from contents
   runType_ = CommissioningHistograms::runType( bei, contents ); 
@@ -210,18 +219,13 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
     edm::LogVerbatim(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Parsing summary plot XML file...";
-    ConfigParser cfg;
-    cfg.parseXML(xmlFile_);
-    plots_ = cfg.summaryPlots(runType_);
+    ConfigParser xml_file;
+    xml_file.parseXML(xmlFile_);
+    plots_ = xml_file.summaryPlots(runType_);
     edm::LogVerbatim(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Parsed summary plot XML file and found " 
       << plots_.size() << " plots defined!";
-    edm::LogVerbatim(mlTest_)
-      << "TEST3 " 
-      << plots_.size() << " " 
-      << SiStripEnumsAndStrings::runType( runType_ ) << " " 
-      << cfg;
   } else {
     edm::LogVerbatim(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
@@ -327,18 +331,16 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
       << " Generating summary plots...";
     std::vector<ConfigParser::SummaryPlot>::const_iterator iplot =  plots_.begin();
     for ( ; iplot != plots_.end(); iplot++ ) {
-      edm::LogVerbatim(mlTest_) 
-	<< "TEST2 " << *iplot; 
       if ( histos_ ) { 
 	histos_->createSummaryHisto( iplot->mon_,
 				     iplot->pres_,
 				     iplot->level_,
 				     iplot->gran_ );
       }
-      edm::LogVerbatim(mlDqmClient_)
-	<< "[SiStripCommissioningOfflineClient::" << __func__ << "]"
-	<< " Generated summary plots!";
     }
+    edm::LogVerbatim(mlDqmClient_)
+      << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+      << " Generated summary plots!";
   } else {
     edm::LogVerbatim(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
@@ -346,7 +348,8 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
   }
   
   // Save client root file
-  if ( !clientHistos_ && histos_ ) { histos_->save( outputFileName_, runNumber_ ); }
+  if ( histos_ ) { histos_->save( outputFileName_, runNumber_ ); }
+  //if ( !clientHistos_ && histos_ ) { histos_->save( outputFileName_, runNumber_ ); }
   
   // Virtual method to trigger the database upload
   uploadToDb();

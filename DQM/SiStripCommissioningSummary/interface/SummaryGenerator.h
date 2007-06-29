@@ -21,10 +21,10 @@ class SummaryGenerator {
  public: 
 
   // ---------- General ----------
-
-  SummaryGenerator();
+  
+  SummaryGenerator( std::string name );
   virtual ~SummaryGenerator() {;}
-
+  
   // Some useful typedefs
   typedef std::pair<float,float> Data;
   typedef std::vector<Data> BinData;
@@ -46,7 +46,7 @@ class SummaryGenerator {
   static TH1* histogram( const sistrip::Presentation&,
 			 const uint32_t& xbins );
   
-  // ---------- Fill map and update histogram ----------
+  // ---------- Methods to fill and update histograms ----------
 
   /** Fills the map that is used to generate the histogram(s). */
   void fillMap( const std::string& top_level_dir,
@@ -54,28 +54,27 @@ class SummaryGenerator {
 		const uint32_t& key, 
 		const float& value, 
 		const float& error = 0. );
-  
 
   /** Clear the map that is used to generate the histogram(s). */
   void clearMap();
   
   /** Creates simple 1D histogram of the parameter values. */
-  void summaryHisto( TH1& ); 
+  void histo1D( TH1& ); 
   
   /** Creates a 1D histogram, with the weighted sum of the parameter
       (y-axis) binned as a function of position within the given
       logical structure, which is view-dependent (x-axis). */
-  void summary1D( TH1& );
+  void histo2DSum( TH1& );
   
   /** Creates a 2D scatter histogram, with individual values of the
       parameter (y-axis) binned as a function of position within the
       given logical structure, which is view-dependent (x-axis). */
-  void summary2D( TH1& );
+  void histo2DScatter( TH1& );
 
   /** Creates a profile histogram, with the mean and spread of the
       parameter (y-axis) binned as a function of position within the
       given logical structure, which is view-dependent (x-axis). */
-  void summaryProf( TH1& );
+  void profile1D( TH1& );
 
   // ---------- Histogram formatting ----------
   
@@ -94,8 +93,15 @@ class SummaryGenerator {
   /** Retrieve size of map (ie, number of bins). */
   inline uint32_t nBins() const;
   inline uint32_t size() const { return nBins(); } //@@ TEMPORARY!!!
+
+  // ---------- Utility methods ----------
+
+  /** Returns name of generator object. */
+  inline const std::string& myName() const;
   
- protected: // ---------- Protected methods and data ----------
+ protected: 
+
+  // ---------- Protected methods ----------
   
   /** Fills the map used to generate the histogram. */
   virtual void fill( const std::string& top_level_dir,
@@ -103,18 +109,32 @@ class SummaryGenerator {
 		     const uint32_t& key, 
 		     const float& value, 
 		     const float& error );
+
+ protected: 
+
+  // ---------- Protected member data ----------
   
   /** A map designed to holds a set of values. The map containing
       these values should be indexed by a key.*/  
   HistoData map_;
 
-  uint32_t entries_;
+  float entries_;
+
   float max_;
+
   float min_;
+
   std::string label_;
+
+ private: 
+  
+  // ---------- Private member data ----------
+  
+  std::string myName_;
   
 };
 
+const std::string& SummaryGenerator::myName() const { return myName_; }
 uint32_t SummaryGenerator::nBins() const { return map_.size(); }
 void SummaryGenerator::axisLabel( const std::string& label ) { label_ = label; }
 

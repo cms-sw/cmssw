@@ -126,8 +126,10 @@ class CommissioningHistograms {
 		  const sistrip::Presentation&, 
 		  const sistrip::View&,
 		  const std::string& directory,
-		  const uint32_t& xbins );
-
+		  const uint32_t& xbins,
+		  const float& xlow = 1. * sistrip::invalid_,
+		  const float& xhigh = 1. * sistrip::invalid_ );
+  
   /** */
   void clearHistosMap();
 

@@ -47,7 +47,7 @@ class ConfigParser : public DQMParserBase {
     SummaryPlot();
     void reset();
     void print( std::stringstream& ) const;
-    void checkView();
+    void check();
     sistrip::Monitorable mon_;
     sistrip::Presentation pres_;
     sistrip::View view_;

@@ -14,8 +14,8 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 /** */
 FastFedCablingHistograms::FastFedCablingHistograms( MonitorUserInterface* mui ) 
-  : CommissioningHistograms( mui, sistrip::FAST_FED_CABLING )//,
-  //factory_( new Factory )
+  : CommissioningHistograms( mui, sistrip::FAST_FED_CABLING ),
+  factory_( new Factory )
 {
   LogTrace(mlDqmClient_) 
     << "[FastFedCablingHistograms::" << __func__ << "]"
@@ -25,8 +25,8 @@ FastFedCablingHistograms::FastFedCablingHistograms( MonitorUserInterface* mui )
 // -----------------------------------------------------------------------------
 /** */
 FastFedCablingHistograms::FastFedCablingHistograms( DaqMonitorBEInterface* bei ) 
-  : CommissioningHistograms( bei, sistrip::FAST_FED_CABLING )//,
-  //factory_( new Factory )
+  : CommissioningHistograms( bei, sistrip::FAST_FED_CABLING ),
+  factory_( new Factory )
 {
   LogTrace(mlDqmClient_) 
     << "[FastFedCablingHistograms::" << __func__ << "]"
@@ -47,6 +47,7 @@ void FastFedCablingHistograms::histoAnalysis( bool debug ) {
   LogTrace(mlDqmClient_)
     << "[FastFedCablingHistograms::" << __func__ << "]";
 
+  // Some initialisation
   uint16_t valid = 0;
   HistosMap::const_iterator iter = 0;
   Analyses::iterator ianal = 0;
@@ -127,31 +128,36 @@ void FastFedCablingHistograms::histoAnalysis( bool debug ) {
 
 // -----------------------------------------------------------------------------
 /** */
-void FastFedCablingHistograms::createSummaryHisto( const sistrip::Monitorable& histo, 
-						   const sistrip::Presentation& type, 
+void FastFedCablingHistograms::createSummaryHisto( const sistrip::Monitorable& mon, 
+						   const sistrip::Presentation& pres, 
 						   const std::string& dir,
 						   const sistrip::Granularity& gran ) {
   LogTrace(mlDqmClient_)
     << "[FastFedCablingHistograms::" << __func__ << "]";
   
-//   // Check view 
-//   sistrip::View view = SiStripEnumsAndStrings::view(dir);
-//   if ( view == sistrip::UNKNOWN_VIEW ) { return; }
+  // Check view 
+  sistrip::View view = SiStripEnumsAndStrings::view(dir);
+  if ( view == sistrip::UNKNOWN_VIEW ) { return; }
   
-//   // Analyze histograms if not done already
-//   if ( data_.empty() ) { histoAnalysis( false ); }
+  // Analyze histograms if not done already
+  if ( data_.empty() ) { histoAnalysis( false ); }
   
-//   // Extract data to be histogrammed
-//   uint32_t xbins = factory_->init( histo, type, view, dir, gran, data_ );
+  // Extract data to be histogrammed
+  uint32_t xbins = factory_->init( mon, pres, view, dir, gran, data_ );
   
-//   // Create summary histogram (if it doesn't already exist)
-//   TH1* summary = histogram( histo, type, view, dir, xbins );
-
-//   // Fill histogram with data
-//   factory_->fill( *summary );
+  // Create summary histogram (if it doesn't already exist)
+  TH1* summary = 0;
+  if ( pres != sistrip::HISTO_1D ) { 
+    summary = histogram( mon, pres, view, dir, xbins ); 
+  } else { 
+    summary = histogram( mon, pres, view, dir, 
+			 sistrip::maximum_, 
+			 0., 
+			 sistrip::maximum_*1. ); 
+  }
+  
+  // Fill histogram with data
+  factory_->fill( *summary );
   
 }
-
-
-
 

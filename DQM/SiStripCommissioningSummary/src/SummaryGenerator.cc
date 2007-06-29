@@ -13,12 +13,13 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 // 
-SummaryGenerator::SummaryGenerator() : 
+SummaryGenerator::SummaryGenerator( std::string name ) : 
   map_(),
-  entries_(0),
+  entries_(0.),
   max_(-1.*sistrip::invalid_),
   min_(1.*sistrip::invalid_),
-  label_("")
+  label_(""),
+  myName_(name)
 {
   // TH1::SetDefaultSumw2(true); // use square of weights to calc error   
 }
@@ -26,19 +27,29 @@ SummaryGenerator::SummaryGenerator() :
 // -----------------------------------------------------------------------------
 // 
 SummaryGenerator* SummaryGenerator::instance( const sistrip::View& view ) {
+
   SummaryGenerator* generator = 0;
   if ( view == sistrip::CONTROL_VIEW ) {
     generator = new SummaryGeneratorControlView();
   } else if ( view == sistrip::READOUT_VIEW ) {
     generator = new SummaryGeneratorReadoutView();
+  } else { generator = 0; }
+
+  if ( generator ) {
+    LogTrace(mlSummaryPlots_) 
+      << "[SummaryGenerator::" << __func__ << "]"
+      << " Built \"" << generator->myName() << "\" object!";
   } else {
-    generator = 0;
     edm::LogWarning(mlSummaryPlots_) 
       << "[SummaryGenerator::" << __func__ << "]"
-      << " Unexpected view: " 
-      << SiStripEnumsAndStrings::view( view );
-  }  
+      << " Unexpected view: \"" 
+      << SiStripEnumsAndStrings::view( view )
+      << "\" Unable to build Generator!"
+      << " Returning NULL pointer!";
+  }
+
   return generator;
+
 }
 
 // -----------------------------------------------------------------------------
@@ -49,13 +60,15 @@ std::string SummaryGenerator::name( const sistrip::RunType& run_type,
 				    const sistrip::View& view, 
 				    const std::string& directory ) {
   std::stringstream ss;
+  ss << sistrip::summaryHisto_ << sistrip::sep_; 
   ss << SiStripEnumsAndStrings::presentation( pres ) << sistrip::sep_; 
-  if ( run_type != sistrip::UNKNOWN_RUN_TYPE && 
-       run_type != sistrip::UNDEFINED_RUN_TYPE ) { 
-    ss << SiStripEnumsAndStrings::runType( run_type ) << sistrip::sep_;
-  }
+  ss << SiStripEnumsAndStrings::runType( run_type ) << sistrip::sep_;
   ss << SiStripEnumsAndStrings::view( view ) << sistrip::sep_;
   ss << SiStripEnumsAndStrings::monitorable( mon );
+  
+  //LogTrace(mlSummaryPlots_) 
+  //<< "[SummaryGenerator::" << __func__ << "]"
+  //<< " Histogram name: \"" << ss.str() << "\"";
   
   return ss.str();
 }
@@ -70,6 +83,7 @@ std::string SummaryGenerator::name( const sistrip::RunType& run_type,
 TH1* SummaryGenerator::histogram( const sistrip::Presentation& pres,
 				  const uint32_t& xbins ) {
   if ( !xbins ) { return 0; }
+
   TH1* summary = 0;
   if ( pres == sistrip::HISTO_1D ) { 
     summary = new TH1F( "", "", 1024, 0., static_cast<float>(1024) ); 
@@ -80,7 +94,22 @@ TH1* SummaryGenerator::histogram( const sistrip::Presentation& pres,
   } else if ( pres == sistrip::PROFILE_1D ) { 
     summary = new TProfile( "", "", xbins, 0., static_cast<float>(xbins), 0., 1025. ); 
   } else { summary = 0; }
+  
+  if ( summary ) {
+    LogTrace(mlSummaryPlots_) 
+      << "[SummaryGenerator::" << __func__ << "]"
+      << " Histogram name: \"" << summary->GetName() << "\"";
+  } else { 
+    edm::LogVerbatim(mlSummaryPlots_) 
+      << "[SummaryGenerator::" << __func__ << "]"
+      << " Unexpected presentation: \"" 
+      << SiStripEnumsAndStrings::presentation( pres )
+      << "\" Unable to build summary plot!"
+      << " Returning NULL pointer!";
+  }
+  
   return summary;
+  
 }
 
 // -----------------------------------------------------------------------------
@@ -94,10 +123,10 @@ void SummaryGenerator::format( const sistrip::RunType& run_type,
 			       TH1& summary_histo ) {
   
   // Set name and title
-  std::stringstream ss;
-  std::string name = SummaryGenerator::name( run_type, mon, pres, view, directory );
-  summary_histo.SetName( name.c_str() );
-  summary_histo.SetTitle( name.c_str() );
+  //std::stringstream ss;
+  //std::string name = SummaryGenerator::name( run_type, mon, pres, view, directory );
+  //summary_histo.SetName( name.c_str() );
+  //summary_histo.SetTitle( name.c_str() );
 
   // X axis
   summary_histo.GetXaxis()->SetLabelSize(0.03);
@@ -131,9 +160,9 @@ void SummaryGenerator::format( const sistrip::RunType& run_type,
   }
 
   // Semi-generic formatting
-  if ((pres == sistrip::HISTO_2D_SUM) || 
-      (pres == sistrip::HISTO_2D_SCATTER) ||
-      (pres == sistrip::PROFILE_1D)) {
+  if ( pres == sistrip::HISTO_2D_SUM || 
+       pres == sistrip::HISTO_2D_SCATTER ||
+       pres == sistrip::PROFILE_1D ) {
     /*
     //put solid and dotted lines on summary to separate top- and
     //2nd-from-top- level bin groups.
@@ -165,7 +194,7 @@ void SummaryGenerator::clearMap() {
   HistoData::iterator iter = map_.begin(); 
   for ( ; iter != map_.end(); iter++ ) { iter->second.clear(); }
   map_.clear();
-  entries_ = 0;
+  entries_ = 0.;
   max_ = -1.*sistrip::invalid_;
   min_ =  1.*sistrip::invalid_;
 }
@@ -179,11 +208,19 @@ void SummaryGenerator::fillMap( const std::string& top_level_dir,
 				const float& error ) {
   
   // Calculate maximum and minimum values in std::map
-  if ( value > max_ ) { max_ = value; }
-  if ( value < min_ ) { min_ = value; }
+  if ( value < 1. * sistrip::valid_ ) { 
+    if ( value > max_ ) { max_ = value; }
+    if ( value < min_ ) { min_ = value; }
+  }
   
-  // Fill std::map
-  fill( top_level_dir, gran, device_key, value, error );
+  // Fill map if value (and error) are valid
+  //if ( value < 1. * sistrip::valid_ ) { 
+  if ( error < 1. * sistrip::valid_ ) { 
+    fill( top_level_dir, gran, device_key, value, error );
+  } else { 
+    fill( top_level_dir, gran, device_key, value, 0. ); 
+  } 
+  //}
   
 }
 
@@ -202,7 +239,7 @@ void SummaryGenerator::fill( const std::string& top_level_dir,
 
 //------------------------------------------------------------------------------
 //
-void SummaryGenerator::summaryHisto( TH1& his ) {
+void SummaryGenerator::histo1D( TH1& his ) {
   
   // Check number of entries in std::map
   if ( map_.empty() ) { 
@@ -267,18 +304,18 @@ void SummaryGenerator::summaryHisto( TH1& his ) {
     }
   }
   
-  LogTrace(mlSummaryPlots_)
-    << "[SummaryGenerator::" << __func__ << "]"
-    << " Added " << histo->GetEntries()
-    << " entries to 1D histogram, which has " 
-    << histo->GetNbinsX()
-    << " bins";
+//   LogTrace(mlSummaryPlots_)
+//     << "[SummaryGenerator::" << __func__ << "]"
+//     << " Added " << histo->GetEntries()
+//     << " entries to 1D histogram, which has " 
+//     << histo->GetNbinsX()
+//     << " bins";
   
 }
 
 //------------------------------------------------------------------------------
 //
-void SummaryGenerator::summary1D( TH1& his ) {
+void SummaryGenerator::histo2DSum( TH1& his ) {
   
   // Check number of entries in std::map
   if ( map_.empty() ) { 
@@ -309,11 +346,8 @@ void SummaryGenerator::summary1D( TH1& his ) {
     if ( ibin->second.empty() ) { continue; }
     BinData::const_iterator ii = ibin->second.begin();
     for ( ; ii != ibin->second.end(); ii++ ) { 
-      histo->Fill( (Double_t)(bin-.5), (Double_t)ii->first ); //, ii->second ); // x (bin), y (value) and weight (error)
-      //histo->Fill( ibin->first.c_str(), ii->first ); // x (bin) and weight (value)
-//       LogTrace(mlSummaryPlots_) << "temp " << bin << " " 
-// 	   << ii->first << " "
-// 	   << ii->second;
+      // x (bin), y (value) and weight (error)
+      histo->Fill( (Double_t)(bin-0.5), (Double_t)ii->first ); //, ii->second ); 
     }
 //     LogTrace(mlSummaryPlots_) << "[SummaryGenerator::" << __func__ << "]"
 // 	 << " Added " << ibin->second.size() 
@@ -326,7 +360,7 @@ void SummaryGenerator::summary1D( TH1& his ) {
 
 //------------------------------------------------------------------------------
 //
-void SummaryGenerator::summary2D( TH1& his ) {
+void SummaryGenerator::histo2DScatter( TH1& his ) {
 
   // Check number of entries in std::map
   if ( map_.empty() ) { 
@@ -346,49 +380,52 @@ void SummaryGenerator::summary2D( TH1& his ) {
   }
   
   // Set histogram number of bins and min/max
-  histo->GetXaxis()->Set( 100*map_.size(), 0., 100.*static_cast<Double_t>(map_.size()) );
+  //histo->GetXaxis()->Set( 100*map_.size(), 0., 100.*static_cast<Double_t>(map_.size()) );
+  histo->GetXaxis()->Set( map_.size(), 0., static_cast<Double_t>(map_.size()) );
   histo->GetYaxis()->Set( 1025, 0., 1025. );
 
   //histo->Dump();
 
   // Iterate through std::map, set bin labels and fill histogram
-  uint16_t bins = 0;
+  uint16_t bin = 0;
   HistoData::const_iterator ibin = map_.begin();
   for ( ; ibin != map_.end(); ibin++ ) {
-    uint16_t bin = 100*bins+50;
+    bin++;
+    uint16_t jbin = 100*(bin-1)+50;
     histo->GetXaxis()->SetBinLabel( (Int_t)(bin), ibin->first.c_str() );
-    //if ( ibin->second.empty() ) { continue; }
+    if ( ibin->second.empty() ) { continue; }
     BinData::const_iterator ii = ibin->second.begin();
     for ( ; ii != ibin->second.end(); ii++ ) { 
-      histo->Fill( (Double_t)(bin-.5), (Double_t)ii->first ); //, ii->second ); // x (bin), y (value) and weight (error)
+      // x (bin), y (value) and weight (error)
+      histo->Fill( (Double_t)(bin-0.5), (Double_t)ii->first, ii->second ); 
     }
-    bins++;
-    /* LogTrace(mlSummaryPlots_) << "[SummaryGenerator::" << __func__ << "]"
-	 << " Added " << ibin->second.size() 
-	 << " contents to bin " << bin
- 	 << " with bin label '" << ibin->first.c_str()
- 	;
-    */
+//     LogTrace(mlSummaryPlots_)
+//       << "[SummaryGenerator::" << __func__ << "]"
+//       << " Added " << ibin->second.size() 
+//       << " contents to bin " << bin
+//       << " with bin label '" << ibin->first.c_str();
   }
   
 }
 
 //------------------------------------------------------------------------------
 //
-void SummaryGenerator::summaryProf( TH1& his ) {
+void SummaryGenerator::profile1D( TH1& his ) {
   
   // Check number of entries in std::map
   if ( map_.empty() ) { 
-    edm::LogWarning(mlSummaryPlots_) << "[SummaryGenerator::" << __func__ << "]" 
-	 << " No contents in std::map to histogram!";
+    edm::LogWarning(mlSummaryPlots_)
+      << "[SummaryGenerator::" << __func__ << "]" 
+      << " No contents in std::map to histogram!";
     return; 
   }
   
   // Retrieve histogram  
   TProfile* histo = dynamic_cast<TProfile*>(&his);
   if ( !histo ) { 
-    edm::LogWarning(mlSummaryPlots_) << "[SummaryGenerator::" << __func__ << "]"
-	 << " NULL pointer to TProfile histogram!";
+    edm::LogWarning(mlSummaryPlots_) 
+      << "[SummaryGenerator::" << __func__ << "]"
+      << " NULL pointer to TProfile histogram!";
     return;
   }
   

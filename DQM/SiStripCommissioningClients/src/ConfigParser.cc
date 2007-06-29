@@ -50,29 +50,41 @@ void ConfigParser::SummaryPlot::reset() {
 
 // -----------------------------------------------------------------------------
 // 
-void ConfigParser::SummaryPlot::checkView() {
+void ConfigParser::SummaryPlot::check() {
 
+  // Remove end "/" if it exists
+  if ( !level_.empty() ) {
+    std::string slash = level_.substr( level_.size()-1, 1 );
+    if ( slash == sistrip::dir_ ) { level_ = level_.substr( 0, level_.size()-1 ); }
+  }
+
+  // Check view 
   sistrip::View check = SiStripEnumsAndStrings::view( level_ );
-  
-  if ( check != view_ ) {
-    std::stringstream ss;
-    ss << "[ConfigParser::SummaryPlot::" << __func__ << "]"
-       << " Mismatch between level_ and view_ member data!";
-    if ( check != sistrip::UNKNOWN_VIEW ) {
-      ss << " Changing view_ from "
-	 << SiStripEnumsAndStrings::view( view_ )
-	 << " to " 
-	 << SiStripEnumsAndStrings::view( check ); 
-      view_ = check;
-    } else {
-      std::string temp = SiStripEnumsAndStrings::view( view_ ) + "/" + level_;
-      ss << " Changing level_ from "
-	 << level_ 
-	 << " to " 
-	 << temp;
-      level_ = temp;
+  view_ = check;
+  if ( check == sistrip::UNKNOWN_VIEW || 
+       check == sistrip::UNDEFINED_VIEW ) {
+    edm::LogWarning(mlDqmClient_)
+      << "[ConfigParser::SummaryPlot::" << __func__ << "]"
+      << " Unexpected view: \"" << SiStripEnumsAndStrings::view( check );
+  }
+
+  // Add sistrip::root_ if not found
+  if ( level_.find( sistrip::root_ ) == std::string::npos ) { 
+    if ( check == sistrip::UNKNOWN_VIEW ) {
+      level_ = 
+	sistrip::root_ + sistrip::dir_ + 
+	sistrip::unknownView_ + sistrip::dir_ + 
+	level_; 
+    } else if ( check == sistrip::UNDEFINED_VIEW ) {
+      level_ = 
+	sistrip::root_ + sistrip::dir_ + 
+	sistrip::undefinedView_ + sistrip::dir_ + 
+	level_; 
+    } else { 
+      level_ = 
+	sistrip::root_ + sistrip::dir_ + 
+	level_; 
     }
-    //edm::LogWarning(mlDqmClient_) << ss.str();
   }
   
 }
@@ -136,14 +148,14 @@ void ConfigParser::parseXML( const std::string& f ) {
       return;
     }
 
-    LogTrace(mlDqmClient_) 
-      << "[ConfigParser::" << __func__ << "]"
-      << " Found \"" << rootTag_ << "\" tag!";
+//     LogTrace(mlDqmClient_) 
+//       << "[ConfigParser::" << __func__ << "]"
+//       << " Found \"" << rootTag_ << "\" tag!";
     
-    LogTrace(mlDqmClient_) 
-      << "[ConfigParser::" << __func__ << "]"
-      << " Found " << nodes->getLength()
-      << " children nodes!";
+//     LogTrace(mlDqmClient_) 
+//       << "[ConfigParser::" << __func__ << "]"
+//       << " Found " << nodes->getLength()
+//       << " children nodes!";
     
     // Iterate through nodes
     for( XMLSize_t inode = 0; inode < nodes->getLength(); ++inode ) {
@@ -162,12 +174,12 @@ void ConfigParser::parseXML( const std::string& f ) {
 	  const XMLCh* attr = element->getAttribute( XMLString::transcode(runTypeAttr_.c_str()) );
 	  sistrip::RunType run_type = SiStripEnumsAndStrings::runType( XMLString::transcode(attr) );
 	  
-	  std::stringstream ss;
-	  ss << "[ConfigParser::" << __func__ << "]"
-	     << " Found \"" << runTypeTag_ << "\" tag!" << std::endl
-	     << "  with tag name \"" << XMLString::transcode(element->getNodeName()) << "\"" << std::endl
-	     << "  and attr \"" << runTypeAttr_ << "\" with value \"" << XMLString::transcode(attr) << "\"";
-	  LogTrace(mlDqmClient_) << ss.str();
+// 	  std::stringstream ss;
+// 	  ss << "[ConfigParser::" << __func__ << "]"
+// 	     << " Found \"" << runTypeTag_ << "\" tag!" << std::endl
+// 	     << "  with tag name \"" << XMLString::transcode(element->getNodeName()) << "\"" << std::endl
+// 	     << "  and attr \"" << runTypeAttr_ << "\" with value \"" << XMLString::transcode(attr) << "\"";
+// 	  LogTrace(mlDqmClient_) << ss.str();
 	  
 	  // Retrieve nodes in xml document
 	  DOMNodeList* children = node->getChildNodes();
@@ -196,29 +208,29 @@ void ConfigParser::parseXML( const std::string& f ) {
 	  	
 		const XMLCh* mon = elem->getAttribute( XMLString::transcode(monitorableAttr_.c_str()) );
 		const XMLCh* pres = elem->getAttribute( XMLString::transcode(presentationAttr_.c_str()) );
-		const XMLCh* view = elem->getAttribute( XMLString::transcode(viewAttr_.c_str()) );
+		//const XMLCh* view = elem->getAttribute( XMLString::transcode(viewAttr_.c_str()) );
 		const XMLCh* level = elem->getAttribute( XMLString::transcode(levelAttr_.c_str()) );
 		const XMLCh* gran = elem->getAttribute( XMLString::transcode(granularityAttr_.c_str()) );
   
-		std::stringstream ss;
-		ss << "[ConfigParser::" << __func__ << "]"
-		   << " Found \"" << summaryPlotTag_ << "\" tag!" << std::endl
-		   << "  with tag name \"" << XMLString::transcode(elem->getNodeName()) << "\"" << std::endl
-		   << "  and attr \"" << monitorableAttr_ << "\" with value \"" << XMLString::transcode(mon) << "\"" << std::endl
-		   << "  and attr \"" << presentationAttr_ << "\" with value \"" << XMLString::transcode(pres) << "\"" << std::endl
-		   << "  and attr \"" << viewAttr_ << "\" with value \"" << XMLString::transcode(view) << "\"" << std::endl
-		   << "  and attr \"" << levelAttr_ << "\" with value \"" << XMLString::transcode(level) << "\"" << std::endl
-		   << "  and attr \"" << granularityAttr_ << "\" with value \"" << XMLString::transcode(gran) << "\"";
-		LogTrace(mlDqmClient_) << ss.str();
+// 		std::stringstream ss;
+// 		ss << "[ConfigParser::" << __func__ << "]"
+// 		   << " Found \"" << summaryPlotTag_ << "\" tag!" << std::endl
+// 		   << "  with tag name \"" << XMLString::transcode(elem->getNodeName()) << "\"" << std::endl
+// 		   << "  and attr \"" << monitorableAttr_ << "\" with value \"" << XMLString::transcode(mon) << "\"" << std::endl
+// 		   << "  and attr \"" << presentationAttr_ << "\" with value \"" << XMLString::transcode(pres) << "\"" << std::endl
+// 		  //<< "  and attr \"" << viewAttr_ << "\" with value \"" << XMLString::transcode(view) << "\"" << std::endl
+// 		   << "  and attr \"" << levelAttr_ << "\" with value \"" << XMLString::transcode(level) << "\"" << std::endl
+// 		   << "  and attr \"" << granularityAttr_ << "\" with value \"" << XMLString::transcode(gran) << "\"";
+// 		LogTrace(mlDqmClient_) << ss.str();
 
 		// Update SummaryPlot object and push back into map
 		summary.reset();
 		summary.mon_ = SiStripEnumsAndStrings::monitorable( XMLString::transcode(mon) );
 		summary.pres_ = SiStripEnumsAndStrings::presentation( XMLString::transcode(pres) );
-		summary.view_ = SiStripEnumsAndStrings::view( XMLString::transcode(view) );
+		//summary.view_ = SiStripEnumsAndStrings::view( XMLString::transcode(view) );
 		summary.gran_ = SiStripEnumsAndStrings::granularity( XMLString::transcode(gran) );
 		summary.level_ = XMLString::transcode(level);
-		summary.checkView();
+		summary.check();
 		summaryPlotMap_[run_type].push_back(summary);
 		
 	      }

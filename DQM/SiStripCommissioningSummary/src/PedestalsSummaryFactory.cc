@@ -157,13 +157,13 @@ void SummaryHistogramFactory<PedestalsAnalysis>::fill( TH1& summary_histo ) {
 
   // Generate appropriate summary histogram 
   if ( pres_ == sistrip::HISTO_1D ) {
-    generator_->summaryHisto( summary_histo );
+    generator_->histo1D( summary_histo );
   } else if ( pres_ == sistrip::HISTO_2D_SUM ) {
-    generator_->summary1D( summary_histo );
+    generator_->histo2DSum( summary_histo );
   } else if ( pres_ == sistrip::HISTO_2D_SCATTER ) {
-    generator_->summary2D( summary_histo );
+    generator_->histo2DScatter( summary_histo );
   } else if ( pres_ == sistrip::PROFILE_1D ) {
-    generator_->summaryProf( summary_histo );
+    generator_->profile1D( summary_histo );
   } else { 
     edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
 	 << " Unexpected SummaryType value:"

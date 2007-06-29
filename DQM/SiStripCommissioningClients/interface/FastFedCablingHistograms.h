@@ -2,7 +2,7 @@
 #define DQM_SiStripCommissioningClients_FastFedCablingHistograms_H
 
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
-//#include "DQM/SiStripCommissioningSummary/interface/FastFedCablingSummaryFactory.h"
+#include "DQM/SiStripCommissioningSummary/interface/FastFedCablingSummaryFactory.h"
 #include "DQM/SiStripCommissioningAnalysis/interface/FastFedCablingAnalysis.h"
 
 class MonitorUserInterface;
@@ -16,7 +16,7 @@ class FastFedCablingHistograms : public CommissioningHistograms {
   FastFedCablingHistograms( DaqMonitorBEInterface* );
   virtual ~FastFedCablingHistograms();
   
-  //typedef SummaryPlotFactory<FastFedCablingAnalysis*> Factory;
+  typedef SummaryPlotFactory<FastFedCablingAnalysis*> Factory;
   typedef std::map<uint32_t,FastFedCablingAnalysis*> Analyses;
 
   /** */
@@ -32,7 +32,7 @@ class FastFedCablingHistograms : public CommissioningHistograms {
   
   Analyses data_;
   
-  //std::auto_ptr<Factory> factory_;
+  std::auto_ptr<Factory> factory_;
   
 };
 

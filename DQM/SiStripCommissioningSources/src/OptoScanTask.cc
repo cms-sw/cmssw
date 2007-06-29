@@ -39,6 +39,8 @@ void OptoScanTask::book() {
   // Book histos and resize std::vectors within "Histo sets"
   for ( uint16_t igain = 0; igain < opto_.size(); igain++ ) { 
     for ( uint16_t ilevel = 0; ilevel < 2; ilevel++ ) { 
+
+      //@@ new histo: rms of "baseline" (280 samples mius 8 for tick marks) as func of bias setting 
       
       std::stringstream extra_info; 
       extra_info << sistrip::gain_ << igain 
@@ -141,6 +143,8 @@ void OptoScanTask::update() {
 void OptoScanTask::locateTicks( const edm::DetSet<SiStripRawDigi>& digis, 
 				std::pair< uint16_t, uint16_t >& digital_range, 
 				bool first_tick_only ) {
+
+  //@@ RUBBISH!!!! simplify!!! find min/max, mid-range and push back into base and tick vectors (based on mid-range)
   
   // Copy ADC values and sort
   std::vector<uint16_t> adc; adc.reserve( digis.data.size() ); 
