@@ -42,6 +42,7 @@ L1GctJetCand::L1GctJetCand(uint16_t data, bool isTau, bool isFor, uint16_t block
 // constructor for use in emulator
 // eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z
 L1GctJetCand::L1GctJetCand(unsigned rank, unsigned phi, unsigned eta, bool isTau, bool isFor) : 
+  m_data(0), // overridden below
   m_isTau(isTau),
   m_isFor(isFor),
   m_source(0),
@@ -53,6 +54,7 @@ L1GctJetCand::L1GctJetCand(unsigned rank, unsigned phi, unsigned eta, bool isTau
 // constructor for use in emulator
 // eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z
 L1GctJetCand::L1GctJetCand(unsigned rank, unsigned phi, unsigned eta, bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx) : 
+  m_data(0), // overridden below
   m_isTau(isTau),
   m_isFor(isFor),
   m_source( ((block&0x7f)<<9) + (index&0x1ff) ),

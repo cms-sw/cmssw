@@ -14,7 +14,7 @@
 ///
 
 
-class L1GctJetCand : public L1GctCand {
+class L1GctJetCand { //: public L1GctCand {
 public:
   /// default constructor (for vector initialisation etc.)
   L1GctJetCand();

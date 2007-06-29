@@ -19,7 +19,7 @@
  */
 
 
-class L1GctEmCand : public L1GctCand {
+class L1GctEmCand {// : public L1GctCand {
 public:
 
   /// default constructor (for vector initialisation etc.)
