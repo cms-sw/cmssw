@@ -95,41 +95,33 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
   // Take the active layer position from the Tracker Reco Geometry
   // Pixel barrel
   std::vector< BarrelDetLayer*>::const_iterator bl = barrelLayers.begin();
-  double pixelLength = (**bl).specificSurface().bounds().length()/2.;
-  // First pixel barrel layer: r=4.41058, l=53.38
-  const SimpleCylinderBounds  PIXB1( 
-        (**bl).specificSurface().radius()-0.0050, 
-        (**bl).specificSurface().radius()+0.0050,
-	-pixelLength,
-  	 pixelLength);
-  // "Cables" 
+  double maxLength = (**bl).specificSurface().bounds().length()/2.;
   double maxRadius = (**bl).specificSurface().radius()+0.01;
-  const SimpleDiskBounds PIXBOut1(3.6,maxRadius,-0.5,0.5);
-  const Surface::PositionType PPIXBOut1(0.0,0.0,pixelLength+0.001);
+  // First pixel barrel layer: r=4.41058, l=53.38
+  const SimpleCylinderBounds  PIXB1( maxRadius-0.005, maxRadius+0.005, -maxLength, +maxLength);
+  // "Cables" 
+  const SimpleDiskBounds PIXBOut1(3.6,maxRadius+0.01,-0.5,0.5);
+  const Surface::PositionType PPIXBOut1(0.0,0.0,maxLength);
 
   // Second pixel barrel layer: r=7.30732, l=53.38
   ++bl;
-  const SimpleCylinderBounds  PIXB2( 
-        (**bl).specificSurface().radius()-0.0050, 
-        (**bl).specificSurface().radius()+0.0050, 
-       -pixelLength-0.002,  
-       +pixelLength+0.002);
+  maxLength = std::max( (**bl).specificSurface().bounds().length()/2., maxLength+0.000 );
+  maxRadius = (**bl).specificSurface().radius();
+  const SimpleCylinderBounds  PIXB2( maxRadius-0.005, maxRadius+0.005, -maxLength, +maxLength);
+
   // "Cables"
-  maxRadius = (**bl).specificSurface().radius()+0.01;
-  const SimpleDiskBounds PIXBOut2(6.1,maxRadius,-0.5,0.5);
-  const Surface::PositionType PPIXBOut2(0.0,0.0,pixelLength+0.003);
+  const SimpleDiskBounds PIXBOut2(6.1,maxRadius+0.005,-0.5,0.5);
+  const Surface::PositionType PPIXBOut2(0.0,0.0,maxLength);
 
   // More cables
   ++bl;
-  maxRadius = (**bl).specificSurface().radius()-0.01;
+  maxRadius = (**bl).specificSurface().radius();
   const SimpleDiskBounds PIXBOut3(8.5,maxRadius,-0.5,0.5);
-  const Surface::PositionType PPIXBOut3(0.0,0.0,pixelLength+0.004);
+  const Surface::PositionType PPIXBOut3(0.0,0.0,maxLength);
+
   // Third pixel barrel layer: r=10.1726, l=53.38
-  const SimpleCylinderBounds  PIXB3( 
-        (**bl).specificSurface().radius()-0.0150, 
-        (**bl).specificSurface().radius()+0.0150, 
-       -pixelLength-0.005,  
-       +pixelLength+0.005);
+  maxLength = std::max( (**bl).specificSurface().bounds().length()/2., maxLength+0.000 );
+  const SimpleCylinderBounds  PIXB3( maxRadius-0.005, maxRadius+0.005, -maxLength, +maxLength);
 
   // Pixel Barrel Outside walls and cables
   const SimpleDiskBounds PIXBOut4(11.9,15.5,-0.5,0.5);
@@ -147,32 +139,24 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
   // Tracker Inner Barrel : thin detectors (300 microns)
   // First TIB layer: r=25.6786, l=130.04
   ++bl;
-  const SimpleCylinderBounds  TIB1( 
-        (**bl).specificSurface().radius()-0.0150, 
-        (**bl).specificSurface().radius()+0.0150, 
-       -(**bl).specificSurface().bounds().length()/2.-7.0,  
-       +(**bl).specificSurface().bounds().length()/2.+7.0);
+  maxRadius = (**bl).specificSurface().radius();
+  maxLength = (**bl).specificSurface().bounds().length()/2.+7.0;
+  const SimpleCylinderBounds  TIB1( maxRadius-0.0150, maxRadius+0.0150, -maxLength, +maxLength);
   // Second TIB layer: r=34.0341, l=131.999
   ++bl;
-  const SimpleCylinderBounds  TIB2( 
-        (**bl).specificSurface().radius()-0.0150, 
-        (**bl).specificSurface().radius()+0.0150, 
-       -(**bl).specificSurface().bounds().length()/2.-7.0,  
-       +(**bl).specificSurface().bounds().length()/2.+7.0);
+  maxRadius = (**bl).specificSurface().radius();
+  maxLength = std::max( (**bl).specificSurface().bounds().length()/2.+7.0, maxLength+0.000 );
+  const SimpleCylinderBounds  TIB2( maxRadius-0.0150, maxRadius+0.0150, -maxLength, +maxLength);
   // Third TIB layer: r=41.9599, l=131.628  !!!! Needs to be larger than TIB2
   ++bl;
-  const SimpleCylinderBounds  TIB3( 
-        (**bl).specificSurface().radius()-0.0150, 
-        (**bl).specificSurface().radius()+0.0150, 
-       -(**bl).specificSurface().bounds().length()/2.-7.0-0.6,  
-       +(**bl).specificSurface().bounds().length()/2.+7.0+0.6);
+  maxRadius = (**bl).specificSurface().radius();
+  maxLength = std::max( (**bl).specificSurface().bounds().length()/2.+7.0, maxLength+0.000 );
+  const SimpleCylinderBounds  TIB3( maxRadius-0.0150, maxRadius+0.0150, -maxLength, +maxLength);
   // Fourth TIB layer: r=49.8924, l=132.78
   ++bl;
-  const SimpleCylinderBounds  TIB4( 
-        (**bl).specificSurface().radius()-0.0150, 
-        (**bl).specificSurface().radius()+0.0150, 
-       -(**bl).specificSurface().bounds().length()/2.-7.0-0.1,  
-       +(**bl).specificSurface().bounds().length()/2.+7.0+0.1);
+  maxRadius = (**bl).specificSurface().radius();
+  maxLength = std::max( (**bl).specificSurface().bounds().length()/2.+7.0, maxLength+0.000 );
+  const SimpleCylinderBounds  TIB4( maxRadius-0.0150, maxRadius+0.0150, -maxLength, +maxLength);
 
   // Inner Barrel Cylinder & Ends : Cables and walls
   const SimpleDiskBounds TIBEOut(22.5,53.9,-0.05,0.05);
@@ -186,46 +170,34 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
 
   // First TOB layer: r=60.7671, l=216.576
   ++bl;
-  const SimpleCylinderBounds  TOB1( 
-        (**bl).specificSurface().radius()-0.0150, 
-        (**bl).specificSurface().radius()+0.0150, 
-       -(**bl).specificSurface().bounds().length()/2.,  
-       +(**bl).specificSurface().bounds().length()/2.);
+  maxRadius = (**bl).specificSurface().radius();
+  maxLength = (**bl).specificSurface().bounds().length()/2.+0.0;
+  const SimpleCylinderBounds  TOB1( maxRadius-0.0150, maxRadius+0.0150, -maxLength, +maxLength);
   // Second TOB layer: r=69.3966, l=216.576
   ++bl;
-  const SimpleCylinderBounds  TOB2( 
-        (**bl).specificSurface().radius()-0.0150, 
-        (**bl).specificSurface().radius()+0.0150, 
-       -(**bl).specificSurface().bounds().length()/2.,  
-       +(**bl).specificSurface().bounds().length()/2.);
+  maxRadius = (**bl).specificSurface().radius();
+  maxLength = std::max( (**bl).specificSurface().bounds().length()/2.+0.0, maxLength+0.000 );
+  const SimpleCylinderBounds  TOB2( maxRadius-0.0150, maxRadius+0.0150, -maxLength, +maxLength);
   // Third TOB layer: r=78.0686, l=216.576
   ++bl;
-  const SimpleCylinderBounds  TOB3( 
-        (**bl).specificSurface().radius()-0.0150, 
-        (**bl).specificSurface().radius()+0.0150, 
-       -(**bl).specificSurface().bounds().length()/2.-0.5,  
-       +(**bl).specificSurface().bounds().length()/2.+0.5);
+  maxRadius = (**bl).specificSurface().radius();
+  maxLength = std::max( (**bl).specificSurface().bounds().length()/2.+0.0, maxLength+0.000 );
+  const SimpleCylinderBounds  TOB3( maxRadius-0.0150, maxRadius+0.0150, -maxLength, +maxLength);
   // Fourth TOB layer: r=86.8618, l=216.576
   ++bl;
-  const SimpleCylinderBounds  TOB4( 
-        (**bl).specificSurface().radius()-0.0150, 
-        (**bl).specificSurface().radius()+0.0150, 
-       -(**bl).specificSurface().bounds().length()/2.-0.5,  
-       +(**bl).specificSurface().bounds().length()/2.+0.5);
+  maxRadius = (**bl).specificSurface().radius();
+  maxLength = std::max( (**bl).specificSurface().bounds().length()/2.+0.0, maxLength+0.000 );
+  const SimpleCylinderBounds  TOB4( maxRadius-0.0150, maxRadius+0.0150, -maxLength, +maxLength);
   // Fifth TOB layer: r=96.5557, l=216.576
   ++bl;
-  const SimpleCylinderBounds  TOB5( 
-        (**bl).specificSurface().radius()-0.0150, 
-        (**bl).specificSurface().radius()+0.0150, 
-       -(**bl).specificSurface().bounds().length()/2.-0.5,  
-       +(**bl).specificSurface().bounds().length()/2.+0.5);
+  maxRadius = (**bl).specificSurface().radius();
+  maxLength = std::max( (**bl).specificSurface().bounds().length()/2.+0.0, maxLength+0.000 );
+  const SimpleCylinderBounds  TOB5( maxRadius-0.0150, maxRadius+0.0150, -maxLength, +maxLength);
   // Sixth TOB layer: r=108.05, l=216.576
   ++bl;
-  const SimpleCylinderBounds  TOB6( 
-        (**bl).specificSurface().radius()-0.0150, 
-        (**bl).specificSurface().radius()+0.0150, 
-       -(**bl).specificSurface().bounds().length()/2.-0.5,  
-       +(**bl).specificSurface().bounds().length()/2.+0.5);
+  maxRadius = (**bl).specificSurface().radius();
+  maxLength = std::max( (**bl).specificSurface().bounds().length()/2.+0.0, maxLength+0.000 );
+  const SimpleCylinderBounds  TOB6( maxRadius-0.0150, maxRadius+0.0150, -maxLength, +maxLength);
 
   const SimpleDiskBounds TOBEOut(55.0,109.5,-0.5,0.5);
   const Surface::PositionType PTOBEOut(0.0,0.0,110.0);
@@ -240,45 +212,40 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
 
   // Pixel disks 
   // First Pixel disk: Z pos 35.5 radii 5.42078, 16.0756
-  const SimpleDiskBounds PIXD1(
-	  (**fl).specificSurface().innerRadius()-1.0, 
-	  (**fl).specificSurface().outerRadius()+2.0,
-	  -0.015,0.015);
+  double innerRadius = (**fl).specificSurface().innerRadius()-1.0;
+  double outerRadius = (**fl).specificSurface().outerRadius()+2.0;
+  const SimpleDiskBounds PIXD1(innerRadius, outerRadius,-0.0150,+0.0150);
   const Surface::PositionType PPIXD1(0.0,0.0,(**fl).surface().position().z()); 
   // Second Pixel disk: Z pos 48.5 radii 5.42078, 16.0756
   ++fl;
-  const SimpleDiskBounds PIXD2(
-	  (**fl).specificSurface().innerRadius()-1.0, 
-	  (**fl).specificSurface().outerRadius()+2.0,
-	  -0.015,0.015);
+  innerRadius = (**fl).specificSurface().innerRadius()-1.0;
+  outerRadius = std::max( (**fl).specificSurface().outerRadius()+2.0, outerRadius+0.000 );
+  const SimpleDiskBounds PIXD2(innerRadius, outerRadius,-0.0150,+0.0150);
   const Surface::PositionType PPIXD2(0.0,0.0,(**fl).surface().position().z()); 
 
   // Tracker Inner disks (add 3 cm for the outer radius to simulate cables, 
   // and remove 1cm to inner radius to allow for some extrapolation margin)
   // First TID : Z pos 78.445 radii 23.14, 50.4337
   ++fl;
-  const SimpleDiskBounds TID1(
-	  (**fl).specificSurface().innerRadius()-2.0, 
-	  (**fl).specificSurface().outerRadius()+3.5,
-	  -0.015,0.015);
+  innerRadius = (**fl).specificSurface().innerRadius()-2.0;
+  outerRadius = (**fl).specificSurface().outerRadius()+3.5;
+  const SimpleDiskBounds TID1(innerRadius,outerRadius,-0.0150,+0.0150);
   const Surface::PositionType PTID1(0.,0.,(**fl).surface().position().z()); 
   // Second TID : Z pos 90.445 radii 23.14, 50.4337
   ++fl;
-  const SimpleDiskBounds TID2(
-	  (**fl).specificSurface().innerRadius()-2.0, 
-	  (**fl).specificSurface().outerRadius()+3.5,
-	  -0.015,0.015);
+  innerRadius = (**fl).specificSurface().innerRadius()-2.0;
+  outerRadius = std::max( (**fl).specificSurface().outerRadius()+3.5, outerRadius+0.000);
+  const SimpleDiskBounds TID2(innerRadius,outerRadius,-0.0150,+0.0150);
   const Surface::PositionType PTID2(0.,0.,(**fl).surface().position().z()); 
   // Third TID : Z pos 105.445 radii 23.14, 50.4337
   ++fl;
-  const SimpleDiskBounds TID3(
-	  (**fl).specificSurface().innerRadius()-2.0, 
-	  (**fl).specificSurface().outerRadius()+3.5,
-	  -0.015,0.015);
+  innerRadius = (**fl).specificSurface().innerRadius()-2.0;
+  outerRadius = std::max( (**fl).specificSurface().outerRadius()+3.5, outerRadius+0.000);
+  const SimpleDiskBounds TID3(innerRadius,outerRadius,-0.0150,+0.0150);
   const Surface::PositionType PTID3(0.,0.,(**fl).surface().position().z()); 
 
   // TID Wall and cables
-  const SimpleDiskBounds TIDEOut(32.0,54.004,-0.5,0.5);
+  const SimpleDiskBounds TIDEOut(32.0,outerRadius,-0.5,0.5);
   const Surface::PositionType PTIDEOut(0.0,0.0,108.0);
 
 
@@ -287,66 +254,57 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
   // remove other 2cm to inner radius to allow for some extrapolation margin
   // First TEC: Z pos 131.892 radii 23.3749, 99.1967
   ++fl;
-  const SimpleDiskBounds TEC1(
-	  (**fl).specificSurface().innerRadius()-1.5, 
-	  (**fl).specificSurface().outerRadius()+2.0,
-	  -0.015,0.015);
+  innerRadius = (**fl).specificSurface().innerRadius()-1.5;
+  outerRadius = (**fl).specificSurface().outerRadius()+2.0;
+  const SimpleDiskBounds TEC1(innerRadius,outerRadius,-0.0150,+0.0150);
   const Surface::PositionType PTEC1(0.,0,(**fl).surface().position().z()); 
   // Second TEC: Z pos 145.892 radii 23.3749, 99.1967
   ++fl;
-  const SimpleDiskBounds TEC2(
-	  (**fl).specificSurface().innerRadius()-1.5, 
-	  (**fl).specificSurface().outerRadius()+2.0,
-	  -0.015,0.015);
+  innerRadius = (**fl).specificSurface().innerRadius()-1.5;
+  outerRadius = std::max( (**fl).specificSurface().outerRadius()+2.0, outerRadius+0.000 );
+  const SimpleDiskBounds TEC2(innerRadius,outerRadius,-0.0150,+0.0150);
   const Surface::PositionType PTEC2(0.,0.,(**fl).surface().position().z());
   // Third TEC: Z pos 159.892 radii 23.3749, 99.1967
   ++fl;
-  const SimpleDiskBounds TEC3(
-	  (**fl).specificSurface().innerRadius()-1.5, 
-	  (**fl).specificSurface().outerRadius()+2.0,
-	  -0.015,0.015);
+  innerRadius = (**fl).specificSurface().innerRadius()-1.5;
+  outerRadius = std::max( (**fl).specificSurface().outerRadius()+2.0, outerRadius+0.000 );
+  const SimpleDiskBounds TEC3(innerRadius,outerRadius,-0.0150,+0.0150);
   const Surface::PositionType PTEC3(0.,0.,(**fl).surface().position().z());
   // Fourth TEC: Z pos 173.892 radii 32.1263, 99.1967
   ++fl;
-  const SimpleDiskBounds TEC4(
-	  (**fl).specificSurface().innerRadius()-2.5, 
-	  (**fl).specificSurface().outerRadius()+2.0,
-	  -0.015,0.015);
+  innerRadius = (**fl).specificSurface().innerRadius()-2.5;
+  outerRadius = std::max( (**fl).specificSurface().outerRadius()+2.0, outerRadius+0.000 );
+  const SimpleDiskBounds TEC4(innerRadius,outerRadius,-0.0150,+0.0150);
   const Surface::PositionType PTEC4(0.,0.,(**fl).surface().position().z());
   // Fifth TEC: Z pos 187.892 radii 32.1263, 99.1967
   ++fl;
-  const SimpleDiskBounds TEC5(
-	  (**fl).specificSurface().innerRadius()-2.5, 
-	  (**fl).specificSurface().outerRadius()+2.0,
-	  -0.015,0.015);
+  innerRadius = (**fl).specificSurface().innerRadius()-2.5;
+  outerRadius = std::max( (**fl).specificSurface().outerRadius()+2.0, outerRadius+0.000 );
+  const SimpleDiskBounds TEC5(innerRadius,outerRadius,-0.0150,+0.0150);
   const Surface::PositionType PTEC5(0.,0.,(**fl).surface().position().z());
   // Sixth TEC: Z pos 205.392 radii 32.1263, 99.1967
   ++fl;
-  const SimpleDiskBounds TEC6(
-	  (**fl).specificSurface().innerRadius()-2.5, 
-	  (**fl).specificSurface().outerRadius()+2.0,
-	  -0.015,0.015);
+  innerRadius = (**fl).specificSurface().innerRadius()-2.5;
+  outerRadius = std::max( (**fl).specificSurface().outerRadius()+2.0, outerRadius+0.000 );
+  const SimpleDiskBounds TEC6(innerRadius,outerRadius,-0.0150,+0.0150);
   const Surface::PositionType PTEC6(0.,0.,(**fl).surface().position().z());
   // Seventh TEC: Z pos 224.121 radii 44.7432, 99.1967
   ++fl;
-  const SimpleDiskBounds TEC7(
-	  (**fl).specificSurface().innerRadius()-2.5-7.0, 
-	  (**fl).specificSurface().outerRadius()+2.0,
-	  -0.015,0.015);
+  innerRadius = (**fl).specificSurface().innerRadius()-9.5;
+  outerRadius = std::max( (**fl).specificSurface().outerRadius()+2.0, outerRadius+0.000 );
+  const SimpleDiskBounds TEC7(innerRadius,outerRadius,-0.0150,+0.0150);
   const Surface::PositionType PTEC7(0.,0.,(**fl).surface().position().z());
   // Eighth TEC: Z pos 244.621 radii 44.7432, 99.1967
   ++fl;
-  const SimpleDiskBounds TEC8(
-	  (**fl).specificSurface().innerRadius()-2.5-7.0, 
-	  (**fl).specificSurface().outerRadius()+2.0,
-	  -0.015,0.015);
+  innerRadius = (**fl).specificSurface().innerRadius()-9.5;
+  outerRadius = std::max( (**fl).specificSurface().outerRadius()+2.0, outerRadius+0.000 );
+  const SimpleDiskBounds TEC8(innerRadius,outerRadius,-0.0150,+0.0150);
   const Surface::PositionType PTEC8(0.,0.,(**fl).surface().position().z());
   // Nineth TEC: Z pos 266.121 radii 56.1781, 99.1967
   ++fl;
-  const SimpleDiskBounds TEC9(
-	  (**fl).specificSurface().innerRadius()-2.5-18.0, 
-	  (**fl).specificSurface().outerRadius()+2.0,
-	  -0.015,0.015);
+  innerRadius = (**fl).specificSurface().innerRadius()-20.5;
+  outerRadius = std::max( (**fl).specificSurface().outerRadius()+2.0, outerRadius+0.000 );
+  const SimpleDiskBounds TEC9(innerRadius,outerRadius,-0.0150,+0.0150);
   const Surface::PositionType PTEC9(0.,0.,(**fl).surface().position().z());
 
   // Outside : Endcap
@@ -592,12 +550,14 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
 	<< " zout/zin = " << zout << " " << zin << std::endl
 	<< " rout/rin = " << rout << " " << rin << std::endl;
     } else {
-      // std::cout << " Cylinder number " << nCyl 
-      //      	   << " (Active Layer Number = " <<  cyliterOut->layerNumber() 
-      //      	   << " Forward ? " <<  cyliterOut->forward() << " ) "
-      //	   << " has dimensions of : " 
-      //	   << " zout = " << zout << "; " 
-      //	   << " rout = " << rout << std::endl;
+      /*
+      std::cout << " Cylinder number " << nCyl 
+		<< " (Active Layer Number = " <<  cyliterOut->layerNumber() 
+		<< " Forward ? " <<  cyliterOut->forward() << " ) "
+		<< " has dimensions of : " 
+		<< " zout = " << zout << "; " 
+		<< " rout = " << rout << std::endl;
+      */
     }
     // Go to the next cylinder
     cyliterOut++;
