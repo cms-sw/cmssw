@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchGsfElectronAnalyzer.cc,v 1.6 2007/04/18 22:03:27 futyand Exp $
+// $Id: PixelMatchGsfElectronAnalyzer.cc,v 1.7 2007/06/29 09:25:53 charlot Exp $
 //
 //
 
@@ -259,6 +259,7 @@ void PixelMatchGsfElectronAnalyzer::beginJob(edm::EventSetup const&iSetup){
 void
 PixelMatchGsfElectronAnalyzer::endJob(){
   
+  histfile_->cd();
   std::cout << "efficiency calculation " << std::endl; 
   // efficiency vs eta
   TH1F *h_ele_etaEff = (TH1F*)h_ele_vertexEta->Clone("h_ele_etaEff");
