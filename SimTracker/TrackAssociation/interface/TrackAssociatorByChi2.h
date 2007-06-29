@@ -4,8 +4,8 @@
 /** \class TrackAssociatorByChi2
  *  Class that performs the association of reco::Tracks and TrackingParticles evaluating the chi2 of reco tracks parameters and sim tracks parameters. The cut can be tuned from the config file: see data/TrackAssociatorByChi2.cfi. Note that the Association Map is filled with -ch2 and not chi2 because it is ordered using std::greater: the track with the lowest association chi2 will be the first in the output map.It is possible to use only diagonal terms (associator by pulls) seeting onlyDiagonal = true in the PSet 
  *
- *  $Date: 2007/03/26 10:13:49 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/26 16:15:58 $
+ *  $Revision: 1.15 $
  *  \author cerati, magni
  */
 
@@ -50,15 +50,14 @@ class TrackAssociatorByChi2 : public TrackAssociatorBase {
   }
 
   /// Destructor
-  ~TrackAssociatorByChi2(){
-  }
+  ~TrackAssociatorByChi2(){}
 
   /// compare reco::TrackCollection and edm::SimTrackContainer iterators: returns the chi2
-  double compareTracksParam ( reco::TrackCollection::const_iterator, 
-			      edm::SimTrackContainer::const_iterator, 
-			      const HepLorentzVector, 
-			      GlobalVector,
-			      reco::TrackBase::CovarianceMatrix) const;
+  double compareTracksParam(reco::TrackCollection::const_iterator, 
+			    edm::SimTrackContainer::const_iterator, 
+			    const HepLorentzVector, 
+			    GlobalVector,
+			     reco::TrackBase::CovarianceMatrix) const;
 
   /// compare collections reco to sim
   RecoToSimPairAssociation compareTracksParam(const reco::TrackCollection&, 
@@ -66,29 +65,23 @@ class TrackAssociatorByChi2 : public TrackAssociatorBase {
 					      const edm::SimVertexContainer&) const;
 
   /// compare reco::TrackCollection and TrackingParticleCollection iterators: returns the chi2
-  double associateRecoToSim( reco::TrackCollection::const_iterator,
-			     TrackingParticleCollection::const_iterator) const;
+  double associateRecoToSim(reco::TrackCollection::const_iterator,
+			    TrackingParticleCollection::const_iterator) const;
 
   /// compare reco to sim the handle of reco::Track and TrackingParticle collections
-  reco::RecoToSimCollection associateRecoToSim (edm::Handle<reco::TrackCollection>&, 
-						edm::Handle<TrackingParticleCollection>&, 
-						const edm::Event * event = 0) const;
-
+  reco::RecoToSimCollection associateRecoToSim(edm::Handle<reco::TrackCollection>&, 
+					       edm::Handle<TrackingParticleCollection>&, 
+					       const edm::Event * event = 0) const;
+  
   /// compare reco to sim the handle of reco::Track and TrackingParticle collections
-  reco::SimToRecoCollection associateSimToReco (edm::Handle<reco::TrackCollection>&, 
-						edm::Handle<TrackingParticleCollection>& ,
-						const edm::Event * event = 0) const;
-
-/*   reco::TrackBase::ParameterVector parametersAtClosestApproach2Order (Basic3DVector<double>,// vertex */
-/* 								Basic3DVector<double>,// momAtVtx */
-/* 								float) const;// charge */
-
-  /// propagate the track parameters of TrackinParticle from production vertex to the point of closest approach to the beam line. The followin approximations are used: 1) Bz >> By and Bx ; 2) Bz(producetion_vertex)=Bz(pca) ; 3) The helix from the vertex to pca does not cover more than one loopo (deltaPhi<2pi)
-
-  reco::TrackBase::ParameterVector parametersAtClosestApproachGeom (Basic3DVector<double>,// vertex
-								    Basic3DVector<double>,// momAtVtx
-								    float) const;// charge
-
+  reco::SimToRecoCollection associateSimToReco(edm::Handle<reco::TrackCollection>&, 
+					       edm::Handle<TrackingParticleCollection>& ,
+					       const edm::Event * event = 0) const;
+  
+  /// propagate the track parameters of TrackinParticle from production vertex to the point of closest approach to the beam line. 
+  reco::TrackBase::ParameterVector parametersAtClosestApproach(Basic3DVector<double>,// vertex
+							       Basic3DVector<double>,// momAtVtx
+							       float) const;// charge
  private:
   edm::ESHandle<MagneticField> theMF;
   double chi2cut;
