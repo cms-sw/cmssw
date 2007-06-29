@@ -4,12 +4,9 @@
 
 <use name=Geometry/Records>
 <use name=Geometry/CommonDetUnit>
-<use name=Geometry/CommonDetAlgo>
 <use name=Geometry/TrackerGeometryBuilder>
 
 <use name=DataFormats/Common>
-<use name=DataFormats/TrajectorySeed>
-<use name=DataFormats/TrajectoryState>
 <use name=DataFormats/TrackerRecHit2D>
 <use name=DataFormats/TrackingRecHit>
 <use name=DataFormats/DetId>
@@ -17,15 +14,14 @@
 <use name=DataFormats/SiPixelDetId>
 
 <use name=RecoTracker/RoadMapRecord>
-<use name=RecoTracker/TkSeedGenerator>
-<use name=RecoTracker/TkTrackingRegions>
 
-<use name=TrackingTools/KalmanUpdators>
-<use name=TrackingTools/TrajectoryState
-<use name=TrackingTools/GeomPropagators>
+<use name=RecoTracker/TkSeedGenerator>
+
 <use name=TrackingTools/RoadSearchHitAccess>
 
 <use name=MagneticField/Records>
+
+<use name=DataFormats/RoadSearchSeed>
 
 <export>
  <lib name=RecoTrackerRoadSearchSeedFinder>
@@ -36,26 +32,22 @@
 
  <use name=Geometry/Records>
  <use name=Geometry/CommonDetUnit>
- <use name=Geometry/CommonDetAlgo>
  <use name=Geometry/TrackerGeometryBuilder>
 
  <use name=DataFormats/Common>
- <use name=DataFormats/TrajectorySeed>
- <use name=DataFormats/TrajectoryState>
  <use name=DataFormats/TrackerRecHit2D>
  <use name=DataFormats/TrackingRecHit>
  <use name=DataFormats/DetId>
  <use name=DataFormats/SiStripDetId>
  <use name=DataFormats/SiPixelDetId>
- <use name=RecoTracker/RoadMapRecord>
- <use name=RecoTracker/TkSeedGenerator>
- <use name=RecoTracker/TkTrackingRegions>
 
- <use name=TrackingTools/KalmanUpdators>
- <use name=TrackingTools/TrajectoryState>
- <use name=TrackingTools/GeomPropagators>
- <use name=TrackingTools/RoadSearchHitAccess>	
+ <use name=RecoTracker/RoadMapRecord>
+
+ <use name=RecoTracker/TkSeedGenerator>
+
+ <use name=TrackingTools/RoadSearchHitAccess>
 
  <use name=MagneticField/Records>
 
+ <use name=DataFormats/RoadSearchSeed>
 </export>

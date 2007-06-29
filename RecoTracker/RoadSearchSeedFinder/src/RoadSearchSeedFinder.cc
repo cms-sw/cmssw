@@ -3,14 +3,14 @@
 // Class:           RoadSearchSeedFinder
 // 
 // Description:     Calls RoadSeachSeedFinderAlgorithm
-//                  to find TrajectorySeeds.
+//                  to find RoadSearchSeeds.
 //
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/12/11 23:16:04 $
-// $Revision: 1.8 $
+// $Date: 2007/03/07 21:46:50 $
+// $Revision: 1.9 $
 //
 
 #include <iostream>
@@ -21,7 +21,9 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+
+#include "DataFormats/RoadSearchSeed/interface/RoadSearchSeedCollection.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -33,7 +35,7 @@ RoadSearchSeedFinder::RoadSearchSeedFinder(edm::ParameterSet const& conf) :
   roadSearchSeedFinderAlgorithm_(conf) ,
   conf_(conf)
 {
-  produces<TrajectorySeedCollection>();
+  produces<RoadSearchSeedCollection>();
 
 }
 
@@ -81,7 +83,7 @@ void RoadSearchSeedFinder::produce(edm::Event& e, const edm::EventSetup& es)
   }
   
   // create empty output collection
-  std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
+  std::auto_ptr<RoadSearchSeedCollection> output(new RoadSearchSeedCollection);
   
   // invoke the seed finding algorithm
   roadSearchSeedFinderAlgorithm_.run(rphiRecHits.product(),  

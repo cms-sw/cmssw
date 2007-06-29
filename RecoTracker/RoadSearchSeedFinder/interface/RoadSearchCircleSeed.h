@@ -14,8 +14,8 @@
 // Created:         Mon Jan 22 21:42:35 UTC 2007
 //
 // $Author: gutsche $
-// $Date: 2007/03/07 21:46:50 $
-// $Revision: 1.2 $
+// $Date: 2007/06/13 14:26:47 $
+// $Revision: 1.3 $
 //
 
 #include <utility>
@@ -25,6 +25,8 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+
+#include "RecoTracker/RoadMapRecord/interface/Roads.h"
 
 class RoadSearchCircleSeed
 {
@@ -64,6 +66,12 @@ class RoadSearchCircleSeed
   inline double       ImpactParameter() const { return impactParameter_;}
   inline double       Type()            const { return type_; }
 
+  inline void                   setSeed(const Roads::RoadSeed *input) { seed_ = input; }
+  inline const Roads::RoadSeed* getSeed()                             { return seed_;  }
+
+  inline void                   setSet(const Roads::RoadSet *input)   { set_ = input; }
+  inline const Roads::RoadSet*  getSet()                              { return set_;  }
+
   bool Compare(const RoadSearchCircleSeed *circle,
 	       double centerCut,
 	       double radiusCut,
@@ -90,10 +98,13 @@ class RoadSearchCircleSeed
 
   std::vector<const TrackingRecHit*> hits_;
 
-  type        type_;
-  GlobalPoint center_;
-  double      radius_;
-  double      impactParameter_;
+  type             type_;
+  GlobalPoint      center_;
+  double           radius_;
+  double           impactParameter_;
+
+  const Roads::RoadSeed *seed_;
+  const Roads::RoadSet  *set_;
 
 };
 

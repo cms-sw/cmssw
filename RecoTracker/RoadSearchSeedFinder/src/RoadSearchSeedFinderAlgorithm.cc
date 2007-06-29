@@ -11,9 +11,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gpetrucc $
-// $Date: 2007/04/29 23:19:51 $
-// $Revision: 1.26 $
+// $Author: gutsche $
+// $Date: 2007/06/13 14:26:48 $
+// $Revision: 1.27 $
 //
 
 #include <vector>
@@ -25,28 +25,18 @@
 
 #include "RecoTracker/RoadMapRecord/interface/RoadMapRecord.h"
 
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
-#include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
-#include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-#include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
-
-#include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
@@ -128,7 +118,7 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
 					const SiStripMatchedRecHit2DCollection* matchedRecHits,
 					const SiPixelRecHitCollection* pixelRecHits,
 					const edm::EventSetup& es,
-					TrajectorySeedCollection &output)
+					RoadSearchSeedCollection &output)
 {
 
   // initialize general hit access for road search
@@ -167,11 +157,12 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
 
     localCircleSeeds.clear();
 
-    Roads::RoadSeed seed = (*road).first;
+    const Roads::RoadSeed  *seed  = &((*road).first);
+    const Roads::RoadSet   *set  =  &((*road).second);
 
     // determine seeding cuts from inner seed ring |eta|
-    double r = std::abs((*seed.first.begin())->getrmax() + (*seed.first.begin())->getrmin())/2.;
-    double z = std::abs((*seed.first.begin())->getzmax() + (*seed.first.begin())->getzmin())/2.;
+    double r = std::abs((*seed->first.begin())->getrmax() + (*seed->first.begin())->getrmin())/2.;
+    double z = std::abs((*seed->first.begin())->getzmax() + (*seed->first.begin())->getzmin())/2.;
     double eta = std::abs(std::log(std::tan(std::atan2(r,z)/2.)));
 
     if ( eta < 1.1 ) {
@@ -188,13 +179,15 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
     if ( mode_ == "COSMICS" ) {
       // loop over seed ring pairs
       // draw straight line
-      for ( std::vector<const Ring*>::const_iterator innerSeedRing = seed.first.begin();
-	    innerSeedRing != seed.first.end();
+      for ( std::vector<const Ring*>::const_iterator innerSeedRing = seed->first.begin();
+	    innerSeedRing != seed->first.end();
 	    ++innerSeedRing) {
-	for ( std::vector<const Ring*>::const_iterator outerSeedRing = seed.second.begin();
-	      outerSeedRing != seed.second.end();
+	for ( std::vector<const Ring*>::const_iterator outerSeedRing = seed->second.begin();
+	      outerSeedRing != seed->second.end();
 	      ++outerSeedRing) {
 	  calculateCircleSeedsFromRingsOneInnerOneOuter(localCircleSeeds,
+							seed,
+							set,
 							*innerSeedRing,
 							*outerSeedRing);
 	  
@@ -203,16 +196,16 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
     } else if ( mode_ == "STANDARD" ) {
 
       // take combinations of one inner and two outer or two inner and one outer seed ring
-      for ( std::vector<const Ring*>::const_iterator innerSeedRing1 = seed.first.begin();
-	    innerSeedRing1 != seed.first.end();
+      for ( std::vector<const Ring*>::const_iterator innerSeedRing1 = seed->first.begin();
+	    innerSeedRing1 != seed->first.end();
 	    ++innerSeedRing1) {
 	// two inner, one outer
 	for ( std::vector<const Ring*>::const_iterator innerSeedRing2 = innerSeedRing1+1;
-	      innerSeedRing2 != seed.first.end();
+	      innerSeedRing2 != seed->first.end();
 	      ++innerSeedRing2) {
 	  if ( !ringsOnSameLayer(*innerSeedRing1,*innerSeedRing2) ) {
-	    for ( std::vector<const Ring*>::const_iterator outerSeedRing = seed.second.begin();
-		  outerSeedRing != seed.second.end();
+	    for ( std::vector<const Ring*>::const_iterator outerSeedRing = seed->second.begin();
+		  outerSeedRing != seed->second.end();
 		  ++outerSeedRing) {
 	      // calculate seed ring combination identifier
 	      unsigned int identifier = (*innerSeedRing1)->getindex() * 1000000 +
@@ -231,6 +224,8 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
 	      if ( check ) {
 		usedSeedRingCombinations_.push_back(identifier);
 		calculateCircleSeedsFromRingsTwoInnerOneOuter(localCircleSeeds,
+							      seed,
+							      set,
 							      *innerSeedRing1,
 							      *innerSeedRing2,
 							      *outerSeedRing);
@@ -238,38 +233,40 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
 	    }	  
 	  }
 	}
-	// one inner, two outer
-	for ( std::vector<const Ring*>::const_iterator outerSeedRing1 = seed.second.begin();
-	      outerSeedRing1 != seed.second.end();
-	      ++outerSeedRing1) {
-	  for ( std::vector<const Ring*>::const_iterator outerSeedRing2 = outerSeedRing1+1;
-		outerSeedRing2 != seed.second.end();
-		++outerSeedRing2) {
-	    if ( !ringsOnSameLayer(*outerSeedRing1,*outerSeedRing2) ) {
-	      // calculate seed ring combination identifier
-	      unsigned int identifier = (*innerSeedRing1)->getindex() * 1000000 +
-		(*outerSeedRing1)->getindex() * 1000 +
-		(*outerSeedRing2)->getindex();
-	      bool check = true;
-	      for ( std::vector<unsigned int>::iterator alreadyChecked = usedSeedRingCombinations_.begin();
-		    alreadyChecked != usedSeedRingCombinations_.end();
-		    ++alreadyChecked ) {
-		if ( identifier == *alreadyChecked ) {
-		  check = false;
-		  break;
-		}
-	      }
+ 	// one inner, two outer
+ 	for ( std::vector<const Ring*>::const_iterator outerSeedRing1 = seed->second.begin();
+ 	      outerSeedRing1 != seed->second.end();
+ 	      ++outerSeedRing1) {
+ 	  for ( std::vector<const Ring*>::const_iterator outerSeedRing2 = outerSeedRing1+1;
+ 		outerSeedRing2 != seed->second.end();
+ 		++outerSeedRing2) {
+ 	    if ( !ringsOnSameLayer(*outerSeedRing1,*outerSeedRing2) ) {
+ 	      // calculate seed ring combination identifier
+ 	      unsigned int identifier = (*innerSeedRing1)->getindex() * 1000000 +
+ 		(*outerSeedRing1)->getindex() * 1000 +
+ 		(*outerSeedRing2)->getindex();
+ 	      bool check = true;
+ 	      for ( std::vector<unsigned int>::iterator alreadyChecked = usedSeedRingCombinations_.begin();
+ 		    alreadyChecked != usedSeedRingCombinations_.end();
+ 		    ++alreadyChecked ) {
+ 		if ( identifier == *alreadyChecked ) {
+ 		  check = false;
+ 		  break;
+ 		}
+ 	      }
 
-	      if ( check ) {
-		usedSeedRingCombinations_.push_back(identifier);
-		calculateCircleSeedsFromRingsOneInnerTwoOuter(localCircleSeeds,
-							      *innerSeedRing1,
-							      *outerSeedRing1,
-							      *outerSeedRing2);
-	      }
-	    }
-	  }
-	}
+ 	      if ( check ) {
+ 		usedSeedRingCombinations_.push_back(identifier);
+ 		calculateCircleSeedsFromRingsOneInnerTwoOuter(localCircleSeeds,
+							      seed,
+							      set,
+ 							      *innerSeedRing1,
+ 							      *outerSeedRing1,
+ 							      *outerSeedRing2);
+ 	      }
+ 	    }
+ 	  }
+ 	}
       }
     }
 
@@ -278,19 +275,29 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
 	    localCircleEnd = localCircleSeeds.end();
 	  localCircle != localCircleEnd;
 	  ++localCircle ) {
-      convertCircleToTrajectorySeed(output,*localCircle,es);
+      RoadSearchSeed seed;
+      seed.setSet(localCircle->getSet());
+      seed.setSeed(localCircle->getSeed());
+      for (std::vector<const TrackingRecHit*>::const_iterator hit = localCircle->begin_hits();
+	   hit != localCircle->end_hits();
+	   ++hit ) {
+	seed.addHit(*hit);
+      }
+      output.push_back(seed);
     }
   }
-
+    
   usedSeedRingCombinations_.clear();
   edm::LogInfo("RoadSearch") << "Found " << output.size() << " seeds."; 
 
 }
 
 bool RoadSearchSeedFinderAlgorithm::calculateCircleSeedsFromRingsTwoInnerOneOuter(std::vector<RoadSearchCircleSeed> &circleSeeds,
-								       const Ring* ring1,
-								       const Ring* ring2,
-								       const Ring* ring3) {
+										  const Roads::RoadSeed *seed,
+										  const Roads::RoadSet *set,
+										  const Ring* ring1,
+										  const Ring* ring2,
+										  const Ring* ring3) {
   //
   // calculate RoadSearchCircleSeed
   //
@@ -380,7 +387,7 @@ bool RoadSearchSeedFinderAlgorithm::calculateCircleSeedsFromRingsTwoInnerOneOute
 
       if ( ring2RecHits.size() > 0 &&
 	   ring3RecHits.size() > 0 ) {
-	calculateCircleSeedsFromHits(circleSeeds, ring1GlobalPoint, *ring1RecHit, ring2RecHits, ring3RecHits);
+	calculateCircleSeedsFromHits(circleSeeds, seed, set, ring1GlobalPoint, *ring1RecHit, ring2RecHits, ring3RecHits);
       }
 
     }
@@ -391,9 +398,11 @@ bool RoadSearchSeedFinderAlgorithm::calculateCircleSeedsFromRingsTwoInnerOneOute
 }
 
 bool RoadSearchSeedFinderAlgorithm::calculateCircleSeedsFromRingsOneInnerTwoOuter(std::vector<RoadSearchCircleSeed> &circleSeeds,
-								       const Ring* ring1,
-								       const Ring* ring2,
-								       const Ring* ring3) {
+										  const Roads::RoadSeed *seed,
+										  const Roads::RoadSet *set,
+										  const Ring* ring1,
+										  const Ring* ring2,
+										  const Ring* ring3) {
   //
   // calculate RoadSearchCircleSeed
   //
@@ -483,7 +492,7 @@ bool RoadSearchSeedFinderAlgorithm::calculateCircleSeedsFromRingsOneInnerTwoOute
 
       if ( ring2RecHits.size() > 0 &&
 	   ring3RecHits.size() > 0 ) {
-	calculateCircleSeedsFromHits(circleSeeds, ring1GlobalPoint, *ring1RecHit, ring2RecHits, ring3RecHits);
+	calculateCircleSeedsFromHits(circleSeeds, seed, set, ring1GlobalPoint, *ring1RecHit, ring2RecHits, ring3RecHits);
       }
 
     }
@@ -494,6 +503,8 @@ bool RoadSearchSeedFinderAlgorithm::calculateCircleSeedsFromRingsOneInnerTwoOute
 }
 								       
 bool RoadSearchSeedFinderAlgorithm::calculateCircleSeedsFromRingsOneInnerOneOuter(std::vector<RoadSearchCircleSeed> &circleSeeds,
+										  const Roads::RoadSeed *seed,
+										  const Roads::RoadSet *set,
 										  const Ring* ring1,
 										  const Ring* ring2) {
   //
@@ -559,8 +570,7 @@ bool RoadSearchSeedFinderAlgorithm::calculateCircleSeedsFromRingsOneInnerOneOute
       }
 
       if ( ring2RecHits.size() > 0 ) {
-// 	output_ << "Combination with inner and outer hits, ring 1: " << ring1->getindex() << " ring 2: " << ring2->getindex() << "\n";
-	calculateCircleSeedsFromHits(circleSeeds, ring1GlobalPoint, *ring1RecHit, ring2RecHits);
+	calculateCircleSeedsFromHits(circleSeeds, seed, set, ring1GlobalPoint, *ring1RecHit, ring2RecHits);
       }
 
     }
@@ -571,6 +581,8 @@ bool RoadSearchSeedFinderAlgorithm::calculateCircleSeedsFromRingsOneInnerOneOute
 }
 
 bool RoadSearchSeedFinderAlgorithm::calculateCircleSeedsFromHits(std::vector<RoadSearchCircleSeed> &circleSeeds,
+								 const Roads::RoadSeed *seed,
+								 const Roads::RoadSet *set,
 								 GlobalPoint ring1GlobalPoint,
 								 TrackingRecHit *ring1RecHit,
 								 std::vector<TrackingRecHit*> ring2RecHits,
@@ -625,6 +637,8 @@ bool RoadSearchSeedFinderAlgorithm::calculateCircleSeedsFromHits(std::vector<Roa
       }
       
       if ( addCircle ) {
+	circle.setSeed(seed);
+	circle.setSet(set);
 	circleSeeds.push_back(circle);
       }
     }
@@ -634,6 +648,8 @@ bool RoadSearchSeedFinderAlgorithm::calculateCircleSeedsFromHits(std::vector<Roa
 }
 
 bool RoadSearchSeedFinderAlgorithm::calculateCircleSeedsFromHits(std::vector<RoadSearchCircleSeed> &circleSeeds,
+								 const Roads::RoadSeed *seed,
+								 const Roads::RoadSet *set,
 								 GlobalPoint ring1GlobalPoint,
 								 TrackingRecHit *ring1RecHit,
 								 std::vector<TrackingRecHit*> ring2RecHits) {
@@ -654,101 +670,12 @@ bool RoadSearchSeedFinderAlgorithm::calculateCircleSeedsFromHits(std::vector<Roa
 				*ring2RecHit,
 				ring1GlobalPoint,
 				ring2GlobalPoint);
-    
-//     output_ << circle.print();
-
-
+    circle.setSeed(seed);
+    circle.setSet(set);
     circleSeeds.push_back(circle);
   }
 
   return result;
-}
-
-bool RoadSearchSeedFinderAlgorithm::convertCircleToTrajectorySeed(TrajectorySeedCollection &output,
-									    RoadSearchCircleSeed circleSeed,
-									    const edm::EventSetup& es) {
-  //
-  // convert circle seed to trajectory seed
-  // FIXME: deactivated for now
-  //
-
-  // return value
-  bool result = true;
-
-//   // use correct tk seed generator from consecutive hits
-//   GlobalTrackingRegion region;
-//   GlobalError vtxerr( std::sqrt(region.originRBound()),
-// 		      0, std::sqrt(region.originRBound()),
-// 		      0, 0, std::sqrt(region.originZBound()));
-
-//   // make PTrajectoryOnState from three hits
-//   std::vector<GlobalPoint> points = circleSeed.Points();
-//   if ( points.size() >= 3 ) {
-//     std::vector<TrackingRecHit*> recHits = circleSeed.Hits();
-
-//     FastHelix helix(points[2],
-// 		    points[1],
-// 		    points[0],
-// 		    es);
-      
-//     FreeTrajectoryState fts( helix.stateAtVertex().parameters(),
-// 			     initialError(region.origin(), vtxerr));
-    
-//     AnalyticalPropagator  thePropagator(magnet_, alongMomentum);
-    
-//     const TrajectoryStateOnSurface innerState = thePropagator.propagate(fts,
-// 									tracker_->idToDet(recHits[0]->geographicalId())->surface());
-      
-//     if (innerState.isValid()){
-// 	//
-// 	// create the OwnVector of TrackingRecHits
-// 	edm::OwnVector<TrackingRecHit> rh;
-	
-// 	for (std::vector<TrackingRecHit*>::iterator hit = recHits.begin();
-// 	     hit != recHits.end();
-// 	     ++hit ) {
-// 	  rh.push_back((*hit)->clone());
-// 	}
-// 	TrajectoryStateTransform transformer;
-	
-// 	PTrajectoryStateOnDet * PTraj=  transformer.persistentState(innerState, recHits[0]->geographicalId().rawId());
-// 	TrajectorySeed ts(*PTraj,rh,alongMomentum);
-// 	delete PTraj;  
-
-// 	output.push_back(ts);
-//     }
-//   }
-  
-
-  std::vector<const TrackingRecHit*> recHits = circleSeed.Hits();
-
-  // create the OwnVector of TrackingRecHits
-  edm::OwnVector<TrackingRecHit> rh;
-  for (std::vector<const TrackingRecHit*>::iterator hit = recHits.begin();
-       hit != recHits.end();
-       ++hit ) {
-    rh.push_back((*hit)->clone());
-  }
-  PTrajectoryStateOnDet PTraj;
-  TrajectorySeed ts(PTraj,rh,alongMomentum);
-  output.push_back(ts);
-  
-  return result;
-
-}
-
-CurvilinearTrajectoryError RoadSearchSeedFinderAlgorithm::
-initialError( const GlobalPoint& vertexPos,
-	      const GlobalError& vertexErr)
-{
-  AlgebraicSymMatrix55 C = AlgebraicMatrixID();
-
-  float zErr = vertexErr.czz();
-  float transverseErr = vertexErr.cxx(); // assume equal cxx cyy 
-  C(3,3) = transverseErr;
-  C(4,4) = zErr;
-
-  return CurvilinearTrajectoryError(C);
 }
 
 bool RoadSearchSeedFinderAlgorithm::ringsOnSameLayer(const Ring *ring1, const Ring* ring2) {

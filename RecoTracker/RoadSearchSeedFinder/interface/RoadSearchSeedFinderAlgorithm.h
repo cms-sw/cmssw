@@ -15,8 +15,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/03/07 21:46:50 $
-// $Revision: 1.15 $
+// $Date: 2007/06/13 14:26:47 $
+// $Revision: 1.16 $
 //
 
 #include <string>
@@ -28,19 +28,16 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/RoadSearchSeed/interface/RoadSearchSeedCollection.h"
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
-#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "RecoTracker/RoadMapRecord/interface/Roads.h"
 
-#include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
 #include "TrackingTools/RoadSearchHitAccess/interface/DetHitAccess.h"
 
 #include "RecoTracker/RoadSearchSeedFinder/interface/RoadSearchCircleSeed.h"
@@ -58,38 +55,41 @@ class RoadSearchSeedFinderAlgorithm
 	   const SiStripMatchedRecHit2DCollection* matchedRecHits,
 	   const SiPixelRecHitCollection* pixelRecHits,
 	   const edm::EventSetup& es,
-	   TrajectorySeedCollection &output);
+	   RoadSearchSeedCollection &output);
   
-  CurvilinearTrajectoryError initialError( const GlobalPoint& vertexPos,
-					   const GlobalError& vertexErr);
-
-  bool convertCircleToTrajectorySeed(TrajectorySeedCollection &output,
-				     RoadSearchCircleSeed circleSeed,
-				     const edm::EventSetup& es);
-
   bool mergeCircleSeeds(std::vector<RoadSearchCircleSeed> &circleSeeds);
   
   bool calculateCircleSeedsFromHits(std::vector<RoadSearchCircleSeed> &circleSeeds,
+				    const Roads::RoadSeed *seed,
+				    const Roads::RoadSet *set,
 				    GlobalPoint ring1GlobalPoint,
 				    TrackingRecHit *ring1RecHit,
 				    std::vector<TrackingRecHit*> ring2RecHits,
 				    std::vector<TrackingRecHit*> ring3RecHits);
 
   bool calculateCircleSeedsFromHits(std::vector<RoadSearchCircleSeed> &circleSeeds,
+				    const Roads::RoadSeed *seed,
+				    const Roads::RoadSet *set,
 				    GlobalPoint ring1GlobalPoint,
 				    TrackingRecHit *ring1RecHit,
 				    std::vector<TrackingRecHit*> ring2RecHits);
 
   bool calculateCircleSeedsFromRingsOneInnerTwoOuter(std::vector<RoadSearchCircleSeed> &circleSeeds,
+						     const Roads::RoadSeed *seed,
+						     const Roads::RoadSet *set,
 						     const Ring* ring1,
 						     const Ring* ring2,
 						     const Ring* ring3);
 
   bool calculateCircleSeedsFromRingsTwoInnerOneOuter(std::vector<RoadSearchCircleSeed> &circleSeeds,
+						     const Roads::RoadSeed *seed,
+						     const Roads::RoadSet *set,
 						     const Ring* ring1,
 						     const Ring* ring2,
 						     const Ring* ring3);
   bool calculateCircleSeedsFromRingsOneInnerOneOuter(std::vector<RoadSearchCircleSeed> &circleSeeds,
+						     const Roads::RoadSeed *seed,
+						     const Roads::RoadSet *set,
 						     const Ring* ring1,
 						     const Ring* ring2);
 
