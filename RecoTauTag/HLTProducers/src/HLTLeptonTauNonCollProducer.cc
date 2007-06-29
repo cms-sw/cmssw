@@ -79,9 +79,9 @@ HLTLeptonTauNonCollProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 	    {
 	      nLep++;
 	      ref_lepton = leptonHandle->getParticleRef(i);
-	      double dphi=fabs(leptonHandle->getParticleRef(i).get()->phi()-jet->jet().phi());
+	      double dphi=fabs(leptonHandle->getParticleRef(i).get()->phi()-jet->jet()->phi());
 	      if(dphi>acos(-1.0))dphi=2*acos(-1.0)-dphi;
-	      double deta=fabs(leptonHandle->getParticleRef(i).get()->eta()-jet->jet().eta());
+	      double deta=fabs(leptonHandle->getParticleRef(i).get()->eta()-jet->jet()->eta());
 	      if(dphi>min_dphi_||deta>min_deta_)
 		{
 		  //Check if already in list

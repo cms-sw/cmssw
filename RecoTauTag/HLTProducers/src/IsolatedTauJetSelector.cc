@@ -22,7 +22,6 @@ IsolatedTauJetsSelector::IsolatedTauJetsSelector(const edm::ParameterSet& iConfi
 
  
   produces<reco::CaloJetCollection>();
-  produces<reco::JetTagCollection>(); //will disappear soon
   produces<reco::IsolatedTauTagInfoCollection>();  
 }
 
@@ -36,8 +35,6 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
   using namespace std;
   
 
-  JetTagCollection * baseCollection = new JetTagCollection;
-  JetTagCollection * baseCollectionTmp = new JetTagCollection;
   CaloJetCollection * jetCollection = new CaloJetCollection;
   CaloJetCollection * jetCollectionTmp = new CaloJetCollection;
   IsolatedTauTagInfoCollection * extendedCollection = new IsolatedTauTagInfoCollection;
@@ -59,8 +56,6 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
       float discriminator = i->discriminator(jetDir, matching_cone, signal_cone, isolation_cone, pt_min_leadTrack, pt_min_isolation,  n_tracks_isolation_ring,dZ_vertex); 
       allExtendedCollection->push_back(*(i)); //to  be used in HLT Analyzers ...
       if(discriminator > 0) {
-	JetTag pippoTag(discriminator);
-	baseCollectionTmp->push_back(pippoTag);
 	const CaloJet* pippo = dynamic_cast<const CaloJet*>((i->jet().get()));
 	jetCollectionTmp->push_back(*pippo );
 	extendedCollection->push_back(*(i)); //to  be used later
@@ -75,7 +70,6 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
     VertexCollection::const_iterator myVertex = vertices->begin();
 
     for(;myVertex!= vertices->end();myVertex++){
-      JetTagCollection* myCollection = new JetTagCollection();
       CaloJetCollection* myJetCollection = new CaloJetCollection();
 
       IsolatedTauTagInfoCollection::const_iterator myIsolJet = extendedCollection->begin();
@@ -98,34 +92,21 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
       //      cout <<"Tagged Jets with vertex constr "<<taggedJets<<endl;
       if(taggedJets > 1) 
 	{
-	  baseCollection = myCollection;
 	  jetCollection = myJetCollection;
 	  break;
 	}
     }
   }else{// no Vertex constraint is used 
-    baseCollection = baseCollectionTmp;
     jetCollection = jetCollectionTmp;
   }
 
 
 
-
- auto_ptr<reco::CaloJetCollection> selectedTaus(jetCollection);
- auto_ptr<reco::IsolatedTauTagInfoCollection> extColl(allExtendedCollection);
-  edm::OrphanHandle <reco::IsolatedTauTagInfoCollection >  myTagInfo =  iEvent.put(extColl);
-
-  int cc=0;
-  reco::JetTagCollection::iterator myInfo = baseCollection->begin();   
-   for(;myInfo!=baseCollection->end();myInfo++)
-     {
-       myInfo->setTagInfo(RefToBase<BaseTagInfo>(IsolatedTauTagInfoRef(myTagInfo,cc))); 
-       cc++;
-     }
-
-   auto_ptr<reco::JetTagCollection> resultBase(baseCollection);
- iEvent.put(resultBase);
-
+  
+  auto_ptr<reco::CaloJetCollection> selectedTaus(jetCollection);
+  auto_ptr<reco::IsolatedTauTagInfoCollection> extColl(allExtendedCollection);
+  
+  iEvent.put(extColl);
   iEvent.put(selectedTaus);
 
 
