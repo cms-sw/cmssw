@@ -8,7 +8,9 @@
  <class name="EcalWeightSet"/>
 
 
- <class name="EcalWeightXtalGroups"/>
+ <class name="EcalWeightXtalGroups">
+  <field name="m_hashedCont" transient="true"/>
+ </class>
  <class name="EcalXtalGroupId"/>
  <class name="EcalTBWeights"/>
 
