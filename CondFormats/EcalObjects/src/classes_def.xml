@@ -1,7 +1,6 @@
 <lcgdict>
  <class name="EcalPedestals">
-  <field name="m_barrel" transient="true"/>
-  <field name="m_endcap" transient="true"/>
+  <field name="m_hashedCont" transient="true"/>
  </class>
  
  <class name="EcalPedestals::Item"/>

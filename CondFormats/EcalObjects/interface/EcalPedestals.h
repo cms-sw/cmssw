@@ -1,7 +1,8 @@
 #ifndef EcalPedestals_h
 #define EcalPedestals_h
 
-#include <vector>
+
+#include "DataFormats/EcalDetId/interface/EcalContainer.h"
 #include <map>
 #include <boost/cstdint.hpp>
 
@@ -47,19 +48,21 @@ class EcalPedestals {
 
   void update() const;
 
-  Item const & operator()(DetId id) const;
+  Item const & operator()(DetId id) const {
+    return m_hashedCont(id);
+  }
 
   Item const & barrel(size_t hashid) const {
-    return m_barrel[hashid];
+    return m_hashedCont.barrel(hashid);
   }
   Item const & endcap(size_t hashid) const {
-    return m_endcap[hashid];
+    return m_hashedCont.endcap(hashid);
   }
 
 private:
   void doUpdate();
-  std::vector<Item> m_barrel;
-  std::vector<Item> m_endcap;
+  EcalContainer<Item> m_hashedCont;
+
 
 };
 
