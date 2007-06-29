@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: AnalyzerWorker.cc,v 1.14 2007/03/04 06:10:25 wmtan Exp $
+$Id: AnalyzerWorker.cc,v 1.15 2007/06/05 04:02:32 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/AnalyzerWorker.h"
@@ -8,13 +8,8 @@ $Id: AnalyzerWorker.cc,v 1.14 2007/03/04 06:10:25 wmtan Exp $
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/src/WorkerParams.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/CurrentProcessingContext.h"
-#include "FWCore/Framework/src/CPCSentry.h"
-
 
 #include <iostream>
 

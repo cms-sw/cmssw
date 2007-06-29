@@ -34,8 +34,6 @@
 //				     an error message with ELwarning severity
 //				     (rather than ELabort) if triggered
 
-#include <assert.h>
-
 // Clean up any earlier definitions, in case this is not the first time the
 // file has been included:
 #if defined ELassert3

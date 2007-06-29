@@ -4,8 +4,6 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <string>
-
 namespace edm {
   Path::Path(int bitpos, std::string const& path_name,
 	     WorkersInPath const& workers,

@@ -1,9 +1,7 @@
 #include "FWCore/TFWLiteSelectorTest/src/ThingsTSelector.h"
-#include <TH2.h>
-#include <TStyle.h>
 #include <TCanvas.h>
 #include <iostream>
-#include "DataFormats/TrackReco/interface/Track.h"
+#include "Rtypes.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/TestObjects/interface/ThingCollection.h"

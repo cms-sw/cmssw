@@ -82,13 +82,9 @@
 
 
 #include "FWCore/MessageService/interface/ELadministrator.h"
-#include "FWCore/MessageService/interface/ELdestControl.h"
 #include "FWCore/MessageService/interface/ELdestination.h"
 #include "FWCore/MessageService/interface/ELcontextSupplier.h"
 #include "FWCore/MessageService/interface/ELoutput.h"
-
-#include "FWCore/MessageLogger/interface/ELseverityLevel.h"
-#include "FWCore/MessageLogger/interface/ErrorObj.h"
 
 #include "FWCore/Utilities/interface/EDMException.h"
 

@@ -1,25 +1,21 @@
 /*----------------------------------------------------------------------
 
-$Id: OutputModule.cc,v 1.32 2007/06/08 23:52:59 wmtan Exp $
+$Id: OutputModule.cc,v 1.33 2007/06/15 18:41:47 wdd Exp $
 ----------------------------------------------------------------------*/
 
 #include <iostream>
 
 #include "FWCore/Framework/interface/OutputModule.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Framework/interface/CurrentProcessingContext.h"
-#include "FWCore/Framework/interface/CachedProducts.h"
 #include "FWCore/Framework/src/CPCSentry.h"
-
 
 using std::vector;
 using std::string;

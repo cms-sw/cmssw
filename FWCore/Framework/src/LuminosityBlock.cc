@@ -1,4 +1,5 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/Run.h"
 

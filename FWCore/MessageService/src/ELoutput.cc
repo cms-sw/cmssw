@@ -65,13 +65,10 @@
 
 
 #include "FWCore/MessageService/interface/ELoutput.h"
-#include "FWCore/MessageService/interface/ELdestination.h"
 #include "FWCore/MessageService/interface/ELadministrator.h"
 #include "FWCore/MessageService/interface/ELcontextSupplier.h"
 
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
-#include "FWCore/MessageLogger/interface/ELstring.h"
-
 
 // Possible Traces:
 // #define ELoutputCONSTRUCTOR_TRACE

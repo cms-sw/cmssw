@@ -1,20 +1,14 @@
 /*----------------------------------------------------------------------
-$Id: DataViewImpl.cc,v 1.18 2007/05/22 22:28:07 chrjones Exp $
+$Id: DataViewImpl.cc,v 1.19 2007/05/29 19:24:25 wmtan Exp $
 ----------------------------------------------------------------------*/
 
-#include <memory>
-#include <vector>
 #include <algorithm>
 
 #include "FWCore/Framework/interface/DataViewImpl.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/Principal.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchEntryDescription.h"
 #include "FWCore/Framework/interface/Selector.h"
-
-using namespace std;
 
 namespace edm {
 
@@ -29,7 +23,7 @@ namespace edm {
   {  }
 
   struct deleter {
-    void operator()(pair<EDProduct*, ConstBranchDescription const*> const p) const { delete p.first; }
+    void operator()(std::pair<EDProduct*, ConstBranchDescription const*> const p) const { delete p.first; }
   };
 
   DataViewImpl::~DataViewImpl() {
@@ -50,7 +44,7 @@ namespace edm {
     ProductPtrVec::iterator pie(put_products_.end());
 
     while(pit!=pie) {
-	auto_ptr<EDProduct> pr(pit->first);
+	std::auto_ptr<EDProduct> pr(pit->first);
 	// note: ownership has been passed - so clear the pointer!
 	pit->first = 0;
 
@@ -61,7 +55,7 @@ namespace edm {
 	event->isPresent_ = true;
 	event->parents_ = gotProductIDs_;
 	event->moduleDescriptionID_ = pit->second->moduleDescriptionID();
-	auto_ptr<Provenance> pv(new Provenance(*pit->second, event));
+	std::auto_ptr<Provenance> pv(new Provenance(*pit->second, event));
 	dbk_.put(pr,pv);
 	++pit;
     }
@@ -84,8 +78,8 @@ namespace edm {
     
   BasicHandle
   DataViewImpl::getByLabel_(TypeID const& tid,
-		     string const& label,
-                     string const & productInstanceName) const
+		     std::string const& label,
+                     std::string const& productInstanceName) const
   {
     return dbk_.getByLabel(tid, label, productInstanceName);
   }
@@ -100,9 +94,9 @@ namespace edm {
 
   BasicHandle
   DataViewImpl::getByLabel_(TypeID const& tid,
-                     string const& label,
-  	             string const& productInstanceName,
-  	             string const& processName) const
+                     std::string const& label,
+  	             std::string const& productInstanceName,
+  	             std::string const& processName) const
   {
     return dbk_.getByLabel(tid, label, productInstanceName, processName);
   }
@@ -155,7 +149,7 @@ namespace edm {
   }
 
   void
-  DataViewImpl::getAllProvenance(vector<Provenance const*> & provenances) const
+  DataViewImpl::getAllProvenance(std::vector<Provenance const*> & provenances) const
   {
     dbk_.getAllProvenance(provenances);
   }
@@ -168,8 +162,8 @@ namespace edm {
 
   ConstBranchDescription const&
   DataViewImpl::getBranchDescription(TypeID const& type,
-				     string const& productInstanceName) const {
-    string friendlyClassName = type.friendlyClassName();
+				     std::string const& productInstanceName) const {
+    std::string friendlyClassName = type.friendlyClassName();
         BranchKey bk(friendlyClassName, md_.moduleLabel(), productInstanceName, md_.processName());
     ProductRegistry::ConstProductList const& pl = dbk_.productRegistry().constProductList();
     ProductRegistry::ConstProductList::const_iterator it = pl.find(bk);

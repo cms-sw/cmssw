@@ -20,13 +20,7 @@
 
 
 #include "FWCore/MessageService/interface/ELfwkJobReport.h"
-#include "FWCore/MessageService/interface/ELdestination.h"
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
-#include "FWCore/MessageService/interface/ELadministrator.h"
-#include "FWCore/MessageService/interface/ELcontextSupplier.h"
-
-#include "FWCore/MessageLogger/interface/ELstring.h"
-
 
 // Possible Traces:
 // #define ELfwkJobReportCONSTRUCTOR_TRACE

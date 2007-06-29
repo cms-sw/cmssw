@@ -18,7 +18,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 
 #include <string>
 #include <vector>

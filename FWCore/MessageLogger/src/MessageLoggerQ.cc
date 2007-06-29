@@ -1,5 +1,4 @@
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
-#include "FWCore/MessageLogger/interface/MessageDrop.h"
 #include "FWCore/MessageLogger/interface/ConfigurationHandshake.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 

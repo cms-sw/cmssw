@@ -28,20 +28,12 @@
 
 #include "FWCore/MessageService/interface/ELdestination.h"
 #include "FWCore/MessageService/interface/ELdestControl.h"
-#include "FWCore/MessageService/interface/ELadministrator.h"
-
-#include "FWCore/MessageLogger/interface/ELstring.h"
-#include "FWCore/MessageLogger/interface/ELextendedID.h"
-#include "FWCore/MessageLogger/interface/ErrorObj.h"
-
 
 // Possible Traces:
 // #define ELdestinationCONSTRUCTOR_TRACE
 
-
 namespace edm {
 namespace service {
-
                                          // Fix $001 2/13/01 mf
 #ifdef DEFECT_NO_STATIC_CONST_INIT
   const int ELdestination::defaultLineLength = 80;

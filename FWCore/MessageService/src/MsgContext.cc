@@ -11,8 +11,6 @@
 
 #include "FWCore/MessageService/interface/MsgContext.h"
 #include <sstream>
-#include <string>
-
 
 #include <iostream>
 

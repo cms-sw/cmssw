@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:19 EDT 2005
-// $Id: ServiceRegistry.cc,v 1.3 2005/09/10 02:08:48 wmtan Exp $
+// $Id: ServiceRegistry.cc,v 1.4 2006/06/13 22:32:36 wmtan Exp $
 //
 
 // system include files
@@ -17,8 +17,6 @@
 // user include files
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ParameterSet/interface/MakeParameterSets.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 
 //
 // constants, enums and typedefs

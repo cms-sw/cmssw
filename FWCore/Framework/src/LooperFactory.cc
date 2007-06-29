@@ -8,15 +8,13 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 19:27:37 EDT 2005
-// $Id: LooperFactory.cc,v 1.1 2006/07/23 01:24:34 valya Exp $
+// $Id: LooperFactory.cc,v 1.2 2007/04/13 10:39:42 wmtan Exp $
 //
 
 // system include files
 
 // user include files
 #include "FWCore/Framework/interface/LooperFactory.h"
-#include "FWCore/Framework/interface/EventSetupProvider.h"
-
 
 //
 // static member functions

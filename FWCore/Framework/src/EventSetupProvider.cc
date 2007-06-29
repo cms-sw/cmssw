@@ -13,7 +13,6 @@
 //
 
 // system include files
-#include <set>
 #include "boost/bind.hpp"
 #include <algorithm>
 

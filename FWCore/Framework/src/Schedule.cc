@@ -4,7 +4,6 @@
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/interface/TriggerReport.h"
 #include "FWCore/Framework/interface/CurrentProcessingContext.h"
@@ -22,20 +21,13 @@
 #include "FWCore/Framework/src/OutputWorker.h"
 #include "FWCore/Framework/src/FilterWorker.h"
 
-#include "boost/shared_ptr.hpp"
 #include "boost/bind.hpp"
-#include "boost/lambda/lambda.hpp"
-#include "boost/lambda/bind.hpp"
 
 #include <algorithm>
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
 #include <list>
-#include <memory>
-#include <string>
-#include <vector>
-
 
 namespace edm {
   namespace {

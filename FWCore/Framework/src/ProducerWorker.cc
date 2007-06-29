@@ -1,7 +1,7 @@
 
 
 /*----------------------------------------------------------------------
-$Id: ProducerWorker.cc,v 1.24 2006/11/03 17:57:52 wmtan Exp $
+$Id: ProducerWorker.cc,v 1.25 2007/06/05 04:02:32 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/ProducerWorker.h"
@@ -11,9 +11,6 @@ $Id: ProducerWorker.cc,v 1.24 2006/11/03 17:57:52 wmtan Exp $
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/src/WorkerParams.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/CurrentProcessingContext.h"
-#include "FWCore/Framework/src/CPCSentry.h"
 
 namespace edm {
   ProducerWorker::ProducerWorker(std::auto_ptr<EDProducer> ed,

@@ -10,8 +10,6 @@ This service is instantiated at job startup.
 
 ----------------------------------------------------------------------*/
 
-#include <signal.h>
-
 namespace edm {
   class ParameterSet;
   class ActivityRegistry;

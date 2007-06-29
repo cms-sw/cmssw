@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 27 17:58:10 EDT 2006
-// $Id: TFWLiteSelectorBasic.cc,v 1.19 2007/06/06 23:35:08 wmtan Exp $
+// $Id: TFWLiteSelectorBasic.cc,v 1.20 2007/06/21 16:52:44 wmtan Exp $
 //
 
 // system include files
@@ -18,7 +18,6 @@
 #include "TBranch.h"
 #include "TClass.h"
 #include "Reflex/Type.h"
-#include "Reflex/Object.h"
 #include "boost/shared_ptr.hpp"
 
 // user include files

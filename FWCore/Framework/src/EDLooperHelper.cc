@@ -10,11 +10,14 @@
 //
 // Author:      Valentin Kuznetsov
 // Created:     Wed Jul 12 11:38:09 EDT 2006
-// $Id: EDLooperHelper.cc,v 1.3 2007/06/14 17:52:18 wmtan Exp $
+// $Id: EDLooperHelper.cc,v 1.4 2007/06/22 23:26:33 wmtan Exp $
 //
 // Revision history
 //
 // $Log: EDLooperHelper.cc,v $
+// Revision 1.4  2007/06/22 23:26:33  wmtan
+// Add Run and Lumi loops to the EventProcessor
+//
 // Revision 1.3  2007/06/14 17:52:18  wmtan
 // Remove unnecessary includes
 //
@@ -28,7 +31,6 @@
 // user include files
 #include "FWCore/Framework/interface/EDLooperHelper.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
-#include "FWCore/Framework/interface/EventSetupRecordKey.h"
 
 namespace edm {
 
@@ -39,7 +41,7 @@ namespace edm {
 static const char* const kFacilityString = "FWCore.Framework.EDLooperHelper" ;
 
 // ---- cvs-based strings (Id and Tag with which file was checked out)
-static const char* const kIdString  = "$Id: EDLooperHelper.cc,v 1.3 2007/06/14 17:52:18 wmtan Exp $";
+static const char* const kIdString  = "$Id: EDLooperHelper.cc,v 1.4 2007/06/22 23:26:33 wmtan Exp $";
 static const char* const kTagString = "$Name:  $";
 
 //

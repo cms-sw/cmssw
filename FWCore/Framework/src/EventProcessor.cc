@@ -3,14 +3,11 @@
 #include <iostream>
 #include <list>
 #include <stdexcept>
-#include <string>
 #include <utility>
-#include <vector>
 #include <cstdlib>
 
 #include <signal.h>
 
-#include "boost/shared_ptr.hpp"
 #include "boost/bind.hpp"
 #include "boost/mem_fn.hpp"
 #include "boost/thread/xtime.hpp"
@@ -24,10 +21,8 @@
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/LooperFactory.h"

@@ -1,8 +1,7 @@
 
 /*----------------------------------------------------------------------
-$Id: FilterWorker.cc,v 1.14 2007/03/04 06:10:25 wmtan Exp $
+$Id: FilterWorker.cc,v 1.15 2007/06/05 04:02:32 wmtan Exp $
 ----------------------------------------------------------------------*/
-#include <memory>
 
 #include "FWCore/Framework/src/FilterWorker.h"
 
@@ -10,10 +9,7 @@ $Id: FilterWorker.cc,v 1.14 2007/03/04 06:10:25 wmtan Exp $
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/EDFilter.h"
-#include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "FWCore/Framework/interface/Actions.h"
 #include "FWCore/Framework/src/WorkerParams.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
 

@@ -129,24 +129,18 @@
 //
 // ----------------------------------------------------------------------
 
-
-
 #include "FWCore/MessageService/interface/ELadministrator.h"
 #include "FWCore/MessageService/interface/ELoutput.h"
 #include "FWCore/MessageService/interface/ELstatistics.h"
 #include "FWCore/MessageService/interface/ELfwkJobReport.h"
 #include "FWCore/MessageService/interface/ErrorLog.h"
-#include "FWCore/MessageService/interface/MessageLogger.h"
 #include "FWCore/MessageService/interface/MessageLoggerScribe.h"
-#include "FWCore/MessageService/interface/NamedDestination.h"
-#include "FWCore/MessageService/interface/MessageLoggerDefaults.h"
 
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/ConfigurationHandshake.h"
 
-#include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <algorithm>
@@ -154,7 +148,6 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <vector>
 #include <signal.h>
 
 using std::cerr;

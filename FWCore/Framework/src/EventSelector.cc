@@ -1,6 +1,5 @@
 
 #include "FWCore/Framework/interface/EventSelector.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 

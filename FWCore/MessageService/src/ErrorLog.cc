@@ -42,9 +42,6 @@
 #include "FWCore/MessageService/interface/ELrecv.h"
 #include "FWCore/MessageService/interface/ELcontextSupplier.h"
 
-#include "FWCore/MessageLogger/interface/ELseverityLevel.h"
-#include "FWCore/MessageLogger/interface/ELstring.h"
-
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <iostream>

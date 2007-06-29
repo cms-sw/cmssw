@@ -8,11 +8,8 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <dlfcn.h>
-#include "boost/thread/mutex.hpp"
 
 #include <iostream>
-#include <vector>
-#include <string>
 #include <sstream>
 #include <stdexcept>
 

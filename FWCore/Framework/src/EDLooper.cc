@@ -10,11 +10,14 @@
 //
 // Author:      Valentin Kuznetsov
 // Created:     Wed Jul  5 11:44:26 EDT 2006
-// $Id: EDLooper.cc,v 1.6 2007/06/22 23:26:33 wmtan Exp $
+// $Id: EDLooper.cc,v 1.7 2007/06/25 23:22:13 wmtan Exp $
 //
 // Revision history
 //
 // $Log: EDLooper.cc,v $
+// Revision 1.7  2007/06/25 23:22:13  wmtan
+// Remove unnecessary includes
+//
 // Revision 1.6  2007/06/22 23:26:33  wmtan
 // Add Run and Lumi loops to the EventProcessor
 //
@@ -37,7 +40,6 @@
 // system include files
 // You may have to uncomment some of these or other stl headers
 // depending on what other header files you include (e.g. FrameAccess etc.)!
-#include <string>
 #include <iostream>
 #include <sstream>
 //#include <vector>
@@ -50,7 +52,6 @@
 #include "FWCore/Framework/interface/EDLooper.h"
 #include "FWCore/Framework/interface/EDLooperHelper.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/EventHelperDescription.h"
 
 namespace edm {

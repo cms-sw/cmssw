@@ -14,8 +14,6 @@
 #include "FWCore/MessageService/interface/ELadministrator.h"
 #include "FWCore/MessageService/interface/ELcontextSupplier.h"
 
-#include "FWCore/MessageLogger/interface/ELstring.h"
-
 #ifndef CSTRING_INCLUDED
   #include <cstring>
 #endif
