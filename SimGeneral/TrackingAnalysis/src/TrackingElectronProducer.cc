@@ -141,13 +141,14 @@ void TrackingElectronProducer::produce(Event &event, const EventSetup &) {
       addG4Track(tkp, *it);
     }
 
+    std::vector<PSimHit> hits = tkp.trackPSimHit();
+    /*
     // count matched hits
     int totsimhit = 0;
     int oldlay = 0;
     int newlay = 0;
     int olddet = 0;
     int newdet = 0;
-    std::vector<PSimHit> hits = tkp.trackPSimHit();
     for ( std::vector<PSimHit>::const_iterator ih = hits.begin(); 
 	  ih != hits.end(); ih++ ) {
       unsigned int detid = (*ih).detUnitId();
@@ -162,6 +163,8 @@ void TrackingElectronProducer::produce(Event &event, const EventSetup &) {
 	totsimhit++;
       }
     }
+    */
+    int totsimhit = 20; // FIXME temp. hack
     tkp.setMatchedHit(totsimhit);
 
     (*trackingParticles).push_back(tkp);
