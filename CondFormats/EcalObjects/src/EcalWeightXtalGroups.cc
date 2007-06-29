@@ -1,7 +1,7 @@
 /**
  * Author: Shahram Rahatlou, University of Rome & INFN
  * Created: 22 Feb 2006
- * $Id: EcalWeightXtalGroups.cc,v 1.2 2006/02/23 16:56:35 rahatlou Exp $
+ * $Id: EcalWeightXtalGroups.cc,v 1.3 2007/06/29 07:04:31 innocent Exp $
  **/
 
 #include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
@@ -23,6 +23,6 @@ void EcalWeightXtalGroups::update() const {
   const_cast<EcalWeightXtalGroups&>(*this).doUpdate();
 }
  
-voidEcalWeightXtalGroups::doUpdate(){
+void EcalWeightXtalGroups::doUpdate(){
   m_hashedCont.load(getMap().begin(),getMap().end());
 }
