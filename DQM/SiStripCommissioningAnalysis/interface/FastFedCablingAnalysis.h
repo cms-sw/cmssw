@@ -36,6 +36,24 @@ class FastFedCablingAnalysis : public CommissioningAnalysis {
   /** FED channel. */
   inline const uint16_t& lldCh() const; 
 
+  /** "High" light level [ADC]. */
+  inline const float& highLevel() const;
+
+  /** Spread in "high" ligh level [ADC]. */
+  inline const float& highRms() const;
+
+  /** "Low" light level [ADC]. */
+  inline const float& lowLevel() const;
+
+  /** Spread in "low" ligh level [ADC]. */
+  inline const float& lowRms() const;
+
+  /** Maximum light level in data [ADC]. */
+  inline const float& max() const;
+  
+  /** Minimum light level in data [ADC]. */
+  inline const float& min() const;
+
   /** Pointer to histogram. */
   inline const Histo& histo() const;
 
@@ -123,8 +141,14 @@ class FastFedCablingAnalysis : public CommissioningAnalysis {
   
 const uint32_t& FastFedCablingAnalysis::dcuId() const { return dcuId_; }
 const uint16_t& FastFedCablingAnalysis::lldCh() const { return lldCh_; } 
-
+const float& FastFedCablingAnalysis::highLevel() const { return highMean_; }
+const float& FastFedCablingAnalysis::highRms() const { return highRms_; }
+const float& FastFedCablingAnalysis::lowLevel() const { return lowMean_; }
+const float& FastFedCablingAnalysis::lowRms() const { return lowRms_; }
+const float& FastFedCablingAnalysis::max() const { return max_; }
+const float& FastFedCablingAnalysis::min() const { return min_; }
 const FastFedCablingAnalysis::Histo& FastFedCablingAnalysis::histo() const { return histo_; }
 
 #endif // DQM_SiStripCommissioningAnalysis_FastFedCablingAnalysis_H
+
 

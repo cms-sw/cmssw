@@ -12,11 +12,15 @@ using namespace sistrip;
 
 // ----------------------------------------------------------------------------
 // 
-float ApvTimingAnalysis::refTime_ = 1.*sistrip::invalid_;
+const float ApvTimingAnalysis::optimumSamplingPoint_ = 15.; // [ns]
 
 // ----------------------------------------------------------------------------
 // 
-const float ApvTimingAnalysis::optimumSamplingPoint_ = 15.; // [ns]
+const float ApvTimingAnalysis::tickMarkHeightThreshold_ = 100.; // [ADC]
+
+// ----------------------------------------------------------------------------
+// 
+float ApvTimingAnalysis::refTime_ = 1.*sistrip::invalid_;
 
 // ----------------------------------------------------------------------------
 // 

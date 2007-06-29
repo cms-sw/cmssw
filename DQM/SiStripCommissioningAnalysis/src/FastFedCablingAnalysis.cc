@@ -198,14 +198,6 @@ void FastFedCablingAnalysis::analyse() {
   sort( low.begin(), low.end() );
   if ( !high.empty() ) { highMedian_ = high[ high.size()%2 ? high.size()/2 : high.size()/2 ]; }
   if ( !low.empty() ) { lowMedian_ = low[ low.size()%2 ? low.size()/2 : low.size()/2 ]; }
-  range_ = highMedian_ - lowMedian_;
-  midRange_ = lowMedian_ + range_ / 2.;
-
-  // Check if updated range is above threshold 
-  if ( range_ < threshold_ ) {
-    addErrorCode(sistrip::smallDataRange_);
-    return; 
-  }
   
   // Find mean and rms in "low" samples
   lowMean_ = 0.;
@@ -249,6 +241,23 @@ void FastFedCablingAnalysis::analyse() {
     highRms_ = 1. * sistrip::invalid_;
   }
 
+  // Recalculate range
+  if ( highMean_ < 1. * sistrip::valid_ &&
+       lowMean_  < 1. * sistrip::valid_ ) { 
+    range_ = highMean_ - lowMean_;
+    midRange_ = lowMean_ + range_ / 2.;
+  } else { 
+    range_ = 1. * sistrip::invalid_;
+    midRange_ = 1. * sistrip::invalid_;
+  }
+  
+  // Check if updated range is valid and above threshold 
+  if ( range_ > 1. * sistrip::valid_ ||
+       range_ < threshold_ ) {
+    addErrorCode(sistrip::smallDataRange_);
+    return; 
+  }
+  
   // Extract DCU id
   dcuId_ = 0;
   for ( uint16_t ibin = 0; ibin < nBitsForDcuId_; ibin++ ) {

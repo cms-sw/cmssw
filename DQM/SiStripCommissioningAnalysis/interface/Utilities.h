@@ -34,6 +34,10 @@ namespace sistrip {
   
     /** */
     void add( const float& value_x,
+	      const float& value_y );
+
+    /** */
+    void add( const float& value_x,
 	      const float& value_y, 
 	      const float& error_y );
   

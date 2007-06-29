@@ -7,8 +7,8 @@
 // 
 CommissioningAnalysis::CommissioningAnalysis( const uint32_t& key,
 					      const std::string& my_name ) 
-  : fec_( SiStripFecKey(key) ),
-    fed_(),
+  : fecKey_( SiStripFecKey(key) ),
+    fedKey_(),
     myName_(my_name),
     errors_(VString(0,""))
 {;}
@@ -16,8 +16,8 @@ CommissioningAnalysis::CommissioningAnalysis( const uint32_t& key,
 // ----------------------------------------------------------------------------
 // 
 CommissioningAnalysis::CommissioningAnalysis( const std::string& my_name ) 
-  : fec_(),
-    fed_(),
+  : fecKey_(),
+    fedKey_(),
     myName_(my_name),
     errors_(VString(0,""))
 {;}
@@ -59,5 +59,5 @@ void CommissioningAnalysis::header( std::stringstream& ss ) const {
 // 
 void CommissioningAnalysis::extractFedKey( const TH1* const his ) {
   SiStripHistoTitle title( his->GetName() );
-  fed_ = SiStripFedKey( title.keyValue() );
+  fedKey_ = SiStripFedKey( title.keyValue() );
 }

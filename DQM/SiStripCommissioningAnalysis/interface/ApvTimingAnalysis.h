@@ -80,6 +80,16 @@ class ApvTimingAnalysis : public CommissioningAnalysis {
 
   /** Performs histogram anaysis. */
   void analyse();
+
+ public:
+  
+  // ---------- Public const static members ----------
+  
+  /** Optimum sampling point, defined w.r.t. rising edge [ns]. */
+  static const float optimumSamplingPoint_;
+  
+  /** Threshold defining minimum tick mark height [ADC]. */
+  static const float tickMarkHeightThreshold_;
   
  private:
 
@@ -91,12 +101,9 @@ class ApvTimingAnalysis : public CommissioningAnalysis {
   /** Error on time of tick mark rising edge [ns]. */
   float error_;
 
-  /** Optimum sampling point, defined w.r.t. rising edge [ns]. */
-  static const float optimumSamplingPoint_;
-
   /** Sampling point of "reference" tick mark [ns]. */
   static float refTime_;
-
+  
   /** Delay required to sync w.r.t. reference tick mark [ns]. */
   float delay_;
 

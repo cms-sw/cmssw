@@ -96,10 +96,10 @@ class CommissioningAnalysis {
   // ---------- Private member data ----------
 
   /** FEC key object. */
-  SiStripFecKey fec_;
+  SiStripFecKey fecKey_;
 
   /** FEC key object. */
-  SiStripFedKey fed_;
+  SiStripFedKey fedKey_;
 
   /** Object name. */
   std::string myName_;
@@ -111,8 +111,8 @@ class CommissioningAnalysis {
 
 // ---------- Inline methods ----------
 
-const SiStripFecKey& CommissioningAnalysis::fecKey() const { return fec_; }
-const SiStripFedKey& CommissioningAnalysis::fedKey() const { return fed_; }
+const SiStripFecKey& CommissioningAnalysis::fecKey() const { return fecKey_; }
+const SiStripFedKey& CommissioningAnalysis::fedKey() const { return fedKey_; }
 const std::string& CommissioningAnalysis::myName() const { return myName_; }
 
 const CommissioningAnalysis::VString& CommissioningAnalysis::getErrorCodes() { return errors_; }

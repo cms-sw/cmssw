@@ -19,14 +19,21 @@ sistrip::LinearFit::LinearFit()
 // ----------------------------------------------------------------------------
 // 
 void sistrip::LinearFit::add( const float& x,
+			      const float& y ) {
+  x_.push_back(x);
+  y_.push_back(y);
+  float wt = 1.;
+  ss_ += wt;
+  sx_ += x*wt;
+  sy_ += y*wt;
+}
+
+// ----------------------------------------------------------------------------
+// 
+void sistrip::LinearFit::add( const float& x,
 			      const float& y,
 			      const float& e ) {
   if ( e > 0. ) { 
-//     LogTrace(mlCommissioning_) << "[" << __PRETTY_FUNCTION__ << "] n/x/y/e: " 
-// 	 << x_.size() << "/" 
-// 	 << x << "/"
-// 	 << y << "/"
-// 	 << e;
     x_.push_back(x);
     y_.push_back(y);
     e_.push_back(e);
@@ -35,9 +42,6 @@ void sistrip::LinearFit::add( const float& x,
     sx_ += x*wt;
     sy_ += y*wt;
   } 
-//   else {
-//     LogTrace(mlCommissioning_) << "******  ERROR <= 0.  !!!!!!!!!!   " << e;
-//   }
 }
 
 // ----------------------------------------------------------------------------

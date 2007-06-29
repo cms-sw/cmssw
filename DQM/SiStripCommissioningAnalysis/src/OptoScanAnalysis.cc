@@ -204,10 +204,12 @@ void OptoScanAnalysis::analyse() {
     }
     
     // Find "zero light" level and error
+    //@@ record bias setting used for zero light level
+    //@@ zero light error changes wrt gain setting ???
     float zero_light_level = sistrip::invalid_;
     float zero_light_error = sistrip::invalid_;
     for ( uint16_t ibin = 0; ibin < nbins; ibin++ ) {
-      if ( base_entries[ibin] ) {
+      if ( base_entries[ibin] ) { 
 	zero_light_level = base_contents[ibin];
 	zero_light_error = base_errors[ibin];
 	break;
@@ -263,7 +265,7 @@ void OptoScanAnalysis::analyse() {
 	   peak_contents[ibin] < ( min + 0.8*range ) ) {
 	if ( !peak_bin ) { peak_bin = ibin; }
 	if ( ( ibin - peak_bin ) < 10 ) { 
-	  peak_high.add( ibin, peak_contents[ibin], peak_entries[ibin] );
+	  peak_high.add( ibin, peak_contents[ibin] ); //@@ should weight using bin error or bin contents (sqrt(N)/N)
 	}
       }
       // Linear fit to base histogram
@@ -272,7 +274,7 @@ void OptoScanAnalysis::analyse() {
 	   base_contents[ibin] < ( min + 0.8*range ) ) {
 	if ( !base_bin ) { base_bin = ibin; }
 	if ( ( ibin - base_bin ) < 10 ) { 
-	  base_high.add( ibin, base_contents[ibin], base_entries[ibin] );
+	  base_high.add( ibin, base_contents[ibin] ); //@@ should weight using bin error or bin contents (sqrt(N)/N)
 	}
       }
       // Low linear fit to base histogram
@@ -282,7 +284,7 @@ void OptoScanAnalysis::analyse() {
 	   base_contents[ibin] < ( base_min + 0.6*base_range ) ) { 
 	if ( !low_bin ) { low_bin = ibin; }
 	if ( ( ibin - low_bin ) < 10 ) { 
-	  base_low.add( ibin, base_contents[ibin], base_entries[ibin] );
+	  base_low.add( ibin, base_contents[ibin] ); //@@ should weight using bin error or bin contents (sqrt(N)/N)
 	}
       }
       
@@ -312,7 +314,7 @@ void OptoScanAnalysis::analyse() {
     
     // Set "zero light" level and link noise
     zeroLight_[igain] = zero_light_level;
-    linkNoise_[igain] = zero_light_error;
+    linkNoise_[igain] = zero_light_error; //@@ WRONG!!!! should be error at threshold or "minimum noise" level from new histo?!?
     
     // Calculate "lift off" and laser threshold (in mA)
     liftOff_[igain] = 0.45 * lift_off;

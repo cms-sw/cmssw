@@ -77,7 +77,7 @@ void FedCablingAnalysis::extract( const std::vector<TH1*>& histos ) {
     }
     
     // Extract FED id and channel histos
-    if ( title.extraInfo().find(sistrip::fedId_) != std::string::npos ) {
+    if ( title.extraInfo().find(sistrip::feDriver_) != std::string::npos ) {
       hFedId_.first = *ihis;
       hFedId_.second = (*ihis)->GetName();
     } else if ( title.extraInfo().find(sistrip::fedChannel_) != std::string::npos ) {
