@@ -15,12 +15,7 @@
 #include <cassert>
 #include <iostream>
 
-#include "DataFormats/Common/interface/EDProduct.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Provenance/interface/EventID.h"
-
 
 /*
   There is still a problem here - the message lengths are not

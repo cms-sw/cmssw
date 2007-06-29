@@ -1,13 +1,12 @@
 #ifndef _StreamerOutputService_h
 #define _StreamerOutputService_h 
 
-// $Id: StreamerOutputService.h,v 1.9 2006/10/11 15:03:52 klute Exp $
+// $Id: StreamerOutputService.h,v 1.10 2006/12/19 00:30:44 wmtan Exp $
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSelector.h"
 #include "IOPool/Streamer/src/StreamerFileWriter.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
-#include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
 #include "IOPool/Streamer/interface/StreamerStatService.h"
 

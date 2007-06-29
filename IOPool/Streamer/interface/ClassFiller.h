@@ -5,7 +5,6 @@
 
 #include "FWCore/Utilities/interface/DebugMacros.h"
 
-#include "TClass.h"
 #include "TBuffer.h"
 
 #include <typeinfo>

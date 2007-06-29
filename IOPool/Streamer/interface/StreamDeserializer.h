@@ -13,7 +13,6 @@
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "TBuffer.h"
-#include "TClass.h"
 #include <vector>
 
 class InitMsgView;

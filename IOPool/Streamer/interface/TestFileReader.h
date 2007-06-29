@@ -2,12 +2,9 @@
 #define Streamer_TestFileReader_h
 
 #include "IOPool/Streamer/interface/EventBuffer.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 
 #include "IOPool/Streamer/interface/StreamerInputFile.h"
-#include "IOPool/Streamer/interface/InitMessage.h"
-#include "IOPool/Streamer/interface/EventMessage.h"
 
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/thread.hpp"

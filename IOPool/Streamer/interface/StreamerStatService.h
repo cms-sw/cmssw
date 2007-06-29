@@ -1,13 +1,11 @@
 #ifndef StreamerStatService_h
 #define StreamerStatService_h
 
-// $Id:$
+// $Id: StreamerStatService.h,v 1.4 2006/10/11 14:39:32 klute Exp $
 
-#include<iostream>
-#include<ctime>
 #include<string>
 #include<vector>
-#include<fstream>
+#include<iosfwd>
 
 namespace {
 std::string itoa(int i){

@@ -6,8 +6,6 @@
 #define _dump_tool_
 
 #include "IOPool/Streamer/interface/MsgTools.h"
-#include "IOPool/Streamer/interface/EventMsgBuilder.h"
-#include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
 

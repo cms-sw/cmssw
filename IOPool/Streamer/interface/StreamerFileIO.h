@@ -8,8 +8,7 @@ Class representing Output (Streamer/Index) file.
 
 #include "IOPool/Streamer/interface/MsgTools.h"
 
-#include <fstream>
-//#include <iostream>
+#include <iosfwd>
 #include<string>
 
 //-------------------------------------------------------

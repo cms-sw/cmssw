@@ -17,7 +17,6 @@ code 1 | size 4 | protocol version 1 | pset 16 | run 4 | Init Header Size 4| Eve
 
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
-#include "IOPool/Streamer/interface/InitMessage.h"
 
 struct Version
 {

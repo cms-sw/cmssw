@@ -1,8 +1,6 @@
 #ifndef _EOFRecordBuilder_h
 #define _EOFRecordBuilder_h
 
-#include "IOPool/Streamer/interface/MsgHeader.h"
-#include "IOPool/Streamer/interface/EOFRecord.h"
 #include "IOPool/Streamer/interface/MsgTools.h"
 
 // ------------------ EOF message builder ----------------

@@ -8,12 +8,9 @@
 //
 
 #include "TBuffer.h"
-#include "TClass.h"
 
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
-#include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "IOPool/Streamer/interface/EventBuffer.h"
 

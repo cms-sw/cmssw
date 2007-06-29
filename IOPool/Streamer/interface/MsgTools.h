@@ -1,14 +1,8 @@
 #ifndef _MsgTools_h
 #define _MsgTools_h
 
-#include <iostream>
-#include <sstream>
 #include <vector>
 #include <string>
-#include <iterator>
-#include <algorithm>
-#include <cassert>
-#include <cstdlib>
 
 // could just use the c99 names here from stdint.h
 typedef unsigned char uint8;

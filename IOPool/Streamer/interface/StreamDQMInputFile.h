@@ -1,7 +1,6 @@
 #ifndef _StreamDQMInputFile_h
 #define _StreamDQMInputFile_h
 
-#include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/DQMEventMessage.h"
 
 #include<string>

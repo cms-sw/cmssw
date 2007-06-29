@@ -33,7 +33,6 @@
  */
 
 #include "IOPool/Streamer/interface/MsgTools.h"
-#include "IOPool/Streamer/interface/MsgHeader.h"
 #include "IOPool/Streamer/interface/DQMEventMessage.h"
 
 #include "DataFormats/Provenance/interface/Timestamp.h"

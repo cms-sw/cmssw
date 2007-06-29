@@ -10,7 +10,6 @@
 
 #include "FWCore/Framework/interface/OutputModule.h"
 #include "TBuffer.h"
-#include "TClass.h"
 #include <vector>
 
 class EventMsgBuilder;
