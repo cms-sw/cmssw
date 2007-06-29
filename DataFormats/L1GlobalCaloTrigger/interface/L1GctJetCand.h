@@ -5,7 +5,9 @@
 #include <ostream>
 #include <string>
 
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCand.h"
+//#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCand.h"
+
+#include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 
 /// \class L1GctJetCand
 /// \brief Level-1 Trigger jet candidate
