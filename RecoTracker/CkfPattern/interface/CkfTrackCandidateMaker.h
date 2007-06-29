@@ -20,41 +20,27 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
 #include "RecoTracker/CkfPattern/interface/RedundantSeedCleaner.h"
+#include "RecoTracker/CkfPattern/interface/CkfTrackCandidateMakerBase.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 
 class TransientInitialStateEstimator;
 
 namespace cms
 {
-  class CkfTrackCandidateMaker : public edm::EDProducer
+  class CkfTrackCandidateMaker : public CkfTrackCandidateMakerBase, public edm::EDProducer
   {
   public:
 
-    explicit CkfTrackCandidateMaker(const edm::ParameterSet& conf);
+    explicit CkfTrackCandidateMaker(const edm::ParameterSet& conf):
+      CkfTrackCandidateMakerBase(conf){
+      produces<TrackCandidateCollection>();
+    }
 
-    virtual ~CkfTrackCandidateMaker();
+    virtual ~CkfTrackCandidateMaker(){;}
 
-    virtual void beginJob (edm::EventSetup const & es);
+    virtual void beginJob (edm::EventSetup const & es){beginJobBase(es);}
 
-    virtual void produce(edm::Event& e, const edm::EventSetup& es);
-
-  protected:
-    edm::ParameterSet conf_;
-    const TrackerTrajectoryBuilder*  theTrajectoryBuilder;
-    TrajectoryCleaner*               theTrajectoryCleaner;
-    TransientInitialStateEstimator*  theInitialState;
-    
-    edm::ESHandle<MagneticField>                theMagField;
-    edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
-
-    const NavigationSchool*       theNavigationSchool;
-    
-    RedundantSeedCleaner*  theSeedCleaner;
-
-    // methods for debugging
-    virtual void printHitsDebugger(edm::Event& e){;}
-    virtual void countSeedsDebugger(){;}
-    virtual void deleteAssocDebugger(){;}
-
+    virtual void produce(edm::Event& e, const edm::EventSetup& es){produceBase(e,es);}
   };
 }
 
