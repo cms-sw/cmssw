@@ -13,26 +13,19 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 28 11:10:24 EDT 2005
-// $Id: EventSetupRecordDataGetter.cc,v 1.5 2006/10/21 18:14:19 wmtan Exp $
+// $Id: EventSetupRecordDataGetter.cc,v 1.6 2007/01/19 04:46:13 wmtan Exp $
 //
 //
 
 
 // system include files
 #include <memory>
-#include <map>
-#include <vector>
 #include <iostream>
 
 // user include files
 #include "FWCore/Modules/src/EventSetupRecordDataGetter.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/EventSetupRecord.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 
 //
 // class decleration

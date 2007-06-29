@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May 23 11:03:31 EDT 2006
-// $Id: BareRootProductGetter.cc,v 1.14 2007/05/14 20:04:29 chrjones Exp $
+// $Id: BareRootProductGetter.cc,v 1.15 2007/06/04 18:07:00 chrjones Exp $
 //
 
 // system include files
@@ -18,13 +18,11 @@
 #include "TBranch.h"
 #include "TClass.h"
 #include "Reflex/Type.h"
-#include "Reflex/Object.h"
 
 // user include files
 #include "FWCore/FWLite/src/BareRootProductGetter.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "FWCore/Utilities/interface/Exception.h"
 

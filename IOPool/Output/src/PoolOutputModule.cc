@@ -1,31 +1,28 @@
-// $Id: PoolOutputModule.cc,v 1.75 2007/05/30 02:31:53 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.76 2007/06/21 16:52:45 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
-#include "IOPool/Common/interface/PoolDataSvc.h"
-#include "IOPool/Common/interface/PoolDatabase.h"
 #include "IOPool/Common/interface/ClassFiller.h"
 #include "IOPool/Common/interface/RefStreamer.h"
 #include "IOPool/Common/interface/CustomStreamer.h"
 
-#include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
 #include "FWCore/Utilities/interface/GetFileFormatVersion.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
+#include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "DataFormats/Provenance/interface/ParameterSetBlob.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Common/interface/BasicHandle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/JobReport.h"
 
 #include "DataSvc/Ref.h"
 #include "DataSvc/IDataSvc.h"
@@ -39,7 +36,6 @@
 
 #include <map>
 #include <vector>
-#include <string>
 #include <iomanip>
 
 namespace edm {

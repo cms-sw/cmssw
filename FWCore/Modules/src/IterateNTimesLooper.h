@@ -26,10 +26,6 @@
 
 // forward declarations
 
-namespace edm {
-  class ParameterSet;
-}
-
 class IterateNTimesLooper : public edm::EDLooper
 {
 

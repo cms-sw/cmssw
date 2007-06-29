@@ -12,7 +12,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep 19 11:47:28 CEST 2005
-// $Id: EventContentAnalyzer.cc,v 1.21 2007/01/19 04:46:13 wmtan Exp $
+// $Id: EventContentAnalyzer.cc,v 1.22 2007/03/04 05:53:06 wmtan Exp $
 //
 //
 
@@ -20,7 +20,6 @@
 // system include files
 #include <iostream>
 #include <iomanip>
-#include <map>
 #include <sstream>
 #include <algorithm>
 
@@ -28,14 +27,11 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Modules/src/EventContentAnalyzer.h"
-
-#include "boost/lexical_cast.hpp"
 
 #include "FWCore/Framework/interface/GenericHandle.h"
 //
