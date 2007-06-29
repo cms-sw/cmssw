@@ -9,8 +9,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/03/01 08:14:20 $
-// $Revision: 1.15 $
+// $Date: 2007/03/07 21:46:49 $
+// $Revision: 1.16 $
 //
 
 #include <memory>
@@ -18,7 +18,7 @@
 
 #include "RecoTracker/RoadSearchCloudMaker/interface/RoadSearchCloudMaker.h"
 
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/RoadSearchSeed/interface/RoadSearchSeedCollection.h"
 #include "DataFormats/RoadSearchCloud/interface/RoadSearchCloudCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
@@ -56,7 +56,7 @@ namespace cms
   {
 
     // Step A: Get Inputs 
-    edm::Handle<TrajectorySeedCollection> seedHandle;
+    edm::Handle<RoadSearchSeedCollection> seedHandle;
     e.getByLabel(seedProducer_, seedHandle);
     
     // get Inputs

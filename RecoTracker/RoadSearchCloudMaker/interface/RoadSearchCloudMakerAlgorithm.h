@@ -50,9 +50,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2007/03/07 21:46:49 $
-// $Revision: 1.20 $
+// $Author: burkett $
+// $Date: 2007/05/19 20:29:06 $
+// $Revision: 1.22 $
 //
 
 #include <string>
@@ -64,7 +64,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/RoadSearchSeed/interface/RoadSearchSeedCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
@@ -87,7 +87,7 @@ class RoadSearchCloudMakerAlgorithm
   ~RoadSearchCloudMakerAlgorithm();
 
   /// Runs the algorithm
-  void run(edm::Handle<TrajectorySeedCollection> input,
+  void run(edm::Handle<RoadSearchSeedCollection> input,
 	   const SiStripRecHit2DCollection* rphiRecHits,
 	   const SiStripRecHit2DCollection* stereoRecHits,
 	   const SiStripMatchedRecHit2DCollection* matchedRecHits,
@@ -97,19 +97,16 @@ class RoadSearchCloudMakerAlgorithm
 
   unsigned int FillRecHitsIntoCloudGeneral(DetId id, double d0, double phi0, double k0, double phi1, double k1,
 					   Roads::type roadType, double ringPhi,
-					   const TrajectorySeed* seed,
 					   const TrackerGeometry *tracker, const SiStripRecHitMatcher* theHitMatcher, RoadSearchCloud &cloud);
 
   unsigned int FillRecHitsIntoCloud(DetId id, const SiStripRecHit2DCollection* inputRecHits, 
 				    double d0, double phi0, double k0, Roads::type roadType, double ringPhi,
-				    const TrajectorySeed* seed, 
 				    const TrackerGeometry *tracker, RoadSearchCloud &cloud);
 
   
   unsigned int FillPixRecHitsIntoCloud(DetId id, 
 				       const SiPixelRecHitCollection *inputRecHits, 
 				       double d0, double phi0, double k0, Roads::type roadType, double ringPhi,
-				       const TrajectorySeed* seed, 
 				       const TrackerGeometry *tracker, RoadSearchCloud &cloud);
 
   bool isSingleLayer(DetId id);
@@ -118,7 +115,7 @@ class RoadSearchCloudMakerAlgorithm
 
   double phiFromExtrapolation(double d0, double phi0, double k0, double ringRadius, Roads::type roadType);
 
-  double phiMax(const TrajectorySeed *seed, Roads::type roadType, double phi0, double k0);
+  double phiMax(Roads::type roadType, double phi0, double k0);
 
   double map_phi(double phi);
   double map_phi2(double phi);
