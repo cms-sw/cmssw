@@ -10,11 +10,11 @@
  *
  * \version   1st Version Apr. 6, 2005  
  * \version   F.Ratnikov, Mar. 8, 2006. Work from Candidate
- * $Id: MidpointJetProducer.h,v 1.9 2007/03/07 18:43:43 fedor Exp $
+ * $Id: MidpointPilupSubtractionJetProducer.h,v 1.1 2007/05/04 09:53:17 kodolova Exp $
  *
  ************************************************************/
 
-#include "RecoJets/JetProducers/interface/BasePilupSubtractionJetProducer.h"
+#include "BasePilupSubtractionJetProducer.h"
 #include "RecoJets/JetAlgorithms/interface/CMSMidpointAlgorithm.h"
 
 namespace cms

@@ -1,5 +1,5 @@
-#ifndef JetProducers_ExtKtPilupSubtractionJetProducer_h
-#define JetProducers_ExtKtPilupSubtractionJetProducer_h
+#ifndef JetProducers_ExtKtJetProducer_h
+#define JetProducers_ExtKtJetProducer_h
 
 /** \class ExtKtJetProducer
  *
@@ -19,21 +19,21 @@
  *
  ************************************************************/
 
-#include "RecoJets/JetProducers/interface/BasePilupSubtractionJetProducer.h"
+#include "BaseJetProducer.h"
 #include "RecoJets/JetAlgorithms/interface/ExtKtJetAlgorithmWrapper.h"
 
 
 
 namespace cms
 {
-  class ExtKtPilupSubtractionJetProducer : public cms::BasePilupSubtractionJetProducer
+  class ExtKtJetProducer : public cms::BaseJetProducer
   {
   public:
 
-    ExtKtPilupSubtractionJetProducer(const edm::ParameterSet& ps);
+    ExtKtJetProducer(const edm::ParameterSet& ps);
 
     /**Default destructor*/
-    virtual ~ExtKtPilupSubtractionJetProducer() {}
+    virtual ~ExtKtJetProducer() {}
     /** run algorithm itself */
     virtual bool runAlgorithm (const JetReco::InputCollection& fInput, JetReco::OutputCollection* fOutput);
 

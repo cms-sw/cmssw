@@ -1,6 +1,6 @@
 // File: BaseJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BaseJetProducer.cc,v 1.20 2007/05/30 22:30:45 fedor Exp $
+// $Id: BaseJetProducer.cc,v 1.21 2007/06/14 00:51:44 fedor Exp $
 //--------------------------------------------
 #include <memory>
 
@@ -26,7 +26,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-#include "RecoJets/JetProducers/interface/BaseJetProducer.h"
+#include "BaseJetProducer.h"
 
 using namespace std;
 using namespace reco;

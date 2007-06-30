@@ -1,16 +1,13 @@
-// File: MidpointJetProducer.cc
-// Description:  see MidpointJetProducer.h
-// Author:  M. Paterno
-// Creation Date:  MFP Apr. 6 2005 Initial version.
-// Revision:  R. Harris,  Oct. 19, 2005 Modified to use real CaloTowers from Jeremy Mans
-// Revisions:  F.Ratnikov, 8-Mar-2006, accommodate Candidate model
-// $Id: MidpointJetProducer.cc,v 1.22 2007/05/19 04:20:10 fedor Exp $
+// File: CDFMidpointJetProducer.cc
+// Description:  see CDFMidpointJetProducer.h
+// Author:  M. Fedor Ratnikov, Maryland
+// $Id: CDFMidpointJetProducer.cc,v 1.22 2007/05/19 04:20:10 fedor Exp $
 //
 //--------------------------------------------
 #include <memory>
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "MidpointJetProducer.h"
+#include "CDFMidpointJetProducer.h"
 
 using namespace std;
 using namespace reco;
@@ -25,7 +22,7 @@ namespace cms
 
   // Constructor takes input parameters now: to be replaced with parameter set.
 
-  MidpointJetProducer::MidpointJetProducer(edm::ParameterSet const& conf):
+  CDFMidpointJetProducer::CDFMidpointJetProducer(edm::ParameterSet const& conf):
     BaseJetProducer (conf),
     alg_(conf.getParameter<double>("seedThreshold"),
 	 conf.getParameter<double>("coneRadius"),
@@ -38,7 +35,7 @@ namespace cms
 
 
   // run algorithm itself
-  bool MidpointJetProducer::runAlgorithm (const JetReco::InputCollection& fInput, 
+  bool CDFMidpointJetProducer::runAlgorithm (const JetReco::InputCollection& fInput, 
 		     JetReco::OutputCollection* fOutput) {
     alg_.run (fInput, fOutput);
     return true;

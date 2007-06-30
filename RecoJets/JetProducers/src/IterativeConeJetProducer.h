@@ -1,5 +1,5 @@
-#ifndef JetProducers_IterativeConePilupSubtractionJetProducer_h
-#define JetProducers_IterativeConePilupSubtractionJetProducer_h
+#ifndef JetProducers_IterativeConeJetProducer_h
+#define JetProducers_IterativeConeJetProducer_h
 
 /** \class IterativeConeJetProducer
  *
@@ -8,21 +8,21 @@
  *
  ************************************************************/
 
-#include "RecoJets/JetProducers/interface/BasePilupSubtractionJetProducer.h"
+#include "BaseJetProducer.h"
 #include "RecoJets/JetAlgorithms/interface/CMSIterativeConeAlgorithm.h"
 
 namespace cms
 {
-  class IterativeConePilupSubtractionJetProducer : public cms::BasePilupSubtractionJetProducer
+  class IterativeConeJetProducer : public cms::BaseJetProducer
   {
   public:
 
     // The following is not yet used, but will be the primary
     // constructor when the parameter set system is available.
     //
-    IterativeConePilupSubtractionJetProducer(const edm::ParameterSet& ps);
+    IterativeConeJetProducer(const edm::ParameterSet& ps);
 
-    virtual ~IterativeConePilupSubtractionJetProducer() {}
+    virtual ~IterativeConeJetProducer() {}
 
     /** run algorithm itself */
     virtual bool runAlgorithm (const JetReco::InputCollection& fInput, 

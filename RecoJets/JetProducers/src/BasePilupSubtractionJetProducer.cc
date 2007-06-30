@@ -1,6 +1,6 @@
 // File: BasePilupSubtractionJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BasePilupSubtractionJetProducer.cc,v 1.7 2007/05/04 23:23:02 fedor Exp $
+// $Id: BasePilupSubtractionJetProducer.cc,v 1.9 2007/06/01 07:37:41 kodolova Exp $
 //--------------------------------------------
 #include <memory>
 #include "DataFormats/Common/interface/EDProduct.h"
@@ -20,7 +20,7 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
-#include "RecoJets/JetProducers/interface/BasePilupSubtractionJetProducer.h"
+#include "BasePilupSubtractionJetProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"

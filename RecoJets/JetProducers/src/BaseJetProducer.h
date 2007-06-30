@@ -7,7 +7,7 @@
  * It handles generic manipulations of input and output collections
  *
  * \author Fedor Ratnikov (UMd) Aug. 22, 2006
- * $Id: BaseJetProducer.h,v 1.5 2007/03/07 18:43:43 fedor Exp $
+ * $Id: BaseJetProducer.h,v 1.6 2007/05/03 21:24:15 fedor Exp $
  *
  ************************************************************/
 

@@ -4,7 +4,7 @@
 //--------------------------------------------
 #include <memory>
 
-#include "RecoJets/JetProducers/interface/ExtKtPilupSubtractionJetProducer.h"
+#include "ExtKtPilupSubtractionJetProducer.h"
 
 //  Wrapper around ktjet-package (http://projects.hepforge.org/ktjet)
 //  See Reference: Comp. Phys. Comm. vol 153/1 85-96 (2003)

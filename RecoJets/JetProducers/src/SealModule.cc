@@ -3,21 +3,25 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "RecoJets/JetProducers/interface/FastJetProducer.h"
-#include "RecoJets/JetProducers/interface/MidpointJetProducer.h"
-#include "RecoJets/JetProducers/interface/IterativeConeJetProducer.h"
-#include "RecoJets/JetProducers/interface/ExtKtJetProducer.h"
+#include "FastJetProducer.h"
+#include "MidpointJetProducer.h"
+#include "CDFMidpointJetProducer.h"
+#include "SISConeJetProducer.h"
+#include "IterativeConeJetProducer.h"
+#include "ExtKtJetProducer.h"
 
-#include "RecoJets/JetProducers/interface/MidpointPilupSubtractionJetProducer.h"
-#include "RecoJets/JetProducers/interface/IterativeConePilupSubtractionJetProducer.h"
-#include "RecoJets/JetProducers/interface/FastPilupSubtractionJetProducer.h"
-#include "RecoJets/JetProducers/interface/ExtKtPilupSubtractionJetProducer.h"
+#include "MidpointPilupSubtractionJetProducer.h"
+#include "IterativeConePilupSubtractionJetProducer.h"
+#include "FastPilupSubtractionJetProducer.h"
+#include "ExtKtPilupSubtractionJetProducer.h"
 
 #include "PtMinJetSelector.h"
 
 
 using cms::FastJetProducer;
 using cms::MidpointJetProducer;
+using cms::CDFMidpointJetProducer;
+using cms::SISConeJetProducer;
 using cms::IterativeConeJetProducer;
 using cms::ExtKtJetProducer;
 
@@ -30,6 +34,8 @@ DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(FastJetProducer);
 DEFINE_ANOTHER_FWK_MODULE(IterativeConeJetProducer);
 DEFINE_ANOTHER_FWK_MODULE(MidpointJetProducer);
+DEFINE_ANOTHER_FWK_MODULE(CDFMidpointJetProducer);
+DEFINE_ANOTHER_FWK_MODULE(SISConeJetProducer);
 DEFINE_ANOTHER_FWK_MODULE(ExtKtJetProducer);
 
 DEFINE_ANOTHER_FWK_MODULE(MidpointPilupSubtractionJetProducer);

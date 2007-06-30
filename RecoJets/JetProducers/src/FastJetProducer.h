@@ -27,7 +27,7 @@
  *
  ************************************************************/
 
-#include "RecoJets/JetProducers/interface/BaseJetProducer.h"
+#include "BaseJetProducer.h"
 #include "RecoJets/JetAlgorithms/interface/FastJetAlgorithmWrapper.h"
 
 namespace cms

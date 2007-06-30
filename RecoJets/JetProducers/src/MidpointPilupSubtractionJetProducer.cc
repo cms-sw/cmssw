@@ -4,12 +4,12 @@
 // Creation Date:  MFP Apr. 6 2005 Initial version.
 // Revision:  R. Harris,  Oct. 19, 2005 Modified to use real CaloTowers from Jeremy Mans
 // Revisions:  F.Ratnikov, 8-Mar-2006, accommodate Candidate model
-// $Id: MidpointPilupSubtractionJetProducer.cc,v 1.20 2007/03/07 18:43:44 fedor Exp $
+// $Id: MidpointPilupSubtractionJetProducer.cc,v 1.1 2007/05/04 09:53:18 kodolova Exp $
 //
 //--------------------------------------------
 #include <memory>
 
-#include "RecoJets/JetProducers/interface/MidpointPilupSubtractionJetProducer.h"
+#include "MidpointPilupSubtractionJetProducer.h"
 
 using namespace std;
 using namespace reco;

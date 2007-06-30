@@ -6,7 +6,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "RecoJets/JetProducers/interface/FastJetProducer.h"
+#include "FastJetProducer.h"
 
 using namespace std;
 using namespace reco;

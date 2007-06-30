@@ -27,7 +27,7 @@
  *
  ************************************************************/
 
-#include "RecoJets/JetProducers/interface/BasePilupSubtractionJetProducer.h"
+#include "BasePilupSubtractionJetProducer.h"
 #include "RecoJets/JetAlgorithms/interface/FastJetAlgorithmWrapper.h"
 
 namespace cms

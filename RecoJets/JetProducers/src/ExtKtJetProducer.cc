@@ -5,7 +5,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "RecoJets/JetProducers/interface/ExtKtJetProducer.h"
+#include "ExtKtJetProducer.h"
 
 //  Wrapper around ktjet-package (http://projects.hepforge.org/ktjet)
 //  See Reference: Comp. Phys. Comm. vol 153/1 85-96 (2003)

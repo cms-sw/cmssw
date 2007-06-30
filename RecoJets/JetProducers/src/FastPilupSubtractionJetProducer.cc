@@ -5,7 +5,7 @@
 //--------------------------------------------
 #include <memory>
 
-#include "RecoJets/JetProducers/interface/FastPilupSubtractionJetProducer.h"
+#include "FastPilupSubtractionJetProducer.h"
 
 using namespace std;
 using namespace reco;

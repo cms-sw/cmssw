@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "RecoJets/JetProducers/interface/IterativeConeJetProducer.h"
+#include "IterativeConeJetProducer.h"
 
 using namespace std;
 using namespace reco;

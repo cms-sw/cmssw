@@ -1,4 +1,4 @@
-#include "RecoJets/JetProducers/interface/IterativeConePilupSubtractionJetProducer.h"
+#include "IterativeConePilupSubtractionJetProducer.h"
 
 using namespace std;
 using namespace reco;
