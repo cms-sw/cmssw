@@ -41,7 +41,8 @@ public:
   PixelMatchElectronAlgo(double maxEOverPBarrel, double maxEOverPEndcaps, 
                          double minEOverPBarrel, double minEOverPEndcaps,
                          double hOverEConeSize, double maxHOverE, 
-                         double maxDeltaEta, double maxDeltaPhi, double ptCut);
+                         double maxDeltaEta, double maxDeltaPhi, double ptCut,
+			 bool highPtPresel, double highPtMin);
 
   ~PixelMatchElectronAlgo();
 
@@ -83,6 +84,10 @@ public:
   double maxDeltaPhi_;
 
   double ptCut_;
+  
+  // high pt preselection
+  bool highPtPreselection_;
+  double highPtMin_;
  
   // input configuration
   std::string hbheLabel_;

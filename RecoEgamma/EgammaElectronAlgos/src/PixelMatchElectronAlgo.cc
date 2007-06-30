@@ -72,11 +72,13 @@ using namespace reco;
 PixelMatchElectronAlgo::PixelMatchElectronAlgo(double maxEOverPBarrel, double maxEOverPEndcaps, 
                                                double minEOverPBarrel, double minEOverPEndcaps,
                                                double hOverEConeSize, double maxHOverE, 
-                                               double maxDeltaEta, double maxDeltaPhi, double ptcut):  
+                                               double maxDeltaEta, double maxDeltaPhi, double ptcut,
+					       bool highPtPresel, double highPtMin):  
   maxEOverPBarrel_(maxEOverPBarrel), maxEOverPEndcaps_(maxEOverPEndcaps), 
   minEOverPBarrel_(minEOverPBarrel), minEOverPEndcaps_(minEOverPEndcaps), 
   hOverEConeSize_(hOverEConeSize), maxHOverE_(maxHOverE), 
-  maxDeltaEta_(maxDeltaEta), maxDeltaPhi_(maxDeltaPhi), ptCut_(ptcut)
+  maxDeltaEta_(maxDeltaEta), maxDeltaPhi_(maxDeltaPhi), ptCut_(ptcut),
+  highPtPreselection_(highPtPresel), highPtMin_(highPtMin)
 {   
   geomPropBw_=0;	
   geomPropFw_=0;	
@@ -187,7 +189,6 @@ void PixelMatchElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH, co
       double hcalEnergy = 0.;
       std::auto_ptr<CaloRecHitMetaCollectionV> chosen=sel.select(pclu,*mhbhe);
       for (CaloRecHitMetaCollectionV::const_iterator i=chosen->begin(); i!=chosen->end(); i++) {
-	//std::cout << HcalDetId(i->detid()) << " : " << (*i) << std::endl;
 	hcalEnergy += i->energy();
       }
       HoE = hcalEnergy/theClus.energy();
@@ -250,7 +251,7 @@ void PixelMatchElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH, co
 			       trackRef->innerPosition().Rho());
 
       ele.setDeltaEtaSuperClusterAtVtx(theClus.position().eta() - trackEta);
-      float dphi                =theClus.position().phi() - trackPhi;
+      float dphi = theClus.position().phi() - trackPhi;
       if (fabs(dphi)>CLHEP::pi)
 	dphi = dphi < 0? CLHEP::pi2 + dphi : dphi - CLHEP::pi2;
       ele.setDeltaPhiSuperClusterAtVtx(dphi);
@@ -271,10 +272,19 @@ void PixelMatchElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH, co
 
 bool PixelMatchElectronAlgo::preSelection(const SuperCluster& clus, const GlobalVector& tsosVtxMom, const GlobalPoint& tsosSclPos, double HoE) 
 {
+
   LogDebug("")<< "========== preSelection ==========";
   LogDebug("") << "E/p : " << clus.energy()/tsosVtxMom.mag();
-  if (tsosVtxMom.perp()<ptCut_)   return false;
-  //FIXME: how to get detId from a cluster??
+
+  // no preselection for high pT electrons
+  double rt2 = clus.x()*clus.x() + clus.y()*clus.y();
+  double r2 = rt2 + clus.z()*clus.z();
+  if (highPtPreselection_ && clus.energy()*sqrt(rt2/r2) > highPtMin_) return true;
+
+  // pt min
+  if (tsosVtxMom.perp() < ptCut_)   return false;
+
+  // E/p cut
   std::vector<DetId> vecId=clus.getHitsByDetId();
   int subdet =vecId[0].subdetId();  //FIXME: is the first one really the biggest??
   if ((subdet==EcalBarrel) && (clus.energy()/tsosVtxMom.mag() > maxEOverPBarrel_)) return false;
@@ -290,21 +300,24 @@ bool PixelMatchElectronAlgo::preSelection(const SuperCluster& clus, const Global
   LogDebug("") << "delta eta : " << deta;
   if (fabs(deta) > maxDeltaEta_) return false;
   LogDebug("") << "Delta eta criteria is satisfied ";
+
   // delta phi criteria
   double phiclu = clus.phi();
   double phitrk = tsosSclPos.phi();
   double dphi = phiclu-phitrk;
-  if (fabs(dphi) > CLHEP::pi) dphi = dphi < 0? CLHEP::pi2 + dphi : dphi - CLHEP::pi2;
+  if (fabs(dphi)>CLHEP::pi) dphi = dphi < 0? CLHEP::pi2 + dphi : dphi - CLHEP::pi2;
   LogDebug("") << "delta phi : " << dphi;
   if (fabs(dphi) > maxDeltaPhi_) return false;
   LogDebug("") << "Delta phi criteria is satisfied ";
 
+  //H/E cut
   if (HoE > maxHOverE_) return false; //FIXME: passe dans tous les cas?
   LogDebug("") << "H/E criteria is satisfied ";
 
   LogDebug("") << "electron has passed preselection criteria ";
   LogDebug("") << "=================================================";
   return true;  
+
 }  
 
 GlobalVector PixelMatchElectronAlgo::computeMode(const TrajectoryStateOnSurface &tsos) {
