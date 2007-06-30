@@ -7,6 +7,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/JetReco/interface/JetToFloatAssociation.h"
 
 #include "RecoBTag/MCTools/interface/JetFlavourIdentifier.h"
 
@@ -15,10 +16,10 @@
 #include <TH1.h>
 #include <string>
 
-namespace reco { typedef std::vector<std::pair<edm::RefToBase<Jet>, float>  > JetChargeCollection; }
-
 class JetChargeAnalyzer : public edm::EDAnalyzer {
     public:
+        typedef reco::JetToFloatAssociation::Container JetChargeCollection;
+
         explicit JetChargeAnalyzer(const edm::ParameterSet&);
         ~JetChargeAnalyzer() {}
 

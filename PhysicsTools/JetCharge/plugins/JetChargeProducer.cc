@@ -3,7 +3,7 @@
 JetChargeProducer::JetChargeProducer(const edm::ParameterSet &cfg) :
 src_(cfg.getParameter<edm::InputTag>("src")),
 algo_(cfg) {
-    produces<reco::JetChargeCollection>();
+    produces<JetChargeCollection>();
 }
 
 void JetChargeProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
@@ -12,13 +12,13 @@ void JetChargeProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
     typedef reco::JetTracksAssociationCollection::const_iterator IT;
     typedef edm::RefToBase<reco::Jet>  JetRef;
 
-    std::auto_ptr<reco::JetChargeCollection> ret(new reco::JetChargeCollection());
+    std::auto_ptr<JetChargeCollection> ret(new JetChargeCollection());
     ret->reserve(hJTAs->size());
     for (IT it = hJTAs->begin(), ed = hJTAs->end(); it != ed; ++it) {
         const JetRef &jet = it->first;
         const reco::TrackRefVector &tracks = it->second;
         float  val = static_cast<float>( algo_.charge(jet->p4(), tracks) );
-        ret->push_back(reco::JetChargePair(jet, val));
+        ret->push_back(JetChargePair(jet, val));
     }
 
     iEvent.put(ret);        
