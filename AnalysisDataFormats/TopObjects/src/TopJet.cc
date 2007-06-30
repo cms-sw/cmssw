@@ -2,7 +2,7 @@
 // Author:  Steven Lowette
 // Created: Thu May  3 10:37:17 PDT 2007
 //
-// $Id: TopJet.cc,v 1.9 2007/06/25 08:52:20 jandrea Exp $
+// $Id: TopJet.cc,v 1.10 2007/06/25 14:36:28 lowette Exp $
 //
 
 
@@ -12,7 +12,8 @@
 /// default constructor
 TopJet::TopJet() :
   TopObject<TopJetType>(TopJetType(reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), reco::CaloJet::Specific(), reco::Jet::Constituents())),
-  jetFlavour_(0), lrPhysicsJetLRval_(-999.), lrPhysicsJetProb_(-1) {
+  jetFlavour_(0), lrPhysicsJetLRval_(-999.), lrPhysicsJetProb_(-1),
+  jetCharge_(0.0), associatedTracks_() {
 }
 
 
@@ -178,5 +179,15 @@ void TopJet::setLRPhysicsJetLRval(double clr) {
 /// method to set the jet cleaning probability
 void TopJet::setLRPhysicsJetProb(double plr) {
   lrPhysicsJetProb_  = plr;
+}
+
+/// method to return the JetCharge computed when creating the TopJet
+float TopJet::getJetCharge() const {
+   return jetCharge_;
+}
+
+/// method to return a vector of refs to the tracks associated to this jet
+const reco::TrackRefVector&  TopJet::getAssociatedTracks() const {
+   return associatedTracks_;
 }
 

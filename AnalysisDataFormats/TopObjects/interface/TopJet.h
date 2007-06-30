@@ -2,7 +2,7 @@
 // Author:  Steven Lowette
 // Created: Thu May  3 10:37:17 PDT 2007
 //
-// $Id: TopJet.h,v 1.8 2007/06/18 09:21:50 heyninck Exp $
+// $Id: TopJet.h,v 1.9 2007/06/23 07:03:21 lowette Exp $
 //
 
 #ifndef TopObjects_TopJet_h
@@ -15,7 +15,7 @@
    TopJet contains a jet as a TopObject
 
   \author   Steven Lowette
-  \version  $Id: TopJet.h,v 1.8 2007/06/18 09:21:50 heyninck Exp $
+  \version  $Id: TopJet.h,v 1.9 2007/06/23 07:03:21 lowette Exp $
 */
 
 
@@ -60,6 +60,9 @@ class TopJet : public TopObject<TopJetType> {
     double          getLRPhysicsJetLRval() const;
     double          getLRPhysicsJetProb() const;
 
+    float                        getJetCharge() const ;
+    const reco::TrackRefVector&  getAssociatedTracks() const ;
+   
   protected:
 
     void            setGenParton(reco::Particle gj);
@@ -89,7 +92,9 @@ class TopJet : public TopObject<TopJetType> {
     std::vector<std::pair<double, double> > lrPhysicsJetVarVal_;
     double lrPhysicsJetLRval_;
     double lrPhysicsJetProb_;
-
+    // jet charge members
+    float  jetCharge_;
+    reco::TrackRefVector associatedTracks_;
 };
 
 
