@@ -1,4 +1,4 @@
-// $Id$
+// $Id: SMProxyServer.cc,v 1.4 2007/05/16 22:57:45 hcheung Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -30,13 +30,11 @@
 
 #include "xcept/tools.h"
 
-#include "xcept/tools.h"
-
 #include "xgi/Method.h"
 
-#include "xoap/include/xoap/SOAPEnvelope.h"
-#include "xoap/include/xoap/SOAPBody.h"
-#include "xoap/include/xoap/domutils.h"
+#include "xoap/SOAPEnvelope.h"
+#include "xoap/SOAPBody.h"
+#include "xoap/domutils.h"
 
 using namespace edm;
 using namespace std;

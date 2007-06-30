@@ -12,7 +12,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id$
+   $Id: SMProxyServer.h,v 1.4 2007/05/16 22:57:45 hcheung Exp $
 */
 
 #include <string>
@@ -41,9 +41,9 @@
 #include "xdata/Boolean.h"
 #include "xdata/Vector.h"
 
-#include "xgi/include/xgi/Input.h"
-#include "xgi/include/xgi/Output.h"
-#include "xgi/include/xgi/exception/Exception.h"
+#include "xgi/Input.h"
+#include "xgi/Output.h"
+#include "xgi/exception/Exception.h"
 
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/thread.hpp"
