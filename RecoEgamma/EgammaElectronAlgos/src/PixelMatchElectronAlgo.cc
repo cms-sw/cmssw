@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.42 2007/06/14 17:34:30 uberthon Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.43 2007/06/21 16:41:34 futyand Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
@@ -294,6 +294,7 @@ bool PixelMatchElectronAlgo::preSelection(const SuperCluster& clus, const Global
   double phiclu = clus.phi();
   double phitrk = tsosSclPos.phi();
   double dphi = phiclu-phitrk;
+  if (fabs(dphi) > CLHEP::pi) dphi = dphi < 0? CLHEP::pi2 + dphi : dphi - CLHEP::pi2;
   LogDebug("") << "delta phi : " << dphi;
   if (fabs(dphi) > maxDeltaPhi_) return false;
   LogDebug("") << "Delta phi criteria is satisfied ";
