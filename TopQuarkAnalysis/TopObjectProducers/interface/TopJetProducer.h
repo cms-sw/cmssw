@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopJetProducer.h,v 1.10 2007/06/18 10:03:34 heyninck Exp $
+// $Id: TopJetProducer.h,v 1.11 2007/06/23 07:27:03 lowette Exp $
 //
 
 #ifndef TopObjectProducers_TopJetProducer_h
@@ -16,7 +16,7 @@
    with possible adding of resolutions and more things to come
 
   \author   Jan Heyninck
-  \version  $Id: TopJetProducer.h,v 1.10 2007/06/18 10:03:34 heyninck Exp $
+  \version  $Id: TopJetProducer.h,v 1.11 2007/06/23 07:27:03 lowette Exp $
 */
 
 
@@ -30,6 +30,9 @@
 #include "AnalysisDataFormats/TopObjects/interface/TopJet.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopLepton.h"
 
+
+#include "PhysicsTools/JetCharge/interface/JetCharge.h"
+#include "TopQuarkAnalysis/TopObjectProducers/interface/SimpleJetTrackAssociator.h"
 
 class JetFlavourIdentifier;
 class TopObjectResolutionCalc;
@@ -51,6 +54,7 @@ class TopJetProducer : public edm::EDProducer {
     							    const edm::EventSetup &iSetup, const edm::Event &iEvent);
     std::vector<TopMuon> selectIsolated(const std::vector<TopMuon> &muons, float isoCut,
     							    const edm::EventSetup &iSetup, const edm::Event &iEvent);
+
     // TEMP End
 
     // configurables
@@ -72,6 +76,12 @@ class TopJetProducer : public edm::EDProducer {
     bool          keepJetTagRefs_;
     bool          getJetMCFlavour_;
 
+    bool          storeAssociatedTracks_;
+    edm::ParameterSet trackAssociationPSet_;
+
+    bool          computeJetCharge_;
+    edm::ParameterSet jetChargePSet_;
+
     // TEMP Jet cleaning from electrons
     float LEPJETDR_;
     float ELEISOCUT_;
@@ -82,7 +92,8 @@ class TopJetProducer : public edm::EDProducer {
     TopObjectResolutionCalc *   theResoCalc_;
     JetFlavourIdentifier *      jetFlavId_;
     EtInverseComparator<TopJet> eTComparator_;
-
+    JetCharge                   jetCharge_;
+    reco::helper::SimpleJetTrackAssociator    simpleJetTrackAssociator_;
 };
 
 

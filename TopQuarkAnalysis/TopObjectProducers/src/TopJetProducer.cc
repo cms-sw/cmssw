@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopJetProducer.cc,v 1.10 2007/06/18 10:03:35 heyninck Exp $
+// $Id: TopJetProducer.cc,v 1.11 2007/06/23 07:27:05 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopJetProducer.h"
@@ -49,6 +49,8 @@ TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig) {
   keepDiscriminators_            = iConfig.getParameter<bool>          ("keepDiscriminators");
   keepJetTagRefs_                = iConfig.getParameter<bool>          ("keepJetTagRefs");
   getJetMCFlavour_               = iConfig.getParameter<bool>          ("getJetMCFlavour");
+  computeJetCharge_              = iConfig.getParameter<bool>          ("computeJetCharge"); 
+  storeAssociatedTracks_         = iConfig.getParameter<bool>          ("storeAssociatedTracks"); 
 
   // TEMP Jet cleaning from electrons
   LEPJETDR_=0.3;//deltaR cut used to associate a jet to an electron for jet cleaning.  Make it configurable?
@@ -60,7 +62,15 @@ TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig) {
   if (addResolutions_) theResoCalc_ = new TopObjectResolutionCalc(caliJetResoFile_);
   // construct the jet flavour identifier
   if (getJetMCFlavour_) jetFlavId_ = new JetFlavourIdentifier(iConfig.getParameter<edm::ParameterSet>("jetIdParameters"));
-  
+
+  // construct Jet Track Associator
+  trackAssociationPSet_     = iConfig.getParameter<edm::ParameterSet>("trackAssociation");
+  simpleJetTrackAssociator_ = reco::helper::SimpleJetTrackAssociator(trackAssociationPSet_);      
+
+  // construct Jet Charge Computer
+  jetChargePSet_        = iConfig.getParameter<edm::ParameterSet>("jetCharge");
+  jetCharge_            = JetCharge(jetChargePSet_);
+ 
   // produces vector of jets
   produces<std::vector<TopJet> >();
 }
@@ -92,6 +102,10 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   iEvent.getByLabel(topMuonsLabel_, muonsHandle);
   std::vector<TopMuon> muons=*muonsHandle;
   // TEMP End
+
+  // tracks Jet Track Association, by hand in CMSSW_1_3_X
+  edm::Handle<reco::TrackCollection> hTracks;
+  iEvent.getByLabel(trackAssociationPSet_.getParameter<edm::InputTag>("tracks"), hTracks);
 
   // Get the vector of jet tags with b-tagging info
   std::vector<edm::Handle<std::vector<reco::JetTag> > > jetTags_testManyByType ;
@@ -226,6 +240,19 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     } else {
       std::cout << "no cal jet found " << std::endl;
     }
+
+    // Associate tracks with jet (at least temporary)
+    simpleJetTrackAssociator_.associate(ajet.momentum(), hTracks, ajet.associatedTracks_);
+
+    // PUT HERE EVERYTHING WHICH NEEDS TRACKS
+    if (computeJetCharge_) {
+        ajet.jetCharge_ = static_cast<float>(jetCharge_.charge(ajet.p4(), ajet.associatedTracks_));
+    }
+
+    // drop jet track association if the user does not want it
+    if (!storeAssociatedTracks_) { ajet.associatedTracks_.clear(); }
+
+    // end of TopObjectProducer loop
     topJets->push_back(ajet);
   }
 
