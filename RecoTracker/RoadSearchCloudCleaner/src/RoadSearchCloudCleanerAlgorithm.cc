@@ -8,8 +8,8 @@
 // Created:         Sat Feb 19 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/09/09 00:17:25 $
-// $Revision: 1.4 $
+// $Date: 2006/11/10 21:32:51 $
+// $Revision: 1.5 $
 //
 
 #include <vector>
@@ -78,7 +78,6 @@ void RoadSearchCloudCleanerAlgorithm::run(const RoadSearchCloudCollection* input
     ++raw_cloud_ctr;
 
     if (already_gone[raw_cloud_ctr-1])continue;
-    LogDebug("RoadSearch") << "number of ref in rawcloud " << raw_cloud->seeds().size(); 
 
     // produce output cloud where other clouds are merged in
     RoadSearchCloud lone_cloud = *(raw_cloud->clone());
@@ -89,7 +88,6 @@ void RoadSearchCloudCleanerAlgorithm::run(const RoadSearchCloudCollection* input
       std::vector<const TrackingRecHit*> unshared_hits;
 
       if ( already_gone[second_cloud_ctr-1] )continue;
-      LogDebug("RoadSearch") << "number of ref in second_cloud " << second_cloud->seeds().size(); 
 
       for ( RoadSearchCloud::RecHitOwnVector::const_iterator second_cloud_hit = second_cloud->begin_hits();
 	    second_cloud_hit != second_cloud->end_hits();
@@ -131,20 +129,11 @@ void RoadSearchCloudCleanerAlgorithm::run(const RoadSearchCloudCollection* input
 	  lone_cloud.addHit(unshared_hits[k]->clone());
 	}
 
-	// add seed of second_cloud to lone_cloud
-	for ( RoadSearchCloud::SeedRefs::const_iterator secondseedref = second_cloud->begin_seeds();
-	      secondseedref != second_cloud->end_seeds();
-	      ++secondseedref ) {
-	  lone_cloud.addSeed(*secondseedref);
-	}
-
 	already_gone[second_cloud_ctr-1]=true;
 
 	}//end got a cloud to merge
 
     }//interate over all second clouds
-
-    LogDebug("RoadSearch") << "number of ref in cloud " << lone_cloud.seeds().size(); 
 
     output.push_back(lone_cloud);
     
