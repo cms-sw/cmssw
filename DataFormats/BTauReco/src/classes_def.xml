@@ -138,6 +138,7 @@
   <class name="edm::Wrapper<reco::JetTracksAssociationCollection>"/>
 
   <class name="reco::JetCrystalsAssociation"/>
+  <class name="reco::JetCrystalsAssociation::base_class"/>
   <class name="reco::JetCrystalsAssociationCollection"/>
   <class name="reco::JetCrystalsAssociationRef"/>
   <class name="reco::JetCrystalsAssociationRefProd"/>

@@ -155,6 +155,7 @@ namespace {
     edm::Wrapper<reco::JetTracksAssociationCollection>                  jta_wc;
 
     reco::JetCrystalsAssociation                                        jca;
+    reco::JetCrystalsAssociation::base_class                            jca_base;
     reco::JetCrystalsAssociationCollection                              jca_c;
     reco::JetCrystalsAssociationRef                                     jca_r;
     reco::JetCrystalsAssociationRefProd                                 jca_rp;
