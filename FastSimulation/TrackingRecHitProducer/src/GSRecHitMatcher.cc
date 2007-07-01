@@ -136,13 +136,13 @@ SiTrackerGSRecHit2D * GSRecHitMatcher::projectOnly( const SiTrackerGSRecHit2D *m
 						    const GluedGeomDet* gluedDet,
 					            LocalVector& ldir) const
 {
-
+  LocalPoint position(monoRH->localPosition().x(), 0.,0.);
   const BoundPlane& gluedPlane = gluedDet->surface();
   const BoundPlane& hitPlane = monoDet->surface();
 
   double delta = gluedPlane.localZ( hitPlane.position());
 
-  LocalPoint lhitPos = gluedPlane.toLocal( monoDet->surface().toGlobal( monoRH->localPosition()) );
+  LocalPoint lhitPos = gluedPlane.toLocal( monoDet->surface().toGlobal(position ) );
   LocalPoint projectedHitPos = lhitPos - ldir * delta/ldir.z();
 
   LocalVector hitXAxis = gluedPlane.toLocal( hitPlane.toGlobal( LocalVector(1,0,0)));
@@ -153,11 +153,7 @@ SiTrackerGSRecHit2D * GSRecHitMatcher::projectOnly( const SiTrackerGSRecHit2D *m
     hitErr = LocalError( hitErr.xx(), -hitErr.xy(), hitErr.yy());
   }
   LocalError rotatedError = hitErr.rotate( hitXAxis.x(), hitXAxis.y());
-
-  // set y=0
-  LocalPoint position( projectedHitPos.x(), 0. , 0. );
-
- return new SiTrackerGSRecHit2D(position,rotatedError, gluedDet->geographicalId(), monoRH->simhitId(), 
-				 monoRH->simtrackId(), monoRH->eeId(), monoRH->simMultX(), monoRH->simMultY() );
+ 
+  return new SiTrackerGSRecHit2D(projectedHitPos, rotatedError, gluedDet->geographicalId(), monoRH->simhitId(),  monoRH->simtrackId(), monoRH->eeId(), monoRH->simMultX(), monoRH->simMultY() );
 }
 
