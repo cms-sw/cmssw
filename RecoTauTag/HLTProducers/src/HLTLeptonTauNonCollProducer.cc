@@ -29,6 +29,7 @@ HLTLeptonTauNonCollProducer::HLTLeptonTauNonCollProducer(const edm::ParameterSet
   //register your products
   produces<reco::IsolatedTauTagInfoCollection>("Tau");
   produces<reco::HLTFilterObjectWithRefs>("Lepton");
+  produces<reco::JetTagCollection>("TauTag");
 }
 
 HLTLeptonTauNonCollProducer::~HLTLeptonTauNonCollProducer()
@@ -56,6 +57,9 @@ HLTLeptonTauNonCollProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   auto_ptr<IsolatedTauTagInfoCollection> product_Tau (extendedCollection);
   auto_ptr<HLTFilterObjectWithRefs>
     product_Lepton (new HLTFilterObjectWithRefs);
+  JetTagCollection * baseCollection = new JetTagCollection;
+  auto_ptr<reco::JetTagCollection> product_TauTag(baseCollection);  
+
   
   
   RefToBase<Candidate> ref_lepton;
@@ -74,14 +78,16 @@ HLTLeptonTauNonCollProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
       
       for (; jet != jetsHandle->end(); ++jet) 
 	{
+	  float discriminator = jet->discriminator();
+	  JetTracksAssociationRef jetTracks;
 	  nLep=0;
 	  for(unsigned int i=0; i<leptonHandle->size(); i++)
 	    {
 	      nLep++;
 	      ref_lepton = leptonHandle->getParticleRef(i);
-	      double dphi=fabs(leptonHandle->getParticleRef(i).get()->phi()-jet->jet()->phi());
+	      double dphi=fabs(leptonHandle->getParticleRef(i).get()->phi()-jet->jet().get()->phi());
 	      if(dphi>acos(-1.0))dphi=2*acos(-1.0)-dphi;
-	      double deta=fabs(leptonHandle->getParticleRef(i).get()->eta()-jet->jet()->eta());
+	      double deta=fabs(leptonHandle->getParticleRef(i).get()->eta()-jet->jet().get()->eta());
 	      if(dphi>min_dphi_||deta>min_deta_)
 		{
 		  //Check if already in list
@@ -102,6 +108,9 @@ HLTLeptonTauNonCollProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 		  if(tau_decision==true)
 		    {
 		      extendedCollection->push_back((*jet));
+		      jetTracks = jet->jtaRef();
+		      JetTag jetTag(discriminator);
+		      baseCollection->push_back(jetTag);
 		    }
 		  
 		  //If not in list then add
@@ -117,5 +126,5 @@ HLTLeptonTauNonCollProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   
   iEvent.put(product_Tau,"Tau");
   iEvent.put(product_Lepton,"Lepton");
-
+  iEvent.put(product_TauTag,"TauTag");
 }
