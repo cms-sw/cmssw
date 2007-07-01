@@ -39,7 +39,7 @@ class TauRegionalPixelSeedGenerator : public TrackingRegionProducer {
       ptmin=regionPSet.getParameter<double>("ptMin");
       originradius=regionPSet.getParameter<double>("originRadius");
       halflength=regionPSet.getParameter<double>("originHalfLength");
-      vertexSrc=regionPSet.getParameter<string>("vertexSrc");
+      vertexSrc=regionPSet.getParameter<std::string>("vertexSrc");
       deltaEta = regionPSet.getParameter<double>("deltaEtaRegion");
       deltaPhi = regionPSet.getParameter<double>("deltaPhiRegion");
       jetSrc = regionPSet.getParameter<edm::InputTag>("JetSrc");
