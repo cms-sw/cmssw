@@ -21,11 +21,10 @@ namespace reco {
   typedef math::PtEtaPhiELorentzVectorRef        EMLorentzVectorRef;
   typedef math::PtEtaPhiELorentzVectorRefProd    EMLorentzVectorRefProd;
   typedef math::PtEtaPhiELorentzVectorRefVector  EMLorentzVectorRefVector;
-
+/*
   typedef
     std::pair<edm::RefToBase<Jet>, EMLorentzVectorRefVector> JetCrystalsAssociation;
-
-  /*
+*/
   struct JetCrystalsAssociation :
     public std::pair<edm::RefToBase<Jet>, EMLorentzVectorRefVector>
   {
@@ -43,7 +42,6 @@ namespace reco {
     JetCrystalsAssociation(const JetCrystalsAssociation & _pair) :
       base_class(_pair) { }
   };
-  */
   typedef
   std::vector<JetCrystalsAssociation> JetCrystalsAssociationCollection;
 
