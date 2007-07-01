@@ -10,11 +10,11 @@
  *
  * \version   1st Version Apr. 6, 2005  
  * \version   F.Ratnikov, Mar. 8, 2006. Work from Candidate
- * $Id: CDFMidpointJetProducer.h,v 1.9 2007/03/07 18:43:43 fedor Exp $
+ * $Id: CDFMidpointJetProducer.h,v 1.1 2007/06/30 17:24:06 fedor Exp $
  *
  ************************************************************/
 
-#include "RecoJets/JetProducers/interface/BaseJetProducer.h"
+#include "BaseJetProducer.h"
 #include "RecoJets/JetAlgorithms/interface/CDFMidpointAlgorithmWrapper.h"
 
 namespace cms
