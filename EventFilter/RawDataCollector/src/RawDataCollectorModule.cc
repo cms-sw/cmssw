@@ -1,5 +1,5 @@
 /** \file
- * Implementation of class RPCDigiToRawModule
+ * Implementation of class RawDataCollectorModule
  *
  */
 
@@ -8,7 +8,7 @@
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include <DataFormats/FEDRawData/interface/FEDNumbering.h>
 
-#include <FWCore/Framework/interface/Handle.h>
+#include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"

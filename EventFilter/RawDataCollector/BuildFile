@@ -6,7 +6,7 @@
 <use name=FWCore/Framework>
 <use name=DataFormats/FEDRawData>
 </export>
-<flags SEAL_PLUGIN_NAME="EventFilterRawDataCollector">
+<flags EDM_PLUGIN=1>
 <use name=xdaq>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ServiceRegistry>
