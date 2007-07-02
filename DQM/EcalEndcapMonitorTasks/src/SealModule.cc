@@ -12,6 +12,9 @@ DEFINE_ANOTHER_FWK_MODULE(EEIntegrityTask);
 #include <DQM/EcalEndcapMonitorTasks/interface/EELaserTask.h>
 DEFINE_ANOTHER_FWK_MODULE(EELaserTask);
 
+#include <DQM/EcalEndcapMonitorTasks/interface/EELedTask.h>
+DEFINE_ANOTHER_FWK_MODULE(EELedTask);
+
 #include <DQM/EcalEndcapMonitorTasks/interface/EEOccupancyTask.h>
 DEFINE_ANOTHER_FWK_MODULE(EEOccupancyTask);
 
