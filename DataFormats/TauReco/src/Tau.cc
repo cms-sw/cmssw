@@ -25,10 +25,8 @@ Tau::Tau() {
   selectedPFNeutralHadrons_ = pfTmp;
   selectedPFGammaCandidates_ = pfTmp;
 
-  maximumHcalTowerEnergy_ = -1000;
-    Measurement1D nullIP;
-    transverseIp_leadTk_ =nullIP;
-    ip3D_leadTk_ = nullIP;
+  maximumHcalTowerEnergy_ = -1000.;
+    transverseIpSignificance_leadTk_ =-1000.;
     mass_ = -1000; 
      trackerMass_ = -1000;
      sumPtIsolation_=-1000;
@@ -61,9 +59,7 @@ Tau::Tau(Charge q, const LorentzVector & p4, const Point & vtx ) :
   selectedPFGammaCandidates_ = pfTmp;
 
   maximumHcalTowerEnergy_ = -1000;
-    Measurement1D nullIP;
-    transverseIp_leadTk_ =nullIP;
-    ip3D_leadTk_ = nullIP;
+    transverseIpSignificance_leadTk_ =-1000.;
     mass_ = -1000; 
      trackerMass_ = -1000;
      sumPtIsolation_=-1000;

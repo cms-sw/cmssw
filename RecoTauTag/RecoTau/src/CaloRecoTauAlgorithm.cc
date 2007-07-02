@@ -74,11 +74,10 @@ Tau CaloRecoTauAlgorithm::tag(const CombinedTauTagInfo& myTagInfo)
       //Setting the EmOverHcal energy
       
       //Setting the number of EcalClusters
+      
+      //LeadTkTIP
+      myTau.setSignificanceLeadTkTIP(myTagInfo.leadTk_signedip3D_significance());
 
-/*
-setLeadTkTIP(const Measurement1D& myIP)  { transverseIp_leadTk_ = myIP;}
-setLeadTk3DIP(const Measurement1D& myIP)  {  ip3D_leadTk_=myIP;}
-*/
     }
 
   return myTau;

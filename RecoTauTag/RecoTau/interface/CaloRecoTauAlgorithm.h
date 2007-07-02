@@ -15,7 +15,7 @@ class  CaloRecoTauAlgorithm  {
   CaloRecoTauAlgorithm(){}  
   CaloRecoTauAlgorithm(const ParameterSet& parameters){
     LeadCand_minPt_                     = parameters.getParameter<double>("LeadTrack_minPt"); 
-    Candidates_minPt_                   =parameters.getParameter<double>("Track_minPt"); 
+    Tracks_minPt_                   =parameters.getParameter<double>("Tracks_minPt"); 
     MatchingConeSize_                   = parameters.getParameter<double>("MatchingConeSize");
     //
     TrackerSignalConeSize_              = parameters.getParameter<double>("TrackerSignalConeSize");
@@ -40,7 +40,7 @@ class  CaloRecoTauAlgorithm  {
   double TrackerSignalConeVariableSize_max_;
   double TrackerSignalConeVariableSize_min_; 
   double TrackerIsolConeSize_; 
-  double Candidates_minPt_ ;
+  double Tracks_minPt_ ;
   //
   double ECALSignalConeSize_;  
   double ECALIsolConeSize_;  

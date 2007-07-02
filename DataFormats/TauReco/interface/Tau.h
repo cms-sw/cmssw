@@ -51,8 +51,7 @@ namespace reco {
     PFCandidateRefVector getSelectedGammaCandidates() const {return selectedPFGammaCandidates_;}
 
     //get the impact parameter of the leading track
-    Measurement1D getLeadTkTIP() const {return transverseIp_leadTk_;}
-    Measurement1D getLeadTk3DIP() const {return  ip3D_leadTk_;}
+    float getSignificanceLeadTkTIP() const {return transverseIpSignificance_leadTk_;}
 
     //get the invariantMass
     float getInvariantMass() const { return mass_;}
@@ -92,8 +91,7 @@ namespace reco {
 
 
 
-    void setLeadTkTIP(const Measurement1D& myIP)  { transverseIp_leadTk_ = myIP;}
-    void setLeadTk3DIP(const Measurement1D& myIP)  {  ip3D_leadTk_=myIP;}
+    void setSignificanceLeadTkTIP(const float& myIP)  { transverseIpSignificance_leadTk_ = myIP;}
     void setInvariantMass(const float& mass)  {  mass_= mass;}
 
     //set invariantMass with tracks only 
@@ -103,7 +101,7 @@ namespace reco {
     void setEmOverHadronEnergy(const float& emOverH)  {   emOverHadronEnergy_ = emOverH;}
     void setMaximumHcalTowerEnergy(const float& maxHcal)  {  maximumHcalTowerEnergy_ = maxHcal;}
     void setEMIsolation(const float& emIso)  {  emIsolation_ = emIso;}
-void setNumberOfEcalClusters(const int& myClus)  { numberOfEcalClusters_ = myClus;}
+    void setNumberOfEcalClusters(const int& myClus)  { numberOfEcalClusters_ = myClus;}
 
 
   private:
@@ -119,8 +117,7 @@ void setNumberOfEcalClusters(const int& myClus)  { numberOfEcalClusters_ = myClu
     PFCandidateRefVector selectedIsolationPFChargedHadrons_, selectedIsolationPFNeutralHadrons_, selectedIsolationPFGammaCandidates_;
 
     float maximumHcalTowerEnergy_;
-    Measurement1D  transverseIp_leadTk_;
-    Measurement1D  ip3D_leadTk_;
+    float  transverseIpSignificance_leadTk_;
     float mass_; 
     float trackerMass_;
     float sumPtIsolation_;
