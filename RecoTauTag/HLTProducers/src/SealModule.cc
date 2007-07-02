@@ -5,6 +5,11 @@
 #include "RecoTauTag/HLTProducers/interface/L2TauJetsProvider.h"
 #include "RecoTauTag/HLTProducers/interface/CaloTowerCreatorForTauHLT.h"
 #include "RecoTauTag/HLTProducers/interface/HLTLeptonTauNonCollProducer.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h" 	 
+ #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h" 	 
+ #include "TauRegionalPixelSeedGenerator.h" 	 
+ 	 
+DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, TauRegionalPixelSeedGenerator, "TauRegionalPixelSeedGenerator"); 	 
 
 //DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(IsolatedTauJetsSelector);
