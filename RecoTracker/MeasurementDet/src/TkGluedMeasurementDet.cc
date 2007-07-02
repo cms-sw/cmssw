@@ -40,6 +40,9 @@ TkGluedMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
 
   RecHitContainer result;
 
+  //------ WARNING: here ts is used as it is on the mono/stereo surface.
+  //-----           A further propagation is necessary.
+  //-----           To limit the problem, the SimpleCPE should be used
   RecHitContainer monoHits = theMonoDet->recHits( ts);
   RecHitContainer stereoHits = theStereoDet->recHits( ts);
 
