@@ -18,17 +18,34 @@ ProjectedRecHit2D::ProjectedRecHit2D( const LocalPoint& pos, const LocalError& e
 ProjectedRecHit2D::RecHitPointer 
 ProjectedRecHit2D::clone( const TrajectoryStateOnSurface& ts) const
 {
+  //SHOULD WE BACKPORT THIS BUGFIX?/// if (theCPE != 0) {
   TrackingRecHitProjector<ProjectedRecHit2D> proj;
-  const SiStripCluster& clust = *(originalHit().cluster());  
+  if(!originalHit().cluster().isNull()){
+      const SiStripCluster& clust = *(originalHit().cluster());  
 
-  StripClusterParameterEstimator::LocalValues lv = 
-    theCPE->localParameters( clust, *detUnit(), ts.localParameters());
+      StripClusterParameterEstimator::LocalValues lv = 
+        theCPE->localParameters( clust, *detUnit(), ts.localParameters());
 
-  RecHitPointer updatedOriginalHit = 
-    TSiStripRecHit2DLocalPos::build( lv.first, lv.second, theOriginalDet, 
-				     originalHit().cluster(), theCPE);
+      RecHitPointer updatedOriginalHit = 
+        TSiStripRecHit2DLocalPos::build( lv.first, lv.second, theOriginalDet, 
+                                         originalHit().cluster(), theCPE);
 
-  RecHitPointer hit = proj.project( *updatedOriginalHit, *det(), ts); 
+      RecHitPointer hit = proj.project( *updatedOriginalHit, *det(), ts); 
 
-  return hit;
+      return hit;
+  } else {
+      const SiStripCluster& clust = *(originalHit().cluster_regional());
+
+      StripClusterParameterEstimator::LocalValues lv =
+       theCPE->localParameters( clust, *detUnit(), ts.localParameters());
+
+      RecHitPointer updatedOriginalHit =
+       TSiStripRecHit2DLocalPos::build( lv.first, lv.second, theOriginalDet,
+                                        originalHit().cluster_regional(), theCPE);
+
+      RecHitPointer hit = proj.project( *updatedOriginalHit, *det(), ts);
+
+      return hit;
+  }
+  //SHOULD WE BACKPORT THIS BUGFIX?/// } else return clone ();
 }

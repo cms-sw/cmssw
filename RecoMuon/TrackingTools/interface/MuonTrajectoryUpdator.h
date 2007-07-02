@@ -10,8 +10,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2006/11/17 18:07:44 $
- *  $Revision: 1.16 $
+ *  $Date: 2007/01/18 13:26:52 $
+ *  $Revision: 1.17 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -69,6 +69,9 @@ class MuonTrajectoryUpdator {
   /// set fit direction
   void setFitDirection(NavigationDirection fitDirection) {theFitDirection = fitDirection;}
 
+  /// reset the theFirstTSOSFlag
+  void makeFirstTime();
+  
  protected:
   
  private:

@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/09/27 15:15:52 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/02/03 16:19:08 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -27,7 +27,7 @@ MagGeoBuilderFromDDD::bLayer::bLayer(handles::const_iterator begin,
   // Sort in phi
   precomputed_value_sort(theVolumes.begin(), theVolumes.end(), ExtractPhi());
   
-  if (bldVerb::debugOut) {
+  if (MagGeoBuilderFromDDD::debug) {
     std::cout << " elements: " << theVolumes.size() << " unique volumes: ";
     volumeHandle::printUniqueNames(theVolumes.begin(), theVolumes.end());
   }
@@ -53,7 +53,7 @@ MagGeoBuilderFromDDD::bLayer::bLayer(handles::const_iterator begin,
   if (size==1) { // Only one volume; this is the case for barrel
     // cylinders.
     // FIXME sectors.push_back(bSector(theVolumes.begin(),theVolumes.end());
-    if (bldVerb::debugOut) std::cout <<"      Sector is just one volume." << std::endl;
+    if (MagGeoBuilderFromDDD::debug) std::cout <<"      Sector is just one volume." << std::endl;
 
   } else if (size==12 || // In this case, each volume is a sector.
       ((*secBegin)->shape()!=ddtrap) && (*secBegin)->shape()!=ddbox) {
@@ -61,7 +61,7 @@ MagGeoBuilderFromDDD::bLayer::bLayer(handles::const_iterator begin,
 
   }  else { // there are more than one volume per sector.
     do {
-      if (bldVerb::debugOut) std::cout << (*secBegin)->name 
+      if (MagGeoBuilderFromDDD::debug) std::cout << (*secBegin)->name 
 				 << " " << (*secBegin)->copyno << std::endl;
       ++secBegin;
     } while ((secBegin != theVolumes.end()) &&
@@ -84,7 +84,7 @@ MagGeoBuilderFromDDD::bLayer::bLayer(handles::const_iterator begin,
     }
   }
 
-  if (bldVerb::debugOut) {
+  if (MagGeoBuilderFromDDD::debug) {
     std::cout << "      First sector: volumes " << secEnd-theVolumes.begin()
 	 << " from " << newbegin
 	 << " (phi = " << (*secBegin)->center().phi() << ") "
@@ -105,7 +105,7 @@ MagGeoBuilderFromDDD::bLayer::bLayer(handles::const_iterator begin,
     }
   }
 
-  if (bldVerb::debugOut) std::cout << "-----------------------" << std::endl;
+  if (MagGeoBuilderFromDDD::debug) std::cout << "-----------------------" << std::endl;
 
 }
 
@@ -138,7 +138,7 @@ MagBLayer * MagGeoBuilderFromDDD::bLayer::buildMagBLayer() const {
 
     // If we have only one volume, do not build any MagBSector.
     if (sectors.size()==0) {
-      if (bldVerb::debugOut && size!=0) {
+      if (MagGeoBuilderFromDDD::debug && size!=0) {
 	std::cout << "ERROR: bLayer::buildMagBLayer, 0 sectors but "
 	     << size << " volumes" << std::endl;
       }

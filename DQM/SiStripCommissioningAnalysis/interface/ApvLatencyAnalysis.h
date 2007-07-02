@@ -19,6 +19,7 @@ class ApvLatencyAnalysis : public CommissioningAnalysis {
   
  public:
 
+  ApvLatencyAnalysis(  const uint32_t& key );
   ApvLatencyAnalysis();
   virtual ~ApvLatencyAnalysis() {;}
 

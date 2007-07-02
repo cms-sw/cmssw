@@ -60,7 +60,7 @@ TrapezoidalCylindricalMFGrid::TrapezoidalCylindricalMFGrid( binary_ifstream& inF
   cout << "steps " << stepx << "," <<  stepy << "," << stepz << endl;
   cout << "ns " << n1 << "," <<  n2 << "," << n3 << endl;
 
-  for (int i=0; i<3; ++i) for (int j=0; j<3; ++j) {
+  for (int i=0; i<3; i++) for (int j=0; j<3; j++) {
     cout << "BasicDistance1[" << i << "][" << j << "] = " << BasicDistance1[i][j]
 	 << "BasicDistance2[" << i << "][" << j << "] = " << BasicDistance2[i][j] << endl;
   }
@@ -118,7 +118,7 @@ void TrapezoidalCylindricalMFGrid::dump() const
 {}
 
 MFGrid::LocalVector 
-TrapezoidalCylindricalMFGrid::uncheckedValueInTesla( const LocalPoint& p) const
+TrapezoidalCylindricalMFGrid::valueInTesla( const LocalPoint& p) const
 {
 //   static TimingReport::Item & timer= (*TimingReport::current())["MagneticFieldProvider::valueInTesla(TrapezoidalCylindricalMFGrid)"];
 //   TimeMe t(timer,false);

@@ -5,15 +5,15 @@
  * \class L1GtAnalyzer
  * 
  * 
- * 
- * Description: example for L1 Global Trigger analyzer
+ * Description: example for L1 Global Trigger analyzer.  
+ *
  * Implementation:
  *    <TODO: enter implementation details>
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date$
- * $Revision$
+ * $Date:$
+ * $Revision:$
  *
  */
 
@@ -59,12 +59,21 @@ private:
     /// analyze: object map record
     virtual void analyzeObjectMap(const edm::Event&, const edm::EventSetup&);
 
+    /// analyze: seed muon HLT using the object map record
+    virtual void analyzeObjectMapMuons(const edm::Event&, const edm::EventSetup&);
 
     /// analyze each event: event loop over various code snippets
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
     /// end of job
     virtual void endJob() ;
+
+private:
+
+    static const edm::ParameterSet* m_pSet;
+
+    // input tags for GT DAQ record
+    edm::InputTag m_daqGtInputTag;
 
 };
 

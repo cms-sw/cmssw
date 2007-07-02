@@ -74,7 +74,7 @@ SiPixelWebInterface::~SiPixelWebInterface() {
 void SiPixelWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-//  cout<<"entering handleCustomRequest"<<endl;
+  cout<<"entering handleCustomRequest"<<endl;
   // put the request information in a multimap...
   //std::multimap<std::string, std::string> request_multimap;
   CgiReader reader(in);
@@ -108,11 +108,6 @@ void SiPixelWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
     theActionFlag = NoAction;
     infoExtractor_->readModuleAndHistoList((*mui_p), out,
                           actionExecutor_->getCollationFlag() );    
-  } else if (requestID == "ModuleHistoList") {
-    theActionFlag = NoAction;
-    string sname = get_from_multimap(requestMap_, "StructureName");
-    infoExtractor_->readModuleHistoTree((*mui_p), sname, out,
-                          actionExecutor_->getCollationFlag());    
   } else if (requestID == "SummaryHistoList") {
     theActionFlag = NoAction;
     string sname = get_from_multimap(requestMap_, "StructureName");
@@ -142,31 +137,31 @@ void SiPixelWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
     theActionFlag = NoAction;    
   }
   configureCustomRequest(in, out);
-//  cout<<"leaving handleCustomRequest"<<endl;
+  cout<<"leaving handleCustomRequest"<<endl;
 }
 //
 // -- Schedule Custom Action
 //
 void SiPixelWebInterface::configureCustomRequest(xgi::Input * in, xgi::Output * out) throw (xgi::exception::Exception){
-//  cout<<"entering configureCustomRequest"<<endl;
+  cout<<"entering configureCustomRequest"<<endl;
   seal::Callback action(seal::CreateCallback(this, 
                       &SiPixelWebInterface::performAction));
   (*mui_p)->addCallback(action);
-//  cout<<"leaving configureCustomRequest"<<endl;
+  cout<<"leaving configureCustomRequest"<<endl;
 }
 //
 // -- Setup Quality Tests
 // 
 void SiPixelWebInterface::setupQTests() {
-//  cout<<"entering setupQTests"<<endl;
+  cout<<"entering setupQTests"<<endl;
   actionExecutor_->setupQTests((*mui_p));
-//  cout<<"leaving setupQTests"<<endl;
+  cout<<"leaving setupQTests"<<endl;
 }
 //
 // -- Read Configurations 
 //
 void SiPixelWebInterface::readConfiguration(int& tkmap_freq, int& sum_barrel_freq, int& sum_endcap_freq){
-//cout<<"entering readConfiguration"<<endl;
+cout<<"entering readConfiguration"<<endl;
   if (actionExecutor_)  {
     if (actionExecutor_->readConfiguration(tkmap_freq,sum_barrel_freq,sum_endcap_freq));
   } else {
@@ -174,24 +169,24 @@ void SiPixelWebInterface::readConfiguration(int& tkmap_freq, int& sum_barrel_fre
     sum_barrel_freq   = -1;
     sum_endcap_freq   = -1;
   }
-//cout<<"leaving readConfiguration"<<endl;
+cout<<"leaving readConfiguration"<<endl;
 }
 //
 // -- Perform action
 //
 void SiPixelWebInterface::performAction() {
-//cout<<"entering performAction..."<<endl;
+cout<<"entering performAction..."<<endl;
   switch (theActionFlag) {
   case SiPixelWebInterface::SubscribeAll :
     {
-//      cout << " SiPixelWebInterface::subscribeAll " << endl;
+      cout << " SiPixelWebInterface::subscribeAll " << endl;
 //      (*mui_p)->subscribe("Collector/FU0/Tracker/PixelBarrel/Layer_1/Ladder_01/*");
       (*mui_p)->subscribe("Collector/*");
       break;
     } 
   case SiPixelWebInterface::Collate :
     {
-//      cout << " SiPixelWebInterface::Collate " << endl;
+      cout << " SiPixelWebInterface::Collate " << endl;
       actionExecutor_->createCollation((*mui_p));
       break;
     }
@@ -204,31 +199,31 @@ void SiPixelWebInterface::performAction() {
     }*/
   case SiPixelWebInterface::Summary :
     {
-//      cout << " SiPixelWebInterface::Summary " << endl;
+      cout << " SiPixelWebInterface::Summary " << endl;
       actionExecutor_->createSummary((*mui_p));
       break;
     }
   case SiPixelWebInterface::setupQTest :
     {
-//      cout << " SiPixelWebInterface::setupQTests " << endl;
+      cout << " SiPixelWebInterface::setupQTests " << endl;
       actionExecutor_->setupQTests((*mui_p));
       break;
     }
   case SiPixelWebInterface::QTestResult :
     {
-//      cout << " SiPixelWebInterface::QTestResult " << endl;
+      cout << " SiPixelWebInterface::QTestResult " << endl;
       actionExecutor_->checkQTestResults((*mui_p));
       break;
     }
   case SiPixelWebInterface::SaveData :
     {
-//      cout << " Saving Monitoring Elements " << endl;
+      cout << " Saving Monitoring Elements " << endl;
       actionExecutor_->saveMEs((*mui_p), "SiPixelWebInterface.root");
       break;
     }
   case SiPixelWebInterface::PlotSingleModuleHistos :
     {
-//      cout << " SiPixelWebInterface::PlotSingleModuleHistos " << endl;
+      cout << " SiPixelWebInterface::PlotSingleModuleHistos " << endl;
       infoExtractor_->plotSingleModuleHistos((*mui_p), requestMap_);
       break;
     }
@@ -246,7 +241,7 @@ void SiPixelWebInterface::performAction() {
     }*/
   case SiPixelWebInterface::PlotSingleHistogram :
     {
-//      cout << " SiPixelWebInterface::PlotSingleHistogram " << endl;
+      cout << " SiPixelWebInterface::PlotSingleHistogram " << endl;
       infoExtractor_->plotSingleHistogram((*mui_p), requestMap_);
       break;
     }
@@ -256,11 +251,11 @@ void SiPixelWebInterface::performAction() {
     }
   }
   setActionFlag(SiPixelWebInterface::NoAction);
-//  cout<<"leaving performAction..."<<endl;
+  cout<<"leaving performAction..."<<endl;
 }
 
 void SiPixelWebInterface::returnReplyXml(xgi::Output * out, const std::string& name, const std::string& comment){
-//  cout<<"entering returnReplyXml"<<endl;
+  cout<<"entering returnReplyXml"<<endl;
    out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
   *out << "<?xml version=\"1.0\" ?>" << std::endl;
   *out << "<TkMap>" << endl;
@@ -270,7 +265,7 @@ void SiPixelWebInterface::returnReplyXml(xgi::Output * out, const std::string& n
   cout << "<TkMap>" << endl;
   cout << " <Response>" << comment << "</Response>" << endl;
   cout << "</TkMap>" << endl;
-//  cout<<"leaving returnReplyXml"<<endl;
+  cout<<"leaving returnReplyXml"<<endl;
 
 }
 

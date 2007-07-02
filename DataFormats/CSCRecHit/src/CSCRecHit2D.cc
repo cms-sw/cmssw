@@ -3,33 +3,19 @@
 
 CSCRecHit2D::CSCRecHit2D() :
   theDetId(),
-  theLocalPosition(0.,0.), 
-  theLocalError(0.,0.,0.),
-  theChaCo( ChannelContainer() ),
-  theADCs( ADCContainer() ),
-  theWireGroups( ChannelContainer() ),
-  theTpeak( -999. ),  
-  theChi2( -1. ), 
-  theProb( 0. )
+  theLocalPosition(0.,0.), theLocalError(0.,0.,0.),
+  theChaCo( ChannelContainer() ),     
+  theChi2( -1. ), theProb( 0. )
 {}
 
 CSCRecHit2D::CSCRecHit2D( const CSCDetId& id, 
-                          const LocalPoint& pos, 
-                          const LocalError& err, 
-	                  const ChannelContainer& channels, 
-                          const ADCContainer& adcs,
-                          const ChannelContainer& wgroups,
-                          const float tpeak, 
-	                  float chi2, 
-                          float prob ) :
+               const LocalPoint& pos, const LocalError& err, 
+	       const ChannelContainer& channels,
+	       float chi2, float prob ) :
   theDetId( id ), 
-  theLocalPosition( pos ), 
-  theLocalError( err ),
+  theLocalPosition( pos ), theLocalError( err ),
   theChaCo( channels ),
-  theADCs( adcs ),
-  theTpeak( tpeak ),
-  theChi2( chi2 ), 
-  theProb( prob )
+  theChi2(chi2), theProb(prob)
 {}
 
 CSCRecHit2D::~CSCRecHit2D() {}

@@ -32,10 +32,10 @@ L1RpcTBMuonsVec RPCTriggerCrate::runTCGBSorter() {
     for (unsigned  int iTC = 0; iTC < tbMuonsVec2.size(); iTC++){
         for (unsigned  int iTB = 0; iTB < tbMuonsVec2[iTC].size(); iTB++){
 #ifndef _STAND_ALONE
-            LogDebug("RPCHwDebug") << "GB 1 "
+            LogDebug("RPCHwDebug") << "GB 1 " << iTB << " "
               <<tbMuonsVec2[iTC][iTB].printDebugInfo(m_TriggerConfig->getDebugLevel());
 #else
-	  std::cout << "GB 1 " 
+	  std::cout << "GB 1 " << "GB 1 " << iTB << " "
 		  <<tbMuonsVec2[iTC][iTB].printDebugInfo(m_TriggerConfig->getDebugLevel())
 		  << std::endl;
 #endif //_STAND_ALONE

@@ -28,13 +28,14 @@ class FedCablingAnalysis : public CommissioningAnalysis {
   // Connection info
   inline const uint16_t& fedId() const;
   inline const uint16_t& fedCh() const; 
-  const uint16_t& adcLevel() const;
+  uint16_t adcLevel() const;
   inline const Candidates& candidates() const;
   
   inline const Histo& hFedId() const;
   inline const Histo& hFedCh() const;
 
-  // Debug
+  bool isValid();
+
   void print( std::stringstream&, uint32_t not_used = 0 );
   
  private:

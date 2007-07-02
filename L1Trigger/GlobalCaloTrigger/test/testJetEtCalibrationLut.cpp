@@ -20,7 +20,7 @@ int main()
 {
   try {
     // Instance of the class
-    L1GctJetEtCalibrationLut* lut = new L1GctJetEtCalibrationLut("data/testJetEtCalibrationLut.dat");
+    L1GctJetEtCalibrationLut* lut = new L1GctJetEtCalibrationLut("data/testJetEtCalibrationLut.dat", false);
 
     // print it out
     cout << (*lut);

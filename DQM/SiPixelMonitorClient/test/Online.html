@@ -203,34 +203,6 @@
                      Sub-Detectors:
 	          </label>
                   <select name="struc_name" 
-                       id="structure_for_module"
-                       style="width:20%;height:5%;text-align;margin-right:2%">
-                       <option value="Tracker/PixelBarrel" SELECTED> BPIX </option>
-                       <option value="Tracker/PixelEndcap"> FPIX </option>
-                  </select>
-                  <input name="listmodule" 
-                        id="list_module"
-                        value="Get Tree" 
-                        style="width:30%;margin-left:2%;margin-top:2%"
-                        onClick="RequestModuleTree()" 
-                        type="submit">
-                   </input>
-	        </fieldset>
-      	      </div>
-	      </br>
-   	      <div class="bloc" id="modtree_list" style="overflow:scroll;height:300px;width:100%;background:#FFF;"> 
-      	      </div> 
-	    </div>
-          </div>
-          <div class="dhtmlgoodies_aTab">
-	    <div class="bloc" id="bloc2_4"> 
-      	      <div class="bloc" id="bloc2_4_1">
-	        <fieldset>
-                  <label id="structures"
-                     style="margin-left:10%">
-                     Sub-Detectors:
-	          </label>
-                  <select name="struc_name" 
                        id="structure_name"
                        style="width:20%;height:5%;text-align;margin-right:2%">
                        <option value="Tracker/PixelBarrel" SELECTED> BPIX </option>
@@ -251,8 +223,8 @@
 	    </div>
           </div>
           <div class="dhtmlgoodies_aTab">
-	    <div class="bloc" id="bloc2_5"> 
-      	      <div class="bloc" id="bloc2_5_1">
+	    <div class="bloc" id="bloc2_4"> 
+      	      <div class="bloc" id="bloc2_4_1">
 	        <fieldset>
                   <label id="alarm_structures"
                      style="margin-left:10%">
@@ -285,7 +257,7 @@
   </div>
 </form>
 <script type="text/javascript">
-  initTabs('dhtmlgoodies_tabView1', Array('Single Module View','Module Tree','Summary View','Alarm View'), 0, '99.5%','100%');
+  initTabs('dhtmlgoodies_tabView1', Array('Single Module View','Summary View','Alarm View'), 0, '99.5%','100%');
 </script>
 </body>
 </html>

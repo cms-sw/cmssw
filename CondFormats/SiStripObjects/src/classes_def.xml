@@ -16,6 +16,8 @@
 
   <class name="SiStripApvGain"/>
 
+  <class name="SiStripLorentzAngle"/>
+
   <class pattern="*iterator*"/>
   <class pattern="*vector*"/>
   <class pattern="*map*"/>

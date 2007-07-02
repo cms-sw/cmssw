@@ -1,7 +1,7 @@
 //#include "Utilities/Configuration/interface/Architecture.h"
 /*  
- *  $Date: 2007/02/19 23:26:44 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/03/25 15:38:36 $
+ *  $Revision: 1.7 $
  *  \author J. Mans -- UMD
  */
 #ifndef HTBDAQ_DATA_STANDALONE
@@ -13,8 +13,6 @@
 #include <stdio.h>
 const int HcalHTRData::CHANNELS_PER_SPIGOT         = 24;
 const int HcalHTRData::MAXIMUM_SAMPLES_PER_CHANNEL = 20;
-
-
 
 HcalHTRData::HcalHTRData() : m_formatVersion(-2), m_rawLength(0), m_rawConst(0), m_ownData(0) { }
 HcalHTRData::HcalHTRData(const unsigned short* data, int length) {
@@ -126,7 +124,7 @@ void HcalHTRData::dataPointers(const unsigned short** daq_first,
 			       const unsigned short** tp_last) {
   int tp_words_total, daq_words_total, headerLen, trailerLen;
   determineSectionLengths(tp_words_total,daq_words_total,headerLen,trailerLen);
-  
+
   *tp_first=m_rawConst+headerLen;
   *tp_last=*tp_first+(tp_words_total-1);
   *daq_first=*tp_last+1;
@@ -256,7 +254,10 @@ void HcalHTRData::packHeaderTrailer(int L1Anumber, int bcn, int submodule, int o
     //    m_ownData[5]&=0xFF01;
   } else {
     m_ownData[2]=0x8000; // Version is valid, no error bits
-    m_ownData[3]=((orbitn&0x3F)<<10)|(submodule&0x3FF);
+    if (m_formatVersion==0) 
+      m_ownData[3]=((orbitn&0x3F)<<10)|(submodule&0x3FF);
+    else 
+      m_ownData[3]=((orbitn&0x1F)<<11)|(submodule&0x7FF);
     m_ownData[4]=((m_formatVersion&0xF)<<12)|(bcn&0xFFF);
     m_ownData[5]|=((nps&0x1F)<<3)|0x1;
     m_ownData[6]=((firmwareRev&0x70000)>>3)|(firmwareRev&0x1FFF);
@@ -269,10 +270,18 @@ void HcalHTRData::packHeaderTrailer(int L1Anumber, int bcn, int submodule, int o
 }
 
 unsigned int HcalHTRData::getOrbitNumber() const { 
-  return (m_formatVersion==-1)?(m_rawConst[3]>>8):(m_rawConst[3]>>10);
+  switch (m_formatVersion) {
+  case (-1) : return (m_rawConst[3]>>8);
+  case (0) : return (m_rawConst[3]>>10);
+  default : return (m_rawConst[3]>>11);
+  }
 }
 unsigned int HcalHTRData::getSubmodule() const {
-  return (m_formatVersion==-1)?(m_rawConst[3]&0xFF):(m_rawConst[3]&0x3FF);
+  switch (m_formatVersion) {
+  case (-1) : return (m_rawConst[3]&0xFF);
+  case (0) : return (m_rawConst[3]&0x3FF);
+  default : return (m_rawConst[3]&0x7FF);
+  }
 }
 unsigned int HcalHTRData::htrSlot() const{
   const unsigned int smid = getSubmodule();

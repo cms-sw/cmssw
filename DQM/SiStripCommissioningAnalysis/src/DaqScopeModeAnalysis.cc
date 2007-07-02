@@ -1,16 +1,18 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/DaqScopeModeAnalysis.h"
-#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TH1.h"
 #include <iostream>
 #include <iomanip>
 #include <cmath>
 
-using namespace std;
+using namespace sistrip;
 
 // ----------------------------------------------------------------------------
 // 
 DaqScopeModeAnalysis::DaqScopeModeAnalysis( const uint32_t& key ) 
-  : CommissioningAnalysis(key),
+  : CommissioningAnalysis(key,"DaqScopeModeAnalysis"),
     entries_(sistrip::invalid_), 
     mean_(sistrip::invalid_), 
     median_(sistrip::invalid_), 
@@ -23,7 +25,7 @@ DaqScopeModeAnalysis::DaqScopeModeAnalysis( const uint32_t& key )
 // ----------------------------------------------------------------------------
 // 
 DaqScopeModeAnalysis::DaqScopeModeAnalysis() 
-  : CommissioningAnalysis(),
+  : CommissioningAnalysis("DaqScopeModeAnalysis"),
     entries_(sistrip::invalid_), 
     mean_(sistrip::invalid_), 
     median_(sistrip::invalid_), 
@@ -35,13 +37,8 @@ DaqScopeModeAnalysis::DaqScopeModeAnalysis()
 
 // ----------------------------------------------------------------------------
 // 
-void DaqScopeModeAnalysis::print( stringstream& ss, uint32_t not_used ) { 
-  if ( key() ) {
-    ss << "APV TIMING monitorables for channel key 0x"
-       << hex << setw(8) << setfill('0') << key() << dec << "\n";
-  } else {
-    ss << "APV TIMING monitorables" << "\n";
-  }
+void DaqScopeModeAnalysis::print( std::stringstream& ss, uint32_t not_used ) { 
+  header( ss );
   ss << " Number of entries   : " << entries_ << "\n" 
      << " Mean +/- rms [adc]  : " << mean_ << " +/- " << rms_ << "\n"
      << " Median / mode [adc] : " << median_ << " / " << mode_ << "\n" 
@@ -63,35 +60,38 @@ void DaqScopeModeAnalysis::reset() {
 
 // ----------------------------------------------------------------------------
 // 
-void DaqScopeModeAnalysis::extract( const vector<TH1*>& histos ) { 
+void DaqScopeModeAnalysis::extract( const std::vector<TH1*>& histos ) { 
   
   // Check
   if ( histos.size() != 1 ) {
-    cerr << "[DaqScopeModeAnalysis::" << __func__ << "]"
-	 << " Unexpected number of histograms: " 
-	 << histos.size()
-	 << endl;
+    edm::LogWarning(mlCommissioning_) 
+      << "[" << myName() << "::" << __func__ << "]"
+      << " Unexpected number of histograms: " 
+      << histos.size();
   }
   
+  // Extract FED key from histo title
+  if ( !histos.empty() ) extractFedKey( histos.front() );
+
   // Extract
-  vector<TH1*>::const_iterator ihis = histos.begin();
+  std::vector<TH1*>::const_iterator ihis = histos.begin();
   for ( ; ihis != histos.end(); ihis++ ) {
     
     // Check pointer
     if ( !(*ihis) ) {
-      cerr << "[DaqScopeModeAnalysis::" << __func__ << "]"
-	   << " NULL pointer to histogram!" << endl;
+      edm::LogWarning(mlCommissioning_) 
+	<< "[" << myName() << "::" << __func__ << "]"
+	<< " NULL pointer to histogram!";
       continue;
     }
     
     // Check name
-    static HistoTitle title;
-    title = SiStripHistoNamingScheme::histoTitle( (*ihis)->GetName() );
-    if ( title.task_ != sistrip::DAQ_SCOPE_MODE ) {
-      cerr << "[DaqScopeModeAnalysis::" << __func__ << "]"
-	   << " Unexpected commissioning task!"
-	   << "(" << SiStripHistoNamingScheme::task( title.task_ ) << ")"
-	   << endl;
+    SiStripHistoTitle title( (*ihis)->GetName() );
+    if ( title.runType() != sistrip::DAQ_SCOPE_MODE ) {
+      edm::LogWarning(mlCommissioning_) 
+	<< "[" << myName() << "::" << __func__ << "]"
+	<< " Unexpected commissioning task: "
+	<< SiStripEnumsAndStrings::runType(title.runType());
       continue;
     }
     
@@ -107,14 +107,15 @@ void DaqScopeModeAnalysis::extract( const vector<TH1*>& histos ) {
 // 
 void DaqScopeModeAnalysis::analyse() { 
   if ( !histo_.first ) {
-    cerr << "[DaqScopeModeAnalysis::" << __func__ << "]"
-	 << " NULL pointer to histogram!" << endl;
+    edm::LogWarning(mlCommissioning_)
+      << "[" << myName() << "::" << __func__ << "]"
+      << " NULL pointer to histogram!";
     return;
   }
 
   // Some initialization
   reset();
-  vector<float> median;
+  std::vector<float> median;
   float max_value = -1. * sistrip::invalid_;
   float max_contents = -1. * sistrip::invalid_;
   float sum = 0.;

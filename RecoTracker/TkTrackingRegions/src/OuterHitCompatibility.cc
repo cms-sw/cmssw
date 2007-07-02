@@ -1,12 +1,28 @@
 #include "RecoTracker/TkTrackingRegions/interface/OuterHitCompatibility.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+
+bool OuterHitCompatibility::operator() ( const TransientTrackingRecHit * hit) const
+{
+  GlobalPoint hitPos = hit->globalPosition();
+  float hitR = hitPos.perp();
+  float hitPhi = hitPos.phi();
+
+  if ( !checkPhi(hitPhi, hitR) ) return 0;
+
+  float hitZ = hitPos.z();
+  if ( !(*theRZCompatibility)(hitR,hitZ) ) return 0;
+
+  return 1;
+}
+
 
 bool OuterHitCompatibility::operator() ( const TrackingRecHit* hit,  const edm::EventSetup& iSetup) const
 {

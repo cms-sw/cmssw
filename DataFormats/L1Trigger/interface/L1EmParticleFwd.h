@@ -5,18 +5,14 @@
 // Package:     L1Trigger
 // Class  :     L1EmParticleFwd
 // 
-/**\class L1EmParticleFwd L1EmParticleFwd.h DataFormats/L1Trigger/interface/L1EmParticleFwd.h
+/**\class L1EmParticleCollection \file L1EmParticleFwd.h DataFormats/L1Trigger/interface/L1EmParticleFwd.h \author Werner Sun
 
- Description: <one line class summary>
-
- Usage:
-    <usage>
-
+ Description: typedefs for L1EmParticleCollection and associated containers.
 */
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 14:28:43 EDT 2006
-// $Id: L1EmParticleFwd.h,v 1.2 2006/07/26 00:05:39 wsun Exp $
+// $Id: L1EmParticleFwd.h,v 1.3 2006/08/28 03:10:40 wsun Exp $
 //
 
 // system include files

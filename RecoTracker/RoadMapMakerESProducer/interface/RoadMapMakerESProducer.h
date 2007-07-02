@@ -12,8 +12,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/02/05 19:18:39 $
-// $Revision: 1.4 $
+// $Date: 2007/03/01 07:51:48 $
+// $Revision: 1.5 $
 //
 
 // system include files
@@ -51,6 +51,8 @@ class RoadMapMakerESProducer : public edm::ESProducer {
 
   std::string ringsLabel_;
 
+  Roads *roads_;
+  
 };
 
 #endif

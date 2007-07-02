@@ -23,7 +23,7 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetVector.h,v 1.13 2007/01/29 20:08:27 wdd Exp $
+$Id: DetSetVector.h,v 1.14 2007/02/07 23:01:43 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -228,11 +228,18 @@ namespace edm {
   inline
   void
   DetSetVector<T>::insert(detset const& t) {
+    // Implementation provided by the Performance Task Force.
+    _sets.insert(std::lower_bound(_sets.begin(),
+				  _sets.end(),
+				  t),
+		 t);
+#if 0
     // It seems we have to sort on each insertion, because we may
     // perform lookups during construction.
     _sets.push_back(t);
 
     _sort();
+#endif
   }
 
   template <class T>

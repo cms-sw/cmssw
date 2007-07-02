@@ -1,119 +1,177 @@
+// Last commit: $Id: SiStripDetKey.cc,v 1.5 2007/03/21 08:22:59 bainbrid Exp $
+
 #include "DataFormats/SiStripCommon/interface/SiStripDetKey.h"
+#include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
+#include "DataFormats/SiStripCommon/interface/ConstantsForDqm.h"
+#include "DataFormats/SiStripCommon/interface/ConstantsForView.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include <iomanip>
+#include <sstream>
 
 // -----------------------------------------------------------------------------
 // 
-SiStripDetKey::Path::Path() 
-  : detId_(sistrip::invalid_), 
-    apvPair_(sistrip::invalid_) {;}
-
-// -----------------------------------------------------------------------------
-// 
-SiStripDetKey::Path::Path( const uint32_t& det_id,
-	    const uint16_t& apv_pair ) 
-  : detId_(det_id), 
-    apvPair_(apv_pair) {;}
-
-// -----------------------------------------------------------------------------
-// 
-bool SiStripDetKey::Path::isEqual( const Path& input ) {
-  if ( detId_ == input.detId_ &&
-       apvPair_ == input.apvPair_ ) { 
-    return true;
-  } else { return false; }
+SiStripDetKey::SiStripDetKey( const DetId& det_id,
+			      const uint16_t& apv_pair_number,
+			      const uint16_t& apv_within_pair ) :
+  SiStripKey(),
+  apvPairNumber_(apv_pair_number), 
+  apvWithinPair_(apv_within_pair)
+{
+  // order is important!
+  initFromValue();
+  initFromKey();
+  initFromPath();
+  initGranularity();
 }
 
 // -----------------------------------------------------------------------------
 // 
-bool SiStripDetKey::Path::isConsistent( const Path& input ) {
-  if ( isEqual(input) ) { return true; }
-  else if ( ( detId_ == 0 || input.detId_ == 0 ) &&
-	    ( apvPair_ == 0 || input.apvPair_ == 0 ) ) { 
-    return true;
-  } else { return false; }
+SiStripDetKey::SiStripDetKey( const SiStripDetId& det_id ) :
+  SiStripKey(),
+  apvPairNumber_(sistrip::invalid_), 
+  apvWithinPair_(sistrip::invalid_)
+{
+  // order is important!
+  initFromValue();
+  initFromKey();
+  initFromPath();
+  initGranularity();
 }
 
 // -----------------------------------------------------------------------------
-//
-bool SiStripDetKey::Path::isInvalid() const {
-  if ( detId_ == sistrip::invalid_ &&
-       apvPair_ == sistrip::invalid_ ) {
-    return true;
-  } else { return false; }
+// 
+SiStripDetKey::SiStripDetKey( const uint32_t& det_key ) :
+  SiStripKey(det_key),
+  apvPairNumber_(sistrip::invalid_), 
+  apvWithinPair_(sistrip::invalid_)
+{
+  // order is important!
+  initFromKey(); 
+  initFromValue();
+  initFromPath();
+  initGranularity();
 }
 
 // -----------------------------------------------------------------------------
-//
-bool SiStripDetKey::Path::isInvalid( const sistrip::Granularity& gran ) const {
-  if ( detId_ == sistrip::invalid_ ) {
-    if ( gran == sistrip::MODULE ) { return true; }
-    if ( apvPair_ == sistrip::invalid_ ) {
-      if ( gran == sistrip::LLD_CHAN ) { return true; }
-    }
+// 
+SiStripDetKey::SiStripDetKey( const std::string& path ) :
+  SiStripKey(path),
+  apvPairNumber_(sistrip::invalid_), 
+  apvWithinPair_(sistrip::invalid_)
+{
+  // order is important!
+  initFromPath();
+  initFromValue();
+  initFromKey();
+  initGranularity();
+}
+
+// -----------------------------------------------------------------------------
+// 
+SiStripDetKey::SiStripDetKey( const SiStripDetKey& input ) :
+  SiStripKey(),
+  apvPairNumber_(input.apvPairNumber()), 
+  apvWithinPair_(input.apvWithinPair())
+{
+  key(input.key());
+  path(input.path());
+  granularity(input.granularity());
+}
+
+// -----------------------------------------------------------------------------
+// 
+SiStripDetKey::SiStripDetKey( const SiStripKey& input ) :
+  SiStripKey(),
+  apvPairNumber_(sistrip::invalid_), 
+  apvWithinPair_(sistrip::invalid_)
+{
+  SiStripKey& temp = const_cast<SiStripKey&>(input);
+  SiStripDetKey& det_key = dynamic_cast<SiStripDetKey&>(temp);
+  if ( (&det_key) ) {
+    key(det_key.key());
+    path(det_key.path());
+    granularity(det_key.granularity());
+    apvPairNumber_ = det_key.apvPairNumber();
+    apvWithinPair_ = det_key.apvWithinPair();
   }
+}
+
+// -----------------------------------------------------------------------------
+// 
+SiStripDetKey::SiStripDetKey() : 
+  SiStripKey(),
+  apvPairNumber_(sistrip::invalid_), 
+  apvWithinPair_(sistrip::invalid_)
+{;}
+
+// -----------------------------------------------------------------------------
+// 
+bool SiStripDetKey::isEqual( const SiStripKey& input ) const {
+  SiStripKey& temp = const_cast<SiStripKey&>(input);
+  if ( &dynamic_cast<SiStripDetKey&>(temp) ) { return true; }
+  else { return false; }
+}
+
+// -----------------------------------------------------------------------------
+// 
+bool SiStripDetKey::isConsistent( const SiStripKey& input ) const {
+  return isEqual(input);
+}
+
+// -----------------------------------------------------------------------------
+//
+bool SiStripDetKey::isValid() const { 
   return false;
 }
 
 // -----------------------------------------------------------------------------
-// 
-uint32_t SiStripDetKey::key( const uint32_t& det_id,
-			     const uint16_t& apv_pair ) { 
-  return static_cast<uint32_t>( SiStripDetId(det_id,apv_pair).rawId() );
-}
-
-// -----------------------------------------------------------------------------
-// 
-uint32_t SiStripDetKey::key( const DetId& det_id,
-			     const uint16_t& apv_pair ) { 
-  return static_cast<uint32_t>( SiStripDetId(det_id.rawId(),apv_pair).rawId() );
-}
-
-// -----------------------------------------------------------------------------
-// 
-uint32_t SiStripDetKey::key( const Path& path ) {
-  return SiStripDetKey::key( path.detId_,
-			     path.apvPair_ );
-}
-
-// -----------------------------------------------------------------------------
-// 
-SiStripDetKey::Path SiStripDetKey::path( const uint32_t& det_id ) { 
-  return Path( static_cast<uint32_t>( SiStripDetId(det_id,0).rawId() ), 
-	       static_cast<uint16_t>( SiStripDetId(det_id).reserved() ) );
-}
-
-// -----------------------------------------------------------------------------
-// 
-SiStripDetKey::Path SiStripDetKey::path( const SiStripDetId& det_id ) { 
-  return Path( static_cast<uint32_t>( SiStripDetId(det_id,0).rawId() ), 
-	       static_cast<uint16_t>( SiStripDetId(det_id).reserved() ) );
+//
+bool SiStripDetKey::isValid( const sistrip::Granularity& gran ) const {
+  return false; 
 }
 
 // -----------------------------------------------------------------------------
 //
-bool SiStripDetKey::isEqual( const uint32_t& key1, 
-			     const uint32_t& key2 ) {
-  SiStripDetKey::Path path1 = SiStripDetKey::path( key1 ) ;
-  SiStripDetKey::Path path2 = SiStripDetKey::path( key2 ) ;
-  return path1.isEqual( path2 );
+bool SiStripDetKey::isInvalid() const { 
+  return true;
 }
 
 // -----------------------------------------------------------------------------
 //
-bool SiStripDetKey::isConsistent( const uint32_t& key1, 
-				  const uint32_t& key2 ) {
-  SiStripDetKey::Path path1 = SiStripDetKey::path( key1 ) ;
-  SiStripDetKey::Path path2 = SiStripDetKey::path( key2 ) ;
-  return path1.isConsistent( path2 );
+bool SiStripDetKey::isInvalid( const sistrip::Granularity& gran ) const {
+  return true;
 }
 
 // -----------------------------------------------------------------------------
+// 
+void SiStripDetKey::initFromValue() {;}
+
+// -----------------------------------------------------------------------------
 //
-std::ostream& operator<< ( std::ostream& os, const SiStripDetKey::Path& path ) {
-  return os << "[SiStripDetKey::Path]"
+void SiStripDetKey::initFromKey() {;}
+
+// -----------------------------------------------------------------------------
+// 
+void SiStripDetKey::initFromPath() {;}
+
+// -----------------------------------------------------------------------------
+// 
+void SiStripDetKey::initGranularity() {;}
+
+// -----------------------------------------------------------------------------
+//
+std::ostream& operator<< ( std::ostream& os, const SiStripDetKey& input ) {
+  return os << std::endl
+	    << " [SiStripDetKey::print]" << std::endl
 	    << std::hex
-	    << " key=0x" << std::setfill('0') << std::setw(8) << SiStripDetId(path.detId_,path.apvPair_).rawId()
-	    << " detId=0x" << std::setfill('0') << std::setw(8) << path.detId_ 
+	    << " 32-bit key  : 0x" 
+	    << std::setfill('0') 
+	    << std::setw(8) << input.key() << std::endl
+	    << std::setfill(' ') 
 	    << std::dec
-	    << " apvPair=" << path.apvPair_;
+	    << " Directory   : " << input.path() << std::endl
+	    << " Granularity : "
+	    << SiStripEnumsAndStrings::granularity( input.granularity() ) << std::endl
+ 	    << " Channel     : " << input.channel() << std::endl
+	    << " isValid    : " << input.isValid();
 }

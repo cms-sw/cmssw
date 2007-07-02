@@ -1,15 +1,3 @@
-2007-02-24  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
-
-	* tag V00-11-10
-	* WebGUI: protect against xdata types which don't have toString()
-	conversion supported.
-
-2007-02-12  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
-
-	* tag V00-11-08
-	* remove dependency on EPStateMachine, use XDAQ's
-	toolbox::fsm::FinitStateMachine instead
-
 2007-02-12  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-11-07 

@@ -3,9 +3,9 @@
 /** \class ConversionSeedFinder
  **  
  **
- **  $Id: ConversionSeedFinder.h,v 1.4 2006/11/14 15:20:32 nancy Exp $ 
- **  $Date: 2006/11/14 15:20:32 $ 
- **  $Revision: 1.4 $
+ **  $Id: ConversionSeedFinder.h,v 1.5 2007/02/05 13:23:16 nancy Exp $ 
+ **  $Date: 2007/02/05 13:23:16 $ 
+ **  $Revision: 1.5 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -63,7 +63,7 @@ class ConversionSeedFinder {
  
 
 
-  TrajectorySeedCollection seeds() {std::cout << " Returning  seeds " << std::endl; return theSeeds_;}
+  TrajectorySeedCollection seeds() {  return theSeeds_;}
   virtual void setCandidate(reco::SuperCluster& sc ) const { theSC_=&sc; }			       
   std::vector<const DetLayer*> layerList() const { return theLayerList_;}
  

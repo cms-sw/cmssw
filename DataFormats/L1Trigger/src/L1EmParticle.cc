@@ -3,12 +3,12 @@
 // Package:     L1Trigger
 // Class  :     L1EmParticle
 // 
-// Implementation:
-//     <Notes on implementation>
+/**\class L1EmParticle \file L1EmParticle.cc DataFormats/L1Trigger/src/L1EmParticle.cc \author Werner Sun
+ */
 //
 // Original Author:  Werner Sun
 //         Created:  Tue Jul 25 15:56:47 EDT 2006
-// $Id: L1EmParticle.cc,v 1.2 2006/08/02 14:22:33 wsun Exp $
+// $Id: L1EmParticle.cc,v 1.3 2006/08/10 18:47:42 wsun Exp $
 //
 
 // system include files

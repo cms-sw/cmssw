@@ -2,16 +2,16 @@
  * \class L1GlobalTriggerMuonTemplate
  * 
  * 
- * 
- * Description: Implementation of L1GlobalTriggerMuonTemplate
+ * Description: Implementation of L1GlobalTriggerMuonTemplate.  
+ *
  * Implementation:
  *    <TODO: enter implementation details>
  *   
  * \author: M.Eder, H. Rohringer - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date$
- * $Revision$
+ * $Date:$
+ * $Revision:$
  *
  */
 
@@ -29,6 +29,7 @@
 #include <cstdlib>
 
 // user include files
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
 

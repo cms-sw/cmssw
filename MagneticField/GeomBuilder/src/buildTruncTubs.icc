@@ -6,13 +6,13 @@
  *  local to global transformation are used.
  *  
  *
- *  $Date: 2005/09/06 15:48:28 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/09/27 15:15:52 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - INFN Torino
  */
 
 void MagGeoBuilderFromDDD::volumeHandle::buildTruncTubs(const DDExpandedView &fv) {
-  if (bldVerb::debugOut) cout << "Building TruncTubs surfaces...: " <<endl;
+  if (MagGeoBuilderFromDDD::debug) cout << "Building TruncTubs surfaces...: " <<endl;
 
    DDTruncTubs tubs(solid);
 
@@ -25,7 +25,7 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTruncTubs(const DDExpandedView &fv
   double cutAtDelta = tubs.cutAtDelta()/cm; // truncation at end of the tube-section
   bool   cutInside  = tubs.cutInside();  // true, if truncation is on the inner side of the tube-section
 
-  if (bldVerb::debugOut) cout << "zhalf      " << zhalf    << endl
+  if (MagGeoBuilderFromDDD::debug) cout << "zhalf      " << zhalf    << endl
 		  << "rIn        " << rIn      << endl
 		  << "rOut       " << rOut     << endl
 		  << "startPhi   " << startPhi << endl
@@ -95,7 +95,7 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTruncTubs(const DDExpandedView &fv
   // will be its center, while this is not true for the largest phi face.
   buildPhiZSurf(startPhi, deltaPhi, zhalf, rCentr);  
 
-  if (bldVerb::debugOut) {
+  if (MagGeoBuilderFromDDD::debug) {
     cout << "pos_Rplane    " << pos_Rplane << " "
 	 << pos_Rplane.perp() << " " << pos_Rplane.phi() << endl 
 	 << "rot_R         " << surfaces[plane_side]->toGlobal(LocalVector(0.,0.,1.)) << " phi " << surfaces[plane_side]->toGlobal(LocalVector(0.,0.,1.)).phi() <<    endl 

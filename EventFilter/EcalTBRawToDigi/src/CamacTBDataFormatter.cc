@@ -6,9 +6,6 @@
 
 #include "CamacTBDataFormatter.h"
 
-using namespace edm;
-using namespace std;
-
 #include <iostream>
 
 
@@ -93,10 +90,10 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
   // check ultimate fed size and strip off fed-header and -trailer
   if (fedLenght != (nWordsPerEvent *4) )
     {
-      LogError("CamacTBDataFormatter") << "CamacTBData has size "  <<  fedLenght
+      edm::LogError("CamacTBDataFormatter") << "CamacTBData has size "  <<  fedLenght
 				       <<" Bytes as opposed to expected " 
 				       << (nWordsPerEvent *4)
-				       << ". Returning."<< endl;
+				       << ". Returning.";
       return;
     }
 
@@ -116,7 +113,7 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
   //     {
   //       if (! statusWords[wordNumber])
   // 	{
-  // 	  LogError("CamacTBDataFormatter") << "bad status in some of the event words; returning;" << endl;	  
+  // 	  edm::LogError("CamacTBDataFormatter") << "bad status in some of the event words; returning;";	  
   // 	}
   //     }
   
@@ -128,65 +125,65 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
 
   // read first word
   a = buffer[wordCounter];wordCounter++;
-  LogDebug("CamacTBDataFormatter") << "\n\nword:\t" << a << endl;
+  LogDebug("CamacTBDataFormatter") << "\n\nword:\t" << a;
   
   b = (a& 0xff000000);
   b = b >> 24;
-  LogDebug("CamacTBDataFormatter") << "format  ver:\t" << b << endl;
+  LogDebug("CamacTBDataFormatter") << "format  ver:\t" << b;
 
   b = (a& 0xff0000);
   b = b >> 16;
-  LogDebug("CamacTBDataFormatter") << "major:\t" << b << endl;
+  LogDebug("CamacTBDataFormatter") << "major:\t" << b;
 
   b = (a& 0xff00);
   b = b >> 8;
-  LogDebug("CamacTBDataFormatter") << "minor:\t" << b << endl;
+  LogDebug("CamacTBDataFormatter") << "minor:\t" << b;
 
   a = buffer[wordCounter];wordCounter++;
-  LogDebug("CamacTBDataFormatter") << "\n\n word:\t" << a << endl;
-  LogDebug("CamacTBDataFormatter") << "time stamp secs: "<<a << endl;
+  LogDebug("CamacTBDataFormatter") << "\n\n word:\t" << a;
+  LogDebug("CamacTBDataFormatter") << "time stamp secs: "<<a;
 
   a = buffer[wordCounter];wordCounter++;
-  LogDebug("CamacTBDataFormatter") << "\n\n word:\t" << a << endl;
-  LogDebug("CamacTBDataFormatter") << "time stamp musecs: " <<a << endl;
+  LogDebug("CamacTBDataFormatter") << "\n\n word:\t" << a;
+  LogDebug("CamacTBDataFormatter") << "time stamp musecs: " <<a;
 
 
   a = buffer[wordCounter];wordCounter++;
-  LogDebug("CamacTBDataFormatter") << "\n\n word:\t" << a << endl;
+  LogDebug("CamacTBDataFormatter") << "\n\n word:\t" << a;
   b = (a& 0xffffff);
-  LogDebug("CamacTBDataFormatter") << "LV1A: "<< b << endl;
+  LogDebug("CamacTBDataFormatter") << "LV1A: "<< b;
   int lv1 = b;
 
   a = buffer[wordCounter];wordCounter++;
-  LogDebug("CamacTBDataFormatter") << "\n\n word:\t" << a << endl;
+  LogDebug("CamacTBDataFormatter") << "\n\n word:\t" << a;
   b = (a& 0xffff0000);
   b = b >> 16;
-  LogDebug("CamacTBDataFormatter") << "run number: "<< b << endl;
+  LogDebug("CamacTBDataFormatter") << "run number: "<< b;
   int run = b;
   b = (a& 0xffff);
-  LogDebug("CamacTBDataFormatter") << "spill number: "<< b << endl;
+  LogDebug("CamacTBDataFormatter") << "spill number: "<< b;
   int spill = b;
 
   a = buffer[wordCounter];wordCounter++;
   b = (a& 0xffff);
-  LogDebug("CamacTBDataFormatter") << "event number in spill: "<< b << endl;
+  LogDebug("CamacTBDataFormatter") << "event number in spill: "<< b;
 
   a = buffer[wordCounter];wordCounter++;
   b = (a& 0xffffff);
-  LogDebug("CamacTBDataFormatter") << "internal event number: "<< b << endl;
+  LogDebug("CamacTBDataFormatter") << "internal event number: "<< b;
 
   a = buffer[wordCounter];wordCounter++;
-  LogDebug("CamacTBDataFormatter") << "\n\n word:\t" << a << endl;
+  LogDebug("CamacTBDataFormatter") << "\n\n word:\t" << a;
   b = (a& 0xffff0000);
   b = b >> 16;
-  LogDebug("CamacTBDataFormatter") << "vme errors: "<< b << endl;
+  LogDebug("CamacTBDataFormatter") << "vme errors: "<< b;
   b = (a& 0xffff);
-  LogDebug("CamacTBDataFormatter") << "camac errors: "<< b << endl;
+  LogDebug("CamacTBDataFormatter") << "camac errors: "<< b;
 
   a = buffer[wordCounter];wordCounter++;
-  LogDebug("CamacTBDataFormatter") << "\n\n word:\t" << a << endl;
+  LogDebug("CamacTBDataFormatter") << "\n\n word:\t" << a;
   b = a;
-  LogDebug("CamacTBDataFormatter") << "extended (32 bits) run number: "<< b << endl;
+  LogDebug("CamacTBDataFormatter") << "extended (32 bits) run number: "<< b;
 
   // skip 1 reserved words
   wordCounter +=1;
@@ -207,7 +204,7 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
       wordCounter++;
             
       b = (a& 0xffffff);
-      LogDebug("CamacTBDataFormatter") << "hodo: " << hodo << "\t: " << b << endl;
+      LogDebug("CamacTBDataFormatter") << "hodo: " << hodo << "\t: " << b;
     }
 
   hodoRaw.setPlanes(0);
@@ -250,10 +247,10 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
   }
   else
     {
-      LogWarning("CamacTBDataFormatter") << "hodoscope block has hardware problems or is partly unused at LV1: "
+      edm::LogWarning("CamacTBDataFormatter") << "hodoscope block has hardware problems or is partly unused at LV1: "
 					 << lv1 << " spill: " << spill 
 					 << "run: " << run 
-					 << ". Skipping digi." << endl;
+					 << ". Skipping digi.";
     }
   
   
@@ -276,7 +273,7 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
 
       a = buffer[wordCounter];      wordCounter++;
       b = (a& 0xffffff);
-      LogDebug("CamacTBDataFormatter") << "scaler: " << scaler << "\t: " << b << endl;
+      LogDebug("CamacTBDataFormatter") << "scaler: " << scaler << "\t: " << b;
 
       // filling vector container with scalers words
       if ( (scaler%2)==0 ) scalers_.push_back(b);
@@ -286,9 +283,9 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
   }
   else
     {
-      LogWarning("CamacTBDataFormatter") << "scalers block has hardware problems  or is partly unused at LV1: "
+      edm::LogWarning("CamacTBDataFormatter") << "scalers block has hardware problems  or is partly unused at LV1: "
 					 << lv1 << " spill: " << spill 
-					 << "run: " << run << endl;
+					 << "run: " << run;
     }
   
 
@@ -307,15 +304,15 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
 
       a = buffer[wordCounter];      wordCounter++;
       b = (a& 0xffffff);
-      LogDebug("CamacTBDataFormatter") << "finger: " << finger << "\t: " << b << endl;
+      LogDebug("CamacTBDataFormatter") << "finger: " << finger << "\t: " << b;
     }
   if (fingersAreGood){
     ;  }
   else
     {
-      LogWarning("CamacTBDataFormatter") << "fingers block has hardware problems  or is partly unused at LV1: "
+      edm::LogWarning("CamacTBDataFormatter") << "fingers block has hardware problems  or is partly unused at LV1: "
 					 << lv1 << " spill: " << spill 
-					 << "run: " << run << endl;
+					 << "run: " << run;
     }
   
 
@@ -326,9 +323,9 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
   **********************************/
 
   a = buffer[wordCounter];      wordCounter++;
-  LogDebug("CamacTBDataFormatter") << "\n\n word:\t" << a << endl;
+  LogDebug("CamacTBDataFormatter") << "\n\n word:\t" << a;
   b = (a& 0x000000ff);
-  LogDebug("CamacTBDataFormatter") << "number of words used in multi stop TDC words: "<< b << endl;
+  LogDebug("CamacTBDataFormatter") << "number of words used in multi stop TDC words: "<< b;
   
   int numberTDCwords = b;
   numberTDCwords = 16;
@@ -339,15 +336,15 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
 
       a = buffer[wordCounter];      wordCounter++;
       b =a;
-      LogDebug("CamacTBDataFormatter") << "tdc: " << tdc << "\t: " << b << endl;
+      LogDebug("CamacTBDataFormatter") << "tdc: " << tdc << "\t: " << b;
     }
   if ( multiStopTDCIsGood ){
     ;  }
   else
     {
-      LogWarning("CamacTBDataFormatter") << "multi stop TDC block has hardware problems or is partly unused at LV1: "
+      edm::LogWarning("CamacTBDataFormatter") << "multi stop TDC block has hardware problems or is partly unused at LV1: "
 					 << lv1 << " spill: " << spill 
-					 << "run: " << run << endl;
+					 << "run: " << run;
     }
   
   // skip the unused words in multi stop TDC block
@@ -363,12 +360,12 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
   b = (a & 0x00000001);  //1= table is in position; 0=table is moving
   bool tableIsMoving;
   if ( b ){
-    LogDebug("CamacTBDataFormatter") << " table is in position."  << endl;
+    LogDebug("CamacTBDataFormatter") << " table is in position.";
     tableIsMoving = false;
   }
   else
     {
-    LogDebug("CamacTBDataFormatter") << " table is moving."  << endl;
+    LogDebug("CamacTBDataFormatter") << " table is moving.";
     tableIsMoving = true;
     }
   tbEventHeader.setTableIsMoving( tableIsMoving );
@@ -388,13 +385,13 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
   ADCIsGood = checkStatus(buffer[wordCounter], wordCounter);
   a = buffer[wordCounter];      wordCounter++;  // NOT read out
   b = (a&0x00ffffff);
-  LogDebug("CamacTBDataFormatter") << "ADC word1: " << a << "\t ADC2: " << b << " word is: " << (wordCounter-1) << endl;
+  LogDebug("CamacTBDataFormatter") << "ADC word1: " << a << "\t ADC2: " << b << " word is: " << (wordCounter-1);
 //  ADCIsGood = true;
 //  ADCIsGood = ADCIsGood && checkStatus(buffer[wordCounter], wordCounter);
   ADCIsGood = checkStatus(buffer[wordCounter], wordCounter);
   a = buffer[wordCounter];      wordCounter++;  // read out
   b = (a&0xffffff);
-  LogDebug("CamacTBDataFormatter") << "ADC word2, adc channel 11, ampli S6: " << a << "\t ADC2: " << b << endl;
+  LogDebug("CamacTBDataFormatter") << "ADC word2, adc channel 11, ampli S6: " << a << "\t ADC2: " << b;
   if (ADCIsGood) tbEventHeader.setS6ADC ( b ) ;
   else tbEventHeader.setS6ADC ( -1 ) ;
 
@@ -408,13 +405,13 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
   TDCIsGood =  ADCIsGood && checkStatus(buffer[wordCounter], wordCounter);
   a = buffer[wordCounter];      wordCounter++;
   b = (a & 0xfffff);
-  LogDebug("CamacTBDataFormatter") << "TDC word1: " << a << "\t TDC2: " << b << endl;
+  LogDebug("CamacTBDataFormatter") << "TDC word1: " << a << "\t TDC2: " << b;
   TDCIsGood =  ADCIsGood && checkStatus(buffer[wordCounter], wordCounter);
   a = buffer[wordCounter];      wordCounter++;
   b = (a & 0xfffff);
   LogDebug("CamacTBDataFormatter") << "TDC word2: (ext_val_trig - LHC_clock) " 
 				   << a << "\t (ext_val_trig - LHC_clock): "
-				   << b << endl;
+				   << b;
   
   tdcRawInfo.setSize(1);
   int sampleNumber =1;
@@ -423,9 +420,9 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
 
 
   a = buffer[wordCounter];      wordCounter++;
-  LogDebug("CamacTBDataFormatter") << "\n\n word:\t" << a << endl;
+  LogDebug("CamacTBDataFormatter") << "\n\n word:\t" << a;
   b = a;
-  LogDebug("CamacTBDataFormatter") << "last word of event: "<< b << endl;
+  LogDebug("CamacTBDataFormatter") << "last word of event: "<< b;
 
 
 }
@@ -444,9 +441,9 @@ bool CamacTBDataFormatter::checkStatus(ulong word, int wordNumber){
 
   if ( wordNumber < 1 || wordNumber > nWordsPerEvent)
     { 
-      LogWarning("CamacTBDataFormatter::checkStatus") << "checking word number: "
+      edm::LogWarning("CamacTBDataFormatter::checkStatus") << "checking word number: "
 						    <<  wordNumber << " which is out of allowed range (" 
-						    << nWordsPerEvent << ")" << endl;
+						    << nWordsPerEvent << ")";
       return false;
     }
 
@@ -454,35 +451,35 @@ bool CamacTBDataFormatter::checkStatus(ulong word, int wordNumber){
 
   if  (word & 0x80000000) // daq item not used
     { 
-      LogWarning("CamacTBDataFormatter::checkStatus") << "daq item not used at word: "<<  wordNumber << endl;
+      edm::LogWarning("CamacTBDataFormatter::checkStatus") << "daq item not used at word: "<<  wordNumber;
       statusWords[wordNumber -1] = false;      
       isOk = false;
     }
   
   if (word & 0x40000000) // vme error on data
     { 
-      LogWarning("CamacTBDataFormatter::checkStatus") << "vme error on word: "<<  wordNumber << endl;
+      edm::LogWarning("CamacTBDataFormatter::checkStatus") << "vme error on word: "<<  wordNumber;
       statusWords[wordNumber -1] = false;      
       isOk = false;
     }
     
   if (word & 0x20000000) // vme error on status
     { 
-      LogWarning("CamacTBDataFormatter::checkStatus") << "vme status error at word: "<<  wordNumber << endl;
+      edm::LogWarning("CamacTBDataFormatter::checkStatus") << "vme status error at word: "<<  wordNumber;
       statusWords[wordNumber -1] = false;      
       isOk = false;
     }
     
   if (word & 0x10000000) // camac error (no X)
     { 
-      LogWarning("CamacTBDataFormatter::checkStatus") << "camac error (no X) at word: "<<  wordNumber << endl;
+      edm::LogWarning("CamacTBDataFormatter::checkStatus") << "camac error (no X) at word: "<<  wordNumber;
       statusWords[wordNumber -1] = false;      
       isOk = false;
     }
     
   if (word & 0x08000000) // camac error (no Q)
     { 
-      LogWarning("CamacTBDataFormatter::checkStatus") << "camac error (no Q) at word: "<<  wordNumber << endl;
+      edm::LogWarning("CamacTBDataFormatter::checkStatus") << "camac error (no Q) at word: "<<  wordNumber;
       statusWords[wordNumber -1] = false;      
       isOk = false;
     }
@@ -490,7 +487,7 @@ bool CamacTBDataFormatter::checkStatus(ulong word, int wordNumber){
   // camac error check not done on purpose from Aug 8, to speed up Camac communication. This bit status is now ignored.
   //  if (word & 0x04000000) // no camac check error
   //    { 
-  //LogWarning("CamacTBDataFormatter::checkStatus") << "no camac check error at word: "<<  wordNumber << endl;
+  //edm::LogWarning("CamacTBDataFormatter::checkStatus") << "no camac check error at word: "<<  wordNumber;
   //statusWords[wordNumber -1] = false;      
   //isOk = false;
   //    }

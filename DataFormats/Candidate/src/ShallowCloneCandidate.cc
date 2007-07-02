@@ -36,6 +36,10 @@ bool ShallowCloneCandidate::hasMasterClone() const {
   return true;
 }
 
+int ShallowCloneCandidate::pdgId() const { 
+return masterClone_->pdgId(); 
+}
+
 const CandidateBaseRef & ShallowCloneCandidate::masterClone() const {
   return masterClone_;
 }

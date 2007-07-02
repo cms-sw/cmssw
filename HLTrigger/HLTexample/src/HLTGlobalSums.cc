@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/10/04 16:02:42 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/04/13 15:57:58 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
@@ -17,8 +17,6 @@
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 
-#include "DataFormats/METReco/interface/CaloMET.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include<cmath>
@@ -26,12 +24,13 @@
 //
 // constructors and destructor
 //
-HLTGlobalSums::HLTGlobalSums(const edm::ParameterSet& iConfig) :
-  inputTag_   (iConfig.getParameter<edm::InputTag>("inputTag")),
-  observable_ (iConfig.getParameter<std::string>("observable")),
-  min_        (iConfig.getParameter<double>("Min")),
-  max_        (iConfig.getParameter<double>("Max")),
-  min_N_      (iConfig.getParameter<int>("MinN"))
+template<typename T>
+HLTGlobalSums<T>::HLTGlobalSums(const edm::ParameterSet& iConfig) :
+  inputTag_   (iConfig.template getParameter<edm::InputTag>("inputTag")),
+  observable_ (iConfig.template getParameter<std::string>("observable")),
+  min_        (iConfig.template getParameter<double>("Min")),
+  max_        (iConfig.template getParameter<double>("Max")),
+  min_N_      (iConfig.template getParameter<int>("MinN"))
 {
    LogDebug("") << "InputTags and cuts : " 
 		<< inputTag_.encode() << " " << observable_
@@ -43,7 +42,8 @@ HLTGlobalSums::HLTGlobalSums(const edm::ParameterSet& iConfig) :
    produces<reco::HLTFilterObjectWithRefs>();
 }
 
-HLTGlobalSums::~HLTGlobalSums()
+template<typename T>
+HLTGlobalSums<T>::~HLTGlobalSums()
 {
 }
 
@@ -52,12 +52,16 @@ HLTGlobalSums::~HLTGlobalSums()
 //
 
 // ------------ method called to produce the data  ------------
+template<typename T> 
 bool
-HLTGlobalSums::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTGlobalSums<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace std;
    using namespace edm;
    using namespace reco;
+
+   typedef vector<T> TCollection;
+   typedef Ref<TCollection> TRef;
 
    // All HLT filters must create and fill an HLT filter object,
    // recording any reconstructed physics objects satisfying (or not)
@@ -71,35 +75,35 @@ HLTGlobalSums::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
    // get hold of MET product from Event
-   Handle<CaloMETCollection>   mets;
-   iEvent.getByLabel(inputTag_,mets);
-   if (!mets.isValid()) {
-     LogDebug("") << "MET collection not found!";
+   Handle<TCollection>   objects;
+   iEvent.getByLabel(inputTag_,objects);
+   if (!objects.isValid()) {
+     LogDebug("") << inputTag_ << " collection not found!";
      iEvent.put(filterobject);
      return false;
    }
 
-   LogDebug("") << "Size of MET collection: " << mets->size();
-   if (mets->size()==0) {
+   LogDebug("") << "Size of MET collection: " << objects->size();
+   if (objects->size()==0) {
      LogDebug("") << "MET collection does not contain a MET object!";
-   } else if (mets->size()>1) {
+   } else if (objects->size()>1) {
      LogDebug("") << "MET collection contains more than one MET object!";
    }
 
    int n(0);
    double value(0.0);
-   CaloMETCollection::const_iterator amets(mets->begin());
-   CaloMETCollection::const_iterator omets(mets->end());
-   CaloMETCollection::const_iterator imets;
-   for (imets=amets; imets!=omets; imets++) {
+   typename TCollection::const_iterator ibegin(objects->begin());
+   typename TCollection::const_iterator iend(objects->end());
+   typename TCollection::const_iterator iter;
+   for (iter=ibegin; iter!=iend; iter++) {
 
      // get hold of value of observable to cut on
      if (observable_=="sumEt") {
-       value=imets->sumEt();
+       value=iter->sumEt();
      } else if (observable_=="e_longitudinal") {
-       value=imets->e_longitudinal();
+       value=iter->e_longitudinal();
      } else if (observable_=="mEtSig") {
-       value=imets->mEtSig();
+       value=iter->mEtSig();
      } else {
        value=0.0;
      }
@@ -109,7 +113,7 @@ HLTGlobalSums::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if ( ( (min_<0.0) || (min_<=value) ) &&
 	  ( (max_<0.0) || (value<=max_) ) ) {
        n++;
-       ref=RefToBase<Candidate>(CaloMETRef(mets,distance(amets,imets)));
+       ref=RefToBase<Candidate>(TRef(objects,distance(ibegin,iter)));
        filterobject->putParticle(ref);
      }
 

@@ -33,7 +33,7 @@ public:
   static const unsigned NUMBER_ETA_VALUES;  ///< Number of eta bins used in correction
   
   L1GctJetEtCalibrationLut();
-  L1GctJetEtCalibrationLut(std::string fileName);
+  L1GctJetEtCalibrationLut(std::string fileName, bool useOrcaCalib);
   ~L1GctJetEtCalibrationLut();
 
   /// set the output Et scale pointer
@@ -50,7 +50,13 @@ public:
   /*! Eta takes a value from 0-10, corresponding to jet regions running from eta=0 to eta=5 */
   uint16_t calibratedEt(const uint16_t jetEt, const unsigned eta) const;
   
+  float orcaCalibFn(float et, unsigned eta) const;
+
 private:
+
+  // quick n dirty ORCA calibration hack
+  bool m_orcaCalib;
+  float m_linearLsb;
 
   /// the output scale - converts linear Et to rank
   const L1CaloEtScale* m_outputEtScale;

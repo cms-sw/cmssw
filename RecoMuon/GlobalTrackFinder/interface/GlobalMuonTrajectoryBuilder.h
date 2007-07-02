@@ -4,15 +4,15 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2007/02/22 05:07:36 $
- *  $Revision: 1.49 $
+ *  $Date: 2007/04/03 21:25:50 $
+ *  $Revision: 1.54 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
  *  \author A. Everett 		 Purdue University
  */
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
@@ -34,7 +34,6 @@ class MuonTransientTrackingRecHitBuilder;
 
 class MuonDetLayerMeasurements;
 class MuonTrackReFitter;
-class MuonTrackConverter;
 class MuonServiceProxy;
 class Trajectory;
 class TrackerSeedGenerator;
@@ -43,6 +42,9 @@ class TrajectoryCleaner;
 class GlobalMuonMonitorInterface;
 
 class TrackTransformer;
+
+class GlobalMuonRSTrajectoryBuilder;
+class TrajectoryFitter;
 
 //class CkfTrajectoryBuilder;
 
@@ -110,6 +112,9 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     /// choose final trajectory
     const Trajectory* chooseTrajectory(const std::vector<Trajectory*>&) const;
 
+    /// choose final trajectory (new version)
+    const Trajectory* chooseTrajectoryNew(const std::vector<Trajectory*>&) const;
+
     /// calculate chi2 probability (-ln(P))
     double trackProbability(const Trajectory&) const;    
 
@@ -127,16 +132,15 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
 
     RefitDirection checkRecHitsOrdering(const ConstRecHitContainer&) const;
 
+    std::vector<Trajectory> refitTrajectory(const Trajectory*) const;
+
   private:
-
-
 
     GlobalPoint theVertexPos;
     GlobalError theVertexErr;
     GlobalMuonTrackMatcher* theTrackMatcher;
     MuonTrackReFitter* theRefitter;
     MuonDetLayerMeasurements* theLayerMeasurements;
-    MuonTrackConverter* theTrackConverter;
     TrackerSeedGenerator* theTkSeedGenerator;
     TrajectoryCleaner* theTrajectoryCleaner;
     TrackTransformer* theTrackTransformer;
@@ -152,14 +156,19 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     edm::InputTag theTkTrackLabel;
     std::string theCkfBuilderName;
     std::string trackerPropagatorName;
+    std::string theKFFitterName;
 
     bool theTkTrajsAvailableFlag;
     bool theMakeTkSeedFlag;
+    bool theRSFlag;
     bool theFirstEvent;
     bool theMIMFlag;
 
+    GlobalMuonRSTrajectoryBuilder * theRSBuilder;
+
     edm::ESHandle<TrackerTrajectoryBuilder> theCkfBuilder;
     edm::Handle<reco::TrackCollection> allTrackerTracks;
+    edm::ESHandle<TrajectoryFitter> theKFFitter;
 
     const std::vector<Trajectory>* allTrackerTrajs;
  

@@ -15,6 +15,14 @@ template <class T> T sqr( T t) {return t*t;}
 
 using namespace GeomDetEnumerators;
 
+std::vector<ctfseeding::SeedingHit> GlobalTrackingRegion::hits(
+      const edm::Event& ev,
+      const edm::EventSetup& es,
+      const ctfseeding::SeedingLayer* layer) const
+{
+ return layer->hits(ev,es);
+}
+
 HitRZCompatibility* GlobalTrackingRegion::
 checkRZ(const DetLayer* layer, 
 	const TrackingRecHit* outerHit,

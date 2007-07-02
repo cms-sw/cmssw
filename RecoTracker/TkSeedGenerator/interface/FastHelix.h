@@ -1,7 +1,7 @@
 #ifndef TR_FastHelix_H_
 #define TR_FastHelix_H_
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastCircle.h"
 #include "FWCore/Framework/interface/EventSetup.h"

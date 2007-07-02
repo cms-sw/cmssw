@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a standalone reonstructed muon.
  *
- *   $Date: 2007/02/16 18:42:28 $
- *   $Revision: 1.24 $
+ *   $Date: 2007/03/20 13:38:12 $
+ *   $Revision: 1.28 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -16,7 +16,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RecoMuon/GlobalMuonProducer/src/GlobalMuonProducer.h"
@@ -67,14 +67,13 @@ GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet) {
   GlobalMuonTrajectoryBuilder* gmtb = new GlobalMuonTrajectoryBuilder(trajectoryBuilderParameters, theService);
 
   theTrackFinder = new MuonTrackFinder(gmtb, mtl);
-  
-  produces<reco::TrackCollection>();
-  produces<TrackingRecHitCollection>();
-  produces<reco::TrackExtraCollection>();
-  produces<vector<Trajectory> >() ;
 
-  produces<reco::MuonCollection>();
-
+  setAlias(parameterSet.getParameter<std::string>("@module_label"));
+  produces<reco::TrackCollection>().setBranchAlias(theAlias + "Tracks");
+  produces<TrackingRecHitCollection>().setBranchAlias(theAlias + "RecHits");
+  produces<reco::TrackExtraCollection>().setBranchAlias(theAlias + "TrackExtras");
+  produces<vector<Trajectory> >().setBranchAlias(theAlias + "Trajectories") ;
+  produces<reco::MuonCollection>().setBranchAlias(theAlias + "s");
 }
 
 
@@ -104,10 +103,12 @@ void GlobalMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
   theService->update(eventSetup);
 
   // Take the STA muon container(s)
-  LogTrace(metname)<<"Taking the Stand Alone Muons "<<theSTACollectionLabel<<endl;
+
 
   Handle<reco::TrackCollection> staMuons;
   event.getByLabel(theSTACollectionLabel,staMuons);
+
+  LogTrace(metname) << "Taking " << staMuons->size() << " Stand Alone Muons "<<theSTACollectionLabel<<endl;
 
   Handle<vector<Trajectory> > staMuonsTraj;
 

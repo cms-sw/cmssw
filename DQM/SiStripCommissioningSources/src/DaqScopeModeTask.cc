@@ -1,11 +1,10 @@
 #include "DQM/SiStripCommissioningSources/interface/DaqScopeModeTask.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-using namespace std;
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
@@ -27,12 +26,12 @@ DaqScopeModeTask::~DaqScopeModeTask() {
 void DaqScopeModeTask::book() {
   LogTrace(mlDqmSource_) << "[CommissioningTask::" << __func__ << "]";
   
-  string title = SiStripHistoNamingScheme::histoTitle( HistoTitle( sistrip::DAQ_SCOPE_MODE, 
-								   sistrip::FED_KEY, 
-								   fedKey(),
-								   sistrip::LLD_CHAN, 
-								   connection().lldChannel() ) );
-  
+  std::string title = SiStripHistoTitle( sistrip::DAQ_SCOPE_MODE, 
+					 sistrip::FED_KEY, 
+					 fedKey(),
+					 sistrip::LLD_CHAN, 
+					 connection().lldChannel() ).title();
+
   scope_.histo_ = dqm()->book1D( title, title, 
 				 nBins_, -0.5, nBins_-0.5 );
   

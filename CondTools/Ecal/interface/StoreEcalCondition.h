@@ -9,6 +9,7 @@
 #include <fstream>
 #include <cstdio>
 #include <typeinfo>
+#include <sstream>
 
 #include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
 #include "CondFormats/EcalObjects/interface/EcalXtalGroupId.h"

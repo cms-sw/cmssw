@@ -71,7 +71,7 @@ double ElectronIdMLP::input0x9f44320() {
 
 double ElectronIdMLP::neuron0x9f44320() {
    double input = input0x9f44320();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double ElectronIdMLP::input0x9f445f0() {
@@ -90,7 +90,7 @@ double ElectronIdMLP::input0x9f445f0() {
 
 double ElectronIdMLP::neuron0x9f445f0() {
    double input = input0x9f445f0();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double ElectronIdMLP::input0x9f449b8() {
@@ -109,7 +109,7 @@ double ElectronIdMLP::input0x9f449b8() {
 
 double ElectronIdMLP::neuron0x9f449b8() {
    double input = input0x9f449b8();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double ElectronIdMLP::input0x9f44cb0() {
@@ -128,7 +128,7 @@ double ElectronIdMLP::input0x9f44cb0() {
 
 double ElectronIdMLP::neuron0x9f44cb0() {
    double input = input0x9f44cb0();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double ElectronIdMLP::input0x9f45080() {
@@ -147,7 +147,7 @@ double ElectronIdMLP::input0x9f45080() {
 
 double ElectronIdMLP::neuron0x9f45080() {
    double input = input0x9f45080();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double ElectronIdMLP::input0x9f453c0() {
@@ -166,7 +166,7 @@ double ElectronIdMLP::input0x9f453c0() {
 
 double ElectronIdMLP::neuron0x9f453c0() {
    double input = input0x9f453c0();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double ElectronIdMLP::input0x9f45720() {
@@ -185,7 +185,7 @@ double ElectronIdMLP::input0x9f45720() {
 
 double ElectronIdMLP::neuron0x9f45720() {
    double input = input0x9f45720();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double ElectronIdMLP::input0x9f45a80() {
@@ -204,7 +204,7 @@ double ElectronIdMLP::input0x9f45a80() {
 
 double ElectronIdMLP::neuron0x9f45a80() {
    double input = input0x9f45a80();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double ElectronIdMLP::input0x9f44f78() {
@@ -223,7 +223,7 @@ double ElectronIdMLP::input0x9f44f78() {
 
 double ElectronIdMLP::neuron0x9f44f78() {
    double input = input0x9f44f78();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double ElectronIdMLP::input0x9f46098() {
@@ -242,7 +242,7 @@ double ElectronIdMLP::input0x9f46098() {
 
 double ElectronIdMLP::neuron0x9f46098() {
    double input = input0x9f46098();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double ElectronIdMLP::input0x9f463d8() {
@@ -261,7 +261,7 @@ double ElectronIdMLP::input0x9f463d8() {
 
 double ElectronIdMLP::neuron0x9f463d8() {
    double input = input0x9f463d8();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double ElectronIdMLP::input0x9f46740() {
@@ -280,7 +280,7 @@ double ElectronIdMLP::input0x9f46740() {
 
 double ElectronIdMLP::neuron0x9f46740() {
    double input = input0x9f46740();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double ElectronIdMLP::input0x9f46aa8() {

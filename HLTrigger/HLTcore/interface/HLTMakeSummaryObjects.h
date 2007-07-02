@@ -7,8 +7,8 @@
  *  This class is an EDProducer making the HLT summary objects (path
  *  objects and global object).
  *
- *  $Date: 2006/08/14 14:52:51 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/06/03 09:23:02 $
+ *  $Revision: 1.10.2.1 $
  *
  *  \author Martin Grunewald
  *
@@ -19,11 +19,20 @@
 #include "FWCore/Framework/interface/CurrentProcessingContext.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/TriggerNamesService.h"
+
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
+
+#include "DataFormats/HLTReco/interface/HLTGlobalObject.h"
+#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+#include "DataFormats/HLTReco/interface/HLTPathObject.h"
 #include<string>
 #include<vector>
 
 //
-// class decleration
+// class declaration
 //
 
 class HLTMakeSummaryObjects : public edm::EDProducer {
@@ -34,9 +43,19 @@ class HLTMakeSummaryObjects : public edm::EDProducer {
     virtual void produce(edm::Event&, const edm::EventSetup&);
 
   private:
-    // the (path) names (used as product instance names for path objects)
-    // - will be taken from triger names service (tns) in c'tor.
-    std::vector<std::string> names_;
+    // the pointer to the current TriggerNamesService
+    edm::service::TriggerNamesService* tns_;
+
+    // handles to the various types of filter objects
+    std::vector<edm::Handle<reco::HLTFilterObjectBase    > > fob0_;
+    std::vector<edm::Handle<reco::HLTFilterObject        > > fob1_;
+    std::vector<edm::Handle<reco::HLTFilterObjectWithRefs> > fob2_;
+    // reftobase allowing combined access to these
+    std::vector<edm::RefToBase<reco::HLTFilterObjectBase > > fobs_;
+    // pointer to labels of filter modules
+    std::vector<const std::string * >                    fobnames_;
+    // vector for path objects to be produced
+    std::vector<edm::OrphanHandle<reco::HLTPathObject> >     pobs_;
 
 };
 

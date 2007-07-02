@@ -3,12 +3,12 @@
 // Package:     L1Trigger
 // Class  :     L1MuonParticle
 // 
-// Implementation:
-//     <Notes on implementation>
+/**\class L1MuonParticle \file L1MuonParticle.cc DataFormats/L1Trigger/src/L1MuonParticle.cc \author Werner Sun
+*/
 //
 // Original Author:  Werner Sun
 //         Created:  Tue Jul 25 17:51:21 EDT 2006
-// $Id: L1MuonParticle.cc,v 1.4 2006/10/17 21:35:18 wsun Exp $
+// $Id: L1MuonParticle.cc,v 1.5 2006/11/13 00:18:09 wsun Exp $
 //
 
 // system include files

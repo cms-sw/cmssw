@@ -1,14 +1,14 @@
 /** \class MuonTrackFinder
  *  Concrete Track finder for the Muon Reco
  *
- *  $Date: 2007/02/01 17:58:00 $
- *  $Revision: 1.32 $
+ *  $Date: 2007/03/06 18:21:23 $
+ *  $Revision: 1.34 $
  *  \author R. Bellan - INFN Torino
  */
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -42,9 +42,9 @@ MuonTrackFinder::MuonTrackFinder(MuonTrajectoryBuilder *ConcreteMuonTrajectoryBu
 MuonTrackFinder::~MuonTrackFinder() {
 
   LogTrace("Muon|RecoMuon|MuonTrackFinder")<<"MuonTrackFinder destructor called"<<endl;
-  delete theTrajBuilder;
-  delete theTrajCleaner;
-  delete theTrackLoader;
+  if(theTrajBuilder) delete theTrajBuilder;
+  if(theTrajCleaner) delete theTrajCleaner;
+  if(theTrackLoader) delete theTrackLoader;
 
 }
 

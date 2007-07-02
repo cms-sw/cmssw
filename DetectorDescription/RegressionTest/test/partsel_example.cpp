@@ -12,7 +12,7 @@
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDQuery.h"
 #include "DetectorDescription/Core/src/tutorial.h"
-#include "DetectorDescription/Core/interface/Specific.h"
+#include "DetectorDescription/CoreImpl/interface/Specific.h"
 #include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Core/interface/DDComparator.h"
 

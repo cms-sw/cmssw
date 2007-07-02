@@ -7,10 +7,6 @@
 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"
 
-using std::vector;
-using std::cout;
-using std::endl;
-
 //This class handles the electron isolation card.  Duh.
 //Each card has a crate and a cardnumber to identify it when
 //being called.
@@ -49,7 +45,7 @@ class L1RCTElectronIsolationCard {
   }
 
  private:
-  vector<unsigned short> calcElectronCandidates(L1RCTRegion *region);
+  std::vector<unsigned short> calcElectronCandidates(L1RCTRegion *region);
   unsigned short calcMaxSum(unsigned short primaryEt,unsigned short northEt,
 			    unsigned short southEt, unsigned short eastEt,
 			    unsigned short westEt);
@@ -59,9 +55,9 @@ class L1RCTElectronIsolationCard {
 
   L1RCTRegion empty;
 
-  vector<unsigned short> isoElectrons;
-  vector<unsigned short> nonIsoElectrons;
-  vector<L1RCTRegion*> regions;
+  std::vector<unsigned short> isoElectrons;
+  std::vector<unsigned short> nonIsoElectrons;
+  std::vector<L1RCTRegion*> regions;
 
   L1RCTElectronIsolationCard();
 };

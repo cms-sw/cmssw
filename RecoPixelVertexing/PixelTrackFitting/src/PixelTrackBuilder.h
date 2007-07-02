@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "Geometry/CommonDetAlgo/interface/Measurement1D.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 class TrackingRecHit;
 class MagneticField;
 class TrajectoryStateOnSurface;

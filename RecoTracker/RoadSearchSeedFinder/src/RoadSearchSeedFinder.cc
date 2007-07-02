@@ -8,9 +8,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: noeding $
-// $Date: 2006/08/12 00:30:32 $
-// $Revision: 1.7 $
+// $Author: gutsche $
+// $Date: 2006/12/11 23:16:04 $
+// $Revision: 1.8 $
 //
 
 #include <iostream>
@@ -23,7 +23,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 

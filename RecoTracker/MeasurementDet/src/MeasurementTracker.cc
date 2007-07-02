@@ -40,6 +40,8 @@
 #include <typeinfo>
 #include <map>
 
+using namespace std;
+
 MeasurementTracker::MeasurementTracker(const edm::ParameterSet&              conf,
 				       const PixelClusterParameterEstimator* pixelCPE,
 				       const StripClusterParameterEstimator* stripCPE,
@@ -47,11 +49,13 @@ MeasurementTracker::MeasurementTracker(const edm::ParameterSet&              con
 				       const TrackerGeometry*  trackerGeom,
 				       const GeometricSearchTracker* geometricSearchTracker,
 				       const SiStripDetCabling *stripCabling,
-				       const SiStripNoises *stripNoises) :
-  pset_(conf),lastEventNumber(0),lastRunNumber(0),
+				       const SiStripNoises *stripNoises,
+                                       bool isRegional) :
+  pset_(conf),lastEventNumberPixels(0),lastEventNumberStrips(0),
+  lastRunNumberPixels(0),lastRunNumberStrips(0),
   thePixelCPE(pixelCPE),theStripCPE(stripCPE),theHitMatcher(hitMatcher),
   theTrackerGeom(trackerGeom),theGeometricSearchTracker(geometricSearchTracker)
-  ,dummyStripNoises(0)
+  ,dummyStripNoises(0),isRegional_(isRegional)
 {
   this->initialize();
   this->initializeStripStatus(stripCabling);
@@ -75,6 +79,7 @@ void MeasurementTracker::addPixelDets( const TrackingGeometry::DetContainer& det
        gd != dets.end(); gd++) {
     addPixelDet(*gd, thePixelCPE);
   }  
+
 }
 
 void MeasurementTracker::addStripDets( const TrackingGeometry::DetContainer& dets) const
@@ -106,7 +111,7 @@ void MeasurementTracker::addStripDet( const GeomDet* gd,
 				      const StripClusterParameterEstimator* cpe) const
 {
   try {
-    TkStripMeasurementDet* det = new TkStripMeasurementDet( gd, cpe);
+    TkStripMeasurementDet* det = new TkStripMeasurementDet( gd, cpe,isRegional_);
     theStripDets.push_back(det);
     theDetMap[gd->geographicalId()] = det;
   }
@@ -151,78 +156,195 @@ void MeasurementTracker::addGluedDet( const GluedGeomDet* gd,
 
 void MeasurementTracker::update( const edm::Event& event) const
 {
-  // avoid to update twice from the same event
-  if( (lastEventNumber == event.id().event()) && 
-      (lastRunNumber   == event.id().run() )     ) return;
+  updatePixels(event);
+  updateStrips(event);
+
   
-  lastEventNumber = event.id().event();
-  lastRunNumber = event.id().run();
-
-  typedef edm::DetSetVector<SiStripCluster> ::detset   StripDetSet;
-  typedef edm::DetSetVector<SiPixelCluster> ::detset   PixelDetSet;
-
-  // Strip Clusters
-  std::string stripClusterProducer = pset_.getParameter<std::string>("stripClusterProducer");
-  if( !stripClusterProducer.compare("") ) { //clusters have not been produced
-    for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
-	 i!=theStripDets.end(); i++) {
-      (**i).setEmpty();
-    }
-  }else{  
-    edm::Handle<edm::DetSetVector<SiStripCluster> > clusterHandle;
-    event.getByLabel(stripClusterProducer, clusterHandle);
-    const edm::DetSetVector<SiStripCluster>* clusterCollection = clusterHandle.product();
-
-    for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
-	 i!=theStripDets.end(); i++) {
-      
-      // foreach det get cluster range
-      unsigned int id = (**i).geomDet().geographicalId().rawId();
-      edm::DetSetVector<SiStripCluster>::const_iterator it = clusterCollection->find( id );
-      if ( it != clusterCollection->end() ){
-	const StripDetSet & detSet = (*clusterCollection)[ id ];
-	// push cluster range in det
-	(**i).update( detSet, clusterHandle, id );
-	
-      }else{
-	(**i).setEmpty();
-      }
+  /*  
+  for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
+       i!=theStripDets.end(); i++) {
+    if( (*i)->isEmpty()){
+      std::cout << "stripDet id, #hits: " 
+		<<  (*i)->geomDet().geographicalId().rawId() << " , "
+		<< 0 << std::endl;
+    }else{
+      std::cout << "stripDet id, #hits: " 
+		<<  (*i)->geomDet().geographicalId().rawId() << " , "
+		<< (*i)->size() << std::endl;
     }
   }
-
-
-  // Pixel Clusters
-  std::string pixelClusterProducer = pset_.getParameter<std::string>("pixelClusterProducer");
-  if( !pixelClusterProducer.compare("") ) { //clusters have not been produced
-    for (std::vector<TkPixelMeasurementDet*>::const_iterator i=thePixelDets.begin();
-	 i!=thePixelDets.end(); i++) {
-      (**i).setEmpty();
-    }
-  }else{  
-    edm::Handle<edm::DetSetVector<SiPixelCluster> > pixelClusters;
-    event.getByLabel(pixelClusterProducer, pixelClusters);
-    const  edm::DetSetVector<SiPixelCluster>* pixelCollection = pixelClusters.product();
-    
-    for (std::vector<TkPixelMeasurementDet*>::const_iterator i=thePixelDets.begin();
-	 i!=thePixelDets.end(); i++) {
-
-      // foreach det get cluster range
-      unsigned int id = (**i).geomDet().geographicalId().rawId();
-      edm::DetSetVector<SiPixelCluster>::const_iterator it = pixelCollection->find( id );
-      if ( it != pixelCollection->end() ){            
-	const PixelDetSet & detSet = (*pixelCollection)[ id ];
-	// push cluster range in det
-	(**i).update( detSet, pixelClusters, id );
-      }else{
-	(**i).setEmpty();
-      }
-    }
-  }
-
-  /// or maybe faster: loop over all strip dets and clear them
-  /// loop over dets with clusters and set range
-
+  */
+  
 }
+
+
+void MeasurementTracker::updatePixels( const edm::Event& event) const
+{
+   // avoid to update twice from the same event
+   if( (lastEventNumberPixels == event.id().event()) && 
+         (lastRunNumberPixels   == event.id().run() )     ) return;
+
+   lastEventNumberPixels = event.id().event();
+   lastRunNumberPixels = event.id().run();
+
+   typedef edm::DetSetVector<SiPixelCluster> ::detset   PixelDetSet;
+
+   // Pixel Clusters
+   std::string pixelClusterProducer = pset_.getParameter<std::string>("pixelClusterProducer");
+   if( !pixelClusterProducer.compare("") ) { //clusters have not been produced
+      for (std::vector<TkPixelMeasurementDet*>::const_iterator i=thePixelDets.begin();
+            i!=thePixelDets.end(); i++) {
+         (**i).setEmpty();
+      }
+   }else{  
+      edm::Handle<edm::DetSetVector<SiPixelCluster> > pixelClusters;
+      event.getByLabel(pixelClusterProducer, pixelClusters);
+      const  edm::DetSetVector<SiPixelCluster>* pixelCollection = pixelClusters.product();
+
+      for (std::vector<TkPixelMeasurementDet*>::const_iterator i=thePixelDets.begin();
+            i!=thePixelDets.end(); i++) {
+
+         // foreach det get cluster range
+         unsigned int id = (**i).geomDet().geographicalId().rawId();
+         edm::DetSetVector<SiPixelCluster>::const_iterator it = pixelCollection->find( id );
+         if ( it != pixelCollection->end() ){            
+            const PixelDetSet & detSet = (*pixelCollection)[ id ];
+            // push cluster range in det
+            (**i).update( detSet, pixelClusters, id );
+         }else{
+            (**i).setEmpty();
+         }
+      }
+   }
+}
+
+void MeasurementTracker::updateStrips( const edm::Event& event) const
+{
+    // avoid to update twice from the same event
+    if( (lastEventNumberStrips == event.id().event()) && 
+            (lastRunNumberStrips   == event.id().run() )     ) return;
+
+    lastEventNumberStrips = event.id().event();
+    lastRunNumberStrips = event.id().run();
+
+
+    typedef edm::DetSetVector<SiStripCluster> ::detset   StripDetSet;
+
+    // Strip Clusters
+    std::string stripClusterProducer = pset_.getParameter<std::string>("stripClusterProducer");
+    if( !stripClusterProducer.compare("") ) { //clusters have not been produced
+        for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
+                i!=theStripDets.end(); i++) {
+            (**i).setEmpty();
+        }
+    }else{  
+      //=========  actually load cluster =============
+      if (!isRegional_) {
+	edm::Handle<edm::DetSetVector<SiStripCluster> > clusterHandle;
+	event.getByLabel(stripClusterProducer, clusterHandle);
+	const edm::DetSetVector<SiStripCluster>* clusterCollection = clusterHandle.product();
+	
+	for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
+	     i!=theStripDets.end(); i++) {
+
+                // foreach det get cluster range
+                unsigned int id = (**i).geomDet().geographicalId().rawId();
+                edm::DetSetVector<SiStripCluster>::const_iterator it = clusterCollection->find( id );
+                if ( it != clusterCollection->end() ){
+                    const StripDetSet & detSet = (*clusterCollection)[ id ];
+                    // push cluster range in det
+                    (**i).update( detSet, clusterHandle, id );
+
+                }else{
+                    (**i).setEmpty();
+                }
+            }
+        } else { // that is, if (isRegional)
+	  
+	  //first clear all of them
+	  for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
+	       i!=theStripDets.end(); i++) {
+	    (**i).setEmpty();
+	  }
+	  
+	  //then set the not-empty ones only
+	  edm::Handle<edm::SiStripRefGetter<SiStripCluster> > refClusterHandle;
+	  event.getByLabel(stripClusterProducer, refClusterHandle);
+	  
+	  uint32_t tmpId=0;
+	  vector<SiStripCluster>::const_iterator beginIterator;
+	  edm::SiStripRefGetter<SiStripCluster>::const_iterator iregion = refClusterHandle->begin();
+	  int ncluster=0;
+	  for(;iregion!=refClusterHandle->end();++iregion) {
+	    vector<SiStripCluster>::const_iterator icluster = iregion->begin();
+	    tmpId = icluster->geographicalId();
+	    beginIterator = icluster;
+	    
+	    //std::cout << "== tmpId ad inizio loop dentro region: " << tmpId << std::endl;
+
+	    for (;icluster!=iregion->end();icluster++) {
+	      /* -------- FOR ROB ------------------------
+	      ncluster++;	      
+	      std::cout << "===== cluster id,front, back,size " 
+			<< icluster->geographicalId() << " , "
+			<< icluster->amplitudes().front()  << " , "
+			<< icluster->amplitudes().back()  << " , "
+			<< icluster->amplitudes().size()  << std::endl;
+	      */
+	      if( icluster->geographicalId() != tmpId){ 
+		//std::cout << "geo!=tmpId" << std::endl;
+		//we should find a way to avoid this casting. it is slow
+		//create also another map for TkStripMeasurementDet ??
+
+		// the following castings are really ugly. To be corrected ASAP
+		const TkStripMeasurementDet* theConcreteDet = 
+		  dynamic_cast<const TkStripMeasurementDet*>(idToDet(DetId(tmpId)));
+	    
+		if(theConcreteDet == 0)
+		  throw MeasurementDetException("failed casting to TkStripMeasurementDet*");	    
+		TkStripMeasurementDet*  theConcreteDetUpdatable = 
+		  const_cast<TkStripMeasurementDet*>(theConcreteDet);
+		//std::cout << "=== option1. fill det with id,#clust: " << tmpId  << " , " 
+		//	  << icluster - beginIterator << std::endl;
+		theConcreteDetUpdatable->update(beginIterator,icluster,refClusterHandle,tmpId);
+		//cannot we avoid to update the det with detId of itself??
+
+		tmpId = icluster->geographicalId();
+		beginIterator = icluster;
+		if( icluster == (iregion->end()-1)){
+		  const TkStripMeasurementDet* theConcreteDet = 
+		    dynamic_cast<const TkStripMeasurementDet*>(idToDet(DetId(tmpId)));
+		  
+		  if(theConcreteDet == 0)
+		    throw MeasurementDetException("failed casting to TkStripMeasurementDet*");	    
+		  TkStripMeasurementDet*  theConcreteDetUpdatable = 
+		    const_cast<TkStripMeasurementDet*>(theConcreteDet);
+		  //std::cout << "=== option2. fill det with id,#clust: " << tmpId  << " , " 
+		  //	    << iregion->end() - icluster << std::endl;
+		  theConcreteDetUpdatable->update(icluster,iregion->end(),refClusterHandle,tmpId);
+		}	 
+	      }else if( icluster == (iregion->end()-1)){	   
+		const TkStripMeasurementDet* theConcreteDet = 
+		  dynamic_cast<const TkStripMeasurementDet*>(idToDet(DetId(tmpId)));
+		
+		if(theConcreteDet == 0)
+		  throw MeasurementDetException("failed casting to TkStripMeasurementDet*");	    
+		TkStripMeasurementDet*  theConcreteDetUpdatable = 
+		  const_cast<TkStripMeasurementDet*>(theConcreteDet);
+		//std::cout << "=== option3. fill det with id,#clust: " << tmpId  << " , " 
+		//	  << iregion->end() - beginIterator << std::endl;
+		theConcreteDetUpdatable->update(beginIterator,iregion->end(),refClusterHandle,tmpId);	 
+	      }	  
+	    }//end loop cluster in one ragion
+	  }
+	  //-------- FOR ROB ------------------------
+	  //std::cout << "ncluster: " << ncluster << std::endl;
+	}//end of block for updating with regional clusters 
+    }
+    
+}
+
+
 
 
 

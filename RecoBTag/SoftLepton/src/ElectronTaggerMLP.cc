@@ -41,7 +41,7 @@ double ElectronTaggerMLP::input0x9e6c030() {
 
 double ElectronTaggerMLP::neuron0x9e6c030() {
    double input = input0x9e6c030();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double ElectronTaggerMLP::input0x9e6c1e0() {
@@ -55,7 +55,7 @@ double ElectronTaggerMLP::input0x9e6c1e0() {
 
 double ElectronTaggerMLP::neuron0x9e6c1e0() {
    double input = input0x9e6c1e0();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double ElectronTaggerMLP::input0x9e6c478() {
@@ -69,7 +69,7 @@ double ElectronTaggerMLP::input0x9e6c478() {
 
 double ElectronTaggerMLP::neuron0x9e6c478() {
    double input = input0x9e6c478();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double ElectronTaggerMLP::input0x9e6c710() {
@@ -83,7 +83,7 @@ double ElectronTaggerMLP::input0x9e6c710() {
 
 double ElectronTaggerMLP::neuron0x9e6c710() {
    double input = input0x9e6c710();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double ElectronTaggerMLP::input0x9e6c9a8() {
@@ -97,7 +97,7 @@ double ElectronTaggerMLP::input0x9e6c9a8() {
 
 double ElectronTaggerMLP::neuron0x9e6c9a8() {
    double input = input0x9e6c9a8();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double ElectronTaggerMLP::input0x9e6ccc8() {
@@ -111,7 +111,7 @@ double ElectronTaggerMLP::input0x9e6ccc8() {
 
 double ElectronTaggerMLP::neuron0x9e6ccc8() {
    double input = input0x9e6ccc8();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double ElectronTaggerMLP::input0x9e6cf18() {
@@ -125,7 +125,7 @@ double ElectronTaggerMLP::input0x9e6cf18() {
 
 double ElectronTaggerMLP::neuron0x9e6cf18() {
    double input = input0x9e6cf18();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double ElectronTaggerMLP::input0x9e6d1b0() {
@@ -139,7 +139,7 @@ double ElectronTaggerMLP::input0x9e6d1b0() {
 
 double ElectronTaggerMLP::neuron0x9e6d1b0() {
    double input = input0x9e6d1b0();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double ElectronTaggerMLP::input0x9e6bf10() {

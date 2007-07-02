@@ -4,6 +4,7 @@
 #include <cmath>
 #include <algorithm>
 
+namespace std{} using namespace std;
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Base/interface/DDTypes.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
@@ -17,7 +18,6 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
-namespace std{} using namespace std;
 
 //#include "DDD/DDCore/interface/DDD.h"
 //#include <iostream>

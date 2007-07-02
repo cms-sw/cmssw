@@ -5,16 +5,16 @@
  * \class L1GlobalTriggerConditions
  * 
  * 
+ * Description: Base class for XML particle templates.
  * 
- * Description: Base class for XML particle templates
  * Implementation:
  *    <TODO: enter implementation details>
  *   
  * \author: M.Eder, H. Rohringer - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date$
- * $Revision$
+ * $Date:$
+ * $Revision:$
  *
  */
 

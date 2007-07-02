@@ -70,6 +70,7 @@ DTSectColl::~DTSectColl(){
     }
   }
 
+  localClear();
   delete _config;
 
 }
@@ -88,6 +89,24 @@ DTSectColl::localClear() {
       _tsc[istep][istat]->clear();
     }
   }
+  
+  for(int iph=0;iph<2;++iph){
+    std::vector<DTSectCollPhCand*>::const_iterator phbi = _incand_ph[iph].begin();
+    std::vector<DTSectCollPhCand*>::const_iterator phei = _incand_ph[iph].end();
+    for ( std::vector<DTSectCollPhCand*>::const_iterator iphit = phbi;iphit!= phei;++iphit)
+      delete (*iphit);
+    _incand_ph[iph].clear();
+  }
+
+   _outcand_ph.clear();
+
+   std::vector<DTSectCollThCand*>::const_iterator thb = _incand_th.begin();
+   std::vector<DTSectCollThCand*>::const_iterator the = _incand_th.end();
+   for ( std::vector<DTSectCollThCand*>::const_iterator ithit = thb;ithit!= the;++ithit)
+     delete (*ithit);
+   _incand_th.clear();
+
+   _outcand_th.clear();
 
 }
 

@@ -11,7 +11,7 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -43,11 +43,14 @@ public:
 		     const TrackerGeometry*  trackerGeom,
 		     const GeometricSearchTracker* geometricSearchTracker,
 		     const SiStripDetCabling *stripCabling,
-		     const SiStripNoises *stripNoises);
+		     const SiStripNoises *stripNoises,
+                     bool  isRegional=false);
 
   virtual ~MeasurementTracker() { if (dummyStripNoises) delete dummyStripNoises; }
  
   void update( const edm::Event&) const;
+  void updatePixels( const edm::Event&) const;
+  void updateStrips( const edm::Event&) const;
 
   const TrackingGeometry* geomTracker() const { return theTrackerGeom;}
 
@@ -68,8 +71,11 @@ public:
 private:
   const edm::ParameterSet& pset_;
 
-  mutable unsigned int lastEventNumber;
-  mutable unsigned int lastRunNumber;
+  mutable unsigned int lastEventNumberPixels;
+  mutable unsigned int lastEventNumberStrips;
+  mutable unsigned int lastRunNumberPixels;
+  mutable unsigned int lastRunNumberStrips;
+
 
   mutable DetContainer                        theDetMap;
   mutable std::vector<TkStripMeasurementDet*> theStripDets;
@@ -82,6 +88,8 @@ private:
   const TrackerGeometry*                theTrackerGeom;
   const GeometricSearchTracker*         theGeometricSearchTracker;
   mutable SiStripNoises*                dummyStripNoises;  // not const
+
+  bool isRegional_;
 
   void initialize() const;
 

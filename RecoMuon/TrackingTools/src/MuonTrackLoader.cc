@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2007/02/05 19:07:40 $
- *  $Revision: 1.39 $
+ *  $Date: 2007/04/13 09:05:34 $
+ *  $Revision: 1.45 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -17,6 +17,9 @@
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/GeomPropagators/interface/TrackerBounds.h"
+#include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -25,105 +28,138 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 using namespace edm;
+using namespace std;
 
 // constructor
 MuonTrackLoader::MuonTrackLoader(ParameterSet &parameterSet, const MuonServiceProxy *service): 
   theService(service){
 
-  // the propagator name for the track loader
-
-  // FIXME: change the name inside the ""
-  std::string propagatorName = parameterSet.getParameter<std::string>("TrackLoaderPropagator");
-
+  // option to do or not the smoothing step.
+  // the trajectories which are passed to the track loader are supposed to be non-smoothed
+  theSmoothingStep = parameterSet.getParameter<bool>("DoSmoothing");
+  if(theSmoothingStep)
+    theSmootherName = parameterSet.getParameter<string>("Smoother");  
+  
   // update at vertex
   theUpdatingAtVtx = parameterSet.getParameter<bool>("VertexConstraint");
   
   // Flag to put the trajectory into the event
-  theTrajectoryFlag = parameterSet.getUntrackedParameter<bool>("PutTrajectoryIntoEvent",false);
+  theTrajectoryFlag = parameterSet.getUntrackedParameter<bool>("PutTrajectoryIntoEvent",true);
 
-  theL2SeededTkLabel = parameterSet.getUntrackedParameter<std::string>("MuonSeededTracksInstance",std::string());
+  theL2SeededTkLabel = parameterSet.getUntrackedParameter<string>("MuonSeededTracksInstance",string());
   
-  thePutTkTrackFlag_ = parameterSet.getUntrackedParameter<bool>("PutTkTrackIntoEvent",false);
+  ParameterSet updatorPar = parameterSet.getParameter<ParameterSet>("MuonUpdatorAtVertexParameters");
+  theUpdatorAtVtx = new MuonUpdatorAtVertex(updatorPar,service);
 
-  const std::string metname = "Muon|RecoMuon|MuonTrackLoader";
-  theUpdatorAtVtx = new MuonUpdatorAtVertex(propagatorName,service);
-
+  thePutTkTrackFlag = parameterSet.getUntrackedParameter<bool>("PutTkTrackIntoEvent",false);
+  theSmoothTkTrackFlag = parameterSet.getUntrackedParameter<bool>("SmoothTkTrack",false);
 }
 
 
+// OrphanHandle<reco::TrackCollection> 
+// MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
+// 			    Event& event) {
+//   return loadTracks(trajectories,event,string());
+// }
 
 OrphanHandle<reco::TrackCollection> 
 MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
-			    Event& event) {
-  return loadTracks(trajectories,event,std::string());
-}
+			    Event& event, const string& instance, bool reallyDoSmoothing) {
 
-OrphanHandle<reco::TrackCollection> 
-MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
-			    Event& event, const std::string& instance) {
+  const bool doSmoothing = theSmoothingStep && reallyDoSmoothing;
   
-  const std::string metname = "Muon|RecoMuon|MuonTrackLoader";
+  const string metname = "Muon|RecoMuon|MuonTrackLoader";
 
   // the track collectios; they will be loaded in the event  
-  std::auto_ptr<reco::TrackCollection> trackCollection(new reco::TrackCollection());
+  auto_ptr<reco::TrackCollection> trackCollection(new reco::TrackCollection());
+  // ... and its reference into the event
+  reco::TrackRefProd trackCollectionRefProd = event.getRefBeforePut<reco::TrackCollection>(instance);
 
   // track collection for the tracks updated at vertex
-  std::auto_ptr<reco::TrackCollection> updatedAtVtxTrackCollection(new reco::TrackCollection());
+  auto_ptr<reco::TrackCollection> updatedAtVtxTrackCollection(new reco::TrackCollection());
+  // ... and its (eventually) reference into the event
+  reco::TrackRefProd trackUpdatedCollectionRefProd;
+  if(theUpdatingAtVtx)  trackUpdatedCollectionRefProd = event.getRefBeforePut<reco::TrackCollection>(instance+"UpdatedAtVtx");
  
+  // Association map between updated and non updated at vtx tracks
+  auto_ptr<reco:: TrackToTrackMap> trackToTrackmap(new reco::TrackToTrackMap);
+
   // the track extra collection, it will be loaded in the event  
-  std::auto_ptr<reco::TrackExtraCollection> trackExtraCollection(new reco::TrackExtraCollection() );
+  auto_ptr<reco::TrackExtraCollection> trackExtraCollection(new reco::TrackExtraCollection() );
   // ... and its reference into the event
   reco::TrackExtraRefProd trackExtraCollectionRefProd = event.getRefBeforePut<reco::TrackExtraCollection>(instance);
   
   // the rechit collection, it will be loaded in the event  
-  std::auto_ptr<TrackingRecHitCollection> recHitCollection(new TrackingRecHitCollection() );
+  auto_ptr<TrackingRecHitCollection> recHitCollection(new TrackingRecHitCollection() );
   // ... and its reference into the event
   TrackingRecHitRefProd recHitCollectionRefProd = event.getRefBeforePut<TrackingRecHitCollection>(instance);
 
-  std::auto_ptr<std::vector<Trajectory> > trajectoryCollection(new std::vector<Trajectory>);
+  // Collection of Trajectory
+  auto_ptr<vector<Trajectory> > trajectoryCollection(new vector<Trajectory>);
 
   // don't waste any time...
   if ( trajectories.empty() ) { 
     event.put(recHitCollection,instance);
     event.put(trackExtraCollection,instance);
     if(theTrajectoryFlag) event.put(trajectoryCollection,instance);
-    if(theUpdatingAtVtx)
+    if(theUpdatingAtVtx){
+      event.put(trackToTrackmap);
       event.put(updatedAtVtxTrackCollection,instance+"UpdatedAtVtx");
+    }
     return event.put(trackCollection,instance);
   }
   
   LogTrace(metname) << "Create the collection of Tracks";
 
+  reco::TrackRef::key_type trackIndex = 0;
+  reco::TrackRef::key_type trackUpdatedIndex = 0;
+
   reco::TrackExtraRef::key_type trackExtraIndex = 0;
   TrackingRecHitRef::key_type recHitsIndex = 0;
 
-  for(TrajectoryContainer::const_iterator trajectory = trajectories.begin();
-      trajectory != trajectories.end(); ++trajectory){
+   if(doSmoothing)
+     theService->eventSetup().get<TrackingComponentsRecord>().get(theSmootherName,theSmoother);
+  
+
+  for(TrajectoryContainer::const_iterator rawTrajectory = trajectories.begin();
+      rawTrajectory != trajectories.end(); ++rawTrajectory){
     
-    if (theTrajectoryFlag) trajectoryCollection->push_back(**trajectory);
+    Trajectory &trajectory = **rawTrajectory;
+
+      if(doSmoothing){
+	vector<Trajectory> trajectoriesSM = theSmoother->trajectories(**rawTrajectory);
+      
+      if(!trajectoriesSM.empty())
+	trajectory = trajectoriesSM.front();
+      else
+	LogWarning(metname)<<"The trajectory has not been smoothed!"<<endl;
+    }
+
+    if(theTrajectoryFlag) trajectoryCollection->push_back(trajectory);
     
     // get the transient rechit from the trajectory
-    Trajectory::RecHitContainer transHits = (*trajectory)->recHits();
+    Trajectory::RecHitContainer transHits = trajectory.recHits();
 
-    if ( (*trajectory)->direction() == oppositeToMomentum)
+    if ( trajectory.direction() == oppositeToMomentum)
       reverse(transHits.begin(),transHits.end());
-
+    
     // build the "bare" track from the trajectory.
     // This track has the parameters defined at PCA (no update)
-    std::pair<bool,reco::Track> resultOfTrackExtrapAtPCA = buildTrackAtPCA(**trajectory);
+    pair<bool,reco::Track> resultOfTrackExtrapAtPCA = buildTrackAtPCA(trajectory);
     
-    // Check if the extrapolation went well
+    // Check if the extrapolation went well    
     if(!resultOfTrackExtrapAtPCA.first) continue;
 
-    // "bare" track at PCA
+    // take the "bare" track at PCA
     reco::Track &track = resultOfTrackExtrapAtPCA.second;
-
+       
     // build the "bare" track extra from the trajectory
-    reco::TrackExtra trackExtra = buildTrackExtra( **trajectory );
+    reco::TrackExtra trackExtra = buildTrackExtra( trajectory );
 
     // get the TrackExtraRef (persitent reference of the track extra)
     reco::TrackExtraRef trackExtraRef(trackExtraCollectionRefProd, trackExtraIndex++ );
@@ -140,6 +176,10 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
 
       // set the persistent track-extra reference to the Track
       updatedTrack.setExtra(trackExtraRef);
+
+      // Fill the map
+      trackToTrackmap->insert(reco::TrackRef(trackCollectionRefProd,trackIndex++),
+			      reco::TrackRef(trackUpdatedCollectionRefProd,trackUpdatedIndex++));
     }
     
     // Fill the track extra with the rec hit (persistent-)reference
@@ -165,10 +205,10 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     // fill the TrackCollection updated at vtx
     if(theUpdatingAtVtx) updatedAtVtxTrackCollection->push_back(updatedTrack);
 
-    // We don't need the original trakectory anymore.
+    // We don't need the original trajectory anymore.
     // It has been copied by value in the trajectoryCollection, if 
     // it is required to put it into the event.
-     delete *trajectory;
+     delete *rawTrajectory;
   }
   
   // Put the Collections in the event
@@ -178,12 +218,9 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   event.put(trackExtraCollection,instance);
   if ( theTrajectoryFlag ) event.put(trajectoryCollection,instance);
 
-
-
-  
-
   if(theUpdatingAtVtx){
     event.put(trackCollection,instance);
+    event.put(trackToTrackmap);
     return  event.put(updatedAtVtxTrackCollection,instance+"UpdatedAtVtx");
   }
   else
@@ -194,16 +231,16 @@ OrphanHandle<reco::MuonCollection>
 MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
 			    Event& event) {
 
-  const std::string metname = "Muon|RecoMuon|MuonTrackLoader";
+  const string metname = "Muon|RecoMuon|MuonTrackLoader";
   
   // the muon collection, it will be loaded in the event
-  std::auto_ptr<reco::MuonCollection> muonCollection(new reco::MuonCollection());
+  auto_ptr<reco::MuonCollection> muonCollection(new reco::MuonCollection());
   
   // don't waste any time...
   if ( muonCands.empty() ) {
-    std::auto_ptr<reco::TrackExtraCollection> trackExtraCollection(new reco::TrackExtraCollection() );
-    std::auto_ptr<TrackingRecHitCollection> recHitCollection(new TrackingRecHitCollection() );
-    std::auto_ptr<reco::TrackCollection> trackCollection( new reco::TrackCollection() );
+    auto_ptr<reco::TrackExtraCollection> trackExtraCollection(new reco::TrackExtraCollection() );
+    auto_ptr<TrackingRecHitCollection> recHitCollection(new TrackingRecHitCollection() );
+    auto_ptr<reco::TrackCollection> trackCollection( new reco::TrackCollection() );
 
     event.put(recHitCollection);
     event.put(trackExtraCollection);
@@ -231,7 +268,7 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
   OrphanHandle<reco::TrackCollection> combinedTracks = loadTracks(combinedTrajs, event);
 
   OrphanHandle<reco::TrackCollection> trackerTracks;
-  if(thePutTkTrackFlag_) trackerTracks = loadTracks(trackerTrajs, event,theL2SeededTkLabel);
+  if(thePutTkTrackFlag) trackerTracks = loadTracks(trackerTrajs, event, theL2SeededTkLabel, theSmoothTkTrackFlag);
 
   
   reco::MuonCollection::iterator muon = muonCollection->begin();
@@ -239,7 +276,7 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
     reco::TrackRef combinedTR(combinedTracks, position);
 
     reco::TrackRef trackerTR;
-    if(thePutTkTrackFlag_) trackerTR = reco::TrackRef(trackerTracks, position);
+    if(thePutTkTrackFlag) trackerTR = reco::TrackRef(trackerTracks, position);
 
 
     // fill the combined information.
@@ -251,7 +288,7 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
     (*muon).setP4(p4);
     (*muon).setVertex(combinedTR->vertex());
     (*muon).setCombined(combinedTR);
-    if(thePutTkTrackFlag_) (*muon).setTrack(trackerTR);
+    if(thePutTkTrackFlag) (*muon).setTrack(trackerTR);
 
     muon++;
   }
@@ -264,9 +301,9 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
 
 }
 
-std::pair<bool,reco::Track> MuonTrackLoader::buildTrackAtPCA(const Trajectory& trajectory) const {
+pair<bool,reco::Track> MuonTrackLoader::buildTrackAtPCA(const Trajectory& trajectory) const {
 
-  const std::string metname = "Muon|RecoMuon|MuonTrackLoader";
+  const string metname = "Muon|RecoMuon|MuonTrackLoader";
 
   MuonPatternRecoDumper debug;
   
@@ -283,9 +320,8 @@ std::pair<bool,reco::Track> MuonTrackLoader::buildTrackAtPCA(const Trajectory& t
   }
   else LogError(metname)<<"Wrong propagation direction!";
   
-  LogTrace(metname) << "TSOS before the extrapolation at vtx";
+  LogTrace(metname) << "TSOS before the extrapolation at PCA";
   LogTrace(metname) << debug.dumpTSOS(innerTSOS);
-  LogTrace(metname) << "Parameters ";
   LogTrace(metname) << innerTSOS.freeState()->parameters();
   LogTrace(metname) << "Cartesian Errors";
   LogTrace(metname) << innerTSOS.freeState()->cartesianError().matrix();
@@ -294,42 +330,47 @@ std::pair<bool,reco::Track> MuonTrackLoader::buildTrackAtPCA(const Trajectory& t
 
 
   // This is needed to extrapolate the tsos at vertex
-  GlobalPoint vtxPosition(0.,0.,0.);
-  std::pair<bool,FreeTrajectoryState> 
-    extrapolationResult = theUpdatorAtVtx->propagate(innerTSOS, vtxPosition);
+  pair<bool,FreeTrajectoryState> 
+    extrapolationResult = theUpdatorAtVtx->propagate(innerTSOS);  
+  FreeTrajectoryState ftsAtVtx;
   
-  if(extrapolationResult.first){
-    
-    FreeTrajectoryState ftsAtVtx = extrapolationResult.second;
-    
-    LogTrace(metname) << "TSOS after the extrapolation at vtx";
-    LogTrace(metname) << debug.dumpFTS(ftsAtVtx);
-    
-    GlobalPoint pca = ftsAtVtx.position();
-    math::XYZPoint persistentPCA(pca.x(),pca.y(),pca.z());
-    GlobalVector p = ftsAtVtx.momentum();
-    math::XYZVector persistentMomentum(p.x(),p.y(),p.z());
-    
-    double ndof = computeNDOF(trajectory);
-    
-    reco::Track track(trajectory.chiSquared(), 
-		      ndof,
-		      persistentPCA,
-		      persistentMomentum,
-		      ftsAtVtx.charge(),
-		      ftsAtVtx.curvilinearError());
-
-    return std::pair<bool,reco::Track>(true,track);
+  if(extrapolationResult.first)
+    ftsAtVtx = extrapolationResult.second;
+  else{    
+    if(TrackerBounds::isInside(innerTSOS.globalPosition())){
+      LogWarning(metname) << "Track in the Tracker: taking the innermost state instead of the state at PCA";
+      ftsAtVtx = *innerTSOS.freeState();
+    }
+    else{
+      LogWarning(metname) << "Stand Alone track: this track will be rejected";
+      return pair<bool,reco::Track>(false,reco::Track());
+    }
   }
-  else{
-    return std::pair<bool,reco::Track>(false,reco::Track());
-  }
+    
+  LogTrace(metname) << "TSOS after the extrapolation at vtx";
+  LogTrace(metname) << debug.dumpFTS(ftsAtVtx);
+  
+  GlobalPoint pca = ftsAtVtx.position();
+  math::XYZPoint persistentPCA(pca.x(),pca.y(),pca.z());
+  GlobalVector p = ftsAtVtx.momentum();
+  math::XYZVector persistentMomentum(p.x(),p.y(),p.z());
+  
+  double ndof = computeNDOF(trajectory);
+  
+  reco::Track track(trajectory.chiSquared(), 
+		    ndof,
+		    persistentPCA,
+		    persistentMomentum,
+		    ftsAtVtx.charge(),
+		    ftsAtVtx.curvilinearError());
+  
+  return pair<bool,reco::Track>(true,track);
 }
 
 
 reco::Track MuonTrackLoader::buildTrackUpdatedAtPCA(const reco::Track &track) const {
 
-  const std::string metname = "Muon|RecoMuon|MuonTrackLoader";
+  const string metname = "Muon|RecoMuon|MuonTrackLoader";
   MuonPatternRecoDumper debug;
  
   // build the transient track
@@ -338,7 +379,7 @@ reco::Track MuonTrackLoader::buildTrackUpdatedAtPCA(const reco::Track &track) co
 				      theService->trackingGeometry());
 
   LogTrace(metname) << "Apply the vertex constraint";
-  std::pair<bool,FreeTrajectoryState> updateResult = theUpdatorAtVtx->update(transientTrack);
+  pair<bool,FreeTrajectoryState> updateResult = theUpdatorAtVtx->update(transientTrack);
 
   if(!updateResult.first){
     return reco::Track();
@@ -367,7 +408,7 @@ reco::Track MuonTrackLoader::buildTrackUpdatedAtPCA(const reco::Track &track) co
 
 reco::TrackExtra MuonTrackLoader::buildTrackExtra(const Trajectory& trajectory) const {
 
-  const std::string metname = "Muon|RecoMuon|MuonTrackLoader";
+  const string metname = "Muon|RecoMuon|MuonTrackLoader";
 
   const Trajectory::RecHitContainer transRecHits = trajectory.recHits();
   
@@ -426,5 +467,5 @@ double MuonTrackLoader::computeNDOF(const Trajectory& trajectory) const {
     if ((*rechit)->isValid()) ndof += (*rechit)->dimension();
   
   // FIXME! in case of Boff is dof - 4
-  return std::max(ndof - 5., 0.);
+  return max(ndof - 5., 0.);
 }

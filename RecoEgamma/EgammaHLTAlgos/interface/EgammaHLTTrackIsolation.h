@@ -15,7 +15,7 @@
 //
 // Original Author:  Monica Vazquez Acosta - CERN
 //         Created:  Tue Jun 13 12:19:32 CEST 2006
-// $Id: EgammaHLTTrackIsolation.h,v 1.1 2006/06/20 11:28:04 monicava Exp $
+// $Id: EgammaHLTTrackIsolation.h,v 1.2 2006/10/24 10:58:18 monicava Exp $
 //
 
 
@@ -33,7 +33,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/Vector.h"
 #include "DataFormats/Math/interface/Point3D.h"

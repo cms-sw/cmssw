@@ -5,12 +5,12 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -146,8 +146,14 @@ void SoftElectronProducer::produce(edm::Event &iEvent,
   {
     track = &(*itTrack);
 
-    tmpFTS = theTrackAssociator->getFreeTrajectoryState(iSetup, *track);
-    info = theTrackAssociator->associate(iEvent, iSetup, tmpFTS, parameters);
+    try {
+      tmpFTS = theTrackAssociator->getFreeTrajectoryState(iSetup, *track);
+      info = theTrackAssociator->associate(iEvent, iSetup, tmpFTS, parameters);
+    } catch (cms::Exception e) {
+      // extrapolation failed, skip this track
+      std::cerr << "Caught exception during track extrapolation: internal error, skipping track" << endl;
+      continue;
+    }
 
     x[0] = info.trkGlobPosAtEcal.x();
     y[0] = info.trkGlobPosAtEcal.y();
@@ -212,7 +218,7 @@ void SoftElectronProducer::produce(edm::Event &iEvent,
         v1 = eMax/e3x3;
         v2 = eMax/e2x2;
         v3 = e2x2/e5x5;
-        v4 = (e3x3 - eMax)/(e5x5 - eMax);
+        v4 = ((e5x5 - eMax) < 0.001) ? 1.0 : (e3x3 - eMax)/(e5x5 - eMax);
 
         covEtaEta = matchedShape->covEtaEta();
         covEtaPhi = matchedShape->covEtaPhi();

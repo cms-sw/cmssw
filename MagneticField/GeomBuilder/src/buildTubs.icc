@@ -1,5 +1,5 @@
 void MagGeoBuilderFromDDD::volumeHandle::buildTubs(const DDExpandedView &fv) {
-  if (bldVerb::debugOut) cout << "Building tubs surfaces...: " <<endl;
+  if (MagGeoBuilderFromDDD::debug) cout << "Building tubs surfaces...: " <<endl;
 
   DDTubs tubs(solid);
 
@@ -9,7 +9,7 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTubs(const DDExpandedView &fv) {
   double  startPhi = tubs.startPhi();
   double  deltaPhi = tubs.deltaPhi();
 
-  if (bldVerb::debugOut) cout << "zhalf    " << zhalf    << endl
+  if (MagGeoBuilderFromDDD::debug) cout << "zhalf    " << zhalf    << endl
 		  << "rIn      " << rIn      << endl
 		  << "rOut     " << rOut     << endl
 		  << "startPhi " << startPhi << endl
@@ -36,7 +36,7 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTubs(const DDExpandedView &fv) {
   buildPhiZSurf(startPhi, deltaPhi, zhalf, rCentr);
 
   // Check ordering.
-  if (bldVerb::debugOut) {  
+  if (MagGeoBuilderFromDDD::debug) {  
     if (dynamic_cast<const Cylinder*>(&(*surfaces[outer]))->radius() <
 	dynamic_cast<const Cylinder*>(&(*surfaces[inner]))->radius()){
       cout << "*** WARNING: pos_outer < pos_inner " << endl;

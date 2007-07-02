@@ -1,10 +1,11 @@
 #include "DQM/SiStripCommissioningSummary/interface/FedTimingSummaryFactory.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
-#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <sstream>
 
-using namespace std;
+using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
@@ -15,8 +16,7 @@ SummaryHistogramFactory<FedTimingAnalysis>::SummaryHistogramFactory() :
   level_(sistrip::root_),
   gran_(sistrip::UNKNOWN_GRAN),
   generator_(0) 
-{
-} 
+{;} 
 
 
 // -----------------------------------------------------------------------------
@@ -30,9 +30,10 @@ SummaryHistogramFactory<FedTimingAnalysis>::~SummaryHistogramFactory() {
 void SummaryHistogramFactory<FedTimingAnalysis>::init( const sistrip::Monitorable& mon, 
 						       const sistrip::Presentation& pres,
 						       const sistrip::View& view, 
-						       const string& top_level_dir, 
+						       const std::string& top_level_dir, 
 						       const sistrip::Granularity& gran ) {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
+  LogTrace(mlSummaryPlots_)
+    << "[SummaryHistogramFactory::" << __func__ << "]";
   mon_ = mon;
   pres_ = pres;
   view_ = view;
@@ -47,25 +48,25 @@ void SummaryHistogramFactory<FedTimingAnalysis>::init( const sistrip::Monitorabl
 
 //------------------------------------------------------------------------------
 //
-uint32_t SummaryHistogramFactory<FedTimingAnalysis>::extract( const map<uint32_t,FedTimingAnalysis>& data ) {
+uint32_t SummaryHistogramFactory<FedTimingAnalysis>::extract( const std::map<uint32_t,FedTimingAnalysis>& data ) {
   
   // Check if data are present
   if ( data.empty() ) { 
-    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
-	 << " No data in monitorables map!" << endl;
+    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
+	 << " No data in monitorables std::map!";
     return 0; 
   }
   
   // Check if instance of generator class exists
   if ( !generator_ ) { 
-    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
-	 << " NULL pointer to SummaryGenerator object!" << endl;
+    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
+	 << " NULL pointer to SummaryGenerator object!";
     return 0;
   }
 
   // Transfer appropriate monitorables info to generator object
   generator_->clearMap();
-  map<uint32_t,FedTimingAnalysis>::const_iterator iter = data.begin();
+  std::map<uint32_t,FedTimingAnalysis>::const_iterator iter = data.begin();
   for ( ; iter != data.end(); iter++ ) {
     if ( mon_ == sistrip::FED_TIMING_TIME ) { 
       generator_->fillMap( level_, gran_, iter->first, iter->second.time() ); 
@@ -82,10 +83,10 @@ uint32_t SummaryHistogramFactory<FedTimingAnalysis>::extract( const map<uint32_t
     } else if ( mon_ == sistrip::FED_TIMING_HEIGHT ) {
       generator_->fillMap( level_, gran_, iter->first, iter->second.height() ); 
     } else { 
-      cerr << "[" << __PRETTY_FUNCTION__ << "]" 
+      edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
 	   << " Unexpected SummaryHisto value:"
-	   << SiStripHistoNamingScheme::monitorable( mon_ ) 
-	   << endl;
+	   << SiStripEnumsAndStrings::monitorable( mon_ ) 
+	  ;
       continue;
     }
   }
@@ -98,22 +99,22 @@ void SummaryHistogramFactory<FedTimingAnalysis>::fill( TH1& summary_histo ) {
 
   // Check if instance of generator class exists
   if ( !generator_ ) { 
-    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
-	 << " NULL pointer to SummaryGenerator object!" << endl;
+    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
+	 << " NULL pointer to SummaryGenerator object!";
     return;
   }
 
   // Check if instance of generator class exists
   if ( !(&summary_histo) ) { 
-    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
-	 << " NULL pointer to SummaryGenerator object!" << endl;
+    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
+	 << " NULL pointer to SummaryGenerator object!";
     return;
   }
 
-  // Check if map is filled
+  // Check if std::map is filled
   if ( !generator_->size() ) { 
-    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
-	 << " No data in the monitorables map!" << endl;
+    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
+	 << " No data in the monitorables std::map!";
     return; 
   } 
 
@@ -127,10 +128,10 @@ void SummaryHistogramFactory<FedTimingAnalysis>::fill( TH1& summary_histo ) {
   } else if ( pres_ == sistrip::SUMMARY_PROF ) {
     generator_->summaryProf( summary_histo );
   } else { 
-    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
+    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
 	 << " Unexpected SummaryType value:"
-	 << SiStripHistoNamingScheme::presentation( pres_ ) 
-	 << endl;
+	 << SiStripEnumsAndStrings::presentation( pres_ ) 
+	;
     return; 
   }
   
@@ -143,10 +144,10 @@ void SummaryHistogramFactory<FedTimingAnalysis>::fill( TH1& summary_histo ) {
   } else if ( mon_ == sistrip::FED_TIMING_PEAK ) { 
   } else if ( mon_ == sistrip::FED_TIMING_HEIGHT ) {
   } else { 
-    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
+    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
 	 << " Unexpected SummaryHisto value:"
-	 << SiStripHistoNamingScheme::monitorable( mon_ ) 
-	 << endl;
+	 << SiStripEnumsAndStrings::monitorable( mon_ ) 
+	;
   } 
   generator_->format( sistrip::FED_TIMING, mon_, pres_, view_, level_, gran_, summary_histo );
   

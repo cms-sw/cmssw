@@ -5,15 +5,15 @@
  * \class L1GlobalTriggerSetup
  * 
  * 
- * 
- * Description: L1 Global Trigger Setup 
+ * Description: L1 Global Trigger Setup.
+ *  
  * Implementation:
  *    <TODO: enter implementation details>
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date$
- * $Revision$
+ * $Date:$
+ * $Revision:$
  *
  */
 

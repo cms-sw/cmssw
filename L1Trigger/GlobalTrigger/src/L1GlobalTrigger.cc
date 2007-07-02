@@ -1,17 +1,18 @@
 /**
- * \class L1GlobalTrigger 
+ * \class L1GlobalTrigger
  * 
  * 
- * 
- * Description: L1 Global Trigger
- * Implementation: see L1GlobalTrigger.h
- *    
+ * Description: see header file.  
+ *
+ * Implementation:
+ *    <TODO: enter implementation details>
+ *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
  * $Date$
  * $Revision$
+ *
  */
-
 
 // this class header
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTrigger.h"
@@ -21,7 +22,10 @@
 #include <iostream>
 #include <bitset>
 
+#include <boost/cstdint.hpp>
+
 // user include files
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
@@ -46,6 +50,7 @@
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerFDL.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GtfeWord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GtfeExtWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1TcsWord.h"
 
 #include "DataFormats/Common/interface/RefProd.h"
@@ -90,9 +95,24 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& iConfig)
     // set the total number of bunch crosses in the GT readout records
 
     m_totalBxInEvent = m_gtSetup->getParameterSet()->getParameter<int>("totalBxInEvent");
+
+    m_minBxInEvent = (m_totalBxInEvent + 1)/2 - m_totalBxInEvent;
+    m_maxBxInEvent = (m_totalBxInEvent + 1)/2 - 1;
+
     LogDebug("L1GlobalTrigger")
-    << "\nTotal number of bunch crosses put in the GT readout record: "
-    << m_totalBxInEvent << " bx\n"
+    << "\nTotal number of bunch crosses to put in the GT readout record: "
+    << m_totalBxInEvent << " = " << "["
+    << m_minBxInEvent << ", " << m_maxBxInEvent << "] BX\n"
+    << std::endl;
+
+    // set the list of active boards
+
+    m_activeBoards =
+        static_cast<boost::uint16_t>(
+            m_gtSetup->getParameterSet()->getParameter<unsigned int>("ActiveBoards"));
+    LogDebug("L1GlobalTrigger")
+    << "\nActive boards in L1 GT: "
+    << m_activeBoards
     << std::endl;
 
 
@@ -114,7 +134,7 @@ L1GlobalTrigger::~L1GlobalTrigger()
 // member functions
 
 // method called to produce the data
-void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
 {
 
     using namespace edm;
@@ -146,19 +166,61 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::auto_ptr<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord(
         new L1GlobalTriggerObjectMapRecord() );
 
-    // * create L1GtfeWord
 
-    L1GtfeWord gtfeWordValue;
-    gtfeWordValue.setRecordLength(m_totalBxInEvent);
+    // TODO FIXME temporary event setup
+    L1GlobalTriggerReadoutSetup tmpGtSetup;
+    std::map<L1GlobalTriggerReadoutSetup::GtBoard, int> slotMap =
+        tmpGtSetup.GtBoardSlotMap;
 
-    // ** fill L1GtfeWord
+    typedef std::map<L1GlobalTriggerReadoutSetup::GtBoard, int>::const_iterator CItSlot;
 
+    boost::uint16_t gtfeBoardId = 0;  //  GTFE:   8 bits board identifier
+    boost::uint16_t tcsBoardId = 0;   //  other: 16 bits board identifier
+
+    for (CItSlot itSlot = slotMap.begin(); itSlot != slotMap.end(); ++itSlot) {
+
+        // active board, add its size
+        switch (itSlot->first.boardType) {
+
+            case GTFE: {
+                    gtfeBoardId = itSlot->second;
+                }
+                break;
+            case TCS: {
+                    tcsBoardId = tcsBoardId*100 + itSlot->second; // FIXME
+                }
+                break;
+            default: {
+
+                    // do nothing here
+                }
+                break;
+        }
+
+    }
+
+    // * create L1GtfeExtWord
+
+    L1GtfeExtWord gtfeExtWordValue;
+    gtfeExtWordValue.setBoardId(gtfeBoardId);
+    gtfeExtWordValue.setRecordLength(m_totalBxInEvent);
+
+    // set the list of active boards
+    gtfeExtWordValue.setActiveBoards(m_activeBoards);
+
+    // ** fill L1GtfeWord in GT DAQ record 
+
+    L1GtfeWord& gtfeWordValue = dynamic_cast<L1GtfeExtWord&>(gtfeExtWordValue);
     gtReadoutRecord->setGtfeWord(gtfeWordValue);
-    gtEvmReadoutRecord->setGtfeWord(gtfeWordValue);
+    
+    // ** fill L1GtfeExtWord in GT EVM record 
+    gtEvmReadoutRecord->setGtfeWord(gtfeExtWordValue);
+    
     LogDebug("L1GlobalTrigger")
-    << "\n  GTFE word: total number of bx in DAQ record = "
+    << "\n  GTFE board " << gtReadoutRecord->gtfeWord().boardId() << "\n"
+    << "    GTFE word: total number of bx in DAQ record = "
     << gtReadoutRecord->gtfeWord().recordLength()
-    << "\n  GTFE word: total number of bx in EVM record = "
+    << "    GTFE word: total number of bx in EVM record = "
     << gtEvmReadoutRecord->gtfeWord().recordLength()
     << std::endl;
 
@@ -176,7 +238,8 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     << std::endl;
 
     // loop over bx in event
-    for (int iBxInEvent = 0; iBxInEvent < m_totalBxInEvent; ++iBxInEvent) {
+    for (int iBxInEvent = m_minBxInEvent; iBxInEvent <= m_maxBxInEvent;
+            ++iBxInEvent) {
 
         // * receive GCT data via PSBs
         if ( m_gtPSB ) {
@@ -264,7 +327,8 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     // print result for every bx in event
     if ( edm::isDebugEnabled() ) {
-        for (int iBxInEvent = 0; iBxInEvent < m_totalBxInEvent; ++iBxInEvent) {
+        for (int iBxInEvent = m_minBxInEvent; iBxInEvent <= m_maxBxInEvent;
+                ++iBxInEvent) {
 
             gtReadoutRecord->printGtDecision(myCoutStream, iBxInEvent);
             LogDebug("L1GlobalTrigger")
@@ -335,21 +399,26 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
             // test all three variants to get muon index 0 in BXInEvent = 0
             unsigned int indexCand = 0;
-            unsigned int bxInEvent = 0;
+            int bxInEvent = 0;
 
-            LogTrace("L1GlobalTrigger")
-            << "Three variants to get muon index 0 in BXInEvent = 0"
-            << "\n via RefProd, muonCand(indexCand, bxInEvent), muonCand(indexCand)"
-            << std::endl;
+            // test first if the record has the required number of candidates
+            if ((*muCollRefProd).getRecord(bxInEvent).getGMTCands().size() > indexCand) {
 
-            L1MuGMTExtendedCand mu00 = (*muCollRefProd).getRecord(bxInEvent).getGMTCands()[indexCand];
-            mu00.print();
+                LogTrace("L1GlobalTrigger")
+                << "Three variants to get muon index 0 in BXInEvent = 0"
+                << "\n via RefProd, muonCand(indexCand, bxInEvent), muonCand(indexCand)"
+                << std::endl;
 
-            L1MuGMTExtendedCand mu00A = gtReadoutRecord->muonCand(indexCand, bxInEvent);
-            mu00A.print();
+                L1MuGMTExtendedCand mu00 = (*muCollRefProd).getRecord(bxInEvent).getGMTCands()[indexCand];
+                mu00.print();
 
-            L1MuGMTExtendedCand mu00B = gtReadoutRecord->muonCand(indexCand);
-            mu00B.print();
+                L1MuGMTExtendedCand mu00A = gtReadoutRecord->muonCand(indexCand, bxInEvent);
+                mu00A.print();
+
+                L1MuGMTExtendedCand mu00B = gtReadoutRecord->muonCand(indexCand);
+                mu00B.print();
+
+            }
 
             // test methods to get GMT records
             std::vector<L1MuGMTReadoutRecord> muRecords = (*muCollRefProd).getRecords();

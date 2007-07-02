@@ -11,6 +11,7 @@
 #include "DataFormats/Common/interface/RangeMap.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
+ #include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
 #include <vector>
 
 namespace {

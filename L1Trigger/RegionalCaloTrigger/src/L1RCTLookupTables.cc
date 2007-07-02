@@ -19,6 +19,11 @@ float L1RCTLookupTables::eMaxForFGCut_ = 50.;
 float L1RCTLookupTables::hOeCut_ = 0.05;
 float L1RCTLookupTables::eGammaLSB_ = 0.5;
 float L1RCTLookupTables::jetMETLSB_ = 0.5;
+float L1RCTLookupTables::eGammaSCF_[32] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+float L1RCTLookupTables::hcalSCF_[32] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+
+bool patternTest_ = false;
+bool ignoreFG_ = false;
 
 // constructor
 
@@ -28,10 +33,19 @@ L1RCTLookupTables::L1RCTLookupTables(const std::string& filename)
   useTranscoder_ = false;
 }
 
+L1RCTLookupTables::L1RCTLookupTables(const std::string& filename, const std::string& filename2, bool patternTest)
+{
+  loadLUTConstants(filename);
+  loadHcalLut(filename2);
+  patternTest_ = patternTest;
+  useTranscoder_ = false;
+}
+
 L1RCTLookupTables::L1RCTLookupTables(const std::string& filename, edm::ESHandle<CaloTPGTranscoder> transcoder)
 {
   loadLUTConstants(filename);
   transcoder_ = transcoder;
+  patternTest_ = false;
   useTranscoder_ = true;
 }
 
@@ -44,9 +58,10 @@ unsigned short L1RCTLookupTables::lookup(unsigned short hfenergy,
   int iEta = L1RCT::calcIEta(crtNo, crdNo, twrNo);
   int iAbsEta = abs(iEta);
   if(iAbsEta < 29 || iAbsEta > 32) throw cms::Exception("Invalid Data") << "29 <= |iEta| <= 32, is " << iAbsEta;
-  float et;
-  if(useTranscoder_) et = transcoder_->hcaletValue(iAbsEta, hfenergy);
-  else et = hfenergy;           // This is so debugging can happen without the transcoder
+  //  float et;
+  //  if(useTranscoder_) et = transcoder_->hcaletValue(iAbsEta, hfenergy);
+  //  else et = hfenergy;           // This is so debugging can happen without the transcoder
+  float et = convertHcal(hfenergy, iAbsEta);
   return convertToInteger(et, jetMETLSB(), 8);
 }
 
@@ -62,14 +77,28 @@ unsigned long L1RCTLookupTables::lookup(unsigned short ecal,unsigned short hcal,
   int iEta = L1RCT::calcIEta(crtNo, crdNo, twrNo);
   int iAbsEta = abs(iEta);
   if(iAbsEta < 1 || iAbsEta > 28) throw cms::Exception("Invalid Data") << "1 <= |IEta| <= 28, is " << iAbsEta;
-  float ecalLinear = convertEcal(ecal);
-  float hcalLinear;
-  if(useTranscoder_) hcalLinear = transcoder_->hcaletValue(iAbsEta, hcal);
-  else hcalLinear = hcal;
+  float ecalLinear = convertEcal(ecal, iAbsEta);
+  float hcalLinear = convertHcal(hcal, iAbsEta);
   
   float etLinear = ecalLinear + hcalLinear;
-  unsigned long HE_FGBit = calcHEBit(ecalLinear,hcalLinear, fgbit);
-  if(ecal == 0xFF) HE_FGBit = 0; // For saturated towers ignore H/E & FG veto
+  unsigned long HE_FGBit;
+  if(patternTest_)
+    {
+      if(ignoreFG_)
+	{
+	  HE_FGBit = calcHEBit(ecalLinear,hcalLinear,false);
+	  //cout << "L1RCT: fine grain bit ignored!" << endl;
+	}
+      else
+	{
+	  HE_FGBit = calcHEBit(ecalLinear,hcalLinear,fgbit);
+	}
+    }
+  else
+    {
+      HE_FGBit = calcHEBit(ecalLinear,hcalLinear, fgbit);
+      if(ecal == 0xFF) HE_FGBit = 0; // For saturated towers ignore H/E & FG veto
+    }
   unsigned long etIn7Bits = convertToInteger(ecalLinear, eGammaLSB_, 7);
   unsigned long etIn9Bits = convertToInteger(etLinear, jetMETLSB_, 9);
   unsigned long activityBit = calcActivityBit(ecalLinear, hcalLinear);
@@ -81,8 +110,20 @@ unsigned long L1RCTLookupTables::lookup(unsigned short ecal,unsigned short hcal,
 }
 
 // converts compressed ecal energy to linear (real) scale
-float L1RCTLookupTables::convertEcal(unsigned short ecal){
-  return ((float) ecal) * eGammaLSB_;
+float L1RCTLookupTables::convertEcal(unsigned short ecal, int iAbsEta){
+  return ((float) ecal) * eGammaLSB_ * eGammaSCF_[iAbsEta];
+}
+
+// converts compressed hcal energy to linear (real) scale
+float L1RCTLookupTables::convertHcal(unsigned short hcal, int iAbsEta){
+  if(useTranscoder_) 
+    {
+      return (transcoder_->hcaletValue(iAbsEta, hcal));
+    }
+  else 
+    {
+      return ((float) hcal) * jetMETLSB_ * hcalSCF_[iAbsEta];
+    }
 }
 
 // calculates activity bit for each tower - assume that noise is well suppressed
@@ -90,11 +131,20 @@ unsigned short L1RCTLookupTables::calcActivityBit(float ecal, float hcal){
   return ((ecal > eActivityCut_) || (hcal > hActivityCut_));
 }
 
-// calculates h-over-e veto bit (true if hcal/ecal energy > 5%)
+// Calculates h-over-e veto bit (true if hcal/ecal energy > hOeCut)
+// Uses finegrain veto only if the energy is within eActivityCut and eMaxForFGCut
 unsigned short L1RCTLookupTables::calcHEBit(float ecal, float hcal, bool fgbit){
-  if((ecal > eActivityCut_) && (hcal/ecal)>hOeCut_) return fgbit;
-  if((ecal > eMaxForFGCut_) && (hcal/ecal)>hOeCut_) return true;
-  return false;
+  bool veto = false;
+  if(ecal > eMaxForFGCut_)
+    {
+      if((hcal/ecal) > hOeCut_) veto = true;
+    }
+  else if(ecal > eActivityCut_)
+    {
+      if((hcal/ecal) > hOeCut_) veto = true;
+      if(fgbit) veto = true;
+    }
+  return veto;
 }
 
 // integerize given an LSB and set maximum value of 2^precision
@@ -114,6 +164,7 @@ void L1RCTLookupTables::loadLUTConstants(const std::string& filename)
   if( userfile )
     {
       char junk[1024];
+      int answer;
       userfile >> junk >> eActivityCut_;
       std::cout << "L1RCTLookupTables: Using eActivityCut = " 
 		<< eActivityCut_ << std::endl;
@@ -132,9 +183,60 @@ void L1RCTLookupTables::loadLUTConstants(const std::string& filename)
       userfile >> junk >> jetMETLSB_;
       std::cout << "L1RCTLookupTables: Using jetMETLSB = " 
 		<< jetMETLSB_ << std::endl;
+      userfile >> junk >> answer;
+      //      userfile.getline(junk,199);
+      //      std::cout << "junk is " << junk << endl;
+      if(answer == 1)
+	{
+	  ignoreFG_ = true;
+	}
+      else if(answer == 0)
+	{
+	  ignoreFG_ = false;
+	}
+      else
+	{
+	  std::cout << "L1RCTLookupTables: ignoreFineGrain not true or false!" << std::endl; 
+	  //std::cout << "variable 'answer' is " << answer << std::endl;
+	}
+      std:: cout << "L1RCTLookupTables: ignoreFineGrain is "
+		 << ignoreFG_ << std::endl;
+      userfile >> junk;
+      for(int i = 0; i < 26; i++) 
+	{
+	  userfile >> eGammaSCF_[i];
+	  //std::cout << "L1RCTLookupTables: eGammaSCF_[" << i << "] is " << eGammaSCF_[i] << endl;
+	}
+      for(int i = 26; i < 32; i++) eGammaSCF_[i] = eGammaSCF_[i-1];
       userfile.close();
     }
   else 
+    {
+      throw cms::Exception("Invalid Data") << "Unable to open " << filename;
+    }
+}
+
+void L1RCTLookupTables::loadHcalLut(const std::string& filename)
+{
+  std::ifstream userfile;
+  userfile.open(filename.c_str());
+  if ( userfile )
+    {
+      char junk[1024];
+      userfile >> junk;
+      for (int i = 0; i < 26; i++) 
+	{
+	  userfile >> hcalSCF_[i];
+	  //std::cout << "L1RCTLookupTables: hcalSCF_[" << i << "] is " << hcalSCF_[i] << std::endl;
+	}
+      for (int i = 26; i < 32; i++) 
+	{
+	  hcalSCF_[i] = hcalSCF_[i-1];
+	  //std::cout << "L1RCTLookupTables: hcalSCF_[" << i << "] is " << hcalSCF_[i] << std::endl;
+	}
+      userfile.close();
+    }
+  else
     {
       throw cms::Exception("Invalid Data") << "Unable to open " << filename;
     }

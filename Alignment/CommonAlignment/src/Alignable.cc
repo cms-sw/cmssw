@@ -1,45 +1,17 @@
 /** \file Alignable.cc
  *
- *  $Date: 2007/02/20 17:37:16 $
- *  $Revision: 1.6 $
- *  (last update by $Author: cklae $)
+ *  $Date: 2006/10/17 11:02:43 $
+ *  $Revision: 1.4 $
+ *  (last update by $Author: flucke $)
  */
-
-#include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
-#include "DataFormats/DetId/interface/DetId.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 
 //__________________________________________________________________________________________________
 Alignable::Alignable() : 
-  theMisalignmentActive(true), theDetId(0), theAlignmentParameters(0), theMother(0), theSurvey(0)
+  theMisalignmentActive(true), theDetId(0), theAlignmentParameters(0), theMother(0)
 {
 }
-
-
-//__________________________________________________________________________________________________
-Alignable::~Alignable()
-{
-  delete theAlignmentParameters;
-}
-
-
-//__________________________________________________________________________________________________
-void Alignable::getTerminals( std::vector<const Alignable*>& terminals ) const
-{
-  const std::vector<Alignable*>& comp = components();
-
-  unsigned int nComp = comp.size();
-
-  if (nComp > 0)
-    for (unsigned int i = 0; i < nComp; ++i)
-    {
-      comp[i]->getTerminals(terminals);
-    }
-  else
-    terminals.push_back(this);
-}
-
 
 //__________________________________________________________________________________________________
 bool Alignable::firstParamComponents(std::vector<Alignable*> &daughts) const
@@ -93,7 +65,20 @@ AlignmentParameters* Alignable::alignmentParameters() const
 
 
 //__________________________________________________________________________________________________
-void Alignable::rotateAroundGlobalAxis( const GlobalVector& axis, const float radians )
+void Alignable::rotateInLocalFrame( const RotationType& rotation)
+{
+
+  // This is done by simply transforming the rotation from
+  // the local system O to the global one  O^-1 * Rot * O
+  // and then applying the global rotation  O * Rot
+
+  rotateInGlobalFrame( globalRotation().multiplyInverse( rotation*globalRotation() ) );
+
+}
+
+
+//__________________________________________________________________________________________________
+void Alignable::rotateAroundGlobalAxis( const GlobalVector axis, const float radians )
 {
 
   rotateInGlobalFrame( RotationType(axis.basicVector(),radians) );
@@ -102,7 +87,7 @@ void Alignable::rotateAroundGlobalAxis( const GlobalVector& axis, const float ra
 
 
 //__________________________________________________________________________________________________
-void Alignable::rotateAroundLocalAxis( const LocalVector& axis, const float radians )
+void Alignable::rotateAroundLocalAxis( const LocalVector axis, const float radians )
 {
 
   rotateInLocalFrame(RotationType(axis.basicVector(), radians));
@@ -115,8 +100,8 @@ void Alignable::rotateAroundGlobalX( const float radians )
 {
 
   RotationType rot( 1.,  0.,            0.,
-		    0.,  cos(radians),  sin(radians),
-		    0., -sin(radians),  cos(radians) );
+					0.,  cos(radians),  sin(radians),
+					0., -sin(radians),  cos(radians) );
 
   rotateInGlobalFrame(rot);
 
@@ -128,8 +113,8 @@ void Alignable::rotateAroundLocalX( const float radians )
 {
  
   RotationType rot( 1.,  0.,            0.,
-		    0.,  cos(radians),  sin(radians),
-		    0., -sin(radians),  cos(radians) );
+					0.,  cos(radians),  sin(radians),
+					0., -sin(radians),  cos(radians) );
 
   rotateInLocalFrame(rot);
 
@@ -141,8 +126,8 @@ void Alignable::rotateAroundGlobalY( const float radians )
 {
 
   RotationType rot( cos(radians),  0., -sin(radians), 
-		    0.,            1.,  0.,
-		    sin(radians),  0.,  cos(radians) );
+					0.,            1.,  0.,
+					sin(radians),  0.,  cos(radians) );
 
   rotateInGlobalFrame(rot);
   
@@ -154,8 +139,8 @@ void Alignable::rotateAroundLocalY( const float radians )
 {
 
   RotationType rot( cos(radians),  0., -sin(radians), 
-		    0.,            1.,  0.,
-		    sin(radians),  0.,  cos(radians) );
+					0.,            1.,  0.,
+					sin(radians),  0.,  cos(radians) );
   
   rotateInLocalFrame(rot);
 
@@ -167,8 +152,8 @@ void Alignable::rotateAroundGlobalZ( const float radians )
 {
 
   RotationType rot(  cos(radians),  sin(radians),  0.,
-		    -sin(radians),  cos(radians),  0.,
-		     0.,            0.,            1. );
+					-sin(radians),  cos(radians),  0.,
+					 0.,            0.,            1. );
 
   rotateInGlobalFrame(rot);
   
@@ -180,8 +165,8 @@ void Alignable::rotateAroundLocalZ( const float radians)
 {
 
   RotationType rot(  cos(radians),  sin(radians), 0. ,
-		    -sin(radians),  cos(radians), 0. ,
-		     0.,            0.,           1. );
+					-sin(radians),  cos(radians), 0. ,
+					 0.,            0.,           1. );
   
   rotateInLocalFrame(rot);
 

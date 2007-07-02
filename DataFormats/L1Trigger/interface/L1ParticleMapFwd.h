@@ -5,18 +5,14 @@
 // Package:     L1Trigger
 // Class  :     L1ParticleMapFwd
 // 
-/**\class L1ParticleMapFwd L1ParticleMapFwd.h DataFormats/L1Trigger/interface/L1ParticleMapFwd.h
+/**\class L1ParticleMapCollection \file L1ParticleMapFwd.h DataFormats/L1Trigger/interface/L1ParticleMapFwd.h \author Werner Sun
 
- Description: <one line class summary>
-
- Usage:
-    <usage>
-
+ Description: typedefs for L1ParticleMapCollection and associated containers.
 */
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 14:28:43 EDT 2006
-// $Id: L1ParticleMapFwd.h,v 1.2 2006/07/26 00:05:39 wsun Exp $
+// $Id: L1ParticleMapFwd.h,v 1.1 2006/07/26 20:41:30 wsun Exp $
 //
 
 // system include files

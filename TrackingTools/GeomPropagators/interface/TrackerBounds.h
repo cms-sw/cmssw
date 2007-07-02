@@ -2,6 +2,7 @@
 #define GeomPropagators_TrackerBounds_H
 
 #include "Geometry/Surface/interface/ReferenceCounted.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 class BoundCylinder;
 class BoundDisk;
@@ -18,8 +19,8 @@ class BoundDisk;
  *  Outside of this volume use some kind of geane.
 
  *  Ported from ORCA
- *  $Date: 2006/04/21 14:31:22 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/04/24 20:36:14 $
+ *  $Revision: 1.2 $
  */
 
 class TrackerBounds {
@@ -33,6 +34,7 @@ public:
    */
   static float radius()     {return 112.f;}
   static float halfLength() {return 273.5f;}
+  static bool isInside(const GlobalPoint &);
 
 private:
 

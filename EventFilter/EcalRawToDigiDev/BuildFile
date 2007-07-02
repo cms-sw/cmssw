@@ -1,0 +1,25 @@
+<flags SEAL_PLUGIN_NAME="EventFilterEcalRawToDigiDev">
+<use name=FWCore/PluginManager>
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=DataFormats/FEDRawData>
+<use name=DataFormats/EcalRawData>
+<use name=DataFormats/EcalDetId>	
+<use name=DataFormats/EcalDigi>	
+<use name=Geometry/EcalMapping>
+<use name=boost>
+<use name=root>
+
+<export>
+ <lib name=EventFilterEcalRawToDigiDev>
+ <use name=FWCore/PluginManager>
+ <use name=FWCore/Framework>
+ <use name=FWCore/MessageLogger>
+ <use name=DataFormats/FEDRawData>
+ <use name=DataFormats/EcalRawData>	
+ <use name=DataFormats/EcalDetId>	
+ <use name=DataFormats/EcalDigi>		
+ <use name=Geometry/EcalMapping>
+ <use name=boost>	
+ <use name=root>
+</export>

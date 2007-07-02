@@ -1,4 +1,4 @@
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTEcalIsolationProducers.h"
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTHcalIsolationProducers.h"
@@ -6,6 +6,17 @@
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTElectronTrackIsolationProducers.h"
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTRecoEcalCandidateProducers.h"
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTPixelMatchElectronProducers.h"
+#include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTRegionalPixelSeedGeneratorProducers.h"
+
+#include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTHybridClusterProducer.h"
+#include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTIslandClusterProducer.h"
+
+#include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTHcalIsolationProducersRegional.h"
+#include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTEcalIsolationProducersRegional.h"
+#include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTHcalIsolationDoubleConeProducers.h"
+#include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTPhotonTrackIsolationProducersRegional.h"
+#include "RecoEgamma/EgammaHLTProducers/interface/EcalListOfFEDSProducer.h"
+
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(EgammaHLTEcalIsolationProducers);
@@ -14,3 +25,11 @@ DEFINE_ANOTHER_FWK_MODULE(EgammaHLTPhotonTrackIsolationProducers);
 DEFINE_ANOTHER_FWK_MODULE(EgammaHLTElectronTrackIsolationProducers);
 DEFINE_ANOTHER_FWK_MODULE(EgammaHLTRecoEcalCandidateProducers);
 DEFINE_ANOTHER_FWK_MODULE(EgammaHLTPixelMatchElectronProducers);
+DEFINE_ANOTHER_FWK_MODULE(EgammaHLTRegionalPixelSeedGeneratorProducers);
+DEFINE_ANOTHER_FWK_MODULE(EgammaHLTEcalIsolationProducersRegional);
+DEFINE_ANOTHER_FWK_MODULE(EgammaHLTHcalIsolationProducersRegional);
+DEFINE_ANOTHER_FWK_MODULE(EgammaHLTHcalIsolationDoubleConeProducers);
+DEFINE_ANOTHER_FWK_MODULE(EgammaHLTPhotonTrackIsolationProducersRegional);
+DEFINE_ANOTHER_FWK_MODULE(EgammaHLTHybridClusterProducer);
+DEFINE_ANOTHER_FWK_MODULE(EgammaHLTIslandClusterProducer);
+DEFINE_ANOTHER_FWK_MODULE(EcalListOfFEDSProducer);

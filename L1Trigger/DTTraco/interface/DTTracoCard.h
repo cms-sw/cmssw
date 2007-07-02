@@ -4,8 +4,8 @@
  *   Contains active DTTracoChips
  *
  *
- *   $Date: 2006/07/19 10:24:02 $
- *   $Revision: 1.1 $
+ *   $Date: 2007/02/09 11:20:49 $
+ *   $Revision: 1.2 $
  *
  *   \author C. Grandi, S. Vanini 
  *
@@ -61,6 +61,9 @@ class DTTracoCard : public TRACOCache, public DTGeomSupplier {
 
     /// Destructor 
     ~DTTracoCard();
+
+    /// Clear all traco stuff (cache & map)
+    void clearCache();
 
     /// Return config
     inline DTConfigTraco* config() const { return _configTraco; } 

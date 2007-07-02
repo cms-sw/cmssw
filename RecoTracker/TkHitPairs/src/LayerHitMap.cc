@@ -12,42 +12,41 @@
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "RecoTracker/TkHitPairs/interface/TkHitPairsCellManager.h"
 #include "RecoTracker/TkHitPairs/interface/TkHitPairsCacheCell.h"
-#include "Geometry/Surface/interface/BoundCylinder.h"
+#include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 
 using namespace std;
+using namespace ctfseeding;
 
-LayerHitMap::LayerHitMap(const LayerWithHits* layerhits,const edm::EventSetup&iSetup) : theCells(0)
+LayerHitMap::LayerHitMap(const DetLayer* detLayer, const vector<SeedingHit> & hits) 
+  : theCells(0), theHits(hits)
 {
   static int nRZ=5 ;
   static int nPhi=10;
   theNbinsRZ = nRZ;
   theNbinsPhi = nPhi;
+
+//  const DetLayer * detLayer = layer->detLayer();
   
   theLayerPhimin = -M_PI;
   theCellDeltaPhi = 2*M_PI/theNbinsPhi;
-  if (layerhits->layer()->location() == GeomDetEnumerators::barrel) {
-      float z0=layerhits->layer()->surface().position().z();
-    float length =layerhits->layer()->surface().bounds().length();
+  if (detLayer->location() == GeomDetEnumerators::barrel) {
+      float z0=detLayer->surface().position().z();
+    float length =detLayer->surface().bounds().length();
     theLayerRZmin = z0 - length/2.;
     theCellDeltaRZ = length/theNbinsRZ;
   }
   else {
-    const ForwardDetLayer* lf = dynamic_cast<const ForwardDetLayer*>(layerhits->layer());
+    const ForwardDetLayer* lf = dynamic_cast<const ForwardDetLayer*>(detLayer);
     theLayerRZmin = lf->specificSurface().innerRadius();
     float  theLayerRZmax = lf->specificSurface().outerRadius();
     theCellDeltaRZ = (theLayerRZmax-theLayerRZmin)/theNbinsRZ;
-  }
-
-  for (vector<const TrackingRecHit*>::const_iterator ih=layerhits->recHits().begin();
-       ih != layerhits->recHits().end(); ih++){
-    theHits.push_back( TkHitPairsCachedHit(*ih,iSetup));
   }
 }
   
 
       
 
-LayerHitMap::LayerHitMap(const LayerHitMap & lhm,const edm::EventSetup&iSetup)
+LayerHitMap::LayerHitMap(const LayerHitMap & lhm)
     : theCells(0),
       theHits(lhm.theHits),
       theLayerRZmin(lhm.theLayerRZmin),
@@ -70,17 +69,14 @@ LayerHitMapLoop LayerHitMap::loop(
 
 void LayerHitMap::initCells() const
 {
-//  static TimingReport::Item * theTimer =
-//    PixelRecoUtilities::initTiming("-- cache (9) sorting",1);
-//  TimeMe tm( *theTimer, false);
-  vector<TkHitPairsCachedHit> hits(theHits);
+  vector<SeedingHit> hits(theHits);
   int size = hits.size();
 
-  typedef vector<TkHitPairsCachedHit*> Cell;
+  typedef vector<SeedingHit*> Cell;
   Cell aCell; aCell.reserve(2*size/theNbinsRZ);
   vector<Cell> cells(theNbinsRZ, aCell);
 
-  vector<TkHitPairsCachedHit>::iterator ih;
+  vector<SeedingHit>::iterator ih;
   for (ih = hits.begin(); ih != hits.end(); ih++) {
     int irz = idxRz(ih->rOrZ());
     // --- FIX MANDATORY  to make caching work also with SiStrip RecHit
@@ -96,7 +92,7 @@ void LayerHitMap::initCells() const
   Cell::const_iterator ph;
   
   int idx_theHits = 0;
-  vector<TkHitPairsCachedHit>::iterator iBeg, iEnd, ie;
+  vector<SeedingHit>::iterator iBeg, iEnd, ie;
   for (int irz = 0; irz < theNbinsRZ; irz++) {
     Cell & vec = cells[irz];
     sort(vec.begin(), vec.end(), TkHitPairsCacheCell::lessPhiHitHit);

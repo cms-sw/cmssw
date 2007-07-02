@@ -1,6 +1,3 @@
-<include_path path=/home/daqpro/DAQKit-04-01/TriDAS/RunControl/tools/xdaq2rc/include>
-<lib name=xdaq2rc>
-
 <export>
   <lib name=EventFilterResourceBroker>
   <use name=EventFilter/Utilities>

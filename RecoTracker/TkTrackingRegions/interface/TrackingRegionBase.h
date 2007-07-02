@@ -77,11 +77,6 @@ public:
 
   virtual TrackingRegionBase* clone() const = 0;
 
-  static std::string const & name() 
-    { static std::string local("TrackingRegionBase"); return local; }
-  virtual std::string const & getName() const {return name();}
-
-
   static float hitErrZ(const DetLayer *l) {
     // FIXME - pixel vs silicon!
     //MP 

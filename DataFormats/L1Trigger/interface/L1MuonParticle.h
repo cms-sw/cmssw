@@ -5,18 +5,14 @@
 // Package:     L1Trigger
 // Class  :     L1MuonParticle
 // 
-/**\class L1MuonParticle L1MuonParticle.h DataFormats/L1Trigger/interface/L1MuonParticle.h
+/**\class L1MuonParticle \file L1MuonParticle.h DataFormats/L1Trigger/interface/L1MuonParticle.h \author Werner Sun
 
- Description: <one line class summary>
-
- Usage:
-    <usage>
-
+ Description: L1Extra particle class for muon objects.
 */
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1MuonParticle.h,v 1.6 2006/10/17 21:35:17 wsun Exp $
+// $Id: L1MuonParticle.h,v 1.7 2006/11/13 00:18:08 wsun Exp $
 //
 
 // system include files

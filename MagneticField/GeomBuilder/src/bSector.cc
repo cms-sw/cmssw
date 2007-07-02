@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/09/27 15:15:52 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/02/03 16:19:08 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -32,11 +32,11 @@ MagGeoBuilderFromDDD::bSector::bSector(handles::const_iterator begin,
   volumes(begin,end),
   msector(0)
 {
-  if (bldVerb::debugOut) cout << "   Sector at Phi  " <<  volumes.front()->center().phi() << " " 
+  if (MagGeoBuilderFromDDD::debug) cout << "   Sector at Phi  " <<  volumes.front()->center().phi() << " " 
 		  << volumes.back()->center().phi() <<  endl;
 
   if (volumes.size() == 1) {
-    if (bldVerb::debugOut) { 
+    if (MagGeoBuilderFromDDD::debug) { 
       cout << "   Rod at: 0 elements: " << end-begin
 	   << " unique volumes: ";
       volumeHandle::printUniqueNames(begin,end);
@@ -57,7 +57,7 @@ MagGeoBuilderFromDDD::bSector::bSector(handles::const_iterator begin,
     const Geom::Phi<float> resolution(0.01); // rad
     Geom::Phi<float> phi0 = volumes.front()->maxPhi();
     float phiMin = -(float) resolution;
-    float phiMax = volumes.back()->maxPhi() - phi0 + resolution;
+    float phiMax = volumes.back()->maxPhi() - phi0 + resolution; ///FIXME: (float) resolution; ??
 
     ClusterizingHistogram hisPhi( int((phiMax-phiMin)/resolution) + 1,
 				  phiMin, phiMax);
@@ -70,7 +70,7 @@ MagGeoBuilderFromDDD::bSector::bSector(handles::const_iterator begin,
     }
     vector<float> phiClust = hisPhi.clusterize(resolution);
 
-    if (bldVerb::debugOut) cout << "     Found " << phiClust.size() << " clusters in Phi, "
+    if (MagGeoBuilderFromDDD::debug) cout << "     Found " << phiClust.size() << " clusters in Phi, "
 		    << " rods: " << endl;
 
     handles::const_iterator rodStart = first;
@@ -87,11 +87,11 @@ MagGeoBuilderFromDDD::bSector::bSector(handles::const_iterator begin,
       } else {
 	phiSepar = phiMax;
       }
-      if (bldVerb::debugOut) cout << "       cluster " << i
+      if (MagGeoBuilderFromDDD::debug) cout << "       cluster " << i
 		      << " phisepar " << phiSepar <<endl;
       while (separ < last && (*separ)->maxPhi()-phi0 < phiSepar ) {
 	DZ1 += ((*separ)->maxZ() - (*separ)->minZ());
- 	if (bldVerb::debugOut) cout << "         " << (*separ)->name << " "
+ 	if (MagGeoBuilderFromDDD::debug) cout << "         " << (*separ)->name << " "
 			<< (*separ)->maxPhi()-phi0  << " "
 			<< (*separ)->maxZ() << " " << (*separ)->minZ() << " "
 			<< DZ1 << endl;
@@ -101,12 +101,12 @@ MagGeoBuilderFromDDD::bSector::bSector(handles::const_iterator begin,
       // FIXME: print warning for small discrepancies. Tolerance (below)
       // had to be increased since discrepancies sum to up to ~ 2 mm.
       if (fabs(DZ-DZ1) > 0.001 && fabs(DZ-DZ1) < 0.5) {
-	if (bldVerb::debugOut) cout << "*** WARNING: Z lenght mismatch by " << DZ-DZ1
+	if (MagGeoBuilderFromDDD::debug) cout << "*** WARNING: Z lenght mismatch by " << DZ-DZ1
 			<< " " << DZ << " " << DZ1 << endl;
 
       }
       if (fabs(DZ-DZ1) > 0.25 ) { // FIXME hardcoded tolerance
-	if (bldVerb::debugOut) cout << "       Incomplete, use also next cluster: " 
+	if (MagGeoBuilderFromDDD::debug) cout << "       Incomplete, use also next cluster: " 
 			<< DZ << " " << DZ1 << " " << DZ-DZ1 << endl;
 	DZ1 = 0.;
 	continue;
@@ -115,7 +115,7 @@ MagGeoBuilderFromDDD::bSector::bSector(handles::const_iterator begin,
 	volumeHandle::printUniqueNames(rodStart, separ);
 	DZ1 = 0.;
       } else {
-	if (bldVerb::debugOut) {
+	if (MagGeoBuilderFromDDD::debug) {
 	  cout << "       Rod at: " << phiClust[i] <<" elements: "
 	       << separ-rodStart << " unique volumes: ";
 	  volumeHandle::printUniqueNames(rodStart, separ);
@@ -127,7 +127,7 @@ MagGeoBuilderFromDDD::bSector::bSector(handles::const_iterator begin,
       }
     }
 
-    if (bldVerb::debugOut) cout << "-----------------------" << endl;
+    if (MagGeoBuilderFromDDD::debug) cout << "-----------------------" << endl;
 
   }
 }

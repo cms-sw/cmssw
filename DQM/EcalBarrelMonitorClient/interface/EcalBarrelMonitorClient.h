@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2007/02/15 10:03:04 $
- * $Revision: 1.64 $
+ * $Date: 2007/02/15 07:06:51 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -25,8 +25,6 @@
 #include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBClient.h>
-
-#include <DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h>
 
 #include "TROOT.h"
 #include "TH1.h"
@@ -154,8 +152,6 @@ EBCIMMap chb_;
 vector<string> runTypes_;
 vector<EBClient*> clients_; 
 vector<string> clientNames_; 
-
-EBSummaryClient* summaryClient_;
 
 MonitorUserInterface* mui_;
  

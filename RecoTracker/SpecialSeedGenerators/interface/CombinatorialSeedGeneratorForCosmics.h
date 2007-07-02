@@ -7,7 +7,7 @@
  */
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"    
 #include "RecoTracker/TkSeedGenerator/interface/SeedGeneratorFromLayerPairs.h"
@@ -48,6 +48,7 @@ class CombinatorialSeedGeneratorForCosmics : public edm::EDProducer
 	      const edm::EventSetup& c);
  
  private:
+  bool isFirstCall;
   edm::ParameterSet conf_;
   edm::ESHandle<MagneticField> magfield;
   edm::ESHandle<TrackerGeometry> tracker;

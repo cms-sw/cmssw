@@ -3,6 +3,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
+#include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
 
 namespace {
 
@@ -21,6 +22,11 @@ namespace {
   std::vector< SiStripNoises::DetRegistry >::iterator tmp10;
   std::vector< SiStripNoises::DetRegistry >::const_iterator tmp11;
 
+  std::vector<unsigned int>::iterator tmp12;
+  std::vector<unsigned int>::const_iterator tmp13;
+
+  std::vector<float>::iterator tmp14;
+  std::vector<float>::const_iterator tmp15;
 }  
   
 /* 

@@ -1,9 +1,10 @@
 #include "DQM/SiStripCommissioningSummary/interface/SummaryPlotFactory.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
-#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
-using namespace std;
+using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
@@ -11,16 +12,16 @@ template<class T>
 uint32_t SummaryPlotFactory<T>::init( const sistrip::Monitorable& mon, 
 				      const sistrip::Presentation& pres,
 				      const sistrip::View& view, 
-				      const string& level, 
+				      const std::string& level, 
 				      const sistrip::Granularity& gran,
-				      const map<uint32_t,T>& data ) {
+				      const std::map<uint32_t,T>& data ) {
   
   // Some initialisation
   SummaryPlotFactoryBase::init( mon, pres, view, level, gran );
   
   // Transfer appropriate monitorables info to generator object
   if ( !SummaryPlotFactoryBase::generator_ ) { return 0; }
-  typename map<uint32_t,T>::const_iterator iter = data.begin();
+  typename std::map<uint32_t,T>::const_iterator iter = data.begin();
   for ( ; iter != data.end(); iter++ ) {
     static float value = static_cast<float>(iter->second);
     SummaryPlotFactoryBase::generator_->fillMap( SummaryPlotFactoryBase::level_, 

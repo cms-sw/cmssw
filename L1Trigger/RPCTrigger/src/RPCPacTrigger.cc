@@ -47,11 +47,11 @@ L1RpcTBMuonsVec2 RPCPacTrigger::runEvent(const L1RpcLogConesVec& logConesVec) {
     for (unsigned  int iTC = 0; iTC < tcsMuonsVec2.size(); iTC++){
         for (unsigned  int iTB = 0; iTB < tcsMuonsVec2[iTC].size(); iTB++){
 #ifdef _STAND_ALONE
-	  std::cout << "GB 2 " 
+	  std::cout << "GB 2 " << iTB << " "
               <<tcsMuonsVec2[iTC][iTB].printDebugInfo(m_TrigCnfg->getDebugLevel()) 
               << std::endl;
 #else
-	  LogDebug("RPCHwDebug") << "GB 2 " 
+	  LogDebug("RPCHwDebug") << "GB 2 " << iTB << " "
                            <<tcsMuonsVec2[iTC][iTB].printDebugInfo(m_TrigCnfg->getDebugLevel());
 #endif // _STAND_ALONE
         }

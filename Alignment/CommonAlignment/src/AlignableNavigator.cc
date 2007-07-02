@@ -1,12 +1,14 @@
 //  \file AlignableNavigator.cc
 //
-//   $Revision: 1.10 $
-//   $Date: 2007/02/20 17:37:16 $
-//   (last update by $Author: cklae $)
+//   $Revision: 1.8 $
+//   $Date: 2007/01/25 09:01:47 $
+//   (last update by $Author: flucke $)
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableDet.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
 

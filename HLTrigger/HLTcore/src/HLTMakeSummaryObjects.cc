@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/08/16 12:10:23 $
- *  $Revision: 1.13 $
+ *  $Date: 2007/06/03 09:23:03 $
+ *  $Revision: 1.14.2.1 $
  *
  *  \author Martin Grunewald
  *
@@ -11,36 +11,39 @@
 
 #include "HLTrigger/HLTcore/interface/HLTMakeSummaryObjects.h"
 
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/OrphanHandle.h"
-
-#include "DataFormats/HLTReco/interface/HLTGlobalObject.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
-#include "DataFormats/HLTReco/interface/HLTPathObject.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/TriggerNamesService.h"
-
-#include<cassert>
+#include<string>
 
 //
 // constructors and destructor
 //
 HLTMakeSummaryObjects::HLTMakeSummaryObjects(const edm::ParameterSet& iConfig)
+  : tns_(), fob0_(), fob1_(), fob2_(), fobs_(), fobnames_(), pobs_()
 {
 
-   edm::Service<edm::service::TriggerNamesService> tns;
-   names_=tns->getTrigPaths();
-   const unsigned int n(names_.size());
-   LogDebug("") << "Number of trigger paths: " << n;
+  if (edm::Service<edm::service::TriggerNamesService>().isAvailable()) {
+    // get tns pointer
+    tns_ = edm::Service<edm::service::TriggerNamesService>().operator->();
+    if (tns_!=0) {
+      const std::vector<std::string>& paths(tns_->getTrigPaths());
+      const unsigned int n(paths.size());
+      LogDebug("") << "Number of trigger paths: " << n;
 
-   //register your products
-   for (unsigned int i=0; i!=n; i++) {
-     produces<reco::HLTPathObject>(names_[i]);
-   }
-   produces<reco::HLTGlobalObject>();
+      //register your products
+      for (unsigned int p=0; p!=n; ++p) {
+	const std::string& path(paths[p]);
+	produces<reco::HLTPathObject>(path);
+	LogTrace("") << "Trigger path " << p << ": " << path;
+      }
+      produces<reco::HLTGlobalObject>();
+    } else {
+      LogDebug("") << "HLT Error: TriggerNamesService pointer = 0!";
+    }
+  } else {
+    LogDebug("") << "HLT Error: TriggerNamesService not available!";
+  }
+
 }
 
 HLTMakeSummaryObjects::~HLTMakeSummaryObjects()
@@ -59,58 +62,69 @@ HLTMakeSummaryObjects::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    using namespace edm;
    using namespace reco;
 
+   if (tns_==0) {
+     LogDebug("") << "HLT Error: tns_==0. Zero path summary objects and one empty global summary object put into the Event!";
+     auto_ptr<HLTGlobalObject> globalobject (new HLTGlobalObject(0));
+     iEvent.put(globalobject);
+     return;
+   }
 
    // get all possible types of filter objects
 
-   vector<Handle<HLTFilterObjectBase    > > fob0;
-   vector<Handle<HLTFilterObject        > > fob1;
-   vector<Handle<HLTFilterObjectWithRefs> > fob2;
+   fob0_.clear();
+   fob1_.clear();
+   fob2_.clear();
 
-   iEvent.getManyByType(fob0);
-   iEvent.getManyByType(fob1);
-   iEvent.getManyByType(fob2);
+   iEvent.getManyByType(fob0_);
+   iEvent.getManyByType(fob1_);
+   iEvent.getManyByType(fob2_);
 
-   const unsigned int n0(fob0.size());
-   const unsigned int n1(fob1.size());
-   const unsigned int n2(fob2.size());
+   const unsigned int n0(fob0_.size());
+   const unsigned int n1(fob1_.size());
+   const unsigned int n2(fob2_.size());
 
    LogDebug("") << "Number of filter objects found: " << n0 << " " << n1 << " " << n2;
 
-
    // store RefToBases and their labels, to all filter objects found,
    // in single vectors in order to allow unified treatment
-   const unsigned int n(n0+n1+n2);
-   vector<RefToBase<HLTFilterObjectBase> > fobs(n);
-   vector<string> fobnames(n);
-   unsigned int i(0);
-   for (unsigned int i0=0; i0!=n0; i0++) {
-     fobs[i]=RefToBase<HLTFilterObjectBase>(RefProd<HLTFilterObjectBase>(fob0[i0]));
-     fobnames[i]=fob0[i0].provenance()->moduleLabel();
-     i++;
-   }
-   for (unsigned int i1=0; i1!=n1; i1++) {
-     fobs[i]=RefToBase<HLTFilterObjectBase>(RefProd<HLTFilterObject    >(fob1[i1]));
-     fobnames[i]=fob1[i1].provenance()->moduleLabel();
-     i++;
-   }
-   for (unsigned int i2=0; i2!=n2; i2++) {
-     fobs[i]=RefToBase<HLTFilterObjectBase>(RefProd<HLTFilterObjectWithRefs>(fob2[i2]));
-     fobnames[i]=fob2[i2].provenance()->moduleLabel();
-     i++;
-   }
-   // from now on, use only this combined vector!
 
-   edm::Service<edm::service::TriggerNamesService> tns;
+   const unsigned int nfobs(n0+n1+n2);
+   fobs_.resize(nfobs);
+   fobnames_.resize(nfobs);
+
+   unsigned int i(0);
+   for (unsigned int i0=0; i0!=n0; ++i0) {
+     fobs_[i]=RefToBase<HLTFilterObjectBase>(RefProd<HLTFilterObjectBase    >(fob0_[i0]));
+     fobnames_[i]=&(fob0_[i0].provenance()->moduleLabel());
+     ++i;
+   }
+   for (unsigned int i1=0; i1!=n1; ++i1) {
+     fobs_[i]=RefToBase<HLTFilterObjectBase>(RefProd<HLTFilterObject        >(fob1_[i1]));
+     fobnames_[i]=&(fob1_[i1].provenance()->moduleLabel());
+     ++i;
+   }
+   for (unsigned int i2=0; i2!=n2; ++i2) {
+     fobs_[i]=RefToBase<HLTFilterObjectBase>(RefProd<HLTFilterObjectWithRefs>(fob2_[i2]));
+     fobnames_[i]=&(fob2_[i2].provenance()->moduleLabel());
+     ++i;
+   }
+   assert (i==nfobs);
+
+   // from now on, use only this combined vector!
 
    // construct the path objects and insert them in the Event
    // - currently we construct and insert "empty" path objects for paths
    // for which there is not filter object found!
 
-   vector<OrphanHandle<HLTPathObject> > pobs(names_.size());
+   const vector<string>& paths(tns_->getTrigPaths());
+   const unsigned int n(paths.size());
+   pobs_.resize(n);
 
    // loop over all trigger paths
-   for (unsigned int p=0; p!=names_.size(); p++) {
+   for (unsigned int p=0; p!=n; ++p) {
      // path with path number p according to trigger names service
+     const string& path(paths[p]);
+     LogTrace("") << "Trigger path " << p << ": " << path;
 
      // create, fill and insert path summary object for path with number p
      auto_ptr<HLTPathObject> pathobject (new HLTPathObject(p));
@@ -122,29 +136,31 @@ HLTMakeSummaryObjects::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
      // which is supposed to be re-used.
 
      // loop over all modules on trigger path p
-     for (unsigned int m=0; m!=tns->getTrigPathModules(p).size(); m++) {
+     const vector<string>& modules(tns_->getTrigPathModules(p));
+     const unsigned int pm(modules.size());
+     for (unsigned int m=0; m!=pm; ++m) {
        // module with module number m and instance name
-       const string name(tns->getTrigPathModule(p,m));
+       const string& module(modules[m]);
 
        // number of objects alreay found and inserted
        unsigned int count(0);
 
        // loop over filter objects actually in this event
-       for (unsigned int i=0; i!=n; i++) {
+       for (unsigned int i=0; i!=nfobs; ++i) {
 	 // filter object fobs[i] produced by module instance name?
-	 if (name==fobnames[i]) {
+	 if (module==(*(fobnames_[i]))) {
 	   // no other found already?
 	   if (count==0) {
 	     // insert and document
-	     pathobject->put(fobs[i]);
-             LogDebug("") << "Path/module " << names_[p] << " " << name 
+	     pathobject->put(fobs_[i]);
+             LogTrace("") << "  Path/module " << path << " " << module
              << " [" << p << " , " << m << " ] " << i
-             << " [" << fobs[i]->path() << " , " << fobs[i]->module() << " ] ";
+             << " [" << fobs_[i]->path() << " , " << fobs_[i]->module() << " ] ";
 	   } else {
 	     // have already found at least one earlier - a problem!
-             LogDebug("") << "Path/module " << names_[p] << " " << name 
+             LogTrace("") << "  Path/module " << path << " " << module
              << " [" << p << " , " << m << " ] " << i
-             << " [" << fobs[i]->path() << " , " << fobs[i]->module() << " ] " 
+             << " [" << fobs_[i]->path() << " , " << fobs_[i]->module() << " ] " 
              << " is duplicate - ignored: " << count;
 	   }
 	   count++;
@@ -152,21 +168,22 @@ HLTMakeSummaryObjects::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
        }
      }
 
-     LogDebug("") << "Path " << names_[p] << " Number of filter objects: " << pathobject->size();
-     pobs[p]=iEvent.put(pathobject,names_[p]);
+     LogTrace("") << "Trigger path " << p << ": " << path
+		  << " Number of filter objects: " << pathobject->size();
+     pobs_[p]=iEvent.put(pathobject,path);
    }
 
-   // create, fill and insert the single global object
-   // - currently we insert an "empty" global object, even
-   // if no path objects are found!
+   // create, fill and insert the single global object of size n
+   // - currently we insert an "empty" global object (n=0)
+   // if no path objects are found (n=0)!
 
-   auto_ptr<HLTGlobalObject> globalobject (new HLTGlobalObject);
-   for (unsigned int p=0; p!=names_.size(); p++) {
-     globalobject->put(RefProd<HLTPathObject>(pobs[p]));
+   auto_ptr<HLTGlobalObject> globalobject (new HLTGlobalObject(n));
+   for (unsigned int p=0; p!=n; ++p) {
+     globalobject->put(RefProd<HLTPathObject>(pobs_[p]));
    }
 
    iEvent.put(globalobject);
-   LogDebug("") << "Number of path objects processed: " << pobs.size();
+   LogTrace("") << "Number of path objects processed: " << pobs_.size();
 
    return;
 }

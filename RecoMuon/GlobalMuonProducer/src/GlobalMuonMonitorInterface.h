@@ -5,18 +5,14 @@
  *
  * Interface to the Muon inter-module Monitoring Module.
  *  
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/12/13 20:22:39 $
+ *  $Revision: 1.1 $
  *
  * \author A. Everett - Purdue University
  *
  */
 
 #include <string>
-
-using namespace std;
-//using namespace edm;
-
 
 class GlobalMuonMonitorInterface{
   
@@ -25,21 +21,21 @@ class GlobalMuonMonitorInterface{
   GlobalMuonMonitorInterface(){}
   virtual ~GlobalMuonMonitorInterface(){}
   
-  virtual void book1D(string name, string title, int nchX, 
+  virtual void book1D(std::string name, std::string title, int nchX, 
 		      double lowX, double highX) = 0; 
-  virtual void book1D(string level, string name, string title, 
+  virtual void book1D(std::string level, std::string name, std::string title, 
 		      int nchX, double lowX, double highX) = 0;
-  virtual void book2D(string name, string title, int nchX, 
+  virtual void book2D(std::string name, std::string title, int nchX, 
 		      double lowX, double highX, int nchY,
 		      double lowY, double highY) = 0;
-  virtual void book2D(string level, string name, string title,
+  virtual void book2D(std::string level, std::string name, std::string title,
 		      int nchX, double lowX, double highX, 
 		      int nchY, double lowY, double highY) = 0;
-  virtual void save(string) = 0;
-  virtual void fill1(string, double a, double b=1.) = 0;
-  virtual void fill1(string, string, double a, double b=1.) = 0;
-  virtual void fill2(string, double a, double b, double c=1.) = 0;
-  virtual void fill2(string, string, double a, double b, double c=1.) = 0;
+  virtual void save(std::string) = 0;
+  virtual void fill1(std::string, double a, double b=1.) = 0;
+  virtual void fill1(std::string, std::string, double a, double b=1.) = 0;
+  virtual void fill2(std::string, double a, double b, double c=1.) = 0;
+  virtual void fill2(std::string, std::string, double a, double b, double c=1.) = 0;
   
  private:
   

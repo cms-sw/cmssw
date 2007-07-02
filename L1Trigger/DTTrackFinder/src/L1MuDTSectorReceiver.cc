@@ -5,8 +5,8 @@
 //   Description: Sector Receiver 
 //
 //
-//   $Date: 2007/01/23 10:38:06 $
-//   $Revision: 1.4 $
+//   $Date: 2007/02/27 11:44:00 $
+//   $Revision: 1.6 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -31,7 +31,7 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include <FWCore/Framework/interface/Handle.h>
+#include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTFConfig.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSectorProcessor.h"

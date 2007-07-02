@@ -1,6 +1,6 @@
 // File: BaseJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BaseJetProducer.cc,v 1.7 2007/02/08 01:46:12 fedor Exp $
+// $Id: BaseJetProducer.cc,v 1.8.2.1 2007/04/04 20:20:16 fedor Exp $
 //--------------------------------------------
 #include <memory>
 
@@ -92,7 +92,7 @@ namespace cms
 
     // run algorithm
     if (input.empty ()) {
-      edm::LogWarning("Empty Event") << "empty input for jet algorithm: bypassing..." << std::endl;
+      edm::LogInfo("Empty Event") << "empty input for jet algorithm: bypassing..." << std::endl;
     }
     else {
       runAlgorithm (input, &output);
@@ -131,13 +131,13 @@ namespace cms
     if (genJets.get ()) {
       GreaterByPt<GenJet> compJets;
       std::sort (genJets->begin (), genJets->end (), compJets);
-      if (mVerbose) dumpJets (*caloJets);
+      if (mVerbose) dumpJets (*genJets);
       e.put(genJets);  //Puts Jet Collection into event
     }
     if (basicJets.get ()) {
       GreaterByPt<BasicJet> compJets;
       std::sort (basicJets->begin (), basicJets->end (), compJets);
-      if (mVerbose) dumpJets (*caloJets);
+      if (mVerbose) dumpJets (*basicJets);
       e.put(basicJets);  //Puts Jet Collection into event
     }
     // output printout

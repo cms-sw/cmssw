@@ -27,7 +27,8 @@ class TrajectoryStateClosestToPoint
 
 public:
 
-  TrajectoryStateClosestToPoint() {}
+  TrajectoryStateClosestToPoint():
+    theFTSavailable(false), errorIsAvailable(false) {}
 
   /**
    * Public constructor, which is used to convert perigee 

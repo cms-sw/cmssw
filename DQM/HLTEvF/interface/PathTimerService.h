@@ -7,7 +7,7 @@
 // 
 //
 // Original Author:  David Lange
-// $Id: Timing.h,v 1.3 2006/08/16 13:36:28 chrjones Exp $
+// $Id: PathTimerService.h,v 1.2 2007/03/10 10:31:26 dlange Exp $
 //
 #include "sigc++/signal.h"
 
@@ -59,7 +59,8 @@ namespace edm {
       std::map<int, std::string> _pathMapping;
       std::map<std::string, unsigned int> _lastModuleToRun;
       std::auto_ptr<HLTPerformanceInfo> _perfInfo;
-
+      std::vector< std::vector<unsigned int> > _newPathIndex ; 
+        
     };
   }
 }

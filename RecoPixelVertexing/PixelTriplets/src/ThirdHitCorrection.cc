@@ -33,7 +33,7 @@ ThirdHitCorrection::ThirdHitCorrection(const edm::EventSetup& es,
 
   if (!theUseMultipleScattering && !theUseBendingCorrection) return;
   theSinTheta = 1/sqrt(1+sqr(line.cotLine()));
-  theCosTheta = 1/sqrt(1+sqr(1/line.cotLine()));
+  theCosTheta = fabs(line.cotLine())/sqrt(1+sqr(line.cotLine()));
   theBarrel = (layer->location() == GeomDetEnumerators::barrel);
 
   if (theUseMultipleScattering) {
@@ -43,6 +43,11 @@ ThirdHitCorrection::ThirdHitCorrection(const edm::EventSetup& es,
   if (theUseBendingCorrection) {
     theBendingCorrection = new LongitudinalBendingCorrection(pt,es); 
   }
+}
+
+ThirdHitCorrection::~ThirdHitCorrection()
+{
+  delete theBendingCorrection;
 }
 
 void ThirdHitCorrection::correctRPhiRange( Range & range) const

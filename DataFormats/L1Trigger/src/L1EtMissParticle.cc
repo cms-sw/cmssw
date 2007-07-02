@@ -3,12 +3,12 @@
 // Package:     L1Trigger
 // Class  :     L1EtMissParticle
 // 
-// Implementation:
-//     <Notes on implementation>
+/**\class L1EtMissParticle \file L1EtMissParticle.cc DataFormats/L1Trigger/src/L1EtMissParticle.cc \author Werner Sun
+*/
 //
 // Original Author:  Werner Sun
 //         Created:  Tue Jul 25 18:22:52 EDT 2006
-// $Id: L1EtMissParticle.cc,v 1.2 2006/08/02 14:22:33 wsun Exp $
+// $Id: L1EtMissParticle.cc,v 1.3 2006/08/10 18:47:42 wsun Exp $
 //
 
 // system include files

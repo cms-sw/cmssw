@@ -10,7 +10,7 @@
 //          $Created:  
 // $Id: 
 //
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "AnalysisDataFormats/TrackInfo/interface/TrackInfo.h"

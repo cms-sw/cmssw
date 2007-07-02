@@ -12,7 +12,7 @@
      Storage Manager I2O input
      See CMS EvF Storage Manager wiki page for further notes.
 
-   $Id: i2oStorageManagerMsg.h,v 1.10 2007/02/01 20:34:57 hcheung Exp $
+   $Id$
 */
 
 // These are the I2O function codes (should be) reserved for SM use
@@ -35,12 +35,16 @@
 //
 // Actual value can be defined to any multiple of 8 bytes
 // and less than I2O_ABSOLUTE_MAX_SIZE
-// set the default if no value is given in the output module
 #define I2O_MAX_SIZE 64000
-// max data I2O frame needs to be calculated as e.g.
+// max data I2O frame needs to be calculated as
 // I2O_MAX_SIZE - headers = I2O_MAX_SIZE - 28 -136
-// now done dynamically in e.g. FUStreamerI2OWriter.cc
-//
+#define MAX_I2O_SM_DATASIZE 63836
+// registry data array size is I2O_MAX_SIZE - 28 - 128
+#define MAX_I2O_REGISTRY_DATASIZE 63844
+// other data array size is I2O_MAX_SIZE - 28 - 132
+#define MAX_I2O_OTHER_DATASIZE 63840
+// DQM data array size is I2O_MAX_SIZE - 28 - 136
+#define MAX_I2O_DQM_DATASIZE 63836
 // maximum characters for the source class name and url
 #define MAX_I2O_SM_URLCHARS 50
 
@@ -90,11 +94,10 @@ typedef struct _I2O_SM_OTHER_MESSAGE_FRAME : _I2O_SM_MULTIPART_MESSAGE_FRAME {
 } I2O_SM_OTHER_MESSAGE_FRAME, *PI2O_SM_OTHER_MESSAGE_FRAME;
 
 /**
- * Storage Manager DQM Messages
+ * Storage Manager OTHER Messages
  */
 typedef struct _I2O_SM_DQM_MESSAGE_FRAME : _I2O_SM_MULTIPART_MESSAGE_FRAME {
    uint32                    runID;
-   uint32                    eventAtUpdateID;
    uint32                    folderID;
    char* dataPtr()           const { return (char*)this+sizeof(_I2O_SM_DQM_MESSAGE_FRAME); }
 } I2O_SM_DQM_MESSAGE_FRAME, *PI2O_SM_DQM_MESSAGE_FRAME;

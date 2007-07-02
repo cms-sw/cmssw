@@ -1,0 +1,14 @@
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/PluginManager>
+<use name=FWCore/Utilities>
+<use name=DataFormats/L1GlobalTrigger>
+<flags SEAL_PLUGIN_NAME="L1TriggerSkimmer">
+<export>
+<lib name=L1TriggerSkimmer>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/PluginManager>
+<use name=FWCore/Utilities>
+<use name=DataFormats/L1GlobalTrigger>
+</export>

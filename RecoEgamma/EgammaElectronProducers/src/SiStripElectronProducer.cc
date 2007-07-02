@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri May 26 16:11:30 EDT 2006
-// $Id: SiStripElectronProducer.cc,v 1.9 2006/09/20 12:18:42 rahatlou Exp $
+// $Id: SiStripElectronProducer.cc,v 1.10 2007/02/02 14:50:20 duboscq Exp $
 //
 
 // system include files
@@ -25,7 +25,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"

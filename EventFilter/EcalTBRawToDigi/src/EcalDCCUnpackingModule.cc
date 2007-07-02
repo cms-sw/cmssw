@@ -1,7 +1,7 @@
 /* \file EcalDCCUnpackingModule.h
  *
- *  $Date: 2006/09/19 14:31:52 $
- *  $Revision: 1.28 $
+ *  $Date: 2007/03/18 12:13:18 $
+ *  $Revision: 1.32 $
  *  \author N. Marinelli
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -22,12 +22,9 @@
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
 #include <DataFormats/EcalRawData/interface/EcalRawDataCollections.h>
 #include <TBDataFormats/EcalTBObjects/interface/EcalTBCollections.h>
-#include <FWCore/Framework/interface/Handle.h>
+#include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
 
-
-using namespace edm;
-using namespace std;
 
 
 #include <iostream>
@@ -94,83 +91,83 @@ void EcalDCCUnpackingModule::endJob(){
 
 void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
 
-  Handle<FEDRawDataCollection> rawdata;
+  edm::Handle<FEDRawDataCollection> rawdata;
   e.getByType(rawdata);
   
 
   // create the collection of Ecal Digis
-  auto_ptr<EBDigiCollection> productEb(new EBDigiCollection);
+  std::auto_ptr<EBDigiCollection> productEb(new EBDigiCollection);
 
   // create the collection of Matacq Digi
-  auto_ptr<EcalMatacqDigiCollection> productMatacq(new EcalMatacqDigiCollection());
+  std::auto_ptr<EcalMatacqDigiCollection> productMatacq(new EcalMatacqDigiCollection());
 
   // create the collection of Ecal PN's
-  auto_ptr<EcalPnDiodeDigiCollection> productPN(new EcalPnDiodeDigiCollection);
+  std::auto_ptr<EcalPnDiodeDigiCollection> productPN(new EcalPnDiodeDigiCollection);
   
   //create the collection of Ecal DCC Header
-  auto_ptr<EcalRawDataCollection> productDCCHeader(new EcalRawDataCollection);
+  std::auto_ptr<EcalRawDataCollection> productDCCHeader(new EcalRawDataCollection);
 
   // create the collection with trigger primitives, bits and flags
-  auto_ptr<EcalTrigPrimDigiCollection> productTriggerPrimitives(new EcalTrigPrimDigiCollection);
+  std::auto_ptr<EcalTrigPrimDigiCollection> productTriggerPrimitives(new EcalTrigPrimDigiCollection);
 
   // create the collection of Ecal Integrity DCC Size
-  auto_ptr<EBDetIdCollection> productDCCSize(new EBDetIdCollection);
+  std::auto_ptr<EBDetIdCollection> productDCCSize(new EBDetIdCollection);
 
   // create the collection of Ecal Integrity TT Id
-  auto_ptr<EcalTrigTowerDetIdCollection> productTTId(new EcalTrigTowerDetIdCollection);
+  std::auto_ptr<EcalTrigTowerDetIdCollection> productTTId(new EcalTrigTowerDetIdCollection);
 
   // create the collection of Ecal Integrity TT Block Size
-  auto_ptr<EcalTrigTowerDetIdCollection> productBlockSize(new EcalTrigTowerDetIdCollection);
+  std::auto_ptr<EcalTrigTowerDetIdCollection> productBlockSize(new EcalTrigTowerDetIdCollection);
 
   // create the collection of Ecal Integrity Ch Id
-  auto_ptr<EBDetIdCollection> productChId(new EBDetIdCollection);
+  std::auto_ptr<EBDetIdCollection> productChId(new EBDetIdCollection);
 
   // create the collection of Ecal Integrity Gain
-  auto_ptr<EBDetIdCollection> productGain(new EBDetIdCollection);
+  std::auto_ptr<EBDetIdCollection> productGain(new EBDetIdCollection);
 
   // create the collection of Ecal Integrity Gain Switch
-  auto_ptr<EBDetIdCollection> productGainSwitch(new EBDetIdCollection);
+  std::auto_ptr<EBDetIdCollection> productGainSwitch(new EBDetIdCollection);
 
   // create the collection of Ecal Integrity Gain Switch Stay
-  auto_ptr<EBDetIdCollection> productGainSwitchStay(new EBDetIdCollection);
+  std::auto_ptr<EBDetIdCollection> productGainSwitchStay(new EBDetIdCollection);
 
   // create the collection of Ecal Integrity Mem towerBlock_id errors
-  auto_ptr<EcalElectronicsIdCollection> productMemTtId(new EcalElectronicsIdCollection);
+  std::auto_ptr<EcalElectronicsIdCollection> productMemTtId(new EcalElectronicsIdCollection);
   
   // create the collection of Ecal Integrity Mem gain errors
-  auto_ptr< EcalElectronicsIdCollection> productMemBlockSize(new EcalElectronicsIdCollection);
+  std::auto_ptr< EcalElectronicsIdCollection> productMemBlockSize(new EcalElectronicsIdCollection);
 
   // create the collection of Ecal Integrity Mem gain errors
-  auto_ptr< EcalElectronicsIdCollection> productMemGain(new EcalElectronicsIdCollection);
+  std::auto_ptr< EcalElectronicsIdCollection> productMemGain(new EcalElectronicsIdCollection);
   
   // create the collection of Ecal Integrity Mem ch_id errors
-  auto_ptr<EcalElectronicsIdCollection> productMemChIdErrors(new EcalElectronicsIdCollection);
+  std::auto_ptr<EcalElectronicsIdCollection> productMemChIdErrors(new EcalElectronicsIdCollection);
   
   // create the collection of TB specifics data
-  auto_ptr<EcalTBHodoscopeRawInfo> productHodo(new EcalTBHodoscopeRawInfo());         
-  auto_ptr<EcalTBTDCRawInfo> productTdc(new EcalTBTDCRawInfo());                      
-  auto_ptr<EcalTBEventHeader> productHeader(new EcalTBEventHeader());                      
+  std::auto_ptr<EcalTBHodoscopeRawInfo> productHodo(new EcalTBHodoscopeRawInfo());         
+  std::auto_ptr<EcalTBTDCRawInfo> productTdc(new EcalTBTDCRawInfo());                      
+  std::auto_ptr<EcalTBEventHeader> productHeader(new EcalTBEventHeader());                      
 
 
   try {
 
   for (int id= 0; id<=FEDNumbering::lastFEDId(); ++id){ 
 
-    //    LogInfo("EcalDCCUnpackingModule") << "EcalDCCUnpackingModule::Got FED ID "<< id <<" ";
+    //    edm::LogInfo("EcalDCCUnpackingModule") << "EcalDCCUnpackingModule::Got FED ID "<< id <<" ";
     const FEDRawData& data = rawdata->FEDData(id);
-    //    LogInfo("EcalDCCUnpackingModule") << " Fed data size " << data.size() ;
+    //    edm::LogInfo("EcalDCCUnpackingModule") << " Fed data size " << data.size() ;
    
-    //cout <<"1 Fed id: "<<dec<<id<< " Fed data size: " <<data.size() << endl;
+    //std::cout <<"1 Fed id: "<<dec<<id<< " Fed data size: " <<data.size() << std::endl;
 //    const unsigned char * pData = data.data();
 //    int length = data.size();
 //    if(length >0 ){
 //      if(length >= 40){length = 40;}
-//    cout<<"##############################################################"<<endl;
+//    std::cout<<"##############################################################"<<std::endl;
 //    for( int i=0; i<length; i++ ) {
 //      std::cout << std::hex << std::setw(8) << int(pData[i]) << " ";
 //      if( (i+1)%8 == 0 ) std::cout << std::endl;
 //     }
-//    cout<<"##############################################################"<<endl;
+//    std::cout<<"##############################################################"<<std::endl;
 //    } 
     if (data.size()>16){
 
@@ -232,11 +229,13 @@ void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
   e.put(productHeader);
 
   } catch (ECALParserException &e) {
-    cout << "[EcalDCCUnpackingModule] " << e.what() << endl;
+    std::cout << "[EcalDCCUnpackingModule] " << e.what() << std::endl;
   } catch (ECALParserBlockException &e) {
-    cout << "[EcalDCCUnpackingModule] " << e.what() << endl;
+    std::cout << "[EcalDCCUnpackingModule] " << e.what() << std::endl;
+  } catch (cms::Exception &e) {
+    std::cout << "[EcalDCCUnpackingModule] " << e.what() << std::endl;
   } catch (...) {
-    cout << "[EcalDCCUnpackingModule] Unknown exception ..." << endl;
+    std::cout << "[EcalDCCUnpackingModule] Unknown exception ..." << std::endl;
   }
 
 }

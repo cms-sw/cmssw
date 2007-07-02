@@ -21,8 +21,6 @@ GlobalDigisProducer::GlobalDigisProducer(const edm::ParameterSet& iPSet) :
   //get Labels to use to extract information
   ECalEBSrc_ = iPSet.getParameter<edm::InputTag>("ECalEBSrc");
   ECalEESrc_ = iPSet.getParameter<edm::InputTag>("ECalEESrc");
-  ECalESSrc_ = iPSet.getParameter<edm::InputTag>("ECalESSrc");
-  HCalSrc_ = iPSet.getParameter<edm::InputTag>("HCalSrc");
 
   // use value of first digit to determine default output level (inclusive)
   // 0 is none, 1 is basic, 2 is fill output, 3 is gather output
@@ -46,15 +44,10 @@ GlobalDigisProducer::GlobalDigisProducer(const edm::ParameterSet& iPSet) :
       << ":" << ECalEBSrc_.instance() << "\n"
       << "    ECalEESrc     = " << ECalEESrc_.label() 
       << ":" << ECalEESrc_.instance() << "\n"
-      << "    ECalESSrc     = " << ECalESSrc_.label() 
-      << ":" << ECalESSrc_.instance() << "\n"
-      << "    HCalSrc       = " << HCalSrc_.label() 
-      << ":" << HCalSrc_.instance() << "\n"
       << "===============================\n";
   }
 
   // set default constants
-  // ECal
   ECalgainConv_[0] = 0.;
   ECalgainConv_[1] = 1.;
   ECalgainConv_[2] = 2.;
@@ -176,8 +169,6 @@ void GlobalDigisProducer::produce(edm::Event& iEvent,
   // call fill functions
   // gather Ecal information from event
   fillECal(iEvent, iSetup);
-  // gather Hcal information from event
-  fillHCal(iEvent, iSetup);
 
   if (verbosity > 0)
     edm::LogInfo (MsgLoggerCat)
@@ -193,8 +184,6 @@ void GlobalDigisProducer::produce(edm::Event& iEvent,
   // call store functions
   // store ECal information in produce
   storeECal(*pOut);
-  // store HCal information in produce
-  storeHCal(*pOut);
 
   // store information in event
   iEvent.put(pOut,label);
@@ -323,6 +312,7 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
       eventout += "\n          Number of EBDigis collected:.............. ";
       eventout += i;
     }
+
   }
 
   /////////////////////////
@@ -430,79 +420,6 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
     }
   }
 
-  /////////////////////////
-  //extract ES information
-  ////////////////////////
-  bool isPreshower = true;
-  edm::Handle<ESDigiCollection> EcalDigiES;  
-  const ESDigiCollection *ESdigis = 0;
-  iEvent.getByLabel(ECalESSrc_, EcalDigiES);
-  if (!EcalDigiES.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
-      << "Unable to find EcalDigiES in event!";
-    return;
-  }  
-  ESdigis = EcalDigiES.product();
-  if (ESdigis->size() == 0) isPreshower = false;
-
-  if (isPreshower) {
-
-    // loop over simhits
-    const std::string preshowerHitsName("EcalHitsES");
-    std::auto_ptr<MixCollection<PCaloHit> >
-      preshowerHits(new MixCollection<PCaloHit>
-		 (crossingFrame.product(), preshowerHitsName));
-
-    // keep track of sum of simhit energy in each crystal
-    MapType esSimMap;
-    for (MixCollection<PCaloHit>::MixItr hitItr 
-	   = preshowerHits->begin();
-	 hitItr != preshowerHits->end();
-	 ++hitItr) {
-
-      ESDetId esid = ESDetId(hitItr->id());
-
-      uint32_t crystid = esid.rawId();
-      esSimMap[crystid] += hitItr->energy();
-    }
-
-    // loop over digis
-    const ESDigiCollection *preshowerDigi = EcalDigiES.product();
-
-    std::vector<double> esADCCounts;
-    esADCCounts.reserve(ESDataFrame::MAXSAMPLES);
-
-    int i = 0;
-    for (std::vector<ESDataFrame>::const_iterator digis =
-	   preshowerDigi->begin();
-	 digis != preshowerDigi->end();
-	 ++digis) {
-
-      ++i;
-
-      ESDetId esid = digis->id();
-        
-      for (int sample = 0; sample < digis->size(); ++sample) {
-	esADCCounts[sample] = 0.;
-      }
-  
-      // gether ADC counts
-      for (int sample = 0; sample < digis->size(); ++sample) {
-	esADCCounts[sample] = (digis->sample(sample).adc());
-      }
-
-      ESCalADC0.push_back(esADCCounts[0]);
-      ESCalADC1.push_back(esADCCounts[1]);
-      ESCalADC2.push_back(esADCCounts[2]);
-      ESCalSHE.push_back(esSimMap[esid.rawId()]);
-    }
-    
-    if (verbosity > 1) {
-      eventout += "\n          Number of ESDigis collected:.............. ";
-      eventout += i;
-    }
-  }
-
   if (verbosity > 0)
     edm::LogInfo(MsgLoggerCat) << eventout << "\n";
 
@@ -514,39 +431,22 @@ void GlobalDigisProducer::storeECal(PGlobalDigi& product)
   std::string MsgLoggerCat = "GlobalDigisProducer_storeECal";
 
   if (verbosity > 2) {
-    TString eventout("\n         nEBDigis     = ");
+    TString eventout("\n            nEBDigis                 = ");
     eventout += EBCalmaxPos.size();
     for (unsigned int i = 0; i < EBCalmaxPos.size(); ++i) {
-      eventout += "\n      (maxPos, AEE, SHE) = (";
-      eventout += EBCalmaxPos[i];
-      eventout += ", ";
+      eventout += "\n      (AEE, SHE) = (";
       eventout += EBCalAEE[i];
       eventout += ", ";
       eventout += EBCalSHE[i];
       eventout += ")";
     }
-    eventout += "\n         nEEDigis     = ";
+    eventout += "\n            nEEDigis                 = ";
     eventout += EECalmaxPos.size();
     for (unsigned int i = 0; i < EECalmaxPos.size(); ++i) {
-      eventout += "\n      (maxPos, AEE, SHE) = (";
-      eventout += EECalmaxPos[i];
-      eventout += ", ";
+      eventout += "\n      (AEE, SHE) = (";
       eventout += EECalAEE[i];
       eventout += ", ";
       eventout += EECalSHE[i];
-      eventout += ")";
-    }
-    eventout += "\n         nESDigis          = ";
-    eventout += ESCalADC0.size();
-    for (unsigned int i = 0; i < ESCalADC0.size(); ++i) {
-      eventout += "\n      (ADC0, ADC1, ADC2, SHE) = (";
-      eventout += ESCalADC0[i];
-      eventout += ", ";
-      eventout += ESCalADC1[i];
-      eventout += ", ";
-      eventout += ESCalADC2[i];
-      eventout += ", ";
-      eventout += ESCalSHE[i];
       eventout += ")";
     }
     edm::LogInfo(MsgLoggerCat) << eventout << "\n";
@@ -554,271 +454,6 @@ void GlobalDigisProducer::storeECal(PGlobalDigi& product)
 
   product.putEBCalDigis(EBCalmaxPos,EBCalAEE,EBCalSHE);
   product.putEECalDigis(EECalmaxPos,EECalAEE,EECalSHE);
-  product.putESCalDigis(ESCalADC0,ESCalADC1,ESCalADC2,ESCalSHE);
-
-  return;
-}
-
-void GlobalDigisProducer::fillHCal(edm::Event& iEvent, 
-				   const edm::EventSetup& iSetup)
-{
-  std::string MsgLoggerCat = "GlobalDigisProducer_fillHCal";
-
-  TString eventout;
-  if (verbosity > 0)
-    eventout = "\nGathering info:";  
-
-  // get calibration info
-  edm::ESHandle<HcalDbService> HCalconditions;
-  iSetup.get<HcalDbRecord>().get(HCalconditions);
-  if (!HCalconditions.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
-      << "Unable to find HCalconditions in event!";
-    return;
-  } 
-  const HcalQIEShape *shape = HCalconditions->getHcalShape();
-  HcalCalibrations calibrations;
-  CaloSamples tool;
-
-  ///////////////////////
-  // extract simhit info
-  //////////////////////
-  edm::Handle<edm::PCaloHitContainer> hcalHits;
-  iEvent.getByLabel(HCalSrc_,hcalHits);
-  if (!hcalHits.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
-      << "Unable to find hcalHits in event!";
-    return;
-  }  
-  const edm::PCaloHitContainer *simhitResult = hcalHits.product();
-  
-  MapType fHBEnergySimHits;
-  MapType fHEEnergySimHits;
-  MapType fHOEnergySimHits;
-  MapType fHFEnergySimHits;
-  for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin();
-       simhits != simhitResult->end();
-       ++simhits) {
-    
-    HcalDetId detId(simhits->id());
-    uint32_t cellid = detId.rawId();
-
-    if (detId.subdet() == sdHcalBrl){  
-      fHBEnergySimHits[cellid] += simhits->energy(); 
-    }
-    if (detId.subdet() == sdHcalEC){  
-      fHEEnergySimHits[cellid] += simhits->energy(); 
-    }    
-    if (detId.subdet() == sdHcalOut){  
-      fHOEnergySimHits[cellid] += simhits->energy(); 
-    }    
-    if (detId.subdet() == sdHcalFwd){  
-      fHFEnergySimHits[cellid] += simhits->energy(); 
-    }    
-  }
-
-  ////////////////////////
-  // get HBHE information
-  ///////////////////////
-  edm::Handle<edm::SortedCollection<HBHEDataFrame> > hbhe;
-  iEvent.getByType(hbhe);
-  if (!hbhe.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
-      << "Unable to find HBHEDataFrame in event!";
-    return;
-  }    
-  edm::SortedCollection<HBHEDataFrame>::const_iterator ihbhe;
-  
-  int iHB = 0;
-  int iHE = 0; 
-  for (ihbhe = hbhe->begin(); ihbhe != hbhe->end(); ++ihbhe) {
-    HcalDetId cell(ihbhe->id()); 
-
-    if ((cell.subdet() == sdHcalBrl) || (cell.subdet() == sdHcalEC)) {
-      
-      HCalconditions->makeHcalCalibration(cell, &calibrations);
-      const HcalQIECoder *channelCoder = HCalconditions->getHcalCoder(cell);
-      HcalCoderDb coder(*channelCoder, *shape);
-      coder.adc2fC(*ihbhe, tool);
-      
-      // get HB info
-      if (cell.subdet() == sdHcalBrl) {
-
-	++iHB;
-	float fDigiSum = 0;
-	for  (int ii = 0; ii < tool.size(); ++ii) {
-	  // default ped is 4.5
-	  int capid = (*ihbhe)[ii].capid();
-	  fDigiSum += (tool[ii] - calibrations.pedestal(capid));
-	}
-	
-	HBCalAEE.push_back(fDigiSum);
-	HBCalSHE.push_back(fHBEnergySimHits[cell.rawId()]);
-      }
-	
-      // get HE info
-      if (cell.subdet() == sdHcalEC) {
-	
-	++iHE;
-	float fDigiSum = 0;
-	for  (int ii = 0; ii < tool.size(); ++ii) {
-	  int capid = (*ihbhe)[ii].capid();
-	  fDigiSum += (tool[ii]-calibrations.pedestal(capid));
-	}
-	
-	HECalAEE.push_back(fDigiSum);
-	HECalSHE.push_back(fHEEnergySimHits[cell.rawId()]);
-      }
-    }
-  }
-
-  if (verbosity > 1) {
-    eventout += "\n          Number of HBDigis collected:.............. ";
-    eventout += iHB;
-  }
-  
-  if (verbosity > 1) {
-    eventout += "\n          Number of HEDigis collected:.............. ";
-    eventout += iHE;
-  }
-
-  ////////////////////////
-  // get HO information
-  ///////////////////////
-  edm::Handle<edm::SortedCollection<HODataFrame> > ho;
-  iEvent.getByType(ho);
-  if (!ho.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
-      << "Unable to find HODataFrame in event!";
-    return;
-  }    
-  edm::SortedCollection<HODataFrame>::const_iterator iho;
-  
-  int iHO = 0; 
-  for (iho = ho->begin(); iho != ho->end(); ++iho) {
-    HcalDetId cell(iho->id()); 
-
-    if (cell.subdet() == sdHcalOut) {
-      
-      HCalconditions->makeHcalCalibration(cell, &calibrations);
-      const HcalQIECoder *channelCoder = HCalconditions->getHcalCoder(cell);
-      HcalCoderDb coder (*channelCoder, *shape);
-      coder.adc2fC(*iho, tool);
-
-      ++iHO;
-      float fDigiSum = 0;
-      for  (int ii = 0; ii < tool.size(); ++ii) {
-	// default ped is 4.5
-	int capid = (*iho)[ii].capid();
-	fDigiSum += (tool[ii] - calibrations.pedestal(capid));
-      }
-	
-      HOCalAEE.push_back(fDigiSum);
-      HOCalSHE.push_back(fHOEnergySimHits[cell.rawId()]);
-    }
-  }
-
-  if (verbosity > 1) {
-    eventout += "\n          Number of HODigis collected:.............. ";
-    eventout += iHO;
-  }
-
-  ////////////////////////
-  // get HF information
-  ///////////////////////
-  edm::Handle<edm::SortedCollection<HFDataFrame> > hf;
-  iEvent.getByType(hf);
-  if (!hf.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
-      << "Unable to find HFDataFrame in event!";
-    return;
-  }    
-  edm::SortedCollection<HFDataFrame>::const_iterator ihf;
-  
-  int iHF = 0; 
-  for (ihf = hf->begin(); ihf != hf->end(); ++ihf) {
-    HcalDetId cell(ihf->id()); 
-
-    if (cell.subdet() == sdHcalFwd) {
-      
-      HCalconditions->makeHcalCalibration(cell, &calibrations);
-      const HcalQIECoder *channelCoder = HCalconditions->getHcalCoder(cell);
-      HcalCoderDb coder (*channelCoder, *shape);
-      coder.adc2fC(*ihf, tool);
-
-      ++iHF;
-      float fDigiSum = 0;
-      for  (int ii = 0; ii < tool.size(); ++ii) {
-	// default ped is 1.73077
-	int capid = (*ihf)[ii].capid();
-	fDigiSum += (tool[ii] - calibrations.pedestal(capid));
-      }
-	
-      HFCalAEE.push_back(fDigiSum);
-      HFCalSHE.push_back(fHOEnergySimHits[cell.rawId()]);
-    }
-  }
-
-  if (verbosity > 1) {
-    eventout += "\n          Number of HFDigis collected:.............. ";
-    eventout += iHF;
-  }
-
-  if (verbosity > 0)
-    edm::LogInfo(MsgLoggerCat) << eventout << "\n";
-
-  return;
-}
-
-void GlobalDigisProducer::storeHCal(PGlobalDigi& product)
-{
-  std::string MsgLoggerCat = "GlobalDigisProducer_storeHCal";
-
-  if (verbosity > 2) {
-    TString eventout("\n         nHBDigis     = ");
-    eventout += HBCalAEE.size();
-    for (unsigned int i = 0; i < HBCalAEE.size(); ++i) {
-      eventout += "\n      (AEE, SHE) = (";
-      eventout += HBCalAEE[i];
-      eventout += ", ";
-      eventout += HBCalSHE[i];
-      eventout += ")";
-    }
-    eventout += "\n         nHEDigis     = ";
-    eventout += HECalAEE.size();
-    for (unsigned int i = 0; i < HECalAEE.size(); ++i) {
-      eventout += "\n      (AEE, SHE) = (";
-      eventout += HECalAEE[i];
-      eventout += ", ";
-      eventout += HECalSHE[i];
-      eventout += ")";
-    }
-    eventout += "\n         nHODigis     = ";
-    eventout += HOCalAEE.size();
-    for (unsigned int i = 0; i < HOCalAEE.size(); ++i) {
-      eventout += "\n      (AEE, SHE) = (";
-      eventout += HOCalAEE[i];
-      eventout += ", ";
-      eventout += HOCalSHE[i];
-      eventout += ")";
-    }
-    eventout += "\n         nHFDigis     = ";
-    eventout += HFCalAEE.size();
-    for (unsigned int i = 0; i < HFCalAEE.size(); ++i) {
-      eventout += "\n      (AEE, SHE) = (";
-      eventout += HFCalAEE[i];
-      eventout += ", ";
-      eventout += HFCalSHE[i];
-      eventout += ")";
-    }
-
-    edm::LogInfo(MsgLoggerCat) << eventout << "\n";
-  }
-
-  product.putHBCalDigis(HBCalAEE,HBCalSHE);
-  product.putHECalDigis(HECalAEE,HECalSHE);
-  product.putHOCalDigis(HOCalAEE,HOCalSHE);
-  product.putHFCalDigis(HFCalAEE,HFCalSHE);
 
   return;
 }
@@ -840,38 +475,9 @@ void GlobalDigisProducer::clear()
   EBCalmaxPos.clear(); 
   EBCalAEE.clear(); 
   EBCalSHE.clear();
-  // ES info
-  ESCalADC0.clear();
-  ESCalADC1.clear();
-  ESCalADC2.clear();
-  ESCalSHE.clear();
 
   return;
 }
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(GlobalDigisProducer);
-
-/*
-void GlobalDigisProducer::fillHCal(edm::Event& iEvent, 
-				   const edm::EventSetup& iSetup)
-{
-  std::string MsgLoggerCat = "GlobalDigisProducer_fillHCal";
-
-  TString eventout;
-  if (verbosity > 0)
-    eventout = "\nGathering info:";  
-
-  if (verbosity > 0)
-    edm::LogInfo(MsgLoggerCat) << eventout << "\n";
-
-  return;
-}
-
-void GlobalDigisProducer::storeHCal(PGlobalDigiHit& product)
-{
-  std::string MsgLoggerCat = "GlobalDigisProducer_storeHCal";
-
-  return;
-}
-*/

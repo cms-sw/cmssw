@@ -32,46 +32,46 @@ DaqScopeModeHistograms::~DaqScopeModeHistograms() {
 /** */	 
 void DaqScopeModeHistograms::histoAnalysis( bool debug ) {
 
-  // Clear map holding analysis objects
+  // Clear std::map holding analysis objects
   data_.clear();
   
-  // Iterate through map containing vectors of profile histograms
-  CollationsMap::const_iterator iter = collations().begin();
-  for ( ; iter != collations().end(); iter++ ) {
+//   // Iterate through std::map containing std::vectors of profile histograms
+//   CollationsMap::const_iterator iter = collations().begin();
+//   for ( ; iter != collations().end(); iter++ ) {
     
-    // Check vector of histos is not empty (should be 1 histo)
-    if ( iter->second.empty() ) {
-      edm::LogWarning(mlDqmClient_) 
-	<< "[DaqScopeModeHistograms::" << __func__ << "]"
-	<< " Zero collation histograms found!";
-      continue;
-    }
+//     // Check std::vector of histos is not empty (should be 1 histo)
+//     if ( iter->second.empty() ) {
+//       edm::LogWarning(mlDqmClient_) 
+// 	<< "[DaqScopeModeHistograms::" << __func__ << "]"
+// 	<< " Zero collation histograms found!";
+//       continue;
+//     }
     
-    // Retrieve pointers to profile histos for this FED channel 
-    vector<TH1*> histos;
-    Collations::const_iterator ihis = iter->second.begin(); 
-    for ( ; ihis != iter->second.end(); ihis++ ) {
-      TH1F* his = ExtractTObject<TH1F>().extract( ihis->second->getMonitorElement() );
-      if ( his ) { histos.push_back(his); }
-    } 
+//     // Retrieve pointers to profile histos for this FED channel 
+//     std::vector<TH1*> histos;
+//     Collations::const_iterator ihis = iter->second.begin(); 
+//     for ( ; ihis != iter->second.end(); ihis++ ) {
+//       TH1F* his = ExtractTObject<TH1F>().extract( ihis->second->getMonitorElement() );
+//       if ( his ) { histos.push_back(his); }
+//     } 
     
-    // Perform histo analysis
-    DaqScopeModeAnalysis anal( iter->first );
-    anal.analysis( histos );
-    data_[iter->first] = anal; 
-    if ( debug ) {
-      stringstream ss;
-      anal.print( ss ); 
-      cout << ss.str() << endl;
-    }
+//     // Perform histo analysis
+//     DaqScopeModeAnalysis anal( iter->first );
+//     anal.analysis( histos );
+//     data_[iter->first] = anal; 
+//     if ( debug ) {
+//       std::stringstream ss;
+//       anal.print( ss ); 
+//       cout << ss.str() << endl;
+//     }
     
-  }
+//   }
   
-  cout << endl // LogTrace(mlDqmClient_) 
-       << "[DaqScopeModeHistograms::" << __func__ << "]"
-       << " Analyzed histograms for " 
-       << collations().size() 
-       << " FED channels";
+//   cout << endl // LogTrace(mlDqmClient_) 
+//        << "[DaqScopeModeHistograms::" << __func__ << "]"
+//        << " Analyzed histograms for " 
+//        << collations().size() 
+//        << " FED channels";
   
 }
 
@@ -79,13 +79,13 @@ void DaqScopeModeHistograms::histoAnalysis( bool debug ) {
 /** */
 void DaqScopeModeHistograms::createSummaryHisto( const sistrip::Monitorable& histo, 
 						 const sistrip::Presentation& type, 
-						 const string& directory,
+						 const std::string& directory,
 						 const sistrip::Granularity& gran ) {
   cout << endl // LogTrace(mlDqmClient_)
        << "[DaqScopeModeHistograms::" << __func__ << "]";
   
   // Check view 
-  sistrip::View view = SiStripHistoNamingScheme::view(directory);
+  sistrip::View view = SiStripEnumsAndStrings::view(directory);
   if ( view == sistrip::UNKNOWN_VIEW ) { return; }
 
   // Analyze histograms

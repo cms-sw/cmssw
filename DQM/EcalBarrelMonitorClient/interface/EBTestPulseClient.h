@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2007/02/20 15:42:17 $
- * $Revision: 1.44 $
+ * $Date: 2007/01/27 11:03:02 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -34,8 +34,6 @@ class EcalCondDBInterface;
 class MonRunIOV;
 
 class EBTestPulseClient : public EBClient {
-
-friend class EBSummaryClient;
 
 public:
 
@@ -167,9 +165,8 @@ float threshold_on_AmplitudeErrorsNumber_;
 
 // Quality check on PNs
 
-float amplitudeThresholdPnG01_;
-float amplitudeThresholdPnG16_;
-float pedestalThresholdPn_;
+float meanThresholdPN_;
+float amplitudeThresholdPN_;
 
 };
 

@@ -1,5 +1,5 @@
-// Last commit: $Id: DeviceDescriptions.cc,v 1.9 2006/11/24 11:41:58 bainbrid Exp $
-// Latest tag:  $Name:  $
+// Last commit: $Id: DeviceDescriptions.cc,v 1.11 2007/03/19 10:44:03 bainbrid Exp $
+// Latest tag:  $Name: TIF_210307 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/DeviceDescriptions.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
@@ -157,12 +157,12 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::createDeviceDescript
 				  0x10,  // CCU channel
 				  0x0 ); // I2C address
 
-	uint32_t dcu_id = SiStripFecKey::key( icrate->fecCrate(), 
-					      ifec->fecSlot(), 
-					      iring->fecRing(), 
-					      0x7F,  // CCU address
-					      0x10,  // CCU channel
-					      0x0 ); // I2C address
+	uint32_t dcu_id = SiStripFecKey( icrate->fecCrate(), 
+					 ifec->fecSlot(), 
+					 iring->fecRing(), 
+					 0x7F,  // CCU address
+					 0x10,  // CCU channel
+					 0x0 ).key(); // I2C address
 	
 	// Add DCU (to "dummy" CCU) at FEC ring level
 	dcuDescription* dcu = new dcuDescription( index, // access key
@@ -186,12 +186,12 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::createDeviceDescript
 				    0x10,  // CCU channel
 				    0x0 ); // I2C address
 
-	  uint32_t dcu_id = SiStripFecKey::key( icrate->fecCrate(), 
-						ifec->fecSlot(), 
-						iring->fecRing(), 
-						iccu->ccuAddr(), 
-						0x10,  // CCU channel
-						0x0 ); // I2C address
+	  uint32_t dcu_id = SiStripFecKey( icrate->fecCrate(), 
+					   ifec->fecSlot(), 
+					   iring->fecRing(), 
+					   iccu->ccuAddr(), 
+					   0x10,  // CCU channel
+					   0x0 ).key(); // I2C address
 	  
 	  // Add DCU description at CCU level
 	  dcuDescription* dcu = new dcuDescription( index, // access key
@@ -339,14 +339,14 @@ const SiStripConfigDb::DeviceAddress& SiStripConfigDb::deviceAddress( const devi
   addr.reset();
   
   // Retrieve FEC key
-  keyType key;
+  keyType key = 0;
   try { key = const_cast<deviceDescription&>(description).getKey(); }
   catch (...) { handleException( __func__ ); }
   
   // Extract hardware addresses
-  addr.fecCrate_ = static_cast<uint16_t>( 0 ); //@@ always zero???
+  addr.fecCrate_ = static_cast<uint16_t>( 0 + sistrip::FEC_CRATE_OFFSET ); //@@ always zero? temporary offset!
   addr.fecSlot_  = static_cast<uint16_t>( getFecKey(key) );
-  addr.fecRing_  = static_cast<uint16_t>( getRingKey(key) );
+  addr.fecRing_  = static_cast<uint16_t>( getRingKey(key) + sistrip::FEC_RING_OFFSET ); //@@ temporary offset!
   addr.ccuAddr_  = static_cast<uint16_t>( getCcuKey(key) );
   addr.ccuChan_  = static_cast<uint16_t>( getChannelKey(key) );
   addr.i2cAddr_  = static_cast<uint16_t>( getAddressKey(key) );

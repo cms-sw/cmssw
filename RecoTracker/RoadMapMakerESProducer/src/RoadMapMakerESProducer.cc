@@ -8,9 +8,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
-// $Author: noeding $
-// $Date: 2007/02/23 00:48:52 $
-// $Revision: 1.7 $
+// $Author: gutsche $
+// $Date: 2007/03/01 07:51:48 $
+// $Revision: 1.8 $
 //
 
 #include "RecoTracker/RoadMapMakerESProducer/interface/RoadMapMakerESProducer.h"
@@ -58,13 +58,17 @@ RoadMapMakerESProducer::RoadMapMakerESProducer(const edm::ParameterSet& iConfig)
   } else {
     seedingType_ = RoadMaker::FourRingSeeds;
   }
+  
+  roads_ = 0;
 
 }
 
 
 RoadMapMakerESProducer::~RoadMapMakerESProducer()
 {
- 
+  if ( roads_ != 0 ) {
+    delete roads_;
+  }
 }
 
 
@@ -81,12 +85,12 @@ RoadMapMakerESProducer::produce(const RoadMapRecord& iRecord)
 		  geometryStructure_,
 		  seedingType_);
 
-  Roads *roads = maker.getRoads();
+  roads_ = maker.getRoads();
   
-  ReturnType pRoads(roads) ;
+  ReturnType pRoads(roads_) ;
 
   if ( writeOut_ ) {
-    roads->dump(fileName_);
+    roads_->dump(fileName_);
   }
 
   return pRoads ;

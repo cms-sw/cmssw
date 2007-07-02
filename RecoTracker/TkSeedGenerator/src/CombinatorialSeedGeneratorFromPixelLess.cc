@@ -31,6 +31,6 @@ CombinatorialSeedGeneratorFromPixelLess::CombinatorialSeedGeneratorFromPixelLess
   stripLayers = new PixelLessSeedLayerPairs();
 }
 
-void CombinatorialSeedGeneratorFromPixelLess::run(TrajectorySeedCollection &output,const edm::EventSetup& iSetup){
+void CombinatorialSeedGeneratorFromPixelLess::run(TrajectorySeedCollection &output, const edm::EventSetup& iSetup){
   seeds(output,iSetup,region);
 }

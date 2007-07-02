@@ -22,6 +22,8 @@ public:
       const PixelRecoPointRZ & constraint,
       bool useMultipleScattering,
       bool useBendingCorrection);
+
+  ~ThirdHitCorrection();
  
   void correctRPhiRange( Range & range) const;
   void correctRZRange( Range & range) const;

@@ -6,8 +6,8 @@
  *   and a Kalman backward smoother.
  *
  *
- *   $Date: 2006/11/28 14:30:31 $
- *   $Revision: 1.10 $
+ *   $Date: 2006/11/29 16:30:49 $
+ *   $Revision: 1.11 $
  *
  *   \author   N. Neumeister            Purdue University
  *   \author   C. Liu                   Purdue University
@@ -90,7 +90,7 @@ vector<Trajectory> MuonTrackReFitter::trajectories(const Trajectory& t) const {
 
   vector<Trajectory> fitted = fit(t);
   return smooth(fitted);
-
+  
 }
 
 
@@ -108,8 +108,38 @@ vector<Trajectory> MuonTrackReFitter::trajectories(const TrajectorySeed& seed,
   firstTsos.rescaleError(10.);
 
   vector<Trajectory> fitted = fit(seed, hits, firstTsos);
-
   return smooth(fitted);
+
+}
+
+//
+// fit (not smooth) trajectory
+//
+vector<Trajectory> MuonTrackReFitter::trajectory(const Trajectory& t) const {
+
+  if ( !t.isValid() ) return vector<Trajectory>();
+
+  vector<Trajectory> fitted = fit(t);
+  return fitted;
+
+}
+
+
+//
+// fit (not smooth) trajectory 
+//
+vector<Trajectory> MuonTrackReFitter::trajectory(const TrajectorySeed& seed,
+	                                           const ConstRecHitContainer& hits, 
+	                                           const TrajectoryStateOnSurface& firstPredTsos) const {
+
+  if ( hits.empty() ) return vector<Trajectory>();
+
+  //TSOS firstTsos = TrajectoryStateWithArbitraryError()(firstPredTsos);
+  TSOS firstTsos = firstPredTsos;
+  firstTsos.rescaleError(10.);
+
+  vector<Trajectory> fitted = fit(seed, hits, firstTsos);
+  return fitted;
 
 }
 
