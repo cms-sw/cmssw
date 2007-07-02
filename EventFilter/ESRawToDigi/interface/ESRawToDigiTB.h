@@ -1,7 +1,7 @@
 #ifndef ESRAWTODIGITB_H
 #define ESRAWTODIGITB_H 
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
