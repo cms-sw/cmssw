@@ -5,8 +5,13 @@
 /** \class  TriggerWebInterface
  *  Class that creates the web interface to control the L1TClient
  *  
+<<<<<<< TriggerWebInterface.h
  *  $Date: 2007/05/30 13:37:37 $
  *  $Revision: 1.2 $
+=======
+ *  $Date: 2007/06/12 22:28:56 $
+ *  $Revision: 1.3 $
+>>>>>>> 1.3
  *  \author Lorenzo Agostino
   */
 
@@ -48,8 +53,14 @@ class TriggerWebInterface : public WebInterface
 	void displayMeXML(xgi::Input * in, xgi::Output * out);
         void printMeMap(ME_map view_map, std::string id);
 //	void printMeListXML(xgi::Output * out);
+<<<<<<< TriggerWebInterface.h
+	void computeDirRank(std::string dir, int & rank);
 	void Summary(xgi::Input * in, xgi::Output * out)   
 	  throw (xgi::exception::Exception);
+=======
+	void Summary(xgi::Input * in, xgi::Output * out)   
+	  throw (xgi::exception::Exception);
+>>>>>>> 1.3
 	
 private:
 

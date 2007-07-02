@@ -11,6 +11,18 @@
 #include "DQMServices/WebComponents/interface/HTMLLink.h"
 #include "DQMServices/WebComponents/interface/WebPage.h"
 #include "DQM/L1TMonitorClient/interface/DisplaySystemME.h"
+<<<<<<< TriggerWebInterface.cc
+#include "DQM/L1TMonitorClient/interface/DisplaySystemSummary.h"
+
+#include <cstdio> // perror
+
+bool meVerbose = true;
+bool verbose() 
+{
+  return meVerbose;
+}
+
+=======
 #include "DQM/L1TMonitorClient/interface/DisplaySystemSummary.h"
 #include "DQM/L1TMonitorClient/interface/L1TClientConfigParser.h"
 
@@ -25,6 +37,7 @@ bool verbose()
   return meVerbose;
 }
 
+>>>>>>> 1.7
 /*
   Create your widgets in the constructor of your web interface
 */
@@ -66,7 +79,11 @@ void TriggerWebInterface::handleCustomRequest(xgi::Input * in, xgi::Output * out
   if (requestID == "GoToTriggerMonitorWI")       this->GoToTriggerMonitorWI(in, out);
   if (requestID == "RetrieveMeList")             RetrieveMeList(in, out);
   if (requestID == "PlotMeList")                 PlotMeList(in, out);
+<<<<<<< TriggerWebInterface.cc
+  if (requestID == "Summary")                    Summary(in, out);
+=======
   if ( requestID == "Summary") Summary(in, out);
+>>>>>>> 1.7
 
 }
 
@@ -91,6 +108,18 @@ void TriggerWebInterface::RetrieveMeList(xgi::Input * in, xgi::Output * out) thr
   
 //  std::cout << "Enter RetrieveMeList" <<std::endl;
 
+<<<<<<< TriggerWebInterface.cc
+  if(to_open=="L1TECALTPG")   printMeListXML(to_open, out); 
+  if(to_open=="L1TRCT")       printMeListXML(to_open, out); 
+  if(to_open=="GCT")          printMeListXML(to_open, out); 
+  if(to_open=="L1TDTTPG")     printMeListXML(to_open, out); 
+  if(to_open=="L1TGT")        printMeListXML(to_open, out); 
+  if(to_open=="L1TDTTF")      printMeListXML(to_open, out); 
+  if(to_open=="L1TGMT")       printMeListXML(to_open, out); 
+
+  if ( to_open == "Summary") Summary(in, out);
+
+=======
   if(to_open=="L1TECALTPG")   printMeListXML(to_open, out); 
   if(to_open=="L1THCALTPG")   printMeListXML(to_open, out); 
   if(to_open=="L1TRCT")       printMeListXML(to_open, out); 
@@ -102,6 +131,7 @@ void TriggerWebInterface::RetrieveMeList(xgi::Input * in, xgi::Output * out) thr
 
   if ( to_open == "Summary") Summary(in, out);
 
+>>>>>>> 1.7
 
 }
 
@@ -124,18 +154,47 @@ void TriggerWebInterface::printMeListXML(std::string source, xgi::Output * out)
   *out << "<navigator>" << endl;
   
   std::cout << "printMeListXML: written header" <<std::endl;
-   
+/*   
+// dummy sml writer   
+
+  for (int i = 0 ; i< 3; i++) {
+       std::cout << "<directory name=\"dir" << i << "\" rank=\"" << i << "\">" << endl;
+       *out << "<directory name=\"dir" << i << "\" rank=\"" << i << "\">" << endl;
+       
+       for (int j = 0 ; j< 3; j++) {
+       *out << "<subscribe>" << "AAAA" << "</subscribe>" << endl;
+       std::cout << "<subscribe>" << "AAAA" << "</subscribe>" << endl;
+       }
+ 
+       *out << "</directory>" << endl;
+       std::cout << "</directory>" << endl;
+       }
+
+  for (int i = 0 ; i< 3; i++) {
+       std::cout << "<directory name=\"dor" << i << "\" rank=\"" << i+1 << "\">" << endl;
+       *out << "<directory name=\"dor" << i << "\" rank=\"" << i+1 << "\">" << endl;
+       *out << "</directory>" << endl;
+       std::cout << "</directory>" << endl;
+       }
+
+  for (int i = 0 ; i< 2; i++) {
+       std::cout << "<directory name=\"dur" << i << "\" rank=\"" << i << "\">" << endl;
+       *out << "<directory name=\"dur" << i << "\" rank=\"" << i << "\">" << endl;
+       *out << "</directory>" << endl;
+       std::cout << "</directory>" << endl;
+       }
+*/
   
   std::vector<std::string> contents;
   std::vector<std::string> contentVec;
   (*mui_p)->getContents(contentVec);
 
-//  std::cout << "contentVec size = " << contentVec.size() << std::endl;
+  std::cout << "contentVec size = " << contentVec.size() << std::endl;
 
   for (std::vector<std::string>::iterator it = contentVec.begin();
        it != contentVec.end(); it++) {
                                                                                                              
-//       std::cout << "Me string = " << *it << std::endl;
+       std::cout << "Me string = " << *it << std::endl;
 
        std::string::size_type dirCharNumber = it->find( ":", 0 );
        std::string dirName=it->substr(0 , dirCharNumber);
@@ -143,30 +202,40 @@ void TriggerWebInterface::printMeListXML(std::string source, xgi::Output * out)
 
 //       std::cout << "dirName = " << dirName << std::endl;
        
+       int rank = 0;
+       computeDirRank(dirName, rank);
+//       std::cout << "rank = " << rank << std::endl;
+        
+	     
        std::string meCollectionName=it->substr(dirCharNumber+1);
        
-//       std::cout << "meCollectionName = " << meCollectionName << std::endl;
+       std::cout << "meCollectionName = " << meCollectionName << std::endl;
        
        int CollectionNameSize = meCollectionName.length();
 		                                                                                                             
        std::string::size_type SourceCharNumber = it->rfind("/");
        
        std::string sourceName = it->substr(SourceCharNumber+1);
+
+       std::string myPath = it->substr(0,SourceCharNumber);
+ 
+       std::cout << "Full path = " << myPath << std::endl;
         
        int sourceNameSize = sourceName.length()-CollectionNameSize-1;
       
        sourceName = it->substr(SourceCharNumber+1, sourceNameSize);
        
-//       std::cout << "sourceName = " << sourceName << std::endl;
+       std::cout << "sourceName = " << sourceName << std::endl;
        
-       if(source != sourceName) continue; // return only ME belonging to the source calling
+       if(source != sourceName && rank<4) continue; // return only ME belonging to the source calling
                                           // this function
 
 
        std::string reminingNames=meCollectionName;
        bool anotherME=true;
 
-//       std::cout << "reminingNames = " << reminingNames << std::endl;
+       std::cout << "<directory name=\"" << sourceName << "\" rank=\"" << rank << "\">" << endl;
+      *out << "<directory name=\"" << sourceName << "\" rank=\"" << rank << "\">" << endl;
 
        while(anotherME){
        if(reminingNames.find(",") == std::string::npos) anotherME =false;
@@ -176,17 +245,45 @@ void TriggerWebInterface::printMeListXML(std::string source, xgi::Output * out)
 ////               std::string fullpath=dirName + singleMeName;
 ////       contents.push_back(fullpath);
        *out << "<subscribe>" << singleMeName << "</subscribe>" << endl;
+//       std::cout << "<subscribe>" << singleMeName << "</subscribe>" << endl;
+
 //       std::cout << "ME name = " << singleMeName << std::endl;
                                                                                                              
        reminingNames=reminingNames.substr(singleMeNameCharNumber+1);
 //       std::cout << "reminingNames = " << reminingNames << std::endl;
        }
+       *out << "</directory>" << endl;
+       std::cout << "</directory>" << endl;
     }
                                                                                                              
 
   *out << "</navigator>" << endl;
 
 }
+
+//****************************************************************************************
+
+void TriggerWebInterface::computeDirRank(std::string dir, int & rank)
+{
+       
+       
+       if(dir.rfind("/") != string::npos) {
+       
+       rank++;
+       
+       
+       std::string::size_type dirCharNumber = dir.rfind("/");
+       
+       std::string newdir = dir.substr(0,dirCharNumber);
+        
+       computeDirRank(newdir, rank);
+       
+       }
+       
+       return;
+
+}
+
 
 //****************************************************************************************
 
@@ -235,6 +332,14 @@ void TriggerWebInterface::displayMeXML(xgi::Input * in, xgi::Output * out)
        std::cout << "mui not available!" << std::endl;
        return;
      }
+<<<<<<< TriggerWebInterface.cc
+
+   if ( verbose() ) {
+     std::cout << "Requesting Me " << name << " from source " 
+	       << source << std::endl;
+   }
+=======
+>>>>>>> 1.7
 
    if ( verbose() ) {
      std::cout << "Requesting Me " << name << " from source " 
@@ -245,17 +350,43 @@ void TriggerWebInterface::displayMeXML(xgi::Input * in, xgi::Output * out)
   
    MonitorElement *pointer = (*mui_p)->get(name);
 
+<<<<<<< TriggerWebInterface.cc
+   if (pointer != 0) {
+     view_map.add(name, pointer);
+     std::cout << "ADDING " << name << " TO view_map!!!" << std::endl;
+=======
    if (pointer != 0) {
      view_map.add(name, pointer);
      if (verbose() ) 
        std::cout << "displayMeXML: ADDING " << name 
                  << " TO view_map!!!" << std::endl;
+>>>>>>> 1.7
    
    // Print the ME_map into a file
    std::string id = get_from_multimap(view_multimap, "DisplayFrameName");
    if ( verbose() )
      std::cout << "displayMeXML: will try to print " << id << std::endl;
    
+<<<<<<< TriggerWebInterface.cc
+     seal::Callback 
+       action(seal::CreateCallback(this, 
+				   &TriggerWebInterface::printMeMap, 
+				   view_map, id));
+     (*mui_p)->addCallback(action);
+
+     out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
+     *out << "<?xml version=\"1.0\" ?>" << std::endl;
+     *out << "<fileURL>" << std::endl;
+     *out << getContextURL() + "/temporary/" + id + ".gif" << std::endl;
+     *out << "</fileURL>" << std::endl;
+ 
+   } 
+   else {
+     std::cout << "No Reference to: " << name << std::endl;
+     out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
+     *out << "<?xml version=\"1.0\" ?>" << std::endl;
+     *out << "nothing here " << std::endl;
+=======
      seal::Callback  
        action(seal::CreateCallback(this, 
 				   &TriggerWebInterface::printMeMap, 
@@ -277,6 +408,7 @@ void TriggerWebInterface::displayMeXML(xgi::Input * in, xgi::Output * out)
      *out << "<error>"<<std::endl;
      *out << "nothing here " << std::endl;
      *out << "</error>"<<std::endl;
+>>>>>>> 1.7
 
    }
    myBei->unlock();
@@ -422,6 +554,7 @@ void TriggerWebInterface::CreateMenu(xgi::Input * in, xgi::Output * out) throw (
        
        DisplaySystemME * Emulator = new DisplaySystemME(getApplicationURL(), "380px", "10px","Emulator");
 
+
        menu_p->add("summary", summary);
        menu_p->add("EcalTpg", EcalTpg);
        menu_p->add("HcalTpg", HcalTpg);
@@ -436,7 +569,27 @@ void TriggerWebInterface::CreateMenu(xgi::Input * in, xgi::Output * out) throw (
 
        CgiWriter writer(out, getContextURL());
        writer.output_preamble();
-       writer.output_head();
+
+// HEAD
+
+  std::string js_file_url  = getContextURL() + "/temporary/WebLib.js";
+  std::string css_file_url = getContextURL() + "/temporary/style.css";
+
+  *out << cgicc::head() << std::endl;
+
+  *out << cgicc::script().set("src", js_file_url.c_str()) << cgicc::script() << std::endl;
+
+  *out << cgicc::link().set("type", "text/css").set("href", css_file_url.c_str()).set("rel", "stylesheet") << std::endl;
+
+  *out << cgicc::meta().set("http-equiv", "pragma").set("content", "no-cache") << std::endl;
+  
+  *out << cgicc::script().set("type", "text/javascript") <<  std::endl; 
+  *out << "var checkmenu = new CheckTree('checkmenu');" << std::endl;
+  *out <<cgicc::script() << std::endl;
+  
+  *out << cgicc::head() << std::endl;
+       
+//        
        *out << cgicc::h1("Menu").set("style", "font-family: arial") << std::endl;
        menu_p->printHTML(out);
        writer.output_finish();
@@ -452,15 +605,64 @@ void TriggerWebInterface::CreateStatus(xgi::Input * in, xgi::Output * out) throw
        WebPage *status_p = new WebPage(getApplicationURL());
        
        CgiWriter writer(out, getContextURL());
-       writer.output_preamble();
-       writer.output_head();
+       
+  std::string js_file_url  = getContextURL() + "/temporary/WebLib.js";
+  std::string css_file_url = getContextURL() + "/temporary/style.css";
+
+  *out << cgicc::head() << std::endl;
+
+  *out << cgicc::script().set("src", js_file_url.c_str()) << cgicc::script() << std::endl;
+
+  *out << cgicc::link().set("type", "text/css").set("href", css_file_url.c_str()).set("rel", "stylesheet") << std::endl;
+
+  *out << cgicc::meta().set("http-equiv", "pragma").set("content", "no-cache") << std::endl;
+  
+  *out << cgicc::head() << std::endl;
+       
+
+/*
+       *out << cgicc::script().set("type", "text/javascript") <<  std::endl;
+       *out << " var chtOldOL=window.onload;window.onload=function(){" << std::endl;
+       *out << "if(chtOldOL)chtOldOL();" << std::endl;
+       *out << " alert(\"Hello\");" << std::endl;
+       *out << " makeHttpRequest();}" << std::endl;
+       *out <<cgicc::script() << std::endl;
+*/       
+//       writer.output_head();
+  
+
+//       *out << cgicc::script().set("type", "text/javascript") <<  std::endl; 
+//       *out << "var checkmenu = new CheckTree('checkmenu');" << std::endl;
+//       *out <<cgicc::script() << std::endl;
+      
        *out << cgicc::h1("Elements Status").set("style", "font-family: arial") << std::endl;
        *out << cgicc::p().set("id","formsParId")  << std::endl;
        *out << cgicc::p() << std::endl;
+
        status_p->printHTML(out);
+       
        writer.output_finish();
 }
 
+<<<<<<< TriggerWebInterface.cc
+//****************************************************************************************
+
+void TriggerWebInterface::CreateDebug(xgi::Input * in, xgi::Output * out) 
+  throw (xgi::exception::Exception)
+{
+  WebPage *debug_p = new WebPage(getApplicationURL());
+  
+  CgiWriter writer(out, getContextURL());
+//  writer.output_preamble();
+  writer.output_head();
+  writer.output_head();
+  *out << cgicc::p().set("id","debug")  << std::endl;
+  *out << cgicc::p() << std::endl;
+//  debug_p->printHTML(out);
+  writer.output_finish();
+}
+
+=======
 void TriggerWebInterface::CreateDebug(xgi::Input * in, xgi::Output * out) 
   throw (xgi::exception::Exception)
 {
@@ -475,6 +677,7 @@ void TriggerWebInterface::CreateDebug(xgi::Input * in, xgi::Output * out)
   writer.output_finish();
 }
 
+>>>>>>> 1.7
 
 //****************************************************************************************
 
@@ -488,6 +691,103 @@ void TriggerWebInterface::CreateDisplay(xgi::Input * in, xgi::Output * out) thro
        writer.output_finish();
        
 }
+<<<<<<< TriggerWebInterface.cc
+
+
+void TriggerWebInterface::Summary(xgi::Input * in, xgi::Output * out) 
+  throw (xgi::exception::Exception)
+{
+  if ( verbose() ) 
+    std::cout << "Entering Summary" <<std::endl;
+
+  // get the list of elements. we get this every time for now.
+//   std::string localPath = string("DQM/L1TMonitorClient/test/summary_mes.txt");
+//   std::string fullPath =  edm::FileInPath(localPath).fullPath();
+  std::string fullPath("/afs/cern.ch/user/w/wittich/scratch0/CMSSW_1_4_0_pre4/src/DQM/L1TMonitorClient/test/summary_mes.txt");
+  if (verbose() ) {
+    std::cout << "full path is " << fullPath << std::endl;
+  }
+  ifstream infile; 
+  infile.open(fullPath.c_str(), ifstream::in);
+  if ( ! infile.is_open() ) {
+    std::cout << "ALERT: could no open list of ME's" << std::endl;
+    std::ostringstream msg;
+    msg << "open of " << fullPath;
+    perror(msg.str().c_str());
+    return;
+  }
+  std::vector<std::string> meList;
+  std::string line;
+  while ( infile >> line ) {
+    std::cout << "Summary ME: " << line << std::endl; 
+    meList.push_back(line);
+  }
+  infile.close();
+  std::cout << "Total of " << meList.size() << " summary plots." <<std::endl;
+  if ( meList.empty() ) {
+    std::cout << "list is empty?" << std::endl;
+    return;
+  }
+  //now subscribe to them
+  
+  DaqMonitorBEInterface * myBei = (*mui_p)->getBEInterface();
+  myBei->lock();
+   
+  if (!(*mui_p))     {
+    std::cout << "mui not available!" << std::endl;
+    // should I unlock here?
+    return;
+  }
+  std::multimap<std::string, std::string> view_multimap; 
+  ME_map view_map; 
+
+  CgiReader cgi_reader(in);
+  cgi_reader.read_form(view_multimap);
+  std::string source = get_from_multimap(view_multimap, "Source");
+  std::string name = get_from_multimap(view_multimap, "View");
+  if ( meList.empty() )
+    return;
+
+  out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
+  *out << "<?xml version=\"1.0\" ?>" << std::endl;
+  *out << "<meList>" << std::endl;
+   
+  for(std::vector<std::string>::const_iterator i = meList.begin();
+      i != meList.end(); ++i ) {
+    MonitorElement *p = (*mui_p)->get(*i);
+    if ( p == 0 ) {
+      std::cout << "No such ME " << *i << std::endl;
+      continue;
+    }
+
+    std::string id = i->substr(1+i->rfind("/", i->length()), i->length());
+    view_map.add(id, p);
+    if ( verbose() ) 
+      std::cout << "ADDING " << id << " TO view_map!!!" << std::endl;
+    if ( verbose() ) 
+      std::cout << "will try to print " << id << std::endl;
+     seal::Callback 
+       action(seal::CreateCallback(this, 
+				   &TriggerWebInterface::printMeMap, 
+				   view_map, id));
+     (*mui_p)->addCallback(action);
+
+     *out << "<SingleMe>" << std::endl;
+     //*out << getContextURL() + "/temporary/" + id + ".gif" << std::endl;
+     *out << *i << std::endl;
+     *out << "</SingleMe>" << std::endl;
+
+  }
+  *out << "</meList>" << std::endl;
+
+
+
+  myBei->unlock();
+
+  
+
+}
+=======
 
 
 void TriggerWebInterface::Summary(xgi::Input * in, xgi::Output * out) 
@@ -565,3 +865,4 @@ void TriggerWebInterface::Summary(xgi::Input * in, xgi::Output * out)
   
 
 }
+>>>>>>> 1.7
