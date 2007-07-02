@@ -214,7 +214,7 @@ void SiStripCommissioningSource::endJob() {
   else { ss << "/tmp/"; }
 
   // Add filename with run number
-  ss << name << "_" << std::setfill('0') << std::setw(7) << run_;
+  ss << name << "_" << std::setfill('0') << std::setw(8) << run_;
   
   // Add FU instance number
 
