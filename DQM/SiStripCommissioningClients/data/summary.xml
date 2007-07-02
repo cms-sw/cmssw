@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<root>
+
+<RunType name="FastCabling">
+
+<SummaryPlot monitorable="HighLightLevel" presentation="Histo1D" view="ReadoutView" level="FedSystem" granularity=""/>
+<SummaryPlot monitorable="LowLightLevel" presentation="Histo1D" view="ReadoutView" level="FedSystem" granularity=""/>
+
+<SummaryPlot monitorable="HighLightLevel" presentation="Histo2DScatter" view="ReadoutView" level="FedSystem" granularity="FedId"/>
+<SummaryPlot monitorable="LowLightLevel" presentation="Histo2DScatter" view="ReadoutView" level="FedSystem" granularity="FedId"/>
+
+</RunType>
+
+</root>
+
