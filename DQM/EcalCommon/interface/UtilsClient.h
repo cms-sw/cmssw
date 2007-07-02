@@ -1,11 +1,11 @@
-// $Id: UtilsClient.h,v 1.1 2007/04/30 09:24:01 benigno Exp $
+// $Id: UtilsClient.h,v 1.2 2007/06/11 12:41:18 dellaric Exp $
 
 /*!
   \file UtilsClient.h
   \brief Ecal Monitor Utils for Client
   \author B. Gobbo 
-  \version $Revision: 1.1 $
-  \date $Date: 2007/04/30 09:24:01 $
+  \version $Revision: 1.2 $
+  \date $Date: 2007/06/11 12:41:18 $
 */
 
 #ifndef UtilsClient_H
@@ -104,7 +104,7 @@ class UtilsClient {
    */
   template<class T> static bool getBinStats( const T* histo, const int ix, const int iy, float& num, float& mean, float& rms ) {
     num  = -1.; mean = -1.; rms  = -1.;
-    float percent = 0.9; float n_min_bin = 10.;
+    float percent = 0.01; float n_min_bin = 10.;
 
     if ( histo ) {
       float n_min_tot = percent * n_min_bin * histo->GetNbinsX() * histo->GetNbinsY();
