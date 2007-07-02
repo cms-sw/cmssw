@@ -6,8 +6,8 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripLayoutParser.h"
 
 
-#include "xgi/include/xgi/Utils.h"
-#include "xgi/include/xgi/Method.h"
+#include "xgi/Utils.h"
+#include "xgi/Method.h"
 
 #include "TCanvas.h"
 #include "TH1.h"
