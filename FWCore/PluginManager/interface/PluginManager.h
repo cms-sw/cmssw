@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 14:28:48 EDT 2007
-// $Id: PluginManager.h,v 1.2.2.3 2007/04/09 18:46:49 chrjones Exp $
+// $Id: PluginManager.h,v 1.3 2007/04/12 12:51:12 wmtan Exp $
 //
 
 // system include files
@@ -89,6 +89,7 @@ class PluginManager
       // ---------- member functions ---------------------------
       sigc::signal<void,const boost::filesystem::path&> goingToLoad_;
       sigc::signal<void,const SharedLibrary&> justLoaded_;
+      sigc::signal<void,const std::string&,const std::string&> askedToLoadCategoryWithPlugin_;
    private:
       PluginManager(const Config&);
       PluginManager(const PluginManager&); // stop default
