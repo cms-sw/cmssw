@@ -11,10 +11,10 @@ TSiStripMatchedRecHit::RecHitPointer
 TSiStripMatchedRecHit::clone( const TrajectoryStateOnSurface& ts) const
 {
   if (theMatcher != 0) {
-    const SiStripMatchedRecHit2D *orig = dynamic_cast<const SiStripMatchedRecHit2D *> (this->hit());
+    const SiStripMatchedRecHit2D *orig = static_cast<const SiStripMatchedRecHit2D *> (this->hit());
     const GeomDet *det = this->det();
-    const GluedGeomDet *gdet = dynamic_cast<const GluedGeomDet *> (det);
-    if ((orig == 0) || (gdet == 0)) return this->clone(); // or just die ?
+    const GluedGeomDet *gdet = static_cast<const GluedGeomDet *> (det);
+    //if ((orig == 0) || (gdet == 0)) return this->clone(); // or just die ?
     LocalVector tkDir = (ts.isValid() ? ts.localDirection() : 
 			 det->surface().toLocal( det->position()-GlobalPoint(0,0,0)));
     

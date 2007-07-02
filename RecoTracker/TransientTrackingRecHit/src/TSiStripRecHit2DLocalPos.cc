@@ -53,5 +53,5 @@ TSiStripRecHit2DLocalPos::clone (const TrajectoryStateOnSurface& ts) const
 
 const GeomDetUnit* TSiStripRecHit2DLocalPos::detUnit() const
 {
-  return dynamic_cast<const GeomDetUnit*>(det());
+  return static_cast<const GeomDetUnit*>(det());
 }

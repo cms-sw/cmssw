@@ -33,7 +33,7 @@ public:
 
   RecHitPointer clone( const TrajectoryStateOnSurface& ts) const;
 
-  const SiStripRecHit2D& originalHit() const { return dynamic_cast<const ProjectedSiStripRecHit2D*>( hit() )->originalHit();}
+  const SiStripRecHit2D& originalHit() const { return static_cast<const ProjectedSiStripRecHit2D*>( hit() )->originalHit();}
 
 private:
   const StripClusterParameterEstimator* theCPE;

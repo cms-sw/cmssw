@@ -13,29 +13,8 @@ public:
 
   typedef const edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster, edm::refhelper::FindForDetSetVector<SiPixelCluster> > clusterRef;
 
-//RC   /// This constructor clones the TrackingRecHit, it should be used when the 
-//RC   /// TrackingRecHit exist already in some collection
-//RC   TSiPixelRecHit(const GeomDet * geom, const SiPixelRecHit* rh, 
-//RC 		 const PixelClusterParameterEstimator* cpe) : 
-//RC     TransientTrackingRecHit(geom), theHitData(rh->clone()), theCPE(cpe) {}
-
-//RC   /// Creates the TrackingRecHit internally, avoids redundent cloning
-//RC   TSiPixelRecHit( const LocalPoint& pos, const LocalError& err,
-//RC 		  const GeomDet* det, 
-//RC 		  //		  const SiPixelCluster& cluster,
-//RC 		  clusterRef cluster,
-//RC 		  const PixelClusterParameterEstimator* cpe);
-
-//RC   TSiPixelRecHit( const TSiPixelRecHit& other ) :
-//RC     TransientTrackingRecHit( other.det()), 
-//RC     theHitData( other.specificHit()->clone()),
-//RC     theCPE( other.cpe())  {}
 
   virtual ~TSiPixelRecHit() {delete theHitData;}
-
-//RC   virtual TSiPixelRecHit * clone() const {
-//RC     return new TSiPixelRecHit(*this);
-//RC   }
 
   virtual AlgebraicVector parameters() const {return theHitData->parameters();}
 
@@ -44,7 +23,7 @@ public:
     // return theHitData->parametersError();
   }
 
-  virtual DetId geographicalId() const {return theHitData->geographicalId();}
+  virtual DetId geographicalId() const {return theHitData->trackerId();}
   virtual AlgebraicMatrix projectionMatrix() const {return theHitData->projectionMatrix();}
   virtual int dimension() const {return theHitData->dimension();}
 

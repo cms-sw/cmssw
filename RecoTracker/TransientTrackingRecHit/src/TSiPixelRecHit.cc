@@ -27,7 +27,7 @@ TSiPixelRecHit::RecHitPointer TSiPixelRecHit::clone (const TrajectoryStateOnSurf
 
 const GeomDetUnit* TSiPixelRecHit::detUnit() const
 {
-  return dynamic_cast<const GeomDetUnit*>(det());
+  return static_cast<const GeomDetUnit*>(det());
 }
 
 

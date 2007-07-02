@@ -8,9 +8,9 @@ ProjectedRecHit2D::ProjectedRecHit2D( const LocalPoint& pos, const LocalError& e
 				      const GeomDet* det, const GeomDet* originalDet,
 				      const TransientTrackingRecHit& originalTransientHit) :
   GenericTransientTrackingRecHit( det, new ProjectedSiStripRecHit2D( pos, err, det->geographicalId(), 
-								     dynamic_cast<const SiStripRecHit2D*>(originalTransientHit.hit()))) 
+								     static_cast<const SiStripRecHit2D*>(originalTransientHit.hit()))) 
 {
-  const TSiStripRecHit2DLocalPos* specificOriginalTransientHit = dynamic_cast<const TSiStripRecHit2DLocalPos*>(&originalTransientHit);
+  const TSiStripRecHit2DLocalPos* specificOriginalTransientHit = static_cast<const TSiStripRecHit2DLocalPos*>(&originalTransientHit);
   theCPE = specificOriginalTransientHit->cpe();
   theOriginalDet = originalDet;
 }
