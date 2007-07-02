@@ -132,29 +132,18 @@ void FastFedCablingHistograms::createSummaryHisto( const sistrip::Monitorable& m
 						   const sistrip::Presentation& pres, 
 						   const std::string& dir,
 						   const sistrip::Granularity& gran ) {
-  LogTrace(mlDqmClient_)
-    << "[FastFedCablingHistograms::" << __func__ << "]";
-  
-  // Check view 
-  sistrip::View view = SiStripEnumsAndStrings::view(dir);
-  if ( view == sistrip::UNKNOWN_VIEW ) { return; }
   
   // Analyze histograms if not done already
   if ( data_.empty() ) { histoAnalysis( false ); }
   
   // Extract data to be histogrammed
+  sistrip::View view = SiStripEnumsAndStrings::view(dir);
   uint32_t xbins = factory_->init( mon, pres, view, dir, gran, data_ );
   
-  // Create summary histogram (if it doesn't already exist)
+  // Use base method to create summary histogram
   TH1* summary = 0;
-  if ( pres != sistrip::HISTO_1D ) { 
-    summary = histogram( mon, pres, view, dir, xbins ); 
-  } else { 
-    summary = histogram( mon, pres, view, dir, 
-			 sistrip::maximum_, 
-			 0., 
-			 sistrip::maximum_*1. ); 
-  }
+  if ( pres != sistrip::HISTO_1D ) { summary = histogram( mon, pres, view, dir, xbins ); }
+  else { summary = histogram( mon, pres, view, dir, sistrip::FED_ADC_RANGE, 0., sistrip::FED_ADC_RANGE*1. ); }
   
   // Fill histogram with data
   factory_->fill( *summary );

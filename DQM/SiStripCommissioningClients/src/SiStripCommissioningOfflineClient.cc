@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.12 2007/06/21 15:41:31 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.13 2007/06/29 10:16:21 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningOfflineClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -183,15 +183,15 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
     << " Found " << contents.size() 
     << " directories containing MonitorElements in "
     << inputFiles_.size() << " root files";
-  std::stringstream sss;
-  std::vector<std::string>::iterator jstr = contents.begin();
-  for ( ; jstr != contents.end(); jstr++ ) {
-    sss << " " << *jstr << std::endl;
-  }
-  LogTrace(mlDqmClient_)
-    << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
-    << " Dump of contents: " << std::endl
-    << sss.str();
+//   std::stringstream sss;
+//   sss << std::endl;
+//   std::vector<std::string>::iterator jstr = contents.begin();
+//   for ( ; jstr != contents.end(); jstr++ ) {
+//     sss << " " << *jstr << std::endl;
+//   }
+//   LogTrace(mlDqmClient_)
+//     << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+//     << " Dump of contents: " << sss.str();
   
   // Extract run type from contents
   runType_ = CommissioningHistograms::runType( bei, contents ); 

@@ -232,14 +232,8 @@ void ApvTimingHistograms::createSummaryHisto( const sistrip::Monitorable& mon,
   
   // Create summary histogram (if it doesn't already exist)
   TH1* summary = 0;
-  if ( pres != sistrip::HISTO_1D ) { 
-    summary = histogram( mon, pres, view, dir, xbins ); 
-  } else { 
-    summary = histogram( mon, pres, view, dir, 
-			 sistrip::maximum_, 
-			 0., 
-			 sistrip::maximum_*1. ); 
-  }
+  if ( pres != sistrip::HISTO_1D ) { summary = histogram( mon, pres, view, dir, xbins ); }
+  else { summary = histogram( mon, pres, view, dir, sistrip::FED_ADC_RANGE, 0., sistrip::FED_ADC_RANGE*1. ); }
   
   // Fill histogram with data
   factory_->fill( *summary );
