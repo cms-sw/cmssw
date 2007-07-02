@@ -10,6 +10,9 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
+//#include "SimGeneral/HepPDT/interface/HepPDTable.h"
+//#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+
 #include "SimTracker/Common/interface/SiG4UniversalFluctuation.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -207,7 +210,8 @@ class SiPixelDigitizerAlgorithm  {
                                  //inludes DCOL-Amp,TBM-Amp, Alt, AOH,OptRec.
     float thePixelThreshold;     // Pixel threshold in units of noise.
     float thePixelThresholdInE;  // Pixel noise in electrons.
-    float theTofCut;             // Cut on the particle TOF
+    float theTofLowerCut;             // Cut on the particle TOF
+    float theTofUpperCut;             // Cut on the particle TOF
     float tanLorentzAnglePerTesla;   //Lorentz angle tangent per Tesla
     //-- add_noise
     bool addNoise;

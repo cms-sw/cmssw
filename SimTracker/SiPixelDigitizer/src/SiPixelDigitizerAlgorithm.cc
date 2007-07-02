@@ -18,6 +18,7 @@
 // Lower the amount of static dead pixels from 0.01 to 0.001.
 // Modify to the new random number services. d.k. 5/07
 // Protect against sigma=0 (delta tracks on the surface). d.k.5/07
+// Change the TOF cut to lower and upper limit. d.k. 7/07
  
 #include <vector>
 #include <iostream>
@@ -31,6 +32,7 @@
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandFlat.h"
 
+//#include "SimTracker/SiPixelDigitizer/interface/PixelIndices.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 
@@ -68,7 +70,8 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   theElectronPerADC=conf_.getParameter<double>("ElectronPerAdc");
 
   // ADC saturation value, 255=8bit adc.
-  theAdcFullScale=conf_.getUntrackedParameter<int>("AdcFullScale",255);
+  //theAdcFullScale=conf_.getUntrackedParameter<int>("AdcFullScale",255);
+  theAdcFullScale=conf_.getParameter<int>("AdcFullScale");
 
   // Pixel threshold in units of noise.
   //thePixelThreshold=conf_.getParameter<double>("ThresholdInNoiseUnits");
@@ -83,12 +86,15 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   // Pixel cell noise, relevant for generating noisy pixels 
   theNoiseInElectrons=conf_.getParameter<double>("NoiseInElectrons");
   // Fill readout noise, including all readout chain, relevant for smearing
-  theReadoutNoise=conf_.getUntrackedParameter<double>("ReadoutNoiseInElec",500.);
+  //theReadoutNoise=conf_.getUntrackedParameter<double>("ReadoutNoiseInElec",500.);
+  theReadoutNoise=conf_.getParameter<double>("ReadoutNoiseInElec");
 
 
 
   //theTofCut 12.5, cut in particle TOD +/- 12.5ns
-  theTofCut=conf_.getUntrackedParameter<double>("TofCut",12.5);
+  //theTofCut=conf_.getUntrackedParameter<double>("TofCut",12.5);
+  theTofLowerCut=conf_.getParameter<double>("TofLowerCut");
+  theTofUpperCut=conf_.getParameter<double>("TofUpperCut");
 
   //Lorentz angle tangent per Tesla
   tanLorentzAnglePerTesla=conf_.getParameter<double>("TanLorentzAnglePerTesla");
@@ -99,7 +105,8 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
 
   // delta cutoff in MeV, has to be same as in OSCAR=0.030/cmsim=1.0 MeV
   //tMax = 0.030; // In MeV.  
-  tMax =conf_.getUntrackedParameter<double>("DeltaProductionCut",0.030);  
+  //tMax =conf_.getUntrackedParameter<double>("DeltaProductionCut",0.030);  
+  tMax =conf_.getParameter<double>("DeltaProductionCut");  
  
   // Control the pixel inefficiency
   thePixelLuminosity=conf_.getParameter<int>("AddPixelInefficiency");
@@ -403,15 +410,15 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
       
       _collection_points.clear();  // Clear the container
       // fill _collection_points for this SimHit, indpendent of topology
-      if (std::abs( (*ssbegin).tof() )<theTofCut){
-	primary_ionization(*ssbegin); // fills _ionization_points
-	
-	drift(*ssbegin);  // transforms _ionization_points to _collection_points  
-	
+      // Check the TOF cut
+      //if (std::abs( (*ssbegin).tof() )<theTofCut){ // old cut
+      if ( ((*ssbegin).tof() >= theTofLowerCut) && ((*ssbegin).tof() <= theTofUpperCut) ) {
+	primary_ionization(*ssbegin); // fills _ionization_points	
+	drift(*ssbegin);  // transforms _ionization_points to _collection_points  	
 	// compute induced signal on readout elements and add to _signal
-	induce_signal(*ssbegin); //*ihit needed only for SimHit<-->Digi link
-				     }
-    }
+	induce_signal(*ssbegin); // *ihit needed only for SimHit<-->Digi link
+      } //  end if 
+    } // end for 
 
     if(addNoise) add_noise();  // generate noise
     // Do only if needed 
