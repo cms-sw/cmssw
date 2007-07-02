@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchGsfElectronAnalyzer.cc,v 1.7 2007/06/29 09:25:53 charlot Exp $
+// $Id: PixelMatchGsfElectronAnalyzer.cc,v 1.8 2007/06/29 21:05:42 charlot Exp $
 //
 //
 
@@ -98,10 +98,11 @@ void PixelMatchGsfElectronAnalyzer::beginJob(edm::EventSetup const&iSetup){
   h_ele_vertexPt       = new TH1F( "h_ele_vertexPt",       "ele p_{T} at vertex",  80, 0., 20. );
   h_ele_vertexPtVsEta   = new TH2F( "h_ele_vertexPtVsEta",       "ele p_{T} at vertex vs eta",50,-2.5,2.5,80,0.,20.);
   h_ele_vertexPtVsPhi   = new TH2F( "h_ele_vertexPtVsPhi",       "ele p_{T} at vertex vs phi",50,-3.15,3.15,80,0.,20.);
-  h_ele_vertexPt_5100       = new TH1F( "h_ele_vertexPt_5100",       "ele p_{T} at vertex",  9, 5., 50. );
+  h_ele_simPt_matched       = new TH1F( "h_ele_simPt_matched",       "sim p_{T}, matched electrons",  9, 5., 50. );
   h_ele_vertexEta      = new TH1F( "h_ele_vertexEta",      "ele #eta at vertex",    50, -2.5, 2.5 );
   h_ele_vertexEtaVsPhi  = new TH2F( "h_ele_vertexEtaVsPhi",      "ele #eta at vertex vs phi",50,-2.5,2.5,50,-3.15,3.15 );
-  h_ele_vertexAbsEta      = new TH1F( "h_ele_vertexAbsEta",      "ele |#eta| at vertex",    25, 0., 2.5 );
+  h_ele_simAbsEta_matched      = new TH1F( "h_ele_simAbsEta_matched",      "sim |#eta|, matched electrons",    25, 0., 2.5 );
+  h_ele_simEta_matched      = new TH1F( "h_ele_simEta_matched",      "sim #eta,  matched electrons",    50, -2.5, 2.5 );
   h_ele_vertexPhi      = new TH1F( "h_ele_vertexPhi",      "ele #phi at vertex",    50, -3.1415927, -3.1415927 );
   h_ele_vertexX      = new TH1F( "h_ele_vertexX",      "ele x at vertex",    50, -0.001,0.001 );
   h_ele_vertexY      = new TH1F( "h_ele_vertexY",      "ele y at vertex",    50, -0.001,0.001 );
@@ -262,23 +263,23 @@ PixelMatchGsfElectronAnalyzer::endJob(){
   histfile_->cd();
   std::cout << "efficiency calculation " << std::endl; 
   // efficiency vs eta
-  TH1F *h_ele_etaEff = (TH1F*)h_ele_vertexEta->Clone("h_ele_etaEff");
+  TH1F *h_ele_etaEff = (TH1F*)h_ele_simEta_matched->Clone("h_ele_etaEff");
   h_ele_etaEff->Reset();
-  h_ele_etaEff->Divide(h_ele_vertexEta,h_simEta,1,1);
+  h_ele_etaEff->Divide(h_ele_simEta_matched,h_simEta,1,1);
   h_ele_etaEff->Print();
   h_ele_etaEff->GetXaxis()->SetTitle("#eta");
   h_ele_etaEff->GetYaxis()->SetTitle("eff");
   
   // efficiency vs |eta|
-  TH1F *h_ele_absetaEff = (TH1F*)h_ele_vertexAbsEta->Clone("h_ele_absetaEff");
+  TH1F *h_ele_absetaEff = (TH1F*)h_ele_simAbsEta_matched->Clone("h_ele_absetaEff");
   h_ele_absetaEff->Reset();
-  h_ele_absetaEff->Divide(h_ele_vertexAbsEta,h_simAbsEta,1,1);
+  h_ele_absetaEff->Divide(h_ele_simAbsEta_matched,h_simAbsEta,1,1);
   h_ele_absetaEff->GetXaxis()->SetTitle("|#eta|");
   h_ele_absetaEff->GetYaxis()->SetTitle("eff");
   // efficiency vs pt
-  TH1F *h_ele_ptEff = (TH1F*)h_ele_vertexPt_5100->Clone("h_ele_ptEff");
+  TH1F *h_ele_ptEff = (TH1F*)h_ele_simPt_matched->Clone("h_ele_ptEff");
   h_ele_ptEff->Reset();
-  h_ele_ptEff->Divide(h_ele_vertexPt_5100,h_simPt,1,1);
+  h_ele_ptEff->Divide(h_ele_simPt_matched,h_simPt,1,1);
   h_ele_ptEff->GetXaxis()->SetTitle("p_T");
   h_ele_ptEff->GetYaxis()->SetTitle("eff");
 
@@ -389,10 +390,12 @@ PixelMatchGsfElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
 	h_ele_vertexPt      -> Fill( bestGsfElectron.pt() );
 	h_ele_vertexPtVsEta      -> Fill(  bestGsfElectron.eta(),bestGsfElectron.pt() );
 	h_ele_vertexPtVsPhi      -> Fill(  bestGsfElectron.phi(),bestGsfElectron.pt() );
-	h_ele_vertexPt_5100      -> Fill( pAssSim.perp() );
 	h_ele_vertexEta     -> Fill( bestGsfElectron.eta() );
+	// generated distributions for matched electrons
+	h_ele_simPt_matched      -> Fill( pAssSim.perp() );
+	h_ele_simAbsEta_matched     -> Fill( fabs(pAssSim.eta()) );
+	h_ele_simEta_matched     -> Fill( pAssSim.eta() );
 	h_ele_vertexEtaVsPhi     -> Fill(  bestGsfElectron.phi(),bestGsfElectron.eta() );
-	h_ele_vertexAbsEta     -> Fill( fabs(pAssSim.eta()) );
 	h_ele_vertexPhi     -> Fill( bestGsfElectron.phi() );
 	h_ele_vertexX     -> Fill( bestGsfElectron.gsfTrack()->vertex().x() );
 	h_ele_vertexY     -> Fill( bestGsfElectron.gsfTrack()->vertex().y() );
