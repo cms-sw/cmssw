@@ -13,6 +13,7 @@ bool SiPixelRecHit::sharesInput( const TrackingRecHit* other,
 				 SharedInputType what) const
 {
   if (trackerId() != other->geographicalId()) return false;
+  if(! other->isValid()) return false;
 
   const SiPixelRecHit* otherCast = static_cast<const SiPixelRecHit*>(other);
 
