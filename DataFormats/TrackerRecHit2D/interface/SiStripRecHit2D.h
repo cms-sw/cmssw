@@ -10,7 +10,7 @@
 class SiStripRecHit2D : public  BaseSiTrackerRecHit2DLocalPos{
 public:
 
-  SiStripRecHit2D(): BaseSiTrackerRecHit2DLocalPos(),clusterRegional_(),clusterDSV_() {}
+  SiStripRecHit2D(): BaseSiTrackerRecHit2DLocalPos(),cluster_(),clusterRegional_() {}
 
   ~SiStripRecHit2D() {} 
 
@@ -26,17 +26,19 @@ public:
   
   edm::SiStripRefGetter<SiStripCluster>::value_ref const&  cluster_regional()  const { return clusterRegional_;}
 
-  edm::Ref<edm::DetSetVector<SiStripCluster> ,SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > const&  cluster()  const { return clusterDSV_;}
+  edm::Ref<edm::DetSetVector<SiStripCluster> ,SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > const&  cluster()  const { return cluster_;}
   
   virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const;
   
  private:
 
+  // DetSetVector ref
+  edm::Ref<edm::DetSetVector<SiStripCluster>,SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster>  >  const cluster_;
+
+
   // SiStripRefGetter ref.
   edm::SiStripRefGetter<SiStripCluster>::value_ref const clusterRegional_;
 
-  // DetSetVector ref
-  edm::Ref<edm::DetSetVector<SiStripCluster>,SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster>  >  const clusterDSV_;
  
 };
 
