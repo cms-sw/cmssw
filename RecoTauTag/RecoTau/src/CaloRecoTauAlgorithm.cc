@@ -8,7 +8,7 @@ Tau CaloRecoTauAlgorithm::tag(const CombinedTauTagInfo& myTagInfo)
   const Jet & jet = * (myTagInfo.jet());
   //Takes the LeadChargedHadron
   float z_PV = 0;
-  TrackRef myLeadTk;
+  TrackRef myLeadTk = (myTagInfo.isolatedtautaginfoRef())->leadingSignalTrack(MatchingConeSize_, LeadCand_minPt_);
 
   /*
     myLeadTk = 
