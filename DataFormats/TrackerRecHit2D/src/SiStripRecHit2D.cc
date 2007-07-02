@@ -22,11 +22,10 @@ bool
 SiStripRecHit2D::sharesInput( const TrackingRecHit* other, 
 			      SharedInputType what) const
 {
-  if (geographicalId() != other->geographicalId()) return false;
+  if (trackerId() != other->geographicalId()) return false;
 
-  const SiStripRecHit2D* otherCast = dynamic_cast<const SiStripRecHit2D*>(other);
-  if ( otherCast == 0 )  return false;
+  const SiStripRecHit2D* otherCast = static_cast<const SiStripRecHit2D*>(other);
 
-  return cluster() == otherCast->cluster();
+  return cluster_ == otherCast->cluster();
 }
 

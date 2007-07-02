@@ -8,7 +8,7 @@ bool
 SiStripMatchedRecHit2D::sharesInput( const TrackingRecHit* other, 
 				     SharedInputType what) const
 {
-  if (geographicalId() != other->geographicalId()) return false;
+  if (trackerId() != other->geographicalId()) return false;
   
   const SiStripMatchedRecHit2D* otherMatched = 
     dynamic_cast<const SiStripMatchedRecHit2D*>(other);

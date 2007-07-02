@@ -23,6 +23,9 @@ public:
   virtual LocalError localPositionError() const{ return err_;}
 
   virtual DetId geographicalId() const {return id_;}
+
+  /// returns the DetId by means of a not virtual function
+  inline DetId trackerId() const { return id_;}
   
  private:
   
@@ -33,7 +36,7 @@ public:
 
 // Comparison operators
 inline bool operator<( const BaseSiTrackerRecHit2DLocalPos& one, const BaseSiTrackerRecHit2DLocalPos& other) {
-  if ( one.geographicalId() < other.geographicalId() ) {
+  if ( one.trackerId() < other.trackerId() ) {
     return true;
   } else {
     return false;

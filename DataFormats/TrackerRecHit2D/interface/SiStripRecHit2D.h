@@ -44,7 +44,7 @@ public:
 
 // Comparison operators
 inline bool operator<( const SiStripRecHit2D& one, const SiStripRecHit2D& other) {
-  if ( one.geographicalId() < other.geographicalId() ) {
+  if ( one.trackerId() < other.trackerId() ) {
     return true;
   } else {
     return false;
