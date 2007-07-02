@@ -4,10 +4,11 @@
      the resource broker to send to the Storage Manager.
      See the CMS EvF Storage Manager wiki page for further notes.
 
-   $Id: FUShmOutputModule.cc,v 1.3 2007/05/01 22:37:31 hcheung Exp $
+   $Id: FUShmOutputModule.cc,v 1.4 2007/06/30 16:12:52 hcheung Exp $
 */
 
 #include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
+#include "IOPool/Streamer/interface/EventMessage.h"
 #include "EventFilter/Modules/src/FUShmOutputModule.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 

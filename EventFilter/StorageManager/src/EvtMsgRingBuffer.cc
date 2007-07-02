@@ -14,6 +14,8 @@
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include <iostream>
+
 using namespace stor;
 using namespace edm;
 using namespace std;

@@ -26,18 +26,18 @@
 
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
-#include "xcept/include/xcept/tools.h"
-#include "xgi/include/xgi/Method.h"
+#include "xcept/tools.h"
+#include "xgi/Method.h"
 
-#include "extern/cgicc/linuxx86/include/cgicc/CgiDefs.h"
-#include "extern/cgicc/linuxx86/include/cgicc/Cgicc.h"
-#include "extern/cgicc/linuxx86/include/cgicc/FormEntry.h"
+#include "cgicc/CgiDefs.h"
+#include "cgicc/Cgicc.h"
+#include "cgicc/FormEntry.h"
 
 #include "xoap/MessageReference.h"
 #include "xoap/MessageFactory.h"
-#include "xoap/include/xoap/SOAPEnvelope.h"
-#include "xoap/include/xoap/SOAPBody.h"
-#include "xoap/include/xoap/domutils.h"
+#include "xoap/SOAPEnvelope.h"
+#include "xoap/SOAPBody.h"
+#include "xoap/domutils.h"
 #include "xoap/Method.h"
 
 #include <typeinfo>
@@ -47,7 +47,8 @@
 namespace evf {
 
   namespace internal {
-  
+    
+    using namespace std;
     void addService(vector<edm::ParameterSet>& adjust,string const& service)
     {
       edm::ParameterSet newpset;

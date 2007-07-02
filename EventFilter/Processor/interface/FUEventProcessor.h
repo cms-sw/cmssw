@@ -11,18 +11,18 @@
 #include "FWCore/Framework/interface/TriggerReport.h"
 #include "FWCore/PrescaleService/interface/PrescaleService.h"
 
-#include "xdaq/include/xdaq/Application.h"
+#include "xdaq/Application.h"
 #include "xdaq/NamespaceURI.h"
 
-#include "xdata/include/xdata/String.h"
-#include "xdata/include/xdata/Integer.h"
-#include "xdata/include/xdata/Boolean.h"
-#include "xdata/include/xdata/UnsignedInteger32.h"
+#include "xdata/String.h"
+#include "xdata/Integer.h"
+#include "xdata/Boolean.h"
+#include "xdata/UnsignedInteger32.h"
 #include "xdata/ActionListener.h"
 
-#include "xgi/include/xgi/Input.h"
-#include "xgi/include/xgi/Output.h"
-#include "xgi/include/xgi/exception/Exception.h"
+#include "xgi/Input.h"
+#include "xgi/Output.h"
+#include "xgi/exception/Exception.h"
 
 #include <sys/time.h>
 

@@ -2,11 +2,13 @@
  * This class manages the distribution of events to consumers from within
  * the storage manager.
  *
- * $Id$
+ * $Id: EventServer.cc,v 1.5 2007/05/16 22:55:03 hcheung Exp $
  */
 
 #include "EventFilter/StorageManager/interface/EventServer.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
+
+#include <iostream>
 
 using namespace std;
 using namespace stor;
