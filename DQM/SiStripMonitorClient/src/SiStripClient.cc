@@ -41,7 +41,7 @@ void SiStripClient::handleWebRequest(xgi::Input * in, xgi::Output * out)
 */
 void SiStripClient::configure()
 {
-  cout << "SiStripClient::configure: Reading Configuration " << endl;
+  std::cout << "SiStripClient::configure: Reading Configuration " << std::endl;
   webInterface_p->readConfiguration(updateFrequencyForTrackerMap_, 
 				    updateFrequencyForSummary_);
 }
