@@ -21,8 +21,7 @@ public:
   GaussianSumUtilities1D (const MultiGaussianState1D& state) :
     theState(state),
 //     theStates(state.components()),
-    theModeStatus(NotComputed),
-    theMode(0.) {} 
+    theModeStatus(NotComputed) {} 
   ~GaussianSumUtilities1D () {}
 
   /// number of components
@@ -45,11 +44,9 @@ public:
   double quantile (const double) const;
   /// mode status
   bool modeIsValid () const;
-  /// mode
-  double mode () const;
-  /** Local variance from Hessian matrix. 
-   *  Only valid if x corresponds to a (local) maximum! */
-  double localVariance (const double& x) const;
+  /** Mode "state": mean = mode, variance = local variance at mode,
+   *  weight chosen to have pdf(mode) equal to the one of the mixture */
+  const SingleGaussianState1D& mode () const;
   /// value of the p.d.f.
   double pdf (const double&) const;
   /// value of the c.d.f.
@@ -81,9 +78,6 @@ public:
   }
 
 private:
-//   /// mode from starting value; returns true on success
-//   bool findModeAlternative (double& mode, double& pdfAtMode, 
-// 		 const double& xStart, const double& scale) const;
   /** Finds mode. Input: start value and typical scale. 
    *  Output: mode and pdf(mode). Return value is true on success.
    */
@@ -97,12 +91,33 @@ private:
   double combinedMean() const;
   /// calculation of mode
   void computeMode () const;
+  /** Local variance from Hessian matrix. 
+   *  Only valid if x corresponds to a (local) maximum! */
+  double localVariance (const double& x) const;
+
+  /// pdf components
+  std::vector<double> pdfComponents (const double&) const;
+  /// value of the p.d.f. using the pdf components at the evaluation point
+  double pdf (const double&, const std::vector<double>&) const;
+  /// first derivative of the p.d.f. using the pdf components at the evaluation point
+  double d1Pdf (const double&, const std::vector<double>&) const;
+  /// second derivative of the p.d.f. using the pdf components at the evaluation point
+  double d2Pdf (const double&, const std::vector<double>&) const;
+  /// third derivative of the p.d.f. using the pdf components at the evaluation point
+  double d3Pdf (const double&, const std::vector<double>&) const;
+  /// ln(pdf) using the pdf components at the evaluation point
+  double lnPdf (const double&, const std::vector<double>&) const;
+  /// first derivative of ln(pdf) using the pdf components at the evaluation point
+  double d1LnPdf (const double&, const std::vector<double>&) const;
+  /// second derivative of ln(pdf) using the pdf components at the evaluation point
+  double d2LnPdf (const double&, const std::vector<double>&) const;
 
 private:
   const MultiGaussianState1D& theState;
 //   std::vector<SingleGaussianState1D> theStates;
 
   mutable ModeStatus theModeStatus;
-  mutable double theMode;
+  mutable SingleGaussianState1D theMode;
+//   mutable double theMode;
 };
 #endif

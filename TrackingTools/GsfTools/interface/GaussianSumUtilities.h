@@ -34,8 +34,8 @@ public:
     theState(state), 
     theModeStatus(NotComputed) {
 #ifdef DRAW_GSND
-    v1Draw_ = 1;
-    v2Draw_ = 2;
+//     v1Draw_ = 1;
+//     v2Draw_ = 2;
     instance_ = this;
 #endif
   } 
@@ -68,11 +68,9 @@ public:
   }
   /// mode status
   bool modeIsValid () const;
-  /// mode
-  Vector mode () const;
-  /** Local variance from Hessian matrix.
-   *  Only valid if x corresponds to a (local) maximum! */
-  Matrix localCovariance (const Vector& x) const;
+  /** Mode "state": mean = mode, covariance = local covariance at mode,
+   *  weight chosen to have pdf(mode) equal to the one of the mixture */
+  const SingleGaussianState<N>& mode () const;
   /// value of the p.d.f.
   double pdf (const Vector&) const;
   /// gradient
@@ -113,25 +111,46 @@ private:
   double gauss (const Vector&, 
 		const Vector&,
 		const Matrix&) const;
-//   /// mode from starting value in pdf; returns true on success
-//   bool findModeAlternative (Vector& mode, double& pdfAtMode,
-// 			    const Vector& xStart) const;
   /// mode from starting value in ln(pdf); returns true on success
   bool findMode (Vector& mode, double& pdfAtMode,
 		 const Vector& xStart) const;
   /// calculation of mode with transformation of pdf
-  Vector computeMode () const;
+  void computeMode () const;
   /// state constrained to a line x = s*d+x0
   MultiGaussianState1D constrainedState (const Vector& d,
 					 const Vector& x0) const;
-  /// replacement of CLHEP determinant (which rounds off small values)
-  double determinant (const Matrix& matrix) const;
+//   /// replacement of CLHEP determinant (which rounds off small values)
+//   double determinant (const Matrix& matrix) const;
+  /** Local variance from Hessian matrix.
+   *  Only valid if x corresponds to a (local) maximum! */
+  Matrix localCovariance (const Vector& x) const;
+  /// set mode "state" from solution of mode finding
+  void setMode (const Vector& mode) const;
+  /// set mode "state" in case of failure
+  void setInvalidMode () const;
+
+  /// pdf components
+  std::vector<double> pdfComponents (const Vector&) const;
+  /// value of the p.d.f. using the pdf components at the evaluation point
+  double pdf (const Vector&, const std::vector<double>&) const;
+  /// gradient using the pdf components at the evaluation point
+  Vector d1Pdf (const Vector&, const std::vector<double>&) const;
+  /// Hessian using the pdf components at the evaluation point
+  Matrix d2Pdf (const Vector&, const std::vector<double>&) const;
+  /// value of ln(pdf) using the pdf components at the evaluation point
+  double lnPdf (const Vector&, const std::vector<double>&) const;
+  /// gradient of ln(pdf) using the pdf components at the evaluation point
+  Vector d1LnPdf (const Vector&, const std::vector<double>&) const;
+  /// Hessian of ln(pdf) using the pdf components at the evaluation point
+  Matrix d2LnPdf (const Vector&, const std::vector<double>&) const;
+
 
 #ifdef DRAW_GSND
 public:
   void setDraw (int i1, int i2) {v1Draw_=i1; v2Draw_=i2;}
 private:
   static double fcn2 (double* x, double* p);
+  static double fcn2mode (double* x, double* p);
 #endif
 
 private:
@@ -139,7 +158,8 @@ private:
 //   int theDimension;
 
   mutable ModeStatus theModeStatus;
-  mutable Vector theMode;
+//   mutable Vector theMode;
+  mutable SingleGaussianState<N> theMode;
 
 #ifdef DRAW_GSND
   static int v1Draw_;

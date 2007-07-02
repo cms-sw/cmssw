@@ -1,6 +1,9 @@
 #include "TrackingTools/GsfTools/interface/GaussianSumUtilities1D.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+// #include "Utilities/Timing/interface/TimingReport.h"
+// #include "Utilities/Timing/interface/TimerStack.h"
+
 #include "TROOT.h"
 #include "TMath.h"
 
@@ -77,12 +80,10 @@ GaussianSumUtilities1D::modeIsValid () const
   return theModeStatus==Valid;
 }
 
-double
+const SingleGaussianState1D&
 GaussianSumUtilities1D::mode () const
 {
   if ( theModeStatus==NotComputed )  computeMode();
-  if ( !theModeStatus == Valid )  
-    edm::LogWarning("GaussianSumUtilities") << "1D mode calculation failed";
 //     std::cout << "Mode calculation failed!!" << std::endl;
   return theMode;
 }
@@ -90,6 +91,9 @@ GaussianSumUtilities1D::mode () const
 void
 GaussianSumUtilities1D::computeMode () const
 {
+//   TimerStack tstack;
+//   tstack.benchmark("GSU1D::benchmark",100000);
+//   FastTimerStackPush(tstack,"GaussianSumUtilities1D::computeMode");
 #ifdef DRAW_GS1D
   {
   gPad->Clear();
@@ -176,8 +180,10 @@ GaussianSumUtilities1D::computeMode () const
 #ifdef DRAW_GS1D
   int ind(0);
 #endif
-  int iRes(-1); // index of current estimate
-  std::pair<double,double> result(-1.,mean((*xStart.begin()).second));
+  int iRes(-1);     // index of start component for current estimate
+  double xRes(mean((*xStart.begin()).second)); // current estimate of mode
+  double yRes(-1.); // pdf at current estimate of mode
+//   std::pair<double,double> result(-1.,mean((*xStart.begin()).second));
   for ( StartMap::const_iterator i=xStart.begin(); i!=xStart.end(); i++ ) {
 #ifdef DRAW_GS1D
     double xp[2];
@@ -213,14 +219,16 @@ GaussianSumUtilities1D::computeMode () const
       //
       // update result only for significant changes in pdf(solution)
       //
-      if ( result.first<0. || (y-result.first)/(y+result.first)>1.e-10 ) {
+      if ( yRes<0. || (y-yRes)/(y+yRes)>1.e-10 ) {
 #ifdef DBG_GS1D
       if ( iRes>=0 ) 
-	std::cout << "dxStart = " << (result.second-mean((*i).second))/standardDeviation(iRes) << std::endl;
+	std::cout << "dxStart = " << (xRes-mean((*i).second))/standardDeviation(iRes) << std::endl;
 #endif
       iRes = (*i).second;               // store index
       theModeStatus = Valid;            // update status
-      result = std::make_pair(y,x);     // store solution and pdf(solution)
+      xRes = x;                         // current solution
+      yRes = y;                         // and its pdf value
+//       result = std::make_pair(y,x);     // store solution and pdf(solution)
       }
     } //...
 #ifdef DRAW_GS1D
@@ -244,23 +252,47 @@ GaussianSumUtilities1D::computeMode () const
     std::cout << "Ratio of pdfs at  first / real maximum = " << iRes << " " << mean(iRes) << " "
 	 << pdf(mean(iRes))/(*xStart.begin()).first << std::endl;
 #endif
+    //
+    // Construct single Gaussian state with 
+    //  mean = mode
+    //  variance = local variance at mode
+    //  weight such that the pdf's of the mixture and the
+    //    single state are equal at the mode
+    //
+    double mode = xRes;
+    double varMode = localVariance(mode);
+    double wgtMode = pdf(mode)*sqrt(2*TMath::Pi()*varMode);
+    theMode = SingleGaussianState1D(mode,varMode,wgtMode);
   }
   else {
     //
-    // mode finding failed: set solution to total mean
-    std::cout << "Mode finder failed!!!" << std::endl;
-    double x = mean();
-    double y = pdf(x);
-    result = std::make_pair(y,x);
+    // mode finding failed: set solution to highest component
+    //  (alternative would be global mean / variance ..?)
+    //
+    edm::LogWarning("GaussianSumUtilities") << "1D mode calculation failed";
+//     double x = mean();
+//     double y = pdf(x);
+//     result = std::make_pair(y,x);
+//     theMode = SingleGaussianState1D(mean(),variance(),weight());
+    //
+    // look for component with highest value at mean
+    //
+    unsigned int icMax(0);
+    double ySqMax(0.);
+    for ( unsigned int ic=0; ic<size(); ++ic ) {
+      double w = weight(ic);
+      double ySq = w*w/variance(ic);
+      if ( ic==0 || ySqMax ) {
+	icMax = ic;
+	ySqMax = ySq;
+      }
+    }
+    theMode = SingleGaussianState1D(components()[icMax]);
   }
 #ifdef DRAW_GS1D
   gPad->Modified();
   gPad->Update();
 #endif
-  //
-  // results
-  //
-  theMode = result.second;
 #ifdef DRAW_GS1D
   {
     TGraph* gm = new TGraph();
@@ -290,69 +322,6 @@ GaussianSumUtilities1D::computeMode () const
   
 }
 
-// bool
-// GaussianSumUtilities1D::findModeAlternative (double& xMode, double& yMode,
-// 					     const double& xStart,
-// 					     const double& scale) const
-// {
-//   //
-//   // try with Newton on pdf'(x)
-//   //
-//   bool result(false);
-//   double x1(0.);
-//   double y1(0.);
-//   double x2(xStart);
-//   double y2(pdf(xStart));
-//   double yd(d1Pdf(xStart));
-//   double yd2(d2Pdf(xStart));
-//   double xmin(xStart-1.5*scale);
-//   double xmax(xStart+1.5*scale);
-//   double vDyDy(yd*localVariance(xStart)*yd);
-//   int nLoop(0);
-//   while ( nLoop++<20 ) {
-//     if ( vDyDy>-FLT_MIN && vDyDy<1.e-6 ) {
-//       result = true;
-//       break;
-//     }
-//     double dx = -yd/yd2;
-//     x1 = x2;
-//     y1 = y2;
-//     // try to estimate validity of extrapolation:
-//     // - use a limit on dy/dx equivalent to a 1% change in y over scale
-//     // - convert it to a limit on the step size based on d3y/dx3
-//     double dxmax = sqrt(fabs(2.*(1.e-2*y2/scale)/d3Pdf(x1)));
-//     if ( yd2*scale*scale/y2<-1.e-4 ) {
-//       bool limit1 = fabs(dx)>dxmax;
-//       if ( limit1 ) {
-// 	if ( dx<-dxmax )  dx = -dxmax;
-// 	else if ( dx>dxmax )  dx = dxmax;
-//       }
-//     }
-//     else {
-//       // move dxmax
-//       dx = yd>0 ? dxmax : -dxmax;
-//     }
-//     x2 += dx;
-//     bool limit2 = x2<xmin || x2>xmax;
-//     if ( x2 < xmin )  x2 = xmin;
-//     else if ( x2 > xmax )  x2 = xmax;
-//     y2 = pdf(x2);
-//     yd2 = d2Pdf(x2);
-//     if ( limit2 ) {
-//       xMode = xStart;
-//       yMode = pdf(xStart);
-//       return false;
-//     }
-//     y2 = pdf(x2);
-//     yd = d1Pdf(x2);
-//     if ( fabs(yd2)<1.e-10 )  yd2 = yd2>0. ? 1.e-10 : -1.e-10;
-//     vDyDy = yd*localVariance(x2)*yd;
-//   }
-//   xMode = x2;
-//   yMode = y2;
-//   return result;
-// }
-
 bool
 GaussianSumUtilities1D::findMode (double& xMode, double& yMode,
 				  const double& xStart,
@@ -361,57 +330,50 @@ GaussianSumUtilities1D::findMode (double& xMode, double& yMode,
   //
   // try with Newton on (lnPdf)'(x)
   //
-  bool result(false);
   double x1(0.);
   double y1(0.);
+  std::vector<double> pdfs(pdfComponents(xStart));
   double x2(xStart);
-  double y2(pdf(xStart));
-  double yd(d1LnPdf(xStart));
-  double yd2(d2LnPdf(xStart));
-  double ydLin(d1Pdf(xStart));
-//   double xmin(xStart-1.5*scale);
-//   double xmax(xStart+1.5*scale);
+  double y2(pdf(xStart,pdfs));
+  double yd(d1LnPdf(xStart,pdfs));
+  double yd2(d2LnPdf(xStart,pdfs));
   double xmin(xStart-1.*scale);
   double xmax(xStart+1.*scale);
-  double vDyDy(ydLin*localVariance(xStart)*ydLin);
+  //
+  // preset result
+  //
+  bool result(false);
+  xMode = x2;
+  yMode = y2;
+  //
+  // Iterate
+  //
   int nLoop(0);
   while ( nLoop++<20 ) {
-    if ( nLoop>1 && vDyDy>-FLT_MIN && 
-	 (vDyDy<1.e-8 || fabs(y2-y1)/(y2+y1)<1.e-10) ) {
+    if ( nLoop>1 && yd2<0. &&  
+ 	 ( fabs(yd*scale)<1.e-10 || fabs(y2-y1)/(y2+y1)<1.e-14 ) ) {
       result = true;
       break;
     }
+    if ( fabs(yd2)<FLT_MIN )  yd2 = yd2>0. ? FLT_MIN : -FLT_MIN;
     double dx = -yd/yd2;
     x1 = x2;
     y1 = y2;
-//     // try to estimate validity of extrapolation:
-//     // - use a limit on dy/dx equivalent to a 1% change in y over scale
-//     // - convert it to a limit on the step size based on d3y/dx3
-//     double dxmax = sqrt(fabs(2.*(0.001*y2/scale)/d3Pdf(x1)));
-//     if ( vDyDy<-FLT_MIN ) {
-//       bool limit1 = fabs(dx)>dxmax;
-//       if ( limit1 ) {
-//  	if ( dx<-dxmax )  dx = -dxmax;
-//  	else if ( dx>dxmax )  dx = dxmax;
-//       }
-//     }
     x2 += dx;
-//     if ( x2 < xmin )  x2 = xmin + 0.000001*scale;
-//     else if ( x2 > xmax )  x2 = xmax - 0.000001*scale;
-    if ( x2<xmin || x2>xmax ) {
-      xMode = xStart;
-      yMode = pdf(xStart);
-      return false;
-    }
-    y2 = pdf(x2);
-    yd2 = d2LnPdf(x2);
-    yd = d1LnPdf(x2);
-    ydLin = d1Pdf(x2);
-    if ( fabs(yd2)<1.e-10 )  yd2 = yd2>0. ? 1.e-10 : -1.e-10;
-    vDyDy = ydLin*localVariance(x2)*ydLin;
+    if ( x2<xmin || x2>xmax )  return false;
+
+    pdfs = pdfComponents(x2);
+    y2 = pdf(x2,pdfs);
+    yd = d1LnPdf(x2,pdfs);
+    yd2 = d2LnPdf(x2,pdfs);
   }
-  xMode = x2;
-  yMode = y2;
+  //
+  // result
+  //
+  if ( result ) {
+    xMode = x2;
+    yMode = y2;
+  }
 #ifdef DBG_GS1D
   std::cout << "Started from " << xStart << " " << pdf(xStart)
 	    << " ; ended at " << xMode << " " << yMode << " after " 
@@ -423,10 +385,7 @@ GaussianSumUtilities1D::findMode (double& xMode, double& yMode,
 double
 GaussianSumUtilities1D::pdf (const double& x) const
 {
-  double result(0.);
-  for ( unsigned int i=0; i<size(); i++ )
-    result += weight(i)*gauss(x,mean(i),standardDeviation(i));
-  return result;
+  return pdf(x,pdfComponents(x));
 }
 
 double
@@ -441,73 +400,126 @@ GaussianSumUtilities1D::cdf (const double& x) const
 double
 GaussianSumUtilities1D::d1Pdf (const double& x) const
 {
-  double result(0.);
-  for ( unsigned int i=0; i<size(); i++ ) {
-    double dx = (x-mean(i))/standardDeviation(i);
-    result += -weight(i)*dx/standardDeviation(i)*
-      gauss(x,mean(i),standardDeviation(i));
-  }
-  return result;
+  return d1Pdf(x,pdfComponents(x));
 }
 
 double
 GaussianSumUtilities1D::d2Pdf (const double& x) const
 {
-  double result(0.);
-  for ( unsigned int i=0; i<size(); i++ ) {
-    double dx = (x-mean(i))/standardDeviation(i);
-    result += weight(i)/standardDeviation(i)/standardDeviation(i)*
-      (dx*dx-1)*gauss(x,mean(i),standardDeviation(i));
-  }
-  return result;
+  return d2Pdf(x,pdfComponents(x));
 }
 
 double
 GaussianSumUtilities1D::d3Pdf (const double& x) const
 {
-  double result(0.);
-  for ( unsigned int i=0; i<size(); i++ ) {
-    double dx = (x-mean(i))/standardDeviation(i);
-    result += weight(i)/standardDeviation(i)/standardDeviation(i)/standardDeviation(i)*
-      (-dx*dx+3)*dx*gauss(x,mean(i),standardDeviation(i));
-  }
-  return result;
+  return d3Pdf(x,pdfComponents(x));
 }
 
 double
 GaussianSumUtilities1D::lnPdf (const double& x) const
 {
-  double f(pdf(x));
+  return lnPdf(x,pdfComponents(x));
+}
+
+double
+GaussianSumUtilities1D::d1LnPdf (const double& x) const
+{
+  return d1LnPdf(x,pdfComponents(x));
+}
+
+double
+GaussianSumUtilities1D::d2LnPdf (const double& x) const
+{
+  return d2LnPdf(x,pdfComponents(x));
+}
+
+std::vector<double>
+GaussianSumUtilities1D::pdfComponents (const double& x) const
+{
+  std::vector<double> result;
+  result.reserve(size());
+  for ( unsigned int i=0; i<size(); i++ )
+    result.push_back(weight(i)*gauss(x,mean(i),standardDeviation(i)));
+  return result;
+}
+
+double
+GaussianSumUtilities1D::pdf (const double& x, const std::vector<double>& pdfs) const
+{
+  double result(0.);
+  for ( unsigned int i=0; i<size(); i++ )
+    result += pdfs[i];
+  return result;
+}
+
+double
+GaussianSumUtilities1D::d1Pdf (const double& x, const std::vector<double>& pdfs) const
+{
+  double result(0.);
+  for ( unsigned int i=0; i<size(); i++ ) {
+    double dx = (x-mean(i))/standardDeviation(i);
+    result += -pdfs[i]*dx/standardDeviation(i);
+  }
+  return result;
+}
+
+double
+GaussianSumUtilities1D::d2Pdf (const double& x, const std::vector<double>& pdfs) const
+{
+  double result(0.);
+  for ( unsigned int i=0; i<size(); i++ ) {
+    double dx = (x-mean(i))/standardDeviation(i);
+    result += pdfs[i]/standardDeviation(i)/standardDeviation(i)*(dx*dx-1);
+  }
+  return result;
+}
+
+double
+GaussianSumUtilities1D::d3Pdf (const double& x, const std::vector<double>& pdfs) const
+{
+  double result(0.);
+  for ( unsigned int i=0; i<size(); i++ ) {
+    double dx = (x-mean(i))/standardDeviation(i);
+    result += pdfs[i]/standardDeviation(i)/standardDeviation(i)/standardDeviation(i)*
+      (-dx*dx+3)*dx;
+  }
+  return result;
+}
+
+double
+GaussianSumUtilities1D::lnPdf (const double& x, const std::vector<double>& pdfs) const
+{
+  double f(pdf(x,pdfs));
   double result(-FLT_MAX);
   if ( result>DBL_MIN )  result = log(f);
   return result;
 }
 
 double
-GaussianSumUtilities1D::d1LnPdf (const double& x) const
+GaussianSumUtilities1D::d1LnPdf (const double& x, const std::vector<double>& pdfs) const
 {
 
-  double f = pdf(x);
-  double result(d1Pdf(x));
+  double f = pdf(x,pdfs);
+  double result(d1Pdf(x,pdfs));
   if ( f>DBL_MIN )  result /= f;
   else  result = 0.;
   return result;
 }
 
 double
-GaussianSumUtilities1D::d2LnPdf (const double& x) const
+GaussianSumUtilities1D::d2LnPdf (const double& x, const std::vector<double>& pdfs) const
 {
 
-  double f = pdf(x);
-  double df = d1LnPdf(x);
+  double f = pdf(x,pdfs);
+  double df = d1LnPdf(x,pdfs);
   double result(-df*df);
-  if ( f>DBL_MIN )  result += d2Pdf(x)/f;
+  if ( f>DBL_MIN )  result += d2Pdf(x,pdfs)/f;
   return result;
 }
 
 double 
 GaussianSumUtilities1D::gauss (const double& x, const double& mean,
-		    const double& sigma) const 
+			       const double& sigma) const 
 {
   const double fNorm(1./sqrt(2*TMath::Pi()));
   double result(0.);
