@@ -35,6 +35,7 @@ class SiPixelLorentzAngleDB : public edm::EDAnalyzer
 
   std::vector< std::pair<uint32_t, float> > detid_la;
   edm::ParameterSet conf_;
+  bool magneticField_;
 //   double appliedVoltage_;
 //   double chargeMobility_;
 //   double temperature_;

@@ -18,6 +18,7 @@ using namespace std;
 
 SiPixelLorentzAngleDB::SiPixelLorentzAngleDB(edm::ParameterSet const& conf) : 
   conf_(conf){
+  	magneticField_ = conf_.getParameter<bool>("magneticField");
 //   if(conf_.getParameter<bool>("DoCalibration")) siStripLorentzAngleAlgorithm_=new SiStripLorentzAngleAlgorithm(conf);
 //   else siStripLorentzAngleAlgorithm_=0;
 }
@@ -31,8 +32,9 @@ void SiPixelLorentzAngleDB::beginJob(const edm::EventSetup& c){
 	edm::ESHandle<TrackerGeometry> pDD;
 	c.get<TrackerDigiGeometryRecord>().get( pDD );
 	edm::LogInfo("SiPixelLorentzAngle") <<" There are "<<pDD->detUnits().size() <<" detectors"<<std::endl;
-	
-  	float langle = 0.424;
+	float langle;
+	if(magneticField_) langle = 0.424;
+	else langle = 0.;
 	for(TrackerGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); it++){
     
 		if( dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
