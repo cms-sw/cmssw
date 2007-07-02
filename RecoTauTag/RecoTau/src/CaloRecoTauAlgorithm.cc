@@ -22,6 +22,9 @@ Tau CaloRecoTauAlgorithm::tag(const CombinedTauTagInfo& myTagInfo)
   //create the Tau  with the modified 4 Vector
   Tau myTau(jet.charge(),myVec,vtx);
 
+  //Setting the mass
+  myTau.setInvariantMass(myTagInfo.alternatrecJet_HepLV().m());
+
   //Setting the SelectedTracks
   TrackRefVector mySelectedTracks = myTagInfo.selectedTks();
   myTau.setSelectedTracks(mySelectedTracks);  
@@ -55,6 +58,8 @@ Tau CaloRecoTauAlgorithm::tag(const CombinedTauTagInfo& myTagInfo)
 	ptSum = ptSum + isolationBandTracks[i]->pt();
       }
       myTau.setSumPtIsolation(ptSum);
+
+
       
       //Setting sum of the E_T of isolation Annulus gamma candidates
 
