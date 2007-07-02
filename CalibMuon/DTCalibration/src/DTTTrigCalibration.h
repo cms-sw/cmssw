@@ -6,8 +6,8 @@
  *  for t_trig computation, fits the rising edge and write results to DB.
  *  The time boxes are written to file.
  *
- *  $Date: 2006/09/12 07:52:54 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/03/27 16:38:14 $
+ *  $Revision: 1.9 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -70,6 +70,8 @@ private:
 
   // The TDC time-window
   int maxTDCCounts;
+  //The maximum number of digis per layer
+  int maxDigiPerLayer;
 
   // The file which will contain the time boxes
   TFile *theFile;
