@@ -232,7 +232,7 @@ void TrackerAlignment::moveAlignableTIDs( int rawid , std::vector<float> local_d
 
 //__________________________________________________________________
 //
-void TrackerAlignment::moveAlignableTIBTIDs( int rawId, std::vector<float> globalDisplacements, RotationType rotation, std::vector<double> APEvector ){
+void TrackerAlignment::moveAlignableTIBTIDs( int rawId, std::vector<float> globalDisplacements, RotationType backwardRotation, RotationType forwardRotation, bool toAndFro ){
 
         // Displace and rotate TIB and TID
 	std::vector<Alignable*> theTIBTIDAlignables = theAlignableTracker->TIBTIDGeomDets();
@@ -250,19 +250,18 @@ void TrackerAlignment::moveAlignableTIBTIDs( int rawId, std::vector<float> globa
 	      GlobalVector gvector (globalDisplacements.at(0), globalDisplacements.at(1), globalDisplacements.at(2));
 	      (*iter)->move( gvector );
 	      
-	      // local rotation 
-	      // (*iter)->rotateAroundLocalX( eulerAngles.at(0) ); // Local X axis rotation
-	      // (*iter)->rotateAroundLocalZ( eulerAngles.at(1) ); // Local Z axis rotation
-	      // (*iter)->rotateAroundLocalX( eulerAngles.at(2) ); // Local X axis rotation
-	      (*iter)->rotateInLocalFrame( rotation );
-      
-              // APE
-              AlignmentPositionError theAPE ( APEvector.at(0), APEvector.at(1), APEvector.at(2));
-              (*iter)->setAlignmentPositionError( theAPE );     
-	      (*iter)->addAlignmentPositionErrorFromLocalRotation( rotation );  
+	      // global rotation
+              if (toAndFro) { 
+                RotationType theResultRotation = backwardRotation*forwardRotation.transposed();
+                (*iter)->rotateInGlobalFrame( theResultRotation ); 
+	      } else {
+		(*iter)->rotateInGlobalFrame( backwardRotation );
+	      }
 	    }
       }
 }
+
+
 //__________________________________________________________________
 //
 void TrackerAlignment::saveToDB(void){

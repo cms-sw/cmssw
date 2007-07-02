@@ -27,7 +27,7 @@ public:
   void moveAlignableInnerHalfBarrels( int rawId, std::vector<float> localDisplacements, std::vector<float> localRotations  );
   void moveAlignableOuterHalfBarrels( int rawId, std::vector<float> localDisplacements, std::vector<float> localRotations  );	
   void moveAlignableTIDs( int rawId, std::vector<float> localDisplacements, std::vector<float> localRotations  );
-  void moveAlignableTIBTIDs( int rawId, std::vector<float> globalDisplacements,  RotationType rotation, std::vector<double> APEvector );
+  void moveAlignableTIBTIDs( int rawId, std::vector<float> globalDisplacements, RotationType backwardRotation, RotationType forwardRotation, bool toAndFro);
   
   void saveToDB();
   
