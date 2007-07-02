@@ -47,8 +47,8 @@
   
   // For the statistics box:
   tdrStyle->SetOptFile(0);
-  tdrStyle->SetOptStat(1);
-  //tdrStyle->SetOptStat(0);
+  //tdrStyle->SetOptStat(1);
+  tdrStyle->SetOptStat(0);
   tdrStyle->SetStatColor(kWhite);
   //tdrStyle->SetStatFont(42);
   //tdrStyle->SetStatFontSize(0.025);
@@ -118,14 +118,17 @@
   // output figures: file type suffix
   char suffix[] = "gif";
   // output figures: directory
-  char outDir[] = ".";
+  char outDir[] = "./analysisPreselLowLumiPUBugfix";
   // temp variables
   char str[128];
   
-//  bool out = true;
-  bool out = false;
+  bool out = true;
+//  bool out = false;
   
-  TFile hist("gsfElectronHistos.root");
+//  bool pause = true;
+  bool pause = false;
+  
+  TFile hist("gsfElectronHistos_DiEle-Pt5To100_rereco131_LowLumiPU_bugfix.root");
   
   // electron quantities
   TH1F *h_ele_PoPtrue   = (TH1F*)hist.Get("h_ele_PoPtrue"); 
@@ -140,6 +143,8 @@
   TCanvas *c_PoPtrue = new TCanvas("PoPtrue","PoPtrue");
   c_PoPtrue->cd();
   h_ele_PoPtrue->Draw();   
+  h_ele_PoPtrue->GetXaxis()->SetTitle("p_{rec}/p_{true}");  
+  h_ele_PoPtrue->GetYaxis()->SetTitle("Events");  
   if (out) {
     sprintf(str,"%s/PoPtrue.%s",outDir,suffix);
     gPad->Print(str);
@@ -148,6 +153,8 @@
   TCanvas *c_EtaMnEtaTrue = new TCanvas("EtaMnEtaTrue","EtaMnEtaTrue");
   c_EtaMnEtaTrue->cd();
   h_ele_EtaMnEtaTrue->Draw();   
+  h_ele_EtaMnEtaTrue->GetXaxis()->SetTitle("#eta_{rec}-#eta_{true}");  
+  h_ele_EtaMnEtaTrue->GetYaxis()->SetTitle("Events");  
   if (out) {
     sprintf(str,"%s/EtaMnEtaTrue.%s",outDir,suffix);
     gPad->Print(str);
@@ -156,6 +163,8 @@
   TCanvas *c_PhiMnPhiTrue = new TCanvas("PhiMnPhiTrue","PhiMnPhiTrue");
   c_PhiMnPhiTrue->cd();
   h_ele_PhiMnPhiTrue->Draw(); 
+  h_ele_PhiMnPhiTrue->GetXaxis()->SetTitle("#phi_{rec}-#phi_{true}");  
+  h_ele_PhiMnPhiTrue->GetYaxis()->SetTitle("Events");  
   if (out) {
     sprintf(str,"%s/PhiMnPhiTrue.%s",outDir,suffix);
     gPad->Print(str);
@@ -164,6 +173,8 @@
   TCanvas *c_vertexP = new TCanvas("vertexP","vertexP");
   c_vertexP->cd();
   h_ele_vertexP->Draw(); 
+  h_ele_vertexP->GetXaxis()->SetTitle("p_{vertex}");  
+  h_ele_vertexP->GetYaxis()->SetTitle("Events");  
   if (out) {
     sprintf(str,"%s/vertexP.%s",outDir,suffix);
     gPad->Print(str);
@@ -172,6 +183,8 @@
   TCanvas *c_vertexPt = new TCanvas("vertexPt","vertexPt");
   c_vertexPt->cd();
   h_ele_vertexPt->Draw(); 
+  h_ele_vertexPt->GetXaxis()->SetTitle("p_{T} from vertex");  
+  h_ele_vertexPt->GetYaxis()->SetTitle("Events");  
   if (out) {
     sprintf(str,"%s/vertexPt.%s",outDir,suffix);
     gPad->Print(str);
@@ -180,6 +193,8 @@
   TCanvas *c_outerP_mode = new TCanvas("outerP_mode","outerP_mode");
   c_outerP_mode->cd();
   h_ele_outerP_mode->Draw(); 
+  h_ele_outerP_mode->GetXaxis()->SetTitle("p from out, mode");  
+  h_ele_outerP_mode->GetYaxis()->SetTitle("Events");  
   if (out) {
     sprintf(str,"%s/outerP_mode.%s",outDir,suffix);
     gPad->Print(str);
@@ -188,6 +203,8 @@
   TCanvas *c_outerPt_mode = new TCanvas("outerPt_mode","outerPt_mode");
   c_outerPt_mode->cd();
   h_ele_outerPt_mode->Draw(); 
+  h_ele_outerPt_mode->GetXaxis()->SetTitle("p_{T} from out, mode");  
+  h_ele_outerPt_mode->GetYaxis()->SetTitle("Events");  
   if (out) {
     sprintf(str,"%s/outerPt_mode.%s",outDir,suffix);
     gPad->Print(str);
@@ -196,20 +213,38 @@
   TCanvas *c_vertexZ = new TCanvas("vertexZ","vertexZ");
   c_vertexZ->cd();
   h_ele_vertexZ->Draw(); 
+  h_ele_vertexZ->GetXaxis()->SetTitle("z_{rec}");  
+  h_ele_vertexZ->GetYaxis()->SetTitle("Events");  
   if (out) {
     sprintf(str,"%s/vertexZ.%s",outDir,suffix);
     gPad->Print(str);
   }
-  c_vertexZ->WaitPrimitive();  
+  if (pause) c_vertexZ->WaitPrimitive();  
 
   // efficiency
   TH1F *h_ele_absetaEff   = (TH1F*)hist.Get("h_ele_absetaEff"); 
+  TH1F *h_simAbsEta   = (TH1F*)hist.Get("h_mc_abseta"); 
   TH1F *h_ele_etaEff   = (TH1F*)hist.Get("h_ele_etaEff"); 
+  TH1F *h_simEta   = (TH1F*)hist.Get("h_mc_eta"); 
   TH1F *h_ele_ptEff   = (TH1F*)hist.Get("h_ele_ptEff"); 
+  TH1F *h_simPt   = (TH1F*)hist.Get("h_smc_Pt"); 
   
   TCanvas *c_absetaEff = new TCanvas("absetaEff","absetaEff");
   c_absetaEff->cd();
-  h_ele_absetaEff->Draw(); 
+  for (int ibin=1; ibin<h_ele_absetaEff->GetNbinsX(); ibin++) {
+    Double_t binContent = h_ele_absetaEff->GetBinContent(ibin);
+    Double_t error2 = binContent*(1.-binContent)/h_simAbsEta->GetBinContent(ibin);
+    //h_ele_absetaEff->SetBinError(ibin,sqrt(error2));
+    std::cout << "ibin " << ibin << " efficiency " << binContent << " error " <<  sqrt(error2) <<
+    std::endl;
+  }
+  h_ele_absetaEff->SetMarkerStyle(21);
+  h_ele_absetaEff->SetMinimum(0.0);  
+  h_ele_absetaEff->SetMaximum(1.0);  
+  h_ele_absetaEff->Draw("");  
+  //h_ele_absetaEff->Draw("SEP");  
+  h_ele_absetaEff->GetXaxis()->SetTitle("|#eta|");  
+  h_ele_absetaEff->GetYaxis()->SetTitle("Efficiency");  
   if (out) {
     sprintf(str,"%s/absetaEff.%s",outDir,suffix);
     gPad->Print(str);
@@ -217,7 +252,12 @@
    
   TCanvas *c_etaEff = new TCanvas("etaEff","etaEff");
   c_etaEff->cd();
-  h_ele_etaEff->Draw(); 
+  h_ele_etaEff->SetMarkerStyle(21);
+  h_ele_etaEff->SetMinimum(0.0);  
+  h_ele_etaEff->SetMaximum(1.0);  
+  h_ele_etaEff->Draw("");  
+  h_ele_etaEff->GetXaxis()->SetTitle("#eta");  
+  h_ele_etaEff->GetYaxis()->SetTitle("Efficiency");  
   if (out) {
     sprintf(str,"%s/etaEff.%s",outDir,suffix);
     gPad->Print(str);
@@ -225,12 +265,17 @@
    
   TCanvas *c_ptEff = new TCanvas("ptEff","ptEff");
   c_ptEff->cd();
-  h_ele_ptEff->Draw(); 
+  h_ele_ptEff->SetMarkerStyle(21);
+  h_ele_ptEff->SetMinimum(0.0);  
+  h_ele_ptEff->SetMaximum(1.0);  
+  h_ele_ptEff->Draw("");  
+  h_ele_ptEff->GetXaxis()->SetTitle("p_{T} (GeV/c)");  
+  h_ele_ptEff->GetYaxis()->SetTitle("Efficiency");  
   if (out) {
     sprintf(str,"%s/ptEff.%s",outDir,suffix);
     gPad->Print(str);
   }
-  c_ptEff->WaitPrimitive();  
+  if (pause) c_ptEff->WaitPrimitive();  
     
   // match
   TH1F *h_ele_EoP   = (TH1F*)hist.Get("h_ele_EoP"); 
@@ -244,6 +289,8 @@
   TCanvas *c_EoP = new TCanvas("EoP","EoP");
   c_EoP->cd();
   h_ele_EoP->Draw(); 
+  h_ele_EoP->GetXaxis()->SetTitle("E/p");  
+  h_ele_EoP->GetYaxis()->SetTitle("Events");  
   if (out) {
     sprintf(str,"%s/EoP.%s",outDir,suffix);
     gPad->Print(str);
@@ -252,6 +299,8 @@
   TCanvas *c_EoPout = new TCanvas("EoPout","EoPout");
   c_EoPout->cd();
   h_ele_EoPout->Draw(); 
+  h_ele_EoP->GetXaxis()->SetTitle("E_{seed}/p_{pout}");  
+  h_ele_EoP->GetYaxis()->SetTitle("Events");  
   if (out) {
     sprintf(str,"%s/EoPout.%s",outDir,suffix);
     gPad->Print(str);
@@ -260,6 +309,8 @@
   TCanvas *c_dEtaCl_propOut = new TCanvas("dEtaCl_propOut","dEtaCl_propOut");
   c_dEtaCl_propOut->cd();
   h_ele_dEtaCl_propOut->Draw(); 
+  h_ele_dEtaCl_propOut->GetXaxis()->SetTitle("#eta_{seed}-#eta_{tk, extrp. from out}");  
+  h_ele_dEtaCl_propOut->GetYaxis()->SetTitle("Events");  
   if (out) {
     sprintf(str,"%s/dEtaCl_propOut.%s",outDir,suffix);
     gPad->Print(str);
@@ -268,6 +319,8 @@
   TCanvas *c_dEtaSc_propVtx = new TCanvas("dEtaSc_propVtx","dEtaSc_propVtx");
   c_dEtaSc_propVtx->cd();
   h_ele_dEtaSc_propVtx->Draw(); 
+  h_ele_dEtaSc_propVtx->GetXaxis()->SetTitle("#eta_{sc}-#eta_{tk, extrp. from vtx}");  
+  h_ele_dEtaSc_propVtx->GetYaxis()->SetTitle("Events");  
   if (out) {
     sprintf(str,"%s/dEtaSc_propVtx.%s",outDir,suffix);
     gPad->Print(str);
@@ -276,6 +329,8 @@
   TCanvas *c_dPhiCl_propOut = new TCanvas("dPhiCl_propOut","dPhiCl_propOut");
   c_dPhiCl_propOut->cd();
   h_ele_dPhiCl_propOut->Draw(); 
+  h_ele_dPhiCl_propOut->GetXaxis()->SetTitle("#phi_{seed}-#phi_{tk, extrp. from out}");  
+  h_ele_dPhiCl_propOut->GetYaxis()->SetTitle("Events");  
   if (out) {
     sprintf(str,"%s/dPhiCl_propOut.%s",outDir,suffix);
     gPad->Print(str);
@@ -284,6 +339,8 @@
   TCanvas *c_dPhiSc_propVtx = new TCanvas("dPhiSc_propVtx","dPhiSc_propVtx");
   c_dPhiSc_propVtx->cd();
   h_ele_dPhiSc_propVtx->Draw(); 
+  h_ele_dPhiSc_propVtx->GetXaxis()->SetTitle("#phi_{sc}-#phi_{tk, extrp. from vtx}");  
+  h_ele_dPhiSc_propVtx->GetYaxis()->SetTitle("Events");  
   if (out) {
     sprintf(str,"%s/dPhiSc_propVtx.%s",outDir,suffix);
     gPad->Print(str);
@@ -292,11 +349,13 @@
   TCanvas *c_HoE = new TCanvas("HoE","HoE");
   c_HoE->cd();
   h_ele_HoE->Draw(); 
+  h_ele_HoE->GetXaxis()->SetTitle("H/E");  
+  h_ele_HoE->GetYaxis()->SetTitle("Events");  
   if (out) {
     sprintf(str,"%s/HoE.%s",outDir,suffix);
     gPad->Print(str);
   }
-  c_HoE->WaitPrimitive();  
+  if (pause) c_HoE->WaitPrimitive();  
    
   // track
   TH1F *h_ele_chi2   = (TH1F*)hist.Get("h_ele_chi2"); 
@@ -306,6 +365,8 @@
   TCanvas *c_chi2 = new TCanvas("chi2","chi2");
   c_chi2->cd();
   h_ele_chi2->Draw(); 
+  h_ele_chi2->GetXaxis()->SetTitle("track #Chi^{2}");  
+  h_ele_chi2->GetYaxis()->SetTitle("Events");  
   if (out) {
     sprintf(str,"%s/chi2.%s",outDir,suffix);
     gPad->Print(str);
@@ -314,6 +375,8 @@
   TCanvas *c_foundHits = new TCanvas("foundHits","foundHits");
   c_foundHits->cd();
   h_ele_foundHits->Draw(); 
+  h_ele_foundHits->GetXaxis()->SetTitle("# hits");  
+  h_ele_foundHits->GetYaxis()->SetTitle("Events");  
   if (out) {
     sprintf(str,"%s/foundHits.%s",outDir,suffix);
     gPad->Print(str);
@@ -322,11 +385,13 @@
   TCanvas *c_lostHits = new TCanvas("lostHits","lostHits");
   c_lostHits->cd();
   h_ele_lostHits->Draw(); 
+  h_ele_lostHits->GetXaxis()->SetTitle("# lost hits");  
+  h_ele_lostHits->GetYaxis()->SetTitle("Events");  
   if (out) {
     sprintf(str,"%s/lostHits.%s",outDir,suffix);
     gPad->Print(str);
   }
-  c_lostHits->WaitPrimitive();  
+  if (pause) c_lostHits->WaitPrimitive();  
      
   // classes
   TH1F *h_ele_PinMnPout_mode   = (TH1F*)hist.Get("h_ele_PinMnPout"); 
@@ -339,6 +404,8 @@
   TCanvas *c_PinMnPout_mode = new TCanvas("PinMnPout_mode","PinMnPout_mode");
   c_PinMnPout_mode->cd();
   h_ele_PinMnPout_mode->Draw(); 
+  h_ele_PinMnPout_mode->GetXaxis()->SetTitle("P_{in} - p_{out} (GeV/c)");  
+  h_ele_PinMnPout_mode->GetYaxis()->SetTitle("Events");  
   if (out) {
     sprintf(str,"%s/PinMnPout_mode.%s",outDir,suffix);
     gPad->Print(str);
@@ -347,6 +414,8 @@
   TCanvas *c_classes = new TCanvas("classes","classes");
   c_classes->cd();
   h_ele_classes->Draw(); 
+  h_ele_classes->GetXaxis()->SetTitle("Class id");  
+  h_ele_classes->GetYaxis()->SetTitle("Events");  
   if (out) {
     sprintf(str,"%s/classes.%s",outDir,suffix);
     gPad->Print(str);
@@ -355,6 +424,8 @@
   TCanvas *c_eta_bbremFrac = new TCanvas("eta_bbremFrac","eta_bbremFrac");
   c_eta_bbremFrac->cd();
   h_ele_eta_bbremFrac->Draw(); 
+  h_ele_eta_bbremFrac->GetXaxis()->SetTitle("|#eta|");  
+  h_ele_eta_bbremFrac->GetYaxis()->SetTitle("Fraction of bbrem");  
   if (out) {
     sprintf(str,"%s/eta_bbremFrac.%s",outDir,suffix);
     gPad->Print(str);
@@ -363,6 +434,8 @@
   TCanvas *c_eta_goldenFrac = new TCanvas("eta_goldenFrac","eta_goldenFrac");
   c_eta_goldenFrac->cd();
   h_ele_eta_goldenFrac->Draw(); 
+  h_ele_eta_goldenFrac->GetXaxis()->SetTitle("|#eta|");  
+  h_ele_eta_goldenFrac->GetYaxis()->SetTitle("Fraction of golden");  
   if (out) {
     sprintf(str,"%s/eta_goldenFrac.%s",outDir,suffix);
     gPad->Print(str);
@@ -371,6 +444,8 @@
   TCanvas *c_eta_narrowFrac = new TCanvas("eta_narrowFrac","eta_narrowFrac");
   c_eta_narrowFrac->cd();
   h_ele_eta_narrowFrac->Draw(); 
+  h_ele_eta_narrowFrac->GetXaxis()->SetTitle("|#eta|");  
+  h_ele_eta_narrowFrac->GetYaxis()->SetTitle("Fraction of narrow");  
   if (out) {
     sprintf(str,"%s/eta_narrowFrac.%s",outDir,suffix);
     gPad->Print(str);
@@ -379,6 +454,8 @@
   TCanvas *c_eta_showerFrac = new TCanvas("eta_showerFrac","eta_showerFrac");
   c_eta_showerFrac->cd();
   h_ele_eta_showerFrac->Draw(); 
+  h_ele_eta_showerFrac->GetXaxis()->SetTitle("|#eta|");  
+  h_ele_eta_showerFrac->GetYaxis()->SetTitle("Fraction of showering");  
   if (out) {
     sprintf(str,"%s/eta_showerFrac.%s",outDir,suffix);
     gPad->Print(str);
