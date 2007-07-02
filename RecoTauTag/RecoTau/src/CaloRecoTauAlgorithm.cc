@@ -11,14 +11,16 @@ Tau CaloRecoTauAlgorithm::tag(const CombinedTauTagInfo& myTagInfo)
   float z_PV = 0;
   TrackRef myLeadTk = (myTagInfo.isolatedtautaginfoRef())->leadingSignalTrack(MatchingConeSize_, LeadCand_minPt_);
   if(myLeadTk.isNonnull()){
-    cout <<"Vertex "<<myLeadTk->vz()<<endl;
-    cout <<"Z_imp "<<myLeadTk->dz()<<endl;
+    z_PV = myLeadTk->vz();
+    //    cout <<"Vertex "<<myLeadTk->vz()<<endl;
+    //    cout <<"Z_imp "<<myLeadTk->dz()<<endl;
   }
   
   math::XYZPoint  vtx = math::XYZPoint( 0, 0, z_PV );
-  
-  //create the Tau  
-  Tau myTau(jet.charge(),jet.p4(),vtx);
+  math::XYZTLorentzVector myVec(myTagInfo.alternatrecJet_HepLV().getX(),myTagInfo.alternatrecJet_HepLV().getY(),myTagInfo.alternatrecJet_HepLV().getZ(),myTagInfo.alternatrecJet_HepLV().getT());
+
+  //create the Tau  with the modified 4 Vector
+  Tau myTau(jet.charge(),myVec,vtx);
 
   //Setting the SelectedTracks
   TrackRefVector mySelectedTracks = myTagInfo.selectedTks();
@@ -29,18 +31,10 @@ Tau CaloRecoTauAlgorithm::tag(const CombinedTauTagInfo& myTagInfo)
   if(myLeadTk.isNonnull())
     {
       //Setting the SignalTracks
-      TrackRefVector signalTracks = 
-	(myTagInfo.isolatedtautaginfoRef())->tracksInCone(myLeadTk->momentum(), TrackerSignalConeSize_,Tracks_minPt_ );
-
+      TrackRefVector signalTracks = myTagInfo.signalTks();
       myTau.setSignalTracks(signalTracks);
-      
-      //Setting charge
-      int charge = 0.;
-      for( int i=0;i<signalTracks.size();i++){
-	charge = charge+ signalTracks[i]->charge();
-      }
 
-      myTau.setCharge(charge);
+      myTau.setCharge(myTagInfo.signalTks_qsum());
 
       //Setting the IsolationTracks
       TrackRefVector isolationTracks = 
@@ -53,7 +47,8 @@ Tau CaloRecoTauAlgorithm::tag(const CombinedTauTagInfo& myTagInfo)
 	if(deltaR > TrackerSignalConeSize_)
 	  isolationBandTracks.push_back(isolationTracks[i]);
       }
-
+      myTau.setIsolationTracks(isolationBandTracks);
+      
       //Setting sum of the pT of isolation Annulus charged hadrons
       float ptSum =0;
       for(int i=0;i<isolationBandTracks.size();i++){
@@ -67,15 +62,18 @@ Tau CaloRecoTauAlgorithm::tag(const CombinedTauTagInfo& myTagInfo)
       //setting the mass with only Signal objects:
       
 
-      myTau.setIsolationTracks(isolationBandTracks);
       
       //Setting the max HCalEnergy
+      
+      //Setting the EmOverCharged energy
+      myTau.setEmOverChargedEnergy(myTagInfo.neutralE_o_TksEneutralE());
 
-      //Setting the EmOverHcal energy
-      
+
+
       //Setting the number of EcalClusters
+      myTau.setNumberOfEcalClusters(myTagInfo.neutralECALClus_number());
       
-      //LeadTkTIP
+      //LeadTk TIP
       myTau.setSignificanceLeadTkTIP(myTagInfo.leadTk_signedip3D_significance());
 
     }

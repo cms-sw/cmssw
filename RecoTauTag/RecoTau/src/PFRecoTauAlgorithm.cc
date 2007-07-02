@@ -34,8 +34,8 @@ Tau PFRecoTauAlgorithm::tag(const PFIsolatedTauTagInfo& myTagInfo)
     
     Tau myTau(myJet->charge(),myJet->p4(),vtx);
 	
-    //Setting the EmOverHcal energy
-    myTau.setEmOverHadronEnergy((myJet->chargedEmEnergy() + myJet->neutralEmEnergy())/ (myJet->chargedHadronEnergy()  +myJet->neutralHadronEnergy()) );
+    //Setting the EmOverCharged energy
+    myTau.setEmOverChargedEnergy((myJet->chargedEmEnergy() + myJet->neutralEmEnergy())/ (myJet->chargedHadronEnergy()  +myJet->neutralHadronEnergy()) );
     
     //Setting the ChargedHadrons
     PFCandidateRefVector myChargedHadrons = myTagInfo.PFChargedHadrCands();

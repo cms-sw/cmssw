@@ -62,7 +62,7 @@ namespace reco {
     //get the sum of the Pt of the  isolation Annulus tracks
     float getSumPtIsolation() const {return sumPtIsolation_;}
     //get the ratio EM energy / Hadron energy
-    float getEmOverHadronEnergy() const { return  emOverHadronEnergy_;}
+    float getEmOverChargedEnergy() const { return  emOverHadronEnergy_;}
     //get maximum Hcal tower energy
     float getMaximumHcalTowerEnergy() const { return maximumHcalTowerEnergy_;}
     //get em isolation variable
@@ -98,7 +98,7 @@ namespace reco {
     //void setTksInvariantMass()  { trackerMass_;}
 
     void setSumPtIsolation(const float& sumPt)  { sumPtIsolation_ = sumPt;}
-    void setEmOverHadronEnergy(const float& emOverH)  {   emOverHadronEnergy_ = emOverH;}
+    void setEmOverChargedEnergy(const float& emOverH)  {   emOverHadronEnergy_ = emOverH;}
     void setMaximumHcalTowerEnergy(const float& maxHcal)  {  maximumHcalTowerEnergy_ = maxHcal;}
     void setEMIsolation(const float& emIso)  {  emIsolation_ = emIso;}
     void setNumberOfEcalClusters(const int& myClus)  { numberOfEcalClusters_ = myClus;}
