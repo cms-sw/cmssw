@@ -1,6 +1,7 @@
 <use name=DataFormats/Common>
 <use name=rootmath>
 <use name=rootrflx>
+<!-- Flags GENREFLEX_ARGS="--iocomment" --> 
 <export>
   <use name=DataFormats/Common>
   <use name=rootmath>
