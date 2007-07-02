@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.5 $
-///  last update: $Date: 2007/05/11 21:22:36 $
-///  by         : $Author: flucke $
+///  Revision   : $Revision: 1.6 $
+///  last update: $Date: 2007/06/24 01:58:59 $
+///  by         : $Author: cklae $
 
 #include "Alignment/CommonAlignmentProducer/plugins/AlignmentProducer.h"
 
@@ -100,7 +100,7 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
   for (std::vector<std::string>::const_iterator miter = monitors.begin();  miter != monitors.end();  ++miter) {
 //     AlignmentMonitorBase* newMonitor = dynamic_cast<AlignmentMonitorBase*>(
 //	AlignmentMonitorPluginFactory::getMonitor(*miter, monitorConfig.getParameter<edm::ParameterSet>(*miter)));
-     AlignmentMonitorBase* newMonitor = AlignmentMonitorPluginFactory::get()->create(*miter, monitorConfig.getParameter<edm::ParameterSet>(*miter));
+     AlignmentMonitorBase* newMonitor = AlignmentMonitorPluginFactory::get()->create(*miter, monitorConfig.getUntrackedParameter<edm::ParameterSet>(*miter));
 
      if (!newMonitor) throw cms::Exception("BadConfig") << "Couldn't find monitor named " << *miter;
 
