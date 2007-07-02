@@ -1,4 +1,5 @@
 #include "EventFilter/ESRawToDigi/interface/ESUnpackerCT.h"
+#include "EventFilter/ESRawToDigi/interface/ESCrcKchipFast.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
@@ -345,16 +346,30 @@ void ESUnpackerCT::word2digi(int kchip, const vector<Word16> & word, ESLocalRawD
   int kFlag1 = (word[0] >> 12) & 0x000f;
   int kFlag2 = (word[1] >>  8) & 0x00ff; 
   int chksum = word[297] & 0xffff;
-  if (debug_) cout<<"KCHIP : "<<kchip<<" BC : "<<kBC<<" EC : "<<kEC<<" KID : "<<kID<<" F1 : "<<kFlag1<<" F2 : "<<kFlag2<<" Chksum : "<<chksum<<endl;
+
+  ESCrcKchipFast crcChecker;
+
+  uint32_t packet_length = (kFlag1 & 0x07) ? 5 : 299 ; 
+
+  for(uint32_t kk=0; kk < (packet_length-1); ++kk) crcChecker.add((unsigned int) word[kk]); 
 
   ESKCHIPBlock ESKCHIP;
-  ESKCHIP.setId(kchip);
+  ESKCHIP.setId(kID);
   ESKCHIP.setBC(kBC);
   ESKCHIP.setEC(kEC);
   ESKCHIP.setFlag1(kFlag1);
   ESKCHIP.setFlag2(kFlag2);
-  //ESKCHIP.setCRC();
-  kchips.push_back(ESKCHIP);
+
+  if (crcChecker.isCrcOk()) { 
+     ESKCHIP.setCRC(1);
+     kchips.push_back(ESKCHIP);
+  } else { 
+     ESKCHIP.setCRC(0);
+     kchips.push_back(ESKCHIP);
+     return ; 
+  }
+
+  if (debug_) cout<<"KCHIP : "<<kchip<<" BC : "<<kBC<<" EC : "<<kEC<<" KID : "<<kID<<" F1 : "<<kFlag1<<" F2 : "<<kFlag2<<" Chksum : "<<chksum<<endl;
 
   int col[4],ix[4],iy[4],adc[4][3];
   for (int i=0; i<3; ++i) {
@@ -372,26 +387,15 @@ void ESUnpackerCT::word2digi(int kchip, const vector<Word16> & word, ESLocalRawD
 
       int row = ((kID-4) % 3);
       int column = (kID-4)/3;
-      int edge = ( ((kID-4)%3) == 2)?1:0; 
 
       adc[0][i] = (word[i*98+5+j*3] >> 4) & 0x0fff;
-      if (edge == 0) {
-	ix[0] = column*2+1;
-	iy[0] = row*2+2;
-      } else {
-	ix[0] = column*2+1;
-	iy[0] = row*2+1;
-      }
+      ix[0] = column*2+1;
+      iy[0] = row*2+2;
 
       adc[1][i] = ((word[i*98+5+j*3] & 0x000f) << 8) ;
       adc[1][i] |= ((word[i*98+6+j*3] >> 8) & 0x00ff);  
-      if (edge == 0) {
-	ix[1] = column*2+1;
-	iy[1] = row*2+1;
-      } else {
-	ix[1] = column*2+2;
-	iy[1] = row*2+1;
-      }
+      ix[1] = column*2+1;
+      iy[1] = row*2+1;
 
       adc[2][i] = ((word[i*98+6+j*3] & 0x00ff) << 4);
       adc[2][i] |= ((word[i*98+7+j*3] >> 12) & 0x000f);  
@@ -399,13 +403,8 @@ void ESUnpackerCT::word2digi(int kchip, const vector<Word16> & word, ESLocalRawD
       iy[2] = row*2+2;
 
       adc[3][i] = (word[i*98+7+j*3])      & 0x0fff;
-      if (edge == 0) {
-	ix[3] = column*2+2;
-	iy[3] = row*2+1;
-      } else {
-	ix[3] = column*2+1;
-	iy[3] = row*2+2;
-      }
+      ix[3] = column*2+2;
+      iy[3] = row*2+1;
 
     }
     
