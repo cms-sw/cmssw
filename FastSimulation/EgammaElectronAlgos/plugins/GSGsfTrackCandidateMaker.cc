@@ -80,11 +80,17 @@ GSGsfTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es)
     
     for( ; iseed != theLastSeed; ++iseed ) {
       // The first hit of the seed  and its simtrack id
-      const SiTrackerGSRecHit2D* rechit = (const SiTrackerGSRecHit2D*) &(*(iseed->recHits().first)) ;
-      int theSimTrackId = rechit->simtrackId();
+      BasicTrajectorySeed::const_iterator theFirstHit = iseed->recHits().first;
+      BasicTrajectorySeed::const_iterator theSecondHit = theFirstHit; ++theSecondHit;
+      const SiTrackerGSRecHit2D* rechit1 = (const SiTrackerGSRecHit2D*) &(*theFirstHit) ;
+      int theSimTrackId = rechit1->simtrackId();
+      //      const SiTrackerGSRecHit2D* rechit2 = (const SiTrackerGSRecHit2D*) &(*theSecondHit) ;
+      // The DetId's for later comparison
+      const DetId& detId1 =  theFirstHit->geographicalId();
+      const DetId& detId2 =  theSecondHit->geographicalId();
 
       // Don't consider seeds belonging to a track already considered
-      if ( theCurrentTrackId == theSimTrackId ) continue;
+      //      if ( theCurrentTrackId == theSimTrackId ) continue;
       theCurrentTrackId = theSimTrackId;
 
       // The RecHits corresponding to that track
@@ -98,11 +104,20 @@ GSGsfTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es)
       for ( iterRecHit = theRecHitRangeIteratorBegin; 
 	    iterRecHit != theRecHitRangeIteratorEnd; 
 	    ++iterRecHit) {
+	
+	// The DetId
 	const DetId& detId =  iterRecHit->geographicalId();
-	const GeomDet* geomDet( theTrackerGeometry->idToDet(detId) );
-	TrackingRecHit* aTrackingRecHit = 
-	  GenericTransientTrackingRecHit::build(geomDet,&(*iterRecHit))->hit()->clone();
-	recHits.push_back(aTrackingRecHit);
+
+	// Don't add early pixel hits if not from the seed
+	unsigned savedHits = recHits.size();
+	if ( savedHits == 0 && detId==detId1 || 
+	     savedHits == 1 && detId==detId2 || 
+	     savedHits > 1 ) {
+	  const GeomDet* geomDet( theTrackerGeometry->idToDet(detId) );
+	  TrackingRecHit* aTrackingRecHit = 
+	    GenericTransientTrackingRecHit::build(geomDet,&(*iterRecHit))->hit()->clone();
+	  recHits.push_back(aTrackingRecHit);
+	}
       }
 
       // Add the track candidate

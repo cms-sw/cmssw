@@ -34,6 +34,8 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"  
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -158,6 +160,7 @@ void  ElectronGSPixelSeedGenerator::run(
     // The vector of pixel rechis
 
     // Now save a collection of Pixel hits for seeding electrons
+    std::vector<unsigned> layerHit(6,static_cast<unsigned>(0));
     const SiTrackerGSRecHit2D *hit;
     std::vector<ConstRecHitPointer> thePixelRecHits;
     for ( iterRecHit = theRecHitRangeIteratorBegin; 
@@ -165,17 +168,32 @@ void  ElectronGSPixelSeedGenerator::run(
 	  ++iterRecHit) { 
       ++numberOfRecHits;
       hit = &(*iterRecHit);
+      const DetId& detId = iterRecHit->geographicalId();
+      unsigned int theSubdetId = detId.subdetId(); 
       // Pixel hits only
-      if( (unsigned int)(hit->geographicalId().subdetId())== PixelSubdetector::PixelBarrel || 
-	  (unsigned int)(hit->geographicalId().subdetId())== PixelSubdetector::PixelEndcap ) { 
-	const DetId& detId =  iterRecHit->geographicalId();
-	const GeomDet* geomDet( theTrackerGeometry->idToDet(detId) );
-	  //	  const TrackingRecHit* a TrackingRecHit = 
-	  //	  GenericTransientTrackingRecHit::build(geomDet,&(*iterRecHit))->hit()->clone();
-	ConstRecHitPointer aTrackingRecHit = 
-	  GenericTransientTrackingRecHit::build(geomDet,&(*iterRecHit));
+      if( theSubdetId == PixelSubdetector::PixelBarrel || 
+	  theSubdetId == PixelSubdetector::PixelEndcap ) { 
 
-	thePixelRecHits.push_back(aTrackingRecHit);
+	// Check the layer hit (1-2-3 for barrel, 4-5 for forward)
+	unsigned theHitLayer = 0;
+	if ( theSubdetId ==  PixelSubdetector::PixelBarrel ) { 
+	  PXBDetId pxbid(detId.rawId()); 
+	  theHitLayer = pxbid.layer();  
+	} else if ( theSubdetId ==  PixelSubdetector::PixelEndcap ) { 
+	  PXFDetId pxfid(detId.rawId()); 
+	  theHitLayer = pxfid.disk()+3;
+	}
+
+	// Keep only the first hit on a given layer (i.e., ignore overlaps)
+	if ( !layerHit[theHitLayer] ) { 
+	  layerHit[theHitLayer] = 1;
+	  // Build the hit
+	  const GeomDet* geomDet( theTrackerGeometry->idToDet(detId) );
+	  ConstRecHitPointer aTrackingRecHit = 
+	    GenericTransientTrackingRecHit::build(geomDet,&(*iterRecHit));
+	  // Save the hit
+	  thePixelRecHits.push_back(aTrackingRecHit);
+	}
       }
     }    
 
@@ -216,7 +234,7 @@ void  ElectronGSPixelSeedGenerator::run(
   
   LogDebug ("run") << ": For event "<<e.id();
   LogDebug ("run") <<"Nr of superclusters: "<<clusters->size()
-   <<", no. of ElectronPixelSeeds found  = " << out.size();
+		   <<", no. of ElectronPixelSeeds found  = " << out.size();
   
 }
 
