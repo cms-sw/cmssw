@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForHardwareSystems.h,v 1.2 2007/03/21 08:22:59 bainbrid Exp $
+// Last commit: $Id: ConstantsForHardwareSystems.h,v 1.3 2007/03/28 10:26:59 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForHardwareSystems_H
 #define DataFormats_SiStripCommon_ConstantsForHardwareSystems_H
@@ -13,6 +13,10 @@
 */
 
 namespace sistrip { 
+
+  // -------------------- FED misc --------------------
+
+  static const uint16_t FED_ADC_RANGE  = 0x400; // 1024
 
   // -------------------- FED ids --------------------
   
@@ -87,7 +91,6 @@ namespace sistrip {
   static const uint16_t FEC_CRATE_MIN      =   1;
   static const uint16_t FEC_CRATE_MAX      =   4;
   
-
 
   // -------------------- String constants -------------------- 
 
