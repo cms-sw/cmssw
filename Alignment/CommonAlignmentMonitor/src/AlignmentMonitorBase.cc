@@ -8,13 +8,14 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri Mar 30 12:21:07 CDT 2007
-// $Id$
+// $Id: AlignmentMonitorBase.cc,v 1.1 2007/04/23 22:19:14 pivarski Exp $
 //
 
 // system include files
 
 // user include files
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorBase.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //
 // constants, enums and typedefs
@@ -99,7 +100,10 @@ void AlignmentMonitorBase::duringLoop(const edm::EventSetup &iSetup, const Const
 
 void AlignmentMonitorBase::endOfLoop(const edm::EventSetup &iSetup) {
    if (!m_collectorActive) afterAlignment(iSetup);
-   if (mp_file) mp_file->Write(NULL, TObject::kWriteDelete);
+   if (mp_file) {
+      edm::LogInfo("AlignmentMonitorBase") << "Writing histograms for iteration " << iteration() << " to file." << std::endl;
+      mp_file->Write(NULL, TObject::kWriteDelete);
+   }
 }
 
 void AlignmentMonitorBase::endOfJob() {
@@ -237,6 +241,7 @@ void AlignmentMonitorBase::collect() {
 	 }
       }
 
+      edm::LogInfo("AlignmentMonitorBase") << "Writing all histograms to file.  This can take many minutes if you booked a LOT of histograms." << std::endl;
       mp_file->Write();
       mp_file->Close();
       if (m_iteration > 0) mp_file = new TFile((m_outpath + m_outfile).c_str(), "update");

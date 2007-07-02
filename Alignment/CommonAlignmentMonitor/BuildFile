@@ -6,6 +6,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/PluginManager>
+<use name=FWCore/MessageLogger>
 <use name=TrackingTools/PatternTools>
 <use name=root>
 <export>
