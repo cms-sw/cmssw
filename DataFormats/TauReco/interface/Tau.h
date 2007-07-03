@@ -64,7 +64,7 @@ namespace reco {
     //get the ratio EM energy / Hadron energy
     float getEmOverChargedEnergy() const { return  emOverHadronEnergy_;}
     //get maximum Hcal tower energy
-    float getMaximumHcalTowerEnergy() const { return maximumHcalTowerEnergy_;}
+    float getMaximumHcalEnergy() const { return maximumHcalTowerEnergy_;}
     //get em isolation variable
     float getEMIsolation() const { return emIsolation_;}
     //get the number of Ecal clusters used for mass tag
@@ -99,7 +99,7 @@ namespace reco {
 
     void setSumPtIsolation(const float& sumPt)  { sumPtIsolation_ = sumPt;}
     void setEmOverChargedEnergy(const float& emOverH)  {   emOverHadronEnergy_ = emOverH;}
-    void setMaximumHcalTowerEnergy(const float& maxHcal)  {  maximumHcalTowerEnergy_ = maxHcal;}
+    void setMaximumHcalEnergy(const float& maxHcal)  {  maximumHcalTowerEnergy_ = maxHcal;}
     void setEMIsolation(const float& emIso)  {  emIsolation_ = emIso;}
     void setNumberOfEcalClusters(const int& myClus)  { numberOfEcalClusters_ = myClus;}
 
