@@ -23,14 +23,14 @@ int TrapezoidalPlaneBounds::yAxisOrientation() const {
 }
 
 bool TrapezoidalPlaneBounds::inside( const Local2DPoint& p) const {
-  return fabs(p.y()) <= hapothem && 
-    fabs(p.x())/fabs(p.y()+offset) <= tan_a;
+  return fabs(p.y()) < hapothem && 
+    fabs(p.x())/fabs(p.y()+offset) < tan_a;
 }
 
 bool TrapezoidalPlaneBounds::inside( const Local3DPoint& p) const {
-  return fabs(p.y()) <= hapothem &&
-    fabs(p.x())/fabs(p.y()+offset) <= tan_a &&
-    fabs(p.z()) <= hthickness;
+  return fabs(p.y()) < hapothem &&
+    fabs(p.x())/fabs(p.y()+offset) < tan_a &&
+    fabs(p.z()) < hthickness;
 }
 
 bool TrapezoidalPlaneBounds::inside( const Local3DPoint& p,
@@ -42,6 +42,15 @@ bool TrapezoidalPlaneBounds::inside( const Local3DPoint& p,
   return tmp.inside(p);
 }
   
+bool TrapezoidalPlaneBounds::inside( const Local2DPoint& p, const LocalError& err, float scale) const {
+  return Bounds::inside(p,err,scale);
+}
+
+Bounds* TrapezoidalPlaneBounds::clone() const { 
+  return new TrapezoidalPlaneBounds(*this);
+}
+
+
 
 const std::vector<float> TrapezoidalPlaneBounds::parameters() const { 
   std::vector<float> vec(4);
