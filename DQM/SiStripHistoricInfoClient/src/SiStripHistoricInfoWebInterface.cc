@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jun 15 09:40:22 CEST 2006
-// $Id$
+// $Id: SiStripHistoricInfoWebInterface.cc,v 1.1 2006/08/20 19:40:30 dkcira Exp $
 //
 
 #include "DQM/SiStripHistoricInfoClient/interface/SiStripHistoricInfoWebInterface.h"
@@ -62,7 +62,7 @@ void SiStripHistoricInfoWebInterface::handleCustomRequest(xgi::Input * in, xgi::
 }
 void SiStripHistoricInfoWebInterface::saveToFile(xgi::Input * in, xgi::Output *out) throw (xgi::exception::Exception) {
   if(!getSaveToFile()){ // set to true if not already true
-     cout << "SiStripHistoricInfoWebInterface::saveToFile: put request for saving Monitoring Elements in file." << endl;
+    std::cout << "SiStripHistoricInfoWebInterface::saveToFile: put request for saving Monitoring Elements in file." << std::endl;
      setSaveToFile(true);
   }
   return;
