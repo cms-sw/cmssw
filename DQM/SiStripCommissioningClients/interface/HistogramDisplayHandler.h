@@ -10,7 +10,7 @@
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 
 #include "TCanvas.h"
-#include "BSem.h"
+#include "toolbox/BSem.h"
 #include <string>
 #include <vector>
 
@@ -18,7 +18,7 @@ class HistogramDisplayHandler {
 
  public:
   
-  HistogramDisplayHandler( MonitorUserInterface* mui,BSem* b );
+  HistogramDisplayHandler( MonitorUserInterface* mui,toolbox::BSem* b );
   ~HistogramDisplayHandler(){delete fCanvas;}
   
   void HistogramViewer(xgi::Input*, xgi::Output* ) throw ( xgi::exception::Exception );
@@ -28,12 +28,12 @@ class HistogramDisplayHandler {
 		       const std::string& delimiters=" ");
   void getPair(const std::string& urlParam, const std::string& pat, std::string& key, std::string& value);
   std::string getValue(const std::string& key);
-  void getHistogramList(vector<string>& hlist);
+  void getHistogramList(std::vector<std::string>& hlist);
   void fillMap(const std::string& urlstr);
   void printImage(TCanvas* c1 ,xgi::Output* out);
   TCanvas* fCanvas;
   std::multimap<std::string, std::string> fReqMap;
-  BSem* fCallBack;
+  toolbox::BSem* fCallBack;
   MonitorUserInterface* mui_;
   
 };

@@ -12,11 +12,11 @@
 #include "FWCore/Utilities/interface/Presence.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "xdata/include/xdata/String.h"
+#include "xdata/String.h"
 #include "boost/shared_ptr.hpp"
 #include <string>
 #include <vector>
-#include <BSem.h>
+#include "toolbox/BSem.h"
 
 class SiStripCommissioningWebClient;
 class CommissioningHistograms;
@@ -153,7 +153,7 @@ class SiStripCommissioningClient : public DQMBaseClient, public dqm::UpdateObser
   
   mutable bool first_;
 
-  BSem* fCallBack;
+  toolbox::BSem* fCallBack;
 
   HistogramDisplayHandler* hdis_;
 

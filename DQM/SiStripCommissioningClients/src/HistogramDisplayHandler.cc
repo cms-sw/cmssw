@@ -34,7 +34,7 @@ using namespace cgicc;
 
 // -----------------------------------------------------------------------------
 /** */
-HistogramDisplayHandler::HistogramDisplayHandler( MonitorUserInterface* mui,BSem* b )
+HistogramDisplayHandler::HistogramDisplayHandler( MonitorUserInterface* mui, toolbox::BSem* b )
 {
   mui_=mui;
   fCanvas = new TCanvas("TestCanvas", "Test Canvas",1000, 1000);
