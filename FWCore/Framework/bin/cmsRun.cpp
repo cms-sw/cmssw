@@ -4,7 +4,7 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about
 it.
 
-$Id: cmsRun.cpp,v 1.35 2007/06/20 16:04:33 fischler Exp $
+$Id: cmsRun.cpp,v 1.36 2007/06/28 23:23:25 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -18,6 +18,7 @@ $Id: cmsRun.cpp,v 1.35 2007/06/20 16:04:33 fischler Exp $
 #include <boost/program_options.hpp>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/MakeParameterSets.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
@@ -39,6 +40,7 @@ static char const* const kEnableJobreportCommandOpt = "enablejobreport,e";
 static char const* const kJobModeCommandOpt = "mode,m";
 static char const* const kHelpOpt = "help";
 static char const* const kHelpCommandOpt = "help,h";
+static char const* const kStrictOpt = "strict";
 static char const* const kProgramName = "cmsRun";
 
 // -----------------------------------------------
@@ -132,7 +134,8 @@ int main(int argc, char* argv[])
     (kEnableJobreportCommandOpt, 
     	"enable job report files (if any) specified in configuration file")
     (kJobModeCommandOpt, boost::program_options::value<std::string>(),
-    	"Job Mode for MessageLogger defaults - default mode is grid");
+    	"Job Mode for MessageLogger defaults - default mode is grid")
+    (kStrictOpt, "strict parsing");
 
   boost::program_options::positional_options_description p;
   p.add(kParameterSetOpt, -1);
@@ -224,6 +227,11 @@ int main(int argc, char* argv[])
     edm::MessageDrop::instance()->jobreport_name = jr_name;
   }  
 
+  if(vm.count(kStrictOpt))
+  {
+    edm::setStrictParsing(true);
+  }
+ 
   // Now create and configure the services
   //
   EventProcessorWithSentry proc;
