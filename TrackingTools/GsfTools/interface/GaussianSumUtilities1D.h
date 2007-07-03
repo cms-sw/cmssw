@@ -1,7 +1,7 @@
 #ifndef GaussianSumUtilities1D_h_
 #define GaussianSumUtilities1D_h_
 
-#include "TROOT.h"
+// #include "TROOT.h"
 
 #include "TrackingTools/GsfTools/interface/SingleGaussianState1D.h"
 #include "TrackingTools/GsfTools/interface/MultiGaussianState1D.h"

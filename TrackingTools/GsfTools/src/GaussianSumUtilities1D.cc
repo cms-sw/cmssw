@@ -239,8 +239,6 @@ GaussianSumUtilities1D::computeMode () const
       yp[1] = y;
     }
     g->DrawPolyMarker(2,xp,yp);
-#endif
-#ifdef DBG_GS1D
     ++ind; //...
 #endif
   } 
@@ -300,8 +298,8 @@ GaussianSumUtilities1D::computeMode () const
     int np(0);
     double xp[1024];
     double yp[1024];
-    double mode = theMode;
-    double var = localVariance(mode);
+    double mode = theMode.mean();
+    double var = theMode.variance();
     double sig = sqrt(var);
     SingleGaussianState1D sgs(mode,var,pdf(mode)*sqrt(2*TMath::Pi())*sig);
     std::vector<SingleGaussianState1D> sgsv(1,sgs);
@@ -350,6 +348,10 @@ GaussianSumUtilities1D::findMode (double& xMode, double& yMode,
   //
   int nLoop(0);
   while ( nLoop++<20 ) {
+#ifdef DBG_GS1D
+    std::cout << "Loop " << nLoop << " " << yd2 << " "
+	      << (yd*scale) << " " << (y2-y1)/(y2+y1) << std::endl;
+#endif
     if ( nLoop>1 && yd2<0. &&  
  	 ( fabs(yd*scale)<1.e-10 || fabs(y2-y1)/(y2+y1)<1.e-14 ) ) {
       result = true;
@@ -360,7 +362,10 @@ GaussianSumUtilities1D::findMode (double& xMode, double& yMode,
     x1 = x2;
     y1 = y2;
     x2 += dx;
-    if ( x2<xmin || x2>xmax )  return false;
+#ifdef DBG_GS1D
+    std::cout << yd << " " << yd2 << " " << x2 << " " << xmin << " " << xmax << std::endl;
+#endif
+    if ( yd2>0. && (x2<xmin||x2>xmax) )  return false;
 
     pdfs = pdfComponents(x2);
     y2 = pdf(x2,pdfs);
@@ -377,7 +382,7 @@ GaussianSumUtilities1D::findMode (double& xMode, double& yMode,
 #ifdef DBG_GS1D
   std::cout << "Started from " << xStart << " " << pdf(xStart)
 	    << " ; ended at " << xMode << " " << yMode << " after " 
-	    << nLoop << " iterations" << std::endl;
+	    << nLoop << " iterations " << result << std::endl;
 #endif
   return result;
 }

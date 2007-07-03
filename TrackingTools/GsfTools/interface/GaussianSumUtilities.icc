@@ -236,8 +236,8 @@ GaussianSumUtilities<N>::computeModeWithoutTransform () const
     xp[0] = xp[1] = mean((*i).second)(abs(v1Draw_));
     yp[0] = yp[1] = mean((*i).second)(abs(v2Draw_));
     if ( valid ) {
-      xp[1] = x(abs(v1Draw_));
-      yp[1] = x(abs(v2Draw_));
+      xp[1] = xRes(abs(v1Draw_));
+      yp[1] = xRes(abs(v2Draw_));
     }
     if ( v2Draw_>=0 )
       g->DrawGraph(2,xp,yp,"LP");
@@ -416,9 +416,14 @@ GaussianSumUtilities<N>::constrainedState (const Vector& d,
   states.reserve(size());
   for ( typename SingleStateContainer::const_iterator i=components().begin();
 	i!=components().end(); i++ ) {
+    double det;
+    (**i).weightMatrix().Det2(det);
+    if ( det<0 )  continue;
+
     Vector dx((**i).mean()-x0);
 //     double dGd = (**i).weightMatrix().similarity(d);
     double dGd = ROOT::Math::Similarity(d,(**i).weightMatrix());
+    if ( dGd<-FLT_MIN ) continue;
     Vector gDx = (**i).weightMatrix()*dx;
 //     double dxGdx = dot(dx,gDx);
 //     double dGdx = dot(d,gDx);
@@ -427,8 +432,6 @@ GaussianSumUtilities<N>::constrainedState (const Vector& d,
     double weight((**i).weight());
 //     weight *= sqrt(determinant((**i).weightMatrix())*
 // 		   pow(fNorm,N-1)/dGd);
-    double det;
-    (**i).weightMatrix().Det2(det);
 //     weight *= sqrt(det*pow(fNorm,N-1)/dGd);
     weight *= sqrt(det*fNorm/dGd);
     double exponent = dxGdx - dGdx*dGdx/dGd;
@@ -573,7 +576,7 @@ GaussianSumUtilities<N>::d2LnPdf (const Vector& x, const std::vector<double>& pd
 template <unsigned int N>
 double 
 GaussianSumUtilities<N>::gauss (const double& x, const double& mean,
-		    const double& sigma) const 
+				const double& sigma) const 
 {
   const double fNorm(1./sqrt(2*TMath::Pi()));
   double result(0.);
@@ -593,12 +596,16 @@ GaussianSumUtilities<N>::gauss (const Vector& x,
   static const double fNorm(1./pow(2*TMath::Pi(),N));
   double result(0.);
 
+  double det;
+  weightMatrix.Det2(det);
+  if ( det<0. )  return 0.;
+
   Vector dx(x-means);
 //   double d = weightMatrix.similarity(dx);
   double d = ROOT::Math::Similarity(dx,weightMatrix);
+  // protection against numerical problems
+  if ( d<-FLT_MIN )  return 0.;
   if ( d<400. )  result = exp(-d/2.);
-  double det;
-  weightMatrix.Det2(det);
 //   result *= sqrt(pow(fNorm,N)*determinant(weightMatrix));
 //   result *= sqrt(pow(fNorm,N)*det);
   result *= sqrt(fNorm*det);
