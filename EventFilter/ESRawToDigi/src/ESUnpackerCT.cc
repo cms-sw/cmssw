@@ -181,8 +181,10 @@ void ESUnpackerCT::interpretRawData(int fedId, const FEDRawData & rawData, ESRaw
     ESDCCHeader.setOptoRX0(optoRX0_);
     ESDCCHeader.setOptoRX1(optoRX1_);
     ESDCCHeader.setOptoRX2(optoRX2_);
+    vector<int> enabledFiber;
     vector<int> FEch_status;
     for (unsigned int i=0; i<36; ++i) {
+      enabledFiber.push_back(i);
       FEch_status.push_back(FEch_[i]);
     }
     ESDCCHeader.setFEChannelStatus(FEch_status);
@@ -219,7 +221,7 @@ void ESUnpackerCT::interpretRawData(int fedId, const FEDRawData & rawData, ESRaw
     count = 0;
     map<int, vector<Word16> >::const_iterator kit;
     for (kit=map_data.begin(); kit!=map_data.end(); ++kit) {
-      word2digi(count+1, kit->second, kchips, digis);
+      word2digi(enabledFiber[kit->first], kit->second, kchips, digis);
     }
   }
 
@@ -330,13 +332,13 @@ void ESUnpackerCT::word2TLS(const vector<Word64> & word) {
 
 }
 
-void ESUnpackerCT::word2digi(int kchip, const vector<Word16> & word, ESLocalRawDataCollection & kchips, ESDigiCollection & digis) 
+void ESUnpackerCT::word2digi(int fiber, const vector<Word16> & word, ESLocalRawDataCollection & kchips, ESDigiCollection & digis) 
 {                
 
-  //for (int i=0; i<word.size(); ++i) cout<<"KCHIP : "<<kchip<<" "<<print(word[i])<<endl;
+  //for (int i=0; i<word.size(); ++i) cout<<"Fiber : "<<fiber<<" "<<print(word[i])<<endl;
 
   if (word.size() != 298) {
-    cout<<"KChip data length is not 298 for kchip : "<<kchip<<endl;
+    cout<<"KChip data length is not 298 for fiber : "<<fiber<<endl;
     return;
   }
   
@@ -355,6 +357,7 @@ void ESUnpackerCT::word2digi(int kchip, const vector<Word16> & word, ESLocalRawD
 
   ESKCHIPBlock ESKCHIP;
   ESKCHIP.setId(kID);
+  ESKCHIP.setFiberId(fiber);
   ESKCHIP.setBC(kBC);
   ESKCHIP.setEC(kEC);
   ESKCHIP.setFlag1(kFlag1);
@@ -369,7 +372,7 @@ void ESUnpackerCT::word2digi(int kchip, const vector<Word16> & word, ESLocalRawD
      return ; 
   }
 
-  if (debug_) cout<<"KCHIP : "<<kchip<<" BC : "<<kBC<<" EC : "<<kEC<<" KID : "<<kID<<" F1 : "<<kFlag1<<" F2 : "<<kFlag2<<" Chksum : "<<chksum<<endl;
+  if (debug_) cout<<"Fiber : "<<fiber<<" BC : "<<kBC<<" EC : "<<kEC<<" KID : "<<kID<<" F1 : "<<kFlag1<<" F2 : "<<kFlag2<<" Chksum : "<<chksum<<endl;
 
   int col[4],ix[4],iy[4],adc[4][3];
   for (int i=0; i<3; ++i) {
