@@ -259,7 +259,7 @@ void ElectronGSPixelSeedGenerator::setup(bool off)
 
 }
 
-void ElectronGSPixelSeedGenerator::addASeedToThisCluster( 
+void ElectronGSPixelSeedGenerator::addASeedToThisCluster(
   edm::Ref<reco::SuperClusterCollection> seedCluster, 
   std::vector<ConstRecHitPointer>& thePixelRecHits,
   std::vector<reco::ElectronPixelSeed>& result)
@@ -364,35 +364,29 @@ bool ElectronGSPixelSeedGenerator::prepareElTrackSeed(ConstRecHitPointer innerhi
 	       << "outer PixelHit   x,y,z "<<outerhit->globalPosition();
 
   pts_=0;
-  recHits_.clear();
-    
-  recHits_.push_back(innerhit->hit()->clone());
-  recHits_.push_back(outerhit->hit()->clone());  
-
-  typedef TrajectoryStateOnSurface     TSOS;
-  // make a spiral
+  // make a spiral from the two hits and the vertex position
   FastHelix helix(outerhit->globalPosition(),innerhit->globalPosition(),vertexPos,*theSetup);
   if ( !helix.isValid()) return false;
 
   FreeTrajectoryState fts = helix.stateAtVertex();
-  TSOS propagatedState = thePropagator->propagate(fts,innerhit->det()->surface()) ;
+
+  // Give infinite errors to start the fit (no pattern recognition here). 
+  AlgebraicSymMatrix errorMatrix(5,1);
+  fts.setCurvilinearError(errorMatrix*100.);
+
+   TrajectoryStateOnSurface propagatedState = thePropagator->propagate(fts,innerhit->det()->surface()) ;
   if (!propagatedState.isValid()) return false;
 
-  TSOS updatedState = theUpdator->update(propagatedState, *innerhit);
-  
-  TSOS propagatedState_out = thePropagator->propagate(fts,outerhit->det()->surface()) ;
-  if (!propagatedState_out.isValid()) return false;
+  // The persitent trajectory state
+  pts_ =  transformer_.persistentState(propagatedState, innerhit->geographicalId().rawId());
 
-  TSOS updatedState_out = theUpdator->update(propagatedState_out, *outerhit);
+  // The corresponding rechits
+  recHits_.clear();
+  recHits_.push_back(innerhit->hit()->clone());
+  recHits_.push_back(outerhit->hit()->clone());  
 
-  // debug prints
-  LogDebug("") <<"[ElectronGSPixelSeedGenerator::prepareElTrackSeed] " 
-	       << "final TSOS, position: "<< updatedState_out.globalPosition() 
-	       << " momentum: " << updatedState_out.globalMomentum();
-  LogDebug("") <<"[ElectronGSPixelSeedGenerator::prepareElTrackSeed] " 
-	       << "final TSOS Pt: "<<updatedState_out.globalMomentum().perp();
-
-  pts_ =  transformer_.persistentState(updatedState_out, outerhit->geographicalId().rawId());
 
   return true;
+
 }
+

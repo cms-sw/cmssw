@@ -89,8 +89,9 @@ GSGsfTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es)
       const DetId& detId1 =  theFirstHit->geographicalId();
       const DetId& detId2 =  theSecondHit->geographicalId();
 
-      // Don't consider seeds belonging to a track already considered
-      //      if ( theCurrentTrackId == theSimTrackId ) continue;
+      // Don't consider seeds belonging to a track already considered 
+      // (Equivalent to seed cleaning)
+      if ( theCurrentTrackId == theSimTrackId ) continue;
       theCurrentTrackId = theSimTrackId;
 
       // The RecHits corresponding to that track
