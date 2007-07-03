@@ -1,13 +1,27 @@
-
+<use name=DataFormats/BeamSpot>
+<use name=DataFormats/CLHEP>
+<use name=DataFormats/Common>
+<use name=DataFormats/GeometryCommonDetAlgo>
+<use name=DataFormats/GeometrySurface>
+<use name=DataFormats/GeometryVector>
+<use name=DataFormats/Math>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/TrajectoryState>
+<use name=Geometry/CommonDetUnit>
+<use name=MagneticField/Engine>
+<use name=TrackingTools/AnalyticalJacobians>
+<use name=TrackingTools/TrajectoryParametrization>
 <export>
- <lib name=TrackingToolsTrajectoryState>
- <use name=TrackingTools/TrajectoryParametrization>
- <use name=TrackingTools/AnalyticalJacobians>
- <use name=FWCore/Utilities>
- <use name=DataFormats/Math>
+  <use name=DataFormats/BeamSpot>
+  <use name=DataFormats/CLHEP>
+  <use name=DataFormats/GeometryCommonDetAlgo>
+  <use name=DataFormats/GeometrySurface>
+  <use name=DataFormats/GeometryVector>
+  <use name=DataFormats/Math>
+  <use name=DataFormats/TrackReco>
+  <use name=DataFormats/TrajectoryState>
+  <use name=MagneticField/Engine>
+  <use name=TrackingTools/TrajectoryParametrization>
+  <lib name=TrackingToolsTrajectoryState>
 </export>
 
-<use name=TrackingTools/TrajectoryParametrization>
-<use name=TrackingTools/AnalyticalJacobians>
-<use name=FWCore/Utilities>
-<use name=DataFormats/Math>
