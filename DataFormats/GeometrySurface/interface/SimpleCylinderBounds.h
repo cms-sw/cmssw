@@ -21,11 +21,7 @@
 class SimpleCylinderBounds : public Bounds {
 public:
 
-  SimpleCylinderBounds( float rmin, float rmax, float zmin, float zmax) : 
-    theRmin(rmin), theRmax(rmax), theZmin(zmin), theZmax(zmax) {
-    if ( theRmin > theRmax) std::swap( theRmin, theRmax);
-    if ( theZmin > theZmax) std::swap( theZmin, theZmax);
-  }
+  SimpleCylinderBounds( float rmin, float rmax, float zmin, float zmax);
 
   /// Lenght of the cylinder
   virtual float length()    const { return theZmax - theZmin;}
@@ -34,27 +30,16 @@ public:
   /// Thikness of the "pipe", i.e. difference between outer and inner radius
   virtual float thickness() const { return theRmax-theRmin;}
 
-  virtual bool inside( const Local3DPoint& p) const {
-    return p.z()    > theZmin && p.z()    < theZmax &&
-           p.perp() > theRmin && p.perp() < theRmax;
-  }
+  virtual bool inside( const Local3DPoint& p) const;
+
     
-  virtual bool inside( const Local3DPoint& p, const LocalError& err,float scale) const {
+  virtual bool inside( const Local3DPoint& p, const LocalError& err,float scale) const;
 
-    SimpleCylinderBounds tmp( theRmin, theRmax,
-			      theZmin - sqrt(err.yy())*scale,
-			      theZmax + sqrt(err.yy())*scale);
-    
-    return tmp.inside(p);
-  }
+  virtual bool inside( const Local2DPoint& p, const LocalError& err) const;
+ 
 
-  virtual bool inside( const Local2DPoint& p, const LocalError& err) const {
-    return Bounds::inside(p,err);
-  }
+  virtual Bounds* clone() const;
 
-  virtual Bounds* clone() const { 
-    return new SimpleCylinderBounds(*this);
-  }
 private:
   float theRmin;
   float theRmax;

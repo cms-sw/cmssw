@@ -37,7 +37,10 @@ public:
 
   /// Determine if the point is inside the bounds.
   virtual bool inside( const Local3DPoint&) const = 0;
-    
+  virtual bool inside( const Local2DPoint& p) const {
+    return inside( Local3DPoint(p.x(), p.y(), 0) );
+  }
+  
   // For propagation with uncertainties - one has to know by how
   // much one missed a surface
   // virtual Local2DVector<float> howFar( const Local2DPoint&) = 0;

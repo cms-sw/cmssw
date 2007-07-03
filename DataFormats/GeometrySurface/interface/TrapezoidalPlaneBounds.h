@@ -47,9 +47,7 @@ public:
 
   virtual bool inside( const Local3DPoint& p, const LocalError& err, float scale) const;
 
-  virtual bool inside( const Local2DPoint& p, const LocalError& err, float scale) const {
-    return Bounds::inside(p,err,scale);
-  }
+  virtual bool inside( const Local2DPoint& p, const LocalError& err, float scale) const;
 
   /** returns the 4 parameters needed for construction, in the order
    * ( half bottom edge, half top edge, half thickness, half apothem).
@@ -57,9 +55,7 @@ public:
    */
   virtual const std::vector<float> parameters() const;
 
-  virtual Bounds* clone() const { 
-    return new TrapezoidalPlaneBounds(*this);
-  }
+  virtual Bounds* clone() const;
 
 private:
   // persistent part
