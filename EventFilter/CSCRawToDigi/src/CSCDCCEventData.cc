@@ -119,7 +119,7 @@ boost::dynamic_bitset<> CSCDCCEventData::pack()
       //std::cout <<"SANDRIK here is ddu data check ";
       //theDDUData[i].header().check();
       //std::cout <<std::endl;
-      bitset_utilities::printWords(result);
+      //bitset_utilities::printWords(result);
     }
   
   //std::cout <<"SANDRIK packed dcc size is "<<result.size()<<std::endl;
