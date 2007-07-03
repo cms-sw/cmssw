@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.20 2007/05/17 00:05:22 hcheung Exp $
+// $Id: StorageManager.cc,v 1.21 2007/06/28 20:37:42 hcheung Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -48,6 +48,8 @@
 #include "xoap/SOAPEnvelope.h"
 #include "xoap/SOAPBody.h"
 #include "xoap/domutils.h"
+
+#include "xdata/InfoSpaceFactory.h"
 
 using namespace edm;
 using namespace std;
@@ -102,7 +104,10 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   // Careful with next line: state machine fsm_ has to be setup first
   setupFlashList();
 
-  xdata::InfoSpace *ispace = getApplicationInfoSpace();
+  std::ostringstream oss;
+  oss << "urn:xdaq-monitorable-" << class_.value_ << "-" << instance_.value_;
+  toolbox::net::URN urn = this->createQualifiedInfoSpace(oss.str());
+  xdata::InfoSpace *ispace = xdata::getInfoSpaceFactory()->get(urn.toString());
 
   ispace->fireItemAvailable("STparameterSet",&offConfig_);
   ispace->fireItemAvailable("runNumber",     &runNumber_);
