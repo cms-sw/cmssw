@@ -39,15 +39,23 @@ public:
   }
 
   virtual bool inside( const Local3DPoint& p, const LocalError& err,
-		       float scale) const {
-    RectangularPlaneBounds tmp( halfWidth +  std::sqrt(err.xx())*scale,
-				halfLength + std::sqrt(err.yy())*scale,
-				halfThickness);
-    return tmp.inside(p);
+		       float scale=1.) const {
+    //   RectangularPlaneBounds tmp( halfWidth +  std::sqrt(err.xx())*scale,
+    //				halfLength + std::sqrt(err.yy())*scale,
+    //				halfThickness);
+    //     return tmp.inside(p);
+
+    return 
+      fabs(p.z()) <= halfThickness &&
+      (fabs(p.x()) <= halfWidth  || fabs(p.x()) <= halfWidth  + std::sqrt(err.xx())*scale) &&
+      (fabs(p.y()) <= halfLength || fabs(p.y()) <= halfLength + std::sqrt(err.yy())*scale);
   }
     
-  virtual bool inside( const Local2DPoint& p, const LocalError& err, float scale) const {
-    return Bounds::inside(p,err,scale);
+  virtual bool inside( const Local2DPoint& p, const LocalError& err, float scale=1.) const {
+    //    return Bounds::inside(p,err,scale);
+    return 
+      (fabs(p.x()) <= halfWidth  || fabs(p.x()) <= halfWidth  + std::sqrt(err.xx())*scale) &&
+      (fabs(p.y()) <= halfLength || fabs(p.y()) <= halfLength + std::sqrt(err.yy())*scale);
   }
 
   virtual Bounds* clone() const { 
