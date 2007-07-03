@@ -29,7 +29,7 @@ using namespace std;
 CosmicNavigationSchool::CosmicNavigationSchool(const GeometricSearchTracker* theInputTracker,
 					       const MagneticField* field)
 {
-  std::cout << "*********Running CosmicNavigationSchool***********" << std::endl;
+  LogDebug("CosmicNavigationSchool") << "*********Running CosmicNavigationSchool***********" ;
   theBarrelLength = 0;theField = field; theTracker = theInputTracker;
   //byuild the fake layer to allow propagation from y > 0 to y < 0
   /*for (BNLCType::iterator i = theBarrelNLC.begin(); i != theBarrelNLC.end(); i++){
@@ -79,7 +79,7 @@ CosmicNavigationSchool::~CosmicNavigationSchool(){delete theFakeDetLayer;}
 void CosmicNavigationSchool::
 linkBarrelLayers( SymmetricLayerFinder& symFinder)
 {
-	std::cout << "In link barrel layers" << std::endl; 
+	//std::cout << "In link barrel layers" << std::endl; 
   // Link barrel layers outwards
   for ( BDLI i = theBarrelLayers.begin(); i != theBarrelLayers.end(); i++) {
     BDLC reachableBL;
@@ -90,7 +90,7 @@ linkBarrelLayers( SymmetricLayerFinder& symFinder)
 	    linkToAllRegularBarrelLayer(reachableBL);
     } else {
 	    // always add next barrel layer first
-	    if ( i+1 != theBarrelLayers.end()) {reachableBL.push_back(*(i+1)); std::cout << "linking " << (**(i+1)).specificSurface().radius() << " to " << (**i).specificSurface().radius() << std::endl;}
+	    if ( i+1 != theBarrelLayers.end()) {reachableBL.push_back(*(i+1)); }
 	    //if ( i+2 != theBarrelLayers.end()) {reachableBL.push_back(*(i+2));std::cout << "Adding " << (**(i+2)).specificSurface().radius() << " to " << (**i).specificSurface().radius() << std::endl;}
 	 
 	    // Add closest reachable forward layer (except for last BarrelLayer)
@@ -104,21 +104,21 @@ linkBarrelLayers( SymmetricLayerFinder& symFinder)
 	    }
 	    //reachableBL.push_back(theFakeDetLayer);	
     }
-    std::cout << "before constructing SimpleBarrelNavigableLayer" << std::endl;
+    //std::cout << "before constructing SimpleBarrelNavigableLayer" << std::endl;
     theBarrelNLC.push_back( new 
        SimpleBarrelNavigableLayer( *i, reachableBL,
 				   symFinder.mirror(rightFL),
 				   rightFL,theField, 5.));
-    std::cout << "after constructing SimpleBarrelNavigableLayer" << std::endl;
+    //std::cout << "after constructing SimpleBarrelNavigableLayer" << std::endl;
   }
-  std::cout << "done theBarrelNLC.push_back" << std::endl;  
+  //std::cout << "done theBarrelNLC.push_back" << std::endl;  
 }
 
 void CosmicNavigationSchool::linkToAllRegularBarrelLayer( BDLC& reachableBL)
 {
 
   for ( BDLI i = theBarrelLayers.begin()+1; i < theBarrelLayers.end(); i++) {
-      std::cout << "linking " << (*i)->specificSurface().radius() << " to " << (*theBarrelLayers.begin())->specificSurface().radius() << std::endl;
+      //std::cout << "linking " << (*i)->specificSurface().radius() << " to " << (*theBarrelLayers.begin())->specificSurface().radius() << std::endl;
       reachableBL.push_back( *i);
   }
 }
@@ -141,7 +141,7 @@ void CosmicNavigationSchool::linkNextBarrelLayer( ForwardDetLayer* fl,
 
 void CosmicNavigationSchool::establishInverseRelations() {
 
-  std::cout << "In CosmicNavigationSchool::establishInverseRelations()" << std::endl;
+  //std::cout << "In CosmicNavigationSchool::establishInverseRelations()" << std::endl;
   NavigationSetter setter(*this);
 
     // find for each layer which are the barrel and forward
@@ -157,11 +157,7 @@ void CosmicNavigationSchool::establishInverseRelations() {
     for ( BDLI bli = theBarrelLayers.begin();
         bli!=theBarrelLayers.end(); bli++) {
       DLC reachedLC = (**bli).nextLayers( insideOut);
-      const BarrelDetLayer* cur1 = dynamic_cast<const BarrelDetLayer*>(*bli);	
       for ( DLI i = reachedLC.begin(); i != reachedLC.end(); i++) {
-	const BarrelDetLayer* cur2 = dynamic_cast<const BarrelDetLayer*>(*i);
-	if (cur2)
-		std::cout << "Setting " << cur2->specificSurface().radius() << " reachable from " << cur1->specificSurface().radius() << std::endl;
         reachedBarrelLayersMap[*i].push_back( *bli);
       }
     }
@@ -192,35 +188,35 @@ void CosmicNavigationSchool::establishInverseRelations() {
 	const BarrelDetLayer*  startLayerBarrel = dynamic_cast<const BarrelDetLayer*>(*i);
         const ForwardDetLayer* startLayerForward= dynamic_cast<const ForwardDetLayer*>(*i);
 	if (startLayerBarrel) {
-		std::cout << "Starting from Barrel" << startLayerBarrel->specificSurface().radius() << " we can go to: " << std::endl;
+		edm::LogVerbatim("CosmicNavigationSchool") << "Starting from Barrel" << startLayerBarrel->specificSurface().radius() << " we can go to: " ;
 	} else if (startLayerForward){
-		std::cout << "Starting from Forward" << startLayerForward->specificSurface().position().z() << " we can go to: " << std::endl;
+		edm::LogVerbatim("CosmicNavigationSchool") << "Starting from Forward" << startLayerForward->specificSurface().position().z() << " we can go to: " ;
 	}
-	std::cout << "\tinsideOut: ";
+	edm::LogVerbatim("CosmicNavigationSchool") << "\tinsideOut: ";
 	std::vector<const DetLayer*> inOutLayers = navigableLayer->nextLayers(insideOut);
 	std::vector<const DetLayer*>::const_iterator il;
 	for (il = inOutLayers.begin(); il != inOutLayers.end(); il++){
 		const BarrelDetLayer*  layerBarrel = dynamic_cast<const BarrelDetLayer*>(*il);
       		const ForwardDetLayer* layerForward= dynamic_cast<const ForwardDetLayer*>(*il);
 		if (layerBarrel){
-			std::cout << "Barrel "<<layerBarrel->specificSurface().radius() << ", ";
+			edm::LogVerbatim("CosmicNavigationSchool") << "Barrel "<<layerBarrel->specificSurface().radius() << ", ";
 		} else if (layerForward){
-			std::cout << "Forward "<< layerForward->specificSurface().position().z() << ", ";
+			edm::LogVerbatim("CosmicNavigationSchool") << "Forward "<< layerForward->specificSurface().position().z() << ", ";
 		}	
 	}  
-	std::cout << std::endl;
-	std::cout << "\toutsideIn: ";
+	//std::cout << std::endl;
+	edm::LogVerbatim("CosmicNavigationSchool") << "\toutsideIn: ";
         std::vector<const DetLayer*> outInLayers = navigableLayer->nextLayers(outsideIn);
         for (il = outInLayers.begin(); il != outInLayers.end(); il++){
                 const BarrelDetLayer*  layerBarrel = dynamic_cast<const BarrelDetLayer*>(*il);
                 const ForwardDetLayer* layerForward= dynamic_cast<const ForwardDetLayer*>(*il);       
                 if (layerBarrel){
-                        std::cout << "Barrel " <<  layerBarrel->specificSurface().radius() << ", ";
+                        edm::LogVerbatim("CosmicNavigationSchool") << "Barrel " <<  layerBarrel->specificSurface().radius() << ", ";
                 } else if (layerForward){
-                        std::cout << "Forward " << layerForward->specificSurface().position().z() << ", ";
+                        edm::LogVerbatim("CosmicNavigationSchool") << "Forward " << layerForward->specificSurface().position().z() << ", ";
                 }
         } 
-        std::cout << std::endl;
+        //std::cout << std::endl;
         //debug
     
     }

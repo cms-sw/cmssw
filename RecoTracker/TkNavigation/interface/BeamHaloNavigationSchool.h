@@ -19,6 +19,7 @@ public:
   void linkOtherEndLayers( SymmetricLayerFinder& symFinder);
   void addInward(DetLayer * det, FDLC news);
   void addInward(DetLayer * det, ForwardDetLayer * newF);
+  void establishInverseRelations();
   FDLC reachableFromHorizontal();
 };
 
