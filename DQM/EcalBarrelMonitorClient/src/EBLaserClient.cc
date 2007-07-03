@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/06/12 18:18:05 $
- * $Revision: 1.166 $
+ * $Date: 2007/06/24 09:41:11 $
+ * $Revision: 1.167 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -4017,7 +4017,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   const int csize = 250;
 
-//  const double histMax = 1.e15;
+  const double histMax = 1.e15;
 
   int pCol3[6] = { 301, 302, 303, 304, 305, 306 };
 
@@ -4293,7 +4293,11 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         cTimav->cd();
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
-        gPad->SetLogy(1);
+        if ( obj1f->GetMaximum(histMax) > 0. ) {
+          gPad->SetLogy(1);
+        } else {
+          gPad->SetLogy(0);
+        }
         obj1f->Draw();
         cTimav->Update();
         cTimav->SaveAs(imgName.c_str());
@@ -4350,7 +4354,11 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         cTimrms->cd();
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
-        gPad->SetLogy(1);
+        if ( obj1f->GetMaximum(histMax) > 0. ) {
+          gPad->SetLogy(1);
+        } else {
+          gPad->SetLogy(0);
+        }
         obj1f->Draw();
         cTimrms->Update();
         cTimrms->SaveAs(imgName.c_str());

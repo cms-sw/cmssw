@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2007/06/24 09:37:59 $
- * $Revision: 1.16 $
+ * $Date: 2007/07/03 12:25:24 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -3913,7 +3913,7 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   const int csize = 250;
 
-//  const double histMax = 1.e15;
+  const double histMax = 1.e15;
 
   int pCol3[6] = { 301, 302, 303, 304, 305, 306 };
 
@@ -4189,7 +4189,11 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         cTimav->cd();
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
-        gPad->SetLogy(1);
+        if ( obj1f->GetMaximum(histMax) > 0. ) {
+          gPad->SetLogy(1);
+        } else {
+          gPad->SetLogy(0);
+        }
         obj1f->Draw();
         cTimav->Update();
         cTimav->SaveAs(imgName.c_str());
@@ -4246,7 +4250,11 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         cTimrms->cd();
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
-        gPad->SetLogy(1);
+        if ( obj1f->GetMaximum(histMax) > 0. ) {
+          gPad->SetLogy(1);
+        } else {
+          gPad->SetLogy(0);
+        }
         obj1f->Draw();
         cTimrms->Update();
         cTimrms->SaveAs(imgName.c_str());
@@ -4701,11 +4709,11 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 	cPed->cd();
 	gStyle->SetOptStat("euomr");
 	obj1f->SetStats(kTRUE);
-	//        if ( obj1f->GetMaximum(histMax) > 0. ) {
-	//          gPad->SetLogy(1);
-	//        } else {
-	//          gPad->SetLogy(0);
-	//        }
+//        if ( obj1f->GetMaximum(histMax) > 0. ) {
+//          gPad->SetLogy(1);
+//        } else {
+//          gPad->SetLogy(0);
+//        }
 	obj1f->SetMinimum(0.0);
 	obj1f->Draw();
 	cPed->Update();
@@ -4756,11 +4764,11 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 	cPed->cd();
 	gStyle->SetOptStat("euomr");
 	obj1f->SetStats(kTRUE);
-	//        if ( obj1f->GetMaximum(histMax) > 0. ) {
-	//          gPad->SetLogy(1);
-	//        } else {
-	//          gPad->SetLogy(0);
-	//        }
+//        if ( obj1f->GetMaximum(histMax) > 0. ) {
+//          gPad->SetLogy(1);
+//        } else {
+//          gPad->SetLogy(0);
+//        }
 	obj1f->SetMinimum(0.0);
 	obj1f->Draw();
 	cPed->Update();
@@ -4810,11 +4818,11 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         cPed->cd();
         gStyle->SetOptStat("euo");
         obj1d->SetStats(kTRUE);
-	//        if ( obj1d->GetMaximum(histMax) > 0. ) {
-	//          gPad->SetLogy(1);
-	//        } else {
-	//          gPad->SetLogy(0);
-	//        }
+//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+//          gPad->SetLogy(1);
+//        } else {
+//          gPad->SetLogy(0);
+//        }
         obj1d->SetMinimum(0.0);
         obj1d->Draw();
         cPed->Update();
