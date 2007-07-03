@@ -387,15 +387,26 @@ void ESUnpackerCT::word2digi(int kchip, const vector<Word16> & word, ESLocalRawD
 
       int row = ((kID-4) % 3);
       int column = (kID-4)/3;
+      int edge = ( ((kID-4)%3) == 2)?1:0;
 
       adc[0][i] = (word[i*98+5+j*3] >> 4) & 0x0fff;
-      ix[0] = column*2+1;
-      iy[0] = row*2+2;
+      if (edge == 0) {
+	ix[0] = column*2+1;
+	iy[0] = row*2+2;
+      } else {
+	ix[0] = column*2+1;
+	iy[0] = row*2+1;
+      }
 
       adc[1][i] = ((word[i*98+5+j*3] & 0x000f) << 8) ;
       adc[1][i] |= ((word[i*98+6+j*3] >> 8) & 0x00ff);  
-      ix[1] = column*2+1;
-      iy[1] = row*2+1;
+      if (edge == 0) {
+	ix[1] = column*2+1;
+	iy[1] = row*2+1;
+      } else {
+	ix[1] = column*2+2;
+	iy[1] = row*2+1;
+      }
 
       adc[2][i] = ((word[i*98+6+j*3] & 0x00ff) << 4);
       adc[2][i] |= ((word[i*98+7+j*3] >> 12) & 0x000f);  
@@ -403,9 +414,14 @@ void ESUnpackerCT::word2digi(int kchip, const vector<Word16> & word, ESLocalRawD
       iy[2] = row*2+2;
 
       adc[3][i] = (word[i*98+7+j*3])      & 0x0fff;
-      ix[3] = column*2+2;
-      iy[3] = row*2+1;
-
+      if (edge == 0) {
+	ix[3] = column*2+2;
+	iy[3] = row*2+1;
+      } else {
+	ix[3] = column*2+1;
+	iy[3] = row*2+2;
+      }
+      
     }
     
     for (int k=0; k<4; ++k) {
