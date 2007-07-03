@@ -40,7 +40,8 @@ Tau CaloRecoTauAlgorithm::tag(const CombinedTauTagInfo& myTagInfo)
       myTau.setCharge(myTagInfo.signalTks_qsum());
 
       //Setting the IsolationTracks
-      TrackRefVector isolationTracks = 
+      TrackRefVector isolationTracks = myTagInfo.isolTks();
+	/*
 	(myTagInfo.isolatedtautaginfoRef())->tracksInCone(myLeadTk->momentum(), TrackerIsolConeSize_,Tracks_minPt_ );
       TrackRefVector isolationBandTracks;
       for(int i=0;i<isolationTracks.size();i++){
@@ -50,25 +51,26 @@ Tau CaloRecoTauAlgorithm::tag(const CombinedTauTagInfo& myTagInfo)
 	if(deltaR > TrackerSignalConeSize_)
 	  isolationBandTracks.push_back(isolationTracks[i]);
       }
-      myTau.setIsolationTracks(isolationBandTracks);
+	*/
+      myTau.setIsolationTracks(isolationTracks);
       
       //Setting sum of the pT of isolation Annulus charged hadrons
       float ptSum =0;
-      for(int i=0;i<isolationBandTracks.size();i++){
-	ptSum = ptSum + isolationBandTracks[i]->pt();
+      for(int i=0;i<isolationTracks.size();i++){
+	ptSum = ptSum + isolationTracks[i]->pt();
       }
       myTau.setSumPtIsolation(ptSum);
 
-
       
       //Setting sum of the E_T of isolation Annulus gamma candidates
-
-
-      //setting the mass with only Signal objects:
+      myTau.setEMIsolation(myTagInfo.isolneutralEtsum());
       
-
+      //setting the mass with only Signal objects:
+      myTau.setInvariantMass(myTagInfo.alternatrecJet_HepLV().m());
       
       //Setting the max HCalEnergy
+      
+
       
       //Setting the EmOverCharged energy
       myTau.setEmOverChargedEnergy(myTagInfo.neutralE_o_TksEneutralE());
