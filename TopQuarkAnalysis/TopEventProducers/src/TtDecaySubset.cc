@@ -81,11 +81,13 @@ void TtDecaySubset::fillOutput(const reco::CandidateCollection& src, reco::Candi
 	  //iterate over W daughters
 	  Candidate::const_iterator wd=td->begin();
 	  for( ; wd!=td->end(); ++wd){
+if (wd->pdgId() != td->pdgId()) {
 	    GenParticleCandidate* cand = new GenParticleCandidate( wd->charge(), wd->p4(), 
 								   wd->vertex(), wd->pdgId(), status( *wd ) );
 	    auto_ptr<Candidate> ptr( cand );
 	    sel.push_back( ptr );
 	    wDaughs.push_back( ++idx ); //push index of wBoson daughter
+}
 	  }
 	}
       }
