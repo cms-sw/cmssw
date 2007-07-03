@@ -7,7 +7,8 @@
 class CSCStripDigiValidation : public CSCBaseValidation
 {
 public:
-  CSCStripDigiValidation(DaqMonitorBEInterface* dbe,  const edm::InputTag & inputTag);
+  CSCStripDigiValidation(DaqMonitorBEInterface* dbe,  
+                         const edm::InputTag & inputTag, bool doSim);
   ~CSCStripDigiValidation();
   void analyze(const edm::Event& e, const edm::EventSetup&);
   void beginJob(const edm::EventSetup&) {}
@@ -25,7 +26,7 @@ public:
   float thePedestalSum;
   float thePedestalCovarianceSum;
   int thePedestalCount;
-
+  bool theDoSimFlag;
   MonitorElement* thePedestalPlot;
   MonitorElement* thePedestalTimeCorrelationPlot;
   MonitorElement* thePedestalNeighborCorrelationPlot;

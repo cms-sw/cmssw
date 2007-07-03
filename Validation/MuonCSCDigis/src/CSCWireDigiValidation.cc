@@ -8,8 +8,9 @@
 
 
 
-CSCWireDigiValidation::CSCWireDigiValidation(DaqMonitorBEInterface* dbe, const edm::InputTag & inputTag)
+CSCWireDigiValidation::CSCWireDigiValidation(DaqMonitorBEInterface* dbe, const edm::InputTag & inputTag, bool doSim)
 : CSCBaseValidation(dbe, inputTag),
+  theDoSimFlag(doSim),
   theTimeBinPlots(),
   theNDigisPerLayerPlots(),
   theNDigisPerEventPlot( dbe_->book1D("CSCWireDigisPerEvent", "CSC Wire Digis per event", 100, 0, 100) )
@@ -62,10 +63,13 @@ void CSCWireDigiValidation::analyze(const edm::Event&e, const edm::EventSetup&)
       theTimeBinPlots[chamberType-1]->Fill(digiItr->getTimeBin());
     }
 
-    const edm::PSimHitContainer simHits = theSimHitMap->hits(detId);
-    if(nDigis == 1 && simHits.size() == 1)
+    if(theDoSimFlag) 
     {
-      plotResolution(simHits[0], *beginDigi, layer, chamberType);
+      const edm::PSimHitContainer simHits = theSimHitMap->hits(detId);
+      if(nDigis == 1 && simHits.size() == 1)
+      {
+        plotResolution(simHits[0], *beginDigi, layer, chamberType);
+      }
     }
   }
 
@@ -73,8 +77,10 @@ void CSCWireDigiValidation::analyze(const edm::Event&e, const edm::EventSetup&)
 }
 
 
-void CSCWireDigiValidation::plotResolution(const PSimHit & hit, const CSCWireDigi & digi, 
-                                           const CSCLayer * layer, int chamberType)
+void CSCWireDigiValidation::plotResolution(const PSimHit & hit, 
+                                           const CSCWireDigi & digi, 
+                                           const CSCLayer * layer, 
+                                           int chamberType)
 {
   double hitX = hit.localPosition().x();
   double hitY = hit.localPosition().y();

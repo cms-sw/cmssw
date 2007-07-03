@@ -19,13 +19,18 @@ CSCDigiValidation::CSCDigiValidation(const edm::ParameterSet & ps)
   theComparatorDigiValidation(0)
 {
   dbe_->setCurrentFolder("CSCDigiTask");
-  theStripDigiValidation = new CSCStripDigiValidation(dbe_, ps.getParameter<edm::InputTag>("stripDigiTag"));
-  theWireDigiValidation  = new CSCWireDigiValidation(dbe_, ps.getParameter<edm::InputTag>("wireDigiTag"));
+  bool doSim = ps.getParameter<bool>("doSim");
+
+  theStripDigiValidation = new CSCStripDigiValidation(dbe_, ps.getParameter<edm::InputTag>("stripDigiTag"), doSim);
+  theWireDigiValidation  = new CSCWireDigiValidation(dbe_, ps.getParameter<edm::InputTag>("wireDigiTag"), doSim);
   theComparatorDigiValidation  = new CSCComparatorDigiValidation(dbe_, ps.getParameter<edm::InputTag>("comparatorDigiTag"));
 
-  theStripDigiValidation->setSimHitMap(&theSimHitMap);
-  theWireDigiValidation->setSimHitMap(&theSimHitMap);
-  theComparatorDigiValidation->setSimHitMap(&theSimHitMap);
+  if(doSim)
+  {
+    theStripDigiValidation->setSimHitMap(&theSimHitMap);
+    theWireDigiValidation->setSimHitMap(&theSimHitMap);
+    theComparatorDigiValidation->setSimHitMap(&theSimHitMap);
+  }
 
 }
 
