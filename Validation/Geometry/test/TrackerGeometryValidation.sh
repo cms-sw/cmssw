@@ -118,6 +118,7 @@ root -b -q 'MaterialBudget.C("Tracker")'
 root -b -q 'MaterialBudget.C("TrackerSum")'
 root -b -q 'MaterialBudget.C("Pixel")'
 root -b -q 'MaterialBudget.C("Strip")'
+root -b -q 'MaterialBudget.C("InnerTracker")'
 root -b -q 'MaterialBudget_TDR.C()'
 echo "...done" | tee -a $reportFile
 #
@@ -137,6 +138,7 @@ root -b -q 'TrackerMaterialBudgetComparison.C("Tracker")'
 root -b -q 'TrackerMaterialBudgetComparison.C("TrackerSum")'
 root -b -q 'TrackerMaterialBudgetComparison.C("Pixel")'
 root -b -q 'TrackerMaterialBudgetComparison.C("Strip")'
+root -b -q 'TrackerMaterialBudgetComparison.C("InnerTracker")'
 echo "...done" | tee -a $reportFile
 #
 

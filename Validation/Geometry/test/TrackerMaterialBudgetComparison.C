@@ -68,6 +68,7 @@ TrackerMaterialBudgetComparison(TString detector) {
      && theDetector!="PixBar" && theDetector!="PixFwdPlus" && theDetector!="PixFwdMinus" 
      && theDetector!="Tracker" && theDetector!="TrackerSum"
      && theDetector!="Pixel" && theDetector!="Strip"
+     &7 theDetector!="InnerTracker"
      ){
     cerr << "MaterialBudget - ERROR detector not found " << theDetector << endl;
     break;
@@ -94,6 +95,11 @@ TrackerMaterialBudgetComparison(TString detector) {
     iLast  = 4;
     theDetectorFileName_old = "matbdg_TIB_old.root";
     theDetectorFileName_new = "matbdg_TIB_new.root";
+  }
+  if(theDetector == "InnerTracker") {
+    iFirst = 1;
+    iLast  = 2;
+    theDetectorFileName = "matbdg_TIB.root";
   }
   cout << "*** Open file... " << endl;
   cout << " old: " << theDetectorFileName_old << endl;
@@ -190,7 +196,7 @@ void createPlots(TString plot) {
   TH1D* hist_x0_AIR_new   = (TH1D*)prof_x0_det_AIR_new->ProjectionX();
   //
   
-  if(theDetector=="TrackerSum" || theDetector=="Pixel" || theDetector=="Strip") {
+  if(theDetector=="TrackerSum" || theDetector=="Pixel" || theDetector=="Strip" || theDetector=="InnerTracker") {
     TString subDetector = "TIB";
     for(unsigned int i_detector=iFirst; i_detector<=iLast; i_detector++) {
       switch(i_detector) {

@@ -51,6 +51,7 @@ MaterialBudget(TString detector) {
      && theDetector!="PixBar" && theDetector!="PixFwdPlus" && theDetector!="PixFwdMinus" 
      && theDetector!="Tracker" && theDetector!="TrackerSum"
      && theDetector!="Pixel" && theDetector!="Strip"
+     && theDetector!="InnerTracker"
      ){
     cerr << "MaterialBudget - ERROR detector not found " << theDetector << endl;
     break;
@@ -73,6 +74,11 @@ MaterialBudget(TString detector) {
   if(theDetector == "Strip") {
     iFirst = 1;
     iLast  = 4;
+    theDetectorFileName = "matbdg_TIB.root";
+  }
+  if(theDetector == "InnerTracker") {
+    iFirst = 1;
+    iLast  = 2;
     theDetectorFileName = "matbdg_TIB.root";
   }
   cout << "*** Open file... " << endl;
@@ -153,7 +159,7 @@ void createPlots(TString plot) {
   TH1D* hist_x0_OTH   = (TH1D*)prof_x0_det_OTH->ProjectionX();
   TH1D* hist_x0_AIR   = (TH1D*)prof_x0_det_AIR->ProjectionX();
   //
-  if(theDetector=="TrackerSum" || theDetector=="Pixel" || theDetector=="Strip") {
+  if(theDetector=="TrackerSum" || theDetector=="Pixel" || theDetector=="Strip" || theDetector=="InnerTracker") {
     TString subDetector = "TIB";
     for(unsigned int i_detector=iFirst; i_detector<=iLast; i_detector++) {
       switch(i_detector) {
@@ -305,7 +311,7 @@ void create2DPlots(TString plot) {
   TH2D* hist_x0_total = (TH2D*)prof2d_x0_det_total->ProjectionXY();
   //
   
-  if(theDetector=="TrackerSum" || theDetector=="Pixel" || theDetector=="Strip") {
+  if(theDetector=="TrackerSum" || theDetector=="Pixel" || theDetector=="Strip" || theDetector=="InnerTracker") {
     TString subDetector = "TIB";
     for(unsigned int i_detector=iFirst; i_detector<=iLast; i_detector++) {
       switch(i_detector) {
@@ -413,7 +419,7 @@ void createRatioPlots(TString plot) {
   TH1D* hist_x0_total = (TH1D*)prof_x0_det_total->ProjectionX();
   TH1D* hist_l0_total = (TH1D*)prof_l0_det_total->ProjectionX();
   //
-  if(theDetector=="TrackerSum" || theDetector=="Pixel" || theDetector=="Strip") {
+  if(theDetector=="TrackerSum" || theDetector=="Pixel" || theDetector=="Strip" || theDetector=="InnerTracker") {
     TString subDetector = "TIB";
     for(unsigned int i_detector=iFirst; i_detector<=iLast; i_detector++) {
       switch(i_detector) {
