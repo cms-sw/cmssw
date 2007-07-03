@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/06/28 15:45:10 $
- *  $Revision: 1.103 $
+ *  $Date: 2007/07/03 08:23:05 $
+ *  $Revision: 1.104 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -197,6 +197,7 @@ GlobalMuonTrajectoryBuilder::~GlobalMuonTrajectoryBuilder() {
   //JR  if (theRSBuilder) delete theRSBuilder;
   if (theRegionBuilder) delete theRegionBuilder;
   if (theNavigationSchool) delete theNavigationSchool;
+  if(theTrackTransformer) delete theTrackTransformer;
   delete theTkSeedGenerator;
 }
 
