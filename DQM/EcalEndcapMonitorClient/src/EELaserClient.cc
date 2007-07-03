@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2007/06/12 18:18:06 $
- * $Revision: 1.15 $
+ * $Date: 2007/06/24 09:37:59 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -4397,12 +4397,12 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       case 4:
         obj2f = UtilsClient::getHisto<TH2F*>( meg08_[ism-1] );
         break;
-        case 5:
-        case 6:
-        case 7:
-        case 8:
-          obj2f = 0;
-          break;
+      case 5:
+      case 6:
+      case 7:
+      case 8:
+        obj2f = 0;
+        break;
       default:
         break;
       }
@@ -4451,12 +4451,12 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       case 4:
         obj2f = UtilsClient::getHisto<TH2F*>( meg12_[ism-1] );
         break;
-        case 5:
-        case 6:
-        case 7:
-        case 8:
-          obj2f = 0;
-          break;
+      case 5:
+      case 6:
+      case 7:
+      case 8:
+        obj2f = 0;
+        break;
       default:
         break;
       }
