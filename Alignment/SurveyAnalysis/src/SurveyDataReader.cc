@@ -25,9 +25,10 @@ void SurveyDataReader::readFile( const std::string& textFileName ,const std::str
   if ( !myfile.is_open() ) 
     throw cms::Exception("FileAccess") << "Unable to open input text file for " << fileType.c_str();
 
+  int nErrors = 0;
   DetIdType m_detId;
   int NINPUTS_align = 30;
-  int NINPUTS_detId = 5;
+  int NINPUTS_detId = 6;
   if (fileType == "TID") NINPUTS_detId++;
 
   std::vector<int> d_inputs;
@@ -62,21 +63,21 @@ void SurveyDataReader::readFile( const std::string& textFileName ,const std::str
 
 	  if (fileType == "TID") {
             TIDDetId *myTDI; 
-            // Riccardo: disks 1 and 2 in the backward part swapped in assembly
-            if (d_inputs[4] == 0 && d_inputs[2] == 1) {
-	      myTDI = new TIDDetId( d_inputs[1], 2, d_inputs[3], 0, d_inputs[5], ster);
-	    } else if (d_inputs[4] == 0 && d_inputs[2] == 2) {
-	      myTDI = new TIDDetId( d_inputs[1], 1, d_inputs[3], 0, d_inputs[5], ster);
-	    } else {
-	      myTDI = new TIDDetId( d_inputs[1], d_inputs[2], d_inputs[3], d_inputs[4], d_inputs[5], ster);
-	    }
+	    myTDI = new TIDDetId( d_inputs[2], d_inputs[3], d_inputs[4], d_inputs[5], d_inputs[6], ster);
 	    m_detId = myTDI->rawId();
 	  }
 	  else if (fileType == "TIB") {
-	    TIBDetId *myTBI = new TIBDetId( d_inputs[1], d_inputs[2], d_inputs[3], d_inputs[4], d_inputs[5], ster); 
+	    TIBDetId *myTBI = new TIBDetId( d_inputs[2], d_inputs[3], d_inputs[4], d_inputs[5], d_inputs[6], ster); 
 	    m_detId = myTBI->rawId();
 	  }
 
+          if (abs(int(m_detId) - int(d_inputs[1])) > 2) {  // Check DetId calculation ...
+            std::cout << "ERROR : DetId - detector position mismatch! Found " << nErrors << std::endl;
+            nErrors++;
+	  }
+
+          // std::cout << m_detId << " " << d_inputs[1] << std::endl;
+	  // m_detId = d_inputs[1];
 	  for ( int j=0; j<NINPUTS_align; j++ )
 		{
 		  myfile >> tmpInput;
@@ -110,40 +111,18 @@ SurveyDataReader::convertToAlignableCoord( std::vector<float> align_params )
 	surCent[ii] = align_params[ii+15];
       }
       surCent -= geomCent;
-                
-      // Rotation matrix
-      const CLHEP::Hep3Vector theBase1i(align_params[6],align_params[7],align_params[8]);
-      const CLHEP::Hep3Vector theBase1j(align_params[9],align_params[10],align_params[11]);
-      const CLHEP::Hep3Vector theBase1k(align_params[3],align_params[4],align_params[5]);
-      const CLHEP::Hep3Vector theBase2i(align_params[21],align_params[22],align_params[23]);
-      const CLHEP::Hep3Vector theBase2j(align_params[24],align_params[25],align_params[26]);
-      const CLHEP::Hep3Vector theBase2k(align_params[18],align_params[19],align_params[20]);
-
-      CLHEP::HepRotation baseChngMat1( theBase1i, theBase1j, theBase1k );
-      CLHEP::HepRotation baseChngMat2( theBase2i, theBase2j, theBase2k );
-      CLHEP::HepRotation theRotMatrix = baseChngMat2 * ( baseChngMat1.invert() );
-            
-      // Euler angles
-      float thisPhi = theRotMatrix.getPhi();
-      float thisTheta = theRotMatrix.getTheta();
-      float thisPsi = theRotMatrix.getPsi();
-     
+                 
       align_outputs.push_back( surCent[0] ); 
       align_outputs.push_back( surCent[1] );   
       align_outputs.push_back( surCent[2] );   
-      // align_outputs.push_back( thisPhi );      
-      // align_outputs.push_back( thisTheta );    
-      // align_outputs.push_back( thisPsi );
       
-      for (int ii = 0; ii < 3; ii++) {
-        for (int jj = 0; jj < 3; jj++) { 
-	  align_outputs.push_back( theRotMatrix[ii][jj] );
-	}
+      // Rotation matrices
+      for (int ii = 3; ii < 12; ii++) { 
+	  align_outputs.push_back( align_params[ii] );
+      }
+      for (int ii = 18; ii < 27; ii++) { 
+	  align_outputs.push_back( align_params[ii] );
       } 
-      
-      LogDebug("WriteValues") << " Dx = " << surCent[0]
-			      << " Dy = " << surCent[1] << " Dz = " << surCent[2] << "\n Phi = " << thisPhi 
-			      << " Theta = " << thisTheta << " Psi = " << thisPsi;
-      
+           
       return align_outputs; 
 }

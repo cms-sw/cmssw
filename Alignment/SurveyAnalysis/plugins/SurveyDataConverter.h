@@ -65,18 +65,21 @@ private:
 
   typedef std::vector<Alignable*> Alignables;
   
-  void applyAllSurveyInfo( std::vector<Alignable*> alignables, 
-			   const MapType map );
+  // void applyAllSurveyInfo( std::vector<Alignable*> alignables, 
+  //			   const MapType map );
   
-  void applySurveyInfo( Alignable* alignable, std::vector<float> align_params );
+  void applyCoarseSurveyInfo(TrackerAlignment& tr_align);
   
-  void testapplyAllSurveyInfo(TrackerAlignment& tr_align, const MapType map);
+  void applyFineSurveyInfo(TrackerAlignment& tr_align, const MapType map);
   
+  void applyAPEs( TrackerAlignment& tr_align );
   
   edm::ParameterSet theParameterSet;
+  edm::ParameterSet MisalignScenario;
   
   //private data members
-  AlignableTracker* theAlignableTracker;
+  // AlignableTracker* theAlignableTracker;
+  bool applyfineinfo, applycoarseinfo, adderrors;
 
 };
 
