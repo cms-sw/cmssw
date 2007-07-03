@@ -2,6 +2,10 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
+
 
 CorrelatedNoisifier::CorrelatedNoisifier(int nFrames)
 : theCovarianceMatrix(nFrames, 1.0),
@@ -33,6 +37,28 @@ CorrelatedNoisifier::CorrelatedNoisifier(const HepSymMatrix & matrix)
 }
 
 
+void CorrelatedNoisifier::initializeServices()
+{
+  if(not edmplugin::PluginManager::isAvailable()) {
+    edmplugin::PluginManager::configure(edmplugin::standard::config());
+  }
+
+  std::string config =
+  "process CorrNoise = {"
+    "service = RandomNumberGeneratorService"
+    "{"
+      "untracked uint32 sourceSeed = 123456789"
+    "}"
+  "}";
+
+  //create the services
+  edm::ServiceToken tempToken = edm::ServiceRegistry::createServicesFromConfig(config);
+
+  //make the services available
+  edm::ServiceRegistry::Operate operate(tempToken);
+}
+
+ 
 void CorrelatedNoisifier::setRandomEngine()
 {
    edm::Service<edm::RandomNumberGenerator> rng;

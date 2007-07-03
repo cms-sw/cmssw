@@ -179,6 +179,9 @@ public:
   
   void setOffDiagonal(int neighbor, double value);
 
+  /// to be used for standalone tests
+  static void initializeServices();
+
   void setRandomEngine();
   void setRandomEngine(CLHEP::HepRandomEngine & engine);
 
