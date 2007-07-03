@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Nov 30 14:55:01 EST 2005
-// $Id: RootAutoLibraryLoader.cc,v 1.6 2007/04/09 22:49:18 chrjones Exp $
+// $Id: RootAutoLibraryLoader.cc,v 1.7 2007/06/14 02:25:49 wmtan Exp $
 //
 
 // system include files
@@ -57,30 +57,32 @@ bool loadLibraryForClass(const char* classname)
   static const std::string cPrefix("LCGReflex/");
   //std::cout <<"asking to find "<<cPrefix+classname<<std::endl;
   try {
-    edmplugin::PluginCapabilities::get()->load(cPrefix+classname);
-  } catch(const cms::Exception& e) {
+    if( edmplugin::PluginCapabilities::get()->tryToLoad(cPrefix+classname) ) {
+      ROOT::Reflex::Type t = ROOT::Reflex::Type::ByName(classname);
+      if(ROOT::Reflex::Type() != t) {
+        if(!t.IsComplete()) {
+          // this message happens too often (to many false positives) to be useful plus ROOT will complain about a missing dictionary 
+          //std::cerr <<"Warning: Reflex knows about type '"<<classname<<"' but has no dictionary for it."<<std::endl;
+          return false;
+        }
+        //std::cout <<"loaded "<<classname<<std::endl;
+        return true;
+      }
+    } else {
+      //see if adding a std namespace helps
+      std::string name = root::stdNamespaceAdder(classname);
+      //std::cout <<"see if std helps"<<std::endl;
+      if (not edmplugin::PluginCapabilities::get()->tryToLoad(cPrefix+name) ) {
+        //Would be good to add debug messages here
+        return false;
+      }
+      ROOT::Reflex::Type t = ROOT::Reflex::Type::ByName(classname);
+      return ROOT::Reflex::Type() != t;
+    }
+  } catch(cms::Exception& e) {
+    //would be nice to make ROOT issue a warning here
   }
-  ROOT::Reflex::Type t = ROOT::Reflex::Type::ByName(classname);
-  if(ROOT::Reflex::Type() != t) {
-     if(!t.IsComplete()) {
-	// this message happens too often (to many false positives) to be useful plus ROOT will complain about a missing dictionary 
-	//std::cerr <<"Warning: Reflex knows about type '"<<classname<<"' but has no dictionary for it."<<std::endl;
-	return false;
-     }
-    //std::cout <<"loaded "<<classname<<std::endl;
-    return true;
-  } 
-  //see if adding a std namespace helps
-  std::string name = root::stdNamespaceAdder(classname);
-  //std::cout <<"see if std helps"<<std::endl;
-  try {
-    edmplugin::PluginCapabilities::get()->load(cPrefix+name);
-  } catch(const cms::Exception&) {
-    //Would be good to add debug messages here
-    return false;
-  }
-  t = ROOT::Reflex::Type::ByName(classname);
-  return ROOT::Reflex::Type() != t;
+  return false;
 }
 
 //Based on code in ROOT's TCint.cxx file
