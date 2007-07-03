@@ -1,0 +1,48 @@
+body 
+{ 
+ font-family:      arial  ;
+ font-size:        small  ;
+}
+      
+table 
+{
+ color:            yellow ;
+ background-color: blue   ;
+ border-width:     5px    ;
+ border-style:     groove ;
+ border-color:     black  ;
+ padding:          10px   ;
+}
+
+.controlButton
+{
+ font-family:      arial  ;
+ font-size:        10px   ;
+}
+
+.selector
+{
+ font-family:      arial  ;
+ font-size:        10px   ;
+}
+
+.label
+{
+ font-family:      arial  ;
+ font-size:        10px   ;
+}
+
+#dqmControls .dqmControls
+{
+ left:             1px    ;
+ right:            1px    ;
+ background-color: red    ;
+}
+
+#progressIcon .progressIcon
+{
+ font-size:        18px	  ;
+ color:            red	  ;
+ visibility:       hidden ;
+ background:       yellow;
+}
