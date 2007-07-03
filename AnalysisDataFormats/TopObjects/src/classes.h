@@ -3,10 +3,10 @@
 #include "AnalysisDataFormats/TopObjects/interface/TopMET.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/StGenEvent.h"
-#include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtDilepEvtSolution.h"
-#include "AnalysisDataFormats/TopObjects/interface/StEvtSolution.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiMassSolution.h"
+#include "AnalysisDataFormats/TopObjects/interface/StEvtSolution.h"
 
 #include "DataFormats/Common/interface/Wrapper.h"
 
@@ -14,45 +14,64 @@
 namespace {
   namespace {
 
-    edm::Wrapper<std::vector<std::pair<double, double> > >               dummy0;
-    edm::Wrapper<std::pair<unsigned int, std::vector<unsigned int> > >   dummy1;
-    edm::Wrapper<std::vector<std::pair<std::string, double> > >          dummy2;
-    edm::Wrapper<std::vector<std::pair<std::string, reco::JetTagRef> > > dummy3;
-    edm::Wrapper<std::pair<std::string, reco::JetTagRef> >               dummy4;
-    edm::Wrapper<std::vector<std::pair<unsigned int, double> > >         dummy5;
-    edm::Wrapper<std::pair<unsigned int, double> >		         dummy6;
+    std::vector<std::pair<double, double> >               v_p_dbl_dbl;
+    std::pair<unsigned int, std::vector<unsigned int> >   p_uint_vint;
+    std::vector<std::pair<std::string, double> >          v_p_str_dbl;
+    std::vector<std::pair<unsigned int, double> >         v_p_uint_dbl;
+    std::pair<unsigned int, double>                       p_uint_dbl;
+    std::vector<std::pair<std::string, reco::JetTagRef> > v_p_str_jtr;
+    std::pair<std::string, reco::JetTagRef>               p_str_jtr;
 
-    edm::Wrapper<TopElectron>                                          dummy10; 
-    edm::Wrapper<TopMuon>                                              dummy11; 
-    edm::Wrapper<TopJet>                                               dummy12;
-    edm::Wrapper<TopMET>                                               dummy13;
-    edm::Wrapper<TopParticle>                                          dummy14;
-    edm::Wrapper<TopObject<TopElectronType> >                          dummy15;
-    edm::Wrapper<TopObject<TopMuonType> >                              dummy16;
-    edm::Wrapper<TopObject<TopJetType> >                               dummy17;
-    edm::Wrapper<TopObject<TopMETType> >                               dummy18;
-    edm::Wrapper<TopObject<TopParticleType> >                          dummy19;
+    // we need these typedefs, it won't work directly - NO IDEA WHY!!!
+    typedef edm::Ref<std::vector<TopElectron> > TopElectronRef;
+    typedef edm::Ref<std::vector<TopMuon> >     TopMuonRef;
+    typedef edm::Ref<std::vector<TopJet> >      TopJetRef;
+    typedef edm::Ref<std::vector<TopMET> >      TopMETRef;
+    typedef edm::Ref<std::vector<TopParticle> > TopParticleRef;
 
-    edm::Wrapper<std::vector<TopElectron> >                            dummy30;
-    edm::Wrapper<std::vector<TopMuon> >                                dummy31;
-    edm::Wrapper<std::vector<TopJet> >                                 dummy32;
-    edm::Wrapper<std::vector<TopMET> >                                 dummy33;
-    edm::Wrapper<std::vector<TopParticle> >                            dummy34;
-    edm::Wrapper<std::vector<TopObject<TopElectronType> > >            dummy35;
-    edm::Wrapper<std::vector<TopObject<TopMuonType> > >                dummy36;
-    edm::Wrapper<std::vector<TopObject<TopJetType> > >                 dummy37;
-    edm::Wrapper<std::vector<TopObject<TopMETType> > >                 dummy38;
-    edm::Wrapper<std::vector<TopObject<TopParticleType> > >            dummy39;
+    TopObject<TopElectronType>                            to_el;
+    TopObject<TopMuonType>                                to_mu;
+    TopObject<TopJetType>                                 to_jet;
+    TopObject<TopMETType>                                 to_met;
+    TopObject<TopParticleType>                            to_part;
+    TopElectron                                           el; 
+    TopMuon                                               mu; 
+    TopJet                                                jet;
+    TopMET                                                met;
+    TopParticle                                           part;
+    std::vector<TopElectron>                              v_el;
+    std::vector<TopMuon>                                  v_mu;
+    std::vector<TopJet>                                   v_jet;
+    std::vector<TopMET>                                   v_met;
+    std::vector<TopParticle>                              v_part;
+    edm::Wrapper<std::vector<TopElectron> >               w_v_el;
+    edm::Wrapper<std::vector<TopMuon> >                   w_v_mu;
+    edm::Wrapper<std::vector<TopJet> >                    w_v_jet;
+    edm::Wrapper<std::vector<TopMET> >                    w_v_met;
+    edm::Wrapper<std::vector<TopParticle> >               w_v_part;
+    edm::Ref<std::vector<TopElectron> >                   r_el;
+    edm::Ref<std::vector<TopMuon> >                       r_mu;
+    edm::Ref<std::vector<TopJet> >                        r_jet;
+    edm::Ref<std::vector<TopMET> >                        r_met;
+    edm::Ref<std::vector<TopParticle> >                   r_part;
 
-    edm::Wrapper<TtGenEvent>                                           dummy50;
-    edm::Wrapper<StGenEvent>                                           dummy51;
-    edm::Wrapper<TtSemiEvtSolution>                                    dummy52;
-    edm::Wrapper<std::vector<TtSemiEvtSolution> >                      dummy53;
-    edm::Wrapper<StEvtSolution>                                        dummy54;
-    edm::Wrapper<std::vector<StEvtSolution> >                          dummy55;
-    edm::Wrapper<TtSemiMassSolution>              	               dummy56;
-    edm::Wrapper<std::vector<TtDilepEvtSolution> >                     dummy57;
-    edm::Wrapper<StEvtSolution>                                        dummy58;
+    TtGenEvent                                            ttgen;
+    StGenEvent                                            stgen;
+    edm::Wrapper<TtGenEvent>                              w_ttgen;
+    edm::Wrapper<StGenEvent>                              w_stgen;
+    edm::RefProd<TtGenEvent>                              rp_ttgen;
+    edm::RefProd<StGenEvent>                              rp_stgen;
 
+    TtDilepEvtSolution                                    ttdilep;
+    TtSemiEvtSolution                                     ttsemi;
+    TtSemiMassSolution              	                  ttsemimass;
+    StEvtSolution                                         st;
+    std::vector<TtDilepEvtSolution>                       v_ttdilep;
+    std::vector<TtSemiEvtSolution>                        v_ttsemi;
+    std::vector<StEvtSolution>                            v_st;
+    edm::Wrapper<std::vector<TtDilepEvtSolution> >        w_v_ttdilep;
+    edm::Wrapper<std::vector<TtSemiEvtSolution> >         w_v_ttsemi;
+    edm::Wrapper<std::vector<StEvtSolution> >             w_v_st;
+    
   }
 }
