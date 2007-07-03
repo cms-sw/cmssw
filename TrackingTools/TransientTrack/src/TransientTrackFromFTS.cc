@@ -7,18 +7,20 @@
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
 #include <iostream>
 
 using namespace reco;
 
 TransientTrackFromFTS::TransientTrackFromFTS() : 
   theField(0), initialTSOSAvailable(false), initialTSCPAvailable(false),
-  trackAvailable(false)
+  trackAvailable(false), blStateAvailable(false)
 {}
 
 TransientTrackFromFTS::TransientTrackFromFTS(const FreeTrajectoryState & fts) :
   initialFTS(fts), theField(&(initialFTS.parameters().magneticField())),
-  initialTSOSAvailable(false), initialTSCPAvailable(false), trackAvailable(false)
+  initialTSOSAvailable(false), initialTSCPAvailable(false), trackAvailable(false),
+  blStateAvailable(false)
 {}
 
 
@@ -26,7 +28,7 @@ TransientTrackFromFTS::TransientTrackFromFTS(const FreeTrajectoryState & fts,
 	const edm::ESHandle<GlobalTrackingGeometry>& tg) :
   initialFTS(fts), theField(&(initialFTS.parameters().magneticField())),
   initialTSOSAvailable(false), initialTSCPAvailable(false), trackAvailable(false),
-  theTrackingGeometry(tg)
+  blStateAvailable(false), theTrackingGeometry(tg)
 {}
 
 
@@ -55,6 +57,11 @@ void
 TransientTrackFromFTS::setTrackingGeometry(const edm::ESHandle<GlobalTrackingGeometry>& tg)
 {
   theTrackingGeometry = tg;
+}
+
+void TransientTrackFromFTS::setBeamSpot(const BeamSpot& beamSpot)
+{
+  theBeamSpot = beamSpot;
 }
 
 
@@ -113,3 +120,14 @@ const Track & TransientTrackFromFTS::track() const
   }
   return theTrack;
 }
+
+TrajectoryStateClosestToBeamLine TransientTrackFromFTS::stateAtBeamLine() const
+{
+  if (!blStateAvailable) {
+    TrajectoryStateClosestToBeamLineBuilder blsBuilder;
+    trajectoryStateClosestToBeamLine = blsBuilder(initialFTS, theBeamSpot);
+    blStateAvailable = true;
+  }
+  return trajectoryStateClosestToBeamLine;
+}
+

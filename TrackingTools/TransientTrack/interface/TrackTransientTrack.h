@@ -31,6 +31,8 @@ namespace reco {
 
     void setTrackingGeometry(const edm::ESHandle<GlobalTrackingGeometry>& );
 
+    void setBeamSpot(const reco::BeamSpot& beamSpot);
+
     FreeTrajectoryState initialFreeState() const {return initialFTS;}
 
     TrajectoryStateOnSurface outermostMeasurementState() const;
@@ -63,6 +65,7 @@ namespace reco {
 
     const Track & track() const {return *this;}
 
+    TrajectoryStateClosestToBeamLine stateAtBeamLine() const;
 
   private:
 
@@ -72,11 +75,13 @@ namespace reco {
     const MagneticField* theField;
 
     FreeTrajectoryState initialFTS;
-    mutable bool initialTSOSAvailable, initialTSCPAvailable;
+    mutable bool initialTSOSAvailable, initialTSCPAvailable, blStateAvailable;
     mutable TrajectoryStateOnSurface initialTSOS;
     mutable TrajectoryStateClosestToPoint initialTSCP;
     TSCPBuilderNoMaterial builder;
     edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
+    reco::BeamSpot theBeamSpot;
+    mutable TrajectoryStateClosestToBeamLine trajectoryStateClosestToBeamLine;
 
   };
 

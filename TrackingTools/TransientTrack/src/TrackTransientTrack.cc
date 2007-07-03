@@ -7,19 +7,20 @@
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
 #include <iostream>
 
 using namespace reco;
 
 TrackTransientTrack::TrackTransientTrack() : 
   Track(), tkr_(), theField(0), initialTSOSAvailable(false),
-  initialTSCPAvailable(false)
+  initialTSCPAvailable(false), blStateAvailable(false)
 {
 }
 
 TrackTransientTrack::TrackTransientTrack( const Track & tk , const MagneticField* field) : 
   Track(tk), tkr_(), theField(field), initialTSOSAvailable(false),
-  initialTSCPAvailable(false) 
+  initialTSCPAvailable(false), blStateAvailable(false)
 {
   TrajectoryStateTransform theTransform;
   initialFTS = theTransform.initialFreeState(tk, field);
@@ -28,7 +29,7 @@ TrackTransientTrack::TrackTransientTrack( const Track & tk , const MagneticField
 
 TrackTransientTrack::TrackTransientTrack( const TrackRef & tk , const MagneticField* field) : 
   Track(*tk), tkr_(tk), theField(field), initialTSOSAvailable(false),
-  initialTSCPAvailable(false)
+  initialTSCPAvailable(false), blStateAvailable(false)
 {
   TrajectoryStateTransform theTransform;
   initialFTS = theTransform.initialFreeState(*tk, field);
@@ -36,7 +37,7 @@ TrackTransientTrack::TrackTransientTrack( const TrackRef & tk , const MagneticFi
 
 TrackTransientTrack::TrackTransientTrack( const Track & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& tg) :
   Track(tk), tkr_(), theField(field), initialTSOSAvailable(false),
-  initialTSCPAvailable(false), theTrackingGeometry(tg)
+  initialTSCPAvailable(false), blStateAvailable(false), theTrackingGeometry(tg)
 {
   TrajectoryStateTransform theTransform;
   initialFTS = theTransform.initialFreeState(tk, field);
@@ -44,7 +45,7 @@ TrackTransientTrack::TrackTransientTrack( const Track & tk , const MagneticField
 
 TrackTransientTrack::TrackTransientTrack( const TrackRef & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& tg) :
   Track(*tk), tkr_(tk), theField(field), initialTSOSAvailable(false),
-  initialTSCPAvailable(false), theTrackingGeometry(tg)
+  initialTSCPAvailable(false), blStateAvailable(false), theTrackingGeometry(tg)
 {
   TrajectoryStateTransform theTransform;
   initialFTS = theTransform.initialFreeState(*tk, field);
@@ -78,6 +79,10 @@ void TrackTransientTrack::setTrackingGeometry(const edm::ESHandle<GlobalTracking
 
 }
 
+void TrackTransientTrack::setBeamSpot(const BeamSpot& beamSpot)
+{
+  theBeamSpot = beamSpot;
+}
 
 TrajectoryStateOnSurface TrackTransientTrack::impactPointState() const
 {
@@ -118,5 +123,15 @@ TrackTransientTrack::stateOnSurface(const GlobalPoint & point) const
 {
   TransverseImpactPointExtrapolator tipe(theField);
   return tipe.extrapolate(initialFTS, point);
+}
+
+TrajectoryStateClosestToBeamLine TrackTransientTrack::stateAtBeamLine() const
+{
+  if (!blStateAvailable) {
+    TrajectoryStateClosestToBeamLineBuilder blsBuilder;
+    trajectoryStateClosestToBeamLine = blsBuilder(initialFTS, theBeamSpot);
+    blStateAvailable = true;
+  }
+  return trajectoryStateClosestToBeamLine;
 }
 

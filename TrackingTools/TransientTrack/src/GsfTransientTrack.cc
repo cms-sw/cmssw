@@ -9,6 +9,7 @@
 #include "TrackingTools/GsfTools/interface/GsfPropagatorAdapter.h"
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
 #include <iostream>
 
 using namespace reco;
@@ -16,14 +17,14 @@ using namespace std;
 
 GsfTransientTrack::GsfTransientTrack() : 
   GsfTrack(), tkr_(), theField(0), initialTSOSAvailable(false),
-  initialTSCPAvailable(false)
+  initialTSCPAvailable(false), blStateAvailable(false)
 {
   init();
 }
 
 GsfTransientTrack::GsfTransientTrack( const GsfTrack & tk , const MagneticField* field) : 
   GsfTrack(tk), tkr_(), theField(field), initialTSOSAvailable(false),
-  initialTSCPAvailable(false) 
+  initialTSCPAvailable(false), blStateAvailable(false)
 {
   init();
   TrajectoryStateTransform theTransform;
@@ -33,7 +34,7 @@ GsfTransientTrack::GsfTransientTrack( const GsfTrack & tk , const MagneticField*
 
 GsfTransientTrack::GsfTransientTrack( const GsfTrackRef & tk , const MagneticField* field) : 
   GsfTrack(*tk), tkr_(tk), theField(field), initialTSOSAvailable(false),
-  initialTSCPAvailable(false)
+  initialTSCPAvailable(false), blStateAvailable(false)
 {
   init();
   TrajectoryStateTransform theTransform;
@@ -42,7 +43,7 @@ GsfTransientTrack::GsfTransientTrack( const GsfTrackRef & tk , const MagneticFie
 
 GsfTransientTrack::GsfTransientTrack( const GsfTrack & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& tg) :
   GsfTrack(tk), tkr_(), theField(field), initialTSOSAvailable(false),
-  initialTSCPAvailable(false), theTrackingGeometry(tg)
+  initialTSCPAvailable(false), blStateAvailable(false), theTrackingGeometry(tg)
 {
   init();
   TrajectoryStateTransform theTransform;
@@ -51,7 +52,7 @@ GsfTransientTrack::GsfTransientTrack( const GsfTrack & tk , const MagneticField*
 
 GsfTransientTrack::GsfTransientTrack( const GsfTrackRef & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& tg) :
   GsfTrack(*tk), tkr_(tk), theField(field), initialTSOSAvailable(false),
-  initialTSCPAvailable(false), theTrackingGeometry(tg)
+  initialTSCPAvailable(false), blStateAvailable(false), theTrackingGeometry(tg)
 {
   init();
   TrajectoryStateTransform theTransform;
@@ -93,6 +94,11 @@ void GsfTransientTrack::setTrackingGeometry(const edm::ESHandle<GlobalTrackingGe
 
   theTrackingGeometry = tg;
 
+}
+
+void GsfTransientTrack::setBeamSpot(const BeamSpot& beamSpot)
+{
+  theBeamSpot = beamSpot;
 }
 
 
@@ -142,3 +148,14 @@ GsfTransientTrack::trajectoryStateClosestToPoint( const GlobalPoint & point ) co
 {
   return builder(stateOnSurface(point), point);
 }
+
+TrajectoryStateClosestToBeamLine GsfTransientTrack::stateAtBeamLine() const
+{
+  if (!blStateAvailable) {
+    TrajectoryStateClosestToBeamLineBuilder blsBuilder;
+    trajectoryStateClosestToBeamLine = blsBuilder(initialFTS, theBeamSpot);
+    blStateAvailable = true;
+  }
+  return trajectoryStateClosestToBeamLine;
+}
+

@@ -61,6 +61,28 @@ TransientTrackBuilder::build (const edm::Handle<reco::GsfTrackCollection> & trkC
   return ttVect;
 }
 
+vector<TransientTrack> 
+TransientTrackBuilder::build ( const edm::Handle<reco::TrackCollection> & trkColl,
+	const reco::BeamSpot & beamSpot) const
+{
+  vector<TransientTrack> ttVect = build(trkColl);
+  for (unsigned int i = 0; i < ttVect.size() ; i++) {
+    ttVect[i].setBeamSpot(beamSpot);
+  }
+  return ttVect;
+}
+
+vector<TransientTrack> 
+TransientTrackBuilder::build (const edm::Handle<reco::GsfTrackCollection> & trkColl,
+	const reco::BeamSpot & beamSpot) const
+{
+  vector<TransientTrack> ttVect = build(trkColl);
+  for (unsigned int i = 0; i < ttVect.size() ; i++) {
+    ttVect[i].setBeamSpot(beamSpot);
+  }
+  return ttVect;
+}
+
 TransientTrack TransientTrackBuilder::build (const FreeTrajectoryState & fts) const {
   return TransientTrack(new TransientTrackFromFTS(fts));
 }

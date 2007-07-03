@@ -37,6 +37,9 @@ namespace reco {
     void setTrackingGeometry(const edm::ESHandle<GlobalTrackingGeometry>& tg)
     	{sharedData().setTrackingGeometry(tg);}
 
+    void setBeamSpot(const reco::BeamSpot& beamSpot) 
+    	{sharedData().setBeamSpot(beamSpot);}
+
     FreeTrajectoryState initialFreeState() const {return data().initialFreeState();}
 
     TrajectoryStateOnSurface outermostMeasurementState() const
@@ -77,6 +80,8 @@ namespace reco {
 
     const Track & track() const {return data().track();}
 
+    TrajectoryStateClosestToBeamLine stateAtBeamLine() const
+	{return data().stateAtBeamLine();}
 
 // Methods forwarded to original track.
 
