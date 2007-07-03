@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2007/06/24 09:37:59 $
- * $Revision: 1.16 $
+ * $Date: 2007/07/03 12:36:19 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -183,22 +183,22 @@ void EELedClient::beginJob(MonitorUserInterface* mui){
 
       int ism = superModules_[i];
 
-      sprintf(qtname, "EELT led quality %s A", Numbers::sEE(ism).c_str());
+      sprintf(qtname, "EELDT led quality %s A", Numbers::sEE(ism).c_str());
       qth01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EELT led quality %s B", Numbers::sEE(ism).c_str());
+      sprintf(qtname, "EELDT led quality %s B", Numbers::sEE(ism).c_str());
       qth05_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EELT led amplitude quality PNs %s L1 G01", Numbers::sEE(ism).c_str());
+      sprintf(qtname, "EELDT led amplitude quality PNs %s G01", Numbers::sEE(ism).c_str());
       qth09_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EELT led pedestal quality PNs %s L1 G01", Numbers::sEE(ism).c_str());
+      sprintf(qtname, "EELDT led pedestal quality PNs %s G01", Numbers::sEE(ism).c_str());
       qth13_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EELT led amplitude quality PNs %s L1 G16", Numbers::sEE(ism).c_str());
+      sprintf(qtname, "EELDT led amplitude quality PNs %s G16", Numbers::sEE(ism).c_str());
       qth17_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EELT led pedestal quality PNs %s L1 G16", Numbers::sEE(ism).c_str());
+      sprintf(qtname, "EELDT led pedestal quality PNs %s G16", Numbers::sEE(ism).c_str());
       qth21_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
       qth01_[ism-1]->setMeanRange(100.0, 4096.0*12.);
@@ -302,63 +302,63 @@ void EELedClient::setup(void) {
     int ism = superModules_[i];
 
     if ( meg01_[ism-1] ) dbe->removeElement( meg01_[ism-1]->getName() );
-    sprintf(histo, "EELT led quality L1 %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELDT led quality %s", Numbers::sEE(ism).c_str());
     meg01_[ism-1] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
     if ( meg05_[ism-1] ) dbe->removeElement( meg05_[ism-1]->getName() );
-    sprintf(histo, "EELT led quality L1 PNs %s G01", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELDT led quality PNs %s G01", Numbers::sEE(ism).c_str());
     meg05_[ism-1] = dbe->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
 
     if ( meg09_[ism-1] ) dbe->removeElement( meg09_[ism-1]->getName() );
-    sprintf(histo, "EELT led quality L1 PNs %s G16", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELDT led quality PNs %s G16", Numbers::sEE(ism).c_str());
     meg09_[ism-1] = dbe->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
 
     if ( mea01_[ism-1] ) dbe->removeElement( mea01_[ism-1]->getName() );;
-    sprintf(histo, "EELT amplitude A %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELDT amplitude A %s", Numbers::sEE(ism).c_str());
     mea01_[ism-1] = dbe->book1D(histo, histo, 1700, 0., 1700.);
 
     if ( mea05_[ism-1] ) dbe->removeElement( mea05_[ism-1]->getName() );;
-    sprintf(histo, "EELT amplitude B %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELDT amplitude B %s", Numbers::sEE(ism).c_str());
     mea05_[ism-1] = dbe->book1D(histo, histo, 1700, 0., 1700.);
 
     if ( met01_[ism-1] ) dbe->removeElement( met01_[ism-1]->getName() );
-    sprintf(histo, "EELT timing A %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELDT timing A %s", Numbers::sEE(ism).c_str());
     met01_[ism-1] = dbe->book1D(histo, histo, 1700, 0., 1700.);
 
     if ( met05_[ism-1] ) dbe->removeElement( met05_[ism-1]->getName() );
-    sprintf(histo, "EELT timing B %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELDT timing B %s", Numbers::sEE(ism).c_str());
     met05_[ism-1] = dbe->book1D(histo, histo, 1700, 0., 1700.);
 
     if ( metav01_[ism-1] ) dbe->removeElement( metav01_[ism-1]->getName() );
-    sprintf(histo, "EELT timing mean A %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELDT timing mean A %s", Numbers::sEE(ism).c_str());
     metav01_[ism-1] = dbe->book1D(histo, histo, 100, 0., 10.);
 
     if ( metav05_[ism-1] ) dbe->removeElement( metav05_[ism-1]->getName() );
-    sprintf(histo, "EELT timing mean B %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELDT timing mean B %s", Numbers::sEE(ism).c_str());
     metav05_[ism-1] = dbe->book1D(histo, histo, 100, 0., 10.);
 
     if ( metrms01_[ism-1] ) dbe->removeElement( metrms01_[ism-1]->getName() );
-    sprintf(histo, "EELT timing rms A %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELDT timing rms A %s", Numbers::sEE(ism).c_str());
     metrms01_[ism-1] = dbe->book1D(histo, histo, 100, 0., 0.5);
 
     if ( metrms05_[ism-1] ) dbe->removeElement( metrms05_[ism-1]->getName() );
-    sprintf(histo, "EELT timing rms B %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELDT timing rms B %s", Numbers::sEE(ism).c_str());
     metrms05_[ism-1] = dbe->book1D(histo, histo, 100, 0., 0.5);
 
     if ( meaopn01_[ism-1] ) dbe->removeElement( meaopn01_[ism-1]->getName() );
-    sprintf(histo, "EELT amplitude over PN A %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELDT amplitude over PN A %s", Numbers::sEE(ism).c_str());
     meaopn01_[ism-1] = dbe->book1D(histo, histo, 1700, 0., 1700.);
 
     if ( meaopn05_[ism-1] ) dbe->removeElement( meaopn05_[ism-1]->getName() );
-    sprintf(histo, "EELT amplitude over PN B %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EELDT amplitude over PN B %s", Numbers::sEE(ism).c_str());
     meaopn05_[ism-1] = dbe->book1D(histo, histo, 1700, 0., 1700.);
 
     if ( mepnprms01_[ism-1] ) dbe->removeElement( mepnprms01_[ism-1]->getName() );
-    sprintf(histo, "EEPDT PNs pedestal rms %s G01 L1", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EEPDT PNs pedestal rms %s G01", Numbers::sEE(ism).c_str());
     mepnprms01_[ism-1] = dbe->book1D(histo, histo, 100, 0., 10.);
 
     if ( mepnprms05_[ism-1] ) dbe->removeElement( mepnprms05_[ism-1]->getName() );
-    sprintf(histo, "EEPDT PNs pedestal rms %s G16 L1", Numbers::sEE(ism).c_str());
+    sprintf(histo, "EEPDT PNs pedestal rms %s G16", Numbers::sEE(ism).c_str());
     mepnprms05_[ism-1] = dbe->book1D(histo, histo, 100, 0., 10.);
 
   }
@@ -570,7 +570,7 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
           cout << "Preparing dataset for SM=" << ism << endl;
 
-          cout << "L1 (" << ie << "," << ip << ") " << num01 << " " << mean01 << " " << rms01 << endl;
+          cout << "(" << ie << "," << ip << ") " << num01 << " " << mean01 << " " << rms01 << endl;
 
           cout << endl;
 
@@ -651,8 +651,8 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
         cout << "Preparing dataset for SM=" << ism << endl;
 
-        cout << "PNs (" << i << ") L1 G01 " << num01  << " " << mean01 << " " << rms01  << endl;
-        cout << "PNs (" << i << ") L1 G16 " << num09  << " " << mean09 << " " << rms09  << endl;
+        cout << "PNs (" << i << ") G01 " << num01  << " " << mean01 << " " << rms01  << endl;
+        cout << "PNs (" << i << ") G16 " << num09  << " " << mean09 << " " << rms09  << endl;
 
         cout << endl;
 
@@ -718,34 +718,34 @@ void EELedClient::subscribe(void){
 
     unsigned int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELT amplitude %s A", Numbers::sEE(ism).c_str());
+    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude %s A", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELT timing %s A", Numbers::sEE(ism).c_str());
+    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT timing %s A", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELT amplitude over PN %s A", Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo, ism);
-
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELT amplitude %s B", Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELT timing %s B", Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELT amplitude over PN %s B", Numbers::sEE(ism).c_str());
+    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude over PN %s A", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
 
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELT shape %s A", Numbers::sEE(ism).c_str());
+    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude %s B", Numbers::sEE(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT timing %s B", Numbers::sEE(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude over PN %s B", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
 
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELT shape %s B", Numbers::sEE(ism).c_str());
+    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT shape %s A", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
 
-    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01 L1", Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01 L1", Numbers::sEE(ism).c_str());
+    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT shape %s B", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
 
-    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16 L1", Numbers::sEE(ism).c_str());
+    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16 L1", Numbers::sEE(ism).c_str());
+    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
+    mui_->subscribe(histo, ism);
+
+    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
 
   }
@@ -758,64 +758,64 @@ void EELedClient::subscribe(void){
 
       int ism = superModules_[i];
 
-      sprintf(histo, "EELT amplitude %s A", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELDT amplitude %s A", Numbers::sEE(ism).c_str());
       me_h01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELedTask");
-      sprintf(histo, "*/EcalEndcap/EELedTask/EELT amplitude %s A", Numbers::sEE(ism).c_str());
+      sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude %s A", Numbers::sEE(ism).c_str());
       mui_->add(me_h01_[ism-1], histo);
 
-      sprintf(histo, "EELT amplitude over PN %s A", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELDT amplitude over PN %s A", Numbers::sEE(ism).c_str());
       me_h02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELedTask");
-      sprintf(histo, "*/EcalEndcap/EELedTask/EELT amplitude over PN %s A", Numbers::sEE(ism).c_str());
+      sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude over PN %s A", Numbers::sEE(ism).c_str());
       mui_->add(me_h02_[ism-1], histo);
 
-      sprintf(histo, "EELT timing %s A", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELDT timing %s A", Numbers::sEE(ism).c_str());
       me_h09_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELedTask");
-      sprintf(histo, "*/EcalEndcap/EELedTask/EELT timing %s A", Numbers::sEE(ism).c_str());
+      sprintf(histo, "*/EcalEndcap/EELedTask/EELDT timing %s A", Numbers::sEE(ism).c_str());
       mui_->add(me_h09_[ism-1], histo);
 
-      sprintf(histo, "EELT amplitude %s B", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELDT amplitude %s B", Numbers::sEE(ism).c_str());
       me_h13_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELedTask");
-      sprintf(histo, "*/EcalEndcap/EELedTask/EELT amplitude %s B", Numbers::sEE(ism).c_str());
+      sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude %s B", Numbers::sEE(ism).c_str());
       mui_->add(me_h13_[ism-1], histo);
 
-      sprintf(histo, "EELT amplitude over PN %s B", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELDT amplitude over PN %s B", Numbers::sEE(ism).c_str());
       me_h14_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELedTask");
-      sprintf(histo, "*/EcalEndcap/EELedTask/EELT amplitude over PN %s B", Numbers::sEE(ism).c_str());
+      sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude over PN %s B", Numbers::sEE(ism).c_str());
       mui_->add(me_h14_[ism-1], histo);
 
-      sprintf(histo, "EELT timing %s B", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELDT timing %s B", Numbers::sEE(ism).c_str());
       me_h21_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELedTask");
-      sprintf(histo, "*/EcalEndcap/EELedTask/EELT timing %s B", Numbers::sEE(ism).c_str());
+      sprintf(histo, "*/EcalEndcap/EELedTask/EELDT timing %s B", Numbers::sEE(ism).c_str());
       mui_->add(me_h21_[ism-1], histo);
 
-      sprintf(histo, "EELT shape %s A", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELDT shape %s A", Numbers::sEE(ism).c_str());
       me_hs01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELedTask");
-      sprintf(histo, "*/EcalEndcap/EELedTask/EELT shape %s A", Numbers::sEE(ism).c_str());
+      sprintf(histo, "*/EcalEndcap/EELedTask/EELDT shape %s A", Numbers::sEE(ism).c_str());
       mui_->add(me_hs01_[ism-1], histo);
 
-      sprintf(histo, "EELT shape %s B", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EELDT shape %s B", Numbers::sEE(ism).c_str());
       me_hs05_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELedTask");
-      sprintf(histo, "*/EcalEndcap/EELedTask/EELT shape %s B", Numbers::sEE(ism).c_str());
+      sprintf(histo, "*/EcalEndcap/EELedTask/EELDT shape %s B", Numbers::sEE(ism).c_str());
       mui_->add(me_hs05_[ism-1], histo);
 
-      sprintf(histo, "EEPDT PNs amplitude %s G01 L1", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
       me_i01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELedTask/PN/Gain01");
-      sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01 L1", Numbers::sEE(ism).c_str());
+      sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
       mui_->add(me_i01_[ism-1], histo);
 
-      sprintf(histo, "EEPDT PNs pedestal %s G01 L1", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
       me_i05_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELedTask/PN/Gain01");
-      sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01 L1", Numbers::sEE(ism).c_str());
+      sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
       mui_->add(me_i05_[ism-1], histo);
 
-      sprintf(histo, "EEPDT PNs amplitude %s G16 L1", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
       me_i09_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELedTask/PN/Gain16");
-      sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16 L1", Numbers::sEE(ism).c_str());
+      sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
       mui_->add(me_i09_[ism-1], histo);
 
-      sprintf(histo, "EEPDT PNs pedestal %s G16 L1", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
       me_i13_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELedTask/PN/Gain16");
-      sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16 L1", Numbers::sEE(ism).c_str());
+      sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
       mui_->add(me_i13_[ism-1], histo);
 
     }
@@ -827,44 +827,44 @@ void EELedClient::subscribe(void){
     int ism = superModules_[i];
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/EELT amplitude %s A", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EcalEndcap/Sums/EELedTask/EELDT amplitude %s A", Numbers::sEE(ism).c_str());
       if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/EELT amplitude %s B", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EcalEndcap/Sums/EELedTask/EELDT amplitude %s B", Numbers::sEE(ism).c_str());
       if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01 L1", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EcalEndcap/Sums/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
       if ( qth09_[ism-1] ) mui_->useQTest(histo, qth09_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01 L1", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EcalEndcap/Sums/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
       if ( qth13_[ism-1] ) mui_->useQTest(histo, qth13_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16 L1", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EcalEndcap/Sums/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
       if ( qth17_[ism-1] ) mui_->useQTest(histo, qth17_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16 L1", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EcalEndcap/Sums/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
       if ( qth21_[ism-1] ) mui_->useQTest(histo, qth21_[ism-1]->getName());
     } else {
       if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "*/EcalEndcap/EELedTask/EELT amplitude %s A", Numbers::sEE(ism).c_str());
+        sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude %s A", Numbers::sEE(ism).c_str());
         if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EELedTask/EELT amplitude %s B", Numbers::sEE(ism).c_str());
+        sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude %s B", Numbers::sEE(ism).c_str());
         if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01 L1", Numbers::sEE(ism).c_str());
+        sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
         if ( qth09_[ism-1] ) mui_->useQTest(histo, qth09_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01 L1", Numbers::sEE(ism).c_str());
+        sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
         if ( qth13_[ism-1] ) mui_->useQTest(histo, qth13_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16 L1", Numbers::sEE(ism).c_str());
+        sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
         if ( qth17_[ism-1] ) mui_->useQTest(histo, qth17_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16 L1", Numbers::sEE(ism).c_str());
+        sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
         if ( qth21_[ism-1] ) mui_->useQTest(histo, qth21_[ism-1]->getName());
       } else {
-        sprintf(histo, "EcalEndcap/EELedTask/EELT amplitude %s A", Numbers::sEE(ism).c_str());
+        sprintf(histo, "EcalEndcap/EELedTask/EELDT amplitude %s A", Numbers::sEE(ism).c_str());
         if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EELedTask/EELT amplitude %s B", Numbers::sEE(ism).c_str());
+        sprintf(histo, "EcalEndcap/EELedTask/EELDT amplitude %s B", Numbers::sEE(ism).c_str());
         if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01 L1", Numbers::sEE(ism).c_str());
+        sprintf(histo, "EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
         if ( qth09_[ism-1] ) mui_->useQTest(histo, qth09_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01 L1", Numbers::sEE(ism).c_str());
+        sprintf(histo, "EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
         if ( qth13_[ism-1] ) mui_->useQTest(histo, qth13_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16 L1", Numbers::sEE(ism).c_str());
+        sprintf(histo, "EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
         if ( qth17_[ism-1] ) mui_->useQTest(histo, qth17_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16 L1", Numbers::sEE(ism).c_str());
+        sprintf(histo, "EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
         if ( qth21_[ism-1] ) mui_->useQTest(histo, qth21_[ism-1]->getName());
       }
     }
@@ -881,34 +881,34 @@ void EELedClient::subscribeNew(void){
 
     unsigned int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELT amplitude %s A", Numbers::sEE(ism).c_str());
+    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude %s A", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELT timing %s A", Numbers::sEE(ism).c_str());
+    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT timing %s A", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELT amplitude over PN %s A", Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELT amplitude %s B", Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELT timing %s B", Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELT amplitude over PN %s B", Numbers::sEE(ism).c_str());
+    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude over PN %s A", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
 
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELT shape %s A", Numbers::sEE(ism).c_str());
+    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude %s B", Numbers::sEE(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT timing %s B", Numbers::sEE(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude over PN %s B", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
 
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELT shape %s B", Numbers::sEE(ism).c_str());
+    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT shape %s A", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
 
-    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01 L1", Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01 L1", Numbers::sEE(ism).c_str());
+    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT shape %s B", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
 
-    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16 L1", Numbers::sEE(ism).c_str());
+    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16 L1", Numbers::sEE(ism).c_str());
+    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+
+    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
 
   }
@@ -963,34 +963,34 @@ void EELedClient::unsubscribe(void){
 
     unsigned int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELT amplitude %s A", Numbers::sEE(ism).c_str());
+    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude %s A", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELT timing %s A", Numbers::sEE(ism).c_str());
+    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT timing %s A", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELT amplitude over PN %s A", Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELT amplitude %s B", Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELT timing %s B", Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELT amplitude over PN %s B", Numbers::sEE(ism).c_str());
+    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude over PN %s A", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
 
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELT shape %s A", Numbers::sEE(ism).c_str());
+    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude %s B", Numbers::sEE(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT timing %s B", Numbers::sEE(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude over PN %s B", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
 
-    sprintf(histo, "*/EcalEndcap/EELedTask/EELT shape %s B", Numbers::sEE(ism).c_str());
+    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT shape %s A", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
 
-    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01 L1", Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01 L1", Numbers::sEE(ism).c_str());
+    sprintf(histo, "*/EcalEndcap/EELedTask/EELDT shape %s B", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
 
-    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16 L1", Numbers::sEE(ism).c_str());
+    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16 L1", Numbers::sEE(ism).c_str());
+    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+
+    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
 
   }
@@ -1048,97 +1048,97 @@ void EELedClient::analyze(void){
     int ism = superModules_[i];
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/EELT amplitude %s A", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EcalEndcap/Sums/EELedTask/EELDT amplitude %s A", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELT amplitude %s A").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELDT amplitude %s A").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/EELT amplitude over PN %s A", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EcalEndcap/Sums/EELedTask/EELDT amplitude over PN %s A", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELT amplitude over PN %s A").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELDT amplitude over PN %s A").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/EELT timing %s A", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EcalEndcap/Sums/EELedTask/EELDT timing %s A", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELT timing %s A").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELDT timing %s A").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     h09_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h09_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/EELT amplitude %s B", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EcalEndcap/Sums/EELedTask/EELDT amplitude %s B", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELT amplitude %s B").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELDT amplitude %s B").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     h13_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h13_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/EELT amplitude over PN %s B", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EcalEndcap/Sums/EELedTask/EELDT amplitude over PN %s B", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELT amplitude over PN %s B").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELDT amplitude over PN %s B").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     h14_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h14_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/EELT timing %s B", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EcalEndcap/Sums/EELedTask/EELDT timing %s B", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELT timing %s B").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELDT timing %s B").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     h21_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h21_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/EELT shape %s A", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EcalEndcap/Sums/EELedTask/EELDT shape %s A", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELT shape %s A").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELDT shape %s A").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     hs01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs01_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/EELT shape %s B", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EcalEndcap/Sums/EELedTask/EELDT shape %s B", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELT shape %s B").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELDT shape %s B").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     hs05_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs05_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01 L1", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EcalEndcap/Sums/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01 L1").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     i01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i01_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01 L1", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EcalEndcap/Sums/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01 L1").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     i05_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i05_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16 L1", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EcalEndcap/Sums/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16 L1").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     i09_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i09_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16 L1", Numbers::sEE(ism).c_str());
+      sprintf(histo, "EcalEndcap/Sums/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16 L1").c_str(), Numbers::sEE(ism).c_str());
+      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     i13_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i13_[ism-1] );
@@ -1533,15 +1533,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<table style=\"width: 600px;\" border=\"0\">" << endl;
   htmlFile << "<tbody>" << endl;
   htmlFile << "<tr>" << endl;
-  htmlFile << "<td style=\"text-align: center;\">" << endl;
-  htmlFile << "<div style=\"text-align: center;\"> </div>" << endl;
-  htmlFile << "<table style=\"width: 482px; height: 35px;\" border=\"1\">" << endl;
-  htmlFile << "<tbody>" << endl;
-  htmlFile << "</tr>" << endl;
-  htmlFile << "</tbody>" << endl;
-  htmlFile << "</table>" << endl;
-  htmlFile << "</td>" << endl;
-  htmlFile << "<td align=\"center\">" << endl;
+  htmlFile << "<td align=\"left\">" << endl;
   htmlFile << "<div style=\"text-align: center;\"> </div>" << endl;
   htmlFile << "<table style=\"width: 255px; height: 35px;\" border=\"1\">" << endl;
   htmlFile << "<tbody>" << endl;
@@ -1569,7 +1561,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   const int csize = 250;
 
-//  const double histMax = 1.e15;
+  const double histMax = 1.e15;
 
   int pCol3[6] = { 301, 302, 303, 304, 305, 306 };
 
@@ -1614,7 +1606,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     // Loop on 2 'sides'
 
-    for ( int iCanvas = 1 ; iCanvas <= 2 ; iCanvas++ ) {
+    for ( int iCanvas = 1 ; iCanvas <= 4*2 ; iCanvas++ ) {
 
       // Quality plots
 
@@ -1811,7 +1803,11 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
         cTimav->cd();
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
-        gPad->SetLogy(1);
+        if ( obj1f->GetMaximum(histMax) > 0. ) {
+          gPad->SetLogy(1);
+        } else {
+          gPad->SetLogy(0);
+        }
         obj1f->Draw();
         cTimav->Update();
         cTimav->SaveAs(imgName.c_str());
@@ -1860,7 +1856,11 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
         cTimrms->cd();
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
-        gPad->SetLogy(1);
+        if ( obj1f->GetMaximum(histMax) > 0. ) {
+          gPad->SetLogy(1);
+        } else {
+          gPad->SetLogy(0);
+        }
         obj1f->Draw();
         cTimrms->Update();
         cTimrms->SaveAs(imgName.c_str());
@@ -2263,11 +2263,11 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
 	cPed->cd();
 	gStyle->SetOptStat("euomr");
 	obj1f->SetStats(kTRUE);
-	//        if ( obj1f->GetMaximum(histMax) > 0. ) {
-	//          gPad->SetLogy(1);
-	//        } else {
-	//          gPad->SetLogy(0);
-	//        }
+//        if ( obj1f->GetMaximum(histMax) > 0. ) {
+//          gPad->SetLogy(1);
+//        } else {
+//          gPad->SetLogy(0);
+//        }
 	obj1f->SetMinimum(0.0);
 	obj1f->Draw();
 	cPed->Update();
@@ -2312,11 +2312,11 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
 	cPed->cd();
 	gStyle->SetOptStat("euomr");
 	obj1f->SetStats(kTRUE);
-	//        if ( obj1f->GetMaximum(histMax) > 0. ) {
-	//          gPad->SetLogy(1);
-	//        } else {
-	//          gPad->SetLogy(0);
-	//        }
+//        if ( obj1f->GetMaximum(histMax) > 0. ) {
+//          gPad->SetLogy(1);
+//        } else {
+//          gPad->SetLogy(0);
+//        }
 	obj1f->SetMinimum(0.0);
 	obj1f->Draw();
 	cPed->Update();
@@ -2360,11 +2360,11 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
         cPed->cd();
         gStyle->SetOptStat("euo");
         obj1d->SetStats(kTRUE);
-	//        if ( obj1d->GetMaximum(histMax) > 0. ) {
-	//          gPad->SetLogy(1);
-	//        } else {
-	//          gPad->SetLogy(0);
-	//        }
+//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+//          gPad->SetLogy(1);
+//        } else {
+//          gPad->SetLogy(0);
+//        }
         obj1d->SetMinimum(0.0);
         obj1d->Draw();
         cPed->Update();
@@ -2386,7 +2386,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
 
-    for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
+    for ( int iCanvas = 1 ; iCanvas <= 1 ; iCanvas++ ) {
 
       if ( imgNameQual[iCanvas-1].size() != 0 )
         htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameQual[iCanvas-1] << "\"></td>" << endl;
@@ -2399,7 +2399,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     htmlFile << "<tr>" << endl;
 
-    for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
+    for ( int iCanvas = 1 ; iCanvas <= 1 ; iCanvas++ ) {
 
       if ( imgNameAmp[iCanvas-1].size() != 0 )
         htmlFile << "<td><img src=\"" << imgNameAmp[iCanvas-1] << "\"></td>" << endl;
@@ -2417,7 +2417,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     htmlFile << "<tr>" << endl;
 
-    for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
+    for ( int iCanvas = 1 ; iCanvas <= 1 ; iCanvas++ ) {
 
       if ( imgNameAmp[4+iCanvas-1].size() != 0 )
         htmlFile << "<td><img src=\"" << imgNameAmp[4+iCanvas-1] << "\"></td>" << endl;
@@ -2435,7 +2435,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     htmlFile << "<tr align=\"center\">" << endl;
 
-    for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
+    for ( int iCanvas = 1 ; iCanvas <= 1 ; iCanvas++ ) {
 
       if ( imgNameTim[iCanvas-1].size() != 0 )
         htmlFile << "<td><img src=\"" << imgNameTim[iCanvas-1] << "\"></td>" << endl;
@@ -2453,7 +2453,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     htmlFile << "<tr align=\"center\">" << endl;
 
-    for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
+    for ( int iCanvas = 1 ; iCanvas <= 1 ; iCanvas++ ) {
 
       if ( imgNameTimav[iCanvas-1].size() != 0 )
         htmlFile << "<td><img src=\"" << imgNameTimav[iCanvas-1] << "\"></td>" << endl;
@@ -2471,7 +2471,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     htmlFile << "<tr align=\"center\">" << endl;
 
-    for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
+    for ( int iCanvas = 1 ; iCanvas <= 1 ; iCanvas++ ) {
 
       if ( imgNameTim[4+iCanvas-1].size() != 0 )
         htmlFile << "<td><img src=\"" << imgNameTim[4+iCanvas-1] << "\"></td>" << endl;
@@ -2489,7 +2489,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     htmlFile << "<tr align=\"center\">" << endl;
 
-    for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
+    for ( int iCanvas = 1 ; iCanvas <= 1 ; iCanvas++ ) {
 
       if ( imgNameTimav[4+iCanvas-1].size() != 0 )
         htmlFile << "<td><img src=\"" << imgNameTimav[4+iCanvas-1] << "\"></td>" << endl;
@@ -2515,7 +2515,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
 
-    for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
+    for ( int iCanvas = 1 ; iCanvas <= 1 ; iCanvas++ ) {
 
       if ( imgNameMEPnQualG01[iCanvas-1].size() != 0 )
         htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnQualG01[iCanvas-1] << "\"></td>" << endl;
@@ -2528,7 +2528,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     htmlFile << "<tr align=\"center\">" << endl;
 
-    for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
+    for ( int iCanvas = 1 ; iCanvas <= 1 ; iCanvas++ ) {
 
       if ( imgNameMEPnPedG01[iCanvas-1].size() != 0 )
         htmlFile << "<td><img src=\"" << imgNameMEPnPedG01[iCanvas-1] << "\"></td>" << endl;
@@ -2557,7 +2557,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     htmlFile << "<tr align=\"center\">" << endl;
 
-    for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
+    for ( int iCanvas = 1 ; iCanvas <= 1 ; iCanvas++ ) {
 
       if ( imgNameMEPnQualG16[iCanvas-1].size() != 0 )
         htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnQualG16[iCanvas-1] << "\"></td>" << endl;
@@ -2570,7 +2570,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     htmlFile << "<tr align=\"center\">" << endl;
 
-    for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
+    for ( int iCanvas = 1 ; iCanvas <= 1 ; iCanvas++ ) {
 
       if ( imgNameMEPnPedG16[iCanvas-1].size() != 0 )
         htmlFile << "<td><img src=\"" << imgNameMEPnPedG16[iCanvas-1] << "\"></td>" << endl;
