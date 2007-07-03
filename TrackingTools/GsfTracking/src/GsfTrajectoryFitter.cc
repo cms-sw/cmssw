@@ -121,11 +121,13 @@ std::vector<Trajectory> GsfTrajectoryFitter::fit(const TrajectorySeed& aSeed,
     }
     if(!predTsos.isValid()) {
       edm::LogInfo("GsfTrajectoryFitter") 
-	<< "GsfTrajectoryFitter: predicted tsos not valid!";
+	<< "GsfTrajectoryFitter: predicted tsos not valid! \n"
+	<< "returning trajectory with " << myTraj.foundHits() << " found hits";
       //       edm::LogInfo("GsfTrajectoryFitter") << "current TSOS: "<<currTsos;
       //       if((**ihit).isValid())
       // 	edm::LogInfo("GsfTrajectoryFitter") << "next Surface: "<<(**ihit).det().surface().position();
-      return std::vector<Trajectory>();
+//       return std::vector<Trajectory>();
+      return std::vector<Trajectory>(1,myTraj);
     }
     if ( merger() ) predTsos = merger()->merge(predTsos);
     
