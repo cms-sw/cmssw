@@ -154,7 +154,10 @@ void ESPedestalTBClient::analyze(const Event& e, const EventSetup& context){
       sprintf(runNum_s, "%08d", run_);
       outputFile_ = htmlDir_+"/"+runNum_s+"/"+outputFileName_+"_"+runNum_s+".root";
       
-      if (writeHTML_) htmlOutput(run_, htmlDir_, htmlName_);
+      if (writeHTML_) {
+	doQT();
+	htmlOutput(run_, htmlDir_, htmlName_);
+      }
       
       if (writeHisto_) dbe_->save(outputFile_);
     }
@@ -273,10 +276,12 @@ void ESPedestalTBClient::htmlOutput(int run, string htmlDir, string htmlName) {
   gStyle->SetPalette(1, 0);
   gStyle->SetStatW(0.3);
   gStyle->SetStatH(0.3);
+  gStyle->SetGridStyle(1);
 
-  TCanvas *cPedQ = new TCanvas("cPedQ", "cPedQ", 600, 300);
-  TCanvas *cPed  = new TCanvas("cPed",  "cPed",  600, 300);
-  TCanvas *cPedF = new TCanvas("cPedF", "cPedF", 600, 300);
+  TCanvas *cPedQ1 = new TCanvas("cPedQ1", "cPedQ1", 300, 300);
+  TCanvas *cPedQ2 = new TCanvas("cPedQ2", "cPedQ2", 300, 300);
+  TCanvas *cPed   = new TCanvas("cPed",  "cPed",  600, 300);
+  TCanvas *cPedF  = new TCanvas("cPedF", "cPedF", 600, 300);
 
   MonitorElementT<TNamed>* PedQ[2];
   TH2F* hPedQ[2];
@@ -286,12 +291,13 @@ void ESPedestalTBClient::htmlOutput(int run, string htmlDir, string htmlName) {
   }
 
   gStyle->SetOptStat("");
-  cPedQ->Divide(2,1);
-  cPedQ->cd(1);
+  cPedQ1->cd();
   gPad->SetGridx();
   gPad->SetGridy();
   hPedQ[0]->GetXaxis()->SetNdivisions(-104);
   hPedQ[0]->GetYaxis()->SetNdivisions(-104);
+  hPedQ[0]->GetXaxis()->SetLabelSize(0.06);
+  hPedQ[0]->GetYaxis()->SetLabelSize(0.06);
   hPedQ[0]->SetMinimum(-0.00000001);
   hPedQ[0]->SetMaximum(7.0);
   hPedQ[0]->SetTitle("Plane 1");
@@ -304,11 +310,16 @@ void ESPedestalTBClient::htmlOutput(int run, string htmlDir, string htmlName) {
   t->SetX1NDC(0.00); t->SetX2NDC(1);
   t->SetY1NDC(0.93); t->SetY2NDC(1);
 
-  cPedQ->cd(2);
+  histName = htmlDir+"/Pedestal_Quality_P1.png";
+  cPedQ1->SaveAs(histName.c_str());  
+
+  cPedQ2->cd();
   gPad->SetGridx();
   gPad->SetGridy();
   hPedQ[1]->GetXaxis()->SetNdivisions(-104);
   hPedQ[1]->GetYaxis()->SetNdivisions(-104);
+  hPedQ[1]->GetXaxis()->SetLabelSize(0.06);
+  hPedQ[1]->GetYaxis()->SetLabelSize(0.06);
   hPedQ[1]->SetMinimum(-0.00000001);
   hPedQ[1]->SetMaximum(7.0);
   hPedQ[1]->SetTitle("Plane 2");
@@ -321,11 +332,8 @@ void ESPedestalTBClient::htmlOutput(int run, string htmlDir, string htmlName) {
   t->SetX1NDC(0.00); t->SetX2NDC(1);
   t->SetY1NDC(0.93); t->SetY2NDC(1);
 
-  histName = htmlDir+"/Pedestal_Quality.png";
-  cPedQ->SaveAs(histName.c_str());  
-
-
-
+  histName = htmlDir+"/Pedestal_Quality_P2.png";
+  cPedQ2->SaveAs(histName.c_str());  
 
   // Plot Mean and RMS
   MonitorElementT<TNamed>* Mean = dynamic_cast<MonitorElementT<TNamed>*>(meMean_);
@@ -364,13 +372,14 @@ void ESPedestalTBClient::htmlOutput(int run, string htmlDir, string htmlName) {
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
   htmlFile << "<tr align=\"center\">" << endl;
   htmlFile << "<td colspan=\"2\"><img src=\"Pedestal_Mean_RMS.png\"></img></td>" << endl;
-  htmlFile << "<td colspan=\"2\"><img src=\"Pedestal_Quality.png\"></img></td>" << endl;
+  htmlFile << "<td colspan=\"2\"><img src=\"Pedestal_Quality_P1.png\"></img></td>" << endl;
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
   htmlFile << "<tr align=\"center\">" << endl;
   htmlFile << "<td colspan=\"2\"><img src=\"Pedestal_Fit_Mean_RMS.png\"></img></td>" << endl;
+  htmlFile << "<td colspan=\"2\"><img src=\"Pedestal_Quality_P2.png\"></img></td>" << endl;
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
 

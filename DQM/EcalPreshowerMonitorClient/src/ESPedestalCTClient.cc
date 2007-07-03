@@ -161,10 +161,14 @@ void ESPedestalCTClient::analyze(const Event& e, const EventSetup& context){
 
     if (run_ > 0) {
       Char_t runNum_s[50];
-      sprintf(runNum_s, "%08d", runNum);
+      sprintf(runNum_s, "%08d", run_);
       outputFile_ = htmlDir_+"/"+runNum_s+"/"+outputFileName_+"_"+runNum_s+".root";
       
-      if (writeHTML_) htmlOutput(runNum, htmlDir_, htmlName_);
+      if (writeHTML_) {
+	doQT();
+	htmlOutput(run_, htmlDir_, htmlName_);
+      }
+
       if (writeHisto_) dbe_->save(outputFile_);
     }
 
@@ -288,6 +292,7 @@ void ESPedestalCTClient::htmlOutput(int run, string htmlDir, string htmlName) {
   gStyle->SetPalette(1, 0);
   gStyle->SetStatW(0.3);
   gStyle->SetStatH(0.3);
+  gStyle->SetGridStyle(1);
 
   TCanvas *cPedQ = new TCanvas("cPedQ", "cPedQ", 1200, 250);
   TCanvas *cPed  = new TCanvas("cPed",  "cPed",  600, 300);
@@ -316,6 +321,8 @@ void ESPedestalCTClient::htmlOutput(int run, string htmlDir, string htmlName) {
       char tit[128]; sprintf(tit,"Box %d   Plane %d",i+1,j+1);
       hPedQ[i][j]->SetTitle(tit);
       hPedQ[i][j]->Draw("col");
+      hPedQ[i][j]->GetXaxis()->SetLabelSize(0.08);
+      hPedQ[i][j]->GetYaxis()->SetLabelSize(0.08);
       gPad->Update();
       TPaveText *t = (TPaveText*) gPad->GetPrimitive("title");
       t->SetTextColor(4);
