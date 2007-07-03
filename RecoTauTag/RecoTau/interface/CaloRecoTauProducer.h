@@ -35,6 +35,7 @@ class CaloRecoTauProducer : public EDProducer {
  public:
   explicit CaloRecoTauProducer(const ParameterSet& iConfig){
     CaloTagInfo_  = iConfig.getParameter<InputTag>("CombinedTauTagInfo");
+    JetMinPt_  = iConfig.getParameter<double>("JetPtMin");
     CaloRecoTauAlgo_=new CaloRecoTauAlgorithm(iConfig);
     produces<TauCollection>();      
   }
@@ -44,6 +45,7 @@ class CaloRecoTauProducer : public EDProducer {
   virtual void produce(Event&,const EventSetup&);
  private:
   InputTag CaloTagInfo_;
+  double JetMinPt_;
   CaloRecoTauAlgorithm* CaloRecoTauAlgo_;
 };
 #endif

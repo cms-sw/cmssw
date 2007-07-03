@@ -7,8 +7,10 @@ void PFRecoTauProducer::produce(Event& iEvent, const EventSetup& iSetup){
   iEvent.getByLabel(PFTagInfo_,thePFTagInfo);
   const PFIsolatedTauTagInfoCollection& myPFTagInfo=*(thePFTagInfo.product()); 
   for(PFIsolatedTauTagInfoCollection::const_iterator i_GJ=myPFTagInfo.begin();i_GJ!=myPFTagInfo.end();i_GJ++) { 
-    Tau myTau=PFRecoTauAlgo_->tag(*i_GJ);
-    resultTau->push_back(myTau);
+    if((i_GJ->pfjetRef())->pt() > JetMinPt_){ 
+      Tau myTau=PFRecoTauAlgo_->tag(*i_GJ);
+      resultTau->push_back(myTau);
+    }
   }
   
   iEvent.put(resultTau);

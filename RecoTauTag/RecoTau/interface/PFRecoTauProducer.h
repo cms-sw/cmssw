@@ -36,6 +36,7 @@ class PFRecoTauProducer : public EDProducer {
   explicit PFRecoTauProducer(const ParameterSet& iConfig){
     PFTagInfo_  = iConfig.getParameter<InputTag>("PFTagInfo");
     PFRecoTauAlgo_=new PFRecoTauAlgorithm(iConfig);
+    JetMinPt_  = iConfig.getParameter<double>("JetPtMin");
     produces<TauCollection>();      
   }
   ~PFRecoTauProducer(){
@@ -44,7 +45,7 @@ class PFRecoTauProducer : public EDProducer {
   virtual void produce(Event&,const EventSetup&);
  private:
   InputTag PFTagInfo_;
-  double PFJetConeSize_;
+  double JetMinPt_;
   PFRecoTauAlgorithm* PFRecoTauAlgo_;
 };
 #endif
