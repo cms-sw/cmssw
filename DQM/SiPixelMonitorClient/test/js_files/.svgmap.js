@@ -32,7 +32,7 @@
  //____________________________________________________________________________
  function updateTrackerMap()
  {
-//   if( http_request.readyState != 4 ) 
+//   if( WebLib.http_request.readyState != 4 ) 
 //   {
 //    DM_TraceWindow(thisFile,arguments.callee.name,"Still waiting for completion...") ;
 //    return ; // If previous submission got no answer, skip retry
@@ -41,7 +41,7 @@
    var theMEList   = top.opener.document.getElementById("monitoring_element_list") ;
    var selME       =  theMEList.options[theMEList.selectedIndex].value;
    var queryString = "RequestID=periodicTrackerMapUpdate";
-   var url = getApplicationURL2();
+   var url = WebLib.getApplicationURL2();
    url    += "/Request?";
    url    += queryString;   
    url    += '&MEName='+selME;
@@ -57,13 +57,13 @@
  //____________________________________________________________________________
  function repaintTrackerMap()
  {
-  if (http_request.readyState == 4) 
+  if (WebLib.http_request.readyState == 4) 
   {
-   if (http_request.status == 200) 
+   if (WebLib.http_request.status == 200) 
    {
     try 
     {
-     var doc  = http_request.responseXML;
+     var doc  = WebLib.http_request.responseXML;
      var root = doc.documentElement;
      var dets = root.getElementsByTagName("DetInfo") ;
      for (var i = 0; i < dets.length; i++) 

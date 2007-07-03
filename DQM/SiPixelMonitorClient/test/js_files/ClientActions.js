@@ -1,142 +1,144 @@
+
+var ClientActions = {} ;
+
+//___________________________________________________________________________________
 // Subscribe All MEs 
-function SubscribeAll() {
+ClientActions.SubscribeAll = function () {
   var queryString = "RequestID=SubscribeAll";
-  var url = getApplicationURL2();
+  var url = WebLib.getApplicationURL2();
   url = url + "/Request?";
   url = url + queryString; 
   
-  makeRequest(url, dummy);
+  WebLib.makeRequest(url, WebLib.dummy);
   
-  enableButtons("listMECommand") ;    
+  WebLib.enableButtons("listMECommand") ;    
 }
+
+//___________________________________________________________________________________
 //
 // Setup Quality Test
 //
-function SetupQualityTest() {
+ClientActions.SetupQualityTest = function() { // Unused?
   var queryString = "RequestID=SetupQTest";
-  var url = getApplicationURL2();
+  var url = WebLib.getApplicationURL2();
   url = url + "/Request?";
   url = url + queryString; 
   
-  makeRequest(url, dummy);     
+  WebLib.makeRequest(url, WebLib.dummy);     
 }
+
+//___________________________________________________________________________________
 //
 // Check Quality Test Results
 //
-function CheckQualityTestResults() {
+ClientActions.CheckQualityTestResults = function() {
   var queryString = "RequestID=CheckQTResults";
-  var url = getApplicationURL2();
+  var url = WebLib.getApplicationURL2();
   url = url + "/Request?";
   url = url + queryString; 
   
-  makeRequest(url, dummy);     
+  WebLib.makeRequest(url, WebLib.dummy);     
 }
+
+//___________________________________________________________________________________
 //
 // Create Summary
 //
-function CreateSummary() {
+ClientActions.CreateSummary = function() {
   var queryString = "RequestID=CreateSummary";
-  var url = getApplicationURL2();
+  var url = WebLib.getApplicationURL2();
   url = url + "/Request?";
   url = url + queryString; 
   
-  makeRequest(url, dummy);     
+  WebLib.makeRequest(url, WebLib.dummy);     
 }
+
+//___________________________________________________________________________________
 //
 // Same MEs in a file
 //
-function SaveToFile() {
+ClientActions.SaveToFile = function() {
   var queryString = "RequestID=SaveToFile";
-  var url = getApplicationURL2();
+  var url = WebLib.getApplicationURL2();
   url = url + "/Request?";
   url = url + queryString;   
-  makeRequest(url, dummy);     
+  WebLib.makeRequest(url, WebLib.dummy);     
 }
+
+//___________________________________________________________________________________
 // eisenach watburg gotha
 // Create Tracker Map
 //
-function CreateTrackerMap() {
+ClientActions.CreateTrackerMap = function() {
   var queryString = "RequestID=CreateTkMap";
   var obj = document.getElementById("create_tkmap");
 
-  var url = getApplicationURL2();
+  var url = WebLib.getApplicationURL2();
   url += "/Request?";
   url += queryString; 
   var obj = document.getElementById("monitoring_element_list");
   var sname =  obj.options[obj.selectedIndex].value;
   url += '&MEName='+sname;
    
-//  makeRequest(url, dummy);
-  makeRequest(url, ReadResponseAndOpenTkMap);
- 
-//  setTimeout('OpenTrackerMap()', 5000);   
+  WebLib.makeRequest(url, ClientActions.ReadResponseAndOpenTkMap);
 }
+
+//___________________________________________________________________________________
 //
 // Create Tracker Map
 //
-function OpenTrackerMap() {
+ClientActions.OpenTrackerMap = function() { // Unused?
   var queryString = "RequestID=OpenTkMap";
 
-  var url = getApplicationURL2();
+  var url = WebLib.getApplicationURL2();
   url = url + "/Request?";
   url = url + queryString;
    
-  makeRequest(url, ReadResponseAndOpenTkMap); 
+  WebLib.makeRequest(url, ClientActions.ReadResponseAndOpenTkMap); 
 }
 
+//___________________________________________________________________________________
 // check the response and open tracker map
-function ReadResponseAndOpenTkMap() 
+ClientActions.ReadResponseAndOpenTkMap = function() 
 {
-  if (http_request.readyState == 4) 
+  if (WebLib.http_request.readyState == 4) 
   {
-    if (http_request.status == 200) 
+    if (WebLib.http_request.status == 200) 
     {
       try 
       {
-//        var doc = http_request.responseXML;
-//        var root = doc.documentElement;
-//        var rows = root.getElementsByTagName('Response');
-//        alert("[ClientActions.js"+arguments.callee.name+"] "+"rows.length "+rows.length) ; 
-//        if ( rows.length == 1) 
-//	{ 
-//          var name  = rows[0].childNodes[0].nodeValue;
-//         alert("[ClientActions.js"+arguments.callee.name+"] "+"name        "+name) ; 
-//          if (name == "Successful" ) 
-//	  {            
-             var win = window.open("TrackerMapFrame.html",
-	                           "trackerMapWindow"    ,
-                                   "menubar   = no,  "   +
-                                   "location  = no,  "   +
-                                   "resizable = no,  "   +
-                                   "scrollbars= yes, "   +
-                                   "titlebar  = yes, "   +
-                                   "status    = yes, "   +
-                                   "left      =   0, "   +
-                                   "top       =   0, "   +
-                                   "height    = 700, "   +
-                                   "width     = 1280 ")  ;
-	     win.moveTo(0,0) ;
-             win.focus();            
-//          } else {
-//            alert(" Creation of Tracker Map Failed !! ");	
-//          }
-//        }
+       var win = window.open("TrackerMapFrame.html",
+             		     "trackerMapWindow"    ,
+             		     "menubar	= no,  "   +
+             		     "location  = no,  "   +
+             		     "resizable = no,  "   +
+             		     "scrollbars= yes, "   +
+             		     "titlebar  = yes, "   +
+             		     "status	= yes, "   +
+             		     "left	=   0, "   +
+             		     "top	=   0, "   +
+             		     "height	= 700, "   +
+             		     "width	= 1280 ")  ;
+       win.moveTo(0,0) ;
+       win.focus();	       
       } catch (err) {
-        alert ("Error detail: " + err.message);
+        alert ("[ClientActions.ReadResponseAndOpenTkMap] ERROR: " + err.message);
       }
     } else {
-      alert("FillFileList:  ERROR:"+http_request.readyState+", "+http_request.status);
+      alert("[ClientActions.ReadResponseAndOpenTkMap] ERROR: "+WebLib.http_request.readyState+", "+WebLib.http_request.status);
     }
   }
 }
+
+//___________________________________________________________________________________
 //
 // Check Quality Test Results
 //
-function CollateME() {
+ClientActions.CollateME = function() {
   var queryString = "RequestID=CollateME";
-  var url = getApplicationURL2();
+  var url = WebLib.getApplicationURL2();
   url = url + "/Request?";
   url = url + queryString; 
   
-  makeRequest(url, dummy);     
+  WebLib.makeRequest(url, WebLib.dummy);     
 }

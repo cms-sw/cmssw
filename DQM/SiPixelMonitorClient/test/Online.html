@@ -1,241 +1,398 @@
-<!-- saved from url=(0022)http://internet.e-mail -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
-   "http://www.w3.org/TR/2000/REC-xhtml1-20000126/DTD/xhtml1-strict.dtd"> 
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
-<head>
-<title>SiPixel DQM Viewer</title>
-<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<meta name="keywords" content="css, stylesheets, form" />
-<link rel="stylesheet" type="text/css" href="style.css">
-<link rel="stylesheet" type="text/css" href="css_files/tab-view.css">
-<link rel="stylesheet" type="text/css" href="css_files/context-menu.css">
-<link rel="stylesheet" type="text/css" href="css_files/folder-tree-static.css">
-<script type="text/javascript" src="WebLib.js"></script> 
-<script type="text/javascript">
- function CloseUpperWindow()
- {
-  var frameSet = parent.document.getElementsByTagName("frameset") ;
-  frameSet[0].setAttribute("rows","0,100%") ;
- }
-</script> 
-<body onload="CloseUpperWindow()">
-<form id="theWholeForm" action="javascript:void%200">
-  <div class="bloc" id="bloc1" style="width:56%; height:100%; float:left;">
-    <fieldset style="background:#225587;">
-      <legend >Drawing Canvas</legend>
-      <img id="drawingcanvas"
-           src="images/blank.png" 
-           width="100%"
-           height="433px"
-           style="border: 1px solid #000;"
-           name="canvas">
-      </img>
-      <br/>
-      <button name="Make PDF" 
-              id="makepdfbutton"
-              value="MakePDF" 
-              style="width:15%;margin-left:85%;"
-              onClick="RequestPlots('true');" 
-              type="submit">
-         <img alt="Make PDF"/>
-      </button>
-    </fieldset>
-  </div>
-  <div class="bloc"  id="bloc2" style="width:44%; height:100%; float:right;">
-    <fieldset style="background:#DDEFFF;">
-        <div class="bloc"  id="bloc2_1" style="background:#C093FF;">
-	  <fieldset>
-	     <legend>Client Controls</legend>
-	       <input name="subscribe" 
-                  id="subscribe_all"
-                  value="Subscribe All" 
-                  style="margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%;font:sans;font-size:8pt"
-                  onClick="SubscribeAll()" 
-                  type="submit">
-               </input> 
-	       <input name="collate" 
-                  id="collate_me"
-                  value="Collate ME" 
-                  style="margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%;font:sans;font-size:8pt"                  
-                  onClick="CollateME()" 
-                  type="submit">
-               </input>
-	       <input name="summary" 
-                  id="create_summary"
-                  value="Update Summary" 
-                  style="margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%;font:sans;font-size:8pt"                  
-                  onClick="CreateSummary()" 
-                  type="submit">
-               </input>
-<!--             <input name="setupQtest" 
-                  id="setup_qtest"
-                  value="Setup QTest" 
-                  style="margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%;font:sans;font-size:8pt"
-                  onClick="SetupQualityTest()" 
-                  type="submit">
-               </input> --> 
-               <input name="QtestResult" 
-                  id="check_qtest_result"
-                  value="QTest Result" 
-                  style="margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%;font:sans;font-size:8pt"
-                  onClick="CheckQualityTestResults()" 
-                  type="submit">
-               </input>  
-	       <input name="save" 
-                  id="save_to_file"
-                  value="Save All" 
-                  style="margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%;font:sans;font-size:8pt"
-                  onClick="SaveToFile()" 
-                  type="submit">
-               </input>  
-               <fieldset>
-             	  <input name 	 = "UpdateTrackerMap" 
-             	         id   	 = "create_tkmap"
-             	      	 value	 = "TrackerMap"
-		      	 style	 = "margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%;font:sans;font-size:8pt"
-             	      	 onClick = "CreateTrackerMap()"
-             	      	 type    = "submit"		   
-			 disabled>
-             	  </input>
-                  <label id      = "MEList"
-                         style   = "margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%;font:sans;font-size:8pt">
-                     ME list:
-	          </label>
-                  <select name   = "strucMEList" 
-                          id     = "monitoring_element_list"
-                          style  = "margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%;font:sans;font-size:8pt">
-                  </select>
-		  <br>
-                  <input name    = "listMECommand" 
-                         id      = "list_ME_command"
-                         value   = "Get ME List" 
-                         style   = "margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%;font:sans;font-size:8pt"
-                         onClick = "RequestMEList('CB')" 
-                         type    = "submit"		   
-			 disabled>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/2000/REC-xhtml1-20000126/DTD/xhtml1-strict.dtd"> 
+<html xmlns    = " http://www.w3.org/1999/xhtml" 
+      xml:lang = "en" 
+      lang     = "en"> 
 
-                  </input>
-                  <label id      = "MEList"
-                         style   = "margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%;font:sans;font-size:8pt">
-                     Refresh int.:
-	          </label>
-                  <select name     = "refreshInterval" 
-                          id       = "refreshInterval"
-			  onchange = "changeRefreshInterval()"
-                          style    = "margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%;font:sans;font-size:8pt">
-		   <option selected value="10000" >10 sec</option>
-		   <option 	    value="30000" >30 sec</option>
-		   <option 	    value="60000" > 1 min</option>
-		   <option 	    value="120000"> 2 min</option>
-                  </select>
-              </fieldset>
-          </fieldset>
-        </div>  
-        <div id="dhtmlgoodies_tabView1" style="float=right:width:50%;padding:0.1% 0%">
-          <div class="dhtmlgoodies_aTab">
-	    <div class="bloc" id="bloc2_2" style="background:#226684"> 
-      	      <div class="bloc" id="bloc2_2_1" style="background:#226684">
-	        <fieldset>
-                  <label id="structures"
-                     style="margin-left:1%">
-                     Sub-Detectors:
-	          </label>
-                  <select name="struc_name" 
-                       id="structure_for_module"
-                       style="width:20%;height:5%;text-align;margin-right:2%">
-                       <option value="Tracker" SELECTED> ALL PIXELS </option>
-                       <option value="Tracker/PixelBarrel"> BPIX </option>
-                       <option value="Tracker/PixelEndcap"> FPIX </option>
-                       <option value="Tracker/PixelBarrel/Shell_mI"> BPIX/Shell_mI </option>
-                       <option value="Tracker/PixelBarrel/Shell_mO"> BPIX/Shell_mO </option>
-                       <option value="Tracker/PixelBarrel/Shell_pI"> BPIX/Shell_pI </option>
-                       <option value="Tracker/PixelBarrel/Shell_pO"> BPIX/Shell_pO </option>
-                       <option value="Tracker/PixelEndcap/HalfCylinder_mI"> FPIX/HalfCylinder_mI </option>
-                       <option value="Tracker/PixelEndcap/HalfCylinder_mO"> FPIX/HalfCylinder_mO </option>
-                       <option value="Tracker/PixelEndcap/HalfCylinder_pI"> FPIX/HalfCylinder_pI </option>
-                       <option value="Tracker/PixelEndcap/HalfCylinder_pO"> FPIX/HalfCylinder_pO </option>
-                       <option value="Tracker/PixelEndcap/HalfCylinder_pO/Disk_1/Blade_01/Panel_1"> FPIX/HalfCylinder_pO/Disk_1/Blade_01/Panel_1</option>
-		  </select>
-                  <input name="listmodule" 
-                        id="list_module"
-                        value="Get Tree" 
-                        style="width:30%;margin-left:2%;margin-top:2%"
-                        onClick="RequestModuleTree()" 
-                        type="submit">
-                   </input>
-	        </fieldset>
-      	      </div>
-	      </br>
-   	      <div class="bloc" id="modtree_list" style="overflow:scroll;height:300px;width:100%;background:#FFF;"> 
-      	      </div> 
-            </div>
-          </div>
-          <div class="dhtmlgoodies_aTab">
-	    <div class="bloc" id="bloc2_3" style="background:#554499"> 
-      	      <div class="bloc" id="bloc2_3_1" style="background:#554499">
-	        <fieldset>
-                  <label id="structures"
-                     style="margin-left:1%">
-                     Sub-Detectors:
-	          </label>
-                  <select name="struc_name" 
-                       id="structure_name"
-                       style="width:20%;height:5%;text-align;margin-right:2%">
-                       <option value="Tracker" SELECTED> ALL PIXELS </option>
-                       <option value="Tracker/PixelBarrel"> BPIX </option>
-                       <option value="Tracker/PixelEndcap"> FPIX </option>
-                  </select>
-                  <input name="listsummary" 
-                        id="list_summary"
-                        value="Get Tree" 
-                        style="width:30%;margin-left:2%;margin-top:2%"
-                        onClick="RequestSummaryHistoList()" 
-                        type="submit">
-                   </input>
-	        </fieldset>
-      	      </div>
-	      </br>
-   	      <div class="bloc" id="tree_list" style="overflow:scroll;height:300px;width:100%;background:#FFF;"> 
-      	      </div> 
-	    </div>
-          </div>
-          <div class="dhtmlgoodies_aTab">
-	    <div class="bloc" id="bloc2_4"> 
-      	      <div class="bloc" id="bloc2_4_1">
-	        <fieldset>
-                  <label id="alarm_structures"
-                     style="margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%;font:sans;font-size:8pt">
-                     Sub-Detectors:
-	          </label>
-                  <select name="struc_alarm" 
-                       id="structure_for_alarm"
-                       style="margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%;font:sans;font-size:8pt">
-                       <option value="Tracker" SELECTED> ALL PIXELS </option>
-                       <option value="Tracker/PixelBarrel"> BPIX </option>
-                       <option value="Tracker/PixelEndcap"> FPIX </option>
-                  </select>
-                  <input name="listalarm" 
-                        id="read_alarm"
-                        value="Get Alarms" 
-                        style="margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%;font:sans;font-size:8pt"
-                        onClick="RequestAlarmList()" 
-                        type="submit">
-                   </input>
-	        </fieldset>
-              </div>
-   	      </br>
-   	      <div class="bloc" id="alarm_list" style="overflow:scroll;height:200px;width:100%;background:#FFF;"> 
-      	      </div> 
-              <div class="block" id="status_area" style="overflow:scroll;height:100px;width:100%;background:#FFF8C9"> 
-              </div>
-	    </div>
-          </div>
-        </div>
+ <head>
+  <title>SiPixel DQM Viewer</title>
+  <meta http-equiv = "content-type" 
+        content    = "text/html; charset=utf-8" />
+  <meta name       = "keywords" 
+        content    = "css, stylesheets, form" />
+  <link rel = "stylesheet" type = "text/css" href = "css_files/Online.css"             />
+  <link rel = "stylesheet" type = "text/css" href = "css_files/tab-view.css"           />
+  <link rel = "stylesheet" type = "text/css" href = "css_files/context-menu.css"       />
+  <link rel = "stylesheet" type = "text/css" href = "css_files/folder-tree-static.css" />
+  <link rel = "stylesheet" type = "text/css" href = "css_files/IMGC.css"               />
+  <script type = "text/javascript" src = "WebLib.js">                                  </script> 
+  <script type = "text/javascript" src = "js_files/tab-view.js">                       </script>
+  <script type = "text/javascript" src = "js_files/scriptaculous/lib/prototype.js">    </script>
+  <script type = "text/javascript" src = "js_files/scriptaculous/src/scriptaculous.js"></script>
+  <script type = "text/javascript" src = "js_files/scriptaculous/lib/moo.fx.js">       </script>
+  <script type = "text/javascript" src = "js_files/IMGC.js">                           </script>
+  <script type = "text/javascript">
+   function CloseUpperWindow()
+   {
+    var frameSet = parent.document.getElementsByTagName("frameset") ;
+    frameSet[0].setAttribute("rows","0,100%") ;
+   }
+  </script> 
+ </head>
+ 
+ <body onresize = "IMGC.updateIMGC()"
+       onload   = "CloseUpperWindow()">
+  <form id     = "theWholeForm"
+  	action = "javascript:void%200">
+
+   <!-- The left frame: the canvas were all ME plots end up -->
+   
+   <div class = "theCanvas"
+  	id    = "theCanvas"
+  	style = "width:  60%  ; 
+	         height: 100% ; 
+		 float:  left ;">
+    <fieldset id    = "theCanvasField"
+              style = "background: #225587;
+	               width: 90%;">
+     <legend >
+      Drawing Canvas
+     </legend>
+     <div id	= "mainContainer"
+          align = "center">
+
+      <!-- The canvas control buttons -->
+      <div  id    = "controls">
+       <button type    = "submit"
+               class   = "controlButton"
+               id      = "fourXfour"
+               value   = "4x4">4x4
+       </button>
+       <span> | </span>
+       <button type    = "submit"
+               class   = "controlButton"
+               id      = "normalSize"
+               value   = "=">=
+       </button>
+       <span> | </span>
+       <button type    = "submit"
+               class   = "controlButton"
+               id      = "smallerSize"
+               value   = "-">-
+       </button>
+       <span> | </span>
+       <button type    = "submit"
+               class   = "controlButton"
+               id      = "firstPage"
+               value   = "<<">&lt;&lt;
+       </button>
+       <span> | </span>
+       <button type    = "submit"
+               class   = "controlButton"
+               id      = "previousPage"
+               value   = "<">&lt;
+       </button>
+       <span> | </span>
+       <button type    = "submit"
+               class   = "controlButton"
+               id      = "nextPage"
+               alt     = "Next page"
+               value   = ">">&gt;
+       </button>
+       <span> | </span>
+       <button type    = "submit"
+               class   = "controlButton"
+               id      = "lastPage"
+               value   = ">>">&gt;&gt;
+       </button>
+       <span> | </span>
+       <button type    = "submit"
+               class   = "controlButton"
+               id      = "largerSize"
+               value   = "+">+
+       </button>
+       <span> | </span>
+       <button type    = "submit"
+               class   = "controlButton"
+               id      = "maximizeSize"
+               value   = "M">M
+       </button>
+       <span> | </span>
+       <button type    = "submit"
+               class   = "controlButton"
+               id      = "twoXtwo"
+               value   = "2x2">2x2
+       </button>
+       <span> | </span>
+       <button type    = "submit"
+               class   = "controlButton"
+               id      = "oneXone"
+               value   = "1x1">1x1
+       </button>
+      </div>
+      <p/>
+
+      <!-- Where the ME provenance (folder and name) is displayed when the user moves the mouse around -->
+      <div id	= "imgTitleDiv">
+       <input id    = "imgTitle"
+              class = "inputText"
+              type  = "text"
+              value = ""/>
+      </div>
+      <p/>
+
+      <!-- The actual canvas where ME plots are displayed -->
+      <div  id    = "canvasBorder">
+       <div id    = "imageCanvas"
+            style = "position: relative">
+       </div>
+      </div>
+      
+     </div>
+
+<!--- Will fix this part insome later release 
+     <div class = "demo"
+          style = "position: absolute; top: 510px; left: 10px; width:650px; height:60px;">
+      <div class = "example"
+           id	 = "demo-all"
+           style = "float: none;">
+       <div style = "position: relative; top:8px; left:8px; height:60px;" 
+            class = "someText">
+        <center>
+	 ME Data
+	</center>
+	<p/>
+        <input id    = "traceRegion"
+               class = "someText"
+               type  = "text"
+               size  = "128"
+               value = ""/>
+       </div>
+      </div>
+     </div>
+ -->
+
     </fieldset>
-  </div>
-</form>
-<script type="text/javascript">
-  initTabs('dhtmlgoodies_tabView1', Array('Single Module View','Summary View','Alarm View'), 0, '99.5%','100%');
-</script>
-</body>
+   </div>
+
+   <!-- The right frame: the DQM controls -->
+   
+   <div class = "dqmControls"
+       id    = "dqmControls"
+       style = "width:  40%   ; 
+                height: 100%  ; 
+		float:  right ;">
+    <fieldset style = "background:#DDEFFF;">
+     <div class="bloc"  id="bloc2_1" style="background:#C093FF;">
+      <fieldset>
+       <legend>Client Controls</legend>
+       <input name    = "subscribe"
+              id      = "subscribe_all"
+              class   = "controlButton"
+              value   = "Subscribe All"
+              onClick = "ClientActions.SubscribeAll()"
+              type    = "submit">
+       </input>
+       <input name    = "collate"
+              id      = "collate_me"
+              class   = "controlButton"
+              value   = "Collate ME"
+              onClick = "ClientActions.CollateME()"
+              type    = "submit">
+       </input>
+       <input name    = "summary"
+              id      = "create_summary"
+              class   = "controlButton"
+              value   = "Update Summary"
+              onClick = "ClientActions.CreateSummary()"
+              type    = "submit">
+       </input>
+       <!-- <input name    = "setupQtest"
+               id      = "setup_qtest"
+               class   = "controlButton"
+               value   = "Setup QTest"
+               style   = "margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%;font:sans;font-size:8pt"
+               onClick = "ClientActions.SetupQualityTest()"
+               type    = "submit">
+        </input> -->
+       <input name    = "QtestResult"
+              id      = "check_qtest_result"
+              class   = "controlButton"
+              value   = "QTest Result"
+              onClick = "ClientActions.CheckQualityTestResults()"
+              type    = "submit">
+       </input>
+       <input name    = "save"
+              id      = "save_to_file"
+              class   = "controlButton"
+              value   = "Save All"
+              onClick = "ClientActions.SaveToFile()"
+              type    = "submit">
+       </input>
+       <fieldset>
+        <legend>Tracker Map Controls</legend>
+        <input name    = "listMECommand"
+               id      = "list_ME_command"
+               class   = "controlButton"
+               value   = "Get ME List"
+               onClick = "RequestHistos.RequestMEList('CB')"
+               type    = "submit">
+
+        </input>
+        <label id      = "MEList"
+               class   = "label">
+         ME list:
+        </label>
+        <select name   = "strucMEList"
+        	class  = "selector"
+        	id     = "monitoring_element_list">
+        </select>
+        <p/>
+        <input name    = "UpdateTrackerMap"
+               id      = "create_tkmap"
+               class   = "controlButton"
+               value   = "Create view"
+               onClick = "ClientActions.CreateTrackerMap()"
+               type    = "submit">
+        </input>
+        <label id      = "MEList"
+               class   = "label">
+         Refresh:
+        </label>
+        <select name	 = "refreshInterval"
+        	class	 = "selector"
+        	id	 = "refreshInterval"
+        	onchange = "changeRefreshInterval()">
+         <option selected value = "10000" >10 sec</option>
+         <option	  value = "30000" >30 sec</option>
+         <option	  value = "60000" > 1 min</option>
+         <option	  value = "120000"> 2 min</option>
+        </select>
+	<div id = "progressIcon">	
+	 <img src="images/loading.gif" border="0"> &nbsp; Please, wait, loading...
+	</div>
+       </fieldset>
+      </fieldset>
+     </div>
+     
+     
+     <div id = "dhtmlgoodies_tabView1" 
+         style = "float:  right;
+	          width:  300px;">
+      <div class = "dhtmlgoodies_aTab">
+       <div class = "bloc" 
+           id	 = "bloc2_2" 
+           style = "background:#226684">
+        <div class = "bloc" 
+            id    = "bloc2_2_1" 
+            style = "background:#226684">
+         <fieldset>
+          <label id    = "structures"
+                 style = "margin-left:1%">
+           Sub-Detectors:
+          </label>
+          <select name  = "struc_name"
+                  id	= "structure_for_module"
+                  class = "selector">
+           <option value = "Tracker" SELECTED> ALL PIXELS									      </option>
+           <option value = "Tracker/PixelBarrel"> BPIX  									      </option>
+           <option value = "Tracker/PixelEndcap"> FPIX  									      </option>
+           <option value = "Tracker/PixelBarrel/Shell_mI"> BPIX/Shell_mI							      </option>
+           <option value = "Tracker/PixelBarrel/Shell_mO"> BPIX/Shell_mO							      </option>
+           <option value = "Tracker/PixelBarrel/Shell_pI"> BPIX/Shell_pI							      </option>
+           <option value = "Tracker/PixelBarrel/Shell_pO"> BPIX/Shell_pO							      </option>
+           <option value = "Tracker/PixelEndcap/HalfCylinder_mI"> FPIX/HalfCylinder_mI  					      </option>
+           <option value = "Tracker/PixelEndcap/HalfCylinder_mO"> FPIX/HalfCylinder_mO  					      </option>
+           <option value = "Tracker/PixelEndcap/HalfCylinder_pI"> FPIX/HalfCylinder_pI  					      </option>
+           <option value = "Tracker/PixelEndcap/HalfCylinder_pO"> FPIX/HalfCylinder_pO  					      </option>
+           <option value = "Tracker/PixelEndcap/HalfCylinder_pO/Disk_1/Blade_01/Panel_1"> FPIX/HalfCylinder_pO/Disk_1/Blade_01/Panel_1</option>
+          </select>
+          <input name	 = "listmodule"
+                 id	 = "list_module"
+                 class   = "controlButton"
+                 value   = "Get Tree"
+                 onClick = "RequestHistos.RequestModuleTree()"
+                 type	 = "submit">
+          </input>
+         </fieldset>
+        </div>
+        </br>
+        <div class = "bloc" 
+	     id    = "modtree_list" 
+	     style = "overflow:scroll;height:300px;width:100%;background:#FFF;">
+        </div>
+       </div>
+      </div>
+      
+      <div class = "dhtmlgoodies_aTab">
+       <div class = "bloc" 
+           id	 = "bloc2_3" 
+           style = "background:#554499">
+        <div class = "bloc" 
+            id    = "bloc2_3_1" 
+            style = "background:#554499">
+         <fieldset>
+          <label id    = "structures"
+                 class = "label">
+           Sub-Detectors:
+          </label>
+          <select name  = "struc_name"
+                  id	= "structure_name"
+                  class = "selector">
+           <option value = "Tracker" SELECTED> ALL PIXELS </option>
+           <option value = "Tracker/PixelBarrel"> BPIX    </option>
+           <option value = "Tracker/PixelEndcap"> FPIX    </option>
+          </select>
+          <input name    = "listsummary"
+                 id      = "list_summary"
+                 class   = "controlButton"
+                 value   = "Get Tree"
+                 onClick = "RequestHistos.RequestSummaryHistoList()"
+                 type    = "submit">
+          </input>
+         </fieldset>
+        </div>
+        </br>
+        <div class = "bloc" 
+	     id    = "tree_list" 
+	     style = "overflow:scroll;height:300px;width:100%;background:#FFF;">
+        </div>
+       </div>
+      </div>
+      
+      <div class = "dhtmlgoodies_aTab">
+       <div class = "bloc" id="bloc2_4">
+        <div class = "bloc" id="bloc2_4_1">
+         <fieldset>
+          <label id    = "alarm_structures"
+                 class = "label">
+           Sub-Detectors:
+          </label>
+          <select name  = "struc_alarm"
+                  id    = "structure_for_alarm"
+                  class = "selector">
+           <option value = "Tracker" SELECTED> ALL PIXELS </option>
+           <option value = "Tracker/PixelBarrel"> BPIX    </option>
+           <option value = "Tracker/PixelEndcap"> FPIX    </option>
+          </select> 
+          <input name    = "listalarm"
+                 id      = "read_alarm"
+                 class   = "controlButton"
+                 value   = "Get Alarms"
+                 onClick = "RequestHistos.RequestAlarmList()"
+                 type    = "submit">
+          </input>
+         </fieldset>
+        </div>
+        </br>
+        <div class = "bloc" 
+	     id    = "alarm_list" 
+	     style = "overflow:scroll;height:200px;width:100%;background:#FFF;">
+        </div>
+        <div class = "block" 
+	     id    = "status_area" 
+	     style = "overflow:scroll;height:100px;width:100%;background:#FFF8C9">
+        </div>
+       </div>
+      </div>
+     </div>
+    </fieldset>
+   </div>
+  </form>
+  
+  <script type="text/javascript">
+   initTabs('dhtmlgoodies_tabView1', Array('Single Module View','Summary View','Alarm View'), 0, '99.5%','100%');
+  </script>
+  
+ </body>
+ 
 </html>

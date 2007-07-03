@@ -1,64 +1,80 @@
-function RequestModuleHistoList() {
+
+var RequestHistos = {} ;
+
+//___________________________________________________________________________________
+RequestHistos.RequestModuleHistoList = function() { // Unused? 
   var queryString;
-  var url = getApplicationURL2();
+  var url = WebLib.getApplicationURL2();
   url += "/Request?";
   queryString = "RequestID=SingleModuleHistoList";
   url += queryString; 
-  makeRequest(url, FillModuleHistoList);     
+  WebLib.makeRequest(url, RequestHistos.FillModuleHistoList);     
 }
-function RequestMEList(what) {
+
+//___________________________________________________________________________________
+RequestHistos.RequestMEList = function(what) {
   var queryString;
-  var url = getApplicationURL2();
+  var url = WebLib.getApplicationURL2();
   url += "/Request?";
   queryString = "RequestID=GetMEList";
   url += queryString; 
   if( what == 'CB' )
   { 
-   makeRequest(url, FillMEList); 
+   WebLib.makeRequest(url, RequestHistos.FillMEList); 
   } else {
-   makeRequest(url, ReturnMEList); 
+   WebLib.makeRequest(url, RequestHistos.ReturnMEList); 
   }    
 }
-function RequestSummaryHistoList() {
+
+//___________________________________________________________________________________
+RequestHistos.RequestSummaryHistoList = function() {
+  IMGC.loadingProgress('visible') ;
   var queryString;
-  var url = getApplicationURL2();
+  var url = WebLib.getApplicationURL2();
   url += "/Request?";
   queryString = "RequestID=SummaryHistoList";
   var obj = document.getElementById("structure_name");
   var sname =  obj.options[obj.selectedIndex].value;
   queryString += '&StructureName='+sname;
   url += queryString; 
-  makeRequest(url, FillSummaryHistoList);     
+  WebLib.makeRequest(url, RequestHistos.FillSummaryHistoList);     
 }
-function RequestModuleTree() {
+
+//___________________________________________________________________________________
+RequestHistos.RequestModuleTree = function() {
+  IMGC.loadingProgress('visible') ;
   var queryString;
-  var url = getApplicationURL2();
+  var url = WebLib.getApplicationURL2();
   url += "/Request?";
   queryString = "RequestID=ModuleHistoList";
   var obj = document.getElementById("structure_for_module");
   var sname =  obj.options[obj.selectedIndex].value;
   queryString += '&StructureName='+sname;
   url += queryString; 
-  makeRequest(url, FillModuleTree);     
+  WebLib.makeRequest(url, RequestHistos.FillModuleTree);     
 }
-function RequestAlarmList() {
+
+//___________________________________________________________________________________
+RequestHistos.RequestAlarmList = function() {
   var queryString;
-  var url = getApplicationURL2();
+  var url = WebLib.getApplicationURL2();
   url += "/Request?";
   queryString = "RequestID=AlarmList";
   var obj = document.getElementById("structure_for_alarm");
   var sname =  obj.options[obj.selectedIndex].value;
   queryString += '&StructureName='+sname;
   url += queryString; 
-  makeRequest(url, FillAlarmList);     
+  WebLib.makeRequest(url, RequestHistos.FillAlarmList);     
 }
-function FillModuleHistoList() {
-  if (http_request.readyState == 4) {
-    if (http_request.status == 200) {
+
+//___________________________________________________________________________________
+RequestHistos.FillModuleHistoList = function() {
+  if (WebLib.http_request.readyState == 4) {
+    if (WebLib.http_request.status == 200) {
       try {
 
 
-        var doc = http_request.responseXML;
+        var doc = WebLib.http_request.responseXML;
         var root = doc.documentElement;
         
         // Module Number select box
@@ -99,15 +115,17 @@ function FillModuleHistoList() {
     }
   }
 }
-function FillMEList() {
-  if (http_request.readyState == 4) 
+
+//___________________________________________________________________________________
+RequestHistos.FillMEList = function() {
+  if (WebLib.http_request.readyState == 4) 
   {
-    if (http_request.status == 200) 
+    if (WebLib.http_request.status == 200) 
     {
       try 
       {
 
-        var doc = http_request.responseXML;
+        var doc = WebLib.http_request.responseXML;
         var root = doc.documentElement;
         
         // Module Number select box
@@ -129,7 +147,7 @@ function FillMEList() {
             bobj.add(boption, -1);
           }
         }
-        enableButtons("UpdateTrackerMap") ;    
+        WebLib.enableButtons("UpdateTrackerMap") ;    
       }
       catch (err) {
         alert ("[RequestHistos.js::FillMEList()] Error detail: " + err.message); 
@@ -137,15 +155,17 @@ function FillMEList() {
     }
   }
 }
-function ReturnMEList() 
+
+//___________________________________________________________________________________
+RequestHistos.ReturnMEList = function() 
 {
-  if (http_request.readyState == 4) 
+  if (WebLib.http_request.readyState == 4) 
   {
-    if (http_request.status == 200) 
+    if (WebLib.http_request.status == 200) 
     {
       try 
       {
-        var doc   = http_request.responseXML;
+        var doc   = WebLib.http_request.responseXML;
         var root  = doc.documentElement;
         var theME = document.getElementsByName("MEReference");
         var hrows = root.getElementsByTagName('Histo');
@@ -160,15 +180,18 @@ function ReturnMEList()
     }
   }
 }
-function FillSummaryHistoList() {
-  if (http_request.readyState == 4) {
-    if (http_request.status == 200) {
+
+//___________________________________________________________________________________
+RequestHistos.FillSummaryHistoList = function() {
+  if (WebLib.http_request.readyState == 4) {
+    if (WebLib.http_request.status == 200) {
       try {
-        var text = http_request.responseText;
+        var text = WebLib.http_request.responseText;
         var obj = document.getElementById("tree_list");
         if (obj != null) {
           obj.innerHTML = text;
           initTree();
+          IMGC.loadingProgress('hide') ;
         }       
       }
       catch (err) {
@@ -177,16 +200,19 @@ function FillSummaryHistoList() {
     }
   }
 }
-function FillModuleTree() {
-  if (http_request.readyState == 4) {
-    if (http_request.status == 200) {
+
+//___________________________________________________________________________________
+RequestHistos.FillModuleTree = function() {
+  if (WebLib.http_request.readyState == 4) {
+    if (WebLib.http_request.status == 200) {
       try {
-        var text = http_request.responseText;
+        var text = WebLib.http_request.responseText;
         var obj = document.getElementById("modtree_list");
         if (obj != null) {
           obj.innerHTML = text;
           initTree();
         }       
+        IMGC.loadingProgress('hide') ;
       }
       catch (err) {
 //        alert ("Error detail: " + err.message); 
@@ -194,11 +220,13 @@ function FillModuleTree() {
     }
   }
 }
-function FillAlarmList() {
-  if (http_request.readyState == 4) {
-    if (http_request.status == 200) {
+
+//___________________________________________________________________________________
+RequestHistos.FillAlarmList = function() {
+  if (WebLib.http_request.readyState == 4) {
+    if (WebLib.http_request.status == 200) {
       try {
-        var text = http_request.responseText;
+        var text = WebLib.http_request.responseText;
         var obj = document.getElementById("alarm_list");
         if (obj != null) {
           obj.innerHTML = text;

@@ -1,14 +1,17 @@
-var http_request = false;                                                            
+var WebLib = {} ;
+
+WebLib.http_request      = false;                                                            
+WebLib.view_all_contents = true;                                                        
                                                                                      
-var view_all_contents = true;                                                        
-                                                                                     
+//___________________________________________________________________________________
 /*
   This function should return the url of the application webpage
   without asking the server...
 */
-
-function getApplicationURL()
+WebLib.getApplicationURL = function()
 {
+ try 
+ {
   var url = window.location.href;
   // remove the cgi request from the end of the string
   var index = url.indexOf("?");
@@ -18,7 +21,7 @@ function getApplicationURL()
   }
 
   index = url.lastIndexOf("general");
-  url = url.substring(0, index);
+  url   = url.substring(0, index);
 
   // remove the trailing '/' from the end of the string
   index = url.lastIndexOf("/");
@@ -28,9 +31,16 @@ function getApplicationURL()
   }
 
   return url;
+ } catch (errorMessage) {
+  alert("[WebLib.getApplicationURL] Exeuction/syntax error: " + errorMessage ) ;
+ }
 }
-function getApplicationURL2()
+
+//___________________________________________________________________________________
+WebLib.getApplicationURL2 = function()
 {
+ try 
+ {
   var url = window.location.href;
   // remove the cgi request from the end of the string
   var index = url.indexOf("?");
@@ -40,23 +50,35 @@ function getApplicationURL2()
   }
 
   index = url.lastIndexOf("temporary");
-  url = url.substring(0, index);
+  url   = url.substring(0, index);
 
   // add the cgi request
   url += "urn:xdaq-application:lid=15";
   return url;
+ } catch (errorMessage) {
+  alert("[WebLib.getApplicationURL2] Exeuction/syntax error: " + errorMessage ) ;
+ }
 }
 
-function getContextURL()
+
+//___________________________________________________________________________________
+WebLib.getContextURL = function()
 {
-  var app_url = getApplicationURL();
-  var index = app_url.lastIndexOf("/");
+ try 
+ {
+  var app_url = WebLib.getApplicationURL();
+  var index   = app_url.lastIndexOf("/");
   return app_url.substring(0, index);
+ } catch (errorMessage) {
+  alert("[WebLib.getContextURL] Exeuction/syntax error: " + errorMessage ) ;
+ }
 }
 
-
-function getApplicationParentURL()
+//___________________________________________________________________________________
+WebLib.getApplicationParentURL = function()  // Unused?
 {
+ try 
+ {
   var url = window.opener.location.href;
   // remove the cgi request from the end of the string
   var index = url.indexOf("?");
@@ -65,7 +87,7 @@ function getApplicationParentURL()
     url = url.substring(0, index);
   }
   index = url.lastIndexOf("general");
-  url = url.substring(0, index);
+  url   = url.substring(0, index);
   // remove the trailing '/' from the end of the string
   index = url.lastIndexOf("/");
   if (index == url.length - 1)
@@ -73,81 +95,113 @@ function getApplicationParentURL()
     url = url.substring(0, index);
   }
   return url;
+ } catch (errorMessage) {
+  alert("[WebLib.getApplicationParentURL] Exeuction/syntax error: " + errorMessage ) ;
+ }
 }
+
+//___________________________________________________________________________________
 /*
   This function submits a generic request in the form of a url
   and calls the receiver_function when the state of the request
   changes.
 */
-
-function makeRequest(url, receiver_function) 
+WebLib.makeRequest = function(url, receiver_function) 
 {
-  http_request = false;
+ try 
+ {
+  WebLib.http_request = false;
   if (window.XMLHttpRequest) 
   { 
-    http_request = new XMLHttpRequest();
-    if (http_request.overrideMimeType)
+    WebLib.http_request = new XMLHttpRequest();
+    if (WebLib.http_request.overrideMimeType)
     {
-      http_request.overrideMimeType('text/xml');
+      WebLib.http_request.overrideMimeType('text/xml');
     }
   } else if (window.ActiveXObject) { 
-    http_request = new ActiveXObject("Msxml2.XMLHTTP"); 
-    if (!http_request) { 
-      http_request = new ActiveXObject("Microsoft.XMLHTTP"); 
+    WebLib.http_request = new ActiveXObject("Msxml2.XMLHTTP"); 
+    if (!WebLib.http_request) { 
+      WebLib.http_request = new ActiveXObject("Microsoft.XMLHTTP"); 
     } 
   } 
 
-  if (http_request) { 
-    initReq("GET", url, true, receiver_function); 
+  if (WebLib.http_request) { 
+    WebLib.initReq("GET", url, true, receiver_function); 
   }
   else { 
-    alert('Giving up :( Cannot create an XMLHTTP instance');
+    alert('[WebLib.makeRequest] Giving up :( Cannot create an XMLHTTP instance');
   } 
+ } catch (errorMessage) {
+  alert("[WebLib.makeRequest] Exeuction/syntax error: " + errorMessage ) ;
+ }
 }
 
-function dummy()
+//___________________________________________________________________________________
+WebLib.dummy = function()
 {
-  displayMessages();
+ try 
+ {
+  Messages.displayMessages();
+ } catch (errorMessage) {
+  alert("[WebLib.dummy] Exeuction/syntax error: " + errorMessage ) ;
+ }
 }
 
+//___________________________________________________________________________________
 // Initialize a request object that is already constructed 
-function initReq(reqType, url, bool, respHandle) { 
+WebLib.initReq = function(reqType, url, bool, respHandle) 
+{ 
+ try 
+ {
   try { 
     // Specify the function that will handle the HTTP response 
-    http_request.onreadystatechange = respHandle; 
-    http_request.open(reqType, url, bool); 
+    WebLib.http_request.onreadystatechange = respHandle; 
+    WebLib.http_request.open(reqType, url, bool); 
 
     // if the reqType parameter is POST, then the 
     // 5th argument to the function is the POSTed data 
     if (reqType.toLowerCase() == "post") { 
-      http_request.setRequestHeader("Content-Type", 
+      WebLib.http_request.setRequestHeader("Content-Type", 
            "application/x-www-form-urlencoded; charset=UTF-8"); 
-      http_request.send(arguments[4]); 
+      WebLib.http_request.send(arguments[4]); 
     }  
     else { 
-      http_request.send(null); 
+      WebLib.http_request.send(null); 
     } 
   } 
   catch (errv) { 
-    alert ( 
-        "The application cannot contact " + 
-        "the server at the moment. " + 
-        "Please try again in a few seconds.\\n" + 
-        "Error detail: " + errv.message); 
+    alert ("[WebLib.initReq] "                     +
+           "The application cannot contact "       + 
+           "the server at the moment. "            + 
+           "Please try again in a few seconds.\\n" + 
+           "Error detail: "                        + 
+	   errv.message); 
   } 
+ } catch (errorMessage) {
+  alert("[WebLib.initReq] Exeuction/syntax error: " + errorMessage ) ;
+ }
 }
 
-function enableButtons(which)
+
+//___________________________________________________________________________________
+WebLib.enableButtons = function(which)
 {
+ try 
+ {
   var theForm = document.getElementById("theWholeForm") ;
   if( which == "UpdateTrackerMap")
   {
-   theForm.UpdateTrackerMap.disabled = !theForm.UpdateTrackerMap.disabled ;
+   if( theForm.UpdateTrackerMap.disabled ) 
+       theForm.UpdateTrackerMap.disabled = !theForm.UpdateTrackerMap.disabled ;
   }
   if( which == "listMECommand")
   {
-   theForm.listMECommand.disabled = !theForm.listMECommand.disabled ;
+   if( theForm.listMECommand.disabled ) 
+       theForm.listMECommand.disabled = !theForm.listMECommand.disabled ;
   }
+ } catch (errorMessage) {
+  alert("[WebLib.enableButtons] Exeuction/syntax error: " + errorMessage ) ;
+ }
 }
 
 document.write('<script src="SERVED_DIRECTORY_URL/js_files/Navigator.js"><\/script>');

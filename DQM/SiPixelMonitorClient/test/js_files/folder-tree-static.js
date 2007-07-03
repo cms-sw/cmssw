@@ -39,7 +39,8 @@ var nodeId = 1;
 These cookie functions are downloaded from 
 http://www.mach5.com/support/analyzer/manual/html/General/CookiesJavaScript.htm
 */
-function Get_Cookie(name) { 
+function Get_TheCookie(name) { 
+alert("[folder-tree-static.js::Get_TheCookie] Enter") ;
    var start = document.cookie.indexOf(name+"="); 
    var len = start+name.length+1; 
    if ((!start) && (name != document.cookie.substring(0,name.length))) return null; 
@@ -157,7 +158,7 @@ function showHideNode(e,inputId)
       var parentId = firstLi.getAttribute('parentId');
       if(!parentId)parentId = firstLi.parentId;
       if(parentId){
-	ajaxObjectArray[ajaxObjectArray.length] = new sack();
+	ajaxObjectArray[ajaxObjectArray.length] = new AjaxJs.sack();
 	var ajaxIndex = ajaxObjectArray.length-1;
 	ajaxObjectArray[ajaxIndex].requestFile = ajaxRequestFile + '?parentId=' + parentId;					
 	ajaxObjectArray[ajaxIndex].onCompletion = function() 
@@ -228,7 +229,7 @@ function saveNewNode(nodeText,parentId)
   self.status = 'Ready to save node ' + nodeText + ' which is a sub item of ' + parentId;
   // Use an ajax method here to save this new node. example below:
   /*
-    ajaxObjectArray[ajaxObjectArray.length] = new sack();
+    ajaxObjectArray[ajaxObjectArray.length] = new AjaxJs.sack();
     var ajaxIndex = ajaxObjectArray.length-1;
     ajaxObjectArray[ajaxIndex].requestFile = ajaxRequestFile + '?newNode=' + nodeText + '&parendId=' + parentId					
     ajaxObjectArray[ajaxIndex].onCompletion = function() { self.status = 'New node has been saved'; };	// Specify function that will be executed after file has been found					
@@ -260,7 +261,7 @@ function deleteNodeOnServer(nodeId)
   self.status = 'Ready to delete node' + nodeId;
   // Use an ajax method here to save this new node. example below:
   /*
-    ajaxObjectArray[ajaxObjectArray.length] = new sack();
+    ajaxObjectArray[ajaxObjectArray.length] = new AjaxJs.sack();
     var ajaxIndex = ajaxObjectArray.length-1;
     ajaxObjectArray[ajaxIndex].requestFile = ajaxRequestFile + '?deleteNodeId=' + nodeId					
     ajaxObjectArray[ajaxIndex].onCompletion = function() { self.status = 'Node has been deleted successfully'; };	// Specify function that will be executed after file has been found					
@@ -271,6 +272,8 @@ function deleteNodeOnServer(nodeId)
 
 function initTree()
 {
+ try
+ {
   for(var treeCounter=0;treeCounter<idOfFolderTrees.length;treeCounter++){
     var dhtmlgoodies_tree = document.getElementById(idOfFolderTrees[treeCounter]);
     var menuItems = dhtmlgoodies_tree.getElementsByTagName('LI');	// Get an array of all menu items
@@ -298,15 +301,18 @@ function initTree()
       }
       menuItems[no].insertBefore(folderImg,aTag);
     }	
-    
   }
-  initExpandedNodes = Get_Cookie('dhtmlgoodies_expandedNodes');
+
+  initExpandedNodes = Get_TheCookie('dhtmlgoodies_expandedNodes');
   if(initExpandedNodes){
     var nodes = initExpandedNodes.split(',');
     for(var no=0;no<nodes.length;no++){
       if(nodes[no])showHideNode(false,nodes[no]);	
     }			
-  }	
+  }
+ } catch(error) {
+  return ;
+ }
 }
 	
 //window.onload = initTree;	

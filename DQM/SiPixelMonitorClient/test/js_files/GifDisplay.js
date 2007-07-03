@@ -1,60 +1,65 @@
-var gif_url; 
+
+var GifDisplay = {} ;
+
+GifDisplay.gif_url = ""; 
 
 // strings containing the names of all active GifDisplays                            
-var active_displays_l = new Array();
+GifDisplay.active_displays_l = new Array();
 
 // the current displayFrame                                                          
-var current_display;                                                                 
+GifDisplay.current_display = "";                                                                 
                                                                                      
 // the list of displayFrame objects                                                  
-var displays_l = new Array();                                                        
+GifDisplay.displays_l = new Array();                                                        
                                                                                      
-function displayFrame(name)                                                          
+//___________________________________________________________________________________
+GifDisplay.displayFrame = function(name)                                                          
 {                                                                                    
   this.name = name;                                                                  
   this.is_viewed = false;                                                            
   this.viewed_l = new Array();                                                       
 }                                                                                    
-                                                                                     
+                                                                                                                                                                        
+//___________________________________________________________________________________
 /*                                                                                   
   This function is called onload. It creates the list of                             
   displayFrame objects.                                                              
 */                                                                                   
-                                                                                     
-function fillDisplayList()                                                           
-{                                                                                    
+GifDisplay.fillDisplayList = function()                                                           
+{                                                     // Unused?                               
   var iframes_l = document.getElementsByTagName("iframe");                           
   for (i = 0; i < iframes_l.length; i++)                                             
   {                                                                                  
-    displays_l[i] = new displayFrame(iframes_l[i].id);                               
+    GifDisplay.displays_l[i] = new GifDisplay.displayFrame(iframes_l[i].id);                               
   }                                                                                  
                                                                                      
   // the default current is the first:                                               
-  current_display = displays_l[0];                                                   
+  GifDisplay.current_display = GifDisplay.displays_l[0];                                                   
 }                                                                                    
                                                                                      
-function makeCurrent(display_frame_name)                                             
-{                                                                                    
-  for (i = 0; i < displays_l.length; i++)                                            
+//___________________________________________________________________________________
+GifDisplay.makeCurrent = function(display_frame_name)                                             
+{                                                      // Unused?                                 
+  for (i = 0; i < GifDisplay.displays_l.length; i++)                                            
   {                                                                                  
-    if (displays_l[i].name == display_frame_name)                                    
+    if (GifDisplay.displays_l[i].name == display_frame_name)                                    
     {                                                                                
       break;                                                                         
     }                                                                                
   }                                                                                  
-  current_display = displays_l[i];                                                   
+  GifDisplay.current_display = GifDisplay.displays_l[i];                                                   
 }
 
+//___________________________________________________________________________________
 /*                                                                                   
   Returns true if the display frame provided as an argument                          
   is currently being viewed.                                                         
-*/                                                                                   
-                                                                                     
-function isViewed(display_frame_name)                                                
-{                                                                                    
-  for (i = 0; i < active_displays_l.length; i++)                                     
+*/                                                                                                                                                                       
+GifDisplay.isViewed = function(display_frame_name)                                                
+{                                                     // Unused?                                
+  for (i = 0; i < GifDisplay.displays_l.length; i++)                                     
   {                                                                                  
-    if (active_displays_l[i] == display_frame_name)                                  
+    if (GifDisplay.displays_l[i] == display_frame_name)                                  
     {                                                                                
       return true;                                                                   
     }                                                                                
@@ -62,26 +67,25 @@ function isViewed(display_frame_name)
   return false;                                                                      
 }                                                                                    
                                                                                      
-//*************************************************************/                     
-                                                                                     
+//___________________________________________________________________________________
 /*                                                                                   
   These functions get called if the user clicks on the "start viewing"               
   or "stop viewing" buttons of a display frame. They set the is_viewed               
   field of the displayFrame object.                                                  
 */                                                                                   
-                                                                                     
-function getDisplayFrame(display_frame_name)                                         
-{                                                                                    
-  for (i = 0; i < displays_l.length; i++)                                            
+GifDisplay.getDisplayFrame = function(display_frame_name)                                         
+{                                                          // Unused?                            
+  for (i = 0; i < GifDisplay.displays_l.length; i++)                                            
   {                                                                                  
-    if (displays_l[i].name == display_frame_name)                                    
-    return displays_l[i];                                                            
+    if (GifDisplay.displays_l[i].name == display_frame_name)                                    
+    return GifDisplay.displays_l[i];                                                            
   }                                                                                  
 }                                                                                    
                                                                                      
-function startViewing(display_frame_name)                                            
-{                                                                                    
-  var display = getDisplayFrame(display_frame_name);                                 
+//___________________________________________________________________________________
+GifDisplay.startViewing = function(display_frame_name)                                            
+{                                                        // Unused?                            
+  var display = GifDisplay.getDisplayFrame(display_frame_name);                                 
                                                                                      
   if (display.is_viewed)                                                             
   {                                                                                  
@@ -90,58 +94,57 @@ function startViewing(display_frame_name)
   }                                                                                  
                                                                                      
   display.is_viewed = true;                                                          
-  updateDisplay(display_frame_name);                                                 
+  GifDisplay.updateDisplay(display_frame_name);                                                 
 }                                                                                    
  
-function stopViewing(display_frame_name)                                             
-{                                                                                    
-  var display = getDisplayFrame(display_frame_name);                                 
+//___________________________________________________________________________________
+GifDisplay.stopViewing = function(display_frame_name)                                             
+{                                                         // Unused?                             
+  var display = GifDisplay.getDisplayFrame(display_frame_name);                                 
   display.is_viewed = false;                                                         
 }  
 
+//___________________________________________________________________________________
 /*                                                                                   
   This function is initially called when the "start viewing" button                  
   of a display frame is pressed and keeps calling itself every                       
   [interval] msec, refreshing the frame until it becomes inactive.                   
 */                                                                                   
-                                                                                     
-function updateDisplay(display_frame_name)                                           
-{                                                                                    
+GifDisplay.updateDisplay = function(display_frame_name)                                           
+{                                                         // Unused?                            
   var interval = 5000;                                                               
-  var display_frame = getDisplayFrame(display_frame_name);                           
+  var display_frame = GifDisplay.getDisplayFrame(display_frame_name);                           
                                                                                      
   if (display_frame.is_viewed == true)                                               
   {                                                                                  
-    makeDisplayRequest(display_frame_name);                                          
+    GifDisplay.makeDisplayRequest(display_frame_name);                                          
     if (display_frame.viewed_l.length != 0)                                          
     {                                                                                
-      window.frames[display_frame_name].location.href = getGifURL(display_frame_name); 
+      window.frames[display_frame_name].location.href = GifDisplay.getGifURL(display_frame_name); 
     }                                                                                
   }                                                                                  
   var this_function_call = "updateDisplay('" + display_frame_name + "')";            
   setTimeout(this_function_call, interval);                                          
 }                                                                                    
                                                                                      
-//*************************************************************/                     
-                                                                                     
-function getGifURL(display_frame_name)                                               
-{                                                                                    
-  var url = getContextURL();                                                         
+//___________________________________________________________________________________
+GifDisplay.getGifURL = function(display_frame_name)                                               
+{                                                     // Unused?                                
+  var url = WebLib.getContextURL();                                                         
   url = url + "/temporary/" + display_frame_name + ".gif";                           
   return url;                                                                        
 }                                                                                    
                                                                                      
-//*************************************************************/                     
-                                                                                     
-function getDisplayRequestURL(display_frame_name)                                    
-{                                                                                    
-  url = getApplicationURL();                                                         
+//___________________________________________________________________________________
+GifDisplay.getDisplayRequestURL = function(display_frame_name)                                    
+{                                                     // Unused?                                 
+  url = WebLib.getApplicationURL();                                                         
   url = url + "/Request"                                                             
   url = url + "?" + "RequestID=Draw"                                                 
   url = url + "&" + "Current=" + contentViewer_current;                              
   url = url + "&" + "DisplayFrameName=" + display_frame_name;                        
                                                                                      
-  var display_frame = getDisplayFrame(display_frame_name);                           
+  var display_frame = GifDisplay.getDisplayFrame(display_frame_name);                           
   for (i = 0; i < display_frame.viewed_l.length; i++)                                
   {                                                                                  
     url = url + "&" + "View=" + display_frame.viewed_l[i];                           
@@ -149,32 +152,33 @@ function getDisplayRequestURL(display_frame_name)
   return url;                                                                        
 }
 
-//*************************************************************/                     
-                                                                                     
-function makeDisplayRequest(display_frame_name)                                      
-{                                                                                    
-  url = getDisplayRequestURL(display_frame_name);                                    
+//___________________________________________________________________________________
+GifDisplay.makeDisplayRequest = function(display_frame_name)                                      
+{                                                       // Unused?                                   
+  url = GifDisplay.getDisplayRequestURL(display_frame_name);                                    
   // pass a reference to the updateGifURL function:                                  
-  makeRequest(url, updateGifURL);                                                    
+  WebLib.makeRequest(url, updateGifURL);                                                    
 }                                                                                    
                                                                                      
-//*************************************************************/                     
-                                                                                     
-function updateGifURL()                                                              
-{                                                                                    
-  if (http_request.readyState == 4)                                                  
+//___________________________________________________________________________________
+GifDisplay.updateGifURL = function()                                                              
+{                                                       // Unused?                               
+  if (WebLib.http_request.readyState == 4)                                                  
   {                                                                                  
-    if (http_request.status == 200)                                                  
+    if (WebLib.http_request.status == 200)                                                  
     {                                                                                
       var xmldoc;                                                                    
                                                                                      
        // Load the xml elements on javascript lists:                                 
-      if (http_request != false)                                                     
+      if (WebLib.http_request != false)                                                     
       {                                                                              
-        xmldoc  = http_request.responseXML;                                          
-        gif_url = xmldoc.getElementsByTagName('fileURL').item(0).firstChild.data;    
+        xmldoc  = WebLib.http_request.responseXML;                                          
+        GifDisplay.gif_url = xmldoc.getElementsByTagName('fileURL').item(0).firstChild.data;    
       }                                                                              
     }                                                                                
   }                                                                                  
-}            
+}    
+        
+var fillDisplayList = GifDisplay.fillDisplayList ; // Call to this function is generated by WebPage.cc
+                                                   // which is not under our control: will try to fix this
 

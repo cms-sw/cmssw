@@ -1,6 +1,6 @@
 function makeSelectRequest(requestURL, selectMenuName)                               
-{                                                                                    
+{                                                         // Unused?                           
   var selectMenu = document.getElementById(selectMenuName);                          
   var request = requestURL + "&Argument=" + selectMenu.value;                        
-  makeRequest(request, dummy);                                                       
+  WebLib.makeRequest(request, WebLib.dummy);                                                       
 }

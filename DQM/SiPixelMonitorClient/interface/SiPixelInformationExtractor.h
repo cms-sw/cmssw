@@ -71,7 +71,12 @@ class SiPixelInformationExtractor {
 				std::map<std::string, int>              & mEHash);
   int getDetId(                 MonitorElement                          * mui) ;				
   const std::ostringstream& getImage(                                     void)                const;
-  const std::ostringstream& getNamedImage(                                std::string theName);
+  const std::ostringstream& getIMGCImage(MonitorUserInterface		* mui,
+  				std::string				  theFullPath,
+				std::string				  canvasW,
+				std::string				  canvasH);
+  const std::ostringstream& getNamedImage( std::string                    theName);
+  
 
  private:
 
@@ -98,7 +103,9 @@ class SiPixelInformationExtractor {
   void plotHistos(              std::multimap<std::string, std::string> & req_map, 
                                 std::vector<MonitorElement*>              me_list);
   void plotHisto(               MonitorElement                          * theMe,
-                                std::string                               theName);
+                                std::string                               theName,
+				std::string 				  canvasW,
+				std::string 				  canvasH);
   void printModuleHistoList(    MonitorUserInterface 			* mui, 
                                 std::ostringstream                      & str_val);
   void printSummaryHistoList(   MonitorUserInterface 			* mui, 

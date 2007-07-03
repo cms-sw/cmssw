@@ -1,6 +1,10 @@
-function DrawSelectedHistos() {
+var RequestPlot = {} ;
+
+//_______________________________________________________________________
+RequestPlot.DrawSelectedHistos = function() 
+{                                                       // Unused?
   var queryString;
-  var url = getApplicationURL2();
+  var url = WebLib.getApplicationURL2();
   url += "/Request?";
   queryString = 'RequestID=PlotAsModule';
   // Get Module Number
@@ -18,17 +22,20 @@ function DrawSelectedHistos() {
   }
   queryString += '&width='+canvas.width+'&height='+canvas.height;
   url += queryString;
-  makeRequest(url, dummy);
-  setTimeout('UpdatePlot()', 2000);   
+  WebLib.makeRequest(url, WebLib.dummy);
+  setTimeout('RequestPlot.UpdatePlot()', 2000);   
 }
+
+//_______________________________________________________________________
 //
 //  -- Set Histograms and plotting options 
 //    
-function SetHistosAndPlotOption() {
+RequestPlot.SetHistosAndPlotOption = function() 
+{                                                    // Unused?   
    var dummy = " ";
    var qstring;
   // Histogram Names 
-  var histos =GetSelectedHistos();
+  var histos = CommonActions.GetSelectedHistos();
   if (histos.length == 0) {
     alert("Plot(s) not defined!");
     return dummy;
@@ -85,10 +92,13 @@ function SetHistosAndPlotOption() {
   }
   return qstring;
 }  
+
+//_______________________________________________________________________
 //
 //  -- Set Histograms and plotting options 
 //    
-function SetPlotOptions(histo) {
+RequestPlot.SetPlotOptions = function(histo) 
+{                                                     // Unused? 
   var dummy = " ";
   var qstring;
   if (histo.length == 0) {
@@ -147,18 +157,24 @@ function SetPlotOptions(histo) {
   }
   return qstring;
 }  
-function UpdatePlot() {
+
+//_______________________________________________________________________
+RequestPlot.UpdatePlot = function () 
+{                                                     // Unused? 
   var canvas = document.getElementById("drawingcanvas");
 
   var queryString = "RequestID=UpdatePlot";
-  var url = getApplicationURL2();
+  var url = WebLib.getApplicationURL2();
   url = url + "/Request?";
   url = url + queryString;
   url = url + '&t=' + Math.random();
   canvas.src = url; 
 }
-function DrawSingleHisto(path){
- var url = getApplicationURL2();
+
+//_______________________________________________________________________
+RequestPlot.DrawSingleHisto = function(path)
+{                                                     // Unused? 
+ var url = WebLib.getApplicationURL2();
   url += "/Request?";
   queryString = 'RequestID=PlotSingleHistogram';
   queryString += '&Path='+path;
@@ -175,23 +191,29 @@ function DrawSingleHisto(path){
   }
   queryString += '&width='+canvas.width+'&height='+canvas.height
   url += queryString;
-  makeRequest(url, dummy);
+  WebLib.makeRequest(url, WebLib.dummy);
    
-  setTimeout('UpdatePlot()', 2000);     
+  setTimeout('RequestPlot.UpdatePlot()', 2000);     
 }
-function ReadStatus(path) {
-  var url = getApplicationURL2();
+
+//_______________________________________________________________________
+RequestPlot.ReadStatus = function(path) 
+{
+  var url = WebLib.getApplicationURL2();
   url += "/Request?";
   queryString = 'RequestID=ReadQTestStatus';
   queryString += '&Path='+path;
   url += queryString;
-  makeRequest(url, FillStatus);
+  WebLib.makeRequest(url, RequestPlot.FillStatus);
 }
-function FillStatus() {
-  if (http_request.readyState == 4) {
-    if (http_request.status == 200) {
+
+//_______________________________________________________________________
+RequestPlot.FillStatus = function() 
+{
+  if (WebLib.http_request.readyState == 4) {
+    if (WebLib.http_request.status == 200) {
       try {
-	var doc = http_request.responseXML;
+	var doc = WebLib.http_request.responseXML;
 	var root = doc.documentElement;
 	var mrows = root.getElementsByTagName('Status');
 	if (mrows.length > 0) {
@@ -204,7 +226,15 @@ function FillStatus() {
 	mrows = root.getElementsByTagName('HPath');
 	if (mrows.length > 0) {
 	  var hpath  = mrows[0].childNodes[0].nodeValue;
-	  if (hpath != "NOME") DrawQTestHisto(hpath);
+//	  if (hpath != "NOME") RequestPlot.DrawQTestHisto(hpath);
+          var path = hpath.split( /\// ) ;
+	  var fullPath = "" ;
+	  for( var i=0; i<path.length-1; i++)
+	  {
+	   fullPath += path[i] + "/";
+	  }
+	  if (hpath != "NOME") IMGC.updateIMGC(fullPath);
+	  alert("[RequestPlot.FillStatus] "+fullPath) ;
 	}
       }
       catch (err) {
@@ -213,21 +243,24 @@ function FillStatus() {
     }
   }
 }
-function DrawQTestHisto(path){
-  var url = getApplicationURL2();
-  url += "/Request?";
-  queryString = 'RequestID=PlotHistogramFromPath';
-  queryString += '&Path='+path;
-  var canvas = document.getElementById("drawingcanvas");
-  if (canvas == null) {
-    alert("Canvas is not defined!");
-    return;
-  }
-  queryString += '&width='+canvas.width+'&height='+canvas.height;
-  queryString += '&histotype=qtest';
 
-  url += queryString;
-  makeRequest(url, dummy);
-   
-  setTimeout('UpdatePlot()', 2000);	
+//_______________________________________________________________________
+RequestPlot.DrawQTestHisto = function(path)
+{
+//  var url = WebLib.getApplicationURL2();
+//  url += "/Request?";
+//  queryString = 'RequestID=PlotHistogramFromPath';
+//  queryString += '&Path='+path;
+//  var canvas = document.getElementById("drawingcanvas");
+//  if (canvas == null) {
+//    alert("Canvas is not defined!");
+//    return;
+//  }
+//  queryString += '&width='+canvas.width+'&height='+canvas.height;
+//  queryString += '&histotype=qtest';
+//
+//  url += queryString;
+//  WebLib.makeRequest(url, WebLib.dummy);
+//   
+//  setTimeout('RequestPlot.UpdatePlot()', 2000);	
 }

@@ -1,17 +1,24 @@
+CommonActions = {} ;
+
+//___________________________________________________________________________________
 // Get File
-function GetFile() {
+CommonActions.GetFile = function() {                  // Unused?
   var obj = document.getElementById("filename");
   var fname =  obj.options[obj.selectedIndex].value;
   return fname;
 }
+
+//___________________________________________________________________________________
 // Get Reference File
-function GetRefFile() {
+CommonActions.GetRefFile = function() {               // Unused? 
   var obj = document.getElementById("ref_filename");
   var fname = obj.options[obj.selectedIndex].value;
   return fname;
 }
+
+//___________________________________________________________________________________
 // Get Selected Histos
-function GetSelectedHistos() {
+CommonActions.GetSelectedHistos = function() {
   var hlist = new Array();
   var obj = document.getElementById("histolistarea");
   var len = obj.length; 
@@ -26,7 +33,9 @@ function GetSelectedHistos() {
   }
   return hlist;
 }
-function GetPlotOptions() {
+
+//___________________________________________________________________________________
+CommonActions.GetPlotOptions = function() {        // Unused?
   var hlist = new Array();
   var obj = document.getElementById("histolistarea");
   var len = obj.length; 

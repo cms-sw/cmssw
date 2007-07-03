@@ -4,7 +4,9 @@
 /* Software licenced under a modified X11 licence,
    see documentation or authors website for more details */
 
-function sack(file) {
+var AjaxJs = {} ;
+
+AjaxJs.sack = function (file) {
 	this.xmlhttp = null;
 
 	this.resetData = function() {

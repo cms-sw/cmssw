@@ -240,7 +240,7 @@ function createNewTab(parentId,tabTitle,tabContent,tabContentUrl)
   if(tabContent)div.innerHTML = tabContent;
   if(tabContentUrl){
     var ajaxIndex = ajaxObjects.length;
-    ajaxObjects[ajaxIndex] = new sack();
+    ajaxObjects[ajaxIndex] = new AjaxJs.sack();
     ajaxObjects[ajaxIndex].requestFile = tabContentUrl;// Specifying which file to get
 
     ajaxObjects[ajaxIndex].onCompletion = function(){ showAjaxTabContent(ajaxIndex,parentId,tabId); };// Specify function that will be executed after file has been found

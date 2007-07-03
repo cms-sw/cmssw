@@ -1,23 +1,25 @@
-var contentViewer_current = "top";
+var ContentViewer = {} ;
 
+ContentViewer.contentViewer_current = "top";
+                                                                                     
+//___________________________________________________________________________________
 /*                                                                                   
   This function updates the ContentViewer "Unview" field                             
   after the user chooses to view or stop viewing something                           
 */                                                                                   
-                                                                                     
-function updateContentViewerNoRequest()                                              
-{                                                                                    
+ContentViewer.updateContentViewerNoRequest = function()                                              
+{                                                           // Unused?             
   var form = document.getElementById("ContentViewerForm");                           
   var view = form.View;                                                              
   var unview = form.Unview;                                                          
                                                                                      
   // first updated the list of viewed MEs                                            
-  updateViewedList();                                                                
+  ContentViewer.updateViewedList();                                                                
                                                                                      
   // then update the Unview menu, based on the updated list:                         
   unview.options.length = 0;                                                         
   unview.options[0] = new Option("", "", true, true);                                
-  var viewed_from_current = getViewedFromDir(contentViewer_current);                 
+  var viewed_from_current = ContentViewer.getViewedFromDir(ContentViewer.contentViewer_current);                 
   for (var i = 0; i < viewed_from_current.length; i++)                               
   {                                                                                  
     unview.options[i + 1] = new Option(viewed_from_current[i], viewed_from_current[i], false, false);
@@ -27,9 +29,10 @@ function updateContentViewerNoRequest()
   // clear the lingering selection from the "View" menu                              
   view.selectedIndex = 0;                                                            
 }                                                                                    
-                                                                                     
-function updateViewedList()                                                          
-{                                                                                    
+                                                                                                                                                                          
+//___________________________________________________________________________________
+ContentViewer.updateViewedList = function()                                                          
+{                                                          // Unused?                          
   var form = document.getElementById("ContentViewerForm");                           
   var view   = form.View;                                                            
   var unview = form.Unview;                                                          
@@ -37,84 +40,76 @@ function updateViewedList()
   if (view.value != "")                                                              
   {                                                                                  
     var addition = view.value;                                                       
-    viewedListAdd(addition);                                                         
+    ContentViewer.viewedListAdd(addition);                                                         
   }                                                                                  
   else if (unview.value != "")                                                       
   {                                                                                  
     var removal = unview.value;                                                      
-    viewedListRemove(removal);                                                       
+    ContentViewer.viewedListRemove(removal);                                                       
   }                                                                                  
 }                                                                                    
                                                                                      
-//*************************************************************/ 
-
-/*                                                                                   
-  These functions add/remove something to/from the viewed_l.                         
-*/                                                                                   
-                                                                                     
-function viewedListAdd(addition)                                                     
-{                                                                                    
-  for (i = 0; i < current_display.viewed_l.length; i++)                              
+//___________________________________________________________________________________
+ContentViewer.viewedListRemove = function(removal)                                                   
+{                                                         // Unused?                             
+  for (i = 0; i < GifDisplay.current_display.viewed_l.length; i++)                              
   {                                                                                  
-    if (addition == current_display.viewed_l[i])                                     
+    if (removal == GifDisplay.current_display.viewed_l[i])                                      
+    {                                                                                
+      GifDisplay.current_display.viewed_l.splice(i, 1);                                         
+    }                                                                                
+  }                                                                                  
+}                                                                                    
+                                                                                     
+//___________________________________________________________________________________
+ContentViewer.viewedListAdd = function(addition)                                                   
+{                           
+  for (i = 0; i < GifDisplay.current_display.viewed_l.length; i++)                              
+  {                                                                                  
+    if (addition == GifDisplay.current_display.viewed_l[i])                                     
     {                                                                                
       return;                                                                        
     }                                                                                
   }                                                                                  
-  current_display.viewed_l[current_display.viewed_l.length] = addition;              
+  GifDisplay.current_display.viewed_l[GifDisplay.current_display.viewed_l.length] = addition;              
+}
+                                                                                                                                                                         
+//___________________________________________________________________________________
+ContentViewer.makeContentViewerRequest = function()                                                  
+{                                                         // Unused?                           
+  url = ContentViewer.getContentViewerRequestURL();                                                
+  WebLib.makeRequest(url, ContentViewer.updateContentViewer);                                             
 }                                                                                    
                                                                                      
-function viewedListRemove(removal)                                                   
-{                                                                                    
-  for (i = 0; i < current_display.viewed_l.length; i++)                              
-  {                                                                                  
-    if (removal == current_display.viewed_l[i])                                      
-    {                                                                                
-      current_display.viewed_l.splice(i, 1);                                         
-    }                                                                                
-  }                                                                                  
-}                                                                                    
-                                                                                     
-//*************************************************************/                     
-                                                                                     
-function makeContentViewerRequest()                                                  
-{                                                                                    
-  url = getContentViewerRequestURL();                                                
-  makeRequest(url, updateContentViewer);                                             
-}                                                                                    
-                                                                                     
-//*************************************************************/ 
-
-function getContentViewerRequestURL()                                                
-{                                                                                    
+//___________________________________________________________________________________
+ContentViewer.getContentViewerRequestURL = function()                                                
+{                                                          // Unused?                           
   var form = document.getElementById("ContentViewerForm");                           
   var open = form.Open;                                                              
                                                                                      
-  url = getApplicationURL();                                                         
+  url = WebLib.getApplicationURL();                                                         
                                                                                      
   if (open.value != "")                                                              
   {                                                                                  
     url = url + "/Request";                                                          
     url = url + "?RequestID=ContentsOpen";                                           
-    url = url + "&" + "Current=" + contentViewer_current;                            
+    url = url + "&" + "Current=" + ContentViewer.contentViewer_current;                            
     url = url + "&" + "Open=" + open.value;                                          
   }                                                                                  
                                                                                      
   return url;                                                                        
 }                                                                                    
                                                                                      
-//*************************************************************/                     
-                                                                                     
+//___________________________________________________________________________________
 /*                                                                                   
   This function updates the fields of the content viewer widget                      
   after an "ContentViewerOpen" request.                                              
-*/                                                                                   
-                                                                                     
-function updateContentViewer()                                                       
-{                                                                                    
-  if (http_request.readyState == 4)                                                  
+*/                                                                                                                                                                        
+ContentViewer.updateContentViewer = function()                                                       
+{                                                     // Unused?                               
+  if (WebLib.http_request.readyState == 4)                                                  
   {                                                                                  
-    if (http_request.status == 200)                                                  
+    if (WebLib.http_request.status == 200)                                                  
     {                                                                                
       var xmldoc;                                                                    
       var subdirs_l;                                                                 
@@ -122,12 +117,12 @@ function updateContentViewer()
       var unview_l;                                                                  
                                                                                      
       // Load the xml elements on javascript lists:                                  
-      if (http_request != false)                                                     
+      if (WebLib.http_request != false)                                                     
       {                                                                              
-        xmldoc = http_request.responseXML;                                           
+        xmldoc = WebLib.http_request.responseXML;                                           
                                                                                      
-        // set the contentViewer_current first:                                      
-        contentViewer_current = xmldoc.getElementsByTagName('current').item(0).firstChild.data;
+        // set the ContentViewer.contentViewer_current first:                                      
+        ContentViewer.contentViewer_current = xmldoc.getElementsByTagName('current').item(0).firstChild.data;
 
         subdirs_l = xmldoc.getElementsByTagName('open');                             
         view_l = xmldoc.getElementsByTagName('view');                                
@@ -163,7 +158,7 @@ function updateContentViewer()
       // Update the Unview menu:                                                     
       unview.options.length = 0;                                                     
       unview.options[0] = new Option("", "", true, true);                            
-      var viewed_from_current = getViewedFromDir(contentViewer_current);             
+      var viewed_from_current = ContentViewer.getViewedFromDir(ContentViewer.contentViewer_current);             
       for (var i = 0; i < viewed_from_current.length; i++)                           
       {                                                                              
         unview.options[i + 1] = new Option(viewed_from_current[i], viewed_from_current[i], false, false);
@@ -173,18 +168,16 @@ function updateContentViewer()
   }                                                                                  
 }                                                                                    
  
-//*************************************************************/                     
-                                                                                     
+//___________________________________________________________________________________
 /*                                                                                   
   This function returns an array with all files in viewed_l that                     
   also reside in the directory dir, supplied as a parameter.                         
 */                                                                                   
-                                                                                     
-function getViewedFromDir(dir)                                                       
-{                                                                                    
-  var viewed_l = current_display.viewed_l;                                           
+ContentViewer.getViewedFromDir = function(dir)                                                       
+{                                                      // Unused?                              
+  var viewed_l = GifDisplay.current_display.viewed_l;                                           
   var in_dir_l = new Array();                                                        
-  for (var i = 0; i < current_display.viewed_l.length; i++)                          
+  for (var i = 0; i < GifDisplay.current_display.viewed_l.length; i++)                          
   {                                                                                  
     var entry = viewed_l[i];                                                         
     var index = entry.lastIndexOf("/");                                              

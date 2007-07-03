@@ -1,5 +1,8 @@
-function submitConfigure(url, myform)                                                
-{                                                                                    
+var ConfigBox = {} ;
+                                                                                    
+//___________________________________________________________________________________
+ConfigBox.submitConfigure = function(url, myform)                                              
+{                                                   // Unused?                                   
   navigator_form = false;                                                            
   url = url + "/Request";                                                            
   url = url + "?" + "RequestID=Configure";                                           
@@ -7,23 +10,21 @@ function submitConfigure(url, myform)
   url = url + "&" + "Port=" + myform.Port.value;                                     
   url = url + "&" + "Clientname=" + myform.Name.value;                               
                                                                                      
-  var funct = alertContents;                                                         
-  makeRequest(url, funct);                                                           
+  WebLib.makeRequest(url, ConfigBox.alertContents);                                                           
 }                                                                                    
-                                                                                     
-//*************************************************************/                     
-                                                                                     
-function alertContents()                                                             
-{                                                                                    
-  if (http_request.readyState == 4)                                                  
+                                                                                                                                                                          
+//___________________________________________________________________________________
+ConfigBox.alertContents = function()                                                             
+{                                                  // Unused?                                           
+  if (WebLib.http_request.readyState == 4)                                                  
   {                                                                                  
-    if (http_request.status == 200)                                                  
+    if (WebLib.http_request.status == 200)                                                  
     {                                                                                
-      alert("Configuration Submitted");                                              
+      alert("[ConfigBox.alertContents] Configuration Submitted");                                              
     }                                                                                
     else                                                                             
     {                                                                                
-      alert('There was a problem with the request.');                                
+      alert('[ConfigBox.alertContents] There was a problem with the request.');                                
     }                                                                                
   }                                                                                  
 }

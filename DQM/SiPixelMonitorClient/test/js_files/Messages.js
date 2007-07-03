@@ -1,15 +1,19 @@
-function displayMessages()                                                       
+
+var Messages = {} ;
+
+//___________________________________________________________________________________
+Messages.displayMessages = function()                                                       
 {                                                                                    
-  if (http_request.readyState == 4)                                                  
+  if (WebLib.http_request.readyState == 4)                                                  
   {                                                                                  
-    if (http_request.status == 200)                                                  
+    if (WebLib.http_request.status == 200)                                                  
     {                                                                                
       var xmldoc;                                                                    
                                                                                      
       // Load the xml elements on javascript lists:                                  
-      if (http_request != false)                                                     
+      if (WebLib.http_request != false)                                                     
       {                                                                              
-        xmldoc = http_request.responseXML;                                           
+        xmldoc = WebLib.http_request.responseXML;                                           
                                                                                      
         // set the contentViewer_current first:                                      
         types_l  = xmldoc.getElementsByTagName('Type');
@@ -19,7 +23,13 @@ function displayMessages()
 
       for (var i = 0; i < types_l.length; i++)
       {
-        alert("MESSAGE: " + titles_l.item(i).firstChild.data + "\n" + "TYPE: " + types_l.item(i).firstChild.data + "\n" + texts_l.item(i).firstChild.data); 
+        alert("[Messages.displayMessages] MESSAGE: " + 
+	      titles_l.item(i).firstChild.data + 
+	      "\n" + 
+	      "TYPE: " + 
+	      types_l.item(i).firstChild.data + 
+	      "\n" + 
+	      texts_l.item(i).firstChild.data); 
       }
     }                                                                                
   }                                                                                  
