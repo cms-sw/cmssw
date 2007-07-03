@@ -214,6 +214,7 @@ namespace edm {
       {
         if((**nodeItr).type() == "using")
         {
+          /*
           // using nodes in .cfis are either deprecated or forbidden
           if((**nodeItr).includeParentSuffix() == "cfi")
           {
@@ -228,6 +229,7 @@ namespace edm {
                 edm::LogWarning("Configuration") << message;
              }
           }
+          */
 
           // find the block
           std::string blockName = (**nodeItr).name();
