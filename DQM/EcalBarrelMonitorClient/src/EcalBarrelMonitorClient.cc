@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/06/24 18:12:09 $
- * $Revision: 1.292 $
+ * $Date: 2007/07/03 13:12:34 $
+ * $Revision: 1.293 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -91,6 +91,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
   // Set runTypes
 
+  runTypes_.resize( 22 );
   for ( unsigned int i=0; i<runTypes_.size(); ++i ) runTypes_[i] =  "UNKNOWN";
   runTypes_[EcalDCCHeaderBlock::COSMIC]                 = "COSMIC";
   runTypes_[EcalDCCHeaderBlock::BEAMH4]                 = "BEAM";
