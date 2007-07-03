@@ -4,23 +4,22 @@
 #include <algorithm>
 #include <cmath>
 
-SimpleDiskBounds::::SimpleDiskBounds( float rmin, float rmax, float zmin, float zmax) : 
+SimpleDiskBounds::SimpleDiskBounds( float rmin, float rmax, float zmin, float zmax) : 
   theRmin(rmin), theRmax(rmax), theZmin(zmin), theZmax(zmax) {
   if ( theRmin > theRmax) std::swap( theRmin, theRmax);
   if ( theZmin > theZmax) std::swap( theZmin, theZmax);
 }
 
-
-virtual bool SimpleDiskBounds::inside( const Local3DPoint& p) const {
+bool SimpleDiskBounds::inside( const Local3DPoint& p) const {
   return p.z()    > theZmin && p.z()    < theZmax &&
     p.perp() > theRmin && p.perp() < theRmax;
 }
     
-virtual bool SimpleDiskBounds::inside( const Local2DPoint& p, const LocalError& err) const {
+bool SimpleDiskBounds::inside( const Local2DPoint& p, const LocalError& err) const {
   return Bounds::inside(p,err);
 }
 
-virtual Bounds* SimpleDiskBounds::clone() const { 
+Bounds* SimpleDiskBounds::clone() const { 
   return new SimpleDiskBounds(*this);
 }
 

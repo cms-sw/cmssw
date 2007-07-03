@@ -9,7 +9,7 @@ bool RectangularPlaneBounds::inside( const Local2DPoint& p) const {
   return fabs(p.x()) <= halfWidth && fabs(p.y()) <= halfLength;
 }
 
-bool RectangularPlaneBounds :inside( const Local3DPoint& p) const {
+bool RectangularPlaneBounds::inside( const Local3DPoint& p) const {
   return 
     fabs(p.x()) < halfWidth && 
     fabs(p.y()) < halfLength &&
