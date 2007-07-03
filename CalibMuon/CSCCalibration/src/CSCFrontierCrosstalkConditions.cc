@@ -12,7 +12,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 //CSCObjects
-//#include "CondFormats/CSCObjects/interface/CSCobject.h"
 #include "CondFormats/CSCObjects/interface/CSCcrosstalk.h"
 #include "CalibMuon/CSCCalibration/interface/CSCFrontierCrosstalkConditions.h"
 #include "CondFormats/DataRecord/interface/CSCcrosstalkRcd.h"
@@ -23,30 +22,54 @@ void CSCFrontierCrosstalkMap::prefillCrosstalkMap(){
   cncrosstalk = new CSCcrosstalk();
   
   int max_istrip,id_layer,max_ring,max_cham;
+  unsigned int old_nrlines=0;
+  unsigned int new_nrlines=0;
   seed = 10000;	
   srand(seed);
   mean=-0.0009, min=0.035, minchi=1.5, M=1000;
-  float mydata=-999.0;
-
+ 
   //endcap=1 to 2,station=1 to 4, ring=1 to 4,chamber=1 to 36,layer=1 to 6 
-  std::ifstream indata; 
-  indata.open("xtalk.dat"); 
-  if(!indata) {
-    std::cerr << "Error: xtalk.dat file could not be opened" << std::endl;
+  std::ifstream olddata; 
+  olddata.open("old_xtalk.dat",std::ios::in); 
+  if(!olddata) {
+    std::cerr <<"Error: old_xtalk.dat -> no such file!"<< std::endl;
     exit(1);
   }
   
-  while (!indata.eof() ) { 
-    indata>>chamber_id>>slope_right>>intercept_right>>chi2_right>>slope_left>>intercept_left>>chi2_left ; 
-    cham_id.push_back(chamber_id);
-    slope_r.push_back(slope_right);
-    slope_l.push_back(slope_left);
-    intercept_r.push_back(intercept_right);
-    intercept_l.push_back(intercept_left);
-    chi2_r.push_back(chi2_right);
-    chi2_l.push_back(chi2_left);
+  while (!olddata.eof() ) { 
+    olddata >> old_chamber_id >> old_strip >> old_slope_right >> old_intercept_right >> old_chi2_right >> old_slope_left >> old_intercept_left >> old_chi2_left ; 
+    old_cham_id.push_back(old_chamber_id);
+    old_strips.push_back(old_strip);
+    old_slope_r.push_back(old_slope_right);
+    old_slope_l.push_back(old_slope_left);
+    old_intercept_r.push_back(old_intercept_right);
+    old_intercept_l.push_back(old_intercept_left);
+    old_chi2_r.push_back(old_chi2_right);
+    old_chi2_l.push_back(old_chi2_left);
+    old_nrlines++;
   }
- 
+  olddata.close();
+
+  std::ifstream newdata;
+  newdata.open("new_xtalk.txt",std::ios::in); 
+  if(!newdata) {
+    std::cerr <<"Error: new_xtalk.dat -> no such file!"<< std::endl;
+    exit(1);
+  }
+  
+  while (!newdata.eof() ) { 
+    newdata >> new_chamber_id >> new_strip >> new_slope_right >> new_intercept_right >> new_chi2_right >> new_slope_left >> new_intercept_left >> new_chi2_left ; 
+    new_cham_id.push_back(new_chamber_id);
+    new_strips.push_back(new_strip);
+    new_slope_r.push_back(new_slope_right);
+    new_slope_l.push_back(new_slope_left);
+    new_intercept_r.push_back(new_intercept_right);
+    new_intercept_l.push_back(new_intercept_left);
+    new_chi2_r.push_back(new_chi2_right);
+    new_chi2_l.push_back(new_chi2_left);
+    new_nrlines++;
+  }
+  newdata.close();
 
   for(int iendcap=detId.minEndcapId(); iendcap<=detId.maxEndcapId(); iendcap++){
     for(int istation=detId.minStationId() ; istation<=detId.maxStationId(); istation++){
@@ -69,7 +92,8 @@ void CSCFrontierCrosstalkMap::prefillCrosstalkMap(){
 	if(istation==3 && iring==1)    max_cham=18;
 	if(istation==3 && iring==2)    max_cham=36;
 	if(istation==4 && iring==1)    max_cham=18;
-	
+	//station 1 ring 3 has 64 strips per layer instead of 80(minus & plus side!!!)
+
 	for(int ichamber=detId.minChamberId(); ichamber<=max_cham; ichamber++){
 
  	  for(int ilayer=detId.minLayerId(); ilayer<=detId.maxLayerId(); ilayer++){
@@ -80,15 +104,15 @@ void CSCFrontierCrosstalkMap::prefillCrosstalkMap(){
 	    itemvector.resize(max_istrip);
 	    id_layer = 100000*iendcap + 10000*istation + 1000*iring + 10*ichamber + ilayer;
 
-	    for(int istrip=0;istrip<max_istrip;istrip++){		  
-	    
+	    for(int istrip=0;istrip<max_istrip;istrip++){
+	      //create fake values
 	      itemvector[istrip].xtalk_slope_right=-((double)rand()/((double)(RAND_MAX)+(double)(1)))/10000+mean;
 	      itemvector[istrip].xtalk_intercept_right=((double)rand()/((double)(RAND_MAX)+(double)(1)))/100+min;
 	      itemvector[istrip].xtalk_chi2_right=((double)rand()/((double)(RAND_MAX)+(double)(1)))+minchi;
 	      itemvector[istrip].xtalk_slope_left=-((double)rand()/((double)(RAND_MAX)+(double)(1)))/10000+mean;
 	      itemvector[istrip].xtalk_intercept_left=((double)rand()/((double)(RAND_MAX)+(double)(1)))/100+min;
 	      itemvector[istrip].xtalk_chi2_left=((double)rand()/((double)(RAND_MAX)+(double)(1)))+minchi;
-	      //	      cncrosstalk->crosstalk[id_layer]=itemvector;
+	      cncrosstalk->crosstalk[id_layer]=itemvector;
 
 	      if(istrip==0){
 		itemvector[istrip].xtalk_slope_right=-((double)rand()/((double)(RAND_MAX)+(double)(1)))/10000+mean;
@@ -97,7 +121,7 @@ void CSCFrontierCrosstalkMap::prefillCrosstalkMap(){
 		itemvector[istrip].xtalk_slope_left=0.0;
 		itemvector[istrip].xtalk_intercept_left=0.0;
 		itemvector[istrip].xtalk_chi2_left=0.0;
-		//cncrosstalk->crosstalk[id_layer]=itemvector;
+		cncrosstalk->crosstalk[id_layer]=itemvector;
 	      }
 	      
 	      if(istrip==79){
@@ -107,31 +131,105 @@ void CSCFrontierCrosstalkMap::prefillCrosstalkMap(){
 		itemvector[istrip].xtalk_slope_left=-((double)rand()/((double)(RAND_MAX)+(double)(1)))/10000+mean;
 		itemvector[istrip].xtalk_intercept_left=((double)rand()/((double)(RAND_MAX)+(double)(1)))/100+min;
 		itemvector[istrip].xtalk_chi2_left=((double)rand()/((double)(RAND_MAX)+(double)(1)))+minchi;
-		//cncrosstalk->crosstalk[id_layer]=itemvector;
+		cncrosstalk->crosstalk[id_layer]=itemvector;
 	      }
-	      
-	      for(unsigned int newId=0; newId<cham_id.size();newId++){
-		if(cham_id[newId]==id_layer){
-		  mydata = slope_r[newId];
-		  itemvector[istrip].xtalk_slope_right=slope_r[newId];
-		  itemvector[istrip].xtalk_intercept_right=intercept_r[newId];
-		  itemvector[istrip].xtalk_chi2_right=chi2_r[newId];
-		  itemvector[istrip].xtalk_slope_left=slope_l[newId];
-		  itemvector[istrip].xtalk_intercept_left=intercept_l[newId];
-		  itemvector[istrip].xtalk_chi2_left=chi2_l[newId];
-		  //cncrosstalk->crosstalk[id_layer].push_back(itemvector[newId]);
-		  //std::cout<<slope_r[newId]<<std::endl;
-
-		}
-	      }
-	      
-	      //cncrosstalk->crosstalk[id_layer][istrip].xtalk_slope_right.push_back(slope_r[istrip]);
-	      cncrosstalk->crosstalk[id_layer].push_back(itemvector[istrip]);
 	    }
 	  }
 	}
       }
     }
+    
+    //overwrite fakes with old values from DB
+    int istrip = 0;
+    std::vector<CSCcrosstalk::Item> itemvector;
+    itemvector.resize(80);
+    
+    for(unsigned int mystrip=0; mystrip<old_nrlines-1; mystrip++){
+      if(old_strips[mystrip]==0) istrip = 0;
+      itemvector[istrip].xtalk_slope_right=old_slope_r[mystrip];
+      itemvector[istrip].xtalk_intercept_right=old_intercept_r[mystrip]; 
+      itemvector[istrip].xtalk_chi2_right=old_chi2_r[mystrip];
+      itemvector[istrip].xtalk_slope_left=old_slope_l[mystrip];  
+      itemvector[istrip].xtalk_intercept_left=old_intercept_l[mystrip];  
+      itemvector[istrip].xtalk_chi2_left=old_chi2_l[mystrip];
+      cncrosstalk->crosstalk[old_cham_id[mystrip]]=itemvector;
+      istrip++;
+    }  
+  
+    
+    itemvector.resize(64);
+    for(unsigned int mystrip=0; mystrip<old_nrlines-1; mystrip++){
+      if(old_strips[mystrip]==0) istrip = 0;
+      if(old_cham_id[mystrip] >= 113000 && old_cham_id[mystrip] <= 113999){
+	itemvector[istrip].xtalk_slope_right=old_slope_r[mystrip];
+	itemvector[istrip].xtalk_intercept_right=old_intercept_r[mystrip]; 
+	itemvector[istrip].xtalk_chi2_right=old_chi2_r[mystrip];
+	itemvector[istrip].xtalk_slope_left=old_slope_l[mystrip];  
+	itemvector[istrip].xtalk_intercept_left=old_intercept_l[mystrip];  
+	itemvector[istrip].xtalk_chi2_left=old_chi2_l[mystrip];
+	cncrosstalk->crosstalk[old_cham_id[mystrip]]=itemvector;
+	istrip++;
+      }
+    } 
+    
+    itemvector.resize(64);
+    for(unsigned int mystrip=0; mystrip<old_nrlines-1; mystrip++){
+      if(old_strips[mystrip]==0) istrip = 0;
+      if(old_cham_id[mystrip] >= 213000 && old_cham_id[mystrip] <= 213999){
+	itemvector[istrip].xtalk_slope_right=old_slope_r[mystrip];
+	itemvector[istrip].xtalk_intercept_right=old_intercept_r[mystrip]; 
+	itemvector[istrip].xtalk_chi2_right=old_chi2_r[mystrip];
+	itemvector[istrip].xtalk_slope_left=old_slope_l[mystrip];  
+	itemvector[istrip].xtalk_intercept_left=old_intercept_l[mystrip];  
+	itemvector[istrip].xtalk_chi2_left=old_chi2_l[mystrip];
+	cncrosstalk->crosstalk[old_cham_id[mystrip]]=itemvector;
+	istrip++;
+      }
+    }   
+    
+    //overwrite old values with ones from new runs
+    itemvector.resize(80);
+    for(unsigned int mystrip=0; mystrip<new_nrlines-1; mystrip++){
+      if(new_strips[mystrip]==0) istrip = 0;
+      itemvector[istrip].xtalk_slope_right=new_slope_r[mystrip];
+      itemvector[istrip].xtalk_intercept_right=new_intercept_r[mystrip]; 
+      itemvector[istrip].xtalk_chi2_right=new_chi2_r[mystrip];
+      itemvector[istrip].xtalk_slope_left=new_slope_l[mystrip];  
+      itemvector[istrip].xtalk_intercept_left=new_intercept_l[mystrip];  
+      itemvector[istrip].xtalk_chi2_left=new_chi2_l[mystrip];
+      cncrosstalk->crosstalk[new_cham_id[mystrip]]=itemvector;
+      istrip++;
+    }
+    
+    itemvector.resize(64);
+    for(unsigned int mystrip=0; mystrip<new_nrlines-1; mystrip++){
+      if(new_strips[mystrip]==0) istrip = 0;
+      if(new_cham_id[mystrip] >= 113000 && new_cham_id[mystrip] <= 113999){
+	itemvector[istrip].xtalk_slope_right=new_slope_r[mystrip];
+	itemvector[istrip].xtalk_intercept_right=new_intercept_r[mystrip]; 
+	itemvector[istrip].xtalk_chi2_right=new_chi2_r[mystrip];
+	itemvector[istrip].xtalk_slope_left=new_slope_l[mystrip];  
+	itemvector[istrip].xtalk_intercept_left=new_intercept_l[mystrip];  
+	itemvector[istrip].xtalk_chi2_left=new_chi2_l[mystrip];
+	cncrosstalk->crosstalk[new_cham_id[mystrip]]=itemvector;
+	istrip++;
+      }
+    } 
+    
+    itemvector.resize(64);
+    for(unsigned int mystrip=0; mystrip<new_nrlines-1; mystrip++){
+      if(new_strips[mystrip]==0) istrip = 0;
+      if(new_cham_id[mystrip] >= 213000 && new_cham_id[mystrip] <= 213999){
+	itemvector[istrip].xtalk_slope_right=new_slope_r[mystrip];
+	itemvector[istrip].xtalk_intercept_right=new_intercept_r[mystrip]; 
+	itemvector[istrip].xtalk_chi2_right=new_chi2_r[mystrip];
+	itemvector[istrip].xtalk_slope_left=new_slope_l[mystrip];  
+	itemvector[istrip].xtalk_intercept_left=new_intercept_l[mystrip];  
+	itemvector[istrip].xtalk_chi2_left=new_chi2_l[mystrip];
+	cncrosstalk->crosstalk[new_cham_id[mystrip]]=itemvector;
+	istrip++;
+      }
+    } 
   }
 }
 
