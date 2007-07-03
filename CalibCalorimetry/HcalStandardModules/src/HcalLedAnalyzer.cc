@@ -12,6 +12,7 @@
 #include <iostream>
 #include <fstream>
 
+
 namespace {
   bool defaultsFile (const std::string fParam) {
     return fParam == "defaults";
@@ -82,7 +83,7 @@ void HcalLedAnalyzer::beginJob(const edm::EventSetup& c){
     if (!getObject (inputPeds, m_inputPedestals_source, m_inputPedestals_tag, m_inputPedestals_run)) {
       std::cerr << "HcalLedAnalyzer-> Failed to get pedestal values" << std::endl;
     }
-    m_ledAnal->doPeds(inputPeds);
+    //m_ledAnal->doPeds(inputPeds);
     delete inputPeds;
   }
 }
@@ -101,11 +102,20 @@ void HcalLedAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& eventS
   edm::Handle<HODigiCollection> ho;     e.getByType(ho);
   edm::Handle<HFDigiCollection> hf;     e.getByType(hf);
 
+  // get calib digis
+  edm::Handle<HcalCalibDigiCollection> calib;  e.getByType(calib);
+
+  // get testbeam specific laser info from the TDC.  This probably will not work
+  // outside of the testbeam, but it should be easy to modify the Handle/getByType
+  // to get the correct stuff 
+
+  //edm::Handle<HcalTBTiming> timing; e.getByType(timing);
+
   // get conditions
   edm::ESHandle<HcalDbService> conditions;
   eventSetup.get<HcalDbRecord>().get(conditions);
 
-  m_ledAnal->processLedEvent(*hbhe, *ho, *hf, *conditions);
+  m_ledAnal->processLedEvent(*hbhe, *ho, *hf, *calib, *conditions);
 
   if(m_ievt%1000 == 0)
     std::cout << "HcalLedAnalyzer: analyzed " << m_ievt << " events" << std::endl;
