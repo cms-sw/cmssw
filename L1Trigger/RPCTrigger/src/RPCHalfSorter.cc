@@ -56,10 +56,16 @@ L1RpcTBMuonsVec2 RPCHalfSorter::runHalf(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
   for(unsigned int iTC = 1; iTC < tcsMuonsVec2.size()-1; iTC++)
     for(unsigned int iMu = 0; iMu < tcsMuonsVec2[iTC].size(); iMu++)
       if(tcsMuonsVec2[iTC][iMu].isLive()){
-        if(abs(16 - tcsMuonsVec2[iTC][iMu].getEtaAddr()) <=7)
+       // if(abs(16 - tcsMuonsVec2[iTC][iMu].getEtaAddr()) <=7){
+       // etaAddr should be encoded here in 6 bits with 2compl. 
+        if( tcsMuonsVec2[iTC][iMu].getEtaAddr() >= 57 ||
+            tcsMuonsVec2[iTC][iMu].getEtaAddr() <= 7  )
+        {
           outputBarrelMuons.push_back(tcsMuonsVec2[iTC][iMu]);
-        else
+        }
+        else{
           outputEndcapMuons.push_back(tcsMuonsVec2[iTC][iMu]);
+        }
       }
       
   sort(outputBarrelMuons.begin(), outputBarrelMuons.end(), RPCTBMuon::TMuonMore());
@@ -98,9 +104,18 @@ L1RpcTBMuonsVec2 RPCHalfSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
   L1RpcTBMuonsVec2 firstHalfTcsMuonsVec2;
 
   firstHalfTcsMuonsVec2.push_back(tcsMuonsVec2[m_TrigCnfg->getTCsCnt()-1]); 
+
+  // update sectorAddr. Dont update sectorAddr of last tc (it will be done in other half)
+  int secAddr = 1;
   for(int iTC = 0; iTC < m_TrigCnfg->getTCsCnt()/2 +1; iTC++) {
-    for(unsigned int iMu = 0; iMu < tcsMuonsVec2[iTC].size(); iMu++)
-      tcsMuonsVec2[iTC][iMu].setSectorAddr(iTC);
+    for(unsigned int iMu = 0; iMu < tcsMuonsVec2[iTC].size(); iMu++){
+      if( iTC!= m_TrigCnfg->getTCsCnt()/2 +1){
+        tcsMuonsVec2[iTC][iMu].setSectorAddr(secAddr); // |
+                                                   // iTC=0 - firstTrigger crate (no=1) 
+                                                   //       - in hw it has sectorAddr=1
+      }
+    } // iter. over muons end
+    ++secAddr; // Next trigger crate. Update the address
     firstHalfTcsMuonsVec2.push_back(tcsMuonsVec2[iTC]);
   }
 
@@ -110,9 +125,14 @@ L1RpcTBMuonsVec2 RPCHalfSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
   unsigned int fhEMuons = m_GBOutputMuons[1].size(); // Number of first half endcap muons
   
   L1RpcTBMuonsVec2 secondHalfTcsMuonsVec2;
+  secAddr = 0; // We need to skip first tc (prev. we started with secAddr=1)
   for(int iTC = m_TrigCnfg->getTCsCnt()/2-1; iTC < m_TrigCnfg->getTCsCnt(); iTC++) {
-    for(unsigned int iMu = 0; iMu < tcsMuonsVec2[iTC].size(); iMu++)
-      tcsMuonsVec2[iTC][iMu].setSectorAddr(iTC);
+    for(unsigned int iMu = 0; iMu < tcsMuonsVec2[iTC].size(); iMu++){
+      if ( iTC != m_TrigCnfg->getTCsCnt()/2-1 ){ 
+        tcsMuonsVec2[iTC][iMu].setSectorAddr(secAddr);
+      }
+    }
+    ++secAddr;
     secondHalfTcsMuonsVec2.push_back(tcsMuonsVec2[iTC]);
   }
   secondHalfTcsMuonsVec2.push_back(tcsMuonsVec2[0]);
