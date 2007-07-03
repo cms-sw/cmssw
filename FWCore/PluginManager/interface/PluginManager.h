@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 14:28:48 EDT 2007
-// $Id: PluginManager.h,v 1.3 2007/04/12 12:51:12 wmtan Exp $
+// $Id: PluginManager.h,v 1.4 2007/07/02 21:09:37 chrjones Exp $
 //
 
 // system include files
@@ -72,6 +72,11 @@ class PluginManager
       const CategoryToInfos& categoryToInfos() const {
         return categoryToInfos_;
       }
+      
+      //If can not find iPlugin in category iCategory return null pointer, any other failure will cause a throw
+      const SharedLibrary* tryToLoad(const std::string& iCategory,
+                                     const std::string& iPlugin);
+      
       // ---------- static member functions --------------------
       ///file name of the shared object being loaded
       static const std::string& loadingFile() { 
@@ -100,6 +105,9 @@ class PluginManager
       static std::string& loadingLibraryNamed_();
       static PluginManager*& singleton();
       
+      const boost::filesystem::path& loadableFor_(const std::string& iCategory,
+                                                  const std::string& iPlugin,
+                                                  bool& ioThrowIfFailElseSucceedStatus);
       // ---------- member data --------------------------------
       SearchPath searchPath_;
       std::map<boost::filesystem::path, boost::shared_ptr<SharedLibrary> > loadables_;

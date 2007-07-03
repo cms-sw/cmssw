@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Apr  6 12:36:19 EDT 2007
-// $Id: PluginCapabilities.h,v 1.1.2.3 2007/04/09 18:46:49 chrjones Exp $
+// $Id: PluginCapabilities.h,v 1.2 2007/04/12 12:51:12 wmtan Exp $
 //
 
 // system include files
@@ -45,6 +45,9 @@ class PluginCapabilities : public PluginFactoryBase
       
       // ---------- member functions ---------------------------
       void load(const std::string& iName);
+      
+      //returns false if loading fails because iName is unknown
+      bool tryToLoad(const std::string& iName);
       
       ///Check to see if any capabilities are in the file, returns 'true' if found
       bool tryToFind(const SharedLibrary& iLoadable);
