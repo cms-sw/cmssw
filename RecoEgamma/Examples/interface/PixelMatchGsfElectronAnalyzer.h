@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchGsfElectronAnalyzer.h,v 1.2 2007/03/25 11:12:19 futyand Exp $
+// $Id: PixelMatchGsfElectronAnalyzer.h,v 1.3 2007/06/29 09:25:55 charlot Exp $
 //
 //
   
@@ -67,6 +67,10 @@ class PixelMatchGsfElectronAnalyzer : public edm::EDAnalyzer
   TH1F *h_simP;
   TH1F *h_simPt;
   
+  TH1F *h_ele_simEta_matched;
+  TH1F *h_ele_simAbsEta_matched;
+  TH1F *h_ele_simPt_matched;
+
   TH1F *h_ele_charge;
   TH2F *h_ele_chargeVsEta;
   TH2F *h_ele_chargeVsPhi;
