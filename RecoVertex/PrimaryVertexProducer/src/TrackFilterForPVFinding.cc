@@ -8,17 +8,7 @@ TrackFilterForPVFinding::TrackFilterForPVFinding(const edm::ParameterSet& conf)
 bool 
 TrackFilterForPVFinding::operator() (const reco::TransientTrack & tk) const
 {
-  // obsolete as of 1_5_0_pre3
-  double d0=tk.impactPointTSCP().position().perp();
-  double s0=sqrt(tk.impactPointTSCP().perigeeError().covarianceMatrix()(3,3)); 
-  return d0<s0*maxD0Significance();
-  
-}
-
-bool 
-TrackFilterForPVFinding::operator() (const BeamTransientTrack & tk) const
-{
-  return tk.impactParameterSignificance()<maxD0Significance();
+  return tk.stateAtBeamLine().transverseImpactParameter().significance()<maxD0Significance();
 }
 
 

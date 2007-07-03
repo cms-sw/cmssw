@@ -8,7 +8,6 @@
 */
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "RecoVertex/PrimaryVertexProducer/interface/BeamTransientTrack.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <vector>
 
@@ -21,8 +20,6 @@ public:
 
   std::vector< std::vector<reco::TransientTrack> >
   clusterize(const std::vector<reco::TransientTrack> & tracks) const;
-  std::vector< std::vector<reco::TransientTrack> >
-  clusterize(const std::vector<BeamTransientTrack> & tracks) const;
 
   float zSeparation() const;
 

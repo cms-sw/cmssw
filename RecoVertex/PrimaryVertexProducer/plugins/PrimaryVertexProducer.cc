@@ -66,27 +66,8 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
       << "Reconstructing event number: " << iEvent.id() << "\n";
     
-    // get RECO tracks from the event
-    // `tks` can be used as a ptr to a reco::TrackCollection
-    edm::Handle<reco::TrackCollection> tks;
-    iEvent.getByLabel(trackLabel(), tks);
-
-
-    // interface RECO tracks to vertex reconstruction
-    edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
-      << "Found: " << (*tks).size() << " reconstructed tracks" << "\n";
-    edm::ESHandle<TransientTrackBuilder> theB;
-    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
-    vector<reco::TransientTrack> t_tks = (*theB).build(tks);
-   edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
-      << "Found: " << t_tks.size() << " reconstructed tracks" << "\n";
-   if(fVerbose) {cout << "RecoVertex/PrimaryVertexProducer"
-      << "Found: " << t_tks.size() << " reconstructed tracks" << "\n";
-   }
-
-
    // get the BeamSpot, it will alwys be needed, even when not used as a constraint
-   reco::BeamSpot vertexBeamSpot;   // the beamspot from VertexReco/VertexPrimitives
+   reco::BeamSpot vertexBeamSpot;
    edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
    try{
      iEvent.getByType(recoBeamSpotHandle);
@@ -107,6 +88,25 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	    << endl;
      }
      vertexBeamSpot.dummy();
+   }
+
+
+    // get RECO tracks from the event
+    // `tks` can be used as a ptr to a reco::TrackCollection
+    edm::Handle<reco::TrackCollection> tks;
+    iEvent.getByLabel(trackLabel(), tks);
+
+
+    // interface RECO tracks to vertex reconstruction
+    edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
+      << "Found: " << (*tks).size() << " reconstructed tracks" << "\n";
+    edm::ESHandle<TransientTrackBuilder> theB;
+    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+    vector<reco::TransientTrack> t_tks = (*theB).build(tks, vertexBeamSpot);
+   edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
+      << "Found: " << t_tks.size() << " reconstructed tracks" << "\n";
+   if(fVerbose) {cout << "RecoVertex/PrimaryVertexProducer"
+      << "Found: " << t_tks.size() << " reconstructed tracks" << "\n";
    }
 
 

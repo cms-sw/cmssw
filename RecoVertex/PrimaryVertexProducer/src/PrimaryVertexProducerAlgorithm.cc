@@ -11,7 +11,7 @@
 #include <algorithm>
 //#include "RecoVertex/PrimaryVertexProducer/interface/BeamTransientTrack.h"
 
-//using namespace reco;
+using namespace reco;
 
 //
 // constants, enums and typedefs
@@ -130,14 +130,11 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
 
 
     // select tracks
-    //vector<reco::TransientTrack> seltks;
-    vector<BeamTransientTrack> seltks;
+    vector<TransientTrack> seltks;
 
     for (vector<reco::TransientTrack>::const_iterator itk = tracks.begin();
 	 itk != tracks.end(); itk++) {
-      //if (theTrackFilter(*itk)) seltks.push_back(*itk);
-      BeamTransientTrack t(*itk, beamVertexState.position());
-      if (theTrackFilter(t)) seltks.push_back(t);
+      if (theTrackFilter(*itk)) seltks.push_back(*itk);
     }
 
     if(fVerbose){
