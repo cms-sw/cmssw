@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/06/25 16:36:50 $
- *  $Revision: 1.102 $
+ *  $Date: 2007/06/28 15:45:10 $
+ *  $Revision: 1.103 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -65,7 +65,7 @@
 
 #include "RecoMuon/GlobalTrackFinder/interface/GlobalMuonTrackMatcher.h"
 #include "RecoMuon/GlobalTrackFinder/interface/GlobalMuonSeedCleaner.h"
-#include "RecoMuon/GlobalTrackFinder/interface/GlobalMuonRSTrajectoryBuilder.h"
+#include "RecoMuon/GlobalTrackFinder/interface/MuonRSTrajectoryBuilder.h"
 
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBuilder.h"
