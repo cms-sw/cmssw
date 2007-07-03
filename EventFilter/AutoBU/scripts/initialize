@@ -21,7 +21,7 @@ print "\n============================================================\n";
 my $doPB  = 0;
 my $doEP  = 1;
 my $doSM  = 1;
-my $doDQM = 1;
+my $doDQM = 0;
 
 my $PBfile;
 
@@ -42,8 +42,7 @@ my $BUappname = "evf::BU";
 my $RBappname = "evf::FUResourceBroker";
 my $EPappname = "evf::FUEventProcessor";
 my $SMappname = "StorageManager";
-my $PTappname = "PeerTransportTCP";
-my $MNappname = "Monitor";
+my $PTappname = "pt::tcp::PeerTransportTCP";
 
 my $BUlocalid=21;
 my $PBlocalid=22;
@@ -56,17 +55,16 @@ my $RBlibpath = getLibraryPath("EventFilter/ResourceBroker");
 my $EPlibpath = getLibraryPath("EventFilter/Processor");
 my $SMlibpath = getLibraryPath("EventFilter/StorageManager");
 my $PTlibpath = $ENV{"XDAQ_ROOT"} . "/lib";
-my $MNlibpath = $ENV{"XDAQ_ROOT"} . "/lib";
 
 my $BUlibname = "libEventFilterAutoBU.so";
 my $RBlibname = "libEventFilterResourceBroker.so";
 my $EPlibname = "libEventFilterProcessor.so";
 my $SMlibname = "libEventFilterStorageManager.so";
 my $PTlibname = "libpttcp.so";
-my $MNlibname = "libmonitor.so";
 
-my $SMperl = $ENV{"CMSSW_RELEASE_BASE"} .
-             "/src/EventFilter/StorageManager/scripts/perl";
+my $SMperl = 
+    $ENV{"CMSSW_RELEASE_BASE"} .
+    "/src/EventFilter/StorageManager/scripts/perl";
 
 my $pwd = `pwd`; chomp $pwd;
 
@@ -99,7 +97,6 @@ print "make directories ...\n";
 `mkdir soap`           if (! -e "soap");
 `mkdir xml`            if (! -e "xml");
 `mkdir cfg`            if (! -e "cfg");
-`mkdir flash`          if (! -e "flash");
 `mkdir /tmp/sm`        if (! -e "/tmp/sm");
 `mkdir /tmp/sm/open`   if (! -e "/tmp/sm/open");
 `mkdir /tmp/sm/closed` if (! -e "/tmp/sm/closed");
@@ -136,19 +133,24 @@ print "make xdaq profile ...\n";
 my @EXproperties = ("logUrl",  "string","console",
 		    "logLevel","string","INFO");
 
+my @HTTPproperties = ("documentRoot","string",$ENV{"XDAQ_DOCUMENT_ROOT"},
+		      "aliasName","string","tmp",
+		      "aliasPath","string","/tmp");
+
 open (XML,">./xml/profile.xml") or die ("Can't open file: $!\n");
 print XML makeXmlHeader();
 print XML makeXmlProfileHeader();
-print XML makeXmlAppHeader(0,"Executive",0);
+print XML makeXmlAppHeader(0,"executive::Application",0,"executive");
 print XML makeXmlAppProperties("Executive",@EXproperties);
 print XML makeXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libexecutive.so");
-print XML makeXmlAppHeader(0,"PeerTransportHTTP",1);
+print XML makeXmlAppHeader(0,"pt::http::PeerTransportHTTP",1);
+print XML makeXmlAppProperties("pt::http::PeerTransportHTTP",@HTTPproperties);
 print XML makeXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libpthttp.so");
-print XML makeXmlAppHeader(0,"PeerTransportFifo",8);
+print XML makeXmlAppHeader(0,"pt::fifo::PeerTransportFifo",8);
 print XML makeXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libptfifo.so");
-print XML makeXmlAppHeader(0,"XRelay",4);
-print XML makeXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libxr.so");
-print XML makeXmlAppHeader(0,"HyperDAQ",3);
+print XML makeXmlAppHeader(0,"xrelay::Application",4);
+print XML makeXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libxrelay.so");
+print XML makeXmlAppHeader(0,"hyperdaq::Application",3);
 print XML makeXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libhyperdaq.so");
 print XML makeXmlProfileTrailer();
 
@@ -160,23 +162,21 @@ print XML makeXmlProfileTrailer();
 print "make xdaq configuration ...\n";
 
 my @apps = ($BUappname,$BUlocalid,0,
-	    $RBappname,$RBlocalid,0,
-	    $MNappname,50,0,
-	    $MNappname,51,1,
-	    $MNappname,52,2);
+	    $RBappname,$RBlocalid,0);
 
 if ($doSM) { push (@apps,$SMappname); push (@apps,$SMlocalid); push (@apps,0); }
 
 my @PBproperties = ("parameterSet","string","file:$pwd/cfg/playback.cfg",
+		    "hasSharedMemory","boolean","false",
 		    "collReconnSec","integer","-1");
 
 my @RBproperties = ("buClassName", "string",     $BUappname,
-		    "nbRawCells",  "unsignedInt","16",
-		    "nbRecoCells", "unsignedInt","3",
-		    "nbDqmCells",  "unsignedInt","3",
-		    "rawCellSize", "unsignedInt","0x300000",
-		    "recoCellSize","unsignedInt","0x300000",
-		    "dqmCellSize", "unsignedInt","0x300000");
+		    "nbRawCells",  "unsignedInt","4",
+		    "nbRecoCells", "unsignedInt","4",
+		    "nbDqmCells",  "unsignedInt","4",
+		    "rawCellSize", "unsignedInt","0x200000",
+		    "recoCellSize","unsignedInt","0x200000",
+		    "dqmCellSize", "unsignedInt","0x200000");
 if (!$doEP) { push (@RPproperties,"doDropEvents","boolean","true"); }
 
 my @EPproperties = ("parameterSet", "string","file:$pwd/cfg/fu.cfg",
@@ -199,8 +199,6 @@ print XML makeXmlComm(@apps);
 # BU context
 print XML makeXmlContextHeader("BU",$hostname,$BUport);
 if ($doSM) { print XML makeXmlEndpoint($hostname,50000); }
-print XML makeXmlAppMonitor();
-print XML makeXmlAppTrailer(1,$MNlibpath,$MNlibname);
 print XML makeXmlAppHeader(1,$BUappname,$BUlocalid);
 print XML makeXmlAppTrailer(1,$BUlibpath,$BUlibname);
 if ($doPB) {
@@ -221,8 +219,6 @@ print XML makeXmlContextTrailer();
 # EP context
 if ($doEP) {
     print XML makeXmlContextHeader("EP",$hostname,$EPport);
-    print XML makeXmlAppMonitor();
-    print XML makeXmlAppTrailer(1,$MNlibpath,$MNlibname);
     print XML makeXmlAppHeader(1,$EPappname,$EPlocalid);
     print XML makeXmlAppProperties($EPappname,@EPproperties);
     print XML makeXmlAppTrailer(1,$EPlibpath,$EPlibname);
@@ -233,8 +229,6 @@ if ($doEP) {
 if ($doSM) {
     print XML makeXmlContextHeader("SM",$hostname,$SMport);
     print XML makeXmlEndpoint($hostname,50002);
-    print XML makeXmlAppMonitor();
-    print XML makeXmlAppTrailer(1,$MNlibpath,$MNlibname);
     print XML makeXmlAppHeader(1,$SMappname,$SMlocalid);
     print XML makeXmlAppProperties($SMappname,@SMproperties);
     print XML makeXmlUnicast($RBappname);
@@ -243,12 +237,6 @@ if ($doSM) {
     print XML makeXmlAppTrailer(1,$PTlibpath,$PTlibname);
     print XML makeXmlContextTrailer();
 }
-
-# MN context (Collector)
-print XML makeXmlContextHeader("MN",$hostname,$MNport);
-print XML makeXmlAppMonitor();
-print XML makeXmlAppTrailer(1,$MNlibpath,$MNlibname);
-print XML makeXmlContextTrailer();
 
 print XML makeXmlPartitionTrailer();
 close (XML);
@@ -341,7 +329,7 @@ print CTL "#!/usr/bin/perl\n\n";
 print CTL makeCtlCommand("Halt",$BUappname,"BU",$hostname,$BUport,0);
 print CTL makeCtlCommand("Halt",$RBappname,"RB",$hostname,$BUport,0);
 if ($doPB) {
-    print CTL makeCtlCommand("Halt",$EPappname,"PB",$hostname,$PBport,1);
+    print CTL makeCtlCommand("Halt",$EPappname,"PB",$hostname,$BUport,1);
 }
 if ($doEP) {
     print CTL makeCtlCommand("Halt",$EPappname,"EP",$hostname,$EPport,1);
@@ -360,13 +348,6 @@ close (CTL);
 
 
 #
-# make flash lists for monitoring
-#
-
-makeFlashLists();
-
-
-#
 # start processes
 #
 
@@ -382,11 +363,6 @@ if ($doSM) {
     print "\nstart xdaq.exe on $hostname:$SMport\n";
     `nice -n 15 xdaq.exe -h $hostname -p $SMport -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$SMport.log &`;
 }
-
-print "\nstart xdaq.exe on $hostname:$MNport\n";
-`nice -n 15 xdaq.exe -h $hostname -p $MNport -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$MNport.log &`;
-
-
 
 
 ################################################################################
@@ -468,7 +444,6 @@ sub makeCfgFu
     $result = $result . "  source = DaqSource\n";
     $result = $result . "  {\n";
     $result = $result . "    string          reader    = \"FUShmReader\"\n";
-    $result = $result . "    untracked int32 maxEvents = -1\n";
     $result = $result . "  }\n\n";
     $result = $result . "  // paths\n";
     $result = $result . "  path p1 = { m1, a1 }\n";
@@ -762,12 +737,15 @@ sub makeXmlEndpoint
 ################################################################################
 sub makeXmlAppHeader
 {
-    my ($inContext,$appname,$localid) = @_;
+    my ($inContext,$appname,$localid,$service) = @_;
 
     my $ns = "xc"; if (!$inContext) { $ns = "xp"; }
     
     my $result = "    <$ns:Application class=\"" . $appname . 
-	"\" id=\"" . $localid . "\" instance=\"0\" network=\"local\">\n";
+	"\" id=\"" . $localid . "\" instance=\"0\" ";
+    if (length $service) { $result = $result . "service=\"$service\" "; }
+    $result = $result . "network=\"local\">\n";
+
     return $result;
 }
 
@@ -813,44 +791,6 @@ sub makeXmlAppTrailer
     $result = $result . "    </$ns:Application>\n";
     $result = $result . "    <$ns:Module>" . $libpath .
 	                "/" . $libname . "</$ns:Module>\n\n";
-    
-    return $result;
-}
-
-
-################################################################################
-sub makeXmlAppMonitor
-{
-    my $result = "";
-    
-    my $instance = $monitorCount;
-    my $localid  = 60 + $instance;
-
-    $monitorCount = $monitorCount+1;
-    
-    $result = $result . "    <xc:Application class=\"Monitor\""
-	              . " group=\"monitoring\" id=\""
-	              . $localid . "\" instance=\"" . $instance 
-                      . "\" network=\"local\" service=\"monitor\">\n";
-    $result = $result . "      <properties xmlns=\"urn:xdaq-application:Monitor\""
-	              . " xsi:type=\"soapenc:Struct\">\n";
-    $result = $result . "        <inprofile soapenc:arrayType=\"xsd:ur-type[5]\""
-                      . " xmlns:soapenc=\"http://schemas.xmlsoap.org/soap/encoding/\""
-		      . " xsi:type=\"soapenc:Array\">\n";
-    $result = $result . "          <item soapenc:position=\"[0]\""
-                      . "  xsi:type=\"xsd:string\">$pwd/flash/bu.flash</item>\n";
-    $result = $result . "          <item soapenc:position=\"[1]\""
-                      . " xsi:type=\"xsd:string\">$pwd/flash/activity.flash</item>\n";
-    $result = $result . "          <item soapenc:position=\"[2]\""
-	              . " xsi:type=\"xsd:string\">$pwd/flash/fu.flash</item>\n";
-    $result = $result . "          <item soapenc:position=\"[3]\""
-                      . " xsi:type=\"xsd:string\">$pwd/flash/ep.flash</item>\n";
-    $result = $result . "          <item soapenc:position=\"[4]\""
-                      . " xsi:type=\"xsd:string\">$pwd/flash/sm.flash</item>\n";
-    $result = $result . "        </inprofile>\n";
-    $result = $result . "        <useDiscovery xsi:type=\"xsd:boolean\">"
-	              . "false</useDiscovery>\n";
-    $result = $result . "      </properties>\n";
     
     return $result;
 }
@@ -930,199 +870,4 @@ sub makeCurlCommand
 	"\"SOAPAction: urn:xdaq-application:lid=4\" " .
 	"-d @" . $pwd . "/soap/" . $cmd . $appabrev . ".xml " .
 	"http://" . $host . ":" . $port;
-}
-
-
-################################################################################
-sub makeFlashLists
-{
-    # activity.flash
-    open(FLASH,">./flash/activity.flash") or die ("Can't open file: $!\n");
-    print FLASH "<?xml version='1.0'?>\n";
-    print FLASH "<mon:profile " .
-	"xmlns:mon=\"http://xdaq.web.cern.ch/xdaq/xsd/2005/Monitor-10\">\n\n";
-    print FLASH "<mon:flashlists>\n";
-    print FLASH "  <mon:flash name=\"urn:xdaq-flashlist:processInfo\">\n";
-    print FLASH "    <mon:item name=\"context\"     " .
-	"infospace=\"urn:xdaq-monitorable:executive\" type=\"string\"/>\n";
-    print FLASH "    <mon:item name=\"cpuUsage\"    " .
-	"infospace=\"urn:xdaq-monitorable:executive\" type=\"double\"/>\n";
-    print FLASH "    <mon:item name=\"pid\"         " .
-	"infospace=\"urn:xdaq-monitorable:executive\" type=\"int\"/>\n";
-    print FLASH "   <mon:item name=\"residentSize\" " .
-	"infospace=\"urn:xdaq-monitorable:executive\" type=\"unsigned int\"/>\n";
-    print FLASH "    <mon:item name=\"virtualSize\" " .
-	"infospace=\"urn:xdaq-monitorable:executive\" type=\"unsigned int\"/>\n";
-    print FLASH "  </mon:flash>\n";
-    print FLASH "</mon:flashlists>\n\n";
-    print FLASH "<mon:collectorsettings>\n";
-    print FLASH "  <mon:collect\n";
-    print FLASH "    flashlist=\"urn:xdaq-flashlist:processInfo\" " .
-	"mode=\"all\" every=\"00:00:00:01:00\"\n";
-    print FLASH "    history=\"false\" range=\"00:00:00:01:00\" persistent=\"false\"".
-	" file=\"/tmp/processInfo.txt\" collect=\"true\"/>\n";
-    print FLASH "</mon:collectorsettings>\n";
-    print FLASH "</mon:profile>\n";
-    close(FLASH);
-
-    # bu.flash
-    open(FLASH,">./flash/bu.flash") or die ("Can't open file: $!\n");
-    print FLASH "<?xml version='1.0'?>\n";
-    print FLASH "<mon:profile xmlns:mon=\"http://xdaq.web.cern.ch/xdaq/xsd/2005/Monitor-10\">\n\n";
-    print FLASH "  <mon:flashlists>\n";
-    print FLASH "    <mon:flash name=\"urn:xdaq-flashlist:BU-online\">\n";
-    print FLASH "      <mon:item name=\"class\"              " .
-	"infospace=\"urn:xdaq-monitorable:evf::BU:\" type=\"string\"          />\n";
-    print FLASH "      <mon:item name=\"instance\"           " .
-	"infospace=\"urn:xdaq-monitorable:evf::BU:\" type=\"unsigned int 32\" />\n";
-    print FLASH "      <mon:item name=\"runNumber\"          " .
-	"infospace=\"urn:xdaq-monitorable:evf::BU:\" type=\"unsigned int 32\" />\n";
-    print FLASH "      <mon:item name=\"url\"                " .
-	"infospace=\"urn:xdaq-monitorable:evf::BU:\" type=\"string\"          />\n\n";
-    print FLASH "      <mon:item name=\"stateName\"          " .
-	"infospace=\"urn:xdaq-monitorable:evf::BU:\" type=\"string\"          />\n";
-    print FLASH "      <mon:item name=\"nbEventsInBU\"       " .
-	"infospace=\"urn:xdaq-monitorable:evf::BU:\" type=\"unsigned int 32\" />\n";
-    print FLASH "      <mon:item name=\"deltaN\"             " .
-	"infospace=\"urn:xdaq-monitorable:evf::BU:\" type=\"unsigned int 32\" />\n";
-    print FLASH "      <mon:item name=\"deltaSumOfSizes\"    " .
-	"infospace=\"urn:xdaq-monitorable:evf::BU:\" type=\"unsigned int 32\" />\n";
-    print FLASH "      <mon:item name=\"deltaSumOfSquares\"  " .
-	"infospace=\"urn:xdaq-monitorable:evf::BU:\" type=\"double\"          />\n";
-    print FLASH "      <mon:item name=\"deltaT\"             " .
-	"infospace=\"urn:xdaq-monitorable:evf::BU:\" type=\"double\"          />\n";
-    print FLASH "    </mon:flash>\n";
-    print FLASH "  </mon:flashlists>\n\n";
-    print FLASH "  <mon:collectorsettings>\n";
-    print FLASH "    <mon:collect\n";
-    print FLASH "       flashlist=\"urn:xdaq-flashlist:BU-online\" mode=\"all\" " .
-	"every=\"00:00:00:00:01\"\n";
-    print FLASH "       history=\"false\" range=\"00:00:00:01:00\" persistent=\"false\" " .
-	"file=\"/tmp/BU-online.txt\" collect=\"true\"/>\n";
-    print FLASH "  </mon:collectorsettings>\n\n";
-    print FLASH "</mon:profile>\n";
-    close(FLASH);
-    
-    # fu.flash
-    open(FLASH,">./flash/fu.flash") or die ("Can't open file: $!\n");
-    print FLASH "<?xml version='1.0'?>\n";
-    print FLASH "<mon:profile xmlns:mon=\"http://xdaq.web.cern.ch/xdaq/xsd/2005/Monitor-10\">\n\n";
-    print FLASH "  <mon:flashlists>\n";
-    print FLASH "    <mon:flash name=\"urn:xdaq-flashlist:FU-online\">\n";
-    print FLASH "      <mon:item name=\"class\"               " .
-	"infospace=\"urn:xdaq-monitorable:evf::FUResourceBroker:\" type=\"string\"/>\n";
-    print FLASH "      <mon:item name=\"instance\"            " .
-	"infospace=\"urn:xdaq-monitorable:evf::FUResourceBroker:\" type=\"unsigned int 32\" />\n";
-    print FLASH "      <mon:item name=\"runNumber\"           " .
-	"infospace=\"urn:xdaq-monitorable:evf::FUResourceBroker:\" type=\"unsigned int 32\" />\n";
-    print FLASH "      <mon:item name=\"url\"                 " .
-	"infospace=\"urn:xdaq-monitorable:evf::FUResourceBroker:\" type=\"string\"/>\n";
-    print FLASH "      <mon:item name=\"nbReceivedEvents\"    " .
-	"infospace=\"urn:xdaq-monitorable:evf::FUResourceBroker:\" type=\"unsigned int 32\" />\n";
-    print FLASH "      <mon:item name=\"nbAcceptedEvents\"    " .
-	"infospace=\"urn:xdaq-monitorable:evf::FUResourceBroker:\" type=\"unsigned int 32\" />\n";
-    print FLASH "      <mon:item name=\"nbSentEvents\"        " .
-	"infospace=\"urn:xdaq-monitorable:evf::FUResourceBroker:\" type=\"unsigned int 32\" />\n";
-    print FLASH "      <mon:item name=\"nbPendingRequests\"   " .
-	"infospace=\"urn:xdaq-monitorable:evf::FUResourceBroker:\" type=\"unsigned int 32\" />\n";
-    print FLASH "      <mon:item name=\"nbDataErrors\"        " .
-	"infospace=\"urn:xdaq-monitorable:evf::FUResourceBroker:\" type=\"unsigned int 32\" />\n";
-    print FLASH "      <mon:item name=\"nbCrcErrors\"         " .
-	"infospace=\"urn:xdaq-monitorable:evf::FUResourceBroker:\" type=\"unsigned int 32\" />\n";
-    print FLASH "      <mon:item name=\"inputRate\"           " .
-	"infospace=\"urn:xdaq-monitorable:evf::FUResourceBroker:\" type=\"double\"/>\n";
-    print FLASH "      <mon:item name=\"inputThroughput\"     " .
-	"infospace=\"urn:xdaq-monitorable:evf::FUResourceBroker:\" type=\"double\"/>\n";
-    print FLASH "      <mon:item name=\"outputThroughput\"    " .
-	"infospace=\"urn:xdaq-monitorable:evf::FUResourceBroker:\" type=\"double\"/>\n";
-    print FLASH "    </mon:flash>\n";
-    print FLASH "  </mon:flashlists>\n\n";
-    print FLASH "  <mon:collectorsettings>\n";
-    print FLASH "    <mon:collect\n";
-    print FLASH "       flashlist=\"urn:xdaq-flashlist:FU-online\" mode=\"all\" " .
-	"every=\"00:00:00:00:01\"\n";
-    print FLASH "       history=\"false\" range=\"00:00:00:01:00\" persistent=\"false\" " .
-	"file=\"/tmp/FU-online.txt\" collect=\"true\"/>\n";
-    print FLASH "  </mon:collectorsettings>\n\n";
-    print FLASH "</mon:profile>\n";
-    close(FLASH);
-    
-    # ep.flash
-    open(FLASH,">./flash/ep.flash") or die ("Can't open file: $!\n");
-    print FLASH "<?xml version='1.0'?>\n";
-    print FLASH "<mon:profile xmlns:mon=\"http://xdaq.web.cern.ch/xdaq/xsd/2005/Monitor-10\">\n\n";
-    print FLASH "  <mon:flashlists>\n";
-    print FLASH "    <mon:flash name=\"urn:xdaq-flashlist:EP-online\">\n";
-    print FLASH "      <mon:item name=\"class\"        " .
-	"infospace=\"urn:xdaq-monitorable:evf::FUEventProcessor:\" type=\"string\"/>\n";
-    print FLASH "      <mon:item name=\"instance\"     " .
-	"infospace=\"urn:xdaq-monitorable:evf::FUEventProcessor:\" type=\"unsigned int 32\"/>\n";
-    print FLASH "      <mon:item name=\"runNumber\"    " .
-	"infospace=\"urn:xdaq-monitorable:evf::FUEventProcessor:\" type=\"unsigned int 32\"/>\n";
-    print FLASH "      <mon:item name=\"stateName\"    " .
-	"infospace=\"urn:xdaq-monitorable:evf::FUEventProcessor:\" type=\"string\"/>\n";
-    print FLASH "      <mon:item name=\"epMacroState\" " .
-	"infospace=\"urn:xdaq-monitorable:evf::FUEventProcessor:\" type=\"string\"/>\n";
-    print FLASH "      <mon:item name=\"epMicroState\" " .
-	"infospace=\"urn:xdaq-monitorable:evf::FUEventProcessor:\" type=\"string\"/>\n";
-    print FLASH "      <mon:item name=\"nbProcessed\"  " .
-	"infospace=\"urn:xdaq-monitorable:evf::FUEventProcessor:\" type=\"unsigned int 32\"/>\n";
-    print FLASH "      <mon:item name=\"nbAccepted\"   " .
-	"infospace=\"urn:xdaq-monitorable:evf::FUEventProcessor:\" type=\"unsigned int 32\"/>\n";
-    print FLASH "    </mon:flash>\n";
-    print FLASH "  </mon:flashlists>\n\n";
-    print FLASH "  <mon:collectorsettings>\n";
-    print FLASH "    <mon:collect\n";
-    print FLASH "      flashlist=\"urn:xdaq-flashlist:EP-online\" mode=\"all\" " .
-	"every=\"00:00:00:00:01\"\n";
-    print FLASH "      history=\"false\" range =\"00:00:00:01:00\" persistent=\"false\" " .
-	"file=\"/tmp/urn:xdaq-flashlist:EP-online.txt\" collect=\"true\"/>\n";
-    print FLASH "  </mon:collectorsettings>\n\n";
-    print FLASH "</mon:profile>\n";
-    close(FLASH);
-    
-    # sm.flash
-    open(FLASH,">./flash/sm.flash") or die ("Can't open file: $!\n");
-    print FLASH "<?xml version='1.0'?>\n";
-    print FLASH "<mon:profile xmlns:mon=\"http://xdaq.web.cern.ch/xdaq/xsd/2005/Monitor-10\">\n\n";
-    print FLASH "  <mon:flashlists>\n";
-    print FLASH "    <mon:flash name=\"urn:xdaq-flashlist:SM-online\">\n";
-    print FLASH "      <mon:item name=\"class\"            " .
-	"infospace=\"urn:xdaq-monitorable:StorageManager:\" type=\"string\"/>\n";
-    print FLASH "      <mon:item name=\"instance\"         " .
-	"infospace=\"urn:xdaq-monitorable:StorageManager:\" type=\"unsigned int 32\"/>\n";
-    print FLASH "      <mon:item name=\"runNumber\"        " .
-	"infospace=\"urn:xdaq-monitorable:StorageManager:\" type=\"unsigned int 32\"/>\n";
-    print FLASH "      <mon:item name=\"url\"              " .
-	"infospace=\"urn:xdaq-monitorable:StorageManager:\" type=\"string\"/>\n";
-    print FLASH "      <mon:item name=\"receivedFrames\"   " .
-	"infospace=\"urn:xdaq-monitorable:StorageManager:\" type=\"unsigned int 32\"/>\n";
-    print FLASH "      <mon:item name=\"storedEvents\"     " .
-	"infospace=\"urn:xdaq-monitorable:StorageManager:\" type=\"unsigned int 32\"/>\n";
-    print FLASH "      <mon:item name=\"connectedFUs\"     " .
-	"infospace=\"urn:xdaq-monitorable:StorageManager:\" type=\"unsigned int 32\"/>\n";
-    print FLASH "      <mon:item name=\"stateName\"        " .
-	"infospace=\"urn:xdaq-monitorable:StorageManager:\" type=\"string\"/>\n";
-    print FLASH "      <mon:item name=\"storedEvents\"     " .
-	"infospace=\"urn:xdaq-monitorable:StorageManager:\" type=\"unsigned int 32\"/>\n";
-    print FLASH "      <mon:item name=\"storedVolume\"     " .
-	"infospace=\"urn:xdaq-monitorable:StorageManager:\" type=\"double\"/>\n";
-    print FLASH "      <mon:item name=\"instantBandwidth\" " .
-	"infospace=\"urn:xdaq-monitorable:StorageManager:\" type=\"double\"/>\n";
-    print FLASH "      <mon:item name=\"instantRate\"      " .
-	"infospace=\"urn:xdaq-monitorable:StorageManager:\" type=\"double\"/>\n";
-    print FLASH "      <mon:item name=\"progressMarker\"   " .
-	"infospace=\"urn:xdaq-monitorable:StorageManager:\" type=\"string\"/>\n";
-    print FLASH "    </mon:flash>\n";
-    print FLASH "  </mon:flashlists>\n\n";
-    print FLASH "  <mon:collectorsettings>\n";
-    print FLASH "    <mon:collect\n";
-    print FLASH "      flashlist=\"urn:xdaq-flashlist:SM-online\" mode=\"all\" " .
-	"every=\"00:00:00:00:01\"\n";
-    print FLASH "      history=\"false\" range=\"00:00:00:01:00\" persistent=\"false\" " .
-	"file=\"/tmp/SM-online.txt\" collect=\"true\"/>\n";
-    print FLASH "  </mon:collectorsettings>\n\n";
-    print FLASH "</mon:profile>\n";
-    close(FLASH);
-    
 }

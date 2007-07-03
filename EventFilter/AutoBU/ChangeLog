@@ -1,3 +1,10 @@
+2007-07-03  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-05-01
+	* adjust the initialize script to xdaq3.9: no monitoring for the
+	time being
+	* tested to run on slc4 lxplus node
+
 2007-05-18  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-04-11
