@@ -5,8 +5,8 @@
 //   L1 DT Track Finder Raw-to-Digi
 //
 //
-//   $Date: 2007/03/12 00:44:19 $
-//   $Revision: 1.3 $
+//   $Date: 2006/06/01 00:00:00 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   J. Troconiz  UAM Madrid
@@ -21,6 +21,7 @@
 
 #include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h>
 #include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h>
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTTrackContainer.h"
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 
@@ -34,6 +35,7 @@ DTTFFEDReader::DTTFFEDReader(const edm::ParameterSet& pset) {
 
   produces<L1MuDTChambPhContainer>();
   produces<L1MuDTChambThContainer>();
+  produces<L1MuDTTrackContainer>("DATA");
 
 }
 
@@ -43,28 +45,34 @@ void DTTFFEDReader::produce(edm::Event& e, const edm::EventSetup& c) {
 
   auto_ptr<L1MuDTChambPhContainer> phi_product(new L1MuDTChambPhContainer);
   auto_ptr<L1MuDTChambThContainer> the_product(new L1MuDTChambThContainer);
+  auto_ptr<L1MuDTTrackContainer>   tra_product(new L1MuDTTrackContainer);
 
   L1MuDTChambPhContainer::Phi_Container phi_data;
   L1MuDTChambThContainer::The_Container the_data;
+  L1MuDTTrackContainer::TrackContainer  tra_data;
 
-  if (!fillRawData(e, phi_data, the_data)) return;
+  if (!fillRawData(e, phi_data, the_data, tra_data)) return;
 
   phi_product->setContainer(phi_data);
   the_product->setContainer(the_data);
+  tra_product->setContainer(tra_data);
 
   e.put(phi_product);
   e.put(the_product);
+  e.put(tra_product,"DATA");
 
 }
 
 bool DTTFFEDReader::fillRawData(edm::Event& e,
                                 L1MuDTChambPhContainer::Phi_Container& phi_data,
-                                L1MuDTChambThContainer::The_Container& the_data) {
+                                L1MuDTChambThContainer::The_Container& the_data,
+                                L1MuDTTrackContainer::TrackContainer&  tra_data) {
 
   analyse(e);
 
   phi_data = p_data();
   the_data = t_data();
+  tra_data = k_data();
 
   return true;
 }
@@ -237,6 +245,29 @@ void DTTFFEDReader::process(edm::Event& e) {
     }
     //Input
 
+    //Output
+    if(wheelID!=0 && bitsID>=0xC){   
+
+      int muonID = 0;
+      int     pt = 0;
+      int     ch = 0;
+      int    phi = 0;
+      int   qual = 0;  
+
+      muonID = (bitsID&0x1);
+      qual   = (~(*DTTFiterator)&0x07);
+      phi    = ((*DTTFiterator)&0x7F8)>>3;
+      ch     = (~(*DTTFiterator)&0x800)>>11;
+      pt     = (~(*DTTFiterator)&0x1F000)>>12;
+
+      if(qual!=0){
+        dtTracks.push_back(
+		    L1MuRegionalCand( 0, phi, 0, pt, ch,
+                    1, muonID, qual, bxID) );
+      }
+    }
+    //Output
+
   } // end for-loop container content
 
   delete dataWord1;
@@ -253,9 +284,14 @@ const L1MuDTChambThContainer::The_Container& DTTFFEDReader::t_data() {
   return theSegments;
 }
 
+const L1MuDTTrackContainer::TrackContainer&  DTTFFEDReader::k_data() {
+  return dtTracks;
+}
+
 void DTTFFEDReader::clear() {
   phiSegments.clear();
   theSegments.clear();
+  dtTracks.clear();
   return;
 }
 
@@ -353,15 +389,15 @@ void DTTFFEDReader::calcCRC(long myD1, long myD2, int &myC){
 	       D[3]  + C[1]  + C[11] + C[12] + C[15] )%2;
 
   myCRC[6] = ( D[61] + D[60] + D[50] + D[46] + D[35] + D[34] +
-	       D[33] + D[32] + D[20] + D[18] + D[5]  + D[4]   +
+	       D[33] + D[32] + D[20] + D[18] + D[5]  + D[4]  +
 	       C[2]  + C[12] + C[13] )%2;
 
   myCRC[7] = ( D[62] + D[61] + D[51] + D[47] + D[36] + D[35] +
-	       D[34] + D[33] + D[21] + D[19] + D[6]  + D[5]   +
+	       D[34] + D[33] + D[21] + D[19] + D[6]  + D[5]  +
 	       C[3]  + C[13] + C[14] )%2;
 
   myCRC[8] = ( D[63] + D[62] + D[52] + D[48] + D[37] + D[36] +
-	       D[35] + D[34] + D[22] + D[20] + D[7]  + D[6]   +
+	       D[35] + D[34] + D[22] + D[20] + D[7]  + D[6]  +
 	       C[0]  + C[4]  + C[14] + C[15] )%2;
 
   myCRC[9] = ( D[63] + D[53] + D[49] + D[38] + D[37] + D[36] +
@@ -375,7 +411,7 @@ void DTTFFEDReader::calcCRC(long myD1, long myD2, int &myC){
 		D[25] + D[23] + D[10] + D[9]  + C[3]  + C[7] )%2;
 
   myCRC[12] = ( D[56] + D[52] + D[41] + D[40] + D[39] + D[38] +
-		D[26] + D[24] + D[11] + D[10] + C[4] + C[8] )%2;
+		D[26] + D[24] + D[11] + D[10] + C[4]  + C[8] )%2;
 
   myCRC[13] = ( D[57] + D[53] + D[42] + D[41] + D[40] + D[39] +
 		D[27] + D[25] + D[12] + D[11] + C[5]  + C[9] )%2;
