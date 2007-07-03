@@ -50,6 +50,7 @@
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerFDL.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GtfeWord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GtfeExtWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1TcsWord.h"
 
 #include "DataFormats/Common/interface/RefProd.h"
@@ -198,19 +199,24 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
     }
 
-    // * create L1GtfeWord
+    // * create L1GtfeExtWord
 
-    L1GtfeWord gtfeWordValue;
-    gtfeWordValue.setBoardId(gtfeBoardId);
-    gtfeWordValue.setRecordLength(m_totalBxInEvent);
+    L1GtfeExtWord gtfeExtWordValue;
+    gtfeExtWordValue.setBoardId(gtfeBoardId);
+    // cast int to boost::uint16_t (there are normally 3 or 5 BxInEvent)
+    gtfeExtWordValue.setRecordLength(static_cast<boost::uint16_t>(m_totalBxInEvent));
 
     // set the list of active boards
-    gtfeWordValue.setActiveBoards(m_activeBoards);
+    gtfeExtWordValue.setActiveBoards(m_activeBoards);
 
-    // ** fill L1GtfeWord
+    // ** fill L1GtfeWord in GT DAQ record 
 
+    L1GtfeWord& gtfeWordValue = dynamic_cast<L1GtfeExtWord&>(gtfeExtWordValue);
     gtReadoutRecord->setGtfeWord(gtfeWordValue);
-    gtEvmReadoutRecord->setGtfeWord(gtfeWordValue);
+    
+    // ** fill L1GtfeExtWord in GT EVM record 
+    gtEvmReadoutRecord->setGtfeWord(gtfeExtWordValue);
+    
     LogDebug("L1GlobalTrigger")
     << "\n  GTFE board " << gtReadoutRecord->gtfeWord().boardId() << "\n"
     << "    GTFE word: total number of bx in DAQ record = "
