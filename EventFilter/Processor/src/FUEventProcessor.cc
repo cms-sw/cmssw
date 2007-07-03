@@ -157,10 +157,11 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   // initialize monitoring infospace
 
   std::stringstream oss2;
-  oss2<<"urn:xdaq-monitorable:"<<class_.toString()<<":"<<instance_.toString();
+  oss2<<"urn:xdaq-monitorable-"<<class_.toString()<<"-"<<instance_.toString();
   string monInfoSpaceName=oss2.str();
-
-  mispace = xdata::InfoSpace::get(monInfoSpaceName);
+  toolbox::net::URN urn = this->createQualifiedInfoSpace(monInfoSpaceName);
+  mispace = xdata::getInfoSpaceFactory()->get(urn.toString());
+  
   mispace->fireItemAvailable("url",                      &url_);
   mispace->fireItemAvailable("class",                    &class_);
   mispace->fireItemAvailable("instance",                 &instance_);
@@ -170,8 +171,8 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   mispace->fireItemAvailable("epMicroState",             &epmState_);
   mispace->fireItemAvailable("nbProcessed",              &nbProcessed_);
   mispace->fireItemAvailable("nbAccepted",               &nbAccepted_);
-
- 
+  
+  
   // bind prescale related soap callbacks
   xoap::bind(this,&FUEventProcessor::getPsReport ,"GetPsReport",XDAQ_NS_URI);
   xoap::bind(this,&FUEventProcessor::getLsReport ,"GetLsReport",XDAQ_NS_URI);

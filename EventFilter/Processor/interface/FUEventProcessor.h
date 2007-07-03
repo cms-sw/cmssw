@@ -19,6 +19,7 @@
 #include "xdata/Boolean.h"
 #include "xdata/UnsignedInteger32.h"
 #include "xdata/ActionListener.h"
+#include "xdata/InfoSpaceFactory.h"
 
 #include "xgi/Input.h"
 #include "xgi/Output.h"
