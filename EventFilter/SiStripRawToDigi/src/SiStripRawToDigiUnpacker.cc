@@ -12,8 +12,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Utilities/Timing/interface/TimingReport.h"
-#include "interface/shared/include/fed_header.h"
-#include "interface/shared/include/fed_trailer.h"
+#include "interface/shared/fed_header.h"
+#include "interface/shared/fed_trailer.h"
 #include "Fed9UUtils.hh"
 #include "ICException.hh"
 #include <iostream>
