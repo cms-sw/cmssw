@@ -25,7 +25,9 @@ namespace edm {
       /// for sorting NodePtrs by name
       typedef std::map<std::string, NodePtr> NodePtrMap;
 
-      ParseTree(const std::string & configString, bool strict = false);
+      static void setStrictParsing(bool strict);
+
+      explicit ParseTree(const std::string & configString);
 
       /// the top-level process PSetNode
       PSetNode * getProcessNode() const;
@@ -136,7 +138,7 @@ namespace edm {
       NodePtrListPtr nodes_;
 
       /// warnings or exceptions?
-      bool strict_;
+      static bool strict_;
     };
   }
 }

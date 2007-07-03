@@ -19,7 +19,15 @@ using std::map;
 namespace edm {
   namespace pset {
 
-    ParseTree::ParseTree(const string & configString, bool strict)
+    bool ParseTree::strict_ = false;
+
+    /// set the (static) strictness
+    void ParseTree::setStrictParsing(bool strict)
+    {
+      strict_ = strict;
+    }
+
+    ParseTree::ParseTree(const string & configString)
     : blocks_(),
       blockCopyNodes_(),
       blockRenameNodes_(),
@@ -28,8 +36,7 @@ namespace edm {
       renameNodes_(),
       replaceNodes_(),
       modulesAndSources_(),
-      nodes_(parse(configString.c_str())),
-      strict_(strict)
+      nodes_(parse(configString.c_str()))
     {
       process();
     }
