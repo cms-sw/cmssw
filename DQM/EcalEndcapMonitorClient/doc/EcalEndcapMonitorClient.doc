@@ -27,6 +27,7 @@
 - EECosmicClient
 - EEIntegrityClient
 - EELaserClient
+- EELedClient
 - EEMUtilsClient
 - EEPedestalClient
 - EEPedestalOnlineClient
