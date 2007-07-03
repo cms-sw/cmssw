@@ -1,13 +1,17 @@
 /** \file
  *
- *  $Date: 2006/08/28 14:29:04 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/03/07 16:18:45 $
+ *  $Revision: 1.12 $
  */
 
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
+
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <map>
 
@@ -46,6 +50,28 @@ GlobalVector MuonTransientTrackingRecHit::globalDirection() const
 GlobalError MuonTransientTrackingRecHit::globalDirectionError() const
 {
   return ErrorFrameTransformer().transform( localDirectionError(), (det()->surface()));
+}
+
+
+AlgebraicSymMatrix MuonTransientTrackingRecHit::parametersError() const {
+  
+  AlgebraicSymMatrix err = GenericTransientTrackingRecHit::parametersError();
+ 
+  if (det()->alignmentPositionError() != 0) {
+    LocalError lape = ErrorFrameTransformer().transform(det()->alignmentPositionError()->globalError(), det()->surface());
+
+    if(err.num_row() != 1 && err.num_row() != 2)
+      throw cms::Exception("MuonTransientTrackingRecHit::parametersError") 
+	<<"Wrong dimension of allignment error matrix: " << err.num_row() << std::endl;
+    
+    err[0][0] += lape.xx();
+    
+    if(err.num_row() == 2){
+      err[0][1] += lape.xy();
+      err[1][1] += lape.yy();
+    }
+  }  
+  return err;
 }
 
 double MuonTransientTrackingRecHit::chi2() const 
