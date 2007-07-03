@@ -15,6 +15,7 @@
 
 #include "TH1F.h"
 #include "TF1.h"
+#include "TProfile.h"
 
 #include <memory>
 //#include <iostream>
@@ -22,7 +23,7 @@
 #include <vector>
 #include <string>
 
-class HcalPedestals;
+class HcalPedestal;
 class HcalDbService;
 class HcalQIEShape;
 class HcalQIECoder;
@@ -36,12 +37,13 @@ public:
   /// Destructor
   ~HcalLedAnalysis();
   void LedSetup(const std::string& m_outputFileROOT);
-  void doPeds(const HcalPedestals* fInputPedestals);
+  //void doPeds(const HcalPedestals* fInputPedestals);
   void LedSampleAnalysis();
   void LedDone();
   void processLedEvent(const HBHEDigiCollection& hbhe,
 		    const HODigiCollection& ho,
 		    const HFDigiCollection& hf,
+                    const HcalCalibDigiCollection calib,
 		    const HcalDbService& cond);
 
 protected:
@@ -63,11 +65,21 @@ private:
   //#  which are written in THE vector<TH1F*>; 
   //###  
   typedef std::pair<TH1F*,std::pair<std::map<int, std::vector<double> >,std::vector<TH1F*> > > LEDBUNCH;
+  typedef struct{
+    TProfile* avePulse[3];
+    TH1F* thisPulse[3];
+    TH1F* integPulse[3];
+  } CALIBBUNCH;
   TFile* m_file;
-  void LedTSHists(int id, const HcalDetId detid, int TS, const HcalQIESample& qie1, std::map<HcalDetId, std::map<int,LEDBUNCH> > &toolT, float pedestal);
+  void LedHBHEHists(const HcalDetId& detid, const HBHEDataFrame& ledDigi, std::map<HcalDetId, std::map<int,LEDBUNCH> > &toolT, const HcalDbService& cond);
+  void LedHOHists(const HcalDetId& detid, const HODataFrame& ledDigi, std::map<HcalDetId, std::map<int,LEDBUNCH> > &toolT, const HcalDbService& cond);
+  void LedHFHists(const HcalDetId& detid, const HFDataFrame& ledDigi, std::map<HcalDetId, std::map<int,LEDBUNCH> > &toolT, const HcalDbService& cond);
+  void SetupLEDHists(int id, const HcalDetId detid, std::map<HcalDetId, std::map<int,LEDBUNCH> > &toolT);
   void GetLedConst(std::map<HcalDetId,std::map<int, LEDBUNCH > > &toolT);
   void LedTrendings(std::map<HcalDetId,std::map<int, LEDBUNCH > > &toolT);
+  void ProcessCalibEvent(int fiberChan,HcalCalibDetId calibId, const HcalCalibDataFrame digi);
   float BinsizeCorr(float time);
+  
   std::string m_outputFileROOT;
   std::string m_outputFileText;
   std::ofstream m_outFile;
@@ -77,11 +89,12 @@ private:
   int m_endTS;
   int m_nevtsample;
   int m_hiSaveflag;
+  bool m_usecalib;
 // analysis flag:
 //  m_fitflag = 0  - take mean TS value of averaged pulse shape
 //              1  - take peak from landau fit to averaged pulse shape
 //              2  - take average of mean TS values per event
-//                     (preferred for laser)
+//                     (preferred for laser & HF LED)
 //              3  - take average of peaks from landau fits per event
 //                     (preferred for LED)
 //              4  - 0+1+2+3
@@ -89,6 +102,7 @@ private:
   
   const HcalQIEShape* m_shape;
   const HcalQIECoder* m_coder;
+  const HcalPedestal* m_ped;
   struct{
     std::map<HcalDetId,std::map<int, LEDBUNCH > > LEDTRENDS;
     TH1F* ALLLEDS;
@@ -100,7 +114,10 @@ private:
   std::map<HcalDetId,std::map<int,float> > m_AllPedVals;
   std::map<HcalDetId,std::map<int,float> >::iterator _meee;
 
-  const HcalPedestals* pedCan;
+  std::map<HcalCalibDetId,CALIBBUNCH> calibHists;
+  std::map<HcalCalibDetId,CALIBBUNCH>::iterator _meca;
+
+  //const HcalPedestal* pedCan;
   int evt;
   int sample;
   int evt_curr;
