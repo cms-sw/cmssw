@@ -1,7 +1,7 @@
 #ifndef HLTReco_HLTGlobalObject_h
 #define HLTReco_HLTGlobalObject_h
 
-/** \class HLTGlobalObject
+/** \class reco::HLTGlobalObject
  *
  *  A single object in each event carrying persistent references to
  *  all HLTPathObjects available for this event (ie, usually the few
@@ -10,8 +10,8 @@
  *  If the user wants map-like indexing of triggers through their
  *  names as key, s/he must use the TriggerNamesService.
  *
- *  $Date: 2006/06/17 03:37:46 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/06/03 08:11:43 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *

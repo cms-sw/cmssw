@@ -1,7 +1,7 @@
 #ifndef HLTReco_HLTFilterObject_h
 #define HLTReco_HLTFilterObject_h
 
-/** \class HLTFilterObject
+/** \class reco::HLTFilterObject
  *
  *
  *  If HLT cuts of intermediate or final HLT filters are satisfied,
@@ -14,8 +14,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2007/05/16 15:38:43 $
- *  $Revision: 1.25 $
+ *  $Date: 2007/06/15 15:12:28 $
+ *  $Revision: 1.26 $
  *
  *  \author Martin Grunewald
  *

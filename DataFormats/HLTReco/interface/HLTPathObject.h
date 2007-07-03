@@ -1,7 +1,7 @@
 #ifndef HLTReco_HLTPathObject_h
 #define HLTReco_HLTPathObject_h
 
-/** \class HLTPathObject
+/** \class reco::HLTPathObject
  *
  *  
  *  This class contains the HLT path object, ie, combining the HLT
@@ -10,8 +10,8 @@
  *  HLT filter objects are derived from the same base class
  *  HLTFilterObjectBase.
  *
- *  $Date: 2006/06/17 03:37:46 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/17 20:17:01 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
