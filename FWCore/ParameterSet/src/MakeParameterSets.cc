@@ -2,10 +2,17 @@
 
 #include "FWCore/ParameterSet/interface/MakeParameterSets.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
+#include "FWCore/ParameterSet/interface/ParseTree.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 
 namespace edm
 {
+
+  void setStrictParsing(bool strict)
+  {
+    edm::pset::ParseTree::setStrictParsing(strict);
+  }
+
 
   void
   makeParameterSets(std::string const& configtext,

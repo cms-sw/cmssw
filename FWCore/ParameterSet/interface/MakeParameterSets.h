@@ -5,7 +5,7 @@
 //----------------------------------------------------------------------
 // Declare functions used to create ParameterSets.
 //
-// $Id: MakeParameterSets.h,v 1.3 2006/01/17 23:22:45 paterno Exp $
+// $Id: MakeParameterSets.h,v 1.4 2006/04/26 22:00:38 rpw Exp $
 //
 //----------------------------------------------------------------------
 
@@ -18,6 +18,10 @@
 
 namespace edm
 {
+
+  /// meant to be done before makerParameterSets,
+  /// if you want to run in strict mode
+  void setStrictParsing(bool strict);
 
   // Parse the given configuration text, filling in as output:
   //
