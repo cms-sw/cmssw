@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2007/06/13 18:01:29 $
- * $Revision: 1.13 $
+ * $Date: 2007/07/02 19:51:04 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -92,29 +92,29 @@ void EELedTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EELedTask");
 
     for (int i = 0; i < 18 ; i++) {
-      sprintf(histo, "EELT shape %s A", Numbers::sEE(i+1).c_str());
+      sprintf(histo, "EELDT shape %s A", Numbers::sEE(i+1).c_str());
       meShapeMapA_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(meShapeMapA_[i], i+1);
-      sprintf(histo, "EELT amplitude %s A", Numbers::sEE(i+1).c_str());
+      sprintf(histo, "EELDT amplitude %s A", Numbers::sEE(i+1).c_str());
       meAmplMapA_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
       dbe_->tag(meAmplMapA_[i], i+1);
-      sprintf(histo, "EELT timing %s A", Numbers::sEE(i+1).c_str());
+      sprintf(histo, "EELDT timing %s A", Numbers::sEE(i+1).c_str());
       meTimeMapA_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
       dbe_->tag(meTimeMapA_[i], i+1);
-      sprintf(histo, "EELT amplitude over PN %s A", Numbers::sEE(i+1).c_str());
+      sprintf(histo, "EELDT amplitude over PN %s A", Numbers::sEE(i+1).c_str());
       meAmplPNMapA_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
       dbe_->tag(meAmplPNMapA_[i], i+1);
 
-      sprintf(histo, "EELT shape %s B", Numbers::sEE(i+1).c_str());
+      sprintf(histo, "EELDT shape %s B", Numbers::sEE(i+1).c_str());
       meShapeMapB_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(meShapeMapB_[i], i+1);
-      sprintf(histo, "EELT amplitude %s B", Numbers::sEE(i+1).c_str());
+      sprintf(histo, "EELDT amplitude %s B", Numbers::sEE(i+1).c_str());
       meAmplMapB_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
       dbe_->tag(meAmplMapB_[i], i+1);
-      sprintf(histo, "EELT timing %s B", Numbers::sEE(i+1).c_str());
+      sprintf(histo, "EELDT timing %s B", Numbers::sEE(i+1).c_str());
       meTimeMapB_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
       dbe_->tag(meTimeMapB_[i], i+1);
-      sprintf(histo, "EELT amplitude over PN %s B", Numbers::sEE(i+1).c_str());
+      sprintf(histo, "EELDT amplitude over PN %s B", Numbers::sEE(i+1).c_str());
       meAmplPNMapB_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
       dbe_->tag(meAmplPNMapB_[i], i+1);
     }
