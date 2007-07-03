@@ -73,7 +73,8 @@ HistoCompare_Tracks::PVCompute(TH1 * oldHisto , TH1 * newHisto , TText * te,char
   mynewHisto1 = newHisto;
   myte = te;
 
-  mypv = myoldHisto1->Chi2Test(mynewHisto1,option);
+  //mypv = myoldHisto1->Chi2Test(mynewHisto1,option);
+  mypv = myoldHisto1->KolmogorovTest(mynewHisto1);
   std::strstream buf;
   std::string value;
   buf<<"PV="<<mypv<<std::endl;
@@ -92,65 +93,5 @@ HistoCompare_Tracks::PVCompute(TH1 * oldHisto , TH1 * newHisto , TText * te,char
     }
   
   return;
-
 }
 
-// HistoCompare_Tracks::PVCompute(TH2 * oldHisto , TH2 * newHisto , TText * te )
-// {
-
-//   myoldHisto2 = oldHisto;
-//   mynewHisto2 = newHisto;
-//   myte = te;
-
-//   //Double_t mypv = myoldHisto2->Chi2Test(mynewHisto2,"OU");
-//   mypv = myoldHisto2->Chi2Test(mynewHisto2,"OU");
-//   std::strstream buf;
-//   std::string value;
-//   buf<<"PV="<<mypv<<std::endl;
-//   buf>>value;
-  
-//   myte->DrawTextNDC(0.2,0.7, value.c_str());
-
-//   std::cout << "[OVAL] " << myoldHisto2->GetName() << " PV = " << mypv << std::endl;
-  
-//   if ( name != "none" )
-//     {
-//       if ( mypv < 0.01 )
-// 	out_file << myoldHisto1->GetName() << "     pv = " << mypv << "      comparison fails !!!" << endl; 
-//       else
-// 	out_file << myoldHisto1->GetName() << "     pv = " << mypv << endl;
-//     }
-
-//   return;
-// }
-
-
-// HistoCompare_Tracks::PVCompute(TProfile * oldHisto , TProfile * newHisto , TText * te )
-// {
-
-//   myoldProfile = oldHisto;
-//   mynewProfile = newHisto;
-//   myte = te;
-
-//   //Double_t mypv = myoldProfile->Chi2Test(mynewProfile,"OU");
-//   mypv = myoldProfile->Chi2Test(mynewProfile,"OU");
-//   std::strstream buf;
-//   std::string value;
-//   buf<<"PV="<<mypv<<std::endl;
-//   buf>>value;
-  
-//   myte->DrawTextNDC(0.2,0.7, value.c_str());
-
-//   std::cout << "[OVAL] " << myoldProfile->GetName() << " PV = " << mypv << std::endl;
-  
-//   if ( name != "none" )
-//     {
-//       if ( mypv < 0.01 )
-// 	out_file << myoldHisto1->GetName() << "     pv = " << mypv << "      comparison fails !!!" << endl; 
-//       else
-// 	out_file << myoldHisto1->GetName() << "     pv = " << mypv << endl;
-//     }
-  
-//   return;
-
-// }
