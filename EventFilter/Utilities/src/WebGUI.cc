@@ -43,20 +43,21 @@ WebGUI::WebGUI(xdaq::Application* app,StateMachine* fsm)
   , hyperDAQIcon_("/daq/xdaq/hyperdaq/images/HyperDAQ.jpg")
 {
   // initialize application information
-  string       xmlClass=app_->getApplicationDescriptor()->getClassName();
+  string       appClass=app_->getApplicationDescriptor()->getClassName();
   unsigned int instance=app_->getApplicationDescriptor()->getInstance();
   stringstream oss;
-  oss<<xmlClass<<instance;
+  oss<<appClass<<instance;
   
   sourceId_=oss.str();
   urn_     ="/"+app_->getApplicationDescriptor()->getURN();
   
   std::stringstream oss2;
-  oss2<<"urn:xdaq-monitorable:"<<xmlClass<<":"<<instance;
+  oss2<<"urn:xdaq-monitorable-"<<appClass<<"-"<<instance;
   string monInfoSpaceName=oss2.str();
-
+  toolbox::net::URN urn = app_->createQualifiedInfoSpace(monInfoSpaceName);
+  
   appInfoSpace_=app_->getApplicationInfoSpace();
-  monInfoSpace_=xdata::InfoSpace::get(monInfoSpaceName);
+  monInfoSpace_=xdata::getInfoSpaceFactory()->get(urn.toString());
   
 
   // bind xgi callbacks

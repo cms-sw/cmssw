@@ -11,6 +11,7 @@
 
 #include "xdata/Serializable.h"
 #include "xdata/UnsignedInteger32.h"
+#include "xdata/InfoSpaceFactory.h"
 
 #include "xgi/Method.h"
 #include "xgi/Input.h"
