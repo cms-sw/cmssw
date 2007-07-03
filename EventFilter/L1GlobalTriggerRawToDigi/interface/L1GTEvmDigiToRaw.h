@@ -1,8 +1,8 @@
-#ifndef EventFilter_L1GlobalTriggerRawToDigi_L1GTDigiToRaw_h
-#define EventFilter_L1GlobalTriggerRawToDigi_L1GTDigiToRaw_h
+#ifndef EventFilter_L1GlobalTriggerRawToDigi_L1GTEvmDigiToRaw_h
+#define EventFilter_L1GlobalTriggerRawToDigi_L1GTEvmDigiToRaw_h
 
 /**
- * \class L1GTDigiToRaw
+ * \class L1GTEvmDigiToRaw
  * 
  * 
  * Description: generate raw data from digis.  
@@ -10,8 +10,7 @@
  * Implementation:
  *    <TODO: enter implementation details>
  *   
- * \author: Vasile Mihai Ghete - HEPHY Vienna -  GT 
- * \author: Ivan Mikulec       - HEPHY Vienna - GMT
+ * \author: Vasile Mihai Ghete - HEPHY Vienna 
  * 
  * $Date$
  * $Revision$
@@ -35,24 +34,23 @@
 
 // forward declarations
 class FEDRawDataCollection;
-class L1MuGMTReadoutRecord;
-class L1MuGMTReadoutCollection;
 
 class L1GtfeWord;
+class L1GtfeExtWord;
+class L1TcsWord;
 class L1GtFdlWord;
-class L1GtPsbWord;
 
 // class declaration
-class L1GTDigiToRaw : public edm::EDProducer
+class L1GTEvmDigiToRaw : public edm::EDProducer
 {
 
 public:
 
     /// constructor(s)
-    explicit L1GTDigiToRaw(const edm::ParameterSet&);
+    explicit L1GTEvmDigiToRaw(const edm::ParameterSet&);
 
     /// destructor
-    virtual ~L1GTDigiToRaw();
+    virtual ~L1GTEvmDigiToRaw();
 
 private:
 
@@ -70,23 +68,15 @@ private:
     /// pack the GTFE block
     /// gives the number of bunch crosses in the event, as well as the active boards
     /// records for inactive boards are not written in the GT DAQ record
-    void packGTFE(const edm::EventSetup&, unsigned char*, L1GtfeWord&,
+    void packGTFE(const edm::EventSetup&, unsigned char*, L1GtfeExtWord&,
                   boost::uint16_t activeBoardsGtValue);
+
+    /// pack the TCS block
+    void packTCS(const edm::EventSetup& evSetup, unsigned char* ptrGt,
+                 L1TcsWord& tcsBlock);
 
     /// pack FDL blocks for various bunch crosses
     void packFDL(const edm::EventSetup&, unsigned char*, L1GtFdlWord&);
-
-    /// pack PSB blocks
-    /// packing is done in PSB class format
-    void packPSB(const edm::EventSetup&, unsigned char*, L1GtPsbWord&);
-
-    /// pack the GMT collection using packGMT (GMT record packing)
-    unsigned int packGmtCollection(
-        unsigned char* ptrGt,
-        L1MuGMTReadoutCollection const* digis);
-
-    /// pack a GMT record
-    unsigned int packGMT(L1MuGMTReadoutRecord const&, unsigned char*);
 
     /// pack trailer word
     void packTrailer(unsigned char*, int);
@@ -97,10 +87,7 @@ private:
 private:
 
     /// input tag for GT DAQ record
-    edm::InputTag m_daqGtInputTag;
-
-    /// input tag for GMT record
-    edm::InputTag m_muGmtInputTag;
+    edm::InputTag m_evmGtInputTag;
 
     /// mask for active boards
     boost::uint16_t m_activeBoardsMaskGt;
@@ -119,4 +106,4 @@ private:
 
 };
 
-#endif // EventFilter_L1GlobalTriggerRawToDigi_L1GTDigiToRaw_h
+#endif // EventFilter_L1GlobalTriggerRawToDigi_L1GTEvmDigiToRaw_h

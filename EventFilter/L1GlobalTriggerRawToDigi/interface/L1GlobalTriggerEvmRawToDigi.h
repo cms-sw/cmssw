@@ -1,17 +1,16 @@
-#ifndef EventFilter_L1GlobalTriggerRawToDigi_L1GlobalTriggerRawToDigi_h
-#define EventFilter_L1GlobalTriggerRawToDigi_L1GlobalTriggerRawToDigi_h
+#ifndef EventFilter_L1GlobalTriggerRawToDigi_L1GlobalTriggerEvmRawToDigi_h
+#define EventFilter_L1GlobalTriggerRawToDigi_L1GlobalTriggerEvmRawToDigi_h
 
 /**
- * \class L1GlobalTriggerRawToDigi
+ * \class L1GlobalTriggerEvmRawToDigi
  * 
  * 
- * Description: unpack raw data into digitized data.  
+ * Description: unpack EVM raw data into digitized data.  
  *
  * Implementation:
  *    <TODO: enter implementation details>
  *   
- * \author: Vasile Mihai Ghete - HEPHY Vienna -  GT 
- * \author: Ivan Mikulec       - HEPHY Vienna - GMT
+ * \author: Vasile Mihai Ghete - HEPHY Vienna 
  * 
  * $Date$
  * $Revision$
@@ -34,26 +33,25 @@
 
 // forward declarations
 class L1GtfeWord;
+class L1GtfeExtWord;
+class L1TcsWord;
 class L1GtFdlWord;
-class L1GtPsbWord;
-
-class L1MuGMTReadoutCollection;
 
 class FEDHeader;
 class FEDTrailer;
 
 
 // class declaration
-class L1GlobalTriggerRawToDigi : public edm::EDProducer
+class L1GlobalTriggerEvmRawToDigi : public edm::EDProducer
 {
 
 public:
 
     /// constructor(s)
-    explicit L1GlobalTriggerRawToDigi(const edm::ParameterSet&);
+    explicit L1GlobalTriggerEvmRawToDigi(const edm::ParameterSet&);
 
     /// destructor
-    virtual ~L1GlobalTriggerRawToDigi();
+    virtual ~L1GlobalTriggerEvmRawToDigi();
 
 private:
 
@@ -66,14 +64,8 @@ private:
     /// unpack header
     void unpackHeader(const unsigned char*, FEDHeader&);
 
-    /// unpack PSB blocks
-    /// unpacking is done in PSB class format
-    /// methods are given later to translate from the PSB format
-    /// to the physical input of the PSB
-    void unpackPSB(const edm::EventSetup&, const unsigned char*, L1GtPsbWord&);
-
-    /// unpack the GMT record
-    void unpackGMT(const unsigned char*, std::auto_ptr<L1MuGMTReadoutCollection>&);
+    /// unpack TCS block
+    void unpackTCS(const edm::EventSetup&, const unsigned char*, L1TcsWord&);
 
     /// unpack trailer word
     void unpackTrailer(const unsigned char*, FEDTrailer&);
@@ -87,17 +79,17 @@ private:
 
 private:
 
-    L1GtfeWord* m_gtfeWord;
-    L1GtPsbWord* m_gtPsbWord;
+    L1GtfeExtWord* m_gtfeWord;
+    L1TcsWord* m_tcsWord;
     L1GtFdlWord* m_gtFdlWord;
 
-    /// input tags for GT DAQ record
-    edm::InputTag m_daqGtInputTag;
+    /// input tags for GT EVM record
+    edm::InputTag m_evmGtInputTag;
     
-    /// FED Id for GT DAQ record
+    /// FED Id for GT EVM record
     /// default value defined in DataFormats/FEDRawData/src/FEDNumbering.cc
-    int m_daqGtFedId;  
-
+    int m_evmGtFedId;  
+    
     /// mask for active boards
     boost::uint16_t m_activeBoardsMaskGt;
 
@@ -117,4 +109,4 @@ private:
 
 };
 
-#endif // EventFilter_L1GlobalTriggerRawToDigi_L1GlobalTriggerRawToDigi_h
+#endif // EventFilter_L1GlobalTriggerRawToDigi_L1GlobalTriggerEvmRawToDigi_h
