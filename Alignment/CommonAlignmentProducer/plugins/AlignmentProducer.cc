@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.6 $
-///  last update: $Date: 2007/06/24 01:58:59 $
-///  by         : $Author: cklae $
+///  Revision   : $Revision: 1.7 $
+///  last update: $Date: 2007/07/02 18:31:03 $
+///  by         : $Author: pivarski $
 
 #include "Alignment/CommonAlignmentProducer/plugins/AlignmentProducer.h"
 
@@ -71,7 +71,8 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
   doMisalignmentScenario_(iConfig.getParameter<bool>("doMisalignmentScenario")),
   saveToDB_(iConfig.getParameter<bool>("saveToDB")),
   doTracker_( iConfig.getUntrackedParameter<bool>("doTracker") ),
-  doMuon_( iConfig.getUntrackedParameter<bool>("doMuon") )
+  doMuon_( iConfig.getUntrackedParameter<bool>("doMuon") ),
+  useSurvey_( iConfig.getParameter<bool>("useSurvey") ) 
 {
 
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::AlignmentProducer";
@@ -115,10 +116,9 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
 AlignmentProducer::~AlignmentProducer()
 {
 
-  if (theAlignmentParameterStore) delete theAlignmentParameterStore;
-
-  if (theAlignableTracker) delete theAlignableTracker;
-  if (theAlignableMuon)    delete theAlignableMuon;
+  delete theAlignmentParameterStore;
+  delete theAlignableTracker;
+  delete theAlignableMuon;
 
 }
 
@@ -192,16 +192,19 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
   {
     theAlignableTracker = new AlignableTracker( &(*theGeometricDet), &(*theTracker) );
 
-    edm::ESHandle<Alignments> surveys;
-    edm::ESHandle<SurveyErrors> surveyErrors;
+    if (useSurvey_)
+    {
+      edm::ESHandle<Alignments> surveys;
+      edm::ESHandle<SurveyErrors> surveyErrors;
 
-    iSetup.get<TrackerSurveyRcd>().get(surveys);
-    iSetup.get<TrackerSurveyErrorRcd>().get(surveyErrors);
+      iSetup.get<TrackerSurveyRcd>().get(surveys);
+      iSetup.get<TrackerSurveyErrorRcd>().get(surveyErrors);
 
-    theSurveyValues = &*surveys;
-    theSurveyErrors = &*surveyErrors;
+      theSurveyValues = &*surveys;
+      theSurveyErrors = &*surveyErrors;
 
-    addSurveyInfo_(theAlignableTracker);
+      addSurveyInfo_(theAlignableTracker);
+    }
   }
 
   if (doMuon_) theAlignableMuon = new AlignableMuon( &(*theMuonDT), &(*theMuonCSC) );
