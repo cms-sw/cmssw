@@ -18,6 +18,7 @@ void makePlot(ofstream& of, int plot);
 int main() {
 
 
+  /*
   // GCT card number
   ofstream gctCardPlot("gctCardPlot.txt");
   makePlot(gctCardPlot, 0);
@@ -25,6 +26,7 @@ int main() {
   // GCT region number
   ofstream gctRgnPlot("gctRgnPlot.txt");
   makePlot(gctRgnPlot, 1);
+  */
 
   // RCT crate number
   ofstream rctCratePlot("rctCratePlot.txt");
@@ -99,10 +101,12 @@ void makePlot(ofstream &of, int plot) {
       L1CaloRegionDetId rgn(ieta, iphi);
 
       switch (plot) {
+      /*
       case 0 : 
 	of << setw(3) << rgn.gctCard() << " "; break;
       case 1 : 
 	of << setw(3) << rgn.gctRegion() << " "; break;
+      */
       case 2 : 
 	of << setw(3) << rgn.rctCrate() << " "; break;
       case 3 : 

@@ -6,8 +6,8 @@
 /** \class L1CaloRegionDetId
  *  Cell identifier class for L1 Calo Trigger Regions (4x4 trigger tower sums)
  *
- *  $Date: 2006/07/07 19:18:13 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/11/28 10:59:43 $
+ *  $Revision: 1.10 $
  *  \author Jim Brooke 
 */
 
@@ -38,9 +38,11 @@ class L1CaloRegionDetId : public DetId {
   /// or to false to create central regions (including card argument)
   L1CaloRegionDetId(bool isForward, unsigned icrate, unsigned icard, unsigned irgn);
 
+  /* Commented
   /// create id from GCT card and input number
   /// NB - isForward has no effect; dummy argument to differentiate from global eta/phi indices!
   L1CaloRegionDetId(bool isForward, unsigned icard, unsigned irgn);
+  */
 
   /// global eta index (0-21)
   unsigned ieta() const { return id_&0x1f; }
@@ -48,11 +50,13 @@ class L1CaloRegionDetId : public DetId {
   /// global phi index (0-17)
   unsigned iphi() const { return (id_>>5)&0x1f; }
 
+  /* Commented the following
   /// return GCT source card number
   unsigned gctCard() const;
 
   /// return GCT region index (within source card)
   unsigned gctRegion() const;
+  */
 
   /// return central or forward type
   bool isForward() const { return (ieta()<4 || ieta()>17); }
@@ -72,11 +76,13 @@ class L1CaloRegionDetId : public DetId {
   /// return local RCT phi index (0-1)
   unsigned rctPhi() const { return (iphi()%2); }
 
+  /* Commented the following
   /// return GCT output eta value (includes sign at bit 4)
   unsigned gctEta() const { return (((rctEta() % 7) & 0x7) | (ieta()<11 ? 0x8 : 0)); }
 
   /// return GCT output phi value
   unsigned gctPhi() const { return iphi() & 0x1f; }
+  */
 
 };
 

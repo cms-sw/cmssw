@@ -63,6 +63,7 @@ L1CaloRegionDetId::L1CaloRegionDetId(bool isForward, unsigned icrate, unsigned i
   id_ |= (ieta & 0x1f) | ((iphi & 0x1f)<<5);
 }
 
+/*
 // construct from GCT card, region #s
 L1CaloRegionDetId::L1CaloRegionDetId(bool isForward, unsigned icard, unsigned irgn) :
   DetId(Calo, 2)
@@ -102,6 +103,7 @@ L1CaloRegionDetId::L1CaloRegionDetId(bool isForward, unsigned icard, unsigned ir
 
   id_ |= (ieta & 0x1f) | ((iphi & 0x1f)<<5);
 }
+*/
 
 // return RCT crate ID
 unsigned L1CaloRegionDetId::rctCrate() const { // TODO - check this is correct!
@@ -149,6 +151,7 @@ unsigned L1CaloRegionDetId::rctRegion() const {
   return rgn;
 }
 
+/*
 // return GCT source card number
 unsigned L1CaloRegionDetId::gctCard() const
 {
@@ -175,4 +178,4 @@ unsigned L1CaloRegionDetId::gctRegion() const
   }
   return result;
 }
-
+*/
