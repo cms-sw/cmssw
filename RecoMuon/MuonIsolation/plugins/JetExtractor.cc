@@ -34,6 +34,7 @@ JetExtractor::JetExtractor(const ParameterSet& par) :
   theThreshold(par.getParameter<double>("Threshold")),
   theDR_Veto(par.getParameter<double>("DR_Veto")),
   theDR_Max(par.getParameter<double>("DR_Max")),
+  theExcludeMuonVeto(par.getParameter<bool>("ExcludeMuonVeto")),
   theAssociator(0),
   thePropagator(0),
   thePrintTimeReport(par.getUntrackedParameter<bool>("PrintTimeReport"))
@@ -113,11 +114,15 @@ MuIsoDeposit JetExtractor::deposit( const Event & event, const EventSetup& event
       }
       if (isExcluded) sumEtExcluded += (*jetTowCI)->et();
     }
-    if (jetCI->et() - sumEtExcluded < theThreshold ) continue;
+    if (theExcludeMuonVeto){
+      if (jetCI->et() - sumEtExcluded < theThreshold ) continue;
+    }
 
+    double depositEt = jetCI->et();
+    if (theExcludeMuonVeto) depositEt = depositEt - sumEtExcluded;
 
     Direction jetDir(jetCI->eta(), jetCI->phi());
-    depJet.addDeposit(jetDir, jetCI->et());
+    depJet.addDeposit(jetDir, depositEt);
     
   }
 

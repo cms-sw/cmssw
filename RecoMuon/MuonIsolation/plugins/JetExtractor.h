@@ -8,9 +8,9 @@
  *  All work is done by TrackDetectorAssociator. Because of the heavy
  *  weight of the tool, all extractions can (should?) be placed in a single place.
  *  
- *  $Date: 2007/04/18 21:59:20 $
+ *  $Date: 2007/07/03 21:44:34 $
  *  $Revision: 1.1 $
- *  $Id: JetExtractor.h,v 1.1 2007/04/18 21:59:20 slava77 Exp $
+ *  $Id: JetExtractor.h,v 1.1 2007/07/03 21:44:34 slava77 Exp $
  *  \author S. Krutelyov
  */
 
@@ -55,6 +55,9 @@ private:
   double theThreshold;
   double theDR_Veto;
   double theDR_Max;
+
+  //excludes sumEt of towers that are inside muon veto cone
+  bool theExcludeMuonVeto;
 
   TrackAssociatorParameters* theAssociatorParameters;
   TrackDetectorAssociator* theAssociator;  
