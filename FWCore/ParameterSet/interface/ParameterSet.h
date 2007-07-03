@@ -2,7 +2,7 @@
 #define FWCore_ParameterSet_ParameterSet_h
 
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.h,v 1.35 2007/06/14 04:55:59 wmtan Exp $
+// $Id: ParameterSet.h,v 1.36 2007/06/19 21:35:48 rpw Exp $
 //
 // Declaration for ParameterSet(parameter set) and related types
 // ----------------------------------------------------------------------
@@ -17,6 +17,7 @@
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "FWCore/ParameterSet/interface/Entry.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <string>
 #include <map>
 #include <vector>
@@ -273,7 +274,23 @@ private:
   inline
   edm::InputTag
   ParameterSet::getParameter<edm::InputTag>(std::string const& name) const {
-    return retrieve(name).getInputTag();
+    const Entry & e_input = retrieve(name);
+    switch (e_input.typeCode()) 
+    {
+      case 't':   // InputTag
+        return e_input.getInputTag();
+      case 'S':   // string
+        const std::string & label = e_input.getString();
+        edm::LogWarning("Configuration") << "Warning:\n\tstring " << name 
+           << " = \"" << label 
+           << "\"\nis deprecated, "
+           << "please update your config file to use\n\tInputTag " 
+           << name << " = " << label;
+        return InputTag( label );
+    }
+    throw edm::Exception(errors::Configuration, "ValueError") << "type of " 
+       << name << " is expected to be InputTag or string (deprecated)";
+
   }
 
 
