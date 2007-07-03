@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/06/24 18:12:09 $
- * $Revision: 1.48 $
+ * $Date: 2007/07/03 12:36:19 $
+ * $Revision: 1.49 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1116,6 +1116,7 @@ void EcalEndcapMonitorClient::writeDb(void) {
       for ( EECIMMap::iterator k = chb_.lower_bound(clients_[j]); k != chb_.upper_bound(clients_[j]); ++k ) {
         if ( h_ && h_->GetBinContent((*k).second+1) != 0 && runtype_ != -1 && runtype_ == (*k).second && !written ) {
           if ( clientNames_[j] == "Laser" && h_->GetBinContent(EcalDCCHeaderBlock::LASER_STD+1) == 0 ) continue;
+          if ( clientNames_[j] == "Led" && h_->GetBinContent(EcalDCCHeaderBlock::LED_STD+1) == 0 ) continue;
           written = true;
           taskl |= 0x1 << j;
           if ( clients_[j]->writeDb(econn, &runiov_, &moniov_, ism) ) {
@@ -1849,6 +1850,7 @@ void EcalEndcapMonitorClient::htmlOutput( bool current ){
     for ( EECIMMap::iterator k = chb_.lower_bound(clients_[j]); k != chb_.upper_bound(clients_[j]); ++k ) {
       if ( h_ && h_->GetBinContent((*k).second+1) != 0 && runtype_ != -1 && runtype_ == (*k).second && !written ) {
         if ( clientNames_[j] == "Laser" && h_->GetBinContent(EcalDCCHeaderBlock::LASER_STD+1) == 0 ) continue;
+        //if ( clientNames_[j] == "Led" && h_->GetBinContent(EcalDCCHeaderBlock::LED_STD+1) == 0 ) continue;
         written = true;
         htmlName = "EE" + clientNames_[j] + "Client.html";
         clients_[j]->htmlOutput(run_, htmlDir, htmlName);
