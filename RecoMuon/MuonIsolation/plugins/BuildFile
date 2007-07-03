@@ -1,5 +1,6 @@
 <use name=RecoMuon/MuonIsolation>
 <use name=DataFormats/CaloTowers>
+<use name=DataFormats/JetReco>
 <use name=DataFormats/MuonReco>
 <use name=DataFormats/TrackReco>
 <use name=FWCore/Framework>
