@@ -42,7 +42,7 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
   //now do what ever initialization is needed
  
   tracksContainers_ = 
-    iConfig.getParameter< vector < string > >("ROUList");
+    iConfig.getParameter< vector < InputTag > >("TkColList");
 
   pfCLusTagECLabel_=
     iConfig.getParameter<InputTag>("PFEcalClusterLabel");
@@ -170,9 +170,9 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
     TrajectorySeed Seed=Tj[i].seed();
 
     float PTOB=Tj[i].lastMeasurement().updatedState().globalMomentum().mag();
-    float chired=Tk[i].normalizedChi2();
+    float chikfred=Tk[i].normalizedChi2();
     int nhitpi=Tj[i].foundHits();
-    EP=900;
+    float EP=0;
 
 
     //CLUSTERS - TRACK matching
@@ -228,19 +228,19 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
     double ecalphires 
       = resMapPhiECAL_->GetBinContent(resMapPhiECAL_->FindBin(feta,EE)); 
 
-    float chieta= toteta/ecaletares;
-    float chiphi= totphi/ecalphires;
+    float chieta=(toteta!=1000)? toteta/ecaletares : toteta;
+    float chiphi=(totphi!=1000)? totphi/ecalphires : totphi;
     float chichi= sqrt(chieta*chieta + chiphi*chiphi);
 
     bool cc1= false;
 
     //TMVA Analysis
     if(useTmva_){
-      Chi=chichi;
-      Chired=1000;
-      ChiRatio=1000;
-      Dpt=0;
-      Nhit=nhitpi;
+      chi=chichi;
+      chired=1000;
+      chiRatio=1000;
+      dpt=0;
+      nhit=nhitpi;
 
       Trajectory::ConstRecHitContainer tmp;
       Trajectory::ConstRecHitContainer hits=Tj[i].recHits();
@@ -259,31 +259,32 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 		updatedState().globalMomentum().perp();
 	      float pt_in=SmooTjs[0].lastMeasurement().
 		updatedState().globalMomentum().perp();
-	      Dpt=(pt_in>0) ? fabs(pt_out-pt_in)/pt_in : 0.;
-	      ChiRatio=SmooTjs[0].chiSquared()/Tj[i].chiSquared();
-	      Chired=ChiRatio*chired;
+	      dpt=(pt_in>0) ? fabs(pt_out-pt_in)/pt_in : 0.;
+	      chiRatio=SmooTjs[0].chiSquared()/Tj[i].chiSquared();
+	      chired=chiRatio*chikfred;
 	    }
 	  }
 	}
       }
-
-      int ihh=int(ipteta/5)+1;
+      eta=Tk[i].eta();
+      pt=Tk[i].pt();
+      eP=EP;
       //ENDCAP
       //USE OF PRESHOWER 
-      if (ihh==3){
-	PS2En=0;PS1En=0;
-	PS2chi=100.; PS1chi=100.;
+      if (fabs(Tk[i].eta())>1.6){
+	ps2En=0;ps1En=0;
+	ps2chi=100.; ps1chi=100.;
 	PSforTMVA(Tj[i].firstMeasurement().updatedState());
       }
-      //
-      char eta_s[10];
-      char pt_s[10];
-      sprintf(eta_s," eta%d",ihh);
-      sprintf(pt_s," pt%d",ipteta-(ihh*5)+6);
-      string met=Method+eta_s+pt_s;
-      if (reader->EvaluateMVA( met )>thrTMVA[ipteta]) cc1=true;
-    }else{ 
 
+      
+      float Ytmva=(fabs(Tk[i].eta())<1.6) ? 
+	reader->EvaluateMVA( metBarrel_ ):
+	reader->EvaluateMVA( metEndcap_ );
+      
+      if ( Ytmva>thrTMVA[ipteta]) cc1=true;
+    }else{ 
+      
       //thresholds     
       float chi2cut=thr[ibin+0];
       float ep_cutmin=thr[ibin+1];
@@ -311,7 +312,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       bool aa5= (aa3 || aa4);
       //KF filter
       bool bb1 =
-	((chired>chiredmin) || (nhitpi<hit1max));
+	((chikfred>chiredmin) || (nhitpi<hit1max));
 
       bool bb2 = false;
       bool bb3 = false;
@@ -338,7 +339,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 		  updatedState().globalMomentum().perp();
 		float el_dpt=(pt_in>0) ? fabs(pt_out-pt_in)/pt_in : 0.;
 		float chiratio=SmooTjs[0].chiSquared()/Tj[i].chiSquared();
-		float gchi=chiratio*chired;
+		float gchi=chiratio*chikfred;
 		
 		//Criteria based on electron tracks
 		bb2=((el_dpt>gsptmin)&&(gchi<gschicut)&&(chiratio<chiratiocut));
@@ -446,7 +447,7 @@ GoodSeedProducer::beginJob(const EventSetup& es)
   es.get<TrackingComponentsRecord>().get(smootherName_, smoother_);
   maxShPropagator_=new StraightLinePropagator(magField.product());
 
- 
+  
   //Resolution maps
   FileInPath ecalEtaMap(conf_.getParameter<string>("EtaMap"));
   FileInPath ecalPhiMap(conf_.getParameter<string>("PhiMap"));
@@ -455,35 +456,28 @@ GoodSeedProducer::beginJob(const EventSetup& es)
 
   if(useTmva_){
     reader = new TMVA::Reader();
-    Method = conf_.getParameter<string>("TMVAMethod");
+    string Method = conf_.getParameter<string>("TMVAMethod");
     
-    reader->AddVariable("EP",&EP);
-    reader->AddVariable("Chi",&Chi);
-    reader->AddVariable("Chired",&Chired);
-    reader->AddVariable("ChiRatio",&ChiRatio);
-    reader->AddVariable("Dpt",&Dpt);
-    reader->AddVariable("Nhit",&Nhit);
-    reader->AddVariable("PS1En",&PS1En);
-    reader->AddVariable("PS1chi",&PS1chi);
-    reader->AddVariable("PS2En",&PS2En);
-    reader->AddVariable("PS2chi",&PS2chi);
+    reader->AddVariable("eta",&eta);
+    reader->AddVariable("pt",&pt);
+    reader->AddVariable("eP",&eP);
+    reader->AddVariable("chi",&chi);
+    reader->AddVariable("nhit",&nhit);
+    reader->AddVariable("chired",&chired);
+    reader->AddVariable("chiRatio",&chiRatio);
+    reader->AddVariable("dpt",&dpt);
+    reader->AddVariable("ps1En",&ps1En);
+    reader->AddVariable("ps2En",&ps2En);
+    reader->AddVariable("ps1chi",&ps1chi);
+    reader->AddVariable("ps2chi",&ps2chi);
     
-    string weights =conf_.getParameter<string>("Weights");
+    FileInPath BarrelWeigths(conf_.getParameter<string>("WeightsForBarrel"));
+    metBarrel_=Method + " barrel";
+    reader->BookMVA( metBarrel_, BarrelWeigths.fullPath().c_str()  );
+    FileInPath EndcapWeigths(conf_.getParameter<string>("WeightsForEndcap"));
+    metEndcap_=Method + " endcap";
+    reader->BookMVA( metEndcap_, EndcapWeigths.fullPath().c_str()  );	
     
-    char name[300];
-    char eta_s[10];
-    char pt_s[10];
-    for (int ih=1;ih<4;ih++){
-      sprintf(eta_s," eta%d",ih);
-      
-      for (int ipt=1;ipt<6;ipt++){
-	sprintf(pt_s," pt%d",ipt);
-	sprintf (name,"%s%d%s%d%s",weights.c_str(),ih,"pt",ipt,".txt");
-	FileInPath Weigths(name);
-	string met=Method+eta_s+pt_s;
-	reader->BookMVA( met , Weigths.fullPath().c_str()  );	
-      }
-    }
     FileInPath parTMVAFile(conf_.getParameter<string>("TMVAThresholdFile"));
     ifstream ifsTMVA(parTMVAFile.fullPath().c_str());
     for (int iy=0;iy<15;iy++) ifsTMVA >> thrTMVA[iy];
@@ -593,8 +587,8 @@ void GoodSeedProducer::PSforTMVA(const TSOS tsos){
 	  enPScl1=(*ips).energy();
 	}
       }
-      PS1En=enPScl1;
-      PS1chi=chi1;
+      ps1En=enPScl1;
+      ps1chi=chi1;
 
       TSOS ps2TSOS =
 	pfTransformer_->getStateOnSurface(PFGeometry::PS2Wall, ps1TSOS,
@@ -617,8 +611,8 @@ void GoodSeedProducer::PSforTMVA(const TSOS tsos){
 	    }
 	  }
 
-	  PS2En=enPScl2;
-	  PS2chi=chi2;
+	  ps2En=enPScl2;
+	  ps2chi=chi2;
 
 	}
       }

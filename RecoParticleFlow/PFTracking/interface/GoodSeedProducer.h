@@ -106,7 +106,7 @@ class GoodSeedProducer : public edm::EDProducer {
       edm::ParameterSet conf_;
       edm::InputTag pfCLusTagPSLabel_;
       edm::InputTag pfCLusTagECLabel_;
-      std::vector<std::string> tracksContainers_;
+      std::vector<edm::InputTag> tracksContainers_;
 
       std::string fitterName_;
       std::string smootherName_;
@@ -119,13 +119,13 @@ class GoodSeedProducer : public edm::EDProducer {
       TMVA::Reader *reader;
 
       ///VARIABLES NEEDED FOR TMVA
-      float  EP,Chi,Chired,ChiRatio,Nhit,Dpt;
-      float PS1En,PS1chi,PS2En,PS2chi;
-      
+      float eP,chi,eta,pt,nhit,dpt,chired,chiRatio;
+      float ps1En,ps2En,ps1chi,ps2chi;
       ///USE OF TMVA 
       bool useTmva_;
 
       ///TMVA method
-	std::string Method;
+      std::string metBarrel_;
+      std::string metEndcap_;
 };
 #endif
