@@ -14,8 +14,12 @@ CSCALCTHeader::CSCALCTHeader(int chamberType)
   // we count from 1 to 10, ME11, ME12, ME13, ME1A, ME21, ME22, ....
   //static int nAFEBsForChamberType[11] = {0,3,3,3,3,7,4,6,4,6,4};
   // same numbers as above, with one bit for every board
-  static int activeFEBsForChamberType[11] = {0,7,7,7,7,0x7f, 0xf,0x3f,0xf,0x3f,0xf};
+  //static int activeFEBsForChamberType[11] = {0,7,7,7,7,0x7f, 0xf,0x3f,0xf,0x3f,0xf};
+  //static int nTBinsForChamberType[11] = {7,7,7,7,7,7,7,7,7,7,7};
+  static int activeFEBsForChamberType[11] = {0,7,7,0xf,7,0x7f, 0xf,0x3f,0xf,0x3f,0xf};
   static int nTBinsForChamberType[11] = {7,7,7,7,7,7,7,7,7,7,7};
+
+
 
   bzero(this, sizeInWords()*2); 
   flag_0 = 0xC;
