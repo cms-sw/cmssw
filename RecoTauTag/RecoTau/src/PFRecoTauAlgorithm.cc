@@ -25,10 +25,7 @@ Tau PFRecoTauAlgorithm::tag(const PFIsolatedTauTagInfo& myTagInfo)
 	}
       }
     }
-  if(myLeadTk.isNonnull()){
-    cout <<"Vertex "<<myLeadTk->vz()<<endl;
-    cout <<"Z_imp "<<myLeadTk->dz()<<endl;
-  }
+
   math::XYZPoint  vtx = math::XYZPoint( 0, 0, z_PV );
   //create the Tau
     
@@ -56,7 +53,7 @@ Tau PFRecoTauAlgorithm::tag(const PFIsolatedTauTagInfo& myTagInfo)
       myTau.setLeadingChargedHadron(leadPFChargedHadron);
       
       //Setting the HCalEnergy from the LeadHadron
-      myTau.setMaximumHcalTowerEnergy(leadPFChargedHadron->energy());
+      myTau.setMaximumHcalEnergy(leadPFChargedHadron->energy());
       
 
       //Setting the SignalChargedHadrons

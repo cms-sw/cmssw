@@ -69,8 +69,21 @@ Tau CaloRecoTauAlgorithm::tag(const CombinedTauTagInfo& myTagInfo)
       myTau.setInvariantMass(myTagInfo.alternatrecJet_HepLV().m());
       
       //Setting the max HCalEnergy
-      
 
+      const CaloJet* cj = dynamic_cast<CaloJet*>(const_cast<Jet*>(&jet));
+       // access jet constituents
+     const std::vector<CaloTowerRef>  TauJetTowers = cj->getConstituents();
+     // access towers
+     double THmax = -10.; 
+     for(int iTower = 0; iTower < TauJetTowers.size(); iTower++) {
+       CaloTowerRef theTower = TauJetTowers[iTower];
+       // select max Et HCAL tower
+       if(theTower->hadEt() >= THmax) {
+	 THmax    = theTower->hadEt();
+       }
+     }
+
+     myTau.setMaximumHcalEnergy(THmax);
       
       //Setting the EmOverCharged energy
       myTau.setEmOverChargedEnergy(myTagInfo.neutralE_o_TksEneutralE());
