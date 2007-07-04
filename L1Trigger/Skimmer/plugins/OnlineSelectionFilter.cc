@@ -64,8 +64,6 @@ void OnlineSelectionFilter::endJob()
   std::cout << "L1 Passed event count = " << nL1Passed << std::endl;
 }
 
-#include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(OnlineSelectionFilter);
+DEFINE_FWK_MODULE(OnlineSelectionFilter);
