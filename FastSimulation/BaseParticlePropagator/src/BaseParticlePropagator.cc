@@ -35,6 +35,8 @@ BaseParticlePropagator::init() {
   // The propagation direction is along the momentum
   propDir = 1;
 
+  debug = false;
+
 }
 
 bool 
@@ -57,6 +59,7 @@ BaseParticlePropagator::propagate() {
   // Treat neutral particles (or no magnetic field) first 
   //
   if ( charge() == 0.0 || bField == 0.0 ) {
+
     //
     // First check that the particle crosses the cylinder
     //
@@ -79,6 +82,7 @@ BaseParticlePropagator::propagate() {
     //
     // Find the first (time-wise) intersection point with the cylinder
     //
+
     double solution = tminus < 0 ? tplus/pT2 : tminus/pT2;
     if ( solution < 0. ) return false;
     //
@@ -96,6 +100,7 @@ BaseParticlePropagator::propagate() {
     else {
       success = 1;
     }
+
     //
     // Check the decay time
     //
@@ -115,11 +120,21 @@ BaseParticlePropagator::propagate() {
     double yProp = Y() + Py() * solution * factor;
            zProp = Z() + Pz() * solution * factor;
     double tProp = T() + E()  * solution * factor;
-  //
-  // ... and update the particle with its propagated coordinates
-  //
-    setVertex( XYZTLorentzVector(xProp,yProp,zProp,tProp) );
 
+    //
+    // Last check : Although propagated to the endcaps, R could still be
+    // larger than rCyl because the cylinder was too short...
+    //
+    if ( success == 2 && xProp*xProp+yProp*yProp > rCyl2 ) { 
+      success = -1;
+      return true;
+    }
+
+    //
+    // ... and update the particle with its propagated coordinates
+    //
+    setVertex( XYZTLorentzVector(xProp,yProp,zProp,tProp) );
+    
     return true;
   }
   //

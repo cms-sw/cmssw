@@ -139,6 +139,8 @@ private:
   double bField;
   /// The proper decay time of the particle
   double properDecayTime;
+  /// The debug level
+  bool debug;
 
 protected:
   /// 0:propagation still be done, 1:reached 'barrel', 2:reached 'endcaps'
@@ -303,6 +305,10 @@ public:
 
   /// Get the magnetic field 
   inline double getMagneticField() const {  return bField; }
+
+  /// Set the debug leve;
+  inline void setDebug() { debug = true; } 
+  inline void resetDebug() { debug = false; }
     
 };
 
