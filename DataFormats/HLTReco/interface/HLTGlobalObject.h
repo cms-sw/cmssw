@@ -10,8 +10,8 @@
  *  If the user wants map-like indexing of triggers through their
  *  names as key, s/he must use the TriggerNamesService.
  *
- *  $Date: 2007/06/03 08:11:43 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/07/03 07:39:22 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -26,23 +26,26 @@ namespace reco
   class HLTGlobalObject {
 
   private:
+    /// vector of Refs to path objects
     std::vector<edm::RefProd<HLTPathObject> > refs_;
 
   public:
 
-    // constructors
-
+    /// trivial constructor
     HLTGlobalObject(): refs_() {}
+
+    /// constructor with capacity argument
     HLTGlobalObject(unsigned int n): refs_() {refs_.reserve(n);}
 
-    // accessors
-
+    /// number of currently stored path objects
     unsigned int size() const { return refs_.size();}
 
+    /// add new path object
     void put (const edm::RefProd<HLTPathObject>& ref) {
       refs_.push_back(ref);
     }
 
+    /// get Ref to ith path object
     const edm::RefProd<HLTPathObject>& at (const unsigned int index) const {
       return refs_.at(index);
     }

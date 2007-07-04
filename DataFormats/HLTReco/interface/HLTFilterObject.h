@@ -14,8 +14,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2007/06/15 15:12:28 $
- *  $Revision: 1.26 $
+ *  $Date: 2007/07/03 07:39:21 $
+ *  $Revision: 1.27 $
  *
  *  \author Martin Grunewald
  *
@@ -39,11 +39,14 @@ namespace reco
   class HLTFilterObjectBase {
 
   private:
-    unsigned short int path_;    // index of path in trigger table
-    unsigned short int module_;  // index of module on trigger path
+    /// index (slot position) of path in trigger table - from 0
+    unsigned short int path_;
+    /// index (slot position) for module on specific trigger path - from 0
+    unsigned short int module_;
 
   public:
 
+    /// constructor
     HLTFilterObjectBase(int path=0, int module=0) {
       assert( (0<=path  ) && (path  < 65536) );
       assert( (0<=module) && (module< 65536) );
@@ -51,7 +54,9 @@ namespace reco
       module_ = module;
     }
 
+    /// get index of path in trigger table
     unsigned short int path()   const { return path_  ;}
+    /// get index of module on path
     unsigned short int module() const { return module_;}
 
   };
@@ -59,23 +64,29 @@ namespace reco
   class HLTFilterObject : public HLTFilterObjectBase {
 
   private:
-    std::vector<Particle> particles_; // particles/MET (4-momentum vectors) used by filter
+    /// Particle objects which have fired the HLT filter
+    std::vector<Particle> particles_;
 
   public:
 
+    /// constructor
     HLTFilterObject(int path=0, int module=0)
       : HLTFilterObjectBase(path,module), particles_() { }
 
+    /// how many objects are held
     unsigned int size() const { return particles_.size();}
 
+    /// get ith Particle object
     const Particle& getParticle(const unsigned int i) const {
       return particles_.at(i);
     }
 
+    /// add (append) new Particle object
     void putParticle(const Particle& ref) {
       particles_.push_back(ref);
     }
 
+    /// add (append) new Particle object from a Candidate object
     void putParticle(const edm::RefToBase<Candidate>& ref) {
       particles_.push_back(Particle(*ref));
     }
@@ -83,22 +94,31 @@ namespace reco
 
     // Set methods for HLT Particle components (default = most-recent entry)
 
+    /// set electric charge
     void setCharge(const Particle::Charge& q, int i=-1) {
       if (i<0) {i+=size();}
       particles_.at(i).setCharge(q);
     }
+
+    /// set 4-momentum
     void setP4(const Particle::LorentzVector& p4, int i=-1) {
       if (i<0) {i+=size();}
       particles_.at(i).setP4(p4);
     }
+
+    /// set 3-vertex
     void setVertex(const Particle::Point& v3, int i=-1) {
       if (i<0) {i+=size();}
       particles_.at(i).setVertex(v3);
     }
+
+    /// set PDG identifier
     void setPdgId(const int& pdgId, int i=-1) {
       if (i<0) {i+=size();}
       particles_.at(i).setPdgId(pdgId);
     }
+
+    /// set status word
     void setStatus(const int& status, int i=-1) {
       if (i<0) {i+=size();}
       particles_.at(i).setStatus(status);
@@ -110,39 +130,48 @@ namespace reco
   class HLTFilterObjectWithRefs : public HLTFilterObject {
 
   private:
-    std::vector<edm::RefToBase<Candidate> > refs_; // Refs into original collections
-    std::vector<edm::ProductID>             pids_; // PIDs of AssociationMaps and alike
+    /// Refs into original collections of reconstructed objects
+    std::vector<edm::RefToBase<Candidate> > refs_;
+    /// Product IDs of association maps and alike
+    std::vector<edm::ProductID>             pids_;
 
   public:
 
+    /// constructor
     HLTFilterObjectWithRefs(int path=0, int module=0)
       : HLTFilterObject(path,module), refs_(), pids_() { }
 
-    // template for any ConcreteCollection
+    /// add Particle - template for any ConcreteCollection
     template<typename C>
     void putParticle(const edm::RefProd<C>& refprod, unsigned int i) {
       putParticle(edm::RefToBase<Candidate>(edm::Ref<C>(refprod,i)));
     }
-    // template specialisation for an HLTFilterObjectWithRefs
+
+    /// add Particle -  template specialisation for an HLTFilterObjectWithRefs
     void putParticle(const edm::RefProd<HLTFilterObjectWithRefs>& refprod, unsigned int i) {
       putParticle(refprod->getParticleRef(i));
     }
-    // method to do the actual work
+
+    /// method to do the actual work to add a Particle
     void putParticle(const edm::RefToBase<Candidate>& ref) {
       this->HLTFilterObject::putParticle(ref);
       refs_.push_back(ref);
     }
 
+    /// get Ref to ith Candidate object
     const edm::RefToBase<Candidate>& getParticleRef(const unsigned int i) const {
       return refs_.at(i);
     }
 
+    /// add a Product ID
     void putPID(const edm::ProductID& pid) {
       pids_.push_back(pid);
     }
 
+    /// get number of Product IDs stored
     unsigned int nPID() const {return pids_.size();}
 
+    /// get ith Product ID stored
     const edm::ProductID& getPID(const unsigned int i) const {
       return pids_.at(i);
     }
@@ -153,7 +182,10 @@ namespace reco
     //
 
     // user should check validity of Ref element before dereferencing it
+
+    /// vector like access with at(i)
     const Candidate & at        (unsigned int i) const { return *(refs_.at(i)); }
+    /// vector like access with operator[i]
     const Candidate & operator[](unsigned int i) const { return *(refs_[i]); }
 
     //
