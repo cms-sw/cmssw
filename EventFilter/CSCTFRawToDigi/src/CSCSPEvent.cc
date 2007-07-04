@@ -10,6 +10,10 @@ bool CSCSPEvent::unpack(const unsigned short *&buf) throw() {
 		unpackError |= header_.unpack(buf);
 
 	if( !header_.empty() ){
+		// Block of Counters is added in format version 4.3 (dated by 05/27/2007)
+		if( header_.format_version() )
+			unpackError |= counters_.unpack(buf);
+
 		for(unsigned short tbin=0; tbin<header_.nTBINs(); tbin++)
 			unpackError |= record_[tbin].unpack(buf,header_.active(),header_.suppression(),tbin);
 

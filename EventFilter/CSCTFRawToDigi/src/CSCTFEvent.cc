@@ -48,6 +48,7 @@ unsigned int CSCTFEvent::unpack(const unsigned short *buf, unsigned int length) 
 			// we are here because we have a header => we are safe from crash instantiating one
 			header.unpack(spWord);
 			// calculate expected record length (internal variable 'shift' counts 16-bit words)
+			if( header.format_version() && !header.empty() ) spWordCountExpected += 1; // exists only in format version 4.3
 			for(unsigned short tbin=0,shift=0; tbin<header.nTBINs() && !header.empty(); tbin++){
 				// check if didn't pass end of event, keep in mind that 'index' counts 64-bit words, and 'sp_record_length' - 16-bits
 				if( length <= index+spWordCountExpected+1 ){

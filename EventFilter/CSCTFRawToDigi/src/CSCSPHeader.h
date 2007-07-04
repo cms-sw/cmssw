@@ -23,7 +23,7 @@ private:
 	unsigned header_mark_5 : 4;  // constant, should be 1010 = 0xA
 
 	unsigned sp_slot_number     : 5; // SP_PADR, or physical address, or slot number
-	unsigned unknown_field      : 3; // just a gap in the document
+	unsigned sp_ersv            : 3; // event record structure version
 	unsigned sp_logical_address : 4; // SP_LADR - Logical Address: [3] = ME-(0)/ME+(1), [2:0] = 1...6 - EMU 60deg Sector
 	unsigned header_mark_6      : 4; // constant, should be 1010 = 0xA
 /*
@@ -38,7 +38,7 @@ private:
 	unsigned header_mark_7    : 4; // constant, should be 1010 = 0xA
 */
 	unsigned fmm_status       : 6; // see FMM above
-	unsigned spare_1          : 1; // not used yet
+	unsigned ddm              : 1; // readout mode: 0/1 = DDU/VME
 	unsigned zero_3           : 5; // constant, should be 0
 	unsigned header_mark_7    : 4; // constant, should be 1010 = 0xA
 
@@ -88,6 +88,9 @@ public:
 	unsigned int active(void) const throw() { return csr_dfc>>4; }
 
 	bool empty(void) const throw() { return skip; }
+
+	int  format_version(void) const throw() { return sp_ersv; }
+	bool ddu_readout   (void) const throw() { return ddm; }
 
 	bool unpack(const unsigned short *&buf) throw() { memcpy((void*)this,buf,8*sizeof(short)); buf+=8; return check(); }
 
