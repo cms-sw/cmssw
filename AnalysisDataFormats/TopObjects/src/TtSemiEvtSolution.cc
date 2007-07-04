@@ -4,11 +4,11 @@
 TtSemiEvtSolution::TtSemiEvtSolution()
 {
   probChi2 		= -999.;
-  sumDeltaRjp   	= -999.;
-  deltaRhadp   		= -999.;
-  deltaRhadq   		= -999.;
-  deltaRhadb   		= -999.;
-  deltaRlepb   		= -999.;
+  sumAnglejp   		= -999.;
+  angleHadp   		= -999.;
+  angleHadq   		= -999.;
+  angleHadb   		= -999.;
+  angleLepb   		= -999.;
   changeWQ     		= -999;
   mcCorrJetComb		= -999;
   simpleCorrJetComb	= -999;
@@ -52,12 +52,12 @@ void TtSemiEvtSolution::setGenEvt(const TtGenEvent& genEvt){
   genLept = *(genEvt.leptonicTop());
 }
 
-void TtSemiEvtSolution::setSumDeltaRjp(double sdr) { sumDeltaRjp = sdr; }
-void TtSemiEvtSolution::setDeltaRhadp(double adr) { deltaRhadp = adr;  }
-void TtSemiEvtSolution::setDeltaRhadq(double adr) { deltaRhadq = adr;  }
-void TtSemiEvtSolution::setDeltaRhadb(double adr) { deltaRhadb = adr;  }
-void TtSemiEvtSolution::setDeltaRlepb(double adr) { deltaRlepb = adr;  }
-void TtSemiEvtSolution::setChangeWQ(int wq) { changeWQ = wq;   }
+void TtSemiEvtSolution::setMCBestSumAngles(double sdr) { sumAnglejp = sdr; }
+void TtSemiEvtSolution::setMCBestAngleHadp(double adr) { angleHadp = adr;  }
+void TtSemiEvtSolution::setMCBestAngleHadq(double adr) { angleHadq = adr;  }
+void TtSemiEvtSolution::setMCBestAngleHadb(double adr) { angleHadb = adr;  }
+void TtSemiEvtSolution::setMCBestAngleLepb(double adr) { angleLepb = adr;  }
+void TtSemiEvtSolution::setMCChangeWQ(int wq) { changeWQ = wq;   }
 
 void TtSemiEvtSolution::setMCCorrJetComb(int mcbs) { mcCorrJetComb = mcbs; }
 void TtSemiEvtSolution::setSimpleCorrJetComb(int sbs) { simpleCorrJetComb = sbs;  }

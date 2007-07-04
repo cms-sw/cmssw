@@ -79,12 +79,13 @@ class TtSemiEvtSolution
       reco::Particle 		getGenLepW() const		{ return genLepW; };
       reco::Particle 		getGenHadt() const		{ return genHadt; };
       reco::Particle 		getGenLept() const		{ return genLept; };
-      double 			getSumDeltaRjp() const		{ return sumDeltaRjp; };
-      double 			getDeltaRhadp() const		{ return deltaRhadp; };
-      double 			getDeltaRhadq() const		{ return deltaRhadq; };
-      double 			getDeltaRhadb() const		{ return deltaRhadb; };
-      double 			getDeltaRlepb() const		{ return deltaRlepb; };
-      int			getChangeWQ() const		{ return changeWQ; };      
+      double 			getMCBestSumAngles() const	{ return sumAnglejp; };
+      double 			getMCBestAngleHadp() const	{ return angleHadp; };
+      double 			getMCBestAngleHadq() const	{ return angleHadq; };
+      double 			getMCBestAngleHadb() const	{ return angleHadb; };
+      double 			getMCBestAngleLepb() const	{ return angleLepb; };
+      int			getMCChangeWQ() const		{ return changeWQ; };     
+       
       // member to get the selected semileptonic decay chain 
       std::string  		getDecay() const  		{ return decay; };      
       
@@ -121,12 +122,12 @@ class TtSemiEvtSolution
       
       // members to set the MC matched particles and info on the matching itself
       void 			setGenEvt(const TtGenEvent&);
-      void 			setSumDeltaRjp(double);
-      void			setDeltaRhadp(double);
-      void 			setDeltaRhadq(double);
-      void 			setDeltaRhadb(double);
-      void 			setDeltaRlepb(double);
-      void 			setChangeWQ(int);
+      void 			setMCBestSumAngles(double);
+      void 			setMCBestAngleHadp(double);
+      void 			setMCBestAngleHadq(double);
+      void 			setMCBestAngleHadb(double);
+      void 			setMCBestAngleLepb(double);
+      void			setMCChangeWQ(int);     
       
       // members to set the kinfit parametrisations of each type of object 
       void 			setJetParametrisation(int);
@@ -157,7 +158,7 @@ class TtSemiEvtSolution
       TopMET 	    		met;
       std::string        	decay;
       double 	    		probChi2, lrJetCombLRval, lrJetCombProb, lrSignalEvtLRval, lrSignalEvtProb;
-      double			sumDeltaRjp,deltaRhadp,deltaRhadq,deltaRhadb,deltaRlepb;
+      double			sumAnglejp, angleHadp, angleHadq, angleHadb, angleLepb;
       int			mcCorrJetComb, simpleCorrJetComb, lrCorrJetComb;
       int 			changeWQ, jetparam, leptonparam, metparam;      
       std::vector<std::pair<unsigned int, double> > lrJetCombVarVal;
