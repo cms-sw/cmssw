@@ -57,6 +57,9 @@ class SummaryGenerator {
 
   /** Clear the map that is used to generate the histogram(s). */
   void clearMap();
+
+  /** Print contents of map used to generate the histogram(s). */
+  void printMap();
   
   /** Creates simple 1D histogram of the parameter values. */
   void histo1D( TH1& ); 
