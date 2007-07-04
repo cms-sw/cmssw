@@ -53,7 +53,10 @@ class ApvTimingAnalysis : public CommissioningAnalysis {
 
   /** Level of tick mark top [ADC]. */
   inline const float& peak() const; 
-
+  
+  /** FED frame-finding threshold [ADC]. */
+  uint32_t frameFindingThreshold() const; 
+  
   /** Container of histogram pointer and title. */
   inline const Histo& histo() const;
   
@@ -90,6 +93,9 @@ class ApvTimingAnalysis : public CommissioningAnalysis {
   
   /** Threshold defining minimum tick mark height [ADC]. */
   static const float tickMarkHeightThreshold_;
+  
+  /** Threshold for FED frame finding (fraction of tick height). */
+  static const float frameFindingThreshold_;
   
  private:
 
