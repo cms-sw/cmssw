@@ -129,7 +129,7 @@ void doEventloop(){
           // check if good matching solution exists
           bool trueSolExists = false;
           for(int s=0; s<12; s++){
-            if(sols[s].getSumDeltaRjp()<SumAlphaCut) trueSolExists = true;
+            if(sols[s].getMCBestSumAngles()<SumAlphaCut) trueSolExists = true;
           }
           if(trueSolExists){
 	    double maxLogLRVal = -999.;
@@ -144,7 +144,7 @@ void doEventloop(){
 	      double logLR =  myLRhelper -> calcLRval(obsVals);
 	      if(logLR>maxLogLRVal) { maxLogLRVal = logLR; maxLogLRSol = s; };
 	    }
-	    if(sols[maxLogLRSol].getSumDeltaRjp()<SumAlphaCut && sols[maxLogLRSol].getMCCorrJetComb()==maxLogLRSol) {
+	    if(sols[maxLogLRSol].getMCBestSumAngles()<SumAlphaCut && sols[maxLogLRSol].getMCCorrJetComb()==maxLogLRSol) {
 	      myLRhelper -> fillLRSignalHist(maxLogLRVal);
 	      //cout << "mxLR " << maxLogLRVal << endl;
 	    }

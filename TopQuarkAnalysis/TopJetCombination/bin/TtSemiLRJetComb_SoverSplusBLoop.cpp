@@ -149,7 +149,7 @@ void doEventloop(){
           // check if good matching solution exists
           bool trueSolExists = false;
           for(int s=0; s<12; s++){
-            if(sols[s].getSumDeltaRjp()<SumAlphaCut) trueSolExists = true;
+            if(sols[s].getMCBestSumAngles()<SumAlphaCut) trueSolExists = true;
           }
           if(trueSolExists){
   	    for(int s=0; s<12; s++){
