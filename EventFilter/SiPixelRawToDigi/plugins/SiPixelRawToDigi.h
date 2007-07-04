@@ -44,5 +44,6 @@ private:
   TH1D *hCPU, *hDigi;
   TFile * rootFile;
   R2DTimerObserver * theTimer;
+  bool includeErrors;
 };
 #endif

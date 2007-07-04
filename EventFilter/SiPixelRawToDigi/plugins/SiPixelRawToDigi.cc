@@ -44,6 +44,7 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
   produces< std::map<int, std::vector<SiPixelRawDataError> > >();
 
   bool timing = config_.getUntrackedParameter<bool>("Timing",false);
+  includeErrors = config_.getUntrackedParameter<bool>("IncludeErrors",false);
   if (timing) {
     theTimer = new R2DTimerObserver("**** MY TIMING REPORT ***");
     rootFile = new TFile("analysis.root", "RECREATE", "my histograms");
@@ -109,7 +110,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
     const FEDRawData& fedRawData = buffers->FEDData( fedId );
 
     //convert data to digi and strip off errors
-    formatter.interpretRawData( fedId, fedRawData, digis, errors);
+    formatter.interpretRawData( fedId, fedRawData, digis, includeErrors, errors);
 
     //pack digi into collection
     typedef PixelDataFormatter::Digis::iterator ID;
@@ -121,7 +122,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
       detSet.data = it->second;
     } 
     //pack errors into collection
-    (*errorcollection)[fedId] = errors;
+    if(includeErrors) (*errorcollection)[fedId] = errors;
   }
 
   if (theTimer) {
@@ -137,5 +138,5 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 
   //send digis and errors back to framework 
   ev.put( collection );
-  ev.put( errorcollection );
+  if(includeErrors) ev.put( errorcollection );
 }

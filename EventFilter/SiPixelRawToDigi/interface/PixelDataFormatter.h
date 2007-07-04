@@ -61,7 +61,7 @@ public:
   int nDigis() const { return theDigiCounter; }
   int nWords() const { return theWordCounter; }
 
-  void interpretRawData(int fedId,  const FEDRawData & data, Digis & digis, Errors & errors);
+  void interpretRawData(int fedId,  const FEDRawData & data, Digis & digis, bool includeErrors, Errors & errors);
 
   FEDRawData * formatData( int fedId, const Digis & digis);
 
@@ -76,7 +76,7 @@ private:
 //  typedef uint32_t Word32;
 //  typedef uint64_t Word64;
 
-  int checkError(const Word32& data, Errors errors) const;
+  int checkError(const Word32& data) const;
 
   int digi2word( const SiPixelFrameConverter* converter,
                   uint32_t detId, const PixelDigi& digi,
@@ -88,6 +88,9 @@ private:
 
   std::string print(const PixelDigi & digi) const;
   std::string print(const Word64    & word) const;
+
+  uint32_t errorDetId(const SiPixelFrameConverter* converter, 
+		      const Word32 & word) const;
 
   static const int LINK_bits,  ROC_bits,  DCOL_bits,  PXID_bits,  ADC_bits;
   static const int LINK_shift, ROC_shift, DCOL_shift, PXID_shift, ADC_shift;
