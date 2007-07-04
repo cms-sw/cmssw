@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripConfigDb.h,v 1.21 2007/04/04 06:57:57 bainbrid Exp $
 
 #ifndef SiStripConfigDb_H
 #define SiStripConfigDb_H
@@ -177,7 +177,7 @@ class SiStripConfigDb {
   void resetDeviceDescriptions(); 
   
   /** Uploads all device descriptions to DB/xml. */
-  void uploadDeviceDescriptions( bool new_major_version = false ); 
+  void uploadDeviceDescriptions( bool new_major_version = true ); 
 
   /** Creates device descriptions based on FEC cabling. */
   const DeviceDescriptions& createDeviceDescriptions( const SiStripFecCabling& );
@@ -197,7 +197,7 @@ class SiStripConfigDb {
   void resetFedDescriptions();
   
   /** Uploads FED descriptions to DB/xml. */
-  void uploadFedDescriptions( bool new_major_version = false );
+  void uploadFedDescriptions( bool new_major_version = true );
   
   /** Create "dummy" FED descriptions based on FED cabling. */
   const FedDescriptions& createFedDescriptions( const SiStripFecCabling& );
@@ -223,7 +223,7 @@ class SiStripConfigDb {
   void resetFedConnections();
   
   /** Uploads FED-FEC connections to DB/xml. */
-  void uploadFedConnections( bool new_major_version = false );
+  void uploadFedConnections( bool new_major_version = true );
   
   /** Creates "dummy" FED connections based on FEC cabling. */
   const FedConnections& createFedConnections( const SiStripFecCabling& );
