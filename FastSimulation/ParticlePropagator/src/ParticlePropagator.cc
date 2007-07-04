@@ -183,7 +183,7 @@ ParticlePropagator::setPropagationConditions(const TrackerLayer& layer,
     //    const BoundCylinder & myCylinder = dynamic_cast<const BoundCylinder &>(surface);
     // ParticlePropagator works now in cm
     BaseParticlePropagator::setPropagationConditions(
-					 layer.cylinder()->radius(),
+					 layer.cylinder()->bounds().width()/2.,
 					 layer.cylinder()->bounds().length()/2.,
 					 firstLoop);
   }
