@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -43,7 +43,6 @@ OnlineSelectionFilter::~OnlineSelectionFilter()
 
 bool OnlineSelectionFilter::filter(edm::Event& iEvent, edm::EventSetup const&)
 {
-  // cout << "Entered OnlineSelectionFilter::filter" << endl;
   edm::Handle< L1GlobalTriggerReadoutRecord > gtRecord;
   iEvent.getByLabel(gtReadoutSource, gtRecord);
   bool theL1Decision = gtRecord->decision();
@@ -55,7 +54,7 @@ bool OnlineSelectionFilter::filter(edm::Event& iEvent, edm::EventSetup const&)
     {
       nL1Failed++;
     }
-  std::cout << "OnlineSelectionFilter decision is " << theL1Decision << endl;
+  std::cout << "OnlineSelectionFilter decision is " << theL1Decision << std::endl;
   return theL1Decision;
 }
 
