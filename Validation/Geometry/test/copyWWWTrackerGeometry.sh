@@ -41,8 +41,14 @@ mkdir $nsDir
 # move Material Budget plots
 cp Images/*Comparison*.eps $mbDir/Comparison/eps/.
 #cp Images/*Comparison*.gif $mbDir/Comparison/gif/.
-cp Images/*.eps            $mbDir/Plots/eps/.
-cp Images/*.gif            $mbDir/Plots/gif/.
+for i in $(ls Images/*.eps | grep -v Comparison)
+  do
+  cp $i $mbDir/Plots/eps/.
+done
+for i in $(ls Images/*.gif | grep -v Comparison)
+  do
+  cp $i $mbDir/Plots/gif/.
+done
 
 # move geometry diff files
 cp diff_info.temp     $nsDir/ModulePositioning.diff
