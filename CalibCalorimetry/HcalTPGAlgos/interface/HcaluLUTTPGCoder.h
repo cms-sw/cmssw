@@ -3,6 +3,8 @@
 
 #include "CalibFormats/HcalObjects/interface/HcalTPGCoder.h"
 #include "CalibFormats/HcalObjects/interface/HcalNominalCoder.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include <vector>
 
 /** \class HcaluLUTTPGCoder
@@ -19,8 +21,8 @@
   * [LUT 1(127)] [LUT 2(127)] ...
   * </pre>
   *
-  * $Date: 2007/06/02 02:58:06 $
-  * $Revision: 1.10 $
+  * $Date: 2007/06/19 21:49:44 $
+  * $Revision: 1.11 $
   * \author M. Weinberger -- TAMU
   * \author Tulika Bose and Greg Landsberg -- Brown
   */
@@ -33,10 +35,10 @@ public:
   virtual void adc2Linear(const HFDataFrame& df, IntegerCaloSamples& ics) const;
   virtual void compress(const IntegerCaloSamples& ics, const std::vector<bool>& featureBits, HcalTriggerPrimitiveDigi& tp) const;
   virtual void getConditions(const edm::EventSetup& es) const;
-  short unsigned int* getLUT(HcalDetId id); // returns pointer to the corresponding LUT[128]
-  float getPed(HcalDetId id);               // returns the PED for channel id
-  float getGain(HcalDetId id);              // returns the gain for channel id
-  virtual void releaseConditions() const {}
+  virtual short unsigned int* getLUT(HcalDetId id) const; // returns pointer to the corresponding LUT[128]
+  virtual float getPed(HcalDetId id) const;               // returns the PED for channel id
+  virtual float getGain(HcalDetId id) const;              // returns the gain for channel id
+  virtual void releaseConditions() const {};
   
 private:
   static const int nluts = 46007, INPUT_LUT_SIZE = 128;

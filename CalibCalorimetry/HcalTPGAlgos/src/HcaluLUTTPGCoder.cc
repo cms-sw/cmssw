@@ -10,7 +10,6 @@
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include <cmath>
 
 
@@ -49,7 +48,8 @@ void HcaluLUTTPGCoder::AllocateLUTs() {
 	did=HcalDetId(HcalBarrel,ieta,iphi,depth);
 	if (theTopo.valid(did)) {
 	  rawid = GetLUTID(HcalBarrel, ieta, iphi, depth);
-	  inputLUT[rawid] = new LUT[INPUT_LUT_SIZE];
+	  if (inputLUT[rawid] != 0) std::cout << "Error: LUT with (ieta,iphi,depth) = (" << ieta << "," << iphi << "," << depth << ") has been previously allocated!" << std::endl;
+	  else inputLUT[rawid] = new LUT[INPUT_LUT_SIZE];
 	  if (rawid < minid) minid = rawid;
 	  if (rawid > maxid) maxid = rawid;
 	}
@@ -57,14 +57,16 @@ void HcaluLUTTPGCoder::AllocateLUTs() {
 	did=HcalDetId(HcalEndcap,ieta,iphi,depth);
 	if (theTopo.valid(did)) {
 	  rawid = GetLUTID(HcalEndcap, ieta, iphi, depth);
-	  inputLUT[rawid] = new LUT[INPUT_LUT_SIZE];
+	  if (inputLUT[rawid] != 0) std::cout << "Error: LUT with (ieta,iphi,depth) = (" << ieta << "," << iphi << "," << depth << ") has been previously allocated!" << std::endl;
+	  else inputLUT[rawid] = new LUT[INPUT_LUT_SIZE];
 	  if (rawid < minid) minid = rawid;
 	  if (rawid > maxid) maxid = rawid;
 	}
 	did=HcalDetId(HcalForward,ieta,iphi,depth);
 	if (theTopo.valid(did)) {
 	  rawid = GetLUTID(HcalForward, ieta, iphi, depth);
-	  inputLUT[rawid] = new LUT[INPUT_LUT_SIZE];
+	  if (inputLUT[rawid] != 0) std::cout << "Error: LUT with (ieta,iphi,depth) = (" << ieta << "," << iphi << "," << depth << ") has been previously allocated!" << std::endl;
+	  else inputLUT[rawid] = new LUT[INPUT_LUT_SIZE];
 	  if (rawid < minid) minid = rawid;
 	  if (rawid > maxid) maxid = rawid;
 	}
@@ -231,17 +233,17 @@ void HcaluLUTTPGCoder::getRecHitCalib(const char* filename) {
    }
  }
 
-short unsigned int* HcaluLUTTPGCoder::getLUT(HcalDetId id) {
+short unsigned int* HcaluLUTTPGCoder::getLUT(HcalDetId id) const {
   int ref = GetLUTID(id.subdet(), id.ieta(), id.iphi(), id.depth());
   return inputLUT[ref];
 }
 
-float HcaluLUTTPGCoder::getPed(HcalDetId id) {
+float HcaluLUTTPGCoder::getPed(HcalDetId id) const {
   int ref = GetLUTID(id.subdet(), id.ieta(), id.iphi(), id.depth());
   return _ped[ref];
 }
 
-float HcaluLUTTPGCoder::getGain(HcalDetId id) {
+float HcaluLUTTPGCoder::getGain(HcalDetId id) const {
   int ref = GetLUTID(id.subdet(), id.ieta(), id.iphi(), id.depth());
   return _gain[ref];
 }
