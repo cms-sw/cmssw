@@ -14,7 +14,7 @@
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtSemiKinFitterEtEtaPhi.h"
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtSemiKinFitterEtThetaPhi.h"
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtSemiKinFitterEMom.h"
-#include "AnalysisDataFormats/TopObjects/interface/BestMatching.h"
+#include "TopQuarkAnalysis/TopTools/interface/JetPartonMatching.h"
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiSimpleBestJetComb.h"
 #include "TopQuarkAnalysis/TopEventSelection/interface/TtSemiLRSignalSelObservables.h"
 #include "TopQuarkAnalysis/TopEventSelection/interface/TtSemiLRSignalSelCalc.h"

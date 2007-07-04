@@ -99,7 +99,7 @@ void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& 
    // Build Event solutions according to the ambiguity in the jet combination
    //
    
-  std::vector<TtSemiEvtSolution> *evtsols = new std::vector<TtSemiEvtSolution>();
+   std::vector<TtSemiEvtSolution> *evtsols = new std::vector<TtSemiEvtSolution>();
    if(leptonFound && metFound && jetsFound){
      //std::cout<<"constructing solutions"<<std::endl;
      for (unsigned int p=0; p<4; p++) {
@@ -158,20 +158,49 @@ void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& 
      if(matchToGenEvt_){
        edm::Handle<TtGenEvent> genEvt;
        iEvent.getByLabel ("genEvt",genEvt);
-       double bestSolDR = 9999.;
-       int bestSol = 0;
+       vector<const reco::Candidate*> quarks;
+       const reco::Candidate & genp  = *(genEvt->hadronicQuark());
+       const reco::Candidate & genq  = *(genEvt->hadronicQuarkBar());
+       const reco::Candidate & genbh = *(genEvt->hadronicB());
+       const reco::Candidate & genbl = *(genEvt->leptonicB());
+       quarks.push_back( &genp );
+       quarks.push_back( &genq );
+       quarks.push_back( &genbh );
+       quarks.push_back( &genbl );
+       vector<const reco::Candidate*> jets;  
+       int bestSolution = -999; 
+       int bestSolutionChangeWQ = -999;
        for(size_t s=0; s<evtsols->size(); s++) {
-         (*evtsols)[s].setGenEvt( *genEvt );
-         std::vector<double> bm = BestMatch((*evtsols)[s], false); //false to use DR, true SpaceAngles
-         (*evtsols)[s].setSumDeltaRjp(bm[0]);
-         (*evtsols)[s].setChangeWQ((int) bm[1]);
-         (*evtsols)[s].setDeltaRhadp(bm[2]);
-         (*evtsols)[s].setDeltaRhadq(bm[3]);
-         (*evtsols)[s].setDeltaRhadb(bm[4]);
-         (*evtsols)[s].setDeltaRlepb(bm[5]);
-	 if(bm[0]<bestSolDR) { bestSolDR =  bm[0]; bestSol = s; }
+         jets.clear();
+         const reco::Candidate & jetp  = (*evtsols)[s].getRecHadp();
+         const reco::Candidate & jetq  = (*evtsols)[s].getRecHadq();
+         const reco::Candidate & jetbh = (*evtsols)[s].getRecHadb();
+         const reco::Candidate & jetbl = (*evtsols)[s].getRecLepb();
+         jets.push_back( &jetp );
+         jets.push_back( &jetq );
+         jets.push_back( &jetbh );
+         jets.push_back( &jetbl );
+         JetPartonMatching aMatch(quarks,jets,1);  // 1: SpaceAngle; 2: DeltaR   
+         (*evtsols)[s].setGenEvt(*genEvt);   
+         (*evtsols)[s].setMCBestSumAngles(aMatch.getSumAngles());
+         (*evtsols)[s].setMCBestAngleHadp(aMatch.getAngleForParton(0));
+         (*evtsols)[s].setMCBestAngleHadq(aMatch.getAngleForParton(1));
+         (*evtsols)[s].setMCBestAngleHadb(aMatch.getAngleForParton(2));
+         (*evtsols)[s].setMCBestAngleLepb(aMatch.getAngleForParton(3));
+	 if(aMatch.getMatchForParton(2) == 2 && aMatch.getMatchForParton(3) == 3){
+	   if(aMatch.getMatchForParton(0) == 0 && aMatch.getMatchForParton(1) == 1) {
+	     bestSolution = s;
+	     bestSolutionChangeWQ = 0;
+	   } else if(aMatch.getMatchForParton(0) == 1 && aMatch.getMatchForParton(1) == 0) {
+	     bestSolution = s;
+	     bestSolutionChangeWQ = 1;
+	   }
+	 }
        }
-       for(size_t s=0; s<evtsols->size(); s++) (*evtsols)[s].setMCCorrJetComb(bestSol);
+       for(size_t s=0; s<evtsols->size(); s++) {
+         (*evtsols)[s].setMCCorrJetComb(bestSolution);
+         (*evtsols)[s].setMCChangeWQ(bestSolutionChangeWQ);     
+       }
      }
      
      //store the vector of solutions to the event     
