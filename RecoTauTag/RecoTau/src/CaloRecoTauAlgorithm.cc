@@ -84,12 +84,12 @@ Tau CaloRecoTauAlgorithm::tag(const CombinedTauTagInfo& myTagInfo)
      }
 
      myTau.setMaximumHcalEnergy(THmax);
-      
-      //Setting the EmOverCharged energy
-      myTau.setEmOverChargedEnergy(myTagInfo.neutralE_o_TksEneutralE());
+ //Setting the EmEnergyFraction
 
+     myTau.setEmEnergyFraction(myTagInfo.neutralE_o_TksEneutralE());
+          
 
-
+     
       //Setting the number of EcalClusters
       myTau.setNumberOfEcalClusters(myTagInfo.neutralECALClus_number());
       
