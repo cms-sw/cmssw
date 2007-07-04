@@ -16,18 +16,16 @@ uint32_t SummaryPlotFactory<FastFedCablingAnalysis*>::init( const sistrip::Monit
 							    const sistrip::Granularity& gran,
 							    const std::map<uint32_t,FastFedCablingAnalysis*>& data ) {
   
-  // Check if generator object exists
-  //if ( !SummaryPlotFactoryBase::generator_ ) { return 0; }
-  
-  // Check if generator class exists
-  if ( !generator_ ) { return 0; }
-
   // Some initialisation
   SummaryPlotFactoryBase::init( mon, pres, view, level, gran );
+  
+  // Check if generator object exists
+  if ( !SummaryPlotFactoryBase::generator_ ) { return 0; }
   
   // Extract monitorable
   std::map<uint32_t,FastFedCablingAnalysis*>::const_iterator iter = data.begin();
   for ( ; iter != data.end(); iter++ ) {
+    if ( !iter->second ) { continue; }
     float value = 1. * sistrip::invalid_;
     float error = 1. * sistrip::invalid_;
     if ( SummaryPlotFactoryBase::mon_ == sistrip::FAST_FED_CABLING_HIGH_LEVEL ) { 
@@ -40,6 +38,8 @@ uint32_t SummaryPlotFactory<FastFedCablingAnalysis*>::init( const sistrip::Monit
       value = iter->second->max(); 
     } else if ( SummaryPlotFactoryBase::mon_ == sistrip::FAST_FED_CABLING_MIN ) { 
       value = iter->second->min(); 
+      //} else if ( SummaryPlotFactoryBase::mon_ == sistrip::FAST_FED_CABLING_CONNS_PER_FED ) { 
+      //if ( iter->second->isValid() ) { value = 1.; } 
     } else { 
       edm::LogWarning(mlSummaryPlots_)
 	<< "[SummaryPlotFactory::" << __func__ << "]" 
@@ -47,7 +47,7 @@ uint32_t SummaryPlotFactory<FastFedCablingAnalysis*>::init( const sistrip::Monit
 	<< SiStripEnumsAndStrings::monitorable( SummaryPlotFactoryBase::mon_ );
       continue; 
     }
-
+    
     SummaryPlotFactoryBase::generator_->fillMap( SummaryPlotFactoryBase::level_, 
 						 SummaryPlotFactoryBase::gran_, 
 						 iter->first, 
@@ -56,6 +56,7 @@ uint32_t SummaryPlotFactory<FastFedCablingAnalysis*>::init( const sistrip::Monit
 
   }
   
+  SummaryPlotFactoryBase::generator_->printMap();
   return SummaryPlotFactoryBase::generator_->nBins();
   
 }

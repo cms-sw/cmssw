@@ -29,7 +29,7 @@ void SummaryGeneratorReadoutView::fill( const std::string& top_level_dir,
   // Check granularity is recognised
   std::string gran = SiStripEnumsAndStrings::granularity( granularity );
   
-  if ( granularity != sistrip::UNKNOWN_GRAN &&
+  if ( granularity != sistrip::UNDEFINED_GRAN &&
        granularity != sistrip::FE_DRIVER &&
        granularity != sistrip::FE_UNIT &&
        granularity != sistrip::FE_CHAN &&
@@ -66,9 +66,9 @@ void SummaryGeneratorReadoutView::fill( const std::string& top_level_dir,
     
     SiStripFedKey sub_path( sub_dir );
 
-    LogTrace(mlTest_)
-      << "TEST " 
-      << "sub_path " << sub_path; 
+//     LogTrace(mlTest_)
+//       << "TEST " 
+//       << "sub_path " << sub_path; 
     
     // Construct bin label
     std::stringstream bin;
@@ -82,10 +82,12 @@ void SummaryGeneratorReadoutView::fill( const std::string& top_level_dir,
     // Store "value" in appropriate std::vector within std::map (key is bin label)
     map_[bin.str()].push_back( Data(value,error) );
     entries_ += value;
-    LogTrace(mlTest_)
-      << "TEST " 
-      << " filling " << bin.str() << " " << value << " " << error << " ";
-
+//     LogTrace(mlTest_)
+//       << "TEST " 
+//       << " filling " << bin.str() 
+//       << " " << value 
+//       << " " << error;
+    
     
   } else {
 //     std::stringstream ss;

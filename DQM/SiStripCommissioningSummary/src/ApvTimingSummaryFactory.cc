@@ -15,18 +15,16 @@ uint32_t SummaryPlotFactory<ApvTimingAnalysis*>::init( const sistrip::Monitorabl
 						       const sistrip::Granularity& gran,
 						       const std::map<uint32_t,ApvTimingAnalysis*>& data ) {
   
-  // Check if generator class exists
-  if ( !generator_ ) { return 0; }
-
-  // Check if generator object exists
-  //if ( !SummaryPlotFactoryBase::generator_ ) { return 0; }
-  
   // Some initialisation
   SummaryPlotFactoryBase::init( mon, pres, view, level, gran );
+
+  // Check if generator object exists
+  if ( !SummaryPlotFactoryBase::generator_ ) { return 0; }
   
   // Extract monitorable and fill map
   std::map<uint32_t,ApvTimingAnalysis*>::const_iterator iter = data.begin();
   for ( ; iter != data.end(); iter++ ) {
+    if ( !iter->second ) { continue; }
     float value = 1. * sistrip::invalid_;
     float error = 1. * sistrip::invalid_;
     if ( SummaryPlotFactoryBase::mon_ == sistrip::APV_TIMING_TIME ) { 

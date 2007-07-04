@@ -29,7 +29,7 @@ void SummaryGeneratorControlView::fill( const std::string& top_level_dir,
   // Check granularity is recognised
   std::string gran = SiStripEnumsAndStrings::granularity( granularity );
   
-  if ( granularity != sistrip::UNKNOWN_GRAN &&
+  if ( granularity != sistrip::UNDEFINED_GRAN &&
        granularity != sistrip::FEC_CRATE &&
        granularity != sistrip::FEC_SLOT &&
        granularity != sistrip::FEC_RING &&
@@ -51,10 +51,10 @@ void SummaryGeneratorControlView::fill( const std::string& top_level_dir,
   SiStripFecKey path( device_key );
   std::string pwd = path.path();
 
-  LogTrace(mlTest_)
-    << "TEST " 
-    << "top " << top 
-    << "path " << path;
+//   LogTrace(mlTest_)
+//     << "TEST " 
+//     << "top " << top 
+//     << "path " << path;
   
   if ( top.isValid() &&
        path.isValid() &&
@@ -75,9 +75,9 @@ void SummaryGeneratorControlView::fill( const std::string& top_level_dir,
 
     SiStripFecKey sub_path( sub_dir );
 
-    LogTrace(mlTest_)
-      << "TEST " 
-      << "sub_path " << sub_path; 
+//     LogTrace(mlTest_)
+//       << "TEST " 
+//       << "sub_path " << sub_path; 
     
     // Construct bin label
     std::stringstream bin;
@@ -93,9 +93,9 @@ void SummaryGeneratorControlView::fill( const std::string& top_level_dir,
     // Store "value" in appropriate std::vector within std::map (key is bin label)
     map_[bin.str()].push_back( Data(value,error) );
     entries_++;
-    LogTrace(mlTest_)
-      << "TEST " 
-      << " filling " << bin.str() << " " << value << " " << error << " ";
+//     LogTrace(mlTest_)
+//       << "TEST " 
+//       << " filling " << bin.str() << " " << value << " " << error << " ";
 
   }
   

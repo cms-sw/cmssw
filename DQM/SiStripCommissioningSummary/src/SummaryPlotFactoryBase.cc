@@ -31,18 +31,20 @@ void SummaryPlotFactoryBase::init( const sistrip::Monitorable& mon,
 				   const std::string& level, 
 				   const sistrip::Granularity& gran ) {
   
-  // Retrieve utility class used to generate summary histograms
-  if ( view != view_ && generator_ ) { 
-    delete generator_; 
-    generator_ = 0;
-  }
+  // Create generator object
+  if ( generator_ ) { delete generator_; generator_ = 0; }
   generator_ = SummaryGenerator::instance( view );
   
-  // Check if instance of generator class exists
-  if ( !generator_ ) { return; }
+  // Check if generator object exists
+  if ( !generator_ ) { 
+    edm::LogWarning(mlSummaryPlots_) 
+      << "[SummaryPlotFactoryBase::" << __func__ << "]" 
+      << " NULL pointer to generator object!"; 
+    return; 
+  }
   
   // Clear map used to build histogram 
-  generator_->clearMap(); //@@ always clear?... 
+  generator_->clearMap();
   
   // Set parameters
   mon_ = mon;
