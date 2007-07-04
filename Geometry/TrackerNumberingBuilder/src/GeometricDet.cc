@@ -179,15 +179,11 @@ GeometricDet::Position GeometricDet::positionBounds() const{
 }
 
 GeometricDet::Rotation GeometricDet::rotationBounds() const{
-  // sorry to invade! -- Mike Case
-  // is this really only to force the values to float accuracy?
-  //  
   DD3Vector x, y, z;
   _rot.GetComponents(x, y, z);
-  Rotation _rotation(float(x.X()),float(y.X()),float(z.X()),
-		     float(x.Y()),float(y.Y()),float(z.Y()),
-		     float(x.Z()),float(y.Z()),float(z.Z())); 
-  
+  Rotation _rotation(float(x.X()),float(x.Y()),float(x.Z()),
+		     float(y.X()),float(y.Y()),float(y.Z()),
+		     float(z.X()),float(z.Y()),float(z.Z())); 
   return _rotation;
 }
 
