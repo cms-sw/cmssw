@@ -13,7 +13,6 @@
 #include "TopQuarkAnalysis/TopKinFitter/interface/StKinFitterEtEtaPhi.h"
 #include "TopQuarkAnalysis/TopKinFitter/interface/StKinFitterEtThetaPhi.h"
 #include "TopQuarkAnalysis/TopKinFitter/interface/StKinFitterEMom.h"
-#include "AnalysisDataFormats/TopObjects/interface/BestMatching.h"
 //#include "TopQuarkAnalysis/TopJetCombination/interface/TtJetCombinationProbability.h"
 
 class StEvtSolutionMaker : public edm::EDProducer {

@@ -116,6 +116,7 @@ void StEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSet
      
      // if asked for, match the event solutions to the gen Event
      if(matchToGenEvt_){
+       /*
        edm::Handle<StGenEvent> genEvt;
        iEvent.getByLabel ("genEvt",genEvt);
        double bestSolDR = 9999.;
@@ -130,6 +131,7 @@ void StEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	 if(bm[0]<bestSolDR) { bestSolDR =  bm[0]; bestSol = s; }
        }
        (*evtsols)[bestSol].setBestSol(true);
+       */
      }
      
      //store the vector of solutions to the event     
