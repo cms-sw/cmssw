@@ -1,20 +1,18 @@
-
+<use name=DataFormats/GeometryCommonDetAlgo>
+<use name=DataFormats/GeometrySurface>
+<use name=RecoVertex/KalmanVertexFit>
+<use name=RecoVertex/TrimmedKalmanVertexFinder>
+<use name=RecoVertex/VertexPrimitives>
+<use name=RecoVertex/VertexTools>
+<use name=TrackingTools/GeomPropagators>
+<use name=TrackingTools/TrajectoryState>
+<use name=TrackingTools/TransientTrack>
+<use name=clhep>
 <export>
-
+  <use name=DataFormats/GeometryCommonDetAlgo>
+  <use name=RecoVertex/TrimmedKalmanVertexFinder>
+  <use name=RecoVertex/VertexPrimitives>
+  <use name=TrackingTools/TransientTrack>
+  <use name=clhep>
   <lib name=RecoVertexTertiaryTracksVertexFinder>
-
-  <use name=RecoVertex/KalmanVertexFit>
-  <use name=RecoVertex/VertexPrimitives>
-  <use name=RecoVertex/TrimmedKalmanVertexFinder>
-  <use name=TrackingTools/TransientTrack>
-  <use name=clhep>
-  <use name=root>
-
 </export>
-
-  <use name=RecoVertex/KalmanVertexFit>
-  <use name=RecoVertex/VertexPrimitives>
-  <use name=RecoVertex/TrimmedKalmanVertexFinder>
-  <use name=TrackingTools/TransientTrack>
-  <use name=clhep>
-  <use name=root>
