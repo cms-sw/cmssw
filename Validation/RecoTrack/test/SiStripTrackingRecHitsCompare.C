@@ -40,8 +40,7 @@ void SiStripTrackingRecHitsCompare()
  gROOT ->Reset();
 
  char*  rfilename = "striptrackingrechitshisto.root";
- //char*  sfilename = "striptrackingrechitshisto.root";
- char*  sfilename = "../data/striptrackingrechitshisto_REF.root";
+ char*  sfilename = "../data/striptrackingrechitshisto.root";
 
  delete gROOT->GetListOfFiles()->FindObject(rfilename);
  delete gROOT->GetListOfFiles()->FindObject(sfilename); 
