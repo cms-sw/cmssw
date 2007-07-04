@@ -32,7 +32,8 @@ SiPixelRawDataError::SiPixelRawDataError(const unsigned int errorWord32, const i
 
 SiPixelRawDataError::SiPixelRawDataError(const long long errorWord64, const int errorType) : 
   errorWord64_(errorWord64),
-  errorType_(errorType)
+  errorType_(errorType),
+  detId_(0xffffffff)
   {
     setMessage(errorType);
   }
