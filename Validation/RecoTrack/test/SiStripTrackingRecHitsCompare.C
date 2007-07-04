@@ -109,6 +109,7 @@ void SiStripTrackingRecHitsCompare()
  }
 
  Strip->Print("AdcTIBCompare.eps");
+ Strip->Print("AdcTIBCompare.gif");
  
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TIB/Pull_LF_rphi_layer1tib",refplotsTIB[0]);
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TIB/Pull_LF_rphi_layer2tib",refplotsTIB[1]);
@@ -135,6 +136,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("PullLFTIBCompare.eps");
+ Strip->Print("PullLFTIBCompare.gif");
 
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TIB/Pull_MF_rphi_layer1tib",refplotsTIB[0]);
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TIB/Pull_MF_rphi_layer2tib",refplotsTIB[1]);
@@ -161,6 +163,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("PullMFTIBCompare.eps");
+ Strip->Print("PullMFTIBCompare.gif");
 
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TIB/Trackangle_rphi_layer1tib",refplotsTIB[0]);
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TIB/Trackangle_rphi_layer2tib",refplotsTIB[1]);
@@ -187,6 +190,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("TrackangleTIBCompare.eps");
+ Strip->Print("TrackangleTIBCompare.gif");
  
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TIB/Trackwidth_rphi_layer1tib",refplotsTIB[0]);
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TIB/Trackwidth_rphi_layer2tib",refplotsTIB[1]);
@@ -213,6 +217,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("TrackwidthTIBCompare.eps");
+ Strip->Print("TrackwidthTIBCompare.gif");
  
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TIB/Expectedwidth_rphi_layer1tib",refplotsTIB[0]);
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TIB/Expectedwidth_rphi_layer2tib",refplotsTIB[1]);
@@ -239,6 +244,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("ExpectedwidthTIBCompare.eps");
+ Strip->Print("ExpectedwidthTIBCompare.gif");
  
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TIB/Category_rphi_layer1tib",refplotsTIB[0]);
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TIB/Category_rphi_layer2tib",refplotsTIB[1]);
@@ -265,6 +271,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("CategoryTIBCompare.eps");
+ Strip->Print("CategoryTIBCompare.gif");
  
  /*
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TIB/PullTrackangleProfile_rphi_layer1tib",PullTrackangleProfiletib[0]);
@@ -457,6 +464,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("NstpTIBCompare.eps");
+ Strip->Print("NstpTIBCompare.gif");
 
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TIB/Posx_rphi_layer1tib",refplotsTIB[0]);
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TIB/Posx_rphi_layer2tib",refplotsTIB[1]);
@@ -483,6 +491,7 @@ void SiStripTrackingRecHitsCompare()
  }
   
  Strip->Print("PosTIBCompare.eps");
+ Strip->Print("PosTIBCompare.gif");
   
 
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TIB/Errx_LF_rphi_layer1tib",refplotsTIB[0]);
@@ -510,6 +519,7 @@ void SiStripTrackingRecHitsCompare()
  }
   
  Strip->Print("ErrxLFTIBCompare.eps");
+ Strip->Print("ErrxLFTIBCompare.gif");
   
  
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TIB/Errx_MF_rphi_layer1tib",refplotsTIB[0]);
@@ -536,6 +546,7 @@ void SiStripTrackingRecHitsCompare()
    myPV->PVCompute(refplotsTIB[i] , newplotsTIB[i] , te );
  }
  Strip->Print("ErrxMFTIBCompare.eps");
+ Strip->Print("ErrxMFTIBCompare.gif");
 
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TIB/Res_LF_rphi_layer1tib",refplotsTIB[0]);
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TIB/Res_LF_rphi_layer2tib",refplotsTIB[1]);
@@ -562,6 +573,7 @@ void SiStripTrackingRecHitsCompare()
  }
   
  Strip->Print("ResLFTIBCompare.eps");
+ Strip->Print("ResLFTIBCompare.gif");
 
 
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TIB/Res_MF_rphi_layer1tib",refplotsTIB[0]);
@@ -589,6 +601,7 @@ void SiStripTrackingRecHitsCompare()
  }
   
  Strip->Print("ResMFTIBCompare.eps");
+ Strip->Print("ResMFTIBCompare.gif");
 
 
   /*
@@ -667,6 +680,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("MatchedTIBCompare.eps");
+ Strip->Print("MatchedTIBCompare.gif");
 
  
  //======================================================================================================
@@ -719,6 +733,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("AdcTOBCompare.eps");
+ Strip->Print("AdcTOBCompare.gif");
  
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TOB/Pull_LF_rphi_layer1tob",refplotsTOB[0]);
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TOB/Pull_LF_rphi_layer2tob",refplotsTOB[1]);
@@ -749,6 +764,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("PullLFTOBCompare.eps");
+ Strip->Print("PullLFTOBCompare.gif");
 
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TOB/Pull_MF_rphi_layer1tob",refplotsTOB[0]);
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TOB/Pull_MF_rphi_layer2tob",refplotsTOB[1]);
@@ -779,6 +795,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("PullMFTOBCompare.eps");
+ Strip->Print("PullMFTOBCompare.gif");
 
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TOB/Trackangle_rphi_layer1tob",refplotsTOB[0]);
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TOB/Trackangle_rphi_layer2tob",refplotsTOB[1]);
@@ -809,6 +826,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("TrackangleTOBCompare.eps");
+ Strip->Print("TrackangleTOBCompare.gif");
 
 
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TOB/Trackwidth_rphi_layer1tob",refplotsTOB[0]);
@@ -840,6 +858,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("TrackwidthTOBCompare.eps");
+ Strip->Print("TrackwidthTOBCompare.gif");
 
 
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TOB/Expectedwidth_rphi_layer1tob",refplotsTOB[0]);
@@ -871,6 +890,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("ExpectedwidthTOBCompare.eps");
+ Strip->Print("ExpectedwidthTOBCompare.gif");
 
 
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TOB/Category_rphi_layer1tob",refplotsTOB[0]);
@@ -902,6 +922,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("CategoryTOBCompare.eps");
+ Strip->Print("CategoryTOBCompare.gif");
 
 
  /*
@@ -1122,6 +1143,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("NstpTOBCompare.eps");
+ Strip->Print("NstpTOBCompare.gif");
 
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TOB/Posx_rphi_layer1tob",refplotsTOB[0]);
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TOB/Posx_rphi_layer2tob",refplotsTOB[1]);
@@ -1152,6 +1174,7 @@ void SiStripTrackingRecHitsCompare()
  }
   
  Strip->Print("PosTOBCompare.eps");
+ Strip->Print("PosTOBCompare.gif");
   
 
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TOB/Errx_LF_rphi_layer1tob",refplotsTOB[0]);
@@ -1183,6 +1206,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("ErrxLFTOBCompare.eps");
+ Strip->Print("ErrxLFTOBCompare.gif");
   
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TOB/Errx_MF_rphi_layer1tob",refplotsTOB[0]);
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TOB/Errx_MF_rphi_layer2tob",refplotsTOB[1]);
@@ -1213,6 +1237,7 @@ void SiStripTrackingRecHitsCompare()
  }
   
  Strip->Print("ErrxMFTOBCompare.eps");
+ Strip->Print("ErrxMFTOBCompare.gif");
   
  
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TOB/Res_LF_rphi_layer1tob",refplotsTOB[0]);
@@ -1244,6 +1269,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("ResLFTOBCompare.eps");
+ Strip->Print("ResLFTOBCompare.gif");
 
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TOB/Res_MF_rphi_layer1tob",refplotsTOB[0]);
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TOB/Res_MF_rphi_layer2tob",refplotsTOB[1]);
@@ -1274,6 +1300,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("ResMFTOBCompare.eps");
+ Strip->Print("ResMFTOBCompare.gif");
 
   /*
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TOB/Chi2_rphi_layer1tob",chi2tob[0]);
@@ -1353,6 +1380,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("MatchedTOBCompare.eps");
+ Strip->Print("MatchedTOBCompare.gif");
  
 
  //=============================================================== 
@@ -1401,6 +1429,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("AdcTIDCompare.eps");
+ Strip->Print("AdcTIDCompare.gif");
 
  
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TID/Pull_LF_rphi_layer1tid",refplotsTID[0]);
@@ -1426,6 +1455,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("PullLFTIDCompare.eps");
+ Strip->Print("PullLFTIDCompare.gif");
 
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TID/Pull_MF_rphi_layer1tid",refplotsTID[0]);
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TID/Pull_MF_rphi_layer2tid",refplotsTID[1]);
@@ -1450,6 +1480,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("PullMFTIDCompare.eps");
+ Strip->Print("PullMFTIDCompare.gif");
 
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TID/Trackangle_rphi_layer1tid",refplotsTID[0]);
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TID/Trackangle_rphi_layer2tid",refplotsTID[1]);
@@ -1474,6 +1505,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("TrackangleTIDCompare.eps");
+ Strip->Print("TrackangleTIDCompare.gif");
 
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TID/Trackwidth_rphi_layer1tid",refplotsTID[0]);
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TID/Trackwidth_rphi_layer2tid",refplotsTID[1]);
@@ -1498,7 +1530,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("TrackwidthTIDCompare.eps");
-
+ Strip->Print("TrackwidthTIDCompare.gif");
 
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TID/Expectedwidth_rphi_layer1tid",refplotsTID[0]);
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TID/Expectedwidth_rphi_layer2tid",refplotsTID[1]);
@@ -1528,6 +1560,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("ExpectedwidthTIDCompare.eps");
+ Strip->Print("ExpectedwidthTIDCompare.gif");
 
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TID/Category_rphi_layer1tid",refplotsTID[0]);
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TID/Category_rphi_layer2tid",refplotsTID[1]);
@@ -1557,6 +1590,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("CategoryTIDCompare.eps");
+ Strip->Print("CategoryTIDCompare.gif");
  /*
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TID/PullTrackangleProfile_rphi_layer1tid",PullTrackangleProfiletid[0]);
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TID/PullTrackangleProfile_rphi_layer2tid",PullTrackangleProfiletid[1]);
@@ -1736,6 +1770,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("NstpTIDCompare.eps");
+ Strip->Print("NstpTIDCompare.gif");
 
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TID/Posx_rphi_layer1tid",refplotsTID[0]);
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TID/Posx_rphi_layer2tid",refplotsTID[1]);
@@ -1765,6 +1800,7 @@ void SiStripTrackingRecHitsCompare()
  }
   
  Strip->Print("PosTIDCompare.eps");
+ Strip->Print("PosTIDCompare.gif");
   
 
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TID/Errx_LF_rphi_layer1tid",refplotsTID[0]);
@@ -1795,6 +1831,7 @@ void SiStripTrackingRecHitsCompare()
   }
   
   Strip->Print("ErrxLFTIDCompare.eps");
+  Strip->Print("ErrxLFTIDCompare.gif");
   
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TID/Errx_MF_rphi_layer1tid",refplotsTID[0]);
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TID/Errx_MF_rphi_layer2tid",refplotsTID[1]);
@@ -1824,6 +1861,7 @@ void SiStripTrackingRecHitsCompare()
   }
   
   Strip->Print("ErrxMFTIDCompare.eps");
+  Strip->Print("ErrxMFTIDCompare.gif");
   
  
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TID/Res_LF_rphi_layer1tid",refplotsTID[0]);
@@ -1854,6 +1892,7 @@ void SiStripTrackingRecHitsCompare()
   }
   
   Strip->Print("ResLFTIDCompare.eps");
+  Strip->Print("ResLFTIDCompare.gif");
 
 
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TID/Res_MF_rphi_layer1tid",refplotsTID[0]);
@@ -1884,6 +1923,7 @@ void SiStripTrackingRecHitsCompare()
   }
   
   Strip->Print("ResMFTIDCompare.eps");
+  Strip->Print("ResMFTIDCompare.gif");
   /*
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TID/Chi2_rphi_layer1tid",chi2tid[0]);
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TID/Chi2_rphi_layer2tid",chi2tid[1]);
@@ -1963,6 +2003,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("MatchedTIDCompare.eps");
+ Strip->Print("MatchedTIDCompare.gif");
 
 
  //======================================================================================================
@@ -2027,6 +2068,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("AdcTECCompare.eps");
+ Strip->Print("AdcTECCompare.gif");
  
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TEC/Pull_LF_rphi_layer1tec",refplotsTEC[0]);
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TEC/Pull_LF_rphi_layer2tec",refplotsTEC[1]);
@@ -2065,6 +2107,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("PullLFTECCompare.eps");
+ Strip->Print("PullLFTECCompare.gif");
 
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TEC/Pull_MF_rphi_layer1tec",refplotsTEC[0]);
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TEC/Pull_MF_rphi_layer2tec",refplotsTEC[1]);
@@ -2103,6 +2146,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("PullMFTECCompare.eps");
+ Strip->Print("PullMFTECCompare.gif");
 
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TEC/Trackangle_rphi_layer1tec",refplotsTEC[0]);
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TEC/Trackangle_rphi_layer2tec",refplotsTEC[1]);
@@ -2141,6 +2185,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("TrackangleTECCompare.eps");
+ Strip->Print("TrackangleTECCompare.gif");
 
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TEC/Trackwidth_rphi_layer1tec",refplotsTEC[0]);
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TEC/Trackwidth_rphi_layer2tec",refplotsTEC[1]);
@@ -2179,6 +2224,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("TrackwidthTECCompare.eps");
+ Strip->Print("TrackwidthTECCompare.gif");
 
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TEC/Expectedwidth_rphi_layer1tec",refplotsTEC[0]);
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TEC/Expectedwidth_rphi_layer2tec",refplotsTEC[1]);
@@ -2217,6 +2263,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("ExpectedwidthTECCompare.eps");
+ Strip->Print("ExpectedwidthTECCompare.gif");
 
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TEC/Category_rphi_layer1tec",refplotsTEC[0]);
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TEC/Category_rphi_layer2tec",refplotsTEC[1]);
@@ -2255,6 +2302,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("CategoryTECCompare.eps");
+ Strip->Print("CategoryTECCompare.gif");
 
  /*
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TEC/PullTrackangleProfile_rphi_layer1tec",PullTrackangleProfiletec[0]);
@@ -2364,6 +2412,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("NstpTECCompare.eps");
+ Strip->Print("NstpTECCompare.gif");
 
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TEC/Posx_rphi_layer1tec",refplotsTEC[0]);
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TEC/Posx_rphi_layer2tec",refplotsTEC[1]);
@@ -2402,6 +2451,7 @@ void SiStripTrackingRecHitsCompare()
  }
   
  Strip->Print("PosTECCompare.eps");
+ Strip->Print("PosTECCompare.gif");
   
 
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TEC/Errx_LF_rphi_layer1tec",refplotsTEC[0]);
@@ -2441,6 +2491,7 @@ void SiStripTrackingRecHitsCompare()
  }
   
  Strip->Print("ErrxLFTECCompare.eps");
+ Strip->Print("ErrxLFTECCompare.gif");
   
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TEC/Errx_MF_rphi_layer1tec",refplotsTEC[0]);
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TEC/Errx_MF_rphi_layer2tec",refplotsTEC[1]);
@@ -2479,6 +2530,7 @@ void SiStripTrackingRecHitsCompare()
  }
   
  Strip->Print("ErrxMFTECCompare.eps");
+ Strip->Print("ErrxMFTECCompare.gif");
   
  
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TEC/Res_LF_rphi_layer1tec",refplotsTEC[0]);
@@ -2518,6 +2570,7 @@ void SiStripTrackingRecHitsCompare()
  }
   
  Strip->Print("ResLFTECCompare.eps");
+ Strip->Print("ResLFTECCompare.gif");
 
 
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TEC/Res_MF_rphi_layer1tec",refplotsTEC[0]);
@@ -2557,6 +2610,7 @@ void SiStripTrackingRecHitsCompare()
  }
   
  Strip->Print("ResMFTECCompare.eps");
+ Strip->Print("ResMFTECCompare.gif");
 
 
 
@@ -2634,6 +2688,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("MatchedTECCompare_1.eps");
+ Strip->Print("MatchedTECCompare_1.gif");
  
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TEC/Resx_matched_layer1tec",matchedtec2[0]);
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TEC/Resy_matched_layer1tec",matchedtec2[1]);
@@ -2672,6 +2727,7 @@ void SiStripTrackingRecHitsCompare()
  }
  
  Strip->Print("MatchedTECCompare_2.eps");
+ Strip->Print("MatchedTECCompare_2.gif");
 
 
  /*
