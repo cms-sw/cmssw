@@ -15,13 +15,12 @@ eval `scramv1 ru -csh`
  root -b -p -q SiStripHitsCompareEnergy.C
  if ( ! -e plots/muon ) mkdir plots/muon
  /bin/mv eloss*.eps plots/muon
+ /bin/mv eloss*.gif plots/muon
 
  root -b -p -q SiStripHitsComparePosition.C
  if ( ! -e plots/muon ) mkdir plots/muon
  /bin/mv pos*.eps plots/muon
-
- if ( ! -e plots/muon ) mkdir plots/muon
- /bin/mv *summary*.eps plots/muon
+ /bin/mv pos*.gif plots/muon
 
  if ( -e Muon.root ) /bin/rm Muon.root
   

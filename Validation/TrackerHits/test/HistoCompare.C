@@ -87,8 +87,9 @@ void HistoCompare::KSdraw(TH1F * oldHisto , TH1F * newHisto)
   else max = 1.1*max_t;
   myoldHisto1->SetMaximum(max);
   myoldHisto1->SetLineColor(2);
-
+  myoldHisto1->SetLineStyle(1);
   mynewHisto1->SetLineColor(4);
+  mynewHisto1->SetLineStyle(2);
   
   return;
 }
