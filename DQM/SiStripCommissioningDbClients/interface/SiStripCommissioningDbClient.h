@@ -1,13 +1,13 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripCommissioningDbClient.h,v 1.2 2007/03/21 16:55:06 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_SiStripCommissioningDbClient_H
 #define DQM_SiStripCommissioningClients_SiStripCommissioningDbClient_H
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningClient.h"
 #include <boost/cstdint.hpp>
-#include "xdata/include/xdata/UnsignedLong.h"
-#include "xdata/include/xdata/Boolean.h"
-#include "xdata/include/xdata/String.h"
+#include "xdata/UnsignedLong.h"
+#include "xdata/Boolean.h"
+#include "xdata/String.h"
 #include <string>
 
 class SiStripConfigDb;

@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningDbClient.cc,v 1.2 2007/03/21 16:55:07 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningDbClient.cc,v 1.3 2007/06/19 12:30:37 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/SiStripCommissioningDbClient.h"
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
@@ -10,8 +10,8 @@
 #include "DQM/SiStripCommissioningDbClients/interface/PedestalsHistosUsingDb.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "xdata/include/xdata/UnsignedLong.h"
-#include "xdata/include/xdata/String.h"
+#include "xdata/UnsignedLong.h"
+#include "xdata/String.h"
 #include <SealBase/Callback.h>
 #include <iostream>
 
