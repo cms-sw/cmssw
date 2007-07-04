@@ -184,22 +184,28 @@ TrajectoryManager::reconstruct()
 	    loop<100 &&                            // No more than 100 loops
 	    mySimEvent->track(fsimi).notYetToEndVertex(PP.vertex())) { // The particle decayed
 
+      // Pathological cases:
       // To prevent from interacting twice in a row with the same layer
-      bool escapeBarrel    = (PP.getSuccess() == -1 && success == 1);
+      //      bool escapeBarrel    = (PP.getSuccess() == -1 && success == 1);
+      bool escapeBarrel    = PP.getSuccess() == -1;
       bool escapeEndcap    = (PP.getSuccess() == -2 && success == 1);
       // To break the loop
       bool fullPropagation = 
 	(PP.getSuccess() <= 0 && success==0) || escapeEndcap;
 
-      // Define the propagation conditions
-      if ( escapeBarrel ) { 
-	if ( ++cyliter ==_theGeometry->cylinderEnd() ) {
-	  --cyliter; fullPropagation=true; 
-	} else {
-	  sign=1; ++cyl; 
+      if ( escapeBarrel ) {
+	++cyliter; ++cyl;
+	while (cyliter != _theGeometry->cylinderEnd() && cyliter->forward() ) {
+	  sign=1; ++cyliter; ++cyl;
 	}
+
+	if ( cyliter == _theGeometry->cylinderEnd()  ) {
+	  --cyliter; --cyl; fullPropagation=true; 
+	}
+
       }
 
+      // Define the propagation conditions
       PP.setPropagationConditions(*cyliter,!fullPropagation);
       if ( escapeEndcap ) PP.increaseRCyl(0.0005);
 
