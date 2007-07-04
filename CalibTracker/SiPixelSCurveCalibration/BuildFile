@@ -1,0 +1,21 @@
+<use name=CalibFormats/SiPixelObjects>
+<use name=DataFormats/Common>
+<use name=DataFormats/DetId>
+<use name=DataFormats/SiPixelDigi>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/PluginManager>
+<use name=FWCore/ServiceRegistry>
+<use name=PhysicsTools/UtilAlgos>
+<use name=Geometry/Records>
+<use name=Geometry/CommonDetUnit>
+<use name=Geometry/TrackerGeometryBuilder>
+<use name=root>
+<flags EDM_PLUGIN=1>
+<export> 
+  <lib name=UserCodekellerjd>
+  <use name=CalibFormats/SiPixelObjects>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=root>
+</export>
