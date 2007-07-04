@@ -47,6 +47,11 @@ TH1D* hist_x0_CAB;
 TH1D* hist_x0_COL;
 TH1D* hist_x0_OTH;
 //
+float mbmin;
+float mbmax;
+float etamin;
+float etamax;
+//  
 
 using namespace std;
 
@@ -70,26 +75,50 @@ void createPlots(TString plot){
     plotNumber = 10;
     abscissaName = TString("#eta");
     ordinateName = TString("x/X_{0}");
+    mbmin  =  0.0;
+    mbmax  =  2.0;
+    etamin = -4.0;
+    etamax =  4.0;
   } else if(plot.CompareTo("x_vs_phi") == 0) {
     plotNumber = 20;
     abscissaName = TString("#varphi [rad]");
     ordinateName = TString("x/X_{0}");
+    mbmin  =  0.0;
+    mbmax  =  2.0;
+    etamin = -4.0;
+    etamax =  4.0;
   } else if(plot.CompareTo("x_vs_R") == 0) {
     plotNumber = 40;
     abscissaName = TString("R [cm]");
     ordinateName = TString("x/X_{0}");
+    mbmin  =  0.0;
+    mbmax  =  2.0;
+    etamin = -4.0;
+    etamax =  4.0;
   } else if(plot.CompareTo("l_vs_eta") == 0) {
     plotNumber = 1010;
     abscissaName = TString("#eta");
     ordinateName = TString("#lambda/#lambda_{0}");
+    mbmin  =  0.0;
+    mbmax  =  0.6;
+    etamin = -4.0;
+    etamax =  4.0;
   } else if(plot.CompareTo("l_vs_phi") == 0) {
     plotNumber = 1020;
     abscissaName = TString("#varphi [rad]");
     ordinateName = TString("#lambda/#lambda_{0}");
+    mbmin  =  0.0;
+    mbmax  =  1.0;
+    etamin = -4.0;
+    etamax =  4.0;
   } else if(plot.CompareTo("l_vs_R") == 0) {
     plotNumber = 1040;
     abscissaName = TString("R [cm]");
     ordinateName = TString("#lambda/#lambda_{0}");
+    mbmin  =  0.0;
+    mbmax  =  0.7;
+    etamin = -4.0;
+    etamax =  4.0;
   } else {
     cout << " error: chosen plot name not known " << plot << endl;
     return;
@@ -366,11 +395,6 @@ void createPlots(TString plot){
   hist_x0_ELE->SetFillColor(30); // Electronics = green
   hist_x0_OTH->SetFillColor(42); // Other+Air   = orange
   //
-  float mbmin  =  0.0;
-  float mbmax  =  2.0;
-  float etamin = -4.0;
-  float etamax =  4.0;
-  //  
   
   // First Plot: BeamPipe + Pixel + TIB/TID + TOB + TEC + Outside
   // stack
