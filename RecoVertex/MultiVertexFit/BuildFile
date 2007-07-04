@@ -1,16 +1,19 @@
-<export>
- <lib name=RecoVertexMultiVertexFit>
- <use name=RecoVertex/VertexPrimitives>
- <use name=RecoVertex/VertexTools>
- <use name=RecoVertex/LinearizationPointFinders>
- <use name=RecoVertex/KalmanVertexFit>
- <use name=RecoVertex/AdaptiveVertexFit>
- <use name=DataFormats/Math>
-</export>
-
+<use name=CommonTools/Clustering1D>
+<use name=DataFormats/GeometryCommonDetAlgo>
+<use name=DataFormats/GeometryVector>
+<use name=RecoVertex/AdaptiveVertexFit>
+<use name=RecoVertex/KalmanVertexFit>
+<use name=RecoVertex/LinearizationPointFinders>
 <use name=RecoVertex/VertexPrimitives>
 <use name=RecoVertex/VertexTools>
-<use name=RecoVertex/LinearizationPointFinders>
-<use name=RecoVertex/KalmanVertexFit>
-<use name=RecoVertex/AdaptiveVertexFit>
-<use name=DataFormats/Math>
+<use name=TrackingTools/PatternTools>
+<use name=TrackingTools/TransientTrack>
+<export>
+  <use name=DataFormats/GeometryVector>
+  <use name=RecoVertex/LinearizationPointFinders>
+  <use name=RecoVertex/VertexPrimitives>
+  <use name=RecoVertex/VertexTools>
+  <use name=TrackingTools/TransientTrack>
+  <lib name=RecoVertexMultiVertexFit>
+</export>
+
