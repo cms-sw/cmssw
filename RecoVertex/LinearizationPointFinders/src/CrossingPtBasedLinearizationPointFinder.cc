@@ -1,6 +1,6 @@
 #include "RecoVertex/LinearizationPointFinders/interface/CrossingPtBasedLinearizationPointFinder.h"
 #include "RecoVertex/LinearizationPointFinders/interface/LinPtException.h"
-#include "RecoVertex/VertexTools/interface/TwoTrackMinimumDistance.h"
+#include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/VertexTools/interface/ModeFinder3d.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
