@@ -40,11 +40,12 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
     theTimer(0)
 {
   edm::LogInfo("SiPixelRawToDigi")<< " HERE ** constructor!" << endl;
-  produces< edm::DetSetVector<PixelDigi> >();
-  produces< std::map<int, std::vector<SiPixelRawDataError> > >();
-
   bool timing = config_.getUntrackedParameter<bool>("Timing",false);
   includeErrors = config_.getUntrackedParameter<bool>("IncludeErrors",false);
+  // Products
+  produces< edm::DetSetVector<PixelDigi> >();
+  if(includeErrors) produces< std::map<int, std::vector<SiPixelRawDataError> > >();
+  // Timing
   if (timing) {
     theTimer = new R2DTimerObserver("**** MY TIMING REPORT ***");
     rootFile = new TFile("analysis.root", "RECREATE", "my histograms");
