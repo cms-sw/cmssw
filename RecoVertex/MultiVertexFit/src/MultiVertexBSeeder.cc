@@ -2,7 +2,7 @@
 // #include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 // #include "RecoVertex/VertexPrimitives/interface/BeamSpot.h"
-#include "RecoVertex/VertexTools/interface/TwoTrackMinimumDistance.h"
+#include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
 #include "RecoVertex/VertexTools/interface/FsmwModeFinder3d.h"
 #include "CommonTools/Clustering1D/interface/FsmwClusterizer1D.h"
 #include "CommonTools/Clustering1D/interface/MultiClusterizer1D.h"
