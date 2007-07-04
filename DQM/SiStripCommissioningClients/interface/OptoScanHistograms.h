@@ -16,7 +16,8 @@ class OptoScanHistograms : public CommissioningHistograms {
   OptoScanHistograms( DaqMonitorBEInterface* );
   virtual ~OptoScanHistograms();
 
-  typedef SummaryHistogramFactory<OptoScanAnalysis> Factory;
+  typedef SummaryPlotFactory<OptoScanAnalysis*> Factory;
+  typedef std::map<uint32_t,OptoScanAnalysis*> Analyses;
   
   /** */
   void histoAnalysis( bool debug );
@@ -29,10 +30,10 @@ class OptoScanHistograms : public CommissioningHistograms {
 
  protected:
 
-  std::map<uint32_t,OptoScanAnalysis> data_;
+  Analyses data_;
 
   std::auto_ptr<Factory> factory_;
-
+  
 };
 
 #endif // DQM_SiStripCommissioningClients_OptoScanHistograms_H

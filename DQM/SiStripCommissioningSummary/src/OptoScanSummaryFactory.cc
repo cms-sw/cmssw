@@ -9,154 +9,82 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
-SummaryHistogramFactory<OptoScanAnalysis>::SummaryHistogramFactory() :
-  mon_(sistrip::UNKNOWN_MONITORABLE),
-  pres_(sistrip::UNKNOWN_PRESENTATION),
-  view_(sistrip::UNKNOWN_VIEW),
-  level_(sistrip::root_),
-  gran_(sistrip::UNKNOWN_GRAN),
-  generator_(0) 
-{
-} 
-
-
-// -----------------------------------------------------------------------------
-//
-SummaryHistogramFactory<OptoScanAnalysis>::~SummaryHistogramFactory() {
-  if ( generator_ ) { delete generator_; }
-}
-
-// -----------------------------------------------------------------------------
-//
-void SummaryHistogramFactory<OptoScanAnalysis>::init( const sistrip::Monitorable& mon, 
+uint32_t SummaryPlotFactory<OptoScanAnalysis*>::init( const sistrip::Monitorable& mon, 
 						      const sistrip::Presentation& pres,
 						      const sistrip::View& view, 
-						      const std::string& top_level_dir, 
-						      const sistrip::Granularity& gran ) {
-  mon_ = mon;
-  pres_ = pres;
-  view_ = view;
-  level_ = top_level_dir;
-  gran_ = gran;
+						      const std::string& level, 
+						      const sistrip::Granularity& gran,
+						      const std::map<uint32_t,OptoScanAnalysis*>& data ) {
 
-  // Retrieve utility class used to generate summary histograms
-  if ( generator_ ) { delete generator_; generator_ = 0; }
-  generator_ = SummaryGenerator::instance( view );
-  
-}
+  // Some initialisation
+  SummaryPlotFactoryBase::init( mon, pres, view, level, gran );
 
-//------------------------------------------------------------------------------
-//
-uint32_t SummaryHistogramFactory<OptoScanAnalysis>::extract( const std::map<uint32_t,OptoScanAnalysis>& data  ) {
-  
-  // Check if data are present
-  if ( data.empty() ) { 
-    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
-	 << " No data to histogram!";
-    return 0; 
-  } 
-  
-  // Check if instance of generator class exists
-  if ( !generator_ ) { 
-    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
-	 << " NULL pointer to SummaryGenerator object!";
-    return 0;  
-  }
+  // Check if generator object exists
+  if ( !SummaryPlotFactoryBase::generator_ ) { return 0; }
 
-  // Transfer appropriate monitorables info to generator object
-  generator_->clearMap();
-  std::map<uint32_t,OptoScanAnalysis>::const_iterator iter = data.begin();
+  // Extract monitorable and fill map
+  std::map<uint32_t,OptoScanAnalysis*>::const_iterator iter = data.begin();
   for ( ; iter != data.end(); iter++ ) {
-    uint16_t igain = iter->second.gain();
-    if ( mon_ == sistrip::OPTO_SCAN_LLD_GAIN_SETTING ) { 
-      generator_->fillMap( level_, gran_, iter->first, igain ); 
-    } else if ( mon_ == sistrip::OPTO_SCAN_LLD_BIAS_SETTING ) {
-      generator_->fillMap( level_, gran_, iter->first, iter->second.bias()[igain] ); 
-    } else if ( mon_ == sistrip::OPTO_SCAN_MEASURED_GAIN ) { 
-      generator_->fillMap( level_, gran_, iter->first, iter->second.measGain()[igain] ); 
-    } else if ( mon_ == sistrip::OPTO_SCAN_ZERO_LIGHT_LEVEL ) { 
-      generator_->fillMap( level_, gran_, iter->first, iter->second.zeroLight()[igain] ); 
-    } else if ( mon_ == sistrip::OPTO_SCAN_LINK_NOISE ) {
-      generator_->fillMap( level_, gran_, iter->first, iter->second.linkNoise()[igain] ); 
-    } else if ( mon_ == sistrip::OPTO_SCAN_BASELINE_LIFT_OFF ) {
-      generator_->fillMap( level_, gran_, iter->first, iter->second.liftOff()[igain] ); 
-    } else if ( mon_ == sistrip::OPTO_SCAN_LASER_THRESHOLD ) {
-      generator_->fillMap( level_, gran_, iter->first, iter->second.threshold()[igain] ); 
-    } else if ( mon_ == sistrip::OPTO_SCAN_TICK_HEIGHT ) {
-      generator_->fillMap( level_, gran_, iter->first, iter->second.tickHeight()[igain] ); 
-    } else { 
-      edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
-	   << " Unexpected SummaryHisto value:"
-	   << SiStripEnumsAndStrings::monitorable( mon_ ) 
-	  ;
-      continue;
+    if ( !iter->second ) { continue; }
+    uint16_t igain = iter->second->gain();
+    float value = 1. * sistrip::invalid_;
+    //float error = 1. * sistrip::invalid_;
+    if ( SummaryPlotFactoryBase::mon_ == sistrip::OPTO_SCAN_LLD_GAIN_SETTING ) { value = igain; }
+    else if ( SummaryPlotFactoryBase::mon_ == sistrip::OPTO_SCAN_LLD_BIAS_SETTING ) { value = iter->second->bias()[igain]; } 
+    else if ( SummaryPlotFactoryBase::mon_ == sistrip::OPTO_SCAN_MEASURED_GAIN ) { value = iter->second->measGain()[igain]; } 
+    else if ( SummaryPlotFactoryBase::mon_ == sistrip::OPTO_SCAN_ZERO_LIGHT_LEVEL ) { value = iter->second->zeroLight()[igain]; } 
+    else if ( SummaryPlotFactoryBase::mon_ == sistrip::OPTO_SCAN_LINK_NOISE ) { value = iter->second->linkNoise()[igain]; } 
+    else if ( SummaryPlotFactoryBase::mon_ == sistrip::OPTO_SCAN_BASELINE_LIFT_OFF ) { value = iter->second->liftOff()[igain]; } 
+    else if ( SummaryPlotFactoryBase::mon_ == sistrip::OPTO_SCAN_LASER_THRESHOLD ) { value = iter->second->threshold()[igain]; } 
+    else if ( SummaryPlotFactoryBase::mon_ == sistrip::OPTO_SCAN_TICK_HEIGHT ) { value = iter->second->tickHeight()[igain]; } 
+    else { 
+      edm::LogWarning(mlSummaryPlots_)
+	<< "[SummaryPlotFactory::" << __func__ << "]" 
+	<< " Unexpected monitorable: "
+	<< SiStripEnumsAndStrings::monitorable( SummaryPlotFactoryBase::mon_ );
+      continue; 
+      
     }
+    
+    SummaryPlotFactoryBase::generator_->fillMap( SummaryPlotFactoryBase::level_, 
+						 SummaryPlotFactoryBase::gran_, 
+						 iter->first, 
+						 value );
   }
-  return generator_->size();
+  
+  return SummaryPlotFactoryBase::generator_->nBins();
+  
 }
 
 //------------------------------------------------------------------------------
 //
-void SummaryHistogramFactory<OptoScanAnalysis>::fill( TH1& summary_histo ) {
+void SummaryPlotFactory<OptoScanAnalysis*>::fill( TH1& summary_histo ) {
 
-  // Check if instance of generator class exists
-  if ( !generator_ ) { 
-    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
-	 << " NULL pointer to SummaryGenerator object!";
-    return;
-  }
+  // Histogram filling and formating
+  SummaryPlotFactoryBase::fill( summary_histo );
 
-  // Check if instance of generator class exists
-  if ( !(&summary_histo) ) { 
-    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
-	 << " NULL pointer to SummaryGenerator object!";
-    return;
-  }
+  // Check if generator object exists
+  if ( !SummaryPlotFactoryBase::generator_ ) { return; }
 
-  // Check if std::map is filled
-  if ( !generator_->size() ) { 
-    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
-	 << " No data in the monitorables std::map!";
-    return; 
-  } 
-
-  // Generate appropriate summary histogram 
-  if ( pres_ == sistrip::HISTO_1D ) {
-    generator_->histo1D( summary_histo );
-  } else if ( pres_ == sistrip::HISTO_2D_SUM ) {
-    generator_->histo2DSum( summary_histo );
-  } else if ( pres_ == sistrip::HISTO_2D_SCATTER ) {
-    generator_->histo2DScatter( summary_histo );
-  } else if ( pres_ == sistrip::PROFILE_1D ) {
-    generator_->profile1D( summary_histo );
-  } else { 
-    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
-	 << " Unexpected SummaryType value:"
-	 << SiStripEnumsAndStrings::presentation( pres_ ) 
-	;
-    return; 
-  }
-  
   // Histogram formatting
-  if ( mon_ == sistrip::OPTO_SCAN_LLD_GAIN_SETTING ) { 
-  } else if ( mon_ == sistrip::OPTO_SCAN_LLD_BIAS_SETTING ) {
-  } else if ( mon_ == sistrip::OPTO_SCAN_MEASURED_GAIN ) { 
-  } else if ( mon_ == sistrip::OPTO_SCAN_ZERO_LIGHT_LEVEL ) { 
-  } else if ( mon_ == sistrip::OPTO_SCAN_LINK_NOISE ) {
-  } else if ( mon_ == sistrip::OPTO_SCAN_BASELINE_LIFT_OFF ) {
-  } else if ( mon_ == sistrip::OPTO_SCAN_LASER_THRESHOLD ) {
-  } else if ( mon_ == sistrip::OPTO_SCAN_TICK_HEIGHT ) {
+  if ( SummaryPlotFactoryBase::mon_ == sistrip::OPTO_SCAN_LLD_GAIN_SETTING ) { 
+  } else if ( SummaryPlotFactoryBase::mon_ == sistrip::OPTO_SCAN_LLD_BIAS_SETTING ) {
+  } else if ( SummaryPlotFactoryBase::mon_ == sistrip::OPTO_SCAN_MEASURED_GAIN ) { 
+  } else if ( SummaryPlotFactoryBase::mon_ == sistrip::OPTO_SCAN_ZERO_LIGHT_LEVEL ) { 
+  } else if ( SummaryPlotFactoryBase::mon_ == sistrip::OPTO_SCAN_LINK_NOISE ) {
+  } else if ( SummaryPlotFactoryBase::mon_ == sistrip::OPTO_SCAN_BASELINE_LIFT_OFF ) {
+  } else if ( SummaryPlotFactoryBase::mon_ == sistrip::OPTO_SCAN_LASER_THRESHOLD ) {
+  } else if ( SummaryPlotFactoryBase::mon_ == sistrip::OPTO_SCAN_TICK_HEIGHT ) {
   } else { 
-    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
-	 << " Unexpected SummaryHisto value:"
-	 << SiStripEnumsAndStrings::monitorable( mon_ ) 
-	;
+    edm::LogWarning(mlSummaryPlots_)
+      << "[SummaryPlotFactory::" << __func__ << "]" 
+      << " Unexpected SummaryHisto value:"
+      << SiStripEnumsAndStrings::monitorable( SummaryPlotFactoryBase::mon_ );
   } 
-  generator_->format( sistrip::OPTO_SCAN, mon_, pres_, view_, level_, gran_, summary_histo );
 
 }
 
 // -----------------------------------------------------------------------------
 //
-template class SummaryHistogramFactory<OptoScanAnalysis>;
+template class SummaryPlotFactory<OptoScanAnalysis*>;
 
