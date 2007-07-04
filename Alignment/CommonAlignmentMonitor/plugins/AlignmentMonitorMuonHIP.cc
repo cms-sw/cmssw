@@ -386,11 +386,10 @@ void AlignmentMonitorMuonHIP::book() {
    }
 
    for (std::vector<Alignable*>::const_iterator aliiter = alignables.begin();  aliiter != alignables.end();  ++aliiter) {
-      Alignable *ali = *aliiter;
-      std::map<Alignable*, unsigned int>::const_iterator disk = m_disk_index.find(ali);
-      std::map<Alignable*, unsigned int>::const_iterator chamber = m_chamber_index.find(ali);
-      std::map<Alignable*, unsigned int>::const_iterator layer = m_layer_index.find(ali);
-      if (disk != m_disk_index.end()  ||  chamber != m_chamber_index.end()  ||  layer != m_layer_index.end()) {
+      for (Alignable *ali = *aliiter;  ali != NULL;  ali = ali->mother()) {
+	 std::map<Alignable*, unsigned int>::const_iterator disk = m_disk_index.find(ali);
+	 std::map<Alignable*, unsigned int>::const_iterator chamber = m_chamber_index.find(ali);
+	 std::map<Alignable*, unsigned int>::const_iterator layer = m_layer_index.find(ali);
 
 	 LocalVector displacement = ali->surface().toLocal(ali->displacement());
 	 align::RotationType rotation = ali->surface().toLocal(ali->rotation());
@@ -403,6 +402,7 @@ void AlignmentMonitorMuonHIP::book() {
 	 double denom = sqrt(1. - mzx*mzx);
 	 
 	 m_before_rawid = m_rawid[ali];
+	 m_before_level = ali->alignableObjectId();
 	 m_before_x = displacement.x();
 	 m_before_y = displacement.y();
 	 m_before_z = displacement.z();
@@ -411,35 +411,38 @@ void AlignmentMonitorMuonHIP::book() {
 	 m_before_phiz = atan2(-myx/denom, mxx/denom);
 	 if (m_before) m_before->Fill();
 
-	 if (iteration() == 1) {
-	    if (disk != m_disk_index.end()) {
-	       if (m_conv_x[disk->second]) m_conv_x[disk->second]->SetBinContent(1, m_before_x);
-	       if (m_conv_y[disk->second]) m_conv_y[disk->second]->SetBinContent(1, m_before_y);
-	       if (m_conv_z[disk->second]) m_conv_z[disk->second]->SetBinContent(1, m_before_z);
-	       if (m_conv_phix[disk->second]) m_conv_phix[disk->second]->SetBinContent(1, m_before_phix);
-	       if (m_conv_phiy[disk->second]) m_conv_phiy[disk->second]->SetBinContent(1, m_before_phiy);
-	       if (m_conv_phiz[disk->second]) m_conv_phiz[disk->second]->SetBinContent(1, m_before_phiz);
-	    }
+	 if (disk != m_disk_index.end()  ||  chamber != m_chamber_index.end()  ||  layer != m_layer_index.end()) {
 
-	    if (chamber != m_chamber_index.end()) {
-	       if (m_conv_x[chamber->second]) m_conv_x[chamber->second]->SetBinContent(1, m_before_x);
-	       if (m_conv_y[chamber->second]) m_conv_y[chamber->second]->SetBinContent(1, m_before_y);
-	       if (m_conv_z[chamber->second]) m_conv_z[chamber->second]->SetBinContent(1, m_before_z);
-	       if (m_conv_phix[chamber->second]) m_conv_phix[chamber->second]->SetBinContent(1, m_before_phix);
-	       if (m_conv_phiy[chamber->second]) m_conv_phiy[chamber->second]->SetBinContent(1, m_before_phiy);
-	       if (m_conv_phiz[chamber->second]) m_conv_phiz[chamber->second]->SetBinContent(1, m_before_phiz);
-	    }
+	    if (iteration() == 1) {
+	       if (disk != m_disk_index.end()) {
+		  if (m_conv_x[disk->second]) m_conv_x[disk->second]->SetBinContent(1, m_before_x);
+		  if (m_conv_y[disk->second]) m_conv_y[disk->second]->SetBinContent(1, m_before_y);
+		  if (m_conv_z[disk->second]) m_conv_z[disk->second]->SetBinContent(1, m_before_z);
+		  if (m_conv_phix[disk->second]) m_conv_phix[disk->second]->SetBinContent(1, m_before_phix);
+		  if (m_conv_phiy[disk->second]) m_conv_phiy[disk->second]->SetBinContent(1, m_before_phiy);
+		  if (m_conv_phiz[disk->second]) m_conv_phiz[disk->second]->SetBinContent(1, m_before_phiz);
+	       }
 
-	    if (layer != m_layer_index.end()) {
-	       if (m_conv_x[layer->second]) m_conv_x[layer->second]->SetBinContent(1, m_before_x);
-	       if (m_conv_y[layer->second]) m_conv_y[layer->second]->SetBinContent(1, m_before_y);
-	       if (m_conv_z[layer->second]) m_conv_z[layer->second]->SetBinContent(1, m_before_z);
-	       if (m_conv_phix[layer->second]) m_conv_phix[layer->second]->SetBinContent(1, m_before_phix);
-	       if (m_conv_phiy[layer->second]) m_conv_phiy[layer->second]->SetBinContent(1, m_before_phiy);
-	       if (m_conv_phiz[layer->second]) m_conv_phiz[layer->second]->SetBinContent(1, m_before_phiz);
-	    }
-	 }
-      }
+	       if (chamber != m_chamber_index.end()) {
+		  if (m_conv_x[chamber->second]) m_conv_x[chamber->second]->SetBinContent(1, m_before_x);
+		  if (m_conv_y[chamber->second]) m_conv_y[chamber->second]->SetBinContent(1, m_before_y);
+		  if (m_conv_z[chamber->second]) m_conv_z[chamber->second]->SetBinContent(1, m_before_z);
+		  if (m_conv_phix[chamber->second]) m_conv_phix[chamber->second]->SetBinContent(1, m_before_phix);
+		  if (m_conv_phiy[chamber->second]) m_conv_phiy[chamber->second]->SetBinContent(1, m_before_phiy);
+		  if (m_conv_phiz[chamber->second]) m_conv_phiz[chamber->second]->SetBinContent(1, m_before_phiz);
+	       }
+
+	       if (layer != m_layer_index.end()) {
+		  if (m_conv_x[layer->second]) m_conv_x[layer->second]->SetBinContent(1, m_before_x);
+		  if (m_conv_y[layer->second]) m_conv_y[layer->second]->SetBinContent(1, m_before_y);
+		  if (m_conv_z[layer->second]) m_conv_z[layer->second]->SetBinContent(1, m_before_z);
+		  if (m_conv_phix[layer->second]) m_conv_phix[layer->second]->SetBinContent(1, m_before_phix);
+		  if (m_conv_phiy[layer->second]) m_conv_phiy[layer->second]->SetBinContent(1, m_before_phiy);
+		  if (m_conv_phiz[layer->second]) m_conv_phiz[layer->second]->SetBinContent(1, m_before_phiz);
+	       }
+	    } // end if this is iteration 1
+	 } // end if we have a histogram for this alignable
+      } // end ascent to topmost alignable
    } // end loop over alignables
 
    if (m_createPythonGeometry) createPythonGeometry();
@@ -762,6 +765,7 @@ void AlignmentMonitorMuonHIP::afterAlignment(const edm::EventSetup &iSetup) {
 	 double denom = sqrt(1. - mzx*mzx);
 	 
 	 m_after_rawid = m_rawid[ali];
+	 m_after_level = ali->alignableObjectId();
 	 m_after_x = displacement.x();
 	 m_after_y = displacement.y();
 	 m_after_z = displacement.z();
@@ -855,10 +859,8 @@ void AlignmentMonitorMuonHIP::afterAlignment(const edm::EventSetup &iSetup) {
 }
 
 void AlignmentMonitorMuonHIP::createPythonGeometry() {
-   ofstream python("muonGeometry.py");
-   python << "disks = {}" << std::endl;
-   python << "chambers = {}" << std::endl;
-   python << "layers = {}" << std::endl;
+   edm::LogInfo("AlignmentMonitorMuonHIP") << "Creating Python geometry." << std::endl;
+   ofstream python("muonGeometryData.py");
 
    for (std::map<Alignable*, unsigned int>::const_iterator disk = m_disk_index.begin();  disk != m_disk_index.end();  ++disk) {
       Alignable *ali = disk->first;
@@ -867,21 +869,21 @@ void AlignmentMonitorMuonHIP::createPythonGeometry() {
       python << "disks[" << id.rawId() << "] = ";
       if (id.subdetId() == MuonSubdetId::DT) {
 	 DTChamberId chamberId(id.rawId());
-	 python << "Disk(0).dtvars(" << chamberId.wheel() << ")";
+	 python << "Disk(" << id.rawId() << ", 0).setDT(" << chamberId.wheel() << ")";
       }
       else if (id.subdetId() == MuonSubdetId::CSC) {
 	 CSCDetId chamberId(id.rawId());
-	 python << "Disk(" << (chamberId.endcap() == 1? 1: -1) << ").cscvars(" << chamberId.station() << ")";
+	 python << "Disk(" << id.rawId() << ", " << (chamberId.endcap() == 1? 1: -1) << ").setCSC(" << (chamberId.endcap() == 1? 1: -1)*chamberId.station() << ")";
       }
 
       GlobalPoint location = ali->surface().toGlobal(LocalPoint(0., 0., 0.));
       GlobalVector xhat = ali->surface().toGlobal(LocalVector(1., 0., 0.));
       GlobalVector yhat = ali->surface().toGlobal(LocalVector(0., 1., 0.));
       GlobalVector zhat = ali->surface().toGlobal(LocalVector(0., 0., 1.));
-      python << ".loc(" << location.x() << ", " << location.y() << ", " << location.z() << ")";
-      python << ".xhat(" << xhat.x() << ", " << xhat.y() << ", " << xhat.z() << ")";
-      python << ".yhat(" << yhat.x() << ", " << yhat.y() << ", " << yhat.z() << ")";
-      python << ".zhat(" << zhat.x() << ", " << zhat.y() << ", " << zhat.z() << ")" << std::endl;
+      python << ".setLoc(" << location.x() << ", " << location.y() << ", " << location.z() << ")";
+      python << ".setXhat(" << xhat.x() << ", " << xhat.y() << ", " << xhat.z() << ")";
+      python << ".setYhat(" << yhat.x() << ", " << yhat.y() << ", " << yhat.z() << ")";
+      python << ".setZhat(" << zhat.x() << ", " << zhat.y() << ", " << zhat.z() << ")" << std::endl;
    }
 
    for (std::map<Alignable*, unsigned int>::const_iterator chamber = m_chamber_index.begin();  chamber != m_chamber_index.end();  ++chamber) {
@@ -891,21 +893,21 @@ void AlignmentMonitorMuonHIP::createPythonGeometry() {
       python << "chambers[" << id.rawId() << "] = ";
       if (id.subdetId() == MuonSubdetId::DT) {
 	 DTChamberId chamberId(id.rawId());
-	 python << "Chamber(0).dtvars(" << chamberId.wheel() << ", " << chamberId.station() << ", " << chamberId.sector() << ")";
+	 python << "Chamber(" << id.rawId() << ", 0).setDT(" << chamberId.wheel() << ", " << chamberId.station() << ", " << chamberId.sector() << ")";
       }
       else if (id.subdetId() == MuonSubdetId::CSC) {
 	 CSCDetId chamberId(id.rawId());
-	 python << "Chamber(" << (chamberId.endcap() == 1? 1: -1) << ").cscvars(" << chamberId.station() << ", " << chamberId.ring() << ", " << chamberId.chamber() << ")";
+	 python << "Chamber(" << id.rawId() << ", " << (chamberId.endcap() == 1? 1: -1) << ").setCSC(" << (chamberId.endcap() == 1? 1: -1)*chamberId.station() << ", " << chamberId.ring() << ", " << chamberId.chamber() << ")";
       }
 
       GlobalPoint location = ali->surface().toGlobal(LocalPoint(0., 0., 0.));
       GlobalVector xhat = ali->surface().toGlobal(LocalVector(1., 0., 0.));
       GlobalVector yhat = ali->surface().toGlobal(LocalVector(0., 1., 0.));
       GlobalVector zhat = ali->surface().toGlobal(LocalVector(0., 0., 1.));
-      python << ".loc(" << location.x() << ", " << location.y() << ", " << location.z() << ")";
-      python << ".xhat(" << xhat.x() << ", " << xhat.y() << ", " << xhat.z() << ")";
-      python << ".yhat(" << yhat.x() << ", " << yhat.y() << ", " << yhat.z() << ")";
-      python << ".zhat(" << zhat.x() << ", " << zhat.y() << ", " << zhat.z() << ")" << std::endl;
+      python << ".setLoc(" << location.x() << ", " << location.y() << ", " << location.z() << ")";
+      python << ".setXhat(" << xhat.x() << ", " << xhat.y() << ", " << xhat.z() << ")";
+      python << ".setYhat(" << yhat.x() << ", " << yhat.y() << ", " << yhat.z() << ")";
+      python << ".setZhat(" << zhat.x() << ", " << zhat.y() << ", " << zhat.z() << ")" << std::endl;
    }
 
    for (std::map<Alignable*, unsigned int>::const_iterator layer = m_layer_index.begin();  layer != m_layer_index.end();  ++layer) {
@@ -915,22 +917,24 @@ void AlignmentMonitorMuonHIP::createPythonGeometry() {
       python << "layers[" << id.rawId() << "] = ";
       if (id.subdetId() == MuonSubdetId::DT) {
 	 DTSuperLayerId layerId(id.rawId());
-	 python << "Layer(0).dtvars(" << layerId.wheel() << ", " << layerId.station() << ", " << layerId.sector() << ", " << layerId.superLayer() << ")";
+	 python << "Layer(" << id.rawId() << ", 0).setDT(" << layerId.wheel() << ", " << layerId.station() << ", " << layerId.sector() << ", " << layerId.superLayer() << ")";
       }
       else if (id.subdetId() == MuonSubdetId::CSC) {
 	 CSCDetId layerId(id.rawId());
-	 python << "Layer(" << (layerId.endcap() == 1? 1: -1) << ").cscvars(" << layerId.station() << ", " << layerId.ring() << ", " << layerId.chamber() << ", " << layerId.layer() << ")";
+	 python << "Layer(" << id.rawId() << ", " << (layerId.endcap() == 1? 1: -1) << ").setCSC(" << (layerId.endcap() == 1? 1: -1)*layerId.station() << ", " << layerId.ring() << ", " << layerId.chamber() << ", " << layerId.layer() << ")";
       }
 
       GlobalPoint location = ali->surface().toGlobal(LocalPoint(0., 0., 0.));
       GlobalVector xhat = ali->surface().toGlobal(LocalVector(1., 0., 0.));
       GlobalVector yhat = ali->surface().toGlobal(LocalVector(0., 1., 0.));
       GlobalVector zhat = ali->surface().toGlobal(LocalVector(0., 0., 1.));
-      python << ".loc(" << location.x() << ", " << location.y() << ", " << location.z() << ")";
-      python << ".xhat(" << xhat.x() << ", " << xhat.y() << ", " << xhat.z() << ")";
-      python << ".yhat(" << yhat.x() << ", " << yhat.y() << ", " << yhat.z() << ")";
-      python << ".zhat(" << zhat.x() << ", " << zhat.y() << ", " << zhat.z() << ")" << std::endl;
+      python << ".setLoc(" << location.x() << ", " << location.y() << ", " << location.z() << ")";
+      python << ".setXhat(" << xhat.x() << ", " << xhat.y() << ", " << xhat.z() << ")";
+      python << ".setYhat(" << yhat.x() << ", " << yhat.y() << ", " << yhat.z() << ")";
+      python << ".setZhat(" << zhat.x() << ", " << zhat.y() << ", " << zhat.z() << ")" << std::endl;
    }
+
+   edm::LogInfo("AlignmentMonitorMuonHIP") << "Done with Python geometry!" << std::endl;
 }
 
 //
