@@ -1,4 +1,4 @@
-// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.5 2007/06/07 14:39:20 bainbrid Exp $
+// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.6 2007/06/19 12:30:37 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/ApvTimingHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -328,11 +328,35 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
       // Locate appropriate analysis object 
       map<uint32_t,ApvTimingAnalysis*>::const_iterator iter = data_.find( fec_key.key() );
       if ( iter != data_.end() ) { 
-	uint32_t thresh = static_cast<uint32_t>( iter->second->base() + 
-						 iter->second->height()*(2./3.) );
+
 	Fed9U::Fed9UAddress addr( ichan );
-	(*ifed)->setFrameThreshold( addr, thresh );
+	std::stringstream ss;
+	ss << "[ApvTimingHistosUsingDb::" << __func__ << "]"
+	   << " Updating the frame-finding threshold"
+	   << " for Crate/FEC/slot/ring/CCU "
+	   << fec_key.fecCrate() << "/"
+	   << fec_key.fecSlot() << "/"
+	   << fec_key.fecRing() << "/"
+	   << fec_key.ccuAddr() << "/"
+	   << fec_key.ccuChan() 
+	   << " and FED id/ch "
+	   << fed_key.fedId() << "/"
+	   << fed_key.fedChannel()
+	   << " in loop FED id/ch " 
+	   << (*ifed)->getFedId() << "/" << ichan
+	   << " from "
+	   << static_cast<uint16_t>( (*ifed)->getFrameThreshold( addr ) );
+	(*ifed)->setFrameThreshold( addr, iter->second->frameFindingThreshold() );
 	updated++;
+	ss << " to "
+	   << static_cast<uint16_t>( (*ifed)->getFrameThreshold( addr ) )
+	   << " tick base/peak/height: " 
+	   << iter->second->base() << "/"
+	   << iter->second->peak() << "/"
+	   << iter->second->height() << std::endl;
+	iter->second->print(ss);
+	LogTrace(mlDqmClient_) << ss.str();
+
       } else {
 	edm::LogWarning(mlDqmClient_) 
 	  << "[ApvTimingHistosUsingDb::" << __func__ << "]"

@@ -20,9 +20,11 @@ sistrip::LinearFit::LinearFit()
 // 
 void sistrip::LinearFit::add( const float& x,
 			      const float& y ) {
+  float e = 1.; // default
   x_.push_back(x);
   y_.push_back(y);
-  float wt = 1.;
+  e_.push_back(e);
+  float wt = 1. / sqrt(e); 
   ss_ += wt;
   sx_ += x*wt;
   sy_ += y*wt;

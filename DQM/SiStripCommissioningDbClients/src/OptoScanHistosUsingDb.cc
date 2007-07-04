@@ -1,4 +1,4 @@
-// Last commit: $Id: OptoScanHistosUsingDb.cc,v 1.4 2007/05/24 15:59:49 bainbrid Exp $
+// Last commit: $Id: OptoScanHistosUsingDb.cc,v 1.5 2007/06/12 08:23:35 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/OptoScanHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -116,13 +116,13 @@ void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
       fec_path = SiStripFecKey( fec_key );
       
       // Iterate through all channels and extract LLD settings 
-      map<uint32_t,OptoScanAnalysis>::const_iterator iter = data_.find( fec_key );
+      map<uint32_t,OptoScanAnalysis*>::const_iterator iter = data_.find( fec_key );
       if ( iter != data_.end() ) {
 
 	// Check if analysis is valid
-	if ( !iter->second.isValid() ) { continue; }
+	if ( !iter->second->isValid() ) { continue; }
 
-	uint16_t gain = iter->second.gain();
+	uint16_t gain = iter->second->gain();
 	std::stringstream ss;
 	ss << "[OptoScanHistosUsingDb::" << __func__ << "]"
 	   << " Updating gain/bias LLD settings for crate/FEC/slot/ring/CCU/LLD "
@@ -130,13 +130,13 @@ void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
 	   << fec_path.fecSlot() << "/"
 	   << fec_path.fecRing() << "/"
 	   << fec_path.ccuAddr() << "/"
-	   << fec_path.ccuChan() 
+	   << fec_path.ccuChan() << "/"
 	   << fec_path.channel() 
 	   << " from "
 	   << static_cast<uint16_t>( desc->getGain(ichan) ) << "/" 
 	   << static_cast<uint16_t>( desc->getBias(ichan) );
 	desc->setGain( ichan, gain );
-	desc->setBias( ichan, iter->second.bias()[gain] );
+	desc->setBias( ichan, iter->second->bias()[gain] );
 	updated++;
 	ss << " to "
 	   << static_cast<uint16_t>(desc->getGain(ichan)) << "/" 
