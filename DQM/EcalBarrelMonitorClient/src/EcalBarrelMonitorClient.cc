@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/07/03 13:12:34 $
- * $Revision: 1.293 $
+ * $Date: 2007/07/03 13:24:56 $
+ * $Revision: 1.294 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -60,12 +60,12 @@
 #include <DQM/EcalBarrelMonitorClient/interface/EBClusterClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBTimingClient.h>
 
-#include "xgi/include/xgi/Method.h"
-#include "xgi/include/xgi/Utils.h"
+#include "xgi/Method.h"
+#include "xgi/Utils.h"
 
-#include "extern/cgicc/linuxx86/include/cgicc/Cgicc.h"
-#include "extern/cgicc/linuxx86/include/cgicc/FormEntry.h"
-#include "extern/cgicc/linuxx86/include/cgicc/HTMLClasses.h"
+#include "cgicc/Cgicc.h"
+#include "cgicc/FormEntry.h"
+#include "cgicc/HTMLClasses.h"
 
 #include "TStyle.h"
 #include "TGaxis.h"

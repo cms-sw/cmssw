@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2007/06/24 15:19:03 $
- * $Revision: 1.81 $
+ * $Date: 2007/06/24 18:12:10 $
+ * $Revision: 1.82 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -34,8 +34,8 @@
 
 #include "EventFilter/Utilities/interface/ModuleWeb.h"
 
-#include "xgi/include/xgi/Input.h"
-#include "xgi/include/xgi/Output.h"
+#include "xgi/Input.h"
+#include "xgi/Output.h"
 
 #include "TROOT.h"
 #include "TH1.h"
