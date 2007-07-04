@@ -1,6 +1,6 @@
 
 #include "DataFormats/GeometrySurface/interface/Line.h"
-#include "RecoVertex/VertexTools/interface/TwoTrackMinimumDistance.h"
+#include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
 #include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
 #include "RecoVertex/TertiaryTracksVertexFinder/interface/GetLineCovMatrix.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
