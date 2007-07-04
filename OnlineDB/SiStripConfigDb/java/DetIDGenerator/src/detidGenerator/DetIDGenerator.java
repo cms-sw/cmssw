@@ -13,9 +13,12 @@ import java.sql.*;
 **/
 
 /*
-  $Date: 2007/01/18 17:04:45 $
+  $Date: 2007/06/21 08:19:37 $
   
   $Log: DetIDGenerator.java,v $
+  Revision 1.8  2007/06/21 08:19:37  gbaulieu
+  The length of the fibers is in meters
+
   Revision 1.7  2007/01/18 17:04:45  gbaulieu
   Use an external library for database connections
   Use preparedStatements to speed up the queries
@@ -290,7 +293,7 @@ public class DetIDGenerator
 			ArrayList<ArrayList<String>> lengthRes2 = c.preparedSelectQuery(length, aoh_id);
 			if(lengthRes2.size()==1){
 			    float total_length = aoh_length+Integer.parseInt((lengthRes2.get(0)).get(0));
-			    v.add((total_length/1000)+"");//The size should be in meters
+			    v.add((total_length/10)+"");//The size should be in centimeters
 			}
 			else{
 			    v.add("1");
