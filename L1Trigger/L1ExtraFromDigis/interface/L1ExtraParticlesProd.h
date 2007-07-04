@@ -13,7 +13,7 @@
 //
 // Original Author:  
 //         Created:  Tue Oct 17 00:13:51 EDT 2006
-// $Id: L1ExtraParticlesProd.h,v 1.1 2006/10/17 21:41:32 wsun Exp $
+// $Id: L1ExtraParticlesProd.h,v 1.2 2007/04/02 08:03:14 wsun Exp $
 //
 
 // system include files
@@ -31,14 +31,10 @@
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
 
 // forward declarations
+class L1CaloGeometry ;
 
 class L1ExtraParticlesProd : public edm::EDProducer {
    public:
-      enum GctBins { kNumberGctEmJetPhiBins = 18,
-		     kNumberGctEtSumPhiBins = 72,
-		     kNumberGctCentralEtaBinsPerHalf = 7,
-		     kNumberGctForwardEtaBinsPerHalf = 4 } ;
-
       explicit L1ExtraParticlesProd(const edm::ParameterSet&);
       ~L1ExtraParticlesProd();
 
@@ -49,6 +45,7 @@ class L1ExtraParticlesProd : public edm::EDProducer {
 
       math::XYZTLorentzVector gctLorentzVector( const double& et,
 						const L1GctCand& cand,
+						const L1CaloGeometry* geom,
 						bool central ) ;
       
       // ----------member data ---------------------------
@@ -66,21 +63,6 @@ class L1ExtraParticlesProd : public edm::EDProducer {
       edm::InputTag etMissSource_ ;
 
       static double muonMassGeV_ ;
-
-      // Calo phi bins are uniform.
-      static double gctPhiOffset_ ;
-      static double gctEmJetPhiBinWidth_ ;
-      static double gctEtSumPhiBinWidth_ ;
-
-      // Calo eta bins are non-uniform.
-
-      // Calo eta sign bit is the 4th bit.
-      static unsigned gctEtaSignBitOffset_ ;
-
-      // Extra element is for min eta.
-      static double gctEtaBinBoundaries_[
-	 kNumberGctCentralEtaBinsPerHalf +
-	 kNumberGctForwardEtaBinsPerHalf + 1 ] ;
 };
 
 #endif

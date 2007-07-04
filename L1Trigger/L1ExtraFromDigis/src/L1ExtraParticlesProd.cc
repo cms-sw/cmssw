@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct  2 22:45:32 EDT 2006
-// $Id: L1ExtraParticlesProd.cc,v 1.10 2007/04/30 19:56:51 wsun Exp $
+// $Id: L1ExtraParticlesProd.cc,v 1.11 2007/04/30 20:04:16 wsun Exp $
 //
 //
 
@@ -26,17 +26,16 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 
-#include "L1Trigger/L1Scales/interface/L1CaloEtScale.h"
-#include "L1Trigger/L1Scales/interface/L1EmEtScaleRcd.h"
-#include "L1Trigger/L1Scales/interface/L1JetEtScaleRcd.h"
-// #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
-// #include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
-// #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
+#include "L1TriggerConfig/L1Geometry/interface/L1CaloGeometry.h"
+#include "L1TriggerConfig/L1Geometry/interface/L1CaloGeometryRecord.h"
 
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
+#include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
+
+#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuTriggerScales.h"
-// #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
-// #include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -54,29 +53,6 @@
 //
 
 double L1ExtraParticlesProd::muonMassGeV_ = 0.105658369 ; // PDG06
-
-double L1ExtraParticlesProd::gctPhiOffset_ = 0. ;
-double L1ExtraParticlesProd::gctEmJetPhiBinWidth_ =
-   2. * M_PI / L1ExtraParticlesProd::kNumberGctEmJetPhiBins ;
-double L1ExtraParticlesProd::gctEtSumPhiBinWidth_ =
-   2. * M_PI / L1ExtraParticlesProd::kNumberGctEtSumPhiBins ;
-
-unsigned L1ExtraParticlesProd::gctEtaSignBitOffset_ = 8 ;
-
-double L1ExtraParticlesProd::gctEtaBinBoundaries_[
-   kNumberGctCentralEtaBinsPerHalf + kNumberGctForwardEtaBinsPerHalf + 1 ] = {
-      0.0000,
-      0.3480,
-      0.6950,
-      1.0440,
-      1.3920,
-      1.7400,
-      2.1720,
-      3.0000,
-      3.5000,
-      4.0000,
-      4.5000,
-      5.0000 } ;
 
 //
 // constructors and destructor
@@ -148,9 +124,8 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 
    if( produceMuonParticles_ )
    {
-     L1MuTriggerScales muScales ;
-//      ESHandle< L1MuTriggerScales > muScales ;
-//      iSetup.get< L1MuTriggerScalesRcd >().get( muScales ) ;
+      ESHandle< L1MuTriggerScales > muScales ;
+      iSetup.get< L1MuTriggerScalesRcd >().get( muScales ) ;
 
       Handle< L1MuGMTReadoutCollection > hwMuCollection ;
       iEvent.getByLabel( muonSource_, hwMuCollection ) ;
@@ -178,18 +153,12 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 
 	 if( !muItr->empty() )
 	 {
-	   double pt = muScales.getPtScale()->getLowEdge( muItr->ptIndex() ) ;
-	   // double pt = muScales->getPtScale()->getLowEdge( muItr->ptIndex() ) ;
-
-	    // To keep x and y components non-zero.
-	    // if( pt == 0. ) // protect against roundoff, not only for pt=0
-	    {
-	       pt += 1.e-6 ;
-	    }
+	    // keep x and y components non-zero and protect against roundoff.
+	    double pt =
+	      muScales->getPtScale()->getLowEdge( muItr->ptIndex() ) + 1.e-6 ;
 
 	    double eta =
-	      muScales.getGMTEtaScale()->getCenter( muItr->etaIndex() ) ;
-	    // muScales->getGMTEtaScale()->getCenter( muItr->etaIndex() ) ;
+	       muScales->getGMTEtaScale()->getCenter( muItr->etaIndex() ) ;
 	    double tanThOver2 = exp( -eta ) ;
 	    double pz = pt * ( 1. - tanThOver2 * tanThOver2 ) /
 	       ( 2. * tanThOver2 ) ;
@@ -198,8 +167,7 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 	    double e = sqrt( p * p + muonMassGeV_ * muonMassGeV_ ) ;
 
 	    double phi =
-	      muScales.getPhiScale()->getLowEdge( muItr->phiIndex() ) ;
-	    // muScales->getPhiScale()->getLowEdge( muItr->phiIndex() ) ;
+	       muScales->getPhiScale()->getLowEdge( muItr->phiIndex() ) ;
 
 	    math::XYZTLorentzVector p4( pt * cos( phi ),
 					pt * sin( phi ),
@@ -225,6 +193,12 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 
    if( produceCaloParticles_ )
    {
+      // ~~~~~~~~~~~~~~~~~~~~ Geometry ~~~~~~~~~~~~~~~~~~~~
+
+      ESHandle< L1CaloGeometry > caloGeomESH ;
+      iSetup.get< L1CaloGeometryRecord >().get( caloGeomESH ) ;
+      const L1CaloGeometry* caloGeom = &( *caloGeomESH ) ;
+
       // ~~~~~~~~~~~~~~~~~~~~ EM ~~~~~~~~~~~~~~~~~~~~
 
       ESHandle< L1CaloEtScale > emScale ;
@@ -257,7 +231,7 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 	    double et = emScale->et( emItr->rank() ) ;
 
 	    isoEmColl->push_back(
-	       L1EmParticle( gctLorentzVector( et, *emItr, true ),
+	       L1EmParticle( gctLorentzVector( et, *emItr, caloGeom, true ),
 			     Ref< L1GctEmCandCollection >( hwIsoEmCands,
 							   i ) ) ) ;
 	 }
@@ -294,7 +268,7 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 	    double et = emScale->et( emItr->rank() ) ;
 
 	    nonIsoEmColl->push_back(
-	       L1EmParticle( gctLorentzVector( et, *emItr, true ),
+	       L1EmParticle( gctLorentzVector( et, *emItr, caloGeom, true ),
 			     Ref< L1GctEmCandCollection >( hwNonIsoEmCands,
 							   i ) ) );
 	 }
@@ -338,7 +312,7 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 	    double et = jetScale->et( jetItr->rank() ) ;
 
 	    cenJetColl->push_back(
-	       L1JetParticle( gctLorentzVector( et, *jetItr, true ),
+	       L1JetParticle( gctLorentzVector( et, *jetItr, caloGeom, true ),
 			      Ref< L1GctJetCandCollection >( hwCenJetCands,
 							     i ) ) ) ;
 	 }
@@ -377,7 +351,7 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 	    double et = jetScale->et( jetItr->rank() ) ;
 
 	    forJetColl->push_back(
-	       L1JetParticle( gctLorentzVector( et, *jetItr, false ),
+	       L1JetParticle( gctLorentzVector( et, *jetItr, caloGeom, false ),
 			      Ref< L1GctJetCandCollection >( hwForJetCands,
 							     i ) ) ) ;
 	 }
@@ -416,7 +390,7 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 	    double et = jetScale->et( jetItr->rank() ) ;
 
 	    tauJetColl->push_back(
-	       L1JetParticle( gctLorentzVector( et, *jetItr, true ),
+	       L1JetParticle( gctLorentzVector( et, *jetItr, caloGeom, true ),
 			      Ref< L1GctJetCandCollection >( hwTauJetCands,
 							     i ) ) ) ;
 	 }
@@ -445,23 +419,13 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 // 	   << " EtTot " << hwEtTot->et() << " EtHad " << hwEtHad->et()
 // 	   << endl ;
 
-      // 2006-12-20: switch to bin low edge.
-      // double etTot = ( ( double ) hwEtTot->et() + 0.5 ) * etSumLSB ;
-      // double etHad = ( ( double ) hwEtHad->et() + 0.5 ) * etSumLSB ;
-      // double etMiss = ( ( double ) hwEtMiss->et() + 0.5 ) * etSumLSB ;
+      // ET bin low edge
       double etTot = ( ( double ) hwEtTot->et() ) * etSumLSB ;
       double etHad = ( ( double ) hwEtHad->et() ) * etSumLSB ;
-      double etMiss = ( ( double ) hwEtMiss->et() ) * etSumLSB ;
+      double etMiss = ( ( double ) hwEtMiss->et() ) * etSumLSB + 1.e-6 ;
+      // keep x and y components non-zero and protect against roundoff.
 
-      unsigned phiIndex = hwEtMiss->phi() ;
-      double phi =
-	 ( ( double ) phiIndex + 0.5 ) * gctEtSumPhiBinWidth_ + gctPhiOffset_ ;
-
-      // To keep x and y components non-zero.
-      // if( etMiss == 0. ) // protect against roundoff, not only for et=0
-      {
-	 etMiss += 1.e-6 ;
-      }
+      double phi = caloGeom->etSumPhiBinCenter( hwEtMiss->phi() ) ;
 
       math::XYZTLorentzVector p4( etMiss * cos( phi ),
 				  etMiss * sin( phi ),
@@ -485,44 +449,19 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 math::XYZTLorentzVector
 L1ExtraParticlesProd::gctLorentzVector( const double& et,
 					const L1GctCand& cand,
+					const L1CaloGeometry* geom,
 					bool central )
 {
    // To keep x and y components non-zero.
-   double etCorr = et ;
-   // if( etCorr == 0. ) // protect against roundoff, not only for et=0
-   {
-      etCorr += 1.e-6 ;
-   }
+   double etCorr = et + 1.e-6 ; // protect against roundoff, not only for et=0
 
-   // Central/tau jets and EM have etaIndex = 0-6 for eta = 0-3.
-   // Forward jets have etaIndex = 0-3 for eta = 3-5.
-   unsigned etaIndex = cand.etaIndex() ;
-   double etaSign = 1. ;
-
-   // Check sign BEFORE shifting forward jet bin index.
-   if( etaIndex >= gctEtaSignBitOffset_ )
-   {
-      etaSign = -1. ;
-      etaIndex -= gctEtaSignBitOffset_ ;
-   }
-
-   // Shift forward jet bin index AFTER checking sign bit.
-   if( !central )
-   {
-      etaIndex += kNumberGctCentralEtaBinsPerHalf ;
-   }
-
-   double eta = 0.5 * etaSign *
-      ( gctEtaBinBoundaries_[ etaIndex ] +
-	gctEtaBinBoundaries_[ etaIndex + 1 ] ) ;
+   double eta = geom->etaBinCenter( cand.etaIndex(), central ) ;
 
    double tanThOver2 = exp( -eta ) ;
    double ez = etCorr * ( 1. - tanThOver2 * tanThOver2 ) / ( 2. * tanThOver2 );
    double e  = etCorr * ( 1. + tanThOver2 * tanThOver2 ) / ( 2. * tanThOver2 );
 
-   unsigned phiIndex = cand.phiIndex() ;
-   double phi =
-      ( ( double ) phiIndex + 0.5 ) * gctEmJetPhiBinWidth_ + gctPhiOffset_ ;
+   double phi = geom->emJetPhiBinCenter( cand.phiIndex() ) ;
 
    return math::XYZTLorentzVector( etCorr * cos( phi ),
 				   etCorr * sin( phi ),
