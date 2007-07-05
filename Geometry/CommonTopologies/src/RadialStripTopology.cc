@@ -88,21 +88,28 @@ RadialStripTopology::localError(const MeasurementPoint& mp,
   //  float phi = phiOfOneEdge() + yAxisOrientation() * mp.x() * angularWidth();
   float phi = stripAngle( mp.x() );
 
-  float t = tan( phi );                        // tan(angle between strip and y)
-  float c2 = 1./(1. + t*t);                    // cos(angle)**2
-  float cs = t*c2;                             // sin(angle)*cos(angle); tan carries sign of sin!
-  float s2 = t*t * c2;                         // sin(angle)**2
+  //  float t = tan( phi );                        // tan(angle between strip and y)
+  //float c2 = 1./(1. + t*t);                    // cos(angle)**2
+  // float cs = t*c2;                             // sin(angle)*cos(angle); tan carries sign of sin!
+  // float s2 = t*t * c2;                         // sin(angle)**2
+  
+
+  float s1 = sin(phi);
+  float s2 = s1*s1;
+  float c2 = 1.-s2;
+  float c1 = std::sqrt(c2);
+  float cs = c1*s1;
 
   float A  = angularWidth();
   float A2 = A * A;
 
   // D is distance from intersection of edges to hit on strip
-  float D = (centreToIntersection() + yAxisOrientation() * mp.y() * detHeight()) / sqrt(c2);
+  float D = (centreToIntersection() + yAxisOrientation() * mp.y() * detHeight()) /c1;
   float D2 = D * D;
 
   // L is length of strip across face of chamber
-  float L2 = detHeight()*detHeight() / c2;  
-  float L  = sqrt(L2); 
+  float L = detHeight()/ c1;  
+  float L2  = L1*L1; 
 
   // MeasurementError elements are already squared
   // but they're normalized to products of A and L 
@@ -117,7 +124,7 @@ RadialStripTopology::localError(const MeasurementPoint& mp,
   float sy2 = SA2 * D2 * s2  -  2. * RHOSASR * D * cs  +  SD2 * c2;
   float rhosxsy = cs * ( SD2 - D2 * SA2 )  +  RHOSASR * D * ( c2 - s2 );
 
-   return LocalError(sx2, rhosxsy, sy2);
+  return LocalError(sx2, rhosxsy, sy2);
 }
 
 float 
@@ -127,8 +134,8 @@ RadialStripTopology::strip(const LocalPoint& lp) const {
 
   float phi = atan2( lp.x(), yDistanceToIntersection( lp.y() ) );
   float aStrip = ( phi - yAxisOrientation() * phiOfOneEdge() )/angularWidth();
-  aStrip = (aStrip >= 0. ? aStrip : 0.);
-  aStrip = (aStrip <= theNumberOfStrips ? aStrip : theNumberOfStrips);
+  if (aStrip < 0. ) aStrip = 0.;
+  else if (aStrip > theNumberOfStrips)  aStrip = theNumberOfStrips;
   return aStrip;
 }
  
@@ -149,7 +156,7 @@ RadialStripTopology::measurementError(const LocalPoint& lp,
   float t  = yAxisOrientation() * lp.x() / yHitToInter; // tan(angle between strip and y) 
   float c2 = 1./(1. + t*t);  // cos(angle)**2
   float cs = t*c2;           // sin(angle)*cos(angle); tan carries sign of sin!
-  float s2 = t*t * c2;       // sin(angle)**2
+  float s2 = 1. - c2;        // sin(angle)**2
 
   float A  = angularWidth();
 
@@ -166,7 +173,7 @@ RadialStripTopology::measurementError(const LocalPoint& lp,
 
   float SA2 = ( c2 * lerr.xx() - 2. * cs * lerr.xy() + s2 * lerr.yy() ) / LP2;
   float SD2 = ( s2 * lerr.xx() + 2. * cs * lerr.xy() + c2 * lerr.yy() ) / L2;
-  float RHOSASR = ( cs * ( lerr.xx() - lerr.yy() ) + ( c2 - s2 ) * lerr.xy() ) / LP / L;
+  float RHOSASR = ( cs * ( lerr.xx() - lerr.yy() ) + ( c2 - s2 ) * lerr.xy() ) / (LP*L);
 
   return MeasurementError(SA2, RHOSASR, SD2);
 }
@@ -194,11 +201,11 @@ RadialStripTopology::localPitch(const LocalPoint& lp) const {
   // as a exercise for the reader. 
 
   float fstrip = strip(lp); // position in strip units
-  int istrip = static_cast<int>(fstrip + 1.0); // which strip number
-  istrip = (istrip>nstrips() ? nstrips() : istrip); // enforce maximum
-  float fangle = stripAngle(static_cast<float>(istrip - 0.5)); // angle of strip centre
+  int istrip = static_cast<int>(fstrip) + 1; // which strip number
+  if (istrip>nstrips() ) istrip = nstrips(); // enforce maximum
+  float fangle = stripAngle(static_cast<float>(istrip) - 0.5); // angle of strip centre
   float localp = yDistanceToIntersection( lp.y() ) * sin(angularWidth()) /
-    ( cos(fangle-angularWidth()/2.)*cos(fangle+angularWidth()/2.) );
+    ( cos(fangle-0.5*angularWidth())*cos(fangle+0.5*angularWidth()) );
   return localp;
 }
   
