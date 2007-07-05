@@ -1,8 +1,17 @@
 #ifndef SiPixelSCurveCalibration_SCurveContainer_h
 #define SiPixelSCurveCalibration_SCurveContainer_h
 
-//A class which contains the data and histograms
-//needed for an SCurve calibration.
+/** \class SCurveContainer
+ *
+ * A class which contains the data and histograms
+ * needed for an SCurve calibration.
+ *
+ * \authors Jason Keller (University of Nebraska)
+ *
+ * \version 1.2 July 5, 2007
+
+ *
+ ************************************************************/
 
 #include <vector>
 

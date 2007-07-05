@@ -1,8 +1,17 @@
 #ifndef SiPixelSCurveCalibration_SiPixelSCurveCalibrationAnalysis_h
 #define SiPixelSCurveCalibration_SiPixelSCurveCalibrationAnalysis_h
 
-//A class which will perform an SCurve Calibration
-//analysis, given an SCurve file.
+/** \class SiPixelSCurveCalibrationAnalysis
+ *
+ * A class which will perform an SCurve Calibration
+ * analysis, given an SCurve file.
+ *
+ * \authors Jason Keller (University of Nebraska)
+ *
+ * \version 1.3 July 5, 2007
+
+ *
+ ***********************************************************/
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"

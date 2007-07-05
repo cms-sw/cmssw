@@ -1,5 +1,9 @@
-//A class that will perform SCurve Calibration
-//when given the digis.
+// File: SiPixelSCurveCalibrationAnalysis.cc
+// Description:  see SiPixelSCurveCalibrationAnalysis.h
+// Author: Jason Keller (University of Nebraska)
+//--------------------------------------------
+
+
 #include "CalibTracker/SiPixelSCurveCalibration/interface/SiPixelSCurveCalibrationAnalysis.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"

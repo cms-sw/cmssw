@@ -1,5 +1,7 @@
-//This class is used to contain information used
-//in creating SCurve Calibration Plots.
+// File: SCurveContainer.cc
+// Description:  see SCurveContainer.h
+// Author: Jason Keller (University of Nebraska)
+//--------------------------------------------
 
 #include "CalibTracker/SiPixelSCurveCalibration/interface/SCurveContainer.h"
 
