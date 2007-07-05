@@ -49,13 +49,13 @@ public:
   void reset() { m_data = 0; }
 
   /// get Et
-  unsigned et() const { return (m_id.isForward() ? m_data&0xff : m_data&0x3ff); }
+  unsigned et() const { return (isHf() ? m_data&0xff : m_data&0x3ff); }
 
   /// get overflow
   bool overFlow() const { return ((m_data>>10) & 0x1)!=0; }
 
   /// get tau veto bit
-  bool tauVeto() const { return (m_id.isForward() ? true : fineGrain()); }
+  bool tauVeto() const { return (isHf() ? true : fineGrain()); }
 
   /// get fine grain bit
   bool fineGrain() const { return ((m_data>>11) & 0x1)!=0; }
@@ -77,6 +77,10 @@ public:
 
   /// get global region ID
   L1CaloRegionDetId id() const { return m_id; }
+
+  /// forward or central region
+  bool isHf()   const { return m_id.isHf(); }
+  bool isHbHe() const { return !m_id.isHf(); }
 
   /// get RCT crate ID
   unsigned rctCrate() const { return m_id.rctCrate(); }

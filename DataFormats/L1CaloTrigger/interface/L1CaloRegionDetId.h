@@ -59,7 +59,7 @@ class L1CaloRegionDetId : public DetId {
   */
 
   /// return central or forward type
-  bool isForward() const { return (ieta()<4 || ieta()>17); }
+  bool isHf() const { return (ieta()<4 || ieta()>17); }
 
   /// return RCT crate number (0-17)
   unsigned rctCrate() const;
