@@ -15,7 +15,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: Event.h,v 1.55 2007/03/04 06:00:22 wmtan Exp $
+$Id: Event.h,v 1.56 2007/03/27 23:07:49 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -48,6 +48,9 @@ namespace edm {
     // AUX functions.
     EventID id() const {return aux_.id();}
     Timestamp time() const {return aux_.time();}
+    LuminosityBlockNumber_t
+    luminosityBlock() const {return aux_.luminosityBlock();}
+    bool isRealData() const {return aux_.isRealData();}
 
     using DataViewImpl::get;
     using DataViewImpl::getAllProvenance;
@@ -66,10 +69,6 @@ namespace edm {
     getLuminosityBlock() const {
       return *luminosityBlock_;
     }
-
-
-    LuminosityBlockNumber_t
-    luminosityBlock() const {return aux_.luminosityBlock();}
 
     Run const&
     getRun() const;
