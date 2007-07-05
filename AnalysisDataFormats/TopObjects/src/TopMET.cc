@@ -1,8 +1,5 @@
 //
-// Author:  Steven Lowette
-// Created: Thu May  3 10:37:17 PDT 2007
-//
-// $Id: TopMET.cc,v 1.2 2007/06/11 21:00:37 yumiceva Exp $
+// $Id: TopMET.cc,v 1.3 2007/06/23 07:13:13 lowette Exp $
 //
 
 #include "AnalysisDataFormats/TopObjects/interface/TopMET.h"

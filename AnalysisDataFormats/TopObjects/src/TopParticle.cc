@@ -1,8 +1,5 @@
 //
-// Author:  Steven Lowette
-// Created: Fri Jun 22 17:40:46 PDT 2007
-//
-// $Id$
+// $Id: TopParticle.cc,v 1.1 2007/06/23 07:09:29 lowette Exp $
 //
 
 #include "AnalysisDataFormats/TopObjects/interface/TopParticle.h"
