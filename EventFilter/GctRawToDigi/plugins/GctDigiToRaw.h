@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctDigiToRaw.h,v 1.4 2007/06/18 12:12:34 jbrooke Exp $
+// $Id: GctDigiToRaw.h,v 1.1 2007/06/22 07:58:50 jbrooke Exp $
 //
 //
 
@@ -49,7 +49,7 @@ class GctDigiToRaw : public edm::EDProducer {
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   
-  void unpack(const FEDRawData& d, edm::Event& e);
+  void writeHeader(FEDRawData& data);
 
  private:  // members
 
@@ -58,7 +58,10 @@ class GctDigiToRaw : public edm::EDProducer {
   edm::InputTag inputLabel_;
 
   int fedId_;            // GCT FED ID
-  int nDebugSamples_;    // number of samples per block in debug mode
+
+  int counter_;          // counter events
+  int bx_;
+  int lv1_;
   
   // Block to Digi converter
   GctBlockConverter converter_;

@@ -2,6 +2,7 @@
 <use name=FWCore/MessageLogger>
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
+<use name=FWCore/MessageLogger>
 <use name=EventFilter/GctRawToDigi>
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/L1CaloTrigger>

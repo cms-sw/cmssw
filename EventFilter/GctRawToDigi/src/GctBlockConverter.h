@@ -7,6 +7,8 @@
 #include <memory>
 #include <boost/cstdint.hpp>
 
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 
@@ -33,32 +35,34 @@ class GctBlockConverter {
   void setInternEmCollection(L1GctInternEmCandCollection* coll) { gctInternEm_ = coll; }
 
   // get digis from block
-  void convertBlock(const unsigned char * data, unsigned id, unsigned nSamples);
+  void convertBlock(const unsigned char * d, unsigned id, unsigned nSamples);
 
   /// get block from digis
-  void writeBlock(unsigned char * data, unsigned id);
+  void writeBlock(unsigned char * d, unsigned id);
 
  private:
 
   // convert functions for each type of block
-  /// unpack RCT EM Candidates
-  void blockToRctEmCand(const unsigned char * d, unsigned id, unsigned nSamples);
+  /// unpack GCT EM Candidates
+  void blockToGctEmCand(const unsigned char * d, unsigned id, unsigned nSamples);
 
   /// unpack GCT internal EM Candidates
   void blockToGctInternEmCand(const unsigned char * d, unsigned id, unsigned nSamples);
 
-  /// unpack GCT EM Candidates
-  void blockToGctEmCand(const unsigned char * d, unsigned id, unsigned nSamples);
+  /// unpack RCT EM Candidates
+  void blockToRctEmCand(const unsigned char * d, unsigned id, unsigned nSamples);
+
 
   // reverse functions for each type of block
-  /// pack RCT EM Candidates (for triggered crossing only)
-  void rctEmCandToBlock(unsigned char * data, unsigned id);
+  /// write header for packing
+  void writeGctHeader(unsigned char * d, unsigned id);
 
   /// pack GCT EM Candidates (for triggered crossing only)
-  void gctEmCandToBlock(unsigned char * data, unsigned id);
+  void gctEmCandToBlock(unsigned char * d, unsigned id);
 
-  /// write header for packing
-  void writeHeader(unsigned char * data, unsigned id);
+  /// pack RCT EM Candidates (for triggered crossing only)
+  void rctEmCandToBlock(unsigned char * d, unsigned id);
+
 
  private:
 

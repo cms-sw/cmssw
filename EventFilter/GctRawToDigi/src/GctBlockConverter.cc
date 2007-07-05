@@ -1,3 +1,4 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "EventFilter/GctRawToDigi/src/GctBlockConverter.h"
 
@@ -26,13 +27,13 @@ GctBlockConverter::GctBlockConverter() {
   blockLength_[0x83] = 4;   // Leaf-U1, Elec, NegEta, Sort Output
   blockLength_[0x88] = 16;  // Leaf-U2, Elec, NegEta, Sort Input
   blockLength_[0x89] = 12;  // Leaf-U2, Elec, NegEta, Raw Input
-  blockLength_[0x8B] = 4;   // Leaf-U2, Elec, NegEta, Sort Output
+  blockLength_[0x8b] = 4;   // Leaf-U2, Elec, NegEta, Sort Output
   blockLength_[0xc0] = 20;  // Leaf-U1, Elec, PosEta, Sort Input
   blockLength_[0xc1] = 15;  // Leaf-U1, Elec, PosEta, Raw Input
   blockLength_[0xc3] = 4;   // Leaf-U1, Elec, PosEta, Sort Output
   blockLength_[0xc8] = 16;  // Leaf-U2, Elec, PosEta, Sort Input
   blockLength_[0xc9] = 12;  // Leaf-U2, Elec, PosEta, Raw Input
-  blockLength_[0xcB] = 4;   // Leaf-U2, Elec, PosEta, Sort Output
+  blockLength_[0xcb] = 4;   // Leaf-U2, Elec, PosEta, Sort Output
 
   // setup converter fn map
   //  convertFn_[0x68] = &GctBlockConverter::wordToGctEmCand;
@@ -112,10 +113,7 @@ void GctBlockConverter::convertBlock(const unsigned char * data, unsigned id, un
 }
 
 
-void GctBlockConverter::writeBlock(unsigned char * data, unsigned id) {
-
-  writeHeader(data, id);
-  unsigned char * d = &data[4];
+void GctBlockConverter::writeBlock(unsigned char * d, unsigned id) {
 
   switch (id) {
   case (0x68) :  // ConcElec: Output to Global Trigger
@@ -158,34 +156,13 @@ void GctBlockConverter::blockToGctEmCand(const unsigned char * data, unsigned id
   }  
 }
 
-// Output EM Candidates packing
-void GctBlockConverter::gctEmCandToBlock(unsigned char * data, unsigned id) {
-
-  for (int i=0; i<gctIsoEm_->size(); i++) {
-    if (gctIsoEm_->at(i).bx() == 0) {  // only pack digis for the 0th crossing
-      int j = gctIsoEm_->at(i).capIndex();
-      data[j*2] = gctIsoEm_->at(i).raw() & 0xff;
-      data[j*2+1] = (gctIsoEm_->at(i).raw()>>8) & 0xff;
-    }
-  }
-
-  for (int i=0; i<gctNonIsoEm_->size(); i++) {
-    if (gctNonIsoEm_->at(i).bx() == 0) {  // only pack digis for the 0th crossing
-      int j = gctNonIsoEm_->at(i).capIndex();
-      data[4+j*2] = gctNonIsoEm_->at(i).raw() & 0xff;
-      data[4+j*2+1] = (gctNonIsoEm_->at(i).raw()>>8) & 0xff;
-    }
-  }
-
-}
-
 
 // Internal EM Candidates unpacking
-void GctBlockConverter::blockToGctInternEmCand(const unsigned char * data, unsigned id, unsigned nSamples) {
+void GctBlockConverter::blockToGctInternEmCand(const unsigned char * d, unsigned id, unsigned nSamples) {
   for (int i=0; i<blockLength(id)*nSamples; i=i+nSamples) {  // temporarily just take 0th time sample
     unsigned offset = i*4*nSamples;
-    uint16_t w0 = data[offset]   + (data[offset+1]<<8); 
-    uint16_t w1 = data[offset+2] + (data[offset+3]<<8);
+    uint16_t w0 = d[offset]   + (d[offset+1]<<8); 
+    uint16_t w1 = d[offset+2] + (d[offset+3]<<8);
     gctInternEm_->push_back( L1GctInternEmCand(w0, i > 7, id, 2*i/nSamples, 0) );
     gctInternEm_->push_back( L1GctInternEmCand(w1, i > 7, id, 2*(i/nSamples)+1, 0) );
   }
@@ -194,9 +171,9 @@ void GctBlockConverter::blockToGctInternEmCand(const unsigned char * data, unsig
 
 // Input EM Candidates unpacking
 // this is the last time I deal the RCT bit assignment travesty!!!
-void GctBlockConverter::blockToRctEmCand(const unsigned char * data, unsigned id, unsigned nSamples) {
+void GctBlockConverter::blockToRctEmCand(const unsigned char * d, unsigned id, unsigned nSamples) {
   
-  uint16_t d[6]; // index = source card output * 2 + cycle
+  uint16_t dd[6]; // index = source card output * 2 + cycle
   
   unsigned first=0;
   unsigned last=0;
@@ -224,36 +201,73 @@ void GctBlockConverter::blockToRctEmCand(const unsigned char * data, unsigned id
     
     // read 16 bit words
     for (int j=0; j<6; j++) {
-      d[j] = data[offset+(2*nSamples*j)] + (data[offset+(2*nSamples*j)+1]<<8);
+      dd[j] = d[offset+(2*nSamples*j)] + (d[offset+(2*nSamples*j)+1]<<8);
     }
 
     // create candidates and add to collections
-    rctEm_->push_back( L1CaloEmCand( d[0] & 0x3ff, crate, true, 0, 0, true) );
-    unsigned em = ((d[0] & 0x3800)>>10) + ((d[2] & 0x7800)>>7) + ((d[4] & 0x3800)>>3);
+    rctEm_->push_back( L1CaloEmCand( dd[0] & 0x3ff, crate, true, 0, 0, true) );
+    unsigned em = ((dd[0] & 0x3800)>>10) + ((dd[2] & 0x7800)>>7) + ((dd[4] & 0x3800)>>3);
     rctEm_->push_back( L1CaloEmCand(   em & 0x3ff, crate, true, 0, 0, true) );
-    rctEm_->push_back( L1CaloEmCand( d[1] & 0x3ff, crate, true, 0, 0, true) );
-    em = ((d[1] & 0x3800)>>10) + ((d[3] & 0x7800)>>7) + ((d[5] & 0x3800)>>3);
+    rctEm_->push_back( L1CaloEmCand( dd[1] & 0x3ff, crate, true, 0, 0, true) );
+    em = ((dd[1] & 0x3800)>>10) + ((dd[3] & 0x7800)>>7) + ((dd[5] & 0x3800)>>3);
     rctEm_->push_back( L1CaloEmCand(   em & 0x3ff, crate, true, 0, 0, true) );
-    rctEm_->push_back( L1CaloEmCand( d[2] & 0x3ff, crate, false, 0, 0, true) );
-    rctEm_->push_back( L1CaloEmCand( d[4] & 0x3ff, crate, false, 0, 0, true) );
-    rctEm_->push_back( L1CaloEmCand( d[3] & 0x3ff, crate, false, 0, 0, true) );
-    rctEm_->push_back( L1CaloEmCand( d[5] & 0x3ff, crate, false, 0, 0, true) );
+    rctEm_->push_back( L1CaloEmCand( dd[2] & 0x3ff, crate, false, 0, 0, true) );
+    rctEm_->push_back( L1CaloEmCand( dd[4] & 0x3ff, crate, false, 0, 0, true) );
+    rctEm_->push_back( L1CaloEmCand( dd[3] & 0x3ff, crate, false, 0, 0, true) );
+    rctEm_->push_back( L1CaloEmCand( dd[5] & 0x3ff, crate, false, 0, 0, true) );
+  }
+
+}
+
+
+// Write a header for packing
+void GctBlockConverter::writeGctHeader(unsigned char * d, unsigned id) {
+  d[0] = id & 0xff;
+  d[1] = 0;
+  d[2] = 0;
+  d[3] = 0;
+}
+
+
+// Output EM Candidates packing
+void GctBlockConverter::gctEmCandToBlock(unsigned char * d, unsigned id) {
+
+  // write header
+  unsigned last = 0;
+  writeGctHeader(d, id);
+  last += 4;
+
+  // pack iso EM
+  for (int i=0; i<4; i++) {
+    // in future, will only pack digis for 0th crossing, but this is not set yet!!!
+    //    if (gctIsoEm_->at(i).bx() == 0) {
+      int j = i; // should be gctIsoEm_->at(i).capIndex(); but capIndex is not set yet!!!
+      d[last] = gctIsoEm_->at(i).raw() & 0xff;
+      last++;
+      d[last] = (gctIsoEm_->at(i).raw()>>8) & 0xff;
+      last++;
+      //    }
+  }
+
+  // pack non-iso EM
+  for (int i=0; i<4; i++) {
+    // in future will ony pack digis for 0th crossing, but this is not set yet!!!
+    //    if (gctNonIsoEm_->at(i).bx() == 0) {
+      int j = i; // should be gctNonIsoEm_->at(i).capIndex(); but capIndex is not set yet!!!
+      d[last] = gctNonIsoEm_->at(i).raw() & 0xff;
+      last++;
+      d[last] = (gctNonIsoEm_->at(i).raw()>>8) & 0xff;
+      last++;
+      //    }
   }
 
 }
 
 
 // Input EM Candidates packing
-void GctBlockConverter::rctEmCandToBlock(unsigned char * data, unsigned id) {
+void GctBlockConverter::rctEmCandToBlock(unsigned char * d, unsigned id) {
 
 
 }
 
 
-// Write a header for packing
-void GctBlockConverter::writeHeader(unsigned char * data, unsigned id) {
-  data[0] = id & 0xff;
-  data[1] = 0;
-  data[2] = 0;
-  data[3] = 0;
-}

@@ -4,6 +4,7 @@
 #include <vector>
 #include <sstream>
 #include <iostream>
+#include <iomanip>
 
 // framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -46,7 +47,8 @@ using std::vector;
 GctDigiToRaw::GctDigiToRaw(const edm::ParameterSet& iConfig) :
   inputLabel_(iConfig.getParameter<edm::InputTag>("inputLabel")),
   fedId_(iConfig.getParameter<int>("GctFedId")),
-  verbose_(iConfig.getUntrackedParameter<bool>("Verbose",false))
+  verbose_(iConfig.getUntrackedParameter<bool>("Verbose",false)),
+  counter_(0)
 {
 
   edm::LogInfo("GCT") << "GctDigiToRaw will pack FED Id " << fedId_ << endl;
@@ -76,6 +78,11 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
+   // counters
+   counter_++;
+   bx_ = (counter_ % 3564);
+   lv1_ = counter_ % (0x1<<24);
+
    // get digis
    edm::Handle<L1GctEmCandCollection> isoEm;
    iEvent.getByLabel(inputLabel_.label(), "isoEm", isoEm);
@@ -91,21 +98,54 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    std::auto_ptr<FEDRawDataCollection> rawColl(new FEDRawDataCollection()); 
    // retrieve the target buffer
    FEDRawData& feddata=rawColl->FEDData(fedId_);
-   // Allocate space for header+trailer+payload
-   feddata.resize(1024);
-
    unsigned char * d = feddata.data();
-   unsigned ptr = 0;
-   
+
+   // set the size
+   feddata.resize(32);
+
+   // write header
+   writeHeader(feddata);
+
    // pack GCT EM output digis
-   converter_.writeBlock(d, 0x68);
-   ptr += converter_.blockLength(0x68) + 1;
+   converter_.writeBlock(&d[8], 0x68);
+
+   // write footer (do i have to do this?!?)
+
+
+   // debug print out
+   for (int i=0; i<feddata.size()/4; i++) {
+     unsigned ptr = i*4;
+     unsigned * w32 = reinterpret_cast<unsigned*>(&d[ptr]);
+     cout << i << " " << std::hex << std::setw(8) << (*w32) << endl;
+   }
 
    // put the collection in the event
    iEvent.put(rawColl);
 
 }
 
+
+// write Common Data Format header (nicked from EcalDigiToRaw)
+void GctDigiToRaw::writeHeader(FEDRawData& data) {
+
+  typedef long long Word64;
+
+  // Allocate space for header+trailer+payload
+  data.resize(8);
+  
+  // Standard FEVT header
+  unsigned long long hdr;
+  hdr = 0x18
+    + ((fedId_ & 0xFFF)<<8)
+    + ((Word64)((Word64)bx_ & 0xFFF)<<20)
+    + ((Word64)((Word64)lv1_ & 0xFFFFFF)<<32)
+    + ((Word64)((Word64)0x51<<56));
+
+  unsigned char * pData = data.data();
+  Word64* pw = reinterpret_cast<Word64*>(const_cast<unsigned char*>(pData));
+  *pw = hdr;
+  
+}
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
