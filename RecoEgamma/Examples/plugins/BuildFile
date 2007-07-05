@@ -1,0 +1,4 @@
+<use name=RecoEgamma/Examples>
+<library file="*.cc" name=RecoEgammaExamplesPlugins>
+<flags EDM_PLUGIN=1>
+</library>

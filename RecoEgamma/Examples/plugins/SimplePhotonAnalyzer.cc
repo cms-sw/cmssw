@@ -1,11 +1,11 @@
 /**\class PhotonSimpleAnalyzer
  **
- ** $Date: 2007/03/23 13:53:52 $ 
- ** $Revision: 1.3 $
+ ** $Date: 2007/03/25 11:10:39 $ 
+ ** $Revision: 1.4 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
 */
 
-#include "RecoEgamma/Examples/interface/SimplePhotonAnalyzer.h"
+#include "RecoEgamma/Examples/plugins/SimplePhotonAnalyzer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"

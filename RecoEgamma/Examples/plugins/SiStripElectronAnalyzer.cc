@@ -8,14 +8,14 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:49:38 EDT 2006
-// $Id: SiStripElectronAnalyzer.cc,v 1.4 2007/03/08 18:24:47 futyand Exp $
+// $Id: SiStripElectronAnalyzer.cc,v 1.1 2007/03/22 16:12:08 futyand Exp $
 //
 
 // system include files
 #include <memory>
 
 // user include files
-#include "RecoEgamma/Examples/interface/SiStripElectronAnalyzer.h"
+#include "RecoEgamma/Examples/plugins/SiStripElectronAnalyzer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"

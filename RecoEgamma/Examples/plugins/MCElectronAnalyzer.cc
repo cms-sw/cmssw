@@ -1,6 +1,6 @@
 #include <iostream>
 //
-#include "RecoEgamma/Examples/interface/MCElectronAnalyzer.h"
+#include "RecoEgamma/Examples/plugins/MCElectronAnalyzer.h"
 #include "RecoEgamma/EgammaMCTools/interface/ElectronMCTruthFinder.h"
 #include "RecoEgamma/EgammaMCTools/interface/ElectronMCTruth.h"
 // 

@@ -1,6 +1,6 @@
 #include <iostream>
 //
-#include "RecoEgamma/Examples/interface/SimpleConvertedPhotonAnalyzer.h"
+#include "RecoEgamma/Examples/plugins/SimpleConvertedPhotonAnalyzer.h"
 #include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruthFinder.h"
 #include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruth.h"
 #include "RecoEgamma/EgammaMCTools/interface/ElectronMCTruth.h"

@@ -13,12 +13,12 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchGsfElectronAnalyzer.cc,v 1.8 2007/06/29 21:05:42 charlot Exp $
+// $Id: PixelMatchGsfElectronAnalyzer.cc,v 1.9 2007/07/02 07:28:17 charlot Exp $
 //
 //
 
 // user include files
-#include "RecoEgamma/Examples/interface/PixelMatchGsfElectronAnalyzer.h"
+#include "RecoEgamma/Examples/plugins/PixelMatchGsfElectronAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"

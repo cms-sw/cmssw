@@ -1,4 +1,4 @@
-#include "RecoEgamma/Examples/interface/ElectronIDAnalyzer.h"
+#include "RecoEgamma/Examples/plugins/ElectronIDAnalyzer.h"
 #include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
 #include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedAnalyzer.cc,v 1.9 2007/03/21 15:05:52 uberthon Exp $
+// $Id: ElectronPixelSeedAnalyzer.cc,v 1.2 2007/03/22 16:40:05 futyand Exp $
 //
 //
 
@@ -39,7 +39,7 @@
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-#include "RecoEgamma/Examples/interface/ElectronPixelSeedAnalyzer.h"
+#include "RecoEgamma/Examples/plugins/ElectronPixelSeedAnalyzer.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
