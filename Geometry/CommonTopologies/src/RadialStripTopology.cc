@@ -109,7 +109,7 @@ RadialStripTopology::localError(const MeasurementPoint& mp,
 
   // L is length of strip across face of chamber
   float L = detHeight()/ c1;  
-  float L2  = L1*L1; 
+  float L2  = L*L; 
 
   // MeasurementError elements are already squared
   // but they're normalized to products of A and L 
