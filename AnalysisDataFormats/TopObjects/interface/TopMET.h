@@ -1,8 +1,5 @@
 //
-// Author:  Steven Lowette
-// Created: Thu May  3 10:37:17 PDT 2007
-//
-// $Id: TopMET.h,v 1.4 2007/06/11 21:00:37 yumiceva Exp $
+// $Id: TopMET.h,v 1.5 2007/06/23 07:13:13 lowette Exp $
 //
 
 #ifndef TopObjects_TopMET_h
@@ -15,7 +12,7 @@
    TopMET contains a missing ET 4-vector as a TopObject
 
   \author   Steven Lowette
-  \version  $Id: TopMET.h,v 1.4 2007/06/11 21:00:37 yumiceva Exp $
+  \version  $Id: TopMET.h,v 1.5 2007/06/23 07:13:13 lowette Exp $
 */
 
 
