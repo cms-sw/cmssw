@@ -43,8 +43,9 @@
 
 EcalDCC07UnpackingModule::EcalDCC07UnpackingModule(const edm::ParameterSet& pset){
 
-  std::string mapFileName = pset.getUntrackedParameter<std::string >("mapFileName", std::string("h2.map") );
-  formatter_ = new EcalTB07DaqFormatter(mapFileName);
+  std::string tbStripChannelMapFile = pset.getUntrackedParameter<std::string >("tbTowerStripChannelMapFile", std::string("h2.map") );
+  std::string tbTowerMapFile = pset.getUntrackedParameter<std::string >("tbTowerMapFile", std::string("h2_towers.map") );
+  formatter_ = new EcalTB07DaqFormatter(tbStripChannelMapFile, tbTowerMapFile);
   ecalSupervisorFormatter_ = new EcalSupervisorDataFormatter();
   camacTBformatter_ = new CamacTBDataFormatter();
   tableFormatter_ = new TableDataFormatter();
@@ -52,6 +53,7 @@ EcalDCC07UnpackingModule::EcalDCC07UnpackingModule(const edm::ParameterSet& pset
 
   // digis
   produces<EBDigiCollection>("ebDigis");
+  produces<EEDigiCollection>("eeDigis");
   produces<EcalMatacqDigiCollection>();
   produces<EcalPnDiodeDigiCollection>();
   produces<EcalRawDataCollection>();
@@ -102,6 +104,9 @@ void EcalDCC07UnpackingModule::produce(edm::Event & e, const edm::EventSetup& c)
 
   // create the collection of Ecal Digis
   std::auto_ptr<EBDigiCollection> productEb(new EBDigiCollection);
+
+  // YM create the collection of Ecal Endcap Digis
+  std::auto_ptr<EEDigiCollection> productEe(new EEDigiCollection);
 
   // create the collection of Matacq Digi
   std::auto_ptr<EcalMatacqDigiCollection> productMatacq(new EcalMatacqDigiCollection());
@@ -182,7 +187,8 @@ void EcalDCC07UnpackingModule::produce(edm::Event & e, const edm::EventSetup& c)
 	{	// do the DCC data unpacking and fill the collections
 	  
 	  (*productHeader).setSmInBeam(id);
-	  formatter_->interpretRawData(data,  *productEb, *productPN, 
+	  // YM add productEe to the list of arguments of the formatter
+	  formatter_->interpretRawData(data,  *productEb, *productEe, *productPN, 
 				       *productDCCHeader, 
 				       *productDCCSize, 
 				       *productTTId, *productBlockSize, 
@@ -214,6 +220,7 @@ void EcalDCC07UnpackingModule::produce(edm::Event & e, const edm::EventSetup& c)
   // commit to the event  
   e.put(productPN);
   e.put(productEb,"ebDigis");
+  e.put(productEe,"eeDigis");
   e.put(productMatacq);
   e.put(productDCCHeader);
   e.put(productTriggerPrimitives);

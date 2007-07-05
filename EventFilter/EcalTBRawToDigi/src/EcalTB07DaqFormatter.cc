@@ -12,8 +12,10 @@
 #include "EcalTB07DaqFormatter.h"
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
+#include <DataFormats/EcalDetId/interface/EEDetId.h>
 #include <DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h>
 #include <DataFormats/EcalDigi/interface/EBDataFrame.h>
+#include <DataFormats/EcalDigi/interface/EEDataFrame.h>
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
 
 #include <EventFilter/EcalTBRawToDigi/interface/EcalDCCHeaderRuntypeDecoder.h>
@@ -31,7 +33,7 @@
 #include <iostream>
 #include <string>
 
-EcalTB07DaqFormatter::EcalTB07DaqFormatter (std::string mapFileName) {
+EcalTB07DaqFormatter::EcalTB07DaqFormatter (std::string tbChannelMap, std::string tbTowerMap) {
 
   LogDebug("EcalTB07RawToDigi") << "@SUB=EcalTB07DaqFormatter";
   std::vector<ulong> parameters;
@@ -48,21 +50,26 @@ EcalTB07DaqFormatter::EcalTB07DaqFormatter (std::string mapFileName) {
 
   theParser_ = new DCCDataParser(parameters);
 
-  if ( !getTBMaps(mapFileName) ) 
+  if ( !getTBMaps(tbChannelMap, tbTowerMap) ) 
     edm::LogError("EcalTB07RawToDigi") << "No h2 map was found!";
 
 }
 
 void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData , 
-					  EBDigiCollection& digicollection, EcalPnDiodeDigiCollection & pndigicollection , 
-					  EcalRawDataCollection& DCCheaderCollection, 
-					  EBDetIdCollection & dccsizecollection , 
-					  EcalTrigTowerDetIdCollection & ttidcollection , EcalTrigTowerDetIdCollection & blocksizecollection,
-					  EBDetIdCollection & chidcollection , EBDetIdCollection & gaincollection, 
-					  EBDetIdCollection & gainswitchcollection, EBDetIdCollection & gainswitchstaycollection, 
-					  EcalElectronicsIdCollection & memttidcollection,  EcalElectronicsIdCollection &  memblocksizecollection,
-					  EcalElectronicsIdCollection & memgaincollection,  EcalElectronicsIdCollection & memchidcollection,
-					  EcalTrigPrimDigiCollection &tpcollection)
+					    EBDigiCollection& digicollection,
+					    EEDigiCollection& eeDigiCollection,
+					    EcalPnDiodeDigiCollection & pndigicollection , 
+					    EcalRawDataCollection& DCCheaderCollection, 
+					    EBDetIdCollection & dccsizecollection , 
+					    EcalTrigTowerDetIdCollection & ttidcollection , 
+					    EcalTrigTowerDetIdCollection & blocksizecollection,
+					    EBDetIdCollection & chidcollection , EBDetIdCollection & gaincollection, 
+					    EBDetIdCollection & gainswitchcollection, EBDetIdCollection & gainswitchstaycollection, 
+					    EcalElectronicsIdCollection & memttidcollection,  
+					    EcalElectronicsIdCollection & memblocksizecollection,
+					    EcalElectronicsIdCollection & memgaincollection,  
+					    EcalElectronicsIdCollection & memchidcollection,
+					    EcalTrigPrimDigiCollection &tpcollection)
 {
 
 
@@ -79,6 +86,7 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
 
   // mean + 3sigma estimation needed when switching to 0suppressed data
   digicollection.reserve(kCrystals);
+  eeDigiCollection.reserve(kCrystals);
   pnAllocated = false;
   
 
@@ -232,13 +240,13 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	// map status array to expected tower array
 	int towerMap[kTriggerTowersAndMem+1];
 	for (int i=0; i<kTriggerTowersAndMem; ++i ) towerMap[i] = i;
-	towerMap[1] = 1;
-	towerMap[2] = 2;
-	towerMap[3] = 5;
-	towerMap[4] = 6;
+	//towerMap[1] = 6;
+	//towerMap[2] = 2;
+	//towerMap[3] = 1;
+	//towerMap[4] = 5;
 
 	if(   TowerStatus[u] ==0   ) 
-	  {_ExpectedTowers[_expTowersIndex]= towerMap[u];
+	  {_ExpectedTowers[_expTowersIndex]= tbStatusToLocation_[u];
 	    _expTowersIndex++;
 	    _numExpectedTowers++;
 	  }
@@ -276,11 +284,13 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
          itTowerBlock++){
 
       tower=(*itTowerBlock)->towerID();
-      if ( tower == 1  ) tower = 1;
-      if ( tower == 71 ) tower = 2;
-      if ( tower == 80 ) tower = 5;
-      if ( tower == 45 ) tower = 6;
-      
+      // here is "correct" h2 map
+      //if ( tower == 1  ) tower = 6;
+      //if ( tower == 71 ) tower = 2;
+      //if ( tower == 80 ) tower = 1;
+      //if ( tower == 45 ) tower = 5;
+      tower = tbTowerIDToLocation_[tower];
+
       // checking if tt in data is the same as tt expected 
       // else skip tower and increment problem counter
 	    
@@ -301,7 +311,8 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	    edm::LogWarning("EcalTB07RawToDigiTowerId") << "@SUBS=EcalTB07DaqFormatter::interpretRawData"
 							<< "TTower id found (=" << tower 
 							<< ") different from expected (=" <<  _ExpectedTowers[_expTowersIndex] 
-							<< ") " << (_expTowersIndex+1) << "-th tower checked"; 
+							<< ") " << (_expTowersIndex+1) << "-th tower checked"
+							<< "\n Real hardware id is " << (*itTowerBlock)->towerID();
 
 	    //  report on failed tt_id for regular tower block
 	    ttidcollection.push_back(idtt);
@@ -477,12 +488,20 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	    // data  to be stored in EBDataFrame, identified by EBDetId
 	    int  ic = cryIc(tower, strip, ch) ;
 	    int  sm = 1;
-	    EBDetId  id(sm, ic,1);                 
+	    EBDetId  id(sm, ic,1);      
+	    // EE data to be stored in EEDataFrame, identified by EEDetId
+	    // eeId(int i, int j, int iz (+1/-1), int mode = XYMODE)
+	    int ix = getEE_ix(tower, strip, ch);
+	    int iy = getEE_iy(tower, strip, ch);
+	    // Hardcopy iz = -1
+	    EEDetId  eeId(ix, iy, 1);
 	    
 	    EBDataFrame theFrame ( id );
+	    EEDataFrame eeFrame (eeId );
+
 	    std::vector<int> xtalDataSamples = (*itXtalBlock)->xtalDataSamples();   
 	    theFrame.setSize(xtalDataSamples.size());
-      
+	    eeFrame. setSize(xtalDataSamples.size());
       
 
 	    // gain cannot be 0, checking for that
@@ -592,7 +611,7 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	    // here (already continued if gain==0 or if forbidden-gain-switch),
 	    // data frame needs go to the Event
 	    digicollection.push_back(theFrame);
-	    
+	    eeDigiCollection.push_back(eeFrame);
 	  }// end loop on crystals within a tower block
 	  
 	  
@@ -914,18 +933,25 @@ std::pair<int,int>  EcalTB07DaqFormatter::cellIndex(int tower_id, int strip, int
 
 }
 
+int EcalTB07DaqFormatter::getEE_ix(int tower, int strip, int ch){
+  // H2 -- ix is in [-90, -80], and iy is in [-5; 5]
+  return (int)cryIc(tower, strip, ch)/20 + 5;
+}
+int EcalTB07DaqFormatter::getEE_iy(int tower, int strip, int ch){
+  return cryIc(tower, strip, ch)%20 + 45;
+}
 
 //YM use h2 mapping scheme
-bool EcalTB07DaqFormatter::getTBMaps(std::string mapFileName) {
+bool EcalTB07DaqFormatter::getTBMaps(std::string tbChannelMap, std::string tbTowerMap) {
   // clear the array (put the other unused channels to 1700
   for (unsigned it=1; it <= 68; ++it )
     for (unsigned is=1; is <=5; ++is )
       for (unsigned ic=1; ic <=5; ++ic)
 	cryIcMap_[it-1][is-1][ic-1] = 1700;
 
-
-  std::ifstream towerStripChannelMap(mapFileName.c_str());
-  std::vector <int> towerStripChannelData;
+  
+  // read in tbChannelMap: ic tower_id(EB style) strip_id channel_id
+  std::ifstream towerStripChannelMap(tbChannelMap.c_str());
   if ( towerStripChannelMap.eof() ) {
     edm::LogInfo("EcalTB07RawToDigi") << "No map found!";
     return false;
@@ -937,8 +963,41 @@ bool EcalTB07DaqFormatter::getTBMaps(std::string mapFileName) {
     if (!(towerStripChannelMap >> strip  )) break;
     if (!(towerStripChannelMap >> channel)) break;
     cryIcMap_[tower-1][strip-1][channel-1] = ic;
-    std::cout << ic << " " << tower << " " << strip << " " << channel << std::endl;
+    //std::cout << ic << " " << tower << " " << strip << " " << channel << std::endl;
   }
+  
+  for (unsigned it=1; it <= 70; ++it) {
+    tbStatusToLocation_[it] = it;
+  }
+  for (unsigned it=1; it <=200; ++it) {
+    tbTowerIDToLocation_[it] = it;
+  }
+	
+  // read in tbTowerMap: status_id tower_id tower_id(EB style)
+  std::ifstream towerMapFile(tbTowerMap.c_str());
+  if ( towerMapFile.eof() ) {
+    edm::LogInfo("EcalTB07RawToDigi") << "No Tower map found!";
+    return false;
+  }
+
+  while (!towerMapFile.eof()) {
+    int is, it, itEB;
+    if (!(towerMapFile >> is   )) break;
+    if (!(towerMapFile >> it   )) break;
+    if (!(towerMapFile >> itEB )) break;
+    if ( is > 70 ) {
+      edm::LogInfo("EcalTB07RawToDigi") << "Bad towerMap File!";
+      return false;
+    }
+    if ( itEB > 200 ) {
+      edm::LogInfo("EcalTB07RawToDigi") << "Bad towerMap File! TowerID exceeds 200";
+      return false;
+    }
+    tbStatusToLocation_[is] = itEB;
+    tbTowerIDToLocation_[it] = itEB;
+    std::cout << is << " " << it << " " << itEB << " " << std::endl;
+  }
+  
   return true;
 }
 

@@ -30,10 +30,11 @@ class EcalTB07DaqFormatter   {
 
  public:
 
-  EcalTB07DaqFormatter(std::string mapFileName);
+  EcalTB07DaqFormatter(std::string tbTowerStripChannelMapFile, std::string tbTowerMapFile);
   virtual ~EcalTB07DaqFormatter(){LogDebug("EcalTB07RawToDigi") << "@SUB=EcalTB07DaqFormatter" << "\n"; };
 
-  void  interpretRawData( const FEDRawData & data , EBDigiCollection& digicollection , EcalPnDiodeDigiCollection & pndigicollection ,
+  void  interpretRawData( const FEDRawData & data , EBDigiCollection& digicollection , EEDigiCollection& eeDigiCollection, 
+			  EcalPnDiodeDigiCollection & pndigicollection ,
 			  EcalRawDataCollection& DCCheaderCollection,
 			  EBDetIdCollection & dccsizecollection ,
 			  EcalTrigTowerDetIdCollection & ttidcollection , EcalTrigTowerDetIdCollection & blocksizecollection,
@@ -58,7 +59,13 @@ class EcalTB07DaqFormatter   {
  private:
   DCCDataParser* theParser_;
   int cryIcMap_[68][5][5];
-  bool getTBMaps(std::string mapFileName);
+  int tbStatusToLocation_[71];
+  int tbTowerIDToLocation_[201];
+
+  bool getTBMaps(std::string tbStripChannelMapFile, std::string tbTowerMapFile);
+
+  int getEE_ix(int tower, int strip, int ch);
+  int getEE_iy(int tower, int strip, int ch);
 
   enum SMGeom_t {
      kModules = 4,           // Number of modules per supermodule
