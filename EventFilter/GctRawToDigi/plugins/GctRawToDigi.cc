@@ -88,18 +88,21 @@ GctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByType(feds);
    const FEDRawData& gctRcd = feds->FEDData(fedId_);
    
-   unpack(gctRcd, iEvent);
+   edm::LogInfo("GCT") << "Upacking FEDRawData of size " << std::dec << gctRcd.size() << std::endl;
+
+  // do a simple check of the raw data
+  if (gctRcd.size()<16) {
+      edm::LogWarning("Invalid Data") << "Empty/invalid GCT raw data, size = " << gctRcd.size();
+      return;
+  }
+  else {
+    unpack(gctRcd, iEvent);
+  }
 
 }
 
 
 void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
-
-  // do a simple check of the raw data
-  if (d.size()<16) {
-      edm::LogWarning("Invalid Data") << "Empty/invalid GCT raw data, size = " << d.size();
-      return;
-  }
 
   // make collections for storing data
 
