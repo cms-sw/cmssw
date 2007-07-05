@@ -3,7 +3,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: LRHelpFunctions.h,v 1.5 2007/06/09 01:17:29 lowette Exp $
+// $Id: LRHelpFunctions.h,v 1.6 2007/06/15 08:55:21 heyninck Exp $
 //
 
 #ifndef LRHelpFunctions_h
@@ -14,7 +14,7 @@
   \brief    Help functionalities to implement and evaluate LR ratio method
 
   \author   Jan Heyninck
-  \version  $Id: LRHelpFunctions.h,v 1.5 2007/06/09 01:17:29 lowette Exp $
+  \version  $Id: LRHelpFunctions.h,v 1.6 2007/06/15 08:55:21 heyninck Exp $
 */
 
 #include "TString.h"
@@ -60,7 +60,7 @@ class LRHelpFunctions {
     std::vector<TF1*>  fObsSoverSplusB;
     TH1F 	       *hLRtotS, *hLRtotB, *hLRtotSoverSplusB;
     TF1		       *fLRtotSoverSplusB;
-    TGraph             *hEffvsPur;
+    TGraph             *hEffvsPur, *hLRValvsPur, *hLRValvsEff;
     bool 	       constructPurity;
 };
 

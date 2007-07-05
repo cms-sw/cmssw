@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: LRHelpFunctions.cc,v 1.7 2007/06/15 08:55:22 heyninck Exp $
+// $Id: LRHelpFunctions.cc,v 1.8 2007/06/18 11:40:21 heyninck Exp $
 //
 #include "TopQuarkAnalysis/TopTools/interface/LRHelpFunctions.h"
 #include "TopQuarkAnalysis/TopEventProducers/bin/tdrstyle.C"
@@ -213,6 +213,8 @@ void  LRHelpFunctions::storeToROOTfile(TString fname){
     hLRtotSoverSplusB 	-> Write();
     fLRtotSoverSplusB 	-> Write();
     hEffvsPur	        -> Write();
+    hLRValvsPur	        -> Write();
+    hLRValvsEff	        -> Write();
   }
   fOut.cd();
   fOut.Write();
@@ -278,6 +280,14 @@ void  LRHelpFunctions::storeControlPlots(TString fname){
     TCanvas c4("c4","",1);
     hEffvsPur -> Draw("AL*");
     c4.Print(fname,"Landscape");
+
+    TCanvas c5("c5","",1);
+    hLRValvsPur -> Draw("AL*");
+    c5.Print(fname,"Landscape");
+
+    TCanvas c6("c6","",1);
+    hLRValvsEff -> Draw("AL*");
+    c6.Print(fname,"Landscape");
   } 
   c.Print(fname + "]","landscape");
 }
@@ -324,17 +334,34 @@ void  LRHelpFunctions::makeAndFitPurityHists(){
   }
   hLRtotSoverSplusB -> Fit(fLRtotSoverSplusB->GetName(),"RQ");  
   
-  double Eff[100], Pur[100];
+  double Eff[100], Pur[100], LRVal[100];
   for(int cut=0; cut<=hLRtotS->GetNbinsX(); cut ++){
  	double LRcutVal = hLRtotS->GetBinCenter(cut+1);
-	Eff[cut] = 1.- hLRtotS->Integral(0,cut+1)/hLRtotS->Integral(0,50);
-	Pur[cut] = fLRtotSoverSplusB->Eval(LRcutVal);
+	Eff[cut]   = 1.- hLRtotS->Integral(0,cut+1)/hLRtotS->Integral(0,50);
+	Pur[cut]   = fLRtotSoverSplusB->Eval(LRcutVal);
+	LRVal[cut] = hLRtotS->GetBinCenter(cut+1);
   }
   hEffvsPur = new TGraph(hLRtotS->GetNbinsX(),Eff,Pur);
   hEffvsPur -> SetName("hEffvsPur");
   hEffvsPur -> SetTitle("");
-  hEffvsPur -> GetXaxis() -> SetTitle((TString)("efficiency of cut on log combined LR"));
+  hEffvsPur -> GetXaxis() -> SetTitle((TString)("Efficiency of cut on log combined LR"));
   hEffvsPur -> GetYaxis() -> SetTitle((TString)("Purity"));
+  hEffvsPur -> GetYaxis() -> SetRangeUser(0,1.1);
+
+  hLRValvsPur = new TGraph(hLRtotS->GetNbinsX(),LRVal,Pur);
+  hLRValvsPur -> SetName("hLRValvsPur");
+  hLRValvsPur -> SetTitle("");
+  hLRValvsPur -> GetXaxis() -> SetTitle((TString)("Cut on the log combined LR value"));
+  hLRValvsPur -> GetYaxis() -> SetTitle((TString)("Purity"));
+  hLRValvsPur -> GetYaxis() -> SetRangeUser(0,1.1);
+
+  hLRValvsEff = new TGraph(hLRtotS->GetNbinsX(),LRVal,Eff);
+  hLRValvsEff -> SetName("hLRValvsEff");
+  hLRValvsEff -> SetTitle("");
+  hLRValvsEff -> GetXaxis() -> SetTitle((TString)("Cut on the log combined LR value"));
+  hLRValvsEff -> GetYaxis() -> SetTitle((TString)("Efficiency of cut on log combined LR"));
+  hLRValvsEff -> GetYaxis() -> SetRangeUser(0,1.1);
+
 }   
 
 
