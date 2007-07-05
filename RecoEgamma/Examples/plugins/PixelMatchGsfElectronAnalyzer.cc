@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchGsfElectronAnalyzer.cc,v 1.9 2007/07/02 07:28:17 charlot Exp $
+// $Id: PixelMatchGsfElectronAnalyzer.cc,v 1.1 2007/07/05 10:34:45 charlot Exp $
 //
 //
 
@@ -89,6 +89,10 @@ void PixelMatchGsfElectronAnalyzer::beginJob(edm::EventSetup const&iSetup){
   h_ctf_foundHitsVsEta      = new TH2F( "h_ctf_foundHitsVsEta",      "ctf track # found hits vs eta",  50,-2.5,2.5,20,0.,20.);
   h_ctf_lostHitsVsEta       = new TH2F( "h_ctf_lostHitsVsEta",       "ctf track # lost hits vs eta",   50,-2.5,2.5,10,0.,10.);
   
+  // all electrons  
+  h_ele_vertexPt_all       = new TH1F( "h_ele_vertexPt_all",       "all ele p_{T} at vertex",  18, 5., 50. );
+  h_ele_vertexEta_all      = new TH1F( "h_ele_vertexEta_all",      "all ele #eta at vertex",    50, -2.5, 2.5 );
+
   // matched electrons
   h_ele_charge         = new TH1F( "h_ele_charge",         "ele charge",             5, -2., 2. );   
   h_ele_chargeVsEta    = new TH2F( "h_ele_chargeVsEta",         "ele charge vs eta", 50,-2.5,2.5,5,-2.,2.);   
@@ -283,6 +287,20 @@ PixelMatchGsfElectronAnalyzer::endJob(){
   h_ele_ptEff->GetXaxis()->SetTitle("p_T");
   h_ele_ptEff->GetYaxis()->SetTitle("eff");
 
+  // rec/gen all electrons
+  TH1F *h_ele_etaEff_all = (TH1F*)h_ele_vertexEta_all->Clone("h_ele_etaEff_all");
+  h_ele_etaEff_all->Reset();
+  h_ele_etaEff_all->Divide(h_ele_vertexEta_all,h_simEta,1,1);
+  h_ele_etaEff_all->Print();
+  h_ele_etaEff_all->GetXaxis()->SetTitle("#eta");
+  h_ele_etaEff_all->GetYaxis()->SetTitle("rec/gen");
+  TH1F *h_ele_ptEff_all = (TH1F*)h_ele_vertexPt_all->Clone("h_ele_ptEff_all");
+  h_ele_ptEff_all->Reset();
+  h_ele_ptEff_all->Divide(h_ele_vertexPt_all,h_simPt,1,1);
+  h_ele_ptEff_all->Print();
+  h_ele_ptEff_all->GetXaxis()->SetTitle("p_{T}");
+  h_ele_ptEff_all->GetYaxis()->SetTitle("rec/gen");
+
   // classes
   TH1F *h_ele_eta_goldenFrac = (TH1F*)h_ele_eta_golden->Clone("h_ele_eta_goldenFrac");
   h_ele_eta_goldenFrac->Reset();
@@ -321,6 +339,15 @@ PixelMatchGsfElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
   iEvent.getByLabel(MCTruthProducer_,"",hepMC);
 
   histNum_->Fill((*gsfElectrons).size());
+  
+  // all rec electrons
+  for (reco::PixelMatchGsfElectronCollection::const_iterator gsfIter=gsfElectrons->begin();
+   gsfIter!=gsfElectrons->end(); gsfIter++){
+    // preselect electrons
+    if (gsfIter->pt()>50. || fabs(gsfIter->eta())>2.5) continue;
+    h_ele_vertexEta_all     -> Fill( gsfIter->eta() );
+    h_ele_vertexPt_all      -> Fill( gsfIter->pt() );
+  }
     
   // association mc-reco
   HepMC::GenParticle* genPc=0;
@@ -397,9 +424,9 @@ PixelMatchGsfElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
 	h_ele_simEta_matched     -> Fill( pAssSim.eta() );
 	h_ele_vertexEtaVsPhi     -> Fill(  bestGsfElectron.phi(),bestGsfElectron.eta() );
 	h_ele_vertexPhi     -> Fill( bestGsfElectron.phi() );
-	h_ele_vertexX     -> Fill( bestGsfElectron.gsfTrack()->vertex().x() );
-	h_ele_vertexY     -> Fill( bestGsfElectron.gsfTrack()->vertex().y() );
-	h_ele_vertexZ     -> Fill( bestGsfElectron.gsfTrack()->vertex().z() );
+	h_ele_vertexX     -> Fill( bestGsfElectron.vertex().x() );
+	h_ele_vertexY     -> Fill( bestGsfElectron.vertex().y() );
+	h_ele_vertexZ     -> Fill( bestGsfElectron.vertex().z() );
 	double d = bestGsfElectron.gsfTrack()->vertex().x()*bestGsfElectron.gsfTrack()->vertex().x()+
 	 bestGsfElectron.gsfTrack()->vertex().y()*bestGsfElectron.gsfTrack()->vertex().y();
 	d = sqrt(d); 
