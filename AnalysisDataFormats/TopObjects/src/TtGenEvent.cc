@@ -1,4 +1,9 @@
+//
+// $Id$
+//
+
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
+
 
 TtGenEvent::TtGenEvent()
 {
@@ -17,7 +22,7 @@ int
 TtGenEvent::numberOfLeptons() const
 {
   int lep=0;
-  const reco::CandidateCollection partsColl = *parts_;
+  const reco::CandidateCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
     if (isLepton(partsColl[i])) {
       ++lep;
@@ -76,7 +81,7 @@ TtGenEvent::singleNeutrino() const
     const reco::CandidateCollection & partsColl = *parts_;
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
       if (isNeutrino(partsColl[i])) {
-	cand = &partsColl[i];
+        cand = &partsColl[i];
       }
     }
   }
@@ -91,7 +96,7 @@ TtGenEvent::hadronicQuark() const
     const reco::CandidateCollection & partsColl = *parts_;
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
       if (abs(partsColl[i].pdgId()) < 5 && flavour(partsColl[i])>0) {
-	cand = &partsColl[i];
+        cand = &partsColl[i];
       }
     }
   }
@@ -106,7 +111,7 @@ TtGenEvent::hadronicQuarkBar() const
     const reco::CandidateCollection & partsColl = *parts_;
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
       if (abs(partsColl[i].pdgId()) < 5 && flavour(partsColl[i])<0) {
-	cand = &partsColl[i];
+        cand = &partsColl[i];
       }
     }
   }
@@ -123,7 +128,7 @@ TtGenEvent::hadronicB() const
     for (unsigned int i = 0; i < parts_->size(); ++i) {
       if (abs(partsColl[i].pdgId())==5 && 
 	  flavour(singleLep)==flavour(partsColl[i])) {
-	cand = &partsColl[i];
+        cand = &partsColl[i];
       }
     }
   }
@@ -156,8 +161,8 @@ TtGenEvent::hadronicTop() const
     const reco::CandidateCollection & partsColl = *parts_;
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
       if (abs(partsColl[i].pdgId())==6 &&
-	  flavour(singleLep)==flavour(partsColl[i])) {
-	cand = &partsColl[i];
+          flavour(singleLep)==flavour(partsColl[i])) {
+        cand = &partsColl[i];
       }
     }
   }
@@ -173,8 +178,8 @@ TtGenEvent::leptonicB() const
     const reco::CandidateCollection & partsColl = *parts_;
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
       if (abs(partsColl[i].pdgId())==5 &&
-	  flavour(singleLep)!=flavour(partsColl[i])) {
-	cand = &partsColl[i];
+          flavour(singleLep)!=flavour(partsColl[i])) {
+        cand = &partsColl[i];
       }
     }
   }
@@ -190,8 +195,8 @@ TtGenEvent::leptonicW() const
     const reco::CandidateCollection & partsColl = *parts_;
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
       if (abs(partsColl[i].pdgId())==24 &&
-	  flavour(singleLep)==flavour(partsColl[i])) {
-	cand = &partsColl[i];
+          flavour(singleLep)==flavour(partsColl[i])) {
+        cand = &partsColl[i];
       }
     }
   }
@@ -206,9 +211,9 @@ TtGenEvent::leptonicTop() const
     const reco::Candidate & singleLep = *singleLepton();
     const reco::CandidateCollection & partsColl = *parts_;
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
-      if (abs(partsColl[i].pdgId())==6 && 
-	  flavour(singleLep)!=flavour(partsColl[i])) {
-	cand = &partsColl[i];
+      if (abs(partsColl[i].pdgId())==6 &&
+          flavour(singleLep)!=flavour(partsColl[i])) {
+        cand = &partsColl[i];
       }
     }
   }
@@ -273,8 +278,8 @@ TtGenEvent::quarkFromTop() const
   const reco::Candidate* cand=0;
   const reco::CandidateCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if (partsColl[i].mother() && flavour(*(partsColl[i].mother()))<0
-	&& abs(partsColl[i].pdgId())<5 && flavour(partsColl[i])>0) {
+    if (partsColl[i].mother() && flavour(*(partsColl[i].mother()))<0 &&
+        abs(partsColl[i].pdgId())<5 && flavour(partsColl[i])>0) {
       cand = &partsColl[i];
     }
   }
@@ -287,8 +292,8 @@ TtGenEvent::quarkFromTopBar() const
   const reco::Candidate* cand=0;
   const reco::CandidateCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if (partsColl[i].mother() && flavour(*(partsColl[i].mother()))<0
-	&& abs(partsColl[i].pdgId())<5 && flavour(partsColl[i])<0) {
+    if (partsColl[i].mother() && flavour(*(partsColl[i].mother()))<0 &&
+        abs(partsColl[i].pdgId())<5 && flavour(partsColl[i])<0) {
       cand = &partsColl[i];
     }
   }
@@ -301,8 +306,8 @@ TtGenEvent::quarkFromAntiTop() const
   const reco::Candidate* cand=0;
   const reco::CandidateCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if( partsColl[i].mother() && flavour(*(partsColl[i].mother()))>0
-	&& abs(partsColl[i].pdgId())<5 && flavour(partsColl[i])>0) {
+    if (partsColl[i].mother() && flavour(*(partsColl[i].mother()))>0 &&
+        abs(partsColl[i].pdgId())<5 && flavour(partsColl[i])>0) {
       cand = &partsColl[i];
     }  
   }
@@ -315,8 +320,8 @@ TtGenEvent::quarkFromAntiTopBar() const
   const reco::Candidate* cand=0;
   const reco::CandidateCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if( partsColl[i].mother() && flavour(*(partsColl[i].mother()))>0
-	&& abs(partsColl[i].pdgId())<5 && flavour(partsColl[i])<0){
+    if (partsColl[i].mother() && flavour(*(partsColl[i].mother()))>0 &&
+        abs(partsColl[i].pdgId())<5 && flavour(partsColl[i])<0) {
       cand = &partsColl[i];
     }  
   }
