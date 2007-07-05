@@ -1,8 +1,5 @@
 //
-// Author:  Steven Lowette
-// Created: Thu May  3 10:37:17 PDT 2007
-//
-// $Id: TopJet.cc,v 1.10 2007/06/25 14:36:28 lowette Exp $
+// $Id: TopJet.cc,v 1.11 2007/06/30 14:42:54 gpetrucc Exp $
 //
 
 
@@ -38,21 +35,23 @@ reco::Particle TopJet::getGenParton() const {
 }
 
 
-/// return the associated non-calibrated jet
-TopJetType TopJet::getRecJet() const {
-  return (recJet_.size() > 0 ?
-    recJet_.front() :
-    TopJetType(reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), reco::CaloJet::Specific(), reco::Jet::Constituents())
+/// return the matched generated jet
+reco::GenJet TopJet::getGenJet() const {
+  return (genJet_.size() > 0 ?
+    genJet_.front() :
+    reco::GenJet(reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), reco::GenJet::Specific(), reco::Jet::Constituents())
   );
 }
 
 
-/// return the fitted jet
-TopParticle TopJet::getFitJet() const {
-  return (fitJet_.size() > 0 ?
-    fitJet_.front() :
-    TopParticle()
-  );
+/// return the associated non-calibrated jet
+TopJetType TopJet::getRecJet() const {
+  TopJetType recJet;
+  if (recJet_.size() > 0) {
+    recJet = *this;
+    recJet.setP4(recJet_.front());
+  }
+  return recJet;
 }
 
 
@@ -126,23 +125,23 @@ double TopJet::getLRPhysicsJetProb() const {
 
 
 /// method to set the matched parton
-void TopJet::setGenParton(reco::Particle gj) {
+void TopJet::setGenParton(const reco::Particle & gp) {
   genParton_.clear();
-  genParton_.push_back(gj);
+  genParton_.push_back(gp);
+}
+
+
+/// method to set the matched generated jet
+void TopJet::setGenJet(const reco::GenJet & gj) {
+  genJet_.clear();
+  genJet_.push_back(gj);
 }
 
 
 /// method to set the uncalibrated jet
-void TopJet::setRecJet(TopJetType rj) {
+void TopJet::setRecJet(const TopJetType & rj) {
   recJet_.clear();
-  recJet_.push_back(rj);
-}
-
-
-/// method to set the fitted jet
-void TopJet::setFitJet(TopParticle fj) {
-  fitJet_.clear();
-  fitJet_.push_back(fj);
+  recJet_.push_back(rj.p4());
 }
 
 
@@ -153,19 +152,19 @@ void TopJet::setPartonFlavour(int jetFl) {
 
 
 /// method to add a algolabel-discriminator pair
-void TopJet::addBDiscriminatorPair(std::pair<std::string, double> thePair) {
+void TopJet::addBDiscriminatorPair(std::pair<std::string, double> & thePair) {
   pairDiscriVector_.push_back(thePair);
 }
 
 
 /// method to add a algolabel-jettagref pair
-void TopJet::addBJetTagRefPair(std::pair<std::string, reco::JetTagRef> thePair) {
+void TopJet::addBJetTagRefPair(std::pair<std::string, reco::JetTagRef> & thePair) {
   pairJetTagRefVector_.push_back(thePair);
 }
 
 
 /// method to set all jet cleaning variable + LR pairs
-void TopJet::setLRPhysicsJetVarVal(std::vector<std::pair<double, double> > varValVec) {
+void TopJet::setLRPhysicsJetVarVal(const std::vector<std::pair<double, double> > & varValVec) {
   for (size_t i = 0; i<varValVec.size(); i++) lrPhysicsJetVarVal_.push_back(varValVec[i]);
 }
 
@@ -183,11 +182,11 @@ void TopJet::setLRPhysicsJetProb(double plr) {
 
 /// method to return the JetCharge computed when creating the TopJet
 float TopJet::getJetCharge() const {
-   return jetCharge_;
+  return jetCharge_;
 }
 
 /// method to return a vector of refs to the tracks associated to this jet
-const reco::TrackRefVector&  TopJet::getAssociatedTracks() const {
-   return associatedTracks_;
+const reco::TrackRefVector & TopJet::getAssociatedTracks() const {
+  return associatedTracks_;
 }
 
