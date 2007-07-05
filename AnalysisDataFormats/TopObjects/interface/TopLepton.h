@@ -1,8 +1,5 @@
 //
-// Author:  Steven Lowette
-// Created: Wed May  2 16:48:32 PDT 2007
-//
-// $Id: TopLepton.h,v 1.6 2007/06/23 07:06:04 lowette Exp $
+// $Id: TopLepton.h,v 1.7 2007/06/29 12:29:21 jlamb Exp $
 //
 
 #ifndef TopObjects_TopLepton_h
@@ -16,7 +13,7 @@
    store and retrieve the high-level likelihood ratio information.
 
   \author   Steven Lowette
-  \version  $Id: TopLepton.h,v 1.6 2007/06/23 07:06:04 lowette Exp $
+  \version  $Id: TopLepton.h,v 1.7 2007/06/29 12:29:21 jlamb Exp $
 */
 
 
@@ -37,12 +34,6 @@ class TopLepton : public TopObject<LeptonType> {
 
   friend class TopElectronProducer;
   friend class TopMuonProducer;
-  friend class TtSemiKinFitterEMom;
-  friend class TtSemiKinFitterEtEtaPhi;
-  friend class TtSemiKinFitterEtThetaPhi;
-  friend class StKinFitterEMom;
-  friend class StKinFitterEtEtaPhi;
-  friend class StKinFitterEtThetaPhi;
   friend class TopLeptonLRCalc;
 
   public:
@@ -52,31 +43,28 @@ class TopLepton : public TopObject<LeptonType> {
     virtual ~TopLepton();
 
     reco::GenParticleCandidate getGenLepton() const;
-    TopParticle                getFitLepton() const;
+    double                     getTrackIso() const;
+    double                     getCaloIso() const;
     double                     getLRVar(const unsigned int i) const;
     double                     getLRVal(const unsigned int i) const;
     double                     getLRComb() const;
-    double                     getTrackIso() const;
-    double                     getCaloIso() const;
     
   protected:
 
     void setGenLepton(const reco::GenParticleCandidate & gl);
-    void setFitLepton(const TopParticle & fl);
-    void setLRVarVal(const std::pair<double, double> lrVarVal, const unsigned int i);
-    void setLRComb(const double lr);
     void setTrackIso(const double trackIso);
     void setCaloIso(const double caloIso);
+    void setLRVarVal(const std::pair<double, double> lrVarVal, const unsigned int i);
+    void setLRComb(const double lr);
     unsigned int getLRSize() const;
 
   protected:
 
     std::vector<reco::GenParticleCandidate> genLepton_;
-    std::vector<TopParticle>                fitLepton_;
-    std::vector<std::pair<double, double> > lrVarVal_;
-    double lrComb_;
     double trackIso_;
     double caloIso_;
+    std::vector<std::pair<double, double> > lrVarVal_;
+    double lrComb_;
 
 };
 
@@ -117,13 +105,17 @@ reco::GenParticleCandidate TopLepton<LeptonType>::getGenLepton() const {
 }
 
 
-/// return the fitted lepton
+/// return the tracker isolation variable
 template <class LeptonType>
-TopParticle  TopLepton<LeptonType>::getFitLepton() const {
-  return (genLepton_.size() > 0 ?
-    fitLepton_.front() :
-    TopParticle()
-  );
+double TopLepton<LeptonType>::getTrackIso() const {
+  return trackIso_;
+}
+
+
+/// return the calorimeter isolation variable
+template <class LeptonType>
+double TopLepton<LeptonType>::getCaloIso() const {
+  return caloIso_;
 }
 
 
@@ -147,18 +139,6 @@ double TopLepton<LeptonType>::getLRComb() const {
   return lrComb_;
 }
 
-template <class LeptonType>
-double TopLepton<LeptonType>::getTrackIso() const {
-  return trackIso_;
-}
-
-template <class LeptonType>
-double TopLepton<LeptonType>::getCaloIso() const {
-  return caloIso_;
-}
-
-
-
 
 /// method to set the generated lepton
 template <class LeptonType>
@@ -168,11 +148,17 @@ void TopLepton<LeptonType>::setGenLepton(const reco::GenParticleCandidate & gl) 
 }
 
 
-/// method to set the fitted lepton
+/// method to set the tracker isolation variable
 template <class LeptonType>
-void TopLepton<LeptonType>::setFitLepton(const TopParticle & fl) {
-  fitLepton_.clear();
-  fitLepton_.push_back(fl);
+void TopLepton<LeptonType>::setTrackIso(double trackIso) {
+  trackIso_ = trackIso;
+}
+
+
+/// method to set the calorimeter isolation variable
+template <class LeptonType>
+void TopLepton<LeptonType>::setCaloIso(double caloIso) {
+  caloIso_ = caloIso;
 }
 
 
@@ -186,20 +172,9 @@ void TopLepton<LeptonType>::setLRVarVal(const std::pair<double, double> lrVarVal
 
 /// method to set the combined lepton likelihood ratio
 template <class LeptonType>
-void TopLepton<LeptonType>::setLRComb(const double lr) {
+void TopLepton<LeptonType>::setLRComb(double lr) {
   lrComb_ = lr;
 }
-
-template <class LeptonType>
-void TopLepton<LeptonType>::setTrackIso(const double trackIso) {
-  trackIso_=trackIso;
-}
-
-template <class LeptonType>
-void TopLepton<LeptonType>::setCaloIso(const double caloIso) {
-  caloIso_=caloIso;
-}
-
 
 
 /// method to give back the size of the LR vector
