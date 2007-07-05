@@ -570,12 +570,16 @@ namespace edm {
         if(mapItr == modulesAndSources_.end() 
           || mapItr->second->getParent()->name() != replaceNode->getParent()->name()) 
         {
-
-          edm::LogWarning("Configuration")
-            << "WARNING: do not embed replace statements to modify a parameter from a module which hasn't been cloned: " 
-            << "\n" << "  Parameter " << targetNode->name() << " in " << topLevelName
+          if(strict_)
+          { 
+            edm::LogWarning("Configuration")
+            << "Do not embed replace statements to modify a parameter "
+            << "from a module which hasn't been cloned: " 
+            << "\n" << "  Parameter " << targetNode->name() 
+            << " in " << topLevelName
             << "\n  Replace happens in " << replaceNode->getParent()->name()
             << "\n  This will be an error in future releases.  Please fix.";
+          }
         }
       }
 

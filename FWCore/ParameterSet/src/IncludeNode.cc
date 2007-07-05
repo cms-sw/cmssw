@@ -182,10 +182,7 @@ namespace edm {
 
           if(strict)
           {
-            throw edm::Exception(errors::Configuration) << message.str();
-          }
-          else 
-          {
+            //throw edm::Exception(errors::Configuration) << message.str();
             edm::LogWarning("Configuration") << message.str();
           }
 
@@ -202,10 +199,7 @@ namespace edm {
 
         if(strict)
         {
-          throw edm::Exception(errors::Configuration) << message.str();
-        }
-        else 
-        {
+          //throw edm::Exception(errors::Configuration) << message.str();
           edm::LogWarning("Configuration") << message.str();
         }
       }
