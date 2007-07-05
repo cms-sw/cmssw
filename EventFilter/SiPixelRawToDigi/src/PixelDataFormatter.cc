@@ -144,6 +144,7 @@ void PixelDataFormatter::interpretRawData(int fedId, const FEDRawData& rawData, 
 		SiPixelRawDataError error1(w1, errorType);
 		errors.push_back(error1);
 	      }
+	      break;
 	    }
             case(2) : {
 	      LogError("PixelDataFormatter::interpretRawData")<<"  invalid ROC Id (errorType=36)";
@@ -154,6 +155,7 @@ void PixelDataFormatter::interpretRawData(int fedId, const FEDRawData& rawData, 
 		error1.setDetId(detId1);
 		errors.push_back(error1);
 	      }
+	      break;
 	    }
             case(3) : {
 	      LogError("PixelDataFormatter::interpretRawData")<<"  invalid dcol/pixel value (errorType=37)";
@@ -164,6 +166,7 @@ void PixelDataFormatter::interpretRawData(int fedId, const FEDRawData& rawData, 
 		error1.setDetId(detId1);
 		errors.push_back(error1);
 	      }
+	      break;
 	    }
 	    case(4) : {
 	      LogError("PixelDataFormatter::interpretRawData")<<"  dcol/pixel read out of order (errorType=38)";
@@ -174,6 +177,7 @@ void PixelDataFormatter::interpretRawData(int fedId, const FEDRawData& rawData, 
 		error1.setDetId(detId1);
 		errors.push_back(error1);
 	      }
+	      break;
 	    }
             default: LogError("PixelDataFormatter::interpretRawData")<<"  cabling check returned unexpected result";
 	  };
@@ -203,6 +207,7 @@ void PixelDataFormatter::interpretRawData(int fedId, const FEDRawData& rawData, 
 		SiPixelRawDataError error2(w2, errorType);
 		errors.push_back(error2);
 	      }
+	      break;
 	    }
             case(2) : {
 	      LogError("PixelDataFormatter::interpretRawData")<<"  invalid ROC Id (errorType=36)";
@@ -213,6 +218,7 @@ void PixelDataFormatter::interpretRawData(int fedId, const FEDRawData& rawData, 
 		error2.setDetId(detId2);
 		errors.push_back(error2);
 	      }
+	      break;
 	    }
             case(3) : {
 	      LogError("PixelDataFormatter::interpretRawData")<<"  invalid dcol/pixel value (errorType=37)";
@@ -223,6 +229,7 @@ void PixelDataFormatter::interpretRawData(int fedId, const FEDRawData& rawData, 
 		error2.setDetId(detId2);
 		errors.push_back(error2);
 	      }
+	      break;
 	    }
 	    case(4) : {
 	      LogError("PixelDataFormatter::interpretRawData")<<"  dcol/pixel read out of order (errorType=38)";
@@ -233,6 +240,7 @@ void PixelDataFormatter::interpretRawData(int fedId, const FEDRawData& rawData, 
 		error2.setDetId(detId2);
 		errors.push_back(error2);
 	      }
+	      break;
 	    }
             default: LogError("PixelDataFormatter::interpretRawData")<<"  cabling check returned unexpected result";
 	  };
@@ -407,7 +415,7 @@ int PixelDataFormatter::word2digi(const SiPixelFrameConverter* converter,
   static bool lastcablexists = false;
 
 // check to make sure row and dcol values are in order (lowest to highest)
-  if (lastcablexists) {
+  if (lastcablexists && (lastcabl.roc == cabling.roc) ) {
     if ((cabling.dcol < lastcabl.dcol) || (cabling.dcol==lastcabl.dcol && cabling.pxid < lastcabl.pxid)) {
       LogError("PixelDataFormatter::raw2digi exception") 
               <<" pixel not in correct order (pxid low to high, dcol low to high)"
