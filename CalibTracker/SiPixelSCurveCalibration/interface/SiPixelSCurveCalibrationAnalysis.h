@@ -10,7 +10,8 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelCalib.h"  
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
-#include "CalibTracker/SiPixelSCurveCalibration/interface/SCurveContainer.h"
+#include "CalibTracker/SiPixelSCurveCalibration/interface/SCurveContainer.h" 
+#include "DataFormats/DetId/interface/DetId.h"
 
 #include <TF1.h>
 
@@ -27,8 +28,8 @@ class SiPixelSCurveCalibrationAnalysis : public edm::EDAnalyzer
     virtual void beginJob(const edm::EventSetup&);
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
     virtual void endJob();
-    std::string makeName(const int&, const int&, const int&);
-    std::string makeTitle(const int&, const int&, const int&);
+    std::string makeName(const int&, const int&, const DetId&);
+    std::string makeTitle(const int&, const int&, const DetId&);
     void makeHistogram(const SCurveContainer&, const int&, const int&);
 
   private:
