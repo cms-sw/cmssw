@@ -92,7 +92,7 @@ TPedResult TPedValues::terminate (const int & DACstart, const int & DACend) cons
               double average = m_entries[gainId-1][crystal][DAC].average () ;
               if (average == -999) continue ;
               if (m_entries[gainId-1][crystal][DAC].RMSSq () > m_RMSmax * m_RMSmax) continue ;
-              if (fabs (average - m_bestPedestal) < delta) 
+              if (fabs (average - m_bestPedestal) < delta &&   average>1 ) 
                 {
                   delta = fabs (average - m_bestPedestal) ;
                   dummyBestDAC = DAC ;
