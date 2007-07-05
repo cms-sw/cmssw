@@ -1,29 +1,39 @@
 #ifndef COND_DBCommon_DBSession_h
 #define COND_DBCommon_DBSession_h
+#include <string>
+#include "SealKernel/Context.h"
+#include "SealKernel/ComponentLoader.h"
+namespace coral{
+  class IConnectionService;
+  class IRelationalService;
+  class IAuthenticationService;
+}
 namespace cond{
-  class ServiceLoader;
-  class ConnectionConfiguration;
   class SessionConfiguration;
+  class ConnectionConfiguration;
   /*
   **/
   class DBSession{
   public:
     DBSession();
-    explicit DBSession( bool usePoolContext );
     ~DBSession();
     void open();
-    void close();
-    ServiceLoader& serviceLoader();
-    ConnectionConfiguration& connectionConfiguration();
-    SessionConfiguration& sessionConfiguration();
-    bool isActive() const;
-    void purgeConnectionPool();
+    //void close();
+    coral::IConnectionService& connectionServiceHandle(){return *m_con;}
+    coral::IRelationalService& relationalServiceHandle();
+    coral::IAuthenticationService& authenticationServiceHandle();
+    //get context handle
+    //SessionConfiguration& sessionConfiguration();
+    //bool isActive() const;
+    //void purgeConnectionPool();
   private:
-    bool m_isActive;
-    ServiceLoader* m_loader;
+    seal::Handle<seal::Context> m_context;
+    seal::Handle<seal::ComponentLoader> m_loader;
+    coral::IConnectionService* m_con;
+    //bool m_isActive;
     ConnectionConfiguration* m_connectConfig;
     SessionConfiguration* m_sessionConfig;
-    bool m_usePoolContext;
+    //bool m_usePoolContext;
   };
 }//ns cond
 #endif

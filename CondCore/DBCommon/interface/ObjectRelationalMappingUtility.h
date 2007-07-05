@@ -5,12 +5,14 @@
 namespace pool{
   class ObjectRelationalMappingUtilities;
 }
-
+namespace coral{
+  class ISessionProxy;
+}
 namespace cond{
   class RelationalStorageManager;
   class ObjectRelationalMappingUtility{
   public:
-    explicit ObjectRelationalMappingUtility( cond::RelationalStorageManager& coraldb );
+    explicit ObjectRelationalMappingUtility( coral::ISessionProxy*  );
     ~ObjectRelationalMappingUtility();
 
     void buildAndStoreMappingFromBuffer( const std::string& buffer );

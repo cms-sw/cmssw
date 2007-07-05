@@ -1,28 +1,30 @@
 #ifndef COND_DBCommon_Ref_H
 #define COND_DBCommon_Ref_H
 #include <string>
+// pool includes
 #include "DataSvc/Ref.h"
 #include "POOLCore/Exception.h"
 #include "POOLCore/Token.h"
 #include "StorageSvc/DbType.h"
 #include "PersistencySvc/Placement.h"
+// local includes
 #include "CondCore/DBCommon/interface/Exception.h"
-#include "CondCore/DBCommon/interface/PoolStorageManager.h"
+#include "CondCore/DBCommon/interface/Connection.h"
 namespace cond{
-  class PoolStorageManager;
+  class Connection;
   /* 
      wrapper of pool::Ref smart pointer
   */
   template <typename T>
   class Ref{
   public:
-    Ref():m_pooldb(0),m_place(0){
+    Ref():m_db(0),m_place(0){
     }
-    Ref( cond::PoolStorageManager& pooldb, pool::Ref<T> ref ): 
-      m_pooldb(&pooldb), m_data(ref), m_place(0) {
+    Ref( cond::Connection& db, pool::Ref<T> ref ): 
+      m_db(&db), m_data(ref), m_place(0) {
     }
-    Ref( cond::PoolStorageManager& pooldb, const std::string& token ):
-      m_pooldb(&pooldb),
+    Ref( cond::Connection& db, const std::string& token ):
+      m_db(&db),
       m_data( pool::Ref<T>(&(pooldb.DataSvc()), token) ),
       m_place(0){
     }
@@ -74,31 +76,7 @@ namespace cond{
       std::string contName=m_data.token()->contID();
       return contName;
     }
-    //user does not have ownership
-    T* ptr() const{
-      T* result=0;
-      try{
-	result=m_data.ptr();
-      }catch(const pool::Exception& er){
-	throw cond::RefException("ptr",er.what());
-      }
-      return result;
-    }
-    T* operator->() const{
-      return this->ptr();
-    }
-    T& operator * () const{
-      try{
-	//T& result=*m_data;
-	return *m_data;
-      }catch(const pool::Exception& er){
-	throw cond::RefException( "operator * ",er.what() );
-      }
-    }
-  private:
-    cond::PoolStorageManager* m_pooldb;
-    pool::Ref<T> m_data;
-    pool::Placement* m_place;
+ 
   };
 }//ns cond
 #endif

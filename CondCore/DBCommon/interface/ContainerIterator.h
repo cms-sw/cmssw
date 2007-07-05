@@ -3,15 +3,16 @@
 #include "Collection/Collection.h"
 #include "CondCore/DBCommon/interface/Ref.h"
 namespace cond{
-  class PoolStorageManager;
+  class Connection;
   /*
    *wrapper around pool implicit collection
    **/
   template<typename DataT>
     class ContainerIterator{
     public:
-    ContainerIterator( PoolStorageManager& pooldb, const std::string& containername):
-      m_pooldb(&pooldb), m_collection(new pool::Collection<DataT>( &(pooldb.DataSvc()),"ImplicitCollection","PFN:" + pooldb.connectionString(),containername, pool::ICollection::READ )),m_it(m_collection->select()){
+    ContainerIterator( Connection& dbHandle, 
+		       const std::string& containername):
+      m_d(&dbHandle), m_collection(new pool::Collection<DataT>( &(pooldb.DataSvc()),"ImplicitCollection","PFN:" + pooldb.connectionString(),containername, pool::ICollection::READ )),m_it(m_collection->select()){
     }
     Ref<DataT> dataRef(){
       return m_data;
@@ -31,7 +32,7 @@ namespace cond{
     }
     private:
     mutable cond::Ref<DataT> m_data;
-    cond::PoolStorageManager* m_pooldb;
+    cond::Connection* m_pooldb;
     pool::Collection<DataT>* m_collection;
     typename pool::Collection<DataT>::Iterator m_it;
   };
