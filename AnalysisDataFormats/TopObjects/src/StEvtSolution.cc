@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed May 9 12:30:00 CEST 2007
-// $Id: StEvtSolution.cc,v 1.3 2007/05/22 16:36:50 heyninck Exp $
+// $Id: StEvtSolution.cc,v 1.4 2007/06/23 07:17:21 lowette Exp $
 //
 
 // system include files
@@ -98,8 +98,10 @@ reco::Particle StEvtSolution::getCalLept() const   {
   return p;
 }
 
+// FIXME FIXME FIXME
+// fit members must become part of the final state object
 
-
+/*
 // return functions for fitted fourvectors
 TopParticle StEvtSolution::getFitBottom() const { return this->getBottom().getFitJet(); }
 TopParticle StEvtSolution::getFitLight() const { return this->getLight().getFitJet(); }
@@ -118,4 +120,4 @@ reco::Particle StEvtSolution::getFitLept() const   {
   if (this->getDecay() == "electron") p = reco::Particle(0,this->getFitLepe().p4() + this->getFitLepn().p4() + this->getFitBottom().p4(),math::XYZPoint());
   return p;
 }
-   
+*/   

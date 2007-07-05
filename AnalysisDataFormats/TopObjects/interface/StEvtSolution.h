@@ -77,7 +77,10 @@ class StEvtSolution
       TopJet                    getCalBottom() const;
       TopJet                    getCalLight() const;
       reco::Particle            getCalLept() const;
-      
+
+// FIXME FIXME FIXME
+// fit members must become part of the final state object
+/*
       TopParticle         	getFitBottom() const;
       TopParticle         	getFitLight() const;
       TopParticle         	getFitLepm() const; 
@@ -85,7 +88,8 @@ class StEvtSolution
       TopParticle         	getFitLepn() const;    
       reco::Particle	        getFitLepW() const;
       reco::Particle	        getFitLept() const;
-        
+*/
+
    private:
       reco::Particle         	genBottom, genLight, genLepl, genLepn, genLepW, genLept;
       TopJet         		bottom, light;
