@@ -159,7 +159,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
       std::ostringstream os;
       os << "Unrecognised data block at byte " << dPtr << ". Bailing out" << endl;
       os << blockHead << endl;
-      edm::LogWarning("GCT") << os.str();
+      edm::LogError("GCT") << os.str();
     }
     
   }

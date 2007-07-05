@@ -1,6 +1,8 @@
 
 #include "EventFilter/GctRawToDigi/src/GctBlockConverter.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctInternEmCand.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEmCand.h"
 
@@ -14,9 +16,11 @@ using std::endl;
 GctBlockConverter::GctBlockConverter() {
 
   // setup block length map
+  blockLength_[0x5f] = 1;   // ConcJet: Bunch Counter Pattern Test
   blockLength_[0x68] = 4;   // ConcElec: Output to Global Trigger
   blockLength_[0x69] = 16;  // ConcElec: Sort Input
-  blockLength_[0x6B] = 2;   // ConcElec: GT Serdes Loopback
+  blockLength_[0x6b] = 2;   // ConcElec: GT Serdes Loopback
+  blockLength_[0x6f] = 1;   // ConcElec: Bunch Counter Pattern Test
   blockLength_[0x80] = 20;  // Leaf-U1, Elec, NegEta, Sort Input
   blockLength_[0x81] = 15;  // Leaf-U1, Elec, NegEta, Raw Input
   blockLength_[0x83] = 4;   // Leaf-U1, Elec, NegEta, Sort Output
@@ -52,11 +56,17 @@ unsigned GctBlockConverter::blockLength(unsigned id) {
 void GctBlockConverter::convertBlock(const unsigned char * data, unsigned id, unsigned nSamples) {
 
   switch (id) {
+  case (0x5f) :
+    break;
   case (0x68) :
     blockToGctEmCand(data, id, nSamples);
     break;
   case (0x69) : 
     blockToGctInternEmCand(data, id, nSamples);
+    break;
+  case (0x6b) :
+    break;
+  case (0x6f) :
     break;
   case (0x80) :
     blockToGctInternEmCand(data, id, nSamples);
@@ -73,7 +83,7 @@ void GctBlockConverter::convertBlock(const unsigned char * data, unsigned id, un
   case (0x89) :
     blockToRctEmCand(data, id, nSamples);
     break;
-  case (0x8B) :
+  case (0x8b) :
     blockToGctInternEmCand(data, id, nSamples);
     break;
   case (0xc0) :
@@ -91,11 +101,11 @@ void GctBlockConverter::convertBlock(const unsigned char * data, unsigned id, un
   case (0xc9) :
     blockToRctEmCand(data, id, nSamples);
     break;
-  case (0xcB) :
+  case (0xcb) :
     blockToGctInternEmCand(data, id, nSamples);
     break;
   default :
-    std::cout << "Trying to unpack an identified block!" << std::endl;
+    edm::LogError("GCT") << "Trying to unpack an identified block, ID=" << std::hex << id << std::endl;
     break;
   }
 
@@ -120,11 +130,11 @@ void GctBlockConverter::writeBlock(unsigned char * data, unsigned id) {
   case (0xc1) :  // Leaf-U1, Elec, PosEta, Raw Input
     rctEmCandToBlock(d, id);
     break;
-  case (0xcB) :  // Leaf-U2, Elec, PosEta, Raw Input
+  case (0xcb) :  // Leaf-U2, Elec, PosEta, Raw Input
     rctEmCandToBlock(d, id);
     break;
   default :
-    std::cout << "Trying to pack an unknown block!" << std::endl;
+    edm::LogError("GCT") << "Trying to pack an unknown block, ID=" << std::hex << id << std::endl;
     break;
 
   }
