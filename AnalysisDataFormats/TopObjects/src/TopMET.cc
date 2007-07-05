@@ -1,5 +1,5 @@
 //
-// $Id: TopMET.cc,v 1.3 2007/06/23 07:13:13 lowette Exp $
+// $Id: TopMET.cc,v 1.4 2007/07/05 23:22:20 lowette Exp $
 //
 
 #include "AnalysisDataFormats/TopObjects/interface/TopMET.h"
@@ -27,15 +27,6 @@ reco::Particle	TopMET::getGenMET() const {
   return (genMET_.size() > 0 ?
     genMET_.front() :
     reco::Particle(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0))
-  );
-}
-
-
-/// return the fitted MET
-TopParticle TopMET::getFitMET() const {
-  return (fitMET_.size() > 0 ?
-    fitMET_.front() :
-    TopParticle()
   );
 }
 
@@ -106,11 +97,4 @@ bool TopMET::isSolutionComplex() const {
 void TopMET::setGenMET(const reco::Particle & gm) {
   genMET_.clear();
   genMET_.push_back(gm);
-}
-
-
-/// method to set the fitted MET
-void TopMET::setFitMET(const TopParticle & fm) {
-  fitMET_.clear();
-  fitMET_.push_back(fm);
 }

@@ -1,5 +1,5 @@
 //
-// $Id: TopMET.h,v 1.5 2007/06/23 07:13:13 lowette Exp $
+// $Id: TopMET.h,v 1.6 2007/07/05 23:09:31 lowette Exp $
 //
 
 #ifndef TopObjects_TopMET_h
@@ -12,7 +12,7 @@
    TopMET contains a missing ET 4-vector as a TopObject
 
   \author   Steven Lowette
-  \version  $Id: TopMET.h,v 1.5 2007/06/23 07:13:13 lowette Exp $
+  \version  $Id: TopMET.h,v 1.6 2007/07/05 23:09:31 lowette Exp $
 */
 
 
@@ -28,12 +28,6 @@ typedef reco::CaloMET TopMETType;
 class TopMET : public TopObject<TopMETType> {
 
   friend class TopMETProducer;
-  friend class TtSemiKinFitterEMom;
-  friend class TtSemiKinFitterEtEtaPhi;
-  friend class TtSemiKinFitterEtThetaPhi;
-  friend class StKinFitterEMom;
-  friend class StKinFitterEtEtaPhi;
-  friend class StKinFitterEtThetaPhi;
 
   public:
 
@@ -42,7 +36,6 @@ class TopMET : public TopObject<TopMETType> {
     virtual ~TopMET();
           
     reco::Particle getGenMET() const;
-    TopParticle    getFitMET() const;
     // solve for neutrino Pz constraining to the W mass in W -> mu + nu
     // type defines how to choose the roots:
     // type = 1: the closest nu_pz to mu_pz if real roots,
@@ -56,12 +49,10 @@ class TopMET : public TopObject<TopMETType> {
   protected:
 
     void setGenMET(const Particle & gm);
-    void setFitMET(const TopParticle & fm);
 
   protected:
 
     std::vector<reco::Particle> genMET_;
-    std::vector<TopParticle> fitMET_;
     bool isComplex_;
 
 };
