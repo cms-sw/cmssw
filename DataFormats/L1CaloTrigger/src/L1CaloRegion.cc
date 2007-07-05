@@ -15,7 +15,7 @@ L1CaloRegion::L1CaloRegion() : m_id(), m_data(0) { }
 
 // constructor for RCT emulator (HB/HE regions)
 L1CaloRegion::L1CaloRegion(unsigned et, bool overFlow, bool tauVeto, bool mip, bool quiet, unsigned crate, unsigned card, unsigned rgn) :
-  m_id(false, crate, card, rgn),
+  m_id(crate, card, rgn),
   m_bx(0)
 {
   pack(et, overFlow, tauVeto, mip, quiet);
@@ -23,7 +23,7 @@ L1CaloRegion::L1CaloRegion(unsigned et, bool overFlow, bool tauVeto, bool mip, b
 
 // constructor for RCT emulator (HF regions)
 L1CaloRegion::L1CaloRegion(unsigned et, bool fineGrain, unsigned crate, unsigned rgn) :
-  m_id(false, crate, 999, rgn),
+  m_id(crate, 999, rgn),
   m_bx(0)
 {
   pack((et & 0xff), (et >= 0xff), fineGrain, false, false);

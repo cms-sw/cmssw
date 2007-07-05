@@ -36,27 +36,13 @@ class L1CaloRegionDetId : public DetId {
   /// create id from RCT crate, RCT card, RCT region (within card)
   /// set isForward to true to create forward regions (ignoring card argument)
   /// or to false to create central regions (including card argument)
-  L1CaloRegionDetId(bool isForward, unsigned icrate, unsigned icard, unsigned irgn);
-
-  /* Commented
-  /// create id from GCT card and input number
-  /// NB - isForward has no effect; dummy argument to differentiate from global eta/phi indices!
-  L1CaloRegionDetId(bool isForward, unsigned icard, unsigned irgn);
-  */
+  L1CaloRegionDetId(unsigned icrate, unsigned icard, unsigned irgn);
 
   /// global eta index (0-21)
   unsigned ieta() const { return id_&0x1f; }
 
   /// global phi index (0-17)
   unsigned iphi() const { return (id_>>5)&0x1f; }
-
-  /* Commented the following
-  /// return GCT source card number
-  unsigned gctCard() const;
-
-  /// return GCT region index (within source card)
-  unsigned gctRegion() const;
-  */
 
   /// return central or forward type
   bool isHf() const { return (ieta()<4 || ieta()>17); }

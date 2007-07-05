@@ -63,7 +63,7 @@ public:
   int bx() const { return m_bx; }
 
   /// get DetID object
-  L1CaloRegionDetId regionId() const { return L1CaloRegionDetId(false,rctCrate(),rctCard(),rctRegion()); }
+  L1CaloRegionDetId regionId() const { return L1CaloRegionDetId(rctCrate(),rctCard(),rctRegion()); }
 
 
  private:
