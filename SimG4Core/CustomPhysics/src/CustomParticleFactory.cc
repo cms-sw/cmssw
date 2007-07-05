@@ -38,39 +38,40 @@ void CustomParticleFactory::loadCustomParticles(const std::string & filePath){
 
   std::string line;
   // This should be compatible IMO to SLHA 
+  G4ParticleTable* theParticleTable = G4ParticleTable::GetParticleTable();
   while(getline(configFile,line)){
     if(line.find("PDG code")<line.npos) getMassTable(&configFile);
-    /*
     if(line.find("DECAY")<line.npos){
     int pdgId;
     double width; 
     std::string tmpString;
     std::stringstream lineStream(line);
-    lineStream>>tmpString>>pdgId>>width;     
+    lineStream>>tmpString>>pdgId>>width; 
     G4DecayTable* aDecayTable = getDecayTable(&configFile, pdgId);      
       G4ParticleDefinition *aParticle = theParticleTable->FindParticle(pdgId);
       G4ParticleDefinition *aAntiParticle = theParticleTable->FindAntiParticle(pdgId);
+      if(!aParticle) continue;    
       aParticle->SetDecayTable(aDecayTable); 
       aParticle->SetPDGStable(false);
-      aParticle->SetPDGLifeTime(1.0/(width*GeV)*6.582122e-22*MeV*s);
-      
-      if(aAntiParticle && aAntiParticle->GetPDGEncoding()!=pdgId){
-	aAntiParticle->SetDecayTable(getAntiDecayTable(pdgId,aDecayTable));
+      aParticle->SetPDGLifeTime(1.0/(width*GeV)*6.582122e-22*MeV*s);      
+      if(aAntiParticle && aAntiParticle->GetPDGEncoding()!=pdgId){	
+	//aAntiParticle->SetDecayTable(getAntiDecayTable(pdgId,aDecayTable));
 	aAntiParticle->SetPDGStable(false);
 	aParticle->SetPDGLifeTime(1.0/(width*GeV)*6.582122e-22*MeV*s);
       }         
     }
-    */
   }
 }
 
 
 void CustomParticleFactory::addCustomParticle(int pdgCode, double mass, const std::string & name){
   
-  if(abs(pdgCode) / 1000000 == 0){
+  
+  if(pdgCode%100 <25 && abs(pdgCode) / 1000000 == 0){
     edm::LogError("") << "Pdg code too low " << pdgCode << " "<<abs(pdgCode) / 1000000  << std::endl;
     return;
   }
+  
   
   /////////////////////// Check!!!!!!!!!!!!!
   G4String pType="custom";
@@ -95,7 +96,8 @@ void CustomParticleFactory::addCustomParticle(int pdgCode, double mass, const st
   int lepton = 0;
   int baryon = 1;
   bool stable = true;
-  double lifetime = -1.0;
+  double lifetime = -1;
+ 
   G4DecayTable *decaytable = NULL;
   ////Find SM particle partner and copy its quantum numbers
   int pdgIdPartner = pdgCode%100;
@@ -146,7 +148,6 @@ void CustomParticleFactory::addCustomParticle(int pdgCode, double mass, const st
     particle->SetCloud(0);
     particle->SetSpectator(0);
   } 
-  
   m_particles.insert(particle);
 }
 
@@ -164,8 +165,8 @@ void  CustomParticleFactory::getMassTable(std::ifstream *configFile) {
     G4ParticleTable* theParticleTable = G4ParticleTable::GetParticleTable();
     G4ParticleDefinition *aParticle = theParticleTable->FindParticle(pdgIdPartner);
     //Add antiparticles for SUSY particles only, not for rHadrons.
-    if(aParticle && !CustomPDGParser::s_isRHadron(pdgId)){ 
-      int sign = aParticle->GetAntiPDGEncoding()/pdgIdPartner;
+    if(aParticle && !CustomPDGParser::s_isRHadron(pdgId) && pdgId!=25 && pdgId!=35 && pdgId!=36 && pdgId!=37){ 
+      int sign = aParticle->GetAntiPDGEncoding()/pdgIdPartner;   
       if(abs(sign)!=1) {
 	std::cout<<"sgn: "<<sign<<" a "
 		 <<aParticle->GetAntiPDGEncoding()
@@ -173,14 +174,20 @@ void  CustomParticleFactory::getMassTable(std::ifstream *configFile) {
 		 <<std::endl;
 	aParticle->DumpTable();
       }
-	if(sign==-1 && pdgId!=25 && pdgId!=35 && pdgId!=36 && pdgId!=1000039) {
+      if(sign==-1 && pdgId!=25 && pdgId!=35 && pdgId!=36 && pdgId!=37 && pdgId!=1000039){
 	  tmp = "anti_"+name;
 	  addCustomParticle(-pdgId, mass, tmp);
 	  theParticleTable->FindParticle(pdgId)->SetAntiPDGEncoding(-pdgId);
 	}
-	else theParticleTable->FindParticle(pdgId)->SetAntiPDGEncoding(pdgId);      
+  	else theParticleTable->FindParticle(pdgId)->SetAntiPDGEncoding(pdgId);      
     }
+
     if(pdgId==1000039) theParticleTable->FindParticle(pdgId)->SetAntiPDGEncoding(pdgId);      
+    if(pdgId==1000024 || pdgId==1000037 || pdgId==37) {
+      tmp = "anti_"+name;
+      addCustomParticle(-pdgId, mass, tmp);
+      theParticleTable->FindParticle(pdgId)->SetAntiPDGEncoding(-pdgId);
+    }
 
     getline(*configFile,tmp);
     char text[100];
@@ -214,7 +221,8 @@ G4DecayTable*  CustomParticleFactory::getDecayTable(std::ifstream *configFile, i
     getline(*configFile,tmp);
     for(int i=0;i<nDaughters;i++){
       if(!theParticleTable->FindParticle(pdg[i])){
-	std::cout<<pdg[i]<<" not found in the table!"<<std::endl;
+	//std::cout<<pdg[i]<<" CustomParticleFactory::getDecayTable():  not found in the table!"<<std::endl;
+        continue;
       }
       name[i] =  theParticleTable->FindParticle(pdg[i])->GetParticleName();
     }
