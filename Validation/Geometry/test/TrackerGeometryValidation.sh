@@ -1,5 +1,8 @@
 #! /bin/bash
 
+# the CMSSW_x_y_z to compare with actual one:
+export Version=$1
+
 export here=$PWD
 export reportFile=TrackerGeometryValidation.log
 
@@ -7,7 +10,10 @@ cd $here
 echo "Working area:" $here | tee $reportFile
 eval `scramv1 runtime -sh`
 
-export referenceDir=/afs/cern.ch/cms/data/CMSSW/Validation/Geometry/reference/Tracker
+# OLD: from CMSSW_1_6_* no more updated:
+#export referenceDir=/afs/cern.ch/cms/data/CMSSW/Validation/Geometry/reference/Tracker
+# NEW: the reference files can be chosen
+export referenceDir=/afs/cern.ch/cms/performance/tracker/activities/validation/ReferenceFiles/$Version/Geometry
 echo "Reference area:" $referenceDir | tee -a $reportFile
 
 # Create Images/ directory if it does not exist
