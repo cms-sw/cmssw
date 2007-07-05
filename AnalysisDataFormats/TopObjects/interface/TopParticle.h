@@ -1,8 +1,5 @@
 //
-// Author:  Steven Lowette
-// Created: Thu May  3 14:41:12 PDT 2007
-//
-// $Id: TopParticle.h,v 1.1 2007/05/04 01:08:38 lowette Exp $
+// $Id: TopParticle.h,v 1.2 2007/06/23 07:09:29 lowette Exp $
 //
 
 #ifndef TopObjects_TopParticle_h
@@ -15,7 +12,7 @@
    TopParticle contains a particle as a TopObject
 
   \author   Steven Lowette
-  \version  $Id: TopParticle.h,v 1.1 2007/05/04 01:08:38 lowette Exp $
+  \version  $Id: TopParticle.h,v 1.2 2007/06/23 07:09:29 lowette Exp $
 */
 
 
