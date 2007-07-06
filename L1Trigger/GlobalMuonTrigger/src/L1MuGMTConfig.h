@@ -4,8 +4,8 @@
  *  Configuration parameters for L1GlobalMuonTrigger.
 */
 //
-//   $Date: 2007/03/23 18:51:35 $
-//   $Revision: 1.4 $
+//   $Date: 2007/04/02 15:45:38 $
+//   $Revision: 1.5 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -68,6 +68,7 @@ class L1MuGMTPhiLUT;
 
 class L1MuGMTScales;
 class L1MuTriggerScales;
+class L1MuGMTParameters;
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
@@ -161,20 +162,21 @@ class L1MuGMTConfig {
     void setTriggerScales(const L1MuTriggerScales* trigscales) { m_TriggerScales = trigscales; }
     static const L1MuTriggerScales* getTriggerScales() { return m_TriggerScales; }
 
+    void setGMTParams(const L1MuGMTParameters* gmtparams) { m_GMTParams = gmtparams; }
+    static const L1MuGMTParameters* getGMTParams() { return m_GMTParams; }
+    
 
     static const edm::ParameterSet* getParameterSet() { return m_ps; }
      
     void dumpLUTs(std::string dir);
     void dumpRegs(std::string dir);
 
-  private:
-  
-    //    void setDefaults(const edm::ParameterSet& ps);
     void setDefaults();
   
   private:
 
     static const edm::ParameterSet* m_ps;
+    static const L1MuGMTParameters* m_GMTParams;
 
     static bool m_debug;     // debug flag 
     static int  m_dbgLevel;  // debug level

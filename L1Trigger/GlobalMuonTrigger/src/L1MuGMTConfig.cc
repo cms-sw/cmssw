@@ -5,8 +5,8 @@
 //   Description: Configuration parameters for L1GlobalMuonTrigger
 //
 //
-//   $Date: 2007/03/23 18:51:35 $
-//   $Revision: 1.4 $
+//   $Date: 2007/04/02 15:45:38 $
+//   $Revision: 1.5 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -29,8 +29,6 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <sys/stat.h>
-#include <sys/types.h>
 
 //-------------------------------
 // Collaborating Class Headers --
@@ -63,6 +61,7 @@
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTPhiLUT.h"
 
 #include "CondFormats/L1TObjects/interface/L1MuGMTScales.h"
+#include "CondFormats/L1TObjects/interface/L1MuGMTParameters.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -78,18 +77,17 @@ using namespace std;
 L1MuGMTConfig::L1MuGMTConfig(const edm::ParameterSet& ps) {
 
   m_ps = &ps;
-  setDefaults(); 
 
-  bool writeLUTsAndRegs = m_ps->getUntrackedParameter<bool>("WriteLUTsAndRegs",false);
-  if(writeLUTsAndRegs) {
-    std::string dir = "gmtconfig";
-  
-    mkdir(dir.c_str(), S_ISUID|S_ISGID|S_ISVTX|S_IRUSR|S_IWUSR|S_IXUSR);
+  m_debug = true;
+  m_dbgLevel = m_ps->getUntrackedParameter<int>("Debug",0);
 
-    dumpLUTs(dir);
-    dumpRegs(dir);
+  // set min and max bunch crossing
+  m_BxMin = m_ps->getParameter<int>("BX_min");
+  m_BxMax = m_ps->getParameter<int>("BX_max");
 
-  }
+  // set min and max bunch crossing for the readout
+  m_BxMinRo = m_ps->getParameter<int>("BX_min_readout");
+  m_BxMaxRo = m_ps->getParameter<int>("BX_max_readout");
 
 }
   
@@ -106,35 +104,24 @@ L1MuGMTConfig::~L1MuGMTConfig() {}
 
 void L1MuGMTConfig::setDefaults() {
   
-  m_debug = true;
-  m_dbgLevel = m_ps->getUntrackedParameter<int>("Debug",0);
-
-  // set min and max bunch crossing
-  m_BxMin = m_ps->getParameter<int>("BX_min");
-  m_BxMax = m_ps->getParameter<int>("BX_max");
-
-  // set min and max bunch crossing for the readout
-  m_BxMinRo = m_ps->getParameter<int>("BX_min_readout");
-  m_BxMaxRo = m_ps->getParameter<int>("BX_max_readout");
-
   // set weights for eta and phi
-  m_EtaWeight_barrel = m_ps->getParameter<double>("EtaWeight_barrel");
-  m_PhiWeight_barrel = m_ps->getParameter<double>("PhiWeight_barrel");
-  m_EtaPhiThreshold_barrel = m_ps->getParameter<double>("EtaPhiThreshold_barrel");
-
-  m_EtaWeight_endcap = m_ps->getParameter<double>("EtaWeight_endcap");
-  m_PhiWeight_endcap = m_ps->getParameter<double>("PhiWeight_endcap");
-  m_EtaPhiThreshold_endcap = m_ps->getParameter<double>("EtaPhiThreshold_endcap");
-
-  m_EtaWeight_COU = m_ps->getParameter<double>("EtaWeight_COU");
-  m_PhiWeight_COU = m_ps->getParameter<double>("PhiWeight_COU");
-  m_EtaPhiThreshold_COU = m_ps->getParameter<double>("EtaPhiThreshold_COU");
-
-  m_CaloTrigger = m_ps->getParameter<bool>("CaloTrigger");
-  m_IsolationCellSizeEta = m_ps->getParameter<int>("IsolationCellSizeEta");
-  m_IsolationCellSizePhi = m_ps->getParameter<int>("IsolationCellSizePhi");  
-
-  m_DoOvlRpcAnd = m_ps->getParameter<bool>("DoOvlRpcAnd");  
+  m_EtaWeight_barrel = m_GMTParams->getEtaWeight_barrel();
+  m_PhiWeight_barrel = m_GMTParams->getPhiWeight_barrel();
+  m_EtaPhiThreshold_barrel = m_GMTParams->getEtaPhiThreshold_barrel();
+  
+  m_EtaWeight_endcap = m_GMTParams->getEtaWeight_endcap();
+  m_PhiWeight_endcap = m_GMTParams->getPhiWeight_endcap();
+  m_EtaPhiThreshold_endcap = m_GMTParams->getEtaPhiThreshold_endcap();
+  
+  m_EtaWeight_COU = m_GMTParams->getEtaWeight_COU();
+  m_PhiWeight_COU = m_GMTParams->getPhiWeight_COU();
+  m_EtaPhiThreshold_COU = m_GMTParams->getEtaPhiThreshold_COU();
+  
+  m_CaloTrigger = m_GMTParams->getCaloTrigger();
+  m_IsolationCellSizeEta = m_GMTParams->getIsolationCellSizeEta();
+  m_IsolationCellSizePhi = m_GMTParams->getIsolationCellSizePhi();
+  
+  m_DoOvlRpcAnd = m_GMTParams->getDoOvlRpcAnd();
 
   if ( Debug(1) ) {
     stringstream stdss;
@@ -164,7 +151,7 @@ void L1MuGMTConfig::setDefaults() {
     edm::LogVerbatim("GMT_Config_info") << stdss.str();
   }
 
-  m_PropagatePhi = m_ps->getParameter<bool>("PropagatePhi");  
+  m_PropagatePhi = m_GMTParams->getPropagatePhi();
 
   // create Registers
   m_RegCDLConfig = new L1MuGMTRegCDLConfig();
@@ -337,3 +324,4 @@ L1MuGMTPhiLUT* L1MuGMTConfig::m_PhiLUT=0;
 
 const L1MuGMTScales* L1MuGMTConfig::m_GMTScales=0;
 const L1MuTriggerScales* L1MuGMTConfig::m_TriggerScales=0;
+const L1MuGMTParameters* L1MuGMTConfig::m_GMTParams=0;

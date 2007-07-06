@@ -6,8 +6,8 @@
  *   Description:  Build GMT Tree
 */
 //                
-//   $Date: 2007/03/14 08:56:11 $
-//   $Revision: 1.4 $
+//   $Date: 2007/03/21 00:23:36 $
+//   $Revision: 1.5 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -20,6 +20,7 @@
 //---------------
 
 #include <memory>
+#include <string>
 
 //----------------------
 // Base Class Headers --
@@ -152,11 +153,11 @@ class L1MuGMTTree : public edm::EDAnalyzer {
     int             idxDTBX[MAXGMT];
     int             idxCSC[MAXGMT];
 
-    edm::ParameterSet m_ps;
     TFile* m_file;
     TTree* m_tree;
 
     edm::InputTag m_inputTag;
+    std::string m_outfilename;
       
 };
 

@@ -5,8 +5,8 @@
 //   Description:   Build GMT tree
 //                  
 //                
-//   $Date: 2007/04/02 16:42:17 $
-//   $Revision: 1.8 $
+//   $Date: 2007/04/18 21:17:24 $
+//   $Revision: 1.9 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -47,7 +47,10 @@ using namespace std;
 //----------------
 // Constructors --
 //----------------
-L1MuGMTTree::L1MuGMTTree(const edm::ParameterSet& ps) : m_ps(ps), m_file(0), m_tree(0) {}
+L1MuGMTTree::L1MuGMTTree(const edm::ParameterSet& ps) : m_file(0), m_tree(0) {
+  m_inputTag = ps.getUntrackedParameter<edm::InputTag>("GMTInputTag", edm::InputTag("gmt"));
+  m_outfilename = ps.getUntrackedParameter<string>("OutputFile","L1MuGMTTree.root");
+}
 
 //--------------
 // Destructor --
@@ -55,10 +58,8 @@ L1MuGMTTree::L1MuGMTTree(const edm::ParameterSet& ps) : m_ps(ps), m_file(0), m_t
 L1MuGMTTree::~L1MuGMTTree() {}
 
 void L1MuGMTTree::beginJob(const edm::EventSetup& es) {
-  string output = m_ps.getUntrackedParameter<string>("OutputFile","L1MuGMTTree.root");
-  m_file = new TFile(output.c_str(),"RECREATE");
+  m_file = new TFile(m_outfilename.c_str(),"RECREATE");
   m_tree = new TTree("h1","GMT Tree");
-  m_inputTag = m_ps.getUntrackedParameter<edm::InputTag>("GMTInputTag", edm::InputTag("gmt"));
   book();
 }
 

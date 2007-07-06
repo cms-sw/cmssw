@@ -5,8 +5,8 @@
 //   Description: L1 Global Muon Trigger
 //
 //
-//   $Date: 2007/04/02 15:45:39 $
-//   $Revision: 1.5 $
+//   $Date: 2007/04/10 09:59:19 $
+//   $Revision: 1.6 $
 //
 //   Author :
 //   Norbert Neumeister              CERN EP
@@ -26,6 +26,8 @@
 //---------------
 
 #include <iostream>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 //-------------------------------
 // Collaborating Class Headers --
@@ -53,6 +55,8 @@
 #include "CondFormats/DataRecord/interface/L1MuGMTScalesRcd.h"
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
+#include "CondFormats/L1TObjects/interface/L1MuGMTParameters.h"
+#include "CondFormats/DataRecord/interface/L1MuGMTParametersRcd.h"
 
 //----------------
 // Constructors --
@@ -65,6 +69,7 @@ L1MuGlobalMuonTrigger::L1MuGlobalMuonTrigger(const edm::ParameterSet& ps) {
 
   // set configuration parameters
   if(!m_config) m_config = new L1MuGMTConfig(ps);
+  m_writeLUTsAndRegs = ps.getUntrackedParameter<bool>("WriteLUTsAndRegs",false);
 
   // build GMT
   if ( L1MuGMTConfig::Debug(1) ) edm::LogVerbatim("GMT_info");
@@ -134,6 +139,33 @@ L1MuGlobalMuonTrigger::~L1MuGlobalMuonTrigger() {
 // Operations --
 //--------------
 
+void L1MuGlobalMuonTrigger::beginJob(const edm::EventSetup& es) {
+    
+  edm::ESHandle< L1MuGMTScales > gmtscales_h;
+  es.get< L1MuGMTScalesRcd >().get( gmtscales_h );
+  m_config->setGMTScales( gmtscales_h.product() );
+
+  edm::ESHandle< L1MuTriggerScales > trigscales_h;
+  es.get< L1MuTriggerScalesRcd >().get( trigscales_h );
+  m_config->setTriggerScales( trigscales_h.product() );
+
+  edm::ESHandle< L1MuGMTParameters > gmtparams_h;
+  es.get< L1MuGMTParametersRcd >().get( gmtparams_h );
+  m_config->setGMTParams( gmtparams_h.product() );
+  
+  m_config->setDefaults();
+  
+  if(m_writeLUTsAndRegs) {
+    std::string dir = "gmtconfig";
+  
+    mkdir(dir.c_str(), S_ISUID|S_ISGID|S_ISVTX|S_IRUSR|S_IWUSR|S_IXUSR);
+
+    m_config->dumpLUTs(dir);
+    m_config->dumpRegs(dir);
+  }
+  
+}
+
 void L1MuGlobalMuonTrigger::produce(edm::Event& e, const edm::EventSetup& es) {
   
   // process the event
@@ -143,14 +175,6 @@ void L1MuGlobalMuonTrigger::produce(edm::Event& e, const edm::EventSetup& es) {
 
   int bx_min = L1MuGMTConfig::getBxMin();
   int bx_max = L1MuGMTConfig::getBxMax();
-
-  edm::ESHandle< L1MuGMTScales > gmtscales_h;
-  es.get< L1MuGMTScalesRcd >().get( gmtscales_h );
-  m_config->setGMTScales( gmtscales_h.product() );
-
-  edm::ESHandle< L1MuTriggerScales > trigscales_h;
-  es.get< L1MuTriggerScalesRcd >().get( trigscales_h );
-  m_config->setTriggerScales( trigscales_h.product() );
 
   m_ExtendedCands.clear();
 
