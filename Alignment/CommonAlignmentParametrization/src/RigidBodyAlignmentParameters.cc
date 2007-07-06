@@ -1,8 +1,7 @@
 /** \file RigidBodyAlignmentParameters.cc
  *
- *  Version    : $Revision: 1.7 $
- *  last update: $Date: 2007/04/30 12:38:58 $
- *  by         : $Author$
+ *  $Date: 2007/04/30 12:38:58 $
+ *  $Revision: 1.7 $
  */
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -14,9 +13,6 @@
 // This class's header 
 
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
 
 //__________________________________________________________________________________________________
 RigidBodyAlignmentParameters::RigidBodyAlignmentParameters(Alignable* ali) :
@@ -85,18 +81,8 @@ RigidBodyAlignmentParameters::cloneFromSelected( const AlgebraicVector& paramete
 //__________________________________________________________________________________________________
 AlgebraicMatrix 
 RigidBodyAlignmentParameters::derivatives( const TrajectoryStateOnSurface& tsos, 
-					   const AlignableDetOrUnitPtr &dummy) const
+					   const AlignableDetOrUnitPtr & ) const
 {
-  if (this->alignable() != dummy) {
-    edm::LogError("Alignment") << "@SUB=RigidBodyAlignmentParameters::derivatives"
-			       << "Frame problem, input AlignableDet(Unit) differs from "
-			       << "parameters' alignable,\ncf. "
-			       << "https://hypernews.cern.ch/HyperNews/CMS/get/tk-alignment/36.html"
-			       << " .\nInput.Det: " << dummy.alignableDet() 
-			       << ", Input.DetUnit: " << dummy.alignableDetUnit()
-			       << ", Input.mother()" << dummy->mother()
-			       << ",\nalignable " << this->alignable();
-  }
   return KarimakiAlignmentDerivatives()(tsos);
 }
 

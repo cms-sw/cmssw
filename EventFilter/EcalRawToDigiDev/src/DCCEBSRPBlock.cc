@@ -62,7 +62,7 @@ void DCCEBSRPBlock::checkSrpIdAndNumbSRFlags(){
     std::ostringstream output;
     output<<"EcalRawToDigi@SUB=DCCSRPBlock::unpack"
       <<"\nUnable to unpack SRP block for event "<<event_->l1A()<<" in dcc <<"<<mapper_->getActiveDCC()
-      <<"\nNumber of flags "<<nSRFlags_<<" is different from expected "<<expNumbSrFlags_;
+      <<"\nNumber of flags "<<nSRFlags_<<" is different from expected "<<expNumbSrFlags_<<std::endl;
     //Note : add to error collection ?		 
     throw ECALUnpackerException(output.str());
   }

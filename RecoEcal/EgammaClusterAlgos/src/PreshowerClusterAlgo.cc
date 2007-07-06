@@ -77,7 +77,7 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
     RecHitsMap::iterator strip_it = rechits_map->find(*itID);   
     //if ( strip_it->second.energy() < 0 ) std::cout << "           ##### E = " << strip_it->second.energy() << std::endl;
     if(!goodStrip(strip_it)) continue;
-    if ( debugLevel_ == pDEBUG ) std::cout << " strip is " << strip_it->first <<"  E = " << strip_it->second.energy() <<std::endl;
+    if ( debugLevel_ == pDEBUG ) std::cout << " strip is " << ESDetId(strip_it->first) <<"  E = " << strip_it->second.energy() <<std::endl;
     float E = strip_it->second.energy();
     if ( E > E_max) {
        E_max = E;
@@ -93,7 +93,7 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
   recHits_pos.insert(std::make_pair(max_it->first, max_it->second));
   used_s->insert(max_it->first);
   if ( debugLevel_ <= pINFO ) {
-     std::cout << " Central hottest strip " << max_it->first << " is saved " << std::endl;
+     std::cout << " Central hottest strip " << ESDetId(max_it->first) << " is saved " << std::endl;
      std::cout << " with energy E = " <<  E_max << std::endl;    
   }
 
@@ -213,7 +213,7 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
   for (it=clusterRecHits.begin(); it != clusterRecHits.end(); it++) {
      Eclust += it->energy();
      usedHits.push_back(it->id());
-     if ( debugLevel_ == pINFO ) std::cout << it->id() <<", E = " << it->energy()<<"; ";
+     if ( debugLevel_ == pINFO ) std::cout << ESDetId(it->id()) <<", E = " << it->energy()<<"; ";
   }   
   if ( debugLevel_ == pINFO ) std::cout << std::endl;
 

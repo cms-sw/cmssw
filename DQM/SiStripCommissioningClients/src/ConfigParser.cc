@@ -237,39 +237,7 @@ void ConfigParser::parseXML( const std::string& f ) {
        << " Error parsing file: " << message << std::flush;
     XMLString::release( &message );
   }
-
-}
-
-// -----------------------------------------------------------------------------
-//
-std::ostream& operator<< ( std::ostream& os, const ConfigParser& parser ) {
-  std::stringstream ss;
-  parser.print(ss);
-  os << ss.str();
-  return os;
-}
-
-// -----------------------------------------------------------------------------
-// 
-void ConfigParser::print( std::stringstream& ss ) const {
-  ss << "[ConfigParser::SummaryPlot::" << __func__ << "]" 
-     << " Dumping contents of parsed XML file: " << std::endl;
-  using namespace sistrip;
-  typedef std::vector<SummaryPlot> Plots;
-  std::map<RunType,Plots>::const_iterator irun = summaryPlotMap_.begin();
-  for ( ; irun != summaryPlotMap_.end(); irun++ ) {
-    ss << " RunType=\"" 
-       << SiStripEnumsAndStrings::runType( irun->first )
-       << "\"" << std::endl;
-    if ( irun->second.empty() ) {
-      ss << " No summary plots for this RunType!";
-    } else {
-      Plots::const_iterator iplot = irun->second.begin();
-      for ( ; iplot != irun->second.end(); iplot++ ) {
-	ss << *iplot << std::endl;
-      }
-    }
-  }
+  
 }
 
 // -----------------------------------------------------------------------------

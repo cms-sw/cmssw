@@ -1,5 +1,5 @@
-#ifndef Framework_EventPrincipal_h
-#define Framework_EventPrincipal_h
+#ifndef FWCore_Framework_EventPrincipal_h
+#define FWCore_Framework_EventPrincipal_h
 
 /*----------------------------------------------------------------------
   
@@ -10,15 +10,15 @@ such code sees the Event class, which is a proxy for EventPrincipal.
 The major internal component of the EventPrincipal
 is the DataBlock.
 
-$Id: EventPrincipal.h,v 1.52 2007/04/09 22:18:55 wdd Exp $
+$Id: EventPrincipal.h,v 1.53 2007/05/29 19:32:03 wmtan Exp $
 
 ----------------------------------------------------------------------*/
+
+#include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "FWCore/Framework/interface/Principal.h"
 #include "FWCore/Framework/interface/UnscheduledHandler.h"
-
-#include "boost/shared_ptr.hpp"
 
 namespace edm {
   class EventID;
@@ -33,14 +33,14 @@ namespace edm {
     typedef Base::SharedConstGroupPtr SharedConstGroupPtr;
     EventPrincipal(EventID const& id,
 	Timestamp const& time,
-	ProductRegistry const& reg,
+	boost::shared_ptr<ProductRegistry const> reg,
         boost::shared_ptr<LuminosityBlockPrincipal> lbp,
         ProcessConfiguration const& pc,
 	ProcessHistoryID const& hist = ProcessHistoryID(),
 	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
     EventPrincipal(EventID const& id,
 	Timestamp const& time,
-	ProductRegistry const& reg,
+	boost::shared_ptr<ProductRegistry const> reg,
 	LuminosityBlockNumber_t lumi,
         ProcessConfiguration const& pc,
 	ProcessHistoryID const& hist = ProcessHistoryID(),

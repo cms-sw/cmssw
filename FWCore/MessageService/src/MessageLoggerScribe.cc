@@ -118,6 +118,11 @@
 //  22 - 4/18/07 mf - in configure_error_log and its called functions
 //	 Allow for duplicate file names if configuration happens twice.
 //
+//  23 - 6/13/07 mf - in configure_statistics 
+//	 Repared error of calling "cerr" "err", which would cause appended
+//	 statistics destinations going to cerr to instead come out in a file 
+//	 err.log
+//
 // ----------------------------------------------------------------------
 
 
@@ -847,7 +852,7 @@ void
     // change log 18 - this had been done in concert with attaching destination
     
     std::string actual_filename = filename;			// change log 4
-    if ( (filename != "cout") && (filename != "err") )  {
+    if ( (filename != "cout") && (filename != "cerr") )  {	// change log 23
       const std::string::size_type npos = std::string::npos;
       if ( filename.find('.') == npos ) {
         actual_filename += ".log";

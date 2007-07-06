@@ -5,7 +5,6 @@
 //
 // code based on l3cgen.f by T.Hebbeker
 // implemented in CMSSW by P. Biallass 11.04.2006  
-// see header for documentation
 //
 /////////////////////////////////////////////////////////////////////////////////
 //
@@ -13,7 +12,7 @@
 // 
 //
 //  flux dN/dOmega/dE/dA/dt at 100 GeV and zenith angle 0 (per sr-> theta<32.77 deg): 
-//     2.59 * E-3 +- 0.18 * E-3 / m**2 / sr / GeV / s   (see Hebbeker and Timmermans, Astropart. Phys. 18 (2002) 107)
+//    2.63 * E-3 +- 0.06 * E-3 / m**2 / sr / GeV / s   (see Biallass+Hebbeker internal note 2007 "Improved Parametrization of the Cosmic Muon Flux for the generator CMSCGEN")
 //
 //  percentage of rejected events and surface needs to be corrected for later!
 //

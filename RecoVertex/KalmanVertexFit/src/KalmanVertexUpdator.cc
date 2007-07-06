@@ -65,18 +65,18 @@ float KalmanVertexUpdator::vertexPositionChi2( const VertexState& oldVertex,
 	const GlobalPoint& newVertexPosition) const
 {
   GlobalPoint oldVertexPosition = oldVertex.position();
-  AlgebraicVector3 oldVertexPositionV;
-  oldVertexPositionV(0) = oldVertexPosition.x();
-  oldVertexPositionV(1) = oldVertexPosition.y();
-  oldVertexPositionV(2) = oldVertexPosition.z();
+  AlgebraicVector oldVertexPositionV(3);
+  oldVertexPositionV[0] = oldVertexPosition.x();
+  oldVertexPositionV[1] = oldVertexPosition.y();
+  oldVertexPositionV[2] = oldVertexPosition.z();
 
-  AlgebraicVector3 newVertexPositionV;
-  newVertexPositionV(0) = newVertexPosition.x();
-  newVertexPositionV(1) = newVertexPosition.y();
-  newVertexPositionV(2) = newVertexPosition.z();
+  AlgebraicVector newVertexPositionV(3);
+  newVertexPositionV[0] = newVertexPosition.x();
+  newVertexPositionV[1] = newVertexPosition.y();
+  newVertexPositionV[2] = newVertexPosition.z();
 
-  AlgebraicVector3 positionResidual = newVertexPositionV - oldVertexPositionV;
-  float result = ROOT::Math::Similarity(positionResidual, oldVertex.weight().matrix_new());
+  AlgebraicVector positionResidual = newVertexPositionV - oldVertexPositionV;
+  float result = oldVertex.weight().matrix().similarity(positionResidual);
 
   return result;
 }
@@ -91,40 +91,40 @@ KalmanVertexUpdator::positionUpdate (const VertexState & oldVertex,
   // Jacobians
   //  edm::LogInfo("RecoVertex/KalmanVertexUpdator") 
   //    << "Now updating position" << "\n";
-  AlgebraicMatrix53 a = linearizedTrack->positionJacobian();
-  AlgebraicMatrix53 b = linearizedTrack->momentumJacobian();
+  AlgebraicMatrix a = linearizedTrack->positionJacobian();
+  AlgebraicMatrix b = linearizedTrack->momentumJacobian();
   //  edm::LogInfo("RecoVertex/KalmanVertexUpdator") 
   //    << "got jacobians" << "\n";
   
   //track information
-  AlgebraicVector5 trackParameters =
+  AlgebraicVector trackParameters =
         linearizedTrack->predictedStateParameters();
 
-  AlgebraicSymMatrix55 trackParametersWeight =
+  AlgebraicSymMatrix trackParametersWeight =
         linearizedTrack->predictedStateWeight();
 
   //  edm::LogInfo("RecoVertex/KalmanVertexUpdator") 
   //    << "got track parameters" << "\n";
 
   //vertex information
-  AlgebraicSymMatrix33 oldVertexWeight = oldVertex.weight().matrix_new();
-  AlgebraicSymMatrix33 s = ROOT::Math::SimilarityT(b,trackParametersWeight);
-  ifail = ! s.Invert(); 
+  AlgebraicSymMatrix oldVertexWeight = oldVertex.weight().matrix();
+  AlgebraicSymMatrix s = trackParametersWeight.similarityT(b);
+  s.invert(ifail);
   if(ifail != 0) throw VertexException
                        ("KalmanVertexUpdator::S matrix inversion failed");
 
-  AlgebraicSymMatrix55 gB = trackParametersWeight -
-       ROOT::Math::Similarity(trackParametersWeight, ROOT::Math::Similarity(b,s));
+  AlgebraicSymMatrix gB = trackParametersWeight -
+        s.similarity(b).similarity(trackParametersWeight);
 
 // Getting the new covariance matrix of the vertex.
 
-  AlgebraicSymMatrix33 newVertexWeight =  oldVertexWeight + weight * sign * ROOT::Math::SimilarityT(a,gB);
+  AlgebraicSymMatrix newVertexWeight =  oldVertexWeight + weight * sign * gB.similarityT(a);
   //  edm::LogInfo("RecoVertex/KalmanVertexUpdator") 
   //    << "weight matrix" << newVertexWeight << "\n";
 
 
-  AlgebraicVector3 newSwr =
-                oldVertex.weightTimesPosition() + weight * sign * ROOT::Math::Transpose(a) * gB *
+  AlgebraicVector newSwr =
+                oldVertex.weightTimesPosition() + weight * sign * a.T() * gB *
                 ( trackParameters - linearizedTrack->constantTerm());
   //  edm::LogInfo("RecoVertex/KalmanVertexUpdator") 
   //    << "weighttimespos" << newSwr << "\n";
@@ -145,36 +145,37 @@ double KalmanVertexUpdator::chi2Increment(const VertexState & oldVertex,
 {
   GlobalPoint newVertexPosition = newVertexState.position();
 
-  AlgebraicVector3 newVertexPositionV;
-  newVertexPositionV(0) = newVertexPosition.x();
-  newVertexPositionV(1) = newVertexPosition.y();
-  newVertexPositionV(2) = newVertexPosition.z();
+  AlgebraicVector newVertexPositionV(3);
+  newVertexPositionV[0] = newVertexPosition.x();
+  newVertexPositionV[1] = newVertexPosition.y();
+  newVertexPositionV[2] = newVertexPosition.z();
 
-  AlgebraicMatrix53 a = linearizedTrack->positionJacobian();
-  AlgebraicMatrix53 b = linearizedTrack->momentumJacobian();
+  AlgebraicMatrix a = linearizedTrack->positionJacobian();
+  AlgebraicMatrix b = linearizedTrack->momentumJacobian();
 
 //track information
-  AlgebraicVector5 trackParameters =
+  AlgebraicVector trackParameters =
   	linearizedTrack->predictedStateParameters();
 
-  AlgebraicSymMatrix55 trackParametersWeight =
+  AlgebraicSymMatrix trackParametersWeight =
   	linearizedTrack->predictedStateWeight();
 
-  AlgebraicSymMatrix33 s = ROOT::Math::SimilarityT(b,trackParametersWeight);
-  bool ret = s.Invert(); 
-  if(!ret) throw VertexException
+  int ifail;
+  AlgebraicSymMatrix s = trackParametersWeight.similarityT(b);
+  s.invert(ifail);
+  if(ifail != 0) throw VertexException
                        ("KalmanVertexUpdator::S matrix inversion failed");
 
-  AlgebraicVector5 theResidual = linearizedTrack->constantTerm();
-  AlgebraicVector3 newTrackMomentumP =  s * ROOT::Math::Transpose(b) * trackParametersWeight *
+  AlgebraicVector theResidual = linearizedTrack->constantTerm();
+  AlgebraicVector newTrackMomentumP =  s * b.T() * trackParametersWeight *
     (trackParameters - theResidual - a*newVertexPositionV);
 
 
-  AlgebraicVector5 rtp = ( theResidual +  a * newVertexPositionV + b * newTrackMomentumP);
+  AlgebraicVector rtp = ( theResidual +  a * newVertexPositionV + b * newTrackMomentumP);
 
-  AlgebraicVector5 parameterResiduals = trackParameters - rtp;
+  AlgebraicVector parameterResiduals = trackParameters - rtp;
 
-  double chi2 = weight * ROOT::Math::Similarity(parameterResiduals, trackParametersWeight);
+  double chi2 = weight * trackParametersWeight.similarity( parameterResiduals );
 
 //   chi2 += vertexPositionChi2(oldVertex, newVertexPosition);
   chi2 += helper.vertexChi2(oldVertex, newVertexState);

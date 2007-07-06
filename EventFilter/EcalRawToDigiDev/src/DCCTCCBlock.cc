@@ -20,7 +20,7 @@ void DCCTCCBlock::unpack(uint64_t ** data, uint * dwToEnd){
       output<<"EcalRawToDigi@SUB=DCCTCCBlock:unpack"
         <<"\n Unable to unpack TCC block for event "<<event_->l1A()<<" in dcc "<<mapper_->getActiveDCC()
         <<"\n Only "<<((*dwToEnd_)*8)<<" bytes are available until the end of event while "<<(blockLength_*8)<<" are needed!"
-        <<"\n => Skipping this event...";
+        <<"\n => Skipping this event..."<<std::endl;
       //todo : add this to error colection
       throw ECALUnpackerException(output.str()); 
   }
@@ -47,7 +47,7 @@ void DCCTCCBlock::unpack(uint64_t ** data, uint * dwToEnd){
         output<<"EcalRawToDigi@SUB=DCCTCCBlock::unpack"
         <<"\n Synchronization error for TCC block in event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in dcc <<"<<mapper_->getActiveDCC()
         <<"\n TCC local l1A is  "<<l1_<<" and local bx is "<<bx_
-        <<"\n Skipping this event...";
+        <<"\n Skipping this event..."<<std::endl;
         //Note : add to error collection ?		 
         throw ECALUnpackerException(output.str());
       }
@@ -89,6 +89,7 @@ void DCCTCCBlock::display(std::ostream& o){
    <<"\n Bx "<<bx_
    <<"\n L1 "<<l1_
    <<"\n Numb TT "<<nTTs_
-   <<"\n Numb Samp "<<nTSamples_;  
+   <<"\n Numb Samp "<<nTSamples_
+   <<std::endl;  
 } 
     

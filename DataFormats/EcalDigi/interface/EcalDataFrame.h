@@ -10,7 +10,7 @@
 
 /** \class EcalDataFrame
       
-$Id: EcalDataFrame.h,v 1.2 2007/03/27 09:55:01 meridian Exp $
+$Id: EcalDataFrame.h,v 1.1 2006/06/24 13:26:58 meridian Exp $
 */
 
 class EcalDataFrame {
@@ -23,12 +23,12 @@ class EcalDataFrame {
     
   int size() const { return size_; }
 
-  const EcalMGPASample& operator[](int i) const { return data_[i]; }
-  const EcalMGPASample& sample(int i) const { return data_[i]; }
+  const EcalMGPASample& operator[](const int& i) const { return data_[i]; }
+  const EcalMGPASample& sample(const int& i) const { return data_[i]; }
     
-  void setSize(int size);
+  void setSize(const int& size);
   //    void setPresamples(int ps);
-  void setSample(int i, const EcalMGPASample& sam) { data_[i]=sam; }
+  void setSample(const int& i, const EcalMGPASample& sam) { data_[i]=sam; }
 
   static const int MAXSAMPLES = 10;
 

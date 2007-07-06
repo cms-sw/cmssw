@@ -97,7 +97,9 @@ PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::Parame
 
 
 PrimaryVertexProducerAlgorithm::~PrimaryVertexProducerAlgorithm() 
-{}
+{
+  if (theFitter) delete theFitter;
+}
 
 
 //

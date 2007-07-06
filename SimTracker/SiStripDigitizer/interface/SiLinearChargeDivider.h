@@ -24,8 +24,7 @@ class SiLinearChargeDivider : public SiChargeDivider{
 
   SiLinearChargeDivider(const edm::ParameterSet& conf, CLHEP::HepRandomEngine&);
 
-  virtual ~SiLinearChargeDivider(){
-  }
+  virtual ~SiLinearChargeDivider();
 
   SiChargeDivider::ionization_type divide(const PSimHit&, const StripGeomDetUnit& det);
 

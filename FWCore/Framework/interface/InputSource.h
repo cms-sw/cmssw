@@ -38,12 +38,14 @@ Some examples of InputSource subclasses may be:
  3) DAQInputSource: creats EventPrincipals which contain raw data, as
     delivered by the L1 trigger and event builder. 
 
-$Id: InputSource.h,v 1.23 2007/03/22 06:07:18 wmtan Exp $
+$Id: InputSource.h,v 1.24 2007/03/22 22:26:11 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <memory>
 #include <string>
+
+#include "boost/shared_ptr.hpp"
 
 #include "FWCore/Utilities/interface/GCCPrerequisite.h"
 #include "DataFormats/Provenance/interface/EventID.h"
@@ -103,7 +105,7 @@ namespace edm {
     void registerProducts();
 
     /// Accessor for product registry.
-    ProductRegistry & productRegistry() const {return *isDesc_.productRegistry_;}
+    boost::shared_ptr<ProductRegistry const> productRegistry() const {return productRegistry_;}
     
     /// Reset the remaining number of events to the maximum number.
     void repeat() {remainingEvents_ = maxEvents_;}
@@ -137,6 +139,9 @@ namespace edm {
     using ProductRegistryHelper::produces;
     using ProductRegistryHelper::typeLabelList;
 
+  protected:
+    ProductRegistry & productRegistryUpdate() const {return *isDesc_.productRegistry_;}
+
   private:
 
     // Indicate inability to get a new event by returning a null
@@ -162,6 +167,7 @@ namespace edm {
     int readCount_;
     bool unlimited_;
     InputSourceDescription const isDesc_;
+    boost::shared_ptr<ProductRegistry const> productRegistry_;
     bool const primary_;
   };
 }

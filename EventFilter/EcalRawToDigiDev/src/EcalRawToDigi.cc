@@ -9,9 +9,6 @@
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
-#include "DataFormats/EcalRawData/interface/EcalListOfFEDS.h"
-
-
 EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
 
   
@@ -46,10 +43,6 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
   
   dataLabel_(conf.getUntrackedParameter<std::string>("InputLabel","source")),
 
-  REGIONAL_(conf.getUntrackedParameter<bool>("DoRegional",false)),
-
-  fedsLabel_(conf.getUntrackedParameter<std::string>("FedLabel","listfeds")),
-
   myMap_(0),
   
   theUnpacker_(0)
@@ -62,17 +55,19 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
   
   if( numbXtalTSamples_ <6 || numbXtalTSamples_>64 || (numbXtalTSamples_-2)%4 ){
     std::ostringstream output;
-    output      <<"\n Unsuported number of xtal time samples : "<<numbXtalTSamples_
-		<<"\n Valid Number of xtal time samples are : 6,10,14,18,...,62"; 
-    edm::LogError("EcalRawToDigiDev")<< output.str();
+    output<<"EcalRawToDigi@SUB=EcalRawToDigi()"
+      <<"\n Unsuported number of xtal time samples : "<<numbXtalTSamples_
+      <<"\n Valid Number of xtal time samples are : 6,10,14,18,...,62"; 
+    edm::LogError("ECAL")<< output.str();
     // todo : throw an execption
   }
   
   if( numbTriggerTSamples_ !=1 && numbTriggerTSamples_ !=4 && numbTriggerTSamples_ !=8  ){
     std::ostringstream output;
-    output      <<"\n Unsuported number of trigger time samples : "<<numbTriggerTSamples_
-		<<"\n Valid number of trigger time samples are :  1, 4 or 8"; 
-    edm::LogError("EcalRawToDigiDev")<< output.str();
+    output<<"EcalRawToDigi@SUB=EcalRawToDigi()"
+      <<"\n Unsuported number of trigger time samples : "<<numbTriggerTSamples_
+      <<"\n Valid number of trigger time samples are :  1, 4 or 8"; 
+    edm::LogError("ECAL")<< output.str();
     // todo : throw an execption
   }
   
@@ -85,21 +80,20 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
     for (int i=FEDNumbering::getEcalFEDIds().first; i<=FEDNumbering::getEcalFEDIds().second; i++)
       fedUnpackList_.push_back(i);
 
-  //print the FEDs to unpack to the logger
+  //print the FEDs to unpack to the loger
   std::ostringstream loggerOutput_;
   if(fedUnpackList_.size()!=0){
     for (uint i=0; i<fedUnpackList_.size(); i++) 
       loggerOutput_ << fedUnpackList_[i] << " ";
-    edm::LogInfo("EcalRawToDigiDev") << "EcalRawToDigi will unpack FEDs ( " << loggerOutput_.str() << ")";
+    edm::LogInfo("ECAL") << "EcalRawToDigi will unpack FEDs ( " << loggerOutput_.str() << ")";
   }
   
-  edm::LogInfo("EcalRawToDigiDev")
-    <<"\n ECAL RawToDigi configuration :"
+  edm::LogInfo("ECAL")<<"\n ECAL RawToDigi configuration :"
     <<"\n Header  unpacking is "<<headerUnpacking_
     <<"\n SRP Bl. unpacking is "<<srpUnpacking_
     <<"\n TCC Bl. unpacking is "<<tccUnpacking_  
     <<"\n FE  Bl. unpacking is "<<feUnpacking_
-    <<"\n MEM Bl. unpacking is "<<memUnpacking_<<"\n";
+    <<"\n MEM Bl. unpacking is "<<memUnpacking_<<"\n"<<std::endl;
   
   // Producer products :
   produces<EBDigiCollection>(); 
@@ -133,13 +127,13 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
   myMap_ = new EcalElectronicsMapper(numbXtalTSamples_,numbTriggerTSamples_);
   bool readResult = myMap_->readDCCMapFile(conf.getUntrackedParameter<std::string>("DCCMapFile",""));
   if(!readResult){
-    edm::LogError("EcalRawToDigiDev")<<"\n unable to read file : "
+    edm::LogError("EcalRawToDigi") << "@SUB=DCCDataUnpacker"<<"\n unable to read file : "
       <<conf.getUntrackedParameter<std::string>("DCCMapFile","");
      //throw cms::exception();
   }
   
   // Build a new ECAL DCC data unpacker
-  //edm::LogDebug("EcalRawToDigiDev") << "@SUB=DCCDataUnpacker"; 
+  //edm::LogDebug("EcalRawToDigi") << "@SUB=DCCDataUnpacker"; 
   theUnpacker_ = new DCCDataUnpacker(myMap_,headerUnpacking_,srpUnpacking_,tccUnpacking_,feUnpacking_,memUnpacking_,syncCheck_);
    
 }
@@ -170,20 +164,10 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
 
   }
 
-  // Get list of FEDS :
-  std::vector<int> FEDS_to_unpack;
-  if (REGIONAL_) {
-        edm::Handle<EcalListOfFEDS> listoffeds;
-        e.getByLabel(fedsLabel_, listoffeds);
-        FEDS_to_unpack = listoffeds -> GetList();
-  }
-
-
 
   // Step A: Get Inputs    
 
   edm::Handle<FEDRawDataCollection> rawdata;  
-  //  unpractical to do now due to difference collecation labels in sources - to be uniformized
   e.getByLabel(dataLabel_,rawdata);
 
   // Step B: encapsulate vectors in actual collections and set unpacker pointers
@@ -266,12 +250,6 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
   
   // Step C: unpack all requested FEDs    
   for (std::vector<int>::const_iterator i=fedUnpackList_.begin(); i!=fedUnpackList_.end(); i++) {
-
-    if (REGIONAL_) {
-      std::vector<int>::const_iterator fed_it = find(FEDS_to_unpack.begin(), FEDS_to_unpack.end(), *i);
-      if (fed_it == FEDS_to_unpack.end()) continue;
-    }
-
     try{
       // get fed raw data and SM id
       const FEDRawData & fedData = rawdata->FEDData(*i);
@@ -287,7 +265,7 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
 		  
 		 
           //for debug purposes
-    	  edm::LogInfo("EcalRawToDigiDev") << "Getting FED = " << *i <<"(SM = "<<smId<<")"<<" data size is: " << length;
+    	  edm::LogInfo("EcalRawToDigi") << "Getting FED = " << *i <<"(SM = "<<smId<<")"<<" data size is: " << length << std::endl;
 	    
           uint64_t * pData = (uint64_t *)(fedData.data());
           theUnpacker_->unpack( pData, static_cast<uint>(length),smId,*i);
@@ -296,7 +274,7 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
     }
 	  
    catch(ECALUnpackerException &e){
-     edm::LogWarning("EcalRawToDigiDev")<<" exception caught \n"<<e.what();
+     edm::LogWarning("EcalRawToDigi")<<" exception caught "<<std::endl<<e.what()<<std::endl;
    }
   
   }

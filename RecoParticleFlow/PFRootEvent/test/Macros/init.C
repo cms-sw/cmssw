@@ -4,7 +4,7 @@
 // library, which contains the ROOT interface
 gSystem->Load("libFWCoreFWLite.so");
 gSystem->Load("libRecoParticleFlowPFRootEvent.so");
-AutoLibraryLoader::enable();
+// AutoLibraryLoader::enable();
 gSystem->Load("libCintex.so");
 ROOT::Cintex::Cintex::Enable();
 

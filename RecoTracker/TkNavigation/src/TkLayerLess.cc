@@ -48,7 +48,6 @@ bool TkLayerLess::insideOutLess( const DetLayer* a, const DetLayer* b) const
 bool TkLayerLess::barrelForwardLess( const BarrelDetLayer* bla, 
 				     const ForwardDetLayer* flb) const
 {
-  if (theDir == outsideIn) return bla->surface().bounds().length()/2. > fabs( flb->position().z());
   return bla->surface().bounds().length()/2. < fabs( flb->position().z());
 }
 

@@ -14,8 +14,8 @@
     // set up generator
     CosUgGen.setNumberOfEvents(100);
     CosUgGen.setRanSeed(135799468);
-    CosSfGen.setMinE(2.);              // could be set higher due to energy loss in earth above CMS  
-    CosSfGen.setMaxE(10000.);  
+    CosSfGen.setMinP(3.);              // could be set higher due to energy loss in earth above CMS  
+    CosSfGen.setMaxP(3000.);  
     CosUgGen.setMaxTheta(80.);         // "default" value for underground	
     // run the generator (in this order)
     CosUgGen.runCMG();

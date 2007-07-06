@@ -4,8 +4,8 @@
 /*
  * \file EELaserClient.h
  *
- * $Date: 2007/04/02 16:15:35 $
- * $Revision: 1.1 $
+ * $Date: 2007/05/12 09:39:05 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -259,6 +259,15 @@ MonitorElement* meaopn06_[18];
 MonitorElement* meaopn07_[18];
 MonitorElement* meaopn08_[18];
 
+MonitorElement* mepnprms01_[18];
+MonitorElement* mepnprms02_[18];
+MonitorElement* mepnprms03_[18];
+MonitorElement* mepnprms04_[18];
+MonitorElement* mepnprms05_[18];
+MonitorElement* mepnprms06_[18];
+MonitorElement* mepnprms07_[18];
+MonitorElement* mepnprms08_[18];
+
 CollateMonitorElement* me_i01_[18];
 CollateMonitorElement* me_i02_[18];
 CollateMonitorElement* me_i03_[18];
@@ -301,7 +310,9 @@ float percentVariation_;
 
 float amplitudeThresholdPnG01_;
 float amplitudeThresholdPnG16_;
-float pedestalThresholdPn_;
+float pedPnExpectedMean_[2];
+float pedPnDiscrepancyMean_[2];
+float pedPnRMSThreshold_[2];
 
 };
 

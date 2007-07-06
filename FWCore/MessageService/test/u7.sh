@@ -6,7 +6,7 @@ status=0
   
 rm -f  u7_log.log u7_restrict.log u7_job_report.mxml
 
-cmsRun -j -p $LOCAL_TEST_DIR/u7.cfg 
+cmsRun -e -p $LOCAL_TEST_DIR/u7.cfg 
  
 for file in  u7_log.log u7_restrict.log u7_job_report.mxml
 do

@@ -26,7 +26,6 @@ private:
 
     std::string m_file_name;
     std::fstream m_file;
-    int m_fedid;
 
 };
 #endif

@@ -9,6 +9,8 @@ PerigeeTrajectoryParameters PerigeeConversions::ftsToPerigeeParameters
   GlobalVector impactDistance = originalFTS.position() - referencePoint;
 
   pt = originalFTS.momentum().perp();
+  if (pt==0.) throw cms::Exception("PerigeeConversions", "Track with pt=0");
+  
   double theta = originalFTS.momentum().theta();
   double phi = originalFTS.momentum().phi();
   double field  = originalFTS.parameters().magneticField().inInverseGeV(originalFTS.position()).z();
@@ -130,6 +132,8 @@ GlobalVector PerigeeConversions::momentumFromPerigee
    const GlobalPoint& referencePoint, const MagneticField* field) const
 {
   double pt;
+  if (momentum[0]==0.) throw cms::Exception("PerigeeConversions", "Track with rho=0");
+
   if (charge!=0) {
     pt = std::abs(field->inInverseGeV(referencePoint).z() / momentum[0]);
   } else {
@@ -185,6 +189,7 @@ PerigeeConversions::jacobianParameters2Cartesian(
 	const AlgebraicVector3& momentum, const GlobalPoint& position,
 	const TrackCharge& charge, const MagneticField* field) const
 {
+  if (momentum[0]==0.) throw cms::Exception("PerigeeConversions", "Track with rho=0");
   double factor = 1.;
   if (charge!=0) {
     double bField = field->inInverseGeV(position).z();

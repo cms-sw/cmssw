@@ -12,7 +12,6 @@
 #include <TRootEmbeddedCanvas.h>
 #include <RQ_OBJECT.h>
 #include "PlotAllDisplay.h"
-#include "HistoManager.h"
 
 #include <string.h>
 #include <sys/types.h>
@@ -23,20 +22,16 @@ class PlotAllMenu {
     private:
   TGMainFrame *fMain;
   TRootEmbeddedCanvas *fEcanvas;
-  TGRadioButton* fET[HistoManager::NUMEVTTYPES];
-  TGRadioButton* fFT[HistoManager::NUMHISTTYPES];
-  TGRadioButton* fVT[2];
-  TGRadioButton* fTBT[2];
-  TGRadioButton* fDoE[1];
-  TGCheckButton *checkbut,*elecbut,*topbut;
-  TGTextEntry* iphiEntry, *ietaEntry, *runnoEntry, * fiberEntry, *fiberChanEntry, *crateEntry, *SlotEntry;
+  TGRadioButton* fET[5];
+  TGRadioButton* fFT[3];
+  TGCheckButton *checkbut;
+  TGTextEntry* iphiEntry, *ietaEntry, *runnoEntry;
   PlotAllDisplay* theDisplay;
   const char *username_;
 public:
   PlotAllMenu(const TGWindow *p,UInt_t w,UInt_t h, const char *username);
   virtual ~PlotAllMenu();
   void DoSelector();
-  void DoCrateSelector();
   void DoDraw();
   void DoBrowse();
   void DoProcessRunNumber();
@@ -48,10 +43,7 @@ PlotAllMenu::PlotAllMenu(const TGWindow *p,UInt_t w,UInt_t h,
   // Create a main frame
   fMain = new TGMainFrame(p,w,h);
 
-  /***************************************************************
-   * Create a vertical frame widget for File Selection objects   *
-   ***************************************************************/
-
+  // Create a vertical frame widget for File Selection objects
   TGGroupFrame* fileselgf=new TGGroupFrame(fMain,"File Selection",kVerticalFrame);
   fileselgf->SetLayoutManager(new TGMatrixLayout(fileselgf,0,2,5,5));
 
@@ -80,41 +72,20 @@ PlotAllMenu::PlotAllMenu(const TGWindow *p,UInt_t w,UInt_t h,
 
   fMain->AddFrame(fileselgf, new TGLayoutHints(kLHintsCenterX,2,2,2,2));
 
-  /*************************************************************************
-   * Create a vertical frame widget for Plot parameter Selection objects   *
-   *************************************************************************/
-
-  TGGroupFrame* plotselgf=new TGGroupFrame(fMain,"Plot Selection",kHorizontalFrame);
-  //plotselgf->SetLayoutManager(new TGMatrixLayout(plotselgf,0,2,5,5));
-
-  // first row:
   // Create Selection widget
   
-  TGButtonGroup* ebg=new TGButtonGroup(plotselgf,"Event Type",kVerticalFrame);
+  TGButtonGroup* br=new TGButtonGroup(fMain,"Event Type",kVerticalFrame);
   
-  fET[0]=new TGRadioButton(ebg,"Other");
-  fET[1]=new TGRadioButton(ebg,"Pedestal");
-  fET[2]=new TGRadioButton(ebg,"LED");
-  fET[3]=new TGRadioButton(ebg,"Laser");
-  fET[4]=new TGRadioButton(ebg,"Beam");  
+  fET[0]=new TGRadioButton(br,"Other");
+  fET[1]=new TGRadioButton(br,"Pedestal");
+  fET[2]=new TGRadioButton(br,"LED");
+  fET[3]=new TGRadioButton(br,"Laser");
+  fET[4]=new TGRadioButton(br,"Beam");  
 
-  plotselgf->AddFrame(ebg, new TGLayoutHints(kLHintsCenterX));  // ,5,5,3,4));
-
-  TGButtonGroup* fbg=new TGButtonGroup(plotselgf,"Flavor Type",kVerticalFrame);
-  fFT[0]=new TGRadioButton(fbg,"Energy");
-  fFT[1]=new TGRadioButton(fbg,"Time");
-  fFT[2]=new TGRadioButton(fbg,"Pulse Shape");
-  fFT[3]=new TGRadioButton(fbg,"ADC");
-
-  plotselgf->AddFrame(fbg, new TGLayoutHints(kLHintsCenterX)); // ,5,5,3,4));
-
-  TGButtonGroup* vssbg=new TGButtonGroup(plotselgf,"VS Plot Stat",kHorizontalFrame);
-  fVT[0]=new TGRadioButton(vssbg,"Mean");
-  fVT[1]=new TGRadioButton(vssbg,"RMS");
-
-  plotselgf->AddFrame(vssbg, new TGLayoutHints(kLHintsCenterX)); // ,5,5,3,4));
-
-  fMain->AddFrame(plotselgf);
+  TGButtonGroup* fbgr=new TGButtonGroup(fMain,"Flavor Type",kVerticalFrame);
+  fFT[0]=new TGRadioButton(fbgr,"Energy");
+  fFT[1]=new TGRadioButton(fbgr,"Time");
+  fFT[2]=new TGRadioButton(fbgr,"Pulse Shape");
 
   TGGroupFrame* gf=new TGGroupFrame(fMain,"Channel Selection",kVerticalFrame);
   gf->SetLayoutManager(new TGMatrixLayout(gf,0,2,10,10));
@@ -128,47 +99,11 @@ PlotAllMenu::PlotAllMenu(const TGWindow *p,UInt_t w,UInt_t h,
   selector->Connect("Clicked()","PlotAllMenu",this,"DoSelector()");
   gf->AddFrame(selector,new TGLayoutHints(kLHintsCenterX,5,5,3,4));
   
- fMain->AddFrame(gf);
-  
+  fMain->AddFrame(br);
+  fMain->AddFrame(fbgr);
+  fMain->AddFrame(gf);
 
-  TGGroupFrame* ef=new TGGroupFrame(fMain,"Electronics Selection",kVerticalFrame);
-  ef->SetLayoutManager(new TGMatrixLayout(ef,0,4,10,10));
-  
-  
- elecbut = new TGCheckButton(ef,"Use ElecId");
-  ef->AddFrame(elecbut, new TGLayoutHints(kLHintsCenterX,5,5,3,4));
-  ef->AddFrame(new TGLabel(ef,""));
-
-   
-  ef->AddFrame(new TGLabel(ef," Fiber "));
-  fiberEntry=new TGTextEntry(ef,"-1  ");
-  ef->AddFrame(fiberEntry);
-  ef->AddFrame(new TGLabel(ef," Fiber Chan"));
-  fiberChanEntry=new TGTextEntry(ef,"-1  ");
-  ef->AddFrame(fiberChanEntry);
-  ef->AddFrame(new TGLabel(ef," Crate "));
-  crateEntry=new TGTextEntry(ef," 2 ");
-  ef->AddFrame(crateEntry);
-  ef->AddFrame(new TGLabel(ef," HTR FPGA "));
-  SlotEntry=new TGTextEntry(ef,"16b  ");
-  ef->AddFrame(SlotEntry);
-
-#if 0
-  TGButtonGroup* topbot=new TGButtonGroup(ef,"Top or Bottom",kHorizontalFrame);
-  fTBT[0]=new TGRadioButton(topbot,"Bottom");
-  fTBT[1]=new TGRadioButton(topbot,"Top");
-
-  ef->AddFrame(topbot, new TGLayoutHints(kLHintsCenterX));
-#endif
-
- TGTextButton *CrateSelector = new TGTextButton(ef,"Visual Selector");
- CrateSelector->Connect("Clicked()","PlotAllMenu",this,"DoCrateSelector()");
-  ef->AddFrame(CrateSelector,new TGLayoutHints(kLHintsCenterX,5,5,3,4));
-  
-  
-    fMain->AddFrame(ef);
- 
- // Create a horizontal frame widget with buttons
+  // Create a horizontal frame widget with buttons
   TGHorizontalFrame *hframe = new TGHorizontalFrame(fMain,200,40);
 
   TGTextButton *draw = new TGTextButton(hframe,"&Draw");
@@ -196,69 +131,30 @@ void PlotAllMenu::DoSelector() {
 
   int iev=0;
   int ifl=0;
-  int ipstat=0;
-  for(int i=0; i<HistoManager::NUMEVTTYPES; i++) {
+  for(int i=0; i<=4; i++) {
     if (fET[i]->IsOn()) iev=i;
-    if (i<HistoManager::NUMHISTTYPES && fFT[i]->IsOn()) ifl=i;  
-    if (i<2 && fVT[i]->IsOn()) ipstat=i;
+    if (i<3 && fFT[i]->IsOn()) ifl=i;  
   }
-  theDisplay->displaySelector(iev,ifl,ipstat);
+  theDisplay->displaySelector(iev,ifl);
 }
-
-void PlotAllMenu::DoCrateSelector() {
-
-  int iev=0;
-  int ifl=0;
-  int ipstat=0;
-  for(int i=0; i<HistoManager::NUMEVTTYPES; i++) {
-    if (fET[i]->IsOn()) iev=i;
-    if (i<HistoManager::NUMHISTTYPES && fFT[i]->IsOn()) ifl=i;  
-    if (i<2 && fVT[i]->IsOn()) ipstat=i;
-  }
-  
-  int crate = atoi(crateEntry->GetText());
-  if (crate ==-1){std::cout<<"Please enter a crate number to use Electronics Visual Selector"<<std::endl;
-  }else{
-    theDisplay->CrateDisplaySelector(crate,iev,ifl,ipstat);}
-}
-
-
 void PlotAllMenu::DoDraw() {
   int iev=0;
   int ifl=0;
-  for (int i=0; i<HistoManager::NUMEVTTYPES; i++) {
+  for (int i=0; i<=4; i++) {
     if (fET[i]->IsOn()) iev=i;
-    if (i<HistoManager::NUMHISTTYPES && fFT[i]->IsOn()) ifl=i;
+    if (i<3 && fFT[i]->IsOn()) ifl=i;
   }
 
   int ieta=atoi(ietaEntry->GetText());
   int iphi=atoi(iphiEntry->GetText());
-  int fiber=atoi(fiberEntry->GetText());
-  int fiberChan=atoi(fiberChanEntry->GetText());
-  int crate=atoi(crateEntry->GetText());
 
-  int slot=0,tb=0;
-  char tbc='t';
-  sscanf(SlotEntry->GetText(),"%d%c",&slot,&tbc);
-
-  if (tbc=='t'){tb=1;}else{tb=0;}
-
-
-  if(!elecbut->IsOn()){
-    if (ieta==0 || iphi==0) {
-      theDisplay->displaySummary(ieta,iphi,iev,ifl);
-    } else {
-      theDisplay->displayOne(ieta,iphi,1,iev,ifl);
-    }
-  }else {
-    if (fiber==-1||fiberChan==-1){
-     
-      theDisplay->displayElecSummary(crate,slot,tb,iev,ifl);
-    }else{
-      theDisplay->displayElecOne(fiber,fiberChan,crate,slot,tb,iev,ifl);
-    }
+  if (ieta==0 || iphi==0) {
+    theDisplay->displaySummary(ieta,iphi,iev,ifl);
+  } else {
+    theDisplay->displayOne(ieta,iphi,1,iev,ifl);
   }
 }
+
 static const char *filetypes[] = { "POOL files",    "*.root", 0,  0 };
 
 void PlotAllMenu::DoBrowse() {

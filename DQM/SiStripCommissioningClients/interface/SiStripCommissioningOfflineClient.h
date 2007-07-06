@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.h,v 1.1 2007/04/04 07:16:15 bainbrid Exp $
+// Last commit: $Id: $
 
 #ifndef DQM_SiStripCommissioningClients_SiStripCommissioningOfflineClient_H
 #define DQM_SiStripCommissioningClients_SiStripCommissioningOfflineClient_H
@@ -16,7 +16,6 @@
 
 class CommissioningHistograms;
 class DaqMonitorBEInterface;
-class MonitorUIRoot;
 class TH1;
 
 /**
@@ -39,38 +38,36 @@ class SiStripCommissioningOfflineClient : public edm::EDAnalyzer {
   virtual void endJob() {;}
   
  protected:
-
-  virtual void createCommissioningHistograms();
-  virtual void testUploadToDb() {;}
-  virtual void uploadToDb() {;}
-
- protected:
-
-  /** MonitorUserInterface object. */ 
-  MonitorUIRoot* mui_;
+  
+  /** */
+  virtual void processHistos( DaqMonitorBEInterface* const,
+			      const std::vector<std::string>& );
   
   /** Action "executor" */
   CommissioningHistograms* histos_;
   
   /** Input .root file. */
-  std::vector<std::string> inputFiles_;
-
-  /** Output .root file. */
-  std::string outputFileName_;
+  std::string rootFile_;
   
   /** Input .xml file. */
   std::string xmlFile_;
 
   /** Flag. */
   bool createSummaryPlots_;
+
+  /** Flag. */
+  bool saveSummaryPlots_;
   
   bool uploadToDb_;
 
   /** Commissioning runType. */
   sistrip::RunType runType_;
   
+  /** Logical view. */
+  sistrip::View view_;
+  
   /** Run number. */
-  uint32_t runNumber_;
+  uint16_t run_;
 
   /** */
   typedef std::vector<TH1*> Histos;

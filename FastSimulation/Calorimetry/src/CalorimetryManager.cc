@@ -512,11 +512,16 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
     trackPosition=myTrack.ecalEntrance().vertex();
     hit = myTrack.onEcal()-1;                               //
     myPart = myTrack.ecalEntrance();
-  } else {
+  } else if ( myTrack.onVFcal()) {
     trackPosition=myTrack.vfcalEntrance().vertex();
     hit = 2;
     myPart = myTrack.vfcalEntrance();
   }
+  else
+    {
+      LogDebug("FastCalorimetry") << " The particle is not in the acceptance " << std::endl;
+      return;
+    }
 
   // int onHCAL = hit + 1; - specially for myCalorimeter->hcalProperties(onHCAL)
   // (below) to get VFcal properties ...
@@ -601,6 +606,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
       }
     else if(myTrack.onHcal())
       {
+	//	std::cout << " CalorimetryManager onHcal " <<  myTrack.onHcal() << " caloentrance" << caloentrance  << std::endl;
 	pivot=myCalorimeter_->getClosestCell(caloentrance,					     
 					    false, false);
       }
@@ -670,13 +676,20 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
 	       << mapitr->second << std::endl;  
       }
     }      
-    else {  // shower simulation failed 
-      DetId cell = myCalorimeter_->getClosestCell(trackPosition.Vect(),false,false);
-      updateMap(cell.rawId(),emeas,HMapping_);
-      if(debug_)
-	LogDebug("FastCalorimetry") << " HCAL simple cell "   
-	     << cell.rawId() << " added    E = " 
-	     << emeas << std::endl;  
+    else {  // shower simulation failed  
+//      std::cout << " Shower simulation failed " << trackPosition.Vect() << std::endl;
+//      std::cout << " The FSimTrack " << myTrack << std::endl;
+//      std::cout << " HF entrance on VFcal" << myTrack.onVFcal() << std::endl;
+//      std::cout << " trackPosition.eta() " << trackPosition.eta() << std::endl;
+      if(myTrack.onHcal() || myTrack.onVFcal())
+	{
+	  DetId cell = myCalorimeter_->getClosestCell(trackPosition.Vect(),false,false);
+	  updateMap(cell.rawId(),emeas,HMapping_);
+	  if(debug_)
+	    LogDebug("FastCalorimetry") << " HCAL simple cell "   
+					<< cell.rawId() << " added    E = " 
+					<< emeas << std::endl;  
+	}
     }
 
     //    } // End of special "else" 

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: InputSource.cc,v 1.22 2007/05/01 23:22:32 wmtan Exp $
+$Id: InputSource.cc,v 1.23 2007/05/18 22:14:23 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <cassert> 
 #include "FWCore/Framework/interface/InputSource.h"
@@ -28,6 +28,13 @@ namespace edm {
 	  if (count % 100 - lastDigit == 10) return th;
 	  return (lastDigit == 1 ? st : (lastDigit == 2 ? nd : rd));
         }
+	struct do_nothing_deleter {
+	  void  operator () (void const*) const {}
+	};
+	template <typename T>
+	boost::shared_ptr<T> createSharedPtrToStatic(T * ptr) {
+	  return  boost::shared_ptr<T>(ptr, do_nothing_deleter());
+	}
   }
   InputSource::InputSource(ParameterSet const& pset, InputSourceDescription const& desc) :
       ProductRegistryHelper(),
@@ -36,6 +43,7 @@ namespace edm {
       readCount_(0),
       unlimited_(maxEvents_ < 0),
       isDesc_(desc),
+      productRegistry_(createSharedPtrToStatic<ProductRegistry const>(isDesc_.productRegistry_)),
       primary_(pset.getParameter<std::string>("@module_label") == std::string("@main_input")) {
     // Secondary input sources currently do not have a product registry.
     if (primary_) {
@@ -66,7 +74,7 @@ namespace edm {
   void
   InputSource::registerProducts() {
     if (!typeLabelList().empty()) {
-      addToRegistry(typeLabelList().begin(), typeLabelList().end(), moduleDescription(), productRegistry());
+      addToRegistry(typeLabelList().begin(), typeLabelList().end(), moduleDescription(), productRegistryUpdate());
     }
   }
 

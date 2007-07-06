@@ -1,5 +1,5 @@
-#ifndef Framework_UnscheduledHandler_h
-#define Framework_UnscheduledHandler_h
+#ifndef FWCore_Framework_UnscheduledHandler_h
+#define FWCore_Framework_UnscheduledHandler_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -17,7 +17,7 @@ to keep the EventPrincipal class from having too much 'physical' coupling with t
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 13 16:26:33 IST 2006
-// $Id: UnscheduledHandler.h,v 1.2 2006/09/27 14:54:13 paterno Exp $
+// $Id: UnscheduledHandler.h,v 1.3 2007/03/04 06:00:22 wmtan Exp $
 //
 
 // system include files
@@ -30,8 +30,7 @@ to keep the EventPrincipal class from having too much 'physical' coupling with t
 // forward declarations
 namespace edm {
    
-   class UnscheduledHandler
-{
+   class UnscheduledHandler {
 
    public:
    UnscheduledHandler(): m_setup(0) {}
@@ -43,22 +42,22 @@ namespace edm {
 
       // ---------- member functions ---------------------------
       ///returns true if found an EDProducer and ran it
-      virtual bool tryToFill(const Provenance& iProd,
+      bool tryToFill(Provenance const& iProd,
                              EventPrincipal& iEvent) {
          assert(m_setup);
          return tryToFillImpl(iProd, iEvent, *m_setup);
       }
-      void setEventSetup(const EventSetup& iSetup) {
+      void setEventSetup(EventSetup const& iSetup) {
          m_setup = &iSetup;
       }
    private:
-      UnscheduledHandler(const UnscheduledHandler&); // stop default
+      UnscheduledHandler(UnscheduledHandler const&); // stop default
 
-      const UnscheduledHandler& operator=(const UnscheduledHandler&); // stop default
+      const UnscheduledHandler& operator=(UnscheduledHandler const&); // stop default
 
-      virtual bool tryToFillImpl(const Provenance&,
+      virtual bool tryToFillImpl(Provenance const&,
                                  EventPrincipal&,
-                                 const EventSetup& ) = 0;
+                                 EventSetup const&) = 0;
       // ---------- member data --------------------------------
       const EventSetup* m_setup;
 };

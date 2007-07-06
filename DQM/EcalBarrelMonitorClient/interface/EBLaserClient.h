@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2007/03/26 17:35:04 $
- * $Revision: 1.55 $
+ * $Date: 2007/04/29 18:13:43 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  *
 */
@@ -259,6 +259,15 @@ MonitorElement* meaopn06_[36];
 MonitorElement* meaopn07_[36];
 MonitorElement* meaopn08_[36];
 
+MonitorElement* mepnprms01_[36];
+MonitorElement* mepnprms02_[36];
+MonitorElement* mepnprms03_[36];
+MonitorElement* mepnprms04_[36];
+MonitorElement* mepnprms05_[36];
+MonitorElement* mepnprms06_[36];
+MonitorElement* mepnprms07_[36];
+MonitorElement* mepnprms08_[36];
+
 CollateMonitorElement* me_i01_[36];
 CollateMonitorElement* me_i02_[36];
 CollateMonitorElement* me_i03_[36];
@@ -301,7 +310,10 @@ float percentVariation_;
 
 float amplitudeThresholdPnG01_;
 float amplitudeThresholdPnG16_;
-float pedestalThresholdPn_;
+float pedPnExpectedMean_[2];
+float pedPnDiscrepancyMean_[2];
+float pedPnRMSThreshold_[2];
+
 
 MEContentsTH2FWithinRangeROOT* qtg01_[36];
 MEContentsTH2FWithinRangeROOT* qtg02_[36];

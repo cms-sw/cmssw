@@ -3,8 +3,8 @@
 
 #include <TTree.h>
 
-#include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignmentParametrization/interface/CompositeRigidBodyAlignmentParameters.h"
+#include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
 
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 

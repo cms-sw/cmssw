@@ -1,5 +1,4 @@
 #include "SimMuon/CSCDigitizer/src/CSCStripConditions.h"
-#include "CLHEP/Random/RandGaussQ.h"
 
 CSCStripConditions::CSCStripConditions()
   : theNoisifier(0),
@@ -9,13 +8,13 @@ CSCStripConditions::CSCStripConditions()
 
 CSCStripConditions::~CSCStripConditions() 
 {
-  delete theNoisifier;
   delete theRandGaussQ;
 }
 
 
 void CSCStripConditions::setRandomEngine(CLHEP::HepRandomEngine& engine)
 {
+  if(theRandGaussQ) delete theRandGaussQ;
   theRandGaussQ = new RandGaussQ(engine);
 }
 

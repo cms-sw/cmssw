@@ -14,6 +14,7 @@
 #include "Geometry/EcalBarrelAlgo/interface/EcalBarrelGeometry.h"
 
 EcalBarrelRecHitsMaker::EcalBarrelRecHitsMaker(edm::ParameterSet const & p,
+					       edm::ParameterSet const & pcalib,
 					       const RandomEngine* myrandom)
   : random_(myrandom)
 {
@@ -22,6 +23,8 @@ EcalBarrelRecHitsMaker::EcalBarrelRecHitsMaker(edm::ParameterSet const & p,
   threshold_ = RecHitsParameters.getParameter<double>("Threshold");
   theCalorimeterHits_.resize(62000,0.);
   noisified_ = (noise_==0.);
+  double c1=pcalib.getParameter<double>("EEs25notContainment"); 
+  calibfactor_=1./c1;
 }
 
 EcalBarrelRecHitsMaker::~EcalBarrelRecHitsMaker()
@@ -83,15 +86,10 @@ void EcalBarrelRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
 
 
   theFiredCells_.reserve(colcalo->size());
-//  unsigned sizesignal=colcalo->sizeSignal();
-//  unsigned sizepileup=colcalo->sizePileup();
-//  std::cout << " loadPCaloHits " << colcalo->size() << " / " << sizesignal << 
-//    " " << sizepileup << std::endl;
 
   MixCollection<PCaloHit>::iterator cficalo;
   MixCollection<PCaloHit>::iterator cficaloend=colcalo->end();
-//  unsigned c1=0;
-//  unsigned c2=0;
+
   for (cficalo=colcalo->begin(); cficalo!=cficaloend;cficalo++) 
     {
       unsigned hashedindex = EBDetId(cficalo->id()).hashedIndex();      
@@ -99,16 +97,11 @@ void EcalBarrelRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
       if(theCalorimeterHits_[hashedindex]==0.)
 	{
 	  theFiredCells_.push_back(hashedindex); 
-	  //	  ++c2;
+
 	}
-      //      ++c1;
-//      if(c1<sizesignal)
-//	std::cout << "Index Signal " << c1 << " " << hashedindex << std::endl;
-//      else
-//	std::cout << "Index PU " << c1-sizesignal << " " <<hashedindex << std::endl;
-      theCalorimeterHits_[hashedindex]+=cficalo->energy();   
+      // the famous 1/0.97 calibration factor is applied here ! 
+      theCalorimeterHits_[hashedindex]+=cficalo->energy()*calibfactor_;   
     }
-  //  std::cout << " done " <<c1 << " " << c2 << std::endl;
 }
 
 // Takes a hit (from a PSimHit) and fills a map with it after adding the noise. 

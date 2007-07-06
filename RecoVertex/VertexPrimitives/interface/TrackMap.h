@@ -7,6 +7,6 @@
 /** Map of (key = RefCountedVertexTrack, elt = covariance matrix)
  */
 
-typedef std::map<RefCountedVertexTrack, AlgebraicMatrix33> TrackMap;
+typedef std::map<RefCountedVertexTrack, AlgebraicMatrix> TrackMap;
 
 #endif

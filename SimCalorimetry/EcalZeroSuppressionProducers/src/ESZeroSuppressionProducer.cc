@@ -29,6 +29,7 @@ ESZeroSuppressionProducer::ESZeroSuppressionProducer(const edm::ParameterSet& ps
 
 ESZeroSuppressionProducer::~ESZeroSuppressionProducer() 
 { 
+  delete algo_;
 }
 
 void ESZeroSuppressionProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup) 

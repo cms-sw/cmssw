@@ -12,10 +12,26 @@
 namespace helper {
 
   template<typename StoreContainer>
+  struct SelectionCopyAdder {
+    template<typename C>
+    void operator()( StoreContainer & selected, const edm::Handle<C> & c, size_t idx ) {
+      selected.push_back( ( * c )[ idx ] );
+    }
+  };
+
+  template<typename StoreContainer>
   struct SelectionPointerAdder {
     template<typename C>
     void operator()( StoreContainer & selected, const edm::Handle<C> & c, size_t idx ) {
       selected.push_back( & ( * c )[ idx ] );
+    }
+  };
+
+  template<typename StoreContainer>
+  struct SelectionPointerDerefAdder {
+    template<typename C>
+    void operator()( StoreContainer & selected, const edm::Handle<C> & c, size_t idx ) {
+      selected.push_back( & * ( * c )[ idx ] );
     }
   };
 
@@ -68,6 +84,26 @@ namespace helper {
   template<typename InputCollection, typename C>
   struct SelectionAdderTrait<InputCollection, edm::RefVector<C> > {
     typedef SelectionRefAdder<edm::RefVector<C> > type;
+  };
+
+  template<typename C>
+  struct SelectionAdderTrait<edm::RefVector<C>, edm::RefVector<C> > {
+    typedef SelectionCopyAdder<edm::RefVector<C> > type;
+  };
+
+  template<typename C, typename T>
+  struct SelectionAdderTrait<edm::RefVector<C>, std::vector<const T *> > {
+    typedef SelectionPointerDerefAdder<std::vector<const T *> > type;
+  };
+
+  template<typename T>
+  struct SelectionAdderTrait<std::vector<edm::RefToBase<T> >, std::vector<edm::RefToBase<T> > > {
+    typedef SelectionCopyAdder<std::vector<edm::RefToBase<T> > > type;
+  };
+
+  template<typename T>
+  struct SelectionAdderTrait<std::vector<edm::RefToBase<T> >, std::vector<const T *> > {
+    typedef SelectionPointerDerefAdder<std::vector<const T *> > type;
   };
 
   template<typename R, typename C>

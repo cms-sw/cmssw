@@ -179,8 +179,8 @@ void MonOccupancyDat::writeArrayDB(const std::map< EcalLogicID, MonOccupancyDat 
   try {
     m_writeStmt->setDataBuffer(1, (dvoid*)iovid_vec, OCCIINT, sizeof(iovid_vec[0]),iov_len);
     m_writeStmt->setDataBuffer(2, (dvoid*)ids, OCCIINT, sizeof(ids[0]), ids_len );
-    m_writeStmt->setDataBuffer(3, (dvoid*)xx, OCCIINT , sizeof(xx[0]), x_len );
-    m_writeStmt->setDataBuffer(4, (dvoid*)yy, OCCIINT , sizeof(yy[0]), y_len );
+    m_writeStmt->setDataBuffer(9, (dvoid*)xx, OCCIINT , sizeof(xx[0]), x_len );
+    m_writeStmt->setDataBuffer(9, (dvoid*)yy, OCCIINT , sizeof(yy[0]), y_len );
     m_writeStmt->setDataBuffer(5, (dvoid*)zz, OCCIFLOAT , sizeof(zz[0]), z_len );
     
     m_writeStmt->executeArrayUpdate(nrows);

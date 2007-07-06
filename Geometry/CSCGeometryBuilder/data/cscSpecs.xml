@@ -68,9 +68,9 @@
 <Parameter name="upar" value="162.0"/>
 <!--# 27 - distance from end of strip to alignment pin (cm) -->
 <!-- No alignment pin for ME11 so  w.r.t. bot edge of chamber frame -->
-<Parameter name="upar" value="5.0"/>
+<Parameter name="upar" value="49.5"/>
 <!--# 28 - length of (sensitive region of) strip along local y axis (cm) -->
-<Parameter name="upar" value="152.0"/>
+<Parameter name="upar" value="107.5"/>
 
 <!--# 29 - strip deltaPhi (mrad) -->
 <Parameter name="upar" value="2.9582"/>
@@ -152,7 +152,7 @@
 <!-- No alignment pin for ME11 so  w.r.t. bot edge of chamber frame -->
 <Parameter name="upar" value="5.0"/>
 <!--# 28 - length of (sensitive region of) strip along local y axis (cm) -->
-<Parameter name="upar" value="152.0"/>
+<Parameter name="upar" value="44.5"/>
 
 <!--# 29 - strip deltaPhi (mrad) -->
 <Parameter name="upar" value="3.8785"/>

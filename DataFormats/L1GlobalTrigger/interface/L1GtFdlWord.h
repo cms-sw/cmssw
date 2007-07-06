@@ -44,7 +44,7 @@ public:
         TechnicalTriggerWord gtTechnicalTriggerWordValue,
         DecisionWord gtDecisionWordValue,
         DecisionWordExtended gtDecisionWordExtendedValue,
-        boost::uint16_t noAlgoValue,
+        boost::uint16_t n0AlgoValue,
         boost::uint16_t finalORValue,
         boost::uint16_t localBxNrValue
     );
@@ -215,8 +215,6 @@ public:
         m_gtDecisionWordExtended = gtDecisionWordExtendedValue;
     }
 
-    void printGtDecisionWordExtended(std::ostream& myCout) const;
-
     /// set the extended algorithms bits from a 64-bits word, having the index iWord
     /// in the GTFE raw record
     void setGtDecisionWordExtended(const boost::uint64_t& word64, int iWord);
@@ -227,24 +225,24 @@ public:
 
 
 
-    /// get/set NoAlgo
-    inline const boost::uint16_t noAlgo() const
+    /// get/set N0Algo
+    inline const boost::uint16_t n0Algo() const
     {
-        return m_noAlgo;
+        return m_n0Algo;
     }
 
-    void setNoAlgo(boost::uint16_t noAlgoValue)
+    void setN0Algo(boost::uint16_t n0AlgoValue)
     {
-        m_noAlgo = noAlgoValue;
+        m_n0Algo = n0AlgoValue;
     }
 
-    /// set the NoAlgo from a 64-bits word, having the index iWord
+    /// set the N0Algo from a 64-bits word, having the index iWord
     /// in the GTFE raw record
-    void setNoAlgo(const boost::uint64_t& word64, int iWord);
+    void setN0Algo(const boost::uint64_t& word64, int iWord);
 
-    /// set the NoAlgo bits in a 64-bits word, having the index iWord
+    /// set the N0Algo bits in a 64-bits word, having the index iWord
     /// in the GTFE raw record
-    void setNoAlgoWord64(boost::uint64_t& word64, int iWord);
+    void setN0AlgoWord64(boost::uint64_t& word64, int iWord);
 
 
 
@@ -308,10 +306,6 @@ public:
     /// reset the content of a L1GtFdlWord
     void reset();
 
-    /// pretty print the content of a L1GtFdlWord
-    void print(std::ostream& myCout) const;
-
-
 private:
 
     // block description in the raw GT record
@@ -364,13 +358,13 @@ private:
     static const int GtDecisionWordExtendedShift = 0;
 
     // word 5
-    static const int NoAlgoWord = 5;
+    static const int N0AlgoWord = 5;
     static const int FinalORWord = 5;
 
-    static const boost::uint64_t NoAlgoMask =  0x0000000000000100ULL;
+    static const boost::uint64_t N0AlgoMask =  0x0000000000000100ULL;
     static const boost::uint64_t FinalORMask = 0x00000000000000FFULL;
 
-    static const int NoAlgoShift = 8;
+    static const int N0AlgoShift = 8;
     static const int FinalORShift = 0;
 
     // word 6
@@ -407,7 +401,7 @@ private:
     //
 
     // TODO meaning; just one bit?
-    boost::uint16_t m_noAlgo;
+    boost::uint16_t m_n0Algo;
 
     /// FINOR (7:0) Final OR bits.
     /// FINOR(i) is connected to Partition (i);

@@ -7,8 +7,6 @@
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/VertexReco>
 <use name=FWCore/Utilities>
-<use name=PhysicsTools/IsolationUtils>
-<use name=PhysicsTools/Utilities>
 <use name=boost>
 <use name=clhep>
 <use name=rootmath>
@@ -22,12 +20,9 @@
   <use name=DataFormats/Math>
   <use name=DataFormats/TrackReco>
   <use name=DataFormats/VertexReco>
-  <use name=PhysicsTools/IsolationUtils>
-  <use name=PhysicsTools/Utilities>
   <use name=boost>
   <use name=clhep>
   <use name=rootmath>
-  <use name=rootrflx>
   <lib name=DataFormatsBTauReco>
 </export>
 

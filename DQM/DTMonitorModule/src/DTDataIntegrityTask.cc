@@ -1,11 +1,11 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2007/05/15 17:02:14 $
- * $Revision: 1.27 $
+ * $Date: 2007/04/18 10:38:09 $
+ * $Revision: 1.25 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino)
  *
- */
+*/
 
 #include <DQM/DTMonitorModule/interface/DTDataIntegrityTask.h>
 
@@ -32,14 +32,22 @@ using namespace edm;
 DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps,edm::ActivityRegistry& reg) {
 
   reg.watchPostEndJob(this,&DTDataIntegrityTask::postEndJob);
-  
-  debug = ps.getUntrackedParameter<bool>("debug", false);
+ 
+  debug = ps.getUntrackedParameter<bool>("debug", "false");
   if (debug)
     cout<<"[DTDataIntegrityTask]: Constructor"<<endl;
 
   neventsDDU = 0;
   neventsROS25 = 0;
   
+  //Counter and containers for info(tts,ros,fifo) VS time
+ //  myPrevEv=0;
+//   myPrevTtsVal = -999;
+//   myPrevRosVal = -999;
+//   for (int i=0;i<7;i++){
+//     myPrevFifoVal[i] = -999;
+//   }
+
   //Root output file with histograms
   outputFile = ps.getUntrackedParameter<string>("outputFile", "ROS25Test.root");
 
@@ -56,26 +64,25 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps,edm::Activi
 DTDataIntegrityTask::~DTDataIntegrityTask() {
   if(debug)
     cout<<"[DTDataIntegrityTask]: Destructor. Analyzed "<< neventsDDU <<" events"<<endl;
+  //dbe->setCurrentFolder("DT/FED730");
+  //dbe->removeContents();
 }
 
 /*
-  Folder Structure:
-  - One folder for each DDU, named FEDn
-  - Inside each DDU folder the DDU histos and the ROSn folder
-  - Inside each ROS folder the ROS histos and the ROBn folder
-  - Inside each ROB folder one occupancy plot and the TimeBoxes
+Folder Structure:
+- One folder for each DDU, named FEDn
+- Inside each DDU folder the DDU histos and the ROSn folder
+- Inside each ROS folder the ROS histos and the ROBn folder
+- Inside each ROB folder one occupancy plot and the TimeBoxes
   with the chosen granularity (simply change the histo name)
 */
 
 void DTDataIntegrityTask::postEndJob(){
-  if(debug)
-    cout<<"[DTDataIntegrityTask]: postEndJob called!"<<endl;
-  
-  if (parameters.getUntrackedParameter<bool>("writeHisto", true))
-    dbe->save(parameters.getUntrackedParameter<string>("outputFile", "ROS25Test.root"));
+ if(debug)
+   cout<<"[DTDataIntegrityTask]: postEndJob called!"<<endl;
 
-  dbe->rmdir("DT/DataIntegrity");
-
+   dbe->save(parameters.getUntrackedParameter<string>("outputFile", "ROS25Test.root"));
+   dbe->rmdir("DT/FED730");
 }
 
 void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
@@ -89,7 +96,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
 
   // DDU Histograms
   if ( folder == "DDU" ) {
-    dbe->setCurrentFolder("DT/DataIntegrity/FED" + dduID_s.str());
+    dbe->setCurrentFolder("DT/FED" + dduID_s.str());
 
     histoType = "TTSValues";
     histoName = "FED" + dduID_s.str() + "_" + histoType;
@@ -247,26 +254,26 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
   // ROS Histograms
 
   if ( folder == "ROS_S" ) {
-    dbe->setCurrentFolder("DT/DataIntegrity/FED" + dduID_s.str());
+    dbe->setCurrentFolder("DT/FED" + dduID_s.str());
 
     histoType = "ROSSummary";
     histoName = "FED" + dduID_s.str() + "_ROSSummary";
 
     rosSHistos[histoType] = dbe->book2D(histoName,histoName,13,0,13,12,1,13);
 
-    //     rosSHistos[histoType] ->setBinLabel(1,"Link TimeOut",1);
-    //     rosSHistos[histoType] ->setBinLabel(2,"Ev.Id.Mis.",1);
-    //     rosSHistos[histoType] ->setBinLabel(3,"FIFO almost full",1);
-    //     rosSHistos[histoType] ->setBinLabel(4,"FIFO full",1);
-    //     rosSHistos[histoType] ->setBinLabel(5,"Ceros TimeOut",1);
-    //     rosSHistos[histoType] ->setBinLabel(6,"Max. wds",1);
-    //     rosSHistos[histoType] ->setBinLabel(7,"L1A FF",1);
-    //     rosSHistos[histoType] ->setBinLabel(8,"PC from TDC",1);
-    //     rosSHistos[histoType] ->setBinLabel(9,"BX ID Mis.",1);
-    //     rosSHistos[histoType] ->setBinLabel(10,"TXP",1);
-    //     rosSHistos[histoType] ->setBinLabel(11,"TDC Fatal",1);
-    //     rosSHistos[histoType] ->setBinLabel(12,"TDC FIFO Ov.",1);
-    //     rosSHistos[histoType] ->setBinLabel(13,"L1 Buffer Ov.",1);
+//     rosSHistos[histoType] ->setBinLabel(1,"Link TimeOut",1);
+//     rosSHistos[histoType] ->setBinLabel(2,"Ev.Id.Mis.",1);
+//     rosSHistos[histoType] ->setBinLabel(3,"FIFO almost full",1);
+//     rosSHistos[histoType] ->setBinLabel(4,"FIFO full",1);
+//     rosSHistos[histoType] ->setBinLabel(5,"Ceros TimeOut",1);
+//     rosSHistos[histoType] ->setBinLabel(6,"Max. wds",1);
+//     rosSHistos[histoType] ->setBinLabel(7,"L1A FF",1);
+//     rosSHistos[histoType] ->setBinLabel(8,"PC from TDC",1);
+//     rosSHistos[histoType] ->setBinLabel(9,"BX ID Mis.",1);
+//     rosSHistos[histoType] ->setBinLabel(10,"TXP",1);
+//     rosSHistos[histoType] ->setBinLabel(11,"TDC Fatal",1);
+//     rosSHistos[histoType] ->setBinLabel(12,"TDC FIFO Ov.",1);
+//     rosSHistos[histoType] ->setBinLabel(13,"L1 Buffer Ov.",1);
 
     rosSHistos[histoType] ->setBinLabel(1,"ROS1",2);
     rosSHistos[histoType] ->setBinLabel(2,"ROS2",2);
@@ -285,7 +292,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
 
   if ( folder == "ROS" ) {
 
-    dbe->setCurrentFolder("DT/DataIntegrity/FED" + dduID_s.str() + "/" + folder + rosID_s.str());
+    dbe->setCurrentFolder("DT/FED" + dduID_s.str() + "/" + folder + rosID_s.str());
 
     histoType = "ROSEventLenght";
     histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_ROSEventLenght";
@@ -301,19 +308,19 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     string histoTitle = histoName + " (ROBID error summary)";
     (rosHistos[histoType])[code.getROSID()] = dbe->book2D(histoName,histoTitle,13,0,13,26,0,26);
 
-    //     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(1,"Link TimeOut",1);
-    //     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(2,"Ev.Id.Mis.",1);
-    //     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(3,"FIFO almost full",1);
-    //     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(4,"FIFO full",1);
-    //     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(5," ",1);
-    //     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(6,"Max. wds",1);
-    //     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(7,"L1A FF",1);
-    //     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(8,"PC from TDC",1);
-    //     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(9,"BX ID Mis.",1);
-    //     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(10," ",1);
-    //     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(11,"TDC Fatal",1);
-    //     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(12,"TDC FIFO Ov.",1);
-    //     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(13,"L1 Buffer Ov.",1);
+//     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(1,"Link TimeOut",1);
+//     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(2,"Ev.Id.Mis.",1);
+//     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(3,"FIFO almost full",1);
+//     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(4,"FIFO full",1);
+//     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(5," ",1);
+//     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(6,"Max. wds",1);
+//     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(7,"L1A FF",1);
+//     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(8,"PC from TDC",1);
+//     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(9,"BX ID Mis.",1);
+//     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(10," ",1);
+//     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(11,"TDC Fatal",1);
+//     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(12,"TDC FIFO Ov.",1);
+//     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(13,"L1 Buffer Ov.",1);
 
     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(1,"ROB0",2);
     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(2,"ROB1",2);
@@ -355,7 +362,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
   // ROB/TDC Histograms
   if ( folder == "ROB_O") {
     
-    dbe->setCurrentFolder("DT/DataIntegrity/FED" + dduID_s.str()+"/ROS"+rosID_s.str()+"/ROB"+robID_s.str());
+    dbe->setCurrentFolder("DT/FED" + dduID_s.str()+"/ROS"+rosID_s.str()+"/ROB"+robID_s.str());
 
     histoType = "Occupancy";
     histoName = "FED" + dduID_s.str() + "_ROS" + rosID_s.str() + "_ROB"+robID_s.str()+"_Occupancy";
@@ -366,7 +373,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
 
   if ( folder == "ROB_T") {
 
-    dbe->setCurrentFolder("DT/DataIntegrity/FED" + dduID_s.str()+"/ROS"+rosID_s.str()+"/ROB"+robID_s.str());
+    dbe->setCurrentFolder("DT/FED" + dduID_s.str()+"/ROS"+rosID_s.str()+"/ROB"+robID_s.str());
 
     histoType = "TimeBox";
     histoName = "FED" + dduID_s.str() + "_ROS" + rosID_s.str() + "_ROB" + robID_s.str()+"_TimeBox";
@@ -408,7 +415,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
 
   if ( folder == "TDCError") {
 
-    dbe->setCurrentFolder("DT/DataIntegrity/FED" + dduID_s.str()+"/ROS"+rosID_s.str()+"/ROB"+robID_s.str());
+    dbe->setCurrentFolder("DT/FED" + dduID_s.str()+"/ROS"+rosID_s.str()+"/ROB"+robID_s.str());
 
     histoType = "TDCError";
     histoName = "FED" + dduID_s.str() + "_ROS" + rosID_s.str() + "_ROB"+robID_s.str()+"_TDCError";
@@ -430,7 +437,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
   // SC Histograms
   if ( folder == "SC" ) {
     // Same numbering for SC as for ROS
-    dbe->setCurrentFolder("DT/DataIntegrity/FED" + dduID_s.str() + "/" + folder + rosID_s.str());
+    dbe->setCurrentFolder("DT/FED" + dduID_s.str() + "/" + folder + rosID_s.str());
 
     // the SC histos belong to the ROS map (pay attention) since the data come from the corresponding ROS
 
@@ -507,20 +514,20 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
        error_it != data.getROSErrors().end(); error_it++) {
 
     if (debug)
-      cout << " Error in ROS " << code.getROS() << " ROB Id " << (*error_it).robID() << " Error type " << (*error_it).errorType() << endl;
+    cout << " Error in ROS " << code.getROS() << " ROB Id " << (*error_it).robID() << " Error type " << (*error_it).errorType() << endl;
 
     rosSHistos.find("ROSSummary")->second->Fill((*error_it).errorType(),code.getROS());
 
     if (rosHistos[histoType].find(code.getROSID()) != rosHistos[histoType].end()) {
-      //    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill((*error_it).robID(),
-      //             (*error_it).errorType());
+//    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill((*error_it).robID(),
+//             (*error_it).errorType());
       if ((*error_it).errorType() != 4)
         (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill((*error_it).errorType(),(*error_it).robID());
     }
     else {
       bookHistos( string("ROS"), code);
-      //    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill((*error_it).robID(),
-      //             (*error_it).errorType());
+//    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill((*error_it).robID(),
+//             (*error_it).errorType());
       if ((*error_it).errorType() != 4)
         (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill((*error_it).errorType(),(*error_it).robID());
     }
@@ -578,21 +585,21 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
   for (vector<DTROBHeader>::const_iterator rob_it = data.getROBHeaders().begin();
        rob_it != data.getROBHeaders().end(); rob_it++) {
 
-    code.setROB((*rob_it).first);
-    DTROBHeaderWord robheader = (*rob_it).second;
+       code.setROB((*rob_it).first);
+       DTROBHeaderWord robheader = (*rob_it).second;
 
-    if (robheader.bunchID() != ROSDebug_BunchNumber) {
-      //     fill ROS Summary plot
-      rosSHistos.find("ROSSummary")->second->Fill(8,code.getROS());
-      //     fill ROB Summary plot for that particular ROS
-      histoType = "ROSError";
-      if (rosHistos[histoType].find(code.getROSID()) != rosHistos[histoType].end())
-	(rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(8,robheader.robID());
-      else {
-	bookHistos( string("ROS"), code);
-	(rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(8,robheader.robID());
-      }
-    }
+       if (robheader.robID() != ROSDebug_BunchNumber) {
+//     fill ROS Summary plot
+         rosSHistos.find("ROSSummary")->second->Fill(8,code.getROS());
+//     fill ROB Summary plot for that particular ROS
+         histoType = "ROSError";
+         if (rosHistos[histoType].find(code.getROSID()) != rosHistos[histoType].end())
+           (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(8,robheader.robID());
+         else {
+           bookHistos( string("ROS"), code);
+           (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(8,robheader.robID());
+         }
+       }
   }
 
   
@@ -604,17 +611,17 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
     DTTDCMeasurementWord tdcDatum = (*tdc_it).second;
 
     if ( tdcDatum.PC() !=0)  {
-      if (debug) cout << " PC error en ROS " << code.getROS() << " TDC " << (*tdc_it).first << endl;
-      //     fill ROS Summary plot
-      rosSHistos.find("ROSSummary")->second->Fill(7,code.getROS());
-      //     fill ROB Summary plot for that particular ROS
-      histoType = "ROSError";
-      if (rosHistos[histoType].find(code.getROSID()) != rosHistos[histoType].end())
-	(rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(7,(*tdc_it).first);
-      else {
-	bookHistos( string("ROS"), code);
-	(rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(7,(*tdc_it).first);
-      }
+       if (debug) cout << " PC error en ROS " << code.getROS() << " TDC " << (*tdc_it).first << endl;
+//     fill ROS Summary plot
+       rosSHistos.find("ROSSummary")->second->Fill(7,code.getROS());
+//     fill ROB Summary plot for that particular ROS
+         histoType = "ROSError";
+         if (rosHistos[histoType].find(code.getROSID()) != rosHistos[histoType].end())
+           (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(7,(*tdc_it).first);
+         else {
+           bookHistos( string("ROS"), code);
+           (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(7,(*tdc_it).first);
+         }
     }
 
     int index;
@@ -664,7 +671,7 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
 
 
   /// TDC Error  
-  for (vector<DTTDCError>::const_iterator tdc_it = data.getTDCError().begin();
+ for (vector<DTTDCError>::const_iterator tdc_it = data.getTDCError().begin();
        tdc_it != data.getTDCError().end(); tdc_it++) {
 
     code.setROB((*tdc_it).first);
@@ -673,25 +680,25 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
     float type_TDC_error_for_plot_2 = 0;
 
     if ( ((*tdc_it).second).tdcError() & 0x4000 ) {
-      if (debug)
-	cout << " ROS " << code.getROS() << " ROB " << code.getROB() << " Internal fatal Error 4000 in TDC " << (*tdc_it).first << endl;
-      type_TDC_error_for_plot_1 = 10;
-      type_TDC_error_for_plot_2 = 0;
+       if (debug)
+       cout << " ROS " << code.getROS() << " ROB " << code.getROB() << " Internal fatal Error 4000 in TDC " << (*tdc_it).first << endl;
+       type_TDC_error_for_plot_1 = 10;
+       type_TDC_error_for_plot_2 = 0;
     }
     else if ( ((*tdc_it).second).tdcError() & 0x1b6d ) {
-      if (debug)
-	cout << " ROS " << code.getROS() << " ROB " << code.getROB() << " TDC FIFO full in TDC " << (*tdc_it).first << endl;
-      type_TDC_error_for_plot_1 = 11;
-      type_TDC_error_for_plot_2 = 1;
+       if (debug)
+       cout << " ROS " << code.getROS() << " ROB " << code.getROB() << " TDC FIFO full in TDC " << (*tdc_it).first << endl;
+       type_TDC_error_for_plot_1 = 11;
+       type_TDC_error_for_plot_2 = 1;
     }
     else if ( ((*tdc_it).second).tdcError() & 0x2492 ) {
-      if (debug)
-	cout << " ROS " << code.getROS() << " ROB " << code.getROB() << " L1 buffer overflow in TDC " << (*tdc_it).first << endl;
-      type_TDC_error_for_plot_1 = 12;
-      type_TDC_error_for_plot_2 = 2;
+       if (debug)
+       cout << " ROS " << code.getROS() << " ROB " << code.getROB() << " L1 buffer overflow in TDC " << (*tdc_it).first << endl;
+       type_TDC_error_for_plot_1 = 12;
+       type_TDC_error_for_plot_2 = 2;
     }
     else {
-      cout << " TDC error code not known " << ((*tdc_it).second).tdcError() << endl;
+       cout << " TDC error code not known " << ((*tdc_it).second).tdcError() << endl;
     }
 
     histoType = "ROSError";
@@ -717,66 +724,62 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
   }
 
 
-  if ( parameters.getUntrackedParameter<bool>("getSCInfo", false) ) {
+  /// SC Data
+  int stationGroup = 0 ; //= ((*sc_it).second)%2;
+  for (vector<DTSectorCollectorData>::const_iterator sc_it = data.getSCData().begin();
+       sc_it != data.getSCData().end(); sc_it++) {
 
-    /// SC Data
-    int stationGroup = 0 ; //= ((*sc_it).second)%2;
-    for (vector<DTSectorCollectorData>::const_iterator sc_it = data.getSCData().begin();
-	 sc_it != data.getSCData().end(); sc_it++) {
+    // SC Data words are devided into 2 parts each of 8 bits:
+    //  LSB refers to MB1 and MB3
+    //  MSB refers to MB2 and MB4
 
-      // SC Data words are devided into 2 parts each of 8 bits:
-      //  LSB refers to MB1 and MB3
-      //  MSB refers to MB2 and MB4
+    // fill only the information regarding SC words with trigger
+    bool hasTrigger_LSB = ((*sc_it).first).hasTrigger(0);
+    bool hasTrigger_MSB = ((*sc_it).first).hasTrigger(1);
 
-      // fill only the information regarding SC words with trigger
-      bool hasTrigger_LSB = ((*sc_it).first).hasTrigger(0);
-      bool hasTrigger_MSB = ((*sc_it).first).hasTrigger(1);
-
-      // the quality
-      int quality_LSB = ((*sc_it).first).trackQuality(0);
-      int quality_MSB = ((*sc_it).first).trackQuality(1);
+    // the quality
+    int quality_LSB = ((*sc_it).first).trackQuality(0);
+    int quality_MSB = ((*sc_it).first).trackQuality(1);
 
     
-      if (hasTrigger_LSB) {
+    if (hasTrigger_LSB) {
 
-	histoType = "SCTriggerBX";
-	if (rosHistos[histoType].find(code.getSCID()) != rosHistos[histoType].end())
-	  (rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill((*sc_it).second, 1+stationGroup*2);
-	else {									       
-	  bookHistos( string("SC"), code);
-	  (rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill((*sc_it).second, 1+stationGroup*2);
-	}										       
+      histoType = "SCTriggerBX";
+      if (rosHistos[histoType].find(code.getSCID()) != rosHistos[histoType].end())
+	(rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill((*sc_it).second, 1+stationGroup*2);
+      else {									       
+	bookHistos( string("SC"), code);
+	(rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill((*sc_it).second, 1+stationGroup*2);
+      }										       
 
-	histoType = "SCTriggerQuality";						       
-	if (rosHistos[histoType].find(code.getSCID()) != rosHistos[histoType].end())      
-	  (rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill(1+stationGroup*2,quality_LSB);
-	else {									       
-	  bookHistos( string("SC"), code);						       
-	  (rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill(1+stationGroup*2,quality_LSB);
-	}
+      histoType = "SCTriggerQuality";						       
+      if (rosHistos[histoType].find(code.getSCID()) != rosHistos[histoType].end())      
+	(rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill(1+stationGroup*2,quality_LSB);
+      else {									       
+	bookHistos( string("SC"), code);						       
+	(rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill(1+stationGroup*2,quality_LSB);
       }
-    
-      if (hasTrigger_MSB) {
-
-	histoType = "SCTriggerBX";
-	if (rosHistos[histoType].find(code.getSCID()) != rosHistos[histoType].end())
-	  (rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill((*sc_it).second, 2+stationGroup*2);
-	else {									       
-	  bookHistos( string("SC"), code);	
-	  (rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill((*sc_it).second, 2+stationGroup*2);
-	}										       
-      
-	histoType = "SCTriggerQuality";						       
-	if (rosHistos[histoType].find(code.getSCID()) != rosHistos[histoType].end())      
-	  (rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill(2+stationGroup*2,quality_MSB);
-	else {									       
-	  bookHistos( string("SC"), code);						       
-	  (rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill(2+stationGroup*2,quality_MSB);
-	}
-      }
-      stationGroup = (stationGroup == 0 ? 1 : 0);  //switch between MB1-2 and MB3-4 data
     }
+    
+    if (hasTrigger_MSB) {
 
+      histoType = "SCTriggerBX";
+      if (rosHistos[histoType].find(code.getSCID()) != rosHistos[histoType].end())
+	(rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill((*sc_it).second, 2+stationGroup*2);
+      else {									       
+	bookHistos( string("SC"), code);	
+	(rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill((*sc_it).second, 2+stationGroup*2);
+      }										       
+      
+      histoType = "SCTriggerQuality";						       
+      if (rosHistos[histoType].find(code.getSCID()) != rosHistos[histoType].end())      
+	(rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill(2+stationGroup*2,quality_MSB);
+      else {									       
+	bookHistos( string("SC"), code);						       
+	(rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill(2+stationGroup*2,quality_MSB);
+      }
+    }
+    stationGroup = (stationGroup == 0 ? 1 : 0);  //switch between MB1-2 and MB3-4 data
   }
   
   if ((neventsROS25%parameters.getUntrackedParameter<int>("saveResultsFrequency", 10000)==0) 
@@ -804,41 +807,41 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
   //1D HISTO WITH TTS VALUES form trailer (7 bins = 7 values)
   histoType = "TTSValues";
   if (dduHistos[histoType].find(code.getDDUID()) == dduHistos[histoType].end()) {
-    bookHistos( string("DDU"), code);
+      bookHistos( string("DDU"), code);
   }
   
   switch(trailer.ttsBits()){
-  case 0:{ //disconnected
-    (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(0);
-    break;
-  }
-  case 1:{ //warning overflow
-    (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(1);
-    break;
-  }
-  case 2:{ //out of sinch
-    (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(2);
-    break;
-  }
-  case 4:{ //busy
-    (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(3);
-    break;
-  }
-  case 8:{ //ready
-    (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(4);
-    break;
-  }
-  case 12:{ //error
-    (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(5);
-    break;
-  }
-  case 16:{ //disconnected
-    (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(6);
-    break;
-  }
-  default:{
-    cout<<"[DTDataInetegrityTask] DDU control: wrong TTS value "<<trailer.ttsBits()<<endl;
-  }
+    case 0:{ //disconnected
+      (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(0);
+      break;
+    }
+    case 1:{ //warning overflow
+      (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(1);
+      break;
+    }
+    case 2:{ //out of sinch
+      (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(2);
+      break;
+    }
+    case 4:{ //busy
+      (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(3);
+      break;
+    }
+    case 8:{ //ready
+      (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(4);
+      break;
+    }
+    case 12:{ //error
+      (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(5);
+      break;
+    }
+    case 16:{ //disconnected
+      (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(6);
+      break;
+    }
+    default:{
+      cout<<"[DTDataInetegrityTask] DDU control: wrong TTS value "<<trailer.ttsBits()<<endl;
+    }
   }
   
   //1D HISTO: IF TTS=2,12 CHECK L1A AND BX MISIMATCH, FIFO AND ROS ERROR (from status words)
@@ -872,61 +875,61 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
     }
   }
 
-  //MONITOR TTS VS TIME 
-  //   pair<int,int> ev_tts= make_pair(header.lvl1ID(),trailer.ttsBits());
-  //   //insert the pair at the right position
-  //   for (list<pair<int,int> >::iterator ev_it = ttsVSTime.begin(); ; ev_it++) {
-  //     if(ev_it == ttsVSTime.end()){
-  //       ttsVSTime.push_back(ev_tts);
-  //       break;
-  //     }
-  //     else if(header.lvl1ID() < (*ev_it).first) {
-  //       ttsVSTime.insert(ev_it, ev_tts);
-  //       break;
-  //     }
-  //   }
-  //   //loop until the event number are sequential
-  //   if(!(header.lvl1ID() % 10)){
-  //     //create a copy of the list to remove elements already analyzed
-  //     list<pair<int,int> > ttsVSTime_copy(ttsVSTime);
-  //     int counter_ev=myPrevEv;
-  //       for (list<pair<int,int> >::iterator ev_it = ttsVSTime.begin(); ; ev_it++) {
-  // 	counter_ev++;
+ //MONITOR TTS VS TIME 
+//   pair<int,int> ev_tts= make_pair(header.lvl1ID(),trailer.ttsBits());
+//   //insert the pair at the right position
+//   for (list<pair<int,int> >::iterator ev_it = ttsVSTime.begin(); ; ev_it++) {
+//     if(ev_it == ttsVSTime.end()){
+//       ttsVSTime.push_back(ev_tts);
+//       break;
+//     }
+//     else if(header.lvl1ID() < (*ev_it).first) {
+//       ttsVSTime.insert(ev_it, ev_tts);
+//       break;
+//     }
+//   }
+//   //loop until the event number are sequential
+//   if(!(header.lvl1ID() % 10)){
+//     //create a copy of the list to remove elements already analyzed
+//     list<pair<int,int> > ttsVSTime_copy(ttsVSTime);
+//     int counter_ev=myPrevEv;
+//       for (list<pair<int,int> >::iterator ev_it = ttsVSTime.begin(); ; ev_it++) {
+// 	counter_ev++;
 
-  // 	if((*ev_it).first != counter_ev || ev_it == ttsVSTime.end())
-  // 	  break;
+// 	if((*ev_it).first != counter_ev || ev_it == ttsVSTime.end())
+// 	  break;
 
-  // 	if((*ev_it).first > myPrevEv){
-  // 	  myPrevEv = (*ev_it).first;
+// 	if((*ev_it).first > myPrevEv){
+// 	  myPrevEv = (*ev_it).first;
 
-  // 	  //add a point if the value is changed
-  // 	  if((*ev_it).second != myPrevTtsVal){
-  // 	    //graphTTS->addPoint
-  // 	    myPrevTtsVal = (*ev_it).second;
-  // 	  }
-  // 	}
+// 	  //add a point if the value is changed
+// 	  if((*ev_it).second != myPrevTtsVal){
+// 	    //graphTTS->addPoint
+// 	    myPrevTtsVal = (*ev_it).second;
+// 	  }
+// 	}
 
-  // 	//remove from the list the ordered events already analyzed
-  // 	list<pair<int,int> >::iterator copy_it = ev_it;
-  // 	ttsVSTime_copy.remove(*copy_it);
-  //       }
-  //       ttsVSTime.clear();
-  //       ttsVSTime.merge(ttsVSTime_copy);
-  //   }
+// 	//remove from the list the ordered events already analyzed
+// 	list<pair<int,int> >::iterator copy_it = ev_it;
+// 	ttsVSTime_copy.remove(*copy_it);
+//       }
+//       ttsVSTime.clear();
+//       ttsVSTime.merge(ttsVSTime_copy);
+//   }
 
   //1D HISTOS: EVENT LENGHT from trailer
   //cout<<"1D HISTOS WITH EVENT LENGHT from trailer"<<endl;
   histoType = "EventLenght";
   if (dduHistos[histoType].find(code.getDDUID()) == dduHistos[histoType].end()) {
-    bookHistos( string("DDU"), code);
+      bookHistos( string("DDU"), code);
   }
   (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(trailer.lenght());
 
   //1D HISTO: EVENT TYPE from header
   //cout<<"1D HISTO WITH EVENT TYPE from header"<<endl;
-  histoType = "EventType";
+   histoType = "EventType";
   if (dduHistos[histoType].find(code.getDDUID()) == dduHistos[histoType].end()) {
-    bookHistos( string("DDU"), code);
+      bookHistos( string("DDU"), code);
   }
   (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(header.triggerType());  
 
@@ -970,40 +973,40 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
   }
 
   //MONITOR ROS LIST VS TIME 
-  //  pair<int,int> ev_ros= make_pair(header.lvl1ID(),rosPositions.size());
-  //   //insert the pair at the right position
-  //   for (list<pair<int,int> >::iterator ev_it = rosVSTime.begin(); ; ev_it++) {
-  //     if(ev_it == rosVSTime.end()){
-  //       rosVSTime.push_back(ev_ros);
-  //       break;
-  //     }
-  //     else if(header.lvl1ID() < (*ev_it).first) {
-  //       rosVSTime.insert(ev_it, ev_ros);
-  //       break;
-  //     }
-  //   }
+ //  pair<int,int> ev_ros= make_pair(header.lvl1ID(),rosPositions.size());
+//   //insert the pair at the right position
+//   for (list<pair<int,int> >::iterator ev_it = rosVSTime.begin(); ; ev_it++) {
+//     if(ev_it == rosVSTime.end()){
+//       rosVSTime.push_back(ev_ros);
+//       break;
+//     }
+//     else if(header.lvl1ID() < (*ev_it).first) {
+//       rosVSTime.insert(ev_it, ev_ros);
+//       break;
+//     }
+//   }
 
-  //   //loop until the last sequential event number (= myPrevEv set by loop on ttsVSTime)
-  //   if(!(header.lvl1ID() % 10)){
-  //     //create a copy of the list to remove elements already analyzed
-  //     list<pair<int,int> > rosVSTime_copy(rosVSTime);
-  //     for (list<pair<int,int> >::iterator ev_it = rosVSTime.begin(); ; ev_it++) {
+//   //loop until the last sequential event number (= myPrevEv set by loop on ttsVSTime)
+//   if(!(header.lvl1ID() % 10)){
+//     //create a copy of the list to remove elements already analyzed
+//     list<pair<int,int> > rosVSTime_copy(rosVSTime);
+//     for (list<pair<int,int> >::iterator ev_it = rosVSTime.begin(); ; ev_it++) {
       
-  //       if((*ev_it).first > myPrevEv || ev_it == rosVSTime.end())
-  // 	break;
+//       if((*ev_it).first > myPrevEv || ev_it == rosVSTime.end())
+// 	break;
       
-  //       //add a point if the value is changed
-  //       if((*ev_it).second != myPrevRosVal){
-  // 	//graphROS->addPoint
-  // 	myPrevRosVal = (*ev_it).second;
-  //      }
-  //       //remove from the list the ordered events already analyzed
-  //       list<pair<int,int> >::iterator copy_it = ev_it;
-  //       rosVSTime_copy.remove(*copy_it);
-  //     }
-  //     rosVSTime.clear();
-  //     rosVSTime.merge(rosVSTime_copy);
-  //   }
+//       //add a point if the value is changed
+//       if((*ev_it).second != myPrevRosVal){
+// 	//graphROS->addPoint
+// 	myPrevRosVal = (*ev_it).second;
+//      }
+//       //remove from the list the ordered events already analyzed
+//       list<pair<int,int> >::iterator copy_it = ev_it;
+//       rosVSTime_copy.remove(*copy_it);
+//     }
+//     rosVSTime.clear();
+//     rosVSTime.merge(rosVSTime_copy);
+//   }
 
   //2D HISTO: FIFO STATUS from 2nd status word
   histoType = "FIFOStatus";   
@@ -1037,7 +1040,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
     }
     if(!(inputFifoFull & 0x1) && !(inputFifoAlmostFull & 0x1)){
       fifoStatus[i]=2;
-      (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(i,2);
+     (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(i,2);
     }
     if(!(fifoFull & 0x1) && !(fifoAlmostFull & 0x1)){
       fifoStatus[3+i]=2;
@@ -1064,40 +1067,40 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
 
   //MONITOR FIFO VS TIME 
   // pair<int,int*> ev_fifo= make_pair(header.lvl1ID(),fifoStatus);
-  //   //insert the pair at the right position
-  //   for (list<pair<int,int*> >::iterator ev_it = fifoVSTime.begin(); ; ev_it++) {
-  //     if(ev_it == fifoVSTime.end()){
-  //       fifoVSTime.push_back(ev_fifo);
-  //       break;
-  //     }
-  //     else if(header.lvl1ID() < (*ev_it).first) {
-  //       fifoVSTime.insert(ev_it, ev_fifo);
-  //       break;
-  //     }
-  //   }
+//   //insert the pair at the right position
+//   for (list<pair<int,int*> >::iterator ev_it = fifoVSTime.begin(); ; ev_it++) {
+//     if(ev_it == fifoVSTime.end()){
+//       fifoVSTime.push_back(ev_fifo);
+//       break;
+//     }
+//     else if(header.lvl1ID() < (*ev_it).first) {
+//       fifoVSTime.insert(ev_it, ev_fifo);
+//       break;
+//     }
+//   }
 
-  //   //loop until the last sequential event number (= myPrevEv set by loop on ttsVSTime)
-  //   if(!(header.lvl1ID() % 10)){
-  //     //create a copy of the list to remove elements already analyzed
-  //     list<pair<int,int*> > fifoVSTime_copy(fifoVSTime);
-  //     for (list<pair<int,int*> >::iterator ev_it = fifoVSTime.begin(); ; ev_it++) {
-  //       if((*ev_it).first > myPrevEv || ev_it == fifoVSTime.end())
-  // 	break;
+//   //loop until the last sequential event number (= myPrevEv set by loop on ttsVSTime)
+//   if(!(header.lvl1ID() % 10)){
+//     //create a copy of the list to remove elements already analyzed
+//     list<pair<int,int*> > fifoVSTime_copy(fifoVSTime);
+//     for (list<pair<int,int*> >::iterator ev_it = fifoVSTime.begin(); ; ev_it++) {
+//       if((*ev_it).first > myPrevEv || ev_it == fifoVSTime.end())
+// 	break;
       
-  //       //add a point if one of the values is changed
-  //       for(int i=0; i<7; i++){
-  // 	if((*ev_it).second[i] != myPrevFifoVal[i]){
-  // 	  //graphFIFO[i]->addPoint
-  // 	  myPrevFifoVal[i] = (*ev_it).second[i];
-  // 	}
-  //       }
-  //       //remove from the list the ordered events already analyzed
-  //       list<pair<int,int*> >::iterator copy_it = ev_it;
-  //       fifoVSTime_copy.remove(*copy_it);
-  //     }
-  //     fifoVSTime.clear();
-  //     fifoVSTime.merge(fifoVSTime_copy);
-  //   }
+//       //add a point if one of the values is changed
+//       for(int i=0; i<7; i++){
+// 	if((*ev_it).second[i] != myPrevFifoVal[i]){
+// 	  //graphFIFO[i]->addPoint
+// 	  myPrevFifoVal[i] = (*ev_it).second[i];
+// 	}
+//       }
+//       //remove from the list the ordered events already analyzed
+//       list<pair<int,int*> >::iterator copy_it = ev_it;
+//       fifoVSTime_copy.remove(*copy_it);
+//     }
+//     fifoVSTime.clear();
+//     fifoVSTime.merge(fifoVSTime_copy);
+//   }
 
 
   if(trailer.ttsBits()==2){   //DDU OUT OF SYNCH
@@ -1125,21 +1128,21 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
     }
 
     //If L1A_ID error identify which ROS has wrong L1A 
-    histoType = "L1A_IDErrorROS";
-    if (dduHistos[histoType].find(code.getDDUID()) == dduHistos[histoType].end()) {
-      bookHistos( string("DDU"), code);
-    } 
-    for (vector<DTROS25Data>::const_iterator ros_it = rosData.begin();
-	 ros_it != rosData.end(); ros_it++) {
-      int ROSHeader_TTCCount = ((*ros_it).getROSHeader()).TTCEventCounter();
-      if(ROSHeader_TTCCount != header.lvl1ID()-1){
-	(dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill((*ros_it).getROSID()-1);
-	//FIXME: how to notify this error in a log file
-	cout << "L1A_ID error from ROS "<<(*ros_it).getROSID()<<" :"
-	     <<" ROSHeader_TTCeventcounter " << ROSHeader_TTCCount
-	     <<"   DDUHeader_lvl1ID "<< header.lvl1ID()<<endl;
-      }
-    }
+     histoType = "L1A_IDErrorROS";
+     if (dduHistos[histoType].find(code.getDDUID()) == dduHistos[histoType].end()) {
+       bookHistos( string("DDU"), code);
+     } 
+     for (vector<DTROS25Data>::const_iterator ros_it = rosData.begin();
+	  ros_it != rosData.end(); ros_it++) {
+       int ROSHeader_TTCCount = ((*ros_it).getROSHeader()).TTCEventCounter();
+	 if(ROSHeader_TTCCount != header.lvl1ID()-1){
+	   (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill((*ros_it).getROSID()-1);
+	   //FIXME: how to notify this error in a log file
+	   cout << "L1A_ID error from ROS "<<(*ros_it).getROSID()<<" :"
+	   <<" ROSHeader_TTCeventcounter " << ROSHeader_TTCCount
+	   <<"   DDUHeader_lvl1ID "<< header.lvl1ID()<<endl;
+	 }
+     }
   }
 }
 

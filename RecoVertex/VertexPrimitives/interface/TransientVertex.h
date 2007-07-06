@@ -205,7 +205,7 @@ public:
    *   In case these do not exist, or one of the tracks does not belong to the
    *   vertex, an exception is thrown.
    */
-  AlgebraicMatrix33 tkToTkCovariance(const reco::TransientTrack& t1, 
+  AlgebraicMatrix tkToTkCovariance(const reco::TransientTrack& t1, 
   				const reco::TransientTrack& t2) const;
   void tkToTkCovariance(const TTtoTTmap covMap);
 

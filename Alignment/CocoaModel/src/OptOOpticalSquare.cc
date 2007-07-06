@@ -15,7 +15,6 @@
 #include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
 #include "Alignment/CocoaVisMgr/interface/ALIColour.h"
 #endif
-#include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeBox.h"
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@  Detailed simulation of deviation of the light ray 
@@ -125,7 +124,7 @@ void OptOOpticalSquare::fastDeviatesLightRay( LightRay& lightray )
   //---------- Fast simulation of the light ray traversing
 void OptOOpticalSquare::fastTraversesLightRay( LightRay& lightray )
 {
-  //  std::cerr << " WARNING  there should be an extra piece to make entering and exiting surfaces parallel (like in modified_rhomboid_prism) " << std::endl;
+  std::cerr << " WARNING  should be in an extra piece to make entering and exiting surfaces parallel (like in modified_rhomboid_prism) " << std::endl;
 
   calculateFaces( 0 );
 
@@ -257,14 +256,3 @@ void OptOOpticalSquare::fillIguana()
   IgCocoaFileMgr::getInstance().addSolid( *this, "OPTSQR", spar, col);
 }
 #endif
-
-
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void OptOOpticalSquare::constructSolidShape()
-{
-  ALIdouble go;
-  GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
-  gomgr->getGlobalOptionValue("VisScale", go );
-
-  theSolidShape = new CocoaSolidShapeBox( "Box", go*5.*cm/m, go*5.*cm/m, go*5.*cm/m ); //COCOA internal units are meters
-}

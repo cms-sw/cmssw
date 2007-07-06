@@ -46,9 +46,6 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
   DaqMonitorBEInterface* const dqm( std::string method = "" ) const;
   
   /** */
-  void createRunNumber();
-
-  /** */
   void createTask( const SiStripEventSummary* const );
   
   /** */
@@ -71,9 +68,6 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
   void fillHistos( const SiStripEventSummary* const,
 		   const edm::DetSetVector<SiStripRawDigi>& );
   
-  /** */
-  void remove();
-
   // ---------- DQM fwk and cabling ----------
 
   /** Interface to Data Quality Monitoring framework. */
@@ -122,9 +116,6 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
   
   /** Update frequency for histograms (ignored for cabling). */
   int updateFreq_;
-
-  /** */
-  std::string base_;
 
 };
 

@@ -9,6 +9,7 @@
 <use name=EventFilter/RPCRawToDigi>
 <use name=boost>
 <use name=xerces-c>
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=IORawDataRPCFileReader>
    <use name=FWCore/Framework>

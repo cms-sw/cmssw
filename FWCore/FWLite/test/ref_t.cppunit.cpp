@@ -2,7 +2,7 @@
 
 Test program for edm::Ref use in ROOT.
 
-$Id: ref_t.cppunit.cpp,v 1.9 2007/01/27 00:10:07 wmtan Exp $
+$Id: ref_t.cppunit.cpp,v 1.10 2007/03/04 05:25:01 wmtan Exp $
  ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -82,6 +82,9 @@ static void checkMatch(const edmtest::OtherThingCollection* pOthers,
   for( ; itThing != itThingEnd; ++itThing, ++itOther) {
     //I'm assuming the following is true
     CPPUNIT_ASSERT(itOther->ref.key() == static_cast<unsigned int>(itThing - pThings->begin()));
+    if(itOther->ref.get()->a != itThing->a) {
+      std::cout <<" *PROBLEM: ref "<<itOther->ref.get()->a<<"!= thing "<<itThing->a<<std::endl;
+    }
     CPPUNIT_ASSERT( itOther->ref.get()->a == itThing->a);
   }
 }
@@ -98,19 +101,19 @@ static void testTree(TTree* events) {
   TBranch* otherBranch = events->GetBranch("edmtestOtherThings_OtherThing_testUserTag_TEST.");
   
   CPPUNIT_ASSERT( otherBranch != 0);
-  otherBranch->SetAddress(&pOthers);
   
   //edmtest::ThingCollection things;
   edm::Wrapper<edmtest::ThingCollection>* pThings = 0;
   //NOTE: the period at the end is needed
   TBranch* thingBranch = events->GetBranch("edmtestThings_Thing__TEST.");
   CPPUNIT_ASSERT( thingBranch != 0);
-  thingBranch->SetAddress(&pThings);
   
   int nev = events->GetEntries();
   for( int ev=0; ev<nev; ++ev) {
 
-    events->GetEntry(ev);
+    events->GetEntry(ev,0);
+    otherBranch->SetAddress(&pOthers);
+    thingBranch->SetAddress(&pThings);
     thingBranch->GetEntry(ev);
     otherBranch->GetEntry(ev);
     checkMatch(pOthers->product(),pThings->product());
@@ -158,15 +161,21 @@ void testRefInROOT::testGoodChain()
   eventChain.Add("good2.root");
 
   edm::Wrapper<edmtest::OtherThingCollection> *pOthers =0;
-  eventChain.SetBranchAddress("edmtestOtherThings_OtherThing_testUserTag_TEST.",&pOthers);
+  TBranch* othersBranch = 0;
+  eventChain.SetBranchAddress("edmtestOtherThings_OtherThing_testUserTag_TEST.",&pOthers,&othersBranch);
   
   edm::Wrapper<edmtest::ThingCollection>* pThings = 0;
-  eventChain.SetBranchAddress("edmtestThings_Thing__TEST.",&pThings);
+  TBranch* thingsBranch = 0;
+  eventChain.SetBranchAddress("edmtestThings_Thing__TEST.",&pThings,&thingsBranch);
   
   int nev = eventChain.GetEntries();
   for( int ev=0; ev<nev; ++ev) {
     std::cout <<"event #" <<ev<<std::endl;
-    eventChain.GetEntry(ev);
+    othersBranch->SetAddress(&pOthers);
+    thingsBranch->SetAddress(&pThings);
+    othersBranch->GetEntry(ev);
+    thingsBranch->GetEntry(ev);
+    eventChain.GetEntry(ev,0);
     CPPUNIT_ASSERT(pOthers != 0);
     CPPUNIT_ASSERT(pThings != 0);
     checkMatch(pOthers->product(),pThings->product());

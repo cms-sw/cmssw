@@ -7,33 +7,34 @@ float KalmanChiSquare::estimate(
       const GlobalPoint & vertex,
       RefCountedLinearizedTrackState lt ) const
 {
-  AlgebraicVector3 vtxposV;
+  AlgebraicVector vtxposV(3);
   vtxposV[0] = vertex.x();
   vtxposV[1] = vertex.y();
   vtxposV[2] = vertex.z();
 
-  AlgebraicMatrix53 a = lt->positionJacobian();
-  AlgebraicMatrix53 b = lt->momentumJacobian();
+  AlgebraicMatrix a = lt->positionJacobian();
+  AlgebraicMatrix b = lt->momentumJacobian();
 
   // track information
-  AlgebraicVector5 trackParameters =
+  AlgebraicVector trackParameters =
       lt->predictedStateParameters();
 
-  AlgebraicSymMatrix55 trackParametersWeight =
+  AlgebraicSymMatrix trackParametersWeight =
       lt->predictedStateWeight();
 
-  AlgebraicSymMatrix33 s = ROOT::Math::SimilarityT(b,trackParametersWeight);
-  bool ret = s.Invert(); 
-  if(!ret) throw VertexException
+  int ifail;
+  AlgebraicSymMatrix s = trackParametersWeight.similarityT(b);
+  s.invert(ifail);
+  if(ifail != 0) throw VertexException
                        ("[KalmanChiSquare] S matrix inversion failed");
 
-  AlgebraicVector5 residual = lt->constantTerm();
-  AlgebraicVector3 newTrackMomentumP =  s * ROOT::Math::Transpose(b) * trackParametersWeight *
-     (trackParameters - residual - a*vtxposV);
+  AlgebraicVector residual = lt->constantTerm();
+  AlgebraicVector newTrackMomentumP =  s * b.T() * trackParametersWeight *
+    (trackParameters - residual - a*vtxposV);
 
-  AlgebraicVector5 rtp = ( residual +  a * vtxposV + b * newTrackMomentumP);
+  AlgebraicVector rtp = ( residual +  a * vtxposV + b * newTrackMomentumP);
 
-  AlgebraicVector5 parameterResiduals = trackParameters - rtp;
+  AlgebraicVector parameterResiduals = trackParameters - rtp;
 
-  return ROOT::Math::Similarity(parameterResiduals, trackParametersWeight);
+  return trackParametersWeight.similarity( parameterResiduals );
 }

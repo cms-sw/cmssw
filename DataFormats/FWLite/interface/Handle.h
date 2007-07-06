@@ -16,15 +16,17 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:26 EDT 2007
-// $Id: Handle.h,v 1.3 2007/05/12 20:27:06 chrjones Exp $
+// $Id: Handle.h,v 1.4 2007/05/16 14:36:13 chrjones Exp $
 //
 
 // system include files
 
 // user include files
-#ifndef __CINT__
+#if !defined(__CINT__) || defined(__MAKECINT__)
+//CINT can't handle parsing these files
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/FWLite/interface/Event.h"
+#include "DataFormats/FWLite/interface/ChainEvent.h"
 #endif
 
 // forward declarations
@@ -76,6 +78,26 @@ data_ = temp->product();
                                                iProcessLabel);
         }
       }
+
+  void getByLabel(const fwlite::ChainEvent& iEvent, 
+                  const char* iModuleLabel,
+                  const char* iProductInstanceLabel = 0,
+                  const char* iProcessLabel=0) {
+    edm::Wrapper<T>* temp;
+    void* pTemp = &temp;
+    iEvent.getByLabel(edm::Wrapper<T>::typeInfo(),
+                      iModuleLabel,
+                      iProductInstanceLabel,
+                      iProcessLabel,
+                      pTemp);
+    data_ = temp->product();
+    if(data_==0) {
+      iEvent.throwProductNotFoundException(edm::Wrapper<T>::typeInfo(),
+                                           iModuleLabel,
+                                           iProductInstanceLabel,
+                                           iProcessLabel);
+    }
+  }
   
    private:
       //Handle(const Handle&); // stop default

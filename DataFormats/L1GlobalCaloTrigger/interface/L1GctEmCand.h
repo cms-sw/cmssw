@@ -7,6 +7,7 @@
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCand.h"
 
+#include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"
 
 /*! \class L1GctEmCand

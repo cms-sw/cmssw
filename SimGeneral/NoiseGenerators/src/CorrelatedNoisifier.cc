@@ -48,6 +48,7 @@ void CorrelatedNoisifier::setRandomEngine()
 
 void CorrelatedNoisifier::setRandomEngine(CLHEP::HepRandomEngine & engine)
 {
+  if(theRandomGaussian) delete theRandomGaussian;
   theRandomGaussian = new CLHEP::RandGaussQ(engine);
 }
 
@@ -129,7 +130,7 @@ void CorrelatedNoisifier::computeDecomposition()
 
 }
 
-void CorrelatedNoisifier::checkOffDiagonal(bool & isDiagonal_){
+void CorrelatedNoisifier::checkOffDiagonal(bool & isDiagonal_) const {
 
   isDiagonal_ = true;
 

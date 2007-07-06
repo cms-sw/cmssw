@@ -15,7 +15,6 @@
 #include "Alignment/CocoaVisMgr/interface/ALIVRMLMgr.h"
 #include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
 #endif
-#include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeBox.h"
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@  Default behaviour: make measurement
@@ -133,14 +132,3 @@ void OptOTiltmeter::fillIguana()
   IgCocoaFileMgr::getInstance().addSolid( *this, "BOX", spar, col);
 }
 #endif
-
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void OptOTiltmeter::constructSolidShape()
-{
-  ALIdouble go;
-  GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
-  gomgr->getGlobalOptionValue("VisScale", go );
-
-  theSolidShape = new CocoaSolidShapeBox( "Box", go*2.*cm/m, go*2.*cm/m, go*5.*cm/m ); //COCOA internal units are meters
-}
-

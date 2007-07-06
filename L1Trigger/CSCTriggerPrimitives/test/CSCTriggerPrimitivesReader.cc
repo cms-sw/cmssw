@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2007/03/27 10:27:55 $
-//   $Revision: 1.12 $
+//   $Date: 2007/05/23 10:59:46 $
+//   $Revision: 1.13 $
 //
 //   Modifications:
 //
@@ -777,7 +777,7 @@ void CSCTriggerPrimitivesReader::compareALCTs(
 				 const CSCALCTDigiCollection* alcts_emul) {
   // (Empirical) offset between 12-bit fullBX and Tbin0 of raw anode hits.
   //const int tbin_anode_offset = 10; // why not 6??? MTCC-II
-  const int tbin_anode_offset = 4; // starting with run 539
+  const int tbin_anode_offset = 4; // 2007, starting with run 539
 
   // Loop over all chambers in search for ALCTs.
   CSCALCTDigiCollection::const_iterator digiIt;
@@ -1010,10 +1010,8 @@ void CSCTriggerPrimitivesReader::compareCLCTs(
 		    data_striptype == emul_striptype &&
 		    data_bend      == emul_bend      &&
 		    data_keystrip  == emul_keystrip  &&
-		    data_cfeb      == emul_cfeb)     // &&
-		  // Exclude bx comparison for the time being.
-		    // data_bx        == emul_corr_bx)
-		    {
+		    data_cfeb      == emul_cfeb      &&
+		    data_bx        == emul_corr_bx) {
 		  if (ndata == nemul) hClctCompMatchCsc[csctype]->Fill(cham);
 		  if (debug) LogDebug("CSCTriggerPrimitivesReader")
 		    << "       Identical CLCTs #" << data_trknmb;

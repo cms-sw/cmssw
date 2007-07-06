@@ -11,21 +11,9 @@
 #include "Alignment/CocoaModel/interface/Model.h"
 #include <iostream>
 #include <iomanip>
-#include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeBox.h"
 
 void OptORisleyPrism::participateInMeasurement( LightRay& lightray, Measurement& meas, const ALIstring& behav )
 {
  std::cerr << "object not implemented yet " << std::endl;
  exit(1);      
-}
-
-
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void OptORisleyPrism::constructSolidShape()
-{
-  ALIdouble go;
-  GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
-  gomgr->getGlobalOptionValue("VisScale", go );
-
-  theSolidShape = new CocoaSolidShapeBox( "Box", go*5.*cm/m, go*5.*cm/m, go*5.*cm/m ); //COCOA internal units are meters
 }

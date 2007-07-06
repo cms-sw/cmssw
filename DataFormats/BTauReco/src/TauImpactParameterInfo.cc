@@ -7,12 +7,11 @@ using namespace edm;
 using namespace reco;
 using namespace std;
 
-double reco::TauImpactParameterInfo::discriminator (double ip_min,double ip_max,double sip_min,bool use_sign, bool use3D) const 
-{
+double reco::TauImpactParameterInfo::discriminator (double ip_min,double ip_max,double sip_min,bool use_sign, bool use3D) const {
+
 	double discriminator = isolatedTaus->discriminator();
 
-	int errorFlag = 0;
-	const TrackRef leadingTrack = isolatedTaus->leadingSignalTrack(0.4, IsolatedTauTagInfo::kEtaPhiCone, 1., errorFlag);
+	const TrackRef leadingTrack = isolatedTaus->leadingSignalTrack(0.4,1.);
 
 	if(! leadingTrack.isNull()){
 	  const TauImpactParameterTrackData* ipData = getTrackData(leadingTrack);

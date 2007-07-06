@@ -306,6 +306,7 @@ void HIPAlignmentAlgorithm::run( const edm::EventSetup& setup,
   if (isCollector) return;
 
   TrajectoryStateCombiner tsoscomb;
+  TrackerAlignableId id;
 
   int itr=0;
   m_Ntracks=0;

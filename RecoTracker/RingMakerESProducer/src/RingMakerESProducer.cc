@@ -9,8 +9,8 @@
 // Created:         Tue Oct  3 23:51:34 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/03/15 20:16:59 $
-// $Revision: 1.3 $
+// $Date: 2007/03/30 02:49:36 $
+// $Revision: 1.4 $
 //
 
 #include "RecoTracker/RingMakerESProducer/interface/RingMakerESProducer.h"
@@ -64,9 +64,6 @@ RingMakerESProducer::produce(const RingRecord& iRecord)
   rings_ = maker.getRings();
   
   ReturnType pRings(rings_) ;
-
-  std::cout << "after creation" << std::endl;
-
 
   if ( writeOut_ ) {
     rings_->dump(fileName_);

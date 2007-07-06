@@ -1,45 +1,29 @@
 #ifndef CMSCGEN_h
 #define CMSCGEN_h
+
 //
-// CMSCGEN.cc       T.Hebbeker 2006
+// CMSCGEN.cc  version 3.0     Thomas Hebbeker 2007-05-15  
 //
-// implemented in CMSSW by P. Biallass 29.03.2006  
+// implemented in CMSSW by P. Biallass 2007-05-28 
 //
-//  original code in l3cgen.f from L3CGEN cosmic-generator:
-/*
-c
-c simple l3 cosmic muon generator
-c
-c generates single muons at surface level in a region above the 
-c L3 cosmic detector
-c
-c using a parametrisation of CORSIKA 5.20 results, obtained for primary
-c   protons at L3 surface:
-c energy range: 2 - 10000 GeV (using simple parametrisation of spectrum)
-c zenith angle distribution 0-75 deg (|cos theta| = 1 ... 0.258)
-c can be extrapolated up to theta=88 deg, but no guarantee for correctness!!!
-c constant charge ratio 1.3 
-c only muons from "above"
-c
-c accuracy of parametrisation of energy/angle/charge spectrum: 
-c  about 5% in the energy range 10 GeV - 1000 GeV
-*/
+// documentation: CMS internal note 2007 "Improved Parametrization of the Cosmic Muon Flux for the generator CMSCGEN" by Biallass + Hebbeker
 //
-// speed on centrino 2 GHz inside root: 
-//     1 million events (10 GeV, 0.5): 2 min
+// inspired by fortran version l3cgen.f, version 4.0, 1999
 //
-// reference: T. Hebbeker, A. Korn, L3+C note
-//      "simulation programs for the L3 + Cosmics Experiment",
-//      April 30, 1998 
+// history: new version of parametrization of energy and angular distribution of cosmic muons,
+//          now based on new version 6.60 of CORSIKA (2007). Revisited parametrization, now using slightly different polynomials and new coefficients.
 //
+// new range: 3...3000 GeV, cos(incident angle) = 0.1...1 which means theta=0°...84.26° where z-axis vertical axis  
+//            Now parametrization obtained from full range, thus no extrapolation to any angles or energies needed any more.
+// accuracy: now well known, see internal note for details
+//           7% for range 10...500 GeV, 50% for 3000 GeV and 25% for 3 GeV
+
 
 
 #include "TMath.h" 
 #include <iostream>
 //#include "GeneratorInterface/CosmicMuonGenerator/interface/CosmicMuonGenerator.h"
 #include "TRandom2.h"
-
-
 
 
 class CMSCGEN 
@@ -51,41 +35,47 @@ private:
 
   int initialization;  // energy and cos theta range set ?
 
+  double pmin;
+  double pmax;
+  double cmin;
+  double cmax;
+  double cmin_in;
+  double cmax_in;
+
+  double pq;
+  double c; 
+
+  double xemin;
+  double xemax;
+
+  double pmin_min;
+  double pmin_max;
+
+  double cmax_min;
+  double cmax_max;
+
+  double Lmin;
+  double Lmax;
+  double Lfac;
+
+  double c1;
+  double c2;
+
+  double b0;
+  double b1;
+  double b2;
+
+  double integrated_flux;
+
+  double cemax;
+
+  double pe[9];
+  double b0c[3], b1c[3], b2c[3];
+  double corr[101];
+
+
   TRandom2 RanGen2; // random number generator (periodicity > 10**14)  
 
-  float Emin;
-  float Emax;
-  float cmin;
-  float cmax;
-
-  float pq;
-  float c; 
-
-  float xemin;
-  float xemax;
-
-  float Emin_min;
-  float Emin_max;
-
-  float Emax_max;
-
-  float cmin_min;
-  float cmin_max;
-
-  float cmin_allowed;
-
-  float elmin;
-  float elmax;
-  float elfac;
-
-  float c1;
-  float c2;
-
-  float cemax;
-
-  float pe[9];
-  float pc[3];
-  float corr[101];
 
   bool TIFOnly_const;
   bool TIFOnly_lin;
@@ -102,15 +92,17 @@ public:
   initialization = 0;
 }
 
-  int initialize(float,float,float,float,int,bool,bool);  
+  int initialize(double,double,double,double,int,bool,bool);  
         // to set the energy and cos theta range 
 
   int generate();
        // to generate energy*charge and cos theta for one cosmic
 
-  float energy_times_charge();
+  double momentum_times_charge();
 
-  float cos_theta();
+  double cos_theta();
+
+  double flux();
    
 };
 #endif

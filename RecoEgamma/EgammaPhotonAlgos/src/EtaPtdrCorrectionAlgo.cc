@@ -126,7 +126,7 @@ double EtaPtdrCorrectionAlgo::barrelCorrection(const reco::Photon& ph, const rec
   
   float correctedSC = newCorr/(1.+g);
 
-  return correctedSC/ph.energy();    
+  return (correctedSC/ph.energy())*0.965;    
 }
 
 
@@ -200,5 +200,5 @@ double EtaPtdrCorrectionAlgo::endcapCorrection(const reco::Photon& ph, const rec
   float g = par[1];
   float correctedSC = newCorr/(1.+g);
 
-  return correctedSC/ph.energy();  
+  return (correctedSC/ph.energy())*0.975;  
 }

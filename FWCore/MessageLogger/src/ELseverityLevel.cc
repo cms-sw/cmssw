@@ -32,6 +32,8 @@
 // 12-Jun-2000 web      Final fix to global static initialization problem
 // 27-Jun-2000 web      Fix order-of-static-destruction problem
 // 24-Aug-2000 web      Fix defective C++ switch generation
+// 13-Jun-2007 mf       Change (requested by CMS) the name Severe to System
+//			(since that his how MessageLogger uses that level)
 //
 // ----------------------------------------------------------------------
 
@@ -243,7 +245,7 @@ const ELstring  ELseverityLevel::getName() const  {
     case ELsev_error2         :  result =  "Error!"    ; break;
     case ELsev_next           :  result =  "Next"      ; break;
     case ELsev_unspecified    :  result =  "??"        ; break;
-    case ELsev_severe         :  result =  "Severe"    ; break;
+    case ELsev_severe         :  result =  "System"    ; break; // 6/13/07 mf
     case ELsev_severe2        :  result =  "Severe!"   ; break;
     case ELsev_abort          :  result =  "Abort!"    ; break;
     case ELsev_fatal          :  result =  "Fatal!"    ; break;
@@ -269,7 +271,7 @@ const ELstring  ELseverityLevel::getInputStr() const  {
     case ELsev_error2         : result =  "ERROR2"     ; break;
     case ELsev_next           : result =  "NEXT"       ; break;
     case ELsev_unspecified    : result =  "UNSPECIFIED"; break;
-    case ELsev_severe         : result =  "SEVERE"     ; break;
+    case ELsev_severe         : result =  "SYSTEM"     ; break;  // 6/13/07 mf
     case ELsev_severe2        : result =  "SEVERE2"    ; break;
     case ELsev_abort          : result =  "ABORT"      ; break;
     case ELsev_fatal          : result =  "FATAL"      ; break;
@@ -295,7 +297,7 @@ const ELstring  ELseverityLevel::getVarName() const  {
     case ELsev_error2         : result =  "ELerror2         "; break;
     case ELsev_next           : result =  "ELnextEvent      "; break;
     case ELsev_unspecified    : result =  "ELunspecified    "; break;
-    case ELsev_severe         : result =  "ELsevere         "; break;
+    case ELsev_severe         : result =  "ELsystem         "; break;// 6/13/07
     case ELsev_severe2        : result =  "ELsevere2        "; break;
     case ELsev_abort          : result =  "ELabort          "; break;
     case ELsev_fatal          : result =  "ELfatal          "; break;

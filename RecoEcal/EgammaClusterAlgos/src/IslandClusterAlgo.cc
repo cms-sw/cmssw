@@ -156,19 +156,20 @@ void IslandClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
 void IslandClusterAlgo::searchNorth(const CaloNavigator<DetId> &navigator)
 {
   DetId southern = navigator.pos();
-  EcalRecHitCollection::const_iterator southern_it = recHits_->find(southern);
 
   DetId northern = navigator.north();
   if (northern == DetId(0)) return; // This means that we went off the ECAL!
-  EcalRecHitCollection::const_iterator northern_it = recHits_->find(northern);
-
   // if the crystal to the north belongs to another cluster return
-  if (used_s.find(northern_it->id()) != used_s.end()) return;
+  if (used_s.find(northern) != used_s.end()) return;
+
+
+  EcalRecHitCollection::const_iterator southern_it = recHits_->find(southern);
+  EcalRecHitCollection::const_iterator northern_it = recHits_->find(northern);
 
   if (shouldBeAdded(northern_it, southern_it))
     {
       current_v.push_back(northern);
-      used_s.insert(northern_it->id());
+      used_s.insert(northern);
       searchNorth(navigator);
     }
 }
@@ -177,18 +178,19 @@ void IslandClusterAlgo::searchNorth(const CaloNavigator<DetId> &navigator)
 void IslandClusterAlgo::searchSouth(const CaloNavigator<DetId> &navigator)
 {
   DetId northern = navigator.pos();
-  EcalRecHitCollection::const_iterator northern_it = recHits_->find(northern);
 
   DetId southern = navigator.south();
   if (southern == DetId(0)) return; // This means that we went off the ECAL!
-  EcalRecHitCollection::const_iterator southern_it = recHits_->find(southern);
+  if (used_s.find(southern) != used_s.end()) return;
 
-  if (used_s.find(southern_it->id()) != used_s.end()) return;
+
+  EcalRecHitCollection::const_iterator northern_it = recHits_->find(northern);
+  EcalRecHitCollection::const_iterator southern_it = recHits_->find(southern);
 
   if (shouldBeAdded(southern_it, northern_it))
     {
       current_v.push_back(southern);
-      used_s.insert(southern_it->id());
+      used_s.insert(southern);
       searchSouth(navigator);
     }
 }
@@ -214,7 +216,7 @@ void IslandClusterAlgo::searchWest(const CaloNavigator<DetId> &navigator, const 
       searchWest(navigator, topology);
 
       current_v.push_back(western);
-      used_s.insert(western_it->id());
+      used_s.insert(western);
     }
 }
 
@@ -239,7 +241,7 @@ void IslandClusterAlgo::searchEast(const CaloNavigator<DetId> &navigator, const 
       searchEast(navigator, topology);
 
       current_v.push_back(eastern);
-      used_s.insert(eastern_it->id());
+      used_s.insert(eastern);
     }
 }
 
@@ -248,10 +250,10 @@ void IslandClusterAlgo::searchEast(const CaloNavigator<DetId> &navigator, const 
 bool IslandClusterAlgo::shouldBeAdded(EcalRecHitCollection::const_iterator candidate_it, EcalRecHitCollection::const_iterator previous_it)
 {
   // crystal should not be included...
-  if ((used_s.find(candidate_it->id()) != used_s.end()) || // ...if it already belongs to a cluster
-      (candidate_it == recHits_->end())             || // ...if it does not correspond to a hit
-      (candidate_it->energy() <= 0)                     || // ...if it has a negative or zero energy
-      (candidate_it->energy() > previous_it->energy()))    // ...or if the previous crystal had lower E
+  if ( (candidate_it == recHits_->end())                 || // ...if it does not correspond to a hit
+       (used_s.find(candidate_it->id()) != used_s.end()) || // ...if it already belongs to a cluster
+       (candidate_it->energy() <= 0)                     || // ...if it has a negative or zero energy
+       (candidate_it->energy() > previous_it->energy()))    // ...or if the previous crystal had lower E
     {
       return false;
     }

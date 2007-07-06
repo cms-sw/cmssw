@@ -31,12 +31,9 @@ HcalHitMaker::addHit(double r,double phi,unsigned layer)
 
   XYZPoint point(r*radiusFactor_*std::cos(phi),r*radiusFactor_*std::sin(phi),0.);
 
-  //  std::cout << " FamosHcalHitMaker::addHit - point before " << point << std::endl;
-
+  // Watch out !!!! (Point) is a real point in the MathCore terminology (not a redefined a XYZPoint which
+  // is actually a XYZVector in the MatchCore terminology). Therefore, the Transform3D is correctly applied
   point = locToGlobal_((Point)point);
-  point = locToGlobal_ * point;
-
-  //  std::cout << " FamosHcalHitMaker::addHit - point after  " << point << std::endl;
 
   // Temporary nasty hack to avoid misbehaviour of not-intended-for-that
   //  getClosestCell in case of large (eta beyond HF ...) 
@@ -92,7 +89,6 @@ HcalHitMaker::setDepth(double depth)
   if(HADSHOWER)
     origin=segiterator->positionAtDepthinL0(currentDepth_);
 
-  //  std::cout << " Origin " << origin << std::endl;
   XYZVector zaxis(0,0,1);
   XYZVector planeVec1=(zaxis.Cross(particleDirection)).Unit();
   
@@ -102,6 +98,5 @@ HcalHitMaker::setDepth(double depth)
 			   (Point)origin,
 			   (Point)(origin+particleDirection),
 			   (Point)(origin+planeVec1));
-
   return true;
 }

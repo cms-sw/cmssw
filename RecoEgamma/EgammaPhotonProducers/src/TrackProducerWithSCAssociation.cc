@@ -26,12 +26,14 @@ TrackProducerWithSCAssociation::TrackProducerWithSCAssociation(const edm::Parame
   setProducer( iConfig.getParameter<std::string>( "producer" ));
   setAlias( iConfig.getParameter<std::string>( "@module_label" ) );
 
+  
   myname_ = iConfig.getParameter<std::string>("ComponentName");
   conversionTrackCandidateProducer_ = iConfig.getParameter<std::string>("producer");
   trackCSuperClusterAssociationCollection_ = iConfig.getParameter<std::string>("trackCandidateSCAssociationCollection");
   trackSuperClusterAssociationCollection_ = iConfig.getParameter<std::string>("recoTrackSCAssociationCollection");
- 
+  myTrajectoryInEvent_ = iConfig.getParameter<bool>("TrajectoryInEvent");
 
+ 
   //register your products
   produces<reco::TrackCollection>().setBranchAlias( alias_ + "Tracks" );
   produces<reco::TrackExtraCollection>().setBranchAlias( alias_ + "TrackExtras" );

@@ -35,7 +35,7 @@ void DCCSRPBlock::unpack(uint64_t ** data, uint * dwToEnd, uint numbFlags ){
     std::ostringstream output;
     output<<"EcalRawToDigi@SUB=DCCSRPBlock::unpack"
       <<"\n Unable to unpack SRP block for event "<<event_->l1A()<<" in dcc <<"<<mapper_->getActiveDCC()
-      <<"\n Only "<<((*dwToEnd_)*8)<<" bytes are available while "<<(blockLength_*8)<<" are needed!";
+      <<"\n Only "<<((*dwToEnd_)*8)<<" bytes are available while "<<(blockLength_*8)<<" are needed!"<<std::endl;
     //Note : add to error collection 
     throw ECALUnpackerException(output.str());
   }

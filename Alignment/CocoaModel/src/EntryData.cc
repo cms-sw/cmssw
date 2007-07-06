@@ -35,10 +35,8 @@ void EntryData::fill(const std::vector<ALIstring>& wordlist )
   fEntryName = wordlist[3];
 
   //----- set value
-  fValueOriginal = ALIUtils::getFloat( wordlist[4] );
-  fValueDisplacement = 0.;
-  //  fValueOriginal = ALIUtils::getFloat( wordlist[7] );
-  //  fValueDisplacement = ALIUtils::getFloat( wordlist[12] );
+  fValueOriginal = ALIUtils::getFloat( wordlist[7] );
+  fValueDisplacement = ALIUtils::getFloat( wordlist[11] );
   /* done in Entry.cc
   if( wordlist[3].substr(0,6) == "centre" ) {
     fValue *= entryMgr->getDimOutLengthVal();
@@ -87,17 +85,3 @@ EntryData::~EntryData()
 {
 }
 
-
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-std::ostream& operator << (std::ostream& os, const EntryData& ent) 
-{
-
-  os << "ENTRY: " << ent.longOptOName() << " : " << ent.entryName()
-     << " valueOriginal " << ent.valueOriginal()
-     << " valueDisplacement " << ent.valueDisplacement()
-     << " sigma " << ent.sigma() 
-     << " quality " << ent.quality() << std::endl;
-
-  return os;
-
-}

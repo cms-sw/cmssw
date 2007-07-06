@@ -1,8 +1,8 @@
 /**
  * \file AlignmentParameterStore.cc
  *
- *  $Revision: 1.14 $
- *  $Date: 2007/05/11 14:28:02 $
+ *  $Revision: 1.12 $
+ *  $Date: 2007/03/16 16:33:53 $
  *  (last update by $Author: flucke $)
  */
 
@@ -227,7 +227,10 @@ void AlignmentParameterStore::applyParameters(Alignable* alignable)
 
   // Rotation in local frame
   align::EulerAngles angles = ap->rotation();
-  alignable->rotateInLocalFrame( align::toMatrix(angles) );
+  if (angles.normsq() > 1e-10)
+  {
+    alignable->rotateInLocalFrame( align::toMatrix(angles) );
+  }
 }
 
 

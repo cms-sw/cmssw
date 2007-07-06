@@ -7,8 +7,9 @@ namespace edmtest {
     thingCollection.reserve(20);
     for (int i = 0; i < 20; ++i) {
       Thing tc;
-      tc.a = i;
+      tc.a = i+offset;
       thingCollection.push_back(tc);
     }
+    offset += offsetDelta;
   }
 }

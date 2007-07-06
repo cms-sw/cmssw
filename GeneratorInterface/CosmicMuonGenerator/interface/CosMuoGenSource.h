@@ -28,13 +28,13 @@ namespace edm
     void clear();
     // define the configurable generator parameters
     int32_t      RanS; // seed of random number generator (from Framework)
-    double       MinE; // min. E     [GeV]
-    double       MinE_CMS; // min. E at CMS surface    [GeV]; default is MinE_CMS=MinE, thus no bias from access-shaft
-    double       MaxE; // max. E     [GeV]
+    double       MinP; // min. P     [GeV]
+    double       MinP_CMS; // min. P at CMS surface    [GeV]; default is MinP_CMS=MinP, thus no bias from access-shaft
+    double       MaxP; // max. P     [GeV]
     double       MinT; // min. theta [deg]
     double       MaxT; // max. theta [deg]
-    double       MinP; // min. phi   [deg]
-    double       MaxP; // max. phi   [deg]
+    double       MinPh; // min. phi   [deg]
+    double       MaxPh; // max. phi   [deg]
     double       MinS; // min. t0    [ns]
     double       MaxS; // max. t0    [ns]
     double       ELSF; // scale factor for energy loss

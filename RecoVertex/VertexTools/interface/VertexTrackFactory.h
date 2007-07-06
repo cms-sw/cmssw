@@ -39,7 +39,7 @@ public:
 	      const VertexState vs,
 	      const RefCountedRefittedTrackState & refittedState,
 	      float smoothedChi2,
-	      const AlgebraicMatrix33 & tVCov, float weight = 1.0 ) const {
+	      const AlgebraicMatrix & tVCov, float weight = 1.0 ) const {
     return RefCountedVertexTrack(new VertexTrack(lt, vs, weight,
                                  refittedState, smoothedChi2, tVCov));
   };

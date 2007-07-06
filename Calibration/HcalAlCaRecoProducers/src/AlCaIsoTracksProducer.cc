@@ -14,7 +14,16 @@
 #include "MagneticField/Engine/interface/MagneticField.h" 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
+
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include <boost/regex.hpp> 
+
+using namespace edm;
+using namespace std;
+using namespace reco;
 
 
 #include <TFile.h>
@@ -26,6 +35,7 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig)
   m_ebInstance = iConfig.getUntrackedParameter<std::string> ("ebRecHitsInstance","EcalRecHitsEB");
   m_eeInstance = iConfig.getUntrackedParameter<std::string> ("eeRecHitsInstance","EcalRecHitsEE");
   m_hcalLabel = iConfig.getUntrackedParameter<std::string> ("hcalRecHitsLabel","hbhereco");
+  hoLabel_ = iConfig.getParameter<edm::InputTag>("hoInput");
   m_dvCut = iConfig.getUntrackedParameter<double>("vtxCut",0.05);
   m_ddirCut = iConfig.getUntrackedParameter<double>("coneCut",0.5);
   m_pCut = iConfig.getUntrackedParameter<double>("pCut",2.);
@@ -57,14 +67,15 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig)
     IsoHists.ehcal = new TH1F("Ehcal","HCAL RecHit energy",50,0.,25.);
   }
 //register your products
-  produces<reco::TrackCollection>("");
-  produces<EBRecHitCollection>("");
-  produces<HBHERecHitCollection>("");
+  produces<reco::TrackCollection>("IsoTrackTracksCollection");
+  produces<EcalRecHitCollection>("IsoTrackEcalRecHitCollection");
+  produces<HBHERecHitCollection>("IsoTrackHBHERecHitCollection");
+  produces<HORecHitCollection>("IsoTrackHORecHitCollection");
 
   trackAssociator_.addDataLabels("EBRecHitCollection",m_ecalLabel,m_ebInstance);
   trackAssociator_.addDataLabels("EERecHitCollection",m_ecalLabel,m_eeInstance);
   trackAssociator_.addDataLabels("HBHERecHitCollection",m_hcalLabel);
-
+  allowMissingInputs_ = true;
   trackAssociator_.useDefaultPropagator();
 }
 
@@ -83,7 +94,7 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    iEvent.getByLabel(m_inputTrackLabel,trackCollection);
 //   try {
 //     iEvent.getByType(trackCollection);
-//   } catch ( std::exception& ex ) {
+//   } catch ( cms::Exception& ex ) {
 //     LogDebug("") << "AlCaIsoTracksProducer: Error! can't get product!" << std::endl;
 //   }
 
@@ -91,8 +102,12 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
 //Create empty output collections
    std::auto_ptr<reco::TrackCollection> outputTColl(new reco::TrackCollection);
-   std::auto_ptr<EBRecHitCollection> outputEColl(new EBRecHitCollection);
+   std::auto_ptr<EcalRecHitCollection> outputEColl(new EcalRecHitCollection);
    std::auto_ptr<HBHERecHitCollection> outputHColl(new HBHERecHitCollection);
+   std::auto_ptr<HORecHitCollection> outputHOColl(new HORecHitCollection);
+
+
+
 
    int itrk=0;
    int nisotr=0;
@@ -197,7 +212,7 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
           outputTColl->push_back(*track);
 
 // selected ECAL & HCAL RecHits are written out for each track
-          for (std::vector<EcalRecHit>::const_iterator ehit=info.coneEcalRecHits.begin(); ehit!=info.coneEcalRecHits.end(); ehit++) {
+          for (std::vector<EcalRecHit>::const_iterator ehit=info2.coneEcalRecHits.begin(); ehit!=info2.coneEcalRecHits.end(); ehit++) {
             if(m_histoFlag==1){
               IsoHists.eecal->Fill(ehit->energy());
             }
@@ -209,7 +224,6 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
             }
             outputHColl->push_back(*hhit);
           }
-
           nisotr++;
         }
       }
@@ -220,10 +234,35 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
      IsoHists.Nisotr->Fill(nisotr);
    }
 
+    if(outputTColl->size() > 0)
+    {
+//   Take HO collection
+     try {
+      edm::Handle<HORecHitCollection> ho;
+      iEvent.getByLabel(hoLabel_,ho);
+      const HORecHitCollection Hitho = *(ho.product());
+        for(HORecHitCollection::const_iterator hoItr=Hitho.begin(); hoItr!=Hitho.end(); hoItr++)
+        {
+             outputHOColl->push_back(*hoItr);
+        }
+     } catch (cms::Exception& e) { // can't find it!
+        if (!allowMissingInputs_) {std::cout<<" No HO collection "<<std::endl; throw e;}
+     }
+    }
+   std::cout<<" Size of IsoTrk collections "<<outputHColl->size()<<" "<<outputEColl->size()<<
+   " "<<outputTColl->size()<<" "<<outputHOColl->size()<<std::endl;
+
 //Put selected information in the event
-  iEvent.put( outputTColl, "");
-  iEvent.put( outputEColl, "");
-  iEvent.put( outputHColl, "");
+
+  iEvent.put( outputTColl, "IsoTrackTracksCollection");
+//  cout<<" Point 1 "<<endl;
+  iEvent.put( outputEColl, "IsoTrackEcalRecHitCollection");
+//  cout<<" Point 2 "<<endl;
+  iEvent.put( outputHColl, "IsoTrackHBHERecHitCollection");
+//  cout<<" Point 3 "<<endl;
+  iEvent.put( outputHOColl, "IsoTrackHORecHitCollection");
+//  cout<<" Point 4 "<<endl;
+
 }
 
 void AlCaIsoTracksProducer::endJob(void) {

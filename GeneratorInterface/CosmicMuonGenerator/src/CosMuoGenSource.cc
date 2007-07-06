@@ -6,13 +6,13 @@
 edm::CosMuoGenSource::CosMuoGenSource( const ParameterSet & pset, InputSourceDescription const& desc ) :
   GeneratedInputSource(pset, desc ) ,  
   //RanS(pset.getUntrackedParameter<int>("RanSeed", 123456)), //get seed now from Framework
-  MinE(pset.getUntrackedParameter<double>("MinEn", 2.)),
-  MinE_CMS(pset.getUntrackedParameter<double>("MinEn_CMS", MinE)),
-  MaxE(pset.getUntrackedParameter<double>("MaxEn", 10000.)),
+  MinP(pset.getUntrackedParameter<double>("MinP", 3.)),
+  MinP_CMS(pset.getUntrackedParameter<double>("MinP_CMS", MinP)),
+  MaxP(pset.getUntrackedParameter<double>("MaxP", 3000.)),
   MinT(pset.getUntrackedParameter<double>("MinTheta", 0.)),
-  MaxT(pset.getUntrackedParameter<double>("MaxTheta", 88.)),
-  MinP(pset.getUntrackedParameter<double>("MinPhi", 0.)),
-  MaxP(pset.getUntrackedParameter<double>("MaxPhi", 360.)),
+  MaxT(pset.getUntrackedParameter<double>("MaxTheta", 84.26)),
+  MinPh(pset.getUntrackedParameter<double>("MinPhi", 0.)),
+  MaxPh(pset.getUntrackedParameter<double>("MaxPhi", 360.)),
   MinS(pset.getUntrackedParameter<double>("MinT0", -12.5)),
   MaxS(pset.getUntrackedParameter<double>("MaxT0", 12.5)),
   ELSF(pset.getUntrackedParameter<double>("ElossScaleFactor", 1.0)),
@@ -31,13 +31,13 @@ edm::CosMuoGenSource::CosMuoGenSource( const ParameterSet & pset, InputSourceDes
     CosMuoGen = new CosmicMuonGenerator();
     CosMuoGen->setNumberOfEvents(numberEventsInRun());
     CosMuoGen->setRanSeed(RanS);
-    CosMuoGen->setMinE(MinE);
-    CosMuoGen->setMinE_CMS(MinE_CMS);
-    CosMuoGen->setMaxE(MaxE);
+    CosMuoGen->setMinP(MinP);
+    CosMuoGen->setMinP_CMS(MinP_CMS);
+    CosMuoGen->setMaxP(MaxP);
     CosMuoGen->setMinTheta(MinT);
     CosMuoGen->setMaxTheta(MaxT);
-    CosMuoGen->setMinPhi(MinP);
-    CosMuoGen->setMaxPhi(MaxP);
+    CosMuoGen->setMinPhi(MinPh);
+    CosMuoGen->setMaxPhi(MaxPh);
     CosMuoGen->setMinT0(MinS);
     CosMuoGen->setMaxT0(MaxS);
     CosMuoGen->setElossScaleFactor(ELSF);
