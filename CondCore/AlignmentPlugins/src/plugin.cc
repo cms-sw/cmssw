@@ -18,6 +18,10 @@
 #include "CondFormats/DataRecord/interface/CSCAlignmentErrorRcd.h"
 #include "CondFormats/DataRecord/interface/TrackerSurveyRcd.h"
 #include "CondFormats/DataRecord/interface/TrackerSurveyErrorRcd.h"
+#include "CondFormats/DataRecord/interface/DTSurveyRcd.h"
+#include "CondFormats/DataRecord/interface/DTSurveyErrorRcd.h"
+#include "CondFormats/DataRecord/interface/CSCSurveyRcd.h"
+#include "CondFormats/DataRecord/interface/CSCSurveyErrorRcd.h"
 
 REGISTER_PLUGIN(TrackerAlignmentRcd,Alignments);
 REGISTER_PLUGIN(TrackerAlignmentErrorRcd,AlignmentErrors);
@@ -27,3 +31,7 @@ REGISTER_PLUGIN(CSCAlignmentRcd,Alignments);
 REGISTER_PLUGIN(CSCAlignmentErrorRcd,AlignmentErrors);
 REGISTER_PLUGIN(TrackerSurveyRcd,Alignments);
 REGISTER_PLUGIN(TrackerSurveyErrorRcd,SurveyErrors);
+REGISTER_PLUGIN(DTSurveyRcd,Alignments);
+REGISTER_PLUGIN(DTSurveyErrorRcd,SurveyErrors);
+REGISTER_PLUGIN(CSCSurveyRcd,Alignments);
+REGISTER_PLUGIN(CSCSurveyErrorRcd,SurveyErrors);
