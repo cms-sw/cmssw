@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 #include <vector>
 
@@ -128,45 +129,45 @@ private :
   //B.M.TrajectoryContainer intermediaryClean(TrajectoryContainer& theTrajectories);
   // to be ported later
 
-  //B.M. inline bool tkxor(bool a, bool b) const {return (a||b) && !(a&&b);}
+  inline bool tkxor(bool a, bool b) const {return (a||b) && !(a&&b);}
   // to be ported later
 
   bool advanceOneLayer( Trajectory& traj, 
-			const TrajectoryFilter* regionalCondition, 
+			const TrajectoryFilter* regionalCondition,
+			const Propagator* propagator, 
 			TrajectoryContainer& newCand, 
 			TrajectoryContainer& result) const;
 
   void groupedLimitedCandidates( Trajectory& startingTraj, 
-				 const TrajectoryFilter* regionalCondition, 
+				 const TrajectoryFilter* regionalCondition,
+				 const Propagator* propagator, 
 				 TrajectoryContainer& result) const;
 
-  /* ======= B.M.to be ported later =================
   /// try to find additional hits in seeding region
   void rebuildSeedingRegion (Trajectory& startingTraj,
-			     TrajectoryContainer& result);
+			     TrajectoryContainer& result) const ;
 
-   ** try to find additional hits in seeding region for a candidate
-   * (returns number of trajectories added) *
-  int rebuildSeedingRegion (const std::vector<RecHit>& seedHits,
+   //** try to find additional hits in seeding region for a candidate
+   //* (returns number of trajectories added) *
+  int rebuildSeedingRegion (const std::vector<const TrackingRecHit*>& seedHits,
 			    Trajectory& candidate,
-			    TrajectoryContainer& result);
+			    TrajectoryContainer& result) const ;
 
-   ** Backward fit of trajectory candidate except seed. Fit result and
-   *  remaining hits are returned in fittedTracks and remainingHits.
-   *  FittedTracks is empty if no fit was done. *
+  // ** Backward fit of trajectory candidate except seed. Fit result and
+  // *  remaining hits are returned in fittedTracks and remainingHits.
+  // *  FittedTracks is empty if no fit was done. *
   void backwardFit (Trajectory& candidate, unsigned int nSeed,
 		    const TrajectoryFitter& fitter,
 		    TrajectoryContainer& fittedTracks,
-		    std::vector<RecHit>& remainingHits) const;
+		    std::vector<const TrackingRecHit*>& remainingHits) const;
 
   /// Verifies presence of a RecHits in a range of TrajectoryMeasurements.
   bool verifyHits (std::vector<TM>::const_iterator tmBegin,
 		   std::vector<TM>::const_iterator tmEnd,
-		   const RecHitEqualByChannels& recHitEqual,
-		   const std::vector<RecHit>& hits) const;
+		   const std::vector<const TrackingRecHit*>& hits) const;
 
   /// intermediate cleaning in the case of grouped measurements
-  TrajectoryContainer groupedIntermediaryClean(TrajectoryContainer& theTrajectories);
+  TrajectoryContainer groupedIntermediaryClean(TrajectoryContainer& theTrajectories) const ;
 
   /// list of layers from a container of TrajectoryMeasurements
   std::vector<const DetLayer*> layers (const std::vector<TM>& measurements) const;
@@ -178,7 +179,6 @@ private :
     return dir;
   }
 
-  ======================================================== */
 
 private:
   const TrajectoryStateUpdator*         theUpdator;
