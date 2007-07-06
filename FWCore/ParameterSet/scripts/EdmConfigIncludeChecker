@@ -66,8 +66,11 @@ class IncludeChecker(object):
         # now continue and parse the other includes
         theFile = open(f, "r")
         self.includedFileNames.append(f)
+        cStyleCommentsCounter = 0
         for line in theFile:
-            if ("include " in line or " from " in line) and not ("#" in line or "//" in line):
+            if "/*" in line: cStyleCommentsCounter += 1
+            if "*/" in line: cStyleCommentsCounter -= 1 
+            if ("include " in line or " from " in line) and not ("#" in line or "//" in line or  "/*" in line or  "*/" in line or (cStyleCommentsCounter!=0) ):
                 includeCandidate = line.split('"')[1] 
                 if includeCandidate not in self.doneIncludes:
                   includes.append(includeCandidate)
