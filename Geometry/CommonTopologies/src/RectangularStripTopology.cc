@@ -45,8 +45,8 @@ RectangularStripTopology::localError(const MeasurementPoint& mp,
 float 
 RectangularStripTopology::strip(const LocalPoint& lp) const {
   float aStrip = (lp.x() - theOffset) / thePitch;
-  aStrip = (aStrip >= 0. ? aStrip : 0.);
-  aStrip = (aStrip <= theNumberOfStrips ? aStrip : theNumberOfStrips);
+  if (aStrip < 0. ) aStrip = 0.;
+  else if (aStrip > theNumberOfStrips)  aStrip = theNumberOfStrips;
   return aStrip;
 }
 

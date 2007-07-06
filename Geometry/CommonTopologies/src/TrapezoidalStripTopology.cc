@@ -60,11 +60,11 @@ TrapezoidalStripTopology::localError(float strip, float stripErr2) const {
   lt = -(strip*thePitch + theOffset)*theYAxOr/theDistToBeam;
   lc2 = 1./(1.+lt*lt);
   lslc = lt*lc2;
-  ls2 = lt*lt*lc2;
-  localL = theDetHeight / sqrt(lc2);
-  localP = thePitch*sqrt(lc2);
-  sl2 = localL*localL/12.;
-  sp2 = stripErr2*localP*localP;
+  ls2 = 1.-lc2;
+  localL2 = theDetHeight*theDetHeight / lc2;
+  localP2 = thePitch*thePitch*sqrtlc2;
+  sl2 = localL2/12.;
+  sp2 = stripErr2*localP2;
   return LocalError(lc2*sp2+ls2*sl2,
                     lslc*(sp2-sl2),
                     ls2*sp2+lc2*sl2);
@@ -80,7 +80,7 @@ TrapezoidalStripTopology::localError(const MeasurementPoint& mp,
   lt = -(mp.x()*thePitch + theOffset)*theYAxOr/theDistToBeam;
   lc2 = 1./(1.+lt*lt);
   lslc = lt*lc2;
-  ls2 = lt*lt*lc2;
+  ls2 = 1.-lc2;
   localL = theDetHeight / sqrt(lc2);
   localP = localPitch(localPosition(mp));
   sp2 = merr.uu() * localP*localP;
@@ -94,10 +94,9 @@ TrapezoidalStripTopology::localError(const MeasurementPoint& mp,
 float
 TrapezoidalStripTopology::strip(const LocalPoint& lp) const {
   float aStrip =
- 
-    ((lp.x()*theDistToBeam/(theYAxOr*lp.y()+theDistToBeam))-theOffset)/thePitch;
-  aStrip = (aStrip >= 0. ? aStrip : 0.);
-  aStrip = (aStrip <= theNumberOfStrips ? aStrip : theNumberOfStrips);
+     ((lp.x()*theDistToBeam/(theYAxOr*lp.y()+theDistToBeam))-theOffset)/thePitch;
+   if (aStrip < 0. ) aStrip = 0.;
+  else if (aStrip > theNumberOfStrips)  aStrip = theNumberOfStrips;
   return aStrip;
 }
 
@@ -117,7 +116,7 @@ TrapezoidalStripTopology::measurementError(const LocalPoint& lp,
   lt = -lp.x()/(theYAxOr*lp.y()+theDistToBeam)*theYAxOr;
   lc2 = 1./(1.+lt*lt);
   lslc = lt*lc2;
-  ls2 = lt*lt*lc2;
+  ls2 = 1.-lc2;
   localL = theDetHeight / sqrt(lc2);
   localP = localPitch(lp);
   sp2 = lc2*lerr.xx()+ls2*lerr.yy()+2*lslc*lerr.xy();

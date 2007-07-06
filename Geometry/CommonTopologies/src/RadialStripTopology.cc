@@ -28,7 +28,7 @@ RadialStripTopology::RadialStripTopology(int ns, float aw, float dh, float r, in
 float 
 RadialStripTopology::xOfStrip(int strip, float y) const {
   // Expect input 'strip' to be in range 1 to nstrips()
-  float tanPhi = tan( stripAngle(static_cast<float>(strip) - 0.5 ) );
+  float tanPhi = std::tan( stripAngle(static_cast<float>(strip) - 0.5 ) );
   return yAxisOrientation()* yDistanceToIntersection( y ) * tanPhi;
 }
 
@@ -57,7 +57,7 @@ RadialStripTopology::localError(float strip, float stripErr2) const {
   // Since 'strip' is in units of angular strip-widths, stripErr2 is
   // required to be in corresponding units.
 
-  float t = tan( stripAngle( strip ) );        // tan(angle between strip and y)
+  float t = std::tan( stripAngle( strip ) );        // tan(angle between strip and y)
   float c2 = 1./(1. + t*t);                    // cos(angle)**2
   float cs = t*c2;                             // sin(angle)*cos(angle); tan carries sign of sin!
   float s2 = t*t * c2;                         // sin(angle)**2
@@ -162,11 +162,11 @@ RadialStripTopology::measurementError(const LocalPoint& lp,
 
   // L is length of strip across face of chamber
   float L2 = detHeight()*detHeight() / c2;  
-  float L  = sqrt(L2); 
+  float L  = std::sqrt(L2); 
 
   // D is distance from intersection of edges to hit on strip
   float D2 = lp.x()*lp.x() + yHitToInter*yHitToInter;
-  float D = sqrt(D2);
+  float D = std::sqrt(D2);
 
   float LP = D * A;
   float LP2 = LP * LP;
