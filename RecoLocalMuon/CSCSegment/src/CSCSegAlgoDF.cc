@@ -116,7 +116,7 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits)
 
       const CSCRecHit2D* h2 = *i2;
       const CSCLayer* l2 = theChamber->layer(layer2);
-      GlobalPoint gp2 = l2->toGlobal(h1->localPosition());
+      GlobalPoint gp2 = l2->toGlobal(h2->localPosition());
       LocalPoint lp2 = theChamber->toLocal(gp2);  
 
       // Clear proto segment so it can be (re)-filled 
