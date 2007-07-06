@@ -23,20 +23,15 @@ GetJetsFromHLTobject::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
    using namespace reco;
-   //reco::CaloJetRefVector* jetRefs = new reco::CaloJetRefVector();
-      reco::CaloJetCollection* jets = new reco::CaloJetCollection();
+   std::auto_ptr<reco::CaloJetCollection> jets( new reco::CaloJetCollection() );
 
    Handle<reco::HLTFilterObjectWithRefs> hltObject;
    iEvent.getByLabel(m_jetsSrc, hltObject);
    for (size_t i = 0; i < hltObject->size(); i++) {
-     edm::RefToBase<reco::Candidate> jetCand = hltObject->getParticleRef(i);
-     const CaloJetRef& jetRef = jetCand.castTo<CaloJetRef>();
-     //jetRefs->push_back(jetRef);
-         CaloJet jet(*jetRef);
-	 jets->push_back(jet);
+     const CaloJetRef & jetRef = hltObject->getParticleRef(i).castTo<CaloJetRef>();
+         //jets->push_back(jetRef);
+	 jets->push_back(*jetRef);
    }
    
-   //std::auto_ptr<reco::CaloJetRefVector> pJetRefs(jetRefs);
-      std::auto_ptr<reco::CaloJetCollection> pJetRefs(jets);
-   iEvent.put(pJetRefs);
+   iEvent.put(jets);
 }
