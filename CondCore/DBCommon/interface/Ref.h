@@ -10,10 +10,11 @@
 // local includes
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/Connection.h"
+#include "CondCore/DBCommon/interface/RefBase.h"
 namespace cond{
   class Connection;
-  /* 
-     wrapper of pool::Ref smart pointer
+  /** 
+     templated Ref smart pointer
   */
   template <typename T>
   class Ref{
