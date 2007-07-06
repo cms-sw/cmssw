@@ -176,7 +176,6 @@ bool TwoTrackMinimumDistanceHelixHelix::calculate(
   } while ( (!retval) && ( fabs(pG) > qual || fabs(pH) > qual ));
   if ( fabs ( theg * ( thepG - thepG0 ) ) > themaxjump ) retval=true;
   if ( fabs ( theh * ( thepH - thepH0 ) ) > themaxjump ) retval=true;
-  pointsUpdated = true;
   return retval;
 }
 
@@ -205,6 +204,7 @@ void TwoTrackMinimumDistanceHelixHelix::finalPoints() const
       theH->position().z() + theh * ( thetanlambdaH * ( thepH- thepH0 ))
   );
   pathH = ( thepH- thepH0 ) * (theh*sqrt(1+thetanlambdaH*thetanlambdaH)) ;
+  pointsUpdated = true;
 }
 
 pair <double, double> TwoTrackMinimumDistanceHelixHelix::pathLength() const
