@@ -1,6 +1,6 @@
 #ifndef CondCore_DBCommon_ConnectionHandler_H
 #define CondCore_DBCommon_ConnectionHandler_H
-#include <vector>
+#include <map>
 #include <string>
 namespace cond{
   class DBSession;
@@ -13,12 +13,14 @@ namespace cond{
   class ConnectionHandler{
   public:
     static ConnectionHandler& Instance();
-    /// register conditions connection with pool capability
-    void registerConnection(const std::string& con,
+    /// register pool-capable connection with a given name 
+    void registerConnection(const std::string& name,
+			    const std::string& con,
 			    const std::string& filecatalog,
 			    unsigned int timeOutInSec=0);
-    /// register coral only connection
-    void registerConnection(const std::string& con,
+    /// register coral only connection with a given name
+    void registerConnection(const std::string& name,
+			    const std::string& con,
 			    unsigned int timeOutInSec=0);
     /// global connect
     /// delegate all the registered proxy to connect 
@@ -28,6 +30,9 @@ namespace cond{
     void disconnectAll();
     /// contructor
     ConnectionHandler(){}
+    /// query connection
+    Connection* getConnection( const std::string& name, 
+			       bool isReadOnly );
   private:
     /// hide copy constructor
     ConnectionHandler( ConnectionHandler& );
@@ -37,7 +42,7 @@ namespace cond{
     ~ConnectionHandler(); 
   private:
     /// registry of real connection handles
-    std::vector<cond::Connection*> m_registry;
+    std::map<std::string,cond::Connection*> m_registry;
   };// class ConnectionHandler
 }//ns cond
 #endif

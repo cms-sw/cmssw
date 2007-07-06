@@ -36,7 +36,6 @@ namespace cond{
     std::string connectStr() const;
     /// return catalog connect string in use
     std::string catalogStr() const;
-    
   private:
     std::string m_con;
     std::string m_catalog;

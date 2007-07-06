@@ -2,15 +2,17 @@
 #include "CondCore/DBCommon/interface/Connection.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
 void 
-cond::ConnectionHandler::registerConnection(const std::string& con,
+cond::ConnectionHandler::registerConnection(const std::string& name,
+					    const std::string& con,
 					    const std::string& filecatalog,
 					    unsigned int connectionTimeout){
-  m_registry.push_back(new cond::Connection(con,filecatalog,connectionTimeout) );
+  m_registry.insert(std::make_pair<std::string,cond::Connection*>(name,new cond::Connection(con,filecatalog,connectionTimeout)));
 }
 void
-cond::ConnectionHandler::registerConnection(const std::string& con,
+cond::ConnectionHandler::registerConnection(const std::string& name,
+					    const std::string& con,
 					    unsigned int connectionTimeout){
-  m_registry.push_back( new cond::Connection(con,connectionTimeout) );
+  m_registry.insert(std::make_pair<std::string,cond::Connection*>(name, new cond::Connection(con,connectionTimeout)));
 }
 cond::ConnectionHandler& 
 cond::ConnectionHandler::Instance(){
@@ -19,13 +21,13 @@ cond::ConnectionHandler::Instance(){
 }
 void
 cond::ConnectionHandler::connect(cond::DBSession* session){
-  std::vector<cond::Connection*>::iterator it;  
-  std::vector<cond::Connection*>::iterator itEnd=m_registry.end();
+  std::map<std::string,cond::Connection*>::iterator it;  
+  std::map<std::string,cond::Connection*>::iterator itEnd=m_registry.end();
   for(it=m_registry.begin();it!=itEnd;++it){
-    (*it)->connect(session);
+    it->second->connect(session);
   }
 }
-//void
+//void 
 //cond::ConnectionHandler::disconnectAll(){
 /* std::vector<cond::Connection*>::iterator it; 
    std::vector<cond::Connection*>::iterator itEnd=m_registry.end();
@@ -35,11 +37,20 @@ cond::ConnectionHandler::connect(cond::DBSession* session){
 **/
 //}
 cond::ConnectionHandler::~ConnectionHandler(){
-  std::vector<cond::Connection*>::iterator it;  
-  std::vector<cond::Connection*>::iterator itEnd=m_registry.end();
+  std::map<std::string,cond::Connection*>::iterator it;  
+  std::map<std::string,cond::Connection*>::iterator itEnd=m_registry.end();
   for(it=m_registry.begin();it!=itEnd;++it){
-    delete *it;
-    (*it)=0;
+    delete it->second;
+    it->second=0;
   }
   m_registry.clear();
+}
+cond::Connection* 
+cond::ConnectionHandler::getConnection( const std::string& name, 
+					      bool isReadOnly ){
+  std::map<std::string,cond::Connection*>::iterator it=m_registry.find(name);
+  if( it!=m_registry.end() ){
+    return it->second;
+  }
+  return 0;
 }
