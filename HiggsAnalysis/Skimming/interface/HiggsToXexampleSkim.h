@@ -27,7 +27,7 @@ class HiggsToXexampleSkim : public HiggsAnalysisSkimType {
   virtual ~HiggsToXexampleSkim(){};
 
   /// Get event properties to send to builder to fill seed collection
-  virtual bool skim(edm::Event&, const edm::EventSetup&);
+  virtual bool skim(edm::Event&, const edm::EventSetup&, int& trigger);
 
 
  private:

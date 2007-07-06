@@ -22,7 +22,7 @@ class HiggsAnalysisSkimType {
   virtual ~HiggsAnalysisSkimType() {};
 
   /** Run the desired skim */
-  virtual bool skim( edm::Event& event, const edm::EventSetup& ) = 0;
+  virtual bool skim( edm::Event& event, const edm::EventSetup&, int& theTrigger ) = 0;
 
  private:
  

@@ -55,10 +55,10 @@ HiggsToXexampleSkim::HiggsToXexampleSkim(const edm::ParameterSet& pset) : HiggsA
 
 
 // Filter event
-bool HiggsToXexampleSkim::skim(edm::Event& event, const edm::EventSetup& setup) {
+bool HiggsToXexampleSkim::skim(edm::Event& event, const edm::EventSetup& setup, int& trigger) {
 
   bool keepEvent = false;
-
+  trigger = 0;
   // Enter your filtering algorithm here...
   
   return keepEvent;

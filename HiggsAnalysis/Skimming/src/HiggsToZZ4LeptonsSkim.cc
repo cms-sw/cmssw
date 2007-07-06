@@ -55,27 +55,26 @@ HiggsToZZ4LeptonsSkim::HiggsToZZ4LeptonsSkim(const edm::ParameterSet& pset) : Hi
   // Minimum Pt for leptons for skimming
   muonMinPt          = pset.getParameter<double>("muonMinimumPt");
   elecMinEt          = pset.getParameter<double>("electronMinimumEt");
+  nLeptonMin         = pset.getParameter<int>("nLeptonMinimum");
 
 }
 
 
 // Filter event
-bool HiggsToZZ4LeptonsSkim::skim(edm::Event& event, const edm::EventSetup& setup) {
+bool HiggsToZZ4LeptonsSkim::skim(edm::Event& event, const edm::EventSetup& setup, int& whichTrigger) {
 
- //using namespace edm;
+  //using namespace edm;
   using reco::TrackCollection;
 
   bool keepEvent   = false;
-
   bool oneMuon     = false;
   bool twoMuon     = false;
   bool oneElectron = false;
   bool twoElectron = false;
   bool fourLepton  = false;
-
-  int nLeptons = 0;
-  int nMuonAbovePt = 0;
-  int nElectronAbovePt = 0;
+  int  nLeptons    = 0;
+  int  nMuonAbovePt= 0;
+  int  nElectronAbovePt = 0;
   
 
   // First look at muons:
@@ -143,12 +142,16 @@ bool HiggsToZZ4LeptonsSkim::skim(edm::Event& event, const edm::EventSetup& setup
     edm::LogError("HiggsToZZ4LeptonsSkim") << "Warning: cannot get collection with label " 
 					   << thePixelGsfELabel.label();
   }
-
   // 2 electron HLT equivalent trigger:
   if ( nElectronAbovePt > 1 ) twoElectron = true;
-
   
-  if ( nLeptons > 3) fourLepton = true;
+  if ( nLeptons >= nLeptonMin) fourLepton = true;
+
+  if (oneElectron) whichTrigger+=1;
+  if (twoElectron) whichTrigger+=10;
+  if (oneMuon) whichTrigger+=100;
+  if (twoMuon) whichTrigger+=1000;
+
 
   // Make decision:
   if (( oneMuon || twoMuon || oneElectron || twoElectron ) && fourLepton ) keepEvent = true;
