@@ -5,7 +5,6 @@
  *
  *  \author M. Maggi, C. Viviani, D. Pagano - University of Pavia & INFN Pavia
  *
- *
  */
 
 

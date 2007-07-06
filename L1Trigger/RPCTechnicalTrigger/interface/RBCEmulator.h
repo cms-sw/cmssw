@@ -3,8 +3,7 @@
 
 /**  \class RBCEmulator
  *
- *  \author M. Maggi, C. Viviani, D. Pagano - University of Pavia & INFN Pavia
- *
+ *  \author M. Maggi, C. Viviani, D. Pagano - University of Pavia & INFN Pavia*
  *
  */
 
