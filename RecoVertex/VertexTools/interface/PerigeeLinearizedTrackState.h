@@ -89,7 +89,7 @@ public:
   /** Method returning the momentum part of the parameters of the track state
    *  at the linearization point.
    */
-  virtual AlgebraicVector3 predictedStateMomentumParameters() const;
+  virtual AlgebraicVector predictedStateMomentumParameters() const;
 
   /** Method returning the weight matrix of the track state at the
    *  transverse impact point.
@@ -123,8 +123,8 @@ public:
    */
   virtual RefCountedRefittedTrackState createRefittedTrackState(
   	const GlobalPoint & vertexPosition,
-	const AlgebraicVector3 & vectorParameters,
-	const AlgebraicSymMatrix66 & covarianceMatrix) const;
+	const AlgebraicVector & vectorParameters,
+	const AlgebraicSymMatrix & covarianceMatrix) const;
 
 
   virtual double weightInMixture() const {return theTSOS.weight();}
