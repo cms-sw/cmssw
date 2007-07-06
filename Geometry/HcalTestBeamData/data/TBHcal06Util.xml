@@ -7,7 +7,10 @@
    <Parameter name="SensitiveDetector" value="CaloTrkProcessing" eval="false"/>
    <Parameter name="ReadOutName" value="CaloHitsTk" eval="false"/>
    <Parameter name="Calorimeter" value="Calo"       eval="false"/>
+   <Parameter name="Levels"      value="3"          eval="true"/>
+   <Parameter name="Neighbours"  value="1"          eval="true"/>
    <Parameter name="Inside"      value="NotFound"   eval="false"/>
+   <Parameter name="InsideLevel" value="3"          eval="true"/>
   </SpecPar>  
 </SpecParSection>
 
