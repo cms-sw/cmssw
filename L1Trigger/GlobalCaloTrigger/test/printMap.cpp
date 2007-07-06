@@ -18,15 +18,17 @@ void makePlot(ofstream& of, int plot);
 int main() {
 
 
-  /*
+  /* === obsolete ===
   // GCT card number
   ofstream gctCardPlot("gctCardPlot.txt");
   makePlot(gctCardPlot, 0);
+     ================= */
 
+  /* === obsolete ===
   // GCT region number
   ofstream gctRgnPlot("gctRgnPlot.txt");
   makePlot(gctRgnPlot, 1);
-  */
+     ================= */
 
   // RCT crate number
   ofstream rctCratePlot("rctCratePlot.txt");
@@ -101,12 +103,14 @@ void makePlot(ofstream &of, int plot) {
       L1CaloRegionDetId rgn(ieta, iphi);
 
       switch (plot) {
-      /*
+      /* === obsolete ===
       case 0 : 
 	of << setw(3) << rgn.gctCard() << " "; break;
+         ================ */
+      /* === obsolete ===
       case 1 : 
 	of << setw(3) << rgn.gctRegion() << " "; break;
-      */
+         ================ */
       case 2 : 
 	of << setw(3) << rgn.rctCrate() << " "; break;
       case 3 : 
@@ -118,7 +122,7 @@ void makePlot(ofstream &of, int plot) {
       case 6 : 
 	of << setw(3) << rgn.rctEta() << " "; break;
       case 7 : 
-	of << setw(3) << (rgn.isForward()?1:0) << " "; break;
+	of << setw(3) << (rgn.isHf()?1:0) << " "; break;
 
 
       default :

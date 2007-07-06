@@ -139,7 +139,7 @@ L1GctJet gctTestFirmware::nextJetFromFile (const unsigned jf)
 
   if (of) { et |= (1<<L1GctJet::RAWSUM_BITWIDTH); }
 
-  L1GctJet temp(et, globalEta, globalPhi, tv);
+  L1GctJet temp(et, globalEta, globalPhi, (eta>7), tv);
   return temp;
 }
 
