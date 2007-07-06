@@ -1,7 +1,7 @@
 #ifndef Common_HLTPathStatus_h
 #define Common_HLTPathStatus_h
 
-/** \class HLTPathStatus
+/** \class edm::HLTPathStatus
  *
  *  The status of a single HLT trigger (single trigger path consisting
  *  of modules on the path).  Initially, the status is Ready (meaning
@@ -21,8 +21,8 @@
  *
  *  Note that n is limited, due to packing, to at most 2^(16-2)=16384.
  *
- *  $Date: 2006/08/26 15:46:08 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/01/23 00:25:52 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
@@ -37,25 +37,31 @@ namespace edm
   class HLTPathStatus {
 
   private:
-    uint16_t status_;    // packed status [unsigned char is too small!]
+    /// packed status of trigger path [unsigned char is too small]
+    uint16_t status_;
     // bits 0- 1 (0-    3): HLT state
     // bits 2-16 (0-16383): index of module on path making path decision
 
   public:
-
+    /// constructor
     HLTPathStatus(const hlt::HLTState state = hlt::Ready, const unsigned int index = 0)
     : status_(index*4+state) {
       assert (state<4);
       assert (index<16384);
     }
 
+    /// get state of path
     hlt::HLTState state() const {return (static_cast<hlt::HLTState>(status_ % 4));}
+    /// get index of module giving the status of this path
     unsigned int  index() const {return (static_cast<unsigned int >(status_ / 4));}
-
+    /// reset this path
     void reset() {status_=0;}
 
+    /// was this path run?
     bool wasrun() const {return (state() != hlt::Ready);}
+    /// has this path accepted the event?
     bool accept() const {return (state() == hlt::Pass);}
+    /// has this path encountered an error (exception)?
     bool error()  const {return (state() == hlt::Exception);}
 
   };
