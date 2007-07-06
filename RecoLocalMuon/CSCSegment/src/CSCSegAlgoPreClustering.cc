@@ -230,24 +230,9 @@ CSCSegment CSCSegAlgoPreClustering::leastSquares(ChamberHitContainer proto_segme
     std::cout << "AVG_Y: " << mean_y << "  LSF_Y: " << theY << std::endl;
   }
  
-  AlgebraicSymMatrix errors(4,4);
-  for (uint i = 0; i < 4; ++i )
-    for (uint j = 0; j < 4; ++j )
-      errors(i,j) = 0.;
+  AlgebraicSymMatrix errors;
 
   double chi2 = 1.00;
-
-  // errors on slopes into upper left 
-  errors(1,1) = err_x * err_x; 
-  errors(1,2) = err_x * err_y;  // assume fully correlated errors 
-  errors(2,1) = err_x * err_y; 
-  errors(2,2) = err_y * err_y; 
-    
-  // errors on positions into lower right 
-  errors(3,3) = dx * dx / 12.; 
-  errors(3,4) = dx * dy / 12.;  // fully correlated errors (worse case scenario) 
-  errors(4,3) = dx * dy / 12.; 
-  errors(4,4) = dy * dy / 12.; 
 
   CSCSegment seg(proto_segment, origin, direction, errors, chi2);
 
