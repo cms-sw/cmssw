@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: TtSemiEvtSolution.h,v 1.13 2007/07/05 23:43:07 lowette Exp $
 //
 
 #ifndef TopObjects_TtSemiEvtSolution_h
@@ -124,7 +124,7 @@ class TtSemiEvtSolution {
   protected:         
 
     // method to set the generated event
-    void                      setGenEvt(edm::Handle<TtGenEvent> & aGenEvt);
+    void                      setGenEvt(const edm::Handle<TtGenEvent> & aGenEvt);
     // methods to set the basic TopObjects
     void                      setHadp(const edm::Handle<std::vector<TopJet> > & jh, int i);
     void                      setHadq(const edm::Handle<std::vector<TopJet> > & jh, int i);
@@ -141,7 +141,6 @@ class TtSemiEvtSolution {
     void                      setFitLepl(const TopParticle & aFitLepl);
     void                      setFitLepn(const TopParticle & aFitLepn);
     // methods to set the info on the matching
-    void                      setGenEvt(const edm::Handle<TtGenEvent> & aGenEvt);
     void                      setMCBestSumAngles(double sdr);
     void                      setMCBestAngleHadp(double adr);
     void                      setMCBestAngleHadq(double adr);
