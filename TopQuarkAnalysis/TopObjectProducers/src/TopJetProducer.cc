@@ -1,8 +1,5 @@
 //
-// Author:  Jan Heyninck
-// Created: Tue Apr  10 12:01:49 CEST 2007
-//
-// $Id: TopJetProducer.cc,v 1.11 2007/06/23 07:27:05 lowette Exp $
+// $Id: TopJetProducer.cc,v 1.12 2007/06/30 14:38:12 gpetrucc Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopJetProducer.h"

@@ -1,8 +1,5 @@
 //
-// Author:  Jan Heyninck
-// Created: Tue Apr  10 12:01:49 CEST 2007
-//
-// $Id: TopJetProducer.h,v 1.11 2007/06/23 07:27:03 lowette Exp $
+// $Id: TopJetProducer.h,v 1.12 2007/06/30 14:38:12 gpetrucc Exp $
 //
 
 #ifndef TopObjectProducers_TopJetProducer_h
@@ -16,7 +13,7 @@
    with possible adding of resolutions and more things to come
 
   \author   Jan Heyninck
-  \version  $Id: TopJetProducer.h,v 1.11 2007/06/23 07:27:03 lowette Exp $
+  \version  $Id: TopJetProducer.h,v 1.12 2007/06/30 14:38:12 gpetrucc Exp $
 */
 
 
@@ -94,6 +91,7 @@ class TopJetProducer : public edm::EDProducer {
     EtInverseComparator<TopJet> eTComparator_;
     JetCharge                   jetCharge_;
     reco::helper::SimpleJetTrackAssociator    simpleJetTrackAssociator_;
+
 };
 
 
