@@ -29,9 +29,12 @@ public:
     bool isInHistory() const { return isInHistory_; }
     void putInHistory()      { isInHistory_= true; }
 
-    /// Calo section
-    int getIDonCaloSurface() const 	{ return IDonCaloSurface_; }
-    void  setIDonCaloSurface(int id) 	{ IDonCaloSurface_ = id; } 
+    // Calo section
+    int getIDonCaloSurface() const 	{ return idOnCaloSurface_; }
+    void setIDonCaloSurface(int id, int ical, int last)
+    { idOnCaloSurface_ = id; idCaloVolume_ = ical; idLastVolume_ = last; }
+    int getIDCaloVolume() const         { return idCaloVolume_; }
+    int getIDLastVolume() const         { return idLastVolume_; }
     bool caloIDChecked() const 		{ return caloIDChecked_; }
     void setCaloIDChecked(bool f) 	{ caloIDChecked_ = f; }
 
@@ -42,13 +45,16 @@ private:
     bool hasHits_;
     bool isGeneratedSecondary_;
     bool isInHistory_;
-    int IDonCaloSurface_;
-    bool  caloIDChecked_;
+    int  idOnCaloSurface_;
+    int  idCaloVolume_;
+    int  idLastVolume_;
+    bool caloIDChecked_;
 
     // Restrict construction to friends
     TrackInformation() :G4VUserTrackInformation(),storeTrack_(false),isPrimary_(false),
 			hasHits_(false),isGeneratedSecondary_(false),isInHistory_(false),
-			IDonCaloSurface_(0),caloIDChecked_(false) {}
+                        idOnCaloSurface_(0),idCaloVolume_(-1),idLastVolume_(-1),
+                        caloIDChecked_(false) {}
     friend class NewTrackAction;
 };
 

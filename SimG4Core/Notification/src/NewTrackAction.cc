@@ -40,7 +40,9 @@ void NewTrackAction::addUserInfoToSecondary(G4Track * aTrack,const TrackInformat
 {
     TrackInformation * trkInfo = new TrackInformation();
     // transfer calo ID from mother (to be checked in TrackingAction)
-    trkInfo->setIDonCaloSurface(motherInfo.getIDonCaloSurface());
+    trkInfo->setIDonCaloSurface(motherInfo.getIDonCaloSurface(),
+				motherInfo.getIDCaloVolume(),
+				motherInfo.getIDLastVolume());
 
     if (savePrimaryDecayProductsAndConversions)
     {

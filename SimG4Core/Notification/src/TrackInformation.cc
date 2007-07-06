@@ -8,14 +8,15 @@ using std::endl;
 
 G4Allocator<TrackInformation> TrackInformationAllocator;
 
-void TrackInformation::Print() const
-{
-     LogDebug("TrackInformation") << " TrackInformation : storeTrack = " << storeTrack_;
-     LogDebug("TrackInformation") << " TrackInformation : hasHits = "    << hasHits_;
-     LogDebug("TrackInformation") << " TrackInformation : isPrimary = "  << isPrimary_;
-     LogDebug("TrackInformation") << " TrackInformation : isGeneratedSecondary = "  << isGeneratedSecondary_;
-     LogDebug("TrackInformation") << " TrackInformation : isInHistory = "  << isInHistory_;
-     LogDebug("TrackInformation") << " TrackInformation : IDonCaloSurface = "  << getIDonCaloSurface();
-     LogDebug("TrackInformation") << " TrackInformation : caloIDChecked = "  << caloIDChecked();
+void TrackInformation::Print() const {
+  LogDebug("TrackInformation") << " TrackInformation : storeTrack = " << storeTrack_ << "\n"
+			       << "                    hasHits = "    << hasHits_ << "\n"
+			       << "                    isPrimary = "  << isPrimary_ << "\n"
+			       << "                    isGeneratedSecondary = "  << isGeneratedSecondary_ << "\n"
+			       << "                    isInHistory = "  << isInHistory_ << "\n"
+			       << "                    idOnCaloSurface = "  << getIDonCaloSurface() << "\n"
+			       << "                    caloIDChecked = "  << caloIDChecked() << "\n"
+			       << "                    idCaloVolume = " << idCaloVolume_ << "\n"
+			       << "                    idLastVolume = " << idLastVolume_;
 }
 
