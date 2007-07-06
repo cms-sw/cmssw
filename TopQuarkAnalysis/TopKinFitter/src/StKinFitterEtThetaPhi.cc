@@ -106,7 +106,7 @@ StEvtSolution StKinFitterEtThetaPhi::addKinFitInfo(StEvtSolution * asol) {
     aFitLepn.setResET (Vn(0,0));  
     aFitLepn.setResTheta(Vn(1,1));
     aFitLepn.setResPhi(Vn(2,2));
-    
+/*    
     TopJet  aFitBottomObj(fitsol.getBottom()); aFitBottomObj.setFitJet(aFitBottom); fitsol.setBottom(aFitBottomObj);
     TopJet  aFitLightObj(fitsol.getLight()); aFitLightObj.setFitJet(aFitLight); fitsol.setLight(aFitLightObj);
     if(fitsol.getDecay() == "muon"){
@@ -116,6 +116,7 @@ StEvtSolution StKinFitterEtThetaPhi::addKinFitInfo(StEvtSolution * asol) {
       TopElectron aFitLeplObj(fitsol.getElectron()); aFitLeplObj.setFitLepton(aFitLepl); fitsol.setElectron(aFitLeplObj);
     }
     TopMET  aFitLepnObj(fitsol.getMET()); aFitLepnObj.setFitMET(aFitLepn); fitsol.setMET(aFitLepnObj);
+*/
     fitsol.setChi2(TMath::Prob(theFitter->getS(), theFitter->getNDF()));
 
   }

@@ -135,18 +135,15 @@ TtSemiEvtSolution TtSemiKinFitterEtEtaPhi::addKinFitInfo(TtSemiEvtSolution * aso
     aFitLepn.setResEta(sqrt(Vn(1,1)));
     aFitLepn.setResPhi(sqrt(Vn(2,2)));
     
-    TopJet  aFitHadpObj(fitsol.getHadp()); aFitHadpObj.setFitJet(aFitHadp); fitsol.setHadp(aFitHadpObj);
-    TopJet  aFitHadqObj(fitsol.getHadq()); aFitHadqObj.setFitJet(aFitHadq); fitsol.setHadq(aFitHadqObj);
-    TopJet  aFitHadbObj(fitsol.getHadb()); aFitHadbObj.setFitJet(aFitHadb); fitsol.setHadb(aFitHadbObj);
-    TopJet  aFitLepbObj(fitsol.getLepb()); aFitLepbObj.setFitJet(aFitLepb); fitsol.setLepb(aFitLepbObj);
-    if(fitsol.getDecay() == "muon"){
-      TopMuon aFitLeplObj(fitsol.getMuon()); aFitLeplObj.setFitLepton(aFitLepl); fitsol.setMuon(aFitLeplObj);
-    }
-    else if(fitsol.getDecay() == "electron"){
-      TopElectron aFitLeplObj(fitsol.getElectron()); aFitLeplObj.setFitLepton(aFitLepl); fitsol.setElectron(aFitLeplObj);
-    }
-    TopMET  aFitLepnObj(fitsol.getMET()); aFitLepnObj.setFitMET(aFitLepn); fitsol.setMET(aFitLepnObj);
+    fitsol.setFitHadb(aFitHadb);
+    fitsol.setFitHadp(aFitHadp);
+    fitsol.setFitHadq(aFitHadq);
+    fitsol.setFitLepb(aFitLepb);
+    fitsol.setFitLepl(aFitLepl);
+    fitsol.setFitLepn(aFitLepn);
+
     fitsol.setProbChi2(TMath::Prob(theFitter->getS(), theFitter->getNDF()));
+
   }
   return fitsol;
 }

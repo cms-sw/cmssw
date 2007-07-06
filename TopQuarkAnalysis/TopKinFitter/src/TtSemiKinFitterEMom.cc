@@ -49,12 +49,12 @@ TtSemiEvtSolution TtSemiKinFitterEMom::addKinFitInfo(TtSemiEvtSolution * asol) {
   TLorentzVector lepbVec(fitsol.getCalLepb().px(),fitsol.getCalLepb().py(),
                          fitsol.getCalLepb().pz(),fitsol.getCalLepb().energy());
   TLorentzVector leplVec;
-  if(fitsol.getDecay()== "electron") leplVec = TLorentzVector(fitsol.getRecLepe().px(), fitsol.getRecLepe().py(),    
-			 				      fitsol.getRecLepe().pz(), fitsol.getRecLepe().energy());
-  if(fitsol.getDecay()== "muon")     leplVec = TLorentzVector(fitsol.getRecLepm().px(), fitsol.getRecLepm().py(),    
-			 				      fitsol.getRecLepm().pz(), fitsol.getRecLepm().energy());
-  TLorentzVector lepnVec(fitsol.getRecLepn().px(), fitsol.getRecLepn().py(),
-			 0, fitsol.getRecLepn().et());
+  if(fitsol.getDecay()== "electron") leplVec = TLorentzVector(fitsol.getCalLepe().px(), fitsol.getCalLepe().py(),    
+			 				      fitsol.getCalLepe().pz(), fitsol.getCalLepe().energy());
+  if(fitsol.getDecay()== "muon")     leplVec = TLorentzVector(fitsol.getCalLepm().px(), fitsol.getCalLepm().py(),    
+			 				      fitsol.getCalLepm().pz(), fitsol.getCalLepm().energy());
+  TLorentzVector lepnVec(fitsol.getCalLepn().px(), fitsol.getCalLepn().py(),
+			 0, fitsol.getCalLepn().et());
  
     
     
@@ -76,18 +76,18 @@ TtSemiEvtSolution TtSemiKinFitterEMom::addKinFitInfo(TtSemiEvtSolution * asol) {
   m4(2,2) = pow(fitsol.getCalLepb().getResPhi(), 2);
   m4(3,3) = pow(fitsol.getCalLepb().getResD(), 2);
   if(fitsol.getDecay()== "electron"){
-    m5(0,0) = pow(fitsol.getRecLepe().getResPinv(),  2);
-    m5(1,1) = pow(fitsol.getRecLepe().getResTheta(), 2); 
-    m5(2,2) = pow(fitsol.getRecLepe().getResPhi(), 2);
+    m5(0,0) = pow(fitsol.getCalLepe().getResPinv(),  2);
+    m5(1,1) = pow(fitsol.getCalLepe().getResTheta(), 2); 
+    m5(2,2) = pow(fitsol.getCalLepe().getResPhi(), 2);
   }
   if(fitsol.getDecay()== "muon"){
-    m5(0,0) = pow(fitsol.getRecLepm().getResPinv(),  2);
-    m5(1,1) = pow(fitsol.getRecLepm().getResTheta(), 2); 
-    m5(2,2) = pow(fitsol.getRecLepm().getResPhi(), 2);
+    m5(0,0) = pow(fitsol.getCalLepm().getResPinv(),  2);
+    m5(1,1) = pow(fitsol.getCalLepm().getResTheta(), 2); 
+    m5(2,2) = pow(fitsol.getCalLepm().getResPhi(), 2);
   }
-  m6(0,0) = pow(fitsol.getRecLepn().getResPinv(),  2);
-  m6(1,1) = pow(fitsol.getRecLepn().getResTheta(),  2);
-  m6(2,2) = pow(fitsol.getRecLepn().getResPhi(), 2);
+  m6(0,0) = pow(fitsol.getCalLepn().getResPinv(),  2);
+  m6(1,1) = pow(fitsol.getCalLepn().getResTheta(),  2);
+  m6(2,2) = pow(fitsol.getCalLepn().getResPhi(), 2);
   
   fitHadp->setIni4Vec(&hadpVec); fitHadp->setCovMatrix(&m1);
   fitHadq->setIni4Vec(&hadqVec); fitHadq->setCovMatrix(&m2);
@@ -144,18 +144,15 @@ TtSemiEvtSolution TtSemiKinFitterEMom::addKinFitInfo(TtSemiEvtSolution * asol) {
     aFitLepn.setResTheta(Vn(1,1));
     aFitLepn.setResPhi(Vn(2,2));
     
-    TopJet  aFitHadpObj(fitsol.getHadp()); aFitHadpObj.setFitJet(aFitHadp); fitsol.setHadp(aFitHadpObj);
-    TopJet  aFitHadqObj(fitsol.getHadq()); aFitHadqObj.setFitJet(aFitHadq); fitsol.setHadq(aFitHadqObj);
-    TopJet  aFitHadbObj(fitsol.getHadb()); aFitHadbObj.setFitJet(aFitHadb); fitsol.setHadb(aFitHadbObj);
-    TopJet  aFitLepbObj(fitsol.getLepb()); aFitLepbObj.setFitJet(aFitLepb); fitsol.setLepb(aFitLepbObj);
-    if(fitsol.getDecay() == "muon"){
-      TopMuon aFitLeplObj(fitsol.getMuon()); aFitLeplObj.setFitLepton(aFitLepl); fitsol.setMuon(aFitLeplObj);
-    }
-    else if(fitsol.getDecay() == "electron"){
-      TopElectron aFitLeplObj(fitsol.getElectron()); aFitLeplObj.setFitLepton(aFitLepl); fitsol.setElectron(aFitLeplObj);
-    }
-    TopMET  aFitLepnObj(fitsol.getMET()); aFitLepnObj.setFitMET(aFitLepn); fitsol.setMET(aFitLepnObj);
+    fitsol.setFitHadb(aFitHadb);
+    fitsol.setFitHadp(aFitHadp);
+    fitsol.setFitHadq(aFitHadq);
+    fitsol.setFitLepb(aFitLepb);
+    fitsol.setFitLepl(aFitLepl);
+    fitsol.setFitLepn(aFitLepn);
+
     fitsol.setProbChi2(TMath::Prob(theFitter->getS(), theFitter->getNDF()));
+
   }
   return fitsol;
 }
