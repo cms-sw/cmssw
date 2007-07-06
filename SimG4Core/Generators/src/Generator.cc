@@ -208,10 +208,13 @@ void Generator::particleAssignDaughters( G4PrimaryParticle* g4p, HepMC::GenParti
    
   edm::LogInfo("SimG4CoreGenerator") << "Special case of long decay length" ;
   edm::LogInfo("SimG4CoreGenerator") << "Assign daughters with to mother with decaylength=" << decaylength << "mm";
-  HepLorentzVector p = (vp->momentum().px(), vp->momentum().py(), vp->momentum().pz(), vp->momentum().e());
+  HepLorentzVector p(vp->momentum().px(), vp->momentum().py(), vp->momentum().pz(), vp->momentum().e());
+  LogDebug("SimG4CoreGenerator") <<" px="<<vp->momentum().px()<<" py="<<vp->momentum().py()<<" pz="<<vp->momentum().pz()<<" e="<<vp->momentum().e();
+  LogDebug("SimG4CoreGenerator") <<" p.mag2="<<p.mag2()<<" (p.ee)**2="<<p.e()*p.e()<<" ratio:"<<p.mag2()/p.e()/p.e();
+  LogDebug("SimG4CoreGenerator") <<" mass="<<vp->generatedMass()<<" rho="<<p.rho()<<" mag="<<p.mag();
   Hep3Vector cmboost=p.findBoostToCM();
   double proper_time=decaylength/(p.beta()*p.gamma()*c_light);
-  edm::LogInfo("SimG4CoreGenerator") <<" beta="<<p.beta()<<" gamma="<<p.gamma()<<" Proper time="
+  LogDebug("SimG4CoreGenerator") <<" beta="<<p.beta()<<" gamma="<<p.gamma()<<" Proper time="
 				     <<proper_time<<" ns" ;
   g4p->SetProperTime(proper_time*ns); // the particle will decay after the same length if it has not interacted before
   HepLorentzVector xvtx=HepLorentzVector(vp->end_vertex()->position().x(),
