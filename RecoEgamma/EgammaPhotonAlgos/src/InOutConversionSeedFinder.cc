@@ -83,7 +83,7 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
   ///// This bit is for debugging; it will go away  
   /*
   for(outInTrackItr = theOutInTracks_.begin(); outInTrackItr != theOutInTracks_.end();  ++outInTrackItr) {
-    nSeedsPerInputTrack_=0;
+
 
     LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder::fillClusterSeeds out in input track hits " << (*outInTrackItr).foundHits() << "\n";
     DetId tmpId = DetId( (*outInTrackItr).seed().startingState().detId());
@@ -111,7 +111,7 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
   //Start looking for seeds for both of the 2 best tracks from the inward tracking
   for(outInTrackItr = theOutInTracks_.begin(); outInTrackItr != theOutInTracks_.end();  ++outInTrackItr) {
     LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder::fillClusterSeeds out in input track hits " << (*outInTrackItr).foundHits() << "\n";
-    
+    nSeedsPerInputTrack_=0;    
     
     //Find the first valid hit of the track
     // Measurements are ordered according to the direction in which the trajectories were built
