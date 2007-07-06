@@ -102,7 +102,7 @@ AlgebraicMatrix KinematicPerigeeConversions::jacobianParameters2Kinematic(
   PerigeeConversions pc;
   AlgebraicMatrix param2cart = asHepMatrix(pc.jacobianParameters2Cartesian
   	(asSVector<3>(momentum), referencePoint, charge, field));
-  AlgebraicMatrix frameTransJ(6, 6, 0);
+  AlgebraicMatrix frameTransJ(7, 7, 0);
   for (int i =0;i<6;++i)
     for (int j =0;j<6;++j)
       frameTransJ[i][j] = param2cart[i][j];
