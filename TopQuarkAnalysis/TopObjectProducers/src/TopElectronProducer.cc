@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck, Steven Lowette
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopElectronProducer.cc,v 1.8 2007/06/23 07:25:14 lowette Exp $
+// $Id: TopElectronProducer.cc,v 1.9 2007/06/29 12:31:40 jlamb Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopElectronProducer.h"
@@ -31,15 +31,14 @@ TopElectronProducer::TopElectronProducer(const edm::ParameterSet & iConfig) {
   electronSrc_      = iConfig.getParameter<edm::InputTag>("electronSource");
   doGenMatch_       = iConfig.getParameter<bool>         ("doGenMatch");
   addResolutions_   = iConfig.getParameter<bool>         ("addResolutions");
+  doIsolation_      = iConfig.getParameter<bool>         ("doIsolation");
   addLRValues_      = iConfig.getParameter<bool>         ("addLRValues");
   genPartSrc_       = iConfig.getParameter<edm::InputTag>("genParticleSource");
   electronResoFile_ = iConfig.getParameter<std::string>  ("electronResoFile");
   electronLRFile_   = iConfig.getParameter<std::string>  ("electronLRFile");
   
   // construct resolution calculator
-  if (addResolutions_) {
-    theResoCalc_ = new TopObjectResolutionCalc(electronResoFile_);
-  }
+  if (addResolutions_) theResoCalc_ = new TopObjectResolutionCalc(electronResoFile_);
 
   // produces vector of electrons
   produces<std::vector<TopElectron > >();
@@ -60,38 +59,27 @@ void TopElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   // Get the collection of electrons from the event
   edm::Handle<std::vector<TopElectronType> > electronsHandle; 
   iEvent.getByLabel(electronSrc_, electronsHandle);
-  std::vector<TopElectronType> electrons=*electronsHandle;
+  std::vector<TopElectronType> electrons = *electronsHandle;
 
   //remove any duplicate electrons that might be in the event
-  electrons=removeEleDupes(electrons);
+  electrons = removeEleDupes(electrons);
 
   // Get the vector of generated particles from the event if needed
   edm::Handle<reco::CandidateCollection> particles;
-  if (doGenMatch_) {
-    iEvent.getByLabel(genPartSrc_, particles);
-  }
+  if (doGenMatch_) iEvent.getByLabel(genPartSrc_, particles);
+
+  // prepare for isolation calculation
+  if (doIsolation_) theTrackIsoCalc_ = new TopLeptonTrackerIsolationPt(iSetup);
+  if (doIsolation_) theCaloIsoCalc_ = new TopLeptonCaloIsolationEnergy(iSetup);
 
   // prepare LR calculation if required
-  if (addLRValues_) {
-    theLeptonLRCalc_ = new TopLeptonLRCalc(iSetup, electronLRFile_, "");
-  }
-
-  //for isolation calculation:
-  TopLeptonTrackerIsolationPt trackIsoCalc(iSetup);
-  TopLeptonCaloIsolationEnergy caloIsoCalc(iSetup);    
-
+  if (addLRValues_) theLeptonLRCalc_ = new TopLeptonLRCalc(iSetup, electronLRFile_, "");
 
   // loop over electrons
   std::vector<TopElectron> * topElectrons = new std::vector<TopElectron>(); 
   for (size_t e = 0; e < electrons.size(); ++e) {
     // construct the TopElectron
     TopElectron anElectron(electrons[e]);
-    
-    //add isolation info:
-    anElectron.setTrackIso(trackIsoCalc.calculate(anElectron,iEvent));
-    anElectron.setCaloIso(caloIsoCalc.calculate(anElectron,iEvent));
-    
-
     // match to generated final state electrons
     if (doGenMatch_) {
       // initialize best match as null
@@ -114,6 +102,11 @@ void TopElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     if (addResolutions_) {
       (*theResoCalc_)(anElectron);
     }
+    // add isolation info
+    if (doIsolation_) {
+      anElectron.setTrackIso(theTrackIsoCalc_->calculate(anElectron,iEvent));
+      anElectron.setCaloIso(theCaloIsoCalc_->calculate(anElectron,iEvent));
+    }
     // add top lepton id LR info if requested
     if (addLRValues_) {
       theLeptonLRCalc_->calcLikelihood(anElectron, iEvent);
@@ -129,7 +122,9 @@ void TopElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   std::auto_ptr<std::vector<TopElectron> > pOutElectron(topElectrons);
   iEvent.put(pOutElectron);
 
-  // destroy the lepton LR calculator
+  // destroy the tools
+  if (doIsolation_) delete theTrackIsoCalc_;
+  if (doIsolation_) delete theCaloIsoCalc_;
   if (addLRValues_) delete theLeptonLRCalc_;
 
 }

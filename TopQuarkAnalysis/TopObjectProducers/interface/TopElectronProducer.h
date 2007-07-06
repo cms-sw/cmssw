@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck, Steven Lowette
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopElectronProducer.h,v 1.5 2007/06/14 19:34:25 jlamb Exp $
+// $Id: TopElectronProducer.h,v 1.6 2007/06/23 07:25:12 lowette Exp $
 //
 
 #ifndef TopObjectProducers_TopElectronProducer_h
@@ -17,7 +17,7 @@
    and calculation of a lepton likelihood ratio
 
   \author   Jan Heyninck, Steven Lowette
-  \version  $Id: TopElectronProducer.h,v 1.5 2007/06/14 19:34:25 jlamb Exp $
+  \version  $Id: TopElectronProducer.h,v 1.6 2007/06/23 07:25:12 lowette Exp $
 */
 
 
@@ -34,6 +34,8 @@
 
 
 class TopObjectResolutionCalc;
+class TopLeptonTrackerIsolationPt;
+class TopLeptonCaloIsolationEnergy;
 class TopLeptonLRCalc;
 
 
@@ -54,12 +56,15 @@ class TopElectronProducer : public edm::EDProducer {
     edm::InputTag  electronSrc_;
     bool           doGenMatch_;
     bool           addResolutions_;
+    bool           doIsolation_;
     bool           addLRValues_;
     edm::InputTag  genPartSrc_;
     std::string    electronResoFile_;
     std::string    electronLRFile_;
     // tools
     TopObjectResolutionCalc *        theResoCalc_;
+    TopLeptonTrackerIsolationPt *    theTrackIsoCalc_;
+    TopLeptonCaloIsolationEnergy *   theCaloIsoCalc_;
     TopLeptonLRCalc *                theLeptonLRCalc_;
     PtInverseComparator<TopElectron> pTElectronComparator_;
 
