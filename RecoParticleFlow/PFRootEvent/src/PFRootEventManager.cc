@@ -271,6 +271,13 @@ void PFRootEventManager::readOptions(const char* file,
   
   displayRecTracksPtMin_ = -1;
   options_->GetOpt("display", "rectracks_ptmin", displayRecTracksPtMin_);
+  
+  displayRecHitsPtMin_ = -1;
+  options_->GetOpt("display","rechits_ptmin",displayRecHitsPtMin_);
+  
+  displayClustersPtMin_ = -1;
+  options_->GetOpt("display","clusters_ptmin",displayClustersPtMin_);
+  
 
   // filter --------------------------------------------------------------
 
@@ -1605,6 +1612,7 @@ void PFRootEventManager::displayView(unsigned viewType) {
   displayClusters(viewType, phi0);
   if(displayRecTracks_) displayRecTracks(viewType, phi0);
   if(displayTrueParticles_) displayTrueParticles(viewType, phi0);
+  displayView_[viewType]->Update();
 }
 
 
@@ -2871,4 +2879,5 @@ PFRootEventManager::fillRecHitMask( vector<bool>& mask,
       mask.push_back( false );   
   }
 }
+
 

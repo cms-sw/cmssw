@@ -260,6 +260,8 @@ class PFRootEventManager {
   void   drawTracks(unsigned viewType);
   void   drawParts(unsigned viewType);
   
+  
+  
   /// unzooms all support histograms
   void unZoom();
 
@@ -316,7 +318,8 @@ class PFRootEventManager {
   
   void fillRecHitMask( vector<bool>& mask, 
 		       const reco::PFRecHitCollection& rechits ) const;
-
+		       
+ 
   // data members -------------------------------------------------------
 
   /// current event
@@ -479,6 +482,8 @@ class PFRootEventManager {
   std::vector< std::vector<GPFCluster> >  vectGClus_;
   std::vector< std::vector<GPFTrack> >    vectGTracks_;
   std::vector< std::vector<GPFPart> >     vectGParts_;
+  
+  
 
   //------------ display settings -----------------------------
 
@@ -502,7 +507,13 @@ class PFRootEventManager {
 
   /// size of view in number of cells when centering on a rechit
   double displayZoomFactor_;
-
+  
+  /// pt threshold to display rec hits
+  double displayRecHitsPtMin_;
+  
+  /// pt threshold to display clusters
+  double displayClustersPtMin_;
+  
   /// pt threshold to display rec tracks
   double displayRecTracksPtMin_;
 
@@ -590,8 +601,7 @@ class PFRootEventManager {
   
   /// debug printouts for jet algo on/off
   bool   jetsDebug_;
-  
-    
+      
 
 };
 #endif

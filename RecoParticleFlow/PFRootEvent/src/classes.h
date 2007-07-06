@@ -6,6 +6,8 @@
 #include "RecoParticleFlow/PFRootEvent/interface/GPFCluster.h"
 #include "RecoParticleFlow/PFRootEvent/interface/GPFTrack.h"
 #include "RecoParticleFlow/PFRootEvent/interface/GPFPart.h"
+#include "RecoParticleFlow/PFRootEvent/interface/DialogFrame.h"
+
 
 
 

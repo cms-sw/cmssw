@@ -10,13 +10,7 @@ ROOT::Cintex::Cintex::Enable();
 // create a PFRootEventManager
 PFRootEventManager em("pfRootEvent.opt");
 
-gROOT->LoadMacro("./Macros/MainFrame.C");
-
-// display first entry
-int i=0;
-em.display(i++);
-
+DialogFrame* mainWin = new DialogFrame(&em,gClient->GetRoot(), 200,220);
 // look for ECAL rechit with maximum energy
 em.lookForMaxRecHit(true);
-MainFrame* mainWin = new MainFrame(gClient->GetRoot(), 200, 220);
 }
