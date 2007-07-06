@@ -42,20 +42,29 @@ private:
   void                     update(const BeginOfEvent * evt);
   void                     update(const G4Step *);
   std::vector<std::string> getNames(G4String, const DDsvalues_type&);
-  bool                     isItCalo(std::string);
-  bool                     isItInside(std::string);
+  std::vector<double>      getNumbers(G4String, const DDsvalues_type&);
+  int                      isItCalo(const G4VTouchable*);
+  int                      isItInside(const G4VTouchable*, int, int);
 
+
+  struct Detector {
+    Detector() {}
+    std::string              name;
+    int                      level;
+    std::vector<std::string> fromDets; 
+    std::vector<int>         fromLevels;
+  };
+  
   // Utilities to get detector levels during a step
   int                      detLevels(const G4VTouchable*) const;
-  G4String                 detName(const G4VTouchable*, int, int) const;
+  std::string              detName(const G4VTouchable*, int) const;
   void                     detectorLevel(const G4VTouchable*, int&, int*,
 					 G4String*) const;
 
   bool                     testBeam;
   double                   eMin;
   int                      lastTrackID;
-  std::vector<std::string> caloNames;
-  std::vector<std::string> insideNames;
+  std::vector<Detector>    detectors;
   const SimTrackManager*   m_trackManager;
 };
 

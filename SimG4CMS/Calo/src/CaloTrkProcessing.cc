@@ -15,6 +15,8 @@
 #include "G4Step.hh"
 #include "G4Track.hh"
 
+#define DEBUG
+
 CaloTrkProcessing::CaloTrkProcessing(G4String name, 
 				     const DDCompactView & cpv,
 				     SensitiveDetectorCatalog & clg, 
@@ -41,17 +43,91 @@ CaloTrkProcessing::CaloTrkProcessing(G4String name,
   fv.firstChild();
   DDsvalues_type sv(fv.mergedSpecifics());
 
-  G4String value     = "Calorimeter";
-  caloNames          = getNames (value, sv);
-  edm::LogInfo("CaloSim") << "CaloTrkProcessing: Names for " << value << ":";
+  G4String value                     = "Calorimeter";
+  std::vector<std::string> caloNames = getNames (value, sv);
+#ifdef DEBUG
+  LogDebug("CaloSim") << "CaloTrkProcessing: Names for " << value << ":";
   for (unsigned int i=0; i<caloNames.size(); i++)
-    edm::LogInfo("CaloSim") << " (" << i << ") " << caloNames[i];
+    LogDebug("CaloSim") << " (" << i << ") " << caloNames[i];
+#endif
 
-  value              = "Inside";
-  insideNames        = getNames (value, sv);
-  edm::LogInfo("CaloSim") << "CaloTrkProcessing: Names for " << value << ":";
+  value                                = "Levels";
+  std::vector<double>      levels      = getNumbers (value, sv);
+#ifdef DEBUG
+  LogDebug("CaloSim") << "CaloTrkProcessing: Names for " << value << ":";
+  for (unsigned int i=0; i<levels.size(); i++)
+    LogDebug("CaloSim") << " (" << i << ") " << levels[i];
+#endif
+
+  value                                = "Neighbours";
+  std::vector<double>      neighbours  = getNumbers (value, sv);
+#ifdef DEBUG
+  LogDebug("CaloSim") << "CaloTrkProcessing: Names for " << value << ":";
+  for (unsigned int i=0; i<neighbours.size(); i++)
+    LogDebug("CaloSim") << " (" << i << ") " << neighbours[i];
+#endif
+
+  value                                = "Inside";
+  std::vector<std::string> insideNames = getNames (value, sv);
+#ifdef DEBUG
+  LogDebug("CaloSim") << "CaloTrkProcessing: Names for " << value << ":";
   for (unsigned int i=0; i<insideNames.size(); i++)
-    edm::LogInfo("CaloSim") << " (" << i << ") " << insideNames[i];
+    LogDebug("CaloSim") << " (" << i << ") " << insideNames[i];
+#endif
+
+  value                                = "InsideLevel";
+  std::vector<double>      insideLevel = getNumbers (value, sv);
+#ifdef DEBUG
+  LogDebug("CaloSim") << "CaloTrkProcessing: Names for " << value << ":";
+  for (unsigned int i=0; i<insideLevel.size(); i++)
+    LogDebug("CaloSim") << " (" << i << ") " << insideLevel[i];
+#endif
+
+  if (caloNames.size() < neighbours.size()) {
+    edm::LogError("CaloSim") << "CaloTrkProcessing: # of Calorimeter bins " 
+			     << caloNames.size() << " does not match with "
+			     << neighbours.size() << " ==> illegal ";
+    throw cms::Exception("Unknown", "CaloTrkProcessing")
+      << "Calorimeter array size does not match with size of neighbours\n";
+  }
+
+  int istart = 0;
+  for (unsigned int i=0; i<caloNames.size(); i++) {
+    CaloTrkProcessing::Detector detector;
+    detector.name  = caloNames[i];
+    detector.level = static_cast<int>(levels[i]);
+    int number    = static_cast<int>(neighbours[i]);
+    if (istart+number > (int)(insideNames.size())) {
+      edm::LogError("CaloSim") << "CaloTrkProcessing: # of InsideNames bins " 
+			       << insideNames.size() << " too few compaerd to "
+			       << istart+number << " requested ==> illegal ";
+      throw cms::Exception("Unknown", "CaloTrkProcessing")
+	<< "InsideNames array size does not match with list of neighbours\n";
+    }
+    std::vector<std::string> inside;
+    std::vector<int>         insideLevels;
+    for (int k = 0; k < number; k++) {
+      inside.push_back(insideNames[istart+k]);
+      insideLevels.push_back(static_cast<int>(insideLevel[istart+k]));
+    }
+    detector.fromDets   = inside;
+    detector.fromLevels = insideLevels;
+    detectors.push_back(detector);
+    istart += number;
+  }
+
+  edm::LogInfo("CaloSim") << "CaloTrkProcessing: with " << detectors.size()
+			  << " calorimetric volumes";
+  for (unsigned int i=0; i<detectors.size(); i++) {
+    edm::LogInfo("CaloSim") << "CaloTrkProcessing: Calorimeter volume " << i
+			    << " " << detectors[i].name << " at level "
+			    << detectors[i].level << " with "
+			    << detectors[i].fromDets.size() << " neighbours";
+    for (unsigned int k=0; k<detectors[i].fromDets.size(); k++) 
+      edm::LogInfo("CaloSim") << "                   Element " << k << " "
+			      << detectors[i].fromDets[k] << " at level "
+			      << detectors[i].fromLevels[k];
+  }
 }
 
 CaloTrkProcessing::~CaloTrkProcessing() {
@@ -59,7 +135,6 @@ CaloTrkProcessing::~CaloTrkProcessing() {
 }
 
 void CaloTrkProcessing::update(const BeginOfEvent * evt) {
-
   lastTrackID = -1;
 }
 
@@ -81,88 +156,58 @@ void CaloTrkProcessing::update(const G4Step * aStep) {
   
   if (testBeam) {
     if (trkInfo->getIDonCaloSurface() == 0) {
+#ifdef DEBUG
       LogDebug("CaloSim") << "CaloTrkProcessing set IDonCaloSurface to " << id 
-			  << " at stepNumber " << theTrack->GetCurrentStepNumber();
-      trkInfo->setIDonCaloSurface(id);
+			  << " at step Number "
+			  << theTrack->GetCurrentStepNumber();
+#endif
+      trkInfo->setIDonCaloSurface(id,0,0);
       lastTrackID = id;
       if (theTrack->GetKineticEnergy()/MeV > eMin)
 	trkInfo->putInHistory();
     } 
   } else {
-    LogDebug("CaloSim") << "CaloTrkProcessing Entered for " << id 
+#ifdef DEBUG
+    edm::LogInfo("CaloSim") << "CaloTrkProcessing Entered for " << id 
 			<< " at stepNumber "<< theTrack->GetCurrentStepNumber()
 			<< " IDonCaloSur.. " << trkInfo->getIDonCaloSurface()
 			<< " CaloCheck " << trkInfo->caloIDChecked();
+#endif
     if (trkInfo->getIDonCaloSurface() != 0) {
       if (trkInfo->caloIDChecked() == false) {
         G4StepPoint*        postStepPoint = aStep->GetPostStepPoint();   
         const G4VTouchable* post_touch    = postStepPoint->GetTouchable();
-        int                 post_levels   = detLevels(post_touch);
-        std::string         post_name     = "NotFound";
-        if (post_levels > 1)post_name     = detName(post_touch,post_levels,3);
-        LogDebug("CaloSim") << "CaloTrkProcessing: Post volume with " 
-			    << post_levels << " levels at Level 3 " 
-			    << post_name;
-        if (isItInside(post_name)) {
-          trkInfo->setIDonCaloSurface(0);
+
+        if (isItInside(post_touch, trkInfo->getIDCaloVolume(),
+		       trkInfo->getIDLastVolume()) > 0) {
+          trkInfo->setIDonCaloSurface(0, -1, -1);
         } else {
           trkInfo->setCaloIDChecked(true);
         }
       }
     } else {
-
-      G4StepPoint*        preStepPoint = aStep->GetPreStepPoint(); 
-      const G4VTouchable* pre_touch    = preStepPoint->GetTouchable();
-      int                 pre_levels   = detLevels(pre_touch);
-      std::string         pre_name     = detName(pre_touch, pre_levels, 3);
-    
-      LogDebug("CaloSim") << "CaloTrkProcessing: Previous volume with " 
-			  << pre_levels;
-      if (pre_levels > 0) {
-	G4String name1[20]; int copyno1[20];
-	detectorLevel(pre_touch, pre_levels, copyno1, name1);
-	for (int i1=0; i1<pre_levels; i1++) 
-	  LogDebug("CaloSim") << " " << i1 << " " << name1[i1] << " " 
-			      << copyno1[i1];
-      }
-
       G4StepPoint*        postStepPoint = aStep->GetPostStepPoint();   
       const G4VTouchable* post_touch    = postStepPoint->GetTouchable();
-      int                 post_levels   = detLevels(post_touch);
-      if (post_levels == 0) return;
-      std::string         post_name     = detName(post_touch, post_levels, 3);
-      
-      LogDebug("CaloSim") << "CaloTrkProcessing: Post volume with " 
-			  << post_levels << " levels at Level 3 " << post_name;
-      if (post_levels > 0) {
-        G4String name2[20]; int copyno2[20];
-        detectorLevel(post_touch, post_levels, copyno2, name2);
-        for (int i2=0; i2<post_levels; i2++) 
-          LogDebug("CaloSim") << " " << i2 << " " << name2[i2] << " " 
-			      << copyno2[i2];
-      }
-      
-      if (isItCalo(post_name) && (isItInside(pre_name) || 
-                                  (theTrack->GetCurrentStepNumber()==1))) {
-        trkInfo->setIDonCaloSurface(id);
-        lastTrackID = id;
-        if (theTrack->GetKineticEnergy()/MeV > eMin)
-          trkInfo->putInHistory();
-        LogDebug("CaloSim") << "CaloTrkProcessing: set ID on Calo surface to " 
-			    << id << " of a Track with Kinetic Energy " 
-			    << theTrack->GetKineticEnergy()/MeV << " MeV";
+      int                 ical          = isItCalo(post_touch);
+      if (ical >= 0) {
+	G4StepPoint*        preStepPoint = aStep->GetPreStepPoint(); 
+	const G4VTouchable* pre_touch    = preStepPoint->GetTouchable();
+	int                 inside       = isItInside(pre_touch, ical, -1);
+	if (inside >= 0 ||  (theTrack->GetCurrentStepNumber()==1)) {
+	  trkInfo->setIDonCaloSurface(id,ical,inside);
+          trkInfo->setCaloIDChecked(true);
+	  lastTrackID = id;
+	  if (theTrack->GetKineticEnergy()/MeV > eMin) trkInfo->putInHistory();
+#ifdef DEBUG
+	  edm::LogInfo("CaloSim") <<"CaloTrkProcessing: set ID on Calo " << ical
+			      << " surface (Inside " << inside << ") to " 
+			      << id << " of a Track with Kinetic Energy " 
+			      << theTrack->GetKineticEnergy()/MeV << " MeV";
+#endif
+	}
       }
     }
   }
-}
-
-int CaloTrkProcessing::detLevels(const G4VTouchable* touch) const {
-
-  //Return number of levels
-  if (touch) 
-    return ((touch->GetHistoryDepth())+1);
-  else
-    return 0;
 }
 
 std::vector<std::string> CaloTrkProcessing::getNames(const G4String str,
@@ -191,32 +236,126 @@ std::vector<std::string> CaloTrkProcessing::getNames(const G4String str,
   }
 }
 
-bool CaloTrkProcessing::isItCalo(std::string name) {
+std::vector<double> CaloTrkProcessing::getNumbers(const G4String str,
+						  const DDsvalues_type &sv) {
 
-  std::vector<std::string>::const_iterator it = caloNames.begin();
-  for (; it != caloNames.end(); it++) 
-    if (name == *it) return true;
-  return false;
-}
+  LogDebug("CaloSim") << "CaloTrkProcessing::getNumbers called for " << str;
 
-bool CaloTrkProcessing::isItInside(std::string name) {
-
-  std::vector<std::string>::const_iterator it = insideNames.begin();
-  for (; it != insideNames.end(); it++) 
-    if (name == *it) return true;
-  return false;
-}
-
-G4String CaloTrkProcessing::detName(const G4VTouchable* touch, int level,
-				    int currentlevel) const {
-
-  //Go down to current level
-  if (level > 0 && level >= currentlevel) {
-    int ii = level - currentlevel; 
-    return touch->GetVolume(ii)->GetName();
+  DDValue value(str);
+  if (DDfetch(&sv,value)) {
+    LogDebug("CaloSim") << value;
+    const std::vector<double> & fvec = value.doubles();
+    int nval = fvec.size();
+    if (nval < 1) {
+	edm::LogError("CaloSim") << "CaloTrkProcessing: # of " << str 
+				 << " bins " << nval << " < 1 ==> illegal ";
+	throw cms::Exception("Unknown", "CaloTrkProcessing")
+	  << "nval < 2 for array " << str << "\n";
+    }
+    
+    return fvec;
   } else {
-    return "NotFound";
+    edm::LogError("CaloSim") << "CaloTrkProcessing: cannot get array " << str ;
+    throw cms::Exception("Unknown", "CaloTrkProcessing")
+      << "cannot get array " << str << "\n";
   }
+}
+
+int CaloTrkProcessing::isItCalo(const G4VTouchable* touch) {
+
+  int lastLevel = -1;
+  std::string name;
+  for (unsigned int it=0; it < detectors.size(); it++) {
+    if (lastLevel != detectors[it].level) {
+      lastLevel = detectors[it].level;
+      name      = detName(touch, lastLevel);
+#ifdef DEBUG
+      edm::LogInfo("CaloSim") << "CaloTrkProcessing: volume " << name
+			      << " at Level " << lastLevel;
+      int levels = detLevels(touch);
+      if (levels > 0) {
+	G4String name2[20]; int copyno2[20];
+	detectorLevel(touch, levels, copyno2, name2);
+	for (int i2=0; i2<levels; i2++) 
+	  LogDebug("CaloSim") << " " << i2 << " " << name2[i2] << " " 
+			      << copyno2[i2];
+      }
+#endif
+    }
+    if (name == detectors[it].name) return it;
+  }
+  return -1;
+}
+
+int CaloTrkProcessing::isItInside(const G4VTouchable* touch, int idcal,
+				  int idin) {
+  int lastLevel = -1;
+  std::string name;
+  int id1, id2;
+  if (idcal < 0) {id1 = 0; id2 = static_cast<int>(detectors.size());}
+  else           {id1 = idcal; id2 = id1+1;}
+  for (int it1 = id1; it1 < id2; it1++) {
+    if (idin < 0) {
+      for (unsigned int it2 = 0; it2 < detectors[it1].fromDets.size(); it2++) {
+	if (lastLevel != detectors[it1].fromLevels[it2]) {
+	  lastLevel = detectors[it1].fromLevels[it2];
+	  name      = detName(touch, lastLevel);
+#ifdef DEBUG
+	  edm::LogInfo("CaloSim") << "CaloTrkProcessing: volume " << name
+				  << " at Level " << lastLevel;
+	  int levels = detLevels(touch);
+	  if (levels > 0) {
+	    G4String name2[20]; int copyno2[20];
+	    detectorLevel(touch, levels, copyno2, name2);
+	    for (int i2=0; i2<levels; i2++) 
+	      LogDebug("CaloSim") << " " << i2 << " " << name2[i2] << " " 
+				  << copyno2[i2];
+	  }
+#endif
+	}
+	if (name == detectors[it1].fromDets[it2]) return it2;
+      }
+    } else {
+      lastLevel = detectors[it1].fromLevels[idin];
+      name      = detName(touch, lastLevel);
+#ifdef DEBUG
+      edm::LogInfo("CaloSim") << "CaloTrkProcessing: volume " << name
+			      << " at Level " << lastLevel;
+      int levels = detLevels(touch);
+      if (levels > 0) {
+	G4String name2[20]; int copyno2[20];
+	detectorLevel(touch, levels, copyno2, name2);
+	for (int i2=0; i2<levels; i2++) 
+	  LogDebug("CaloSim") << " " << i2 << " " << name2[i2] << " " 
+			      << copyno2[i2];
+      }
+#endif
+      if (name == detectors[it1].fromDets[idin]) return idin;
+    }
+  }
+  return -1;
+}
+
+int CaloTrkProcessing::detLevels(const G4VTouchable* touch) const {
+
+  //Return number of levels
+  if (touch) 
+    return ((touch->GetHistoryDepth())+1);
+  else
+    return 0;
+}
+
+std::string CaloTrkProcessing::detName(const G4VTouchable* touch,
+				       int currentlevel) const {
+
+  if (touch) {
+    int level = ((touch->GetHistoryDepth())+1);
+    if (level > 0 && level >= currentlevel) {
+      int ii = level - currentlevel; 
+      return touch->GetVolume(ii)->GetName();
+    } 
+  }
+  return "NotFound";
 }
 
 void CaloTrkProcessing::detectorLevel(const G4VTouchable* touch, int& level,

@@ -226,7 +226,8 @@ bool CaloSD::getStepInfo(G4Step* aStep) {
   if (primaryID == 0) {
     edm::LogWarning("CaloSim") << "CaloSD: Problem with primaryID **** set by "
 			       << "force to TkID **** " 
-			       << theTrack->GetTrackID();
+			       << theTrack->GetTrackID() << " in Volume "
+			       << preStepPoint->GetTouchable()->GetVolume(0)->GetName();
     primaryID = theTrack->GetTrackID();
   }
 
