@@ -2,10 +2,10 @@
 #define SimG4Core_FieldBuilder_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "SimG4Core/Geometry/interface/G4LogicalVolumeToDDLogicalPartMap.h"
+// #include "SimG4Core/Geometry/interface/G4LogicalVolumeToDDLogicalPartMap.h"
 #include <memory>
 
-class DDLogicalPart;
+// class DDLogicalPart;
 class MagneticField;
 
 class G4FieldManager;
@@ -19,23 +19,20 @@ namespace sim {
    {
       public:
 	 FieldBuilder(const MagneticField*, 
-		      const G4LogicalVolumeToDDLogicalPartMap&, 
 		      const edm::ParameterSet&);
 	 //~FieldBuilder();
 
+/*
 	 void readFieldParameters(DDLogicalPart theLogicalPart,
 				  const std::string& keywordField);
-
+*/
          void build(G4FieldManager* fM = 0,
                     G4PropagatorInField* fP = 0) ;
 
+/*
 	 void configure(const std::string& keywordField,
 			G4FieldManager * fM = 0,
 			G4PropagatorInField * fP = 0);
-/*
-	 void configureLocalFM( const std::string& volName,
-	                        G4FieldManager * fM = 0,
-	                        G4PropagatorInField * fP = 0);
 */
 	 void configureForVolume( const std::string& volName, 
 	                          edm::ParameterSet& volPSet,
@@ -48,7 +45,6 @@ namespace sim {
       private:
 	 std::auto_ptr<Field> theField;
 	 G4Mag_UsualEqRhs * theFieldEquation;
-	 G4LogicalVolumeToDDLogicalPartMap map_;
 	 G4LogicalVolume* theTopVolume;
 	 
 	 std::string keywordField;

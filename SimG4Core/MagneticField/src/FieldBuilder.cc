@@ -1,4 +1,4 @@
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+// #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -11,9 +11,11 @@
 #include "SimG4Core/MagneticField/interface/FieldStepper.h"
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
 
+/*
 #include "DetectorDescription/Parser/interface/DDLConfiguration.h"
 #include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Algorithm/src/AlgoInit.h"
+*/
 
 #include "G4Mag_UsualEqRhs.hh"
 #include "G4PropagatorInField.hh"
@@ -29,11 +31,9 @@
 using namespace sim;
 
 FieldBuilder::FieldBuilder(const MagneticField * f, 
-			   const G4LogicalVolumeToDDLogicalPartMap & map,
 			   const edm::ParameterSet & p) 
    : theField( new Field(f,p)), 
      theFieldEquation(new G4Mag_UsualEqRhs(theField.get())),
-     map_(map), 
      theTopVolume(0),
      fieldValue(0.), minStep(0.), dChord(0.), dOneStep(0.),
      dIntersection(0.), dIntersectionAndOneStep(0.), 
@@ -43,7 +43,7 @@ FieldBuilder::FieldBuilder(const MagneticField * f,
     theField->fieldEquation(theFieldEquation);
 }
 
-
+/*
 void FieldBuilder::readFieldParameters(DDLogicalPart lp,
 				       const std::string& keywordField)
 {
@@ -68,7 +68,7 @@ void FieldBuilder::readFieldParameters(DDLogicalPart lp,
 			      << maxEpsilonStep;
     return;
 }
-
+*/
 
 void FieldBuilder::build( G4FieldManager* fM, G4PropagatorInField* fP)
 {
@@ -81,9 +81,9 @@ void FieldBuilder::build( G4FieldManager* fM, G4PropagatorInField* fP)
     edm::ParameterSet volPSet =
        thePSetForGMFM.getParameter< edm::ParameterSet >( volName );
     
-    // configureForVolume( volName, volPSet, fM, fP );
+    configureForVolume( volName, volPSet, fM, fP );
     
-    configure( "MagneticFieldType", fM, fP ) ;
+    // configure( "MagneticFieldType", fM, fP ) ;
 
     if ( thePSet.getParameter<bool>("UseLocalMagFieldManager") )
     {
@@ -120,7 +120,7 @@ void FieldBuilder::build( G4FieldManager* fM, G4PropagatorInField* fP)
  
 }
 
-
+/*
 void FieldBuilder::configure(const std::string& keywordField,
 			     G4FieldManager * fM,
 			     G4PropagatorInField * fP)
@@ -134,41 +134,6 @@ void FieldBuilder::configure(const std::string& keywordField,
     if (fP!=0) configurePropagatorInField(fP);	
   }
   return ;
-}
-
-/*
-void FieldBuilder::configureLocalFM( const std::string& volName,
-                                     G4FieldManager * fM,
-			             G4PropagatorInField * fP)
-{
-
-   G4LogicalVolumeStore* theStore = G4LogicalVolumeStore::GetInstance();
-   for (unsigned int i=0; i<(*theStore).size(); ++i )
-   {
-      std::string curVolName = ((*theStore)[i])->GetName();
-      if ( curVolName == volName )
-      {
-         theTopVolume = (*theStore)[i] ;
-      }
-   }
-   
-   edm::ParameterSet volPSet = 
-      (thePSet.getUntrackedParameter<edm::ParameterSet>("ConfLMFM")).getParameter<edm::ParameterSet>(volName);
-   
-   
-   fieldType     = volPSet.getParameter<std::string>("Type") ;
-   stepper       = volPSet.getParameter<std::string>("Stepper") ;
-   edm::ParameterSet stpPSet = 
-      volPSet.getParameter<edm::ParameterSet>(stepper) ;
-   minStep       = stpPSet.getParameter<double>("MinStep") ;
-   dChord        = stpPSet.getParameter<double>("DeltaChord") ;
-   dOneStep      = stpPSet.getParameter<double>("DeltaOneStep") ;
-   dIntersection = stpPSet.getParameter<double>("DeltaIntersection") ;
-   
-   if (fM!=0) configureFieldManager(fM);
-   if (fP!=0) configurePropagatorInField(fP);	
-
-   return ;
 }
 */
 

@@ -170,8 +170,8 @@ void RunManager::initG4(const edm::EventSetup & es)
 	es.get<IdealMagneticFieldRecord>().get(pMF);
 	const GlobalPoint g(0.,0.,0.);
 
-	m_fieldBuilder = std::auto_ptr<sim::FieldBuilder>(new sim::FieldBuilder(&(*pMF), map_, m_pField));
-	// m_fieldBuilder = std::auto_ptr<sim::FieldBuilder>(new sim::FieldBuilder(&(*pMF), m_pField));
+	// m_fieldBuilder = std::auto_ptr<sim::FieldBuilder>(new sim::FieldBuilder(&(*pMF), map_, m_pField));
+	m_fieldBuilder = std::auto_ptr<sim::FieldBuilder>(new sim::FieldBuilder(&(*pMF), m_pField));
 	G4TransportationManager * tM = G4TransportationManager::GetTransportationManager();
 	m_fieldBuilder->build( tM->GetFieldManager(),tM->GetPropagatorInField() ) ;
 	// m_fieldBuilder->configure("MagneticFieldType",tM->GetFieldManager(),tM->GetPropagatorInField());
