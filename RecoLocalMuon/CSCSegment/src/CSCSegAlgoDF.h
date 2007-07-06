@@ -41,6 +41,9 @@
 #include <deque>
 #include <vector>
 
+class CSCSegAlgoPreClustering;
+class CSCSegAlgoHitPruning;
+
 class CSCSegAlgoDF : public CSCSegmentAlgorithm {
 
 public:
@@ -57,7 +60,7 @@ public:
   explicit CSCSegAlgoDF(const edm::ParameterSet& ps);
 
   /// Destructor
-  virtual ~CSCSegAlgoDF() {};
+  virtual ~CSCSegAlgoDF();
 
   /**
    * Build track segments in this chamber (this is where the actual
@@ -118,6 +121,8 @@ private:
 
   // input from .cfi file
   bool   debug;
+  bool   preClustering;
+  bool   Pruning;
   int    minLayersApart;
   float  nSigmaFromSegment;
   int    minHitsPerSegment;
@@ -126,6 +131,10 @@ private:
   double dPhiFineMax;
   float tanPhiMax;
   float tanThetaMax;
+
+  CSCSegAlgoPreClustering* preCluster_;
+  CSCSegAlgoHitPruning* hitPruning_;
+
 };
 
 #endif

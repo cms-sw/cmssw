@@ -17,6 +17,9 @@
 
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
+#include "CSCSegAlgoPreClustering.h"
+#include "CSCSegAlgoHitPruning.h"
+
 #include <algorithm>
 #include <cmath>
 #include <iostream>
@@ -36,15 +39,63 @@ CSCSegAlgoDF::CSCSegAlgoDF(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps
   dPhiFineMax            = ps.getUntrackedParameter<double>("dPhiFineMax");
   tanThetaMax            = ps.getUntrackedParameter<double>("tanThetaMax");
   tanPhiMax              = ps.getUntrackedParameter<double>("tanPhiMax");	
+  preClustering          = ps.getUntrackedParameter<bool>("preClustering");
+  Pruning                = ps.getUntrackedParameter<bool>("Pruning");
+
+  preCluster_            = new CSCSegAlgoPreClustering( ps );
+  hitPruning_            = new CSCSegAlgoHitPruning( ps );
+
 }
 
 
+/* Destructor
+ *
+ */
+CSCSegAlgoDF::~CSCSegAlgoDF() {
+
+  delete preCluster_;
+  delete hitPruning_;
+}
+
+
+/* run
+ *
+ */
 std::vector<CSCSegment> CSCSegAlgoDF::run(const CSCChamber* aChamber, ChamberHitContainer rechits) {
 
   // Store chamber info in temp memory
   theChamber = aChamber; 
 
-  return buildSegments(rechits); 
+  // Segments prior to pruning
+  std::vector<CSCSegment> segments_temp;  
+
+  if ( preClustering ) {
+    // This is where the segment origin is in the chamber on avg.
+    std::vector<CSCSegment> testSegments;
+    std::vector<ChamberHitContainer> clusteredHits = preCluster_->clusterHits(theChamber, rechits, testSegments);
+    // loop over the found clusters:
+    for(std::vector<ChamberHitContainer>::iterator subrechits = clusteredHits.begin(); subrechits !=  clusteredHits.end(); ++subrechits ) {
+      // build the subset of segments:
+      std::vector<CSCSegment> segs = buildSegments( (*subrechits) );
+      // add the found subset of segments to the collection of all segments in this chamber:
+      segments_temp.insert( segments_temp.end(), segs.begin(), segs.end() );
+    }
+  } else {
+    std::vector<CSCSegment> segs = buildSegments( rechits );
+    // add the found subset of segments to the collection of all segments in this chamber:
+    segments_temp.insert( segments_temp.end(), segs.begin(), segs.end() ); 
+  }
+
+  // Prune bad hits off segments
+  std::vector<CSCSegment> segments;  
+
+  if ( Pruning ) {
+    std::vector<CSCSegment> segs = hitPruning_->pruneBadHits(theChamber, segments_temp);
+    segments.insert( segments.end(), segs.begin(), segs.end() );
+  } else {
+    segments.insert( segments.end(), segments_temp.begin(), segments_temp.end() );
+  }
+  return segments; 
 }
 
 
@@ -131,8 +182,8 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits)
       protoSlope_v = (lp2.y() - lp1.y())/dz ;    
 
       // Test if entrance angle is roughly pointing towards IP
-      if (fabs(protoSlope_v) > tanThetaMax) continue;
-      if (fabs(protoSlope_u) > tanPhiMax ) continue;
+//      if (fabs(protoSlope_v) > tanThetaMax) continue;
+//      if (fabs(protoSlope_u) > tanPhiMax ) continue;
      
       protoSegment.push_back(h1);
       protoSegment.push_back(h2);
