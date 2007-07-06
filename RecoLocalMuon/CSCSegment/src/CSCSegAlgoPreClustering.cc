@@ -30,7 +30,7 @@
 CSCSegAlgoPreClustering::CSCSegAlgoPreClustering(const edm::ParameterSet& ps) {
   dXclusBoxMax           = ps.getUntrackedParameter<double>("dXclusBoxMax");
   dYclusBoxMax           = ps.getUntrackedParameter<double>("dYclusBoxMax");
-  debug                  = ps.getUntrackedParameter<double>("CSCSegmentDebug");
+  debug                  = ps.getUntrackedParameter<bool>("CSCSegmentDebug");
 }
 
 
