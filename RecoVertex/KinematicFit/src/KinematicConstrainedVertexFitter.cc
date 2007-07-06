@@ -1,6 +1,6 @@
 #include "RecoVertex/KinematicFit/interface/KinematicConstrainedVertexFitter.h"
 #include "RecoVertex/KinematicFit/interface/InputSort.h"
-// #include "Vertex/LinearizationPointFinders/interface/LMSLinearizationPointFinder.h"
+#include "RecoVertex/LinearizationPointFinders/interface/DefaultLinearizationPointFinder.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicVertexFactory.h"
 // #include "Utilities/UI/interface/SimpleConfigurable.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
@@ -9,8 +9,7 @@
 
 KinematicConstrainedVertexFitter::KinematicConstrainedVertexFitter()
 {
-//FIXME
-//  finder = new LMSLinearizationPointFinder();
+ finder = new DefaultLinearizationPointFinder();
  vCons = new VertexKinematicConstraint();
  updator = new KinematicConstrainedVertexUpdator();
  tBuilder = new ConstrainedTreeBuilder;
@@ -45,6 +44,8 @@ void KinematicConstrainedVertexFitter::readParameters()
 //  static SimpleConfigurable<int>
 //    maxStepConfigurable(10,"KinematicConstrainedVertexFitter:maximumNumberOfIterations");
 //  theMaxStep = maxStepConfigurable.value();
+  theMaxDiff = 0.01;
+  theMaxStep = 10;
 }
 
 RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(vector<RefCountedKinematicParticle> part, 
@@ -54,19 +55,20 @@ RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(vector<RefCountedK
   
 //sorting out the input particles
  InputSort iSort;
- vector<RefCountedKinematicParticle> prt = iSort.sort(part).first;
- vector<FreeTrajectoryState> fStates = iSort.sort(part).second;
+ pair<vector<RefCountedKinematicParticle>, vector<FreeTrajectoryState> > input = iSort.sort(part);
+ const vector<RefCountedKinematicParticle> & prt  = input.first;
+ const vector<FreeTrajectoryState> & fStates = input.second;
 
 // linearization point: 
  GlobalPoint linPoint  = finder->getLinearizationPoint(fStates);
- 
+
 //initial parameters:  
  int vSize = prt.size();
  AlgebraicVector inPar(3 + 7*vSize,0);
- 
+
 //final parameters 
  AlgebraicVector finPar(3 + 7*vSize,0);
- 
+
 //initial covariance 
  AlgebraicMatrix inCov(3 + 7*vSize,3 + 7*vSize,0);
 
@@ -102,7 +104,7 @@ RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(vector<RefCountedK
  GlobalPoint lPoint  = linPoint;
  RefCountedKinematicVertex rVtx;
  AlgebraicMatrix refCCov;
- 
+
 //iterarions over the updator: each time updated parameters 
 //are taken as new linearization point 
  do{ 
@@ -124,7 +126,7 @@ RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(vector<RefCountedK
   refCCov = lRes.first.second;
   nit++;
  }while(nit<theMaxStep && eq>theMaxDiff);
- 
+
 // cout<<"number of relinearizations "<<nit<<endl;
 // cout<<"value obtained: "<<eq<<endl;
 
