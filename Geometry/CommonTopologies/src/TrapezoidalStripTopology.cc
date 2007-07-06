@@ -54,7 +54,7 @@ TrapezoidalStripTopology::localPosition(const MeasurementPoint& mp) const {
 LocalError
 TrapezoidalStripTopology::localError(float strip, float stripErr2) const {
   float lt,lc2,ls2,lslc;
-  float localL,localP;
+  float localL2,localP2;
   float sl2,sp2;
   // angle from strip to local frame (see CMS TN / 95-170)
   lt = -(strip*thePitch + theOffset)*theYAxOr/theDistToBeam;
@@ -62,7 +62,7 @@ TrapezoidalStripTopology::localError(float strip, float stripErr2) const {
   lslc = lt*lc2;
   ls2 = 1.-lc2;
   localL2 = theDetHeight*theDetHeight / lc2;
-  localP2 = thePitch*thePitch*sqrtlc2;
+  localP2 = thePitch*thePitch*lc2;
   sl2 = localL2/12.;
   sp2 = stripErr2*localP2;
   return LocalError(lc2*sp2+ls2*sl2,
