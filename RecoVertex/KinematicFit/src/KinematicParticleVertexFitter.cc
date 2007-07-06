@@ -7,20 +7,14 @@
 // #include "RecoVertex/KalmanVertexFit/interface/KalmanSmoothedVertexChi2Estimator.h"
 // #include "RecoVertex/KalmanVertexFit/interface/KalmanTrackToTrackCovCalculator.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
-#include "RecoVertex/LinearizationPointFinders/interface/FsmwLinearizationPointFinder.h"
+#include "RecoVertex/LinearizationPointFinders/interface/DefaultLinearizationPointFinder.h"
 
 KinematicParticleVertexFitter::KinematicParticleVertexFitter()
 { 
   fitter = new KalmanVertexFitter(true);
 //FIXME
- pointFinder =  new FsmwLinearizationPointFinder(20, -2., 0.4, 10.);
+ pointFinder =  new DefaultLinearizationPointFinder();
  vFactory = new VertexTrackFactory();
-//  KalmanVertexTrackUpdator kvtu;
-//  KalmanSmoothedVertexChi2Estimator est;
-//  KalmanTrackToTrackCovCalculator cl;
-//  SequentialVertexSmoother smoother(kvtu,est,cl);
-//  KalmanVertexUpdator updator; 
-//  fitter = new SequentialKinematicVertexFitter(updator, smoother);
 }
 
 // KinematicParticleVertexFitter::KinematicParticleVertexFitter(const LinearizationPointFinder&  finder)
@@ -48,10 +42,9 @@ RefCountedKinematicTree KinematicParticleVertexFitter::fit(vector<RefCountedKine
  if(particles.size()<2) throw VertexException("KinematicParticleVertexFitter::input states are less than 2"); 
  InputSort iSort;
  pair<vector<RefCountedKinematicParticle>, vector<FreeTrajectoryState> > input = iSort.sort(particles);
- vector<RefCountedKinematicParticle> newPart = input.first;
- vector<FreeTrajectoryState> freeStates = input.second;
- 
-//  LMSLinearizationPointFinder fnd;
+ vector<RefCountedKinematicParticle> & newPart = input.first;
+ vector<FreeTrajectoryState> & freeStates = input.second;
+
  GlobalPoint linPoint = pointFinder->getLinearizationPoint(freeStates);
   
 // cout<<"Linearization point found"<<endl; 
@@ -78,11 +71,8 @@ RefCountedKinematicTree KinematicParticleVertexFitter::fit(vector<RefCountedKine
 // 
 //  }
 
-
-//getting the vertex position and covariance matrix
  CachingVertex vtx = fitter->vertex(ttf); 
-// cout<<"Caching vertex position "<<vtx.position()<<endl;
-// cout<<"Caching vertex error "<<vtx.error().matrix()<<endl;
+
  FinalTreeBuilder tBuilder;
  return tBuilder.buildTree(vtx, newPart); 
 }
