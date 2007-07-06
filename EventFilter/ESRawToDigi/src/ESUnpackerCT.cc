@@ -415,7 +415,7 @@ void ESUnpackerCT::word2digi(int fiber, const vector<Word16> & word, ESLocalRawD
       adc[2][i] |= ((word[i*98+7+j*3] >> 12) & 0x000f);  
       ix[2] = column*2+2;
       iy[2] = row*2+2;
-
+	
       adc[3][i] = (word[i*98+7+j*3])      & 0x0fff;
       if (edge == 0) {
 	ix[3] = column*2+2;
@@ -424,10 +424,12 @@ void ESUnpackerCT::word2digi(int fiber, const vector<Word16> & word, ESLocalRawD
 	ix[3] = column*2+1;
 	iy[3] = row*2+2;
       }
-      
+     
     }
     
     for (int k=0; k<4; ++k) {
+
+      if (iy[k]>=6) continue;
 
       ESDetId detId(j+1, ix[k], iy[k], 1, 1);
       ESDataFrame df(detId);
