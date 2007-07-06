@@ -1,4 +1,4 @@
-<flags SEAL_PLUGIN_NAME="EventFilterESDigiToRaw">
+<flags EDM_PLUGIN=1>
 
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalDetId>
