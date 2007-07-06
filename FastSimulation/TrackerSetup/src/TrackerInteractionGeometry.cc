@@ -213,13 +213,13 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
   // Pixel disks 
   // First Pixel disk: Z pos 35.5 radii 5.42078, 16.0756
   double innerRadius = (**fl).specificSurface().innerRadius()-1.0;
-  double outerRadius = (**fl).specificSurface().outerRadius()+1.2;
+  double outerRadius = (**fl).specificSurface().outerRadius()+2.0;
   const SimpleDiskBounds PIXD1(innerRadius, outerRadius,-0.0150,+0.0150);
   const Surface::PositionType PPIXD1(0.0,0.0,(**fl).surface().position().z()); 
   // Second Pixel disk: Z pos 48.5 radii 5.42078, 16.0756
   ++fl;
   innerRadius = (**fl).specificSurface().innerRadius()-1.0;
-  outerRadius = std::max( (**fl).specificSurface().outerRadius()+1.2, outerRadius+0.000 );
+  outerRadius = std::max( (**fl).specificSurface().outerRadius()+2.0, outerRadius+0.000 );
   const SimpleDiskBounds PIXD2(innerRadius, outerRadius,-0.0150,+0.0150);
   const Surface::PositionType PPIXD2(0.0,0.0,(**fl).surface().position().z()); 
 
