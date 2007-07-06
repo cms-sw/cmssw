@@ -20,7 +20,7 @@ SiPixelFrameConverter::SiPixelFrameConverter(const SiPixelFedCablingMap * map, i
 
 bool SiPixelFrameConverter::hasDetUnit(uint32_t rawId) const
 {
-  for (int idxLink = 0; idxLink < theFed.numberOfLinks(); idxLink++) {
+  for (int idxLink = 1; idxLink <= theFed.numberOfLinks(); idxLink++) {
     const PixelFEDLink * link = theFed.link(idxLink);
     if (!link) continue;
     int numberOfRocs = link->numberOfROCs();
@@ -64,7 +64,7 @@ int SiPixelFrameConverter::toDetector(const CablingIndex & cabling, DetectorInde
 
 int SiPixelFrameConverter::toCabling(CablingIndex & cabling, const DetectorIndex & detector) const
 {
-  for (int idxLink = 0; idxLink < theFed.numberOfLinks(); idxLink++) {
+  for (int idxLink = 1; idxLink <= theFed.numberOfLinks(); idxLink++) {
     const PixelFEDLink * link = theFed.link(idxLink);
     int linkid = link->id();
     int numberOfRocs = link->numberOfROCs();
