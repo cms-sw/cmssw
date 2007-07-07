@@ -32,6 +32,7 @@
 
 //--- Base class for CPEs:
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
+//&&& #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
 
 //--- Geometry + DataFormats
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -95,6 +96,7 @@ namespace cms
     // TO DO: maybe allow a map of pointers?
     std::string cpeName_;                   // what the user said s/he wanted
     PixelClusterParameterEstimator * cpe_;  // what we got (for now, one ptr to base class)
+    //&&& PixelCPEBase * cpe_;                    // what we got (for now, one ptr to base class)
     bool ready_;                            // needed CPE's valid => good to go!
     edm::InputTag src_;
     int   theVerboseLevel;              // algorithm's verbosity

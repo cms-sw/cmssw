@@ -51,7 +51,7 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
   // as thePixelTemp[2]
   //templ_.pushfile(401);
   
-  cout << "About to read speed..." << endl;
+  //cout << "About to read speed..." << endl;
   speed_ = conf.getParameter<int>( "speed");
   cout << "PixelCPETemplateReco::PixelCPETemplateReco: Template speed = " << speed_ << endl;
 }
@@ -226,6 +226,13 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
       cout << "templXrec_ = " << templXrec_ << endl;
       cout << "templYrec_ = " << templYrec_ << endl;
     }
+
+  // Save probabilities and qBin in the quantities given to us by the base class
+  // (for which there are also inline getters).  &&& templProbX_ etc. should be retired...
+  probabilityX_ = templProbX_;
+  probabilityY_ = templProbY_;
+  qBin_         = templQbin_;
+
       
   // go from micrometer to centimeter      
   templXrec_ *= micronsToCm;

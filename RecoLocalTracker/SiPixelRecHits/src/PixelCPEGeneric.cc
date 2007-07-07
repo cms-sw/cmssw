@@ -98,6 +98,8 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
   //--- &&& CPEFromDetPosition/PixelCPEInitial), but rather be
   //--- &&& externally settable (but tracked) parameters.  
 
+  double angle_from_clust = 0;
+
   //--- Position, including the half lorentz shift
   if (theVerboseLevel > 20) 
     cout << "\t >>> Generic:: processing X" << endl;
@@ -112,7 +114,9 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
 			      theTopol->isItBigPixelInX( cluster.maxPixelRow() ),
 			      1.0,
 			      2.0,
-			      4.0 );   // cut for eff charge width &&&
+			      4.0,   // cut for eff charge width &&&
+			      cotAlphaFromCluster_ );  // returned to us
+
 
   if (theVerboseLevel > 20) 
     cout << "\t >>> Generic:: processing Y" << endl;
@@ -127,8 +131,11 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
 			      theTopol->isItBigPixelInY( cluster.maxPixelCol() ),
 			      1.0,
 			      2.0,
-			      3.0 );   // cut for eff charge width  &&&
+			      3.0,    // cut for eff charge width  &&&
+			      cotBetaFromCluster_ );   // returned to us
 
+
+  //--- Now put the two together
   LocalPoint pos_in_local(xPos,yPos);
   return pos_in_local;
 }
@@ -155,7 +162,8 @@ generic_position_formula( int size,                //!< Size of this projection.
 			  bool last_is_big,        //!< true if the last is big
 			  double eff_charge_cut_low, //!< Use edge if > W_eff  &&&
 			  double eff_charge_cut_high,//!< Use edge if < W_eff  &&&
-			  double size_cut          //!< Use edge when size == cuts
+			  double size_cut,         //!< Use edge when size == cuts
+			  float & cot_angle_from_length  //!< Aux output: angle from len
 			  ) const
 {
   double geom_center = 0.5 * ( upper_edge_first_pix + lower_edge_last_pix );
@@ -205,12 +213,25 @@ generic_position_formula( int size,                //!< Size of this projection.
       usedEdgeAlgo = true;
       nRecHitsUsedEdge_++;
     }
+
   
   //--- Finally, compute the position in this projection
   double Qdiff = Q_l - Q_f;
   double Qsum  = Q_l + Q_f;
   double hit_pos = geom_center + 0.5*(Qdiff/Qsum) * W_eff + half_lorentz_shift;
   
+
+
+  //--- At the end, also compute the *average* angle consistent
+  //--- with the cluster length in this dimension.  This variable will
+  //--- be copied to cotAlphaFromCluster_ and cotBetaFromCluster_.  It's
+  //--- basically inverting W_pred to get cot_angle, except this one is
+  //--- driven by the cluster length.
+  //--- (See the comment in PixelCPEBase header file for what these are for.)
+  double ave_path_length_projected =
+    pitch*0.5*sum_of_edge + W_inner - 2*half_lorentz_shift;
+  cot_angle_from_length = ave_path_length_projected / theThickness;
+
   
   //--- Debugging output
   if (theVerboseLevel > 20) {

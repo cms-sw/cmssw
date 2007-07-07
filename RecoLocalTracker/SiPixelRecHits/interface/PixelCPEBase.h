@@ -88,6 +88,15 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
   virtual LocalError localError   (const SiPixelCluster& cl, const GeomDetUnit & det) const = 0;
   
 
+
+  //--------------------------------------------------------------------------
+  //--- Accessors of other auxiliary quantities
+  inline float cotAlphaFromCluster() const { return cotAlphaFromCluster_; }
+  inline float cotBetaFromCluster()  const { return cotBetaFromCluster_; }
+  inline float probabilityX()        const { return probabilityX_; }
+  inline float probabilityY()        const { return probabilityY_; }
+  inline float qBin()                const { return qBin_ ; }
+
  protected:
   //--- All methods and data members are protected to facilitate (for now)
   //--- access from derived classes.
@@ -122,9 +131,27 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
   // G.Giurgiu (12/13/06)-----
   mutable float cotalpha_;
   mutable float cotbeta_;
+
+  // [Petar, 5/18/07] 
+  // Add estimates of cot(alpha) and cot(beta) from the
+  // cluster length.  This can be used by:
+  // a) the seed cleaning
+  // b) any possible crude "quality" flag based on (dis)agreement between
+  //    W_pred and W (from charge lenght)
+  // c) an alternative 2nd pass CPE which reads charge per unit length (k_3D) from
+  //    the DB but then needs angle estimates to switch to 
+  mutable float cotAlphaFromCluster_;
+  mutable float cotBetaFromCluster_;
+
+  //--- Probability
+  mutable float probabilityX_ ; 
+  mutable float probabilityY_ ; 
+  mutable float qBin_ ;
+
   //---------------------------
 
-  // Petar, 2/23/07 -- since the sign of the Lorentz shift appears to
+  // [Petar, 2/23/07]
+  // Since the sign of the Lorentz shift appears to
   // be computed *incorrectly* (i.e. there's a bug) we add new variables
   // so that we can study the effect of the bug.
   mutable LocalVector driftDirection_;  // drift direction cached // &&&

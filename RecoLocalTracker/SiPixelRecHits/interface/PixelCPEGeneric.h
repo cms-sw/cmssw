@@ -88,7 +88,8 @@ class PixelCPEGeneric : public PixelCPEBase
 			      bool last_is_big,        //!< true if the last is big
 			      double eff_charge_cut_low, //!< Use edge if > W_eff (in pix) &&&
 			      double eff_charge_cut_high,//!< Use edge if < W_eff (in pix) &&&
-			      double size_cut            //!< Use edge when size == cuts
+			      double size_cut,           //!< Use edge when size == cuts
+			      float & cot_angle_from_length  //!< Aux output: angle from len
 			      ) const;
 
   void

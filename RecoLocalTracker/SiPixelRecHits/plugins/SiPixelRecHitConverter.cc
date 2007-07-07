@@ -139,9 +139,14 @@ namespace cms
 	edm::LogError("SiPixelRecHitConverter") 
 	  <<" Cluster parameter estimator " << cpeName_ << " is invalid.\n"
 	  << "Possible choices:\n" 
-	  << "    - FromDetPosition";
+	  << "    - FromDetPosition  (straight from ORCA)\n"
+	  << "    - Initial          (ORCA algorithm fixed for bix pixels\n"
+	  << "    - ParmError        (copy of FromTrackAngles from ORCA)\n"
+	  << "    - TemplateReco     (fits to templates based on PIXELAV)\n"
+	  << "    - Generic          (Initial rewritten for clarity and speed)\n";
 	ready_ = false;
       }
+    // &&& We should really throw a fatal error here!
   }
   //---------------------------------------------------------------------------
   //!  Iterate over DetUnits, then over Clusters and invoke the CPE on each,
@@ -191,8 +196,27 @@ namespace cms
 	      edm::makeRefTo( inputhandle, detid, clustIt);
 	    
 	    // Make a RecHit and add it to the temporary OwnVector.
-	    //recHitsOnDetUnit.push_back( new SiPixelRecHit( lp, le, detIdObject, &*clustIt) );
-	    recHitsOnDetUnit.push_back( new SiPixelRecHit( lp, le, detIdObject, cluster) );
+	    // old : recHitsOnDetUnit.push_back( new SiPixelRecHit( lp, le, detIdObject, &*clustIt) );
+	    SiPixelRecHit * hit =  new SiPixelRecHit( lp, le, detIdObject, cluster);
+
+#ifdef SIPIXELRECHIT_HAS_EXTRA_INFO
+	    // Copy the extra stuff; unfortunately, only the derivatives of PixelCPEBase
+	    // are capable of doing that.  So until we get rid of CPEFromDetPosition
+	    // we'll have to dynamic_cast :(
+	    // &&& This cast can be moved to the setupCPE, so that it's done once per job.
+	    PixelCPEBase * cpeBase = dynamic_cast< PixelCPEBase* >( cpe_ );
+	    if (cpeBase) {
+	      hit->setProbabilityX( cpeBase->probabilityX() );
+	      hit->setProbabilityY( cpeBase->probabilityY() );
+	      hit->setQBin( cpeBase->qBin() );
+	      hit->setCotAlphaFromCluster( cpeBase->cotAlphaFromCluster() );
+	      hit->setCotBetaFromCluster ( cpeBase->cotBetaFromCluster()  );
+	    }
+#endif
+	    // 
+	    // Now save it =================
+	    recHitsOnDetUnit.push_back(hit);
+	    // =============================
 	  } //  <-- End loop on Clusters
 	
 	if ( recHitsOnDetUnit.size()>0 ) 

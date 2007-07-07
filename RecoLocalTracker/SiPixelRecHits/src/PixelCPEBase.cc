@@ -36,7 +36,9 @@ const float degsPerRad = 57.29578;
 //  will be initialized in setTheDet().
 //-----------------------------------------------------------------------------
 PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *mag) 
-  : nRecHitsTotal_(0), nRecHitsUsedEdge_(0), theDet(0)
+  : nRecHitsTotal_(0), nRecHitsUsedEdge_(0), theDet(0),
+    cotAlphaFromCluster_(-99999.0), cotBetaFromCluster_(-99999.0),
+    probabilityX_(-99999.0), probabilityY_(-99999.0), qBin_(-99999.0)
 {
   //--- Lorentz angle tangent per Tesla
   theTanLorentzAnglePerTesla =
