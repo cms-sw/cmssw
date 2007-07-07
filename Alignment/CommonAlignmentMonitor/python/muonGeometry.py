@@ -1,3 +1,5 @@
+import math
+
 class V:  # a boring old vector class
   def __init__(self, x, y, z):
     self.x = x
@@ -7,6 +9,8 @@ class V:  # a boring old vector class
   def __sub__(self, other): return V(self.x + other.x, self.y + other.y, self.z + other.z)
   def __neg__(self): return V(-self.x, -self.y, -self.z)
   def __repr__(self): return "V(%g, %g, %g)" % (self.x, self.y, self.z)
+  def mag(self): return math.sqrt(self.x**2 + self.y**2 + self.z**2)
+  def perp(self): return math.sqrt(self.x**2 + self.y**2)
   def TVector3(self): return "TVector3(%g, %g, %g)" % (self.x, self.y, self.z)
 
 class Disk:  # or Wheel, but I had to choose one name
