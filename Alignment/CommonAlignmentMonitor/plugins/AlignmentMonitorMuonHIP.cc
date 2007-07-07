@@ -63,6 +63,7 @@ class AlignmentMonitorMuonHIP: public AlignmentMonitorBase {
       double m_params_xDT_low, m_params_xDT_high, m_params_yDT_low, m_params_yDT_high, m_params_xCSC_low, m_params_xCSC_high, m_params_yCSC_low, m_params_yCSC_high;
 
       edm::ParameterSet m_book;
+      std::string m_book_mode;
       bool m_book_nhits_vsiter, m_book_conv_x, m_book_conv_y, m_book_conv_z, m_book_conv_phix, m_book_conv_phiy, m_book_conv_phiz;
       bool m_book_xresid, m_book_xresidwide, m_book_yresid;
       bool m_book_wxresid, m_book_wxresidwide, m_book_wyresid;
@@ -152,6 +153,14 @@ AlignmentMonitorMuonHIP::AlignmentMonitorMuonHIP(const edm::ParameterSet& cfg)
    m_params_yCSC_low = m_params.getParameter<double>("yCSC_low");
    m_params_yCSC_high = m_params.getParameter<double>("yCSC_high");
 
+   m_book_mode = m_book.getParameter<std::string>("mode");
+   if (m_book_mode != std::string("selected")  &&
+       m_book_mode != std::string("disk")  &&
+       m_book_mode != std::string("chamber")  &&
+       m_book_mode != std::string("layer")) {
+      throw cms::Exception("BadConfig") << "AlignmentMonitorMuonHIP.book.mode must be \"selected\", \"disk\", \"chamber\", or \"layer\".";
+   }
+
    m_book_nhits_vsiter = m_book.getParameter<bool>("nhits_vsiter");
    m_book_conv_x = m_book.getParameter<bool>("conv_x");
    m_book_conv_y = m_book.getParameter<bool>("conv_y");
@@ -191,7 +200,34 @@ void AlignmentMonitorMuonHIP::book() {
    unsigned int index = 0;  // merge EVERYTHING (good for a quick look in the TBrowser)
    index++;
 
-   std::vector<Alignable*> alignables = pStore()->alignables();
+   std::vector<Alignable*> alignables;
+   if (m_book_mode == std::string("selected")) {
+      alignables = pStore()->alignables();
+   }
+   else if (m_book_mode == std::string("disk")) {
+      alignables = pMuon()->DTWheels();
+
+      std::vector<Alignable*> more = pMuon()->CSCStations();
+      for (std::vector<Alignable*>::const_iterator miter = more.begin();  miter != more.end();  ++miter) {
+	 alignables.push_back(*miter);
+      }
+   }
+   else if (m_book_mode == std::string("chamber")) {
+      alignables = pMuon()->DTChambers();
+
+      std::vector<Alignable*> more = pMuon()->CSCChambers();
+      for (std::vector<Alignable*>::const_iterator miter = more.begin();  miter != more.end();  ++miter) {
+	 alignables.push_back(*miter);
+      }
+   }
+   else if (m_book_mode == std::string("layer")) {
+      alignables = pMuon()->DTSuperLayers();
+
+      std::vector<Alignable*> more = pMuon()->CSCLayers();
+      for (std::vector<Alignable*>::const_iterator miter = more.begin();  miter != more.end();  ++miter) {
+	 alignables.push_back(*miter);
+      }
+   }
 
    for (std::vector<Alignable*>::const_iterator aliiter = alignables.begin();  aliiter != alignables.end();  ++aliiter) {
       Alignable *ali = *aliiter;
@@ -656,19 +692,20 @@ void AlignmentMonitorMuonHIP::event(const edm::EventSetup &iSetup, const ConstTr
 	    ascend = alignable;
 	    while (layer == m_layer_index.end()  &&  (ascend = ascend->mother())) layer = m_layer_index.find(ascend);
 	       
-	    if (disk != m_disk_index.end()  ||  chamber != m_chamber_index.end()  ||  layer != m_layer_index.end()) {
-	       TrajectoryStateOnSurface tsosc = tsoscomb.combine(meas.forwardPredictedState(), meas.backwardPredictedState());
-	       LocalPoint trackPos = tsosc.localPosition();
-	       LocalError trackErr = tsosc.localError().positionError();
-	       LocalPoint hitPos = hit->localPosition();
-	       LocalError hitErr = hit->localPositionError();
+	    TrajectoryStateOnSurface tsosc = tsoscomb.combine(meas.forwardPredictedState(), meas.backwardPredictedState());
+	    LocalPoint trackPos = tsosc.localPosition();
+	    LocalError trackErr = tsosc.localError().positionError();
+	    LocalPoint hitPos = hit->localPosition();
+	    LocalError hitErr = hit->localPositionError();
 
-	       double x_residual = trackPos.x() - hitPos.x();
-	       double y_residual = trackPos.y() - hitPos.y();
-	       double x_reserr2 = trackErr.xx() + hitErr.xx();
-	       double y_reserr2 = trackErr.yy() + hitErr.yy();
-	       double xpos = trackPos.x();
-	       double ypos = trackPos.y();
+	    double x_residual = trackPos.x() - hitPos.x();
+	    double y_residual = trackPos.y() - hitPos.y();
+	    double x_reserr2 = trackErr.xx() + hitErr.xx();
+	    double y_reserr2 = trackErr.yy() + hitErr.yy();
+	    double xpos = trackPos.x();
+	    double ypos = trackPos.y();
+
+	    if (disk != m_disk_index.end()  ||  chamber != m_chamber_index.end()  ||  layer != m_layer_index.end()) {
 
 	       if (disk != m_disk_index.end()) {
 		  fill(disk->second, x_residual, y_residual, x_reserr2, y_reserr2, xpos, ypos, y_valid);
@@ -680,9 +717,10 @@ void AlignmentMonitorMuonHIP::event(const edm::EventSetup &iSetup, const ConstTr
 		  fill(layer->second, x_residual, y_residual, x_reserr2, y_reserr2, xpos, ypos, y_valid);
 	       }
 
-	       fill(0, x_residual, y_residual, x_reserr2, y_reserr2, xpos, ypos, y_valid);
-
 	    } // end if we're plotting this hit
+
+	    fill(0, x_residual, y_residual, x_reserr2, y_reserr2, xpos, ypos, y_valid);
+
 	 } // end if hit is valid
       } // end loop over measurements
    } // end loop over tracks
