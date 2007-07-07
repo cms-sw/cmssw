@@ -184,7 +184,7 @@ def select(func=(lambda c: True), hist="wxresid", granularity=Chamber, superset=
     merged = th1.Clone()
     merged.Reset()
     merged.Merge(tlist)
-    merged.SetTitle("Merged %s for selected %s" % (hist, dirname))
+    merged.SetTitle("Merged %s for selected %ss" % (hist, dirname))
     merged.SetName("merged %s" % hist)
   else:
     merged = empty
