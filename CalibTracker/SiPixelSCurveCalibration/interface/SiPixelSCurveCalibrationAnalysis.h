@@ -22,7 +22,8 @@
 #include "CalibTracker/SiPixelSCurveCalibration/interface/SCurveContainer.h" 
 #include "DataFormats/DetId/interface/DetId.h"
 
-#include <TF1.h>
+#include <TF1.h> 
+#include <TH1F.h>
 
 #include <memory>
 #include <map>
@@ -55,6 +56,8 @@ class SiPixelSCurveCalibrationAnalysis : public edm::EDAnalyzer
     edm::Service<TFileService> fs_;
     std::map<unsigned int, SCurveContainer> detIdMap_;
     TF1* fitfunc_;
+    TH1F* mean_;
+    TH1F* sigma_;
 };
 
 #endif

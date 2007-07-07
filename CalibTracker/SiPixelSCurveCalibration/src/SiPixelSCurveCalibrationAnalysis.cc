@@ -21,7 +21,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <TFile.h>
-#include <TH1F.h>
 #include <TMath.h>
 
 #include <iostream>
@@ -39,8 +38,10 @@ SiPixelSCurveCalibrationAnalysis::SiPixelSCurveCalibrationAnalysis(const edm::Pa
     vcalmax_ = calib_->vcal_last();
     vcalstep_ = calib_->vcal_step();
     ntriggers_ = calib_->nTriggersPerPattern();
-    fitfunc_ = new TF1("fit", "0.5*[0]*(1+TMath::Erf((x-[1])/([2]*sqrt(x))))", vcalmin_, vcalmax_);
-    fitfunc_->SetParameters(1.0, 15.0, 4.0);
+    fitfunc_ = new TF1("fit", "0.5*[0]*(1+TMath::Erf((x-[1])/([2]*sqrt(2))))", vcalmin_, vcalmax_);
+    fitfunc_->SetParameters(1.0, 15.0, 0.2);
+    mean_ = fs_->make<TH1F>("mean", "mean", 500, vcalmin_, vcalmax_);
+    sigma_ = fs_->make<TH1F>("sigma", "sigma", 100, 0, 1);
   }
 
 SiPixelSCurveCalibrationAnalysis::~SiPixelSCurveCalibrationAnalysis()
@@ -168,9 +169,11 @@ void SiPixelSCurveCalibrationAnalysis::makeHistogram(const SCurveContainer& sc, 
     double temp = sc.getEff(l, row, col);
     histo->Fill(l, temp);
   } 
-  fitfunc_->SetParameters(1.0, 15.0, 4.0);
+  fitfunc_->SetParameters(1.0, 15.0, 0.2);
   histo->Fit("fit", "RQ0");
-  histo->Write();
+  //histo->Write();
+  mean_->Fill(fitfunc_->GetParameter(1));
+  sigma_->Fill(fitfunc_->GetParameter(2));
   delete histo;
 }
 
