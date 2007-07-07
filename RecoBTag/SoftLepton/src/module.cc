@@ -23,8 +23,8 @@ DEFINE_FWK_EVENTSETUP_MODULE(MuonTaggerESProducer);
 typedef JetTagComputerESProducer<MuonTaggerNoIP>        MuonTaggerNoIPESProducer;
 DEFINE_FWK_EVENTSETUP_MODULE(MuonTaggerNoIPESProducer);
 
-typedef JetTagComputerESProducer<LeptonTaggerDistance>  LeptonTaggerDistanceESProducer;
-DEFINE_FWK_EVENTSETUP_MODULE(LeptonTaggerDistanceESProducer);
+typedef JetTagComputerESProducer<LeptonTaggerDistance>  LeptonTaggerByDistanceESProducer;
+DEFINE_FWK_EVENTSETUP_MODULE(LeptonTaggerByDistanceESProducer);
 
 typedef JetTagComputerESProducer<LeptonTaggerByPt>      LeptonTaggerByPtESProducer;
 DEFINE_FWK_EVENTSETUP_MODULE(LeptonTaggerByPtESProducer);
