@@ -141,11 +141,11 @@ MultiGaussianStateAssembler<N>::prepareCombinedState () {
   //
   removeSmallWeights();
   if ( theStates.empty() )  return false;
-  //
-  // Sort output by weights?
-  //
-  if ( sortStates )
-    sort(theStates.begin(),theStates.end(),GaussianStateLessWeight<N>());
+//   //
+//   // Sort output by weights? (currently deactivated - make it again configurable?)
+//   //
+//   if ( sortStates )
+//     sort(theStates.begin(),theStates.end(),GaussianStateLessWeight<N>());
 
   return true;
 }

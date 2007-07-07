@@ -65,7 +65,7 @@ private:
 
 private:
   const MultiState theInitialState;
-  bool sortStates;
+//   bool sortStates;
   double minFractionalWeight;
 
   bool combinationDone;
