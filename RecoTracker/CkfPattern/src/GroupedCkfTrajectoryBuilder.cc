@@ -38,8 +38,8 @@
 
 using namespace std;
 
-#define DBG_GCTB
-#define DBG2_GCTB
+//#define DBG_GCTB
+//#define DBG2_GCTB
 
 
 /* ====== B.M. to be ported layer ===========
@@ -852,10 +852,10 @@ GroupedCkfTrajectoryBuilder::backwardFit (Trajectory& candidate, unsigned int nS
   TrajectoryContainer bwdFitted(fitter.fit(
   		TrajectorySeed(PTrajectoryStateOnDet(), BasicTrajectorySeed::recHitContainer(), oppositeDirection(candidate.direction())),
   		fwdTraj.recHits(),firstTsos));
-#ifdef DBG2_GCTB
-  cout << "Obtained " << bwdFitted.size() << " bwdFitted trajectories with measurement size " << bwdFitted.front().measurements().size() << endl;
-#endif
   if (bwdFitted.size()){
+#ifdef DBG2_GCTB
+  	cout << "Obtained " << bwdFitted.size() << " bwdFitted trajectories with measurement size " << bwdFitted.front().measurements().size() << endl;
+#endif
 	Trajectory fitted(fwdTraj.seed(), fwdTraj.direction());
         vector<TM> tmsbf = bwdFitted.front().measurements();
 	int iDetLayer=0;
