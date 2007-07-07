@@ -182,8 +182,8 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits)
       protoSlope_v = (lp2.y() - lp1.y())/dz ;    
 
       // Test if entrance angle is roughly pointing towards IP
-//      if (fabs(protoSlope_v) > tanThetaMax) continue;
-//      if (fabs(protoSlope_u) > tanPhiMax ) continue;
+      if (fabs(protoSlope_v) > tanThetaMax) continue;
+      if (fabs(protoSlope_u) > tanPhiMax ) continue;
      
       protoSegment.push_back(h1);
       protoSegment.push_back(h2);
