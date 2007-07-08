@@ -4,6 +4,7 @@
 <export>
   <use name=DataFormats/Common>
   <use name=DataFormats/TrackingRecHit>
+
   <lib name=DataFormatsRoadSearchCloud>
 </export>
 
