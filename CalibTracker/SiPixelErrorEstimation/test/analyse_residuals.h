@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
-// Thu May 10 10:26:36 2007 by ROOT version 5.14/00e
+// Fri Jul  6 20:43:01 2007 by ROOT version 5.14/00e
 // from TChain TrackHitNtuple/
 //////////////////////////////////////////////////////////
 
@@ -49,6 +49,8 @@ public :
    Int_t           bigy;
    Float_t         alpha;
    Float_t         beta;
+   Float_t         trk_alpha;
+   Float_t         trk_beta;
    Float_t         phi;
    Float_t         eta;
    Float_t         simhitx;
@@ -90,6 +92,8 @@ public :
    TBranch        *b_bigy;   //!
    TBranch        *b_alpha;   //!
    TBranch        *b_beta;   //!
+   TBranch        *b_trk_alpha;   //!
+   TBranch        *b_trk_beta;   //!
    TBranch        *b_phi;   //!
    TBranch        *b_eta;   //!
    TBranch        *b_simhitx;   //!
@@ -133,8 +137,8 @@ analyse_residuals::analyse_residuals(TTree *tree)
       // The following code should be used if you want this class to access a chain
       // of trees.
       TChain * chain = new TChain("TrackHitNtuple","");
-    
-      chain->Add("./SiPixelErrorEstimation_Ntuple.root/TrackHitNtuple");
+   
+      chain->Add("/uscms_data/d1/ggiurgiu/SiPixelErrorEstimation_Ntuple_after4.root/TrackHitNtuple");
 
       tree = chain;
 #endif // SINGLE_TREE
@@ -218,6 +222,8 @@ void analyse_residuals::Init(TTree *tree)
    fChain->SetBranchAddress("bigy", &bigy, &b_bigy);
    fChain->SetBranchAddress("alpha", &alpha, &b_alpha);
    fChain->SetBranchAddress("beta", &beta, &b_beta);
+   fChain->SetBranchAddress("trk_alpha", &trk_alpha, &b_trk_alpha);
+   fChain->SetBranchAddress("trk_beta", &trk_beta, &b_trk_beta);
    fChain->SetBranchAddress("phi", &phi, &b_phi);
    fChain->SetBranchAddress("eta", &eta, &b_eta);
    fChain->SetBranchAddress("simhitx", &simhitx, &b_simhitx);
