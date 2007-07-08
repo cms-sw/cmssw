@@ -39,9 +39,26 @@ class PixelErrorParametrization
   float a_min; 
   float a_max;
   float a_bin; 
+
+  float ys_bl[6];
+  float ys_bh[6];
+  
+  std::vector<float> vec_error_YB;
+  std::vector<float> vec_error_XB;
+  std::vector<float> vec_error_YF;
+  std::vector<float> vec_error_XF;
+
+
   std::string theParametrizationType;
   typedef std::vector<std::vector<std::vector<float> > > P3D; 
   typedef std::vector<std::vector<float> > P2D;
+
+  // If this is set true, then use the parameterization from CalibTracker/SiPixelErrorEstimation
+  // If it is set to false, use old parameterization by Susanna Cuciareli
+  bool useNewParametrization;
+  
+  // If  useNewParametrization = true, then useSigma = true assigns gaussian errors. Otherwise asign RMS errors 
+  bool useSigma;
 
   // MATRIX FOR Y BARREL ERRORS
   //
