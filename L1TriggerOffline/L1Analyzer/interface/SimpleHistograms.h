@@ -5,7 +5,7 @@
 // Package:     L1Analyzer
 // Class  :     SimpleHistograms
 // 
-/**\class SimpleHistograms SimpleHistograms.h L1Trigger/L1Analyzer/interface/SimpleHistograms.h
+/**\class SimpleHistograms SimpleHistograms.h L1TriggerOffline/L1Analyzer/interface/SimpleHistograms.h
 
  Description: Class for simple histograms of ET, eta and phi distributions.
 
@@ -16,7 +16,7 @@
 //
 // Original Author:  Alex Tapper
 //         Created:  Tue Dec  5 10:07:41 CET 2006
-// $Id: SimpleHistograms.h,v 1.1 2007/02/13 14:49:19 tapper Exp $
+// $Id: SimpleHistograms.h,v 1.1 2007/07/06 19:52:57 tapper Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h" // Paramters

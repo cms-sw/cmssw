@@ -5,7 +5,7 @@
 // Package:     L1Analyzer
 // Class  :     ResolutionHistograms
 // 
-/**\class ResolutionHistograms ResolutionHistograms.h L1Trigger/L1Analyzer/interface/ResolutionHistograms.h
+/**\class ResolutionHistograms ResolutionHistograms.h L1TriggerOffline/L1Analyzer/interface/ResolutionHistograms.h
 
  Description: <one line class summary>
 
@@ -16,7 +16,7 @@
 //
 // Original Author:  Alex Tapper
 //         Created:  Tue Dec  5 14:02:36 CET 2006
-// $Id: ResolutionHistograms.h,v 1.1 2007/02/13 14:49:19 tapper Exp $
+// $Id: ResolutionHistograms.h,v 1.1 2007/07/06 19:52:57 tapper Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h" // Paramters

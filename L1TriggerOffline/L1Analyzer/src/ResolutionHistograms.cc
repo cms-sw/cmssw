@@ -8,10 +8,10 @@
 //
 // Original Author:  Alex Tapper
 //         Created:  Tue Dec  5 14:02:34 CET 2006
-// $Id: ResolutionHistograms.cc,v 1.1 2007/02/13 14:49:20 tapper Exp $
+// $Id: ResolutionHistograms.cc,v 1.1 2007/07/06 19:52:57 tapper Exp $
 //
 
-#include "L1Trigger/L1Analyzer/interface/ResolutionHistograms.h"
+#include "L1TriggerOffline/L1Analyzer/interface/ResolutionHistograms.h"
 #include "PhysicsTools/Utilities/interface/DeltaR.h"
 
 ResolutionHistograms::ResolutionHistograms(const std::string name, const edm::ParameterSet & cfg): 

@@ -1,7 +1,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 // This is the analyzer
-#include "L1Trigger/L1Analyzer/interface/L1Analyzer.h"
+#include "L1TriggerOffline/L1Analyzer/interface/L1Analyzer.h"
 
 // These for L1 collections
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
@@ -15,8 +15,8 @@
 
 // This to convert to candidates
 #include "PhysicsTools/CandAlgos/interface/ShallowCloneProducer.h"
-#include "L1Trigger/L1Analyzer/interface/L1EtMissParticleShallowCloneProducer.h"
-#include "L1Trigger/L1Analyzer/interface/TagCaloJetProducer.h"
+#include "L1TriggerOffline/L1Analyzer/interface/L1EtMissParticleShallowCloneProducer.h"
+#include "L1TriggerOffline/L1Analyzer/interface/TagCaloJetProducer.h"
 
 // L1 converters
 typedef ShallowCloneProducer<l1extra::L1EmParticleCollection> L1EmParticleShallowCloneProducer;

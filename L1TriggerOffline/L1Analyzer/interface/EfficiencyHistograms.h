@@ -5,7 +5,7 @@
 // Package:     L1Analyzer
 // Class  :     EfficiencyHistograms
 // 
-/**\class EfficiencyHistograms EfficiencyHistograms.h L1Trigger/L1Analyzer/interface/EfficiencyHistograms.h
+/**\class EfficiencyHistograms EfficiencyHistograms.h L1TriggerOffline/L1Analyzer/interface/EfficiencyHistograms.h
 
  Description: <one line class summary>
 
@@ -16,7 +16,7 @@
 //
 // Original Author:  Alex Tapper
 //         Created:  Tue Dec  5 14:02:48 CET 2006
-// $Id: EfficiencyHistograms.h,v 1.1 2007/02/13 14:49:19 tapper Exp $
+// $Id: EfficiencyHistograms.h,v 1.1 2007/07/06 19:52:57 tapper Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h" // Paramters

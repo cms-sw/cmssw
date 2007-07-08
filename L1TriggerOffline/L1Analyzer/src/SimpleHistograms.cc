@@ -8,10 +8,10 @@
 //
 // Original Author:  Alex Tapper 
 //         Created:  Tue Dec  5 10:07:30 CET 2006
-// $Id: SimpleHistograms.cc,v 1.1 2007/02/13 14:49:21 tapper Exp $
+// $Id: SimpleHistograms.cc,v 1.1 2007/07/06 19:52:57 tapper Exp $
 //
 
-#include "L1Trigger/L1Analyzer/interface/SimpleHistograms.h"
+#include "L1TriggerOffline/L1Analyzer/interface/SimpleHistograms.h"
 
 SimpleHistograms::SimpleHistograms(const std::string name, const edm::ParameterSet & cfg): 
   m_dirName(name),

@@ -3,7 +3,7 @@
 // Package:    L1Analyzer
 // Class:      L1Analyzer
 // 
-/**\class L1Analyzer L1Analyzer.cc L1Trigger/L1Analyzer/src/L1Analyzer.cc
+/**\class L1Analyzer L1Analyzer.cc L1TriggerOffline/L1Analyzer/src/L1Analyzer.cc
 
  Description: Analyze the GCT output.
 
@@ -13,7 +13,7 @@
 //
 // Original Author:  Alex Tapper
 //         Created:  Thu Nov 30 20:57:38 CET 2006
-// $Id: L1Analyzer.cc,v 1.1 2007/02/13 14:49:20 tapper Exp $
+// $Id: L1Analyzer.cc,v 1.1 2007/07/06 19:52:57 tapper Exp $
 //
 //
 
@@ -22,7 +22,7 @@
 #include <memory>
 
 // user include files
-#include "L1Trigger/L1Analyzer/interface/L1Analyzer.h"
+#include "L1TriggerOffline/L1Analyzer/interface/L1Analyzer.h"
 
 // Data formats 
 #include "DataFormats/Candidate/interface/Candidate.h"

@@ -5,7 +5,7 @@
 // Package:     L1Analyzer
 // Class  :     L1Analyzer
 // 
-/**\class L1Analyzer L1Analyzer.h L1Trigger/L1Analyzer/interface/L1Analyzer.h
+/**\class L1Analyzer L1Analyzer.h L1TriggerOffline/L1Analyzer/interface/L1Analyzer.h
 
  Description: Analyze the output of the GCT
 
@@ -16,7 +16,7 @@
 //
 // Original Author:  Alex Tapper
 //         Created:  Thu Nov 30 21:42:36 CET 2006
-// $Id: L1Analyzer.h,v 1.1 2007/02/13 14:49:19 tapper Exp $
+// $Id: L1Analyzer.h,v 1.1 2007/07/06 19:52:57 tapper Exp $
 //
 
 // user include files                                                                                         
@@ -30,9 +30,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Histogram sets
-#include "L1Trigger/L1Analyzer/interface/SimpleHistograms.h"
-#include "L1Trigger/L1Analyzer/interface/ResolutionHistograms.h"
-#include "L1Trigger/L1Analyzer/interface/EfficiencyHistograms.h"
+#include "L1TriggerOffline/L1Analyzer/interface/SimpleHistograms.h"
+#include "L1TriggerOffline/L1Analyzer/interface/ResolutionHistograms.h"
+#include "L1TriggerOffline/L1Analyzer/interface/EfficiencyHistograms.h"
 
 //                                                                                                            
 // class declaration                                                                                          

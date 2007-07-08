@@ -8,10 +8,10 @@
 //
 // Original Author:  Alex Tapper
 //         Created:  Tue Dec  5 14:02:46 CET 2006
-// $Id: EfficiencyHistograms.cc,v 1.5 2007/06/20 17:26:11 tapper Exp $
+// $Id: EfficiencyHistograms.cc,v 1.1 2007/07/06 19:52:57 tapper Exp $
 //
 
-#include "L1Trigger/L1Analyzer/interface/EfficiencyHistograms.h"
+#include "L1TriggerOffline/L1Analyzer/interface/EfficiencyHistograms.h"
 
 EfficiencyHistograms::EfficiencyHistograms(const std::string name, const edm::ParameterSet & cfg): 
   m_dirName(name),

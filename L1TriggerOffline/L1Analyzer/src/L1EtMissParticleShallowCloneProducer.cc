@@ -14,12 +14,12 @@
 //
 // Original Author:  Alex Tapper
 //         Created:  Fri Jan 19 14:30:35 CET 2007
-// $Id: L1EtMissParticleShallowCloneProducer.cc,v 1.1 2007/02/13 14:49:20 tapper Exp $
+// $Id: L1EtMissParticleShallowCloneProducer.cc,v 1.1 2007/07/06 19:52:57 tapper Exp $
 //
 //
 
 // user include files
-#include "L1Trigger/L1Analyzer/interface/L1EtMissParticleShallowCloneProducer.h"
+#include "L1TriggerOffline/L1Analyzer/interface/L1EtMissParticleShallowCloneProducer.h"
       
 // Data formats 
 #include "DataFormats/Candidate/interface/Candidate.h"
