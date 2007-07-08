@@ -120,6 +120,9 @@ void SiPixelErrorEstimation::beginJob(const edm::EventSetup& es)
       ttree_track_hits_->Branch("alpha", &alpha, "alpha/F", bufsize);
       ttree_track_hits_->Branch("beta" , &beta , "beta/F" , bufsize);
       
+      ttree_track_hits_->Branch("trk_alpha", &trk_alpha, "trk_alpha/F", bufsize);
+      ttree_track_hits_->Branch("trk_beta" , &trk_beta , "trk_beta/F" , bufsize);
+
       ttree_track_hits_->Branch("phi", &phi, "phi/F", bufsize);
       ttree_track_hits_->Branch("eta", &eta, "eta/F", bufsize);
       
@@ -828,12 +831,20 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 			  if ( checkType_ && !found_hit_from_generated_particle )
 			    continue; 
 			  
-			  if ( n_assoc_muon > 1 )
-			    {
-			      cout << " ----- This is not good: n_assoc_muon = " << n_assoc_muon << endl;
-			      cout << "evt = " << evt << endl;
-			    }
+			  //if ( n_assoc_muon > 1 )
+			  //{
+			  //  cout << " ----- This is not good: n_assoc_muon = " << n_assoc_muon << endl;
+			  //  cout << "evt = " << evt << endl;
+			  //}
 			  
+			  detId = (*it)->geographicalId();
+
+			  const PixelGeomDetUnit* theGeomDet =
+			    dynamic_cast<const PixelGeomDetUnit*> ((*tracker).idToDet(detId) );
+			  
+			  const RectangularPixelTopology* theTopol = 
+			    dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
+
 			  pidhit = (*closestit).particleType();
 			  simproc = (int)(*closestit).processType();
 			  
@@ -849,28 +860,40 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 			  float simhitpy = (*closestit).momentumAtEntry().y();
 			  float simhitpz = (*closestit).momentumAtEntry().z();
 			  
-			  beta  = atan2(simhitpz, simhitpy) * radtodeg;
+			  beta = atan2(simhitpz, simhitpy) * radtodeg;
 			  alpha = atan2(simhitpz, simhitpx) * radtodeg;
 			  
 			  //beta  = fabs(atan2(simhitpz, simhitpy)) * radtodeg;
 			  //alpha = fabs(atan2(simhitpz, simhitpx)) * radtodeg;
+
+			  // calculate alpha and beta exactly as in PixelCPEBase.cc
+			  float locx = simhitpx;
+			  float locy = simhitpy;
+			  float locz = simhitpz;
 			  
+			  bool isFlipped = false;
+			  float tmp1 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,0.)).perp();
+			  float tmp2 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,1.)).perp();
+			  if ( tmp2<tmp1 ) 
+			    isFlipped = true;
+			  else 
+			    isFlipped = false;    
+
+			  trk_alpha = acos(locx/sqrt(locx*locx+locz*locz)) * radtodeg;
+			  if ( isFlipped )                    // &&& check for FPIX !!!
+			    trk_alpha = 180.0 - trk_alpha ;
+			  
+			  trk_beta = acos(locy/sqrt(locy*locy+locz*locz)) * radtodeg;
+			  
+
 			  phi = tciter->momentum().phi() / math_pi*180.0;
 			  eta = tciter->momentum().eta();
-			  
-			  detId = (*it)->geographicalId();
 			  
 			  const int maxPixelCol = (*matchedhit).cluster()->maxPixelCol();
 			  const int maxPixelRow = (*matchedhit).cluster()->maxPixelRow();
 			  const int minPixelCol = (*matchedhit).cluster()->minPixelCol();
 			  const int minPixelRow = (*matchedhit).cluster()->minPixelRow();
-			  
-			  const PixelGeomDetUnit* theGeomDet =
-			    dynamic_cast<const PixelGeomDetUnit*> ((*tracker).idToDet(detId) );
-			  
-			  const RectangularPixelTopology* theTopol = 
-			    dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
-			  
+					  
 			  // check whether the cluster is at the module edge 
 			  if ( theTopol->isItEdgePixelInX( minPixelRow ) || 
 			       theTopol->isItEdgePixelInX( maxPixelRow ) )
@@ -933,6 +956,14 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 			      blade = fdetid.blade();
 			      panel = fdetid.panel();
 			      plaq  = fdetid.module(); // also known as plaquette
+			      
+			      float tmp1 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,0.)).perp();
+			      float tmp2 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,1.)).perp();
+			      
+			      if ( tmp2<tmp1 ) 
+				flipped = 1;
+			      else 
+				flipped = 0;
 			      
 			    } // else if ( detId.subdetId()==PixelSubdetector::PixelEndcap )
 			  //else std::cout << "We are not in the pixel detector. detId.subdetId() = " << (int)detId.subdetId() << endl;
