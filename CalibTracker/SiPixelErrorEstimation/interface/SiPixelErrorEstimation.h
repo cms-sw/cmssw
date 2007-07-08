@@ -107,6 +107,9 @@ class SiPixelErrorEstimation : public edm::EDAnalyzer
   float alpha; // track angle in the xz plane of the module local coordinate system  
   float beta;  // track angle in the yz plane of the module local coordinate system  
 
+  float trk_alpha; // reconstructed track angle in the xz plane of the module local coordinate system  
+  float trk_beta;  // reconstructed track angle in the yz plane of the module local coordinate system  
+
   float phi;   // polar track angle
   float eta;   // pseudo-rapidity (function of theta, the azimuthal angle)
 
