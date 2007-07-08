@@ -23,6 +23,9 @@ const double a_min = 1.37078;
 const double a_max = 1.77078;
 const double a_bin = 0.10000;
 
+double aa_min[3] = {1.50, 1.45, 1.40};
+double aa_max[3] = {1.75, 1.70, 1.65};
+
 double ys_bl[6];
 double ys_bh[6];
 
@@ -37,6 +40,22 @@ TCanvas* can_x_barrel_sizex[3];
 TH1F* h_xres_npix_beta_alpha[3][4][10];
 TH1F* h_xres_npix_beta[3][4];
 TH1F* h_xres_npix_beta_rms[3][4];
+
+
+/*
+TCanvas* can_x_barrel_sizex_beta_flipy[3][4];
+TCanvas* can_x_barrel_sizex_flipy[3];
+TH1F* h_xres_npix_beta_alpha_flipy[3][4][10];
+TH1F* h_xres_npix_beta_flipy[3][4];
+TH1F* h_xres_npix_beta_rms_flipy[3][4];
+
+TCanvas* can_x_barrel_sizex_beta_flipn[3][4];
+TCanvas* can_x_barrel_sizex_flipn[3];
+TH1F* h_xres_npix_beta_alpha_flipn[3][4][10];
+TH1F* h_xres_npix_beta_flipn[3][4];
+TH1F* h_xres_npix_beta_rms_flipn[3][4];
+*/
+
 
 TCanvas* can_y_forward_sizey[2];
 TCanvas* can_y_forward;
@@ -60,12 +79,14 @@ void analyse_residuals::Loop()
   cout << "nentries = " << nentries << endl;
 
   bool do_residuals = true;
-  bool do_plots = false;
+  bool do_plots = true;
  
   bool do_yb = true;
   bool do_xb = true;
   bool do_yf = true;
   bool do_xf = true;
+
+  bool do_fix = true;
 
   if ( do_residuals )
     fname = "residuals.dat";
@@ -200,9 +221,24 @@ void analyse_residuals::Loop()
 	{
 	  sprintf(hname, "h_xres_npix_beta_alpha_%i_%i_%i", i, j, k );
 	  if ( do_residuals )
-	    h_xres_npix_beta_alpha[i][j][k]= new TH1F(hname, hname, 100, -0.01, 0.01);
+	    h_xres_npix_beta_alpha[i][j][k] = new TH1F(hname, hname, 100, -0.01, 0.01);
 	  else // do pulls 
-	    h_xres_npix_beta_alpha[i][j][k]= new TH1F(hname, hname, 100, -10.0, 10.0);
+	    h_xres_npix_beta_alpha[i][j][k] = new TH1F(hname, hname, 100, -10.0, 10.0);
+	  
+	  /*
+	  sprintf(hname, "h_xres_npix_beta_alpha_%i_%i_%i_flipy", i, j, k );
+	  if ( do_residuals )
+	    h_xres_npix_beta_alpha_flipy[i][j][k] = new TH1F(hname, hname, 100, -0.01, 0.01);
+	  else // do pulls 
+	    h_xres_npix_beta_alpha_flipy[i][j][k] = new TH1F(hname, hname, 100, -10.0, 10.0);
+	
+	  sprintf(hname, "h_xres_npix_beta_alpha_%i_%i_%i_flipn", i, j, k );
+	  if ( do_residuals )
+	    h_xres_npix_beta_alpha_flipn[i][j][k] = new TH1F(hname, hname, 100, -0.01, 0.01);
+	  else // do pulls 
+	    h_xres_npix_beta_alpha_flipn[i][j][k] = new TH1F(hname, hname, 100, -10.0, 10.0); 
+	  */
+
 	}
 
   for (int i=0; i<3; ++i) // loop over size_x
@@ -224,6 +260,43 @@ void analyse_residuals::Loop()
 	    h_xres_npix_beta_rms[i][j]->SetMinimum(0.0);
 	    h_xres_npix_beta_rms[i][j]->SetMaximum(2.0);
 	  }
+
+	/*
+	sprintf(hname, "h_xres_npix_beta_%i_%i_flipy", i, j );
+	h_xres_npix_beta_flipy[i][j]= new TH1F(hname, hname, 10, a_min, a_max);
+      
+	sprintf(hname, "h_xres_npix_beta_rms_%i_%i_flipy", i, j );
+	h_xres_npix_beta_rms_flipy[i][j]= new TH1F(hname, hname, 10, a_min, a_max);
+	h_xres_npix_beta_rms_flipy[i][j]->SetLineColor(kRed);
+	if ( do_residuals )
+	  {
+	    h_xres_npix_beta_rms_flipy[i][j]->SetMinimum(0.0);
+	    h_xres_npix_beta_rms_flipy[i][j]->SetMaximum(0.0060);
+	  }
+	else
+	  {
+	    h_xres_npix_beta_rms_flipy[i][j]->SetMinimum(0.0);
+	    h_xres_npix_beta_rms_flipy[i][j]->SetMaximum(2.0);
+	  }
+	
+	sprintf(hname, "h_xres_npix_beta_%i_%i_flipn", i, j );
+	h_xres_npix_beta_flipn[i][j]= new TH1F(hname, hname, 10, a_min, a_max);
+      
+	sprintf(hname, "h_xres_npix_beta_rms_%i_%i_flipn", i, j );
+	h_xres_npix_beta_rms_flipn[i][j]= new TH1F(hname, hname, 10, a_min, a_max);
+	h_xres_npix_beta_rms_flipn[i][j]->SetLineColor(kRed);
+	if ( do_residuals )
+	  {
+	    h_xres_npix_beta_rms_flipn[i][j]->SetMinimum(0.0);
+	    h_xres_npix_beta_rms_flipn[i][j]->SetMaximum(0.0060);
+	  }
+	else
+	  {
+	    h_xres_npix_beta_rms_flipn[i][j]->SetMinimum(0.0);
+	    h_xres_npix_beta_rms_flipn[i][j]->SetMaximum(2.0);
+	  }
+	*/
+
       }
 
   // forward histograms --------------------------------------------------------------
@@ -306,6 +379,12 @@ void analyse_residuals::Loop()
 	  rechitresy = rechitpully;
 	}
       
+      if ( do_fix )
+	{
+	  alpha = trk_alpha;
+	  beta  = trk_beta ;
+	}
+
       double alpha_rad = fabs(alpha)/180.0*TMath::Pi();
       double beta_rad  = fabs(beta) /180.0*TMath::Pi();
       double betap_rad = fabs( TMath::Pi()/2.0 - beta_rad );
@@ -366,13 +445,21 @@ void analyse_residuals::Loop()
 	      else if ( 1.2 <= betap_rad                     ) ind_beta = 3;
 	      else cout << " Wrong betap_rad = " << betap_rad << " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " << endl;
 	    	      
-	      if      ( alpha_rad <= a_min ) ind_alpha = 0;
-	      else if ( alpha_rad >= a_max ) ind_alpha = 9;
+	      if      ( alpha_rad <= aa_min[ind_sizex] ) ind_alpha = 0;
+	      else if ( alpha_rad >= aa_max[ind_sizex] ) ind_alpha = 9;
 	      else
-		ind_alpha = (int) ( ( alpha_rad - a_min ) / ( ( a_max - a_min ) / 10.0 ) );  
+		ind_alpha = (int) ( ( alpha_rad - aa_min[ind_sizex] ) / ( ( aa_max[ind_sizex] - aa_min[ind_sizex] ) / 10.0 ) );  
 	      
 	      h_xres_npix_beta_alpha[ind_sizex][ind_beta][ind_alpha]->Fill( rechitresx ); 
 	      
+	      /*
+	      if ( flipped )
+		h_xres_npix_beta_alpha_flipy[ind_sizex][ind_beta][ind_alpha]->Fill( rechitresx );
+	      else
+		h_xres_npix_beta_alpha_flipn[ind_sizex][ind_beta][ind_alpha]->Fill( rechitresx );
+	      */
+
+ 
 	    } //  if ( !( sizex == 1 && bigx == 1 ) )
 	  
 	} // if ( subdetId == 1 )
