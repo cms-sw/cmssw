@@ -13,8 +13,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2007/03/28 18:09:57 $
-// $Revision: 1.9 $
+// $Date: 2007/05/22 23:43:06 $
+// $Revision: 1.10 $
 //
 
 #include <string>
@@ -96,22 +96,5 @@ class RoadSearchTrackCandidateMakerAlgorithm
   TrajectoryStateUpdator* theUpdator;
   MeasurementEstimator* theEstimator;
 };
-
-class CosmicCompareY {
- public:
-  CosmicCompareY(const TrackerGeometry& tracker):_tracker(tracker){}
-  bool operator()( const TrackingRecHit& rh1,
-		   const TrackingRecHit& rh2) const
-  {
-    bool result = 
-      static_cast<unsigned int>(std::abs(_tracker.idToDet(rh1.geographicalId())->surface().toGlobal(rh1.localPosition()).y())) <
-      static_cast<unsigned int>(std::abs(_tracker.idToDet(rh2.geographicalId())->surface().toGlobal(rh2.localPosition()).y())) ;
-    return result;
-  };
-
- private:
-  const TrackerGeometry& _tracker;
-};
-
 
 #endif

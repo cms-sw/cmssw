@@ -9,9 +9,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2007/05/22 19:42:31 $
-// $Revision: 1.38 $
+// $Author: gutsche $
+// $Date: 2007/06/29 23:54:04 $
+// $Revision: 1.39 $
 //
 
 #include <vector>
@@ -19,14 +19,12 @@
 #include <cmath>
 
 #include "RecoTracker/RoadSearchTrackCandidateMaker/interface/RoadSearchTrackCandidateMakerAlgorithm.h"
-#include "RecoTracker/RoadSearchTrackCandidateMaker/interface/RoadSearchTrackCandidateMaker.h"
-#include "RecoTracker/RoadSearchTrackCandidateMaker/interface/RoadSearchPairLess.h"
+
+#include "TrackingTools/RoadSearchHitAccess/interface/RoadSearchHitSorting.h"
 
 #include "DataFormats/RoadSearchCloud/interface/RoadSearchCloud.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/Common/interface/OwnVector.h"
-
-#include "RecoTracker/TrackProducer/interface/TrackingRecHitLessFromGlobalPosition.h"
 
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
@@ -56,7 +54,6 @@
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
-//nclude "RecoTracker/CkfPattern/interface/CombinatorialTrajectoryBuilder.h"
 
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleaner.h"
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
@@ -158,17 +155,17 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
   int nchit = 0;
   for ( RoadSearchCloudCollection::const_iterator cloud = input->begin(); cloud != input->end(); ++cloud ) {
     
-    // fill rechits from cloud into new OwnVector
-    edm::OwnVector<TrackingRecHit> recHits = cloud->recHits();
+    // fill rechits from cloud into new
+    RoadSearchCloud::RecHitVector recHits = cloud->recHits();
     nchit = recHits.size();
     
     std::vector<Trajectory> CloudTrajectories;
     
     if (!NoFieldCosmic_){
-      recHits.sort(TrackingRecHitLessFromGlobalPosition(tracker.product(),alongMomentum));
+      std::sort(recHits.begin(),recHits.end(),SortHitPointersByGlobalPosition(tracker.product(),alongMomentum));
     }
     else {
-      recHits.sort(CosmicCompareY(*tracker));
+      std::sort(recHits.begin(),recHits.end(),SortHitPointersByY(*tracker));
     }
 
     // make a list of layers in cloud and mark stereo layers
@@ -181,9 +178,9 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
     std::map<const DetLayer*, int> cloud_layer_reference; // for debugging
     std::multimap<const DetLayer*, const TrackingRecHit* > cloud_layer_map;
     std::multimap<const DetLayer*, const TrackingRecHit* >::const_iterator hiter;
-    for (edm::OwnVector<TrackingRecHit>::const_iterator ih=recHits.begin(); ih!=recHits.end(); ++ih) {
+    for (RoadSearchCloud::RecHitVector::const_iterator ih=recHits.begin(); ih!=recHits.end(); ++ih) {
       const DetLayer* hitLayer =
-	theMeasurementTracker->geometricSearchTracker()->detLayer(ih->geographicalId());
+	theMeasurementTracker->geometricSearchTracker()->detLayer((*ih)->geographicalId());
       int ilayer = -1;
       hiter = cloud_layer_map.find(hitLayer);
       if (ih == recHits.begin() || hitLayer != layers[nlayers-1]) {
@@ -206,9 +203,9 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
         ilayer = nlayers-1;
       }
       ++nhits_l[ilayer];
-      if (ih->localPositionError().yy()<1.) lstereo[ilayer] = true;      
-      cloud_layer_map.insert(std::make_pair(hitLayer, &(*ih)));
-      GlobalPoint gp = tracker->idToDet(ih->geographicalId())->surface().toGlobal(ih->localPosition());
+      if ((*ih)->localPositionError().yy()<1.) lstereo[ilayer] = true;      
+      cloud_layer_map.insert(std::make_pair(hitLayer, *ih));
+      GlobalPoint gp = tracker->idToDet((*ih)->geographicalId())->surface().toGlobal((*ih)->localPosition());
       if (debug_) std::cout << "Hit "<< ih-recHits.begin()
 			    << " r/z = "
 			    << gp.perp() << " " << gp.z()
@@ -218,7 +215,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
     if (debug_) std::cout<<"CLOUD LAYER MAP SIZE IS " << cloud_layer_map.size() << std::endl;
     
     /*
-    //    for (edm::OwnVector<TrackingRecHit>::const_iterator ih=recHits.begin(); ih!=recHits.end(); ++ih) {
+    //    for (RoadSearchCloud::RecHitVector::const_iterator ih=recHits.begin(); ih!=recHits.end(); ++ih) {
     int hit_counter = 0;
     for (std::multimap<const DetLayer*, const TrackingRecHit* >::const_iterator ih=cloud_layer_map.begin(); 
     ih!=cloud_layer_map.end(); ++ih) {
@@ -277,11 +274,11 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
       if (ilayer0>0) prev_layers.insert(layers[ilayer0-1]);
       
       // collect hits from the starting layer
-      edm::OwnVector<TrackingRecHit> recHits_start;
-      for (edm::OwnVector<TrackingRecHit>::const_iterator ih = recHits.begin();
+      RoadSearchCloud::RecHitVector recHits_start;
+      for (RoadSearchCloud::RecHitVector::const_iterator ih = recHits.begin();
            ih != recHits.end(); ++ih) {
-        if (theMeasurementTracker->geometricSearchTracker()->detLayer(ih->geographicalId()) == layers[ilayer0]) {
-          recHits_start.push_back(ih->clone());
+        if (theMeasurementTracker->geometricSearchTracker()->detLayer((*ih)->geographicalId()) == layers[ilayer0]) {
+          recHits_start.push_back(*ih);
         }
       }
       
@@ -352,34 +349,34 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
         if (++n_middle_layers >= max_middle_layers) break;
       }
       
-      edm::OwnVector<TrackingRecHit> recHits_middle;
+      RoadSearchCloud::RecHitVector recHits_middle;
       for (int ml = 0; ml < n_middle_layers; ++ml) {
-        for (edm::OwnVector<TrackingRecHit>::const_iterator ih = recHits.begin();
+        for (RoadSearchCloud::RecHitVector::const_iterator ih = recHits.begin();
              ih != recHits.end(); ++ih) {
-          if (theMeasurementTracker->geometricSearchTracker()->detLayer(ih->geographicalId()) == middle_layers[ml]) {
-            recHits_middle.push_back(ih->clone());
+          if (theMeasurementTracker->geometricSearchTracker()->detLayer((*ih)->geographicalId()) == middle_layers[ml]) {
+            recHits_middle.push_back(*ih);
           }
         }
       }
       
-      edm::OwnVector<TrackingRecHit>& recHits_inner = recHits_start;
-      edm::OwnVector<TrackingRecHit>& recHits_outer = recHits_middle;
+      RoadSearchCloud::RecHitVector recHits_inner = recHits_start;
+      RoadSearchCloud::RecHitVector recHits_outer = recHits_middle;
       
       // collect hits in useful layers
-      std::vector<std::pair<const DetLayer*, edm::OwnVector<TrackingRecHit> > > goodHits;
-      for(edm::OwnVector<TrackingRecHit>::const_iterator ihit = recHits.begin();
+      std::vector<std::pair<const DetLayer*, RoadSearchCloud::RecHitVector > > goodHits;
+      for(RoadSearchCloud::RecHitVector::const_iterator ihit = recHits.begin();
           ihit != recHits.end(); ihit++) {
         // only use useful layers
         const DetLayer* thisLayer =
-	  theMeasurementTracker->geometricSearchTracker()->detLayer(ihit->geographicalId());
+	  theMeasurementTracker->geometricSearchTracker()->detLayer((*ihit)->geographicalId());
         if (thisLayer == layers[ilayer0] ||
             (good_layers.find(thisLayer) != good_layers.end() &&
              prev_layers.find(thisLayer) == prev_layers.end())) {
           if (!goodHits.empty() && goodHits.back().first == thisLayer) {
-            goodHits.back().second.push_back(ihit->clone());
+            goodHits.back().second.push_back(*ihit);
           } else {
-            edm::OwnVector<TrackingRecHit> rhc;
-            rhc.push_back(ihit->clone());
+            RoadSearchCloud::RecHitVector rhc;
+            rhc.push_back(*ihit);
             goodHits.push_back(std::make_pair(thisLayer, rhc));
           }
         }
@@ -387,18 +384,18 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
       
       
       // try various hit combinations
-      for (edm::OwnVector<TrackingRecHit>::const_iterator innerHit = recHits_inner.begin();
+      for (RoadSearchCloud::RecHitVector::const_iterator innerHit = recHits_inner.begin();
            innerHit != recHits_inner.end(); ++innerHit) {
-        for (edm::OwnVector<TrackingRecHit>::iterator outerHit = recHits_outer.begin();
+        for (RoadSearchCloud::RecHitVector::iterator outerHit = recHits_outer.begin();
              outerHit != recHits_outer.end(); ++outerHit) {
           
-          GlobalPoint inner = tracker->idToDet(innerHit->geographicalId())->surface().toGlobal(innerHit->localPosition());
-          GlobalPoint outer = tracker->idToDet(outerHit->geographicalId())->surface().toGlobal(outerHit->localPosition());
+          GlobalPoint inner = tracker->idToDet((*innerHit)->geographicalId())->surface().toGlobal((*innerHit)->localPosition());
+          GlobalPoint outer = tracker->idToDet((*outerHit)->geographicalId())->surface().toGlobal((*outerHit)->localPosition());
           
           const DetLayer* innerHitLayer =
-            theMeasurementTracker->geometricSearchTracker()->detLayer(innerHit->geographicalId());
+            theMeasurementTracker->geometricSearchTracker()->detLayer((*innerHit)->geographicalId());
           const DetLayer* outerHitLayer =
-            theMeasurementTracker->geometricSearchTracker()->detLayer(outerHit->geographicalId());
+            theMeasurementTracker->geometricSearchTracker()->detLayer((*outerHit)->geographicalId());
           
           if (debug_) std::cout << "Try trajectory with Inner Hit on Layer " << ilayer0 << " and  " ;
           std::map<const DetLayer*, int>::iterator ilro = layer_reference.find(outerHitLayer);
@@ -426,7 +423,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
                                 0, 0, dz2);
           //TrivialVertex vtx( vertexPos, vertexErr);
           //FastHelix helix(outerHit.globalPosition(),
-          //              innerHit.globalPosition(),
+          //              (*innerHit).globalPosition(),
           //              vtx.position());
           
           double x0=0.0,y0=0.0,z0=0.0;
@@ -470,21 +467,21 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 	  else {
 	    fts = FreeTrajectoryState( helix.stateAtVertex().parameters(), initialError);
 	  }
-	  //                       RoadSearchSeedFinderAlgorithm::initialError( *outerHit, *innerHit,
+	  //                       RoadSearchSeedFinderAlgorithm::initialError( *outerHit, *(*innerHit),
           //                                  vertexPos, vertexErr));
           std::vector<Trajectory> rawTrajectories;
           
           // Need to put the first hit on the trajectory
-	  const GeomDet* innerDet = geom->idToDet(innerHit->geographicalId());
+	  const GeomDet* innerDet = geom->idToDet((*innerHit)->geographicalId());
           const TrajectoryStateOnSurface innerState = 
             thePropagator->propagate(fts,innerDet->surface());
           if ( !innerState.isValid()) {
             if (debug_) std::cout<<"*******DISASTER ********* seed doesn't make it to first hit!!!!!" << std::endl;
             continue;
           }
-          TransientTrackingRecHit::RecHitPointer intrhit = ttrhBuilder->build(&(*innerHit));
+          TransientTrackingRecHit::RecHitPointer intrhit = ttrhBuilder->build(*innerHit);
 	  // if this first hit is a matched hit, it should be updated for the trajectory
-	  const SiStripMatchedRecHit2D *origHit = dynamic_cast<const SiStripMatchedRecHit2D *>(&(*innerHit));
+	  const SiStripMatchedRecHit2D *origHit = dynamic_cast<const SiStripMatchedRecHit2D *>(*innerHit);
 	  if (origHit !=0){
 	    const GluedGeomDet *gdet = dynamic_cast<const GluedGeomDet*>(innerDet);
 	    const SiStripMatchedRecHit2D *corrHit = theHitMatcher->match(origHit,gdet,innerState.localDirection());
@@ -516,9 +513,9 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
           
           rawTrajectories.push_back(seedTraj);
           // now loop on hits
-          for (std::vector<std::pair<const DetLayer*, edm::OwnVector<TrackingRecHit> > >::iterator ilhv = goodHits.begin();
+          for (std::vector<std::pair<const DetLayer*, RoadSearchCloud::RecHitVector > >::iterator ilhv = goodHits.begin();
                ilhv != goodHits.end(); ++ilhv) {
-            edm::OwnVector<TrackingRecHit>& hits = ilhv->second;
+            RoadSearchCloud::RecHitVector& hits = ilhv->second;
             std::vector<Trajectory> newTrajectories;
             
             if (debug_){
@@ -532,10 +529,10 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
             for (std::vector<Trajectory>::const_iterator itr = rawTrajectories.begin();
                  itr != rawTrajectories.end(); ++itr) {
               Trajectory traj = *itr;
-              for(edm::OwnVector<TrackingRecHit>::const_iterator ihit = hits.begin();
+              for(RoadSearchCloud::RecHitVector::const_iterator ihit = hits.begin();
                   ihit != hits.end(); ihit++) {
                 const DetLayer* thisLayer =
-		  theMeasurementTracker->geometricSearchTracker()->detLayer(ihit->geographicalId());
+		  theMeasurementTracker->geometricSearchTracker()->detLayer((*ihit)->geographicalId());
                 if (thisLayer == innerHitLayer){
                   // Right now we are assuming that ONLY single hit layers are in this initial collection
                   //if (thisLayer == innerHitLayer && !(ihit->recHit() == innerHit->recHit())){
@@ -548,7 +545,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
                 // extrapolate
                 std::vector<Trajectory> newResult;
                 
-                TransientTrackingRecHit::RecHitPointer rhit = ttrhBuilder->build(&(*ihit));
+                TransientTrackingRecHit::RecHitPointer rhit = ttrhBuilder->build(*ihit);
                 
                 if (debug_){
                   if (rhit->isValid()) {
@@ -592,7 +589,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
                 // update
 		// first correct for angle
 
-		const SiStripMatchedRecHit2D *origHit = dynamic_cast<const SiStripMatchedRecHit2D *>(&(*ihit));
+		const SiStripMatchedRecHit2D *origHit = dynamic_cast<const SiStripMatchedRecHit2D *>(*ihit);
 		if (origHit !=0){
 		  const GluedGeomDet *gdet = dynamic_cast<const GluedGeomDet*>(rhit->det());
 		  const SiStripMatchedRecHit2D *corrHit = theHitMatcher->match(origHit,gdet,predTsos.localDirection());
@@ -712,10 +709,10 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
       std::set<const DetLayer*> skipped_layers;
       std::map<int, const DetLayer*> skipped_layer_detmap;
       
-      for (edm::OwnVector<TrackingRecHit>::const_iterator ih = recHits.begin();
+      for (RoadSearchCloud::RecHitVector::const_iterator ih = recHits.begin();
            ih != recHits.end(); ++ih) {
         const DetLayer* thisLayer =
-	  theMeasurementTracker->geometricSearchTracker()->detLayer(ih->geographicalId());
+	  theMeasurementTracker->geometricSearchTracker()->detLayer((*ih)->geographicalId());
         if (thisLayer != layers[ilayer0] &&
             good_layers.find(thisLayer) == good_layers.end() &&
             prev_layers.find(thisLayer) == prev_layers.end()) {
@@ -865,12 +862,12 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
               //collect hits in the skipped layer
               edm::OwnVector<TrackingRecHit> skipped_hits;
               std::set<const GeomDet*> dets;
-              for (edm::OwnVector<TrackingRecHit>::const_iterator ih = recHits.begin();
+              for (RoadSearchCloud::RecHitVector::const_iterator ih = recHits.begin();
                    ih != recHits.end(); ++ih) {
-                if (theMeasurementTracker->geometricSearchTracker()->detLayer(ih->geographicalId())
+                if (theMeasurementTracker->geometricSearchTracker()->detLayer((*ih)->geographicalId())
                     == imap->second) {
-                  skipped_hits.push_back(ih->clone());
-                  dets.insert(geom->idToDet(ih->geographicalId()));
+                  skipped_hits.push_back((*ih)->clone());
+                  dets.insert(geom->idToDet((*ih)->geographicalId()));
                 }
               }
               
@@ -1286,7 +1283,7 @@ RoadSearchTrackCandidateMakerAlgorithm::FindBestHits(const TrajectoryStateOnSurf
 			      << std::endl;
       }
       
-      std::sort( OverlapHits.begin(),OverlapHits.end(),RoadSearchPairLess());
+      std::sort( OverlapHits.begin(),OverlapHits.end(),SortHitTrajectoryPairsByGlobalPosition());
       if (debug_) std::cout<<"Sorted OverlapHits has size " <<OverlapHits.size() << std::endl;
       
       for (std::vector<std::pair<TransientTrackingRecHit::ConstRecHitPointer,TrajectoryMeasurement*> >::iterator irh =OverlapHits.begin();

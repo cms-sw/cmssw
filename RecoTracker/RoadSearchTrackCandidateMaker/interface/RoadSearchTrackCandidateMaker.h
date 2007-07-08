@@ -14,8 +14,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/03/01 08:18:19 $
-// $Revision: 1.2 $
+// $Date: 2007/03/07 21:46:51 $
+// $Revision: 1.3 $
 //
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -30,24 +30,21 @@
 
 #include "RecoTracker/RoadSearchTrackCandidateMaker/interface/RoadSearchTrackCandidateMakerAlgorithm.h"
 
-namespace cms
+class RoadSearchTrackCandidateMaker : public edm::EDProducer
 {
-  class RoadSearchTrackCandidateMaker : public edm::EDProducer
-  {
-  public:
+public:
 
-    explicit RoadSearchTrackCandidateMaker(const edm::ParameterSet& conf);
+  explicit RoadSearchTrackCandidateMaker(const edm::ParameterSet& conf);
 
-    virtual ~RoadSearchTrackCandidateMaker();
+  virtual ~RoadSearchTrackCandidateMaker();
 
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
-  private:
-    RoadSearchTrackCandidateMakerAlgorithm roadSearchTrackCandidateMakerAlgorithm_;
-    edm::ParameterSet conf_;
-    edm::InputTag     cloudProducer_;
+private:
+  RoadSearchTrackCandidateMakerAlgorithm roadSearchTrackCandidateMakerAlgorithm_;
+  edm::ParameterSet conf_;
+  edm::InputTag     cloudProducer_;
 
-  };
-}
+};
 
 #endif

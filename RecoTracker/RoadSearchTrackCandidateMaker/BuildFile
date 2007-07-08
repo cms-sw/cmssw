@@ -1,4 +1,3 @@
-<flags EDM_PLUGIN=1>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
@@ -18,6 +17,7 @@
 <use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/GeomPropagators>
 <use name=TrackingTools/TrajectoryCleaning>
+<use name=TrackingTools/RoadSearchHitAccess>
 <export>
  <lib name=RecoTrackerRoadSearchTrackCandidateMaker>
  <use name=FWCore/Framework>
@@ -39,4 +39,5 @@
  <use name=TrackingTools/TrajectoryState>
  <use name=TrackingTools/GeomPropagators>
  <use name=TrackingTools/TrajectoryCleaning>
+ <use name=TrackingTools/RoadSearchHitAccess>
 </export>

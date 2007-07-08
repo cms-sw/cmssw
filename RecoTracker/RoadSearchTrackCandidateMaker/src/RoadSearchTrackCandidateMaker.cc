@@ -11,8 +11,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/03/01 08:18:20 $
-// $Revision: 1.3 $
+// $Date: 2007/03/07 21:46:52 $
+// $Revision: 1.4 $
 //
 
 #include <memory>
@@ -28,43 +28,38 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-namespace cms
+RoadSearchTrackCandidateMaker::RoadSearchTrackCandidateMaker(edm::ParameterSet const& conf) : 
+  roadSearchTrackCandidateMakerAlgorithm_(conf) ,
+  conf_(conf)
 {
+  produces<TrackCandidateCollection>();
 
-  RoadSearchTrackCandidateMaker::RoadSearchTrackCandidateMaker(edm::ParameterSet const& conf) : 
-    roadSearchTrackCandidateMakerAlgorithm_(conf) ,
-    conf_(conf)
-  {
-    produces<TrackCandidateCollection>();
+  cloudProducer_ = conf_.getParameter<edm::InputTag>("CloudProducer");
 
-    cloudProducer_ = conf_.getParameter<edm::InputTag>("CloudProducer");
-
-  }
+}
 
 
-  // Virtual destructor needed.
-  RoadSearchTrackCandidateMaker::~RoadSearchTrackCandidateMaker() { }  
+// Virtual destructor needed.
+RoadSearchTrackCandidateMaker::~RoadSearchTrackCandidateMaker() { }  
 
-  // Functions that gets called by framework every event
-  void RoadSearchTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es)
-  {
-    // Step A: Get Inputs 
+// Functions that gets called by framework every event
+void RoadSearchTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es)
+{
+  // Step A: Get Inputs 
 
 
-    // retrieve producer name of raw CloudCollection
-    edm::Handle<RoadSearchCloudCollection> cloudHandle;
-    e.getByLabel(cloudProducer_, cloudHandle);
-    const RoadSearchCloudCollection *clouds = cloudHandle.product();
+  // retrieve producer name of raw CloudCollection
+  edm::Handle<RoadSearchCloudCollection> cloudHandle;
+  e.getByLabel(cloudProducer_, cloudHandle);
+  const RoadSearchCloudCollection *clouds = cloudHandle.product();
 
-    // Step B: create empty output collection
-    std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection);
+  // Step B: create empty output collection
+  std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection);
 
-    // Step C: Invoke the cloud cleaning algorithm
-    roadSearchTrackCandidateMakerAlgorithm_.run(clouds,e,es,*output);
+  // Step C: Invoke the cloud cleaning algorithm
+  roadSearchTrackCandidateMakerAlgorithm_.run(clouds,e,es,*output);
 
-    // Step D: write output to file
-    e.put(output);
-
-  }
+  // Step D: write output to file
+  e.put(output);
 
 }
