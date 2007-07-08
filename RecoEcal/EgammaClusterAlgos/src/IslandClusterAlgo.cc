@@ -13,13 +13,13 @@
 
 // Return a vector of clusters from a collection of EcalRecHits:
 std::vector<reco::BasicCluster> IslandClusterAlgo::makeClusters(
-                                  const EcalRecHitCollection* hits,
-				  const CaloSubdetectorGeometry *geometry_p,
-				  const CaloSubdetectorTopology *topology_p,
-				  const CaloSubdetectorGeometry *geometryES_p,
+                                  const EcalRecHitCollection * hits,
+				  const CaloSubdetectorGeometry * geometry_p,
+				  const CaloSubdetectorTopology * topology_p,
+				  const CaloSubdetectorGeometry * geometryES_p,
 				  EcalPart ecalPart,
 				  bool regional,
-				  const std::vector<EcalEtaPhiRegion>& regions)
+				  const std::vector<EcalEtaPhiRegion> & regions)
 {
   seeds.clear();
   used_s.clear();
@@ -136,123 +136,110 @@ void IslandClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
 
       current_v.push_back(it->id());
       used_s.insert(it->id());
+      EcalRecHitCollection::const_iterator seedHit_it = recHits_->find(it->id());
 
       // Create a navigator at the seed
       CaloNavigator<DetId> navigator(it->id(), topology_p);
 
-      searchNorth(navigator);
+      searchNorth(navigator, seedHit_it);
       navigator.home();
-      searchSouth(navigator);
+      searchSouth(navigator, seedHit_it);
       navigator.home();
-      searchWest(navigator, topology_p);
+      searchWest(navigator, seedHit_it);
       navigator.home();
-      searchEast(navigator, topology_p);
+      searchEast(navigator, seedHit_it);
  
       makeCluster(hits,geometry_p,geometryES_p);
    }
 }
 
 
-void IslandClusterAlgo::searchNorth(const CaloNavigator<DetId> &navigator)
+void IslandClusterAlgo::searchNorth(const CaloNavigator<DetId> & navigator, const EcalRecHitCollection::const_iterator & previous_it)
 {
-  DetId southern = navigator.pos();
+  DetId newId = navigator.north();
+  const EcalRecHitCollection::const_iterator newHit_it = iteratorToRecHit(newId);
+  if (newHit_it == recHits_->end()) return;
 
-  DetId northern = navigator.north();
-  if (northern == DetId(0)) return; // This means that we went off the ECAL!
-  // if the crystal to the north belongs to another cluster return
-  if (used_s.find(northern) != used_s.end()) return;
-
-
-  EcalRecHitCollection::const_iterator southern_it = recHits_->find(southern);
-  EcalRecHitCollection::const_iterator northern_it = recHits_->find(northern);
-
-  if (shouldBeAdded(northern_it, southern_it))
+  if (shouldBeAdded(newHit_it, previous_it))
     {
-      current_v.push_back(northern);
-      used_s.insert(northern);
-      searchNorth(navigator);
+      current_v.push_back(newId);
+      used_s.insert(newId);
+      searchNorth(navigator, newHit_it);
     }
 }
 
 
-void IslandClusterAlgo::searchSouth(const CaloNavigator<DetId> &navigator)
+void IslandClusterAlgo::searchSouth(const CaloNavigator<DetId> & navigator, const EcalRecHitCollection::const_iterator & previous_it)
 {
-  DetId northern = navigator.pos();
+  DetId newId = navigator.south();
+  const EcalRecHitCollection::const_iterator newHit_it = iteratorToRecHit(newId);
+  if (newHit_it == recHits_->end()) return;
 
-  DetId southern = navigator.south();
-  if (southern == DetId(0)) return; // This means that we went off the ECAL!
-  if (used_s.find(southern) != used_s.end()) return;
-
-
-  EcalRecHitCollection::const_iterator northern_it = recHits_->find(northern);
-  EcalRecHitCollection::const_iterator southern_it = recHits_->find(southern);
-
-  if (shouldBeAdded(southern_it, northern_it))
+  if (shouldBeAdded(newHit_it, previous_it))
     {
-      current_v.push_back(southern);
-      used_s.insert(southern);
-      searchSouth(navigator);
+      current_v.push_back(newId);
+      used_s.insert(newId);
+      searchSouth(navigator, newHit_it);
     }
 }
 
 
-void IslandClusterAlgo::searchWest(const CaloNavigator<DetId> &navigator, const CaloSubdetectorTopology* topology)
+void IslandClusterAlgo::searchWest(const CaloNavigator<DetId> & navigator, const EcalRecHitCollection::const_iterator & previous_it)
 {
-  DetId eastern = navigator.pos();
-  EcalRecHitCollection::const_iterator eastern_it = recHits_->find(eastern);
+  DetId newId = navigator.west();
+  const EcalRecHitCollection::const_iterator newHit_it = iteratorToRecHit(newId);
+  if (newHit_it == recHits_->end()) return;
 
-  DetId western = navigator.west();
-  if (western == DetId(0)) return; // This means that we went off the ECAL!
-  EcalRecHitCollection::const_iterator western_it = recHits_->find(western);
-
-  if (shouldBeAdded(western_it, eastern_it))
+  if (shouldBeAdded(newHit_it, previous_it))
     {
-      CaloNavigator<DetId> nsNavigator(western, topology);
+      CaloNavigator<DetId> nsNavigator(newId, navigator.getTopology());
 
-      searchNorth(nsNavigator);
+      searchNorth(nsNavigator, newHit_it);
       nsNavigator.home();
-      searchSouth(nsNavigator);
+      searchSouth(nsNavigator, newHit_it);
       nsNavigator.home();
-      searchWest(navigator, topology);
+      searchWest(navigator, newHit_it);
 
-      current_v.push_back(western);
-      used_s.insert(western);
+      current_v.push_back(newId);
+      used_s.insert(newId);
     }
 }
 
 
-void IslandClusterAlgo::searchEast(const CaloNavigator<DetId> &navigator, const CaloSubdetectorTopology* topology)
+void IslandClusterAlgo::searchEast(const CaloNavigator<DetId> & navigator, const EcalRecHitCollection::const_iterator & previous_it)
 {
-  DetId western = navigator.pos();
-  EcalRecHitCollection::const_iterator western_it = recHits_->find(western);
+  DetId newId = navigator.east();
+  const EcalRecHitCollection::const_iterator newHit_it = iteratorToRecHit(newId);
+  if (newHit_it == recHits_->end()) return;
 
-  DetId eastern = navigator.east();
-  if (eastern == DetId(0)) return; // This means that we went off the ECAL!
-  EcalRecHitCollection::const_iterator eastern_it = recHits_->find(eastern);
-
-  if (shouldBeAdded(eastern_it, western_it))
+  if (shouldBeAdded(newHit_it, previous_it))
     {
-      CaloNavigator<DetId> nsNavigator(eastern, topology);
+      CaloNavigator<DetId> nsNavigator(newId, navigator.getTopology());
 
-      searchNorth(nsNavigator);
+      searchNorth(nsNavigator, newHit_it);
       nsNavigator.home();
-      searchSouth(nsNavigator);
+      searchSouth(nsNavigator, newHit_it);
       nsNavigator.home();
-      searchEast(navigator, topology);
+      searchEast(navigator, newHit_it);
 
-      current_v.push_back(eastern);
-      used_s.insert(eastern);
+      current_v.push_back(newId);
+      used_s.insert(newId);
     }
 }
 
+EcalRecHitCollection::const_iterator IslandClusterAlgo::iteratorToRecHit(const DetId & candidateId)
+{
+  if (candidateId == DetId(0))                  return (recHits_->end()); // This means that we went off the ECAL!
+  if (used_s.find(candidateId) != used_s.end()) return (recHits_->end()); // This means that the added crystal already belongs to another cluster
+  return (recHits_->find(candidateId));
+}
 
 // returns true if the candidate crystal fulfills the requirements to be added to the cluster:
-bool IslandClusterAlgo::shouldBeAdded(EcalRecHitCollection::const_iterator candidate_it, EcalRecHitCollection::const_iterator previous_it)
+bool IslandClusterAlgo::shouldBeAdded(const EcalRecHitCollection::const_iterator & candidate_it, 
+				      const EcalRecHitCollection::const_iterator & previous_it)
 {
   // crystal should not be included...
-  if ( (candidate_it == recHits_->end())                 || // ...if it does not correspond to a hit
-       (used_s.find(candidate_it->id()) != used_s.end()) || // ...if it already belongs to a cluster
-       (candidate_it->energy() <= 0)                     || // ...if it has a negative or zero energy
+  if ( (candidate_it->energy() <= 0)                     || // ...if it has a negative or zero energy
        (candidate_it->energy() > previous_it->energy()))    // ...or if the previous crystal had lower E
     {
       return false;
@@ -261,9 +248,9 @@ bool IslandClusterAlgo::shouldBeAdded(EcalRecHitCollection::const_iterator candi
 }
 
 
-void IslandClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
-				    const CaloSubdetectorGeometry *geometry,
-				    const CaloSubdetectorGeometry *geometryES)
+void IslandClusterAlgo::makeCluster(const EcalRecHitCollection * hits,
+				    const CaloSubdetectorGeometry * geometry,
+				    const CaloSubdetectorGeometry * geometryES)
 {
   double energy = 0;
   double chi2   = 0;
@@ -276,14 +263,7 @@ void IslandClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
     {
       EcalRecHitCollection::const_iterator itt = hits->find(*it);
       EcalRecHit hit_p = *itt;
-      //      if (hit_p != 0)
-      //	{
-	  energy += hit_p.energy();
-      //	}
-      //      else 
-      //	{
-      //	  std::cout << "DEBUG ALERT: Requested rechit has gone missing from rechits map! :-S" << std::endl;
-      //	}
+      energy += hit_p.energy();
       chi2 += 0;
     }
   chi2 /= energy;
@@ -297,6 +277,6 @@ void IslandClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
       std::cout << "     Eta        = " << position.eta() << std::endl;
       std::cout << "*****************************" << std::endl;
     }
-
+  
   clusters_v.push_back(reco::BasicCluster(energy, position, chi2, current_v, reco::island));
 }
