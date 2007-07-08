@@ -40,7 +40,7 @@ IntermediateTrajectoryCleaner::clean(IntermediateTrajectoryCleaner::TempTrajecto
         if ( first_hit1->hit()->sharesInput( second_hit1->hit(), TrackingRecHit::all ) ){
           if ( &(*first_hit3) == &(*second_hit3) ) {
 
-            if (first_hit2->isValid()) {
+            if (second_hit2->isValid()) {
               firstTraj->invalidate();
               break;
             }
