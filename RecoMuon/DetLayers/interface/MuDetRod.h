@@ -5,15 +5,15 @@
  *  A rod of aligned equal-sized non-overlapping detectors.  
  *  Designed for barrel muon DT/RPC chambers.
  *
- *  $Date: 2006/06/02 12:21:38 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/06/02 15:19:39 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - INFN Torino
  *
  */
 
 #include "TrackingTools/DetLayers/interface/DetRodOneR.h"
 #include "TrackingTools/DetLayers/interface/PeriodicBinFinderInZ.h"
-
+#include "Utilities/BinningTools/interface/GenericBinFinderInZ.h"
 class GeomDet;
 
 class MuDetRod : public DetRodOneR {
@@ -52,7 +52,8 @@ class MuDetRod : public DetRodOneR {
   virtual bool hasGroups() const {return false;}
 
  private:
-  typedef PeriodicBinFinderInZ<float>   BinFinderType;
+  //typedef PeriodicBinFinderInZ<float>   BinFinderType;
+  typedef GenericBinFinderInZ<float, GeomDet> BinFinderType;
   BinFinderType theBinFinder;
 
   void init();
