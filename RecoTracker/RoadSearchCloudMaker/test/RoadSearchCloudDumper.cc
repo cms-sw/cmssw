@@ -8,8 +8,8 @@
 // Created:         Mon Feb  5 21:24:36 UTC 2007
 //
 // $Author: gutsche $
-// $Date: 2007/03/01 08:14:21 $
-// $Revision: 1.2 $
+// $Date: 2007/03/07 21:46:50 $
+// $Revision: 1.3 $
 //
 
 
@@ -83,11 +83,11 @@ void RoadSearchCloudDumper::analyze(const edm::Event& e, const edm::EventSetup& 
     output << "Cloud: " << ++ncloud << std::endl;
     
     unsigned int nhit = 0;
-    for ( edm::OwnVector<TrackingRecHit>::const_iterator hit = cloud->begin_hits() , hitEnd = cloud->end_hits();
+    for ( RoadSearchCloud::RecHitVector::const_iterator hit = cloud->begin_hits() , hitEnd = cloud->end_hits();
 	  hit != hitEnd;
 	  ++hit ) {
-      DetId id = hit->geographicalId();
-      GlobalPoint outer = tracker->idToDet(id)->surface().toGlobal(hit->localPosition());
+      DetId id = (*hit)->geographicalId();
+      GlobalPoint outer = tracker->idToDet(id)->surface().toGlobal((*hit)->localPosition());
       const Ring *ring = rings->getRing(RoadSearchDetIdHelper::ReturnRPhiId(id));
       output<< "Hit: " << ++nhit << " " << id.rawId() << " " << ring->getindex() << " "
 	    << outer.perp() << " " << outer.phi() 

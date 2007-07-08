@@ -12,8 +12,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/03/01 08:14:19 $
-// $Revision: 1.4 $
+// $Date: 2007/03/07 21:46:49 $
+// $Revision: 1.5 $
 //
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -28,29 +28,25 @@
 
 #include "RecoTracker/RoadSearchCloudMaker/interface/RoadSearchCloudMakerAlgorithm.h"
 
-namespace cms
+class RoadSearchCloudMaker : public edm::EDProducer
 {
-  class RoadSearchCloudMaker : public edm::EDProducer
-  {
-  public:
+public:
 
-    explicit RoadSearchCloudMaker(const edm::ParameterSet& conf);
+  explicit RoadSearchCloudMaker(const edm::ParameterSet& conf);
 
-    virtual ~RoadSearchCloudMaker();
+  virtual ~RoadSearchCloudMaker();
 
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
-  private:
-    RoadSearchCloudMakerAlgorithm roadSearchCloudMakerAlgorithm_;
-    edm::ParameterSet conf_;
-    edm::InputTag     seedProducer_;
-    edm::InputTag     matchedStripRecHitsInputTag_;
-    edm::InputTag     rphiStripRecHitsInputTag_;
-    edm::InputTag     stereoStripRecHitsInputTag_;
-    edm::InputTag     pixelRecHitsInputTag_;
+private:
+  RoadSearchCloudMakerAlgorithm roadSearchCloudMakerAlgorithm_;
+  edm::ParameterSet conf_;
+  edm::InputTag     seedProducer_;
+  edm::InputTag     matchedStripRecHitsInputTag_;
+  edm::InputTag     rphiStripRecHitsInputTag_;
+  edm::InputTag     stereoStripRecHitsInputTag_;
+  edm::InputTag     pixelRecHitsInputTag_;
 
-  };
-}
-
+};
 
 #endif

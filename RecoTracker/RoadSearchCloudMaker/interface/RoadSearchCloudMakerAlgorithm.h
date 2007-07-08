@@ -50,9 +50,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2007/05/19 20:29:06 $
-// $Revision: 1.22 $
+// $Author: gutsche $
+// $Date: 2007/06/29 23:52:15 $
+// $Revision: 1.23 $
 //
 
 #include <string>
@@ -132,6 +132,7 @@ class RoadSearchCloudMakerAlgorithm
                                              double k0, double phi0);
 
  private:
+
   edm::ParameterSet conf_;
   static double epsilon;
   double d0h, phi0h, omegah;

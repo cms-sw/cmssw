@@ -47,9 +47,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2007/05/19 20:29:06 $
-// $Revision: 1.43 $
+// $Author: gutsche $
+// $Date: 2007/06/29 23:52:16 $
+// $Revision: 1.44 $
 //
 
 #include <vector>
@@ -421,7 +421,7 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
             // switch cut to dx instead of dphi
             if ( std::abs(dx) < phiMax(roadType,phi0,k0) ) {
               if ((usedRecHits < maxDetHitsInCloudPerDetId) && (cloud.size() < maxRecHitsInCloud_)) {
-                cloud.addHit((TrackingRecHit*)recHit->clone());
+                cloud.addHit(recHit);
                 ++usedRecHits;
               }
             }
@@ -442,7 +442,7 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 	    // switch cut to dx instead of dphi
 	    if ( std::abs(dx) < phiMax(roadType,phi0,k0) ) {
               if ((usedRecHits < maxDetHitsInCloudPerDetId) && (cloud.size() < maxRecHitsInCloud_)) {
-		cloud.addHit((TrackingRecHit*)recHit->clone());
+		cloud.addHit(recHit);
 		++usedRecHits;
 	      }
 	    }
@@ -476,7 +476,7 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 	      if ( ((lowerBoundaryPhi - phiMax(roadType,phi0,k0)) < hitPhi) &&
 		   ((upperBoundaryPhi + phiMax(roadType,phi0,k0)) > hitPhi) ) {
 		if ((usedRecHits < maxDetHitsInCloudPerDetId) && (cloud.size() < maxRecHitsInCloud_)) {
-		  cloud.addHit((TrackingRecHit*)recHit->clone());
+		  cloud.addHit(recHit);
 		  ++usedRecHits;
 		}
 	      }
@@ -487,7 +487,7 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 	      if ( ((upperBoundaryPhi - phiMax(roadType,phi0,k0)) < hitPhi) &&
 		   ((lowerBoundaryPhi + phiMax(roadType,phi0,k0)) > hitPhi) ) {
 		if ((usedRecHits < maxDetHitsInCloudPerDetId) && (cloud.size() < maxRecHitsInCloud_)) {
-		  cloud.addHit((TrackingRecHit*)recHit->clone());
+		  cloud.addHit(recHit);
 		  ++usedRecHits;
 		}
 	      }
@@ -523,7 +523,7 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 	    //
 	    if ( std::abs(dx) < phiMax(roadType,phi0,k1)) {
 	      if ((usedRecHits < maxDetHitsInCloudPerDetId) && (cloud.size() < maxRecHitsInCloud_)) {
-		cloud.addHit((TrackingRecHit*)recHit->clone());
+		cloud.addHit(recHit);
 		++usedRecHits;
 	      }
 	    }
@@ -549,7 +549,7 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 	      if ( ((lowerBoundaryPhi - phiMax(roadType,phi0,k0)) < hitPhi) &&
 		   ((upperBoundaryPhi + phiMax(roadType,phi0,k0)) > hitPhi) ) {
 		if ((usedRecHits < maxDetHitsInCloudPerDetId) && (cloud.size() < maxRecHitsInCloud_)) {
-		  cloud.addHit((TrackingRecHit*)recHit->clone());
+		  cloud.addHit(recHit);
 		  ++usedRecHits;
 		}
 	      }
@@ -560,7 +560,7 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 	      if ( ((upperBoundaryPhi - phiMax(roadType,phi0,k0)) < hitPhi) &&
 		   ((lowerBoundaryPhi + phiMax(roadType,phi0,k0)) > hitPhi) ) {
 		if ((usedRecHits < maxDetHitsInCloudPerDetId) && (cloud.size() < maxRecHitsInCloud_)) {
-		  cloud.addHit((TrackingRecHit*)recHit->clone());
+		  cloud.addHit(recHit);
 		  ++usedRecHits;
 		}
 	      }
@@ -590,7 +590,7 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 		   ((std::abs(dx1) < phiMax(roadType,phi0,k1)) || 
 		    (std::abs(dx2) < phiMax(roadType,phi0,k1))) ) {
 		if ((usedRecHits < maxDetHitsInCloudPerDetId) && (cloud.size() < maxRecHitsInCloud_)) {
-		  cloud.addHit((TrackingRecHit*)recHit->clone());
+		  cloud.addHit(recHit);
 		  ++usedRecHits;
 		}
 	      }
@@ -602,7 +602,7 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 		   ((std::abs(dx1) < phiMax(roadType,phi0,k1)) || 
 		    (std::abs(dx2) < phiMax(roadType,phi0,k1))) ) {
 		if ((usedRecHits < maxDetHitsInCloudPerDetId) && (cloud.size() < maxRecHitsInCloud_)) {
-		  cloud.addHit((TrackingRecHit*)recHit->clone());
+		  cloud.addHit(recHit);
 		  ++usedRecHits;
 		}
 	      }
@@ -631,7 +631,7 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
             
             // switch cut to dx instead of dphi
             if ( std::abs(dx) < phiMax(roadType,phi0,k0) ) {
-              cloud.addHit((TrackingRecHit*)recHit->clone());
+              cloud.addHit(recHit);
               ++usedRecHits;
             }
 	  } else {
@@ -654,7 +654,7 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 	    double phi = phiFromExtrapolation(d0,phi0,k0,hitRadius,roadType);
               
 	    if ( std::abs(hitphi-phi) < phiMax(roadType,phi0,k0) ) {
-	      cloud.addHit((TrackingRecHit*)recHit->clone());
+	      cloud.addHit(recHit);
 	      ++usedRecHits;
 	    }	
 	  }
@@ -668,7 +668,7 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 	  float dx = ghit.z()*tan(hitphi-phi);
             
 	  if ( std::abs(dx) < 0.25 ) {
-	    cloud.addHit((TrackingRecHit*)recHit->clone());
+	    cloud.addHit(recHit);
 	    ++usedRecHits;
 	  }
 	}
@@ -716,7 +716,7 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillPixRecHitsIntoCloud(DetId id, co
         double phi = phiFromExtrapolation(d0,phi0,k0,hitRadius,roadType);
         
         if ( std::abs(hitphi-phi) < phiMax(roadType,phi0,k0) ) {
-          cloud.addHit((TrackingRecHit*)recHit->clone());
+          cloud.addHit(recHit);
           ++usedRecHits;
         }
       } 
@@ -740,7 +740,7 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillPixRecHitsIntoCloud(DetId id, co
         double phi = phiFromExtrapolation(d0,phi0,k0,hitRadius,roadType);
         
         if ( std::abs(hitphi-phi) < phiMax(roadType,phi0,k0) ) {
-          cloud.addHit((TrackingRecHit*)recHit->clone());
+          cloud.addHit(recHit);
           ++usedRecHits;
         }	
       }
@@ -752,7 +752,7 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillPixRecHitsIntoCloud(DetId id, co
       
       double  phi = phiFromExtrapolation(d0,phi0,k0,ghit.z(),roadType);
       if ( (phi - phiMax(roadType,phi0,k0)) < ringPhi && (phi + phiMax(roadType,phi0,k0))>ringPhi ) {
-        cloud.addHit((TrackingRecHit*)recHit->clone());
+        cloud.addHit(recHit);
         ++usedRecHits;
       }
     }
@@ -896,9 +896,9 @@ RoadSearchCloudCollection RoadSearchCloudMakerAlgorithm::Clean(RoadSearchCloudCo
   //
   //  no raw clouds - nothing to try merging
   //
-  
+
   if ( inputCollection->empty() ){
-    LogDebug("RoadSearch") << "Found " << output.size() << " clouds.";
+    LogDebug("RoadSearch") << "Found " << output.size() << " clean clouds.";
     return output;  
   }
   
@@ -907,10 +907,11 @@ RoadSearchCloudCollection RoadSearchCloudMakerAlgorithm::Clean(RoadSearchCloudCo
   //
   
   if ( 1==inputCollection->size() ){
-    RoadSearchCloud *temp = inputCollection->begin()->clone();
-    output.push_back(*temp);
-    delete temp;
-    LogDebug("RoadSearch") << "Found " << output.size() << " clouds.";
+    output = *inputCollection;
+//     RoadSearchCloud *temp = inputCollection->begin()->clone();
+//     output.push_back(*temp);
+//     delete temp;
+    LogDebug("RoadSearch") << "Found " << output.size() << " clean clouds.";
     return output;
   }  
   
@@ -931,8 +932,10 @@ RoadSearchCloudCollection RoadSearchCloudMakerAlgorithm::Clean(RoadSearchCloudCo
     
     // produce output cloud where other clouds are merged in
     // create temp pointer for clone which will be deleted afterwards
-    RoadSearchCloud *temp_lone_cloud = raw_cloud->clone();
-    RoadSearchCloud lone_cloud = *temp_lone_cloud;
+//     RoadSearchCloud *temp_lone_cloud = raw_cloud->clone();
+//     RoadSearchCloud lone_cloud = *temp_lone_cloud;
+    RoadSearchCloud lone_cloud = *raw_cloud;
+
     int second_cloud_ctr=raw_cloud_ctr;
     for ( RoadSearchCloudCollection::const_iterator second_cloud = raw_cloud+1; second_cloud != inputCollection->end(); ++second_cloud) {
       second_cloud_ctr++;
@@ -941,20 +944,20 @@ RoadSearchCloudCollection RoadSearchCloudMakerAlgorithm::Clean(RoadSearchCloudCo
       
       if ( already_gone[second_cloud_ctr-1] )continue;
       
-      for ( RoadSearchCloud::RecHitOwnVector::const_iterator second_cloud_hit = second_cloud->begin_hits();
+      for ( RoadSearchCloud::RecHitVector::const_iterator second_cloud_hit = second_cloud->begin_hits();
             second_cloud_hit != second_cloud->end_hits();
             ++ second_cloud_hit ) {
         bool is_shared = false;
-        for ( RoadSearchCloud::RecHitOwnVector::const_iterator lone_cloud_hit = lone_cloud.begin_hits();
+        for ( RoadSearchCloud::RecHitVector::const_iterator lone_cloud_hit = lone_cloud.begin_hits();
               lone_cloud_hit != lone_cloud.end_hits();
               ++ lone_cloud_hit ) {
           
-          if (lone_cloud_hit->geographicalId() == second_cloud_hit->geographicalId())
-            if (lone_cloud_hit->localPosition().x() == second_cloud_hit->localPosition().x())
-              if (lone_cloud_hit->localPosition().y() == second_cloud_hit->localPosition().y())
+          if ((*lone_cloud_hit)->geographicalId() == (*second_cloud_hit)->geographicalId())
+            if ((*lone_cloud_hit)->localPosition().x() == (*second_cloud_hit)->localPosition().x())
+              if ((*lone_cloud_hit)->localPosition().y() == (*second_cloud_hit)->localPosition().y())
 		{is_shared=true; break;}
         }
-	if (!is_shared)  unshared_hits.push_back(&(*second_cloud_hit));
+	if (!is_shared)  unshared_hits.push_back(*second_cloud_hit);
           
 	if ( ((float(unshared_hits.size())/float(lone_cloud.size())) > 
 	      ((float(second_cloud->size())/float(lone_cloud.size()))-mergingFraction_)) &&
@@ -969,12 +972,12 @@ RoadSearchCloudCollection RoadSearchCloudMakerAlgorithm::Clean(RoadSearchCloudCo
           
       }
         
-      float f_lone_shared=float(second_cloud->size()-unshared_hits.size())/float(lone_cloud.size());
-      float f_second_shared=float(second_cloud->size()-unshared_hits.size())/float(second_cloud->size());
-        
-      if ( ( (f_lone_shared > mergingFraction_)||(f_second_shared > mergingFraction_) ) 
+      double f_lone_shared=double(second_cloud->size()-unshared_hits.size())/double(lone_cloud.size());
+      double f_second_shared=double(second_cloud->size()-unshared_hits.size())/double(second_cloud->size());
+      
+      if ( ( (static_cast<unsigned int>(f_lone_shared*1E9) > static_cast<unsigned int>(mergingFraction_*1E9))||(static_cast<unsigned int>(f_second_shared*1E9) > static_cast<unsigned int>(mergingFraction_*1E9)) ) 
 	   && (lone_cloud.size()+unshared_hits.size() <= maxRecHitsInCloud_) ){
-          
+	
 	LogDebug("RoadSearch") << " Merge CloudA: " << raw_cloud_ctr << " with  CloudB: " << second_cloud_ctr 
 			       << " Shared fractions are " << f_lone_shared << " and " << f_second_shared;
           
@@ -982,22 +985,21 @@ RoadSearchCloudCollection RoadSearchCloudMakerAlgorithm::Clean(RoadSearchCloudCo
 	//  got a cloud to merge
 	//
 	for (unsigned int k=0; k<unshared_hits.size(); ++k) {
-	  lone_cloud.addHit(unshared_hits[k]->clone());
+	  lone_cloud.addHit(unshared_hits[k]);
 	}
           
 	already_gone[second_cloud_ctr-1]=true;
-          
-      }//end got a cloud to merge
         
+      }//end got a cloud to merge
+      
     }//interate over all second clouds
       
     output.push_back(lone_cloud);
-    delete temp_lone_cloud;
-      
+    
   }//iterate over all raw clouds
-    
+  
   LogDebug("RoadSearch") << "Found " << output.size() << " clean clouds.";
-    
+  
   return output;
 }
 
