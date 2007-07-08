@@ -5,16 +5,18 @@
  *
  *  Build the RPC DetLayers.
  *
- *  $Date: 2006/10/13 13:26:46 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/06/14 23:47:37 $
+ *  $Revision: 1.8 $
  *  \author N. Amapane - CERN
  */
 
 class DetLayer;
 class MuRingForwardDoubleLayer;
+class MuRodBarrelLayer;
 
 
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
+#include "RecoMuon/DetLayers/interface/MuDetRod.h"
 #include <vector>
 
 class MuonRPCDetLayerGeometryBuilder {
@@ -33,6 +35,10 @@ class MuonRPCDetLayerGeometryBuilder {
   static std::vector<DetLayer*> buildBarrelLayers(const RPCGeometry& geo);
     
  private:
+  static void makeBarrelLayers(std::vector<const GeomDet *> & geomDets,
+                               std::vector<MuRodBarrelLayer*> & result);
+  static void makeBarrelRods(std::vector<const GeomDet *> & geomDets,
+                             std::vector<const DetRod*> & result);
   static bool isFront(const RPCDetId & rpcId);
   static MuRingForwardDoubleLayer* buildLayer(int endcap,std::vector<int> rings, int station,int layer, std::vector<int>& rolls,const RPCGeometry& geo);          
     

@@ -173,22 +173,16 @@ MuonRPCDetLayerGeometryBuilder::buildBarrelLayers(const RPCGeometry& geo) {
   int region =0;
 
   for(int station = RPCDetId::minStationId; station <= RPCDetId::maxStationId; station++) {
+
+    vector<const GeomDet*> geomDets;
+
     for(int layer=RPCDetId::minLayerId; layer<= RPCDetId::maxLayerId;++layer){
-      
-      vector<const DetRod*> muDetRods;
       for(int sector = RPCDetId::minSectorId; sector <= RPCDetId::maxSectorId; sector++) {
-	vector<const GeomDet*> geomDets;
-	int nSubSectors = 0;
-	int lastSubSector = -1; 
 	for(int subsector = RPCDetId::minSubSectorId; subsector <= RPCDetId::maxSubSectorId; subsector++) {
 	  for(int wheel = RPCDetId::minRingBarrelId; wheel <= RPCDetId::maxRingBarrelId; wheel++) {
 	    for(int roll=RPCDetId::minRollId+1; roll <= RPCDetId::maxRollId; roll++){         
 	      const GeomDet* geomDet = geo.idToDet(RPCDetId(region,wheel,station,sector,layer,subsector,roll));
 	      if (geomDet) {
-		if (lastSubSector!=subsector) {
-		  lastSubSector=subsector;
-		  nSubSectors++;
-		}
 		geomDets.push_back(geomDet);
 		LogTrace(metname) << "get RPC Barrel roll " <<  RPCDetId(region,wheel,station,sector,layer,subsector,roll)
 				  << " at R=" << geomDet->position().perp()
@@ -197,83 +191,138 @@ MuonRPCDetLayerGeometryBuilder::buildBarrelLayers(const RPCGeometry& geo) {
 	    }
 	  }
 	}
-	
-	// ------>
-	//FIXME: find subsectors. As for 130, DetId number for subsectors is inconsistent.
-	
-	if (geomDets.size()==0) continue;
-
-	if (nSubSectors == 1) {
-	  muDetRods.push_back(new MuDetRod(geomDets));
-	  LogTrace(metname) << "  New MuDetRod with " << geomDets.size()
-			    << " rolls at R=" << geomDets.front()->position().perp()
-			    << ", phi=" << geomDets.front()->position().phi();
-	} else {
-	  //Sort in phi
-	  precomputed_value_sort(geomDets.begin(), geomDets.end(),geomsort::DetPhi());
-	  
-	  // Clusterize in phi - phi0
-	  float resolution(0.01); // rad
-	  float phi0 = float(geomDets.front()->position().phi());
-	  float phiMin = - float(resolution);
-	  float phiMax = float(geomDets.back()->position().phi()) - phi0 + resolution;
-
-	  ClusterizingHistogram hisPhi( int((phiMax-phiMin)/resolution) + 1,
-					phiMin, phiMax);
-
-	  vector<const GeomDet*>::iterator first = geomDets.begin();
-	  vector<const GeomDet*>::iterator last = geomDets.end();
-
-	  for (vector<const GeomDet*>::iterator i=first; i!=last; i++){
-	    hisPhi.fill(float((*i)->position().phi())-phi0);
-	    LogTrace(metname) << "C " << float((*i)->position().phi())-phi0;
-	  }
-	  vector<float> phiClust = hisPhi.clusterize(resolution);
-
-	  // LogTrace(metname) << "     Found " << phiClust.size() << " clusters in Phi, ";
-	
-	  vector<const GeomDet*>::iterator rodStart = first;
-	  vector<const GeomDet*>::iterator separ = first;
-    
-	  for (unsigned int i=0; i<phiClust.size(); i++) {
-	    float phiSepar;
-	    if (i<phiClust.size()-1) {
-	      phiSepar = (phiClust[i] + phiClust[i+1])/2.f;
-	    } else {
-	      phiSepar = phiMax;
-	    }
-
-	    // LogTrace(metname) << "       cluster " << i
-	    // << " phisepar " << phiSepar <<endl;
-	    while (separ < last && float((*separ)->position().phi())-phi0 < phiSepar ) {
-	      // LogTrace(metname) << "         roll at dphi:  " << float((*separ)->position().phi())-phi0;
-	      separ++;
-	    }
-
-	    if (int(separ-rodStart) > 0) {
-	      muDetRods.push_back(new MuDetRod(rodStart,separ));
-	      LogTrace(metname) << "  New MuDetRod with " << int(separ-rodStart)
-				<< " rolls at R=" << (*rodStart)->position().perp()
-				<< ", phi=" << float((*rodStart)->position().phi());
-	    }
-	    rodStart = separ; 
-	  }
-	}
-	/// <------------
-
-      }
-      if (muDetRods.size()!=0) {
-	result.push_back(new MuRodBarrelLayer(muDetRods));  
-	LogTrace(metname) << "    New MuRodBarrelLayer with " << muDetRods.size()
-			  << " rods, at R " << result.back()->specificSurface().radius();
       }
     }
+    makeBarrelLayers(geomDets, result);
   }
   
+
   for(vector<MuRodBarrelLayer*>::const_iterator it = result.begin(); it != result.end(); it++)
     detlayers.push_back((DetLayer*)(*it));
 
   return detlayers;
+}
+
+
+void MuonRPCDetLayerGeometryBuilder::makeBarrelLayers(vector<const GeomDet *> & geomDets,
+                                                      vector<MuRodBarrelLayer*> & result)
+{
+  const std::string metname = "Muon|RPC|RecoMuon|RecoMuonDetLayers|MuonRPCDetLayerGeometryBuilder";
+
+  //Sort in R
+  precomputed_value_sort(geomDets.begin(), geomDets.end(),geomsort::DetR());
+
+  // Clusterize in phi - phi0
+  float resolution(25); // cm
+  float r0 = float(geomDets.front()->position().perp());
+  float rMin = - float(resolution);
+  float rMax = float(geomDets.back()->position().perp()) - r0 + resolution;
+
+  ClusterizingHistogram hisR( int((rMax-rMin)/resolution) + 1,
+                                rMin, rMax);
+
+  vector<const GeomDet*>::iterator first = geomDets.begin();
+  vector<const GeomDet*>::iterator last = geomDets.end();
+
+  for (vector<const GeomDet*>::iterator i=first; i!=last; i++){
+    hisR.fill(float((*i)->position().perp())-r0);
+    LogTrace(metname) << "R " << float((*i)->position().perp())-r0;
+  }
+  vector<float> rClust = hisR.clusterize(resolution);
+
+  // LogTrace(metname) << "     Found " << phiClust.size() << " clusters in Phi, ";
+
+  vector<const GeomDet*>::iterator layerStart = first;
+  vector<const GeomDet*>::iterator separ = first;
+
+  for (unsigned int i=0; i<rClust.size(); i++) {
+    float rSepar;
+    if (i<rClust.size()-1) {
+      rSepar = (rClust[i] + rClust[i+1])/2.f;
+    } else {
+      rSepar = rMax;
+    }
+
+    // LogTrace(metname) << "       cluster " << i
+    // << " phisepar " << phiSepar <<endl;
+    while (separ < last && float((*separ)->position().perp())-r0 < rSepar ) {
+      // LogTrace(metname) << "         roll at dphi:  " << float((*separ)->position().phi())-phi0;
+      separ++;
+    }
+
+    if (int(separ-layerStart) > 0) {
+      // we have a layer in R.  Now separate it into rods
+      vector<const DetRod*> rods;
+      vector<const GeomDet*> layerDets(layerStart, separ);
+      makeBarrelRods(layerDets, rods);
+
+      if (rods.size()!=0) {
+        result.push_back(new MuRodBarrelLayer(rods));
+        LogTrace(metname) << "    New MuRodBarrelLayer with " << rods.size()
+                          << " rods, at R " << result.back()->specificSurface().radius();
+      }
+    }
+    layerStart = separ;
+  }
+}
+
+
+void
+MuonRPCDetLayerGeometryBuilder::makeBarrelRods(vector<const GeomDet *> & geomDets,
+                                               vector<const DetRod*> & result)
+{
+  const std::string metname = "Muon|RPC|RecoMuon|RecoMuonDetLayers|MuonRPCDetLayerGeometryBuilder";
+
+  //Sort in phi
+  precomputed_value_sort(geomDets.begin(), geomDets.end(),geomsort::DetPhi());
+
+  // Clusterize in phi - phi0
+  float resolution(0.01); // rad
+  float phi0 = float(geomDets.front()->position().phi());
+  float phiMin = - float(resolution);
+  float phiMax = float(geomDets.back()->position().phi()) - phi0 + resolution;
+
+  ClusterizingHistogram hisPhi( int((phiMax-phiMin)/resolution) + 1,
+                                phiMin, phiMax);
+
+  vector<const GeomDet*>::iterator first = geomDets.begin();
+  vector<const GeomDet*>::iterator last = geomDets.end();
+
+  for (vector<const GeomDet*>::iterator i=first; i!=last; i++){
+    hisPhi.fill(float((*i)->position().phi())-phi0);
+    LogTrace(metname) << "C " << float((*i)->position().phi())-phi0;
+  }
+  vector<float> phiClust = hisPhi.clusterize(resolution);
+
+  // LogTrace(metname) << "     Found " << phiClust.size() << " clusters in Phi, ";
+
+  vector<const GeomDet*>::iterator rodStart = first;
+  vector<const GeomDet*>::iterator separ = first;
+
+  for (unsigned int i=0; i<phiClust.size(); i++) {
+    float phiSepar;
+    if (i<phiClust.size()-1) {
+      phiSepar = (phiClust[i] + phiClust[i+1])/2.f;
+    } else {
+      phiSepar = phiMax;
+    }
+
+    // LogTrace(metname) << "       cluster " << i
+    // << " phisepar " << phiSepar <<endl;
+    while (separ < last && float((*separ)->position().phi())-phi0 < phiSepar ) {
+      // LogTrace(metname) << "         roll at dphi:  " << float((*separ)->position().phi())-phi0;
+      separ++;
+    }
+
+    if (int(separ-rodStart) > 0) {
+      result.push_back(new MuDetRod(rodStart, separ));
+      LogTrace(metname) << "  New MuDetRod with " << int(separ-rodStart)
+                        << " rolls at R=" << (*rodStart)->position().perp()
+                        << ", phi=" << float((*rodStart)->position().phi());
+
+    }
+    rodStart = separ;
+  }
 }
 
 
