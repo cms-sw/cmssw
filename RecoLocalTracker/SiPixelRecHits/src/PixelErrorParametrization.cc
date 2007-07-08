@@ -3,6 +3,10 @@
 //                                             - vector<float>& ybarrel_1D = (ybarrel_3D[i_size])[i_alpha];
 //                                    03/27/07 - fixed index bug
 //                                             - account for big pixels in barrel x errors
+//                                    07/03/07 - adapt the code so that it can read the new error parameterization 
+//                                               from ../data/residuals.dat produced by CalibTracker/SiPixelErrorEstimation
+//                                             - boolean switch "UseNewParametrization" in ../data/PixelCPEParmError.cfi 
+//                                               decides between new or old error parameterization  
 
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelErrorParametrization.h"
 
@@ -27,6 +31,22 @@
 using namespace std;
 using namespace edm;
 
+const float math_pi = 3.14159265;
+const float pitch_x = 0.0100;
+const float pitch_y = 0.0150;
+
+// errors for single big pixels
+const float error_yb_big_pix = 0.0070;
+const float error_xb_big_pix = 0.0030;
+const float error_yf_big_pix = 0.0068;
+const float error_xf_big_pix = 0.0040;
+
+// alpha ranges for each of the three pixel X-sizes: 1, 2 and >2 
+float aa_min[3] = {1.50, 1.45, 1.40};
+float aa_max[3] = {1.75, 1.70, 1.65};
+
+bool verbose = false;
+
 //-----------------------------------------------------------------------------
 //  
 //-----------------------------------------------------------------------------
@@ -35,89 +55,216 @@ PixelErrorParametrization::PixelErrorParametrization(edm::ParameterSet const& co
   // static SimpleConfigurable<string> paramType("oscar", "CMSsimulation");
   theParametrizationType = 
     conf.getParameter<string>("PixelErrorParametrization");
-
-  ////////////////////////////////////////////////////////
-  // define alpha and beta ranges-bins for Y BARREL errors 
-  /////////////////////////////////////////////////////////
   
-  // MAGIC NUMBERS: alpha bins 
-  a_min = 1.37078;
-  a_max = 1.77078;
-  a_bin = 0.1;
-
-  // MAGIC NUMBERS: beta ranges depending on y cluster size
-  brange_yb.resize(6);
-  brange_yb[0] = pair<float,float>(0., 0.6);   // ysize=1   // Gavril: this only defines 2 ranges 
-  brange_yb[1] = pair<float,float>(0.1, 0.9);     // ysize = 2
-  brange_yb[2] = pair<float,float>(0.6, 1.05);  // ysize = 3
-  brange_yb[3] = pair<float,float>(0.9, 1.15);  // ysize = 4 
-  brange_yb[4] = pair<float,float>(1.05, 1.22); // ysize = 5
-  brange_yb[5] = pair<float,float>(1.15, 1.41); // ysize >= 6 
-
-  /////////////////////////////////////////////////////
-  // fill Y-BARREL matrix with sigma from gaussian fit 
-  // of residuals
-  /////////////////////////////////////////////////////
-  // fill with the resolution points in order 
-  // to make an error interpolation 
-
-  readYB( ybarrel_3D, "yres_npix", "_alpha", "_b.vec");
-
-  ///////////////////////////////////////////////////////
-  // define alpha and beta range/bins for X-BARREL errors
-  ///////////////////////////////////////////////////////
+  useNewParametrization =  conf.getParameter<bool>("UseNewParametrization");
   
-  // MAGIC NUMBERS:
-  // abs(pi/2-beta) bins depending on X cluster size
-  bbins_xb.resize(3);
-  // xsize = 1 all beta range
-  (bbins_xb[0]).resize(1); 
-  (bbins_xb[0])[0] = 100.; 
-  // xsize = 2 4 beta-bins
-  (bbins_xb[1]).resize(3);
-  (bbins_xb[1])[0] = 0.7; 
-  (bbins_xb[1])[1] = 1.; 
-  (bbins_xb[1])[2] = 1.2; 
-  // xsize >= 3 same 4 beta-bins as for xsize=2 // Gavril: checked with Susanna and fixed index from "1" to "2", 03/16/07
-  (bbins_xb[2]).resize(3);
-  (bbins_xb[2])[0] = 0.7; 
-  (bbins_xb[2])[1] = 1.; 
-  (bbins_xb[2])[2] = 1.2; 
+  useSigma = conf.getParameter<bool>("UseSigma");
 
-  ///////////////////////////////////////////////////////
-  // fill X-BARREL matrix with parameters to perform a 
-  // linear parametrization of x erros
-  ///////////////////////////////////////////////////////
-  // for each beta bin: p1 + p2*alpha
-
-  readXB( xbarrel_3D, "xpar_npix", "_beta", "_b.vec");
-
-  ///////////////////////////////////////////////////////
-  // define alpha and beta range/bins for Y-FORWARD errors
-  ///////////////////////////////////////////////////////
-
-  // MAGIC NUMBERS:
-  // abs(pi/2-beta) range independent on Y cluster size
-  brange_yf = pair<float,float>(0.3, 0.4);     
-
-  //////////////////////////////////////////////////////
-  // fill Y-FORWARD matrix with parameters to perform  
-  // a parametrization of Y erros
-  //////////////////////////////////////////////////////
-  // for npix=1 and all alpha range:
-  // p1 + p2*beta + p3*beta**2 + p4*beta**3 + p5*beta**4
-  // for npix>=2 and all alpha range:
-  // p1 + p2*beta + p3*beta**2 
-
-  readF( yforward_3D, "ypar_npix", "_alpha", "_f.vec");
-
-  //////////////////////////////////////////////////////
-  // fill X-FORWARD matrix with parameters to perform  
-  // a linear parametrization on alpha for all beta range
-  //////////////////////////////////////////////////////
-
-  readF( xforward_3D, "xpar_npix", "_beta", "_f.vec");
-}     
+  if ( !useNewParametrization )
+    {
+      if (verbose)
+	{
+	  cout << endl;
+	  cout << "-------------------- Will do OLD pixel hit error parameterization !!! --------------------------------- " << endl;
+	  cout << endl;
+	}
+      
+      ////////////////////////////////////////////////////////
+      // define alpha and beta ranges-bins for Y BARREL errors 
+      /////////////////////////////////////////////////////////
+      
+      // MAGIC NUMBERS: alpha bins 
+      a_min = 1.37078;
+      a_max = 1.77078;
+      a_bin = 0.1;
+      
+      // MAGIC NUMBERS: beta ranges depending on y cluster size
+      brange_yb.resize(6);
+      brange_yb[0] = pair<float,float>(0., 0.6);   // ysize=1   // Gavril: this only defines 2 ranges 
+      brange_yb[1] = pair<float,float>(0.1, 0.9);     // ysize = 2
+      brange_yb[2] = pair<float,float>(0.6, 1.05);  // ysize = 3
+      brange_yb[3] = pair<float,float>(0.9, 1.15);  // ysize = 4 
+      brange_yb[4] = pair<float,float>(1.05, 1.22); // ysize = 5
+      brange_yb[5] = pair<float,float>(1.15, 1.41); // ysize >= 6 
+      
+      // fill Y-BARREL matrix with sigma from gaussian fit 
+      // of residuals
+      // fill with the resolution points in order 
+      // to make an error interpolation 
+      
+      readYB( ybarrel_3D, "yres_npix", "_alpha", "_b.vec");
+      
+      // define alpha and beta range/bins for X-BARREL errors
+      
+      // MAGIC NUMBERS:
+      // abs(pi/2-beta) bins depending on X cluster size
+      bbins_xb.resize(3);
+      // xsize = 1 all beta range
+      (bbins_xb[0]).resize(1); 
+      (bbins_xb[0])[0] = 100.; 
+      // xsize = 2 4 beta-bins
+      (bbins_xb[1]).resize(3);
+      (bbins_xb[1])[0] = 0.7; 
+      (bbins_xb[1])[1] = 1.; 
+      (bbins_xb[1])[2] = 1.2; 
+      // xsize >= 3 same 4 beta-bins as for xsize=2 // Gavril: checked with Susanna and fixed index from "1" to "2", 03/16/07
+      (bbins_xb[2]).resize(3);
+      (bbins_xb[2])[0] = 0.7; 
+      (bbins_xb[2])[1] = 1.; 
+      (bbins_xb[2])[2] = 1.2; 
+      
+      // fill X-BARREL matrix with parameters to perform a 
+      // linear parametrization of x erros
+      // for each beta bin: p1 + p2*alpha
+      
+      readXB( xbarrel_3D, "xpar_npix", "_beta", "_b.vec");
+      
+      // define alpha and beta range/bins for Y-FORWARD errors
+      
+      // MAGIC NUMBERS:
+      // abs(pi/2-beta) range independent on Y cluster size
+      brange_yf = pair<float,float>(0.3, 0.4);     
+      
+      // fill Y-FORWARD matrix with parameters to perform  
+      // a parametrization of Y erros
+      // for npix=1 and all alpha range:
+      // p1 + p2*beta + p3*beta**2 + p4*beta**3 + p5*beta**4
+      // for npix>=2 and all alpha range:
+      // p1 + p2*beta + p3*beta**2 
+      
+      readF( yforward_3D, "ypar_npix", "_alpha", "_f.vec");
+      
+      // fill X-FORWARD matrix with parameters to perform  
+      // a linear parametrization on alpha for all beta range
+      
+      readF( xforward_3D, "xpar_npix", "_beta", "_f.vec");
+    }     
+  else
+    {
+      if (verbose)
+	{
+	  cout << endl;
+	  cout << "-------------------- Will do NEW pixel hit error parameterization !!! --------------------------------- " << endl;
+	  cout << endl;
+	}
+      
+      a_min = 1.37078;
+      a_max = 1.77078;
+      a_bin = 0.1;
+      
+      ys_bl[0] = 0.05;
+      ys_bh[0] = 0.50;
+      
+      ys_bl[1] = 0.15; 
+      ys_bh[1] = 0.90;
+      
+      ys_bl[2] = 0.70; 
+      ys_bh[2] = 1.05;
+      
+      ys_bl[3] = 0.95; 
+      ys_bh[3] = 1.15;
+      
+      ys_bl[4] = 1.15; 
+      ys_bh[4] = 1.20;
+      
+      ys_bl[5] = 1.20; 
+      ys_bh[5] = 1.40;
+      
+      edm::FileInPath file( "RecoLocalTracker/SiPixelRecHits/data/residuals.dat" );
+      const char* fname = (file.fullPath()).c_str();
+      
+      FILE* datfile;
+      cout << "fname = " << fname << endl;
+      
+      if ( (datfile=fopen(fname,"r")) == NULL ) 
+	{
+	  cout << "Can not open the data file " << endl;
+	  exit(-1);
+	}
+      
+      vec_error_XB.clear();
+      vec_error_YB.clear();
+      vec_error_XF.clear();
+      vec_error_YF.clear();
+      
+      while ( !feof(datfile) ) 
+	{
+	  int detid      = -999;
+	  int size       = -999;
+	  int angle_ind1 = -999;
+	  int angle_ind2 = -999;
+	  float sigma    = -999.9;
+	  float rms      = -999.9;
+	  
+	  fscanf( datfile,
+		  "%d %d %d %d %f %f \n", 
+		  &detid, &size, &angle_ind1, &angle_ind2, &sigma, &rms );
+	  
+	  float error = -9999.9;
+	  if (verbose)
+	    {
+	      if ( useSigma )
+		{
+		  cout << "-------------------------- Use    error = sigma     ------------------------- " << endl; 
+		  error = sigma;
+		}
+	      else 
+		{
+		  cout << "-------------------------- Use    error = rms     ------------------------- " << endl; 
+		  error = rms;
+		}
+	    }
+	  
+	  if      ( detid == 1 )
+	    vec_error_YB.push_back( error );
+	  else if ( detid == 2 )
+	    vec_error_XB.push_back( error );
+	  else if ( detid == 3 )
+	    vec_error_YF.push_back( error );
+	  else if ( detid == 4 )
+	    vec_error_XF.push_back( error );
+	  else 
+	    {
+	      cout << " PixelErrorParametrization::PixelErrorParametrization: Wrong ID !!!" << endl;
+	      assert(0);
+	    }
+	}
+      
+      int n_entries_yb = 240; // number of Y barrel constants to be read from the residuals.dat file
+      if ( (int)vec_error_YB.size() != n_entries_yb )
+	{
+	  cout << " PixelErrorParametrization::PixelErrorParametrization: " << endl;
+	  cout << " Number of Y barrel constants read different than expected !!!" << endl;
+	  cout << " Expected " << n_entries_yb << " and found " << (int)vec_error_YB.size() <<  endl;
+	  assert(0);
+	}
+      int n_entries_xb = 120; // number of X barrel constants to be read from the residuals.dat file
+      if ( (int)vec_error_XB.size() != n_entries_xb )
+	{
+	  cout << " PixelErrorParametrization::PixelErrorParametrization: " << endl;
+	  cout << " Number of X barrel constants read different than expected !!!" << endl;
+	  cout << " Expected " << n_entries_xb << " and found " << (int)vec_error_XB.size() <<  endl;
+	  assert(0);
+	}
+      int n_entries_yf = 20; // number of Y forward constants to be read from the residuals.dat file
+      if ( (int)vec_error_YF.size() != n_entries_yf )
+	{
+	  cout << " PixelErrorParametrization::PixelErrorParametrization: " << endl;
+	  cout << " Number of Y forward constants read different than expected !!!" << endl;
+	  cout << " Expected " << n_entries_yf << " and found " << (int)vec_error_YF.size() <<  endl;
+	  assert(0);
+	}
+      int n_entries_xf = 20; // number of X barrel constants to be read from the residuals.dat file
+      if ( (int)vec_error_XF.size() != n_entries_xf )
+	{
+	  cout << " PixelErrorParametrization::PixelErrorParametrization: " << endl;
+	  cout << " Number of X forward constants read different than expected !!!" << endl;
+	  cout << " Expected " << n_entries_xf << " and found " << (int)vec_error_XF.size() <<  endl;
+	  assert(0);
+	}
+    }
+  
+}
 
 
 //-----------------------------------------------------------------------------
@@ -131,209 +278,487 @@ PixelErrorParametrization::~PixelErrorParametrization(){}
 //-----------------------------------------------------------------------------
 // Gavril: add big pixel info (at this time only bigIn X is used for barrel x errors), 03/27/07
 pair<float,float> 
-PixelErrorParametrization::getError(GeomDetType::SubDetector pixelPart, 
-				    int sizex, int sizey, 
-				    float alpha, float beta,
-				    bool bigInX, bool bigInY)
+PixelErrorParametrization::getError( GeomDetType::SubDetector pixelPart, 
+				     int sizex, int sizey, 
+				     float alpha, float beta,
+				     bool bigInX, bool bigInY)
 {
   pair<float,float> element;
-
+  
   ///
   /// Temporary patch for CMSSW_1_3_0. Handle NANs received from bad tracks
   /// to avoid job crash and return binary errors.
   ///
-  if( isnan(alpha) || isnan(beta) ) {
-
-    LogError ("NANcatched") << "PixelErrorParametrization::getError: NAN catched in angles alpha or beta" ; 
- 
-    element = pair<float,float>(0.010/sqrt(12.), 0.015/sqrt(12.));
-    return element;
-
-  }
+  if( isnan(alpha) || isnan(beta) ) 
+    {
+      LogError ("NANcatched") << "PixelErrorParametrization::getError: NAN catched in angles alpha or beta" ; 
+      
+      element = pair<float,float>(0.010/sqrt(12.), 0.015/sqrt(12.));
+      return element;
+    }
   
-  switch (pixelPart) {
-  case GeomDetEnumerators::PixelBarrel:
-    element = pair<float,float>(error_XB(sizex, alpha, beta, bigInX), // Gavril: add big pixel flag here. 03/27/07
-				error_YB(sizey, alpha, beta, bigInY));
-    break;
-  case GeomDetEnumerators::PixelEndcap:
-    element =  pair<float,float>(error_XF(sizex, alpha, beta, bigInX),
-				 error_YF(sizey, alpha, beta, bigInY));
-    break;
-  default:
-    LogDebug ("PixelErrorParametrization::getError") 
-      << "PixelErrorParametrization:: a non-pixel detector type in here?" ;
-    //  &&& Should throw an exception here!
-    assert(0);
-  }
-
+  switch (pixelPart) 
+    {
+    case GeomDetEnumerators::PixelBarrel:
+      element = pair<float,float>(error_XB(sizex, alpha, beta, bigInX), // Gavril: add big pixel flag here. 03/27/07
+				  error_YB(sizey, alpha, beta, bigInY));
+      break;
+    case GeomDetEnumerators::PixelEndcap:
+      element =  pair<float,float>(error_XF(sizex, alpha, beta, bigInX),
+				   error_YF(sizey, alpha, beta, bigInY));
+      break;
+    default:
+      LogDebug ("PixelErrorParametrization::getError") 
+	<< "PixelErrorParametrization:: a non-pixel detector type in here?" ;
+      //  &&& Should throw an exception here!
+      assert(0);
+    }
+  
   LogDebug ("PixelErrorParametrization::getError") << " ErrorMatrix gives error: " 
-						  << element.first << " , " << element.second;
+						   << element.first << " , " << element.second;
   
   return element;
 }
 
-
-
-
-//-----------------------------------------------------------------------------
-//  
-//-----------------------------------------------------------------------------
 float PixelErrorParametrization::error_XB(int sizex, float alpha, float beta, bool bigInX)
 {
-  LogDebug("PixelErrorParametrization::error_XB") << "I'M AT THE BEGIN IN ERROR XB METHOD";
-  bool barrelPart = true;
- // find size index
-  int i_size = min(sizex-1,2);
-
-  // find beta index
-  int i_beta = betaIndex(i_size, bbins_xb[i_size], beta);
-
-  // if ( i_size==0 ) return linParametrize(barrelPart, i_size, i_beta, alpha);
-  //else return quadParametrize(barrelPart, i_size, i_beta, alpha);
-
-  // Gavril: fix for big pixels at the module center
-  double pitch_x = 0.0100;
-  if ( bigInX && sizex == 1 )
-    return pitch_x/sqrt(12.0);
-  else
-    return quadParametrize(barrelPart, i_size, i_beta, alpha);
-}
-
-
-
-//-----------------------------------------------------------------------------
-//  
-//-----------------------------------------------------------------------------
-float PixelErrorParametrization::error_XF(int sizex, float alpha, float beta, bool bigInX)
-{
-  LogDebug("PixelErrorParametrization::error_XF") << "I'M AT THE BEGIN IN ERROR XF METHOD";
-  
-  bool barrelPart = false;
-  //symmetrization w.r.t. orthogonal direction
-  float alpha_prime = fabs(3.14159/2.-alpha);
-  // find x size index
-  int i_size = min(sizex-1,2);
-  // no beta parametrization!!!
-  int i_beta = 0;
-  // find beta index
-  // int i_beta = betaIndex(i_size, bbins_xf, beta);
-  LogDebug("PixelErrorParametrization::error_XF") << "size index = " << i_size
-						  << "no beta index, "
-						  << " alphaprime = " << alpha_prime;
-  double pitch_x = 0.0100;
-  if ( bigInX && sizex == 1 )
-    return pitch_x/sqrt(12.0);
-  else
-    return linParametrize(barrelPart, i_size, i_beta, alpha_prime);
-}
-
-
-
-//-----------------------------------------------------------------------------
-//  
-//-----------------------------------------------------------------------------
-float PixelErrorParametrization::error_YB(int sizey, float alpha, float beta, bool bigInY)
-{  
-  LogDebug("PixelErrorParametrization::error_YB") << "I'M AT THE BEGIN IN ERROR YB METHOD";
-
-  double pitch_y = 0.0150;
- 
-  if ( bigInY && sizey == 1 )
+  if ( !useNewParametrization )
     {
-      return pitch_y/sqrt(12.0);
+      LogDebug("PixelErrorParametrization::error_XB") << "I'M AT THE BEGIN IN ERROR XB METHOD";
+      bool barrelPart = true;
+      // find size index
+      int i_size = min(sizex-1,2);
+      
+      // find beta index
+      int i_beta = betaIndex(i_size, bbins_xb[i_size], beta);
+      
+      // if ( i_size==0 ) return linParametrize(barrelPart, i_size, i_beta, alpha);
+      //else return quadParametrize(barrelPart, i_size, i_beta, alpha);
+      
+      // Gavril: fix for big pixels at the module center
+      //double pitch_x = 0.0100;
+      if ( bigInX && sizex == 1 )
+	return pitch_x/sqrt(12.0);
+      else
+	return quadParametrize(barrelPart, i_size, i_beta, alpha);
     }
   else
     {
-      int i_alpha;
-      int i_size = min(sizey-1,5);
+      float error_xb = -999.9;
       
-      LogDebug("PixelErrorParametrization::error_YB") << "I found size index = " << i_size;
+      if ( verbose )
+	{
+	  cout << " ---------- 2 ) error_XB: " << endl;
+	  cout << " sizex = "  << sizex  << endl;
+	  cout << " alpha = "  << alpha  << endl;
+	  cout << " beta  = "  << beta   << endl;
+	  cout << " bigInX = " << bigInX << endl;
+	}
       
-      if (sizey < 4) 
-	{      // 3 alpha bins
-	  if (alpha <= a_min + a_bin) 
-	    { 
-	      i_alpha = 0;
-	    } 
-	  else if (alpha < a_max-a_bin) 
-	    {
-	      i_alpha = 1;
-	    }
-	  else 
-	    {
-	      i_alpha = 2; 
-	    }
+      if ( bigInX && sizex == 1 )
+	{
+	  //error_xb = pitch_x/sqrt(12.0);
+	  error_xb = error_xb_big_pix;
 	}
       else
-	{ // 1 alpha bin 
-	  i_alpha = 0;
+	{
+	  float alpha_rad = fabs(alpha);
+	  //float beta_rad  = fabs(beta);
+	  float betap_rad = fabs( math_pi/2.0 - beta );
+	  //float alphap_rad = fabs( math_pi/2.0 - alpha );
+	  
+	  if ( sizex > 3 ) sizex = 3;
+	  
+	  int ind_sizex = sizex - 1;
+	  int ind_beta  = -999;
+	  int ind_alpha = -999;
+	  
+	  if      (                     betap_rad <= 0.7 ) ind_beta = 0;
+	  else if ( 0.7 <  betap_rad && betap_rad <= 1.0 ) ind_beta = 1;
+	  else if ( 1.0 <  betap_rad && betap_rad <= 1.2 ) ind_beta = 2;
+	  else if ( 1.2 <= betap_rad                     ) ind_beta = 3;
+	  else 
+	    {
+	      cout << " Wrong betap_rad = " << betap_rad << " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " << endl;
+	      assert(0);
+	    }
+
+	  if      ( alpha_rad <= aa_min[ind_sizex] ) ind_alpha = 0;
+	  else if ( alpha_rad >= aa_max[ind_sizex] ) ind_alpha = 9;
+	  else
+	    ind_alpha = (int) ( ( alpha_rad - aa_min[ind_sizex] ) / ( ( aa_max[ind_sizex] - aa_min[ind_sizex] ) / 10.0 ) );  
+	  
+	  if ( verbose )
+	    {
+	      cout << "ind_sizex = " << ind_sizex << endl;
+	      cout << "ind_alpha = " << ind_alpha << endl;
+	      cout << "ind_beta  = " << ind_beta  << endl;
+	    }
+	  
+	  // There are 4 beta bins with 10 alpha bins  for each sizex
+	  int index = 40*ind_sizex + 10*ind_beta + ind_alpha;
+	  
+	  if ( index < 0 || index >= 120  )
+	    {
+	      cout << " Wrong index !!!" << endl;
+	      assert(0);
+	    }
+	  
+	  error_xb = vec_error_XB[index];
+	  
 	}
       
-      LogDebug("PixelErrorParametrization::error_YB") << "I found alpha index = " << i_alpha;
+      if ( verbose )
+	cout << "error_xb = " << error_xb << endl;
       
-      // vector of beta parametrization
-      //vector<float> ybarrel_1D = (ybarrel_3D[i_size])[i_alpha];
-      vector<float>& ybarrel_1D = (ybarrel_3D[i_size])[i_alpha]; // suggestion to speed up the code by Patrick/Vincenzo
-      
-      LogDebug("PixelErrorParametrization::error_YB") << " beta vec has dimensions = " << ybarrel_1D.size()
-						      << " beta = " << beta 
-						      << " beta max = " << brange_yb[i_size].second 
-						      << " beta min = " << brange_yb[i_size].first;
-      
-      // beta --> abs(pi/2-beta) to be symmetric w.r.t. pi/2 axis
-      float beta_prime = fabs(3.14159/2.-beta);
-           
-      if ( beta_prime <= brange_yb[i_size].first )// Gavril: brange_yb[0].first == 0.0; when i_size==0, beta_prime is never less than 0
-	{ 
-	  return ybarrel_1D[0];
-	}
-      else if ( beta_prime >= brange_yb[i_size].second )
-	{
-	  //return ybarrel_1D[ybarrel_1D.size()-1];
-	  return pitch_y / sqrt(12.0); // Gavril: we are in un-physical beta_prime range; return large error, 03/27/07 
-	} 
-      else 
-	{
-	  return interpolation(ybarrel_1D, beta_prime, brange_yb[i_size] );
-	}  
+      return error_xb;
     }
+  
 }
 
-//-----------------------------------------------------------------------------
-//  
-//-----------------------------------------------------------------------------
-float PixelErrorParametrization::error_YF(int sizey, float alpha, float beta, bool bigInY)
+
+float PixelErrorParametrization::error_XF(int sizex, float alpha, float beta, bool bigInX)
 {
-  LogDebug("PixelErrorParametrization::error_YF") << "I'M AT THE BEGIN IN ERROR YF METHOD";
-
-  float err_par = 0.0;
-  double pitch_y = 0.0150;
-
-  if ( bigInY && sizey == 1 )
+  if ( !useNewParametrization )
     {
-      err_par = pitch_y/sqrt(12.0);
+      LogDebug("PixelErrorParametrization::error_XF") << "I'M AT THE BEGIN IN ERROR XF METHOD";
+      
+      bool barrelPart = false;
+      //symmetrization w.r.t. orthogonal direction
+      float alpha_prime = fabs(3.14159/2.-alpha);
+      // find x size index
+      int i_size = min(sizex-1,2);
+      // no beta parametrization!!!
+      int i_beta = 0;
+      // find beta index
+      // int i_beta = betaIndex(i_size, bbins_xf, beta);
+      LogDebug("PixelErrorParametrization::error_XF") << "size index = " << i_size
+						      << "no beta index, "
+						      << " alphaprime = " << alpha_prime;
+      //double pitch_x = 0.0100;
+      if ( bigInX && sizex == 1 )
+	return pitch_x/sqrt(12.0);
+      else
+	return linParametrize(barrelPart, i_size, i_beta, alpha_prime);
     }
   else
     {
-      // find y size index
-      int i_size = min(sizey-1,1);
-      // no parametrization in alpha
-      int i_alpha = 0;
-      // beta --> abs(pi/2-beta) to be symmetric w.r.t. pi/2 axis
-      float beta_prime = fabs(3.14159/2.-beta);
-      if (beta_prime < brange_yf.first) beta_prime = brange_yf.first;
-      if (beta_prime > brange_yf.second) beta_prime = brange_yf.second;
-      err_par = 0.0;
-      for(int ii=0; ii < (int)( (yforward_3D[i_size])[i_alpha] ).size(); ii++){
-	err_par += ( (yforward_3D[i_size])[i_alpha] )[ii] * pow(beta_prime,ii);
-      }
+      float error_xf = -999.9;
+      
+      if ( verbose )
+	{
+	  cout << " ---------- 4 ) error_XF:" << endl;
+	  cout << " sizex = "  << sizex  << endl;
+	  cout << " alpha = "  << alpha  << endl;
+	  cout << " beta  = "  << beta   << endl;
+	  cout << " bigInX = " << bigInX << endl;
+	}
+      
+      if ( bigInX && sizex == 1 )
+	{
+	  //error_xf = pitch_x/sqrt(12.0);
+	  error_xf = error_xf_big_pix;
+	}
+      else
+	{
+	  //float alpha_rad = fabs(alpha);
+	  //float beta_rad  = fabs(beta);
+	  //float betap_rad = fabs( math_pi/2.0 - beta );
+	  float alphap_rad = fabs( math_pi/2.0 - alpha );
+	  
+	  if ( sizex > 2 ) sizex = 2;
+	  
+	  int ind_sizex = sizex - 1;
+	  int ind_alpha  = -9999; 
+	  
+	  if ( sizex == 1 )
+	    {
+	      if      ( alphap_rad < 0.15 ) ind_alpha = 0;
+	      else if ( alphap_rad > 0.30 ) ind_alpha = 9;
+	      else 
+		ind_alpha = (int) ( ( alphap_rad - 0.15 ) / ( ( 0.30 - 0.15 ) / 10.0 ) );  
+	    }
+	  if ( sizex > 1 )
+	    {
+	      if      ( alphap_rad < 0.15 ) ind_alpha = 0;
+	      else if ( alphap_rad > 0.50 ) ind_alpha = 9;
+	      else 
+		ind_alpha = (int) ( ( alphap_rad - 0.15 ) / ( ( 0.50 - 0.15 ) / 10.0 ) );  
+	    }
+	  
+	  if ( verbose )
+	    {
+	      cout << "ind_sizex = " << ind_sizex << endl;
+	      cout << "ind_alpha = " << ind_alpha << endl;
+	    }
+	  
+	  int index = 10*ind_sizex + ind_alpha;
+	  
+	  if ( index < 0 || index >= 20  )
+	    {
+	      cout << " Wrong index !!!" << endl;
+	      assert(0);
+	    }
+	  
+	  error_xf = vec_error_XF[index];
+	  
+	}
+      
+      if ( verbose )
+	cout << "error_xf = " << error_xf << endl;
+      
+      return error_xf;
     }
   
-  return err_par; 
 }
 
 
+float PixelErrorParametrization::error_YB(int sizey, float alpha, float beta, bool bigInY)
+{  
+  if ( !useNewParametrization )
+    {
+      LogDebug("PixelErrorParametrization::error_YB") << "I'M AT THE BEGIN IN ERROR YB METHOD";
+      
+      //double pitch_y = 0.0150;
+      
+      if ( bigInY && sizey == 1 )
+	{
+	  return pitch_y/sqrt(12.0);
+	}
+      else
+	{
+	  int i_alpha;
+	  int i_size = min(sizey-1,5);
+	  
+	  LogDebug("PixelErrorParametrization::error_YB") << "I found size index = " << i_size;
+	  
+	  if (sizey < 4) 
+	    {      // 3 alpha bins
+	      if (alpha <= a_min + a_bin) 
+		{ 
+		  i_alpha = 0;
+		} 
+	      else if (alpha < a_max-a_bin) 
+		{
+		  i_alpha = 1;
+		}
+	      else 
+		{
+		  i_alpha = 2; 
+		}
+	    }
+	  else
+	    { // 1 alpha bin 
+	      i_alpha = 0;
+	    }
+	  
+	  LogDebug("PixelErrorParametrization::error_YB") << "I found alpha index = " << i_alpha;
+	  
+	  // vector of beta parametrization
+	  //vector<float> ybarrel_1D = (ybarrel_3D[i_size])[i_alpha];
+	  vector<float>& ybarrel_1D = (ybarrel_3D[i_size])[i_alpha]; // suggestion to speed up the code by Patrick/Vincenzo
+	  
+	  LogDebug("PixelErrorParametrization::error_YB") << " beta vec has dimensions = " << ybarrel_1D.size()
+							  << " beta = " << beta 
+							  << " beta max = " << brange_yb[i_size].second 
+							  << " beta min = " << brange_yb[i_size].first;
+	  
+	  // beta --> abs(pi/2-beta) to be symmetric w.r.t. pi/2 axis
+	  float beta_prime = fabs(3.14159/2.-beta);
+	  
+	  if ( beta_prime <= brange_yb[i_size].first )// Gavril: brange_yb[0].first == 0.0; when i_size==0, beta_prime is never less than 0
+	    { 
+	      return ybarrel_1D[0];
+	    }
+	  else if ( beta_prime >= brange_yb[i_size].second )
+	    {
+	      //return ybarrel_1D[ybarrel_1D.size()-1];
+	      return pitch_y / sqrt(12.0); // Gavril: we are in un-physical beta_prime range; return large error, 03/27/07 
+	    } 
+	  else 
+	    {
+	      return interpolation(ybarrel_1D, beta_prime, brange_yb[i_size] );
+	    }  
+	}
+    }
+  else
+    {
+      float error_yb = -999.9;
+      
+      if ( verbose )
+	{
+	  cout << " ---------- 1 ) error_YB:" << endl;
+	  cout << " sizey = "  << sizey  << endl;
+	  cout << " alpha = "  << alpha  << endl;
+	  cout << " beta  = "  << beta   << endl;
+	  cout << " bigInY = " << bigInY << endl; 
+	}
+      
+      if ( bigInY && sizey == 1 )
+	{
+	  //error_yb = pitch_y/sqrt(12.0);
+	  error_yb = error_yb_big_pix;
+	}
+      else
+	{
+	  float alpha_rad = fabs(alpha);
+	  //float beta_rad  = fabs(beta);
+	  float betap_rad = fabs( math_pi/2.0 - beta );
+	  //float alphap_rad = fabs( math_pi/2.0 - alpha );
+	  
+	  if ( sizey > 6 ) sizey = 6;
+	  
+	  int ind_sizey = sizey - 1;
+	  int ind_alpha = -9999;
+	  int ind_beta  = -9999; 
+	  
+	  if      ( alpha_rad <= a_min ) ind_alpha = 0;
+	  else if ( alpha_rad >= a_max ) ind_alpha = 3;
+	  else if ( alpha_rad > a_min && 
+		    alpha_rad < a_max ) 
+	    {
+	      double binw = ( a_max - a_min ) / 4.0;
+	      ind_alpha = (int)( ( alpha_rad - a_min ) / binw );
+	    }		
+	  else
+	    {
+	      cout << " Wrong alpha_rad = " << alpha_rad << endl << endl;
+	      assert(0);
+	    }
+
+	  if      ( betap_rad <= ys_bl[sizey-1] ) ind_beta = 0;
+	  else if ( betap_rad >= ys_bh[sizey-1] ) ind_beta = 9;
+	  else if ( betap_rad >  ys_bl[sizey-1] && 
+		    betap_rad <  ys_bh[sizey-1] ) 
+	    {
+	      double binw = ( ys_bh[sizey-1] - ys_bl[sizey-1] ) / 8.0;
+	      ind_beta = 1 + (int)( ( betap_rad - ys_bl[sizey-1] ) / binw );
+	    }		
+	  else 
+	    {
+	      cout << " Wrong betap_rad = " << betap_rad << endl << endl;
+	      assert(0);
+	    }
+
+	  if ( verbose )
+	    {
+	      cout << "ind_sizey = " << ind_sizey << endl;
+	      cout << "ind_alpha = " << ind_alpha << endl;
+	      cout << "ind_beta  = " << ind_beta  << endl;
+	    }
+	  
+	  int index = 40*ind_sizey + 10*ind_alpha + ind_beta;
+	  
+	  if ( index < 0 || index >= 240  )
+	    {
+	      cout << " Wrong index !!!" << endl;
+	      assert(0);
+	    }
+	  
+	  error_yb = vec_error_YB[index];
+	  
+	}
+      
+      if ( verbose )
+	cout << "error_yb = " << error_yb << endl;
+      
+      return error_yb; 
+    }
+
+}
+
+
+float PixelErrorParametrization::error_YF(int sizey, float alpha, float beta, bool bigInY)
+{
+  if ( !useNewParametrization )
+    {
+      LogDebug("PixelErrorParametrization::error_YF") << "I'M AT THE BEGIN IN ERROR YF METHOD";
+      
+      float err_par = 0.0;
+      //double pitch_y = 0.0150;
+      
+      if ( bigInY && sizey == 1 )
+	{
+	  err_par = pitch_y/sqrt(12.0);
+	}
+      else
+	{
+	  // find y size index
+	  int i_size = min(sizey-1,1);
+	  // no parametrization in alpha
+	  int i_alpha = 0;
+	  // beta --> abs(pi/2-beta) to be symmetric w.r.t. pi/2 axis
+	  float beta_prime = fabs(3.14159/2.-beta);
+	  if (beta_prime < brange_yf.first) beta_prime = brange_yf.first;
+	  if (beta_prime > brange_yf.second) beta_prime = brange_yf.second;
+	  err_par = 0.0;
+	  for(int ii=0; ii < (int)( (yforward_3D[i_size])[i_alpha] ).size(); ii++){
+	    err_par += ( (yforward_3D[i_size])[i_alpha] )[ii] * pow(beta_prime,ii);
+	  }
+	}
+      
+      return err_par; 
+    }
+  else
+    {
+      float error_yf = -999.9;
+      
+      if ( verbose )
+	{
+	  cout << " ---------- 3 ) error_YF:" << endl;
+	  cout << " sizey = "  << sizey  << endl;
+	  cout << " alpha = "  << alpha  << endl;
+	  cout << " beta  = "  << beta   << endl;
+	  cout << " bigInY = " << bigInY << endl;
+	}
+      
+      if ( bigInY && sizey == 1 )
+	{
+	  //error_yf = pitch_y/sqrt(12.0);
+	  error_yf = error_yf_big_pix;
+	}
+      else
+	{
+	  //float alpha_rad = fabs(alpha);
+	  //float beta_rad  = fabs(beta);
+	  float betap_rad = fabs( math_pi/2.0 - beta );
+	  //float alphap_rad = fabs( math_pi/2.0 - alpha );
+	  
+	  if ( sizey > 2 ) sizey = 2;
+	  
+	  int ind_sizey = sizey - 1;
+	  int ind_beta  = -9999; 
+	  
+	  if      ( betap_rad < 0.3 ) ind_beta = 0;
+	  else if ( betap_rad > 0.4 ) ind_beta = 9;
+	  else 
+	    ind_beta = (int) ( ( betap_rad - 0.3 ) / ( ( 0.4 - 0.3 ) / 10.0 ) );  
+	  
+	  if ( verbose )
+	    {
+	      cout << "ind_sizey = " << ind_sizey << endl;
+	      cout << "ind_beta  = " << ind_beta  << endl;
+	    }
+	  
+	  int index = 10*ind_sizey + ind_beta;
+	  
+	  if ( index < 0 || index >= 20  )
+	    {
+	      cout << " Wrong index !!!" << endl;
+	      assert(0);
+	    }
+	  
+	  error_yf = vec_error_YF[index];
+	  
+	}
+      
+      if ( verbose )
+	cout << "error_yf = " << error_yf << endl;
+      
+      return error_yf; 
+    }
+    
+}
 
 
 //-----------------------------------------------------------------------------
