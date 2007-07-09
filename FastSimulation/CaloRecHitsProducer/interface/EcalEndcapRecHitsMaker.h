@@ -2,7 +2,7 @@
 #define FastSimulation__EcalEndcapRecHitsMaker__h
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include <map>
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 //#include <boost/cstdint.hpp>
 
 class RandomEngine;
@@ -19,20 +19,21 @@ class EcalEndcapRecHitsMaker
   EcalEndcapRecHitsMaker(edm::ParameterSet const & p,edm::ParameterSet const & p2,const RandomEngine* random);
   ~EcalEndcapRecHitsMaker();
 
-  void loadEcalEndcapRecHits(edm::Event &iEvent, EERecHitCollection & ecalHits);
-  void init(const edm::EventSetup &es);
+  void loadEcalEndcapRecHits(edm::Event &iEvent, EERecHitCollection & ecalHits,EEDigiCollection & ecalDigis);
+  void init(const edm::EventSetup &es,bool dodigis,bool domiscalib);
 
  private:
   void clean();
   void loadPCaloHits(const edm::Event & iEvent);
-  void noisifyAndFill(uint32_t id,float energy, std::map<uint32_t,float>& myHits);
-    
+  void geVtoGainAdc(float e,unsigned & gain, unsigned &adc) const;
+
  private:
+ bool doDigis_;
+ bool doMisCalib_;
   // poor-man Selective Readout
   double threshold_;
   double noise_;
   double calibfactor_;
-  std::map<uint32_t,float> ecaleRecHits_;
 
   const RandomEngine* random_;
   bool noisified_;
@@ -42,8 +43,19 @@ class EcalEndcapRecHitsMaker
   // array of the hashedindices in the previous array of the cells that received a hit
   std::vector<int> theFiredCells_;
 
+  // equivalent of the EcalIntercalibConstants from RecoLocalCalo/EcalRecProducers/src/EcalRecHitProduer.cc
+  std::vector<float> theCalibConstants_;
+
   //array conversion hashedIndex rawId
   std::vector<uint32_t> endcapRawId_;
+
+  
+  // digitization
+  float adcToGeV_;
+  float geVToAdc1_,geVToAdc2_,geVToAdc3_;
+  unsigned minAdc_;
+  unsigned maxAdc_;
+  float t1_,t2_,sat_;
 };
 
 #endif

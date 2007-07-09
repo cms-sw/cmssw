@@ -32,6 +32,8 @@ class CaloRecHitsProducer : public edm::EDProducer
   virtual void produce(edm::Event & e, const edm::EventSetup & c);
 
  private:
+  bool doDigis_;
+  bool doMiscalib_;
   
   HcalRecHitsMaker * HcalRecHitsMaker_;
   EcalBarrelRecHitsMaker * EcalBarrelRecHitsMaker_;

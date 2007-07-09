@@ -2,7 +2,7 @@
 #define FastSimulation__HcalRecHitsMaker__h
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "FastSimulation/Utilities/interface/GaussianTail.h"
 
 #include <map>
@@ -25,8 +25,8 @@ class HcalRecHitsMaker
   HcalRecHitsMaker(edm::ParameterSet const & p, const RandomEngine* random);
   ~HcalRecHitsMaker();
 
-  void loadHcalRecHits(edm::Event &iEvent, HBHERecHitCollection& hbheHits, HORecHitCollection &hoHits,HFRecHitCollection &hfHits);
-  void init(const edm::EventSetup &es);
+  void loadHcalRecHits(edm::Event &iEvent, HBHERecHitCollection& hbheHits, HORecHitCollection &hoHits,HFRecHitCollection &hfHits, HBHEDigiCollection& hbheDigis, HODigiCollection & hoDigis, HFDigiCollection& hfDigis);
+  void init(const edm::EventSetup &es,bool dodigis);
 
  private:
   unsigned createVectorsOfCells(const edm::EventSetup &es);
@@ -39,6 +39,8 @@ class HcalRecHitsMaker
   void loadPCaloHits(const edm::Event & iEvent);
   
   void clean();
+  // conversion for digitization
+  int fCtoAdc(double fc) const;
 
  private:
   double thresholdHB_,  thresholdHE_, thresholdHO_, thresholdHF_;
@@ -48,12 +50,16 @@ class HcalRecHitsMaker
   //  edm::ESHandle<CaloTowerConstituentsMap> calotowerMap_;
   
   bool initialized_;
+  bool doDigis_;
   //the bool means killed ! 
   std::map<uint32_t,std::pair<float,bool> > hbRecHits_;
   std::map<uint32_t,std::pair<float,bool> > heRecHits_;
   std::map<uint32_t,std::pair<float,bool> > hoRecHits_;
   std::map<uint32_t,std::pair<float,bool> > hfRecHits_;
 
+  // coefficients for fC to ADC conversion
+  std::vector<int> fctoadc_;
+ 
   std::vector<uint32_t> hbcells_;
   std::vector<uint32_t> hecells_;
   std::vector<uint32_t> hocells_;

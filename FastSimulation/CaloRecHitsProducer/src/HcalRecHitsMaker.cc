@@ -11,12 +11,15 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-
+#include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "CLHEP/GenericFunctions/Erf.hh"
 
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "TFile.h"
+#include "TGraph.h"
 
 class RandomEngine;
+
 
 HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p,
 				   const RandomEngine * myrandom)
@@ -66,8 +69,34 @@ HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p,
     hcalHotFractionHF_ =0.;
   }
 
-
-
+  // Open the histogram for the fC to ADC conversion
+  gROOT->cd();
+  edm::FileInPath myDataFile("FastSimulation/CaloRecHitsProducer/data/adcvsfc.root");
+  TFile * myFile = new TFile(myDataFile.fullPath().c_str(),"READ");
+  TGraph * myGraf = (TGraph*)myFile->Get("adcvsfc");
+  unsigned size=myGraf->GetN();
+  fctoadc_.resize(10000);
+  unsigned p_index=0;
+  fctoadc_[0]=0;
+  int prev_nadc=0;
+  int nadc=0;
+  for(unsigned ibin=0;ibin<size;++ibin)
+    {
+      double x,y;
+      myGraf->GetPoint(ibin,x,y);
+      int index=(int)floor(x);
+      if(index<0||index>=10000) continue;
+      prev_nadc=nadc;
+      nadc=(int)y;
+      // Now fills the vector
+      for(unsigned ivec=p_index;ivec<(unsigned)index;++ivec)
+	{
+	  fctoadc_[ivec] = prev_nadc;
+	}
+      p_index = index;
+    }
+  myFile->Close();
+  gROOT->cd();
 }
 
 HcalRecHitsMaker::~HcalRecHitsMaker()
@@ -75,8 +104,9 @@ HcalRecHitsMaker::~HcalRecHitsMaker()
   delete myGaussianTailGenerator_;
 }
 
-void HcalRecHitsMaker::init(const edm::EventSetup &es)
+void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis)
 {
+  doDigis_=doDigis;
   if(initialized_) return;
   unsigned ncells=createVectorsOfCells(es);
   edm::LogInfo("CaloRecHitsProducer") << "Total number of cells in HCAL " << ncells << std::endl;
@@ -110,20 +140,28 @@ void HcalRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
       switch(detid.subdet())
 	{
 	case HcalBarrel: 
-	  noise_ = noiseHB_; 
-	  Fill(it->id(),it->energy(),hbRecHits_,it.getTrigger(),noise_);
+	  {
+	    noise_ = noiseHB_; 
+	    Fill(it->id(),it->energy(),hbRecHits_,it.getTrigger(),noise_);
+	  }
 	  break;
 	case HcalEndcap: 
-	  noise_ = noiseHE_; 
-	  Fill(it->id(),it->energy(),heRecHits_,it.getTrigger(),noise_);
+	  {	  
+	    noise_ = noiseHE_; 
+	    Fill(it->id(),it->energy(),heRecHits_,it.getTrigger(),noise_);
+	  }
 	  break;
 	case HcalOuter: 
-	  noise_ = noiseHO_; 
-	  Fill(it->id(),it->energy(),hoRecHits_,it.getTrigger(),noise_);
+	  {
+	    noise_ = noiseHO_; 
+	    Fill(it->id(),it->energy(),hoRecHits_,it.getTrigger(),noise_);
+	  }
 	  break;		     
 	case HcalForward: 
-	  noise_ = noiseHF_; 
-	  Fill(it->id(),it->energy(),hfRecHits_,it.getTrigger(),noise_);
+	  {
+	    noise_ = noiseHF_; 
+	    Fill(it->id(),it->energy(),hfRecHits_,it.getTrigger(),noise_);
+	  }
 	  break;
 	default:
 	  edm::LogWarning("CaloRecHitsProducer") << "RecHit not registered\n";
@@ -134,7 +172,7 @@ void HcalRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
 }
 
 // Fills the collections. 
-void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& hbheHits, HORecHitCollection &hoHits,HFRecHitCollection &hfHits)
+void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& hbheHits, HORecHitCollection &hoHits,HFRecHitCollection &hfHits, HBHEDigiCollection& hbheDigis, HODigiCollection & hoDigis, HFDigiCollection& hfDigis)
 {
 
   loadPCaloHits(iEvent);
@@ -151,7 +189,17 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
       // Check if it is above the threshold
       if(it->second.first<thresholdHB_) continue; 
       HcalDetId detid(it->first);
-      hbheHits.push_back(HBHERecHit(detid,it->second.first,0.));
+      hbheHits.push_back(HBHERecHit(detid,it->second.first,0.));      
+      if(doDigis_)
+	{
+	  HBHEDataFrame myDataFrame(detid);
+	  myDataFrame.setSize(1);
+	  double nfc=it->second.first/.177;
+	  int nadc=fCtoAdc(nfc);
+	  HcalQIESample qie(nadc, 0, 0, 0) ;
+	  myDataFrame.setSample(0,qie);
+	  hbheDigis.push_back(myDataFrame);
+	}
     }
       
   // HE
@@ -165,6 +213,16 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
       if(it->second.first<thresholdHE_) continue;
       HcalDetId detid(it->first);
       hbheHits.push_back(HBHERecHit(detid,it->second.first,0.));
+      if(doDigis_)
+	{
+	  HBHEDataFrame myDataFrame(detid);
+	  myDataFrame.setSize(1);
+	  double nfc=it->second.first/.269;
+	  int nadc=fCtoAdc(nfc);
+	  HcalQIESample qie(nadc, 0, 0, 0) ;
+	  myDataFrame.setSample(0,qie);
+	  hbheDigis.push_back(myDataFrame);
+	}
     }
 
   
@@ -188,8 +246,17 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
       if(it->second.first<thresholdHF_) continue;
       HcalDetId detid(it->first);
       hfHits.push_back(HFRecHit(detid,it->second.first,0));
+      if(doDigis_)
+	{
+	  HFDataFrame myDataFrame(detid);
+	  myDataFrame.setSize(1);
+	  double nfc=it->second.first/.14;
+	  int nadc=fCtoAdc(nfc*2.6);
+	  HcalQIESample qie(nadc, 0, 0, 0) ;
+	  myDataFrame.setSample(0,qie);
+	  hfDigis.push_back(myDataFrame);
+	}
     }
-
 }
 
 
@@ -235,6 +302,7 @@ void HcalRecHitsMaker::Fill(uint32_t id, float energy, std::map<uint32_t,std::pa
       // insert
       if(signal)
 	myHits.insert(myHits.end(),std::pair<uint32_t,std::pair<float,bool> >(id,hit));
+    
     }
   else       // In this case,there is a risk of duplication. Need to look into the map
     {
@@ -244,7 +312,7 @@ void HcalRecHitsMaker::Fill(uint32_t id, float energy, std::map<uint32_t,std::pa
 	  if(noise_ > 0.) energy += random_->gaussShoot(0.,noise_);
 	  std::pair<float,bool> hit(energy,false); 
 	  myHits.insert(std::pair<uint32_t,std::pair<float,bool> >(id,hit));
-	}
+	}	
       else
 	{
 	  itcheck->second.first += energy;
@@ -333,4 +401,12 @@ void HcalRecHitsMaker::clean()
   heRecHits_.clear();
   hfRecHits_.clear();
   hoRecHits_.clear();  
+}
+
+// fC to ADC conversion
+int HcalRecHitsMaker::fCtoAdc(double fc) const
+{
+  if(fc<0.) return 0;
+  if(fc>9985.) return 127;
+  return fctoadc_[(unsigned)floor(fc)];
 }

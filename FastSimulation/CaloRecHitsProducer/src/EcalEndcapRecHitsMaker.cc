@@ -13,7 +13,8 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/EcalEndcapAlgo/interface/EcalEndcapGeometry.h"
-
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 
 
 EcalEndcapRecHitsMaker::EcalEndcapRecHitsMaker(edm::ParameterSet const & p, 
@@ -28,7 +29,20 @@ EcalEndcapRecHitsMaker::EcalEndcapRecHitsMaker(edm::ParameterSet const & p,
   noisified_ = (noise_==0.);
   double c1 = pcalib.getParameter<double>("EEs25notContainment");
   calibfactor_= 1./c1;
+
+  adcToGeV_= 0.060;
+  minAdc_ = 200;
+  maxAdc_ = 4085;
+  
+  geVToAdc1_ = 1./adcToGeV_;
+  geVToAdc2_ = geVToAdc1_/2.;
+  geVToAdc3_ = geVToAdc1_/12.;
+  
+  t1_ = ((int)maxAdc_-(int)minAdc_)*adcToGeV_;
+  t2_ = 2.* t1_ ; 
+  sat_ = 12.*t1_;
 }
+  
 
 EcalEndcapRecHitsMaker::~EcalEndcapRecHitsMaker()
 {;
@@ -36,8 +50,6 @@ EcalEndcapRecHitsMaker::~EcalEndcapRecHitsMaker()
 
 void EcalEndcapRecHitsMaker::clean()
 {
-
-  ecaleRecHits_.clear();
 
   unsigned size=theFiredCells_.size();
   for(unsigned ic=0;ic<size;++ic)
@@ -50,26 +62,35 @@ void EcalEndcapRecHitsMaker::clean()
 }
 
 
-void EcalEndcapRecHitsMaker::loadEcalEndcapRecHits(edm::Event &iEvent,EERecHitCollection & ecalHits)
+void EcalEndcapRecHitsMaker::loadEcalEndcapRecHits(edm::Event &iEvent,EERecHitCollection & ecalHits,EEDigiCollection & ecalDigis)
 {
-
-
   clean();
-
   loadPCaloHits(iEvent);
 
   unsigned nhit=theFiredCells_.size();
-
+  unsigned gain, adc;
   for(unsigned ihit=0;ihit<nhit;++ihit)
     {      
       unsigned icell = theFiredCells_[ihit];
+
+      EEDetId myDetId(endcapRawId_[icell]);
+      if(doDigis_)
+	{
+	   EEDataFrame myDataFrame(myDetId);
+	   myDataFrame.setSize(1);
+	   //  The real work is in the following line
+	   geVtoGainAdc(theCalorimeterHits_[icell],gain,adc);
+	   myDataFrame.setSample(0,EcalMGPASample(adc,gain));
+	   ecalDigis.push_back(myDataFrame);
+	}
+
       // It is safer to update the orignal array in case this methods is called several times
       if (!noisified_ )  theCalorimeterHits_[icell] += random_->gaussShoot(0.,noise_);
       
       // If the energy+noise is below the threshold, a hit is nevertheless created, otherwise, there is a risk that a "noisy" hit 
       // is afterwards put in this cell which would not be correct. 
       if (  theCalorimeterHits_[icell]<threshold_ ) theCalorimeterHits_[icell]=0.;
-      ecalHits.push_back(EcalRecHit(EEDetId(endcapRawId_[icell]),theCalorimeterHits_[icell],0.));
+      ecalHits.push_back(EcalRecHit(myDetId,theCalorimeterHits_[icell],0.));
     }
   noisified_ = true;
 
@@ -86,7 +107,7 @@ void EcalEndcapRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
 
   MixCollection<PCaloHit>::iterator cficalo;
   MixCollection<PCaloHit>::iterator cficaloend=colcalo->end();
-
+  float calib=1.;
   for (cficalo=colcalo->begin(); cficalo!=cficaloend;cficalo++) 
     {
       unsigned hashedindex = EEDetId(cficalo->id()).hashedIndex();      
@@ -96,28 +117,20 @@ void EcalEndcapRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
 	  theFiredCells_.push_back(hashedindex); 
 	}
       // the famous 1/0.97 calibration factor is applied here ! 
-      theCalorimeterHits_[hashedindex]+=cficalo->energy()*calibfactor_;   
+      calib=calibfactor_;
+      // the miscalibration is applied here:
+      if(doMisCalib_) calib*=theCalibConstants_[hashedindex];
+      theCalorimeterHits_[hashedindex]+=cficalo->energy()*calib;   
     }
 }
 
-// Takes a hit (from a PSimHit) and fills a map with it after adding the noise. 
-void EcalEndcapRecHitsMaker::noisifyAndFill(uint32_t id,float energy, std::map<uint32_t,float>& myHits)
+
+void EcalEndcapRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool domiscalib)  
 {
-
-
-  if (noise_>0.) energy += random_->gaussShoot(0.,noise_);
-
-  // If below the threshold, a hit is nevertheless created, otherwise, there is a risk that a "noisy" hit 
-  // is afterwards put in this cell which would not be correct. 
-  if ( energy <threshold_ ) energy=0.;
-  // No double counting check. Depending on how the pile-up is implemented , this can be a problem.
-  // Fills the map giving a "hint", in principle, the objets have already been ordered in CalorimetryManager
-  myHits.insert(myHits.end(),std::pair<uint32_t,float>(id,energy));
-}
-
-void EcalEndcapRecHitsMaker::init(const edm::EventSetup &es)
-{
+  doDigis_=doDigis;
+  doMisCalib_=domiscalib;
   endcapRawId_.resize(20000);
+  if (doMisCalib_) theCalibConstants_.resize(20000);
   edm::ESHandle<CaloGeometry> pG;
   es.get<IdealGeometryRecord>().get(pG);   
   
@@ -129,4 +142,51 @@ void EcalEndcapRecHitsMaker::init(const edm::EventSetup &es)
       endcapRawId_[EEDetId(vec[ic]).hashedIndex()]=vec[ic].rawId();
     }
   //  std::cout << " Made the array " << std::endl;
+  // Stores the miscalibration constants
+  if(doMisCalib_)
+    {
+      float rms=0.;
+      unsigned ncells=0;
+      // Intercalib constants
+      edm::ESHandle<EcalIntercalibConstants> pIcal;
+      es.get<EcalIntercalibConstantsRcd>().get(pIcal);
+      const EcalIntercalibConstants* ical = pIcal.product();
+      const EcalIntercalibConstants::EcalIntercalibConstantMap& icalMap=ical->getMap();
+      EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalMapit=icalMap.begin();
+      EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalMapitend=icalMap.end();
+      for(;icalMapit!=icalMapitend;++icalMapit)
+	{
+	  DetId myDetId(icalMapit->first);
+	  if(myDetId.subdetId()==EcalEndcap)
+	    {
+	      theCalibConstants_[EEDetId(myDetId).hashedIndex()]=icalMapit->second;
+	      rms+=fabs(icalMapit->second-1.);
+	      ++ncells;
+	    }
+	}
+      rms/=(float)ncells;
+      std::cout << " Found " << ncells << " cells in the endcap calibration map. RMS is " << rms << std::endl;
+    }  
+}
+
+
+void EcalEndcapRecHitsMaker::geVtoGainAdc(float e,unsigned & gain, unsigned &adc) const
+{
+  if(e<t1_)
+    {
+      gain = 1; // x1 
+      //      std::cout << " E " << e << std::endl;
+      adc = minAdc_ + (unsigned)(e*geVToAdc1_);
+      //      std::cout << " e*geVtoAdc1_ " << e*geVToAdc1_ << " " <<(unsigned)(e*geVToAdc1_) << std::endl;
+    } 
+  else if (e<t2_)
+    {
+      gain = 2; // x6
+      adc = minAdc_ + (unsigned)(e*geVToAdc2_);
+    }
+  else 
+    {
+      gain = 3; // x12
+      adc = std::min(minAdc_+(unsigned)(e*geVToAdc3_),maxAdc_);
+    }
 }
