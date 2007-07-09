@@ -69,7 +69,8 @@ L1GctEmCand::L1GctEmCand(L1CaloEmCand& c) :
   m_source(0),
   m_bx(c.bx())
 {
-  construct(c.rank(), c.regionId().gctEta(), c.regionId().gctPhi());
+  unsigned eta=((c.regionId().rctEta() & 0x7) | (c.regionId().ieta()<11 ? 0x8 : 0x0));
+  construct(c.rank(), eta, c.regionId().iphi());
 }
 
 // destructor
