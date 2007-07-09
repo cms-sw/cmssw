@@ -13,7 +13,7 @@ int index(T it_begin, T it_end, T it_)
 }
 
 NuclearTester::NuclearTester(const edm::EventSetup& es, const edm::ParameterSet& iConfig) :
-checkCompletedTrack(iConfig.getParameter<bool>("checkCompletedTrack"))
+maxHits(iConfig.getParameter<int>("maxHits"))
 {
   es.get<TrackerDigiGeometryRecord> ().get (trackerGeom);
   NuclearIndex=0;
@@ -21,20 +21,29 @@ checkCompletedTrack(iConfig.getParameter<bool>("checkCompletedTrack"))
 
 //----------------------------------------------------------------------
 bool NuclearTester::isNuclearInteraction( ) {
-    //RQ: assume that the input vector a has been filled from Outside to Inside the tracker !
-    // require at least 3 TM vectors to check if nuclear interactions occurs
-    if(compatible_hits.size()<4) return false;
-    for(std::vector<int>::const_iterator it=compatible_hits.begin(); it!=compatible_hits.end(); it++) LogDebug("NuclearInteractionFinder") << "compatible_hits : " << *it << "\n";
+ 	 
+        // 1. we require at least 3 TM vectors to check if nuclear interactions occurs
+        if(nHitsChecked()<3) return false;
+
+        // 2. check with multiplicity :
+	if( checkWithMultiplicity() == true ) return true;
+	else  { 
+               // 3. last case : uncompleted track with at least 2 compatible hits in the last layer
+               if( nHitsChecked() >= maxHits && compatible_hits.front()>1) {NuclearIndex=1; return true; }
+        }
+      
+	return false;
+}
+//----------------------------------------------------------------------
+bool NuclearTester::checkWithMultiplicity() {
+    //RQ: assume that the input vector of compatible hits has been filled from Outside to Inside the tracker !
 
     // find the first min nb of compatible TM :
     std::vector<int>::iterator min_it = min_element(compatible_hits.begin(), compatible_hits.end());
 
-    // this first min cannot be the outermost TM :
-    if(min_it == compatible_hits.begin() && checkCompletedTrack==false) return false;
-
-    // if the outermost hit has no compatible TM min_it has to be recalculated (if required by checkCompletedTrack) :
-    if(min_it == compatible_hits.begin() && checkCompletedTrack==true && *min_it!=0) return false;
-    if(min_it == compatible_hits.begin() && checkCompletedTrack==true && *min_it==0) min_it=min_element(compatible_hits.begin()+1, compatible_hits.end());
+    // if the outermost hit has no compatible TM, min_it has to be recalculated :
+    if(min_it == compatible_hits.begin() && *min_it!=0) return false;
+    if(min_it == compatible_hits.begin() && *min_it==0) min_it=min_element(compatible_hits.begin()+1, compatible_hits.end());
 
     // this first min cannot be the innermost TM :
     if(min_it == compatible_hits.end()-1) return false;
@@ -47,15 +56,14 @@ bool NuclearTester::isNuclearInteraction( ) {
     }
   
     // case of : Nhits = 5, 8, 3, 2, 2, ...
-    if(min_it-1 == compatible_hits.begin()) return false; //because min_it must be at least at the third position
-    if((*(min_it-1) - *min_it) < 2 && (*(min_it-2) - *(min_it-1)) > 2 ) { 
+    if(min_it-1 != compatible_hits.begin())  //because min_it must be at least at the third position
+    {
+      if(min_it-1 != compatible_hits.begin() && (*(min_it-1) - *min_it) < 2 && (*(min_it-2) - *(min_it-1)) > 2 ) { 
            NuclearIndex = index<std::vector<int>::const_iterator>(compatible_hits.begin(),compatible_hits.end(),min_it-1);
            return true;
+      }
     }
 
-    //if the nb of current comp. TM is larger than 2 and larger than the next one+1 return true
-    //if(*max_it > 2 && *max_it > *(max_it+1)+1) return true;   
-    // TODO: check that position of max meanEstimate = position found with ncompatible_hits (=min_it-1 or min_it-2) !
     return false;
 }
 

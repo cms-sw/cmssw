@@ -46,18 +46,27 @@ public :
 
   double meanEstimate() const { return meanEstimate( back() ); }
 
-  void reset() { allTM.clear(); compatible_hits.clear(); }
+  void reset(unsigned int nMeasurements) { 
+               allTM.clear(); 
+               compatible_hits.clear(); 
+               maxHits = (nMeasurements < maxHits) ? nMeasurements : maxHits; 
+  }
 
   int nuclearIndex() const { return NuclearIndex; }
 
   const TMPair& goodTMPair() const { return *(allTM.begin()+nuclearIndex()-1); }
 
+  unsigned int nHitsChecked() const { return compatible_hits.size(); }
+
+  std::vector<int> compatibleHits() const { return compatible_hits; }
+  
 private :
 
   edm::ESHandle<TrackerGeometry>  trackerGeom;
   TMPairVector allTM;
   std::vector< int > compatible_hits;
   int NuclearIndex;
-  bool checkCompletedTrack;
+  unsigned int maxHits;
+  bool checkWithMultiplicity();
 };
 #endif
