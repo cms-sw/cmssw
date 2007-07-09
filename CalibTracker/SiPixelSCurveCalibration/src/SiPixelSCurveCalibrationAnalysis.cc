@@ -27,12 +27,14 @@
 
 #include <iostream>
 #include <sstream>
+#include <fstream>
 
 SiPixelSCurveCalibrationAnalysis::SiPixelSCurveCalibrationAnalysis(const edm::ParameterSet& conf) :
   conf_(conf),
   pixsrc_(conf.getUntrackedParameter<std::string>("src", "source")),
   evtnum_(0),
   inputcalibfile_(conf.getParameter<std::string>("inputCalibFile")),
+  outputtxtfile_(conf.getParameter<std::string>("OutputTxtFile")),
   fedid_(conf.getUntrackedParameter<unsigned int>("fedid", 33)),
   histoNum_(0)
   {
@@ -148,14 +150,26 @@ void SiPixelSCurveCalibrationAnalysis::endJob()
   }
   
   int entries = meanhistos_->GetEntriesFast();
+  std::ofstream out(outputtxtfile_.c_str());
+  out.precision(6);
+  out << "The format of the data is " << std::endl;
+  out << "ROC ID\t" << "Mean of ROC(sigma of mean)\t" << "Sigma of ROC(sigma of sigma)" << std::endl;
   for(int j = 0; j != entries; ++j)
   {
     TH1F* tempmean = ((TH1F*)(*meanhistos_)[j]);
     TH1F* tempsigma = ((TH1F*)(*sigmahistos_)[j]);
-    tempmean->Fit("gaus");
-    tempsigma->Fit("gaus");
+    tempmean->Fit("gaus", "Q0");
+    tempsigma->Fit("gaus", "Q0");
+    std::string rocid(tempmean->GetTitle());
+    rocid.erase(0, 9);
+    double meanmean = tempmean->GetFunction("gaus")->GetParameter(0);
+    double meansigma = tempmean->GetFunction("gaus")->GetParameter(1);
+    double sigmamean = tempsigma->GetFunction("gaus")->GetParameter(0);
+    double sigmasigma = tempsigma->GetFunction("gaus")->GetParameter(1);
+    out << rocid << "     " << meanmean << "(" << meansigma << ")     "
+        << sigmamean << "(" << sigmasigma << ")" << std::endl; 
   }
-  
+  out.close();
 }
 
 std::string SiPixelSCurveCalibrationAnalysis::makeName(const int& row, const int& col, const DetId& pixdet)

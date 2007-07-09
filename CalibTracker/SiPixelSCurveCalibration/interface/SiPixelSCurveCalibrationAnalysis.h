@@ -52,6 +52,7 @@ class SiPixelSCurveCalibrationAnalysis : public edm::EDAnalyzer
     std::string pixsrc_; 
     unsigned int evtnum_;
     std::string inputcalibfile_;
+    std::string outputtxtfile_;
     unsigned int fedid_; 
     unsigned int histoNum_; 
     PixelCalib* calib_;
