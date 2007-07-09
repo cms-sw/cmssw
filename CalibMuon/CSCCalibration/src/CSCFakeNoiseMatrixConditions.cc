@@ -16,7 +16,7 @@
 #include "CalibMuon/CSCCalibration/interface/CSCFakeNoiseMatrixConditions.h"
 #include "CondFormats/DataRecord/interface/CSCNoiseMatrixRcd.h"
 
-void CSCFakeNoiseMatrixMap::prefillNoiseMatrixMap(){
+void CSCFakeNoiseMatrixConditions::prefillNoiseMatrix(){
   
   const CSCDetId& detId = CSCDetId();
   cnmatrix = new CSCNoiseMatrix();
@@ -196,7 +196,7 @@ CSCFakeNoiseMatrixConditions::CSCFakeNoiseMatrixConditions(const edm::ParameterS
 {
   //the following line is needed to tell the framework what
   // data is being produced
-  matrix.prefillNoiseMatrixMap();
+  matrix.prefillNoiseMatrix();
   // added by Zhen (changed since 1_2_0)
   setWhatProduced(this,&CSCFakeNoiseMatrixConditions::produceNoiseMatrix);
   findingRecord<CSCNoiseMatrixRcd>();
@@ -221,7 +221,7 @@ CSCFakeNoiseMatrixConditions::~CSCFakeNoiseMatrixConditions()
 CSCFakeNoiseMatrixConditions::ReturnType
 CSCFakeNoiseMatrixConditions::produceNoiseMatrix(const CSCNoiseMatrixRcd& iRecord)
 {
-    matrix.prefillNoiseMatrixMap();
+    matrix.prefillNoiseMatrix();
     // Added by Zhen, need a new object so to not be deleted at exit
     CSCNoiseMatrix* mydata=new CSCNoiseMatrix(matrix.get());
     
