@@ -3,23 +3,19 @@
 
 #include <memory>
 #include "FWCore/Framework/interface/SourceFactory.h"
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CondFormats/CSCObjects/interface/CSCNoiseMatrix.h"
-#include "CondFormats/CSCObjects/interface/CSCobject.h"
 #include "CondFormats/DataRecord/interface/CSCNoiseMatrixRcd.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
+
 
 class CSCFakeNoiseMatrixConditions: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
    public:
@@ -36,4 +32,5 @@ class CSCFakeNoiseMatrixConditions: public edm::ESProducer, public edm::EventSet
       CSCNoiseMatrix *cnmatrix ;
       
 };
+
 #endif
