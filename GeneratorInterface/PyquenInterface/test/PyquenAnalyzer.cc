@@ -80,8 +80,6 @@ void PyquenAnalyzer::analyze( const Event& e, const EventSetup& )
 	 }
      }
 
-   cout << "Heavy Ion record: " << ((void*) myEvt->heavy_ion()) << endl;
-   
    return ;   
 }
 
@@ -90,6 +88,7 @@ void PyquenAnalyzer::analyze( const Event& e, const EventSetup& )
 void PyquenAnalyzer::endJob()
 {
   // executed at the end of the job 
+
   phdNdEta->Scale(phdNdEta->GetBinWidth(0));
   phdNdY->Scale(phdNdY->GetBinWidth(0));
   phdNdPt->Scale(phdNdPt->GetBinWidth(0));
