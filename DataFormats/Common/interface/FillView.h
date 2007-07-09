@@ -6,7 +6,7 @@
 Several fillView function templates, to provide View support for 
 Standard Library containers.
 
-$Id: FillView.h,v 1.1 2007/05/16 22:31:59 paterno Exp $
+$Id: FillView.h,v 1.2 2007/05/24 16:35:46 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -17,6 +17,7 @@ $Id: FillView.h,v 1.1 2007/05/16 22:31:59 paterno Exp $
 #include <set>
 
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 
 namespace edm 
@@ -28,29 +29,38 @@ namespace edm
     // Function template reallyFillView<C> can fill views for
     // standard-library collections of appropriate types (vector, list,
     // deque, set).
+
+    template<typename C>
+    struct FillViewRefTypeTrait {
+      typedef Ref<C> type;
+    };
+    
+    template<typename C, typename T, typename F>
+    struct FillViewRefTypeTrait<RefVector<C, T, F> > {
+      typedef typename RefVector<C, T, F>::value_type type;
+    };
     
     template <class COLLECTION>
     void
     reallyFillView(COLLECTION const& coll,
 		   ProductID const& id,
 		   std::vector<void const*>& ptrs,
-		   std::vector<helper_ptr>& helpers)
+		   helper_vector& helpers)
     {
       typedef COLLECTION                            product_type;
       typedef typename product_type::value_type     element_type;
       typedef typename product_type::const_iterator iter;
       typedef typename product_type::size_type      size_type;
-      typedef Ref<product_type>                     ref_type;
+      typedef typename FillViewRefTypeTrait<product_type>::type ref_type;
       typedef reftobase::RefHolder<ref_type>        holder_type;
       
       size_type key = 0;
-      for (iter i = coll.begin(), e = coll.end(); i!=e; ++i, ++key)
-	{
-	  element_type const* address = &*i;
-	  ptrs.push_back(address);
-	  helper_ptr ptr(new holder_type(ref_type(id, address, key)));
-	  helpers.push_back(ptr);
-	}
+      for (iter i = coll.begin(), e = coll.end(); i!=e; ++i, ++key) {
+	element_type const* address = &*i;
+	ptrs.push_back(address);
+	holder_type h(ref_type(id, address, key));
+	helpers.push_back(&h);
+      }
     }
   }
 
@@ -59,7 +69,7 @@ namespace edm
   fillView(std::vector<T,A> const& obj,
 	   ProductID const& id,
 	   std::vector<void const*>& ptrs,
-	   std::vector<helper_ptr>& helpers)
+	   helper_vector& helpers)
   {
     detail::reallyFillView(obj, id, ptrs, helpers);
   }
@@ -69,7 +79,7 @@ namespace edm
   fillView(std::list<T,A> const& obj,
 	   ProductID const& id,
 	   std::vector<void const*>& ptrs,
-	   std::vector<helper_ptr>& helpers)
+	   helper_vector& helpers)
   {
     detail::reallyFillView(obj, id, ptrs, helpers);
   }
@@ -79,7 +89,7 @@ namespace edm
   fillView(std::deque<T,A> const& obj,
 	   ProductID const& id,
 	   std::vector<void const*>& ptrs,
-	   std::vector<helper_ptr>& helpers)
+	   helper_vector& helpers)
   {
     detail::reallyFillView(obj, id, ptrs, helpers);
   }
@@ -89,7 +99,7 @@ namespace edm
   fillView(std::set<T,A,Comp> const& obj,
 	   ProductID const& id,
 	   std::vector<void const*>& ptrs,
-	   std::vector<helper_ptr>& helpers)
+	   helper_vector& helpers)
   {
     detail::reallyFillView(obj, id, ptrs, helpers);
   }

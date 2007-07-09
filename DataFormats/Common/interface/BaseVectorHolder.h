@@ -1,5 +1,6 @@
 #ifndef Common_BaseVectorHolder_h
 #define Common_BaseVectorHolder_h
+#include "FWCore/Utilities/interface/EDMException.h"
 
 namespace edm {
   namespace reftobase {
@@ -20,6 +21,7 @@ namespace edm {
       //virtual void reserve(size_type n) = 0;
       virtual void clear() = 0;
       virtual ProductID id() const = 0;
+      virtual EDProductGetter const* productGetter() const = 0;
 
       // the following structure is public 
       // to allow reflex dictionary to compile
@@ -36,14 +38,13 @@ namespace edm {
 	virtual bool equal_to( const const_iterator_imp * ) const = 0;
 	virtual bool less_than( const const_iterator_imp * ) const = 0;
 	virtual void assign( const const_iterator_imp * ) = 0;
-	virtual const T & deref() const = 0;
+	virtual base_ref_type deref() const = 0;
 	virtual difference_type difference( const const_iterator_imp * ) const = 0;
       };
-    public:
+
       struct const_iterator : public std::iterator <std::random_access_iterator_tag, RefToBase<T> >{
-	typedef T value_type;
-	typedef T * pointer;
-	typedef T & reference;
+	typedef base_ref_type value_type;
+	typedef std::auto_ptr<value_type> pointer;
 	typedef std::ptrdiff_t difference_type;
 	const_iterator() : i( 0 ) { }
 	const_iterator( const_iterator_imp * it ) : i( it ) { }
@@ -124,13 +125,15 @@ namespace edm {
 	  if ( isInvalid() || ci.isInvalid() ) return true;
 	  return ! i->equal_to( ci.i ); 
 	}
-	const T & operator * () const { 
+	value_type operator * () const { 
 	  if ( isInvalid() )
 	    throw edm::Exception( edm::errors::InvalidReference ) 
 	      << "Trying to dereference an inavlid RefToBaseVector<T>::const_iterator";
 	  return i->deref(); 
 	}
-	const T * operator->() const { return & ( operator*() ); }
+	pointer operator->() const { 
+	  return pointer( new value_type( operator*() ) ); 
+	}
 	const_iterator & operator +=( difference_type d ) { 
 	  if ( isInvalid() )
 	    throw edm::Exception( edm::errors::InvalidReference ) 
@@ -147,12 +150,15 @@ namespace edm {
 	}
 	bool isValid() const { return i != 0; }
 	bool isInvalid() const { return i == 0; }
+
       private:
 	const_iterator_imp * i;
       };
 
       virtual const_iterator begin() const = 0;
       virtual const_iterator end() const = 0;
+      virtual void push_back( const BaseHolder<T> * ) = 0;
+      virtual std::auto_ptr<reftobase::RefVectorHolderBase> vectorHolder() const = 0;
     };
 
   }

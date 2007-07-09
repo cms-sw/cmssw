@@ -1,9 +1,7 @@
 /*----------------------------------------------------------------------
 
-$Id: OutputModule.cc,v 1.33 2007/06/15 18:41:47 wdd Exp $
+$Id: OutputModule.cc,v 1.34 2007/06/29 03:43:21 wmtan Exp $
 ----------------------------------------------------------------------*/
-
-#include <iostream>
 
 #include "FWCore/Framework/interface/OutputModule.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"

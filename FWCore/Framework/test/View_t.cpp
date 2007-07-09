@@ -1,7 +1,7 @@
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
 
-#include "FWCore/Framework/interface/View.h"
+#include "DataFormats/Common/interface/View.h"
 
 class testView: public CppUnit::TestFixture
 {

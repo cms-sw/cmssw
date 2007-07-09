@@ -81,7 +81,7 @@ edm::Ref<AppleCollection> ref(refApples, index);
 */
 /*----------------------------------------------------------------------
 
-$Id: DataViewImpl.h,v 1.27 2007/05/24 16:35:47 paterno Exp $
+$Id: DataViewImpl.h,v 1.28 2007/05/29 19:32:03 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -111,7 +111,6 @@ $Id: DataViewImpl.h,v 1.27 2007/05/24 16:35:47 paterno Exp $
 
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
-
 
 #include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
@@ -515,7 +514,7 @@ namespace edm {
 			   std::string const& productInstanceName,
 			   Handle<View<ELEMENT> >& result) const
   {
-    result.clear();
+   result.clear();
 
     TypeID typeID(typeid(ELEMENT));
 
@@ -551,13 +550,16 @@ namespace edm {
 			  Handle<View<ELEMENT> >& result) const
   {
     std::vector<void const*> pointersToElements;
-    std::vector<helper_ptr>  helpers;
+    // the following is a shared pointer. 
+    // It is not initialized here
+    helper_vector_ptr helpers;
+    // the following must initialize the
+    //  shared pointer and fill the helper vector
     bh.wrapper()->fillView(bh.id(), pointersToElements, helpers);
 
     boost::shared_ptr<View<ELEMENT> > 
-      newview(new View<ELEMENT>(pointersToElements,
-				helpers));
-
+      newview(new View<ELEMENT>(pointersToElements, helpers));
+    
     gotProductIDs_.push_back(bh.id());
     gotViews_.push_back(newview);
     Handle<View<ELEMENT> > h(&*newview, bh.provenance());

@@ -7,7 +7,7 @@ ReflexTools provides a small number of Reflex-based tools, used in
 the CMS event model.  
 
 
-$Id: ReflexTools.h,v 1.5 2007/05/01 22:08:34 paterno Exp $
+$Id: ReflexTools.h,v 1.6 2007/05/08 16:55:00 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -66,13 +66,21 @@ namespace edm
   is_sequence_wrapper(ROOT::Reflex::Type const& possible_sequence_wrapper,
 		      ROOT::Reflex::Type& found_sequence_value_type);
 
-  void 
+  bool 
   if_edm_ref_get_value_type(ROOT::Reflex::Type const& possible_ref,
 			    ROOT::Reflex::Type& value_type);
+
+  bool 
+  if_edm_refToBase_get_value_type(ROOT::Reflex::Type const& possible_ref,
+				  ROOT::Reflex::Type& value_type);
 
   bool
   is_RefVector(ROOT::Reflex::Type const& possible_ref_vector,
 	       ROOT::Reflex::Type& value_type);
+
+  bool
+  is_RefToBaseVector(ROOT::Reflex::Type const& possible_ref_vector,
+		     ROOT::Reflex::Type& value_type);
 
   void checkDictionaries(std::string const& name, bool transient = false);
   void checkAllDictionaries();

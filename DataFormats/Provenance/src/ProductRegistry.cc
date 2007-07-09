@@ -4,11 +4,11 @@
 
    \Original author Stefano ARGIRO
    \Current author Bill Tanenbaum
-   \version $Id: ProductRegistry.cc,v 1.4 2007/05/25 23:18:33 wmtan Exp $
+   \version $Id: ProductRegistry.cc,v 1.5 2007/05/26 18:55:13 wmtan Exp $
    \date 19 Jul 2005
 */
 
-static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.4 2007/05/25 23:18:33 wmtan Exp $";
+static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.5 2007/05/26 18:55:13 wmtan Exp $";
 
 
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
@@ -148,8 +148,9 @@ namespace edm {
         // because there are known cases where the dictionary does
         // not exist and we do not need to support those cases.
         ROOT::Reflex::Type valueType;
-        //        if (edm::value_type_of(type, valueType) && bool(valueType)) {
-        if ((edm::is_RefVector(type, valueType) || edm::value_type_of(type, valueType)) 
+        if ((edm::is_RefVector(type, valueType) || 
+	     is_RefToBaseVector(type, valueType ) || 
+	     edm::value_type_of(type, valueType)) 
             && bool(valueType)) {
           
           fillElementLookup(valueType, i->second.productID(), i->first);

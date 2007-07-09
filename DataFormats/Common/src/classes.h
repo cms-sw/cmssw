@@ -1,3 +1,4 @@
+#include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/CopyPolicy.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/HLTGlobalStatus.h"
@@ -6,9 +7,10 @@
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/RangeMap.h"
 #include "DataFormats/Common/interface/RefBase.h"
+#include "DataFormats/Common/interface/RefToBaseVector.h"
+#include "DataFormats/Common/interface/VectorHolder.h"
 #include "DataFormats/Common/interface/RefItem.h"
 #include "DataFormats/Common/interface/RefVectorBase.h"
-#include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/FillView.h"
@@ -100,6 +102,10 @@ namespace {
   edm::Wrapper<edm::TriggerResults> dummyx19;
 
   edm::Wrapper<edm::RefVector<std::vector<int> > > dummyx20;
+  edm::Wrapper<edm::RefToBaseVector<int> > dummyx21;
+  edm::reftobase::RefVectorHolderBase * dummyx21_0;
+  edm::reftobase::IndirectVectorHolder<int> dummyx21_1;
+  edm::reftobase::VectorHolder<int, edm::RefVector<std::vector<int> > > dummyx21_2;
 
   edm::RefItem<unsigned int> dummyRefItem1;
   edm::RefItem<unsigned long> dummyRefItem1_1;

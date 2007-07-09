@@ -6,37 +6,60 @@
 RefVector: A template for a vector of interproduct references.
 	Each vector element is a reference to a member of the same product.
 
-$Id: RefVector.h,v 1.25 2007/05/16 22:31:59 paterno Exp $
+$Id: RefVector.h,v 1.26 2007/05/24 16:35:46 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <vector>
 #include <stdexcept>
-#include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/FillView.h"
 #include "DataFormats/Common/interface/RefVectorBase.h"
+#include "DataFormats/Common/interface/RefHolderBase.h"
 #include "DataFormats/Common/interface/RefVectorIterator.h"
 #include "DataFormats/Common/interface/RefItem.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
-
 #include "DataFormats/Common/interface/traits.h"
-
 #include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 namespace edm {
+  template<typename C, typename T, typename F>
+  class RefVector;
+
+  template <typename T>
+  T const * getProduct(RefCore const & ref);
+
+  namespace refhelper {
+    template<typename C>
+    struct RefVectorTrait {
+      typedef typename Ref<C>::value_type value_type;
+      typedef typename Ref<C>::finder_type finder_type;
+      typedef Ref<C> ref_type;
+      typedef RefVectorIterator<C> iterator_type;
+    };
+
+    template<typename C, typename T, typename F>
+     struct RefVectorTrait<RefVector<C, T, F> > {
+      typedef T value_type;
+      typedef typename FindTrait<C, T>::value finder_type;
+      typedef Ref<C, T, F> ref_type;
+      typedef RefVectorIterator<C, T, F> iterator_type;
+    };
+
+  }
 
   template <typename C, 
-	    typename T = typename Ref<C>::value_type, 
-	    typename F = typename Ref<C,T>::finder_type>
+	    typename T = typename refhelper::RefVectorTrait<C>::value_type, 
+	    typename F = typename refhelper::RefVectorTrait<C>::finder_type>
   class RefVector {
   public:
     typedef C                               collection_type;
     typedef T                               member_type;
     typedef F                               finder_type;
-    typedef RefVectorIterator<C, T, F>      iterator;
+    typedef typename refhelper::RefVectorTrait<C>::iterator_type iterator;
     typedef iterator                        const_iterator;
-    typedef Ref<C, T, F>                    value_type;
+    typedef typename refhelper::RefVectorTrait<C>::ref_type value_type;
 
     // key_type is the type of the key into the collection
     typedef typename value_type::key_type   key_type;
@@ -85,13 +108,16 @@ namespace edm {
     void reserve(size_type n) {refVector_.reserve(n);}
 
     /// Initialize an iterator over the RefVector
-    const_iterator begin() const {return iterator(refVector_.refCore(), refVector_.items().begin());}
+    const_iterator begin() const;
 
     /// Termination of iteration
-    const_iterator end() const {return iterator(refVector_.refCore(), refVector_.items().end());}
+    const_iterator end() const;
 
     /// Accessor for product ID.
     ProductID id() const {return refVector_.refCore().id();}
+
+    /// Accessor for product getter
+    EDProductGetter const* productGetter() const {return refVector_.refCore().productGetter();}
 
     /// Checks for null
     bool isNull() const {return !id().isValid();}
@@ -104,9 +130,7 @@ namespace edm {
 
     /// Accessor for product collection
     // Accessor must get the product if necessary
-    C const* product() const {
-      return isNull() ? 0 : getProduct<C>(refVector_.refCore());
-    }
+    C const* product() const;
 
     /// Erase an element from the vector.
     iterator erase(iterator const& pos);
@@ -119,7 +143,7 @@ namespace edm {
 
     void fillView(ProductID const& id,
 		  std::vector<void const*>& pointers,		 
-		  std::vector<helper_ptr>& helpers) const;
+		  helper_vector& helpers) const;
 
   private:
     contents_type refVector_;
@@ -151,7 +175,7 @@ namespace edm {
   void
   RefVector<C,T,F>::fillView(ProductID const& id,
 			     std::vector<void const*>& pointers,
-			     std::vector<helper_ptr>& helpers) const
+			     helper_vector& helpers) const
   {
     typedef Ref<C,T,F>                     ref_type;
     typedef reftobase::RefHolder<ref_type> holder_type;
@@ -160,13 +184,12 @@ namespace edm {
     helpers.reserve(this->size());
 
     size_type key = 0;
-    for (const_iterator i=begin(), e=end(); i!=e; ++i, ++key)
-      {
-	member_type const* address = i->isNull() ? 0 : &**i;
-	pointers.push_back(address);
-	helper_ptr ptr(new holder_type(ref_type(id, address, key)));
-	helpers.push_back(ptr);	
-      }
+    for (const_iterator i=begin(), e=end(); i!=e; ++i, ++key) {
+      member_type const* address = i->isNull() ? 0 : &**i;
+      pointers.push_back(address);
+      holder_type h(ref_type(id, address, key));
+      helpers.push_back( & h );	
+    }
   }
 
 
@@ -176,7 +199,7 @@ namespace edm {
   fillView(RefVector<C,T,F> const& obj,
 	   ProductID const& id,
 	   std::vector<void const*>& pointers,
-	   std::vector<helper_ptr>& helpers)
+	   helper_vector& helpers)
   {
     obj.fillView(id, pointers, helpers);
   }
@@ -214,6 +237,16 @@ namespace edm {
   }
 
   template <typename C, typename T, typename F>
+  typename RefVector<C, T, F>::const_iterator RefVector<C, T, F>::begin() const {
+    return iterator(refVector_.refCore(), refVector_.items().begin());
+  }
+  
+  template <typename C, typename T, typename F>
+  typename RefVector<C, T, F>::const_iterator RefVector<C, T, F>::end() const {
+    return iterator(refVector_.refCore(), refVector_.items().end());
+  }
+
+  template <typename C, typename T, typename F>
   std::ostream&
   operator<< (std::ostream& os, RefVector<C,T,F> const& r)
   {
@@ -229,4 +262,16 @@ namespace edm {
   }
 
 }
+
+#include "DataFormats/Common/interface/RefCoreGet.h"
+
+namespace edm {
+
+  template <typename C, typename T, typename F>
+  C const* RefVector<C,T,F>::product() const {
+    return isNull() ? 0 : edm::template getProduct<C>(refVector_.refCore());
+  }
+
+}
+
 #endif

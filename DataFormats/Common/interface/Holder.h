@@ -28,6 +28,9 @@ namespace edm {
       virtual bool fillRefIfMyTypeMatches(RefHolderBase& fillme,
 					  std::string& msg) const;
 
+      virtual std::auto_ptr<RefHolderBase> holder() const {
+	return std::auto_ptr<RefHolderBase>( new RefHolder<REF>( ref_ ) );
+      }
     private:
       REF ref_;
     };

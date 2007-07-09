@@ -23,7 +23,7 @@ unreliable if such duplicate entries are made.
 
 **************** Much more is needed here! ****************
 
-$Id: SortedCollection.h,v 1.10 2007/05/16 22:32:00 paterno Exp $
+$Id: SortedCollection.h,v 1.11 2007/05/24 16:35:46 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -163,7 +163,7 @@ namespace edm {
 
     void fillView(ProductID const& id,
 		  std::vector<void const*>& pointers,
-		  std::vector<helper_ptr>& helpers) const;
+		  helper_vector& helpers) const;
 
   private:
 
@@ -380,7 +380,7 @@ namespace edm {
   void
   SortedCollection<T,SORT>::fillView(ProductID const& id, 
 				     std::vector<void const*>& pointers,
-				     std::vector<helper_ptr>& helpers) const
+				     helper_vector& helpers) const
   {
     detail::reallyFillView(*this, id, pointers, helpers);
   }
@@ -444,7 +444,7 @@ namespace edm {
   fillView(SortedCollection<T,SORT> const& obj,
 	   ProductID const& id,
 	   std::vector<void const*>& pointers,
-	   std::vector<helper_ptr>& helpers)
+	   helper_vector& helpers)
   {
     obj.fillView(id, pointers, helpers);
   }

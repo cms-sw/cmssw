@@ -141,7 +141,9 @@ namespace edm {
       // non-const void, although the implementation does not, of
       // course, modify the object to which the pointer points.
       Object obj(s_type, const_cast<void*>(static_cast<const void*>(ref_.get())));
-      return obj.CastObject(iToType).Address(); // returns void*, after pointer adjustment
+      if ( s_type == iToType ) return obj.Address();
+      Object cast = obj.CastObject(iToType);
+      return cast.Address(); // returns void*, after pointer adjustment
     }
   } // namespace reftobase
 }

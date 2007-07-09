@@ -5,7 +5,7 @@
   
 Ref: A template for an interproduct reference to a product.
 
-$Id: RefProd.h,v 1.9 2007/04/20 15:09:09 llista Exp $
+$Id: RefProd.h,v 1.10 2007/05/15 17:10:24 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -77,20 +77,20 @@ namespace edm {
     ~RefProd() {}
 
     /// Dereference operator
-    C const&  operator*() const;
+    product_type const&  operator*() const;
 
     /// Member dereference operator
-    C const* operator->() const;
+    product_type const* operator->() const;
 
     /// Returns C++ pointer to the product
     /// Will attempt to retrieve product
-    C const* get() const {
+    product_type const* get() const {
       return isNull() ? 0 : this->operator->();
     }
 
     /// Returns C++ pointer to the product
     /// Will attempt to retrieve product
-    C const* product() const {
+    product_type const* product() const {
       return isNull() ? 0 : this->operator->();
     }
 
@@ -145,14 +145,14 @@ namespace edm {
   template <typename C>
   inline
   C const& RefProd<C>::operator*() const {
-    return *(getProduct<C>(product_));
+    return *(edm::template getProduct<C>(product_));
   }
 
   /// Member dereference operator
   template <typename C>
   inline
   C const* RefProd<C>::operator->() const {
-    return getProduct<C>(product_);
+    return edm::template getProduct<C>(product_);
   } 
 
   template <typename C>

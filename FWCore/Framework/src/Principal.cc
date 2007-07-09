@@ -1,5 +1,5 @@
 /**----------------------------------------------------------------------
-  $Id: Principal.cc,v 1.10 2007/06/14 17:52:18 wmtan Exp $
+  $Id: Principal.cc,v 1.11 2007/06/29 03:43:21 wmtan Exp $
   ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -14,9 +14,6 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/src/Group.h"
 #include "FWCore/Framework/interface/Selector.h"
-
-using ROOT::Reflex::Type;
-
 //using boost::lambda::_1;
 
 namespace edm {
@@ -232,7 +229,6 @@ namespace edm {
   Principal::getByLabel(TypeID const& productType, 
 			std::string const& label,
 			std::string const& productInstanceName) const {
-
     BasicHandleVec results;
 
     edm::Selector sel(edm::ModuleLabelSelector(label) &&
@@ -418,7 +414,6 @@ namespace edm {
 			SelectorBase const& selector,
 			BasicHandleVec& results,
 			bool stopIfProcessHasMatch) const {
-
     assert(results.empty());
 
     TypeLookup::const_iterator i = typeLookup.find(typeID.friendlyClassName());
@@ -450,7 +445,6 @@ namespace edm {
                            selector,
                            results);
     }
-
     return results.size();
   }
 

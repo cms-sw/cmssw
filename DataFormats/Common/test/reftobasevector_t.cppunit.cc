@@ -1,4 +1,4 @@
-// $Id: reftobasevector_t.cppunit.cc,v 1.6 2007/06/08 19:32:35 paterno Exp $
+// $Id: reftobasevector_t.cppunit.cc,v 1.7 2007/06/20 15:53:14 paterno Exp $
 
 #include <algorithm>
 
@@ -100,11 +100,11 @@ testRefToBaseVector::check()
 
   RefToBaseVector<Base>::const_iterator b = bv1.begin(), e = bv1.end();
   RefToBaseVector<Base>::const_iterator i = b; 
-  CPPUNIT_ASSERT( i->val() == 1 );
+  CPPUNIT_ASSERT( (*i)->val() == 1 );
   CPPUNIT_ASSERT( i != e );
   CPPUNIT_ASSERT( i - b == 0 );
   ++i;
-  CPPUNIT_ASSERT( i->val() == 1 );
+  CPPUNIT_ASSERT( (*i)->val() == 1 );
   CPPUNIT_ASSERT( i != e );
   CPPUNIT_ASSERT( i - b == 1 );
   ++ i;

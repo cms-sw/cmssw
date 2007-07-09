@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: FilterWorker.cc,v 1.15 2007/06/05 04:02:32 wmtan Exp $
+$Id: FilterWorker.cc,v 1.16 2007/06/29 03:43:21 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/FilterWorker.h"
@@ -10,8 +10,6 @@ $Id: FilterWorker.cc,v 1.15 2007/06/05 04:02:32 wmtan Exp $
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/src/WorkerParams.h"
-
-#include <iostream>
 
 namespace edm {
   FilterWorker::FilterWorker(std::auto_ptr<EDFilter> ed,

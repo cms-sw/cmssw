@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: DataViewImpl.cc,v 1.19 2007/05/29 19:24:25 wmtan Exp $
+$Id: DataViewImpl.cc,v 1.20 2007/06/29 03:43:21 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -136,10 +136,11 @@ namespace edm {
   edm::Selector sel(edm::ModuleLabelSelector(label) &&
                     edm::ProductInstanceNameSelector(productInstanceName));
   
-  return dbk_.getMatchingSequence(typeID,
-                                  sel,
-                                  results,
-                                  stopIfProcessHasMatch);
+  int n = dbk_.getMatchingSequence(typeID,
+				   sel,
+				   results,
+				   stopIfProcessHasMatch);
+  return n;
 }
 
   Provenance const&

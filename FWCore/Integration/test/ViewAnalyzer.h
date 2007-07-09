@@ -29,6 +29,9 @@ namespace edmtest
 
     void testRefVector(edm::Event const& e,
 		       std::string const& moduleLabel) const;
+
+    void testRefToBaseVector(edm::Event const& e,
+			     std::string const& moduleLabel) const;
   };
   
 }

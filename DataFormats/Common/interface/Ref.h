@@ -5,7 +5,7 @@
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.25 2007/05/24 16:35:46 paterno Exp $
+$Id: Ref.h,v 1.26 2007/06/14 04:56:29 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 /**
@@ -145,6 +145,11 @@ namespace GCC_3_2_3_WORKAROUND_2 {
 #endif
 
 namespace edm {
+  template<typename C, typename T, typename F>
+  class RefVector;
+
+  template<typename T>
+  class RefToBaseVector;
 
   namespace refhelper {
     template<typename C, typename T>
@@ -154,8 +159,20 @@ namespace edm {
                                             typename self::second_argument_type iIndex) {
         typename C::const_iterator it = iContainer.begin();
         std::advance(it, iIndex);
-        T const* p = it.operator->();
-        return p;
+        return it.operator->();
+      }
+    };
+    
+    template<typename REFV>
+    struct FindRefVectorUsingAdvance : public std::binary_function<REFV const&, 
+								   typename REFV::member_type, 
+								   typename REFV::member_type const*> {
+      typedef FindRefVectorUsingAdvance<REFV> self;
+      typename self::result_type operator()(typename self::first_argument_type iContainer,
+                                            typename self::second_argument_type iIndex) {
+        typename REFV::const_iterator it = iContainer.begin();
+        std::advance(it, iIndex);
+        return it.operator->()->get();;
       }
     };
     
@@ -164,13 +181,49 @@ namespace edm {
     struct FindTrait {
       typedef FindUsingAdvance<C, T> value;
     };
+
+    template<typename C, typename T, typename F>
+     struct FindTrait<RefVector<C, T, F>, T> {
+      typedef FindRefVectorUsingAdvance<RefVector<C, T, F> > value;
+    };
+
+    template<typename T>
+     struct FindTrait<RefToBaseVector<T>, T> {
+      typedef FindRefVectorUsingAdvance<RefToBaseVector<T> > value;
+    };
+
+    template<typename C>
+    struct ValueTrait {
+      typedef typename C::value_type value;
+    };
+
+    template<typename C, typename T, typename F>
+    struct ValueTrait<RefVector<C, T, F> > {
+      typedef T value;
+    };
+
+    template<typename T>
+    struct ValueTrait<RefToBaseVector<T> > {
+      typedef T value;
+    };
+
   }
   
-  template <typename C, typename T = typename C::value_type, class F = typename refhelper::FindTrait<C, T>::value>
+  template <typename C, 
+	    typename T = typename refhelper::ValueTrait<C>::value, 
+	    typename F = typename refhelper::FindTrait<C, T>::value>
   class Ref {
+  private:
   public:
-    friend class RefVector<C, T, F>;
+    typedef refhelper::FindRefVectorUsingAdvance<RefVector<C, T, F> > VF;
+    typedef refhelper::FindRefVectorUsingAdvance<RefToBaseVector<T> > VBF;
     friend class RefVectorIterator<C, T, F>;
+    friend class RefVector<C, T, F>;
+    friend class RefVector<RefVector<C, T, F>, T, VF>;
+    friend class RefVector<RefVector<RefVector<C, T, F>, T, VF>, T, VF>;
+    friend class RefVector<RefVector<C, T, F>, T, VBF>;
+    friend class RefVector<RefVector<RefVector<C, T, F>, T, VBF>, T, VBF>;
+    /// etc. etc.: more nesting levels could be supported ...
 
     /// for export
     typedef T value_type; 
@@ -322,7 +375,7 @@ namespace edm {
   inline
   C const*
   Ref<C, T, F>::product() const {
-      return isNull() ? 0 : getProduct<C>(ref_.refCore());
+      return isNull() ? 0 : edm::template getProduct<C>(ref_.refCore());
   }
 
   /// Dereference operator

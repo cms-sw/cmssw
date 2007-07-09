@@ -23,7 +23,7 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetVector.h,v 1.17 2007/05/16 22:31:59 paterno Exp $
+$Id: DetSetVector.h,v 1.18 2007/05/24 16:35:46 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -187,7 +187,7 @@ namespace edm {
 
     void fillView(ProductID const& id,
 		  std::vector<void const*>& pointers,
-		  std::vector<helper_ptr>& helpers) const;
+		  helper_vector& helpers) const;
 
   private:
     collection_type   _sets;
@@ -394,7 +394,7 @@ namespace edm {
   template<class T>
   void DetSetVector<T>::fillView(ProductID const& id,
 				 std::vector<void const*>& pointers,
-				 std::vector<helper_ptr>& helpers) const
+				 helper_vector& helpers) const
   {
     detail::reallyFillView(*this, id, pointers, helpers);
   }
@@ -409,7 +409,7 @@ namespace edm {
   fillView(DetSetVector<T> const& obj,
 	   ProductID const& id,
 	   std::vector<void const*>& pointers,
-	   std::vector<helper_ptr>& helpers)
+	   helper_vector& helpers)
   {
     obj.fillView(id, pointers, helpers);
   }

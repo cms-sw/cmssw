@@ -13,8 +13,10 @@
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
-
+#include "DataFormats/Common/interface/RefToBaseProd.h"
+#include <iostream>
 using namespace edm;
+using namespace std;
 
 class testRef: public CppUnit::TestFixture {
    CPPUNIT_TEST_SUITE(testRef);
@@ -227,4 +229,31 @@ void testRef::getTest() {
    RefProd<IntCollection> refProd0b(handle);
    refProd0b.refCore().setProductPtr(0);
    CPPUNIT_ASSERT(1 == (*refProd0b)[1].value_);
+
+   cerr << ">>> RefToBaseProd from RefProd" << endl;
+   RefToBaseProd<IntValue> refToBaseProd0(refProd0);
+   cerr << ">>> RefToBaseProd from Ref" << endl;
+   RefToBaseProd<IntValue> refToBaseProd1(ref0);
+   cerr << ">>> RefToBaseProd from Handle" << endl;
+   RefToBaseProd<IntValue> refToBaseProd2(handle);
+   cerr << ">>> checking View from RefToBaseProd" << endl;
+   const View<IntValue> & vw = * refToBaseProd0;
+   cerr << ">>> checking View not empty" << endl;
+   CPPUNIT_ASSERT( ! vw.empty() );
+   cerr << ">>> checking View size" << endl;
+   CPPUNIT_ASSERT( vw.size() == 2 );
+   cerr << ">>> checking View element #0" << endl;
+   CPPUNIT_ASSERT( vw[0].value_ == ref0->value_ );
+   cerr << ">>> checking View element #1" << endl;
+   CPPUNIT_ASSERT( vw[1].value_ == ref1->value_ );
+   cerr << ">>> RefToBaseProd from View" << endl;
+   RefToBaseProd<IntValue> refToBaseProd3(vw);
+   cerr << ">>> checking ref. not empty" << endl;
+   CPPUNIT_ASSERT( ! refToBaseProd3->empty() );
+   cerr << ">>> checking ref. size" << endl;
+   CPPUNIT_ASSERT( refToBaseProd3->size() == 2 );
+   cerr << ">>> checking ref. element #0" << endl;
+   CPPUNIT_ASSERT( (*refToBaseProd3)[0].value_ == ref0->value_ );
+   cerr << ">>> checking ref. element #1" << endl;
+   CPPUNIT_ASSERT( (*refToBaseProd3)[1].value_ == ref1->value_ );
 }

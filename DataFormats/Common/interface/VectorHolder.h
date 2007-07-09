@@ -1,11 +1,13 @@
 #ifndef Common_VectorHolder_h
 #define Common_VectorHolder_h
 #include "DataFormats/Common/interface/BaseVectorHolder.h"
+#include "DataFormats/Common/interface/RefVectorHolder.h"
+#include "DataFormats/Common/interface/Holder.h"
 
 namespace edm {
   namespace reftobase {
 
-    template <class T, class TRefVector>
+    template <class T, class REFV>
     class VectorHolder : public BaseVectorHolder<T> {
     public:
       typedef BaseVectorHolder<T>                base_type;
@@ -13,7 +15,7 @@ namespace edm {
       typedef typename base_type::element_type   element_type;
       typedef typename base_type::base_ref_type  base_ref_type;
       typedef typename base_type::const_iterator const_iterator;
-      typedef TRefVector                         ref_vector_type;
+      typedef REFV                               ref_vector_type;
 
       VectorHolder() {}
       explicit VectorHolder(const ref_vector_type& iRefVector) : refVector_(iRefVector) {}
@@ -26,12 +28,24 @@ namespace edm {
       //void reserve(size_type n) { refVector_.reserve(n); }
       void clear() { refVector_.clear(); }
       ProductID id() const { return refVector_.id(); } 
+      EDProductGetter const* productGetter() const { return refVector_.productGetter(); }
 
       const_iterator begin() const { 
 	return const_iterator( new const_iterator_imp_specific( refVector_.begin() ) ); 
       }
       const_iterator end() const { 
 	return const_iterator( new const_iterator_imp_specific( refVector_.end() ) ); 
+      }
+      virtual std::auto_ptr<reftobase::RefVectorHolderBase> vectorHolder() const {
+	return std::auto_ptr<reftobase::RefVectorHolderBase>( new reftobase::RefVectorHolder<REFV>( refVector_ ) );
+      }
+      virtual void push_back( const BaseHolder<T> * r ) {
+	typedef Holder<T, typename REFV::value_type > holder_type;
+	const holder_type * h = dynamic_cast<const holder_type *>( r );
+	if( h == 0 )
+	  throw edm::Exception( edm::errors::InvalidReference ) 
+	    << "In VectorHolder<T, REFV> trying to push_back wrong reference type";
+	refVector_.push_back( h->getRef() );
       }
 
     private:
@@ -45,7 +59,7 @@ namespace edm {
       struct const_iterator_imp_specific : public const_iterator_imp {
 	typedef ptrdiff_t difference_type;
 	const_iterator_imp_specific() { }
-	explicit const_iterator_imp_specific( const typename TRefVector::const_iterator & it ) : i ( it ) { }
+	explicit const_iterator_imp_specific( const typename REFV::const_iterator & it ) : i ( it ) { }
 	~const_iterator_imp_specific() { }
 	const_iterator_imp_specific * clone() const { return new const_iterator_imp_specific( i ); }
 	void increase() { ++i; }
@@ -55,7 +69,7 @@ namespace edm {
 	bool equal_to( const const_iterator_imp * o ) const { return i == dc( o ); }
 	bool less_than( const const_iterator_imp * o ) const { return i < dc( o ); }
 	void assign( const const_iterator_imp * o ) { i = dc( o ); }
-	const T & deref() const { return * * i; }
+	base_ref_type deref() const { return base_ref_type( * i ); }
 	difference_type difference( const const_iterator_imp * o ) const { return i - dc( o ); }
       private:
 	const typename ref_vector_type::const_iterator & dc( const const_iterator_imp * o ) const {

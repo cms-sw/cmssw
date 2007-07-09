@@ -5,7 +5,7 @@
   
 Wrapper: A template wrapper around EDProducts to hold the product ID.
 
-$Id: Wrapper.h,v 1.17 2007/05/16 22:32:00 paterno Exp $
+$Id: Wrapper.h,v 1.18 2007/05/24 16:35:46 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -19,11 +19,9 @@ $Id: Wrapper.h,v 1.17 2007/05/16 22:32:00 paterno Exp $
 #include <set>
 
 #include "boost/mpl/if.hpp"
-
 #include "DataFormats/Common/interface/EDProduct.h"
-#include "DataFormats/Common/interface/EDProductfwd.h"
+#include "DataFormats/Common/interface/RefVectorHolder.h"
 #include "DataFormats/Common/interface/traits.h"
-
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
@@ -48,7 +46,7 @@ namespace edm {
     virtual bool isPresent_() const {return present;}
     virtual void do_fillView(ProductID const& id,
 			     std::vector<void const*>& pointers,
-			     std::vector<helper_ptr>& helpers) const;
+			     helper_vector_ptr & helpers) const;
     // We wish to disallow copy construction and assignment.
     // We make the copy constructor and assignment operator private.
     Wrapper(Wrapper<T> const& rh); // disallow copy construction
@@ -70,15 +68,7 @@ namespace edm {
     void operator()(T const& obj,
 		    ProductID const& id,
 		    std::vector<void const*>& pointers,
-		    std::vector<helper_ptr>& helpers) const
-    {
-      // fillView is the name of an overload set; each concrete
-      // collection T should supply a fillView function, in the same
-      // namespace at that in which T is defined, or in the 'edm'
-      // namespace.
-      fillView(obj, id, pointers, helpers);
-      assert( pointers.size() == helpers.size());
-    }
+		    helper_vector_ptr & helpers) const;
   };
 
   template <class T>
@@ -87,7 +77,7 @@ namespace edm {
     void operator()(T const&,
 		    ProductID const&,
 		    std::vector<void const*>&,
-		    std::vector<helper_ptr>& ) const 
+		    helper_vector_ptr& ) const 
     {
       throw Exception(errors::ProductDoesNotSupportViews)
 	<< "The product type " 
@@ -100,7 +90,7 @@ namespace edm {
     inline
     void Wrapper<T>::do_fillView(ProductID const& id,
 			     std::vector<void const*>& pointers,
-			     std::vector<helper_ptr>& helpers) const
+			     helper_vector_ptr& helpers) const
     {
       typename boost::mpl::if_c<has_fillView<T>::value,
 	DoFillView<T>,
@@ -198,7 +188,54 @@ namespace edm {
   std::string
   wrappedClassName(std::string const& className);
 
+}
 
+#include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/Common/interface/RefToBaseVector.h"
+
+namespace edm {
+  namespace helpers {
+    template<typename T>
+    struct ViewFiller {
+      static void fill(T const& obj,
+		       ProductID const& id,
+		       std::vector<void const*>& pointers,
+		       helper_vector_ptr & helpers) {
+	/// the following shoudl work also if T is a RefVector<C>
+	typedef Ref<T> ref;
+	typedef RefVector<T, typename ref::value_type, typename ref::finder_type> ref_vector;
+	helpers = helper_vector_ptr( new reftobase::RefVectorHolder<ref_vector> );
+	// fillView is the name of an overload set; each concrete
+	// collection T should supply a fillView function, in the same
+	// namespace at that in which T is defined, or in the 'edm'
+	// namespace.
+	fillView(obj, id, pointers, * helpers);
+	assert( pointers.size() == helpers->size());
+     }
+    };
+
+    template<typename T>
+    struct ViewFiller<RefToBaseVector<T> > {
+      static void fill(RefToBaseVector<T> const& obj,
+		       ProductID const& id,
+		       std::vector<void const*>& pointers,
+		       helper_vector_ptr & helpers) {
+	std::auto_ptr<helper_vector> h = obj.vectorHolder();
+	pointers.reserve( h->size() );
+	// NOTE: the following implementation has unusual signature!
+	fillView( obj, pointers );
+	helpers = helper_vector_ptr( h );
+      }
+    };
+  }
+
+  template <class T>
+  void DoFillView<T>::operator()(T const& obj,
+				 ProductID const& id,
+				 std::vector<void const*>& pointers,
+				 helper_vector_ptr & helpers) const  {
+    helpers::ViewFiller<T>::fill( obj, id, pointers, helpers );
+  }
 
 }
 

@@ -5,9 +5,10 @@
   
 Forward declarations of types in the EDM.
 
-$Id: EDProductfwd.h,v 1.12 2007/06/07 15:40:40 paterno Exp $
+$Id: EDProductfwd.h,v 1.13 2007/06/20 15:52:50 paterno Exp $
 
 ----------------------------------------------------------------------*/
+#include "boost/shared_ptr.hpp"
 
 namespace edm 
 {
@@ -37,10 +38,13 @@ namespace edm
     class RefHolderBase;
     template <typename T> class IndirectHolder;
     template <typename REF> class RefHolder;
-
+    class RefVectorHolderBase;
     template <class T> class BaseVectorHolder;
     template <class T, class REFVECTOR> class VectorHolder;
   }
+  typedef boost::shared_ptr<reftobase::RefHolderBase> helper_ptr;
+  typedef reftobase::RefVectorHolderBase helper_vector;
+  typedef boost::shared_ptr<reftobase::RefVectorHolderBase> helper_vector_ptr;
 }
 
 #endif

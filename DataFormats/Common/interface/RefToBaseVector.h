@@ -4,6 +4,8 @@
  *
  * \author Luca Lista, INFN
  *
+ * $Id$
+ *
  */
 
 #include "DataFormats/Common/interface/RefToBase.h"
@@ -11,7 +13,7 @@
 #include "DataFormats/Common/interface/IndirectVectorHolder.h"
 #include "DataFormats/Common/interface/RefVectorHolder.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-
+#include "DataFormats/Common/interface/traits.h"
 
 namespace edm {
   template <class T>
@@ -24,9 +26,9 @@ namespace edm {
     typedef typename holder_type::const_iterator const_iterator;
 
     RefToBaseVector();
-    RefToBaseVector(RefToBaseVector const& iOther);
-    template <class TRefVector> explicit RefToBaseVector(TRefVector const& iRef);
-
+    RefToBaseVector(RefToBaseVector const& );
+    template <class REFV> explicit RefToBaseVector(REFV const& );
+    RefToBaseVector(boost::shared_ptr<reftobase::RefVectorHolderBase> p);
     RefToBaseVector& operator=(RefToBaseVector const& iRHS);
     void swap(RefToBaseVector& other);
 
@@ -43,11 +45,20 @@ namespace edm {
     size_type size() const;
     //size_type capacity() const;
     ProductID id() const;
+    EDProductGetter const* productGetter() const;
     const_iterator begin() const;
     const_iterator end() const;
 
+    void push_back( const RefToBase<T> & );
+
+    void fillView(std::vector<void const*>& pointers) const;
+
+    std::auto_ptr<reftobase::RefVectorHolderBase> vectorHolder() const {
+      return holder_->vectorHolder();
+    }
+
   private:
-    holder_type* holder_;
+    holder_type * holder_;
   };
   
   template <class T>
@@ -79,16 +90,22 @@ namespace edm {
   { }
 
   template <class T>
-  template <class TRefVector>
+  template <class REFV>
   inline
-  RefToBaseVector<T>::RefToBaseVector(const TRefVector& iRef) :
-    holder_(new reftobase::VectorHolder<T,TRefVector>(iRef)) 
+  RefToBaseVector<T>::RefToBaseVector(const REFV& iRef) :
+    holder_(new reftobase::VectorHolder<T,REFV>(iRef)) 
   { }
 
   template <class T>
   inline
   RefToBaseVector<T>::RefToBaseVector(const RefToBaseVector<T>& iOther) : 
     holder_(iOther.holder_ ? iOther.holder_->clone() : 0)
+  { }
+
+  template <class T>
+  inline
+  RefToBaseVector<T>::RefToBaseVector(boost::shared_ptr<reftobase::RefVectorHolderBase> p) : 
+    holder_(new reftobase::IndirectVectorHolder<T>(p))
   { }
 
   template <class T>
@@ -149,24 +166,6 @@ namespace edm {
     return holder_ ? holder_->size() : 0;
   }
 
-//   template <class T>
-//   inline
-//   typename RefToBaseVector<T>::size_type
-//   RefToBaseVector<T>::capacity() const 
-//   {
-//     return holder_ ? holder_->capacity() : 0;
-//   }
-
-
-//   template <class T>
-//   inline
-//   void 
-//   RefToBaseVector<T>::reserve(size_type n)
-//   {
-//     if (!holder_) holder_ = new holder_type();
-//     holder_->reserve(n);
-//   }
-
   template <class T>
   inline
   void 
@@ -189,6 +188,14 @@ namespace edm {
 
   template <class T>
   inline
+  EDProductGetter const * 
+  RefToBaseVector<T>::productGetter() const
+  {
+    return holder_ ? holder_->productGetter() : 0;
+  }
+
+  template <class T>
+  inline
   typename RefToBaseVector<T>::const_iterator
   RefToBaseVector<T>::begin() const
   {
@@ -204,6 +211,37 @@ namespace edm {
     if ( holder_ == 0 ) return const_iterator();
     return holder_->end();
   }
+
+  template <typename T>
+  void
+  RefToBaseVector<T>::fillView(std::vector<void const*>& pointers) const
+  {
+    typedef RefToBase<T>             ref_type;
+    pointers.reserve(this->size());
+    for (const_iterator i=begin(), e=end(); i!=e; ++i) {
+      ref_type ref = * i;
+      member_type const * address = ref.isNull() ? 0 : & * ref;
+      pointers.push_back(address);
+    }
+  }
+
+  template <typename T>
+  void RefToBaseVector<T>::push_back( const RefToBase<T> & r ) {
+    holder_->push_back( r.holder_ );
+  }
+
+  // NOTE: the following implementation has unusual signature!
+  template <typename T>
+  inline void fillView(RefToBaseVector<T> const& obj,
+		       std::vector<void const*>& pointers) {
+    obj.fillView(pointers);
+  }
+
+
+  template <typename T>
+  struct has_fillView<RefToBaseVector<T> > {
+    static bool const value = true;
+  };
 
 }
 

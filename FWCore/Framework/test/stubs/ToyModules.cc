@@ -14,8 +14,10 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/FillView.h"
 #include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/Common/interface/RefToBaseVector.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -571,6 +573,39 @@ namespace edmtest {
     e.put(prod);
   }
 
+  //--------------------------------------------------------------------
+  //
+  // Produces an edm::RefToBaseVector<int> instance.
+  // This requires that an instance of IntVectorProducer be run *before*
+  // this producer. The input collection is read as an edm::View<int>
+  class IntVecRefToBaseVectorProducer : public edm::EDProducer {
+    typedef edm::RefToBaseVector<int> product_type;
+
+  public:
+    explicit IntVecRefToBaseVectorProducer(edm::ParameterSet const& p) :
+      target_(p.getParameter<std::string>("target"))
+    {
+      produces<product_type>();
+    }
+    virtual ~IntVecRefToBaseVectorProducer() { }
+    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+
+  private:
+    std::string target_;
+  };
+
+  void
+  IntVecRefToBaseVectorProducer::produce(edm::Event& e, edm::EventSetup const&) {
+    // EventSetup is not used.
+    // Get our input:
+    edm::Handle<edm::View<int> > input;
+    e.getByLabel(target_, input);
+    assert(input.isValid());
+
+    std::auto_ptr<product_type> prod(new product_type( input->refVector() ));
+    e.put(prod);
+  }
+
 
   //--------------------------------------------------------------------
   //
@@ -739,6 +774,7 @@ using edmtest::IntListProducer;
 using edmtest::IntDequeProducer;
 using edmtest::IntSetProducer;
 using edmtest::IntVecRefVectorProducer;
+using edmtest::IntVecRefToBaseVectorProducer;
 DEFINE_FWK_MODULE(FailingProducer);
 DEFINE_FWK_MODULE(IntProducer);
 DEFINE_FWK_MODULE(DoubleProducer);
@@ -756,4 +792,5 @@ DEFINE_FWK_MODULE(IntListProducer);
 DEFINE_FWK_MODULE(IntDequeProducer);
 DEFINE_FWK_MODULE(IntSetProducer);
 DEFINE_FWK_MODULE(IntVecRefVectorProducer);
+DEFINE_FWK_MODULE(IntVecRefToBaseVectorProducer);
 

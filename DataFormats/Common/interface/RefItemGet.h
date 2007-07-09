@@ -5,7 +5,7 @@
   
 RefItemGet: Free function to get pointer to a referenced item.
 
-$Id: RefItemGet.h,v 1.8 2007/03/27 16:16:36 paterno Exp $
+$Id: RefItemGet.h,v 1.1 2007/05/15 17:10:24 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include "DataFormats/Common/interface/RefCore.h"
@@ -18,7 +18,7 @@ namespace edm {
     template< typename C, typename T, typename F, typename KEY>
     struct GetPtrImpl {
       static T const* getPtr_(RefCore const& product, RefItem<KEY> const& item) {
-        C const* prod = getProduct<C>(product);
+        C const* prod = edm::template getProduct<C>(product);
         /*
         typename C::const_iterator it = prod->begin();
          std::advance(it, item.key());

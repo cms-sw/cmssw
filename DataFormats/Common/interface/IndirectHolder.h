@@ -4,7 +4,12 @@
 #include "DataFormats/Common/interface/RefHolderBase.h"
 
 namespace edm {
+  template<typename T> class RefToBase;
+
   namespace reftobase {
+
+    template<typename T> class IndirectVectorHolder;
+
     class RefHolderBase;
 
     //------------------------------------------------------------------
@@ -17,7 +22,7 @@ namespace edm {
       // It may be better to use auto_ptr<RefHolderBase> in
       // this constructor, so that the cloning can be avoided. I'm not
       // sure if use of auto_ptr here causes any troubles elsewhere.
-      IndirectHolder() { }
+      IndirectHolder() : helper_( 0 ) { }
       IndirectHolder(boost::shared_ptr<RefHolderBase> p);
       IndirectHolder(IndirectHolder const& other);
       IndirectHolder& operator= (IndirectHolder const& rhs);
@@ -31,8 +36,13 @@ namespace edm {
 
       virtual bool fillRefIfMyTypeMatches(RefHolderBase& fillme,
 					  std::string& msg) const;
+      virtual std::auto_ptr<RefHolderBase> holder() const { 
+	return std::auto_ptr<RefHolderBase>( helper_->clone() ); 
+      }
 
     private:
+      friend class RefToBase<T>;
+      friend class IndirectVectorHolder<T>;
       RefHolderBase* helper_;
     };
     //------------------------------------------------------------------
@@ -86,7 +96,7 @@ namespace edm {
     T const* 
     IndirectHolder<T>::getPtr() const 
     {
-      return helper_-> template getPtr<T>();
+     return helper_-> template getPtr<T>();
     }
 
     template <class T>

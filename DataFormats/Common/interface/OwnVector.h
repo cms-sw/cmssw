@@ -1,6 +1,6 @@
 #ifndef Common_OwnVector_h
 #define Common_OwnVector_h
-// $Id: OwnVector.h,v 1.28 2007/06/08 12:23:33 llista Exp $
+// $Id: OwnVector.h,v 1.29 2007/06/27 14:17:19 llista Exp $
 
 #include <algorithm>
 #include <functional>
@@ -167,7 +167,7 @@ namespace edm {
 
     void fillView(ProductID const& id,
 		  std::vector<void const*>& pointers,
-		  std::vector<helper_ptr>& helpers) const;
+		  helper_vector& helpers) const;
 
     void fixup() { fixup_(data_); }
   private:
@@ -392,7 +392,7 @@ namespace edm {
   template<typename T, typename P>
   void OwnVector<T, P>::fillView(ProductID const& id,
 				 std::vector<void const*>& pointers,
-				 std::vector<helper_ptr>& helpers) const
+				 helper_vector& helpers) const
   {
     typedef Ref<OwnVector>      ref_type ;
     typedef reftobase::RefHolder<ref_type> holder_type;
@@ -411,7 +411,8 @@ namespace edm {
       }
       else {
 	pointers.push_back(*i);
-	helpers.push_back(helper_ptr(new holder_type(ref_type(id, *i, key))));
+	holder_type h(ref_type(id, *i, key));
+	helpers.push_back(&h);
       }
     }
   }
@@ -431,7 +432,7 @@ namespace edm {
   fillView(OwnVector<T,P> const& obj,
 	   ProductID const& id,
 	   std::vector<void const*>& pointers,
-	   std::vector<helper_ptr>& helpers)
+	   helper_vector& helpers)
   {
     obj.fillView(id, pointers, helpers);
   }

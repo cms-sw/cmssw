@@ -1,13 +1,11 @@
 
 /*----------------------------------------------------------------------
-$Id: OutputWorker.cc,v 1.22 2007/06/05 04:02:32 wmtan Exp $
+$Id: OutputWorker.cc,v 1.23 2007/06/29 03:43:21 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/Framework/src/OutputWorker.h"
-
-#include <iostream>
 
 namespace edm {
   OutputWorker::OutputWorker(std::auto_ptr<OutputModule> mod,

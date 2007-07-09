@@ -28,7 +28,7 @@ reference type.
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Apr  3 16:37:59 EDT 2006
-// $Id: RefToBase.h,v 1.19 2007/06/14 04:56:29 wmtan Exp $
+// $Id: RefToBase.h,v 1.20 2007/07/02 13:03:03 llista Exp $
 //
 
 // system include files
@@ -53,6 +53,8 @@ namespace edm {
   /// RefToBase<T> provides a mechanism to refer to an object of type
   /// T (or which has T as a public base), held in a collection (of
   /// type not known to RefToBase<T>) which itself it in an Event.
+
+  template<typename T> class RefToBaseVector;
 
   template <class T>
   class RefToBase
@@ -85,10 +87,13 @@ namespace edm {
     bool operator!=(RefToBase const& rhs) const;
 
     void swap(RefToBase& other);
+    
+    std::auto_ptr<reftobase::RefHolderBase> holder() const;
 
   private:
     value_type const* getPtrImpl() const;
     reftobase::BaseHolder<value_type>* holder_;
+    friend class RefToBaseVector<T>;
   };
 
   //--------------------------------------------------------------------
@@ -257,6 +262,11 @@ namespace edm {
   RefToBase<T>::getPtrImpl() const 
   {
     return holder_ ? holder_->getPtr() : 0;
+  }
+
+  template <class T>
+  std::auto_ptr<reftobase::RefHolderBase> RefToBase<T>::holder() const {
+    return holder_->holder();
   }
   
   // Free swap function

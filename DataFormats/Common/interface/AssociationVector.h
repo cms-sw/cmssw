@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.19 $
+ * \version $Revision: 1.20 $
  */
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -79,7 +79,7 @@ namespace edm {
     }   
     void fillView(ProductID const& id,
 		  std::vector<void const*>& pointers,
-		  std::vector<helper_ptr>& helpers) const;
+		  helper_vector& helpers) const;
 
     typedef typename transient_vector_type::const_iterator const_iterator;
 
@@ -189,7 +189,7 @@ namespace edm {
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceTrait>
   void AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceTrait>::fillView(ProductID const& id,
 								       std::vector<void const*>& pointers, 
-								       std::vector<helper_ptr>& helpers) const
+								       helper_vector& helpers) const
   {
     detail::reallyFillView(*this, id, pointers, helpers);
 //     pointers.reserve(this->size());
@@ -215,7 +215,7 @@ namespace edm {
   fillView(AssociationVector<KeyRefProd,CVal, KeyRef, SizeType, KeyReferenceTrait> const& obj,
 	   ProductID const& id,
 	   std::vector<void const*>& pointers,
-	   std::vector<helper_ptr>& helpers) {
+	   helper_vector& helpers) {
     obj.fillView(id, pointers, helpers);
   }
 

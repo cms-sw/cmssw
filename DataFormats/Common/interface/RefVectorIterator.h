@@ -6,7 +6,7 @@
 RefVectorIterator: An iterator for a RefVector
 
 
-$Id: RefVectorIterator.h,v 1.5 2006/07/14 01:57:20 chrjones Exp $
+$Id: RefVectorIterator.h,v 1.6 2006/12/04 19:02:31 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -21,7 +21,7 @@ namespace edm {
   class RefVectorIterator : public std::iterator <std::random_access_iterator_tag, Ref<C, T, F> > {
   public:
     typedef Ref<C, T, F> value_type;
-    typedef typename Ref<C, T, F>::key_type key_type;
+    typedef typename value_type::key_type key_type;
 
     typedef RefVectorIterator<C, T, F> iterator;
     typedef std::ptrdiff_t difference;
@@ -29,17 +29,17 @@ namespace edm {
     RefVectorIterator() : product_(), iter_() {}
     explicit RefVectorIterator(RefCore const& product, itemIter const& it) :
       product_(product), iter_(it) {}
-    Ref<C, T, F> operator*() const {
+    value_type operator*() const {
       RefItem<key_type> const& item = *iter_;
-      return Ref<C, T, F>(product_, item);
+      return value_type(product_, item);
     }
-    Ref<C, T, F> operator[](difference n) const {
+    value_type operator[](difference n) const {
       RefItem<key_type> const& item = iter_[n];
-      return Ref<C, T, F>(product_, item);
+      return value_type(product_, item);
     }
-    std::auto_ptr<Ref<C, T, F> > operator->() const {
+    std::auto_ptr<value_type> operator->() const {
       RefItem<key_type> const& item = *iter_;
-      return std::auto_ptr<Ref<C, T, F> >(new Ref<C,T,F>(product_, item));
+      return std::auto_ptr<value_type>(new value_type(product_, item));
     }
     iterator & operator++() {++iter_; return *this;}
     iterator & operator--() {--iter_; return *this;}
@@ -59,6 +59,7 @@ namespace edm {
     bool operator>(iterator const& rhs) const {return this->iter_ > rhs.iter_;}
     bool operator<=(iterator const& rhs) const {return this->iter_ <= rhs.iter_;}
     bool operator>=(iterator const& rhs) const {return this->iter_ >= rhs.iter_;}
+
   private:
     RefCore product_;
     itemIter iter_;
