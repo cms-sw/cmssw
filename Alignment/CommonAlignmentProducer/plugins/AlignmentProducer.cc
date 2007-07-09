@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.8 $
-///  last update: $Date: 2007/07/03 18:36:13 $
-///  by         : $Author: cklae $
+///  Revision   : $Revision: 1.9 $
+///  last update: $Date: 2007/07/09 14:16:44 $
+///  by         : $Author: pivarski $
 
 #include "Alignment/CommonAlignmentProducer/plugins/AlignmentProducer.h"
 
@@ -204,9 +204,9 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
       iSetup.get<TrackerSurveyRcd>().get(surveys);
       iSetup.get<TrackerSurveyErrorRcd>().get(surveyErrors);
 
+      theSurveyIndex  = 0;
       theSurveyValues = &*surveys;
       theSurveyErrors = &*surveyErrors;
-
       addSurveyInfo_(theAlignableTracker);
     }
   }
@@ -227,6 +227,7 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
 	iSetup.get<CSCSurveyRcd>().get(cscSurveys);
 	iSetup.get<CSCSurveyErrorRcd>().get(cscSurveyErrors);
 
+	theSurveyIndex  = 0;
 	theSurveyValues = &*dtSurveys;
 	theSurveyErrors = &*dtSurveyErrors;
 	std::vector<Alignable*> barrels = theAlignableMuon->DTBarrel();
@@ -234,6 +235,7 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
 	   addSurveyInfo_(*iter);
 	}
 
+	theSurveyIndex  = 0;
 	theSurveyValues = &*cscSurveys;
 	theSurveyErrors = &*cscSurveyErrors;
 	std::vector<Alignable*> endcaps = theAlignableMuon->CSCEndcaps();
@@ -567,15 +569,13 @@ void AlignmentProducer::createGeometries_( const edm::EventSetup& iSetup )
 
 void AlignmentProducer::addSurveyInfo_(Alignable* ali)
 {
-  static unsigned int s(0); // index for survey values, errors
-
   const std::vector<Alignable*>& comp = ali->components();
 
   unsigned int nComp = comp.size();
 
   for (unsigned int i = 0; i < nComp; ++i) addSurveyInfo_(comp[i]);
 
-  const SurveyError& error = theSurveyErrors->m_surveyErrors[s];
+  const SurveyError& error = theSurveyErrors->m_surveyErrors[theSurveyIndex];
 
   if ( ali->geomDetId().rawId() != error.rawId() ||
        ali->alignableObjectId() != error.structureType() )
@@ -584,8 +584,8 @@ void AlignmentProducer::addSurveyInfo_(Alignable* ali)
       << "Error reading survey info from DB. Mismatched id!";
   }
 
-  const CLHEP::Hep3Vector&  pos = theSurveyValues->m_align[s].translation();
-  const CLHEP::HepRotation& rot = theSurveyValues->m_align[s].rotation();
+  const CLHEP::Hep3Vector&  pos = theSurveyValues->m_align[theSurveyIndex].translation();
+  const CLHEP::HepRotation& rot = theSurveyValues->m_align[theSurveyIndex].rotation();
 
   AlignableSurface surf( align::PositionType( pos.x(), pos.y(), pos.z() ),
 			 align::RotationType( rot.xx(), rot.xy(), rot.xz(),
@@ -597,7 +597,7 @@ void AlignmentProducer::addSurveyInfo_(Alignable* ali)
 
   ali->setSurvey( new SurveyDet( surf, error.matrix() ) );
 
-  ++s;
+  ++theSurveyIndex;
 }
 
 DEFINE_ANOTHER_FWK_LOOPER( AlignmentProducer );

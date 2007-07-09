@@ -7,9 +7,9 @@
 /// Description : calls alignment algorithms
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.4 $
-///  last update: $Date: 2007/05/11 21:22:36 $
-///  by         : $Author: flucke $
+///  Revision   : $Revision: 1.5 $
+///  last update: $Date: 2007/07/03 18:36:13 $
+///  by         : $Author: cklae $
 
 #include <vector>
 
@@ -90,6 +90,7 @@ class AlignmentProducer : public edm::ESProducerLooper
 
   // private data members
 
+  unsigned int        theSurveyIndex;
   const Alignments*   theSurveyValues;
   const SurveyErrors* theSurveyErrors;
 
