@@ -22,6 +22,6 @@ bool PixelTrackFilterByKinematics::operator()(const reco::Track* track) const
 {
   return ( (track) &&   
               (track->pt() > thePtMin)
-           && (track->d0() < theTIPMax)
+           && ( fabs(track->d0()) < theTIPMax)
            && (track->chi2() < theChi2Max) );
 }
