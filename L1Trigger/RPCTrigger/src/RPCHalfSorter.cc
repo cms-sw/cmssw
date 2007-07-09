@@ -103,16 +103,21 @@ L1RpcTBMuonsVec2 RPCHalfSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
 
   L1RpcTBMuonsVec2 firstHalfTcsMuonsVec2;
 
-  firstHalfTcsMuonsVec2.push_back(tcsMuonsVec2[m_TrigCnfg->getTCsCnt()-1]); 
+  firstHalfTcsMuonsVec2.push_back(tcsMuonsVec2[m_TrigCnfg->getTCsCnt()-1]); //TC=11 (last one)
 
+  std::cout << "-"<< std::endl;
   // update sectorAddr. Dont update sectorAddr of last tc (it will be done in other half)
-  int secAddr = 1;
+  int secAddr = 1;  
+  //                                         <6+1
   for(int iTC = 0; iTC < m_TrigCnfg->getTCsCnt()/2 +1; iTC++) {
     for(unsigned int iMu = 0; iMu < tcsMuonsVec2[iTC].size(); iMu++){
-      if( iTC!= m_TrigCnfg->getTCsCnt()/2 +1){
+      if ( secAddr != 0 && secAddr != 7  ){ 
+        std::cout << iTC << " " << secAddr << std::endl; 
         tcsMuonsVec2[iTC][iMu].setSectorAddr(secAddr); // |
                                                    // iTC=0 - firstTrigger crate (no=1) 
                                                    //       - in hw it has sectorAddr=1
+        tcsMuonsVec2[iTC][iMu].setGBData(0);       // gbData is used nowhere from now, we 
+                                                   //      want to act same as hw
       }
     } // iter. over muons end
     ++secAddr; // Next trigger crate. Update the address
@@ -124,12 +129,17 @@ L1RpcTBMuonsVec2 RPCHalfSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
   unsigned int fhBMuons = m_GBOutputMuons[0].size(); // Number of first half barrel muons
   unsigned int fhEMuons = m_GBOutputMuons[1].size(); // Number of first half endcap muons
   
+  std::cout << std::endl;
   L1RpcTBMuonsVec2 secondHalfTcsMuonsVec2;
-  secAddr = 0; // We need to skip first tc (prev. we started with secAddr=1)
+  secAddr = 0; 
+  //        5                                           <12
   for(int iTC = m_TrigCnfg->getTCsCnt()/2-1; iTC < m_TrigCnfg->getTCsCnt(); iTC++) {
     for(unsigned int iMu = 0; iMu < tcsMuonsVec2[iTC].size(); iMu++){
-      if ( iTC != m_TrigCnfg->getTCsCnt()/2-1 ){ 
+      if ( secAddr != 0 && secAddr != 7  ){ 
+        std::cout << iTC << " " << secAddr << std::endl; 
         tcsMuonsVec2[iTC][iMu].setSectorAddr(secAddr);
+        tcsMuonsVec2[iTC][iMu].setGBData(0);       // gbData is used nowhere from now, we 
+                                                   //      want to act same as hw
       }
     }
     ++secAddr;
