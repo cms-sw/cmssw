@@ -4,6 +4,13 @@
  <flags EDM_PLUGIN=1>
 </library>
 
+<library name="AlignmentMonitorGeneric" file="AlignmentMonitorGeneric.cc">
+ <use name=Alignment/CommonAlignmentMonitor>
+ <use name=Alignment/TrackerAlignment>
+ <use name=TrackingTools/TrackFitters>
+ <flags EDM_PLUGIN=1>
+</library>
+
 <library name="AlignmentMonitorMuonHIP" file="AlignmentMonitorMuonHIP.cc">
  <use name=Alignment/CommonAlignmentMonitor>
  <use name=TrackingTools/TrackFitters>
