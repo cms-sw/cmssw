@@ -1,23 +1,13 @@
 #include <memory>
 #include "boost/shared_ptr.hpp"
 
-// user include files
-#include "FWCore/Framework/interface/SourceFactory.h"
-#include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
-
-//FW include files
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
-//CSCObjects
 #include "CondFormats/CSCObjects/interface/CSCobject.h"
 #include "CondFormats/CSCObjects/interface/CSCNoiseMatrix.h"
-#include "CalibMuon/CSCCalibration/interface/CSCFakeNoiseMatrixConditions.h"
 #include "CondFormats/DataRecord/interface/CSCNoiseMatrixRcd.h"
+#include "CalibMuon/CSCCalibration/interface/CSCFakeNoiseMatrixConditions.h"
 
 void CSCFakeNoiseMatrixConditions::prefillNoiseMatrix(){
-  
+
   const CSCDetId& detId = CSCDetId();
   cnmatrix = new CSCNoiseMatrix();
   
@@ -194,23 +184,24 @@ void CSCFakeNoiseMatrixConditions::prefillNoiseMatrix(){
 
 CSCFakeNoiseMatrixConditions::CSCFakeNoiseMatrixConditions(const edm::ParameterSet& iConfig)
 {
-  // tell the framework what data is being produced
+  
+  //tell the framework what data is being produced
+  prefillNoiseMatrix();  
   setWhatProduced(this,&CSCFakeNoiseMatrixConditions::produceNoiseMatrix);
-
+  
   findingRecord<CSCNoiseMatrixRcd>();
-
+  
   //now do what ever other initialization is needed
-  prefillNoiseMatrix();
+  
 }
 
 
 CSCFakeNoiseMatrixConditions::~CSCFakeNoiseMatrixConditions()
 {
-   // do anything here that needs to be done at destruction time
-   // (e.g. close files, deallocate resources etc.)
+  // do anything here that needs to be done at destruction time
+  // (e.g. close files, deallocate resources etc.)
   delete cnmatrix; // since not made persistent so we still own it.
 }
-
 
 //
 // member functions
@@ -220,18 +211,16 @@ CSCFakeNoiseMatrixConditions::~CSCFakeNoiseMatrixConditions()
 CSCFakeNoiseMatrixConditions::ReturnType
 CSCFakeNoiseMatrixConditions::produceNoiseMatrix(const CSCNoiseMatrixRcd& iRecord)
 {
-    prefillNoiseMatrix();
-
-    // Copy the CSCNoiseMatrix so it can be made persistent (this is a memory leak if nobody else takes control)
-    CSCNoiseMatrix* mydata=new CSCNoiseMatrix( *cnmatrix );
-    
-    return mydata;
-
+  // Copy the CSCNoiseMatrix so it can be made persistent (this is a memory leak if nobody else takes control)
+  CSCNoiseMatrix* mydata=new CSCNoiseMatrix( *cnmatrix );
+  
+  return mydata;
+  
 }
 
- void CSCFakeNoiseMatrixConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,
- edm::ValidityInterval & oValidity)
- {
- oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(),edm::IOVSyncValue::endOfTime());
- 
- }
+void CSCFakeNoiseMatrixConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,
+						  edm::ValidityInterval & oValidity)
+{
+  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(),edm::IOVSyncValue::endOfTime());
+  
+}

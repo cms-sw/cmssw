@@ -1,22 +1,11 @@
 #include <memory>
 #include "boost/shared_ptr.hpp"
 
-// user include files
-#include "FWCore/Framework/interface/SourceFactory.h"
-#include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
-
-//FW include files
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
-//CSCObjects
-#include "CondFormats/CSCObjects/interface/CSCobject.h"
 #include "CondFormats/CSCObjects/interface/CSCPedestals.h"
-#include "CalibMuon/CSCCalibration/interface/CSCFakePedestalsConditions.h"
 #include "CondFormats/DataRecord/interface/CSCPedestalsRcd.h"
+#include "CalibMuon/CSCCalibration/interface/CSCFakePedestalsConditions.h"
 
-void CSCFakePedestalsMap::prefillPedestalsMap()
+void CSCFakePedestalsConditions::prefillPedestals()
 {
   const CSCDetId& detId = CSCDetId();
   cnpedestals = new CSCPedestals();
@@ -63,7 +52,6 @@ void CSCFakePedestalsMap::prefillPedestalsMap()
 	      itemvector[istrip].ped=((double)rand()/((double)(RAND_MAX)+(double)(1)))*100+meanped;
 	      itemvector[istrip].rms=((double)rand()/((double)(RAND_MAX)+(double)(1)))+meanrms;
 	      cnpedestals->pedestals[id_layer]=itemvector;
-
 	    }
 	  }
 	}
@@ -76,7 +64,7 @@ CSCFakePedestalsConditions::CSCFakePedestalsConditions(const edm::ParameterSet& 
 {
   //the following line is needed to tell the framework what
   // data is being produced
-  pedestals.prefillPedestalsMap();
+  prefillPedestals();
   // added by Zhen (changed since 1_2_0)
   setWhatProduced(this,&CSCFakePedestalsConditions::producePedestals);
   findingRecord<CSCPedestalsRcd>();
@@ -89,7 +77,7 @@ CSCFakePedestalsConditions::~CSCFakePedestalsConditions()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-
+  delete cnpedestals;
 }
 
 
@@ -101,14 +89,11 @@ CSCFakePedestalsConditions::~CSCFakePedestalsConditions()
 CSCFakePedestalsConditions::ReturnType
 CSCFakePedestalsConditions::producePedestals(const CSCPedestalsRcd& iRecord)
 {
-    pedestals.prefillPedestalsMap();
-    //    pedestals.print();
-    // Added by Zhen, need a new object so to not be deleted at exit
-    //    std::cout<<"about to copy"<<std::endl;
-    CSCPedestals* mydata=new CSCPedestals(pedestals.get());
-    
-    return mydata;
-
+  // Added by Zhen, need a new object so to not be deleted at exit
+  CSCPedestals* mydata=new CSCPedestals( *cnpedestals );
+  
+  return mydata;
+  
 }
 
  void CSCFakePedestalsConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,
