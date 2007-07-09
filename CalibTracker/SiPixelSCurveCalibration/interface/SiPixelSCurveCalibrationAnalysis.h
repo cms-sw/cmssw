@@ -20,10 +20,12 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include "CalibTracker/SiPixelSCurveCalibration/interface/SCurveContainer.h" 
-#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/DetId/interface/DetId.h" 
+#include "FWCore/Framework/interface/ESHandle.h" 
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 
 #include <TF1.h> 
-#include <TH1F.h>
+#include <TObjArray.h>
 
 #include <memory>
 #include <map>
@@ -39,14 +41,18 @@ class SiPixelSCurveCalibrationAnalysis : public edm::EDAnalyzer
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
     virtual void endJob();
     std::string makeName(const int&, const int&, const DetId&);
-    std::string makeTitle(const int&, const int&, const DetId&);
+    std::string makeTitle(const int&, const int&, const DetId&); 
+    std::string makeRocName(const int&, const int&, const DetId&, const int&);
+    std::string makeRocTitle(const int&, const int&, const DetId&, const int&);
     void makeHistogram(const SCurveContainer&, const int&, const int&);
 
   private:
-    edm::ParameterSet conf_;
+    edm::ParameterSet conf_; 
+    edm::ESHandle<SiPixelFedCablingMap> map_;
     std::string pixsrc_; 
     unsigned int evtnum_;
-    std::string inputcalibfile_; 
+    std::string inputcalibfile_;
+    unsigned int fedid_; 
     unsigned int histoNum_; 
     PixelCalib* calib_;
     unsigned int vcalmin_;
@@ -56,8 +62,8 @@ class SiPixelSCurveCalibrationAnalysis : public edm::EDAnalyzer
     edm::Service<TFileService> fs_;
     std::map<unsigned int, SCurveContainer> detIdMap_;
     TF1* fitfunc_;
-    TH1F* mean_;
-    TH1F* sigma_;
+    TObjArray* meanhistos_;
+    TObjArray* sigmahistos_;
 };
 
 #endif

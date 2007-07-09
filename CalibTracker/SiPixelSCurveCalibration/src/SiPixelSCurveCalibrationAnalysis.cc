@@ -13,15 +13,17 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyBuilder.h"
 #include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
 
 #include <TFile.h>
 #include <TMath.h>
+#include <TH1F.h>
 
 #include <iostream>
 #include <sstream>
@@ -31,6 +33,7 @@ SiPixelSCurveCalibrationAnalysis::SiPixelSCurveCalibrationAnalysis(const edm::Pa
   pixsrc_(conf.getUntrackedParameter<std::string>("src", "source")),
   evtnum_(0),
   inputcalibfile_(conf.getParameter<std::string>("inputCalibFile")),
+  fedid_(conf.getUntrackedParameter<unsigned int>("fedid", 33)),
   histoNum_(0)
   {
     calib_ = new PixelCalib(inputcalibfile_);
@@ -40,8 +43,8 @@ SiPixelSCurveCalibrationAnalysis::SiPixelSCurveCalibrationAnalysis(const edm::Pa
     ntriggers_ = calib_->nTriggersPerPattern();
     fitfunc_ = new TF1("fit", "0.5*[0]*(1+TMath::Erf((x-[1])/([2]*sqrt(2))))", vcalmin_, vcalmax_);
     fitfunc_->SetParameters(1.0, 15.0, 0.2);
-    mean_ = fs_->make<TH1F>("mean", "mean", 500, vcalmin_, vcalmax_);
-    sigma_ = fs_->make<TH1F>("sigma", "sigma", 100, 0, 1);
+    meanhistos_ = new TObjArray();
+    sigmahistos_ = new TObjArray();
   }
 
 SiPixelSCurveCalibrationAnalysis::~SiPixelSCurveCalibrationAnalysis()
@@ -55,7 +58,8 @@ void SiPixelSCurveCalibrationAnalysis::beginJob(const edm::EventSetup& iSetup)
   LogInfo("SCurve Calibration") << "The starting Vcal value is " << vcalmin_;
   LogInfo("SCurve Calibration") << "The ending Vcal value is " << vcalmax_;
   LogInfo("SCurve Calibration") << "Vcal will be incremented in steps of " << vcalstep_;
-  LogInfo("SCurve Calibration") << "The number of triggers is " << ntriggers_;
+  LogInfo("SCurve Calibration") << "The number of triggers is " << ntriggers_; 
+  iSetup.get<SiPixelFedCablingMapRcd>().get(map_);
 }
 
 void SiPixelSCurveCalibrationAnalysis::analyze(const edm::Event& e, const edm::EventSetup& es)
@@ -105,19 +109,53 @@ void SiPixelSCurveCalibrationAnalysis::endJob()
   int i = 1;
   for(siter = detIdMap_.begin(); siter != detIdMap_.end(); ++siter)
   {
+    DetId holder(siter->first);
     int rows = siter->second.getRowMax();
-    int cols = siter->second.getColMax();
+    int cols = siter->second.getColMax(); 
+    SiPixelFrameConverter convert(map_.product(), fedid_);
     for(int j = 0 ; j != rows; ++j)
     {
       for(int k = 0; k != cols; ++k)
-      {
+      { 
+        SiPixelFrameConverter::DetectorIndex detind = {siter->first, j, k};
+        SiPixelFrameConverter::CablingIndex cable;
+        int status = convert.toCabling(cable, detind);
+        std::string meanname = "Mean" + makeRocName(j, k, holder, cable.roc);
+        TH1F* tempmean = (TH1F*)meanhistos_->FindObject(meanname.c_str());
+        if(!tempmean)
+        {
+          std::string meantitle = "Mean for " + makeRocName(j, k, holder, cable.roc);
+          tempmean = fs_->make<TH1F>(meanname.c_str(), meantitle.c_str(), vcalmax_*10, vcalmin_, vcalmax_);
+          meanhistos_->Add(tempmean);
+        }
+
+        std::string sigmaname = "Sigma" + makeRocName(j, k, holder, cable.roc); 
+        TH1F* tempsigma = (TH1F*)sigmahistos_->FindObject(sigmaname.c_str());
+        if(!tempsigma)
+        {
+          std::string sigmatitle = "Sigma for " + makeRocTitle(j, k, holder, cable.roc);
+          tempsigma = fs_->make<TH1F>(sigmaname.c_str(), sigmatitle.c_str(), 100, 0.0, 1.0);
+          sigmahistos_->Add(tempsigma);
+        }
         makeHistogram(siter->second, j, k);
+        tempmean->Fill(fitfunc_->GetParameter(1));
+        tempsigma->Fill(fitfunc_->GetParameter(2));
         if(i % 1000 == 0)
           LogInfo("SCurve Calibration") << "Making histogram " << i << " out of " << histoNum_;
         ++i;
       }
     }
   }
+  
+  int entries = meanhistos_->GetEntriesFast();
+  for(int j = 0; j != entries; ++j)
+  {
+    TH1F* tempmean = ((TH1F*)(*meanhistos_)[j]);
+    TH1F* tempsigma = ((TH1F*)(*sigmahistos_)[j]);
+    tempmean->Fit("gaus");
+    tempsigma->Fit("gaus");
+  }
+  
 }
 
 std::string SiPixelSCurveCalibrationAnalysis::makeName(const int& row, const int& col, const DetId& pixdet)
@@ -133,6 +171,24 @@ std::string SiPixelSCurveCalibrationAnalysis::makeName(const int& row, const int
   {
     PixelEndcapName endcap(pixdet);
     name << endcap.name() << "r" << row << "c" << col;
+  }
+
+  return name.str();
+} 
+
+std::string SiPixelSCurveCalibrationAnalysis::makeRocName(const int& row, const int& col, const DetId& pixdet, const int& roc)
+{
+  std::stringstream name("");
+  if(pixdet.subdetId() == 1)
+  {
+    PixelBarrelName barrel(pixdet);
+    name << barrel.name() << "ROC " << roc;
+  }
+
+  else
+  {
+    PixelEndcapName endcap(pixdet);
+    name << endcap.name() << "ROC " << roc;
   }
 
   return name.str();
@@ -154,26 +210,42 @@ std::string SiPixelSCurveCalibrationAnalysis::makeTitle(const int& row, const in
     title << "SCurve for" << endcap.name() << " Row " << row << " Col " << col;
   }
   return title.str();
-}
+} 
+
+std::string SiPixelSCurveCalibrationAnalysis::makeRocTitle(const int& row, const int& col, const DetId& pixdet, const int& roc)
+{
+  std::stringstream title("");
+
+  if(pixdet.subdetId() == 1)
+  {
+    PixelBarrelName barrel(pixdet);
+    title << barrel.name() << " ROC " << roc;
+  }
+
+  else
+  {
+    PixelEndcapName endcap(pixdet);
+    title << endcap.name() << " ROC " << roc;
+  }
+  return title.str();
+} 
 
 void SiPixelSCurveCalibrationAnalysis::makeHistogram(const SCurveContainer& sc, const int& row, const int& col)
 {
-  unsigned int rawid = sc.getRawId();
-  std::string name = makeName(row, col, rawid);
-  std::string title = makeTitle(row, col, rawid); 
+  DetId detector(sc.getRawId());
+  std::string name = makeName(row, col, detector);
+  std::string title = makeTitle(row, col, detector); 
   TH1F* histo = fs_->make<TH1F>(name.c_str(), title.c_str(), calib_->nVcal(), vcalmin_, vcalmax_);
   histo->GetXaxis()->SetTitle("Vcal");
   histo->GetYaxis()->SetTitle("Efficiency");
   for(int l = vcalmin_; l != vcalmax_ + vcalstep_; l += vcalstep_)
   {
-    double temp = sc.getEff(l, row, col);
-    histo->Fill(l, temp);
+    double tempy = sc.getEff(l, row, col);
+    histo->Fill(l, tempy);
   } 
   fitfunc_->SetParameters(1.0, 15.0, 0.2);
   histo->Fit("fit", "RQ0");
   //histo->Write();
-  mean_->Fill(fitfunc_->GetParameter(1));
-  sigma_->Fill(fitfunc_->GetParameter(2));
   delete histo;
 }
 
