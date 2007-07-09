@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id$
+// $Id: V0Producer.cc,v 1.1 2007/07/05 12:25:42 drell Exp $
 //
 //
 
@@ -40,6 +40,8 @@ V0Producer::V0Producer(const edm::ParameterSet& iConfig) :
   collinCut = iConfig.getUntrackedParameter("collinearityCut", 0.02);
   kShortMassCut = iConfig.getUntrackedParameter("kShortMassCut", 0.25);
   lambdaMassCut = iConfig.getUntrackedParameter("lambdaMassCut", 0.25);
+  reconstructKshorts = iConfig.getUntrackedParameter("selectKshorts", 1);
+  reconstructLambdas = iConfig.getUntrackedParameter("selectLambdas", 1);
 
    // Registering V0 Collections
   //produces<reco::VertexCollection>("Kshort");
@@ -72,7 +74,7 @@ void V0Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
    V0Fitter theVees(iEvent, iSetup, trackRecoAlgo, 
 		    useSmoothedTrax, storeSmoothedTrax,
 		    chi2Cut, rVtxCut, vtxSigCut, collinCut, kShortMassCut,
-		    lambdaMassCut);
+		    lambdaMassCut, reconstructKshorts, reconstructLambdas);
 
    // Create auto_ptr for each collection to be stored in the Event
    /*std::auto_ptr<reco::VertexCollection> k0sOut(new

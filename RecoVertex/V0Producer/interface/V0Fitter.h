@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id$
+// $Id: V0Fitter.h,v 1.1 2007/07/05 12:25:39 drell Exp $
 //
 //
 
@@ -46,7 +46,8 @@ class V0Fitter {
 	   const int storeRefittedTrax, const double chi2Cut, 
 	   const double rVtxCut, const double vtxSigCut, 
 	   const double collinCut, const double kShortMassCut,
-	   const double lambdaMassCut);
+	   const double lambdaMassCut, 
+	   const int doKshort, const int doLambda);
   ~V0Fitter();
 
   // Get methods for the VertexCollections
@@ -76,6 +77,8 @@ class V0Fitter {
   std::string recoAlg;
   int useRefTrax;
   int storeRefTrax;
+  int doKshorts;
+  int doLambdas;
 
   // Cuts
   double chi2Cut;

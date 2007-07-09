@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id$
+// $Id: V0Producer.h,v 1.1 2007/07/05 12:25:39 drell Exp $
 //
 //
 
@@ -56,6 +56,10 @@ private:
   //  and whether or not to store the full refitted tracks in the V0Candidate
   int useSmoothedTrax;
   int storeSmoothedTrax;
+
+  // Parameters to select which V0 particles to reconstruct
+  int reconstructKshorts;
+  int reconstructLambdas;
 
   // Parameters for post-vertex-fit cuts:
 

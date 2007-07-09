@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id$
+// $Id: V0Fitter.cc,v 1.1 2007/07/05 12:25:41 drell Exp $
 //
 //
 
@@ -25,10 +25,13 @@ V0Fitter::V0Fitter(const edm::Event& iEvent, const edm::EventSetup& iSetup,
 		   const int storeRefittedTrax, const double chi2Cut_,
 		   const double rVtxCut_, const double vtxSigCut_,
 		   const double collinCut_, const double kShortMassCut_,
-		   const double lambdaMassCut_) :
+		   const double lambdaMassCut_,
+		   const int doK0s, const int doLam) :
   recoAlg(trackRecoAlgo) {
   useRefTrax = useRefittedTrax;
   storeRefTrax = storeRefittedTrax;
+  doKshorts = doK0s;
+  doLambdas = doLam;
 
   // Initialize cut values
   chi2Cut = chi2Cut_;
@@ -359,13 +362,15 @@ void V0Fitter::applyPostFitCuts() {
     const double kShortMass = 0.49767;
     const double lambdaMass = 1.1156;
     if( theIt->mass() < kShortMass + kShortMassCut && 
-	theIt->mass() > kShortMass - kShortMassCut && writeVee ) {
+	theIt->mass() > kShortMass - kShortMassCut && writeVee &&
+	doKshorts) {
       //theIt->setPdgId(310);
       theKshorts.push_back( *theIt );
     }
     //3122
     else if( theIt->mass() < lambdaMass + lambdaMassCut &&
-	theIt->mass() > lambdaMass - lambdaMassCut && writeVee ) {
+	theIt->mass() > lambdaMass - lambdaMassCut && writeVee &&
+	     doLambdas) {
       //theIt->setPdgId(3122);
       if(theIt->pdgId() > 0) {
 	theLambdas.push_back( *theIt );
