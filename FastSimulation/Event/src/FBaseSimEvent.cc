@@ -396,8 +396,8 @@ void
 FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 
   /// Some internal array to work with.
-  std::vector<int> myGenVertices(myGenEvent.particles_size()+1,
-				 static_cast<int>(0));
+  int genEventSize = myGenEvent.particles_size();
+  std::vector<int> myGenVertices(genEventSize, static_cast<int>(0));
 
   // If no particles, no work to be done !
   if ( myGenEvent.particles_empty() ) return;
@@ -431,6 +431,9 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
   HepMC::GenEvent::particle_const_iterator piter;
   HepMC::GenEvent::particle_const_iterator pbegin = myGenEvent.particles_begin();
   HepMC::GenEvent::particle_const_iterator pend = myGenEvent.particles_end();
+
+  int initialBarcode = 0; 
+  if ( pbegin != pend ) initialBarcode = (*pbegin)->barcode();
   // Loop on the particles of the generated event
   for ( piter = pbegin; piter != pend; ++piter ) {
 
@@ -495,8 +498,8 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 	(*(p->production_vertex()->particles_in_const_begin()))->barcode() : 0;
 
       int originVertex = 
-	motherBarcode && myGenVertices[motherBarcode] ?
-	myGenVertices[motherBarcode] : mainVertex;
+	motherBarcode && myGenVertices[motherBarcode-initialBarcode] ?
+	myGenVertices[motherBarcode-initialBarcode] : mainVertex;
 
       XYZTLorentzVector momentum(p->momentum().px(),
 				 p->momentum().py(),
@@ -521,7 +524,7 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
       //	vertex(mainVertex).position();
       int theVertex = addSimVertex(decayVertex,theTrack);
 
-      if ( theVertex != -1 ) myGenVertices[p->barcode()] = theVertex;
+      if ( theVertex != -1 ) myGenVertices[p->barcode()-initialBarcode] = theVertex;
 
       // There we are !
     }
