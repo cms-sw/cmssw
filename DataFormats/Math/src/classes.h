@@ -171,9 +171,9 @@ namespace {
     edm::Wrapper<std::vector<math::Error<7>::type> > wve7;
 
 
-    edm::RefVector<std::vector<math::XYZTLorentzVector> > rvl2;
-    edm::RefVector<std::vector<math::XYZTLorentzVectorD> > rvld2;
-    edm::RefVector<std::vector<math::XYZTLorentzVectorF> > rvlf2;
+    edm::RefVector<std::vector<math::PtEtaPhiELorentzVector> > rvl2;
+    edm::RefVector<std::vector<math::PtEtaPhiELorentzVectorD> > rvld2;
+    edm::RefVector<std::vector<math::PtEtaPhiELorentzVectorF> > rvlf2;
 
     //     ROOT::Math::MatRepSym<Double32_t, 1> sm1;
     ROOT::Math::MatRepSym<Double32_t, 2> sm2;
