@@ -22,105 +22,114 @@ void PlotMacro(char* input="", char* outputFile=""){
 
   DrawGlobal(GlobList,f,out);
 
+  //============ Global Signal off Track=========//
 
-//   //============Global Noise on Track==========//
-//   TCanvas *cNoise_On=new TCanvas("cNoise_On","cNoise_On_Track",10,10,900,500);
-//   DetList.Add(cNoise_On);
-//   DrawFunction(cNoise_On,"number:TIB.Noise.On.FitNoisePar.fitmean:TIB.Noise.On.FitNoisePar.fitrms","Clusters.entries_all>2000 && TIB.Noise.On.FitNoisePar.fitmean>0 && TIB.Noise.On.FitNoisePar.fitrms>0",1,"Mean Cluster Noise On Track (Fit mean)");
-//   DrawSame("number:TOB.Noise.On.FitNoisePar.fitmean:TOB.Noise.On.FitNoisePar.fitrms","Clusters.entries_all>2000 && TOB.Noise.On.FitNoisePar.fitmean>0 && TOB.Noise.On.FitNoisePar.fitrms>0",2);
-//   DrawSame("number:TEC.Noise.On.FitNoisePar.fitmean:TEC.Noise.On.FitNoisePar.fitrms","Clusters.entries_all>2000 && TEC.Noise.On.FitNoisePar.fitmean>0 && TEC.Noise.On.FitNoisePar.fitrms>0",3);
-//   DrawSame("number:TID.Noise.On.FitNoisePar.fitmean:TID.Noise.On.FitNoisePar.fitrms","Clusters.entries_all>2000 && TID.Noise.On.FitNoisePar.fitmean>0 && TID.Noise.On.FitNoisePar.fitrms>0",4);
- 
-  //============Signal Corrected MP==========//
+  TCanvas *cSignal_Off=new TCanvas("cSignal_Off","cSignal_Off_Track",10,10,900,500);
+  DetList.Add(cSignal_Off);
+  DrawFunction(cSignal_Off,"number:TIB.Signal.Off.FitPar.mp:TIB.Signal.Off.FitPar.emp","Clusters.entries_all>2000 && TIB.Signal.Off.FitPar.mp>0 && TIB.Signal.Off.FitPar.emp>0",1,"Cluster Signal ected Off Track (Fit MP) [ADC]",legend,"TIB");
+  DrawSame("number:TOB.Signal.Off.FitPar.mp:TOB.Signal.Off.FitPar.emp","Clusters.entries_all>2000 && TOB.Signal.Off.FitPar.mp>0 && TOB.Signal.Off.FitPar.emp>0",2,legend,"TOB");
+  DrawSame("number:TEC.Signal.Off.FitPar.mp:TEC.Signal.Off.FitPar.emp","Clusters.entries_all>2000 && TEC.Signal.Off.FitPar.mp>0 && TEC.Signal.Off.FitPar.emp>0",3,legend,"TEC");
+  DrawSame("number:TID.Signal.Off.FitPar.mp:TID.Signal.Off.FitPar.emp","Clusters.entries_all>2000 && TID.Signal.Off.FitPar.mp>0 && TID.Signal.Off.FitPar.emp>0",4,legend,"TID");
+
+  //=========== Global StoN off Track ==========//
+  TCanvas *cStoN_Off=new TCanvas("cStoN_Off","cStoN_Off_Track",10,10,900,500);
+  DetList.Add(cStoN_Off);
+  DrawFunction(cStoN_Off,"number:TIB.StoN.Off.FitPar.mp:TIB.StoN.Off.FitPar.emp","Clusters.entries_all>2000 && TIB.StoN.Off.FitPar.mp>0 && TIB.StoN.Off.FitPar.emp>0",1,"StoN ected Off Track (MP)",legend,"TIB");
+  DrawSame("number:TOB.StoN.Off.FitPar.mp:TOB.StoN.Off.FitPar.emp","Clusters.entries_all>2000 && TOB.StoN.Off.FitPar.mp>0 && TOB.StoN.Off.FitPar.emp>0",2,legend,"TOB");
+  DrawSame("number:TEC.StoN.Off.FitPar.mp:TEC.StoN.Off.FitPar.emp","Clusters.entries_all>2000 && TEC.StoN.Off.FitPar.mp>0 && TEC.StoN.Off.FitPar.emp>0",3,legend,"TEC");
+  DrawSame("number:TID.StoN.Off.FitPar.mp:TID.StoN.Off.FitPar.emp","Clusters.entries_all>2000 && TID.StoN.Off.FitPar.mp>0 && TID.StoN.Off.FitPar.emp>0",4,legend,"TID");
+
+  //============Per Layer==============//
+  //============Signal ected MP==========//
   
  //=============TIB================//
-  TCanvas *cSignalCorrTIB=new TCanvas("cSignalCorrTIB","cSignalCorrTIB",10,10,900,500);
-  DetList.Add(cSignalCorrTIB);
-  DrawFunction(cSignalCorrTIB,"number:TIB.cSignalCorr.L1.FitPar.mp:TIB.cSignalCorr.L1.FitPar.emp","Clusters.entries_all>2000 && TIB.cSignalCorr.L1.FitPar.mp>0 && TIB.cSignalCorr.L1.FitPar.emp>0",1,"TIB, Signal Corrected for the Angle (Landau mp)",legend,"L1");
-  DrawSame("number:TIB.cSignalCorr.L2.FitPar.mp:TIB.cSignalCorr.L2.FitPar.emp","Clusters.entries_all>2000 && TIB.cSignalCorr.L2.FitPar.mp>0 && TIB.cSignalCorr.L2.FitPar.emp>0",2,legend,"L2");
-  DrawSame("number:TIB.cSignalCorr.L3.FitPar.mp:TIB.cSignalCorr.L3.FitPar.emp","Clusters.entries_all>2000 && TIB.cSignalCorr.L3.FitPar.mp>0 && TIB.cSignalCorr.L3.FitPar.emp>0",3,legend,"L3");
-  DrawSame("number:TIB.cSignalCorr.L4.FitPar.mp:TIB.cSignalCorr.L4.FitPar.emp","Clusters.entries_all>2000 && TIB.cSignalCorr.L4.FitPar.mp>0 && TIB.cSignalCorr.L4.FitPar.emp>0",4,legend,"L4"); 
+  TCanvas *cSignalTIB=new TCanvas("cSignalTIB","cSignalTIB",10,10,900,500);
+  DetList.Add(cSignalTIB);
+  DrawFunction(cSignalTIB,"number:TIB.cSignal.L1.FitPar.mp:TIB.cSignal.L1.FitPar.emp","Clusters.entries_all>2000 && TIB.cSignal.L1.FitPar.mp>0 && TIB.cSignal.L1.FitPar.emp>0",1,"TIB, Signal ected for the Angle (Landau mp)",legend,"L1");
+  DrawSame("number:TIB.cSignal.L2.FitPar.mp:TIB.cSignal.L2.FitPar.emp","Clusters.entries_all>2000 && TIB.cSignal.L2.FitPar.mp>0 && TIB.cSignal.L2.FitPar.emp>0",2,legend,"L2");
+  DrawSame("number:TIB.cSignal.L3.FitPar.mp:TIB.cSignal.L3.FitPar.emp","Clusters.entries_all>2000 && TIB.cSignal.L3.FitPar.mp>0 && TIB.cSignal.L3.FitPar.emp>0",3,legend,"L3");
+  DrawSame("number:TIB.cSignal.L4.FitPar.mp:TIB.cSignal.L4.FitPar.emp","Clusters.entries_all>2000 && TIB.cSignal.L4.FitPar.mp>0 && TIB.cSignal.L4.FitPar.emp>0",4,legend,"L4"); 
 
  //==========TOB=============//
   TLegend *legend = new TLegend(0.874414,0.597285,0.997825,0.997233); 
-  TCanvas *cSignalCorrTOB=new TCanvas("cSignalCorrTOB","cSignalCorrTOB",10,10,900,500); 
-  DetList.Add(cSignalCorrTOB);
+  TCanvas *cSignalTOB=new TCanvas("cSignalTOB","cSignalTOB",10,10,900,500); 
+  DetList.Add(cSignalTOB);
 
-  DrawFunction(cSignalCorrTOB,"number:TOB.cSignalCorr.L1.FitPar.mp:TOB.cSignalCorr.L1.FitPar.emp","Clusters.entries_all>2000 && TOB.cSignalCorr.L1.FitPar.mp>0 && TOB.cSignalCorr.L1.FitPar.emp>0",1,"TOB, Signal Corrected for the Angle (Landau mp)",legend,"L1");
-  DrawSame("number:TOB.cSignalCorr.L2.FitPar.mp:TOB.cSignalCorr.L2.FitPar.emp","Clusters.entries_all>2000 && TOB.cSignalCorr.L2.FitPar.mp>0 && TOB.cSignalCorr.L2.FitPar.emp>0",2,legend,"L2");
-  DrawSame("number:TOB.cSignalCorr.L3.FitPar.mp:TOB.cSignalCorr.L3.FitPar.emp","Clusters.entries_all>2000 && TOB.cSignalCorr.L3.FitPar.mp>0 && TOB.cSignalCorr.L3.FitPar.emp>0",3,legend,"L3");
-  DrawSame("number:TOB.cSignalCorr.L4.FitPar.mp:TOB.cSignalCorr.L4.FitPar.emp","Clusters.entries_all>2000 && TOB.cSignalCorr.L4.FitPar.mp>0 && TOB.cSignalCorr.L4.FitPar.emp>0",4,legend,"L4");
-  DrawSame("number:TOB.cSignalCorr.L5.FitPar.mp:TOB.cSignalCorr.L5.FitPar.emp","Clusters.entries_all>2000 && TOB.cSignalCorr.L5.FitPar.mp>0 && TOB.cSignalCorr.L5.FitPar.emp>0",5,legend,"L5");
-  DrawSame("number:TOB.cSignalCorr.L6.FitPar.mp:TOB.cSignalCorr.L6.FitPar.emp","Clusters.entries_all>2000 && TOB.cSignalCorr.L6.FitPar.mp>0 && TOB.cSignalCorr.L6.FitPar.emp>0",6,legend,"L6");
+  DrawFunction(cSignalTOB,"number:TOB.cSignal.L1.FitPar.mp:TOB.cSignal.L1.FitPar.emp","Clusters.entries_all>2000 && TOB.cSignal.L1.FitPar.mp>0 && TOB.cSignal.L1.FitPar.emp>0",1,"TOB, Signal ected for the Angle (Landau mp)",legend,"L1");
+  DrawSame("number:TOB.cSignal.L2.FitPar.mp:TOB.cSignal.L2.FitPar.emp","Clusters.entries_all>2000 && TOB.cSignal.L2.FitPar.mp>0 && TOB.cSignal.L2.FitPar.emp>0",2,legend,"L2");
+  DrawSame("number:TOB.cSignal.L3.FitPar.mp:TOB.cSignal.L3.FitPar.emp","Clusters.entries_all>2000 && TOB.cSignal.L3.FitPar.mp>0 && TOB.cSignal.L3.FitPar.emp>0",3,legend,"L3");
+  DrawSame("number:TOB.cSignal.L4.FitPar.mp:TOB.cSignal.L4.FitPar.emp","Clusters.entries_all>2000 && TOB.cSignal.L4.FitPar.mp>0 && TOB.cSignal.L4.FitPar.emp>0",4,legend,"L4");
+  DrawSame("number:TOB.cSignal.L5.FitPar.mp:TOB.cSignal.L5.FitPar.emp","Clusters.entries_all>2000 && TOB.cSignal.L5.FitPar.mp>0 && TOB.cSignal.L5.FitPar.emp>0",5,legend,"L5");
+  DrawSame("number:TOB.cSignal.L6.FitPar.mp:TOB.cSignal.L6.FitPar.emp","Clusters.entries_all>2000 && TOB.cSignal.L6.FitPar.mp>0 && TOB.cSignal.L6.FitPar.emp>0",6,legend,"L6");
 
   //===========TEC==============//
  TLegend *legend = new TLegend(0.874414,0.597285,0.997825,0.997233);   
-  TCanvas *cSignalCorrTEC=new TCanvas("cSignalCorrTEC","cSignalCorrTEC",10,10,900,500); 
-  DetList.Add(cSignalCorrTEC);
+  TCanvas *cSignalTEC=new TCanvas("cSignalTEC","cSignalTEC",10,10,900,500); 
+  DetList.Add(cSignalTEC);
   //===========TEC==============//
-  DrawFunction(cSignalCorrTEC,"number:TEC.cSignalCorr.L1.FitPar.mp:TEC.cSignalCorr.L1.FitPar.emp","TEC.cSignalCorr.L1.FitPar.mp>0 && TEC.cSignalCorr.L1.FitPar.emp>0",1,"TEC, Signal Corrected for the Angle (Landau mp)",legend,"L1");
-  DrawSame("number:TEC.cSignalCorr.L2.FitPar.mp:TEC.cSignalCorr.L2.FitPar.emp","TEC.cSignalCorr.L2.FitPar.mp>0 && TEC.cSignalCorr.L2.FitPar.emp>0",2,legend,"L2");
-  DrawSame("number:TEC.cSignalCorr.L3.FitPar.mp:TEC.cSignalCorr.L3.FitPar.emp","TEC.cSignalCorr.L3.FitPar.mp>0 && TEC.cSignalCorr.L3.FitPar.emp>0",3,legend,"L3");
-  DrawSame("number:TEC.cSignalCorr.L4.FitPar.mp:TEC.cSignalCorr.L4.FitPar.emp","TEC.cSignalCorr.L4.FitPar.mp>0 && TEC.cSignalCorr.L4.FitPar.emp>0",4,legend,"L4");
-  DrawSame("number:TEC.cSignalCorr.L5.FitPar.mp:TEC.cSignalCorr.L5.FitPar.emp","TEC.cSignalCorr.L5.FitPar.mp>0 && TEC.cSignalCorr.L5.FitPar.emp>0",5,legend,"L5");
-  DrawSame("number:TEC.cSignalCorr.L6.FitPar.mp:TEC.cSignalCorr.L6.FitPar.emp","TEC.cSignalCorr.L6.FitPar.mp>0 && TEC.cSignalCorr.L6.FitPar.emp>0",6,legend,"L6");
-  DrawSame("number:TEC.cSignalCorr.L7.FitPar.mp:TEC.cSignalCorr.L7.FitPar.emp","TEC.cSignalCorr.L7.FitPar.mp>0 && TEC.cSignalCorr.L7.FitPar.emp>0",7,legend,"L7");
-  DrawSame("number:TEC.cSignalCorr.L8.FitPar.mp:TEC.cSignalCorr.L8.FitPar.emp","TEC.cSignalCorr.L8.FitPar.mp>0 && TEC.cSignalCorr.L8.FitPar.emp>0",8,legend,"L8");
-  DrawSame("number:TEC.cSignalCorr.L9.FitPar.mp:TEC.cSignalCorr.L9.FitPar.emp","TEC.cSignalCorr.L9.FitPar.mp>0 && TEC.cSignalCorr.L9.FitPar.emp>0",28,legend,"L9");
+  DrawFunction(cSignalTEC,"number:TEC.cSignal.L1.FitPar.mp:TEC.cSignal.L1.FitPar.emp","TEC.cSignal.L1.FitPar.mp>0 && TEC.cSignal.L1.FitPar.emp>0",1,"TEC, Signal ected for the Angle (Landau mp)",legend,"L1");
+  DrawSame("number:TEC.cSignal.L2.FitPar.mp:TEC.cSignal.L2.FitPar.emp","TEC.cSignal.L2.FitPar.mp>0 && TEC.cSignal.L2.FitPar.emp>0",2,legend,"L2");
+  DrawSame("number:TEC.cSignal.L3.FitPar.mp:TEC.cSignal.L3.FitPar.emp","TEC.cSignal.L3.FitPar.mp>0 && TEC.cSignal.L3.FitPar.emp>0",3,legend,"L3");
+  DrawSame("number:TEC.cSignal.L4.FitPar.mp:TEC.cSignal.L4.FitPar.emp","TEC.cSignal.L4.FitPar.mp>0 && TEC.cSignal.L4.FitPar.emp>0",4,legend,"L4");
+  DrawSame("number:TEC.cSignal.L5.FitPar.mp:TEC.cSignal.L5.FitPar.emp","TEC.cSignal.L5.FitPar.mp>0 && TEC.cSignal.L5.FitPar.emp>0",5,legend,"L5");
+  DrawSame("number:TEC.cSignal.L6.FitPar.mp:TEC.cSignal.L6.FitPar.emp","TEC.cSignal.L6.FitPar.mp>0 && TEC.cSignal.L6.FitPar.emp>0",6,legend,"L6");
+  DrawSame("number:TEC.cSignal.L7.FitPar.mp:TEC.cSignal.L7.FitPar.emp","TEC.cSignal.L7.FitPar.mp>0 && TEC.cSignal.L7.FitPar.emp>0",7,legend,"L7");
+  DrawSame("number:TEC.cSignal.L8.FitPar.mp:TEC.cSignal.L8.FitPar.emp","TEC.cSignal.L8.FitPar.mp>0 && TEC.cSignal.L8.FitPar.emp>0",8,legend,"L8");
+  DrawSame("number:TEC.cSignal.L9.FitPar.mp:TEC.cSignal.L9.FitPar.emp","TEC.cSignal.L9.FitPar.mp>0 && TEC.cSignal.L9.FitPar.emp>0",28,legend,"L9");
   
   //==========TID===========//
-  TCanvas *cSignalCorrTID=new TCanvas("cSignalCorrTID","cSignalCorrTID",10,10,900,500); 
+  TCanvas *cSignalTID=new TCanvas("cSignalTID","cSignalTID",10,10,900,500); 
   TLegend *legend = new TLegend(0.874414,0.597285,0.997825,0.997233); 
-  DetList.Add(cSignalCorrTID);
+  DetList.Add(cSignalTID);
 
-  DrawFunction(cSignalCorrTID,"number:TID.cSignalCorr.L1.FitPar.mp:TID.cSignalCorr.L1.FitPar.emp","Clusters.entries_all>2000 && TID.cSignalCorr.L1.FitPar.mp>0 && TID.cSignalCorr.L1.FitPar.emp>0",1,"TID, Signal Corrected for the Angle (Landau mp)",legend,"L1");
-  DrawSame("number:TID.cSignalCorr.L2.FitPar.mp:TID.cSignalCorr.L2.FitPar.emp","Clusters.entries_all>2000 && TID.cSignalCorr.L2.FitPar.mp>0 && TID.cSignalCorr.L2.FitPar.emp>0",2,legend,"L2");
-  DrawSame("number:TID.cSignalCorr.L3.FitPar.mp:TID.cSignalCorr.L3.FitPar.emp","Clusters.entries_all>2000 && TID.cSignalCorr.L3.FitPar.mp>0 && TID.cSignalCorr.L3.FitPar.emp>0",3,legend,"L3");
+  DrawFunction(cSignalTID,"number:TID.cSignal.L1.FitPar.mp:TID.cSignal.L1.FitPar.emp","Clusters.entries_all>2000 && TID.cSignal.L1.FitPar.mp>0 && TID.cSignal.L1.FitPar.emp>0",1,"TID, Signal ected for the Angle (Landau mp)",legend,"L1");
+  DrawSame("number:TID.cSignal.L2.FitPar.mp:TID.cSignal.L2.FitPar.emp","Clusters.entries_all>2000 && TID.cSignal.L2.FitPar.mp>0 && TID.cSignal.L2.FitPar.emp>0",2,legend,"L2");
+  DrawSame("number:TID.cSignal.L3.FitPar.mp:TID.cSignal.L3.FitPar.emp","Clusters.entries_all>2000 && TID.cSignal.L3.FitPar.mp>0 && TID.cSignal.L3.FitPar.emp>0",3,legend,"L3");
 
-//   //============StoN Corrected MP=========//
+//   //============StoN ected MP=========//
   
   //=============TIB================//
-  TCanvas *cStoNCorrTIB=new TCanvas("cStoNCorrTIB","cStoNCorrTIB",10,10,900,500); 
-  DetList.Add(cStoNCorrTIB);
+  TCanvas *cStoNTIB=new TCanvas("cStoNTIB","cStoNTIB",10,10,900,500); 
+  DetList.Add(cStoNTIB);
   TLegend *legend = new TLegend(0.874414,0.597285,0.997825,0.997233); 
-  DrawFunction(cStoNCorrTIB, "number:TIB.cStoNCorr.L1.FitPar.mp:TIB.cStoNCorr.L1.FitPar.emp","Clusters.entries_all>2000 && TIB.cStoNCorr.L1.FitPar.mp>0 && TIB.cStoNCorr.L1.FitPar.emp>0",1,"TIB, StoN Corrected for the Angle (Landau mp)",legend,"L1");
-  DrawSame("number:TIB.cStoNCorr.L2.FitPar.mp:TIB.cStoNCorr.L2.FitPar.emp","Clusters.entries_all>2000 && TIB.cStoNCorr.L2.FitPar.mp>0 && TIB.cStoNCorr.L2.FitPar.emp>0",2,legend,"L2");
-  DrawSame("number:TIB.cStoNCorr.L3.FitPar.mp:TIB.cStoNCorr.L3.FitPar.emp","Clusters.entries_all>2000 && TIB.cStoNCorr.L3.FitPar.mp>0 && TIB.cStoNCorr.L3.FitPar.emp>0",3,legend,"L3");
-  DrawSame("number:TIB.cStoNCorr.L4.FitPar.mp:TIB.cStoNCorr.L4.FitPar.emp","Clusters.entries_all>2000 && TIB.cStoNCorr.L4.FitPar.mp>0 && TIB.cStoNCorr.L4.FitPar.emp>0",4,legend,"L4");
+  DrawFunction(cStoNTIB, "number:TIB.cStoN.L1.FitPar.mp:TIB.cStoN.L1.FitPar.emp","Clusters.entries_all>2000 && TIB.cStoN.L1.FitPar.mp>0 && TIB.cStoN.L1.FitPar.emp>0",1,"TIB, StoN ected for the Angle (Landau mp)",legend,"L1");
+  DrawSame("number:TIB.cStoN.L2.FitPar.mp:TIB.cStoN.L2.FitPar.emp","Clusters.entries_all>2000 && TIB.cStoN.L2.FitPar.mp>0 && TIB.cStoN.L2.FitPar.emp>0",2,legend,"L2");
+  DrawSame("number:TIB.cStoN.L3.FitPar.mp:TIB.cStoN.L3.FitPar.emp","Clusters.entries_all>2000 && TIB.cStoN.L3.FitPar.mp>0 && TIB.cStoN.L3.FitPar.emp>0",3,legend,"L3");
+  DrawSame("number:TIB.cStoN.L4.FitPar.mp:TIB.cStoN.L4.FitPar.emp","Clusters.entries_all>2000 && TIB.cStoN.L4.FitPar.mp>0 && TIB.cStoN.L4.FitPar.emp>0",4,legend,"L4");
   
   //==========TOB=============//
 
-  TCanvas *cStoNCorrTOB=new TCanvas("cStoNCorrTOB","cStoNCorrTOB",10,10,900,500); 
-  DetList.Add(cStoNCorrTOB);
+  TCanvas *cStoNTOB=new TCanvas("cStoNTOB","cStoNTOB",10,10,900,500); 
+  DetList.Add(cStoNTOB);
   TLegend *legend = new TLegend(0.874414,0.597285,0.997825,0.997233); 
-  DrawFunction(cStoNCorrTOB,"number:TOB.cStoNCorr.L1.FitPar.mp:TOB.cStoNCorr.L1.FitPar.emp","Clusters.entries_all>2000 && TOB.cStoNCorr.L1.FitPar.mp>0 && TOB.cStoNCorr.L1.FitPar.emp>0",1,"TOB, StoN Corrected for the Angle (Landau mp)",legend,"L1");
-  DrawSame("number:TOB.cStoNCorr.L2.FitPar.mp:TOB.cStoNCorr.L2.FitPar.emp","Clusters.entries_all>2000 && TOB.cStoNCorr.L2.FitPar.mp>0 && TOB.cStoNCorr.L2.FitPar.emp>0",2,legend,"L2");
-  DrawSame("number:TOB.cStoNCorr.L3.FitPar.mp:TOB.cStoNCorr.L3.FitPar.emp","Clusters.entries_all>2000 && TOB.cStoNCorr.L3.FitPar.mp>0 && TOB.cStoNCorr.L3.FitPar.emp>0",3,legend,"L3");
-  DrawSame("number:TOB.cStoNCorr.L4.FitPar.mp:TOB.cStoNCorr.L4.FitPar.emp","Clusters.entries_all>2000 && TOB.cStoNCorr.L4.FitPar.mp>0 && TOB.cStoNCorr.L4.FitPar.emp>0",4,legend,"L4");
-  DrawSame("number:TOB.cStoNCorr.L5.FitPar.mp:TOB.cStoNCorr.L5.FitPar.emp","Clusters.entries_all>2000 && TOB.cStoNCorr.L5.FitPar.mp>0 && TOB.cStoNCorr.L5.FitPar.emp>0",5,legend,"L5");
-  DrawSame("number:TOB.cStoNCorr.L6.FitPar.mp:TOB.cStoNCorr.L6.FitPar.emp","Clusters.entries_all>2000 && TOB.cStoNCorr.L6.FitPar.mp>0 && TOB.cStoNCorr.L6.FitPar.emp>0",6,legend,"L6");
+  DrawFunction(cStoNTOB,"number:TOB.cStoN.L1.FitPar.mp:TOB.cStoN.L1.FitPar.emp","Clusters.entries_all>2000 && TOB.cStoN.L1.FitPar.mp>0 && TOB.cStoN.L1.FitPar.emp>0",1,"TOB, StoN ected for the Angle (Landau mp)",legend,"L1");
+  DrawSame("number:TOB.cStoN.L2.FitPar.mp:TOB.cStoN.L2.FitPar.emp","Clusters.entries_all>2000 && TOB.cStoN.L2.FitPar.mp>0 && TOB.cStoN.L2.FitPar.emp>0",2,legend,"L2");
+  DrawSame("number:TOB.cStoN.L3.FitPar.mp:TOB.cStoN.L3.FitPar.emp","Clusters.entries_all>2000 && TOB.cStoN.L3.FitPar.mp>0 && TOB.cStoN.L3.FitPar.emp>0",3,legend,"L3");
+  DrawSame("number:TOB.cStoN.L4.FitPar.mp:TOB.cStoN.L4.FitPar.emp","Clusters.entries_all>2000 && TOB.cStoN.L4.FitPar.mp>0 && TOB.cStoN.L4.FitPar.emp>0",4,legend,"L4");
+  DrawSame("number:TOB.cStoN.L5.FitPar.mp:TOB.cStoN.L5.FitPar.emp","Clusters.entries_all>2000 && TOB.cStoN.L5.FitPar.mp>0 && TOB.cStoN.L5.FitPar.emp>0",5,legend,"L5");
+  DrawSame("number:TOB.cStoN.L6.FitPar.mp:TOB.cStoN.L6.FitPar.emp","Clusters.entries_all>2000 && TOB.cStoN.L6.FitPar.mp>0 && TOB.cStoN.L6.FitPar.emp>0",6,legend,"L6");
 
   //===========TEC==============//
-  TCanvas *cStoNCorrTEC=new TCanvas("cStoNCorrTEC","cStoNCorrTEC",10,10,900,500); 
-  DetList.Add(cStoNCorrTEC); 
+  TCanvas *cStoNTEC=new TCanvas("cStoNTEC","cStoNTEC",10,10,900,500); 
+  DetList.Add(cStoNTEC); 
  TLegend *legend = new TLegend(0.874414,0.597285,0.997825,0.997233); 
-  DrawFunction(cStoNCorrTEC,"number:TEC.cStoNCorr.L1.FitPar.mp:TEC.cStoNCorr.L1.FitPar.emp","TEC.cStoNCorr.L1.FitPar.mp>0 && TEC.cStoNCorr.L1.FitPar.emp>0",1,"TEC, StoN Corrected for the Angle (Landau mp)",legend,"L1");
-  DrawSame("number:TEC.cStoNCorr.L2.FitPar.mp:TEC.cStoNCorr.L2.FitPar.emp","TEC.cStoNCorr.L2.FitPar.mp>0 && TEC.cStoNCorr.L2.FitPar.emp>0",2,legend,"L2");
-  DrawSame("number:TEC.cStoNCorr.L3.FitPar.mp:TEC.cStoNCorr.L3.FitPar.emp","TEC.cStoNCorr.L3.FitPar.mp>0 && TEC.cStoNCorr.L3.FitPar.emp>0",3,legend,"L3");
-  DrawSame("number:TEC.cStoNCorr.L4.FitPar.mp:TEC.cStoNCorr.L4.FitPar.emp","TEC.cStoNCorr.L4.FitPar.mp>0 && TEC.cStoNCorr.L4.FitPar.emp>0",4,legend,"L4");
-  DrawSame("number:TEC.cStoNCorr.L5.FitPar.mp:TEC.cStoNCorr.L5.FitPar.emp","TEC.cStoNCorr.L5.FitPar.mp>0 && TEC.cStoNCorr.L5.FitPar.emp>0",5,legend,"L5");
-  DrawSame("number:TEC.cStoNCorr.L6.FitPar.mp:TEC.cStoNCorr.L6.FitPar.emp","TEC.cStoNCorr.L6.FitPar.mp>0 && TEC.cStoNCorr.L6.FitPar.emp>0",6,legend,"L6");
-  DrawSame("number:TEC.cStoNCorr.L7.FitPar.mp:TEC.cStoNCorr.L7.FitPar.emp","TEC.cStoNCorr.L7.FitPar.mp>0 && TEC.cStoNCorr.L7.FitPar.emp>0",7,legend,"L7");
-  DrawSame("number:TEC.cStoNCorr.L8.FitPar.mp:TEC.cStoNCorr.L8.FitPar.emp","TEC.cStoNCorr.L8.FitPar.mp>0 && TEC.cStoNCorr.L8.FitPar.emp>0",8,legend,"L8");
-  DrawSame("number:TEC.cStoNCorr.L9.FitPar.mp:TEC.cStoNCorr.L9.FitPar.emp","TEC.cStoNCorr.L9.FitPar.mp>0 && TEC.cStoNCorr.L9.FitPar.emp>0",28,legend,"L9");
+  DrawFunction(cStoNTEC,"number:TEC.cStoN.L1.FitPar.mp:TEC.cStoN.L1.FitPar.emp","TEC.cStoN.L1.FitPar.mp>0 && TEC.cStoN.L1.FitPar.emp>0",1,"TEC, StoN ected for the Angle (Landau mp)",legend,"L1");
+  DrawSame("number:TEC.cStoN.L2.FitPar.mp:TEC.cStoN.L2.FitPar.emp","TEC.cStoN.L2.FitPar.mp>0 && TEC.cStoN.L2.FitPar.emp>0",2,legend,"L2");
+  DrawSame("number:TEC.cStoN.L3.FitPar.mp:TEC.cStoN.L3.FitPar.emp","TEC.cStoN.L3.FitPar.mp>0 && TEC.cStoN.L3.FitPar.emp>0",3,legend,"L3");
+  DrawSame("number:TEC.cStoN.L4.FitPar.mp:TEC.cStoN.L4.FitPar.emp","TEC.cStoN.L4.FitPar.mp>0 && TEC.cStoN.L4.FitPar.emp>0",4,legend,"L4");
+  DrawSame("number:TEC.cStoN.L5.FitPar.mp:TEC.cStoN.L5.FitPar.emp","TEC.cStoN.L5.FitPar.mp>0 && TEC.cStoN.L5.FitPar.emp>0",5,legend,"L5");
+  DrawSame("number:TEC.cStoN.L6.FitPar.mp:TEC.cStoN.L6.FitPar.emp","TEC.cStoN.L6.FitPar.mp>0 && TEC.cStoN.L6.FitPar.emp>0",6,legend,"L6");
+  DrawSame("number:TEC.cStoN.L7.FitPar.mp:TEC.cStoN.L7.FitPar.emp","TEC.cStoN.L7.FitPar.mp>0 && TEC.cStoN.L7.FitPar.emp>0",7,legend,"L7");
+  DrawSame("number:TEC.cStoN.L8.FitPar.mp:TEC.cStoN.L8.FitPar.emp","TEC.cStoN.L8.FitPar.mp>0 && TEC.cStoN.L8.FitPar.emp>0",8,legend,"L8");
+  DrawSame("number:TEC.cStoN.L9.FitPar.mp:TEC.cStoN.L9.FitPar.emp","TEC.cStoN.L9.FitPar.mp>0 && TEC.cStoN.L9.FitPar.emp>0",28,legend,"L9");
   
   //==========TID===========//
-  TCanvas *cStoNCorrTID=new TCanvas("cStoNCorrTID","cStoNCorrTID",10,10,900,500); 
-  DetList.Add(cStoNCorrTID); 
+  TCanvas *cStoNTID=new TCanvas("cStoNTID","cStoNTID",10,10,900,500); 
+  DetList.Add(cStoNTID); 
   TLegend *legend = new TLegend(0.874414,0.597285,0.997825,0.997233); 
-  DrawFunction(cStoNCorrTID,"number:TID.cStoNCorr.L1.FitPar.mp:TID.cStoNCorr.L1.FitPar.emp","Clusters.entries_all>2000 && TID.cStoNCorr.L1.FitPar.mp>0 && TID.cStoNCorr.L1.FitPar.emp>0",1,"TID, StoN Corrected for the Angle (Landau mp)",legend,"L1");
-  DrawSame("number:TID.cStoNCorr.L2.FitPar.mp:TID.cStoNCorr.L2.FitPar.emp","Clusters.entries_all>2000 && TID.cStoNCorr.L2.FitPar.mp>0 && TID.cStoNCorr.L2.FitPar.emp>0",2,legend,"L2");
-  DrawSame("number:TID.cStoNCorr.L3.FitPar.mp:TID.cStoNCorr.L3.FitPar.emp","Clusters.entries_all>2000 && TID.cStoNCorr.L3.FitPar.mp>0 && TID.cStoNCorr.L3.FitPar.emp>0",3,legend,"L3");
+  DrawFunction(cStoNTID,"number:TID.cStoN.L1.FitPar.mp:TID.cStoN.L1.FitPar.emp","Clusters.entries_all>2000 && TID.cStoN.L1.FitPar.mp>0 && TID.cStoN.L1.FitPar.emp>0",1,"TID, StoN ected for the Angle (Landau mp)",legend,"L1");
+  DrawSame("number:TID.cStoN.L2.FitPar.mp:TID.cStoN.L2.FitPar.emp","Clusters.entries_all>2000 && TID.cStoN.L2.FitPar.mp>0 && TID.cStoN.L2.FitPar.emp>0",2,legend,"L2");
+  DrawSame("number:TID.cStoN.L3.FitPar.mp:TID.cStoN.L3.FitPar.emp","Clusters.entries_all>2000 && TID.cStoN.L3.FitPar.mp>0 && TID.cStoN.L3.FitPar.emp>0",3,legend,"L3");
  
   //============Noise on Track=========//
   
@@ -305,7 +314,7 @@ void DrawSame(char* varToPlot, char* cond, Int_t kColor,TLegend* leg,char* cLeg)
     g->SetMarkerSize(0.5);
     g->SetMarkerColor(kColor);
     g->SetLineColor(kColor);
-    g->Draw("S"); //draw graph in current pad
+    g->Draw("SP"); //draw graph in current pad
     
     //    g->GetYaxis()->SetRangeUser(40., 100.);
     leg->AddEntry(g,cLeg);

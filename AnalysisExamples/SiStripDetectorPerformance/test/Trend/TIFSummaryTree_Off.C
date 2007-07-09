@@ -589,14 +589,13 @@ struct FinalSummary_t {
 
 //-----------------------------------------------//
 
-void ClusterNoise(TIFRun* aRun,int runList,FinalSummary_t* sdsDet,char* DetList);
 void SignalLayer(Int_t iDet,int runList,TIFRun* aRun, FinalSummary_t* sdsDet,char* DetList);
 void StoNLayer(Int_t iDet,int runList,TIFRun* aRun, FinalSummary_t* sdsDet,char* DetList);
 void NoiseAndWidthLayer(Int_t iDet,int runList,TIFRun* aRun, FinalSummary_t* sdsDet,char* DetList);
 
-// void SignalCorr(Int_t iDet,int runList,TIFRun* aRun, FinalSummary_t* sdsDet,char* DetList);
-// void StoNCorr(Int_t iDet,int runList,TIFRun* aRun, FinalSummary_t* sdsDet,char* DetList);
-// void NoiseAndWidth(Int_t iDet,int runList,TIFRun* aRun, FinalSummary_t* sdsDet,char* DetList);
+void SignalOff(int runList,TIFRun* aRun, FinalSummary_t* sdsDet,char* DetList);
+void StoNOff(int runList,TIFRun* aRun, FinalSummary_t* sdsDet,char* DetList);
+void NoiseAndWidthOff(TIFRun* aRun,int runList, FinalSummary_t* sdsDet,char* DetList);
 
 
 void TIFSummaryTree(char* cRunList="", char* outputFile="") {  
@@ -700,27 +699,15 @@ void TIFSummaryTree(char* cRunList="", char* outputFile="") {
       SignalLayer(iDet,runList[iRun],aRun,sdsDet[iDet],DetList[iDet]);
       StoNLayer(iDet,runList[iRun],aRun,sdsDet[iDet],DetList[iDet]);
       NoiseAndWidthLayer(iDet,runList[iRun],aRun,sdsDet[iDet],DetList[iDet]);
+
+      NoiseAndWidthOff(aRun,runList[iRun],sdsDet[iDet],DetList[iDet]);
+      SignalOff(runList[iRun],aRun,sdsDet[iDet],DetList[iDet]);
+      StoNOff(runList[iRun],aRun,sdsDet[iDet],DetList[iDet]);
     }
   
   tree->Fill();   
   }
   f->Write();
-}
-
-void ClusterNoise(TIFRun* aRun,int runList,FinalSummary_t* sdsDet,char* DetList){
-  cout << "...ClusterNoise Called... "<< endl;
-  sdsDet->Noise.On.HistoPar.entries=aRun->doHisto("ClusterNoise","cNoise_",DetList,"onTrack");
-  sdsDet->Noise.On.HistoPar.mean=(aRun->getHistoPar())[0];
-  sdsDet->Noise.On.HistoPar.rms=(aRun->getHistoPar())[1];
-  
-  sdsDet->Noise.On.FitNoisePar.entries=aRun->doNoiseFit(runList,"ClusterNoise","cNoise_",DetList,"onTrack");
-  sdsDet->Noise.On.FitNoisePar.garea=(aRun->getNoisePar())[0]; 
-  sdsDet->Noise.On.FitNoisePar.fitmean=(aRun->getNoisePar())[1];
-  sdsDet->Noise.On.FitNoisePar.fitrms=(aRun->getNoisePar())[2];
-  
-  sdsDet->Noise.On.FitNoisePar.egarea=(aRun->getNoiseParErr())[0];
-  sdsDet->Noise.On.FitNoisePar.efitmean=(aRun->getNoiseParErr())[1];
-  sdsDet->Noise.On.FitNoisePar.efitrms=(aRun->getNoiseParErr())[2];
 }
 
 void NoiseAndWidthLayer(Int_t iDet,int runList,TIFRun* aRun, FinalSummary_t* sdsDet,char* DetList){								     
@@ -1252,4 +1239,66 @@ void NoiseAndWidthLayer(Int_t iDet,int runList,TIFRun* aRun, FinalSummary_t* sds
        }																			     
      }                                                                                                                                                             
 
-                                                                                                                             
+void StoNOff(int runList,TIFRun* aRun, FinalSummary_t* sdsDet,char* DetList) {
+
+  sdsDet->StoN.Off.HistoPar.entries=aRun->doHisto("ClusterStoN","cStoN_",DetList,"offTrack");
+  sdsDet->StoN.Off.HistoPar.mean=(aRun->getHistoPar())[0];
+  sdsDet->StoN.Off.HistoPar.rms=(aRun->getHistoPar())[1];
+  
+  sdsDet->StoN.Off.FitPar.entries=aRun->doFit(runList,"ClusterStoN","cStoN_",DetList,"offTrack");
+  sdsDet->StoN.Off.FitPar.mp=(aRun->getFitPar())[1];
+  sdsDet->StoN.Off.FitPar.width=(aRun->getFitPar())[0];
+  sdsDet->StoN.Off.FitPar.area=(aRun->getFitPar())[2];
+  sdsDet->StoN.Off.FitPar.gsigma=(aRun->getFitPar())[3];
+  sdsDet->StoN.Off.FitPar.mp_peak=(sdsDet->StoN.Off.FitPar.mp - sdsDet->StoN.Off.FitPar.peak);
+  
+  sdsDet->StoN.Off.FitPar.peak=aRun->pLanConv[0];
+  sdsDet->StoN.Off.FitPar.FWHM=aRun->pLanConv[1];
+  
+  sdsDet->StoN.Off.FitPar.ewidth=(aRun->getFitParErr())[0];
+  sdsDet->StoN.Off.FitPar.emp=(aRun->getFitParErr())[1];
+  sdsDet->StoN.Off.FitPar.earea=(aRun->getFitParErr())[2];
+  sdsDet->StoN.Off.FitPar.egsigma=(aRun->getFitParErr())[3];
+  
+}                                                                                                                          
+
+void SignalOff(int runList,TIFRun* aRun, FinalSummary_t* sdsDet,char* DetList){
+  sdsDet->Signal.Off.HistoPar.entries=aRun->doHisto("ClusterSignal","cSignal_",DetList,"offTrack");
+  sdsDet->Signal.Off.HistoPar.mean=(aRun->getHistoPar())[0];
+  sdsDet->Signal.Off.HistoPar.rms=(aRun->getHistoPar())[1];
+  
+  sdsDet->Signal.Off.FitPar.entries=aRun->doFit(runList,"ClusterSignal","cSignal_",DetList,"offTrack");
+  sdsDet->Signal.Off.FitPar.mp=(aRun->getFitPar())[1];
+  sdsDet->Signal.Off.FitPar.width=(aRun->getFitPar())[0];
+  sdsDet->Signal.Off.FitPar.area=(aRun->getFitPar())[2];
+  sdsDet->Signal.Off.FitPar.gsigma=(aRun->getFitPar())[3];
+  sdsDet->Signal.Off.FitPar.mp_peak=(sdsDet->Signal.Off.FitPar.mp - sdsDet->Signal.Off.FitPar.peak);
+  
+  sdsDet->Signal.Off.FitPar.peak=aRun->pLanConv[0];
+  sdsDet->Signal.Off.FitPar.FWHM=aRun->pLanConv[1];
+  
+  sdsDet->Signal.Off.FitPar.ewidth=(aRun->getFitParErr())[0];
+  sdsDet->Signal.Off.FitPar.emp=(aRun->getFitParErr())[1];
+  sdsDet->Signal.Off.FitPar.earea=(aRun->getFitParErr())[2];
+  sdsDet->Signal.Off.FitPar.egsigma=(aRun->getFitParErr())[3];
+}
+
+void NoiseAndWidthOff(TIFRun* aRun,int runList,FinalSummary_t* sdsDet,char* DetList){
+  cout << "...ClusterNoise Called... "<< endl;
+  sdsDet->Noise.Off.HistoPar.entries=aRun->doHisto("ClusterNoise","cNoise_",DetList,"offTrack");
+  sdsDet->Noise.Off.HistoPar.mean=(aRun->getHistoPar())[0];
+  sdsDet->Noise.Off.HistoPar.rms=(aRun->getHistoPar())[1];
+  
+  sdsDet->Noise.Off.FitNoisePar.entries=aRun->doNoiseFit(runList,"ClusterNoise","cNoise_",DetList,"offTrack");
+  sdsDet->Noise.Off.FitNoisePar.garea=(aRun->getNoisePar())[0]; 
+  sdsDet->Noise.Off.FitNoisePar.fitmean=(aRun->getNoisePar())[1];
+  sdsDet->Noise.Off.FitNoisePar.fitrms=(aRun->getNoisePar())[2];
+  
+  sdsDet->Noise.Off.FitNoisePar.egarea=(aRun->getNoiseParErr())[0];
+  sdsDet->Noise.Off.FitNoisePar.efitmean=(aRun->getNoiseParErr())[1];
+  sdsDet->Noise.Off.FitNoisePar.efitrms=(aRun->getNoiseParErr())[2];
+  
+  sdsDet->Width.Off.HistoPar.entries=aRun->doHisto("ClusterWidth","cWidth_",DetList,"offTrack");
+  sdsDet->Width.Off.HistoPar.mean=(aRun->getHistoPar())[0];
+  sdsDet->Width.Off.HistoPar.rms=(aRun->getHistoPar())[1];
+}

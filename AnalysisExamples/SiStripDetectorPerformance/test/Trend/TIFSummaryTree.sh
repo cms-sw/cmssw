@@ -18,8 +18,8 @@ inputFileList=TIFSummaryTree_${FLAG}_good.list
 
 rm -f $inputFileList
 for file in `ls ${base_path}/$FLAG/ClusterAnalysis*/res/ClusterAnalysis*.root`
-  do
-  runNb=`echo $file | awk -F"/" '{print $NF}' | sed -e "s@[a-Z]@@g" -e "s@_@@g"  -e "s@\.@@g"`
+ do
+runNb=`echo $file | awk -F"/" '{print $NF}' | sed -e "s@[a-Z]@@g" -e "s@_@@g"  -e "s@\.@@g"`
   [ "`grep -c $runNb $badList`" != "0" ] && continue
   echo -e "$runNb \t\t $file" >> $inputFileList
 done

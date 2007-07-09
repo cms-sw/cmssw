@@ -353,7 +353,7 @@ Stat_t TIFRun::doFit(Int_t RunNumber, Char_t *FolderName, Char_t *Variable, Char
     // Setting fit range and start values
     Double_t fr[2];
     Double_t sv[4], pllo[4], plhi[4];
-    fr[0]=0.3*htoFit->GetMean();
+    fr[0]=0.45*htoFit->GetMean();
     fr[1]=3.0*htoFit->GetMean();
     
     // (EM) parameters setting good for signal only 
@@ -410,7 +410,7 @@ Stat_t TIFRun::doFit(Int_t RunNumber, Char_t *FolderName, Char_t *Variable, Char
 
     TCanvas *cAll = new TCanvas("Fit",hNameF,1);
     Char_t fitFileName[60];
-    sprintf(fitFileName,"Fits/Fit_%d_%s_%s_%s.root",RunNumber, Variable, SubDetName,TypeName);
+    sprintf(fitFileName,"Fits/Fit_%d_%s_%s_%s_new.root",RunNumber, Variable, SubDetName,TypeName);
     htoFit->Draw("pe");
     htoFit->SetStats(100);
     langausFit->Draw("lsame");
@@ -574,9 +574,9 @@ struct LayerSummary_t {
 
 };
 struct FinalSummary_t {
-  TotSummary_t Signal;
+  TotSummary_t SignalCorr;
   TotSummary_t Noise;
-  TotSummary_t StoN;
+  TotSummary_t StoNCorr;
   TotSummary_t Width;
   TotSummary_t nClusters;
   LayerSummary_t cSignalCorr;
@@ -589,15 +589,15 @@ struct FinalSummary_t {
 
 //-----------------------------------------------//
 
-void ClusterNoise(TIFRun* aRun,int runList,FinalSummary_t* sdsDet,char* DetList);
+//========== Per laayer===========//
 void SignalCorrLayer(Int_t iDet,int runList,TIFRun* aRun, FinalSummary_t* sdsDet,char* DetList);
 void StoNCorrLayer(Int_t iDet,int runList,TIFRun* aRun, FinalSummary_t* sdsDet,char* DetList);
 void NoiseAndWidthLayer(Int_t iDet,int runList,TIFRun* aRun, FinalSummary_t* sdsDet,char* DetList);
 
-// void SignalCorr(Int_t iDet,int runList,TIFRun* aRun, FinalSummary_t* sdsDet,char* DetList);
-// void StoNCorr(Int_t iDet,int runList,TIFRun* aRun, FinalSummary_t* sdsDet,char* DetList);
-// void NoiseAndWidth(Int_t iDet,int runList,TIFRun* aRun, FinalSummary_t* sdsDet,char* DetList);
-
+//========== Per SubDet =========//
+void SignalCorr(int runList,TIFRun* aRun, FinalSummary_t* sdsDet,char* DetList);
+void StoNCorr(int runList,TIFRun* aRun, FinalSummary_t* sdsDet,char* DetList);
+void NoiseAndWidth(TIFRun* aRun,int runList,FinalSummary_t* sdsDet,char* DetList);
 
 void TIFSummaryTree(char* cRunList="", char* outputFile="") {  
 
@@ -696,10 +696,13 @@ void TIFSummaryTree(char* cRunList="", char* outputFile="") {
       if(debug)
 	cout<<"LOOP on Det"<<endl;
 
-      ClusterNoise(aRun,runList[iRun],sdsDet[iDet],DetList[iDet]);
       SignalCorrLayer(iDet,runList[iRun],aRun,sdsDet[iDet],DetList[iDet]);
       StoNCorrLayer(iDet,runList[iRun],aRun,sdsDet[iDet],DetList[iDet]);
       NoiseAndWidthLayer(iDet,runList[iRun],aRun,sdsDet[iDet],DetList[iDet]);
+
+      NoiseAndWidth(aRun,runList[iRun],sdsDet[iDet],DetList[iDet]);
+      SignalCorr(runList[iRun],aRun,sdsDet[iDet],DetList[iDet]);
+      StoNCorr(runList[iRun],aRun,sdsDet[iDet],DetList[iDet]);
     }
   
   tree->Fill();   
@@ -707,7 +710,7 @@ void TIFSummaryTree(char* cRunList="", char* outputFile="") {
   f->Write();
 }
 
-void ClusterNoise(TIFRun* aRun,int runList,FinalSummary_t* sdsDet,char* DetList){
+void NoiseAndWidth(TIFRun* aRun,int runList,FinalSummary_t* sdsDet,char* DetList){
   cout << "...ClusterNoise Called... "<< endl;
   sdsDet->Noise.On.HistoPar.entries=aRun->doHisto("ClusterNoise","cNoise_",DetList,"onTrack");
   sdsDet->Noise.On.HistoPar.mean=(aRun->getHistoPar())[0];
@@ -721,50 +724,100 @@ void ClusterNoise(TIFRun* aRun,int runList,FinalSummary_t* sdsDet,char* DetList)
   sdsDet->Noise.On.FitNoisePar.egarea=(aRun->getNoiseParErr())[0];
   sdsDet->Noise.On.FitNoisePar.efitmean=(aRun->getNoiseParErr())[1];
   sdsDet->Noise.On.FitNoisePar.efitrms=(aRun->getNoiseParErr())[2];
+
+  sdsDet->Width.On.HistoPar.entries=aRun->doHisto("ClusterWidth","cWidth_",DetList,"onTrack");
+  sdsDet->Width.On.HistoPar.mean=(aRun->getHistoPar())[0];
+  sdsDet->Width.On.HistoPar.rms=(aRun->getHistoPar())[1];
+  }
+void SignalCorr(int runList,TIFRun* aRun, FinalSummary_t* sdsDet,char* DetList){
+
+      sdsDet->SignalCorr.On.HistoPar.entries=aRun->doHisto("ClusterSignal","cSignalCorr_",DetList,"onTrack");
+      sdsDet->SignalCorr.On.HistoPar.mean=(aRun->getHistoPar())[0];
+      sdsDet->SignalCorr.On.HistoPar.rms=(aRun->getHistoPar())[1];
+      
+
+
+      sdsDet->SignalCorr.On.FitPar.entries=aRun->doFit(runList,"ClusterSignal","cSignalCorr_",DetList,"onTrack");
+      sdsDet->SignalCorr.On.FitPar.mp=(aRun->getFitPar())[1];
+      sdsDet->SignalCorr.On.FitPar.width=(aRun->getFitPar())[0];
+      sdsDet->SignalCorr.On.FitPar.area=(aRun->getFitPar())[2];
+      sdsDet->SignalCorr.On.FitPar.gsigma=(aRun->getFitPar())[3];
+      sdsDet->SignalCorr.On.FitPar.mp_peak=(sdsDet->SignalCorr.On.FitPar.mp - sdsDet->SignalCorr.On.FitPar.peak);
+
+      sdsDet->SignalCorr.On.FitPar.peak=aRun->pLanConv[0];
+      sdsDet->SignalCorr.On.FitPar.FWHM=aRun->pLanConv[1];
+
+      sdsDet->SignalCorr.On.FitPar.ewidth=(aRun->getFitParErr())[0];
+      sdsDet->SignalCorr.On.FitPar.emp=(aRun->getFitParErr())[1];
+      sdsDet->SignalCorr.On.FitPar.earea=(aRun->getFitParErr())[2];
+      sdsDet->SignalCorr.On.FitPar.egsigma=(aRun->getFitParErr())[3];
+
 }
 
-void NoiseAndWidthLayer(Int_t iDet,int runList,TIFRun* aRun, FinalSummary_t* sdsDet,char* DetList){								     
-   cout << "...NoiseLayer Called... "<<endl;															     
-   sdsDet->cNoise.L1.HistoPar.entries=aRun->doHisto("Layer","cNoise_",DetList,"Layer_1_onTrack");								     
-   sdsDet->cNoise.L1.HistoPar.mean=(aRun->getHistoPar())[0];													     
-   sdsDet->cNoise.L1.HistoPar.rms=(aRun->getHistoPar())[1];													     
-   																				     
-   sdsDet->cNoise.L1.FitNoisePar.entries=aRun->doNoiseFit(runList,"Layer","cNoise_",DetList,"Layer_1_onTrack");							     
-   sdsDet->cNoise.L1.FitNoisePar.garea=(aRun->getNoisePar())[0];												     
-   sdsDet->cNoise.L1.FitNoisePar.fitmean=(aRun->getNoisePar())[1];												     
-   sdsDet->cNoise.L1.FitNoisePar.fitrms=(aRun->getNoisePar())[2];												     
-   																				     
-   sdsDet->cNoise.L1.FitNoisePar.egarea=(aRun->getNoiseParErr())[0];												     
-   sdsDet->cNoise.L1.FitNoisePar.efitmean=(aRun->getNoiseParErr())[1];												     
-   sdsDet->cNoise.L1.FitNoisePar.efitrms=(aRun->getNoiseParErr())[2];												     
-   																				     
-   sdsDet->cNoise.L2.HistoPar.entries=aRun->doHisto("Layer","cNoise_",DetList,"Layer_2_onTrack");								     
-   sdsDet->cNoise.L2.HistoPar.mean=(aRun->getHistoPar())[0];													     
-   sdsDet->cNoise.L2.HistoPar.rms=(aRun->getHistoPar())[1];													     
-   																				     
-   sdsDet->cNoise.L2.FitNoisePar.entries=aRun->doNoiseFit(runList,"Layer","cNoise_",DetList,"Layer_2_onTrack");							     
-   sdsDet->cNoise.L2.FitNoisePar.garea=(aRun->getNoisePar())[0];												     
-   sdsDet->cNoise.L2.FitNoisePar.fitmean=(aRun->getNoisePar())[1];												     
-   sdsDet->cNoise.L2.FitNoisePar.fitrms=(aRun->getNoisePar())[2];												     
-   																				     
-   sdsDet->cNoise.L2.FitNoisePar.egarea=(aRun->getNoiseParErr())[0];												     
-   sdsDet->cNoise.L2.FitNoisePar.efitmean=(aRun->getNoiseParErr())[1];												     
-   sdsDet->cNoise.L2.FitNoisePar.efitrms=(aRun->getNoiseParErr())[2];												     
-   																				     
-   sdsDet->cNoise.L3.HistoPar.entries=aRun->doHisto("Layer","cNoise_",DetList,"Layer_3_onTrack");								     
-   sdsDet->cNoise.L3.HistoPar.mean=(aRun->getHistoPar())[0];													     
-   sdsDet->cNoise.L3.HistoPar.rms=(aRun->getHistoPar())[1];													     
-   																				     
-   sdsDet->cNoise.L3.FitNoisePar.entries=aRun->doNoiseFit(runList,"Layer","cNoise_",DetList,"Layer_3_onTrack");							     
-   																				     
-   sdsDet->cNoise.L3.FitNoisePar.garea=(aRun->getNoisePar())[0];												     
-   sdsDet->cNoise.L3.FitNoisePar.fitmean=(aRun->getNoisePar())[1];												     
-   sdsDet->cNoise.L3.FitNoisePar.fitrms=(aRun->getNoisePar())[2];												     
-   																				     
-   sdsDet->cNoise.L3.FitNoisePar.egarea=(aRun->getNoiseParErr())[0];												     
-   sdsDet->cNoise.L3.FitNoisePar.efitmean=(aRun->getNoiseParErr())[1];												     
-   sdsDet->cNoise.L3.FitNoisePar.efitrms=(aRun->getNoiseParErr())[2];												     
-   																				     
+void StoNCorr(int runList,TIFRun* aRun, FinalSummary_t* sdsDet,char* DetList) {
+      sdsDet->StoNCorr.On.HistoPar.entries=aRun->doHisto("ClusterStoN","cStoNCorr_",DetList,"onTrack");
+      sdsDet->StoNCorr.On.HistoPar.mean=(aRun->getHistoPar())[0];
+      sdsDet->StoNCorr.On.HistoPar.rms=(aRun->getHistoPar())[1];
+
+      sdsDet->StoNCorr.On.FitPar.entries=aRun->doFit(runList,"ClusterStoN","cStoNCorr_",DetList,"onTrack");
+      sdsDet->StoNCorr.On.FitPar.mp=(aRun->getFitPar())[1];
+      sdsDet->StoNCorr.On.FitPar.width=(aRun->getFitPar())[0];
+      sdsDet->StoNCorr.On.FitPar.area=(aRun->getFitPar())[2];
+      sdsDet->StoNCorr.On.FitPar.gsigma=(aRun->getFitPar())[3];
+      sdsDet->StoNCorr.On.FitPar.mp_peak=(sdsDet->StoNCorr.On.FitPar.mp - sdsDet->StoNCorr.On.FitPar.peak);
+      
+      sdsDet->StoNCorr.On.FitPar.peak=aRun->pLanConv[0];
+      sdsDet->StoNCorr.On.FitPar.FWHM=aRun->pLanConv[1];
+      
+      sdsDet->StoNCorr.On.FitPar.ewidth=(aRun->getFitParErr())[0];
+      sdsDet->StoNCorr.On.FitPar.emp=(aRun->getFitParErr())[1];
+      sdsDet->StoNCorr.On.FitPar.earea=(aRun->getFitParErr())[2];
+      sdsDet->StoNCorr.On.FitPar.egsigma=(aRun->getFitParErr())[3];
+}
+
+void NoiseAndWidthLayer(Int_t iDet,int runList,TIFRun* aRun, FinalSummary_t* sdsDet,char* DetList){		  
+
+  cout << "...NoiseLayer Called... "<<endl;															     
+  sdsDet->cNoise.L1.HistoPar.entries=aRun->doHisto("Layer","cNoise_",DetList,"Layer_1_onTrack");					     
+  sdsDet->cNoise.L1.HistoPar.mean=(aRun->getHistoPar())[0];													     
+  sdsDet->cNoise.L1.HistoPar.rms=(aRun->getHistoPar())[1];													     
+  
+  sdsDet->cNoise.L1.FitNoisePar.entries=aRun->doNoiseFit(runList,"Layer","cNoise_",DetList,"Layer_1_onTrack");							     
+  sdsDet->cNoise.L1.FitNoisePar.garea=(aRun->getNoisePar())[0];												     
+  sdsDet->cNoise.L1.FitNoisePar.fitmean=(aRun->getNoisePar())[1];												     
+  sdsDet->cNoise.L1.FitNoisePar.fitrms=(aRun->getNoisePar())[2];												     
+  
+  sdsDet->cNoise.L1.FitNoisePar.egarea=(aRun->getNoiseParErr())[0];												     
+  sdsDet->cNoise.L1.FitNoisePar.efitmean=(aRun->getNoiseParErr())[1];												     
+  sdsDet->cNoise.L1.FitNoisePar.efitrms=(aRun->getNoiseParErr())[2];												     
+  
+  sdsDet->cNoise.L2.HistoPar.entries=aRun->doHisto("Layer","cNoise_",DetList,"Layer_2_onTrack");								     
+  sdsDet->cNoise.L2.HistoPar.mean=(aRun->getHistoPar())[0];													     
+  sdsDet->cNoise.L2.HistoPar.rms=(aRun->getHistoPar())[1];													     
+  
+  sdsDet->cNoise.L2.FitNoisePar.entries=aRun->doNoiseFit(runList,"Layer","cNoise_",DetList,"Layer_2_onTrack");							     
+  sdsDet->cNoise.L2.FitNoisePar.garea=(aRun->getNoisePar())[0];												     
+  sdsDet->cNoise.L2.FitNoisePar.fitmean=(aRun->getNoisePar())[1];												     
+  sdsDet->cNoise.L2.FitNoisePar.fitrms=(aRun->getNoisePar())[2];												     
+  
+  sdsDet->cNoise.L2.FitNoisePar.egarea=(aRun->getNoiseParErr())[0];												     
+  sdsDet->cNoise.L2.FitNoisePar.efitmean=(aRun->getNoiseParErr())[1];												     
+  sdsDet->cNoise.L2.FitNoisePar.efitrms=(aRun->getNoiseParErr())[2];												     
+  
+  sdsDet->cNoise.L3.HistoPar.entries=aRun->doHisto("Layer","cNoise_",DetList,"Layer_3_onTrack");								     
+  sdsDet->cNoise.L3.HistoPar.mean=(aRun->getHistoPar())[0];													     
+  sdsDet->cNoise.L3.HistoPar.rms=(aRun->getHistoPar())[1];													     
+  
+  sdsDet->cNoise.L3.FitNoisePar.entries=aRun->doNoiseFit(runList,"Layer","cNoise_",DetList,"Layer_3_onTrack");							     
+  
+  sdsDet->cNoise.L3.FitNoisePar.garea=(aRun->getNoisePar())[0];												     
+  sdsDet->cNoise.L3.FitNoisePar.fitmean=(aRun->getNoisePar())[1];												     
+  sdsDet->cNoise.L3.FitNoisePar.fitrms=(aRun->getNoisePar())[2];												     
+  
+  sdsDet->cNoise.L3.FitNoisePar.egarea=(aRun->getNoiseParErr())[0];												     
+  sdsDet->cNoise.L3.FitNoisePar.efitmean=(aRun->getNoiseParErr())[1];												     
+  sdsDet->cNoise.L3.FitNoisePar.efitrms=(aRun->getNoiseParErr())[2];												     
+  
    //   cout <<"=========Width================" << endl;													     
    sdsDet->cWidth.L1.HistoPar.entries=aRun->doHisto("Layer","cWidth_",DetList,"Layer_1_onTrack");								     
    sdsDet->cWidth.L1.HistoPar.mean=(aRun->getHistoPar())[0];													     
