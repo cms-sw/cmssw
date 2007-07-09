@@ -4,27 +4,6 @@
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 
 
-TSiStripRecHit2DLocalPos::
-TSiStripRecHit2DLocalPos( const LocalPoint& pos, const LocalError& err,
-			  const GeomDet* det, 
-			  const SiStripClusterRef clust,
-			  const StripClusterParameterEstimator* cpe) :
-  TransientTrackingRecHit(det), theCPE(cpe)
-{
-  theHitData = new SiStripRecHit2D( pos, err, det->geographicalId(), clust);
-}
-
-TSiStripRecHit2DLocalPos::
-TSiStripRecHit2DLocalPos( const LocalPoint& pos, const LocalError& err,
-			  const GeomDet* det, 
-			  const SiStripRegionalClusterRef clust,
-			  const StripClusterParameterEstimator* cpe) :
-  TransientTrackingRecHit(det), theCPE(cpe)
-{
-  theHitData = new SiStripRecHit2D( pos, err, det->geographicalId(), clust);
-}
-
-
 TransientTrackingRecHit::RecHitPointer
 TSiStripRecHit2DLocalPos::clone (const TrajectoryStateOnSurface& ts) const
 {

@@ -3,20 +3,11 @@
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
-TSiPixelRecHit::TSiPixelRecHit( const LocalPoint& pos, const LocalError& err,
-				const GeomDet* det, 
-				//				const SiPixelCluster& clust,
-				clusterRef clust,
-				const PixelClusterParameterEstimator* cpe) :
-  TransientTrackingRecHit(det), theCPE(cpe)
-{
-  theHitData = new SiPixelRecHit( pos, err, det->geographicalId(), clust);
-}
 
 TSiPixelRecHit::RecHitPointer TSiPixelRecHit::clone (const TrajectoryStateOnSurface& ts) const
 {
   if (theCPE == 0){
-    return new TSiPixelRecHit( det(), theHitData, 0);
+    return new TSiPixelRecHit( det(), &theHitData, 0);
   }else{
     const SiPixelCluster& clust = *specificHit()->cluster();  
     PixelClusterParameterEstimator::LocalValues lv = 
