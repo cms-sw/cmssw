@@ -95,11 +95,11 @@ public:
 
 
  protected:
-  virtual std::vector<TrajectoryMeasurement> findCompatibleMeasurements( const TempTrajectory& traj) const;
+  virtual void findCompatibleMeasurements( const TempTrajectory& traj, std::vector<TrajectoryMeasurement> & result) const;
 
   TempTrajectory createStartingTrajectory( const TrajectorySeed& seed) const;
 
-  std::vector<TrajectoryMeasurement> seedMeasurements(const TrajectorySeed& seed) const;
+  void seedMeasurements(const TrajectorySeed& seed, std::vector<TrajectoryMeasurement> & result) const;
 
   void limitedCandidates( TempTrajectory& startingTraj, TrajectoryContainer& result) const;
 

@@ -9,7 +9,6 @@ class IntermediateTrajectoryCleaner {
   typedef TrackerTrajectoryBuilder::TempTrajectoryContainer TempTrajectoryContainer;
   typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer; 
 public:
-  static
-   TempTrajectoryContainer clean(TempTrajectoryContainer &tracks) ;
+  static void clean(TempTrajectoryContainer &tracks) ;
 };
 #endif

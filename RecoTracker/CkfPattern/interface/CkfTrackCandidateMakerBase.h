@@ -49,7 +49,7 @@ namespace cms
     RedundantSeedCleaner*  theSeedCleaner;
 
     // methods for debugging
-    virtual TrajectorySeedCollection::const_iterator lastSeed(TrajectorySeedCollection& theSeedColl){return theSeedColl.end();}
+    virtual TrajectorySeedCollection::const_iterator lastSeed(TrajectorySeedCollection const& theSeedColl){return theSeedColl.end();}
     virtual void printHitsDebugger(edm::Event& e){;}
     virtual void countSeedsDebugger(){;}
     virtual void deleteAssocDebugger(){;}

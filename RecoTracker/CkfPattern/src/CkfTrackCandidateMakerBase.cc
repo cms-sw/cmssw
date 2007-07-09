@@ -30,6 +30,9 @@
 
 #include "RecoTracker/TkNavigation/interface/NavigationSchoolFactory.h"
 
+#include<algorithm>
+#include<functional>
+
 using namespace edm;
 using namespace std;
 
@@ -108,7 +111,7 @@ namespace cms{
     std::string seedLabel = conf_.getParameter<std::string>("SeedLabel");
     edm::Handle<TrajectorySeedCollection> collseed;
     e.getByLabel(seedProducer, seedLabel, collseed);
-    TrajectorySeedCollection theSeedColl = *collseed;
+    TrajectorySeedCollection const & theSeedColl = *collseed;
     
     // Step C: Create empty output collection
     std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection);    
@@ -129,7 +132,7 @@ namespace cms{
       for(iseed=theSeedColl.begin();iseed!=end;iseed++){
 	vector<Trajectory> theTmpTrajectories;
     
-         if (theSeedCleaner && !theSeedCleaner->good(&(*iseed))) continue;
+	if (theSeedCleaner && !theSeedCleaner->good(&(*iseed))) continue;
 	theTmpTrajectories = theTrajectoryBuilder->trajectories(*iseed);
 	
        
@@ -152,22 +155,31 @@ namespace cms{
       if (theSeedCleaner) theSeedCleaner->done();
       
       // Step E: Clean the result
-      vector<Trajectory> unsmoothedResult;
       theTrajectoryCleaner->clean(rawResult);
+
+      vector<Trajectory> & unsmoothedResult(rawResult);
+      unsmoothedResult.erase(std::remove_if(unsmoothedResult.begin(),unsmoothedResult.end(),
+					    std::not1(std::mem_fun_ref(&Trajectory::isValid))),
+			     unsmoothedResult.end());
       
-      for (vector<Trajectory>::const_iterator itraw = rawResult.begin();
-	   itraw != rawResult.end(); itraw++) {
-	if((*itraw).isValid()) unsmoothedResult.push_back( *itraw);
-      }
+
+      //      for (vector<Trajectory>::const_iterator itraw = rawResult.begin();
+      //	   itraw != rawResult.end(); itraw++) {
+      //if((*itraw).isValid()) unsmoothedResult.push_back( *itraw);
+      //}
+
       //analyseCleanedTrajectories(unsmoothedResult);
       
 
       // Step F: Convert to TrackCandidates
+      output->reserve(unsmoothedResult.size());
       for (vector<Trajectory>::const_iterator it = unsmoothedResult.begin();
 	   it != unsmoothedResult.end(); it++) {
 	
+	Trajectory::RecHitContainer thits;
+	it->recHitsV(thits);
 	OwnVector<TrackingRecHit> recHits;
-	Trajectory::RecHitContainer thits = it->recHits();
+	recHits.reserve(thits.size());
 	for (Trajectory::RecHitContainer::const_iterator hitIt = thits.begin();
 	     hitIt != thits.end(); hitIt++) {
 	  recHits.push_back( (**hitIt).hit()->clone());

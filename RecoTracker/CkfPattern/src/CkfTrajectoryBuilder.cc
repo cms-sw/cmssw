@@ -94,12 +94,10 @@ createStartingTrajectory( const TrajectorySeed& seed) const
     theBackwardPropagator = &(*thePropagatorAlong);
   }
 
-  std::vector<TM> seedMeas = seedMeasurements(seed);
-  if ( !seedMeas.empty()) {
-    for (std::vector<TM>::const_iterator i=seedMeas.begin(); i!=seedMeas.end(); i++){
-      result.push(*i);            
-    }
-  }
+  std::vector<TM> seedMeas;
+  seedMeasurements(seed, seedMeas);
+  for (std::vector<TM>::const_iterator i=seedMeas.begin(); i!=seedMeas.end(); i++)
+    result.push(*i);            
   return result;
 }
 
@@ -116,7 +114,8 @@ limitedCandidates( TempTrajectory& startingTraj,
     newCand.clear();
     for (TempTrajectoryContainer::iterator traj=candidates.begin();
 	 traj!=candidates.end(); traj++) {
-      std::vector<TM> meas = findCompatibleMeasurements(*traj);
+      std::vector<TM> meas;
+      findCompatibleMeasurements(*traj, meas);
 
       // --- method for debugging
       if(!analyzeMeasurementsDebugger(*traj,meas,
@@ -159,14 +158,9 @@ limitedCandidates( TempTrajectory& startingTraj,
       }
     }
 
+    if (theIntermediateCleaning) IntermediateTrajectoryCleaner::clean(newCand);
 
-    if (theIntermediateCleaning) {
-        candidates.clear();
-        candidates = IntermediateTrajectoryCleaner::clean(newCand);
-    } else {
-        //cout << "calling candidates.swap(newCand) " << endl;
-        candidates.swap(newCand);
-    }
+    candidates.swap(newCand);
   }
 }
 
@@ -175,10 +169,10 @@ limitedCandidates( TempTrajectory& startingTraj,
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
-std::vector<TrajectoryMeasurement> 
-CkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
+void
+CkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed,  std::vector<TrajectoryMeasurement> & result) const
 {
-  std::vector<TrajectoryMeasurement> result;
+ 
   TrajectoryStateTransform tsTransform;
 
   TrajectorySeed::range hitRange = seed.recHits();
@@ -199,7 +193,7 @@ CkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
       const GeomDet* gdet = theMeasurementTracker->geomTracker()->idToDet( DetId(pState.detId()));
       if (&gdet->surface() != &hitGeomDet->surface()) {
 	edm::LogError("CkfPattern") << "CkfTrajectoryBuilder error: the seed state is not on the surface of the detector of the last seed hit";
-	return std::vector<TrajectoryMeasurement>(); // FIXME: should throw exception
+	return; // FIXME: should throw exception
       }
 
       TSOS updatedState = tsTransform.transientState( pState, &(gdet->surface()), 
@@ -224,7 +218,6 @@ CkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
   // method for debugging
   fillSeedHistoDebugger(result.begin(),result.end());
 
-  return result;
 }
 
  bool CkfTrajectoryBuilder::qualityFilter( const TempTrajectory& traj) const
@@ -299,10 +292,10 @@ bool CkfTrajectoryBuilder::toBeContinued (const TempTrajectory& traj) const
   return true;
 }
 
-std::vector<TrajectoryMeasurement> 
-CkfTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj) const
+void 
+CkfTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj, 
+						  std::vector<TrajectoryMeasurement> & result) const
 {
-  vector<TM> result;
   int invalidHits = 0;
 
   TSOS currentState( traj.lastMeasurement().updatedState());
@@ -310,7 +303,7 @@ CkfTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj) co
   vector<const DetLayer*> nl = 
     traj.lastLayer()->nextLayers( *currentState.freeState(), traj.direction());
   
-  if (nl.empty()) return result;
+  if (nl.empty()) return;
 
   for (vector<const DetLayer*>::iterator il = nl.begin(); 
        il != nl.end(); il++) {
@@ -345,6 +338,5 @@ CkfTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj) co
 
   //analyseMeasurements( result, traj);
 
-  return result;
 }
 
