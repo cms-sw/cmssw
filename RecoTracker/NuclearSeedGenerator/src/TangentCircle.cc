@@ -25,7 +25,9 @@ TangentCircle::TangentCircle(const GlobalVector& direction, const GlobalPoint& i
    theDirectionAtVertex = direction;
    theDirectionAtVertex/=theDirectionAtVertex.mag();
 
-   theCharge = (theRho>0) ? -1 : 1;
+   //theCharge = (theRho>0) ? -1 : 1;
+
+   theCharge = 0;
    theRho = fabs(theRho);
 
    theVertexError = (theInnerPoint-theOuterPoint).mag()/2;
