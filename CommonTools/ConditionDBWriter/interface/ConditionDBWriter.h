@@ -128,7 +128,7 @@
 //
 // Original Author:  Giacomo Bruno
 //         Created:  May 23 10:04:31 CET 2007
-// $Id: ConditionDBWriter.h,v 1.3 2007/06/13 15:52:47 gbruno Exp $
+// $Id: ConditionDBWriter.h,v 1.4 2007/06/13 15:55:34 gbruno Exp $
 //
 //
 
@@ -174,6 +174,7 @@ public:
     else if (IOVMode==std::string("AlgoDriven")) AlgoDrivenMode_=true;
     else  edm::LogError("ConditionDBWriter::ConditionDBWriter(): ERROR - unknown IOV interval write mode...will not store anything on the DB") << std::endl;
     Record_=iConfig.getParameter<std::string>("Record");
+    doStore_=iConfig.getParameter<bool>("doStoreOnDB");
 
 
   }
@@ -340,7 +341,7 @@ private:
     //And now write  data in DB
     edm::Service<cond::service::PoolDBOutputService> mydbservice;
   
-    if( mydbservice.isAvailable() ){
+    if( doStore_ && mydbservice.isAvailable() ){
 
       try{
 	
@@ -387,11 +388,11 @@ private:
       }catch(...){
 	edm::LogError("ConditionDBWriter")<<"Funny error"<<std::endl;
       }
-    }else{
-      edm::LogError("ConditionDBWriter")<<"Service is unavailable"<<std::endl;
+    }
+    else if (!  mydbservice.isAvailable() ) {
+      edm::LogError("ConditionDBWriter")<<"PoolDBOutputService is unavailable"<<std::endl;
     }
     
-
     
   }
 
@@ -456,6 +457,7 @@ private:
   bool RunMode_; //
   bool JobMode_;
   bool AlgoDrivenMode_;
+  bool doStore_;
 
   std::string Record_;
   cond::Time_t Time_; //time until which the DB object is valid. It is taken from the time of the first event analyzed. The end of the validity is infinity. However as soon as a new DB object with a later start time is inserted, the end time of this one becomes the start time of the new one. 
