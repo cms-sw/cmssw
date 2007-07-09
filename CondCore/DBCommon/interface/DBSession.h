@@ -7,10 +7,14 @@ namespace coral{
   class IConnectionService;
   class IRelationalService;
   class IAuthenticationService;
+  class IMonitoringReporter;
+  class IWebCacheControl;
+}
+namespace pool{
+  class IBlobStreamingService;
 }
 namespace cond{
   class SessionConfiguration;
-  class ConnectionConfiguration;
   /*
   **/
   class DBSession{
@@ -19,21 +23,18 @@ namespace cond{
     ~DBSession();
     void open();
     //void close();
-    coral::IConnectionService& connectionServiceHandle(){return *m_con;}
-    coral::IRelationalService& relationalServiceHandle();
-    coral::IAuthenticationService& authenticationServiceHandle();
-    //get context handle
-    //SessionConfiguration& sessionConfiguration();
-    //bool isActive() const;
-    //void purgeConnectionPool();
+    coral::IConnectionService& connectionService();
+    coral::IRelationalService& relationalService();
+    coral::IAuthenticationService& authenticationService() const;
+    const coral::IMonitoringReporter& monitoringReporter() const;
+    coral::IWebCacheControl& webCacheControl();
+    pool::IBlobStreamingService& blobStreamingService();
+    cond::SessionConfiguration& configuration();
   private:
     seal::Handle<seal::Context> m_context;
     seal::Handle<seal::ComponentLoader> m_loader;
     coral::IConnectionService* m_con;
-    //bool m_isActive;
-    ConnectionConfiguration* m_connectConfig;
     SessionConfiguration* m_sessionConfig;
-    //bool m_usePoolContext;
   };
 }//ns cond
 #endif

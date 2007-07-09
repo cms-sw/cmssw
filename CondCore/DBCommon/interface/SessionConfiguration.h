@@ -4,21 +4,20 @@
 #include "CondCore/DBCommon/interface/MessageLevel.h"
 #include <string>
 namespace cond{
+  class ConnectionConfiguration;
   class SessionConfiguration{
   public:
     SessionConfiguration();
     ~SessionConfiguration();
+    ConnectionConfiguration* connectionConfiguration();
     void setAuthenticationMethod( cond::AuthenticationMethod m );
     void setAuthenticationPath( const std::string& p );
     void setBlobStreamer( const std::string& name );
     void setMessageLevel( cond::MessageLevel l );
-    void setStandaloneRelationalService();
-    //void setMonitoringService();
     cond::AuthenticationMethod authenticationMethod() const;
-    bool hasBlobStreamService();
+    bool hasBlobStreamService() const;
     std::string blobStreamerName() const;
     cond::MessageLevel messageLevel() const;
-    bool hasStandaloneRelationalService() const;
     std::string authName() const;
   private:
     cond::AuthenticationMethod m_authMethod;
@@ -26,7 +25,7 @@ namespace cond{
     bool m_hasBlobstreamer;
     std::string m_blobstreamerName;
     cond::MessageLevel m_messageLevel;
-    bool m_hasStandaloneRelationalService;
+    cond::ConnectionConfiguration* m_conConfig;
   };
 }
 #endif

@@ -41,7 +41,7 @@ cond::Connection::~Connection(){
   }
 }
 void cond::Connection::connect( cond::DBSession* session ){
-  m_connectionServiceHandle=&(session->connectionServiceHandle());
+  m_connectionServiceHandle=&(session->connectionService());
 }
 /**if first time, init everything, start timer
    if not first time, 
