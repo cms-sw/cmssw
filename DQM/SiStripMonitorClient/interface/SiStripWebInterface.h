@@ -42,7 +42,6 @@ class SiStripWebInterface : public WebInterface
 
   void returnReplyXml(xgi::Output * out, const std::string& name, const std::string& comment);
 
-  std::vector<std::string> tkMapOptions_;
   bool tkMapCreated;
   std::multimap<std::string, std::string> requestMap_;
 

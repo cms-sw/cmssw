@@ -24,10 +24,7 @@ SiStripWebInterface::SiStripWebInterface(std::string theContextURL, std::string 
   theActionFlag = NoAction;
   actionExecutor_ = 0;
   infoExtractor_  = 0;
-  tkMapOptions_.push_back("Persistant");
-  tkMapOptions_.push_back("Temporary");
   tkMapCreated = false;
-  createAll();
 
   if (actionExecutor_ == 0) actionExecutor_ = new SiStripActionExecutorQTest();
   if (infoExtractor_ == 0) infoExtractor_ = new SiStripInformationExtractor();

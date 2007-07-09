@@ -12,7 +12,12 @@ echo "The hostname is = $HOSTNAME"
 TEST_PATH=$(echo "${PWD}" | sed 's/\//\\\//g')
 echo "The current directory is = $PWD"
 
-MWC_LIB1="${LOCALRT}/lib/slc3_ia32_gcc323/libDQMSiStripMonitorClient.so"
+LIB_NAME="pluginDQMSiStripMonitorClient.so"
+if [ $# -gt 1 ]; then
+ LIB_NAME="libDQMSiStripMonitorClient.so"
+fi
+
+MWC_LIB1="${LOCALRT}/lib/$SCRAM_ARCH/$LIB_NAME"
 echo "Looking for the MonitorWebClient library... $MWC_LIB1"
 if [ ! -f $MWC_LIB1 ]; then
     echo "Not Found! Will pick it up from the release area..."

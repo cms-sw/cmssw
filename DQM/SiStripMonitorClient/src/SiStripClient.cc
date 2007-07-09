@@ -12,7 +12,7 @@ SiStripClient::SiStripClient(xdaq::ApplicationStub *stub)
 {
   // Instantiate a web interface:
   webInterface_p = new SiStripWebInterface(getContextURL(),getApplicationURL(), & mui_);
-  
+  webInterface_p->createAll();
   xgi::bind(this, &SiStripClient::handleWebRequest, "Request");
 }
 
