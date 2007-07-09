@@ -1174,8 +1174,8 @@ void SiPixelInformationExtractor::readStatusMessage(MonitorUserInterface* mui, s
       else if (status == dqm::qstatus::ERROR) test_status << " Error : " << endl;
       else if (status == dqm::qstatus::STATUS_OK) test_status << " Ok : " << endl;
       else if (status == dqm::qstatus::OTHER) test_status << " Other(" << status << ") : " << endl;
+      test_status << "&lt;br/&gt;";
       string mess_str = it->second->getMessage();
-      //test_status << "&lt;br/&gt;";
       mess_str = mess_str.substr(mess_str.find(" Test")+5);
       //test_status << " QTest Name  : " << mess_str.substr(0, mess_str.find(")")+1) << endl;
       //test_status << "&lt;br/&gt;";

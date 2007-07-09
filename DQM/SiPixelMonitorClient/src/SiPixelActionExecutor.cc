@@ -44,12 +44,19 @@ void SiPixelActionExecutor::readConfiguration() {
 //
 // -- Read Configuration File
 //
-bool SiPixelActionExecutor::readConfiguration(int& tkmap_freq, int& sum_barrel_freq, int& sum_endcap_freq, int& sum_grandbarrel_freq, int& sum_grandendcap_freq) {
+bool SiPixelActionExecutor::readConfiguration(int& tkmap_freq, 
+                                              int& sum_barrel_freq, 
+                                              int& sum_endcap_freq, 
+					      int& sum_grandbarrel_freq, 
+					      int& sum_grandendcap_freq, 
+					      int& message_limit_) {
+//cout<<"Entering SiPixelActionExecutor::readConfiguration..."<<endl;
   string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
   if (configParser_ == 0) {
     configParser_ = new SiPixelConfigParser();
     configParser_->getDocument(edm::FileInPath(localPath).fullPath());
   }
+ 
 //  if (!configParser_->getFrequencyForTrackerMap(tkmap_freq)){
 //    cout << "SiPixelActionExecutor::readConfiguration: Failed to read TrackerMap configuration parameters!! ";
 //    return false;
@@ -70,6 +77,11 @@ bool SiPixelActionExecutor::readConfiguration(int& tkmap_freq, int& sum_barrel_f
     edm::LogInfo("SiPixelActionExecutor")  << "Failed to read Grand Endcap Summary configuration parameters!! " << "\n" ;
     return false;
   }
+  if (!configParser_->getMessageLimitForQTests(message_limit_)){
+    edm::LogInfo("SiPixelActionExecutor")  << "Failed to read QTest Message Limit" << "\n" ;
+    return false;
+  }
+//cout<<"...leaving SiPixelActionExecutor::readConfiguration..."<<endl;
   return true;
 }
 //=============================================================================================================
@@ -529,7 +541,7 @@ MonitorElement* SiPixelActionExecutor::getSummaryME(MonitorUserInterface* mui,st
 //
 void SiPixelActionExecutor::setupQTests(MonitorUserInterface * mui) {
   mui->cd();
-  if (collationDone) mui->cd("Collector/Collated/SiPixel");
+  if (collationDone) mui->cd("Collector/Collated/Tracker");
   string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_qualitytest_config.xml");
   if(!qtHandler_){
     qtHandler_ = new QTestHandle();
@@ -546,9 +558,12 @@ void SiPixelActionExecutor::setupQTests(MonitorUserInterface * mui) {
 // -- Check Status of Quality Tests
 //
 void SiPixelActionExecutor::checkQTestResults(MonitorUserInterface * mui) {
+cout<<"Entering SiPixelActionExecutor::checkQTestResults..."<<endl;
+  int messageCounter=0;
   string currDir = mui->pwd();
   vector<string> contentVec;
   mui->getContents(contentVec);
+  configParser_->getMessageLimitForQTests(message_limit_);  
   for (vector<string>::iterator it = contentVec.begin();
        it != contentVec.end(); it++) {
     vector<string> contents;
@@ -560,33 +575,42 @@ void SiPixelActionExecutor::checkQTestResults(MonitorUserInterface * mui) {
       if (me) {
 	// get all warnings associated with me
 	vector<QReport*> warnings = me->getQWarnings();
-	for(vector<QReport *>::const_iterator it = warnings.begin();
-	    it != warnings.end(); ++it) {
-	  edm::LogWarning("SiPixelQualityTester::checkTestResults") << 
-	    " *** Warning for " << me->getName() << 
-	    "," << (*it)->getMessage() << "\n";
+	for(vector<QReport *>::const_iterator wi = warnings.begin();
+	    wi != warnings.end(); ++wi) {
+	  messageCounter++;
+	  if(messageCounter<message_limit_) {
+	    edm::LogWarning("SiPixelQualityTester::checkTestResults") << 
+	      " *** Warning for " << me->getName() << 
+	      "," << (*wi)->getMessage() << "\n";
 	  
-	  cout <<  " *** Warning for " << me->getName() << "," 
-	       << (*it)->getMessage() << " " << me->getMean() 
-	       << " " << me->getRMS() << me->hasWarning() 
-	       << endl;
+	    cout <<  " *** Warning for " << me->getName() << "," 
+	         << (*wi)->getMessage() << " " << me->getMean() 
+	         << " " << me->getRMS() << me->hasWarning() 
+	         << endl;
+          }
 	}
 	// get all errors associated with me
 	vector<QReport *> errors = me->getQErrors();
-	for(vector<QReport *>::const_iterator it = errors.begin();
-	    it != errors.end(); ++it) {
-	  edm::LogError("SiPixelQualityTester::checkTestResults") << 
-	    " *** Error for " << me->getName() << 
-	    "," << (*it)->getMessage() << "\n";
+	for(vector<QReport *>::const_iterator ei = errors.begin();
+	    ei != errors.end(); ++ei) {
+	  messageCounter++;
+	  if(messageCounter<message_limit_) {
+	    edm::LogError("SiPixelQualityTester::checkTestResults") << 
+	      " *** Error for " << me->getName() << 
+	      "," << (*ei)->getMessage() << "\n";
 	  
-	  cout  <<   " *** Error for " << me->getName() << ","
-		<< (*it)->getMessage() << " " << me->getMean() 
-		<< " " << me->getRMS() 
-		<< endl;
+	    cout  <<   " *** Error for " << me->getName() << ","
+		  << (*ei)->getMessage() << " " << me->getMean() 
+		  << " " << me->getRMS() 
+		  << endl;
+	  }
 	}
       }
     }
   }
+  if (messageCounter>=message_limit_)
+    cout<<"WARNING: too many QTest failures! Giving up after "<<message_limit_<<" messages."<<endl;
+  cout<<"...leaving SiPixelActionExecutor::checkQTestResults!"<<endl;
 }
 ////////////////////////////////////////////////////////////////////////////
 //

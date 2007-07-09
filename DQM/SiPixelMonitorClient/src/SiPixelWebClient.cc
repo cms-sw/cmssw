@@ -18,6 +18,9 @@ SiPixelWebClient::SiPixelWebClient(xdaq::ApplicationStub *stub)
   webInterface_p = new SiPixelWebInterface(getContextURL(),getApplicationURL(), & mui_);
   
   xgi::bind(this, &SiPixelWebClient::handleWebRequest, "Request");
+  
+  actionExecutor_ = new SiPixelActionExecutor();
+  
 //  cout<<"leaving WebClient constructor"<<endl;
 }
 
@@ -50,13 +53,12 @@ void SiPixelWebClient::handleWebRequest(xgi::Input * in, xgi::Output * out)
 void SiPixelWebClient::configure()
 {
 //  cout << "SiPixelClient::configure: Reading Configuration " << endl;
-//  webInterface_p->readConfiguration(updateFrequencyForTrackerMap_, 
-//				    updateFrequencyForSummary_);
   webInterface_p->readConfiguration(updateFrequencyForTrackerMap_, 
 				    updateFrequencyForBarrelSummary_,
 				    updateFrequencyForEndcapSummary_,
 				    updateFrequencyForGrandBarrelSummary_,
-				    updateFrequencyForGrandEndcapSummary_);
+				    updateFrequencyForGrandEndcapSummary_,
+				    messageLimitForQTests_);
 //  cout<<"leaving configure"<<endl;
 }
 
@@ -88,31 +90,40 @@ void SiPixelWebClient::onUpdate() const
   
   // SubscribeAll once:
   if (nUpdate == 0) mui_->subscribe("Collector/*");
-  //if (nUpdate == 0) mui_->subscribe("Collector/FU*/Tracker/PixelBarrel/Shell_mI/Layer_1/*");
 
   // Set Up Quality Tests once:
-  if (nUpdate == 10) webInterface_p->setupQTests();
+  if (nUpdate == 3) webInterface_p->setupQTests();
 
+  // Initial Collation of all Monitor Elements in all Sources:
+//  if (nUpdate == 6) actionExecutor_->createCollation(mui_);
+  
+  // Initial Creation of Summary ME's: 
+//  if (nUpdate == 9) actionExecutor_->createSummary(mui_);
+/*
+  // Initial Check of Quality Test Results:
+  if (nUpdate == 12) actionExecutor_->checkQTestResults(mui_);
+  
   // put here the code that needs to be executed on every update:
   std::vector<std::string> uplist;
   mui_->getUpdatedContents(uplist);
 
-  // Collation of Monitor Element
-  /*  if (nUpdate == 10) {
-    webInterface_p->setActionFlag(SiPixelWebInterface::Collate);
-    seal::Callback action(seal::CreateCallback(webInterface_p, 
-			&SiPixelWebInterface::performAction));
-    mui_->addCallback(action); 
-    }*/
-  
-  // Creation of Summary 
-  //cout<<"updateFrequencyForSummary_="<<updateFrequencyForSummary_<<" , nUpdate="<<nUpdate<<endl;
-/*  if (updateFrequencyForSummary_ != -1 ) {
-    if (nUpdate > 0 && nUpdate%updateFrequencyForSummary_ == 0) {
-      //webInterface_p->setActionFlag(SiPixelWebInterface::Summary);
-      //seal::Callback action(seal::CreateCallback(webInterface_p, 
-	//		        &SiPixelWebInterface::performAction));
-      //mui_->addCallback(action);	 
+  // Frequent Collation of Monitor Elements (in synch with Summary ME Updates): 
+  if (updateFrequencyForBarrelSummary_ != -1 ) {
+    if (nUpdate > 0 && nUpdate%updateFrequencyForBarrelSummary_ == 0) {
+      webInterface_p->setActionFlag(SiPixelWebInterface::Collate);
+      seal::Callback action(seal::CreateCallback(webInterface_p, 
+			    &SiPixelWebInterface::performAction));
+      mui_->addCallback(action); 
+    }
+  }
+  // Frequent Updating of Summary ME's: 
+  cout<<"updateFrequencyForBarrelSummary_="<<updateFrequencyForBarrelSummary_<<" , nUpdate="<<nUpdate<<endl;
+  if (updateFrequencyForBarrelSummary_ != -1 ) {
+    if (nUpdate > 0 && nUpdate%updateFrequencyForBarrelSummary_ == 1) {
+      webInterface_p->setActionFlag(SiPixelWebInterface::Summary);
+      seal::Callback action(seal::CreateCallback(webInterface_p, 
+			    &SiPixelWebInterface::performAction));
+      mui_->addCallback(action);	 
     }
   }*/	
 /*  // Creation of TrackerMap
@@ -125,14 +136,14 @@ void SiPixelWebClient::onUpdate() const
     }
   }
 */  
-  // Save ME's into a file: 
-/*  if  (nUpdate%500 == 0) {
-       webInterface_p->setActionFlag(SiPixelWebInterface::SaveData);
-       seal::Callback action(seal::CreateCallback(webInterface_p, 
-						  &SiPixelWebInterface::performAction));
-       mui_->addCallback(action); 
-  } */ 
-
+/*  // Save ME's into a file: 
+  if (nUpdate%500 == 0) {
+    webInterface_p->setActionFlag(SiPixelWebInterface::SaveData);
+    seal::Callback action(seal::CreateCallback(webInterface_p, 
+			  &SiPixelWebInterface::performAction));
+    mui_->addCallback(action); 
+  }  
+*/
  
 //  cout<<"leaving onUpdate"<<endl;
 

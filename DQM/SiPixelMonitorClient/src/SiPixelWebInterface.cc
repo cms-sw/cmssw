@@ -259,15 +259,16 @@ void SiPixelWebInterface::setupQTests() {
 // -- Read Configurations 
 //
 void SiPixelWebInterface::readConfiguration(int& tkmap_freq, int& sum_barrel_freq, int&
-sum_endcap_freq, int& sum_grandbarrel_freq, int& sum_grandendcap_freq){
+sum_endcap_freq, int& sum_grandbarrel_freq, int& sum_grandendcap_freq, int& message_limit){
   if (actionExecutor_)  {
-    if (actionExecutor_->readConfiguration(tkmap_freq,sum_barrel_freq,sum_endcap_freq,sum_grandbarrel_freq,sum_grandendcap_freq));
+    if (actionExecutor_->readConfiguration(tkmap_freq,sum_barrel_freq,sum_endcap_freq,sum_grandbarrel_freq,sum_grandendcap_freq,message_limit));
   } else {
     tkmap_freq = -1;
     sum_barrel_freq   = -1;
     sum_endcap_freq   = -1;
     sum_grandbarrel_freq   = -1;
     sum_grandendcap_freq   = -1;
+    message_limit   = -1;
   }
 }
 

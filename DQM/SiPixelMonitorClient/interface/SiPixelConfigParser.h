@@ -5,8 +5,8 @@
  * *
  *  Class that handles the SiPixel Quality Tests
  * 
- *  $Date: 2007/03/29 14:22:52 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/06/28 22:55:18 $
+ *  $Revision: 1.5 $
  *  \author Petra Merkel
   */
 
@@ -40,6 +40,7 @@ class SiPixelConfigParser : public DQMParserBase {
   bool getMENamesForGrandEndcapSummary(std::string &structure_name, std::vector<std::string>& me_names);
   bool getFrequencyForGrandBarrelSummary(int& u_freq);
   bool getFrequencyForGrandEndcapSummary(int& u_freq);
+  bool getMessageLimitForQTests(int& u_freq);
 
  private:
   

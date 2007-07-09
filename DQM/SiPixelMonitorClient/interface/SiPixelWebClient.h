@@ -48,6 +48,8 @@ public:
 
   // this client has a web interface:  
   SiPixelWebInterface * webInterface_p;
+  // and an ActionExecutor:
+  SiPixelActionExecutor * actionExecutor_;
 
 private:
 
@@ -59,6 +61,7 @@ private:
   int updateFrequencyForEndcapSummary_;
   int updateFrequencyForGrandBarrelSummary_;
   int updateFrequencyForGrandEndcapSummary_;
+  int messageLimitForQTests_;
 };
 
 // You always need to have this line! Do not remove:

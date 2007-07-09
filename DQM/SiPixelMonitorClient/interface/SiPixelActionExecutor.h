@@ -26,7 +26,12 @@ class SiPixelActionExecutor {
  void checkQTestResults(MonitorUserInterface * mui);
  void createCollation(MonitorUserInterface * mui);
  void createTkMap(MonitorUserInterface* mui, std::string mEName);
- bool readConfiguration(int& tkmap_freq, int& sum_barrel_freq, int& sum_endcap_freq, int& sum_grandbarrel_freq, int& sum_grandendcap_freq);
+ bool readConfiguration(int& tkmap_freq, 
+                        int& sum_barrel_freq, 
+			int& sum_endcap_freq, 
+			int& sum_grandbarrel_freq, 
+			int& sum_grandendcap_freq,
+			int& message_limit);
  void readConfiguration();
  void createLayout(MonitorUserInterface * mui);
  void fillLayout(MonitorUserInterface * mui);
@@ -55,6 +60,8 @@ class SiPixelActionExecutor {
   std::vector<std::string> tkMapMENames;
   
   bool collationDone;
+  
+  int message_limit_;
   
   QTestHandle* qtHandler_;
   

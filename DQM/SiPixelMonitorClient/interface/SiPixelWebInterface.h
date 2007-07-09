@@ -35,7 +35,7 @@ public:
 
   void configureCustomRequest(xgi::Input * in, xgi::Output * out) throw (xgi::exception::Exception);
   void performAction();
-  void readConfiguration(int& freq_tkmap, int& freq_barrel_sum, int& freq_endcap_sum, int& freq_grandbarrel_sum, int& freq_grandendcap_sum);
+  void readConfiguration(int& freq_tkmap, int& freq_barrel_sum, int& freq_endcap_sum, int& freq_grandbarrel_sum, int& freq_grandendcap_sum, int& message_limit);
   void setupQTests();
 
   SiPixelActionType getActionFlag() {return theActionFlag;}

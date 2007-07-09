@@ -386,4 +386,27 @@ bool SiPixelConfigParser::getFrequencyForGrandEndcapSummary(int& u_freq) {
   return true;
 }
 
+bool SiPixelConfigParser::getMessageLimitForQTests(int& u_freq) {
+  if (!doc) {
+    cout << " SiPixelConfigParser::Configuration File is not set!!! " << endl;
+    return false;
+  }
+  unsigned int structureNodes = doc->getElementsByTagName(qtxml::_toDOMS("QTestMessageLimit"))->getLength();
+  if (structureNodes == 0) return false;
+  /// Get Node
+  DOMNode* structureNode = doc->getElementsByTagName(qtxml::_toDOMS("QTestMessageLimit"))->item(0);
+ //Get Node name
+  if (! structureNode){
+   return false;
+  }
+  DOMElement* structureElement = static_cast<DOMElement *>(structureNode);          
+  if (! structureElement){
+   return false;
+  }		 
+		
+  u_freq = atoi(qtxml::_toString(structureElement->getAttribute(qtxml::_toDOMS("update_frequency"))).c_str());
+  return true;
+}
+
+
 
