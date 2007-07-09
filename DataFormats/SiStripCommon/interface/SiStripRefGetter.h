@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <vector>
+#include <iostream>
 #include <utility>
 
 #include "boost/concept_check.hpp"
@@ -65,13 +66,13 @@ namespace edm {
         }
       }
 
-    /// Add a new region
+    /// Add a new region to the end of the collection.
     template <typename THandle>
-      void add(const THandle& iHandle, const uint32_t& iRegion) {
+      void push_back(const THandle& iHandle, const uint32_t& iRegion) {
       sets_.push_back(region_ref(iHandle, iRegion, false));
     }
 
-    //Reserve memory for sets_ collection
+    /// Reserve memory for sets_ collection.
     void reserve(uint32_t);
 
     /// Swap contents of class
@@ -83,16 +84,16 @@ namespace edm {
     /// Return the number of contained 'region_ref's (one per Region).
     uint32_t size() const;
 
-    /// Return an iterator to the RegionIndex<T> for a given Region id, or end() 
-    /// if there is no such Region.
-    const_iterator find(uint32_t region) const;
+    /// Return a reference to the RegionIndex<T> for a given index.
+    const RegionIndex<T>& operator[](uint32_t index) const;
 
-    /// Return a reference to the RegionIndex<T> for a given Region id, or throw 
-    /// an edm::Exception if there is no such Region.
-    const RegionIndex<T>& operator[](uint32_t region) const;
-
-    /// Returns start end end iterators for values of a given det-id
-    record_pair find(uint32_t,uint32_t) const;
+    /// Returns a reference to the last RegionIndex<T> added to the 
+    /// collection, or throws an exception if empty.
+    const RegionIndex<T>& back() const;
+    
+    /// Returns start end end iterators for values of a given det-id 
+    /// within the last RegionIndex<T> added to the collection.
+    record_pair back(uint32_t index) const;
 
     /// Return an iterator to the first RegionIndex<T>.
     const_iterator begin() const;
@@ -137,33 +138,32 @@ namespace edm {
     {
       return sets_.size();
     }
-  
-  template <class T>
-    inline
-    typename SiStripRefGetter<T>::const_iterator
-    SiStripRefGetter<T>::find(uint32_t region) const
-    {
-      if (size() < region+1) return sets_.end();
-      return sets_.begin()+region;
-    }
-  
+
   template <class T>
     inline
     const RegionIndex<T>&
-    SiStripRefGetter<T>::operator[](uint32_t region) const 
+    SiStripRefGetter<T>::operator[](uint32_t index) const 
     {
-      const_iterator it = find(region);
-      if (it == end()) sistripdetail::_throw_range(region);
+      if (size() < index+1) sistripdetail::_throw_range(index);
+      const_iterator it = sets_.begin()+index;
       return *it;
     }
+
+ template <class T>
+    inline
+    const RegionIndex<T>&
+    SiStripRefGetter<T>::back() const 
+    {
+      if (empty()) sistripdetail::_throw_range(0);
+      return (*this)[size()-1];
+    } 
 
   template <class T>
     inline
     typename SiStripRefGetter<T>::record_pair
-    SiStripRefGetter<T>::find(uint32_t region, uint32_t detid) const 
+    SiStripRefGetter<T>::back(uint32_t detid) const 
     {
-      const RegionIndex<T>& index = (*this)[region];
-      return index.find(detid);
+      return back().find(detid);
     } 
   
   template <class T>
