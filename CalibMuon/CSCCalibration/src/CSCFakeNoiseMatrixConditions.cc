@@ -194,22 +194,21 @@ void CSCFakeNoiseMatrixConditions::prefillNoiseMatrix(){
 
 CSCFakeNoiseMatrixConditions::CSCFakeNoiseMatrixConditions(const edm::ParameterSet& iConfig)
 {
-  //the following line is needed to tell the framework what
-  // data is being produced
-  matrix.prefillNoiseMatrix();
-  // added by Zhen (changed since 1_2_0)
+  // tell the framework what data is being produced
   setWhatProduced(this,&CSCFakeNoiseMatrixConditions::produceNoiseMatrix);
+
   findingRecord<CSCNoiseMatrixRcd>();
+
   //now do what ever other initialization is needed
+  prefillNoiseMatrix();
 }
 
 
 CSCFakeNoiseMatrixConditions::~CSCFakeNoiseMatrixConditions()
 {
- 
-   // do anything here that needs to be done at desctruction time
+   // do anything here that needs to be done at destruction time
    // (e.g. close files, deallocate resources etc.)
-
+  delete cnmatrix; // since not made persistent so we still own it.
 }
 
 
@@ -221,9 +220,10 @@ CSCFakeNoiseMatrixConditions::~CSCFakeNoiseMatrixConditions()
 CSCFakeNoiseMatrixConditions::ReturnType
 CSCFakeNoiseMatrixConditions::produceNoiseMatrix(const CSCNoiseMatrixRcd& iRecord)
 {
-    matrix.prefillNoiseMatrix();
-    // Added by Zhen, need a new object so to not be deleted at exit
-    CSCNoiseMatrix* mydata=new CSCNoiseMatrix(matrix.get());
+    prefillNoiseMatrix();
+
+    // Copy the CSCNoiseMatrix so it can be made persistent (this is a memory leak if nobody else takes control)
+    CSCNoiseMatrix* mydata=new CSCNoiseMatrix( *cnmatrix );
     
     return mydata;
 
