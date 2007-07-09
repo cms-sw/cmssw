@@ -38,7 +38,6 @@ ElectronCalibration::ElectronCalibration(const edm::ParameterSet& iConfig)
    electronLabel_ = iConfig.getParameter< edm::InputTag > ("electronLabel");
    trackLabel_ = iConfig.getParameter< edm::InputTag > ("trackLabel");
    calibAlgo_       = iConfig.getParameter<std::string>("CALIBRATION_ALGO");
-   cout << "Read Inputs" << endl;
 }
 
 
@@ -79,8 +78,8 @@ void ElectronCalibration::beginJob(edm::EventSetup const& iSetup) {
   etaMin = 1;
   etaMax = 85;
   phiMin = 11; 
-  phiMax = 70;
-  MyL3Algo1 = new MinL3Algorithm(calibClusterSize, etaMin, etaMax, phiMin, phiMax);
+  phiMax = 71;
+  MyL3Algo1 = new MinL3Algorithm(2,calibClusterSize, etaMin, etaMax, phiMin, phiMax);
   read_events=0;
   
   // get Region to be calibrated  
@@ -90,7 +89,6 @@ void ElectronCalibration::beginJob(edm::EventSetup const& iSetup) {
   
   
   CalibrationCluster::CalibMap::iterator itmap;
-  
 }
 
 
@@ -100,9 +98,7 @@ ElectronCalibration::endJob() {
 //========================================================================
 
 int nIterations =10;
-
-solution = MyL3Algo1->iterate(EventMatrix, MaxCCeta, MaxCCphi, EnergyVector, nIterations);
-
+ solution = MyL3Algo1->iterate(EventMatrix, MaxCCeta, MaxCCphi, EnergyVector, nIterations);
 
 for (int ii=0;ii<solution.size();ii++)
 {
@@ -112,7 +108,7 @@ for (int ii=0;ii<solution.size();ii++)
 
 newCalibs.resize(ReducedMap.size(),0.);
 
-calibXMLwriter write_calibrations;
+ calibXMLwriter write_calibrations;
 
 int icry=0;
 CalibrationCluster::CalibMap::iterator itmap;
@@ -126,7 +122,7 @@ for (itmap=ReducedMap.begin(); itmap != ReducedMap.end();itmap++){
       icry++;
 }
 
-solutionNoCuts = MyL3Algo1->iterate(EventMatrixNoCuts, MaxCCetaNoCuts, MaxCCphiNoCuts, EnergyVectorNoCuts, nIterations);
+ solutionNoCuts = MyL3Algo1->iterate(EventMatrixNoCuts, MaxCCetaNoCuts, MaxCCphiNoCuts, EnergyVectorNoCuts, nIterations);
 for (int ii=0;ii<solutionNoCuts.size();ii++)
 {
   calibsNoCuts->Fill(solutionNoCuts[ii]); 
@@ -196,11 +192,11 @@ EBDetId  ElectronCalibration::findMaxHit2(const std::vector<DetId> & v1,const EB
 //=================================================================================
 
 	double currEnergy = 0.;
-	EBDetId maxHit = (EBDetId) NULL;
+	EBDetId maxHit;
  
 	for( std::vector<DetId>::const_iterator idsIt = v1.begin(); idsIt != v1.end(); ++idsIt) {
            
-	   if(idsIt->subdetId()!=1) continue;
+	  // if(idsIt->subdetId()!=1) continue;
 	   
 	   EBRecHitCollection::const_iterator itrechit;
 	   
@@ -215,9 +211,8 @@ EBDetId  ElectronCalibration::findMaxHit2(const std::vector<DetId> & v1,const EB
 	   
 	    }
 	     
-	     
- 	   if(itrechit->energy() > currEnergy) {
-	      currEnergy=itrechit->energy();
+	   if(itrechit->energy() > currEnergy) {
+ 	      currEnergy=itrechit->energy();
  	      maxHit= *idsIt;
 	   }
 
@@ -248,16 +243,15 @@ ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
    const EBRecHitCollection* hits = phits.product(); // get a ptr to the product
 
   // Get pixelElectrons
-  
-  Handle<reco::ElectronCollection> pElectrons;
+   Handle<reco::PixelMatchGsfElectronCollection> pElectrons;
   try {
     iEvent.getByLabel(electronLabel_, pElectrons);
    } catch ( ... ) {
      std::cerr << "Error! can't get the product ElectronCollection: " << std::endl;
    }
-  const reco::ElectronCollection* electronCollection = pElectrons.product();
+  const reco::PixelMatchGsfElectronCollection* electronCollection = pElectrons.product();
   read_events++;
-  cout << "read_events = " << read_events << endl;
+  if(read_events%1000 ==0)cout << "read_events = " << read_events << endl;
 
 /*
   // Get pixelElectrons
@@ -278,7 +272,6 @@ ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
    if (!electronCollection)
      return;
-   //  cout<<" electronCollection->size() "<<electronCollection->size()<<endl;
    if (electronCollection->size() == 0)
      return;
 /*
@@ -292,9 +285,9 @@ ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 ///                          START HERE....
 ///////////////////////////////////////////////////////////////////////////////////////
 
-  reco::ElectronCollection::const_iterator eleIt = electronCollection->begin();
+  reco::PixelMatchGsfElectronCollection::const_iterator eleIt = electronCollection->begin();
 
-  reco::Electron highPtElectron;
+  reco::PixelMatchGsfElectron highPtElectron;
 
   float highestElePt=0.;
   bool found=false;
@@ -316,23 +309,19 @@ ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if(highestElePt<5)return;
       if(!found) return;
 
-//    cout << "track eta = " << highPtElectron.eta() << endl;
-//    cout << "track phi = " << highPtElectron.phi() << endl;
+//     cout << "track eta = " << highPtElectron.eta() << endl;
+//     cout << "track phi = " << highPtElectron.phi() << endl;
     
        const reco::SuperCluster & sc = *(highPtElectron.superCluster()) ;
-	
        const std::vector<DetId> & v1 = sc.getHitsByDetId();
-       EBDetId maxHitId;
+     EBDetId maxHitId;
       
        maxHitId = findMaxHit2(v1,hits); 
       
-       if(maxHitId==(EBDetId) NULL) return;
+       if(maxHitId.null()){cout<<" Null "<<endl; return;}
  
   int maxCC_Eta = maxHitId.ieta();
   int maxCC_Phi = maxHitId.iphi();
-  
-//    cout << "maxCC_Eta = " << maxCC_Eta << endl;
-//    cout << "maxCC_Phi = " << maxCC_Phi << endl;
   
     if(maxCC_Eta>83) return;
     if(maxCC_Eta<3)  return;
@@ -362,7 +351,6 @@ ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	      continue;
 	      
 	      }
-	   
  	      energy.push_back(itrechit->energy());
  	      energy5x5 += energy[icry];
  
@@ -374,7 +362,10 @@ ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	        }
 		
      }
-  
+   //Once we have the matrix 5x5, we have to correct for gaps/cracks/umbrella and maincontainement  
+
+
+
    EventMatrixNoCuts.push_back(energy);
    EnergyVectorNoCuts.push_back(highPtElectron.p());
    MaxCCetaNoCuts.push_back(maxCC_Eta);
