@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.cc,v 1.31 2007/06/14 04:56:00 wmtan Exp $
+// $Id: ParameterSet.cc,v 1.32 2007/06/19 21:35:59 rpw Exp $
 //
 // definition of ParameterSet's function members
 // ----------------------------------------------------------------------
@@ -15,6 +15,7 @@
 #include "FWCore/ParameterSet/interface/Registry.h"
 
 #include "FWCore/ParameterSet/interface/split.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include "boost/bind.hpp"
@@ -433,5 +434,14 @@ namespace edm {
           << "' not found.";
     }
     return result;
+  }
+  void ParameterSet::depricatedInputTagWarning(std::string const& name, 
+					       std::string const& label) const
+  {
+    edm::LogWarning("Configuration") << "Warning:\n\tstring " << name 
+				     << " = \"" << label 
+				     << "\"\nis deprecated, "
+				     << "please update your config file to use\n\tInputTag " 
+				     << name << " = " << label;
   }
 } // namespace edm
