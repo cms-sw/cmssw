@@ -47,4 +47,7 @@
   <class name="std::vector<std::vector<int> >"/>
   <class name="std::vector<std::vector<std::vector<int> > >"/>
   
+  <class name="std::vector<L1GtObject> "/>
+  <class name="std::vector<std::vector<L1GtObject> >"/>
+
 </lcgdict>

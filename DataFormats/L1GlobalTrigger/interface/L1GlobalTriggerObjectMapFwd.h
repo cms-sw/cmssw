@@ -12,8 +12,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -21,7 +21,8 @@
 #include <vector>
 
 // user include files
-//   base class
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+
 // forward declarations
 
 /// typedefs
@@ -32,5 +33,6 @@ typedef std::vector<int> SingleCombInCond;
 /// all the object combinations evaluated to true in the condition
 typedef std::vector<SingleCombInCond> CombinationsInCond;
 
+typedef std::vector<L1GtObject> ObjectTypeInCond;
 
 #endif /* L1GlobalTrigger_L1GlobalTriggerObjectMapFwd_h */

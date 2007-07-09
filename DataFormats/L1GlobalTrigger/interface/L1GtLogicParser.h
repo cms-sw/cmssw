@@ -1,29 +1,32 @@
-#ifndef L1GlobalTrigger_L1GtLogicalParser_h
-#define L1GlobalTrigger_L1GtLogicalParser_h
+#ifndef L1GlobalTrigger_L1GtLogicParser_h
+#define L1GlobalTrigger_L1GtLogicParser_h
 
 /**
  * \class L1GtLogicParser
  * 
  * 
- * Description: parses the logical and numerical expressions for an algorithm.  
+ * Description: parses a logical expression, with predefined operators.  
  *
  * Implementation:
  *    <TODO: enter implementation details>
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
 // system include files
 #include <string>
 #include <vector>
+#include <list>
+#include <map>
 
 #include <iosfwd>
 
 // user include files
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 
 // forward declarations
 class L1GlobalTriggerObjectMap;
@@ -40,34 +43,43 @@ public:
     L1GtLogicParser(const L1GlobalTriggerObjectMap& );
 
     ///   from a logical and a numerical expression
-    L1GtLogicParser(const std::string algoLogicalExpressionVal,
-                    const std::string algoNumericalExpressionVal);
+    L1GtLogicParser(const std::string logicalExpressionVal,
+                    const std::string numericalExpressionVal);
+
+    ///   from a logical expression,a DecisionWord and a map (string, int)
+    ///   should be used for logical expressions with algorithms
+    ///   the map convert from algorithm name to algorithm bit number, if needed
+    L1GtLogicParser(const std::string&,
+                    const DecisionWord&,
+                    const std::map<std::string,int>&);
 
     /// destructor
     virtual ~L1GtLogicParser();
 
 public:
 
-    /// return the index of the condition in the logical (numerical) expression
-    /// this index can then be associated with the index of the CombinationsInCond
-    /// in std::vector<CombinationsInCond> of that object map
-    int conditionIndex(const std::string condNameVal);
+    /// return the position index of the operand in the logical expression
+    int operandIndex(const std::string operandNameVal) const;
 
-    /// return the name of the (iCondition)th condition in the algorithm logical expression 
-    std::string conditionName(const int iCondition);
+    /// return the name of the (iOperand)th operand in the logical expression
+    std::string operandName(const int iOperand) const;
 
-    /// return the result for a condition in an algorithm
-    bool conditionResult(const std::string condNameVal);
+    /// return the result for an operand with name operandNameVal
+    /// from the logical expression using a numerical expression
+    bool operandResult(const std::string operandNameVal) const;
 
+    /// return the result for an operand with index iOperand
+    /// in the logical expression using a numerical expression
+    bool operandResult(const int iOperand) const;
 
-private:
+    /// return the result for the logical expression
+    virtual const bool expressionResult() const;
 
-    // logical expression for the algorithm
-    std::string m_algoLogicalExpression;
+    /// return the list of operands for the logical expression
+    virtual const std::list<int> expressionOperandList() const;
 
-    // numerical expression for the algorithm
-    // (logical expression with conditions replaced with the actual values)
-    std::string m_algoNumericalExpression;
+    /// return the list of indices of the operands in the logical expression
+    virtual const std::list<int> expressionOperandIndexList() const;
 
 private:
 
@@ -96,11 +108,60 @@ private:
     }
     TokenRPN;
 
+    typedef std::vector<TokenRPN> RpnVector;
+
     virtual OperationType getOperation(const std::string& tokenString,
-                                       OperationType lastOperation, TokenRPN& rpnToken);
+                                       OperationType lastOperation, TokenRPN& rpnToken) const;
+
+    /// get the rule entry to an operation type
+    const OperationRule* getRuleFromType(OperationType t);
+
+    /// build the rpn vector
+    int buildRpnVector(const std::string&);
+
+    /// clear possible old rpn vector
+    void clearRpnVector();
 
     static const struct OperationRule m_operationRules[];
 
+private:
+
+    /// add spaces before and after parantheses
+    void addBracketSpaces(const std::string&, std::string&);
+
+    /// set the logical expression - check for correctness the input string
+    int setLogicalExpression(const std::string&);
+
+    /// set the numerical expression (the logical expression with each operand
+    /// replaced with the value) from a string
+    /// check also for correctness the input string
+    int setNumericalExpression(const std::string&);
+
+    /// convert the logical expression composed with algorithm bits into a
+    /// numerical expression using values from DecisionWord.
+    /// the map convert from algorithm name to algorithm bit number, if needed
+    int setNumericalExpression(const DecisionWord& decisionWordVal,
+                               const std::map<std::string, int>& algoMap);
+
+    /// return the result for an operand from a logical expression
+    /// from a decision word
+    bool operandResultDecisionWord(const std::string& operandIdentifier,
+                                   const DecisionWord& decisionWordVal,
+                                   const std::map<std::string, int>& algoMap);
+
+private:
+
+    /// logical expression to be parsed
+    std::string m_logicalExpression;
+
+    /// numerical expression
+    /// (logical expression with operands replaced with the actual values)
+    std::string m_numericalExpression;
+
+    /// RPN vector
+    RpnVector m_rpnVector;
+
+
 };
 
-#endif /*L1GlobalTrigger_L1GtLogicalParser_h*/
+#endif /*L1GlobalTrigger_L1GtLogicParser_h*/

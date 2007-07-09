@@ -9,8 +9,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -57,7 +57,7 @@ const CombinationsInCond* L1GlobalTriggerObjectMapRecord::getCombinationsInCond(
 
             L1GtLogicParser logicParser( (*itObj).algoLogicalExpression(),
                                          (*itObj).algoNumericalExpression());
-            int conditionIndexVal = logicParser.conditionIndex(condNameVal);
+            int conditionIndexVal = logicParser.operandIndex(condNameVal);
 
             return &((*itObj).combinationVector().at(conditionIndexVal));
         }
@@ -87,7 +87,7 @@ const CombinationsInCond* L1GlobalTriggerObjectMapRecord::getCombinationsInCond(
         if ( (*itObj).algoBitNumber() == algoBitNumberVal ) {
             L1GtLogicParser logicParser( (*itObj).algoLogicalExpression(),
                                          (*itObj).algoNumericalExpression());
-            int conditionIndexVal = logicParser.conditionIndex(condNameVal);
+            int conditionIndexVal = logicParser.operandIndex(condNameVal);
 
             return &((*itObj).combinationVector().at(conditionIndexVal));
         }
@@ -118,7 +118,7 @@ const bool L1GlobalTriggerObjectMapRecord::getConditionResult(
 
             L1GtLogicParser logicParser( (*itObj).algoLogicalExpression(),
                                          (*itObj).algoNumericalExpression());
-            return logicParser.conditionResult(condNameVal);
+            return logicParser.operandResult(condNameVal);
         }
     }
 
@@ -146,7 +146,7 @@ const bool L1GlobalTriggerObjectMapRecord::getConditionResult(
             L1GtLogicParser logicParser( (*itObj).algoLogicalExpression(),
                                          (*itObj).algoNumericalExpression());
 
-            return logicParser.conditionResult(condNameVal);
+            return logicParser.operandResult(condNameVal);
         }
     }
 

@@ -12,8 +12,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -25,6 +25,7 @@
 
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 
 // forward declarations
 
@@ -109,6 +110,17 @@ public:
         m_combinationVector = combinationVectorValue;
     }
 
+    /// get / set the vector of object types for the algorithm
+    inline const std::vector<ObjectTypeInCond>& objectTypeVector() const
+    {
+        return m_objectTypeVector;
+    }
+
+    void setObjectTypeVector(std::vector<ObjectTypeInCond> objectTypeVectorValue)
+    {
+        m_objectTypeVector = objectTypeVectorValue;
+    }
+
 public:
 
     /// reset the object map 
@@ -137,6 +149,9 @@ private:
 
     // vector of combinations for all conditions in an algorithm
     std::vector<CombinationsInCond> m_combinationVector;
+
+    // vector of object types for all conditions in an algorithm
+    std::vector<ObjectTypeInCond> m_objectTypeVector;
 
 };
 

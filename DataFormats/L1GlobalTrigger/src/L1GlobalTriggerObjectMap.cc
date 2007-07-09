@@ -9,8 +9,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -67,6 +67,9 @@ void L1GlobalTriggerObjectMap::reset()
     // vector of combinations for all conditions in an algorithm
     m_combinationVector.clear();
 
+    m_objectTypeVector.clear();
+
+
 }
 
 void L1GlobalTriggerObjectMap::print(std::ostream& myCout) const
@@ -80,6 +83,7 @@ void L1GlobalTriggerObjectMap::print(std::ostream& myCout) const
     myCout << "    Logical Expression: " << m_algoLogicalExpression << std::endl;
     myCout << "    Numerical Expression: " << m_algoNumericalExpression << std::endl;
     myCout << "    CombinationVector size: " << m_combinationVector.size() << std::endl;
+    myCout << "    ObjectTypeVector size: " << m_objectTypeVector.size() << std::endl;
 
     myCout << "  conditions: "  << std::endl;
 
@@ -90,11 +94,24 @@ void L1GlobalTriggerObjectMap::print(std::ostream& myCout) const
 
         L1GtLogicParser logicParser(m_algoLogicalExpression, m_algoNumericalExpression);
 
-        std::string condName = logicParser.conditionName(iCond);
-        bool condResult = logicParser.conditionResult(condName);
+        std::string condName = logicParser.operandName(iCond);
+        bool condResult = logicParser.operandResult(condName);
 
         myCout << "    Condition " << condName << " evaluated to " << condResult
         << std::endl;
+
+
+        myCout << "    Object types ";
+        myCout << "(";
+        ObjectTypeInCond objVec = m_objectTypeVector[iCond];
+        for (unsigned int iObj = 0; iObj < objVec.size(); iObj++) {
+            L1GtObject obj = objVec[iObj];
+            myCout << " " << obj;
+        }
+        myCout << " ); ";
+        myCout << std::endl;
+
+
         myCout << "    List of combinations passing all requirements for this condition:"
         << std::endl;
 

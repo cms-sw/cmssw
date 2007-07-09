@@ -72,5 +72,9 @@ namespace { namespace {
     // dictionary for L1 Global Trigger Object Map Record
     L1GlobalTriggerObjectMapRecord dummy72;
     edm::Wrapper<L1GlobalTriggerObjectMapRecord> dummy73;
+    
+    std::vector<L1GtObject> dummy100;
+    std::vector<std::vector<L1GtObject> > dummy101; 
+    
 } }
 
