@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.7 $
-///  last update: $Date: 2007/07/02 18:31:03 $
-///  by         : $Author: pivarski $
+///  Revision   : $Revision: 1.8 $
+///  last update: $Date: 2007/07/03 18:36:13 $
+///  by         : $Author: cklae $
 
 #include "Alignment/CommonAlignmentProducer/plugins/AlignmentProducer.h"
 
@@ -42,6 +42,10 @@
 #include "CondFormats/DataRecord/interface/CSCAlignmentErrorRcd.h"
 #include "CondFormats/DataRecord/interface/TrackerSurveyRcd.h"
 #include "CondFormats/DataRecord/interface/TrackerSurveyErrorRcd.h"
+#include "CondFormats/DataRecord/interface/DTSurveyRcd.h"
+#include "CondFormats/DataRecord/interface/DTSurveyErrorRcd.h"
+#include "CondFormats/DataRecord/interface/CSCSurveyRcd.h"
+#include "CondFormats/DataRecord/interface/CSCSurveyErrorRcd.h"
 
 // Tracking 	 
 #include "TrackingTools/PatternTools/interface/Trajectory.h" 
@@ -207,7 +211,37 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
     }
   }
 
-  if (doMuon_) theAlignableMuon = new AlignableMuon( &(*theMuonDT), &(*theMuonCSC) );
+  if (doMuon_)
+  {
+     theAlignableMuon = new AlignableMuon( &(*theMuonDT), &(*theMuonCSC) );
+
+     if (useSurvey_)
+     {
+	edm::ESHandle<Alignments> dtSurveys;
+	edm::ESHandle<SurveyErrors> dtSurveyErrors;
+	edm::ESHandle<Alignments> cscSurveys;
+	edm::ESHandle<SurveyErrors> cscSurveyErrors;
+	
+	iSetup.get<DTSurveyRcd>().get(dtSurveys);
+	iSetup.get<DTSurveyErrorRcd>().get(dtSurveyErrors);
+	iSetup.get<CSCSurveyRcd>().get(cscSurveys);
+	iSetup.get<CSCSurveyErrorRcd>().get(cscSurveyErrors);
+
+	theSurveyValues = &*dtSurveys;
+	theSurveyErrors = &*dtSurveyErrors;
+	std::vector<Alignable*> barrels = theAlignableMuon->DTBarrel();
+	for (std::vector<Alignable*>::const_iterator iter = barrels.begin();  iter != barrels.end();  ++iter) {
+	   addSurveyInfo_(*iter);
+	}
+
+	theSurveyValues = &*cscSurveys;
+	theSurveyErrors = &*cscSurveyErrors;
+	std::vector<Alignable*> endcaps = theAlignableMuon->CSCEndcaps();
+	for (std::vector<Alignable*>::const_iterator iter = endcaps.begin();  iter != endcaps.end();  ++iter) {
+	   addSurveyInfo_(*iter);
+	}
+     }
+  }
 
   // Create alignment parameter builder
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginOfJob" 
