@@ -2,22 +2,11 @@
 #include "boost/shared_ptr.hpp"
 #include <fstream>
 
-// user include files
-#include "FWCore/Framework/interface/SourceFactory.h"
-#include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
-
-//FW include files
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
-//CSCObjects
-#include "CondFormats/CSCObjects/interface/CSCobject.h"
 #include "CondFormats/CSCObjects/interface/CSCNoiseMatrix.h"
-#include "CalibMuon/CSCCalibration/interface/CSCFrontierNoiseMatrixConditions.h"
 #include "CondFormats/DataRecord/interface/CSCNoiseMatrixRcd.h"
+#include "CalibMuon/CSCCalibration/interface/CSCFrontierNoiseMatrixConditions.h"
 
-void CSCFrontierNoiseMatrixMap::prefillNoiseMatrixMap(){
+void CSCFrontierNoiseMatrixConditions::prefillNoiseMatrix(){
   
   const CSCDetId& detId = CSCDetId();
   cnmatrix = new CSCNoiseMatrix();
@@ -387,7 +376,7 @@ CSCFrontierNoiseMatrixConditions::CSCFrontierNoiseMatrixConditions(const edm::Pa
 {
   //the following line is needed to tell the framework what
   // data is being produced
-  matrix.prefillNoiseMatrixMap();
+  prefillNoiseMatrix();
   // added by Zhen (changed since 1_2_0)
   setWhatProduced(this,&CSCFrontierNoiseMatrixConditions::produceNoiseMatrix);
   findingRecord<CSCNoiseMatrixRcd>();
@@ -400,7 +389,7 @@ CSCFrontierNoiseMatrixConditions::~CSCFrontierNoiseMatrixConditions()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-
+  delete cnmatrix;
 }
 
 
@@ -412,9 +401,8 @@ CSCFrontierNoiseMatrixConditions::~CSCFrontierNoiseMatrixConditions()
 CSCFrontierNoiseMatrixConditions::ReturnType
 CSCFrontierNoiseMatrixConditions::produceNoiseMatrix(const CSCNoiseMatrixRcd& iRecord)
 {
-    matrix.prefillNoiseMatrixMap();
     // Added by Zhen, need a new object so to not be deleted at exit
-    CSCNoiseMatrix* mydata=new CSCNoiseMatrix(matrix.get());
+    CSCNoiseMatrix* mydata=new CSCNoiseMatrix( *cnmatrix );
     
     return mydata;
 
