@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri Mar 30 12:21:02 CDT 2007
-// $Id: AlignmentMonitorBase.h,v 1.1 2007/04/23 22:19:13 pivarski Exp $
+// $Id: AlignmentMonitorBase.h,v 1.2 2007/05/09 07:06:32 fronga Exp $
 //
 
 // system include files
@@ -122,6 +122,8 @@ class AlignmentMonitorBase {
 
       TFile *mp_file;
       TDirectory *mp_iterDir;
+
+      std::vector<TObject*> m_inSlashDir, m_inIterDir;
 };
 
 

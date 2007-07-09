@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri Mar 30 12:21:07 CDT 2007
-// $Id: AlignmentMonitorBase.cc,v 1.1 2007/04/23 22:19:14 pivarski Exp $
+// $Id: AlignmentMonitorBase.cc,v 1.2 2007/07/02 19:47:40 pivarski Exp $
 //
 
 // system include files
@@ -36,7 +36,9 @@
 
 AlignmentMonitorBase::AlignmentMonitorBase(const edm::ParameterSet& cfg): m_iteration(0), mp_tracker(0), mp_muon(0), mp_store(0), m_collectorActive(false), m_collectorNJobs(0), m_collectorDone(false), mp_file(NULL), mp_iterDir(NULL) {
    m_outpath = cfg.getParameter<std::string>("outpath");
-   assert(m_outpath.at(m_outpath.size()-1) == '/');
+   if (m_outpath.at(m_outpath.size()-1) != '/') {
+      throw cms::Exception("BadConfig") << "outpath must end in a slash";
+   }
    m_outfile = cfg.getParameter<std::string>("outfile");
 
    m_collectorActive = cfg.getParameter<bool>("collectorActive");
@@ -78,7 +80,9 @@ void AlignmentMonitorBase::startingNewLoop() {
    }
    else {
       if (!mp_file) mp_file = new TFile((m_outpath + m_outfile).c_str(), "update");
-      assert(mp_file);
+      if (!mp_file) {
+	 throw cms::Exception("FileAccess") << "could not open \"" << (m_outpath + m_outfile) << "\"";
+      }
 
       m_iteration = 0;
       char iterStr[10];
@@ -101,29 +105,53 @@ void AlignmentMonitorBase::duringLoop(const edm::EventSetup &iSetup, const Const
 void AlignmentMonitorBase::endOfLoop(const edm::EventSetup &iSetup) {
    if (!m_collectorActive) afterAlignment(iSetup);
    if (mp_file) {
-      edm::LogInfo("AlignmentMonitorBase") << "Writing histograms for iteration " << iteration() << " to file." << std::endl;
+      edm::LogWarning("AlignmentMonitorBase") << "Writing histograms for iteration " << iteration() << " to file.  This can take many minutes if you booked a LOT of histograms.";
       mp_file->Write(NULL, TObject::kWriteDelete);
    }
+
+   edm::LogWarning("AlignmentMonitorBase") << "Deleting TObject pointers for histograms that are redrawn for each iteration.";
+   for (std::vector<TObject*>::const_iterator iter = m_inIterDir.begin();  iter != m_inIterDir.end();  ++iter) {
+      delete *iter;
+   }
+   m_inIterDir.clear();
+   edm::LogWarning("AlignmentMonitorBase") << "Done with iteration " << iteration() << "!";
 }
 
 void AlignmentMonitorBase::endOfJob() {
    if (mp_file) mp_file->Close();
+
+// Apparently, ROOT deletes these histograms when it Closes a file
+//    std::cout << "endofjob right before detetes" << std::endl;
+//    for (std::vector<TObject*>::const_iterator iter = m_inSlashDir.begin();  iter != m_inSlashDir.end();  ++iter) {
+//       std::cout << "endofjob detete " << (*iter)->GetName() << std::endl;
+//       delete *iter;
+//    }
+//    std::cout << "endofjob right after detetes" << std::endl;
+//    m_inSlashDir.clear();
+//    std::cout << "endofjob right after clear" << std::endl;
 }
 
 TObject *AlignmentMonitorBase::add(std::string dir, TObject *obj) {
-   assert(dir.at(0) == '/'  &&  dir.at(dir.size()-1) == '/');
+   if (dir.at(0) != '/'  ||  dir.at(dir.size()-1) != '/') {
+      throw cms::Exception("BadConfig") << "ROOT directory must begin and end with slashes in call to add()";
+   }
 
    TObject *output = obj;
+
    if (dir.substr(0, 7) == std::string("/iterN/")) {
+      m_inIterDir.push_back(obj);
+
       std::string subdir = dir.substr(6, dir.size());
       getDirectoryFromMap(subdir, true)->Append(obj);
    }
    else {
       TDirectory *tdir = getDirectoryFromMap(dir, false);
+
       if (tdir->Get(obj->GetName())) {
 	 output = tdir->Get(obj->GetName());
       }
       else {
+	 m_inSlashDir.push_back(obj);
 	 tdir->Append(obj);
       }
    }
@@ -216,7 +244,9 @@ void AlignmentMonitorBase::collect() {
    }
 
    mp_file = new TFile((m_outpath + m_outfile).c_str(), "recreate");
-   assert(mp_file);
+   if (!mp_file) {
+      throw cms::Exception("FileAccess") << "could not open \"" << (m_outpath + m_outfile) << "\"";
+   }
    
    for (m_iteration = highestIter;  m_iteration >= 0;  m_iteration--) {
       if (m_iteration != 0) {
@@ -230,7 +260,10 @@ void AlignmentMonitorBase::collect() {
       for (std::map<std::string, std::vector<TH1*> >::const_iterator mit = allHists.begin();  mit != allHists.end();  ++mit) {
 	 if (iterationNumber(mit->first) == m_iteration) {
 	    TH1 *h = dynamic_cast<TH1*>(mp_file->Get(mit->first.c_str()));
-	    assert(h);
+
+	    if (!h) {
+	       throw cms::Exception("FileAccess") << "ROOT object \"" << mp_file->Get(mit->first.c_str())->GetName() << "\" is not a TH1";
+	    }
 
 	    TList tl;
 	    for (std::vector<TH1*>::const_iterator vit = mit->second.begin();  vit != mit->second.end();  ++vit) {
@@ -241,7 +274,7 @@ void AlignmentMonitorBase::collect() {
 	 }
       }
 
-      edm::LogInfo("AlignmentMonitorBase") << "Writing all histograms to file.  This can take many minutes if you booked a LOT of histograms." << std::endl;
+      edm::LogWarning("AlignmentMonitorBase") << "Writing all histograms to file.  This can take many minutes if you booked a LOT of histograms." << std::endl;
       mp_file->Write();
       mp_file->Close();
       if (m_iteration > 0) mp_file = new TFile((m_outpath + m_outfile).c_str(), "update");
