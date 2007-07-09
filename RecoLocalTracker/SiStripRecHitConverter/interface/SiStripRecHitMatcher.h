@@ -31,15 +31,16 @@ public:
   SiStripRecHitMatcher(const double theScale);
   
 
-  const SiStripMatchedRecHit2D* match(const SiStripRecHit2D *monoRH, 
-				      const SiStripRecHit2D *stereoRH,
-				      const GluedGeomDet* gluedDet,
-				      LocalVector trackdirection) const;
 
+  SiStripMatchedRecHit2D * match(const SiStripRecHit2D *monoRH, 
+				 const SiStripRecHit2D *stereoRH,
+				 const GluedGeomDet* gluedDet,
+				 LocalVector trackdirection) const;
+  
   SiStripMatchedRecHit2D*  match(const SiStripMatchedRecHit2D *originalRH, 
-					      const GluedGeomDet* gluedDet,
-					      LocalVector trackdirection) const;
-
+				 const GluedGeomDet* gluedDet,
+				 LocalVector trackdirection) const;
+  
   edm::OwnVector<SiStripMatchedRecHit2D> 
   match( const SiStripRecHit2D *monoRH,
 	 RecHitIterator &begin, RecHitIterator &end, 
@@ -53,6 +54,13 @@ public:
 	 const GluedGeomDet* gluedDet,
 	 LocalVector trackdirection) const;
 
+  edm::OwnVector<SiStripMatchedRecHit2D> 
+  match( const SiStripRecHit2D *monoRH,
+	 SimpleHitIterator begin, SimpleHitIterator end,
+	 const GluedGeomDet* gluedDet,
+	 LocalVector trackdirection) const;
+
+
 
   // project strip coordinates on Glueddet
 
@@ -61,13 +69,23 @@ public:
 
   //private:
 
-  /// the actual implementation
-
-  edm::OwnVector<SiStripMatchedRecHit2D> 
+ 
+  void
   match( const SiStripRecHit2D *monoRH,
 	 SimpleHitIterator begin, SimpleHitIterator end,
+	 edm::OwnVector<SiStripMatchedRecHit2D> & collector, 
 	 const GluedGeomDet* gluedDet,
 	 LocalVector trackdirection) const;
+ /// the actual implementation
+
+  void
+  match( const SiStripRecHit2D *monoRH,
+	 SimpleHitIterator begin, SimpleHitIterator end,
+	 std::vector<SiStripMatchedRecHit2D*> & collector, 
+	 const GluedGeomDet* gluedDet,
+	 LocalVector trackdirection) const;
+
+
   float scale_;
 
 };

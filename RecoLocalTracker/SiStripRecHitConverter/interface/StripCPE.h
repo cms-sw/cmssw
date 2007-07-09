@@ -9,10 +9,15 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
 
+#include <ext/hash_map>
+
+class StripTopology;
+
+
 class StripCPE : public StripClusterParameterEstimator 
 {
- public:
-  
+public:
+
   StripCPE(edm::ParameterSet & conf, const MagneticField * mag, const TrackerGeometry* geom);
 
   StripCPE(edm::ParameterSet & conf, const MagneticField * mag, const TrackerGeometry* geom, const SiStripLorentzAngle* LorentzAngle);
@@ -36,9 +41,36 @@ class StripCPE : public StripClusterParameterEstimator
   double mulow_;
   double vsat_;
   double beta_;
+  bool useDB_;
   const SiStripLorentzAngle* LorentzAngleMap_;
   mutable LocalVector theCachedDrift;
   mutable unsigned int theCachedDetId;
+
+
+public:
+  
+  void clearCache() {
+    m_Params.clear();
+  }
+
+public:
+  struct Param {
+    Param() : topology(0){}
+      StripTopology const * topology;
+    LocalVector drift;
+    float thickness;
+    float maxLength;
+    int nstrips;
+  };
+  
+  Param const & param(DetId detId) const;
+
+private:
+  Param & fillParam(Param & p, const GeomDetUnit *  det);
+  typedef  __gnu_cxx::hash_map< unsigned int, Param> Params;
+  
+  Params m_Params;
+  
 };
 
 #endif
