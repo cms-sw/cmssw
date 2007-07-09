@@ -16,38 +16,53 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include <DataFormats/MuonDetId/interface/CSCDetId.h>
-#include <CondFormats/CSCObjects/interface/CSCReadoutMapping.h>
 #include "CondFormats/CSCObjects/interface/CSCNoiseMatrix.h"
 #include "CondFormats/CSCObjects/interface/CSCobject.h"
 #include "CondFormats/DataRecord/interface/CSCNoiseMatrixRcd.h"
-//#include "CalibMuon/CSCCalibration/interface/CSCFakeNoiseMatrixMap.h"
+#include <DataFormats/MuonDetId/interface/CSCDetId.h>
+/*
+//class from former CSCFakeNoiseMatrixMap.h
+
+#include "CalibMuon/CSCCalibration/interface/CSCFakeNoiseMatrix.h"
+
+class CSCFakeNoiseMatrix{
+ public:
+  CSCFakeNoiseMatrix(){}
+  //void prefillNoiseMatrix();
+  
+  const CSCNoiseMatrix & get(){
+    return (*cnmatrix);
+  }
+  
+ private:
+  //CSCNoiseMatrix *cnmatrix ;    
+};
+
+*/
 
 class CSCFakeNoiseMatrixConditions: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
    public:
       CSCFakeNoiseMatrixConditions(const edm::ParameterSet&);
-       void prefillNoiseMatrix();
-
-       /*
-       const CSCNoiseMatrix & get(){
-	 return (*cnmatrix);
-       }
-       */
-
       ~CSCFakeNoiseMatrixConditions();
+      
+      
+      ///////////moved from former CSCFakeNoiseMatrixMap.h
+      void prefillNoiseMatrix();
       
       typedef const  CSCNoiseMatrix * ReturnType;
 
       ReturnType produceNoiseMatrix(const CSCNoiseMatrixRcd&);
+
+ private:
+      
+      ///////////moved from former CSCFakeNoiseMatrixMap.h
       CSCNoiseMatrix *cnmatrix ;
-
-
-   private:
+      
 
       // ----------member data ---------------------------
-    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
-    
-    CSCFakeNoiseMatrixConditions matrix;
+      void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
+      
+      //CSCFakeNoiseMatrix matrix;
 };
 
 #endif
