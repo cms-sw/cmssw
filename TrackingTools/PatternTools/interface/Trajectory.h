@@ -82,7 +82,7 @@ public:
   /** Reserves space in the vector to avoid lots of allocations when 
       push_back-ing measurements */
   void reserve (unsigned int n) { theData.reserve(n); }
-
+  
   /** Add a new measurement to a Trajectory.
    *  The Chi2 of the trajectory is incremented by the value
    *  of tm.estimate() . 
@@ -103,7 +103,7 @@ public:
    *  It's the outermost measurement if direction() == alongMomentum,
    *  the innermost one if direction() == oppositeToMomentum.
    */
-  TrajectoryMeasurement lastMeasurement() const {
+  TrajectoryMeasurement const & lastMeasurement() const {
     check(); return theData.back();
   }
 
@@ -113,19 +113,26 @@ public:
    *  It's the innermost measurement if direction() == alongMomentum,
    *  the outermost one if direction() == oppositeToMomentum.
    */
-  TrajectoryMeasurement firstMeasurement() const {
+  TrajectoryMeasurement const & firstMeasurement() const {
     check(); return theData.front();
   }
 
   /** Return all measurements in a container.
    */
-  DataContainer measurements() const { return theData;}
+  DataContainer const & measurements() const { return theData;}
   /// obsolete name, use measurements() instead.
-  DataContainer data() const { return measurements();}
+  DataContainer const & data() const { return measurements();}
 
   /** Return all RecHits in a container.
    */
   ConstRecHitContainer recHits() const;
+
+  void recHitsV(ConstRecHitContainer & cont) const;
+
+  /** Just valid hits..
+   *
+   */
+  void validRecHits(ConstRecHitContainer & cont) const;
 
   /** Number of valid RecHits used to determine the trajectory.
    *  Can be less than the number of measurements in data() since
@@ -152,7 +159,7 @@ public:
    *  Possible values are alongMomentum (outwards) and 
    *  oppositeToMomentum (inwards).
    */
-  PropagationDirection direction() const;
+  PropagationDirection const & direction() const;
 
   /** Returns true if the Trajectory is valid.
    *  Trajectories are invalidated e.g. during ambiguity resolution.
@@ -163,7 +170,7 @@ public:
   void invalidate() { theValid = false;}
 
   /// Access to the seed used to reconstruct the Trajectory
-  TrajectorySeed seed() const { return theSeed;}
+  TrajectorySeed const & seed() const { return theSeed;}
 
 
   /** Definition of inactive Det from the Trajectory point of view.

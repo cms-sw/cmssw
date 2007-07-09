@@ -69,18 +69,27 @@ void Trajectory::push( const TrajectoryMeasurement& tm, double chi2Increment)
 
 Trajectory::RecHitContainer Trajectory::recHits() const {
   RecHitContainer hits;
-  hits.reserve(theData.size());
-
-  for (Trajectory::DataContainer::const_iterator itm
-	 = theData.begin(); itm != theData.end(); itm++) {
-    hits.push_back((*itm).recHit());
-  }
+  recHitsV(hits);
   return hits;
 }
 
+  
+void Trajectory::recHitsV(ConstRecHitContainer & hits) const {
+  hits.reserve(theData.size());
+  for (Trajectory::DataContainer::const_iterator itm
+	 = theData.begin(); itm != theData.end(); itm++)
+    hits.push_back((*itm).recHit());
+}
+
+void Trajectory::validRecHits(ConstRecHitContainer & hits) const {
+  hits.reserve(foundHits());
+  for (Trajectory::DataContainer::const_iterator itm
+	 = theData.begin(); itm != theData.end(); itm++)
+    if ((*itm).recHit()->isValid()) hits.push_back((*itm).recHit());
+}
 
 
-PropagationDirection Trajectory::direction() const {
+PropagationDirection const & Trajectory::direction() const {
   if (theDirectionValidity) return theDirection;
   else throw cms::Exception("TrackingTools/PatternTools","Trajectory::direction() requested but not set");
 }
