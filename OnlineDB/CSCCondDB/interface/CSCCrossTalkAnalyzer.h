@@ -60,7 +60,7 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
 #define DDU_xt 9
 #define TOTALSTRIPS_xt 480
 #define TOTALEVENTS_xt 320
-  //TH2F *g1=new TH2F("g1","Baseline RMS",100,0,80,100,0,200);
+
  private:
   int eventNumber,evt,strip,misMatch,fff,ret_code,length,Nddu,myevt;
   int chamber,layer,reportedChambers,chamber_num,sector,record,NChambers ;
@@ -126,50 +126,6 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
   TH1F ped_mean_all; 
   TH1F ped_RMS_all;
   TH1F maxADC;
-  TH2F pulseshape_ch1_cfeb1;
-  TH2F pulseshape_ch1_cfeb2;
-  TH2F pulseshape_ch1_cfeb3;
-  TH2F pulseshape_ch1_cfeb4;
-  TH2F pulseshape_ch1_cfeb5;
-  TH2F pulseshape_ch2_cfeb1;
-  TH2F pulseshape_ch2_cfeb2;
-  TH2F pulseshape_ch2_cfeb3;
-  TH2F pulseshape_ch2_cfeb4;
-  TH2F pulseshape_ch2_cfeb5;
-  TH2F pulseshape_ch3_cfeb1;
-  TH2F pulseshape_ch3_cfeb2;
-  TH2F pulseshape_ch3_cfeb3;
-  TH2F pulseshape_ch3_cfeb4;
-  TH2F pulseshape_ch3_cfeb5;
-  TH2F pulseshape_ch4_cfeb1;
-  TH2F pulseshape_ch4_cfeb2;
-  TH2F pulseshape_ch4_cfeb3;
-  TH2F pulseshape_ch4_cfeb4;
-  TH2F pulseshape_ch4_cfeb5;
-  TH2F pulseshape_ch5_cfeb1;
-  TH2F pulseshape_ch5_cfeb2;
-  TH2F pulseshape_ch5_cfeb3;
-  TH2F pulseshape_ch5_cfeb4;
-  TH2F pulseshape_ch5_cfeb5;
-  TH2F pulseshape_ch6_cfeb1;
-  TH2F pulseshape_ch6_cfeb2;
-  TH2F pulseshape_ch6_cfeb3;
-  TH2F pulseshape_ch6_cfeb4;
-  TH2F pulseshape_ch6_cfeb5;
-  TH2F pulseshape_ch7_cfeb1;
-  TH2F pulseshape_ch7_cfeb2;
-  TH2F pulseshape_ch7_cfeb3;
-  TH2F pulseshape_ch7_cfeb4;
-  TH2F pulseshape_ch7_cfeb5;
-  TH2F pulseshape_ch8_cfeb1;
-  TH2F pulseshape_ch8_cfeb2;
-  TH2F pulseshape_ch8_cfeb3;
-  TH2F pulseshape_ch8_cfeb4;
-  TH2F pulseshape_ch8_cfeb5;
-  TH2F pulseshape_ch9_cfeb1;
-  TH2F pulseshape_ch9_cfeb2;
-  TH2F pulseshape_ch9_cfeb3;
-  TH2F pulseshape_ch9_cfeb4;
-  TH2F pulseshape_ch9_cfeb5;
+  TH2F pulseshape;
 };
 
