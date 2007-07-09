@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.1 2007/07/05 12:25:41 drell Exp $
+// $Id: V0Fitter.cc,v 1.2 2007/07/09 12:58:52 drell Exp $
 //
 //
 
@@ -208,7 +208,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	}
 
 	//  Just fixed this to make candidates for all 3 V0 particle types.
-	//  NOT TESTED AT ALL.
+	// 
 	//   We'll also need to make sure we're not writing candidates
 	//    for all 3 types for a single event.  This could be problematic..
 	GlobalVector positiveP(trajPlus->momentum());
@@ -365,17 +365,19 @@ void V0Fitter::applyPostFitCuts() {
 	theIt->mass() > kShortMass - kShortMassCut && writeVee &&
 	doKshorts) {
       //theIt->setPdgId(310);
-      theKshorts.push_back( *theIt );
+      if(theIt->pdgId() == 310) {
+	theKshorts.push_back( *theIt );
+      }
     }
     //3122
     else if( theIt->mass() < lambdaMass + lambdaMassCut &&
 	theIt->mass() > lambdaMass - lambdaMassCut && writeVee &&
 	     doLambdas) {
       //theIt->setPdgId(3122);
-      if(theIt->pdgId() > 0) {
+      if(theIt->pdgId() == 3122) {
 	theLambdas.push_back( *theIt );
       }
-      else {
+      else if(theIt->pdgId() == -3122) {
 	theLambdaBars.push_back( *theIt );
       }
     }
