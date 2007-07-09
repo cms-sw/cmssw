@@ -10,8 +10,8 @@
  * \author: M.Eder, H. Rohringer - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -42,6 +42,7 @@ L1GlobalTriggerConditions::L1GlobalTriggerConditions(
      p_name = name; 
      p_lastresult = false;
      p_combinationsInCond = new CombinationsInCond;
+     p_objectsInCond = new ObjectTypeInCond;
 
 }
 
@@ -58,6 +59,7 @@ L1GlobalTriggerConditions::L1GlobalTriggerConditions(L1GlobalTriggerConditions& 
 L1GlobalTriggerConditions::~L1GlobalTriggerConditions() {
 
     delete p_combinationsInCond;
+    delete p_objectsInCond;
 
 }
 
@@ -73,4 +75,13 @@ std::vector<CombinationsInCond>
             
 }
 
+// get the vector of object types for the algorithm
+// dummy here (not needed for objects templates), redefined for (pre)algorithms
+std::vector<ObjectTypeInCond> 
+    L1GlobalTriggerConditions::getObjectTypeVector() {
+        
+    std::vector<ObjectTypeInCond> dummy;
+    return dummy;
+            
+}
 

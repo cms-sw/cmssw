@@ -10,8 +10,8 @@
  * \author: M.Eder               - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -25,6 +25,7 @@
 
 // user include files
 //   base class
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
 
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTrigger.h"
@@ -36,19 +37,21 @@
 
 
 // constructor
-L1GlobalTriggerEsumsTemplate::L1GlobalTriggerEsumsTemplate( 
+L1GlobalTriggerEsumsTemplate::L1GlobalTriggerEsumsTemplate(
     const L1GlobalTrigger& gt,
     const std::string& name)
-    : L1GlobalTriggerConditions(gt, name) {
+        : L1GlobalTriggerConditions(gt, name)
+{
 
-//    LogDebug ("Trace") 
-//        << "****Entering " << __PRETTY_FUNCTION__ << " name= " << p_name 
-//        << std::endl;
+    //    LogDebug ("Trace")
+    //        << "****Entering " << __PRETTY_FUNCTION__ << " name= " << p_name
+    //        << std::endl;
 
 }
 
 // copy constructor
-void L1GlobalTriggerEsumsTemplate::copy(const L1GlobalTriggerEsumsTemplate &cp) {
+void L1GlobalTriggerEsumsTemplate::copy(const L1GlobalTriggerEsumsTemplate &cp)
+{
 
     p_name = cp.getName();
     p_sumtype = cp.p_sumtype;
@@ -59,24 +62,29 @@ void L1GlobalTriggerEsumsTemplate::copy(const L1GlobalTriggerEsumsTemplate &cp) 
 
 
 L1GlobalTriggerEsumsTemplate::L1GlobalTriggerEsumsTemplate(
-    const L1GlobalTriggerEsumsTemplate& cp) 
-    : L1GlobalTriggerConditions(cp.m_GT, cp.p_name) {
+    const L1GlobalTriggerEsumsTemplate& cp)
+        : L1GlobalTriggerConditions(cp.m_GT, cp.p_name)
+{
 
     copy(cp);
 
 }
 
 // destructor
-L1GlobalTriggerEsumsTemplate::~L1GlobalTriggerEsumsTemplate() {
+L1GlobalTriggerEsumsTemplate::~L1GlobalTriggerEsumsTemplate()
+{
+
+    // empty
 
 }
 
 
 // equal operator
 L1GlobalTriggerEsumsTemplate& L1GlobalTriggerEsumsTemplate::operator= (
-    const L1GlobalTriggerEsumsTemplate& cp) {
+    const L1GlobalTriggerEsumsTemplate& cp)
+{
 
-//    m_GT = cp.m_GT; // TODO uncomment ???
+    //    m_GT = cp.m_GT; // TODO uncomment ???
     copy(cp);
 
     return *this;
@@ -90,9 +98,10 @@ L1GlobalTriggerEsumsTemplate& L1GlobalTriggerEsumsTemplate::operator= (
  */
 
 void L1GlobalTriggerEsumsTemplate::setConditionParameter(
-    const ConditionParameter* conditionp, SumType st) {
+    const ConditionParameter* conditionp, SumType st)
+{
 
-    p_sumtype = st;    
+    p_sumtype = st;
     memcpy(&p_conditionparameter, conditionp, sizeof(ConditionParameter));
 }
 
@@ -103,132 +112,162 @@ void L1GlobalTriggerEsumsTemplate::setConditionParameter(
  * @return Boolean result of the check.
  *
  */
- 
-const bool L1GlobalTriggerEsumsTemplate::blockCondition() const {
 
-    // store for completness the indices of the calorimeter objects 
+const bool L1GlobalTriggerEsumsTemplate::blockCondition() const
+{
+
+    // store for completness the indices of the calorimeter objects
     // from the combination evaluated in the condition
     SingleCombInCond objectsInComb;
 
-    // clear the p_combinationsInCond vector 
-    (*p_combinationsInCond).clear(); 
-    
+    // clear the p_combinationsInCond vector
+    (*p_combinationsInCond).clear();
 
-    unsigned int candEt = 0;    
+    // clear the p_objectsInCond vector
+    (*p_objectsInCond).clear();
+
+    ObjectTypeInCond typeInCond;
+
+
+    unsigned int candEt = 0;
     unsigned int candPhi = 0;
 
-    // get energy and phi (ETM only) for the trigger object 
+    // get energy and phi (ETM only) for the trigger object
 
     switch (p_sumtype) {
-		case ETT:
-        {
-            L1GctEtTotal* cand1 = m_GT.gtPSB()->getCaloTotalEtList();
-            if (cand1 == 0) return false;
-            
-            candEt = cand1->et();			
-			break;
-        }
-        case ETM:
-        {
-            L1GctEtMiss* cand2 = m_GT.gtPSB()->getCaloMissingEtList();
-            if (cand2 == 0) return false;
-            
-            candEt  = cand2->et();
-            candPhi = cand2->phi();            
-            break;
-        }
-        case HTT:
-        {
-            L1GctEtHad* cand3 = m_GT.gtPSB()->getCaloTotalHtList();
-            if (cand3 == 0) return false;
-            
-            candEt = cand3->et();            
-            break;
-        }
-		default:
+        case ETT_ST: {
+                L1GctEtTotal* cand1 = m_GT.gtPSB()->getCaloTotalEtList();
+
+                typeInCond.push_back(ETT);
+                (*p_objectsInCond) = typeInCond;
+
+                if (cand1 == 0) {
+                    return false;
+                }
+
+                candEt = cand1->et();
+
+                break;
+            }
+        case ETM_ST: {
+                L1GctEtMiss* cand2 = m_GT.gtPSB()->getCaloMissingEtList();
+
+                typeInCond.push_back(ETM);
+                (*p_objectsInCond) = typeInCond;
+
+                if (cand2 == 0) {
+                    return false;
+                }
+
+                candEt  = cand2->et();
+                candPhi = cand2->phi();
+
+                break;
+            }
+        case HTT_ST: {
+                L1GctEtHad* cand3 = m_GT.gtPSB()->getCaloTotalHtList();
+
+                typeInCond.push_back(HTT);
+                (*p_objectsInCond) = typeInCond;
+
+                if (cand3 == 0) {
+                    return false;
+                }
+
+                candEt = cand3->et();
+
+
+                break;
+            }
+        default:
             // should not arrive here
             return false;
-			break;
-	}
-
-    // check et threshold
-    if (!checkThreshold(p_conditionparameter.et_threshold, candEt)) return false;
-
-    /// for etm check phi also
-    if (p_sumtype == ETM) {
-        if (!checkBit(p_conditionparameter.phi, candPhi)) return false;
+            break;
     }
 
-    // condition matches 
-    
+    // check et threshold
+    if (!checkThreshold(p_conditionparameter.et_threshold, candEt)) {
+        return false;
+    }
+
+    /// for etm check phi also
+    if (p_sumtype == ETM_ST) {
+        if (!checkBit(p_conditionparameter.phi, candPhi)) {
+            return false;
+        }
+    }
+
+    // condition matches
+
     // index is always zero, as they are global quantities (there is only one object)
     int indexEsum = 0;
-                 
+
     objectsInComb.push_back(indexEsum);
     (*p_combinationsInCond).push_back(objectsInComb);
-    
-    CombinationsInCond::const_iterator itVV;
-    std::ostringstream myCout1;                 
 
-    for(itVV  = (*p_combinationsInCond).begin(); 
-        itVV != (*p_combinationsInCond).end(); itVV++) {
-        
+    CombinationsInCond::const_iterator itVV;
+    std::ostringstream myCout1;
+
+    for(itVV  = (*p_combinationsInCond).begin();
+            itVV != (*p_combinationsInCond).end(); itVV++) {
+
         myCout1 << "( ";
-    
-        std::copy((*itVV).begin(), (*itVV).end(), 
-            std::ostream_iterator<int> (myCout1, " "));
-        
+
+        std::copy((*itVV).begin(), (*itVV).end(),
+                  std::ostream_iterator<int> (myCout1, " "));
+
         myCout1 << "); ";
 
     }
 
-    LogTrace("L1GlobalTriggerEsumsTemplate") 
-        << "\n  List of combinations passing all requirements for this condition: \n  " 
-        <<  myCout1.str() 
-        << " \n" 
-        << std::endl;
-           
-       
+    LogTrace("L1GlobalTriggerEsumsTemplate")
+    << "\n  List of combinations passing all requirements for this condition: \n  "
+    <<  myCout1.str()
+    << " \n"
+    << std::endl;
+
+
     return true;
 }
-    
 
-void L1GlobalTriggerEsumsTemplate::printThresholds(std::ostream& myCout) const {
+
+void L1GlobalTriggerEsumsTemplate::printThresholds(std::ostream& myCout) const
+{
 
     myCout << "L1GlobalTriggerEsumsTemplate: threshold values " << std::endl;
     myCout << "Condition Name: " << getName() << std::endl;
 
     switch (p_sumtype) {
-		case ETM:
-            myCout << "Type of Sum: " << "etm";			
-			break;
-        case ETT:
-            myCout << "Type of Sum: " << "ett";         
+        case ETM_ST:
+            myCout << "Type of Sum: " << "ETM";
             break;
-        case HTT:
-            myCout << "Type of Sum: " << "htt";         
+        case ETT_ST:
+            myCout << "Type of Sum: " << "ETT";
             break;
-		default:
+        case HTT_ST:
+            myCout << "Type of Sum: " << "HTT";
+            break;
+        default:
             // nothing
-			break;
-	}
+            break;
+    }
 
     myCout << "\ngreater or equal bit: " << p_ge_eq << std::endl;
 
-    myCout << "\n  TEMPLATE " << "0" // only one  
-        << std::endl;
-    myCout << "    et_threshold          " 
-        << std::hex << p_conditionparameter.et_threshold 
-        << std::endl;
-    myCout << "    en_overflow           " 
-        << std::hex << p_conditionparameter.en_overflow << std::endl; 
-    if (p_sumtype == ETM) {
-        myCout << "    phi                   " 
-            << std::hex << p_conditionparameter.phi << std::endl;
+    myCout << "\n  TEMPLATE " << "0" // only one
+    << std::endl;
+    myCout << "    et_threshold          "
+    << std::hex << p_conditionparameter.et_threshold
+    << std::endl;
+    myCout << "    en_overflow           "
+    << std::hex << p_conditionparameter.en_overflow << std::endl;
+    if (p_sumtype == ETM_ST) {
+        myCout << "    phi                   "
+        << std::hex << p_conditionparameter.phi << std::endl;
     }
-      
-     // reset to decimal output
-     myCout << std::dec << std::endl;      
+
+    // reset to decimal output
+    myCout << std::dec << std::endl;
 }
 
 

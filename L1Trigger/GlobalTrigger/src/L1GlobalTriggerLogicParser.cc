@@ -369,6 +369,57 @@ std::vector<CombinationsInCond>
     return result;
 }
 
+
+/**
+ * get the vector of object types for the algorithm
+ *
+ */
+
+
+std::vector<ObjectTypeInCond> 
+    L1GlobalTriggerLogicParser::getObjectTypeVector() {
+
+    // add spaces before and after brackets to the original expression
+    std::string exprwithbs;
+    addBracketSpaces(p_expression, exprwithbs);
+
+    std::vector<ObjectTypeInCond> result;
+    result.clear();
+
+    OperationType actoperation = OP_NULL;
+    OperationType lastoperation = OP_NULL;
+
+    std::string tokenstr;
+    TokenRPN tokenrpn;    // token for the use of getOperation
+        
+    std::istringstream expr_iss(exprwithbs); // stringstream to separate all tokens
+
+    while (!expr_iss.eof()) {
+        
+        expr_iss >> tokenstr;
+        if (expr_iss.eof()) {
+            break;
+        }
+
+        actoperation = getOperation(tokenstr, lastoperation, tokenrpn);
+        if (actoperation == OP_INVALID) {
+            return result;  // it should never be invalid, because it is checked
+        }
+        
+        if (actoperation != OP_OPERAND) {
+            // do nothing, just to remind the operation logic
+        } else {
+            ObjectTypeInCond* objInCondition = tokenrpn.operand->getObjectTypeInCond();
+            result.push_back(*objInCondition);            
+            
+        }
+        lastoperation = actoperation;
+    }
+
+    
+    return result;
+}
+
 /**
  * buildRPNVector Try to build the postfix notation. 
  *

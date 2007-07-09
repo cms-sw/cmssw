@@ -10,8 +10,8 @@
  * \author: M. Fierro            - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -334,6 +334,9 @@ const std::vector<L1GlobalTriggerObjectMap>* L1GlobalTriggerGTL::objectMap() {
 
             std::vector<CombinationsInCond> combVectorVal = 
                 itxml->second->getCombinationVector(); 
+
+            std::vector<ObjectTypeInCond> objTypeVal = 
+                itxml->second->getObjectTypeVector(); 
             
             // set object map
             
@@ -345,6 +348,7 @@ const std::vector<L1GlobalTriggerObjectMap>* L1GlobalTriggerGTL::objectMap() {
             objMap->setAlgoLogicalExpression(prealgoLogExpressionVal);
             objMap->setAlgoNumericalExpression(prealgoNumExpressionVal);
             objMap->setCombinationVector(combVectorVal);
+            objMap->setObjectTypeVector(objTypeVal);
             
             std::ostringstream myCout1;                 
             objMap->print(myCout1);

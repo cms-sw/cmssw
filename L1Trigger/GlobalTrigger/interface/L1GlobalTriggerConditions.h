@@ -13,8 +13,8 @@
  * \author: M.Eder, H. Rohringer - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -86,6 +86,12 @@ public:
     /// get all the object combinations evaluated to true in the condition
     inline CombinationsInCond* getCombinationsInCond() const { return p_combinationsInCond; }
 
+    /// get the vector of object types for the algorithm
+    virtual std::vector<ObjectTypeInCond> getObjectTypeVector();
+
+    /// get the object types for a condition
+    inline ObjectTypeInCond* getObjectTypeInCond() const { return p_objectsInCond; }
+
 protected:
 
     /// the name of the condition
@@ -106,6 +112,8 @@ protected:
     /// store all the object combinations evaluated to true in the condition     
     CombinationsInCond* p_combinationsInCond;
 
+    /// object types for a condition
+    ObjectTypeInCond* p_objectsInCond;
 
 protected:
 

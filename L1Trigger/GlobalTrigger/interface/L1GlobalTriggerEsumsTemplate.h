@@ -12,8 +12,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -58,9 +58,9 @@ public:
     } ConditionParameter;
       
     enum SumType {
-        ETM = 0,
-        ETT,
-        HTT
+        ETM_ST = ETM,
+        ETT_ST = ETT,
+        HTT_ST = HTT
     };  
 
     // set functions

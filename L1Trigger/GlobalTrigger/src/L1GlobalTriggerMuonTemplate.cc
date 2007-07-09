@@ -10,8 +10,8 @@
  * \author: M.Eder, H. Rohringer - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -158,6 +158,11 @@ const bool L1GlobalTriggerMuonTemplate::blockCondition() const {
     // clear the p_combinationsInCond vector 
     (*p_combinationsInCond).clear();    
 
+    // clear the p_objectsInCond vector 
+    (*p_objectsInCond).clear();
+        
+    ObjectTypeInCond typeInCond;
+    
     do {
 
         if (--jumpIndex) continue;
@@ -170,6 +175,7 @@ const bool L1GlobalTriggerMuonTemplate::blockCondition() const {
         
         // clean up the indices in the combination     
         objectsInComb.clear();
+        typeInCond.clear();
 
         bool tmpResult = true;
 
@@ -183,6 +189,8 @@ const bool L1GlobalTriggerMuonTemplate::blockCondition() const {
             
             tmpResult &= checkParticle(i, *(v)[index[i]] );
             objectsInComb.push_back(index[i]);
+            
+            typeInCond.push_back(Mu);
             
         }
     
@@ -434,6 +442,9 @@ const bool L1GlobalTriggerMuonTemplate::blockCondition() const {
 
                     
     } while ( std::next_permutation(index, index + maxNumberCands) );
+
+
+   (*p_objectsInCond) = typeInCond;
     
     LogTrace("L1GlobalTriggerMuonTemplate") 
         << "\n  L1GlobalTriggerMuonTemplate: total number of permutations found:          " 

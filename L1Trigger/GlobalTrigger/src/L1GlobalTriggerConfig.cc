@@ -1457,17 +1457,17 @@ int L1GlobalTriggerConfig::parseESums(DOMNode* node,
     if (particle == xml_condition_attr_particle_etm && 
         type == xml_condition_attr_particle_etm) {
 
-        sumtype = L1GlobalTriggerEsumsTemplate::ETM;
+        sumtype = L1GlobalTriggerEsumsTemplate::ETM_ST;
 
     } else if (particle == xml_condition_attr_particle_ett &&
          type == xml_condition_attr_particle_ett) {
         
-        sumtype = L1GlobalTriggerEsumsTemplate::ETT;
+        sumtype = L1GlobalTriggerEsumsTemplate::ETT_ST;
         
     } else if (particle == xml_condition_attr_particle_htt &&
          type == xml_condition_attr_particle_htt) {
         
-        sumtype = L1GlobalTriggerEsumsTemplate::HTT;
+        sumtype = L1GlobalTriggerEsumsTemplate::HTT_ST;
         
     } else {
         edm::LogError("L1GlobalTriggerConfig") 
@@ -1497,7 +1497,7 @@ int L1GlobalTriggerConfig::parseESums(DOMNode* node,
     conditionparameter.et_threshold = tmpvalue;
     
     // for etm read phi value
-    if (sumtype == L1GlobalTriggerEsumsTemplate::ETM) {
+    if (sumtype == L1GlobalTriggerEsumsTemplate::ETM_ST) {
          if (getConditionChildValues(node, xml_phi_tag, 1, &tmpvalue) != 0) {
             return -1;
          }

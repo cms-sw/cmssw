@@ -61,6 +61,9 @@ public:
     /// get / set the vector of combinations for the algorithm
     virtual std::vector<CombinationsInCond> getCombinationVector();
 
+    /// get the vector of object types for the algorithm
+    virtual std::vector<ObjectTypeInCond> getObjectTypeVector();
+
     /// set the expression and build the parse tree
     int setExpression( const std::string& expression, 
         L1GlobalTriggerConfig::ConditionsMap* operandmap, unsigned int nummap=1);
