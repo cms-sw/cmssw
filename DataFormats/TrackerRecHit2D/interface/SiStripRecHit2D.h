@@ -10,7 +10,8 @@
 class SiStripRecHit2D : public  BaseSiTrackerRecHit2DLocalPos{
 public:
 
-  SiStripRecHit2D(): BaseSiTrackerRecHit2DLocalPos(),cluster_(),clusterRegional_() {}
+  SiStripRecHit2D(): BaseSiTrackerRecHit2DLocalPos(),cluster_(),clusterRegional_(),
+		     sigmaPitch_(-1.){}
 
   ~SiStripRecHit2D() {} 
 
@@ -30,6 +31,9 @@ public:
   
   virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const;
   
+  double sigmaPitch() const { return sigmaPitch_;}
+  void setSigmaPitch(double sigmap) const { sigmaPitch_=sigmap;}
+
  private:
 
   // DetSetVector ref
@@ -39,6 +43,8 @@ public:
   // SiStripRefGetter ref.
   edm::SiStripRefGetter<SiStripCluster>::value_ref const clusterRegional_;
 
+  /// cache for the matcher....
+  mutable double sigmaPitch_;  // transient....
  
 };
 

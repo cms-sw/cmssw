@@ -7,7 +7,9 @@ SiStripRecHit2D::SiStripRecHit2D( const LocalPoint& pos, const LocalError& err,
   
   BaseSiTrackerRecHit2DLocalPos(pos,err,id), 
   cluster_(cluster),
-  clusterRegional_() {}
+  clusterRegional_(),
+  sigmaPitch_(-1.)
+ {}
 
 
 SiStripRecHit2D::SiStripRecHit2D( const LocalPoint& pos, const LocalError& err,
@@ -15,7 +17,8 @@ SiStripRecHit2D::SiStripRecHit2D( const LocalPoint& pos, const LocalError& err,
 				  edm::SiStripRefGetter<SiStripCluster>::value_ref const& cluster): 
   BaseSiTrackerRecHit2DLocalPos(pos,err,id), 
   cluster_(),
-  clusterRegional_(cluster) {}
+  clusterRegional_(cluster),
+  sigmaPitch_(-1.) {}
 
 
 bool 
