@@ -70,33 +70,37 @@ TkGluedMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
         vsStereoHits.push_back( verySpecificStereoHit );
     }
 
-
+    // auto_ptr in the loop will take care of passing ownership to Transient hit...
+    std::vector<SiStripMatchedRecHit2D*> tmp;
+    tmp.reserve(vsStereoHits.size());
     // convert mono hits to type expected by matcher
     for (RecHitContainer::const_iterator monoHit = monoHits.begin();
             monoHit != monoHits.end(); ++monoHit) {
         const TrackingRecHit* tkhit = (**monoHit).hit();
         const SiStripRecHit2D* verySpecificMonoHit =
             reinterpret_cast<const SiStripRecHit2D*>(tkhit);
-
-        edm::OwnVector<SiStripMatchedRecHit2D> tmp = 
-                theMatcher->match( verySpecificMonoHit, vsStereoHits.begin(), vsStereoHits.end(), 
-                        &specificGeomDet(), tkDir);
-  
+	tmp.clear();
+	theMatcher->match( verySpecificMonoHit, vsStereoHits.begin(), vsStereoHits.end(), 
+			   tmp, &specificGeomDet(), tkDir);
+	
         if (!tmp.empty()) {
-            for (edm::OwnVector<SiStripMatchedRecHit2D>::const_iterator i=tmp.begin(), e = tmp.end();
-                 i != e; ++i) {
-              result.push_back( TSiStripMatchedRecHit::build( &geomDet(), &(*i), theMatcher));
-            }
+	  for (std::vector<SiStripMatchedRecHit2D*>::iterator i=tmp.begin(), e = tmp.end();
+	       i != e; ++i) {
+	    result.push_back( 
+			     TSiStripMatchedRecHit::build( &geomDet(), 
+							   std::auto_ptr<TrackingRecHit>(*i), 
+							   theMatcher));
+	  }
         } else {
-            //<<<< if projecting 1 rec hit does not produce more than one rec hit ...
-            //<<<< then the following is "suboptimal"
-            //  RecHitContainer monoUnmatchedHit;     //better kept here, it is often never used at all in one call to recHits
-            //  monoUnmatchedHit.push_back(*monoHit);
-            //  RecHitContainer projectedMonoUnmatchedHit = projectOnGluedDet(monoUnmatchedHit, ts);
-            //  result.insert(result.end(), projectedMonoUnmatchedHit.begin(), projectedMonoUnmatchedHit.end());
-            //<<<< and so we use 
-            TrackingRecHitProjector<ProjectedRecHit2D> proj;
-            result.push_back( proj.project( **monoHit, geomDet(), ts));
+	  //<<<< if projecting 1 rec hit does not produce more than one rec hit ...
+	  //<<<< then the following is "suboptimal"
+	  //  RecHitContainer monoUnmatchedHit;     //better kept here, it is often never used at all in one call to recHits
+	  //  monoUnmatchedHit.push_back(*monoHit);
+	  //  RecHitContainer projectedMonoUnmatchedHit = projectOnGluedDet(monoUnmatchedHit, ts);
+	  //  result.insert(result.end(), projectedMonoUnmatchedHit.begin(), projectedMonoUnmatchedHit.end());
+	  //<<<< and so we use 
+	  TrackingRecHitProjector<ProjectedRecHit2D> proj;
+	  result.push_back( proj.project( **monoHit, geomDet(), ts));
             //<<<< end of change
         }
     } // loop on mono hit
