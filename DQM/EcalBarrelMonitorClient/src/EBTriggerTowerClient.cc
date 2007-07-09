@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/05/31 07:21:15 $
- * $Revision: 1.40 $
+ * $Date: 2007/06/02 10:41:18 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -22,15 +22,21 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/QTestStatus.h"
+#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 
-#include <DQM/EcalBarrelMonitorClient/interface/EBTriggerTowerClient.h>
+#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
+
+#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include <DQM/EcalCommon/interface/UtilsClient.h>
+#include <DQM/EcalCommon/interface/LogicID.h>
 #include <DQM/EcalCommon/interface/Numbers.h>
+
+#include <DQM/EcalBarrelMonitorClient/interface/EBTriggerTowerClient.h>
 
 using namespace cms;
 using namespace edm;

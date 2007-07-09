@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2007/04/30 09:24:03 $
- * $Revision: 1.3 $
+ * $Date: 2007/05/12 09:39:06 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -18,18 +18,24 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/QTestStatus.h"
+#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 
-#include <DQM/EcalEndcapMonitorClient/interface/EETriggerTowerClient.h>
+#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
+
+#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include <DQM/EcalCommon/interface/UtilsClient.h>
+#include <DQM/EcalCommon/interface/LogicID.h>
+#include <DQM/EcalCommon/interface/Numbers.h>
+
+#include <DQM/EcalEndcapMonitorClient/interface/EETriggerTowerClient.h>
 
 using namespace cms;
 using namespace edm;

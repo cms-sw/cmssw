@@ -4,8 +4,8 @@
 /*
  * \file EETriggerTowerClient.h
  *
- * $Date: 2007/04/02 16:15:35 $
- * $Revision: 1.1 $
+ * $Date: 2007/05/12 09:39:05 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -19,15 +19,15 @@
 #include "TH1F.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQM/EcalEndcapMonitorClient/interface/EEClient.h"
+
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
+
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
 
-#include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EEClient.h"
 
 class MonitorUserInterface;
 class EcalCondDBInterface;
