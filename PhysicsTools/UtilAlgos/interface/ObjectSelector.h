@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.19 $
+ * \version $Revision: 1.20 $
  *
- * $Id: ObjectSelector.h,v 1.19 2007/05/15 10:05:21 llista Exp $
+ * $Id: ObjectSelector.h,v 1.20 2007/05/17 08:36:35 llista Exp $
  *
  */
 
@@ -22,6 +22,7 @@
 #include "PhysicsTools/UtilAlgos/interface/StoreManagerTrait.h"
 #include "PhysicsTools/UtilAlgos/interface/SelectedOutputCollectionTrait.h"
 #include "PhysicsTools/UtilAlgos/interface/NullPostProcessor.h"
+#include "PhysicsTools/UtilAlgos/interface/EventSetupInitTrait.h"
 #include <utility>
 #include <vector>
 #include <memory>
@@ -32,7 +33,8 @@ template<typename Selector,
 	 typename SizeSelector = NonNullNumberSelector,
 	 typename PostProcessor = helper::NullPostProcessor<OutputCollection>,
 	 typename StoreManager = typename helper::StoreManagerTrait<OutputCollection>::type,
-	 typename Base = typename helper::StoreManagerTrait<OutputCollection>::base
+	 typename Base = typename helper::StoreManagerTrait<OutputCollection>::base,
+	 typename Init = typename ::reco::modules::EventSetupInit<Selector>::type
 	 >
 class ObjectSelector : public Base {
 public:
@@ -55,7 +57,8 @@ public:
   
 private:
   /// process one event
-  bool filter( edm::Event& evt, const edm::EventSetup& ) {
+  bool filter( edm::Event& evt, const edm::EventSetup& es ) {
+    Init::init( selector_, es );
     using namespace std;
     edm::Handle<typename Selector::collection> source;
     evt.getByLabel( src_, source );
