@@ -15,5 +15,6 @@
   <class pattern="ROOT::Math::SVector<*>" />
   <class pattern="std::vector<ROOT::Math::*>" />
   <class pattern="edm::Wrapper<*>" />
+  <class pattern="edm::RefVector<*>" />
 </selection>
 </lcgdict>

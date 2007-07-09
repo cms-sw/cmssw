@@ -6,7 +6,7 @@
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/Math/interface/Matrix.h"
 #include "DataFormats/Common/interface/Wrapper.h"
-
+#include "DataFormats/Common/interface/RefVector.h"
 #include <vector>
 
 namespace {
@@ -169,6 +169,11 @@ namespace {
     edm::Wrapper<std::vector<math::Error<5>::type> > wve5;
     edm::Wrapper<std::vector<math::Error<6>::type> > wve6;
     edm::Wrapper<std::vector<math::Error<7>::type> > wve7;
+
+
+    edm::RefVector<std::vector<math::XYZTLorentzVector> > rvl2;
+    edm::RefVector<std::vector<math::XYZTLorentzVectorD> > rvld2;
+    edm::RefVector<std::vector<math::XYZTLorentzVectorF> > rvlf2;
 
     //     ROOT::Math::MatRepSym<Double32_t, 1> sm1;
     ROOT::Math::MatRepSym<Double32_t, 2> sm2;
