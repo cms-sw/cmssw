@@ -145,6 +145,12 @@ class MonitorElement
   virtual void setAxisRange(float xmin, float xmax, int axis = 1) = 0;
   /// set x-, y- or z-axis title (axis=1, 2, 3 respectively)
   virtual void setAxisTitle(std::string axis_title, int axis = 1) = 0;
+  /// set x-, y-, or z-axis to display time values
+  virtual void setAxisTimeDisplay(int value, int axis = 1) = 0;
+  /// set the format of the time values that are displayed on an axis
+  virtual void setAxisTimeFormat(const char *format = "", int axis = 1) = 0;
+  /// set the time offset, if option = "gmt" then the offset is treated as a GMT time
+  virtual void setAxisTimeOffset(double toffset, const char *option="local", int axis = 1) = 0;
   /// set (ie. change) histogram/profile title
   virtual void setTitle(std::string new_title) = 0;
   /// set # of bin entries (to be used for profiles)

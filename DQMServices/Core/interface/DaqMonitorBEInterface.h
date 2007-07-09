@@ -45,6 +45,10 @@ class DaqMonitorBEInterface: public StringUtil
   virtual MonitorElement * book1D(std::string name, 
 				  std::string title, 
 				  int nchX, double lowX, double highX)=0;
+  /// book 1D variable bin histogram
+  virtual MonitorElement * book1D(std::string name,
+				  std::string title,
+				  int nchX, float *xbinsize)=0;
   /// book 2D histogram
   virtual MonitorElement * book2D(std::string name, 
 				  std::string title, 
@@ -348,6 +352,11 @@ class DaqMonitorBEInterface: public StringUtil
   /// book 1D histogram
   virtual MonitorElement * book1D(std::string name, std::string title, 
 			  int nchX, double lowX, double highX, 
+			  MonitorElementRootFolder * folder) = 0;
+
+  /// book 1D variable bin histogram
+  virtual MonitorElement * book1D(std::string name, std::string title,
+			  int nchX, float *xbinsize,
 			  MonitorElementRootFolder * folder) = 0;
 
   /// book 2D histogram
