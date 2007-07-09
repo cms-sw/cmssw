@@ -146,6 +146,7 @@ namespace edm {
     typedef std::vector< RegionIndex<T> > register_type;
     typedef std::vector<T> record_type;
     typedef typename record_type::const_iterator record_iterator;
+    typedef std::pair<typename record_type::const_iterator, typename record_type::const_iterator> record_pair;
     typedef boost::transform_iterator< LazyAdapter<T>, typename register_type::const_iterator > const_iterator;
   
     SiStripLazyGetter() {}
@@ -161,20 +162,27 @@ namespace edm {
     /// Returns the size of SiStripLazyUnpacker::record_.
     uint32_t size() const;
 
-    /// Returns an iterator to the RegionIndex<T> for a given region, 
-    /// or throws an exception if there is no such index.
-    const_iterator find(uint32_t) const;
+    /// Returns an iterator to the RegionIndex<T>  for a given region
+    /// or end() if not found.
+    /// WARNING: This is a search and therefore SLOW!
+    const_iterator find(uint32_t region) const;
 
-    /// Returns a reference to the RegionIndex<T> for a given region.
-    const RegionIndex<T>& operator[](uint32_t) const;
+    /// Returns a reference to the RegionIndex<T> for a given 
+    /// collection index.
+    const RegionIndex<T>& operator[](uint32_t index) const;
 
-    /// Returns start end end iterators for values of a given det-id
-    std::pair<record_iterator,record_iterator> find(uint32_t,uint32_t) const;
+    /// Returns a reference to the last RegionIndex<T> added to the 
+    /// collection, or throws an exception if empty.
+    const RegionIndex<T>& back() const;
 
-    /// Return an iterator to the first RegionIndex<T> for a given region.
+    /// Returns start end end iterators for values of a given det-id 
+    /// within the last RegionIndex<T> added to the collection
+    record_pair back(uint32_t detid) const;
+
+    /// Returns an iterator to the first RegionIndex<T> for a given region.
     const_iterator begin() const;
 
-    /// Return the off-the-end iterator for a given region.
+    /// Returns the off-the-end iterator for a given region.
     const_iterator end() const;
 
   private:
@@ -208,32 +216,42 @@ namespace edm {
   template <class T>
     inline
     typename SiStripLazyGetter<T>::const_iterator
-    SiStripLazyGetter<T>::find(uint32_t region) const
+    SiStripLazyGetter<T>::find(uint32_t region) const 
     {
-      typename register_type::const_iterator it;
-      if (size() < region+1) it = unpacker_->register_.end();
-      else it = unpacker_->register_.begin()+region;
       LazyAdapter<T> adapter(unpacker_);
-      return boost::make_transform_iterator(it,adapter);
+      typename register_type::const_iterator it = unpacker_->register_.begin();
+      for (;it!=unpacker_->register_.end();++it) {
+	if (it->region() == region) return boost::make_transform_iterator(it,adapter);
+      }
+      return end();
     }
-  
+
   template <class T>
     inline
     const RegionIndex<T>&
-    SiStripLazyGetter<T>::operator[](uint32_t region) const 
+    SiStripLazyGetter<T>::operator[](uint32_t index) const 
     {
-      const_iterator it = find(region);
-      if (it == end()) sistripdetail::_throw_range(region);
-      return *it;
+      if (size() < index+1) sistripdetail::_throw_range(index);
+      typename register_type::const_iterator it = unpacker_->register_.begin()+index;
+      LazyAdapter<T> adapter(unpacker_);
+      return *(boost::make_transform_iterator(it,adapter));
+    }
+
+ template <class T>
+    inline
+    const RegionIndex<T>&
+    SiStripLazyGetter<T>::back() const 
+    {
+      if (empty()) sistripdetail::_throw_range(0);
+      return (*this)[size()-1];
     }
   
   template <class T>
     inline
-    std::pair<typename SiStripLazyGetter<T>::record_iterator,typename SiStripLazyGetter<T>::record_iterator> 
-    SiStripLazyGetter<T>::find(uint32_t region,uint32_t detid) const 
+    typename SiStripLazyGetter<T>::record_pair
+    SiStripLazyGetter<T>::back(uint32_t detid) const 
     {
-      const RegionIndex<T>& index = (*this)[region];
-      return index.find(detid);
+      return back().find(detid);
     }
   
   template <class T>
