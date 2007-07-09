@@ -83,6 +83,7 @@ void SiStripRawToClusters::beginJob( const edm::EventSetup& setup) {
 }
 
 // -----------------------------------------------------------------------------
+
 void SiStripRawToClusters::endJob() {;}
 
 // -----------------------------------------------------------------------------
@@ -104,7 +105,7 @@ void SiStripRawToClusters::produce( edm::Event& event,
   edm::OrphanHandle<LazyGetter> pcollection = event.put(collection);
 
   //Store SiStripRefGetter for global unpacking in event. 
-  std::auto_ptr<RefGetter> rcollection(new RefGetter(pcollection,allregions_));
-  event.put(rcollection);
+  std::auto_ptr<RefGetter> fullcollection(new RefGetter(pcollection,allregions_));
+  event.put(fullcollection);
 }
 
