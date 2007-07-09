@@ -7,9 +7,10 @@
 const unsigned L1GctJet::RAWSUM_BITWIDTH = 10;
 
 
-L1GctJet::L1GctJet(uint16_t rawsum, unsigned eta, unsigned phi, bool tauVeto) :
+L1GctJet::L1GctJet(uint16_t rawsum, unsigned eta, unsigned phi, bool forwardJet, bool tauVeto) :
   m_rawsum(rawsum),
   m_id(eta, phi),
+  m_forwardJet(forwardJet),
   m_tauVeto(tauVeto)
 {
 
@@ -25,7 +26,10 @@ std::ostream& operator << (std::ostream& os, const L1GctJet& cand)
   os << " energy sum " << cand.m_rawsum;
   os << " Eta " << cand.globalEta();
   os << " Phi " << cand.globalPhi();
-  os << " Tau " << cand.m_tauVeto;
+  if (cand.isForwardJet()) { os << ", Forward jet"; }
+  if (cand.isCentralJet()) { os << ", Central jet"; }
+  if (cand.isTauJet()) { os << ", Tau jet"; }
+  if (cand.isNullJet()) { os << ", Null jet"; }
 
   return os;
 }	
@@ -35,6 +39,7 @@ bool L1GctJet::operator== (const L1GctJet& cand) const
 {
   bool result=true;
   result &= (this->rawsum()==cand.rawsum());
+  result &= (this->isForwardJet()==cand.isForwardJet());
   result &= (this->tauVeto()==cand.tauVeto());
   result &= (this->globalEta()==cand.globalEta());
   result &= (this->globalPhi()==cand.globalPhi());
@@ -47,6 +52,7 @@ bool L1GctJet::operator!= (const L1GctJet& cand) const
 {
   bool result=false;
   result |= !(this->rawsum()==cand.rawsum());
+  result |= !(this->isForwardJet()==cand.isForwardJet());
   result |= !(this->tauVeto()==cand.tauVeto());
   result |= !(this->globalEta()==cand.globalEta());
   result |= !(this->globalPhi()==cand.globalPhi());
@@ -54,11 +60,12 @@ bool L1GctJet::operator!= (const L1GctJet& cand) const
   return result;
 }
   
-void L1GctJet::setupJet(uint16_t rawsum, unsigned eta, unsigned phi, bool tauVeto)
+void L1GctJet::setupJet(uint16_t rawsum, unsigned eta, unsigned phi, bool forwardJet, bool tauVeto)
 {
   L1CaloRegionDetId temp(eta, phi);
   m_rawsum = rawsum;
   m_id = temp;
+  m_forwardJet = forwardJet;
   m_tauVeto = tauVeto;
 }
 

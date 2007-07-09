@@ -29,7 +29,7 @@ public:
   static const unsigned RAWSUM_BITWIDTH;  
   
   //Constructors/destructors
-  L1GctJet(uint16_t rawsum=0, unsigned eta=0, unsigned phi=0, bool tauVeto=true);
+  L1GctJet(uint16_t rawsum=0, unsigned eta=0, unsigned phi=0, bool forwardJet=true, bool tauVeto=true);
   ~L1GctJet();
   
   // set rawsum and position bits
@@ -45,13 +45,13 @@ public:
   bool overFlow() const { return (m_rawsum>=(1<<RAWSUM_BITWIDTH)); }
 
   /// test whether this jet candidate is a valid tau jet	
-  bool isTauJet()     const { return (!m_id.isForward() && !m_tauVeto); } 
+  bool isTauJet()     const { return (!m_forwardJet && !m_tauVeto); } 
 
   /// test whether this jet candidate is a (non-tau) central jet
-  bool isCentralJet() const { return (!m_id.isForward() && m_tauVeto); } 
+  bool isCentralJet() const { return (!m_forwardJet && m_tauVeto); } 
 
   /// test whether this jet candidate is a forward jet	
-  bool isForwardJet() const { return m_id.isForward(); } 
+  bool isForwardJet() const { return m_forwardJet; } 
 
   /// test whether this jet candidate has been filled	
   bool isNullJet() const { return ((m_rawsum==0) && (globalEta()==0) && (globalPhi()==0)); } 
@@ -65,7 +65,7 @@ public:
   bool operator!= (const L1GctJet& cand) const;
   
   ///Setup an existing jet all in one go
-  void setupJet(uint16_t rawsum, unsigned eta, unsigned phi, bool tauVeto=true);
+  void setupJet(uint16_t rawsum, unsigned eta, unsigned phi, bool forwardJet, bool tauVeto=true);
   
   /// eta value in global CMS coordinates
   unsigned globalEta() const { return m_id.ieta(); } 
@@ -98,6 +98,7 @@ public:
   uint16_t m_rawsum;
   /// region id, encodes eta and phi
   L1CaloRegionDetId m_id;
+  bool m_forwardJet;
   bool m_tauVeto;
 
   uint16_t lutValue (const L1GctJetEtCalibrationLut* lut) const;
