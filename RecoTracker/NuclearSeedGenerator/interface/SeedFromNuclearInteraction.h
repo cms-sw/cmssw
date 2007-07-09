@@ -89,5 +89,6 @@ private :
   double rescaleDirectionFactor; /**< Rescale the direction error */
   double rescalePositionFactor;  /**< Rescale the position error */
   double rescaleCurvatureFactor; /**< Rescale the curvature error */
+  double ptMin;                  /**< Minimum transverse momentum of the seed */
 };
 #endif
