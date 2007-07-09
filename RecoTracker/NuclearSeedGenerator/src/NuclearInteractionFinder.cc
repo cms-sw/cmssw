@@ -12,7 +12,7 @@
 
 NuclearInteractionFinder::NuclearInteractionFinder(const edm::EventSetup& es, const edm::ParameterSet& iConfig) :
 ptMin(iConfig.getParameter<double>("ptMin")),
-maxPrimaryHits(iConfig.getParameter<int>("maxPrimaryHits")),
+maxHits(iConfig.getParameter<int>("maxHits")),
 rescaleErrorFactor(iConfig.getParameter<double>("rescaleErrorFactor")),
 checkCompletedTrack(iConfig.getParameter<bool>("checkCompletedTrack"))
 {
@@ -39,7 +39,7 @@ checkCompletedTrack(iConfig.getParameter<bool>("checkCompletedTrack"))
    NavigationSetter setter( *theNavigationSchool);
    LogDebug("NuclearSeedGenerator") << "New NuclearInteractionFinder instance with parameters : \n"
                                         << "ptMin : " << ptMin << "\n"
-                                        << "maxPrimaryHits : " << maxPrimaryHits << "\n"
+                                        << "maxHits : " << maxHits << "\n"
                                         << "rescaleErrorFactor : " << rescaleErrorFactor << "\n"
                                         << "checkCompletedTrack : " << checkCompletedTrack << "\n";
    nuclTester = new NuclearTester(es, iConfig);
@@ -64,13 +64,14 @@ NuclearInteractionFinder::~NuclearInteractionFinder() {
 //----------------------------------------------------------------------
 bool  NuclearInteractionFinder::run(const Trajectory& traj) {
 
-        // initialization
-        nuclTester->reset();
-        allSeeds.clear();
-
         if(traj.empty() || !traj.isValid()) return false;
 
         std::vector<TrajectoryMeasurement> measurements = traj.measurements();
+
+        // initialization
+        nuclTester->reset( measurements.size() );
+        allSeeds.clear();
+
 
         if(traj.direction()==alongMomentum)  {
                 std::reverse(measurements.begin(), measurements.end());
@@ -86,14 +87,17 @@ bool  NuclearInteractionFinder::run(const Trajectory& traj) {
          {
            if(it_meas == measurements.end()) break;
 
+	   // check only the maxHits outermost hits of the primary track
+	   if(nuclTester->nHitsChecked() > maxHits) break;
+
            nuclTester->push_back(*it_meas, findCompatibleMeasurements(*it_meas, rescaleErrorFactor));
 
            LogDebug("NuclearSeedGenerator") << "Number of compatible meas:" << (nuclTester->back()).size() << "\n"
                                                 << "Mean distance between hits :" << nuclTester->meanHitDistance() << "\n"
                                                 << "Mean distance between hits :" << nuclTester->meanEstimate() << "\n";
 
-           // don't check track which reach the end of the tracker
-           if( checkCompletedTrack==false && (nuclTester->back()).empty() ) break;
+           // don't check tracks which reach the end of the tracker if checkCompletedTrack==false
+           if( checkCompletedTrack==false && (nuclTester->compatibleHits()).front()==0 ) break;
 
            if(nuclTester->isNuclearInteraction()) NIfound=true;
 
@@ -101,7 +105,11 @@ bool  NuclearInteractionFinder::run(const Trajectory& traj) {
          }
 
         if(NIfound) {
-            LogDebug("NuclearSeedGenerator") << "NUCLEAR INTERACTION FOUND at index : " << nuclTester->nuclearIndex() << "\n";
+            LogDebug("NuclearSeedGenerator") << "NUCLEAR INTERACTION FOUND at index : " << nuclTester->nuclearIndex()  << "\n";
+            
+
+	    if(nuclTester->nHitsChecked() < 3) 
+		    LogDebug("NuclearSeedGenerator") << "PROBLEM in NuclearTester : nuclTester->nHitsChecked() = " <<  nuclTester->nHitsChecked() << "  < 3\n";
 
             // Get correct parametrization of the helix of the primary track at the interaction point (to be used by improveCurrentSeed)
             definePrimaryHelix(measurements.begin()+nuclTester->nuclearIndex()-1);
@@ -212,6 +220,8 @@ void NuclearInteractionFinder::improveSeeds() {
         // loop on all actual seeds
         for(std::vector<SeedFromNuclearInteraction>::const_iterator it_seed = allSeeds.begin(); it_seed != allSeeds.end(); it_seed++) {
 
+	      if( !it_seed->isValid() ) continue;
+	      
               // find compatible TM in an outer layer
               std::vector<TM> thirdTMs = findMeasurementsFromTSOS( it_seed->updatedTSOS() , it_seed->outerHitDetId() ); 
 
