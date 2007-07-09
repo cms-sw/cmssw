@@ -10,12 +10,13 @@ using std::hex;
 using std::dec;
 
 // default constructor
-L1CaloRegion::L1CaloRegion() : m_id(), m_data(0) { }
+L1CaloRegion::L1CaloRegion() : m_id(), m_data(0), m_bx(0) { }
 
 
 // constructor for RCT emulator (HB/HE regions)
 L1CaloRegion::L1CaloRegion(unsigned et, bool overFlow, bool tauVeto, bool mip, bool quiet, unsigned crate, unsigned card, unsigned rgn) :
   m_id(crate, card, rgn),
+  m_data(0), // over-ridden below
   m_bx(0)
 {
   pack(et, overFlow, tauVeto, mip, quiet);
@@ -24,6 +25,7 @@ L1CaloRegion::L1CaloRegion(unsigned et, bool overFlow, bool tauVeto, bool mip, b
 // constructor for RCT emulator (HF regions)
 L1CaloRegion::L1CaloRegion(unsigned et, bool fineGrain, unsigned crate, unsigned rgn) :
   m_id(crate, 999, rgn),
+  m_data(0), // over-ridden below
   m_bx(0)
 {
   pack((et & 0xff), (et >= 0xff), fineGrain, false, false);
@@ -32,6 +34,7 @@ L1CaloRegion::L1CaloRegion(unsigned et, bool fineGrain, unsigned crate, unsigned
 // construct from global eta, phi indices
 L1CaloRegion::L1CaloRegion(unsigned et, bool overFlow, bool fineGrain, bool mip, bool quiet, unsigned ieta, unsigned iphi) :
   m_id(ieta, iphi),
+  m_data(0), // over-ridden below
   m_bx(0)
 {
   pack(et, overFlow, fineGrain, mip, quiet);
