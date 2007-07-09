@@ -5,11 +5,11 @@
 
 #include "DataFormats/Common/interface/RefVector.h"
 
-GetJetsFromHLTobject::GetJetsFromHLTobject(const edm::ParameterSet& iConfig)
+GetJetsFromHLTobject::GetJetsFromHLTobject(const edm::ParameterSet& iConfig) :
+  m_jets( iConfig.getParameter<edm::InputTag>("jets") )
 {
-  //  produces<reco::CaloJetRefVector>();
-    produces<reco::CaloJetCollection>();
-  m_jetsSrc   = iConfig.getParameter<edm::InputTag>("jets");
+  //produces<reco::CaloJetRefVector>();
+  produces<reco::CaloJetCollection>();
 }
 
 
@@ -26,11 +26,14 @@ GetJetsFromHLTobject::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    std::auto_ptr<reco::CaloJetCollection> jets( new reco::CaloJetCollection() );
 
    Handle<reco::HLTFilterObjectWithRefs> hltObject;
-   iEvent.getByLabel(m_jetsSrc, hltObject);
+   iEvent.getByLabel(m_jets, hltObject);
    for (size_t i = 0; i < hltObject->size(); i++) {
-     const CaloJetRef & jetRef = hltObject->getParticleRef(i).castTo<CaloJetRef>();
-         //jets->push_back(jetRef);
-	 jets->push_back(*jetRef);
+     const Candidate * candidate = hltObject->getParticleRef(i).get();
+     const CaloJet * jet = dynamic_cast<const reco::CaloJet *>(candidate);
+     if (jet)
+       jets->push_back(*jet);
+     // else 
+     //   cerr << ...
    }
    
    iEvent.put(jets);

@@ -26,10 +26,8 @@
 //#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // user include files
-//#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-//#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
@@ -48,7 +46,7 @@ class GetJetsFromHLTobject : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&);
 
   private:
-     edm::InputTag m_jetsSrc;
+     edm::InputTag m_jets;
 };
 
 #endif //GetJetsFromHLTobject_h
