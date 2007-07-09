@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: TtGenEvent.cc,v 1.7 2007/07/05 23:25:17 lowette Exp $
 //
 
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
@@ -144,7 +144,7 @@ TtGenEvent::hadronicW() const
     const reco::CandidateCollection & partsColl = *parts_;
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
       if (abs(partsColl[i].pdgId())==24 && 
-	  flavour(singleLep)!=flavour(partsColl[i])) {
+          flavour(singleLep) != - flavour(partsColl[i])) { // PDG Id:13=mu- 24=W+ (+24)->(-13) (-24)->(+13) opposite sign
 	cand = &partsColl[i];
       }
     }
@@ -195,7 +195,7 @@ TtGenEvent::leptonicW() const
     const reco::CandidateCollection & partsColl = *parts_;
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
       if (abs(partsColl[i].pdgId())==24 &&
-          flavour(singleLep)==flavour(partsColl[i])) {
+          flavour(singleLep) == - flavour(partsColl[i])) { // PDG Id:13=mu- 24=W+ (+24)->(-13) (-24)->(+13) opposite sign
         cand = &partsColl[i];
       }
     }
