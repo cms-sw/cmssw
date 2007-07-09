@@ -303,7 +303,7 @@ GroupedCkfTrajectoryBuilder::groupedLimitedCandidates (Trajectory& startingTraj,
     } else {
       candidates.swap(newCand);
     }
-    candidates.swap(newCand);
+    //candidates.swap(newCand);
 
 #ifdef DBG_GCTB
     cout << "candidates(3)";
@@ -512,7 +512,7 @@ GroupedCkfTrajectoryBuilder::groupedIntermediaryClean (TrajectoryContainer& theT
       // ask for identical hits in layer -3
       //
       unequal = false;
-      layerPtr = firstLayers[firstLayerSize-1];
+      layerPtr = firstLayers[firstLayerSize-3];
       while ( im1!=firstMeasurements.rend()&&im2!=secondMeasurements.rend() ) {
 	if ( im1->layer()!=layerPtr || im2->layer()!=layerPtr )  break;
 	if ( !(im1->recHit()->isValid()) || !(im2->recHit()->isValid()) ||
