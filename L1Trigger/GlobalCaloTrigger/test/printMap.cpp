@@ -59,7 +59,7 @@ int main() {
   for (unsigned crate=0; crate<18; crate++) {
     for (unsigned card=0; card<7; card++) {
       for (unsigned rgn=0; rgn<2; rgn++) {
-	L1CaloRegionDetId r(false, crate, card, rgn);
+	L1CaloRegionDetId r(crate, card, rgn);
 	if ( (r.rctCrate()!=crate) || (r.rctCard()!=card) || (r.rctRegion()!=rgn) ) {
 	  cout << "Error! : RCT crate " << crate << " card " << card << " region " << rgn << endl;
 	}
@@ -70,7 +70,7 @@ int main() {
   // test HF constructors
   for (unsigned crate=0; crate<18; crate++) {
     for (unsigned rgn=0; rgn<8; rgn++) {
-      L1CaloRegionDetId r(true, crate, 999, rgn);
+      L1CaloRegionDetId r(crate, 999, rgn);
       if ( (r.rctCrate()!=crate) || (r.rctRegion()!=rgn) ) {
 	cout << "Error! : RCT crate " << crate << " HF region " << rgn << endl;
       }
