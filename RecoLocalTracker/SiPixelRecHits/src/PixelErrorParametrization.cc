@@ -201,20 +201,19 @@ PixelErrorParametrization::PixelErrorParametrization(edm::ParameterSet const& co
 		  &detid, &size, &angle_ind1, &angle_ind2, &sigma, &rms );
 	  
 	  float error = -9999.9;
-	  if (verbose)
+	  if ( useSigma )
 	    {
-	      if ( useSigma )
-		{
-		  cout << "-------------------------- Use    error = sigma     ------------------------- " << endl; 
-		  error = sigma;
-		}
-	      else 
-		{
-		  cout << "-------------------------- Use    error = rms     ------------------------- " << endl; 
-		  error = rms;
-		}
+	      if (verbose)
+		cout << "-------------------------- Use    error = sigma     ------------------------- " << endl; 
+	      error = sigma;
 	    }
-	  
+	  else 
+	    {
+	      if (verbose)
+		cout << "-------------------------- Use    error = rms     ------------------------- " << endl; 
+	      error = rms;
+	    }
+		  
 	  if      ( detid == 1 )
 	    vec_error_YB.push_back( error );
 	  else if ( detid == 2 )
