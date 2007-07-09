@@ -10,10 +10,14 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#define RESCALE_FACTOR 10
+
 SeedFromNuclearInteraction::SeedFromNuclearInteraction(const edm::EventSetup& es, const edm::ParameterSet& iConfig) : 
 rescaleDirectionFactor(iConfig.getParameter<double>("rescaleDirectionFactor")),
 rescalePositionFactor(iConfig.getParameter<double>("rescalePositionFactor")),
-rescaleCurvatureFactor(iConfig.getParameter<double>("rescaleCurvatureFactor")) {
+rescaleCurvatureFactor(iConfig.getParameter<double>("rescaleCurvatureFactor")),
+ptMin(iConfig.getParameter<double>("ptMin"))
+{
 
   edm::ESHandle<Propagator>  thePropagatorHandle;
   es.get<TrackingComponentsRecord>().get("PropagatorWithMaterial",thePropagatorHandle);
@@ -41,8 +45,11 @@ void SeedFromNuclearInteraction::setMeasurements(const TSOS& inner_TSOS, ConstRe
        // calculate the initial FreeTrajectoryState.
        freeTS_.reset(stateWithError());
 
-       // convert freeTS_ into a persistent TSOS on the outer surface
-       isValid_ = construct();
+       // check transverse momentum
+       if(freeTS_->momentum().perp() < ptMin) { isValid_ = false; }
+       else {
+          // convert freeTS_ into a persistent TSOS on the outer surface
+          isValid_ = construct(); }
 }
 //----------------------------------------------------------------------
 void SeedFromNuclearInteraction::setMeasurements(TangentHelix& thePrimaryHelix, const TSOS& inner_TSOS, ConstRecHitPointer ihit, ConstRecHitPointer ohit) {
@@ -62,13 +69,17 @@ void SeedFromNuclearInteraction::setMeasurements(TangentHelix& thePrimaryHelix, 
        theHits.push_back( innerHit_ );
        theHits.push_back( outerHit_ );
 
-       initialTSOS_.reset(new TrajectoryStateOnSurface(inner_TSOS) );
+       TSOS rescaled_TSOS = inner_TSOS;
+       rescaled_TSOS.rescaleError(1.0/((double)(RESCALE_FACTOR)));
+       initialTSOS_.reset( new TrajectoryStateOnSurface(rescaled_TSOS) );
 
        // calculate the initial FreeTrajectoryState from the inner and outer TM assuming that the helix equation is already known.
        freeTS_.reset(stateWithError(helix)); 
 
-       // convert freeTS_ into a persistent TSOS on the outer surface
-       isValid_ = construct();
+       if(freeTS_->momentum().perp() < ptMin) { isValid_ = false; }
+       else {
+          // convert freeTS_ into a persistent TSOS on the outer surface
+          isValid_ = construct(); }
 }
 //----------------------------------------------------------------------
 FreeTrajectoryState* SeedFromNuclearInteraction::stateWithError() const {
@@ -169,7 +180,7 @@ bool SeedFromNuclearInteraction::construct() {
 
    TrajectoryStateTransform transformer;
 
-   updatedTSOS_->rescaleError(10);
+   updatedTSOS_->rescaleError(RESCALE_FACTOR);
 
    pTraj = boost::shared_ptr<PTrajectoryStateOnDet>( transformer.persistentState(*updatedTSOS_, outerHitDetId().rawId()) );
    return true;
