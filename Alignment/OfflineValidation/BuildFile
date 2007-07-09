@@ -1,3 +1,4 @@
+<flags EDM_PLUGIN =1>
 <use name=FWCore/Framework>
 <use name=FWCore/Utilities>
 <use name=FWCore/ParameterSet>
@@ -6,8 +7,6 @@
 <use name=CLHEP>
 <use name=root>
 
-
- <flags SEAL_PLUGIN_NAME="AlignmentOfflineValidation">
 
 <export>
  <lib name=AlignmentOfflineValidation>
