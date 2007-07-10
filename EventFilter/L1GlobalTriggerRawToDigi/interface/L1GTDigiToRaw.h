@@ -96,6 +96,10 @@ private:
 
 private:
 
+    /// FED Id for GT DAQ record
+    /// default value defined in DataFormats/FEDRawData/src/FEDNumbering.cc
+    int m_daqGtFedId;  
+
     /// input tag for GT DAQ record
     edm::InputTag m_daqGtInputTag;
 

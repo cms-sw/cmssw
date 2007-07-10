@@ -56,6 +56,17 @@
 L1GTDigiToRaw::L1GTDigiToRaw(const edm::ParameterSet& pSet)
 {
 
+    // FED Id for GT DAQ record
+    // default value defined in DataFormats/FEDRawData/src/FEDNumbering.cc
+    // default value: assume the DAQ record is the last GT record 
+    m_daqGtFedId = pSet.getUntrackedParameter<int>(
+                       "DaqGtFedId", FEDNumbering::getTriggerGTPFEDIds().second);
+
+    LogDebug("L1GTDigiToRaw")
+    << "\nFED Id for DAQ GT record: "
+    << m_daqGtFedId << " \n"
+    << std::endl;
+
     // input tag for DAQ GT record
     m_daqGtInputTag = pSet.getUntrackedParameter<edm::InputTag>(
                           "DaqGtInputTag", edm::InputTag("L1GtEmul"));
@@ -121,7 +132,7 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
         gtReadoutRecord->print(myCoutStream);
         LogTrace("L1GTDigiToRaw")
         << "\n The following L1 GT DAQ readout record will be packed.\n"
-        << " Some boards could be disabled before packing," 
+        << " Some boards could be disabled before packing,"
         << " see detailed board packing.\n"
         << myCoutStream.str() << "\n"
         << std::endl;
@@ -286,7 +297,8 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
 
     // ptrGt: pointer to the beginning of GT record in the raw data
 
-    FEDRawData& gtRawData = allFedRawData->FEDData(FEDNumbering::getTriggerGTPFEDIds().first);
+    FEDRawData& gtRawData = allFedRawData->FEDData(m_daqGtFedId);
+    
     // resize, GT raw data record has variable length,
     // depending on active boards (read in GTFE)
     gtRawData.resize(gtDataSize);
@@ -466,7 +478,7 @@ void L1GTDigiToRaw::packHeader(unsigned char* ptrGt)
     int bxIdVal = 0;
 
     // Identifier of the FED
-    int sourceIdVal = FEDNumbering::getTriggerGTPFEDIds().first;
+    int sourceIdVal = m_daqGtFedId;
 
     // Version identifier of the FED data format
     int versionVal = 0;

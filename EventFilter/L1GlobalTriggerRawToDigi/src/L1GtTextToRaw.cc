@@ -78,13 +78,16 @@ L1GtTextToRaw::L1GtTextToRaw(const edm::ParameterSet& pSet)
     << "\n  If negative value, the size is retrieved from the trailer." << "\n"
     << std::endl;
 
-    // FedId from FEDNumbering
-    m_fedId = pSet.getUntrackedParameter<int>("FedID", 813);
+    // FED Id for GT DAQ record
+    // default value defined in DataFormats/FEDRawData/src/FEDNumbering.cc
+    // default value: assume the DAQ record is the last GT record 
+    m_daqGtFedId = pSet.getUntrackedParameter<int>(
+                       "DaqGtFedId", FEDNumbering::getTriggerGTPFEDIds().second);
 
     LogDebug("L1GtTextToRaw")
-    << "\nFED Id: " << m_fedId << "\n"
+    << "\nFED Id for DAQ GT record: "
+    << m_daqGtFedId << " \n"
     << std::endl;
-
 
     // open test file
     m_textFile.open(m_textFileName.c_str(), std::ios::in);
@@ -168,7 +171,7 @@ void L1GtTextToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
     // it contains ALL FEDs in an event
     std::auto_ptr<FEDRawDataCollection> fedRawColl(new FEDRawDataCollection);
 
-    FEDRawData& rawData = fedRawColl->FEDData(m_fedId);
+    FEDRawData& rawData = fedRawColl->FEDData(m_daqGtFedId);
     // resize, GT raw data record has variable length,
     // depending on active boards (read in GTFE)
     rawData.resize(rawDataSize);

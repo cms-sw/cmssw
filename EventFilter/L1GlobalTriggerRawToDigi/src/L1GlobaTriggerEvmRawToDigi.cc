@@ -64,6 +64,7 @@ L1GlobalTriggerEvmRawToDigi::L1GlobalTriggerEvmRawToDigi(const edm::ParameterSet
 
     // FED Id for GT EVM record
     // default value defined in DataFormats/FEDRawData/src/FEDNumbering.cc
+    // default value: assume the EVM record is the first GT record 
     m_evmGtFedId = pSet.getUntrackedParameter<int>(
                        "EvmGtFedId", FEDNumbering::getTriggerGTPFEDIds().first);
 

@@ -67,7 +67,7 @@ private:
 
     /// pack the GTFE block
     /// gives the number of bunch crosses in the event, as well as the active boards
-    /// records for inactive boards are not written in the GT DAQ record
+    /// records for inactive boards are not written in the GT EVM record
     void packGTFE(const edm::EventSetup&, unsigned char*, L1GtfeExtWord&,
                   boost::uint16_t activeBoardsGtValue);
 
@@ -86,7 +86,11 @@ private:
 
 private:
 
-    /// input tag for GT DAQ record
+    /// FED Id for GT EVM record
+    /// default value defined in DataFormats/FEDRawData/src/FEDNumbering.cc
+    int m_evmGtFedId;  
+
+    /// input tag for GT EVM record
     edm::InputTag m_evmGtInputTag;
 
     /// mask for active boards

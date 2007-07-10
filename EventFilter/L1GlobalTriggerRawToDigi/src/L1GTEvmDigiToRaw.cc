@@ -50,12 +50,23 @@
 L1GTEvmDigiToRaw::L1GTEvmDigiToRaw(const edm::ParameterSet& pSet)
 {
 
-    // input tag for DAQ GT record
+    // FED Id for GT EVM record
+    // default value defined in DataFormats/FEDRawData/src/FEDNumbering.cc
+    // default value: assume the EVM record is the first GT record 
+    m_evmGtFedId = pSet.getUntrackedParameter<int>(
+                       "EvmGtFedId", FEDNumbering::getTriggerGTPFEDIds().first);
+
+    LogDebug("L1GTEvmDigiToRaw")
+    << "\nFED Id for EVM GT record: "
+    << m_evmGtFedId << " \n"
+    << std::endl;
+
+    // input tag for EVM GT record
     m_evmGtInputTag = pSet.getUntrackedParameter<edm::InputTag>(
                           "EvmGtInputTag", edm::InputTag("L1GtEmul"));
 
     LogDebug("L1GTEvmDigiToRaw")
-    << "\nInput tag for DAQ GT record: "
+    << "\nInput tag for EVM GT record: "
     << m_evmGtInputTag.label() << " \n"
     << std::endl;
 
@@ -101,10 +112,21 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
     edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtReadoutRecord;
     iEvent.getByLabel(m_evmGtInputTag.label(), gtReadoutRecord);
 
+    if ( edm::isDebugEnabled() ) {
+        std::ostringstream myCoutStream;
+        gtReadoutRecord->print(myCoutStream);
+        LogTrace("L1GTEvmDigiToRaw")
+        << "\n The following L1 GT EVM readout record will be packed.\n"
+        << " Some boards could be disabled before packing,"
+        << " see detailed board packing.\n"
+        << myCoutStream.str() << "\n"
+        << std::endl;
+    }
+
     //
     L1GlobalTriggerReadoutSetup tmpGtSetup; // TODO FIXME temporary event setup
     std::map<int, L1GlobalTriggerReadoutSetup::GtBoard> recordMap =
-        tmpGtSetup.GtDaqRecordMap;
+        tmpGtSetup.GtEvmRecordMap;
 
     typedef std::map<int, L1GlobalTriggerReadoutSetup::GtBoard>::const_iterator CItRecord;
 
@@ -254,7 +276,7 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
     // ptrGt: pointer to the beginning of GT record in the raw data
 
     // TODO FIXME what number for EVM record?
-    FEDRawData& gtRawData = allFedRawData->FEDData(FEDNumbering::getTriggerGTPFEDIds().first);
+    FEDRawData& gtRawData = allFedRawData->FEDData(m_evmGtFedId);
     // resize, GT raw data record has variable length,
     // depending on active boards (read in GTFE)
     gtRawData.resize(gtDataSize);
@@ -280,6 +302,16 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
 
         if (itRecord->first == gtfeKey) {
             packGTFE(evSetup, ptrGt, gtfeBlock, activeBoardsGt);
+
+            if ( edm::isDebugEnabled() ) {
+
+                std::ostringstream myCoutStream;
+                gtfeBlock.print(myCoutStream);
+                LogTrace("L1GTDigiToRaw")
+                << myCoutStream.str() << "\n"
+                << std::endl;
+            }
+
             ptrGt += gtfeBlock.getSize(); // advance with GTFE block size
 
             continue;
@@ -333,6 +365,16 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
                             ++iBxInEvent) {
                         L1GtFdlWord fdlBlock = gtReadoutRecord->gtFdlWord(iBxInEvent);
                         packFDL(evSetup, ptrGt, fdlBlock);
+
+                        if ( edm::isDebugEnabled() ) {
+
+                            std::ostringstream myCoutStream;
+                            fdlBlock.print(myCoutStream);
+                            LogTrace("L1GTDigiToRaw")
+                            << myCoutStream.str() << "\n"
+                            << std::endl;
+                        }
+
                         ptrGt += fdlBlock.getSize(); // advance with FDL block size
                     }
 
@@ -372,7 +414,7 @@ void L1GTEvmDigiToRaw::packHeader(unsigned char* ptrGt)
     int bxIdVal = 0;
 
     // Identifier of the FED
-    int sourceIdVal = FEDNumbering::getTriggerGTPFEDIds().first;
+    int sourceIdVal = m_evmGtFedId;
 
     // Version identifier of the FED data format
     int versionVal = 0;

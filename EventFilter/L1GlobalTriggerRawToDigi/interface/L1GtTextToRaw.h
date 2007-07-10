@@ -75,7 +75,7 @@ private:
     int m_rawDataSize;
 
     /// FED ID for the system
-    int m_fedId;
+    int m_daqGtFedId;
 
     /// the file itself
     std::ifstream m_textFile;

@@ -71,6 +71,7 @@ L1GlobalTriggerRawToDigi::L1GlobalTriggerRawToDigi(const edm::ParameterSet& pSet
 
     // FED Id for GT DAQ record
     // default value defined in DataFormats/FEDRawData/src/FEDNumbering.cc
+    // default value: assume the DAQ record is the last GT record 
     m_daqGtFedId = pSet.getUntrackedParameter<int>(
                        "DaqGtFedId", FEDNumbering::getTriggerGTPFEDIds().second);
 
