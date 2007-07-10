@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.20 $
+ * \version $Revision: 1.21 $
  */
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -83,14 +83,15 @@ namespace edm {
 
     typedef typename transient_vector_type::const_iterator const_iterator;
 
-    const_iterator begin() const { fixup(); return transientVector_.begin(); } 
-    const_iterator end() const { fixup(); return transientVector_.end(); } 
+    const_iterator begin() const { return transientVector().begin(); } 
+    const_iterator end() const { return transientVector().end(); } 
 
   private:
     CVal data_;
     KeyRefProd ref_;
     mutable transient_vector_type transientVector_;
     mutable bool fixed_;
+    const transient_vector_type & transientVector() const { fixup(); return transientVector_; }
     void fixup() const { 
       if (!fixed_) {
 	fixed_ = true;
@@ -121,8 +122,7 @@ namespace edm {
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceTrait>
   inline typename AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceTrait>::const_reference 
   AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceTrait>::operator[](size_type n) const { 
-    fixup(); 
-    return transientVector_[ n ]; 
+    return transientVector()[ n ]; 
   }
   
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceTrait>
@@ -141,6 +141,7 @@ namespace edm {
   inline typename CVal::value_type &
   AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceTrait>::operator[]( const KeyRef & k ) {
     KeyRef keyRef = KeyReferenceTrait::get( k, ref_.id() );
+    fixed_ = false;
     if ( keyRef.id() == ref_.id() ) 
       return data_[ keyRef.key() ];
     else 
@@ -154,8 +155,7 @@ namespace edm {
   AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceTrait>::operator=(const self & o) {
     data_ = o.data_;
     ref_ = o.ref_;
-    transientVector_ = o.transientVector_;
-    fixed_ = o.fixed_;
+    fixed_ = false;
     return * this;
   }
   
@@ -188,8 +188,8 @@ namespace edm {
 
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceTrait>
   void AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceTrait>::fillView(ProductID const& id,
-								       std::vector<void const*>& pointers, 
-								       helper_vector& helpers) const
+											  std::vector<void const*>& pointers, 
+											  helper_vector& helpers) const
   {
     detail::reallyFillView(*this, id, pointers, helpers);
 //     pointers.reserve(this->size());
