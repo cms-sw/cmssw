@@ -14,7 +14,7 @@ class CrystalNeighbour
   ~CrystalNeighbour(){;};
   /// Number of the crystal. This has nothing to do with the UniqueID
   inline unsigned number() const {return number_;};
-  /// get the status 0 : gap; 1: crack ; -1 : does not exist ; -2 not calculatated yet
+  /// get the status 0 : gap; 1: crack ; -1 : does not exist ; -2 not calculated yet
   inline int status() const { return status_;};
   /// set the status
   inline void setStatus(int status) { status_=status;};
