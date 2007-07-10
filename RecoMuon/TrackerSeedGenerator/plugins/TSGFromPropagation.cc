@@ -2,8 +2,8 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2007/05/24 20:54:08 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/06/04 14:22:48 $
+ *  $Revision: 1.5 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -61,7 +61,7 @@ std::vector<TrajectorySeed> TSGFromPropagation::trackerSeeds(const TrackCand& st
   LogTrace(category) << " staState pos: "<<staState.globalPosition()
                      << " mom: "<<staState.globalMomentum() <<"eta: "<<staState.globalPosition().eta();
 
-  float err = 100;
+  float err = 10;
   staState.rescaleError(err);
 
   std::vector<const DetLayer*> nls = theNavigation->compatibleLayers(*(staState.freeState()), oppositeToMomentum);
@@ -131,17 +131,18 @@ for (std::vector<TkStripMeasurementDet*>::const_iterator isd = stripdets.begin()
 
   err *= 10;
 
-  if ( alltm.empty() ) staState.rescaleError(err);
-
-  alltm = findMeasurements(nls.front(), staState);
-  LogTrace(category) << " allmeas first rescale: "<<alltm.size();
+  if ( alltm.empty() ) {
+     staState.rescaleError(err);
+     alltm = findMeasurements(nls.front(), staState);
+     LogTrace(category) << " allmeas first rescale: "<<alltm.size();
+  }
 
   std::vector<const DetLayer*>::iterator inl;
   std::vector<const DetLayer*>::iterator usednl;
 
   int iUsedLayer = 0; 
 
-  while ( ( iUsedLayer < 3 ) && ( inl != nls.end() - 1) )  { 
+  while ( ( iUsedLayer < 2 ) && ( inl != nls.end() - 1) )  { 
 
      usednl = nls.begin();
      nls.erase(usednl);
@@ -194,7 +195,14 @@ for (std::vector<TkStripMeasurementDet*>::const_iterator isd = stripdets.begin()
 
 void TSGFromPropagation::init(const MuonServiceProxy* service) {
 
+  theMaxSeeds = theConfig.getUntrackedParameter<int>("MaxSeeds", 4);
+
   theMaxChi2 = theConfig.getParameter<double>("MaxChi2");
+
+  theErrorReset = theConfig.getUntrackedParameter<double>("ErrorReset", 100.0);
+
+  theVtxFlag = theConfig.getUntrackedParameter<bool>("ApplyVertexConstraint",  true);
+
   theEstimator = new Chi2MeasurementEstimator(theMaxChi2);
 
   theUpdator= new KFUpdator();
@@ -271,29 +279,42 @@ TrajectoryStateOnSurface TSGFromPropagation::innerState(const TrackCand& staMuon
 TrajectoryStateOnSurface TSGFromPropagation::outerTkState(const TrackCand& staMuon) const {
 
   const string category = "Muon|RecoMuon|TSGFromPropagation";
-  MuonPatternRecoDumper debug;
+
+  TrajectoryStateOnSurface result;
+
+  if ( theVtxFlag ) {
+
+    MuonPatternRecoDumper debug;
  
-  // build the transient track
-  reco::TransientTrack transientTrack(staMuon.second,
-				      &*theService->magneticField(),
+    // build the transient track
+    reco::TransientTrack transientTrack(staMuon.second,
+  				      &*theService->magneticField(),
 				      theService->trackingGeometry());
 
-  LogTrace(category) << "Apply the vertex constraint";
-  pair<bool,FreeTrajectoryState> updateResult = theVtxUpdator->update(transientTrack);
+    LogTrace(category) << "Apply the vertex constraint";
+    pair<bool,FreeTrajectoryState> updateResult = theVtxUpdator->update(transientTrack);
 
-  if(!updateResult.first){
-    LogTrace(category) << "vertex constraint failed ";
-    return TrajectoryStateOnSurface(); //FIXME
+    if(!updateResult.first){
+      LogTrace(category) << "vertex constraint failed ";
+      return result; //FIXME
+    }
+
+    LogTrace(category) << "FTS after the vertex constraint";
+    FreeTrajectoryState &ftsAtVtx = updateResult.second;
+
+    LogTrace(category) << debug.dumpFTS(ftsAtVtx);
+
+    StateOnTrackerBound fromInside(&*theService->propagator("PropagatorWithMaterial"));
+
+    result = fromInside(ftsAtVtx);
+  } else {
+
+    LogTrace(category) << "propagate from muon state directly";
+
+    StateOnTrackerBound fromOutside(&*theService->propagator("SteppingHelixPropagatorAny"));
+    result = fromOutside(innerState(staMuon));
+
   }
-
-  LogTrace(category) << "FTS after the vertex constraint";
-  FreeTrajectoryState &ftsAtVtx = updateResult.second;
-
-  LogTrace(category) << debug.dumpFTS(ftsAtVtx);
-
-  StateOnTrackerBound fromInside(&*theService->propagator("PropagatorWithMaterial"));
-
-  TrajectoryStateOnSurface result = fromInside(ftsAtVtx);
 
   return result;
 
@@ -395,9 +416,9 @@ void TSGFromPropagation::selectMeasurements(std::vector<TrajectoryMeasurement>& 
   tms.clear();
   tms.swap(result);
 
-  if (tms.size() > 5 ) {
+  if (tms.size() > theMaxSeeds ) {
     std::stable_sort(tms.begin(),tms.end(),IncreasingEstimate());
-    tms.erase(tms.begin()+5, tms.end());
+    tms.erase(tms.begin()+theMaxSeeds, tms.end());
    }
 
   return;
@@ -512,8 +533,8 @@ void TSGFromPropagation::resetError(TrajectoryStateOnSurface& tsos) const {
    matrix(0,0) = 0.01; //charge/momentum
    matrix(1,1) = 0.02; //lambda
    matrix(2,2) = 0.05; // phi
-   matrix(3,3) = 100.0; //x
-   matrix(4,4) = 100.0; //y
+   matrix(3,3) = theErrorReset; //x
+   matrix(4,4) = theErrorReset; //y
 
    CurvilinearTrajectoryError error(matrix);
  
