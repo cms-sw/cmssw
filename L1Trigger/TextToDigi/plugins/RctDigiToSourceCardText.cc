@@ -11,7 +11,7 @@ Description: Input RCT digis and output GCT text file to be loaded into the sour
 //
 // Original Author:  Alex Tapper
 //         Created:  Fri Feb 16 14:52:19 CET 2007
-// $Id: RctDigiToSourceCardText.cc,v 1.3 2007/03/29 10:11:55 tapper Exp $
+// $Id: RctDigiToSourceCardText.cc,v 1.1 2007/04/19 22:27:20 tapper Exp $
 //
 //
 
@@ -109,7 +109,7 @@ void RctDigiToSourceCardText::analyze(const edm::Event& iEvent, const edm::Event
 
   // Fill regions
   for (L1CaloRegionCollection::const_iterator irgn=rgn->begin(); irgn!=rgn->end(); irgn++){
-    if (irgn->id().isForward()){
+    if (irgn->id().isHf()){
       HF[irgn->rctCrate()][irgn->id().rctEta()-7][irgn->id().rctPhi()]=irgn->et();
       HFQ[irgn->rctCrate()][irgn->id().rctEta()-7][irgn->id().rctPhi()]=irgn->fineGrain();	
       // Debug info

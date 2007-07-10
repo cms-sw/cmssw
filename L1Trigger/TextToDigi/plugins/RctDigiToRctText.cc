@@ -112,7 +112,7 @@ RctDigiToRctText::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     int rgnidx= irgn->rctRegionIndex();
 
     dstrm.str("");
-    if (!irgn->id().isForward()){
+    if (!irgn->id().isHf()){
       RC     [crate][card][rgnidx]=irgn->et();
       RCof   [crate][card][rgnidx]=irgn->overFlow();
       RCtau  [crate][card][rgnidx]=irgn->tauVeto();

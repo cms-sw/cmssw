@@ -11,7 +11,7 @@ Description: Input text file to be loaded into the source cards and output RCT d
 //
 // Original Author:  Alex Tapper
 //         Created:  Fri Mar  9 19:11:51 CET 2007
-// $Id: SourceCardTextToRctDigi.cc,v 1.1 2007/04/19 22:27:20 tapper Exp $
+// $Id: SourceCardTextToRctDigi.cc,v 1.2 2007/05/09 11:21:17 tapper Exp $
 //
 //
 
@@ -205,7 +205,7 @@ void SourceCardTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup&
   }
   
   for (L1CaloRegionCollection::const_iterator irgn=rgn->begin(); irgn!=rgn->end(); irgn++){
-    if (irgn->id().isForward()){
+    if (irgn->id().isHf()){
       LogDebug("HFRegions") << "Et=" << irgn->et()
                             << " FineGrain=" << irgn->fineGrain()
                             << " Eta=" << irgn->id().rctEta()
