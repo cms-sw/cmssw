@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.43 2007/06/21 16:41:34 futyand Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.45 2007/06/30 00:10:34 charlot Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
@@ -274,23 +274,24 @@ bool PixelMatchElectronAlgo::preSelection(const SuperCluster& clus, const Global
 {
 
   LogDebug("")<< "========== preSelection ==========";
-  LogDebug("") << "E/p : " << clus.energy()/tsosVtxMom.mag();
-
-  // no preselection for high pT electrons
-  double rt2 = clus.x()*clus.x() + clus.y()*clus.y();
-  double r2 = rt2 + clus.z()*clus.z();
-  if (highPtPreselection_ && clus.energy()*sqrt(rt2/r2) > highPtMin_) return true;
 
   // pt min
+  LogDebug("") << "pT : " << tsosVtxMom.perp();
   if (tsosVtxMom.perp() < ptCut_)   return false;
 
   // E/p cut
+  LogDebug("") << "E/p : " << clus.energy()/tsosVtxMom.mag();
   std::vector<DetId> vecId=clus.getHitsByDetId();
-  int subdet =vecId[0].subdetId();  //FIXME: is the first one really the biggest??
-  if ((subdet==EcalBarrel) && (clus.energy()/tsosVtxMom.mag() > maxEOverPBarrel_)) return false;
-  if ((subdet==EcalEndcap) && (clus.energy()/tsosVtxMom.mag() > maxEOverPEndcaps_)) return false;
-  if ((subdet==EcalBarrel) && (clus.energy()/tsosVtxMom.mag() < minEOverPBarrel_)) return false;
-  if ((subdet==EcalEndcap) && (clus.energy()/tsosVtxMom.mag() < minEOverPEndcaps_)) return false;
+  int subdet =vecId[0].subdetId();  
+  double rt2 = clus.x()*clus.x() + clus.y()*clus.y();
+  double r2 = rt2 + clus.z()*clus.z();
+  // no E/p preselection for high pT electrons
+  if (!highPtPreselection_ || clus.energy()*sqrt(rt2/r2) <= highPtMin_) {
+    if ((subdet==EcalBarrel) && (clus.energy()/tsosVtxMom.mag() > maxEOverPBarrel_)) return false;
+    if ((subdet==EcalEndcap) && (clus.energy()/tsosVtxMom.mag() > maxEOverPEndcaps_)) return false;
+    if ((subdet==EcalBarrel) && (clus.energy()/tsosVtxMom.mag() < minEOverPBarrel_)) return false;
+    if ((subdet==EcalEndcap) && (clus.energy()/tsosVtxMom.mag() < minEOverPEndcaps_)) return false;
+  }
   LogDebug("") << "E/p criteria is satisfied ";
 
   // delta eta criteria

@@ -51,12 +51,12 @@ public:
 
  private:
 
-  // create electrons from tracks
+  // create electrons from superclusters, tracks and Hcal rechits
   void process(edm::Handle<reco::GsfTrackCollection> tracksH, const reco::SeedSuperClusterAssociationCollection *sclAss, const reco::GsfTrackSeedAssociationCollection *tsAss,
    HBHERecHitMetaCollection *mhbhe, reco::PixelMatchGsfElectronCollection & outEle);
+  
   // preselection method
-  //  bool preSelection(const reco::SuperCluster& clus, const reco::GsfTrack& track,double HoE);
- bool preSelection(const reco::SuperCluster& clus, const GlobalVector&, const GlobalPoint&,double HoE);
+  bool preSelection(const reco::SuperCluster& clus, const GlobalVector&, const GlobalPoint&,double HoE);
   
 
   //Gsf mode calculations
@@ -71,8 +71,8 @@ public:
   double maxEOverPBarrel_;   
   double maxEOverPEndcaps_;   
   // minimum E/p where E is the supercluster corrected energy and p the track momentum at innermost state  
-   double minEOverPBarrel_;   
-   double minEOverPEndcaps_;     
+  double minEOverPBarrel_;   
+  double minEOverPEndcaps_;     
   // cone size for H/E
   double hOverEConeSize_; 
   // maximum H/E where H is the Hcal energy inside the cone centered on the seed cluster eta-phi position 
@@ -83,9 +83,10 @@ public:
   // position to the supercluster
   double maxDeltaPhi_;
 
+  // min pT
   double ptCut_;
   
-  // high pt preselection
+  // high pt preselection parameters
   bool highPtPreselection_;
   double highPtMin_;
  
