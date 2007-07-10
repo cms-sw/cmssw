@@ -128,21 +128,21 @@ Bounds* NavVolume6Faces::computeBounds( int index,
       corners.push_back(corner);
 
 #ifdef DEBUG
-      cout << "Crossing of planes is " << corner << endl;
-      cout << "NormalVectors of the planes are " << plane->normalVector()
-	   << " " << crossed[i]->normalVector() << " " << crossed[j]->normalVector() << endl;
-      cout << "Positions of planes are " << plane->position()
-	   << " " << crossed[i]->position() << " " << crossed[j]->position() << endl;
+      std::cout << "Crossing of planes is " << corner << std::endl;
+      std::cout << "NormalVectors of the planes are " << plane->normalVector()
+	   << " " << crossed[i]->normalVector() << " " << crossed[j]->normalVector() << std::endl;
+      std::cout << "Positions of planes are " << plane->position()
+	   << " " << crossed[i]->position() << " " << crossed[j]->position() << std::endl;
       if (plane->side( corner, 1.e-5) == SurfaceOrientation::onSurface &&
 	  crossed[i]->side( corner, 1.e-5) == SurfaceOrientation::onSurface &&
 	  crossed[j]->side( corner, 1.e-5) == SurfaceOrientation::onSurface) {
-	  cout << "Crossing is really on all three surfaces" << endl;
+	  std::cout << "Crossing is really on all three surfaces" << std::endl;
       }
       else {
-	  cout << "CROSSING IS NOT ON SURFACES!!!" << endl;
-	  cout << plane->localZ(corner) << endl;
-	  cout << crossed[i]->localZ(corner) << endl;
-	  cout << crossed[j]->localZ(corner) << endl;
+	  std::cout << "CROSSING IS NOT ON SURFACES!!!" << std::endl;
+	  std::cout << plane->localZ(corner) << std::endl;
+	  std::cout << crossed[i]->localZ(corner) << std::endl;
+	  std::cout << crossed[j]->localZ(corner) << std::endl;
        }
 #endif
 
@@ -333,8 +333,8 @@ NavVolume6Faces::nextSurface( const NavVolume::LocalPoint& pos,
 	if (crossed.first) {
 
 #ifdef DEBUG
-	    cout << "Plane crossed at global point " << crossed.second
-		 << " local point " << plane.toLocal( Plane::GlobalPoint(crossed.second)) << endl;
+	    std::cout << "Plane crossed at global point " << crossed.second
+		 << " local point " << plane.toLocal( Plane::GlobalPoint(crossed.second)) << std::endl;
 #endif
 
 	    if ( i->second->inside( plane.toLocal( Plane::GlobalPoint(crossed.second)))) {
