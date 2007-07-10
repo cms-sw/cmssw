@@ -45,6 +45,7 @@ class SiPixelSCurveCalibrationAnalysis : public edm::EDAnalyzer
     std::string makeRocName(const int&, const int&, const DetId&, const int&);
     std::string makeRocTitle(const int&, const int&, const DetId&, const int&);
     void makeHistogram(const SCurveContainer&, const int&, const int&);
+    bool isPeculiar(const TF1*);
 
   private:
     edm::ParameterSet conf_; 
@@ -54,7 +55,8 @@ class SiPixelSCurveCalibrationAnalysis : public edm::EDAnalyzer
     std::string inputcalibfile_;
     std::string outputtxtfile_;
     unsigned int fedid_; 
-    unsigned int histoNum_; 
+    unsigned int histoNum_;
+    bool printHistos_; 
     PixelCalib* calib_;
     unsigned int vcalmin_;
     unsigned int vcalmax_;

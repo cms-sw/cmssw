@@ -36,7 +36,8 @@ SiPixelSCurveCalibrationAnalysis::SiPixelSCurveCalibrationAnalysis(const edm::Pa
   inputcalibfile_(conf.getParameter<std::string>("inputCalibFile")),
   outputtxtfile_(conf.getParameter<std::string>("OutputTxtFile")),
   fedid_(conf.getUntrackedParameter<unsigned int>("fedid", 33)),
-  histoNum_(0)
+  histoNum_(0),
+  printHistos_(conf.getParameter<bool>("PrintPixelHistos"))
   {
     calib_ = new PixelCalib(inputcalibfile_);
     vcalmin_ = calib_->vcal_first();
@@ -44,7 +45,6 @@ SiPixelSCurveCalibrationAnalysis::SiPixelSCurveCalibrationAnalysis(const edm::Pa
     vcalstep_ = calib_->vcal_step();
     ntriggers_ = calib_->nTriggersPerPattern();
     fitfunc_ = new TF1("fit", "0.5*[0]*(1+TMath::Erf((x-[1])/([2]*sqrt(2))))", vcalmin_, vcalmax_);
-    fitfunc_->SetParameters(1.0, 15.0, 0.2);
     meanhistos_ = new TObjArray();
     sigmahistos_ = new TObjArray();
   }
@@ -126,7 +126,7 @@ void SiPixelSCurveCalibrationAnalysis::endJob()
         TH1F* tempmean = (TH1F*)meanhistos_->FindObject(meanname.c_str());
         if(!tempmean)
         {
-          std::string meantitle = "Mean for " + makeRocName(j, k, holder, cable.roc);
+          std::string meantitle = "Mean for " + makeRocTitle(j, k, holder, cable.roc);
           tempmean = fs_->make<TH1F>(meanname.c_str(), meantitle.c_str(), vcalmax_*10, vcalmin_, vcalmax_);
           meanhistos_->Add(tempmean);
         }
@@ -140,8 +140,10 @@ void SiPixelSCurveCalibrationAnalysis::endJob()
           sigmahistos_->Add(tempsigma);
         }
         makeHistogram(siter->second, j, k);
-        tempmean->Fill(fitfunc_->GetParameter(1));
-        tempsigma->Fill(fitfunc_->GetParameter(2));
+        
+          tempmean->Fill(fitfunc_->GetParameter(1));
+          tempsigma->Fill(fitfunc_->GetParameter(2));
+        
         if(i % 1000 == 0)
           LogInfo("SCurve Calibration") << "Making histogram " << i << " out of " << histoNum_;
         ++i;
@@ -158,14 +160,18 @@ void SiPixelSCurveCalibrationAnalysis::endJob()
   {
     TH1F* tempmean = ((TH1F*)(*meanhistos_)[j]);
     TH1F* tempsigma = ((TH1F*)(*sigmahistos_)[j]);
-    tempmean->Fit("gaus", "Q0");
-    tempsigma->Fit("gaus", "Q0");
+    TF1* meanfit = new TF1("meanfit", "gaus", vcalmin_, vcalmax_);
+    TF1* sigmafit = new TF1("sigmafit", "gaus", 0, 1);
+    meanfit->SetParameter(1, 15.0);
+    sigmafit->SetParameter(1, 0.2);
+    tempmean->Fit("meanfit", "RQ0");
+    tempsigma->Fit("sigmafit", "RQ0");
     std::string rocid(tempmean->GetTitle());
     rocid.erase(0, 9);
-    double meanmean = tempmean->GetFunction("gaus")->GetParameter(0);
-    double meansigma = tempmean->GetFunction("gaus")->GetParameter(1);
-    double sigmamean = tempsigma->GetFunction("gaus")->GetParameter(0);
-    double sigmasigma = tempsigma->GetFunction("gaus")->GetParameter(1);
+    double meanmean = meanfit->GetParameter(1);
+    double meansigma = meanfit->GetParameter(2);
+    double sigmamean = sigmafit->GetParameter(1);
+    double sigmasigma = sigmafit->GetParameter(2);
     out << rocid << "     " << meanmean << "(" << meansigma << ")     "
         << sigmamean << "(" << sigmasigma << ")" << std::endl; 
   }
@@ -259,7 +265,20 @@ void SiPixelSCurveCalibrationAnalysis::makeHistogram(const SCurveContainer& sc, 
   } 
   fitfunc_->SetParameters(1.0, 15.0, 0.2);
   histo->Fit("fit", "RQ0");
-  //histo->Write();
+  if(printHistos_)
+  {
+    fs_->mkdir("pixels");
+    histo->Write();
+  }
   delete histo;
+}
+
+bool SiPixelSCurveCalibrationAnalysis::isPeculiar(const TF1* function)
+{
+  int plateau = function->GetParameter(0);
+  int mean = function->GetParameter(1);
+  int sigma = function->GetParameter(2);
+
+  return (plateau < 0.9 || mean >= vcalmax_ || mean <= vcalmin_ || sigma < 0.0);
 }
 
