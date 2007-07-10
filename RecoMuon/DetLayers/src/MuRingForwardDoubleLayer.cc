@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/03/07 13:20:54 $
- *  $Revision: 1.18 $
+ *  $Date: 2007/06/14 23:42:39 $
+ *  $Revision: 1.1 $
  *  \author Rick Wilkinson
  */
 
@@ -63,8 +63,12 @@ BoundDisk * MuRingForwardDoubleLayer::computeSurface()
 
   float rmin = min( frontDisk.innerRadius(), backDisk.innerRadius() );
   float rmax = max( frontDisk.outerRadius(), backDisk.outerRadius() );
-  float zmin = frontDisk.position().z() - frontDisk.bounds().thickness()/2.;
-  float zmax = backDisk.position().z() + backDisk.bounds().thickness()/2.;
+  float zmin = frontDisk.position().z();
+  float halfThickness = frontDisk.bounds().thickness()/2.;
+  zmin = (zmin > 0) ? zmin-halfThickness : zmin+halfThickness;
+  float zmax = backDisk.position().z();
+  halfThickness = backDisk.bounds().thickness()/2.;
+  zmax = (zmax > 0) ? zmax+halfThickness : zmax-halfThickness;
   float zPos = (zmax+zmin)/2.;
   PositionType pos(0.,0.,zPos);
   RotationType rot;
