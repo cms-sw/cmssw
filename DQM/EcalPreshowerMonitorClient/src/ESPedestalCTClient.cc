@@ -78,11 +78,11 @@ void ESPedestalCTClient::setup() {
     sprintf(hist, "ES QT PedestalCT Mean");
     meMean_ = dbe_->book1D(hist, hist, 5000, -0.5, 4999.5);
     sprintf(hist, "ES QT PedestalCT RMS");
-    meRMS_ = dbe_->book1D(hist, hist, 100, -0.5, 99.5);
+    meRMS_ = dbe_->book1D(hist, hist, 20, -0.5, 19.5);
     sprintf(hist, "ES QT PedestalCT Fit Mean");
     meFitMean_ = dbe_->book1D(hist, hist, 5000, -0.5, 4999.5);
     sprintf(hist, "ES QT PedestalCT Fit RMS");
-    meFitRMS_ = dbe_->book1D(hist, hist, 100, -0.5, 99.5);
+    meFitRMS_ = dbe_->book1D(hist, hist, 20, -0.5, 19.5);
 
     for (int i=0; i<2; ++i) {
       for (int j=0; j<6; ++j) {
@@ -156,11 +156,12 @@ void ESPedestalCTClient::analyze(const Event& e, const EventSetup& context){
   if ( ! init_ ) this->setup();
 
   int runNum = e.id().run();
-
+  Char_t runNum_s[50];
+      
   if (runNum != run_) { 
 
     if (run_ > 0) {
-      Char_t runNum_s[50];
+
       sprintf(runNum_s, "%08d", run_);
       outputFile_ = htmlDir_+"/"+runNum_s+"/"+outputFileName_+"_"+runNum_s+".root";
       
@@ -174,6 +175,9 @@ void ESPedestalCTClient::analyze(const Event& e, const EventSetup& context){
 
     run_ = runNum; 
     count_ = 0;
+
+    sprintf(runNum_s, "%08d", run_);
+    outputFile_ = htmlDir_+"/"+runNum_s+"/"+outputFileName_+"_"+runNum_s+".root";
   }
 
   count_++;
@@ -222,19 +226,19 @@ void ESPedestalCTClient::doQT() {
 	      if (hPedestal->GetRMS()>10) val = 7;
 	      else if (hPedestal->GetMean()==0) val = 5;
 	      else val = 4;
-	      mePedCol_[i][j]->setBinContent(k*32+n+1, m+1, val) ;       
-	      
+	      mePedCol_[i][j]->setBinContent(abs(n-32-k*32), m+1, val) ;       
+
 	      if (hPedestal->GetMean()!=0) {
 		mePedMeanRMS_[i][j][k][m]->setBinContent(n+1, hPedestal->GetMean());	   
 		mePedMeanRMS_[i][j][k][m]->setBinError(n+1, hPedestal->GetRMS());	   
 		mePedRMS_[i][j][k][m]->setBinContent(n+1, hPedestal->GetRMS());
-		  mePedFitMeanRMS_[i][j][k][m]->setBinContent(n+1, fg->GetParameter(1));	   
-		  mePedFitMeanRMS_[i][j][k][m]->setBinError(n+1, fg->GetParameter(2));	   
-		  mePedFitRMS_[i][j][k][m]->setBinContent(n+1, fg->GetParameter(2));
+		mePedFitMeanRMS_[i][j][k][m]->setBinContent(n+1, fg->GetParameter(1));	   
+		mePedFitMeanRMS_[i][j][k][m]->setBinError(n+1, fg->GetParameter(2));	   
+		mePedFitRMS_[i][j][k][m]->setBinContent(n+1, fg->GetParameter(2));
 	      }
 	      
 	    } else {
-	      mePedCol_[i][j]->setBinContent(k*32+n+1, m+1, 5) ;
+	      mePedCol_[i][j]->setBinContent(abs(n-32-k*32), m+1, 5) ;
 	    }
 	    
 	  }	
@@ -344,9 +348,11 @@ void ESPedestalCTClient::htmlOutput(int run, string htmlDir, string htmlName) {
   gStyle->SetOptStat(111110);
   cPed->Divide(2,1);
   cPed->cd(1);
-  hMean->GetXaxis()->SetNdivisions(5);
+  hMean->GetXaxis()->SetNdivisions(10);
+  hMean->SetLineColor(4);
   hMean->Draw();
   cPed->cd(2);
+  hRMS->SetLineColor(4);
   hRMS->Draw();
   histName = htmlDir+"/Pedestal_Mean_RMS.png";
   cPed->SaveAs(histName.c_str());
@@ -360,9 +366,13 @@ void ESPedestalCTClient::htmlOutput(int run, string htmlDir, string htmlName) {
   gStyle->SetOptStat(111110);
   cPedF->Divide(2,1);
   cPedF->cd(1);
-  hFitMean->GetXaxis()->SetNdivisions(5);
+  hFitMean->GetXaxis()->SetNdivisions(10);
+  //hFitMean->GetXaxis()->SetLimits(0, 1800);
+  hFitMean->SetLineColor(4);
   hFitMean->Draw();
   cPedF->cd(2);
+  hFitRMS->GetXaxis()->SetLimits(0, 20);
+  hFitRMS->SetLineColor(4);
   hFitRMS->Draw();
   histName = htmlDir+"/Pedestal_Fit_Mean_RMS.png";
   cPedF->SaveAs(histName.c_str());
@@ -392,6 +402,6 @@ void ESPedestalCTClient::htmlOutput(int run, string htmlDir, string htmlName) {
   htmlFile.close();
 
   stringstream run_str; run_str << run;
-  system(("/preshower/yannisp1/html/DQM_html_generator "+run_str.str()).c_str());
+  system(("/preshower/yannisp1/html/DQM_html_generator "+run_str.str()+" 1").c_str());
 
 }
