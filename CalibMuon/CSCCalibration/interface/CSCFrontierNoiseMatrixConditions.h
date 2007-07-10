@@ -12,9 +12,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include "CondFormats/CSCObjects/interface/CSCNoiseMatrix.h"
 #include "CondFormats/DataRecord/interface/CSCNoiseMatrixRcd.h"
-#include "CalibMuon/CSCCalibration/interface/CSCFrontierNoiseMatrixMap.h"
 
 class CSCFrontierNoiseMatrixConditions: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
  public:
