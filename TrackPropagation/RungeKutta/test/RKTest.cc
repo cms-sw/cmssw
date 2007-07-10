@@ -29,7 +29,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
-#include "TrackPropagation/RungeKutta/test/RKTestPropagator.h"
+#include "TrackPropagation/RungeKutta/interface/RKTestPropagator.h"
 
 
 using namespace std;
