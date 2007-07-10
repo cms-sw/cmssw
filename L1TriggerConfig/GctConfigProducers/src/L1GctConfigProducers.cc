@@ -3,6 +3,7 @@
 #include "L1TriggerConfig/GctConfigProducers/interface/L1GctConfigProducers.h"
 
 #include "CondFormats/L1TObjects/interface/L1GctJetEtCalibrationFunction.h"
+#include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctJetCalibFunRcd.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
 
@@ -20,17 +21,23 @@
 //
 // constructors and destructor
 //
-L1GctConfigProducers::L1GctConfigProducers(const edm::ParameterSet& iConfig)
+L1GctConfigProducers::L1GctConfigProducers(const edm::ParameterSet& iConfig) :
+  m_CenJetSeed(iConfig.getParameter<unsigned>("JetFinderCentralJetSeed")),
+  m_FwdJetSeed(iConfig.getParameter<unsigned>("JetFinderForwardJetSeed")),
+  m_TauJetSeed(iConfig.getParameter<unsigned>("JetFinderCentralJetSeed")), // no separate tau jet seed yet
+  m_EtaBoundry(7), // not programmable!
+  m_htScaleLSB(iConfig.getParameter<double>("L1CaloHtScaleLsbInGeV")), // get the CalibrationFunction parameters
+  m_threshold (iConfig.getParameter<double>("L1CaloJetZeroSuppressionThresholdInGeV")),
+  m_jetCalibFunc(), m_tauCalibFunc(),
+  m_jetScale(),
+  m_corrFunType(L1GctJetEtCalibrationFunction::POWER_SERIES_CORRECTION)
 {
-   //the following line is needed to tell the framework what
+   //the following lines are needed to tell the framework what
    // data is being produced
-   setWhatProduced(this,dependsOn(&L1GctConfigProducers::doWhenChanged));
+   setWhatProduced(this,&L1GctConfigProducers::produceCalibFun,dependsOn(&L1GctConfigProducers::doWhenChanged));
+   setWhatProduced(this,&L1GctConfigProducers::produceJfParams);
 
    //now do what ever other initialization is needed
-
-   // get the CalibrationFunction parameters from the config file
-   m_htScaleLSB = iConfig.getParameter<double>("L1CaloHtScaleLsbInGeV");
-   m_threshold  = iConfig.getParameter<double>("L1CaloJetZeroSuppressionThresholdInGeV");
 
   // Options for different styles of calbration function from the config file
   std::string CalibStyle = iConfig.getParameter<std::string>("CalibrationStyle");
@@ -88,10 +95,11 @@ L1GctConfigProducers::~L1GctConfigProducers()
 //
 // member functions
 //
+    
 
 // ------------ method called to produce the data  ------------
-L1GctConfigProducers::ReturnType
-L1GctConfigProducers::produce(const L1GctJetCalibFunRcd& iRecord)
+L1GctConfigProducers::CalibFunReturnType
+L1GctConfigProducers::produceCalibFun(const L1GctJetCalibFunRcd& iRecord)
 {
    using namespace edm::es;
    boost::shared_ptr<L1GctJetEtCalibrationFunction> pL1GctJetEtCalibrationFunction =
@@ -106,6 +114,19 @@ L1GctConfigProducers::produce(const L1GctJetCalibFunRcd& iRecord)
    pL1GctJetEtCalibrationFunction->setCorrectionFunctionType(m_corrFunType);
 
    return pL1GctJetEtCalibrationFunction ;
+}
+
+L1GctConfigProducers::JfParamsReturnType
+L1GctConfigProducers::produceJfParams(const L1GctJetFinderParamsRcd&)
+{
+   using namespace edm::es;
+   boost::shared_ptr<L1GctJetFinderParams> pL1GctJetFinderParams =
+     boost::shared_ptr<L1GctJetFinderParams> (new L1GctJetFinderParams(m_CenJetSeed,
+                                                                       m_FwdJetSeed,
+                                                                       m_TauJetSeed,
+                                                                       m_EtaBoundry));
+
+   return pL1GctJetFinderParams ;
 }
 
 /// Add a dependency on the JetEtScale
