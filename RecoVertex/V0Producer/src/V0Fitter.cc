@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.2 2007/07/09 12:58:52 drell Exp $
+// $Id: V0Fitter.cc,v 1.3 2007/07/09 14:48:00 drell Exp $
 //
 //
 
@@ -214,8 +214,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	GlobalVector positiveP(trajPlus->momentum());
 	GlobalVector negativeP(trajMins->momentum());
 	GlobalVector totalP(positiveP + negativeP);
-	double piMassSq = 0.019479101;
-	double protonMassSq = 0.880262585374;
+	double piMassSq = 0.019479835;
+	double protonMassSq = 0.880354402;
 
 	//cleanup stuff we don't need anymore
 	delete trajPlus;
