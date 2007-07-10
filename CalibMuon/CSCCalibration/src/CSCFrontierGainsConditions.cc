@@ -2,22 +2,11 @@
 #include "boost/shared_ptr.hpp"
 #include <fstream>
 
-// user include files
-#include "FWCore/Framework/interface/SourceFactory.h"
-#include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
-
-//FW include files
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
-//CSCObjects
-#include "CondFormats/CSCObjects/interface/CSCobject.h"
 #include "CondFormats/CSCObjects/interface/CSCGains.h"
-#include "CalibMuon/CSCCalibration/interface/CSCFrontierGainsConditions.h"
 #include "CondFormats/DataRecord/interface/CSCGainsRcd.h"
+#include "CalibMuon/CSCCalibration/interface/CSCFrontierGainsConditions.h"
 
-void CSCFrontierGainsMap::prefillGainsMap()
+void CSCFrontierGainsConditions::prefillGains()
 {
   cngains = new CSCGains();
   const CSCDetId& detId = CSCDetId();
@@ -190,7 +179,7 @@ CSCFrontierGainsConditions::CSCFrontierGainsConditions(const edm::ParameterSet& 
 {
   //the following line is needed to tell the framework what
   // data is being produced
-  gains.prefillGainsMap();
+  prefillGains();
   // added by Zhen (changed since 1_2_0)
   setWhatProduced(this,&CSCFrontierGainsConditions::produceGains);
   findingRecord<CSCGainsRcd>();
@@ -203,7 +192,7 @@ CSCFrontierGainsConditions::~CSCFrontierGainsConditions()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-
+  delete cngains;
 }
 
 
@@ -215,12 +204,11 @@ CSCFrontierGainsConditions::~CSCFrontierGainsConditions()
 CSCFrontierGainsConditions::ReturnType
 CSCFrontierGainsConditions::produceGains(const CSCGainsRcd& iRecord)
 {
-    gains.prefillGainsMap();
-    // Added by Zhen, need a new object so to not be deleted at exit
-    CSCGains* mydata=new CSCGains(gains.get());
-    
-       return mydata;
-
+  // Added by Zhen, need a new object so to not be deleted at exit
+  CSCGains* mydata=new CSCGains( *cngains );
+  
+  return mydata;
+  
 }
 
  void CSCFrontierGainsConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,
