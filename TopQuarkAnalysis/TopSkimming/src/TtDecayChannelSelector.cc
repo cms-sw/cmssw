@@ -9,11 +9,13 @@ TtDecayChannelSelector::TtDecayChannelSelector(const edm::ParameterSet& cfg):
   chn1_( cfg.getParameter<std::vector<int> >("channel_1")),
   chn2_( cfg.getParameter<std::vector<int> >("channel_2"))
 {
+  //check for correct size of the input vectors
   if( chn1_.size()!=3 )
     throw edm::Exception( edm::errors::Configuration, "'channel_1' must contain 3 values" );
   if( chn2_.size()!=3 )
     throw edm::Exception( edm::errors::Configuration, "'channel_2' must contain 3 values" );
 
+  //check for correct entries in the input vectors
   Decay::const_iterator leaf1=chn1_.begin(),leaf2=chn2_.begin(); 
   for( ; leaf1!=chn1_.end(), leaf2!=chn2_.end(); ++leaf1, ++leaf2){
     if( !(0<=(*leaf1) && (*leaf1)<=1) )
@@ -22,7 +24,15 @@ TtDecayChannelSelector::TtDecayChannelSelector(const edm::ParameterSet& cfg):
       throw edm::Exception( edm::errors::Configuration, "'channel_2' may only contain values 0 or 1" );
     decay_.push_back( (*leaf1)+(*leaf2) );
   }
+
+  //check for unambigous decay channel selection
+  if( (count(chn1_.begin(), chn1_.end(), 1) == 0) &&
+      (count(chn2_.begin(), chn2_.end(), 1)  > 0) ){
+    throw edm::Exception( edm::errors::Configuration, "found dilepton channel being selected w/o first lepton" );
+  }
+
   channel_=0;
+  //determine decay channel
   if( count(chn1_.begin(), chn1_.end(), 1) > 0 ){ ++channel_; }
   if( count(chn2_.begin(), chn2_.end(), 1) > 0 ){ ++channel_; }
 }
