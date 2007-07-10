@@ -6,6 +6,7 @@
 
 #include <HiggsAnalysis/Skimming/interface/HiggsToXexampleSkim.h>
 #include <HiggsAnalysis/Skimming/interface/HiggsToZZ4LeptonsSkim.h>
+#include <HiggsAnalysis/Skimming/interface/HeavyChHiggsToTauNuSkim.h>
 
 #include <HiggsAnalysis/Skimming/interface/HiggsToWW2LeptonsSkim.h>
 
@@ -14,4 +15,5 @@ DEFINE_ANOTHER_FWK_MODULE(HiggsAnalysisSkimming);
 DEFINE_ANOTHER_FWK_MODULE(HiggsToWW2LeptonsSkim);
 DEFINE_EDM_PLUGIN(HiggsAnalysisSkimmingPluginFactory, HiggsToXexampleSkim, "HiggsToXexampleSkim");
 DEFINE_EDM_PLUGIN(HiggsAnalysisSkimmingPluginFactory, HiggsToZZ4LeptonsSkim, "HiggsToZZ4LeptonsSkim");
+DEFINE_EDM_PLUGIN(HiggsAnalysisSkimmingPluginFactory, HeavyChHiggsToTauNuSkim, "HeavyChHiggsToTauNuSkim");
 

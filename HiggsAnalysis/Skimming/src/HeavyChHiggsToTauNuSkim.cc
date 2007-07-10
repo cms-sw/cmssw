@@ -22,8 +22,13 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
+
 HeavyChHiggsToTauNuSkim::HeavyChHiggsToTauNuSkim(const edm::ParameterSet& iConfig) :
-  nEvents(0), nAccepted(0) {
+  HiggsAnalysisSkimType(iConfig), nEvents(0), nAccepted(0) {
+
+	// Local Debug flag
+	debug           = iConfig.getParameter<bool>("DebugHeavyChHiggsToTauNuSkim");
+
 	jetLabel        = iConfig.getParameter<InputTag>("JetTagCollection");
 	minNumberOfjets = iConfig.getUntrackedParameter<int>("minNumberOfJets",3);
 	jetEtMin        = iConfig.getUntrackedParameter<double>("jetEtMin",20.);
@@ -44,9 +49,10 @@ void HeavyChHiggsToTauNuSkim::endJob() {
 }
 
 // ------------ method called to skim the data  ------------
-bool HeavyChHiggsToTauNuSkim::filter(edm::Event& iEvent, const edm::EventSetup& iSetup){
+bool HeavyChHiggsToTauNuSkim::skim(edm::Event& iEvent, const edm::EventSetup& iSetup, int& trigger){
 
 	nEvents++;
+	trigger = 0;
 
 	Handle<JetTagCollection> jetTagHandle;
 	try{

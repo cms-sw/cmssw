@@ -25,20 +25,25 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include <HiggsAnalysis/Skimming/interface/HiggsAnalysisSkimType.h>
 
 using namespace edm;
 using namespace std;
 
 
-class HeavyChHiggsToTauNuSkim : public edm::EDFilter {
+class HeavyChHiggsToTauNuSkim : public HiggsAnalysisSkimType {
+
     public:
         explicit HeavyChHiggsToTauNuSkim(const edm::ParameterSet&);
-        ~HeavyChHiggsToTauNuSkim();
+        virtual ~HeavyChHiggsToTauNuSkim();
         virtual void endJob() ;
 
-	virtual bool filter(Event&, const EventSetup&);
+  	virtual bool skim(edm::Event&, const edm::EventSetup&, int& trigger);
+
 
    private:
+	bool 		debug;
+
 	InputTag	jetLabel;
         int 		minNumberOfjets;
         double 		jetEtMin;
