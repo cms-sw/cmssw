@@ -9,8 +9,8 @@
 // Created:         Fri Jul  6 13:37:38 UTC 2007
 //
 // $Author: gutsche $
-// $Date: 2007/06/29 23:54:04 $
-// $Revision: 1.39 $
+// $Date: 2007/07/08 20:34:16 $
+// $Revision: 1.1 $
 //
 
 #include "TrackingTools/RoadSearchHitAccess/interface/RoadSearchHitSorting.h"
@@ -171,7 +171,7 @@ bool SortHitTrajectoryPairsByGlobalPosition::InsideOutCompare(const std::pair<Tr
        
   if( ((unsigned int)ida.subdetId() == StripSubdetector::TEC || (unsigned int)ida.subdetId() == StripSubdetector::TID || (unsigned int)ida.subdetId() == PixelSubdetector::PixelEndcap) &&
       ((unsigned int)idb.subdetId() == StripSubdetector::TEC || (unsigned int)idb.subdetId() == StripSubdetector::TID || (unsigned int)idb.subdetId() == PixelSubdetector::PixelEndcap)) {  // fwd with fwd
-    return  static_cast<unsigned int>(HitTM1.first->globalPosition().z() * 1E7) < static_cast<unsigned int>(HitTM2.first->globalPosition().z() * 1E7);
+    return  static_cast<unsigned int>(std::abs(HitTM1.first->globalPosition().z()) * 1E7) < static_cast<unsigned int>(std::abs(HitTM2.first->globalPosition().z()) * 1E7);
   }
        
   //
