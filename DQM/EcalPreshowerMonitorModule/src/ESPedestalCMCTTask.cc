@@ -7,12 +7,12 @@ using namespace edm;
 using namespace std;
 
 ESPedestalCMCTTask::ESPedestalCMCTTask(const ParameterSet& ps) {
-
+  
   label_        = ps.getUntrackedParameter<string>("Label");
   instanceName_ = ps.getUntrackedParameter<string>("InstanceES");
   pedestalFile_ = ps.getUntrackedParameter<string>("PedestalFile");
   sta_          = ps.getUntrackedParameter<bool>("RunStandalone", false);
-
+  
   init_ = false;
 
   ped_ = new TFile(pedestalFile_.c_str());  //Root file with ped histos
@@ -22,14 +22,18 @@ ESPedestalCMCTTask::ESPedestalCMCTTask(const ParameterSet& ps) {
     for (int j=0; j<6; ++j){
       for (int k=0; k<2; ++k){        
 	for (int m=0; m<5; ++m){
-	  meSensorCM_[i][j][k][m]=0;
-	  
+	  meSensorCM_S0_[i][j][k][m]=0;
+	  meSensorCM_S1_[i][j][k][m]=0;
+	  meSensorCM_S2_[i][j][k][m]=0;
+
 	  int zside = (i==0)?1:-1;
 	  sprintf(tmp,"DQMData/ES/QT/PedestalCT/ES Pedestal Fit Mean RMS Z %d P %1d Row %02d Col %02d",zside,j+1,k+1,m+1);
 	  hist_[i][j][k][m] = (TH1F*) ped_->Get(tmp);
 
 	  for (int n=0; n<32; ++n){
-	    mePedestalCM_[i][j][k][m][n] = 0; 
+	    mePedestalCM_S0_[i][j][k][m][n] = 0; 
+	    mePedestalCM_S1_[i][j][k][m][n] = 0; 
+	    mePedestalCM_S2_[i][j][k][m][n] = 0; 
           }
         }
       }
@@ -69,35 +73,62 @@ void ESPedestalCMCTTask::setup(void){
 	for (int k=0; k<2; ++k) {
 	  for (int m=0; m<5; ++m) {
             int zside = (i==0)?1:-1;
-	    sprintf(hist, "ES Sensor CM Z %d P %d Row %02d Col %02d", zside, j+1, k+1, m+1);
-            meSensorCM_[i][j][k][m] = dbe_->book1D(hist, hist, 200, -100, 100);;
+	    sprintf(hist, "ES Sensor CM_S0 Z %d P %d Row %02d Col %02d", zside, j+1, k+1, m+1);
+            meSensorCM_S0_[i][j][k][m] = dbe_->book1D(hist, hist, 200, -100, 100);;
+
+	    sprintf(hist, "ES Sensor CM_S1 Z %d P %d Row %02d Col %02d", zside, j+1, k+1, m+1);
+            meSensorCM_S1_[i][j][k][m] = dbe_->book1D(hist, hist, 200, -100, 100);;
+
+	    sprintf(hist, "ES Sensor CM_S2 Z %d P %d Row %02d Col %02d", zside, j+1, k+1, m+1);
+            meSensorCM_S2_[i][j][k][m] = dbe_->book1D(hist, hist, 200, -100, 100);;
+	    
 	    for (int n=0; n<32; ++n) {
-	      sprintf(hist, "ES Pedestal Z %d P %d Row %02d Col %02d Str %02d", zside, j+1, k+1, m+1, n+1);      
-	      mePedestalCM_[i][j][k][m][n] = dbe_->book1D(hist, hist, 5000, -200, 4800);
+	      sprintf(hist, "ES Pedestal CM_S0 Z %d P %d Row %02d Col %02d Str %02d", zside, j+1, k+1, m+1, n+1);      
+	      mePedestalCM_S0_[i][j][k][m][n] = dbe_->book1D(hist, hist, 5000, -200, 4800);
+	      
+	      sprintf(hist, "ES Pedestal CM_S1 Z %d P %d Row %02d Col %02d Str %02d", zside, j+1, k+1, m+1, n+1);      
+	      mePedestalCM_S1_[i][j][k][m][n] = dbe_->book1D(hist, hist, 5000, -200, 4800);
+	      
+	      sprintf(hist, "ES Pedestal CM_S2 Z %d P %d Row %02d Col %02d Str %02d", zside, j+1, k+1, m+1, n+1);      
+	      mePedestalCM_S2_[i][j][k][m][n] = dbe_->book1D(hist, hist, 5000, -200, 4800);
 	    }
 	  }
 	}
       }
     }
   }
-
+  
 }
 
 void ESPedestalCMCTTask::cleanup(void){
-
+  
   if (sta_) return;
-
+  
   if ( dbe_ ) {
     dbe_->setCurrentFolder("ES/ESPedestalCMCTTask");
     for (int i=0; i<2; ++i) {
       for (int j=0; j<6; ++j) {
 	for (int k=0; k<2; ++k) {
 	  for (int m=0; m<5; ++m) {
-            if ( meSensorCM_[i][j][k][m] ) dbe_->removeElement( meSensorCM_[i][j][k][m]->getName() );
-            meSensorCM_[i][j][k][m] = 0;
+            if ( meSensorCM_S0_[i][j][k][m] ) dbe_->removeElement( meSensorCM_S0_[i][j][k][m]->getName() );
+            meSensorCM_S0_[i][j][k][m] = 0;
+	    
+            if ( meSensorCM_S1_[i][j][k][m] ) dbe_->removeElement( meSensorCM_S1_[i][j][k][m]->getName() );
+            meSensorCM_S1_[i][j][k][m] = 0;
+	    
+            if ( meSensorCM_S2_[i][j][k][m] ) dbe_->removeElement( meSensorCM_S2_[i][j][k][m]->getName() );
+            meSensorCM_S2_[i][j][k][m] = 0;
+	    
+	    
 	    for (int n=0; n<32; ++n) {
-	      if ( mePedestalCM_[i][j][k][m][n] ) dbe_->removeElement( mePedestalCM_[i][j][k][m][n]->getName() );
-	      mePedestalCM_[i][j][k][m][n] = 0;
+	      if ( mePedestalCM_S0_[i][j][k][m][n] ) dbe_->removeElement( mePedestalCM_S0_[i][j][k][m][n]->getName() );
+	      mePedestalCM_S0_[i][j][k][m][n] = 0;
+
+	      if ( mePedestalCM_S1_[i][j][k][m][n] ) dbe_->removeElement( mePedestalCM_S1_[i][j][k][m][n]->getName() );
+	      mePedestalCM_S1_[i][j][k][m][n] = 0;
+
+	      if ( mePedestalCM_S2_[i][j][k][m][n] ) dbe_->removeElement( mePedestalCM_S2_[i][j][k][m][n]->getName() );
+	      mePedestalCM_S2_[i][j][k][m][n] = 0;
 	    }
 	  }
 	}
@@ -209,22 +240,35 @@ void ESPedestalCMCTTask::analyze(const Event& e, const EventSetup& c){
   } 
 
   //Need for storing original data 
-  int data[2][6][2][5][32];
+  int data_S0[2][6][2][5][32];
+  int data_S1[2][6][2][5][32];
+  int data_S2[2][6][2][5][32];
   for (int i=0; i<2; ++i) 
     for (int j=0; j<6; ++j)
       for (int k=0; k<2; ++k)        
 	for (int m=0; m<5; ++m)
-	  for (int n=0; n<32; ++n)
-	    data[i][j][k][m][n] = 0;
+	  for (int n=0; n<32; ++n){
+	    data_S0[i][j][k][m][n] = 0;
+	    data_S1[i][j][k][m][n] = 0;
+	    data_S2[i][j][k][m][n] = 0;
+          }
+
+
 
   //Need for storing data after CM correction 
-  int dataCM[2][6][2][5][32];
+  int dataCM_S0[2][6][2][5][32];
+  int dataCM_S1[2][6][2][5][32];
+  int dataCM_S2[2][6][2][5][32];
   for (int i=0; i<2; ++i) 
     for (int j=0; j<6; ++j)
       for (int k=0; k<2; ++k)        
 	for (int m=0; m<5; ++m)
-	  for (int n=0; n<32; ++n)
-	    dataCM[i][j][k][m][n] = 0;
+	  for (int n=0; n<32; ++n){
+	    dataCM_S0[i][j][k][m][n] = 0;
+	    dataCM_S1[i][j][k][m][n] = 0;
+	    dataCM_S2[i][j][k][m][n] = 0;
+          }
+
 
 
   for (ESDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
@@ -237,8 +281,6 @@ void ESPedestalCMCTTask::analyze(const Event& e, const EventSetup& c){
     int ix    = id.six();
     int iy    = id.siy();
     int strip = id.strip();
-    int mean_strip_pedestal = 0;
-
     
     int j = (ix-1)/2; 
     int i;
@@ -247,21 +289,21 @@ void ESPedestalCMCTTask::analyze(const Event& e, const EventSetup& c){
     if (j>5) j=j-6;    
     int k = (ix-1)%2;
 
+     //printf("zside=%d plane=%d ix=%d iy=%d strip=%d\n",zside,plane,ix,iy,strip);
+     //printf("dataframe0=%d dataframe1=%d dataframe2=%d\n",dataframe.sample(0).adc(),dataframe.sample(1).adc(),dataframe.sample(2).adc());
 
-    for (int i=0; i<dataframe.size(); ++i) {
-      //printf("zside=%d plane=%d ix=%d iy=%d strip=%d dataframe=%d\n",zside,plane,ix,iy,strip,dataframe.sample(i).adc());    
-      mean_strip_pedestal+=dataframe.sample(i).adc();
-    }
-     mean_strip_pedestal=mean_strip_pedestal/3;
-     //printf("i=%d j=%d k=%d iy-1=%d strip-1=%d\n",i,j,k,iy-1,strip-1);
-     //printf("mean_strip_pedestal=%d \n",mean_strip_pedestal);
-     data[i][j][k][iy-1][strip-1]=mean_strip_pedestal;    //storing data per event
+     data_S0[i][j][k][iy-1][strip-1]=dataframe.sample(0).adc();    //storing S0 data
+     data_S1[i][j][k][iy-1][strip-1]=dataframe.sample(1).adc();    //storing S1 data
+     data_S2[i][j][k][iy-1][strip-1]=dataframe.sample(2).adc();    //storing S2 data
+
   }
 
   //TDirectory *d = (TDirectory*)ped_->Get("DQMData/ES/QT/PedestalCT");
   //TH1F *hist;
 
-  float sensor_data[32];
+  float sensor_data_S0[32];
+  float sensor_data_S1[32];
+  float sensor_data_S2[32];
   float com_mode1;
   float com_mode2;
   //char tmp[100];
@@ -271,52 +313,66 @@ void ESPedestalCMCTTask::analyze(const Event& e, const EventSetup& c){
       for (int k=0; k<2; ++k){        
 	for (int m=0; m<5; ++m){
 	  for (int n=0; n<32; ++n){
-	    sensor_data[n]=data[i][j][k][m][n];  //Read sensor data
+	    sensor_data_S0[n]=data_S0[i][j][k][m][n];  //Read sensor data
+	    sensor_data_S1[n]=data_S1[i][j][k][m][n];  //Read sensor data
+	    sensor_data_S2[n]=data_S2[i][j][k][m][n];  //Read sensor data
 	  }
 	  
 	  //printf("******************************************\n"); 
-	  //for(int kk=0; kk<32; ++kk){printf("%6.0f",sensor_data[kk]);}
+	  //for(int kk=0; kk<32; ++kk){printf("%6.0f",sensor_data_S0[kk]);}
 	  //printf("\n");
 	  
-	  //Read pedestals from Ming Here and correct sensor_data
-	  //if(i==1){
-	  //sprintf(tmp,"ES Pedestal Fit Mean RMS Z -1 P %1d Row %02d Col %02d;1",j+1,k+1,m+1);
-	  //}
-	  //if(i==0){
-	  //sprintf(tmp,"ES Pedestal Fit Mean RMS Z 1 P %1d Row %02d Col %02d;1",j+1,k+1,m+1);
-	  //}
-	  
-	  //printf(tmp);
-	  //printf("\n");
-	  //hist =(TH1F*)d->Get(tmp);  //Get histo
 	  if (hist_[i][j][k][m]->GetEntries() == 0) continue;
 	  
 	  for(int kk=0; kk<32; ++kk){
 	    float pedestal=hist_[i][j][k][m]->GetBinContent(kk+1);
 	    //printf("GaussMean=%f\n",pedestal);
 	    
-	    sensor_data[kk]=sensor_data[kk]-pedestal;   //Pedestal subtraction
+	    sensor_data_S0[kk]=sensor_data_S0[kk]-pedestal;   //Pedestal subtraction
+	    sensor_data_S1[kk]=sensor_data_S1[kk]-pedestal;   //Pedestal subtraction
+	    sensor_data_S2[kk]=sensor_data_S2[kk]-pedestal;   //Pedestal subtraction
 	  }
 	  
 	  
-	  //for(int kk=0; kk<32; ++kk){printf("%6.0f",sensor_data[kk]);}
+	  //for(int kk=0; kk<32; ++kk){printf("%6.0f",sensor_data_S0[kk]);}
 	  //printf("\n");
 	  
 	  
 	  // correct for common mode
-	  DoCommonMode(sensor_data, &com_mode1,&com_mode2);  //Common mode calculation
+	  DoCommonMode(sensor_data_S0, &com_mode1,&com_mode2);  //Common mode calculation
 	  //printf("cm1=%f cm2=%f\n",com_mode1,com_mode2);
-	  meSensorCM_[i][j][k][m]->Fill(com_mode1);  //Fill CM histos per sensor
-	  meSensorCM_[i][j][k][m]->Fill(com_mode2);
+	  meSensorCM_S0_[i][j][k][m]->Fill(com_mode1);  //Fill CM histos per sensor
+	  meSensorCM_S0_[i][j][k][m]->Fill(com_mode2);
 	  for(int kk=0; kk<16; ++kk){
-	    sensor_data[kk]    -= com_mode1;  //Common mode correction 0:15
-	    sensor_data[kk+16] -= com_mode2;  //Common mode correction 16:31
+	    sensor_data_S0[kk]    -= com_mode1;  //Common mode correction 0:15
+	    sensor_data_S0[kk+16] -= com_mode2;  //Common mode correction 16:31
 	  }
+
+
+	  DoCommonMode(sensor_data_S1, &com_mode1,&com_mode2);  //Common mode calculation
+	  //printf("cm1=%f cm2=%f\n",com_mode1,com_mode2);
+	  meSensorCM_S1_[i][j][k][m]->Fill(com_mode1);  //Fill CM histos per sensor
+	  meSensorCM_S1_[i][j][k][m]->Fill(com_mode2);
+	  for(int kk=0; kk<16; ++kk){
+	    sensor_data_S1[kk]    -= com_mode1;  //Common mode correction 0:15
+	    sensor_data_S1[kk+16] -= com_mode2;  //Common mode correction 16:31
+	  }
+
+	  DoCommonMode(sensor_data_S2, &com_mode1,&com_mode2);  //Common mode calculation
+	  //printf("cm1=%f cm2=%f\n",com_mode1,com_mode2);
+	  meSensorCM_S2_[i][j][k][m]->Fill(com_mode1);  //Fill CM histos per sensor
+	  meSensorCM_S2_[i][j][k][m]->Fill(com_mode2);
+	  for(int kk=0; kk<16; ++kk){
+	    sensor_data_S2[kk]    -= com_mode1;  //Common mode correction 0:15
+	    sensor_data_S2[kk+16] -= com_mode2;  //Common mode correction 16:31
+	  }
+
 	  
 	  for(int kk=0; kk<32; ++kk){
-	    dataCM[i][j][k][m][kk]=(int)sensor_data[kk];  //Storing corrected data
-	  }
-	  
+	    dataCM_S0[i][j][k][m][kk]=(int)sensor_data_S0[kk];  //Storing corrected data
+	    dataCM_S1[i][j][k][m][kk]=(int)sensor_data_S1[kk];  //Storing corrected data
+	    dataCM_S2[i][j][k][m][kk]=(int)sensor_data_S2[kk];  //Storing corrected data
+	  }	  
 	}
       }
     }
@@ -328,7 +384,9 @@ void ESPedestalCMCTTask::analyze(const Event& e, const EventSetup& c){
       for (int k=0; k<2; ++k){        
 	for (int m=0; m<5; ++m){
 	  for (int n=0; n<32; ++n){
-	    mePedestalCM_[i][j][k][m][n]->Fill(dataCM[i][j][k][m][n]);  //Filling histos with corrected data
+	    mePedestalCM_S0_[i][j][k][m][n]->Fill(dataCM_S0[i][j][k][m][n]);  //Filling histos with corrected data
+	    mePedestalCM_S1_[i][j][k][m][n]->Fill(dataCM_S1[i][j][k][m][n]);  //Filling histos with corrected data
+	    mePedestalCM_S2_[i][j][k][m][n]->Fill(dataCM_S2[i][j][k][m][n]);  //Filling histos with corrected data
 	  }
 	}
       }

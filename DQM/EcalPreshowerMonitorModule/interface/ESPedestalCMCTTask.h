@@ -55,8 +55,13 @@ class ESPedestalCMCTTask: public EDAnalyzer{
 
   DaqMonitorBEInterface* dbe_;
 
-  MonitorElement* mePedestalCM_[2][6][2][5][32];
-  MonitorElement* meSensorCM_[2][6][2][5];
+  MonitorElement* mePedestalCM_S0_[2][6][2][5][32];
+  MonitorElement* mePedestalCM_S1_[2][6][2][5][32];
+  MonitorElement* mePedestalCM_S2_[2][6][2][5][32];
+
+  MonitorElement* meSensorCM_S0_[2][6][2][5];
+  MonitorElement* meSensorCM_S1_[2][6][2][5];
+  MonitorElement* meSensorCM_S2_[2][6][2][5];
 
   TH1F* hist_[2][6][2][5];
 
