@@ -1,15 +1,16 @@
 #ifndef Alignment_SurveyAnalysis_SurveyMisalignmentInput_h
 #define Alignment_SurveyAnalysis_SurveyMisalignmentInput_h
 
-/** \class SurveyInputTrackerFromDB
+/** \class SurveyMisalignmentInput
  *
- *  Class to read ideal tracker from DB.
+ *  Class to misaligned tracker from DB.
  *
- *  $Date: 2007/05/08 22:36:45 $
+ *  $Date: 2007/06/22 17:29:42 $
  *  $Revision: 1.1 $
  *  \author Chung Khim Lae
  */
 // user include files
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"

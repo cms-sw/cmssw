@@ -58,27 +58,29 @@ void SurveyMisalignmentInput::addSurveyInfo(Alignable* ali)
 	SurveyInputTextReader::MapType::const_iterator it;
 	it = uIdMap.find(id);
 	align::ErrorMatrix error;
-	error = ROOT::Math::SMatrixIdentity();
-	
-	//survey error values
-	const std::vector<float>& parameters = (it)->second;
-	//sets the errors for the hierarchy level
-	double* errorData = error.Array();
-	for (int i = 0; i < 21; i++){
-		errorData[i] = parameters[i+6];
-		//std::cout << errorData[i] << std::endl;
-		//std::cout << parameters[i+6] << std::endl;
-	}
 
-	if (ali->alignableObjectId() == AlignableObjectId::AlignableDetUnit){
-		//survey values
-		AlignableSurface aliPosition;
-		aliPosition = getAlignableSurface(ali->geomDetId().rawId());
-		//fill
-		ali->setSurvey( new SurveyDet(aliPosition, error*(1e-6)) );
+	if (it != uIdMap.end()){
+		//survey error values
+		const std::vector<float>& parameters = (it)->second;
+		//sets the errors for the hierarchy level
+		double* errorData = error.Array();
+		for (int i = 0; i < 21; i++){errorData[i] = parameters[i+6];}
+		
+		//because record only needs global value of modules
+		if (ali->alignableObjectId() == AlignableObjectId::AlignableDetUnit){
+			//survey values
+			AlignableSurface aliPosition;
+			aliPosition = getAlignableSurface(ali->geomDetId().rawId());
+			//fill
+			ali->setSurvey( new SurveyDet(aliPosition, error) );
+		}
+		else{
+			ali->setSurvey( new SurveyDet(ali->surface(), error) );
+		}
 	}
 	else{
 		//fill
+		error = ROOT::Math::SMatrixIdentity();
 		ali->setSurvey( new SurveyDet(ali->surface(), error*(1e-6)) );
 	}
 	//std::cout << "UniqueId: " << id.first << ", " << id.second << std::endl;
