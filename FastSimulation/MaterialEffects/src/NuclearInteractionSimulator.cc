@@ -303,8 +303,10 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
 	  unsigned lastTrack = anInteraction.last;
 	  //      std::cerr << "First and last tracks are " << firstTrack << " " << lastTrack << std::endl;
 	  
+	  _theUpdatedState.resize(lastTrack-firstTrack+1);
 	  for ( unsigned iTrack=firstTrack; iTrack<=lastTrack; ++iTrack ) {
 	    
+	    unsigned idaugh = iTrack - firstTrack;
 	    NUEvent::NUParticle aParticle = theNUEvents[file]->theNUParticles()[iTrack];
 	    //	std::cerr << "Track " << iTrack 
 	    //		  << " id/px/py/pz/mass "
@@ -314,25 +316,21 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
 	    //		  << aParticle.pz << " " 
 	    //		  << aParticle.mass << " " << endl; 
 	    
-	    // Create a RawParticle with the proper energy in the c.m frame of 
+	    // Add a RawParticle with the proper energy in the c.m frame of 
 	    // the nuclear interaction
 	    double energy = std::sqrt( aParticle.px*aParticle.px
 				     + aParticle.py*aParticle.py
 				     + aParticle.pz*aParticle.pz
 				     + aParticle.mass*aParticle.mass/(ecm*ecm) );
-	    RawParticle * myPart 
-	      = new  RawParticle (aParticle.id,
-				  XYZTLorentzVector(aParticle.px,aParticle.py,
-						    aParticle.pz,energy)*ecm);
-	    
+	    _theUpdatedState[idaugh].SetXYZT(aParticle.px*ecm,aParticle.py*ecm,
+					     aParticle.pz*ecm,energy*ecm);	    
+	    _theUpdatedState[idaugh].setID(aParticle.id);
+
 	    // Rotate around the boost axis
-	    myPart->rotate(axisRotation);
+	    _theUpdatedState[idaugh].rotate(axisRotation);
 	    
 	    // Boost it in the lab frame
-	    myPart->boost(axisBoost);
-	    
-	    // Update the daughter list
-	    _theUpdatedState.push_back(myPart);
+	    _theUpdatedState[idaugh].boost(axisBoost);
 	    
 	  }
 	  

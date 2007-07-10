@@ -411,17 +411,17 @@ TrajectoryManager::updateWithDaughters(ParticlePropagator& PP, int fsimi) {
   if ( !myDecayEngine ) return;
 
   // Invoke PYDECY to decay the particle and get the daughters
-  DaughterParticleList daughters = myDecayEngine->particleDaughters(PP);
+  const DaughterParticleList& daughters = myDecayEngine->particleDaughters(PP);
   
   // Update the FSimEvent with an end vertex and with the daughters
   if ( daughters.size() ) { 
     DaughterParticleIterator daughter = daughters.begin();
     
-    int ivertex = mySimEvent->addSimVertex((*daughter)->vertex(),fsimi);
+    int ivertex = mySimEvent->addSimVertex(daughter->vertex(),fsimi);
 
     if ( ivertex != -1 ) {
-      for ( ; daughter != daughters.end(); ++daughter) 
-	mySimEvent->addSimTrack(*daughter, ivertex);
+      for ( ; daughter != daughters.end(); ++daughter)
+	mySimEvent->addSimTrack(&(*daughter), ivertex);
     }
   }
 }

@@ -5,6 +5,8 @@
 
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
 
+#include <vector>
+
 /** 
  * This is the generic class for Material Effects in the tracker material, 
  * from which FamosPairProductionSimulator, FamosBremsstrahlungSimulator, 
@@ -22,7 +24,7 @@ class MaterialEffectsSimulator
 {
  public:
 
-  typedef std::list<const RawParticle*>::const_iterator RHEP_const_iter;
+  typedef std::vector<RawParticle>::const_iterator RHEP_const_iter;
 
   MaterialEffectsSimulator(const RandomEngine* engine);
 
@@ -74,7 +76,7 @@ class MaterialEffectsSimulator
 
  protected:
 
-  std::list<const RawParticle*> _theUpdatedState;
+  std::vector<RawParticle> _theUpdatedState;
 
   double radLengths;
 

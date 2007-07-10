@@ -22,11 +22,6 @@ void MaterialEffectsSimulator::updateState(ParticlePropagator & Particle,
 					   double radlen)
 {
 
-  // delete the pointers
-  RHEP_const_iter deleteiter = beginDaughters();
-  RHEP_const_iter enditer = endDaughters();
-  for ( ; deleteiter!=enditer; ++deleteiter ) delete (*deleteiter);
-
   _theUpdatedState.clear();
 
   radLengths = radlen;

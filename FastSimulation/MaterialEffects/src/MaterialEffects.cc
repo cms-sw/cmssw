@@ -134,7 +134,7 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
 	    DaughterIter != PairProduction->endDaughters(); 
 	    ++DaughterIter) {
 
-	mySimEvent.addSimTrack(*DaughterIter, ivertex);
+	mySimEvent.addSimTrack(&(*DaughterIter), ivertex);
 
       }
       // The photon converted. Return.
@@ -179,7 +179,7 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
 	    DaughterIter != NuclearInteraction->endDaughters(); 
 	    ++DaughterIter) {
 
-	mySimEvent.addSimTrack(*DaughterIter, ivertex);
+	mySimEvent.addSimTrack(&(*DaughterIter), ivertex);
 
       }
       // The hadron is destroyed. Return.
@@ -209,7 +209,8 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
       for ( DaughterIter = Bremsstrahlung->beginDaughters();
 	    DaughterIter != Bremsstrahlung->endDaughters(); 
 	    ++DaughterIter) {
-	mySimEvent.addSimTrack(*DaughterIter, ivertex);
+	mySimEvent.addSimTrack(&(*DaughterIter), ivertex);
+
       }
       
     }

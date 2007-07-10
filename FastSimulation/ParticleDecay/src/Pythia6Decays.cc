@@ -46,26 +46,21 @@ Pythia6Decays::particleDaughters(ParticlePropagator& particle)
   ip = 1;
   PYTHIA6PYDECY(&ip);
 
-  // Some cleaning : delete the daughter pointers
-  // delete the pointeurs
-  for( DaughterParticleIterator deleteiter = theList.begin(); 
-                                deleteiter!= theList.end(); 
-                              ++deleteiter ) {
-    delete (*deleteiter);
-  }
-  // Clear the List of daughters
+  // Fill the list of daughters
   theList.clear();
+  if ( pyjets->n()==1 ) return theList; 
+
+  theList.resize(pyjets->n()-1,RawParticle());
 
   for (int i=2;i<=pyjets->n();++i) {
     
-    XYZTLorentzVector fourvector, fourvector1;
-    
-    fourvector.SetXYZT(pyjets->p(i,1),pyjets->p(i,2),pyjets->p(i,3),pyjets->p(i,4));
-    fourvector1.SetXYZT(pyjets->v(i,1),pyjets->v(i,2),pyjets->v(i,3),pyjets->v(i,4));
-    RawParticle *aNewParticle = new RawParticle(fourvector,fourvector1);
-    aNewParticle->setID(pyjets->k(i,2));
-    aNewParticle->setMass(pyjets->p(i,5));
-    theList.push_back(aNewParticle);
+    theList[i-2].SetXYZT(pyjets->p(i,1),pyjets->p(i,2),
+			 pyjets->p(i,3),pyjets->p(i,4)); 
+    theList[i-2].setVertex(pyjets->v(i,1),pyjets->v(i,2),
+			   pyjets->v(i,3),pyjets->v(i,4));
+    theList[i-2].setID(pyjets->k(i,2));
+    theList[i-2].setMass(pyjets->p(i,5));
+
   }
 
   return theList;

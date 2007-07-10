@@ -1,13 +1,13 @@
 #ifndef Pythia6Decays_h
 #define Pythia6Decays_h
 
-#include <list>
+#include <vector>
 
 class ParticlePropagator;
 class Pythia6jets;
 class RawParticle;
 
-typedef std::list<const RawParticle *> DaughterParticleList;
+typedef std::vector<RawParticle> DaughterParticleList;
 typedef DaughterParticleList::const_iterator DaughterParticleIterator; 
 
 class Pythia6Decays 

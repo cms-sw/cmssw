@@ -9,7 +9,7 @@ PairProductionSimulator::PairProductionSimulator(double photonEnergyCut,
 {
 
   // Set the minimal photon energy for possible conversion 
-  photonEnergy = std::max(0.100,photonEnergyCut);
+  photonEnergy = std::max(0.100,photonEnergyCut);  
 
 }
 
@@ -75,30 +75,28 @@ PairProductionSimulator::compute(ParticlePropagator& Particle)
       RawParticle::RotationZ rotZ(psi);
       RawParticle::RotationY rotY(chi);
      
-      RawParticle* E1 = 
-	new RawParticle(11,XYZTLorentzVector(pElectron*stheta1*cphi,
-					     pElectron*stheta1*sphi,
-					     pElectron*ctheta1,
-					     eElectron));
-      
-      E1->rotate(rotY);
-      E1->rotate(rotZ);
-      
-      // Create the positron
-      RawParticle* E2 = 
-	new RawParticle(-11,XYZTLorentzVector(-pPositron*stheta2*cphi,
-					      -pPositron*stheta2*sphi,
-					       pPositron*ctheta2,
-					       ePositron));
-      
-      E2->rotate(rotY);
-      E2->rotate(rotZ);
-      
-      _theUpdatedState.push_back(E1);
-      _theUpdatedState.push_back(E2);
+      _theUpdatedState.resize(2,RawParticle());
 
+      // The eletron
+      _theUpdatedState[0].SetXYZT(pElectron*stheta1*cphi,
+				  pElectron*stheta1*sphi,
+				  pElectron*ctheta1,
+				  eElectron);
+      _theUpdatedState[0].setID(+11);
+      _theUpdatedState[0].rotate(rotY);
+      _theUpdatedState[0].rotate(rotZ);
+      
+      // The positron
+      _theUpdatedState[1].SetXYZT(-pPositron*stheta2*cphi,
+				  -pPositron*stheta2*sphi,
+				   pPositron*ctheta2,
+				   ePositron);
+      _theUpdatedState[1].setID(-11);
+      _theUpdatedState[1].rotate(rotY);
+      _theUpdatedState[1].rotate(rotZ);
+      
     }
-  }
+  } 
 }
 
 double 

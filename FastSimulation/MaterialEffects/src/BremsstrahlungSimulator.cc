@@ -37,6 +37,8 @@ BremsstrahlungSimulator::compute(ParticlePropagator &Particle)
   
   // Number of photons to be radiated.
   unsigned int nPhotons = poisson(bremProba);
+  _theUpdatedState.reserve(nPhotons);
+
   if ( !nPhotons ) return;
 
   //Rotate to the lab frame
@@ -51,17 +53,14 @@ BremsstrahlungSimulator::compute(ParticlePropagator &Particle)
     // Check that there is enough energy left.
     if ( Particle.e() < photonEnergy ) break;
 
-    // Create a New Photon
-    RawParticle* thePhoton = new RawParticle(22,brem(Particle));
-    
-    thePhoton->rotate(rotY);
-    thePhoton->rotate(rotZ);
-
-    // Put the brem photon in the list
+    // Add a photon
+    RawParticle thePhoton(22,brem(Particle));    
+    thePhoton.rotate(rotY);
+    thePhoton.rotate(rotZ);
     _theUpdatedState.push_back(thePhoton);
 	
     // Update the original e+/-
-    Particle -= thePhoton->momentum();
+    Particle -= thePhoton.momentum();
 
   }	
 }
