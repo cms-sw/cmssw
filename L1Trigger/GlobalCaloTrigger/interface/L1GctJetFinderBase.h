@@ -12,6 +12,7 @@
 #include <boost/cstdint.hpp> //for uint16_t
 #include <vector>
 
+class L1GctJetFinderParams;
 class L1GctJetEtCalibrationLut;
 
 
@@ -63,11 +64,16 @@ public:
   /// Set pointers to neighbours - needed to complete the setup
   void setNeighbourJetFinders(std::vector<L1GctJetFinderBase*> neighbours);
 
+  /// Set pointer to parameters - needed to complete the setup
+  void setJetFinderParams(const L1GctJetFinderParams* jfpars);
+
   /// Set pointer to calibration Lut - needed to complete the setup
-  void setJetEtCalibrationLut(L1GctJetEtCalibrationLut* lut);
+  void setJetEtCalibrationLut(const L1GctJetEtCalibrationLut* lut);
 
   /// Check setup is Ok
-  bool setupOk() const { return m_gotNeighbourPointers && (m_jetEtCalLut != 0); }
+  bool setupOk() const { return m_gotNeighbourPointers
+                             && m_gotJetFinderParams
+                             && (m_jetEtCalLut != 0); }
 
   /// Overload << operator
   friend std::ostream& operator << (std::ostream& os, const L1GctJetFinderBase& algo);
@@ -100,7 +106,7 @@ public:
   RawJetVector getRawJets() const { return m_outputJets; } 
 
   /// Return pointer to calibration LUT
-  L1GctJetEtCalibrationLut* getJetEtCalLut() const { return m_jetEtCalLut; }
+  const L1GctJetEtCalibrationLut* getJetEtCalLut() const { return m_jetEtCalLut; }
 
   // The hardware output quantities
   JetVector getJets() const { return m_sortedJets; } ///< Get the located jets. 
@@ -130,8 +136,17 @@ public:
   /// Remember whether the neighbour pointers have been stored
   bool m_gotNeighbourPointers;
 
+  /// Remember whether jetfinder parameters have been stored
+  bool m_gotJetFinderParams;
+
+  /// jetFinder parameters (from EventSetup)
+  unsigned m_CenJetSeed;
+  unsigned m_FwdJetSeed;
+  unsigned m_TauJetSeed;
+  unsigned m_EtaBoundry;
+
   /// Jet Et Converstion LUT pointer
-  L1GctJetEtCalibrationLut* m_jetEtCalLut;
+  const L1GctJetEtCalibrationLut* m_jetEtCalLut;
     
   /// input data required for jet finding
   RegionsVector m_inputRegions;

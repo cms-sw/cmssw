@@ -11,7 +11,7 @@ const unsigned int L1GctHardwareJetFinder::MAX_REGIONS_IN = (((L1CaloRegionDetId
 const unsigned int L1GctHardwareJetFinder::N_COLS = 2;
 const unsigned int L1GctHardwareJetFinder::CENTRAL_COL0 = 0;
 
-const unsigned int L1GctHardwareJetFinder::JET_THRESHOLD = 1;
+//const unsigned int L1GctHardwareJetFinder::JET_THRESHOLD = 1;
 
 L1GctHardwareJetFinder::L1GctHardwareJetFinder(int id):
   L1GctJetFinderBase(id),
@@ -108,6 +108,7 @@ void L1GctHardwareJetFinder::findLocalMaxima()
     {
       // Here's the array of greater-than and greater-or-equal tests
       // to ensure each localMaximum appears once and only once in the list
+      unsigned JET_THRESHOLD = ( (row > m_EtaBoundry) ? m_FwdJetSeed : m_CenJetSeed);
       bool localMax = (m_inputRegions.at(centreIndex).et()>=JET_THRESHOLD);
       localMax     &= (m_inputRegions.at(centreIndex).et() >  m_inputRegions.at(centreIndex-1).et());
       if (row < (COL_OFFSET-1)) {
@@ -230,6 +231,7 @@ void L1GctHardwareJetFinder::findFinalClusters()
     unsigned et0       = m_rcvdProtoJets.at(j).et();
     unsigned localEta0 = m_rcvdProtoJets.at(j).rctEta();
     unsigned localPhi0 = m_rcvdProtoJets.at(j).rctPhi();
+       unsigned JET_THRESHOLD = ( (localEta0 >= m_EtaBoundry) ? m_FwdJetSeed : m_CenJetSeed);
 	if (et0>=JET_THRESHOLD) {
 		bool storeJet=false;
 		bool isolated=true;
@@ -291,8 +293,9 @@ void L1GctHardwareJetFinder::fillRegionsFromProtoJets()
 {
   static const unsigned int MAX_TOPBOT_JETS = MAX_JETS_OUT/2;
   for (unsigned j=0; j<MAX_JETS_OUT; ++j) {
+    unsigned eta0 = m_rcvdProtoJets.at(j).rctEta();
+    unsigned JET_THRESHOLD = ( (eta0 >= m_EtaBoundry) ? m_FwdJetSeed : m_CenJetSeed);
     if (m_rcvdProtoJets.at(j).et()>=JET_THRESHOLD) {
-      unsigned eta0 = m_rcvdProtoJets.at(j).rctEta();
       if (j>=MAX_TOPBOT_JETS) { eta0 += COL_OFFSET; }
       m_protoJetRegions.at(eta0+1) = m_rcvdProtoJets.at(j);
     }
@@ -303,6 +306,8 @@ void L1GctHardwareJetFinder::fillRegionsFromProtoJets()
 void L1GctHardwareJetFinder::convertClustersToProtoJets()
 {
   for (unsigned j=0; j<MAX_JETS_OUT; ++j) {
+    bool isForward = (m_clusters.at(j).rctEta()>=m_EtaBoundry);
+    unsigned JET_THRESHOLD = ( isForward ? m_FwdJetSeed : m_CenJetSeed);
     if (m_clusters.at(j).et()>=JET_THRESHOLD) {
 	m_keptProtoJets.at(j) = m_clusters.at(j);
 	m_sentProtoJets.at(j) = m_clusters.at(j);
@@ -314,10 +319,13 @@ void L1GctHardwareJetFinder::convertClustersToProtoJets()
 void L1GctHardwareJetFinder::convertClustersToOutputJets()
 {
   for (unsigned j=0; j<MAX_JETS_OUT; ++j) {
+    bool isForward = (m_clusters.at(j).rctEta()>=m_EtaBoundry);
+    unsigned JET_THRESHOLD = ( isForward ? m_FwdJetSeed : m_CenJetSeed);
     if (m_clusters.at(j).et()>=JET_THRESHOLD) {
       unsigned rawsum = m_clusters.at(j).et();
       if (m_clusters.at(j).overFlow()) { rawsum = rawsum | (1<<L1GctJet::RAWSUM_BITWIDTH); }
-      L1GctJet temp(rawsum, m_clusters.at(j).gctEta(), m_clusters.at(j).gctPhi(), m_clusters.at(j).tauVeto());
+      L1GctJet temp(rawsum, m_clusters.at(j).gctEta(), m_clusters.at(j).gctPhi(), 
+                    isForward, m_clusters.at(j).tauVeto());
       m_outputJets.at(j) = temp;
     }
   }

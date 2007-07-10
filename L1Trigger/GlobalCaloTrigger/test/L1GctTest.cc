@@ -5,8 +5,10 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 // Trigger configuration includes
+#include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
 #include "CondFormats/L1TObjects/interface/L1GctJetEtCalibrationFunction.h"
 #include "CondFormats/DataRecord/interface/L1GctJetCalibFunRcd.h"
+#include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
 
 // GCT include files
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
@@ -151,6 +153,8 @@ L1GctTest::configureGct(const edm::EventSetup& c)
   assert(&c!=0);
 
   // get data from EventSetup
+  edm::ESHandle< L1GctJetFinderParams > jfPars ;
+  c.get< L1GctJetFinderParamsRcd >().get( jfPars ) ; // which record?
   edm::ESHandle< L1GctJetEtCalibrationFunction > calibFun ;
   c.get< L1GctJetCalibFunRcd >().get( calibFun ) ; // which record?
 
@@ -159,6 +163,8 @@ L1GctTest::configureGct(const edm::EventSetup& c)
       << "Failed to find a L1GctJetCalibFunRcd:L1GctJetEtCalibrationFunction in EventSetup!" << endl
       << "Cannot continue without this function" << endl;
   }
+
+  m_gct->setJetFinderParams(jfPars.product());
 
   // make a jet Et Lut and tell it about the scales
   m_jetEtCalibLut = new L1GctJetEtCalibrationLut(calibFun.product());

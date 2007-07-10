@@ -38,6 +38,7 @@ class L1GctWheelEnergyFpga;
 class L1GctJetFinalStage;
 class L1GctGlobalEnergyAlgos;
 class L1GctElectronFinalSort;
+class L1GctJetFinderParams;
 class L1GctJetEtCalibrationLut;
 class L1CaloEtScale;
 
@@ -66,8 +67,11 @@ public:
   /// process an event
   void process();
 
+  /// Setup the jet finder parameters
+  void setJetFinderParams(const L1GctJetFinderParams* jfpars);
+
   /// setup the Jet Calibration Lut
-  void setJetEtCalibrationLut(L1GctJetEtCalibrationLut* lut);
+  void setJetEtCalibrationLut(const L1GctJetEtCalibrationLut* lut);
 
   /// set a jet region at the input to be processed
   void setRegion(L1CaloRegion region);
@@ -140,7 +144,7 @@ public:
   L1GctElectronFinalSort* getNonIsoEmFinalStage() const { return theNonIsoEmFinalStage; }
 
   /// get the Jet Et calibration LUT
-  L1GctJetEtCalibrationLut* getJetEtCalibLut() const { return m_jetEtCalLut; }
+  const L1GctJetEtCalibrationLut* getJetEtCalibLut() const { return m_jetEtCalLut; }
 
   /// print setup info
   void print();
@@ -154,8 +158,8 @@ public:
   void setupJetCounterLuts();
 
   /// check we have done all the setup
-  // !Just the jetEtCalLut for now
-  bool setupOk() { return (m_jetEtCalLut != 0); }
+  bool setupOk() { return (m_jetFinderParams != 0)
+                           && (m_jetEtCalLut != 0); }
  private:
   
   /// pointers to the Jet Leaf cards
@@ -189,8 +193,11 @@ public:
   /// non-iso electron final stage sorter
   L1GctElectronFinalSort* theNonIsoEmFinalStage;
 
+  /// Jetfinder parameters
+  const L1GctJetFinderParams* m_jetFinderParams;
+
   /// Jet Et calibration LUT
-  L1GctJetEtCalibrationLut* m_jetEtCalLut;
+  const L1GctJetEtCalibrationLut* m_jetEtCalLut;
 
 };
 

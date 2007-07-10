@@ -17,7 +17,9 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 // Trigger configuration includes
+#include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
 #include "CondFormats/L1TObjects/interface/L1GctJetEtCalibrationFunction.h"
+#include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctJetCalibFunRcd.h"
 
 // GCT include files
@@ -87,8 +89,16 @@ void L1GctEmulator::configureGct(const edm::EventSetup& c)
   assert(&c!=0);
 
   // get data from EventSetup
+  edm::ESHandle< L1GctJetFinderParams > jfPars ;
+  c.get< L1GctJetFinderParamsRcd >().get( jfPars ) ; // which record?
   edm::ESHandle< L1GctJetEtCalibrationFunction > calibFun ;
   c.get< L1GctJetCalibFunRcd >().get( calibFun ) ; // which record?
+
+  if (jfPars.product() == 0) {
+    throw cms::Exception("L1GctConfigError")
+      << "Failed to find a L1GctJetFinderParamsRcd:L1GctJetFinderParams in EventSetup!" << std::endl
+      << "Cannot continue without these parameters" << std::endl;
+  }
 
   if (calibFun.product() == 0) {
     throw cms::Exception("L1GctConfigError")
@@ -96,8 +106,7 @@ void L1GctEmulator::configureGct(const edm::EventSetup& c)
       << "Cannot continue without this function" << std::endl;
   }
 
-  // delete old LUT if it's there
-  // if (m_jetEtCalibLut != 0) delete m_jetEtCalibLut;
+  m_gct->setJetFinderParams(jfPars.product());
 
   // tell the jet Et Lut about the scales
   m_jetEtCalibLut->setFunction(calibFun.product());

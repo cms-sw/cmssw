@@ -1,5 +1,6 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 
+#include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmLeafCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
@@ -165,9 +166,26 @@ void L1GlobalCaloTrigger::process() {
 
 }
 
-/// setup the Jet Calibration Lut
-void L1GlobalCaloTrigger::setJetEtCalibrationLut(L1GctJetEtCalibrationLut* lut) {
+/// setup the Jet Finder parameters
+void L1GlobalCaloTrigger::setJetFinderParams(const L1GctJetFinderParams* jfpars) {
 
+  // Some parameters not (yet?) implemented
+  assert (jfpars->CENTRAL_FORWARD_ETA_BOUNDARY==7);
+  assert (jfpars->CENTRAL_JET_SEED==jfpars->TAU_JET_SEED);
+
+  m_jetFinderParams = jfpars;
+  // Need to propagate the new parameters to all the JetFinders
+  for (int i=0; i<N_JET_LEAF_CARDS; i++) {
+    theJetLeafCards.at(i)->getJetFinderA()->setJetFinderParams(jfpars);
+    theJetLeafCards.at(i)->getJetFinderB()->setJetFinderParams(jfpars);
+    theJetLeafCards.at(i)->getJetFinderC()->setJetFinderParams(jfpars);
+  }
+}
+
+/// setup the Jet Calibration Lut
+void L1GlobalCaloTrigger::setJetEtCalibrationLut(const L1GctJetEtCalibrationLut* lut) {
+
+  std::cout << "gct::setJetEtCalibrationLut called, lut is " << lut << std::endl;
   m_jetEtCalLut = lut;
   // Need to propagate the new lut to all the JetFinders
   for (int i=0; i<N_JET_LEAF_CARDS; i++) {

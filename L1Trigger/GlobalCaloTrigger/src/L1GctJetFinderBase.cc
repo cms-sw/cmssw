@@ -1,5 +1,6 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 
+#include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 
 #include "FWCore/Utilities/interface/Exception.h"  
@@ -21,9 +22,14 @@ L1GctJetFinderBase::L1GctJetFinderBase(int id):
   m_id(id),
   m_neighbourJetFinders(2),
   m_gotNeighbourPointers(false),
+  m_gotJetFinderParams(false),
+  m_CenJetSeed(0), m_FwdJetSeed(0), m_TauJetSeed(0), m_EtaBoundry(0),
   m_jetEtCalLut(0),
   m_inputRegions(MAX_REGIONS_IN),
-  m_outputJets(MAX_JETS_OUT)
+  m_sentProtoJets(MAX_JETS_OUT), m_rcvdProtoJets(MAX_JETS_OUT), m_keptProtoJets(MAX_JETS_OUT),
+  m_outputJets(MAX_JETS_OUT), m_sortedJets(MAX_JETS_OUT),
+  m_outputEtStrip0(0), m_outputEtStrip1(0), m_outputHt(0)
+
 {
   // Call reset to initialise vectors for input and output
   this->reset();
@@ -63,8 +69,18 @@ void L1GctJetFinderBase::setNeighbourJetFinders(std::vector<L1GctJetFinderBase*>
   m_gotNeighbourPointers = true;
 }
 
+/// Set pointer to parameters - needed to complete the setup
+void L1GctJetFinderBase::setJetFinderParams(const L1GctJetFinderParams* jfpars)
+{
+  m_CenJetSeed = jfpars->CENTRAL_JET_SEED;
+  m_FwdJetSeed = jfpars->FORWARD_JET_SEED;
+  m_TauJetSeed = jfpars->TAU_JET_SEED;
+  m_EtaBoundry = jfpars->CENTRAL_FORWARD_ETA_BOUNDARY;
+  m_gotJetFinderParams = true;
+}
+
 /// Set pointer to calibration Lut - needed to complete the setup
-void L1GctJetFinderBase::setJetEtCalibrationLut(L1GctJetEtCalibrationLut* lut)
+void L1GctJetFinderBase::setJetEtCalibrationLut(const L1GctJetEtCalibrationLut* lut)
 {
   m_jetEtCalLut = lut;
 }
