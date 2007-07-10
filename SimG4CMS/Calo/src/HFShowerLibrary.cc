@@ -325,8 +325,8 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
     }
   }
 
-  edm::LogInfo("HFShower") << "HFShowerLibrary: Total Hits " << nHit
-			   << " out of " << npe << " PE";
+  LogDebug("HFShower") << "HFShowerLibrary: Total Hits " << nHit
+		       << " out of " << npe << " PE";
   if (nHit > npe)
     edm::LogWarning("HFShower") << "HFShowerLibrary: Hit buffer " << npe 
 				<< " smaller than " << nHit << " Hits";
@@ -436,9 +436,9 @@ void HFShowerLibrary::getRecord(int type, int record) {
       }
     }
   }
-  edm::LogInfo("HFShower") << "HFShowerLibrary::getRecord: Record " << record
-			   << " of type " << type << " with " << nPhoton 
-			   << " photons";
+  LogDebug("HFShower") << "HFShowerLibrary::getRecord: Record " << record
+		       << " of type " << type << " with " << nPhoton 
+		       << " photons";
   for (int j = 0; j < nPhoton; j++) 
     LogDebug("HFShower") << "Photon " << j << photon[j];
 }
@@ -572,7 +572,7 @@ void HFShowerLibrary::interpolate(int type, double pin) {
     }
   }
 
-  if (npe > npold || npold == 0)
+  if (npe > npold || (npold == 0 && irc[0] > 0)) 
     edm::LogWarning("HFShower") << "HFShowerLibrary: Interpolation error =="
 				<< " records " << irc[0] << " and " << irc[1]
 				<< " gives a buffer of " << npold 
