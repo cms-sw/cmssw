@@ -3,7 +3,6 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
-#include "RecoLocalTracker/Records/interface/TrackerCPERecord.h"
 #include "RecoLocalTracker/Records/interface/TkStripCPERecord.h"
 #include "RecoLocalTracker/Records/interface/TkPixelCPERecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -21,7 +20,6 @@ class CkfComponentsRecord : public edm::eventsetup::DependentRecordImplementatio
 			    boost::mpl::vector<TrackerDigiGeometryRecord,
                                                TkPixelCPERecord,
                                                TkStripCPERecord,
-			                       TrackerCPERecord,
 			                       TransientRecHitRecord,
                                                TrackingComponentsRecord,
 			                       TrackerRecoGeometryRecord,
