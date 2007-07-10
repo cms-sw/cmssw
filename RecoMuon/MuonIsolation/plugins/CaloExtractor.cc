@@ -125,7 +125,11 @@ MuIsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& even
                   dep.addMuonEnergy(calodep);
 	            LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
 	            << " >>> Calo deposit inside veto (with ECAL): deltar " << deltar
-	            << " calodep " << calodep;
+	            << " calodep " << calodep
+	            << " ecaldep " << etecal
+	            << " hcaldep " << ethcal
+	            << " eta " << cal->eta()
+	            << " phi " << cal->phi();
                   continue;
             }
       } else {
@@ -133,7 +137,9 @@ MuIsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& even
                   dep.addMuonEnergy(theWeight_H*ethcal);
 	            LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
 	            << " >>> Calo deposit inside veto (no ECAL): deltar " << deltar
-	            << " calodep " << theWeight_H*ethcal;
+	            << " calodep " << theWeight_H*ethcal
+	            << " eta " << cal->eta()
+	            << " phi " << cal->phi();
                   continue;
             }
       }
@@ -153,14 +159,20 @@ MuIsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& even
                   dep.addDeposit(Direction(endpos.eta(), endpos.phi()),calodep);
 	            LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
 	            << " >>> Calo deposit (with ECAL): deltar " << deltar
-	            << " calodep " << calodep;
+	            << " calodep " << calodep
+	            << " ecaldep " << etecal
+	            << " hcaldep " << ethcal
+	            << " eta " << cal->eta()
+	            << " phi " << cal->phi();
             }
       } else {
             if (deltar>theDR_Veto_H) { 
 	            dep.addDeposit(Direction(endpos.eta(), endpos.phi()),theWeight_H*ethcal);
 	            LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
 	            << " >>> Calo deposit (no ECAL): deltar " << deltar
-	            << " calodep " << theWeight_H*ethcal;
+	            << " calodep " << theWeight_H*ethcal
+	            << " eta " << cal->eta()
+	            << " phi " << cal->phi();
             }
       }
   }
