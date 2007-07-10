@@ -9,6 +9,9 @@
 
 #include "DQMServices/Core/interface/MonitorElementBaseT.h"
 
+#include "TStyle.h"
+#include "TPaveText.h"
+
 ESDataIntegrityClient::ESDataIntegrityClient(const ParameterSet& ps) {
   
   writeHisto_ = ps.getUntrackedParameter<bool>("writeHisto", true);
@@ -18,6 +21,8 @@ ESDataIntegrityClient::ESDataIntegrityClient(const ParameterSet& ps) {
   rootFolder_ = ps.getUntrackedParameter<string>("rootFolder", "");
   htmlDir_    = ps.getUntrackedParameter<string>("htmlDir","/preshower/DQM/TB");
   htmlName_   = ps.getUntrackedParameter<string>("htmlName","ESDataIntegrity.html");  
+  // 1 : CT, 2 : TB
+  detType_    = ps.getUntrackedParameter<int>("DetectorType", 1);
   sta_        = ps.getUntrackedParameter<bool>("RunStandalone", false);
 
   count_ = 0;
@@ -81,11 +86,12 @@ void ESDataIntegrityClient::analyze(const Event& e, const EventSetup& context){
   if (! init_) this->setup();
 
   int runNum = e.id().run();
+  Char_t runNum_s[50];
   
   if (runNum != run_) { 
     
     if (run_ > 0) {
-      Char_t runNum_s[50];
+
       sprintf(runNum_s, "%08d", run_);
       outputFile_ = htmlDir_+"/"+runNum_s+"/"+outputFileName_+"_"+runNum_s+".root";
       
@@ -99,6 +105,9 @@ void ESDataIntegrityClient::analyze(const Event& e, const EventSetup& context){
     
     run_ = runNum; 
     count_ = 0;
+
+    sprintf(runNum_s, "%08d", run_);
+    outputFile_ = htmlDir_+"/"+runNum_s+"/"+outputFileName_+"_"+runNum_s+".root";
   }
   
   count_++;
@@ -111,24 +120,46 @@ void ESDataIntegrityClient::analyze(const Event& e, const EventSetup& context){
     if (writeHisto_) dbe_->save(outputFile_);
   }
   
-}
+} 
 
 void ESDataIntegrityClient::doQT() {
 
   MonitorElementT<TNamed>* meT;
 
   MonitorElement * meCRCError = dbe_->get(getMEName("ES CRC Errors"));
-    
   if (meCRCError) {
     meT = dynamic_cast<MonitorElementT<TNamed>*>(meCRCError);           
     hCRCError_ = dynamic_cast<TH2F*> (meT->operator->());      
   }
 
   MonitorElement * meDCCError = dbe_->get(getMEName("ES DCC Errors"));
-    
   if (meDCCError) {
     meT = dynamic_cast<MonitorElementT<TNamed>*>(meDCCError);           
     hDCCError_ = dynamic_cast<TH1F*> (meT->operator->());      
+  }
+
+  MonitorElement * meBC = dbe_->get(getMEName("ES BC Errors"));
+  if (meBC) {
+    meT = dynamic_cast<MonitorElementT<TNamed>*>(meBC);           
+    hBC_ = dynamic_cast<TH1F*> (meT->operator->());      
+  }
+
+  MonitorElement * meEC = dbe_->get(getMEName("ES EC Errors"));
+  if (meEC) {
+    meT = dynamic_cast<MonitorElementT<TNamed>*>(meEC);           
+    hEC_ = dynamic_cast<TH1F*> (meT->operator->());      
+  }
+
+  MonitorElement * meFlag1 = dbe_->get(getMEName("ES KCHIP Flag1"));
+  if (meFlag1) {
+    meT = dynamic_cast<MonitorElementT<TNamed>*>(meFlag1);           
+    hFlag1_ = dynamic_cast<TH1F*> (meT->operator->());      
+  }
+
+  MonitorElement * meFlag2 = dbe_->get(getMEName("ES KCHIP Flag2"));
+  if (meFlag2) {
+    meT = dynamic_cast<MonitorElementT<TNamed>*>(meFlag2);           
+    hFlag2_ = dynamic_cast<TH1F*> (meT->operator->());      
   }
 
 }
@@ -172,52 +203,131 @@ void ESDataIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName)
 
   // Count errors 
   double crcErrors = 0;
-  for (int i=1; i<=36; ++i) {    
-    crcErrors += hCRCError_->GetBinContent(i, 1);
-  }
+  for (int i=1; i<=36; ++i) 
+    crcErrors += hCRCError_->GetBinContent(i, 1);  
 
   double dccErrors = 0;
-  for (int i=1; i<=255; ++i) {
-    dccErrors += hDCCError_->GetBinContent(i);
-  }
+  for (int i=2; i<=255; ++i) 
+    dccErrors += hDCCError_->GetBinContent(i);  
+
+  double bcErrors = hBC_->GetBinContent(1);
+  double ecErrors = hEC_->GetBinContent(1);
+
+  double flag1Errors = 0;
+  for (int i=2; i<=16; ++i) 
+    flag1Errors += hFlag1_->GetBinContent(i);
+
+  double flag2Errors = 0;
+  for (int i=2; i<=255; ++i) 
+    flag2Errors += hFlag2_->GetBinContent(i);
 
   // Show results
-  htmlFile << "<h2>CRC errors : &nbsp;&nbsp;&nbsp; <span style=\"color: rgb(0, 0, 153);\">" << crcErrors << "</span></h2>"<<endl;
+  htmlFile << "<table border=\"1\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" > " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+  htmlFile << "<td colspan=\"6\">CRC errors</td>" << endl;
+  htmlFile << "<td colspan=\"6\">DCC errors</td>" << endl;
+  htmlFile << "<td colspan=\"6\">BC errors</td>" << endl;
+  htmlFile << "<td colspan=\"6\">EC errors</td>" << endl;
+  htmlFile << "<td colspan=\"6\">Flag1 errors</td>" << endl;
+  htmlFile << "<td colspan=\"6\">Flag2 errors</td>" << endl;
+  htmlFile << "</tr>" << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+  htmlFile << "<td colspan=\"6\"> <span style=\"color: rgb(0, 0, 153);\">" << crcErrors <<"</sapn></td>" << endl;
+  htmlFile << "<td colspan=\"6\"> <span style=\"color: rgb(0, 0, 153);\">" << dccErrors <<"</span></td>" << endl;
+  htmlFile << "<td colspan=\"6\"> <span style=\"color: rgb(0, 0, 153);\">" << bcErrors <<"</span></td>" << endl;
+  htmlFile << "<td colspan=\"6\"> <span style=\"color: rgb(0, 0, 153);\">" << ecErrors <<"</span></td>" << endl;
+  htmlFile << "<td colspan=\"6\"> <span style=\"color: rgb(0, 0, 153);\">" << flag1Errors <<"</span></td>" << endl;
+  htmlFile << "<td colspan=\"6\"> <span style=\"color: rgb(0, 0, 153);\">" << flag2Errors <<"</span></td>" << endl;
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" <<endl;
+  
   if (crcErrors != 0) {
     htmlFile << "<table border=\"1\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" > " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
-    htmlFile << "<td colspan=\"2\">criminal fiber : </td>" << endl;
-    htmlFile << "<td colspan=\"2\">contribution : </td>" << endl;
+    htmlFile << "<td colspan=\"2\">CRC errors</td>" << endl;
     htmlFile << "</tr>" << endl;
     htmlFile << "<tr align=\"center\">" << endl;
+    htmlFile << "<td>criminal fiber : </td>" << endl;
+    htmlFile << "<td>contribution : </td>" << endl;
+    htmlFile << "</tr>" << endl;
     for (int i=1; i<=36; ++i) {
       if (hCRCError_->GetBinContent(i, 1) != 0) {
-	htmlFile << "<td colspan=\"2\">" << i-1 << "</td>" << endl;
-	htmlFile << "<td colspan=\"2\">" << hCRCError_->GetBinContent(i, 1) << "</td>" << endl;
+	htmlFile << "<tr align=\"center\">" << endl;
+	htmlFile << "<td>" << i-1 << "</td>" << endl;
+	htmlFile << "<td>" << hCRCError_->GetBinContent(i, 1) << "</td>" << endl;
+	htmlFile << "</tr>" << endl; 
       }
     }
-    htmlFile << "</tr>" << endl; 
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" <<endl;
   }
   
-  htmlFile << "<h2>DCC errors : &nbsp;&nbsp;&nbsp; <span style=\"color: rgb(0, 0, 153);\">" << dccErrors << "</span></h2>"<<endl;
   if (dccErrors != 0) {
     htmlFile << "<table border=\"1\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" >" << endl;
     htmlFile << "<tr align=\"center\">" << endl;
-    htmlFile << "<td colspan=\"2\">error code : </td>" << endl; 
-    htmlFile << "<td colspan=\"2\">contribution : </td>" << endl; 
-    htmlFile << "</tr>" << endl; 
+    htmlFile << "<td colspan=\"2\">DCC errors</td>" << endl;
+    htmlFile << "</tr>" << endl;
     htmlFile << "<tr align=\"center\">" << endl;
-    for (int i=1; i<=255; ++i) {
+    htmlFile << "<td>error code : </td>" << endl; 
+    htmlFile << "<td>contribution : </td>" << endl; 
+    htmlFile << "</tr>" << endl; 
+    for (int i=2; i<=255; ++i) {
       if (hDCCError_->GetBinContent(i) != 0) {
-	htmlFile << "<td colspan=\"2\">" << i << "</td>" << endl;
-	htmlFile << "<td colspan=\"2\">" << hDCCError_->GetBinContent(i) << "</td>" << endl;
+	htmlFile << "<tr align=\"center\">" << endl;
+	htmlFile << "<td>" << i-1 << "</td>" << endl;
+	htmlFile << "<td>" << hDCCError_->GetBinContent(i) << "</td>" << endl;
+	htmlFile << "</tr>" << endl; 
       }
     }
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" <<endl;
+  }
+
+  if (flag1Errors != 0) {
+    htmlFile << "<table border=\"1\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" >" << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
+    htmlFile << "<td colspan=\"2\">Flag1 errors</td>" << endl;
+    htmlFile << "</tr>" << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
+    htmlFile << "<td>error code : </td>" << endl; 
+    htmlFile << "<td>contribution : </td>" << endl; 
     htmlFile << "</tr>" << endl; 
+    for (int i=2; i<=16; ++i) {
+      if (hFlag1_->GetBinContent(i) != 0) {
+	htmlFile << "<tr align=\"center\">" << endl;
+	htmlFile << "<td> 0x" << hex << i-1 << dec << "</td>" << endl;
+	htmlFile << "<td>" << hFlag1_->GetBinContent(i) << "</td>" << endl;
+	htmlFile << "</tr>" << endl; 
+      }
+    }
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" <<endl;
+  }
+
+  if (flag2Errors != 0) {
+    htmlFile << "<table border=\"1\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" >" << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
+    htmlFile << "<td colspan=\"2\">Flag2 errors</td>" << endl;
+    htmlFile << "</tr>" << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
+    htmlFile << "<td>error code : </td>" << endl; 
+    htmlFile << "<td>contribution : </td>" << endl; 
+    htmlFile << "</tr>" << endl; 
+
+    for (int i=2; i<=255; ++i) {
+      if (hFlag2_->GetBinContent(i) != 0) {
+	htmlFile << "<tr align=\"center\">" << endl;
+	htmlFile << "<td> 0x" << hex << i-1 << dec << "</td>" << endl;
+	htmlFile << "<td>" << hFlag2_->GetBinContent(i) << "</td>" << endl;
+	htmlFile << "</tr>" << endl; 
+      }
+    }
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" <<endl;
   }
