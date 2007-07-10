@@ -4,6 +4,8 @@
 #include "RelationalAccess/IConnectionService.h"
 #include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/AccessMode.h"
+
+//#include <iostream>
 cond::CoralConnectionProxy::CoralConnectionProxy(
       coral::IConnectionService* connectionServiceHandle,
       const std::string& con,
@@ -15,11 +17,15 @@ cond::CoralConnectionProxy::CoralConnectionProxy(
   m_coralHandle(0),
   m_transactionCounter(0),
   m_connectionTimeOut(connectionTimeOut),
-  m_transaction(0){}
+  m_transaction(0){
+}
 cond::CoralConnectionProxy::~CoralConnectionProxy(){
 }
 cond::ITransaction&  
 cond::CoralConnectionProxy::transaction(){
+  if(!m_transaction){
+    m_transaction=new cond::CoralTransaction(this);
+  }
   return *m_transaction;
 }
 bool 
@@ -37,9 +43,6 @@ cond::CoralConnectionProxy::connectStr() const{
 void 
 cond::CoralConnectionProxy::connect(){
   m_coralHandle = m_connectionSvcHandle->connect(m_con, ( m_isReadOnly ) ? coral::ReadOnly : coral::Update );
-  if(!m_transaction){
-    m_transaction=new cond::CoralTransaction(this);
-  }
   if(m_connectionTimeOut!=0){
     m_timer.restart();
   }

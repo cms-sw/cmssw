@@ -28,8 +28,10 @@ cond::DBSession::DBSession(){
   pm->initialise();
   m_context=pool::POOLContext::context();
   m_loader = new seal::ComponentLoader( m_context.get() );
+  m_sessionConfig = new cond::SessionConfiguration;
 }
 cond::DBSession::~DBSession(){
+  delete m_sessionConfig;
 }
 void cond::DBSession::open(){
   m_loader->load("SEAL/Services/MessageService");

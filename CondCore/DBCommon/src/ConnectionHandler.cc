@@ -27,15 +27,9 @@ cond::ConnectionHandler::connect(cond::DBSession* session){
     it->second->connect(session);
   }
 }
-//void 
-//cond::ConnectionHandler::disconnectAll(){
-/* std::vector<cond::Connection*>::iterator it; 
-   std::vector<cond::Connection*>::iterator itEnd=m_registry.end();
-   for(it=m_registry.begin();it!=itEnd;++it){
-   (*it)->disconnect();
-   }
-**/
-//}
+void 
+cond::ConnectionHandler::disconnectAll(){
+}
 cond::ConnectionHandler::~ConnectionHandler(){
   std::map<std::string,cond::Connection*>::iterator it;  
   std::map<std::string,cond::Connection*>::iterator itEnd=m_registry.end();

@@ -1,5 +1,6 @@
 #include "CondCore/DBCommon/interface/ITransaction.h"
 #include "ITransactionObserver.h"
+#include <iostream>
 void 
 cond::ITransaction::attach( cond::ITransactionObserver* observer ){
   m_observers.push_back( observer );
