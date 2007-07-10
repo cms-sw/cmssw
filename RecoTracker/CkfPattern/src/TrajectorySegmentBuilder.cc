@@ -4,6 +4,7 @@
 //B.M. #include "CommonDet/BasicDet/interface/RecHitEqualByChannels.h"
 //B.M. #include "RecoTracker/CkfPattern/interface/TrajectoryMeasurementEqualByHit.h"
 #include "RecoTracker/CkfPattern/src/RecHitIsInvalid.h"
+#include "RecoTracker/CkfPattern/interface/TempTrajectory.h"
 //B.M. #include "Utilities/Notification/interface/TimingReport.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
@@ -25,7 +26,7 @@
 
 using namespace std;
 
-vector<Trajectory>
+TrajectorySegmentBuilder::TrajectoryContainer
 TrajectorySegmentBuilder::segments (const TSOS startingState)
 {
   //
@@ -33,7 +34,7 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
   //
   theLockedHits.clear();
   TrajectorySeed invalidSeed;
-  Trajectory startingTrajectory(invalidSeed,theFullPropagator.propagationDirection());
+  TempTrajectory startingTrajectory(invalidSeed,theFullPropagator.propagationDirection());
   //
   // get measurement groups
   //
@@ -102,7 +103,7 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
   return candidates;
 }
 
-void TrajectorySegmentBuilder::updateTrajectory (Trajectory& traj,
+void TrajectorySegmentBuilder::updateTrajectory (TempTrajectory& traj,
 						 const TM& tm) const
 {
   TSOS predictedState = tm.predictedState();
@@ -130,8 +131,8 @@ void TrajectorySegmentBuilder::updateTrajectory (Trajectory& traj,
 }
 
 
-vector<Trajectory>
-TrajectorySegmentBuilder::addGroup (Trajectory& traj,
+TrajectorySegmentBuilder::TrajectoryContainer
+TrajectorySegmentBuilder::addGroup (TempTrajectory& traj,
 				    vector<TMG>::const_iterator begin,
 				    vector<TMG>::const_iterator end)
 {
@@ -140,7 +141,7 @@ TrajectorySegmentBuilder::addGroup (Trajectory& traj,
     if ( traj.empty() )
       return vector<Trajectory>();
     else
-      return vector<Trajectory>(1,traj);
+      return vector<Trajectory>(1,traj.toTrajectory());
   }
   
   if (theDbgFlg) cout << "TSB::addGroup : traj.size() = " << traj.measurements().size()
@@ -149,7 +150,7 @@ TrajectorySegmentBuilder::addGroup (Trajectory& traj,
 		      << endl;
 
 
-  vector<Trajectory> updatedTrajectories;
+  TempTrajectoryContainer updatedTrajectories;
   if ( traj.measurements().empty() ) {
     vector<TM> firstMeasurements = unlockedMeasurements(begin->measurements());
     if ( theBestHitOnly )
@@ -171,7 +172,7 @@ TrajectorySegmentBuilder::addGroup (Trajectory& traj,
   }
 
   vector<Trajectory> result;
-  for ( TrajectoryContainer::iterator it=updatedTrajectories.begin();
+  for ( TempTrajectoryContainer::iterator it=updatedTrajectories.begin();
 	it!=updatedTrajectories.end(); it++ ) {
     if (theDbgFlg) cout << "TSB::addGroup : trying to extend candidate at "
 			<< &(*it) << " size " << it->measurements().size() << endl;
@@ -179,7 +180,7 @@ TrajectorySegmentBuilder::addGroup (Trajectory& traj,
     if (theDbgFlg) cout << "TSB::addGroup : " << finalTrajectories.size()
 			<< " finalised candidates before cleaning" << endl;
     //B.M. to be ported later
-    //cleanCandidates(finalTrajectories);
+    cleanCandidates(finalTrajectories);
 
     if (theDbgFlg) cout << "TSB::addGroup : got " << finalTrajectories.size()
 			<< " finalised candidates" << endl;
@@ -191,9 +192,9 @@ TrajectorySegmentBuilder::addGroup (Trajectory& traj,
 }
 
 void
-TrajectorySegmentBuilder::updateCandidates (Trajectory& traj,
+TrajectorySegmentBuilder::updateCandidates (TempTrajectory& traj,
 					    const vector<TM>& measurements,
-					    TrajectoryContainer& candidates)
+					    TempTrajectoryContainer& candidates)
 {
   //
   // generate updated candidates with all valid hits
@@ -201,7 +202,7 @@ TrajectorySegmentBuilder::updateCandidates (Trajectory& traj,
   for ( vector<TM>::const_iterator im=measurements.begin();
 	im!=measurements.end(); im++ ) {
     if ( im->recHit()->isValid() ) {
-      Trajectory newTraj(traj);
+      TempTrajectory newTraj(traj);
       updateTrajectory(newTraj,*im);
       if ( theLockHits )  lockMeasurement(*im);
       candidates.push_back(newTraj);
@@ -214,9 +215,9 @@ TrajectorySegmentBuilder::updateCandidates (Trajectory& traj,
 }
 
 void
-TrajectorySegmentBuilder::updateCandidatesWithBestHit (Trajectory& traj,
+TrajectorySegmentBuilder::updateCandidatesWithBestHit (TempTrajectory& traj,
 						       const vector<TM>& measurements,
-						       TrajectoryContainer& candidates)
+						       TempTrajectoryContainer& candidates)
 {
   vector<TM>::const_iterator ibest = measurements.end();
   for ( vector<TM>::const_iterator im=measurements.begin();
@@ -225,7 +226,7 @@ TrajectorySegmentBuilder::updateCandidatesWithBestHit (Trajectory& traj,
 				    im->estimate()<ibest->estimate()) )  ibest = im;
   }
   if ( ibest!=measurements.end() ) {
-    Trajectory newTraj(traj);
+    TempTrajectory newTraj(traj);
     updateTrajectory(newTraj,*ibest);
     if ( theLockHits )  lockMeasurement(*ibest);
     candidates.push_back(newTraj);
@@ -235,13 +236,13 @@ TrajectorySegmentBuilder::updateCandidatesWithBestHit (Trajectory& traj,
 	   << ibest->recHit()->globalPosition().z() << endl;
   }
   //
-  // keep old trajectory
+  // keep old trajectorTempy
   //
   candidates.push_back(traj);
 }
 
 vector<TrajectoryMeasurement>
-TrajectorySegmentBuilder::redoMeasurements (const Trajectory& traj,
+TrajectorySegmentBuilder::redoMeasurements (const TempTrajectory& traj,
 					    const DetGroup& detGroup) const
 {
   vector<TM> result;
@@ -295,7 +296,7 @@ TrajectorySegmentBuilder::redoMeasurements (const Trajectory& traj,
 }
 
 void 
-TrajectorySegmentBuilder::updateWithInvalidHit (Trajectory& traj,
+TrajectorySegmentBuilder::updateWithInvalidHit (TempTrajectory& traj,
 						const vector<TMG>& groups,
 						TrajectoryContainer& candidates) const
 {
@@ -323,9 +324,9 @@ TrajectorySegmentBuilder::updateWithInvalidHit (Trajectory& traj,
 	  if ( iteration>0 || (predState.isValid() &&
 			       hit->det()->surface().bounds().inside(predState.localPosition())) ) {
 	    // add invalid hit
-	    Trajectory newTraj(traj);
+	    TempTrajectory newTraj(traj);
 	    updateTrajectory(newTraj,*im);
-	    candidates.push_back(newTraj);
+	    candidates.push_back(newTraj.toTrajectory());
 	    found = true;
 	    break;
 	  }
@@ -334,9 +335,9 @@ TrajectorySegmentBuilder::updateWithInvalidHit (Trajectory& traj,
 	  if ( iteration>0 || (predState.isValid() &&
 			       im->layer()->surface().bounds().inside(predState.localPosition())) ){
 	    // add invalid hit
-	    Trajectory newTraj(traj);
+	    TempTrajectory newTraj(traj);
 	    updateTrajectory(newTraj,*im);
-	    candidates.push_back(newTraj);
+	    candidates.push_back(newTraj.toTrajectory());
 	    found = true;
 	    break;	    
 	  }
@@ -357,13 +358,13 @@ TrajectorySegmentBuilder::updateWithInvalidHit (Trajectory& traj,
 vector<TrajectoryMeasurement>
 TrajectorySegmentBuilder::unlockedMeasurements (const vector<TM>& measurements) const
 {
-//   if ( !theLockHits )  return measurements;
+  if ( !theLockHits )  return measurements;
 
-  /* ========== B.M. to be ported later ===============
+  //========== B.M. to be ported later ===============
   vector<TM> result;
   result.reserve(measurements.size());
 
-  RecHitEqualByChannels recHitEqual(false,true);
+  //RecHitEqualByChannels recHitEqual(false,true);
 
   for ( vector<TM>::const_iterator im=measurements.begin();
 	im!=measurements.end(); im++ ) {
@@ -372,7 +373,7 @@ TrajectorySegmentBuilder::unlockedMeasurements (const vector<TM>& measurements) 
     bool found(false);
     for ( ConstRecHitContainer::const_iterator ih=theLockedHits.begin();
 	  ih!=theLockedHits.end(); ih++ ) {
-      if ( recHitEqual(*ih,testHit) ) {
+      if ( (*ih)->hit()->sharesInput(testHit->hit(), TrackingRecHit::all) ) {
       	found = true;
 	break;
       }
@@ -380,8 +381,8 @@ TrajectorySegmentBuilder::unlockedMeasurements (const vector<TM>& measurements) 
     if ( !found )  result.push_back(*im);
   }
   return result;
-  ================================= */
-  return measurements; // temporary solution before RecHitEqualByChannels is ported
+  //================================= 
+  //return measurements; // temporary solution before RecHitEqualByChannels is ported
 }
 
 void
@@ -392,7 +393,7 @@ TrajectorySegmentBuilder::lockMeasurement (const TM& measurement)
 
 
 
-/* ================= B.M. to be ported later ===============================
+// ================= B.M. to be ported later ===============================
 void
 TrajectorySegmentBuilder::cleanCandidates (vector<Trajectory>& candidates) const
 {
@@ -401,7 +402,7 @@ TrajectorySegmentBuilder::cleanCandidates (vector<Trajectory>& candidates) const
   // assumptions: no invalid hits and no duplicates
   //
   if ( candidates.size()<=1 )  return;
-  RecHitEqualByChannels recHitEqual(false,true);
+  //RecHitEqualByChannels recHitEqual(false,true);
   //
   vector<Trajectory> sortedCandidates(candidates);
   sort(sortedCandidates.begin(),sortedCandidates.end(),TrajectoryLessByFoundHits());
@@ -436,7 +437,7 @@ TrajectorySegmentBuilder::cleanCandidates (vector<Trajectory>& candidates) const
 	      im2!=measurements2.end(); im2++ ) {
 	  // redundant protection - segments should not contain invalid RecHits
 	  if ( !im2->recHit()->isValid() )  continue;
-	  if ( recHitEqual(im1->recHit(),im2->recHit()) ) {
+	  if ( im1->recHit()->hit()->sharesInput(im2->recHit()->hit(), TrackingRecHit::all) ) {
 	    found = true;
 	    from2 = im2 + 1;
 	    break;
@@ -450,13 +451,17 @@ TrajectorySegmentBuilder::cleanCandidates (vector<Trajectory>& candidates) const
       if ( allFound )  i1->invalidate();
     }
   }
-
+/*
   candidates.clear();
   for ( vector<Trajectory>::const_iterator i=sortedCandidates.begin();
 	i!=sortedCandidates.end(); i++ ) {
     if ( i->isValid() )  candidates.push_back(*i);
   }
-
+*/
+  candidates.erase(std::remove_if( candidates.begin(),candidates.end(),
+                                   std::not1(std::mem_fun_ref(&Trajectory::isValid))),
+ //                                boost::bind(&TempTrajectory::isValid,_1)), 
+                                   candidates.end()); 
 #ifdef DBG_TSB
   cout << "TSB: cleanCandidates: reduced from " << sortedCandidates.size()
        << " to " << candidates.size() << " candidates" << endl;
@@ -464,4 +469,4 @@ TrajectorySegmentBuilder::cleanCandidates (vector<Trajectory>& candidates) const
   return;
 }
 
-==================================================*/
+//==================================================

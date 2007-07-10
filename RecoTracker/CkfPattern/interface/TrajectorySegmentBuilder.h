@@ -20,6 +20,7 @@ class FreeTrajectoryState;
 class TrajectoryStateOnSurface;
 class DetGroup;
 class DetLayer;
+class TempTrajectory;
 
 /** 
  */
@@ -33,6 +34,7 @@ private:
   typedef TrajectoryMeasurement TM;
   typedef TrajectoryMeasurementGroup TMG;
   typedef std::vector<Trajectory> TrajectoryContainer;
+  typedef std::vector<TempTrajectory> TempTrajectoryContainer;
   typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
   typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer;
   
@@ -61,22 +63,23 @@ public:
   ~TrajectorySegmentBuilder() {}
 
   /// new segments within layer
-  std::vector<Trajectory> segments (const TSOS startingState);
+  //std::vector<Trajectory> segments (const TSOS startingState);
+  TrajectoryContainer segments (const TSOS startingState);
 
 private:
   /// update of a trajectory with a hit
-  void updateTrajectory (Trajectory& traj, const TM& tm) const;
+  void updateTrajectory (TempTrajectory& traj, const TM& tm) const;
  
  /// creation of new candidates from a segment and a collection of hits
-  void updateCandidates (Trajectory& traj, const std::vector<TM>& measurements,
-			 TrajectoryContainer& candidates);
+  void updateCandidates (TempTrajectory& traj, const std::vector<TM>& measurements,
+			 TempTrajectoryContainer& candidates);
 
   /// creation of a new candidate from a segment and the best hit out of a collection
-  void updateCandidatesWithBestHit (Trajectory& traj, const std::vector<TM>& measurements,
-				    TrajectoryContainer& candidates);
+  void updateCandidatesWithBestHit (TempTrajectory& traj, const std::vector<TM>& measurements,
+				    TempTrajectoryContainer& candidates);
 
   /// retrieve compatible hits from a DetGroup
-  std::vector<TrajectoryMeasurement> redoMeasurements (const Trajectory& traj,
+  std::vector<TrajectoryMeasurement> redoMeasurements (const TempTrajectory& traj,
 						  const DetGroup& detGroup) const;
 
   /// get list of unused hits
@@ -87,15 +90,15 @@ private:
 
   /// clean a set of candidates
   //B.M to be ported later
-  //void cleanCandidates (std::vector<Trajectory>& candidates) const;
+  void cleanCandidates (std::vector<Trajectory>& candidates) const;
 
 // public:
 
-  std::vector<Trajectory> addGroup( Trajectory& traj,
+  std::vector<Trajectory> addGroup( TempTrajectory& traj,
 			       std::vector<TrajectoryMeasurementGroup>::const_iterator begin,
 			       std::vector<TrajectoryMeasurementGroup>::const_iterator end);
     
-  void updateWithInvalidHit (Trajectory& traj,
+  void updateWithInvalidHit (TempTrajectory& traj,
 			     const std::vector<TMG>& groups,
 			     TrajectoryContainer& candidates) const;
   

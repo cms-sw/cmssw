@@ -3,6 +3,7 @@
 
 #include <functional>
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "RecoTracker/CkfPattern/interface/TempTrajectory.h"
 
 /** Defines an ordering of Trajectories in terms of "goodness"
  *  The comparison is done in terms of total chi**2 / ndf plus
@@ -17,6 +18,10 @@ public:
   GroupedTrajCandLess( float p=5, float b=0) : penalty(p), bonus(b) {}
 
   bool operator()( const Trajectory& a, const Trajectory& b) const {
+    return score(a) < score(b);
+  }
+
+  bool operator()( const TempTrajectory& a, const TempTrajectory& b) const {
     return score(a) < score(b);
   }
 
@@ -45,6 +50,10 @@ private:
 //     }
 //     normChi2 -= t.foundHits()*2*b;
 //     return normChi2+t.lostHits()*penalty;
+    return t.chiSquared()-t.foundHits()*bonus+t.lostHits()*penalty;
+  }
+  float score (const TempTrajectory& t) const
+  {
     return t.chiSquared()-t.foundHits()*bonus+t.lostHits()*penalty;
   }
 

@@ -8,6 +8,8 @@
 #include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
+#include "RecoTracker/CkfPattern/interface/TempTrajectory.h"
+
 #include <vector>
 
 class Propagator;
@@ -31,6 +33,7 @@ class DetGroup;
 class TrajectoryFitter;
 class TransientTrackingRecHitBuilder;
 
+
 /** A highly configurable trajectory builder that allows full
  *  exploration of the combinatorial tree of possible continuations,
  *  and provides efficient ways of trimming the combinatorial tree.
@@ -44,6 +47,7 @@ class GroupedCkfTrajectoryBuilder : public TrackerTrajectoryBuilder {
   typedef TrajectoryStateOnSurface    TSOS;
   typedef TrajectoryMeasurement       TM;
   typedef std::vector<Trajectory>     TrajectoryContainer;
+  typedef std::vector<TempTrajectory> TempTrajectoryContainer;
   
  public:
   /// constructor from ParameterSet
@@ -117,14 +121,14 @@ private :
   TrajectoryContainer buildTrajectories (const TrajectorySeed&,
 					 const TrajectoryFilter*) const;
 
-  Trajectory createStartingTrajectory( const TrajectorySeed&) const;
+  TempTrajectory createStartingTrajectory( const TrajectorySeed&) const;
 
   std::vector<TrajectoryMeasurement> seedMeasurements(const TrajectorySeed& seed) const;
 
-  void addToResult( Trajectory& traj, TrajectoryContainer& result) const;
+  void addToResult( TempTrajectory& traj, TrajectoryContainer& result) const;
   
-  bool qualityFilter( const Trajectory& traj) const;
-  bool toBeContinued( const Trajectory& traj, const TrajectoryFilter* regionalCondition) const;
+  bool qualityFilter( const TempTrajectory& traj) const;
+  bool toBeContinued( const TempTrajectory& traj, const TrajectoryFilter* regionalCondition) const;
 
   //B.M.TrajectoryContainer intermediaryClean(TrajectoryContainer& theTrajectories);
   // to be ported later
@@ -132,25 +136,25 @@ private :
   inline bool tkxor(bool a, bool b) const {return (a||b) && !(a&&b);}
   // to be ported later
 
-  bool advanceOneLayer( Trajectory& traj, 
+  bool advanceOneLayer( TempTrajectory& traj, 
 			const TrajectoryFilter* regionalCondition,
 			const Propagator* propagator, 
-			TrajectoryContainer& newCand, 
+			TempTrajectoryContainer& newCand, 
 			TrajectoryContainer& result) const;
 
-  void groupedLimitedCandidates( Trajectory& startingTraj, 
+  void groupedLimitedCandidates( TempTrajectory& startingTraj, 
 				 const TrajectoryFilter* regionalCondition,
 				 const Propagator* propagator, 
 				 TrajectoryContainer& result) const;
 
   /// try to find additional hits in seeding region
-  void rebuildSeedingRegion (Trajectory& startingTraj,
+  void rebuildSeedingRegion (TempTrajectory& startingTraj,
 			     TrajectoryContainer& result) const ;
 
    //** try to find additional hits in seeding region for a candidate
    //* (returns number of trajectories added) *
   int rebuildSeedingRegion (const std::vector<const TrackingRecHit*>& seedHits,
-			    Trajectory& candidate,
+			    TempTrajectory& candidate,
 			    TrajectoryContainer& result) const ;
 
   // ** Backward fit of trajectory candidate except seed. Fit result and
@@ -158,7 +162,7 @@ private :
   // *  FittedTracks is empty if no fit was done. *
   void backwardFit (Trajectory& candidate, unsigned int nSeed,
 		    const TrajectoryFitter& fitter,
-		    TrajectoryContainer& fittedTracks,
+		    TempTrajectoryContainer& fittedTracks,
 		    std::vector<const TrackingRecHit*>& remainingHits) const;
 
   /// Verifies presence of a RecHits in a range of TrajectoryMeasurements.
@@ -167,10 +171,10 @@ private :
 		   const std::vector<const TrackingRecHit*>& hits) const;
 
   /// intermediate cleaning in the case of grouped measurements
-  TrajectoryContainer groupedIntermediaryClean(TrajectoryContainer& theTrajectories) const ;
+  void groupedIntermediaryClean(TempTrajectoryContainer& theTrajectories) const ;
 
   /// list of layers from a container of TrajectoryMeasurements
-  std::vector<const DetLayer*> layers (const std::vector<TM>& measurements) const;
+  std::vector<const DetLayer*> layers (const TempTrajectory::DataContainer& measurements) const;
 
   /// change of propagation direction
   inline PropagationDirection oppositeDirection (PropagationDirection dir) const {
