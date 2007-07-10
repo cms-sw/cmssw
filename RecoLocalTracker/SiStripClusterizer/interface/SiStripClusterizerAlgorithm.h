@@ -1,5 +1,5 @@
-#ifndef SiStripClusterizerAlgorithm_h
-#define SiStripClusterizerAlgorithm_h
+#ifndef RecoLocalTracker_SiStripClusterizer_SiStripClusterizerAlgorithm_h
+#define RecoLocalTracker_SiStripClusterizer_SiStripClusterizerAlgorithm_h
 
 /** \class SiStripClusterizerAlgorithm
  *
@@ -23,6 +23,7 @@
 //Algorithm
 #include "RecoLocalTracker/SiStripClusterizer/interface/ThreeThresholdStripClusterizer.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 
 #include <iostream> 
 #include <memory>
@@ -38,11 +39,9 @@ class SiStripClusterizerAlgorithm
   ~SiStripClusterizerAlgorithm();
 
   /// Runs the algorithm
-  void run(const edm::DetSetVector<SiStripDigi>& input,std::vector< 
-edm::DetSet<SiStripCluster> >& output, const edm::ESHandle<SiStripGain> 
-& gainHandle);
+  void run(const edm::DetSetVector<SiStripDigi>& input,std::vector< edm::DetSet<SiStripCluster> >& output, const edm::ESHandle<SiStripNoises> & noiseHandle , const edm::ESHandle<SiStripGain> & gainHandle);
 
-  void configure( SiStripNoiseService* );
+  //  void configure( SiStripNoiseService* );
 
  private:
   edm::ParameterSet conf_;

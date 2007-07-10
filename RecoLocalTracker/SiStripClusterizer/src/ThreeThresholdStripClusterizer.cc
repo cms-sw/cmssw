@@ -1,8 +1,12 @@
 #include "RecoLocalTracker/SiStripClusterizer/interface/ThreeThresholdStripClusterizer.h"
 
-void ThreeThresholdStripClusterizer::clusterizeDetUnit( const 
-edm::DetSet<SiStripDigi>& input,edm::DetSet<SiStripCluster>& output, 
+
+void ThreeThresholdStripClusterizer::clusterizeDetUnit( 
+const edm::DetSet<SiStripDigi>& input,
+edm::DetSet<SiStripCluster>& output, 
+const edm::ESHandle<SiStripNoises> & noiseHandle,
 const edm::ESHandle<SiStripGain> & gainHandle) {
+
   const uint32_t& detID = input.id;
   edm::DetSet<SiStripDigi>::const_iterator begin=input.data.begin();
   edm::DetSet<SiStripDigi>::const_iterator end  =input.data.end();
@@ -14,10 +18,13 @@ const edm::ESHandle<SiStripGain> & gainHandle) {
 
   output.data.reserve( (end - begin)/3 + 1);
 
-  AboveSeed predicate(seedThresholdInNoiseSigma(),SiStripNoiseService_,detID);
+  SiStripApvGain::Range detGainRange =  gainHandle->getRange(detID); 
+  //  if(gainHandle.isValid()) detGainRange = gainHandle->getRange(detID);
+  SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detID);
 
-  SiStripApvGain::Range detGainRange; 
-  if(gainHandle.isValid()) detGainRange = gainHandle->getRange(detID);
+
+  //  AboveSeed predicate(seedThresholdInNoiseSigma(),SiStripNoiseService_,detID);
+  AboveSeed predicate(seedThresholdInNoiseSigma(), noiseHandle, detNoiseRange);
 
 
 
@@ -39,8 +46,8 @@ const edm::ESHandle<SiStripGain> & gainHandle) {
     LogDebug("SiStripClusterizer") << "[ThreeThresholdStripClusterizer::clusterizeDetUnit] " 
 				   << "Seed Channel: detID "<< detID << " digis " << ihigh->strip() 
 				   << " adc " << ihigh->adc() << " is " 
-				   << " channelNoise " << SiStripNoiseService_->getNoise(detID,ihigh->strip()) 
-				   <<  " IsBadChannel  " << SiStripNoiseService_->getDisable(detID,ihigh->strip()) << std::endl;
+				   << " channelNoise " << noiseHandle->getNoise(ihigh->strip(),detNoiseRange) 
+				   <<  " IsBadChannel  " << noiseHandle->getDisable(ihigh->strip(),detNoiseRange) << std::endl;
 
     // The seed strip is ihigh. Scan up and down from it, finding nearby strips above
     // threshold, allowing for some holes. The accepted cluster runs from strip ibeg
@@ -48,8 +55,8 @@ const edm::ESHandle<SiStripGain> & gainHandle) {
     iend = ihigh;
     itest = iend + 1;
     while ( itest != end && (itest->strip() - iend->strip() <= max_holes_ + 1 )) {
-      float channelNoise = SiStripNoiseService_->getNoise(detID,itest->strip());
-      bool IsBadChannel = SiStripNoiseService_->getDisable(detID,itest->strip());
+      float channelNoise = noiseHandle->getNoise(itest->strip(),detNoiseRange);
+      bool IsBadChannel = noiseHandle->getDisable(itest->strip(),detNoiseRange);
 
       LogDebug("SiStripClusterizer") << "[ThreeThresholdStripClusterizer::clusterizeDetUnit] " 
 				     << "Strips on the right: detID " << detID << " digis " << itest->strip()  
@@ -62,7 +69,7 @@ const edm::ESHandle<SiStripGain> & gainHandle) {
     }
     //if the next digi after iend is an adiacent bad digi then insert into candidate cluster
     itest=iend+1;
-    if ( itest != end && (itest->strip() - iend->strip() == 1) && SiStripNoiseService_->getDisable(detID,itest->strip()) ) {    
+    if ( itest != end && (itest->strip() - iend->strip() == 1) && noiseHandle->getDisable(itest->strip(),detNoiseRange) ) {    
       LogDebug("SiStripClusterizer") << "[ThreeThresholdStripClusterizer::clusterizeDetUnit] " 
 				     << "Inserted bad strip at the end edge iend->strip()= " << iend->strip() << " itest->strip() = " << itest->strip() << std::endl;
       iend++;
@@ -71,8 +78,8 @@ const edm::ESHandle<SiStripGain> & gainHandle) {
     ibeg = ihigh;
     itest = ibeg - 1;
     while ( itest >= begin && (ibeg->strip() - itest->strip() <= max_holes_ + 1 )) {
-      float channelNoise = SiStripNoiseService_->getNoise(detID,itest->strip());
-      bool IsBadChannel = SiStripNoiseService_->getDisable(detID,itest->strip());
+      float channelNoise = noiseHandle->getNoise(itest->strip(),detNoiseRange);
+      bool IsBadChannel = noiseHandle->getDisable(itest->strip(),detNoiseRange);
 
       LogDebug("SiStripClusterizer") << "[ThreeThresholdStripClusterizer::clusterizeDetUnit] " 
 				     << "Strips on the left : detID " << detID << " digis " << itest->strip()  
@@ -85,7 +92,7 @@ const edm::ESHandle<SiStripGain> & gainHandle) {
     }
     //if the next digi after ibeg is an adiacent bad digi then insert into candidate cluster
     itest=ibeg-1;
-    if ( itest >= begin && (ibeg->strip() - itest->strip() == 1) &&  SiStripNoiseService_->getDisable(detID,itest->strip()) ) {    
+    if ( itest >= begin && (ibeg->strip() - itest->strip() == 1) &&  noiseHandle->getDisable(itest->strip(),detNoiseRange) ) {    
 
       LogDebug("SiStripClusterizer") << "[ThreeThresholdStripClusterizer::clusterizeDetUnit] " 
 				     << "Inserted bad strip at the begin edge ibeg->strip()= " << ibeg->strip() << " itest->strip() = " << itest->strip() << std::endl;
@@ -98,8 +105,8 @@ const edm::ESHandle<SiStripGain> & gainHandle) {
     //int counts=0;
     cluster_digis.clear();
     for (itest=ibeg; itest<=iend; itest++) {
-      float channelNoise = SiStripNoiseService_->getNoise(detID,itest->strip());
-      bool IsBadChannel = SiStripNoiseService_->getDisable(detID,itest->strip());
+      float channelNoise = noiseHandle->getNoise(itest->strip(),detNoiseRange);
+      bool IsBadChannel = noiseHandle->getDisable(itest->strip(),detNoiseRange);
 
       LogDebug("SiStripClusterizer") << "[ThreeThresholdStripClusterizer::clusterizeDetUnit] " 
 				     << "Looking at cluster digis: detID " << detID << " digis " << itest->strip()  
@@ -118,7 +125,8 @@ const edm::ESHandle<SiStripGain> & gainHandle) {
       }
       if (!IsBadChannel && itest->adc() >= static_cast<int>( channelThresholdInNoiseSigma()*channelNoise)) {
 
-	float gainFactor  = (gainHandle.isValid()) ? gainHandle->getStripGain(itest->strip(), detGainRange) : 1;
+	//	float gainFactor  = (gainHandle.isValid()) ? gainHandle->getStripGain(itest->strip(), detGainRange) : 1;
+	float gainFactor  = gainHandle->getStripGain(itest->strip(), detGainRange);
         float stripCharge=(static_cast<float>(itest->adc()))/gainFactor;
 
         charge += stripCharge;

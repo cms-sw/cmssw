@@ -1,5 +1,5 @@
-#ifndef SiStripClusterizer_h
-#define SiStripClusterizer_h
+#ifndef RecoLocalTracker_SiStripClusterizer_SiStripClusterizer_h
+#define RecoLocalTracker_SiStripClusterizer_SiStripClusterizer_h
 
 /** \class SiStripClusterizer
  *
@@ -29,7 +29,7 @@
 //Clusterizer
 #include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterizerAlgorithm.h"
 //SiStripPedestalsService
-#include "CommonTools/SiStripZeroSuppression/interface/SiStripNoiseService.h"
+//#include "CommonTools/SiStripZeroSuppression/interface/SiStripNoiseService.h"
 
 #include <iostream> 
 #include <memory>
@@ -46,16 +46,15 @@ namespace cms
 
     virtual ~SiStripClusterizer();
 
-    virtual void beginJob( const edm::EventSetup& );
+    //    virtual void beginJob( const edm::EventSetup& );
 
     virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
   private:
     edm::ParameterSet conf_;
     SiStripClusterizerAlgorithm SiStripClusterizerAlgorithm_;
-    SiStripNoiseService SiStripNoiseService_;  
-
-    bool useGainFromDB_;
+    //    SiStripNoiseService SiStripNoiseService_;  
+    //    bool useGainFromDB_;
 
 
   };

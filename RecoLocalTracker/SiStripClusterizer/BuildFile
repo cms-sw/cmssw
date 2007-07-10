@@ -6,17 +6,8 @@
 <use name=DataFormats/SiStripCluster>
 
 <use name=DataFormats/SiStripDetId>
-<use name=DataFormats/FEDRawData> 
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/SiStripObjects>
-<use name=CondCore/DBCommon>
-<use name=CondCore/IOVService>
-<use name=CondCore/MetaDataService>
-
-<use name=Geometry/CommonDetUnit>
-<use name=Geometry/TrackerGeometryBuilder>	
-
-<use name=CommonTools/SiStripZeroSuppression>	
 <use name=CalibFormats/SiStripObjects>
 <use name=CalibTracker/Records>
 
@@ -29,14 +20,8 @@
 <use name=DataFormats/SiStripCluster>
 
 <use name=DataFormats/SiStripDetId>
-<use name=DataFormats/FEDRawData> 
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/SiStripObjects>
-<use name=CondCore/DBCommon>
-<use name=CondCore/IOVService>
-<use name=CondCore/MetaDataService>
-
-<use name=CommonTools/SiStripZeroSuppression>	
 <use name=CalibFormats/SiStripObjects>
 <use name=CalibTracker/Records>
 </export>
