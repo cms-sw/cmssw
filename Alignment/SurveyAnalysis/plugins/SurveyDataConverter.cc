@@ -23,10 +23,10 @@
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
 #include "CondFormats/Alignment/interface/AlignmentSorter.h"
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
+#include "Alignment/TrackerAlignment/interface/TrackerAlignment.h"
 #include "Alignment/CommonAlignment/interface/AlignableModifier.h"
 // #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 // #include "Alignment/MuonAlignment/interface/AlignableDTBarrel.h"
-#include "Alignment/TrackerAlignment/interface/TrackerAlignment.h"
 
 // Conditions database
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -115,8 +115,14 @@ void SurveyDataConverter::applyFineSurveyInfo( TrackerAlignment& tr_align, MapTy
 				       align_params[16], align_params[19], align_params[13],
 				       align_params[17], align_params[20], align_params[14]);
 
-	        tr_align.moveAlignableTIBTIDs(id, translations, bRotation, fRotation, true);
                 // Use "false" for debugging only
+	        //tr_align.moveAlignableTIBTIDs(id, translations, bRotation, fRotation, true);
+                // Hack for pre4 to compile: needs to be sorted out!
+                std::vector<double> APE;
+                APE.push_back( static_cast<double>(align_params[0]) );
+                APE.push_back( static_cast<double>(align_params[1]) );
+                APE.push_back( static_cast<double>(align_params[2]) );
+	        tr_align.moveAlignableTIBTIDs(id, translations, bRotation*fRotation, APE );
 	}
 }
 
