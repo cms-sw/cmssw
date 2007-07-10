@@ -15,6 +15,7 @@
 
 //#include "Utilities/General/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 // MessageLogger
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -176,10 +177,8 @@ PixelErrorParametrization::PixelErrorParametrization(edm::ParameterSet const& co
       FILE* datfile;
       
       if ( (datfile=fopen(fname,"r")) == NULL ) 
-	{
-	  cout << "Can not open the data file " << endl;
-	  exit(-1);
-	}
+	throw cms::Exception("FileNotFound")
+	  << "PixelErrorParameterization::PixelErrorParameterization - Input file not found";
       
       vec_error_XB.clear();
       vec_error_YB.clear();
