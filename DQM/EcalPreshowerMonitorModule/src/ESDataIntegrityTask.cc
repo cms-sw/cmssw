@@ -10,13 +10,16 @@ ESDataIntegrityTask::ESDataIntegrityTask(const ParameterSet& ps) {
 
   label_        = ps.getUntrackedParameter<string>("Label");
   instanceName_ = ps.getUntrackedParameter<string>("InstanceES");
+  // 1 : CT, 2 : TB
+  detType_      = ps.getUntrackedParameter<int>("DetectorType", 1);
   sta_          = ps.getUntrackedParameter<bool>("RunStandalone", false);
 
   init_ = false;
 
   meCRCError_ = 0;
-
   meDCCError_ = 0;  
+  meBC_ = 0;
+  meEC_ = 0;
 
   fedIds_=0;
   DCCfedId1_=0;
@@ -57,7 +60,19 @@ void ESDataIntegrityTask::setup(void){
 
     sprintf(hist, "ES DCC Errors");      
     meDCCError_ = dbe_->book1D(hist, hist, 256, 0, 256);  
-    
+
+    sprintf(hist, "ES BC Errors");
+    meBC_ = dbe_->book1D(hist, hist, 2, 0, 2);
+
+    sprintf(hist, "ES EC Errors");
+    meEC_ = dbe_->book1D(hist, hist, 2, 0, 2);
+
+    sprintf(hist, "ES KCHIP Flag1");
+    meFlag1_ = dbe_->book1D(hist, hist, 16, 0, 16);
+
+    sprintf(hist, "ES KCHIP Flag2");
+    meFlag2_ = dbe_->book1D(hist, hist, 256, 0, 256);
+
     sprintf(hist, "ES DCC FedId");
     fedIds_= dbe_->book1D(hist, hist, 50, 0, 50);
     sprintf(hist, "ES DCC FedId=1");
@@ -87,6 +102,18 @@ void ESDataIntegrityTask::cleanup(void){
 
     if ( meDCCError_ )dbe_->removeElement( meDCCError_->getName() );
     meDCCError_ = 0;
+
+    if ( meBC_ ) dbe_->removeElement( meBC_->getName() );
+    meBC_ = 0;
+
+    if ( meEC_ ) dbe_->removeElement( meEC_->getName() );
+    meEC_ = 0;
+
+    if ( meFlag1_ ) dbe_->removeElement( meFlag1_->getName() );
+    meFlag1_ = 0;
+
+    if ( meFlag2_ ) dbe_->removeElement( meFlag2_->getName() );
+    meFlag2_ = 0;
 
     if ( fedIds_)dbe_->removeElement(fedIds_->getName() );
     fedIds_ = 0;
@@ -136,6 +163,8 @@ void ESDataIntegrityTask::analyze(const Event& e, const EventSetup& c){
     LogDebug("") << "ESDataIntegrity : Error! can't get ES local raw data collection !" << std::endl;
   }  
 
+  int bc, ev;
+
   // DCC
   for ( ESRawDataCollection::const_iterator dccItr = dccs->begin(); dccItr != dccs->end(); ++dccItr ) {
 
@@ -144,6 +173,7 @@ void ESDataIntegrityTask::analyze(const Event& e, const EventSetup& c){
     fedIds_->Fill(dcc.fedId());
 
     if (dcc.fedId()==1) {   
+
       if(dcc.getPacketLength()!=-1)        DCCfedId1_->Fill(1);
       if(dcc.getBMMeasurements()!=-1)      DCCfedId1_->Fill(2);
       if(dcc.getRunNumber()!=-1)           DCCfedId1_->Fill(3);
@@ -155,35 +185,44 @@ void ESDataIntegrityTask::analyze(const Event& e, const EventSetup& c){
       if(dcc.getEndOfSpillLV1()!=-1)       DCCfedId1_->Fill(9);
     }
 
-
     if (dcc.fedId()==4) {       
-        if(dcc.getPacketLength()!=-1)        DCCfedId4_->Fill(1);
-        if(dcc.getMajorVersion()!=-1)        DCCfedId4_->Fill(2);
-        if(dcc.getMinorVersion()!=-1)        DCCfedId4_->Fill(3);
-        if(dcc.getTimeStampSec()!=-1)        DCCfedId4_->Fill(4);
-        if(dcc.getTimeStampUSec()!=-1)       DCCfedId4_->Fill(5);
-        if(dcc.getLV1()!=-1)                 DCCfedId4_->Fill(6);
-        if(dcc.getRunNumber()!=-1)           DCCfedId4_->Fill(7);
-        if(dcc.getSpillNumber()!=-1)         DCCfedId4_->Fill(8);
-        if(dcc.getEventInSpill()!=-1)        DCCfedId4_->Fill(9);
-        if(dcc.getVMEError()!=-1)            DCCfedId4_->Fill(10);
-    }
 
+      if(dcc.getPacketLength()!=-1)        DCCfedId4_->Fill(1);
+      if(dcc.getMajorVersion()!=-1)        DCCfedId4_->Fill(2);
+      if(dcc.getMinorVersion()!=-1)        DCCfedId4_->Fill(3);
+      if(dcc.getTimeStampSec()!=-1)        DCCfedId4_->Fill(4);
+      if(dcc.getTimeStampUSec()!=-1)       DCCfedId4_->Fill(5);
+      if(dcc.getLV1()!=-1)                 DCCfedId4_->Fill(6);
+      if(dcc.getRunNumber()!=-1)           DCCfedId4_->Fill(7);
+      if(dcc.getSpillNumber()!=-1)         DCCfedId4_->Fill(8);
+      if(dcc.getEventInSpill()!=-1)        DCCfedId4_->Fill(9);
+      if(dcc.getVMEError()!=-1)            DCCfedId4_->Fill(10);
+    }
+    
     if ((dcc.fedId()>=10)&&(dcc.fedId()<=13)) {   
-        if(dcc.getPacketLength()!=-1)     DCCfedId10_->Fill(1);
-        if(dcc.getRunNumber()!=-1)        DCCfedId10_->Fill(2);
-        if(dcc.getLV1()!=-1)              DCCfedId10_->Fill(3);
-        if(dcc.getMajorVersion()!=-1)     DCCfedId10_->Fill(4);
-        if(dcc.getMinorVersion()!=-1)     DCCfedId10_->Fill(5);
-        if(dcc.getBC()!=-1)               DCCfedId10_->Fill(6);
-        if(dcc.getEV()!=-1)               DCCfedId10_->Fill(7);
-    }
 
+      if (detType_ == 1) {
+	bc = dcc.getBC();
+	ev = dcc.getEV();
+      }
+
+      if(dcc.getPacketLength()!=-1)     DCCfedId10_->Fill(1);
+      if(dcc.getRunNumber()!=-1)        DCCfedId10_->Fill(2);
+      if(dcc.getLV1()!=-1)              DCCfedId10_->Fill(3);
+      if(dcc.getMajorVersion()!=-1)     DCCfedId10_->Fill(4);
+      if(dcc.getMinorVersion()!=-1)     DCCfedId10_->Fill(5);
+      if(dcc.getBC()!=-1)               DCCfedId10_->Fill(6);
+      if(dcc.getEV()!=-1)               DCCfedId10_->Fill(7);
+    }
 
     if ((dcc.fedId()>=40)&&(dcc.fedId()<=43)){   
       
       meDCCError_->Fill(dcc.getDCCErrors());
-      
+
+      if (detType_ == 2) {
+	bc = dcc.getBX();
+	ev = dcc.getLV1();
+      }
     }
 
   }
@@ -194,6 +233,26 @@ void ESDataIntegrityTask::analyze(const Event& e, const EventSetup& c){
     ESKCHIPBlock kchip = (*kItr);
 
     meCRCError_->Fill(kchip.fiberId(), kchip.getCRC(), 1);
+    
+    if (kchip.getCRC()==0) {
+      cout<<"CRC error !"<<endl;
+      continue;    
+    }
+    
+    if (kchip.getBC() != bc) {
+      meBC_->Fill(0);
+      cout<<"BC error : "<<kchip.getBC()<<" "<<bc<<" "<<kchip.fiberId()<<" "<<kchip.id()<<endl;
+    }
+    else 
+      meBC_->Fill(1);
+    
+    if (kchip.getEC() != ev)
+      meEC_->Fill(0);
+    else
+      meEC_->Fill(1);
+
+    meFlag1_->Fill(kchip.getFlag1());
+    meFlag2_->Fill(kchip.getFlag2());
 
     if(kchip.id()!=-1)        Kchip_->Fill(1);
     if(kchip.dccdId()!=-1)    Kchip_->Fill(2);
