@@ -2,21 +2,11 @@
 #include <fstream>
 #include "boost/shared_ptr.hpp"
 
-// user include files
-#include "FWCore/Framework/interface/SourceFactory.h"
-#include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
-
-//FW include files
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
-//CSCObjects
 #include "CondFormats/CSCObjects/interface/CSCcrosstalk.h"
-#include "CalibMuon/CSCCalibration/interface/CSCFrontierCrosstalkConditions.h"
 #include "CondFormats/DataRecord/interface/CSCcrosstalkRcd.h"
+#include "CalibMuon/CSCCalibration/interface/CSCFrontierCrosstalkConditions.h"
 
-void CSCFrontierCrosstalkMap::prefillCrosstalkMap(){
+void CSCFrontierCrosstalkConditions::prefillCrosstalk(){
   
   const CSCDetId& detId = CSCDetId();
   cncrosstalk = new CSCcrosstalk();
@@ -238,7 +228,7 @@ CSCFrontierCrosstalkConditions::CSCFrontierCrosstalkConditions(const edm::Parame
 {
   //the following line is needed to tell the framework what
   // data is being produced
-  crosstalk.prefillCrosstalkMap();
+  prefillCrosstalk();
   // added by Zhen (changed since 1_2_0)
   setWhatProduced(this,&CSCFrontierCrosstalkConditions::produceCrosstalk);
   findingRecord<CSCcrosstalkRcd>();
@@ -251,7 +241,7 @@ CSCFrontierCrosstalkConditions::~CSCFrontierCrosstalkConditions()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-
+  delete cncrosstalk;
 }
 
 
@@ -263,12 +253,11 @@ CSCFrontierCrosstalkConditions::~CSCFrontierCrosstalkConditions()
 CSCFrontierCrosstalkConditions::ReturnType
 CSCFrontierCrosstalkConditions::produceCrosstalk(const CSCcrosstalkRcd& iRecord)
 {
-    crosstalk.prefillCrosstalkMap();
-    // Added by Zhen, need a new object so to not be deleted at exit
-    CSCcrosstalk* mydata=new CSCcrosstalk(crosstalk.get());
-    
-    return mydata;
-
+  // Added by Zhen, need a new object so to not be deleted at exit
+  CSCcrosstalk* mydata=new CSCcrosstalk( *cncrosstalk );
+  
+  return mydata;
+  
 }
 
  void CSCFrontierCrosstalkConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,
