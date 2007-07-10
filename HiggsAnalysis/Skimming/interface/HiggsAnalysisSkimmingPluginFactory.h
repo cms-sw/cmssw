@@ -13,15 +13,6 @@
 
 class edm::ParameterSet;
 
-class HiggsAnalysisSkimmingPluginFactory : public seal::PluginFactory<HiggsAnalysisSkimType *(const edm::ParameterSet&)>{
- public:
-    /// Constructor
-    HiggsAnalysisSkimmingPluginFactory();    
+typedef edmplugin::PluginFactory<HiggsAnalysisSkimType *(const edm::ParameterSet&)> HiggsAnalysisSkimmingPluginFactory;
 
-    static HiggsAnalysisSkimmingPluginFactory* get (void);
-
-private:
-    static HiggsAnalysisSkimmingPluginFactory s_instance;
-
-};
 #endif

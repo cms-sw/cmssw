@@ -1,4 +1,5 @@
 <use name=DataFormats/Common>
+<use name=DataFormats/CLHEP>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
@@ -12,7 +13,7 @@
 <use name=clhep> 
 <use name=root>
 
-<flags SEALPLUGIN=1>
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=HiggsAnalysisSkimming>
 </export>
