@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2007/05/14 23:48:02 $
- *  $Revision: 1.44 $
+ *  $Date: 2007/05/18 08:07:54 $
+ *  $Revision: 1.45 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.44 2007/05/14 23:48:02 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.45 2007/05/18 08:07:54 slava77 Exp $
 //
 //
 
@@ -272,6 +272,7 @@ SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart,
 
 void SteppingHelixPropagator::setIState(const SteppingHelixStateInfo& sStart) const {
   nPoints_ = 0;
+  svBuf_[cIndex_(nPoints_)] = sStart; //do this anyways to have a fresh start
   if (sStart.isComplete ) {
     svBuf_[cIndex_(nPoints_)] = sStart;
     nPoints_++;
@@ -588,6 +589,7 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
 					const SteppingHelixPropagator::Point& r3, int charge,
 					const AlgebraicSymMatrix66& cov, PropagationDirection dir) const{
   static const std::string metname = "SteppingHelixPropagator";
+
   svCurrent.q = charge;
   svCurrent.p3 = p3;
   svCurrent.r3 = r3;
@@ -648,6 +650,7 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
   svCurrent.cov =cov;
 
   svCurrent.isComplete = true;
+  svCurrent.isValid_ = true;
 
   if (debug_){
     LogTrace(metname)<<"Loaded at  path: "<<svCurrent.path_<<" radPath: "<<svCurrent.radPath
