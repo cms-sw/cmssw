@@ -59,6 +59,7 @@ class ESDataIntegrityClient: public EDAnalyzer{
   string htmlName_;
   int count_;
   int run_;
+  int detType_;
   bool sta_;
   bool init_;
 
@@ -66,6 +67,10 @@ class ESDataIntegrityClient: public EDAnalyzer{
 
   TH1F *hDCCError_;
   TH2F *hCRCError_;
+  TH1F *hBC_;
+  TH1F *hEC_;
+  TH1F *hFlag1_;
+  TH1F *hFlag2_;
 
 };
 
