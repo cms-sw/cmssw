@@ -159,8 +159,9 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
      calo->loadFromHcal(*p7);
    }
 
-   iEvent.put(p1);
+   // Write muon first, to allow tracking particles to work... (pending MixingModule fix)
    if ( simulateMuons ) iEvent.put(m1,"MuonSimTracks");
+   iEvent.put(p1);
    iEvent.put(p2);
    iEvent.put(p3,"TrackerHits");
    iEvent.put(p4,"EcalHitsEB");
