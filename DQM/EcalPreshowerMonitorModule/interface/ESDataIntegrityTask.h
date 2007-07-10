@@ -45,11 +45,16 @@ class ESDataIntegrityTask: public EDAnalyzer{
  private:
 
   int ievt_;
-
+  int detType_;
+  
   DaqMonitorBEInterface* dbe_;
 
   MonitorElement* meCRCError_;
   MonitorElement* meDCCError_;
+  MonitorElement* meBC_;
+  MonitorElement* meEC_;
+  MonitorElement* meFlag1_;
+  MonitorElement* meFlag2_;
 
   MonitorElement* fedIds_;
   MonitorElement* DCCfedId1_;
