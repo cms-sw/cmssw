@@ -17,6 +17,16 @@
 
 using namespace std;
 
+namespace rpcdetlayergeomsort {
+  template <class T, class Scalar = typename T::Scalar>
+  struct ExtractInnerRadius {
+    typedef Scalar result_type;
+    Scalar operator()(const T* p) const {return fabs(p->specificSurface().innerRadius());}
+    Scalar operator()(const T& p) const {return fabs(p.specificSurface().innerRadius());}
+  };
+}
+
+
 MuonRPCDetLayerGeometryBuilder::~MuonRPCDetLayerGeometryBuilder() {
 }
 
@@ -150,9 +160,12 @@ MuonRPCDetLayerGeometryBuilder::buildLayer(int endcap,std::vector<int> rings, in
   }
 
    MuRingForwardDoubleLayer * result = 0;
-  // every station should have at least back rings
-  if(!backRings.empty())
+
+  if(!backRings.empty() || !frontRings.empty())
   {
+    typedef rpcdetlayergeomsort::ExtractInnerRadius<ForwardDetRing, float> SortRingByInnerR;
+    precomputed_value_sort(frontRings.begin(), frontRings.end(), SortRingByInnerR());
+    precomputed_value_sort(backRings.begin(), backRings.end(), SortRingByInnerR());
   
     result = new MuRingForwardDoubleLayer(frontRings, backRings);  
     LogTrace(metname) << "New layer with " << frontRings.size() 
