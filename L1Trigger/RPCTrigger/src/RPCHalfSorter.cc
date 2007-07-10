@@ -105,14 +105,12 @@ L1RpcTBMuonsVec2 RPCHalfSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
 
   firstHalfTcsMuonsVec2.push_back(tcsMuonsVec2[m_TrigCnfg->getTCsCnt()-1]); //TC=11 (last one)
 
-  std::cout << "-"<< std::endl;
   // update sectorAddr. Dont update sectorAddr of last tc (it will be done in other half)
   int secAddr = 1;  
   //                                         <6+1
   for(int iTC = 0; iTC < m_TrigCnfg->getTCsCnt()/2 +1; iTC++) {
     for(unsigned int iMu = 0; iMu < tcsMuonsVec2[iTC].size(); iMu++){
       if ( secAddr != 0 && secAddr != 7  ){ 
-        std::cout << iTC << " " << secAddr << std::endl; 
         tcsMuonsVec2[iTC][iMu].setSectorAddr(secAddr); // |
                                                    // iTC=0 - firstTrigger crate (no=1) 
                                                    //       - in hw it has sectorAddr=1
@@ -129,14 +127,12 @@ L1RpcTBMuonsVec2 RPCHalfSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
   unsigned int fhBMuons = m_GBOutputMuons[0].size(); // Number of first half barrel muons
   unsigned int fhEMuons = m_GBOutputMuons[1].size(); // Number of first half endcap muons
   
-  std::cout << std::endl;
   L1RpcTBMuonsVec2 secondHalfTcsMuonsVec2;
   secAddr = 0; 
   //        5                                           <12
   for(int iTC = m_TrigCnfg->getTCsCnt()/2-1; iTC < m_TrigCnfg->getTCsCnt(); iTC++) {
     for(unsigned int iMu = 0; iMu < tcsMuonsVec2[iTC].size(); iMu++){
       if ( secAddr != 0 && secAddr != 7  ){ 
-        std::cout << iTC << " " << secAddr << std::endl; 
         tcsMuonsVec2[iTC][iMu].setSectorAddr(secAddr);
         tcsMuonsVec2[iTC][iMu].setGBData(0);       // gbData is used nowhere from now, we 
                                                    //      want to act same as hw
@@ -149,7 +145,6 @@ L1RpcTBMuonsVec2 RPCHalfSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
 
   runHalf(secondHalfTcsMuonsVec2);
   // Debug
-  if (m_TrigCnfg->getDebugLevel()!=0){
     for (unsigned  int region = 0; region < m_GBOutputMuons.size(); ++region){ // region: 0- barrel,1-endcaps
         for (unsigned  int i = 0; i < m_GBOutputMuons[region].size(); ++i)
 	{
@@ -165,6 +160,8 @@ L1RpcTBMuonsVec2 RPCHalfSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
 	    halfNum = 1;
 	    iMod=4;
 	  }
+          // Print out 
+          if (m_TrigCnfg->getDebugLevel()!=0){
 #ifndef _STAND_ALONE
             LogDebug("RPCHwDebug")<<"GB 3"<< region <<halfNum  
 	        << " " << i - iMod << " "
@@ -175,9 +172,16 @@ L1RpcTBMuonsVec2 RPCHalfSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
                 << m_GBOutputMuons[region][i].printDebugInfo(m_TrigCnfg->getDebugLevel())
                 << std::endl;
 #endif 
-        }
-    }
-  }
+          }
+          // Re-number the phi addr. This should be done by fs, temporary fix (doesnt change the logic)
+          int segment = m_GBOutputMuons[region][i].getSegmentAddr();
+          int sector = m_GBOutputMuons[region][i].getSectorAddr()-1+6*halfNum;
+          int pt = m_GBOutputMuons[region][i].getPtCode();
+          if (pt != 0){// dont touch empty muons
+            m_GBOutputMuons[region][i].setPhiAddr( (sector*12 + segment + 2)%144 );
+          }
+       }
+     }
 
   return m_GBOutputMuons;
 }

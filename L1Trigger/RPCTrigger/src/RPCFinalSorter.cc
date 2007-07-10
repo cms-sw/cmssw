@@ -72,8 +72,9 @@ void RPCFinalSorter::runFinalSorter(L1RpcTBMuonsVec2 &finalMuons) {
     // 10 oct 2006 - moved to RPCTCGhostBusterSorter::run 
     //finalMuons[0][iMu].setEtaAddr(m_TrigCnfg->towNum2TowNum2Comp(finalMuons[0][iMu].getEtaAddr()));
     //finalMuons[1][iMu].setEtaAddr(m_TrigCnfg->towNum2TowNum2Comp(finalMuons[1][iMu].getEtaAddr()));
-   
-    finalMuons[0][iMu].setPhiAddr(finalMuons[0][iMu].getContinSegmAddr());
-    finalMuons[1][iMu].setPhiAddr(finalMuons[1][iMu].getContinSegmAddr());   
+    
+    // 9 July 2007 - temporarly moved to HS
+    //finalMuons[0][iMu].setPhiAddr(finalMuons[0][iMu].getContinSegmAddr());
+    //finalMuons[1][iMu].setPhiAddr(finalMuons[1][iMu].getContinSegmAddr());   
   }  
 }
