@@ -4,6 +4,7 @@
 #include <vector>
 namespace coral{
   class ISessionProxy;
+  class ISchema;
 }
 namespace cond{
   class CoralConnectionProxy;
@@ -19,6 +20,7 @@ namespace cond{
     virtual void rollback();
     virtual bool isReadOnly() const;
     virtual IConnectionProxy& parentConnection();
+    coral::ISchema& nominalSchema();
     void resetCoralHandle(coral::ISessionProxy* coralHandle) const;
   private:
     CoralConnectionProxy* m_parentConnection;
