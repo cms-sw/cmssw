@@ -1,6 +1,5 @@
 #include "RecoTracker/NuclearSeedGenerator/interface/NuclearTester.h"
 #include "RecoTracker/CkfPattern/src/RecHitIsInvalid.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 template <class T>
@@ -12,12 +11,9 @@ int index(T it_begin, T it_end, T it_)
            return indx;
 }
 
-NuclearTester::NuclearTester(const edm::EventSetup& es, const edm::ParameterSet& iConfig) :
-maxHits(iConfig.getParameter<int>("maxHits"))
-{
-  es.get<TrackerDigiGeometryRecord> ().get (trackerGeom);
-  NuclearIndex=0;
-}
+//----------------------------------------------------------------------
+NuclearTester::NuclearTester(unsigned int max_hits, const MeasurementEstimator* est, const TrackerGeometry* track_geom) :
+    maxHits(max_hits), theEstimator(est), trackerGeom(track_geom) { NuclearIndex=0; }
 
 //----------------------------------------------------------------------
 bool NuclearTester::isNuclearInteraction( ) {
@@ -98,10 +94,13 @@ std::vector<GlobalPoint> NuclearTester::HitPositions(const std::vector<Trajector
    return gp;
 }
 //----------------------------------------------------------------------
-double NuclearTester::meanEstimate(const std::vector<TrajectoryMeasurement>& vecTM) const {
+double NuclearTester::fwdEstimate(const std::vector<TrajectoryMeasurement>& vecTM) const {
+       if(vecTM.empty()) return 0;
+       
+       return theEstimator->estimate( vecTM.front().forwardPredictedState(), *(vecTM.front().recHit().get()) ).second;
+/*
        double meanEst=0;
        int    goodTM=0;
-       if(vecTM.empty()) return 0;
        std::vector<TM>::const_iterator last;
        //std::vector<TM>::const_iterator last = this->lastValidTM(vecTM);
        if(vecTM.size() > 2) last = vecTM.begin()+2;
@@ -112,6 +111,7 @@ double NuclearTester::meanEstimate(const std::vector<TrajectoryMeasurement>& vec
              goodTM++;
        }
        return meanEst/goodTM;
+*/
 }
 //----------------------------------------------------------------------
 std::vector<TrajectoryMeasurement>::const_iterator NuclearTester::lastValidTM(const std::vector<TM>& vecTM) const {

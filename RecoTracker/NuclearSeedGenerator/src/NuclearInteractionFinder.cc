@@ -1,6 +1,9 @@
 #include "RecoTracker/NuclearSeedGenerator/interface/NuclearInteractionFinder.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateWithArbitraryError.h"
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
+
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -21,7 +24,9 @@ checkCompletedTrack(iConfig.getParameter<bool>("checkCompletedTrack"))
    edm::ESHandle<Chi2MeasurementEstimatorBase> est;
    edm::ESHandle<MeasurementTracker> measurementTrackerHandle;
    edm::ESHandle<GeometricSearchTracker>       theGeomSearchTrackerHandle;
+   edm::ESHandle<TrackerGeometry>           theTrackerGeom;
 
+   es.get<TrackerDigiGeometryRecord> ().get (theTrackerGeom);
    es.get<TrackingComponentsRecord>().get("PropagatorWithMaterial",prop);
    es.get<TrackingComponentsRecord>().get("Chi2",est);
    es.get<CkfComponentsRecord>().get(measurementTrackerHandle);
@@ -42,9 +47,10 @@ checkCompletedTrack(iConfig.getParameter<bool>("checkCompletedTrack"))
                                         << "maxHits : " << maxHits << "\n"
                                         << "rescaleErrorFactor : " << rescaleErrorFactor << "\n"
                                         << "checkCompletedTrack : " << checkCompletedTrack << "\n";
-   nuclTester = new NuclearTester(es, iConfig);
 
-   currentSeed = new SeedFromNuclearInteraction(es, iConfig) ;
+   nuclTester = new NuclearTester(maxHits, theEstimator, theTrackerGeom.product() );
+
+   currentSeed = new SeedFromNuclearInteraction(thePropagator, theTrackerGeom.product(), iConfig) ;
 }
 //----------------------------------------------------------------------
 void NuclearInteractionFinder::setEvent(const edm::Event& event) const
@@ -94,7 +100,7 @@ bool  NuclearInteractionFinder::run(const Trajectory& traj) {
 
            LogDebug("NuclearSeedGenerator") << "Number of compatible meas:" << (nuclTester->back()).size() << "\n"
                                                 << "Mean distance between hits :" << nuclTester->meanHitDistance() << "\n"
-                                                << "Mean distance between hits :" << nuclTester->meanEstimate() << "\n";
+                                                << "Forward estimate :" << nuclTester->fwdEstimate() << "\n";
 
            // don't check tracks which reach the end of the tracker if checkCompletedTrack==false
            if( checkCompletedTrack==false && (nuclTester->compatibleHits()).front()==0 ) break;

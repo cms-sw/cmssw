@@ -3,16 +3,14 @@
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoTracker/NuclearSeedGenerator/interface/TangentHelix.h"
 
@@ -29,8 +27,8 @@ private :
   typedef std::vector<ConstRecHitPointer>             ConstRecHitContainer;
 
 public :
-  SeedFromNuclearInteraction(const edm::EventSetup& es, const edm::ParameterSet& iConfig);
- 
+  SeedFromNuclearInteraction(const Propagator* prop, const TrackerGeometry* geom, const edm::ParameterSet& iConfig);
+
   /// Fill all data members from 2 TM's where the first one is supposed to be at the interaction point
   void setMeasurements(const TSOS& tsosAtInteractionPoint, ConstRecHitPointer ihit, ConstRecHitPointer ohit);
 
@@ -56,7 +54,7 @@ public :
   const TSOS& initialTSOS() const { return *initialTSOS_; }
 
   GlobalPoint outerHitPosition() const {
-          return pDD->idToDet(outerHitDetId())->surface().toGlobal(outerHit_->localPosition()); 
+          return theTrackerGeom->idToDet(outerHitDetId())->surface().toGlobal(outerHit_->localPosition()); 
   }
 
   DetId outerHitDetId() const { return outerHit_->geographicalId(); }
@@ -81,14 +79,18 @@ private :
   boost::shared_ptr<PTrajectoryStateOnDet> pTraj;           /**< the final persistent TSOS */
 
 
-  const Propagator*                        thePropagator;
-  edm::ESHandle<TrackerGeometry>           pDD;
-
-  bool construct();
+  // input parameters
 
   double rescaleDirectionFactor; /**< Rescale the direction error */
   double rescalePositionFactor;  /**< Rescale the position error */
   double rescaleCurvatureFactor; /**< Rescale the curvature error */
+
   double ptMin;                  /**< Minimum transverse momentum of the seed */
+
+  const Propagator*                        thePropagator;
+  const TrackerGeometry*                   theTrackerGeom;
+
+  bool construct();
+
 };
 #endif

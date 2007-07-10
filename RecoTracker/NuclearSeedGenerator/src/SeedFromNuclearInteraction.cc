@@ -12,20 +12,16 @@
 
 #define RESCALE_FACTOR 10
 
-SeedFromNuclearInteraction::SeedFromNuclearInteraction(const edm::EventSetup& es, const edm::ParameterSet& iConfig) : 
-rescaleDirectionFactor(iConfig.getParameter<double>("rescaleDirectionFactor")),
-rescalePositionFactor(iConfig.getParameter<double>("rescalePositionFactor")),
-rescaleCurvatureFactor(iConfig.getParameter<double>("rescaleCurvatureFactor")),
-ptMin(iConfig.getParameter<double>("ptMin"))
-{
 
-  edm::ESHandle<Propagator>  thePropagatorHandle;
-  es.get<TrackingComponentsRecord>().get("PropagatorWithMaterial",thePropagatorHandle);
-  thePropagator = &(*thePropagatorHandle);
-  isValid_=true;
-
-  es.get<TrackerDigiGeometryRecord> ().get (pDD);
-}
+SeedFromNuclearInteraction::SeedFromNuclearInteraction(const Propagator* prop, const TrackerGeometry* geom, const edm::ParameterSet& iConfig):
+    rescaleDirectionFactor(iConfig.getParameter<double>("rescaleDirectionFactor")),
+    rescalePositionFactor(iConfig.getParameter<double>("rescalePositionFactor")),
+    rescaleCurvatureFactor(iConfig.getParameter<double>("rescaleCurvatureFactor")),
+    ptMin(iConfig.getParameter<double>("ptMin")),
+    thePropagator(prop), theTrackerGeom(geom)
+    {
+         isValid_=true;
+    }
 
 //----------------------------------------------------------------------
 void SeedFromNuclearInteraction::setMeasurements(const TSOS& inner_TSOS, ConstRecHitPointer ihit, ConstRecHitPointer ohit) {
@@ -61,8 +57,8 @@ void SeedFromNuclearInteraction::setMeasurements(TangentHelix& thePrimaryHelix, 
        innerHit_ = ihit;
        outerHit_ = ohit;
 
-       GlobalPoint innerPos = pDD->idToDet(innerHit_->geographicalId())->surface().toGlobal(innerHit_->localPosition());
-       GlobalPoint outerPos = pDD->idToDet(outerHit_->geographicalId())->surface().toGlobal(outerHit_->localPosition());
+       GlobalPoint innerPos = theTrackerGeom->idToDet(innerHit_->geographicalId())->surface().toGlobal(innerHit_->localPosition());
+       GlobalPoint outerPos = theTrackerGeom->idToDet(outerHit_->geographicalId())->surface().toGlobal(outerHit_->localPosition());
 
        TangentHelix helix(thePrimaryHelix, outerPos, innerPos);
 
@@ -168,8 +164,8 @@ bool SeedFromNuclearInteraction::construct() {
    for ( unsigned int iHit = 0; iHit < theHits.size(); iHit++) {
      hit = theHits[iHit]->hit();
      TrajectoryStateOnSurface state = (iHit==0) ? 
-        thePropagator->propagate( *freeTS_, pDD->idToDet(hit->geographicalId())->surface())
-       : thePropagator->propagate( *updatedTSOS_, pDD->idToDet(hit->geographicalId())->surface());
+        thePropagator->propagate( *freeTS_, theTrackerGeom->idToDet(hit->geographicalId())->surface())
+       : thePropagator->propagate( *updatedTSOS_, theTrackerGeom->idToDet(hit->geographicalId())->surface());
 
      if (!state.isValid()) return false; 
  
