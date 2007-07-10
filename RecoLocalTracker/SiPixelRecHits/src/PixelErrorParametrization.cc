@@ -174,7 +174,6 @@ PixelErrorParametrization::PixelErrorParametrization(edm::ParameterSet const& co
       const char* fname = (file.fullPath()).c_str();
       
       FILE* datfile;
-      cout << "fname = " << fname << endl;
       
       if ( (datfile=fopen(fname,"r")) == NULL ) 
 	{
