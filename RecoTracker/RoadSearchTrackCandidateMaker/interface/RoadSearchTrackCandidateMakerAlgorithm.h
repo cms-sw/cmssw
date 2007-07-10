@@ -12,9 +12,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2007/05/22 23:43:06 $
-// $Revision: 1.10 $
+// $Author: gutsche $
+// $Date: 2007/07/08 20:32:39 $
+// $Revision: 1.11 $
 //
 
 #include <string>
@@ -34,8 +34,6 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
-
-#include "RecoTracker/RoadSearchTrackCandidateMaker/interface/RoadSearchPairLess.h"
 
 class TrajectoryStateUpdator;
 class MeasurementEstimator;
