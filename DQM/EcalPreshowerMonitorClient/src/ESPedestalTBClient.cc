@@ -90,14 +90,14 @@ void ESPedestalTBClient::setup() {
     for (int i=0; i<2; ++i) {
       for (int j=30; j<34; ++j) {
 	for (int k=19; k<23; ++k) {
-	  sprintf(hist, "ES Pedestal Mean RMS Z 1 P %d Row %02d Col %02d", i, j, k);
+	  sprintf(hist, "ES Pedestal Mean RMS Z 1 P %d Row %02d Col %02d", i+1, j, k);
 	  mePedMeanRMS_[i][j-30][k-19] = dbe_->book1D(hist, hist, 32, 0, 32);
-	  sprintf(hist, "ES Pedestal RMS Z 1 P %d Row %02d Col %02d", i, j, k);
+	  sprintf(hist, "ES Pedestal RMS Z 1 P %d Row %02d Col %02d", i+1, j, k);
 	  mePedRMS_[i][j-30][k-19] = dbe_->book1D(hist, hist, 32, 0, 32);
 
-	  sprintf(hist, "ES Pedestal Fit Mean RMS Z 1 P %d Row %02d Col %02d", i, j, k);
+	  sprintf(hist, "ES Pedestal Fit Mean RMS Z 1 P %d Row %02d Col %02d", i+1, j, k);
 	  mePedFitMeanRMS_[i][j-30][k-19] = dbe_->book1D(hist, hist, 32, 0, 32);
-	  sprintf(hist, "ES Pedestal Fit RMS Z 1 P %d Row %02d Col %02d", i, j, k);
+	  sprintf(hist, "ES Pedestal Fit RMS Z 1 P %d Row %02d Col %02d", i+1, j, k);
 	  mePedFitRMS_[i][j-30][k-19] = dbe_->book1D(hist, hist, 32, 0, 32);
 	}
       }
@@ -232,7 +232,7 @@ void ESPedestalTBClient::doQT() {
 string ESPedestalTBClient::getMEName(const int & plane, const int & row, const int & col, const int & strip) {
   
   Char_t hist[500];
-  sprintf(hist,"%sES/ESPedestalTBTask/ES Pedestal P %d Row %02d Col %02d Str %02d",rootFolder_.c_str(),plane,row,col,strip);
+  sprintf(hist,"%sES/ESPedestalTBTask/ES Pedestal Z 1 P %d Row %02d Col %02d Str %02d",rootFolder_.c_str(),plane,row,col,strip);
 
   return hist;
 }
@@ -388,7 +388,7 @@ void ESPedestalTBClient::htmlOutput(int run, string htmlDir, string htmlName) {
   htmlFile << "</html> " << endl;
 
   stringstream run_str; run_str << run;
-  system(("/preshower/yannisp1/html/DQM_html_generator "+run_str.str()).c_str());
+  system(("/preshower/yannisp1/html/DQM_html_generator "+run_str.str()+" 2").c_str());
 
   htmlFile.close();
 
