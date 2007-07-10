@@ -72,17 +72,21 @@ void ESPedestalCMCTClient::setup() {
   
   if (dbe_) {
     dbe_->setCurrentFolder("ES/QT/PedestalCMCT");
-    sprintf(hist, "ES QT CMCT Mean");
-    meMean_ = dbe_->book1D(hist, hist, 200, -100, 100);
-    sprintf(hist, "ES QT CMCT RMS");
-    meRMS_ = dbe_->book1D(hist, hist, 200, -100, 100);
+
+    for (int i=0; i<3; ++i) {
+      sprintf(hist, "ES QT CMCT Mean TS %d", i+1);
+      meMean_[i] = dbe_->book1D(hist, hist, 100, -50, 50);
+      sprintf(hist, "ES QT CMCT RMS TS %d", i+1);
+      meRMS_[i] = dbe_->book1D(hist, hist, 100, -50, 50);
+    }
 
     for (int i=0; i<2; ++i) {
       for (int j=0; j<6; ++j) {
-	
-	sprintf(hist, "ES CMCT Quality Box %d Plane %d", i+1, j+1);
-	meCMCol_[i][j] = dbe_->book2D(hist, hist, 2, 0, 2, 5, 0, 5);
-
+	for (int k=0; k<3; ++k) {
+	  sprintf(hist, "ES CMCT Quality Box %d Plane %d TS %d", i+1, j+1, k+1);
+	  meCMCol_[i][j][k] = dbe_->book2D(hist, hist, 2, 0, 2, 5, 0, 5);
+	  
+	}
       }
     }
   }
@@ -95,20 +99,25 @@ void ESPedestalCMCTClient::cleanup() {
 
   if (dbe_) {
     dbe_->setCurrentFolder("ES/QT/PedestalCMCT");
-    if (meMean_) dbe_->removeElement( meMean_->getName() );
-    if (meRMS_) dbe_->removeElement( meRMS_->getName() );
-    meMean_ = 0;
-    meRMS_ = 0;
+
+    for (int i=0; i<3; ++i) {
+      if (meMean_[i]) dbe_->removeElement( meMean_[i]->getName() );
+      if (meRMS_[i]) dbe_->removeElement( meRMS_[i]->getName() );
+      meMean_[i] = 0;
+      meRMS_[i] = 0;
+    }
+
     for (int i=0; i<2; ++i) {
       for (int j=0; j<6; ++j) {
-
-	if (meCMCol_[i][j]) dbe_->removeElement( meCMCol_[i][j]->getName() );
-	meCMCol_[i][j] = 0;
-
+	for (int k=0; k<3; ++k) {
+	  if (meCMCol_[i][j][k]) dbe_->removeElement( meCMCol_[i][j][k]->getName() );
+	meCMCol_[i][j][k] = 0;
+	
+	}
       }
     }
   }
-  
+
   init_ = false;
 }
 
@@ -151,49 +160,53 @@ void ESPedestalCMCTClient::analyze(const Event& e, const EventSetup& context){
 
 void ESPedestalCMCTClient::doQT() {
 
-  ESDQMUtils::resetME( meMean_ );
-  ESDQMUtils::resetME( meRMS_ );
+  for (int i=0; i<3; ++i) {
+    ESDQMUtils::resetME( meMean_[i] );
+    ESDQMUtils::resetME( meRMS_[i] );
+  }
 
   int val = 0;
   for (int i=0; i<2; ++i) {    
     for (int j=0; j<6; ++j) {
       for (int k=0; k<2; ++k) {
 	for (int m=0; m<5; ++m) {
-	  
-	  int zside = (i==0)?1:-1;
-	  MonitorElement * senME = dbe_->get(getMEName(zside, j+1, k+1, m+1, 0, 1));
-	  
-	  if (senME) {
-	    MonitorElementT<TNamed>* sen = dynamic_cast<MonitorElementT<TNamed>*>(senME);           
-	    TH1F *hCMSen = dynamic_cast<TH1F*> (sen->operator->());  	    
+	  for (int n=0; n<3; ++n) {
 	    
-	    if (hCMSen->GetRMS()>cmnThreshold_) val = 7;
-	    else if (hCMSen->GetEntries() == 0) val = 5;
-	    else val = 4;
+	    int zside = (i==0)?1:-1;
+	    MonitorElement * senME = dbe_->get(getMEName(zside, j+1, k+1, m+1, 0, n, 1));
 	    
-	    meCMCol_[i][j]->setBinContent(k+1, m+1, val) ;  
-	    
-	    if (hCMSen->GetEntries() != 0) {
-	      meMean_->Fill(hCMSen->GetMean());
-	      meRMS_->Fill(hCMSen->GetRMS());
+	    if (senME) {
+	      MonitorElementT<TNamed>* sen = dynamic_cast<MonitorElementT<TNamed>*>(senME);           
+	      TH1F *hCMSen = dynamic_cast<TH1F*> (sen->operator->());  	    
+	      
+	      if (hCMSen->GetRMS()>cmnThreshold_) val = 7;
+	      else if (hCMSen->GetEntries() == 0) val = 5;
+	      else val = 4;
+	      
+	      meCMCol_[i][j][n]->setBinContent(k+1, m+1, val) ;  
+	      
+	      if (hCMSen->GetEntries() != 0) {
+		meMean_[n]->Fill(hCMSen->GetMean());
+		meRMS_[n]->Fill(hCMSen->GetRMS());
+	      }
+	      
 	    }
 	    
-	  }
-	  
-	}	
+	  }	
+	}
       }
     }
   }
-  
+
 }
 
-string ESPedestalCMCTClient::getMEName(const int & zside, const int & plane, const int & row, const int & col, const int & strip, const int & type) {
+string ESPedestalCMCTClient::getMEName(const int & zside, const int & plane, const int & row, const int & col, const int & strip, const int & slot, const int & type) {
   
   Char_t hist[500];
   if (type == 0)
-    sprintf(hist,"%sES/ESpedestalCMCTTask/ES Pedestal Z %d P %d Row %02d Col %02d Str %02d", rootFolder_.c_str(),zside,plane,row,col,strip);
+    sprintf(hist,"%sES/ESpedestalCMCTTask/ES Pedestal CM_S%d Z %d P %d Row %02d Col %02d Str %02d", rootFolder_.c_str(),slot,zside,plane,row,col,strip);
   else 
-    sprintf(hist,"%sES/ESPedestalCMCTTask/ES Sensor CM Z %d P %d Row %02d Col %02d", rootFolder_.c_str(),zside,plane,row,col);
+    sprintf(hist,"%sES/ESPedestalCMCTTask/ES Sensor CM_S%d Z %d P %d Row %02d Col %02d", rootFolder_.c_str(),slot,zside,plane,row,col);
 
   return hist;
 }
@@ -240,73 +253,98 @@ void ESPedestalCMCTClient::htmlOutput(int run, string htmlDir, string htmlName) 
   gStyle->SetGridStyle(1);
 
   TCanvas *cCMQ = new TCanvas("cCMQ", "cCMQ", 1200, 250);
-  TCanvas *cCM  = new TCanvas("cCM",  "cCM",  600, 300);
+  TCanvas *cCM  = new TCanvas("cCM",  "cCM",  900, 600);
   
-  MonitorElementT<TNamed>* CMQ[2][6];
-  TH2F* hCMQ[2][6];
+  MonitorElementT<TNamed>* CMQ[2][6][3];
+  TH2F* hCMQ[2][6][3];
   for (int i=0; i<2; ++i) {
     for (int j=0; j<6; ++j) {
-      CMQ[i][j] = dynamic_cast<MonitorElementT<TNamed>*>(meCMCol_[i][j]);           
-      hCMQ[i][j] = dynamic_cast<TH2F*> (CMQ[i][j]->operator->());  
+      for (int k=0; k<3; ++k) {
+	CMQ[i][j][k] = dynamic_cast<MonitorElementT<TNamed>*>(meCMCol_[i][j][k]);           
+	hCMQ[i][j][k] = dynamic_cast<TH2F*> (CMQ[i][j][k]->operator->());  
+      }
     }
   }
-  
+
   gStyle->SetOptStat("");
   cCMQ->Divide(6,1);
-  for (int i=0; i<2; ++i) {
-    for (int j=0; j<6; ++j) {
-      cCMQ->cd(j+1);
-      gPad->SetGridx();
-      gPad->SetGridy();
-      hCMQ[i][j]->GetXaxis()->SetNdivisions(-102);
-      hCMQ[i][j]->GetYaxis()->SetNdivisions(-105);
-      hCMQ[i][j]->GetXaxis()->SetLabelSize(0.08);
-      hCMQ[i][j]->GetYaxis()->SetLabelSize(0.08);
-      hCMQ[i][j]->SetMinimum(-0.00000001);
-      hCMQ[i][j]->SetMaximum(7.0);
-      char tit[128]; sprintf(tit,"Box %d   Plane %d",i+1,j+1);
-      hCMQ[i][j]->SetTitle(tit);
-      hCMQ[i][j]->Draw("col");
-      gPad->Update();
-      TPaveText *t = (TPaveText*) gPad->GetPrimitive("title");
-      t->SetTextColor(4);
-      t->SetTextSize(.1);
-      t->SetBorderSize(0);
-      t->SetX1NDC(0.00); t->SetX2NDC(1);
-      t->SetY1NDC(0.93); t->SetY2NDC(1);
+  for (int k=0; k<3; ++k) {
+    for (int i=0; i<2; ++i) {
+      for (int j=0; j<6; ++j) {
+	cCMQ->cd(j+1);
+	gPad->SetGridx();
+	gPad->SetGridy();
+	hCMQ[i][j][k]->GetXaxis()->SetNdivisions(-102);
+	hCMQ[i][j][k]->GetYaxis()->SetNdivisions(-105);
+	hCMQ[i][j][k]->GetXaxis()->SetLabelSize(0.08);
+	hCMQ[i][j][k]->GetYaxis()->SetLabelSize(0.08);
+	hCMQ[i][j][k]->SetMinimum(-0.00000001);
+	hCMQ[i][j][k]->SetMaximum(7.0);
+	char tit[128]; sprintf(tit,"Box %d P %d TS %d",i+1,j+1,k+1);
+	hCMQ[i][j][k]->SetTitle(tit);
+	hCMQ[i][j][k]->Draw("col");
+	gPad->Update();
+	TPaveText *t = (TPaveText*) gPad->GetPrimitive("title");
+	t->SetTextColor(4);
+	t->SetTextSize(.1);
+	t->SetBorderSize(0);
+	t->SetX1NDC(0.00); t->SetX2NDC(1);
+	t->SetY1NDC(0.93); t->SetY2NDC(1);
+      }
+      stringstream ts; ts << (k+1);
+      histName = (i==0) ? htmlDir+"/PedestalCM_Quality_Box1_TS"+ts.str()+".png":htmlDir+"/PedestalCM_Quality_Box2_TS"+ts.str()+".png";
+      cCMQ->SaveAs(histName.c_str());  
     }
-    histName = (i==0) ? htmlDir+"/PedestalCM_Quality_Box1.png":htmlDir+"/PedestalCM_Quality_Box2.png";
-    cCMQ->SaveAs(histName.c_str());  
+  }
+  
+  // Plot Mean and RMS
+  MonitorElementT<TNamed>* Mean[3];
+  TH1F *hMean[3];
+  MonitorElementT<TNamed>* RMS[3];
+  TH1F *hRMS[3];
+  for (int i=0; i<3; ++i) {
+    Mean[i] = dynamic_cast<MonitorElementT<TNamed>*>(meMean_[i]);
+    hMean[i] = dynamic_cast<TH1F*> (Mean[i]->operator->());
+    RMS[i] = dynamic_cast<MonitorElementT<TNamed>*>(meRMS_[i]);
+    hRMS[i] = dynamic_cast<TH1F*> (RMS[i]->operator->());
   }
 
-  // Plot Mean and RMS
-  MonitorElementT<TNamed>* Mean = dynamic_cast<MonitorElementT<TNamed>*>(meMean_);
-  TH1F *hMean = dynamic_cast<TH1F*> (Mean->operator->());
-  MonitorElementT<TNamed>* RMS  = dynamic_cast<MonitorElementT<TNamed>*>(meRMS_);
-  TH1F *hRMS = dynamic_cast<TH1F*> (RMS->operator->());
-
   gStyle->SetOptStat(111110);
-  cCM->Divide(2,1);
-  cCM->cd(1);
-  hMean->Draw();
-  cCM->cd(2);
-  hRMS->Draw();
+  cCM->Divide(3,2);
+  for (int i=0; i<3; i++) {
+    cCM->cd(i+1);
+    hMean[i]->Draw();
+    cCM->cd(i+4);
+    hRMS[i]->Draw();
+  }
   histName = htmlDir+"/PedestalCM_Mean_RMS.png";
   cCM->SaveAs(histName.c_str());
 
   // Show plots
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
-  htmlFile << "<tr align=\"center\">" << endl;
-  htmlFile << "<td colspan=\"1\"><img src=\"PedestalCM_Quality_Box1.png\"></img></td>" << endl;
+  htmlFile << "cellpadding=\"10\"> " << endl;
+  htmlFile << "<tr>" << endl;
+  htmlFile << "<td colspan=\"1\"><img src=\"PedestalCM_Quality_Box1_TS1.png\"></img></td>" << endl;
   htmlFile << "</tr>" << endl;
-  htmlFile << "<tr align=\"center\">" << endl;
-  htmlFile << "<td colspan=\"1\"><img src=\"PedestalCM_Quality_Box2.png\"></img></td>" << endl;
+  htmlFile << "<tr>" << endl;
+  htmlFile << "<td colspan=\"1\"><img src=\"PedestalCM_Quality_Box2_TS1.png\"></img></td>" << endl;
+  htmlFile << "</tr>" << endl;
+  htmlFile << "<tr>" << endl;
+  htmlFile << "<td colspan=\"1\"><img src=\"PedestalCM_Quality_Box1_TS2.png\"></img></td>" << endl;
+  htmlFile << "</tr>" << endl;
+  htmlFile << "<tr>" << endl;
+  htmlFile << "<td colspan=\"1\"><img src=\"PedestalCM_Quality_Box2_TS2.png\"></img></td>" << endl;
+  htmlFile << "</tr>" << endl;
+  htmlFile << "<tr>" << endl;
+  htmlFile << "<td colspan=\"1\"><img src=\"PedestalCM_Quality_Box1_TS3.png\"></img></td>" << endl;
+  htmlFile << "</tr>" << endl;
+  htmlFile << "<tr>" << endl;
+  htmlFile << "<td colspan=\"1\"><img src=\"PedestalCM_Quality_Box2_TS3.png\"></img></td>" << endl;
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
-  htmlFile << "<tr align=\"center\">" << endl;
+  htmlFile << "cellpadding=\"10\"> " << endl;
+  htmlFile << "<tr>" << endl;
   htmlFile << "<td colspan=\"1\"><img src=\"PedestalCM_Mean_RMS.png\"></img></td>" << endl;
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
