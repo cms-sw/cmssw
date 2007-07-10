@@ -40,7 +40,7 @@ class ESPedestalCMCTClient: public EDAnalyzer{
   void cleanup();
   void doQT();
 
-  string getMEName(const int & zside, const int & plane, const int & row, const int & col, const int & strip, const int & type);
+  string getMEName(const int & zside, const int & plane, const int & row, const int & col, const int & strip, const int & slot, const int & type);
   void htmlOutput(int run, string htmlDir, string htmlName);
 
  private:
@@ -61,9 +61,9 @@ class ESPedestalCMCTClient: public EDAnalyzer{
 
   DaqMonitorBEInterface* dbe_;
 
-  MonitorElement* meMean_;
-  MonitorElement* meRMS_;
-  MonitorElement* meCMCol_[2][6];
+  MonitorElement* meMean_[3];
+  MonitorElement* meRMS_[3];
+  MonitorElement* meCMCol_[2][6][3];
 
 };
 
