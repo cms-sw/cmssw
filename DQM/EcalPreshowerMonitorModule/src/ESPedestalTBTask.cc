@@ -52,7 +52,7 @@ void ESPedestalTBTask::setup(void){
       for (int j=30; j<34; ++j) {
 	for (int k=19; k<23; ++k) {
 	  for (int m=0; m<32; ++m) {
-	    sprintf(hist, "ES Pedestal P %d Row %02d Col %02d Str %02d", i+1, j, k, m+1);      
+	    sprintf(hist, "ES Pedestal Z 1 P %d Row %02d Col %02d Str %02d", i+1, j, k, m+1);      
 	    mePedestal_[i][j-30][k-19][m] = dbe_->book1D(hist, hist, 5000, 0, 5000);
 	  }
 	}

@@ -43,7 +43,7 @@ void ESPedestalCTTask::setup(void){
   
   init_ = true;
   
-  Char_t hist[200];
+  Char_t hist[300];
   
   dbe_ = Service<DaqMonitorBEInterface>().operator->();
   
@@ -129,7 +129,7 @@ void ESPedestalCTTask::analyze(const Event& e, const EventSetup& c){
     if (j<=5) i = 0;
     else i = 1;
     if (j>5) j = j-6;    
-    int k = (ix-1)%2;
+    int k = (ix-1)%2;    
 
     for (int isam=0; isam<dataframe.size(); ++isam) {
       mePedestal_[i][j][k][iy-1][strip-1]->Fill(dataframe.sample(isam).adc());
