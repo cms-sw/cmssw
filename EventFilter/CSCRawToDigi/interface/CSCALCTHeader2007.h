@@ -83,95 +83,51 @@ public:
  bool check() const {return flag_0 == 0xC;}
  
  private:
- /// l1 accept counter
- unsigned l1Acc         : 4;
- /// chamber ID number
- unsigned cscID         : 4;
- /// ALCT2000 board ID
- unsigned boardID       : 3;
- /// should be '01100', so it'll be a 6xxx in the ASCII dump
- unsigned flag_0 : 5;
+ /// 2007 firmware version by A. Madorsky
+ /// bits are groupped in 16-bit words
+ /// First 16 words are fixed format while the rest of the header varies in size
+
+ unsigned wireGroupNumber_      : 3;
+ unsigned backwardForward_      : 1;
+ unsigned negativePositive_     : 1;
+ unsigned mirrored_             : 1;
+ unsigned qualityCancell_       : 1;
+ unsigned latencyClocks_        : 1;
+ unsigned patternB_             : 1;
+ unsigned widePattern_          : 1;
+ unsigned reserved_0            : 2;
+ unsigned flag_0                : 4;  
+   
+ unsigned bxnL1A_               : 12;
+ unsigned reserved_1            : 4;
+
+ unsigned flag_1                : 16;
  
- /// see the FIFO_MODE enum
- unsigned fifoMode : 2;
- /// # of 25 ns time bins in the raw dump
- unsigned nTBins : 5;
- /// exteran L1A arrived in L1A window
- unsigned l1aMatch : 1;
- /// trigger source was external
- unsigned extTrig : 1;
- /// promotion bit for 1st LCT pattern
- unsigned promote1 : 1;
- /// promotion bit for 2nd LCT pattern
- unsigned promote2 : 1;
- /// reserved, set to 0
- unsigned reserved_1 : 3;
- /// DDU+LCT special word flags
- unsigned flag_1 : 2;
+ unsigned bxnBeforeReset_       : 12;
+ unsigned flag_2                : 4;
+  
+ unsigned bxn_                  : 12;
+ unsigned rawOverflow_          : 1;
+ unsigned lctOverflow_          : 1;
+ unsigned configPresent_        : 1;
+ unsigned flag_3                : 1;
+
+ unsigned l1aCounter_           : 12;
+ unsigned reserved_2            : 4;
  
-  /// full bunch crossing number
-  unsigned bxnCount : 12;
-  /// reserved, set to 0
-  unsigned reserved_2 : 2;
-  ///  DDU+LCT special word flags
-  unsigned flag_2 : 2;
+ unsigned readoutCounter_       : 12;
+ unsigned reserved_3            : 4;
 
-  /// LCT chips read out in raw hit dump
-  unsigned lctChipRead : 7;
-  /// LCT chips with ADB hits
-  unsigned activeFEBs : 7;
-  ///  DDU+LCT special word flags
-  unsigned flag_3 : 2;
+ unsigned rawBins_              : 5;
+ unsigned lctBins_              : 4;
+ unsigned firmwareVersion_      : 6;
+ unsigned flag_4                : 1;
 
-  /// 1st LCT lower 15 bits
-  /// unsigned LCT0_low : 15;
-  /// LCT0_low is decomposed into bits according to 
-  /// http://www.phys.ufl.edu/cms/emu/dqm/data_formats/ALCT_data_format_notes.pdf
-  unsigned alct0_valid   : 1;
-  unsigned alct0_quality : 2;  
-  unsigned alct0_accel   : 1;
-  unsigned alct0_pattern : 1;
-  unsigned alct0_key_wire: 7;
-  unsigned alct0_bxn_low : 3;
-  ///  DDU+LCT special word flags
-  unsigned flag_4 : 1;
- 
-  /// 1st LCT higher 15 bits
-  ///unsigned LCT0_high : 15;
-  /// LCT0_high is decomposed into bits according to 
-  /// http://www.phys.ufl.edu/cms/emu/dqm/data_formats/ALCT_data_format_notes.pdf
-  unsigned alct0_bxn_high :2;
-  unsigned alct0_reserved :13;
-  ///  DDU+LCT special word flags
-  unsigned flag_5 : 1;
+ ///the variable size data goes here; max is 8+28+60+12=108
+ unsigned short theHeaderWords[108]; 
 
-  /// 2nd LCT lower 15 bits
-  /// unsigned LCT1_low : 15;
-  /// LCT1_low is decomposed into bits according to 
-  /// http://www.phys.ufl.edu/cms/emu/dqm/data_formats/ALCT_data_format_notes.pdf
-  unsigned alct1_valid   : 1;
-  unsigned alct1_quality : 2;  
-  unsigned alct1_accel   : 1;
-  unsigned alct1_pattern : 1;
-  unsigned alct1_key_wire: 7;
-  unsigned alct1_bxn_low : 3;
-  ///  DDU+LCT special word flags
-  unsigned flag_6 : 1;
+ static bool debug;
 
-  /// 2nd LCT higher 15 bits
-  /// unsigned LCT1_high : 15;
-  /// LCT1_high is decomposed into bits according to 
-  /// http://www.phys.ufl.edu/cms/emu/dqm/data_formats/ALCT_data_format_notes.pdf
-  unsigned alct1_bxn_high :2;
-  unsigned alct1_reserved :13;
-  ///  DDU+LCT special word flags
-  unsigned flag_7 : 1;
-
- private:
-
-  const unsigned short * theOriginalBuffer;
-
-  static bool debug;
 };
 
 std::ostream & operator<<(std::ostream & os, const CSCALCTHeader2007 & header);
