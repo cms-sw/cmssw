@@ -9,6 +9,8 @@ ROOT::Cintex::Cintex::Enable();
 
 // create a PFRootEventManager
 PFRootEventManager em("pfRootEvent.opt");
+// create a JetPFRootEventManager for Jet reco 
+//JetPFRootEventManager em("pfRootEventJets.opt");
 
 // display first entry
 int i=0;
