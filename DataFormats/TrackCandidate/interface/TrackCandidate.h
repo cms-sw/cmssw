@@ -17,27 +17,27 @@ only the second is compulsory,the other two can be empty / not present
 **/
 
 class TrackCandidate{
- public:
+public:
   typedef BasicTrackCandidate::RecHitContainer RecHitContainer;
   typedef BasicTrackCandidate::const_iterator const_iterator;
   typedef BasicTrackCandidate::range range;
   
   TrackCandidate(){}
- virtual ~TrackCandidate(){}
+  virtual ~TrackCandidate(){}
   
   
-  TrackCandidate(RecHitContainer rh, TrajectorySeed s, PTrajectoryStateOnDet st) :
-    rh_(rh), seed_(s), state_(st) {}
-  TrackCandidate(RecHitContainer rh) :
-    rh_(rh),  seed_(), state_() {}
+  TrackCandidate(RecHitContainer & rh, TrajectorySeed const & s, PTrajectoryStateOnDet const & st) :
+    rh_(), seed_(s), state_(st) {rh_.swap(rh);}
+  TrackCandidate(RecHitContainer & rh) :
+    rh_(),  seed_(), state_() {rh_.swap(rh);}
   
-  PTrajectoryStateOnDet trajectoryStateOnDet() const { return state_;}
-
+  PTrajectoryStateOnDet const & trajectoryStateOnDet() const { return state_;}
+  
   range recHits() const {return std::make_pair(rh_.begin(), rh_.end());}
-
-  TrajectorySeed seed() const {return seed_;}
-
- private:
+  
+  TrajectorySeed const & seed() const {return seed_;}
+  
+private:
   RecHitContainer rh_;
   TrajectorySeed seed_;
   PTrajectoryStateOnDet state_;
