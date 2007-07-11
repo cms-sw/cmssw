@@ -1,5 +1,9 @@
+<use name=CalibFormats/SiStripObjects>
+<use name=CalibTracker/Records>
 <use name=CondCore/DBOutputService>
 <use name=CondFormats/SiStripObjects>
+<use name=DQM/SiStripCommon>
+<use name=DQMServices/Core>
 <use name=DataFormats/Common>
 <use name=DataFormats/DetId>
 <use name=DataFormats/GeometryVector>
@@ -25,9 +29,9 @@
 <use name=TrackingTools/TransientTrackingRecHit>
 <use name=clhep>
 <use name=rootcore>
-<use name=root>
 <flags EDM_PLUGIN="1">
 <export>
+  <use name=DQMServices/Core>
   <use name=DataFormats/Common>
   <use name=DataFormats/DetId>
   <use name=DataFormats/GeometryVector>
@@ -38,6 +42,7 @@
   <use name=FWCore/MessageLogger>
   <use name=FWCore/ParameterSet>
   <use name=Geometry/TrackerGeometryBuilder>
+  <use name=MagneticField/Engine>
   <use name=MagneticField/Records>
   <use name=TrackingTools/PatternTools>
   <use name=rootcore>
