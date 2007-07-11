@@ -9,9 +9,10 @@
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include <cmath>
 
+const float HcaluLUTTPGCoder::nominal_gain = 0.177; 
 
 HcaluLUTTPGCoder::HcaluLUTTPGCoder(const char* filename) {
   AllocateLUTs();
@@ -106,13 +107,8 @@ void HcaluLUTTPGCoder::getRecHitCalib(const char* filename) {
    else  std::cout << "File " << filename << " with RecHit calibration factors not found" << std::endl;
 }
 
- void HcaluLUTTPGCoder::getConditions(const edm::EventSetup& es) const {
-   //
-   // Using Jeremy's template
-   //
-   edm::ESHandle<HcalDbService> conditions;
-   es.get<HcalDbRecord>().get(conditions);
-   const HcalQIEShape* shape = conditions->getHcalShape();
+void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
+   const HcalQIEShape* shape = conditions.getHcalShape();
    HcalCalibrations calibrations;
    int id;
    float divide;
@@ -129,8 +125,8 @@ void HcaluLUTTPGCoder::getRecHitCalib(const char* filename) {
 	 if (theTopo.valid(cell)) {  
 	   id = GetLUTID(HcalBarrel,ieta,iphi,depth);
 	   if (inputLUT[id] == 0) throw cms::Exception("PROBLEM: inputLUT has not been initialized for HB, ieta, iphi, depth, id = ") << ieta << "," << iphi << "," << depth << "," << id << std::endl;
-	   conditions->makeHcalCalibration (cell, &calibrations);
-	   const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	   conditions.makeHcalCalibration (cell, &calibrations);
+	   const HcalQIECoder* channelCoder = conditions.getHcalCoder (cell);
 	   HcalCoderDb coder (*channelCoder, *shape);
 	   float ped_ = (calibrations.pedestal(0)+calibrations.pedestal(1)+calibrations.pedestal(2)+calibrations.pedestal(3))/4;
 	   float gain_= (calibrations.gain(0)+calibrations.gain(1)+calibrations.gain(2)+calibrations.gain(3))/4;          
@@ -157,8 +153,8 @@ void HcaluLUTTPGCoder::getRecHitCalib(const char* filename) {
 	   else divide = 5.*nominal_gain;
 	   id = GetLUTID(HcalEndcap,ieta,iphi,depth);
 	   if (inputLUT[id] == 0) throw cms::Exception("PROBLEM: inputLUT has not been initialized for HE, ieta, iphi, depth, id = ") << ieta << "," << iphi << "," << depth << "," << id << std::endl;
-	   conditions->makeHcalCalibration (cell, &calibrations);
-	   const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	   conditions.makeHcalCalibration (cell, &calibrations);
+	   const HcalQIECoder* channelCoder = conditions.getHcalCoder (cell);
 	   HcalCoderDb coder (*channelCoder, *shape);
 	   float ped_ = (calibrations.pedestal(0)+calibrations.pedestal(1)+calibrations.pedestal(2)+calibrations.pedestal(3))/4;
 	   float gain_= (calibrations.gain(0)+calibrations.gain(1)+calibrations.gain(2)+calibrations.gain(3))/4;          
@@ -182,8 +178,8 @@ void HcaluLUTTPGCoder::getRecHitCalib(const char* filename) {
 	 if (theTopo.valid(cell)) {  
 	   id = GetLUTID(HcalForward,ieta,iphi,depth);
 	   if (inputLUT[id] == 0) throw cms::Exception("PROBLEM: inputLUT has not been initialized for HF, ieta, iphi, depth, id = ") << ieta << "," << iphi << "," << depth << "," << id << std::endl;
-	   conditions->makeHcalCalibration (cell, &calibrations);
-	   const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	   conditions.makeHcalCalibration (cell, &calibrations);
+	   const HcalQIECoder* channelCoder = conditions.getHcalCoder (cell);
 	   HcalCoderDb coder (*channelCoder, *shape);
 	   float ped_ = (calibrations.pedestal(0)+calibrations.pedestal(1)+calibrations.pedestal(2)+calibrations.pedestal(3))/4;
 	   float gain_= (calibrations.gain(0)+calibrations.gain(1)+calibrations.gain(2)+calibrations.gain(3))/4;          
@@ -233,18 +229,17 @@ void HcaluLUTTPGCoder::getRecHitCalib(const char* filename) {
    }
  }
 
-short unsigned int* HcaluLUTTPGCoder::getLUT(HcalDetId id) const {
+unsigned short HcaluLUTTPGCoder::adc2Linear(HcalQIESample sample, HcalDetId id) const {
   int ref = GetLUTID(id.subdet(), id.ieta(), id.iphi(), id.depth());
-  return inputLUT[ref];
+  return inputLUT[ref][sample.adc()];
 }
 
-float HcaluLUTTPGCoder::getPed(HcalDetId id) const {
+float HcaluLUTTPGCoder::getLUTPedestal(HcalDetId id) const {
   int ref = GetLUTID(id.subdet(), id.ieta(), id.iphi(), id.depth());
   return _ped[ref];
 }
 
-float HcaluLUTTPGCoder::getGain(HcalDetId id) const {
+float HcaluLUTTPGCoder::getLUTGain(HcalDetId id) const {
   int ref = GetLUTID(id.subdet(), id.ieta(), id.iphi(), id.depth());
   return _gain[ref];
 }
-
