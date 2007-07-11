@@ -71,13 +71,13 @@ void PixelDataFormatter::interpretRawData(int fedId, const FEDRawData& rawData, 
         LogError("PixelDataFormatter::interpretRawData, fedHeader.sourceID() != fedId")
               <<", sourceID = " <<fedHeader.sourceID()
               <<", fedId = "<<fedId<<", errorType = 32"; 
-        if(includeErrors) {
-	  int errorType = 32;
-	  SiPixelRawDataError error(*header, errorType);
-	  errors.push_back(error);
+        if (includeErrors) {
+	    int errorType = 32;
+	    SiPixelRawDataError error(*header, errorType);
+	    errors.push_back(error);
+        }
 	}
       moreHeaders = fedHeader.moreHeaders();
-      }
     }
 
     // check trailers
