@@ -7,8 +7,9 @@
 <use name=DataFormats/SiStripDetId>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/TrackerRecHit2D>
-<use name=CalibTracker/SiStripChannelGain>
 <use name=CalibTracker/Records>
+<use name=CalibFormats/SiStripObjects>
+<use name=Geometry/TrackerGeometryBuilder>
 <library file="*.cc" name=CalibTrackerSiStripChannelGainPlugins>
 <flags EDM_PLUGIN=1>
 </library>
