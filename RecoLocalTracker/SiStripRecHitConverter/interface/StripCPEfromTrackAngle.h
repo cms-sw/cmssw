@@ -20,11 +20,6 @@ class StripCPEfromTrackAngle : public StripCPE
     :StripCPE(conf,mag, geom, LorentzAngle ){}
 
 
-  StripCPEfromTrackAngle(edm::ParameterSet & conf, 
-			 const MagneticField * mag, 
-			 const TrackerGeometry* geom)
-    :StripCPE(conf,mag, geom){}
-
   // LocalValues is typedef for pair<LocalPoint,LocalError> 
 
   StripClusterParameterEstimator::LocalValues localParameters( const SiStripCluster & cl,

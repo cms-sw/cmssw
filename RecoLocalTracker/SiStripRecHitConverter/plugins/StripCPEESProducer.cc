@@ -40,12 +40,10 @@ StripCPEESProducer::produce(const TkStripCPERecord & iRecord){
   edm::ESHandle<TrackerGeometry> pDD;
   iRecord.getRecord<TrackerDigiGeometryRecord>().get( pDD );
   
-  if(pset_.getParameter<bool>("UseCalibrationFromDB")){
-    edm::ESHandle<SiStripLorentzAngle> SiStripLorentzAngle_;
-    iRecord.getRecord<SiStripLorentzAngleRcd>().get(SiStripLorentzAngle_);
-    _cpe  = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPE(pset_,magfield.product(), pDD.product(), SiStripLorentzAngle_.product()));
-  }
-  else _cpe  = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPE(pset_,magfield.product(), pDD.product()));
+  edm::ESHandle<SiStripLorentzAngle> SiStripLorentzAngle_;
+  iRecord.getRecord<SiStripLorentzAngleRcd>().get(SiStripLorentzAngle_);
+  _cpe  = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPE(pset_,magfield.product(), pDD.product(), SiStripLorentzAngle_.product()));
+  
   return _cpe;
 }
 

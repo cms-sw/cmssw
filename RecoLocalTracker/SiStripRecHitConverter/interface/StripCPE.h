@@ -18,7 +18,6 @@ class StripCPE : public StripClusterParameterEstimator
 {
 public:
 
-  StripCPE(edm::ParameterSet & conf, const MagneticField * mag, const TrackerGeometry* geom);
 
   StripCPE(edm::ParameterSet & conf, const MagneticField * mag, const TrackerGeometry* geom, const SiStripLorentzAngle* LorentzAngle);
     
@@ -36,12 +35,6 @@ public:
   edm::ParameterSet conf_;
   const TrackerGeometry * geom_;
   const MagneticField * magfield_ ;
-  double appliedVoltage_;
-  double rhall_;
-  double mulow_;
-  double vsat_;
-  double beta_;
-  bool useDB_;
   const SiStripLorentzAngle* LorentzAngleMap_;
   mutable LocalVector theCachedDrift;
   mutable unsigned int theCachedDetId;

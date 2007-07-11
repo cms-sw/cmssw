@@ -40,30 +40,8 @@ StripCPE::Param const & StripCPE::param(DetId detId) const {
 
 
 
-StripCPE::StripCPE(edm::ParameterSet & conf, const MagneticField * mag, const TrackerGeometry* geom)
-{
-  appliedVoltage_   = conf.getParameter<double>("AppliedVoltage");
-  double chargeMobility   = conf.getParameter<double>("ChargeMobility");
-  double temperature = conf.getParameter<double>("Temperature");
-  rhall_            = conf.getParameter<double>("HoleRHAllParameter");
-  double holeBeta    = conf.getParameter<double>("HoleBeta");
-  double holeSaturationVelocity = conf.getParameter<double>("HoleSaturationVelocity");
-  useDB_ = conf.getParameter<bool>("UseCalibrationFromDB"); 
-
-  mulow_ = chargeMobility*std::pow((temperature/300.),-2.5);
-  vsat_ = holeSaturationVelocity*std::pow((temperature/300.),0.52);
-  beta_ = holeBeta*std::pow((temperature/300.),0.17);
-  
-  magfield_  = mag;
-  geom_ = geom;
-  theCachedDetId=0;
-  LorentzAngleMap_=0;
-}
-
-
 StripCPE::StripCPE(edm::ParameterSet & conf, const MagneticField * mag, const TrackerGeometry* geom, const SiStripLorentzAngle* LorentzAngle)
 {
-  useDB_ = conf.getParameter<bool>("UseCalibrationFromDB") ;
   magfield_  = mag;
   geom_ = geom;
   theCachedDetId=0;
@@ -90,16 +68,8 @@ LocalVector StripCPE::driftDirection(const StripGeomDetUnit* det)const{
   if ( theCachedDetId != det->geographicalId().rawId() ){
     LocalVector lbfield=(det->surface()).toLocal(magfield_->inTesla(det->surface().position()));
     
-    float tanLorentzAnglePerTesla=0;
+    float tanLorentzAnglePerTesla=LorentzAngleMap_->getLorentzAngle(det->geographicalId().rawId());
     
-    if(useDB_) 
-      tanLorentzAnglePerTesla = LorentzAngleMap_->getLorentzAngle(det->geographicalId().rawId());
-    else{
-      float thickness=det->specificSurface().bounds().thickness();
-      float e = appliedVoltage_/thickness;
-      float mu = ( mulow_/(std::pow(double((1+std::pow((mulow_*e/vsat_),beta_))),1./beta_)));
-      tanLorentzAnglePerTesla = 1.E-4 *mu*rhall_;
-    }
     
     float dir_x =-tanLorentzAnglePerTesla * lbfield.y();
     float dir_y =tanLorentzAnglePerTesla * lbfield.x();
