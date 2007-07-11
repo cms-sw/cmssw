@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Fri Sep 15 11:49:44 CDT 2006
-// $Id: HcalTPGCoderULUT.cc,v 1.2 2006/10/27 01:35:15 wmtan Exp $
+// $Id: HcalTPGCoderULUT.cc,v 1.3 2007/02/19 16:01:02 mansj Exp $
 //
 //
 
@@ -40,22 +40,20 @@
 // class decleration
 //
 
-class HcalTPGCoderULUT : public edm::ESProducer,
-			 public edm::EventSetupRecordIntervalFinder {
+class HcalTPGCoderULUT : public edm::ESProducer {
+
 public:
   HcalTPGCoderULUT(const edm::ParameterSet&);
   ~HcalTPGCoderULUT();
   
-  typedef std::auto_ptr<HcalTPGCoder> ReturnType;
-  
+  typedef boost::shared_ptr<HcalTPGCoder> ReturnType;
+  void dbRecordCallback(const HcalDbRecord&);
   ReturnType produce(const HcalTPGRecord&);
-
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey& iKey, const edm::IOVSyncValue& iTime, edm::ValidityInterval& oInterval ) {
-    oInterval = edm::ValidityInterval (edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime()); //infinite
-  }
 private:
   // ----------member data ---------------------------
   edm::FileInPath *ifilename_,*ofilename_;
+  ReturnType coder_;  
+  HcaluLUTTPGCoder* theCoder;
 };
 
 //
@@ -85,10 +83,20 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig)
   
    //the following line is needed to tell the framework what
    // data is being produced
-   setWhatProduced(this);
-   findingRecord<HcalTPGRecord>();
-
-   //now do what ever other initialization is needed
+  setWhatProduced(this,(dependsOn(&HcalTPGCoderULUT::dbRecordCallback)));
+  //  findingRecord<HcalTPGRecord>();
+  
+  //now do what ever other initialization is needed
+   using namespace edm::es;
+   if (ofilename_!=0) {
+     edm::LogInfo("HCAL") << "Using " << ifilename_->fullPath() << " and " << ofilename_->fullPath() << " for HcalTPGCoderULUT initialization";
+     theCoder=new HcaluLUTTPGCoder(ifilename_->fullPath().c_str(),ofilename_->fullPath().c_str());
+     coder_=ReturnType(theCoder);
+   } else {
+     edm::LogInfo("HCAL") << "Using " << ifilename_->fullPath() << " for HcalTPGCoderULUT initialization";
+     theCoder=new HcaluLUTTPGCoder(ifilename_->fullPath().c_str());
+     coder_=ReturnType(theCoder);
+   }  
 }
 
 
@@ -111,17 +119,14 @@ HcalTPGCoderULUT::~HcalTPGCoderULUT()
 HcalTPGCoderULUT::ReturnType
 HcalTPGCoderULUT::produce(const HcalTPGRecord& iRecord)
 {
-   using namespace edm::es;
-   if (ofilename_!=0) {
-     edm::LogInfo("HCAL") << "Using " << ifilename_->fullPath() << " and " << ofilename_->fullPath() << " for HcalTPGCoderULUT initialization";
-     std::auto_ptr<HcalTPGCoder> pHcalTPGCoder(new HcaluLUTTPGCoder(ifilename_->fullPath().c_str(),ofilename_->fullPath().c_str()));
-     return pHcalTPGCoder ;
-   } else {
-     edm::LogInfo("HCAL") << "Using " << ifilename_->fullPath() << " for HcalTPGCoderULUT initialization";
-     std::auto_ptr<HcalTPGCoder> pHcalTPGCoder(new HcaluLUTTPGCoder(ifilename_->fullPath().c_str()));
-     return pHcalTPGCoder ;
-   }
+  return coder_;
+}
+
+void HcalTPGCoderULUT::dbRecordCallback(const HcalDbRecord& theRec) {
+  edm::ESHandle<HcalDbService> conditions;
+  theRec.get(conditions);
+  theCoder->update(*conditions);
 }
 
 //define this as a plug-in
-DEFINE_FWK_EVENTSETUP_SOURCE(HcalTPGCoderULUT);
+DEFINE_FWK_EVENTSETUP_MODULE(HcalTPGCoderULUT);
