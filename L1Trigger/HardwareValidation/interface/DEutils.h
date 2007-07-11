@@ -106,9 +106,9 @@ inline bool DEutils<L1CaloRegionCollection>::de_equal(const cand_type& lhs, cons
   val &= (lhs.et()        == rhs.et()       );
   val &= (lhs.rctCrate()  == rhs.rctCrate() );	
   val &= (lhs.rctRegionIndex() == rhs.rctRegionIndex());
-  val &= (lhs.id().isForward() == rhs.id().isForward());  
+  val &= (lhs.id().isHf() == rhs.id().isHf());  
 
-  if (!lhs.id().isForward()){
+  if (!lhs.id().isHf()){
     val &= (lhs.overFlow()  == rhs.overFlow() );
     val &= (lhs.tauVeto()   == rhs.tauVeto()  );
     val &= (lhs.mip()       == rhs.mip()      );
