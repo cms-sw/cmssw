@@ -116,13 +116,7 @@ void SurveyDataConverter::applyFineSurveyInfo( TrackerAlignment& tr_align, MapTy
 				       align_params[17], align_params[20], align_params[14]);
 
                 // Use "false" for debugging only
-	        //tr_align.moveAlignableTIBTIDs(id, translations, bRotation, fRotation, true);
-                // Hack for pre4 to compile: needs to be sorted out!
-                std::vector<double> APE;
-                APE.push_back( static_cast<double>(align_params[0]) );
-                APE.push_back( static_cast<double>(align_params[1]) );
-                APE.push_back( static_cast<double>(align_params[2]) );
-	        tr_align.moveAlignableTIBTIDs(id, translations, bRotation*fRotation, APE );
+	        tr_align.moveAlignableTIBTIDs(id, translations, bRotation, fRotation, true);
 	}
 }
 
