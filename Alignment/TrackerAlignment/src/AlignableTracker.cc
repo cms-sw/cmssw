@@ -426,7 +426,7 @@ void AlignableTracker::buildTPE( const TrackerGeometry::DetContainer& dets )
 
   for (unsigned int i = 0; i < nDet; ++i)
   {
-    sensors[i] = new AlignableDetUnit(dets[i]);
+    sensors[i] = new AlignableDet(dets[i]);
   }
 
 // Build panels
