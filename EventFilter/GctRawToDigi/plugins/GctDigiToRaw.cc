@@ -45,9 +45,10 @@ using std::vector;
 
 
 GctDigiToRaw::GctDigiToRaw(const edm::ParameterSet& iConfig) :
-  inputLabel_(iConfig.getParameter<edm::InputTag>("inputLabel")),
-  fedId_(iConfig.getParameter<int>("GctFedId")),
-  verbose_(iConfig.getUntrackedParameter<bool>("Verbose",false)),
+  rctInputLabel_(iConfig.getParameter<edm::InputTag>("rctInputLabel")),
+  gctInputLabel_(iConfig.getParameter<edm::InputTag>("gctInputLabel")),
+  fedId_(iConfig.getParameter<int>("gctFedId")),
+  verbose_(iConfig.getUntrackedParameter<bool>("verbose",false)),
   counter_(0)
 {
 
@@ -85,39 +86,29 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // get digis
    edm::Handle<L1GctEmCandCollection> isoEm;
-   iEvent.getByLabel(inputLabel_.label(), "isoEm", isoEm);
+   iEvent.getByLabel(gctInputLabel_.label(), "isoEm", isoEm);
 
    edm::Handle<L1GctEmCandCollection> nonIsoEm;
-   iEvent.getByLabel(inputLabel_.label(), "nonIsoEm", nonIsoEm);
+   iEvent.getByLabel(gctInputLabel_.label(), "nonIsoEm", nonIsoEm);
 
-   // set digi collections in converter
-   converter_.setIsoEmCollection(const_cast<L1GctEmCandCollection*>(isoEm.product()));
-   converter_.setNonIsoEmCollection(const_cast<L1GctEmCandCollection*>(nonIsoEm.product()));
-
-   // create the collection
+   // create the raw data collection
    std::auto_ptr<FEDRawDataCollection> rawColl(new FEDRawDataCollection()); 
-   // retrieve the target buffer
+
+   // get the GCT buffer
    FEDRawData& feddata=rawColl->FEDData(fedId_);
    unsigned char * d = feddata.data();
 
    // set the size
    feddata.resize(32);
 
-   // write header
+   // write CDF header
    writeHeader(feddata);
 
    // pack GCT EM output digis
-   converter_.writeBlock(&d[8], 0x68);
-
-   // write footer (do i have to do this?!?)
+   blockPacker_.writeGctEmBlock(&d[8], isoEm);
 
 
-   // debug print out
-   for (int i=0; i<feddata.size()/4; i++) {
-     unsigned ptr = i*4;
-     unsigned * w32 = reinterpret_cast<unsigned*>(&d[ptr]);
-     cout << i << " " << std::hex << std::setw(8) << (*w32) << endl;
-   }
+   // write footer (is this necessary???)
 
    // put the collection in the event
    iEvent.put(rawColl);

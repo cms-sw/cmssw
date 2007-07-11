@@ -1,6 +1,6 @@
 
-#ifndef GCTBLOCKCONVERTER_H
-#define GCTBLOCKCONVERTER_H
+#ifndef GCTBLOCKUNPACKER_H
+#define GCTBLOCKUNPACKER_H
 
 #include <vector>
 #include <map>
@@ -14,11 +14,11 @@
 
 
 
-class GctBlockConverter {
+class GctBlockUnpacker {
  public:
 
-  GctBlockConverter();
-  ~GctBlockConverter();
+  GctBlockUnpacker();
+  ~GctBlockUnpacker();
   
   /// find out whether a block ID is recognised
   bool validBlock(unsigned id);
@@ -38,9 +38,6 @@ class GctBlockConverter {
   // get digis from block
   void convertBlock(const unsigned char * d, unsigned id, unsigned nSamples);
 
-  /// get block from digis
-  void writeBlock(unsigned char * d, unsigned id);
-
  private:
 
   // convert functions for each type of block
@@ -55,17 +52,6 @@ class GctBlockConverter {
 
   /// unpack Fibres
   void blockToFibres(const unsigned char * d, unsigned id, unsigned nSamples);
-
-
-  // reverse functions for each type of block
-  /// write header for packing
-  void writeGctHeader(unsigned char * d, unsigned id);
-
-  /// pack GCT EM Candidates (for triggered crossing only)
-  void gctEmCandToBlock(unsigned char * d, unsigned id);
-
-  /// pack RCT EM Candidates (for triggered crossing only)
-  void rctEmCandToBlock(unsigned char * d, unsigned id);
 
 
  private:

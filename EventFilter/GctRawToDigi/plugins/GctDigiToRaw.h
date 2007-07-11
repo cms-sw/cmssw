@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctDigiToRaw.h,v 1.1 2007/06/22 07:58:50 jbrooke Exp $
+// $Id: GctDigiToRaw.h,v 1.2 2007/07/05 21:22:00 jbrooke Exp $
 //
 //
 
@@ -55,7 +55,8 @@ class GctDigiToRaw : public edm::EDProducer {
 
   bool verbose_;         // print out for each event
 
-  edm::InputTag inputLabel_;
+  edm::InputTag rctInputLabel_;
+  edm::InputTag gctInputLabel_;
 
   int fedId_;            // GCT FED ID
 
@@ -64,7 +65,7 @@ class GctDigiToRaw : public edm::EDProducer {
   int lv1_;
   
   // Block to Digi converter
-  GctBlockConverter converter_;
+  GctBlockPacker blockPacker_;
 
 };
 

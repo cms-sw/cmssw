@@ -117,33 +117,6 @@ void GctBlockConverter::convertBlock(const unsigned char * data, unsigned id, un
 }
 
 
-void GctBlockConverter::writeBlock(unsigned char * d, unsigned id) {
-
-  switch (id) {
-  case (0x68) :  // ConcElec: Output to Global Trigger
-    gctEmCandToBlock(d, id);
-    break;
-  case (0x81) :  // Leaf-U1, Elec, NegEta, Raw Input
-    rctEmCandToBlock(d, id);
-    break;
-  case (0x89) :  // Leaf-U2, Elec, NegEta, Raw Input
-    rctEmCandToBlock(d, id);
-    break;
-  case (0xc1) :  // Leaf-U1, Elec, PosEta, Raw Input
-    rctEmCandToBlock(d, id);
-    break;
-  case (0xcb) :  // Leaf-U2, Elec, PosEta, Raw Input
-    rctEmCandToBlock(d, id);
-    break;
-  default :
-    edm::LogError("GCT") << "Trying to pack an unknown block, ID=" << std::hex << id << std::endl;
-    break;
-
-  }
-
-}
-
-
 // Output EM Candidates unpacking
 void GctBlockConverter::blockToGctEmCand(const unsigned char * data, unsigned id, unsigned nSamples) {
   for (int i=0; i<blockLength(id)*nSamples; i=i+nSamples) {
@@ -232,56 +205,4 @@ void GctBlockConverter::blockToFibres(const unsigned char * d, unsigned id, unsi
     }
   }  
 }
-
-
-// Write a header for packing
-void GctBlockConverter::writeGctHeader(unsigned char * d, unsigned id) {
-  d[0] = id & 0xff;
-  d[1] = 0;
-  d[2] = 0;
-  d[3] = 0;
-}
-
-
-// Output EM Candidates packing
-void GctBlockConverter::gctEmCandToBlock(unsigned char * d, unsigned id) {
-
-  // write header
-  unsigned last = 0;
-  writeGctHeader(d, id);
-  last += 4;
-
-  // pack iso EM
-  for (int i=0; i<4; i++) {
-    // in future, will only pack digis for 0th crossing, but this is not set yet!!!
-    //    if (gctIsoEm_->at(i).bx() == 0) {
-      int j = i; // should be gctIsoEm_->at(i).capIndex(); but capIndex is not set yet!!!
-      d[last] = gctIsoEm_->at(i).raw() & 0xff;
-      last++;
-      d[last] = (gctIsoEm_->at(i).raw()>>8) & 0xff;
-      last++;
-      //    }
-  }
-
-  // pack non-iso EM
-  for (int i=0; i<4; i++) {
-    // in future will ony pack digis for 0th crossing, but this is not set yet!!!
-    //    if (gctNonIsoEm_->at(i).bx() == 0) {
-      int j = i; // should be gctNonIsoEm_->at(i).capIndex(); but capIndex is not set yet!!!
-      d[last] = gctNonIsoEm_->at(i).raw() & 0xff;
-      last++;
-      d[last] = (gctNonIsoEm_->at(i).raw()>>8) & 0xff;
-      last++;
-      //    }
-  }
-
-}
-
-
-// Input EM Candidates packing
-void GctBlockConverter::rctEmCandToBlock(unsigned char * d, unsigned id) {
-
-
-}
-
 
