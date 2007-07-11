@@ -9,6 +9,8 @@
 
 //DataFormats
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+#include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 //stl
 #include <vector>
@@ -16,13 +18,13 @@
 #include <cmath>
 
 /**
-   Author:       pwing
-   Package:      CalibFormats/SiStripObjects
-   Class:        SiStripRegionCabling
-   Description:  Gives a regional view of the silicon strip tracker cabling. 
-                 Cabling is divided into (eta,phi) "regions". A "region" within 
-                 a given sub-detector is called a "wedge". A layer within a 
-                 given wedge is called an "element".
+   Author: pwing
+   Package: CalibFormats/SiStripObjects
+   Class: SiStripRegionCabling
+   Description: Gives a regional view of the silicon strip tracker cabling. 
+   Cabling is divided into (eta,phi) "regions". A "region" within a given 
+   sub-detector is called a "wedge". A layer within a given wedge is called 
+   an "element".
 */
 
 class SiStripRegionCabling {
@@ -42,9 +44,6 @@ class SiStripRegionCabling {
   typedef uint32_t Region;
   typedef uint32_t Layer;
   typedef uint32_t ElementIndex;
-  typedef std::vector<Region> Regions;
-  typedef std::vector<SubDet> SubDets;
-  typedef std::vector<Layer> Layers;
 
   ~SiStripRegionCabling() {;}
   SiStripRegionCabling(const uint32_t,const uint32_t, const double);
@@ -72,8 +71,6 @@ class SiStripRegionCabling {
   
   inline const Region region(PositionIndex) const;
 
-  const Regions regions(Position, double) const;
-
   /** Utility methods for interchanging between region-subdet-layer and the 
       corresponding element index. */
 
@@ -93,8 +90,34 @@ class SiStripRegionCabling {
 
   static const uint32_t layerFromDetId(uint32_t);
 
- private:
 
+  /** Utility methods for updating a SiStripRefGetter<T> container with regions 
+      or elements within a cone (+ layer) of interest */
+
+  template <class T>
+    uint32_t regions(edm::SiStripRefGetter<T>&, 
+		     edm::Handle<edm::SiStripLazyGetter<T> >,
+		     Position, 
+		     double, 
+		     double) const;
+  
+  template <class T>
+    uint32_t regions(edm::SiStripRefGetter<T>&, 
+		     edm::Handle<edm::SiStripLazyGetter<T> >, 
+		     Position, 
+		     double) const;
+  
+  template <class T>
+    uint32_t elements(edm::SiStripRefGetter<T>&, 
+		      edm::Handle<edm::SiStripLazyGetter<T> >, 
+		      Position, 
+		      double, 
+		      double, 
+		      SubDet, 
+		      Layer) const;
+  
+ private:
+  
   SiStripRegionCabling() {;}
 
   /** Number of regions in eta,phi */
@@ -108,11 +131,11 @@ class SiStripRegionCabling {
   Cabling regioncabling_;
 }; 
 
-void SiStripRegionCabling::setRegionCabling(const Cabling& regioncabling) {
+inline void SiStripRegionCabling::setRegionCabling(const Cabling& regioncabling) {
   regioncabling_ = regioncabling;
 }
 
-const SiStripRegionCabling::Cabling& SiStripRegionCabling::getRegionCabling() const {
+inline const SiStripRegionCabling::Cabling& SiStripRegionCabling::getRegionCabling() const {
   return regioncabling_;
 }
 
