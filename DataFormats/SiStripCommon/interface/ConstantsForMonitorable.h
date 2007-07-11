@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForMonitorable.h,v 1.3 2007/03/22 22:12:55 delaer Exp $
+// Last commit: $Id: ConstantsForMonitorable.h,v 1.4 2007/06/29 10:12:42 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForMonitorable_H
 #define DataFormats_SiStripCommon_ConstantsForMonitorable_H
@@ -26,14 +26,15 @@ namespace sistrip {
   static const std::string fedCablingAdcLevel_ = "AdcLevel";
 
   // fast cabling
-  static const std::string fastFedCablingDcuId_     = "DcuId";
-  static const std::string fastFedCablingLldCh_     = "LldCh";
-  static const std::string fastFedCablingHighLevel_ = "HighLightLevel";
-  static const std::string fastFedCablingHighRms_   = "SpreadInHighLightLevel";
-  static const std::string fastFedCablingLowLevel_  = "LowLightLevel";
-  static const std::string fastFedCablingLowRms_    = "SpreadInLowLightLevel";
-  static const std::string fastFedCablingMax_       = "MaximumLightLevel";
-  static const std::string fastFedCablingMin_       = "MinimumLightLevel";
+  static const std::string fastCablingDcuId_       = "DcuId";
+  static const std::string fastCablingLldCh_       = "LldCh";
+  static const std::string fastCablingHighLevel_   = "HighLightLevel";
+  static const std::string fastCablingHighRms_     = "SpreadInHighLightLevel";
+  static const std::string fastCablingLowLevel_    = "LowLightLevel";
+  static const std::string fastCablingLowRms_      = "SpreadInLowLightLevel";
+  static const std::string fastCablingMax_         = "MaximumLightLevel";
+  static const std::string fastCablingMin_         = "MinimumLightLevel";
+  static const std::string fastCablingConnsPerFed_ = "ConnectionsPerFed";
 
   // timing
   static const std::string apvTimingTime_   = "TimeOfTickMarkEdge";
@@ -64,9 +65,12 @@ namespace sistrip {
   static const std::string optoScanTickHeight_  = "TickMarkHeight";
 
   // vpsp scan
-  static const std::string vpspScanBothApvs_ = "VpspScanBothApvs";
-  static const std::string vpspScanApv0_     = "VpspScanApv0";
-  static const std::string vpspScanApv1_     = "VpspScanApv1";
+  static const std::string vpspScanBothApvs_    = "ApvVpspSettings";
+  static const std::string vpspScanApv0_        = "Apv0VpspSetting";
+  static const std::string vpspScanApv1_        = "Apv1VpspSetting";
+  static const std::string vpspScanAdcLevel_    = "BaselineLevel";
+  static const std::string vpspScanDigitalHigh_ = "DigitalHigh";
+  static const std::string vpspScanDigitalLow_  = "DigitalLow";
 
   // pedestals
   static const std::string pedestalsAllStrips_ = "StripPedestals";
@@ -87,6 +91,7 @@ namespace sistrip {
   // Fine Delay
   static const std::string fineDelayPos_       = "FineDelayPosition";
   static const std::string fineDelayErr_       = "FineDelayError";
+
   // daq scope mode
   static const std::string daqScopeModeMeanSignal_ = "DaqScopeMode_MeanSignal";
 
@@ -100,14 +105,15 @@ namespace sistrip {
 		     FED_CABLING_FED_CH    = 1302, 
 		     FED_CABLING_ADC_LEVEL = 1303, 
 
-		     FAST_FED_CABLING_DCU_ID     = 2101, 
-		     FAST_FED_CABLING_LLD_CH     = 2102, 
-		     FAST_FED_CABLING_HIGH_LEVEL = 2103, 
-		     FAST_FED_CABLING_LOW_LEVEL  = 2104, 
-		     FAST_FED_CABLING_HIGH_RMS   = 2105, 
-		     FAST_FED_CABLING_LOW_RMS    = 2106, 
-		     FAST_FED_CABLING_MAX        = 2107, 
-		     FAST_FED_CABLING_MIN        = 2108, 
+		     FAST_CABLING_DCU_ID        = 2101, 
+		     FAST_CABLING_LLD_CH        = 2102, 
+		     FAST_CABLING_HIGH_LEVEL    = 2103, 
+		     FAST_CABLING_LOW_LEVEL     = 2104, 
+		     FAST_CABLING_HIGH_RMS      = 2105, 
+		     FAST_CABLING_LOW_RMS       = 2106, 
+		     FAST_CABLING_MAX           = 2107, 
+		     FAST_CABLING_MIN           = 2108, 
+		     FAST_CABLING_CONNS_PER_FED = 2109, 
 
 		     APV_TIMING_TIME     = 501, 
 		     APV_TIMING_MAX_TIME = 502, 
@@ -134,9 +140,12 @@ namespace sistrip {
 		     OPTO_SCAN_LASER_THRESHOLD   = 407,  
 		     OPTO_SCAN_TICK_HEIGHT       = 408,
 
-		     VPSP_SCAN_BOTH_APVS = 1401, 
-		     VPSP_SCAN_APV0      = 1402, 
-		     VPSP_SCAN_APV1      = 1403, 
+		     VPSP_SCAN_APV_SETTINGS = 1401, 
+		     VPSP_SCAN_APV0_SETTING = 1402, 
+		     VPSP_SCAN_APV1_SETTING = 1403, 
+		     VPSP_SCAN_ADC_LEVEL    = 1404, 
+		     VPSP_SCAN_DIGITAL_HIGH = 1405, 
+		     VPSP_SCAN_DIGITAL_LOW  = 1406, 
 
 		     PEDESTALS_ALL_STRIPS = 201, 
 		     PEDESTALS_MEAN       = 202, 

@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripEnumsAndStrings.cc,v 1.10 2007/06/19 12:16:53 bainbrid Exp $
+// Last commit: $Id: SiStripEnumsAndStrings.cc,v 1.11 2007/06/29 10:12:43 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 
@@ -26,7 +26,7 @@ sistrip::View SiStripEnumsAndStrings::view( const std::string& dir ) {
 // -----------------------------------------------------------------------------
 // 
 std::string SiStripEnumsAndStrings::runType( const sistrip::RunType& run_type ) {
-  if ( run_type == sistrip::FAST_FED_CABLING ) { return sistrip::fastFedCabling_; }
+  if ( run_type == sistrip::FAST_CABLING ) { return sistrip::fastCabling_; }
   else if ( run_type == sistrip::FED_CABLING ) { return sistrip::fedCabling_; }
   else if ( run_type == sistrip::APV_TIMING ) { return sistrip::apvTiming_; }
   else if ( run_type == sistrip::FED_TIMING ) { return sistrip::fedTiming_; }
@@ -44,7 +44,7 @@ std::string SiStripEnumsAndStrings::runType( const sistrip::RunType& run_type ) 
 // -----------------------------------------------------------------------------
 // 
 sistrip::RunType SiStripEnumsAndStrings::runType( const std::string& run_type ) {
-  if ( run_type.find( sistrip::fastFedCabling_ ) != std::string::npos ) { return sistrip::FAST_FED_CABLING; }
+  if ( run_type.find( sistrip::fastCabling_ ) != std::string::npos ) { return sistrip::FAST_CABLING; }
   else if ( run_type.find( sistrip::fedCabling_ ) != std::string::npos ) { return sistrip::FED_CABLING; }
   else if ( run_type.find( sistrip::apvTiming_ ) != std::string::npos ) { return sistrip::APV_TIMING; }
   else if ( run_type.find( sistrip::fedTiming_ ) != std::string::npos ) { return sistrip::FED_TIMING; }
@@ -56,7 +56,7 @@ sistrip::RunType SiStripEnumsAndStrings::runType( const std::string& run_type ) 
   else if ( run_type.find( sistrip::physics_ ) != std::string::npos ) { return sistrip::PHYSICS; }
   else if ( run_type.find( sistrip::undefinedRunType_ ) != std::string::npos ) { return sistrip::UNDEFINED_RUN_TYPE; }
   else if ( run_type.empty() ) { return sistrip::UNDEFINED_RUN_TYPE; }
-  else if ( run_type == "FAST_CABLING" ) { return sistrip::FAST_FED_CABLING; }
+  else if ( run_type == "FAST_CABLING" ) { return sistrip::FAST_CABLING; }
   else if ( run_type == "FED_CABLING" ) { return sistrip::FED_CABLING; }
   else if ( run_type == "APV_TIMING" ) { return sistrip::APV_TIMING; }
   else if ( run_type == "FED_TIMING" ) { return sistrip::FED_TIMING; }
@@ -246,14 +246,15 @@ std::string SiStripEnumsAndStrings::monitorable( const sistrip::Monitorable& mon
   else if ( mon == sistrip::FED_CABLING_ADC_LEVEL ) { return sistrip::fedCablingAdcLevel_; }
 
   // fast fed cabling
-  else if ( mon == sistrip::FAST_FED_CABLING_DCU_ID ) { return sistrip::fastFedCablingDcuId_; } 
-  else if ( mon == sistrip::FAST_FED_CABLING_LLD_CH ) { return sistrip::fastFedCablingLldCh_; } 
-  else if ( mon == sistrip::FAST_FED_CABLING_HIGH_LEVEL ) { return sistrip::fastFedCablingHighLevel_; }
-  else if ( mon == sistrip::FAST_FED_CABLING_HIGH_RMS ) { return sistrip::fastFedCablingHighRms_; }
-  else if ( mon == sistrip::FAST_FED_CABLING_LOW_LEVEL ) { return sistrip::fastFedCablingLowLevel_; }
-  else if ( mon == sistrip::FAST_FED_CABLING_LOW_RMS ) { return sistrip::fastFedCablingLowRms_; }
-  else if ( mon == sistrip::FAST_FED_CABLING_MAX ) { return sistrip::fastFedCablingMax_; }
-  else if ( mon == sistrip::FAST_FED_CABLING_MIN ) { return sistrip::fastFedCablingMin_; }
+  else if ( mon == sistrip::FAST_CABLING_DCU_ID ) { return sistrip::fastCablingDcuId_; } 
+  else if ( mon == sistrip::FAST_CABLING_LLD_CH ) { return sistrip::fastCablingLldCh_; } 
+  else if ( mon == sistrip::FAST_CABLING_HIGH_LEVEL ) { return sistrip::fastCablingHighLevel_; }
+  else if ( mon == sistrip::FAST_CABLING_HIGH_RMS ) { return sistrip::fastCablingHighRms_; }
+  else if ( mon == sistrip::FAST_CABLING_LOW_LEVEL ) { return sistrip::fastCablingLowLevel_; }
+  else if ( mon == sistrip::FAST_CABLING_LOW_RMS ) { return sistrip::fastCablingLowRms_; }
+  else if ( mon == sistrip::FAST_CABLING_MAX ) { return sistrip::fastCablingMax_; }
+  else if ( mon == sistrip::FAST_CABLING_MIN ) { return sistrip::fastCablingMin_; }
+  else if ( mon == sistrip::FAST_CABLING_CONNS_PER_FED ) { return sistrip::fastCablingConnsPerFed_; }
   
   // apv timing
   else if ( mon == sistrip::APV_TIMING_TIME ) { return sistrip::apvTimingTime_; } 
@@ -284,9 +285,12 @@ std::string SiStripEnumsAndStrings::monitorable( const sistrip::Monitorable& mon
   else if ( mon == sistrip::OPTO_SCAN_TICK_HEIGHT ) { return sistrip::optoScanTickHeight_; }
 
   // vpsp scan
-  else if ( mon == sistrip::VPSP_SCAN_BOTH_APVS ) { return sistrip::vpspScanBothApvs_; }
-  else if ( mon == sistrip::VPSP_SCAN_APV0 ) { return sistrip::vpspScanApv0_; }
-  else if ( mon == sistrip::VPSP_SCAN_APV1 ) { return sistrip::vpspScanApv1_; }
+  else if ( mon == sistrip::VPSP_SCAN_APV_SETTINGS ) { return sistrip::vpspScanBothApvs_; }
+  else if ( mon == sistrip::VPSP_SCAN_APV0_SETTING ) { return sistrip::vpspScanApv0_; }
+  else if ( mon == sistrip::VPSP_SCAN_APV1_SETTING ) { return sistrip::vpspScanApv1_; }
+  else if ( mon == sistrip::VPSP_SCAN_ADC_LEVEL ) { return sistrip::vpspScanAdcLevel_; }
+  else if ( mon == sistrip::VPSP_SCAN_DIGITAL_HIGH ) { return sistrip::vpspScanDigitalHigh_; }
+  else if ( mon == sistrip::VPSP_SCAN_DIGITAL_LOW ) { return sistrip::vpspScanDigitalLow_; }
 
   // pedestals / noise
   else if ( mon == sistrip::PEDESTALS_ALL_STRIPS ) { return sistrip::pedestalsAllStrips_; }
@@ -325,14 +329,15 @@ sistrip::Monitorable SiStripEnumsAndStrings::monitorable( const std::string& mon
   else if ( mon.find( sistrip::fedCablingAdcLevel_ ) != std::string::npos ) { return sistrip::FED_CABLING_ADC_LEVEL; } 
 
   // fed cabling
-  else if ( mon.find( sistrip::fastFedCablingDcuId_ ) != std::string::npos ) { return sistrip::FAST_FED_CABLING_DCU_ID; } 
-  else if ( mon.find( sistrip::fastFedCablingLldCh_ ) != std::string::npos ) { return sistrip::FAST_FED_CABLING_LLD_CH; } 
-  else if ( mon.find( sistrip::fastFedCablingHighLevel_ ) != std::string::npos ) { return sistrip::FAST_FED_CABLING_HIGH_LEVEL; } 
-  else if ( mon.find( sistrip::fastFedCablingHighRms_ ) != std::string::npos ) { return sistrip::FAST_FED_CABLING_HIGH_RMS; } 
-  else if ( mon.find( sistrip::fastFedCablingLowLevel_ ) != std::string::npos ) { return sistrip::FAST_FED_CABLING_LOW_LEVEL; } 
-  else if ( mon.find( sistrip::fastFedCablingLowRms_ ) != std::string::npos ) { return sistrip::FAST_FED_CABLING_LOW_RMS; } 
-  else if ( mon.find( sistrip::fastFedCablingMax_ ) != std::string::npos ) { return sistrip::FAST_FED_CABLING_MAX; } 
-  else if ( mon.find( sistrip::fastFedCablingMin_ ) != std::string::npos ) { return sistrip::FAST_FED_CABLING_MIN; } 
+  else if ( mon.find( sistrip::fastCablingDcuId_ ) != std::string::npos ) { return sistrip::FAST_CABLING_DCU_ID; } 
+  else if ( mon.find( sistrip::fastCablingLldCh_ ) != std::string::npos ) { return sistrip::FAST_CABLING_LLD_CH; } 
+  else if ( mon.find( sistrip::fastCablingHighLevel_ ) != std::string::npos ) { return sistrip::FAST_CABLING_HIGH_LEVEL; } 
+  else if ( mon.find( sistrip::fastCablingHighRms_ ) != std::string::npos ) { return sistrip::FAST_CABLING_HIGH_RMS; } 
+  else if ( mon.find( sistrip::fastCablingLowLevel_ ) != std::string::npos ) { return sistrip::FAST_CABLING_LOW_LEVEL; } 
+  else if ( mon.find( sistrip::fastCablingLowRms_ ) != std::string::npos ) { return sistrip::FAST_CABLING_LOW_RMS; } 
+  else if ( mon.find( sistrip::fastCablingMax_ ) != std::string::npos ) { return sistrip::FAST_CABLING_MAX; } 
+  else if ( mon.find( sistrip::fastCablingMin_ ) != std::string::npos ) { return sistrip::FAST_CABLING_MIN; } 
+  else if ( mon.find( sistrip::fastCablingConnsPerFed_ ) != std::string::npos ) { return sistrip::FAST_CABLING_CONNS_PER_FED; }
 
   // apv timing
   else if ( mon.find( sistrip::apvTimingTime_ ) != std::string::npos ) { return sistrip::APV_TIMING_TIME; } 
@@ -363,10 +368,13 @@ sistrip::Monitorable SiStripEnumsAndStrings::monitorable( const std::string& mon
   else if ( mon.find( sistrip::optoScanTickHeight_ ) != std::string::npos ) { return sistrip::OPTO_SCAN_TICK_HEIGHT; }
 
   // vpsp scan
-  else if ( mon.find( sistrip::vpspScanBothApvs_ ) != std::string::npos ) { return sistrip::VPSP_SCAN_BOTH_APVS; }
-  else if ( mon.find( sistrip::vpspScanApv0_ ) != std::string::npos ) { return sistrip::VPSP_SCAN_APV0; }
-  else if ( mon.find( sistrip::vpspScanApv1_ ) != std::string::npos ) { return sistrip::VPSP_SCAN_APV1; }
-
+  else if ( mon.find( sistrip::vpspScanBothApvs_ ) != std::string::npos ) { return sistrip::VPSP_SCAN_APV_SETTINGS; }
+  else if ( mon.find( sistrip::vpspScanApv0_ ) != std::string::npos ) { return sistrip::VPSP_SCAN_APV0_SETTING; }
+  else if ( mon.find( sistrip::vpspScanApv1_ ) != std::string::npos ) { return sistrip::VPSP_SCAN_APV1_SETTING; }
+  else if ( mon.find( sistrip::vpspScanAdcLevel_ ) != std::string::npos ) { return sistrip::VPSP_SCAN_ADC_LEVEL; }
+  else if ( mon.find( sistrip::vpspScanDigitalHigh_ ) != std::string::npos ) { return sistrip::VPSP_SCAN_DIGITAL_HIGH; }
+  else if ( mon.find( sistrip::vpspScanDigitalLow_ ) != std::string::npos ) { return sistrip::VPSP_SCAN_DIGITAL_LOW; }
+  
   // pedestals / noise
   else if ( mon.find( sistrip::pedestalsAllStrips_ ) != std::string::npos ) { return sistrip::PEDESTALS_ALL_STRIPS; }
   else if ( mon.find( sistrip::pedestalsMean_ ) != std::string::npos ) { return sistrip::PEDESTALS_MEAN; }

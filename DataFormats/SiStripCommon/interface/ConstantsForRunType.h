@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForRunType.h,v 1.3 2007/03/22 22:12:55 delaer Exp $
+// Last commit: $Id: ConstantsForRunType.h,v 1.4 2007/06/19 12:16:52 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForRunType_H
 #define DataFormats_SiStripCommon_ConstantsForRunType_H
@@ -19,7 +19,7 @@ namespace sistrip {
   static const std::string unknownRunType_   = "UnknownRunType";
   static const std::string undefinedRunType_ = "UndefinedRunType";
   
-  static const std::string fastFedCabling_ = "FastCabling";
+  static const std::string fastCabling_ = "FastCabling";
   static const std::string fedCabling_     = "FedCabling";
   static const std::string apvTiming_      = "ApvTiming";
   static const std::string fedTiming_      = "FedTiming";
@@ -57,7 +57,7 @@ namespace sistrip {
    */
   enum RunType { UNKNOWN_RUN_TYPE   = sistrip::unknown_,
 		 UNDEFINED_RUN_TYPE = sistrip::invalid_,
-		 FAST_FED_CABLING   = 21,
+		 FAST_CABLING   = 21,
 		 FED_CABLING        = 13,
 		 APV_TIMING         = 5,
 		 FED_TIMING         = 12,
