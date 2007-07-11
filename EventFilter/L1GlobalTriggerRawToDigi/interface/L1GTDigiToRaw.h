@@ -87,6 +87,7 @@ private:
 
     /// pack a GMT record
     unsigned int packGMT(L1MuGMTReadoutRecord const&, unsigned char*);
+    unsigned int flipPtQ(unsigned int);
 
     /// pack trailer word
     void packTrailer(unsigned char*, int);

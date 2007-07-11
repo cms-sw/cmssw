@@ -44,6 +44,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/Common/interface/RefProd.h"
 
@@ -52,6 +54,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
+#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
 
 // constructor(s)
 L1GlobalTriggerRawToDigi::L1GlobalTriggerRawToDigi(const edm::ParameterSet& pSet)
@@ -139,7 +143,9 @@ L1GlobalTriggerRawToDigi::~L1GlobalTriggerRawToDigi()
 void L1GlobalTriggerRawToDigi::beginJob(const edm::EventSetup& evSetup)
 {
 
-    // empty now
+  edm::ESHandle< L1MuTriggerScales > trigscales_h;
+  evSetup.get< L1MuTriggerScalesRcd >().get( trigscales_h );
+  m_TriggerScales = trigscales_h.product();
 
 }
 
@@ -777,7 +783,7 @@ void L1GlobalTriggerRawToDigi::unpackGMT(
 
             // Dump the block
             const boost::uint64_t* bp =
-                reinterpret_cast<boost::uint64_t*>(const_cast<unsigned char*>(chp));
+                reinterpret_cast<boost::uint64_t*>(const_cast<unsigned*>(p));
             for(int iWord=0; iWord<17; iWord++) {
                 LogTrace("L1GlobalTriggerRawToDigi")
                 << std::setw(4) << iWord << "  "
@@ -805,23 +811,26 @@ void L1GlobalTriggerRawToDigi::unpackGMT(
             for(int im=0; im<16; im++) {
                 // flip the pt and quality bits -- this should better be done by GMT input chips
                 unsigned waux = *p++;
-                unsigned waux2 = ~((waux>>8)&0xff);
-                waux = (waux&0xff00ff) | (waux2<<8);
-                gmtrr.setInputCand(im,waux);
+                waux = (waux&0xffff00ff) | ((~waux)&0x0000ff00);
+                L1MuRegionalCand cand(waux,iBxInEvent);
+                cand.setPhiValue( m_TriggerScales->getPhiScale()->getLowEdge(cand.phi_packed()) );
+                cand.setEtaValue( m_TriggerScales->getRegionalEtaScale(cand.type_idx())->getCenter(cand.eta_packed()) );
+                cand.setPtValue( m_TriggerScales->getPtScale()->getLowEdge(cand.pt_packed()) );
+                gmtrr.setInputCand(im, cand);
             }
 
             unsigned char* prank = (unsigned char*) (p+12);
 
-            for(int im=0; im<4; im++) {
-                gmtrr.setGMTBrlCand(im, *p++, *prank++);
-            }
-
-            for(int im=0; im<4; im++) {
-                gmtrr.setGMTFwdCand(im, *p++, *prank++);
-            }
-
-            for(int im=0; im<4; im++) {
-                gmtrr.setGMTCand(im, *p++);
+            for(int im=0; im<12; im++) {
+                unsigned waux = *p++;
+                unsigned raux = im<8 ? *prank++ : 0; // only fwd and brl cands have valid rank
+                L1MuGMTExtendedCand cand(waux,raux,iBxInEvent);
+                cand.setPhiValue( m_TriggerScales->getPhiScale()->getLowEdge( cand.phiIndex() ));
+                cand.setEtaValue( m_TriggerScales->getGMTEtaScale()->getCenter( cand.etaIndex() ));
+                cand.setPtValue( m_TriggerScales->getPtScale()->getLowEdge( cand.ptIndex() ));
+                if(im<4) gmtrr.setGMTBrlCand(im, cand);
+                else if(im<8) gmtrr.setGMTFwdCand(im-4, cand);
+                else gmtrr.setGMTCand(im-8, cand);
             }
 
             // skip the two sort rank words and two chip BX words

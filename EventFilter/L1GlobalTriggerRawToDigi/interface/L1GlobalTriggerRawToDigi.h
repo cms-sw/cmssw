@@ -42,6 +42,8 @@ class L1MuGMTReadoutCollection;
 class FEDHeader;
 class FEDTrailer;
 
+class L1MuTriggerScales;
+
 
 // class declaration
 class L1GlobalTriggerRawToDigi : public edm::EDProducer
@@ -115,6 +117,8 @@ private:
     /// total Bx's in the event, obtained from GTFE block
     int m_totalBxInEvent;
 
+    /// muon trigger scales to convert unpacked data into physical quantities
+    const L1MuTriggerScales* m_TriggerScales;
 };
 
 #endif // EventFilter_L1GlobalTriggerRawToDigi_L1GlobalTriggerRawToDigi_h

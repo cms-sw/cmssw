@@ -4,6 +4,8 @@
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/L1GlobalTrigger>
 <use name=DataFormats/L1GlobalMuonTrigger>
+<use name=CondFormats/DataRecord>
+<use name=CondFormats/L1TObjects>
 <use name=boost>
 <flags EDM_PLUGIN=1>
 <export>
@@ -14,5 +16,7 @@
    <use name=DataFormats/FEDRawData>
    <use name=DataFormats/L1GlobalTrigger>
    <use name=DataFormats/L1GlobalMuonTrigger>
+   <use name=CondFormats/DataRecord>
+   <use name=CondFormats/L1TObjects>
    <use name=boost>
 </export>

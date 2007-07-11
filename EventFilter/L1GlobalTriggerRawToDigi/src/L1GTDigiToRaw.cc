@@ -699,6 +699,7 @@ unsigned L1GTDigiToRaw::packGMT(L1MuGMTReadoutRecord const& gmtrr, unsigned char
 {
 
     const unsigned SIZE=136;
+    const unsigned boardId=0xdd12;
     memset(chp,0,SIZE);
 
     unsigned* p = (unsigned*) chp;
@@ -706,7 +707,7 @@ unsigned L1GTDigiToRaw::packGMT(L1MuGMTReadoutRecord const& gmtrr, unsigned char
     // event number + bcerr
     *p++ = (gmtrr.getEvNr()&0xffffff) | ((gmtrr.getBCERR()&0xff)<<24);
     // bx number, bx in event, length(?), board-id(?)
-    *p++ = (gmtrr.getBxNr()&0xfff) | ((gmtrr.getBxInEvent()&0xf)<<12);
+    *p++ = (gmtrr.getBxNr()&0xfff) | ((gmtrr.getBxInEvent()&0xf)<<12) | (boardId<<16);
 
     std::vector<L1MuRegionalCand> vrc;
     std::vector<L1MuRegionalCand>::const_iterator irc;
@@ -739,6 +740,13 @@ unsigned L1GTDigiToRaw::packGMT(L1MuGMTReadoutRecord const& gmtrr, unsigned char
         *pp++ = (*irc).getDataWord();
     }
     p+=4;
+    
+    // the regional candidates are written to the record with inverted Pt and qual bits
+    pp = p-16;
+    for(int i=0; i<16; i++) {
+        unsigned w = *pp;
+        *pp++ = (w&0xffff00ff) | ((~w)&0x0000ff00);
+    }
 
     std::vector<L1MuGMTExtendedCand> vgc;
     std::vector<L1MuGMTExtendedCand>::const_iterator igc;
@@ -781,6 +789,10 @@ unsigned L1GTDigiToRaw::packGMT(L1MuGMTReadoutRecord const& gmtrr, unsigned char
     p++;
 
     return SIZE;
+}
+
+unsigned int L1GTDigiToRaw::flipPtQ(unsigned int w) {
+    return ( (w&0xffff00ff) | ((~w)&0x0000ff00) );
 }
 
 // pack trailer
