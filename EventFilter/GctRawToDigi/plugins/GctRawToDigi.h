@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctRawToDigi.h,v 1.4 2007/06/18 12:12:34 jbrooke Exp $
+// $Id: GctRawToDigi.h,v 1.5 2007/06/22 07:58:24 jbrooke Exp $
 //
 //
 
@@ -60,6 +60,10 @@ class GctRawToDigi : public edm::EDProducer {
   int fedId_;            // GCT FED ID
   int nDebugSamples_;    // number of samples per block in debug mode
   
+  // unpacking options
+  bool doInternEm_;
+  bool doFibres_;
+
   // Block to Digi converter
   GctBlockConverter converter_;
 

@@ -74,6 +74,7 @@ void GctBlockConverter::convertBlock(const unsigned char * data, unsigned id, un
     break;
   case (0x81) :
     blockToRctEmCand(data, id, nSamples);
+    blockToFibres(data, id, nSamples);
     break;
   case (0x83) :
     blockToGctInternEmCand(data, id, nSamples);
@@ -83,6 +84,7 @@ void GctBlockConverter::convertBlock(const unsigned char * data, unsigned id, un
     break;
   case (0x89) :
     blockToRctEmCand(data, id, nSamples);
+    blockToFibres(data, id, nSamples);
     break;
   case (0x8b) :
     blockToGctInternEmCand(data, id, nSamples);
@@ -92,6 +94,7 @@ void GctBlockConverter::convertBlock(const unsigned char * data, unsigned id, un
     break;
   case (0xc1) :
     blockToRctEmCand(data, id, nSamples);
+    blockToFibres(data, id, nSamples);
     break;
   case (0xc3) :
     blockToGctInternEmCand(data, id, nSamples);
@@ -101,6 +104,7 @@ void GctBlockConverter::convertBlock(const unsigned char * data, unsigned id, un
     break;
   case (0xc9) :
     blockToRctEmCand(data, id, nSamples);
+    blockToFibres(data, id, nSamples);
     break;
   case (0xcb) :
     blockToGctInternEmCand(data, id, nSamples);
@@ -217,6 +221,16 @@ void GctBlockConverter::blockToRctEmCand(const unsigned char * d, unsigned id, u
     rctEm_->push_back( L1CaloEmCand( dd[5] & 0x3ff, crate, false, 0, 0, true) );
   }
 
+}
+
+
+// Fibre unpacking
+void GctBlockConverter::blockToFibres(const unsigned char * d, unsigned id, unsigned nSamples) {
+  for (int i=0; i<blockLength(id); i++) {
+    for (int j=0; j<nSamples; j++) {
+      gctFibres_->push_back( L1GctFibreWord(d[i*nSamples + j], id, i, j) );
+    }
+  }  
 }
 
 

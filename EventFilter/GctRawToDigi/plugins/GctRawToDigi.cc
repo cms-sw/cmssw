@@ -42,7 +42,9 @@ unsigned GctRawToDigi::MAX_BLOCKS = 128;
 
 GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   fedId_(iConfig.getParameter<int>("GctFedId")),
-  verbose_(iConfig.getUntrackedParameter<bool>("Verbose",false))
+  verbose_(iConfig.getUntrackedParameter<bool>("Verbose",false)),
+  doInternEm_(iConfig.getUntrackedParameter<bool>("unpackInternEm",true)),
+  doFibres_(iConfig.getUntrackedParameter<bool>("unpackFibres",true))
 {
 
   edm::LogInfo("GCT") << "GctRawToDigi will unpack FED Id " << fedId_ << endl;
@@ -60,6 +62,7 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   produces<L1GctEtHad>();
   produces<L1GctEtMiss>();
   produces<L1GctJetCounts>();
+  produces<L1GctFibreCollection>();
 
 }
 
@@ -121,11 +124,13 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
   std::auto_ptr<L1GctEmCandCollection> gctNonIsoEm( new L1GctEmCandCollection() ); 
   std::auto_ptr<L1GctJetCandCollection> gctCenJets( new L1GctJetCandCollection() ); 
   std::auto_ptr<L1GctJetCandCollection> gctForJets( new L1GctJetCandCollection() ); 
-  std::auto_ptr<L1GctJetCandCollection> gctTauJets( new L1GctJetCandCollection() ); 
+  std::auto_ptr<L1GctJetCandCollection> gctTauJets( new L1GctJetCandCollection() );
   
   std::auto_ptr<L1GctEtTotal> etTotResult( new L1GctEtTotal() );
   std::auto_ptr<L1GctEtHad> etHadResult( new L1GctEtHad() );
   std::auto_ptr<L1GctEtMiss> etMissResult( new L1GctEtMiss() );
+
+  std::auto_ptr<L1GctFibreCollection> gctFibres( new L1GctFibreCollection() );
 
 
   // setup converter
@@ -133,6 +138,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
   converter_.setIsoEmCollection( gctIsoEm.get() );
   converter_.setNonIsoEmCollection( gctNonIsoEm.get() );
   converter_.setInternEmCollection( gctInternEm.get() );
+  converter_.setFibreCollection( gctFibres.get() );
 
   // unpacking variables
   const unsigned char * data = d.data();
@@ -188,10 +194,16 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
   e.put(rctRgn);
   e.put(gctIsoEm, "isoEm");
   e.put(gctNonIsoEm, "nonIsoEm");
-  e.put(gctInternEm);
   e.put(gctCenJets,"cenJets");
   e.put(gctForJets,"forJets");
   e.put(gctTauJets,"tauJets");
+
+  if (doInternEm_) {
+    e.put(gctInternEm);
+  }
+  if (doFibres_) {
+    e.put(gctFibres);
+  }
 
 }
 

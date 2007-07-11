@@ -33,6 +33,7 @@ class GctBlockConverter {
   void setIsoEmCollection(L1GctEmCandCollection* coll) { gctIsoEm_ = coll; }
   void setNonIsoEmCollection(L1GctEmCandCollection* coll) { gctNonIsoEm_ = coll; }
   void setInternEmCollection(L1GctInternEmCandCollection* coll) { gctInternEm_ = coll; }
+  void setFibreCollection(L1GctFibreCollection* coll) { gctFibres_ = coll; }
 
   // get digis from block
   void convertBlock(const unsigned char * d, unsigned id, unsigned nSamples);
@@ -51,6 +52,9 @@ class GctBlockConverter {
 
   /// unpack RCT EM Candidates
   void blockToRctEmCand(const unsigned char * d, unsigned id, unsigned nSamples);
+
+  /// unpack Fibres
+  void blockToFibres(const unsigned char * d, unsigned id, unsigned nSamples);
 
 
   // reverse functions for each type of block
@@ -80,6 +84,7 @@ class GctBlockConverter {
   L1GctEmCandCollection* gctIsoEm_;
   L1GctEmCandCollection* gctNonIsoEm_;
   L1GctInternEmCandCollection* gctInternEm_;  
+  L1GctFibreCollection* gctFibres_;  
 
 };
 
