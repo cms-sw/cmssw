@@ -6,6 +6,8 @@
 #include "CondCore/DBCommon/interface/ConnectionHandler.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/Connection.h"
+#include "CondCore/DBCommon/interface/TypedRef.h"
+
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ITable.h"
 #include "RelationalAccess/IColumn.h"
@@ -15,6 +17,7 @@
 #include "RelationalAccess/ITablePrivilegeManager.h"
 #include "RelationalAccess/TableDescription.h"
 #include "CoralBase/AttributeSpecification.h"
+#include "testCondObj.h"
 #include <string>
 #include <iostream>
 int main(){
@@ -30,8 +33,15 @@ int main(){
   std::cout<<"myconnection "<<myconnection<<std::endl;
   cond::CoralTransaction& coralTransaction=myconnection->coralTransaction(false);
   coralTransaction.start(false);
-  
   coralTransaction.commit();
+  testCondObj* myobj=new testCondObj;
+  myobj->data.insert(std::make_pair<unsigned int,std::string>(10,"ten"));
+  myobj->data.insert(std::make_pair<unsigned int,std::string>(2,"two"));
+  cond::PoolTransaction& poolTransaction=myconnection->poolTransaction(false);
+  poolTransaction.start(false);
+  cond::TypedRef<testCondObj> myref(poolTransaction,myobj);
+  myref.markWrite("testCondObjContainer");
+  poolTransaction.commit();
   cond::Connection* myconnection2=conHandler.getConnection("mysqlite2",false);
   std::cout<<"myconnection2 "<<myconnection2<<std::endl;
   cond::CoralTransaction& coralTransaction2=myconnection2->coralTransaction(false);

@@ -4,19 +4,20 @@
 //pool includes
 #include "DataSvc/IDataSvc.h"
 #include "PersistencySvc/ITransaction.h"
+//#include <iostream>
 cond::PoolTransaction::PoolTransaction(cond::PoolConnectionProxy* parentConnection):m_parentConnection(parentConnection){
-  
+  this->attach(m_parentConnection);
 }
 cond::PoolTransaction::~PoolTransaction(){}
 void 
 cond::PoolTransaction::start(bool isReadOnly){
   if(!m_datasvc) throw cond::Exception("PoolTransaction::start: database not connected");
+  this->NotifyStartOfTransaction();
   if(!isReadOnly){
     m_datasvc->transaction().start( pool::ITransaction::UPDATE );
   }else{
     m_datasvc->transaction().start( pool::ITransaction::READ );
   }
-  this->NotifyStartOfTransaction();
   m_isReadOnly=isReadOnly;
 }
 void 

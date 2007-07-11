@@ -20,9 +20,9 @@ cond::PoolConnectionProxy::PoolConnectionProxy(const std::string& con,
   m_connectionTimeOut( connectionTimeOut )
 {
   if(isReadOnly){
-    m_catalog->setWriteCatalog(con);
+    m_catalog->setWriteCatalog(catalog);
   }else{
-    m_catalog->addReadCatalog(con);
+    m_catalog->addReadCatalog(catalog);
   }
 }
 cond::PoolConnectionProxy::~PoolConnectionProxy(){
@@ -30,6 +30,9 @@ cond::PoolConnectionProxy::~PoolConnectionProxy(){
 }
 cond::ITransaction&  
 cond::PoolConnectionProxy::transaction(){
+  if(!m_transaction){
+    m_transaction=new cond::PoolTransaction(this);
+  }
   return *m_transaction;
 }
 bool 
@@ -58,14 +61,9 @@ cond::PoolConnectionProxy::connect(){
   m_datasvc->session().setDefaultConnectionPolicy(policy);
   m_catalog->connect();
   m_catalog->start();
-  
-  if(!m_transaction){
-    m_transaction=new cond::PoolTransaction(this);
-  }
   if(m_connectionTimeOut!=0){
     m_timer.restart();
   }
-
 }
 void
 cond::PoolConnectionProxy::disconnect(){

@@ -25,7 +25,6 @@ namespace cond{
     ITransaction&  transaction();
     bool isReadOnly() const ;
     unsigned int connectionTimeOut() const;
-    coral::
     coral::ISessionProxy& coralProxy();
     std::string connectStr() const;
     ///observer interface

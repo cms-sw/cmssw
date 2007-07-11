@@ -11,6 +11,8 @@
 // local includes
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/Connection.h"
+#include "CondCore/DBCommon/interface/PoolTransaction.h"
+#include "CondCore/DBCommon/interface/IConnectionProxy.h"
 namespace cond{
   class PoolTransaction;
   /** 
@@ -33,18 +35,12 @@ namespace cond{
     // copy constructor
     TypedRef( const TypedRef<T>& aCopy);
     // externalised token
-    const std::string token() const;
-    // object name
-    std::string className() const;
-    // container name
-    std::string containerName() const;
-    virtual ~TypedRef();
-    // externalised token
     std::string token() const;
     // object name
     std::string className() const;
     // container name
     std::string containerName() const;
+    ~TypedRef();
     /* update operations
     **/
     void markWrite( const std::string& containerName ); 
@@ -69,57 +65,56 @@ namespace cond{
 
 // default constuctor
 template<typename T> 
-cond::TypedRef::TypedRef():m_datasvc(0),m_place(0){  
+cond::TypedRef<T>::TypedRef():m_datasvc(0),m_place(0){  
 }
 template<typename T> 
-cond::TypedRef::TypedRef(cond::PoolTransaction& pooldb, 
+cond::TypedRef<T>::TypedRef(cond::PoolTransaction& pooldb, 
 			 pool::Ref<T> ref):
   m_datasvc(&(pooldb.poolDataSvc())), m_data(ref){
-  std::string con=transaction.parentConnection().connectStr();
+  std::string con=pooldb.parentConnection().connectStr();
   m_place = new pool::Placement;
   m_place->setTechnology(pool::POOL_RDBMS_HOMOGENEOUS_StorageType.type());
   m_place->setDatabase(con,pool::DatabaseSpecification::PFN);
 }
 // construct from token
 template<typename T> 
-cond::TypedRef::TypedRef( cond::PoolTransaction& pooldb, 
+cond::TypedRef<T>::TypedRef( cond::PoolTransaction& pooldb, 
 			  const std::string& token ):
   m_datasvc(&(pooldb.poolDataSvc())),m_data(m_datasvc, token){
-  std::string con=transaction.parentConnection().connectStr();
+  std::string con=pooldb.parentConnection().connectStr();
   m_place = new pool::Placement;
   m_place->setTechnology(pool::POOL_RDBMS_HOMOGENEOUS_StorageType.type());
   m_place->setDatabase(con,pool::DatabaseSpecification::PFN);
 }
 // construct from object pointer, take ownership of the object
 template<typename T> 
-cond::TypedRef::TypedRef( cond::PoolTransaction& pooldb, T* obj ):m_datasvc(&(pooldb.poolDataSvc())),m_data(m_datasvc, obj){
-  std::string con=transaction.parentConnection().connectStr();
+cond::TypedRef<T>::TypedRef( cond::PoolTransaction& pooldb, T* obj ):m_datasvc(&(pooldb.poolDataSvc())),m_data(m_datasvc, obj){
+  std::string con=pooldb.parentConnection().connectStr();
   m_place = new pool::Placement;
   m_place->setTechnology(pool::POOL_RDBMS_HOMOGENEOUS_StorageType.type());
   m_place->setDatabase(con,pool::DatabaseSpecification::PFN);
 }
 // copy constructor???
 template<typename T>
-cond::TypedRef::TypedRef( const TypedRef<T>& aCopy){
+cond::TypedRef<T>::TypedRef( const TypedRef<T>& aCopy){
 }
-template<typename T>
-const std::string 
-cond::TypedRef::token() const{
+template<typename T> std::string 
+cond::TypedRef<T>::token() const{
   return m_data.toString();
 }
 // object name
 template<typename T> std::string 
-cond::TypedRef::className() const{
+cond::TypedRef<T>::className() const{
   ROOT::Reflex::Type mytype=m_data.objectType();
   return mytype.Name();
 }
 template<typename T> std::string 
-cond::TypedRef::containerName() const{
+cond::TypedRef<T>::containerName() const{
   return m_data.token()->contID();
 }
 // write
 template<typename T> void 
-cond::TypedRef::markWrite( const std::string& containerName ){
+cond::TypedRef<T>::markWrite( const std::string& containerName ){
   try{
     m_place->setContainerName(containerName);
     m_data.markWrite(*m_place);
@@ -128,7 +123,7 @@ cond::TypedRef::markWrite( const std::string& containerName ){
   }
 }
 template<typename T> void 
-cond::TypedRef::markUpdate(){
+cond::TypedRef<T>::markUpdate(){
   try{
     m_data.markUpdate();
   }catch( const pool::Exception& er){
@@ -136,7 +131,7 @@ cond::TypedRef::markUpdate(){
   }
 }
 template<typename T> void 
-cond::TypedRef::markDelete(){
+cond::TypedRef<T>::markDelete(){
   try{
     m_data.markDelete();
   }catch( const pool::Exception& er){
@@ -144,7 +139,7 @@ cond::TypedRef::markDelete(){
   }
 }
 template<typename T> T* 
-cond::TypedRef::ptr() const{
+cond::TypedRef<T>::ptr() const{
   T* result=0;
   try{
     result=m_data.ptr();
@@ -154,17 +149,19 @@ cond::TypedRef::ptr() const{
   return result;
 }
 template<typename T> T* 
-cond::TypedRef::operator->() const{
+cond::TypedRef<T>::operator->() const{
   return this->ptr();
 }
 template<typename T> T& 
-cond::TypedRef::operator*() const{
+cond::TypedRef<T>::operator*() const{
   try{
     return *m_data;
   }catch(const pool::Exception& er){
     throw cond::RefException( "operator * ",er.what() );
   }
 }
+template<typename T>
+cond::TypedRef<T>::~TypedRef(){}
 #endif
 // COND_TYPEDREF_H
 
