@@ -214,6 +214,7 @@ close (CTL);
 #
 copy("$ENV{PWD}/../test/.WebLib.js", "$ENV{PWD}/WebLib.js");
 copy("$ENV{PWD}/../test/Online.html", "$ENV{PWD}/.");
+copy("$ENV{PWD}/../test/loader.html", "$ENV{PWD}/.");
 
 $SERVED_DIR="http://$ENV{HOSTNAME}:40001/temporary";
 system qq[perl], qq[-pi -e], qq[s#SERVED_DIRECTORY_URL#$SERVED_DIR#], qq[$ENV{PWD}/WebLib.js]; 
@@ -226,10 +227,23 @@ system qq[cp], qq[-r], qq[$ENV{PWD}/../test/images], qq[$ENV{PWD}/images];
 # start processes
 #
 
-print "\nstart xdaq.exe on $hostname:$EPport\n";
-`nice -n 15 xdaq.exe -h $hostname -p $EPport -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$EPport.log &`;
-print "\nstart xdaq.exe on $hostname:$DPport\n";
-`nice -n 15 xdaq.exe -h $hostname -p $DPport -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$DPport.log &`;
+#print "\nstart xdaq.exe on $hostname:$EPport\n";
+#`nice -n 15 xdaq.exe -h $hostname -p $EPport -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$EPport.log &`;
+#print "\nstart xdaq.exe on $hostname:$DPport\n";
+#`nice -n 15 xdaq.exe -h $hostname -p $DPport -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$DPport.log &`;
+open OUTPUT, ">start" or die($!);
+my $script=<<"EOS";
+#!/bin/sh
+
+if [ \"\$1\" == \"source\" ]; then
+  xdaq.exe -h $hostname -p $EPport -e xml/profile.xml -c xml/evf.xml
+elif [\"\$1\" == \"client\"]; then
+  xdaq.exe -h $hostname -p $DPport -e xml/profile.xml -c xml/evf.xml
+fi
+EOS
+print OUTPUT $script;
+close OUTPUT;
+`chmod +x start`;
 
 
 
@@ -589,7 +603,9 @@ sub makeCtlDestroy
     $result = $result . "`$cmd`;\n\n";
     $result = $result . "print \"remove files and dirs ...\n\";\n\n";
     $result = $result . "`rm -rf cfg/ soap/ xml/ log/ /tmp/sm " .
-	"configure enable halt stop gennums.txt summaryCatalog.txt test.root`;\n\n";
+	"start configure enable halt stop gennums.txt summaryCatalog.txt test.root`;\n\n";
+    $result = $result . "`rm -rf Online.html loader.html "
+          . "\*.png css_files js_files images WebLib.js `;\n\n";
     $result = $result . "print \"FUShmCleanUp_t ...\\n\";\n\n";
     $result = $result . "`FUShmCleanUp_t`;\n\n";
     $result = $result . "print \"XDAQ session destroyed!\\n\";\n\n";
