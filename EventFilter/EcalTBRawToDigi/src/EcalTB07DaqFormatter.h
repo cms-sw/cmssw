@@ -2,8 +2,8 @@
 #define EcalTB07DaqFormatter_H
 /** \class EcalTB07DaqFormatter
  *
- *  $Date: 2007/04/12 08:36:47 $
- *  $Revision: 1.15 $
+ *  $Date: 2007/07/05 07:22:48 $
+ *  $Revision: 1.2 $
  *  \author N. Marinelli  IASA-Athens
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -22,7 +22,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 class FEDRawData;
 class DCCDataParser;
@@ -30,7 +30,7 @@ class EcalTB07DaqFormatter   {
 
  public:
 
-  EcalTB07DaqFormatter(std::string tbTowerStripChannelMapFile, std::string tbTowerMapFile);
+  EcalTB07DaqFormatter(edm::FileInPath tbTowerStripChannelMapFile, edm::FileInPath tbTowerMapFile, std::string tbName);
   virtual ~EcalTB07DaqFormatter(){LogDebug("EcalTB07RawToDigi") << "@SUB=EcalTB07DaqFormatter" << "\n"; };
 
   void  interpretRawData( const FEDRawData & data , EBDigiCollection& digicollection , EEDigiCollection& eeDigiCollection, 
@@ -61,8 +61,9 @@ class EcalTB07DaqFormatter   {
   int cryIcMap_[68][5][5];
   int tbStatusToLocation_[71];
   int tbTowerIDToLocation_[201];
+  std::string tbName_;
 
-  bool getTBMaps(std::string tbStripChannelMapFile, std::string tbTowerMapFile);
+  bool getTBMaps(edm::FileInPath tbStripChannelMapFile, edm::FileInPath tbTowerMapFile);
 
   int getEE_ix(int tower, int strip, int ch);
   int getEE_iy(int tower, int strip, int ch);

@@ -1,7 +1,7 @@
 /* \file EcalDCC07UnpackingModule.h
  *
- *  $Date: 2007/06/22 16:08:56 $
- *  $Revision: 1.36 $
+ *  $Date: 2007/07/05 07:22:48 $
+ *  $Revision: 1.2 $
  *  \author N. Marinelli
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -24,7 +24,7 @@
 #include <TBDataFormats/EcalTBObjects/interface/EcalTBCollections.h>
 #include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
-
+#include <FWCore/ParameterSet/interface/FileInPath.h>
 
 
 #include <iostream>
@@ -43,9 +43,11 @@
 
 EcalDCC07UnpackingModule::EcalDCC07UnpackingModule(const edm::ParameterSet& pset){
 
-  std::string tbStripChannelMapFile = pset.getUntrackedParameter<std::string >("tbTowerStripChannelMapFile", std::string("h2.map") );
-  std::string tbTowerMapFile = pset.getUntrackedParameter<std::string >("tbTowerMapFile", std::string("h2_towers.map") );
-  formatter_ = new EcalTB07DaqFormatter(tbStripChannelMapFile, tbTowerMapFile);
+  edm::FileInPath tbStripChannelMapFile = pset.getUntrackedParameter<edm::FileInPath >("tbTowerStripChannelMapFile", edm::FileInPath("EventFilter/EcalTBRawToDigi/data/h2.map") );
+  edm::FileInPath tbTowerMapFile = pset.getUntrackedParameter<edm::FileInPath >("tbTowerMapFile", edm::FileInPath("EventFilter/EcalTBRawToDigi/data/h2_towers.map") );
+  std::string tbName = pset.getUntrackedParameter<std::string >("tbName", std::string("h2") );
+
+  formatter_ = new EcalTB07DaqFormatter(tbStripChannelMapFile, tbTowerMapFile, tbName);
   ecalSupervisorFormatter_ = new EcalSupervisorDataFormatter();
   camacTBformatter_ = new CamacTBDataFormatter();
   tableFormatter_ = new TableDataFormatter();

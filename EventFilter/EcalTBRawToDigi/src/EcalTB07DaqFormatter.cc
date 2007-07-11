@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2007/04/28 22:41:04 $
- *  $Revision: 1.53 $
+ *  $Date: 2007/07/05 07:22:48 $
+ *  $Revision: 1.2 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -21,6 +21,7 @@
 #include <EventFilter/EcalTBRawToDigi/interface/EcalDCCHeaderRuntypeDecoder.h>
 #include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h>
 #include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h>
+#include <FWCore/ParameterSet/interface/FileInPath.h>
 
 #include "DCCDataParser.h"
 #include "DCCEventBlock.h"
@@ -33,7 +34,7 @@
 #include <iostream>
 #include <string>
 
-EcalTB07DaqFormatter::EcalTB07DaqFormatter (std::string tbChannelMap, std::string tbTowerMap) {
+EcalTB07DaqFormatter::EcalTB07DaqFormatter (edm::FileInPath tbChannelMap, edm::FileInPath tbTowerMap, std::string tbName) {
 
   LogDebug("EcalTB07RawToDigi") << "@SUB=EcalTB07DaqFormatter";
   std::vector<ulong> parameters;
@@ -50,8 +51,9 @@ EcalTB07DaqFormatter::EcalTB07DaqFormatter (std::string tbChannelMap, std::strin
 
   theParser_ = new DCCDataParser(parameters);
 
+  tbName_ = tbName;
   if ( !getTBMaps(tbChannelMap, tbTowerMap) ) 
-    edm::LogError("EcalTB07RawToDigi") << "No h2 map was found!";
+    edm::LogError("EcalTB07RawToDigi") << "No test beam map was found!";
 
 }
 
@@ -941,17 +943,20 @@ int EcalTB07DaqFormatter::getEE_iy(int tower, int strip, int ch){
   return cryIc(tower, strip, ch)%20 + 45;
 }
 
-//YM use h2 mapping scheme
-bool EcalTB07DaqFormatter::getTBMaps(std::string tbChannelMap, std::string tbTowerMap) {
+//YM use h2 mapping scheme =============================================================
+bool EcalTB07DaqFormatter::getTBMaps(edm::FileInPath tbChannelMap, edm::FileInPath tbTowerMap) {
   // clear the array (put the other unused channels to 1700
   for (unsigned it=1; it <= 68; ++it )
     for (unsigned is=1; is <=5; ++is )
       for (unsigned ic=1; ic <=5; ++ic)
 	cryIcMap_[it-1][is-1][ic-1] = 1700;
 
-  
+  std::cout << "Reading up TB07 mapping files from" << std::endl 
+	    << tbChannelMap.fullPath() << "\t and " 
+	    << tbTowerMap.fullPath() << std::endl;
+
   // read in tbChannelMap: ic tower_id(EB style) strip_id channel_id
-  std::ifstream towerStripChannelMap(tbChannelMap.c_str());
+  std::ifstream towerStripChannelMap(tbChannelMap.fullPath().c_str());
   if ( towerStripChannelMap.eof() ) {
     edm::LogInfo("EcalTB07RawToDigi") << "No map found!";
     return false;
@@ -974,7 +979,7 @@ bool EcalTB07DaqFormatter::getTBMaps(std::string tbChannelMap, std::string tbTow
   }
 	
   // read in tbTowerMap: status_id tower_id tower_id(EB style)
-  std::ifstream towerMapFile(tbTowerMap.c_str());
+  std::ifstream towerMapFile(tbTowerMap.fullPath().c_str());
   if ( towerMapFile.eof() ) {
     edm::LogInfo("EcalTB07RawToDigi") << "No Tower map found!";
     return false;
