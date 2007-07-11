@@ -13,7 +13,7 @@ namespace cond{
   public:
     explicit PoolTransaction(cond::PoolConnectionProxy* parentConnection);
     ~PoolTransaction();
-    void start(bool isReadOnly);
+    void start();
     void commit();
     void rollback();
     virtual bool isReadOnly() const;

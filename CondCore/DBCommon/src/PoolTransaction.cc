@@ -10,15 +10,14 @@ cond::PoolTransaction::PoolTransaction(cond::PoolConnectionProxy* parentConnecti
 }
 cond::PoolTransaction::~PoolTransaction(){}
 void 
-cond::PoolTransaction::start(bool isReadOnly){
+cond::PoolTransaction::start(){
   if(!m_datasvc) throw cond::Exception("PoolTransaction::start: database not connected");
   this->NotifyStartOfTransaction();
-  if(!isReadOnly){
+  if(!m_parentConnection->isReadOnly()){
     m_datasvc->transaction().start( pool::ITransaction::UPDATE );
   }else{
     m_datasvc->transaction().start( pool::ITransaction::READ );
   }
-  m_isReadOnly=isReadOnly;
 }
 void 
 cond::PoolTransaction::commit(){
@@ -34,7 +33,7 @@ cond::PoolTransaction::rollback(){
 }
 bool 
 cond::PoolTransaction::isReadOnly()const{
-  return m_isReadOnly;
+  return m_parentConnection->isReadOnly();
 }
 cond::IConnectionProxy& 
 cond::PoolTransaction::parentConnection(){

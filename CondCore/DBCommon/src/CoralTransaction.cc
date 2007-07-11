@@ -7,7 +7,7 @@
 #include "RelationalAccess/ITransaction.h"
 #include "RelationalAccess/ISchema.h"
 //#include <iostream>
-cond::CoralTransaction::CoralTransaction(cond::CoralConnectionProxy* parentConnection):m_parentConnection(parentConnection),m_coralHandle(0),m_isReadOnly(false){
+cond::CoralTransaction::CoralTransaction(cond::CoralConnectionProxy* parentConnection):m_parentConnection(parentConnection),m_coralHandle(0){
   this->attach(m_parentConnection);
 }
 cond::CoralTransaction::~CoralTransaction(){}
@@ -16,13 +16,12 @@ cond::CoralTransaction::resetCoralHandle(coral::ISessionProxy* coralHandle) cons
   m_coralHandle=coralHandle;
 }
 void 
-cond::CoralTransaction::start(bool isReadOnly){
+cond::CoralTransaction::start(){
   this->NotifyStartOfTransaction();//position matters
-  m_isReadOnly=isReadOnly;
   if(!m_coralHandle) {
     throw cond::Exception("CoralTransaction::start database not connected");
   }
-  m_coralHandle->transaction().start(isReadOnly);
+  m_coralHandle->transaction().start(m_parentConnection->isReadOnly());
 }
 void 
 cond::CoralTransaction::commit(){
@@ -38,7 +37,7 @@ cond::CoralTransaction::rollback(){
 }
 bool 
 cond::CoralTransaction::isReadOnly()const{
-  return m_isReadOnly;
+  return m_parentConnection->isReadOnly();
 }
 cond::IConnectionProxy& 
 cond::CoralTransaction::parentConnection(){

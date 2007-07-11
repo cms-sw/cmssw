@@ -15,7 +15,7 @@ namespace cond{
   public:
     CoralTransaction(CoralConnectionProxy* parentConnection);
     ~CoralTransaction();
-    virtual void start(bool isReadOnly);
+    virtual void start();
     virtual void commit();
     virtual void rollback();
     virtual bool isReadOnly() const;

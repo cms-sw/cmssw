@@ -13,7 +13,7 @@ namespace cond{
       m_observers.reserve(10);
     }
     virtual ~ITransaction(){}
-    virtual void start( bool isReadOnly ) = 0;
+    virtual void start() = 0;
     virtual void commit() = 0;
     virtual void rollback() = 0;
     virtual bool isReadOnly() const = 0;
