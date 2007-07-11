@@ -11,7 +11,7 @@ private:
 
 public:
 	// Before we do unpacking, we need to do basic TF format checks (TF Binary Examiner)
-	enum {MISSING_HEADER=0x2, MISSING_TRAILER=0x4, OUT_OF_BUFFER=0x8, WORD_COUNT=0x10 };
+	enum {MISSING_HEADER=0x2, MISSING_TRAILER=0x4, OUT_OF_BUFFER=0x8, WORD_COUNT=0x10, CONFIGURATION=0x20};
 
 	std::vector<CSCSPEvent> SPs(void) const throw() {
 		std::vector<CSCSPEvent> result;
