@@ -47,12 +47,8 @@ HiggsAnalysisSkimming::HiggsAnalysisSkimming(const edm::ParameterSet& pset) {
         
   skimFilter = HiggsAnalysisSkimmingPluginFactory::get()->create(skimName, skimPSets[0]);
  
-  nevt = 0;
-  n1e  = 0;
-  n2e  = 0;
-  n1m  = 0;
-  n2m  = 0;
-  n4l  = 0;
+  nEvents         = 0;
+  nSelectedEvents = 0;
 
 }
 
@@ -60,14 +56,9 @@ HiggsAnalysisSkimming::HiggsAnalysisSkimming(const edm::ParameterSet& pset) {
 // Destructor
 HiggsAnalysisSkimming::~HiggsAnalysisSkimming() {
 
-std::cout << "************* Selection efficiency **************" << std::endl;
-std::cout << "Number of evts: " << nevt << std::endl;
-std::cout << "Number of 1 e : " << n1e  << std::endl;
-std::cout << "Number of 2 e : " << n2e  << std::endl;
-std::cout << "Number of 1 mu: " << n1m  << std::endl;
-std::cout << "Number of 2 mu: " << n2m  << std::endl;
-std::cout << "Number of 4 l : " << n4l  << std::endl;
-
+	std::cout << "************* Selection efficiency **************" << std::endl;
+	std::cout << "Number of events in  : " << nEvents          << std::endl;
+	std::cout << "Number of events out : " << nSelectedEvents  << std::endl;
 }
 
 
@@ -79,12 +70,8 @@ bool HiggsAnalysisSkimming::filter(edm::Event& event, const edm::EventSetup& set
   int whichTrig = 0;
 
   keepEvent = skimFilter->skim( event, setup, whichTrig );
-  nevt++;
-  if ( keepEvent             ) n4l++;
-  if ( whichTrig%10000 > 999 ) n2m++;
-  if ( whichTrig%1000  > 99  ) n1m++;
-  if ( whichTrig%100   > 9   ) n2e++;
-  if ( whichTrig%10    > 0   ) n1e++;
+  nEvents++;
+  if( keepEvent ) nSelectedEvents++;
 
   return keepEvent;
 }

@@ -39,7 +39,9 @@ class HiggsAnalysisSkimming : public edm::EDFilter {
 
   // Class for performing skim
   HiggsAnalysisSkimType* skimFilter;
-  int nevt, n1e, n2e, n1m, n2m, n4l;
+
+  int nEvents,
+      nSelectedEvents;
 
 };
 
