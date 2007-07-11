@@ -96,7 +96,7 @@ void SiStripRawToClustersRoI::produce( edm::Event& event,
 }
 
 
-void SiStripRawToClustersRoI::random(SiStripRegionCabling::Regions& regions) const {
+void SiStripRawToClustersRoI::random(std::vector<uint32_t>& regions) const {
   
   uint32_t total = cabling_->getRegionCabling().size();
   uint32_t required = (uint32_t)(RandFlat::shoot()*(total+1));
@@ -120,7 +120,7 @@ void SiStripRawToClustersRoI::random(SiStripRegionCabling::Regions& regions) con
   }
 }
 
-void SiStripRawToClustersRoI::all(SiStripRegionCabling::Regions& regions) const {
+void SiStripRawToClustersRoI::all(std::vector<uint32_t>& regions) const {
   
   uint32_t total = cabling_->getRegionCabling().size();
   
@@ -143,7 +143,7 @@ void SiStripRawToClustersRoI::all(SiStripRegionCabling::Regions& regions) const 
   }
 }
 
-void SiStripRawToClustersRoI::superclusters(const reco::SuperClusterCollection& coll, SiStripRegionCabling::Regions& regions) const {
+void SiStripRawToClustersRoI::superclusters(const reco::SuperClusterCollection& coll, std::vector<uint32_t>& regions) const {
   
   reco::SuperClusterCollection::const_iterator iclust = coll.begin();
   for (;

@@ -43,14 +43,14 @@ class SiStripRawToClustersRoI : public edm::EDProducer {
  private: 
 
   /** Method defining regions of interest randomly */
-  void random(SiStripRegionCabling::Regions&) const;
+  void random(std::vector<uint32_t>&) const;
 
   /** Method defining ALL regions of interest */
-  void all(SiStripRegionCabling::Regions&) const;
+  void all(std::vector<uint32_t>&) const;
   
   /** Method defining regions of interest by superclusters */
   void superclusters(const reco::SuperClusterCollection&,
-		     SiStripRegionCabling::Regions&) const;
+		     std::vector<uint32_t>&) const;
 
   /** Input module label of SiStripLazyGetter */
   std::string inputModuleLabel_;
