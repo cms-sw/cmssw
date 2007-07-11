@@ -40,7 +40,6 @@ void HcalTrigPrimDigiProducer::produce(edm::Event& e, const edm::EventSetup& eve
   // get the conditions, for the decoding
   edm::ESHandle<HcalTPGCoder> inputCoder;
   eventSetup.get<HcalTPGRecord>().get(inputCoder);
-  inputCoder->getConditions(eventSetup);
 
   edm::ESHandle<CaloTPGTranscoder> outTranscoder;
   eventSetup.get<CaloTPGRecord>().get(outTranscoder);
@@ -58,9 +57,7 @@ void HcalTrigPrimDigiProducer::produce(edm::Event& e, const edm::EventSetup& eve
   // Step D: Put outputs into event
   e.put(result);
 
-  inputCoder->releaseConditions();
   outTranscoder->releaseSetup();
-
 }
 
 
