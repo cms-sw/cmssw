@@ -1,6 +1,9 @@
 <lcgdict>
   <class name="BaseSiTrackerRecHit2DLocalPos"/>
-  <class name="SiStripRecHit2D"/>
+  <class name="SiStripRecHit2D" >
+    <field name="sigmaPitch_" transient="true" />
+  </class> 
+
   <class name="SiTrackerGSRecHit2D"/>
   <class name="SiStripMatchedRecHit2D"/>
   <class name="std::vector<SiStripRecHit2D*>"/>
