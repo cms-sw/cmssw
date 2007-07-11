@@ -7,9 +7,11 @@
   <class name="L1GctEtHad"/>
   <class name="L1GctEtMiss"/>
   <class name="L1GctJetCounts"/>
+  <class name="L1GctFibreWord"/>
   <class name="std::vector<L1GctInternEmCand>"/>
   <class name="std::vector<L1GctEmCand>"/>
   <class name="std::vector<L1GctJetCand>"/>
+  <class name="std::vector<L1GctFibreWord>"/>
   <class name="edm::Ref<std::vector<L1GctInternEmCand>,L1GctInternEmCand,edm::refhelper::FindUsingAdv
 ance<std::vector<L1GctInternEmCand>,L1GctInternEmCand>>"/>
   <class name="edm::Ref<std::vector<L1GctEmCand>,L1GctEmCand,edm::refhelper::FindUsingAdv
@@ -22,6 +24,7 @@ dvance<std::vector<L1GctJetCand>,L1GctJetCand>>"/>
   <class name="edm::Wrapper<std::vector<L1GctInternEmCand>>"/>
   <class name="edm::Wrapper<std::vector<L1GctEmCand>>"/>
   <class name="edm::Wrapper<std::vector<L1GctJetCand>>"/>
+  <class name="edm::Wrapper<std::vector<L1GctFibreWord>>"/>
   <class name="edm::Wrapper<L1GctEtTotal>"/>
   <class name="edm::Wrapper<L1GctEtHad>"/>
   <class name="edm::Wrapper<L1GctEtMiss>"/>
