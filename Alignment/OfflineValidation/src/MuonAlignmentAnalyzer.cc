@@ -3,8 +3,8 @@
  *  Makes histograms of high level Muon objects/quantities
  *  for Alignment Scenarios/DB comparison
  *
- *  $Date: 2007/07/09 15:54:57 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/07/09 16:43:39 $
+ *  $Revision: 1.3 $
  *  \author J. Fernandez - IFCA (CSIC-UC) <Javier.Fernandez@cern.ch>
  */
 
@@ -47,8 +47,6 @@
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TLorentzVector.h"
-#include <stdio.h>
-#include <fstream>
 
 using namespace std;
 using namespace edm;
@@ -75,6 +73,7 @@ MuonAlignmentAnalyzer::MuonAlignmentAnalyzer(const ParameterSet& pset){
   numberOfSimTracks=0;
   numberOfSARecTracks=0;
   numberOfGBRecTracks=0;
+  numberOfHits=0;
 }
 
 /// Destructor
@@ -159,8 +158,10 @@ void MuonAlignmentAnalyzer::endJob(){
   // Write the histos to file
   theFile->cd();
 
+    cout << "----------------- " << endl << endl;
+
   if(theDataType == "SimData"){
-    cout << endl << endl << "Number of Sim tracks: " << numberOfSimTracks << endl;
+    cout << "Number of Sim tracks: " << numberOfSimTracks << endl << endl;
   hNmuonsSim->Write();
   hPTSim->Write();
   hSimInvM->Write();
@@ -210,6 +211,8 @@ void MuonAlignmentAnalyzer::endJob(){
    }
 
   if(doResplots){
+  cout << "Number of Hits considered for residuals: " << numberOfHits << endl << endl;
+
     for(std::vector<TH1F *>::iterator myIt = unitsRPhi.begin(); myIt != unitsRPhi.end(); myIt++) {
       (*myIt)->Write();
     } 
@@ -234,7 +237,7 @@ void MuonAlignmentAnalyzer::endJob(){
 
 void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
   
-  cout << "Run: " << event.id().run() << " Event: " << event.id().event() << endl;
+ // cout << "Run: " << event.id().run() << " Event: " << event.id().event() << endl;
   
   ESHandle<MagneticField> theMGField;
   eventSetup.get<IdealMagneticFieldRecord>().get(theMGField);
@@ -260,7 +263,7 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 
     SimTrackContainer::const_iterator simTrack;
 
-    cout<<"Simulated muons: "<<simTracks->size() <<endl;
+  //  cout<<"Simulated muons: "<<simTracks->size() <<endl;
 	i=0;
     for (simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack){
       if (abs((*simTrack).type()) == 13) {
@@ -297,7 +300,7 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
   if(abs(p1.eta())<1.04 && abs(p2.eta())<1.04) hSimInvM_Barrel->Fill(Minv);
   }
 
-    cout << endl;
+//    cout << endl;
   } //simData
   
   
@@ -315,7 +318,7 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 
   reco::TrackCollection::const_iterator staTrack;
 
-  cout<<"SA Reconstructed muons: " << staTracks->size() << endl;
+  //cout<<"SA Reconstructed muons: " << staTracks->size() << endl;
   i=0;
   for (staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack){
 //    reco::TransientTrack track(*staTrack,&*theMGField,theTrackingGeometry); 
@@ -385,8 +388,8 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 
   reco::TrackCollection::const_iterator glbTrack;
 	i=0;
- 	cout <<endl<<endl;  
-  cout<<"GB Reconstructed muons: " << glbTracks->size() << endl;
+ 	//cout <<endl<<endl;  
+  //cout<<"GB Reconstructed muons: " << glbTracks->size() << endl;
 
   for (glbTrack = glbTracks->begin(); glbTrack != glbTracks->end(); ++glbTrack){
 //    reco::TransientTrack track2(*glbTrack,&*theMGField,theTrackingGeometry); 
@@ -472,7 +475,7 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
   for (staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack){
 
 	int countPoints   = 0;
-    
+
     reco::TransientTrack track(*staTrack,&*theMGField,theTrackingGeometry); 
     
     std::vector<int> positionDT;
@@ -481,14 +484,14 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
     
     //Loop over the hits of the track
     for(int counter  = 0; counter != staTrack->recHitsSize()-1; ++counter) {
-      
+  
       TrackingRecHitRef myRef = staTrack->recHit(counter);
       const TrackingRecHit *rechit = myRef.get();
       const GeomDet* geomDet = theTrackingGeometry->idToDet(rechit->geographicalId());
       
-      //It's a DT Hit
+	//It's a DT Hit
       if(geomDet->subDetector() == GeomDetEnumerators::DT) {
-	
+
 	//Take the layer associated to this hit
 	DTLayerId myLayer(rechit->geographicalId().rawId());
 	
@@ -620,17 +623,27 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 	    detectorCollection.push_back(rawId);
 	    //This piece of code calculates the range of the residuals
 	    DetId myDet(rawId);
-	    int station = 0;
+	    int wheel=0,station=0,sector=0;
+	    int endcap=0,ring=0,chamber=0;
+	    int det = myDet.subdetId();
+
 	    //If it's a DT
-	    if(myDet.subdetId() == 1) {
+	    if(det == 1) {
 	      DTChamberId myChamber(rawId);
+	      wheel=myChamber.wheel();
 	      station = myChamber.station();
-	    } else {
+	      sector=myChamber.sector();
+	    } else if (det==2){
 	      CSCDetId myChamber(rawId);
-	      station = myChamber.ring();
+	      endcap= myChamber.endcap();
+              station = myChamber.station();
+		if(endcap==2) station = -station;
+	      ring = myChamber.ring();
+	      chamber=myChamber.chamber();
+
 	    }
 	    double range = 0.5;
-	    switch(station) {
+	    switch(abs(station)) {
 	    case 1:
 	      range = 0.5;
 	      break;
@@ -653,41 +666,24 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 	    char nameOfHistoPhi[50];
 	    char nameOfHistoZ[50];
 	
-	    std::ifstream input("translation.txt");
-	    for(int i = 0; i < 790; ++i) {
-	      long id; int det,w,mb,sec;
-	      input >> id;
-	      input >> det;
-	      input >> w;
-	      input >> mb;
-	      input >> sec;
-	      if(id==rawId){
-
-/*	    sprintf(nameOfHistoRPhi, "HistoRPhi%ld", rawId);
-	    sprintf(nameOfHistoPhi, "HistoPhi%ld", rawId);
-	    sprintf(nameOfHistoZ, "HistoZ%ld", rawId);*/
-	    
-	    if(det==0){ // DT
-	    sprintf(nameOfHistoRPhi, "ResidualRPhi_DTW%ldMB%1dS%1d",w,mb,sec );
-	    sprintf(nameOfHistoPhi, "ResidualPhi_DTW%ldMB%1dS%1d",w,mb,sec);
-	    sprintf(nameOfHistoZ, "ResidualZ_DTW%ldMB%1dS%1d",w,mb,sec);
+	    if(det==1){ // DT
+	    sprintf(nameOfHistoRPhi, "ResidualRPhi_DTW%ldMB%1dS%1d",wheel,station,sector );
+	    sprintf(nameOfHistoPhi, "ResidualPhi_DTW%ldMB%1dS%1d",wheel,station,sector);
+	    sprintf(nameOfHistoZ, "ResidualZ_DTW%ldMB%1dS%1d",wheel,station,sector);
 	    hResidualRPhiDT->Fill(residualRPhi);
 	    hResidualPhiDT->Fill(residualPhi);
 	    hResidualZDT->Fill(residualZ);	
 
 	    	    }
-	    else if(det==1){ //CSC
-	    sprintf(nameOfHistoRPhi, "ResidualRPhi_CSCW%ldSt%1dCh%1d",w,mb,sec );
-	    sprintf(nameOfHistoPhi, "ResidualPhi_CSCW%ldSt%1dCh%1d",w,mb,sec);
-	    sprintf(nameOfHistoZ, "ResidualZ_CSCW%ldSt%1dCh%1d",w,mb,sec);
+	    else if(det==2){ //CSC
+	    sprintf(nameOfHistoRPhi, "ResidualRPhi_CSCSt%ldR%1dCh%1d",station,ring,chamber );
+	    sprintf(nameOfHistoPhi, "ResidualPhi_CSCSt%ldR%1dCh%1d",station,ring,chamber);
+	    sprintf(nameOfHistoZ, "ResidualZ_CSCSt%ldR%1dCh%1d",station,ring,chamber);
 	    hResidualRPhiCSC->Fill(residualRPhi);
 	    hResidualPhiCSC->Fill(residualPhi);
 	    hResidualZCSC->Fill(residualZ);	
 
 		}		    
-	    }
-	    }
-		input.close();
 	    
 	    TH1F *histoRPhi = new TH1F(nameOfHistoRPhi, nameOfHistoRPhi, 100, -2.0*range, 2.0*range);
 	    TH1F *histoPhi = new TH1F(nameOfHistoPhi, nameOfHistoPhi, 100, -0.1*range, 0.1*range);
@@ -723,13 +719,14 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 
 	} // loop over recHitsSize
 
-	cout << "Number of points considered in this track: "<< countPoints <<endl;
+	numberOfHits=numberOfHits+countPoints;
+//	cout << "Number of points considered in this track: "<< countPoints <<endl;
 	} //loop over STAtracks
 
 
  } //end doResplots
  
 
-  cout<<"---"<<endl;  
+//  cout<<"---"<<endl;  
 }
 

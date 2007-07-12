@@ -6,8 +6,8 @@
  *  Makes histograms of high level Muon objects/quantities
  *  for Alignment Scenarios/DB comparison
  *
- *  $Date: 2007/07/09 15:54:56 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/07/09 16:43:38 $
+ *  $Revision: 1.3 $
  *  \author J. Fernandez - IFCA (CSIC-UC) <Javier.Fernandez@cern.ch>
  */
 
@@ -118,7 +118,7 @@ edm::InputTag theSTAMuonTag;
   int numberOfSimTracks;
   int numberOfGBRecTracks;
   int numberOfSARecTracks;
-
+  int numberOfHits;
   
 };
 #endif

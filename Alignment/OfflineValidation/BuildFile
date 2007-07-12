@@ -1,4 +1,4 @@
-<flags EDM_PLUGIN =1>
+<use name=FWCore/PluginManager>
 <use name=FWCore/Framework>
 <use name=FWCore/Utilities>
 <use name=FWCore/ParameterSet>
@@ -6,22 +6,22 @@
 <use name=TrackingTools/TransientTrack>
 <use name=CLHEP>
 <use name=root>
+<flags EDM_PLUGIN=1>
 
-
-<export>
- <lib name=AlignmentOfflineValidation>
- <use name=Foundation/PluginManager>
- <use name=FWCore/Framework>
- <use name=FWCore/ParameterSet>
- <use name=FWCore/MessageLogger>
- <use name=SimDataFormats/MuonValidation>
- <use name=DataFormats/DetId>
- <use name=Geometry/CommonDetUnit>
- <use name=DataFormats/MuonDetId>
- <use name=Geometry/CSCGeometry>
- <use name=Geometry/DTGeometry>
- <use name=Geometry/RPCGeometry>
- <use name=root>
- <use name=clhep>
-</export>
+#<export>
+# <lib name=AlignmentOfflineValidation>
+# <use name=FWCore/PluginManager>
+# <use name=FWCore/Framework>
+# <use name=FWCore/ParameterSet>
+# <use name=FWCore/MessageLogger>
+# <use name=SimDataFormats/MuonValidation>
+# <use name=DataFormats/DetId>
+# <use name=Geometry/CommonDetUnit>
+# <use name=DataFormats/MuonDetId>
+# <use name=Geometry/CSCGeometry>
+# <use name=Geometry/DTGeometry>
+# <use name=Geometry/RPCGeometry>
+# <use name=root>
+# <use name=clhep>
+#</export>
 
