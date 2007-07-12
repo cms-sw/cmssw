@@ -573,7 +573,7 @@ void HFShowerLibrary::interpolate(int type, double pin) {
   }
 
   if (npe > npold || (npold == 0 && irc[0] > 0)) 
-    edm::LogWarning("HFShower") << "HFShowerLibrary: Interpolation error =="
+    edm::LogWarning("HFShower") << "HFShowerLibrary: Interpolation Warning =="
 				<< " records " << irc[0] << " and " << irc[1]
 				<< " gives a buffer of " << npold 
 				<< " photons and fills " << npe << " *****";
@@ -637,7 +637,7 @@ void HFShowerLibrary::extrapolate(int type, double pin) {
   LogDebug("HFShower") << "HFShowerLibrary:: uses " << npold << " photons";
 
   if (npe > npold || npold == 0)
-    edm::LogWarning("HFShower") << "HFShowerLibrary: Extrapolation error == "
+    edm::LogWarning("HFShower") << "HFShowerLibrary: Extrapolation Warning == "
 				<< nrec << " records " << irc[0] << ", " 
 				<< irc[1] << ", ... gives a buffer of " <<npold
 				<< " photons and fills " << npe 

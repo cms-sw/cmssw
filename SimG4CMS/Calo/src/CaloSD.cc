@@ -502,17 +502,19 @@ bool CaloSD::saveHit(CaloG4Hit* aHit) {
 
   int tkID;
   bool ok = true;
-  //  if (m_trackManager) {
-  //    tkID = m_trackManager->g4ToSim(aHit->getTrackID());
-  //    if (tkID == EventAction::InvalidID) ok = false;
-  //  } else {
-  tkID = aHit->getTrackID();
-  //    ok = false;
-  //  }
+  if (m_trackManager) {
+    tkID = m_trackManager->idSavedTrack(aHit->getTrackID());
+    if (tkID == 0) ok = false;
+  } else {
+    tkID = aHit->getTrackID();
+    ok = false;
+  }
+  LogDebug("CaloSim") << "CalosD: Track ID " << aHit->getTrackID() 
+		      << " changed to " << tkID << " by SimTrackManager"
+		      << " Status " << ok;
+
   double time = aHit->getTimeSlice();
   if (corrTOFBeam) time += correctT;
-  LogDebug("CaloSim") << "CalosD: Track ID " << aHit->getTrackID() 
-		      << " changed to " << tkID << " by SimTrackManager" ;
   slave->processHits(aHit->getUnitID(), aHit->getEM()/GeV, aHit->getHadr()/GeV,
 		     time, tkID);
   LogDebug("CaloSim") << "CaloSD: Store Hit at " << std::hex 
