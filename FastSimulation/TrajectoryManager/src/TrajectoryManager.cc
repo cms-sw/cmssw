@@ -328,6 +328,10 @@ TrajectoryManager::propagateToCalorimeters(ParticlePropagator& PP, int fsimi) {
 
   FSimTrack& myTrack = mySimEvent->track(fsimi);
 
+  // Set the position and momentum at the end of the tracker volume
+  myTrack.setTkPosition(Hep3Vector(PP.X(),PP.Y(),PP.Z()));
+  myTrack.setTkMomentum(HepLorentzVector(PP.Px(),PP.Py(),PP.Pz(),PP.E()));
+
   // Propagate to Preshower Layer 1 
   PP.propagateToPreshowerLayer1(false);
   if ( PP.hasDecayed() ) {
