@@ -1,7 +1,7 @@
 #ifndef SIMCALORIMETRY_HCALZEROSUPPRESSIONALGOS_HCALZSALGOENERGY_H
 #define SIMCALORIMETRY_HCALZEROSUPPRESSIONALGOS_HCALZSALGOENERGY_H 1
 
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "SimCalorimetry/HcalZeroSuppressionAlgos/interface/HcalZeroSuppressionAlgo.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 
 /** \class HcalZSAlgoEnergy
@@ -11,19 +11,23 @@
   * pedestal, and compare with digital threshold (in ADC counts).  The algorithm
   * can keep both positive and negative side fluctuations if "two sided" is enabled.
   *
-  * $Date: $
-  * $Revision: $
+  * $Date: 2006/06/26 22:12:33 $
+  * $Revision: 1.1 $
   * \author J. Mans - Minnesota
   */
-class HcalZSAlgoEnergy {
+class HcalZSAlgoEnergy : public HcalZeroSuppressionAlgo {
 public:
-  HcalZSAlgoEnergy(int level, int start, int samples, bool twosided);
-  void suppress(const HcalDbService& db, const HBHEDigiCollection& inp, HBHEDigiCollection& outp) const;
-  void suppress(const HcalDbService& db, const HODigiCollection& inp, HODigiCollection& outp) const;
-  void suppress(const HcalDbService& db, const HFDigiCollection& inp, HFDigiCollection& outp) const;
+  HcalZSAlgoEnergy(ZSMode mode, int level, int start, int samples, bool twosided);
+  void prepare(const HcalDbService* db);
+  void done();
+protected:
+  virtual bool shouldKeep(const HBHEDataFrame& digi) const;
+  virtual bool shouldKeep(const HODataFrame& digi) const;
+  virtual bool shouldKeep(const HFDataFrame& digi) const;
 private:
   int threshold_, firstsample_, samplecount_;
   bool twosided_;
+  const HcalDbService* db_;
 };
 
 #endif
