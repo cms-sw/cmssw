@@ -1,5 +1,5 @@
 //
-// $Id: TopJetProducer.cc,v 1.12 2007/06/30 14:38:12 gpetrucc Exp $
+// $Id: TopJetProducer.cc,v 1.13 2007/07/06 00:27:15 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopJetProducer.h"
@@ -115,18 +115,21 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   // for jet flavour
   if (getJetMCFlavour_) jetFlavId_->readEvent(iEvent);
 
+ if (doJetCleaning_) {
   // TEMP Jet cleaning from electrons
   //select isolated leptons to remove from jets collection
   electrons=selectIsolated(electrons,ELEISOCUT_,iSetup,iEvent);
   muons=selectIsolated(muons,MUISOCUT_,iSetup,iEvent);
   // TEMP End
+ }
 
 
   // loop over jets
   std::vector<TopJet> * topJets = new std::vector<TopJet>(); 
   for (size_t j = 0; j < recjets->size(); j++) {
  
-  // TEMP Jet cleaning from electrons
+   if (doJetCleaning_) {
+   // TEMP Jet cleaning from electrons
     //check that the jet doesn't match in deltaR with an isolated lepton
     //if it does, then it needs to be cleaned (ie don't put it in the TopJet collection)
     //FIXME: don't do muons until have a sensible cut value on their isolation
@@ -138,11 +141,11 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       }
     }
     //if the jet is closely matched in dR to electron, skip it
-    if (mindr<LEPJETDR_ && doJetCleaning_) {
+    if (mindr<LEPJETDR_) {
       continue;
     }
   // TEMP End
-
+   }
 
     // construct the TopJet
     TopJet ajet;
