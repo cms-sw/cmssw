@@ -1,7 +1,7 @@
 /** \file AlignableParameterBuilder.cc
  *
- *  $Date: 2007/01/23 16:07:08 $
- *  $Revision: 1.13 $
+ *  $Date: 2007/03/02 12:16:56 $
+ *  $Revision: 1.14 $
 
 */
 
@@ -13,7 +13,6 @@
 #include "Alignment/CommonAlignment/interface/AlignableDet.h"
 
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
-#include "Alignment/CommonAlignmentParametrization/interface/CompositeRigidBodyAlignmentParameters.h"
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/SelectionUserVariables.h"
@@ -92,22 +91,17 @@ unsigned int AlignmentParameterBuilder::addSelections(const edm::ParameterSet &p
 bool AlignmentParameterBuilder::add(Alignable *alignable, const std::vector<bool> &sel)
 { 
 
-  AlgebraicVector par(RigidBodyAlignmentParameters::N_PARAM, 0);
-  AlgebraicSymMatrix cov(RigidBodyAlignmentParameters::N_PARAM, 0);
-  bool isHigherLevel = false;
- 
-  AlignableDet *alidet = dynamic_cast<AlignableDet*>(alignable);
-  AlignmentParameters *paras = 0;
-  if (alidet != 0) { // alignable Det
-    paras = new RigidBodyAlignmentParameters(alignable, par, cov, sel);
-  } else { // higher level object
-    paras = new CompositeRigidBodyAlignmentParameters(alignable, par, cov, sel);
-    isHigherLevel = true;
-  }
+  const AlgebraicVector par(RigidBodyAlignmentParameters::N_PARAM, 0);
+  const AlgebraicSymMatrix cov(RigidBodyAlignmentParameters::N_PARAM, 0);
 
+  // Which kind of AlignmentParameters must be selectable once we have other parametrisations:
+  AlignmentParameters *paras = new RigidBodyAlignmentParameters(alignable, par, cov, sel);
   alignable->setAlignmentParameters(paras);
   theAlignables.push_back(alignable);
 
+  const int aliTypeId = alignable->alignableObjectId();
+  const bool isHigherLevel = (aliTypeId != AlignableObjectId::AlignableDet
+			      && aliTypeId != AlignableObjectId::AlignableDetUnit);
   return isHigherLevel;
 }
 

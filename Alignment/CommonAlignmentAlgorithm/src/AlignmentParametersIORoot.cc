@@ -3,8 +3,7 @@
 
 #include <TTree.h>
 
-#include "Alignment/CommonAlignment/interface/Alignable.h"
-#include "Alignment/CommonAlignmentParametrization/interface/CompositeRigidBodyAlignmentParameters.h"
+#include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
 
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 
@@ -91,10 +90,10 @@ AlignmentParameters* AlignmentParametersIORoot::readOne( Alignable* ali, int& ie
   int obj = converter.alignableTypeId(ali);
   unsigned int detInt = converter.alignableId(ali);
 
-  AlignmentParameters* alipar;
+  AlignmentParameters* alipar = 0;
   AlgebraicVector par(nParMax,0);
   AlgebraicSymMatrix cov(nParMax,0);
-  std::vector<bool> sel = ali->alignmentParameters()->selector();
+  const std::vector<bool> &sel = ali->alignmentParameters()->selector();
  
   int entry = findEntry(detInt,obj);
   if( entry != -1 ) 
@@ -109,10 +108,8 @@ AlignmentParameters* AlignmentParametersIORoot::readOne( Alignable* ali, int& ie
 			if(row-1<col) {cov[row][col]=theCov[count];count++;}
 		  }
 		} 
-	  if (obj == 0 ) // create parameters for sensor
-		alipar = new RigidBodyAlignmentParameters(ali,par,cov,sel);
-	  else // create parameters for composed object
-		alipar = new CompositeRigidBodyAlignmentParameters(ali,par,cov,sel);
+	  // FIXME: In future should check which kind of parameters to construct...
+	  alipar = new RigidBodyAlignmentParameters(ali,par,cov,sel);
 	  alipar->setValid(true); 
 	  ierr=0;
 	  return alipar;
