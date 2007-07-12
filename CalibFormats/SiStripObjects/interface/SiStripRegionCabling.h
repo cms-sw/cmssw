@@ -46,6 +46,7 @@ class SiStripRegionCabling {
   typedef uint32_t ElementIndex;
 
   ~SiStripRegionCabling() {;}
+
   SiStripRegionCabling(const uint32_t,const uint32_t, const double);
 
   /** Set and get methods for cabling. */
@@ -53,6 +54,10 @@ class SiStripRegionCabling {
   inline void setRegionCabling(const Cabling&);
 
   inline const Cabling& getRegionCabling() const;
+
+  inline const uint32_t etadivisions() const;
+
+  inline const uint32_t phidivisions() const;
 
   /** Utility methods for interchanging between region, region-indices and 
       eta/phi-position. */
@@ -76,7 +81,7 @@ class SiStripRegionCabling {
 
   inline static const ElementIndex elementIndex(const Region, const SubDet, const Layer);
 
-  inline static const ElementIndex elementIndex(const Region, const uint32_t);
+  inline const ElementIndex elementIndex(const Position, const SubDet, const Layer) const;
 
   inline static const Layer layer(const ElementIndex);
   
@@ -90,45 +95,43 @@ class SiStripRegionCabling {
 
   static const uint32_t layerFromDetId(uint32_t);
 
-
-  /** Utility methods for updating a SiStripRefGetter<T> container with regions 
-      or elements within a cone (+ layer) of interest */
-
-  template <class T>
-    uint32_t regions(edm::SiStripRefGetter<T>&, 
-		     edm::Handle<edm::SiStripLazyGetter<T> >,
-		     Position, 
-		     double, 
-		     double) const;
+  /** Utility methods for updating a SiStripRefGetter<T> container with elements of interest  */
   
   template <class T>
-    uint32_t regions(edm::SiStripRefGetter<T>&, 
-		     edm::Handle<edm::SiStripLazyGetter<T> >, 
-		     Position, 
-		     double) const;
+    void updateSiStripRefGetter(edm::SiStripRefGetter<T>& refgetter, 
+				const edm::Handle< edm::SiStripLazyGetter<T> >& lazygetter, 
+				const ElementIndex index) const;
   
   template <class T>
-    uint32_t elements(edm::SiStripRefGetter<T>&, 
-		      edm::Handle<edm::SiStripLazyGetter<T> >, 
-		      Position, 
-		      double, 
-		      double, 
-		      SubDet, 
-		      Layer) const;
+    void updateSiStripRefGetter(edm::SiStripRefGetter<T>& refgetter, 
+				const edm::Handle< edm::SiStripLazyGetter<T> >& lazygetter,
+				const Position position, 
+				const double deltaeta, 
+				const double deltaphi, 
+				const SubDet subdet, 
+				const Layer layer) const;
+  
+  template <class T>
+    void updateSiStripRefGetter(edm::SiStripRefGetter<T>& refgetter, 
+				const edm::Handle< edm::SiStripLazyGetter<T> >& lazygetter,
+				const Position position, 
+				const double dR,
+				const SubDet subdet,
+				const Layer layer) const;
   
  private:
-  
-  SiStripRegionCabling() {;}
-
-  /** Number of regions in eta,phi */
-  uint32_t etadivisions_;
-  uint32_t phidivisions_;
-
-  /** Tracker extent in eta */
-  double etamax_;
-
-  /** Cabling */
-  Cabling regioncabling_;
+ 
+ SiStripRegionCabling() {;}
+ 
+ /** Number of regions in eta,phi */
+ uint32_t etadivisions_;
+ uint32_t phidivisions_;
+ 
+ /** Tracker extent in eta */
+ double etamax_;
+ 
+ /** Cabling */
+ Cabling regioncabling_;
 }; 
 
 inline void SiStripRegionCabling::setRegionCabling(const Cabling& regioncabling) {
@@ -137,6 +140,14 @@ inline void SiStripRegionCabling::setRegionCabling(const Cabling& regioncabling)
 
 inline const SiStripRegionCabling::Cabling& SiStripRegionCabling::getRegionCabling() const {
   return regioncabling_;
+}
+
+inline const uint32_t SiStripRegionCabling::etadivisions() const {
+  return etadivisions_;
+}
+
+inline const uint32_t SiStripRegionCabling::phidivisions() const {
+  return phidivisions_;
 }
 
 inline const std::pair<double,double> SiStripRegionCabling::regionDimensions() const {
@@ -165,8 +176,8 @@ inline const SiStripRegionCabling::ElementIndex SiStripRegionCabling::elementInd
   return region*MAXSUBDETS*MAXLAYERS + subdet*MAXLAYERS + layer;
 }
 
-inline const SiStripRegionCabling::ElementIndex SiStripRegionCabling::elementIndex(const Region region, const uint32_t detid) {
-  return elementIndex(region,subdetFromDetId(detid),layerFromDetId(detid));
+inline const SiStripRegionCabling::ElementIndex SiStripRegionCabling::elementIndex(const Position position, const SubDet subdet, const Layer layer) const {
+  return elementIndex(region(position),subdet,layer);
 }
 
 inline const SiStripRegionCabling::Layer SiStripRegionCabling::layer(const ElementIndex index) {
@@ -180,5 +191,41 @@ inline const SiStripRegionCabling::SubDet SiStripRegionCabling::subdet(const Ele
 inline const SiStripRegionCabling::Region SiStripRegionCabling::region(const ElementIndex index) {
   return index/(MAXSUBDETS*MAXLAYERS);
 }
+
+template <class T>
+void SiStripRegionCabling::updateSiStripRefGetter(edm::SiStripRefGetter<T>& refgetter, const edm::Handle< edm::SiStripLazyGetter<T> >& lazygetter, const ElementIndex index) const {
+  refgetter.push_back(lazygetter,index);
+}
+
+template <class T>
+void SiStripRegionCabling::updateSiStripRefGetter(edm::SiStripRefGetter<T>& refgetter, const edm::Handle< edm::SiStripLazyGetter<T> >& lazygetter, const SiStripRegionCabling::Position position, const double deltaeta, const double deltaphi, const SubDet subdet, const Layer layer) const {
+  
+  //Calculate region of interest boundary
+  PositionIndex index = positionIndex(position);
+  uint32_t deta = deltaeta/regionDimensions().first;
+  uint32_t dphi = deltaphi/regionDimensions().second;
+  
+  //Loop eta index
+  for (uint32_t ieta = 0; ieta < 2*deta + 1; ieta++) {
+    int etatemp = index.first - deta + ieta;
+    if ((etatemp < 0) || (etatemp >= (int)etadivisions_)) continue;
+    
+    //Loop phi index
+    for (uint32_t iphi = 0; iphi < 2*dphi + 1; iphi++) {
+      int phitemp = index.second - dphi + iphi;
+      if (phitemp >= (int)phidivisions_) phitemp -= phidivisions_;
+      else if (phitemp < 0) phitemp += phidivisions_;
+      
+      //Update SiStripRefGetter<T>
+      updateSiStripRefGetter<T>(refgetter,lazygetter,elementIndex(Position(etatemp,phitemp),subdet,layer));
+    }
+  }
+}
+
+template <class T>
+void SiStripRegionCabling::updateSiStripRefGetter(edm::SiStripRefGetter<T>& refgetter, const edm::Handle< edm::SiStripLazyGetter<T> >& lazygetter, const Position position, const double dR, const SubDet subdet, const Layer layer) const {
+  SiStripRegionCabling::updateSiStripRefGetter<T>(refgetter,lazygetter,position, 1./sqrt(2)*dR*dR,1./sqrt(2)*dR*dR,subdet,layer);
+}
+
 
 #endif
