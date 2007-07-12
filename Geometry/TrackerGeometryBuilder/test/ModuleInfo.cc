@@ -479,8 +479,8 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
     DD3Vector x,y,z;
     modules[i]->rotation().GetComponents(x,y,z);
     Output << "\tActive Area Rotation Matrix" << std::endl;
-    Output << "\t z = n = (" << std::fixed << std::setprecision(4) << x.Z()
-	   << ","            << std::fixed << std::setprecision(4) << y.Z()
+    Output << "\t z = n = (" << std::fixed << std::setprecision(4) << z.X()
+	   << ","            << std::fixed << std::setprecision(4) << z.Y()
 	   << ","            << std::fixed << std::setprecision(4) << z.Z()
 	   << ")" << std::endl
 	   << "\t [Rec] = (" << std::fixed << std::setprecision(4) << zGlobal.x()
@@ -488,16 +488,16 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	   << ","            << std::fixed << std::setprecision(4) << zGlobal.z()
 	   << ")" << std::endl
 	   << "\t x = t = (" << std::fixed << std::setprecision(4) << x.X()
-	   << ","            << std::fixed << std::setprecision(4) << y.Y()
-	   << ","            << std::fixed << std::setprecision(4) << z.Z()
+	   << ","            << std::fixed << std::setprecision(4) << x.Y()
+	   << ","            << std::fixed << std::setprecision(4) << x.Z()
 	   << ")" << std::endl
 	   << "\t [Rec] = (" << std::fixed << std::setprecision(4) << xGlobal.x()
 	   << ","            << std::fixed << std::setprecision(4) << xGlobal.y()
 	   << ","            << std::fixed << std::setprecision(4) << xGlobal.z()
 	   << ")" << std::endl
-	   << "\t y = k = (" << std::fixed << std::setprecision(4) << x.Y()
+	   << "\t y = k = (" << std::fixed << std::setprecision(4) << y.X()
 	   << ","            << std::fixed << std::setprecision(4) << y.Y()
-	   << ","            << std::fixed << std::setprecision(4) << z.Z()
+	   << ","            << std::fixed << std::setprecision(4) << y.Z()
 	   << ")" << std::endl
 	   << "\t [Rec] = (" << std::fixed << std::setprecision(4) << yGlobal.x()
 	   << ","            << std::fixed << std::setprecision(4) << yGlobal.y()
