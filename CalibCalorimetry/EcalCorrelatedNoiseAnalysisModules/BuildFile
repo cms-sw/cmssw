@@ -1,0 +1,14 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos>
+<use name=root>
+<flags SEAL_PLUGIN_NAME="CalibCalorimetryEcalCorrelatedNoiseAnalysisModules">
+<export>
+   <lib name=CalibCalorimetryEcalCorrelatedNoiseAnalysisModules>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos>
+   <use name=root>
+</export>
