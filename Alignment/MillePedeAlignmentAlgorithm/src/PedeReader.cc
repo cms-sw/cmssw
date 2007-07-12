@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : November 2006
- *  $Revision: 1.4.2.1 $
- *  $Date: 2007/05/18 13:18:37 $
+ *  $Revision: 1.5 $
+ *  $Date: 2007/06/21 17:01:30 $
  *  (last update by $Author: flucke $)
  */
 
@@ -19,7 +19,6 @@
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
-#include "Alignment/CommonAlignmentParametrization/interface/CompositeRigidBodyAlignmentParameters.h"
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeVariables.h"
 
@@ -54,7 +53,7 @@ bool PedeReader::read(std::vector<Alignable*> &alignables)
   myPedeResult.seekg(0, std::ios::beg); // back to start
   bool isAllOk = true;
 
-  std::map<Alignable*,Alignable*> uniqueList;
+  std::map<Alignable*,Alignable*> uniqueList; // Probably should use a std::set here...
   
   // loop on lines of text file
   unsigned int nParam = 0;
@@ -184,22 +183,11 @@ AlignmentParameters* PedeReader::checkAliParams(Alignable *alignable) const
   // first check that we have parameters
   AlignmentParameters *params = alignable->alignmentParameters();
   if (!params) {
-    const AlgebraicVector par(RigidBodyAlignmentParameters::N_PARAM, 0);
-    const AlgebraicSymMatrix cov(RigidBodyAlignmentParameters::N_PARAM, 0);
-    
-    bool isHigherLevel = false;
-    // FIXME: More clever check needed:
-    //        alignment with cosmic track finder needs CompositeRigidBody for strip stereo layers!  
-    AlignableDet *alidet = dynamic_cast<AlignableDet*>(alignable);
-    if (alidet != 0) { // alignable Det
-      params = new RigidBodyAlignmentParameters(alignable, par, cov);
-    } else { // higher level object
-      params = new CompositeRigidBodyAlignmentParameters(alignable, par, cov);
-      isHigherLevel = true;
-    }
+    // How to check in future what kind of parameters are needed?
+    params = new RigidBodyAlignmentParameters(alignable, false);
+
     edm::LogInfo("Alignment") << "@SUB=PedeReader::checkAliParams"
-                              << "Build " << (isHigherLevel ? "Composite" : "" ) 
-                              << "RigidBodyAlignmentParameters for alignable with label " 
+                              << "Build RigidBodyAlignmentParameters for alignable with label "
                               << mySteerer.alignableLabel(alignable);
     alignable->setAlignmentParameters(params); // transferred memory responsibility
   }

@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.11.2.4 $
- *  $Date: 2007/06/21 12:43:03 $
+ *  $Revision: 1.13 $
+ *  $Date: 2007/06/21 17:01:30 $
  *  (last update by $Author: flucke $)
  */
 
@@ -14,6 +14,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
@@ -40,7 +41,6 @@
 const unsigned int PedeSteerer::theMaxNumParam = RigidBodyAlignmentParameters::N_PARAM + 4;
 const unsigned int PedeSteerer::theMinLabel = 1; // must be > 0
 
-//___________________________________________________________________________
 PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon,
 			 AlignmentParameterStore *store,
 			 const edm::ParameterSet &config, const std::string &defaultDir) :
@@ -72,11 +72,11 @@ PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon,
     // FIXME: With both tracker and muon, only tracker will be shifted in correctToReferenceSystem!
     // Could be fixed by introducing AlignableComposite with both, but must prevent double deletion.
     // If this has 'global frame', correctToReferenceSystem can use globalParameters (as it does)
+    this->correctToReferenceSystem(); // really before 'defineCoordinates'?
     this->defineCoordinates(theCoordDefiners, theCoordMaster, nameCoordFile);
     edm::LogInfo("Alignment") << "@SUB=PedeSteerer" 
                               << theCoordDefiners.size() << " highest level objects define the "
 			      << "coordinate system, steering file " << nameCoordFile << ".";
-    this->correctToReferenceSystem();
   } 
 
   // Fixing parameters also checks for invalid parameter choices (should that be done first?):
@@ -100,6 +100,16 @@ PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon,
     edm::LogInfo("Alignment") << "@SUB=PedeSteerer" 
                               << "Hierarchy constraints for " << nConstraint << " alignables, "
                               << "steering file " << nameHierarchyFile << ".";
+  }
+
+  const std::string namePresigmaFile(this->fileName("Presigma"));
+  unsigned int nPresigma = 
+    this->presigmas(myConfig.getParameter<std::vector<edm::ParameterSet> >("Presigmas"),
+                    namePresigmaFile, alis, aliTracker, aliMuon);
+  if (nPresigma) {
+    edm::LogInfo("Alignment") << "@SUB=PedeSteerer" 
+                              << "Presigma values set for " << nPresigma << " parameters, "
+                              << "steering file " << namePresigmaFile << ".";
   }
 
   // Delete all SelectionUserVariables now? They will anyway be overwritten by MillePedeVariables...
@@ -470,11 +480,7 @@ void PedeSteerer::correctToReferenceSystem()
       meanPars += RbPars(*it, true).globalParameters();// requires theCoordMaster has global frame
     }
     meanPars /= definerDets.size();
-
-    align::Scalar squareSum = 0.;
-    for (unsigned int i = 0; i < RbPars::N_PARAM; ++i) {
-      squareSum += meanPars[i] * meanPars[i] * this->cmsToPedeFactor(i) * this->cmsToPedeFactor(i);
-    }
+    const align::Scalar squareSum = meanPars.normsq();
 
     if (true || iLoop == 0) {
       edm::LogInfo("Alignment") << "@SUB=PedeSteerer::correctToReferenceSystem"
@@ -589,6 +595,97 @@ void PedeSteerer::hierarchyConstraint(const Alignable *ali,
       file << "\nConstraint   0.\n" << aConstr.str(); // in future 'Wconstraint'?
     }
   } // end loop on constraints
+}
+
+//_________________________________________________________________________
+unsigned int PedeSteerer::presigmas(const std::vector<edm::ParameterSet> &cffPresi,
+                                    const std::string &fileName,
+                                    const std::vector<Alignable*> &alis,
+                                    AlignableTracker *aliTracker, AlignableMuon *aliMuon)
+{
+  // We loop on given PSet's, each containing a parameter selection and the presigma value
+  // The resulting presigmas are stored in a map with Alignable* as key.
+  // This map, 'fileName' and 'alis' are passed further to create the steering file.
+
+  AlignmentParameterSelector selector(aliTracker, aliMuon);  
+  AlignablePresigmasMap aliPresiMap; // map to store alis with presigmas of their parameters 
+  for (std::vector<edm::ParameterSet>::const_iterator iSet = cffPresi.begin(), iE = cffPresi.end();
+       iSet != iE; ++iSet) { // loop on individual PSets defining ali-params with their presigma
+    selector.clear();
+    selector.addSelections((*iSet).getParameter<edm::ParameterSet>("Selector"));
+    const std::vector<Alignable*> &alis = selector.selectedAlignables();
+    const std::vector<std::vector<char> > &sels =  selector.selectedParameters();
+    const float presigma = (*iSet).getParameter<double>("presigma");
+    if (presigma <= 0.) { // given presigma > 0., 0. later used if not (yet) chosen for parameter
+      throw cms::Exception("BadConfig")
+        << "[PedeSteerer::presigmas]: Pre-sigma must be > 0., but is " << presigma << ".";
+    }
+    // now loop on alis of present selection
+    for (unsigned int iAli = 0; iAli < alis.size(); ++iAli) {
+      std::vector<float> &presigmas = aliPresiMap[alis[iAli]]; // existing or empty, so ensure length:
+      if (presigmas.size() < sels[iAli].size()) presigmas.resize(sels[iAli].size(), 0.);
+      for (unsigned int iParam = 0; iParam < sels[iAli].size(); ++iParam) { // loop on parameters
+        if (sels[iAli][iParam] != '0') { // all but '0' means to apply the chosen presigma
+          if (presigmas[iParam] != 0.) { // reset forbidden (would make it order dependent!)
+            throw cms::Exception("BadConfig")
+              << "[PedeSteerer::presigmas]: Try to set pre-sigma " << presigma << ", but already "
+              << "set " << presigmas[iParam] << " (for a " 
+              << AlignableObjectId().typeToName(alis[iAli]->alignableObjectId()) << ").";
+          }
+          presigmas[iParam] = presigma;
+        } // end if selected for presigma
+      } // end loop on params
+    } // end loop on alignables for given selection and presigma
+  } // end loop on PSets 
+
+  if (aliPresiMap.empty()) return 0;
+  else return this->presigmasFile(fileName, alis, aliPresiMap);
+}
+
+//_________________________________________________________________________
+unsigned int PedeSteerer::presigmasFile(const std::string &fileName,
+                                        const std::vector<Alignable*> &alis,
+                                        const AlignablePresigmasMap &aliPresiMap)
+{
+  // Check if 'alis' are in aliPresiMap, 
+  // if yes apply presigma - but NOT if parameter is fixed!
+  std::ofstream *filePtr = 0;
+  const AlignableObjectId aliObjId;
+
+  unsigned int nPresiParam = 0;
+  for (std::vector<Alignable*>::const_iterator iAli = alis.begin(), iAliE = alis.end();
+       iAli != iAliE; ++iAli) {
+    // Any presigma chosen for alignable?
+    AlignablePresigmasMap::const_iterator presigmasIt = aliPresiMap.find(*iAli);
+    if (presigmasIt == aliPresiMap.end()) continue; // no presigma chosen for alignable
+
+    // Why does the following not work? It does with CMSSW_1_3_X on SLC3...
+    // const AlignablePresigmasMap::data_type &presigmas = presigmasIt->second;
+    const std::vector<float> &presigmas = presigmasIt->second; // I want to hide float or double...
+    for (unsigned int iParam = 0; iParam < presigmas.size(); ++iParam) {
+      // Now check whether a presigma value > 0. chosen: 
+      if (presigmas[iParam] <= 0.) continue; // must be positive, '<' checked above
+      // Do not apply presigma to inactive or fixed values.
+      if (!(*iAli)->alignmentParameters()->selector()[iParam]) continue;
+      SelectionUserVariables *selVar 
+        = dynamic_cast<SelectionUserVariables*>((*iAli)->alignmentParameters()->userVariables());
+      const char selChar = (selVar ? selVar->fullSelection()[iParam] : '1');
+      if (selChar == 'f' || selChar == 'F' || selChar == 'c' || selChar == 'C') continue;
+      // Finally create and write steering file:
+      if (!filePtr) {
+        filePtr = this->createSteerFile(fileName, true);
+        (*filePtr) << "* Presigma values for active parameters: \nParameter\n";
+      }
+      const unsigned int aliLabel = this->alignableLabel(*iAli);
+      (*filePtr) << this->parameterLabel(aliLabel, iParam) << "   0.   " 
+                 << presigmas[iParam] * fabs(this->cmsToPedeFactor(iParam)) 
+		 << "  ! for a " << aliObjId.typeToName((*iAli)->alignableObjectId()) << '\n';
+      ++nPresiParam;
+    } // end loop on parameters for alignables with chosen presigmas
+  } // end loop on alignables
+
+  delete filePtr; // close properly file
+  return nPresiParam;
 }
 
 //_________________________________________________________________________

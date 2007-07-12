@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.6.2.2 $
- *  $Date: 2007/05/18 13:17:52 $
+ *  $Revision: 1.9 $
+ *  $Date: 2007/06/21 17:01:30 $
  *  (last update by $Author: flucke $)
  */
 
@@ -117,6 +117,16 @@ bool MillePedeMonitor::init(TDirectory *directory)
 				    40, -282., +282., 40, -115., +115.));
   myTrackHists2D.push_back(new TH2F("xy1Track", "xy(1st hit);x [cm]; y [cm]",
 				    40, -115., +115., 40, -115., +115.));
+
+// used track 
+  TDirectory *dirUsedTracks = directory->mkdir("usedTrackHists", "used tracks");
+  if (dirUsedTracks) dirUsedTracks->cd();
+
+  myUsedTrackHists1D = this->cloneHists(myTrackHists1D, "used", " (used tracks)");
+  myUsedTrackHists2D = this->cloneHists(myTrackHists2D, "used", " (used tracks)");
+  // must be after clone: index in vector!
+  myUsedTrackHists1D.push_back(new TH1F("usedHitsX", "n(x-hits) transferred to pede;n(x-hits)", nHits, 0., nHits));
+  myUsedTrackHists1D.push_back(new TH1F("usedHitsY", "n(y-hits) transferred to pede;n(y-hits)", nHits-10, 0., nHits-10));
 
 
 // ReferenceTrajectory
@@ -317,7 +327,16 @@ bool MillePedeMonitor::init(TDirectory *directory)
   allResidHistsX.push_back(new TH1F("angle", "#phi_{tr} wrt normal (sens. plane);#phi_{n}^{sens}",
 				    50, 0., TMath::PiOver2()));
   allResidHistsX.back()->SetBit(TH1::kCanRebin);
-
+  allResidHistsX.push_back(new TH2F("residVsAngle",
+				    "residuum vs. #phi_{tr} wrt normal (sens. plane);#phi_{n}^{sens};residuum [cm]",
+				    50, 0., TMath::PiOver2(), 51, -1., 1.));
+  this->equidistLogBins(logBins.GetArray(), logBins.GetSize()-1, 1.E-6, 100.);
+  allResidHistsX.push_back(new TH2F("sigmaVsAngle",
+				    "#sigma vs. #phi_{tr} wrt normal (sens. plane);#phi_{n}^{sens};#sigma [cm]",
+				    50, 0., TMath::PiOver2(), logBins.GetSize()-1, logBins.GetArray()));
+  allResidHistsX.push_back(new TH2F("reduResidVsAngle",
+				    "reduced residuum vs. #phi_{tr} wrt normal (sens. plane);#phi_{n}^{sens};res./#sigma",
+				    50, 0., TMath::PiOver2(), 51, -15., 15.));
 
   allResidHistsX.push_back(new TH1F("residGt45",
 				    "hit residuals (#phi_{n}^{sens}>45#circ);residuum [cm]",
@@ -444,99 +463,94 @@ bool MillePedeMonitor::equidistLogBins(double* bins, int nBins,
 }
 
 //__________________________________________________________________
-void MillePedeMonitor::fillTrack(const reco::Track *track, const Trajectory *traj)
+void MillePedeMonitor::fillTrack(const reco::Track *track)
+{
+  this->fillTrack(track, myTrackHists1D, myTrackHists2D);
+}
+
+//__________________________________________________________________
+void MillePedeMonitor::fillUsedTrack(const reco::Track *track, unsigned int nHitX,
+				     unsigned int nHitY)
+{
+  if (!track) return;
+  this->fillTrack(track, myUsedTrackHists1D, myUsedTrackHists2D);
+
+  // these hist exist only for 'used track' hists:
+  static const int iUsedX = this->GetIndex(myUsedTrackHists1D, "usedHitsX");
+  myUsedTrackHists1D[iUsedX]->Fill(nHitX);
+  static const int iUsedY = this->GetIndex(myUsedTrackHists1D, "usedHitsY");
+  myUsedTrackHists1D[iUsedY]->Fill(nHitY);
+
+}
+
+//__________________________________________________________________
+void MillePedeMonitor::fillTrack(const reco::Track *track, std::vector<TH1*> &trackHists1D,
+				 std::vector<TH2*> &trackHists2D)
 {
   if (!track) return;
 
   const reco::TrackBase::Vector p(track->momentum());
 
-  static const int iPtLog = this->GetIndex(myTrackHists1D, "ptTrackLogBins");
-  myTrackHists1D[iPtLog]->Fill(track->pt());
-  static const int iPt = this->GetIndex(myTrackHists1D, "ptTrack");
-  myTrackHists1D[iPt]->Fill(track->pt());
-  static const int iP = this->GetIndex(myTrackHists1D, "pTrack");
-  myTrackHists1D[iP]->Fill(p.R());
-  static const int iEta = this->GetIndex(myTrackHists1D, "etaTrack");
-  myTrackHists1D[iEta]->Fill(p.Eta());
-  static const int iPhi = this->GetIndex(myTrackHists1D, "phiTrack");
-  myTrackHists1D[iPhi]->Fill(p.Phi());
+  static const int iPtLog = this->GetIndex(trackHists1D, "ptTrackLogBins");
+  trackHists1D[iPtLog]->Fill(track->pt());
+  static const int iPt = this->GetIndex(trackHists1D, "ptTrack");
+  trackHists1D[iPt]->Fill(track->pt());
+  static const int iP = this->GetIndex(trackHists1D, "pTrack");
+  trackHists1D[iP]->Fill(p.R());
+  static const int iEta = this->GetIndex(trackHists1D, "etaTrack");
+  trackHists1D[iEta]->Fill(p.Eta());
+  static const int iPhi = this->GetIndex(trackHists1D, "phiTrack");
+  trackHists1D[iPhi]->Fill(p.Phi());
 
-  static const int iNhit = this->GetIndex(myTrackHists1D, "nHitTrack");
-  static const int iNhitInvalid = this->GetIndex(myTrackHists1D, "nHitInvalidTrack");
-  static const int iR1 = this->GetIndex(myTrackHists1D, "r1Track");
-  static const int iR1Signed = this->GetIndex(myTrackHists1D, "r1TrackSigned");
-  static const int iZ1 = this->GetIndex(myTrackHists1D, "z1Track");
-  static const int iZ1Full = this->GetIndex(myTrackHists1D, "z1TrackFull");
-  static const int iY1 = this->GetIndex(myTrackHists1D, "y1Track");
-  static const int iPhi1 = this->GetIndex(myTrackHists1D, "phi1Track");
-  static const int iRlast = this->GetIndex(myTrackHists1D, "rLastTrack");
-  static const int iZlast = this->GetIndex(myTrackHists1D, "zLastTrack");
-  static const int iYlast = this->GetIndex(myTrackHists1D, "yLastTrack");
-  static const int iPhiLast = this->GetIndex(myTrackHists1D, "phiLastTrack");
-
-  static const int iRz1Full = this->GetIndex(myTrackHists2D, "rz1TrackFull");
-  static const int iXy1 = this->GetIndex(myTrackHists2D, "xy1Track");
-
-  if (traj) {
-    myTrackHists1D[iNhit]->Fill(traj->foundHits());
-    myTrackHists1D[iNhitInvalid]->Fill(traj->lostHits());
-    const TrajectoryMeasurement inner(traj->direction() == alongMomentum ? 
-				      traj->firstMeasurement() : traj->lastMeasurement());
-    const GlobalPoint firstPoint(inner.recHit()->globalPosition());
-    myTrackHists1D[iR1]->Fill(firstPoint.perp());
-    const double rSigned1 = (firstPoint.y() > 0 ? firstPoint.perp() : -firstPoint.perp());
-    myTrackHists1D[iR1Signed]->Fill(rSigned1);
-    myTrackHists1D[iZ1]->Fill(firstPoint.z());
-    myTrackHists1D[iZ1Full]->Fill(firstPoint.z());
-    myTrackHists1D[iY1]->Fill(firstPoint.y());
-    myTrackHists1D[iPhi1]->Fill(firstPoint.phi());
-    myTrackHists2D[iRz1Full]->Fill(firstPoint.z(), rSigned1);
-    myTrackHists2D[iXy1]->Fill(firstPoint.x(), firstPoint.y());
-
-    const TrajectoryMeasurement outer(traj->direction() == oppositeToMomentum ? 
-				      traj->firstMeasurement() : traj->lastMeasurement());
-    const GlobalPoint lastPoint(outer.recHit()->globalPosition());
-    myTrackHists1D[iRlast]->Fill(lastPoint.perp());
-    myTrackHists1D[iZlast]->Fill(lastPoint.z());
-    myTrackHists1D[iYlast]->Fill(lastPoint.y());
-    myTrackHists1D[iPhiLast]->Fill(lastPoint.phi());
-  } else {
-    myTrackHists1D[iNhit]->Fill(track->numberOfValidHits());
-    myTrackHists1D[iNhitInvalid]->Fill(track->numberOfLostHits());
-    if (track->innerOk()) {
-      const reco::TrackBase::Point firstPoint(track->innerPosition());
-      myTrackHists1D[iR1]->Fill(firstPoint.Rho());
-      const double rSigned1 = (firstPoint.y() > 0 ? firstPoint.Rho() : -firstPoint.Rho());
-      myTrackHists1D[iR1Signed]->Fill(rSigned1);
-      myTrackHists1D[iZ1]->Fill(firstPoint.Z());
-      myTrackHists1D[iZ1Full]->Fill(firstPoint.Z());
-      myTrackHists1D[iY1]->Fill(firstPoint.Y());
-      myTrackHists1D[iPhi1]->Fill(firstPoint.phi());
-      myTrackHists2D[iRz1Full]->Fill(firstPoint.Z(), rSigned1);
-      myTrackHists2D[iXy1]->Fill(firstPoint.X(), firstPoint.Y());
-    }
-    if (track->outerOk()) {
-      const reco::TrackBase::Point lastPoint(track->outerPosition());
-      myTrackHists1D[iRlast]->Fill(lastPoint.Rho());
-      myTrackHists1D[iZlast]->Fill(lastPoint.Z());
-      myTrackHists1D[iYlast]->Fill(lastPoint.Y());
-      myTrackHists1D[iPhiLast]->Fill(lastPoint.phi());
-    }
+  static const int iNhit = this->GetIndex(trackHists1D, "nHitTrack");
+  trackHists1D[iNhit]->Fill(track->numberOfValidHits());
+  static const int iNhitInvalid = this->GetIndex(trackHists1D, "nHitInvalidTrack");
+  trackHists1D[iNhitInvalid]->Fill(track->numberOfLostHits());
+  if (track->innerOk()) {
+    const reco::TrackBase::Point firstPoint(track->innerPosition());
+    static const int iR1 = this->GetIndex(trackHists1D, "r1Track");
+    trackHists1D[iR1]->Fill(firstPoint.Rho());
+    const double rSigned1 = (firstPoint.y() > 0 ? firstPoint.Rho() : -firstPoint.Rho());
+    static const int iR1Signed = this->GetIndex(trackHists1D, "r1TrackSigned");
+    trackHists1D[iR1Signed]->Fill(rSigned1);
+    static const int iZ1 = this->GetIndex(trackHists1D, "z1Track");
+    trackHists1D[iZ1]->Fill(firstPoint.Z());
+    static const int iZ1Full = this->GetIndex(trackHists1D, "z1TrackFull");
+    trackHists1D[iZ1Full]->Fill(firstPoint.Z());
+    static const int iY1 = this->GetIndex(trackHists1D, "y1Track");
+    trackHists1D[iY1]->Fill(firstPoint.Y());
+    static const int iPhi1 = this->GetIndex(trackHists1D, "phi1Track");
+    trackHists1D[iPhi1]->Fill(firstPoint.phi());
+    static const int iRz1Full = this->GetIndex(trackHists2D, "rz1TrackFull");
+    trackHists2D[iRz1Full]->Fill(firstPoint.Z(), rSigned1);
+    static const int iXy1 = this->GetIndex(trackHists2D, "xy1Track");
+    trackHists2D[iXy1]->Fill(firstPoint.X(), firstPoint.Y());
+  }
+  if (track->outerOk()) {
+    const reco::TrackBase::Point lastPoint(track->outerPosition());
+    static const int iRlast = this->GetIndex(trackHists1D, "rLastTrack");
+    trackHists1D[iRlast]->Fill(lastPoint.Rho());
+    static const int iZlast = this->GetIndex(trackHists1D, "zLastTrack");
+    trackHists1D[iZlast]->Fill(lastPoint.Z());
+    static const int iYlast = this->GetIndex(trackHists1D, "yLastTrack");
+    trackHists1D[iYlast]->Fill(lastPoint.Y());
+    static const int iPhiLast = this->GetIndex(trackHists1D, "phiLastTrack");
+    trackHists1D[iPhiLast]->Fill(lastPoint.phi());
   }
 
-  static const int iChi2Ndf = this->GetIndex(myTrackHists1D, "chi2PerNdf");
-  myTrackHists1D[iChi2Ndf]->Fill(track->normalizedChi2());
+  static const int iChi2Ndf = this->GetIndex(trackHists1D, "chi2PerNdf");
+  trackHists1D[iChi2Ndf]->Fill(track->normalizedChi2());
 
-  static const int iImpZ = this->GetIndex(myTrackHists1D, "impParZ");
-  myTrackHists1D[iImpZ]->Fill(track->dz());
-  static const int iImpZerr = this->GetIndex(myTrackHists1D, "impParErrZ");
-  myTrackHists1D[iImpZerr]->Fill(track->dzError());
+  static const int iImpZ = this->GetIndex(trackHists1D, "impParZ");
+  trackHists1D[iImpZ]->Fill(track->dz());
+  static const int iImpZerr = this->GetIndex(trackHists1D, "impParErrZ");
+  trackHists1D[iImpZerr]->Fill(track->dzError());
 
 
-  static const int iImpRphi = this->GetIndex(myTrackHists1D, "impParRphi");
-  myTrackHists1D[iImpRphi]->Fill(track->d0());
-  static const int iImpRphiErr = this->GetIndex(myTrackHists1D, "impParErrRphi");
-  myTrackHists1D[iImpRphiErr]->Fill(track->d0Error());
+  static const int iImpRphi = this->GetIndex(trackHists1D, "impParRphi");
+  trackHists1D[iImpRphi]->Fill(track->d0());
+  static const int iImpRphiErr = this->GetIndex(trackHists1D, "impParErrRphi");
+  trackHists1D[iImpRphiErr]->Fill(track->d0Error());
 
 }
 
@@ -789,9 +803,15 @@ void MillePedeMonitor::fillResidualHists(const std::vector<TH1*> &hists,
   hists[iRes]->Fill(residuum);
   static const int iSigma = this->GetIndex(hists, "sigma");
   hists[iSigma]->Fill(sigma);
+  static const int iSigmaVsAngle = this->GetIndex(hists, "sigmaVsAngle");
+  hists[iSigmaVsAngle]->Fill(phiSensToNorm, sigma);
+  static const int iResidVsAngle = this->GetIndex(hists, "residVsAngle");
+  hists[iResidVsAngle]->Fill(phiSensToNorm, residuum);
   static const int iReduRes = this->GetIndex(hists, "reduResid");
+  static const int iReduResidVsAngle = this->GetIndex(hists, "reduResidVsAngle");
   if (sigma) {
     hists[iReduRes]->Fill(residuum/sigma);
+    hists[iReduResidVsAngle]->Fill(phiSensToNorm, residuum/sigma);
   }
   static const int iAngle = this->GetIndex(hists, "angle");
   hists[iAngle]->Fill(phiSensToNorm);

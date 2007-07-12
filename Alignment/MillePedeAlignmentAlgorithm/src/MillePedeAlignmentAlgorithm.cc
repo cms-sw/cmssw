@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.16.2.5 $
- *  $Date: 2007/06/21 12:32:03 $
+ *  $Revision: 1.20 $
+ *  $Date: 2007/06/21 17:01:30 $
  *  (last update by $Author: flucke $)
  */
 
@@ -178,7 +178,7 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup,
     const Trajectory *traj = (*it).first;
     const reco::Track *track = (*it).second;
     if (!this->orderedTsos(traj, trackTsos)) continue;
-    if (theMonitor) theMonitor->fillTrack(track, traj);
+    if (theMonitor) theMonitor->fillTrack(track);
 
     ReferenceTrajectoryBase::ReferenceTrajectoryPtr refTrajPtr = 
       this->referenceTrajectory(trackTsos.front(), traj, magField);
@@ -200,15 +200,18 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup,
     } // end loop on hits
     
     if (nValidHitsX >= theMinNumHits) { // enough 'good' alignables hit: increase the hit statistics
-      // FIXME: Add also hit statistics for higher levels in hierarchy? But take care about
-      //        exclusion as for hierarchy constraints...
+      unsigned int nValidHitsY = 0;
       for (unsigned int iHit = 0; iHit < validHitVecY.size(); ++iHit) {
         if (!parVec[iHit]) continue; // in case a non-selected alignable was hit (flagXY == 0)
         MillePedeVariables *mpVar = static_cast<MillePedeVariables*>(parVec[iHit]->userVariables());
         mpVar->increaseHitsX(); // every hit has an x-measurement, cf. above...
-        if (validHitVecY[iHit]) mpVar->increaseHitsY();
+        if (validHitVecY[iHit]) {
+	  mpVar->increaseHitsY();
+	  ++nValidHitsY;
+	}
       }
       theMille->end();
+      if (theMonitor) theMonitor->fillUsedTrack(track, nValidHitsX, nValidHitsY);
     } else {
       theMille->kill();
     }
@@ -227,9 +230,10 @@ ReferenceTrajectoryBase::ReferenceTrajectoryPtr MillePedeAlignmentAlgorithm::ref
     edm::LogError("Alignment") << "$SUB=MillePedeAlignmentAlgorithm::referenceTrajectory"
                                << "Trajectory neither along nor opposite to momentum.";
   }
+
   ReferenceTrajectoryBase::ReferenceTrajectoryPtr refTrajPtr =
     new ReferenceTrajectory(refTsos, traj->recHits(), backwardHits,
-			    magField, ReferenceTrajectoryBase::combined);//energyLoss);
+			    magField, ReferenceTrajectoryBase::combined); //none);//energyLoss);
 
   if (theMonitor) theMonitor->fillRefTrajectory(refTrajPtr);
 
@@ -338,7 +342,8 @@ void MillePedeAlignmentAlgorithm::callMille
     localDerivs[i] = locDerivMatrix[xyIndex][i];
   }
 
-  // FIXME: verify that &(vector[0]) is valid for all vector implementations
+  // &(vector[0]) is valid - as long as vector is not empty 
+  // cf. http://www.parashift.com/c++-faq-lite/containers.html#faq-34.3
   theMille->mille(localDerivs.size(), &(localDerivs[0]),
 		  globalDerivatives.size(), &(globalDerivatives[0]), &(globalLabels[0]),
 		  residuum, sigma);

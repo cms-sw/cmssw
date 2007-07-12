@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.4.2.2 $
-///  $Date: 2007/05/18 13:17:51 $
+///  $Revision: 1.4.2.3 $
+///  $Date: 2007/07/12 15:30:54 $
 ///  (last update by $Author: flucke $)
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
@@ -48,7 +48,8 @@ class MillePedeMonitor
   // writes histograms in destructor
   ~MillePedeMonitor(); // non-virtual destructor: not intended to be parent class
 
-  void fillTrack(const reco::Track *track, const Trajectory *traj);
+  void fillTrack(const reco::Track *track);//, const Trajectory *traj);
+  void fillUsedTrack(const reco::Track *track, unsigned int nHitX, unsigned int nHitY);//, const Trajectory *traj);
   void fillRefTrajectory(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr);
   void fillDerivatives(const TransientTrackingRecHit::ConstRecHitPointer &recHit,
 		       const std::vector<float> &localDerivs,
@@ -65,6 +66,8 @@ class MillePedeMonitor
 			 float residuum, float sigma);
   void fillResidualHitHists(const std::vector<TH1*> &hists, float angle,
 			    float residuum, float sigma, unsigned int nHit);
+  void fillTrack(const reco::Track *track, std::vector<TH1*> &trackHists1D,
+		 std::vector<TH2*> &trackHists2D);
 
   template <class OBJECT_TYPE>  
     int GetIndex(const std::vector<OBJECT_TYPE*> &vec, const TString &name);
@@ -75,8 +78,10 @@ class MillePedeMonitor
   TDirectory *myRootDir;
   bool        myDeleteDir; 
 
-  std::vector<TH1*> myTrackHists1D;
+  std::vector<TH1*> myTrackHists1D; // all input tracks 
   std::vector<TH2*> myTrackHists2D;
+  std::vector<TH1*> myUsedTrackHists1D; // tracks used, i.e. tranferred to pede
+  std::vector<TH2*> myUsedTrackHists2D;
   std::vector<TH1*> myTrajectoryHists1D;
   std::vector<TH2*> myTrajectoryHists2D;
   std::vector<TH2*> myDerivHists2D;
@@ -85,8 +90,6 @@ class MillePedeMonitor
   std::vector<std::vector<TH1*> > myResidHistsVec1DY;///[0]=all [1]=TPB [2]=TPE [3]=TIB [4]=TID [5]=TOB [6]=TEC
   std::vector<TH1*> myResidHitHists1DX;
   std::vector<TH1*> myResidHitHists1DY;
-
-
   std::vector<TH2*> myFrame2FrameHists2D;
 
 };

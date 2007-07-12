@@ -8,8 +8,8 @@
  *
  * \author    : Gero Flucke
  * date       : October 2006
- * $Date: 2007/06/21 12:43:03 $
- * $Revision: 1.8.2.4 $
+ * $Date: 2007/06/21 17:01:30 $
+ * $Revision: 1.10 $
  * (last update by $Author: flucke $)
  */
 
@@ -72,6 +72,7 @@ class PedeSteerer
   typedef std::map <Alignable*, unsigned int> AlignableToIdMap;
   typedef AlignableToIdMap::value_type AlignableToIdPair;
   typedef std::map <unsigned int, Alignable*> IdToAlignableMap;
+  typedef std::map<const Alignable*,std::vector<float> > AlignablePresigmasMap;
 
   unsigned int buildMap(Alignable *highestLevelAli1, Alignable *highestLevelAli2);
   unsigned int buildReverseMap();
@@ -102,6 +103,13 @@ class PedeSteerer
   void hierarchyConstraint(const Alignable *ali, const std::vector<Alignable*> &components,
 			   std::ofstream &file) const;
 
+  /// interprete content of presigma VPSet 'cffPresi' and call presigmasFile
+  unsigned int presigmas(const std::vector<edm::ParameterSet> &cffPresi,
+			 const std::string &fileName, const std::vector<Alignable*> &alis,
+			 AlignableTracker *aliTracker, AlignableMuon *aliMuon);
+  /// look for active 'alis' in map of presigma values and create steering file 
+  unsigned int presigmasFile(const std::string &fileName, const std::vector<Alignable*> &alis,
+			     const AlignablePresigmasMap &aliPresisMap); 
   /// full name with directory and 'idenitfier'
   std::string fileName(const std::string &addendum) const;
   /// create and open file with name, if (addToList) append to mySteeringFiles
