@@ -4,6 +4,7 @@
 //pool includes
 #include "PersistencySvc/DatabaseConnectionPolicy.h"
 #include "PersistencySvc/ISession.h"
+#include "PersistencySvc/ITransaction.h"
 #include "DataSvc/DataSvcFactory.h"
 #include "DataSvc/IDataSvc.h"
 #include "FileCatalog/IFileCatalog.h"
@@ -19,7 +20,7 @@ cond::PoolConnectionProxy::PoolConnectionProxy(const std::string& con,
   m_transactionCounter( 0 ),
   m_connectionTimeOut( connectionTimeOut )
 {
-  if(isReadOnly){
+  if(!m_isReadOnly){
     m_catalog->setWriteCatalog(catalog);
   }else{
     m_catalog->addReadCatalog(catalog);
@@ -67,6 +68,7 @@ cond::PoolConnectionProxy::connect(){
 }
 void
 cond::PoolConnectionProxy::disconnect(){
+  //m_datasvc->transaction().commit();
   m_datasvc->session().disconnectAll();
   m_catalog->commit();
   m_catalog->disconnect();
@@ -83,10 +85,10 @@ cond::PoolConnectionProxy::reactOnStartOfTransaction( const ITransaction* transa
 }
 void 
 cond::PoolConnectionProxy::reactOnEndOfTransaction( const ITransaction* transactionSubject ){
-  unsigned int connectedTime=(unsigned int)m_timer.elapsed();
   if(m_connectionTimeOut==0){
     this->disconnect();
   }else{
+    unsigned int connectedTime=(unsigned int)m_timer.elapsed();
     if(m_transactionCounter==1 && connectedTime>= m_connectionTimeOut){
       //if I'm the last open transaction and I'm beyond the connection timeout, close connection
       this->disconnect();

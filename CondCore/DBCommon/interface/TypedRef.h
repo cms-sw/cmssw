@@ -161,7 +161,9 @@ cond::TypedRef<T>::operator*() const{
   }
 }
 template<typename T>
-cond::TypedRef<T>::~TypedRef(){}
+cond::TypedRef<T>::~TypedRef(){
+  if(m_place) delete m_place;
+}
 #endif
 // COND_TYPEDREF_H
 
