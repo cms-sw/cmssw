@@ -6,6 +6,10 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/PluginManager>
 <use name=FWCore/Utilities>
+<use name=Geometry/CaloGeometry>
+<use name=Geometry/CaloTopology>
+<use name=RecoEcal/EgammaClusterAlgos>
+<use name=RecoEcal/EgammaCoreTools>
 <use name=rootmath>
 <flags EDM_PLUGIN=1>
 <export>

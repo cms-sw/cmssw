@@ -12,6 +12,21 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/DetId/interface/DetId.h"
+
+//#include "DataFormats/Common/interface/Provenance.h"
+
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
+#include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
+#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
+
+
+
 class IsolatedPixelTrackCandidateProducer : public edm::EDProducer {
 
  public:
@@ -27,7 +42,12 @@ class IsolatedPixelTrackCandidateProducer : public edm::EDProducer {
 
   edm::InputTag l1eTauJetsSource_;
   edm::InputTag pixelTracksSource_;
+  edm::InputTag particleMapSource_;
+  edm::ParameterSet parameters;
+
   double pixelIsolationConeSize_;
+  double maxEta_;
+
 };
 
 
