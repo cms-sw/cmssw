@@ -31,6 +31,8 @@ namespace edm {
       virtual std::auto_ptr<RefHolderBase> holder() const {
 	return std::auto_ptr<RefHolderBase>( new RefHolder<REF>( ref_ ) );
       }
+      virtual std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() const;
+
     private:
       REF ref_;
     };
@@ -139,6 +141,21 @@ namespace edm {
       return conversion_worked;
     }
 
+  }
+}
+
+#include "DataFormats/Common/interface/VectorHolder.h"
+#include "DataFormats/Common/interface/RefVector.h"
+
+namespace edm {
+  namespace reftobase {
+    template <class T, class REF>
+    std::auto_ptr<BaseVectorHolder<T> > Holder<T,REF>::makeVectorHolder() const {
+      typedef RefVector<typename REF::collection_type,
+	                typename REF::value_type, 
+                       	typename REF::finder_type> REFV;
+      return std::auto_ptr<BaseVectorHolder<T> >( new VectorHolder<T, REFV> );
+    }
   }
 }
 

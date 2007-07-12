@@ -1,4 +1,4 @@
-// $Id: reftobasevector_t.cppunit.cc,v 1.7 2007/06/20 15:53:14 paterno Exp $
+// $Id: reftobasevector_t.cppunit.cc,v 1.8 2007/07/09 07:28:52 llista Exp $
 
 #include <algorithm>
 
@@ -119,5 +119,15 @@ testRefToBaseVector::check()
   CPPUNIT_ASSERT(assigned_from_bv1 == bv1);
 
   do_some_tests(assigned_from_bv1);
+
+  /// creation of empty vector adding with push_back
+  RefToBaseVector<Base> bv3;
+  bv3.push_back( r1_0 );
+  CPPUNIT_ASSERT(bv3.size() == 1);
+  CPPUNIT_ASSERT( &(*r1_0) == &(*bv3[0]) );
+  bv3.push_back( r1_1 );
+  CPPUNIT_ASSERT(bv3.size() == 2);
+  CPPUNIT_ASSERT( &(*r1_1) == &(*bv3[1]) );
+
 }
 

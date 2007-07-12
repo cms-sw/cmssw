@@ -5,7 +5,7 @@
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.27 2007/07/09 07:28:49 llista Exp $
+$Id: Ref.h,v 1.28 2007/07/12 09:45:31 llista Exp $
 
 ----------------------------------------------------------------------*/
 /**
@@ -214,7 +214,6 @@ namespace edm {
 	    typename F = typename refhelper::FindTrait<C, T>::value>
   class Ref {
   private:
-  public:
     typedef refhelper::FindRefVectorUsingAdvance<RefVector<C, T, F> > VF;
     typedef refhelper::FindRefVectorUsingAdvance<RefToBaseVector<T> > VBF;
     friend class RefVectorIterator<C, T, F>;
@@ -225,7 +224,9 @@ namespace edm {
     friend class RefVector<RefVector<RefVector<C, T, F>, T, VBF>, T, VBF>;
     /// etc. etc.: more nesting levels could be supported ...
 
+  public:
     /// for export
+    typedef C collection_type;
     typedef T value_type; 
     typedef T const element_type; //used for generic programming
     typedef F finder_type;

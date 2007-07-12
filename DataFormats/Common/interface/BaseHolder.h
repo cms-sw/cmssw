@@ -5,6 +5,8 @@ namespace edm {
   class RefHolderBase;
 
   namespace reftobase {
+    template<typename T> class BaseVectorHolder;
+
     //------------------------------------------------------------------
     // Class template BaseHolder<T>
     //
@@ -43,6 +45,9 @@ namespace edm {
       virtual bool fillRefIfMyTypeMatches(RefHolderBase& fillme,
 					  std::string& msg) const = 0;
       virtual std::auto_ptr<RefHolderBase> holder() const = 0;
+
+      virtual std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() const = 0;
+
     protected:
       // We want the following called only by derived classes.
       BaseHolder();

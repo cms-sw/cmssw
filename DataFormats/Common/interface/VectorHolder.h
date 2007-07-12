@@ -1,11 +1,12 @@
 #ifndef Common_VectorHolder_h
 #define Common_VectorHolder_h
 #include "DataFormats/Common/interface/BaseVectorHolder.h"
-#include "DataFormats/Common/interface/RefVectorHolder.h"
 #include "DataFormats/Common/interface/Holder.h"
 
 namespace edm {
   namespace reftobase {
+
+    class RefVectorHolderBase;
 
     template <class T, class REFV>
     class VectorHolder : public BaseVectorHolder<T> {
@@ -36,9 +37,6 @@ namespace edm {
       const_iterator end() const { 
 	return const_iterator( new const_iterator_imp_specific( refVector_.end() ) ); 
       }
-      virtual std::auto_ptr<reftobase::RefVectorHolderBase> vectorHolder() const {
-	return std::auto_ptr<reftobase::RefVectorHolderBase>( new reftobase::RefVectorHolder<REFV>( refVector_ ) );
-      }
       virtual void push_back( const BaseHolder<T> * r ) {
 	typedef Holder<T, typename REFV::value_type > holder_type;
 	const holder_type * h = dynamic_cast<const holder_type *>( r );
@@ -46,6 +44,9 @@ namespace edm {
 	  throw edm::Exception( edm::errors::InvalidReference ) 
 	    << "In VectorHolder<T, REFV> trying to push_back wrong reference type";
 	refVector_.push_back( h->getRef() );
+      }
+      virtual std::auto_ptr<RefVectorHolderBase> vectorHolder() const {
+	return std::auto_ptr<RefVectorHolderBase>( new RefVectorHolder<REFV>( refVector_ ) );
       }
 
     private:
@@ -85,9 +86,7 @@ namespace edm {
 	typename ref_vector_type::const_iterator i;
       };
     };
-
   }
-
 }
 
 #endif

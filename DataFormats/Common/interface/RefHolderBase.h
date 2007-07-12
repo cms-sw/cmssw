@@ -2,7 +2,7 @@
 #define Common_RefHolderBase_h
 /* \class edm::reftobase::Base
  *
- * $Id$
+ * $Id: RefHolderBase.h,v 1.1 2007/07/02 13:03:03 llista Exp $
  *
  */
 #include "Reflex/Type.h"
@@ -10,6 +10,8 @@
 namespace edm {
   namespace reftobase {
     using ROOT::Reflex::Type;
+
+    class RefVectorHolderBase;
 
     class RefHolderBase {
     public:
@@ -31,6 +33,8 @@ namespace edm {
 
       virtual bool fillRefIfMyTypeMatches(RefHolderBase& ref,
 					  std::string& msg) const = 0;
+
+      virtual std::auto_ptr<RefVectorHolderBase> makeVectorHolder() const = 0;
 
     private:
       // "cast" the real type of the element (the T of contained Ref),

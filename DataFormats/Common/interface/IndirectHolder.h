@@ -36,9 +36,8 @@ namespace edm {
 
       virtual bool fillRefIfMyTypeMatches(RefHolderBase& fillme,
 					  std::string& msg) const;
-      virtual std::auto_ptr<RefHolderBase> holder() const { 
-	return std::auto_ptr<RefHolderBase>( helper_->clone() ); 
-      }
+      virtual std::auto_ptr<RefHolderBase> holder() const;
+      virtual std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() const;
 
     private:
       friend class RefToBase<T>;
@@ -122,6 +121,23 @@ namespace edm {
       return helper_->fillRefIfMyTypeMatches(fillme, msg);
     }
 
+    template <class T>
+    std::auto_ptr<RefHolderBase> IndirectHolder<T>::holder() const { 
+      return std::auto_ptr<RefHolderBase>( helper_->clone() ); 
+    }
+  }
+}
+
+#include "DataFormats/Common/interface/IndirectVectorHolder.h"
+
+namespace edm {
+  namespace reftobase {
+    template <class T>
+    std::auto_ptr<BaseVectorHolder<T> > IndirectHolder<T>::makeVectorHolder() const {
+      std::auto_ptr<RefVectorHolderBase> p = helper_->makeVectorHolder();
+      boost::shared_ptr<RefVectorHolderBase> sp( p );
+      return std::auto_ptr<BaseVectorHolder<T> >( new IndirectVectorHolder<T>( sp ) );
+    }
   }
 }
 

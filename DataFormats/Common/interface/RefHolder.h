@@ -35,6 +35,7 @@ namespace edm {
 
       REF const& getRef() const;
       void setRef(REF const& r);
+      virtual std::auto_ptr<RefVectorHolderBase> makeVectorHolder() const;
 
     private:
       virtual void const* pointerToType(Type const& iToType) const;
@@ -146,6 +147,22 @@ namespace edm {
       return cast.Address(); // returns void*, after pointer adjustment
     }
   } // namespace reftobase
+}
+
+#include "DataFormats/Common/interface/IndirectVectorHolder.h"
+#include "DataFormats/Common/interface/RefVectorHolder.h"
+#include "DataFormats/Common/interface/RefVector.h"
+
+namespace edm {
+  namespace reftobase {
+    template <class REF>
+    std::auto_ptr<RefVectorHolderBase> RefHolder<REF>::makeVectorHolder() const {
+      typedef RefVector<typename REF::collection_type,
+	                typename REF::value_type, 
+                       	typename REF::finder_type> REFV;
+      return std::auto_ptr<RefVectorHolderBase>( new RefVectorHolder<REFV> );
+    }
+  }
 }
 
 #endif

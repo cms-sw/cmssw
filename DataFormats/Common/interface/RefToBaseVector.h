@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id$
+ * $Id: RefToBaseVector.h,v 1.9 2007/07/09 07:28:50 llista Exp $
  *
  */
 
@@ -225,11 +225,6 @@ namespace edm {
     }
   }
 
-  template <typename T>
-  void RefToBaseVector<T>::push_back( const RefToBase<T> & r ) {
-    holder_->push_back( r.holder_ );
-  }
-
   // NOTE: the following implementation has unusual signature!
   template <typename T>
   inline void fillView(RefToBaseVector<T> const& obj,
@@ -243,6 +238,14 @@ namespace edm {
     static bool const value = true;
   };
 
+  template <typename T>
+  void RefToBaseVector<T>::push_back( const RefToBase<T> & r ) {
+    if ( holder_ == 0 ) {
+      std::auto_ptr<reftobase::BaseVectorHolder<T> > p = r.holder_->makeVectorHolder();
+      holder_ = p.release();
+    }
+    holder_->push_back( r.holder_ );
+  }
 }
 
 #endif
