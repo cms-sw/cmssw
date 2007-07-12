@@ -3,6 +3,7 @@
 
 #include "SimTracker/SiStripDigitizer/interface/SiChargeCollectionDrifter.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "SimTracker/SiStripDigitizer/interface/SiPileUpSignals.h"
 
 #include<map>
 
@@ -17,6 +18,6 @@ class SiInduceChargeOnStrips{
   
   
   virtual ~SiInduceChargeOnStrips() { }
-  virtual hit_map_type induce(SiChargeCollectionDrifter::collection_type, const StripGeomDetUnit&) = 0 ;
+  virtual void induce(SiChargeCollectionDrifter::collection_type, const StripGeomDetUnit&, SiPileUpSignals::signal_map_type &) = 0 ;
 };
 #endif

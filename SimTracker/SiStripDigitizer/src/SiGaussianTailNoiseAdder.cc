@@ -3,17 +3,15 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandGauss.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "Utilities/Timing/interface/TimingReport.h"
 
-SiGaussianTailNoiseAdder::SiGaussianTailNoiseAdder(int ns, float nrms, float th, CLHEP::HepRandomEngine& eng):
-  numStrips(ns), 
-  noiseRMS(nrms), 
+SiGaussianTailNoiseAdder::SiGaussianTailNoiseAdder(float th,CLHEP::HepRandomEngine& eng):
   threshold(th),
   rndEngine(eng),
   gaussDistribution(0)
 {
   genNoise = new GaussianTailNoiseGenerator(rndEngine);
-  gaussDistribution = new CLHEP::RandGauss(rndEngine,0.,noiseRMS);
-
+  gaussDistribution = new CLHEP::RandGauss(rndEngine);
 }
 
 SiGaussianTailNoiseAdder::~SiGaussianTailNoiseAdder(){
@@ -21,35 +19,68 @@ SiGaussianTailNoiseAdder::~SiGaussianTailNoiseAdder(){
   delete gaussDistribution;
 }
 
-SiPileUpSignals::signal_map_type 
-SiGaussianTailNoiseAdder::addNoise(SiPileUpSignals::signal_map_type in){
+void 
+SiGaussianTailNoiseAdder::addNoise(SiPileUpSignals::signal_map_type &in,int ns, float nrms){
   
-  SiPileUpSignals::signal_map_type _signal;  
+  numStrips = ns; 
+  noiseRMS = nrms; 
   
-  std::map<int,float,std::less<int> > generatedNoise;
-  
+  std::vector<std::pair<int,float> > generatedNoise;
+
   genNoise->generate(numStrips,threshold,noiseRMS,generatedNoise);
 
   // noise on strips with signal:
   // ----------------------------
   
-  for (SiPileUpSignals::signal_map_type::const_iterator si  = in.begin();
+  for (SiPileUpSignals::signal_map_type::iterator si  = in.begin();
        si != in.end()  ; si++){
 
-    float noise = gaussDistribution->fire();           
-    _signal[si->first] = si->second + noise;
+    float noise = gaussDistribution->fire(0.,noiseRMS);           
+    si->second += noise;
     
   }
     
   //
   // Noise on the other strips
   
-  typedef std::map<int,float,std::less<int> >::iterator MI;
+  typedef std::vector<std::pair<int,float> >::const_iterator VI;  
   
-  for(MI p = generatedNoise.begin(); p != generatedNoise.end(); p++){
-    if(_signal[(*p).first] == 0) {
-      _signal[(*p).first] += (*p).second;
+  for(VI p = generatedNoise.begin(); p != generatedNoise.end(); p++){
+    if(in[(*p).first] == 0) {
+      in[(*p).first] += (*p).second;
     }
   }
-  return _signal;
+}
+
+void 
+SiGaussianTailNoiseAdder::createRaw(SiPileUpSignals::signal_map_type &in,int ns, float nrms){
+  
+  numStrips = ns; 
+  noiseRMS = nrms; 
+  
+  std::vector<std::pair<int,float> > generatedNoise;
+
+  genNoise->generateRaw(numStrips,noiseRMS,generatedNoise);
+
+  // noise on strips with signal:
+  // ----------------------------
+  
+  for (SiPileUpSignals::signal_map_type::iterator si  = in.begin();
+       si != in.end()  ; si++){
+
+    float noise = gaussDistribution->fire(0.,noiseRMS);           
+    si->second += noise;
+    
+  }
+    
+  //
+  // Noise on the other strips
+  
+  typedef std::vector<std::pair<int,float> >::const_iterator VI;  
+  
+  for(VI p = generatedNoise.begin(); p != generatedNoise.end(); p++){
+    if(in[(*p).first] == 0) {
+      in[(*p).first] += (*p).second;
+    }
+  }
 }

@@ -24,9 +24,6 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimTracker/SiStripDigitizer/interface/SiStripDigitizerAlgorithm.h"
 
-//SiStripPedestalsService
-#include "CommonTools/SiStripZeroSuppression/interface/SiStripNoiseService.h"
-
 #include <string>
 #include <vector>
 #include <map>
@@ -39,9 +36,6 @@ class SiStripDigitizer : public edm::EDProducer
 {
 public:
   
-  // The following is not yet used, but will be the primary
-  // constructor when the parameter set system is available.
-  //
   explicit SiStripDigitizer(const edm::ParameterSet& conf);
   
   virtual ~SiStripDigitizer();
@@ -49,22 +43,23 @@ public:
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
   
 private:
-  std::map<const GeomDetType* , boost::shared_ptr<SiStripDigitizerAlgorithm> > theAlgoMap; 
-  std::vector<edm::DetSet<SiStripDigi> > theDigiVector;
-  std::vector<edm::DetSet<StripDigiSimLink> > theDigiLinkVector;
-  
-  edm::ParameterSet conf_;
-  SiStripNoiseService SiStripNoiseService_;  
   typedef std::vector<std::string> vstring;
-  vstring trackerContainers;
   typedef std::map<unsigned int, std::vector<PSimHit>,std::less<unsigned int> > simhit_map;
   typedef simhit_map::iterator simhit_map_iterator;
+
+  SiStripDigitizerAlgorithm * theDigiAlgo;
+  SiStripFedZeroSuppression* theSiFEDZeroSuppress;
+  std::vector<edm::DetSet<SiStripDigi> > theDigiVector;
+  std::vector<edm::DetSet<SiStripRawDigi> > theRawDigiVector;
+  std::vector<edm::DetSet<StripDigiSimLink> > theDigiLinkVector;
+  edm::ParameterSet conf_;
+  vstring trackerContainers;
   simhit_map SimHitMap;
   int numStrips;    // number of strips in the module
   CLHEP::HepRandomEngine* rndEngine;
-
+  std::string alias;
   bool useGainFromDB_;
-
+  bool zeroSuppression;
 };
 
 #endif

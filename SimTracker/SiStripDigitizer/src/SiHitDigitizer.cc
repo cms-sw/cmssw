@@ -11,41 +11,30 @@
 #define CBOLTZ (1.38E-23)
 #define e_SI (1.6E-19)
 
-SiHitDigitizer::SiHitDigitizer(const edm::ParameterSet& conf, const StripGeomDetUnit *det,CLHEP::HepRandomEngine& eng ):conf_(conf),rndEngine(eng){
+SiHitDigitizer::SiHitDigitizer(const edm::ParameterSet& conf,CLHEP::HepRandomEngine& eng ):conf_(conf),rndEngine(eng){
 
   //
   // Construct default classes
   //
-  
+  depletionVoltage       = conf_.getParameter<double>("DepletionVoltage");
+  appliedVoltage         = conf_.getParameter<double>("AppliedVoltage");
+  chargeMobility         = conf_.getParameter<double>("ChargeMobility");
+  temperature            = conf_.getParameter<double>("Temperature");
+  gevperelectron         =conf_.getParameter<double>("GevPerElectron");
+  chargeDistributionRMS  =conf_.getParameter<double>("ChargeDistributionRMS");
+  noDiffusion            = conf_.getParameter<bool>("noDiffusion");
+  double diffusionConstant = CBOLTZ/e_SI * chargeMobility * temperature;
+  if (noDiffusion) diffusionConstant *= 1.0e-3;
+
   theSiChargeDivider = new SiLinearChargeDivider(conf_,rndEngine);
   
-  depletionVoltage = conf_.getParameter<double>("DepletionVoltage");
-  appliedVoltage   = conf_.getParameter<double>("AppliedVoltage");
-  chargeMobility   = conf_.getParameter<double>("ChargeMobility");
-  temperature      = conf_.getParameter<double>("Temperature");
-  rhall            = conf_.getParameter<double>("HoleRHAllParameter");
-  holeBeta         = conf_.getParameter<double>("HoleBeta");
-  holeSaturationVelocity = conf_.getParameter<double>("HoleSaturationVelocity");
-  double diffusionConstant = CBOLTZ/e_SI * chargeMobility * temperature;
-  noDiffusion      = conf_.getParameter<bool>("noDiffusion");
-  if (noDiffusion) diffusionConstant *= 1.0e-3;
-  chargeDistributionRMS=conf_.getParameter<double>("ChargeDistributionRMS");
-  double moduleThickness = det->specificSurface().bounds().thickness(); // full detector thicness
-  // If no diffusion requested, don't set it quite to zero to avoid
-  // divide by zero errors.
-  double timeNormalisation = pow(moduleThickness,2)/(2.*depletionVoltage*chargeMobility);
- 
   theSiChargeCollectionDrifter = 
-    new SiLinearChargeCollectionDrifter(moduleThickness,
-					timeNormalisation,
-					diffusionConstant,
+    new SiLinearChargeCollectionDrifter(diffusionConstant,
 					temperature,
 					chargeDistributionRMS,
 					depletionVoltage,
 					appliedVoltage);
 
-  gevperelectron=conf_.getParameter<double>("GevPerElectron");
- 
   theSiInduceChargeOnStrips = new SiTrivialInduceChargeOnStrips(conf,gevperelectron);
 }
 
@@ -57,8 +46,8 @@ SiHitDigitizer::~SiHitDigitizer(){
   }
 
 
-SiHitDigitizer::hit_map_type SiHitDigitizer::processHit(const PSimHit& hit, const StripGeomDetUnit& det, GlobalVector bfield,float langle){
-
+void 
+SiHitDigitizer::processHit(const PSimHit& hit, const StripGeomDetUnit& det, GlobalVector bfield,float langle, SiPileUpSignals::signal_map_type &map){
   //
   // Fully process one SimHit
   //
@@ -69,9 +58,12 @@ SiHitDigitizer::hit_map_type SiHitDigitizer::processHit(const PSimHit& hit, cons
   // Compute the drift direction for this det
   //
   
+  double moduleThickness = det.specificSurface().bounds().thickness(); // full detector thicness
+  double timeNormalisation = (moduleThickness*moduleThickness)/(2.*depletionVoltage*chargeMobility);
+  
   LocalVector driftDir = DriftDirection(&det,bfield,langle);
  
-  return theSiInduceChargeOnStrips->induce(theSiChargeCollectionDrifter->drift(ion,driftDir),det);
+  theSiInduceChargeOnStrips->induce(theSiChargeCollectionDrifter->drift(ion,driftDir,moduleThickness,timeNormalisation),det,map);
 }
 
 LocalVector SiHitDigitizer::DriftDirection(const StripGeomDetUnit* _detp,GlobalVector _bfield,float langle){
@@ -79,18 +71,9 @@ LocalVector SiHitDigitizer::DriftDirection(const StripGeomDetUnit* _detp,GlobalV
   Frame detFrame(_detp->surface().position(),_detp->surface().rotation());
   LocalVector Bfield=detFrame.toLocal(_bfield);
 
-  if(langle==0.){
-  double thickness = _detp->specificSurface().bounds().thickness();
-
-  float mulow = chargeMobility*pow((temperature/300.),-2.5);
-  float vsat = holeSaturationVelocity*pow((temperature/300.),0.52);
-  float beta = holeBeta*pow((temperature/300.),0.17);
-
-  float e = appliedVoltage/thickness;
-  float mu = ( mulow/(pow(double((1+pow((mulow*e/vsat),beta))),1./beta)));
-  langle = 1.E-4 *mu*rhall;
-  }
-
+  if(langle==0.)
+    edm::LogError("StripDigiInfo")<< "ERROR: Lorentz angle = 0 for module "<<_detp->geographicalId().rawId();
+  
   float dir_x = -langle * Bfield.y();
   float dir_y = +langle * Bfield.x();
   float dir_z = 1.; // E field always in z direction

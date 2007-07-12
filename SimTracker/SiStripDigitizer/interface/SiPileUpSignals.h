@@ -1,8 +1,9 @@
 #ifndef Tracker_SiPileUpSignals_h
 #define Tracker_SiPileUpSignals_h
 
-#include "SimTracker/SiStripDigitizer/interface/SiHitDigitizer.h"
 #include <map>
+#include <vector>
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
  
 class SimHit;
 /**
@@ -23,14 +24,11 @@ class SiPileUpSignals{
   
  
   SiPileUpSignals(){reset();}
-  virtual void add(SiHitDigitizer::hit_map_type, const PSimHit& hit);
-  void reset(){resetLink();resetSignal();}
-  signal_map_type dumpSignal() {return theMap;}
+  virtual void add(const signal_map_type &map, const PSimHit& hit);
+  void reset(){resetLink(); }
   HitToDigisMapType dumpLink() {return theMapLink;}
  private:
   void resetLink();
-  void resetSignal();
   HitToDigisMapType theMapLink;
-  signal_map_type theMap;
 };
 #endif

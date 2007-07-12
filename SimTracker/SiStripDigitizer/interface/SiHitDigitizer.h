@@ -10,6 +10,7 @@
 #include "SimTracker/SiStripDigitizer/interface/SiChargeCollectionDrifter.h"
 #include "SimTracker/SiStripDigitizer/interface/SiChargeDivider.h"
 #include "SimTracker/SiStripDigitizer/interface/SiInduceChargeOnStrips.h"
+#include "SimTracker/SiStripDigitizer/interface/SiPileUpSignals.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
@@ -26,8 +27,7 @@ class SiStripDetType;
 class SiHitDigitizer{
  public:
 
-  typedef std::map< int, float, std::less<int> > hit_map_type;
-  SiHitDigitizer(const edm::ParameterSet& conf, const StripGeomDetUnit *det,CLHEP::HepRandomEngine&);
+  SiHitDigitizer(const edm::ParameterSet& conf,CLHEP::HepRandomEngine&);
 
   ~SiHitDigitizer();
 
@@ -46,7 +46,7 @@ class SiHitDigitizer{
   
   void setParticleDataTable(const ParticleDataTable * pdt);
 
-  hit_map_type processHit(const PSimHit&, const StripGeomDetUnit&, GlobalVector,float);
+  void processHit(const PSimHit&, const StripGeomDetUnit&, GlobalVector,float, SiPileUpSignals::signal_map_type &);
   
  private:
   SiChargeDivider* theSiChargeDivider;
@@ -59,9 +59,6 @@ class SiHitDigitizer{
   double appliedVoltage;
   double chargeMobility;
   double temperature;
-  double rhall;
-  double holeBeta;
-  double holeSaturationVelocity;
   bool noDiffusion;
   double chargeDistributionRMS;
   double gevperelectron;

@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.1 2007/05/10 08:51:53 fambrogl Exp $
+// $Id: SiStripDigitizer.cc,v 1.2 2007/05/10 16:20:34 gbruno Exp $
 //
 //
 
@@ -25,6 +25,7 @@
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 
 // user include files
@@ -39,7 +40,6 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-//#include <cstdlib> // I need it for random numbers
 
 //needed for the geometry:
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -54,11 +54,19 @@
 //needed for the magnetic field:
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+
+//Data Base infromations
 #include "CondFormats/DataRecord/interface/SiStripLorentzAngleRcd.h"
-#include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
 #include "CalibTracker/Records/interface/SiStripGainRcd.h"
+#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
+#include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
 
 //Random Number
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -67,11 +75,14 @@
 #include "CLHEP/Random/RandomEngine.h"
 
 SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf) : 
-  conf_(conf),SiStripNoiseService_(conf)
+  conf_(conf)
 {
-  std::string alias ( conf.getParameter<std::string>("@module_label") );
+  alias = conf.getParameter<std::string>("@module_label");
   produces<edm::DetSetVector<SiStripDigi> >().setBranchAlias( alias );
   produces<edm::DetSetVector<StripDigiSimLink> >().setBranchAlias ( alias + "siStripDigiSimLink");
+  produces<edm::DetSetVector<SiStripRawDigi> >("ScopeMode").setBranchAlias( alias + "ScopeMode");
+  produces<edm::DetSetVector<SiStripRawDigi> >("VirginRaw").setBranchAlias( alias + "VirginRaw");
+  produces<edm::DetSetVector<SiStripRawDigi> >("ProcessedRaw").setBranchAlias( alias + "ProcessedRaw");
   trackerContainers.clear();
   trackerContainers = conf.getParameter<std::vector<std::string> >("ROUList");
 
@@ -83,8 +94,8 @@ SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf) :
       "in the configuration file or remove the modules that require it.";
   }
   
-  rndEngine = &(rng->getEngine());
-  useGainFromDB_=conf_.getParameter<bool>("UseGainFromDB");
+  rndEngine       = &(rng->getEngine());
+  zeroSuppression = conf_.getParameter<bool>("ZeroSuppression");
 
 }
 
@@ -111,7 +122,7 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   for (isim=allTrackerHits->begin(); isim!= allTrackerHits->end();isim++) {
     SimHitMap[(*isim).detUnitId()].push_back((*isim));
   }
-  
+
   edm::ESHandle<TrackerGeometry> pDD;
   
   iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
@@ -119,19 +130,21 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   edm::ESHandle<MagneticField> pSetup;
   iSetup.get<IdealMagneticFieldRecord>().get(pSetup);
   
-  //Load Lorentz angle values
-  edm::ESHandle<SiStripLorentzAngle> SiStripLorentzAngle_;
-  if(conf_.getParameter<bool>("UseLACalibrationFromDB"))iSetup.get<SiStripLorentzAngleRcd>().get(SiStripLorentzAngle_);
-
-  //get gain correction ES handle
+  //get gain noise pedestal lorentzAngle from ES handle
+  edm::ESHandle<SiStripLorentzAngle> lorentzAngleHandle;
   edm::ESHandle<SiStripGain> gainHandle;
-  if(useGainFromDB_) iSetup.get<SiStripGainRcd>().get(gainHandle);
+  edm::ESHandle<SiStripNoises> noiseHandle;
+  edm::ESHandle<SiStripPedestals> pedestalsHandle;
+  iSetup.get<SiStripLorentzAngleRcd>().get(lorentzAngleHandle);
+  iSetup.get<SiStripGainRcd>().get(gainHandle);
+  iSetup.get<SiStripNoisesRcd>().get(noiseHandle);
+  iSetup.get<SiStripPedestalsRcd>().get(pedestalsHandle);
 
+  //Define the digitizer algorithm
+  SiStripDigitizerAlgorithm * theDigiAlgo = new SiStripDigitizerAlgorithm(conf_,(*rndEngine));
+  theDigiAlgo->setParticleDataTable(&*pdt);
 
-  SiStripNoiseService_.setESObjects(iSetup);
-  
   // Step B: LOOP on StripGeomDetUnit //
-  theAlgoMap.clear();
   theDigiVector.reserve(10000);
   theDigiVector.clear();
   
@@ -144,53 +157,66 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     
     StripGeomDetUnit* sgd = dynamic_cast<StripGeomDetUnit*>((*iu));
     if (sgd != 0){
-      edm::DetSet<SiStripDigi> collector((*iu)->geographicalId().rawId());
+      edm::DetSet<SiStripDigi> collectorZS((*iu)->geographicalId().rawId());
+      edm::DetSet<SiStripRawDigi> collectorRaw((*iu)->geographicalId().rawId());
       edm::DetSet<StripDigiSimLink> linkcollector((*iu)->geographicalId().rawId());
-      uint32_t idForNoise = (*iu)->geographicalId().rawId();
-      if(theAlgoMap.find(&(sgd->type())) == theAlgoMap.end()) {
-	theAlgoMap[&(sgd->type())] = boost::shared_ptr<SiStripDigitizerAlgorithm>(new SiStripDigitizerAlgorithm(conf_, sgd,
-														idForNoise,
-														&SiStripNoiseService_,
-														(*rndEngine)));
-      }
-
-      ((theAlgoMap.find(&(sgd->type())))->second)->setParticleDataTable(&*pdt);
-
-      float langle=0;
-      if(SiStripLorentzAngle_.isValid())langle=SiStripLorentzAngle_->getLorentzAngle((*iu)->geographicalId().rawId());
-
-//       //get gain values here
-//       SiStripApvGain::Range gainRange;
-//       if(useGainFromDB_ && gainHandle.isValid()) {
-// 	SiStripApvGain::Range detGainRange = gainHandle->getRange(idForNoise);
-
-// 	  }
-
-
-      collector.data= ((theAlgoMap.find(&(sgd->type())))->second)->run(SimHitMap[(*iu)->geographicalId().rawId()], sgd, bfield,langle, gainHandle);
       
-      if (collector.data.size()>0){
-	
-	theDigiVector.push_back(collector);
-	
-	//digisimlink
-	if(SimHitMap[(*iu)->geographicalId().rawId()].size()>0){
-	    linkcollector.data = ((theAlgoMap.find(&(sgd->type())))->second)->make_link();
-	    if (linkcollector.data.size()>0)   theDigiLinkVector.push_back(linkcollector);
+      float langle=0.;
+      if(lorentzAngleHandle.isValid())langle=lorentzAngleHandle->getLorentzAngle((*iu)->geographicalId().rawId());
+      theDigiAlgo->run(collectorZS,collectorRaw,SimHitMap[(*iu)->geographicalId().rawId()],sgd,bfield,langle,gainHandle,pedestalsHandle,noiseHandle);
+      
+      if(zeroSuppression){
+	if(collectorZS.data.size()>0){
+	  theDigiVector.push_back(collectorZS);
+	  if(SimHitMap[(*iu)->geographicalId().rawId()].size()>0){
+	    linkcollector.data = theDigiAlgo->make_link();
+	    if(linkcollector.data.size()>0)
+	      theDigiLinkVector.push_back(linkcollector);
+	  }
+	}
+      }else{
+	if(collectorRaw.data.size()>0){
+	  theRawDigiVector.push_back(collectorRaw);
+	  if(SimHitMap[(*iu)->geographicalId().rawId()].size()>0){
+	    linkcollector.data = theDigiAlgo->make_link();
+	    if(linkcollector.data.size()>0)
+	      theDigiLinkVector.push_back(linkcollector);
+	  }
 	}
       }
     }
   }
   
-  // Step C: create empty output collection
-  std::auto_ptr<edm::DetSetVector<SiStripDigi> > output(new edm::DetSetVector<SiStripDigi>(theDigiVector) );
-  std::auto_ptr<edm::DetSetVector<StripDigiSimLink> > outputlink(new edm::DetSetVector<StripDigiSimLink>(theDigiLinkVector) );
-  
-  
-  
-  // Step D: write output to file
-  iEvent.put(output);
-  iEvent.put(outputlink);
-  
-  
+
+  if(zeroSuppression){
+    // Step C: create output collection
+    std::auto_ptr<edm::DetSetVector<SiStripRawDigi> > output_virginraw(new edm::DetSetVector<SiStripRawDigi>());
+    std::auto_ptr<edm::DetSetVector<SiStripRawDigi> > output_scopemode(new edm::DetSetVector<SiStripRawDigi>());
+    std::auto_ptr<edm::DetSetVector<SiStripRawDigi> > output_processedraw(new edm::DetSetVector<SiStripRawDigi>());
+    std::auto_ptr<edm::DetSetVector<SiStripDigi> > output(new edm::DetSetVector<SiStripDigi>(theDigiVector) );
+    std::auto_ptr<edm::DetSetVector<StripDigiSimLink> > outputlink(new edm::DetSetVector<StripDigiSimLink>(theDigiLinkVector) );
+    
+    // Step D: write output to file
+    iEvent.put(output);
+    iEvent.put(outputlink);
+    iEvent.put(output_scopemode,"ScopeMode");
+    iEvent.put(output_virginraw,"VirginRaw");
+    iEvent.put(output_processedraw,"ProcessedRaw");
+  }else{
+    // Step C: create output collection
+    std::auto_ptr<edm::DetSetVector<SiStripRawDigi> > output_virginraw(new edm::DetSetVector<SiStripRawDigi>(theRawDigiVector));
+    std::auto_ptr<edm::DetSetVector<SiStripRawDigi> > output_scopemode(new edm::DetSetVector<SiStripRawDigi>());
+    std::auto_ptr<edm::DetSetVector<SiStripRawDigi> > output_processedraw(new edm::DetSetVector<SiStripRawDigi>());
+    std::auto_ptr<edm::DetSetVector<SiStripDigi> > output(new edm::DetSetVector<SiStripDigi>() );
+    std::auto_ptr<edm::DetSetVector<StripDigiSimLink> > outputlink(new edm::DetSetVector<StripDigiSimLink>(theDigiLinkVector) );
+    
+    // Step D: write output to file
+    iEvent.put(output);
+    iEvent.put(outputlink);
+    iEvent.put(output_scopemode,"ScopeMode");
+    iEvent.put(output_virginraw,"VirginRaw");
+    iEvent.put(output_processedraw,"ProcessedRaw");
+  }
+
+  delete theDigiAlgo;
 }

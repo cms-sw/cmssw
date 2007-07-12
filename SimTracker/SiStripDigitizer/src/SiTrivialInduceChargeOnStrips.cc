@@ -6,12 +6,17 @@
 
 SiTrivialInduceChargeOnStrips::SiTrivialInduceChargeOnStrips(const edm::ParameterSet& conf,double g):conf_(conf)
 {
-  coupling_costant = conf_.getParameter<std::vector<double> >("CouplingCostant");
+  peak = conf_.getParameter<bool>("APVpeakmode");
+  if(peak){
+    coupling_costant = conf_.getParameter<std::vector<double> >("CouplingCostantPeak");
+  }else{
+    coupling_costant = conf_.getParameter<std::vector<double> >("CouplingCostantDeco");
+  }
   clusterWidth = 3.; 
   geVperElectron = g;
 }
-
-SiInduceChargeOnStrips::hit_map_type SiTrivialInduceChargeOnStrips::induce(SiChargeCollectionDrifter::collection_type _collection_points, const StripGeomDetUnit& det){
+void SiTrivialInduceChargeOnStrips::induce(SiChargeCollectionDrifter::collection_type _collection_points, const StripGeomDetUnit& det, 
+					   SiPileUpSignals::signal_map_type &hit_signal){
   signalCoupling.clear();
   signalCoupling.push_back(coupling_costant[0]);
   signalCoupling.push_back(coupling_costant[1]);
@@ -23,8 +28,6 @@ SiInduceChargeOnStrips::hit_map_type SiTrivialInduceChargeOnStrips::induce(SiCha
   int stripLeft, stripRight;
   double upperBound, lowerBound;
     
-  hit_map_type hit_signal;
-  
     
   for (SiChargeCollectionDrifter::collection_type::const_iterator sp=_collection_points.begin();  sp != _collection_points.end(); sp++ ){
     float chargePosition = t.strip((*sp).position()); // charge in strip coord
@@ -77,5 +80,4 @@ SiInduceChargeOnStrips::hit_map_type SiTrivialInduceChargeOnStrips::induce(SiCha
       }
     } //loop on i
   } //loop on k
-  return hit_signal;
 }

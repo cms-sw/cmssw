@@ -8,18 +8,17 @@
 class SiTrivialDigitalConverter: public SiDigitalConverter{
  public:
 
-  SiTrivialDigitalConverter(float in,int fs);
+  SiTrivialDigitalConverter(float in);
   
-  DigitalMapType convert(const signal_map_type&,  edm::ESHandle<SiStripGain>& ,unsigned int detid);
-    
+  DigitalVecType    convert(const signal_map_type&,  edm::ESHandle<SiStripGain>& ,unsigned int);    
+  DigitalRawVecType convertRaw(const signal_map_type&,  edm::ESHandle<SiStripGain>& ,unsigned int);    
+
  private:
 
   int convert(float in){return truncate(in/electronperADC);}
   int truncate(float in_adc);
   
   float electronperADC;
-  int theMaxADC;
-  int adcBits;
 };
  
 #endif

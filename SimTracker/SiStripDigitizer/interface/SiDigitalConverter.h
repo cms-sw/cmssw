@@ -4,18 +4,21 @@
 #include "SimTracker/SiStripDigitizer/interface/SiPileUpSignals.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 /**
  * Base class for ADC simulation.
  */
 class SiDigitalConverter{
    
  public:
-   
-  typedef std::map< int, int, std::less<int> >         DigitalMapType;
+  typedef std::vector<SiStripDigi>         DigitalVecType;
+  typedef std::vector<SiStripRawDigi>      DigitalRawVecType;
   typedef SiPileUpSignals::signal_map_type   signal_map_type;
   
   virtual ~SiDigitalConverter() { }
-  virtual DigitalMapType convert(const signal_map_type &,  edm::ESHandle<SiStripGain>& ,unsigned int detid) = 0;
+  virtual DigitalVecType convert(const signal_map_type &,  edm::ESHandle<SiStripGain>& ,unsigned int detid) = 0;  
+  virtual DigitalRawVecType convertRaw(const signal_map_type &,  edm::ESHandle<SiStripGain>& ,unsigned int detid) = 0;  
 };
 
 #endif

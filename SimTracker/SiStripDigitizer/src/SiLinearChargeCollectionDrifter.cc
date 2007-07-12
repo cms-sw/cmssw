@@ -2,18 +2,14 @@
 
 
 
-SiLinearChargeCollectionDrifter::SiLinearChargeCollectionDrifter(double mt,
-  						     double tn,
-  						     double dc,
-  						     double tm,
-  						     double cdr,
-  						     double dv,
-  						     double av) {
+SiLinearChargeCollectionDrifter::SiLinearChargeCollectionDrifter(double dc,
+								 double tm,
+								 double cdr,
+								 double dv,
+								 double av){
   //
   // Everything which does not depend on the specific det
   //
-  moduleThickness = mt;
-  timeNormalisation = tn;
   diffusionConstant = dc;
   temperature = tm;
   chargeDistributionRMS = cdr;
@@ -21,16 +17,21 @@ SiLinearChargeCollectionDrifter::SiLinearChargeCollectionDrifter(double mt,
   appliedVoltage = av;
 }
 
-
 SiChargeCollectionDrifter::collection_type SiLinearChargeCollectionDrifter::drift(const SiChargeCollectionDrifter::ionization_type ion, 
-										  const LocalVector& driftDir){
+										  const LocalVector& driftDir,double mt, double tn){
+
+  moduleThickness = mt;
+  timeNormalisation = tn;
+  
   collection_type _temp;
   _temp.resize(ion.size());
   
   for (unsigned int i=0; i<ion.size(); i++){
     _temp[i] = drift(ion[i], driftDir);
   }
+  
   return _temp;
+
 }
 
 SignalPoint SiLinearChargeCollectionDrifter::drift

@@ -15,11 +15,10 @@ namespace CLHEP {
 
 class SiGaussianTailNoiseAdder : public SiNoiseAdder{
  public:
-  SiGaussianTailNoiseAdder(int,float,float,CLHEP::HepRandomEngine&);
+  SiGaussianTailNoiseAdder(float,CLHEP::HepRandomEngine&);
   ~SiGaussianTailNoiseAdder();
-  SiPileUpSignals::signal_map_type addNoise(SiPileUpSignals::signal_map_type);
-  void setNumStrips(int in){numStrips = in;}
-  void setThreshold(float in){threshold = in;}
+  void addNoise(SiPileUpSignals::signal_map_type &,int,float);
+  void createRaw(SiPileUpSignals::signal_map_type &,int,float);
  private:
   int numStrips;
   float noiseRMS;

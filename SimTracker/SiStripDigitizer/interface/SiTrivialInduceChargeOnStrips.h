@@ -18,10 +18,11 @@ class SiTrivialInduceChargeOnStrips: public SiInduceChargeOnStrips{
   
   SiTrivialInduceChargeOnStrips(const edm::ParameterSet& conf,double g);
   virtual ~SiTrivialInduceChargeOnStrips() {}
-  SiInduceChargeOnStrips::hit_map_type induce(SiChargeCollectionDrifter::collection_type, const StripGeomDetUnit&);
+  void induce(SiChargeCollectionDrifter::collection_type, const StripGeomDetUnit&, SiPileUpSignals::signal_map_type &);
 
  private:
   edm::ParameterSet conf_;
+  bool peak;
   double clusterWidth;
   std::vector<double> signalCoupling; 
   std::vector<double> coupling_costant;
