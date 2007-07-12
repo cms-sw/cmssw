@@ -50,7 +50,9 @@ Particle::LorentzVector TtDecaySubset::fourVector(const reco::Candidate& p)
       vec+=fourVector( *pd );
     }
     else{
-      if( abs(pd->pdgId())!=24 )
+      //skip W with status 2 to
+      //prevent double counting
+      if( abs(pd->pdgId())!=TtDecayID::WID )
 	vec+=pd->p4();
     }
   }
