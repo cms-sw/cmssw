@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Nov 25 17:44:19 EST 2005
-// $Id: SimTrackManager.cc,v 1.11 2007/05/21 14:36:34 fambrogl Exp $
+// $Id: SimTrackManager.cc,v 1.12 2007/06/08 09:33:11 fambrogl Exp $
 //
 
 // system include files
@@ -60,8 +60,7 @@ SimTrackManager::~SimTrackManager()
 //
 // member functions
 //
-void
-SimTrackManager::reset()
+void SimTrackManager::reset()
 {
     if (m_trksForThisEvent==0) m_trksForThisEvent = new TrackContainer();
     else
@@ -73,10 +72,10 @@ SimTrackManager::reset()
     }
     cleanVertexMap();
     cleanTkCaloStateInfoMap();
+    idsave.clear();
 }
 
-void
-SimTrackManager::deleteTracks()
+void SimTrackManager::deleteTracks()
 {
     for (unsigned int i = 0; i < m_trksForThisEvent->size(); i++) delete (*m_trksForThisEvent)[i];
     delete m_trksForThisEvent;
@@ -135,10 +134,12 @@ void SimTrackManager::storeTracks(G4SimEvent* simEvent)
     unsigned int num = 0;
     for (unsigned int it = 0;  it < (*m_trksForThisEvent).size(); it++)
       {
+	int g4ID = (*m_trksForThisEvent)[it]->trackID();
 	if ((*m_trksForThisEvent)[it]->saved() == true)
 	  {
 	    if (it>num) (*m_trksForThisEvent)[num] = (*m_trksForThisEvent)[it];
 	    num++;
+	    idsave[g4ID] = g4ID;
 	  }
 	else 
 	  {	
@@ -240,3 +241,17 @@ int SimTrackManager::getOrCreateVertex(TrackWithHistory * trkH, int iParentID,
 void SimTrackManager::cleanVertexMap() { m_vertexMap.clear(); m_nVertices=0; }
 
 void SimTrackManager::cleanTkCaloStateInfoMap() { mapTkCaloStateInfo.clear(); }
+
+int SimTrackManager::idSavedTrack (int i) const
+{
+
+    int id = 0;  
+    if (i > 0) {
+      std::map<int,int>::const_iterator it = idsave.find(i);
+      if (it != idsave.end()) {
+	if ((*it).second != i) return idSavedTrack((*it).second);
+	id = i;
+      }
+    }
+    return id;
+}

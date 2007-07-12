@@ -65,9 +65,9 @@ void EventAction::EndOfEventAction(const G4Event * anEvent)
 
 }
 
-void EventAction::addTrack(TrackWithHistory* iTrack)
+void EventAction::addTrack(TrackWithHistory* iTrack, bool inHistory)
 {
-  m_trackManager->addTrack(iTrack);
+  m_trackManager->addTrack(iTrack, inHistory);
 }
 
 void EventAction::addTkCaloStateInfo(uint32_t t,std::pair<Hep3Vector,HepLorentzVector> p)

@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Fri Nov 25 17:36:41 EST 2005
-// $Id: SimTrackManager.h,v 1.4 2006/11/13 09:03:56 fambrogl Exp $
+// $Id: SimTrackManager.h,v 1.5 2007/01/23 13:40:33 fambrogl Exp $
 //
 
 // system include files
@@ -61,8 +61,9 @@ class SimTrackManager
       void deleteTracks();
       void cleanTkCaloStateInfoMap();
 
-      void addTrack(TrackWithHistory* iTrack) {
-	m_trksForThisEvent->push_back(iTrack);
+      void addTrack(TrackWithHistory* iTrack, bool inHistory) {
+	idsave[iTrack->trackID()] = iTrack->parentID();
+	if (inHistory) m_trksForThisEvent->push_back(iTrack);
       }
 
       void addTkCaloStateInfo(uint32_t t,std::pair<Hep3Vector,HepLorentzVector> p){
@@ -74,6 +75,7 @@ class SimTrackManager
       void setCollapsePrimaryVertices(bool iSet) {
 	m_collapsePrimaryVertices=iSet;
       }
+      int idSavedTrack (int) const;
    private:
       SimTrackManager(const SimTrackManager&); // stop default
 
@@ -91,6 +93,7 @@ class SimTrackManager
       int m_nVertices;
       bool m_collapsePrimaryVertices;
       std::map<uint32_t,std::pair<Hep3Vector,HepLorentzVector > > mapTkCaloStateInfo;
+      std::map<int, int> idsave;
 };
 
 

@@ -36,7 +36,7 @@ public:
     const TrackContainer * trackContainer() const { 
       return m_trackManager->trackContainer();
     }
-    void addTrack(TrackWithHistory* iTrack);
+    void addTrack(TrackWithHistory* iTrack, bool );
     void addTkCaloStateInfo(uint32_t t,std::pair<Hep3Vector,HepLorentzVector> p); 
 
     SimActivityRegistry::BeginOfEventSignal m_beginOfEventSignal;
