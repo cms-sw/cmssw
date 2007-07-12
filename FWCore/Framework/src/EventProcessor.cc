@@ -694,6 +694,10 @@ namespace edm {
   EventHelperDescription
   EventProcessor::runOnce(boost::shared_ptr<LuminosityBlockPrincipal> lbp)
   {
+    //REMAINING BUG:
+    // if pass in null lbp will generate run/lumi for each new event!
+    // if pass in real lbp we will only process the first run/lumi!
+    
     try {
        // Job should be in sJobReady state, then we send mRunCount message and move job sRunning state
        if(state_ == sJobReady) {
@@ -725,9 +729,6 @@ namespace edm {
       }
     }
 
-    // Dummy value for now, for runs and lumis.
-    IOVSyncValue tsDummy(EventID(1,1), Timestamp::beginOfTime());
-    EventSetup const& esDummy = esp_->eventSetupForInstance(tsDummy);
 
     if (lbp.get() == 0) {
       boost::shared_ptr<RunPrincipal> rp;
@@ -736,8 +737,10 @@ namespace edm {
         rp = input_->readRun();
       }
       if(rp.get() != 0) {
-        schedule_->runOneEvent(*rp, esDummy, BranchActionBegin);
-        boost::shared_ptr<LuminosityBlockPrincipal> lbp;
+        // Run principal needs a timestamp!
+        IOVSyncValue ts(EventID(rp->run(),0), Timestamp::invalidTimestamp());
+        EventSetup const& es = esp_->eventSetupForInstance(ts);
+        schedule_->runOneEvent(*rp, es, BranchActionBegin);
         {
           CallPrePost holder(*actReg_);
           lbp = input_->readLuminosityBlock(rp);
@@ -748,7 +751,11 @@ namespace edm {
         toerror.succeeded();
         return evtDesc;
       }
-      schedule_->runOneEvent(*lbp, esDummy, BranchActionBegin);
+      std::cout <<"found lumi"<<std::endl;
+      //NOTE: need lumiblock #
+      IOVSyncValue ts(EventID(lbp->runNumber(),0), Timestamp::invalidTimestamp());
+      EventSetup const& es = esp_->eventSetupForInstance(ts);
+      schedule_->runOneEvent(*lbp, es, BranchActionBegin);
     }
 
     std::auto_ptr<EventPrincipal> pep;
@@ -762,12 +769,14 @@ namespace edm {
         CallPrePost holder(*actReg_);
         input_->doFinishLumi(*lbp);
       }
-      schedule_->runOneEvent(*lbp, esDummy, BranchActionEnd);
+      IOVSyncValue ts(EventID(lbp->runNumber(),EventID::maxEventNumber()), Timestamp::invalidTimestamp());
+      EventSetup const& es = esp_->eventSetupForInstance(ts);
+      schedule_->runOneEvent(*lbp, es, BranchActionEnd);
       {
         CallPrePost holder(*actReg_);
         input_->doFinishRun(lbp->runPrincipal());
       }
-      schedule_->runOneEvent(lbp->runPrincipal(), esDummy, BranchActionEnd);
+      schedule_->runOneEvent(lbp->runPrincipal(), es, BranchActionEnd);
       changeState(mInputExhausted);
       toerror.succeeded();
       return evtDesc;
@@ -846,8 +855,8 @@ namespace edm {
     bool got_sig = false;
     StatusCode rc = epSuccess;
 
-    // Dummy value for now, for runs and lumis.
-    IOVSyncValue tsDummy(EventID(1,1), Timestamp::beginOfTime());
+    // Just use the Run's # for now
+    IOVSyncValue tsDummy(EventID(rp->run(),0), Timestamp::invalidTimestamp());
     EventSetup const& esDummy = esp_->eventSetupForInstance(tsDummy);
 
     while(state_ == sRunning) {
@@ -873,6 +882,9 @@ namespace edm {
 	break;
       }
 
+      //Should add a timestamp to Lumis and IOVSyncValue should know about Lumi #s
+      //IOVSyncValue tsDummy(EventID(rp->run(),0), Timestamp::invalidTimestamp());
+      //EventSetup const& esDummy = esp_->eventSetupForInstance(tsDummy);
       schedule_->runOneEvent(*lbp, esDummy, BranchActionBegin);
       rc = processEvents(numberEventsToProcess, lbp);
       {
@@ -906,10 +918,6 @@ namespace edm {
     bool got_sig = false;
     StatusCode rc = epSuccess;
 
-    // Dummy value for now, for runs and lumis.
-    IOVSyncValue tsDummy(EventID(1,1), Timestamp::beginOfTime());
-    EventSetup const& esDummy = esp_->eventSetupForInstance(tsDummy);
-
     while(state_ == sRunning) {
 
 //  Lay on a lock
@@ -935,13 +943,22 @@ namespace edm {
 	continue;
       }
 
-      schedule_->runOneEvent(*rp, esDummy, BranchActionBegin);
-      rc = processLumis(numberEventsToProcess, rp);
+      //Run needs to have an associated timestamp
+      {
+        IOVSyncValue ts(EventID(rp->run(),0), Timestamp::invalidTimestamp());
+        EventSetup const& es = esp_->eventSetupForInstance(ts);
+        schedule_->runOneEvent(*rp, es, BranchActionBegin);
+        rc = processLumis(numberEventsToProcess, rp);
+      }
       {
         CallPrePost holder(*actReg_);
         input_->doFinishRun(*rp);
       }
-      schedule_->runOneEvent(*rp, esDummy, BranchActionEnd);
+      {
+        IOVSyncValue ts(EventID(rp->run(),EventID::maxEventNumber()), Timestamp::invalidTimestamp());
+        EventSetup const& es = esp_->eventSetupForInstance(ts);      
+        schedule_->runOneEvent(*rp, es, BranchActionEnd);
+      }
     }
 
     // check once more for shutdown signal
