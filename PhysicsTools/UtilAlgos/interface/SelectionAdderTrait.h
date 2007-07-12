@@ -6,6 +6,7 @@
  */
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/Common/interface/RefToBaseVector.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include <boost/static_assert.hpp>
 
@@ -61,7 +62,7 @@ namespace helper {
 
   template<typename T>
   struct SelectionRefViewAdder {
-    void operator()( std::vector<edm::RefToBase<T> > & selected, const edm::Handle<edm::View<T> > & c, size_t idx ) {
+    void operator()( edm::RefToBaseVector<T> & selected, const edm::Handle<edm::View<T> > & c, size_t idx ) {
       selected.push_back( c->refAt( idx ) );
     }
   };
@@ -97,12 +98,12 @@ namespace helper {
   };
 
   template<typename T>
-  struct SelectionAdderTrait<std::vector<edm::RefToBase<T> >, std::vector<edm::RefToBase<T> > > {
-    typedef SelectionCopyAdder<std::vector<edm::RefToBase<T> > > type;
+  struct SelectionAdderTrait<edm::RefToBaseVector<T>, edm::RefToBaseVector<T> > {
+    typedef SelectionCopyAdder<edm::RefToBaseVector<T> > type;
   };
 
   template<typename T>
-  struct SelectionAdderTrait<std::vector<edm::RefToBase<T> >, std::vector<const T *> > {
+  struct SelectionAdderTrait<edm::RefToBaseVector<T>, std::vector<const T *> > {
     typedef SelectionPointerDerefAdder<std::vector<const T *> > type;
   };
 
@@ -112,7 +113,7 @@ namespace helper {
   };
 
   template<typename T>
-  struct SelectionAdderTrait<edm::View<T>, std::vector<edm::RefToBase<T> > > {
+  struct SelectionAdderTrait<edm::View<T>, edm::RefToBaseVector<T> > {
     typedef SelectionRefViewAdder<T> type;
   };
 

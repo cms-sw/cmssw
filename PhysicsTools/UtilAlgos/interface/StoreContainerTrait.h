@@ -5,6 +5,7 @@
  * \author Luca Lista, INFN
  */
 #include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/Common/interface/RefToBaseVector.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
 
 namespace helper {
@@ -19,8 +20,8 @@ namespace helper {
   };
 
   template<typename T>
-  struct StoreContainerTrait<std::vector<edm::RefToBase<T> > > {
-    typedef std::vector<edm::RefToBase<T> > type;
+  struct StoreContainerTrait<edm::RefToBaseVector<T> > {
+    typedef edm::RefToBaseVector<T> type;
   };
 
   template<typename R, typename C>

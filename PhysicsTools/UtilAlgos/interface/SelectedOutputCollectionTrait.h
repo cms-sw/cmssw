@@ -7,8 +7,9 @@
  */
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/Common/interface/RefToBaseVector.h"
 #include "DataFormats/Common/interface/RefVector.h"
-#include "FWCore/Framework/interface/View.h"
+#include "DataFormats/Common/interface/View.h"
 
 namespace helper {
 
@@ -24,12 +25,12 @@ namespace helper {
 
   template<typename T>
   struct SelectedOutputCollectionTrait<edm::View<T> > {
-    typedef typename std::vector<edm::RefToBase<T> > type;
+    typedef typename edm::RefToBaseVector<T> type;
   };
 
   template<typename T>
-  struct SelectedOutputCollectionTrait<std::vector<edm::RefToBase<T> > > {
-    typedef typename std::vector<edm::RefToBase<T> > type;
+  struct SelectedOutputCollectionTrait<edm::RefToBaseVector<T> > {
+    typedef typename edm::RefToBaseVector<T> type;
   };
 
   template<typename C>

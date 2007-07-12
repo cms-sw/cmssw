@@ -21,7 +21,7 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 typedef SingleObjectSelector<
-          std::vector<edm::RefToBase<reco::Candidate> >,
+          reco::CandidateBaseRefVector,
           RefSelector<PtMinSelector>,
           reco::CandidateCollection
         > PtMinCandRefToBaseCloneSelector;

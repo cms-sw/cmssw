@@ -15,7 +15,7 @@
  *
  */
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/View.h"
+#include "DataFormats/Common/interface/View.h"
 #include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/PtMinSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/EtaRangeSelector.h"
