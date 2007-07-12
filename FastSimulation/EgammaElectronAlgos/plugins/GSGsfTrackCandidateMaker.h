@@ -41,6 +41,10 @@ class GSGsfTrackCandidateMaker : public edm::EDProducer
   
   std::string seedProducer; 
   std::string seedLabel; 
+  bool rejectOverlaps;
+  double ptCut;
+  unsigned int minimumNumberOfHits;
+
 
 };
 
