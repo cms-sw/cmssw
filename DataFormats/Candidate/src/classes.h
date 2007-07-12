@@ -1,11 +1,9 @@
-#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/Candidate/interface/CompositeRefCandidate.h"
 #include "DataFormats/Candidate/interface/CompositeRefBaseCandidate.h"
 #include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "DataFormats/Candidate/interface/CandMatchMapMany.h"
@@ -22,12 +20,15 @@ namespace {
     reco::CandidateBaseRef r2;
     edm::reftobase::IndirectHolder<reco::Candidate> rbih1;
     edm::reftobase::RefHolder<reco::CandidateRef> rh1;
+    edm::reftobase::IndirectVectorHolder<reco::Candidate> rbih2;
+    edm::reftobase::RefVectorHolder<reco::CandidateRefVector> rh2;
+    edm::reftobase::Holder<reco::Candidate, reco::CandidateRef> rhcr1;
+    edm::reftobase::VectorHolder<reco::Candidate, reco::CandidateRefVector> rhcr2;
     edm::Wrapper<reco::CandidateRefVector> wrv1;
     edm::Wrapper<reco::CandidateBaseRefVector> wrv2;
     reco::CandidateRefProd rp1;
+    reco::CandidateBaseRefProd rp2;
     std::vector<edm::RefToBase<reco::Candidate> > vrb1;
-    edm::reftobase::Holder<reco::Candidate, reco::CandidateRef> rhcr1;
-    edm::reftobase::VectorHolder<reco::Candidate, reco::CandidateRefVector> rhcr2;
     edm::Wrapper<reco::CandFloatAssociations> wav1;
     edm::Wrapper<reco::CandDoubleAssociations> wav2;
     edm::Wrapper<reco::CandIntAssociations> wav3;
