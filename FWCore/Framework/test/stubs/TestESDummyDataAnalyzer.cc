@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec 22 11:02:00 EST 2005
-// $Id: TestESDummyDataAnalyzer.cc,v 1.4 2006/10/21 17:18:57 wmtan Exp $
+// $Id: TestESDummyDataAnalyzer.cc,v 1.5 2007/07/12 16:31:30 chrjones Exp $
 //
 //
 
@@ -47,7 +47,7 @@ class TestESDummyDataAnalyzer : public edm::EDAnalyzer {
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
    private:
-         virtual void beginJob(const edm::EventSetup&) ;
+         virtual void endJob();
          int m_expectedValue;
          int m_nEventsValue;
          int m_counter;
@@ -119,7 +119,7 @@ TestESDummyDataAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetu
 }
 
 void 
-TestESDummyDataAnalyzer::beginJob(const edm::EventSetup&)
+TestESDummyDataAnalyzer::endJob()
 {
   if (-1 != m_totalNEvents &&
       m_totalNEvents != m_totalCounter) {
