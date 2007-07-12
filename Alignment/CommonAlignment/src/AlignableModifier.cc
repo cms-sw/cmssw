@@ -171,7 +171,7 @@ bool AlignableModifier::modify( Alignable* alignable, const edm::ParameterSet& p
   if ( setError_ )
 	{
 	  // Alignment Position Error for flat distribution: 1 sigma
-	  if ( !gaussian_ ) scaleError_ *= 0.68;
+	  if ( !gaussian_ ) scaleError_ *= 0.577;
 
 	  // Add scale to error
 	  scaleError_ *= scale_;
