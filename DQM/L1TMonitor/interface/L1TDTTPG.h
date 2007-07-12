@@ -4,8 +4,8 @@
 /*
  * \file L1TDTTPG.h
  *
- * $Date: 2007/02/21 22:10:30 $
- * $Revision: 1.3 $
+ * $Date: 2007/02/22 19:43:52 $
+ * $Revision: 1.4 $
  * \author J. Berryhill
  *
 */
@@ -23,19 +23,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+
+
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhDigi.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThDigi.h"
-
-#include <iostream>
-#include <fstream>
-#include <vector>
 
 //
 // class decleration
@@ -83,6 +73,11 @@ private:
   MonitorElement* dttpgththeta;  
   MonitorElement* dttpgthquality;    
   MonitorElement* dttpgthntrack;  
+
+  MonitorElement *dttf_p_phi;
+  MonitorElement *dttf_p_pt ;
+  MonitorElement *dttf_p_q;
+  MonitorElement *dttf_p_qual;
 
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput
