@@ -3,26 +3,34 @@
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "TrackingTools/MaterialEffects/interface/CombinedMaterialEffectsUpdator.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
+#include "TrackPropagation/RungeKutta/interface/RKTestPropagator.h"
 #include <string>
 
 using namespace std;
 PropagatorWithMaterial::PropagatorWithMaterial (PropagationDirection dir,
 						const float mass, 
 						const MagneticField * mf,
-						const float maxDPhi) :
+						const float maxDPhi,
+						bool useRungeKutta) :
   Propagator(dir),
-  theGeometricalPropagator(new AnalyticalPropagator(mf,dir,maxDPhi)),
+  theGeometricalPropagator(),
   theMEUpdator(new CombinedMaterialEffectsUpdator(mass)),
-  theMaterialLocation(atDestination), field(mf) {}
+  theMaterialLocation(atDestination), field(mf),useRungeKutta_(useRungeKutta) {
+  
+  if(useRungeKutta_)    
+    theGeometricalPropagator = DeepCopyPointerByClone<Propagator>(new RKTestPropagator(mf,dir));
+  else theGeometricalPropagator = DeepCopyPointerByClone<Propagator>(new AnalyticalPropagator(mf,dir,maxDPhi));
+   
+}
 
 PropagatorWithMaterial::PropagatorWithMaterial (const Propagator& aPropagator,
 						const MaterialEffectsUpdator& aMEUpdator,
-						const MagneticField * mf) :
+						const MagneticField * mf,
+						bool useRungeKutta) :
   Propagator(aPropagator.propagationDirection()),
   theGeometricalPropagator(aPropagator.clone()),
   theMEUpdator(aMEUpdator.clone()),
-  theMaterialLocation(atDestination), field(mf) {}
+  theMaterialLocation(atDestination), field(mf),useRungeKutta_(useRungeKutta) {}
 
 pair<TrajectoryStateOnSurface,double> 
 PropagatorWithMaterial::propagateWithPath (const FreeTrajectoryState& fts, 

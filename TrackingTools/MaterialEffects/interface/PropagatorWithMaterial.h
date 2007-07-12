@@ -12,8 +12,8 @@
  *  only be included when propagating from a TrajectoryStateOnSurface.
  *  Ported from ORCA.
  *
- *  $Date: 2007/05/09 13:21:30 $
- *  $Revision: 1.7.2.1 $
+ *  $Date: 2007/05/09 14:11:35 $
+ *  $Revision: 1.8 $
  *  \author todorov, cerati
  */
 
@@ -32,11 +32,14 @@ public:
    *  (e.g. loopers), this cut can be loosened.
    */
   PropagatorWithMaterial (PropagationDirection dir, const float mass,  
-			  const MagneticField * mf=0,const float maxDPhi=1.6);
+			  const MagneticField * mf=0,const float maxDPhi=1.6,
+			  bool useRungeKutta=false);
   /** Constructor with explicit propagator and material effects objects.
    */
   PropagatorWithMaterial(const Propagator& Propagator,
-			 const MaterialEffectsUpdator& MEUpdator,  const MagneticField * mf=0);
+			 const MaterialEffectsUpdator& MEUpdator,
+			 const MagneticField * mf=0,
+			 bool useRungeKutta=false);
 
   ~PropagatorWithMaterial() {}
 
@@ -127,12 +130,15 @@ private:
 private:
   // Geometrical propagator
   DeepCopyPointerByClone<Propagator> theGeometricalPropagator;
+
+
   // Material effects
   DeepCopyPointerByClone<MaterialEffectsUpdator> theMEUpdator;
   typedef std::pair<TrajectoryStateOnSurface,double> TsosWP;
   // Use material at source?
   MaterialLocation theMaterialLocation;
   const MagneticField * field;
+  bool useRungeKutta_;
 };
 
 #endif
