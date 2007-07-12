@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck, Steven Lowette
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopElectronProducer.cc,v 1.9 2007/06/29 12:31:40 jlamb Exp $
+// $Id: TopElectronProducer.cc,v 1.10 2007/07/06 00:18:03 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopElectronProducer.h"
@@ -30,6 +30,7 @@ TopElectronProducer::TopElectronProducer(const edm::ParameterSet & iConfig) {
   // initialize the configurables
   electronSrc_      = iConfig.getParameter<edm::InputTag>("electronSource");
   doGenMatch_       = iConfig.getParameter<bool>         ("doGenMatch");
+  removeEleDupes_   = iConfig.getParameter<bool>         ("removeDuplicates");
   addResolutions_   = iConfig.getParameter<bool>         ("addResolutions");
   doIsolation_      = iConfig.getParameter<bool>         ("doIsolation");
   addLRValues_      = iConfig.getParameter<bool>         ("addLRValues");
@@ -62,7 +63,7 @@ void TopElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   std::vector<TopElectronType> electrons = *electronsHandle;
 
   //remove any duplicate electrons that might be in the event
-  electrons = removeEleDupes(electrons);
+  if (removeEleDupes_) electrons = removeEleDupes(electrons);
 
   // Get the vector of generated particles from the event if needed
   edm::Handle<reco::CandidateCollection> particles;

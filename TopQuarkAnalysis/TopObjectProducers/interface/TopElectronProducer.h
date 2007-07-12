@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck, Steven Lowette
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopElectronProducer.h,v 1.6 2007/06/23 07:25:12 lowette Exp $
+// $Id: TopElectronProducer.h,v 1.7 2007/07/06 00:18:04 lowette Exp $
 //
 
 #ifndef TopObjectProducers_TopElectronProducer_h
@@ -17,7 +17,7 @@
    and calculation of a lepton likelihood ratio
 
   \author   Jan Heyninck, Steven Lowette
-  \version  $Id: TopElectronProducer.h,v 1.6 2007/06/23 07:25:12 lowette Exp $
+  \version  $Id: TopElectronProducer.h,v 1.7 2007/07/06 00:18:04 lowette Exp $
 */
 
 
@@ -55,6 +55,7 @@ class TopElectronProducer : public edm::EDProducer {
     // configurables
     edm::InputTag  electronSrc_;
     bool           doGenMatch_;
+    bool           removeEleDupes_;
     bool           addResolutions_;
     bool           doIsolation_;
     bool           addLRValues_;
