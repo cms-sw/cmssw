@@ -679,7 +679,7 @@
 
   <xsd:attributeGroup name="ContainerAttributes">
     <xsd:attribute name="name" use="required" type="xsd:string"/>
-    <xsd:attribute name="nEntries" use="required" type="xsd:positiveInteger"/>
+    <xsd:attribute name="nEntries" use="required" type="xsd:string"/>
     <xsd:attribute name="type" default="numeric" use="optional">
       <xsd:simpleType>
         <xsd:restriction base="xsd:string">
@@ -717,10 +717,27 @@
     </xsd:annotation>
     <xsd:complexContent>
       <xsd:extension base="SolidType">
+        <xsd:choice>
           <xsd:sequence>
               <xsd:element ref="rSolid" minOccurs="0" maxOccurs="2"/>
               <xsd:group ref="TROptions" minOccurs="0" maxOccurs="2"/>
           </xsd:sequence>
+          <xsd:sequence>
+              <xsd:element ref="rSolid" minOccurs="0" maxOccurs="1"/>
+              <xsd:group ref="TROptions" minOccurs="0" maxOccurs="2"/>
+              <xsd:element ref="rSolid" minOccurs="0" maxOccurs="1"/>
+          </xsd:sequence>
+          <xsd:sequence>
+              <xsd:element ref="rSolid" minOccurs="0" maxOccurs="1"/>
+              <xsd:group ref="TROptions" minOccurs="0" maxOccurs="1"/>
+              <xsd:element ref="rSolid" minOccurs="0" maxOccurs="1"/>
+              <xsd:group ref="TROptions" minOccurs="0" maxOccurs="1"/>
+          </xsd:sequence>
+          <xsd:sequence>
+              <xsd:group ref="TROptions" minOccurs="0" maxOccurs="2"/>
+              <xsd:element ref="rSolid" minOccurs="0" maxOccurs="2"/>
+          </xsd:sequence>
+         </xsd:choice>
          <xsd:attributeGroup ref="BooleanSolidAttributes"/>
       </xsd:extension>
     </xsd:complexContent>
@@ -1242,15 +1259,15 @@
 
     <xsd:choice>
       <xsd:sequence>
-        <xsd:choice>
           <xsd:group ref="PCOptions"/>
-        </xsd:choice>
-        <xsd:choice minOccurs="0">
-          <xsd:group ref="RotationOptions"/>
-        </xsd:choice>
-        <xsd:element ref="Translation" minOccurs="0"/>
+          <xsd:group ref="RotationOptions" minOccurs="0" maxOccurs="1"/>
+        <xsd:element ref="Translation" minOccurs="0" maxOccurs="1"/>
       </xsd:sequence>
 
+      <xsd:sequence>
+          <xsd:group ref="PCOptions"/>
+          <xsd:group ref="TROptions" minOccurs="0" maxOccurs="2"/>
+      </xsd:sequence>
 
       <xsd:sequence> 
         <xsd:element ref="Translation" minOccurs="1"/> <!-- TPRC -->
@@ -1342,6 +1359,7 @@
 <!-- Types -->
 
 <xsd:complexType name="SpecParType">
+  <xsd:choice>
   <xsd:sequence>
     <xsd:element ref="PartSelector" minOccurs="1" maxOccurs="unbounded"/>
     <xsd:choice minOccurs="0" maxOccurs="unbounded">
@@ -1352,6 +1370,17 @@
       <xsd:element ref="Map"/>
     </xsd:choice>
   </xsd:sequence>
+  <xsd:sequence>
+    <xsd:choice minOccurs="0" maxOccurs="unbounded">
+      <xsd:element ref="Parameter"/>
+      <xsd:element ref="String"/>
+      <xsd:element ref="Numeric"/>
+      <xsd:element ref="Vector"/>
+      <xsd:element ref="Map"/>
+    </xsd:choice>
+    <xsd:element ref="PartSelector" minOccurs="1" maxOccurs="unbounded"/>
+  </xsd:sequence>
+  </xsd:choice>
   <xsd:attributeGroup ref="SpecParAttributes"/>
 </xsd:complexType>
 
