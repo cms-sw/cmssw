@@ -293,8 +293,12 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
       // were saved (probably due to cuts on E, pT and eta)
       //  if ( part.PDGcTau() > 0.1 || endVertex.find(trackId) != endVertex.end() ) 
 	myTracks[trackId] = addSimTrack(&part,myVertices[vertexId],track.genpartIndex());
+	(*theSimTracks)[ myTracks[trackId] ].setTkPosition(track.trackerSurfacePosition());
+	(*theSimTracks)[ myTracks[trackId] ].setTkMomentum(track.trackerSurfaceMomentum());
     } else {
       myTracks[trackId] = myTracks[motherId];
+      (*theSimTracks)[ myTracks[trackId] ].setTkPosition(track.trackerSurfacePosition());
+      (*theSimTracks)[ myTracks[trackId] ].setTkMomentum(track.trackerSurfaceMomentum());
     }
     
   }
@@ -335,58 +339,56 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
   BaseParticlePropagator myPart;
   XYZTLorentzVector mom;
   XYZTLorentzVector pos;
-  double enele, enegam;
 
   // Loop over the tracks
   for( int fsimi=0; fsimi < (int)nTracks() ; ++fsimi) {
 
+    
     FSimTrack& myTrack = track(fsimi);
-    mom = myTrack.momentum();
-    enele = mom.e();
-    // Special treatment for electrons to account for bremstrahlung photons
-    if ( abs(myTrack.type()) == 11 && myTrack.nDaughters() > 0 ) { 
-      for ( int idaugh=0; idaugh<myTrack.nDaughters(); ++idaugh ) {
-	// Subtract photon energy
-	enegam = myTrack.daughter(idaugh).momentum().e();
-	enele -= enegam;
-	// Give the proper direction (assuming collinear emission)
-	mom = myTrack.daughter(idaugh).momentum()*enele/enegam;
-	//	mom -= myTrack.daughter(idaugh).momentum();
-	pos =  myTrack.daughter(idaugh).vertex().position();
-      }
-    } else {
-      pos = myTrack.vertex().position();
+    double trackerSurfaceTime = myTrack.vertex().position().t() 
+                              + myTrack.momentum().e()/myTrack.momentum().pz()
+                              * ( myTrack.trackerSurfacePosition().z()
+				- myTrack.vertex().position().z() );
+    pos = XYZTLorentzVector(myTrack.trackerSurfacePosition().x(),
+			    myTrack.trackerSurfacePosition().y(),
+			    myTrack.trackerSurfacePosition().z(),
+			            trackerSurfaceTime);
+    mom = XYZTLorentzVector(myTrack.trackerSurfaceMomentum().x(),
+			    myTrack.trackerSurfaceMomentum().y(),
+			    myTrack.trackerSurfaceMomentum().z(),
+			    myTrack.trackerSurfaceMomentum().t());
+
+    if ( mom.T() >  0. ) {  
+      // The particle to be propagated
+      myPart = BaseParticlePropagator(RawParticle(mom,pos),0.,0.,4.);
+      myPart.setCharge(myTrack.charge());
+      
+      // Propagate to Preshower layer 1
+      myPart.propagateToPreshowerLayer1(false);
+      if ( myTrack.notYetToEndVertex(myPart.vertex()) && myPart.getSuccess()>0 )
+	myTrack.setLayer1(myPart,myPart.getSuccess());
+      
+      // Propagate to Preshower Layer 2 
+      myPart.propagateToPreshowerLayer2(false);
+      if ( myTrack.notYetToEndVertex(myPart.vertex()) && myPart.getSuccess()>0 )
+	myTrack.setLayer2(myPart,myPart.getSuccess());
+      
+      // Propagate to Ecal Endcap
+      myPart.propagateToEcalEntrance(false);
+      if ( myTrack.notYetToEndVertex(myPart.vertex()) )
+	myTrack.setEcal(myPart,myPart.getSuccess());
+      
+      // Propagate to HCAL entrance
+      myPart.propagateToHcalEntrance(false);
+      if ( myTrack.notYetToEndVertex(myPart.vertex()) )
+	myTrack.setHcal(myPart,myPart.getSuccess());
+      
+      // Propagate to VFCAL entrance
+      myPart.propagateToVFcalEntrance(false);
+      if ( myTrack.notYetToEndVertex(myPart.vertex()) )
+	myTrack.setVFcal(myPart,myPart.getSuccess());
     }
-
-    // The particle to be propagated
-    myPart = BaseParticlePropagator(RawParticle(mom,pos),0.,0.,4.);
-    myPart.setCharge(myTrack.charge());
-
-    // Propagate to Preshower layer 1
-    myPart.propagateToPreshowerLayer1(false);
-    if ( myTrack.notYetToEndVertex(myPart.vertex()) && myPart.getSuccess()>0 )
-    myTrack.setLayer1(myPart,myPart.getSuccess());
-  
-    // Propagate to Preshower Layer 2 
-    myPart.propagateToPreshowerLayer2(false);
-    if ( myTrack.notYetToEndVertex(myPart.vertex()) && myPart.getSuccess()>0 )
-    myTrack.setLayer2(myPart,myPart.getSuccess());
-
-    // Propagate to Ecal Endcap
-    myPart.propagateToEcalEntrance(false);
-    if ( myTrack.notYetToEndVertex(myPart.vertex()) )
-      myTrack.setEcal(myPart,myPart.getSuccess());
-    
-    // Propagate to HCAL entrance
-    myPart.propagateToHcalEntrance(false);
-    if ( myTrack.notYetToEndVertex(myPart.vertex()) )
-      myTrack.setHcal(myPart,myPart.getSuccess());
-    
-    // Propagate to VFCAL entrance
-    myPart.propagateToVFcalEntrance(false);
-    if ( myTrack.notYetToEndVertex(myPart.vertex()) )
-      myTrack.setVFcal(myPart,myPart.getSuccess());
-
+ 
   }
 
 }
