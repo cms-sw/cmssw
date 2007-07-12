@@ -1,6 +1,8 @@
 // this class's header
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParametersIORoot.h"
 
+#include "Alignment/CommonAlignment/interface/Alignable.h" 
+
 #include <TTree.h>
 
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
