@@ -1124,11 +1124,30 @@ bool SiPixelInformationExtractor::goToDir(MonitorUserInterface* mui, string& sna
  */
 void SiPixelInformationExtractor::selectImage(string& name, int status){
 //cout<<"entering SiPixelInformationExtractor::selectImage"<<endl;
-  if (status == dqm::qstatus::STATUS_OK) name="images/LI_green.gif";
+/*  if (status == dqm::qstatus::STATUS_OK) name="images/LI_green.gif";
   else if (status == dqm::qstatus::WARNING) name="images/LI_yellow.gif";
   else if (status == dqm::qstatus::ERROR) name="images/LI_red.gif";
   else if (status == dqm::qstatus::OTHER) name="images/LI_orange.gif";
-  else  name="images/LI_blue.gif";
+  else  name="images/LI_blue.gif";*/
+  switch(status){
+  case dqm::qstatus::STATUS_OK:
+    name="images/LI_green.gif";
+    break;
+  case dqm::qstatus::WARNING:
+    name="images/LI_yellow.gif";
+    break;
+  case dqm::qstatus::ERROR:
+    name="images/LI_red.gif";
+    break;
+  case dqm::qstatus::INVALID:
+    break;
+  case dqm::qstatus::INSUF_STAT:
+    name="images/LI_blue.gif";
+    break;
+  default:
+    name="images/LI_orange.gif";
+    break;
+  }
 //cout<<"leaving SiPixelInformationExtractor::selectImage"<<endl;
 }
 
@@ -1165,17 +1184,44 @@ void SiPixelInformationExtractor::readStatusMessage(MonitorUserInterface* mui, s
     hpath = "NOME";
   } else {
     hpath = path.substr(0,path.find("."));
+    string me_name=me->getName();
+    float me_entries=me->getEntries();
+    float me_mean=me->getMean(1);
+    float me_meanError=me->getMeanError(1);
+    float me_RMS=me->getRMS(1);
+    float me_RMSError=me->getRMSError(1);
     dqm::qtests::QR_map test_map = me->getQReports();
     for (dqm::qtests::QR_map::const_iterator it = test_map.begin(); it != test_map.end();
 	 it++) {
-      int status = it->second->getStatus();
-      test_status << " QTest Status   ";
-      if (status == dqm::qstatus::WARNING) test_status << " Warning : " << endl;
-      else if (status == dqm::qstatus::ERROR) test_status << " Error : " << endl;
-      else if (status == dqm::qstatus::STATUS_OK) test_status << " Ok : " << endl;
-      else if (status == dqm::qstatus::OTHER) test_status << " Other(" << status << ") : " << endl;
+      string qt_name = it->first;
+      test_status << " QTest Name: "<<qt_name<<" --->";;
+      int qt_status = it->second->getStatus();
+      test_status<<" Status:";
+      switch(qt_status){
+      case dqm::qstatus::WARNING:
+        test_status<<" WARNING "<<endl;
+	break;
+      case dqm::qstatus::ERROR:
+        test_status<<" ERROR "<<endl;
+	break;
+      case dqm::qstatus::DISABLED:
+        test_status<<" DISABLED "<<endl;
+	break;
+      case dqm::qstatus::INVALID:
+        test_status<<" INVALID "<<endl;
+	break;
+      case dqm::qstatus::INSUF_STAT:
+        test_status<<" NOT ENOUGH STATISTICS "<<endl;
+	break;
+      default:
+        test_status<<" Unknown (status="<<qt_status<<")"<<endl;
+      }
+      //if (status == dqm::qstatus::WARNING) test_status << " Warning : " << endl;
+      //else if (status == dqm::qstatus::ERROR) test_status << " Error : " << endl;
+      //else if (status == dqm::qstatus::STATUS_OK) test_status << " Ok : " << endl;
+      //else if (status == dqm::qstatus::OTHER) test_status << " Other(" << status << ") : " << endl;
       test_status << "&lt;br/&gt;";
-      string mess_str = it->second->getMessage();
+/*      string mess_str = it->second->getMessage();
       mess_str = mess_str.substr(mess_str.find(" Test")+5);
       //test_status << " QTest Name  : " << mess_str.substr(0, mess_str.find(")")+1) << endl;
       //test_status << "&lt;br/&gt;";
@@ -1185,6 +1231,35 @@ void SiPixelInformationExtractor::readStatusMessage(MonitorUserInterface* mui, s
       std::vector<dqm::me_util::Channel> badchs=it->second->getBadChannels();
       //cout<<"STATUS: "<<status<<" ***** MESSAGE: "<<mess_str<<" ***** BAD CHANNELS: "<<endl;
       //cout<<"STATUS: "<<status<<" ***** MESSAGE: "<<mess_str<<" ***** BAD CHANNELS: "<<it->second->getBadChannels()<<endl;
+*/
+      if(qt_status!=dqm::qstatus::STATUS_OK){
+        string test_mess=it->second->getMessage();
+	string mess_str=test_mess.substr(test_mess.find("("));
+        test_status<<"&lt;br/&gt;";
+        test_status <<  " QTest Detail  : " << mess_str.substr(mess_str.find(")")+2);
+        test_status << "&lt;br/&gt;";
+        test_status <<  " ME : mean = " << me_mean << " =/- " << me_meanError
+                    << ", RMS= " << me_RMS << " =/- " << me_RMSError;
+        test_status << "&lt;br/&gt;";
+        if(qt_status == dqm::qstatus::INSUF_STAT) test_status <<  " entries = " << me_entries;
+        test_status << "&lt;br/&gt;";
+        /*      std::vector<dqm::me_util::Channel> badChannels=it->second->getBadChannels();																		
+              if(!badChannels.empty())  																								
+              test_status << " Channels that failed test " << ":\n";																					
+              vector<dqm::me_util::Channel>::iterator badchsit = badChannels.begin();																			
+              while(badchsit != badChannels.end())																							
+              { 																											
+        	test_status << " Channel ("																								
+        	     << badchsit->getBinX() << ","																							
+        	     << badchsit->getBinY() << ","																							
+        	     << badchsit->getBinZ()																								
+        	     << ") Contents: " << badchsit->getContents() << " +- "																				
+        	     << badchsit->getRMS() << endl;																							
+        																												
+        	++badchsit;																										
+              } 																											
+        test_status << "&lt;br/&gt;";*/
+      }
     }      
   }
   out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
