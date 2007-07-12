@@ -1,2 +1,2 @@
 
-#include "CalibMuon/DTCalibration/src/DTCalibrationMap.h"
+#include "CalibMuon/DTCalibration/plugins/DTCalibrationMap.h"

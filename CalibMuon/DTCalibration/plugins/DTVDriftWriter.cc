@@ -2,15 +2,15 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/04/17 08:18:40 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/07/11 12:21:01 $
+ *  $Revision: 1.1 $
  *  \author M. Giunta
  */
 
 #include "CalibMuon/DTCalibration/plugins/DTVDriftWriter.h"
 #include "CalibMuon/DTCalibration/interface/DTMeanTimerFitter.h"
-#include "CalibMuon/DTCalibration/src/vDriftHistos.h"
-#include "CalibMuon/DTCalibration/src/DTCalibrationMap.h"
+#include "CalibMuon/DTCalibration/plugins/vDriftHistos.h"
+#include "CalibMuon/DTCalibration/plugins/DTCalibrationMap.h"
 #include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
 
 #include "FWCore/Framework/interface/Event.h"

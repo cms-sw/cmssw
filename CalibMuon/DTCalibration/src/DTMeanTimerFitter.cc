@@ -2,13 +2,13 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/11/28 14:10:31 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/01/22 11:10:28 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi - INFN Torino
  */
 
 #include "CalibMuon/DTCalibration/interface/DTMeanTimerFitter.h"
-#include "CalibMuon/DTCalibration/src/vDriftHistos.h"
+#include "CalibMuon/DTCalibration/plugins/vDriftHistos.h"
 
 #include <iostream>
 #include <vector>
