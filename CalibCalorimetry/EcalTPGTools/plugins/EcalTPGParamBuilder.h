@@ -70,6 +70,7 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap_;
   const EcalElectronicsMapping * theMapping_ ;
 
+  bool useTransverseEnergy_ ;
   double xtal_LSB_EB_ , xtal_LSB_EE_ ;
   double Et_sat_ ;
   unsigned int sliding_ ;

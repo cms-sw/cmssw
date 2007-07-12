@@ -38,6 +38,8 @@ double oneOverEtResolEt(double *x, double *par) {
 EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   : xtal_LSB_EB_(0), xtal_LSB_EE_(0), nSample_(5), complement2_(7)
 {
+  useTransverseEnergy_ = pSet.getParameter<bool>("useTransverseEnergy") ;
+  
   Et_sat_ = pSet.getParameter<double>("Et_sat") ;
   sliding_ = pSet.getParameter<unsigned int>("sliding") ;
   sampleMax_ = pSet.getParameter<unsigned int>("weight_sampleMax") ;
@@ -99,6 +101,11 @@ void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
   ////////////////////////////
   // Initialization section //
   ////////////////////////////
+  list<uint32_t> towerListEB ;
+  list<uint32_t> stripListEB ;
+  list<uint32_t> towerListEE ;
+  list<uint32_t> stripListEE ;
+  list<uint32_t>::iterator itList ;
 
   // geometry
   ESHandle<CaloGeometry> theGeometry;
@@ -157,29 +164,35 @@ void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
   for (vector<DetId>::const_iterator it = ebCells.begin(); it != ebCells.end(); ++it) {
     EBDetId id(*it) ;
     double theta = theBarrelGeometry_->getGeometry(id)->getPosition().theta() ;
+    if (!useTransverseEnergy_) theta = acos(0.) ;
     const EcalTrigTowerDetId towid= id.tower();
+    towerListEB.push_back(towid.rawId()) ;
+    const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(id) ;
+    stripListEB.push_back(elId.rawId() & 0xfffffff8) ;
     int tccNb = theMapping_->TCCid(towid) ;
     int towerInTCC = theMapping_->iTT(towid) ;
-    const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(id) ;
     int stripInTower = elId.pseudoStripId() ;
     int xtalInStrip = elId.channelId() ;
-    (*out_fileEB_)<<"CRYSTAL "<<dec<<tccNb<<" "<<towerInTCC<<" "<<stripInTower<<" "<<xtalInStrip<<std::endl ;
+
+    //(*out_fileEB_)<<"CRYSTAL "<<dec<<tccNb<<" "<<towerInTCC<<" "<<stripInTower<<" "<<xtalInStrip<<std::endl ;
+    (*out_fileEB_)<<"CRYSTAL "<<dec<<id.rawId()<<std::endl ;
 
     coeffStruc coeff ;
     getCoeff(coeff, calibMap, gainMap, pedMap, id.rawId()) ;
 
     // compute and fill linearization parameters
-    std::vector<unsigned int> xtalParam = ecaltpp->getXtalParameters(tccNb, towerInTCC, stripInTower, xtalInStrip) ;
+    const std::vector<unsigned int> * xtalParam = ecaltpp->getXtalParameters(tccNb, towerInTCC, stripInTower, xtalInStrip) ;
     for (int i=0 ; i<3 ; i++) {
       int mult, shift ;
       bool ok = computeLinearizerParam(theta, coeff.gainRatio_[i], coeff.calibCoeff_, "EB", mult , shift) ;
-      if (xtalParam[3*i] != coeff.pedestals_[i] || xtalParam[3*i+1] != mult || xtalParam[3*i+2] != shift) {
-	(*diffFile_)<<"Cyrstal ("<<dec<<tccNb<<", "<<towerInTCC<<", "<<stripInTower<<", "<<xtalInStrip
+      if ((*xtalParam)[3*i] != coeff.pedestals_[i] || (*xtalParam)[3*i+1] != mult || (*xtalParam)[3*i+2] != shift) {
+	(*diffFile_)<<"Cyrstal ("<<dec<<id.rawId()<<": "<<tccNb<<", "<<towerInTCC<<", "<<stripInTower<<", "<<xtalInStrip
 		    <<", gainId="<<i<<") :"<<endl ;
-	(*diffFile_)<<"previous: ped = "<<hex<<xtalParam[3*i]<<" mult = "<<xtalParam[3*i+1]<<" shift = "<<xtalParam[3*i+2]<<endl ;
+	(*diffFile_)<<"previous: ped = "<<hex<<(*xtalParam)[3*i]<<" mult = "<<(*xtalParam)[3*i+1]<<" shift = "<<(*xtalParam)[3*i+2]<<endl ;
 	(*diffFile_)<<"new:      ped = "<<hex<<coeff.pedestals_[i]<<" mult = "<<mult<<" shift = "<<shift<<endl ;
       }
       if (ok) (*out_fileEB_) << hex <<" 0x"<<coeff.pedestals_[i]<<" 0x"<<mult<<" 0x"<<shift<<std::endl; 
+      else (*out_fileEB_) << "unable to compute the parameters"<<std::endl ; 
     }
   } //ebCells
 
@@ -192,31 +205,53 @@ void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
   for (vector<DetId>::const_iterator it = eeCells.begin(); it != eeCells.end(); ++it) {
     EEDetId id(*it);
     double theta = theEndcapGeometry_->getGeometry(id)->getPosition().theta() ;
+    if (!useTransverseEnergy_) theta = acos(0.) ;
     const EcalTrigTowerDetId towid= (*eTTmap_).towerOf(id) ;
+    towerListEE.push_back(towid.rawId()) ;
+    const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(id) ;
+    stripListEE.push_back(elId.rawId() & 0xfffffff8) ;
+
     int tccNb = theMapping_->TCCid(towid) ;
     int towerInTCC = theMapping_->iTT(towid) ;
-    const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(id) ;
     int stripInTower = elId.pseudoStripId() ;
     int xtalInStrip = elId.channelId() ;
-    (*out_fileEE_)<<"CRYSTAL "<<dec<<tccNb<<" "<<towerInTCC<<" "<<stripInTower<<" "<<xtalInStrip<<std::endl ;
+
+    //(*out_fileEE_)<<"CRYSTAL "<<dec<<tccNb<<" "<<towerInTCC<<" "<<stripInTower<<" "<<xtalInStrip<<std::endl ;
+    (*out_fileEE_)<<"CRYSTAL "<<dec<<id.rawId()<<std::endl ;
 
     coeffStruc coeff ;
     getCoeff(coeff, calibMap, gainMap, pedMap, id.rawId()) ;
 
     // compute and fill linearization parameters
-    std::vector<unsigned int> xtalParam = ecaltpp->getXtalParameters(tccNb, towerInTCC, stripInTower, xtalInStrip) ;
+    const std::vector<unsigned int> * xtalParam = ecaltpp->getXtalParameters(tccNb, towerInTCC, stripInTower, xtalInStrip) ;
     for (int i=0 ; i<3 ; i++) {
       int mult, shift ;
       bool ok = computeLinearizerParam(theta, coeff.gainRatio_[i], coeff.calibCoeff_, "EE", mult , shift) ;
-      if (xtalParam[3*i] != coeff.pedestals_[i] || xtalParam[3*i+1] != mult || xtalParam[3*i+2] != shift) {
-	(*diffFile_)<<"Cyrstal ("<<dec<<tccNb<<", "<<towerInTCC<<", "<<stripInTower<<", "<<xtalInStrip
+      if ((*xtalParam)[3*i] != coeff.pedestals_[i] || (*xtalParam)[3*i+1] != mult || (*xtalParam)[3*i+2] != shift) {
+	(*diffFile_)<<"Cyrstal ("<<dec<<id.rawId()<<": "<<tccNb<<", "<<towerInTCC<<", "<<stripInTower<<", "<<xtalInStrip
 		    <<", gainId="<<i<<") :"<<endl ;
-	(*diffFile_)<<"previous: ped = "<<hex<<xtalParam[3*i]<<" mult = "<<xtalParam[3*i+1]<<" shift = "<<xtalParam[3*i+2]<<endl ;
+	(*diffFile_)<<"previous: ped = "<<hex<<(*xtalParam)[3*i]<<" mult = "<<(*xtalParam)[3*i+1]<<" shift = "<<(*xtalParam)[3*i+2]<<endl ;
 	(*diffFile_)<<"new:      ped = "<<hex<<coeff.pedestals_[i]<<" mult = "<<mult<<" shift = "<<shift<<endl ;
       }
       if (ok) (*out_fileEE_) << hex <<" 0x"<<coeff.pedestals_[i]<<" 0x"<<mult<<" 0x"<<shift<<std::endl; 
+      else (*out_fileEE_) << "unable to compute the parameters"<<std::endl ; 
     }
   } //eeCells
+
+
+
+
+  /////////////////////////////
+  // Compute sliding section //
+  /////////////////////////////
+
+  (*out_fileEB_) <<std::endl ;
+  (*out_fileEB_) <<"SLIDING 0"<<endl ;
+  (*out_fileEB_) << hex << "0x" <<sliding_<<std::endl ;
+
+  (*out_fileEE_) <<std::endl ;
+  (*out_fileEE_) <<"SLIDING 0"<<endl ;
+  (*out_fileEE_) << hex << "0x" <<sliding_<<std::endl ;
 
 
   /////////////////////////////
@@ -233,18 +268,15 @@ void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
   if (weights.size() == 5) {
     // barrel
     (*out_fileEB_) <<std::endl ;
-    (*out_fileEB_) <<"COMMENT default parameters for strips"<<std::endl ;
-    (*out_fileEB_) <<"STRIP "<<dec<<-1<<" "<<-1<<" "<<-1<<std::endl ;
-    (*out_fileEB_) << hex << "0x" <<sliding_<<std::endl ;
+    (*out_fileEB_) <<"WEIGHT 0"<<endl ;
     for (uint sample=0 ; sample<5 ; sample++) (*out_fileEB_) << "0x" <<hex<<weights[sample]<<" " ;
     (*out_fileEB_)<<std::endl ; 
  
     // endcap
     (*out_fileEE_) <<std::endl ;
-    (*out_fileEE_) <<"COMMENT default parameters for strips"<<std::endl ;
-    (*out_fileEE_) <<"STRIP "<<dec<<-1<<" "<<-1<<" "<<-1<<std::endl ;
-    (*out_fileEE_) << hex << "0x" <<sliding_<<std::endl ;
+    (*out_fileEE_) <<"WEIGHT 0"<<endl ;
     for (uint sample=0 ; sample<5 ; sample++) (*out_fileEE_) << "0x" <<hex<<weights[sample]<<" " ;
+    (*out_fileEE_)<<std::endl ; 
   }
 
 
@@ -255,12 +287,17 @@ void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
   // barrel
   uint lowRatio, highRatio, lowThreshold, highThreshold, lutFG ;
   computeFineGrainEBParameters(lowRatio, highRatio, lowThreshold, highThreshold, lutFG) ;
+  (*out_fileEB_) <<std::endl ;
+  (*out_fileEB_) <<"FG 0"<<std::endl ;
+  (*out_fileEB_)<<hex<<"0x"<<lowThreshold<<" 0x"<<highThreshold
+		<<" 0x"<<lowRatio<<" 0x"<<highRatio<<" 0x"<<lutFG
+		<<std::endl ;
+
 
   // endcap
   uint threshold, lut_strip, lut_tower ;
   computeFineGrainEEParameters(threshold, lut_strip, lut_tower) ; 
-  (*out_fileEE_)<<std::endl ; 
-  (*out_fileEE_)<<hex<<"0x"<<threshold<<" 0x"<<lut_strip<<std::endl ;  
+
 
 
   /////////////////////////
@@ -271,23 +308,65 @@ void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
 
   // barrel
   (*out_fileEB_) <<std::endl ;
-  (*out_fileEB_) <<"COMMENT default parameters for towers"<<std::endl ;
-  (*out_fileEB_) <<"TOWER "<<dec<<-1<<" "<<-1<<std::endl ;
+  (*out_fileEB_) <<"LUT 0"<<std::endl ;
   computeLUT(lut, "EB") ; 
   for (int i=0 ; i<1024 ; i++) (*out_fileEB_)<<"0x"<<hex<<lut[i]<<" " ;
   (*out_fileEB_)<<endl ;
-  (*out_fileEB_)<<hex<<"0x"<<lowThreshold<<" 0x"<<highThreshold
-		<<" 0x"<<lowRatio<<" 0x"<<highRatio<<" 0x"<<lutFG
-		<<std::endl ;
   
   // endcap
   (*out_fileEE_) <<std::endl ;
-  (*out_fileEE_) <<"COMMENT default parameters for towers"<<std::endl ;
-  (*out_fileEE_) <<"TOWER "<<dec<<-1<<" "<<-1<<std::endl ;
+  (*out_fileEE_) <<"LUT 0"<<std::endl ;
   computeLUT(lut, "EE") ; 
   for (int i=0 ; i<1024 ; i++) (*out_fileEE_)<<"0x"<<hex<<lut[i]<<" " ;
   (*out_fileEE_)<<endl ;
-  (*out_fileEE_)<<hex<<"0x"<<lut_tower<<std::endl ;
+
+
+
+  //////////////////////////////////////////////////////////////////////
+  // loop on strips and towers and associate them with default values //
+  //////////////////////////////////////////////////////////////////////
+
+  // Barrel
+  stripListEB.sort() ;
+  stripListEB.unique() ;
+  cout<<"Number of EB strips="<<stripListEB.size()<<endl ;
+  (*out_fileEB_) <<std::endl ;
+  for (itList = stripListEB.begin(); itList != stripListEB.end(); itList++ ) {
+    (*out_fileEB_) <<"STRIP "<<dec<<(*itList)<<endl ;
+    (*out_fileEB_) <<" 0\n 0\n" ;
+  }
+
+  towerListEB.sort() ;
+  towerListEB.unique() ;
+  cout<<"Number of EB towers="<<towerListEB.size()<<endl ;
+  (*out_fileEB_) <<std::endl ;
+  for (itList = towerListEB.begin(); itList != towerListEB.end(); itList++ ) {
+    (*out_fileEB_) <<"TOWER "<<dec<<(*itList)<<endl ;
+    (*out_fileEB_) <<" 0\n 0\n" ;
+  }
+
+  // Endcap
+  stripListEE.sort() ;
+  stripListEE.unique() ;
+  cout<<"Number of EE strips="<<stripListEE.size()<<endl ;
+  (*out_fileEE_) <<std::endl ;
+  for (itList = stripListEE.begin(); itList != stripListEE.end(); itList++ ) {
+    (*out_fileEE_) <<"STRIP "<<dec<<(*itList)<<endl ;
+    (*out_fileEE_) <<" 0\n 0\n" ;
+    (*out_fileEE_)<<hex<<"0x"<<threshold<<" 0x"<<lut_strip<<std::endl ;  
+  }
+
+  towerListEE.sort() ;
+  towerListEE.unique() ;
+  cout<<"Number of EE towers="<<towerListEE.size()<<endl ;
+  (*out_fileEE_) <<std::endl ;
+  for (itList = towerListEE.begin(); itList != towerListEE.end(); itList++ ) {
+    (*out_fileEE_) <<"TOWER "<<dec<<(*itList)<<endl ;
+    (*out_fileEE_) <<" 0\n" ;
+    (*out_fileEE_)<<hex<<"0x"<<lut_tower<<std::endl ;
+  }
+
+
 
 }
 
@@ -336,8 +415,6 @@ bool EcalTPGParamBuilder::computeLinearizerParam(double theta, double gainRatio,
 void EcalTPGParamBuilder::create_header(std::ofstream * out_file, std::string subdet) 
 {
   (*out_file) <<"COMMENT put your comments here"<<std::endl ; 
-  (*out_file) <<"COMMENT do not remove xtal, strip and tower coordinates with -1 (used as default)"<<std::endl ;
-  (*out_file) <<"COMMENT do not insert comments within physics, xtal, strip or tower structure (data block length fixed)"<<std::endl ;
   (*out_file) <<"COMMENT ================================="<<std::endl ;
   (*out_file) <<"COMMENT           physics structure"<<std::endl ;
   (*out_file) <<"COMMENT"<<std::endl ;
@@ -421,6 +498,15 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape)
     double time = timeMax - ((double)sampleMax_-(double)sample)*25. ;
     weight[sample] = lambda*shape(time)/max + gamma ;
   }
+
+  double ampl = 0. ;
+  for (uint sample = 0 ; sample<nSample_ ; sample++) {
+    double time = timeMax - ((double)sampleMax_-(double)sample)*25. ;
+    ampl += weight[sample]*shape(time) ;
+    std::cout<<sample<<" "<<weight[sample]<<" "<<shape(time)<<std::endl ;
+  }
+  std::cout<<max<<" "<<ampl<<std::endl ;
+
 
   int * iweight = new int[nSample_] ;
   for (uint sample = 0 ; sample<nSample_ ; sample++)   iweight[sample] = uncodeWeight(weight[sample], complement2_) ;
