@@ -5,12 +5,12 @@
  *  \author Gero Flucke (selection by strings taken from AlignableParameterBuilder)
  *
  *  Selecting Alignable's of the tracker by predefined strings,
- *  additional constraints on eta, phi, r or z are possible.
+ *  additional constraints on eta, phi, r, x, y or z are possible.
  *  Furthermore stores the 'selection' of selected AlignmentParameters.
  *
- *  $Date: 2006/11/30 10:03:03 $
- *  $Revision: 1.3 $
- *  (last update by $Author: flucke $)
+ *  $Date: 2007/01/23 16:07:08 $
+ *  $Revision: 1.4 $
+ *  (last update by $Author: fronga $)
  */
 
 #include <vector>
@@ -44,17 +44,17 @@ class AlignmentParameterSelector {
   void clearGeometryCuts();
 
   /// Add several selections defined by the PSet which must contain a vstring like e.g.
-  /// vstring alignableParamSelector = { "PixelHalfBarrelLadders,111000,pixelSelection",
-  ///                                    "BarrelDSRods,111ff0",
-  ///                                    "BarrelSSRods,101ff0"}
+  /// vstring alignParams = { "PixelHalfBarrelLadders,111000,pixelSelection",
+  ///                         "BarrelDSRods,111ff0",
+  ///                         "BarrelSSRods,101ff0"}
   /// The e.g. '111ff0' is decoded into vector<char> and stored.
   /// Returns number of added selections or -1 if problems (then also an error is logged)
   /// If a string contains a third, comma separated part (e.g. ',pixelSelection'),
-  /// a further PSet of that name is expected to select eta/z/phi/r-ranges
+  /// a further PSet of that name is expected to select eta/phi/r/x/y/z-ranges.
   unsigned int addSelections(const edm::ParameterSet &pSet);
   /// set geometrical restrictions to be applied on all following selections
-  /// (slices defined by vdouble 'etaRanges', 'phiRanges', 'zRanges' and 'rRanges',
-  /// empty array means no restriction)
+  /// (slices defined by vdouble 'etaRanges', 'phiRanges', 'xRanges', 'yRanges', 'zRanges'
+  /// and 'rRanges', empty array means no restriction)
   void setGeometryCuts(const edm::ParameterSet &pSet);
   /// add Alignables corresponding to predefined name, taking into account geometrical restrictions
   /// as defined in setSpecials, returns number of added alignables
@@ -63,7 +63,7 @@ class AlignmentParameterSelector {
   unsigned int addSelection(const std::string &name, const std::vector<char> &paramSel, 
 			    const edm::ParameterSet &pSet);
 
-  /// true if geometrical restrictions in eta, phi, r, z not satisfied
+  /// true if geometrical restrictions in eta, phi, r, x, y, z not satisfied
   bool outsideRanges(const Alignable *alignable) const;
   /// true if ranges.size() is even and ranges[i] <= value < ranges[i+1] for any even i
   /// ( => false if ranges.empty() == true), if(isPhi==true) takes into account phi periodicity
@@ -88,10 +88,12 @@ class AlignmentParameterSelector {
   std::vector<Alignable*>  theSelectedAlignables;
   std::vector<std::vector<char> > theSelectedParameters;
 
-  /// geometrical restrictions in eta, phi, r, z to be applied for next addSelection
+  /// geometrical restrictions in eta, phi, r, x, y, z to be applied for next addSelection
   std::vector<double> theRangesEta;
   std::vector<double> theRangesPhi;
   std::vector<double> theRangesR;
+  std::vector<double> theRangesX;
+  std::vector<double> theRangesY;
   std::vector<double> theRangesZ;
 
   // further switches used in add(...)

@@ -1,9 +1,9 @@
 /** \file AlignmentParameterSelector.cc
  *  \author Gero Flucke, Nov. 2006
  *
- *  $Date: 2007/04/12 16:27:41 $
- *  $Revision: 1.8 $
- *  (last update by $Author: covarell $)
+ *  $Date: 2007/06/13 08:16:58 $
+ *  $Revision: 1.9 $
+ *  (last update by $Author: flucke $)
  */
 
 #include <cctype>
@@ -24,7 +24,7 @@
 //________________________________________________________________________________
 AlignmentParameterSelector::AlignmentParameterSelector(AlignableTracker *aliTracker) :
   theTracker(aliTracker), theMuon(0), theSelectedAlignables(), 
-  theRangesEta(), theRangesPhi(), theRangesR(), theRangesZ()
+  theRangesEta(), theRangesPhi(), theRangesR(), theRangesX(), theRangesY(), theRangesZ()
 {
   this->setSpecials(""); // init theOnlyDS, theOnlySS, theSelLayers, theMinLayer, theMaxLayer
 }
@@ -32,7 +32,7 @@ AlignmentParameterSelector::AlignmentParameterSelector(AlignableTracker *aliTrac
 //________________________________________________________________________________
 AlignmentParameterSelector::AlignmentParameterSelector(AlignableTracker *aliTracker, AlignableMuon* aliMuon) :
   theTracker(aliTracker), theMuon(aliMuon), theSelectedAlignables(), 
-  theRangesEta(), theRangesPhi(), theRangesR(), theRangesZ()
+  theRangesEta(), theRangesPhi(), theRangesR(), theRangesX(), theRangesY(), theRangesZ()
 {
   this->setSpecials(""); // init theOnlyDS, theOnlySS, theSelLayers, theMinLayer, theMaxLayer
 }
@@ -68,6 +68,8 @@ void AlignmentParameterSelector::clearGeometryCuts()
   theRangesEta.clear();
   theRangesPhi.clear();
   theRangesR.clear();
+  theRangesX.clear();
+  theRangesY.clear();
   theRangesZ.clear();
 }
 
@@ -80,7 +82,6 @@ unsigned int AlignmentParameterSelector::addSelections(const edm::ParameterSet &
   
   unsigned int addedSets = 0;
 
-  // loop via index instead of iterator due to possible enlargement inside loop
   for (unsigned int iSel = 0; iSel < selections.size(); ++iSel) {
 
     std::vector<std::string> decompSel(this->decompose(selections[iSel], ','));
@@ -111,6 +112,8 @@ void AlignmentParameterSelector::setGeometryCuts(const edm::ParameterSet &pSet)
   theRangesEta = pSet.getParameter<std::vector<double> >("etaRanges");
   theRangesPhi = pSet.getParameter<std::vector<double> >("phiRanges");
   theRangesR   = pSet.getParameter<std::vector<double> >("rRanges"  );
+  theRangesX   = pSet.getParameter<std::vector<double> >("xRanges"  );
+  theRangesY   = pSet.getParameter<std::vector<double> >("yRanges"  );
   theRangesZ   = pSet.getParameter<std::vector<double> >("zRanges"  );
 }
 
@@ -332,6 +335,8 @@ bool AlignmentParameterSelector::outsideRanges(const Alignable *alignable) const
   if (!theRangesEta.empty() && !this->insideRanges((position.eta()), theRangesEta)) return true;
   if (!theRangesPhi.empty() && !this->insideRanges((position.phi()), theRangesPhi,true))return true;
   if (!theRangesR.empty()   && !this->insideRanges((position.perp()),theRangesR)) return true;
+  if (!theRangesX.empty()   && !this->insideRanges((position.x()),   theRangesX)) return true;
+  if (!theRangesY.empty()   && !this->insideRanges((position.y()),   theRangesY)) return true;
   if (!theRangesZ.empty()   && !this->insideRanges((position.z()),   theRangesZ)) return true;
 
   return false;
