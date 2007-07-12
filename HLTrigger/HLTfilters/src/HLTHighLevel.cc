@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/03/26 11:39:20 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/06/19 12:31:19 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -28,20 +28,13 @@ HLTHighLevel::HLTHighLevel(const edm::ParameterSet& iConfig) :
   inputTag_ (iConfig.getParameter<edm::InputTag> ("TriggerResultsTag")),
   triggerNames_(),
   andOr_    (iConfig.getParameter<bool> ("andOr" )),
-  byName_   (iConfig.getParameter<bool> ("byName")),
   n_        (0)
+
 {
-  if (byName_) {
-    // get names, then derive slot numbers
-    HLTPathsByName_= iConfig.getParameter<std::vector<std::string > >("HLTPaths");
-    n_=HLTPathsByName_.size();
-    HLTPathsByIndex_.resize(n_);
-  } else {
-    // get slot numbers, then derive names
-    HLTPathsByIndex_= iConfig.getParameter<std::vector<unsigned int> >("HLTPaths");
-    n_=HLTPathsByIndex_.size();
-    HLTPathsByName_.resize(n_);
-  }
+  // get names from module parameters, then derive slot numbers
+  HLTPathsByName_= iConfig.getParameter<std::vector<std::string > >("HLTPaths");
+  n_=HLTPathsByName_.size();
+  HLTPathsByIndex_.resize(n_);
 
   // this is a user/analysis filter: it places no product into the event!
 
@@ -75,21 +68,12 @@ HLTHighLevel::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      return false;
    }
 
+   // get hold of trigger names - based on TriggerResults object!
    triggerNames_.init(*trh);
 
    unsigned int n(n_);
-   if (byName_) {
-     for (unsigned int i=0; i!=n; i++) {
-       HLTPathsByIndex_[i]=triggerNames_.triggerIndex(HLTPathsByName_[i]);
-     }
-   } else {
-     for (unsigned int i=0; i!=n; i++) {
-       if (HLTPathsByIndex_[i]<trh->size()) {
-	 HLTPathsByName_[i]=triggerNames_.triggerName(HLTPathsByIndex_[i]);
-       } else {
-	 HLTPathsByName_[i]=invalid;
-       }
-     }
+   for (unsigned int i=0; i!=n; i++) {
+     HLTPathsByIndex_[i]=triggerNames_.triggerIndex(HLTPathsByName_[i]);
    }
    
    // for empty input vectors (n==0), default to all HLT trigger paths!
@@ -106,8 +90,7 @@ HLTHighLevel::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // report on what is finally used
    LogDebug("") << "HLT trigger paths: " + inputTag_.encode()
 		<< " - Number requested: " << n
-		<< " - andOr mode: " << andOr_
-		<< " - byName: " << byName_;
+		<< " - andOr mode: " << andOr_;
    if (n>0) {
      LogDebug("") << "  HLT trigger paths requested: index, name and valididty:";
      for (unsigned int i=0; i!=n; i++) {

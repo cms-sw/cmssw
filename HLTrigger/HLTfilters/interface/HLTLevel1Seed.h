@@ -7,14 +7,15 @@
  *  This class is an HLTFilter (-> EDFilter) implementing filtering on
  *  Level-1 bits and extraction of seed objects.
  *
- *  $Date: 2006/11/14 16:37:34 $
- *  $Revision: 1.16 $
+ *  $Date: 2007/03/26 11:31:42 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
  */
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
+
 #include<vector>
 #include<string>
 
@@ -32,20 +33,26 @@ class HLTLevel1Seed : public HLTFilter {
 
   private:
 
-    edm::InputTag l1CollectionsTag_;  // L1 Extra EDProduct for particle collections
-    edm::InputTag l1ParticleMapTag_;  // L1 Extra EDProduct for particle map
-    edm::InputTag l1GTReadoutRecTag_; // L1 Extra EDProduct for L1 GT RR
+    /// L1 Extra EDProduct for particle collections 
+    edm::InputTag l1CollectionsTag_;
+    /// L1 Extra EDProduct for particle map
+    edm::InputTag l1ParticleMapTag_;
+    /// L1 Extra EDProduct for L1 GT RR
+    edm::InputTag l1GTReadoutRecTag_;
 
+    /// false=and-mode (all requested triggers), true=or-mode (at least one)
     bool andOr_;
-    // false=and-mode (all), true=or-mode(at least one)
 
-    bool byName_;
-    // list of L1 triggers provided by: 
-    // true: L1 Names (vstring) or false: L1 Types (vuint32)
+    /*
+    // user provides: true: L1 Names (vstring), or false: L1 Types (vuint32)
+    // bool byName_;
+    // disabled: user must always provide names, never indices
+    */
 
+    /// list of required L1 triggers by L1 name
     std::vector<std::string > L1SeedsByName_;
+    /// list of required L1 triggers by L1 type
     std::vector<unsigned int> L1SeedsByType_;
-    // list of required L1 triggers by L1 name and by L1 type
 
 };
 

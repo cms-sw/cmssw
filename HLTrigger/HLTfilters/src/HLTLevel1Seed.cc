@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/03/26 11:39:20 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/04/04 07:44:03 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -29,40 +29,22 @@ HLTLevel1Seed::HLTLevel1Seed(const edm::ParameterSet& iConfig) :
   l1CollectionsTag_ (iConfig.getParameter<edm::InputTag> ("L1ExtraCollections")),
   l1ParticleMapTag_ (iConfig.getParameter<edm::InputTag> ("L1ExtraParticleMap")),
   l1GTReadoutRecTag_(iConfig.getParameter<edm::InputTag> ("L1GTReadoutRecord")),
-  andOr_   (iConfig.getParameter<bool> ("andOr" )),
-  byName_  (iConfig.getParameter<bool> ("byName"))
+  andOr_   (iConfig.getParameter<bool> ("andOr" ))
+
 {
   const std::string invalid("@@invalid@@");
  
   unsigned int n(0);
 
-  if (byName_) {
-    // get names, then derive slot numbers
-    L1SeedsByName_= iConfig.getParameter<std::vector<std::string > >("L1Seeds");
-    n=L1SeedsByName_.size();
-    L1SeedsByType_.resize(n);
-    std::string name;
-    for (unsigned int i=0; i!=n; i++) {
-      name=L1SeedsByName_[i];
-      L1SeedsByType_[i]=l1extra::L1ParticleMap::triggerType(name);
-    }
-  } else {
-    // get slot numbers, then derive names
-    L1SeedsByType_= iConfig.getParameter<std::vector<unsigned int> >("L1Seeds");
-    n=L1SeedsByType_.size();
-    L1SeedsByName_.resize(n);
-    for (unsigned int i=0; i!=n; i++) {
-      if (L1SeedsByType_[i]<l1extra::L1ParticleMap::kNumOfL1TriggerTypes) {
-	l1extra::L1ParticleMap::L1TriggerType 
-	  type(static_cast<l1extra::L1ParticleMap::L1TriggerType>(L1SeedsByType_[i]));
-	L1SeedsByName_[i]=l1extra::L1ParticleMap::triggerName(type);
-      } else {
-	L1SeedsByName_[i]=invalid;
-      }
-    }
+  // get names from module parameters, then derive slot numbers
+  L1SeedsByName_= iConfig.getParameter<std::vector<std::string > >("L1Seeds");
+  n=L1SeedsByName_.size();
+  L1SeedsByType_.resize(n);
+  for (unsigned int i=0; i!=n; i++) {
+    L1SeedsByType_[i]=l1extra::L1ParticleMap::triggerType(L1SeedsByName_[i]);
   }
-  
-  // for empty input vectors (n=0), default to all L1 triggers!
+
+  // for empty input vector (n=0), default to all L1 triggers!
   if (n==0) {
     n=static_cast<unsigned int>(l1extra::L1ParticleMap::kNumOfL1TriggerTypes);
     L1SeedsByName_.resize(n);
@@ -75,13 +57,13 @@ HLTLevel1Seed::HLTLevel1Seed(const edm::ParameterSet& iConfig) :
     }
   }
   
+  // inform the user
   LogDebug("") << "Level-1 triggers: "
 	       << "L1ExtraCollections: " + l1CollectionsTag_.encode()
 	       << "L1ExtraParticleMap: " + l1ParticleMapTag_.encode()
 	       << "L1GTReadoutRecord : " + l1GTReadoutRecTag_.encode()
 	       << " - Number requested: " << n 
-	       << " - andOr mode: " << andOr_
-	       << " - byName: " << byName_;
+	       << " - andOr mode: " << andOr_;
   if (n>0) {
     LogDebug("") << "  Level-1 triggers requestd: type, name and status:";
     for (unsigned int i=0; i!=n; i++) {
@@ -94,6 +76,7 @@ HLTLevel1Seed::HLTLevel1Seed(const edm::ParameterSet& iConfig) :
 
   //register your products
   produces<reco::HLTFilterObjectWithRefs>();
+
 }
 
 HLTLevel1Seed::~HLTLevel1Seed()
