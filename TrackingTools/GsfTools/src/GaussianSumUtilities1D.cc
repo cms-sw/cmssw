@@ -558,5 +558,8 @@ double
 GaussianSumUtilities1D::localVariance (const double& x) const
 {
   double result = -pdf(x)/d2Pdf(x);
+  // FIXME: wrong curvature seems to be non-existant but should add a proper recovery
+  if ( result<0. )
+    edm::LogWarning("GaussianSumUtilities") << "1D variance at mode < 0";    
   return result;
 }
