@@ -24,6 +24,10 @@ namespace reco {
 
          int detector() const { return id.subdetId(); }
          int station()  const;
+
+         std::pair<float,float> getDistancePair(float edgeX, float edgeY, float xErr, float yErr) const;
+         float dist() const { return getDistancePair(edgeX, edgeY, xErr, yErr).first; }        // distance to absolute closest edge
+         float distErr() const { return getDistancePair(edgeX, edgeY, xErr, yErr).second; }    // propagation uncertainty in above distance
    };
 }
 

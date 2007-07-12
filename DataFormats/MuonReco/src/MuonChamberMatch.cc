@@ -2,6 +2,7 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonReco/interface/MuonChamberMatch.h"
+#include <cmath>
 using namespace reco;
 
 int MuonChamberMatch::station()  const {
@@ -18,4 +19,24 @@ int MuonChamberMatch::station()  const {
       return segId.station();
    }
    return -1; // is this appropriate? fix this
+}
+
+std::pair<float,float>
+MuonChamberMatch::getDistancePair(float edgeX, float edgeY, float xErr, float yErr) const
+{
+   if(edgeX>9E5&&edgeY>9E5&&xErr>9E5&&yErr>9E5) // there is no track
+      return std::make_pair(999999, 999999);
+
+   float distance = 999999;
+   float error    = 999999;
+
+   if(edgeX<0 && edgeY<0) {
+      if(edgeX<edgeY) { distance = edgeY; error = yErr; }
+      else { distance = edgeX; error = xErr; }
+   }
+   if(edgeX<0 && edgeY>0) { distance = edgeY; error = yErr; }
+   if(edgeX>0 && edgeY<0) { distance = edgeX; error = xErr; }
+   if(edgeX>0 && edgeY>0) { distance = sqrt(edgeX*edgeX+edgeY*edgeY); error = sqrt(xErr*xErr+yErr*yErr); }
+
+   return std::make_pair(distance, error);
 }
