@@ -1,7 +1,7 @@
 /** \file RigidBodyAlignmentParameters.cc
  *
- *  Version    : $Revision: 1.10 $
- *  last update: $Date: 2007/05/11 15:02:03 $
+ *  Version    : $Revision: 1.11 $
+ *  last update: $Date: 2007/06/13 08:30:10 $
  *  by         : $Author: flucke $
  */
 
@@ -10,7 +10,7 @@
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/CommonAlignmentParametrization/interface/KarimakiAlignmentDerivatives.h"
-
+#include "Alignment/CommonAlignmentParametrization/interface/FrameToFrameDerivative.h"
 // This class's header 
 
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
@@ -82,24 +82,20 @@ RigidBodyAlignmentParameters::cloneFromSelected( const AlgebraicVector& paramete
   return rbap;
 }
 
-
-
 //__________________________________________________________________________________________________
 AlgebraicMatrix 
-RigidBodyAlignmentParameters::derivatives( const TrajectoryStateOnSurface& tsos, 
-					   const AlignableDetOrUnitPtr &dummy) const
+RigidBodyAlignmentParameters::derivatives( const TrajectoryStateOnSurface &tsos,
+					   const AlignableDetOrUnitPtr &alidet ) const
 {
-  if (this->alignable() != dummy) {
-    edm::LogError("Alignment") << "@SUB=RigidBodyAlignmentParameters::derivatives"
-			       << "Frame problem, input AlignableDet(Unit) differs from "
-			       << "parameters' alignable,\ncf. "
-			       << "https://hypernews.cern.ch/HyperNews/CMS/get/tk-alignment/36.html"
-			       << " .\nInput.Det: " << dummy.alignableDet() 
-			       << ", Input.DetUnit: " << dummy.alignableDetUnit()
-			       << ", Input.mother()" << dummy->mother()
-			       << ",\nalignable " << this->alignable();
+  const Alignable *ali = this->alignable(); // Alignable of these parameters
+
+  if (ali == alidet) { // same alignable => same frame
+    return KarimakiAlignmentDerivatives()(tsos);
+  } else { // different alignable => transform into correct frame
+    const AlgebraicMatrix deriv = KarimakiAlignmentDerivatives()(tsos);
+    FrameToFrameDerivative ftfd;
+    return ftfd.frameToFrameDerivative(alidet, ali) * deriv;
   }
-  return KarimakiAlignmentDerivatives()(tsos);
 }
 
 
@@ -108,7 +104,7 @@ AlgebraicMatrix
 RigidBodyAlignmentParameters::selectedDerivatives( const TrajectoryStateOnSurface& tsos, 
 						   const AlignableDetOrUnitPtr &alignableDet ) const
 {
-  AlgebraicMatrix dev = derivatives( tsos, alignableDet );
+  const AlgebraicMatrix dev = this->derivatives( tsos, alignableDet );
 
   int ncols  = dev.num_col();
   int nrows  = dev.num_row();
@@ -153,16 +149,16 @@ AlgebraicVector RigidBodyAlignmentParameters::globalParameters(void) const
 {
   AlgebraicVector m_GlobalParameters(N_PARAM, 0);
 
-  AlgebraicVector shift = translation(); // fixme: should return LocalVector
+  const AlgebraicVector shift = translation(); // fixme: should return LocalVector
 
-  align::LocalVector lv(shift[0], shift[1], shift[2]);
-  align::GlobalVector dg = theAlignable->surface().toGlobal(lv);
+  const align::LocalVector lv(shift[0], shift[1], shift[2]);
+  const align::GlobalVector dg = theAlignable->surface().toGlobal(lv);
 
   m_GlobalParameters[0] = dg.x();
   m_GlobalParameters[1] = dg.y();
   m_GlobalParameters[2] = dg.z();
 
-  align::EulerAngles eulerglob = theAlignable->surface().toGlobal( rotation() );
+  const align::EulerAngles eulerglob = theAlignable->surface().toGlobal( rotation() );
 
   m_GlobalParameters[3]=eulerglob(1);
   m_GlobalParameters[4]=eulerglob(2);

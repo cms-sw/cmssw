@@ -9,9 +9,9 @@
 /// [derived from AlignmentParameters]. The number of parameters
 /// N_PARAM is fixed to 6 (3 translations + 3 rotations)
 ///
-///  $Date: 2007/05/02 21:01:52 $
-///  $Revision: 1.9 $
-/// (last update by $Author: fronga $)
+///  $Date: 2007/06/13 08:30:08 $
+///  $Revision: 1.10 $
+/// (last update by $Author: flucke $)
 
 class AlignableDetOrUnitPtr;
 
@@ -50,17 +50,16 @@ public:
 					       const AlgebraicSymMatrix& covMatrix ) const;
  
   /// Clone selected parameters (for update of parameters)
-    virtual RigidBodyAlignmentParameters* 
-      cloneFromSelected( const AlgebraicVector& parameters, 
-			 const AlgebraicSymMatrix& covMatrix ) const;
+  virtual RigidBodyAlignmentParameters*
+    cloneFromSelected(const AlgebraicVector& parameters, const AlgebraicSymMatrix& covMatrix) const;
   
   /// Get all derivatives 
   virtual AlgebraicMatrix derivatives( const TrajectoryStateOnSurface& tsos,
 				       const AlignableDetOrUnitPtr & ) const;
 
   /// Get selected derivatives
-  AlgebraicMatrix selectedDerivatives( const TrajectoryStateOnSurface& tsos, 
-				       const AlignableDetOrUnitPtr & ) const;
+  virtual AlgebraicMatrix selectedDerivatives( const TrajectoryStateOnSurface& tsos, 
+					       const AlignableDetOrUnitPtr & ) const;
 
   /// Get translation parameters
   AlgebraicVector translation(void) const;
