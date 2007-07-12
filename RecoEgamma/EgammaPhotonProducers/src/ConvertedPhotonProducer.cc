@@ -22,6 +22,7 @@
 //
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 //
+#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackEcalImpactPoint.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackPairFinder.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionVertexFinder.h"
 #include "RecoEgamma/EgammaPhotonProducers/interface/ConvertedPhotonProducer.h"
@@ -92,7 +93,6 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
   // instantiate the Vertex Finder algorithm
   theVertexFinder_ = new ConversionVertexFinder ();
   
-  
 }
 
 ConvertedPhotonProducer::~ConvertedPhotonProducer() {
@@ -102,7 +102,8 @@ ConvertedPhotonProducer::~ConvertedPhotonProducer() {
   delete theVertexFinder_;
   delete theLayerMeasurements_;
   delete theNavigationSchool_;
-  
+  delete theEcalImpactPositionFinder_; 
+
 }
 
 
@@ -127,6 +128,10 @@ void  ConvertedPhotonProducer::beginJob (edm::EventSetup const & theEventSetup) 
   theLayerMeasurements_  = new LayerMeasurements(theMeasurementTracker_);
   theNavigationSchool_   = new SimpleNavigationSchool( &(*theGeomSearchTracker_)  , &(*theMF_));
   NavigationSetter setter( *theNavigationSchool_);
+
+  // instantiate the algorithm for finding the position of the track extrapolation at the Ecal front face
+  theEcalImpactPositionFinder_ = new   ConversionTrackEcalImpactPoint ( &(*theMF_) );
+
   
   
 }
@@ -335,20 +340,23 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 	  
 	}
 	
-	
-	
-	
+		
         if ( theConversionVertex.isValid() ) {	
+	  LogDebug("ConvertedPhotonProducer") << "  ConvertedPhotonProducer vertex refitted tracks size " <<  theConversionVertex.tracks().size() << std::endl;
 	  convVtx.SetXYZ( theConversionVertex.position().x(), theConversionVertex.position().y(),  theConversionVertex.position().z() );
 	  LogDebug("ConvertedPhotonProducer") << "  ConvertedPhotonProducer conversion vertex position " << theConversionVertex.position() << "\n";
 	} else {
 	  LogDebug("ConvertedPhotonProducer") << "  ConvertedPhotonProducer conversion vertex is not valid set the position to (0,0,0) " << "\n";
 	}
 	
-	
+
+	trkPositionAtEcal.clear();
+	std::vector<math::XYZPoint> trkPositionAtEcal = theEcalImpactPositionFinder_->find(  iPair->first );
+	LogDebug("ConvertedPhotonProducer") << " 	ConvertedPhotonProducer Barrel trkPositionAtEcal size " << trkPositionAtEcal.size() << "\n";
+
 	//// loop over tracks in the pair  for creating a reference
 	trackPairRef.clear();
-	trkPositionAtEcal.clear();
+
 	
 	for ( std::vector<reco::TransientTrack>::const_iterator iTk=(iPair->first).begin(); iTk!= (iPair->first).end(); ++iTk) {
 	  LogDebug("ConvertedPhotonProducer") << "  ConvertedPhotonProducer Transient Tracks in the pair  charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->track().innerMomentum() << "\n";  
@@ -476,10 +484,15 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 	  LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer conversion vertex is not valid " << "\n";
 	}
 	
+
+	trkPositionAtEcal.clear();
+	std::vector<math::XYZPoint> trkPositionAtEcal = theEcalImpactPositionFinder_->find(  iPair->first );
+	LogDebug("ConvertedPhotonProducer") << " 	ConvertedPhotonProducer Endcap trkPositionAtEcal size " << trkPositionAtEcal.size() << "\n";
+
 	
 	//// loop over tracks in the pair for creating a reference
 	trackPairRef.clear();
-	trkPositionAtEcal.clear();
+
 	
 	for ( std::vector<reco::TransientTrack>::const_iterator iTk=(iPair->first).begin(); iTk!=(iPair->first).end(); ++iTk) {
 	  LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Transient Tracks in the pair  charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->track().innerMomentum() << "\n";  
