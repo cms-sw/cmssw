@@ -31,6 +31,7 @@ class SiStripRawToClustersRoI : public edm::EDProducer {
   
  public:
 
+  typedef edm::SiStripLazyGetter<SiStripCluster> LazyGetter;
   typedef edm::SiStripRefGetter<SiStripCluster> RefGetter;
 
   SiStripRawToClustersRoI( const edm::ParameterSet& );
@@ -43,14 +44,15 @@ class SiStripRawToClustersRoI : public edm::EDProducer {
  private: 
 
   /** Method defining regions of interest randomly */
-  void random(std::vector<uint32_t>&) const;
+  void random(RefGetter&, edm::Handle<LazyGetter>&) const;
 
   /** Method defining ALL regions of interest */
-  void all(std::vector<uint32_t>&) const;
+  void all(RefGetter&, edm::Handle<LazyGetter>&) const;
   
   /** Method defining regions of interest by superclusters */
   void superclusters(const reco::SuperClusterCollection&,
-		     std::vector<uint32_t>&) const;
+		     RefGetter&,
+		     edm::Handle<LazyGetter>&) const;
 
   /** Input module label of SiStripLazyGetter */
   std::string inputModuleLabel_;

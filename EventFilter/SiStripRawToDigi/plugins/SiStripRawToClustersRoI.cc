@@ -69,34 +69,31 @@ void SiStripRawToClustersRoI::produce( edm::Event& event,
 					    const edm::EventSetup& setup ) {
   
   // Retrieve unpacking tool from event
-  edm::Handle<edm::SiStripLazyGetter<SiStripCluster> > getter;
-  event.getByLabel(inputModuleLabel_,"",getter);
+  edm::Handle< LazyGetter > lazygetter;
+  event.getByLabel(inputModuleLabel_,"",lazygetter);
   
-  // Create regions of interest vector
-  SiStripRegionCabling::Regions demand;
-  demand.reserve(cabling_->getRegionCabling().size());
+  // Construct default RefGetter object
+  std::auto_ptr<RefGetter> refgetter(new RefGetter());
 
-  if (random_) random(demand);
-  if (all_) all(demand);
-  
+  // Fill RefGetter with regions of interest
+  if (random_) random(*refgetter,lazygetter);
+  if (all_) all(*refgetter,lazygetter);
   if (electron_) {
-  edm::Handle<reco::SuperClusterCollection> barrelsclusters;
-  edm::Handle<reco::SuperClusterCollection> endcapsclusters;
-  event.getByLabel("correctedHybridSuperClusters","",barrelsclusters);
-  event.getByLabel("correctedIslandEndcapSuperClusters","",endcapsclusters);
-  superclusters(*barrelsclusters,demand);
-  superclusters(*endcapsclusters,demand);
+    edm::Handle<reco::SuperClusterCollection> barrelsclusters;
+    edm::Handle<reco::SuperClusterCollection> endcapsclusters;
+    event.getByLabel("correctedHybridSuperClusters","",barrelsclusters);
+    event.getByLabel("correctedIslandEndcapSuperClusters","",endcapsclusters);
+    superclusters(*barrelsclusters,*refgetter,lazygetter);
+    superclusters(*endcapsclusters,*refgetter,lazygetter);
   }
-
-  // Add regions of interest to RefGetter object
-  std::auto_ptr<RefGetter> regions(new RefGetter(getter,demand));
-
+  
   // Add to event
-  event.put(regions);
+  event.put(refgetter);
 }
 
 
-void SiStripRawToClustersRoI::random(std::vector<uint32_t>& regions) const {
+void SiStripRawToClustersRoI::random(RefGetter& refgetter, 
+				     edm::Handle<LazyGetter>& lazygetter) const {
   
   uint32_t total = cabling_->getRegionCabling().size();
   uint32_t required = (uint32_t)(RandFlat::shoot()*(total+1));
@@ -112,15 +109,15 @@ void SiStripRawToClustersRoI::random(std::vector<uint32_t>& regions) const {
       for (uint32_t ilayer = 0; 
 	   ilayer < cabling_->getRegionCabling()[iregion][isubdet].size(); 
 	   ilayer++) {
-	
-	uint32_t index = SiStripRegionCabling::elementIndex(iregion,static_cast<SiStripRegionCabling::SubDet>(isubdet),ilayer);
-	regions.push_back(index);
+
+	cabling_->updateSiStripRefGetter<SiStripCluster>(refgetter,lazygetter,SiStripRegionCabling::elementIndex(iregion,static_cast<SiStripRegionCabling::SubDet>(isubdet),ilayer));
       }
     }
   }
 }
 
-void SiStripRawToClustersRoI::all(std::vector<uint32_t>& regions) const {
+void SiStripRawToClustersRoI::all(RefGetter& refgetter, 
+				  edm::Handle<LazyGetter>& lazygetter) const {
   
   uint32_t total = cabling_->getRegionCabling().size();
   
@@ -136,14 +133,15 @@ void SiStripRawToClustersRoI::all(std::vector<uint32_t>& regions) const {
 	   ilayer < cabling_->getRegionCabling()[iregion][isubdet].size(); 
 	   ilayer++) {
 
-	uint32_t index = SiStripRegionCabling::elementIndex(iregion,static_cast<SiStripRegionCabling::SubDet>(isubdet),ilayer);
-	regions.push_back(index);
+	cabling_->updateSiStripRefGetter<SiStripCluster>(refgetter,lazygetter,SiStripRegionCabling::elementIndex(iregion,static_cast<SiStripRegionCabling::SubDet>(isubdet),ilayer));
       }
     }
   }
 }
 
-void SiStripRawToClustersRoI::superclusters(const reco::SuperClusterCollection& coll, std::vector<uint32_t>& regions) const {
+void SiStripRawToClustersRoI::superclusters(const reco::SuperClusterCollection& coll,
+					    RefGetter& refgetter,
+					    edm::Handle<LazyGetter>& lazygetter) const {
   
   reco::SuperClusterCollection::const_iterator iclust = coll.begin();
   for (;
@@ -151,26 +149,18 @@ void SiStripRawToClustersRoI::superclusters(const reco::SuperClusterCollection& 
        iclust++) {
     
     SiStripRegionCabling::Position position(iclust->seed()->position().eta(),iclust->seed()->position().phi());
-    SiStripRegionCabling::Regions newregions = cabling_->regions(position,dR_);
-    
-    SiStripRegionCabling::Regions::const_iterator iregion = newregions.begin();
-    for (;
-	 iregion!=newregions.end();
-	 iregion++) {
       
       for (uint32_t isubdet = 0; 
-	   isubdet < cabling_->getRegionCabling()[*iregion].size(); 
+	   isubdet < SiStripRegionCabling::MAXSUBDETS; 
 	   isubdet++) {
-	
+
 	for (uint32_t ilayer = 0; 
-	     ilayer < cabling_->getRegionCabling()[*iregion][isubdet].size(); 
+	     ilayer < SiStripRegionCabling::MAXLAYERS; 
 	     ilayer++) {
-	  
-	  uint32_t index = SiStripRegionCabling::elementIndex(*iregion,static_cast<SiStripRegionCabling::SubDet>(isubdet),ilayer);
-	  regions.push_back(index);
+
+	  cabling_->updateSiStripRefGetter<SiStripCluster>(refgetter,lazygetter,position,dR_,static_cast<SiStripRegionCabling::SubDet>(isubdet),ilayer);
 	}
       }
-    }
   }
 }
-  
+
