@@ -19,6 +19,7 @@
 <use name=CommonTools/SiStripZeroSuppression>
 <use name=CalibFormats/SiStripObjects>
 <use name=CalibTracker/Records>
+<use name=Utilities/Timing>
 <export>
    <lib name=SimTrackerSiStripDigitizer>
    <use name=FWCore/Framework>
@@ -41,4 +42,5 @@
    <use name=CommonTools/SiStripZeroSuppression>
    <use name=CalibFormats/SiStripObjects>
    <use name=CalibTracker/Records>
+   <use name=Utilities/Timing>
 </export>
