@@ -4,8 +4,8 @@
 /** \class SiStripAnalyser
  * *
  *  SiStrip SiStripAnalyser
- *  $Date: 2007/05/22 12:12:56 $
- *  $Revision: 1.0 $
+ *  $Date: 2007/07/09 20:21:21 $
+ *  $Revision: 1.1 $
  *  \author  S. Dutta INFN-Pisa
  *   
  */
@@ -17,10 +17,6 @@
 
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
-
-// the TB fitter
-#include "CalibMuon/DTCalibration/src/DTTTrigCalibration.h"
 
 #include <iostream>
 #include <fstream>
