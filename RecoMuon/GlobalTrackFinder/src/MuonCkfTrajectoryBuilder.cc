@@ -160,14 +160,8 @@ limitedCandidates( TempTrajectory& startingTraj,
       }
     }
 
+    if (theIntermediateCleaning) IntermediateTrajectoryCleaner::clean(newCand);
 
-    if (theIntermediateCleaning) {
-        candidates.clear();
-        candidates = IntermediateTrajectoryCleaner::clean(newCand);
-    } else {
-        //cout << "calling candidates.swap(newCand) " << endl;
-        candidates.swap(newCand);
-    }
   }
 }
 
