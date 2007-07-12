@@ -243,7 +243,7 @@ EcalFEtoDigi::create_TPSample(TCCinput data) {
   /// setup look up table
   std::vector<unsigned int> lut_ ;
   if(!useIdentityLUT_) {
-    lut_ = ecaltpp_->getTowerParameters(SMidToTCCid(sm_), tower);
+    lut_ = *ecaltpp_->getTowerParameters(SMidToTCCid(sm_), tower);
     //lut_ = ecaltpp_->getTowerParameters(SMidToTCCid(sm_), tower, debug_);
   }
   else
@@ -275,7 +275,7 @@ EcalFEtoDigi::create_TPSampleTcp(TCCinput data) {
   /// setup look up table
   std::vector<unsigned int> lut_ ;
   if(!useIdentityLUT_)
-    lut_ = ecaltpp_->getTowerParameters(SMidToTCCid(sm_), tower) ;
+    lut_ = *ecaltpp_->getTowerParameters(SMidToTCCid(sm_), tower) ;
   else
     for(int i=0; i<1024; i++) lut_.push_back(i); //identity lut!
   
