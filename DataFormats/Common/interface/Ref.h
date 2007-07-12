@@ -5,7 +5,7 @@
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.26 2007/06/14 04:56:29 wmtan Exp $
+$Id: Ref.h,v 1.27 2007/07/09 07:28:49 llista Exp $
 
 ----------------------------------------------------------------------*/
 /**
@@ -165,7 +165,7 @@ namespace edm {
     
     template<typename REFV>
     struct FindRefVectorUsingAdvance : public std::binary_function<REFV const&, 
-								   typename REFV::member_type, 
+								   typename REFV::key_type, 
 								   typename REFV::member_type const*> {
       typedef FindRefVectorUsingAdvance<REFV> self;
       typename self::result_type operator()(typename self::first_argument_type iContainer,
