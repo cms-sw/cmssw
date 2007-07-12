@@ -46,7 +46,7 @@ class SiStripWebInterface : public WebInterface
   bool tkMapCreated;
   std::multimap<std::string, std::string> requestMap_;
 
-  string fileName_;
+  std::string fileName_;
  protected:
 
 

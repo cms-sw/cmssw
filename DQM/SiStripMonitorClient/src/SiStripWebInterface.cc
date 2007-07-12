@@ -25,6 +25,7 @@ SiStripWebInterface::SiStripWebInterface(std::string theContextURL, std::string 
   actionExecutor_ = 0;
   infoExtractor_  = 0;
   tkMapCreated = false;
+  fileName_ = "SiStripWebInterface.root";
 
   if (actionExecutor_ == 0) actionExecutor_ = new SiStripActionExecutorQTest();
   if (infoExtractor_ == 0) infoExtractor_ = new SiStripInformationExtractor();
@@ -218,7 +219,7 @@ void SiStripWebInterface::performAction() {
   case SiStripWebInterface::SaveData :
     {
       cout << " Saving Monitoring Elements " << endl;
-      actionExecutor_->saveMEs((*mui_p), "SiStripWebInterface.root");
+      actionExecutor_->saveMEs((*mui_p), fileName_);
       break;
     }
   case SiStripWebInterface::PlotSingleModuleHistos :
