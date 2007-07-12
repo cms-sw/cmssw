@@ -3,9 +3,9 @@
 /** \class ConvertedPhotonProducer
  **  
  **
- **  $Id: ConvertedPhotonProducer.h,v 1.7 2007/02/25 16:30:04 nancy Exp $ 
- **  $Date: 2007/02/25 16:30:04 $ 
- **  $Revision: 1.7 $
+ **  $Id: ConvertedPhotonProducer.h,v 1.8 2007/05/09 16:00:50 nancy Exp $ 
+ **  $Date: 2007/05/09 16:00:50 $ 
+ **  $Revision: 1.8 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -25,7 +25,7 @@
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
-
+class ConversionTrackEcalImpactPoint;
 class ConversionTrackPairFinder;
 class ConversionVertexFinder;
 class ConvertedPhotonProducer : public edm::EDProducer {
@@ -81,8 +81,9 @@ class ConvertedPhotonProducer : public edm::EDProducer {
   const MeasurementTracker*     theMeasurementTracker_;
   const NavigationSchool*       theNavigationSchool_;
 
-  ConversionTrackPairFinder*    theTrackPairFinder_;
-  ConversionVertexFinder*    theVertexFinder_;
+  ConversionTrackPairFinder*      theTrackPairFinder_;
+  ConversionVertexFinder*         theVertexFinder_;
+  ConversionTrackEcalImpactPoint* theEcalImpactPositionFinder_;
 
   const LayerMeasurements*      theLayerMeasurements_;
  
