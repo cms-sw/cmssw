@@ -13,7 +13,7 @@
 //
 // Original Author:  Martijn Mulders
 //         Created:  Wed Jul 30 11:37:24 CET 2007
-// $Id: MuonSimHitProducer.cc,v 1.0 2007/07/11 13:53:50 mulders Exp $
+// $Id: MuonSimHitProducer.cc,v 1.1 2007/07/11 15:35:32 mulders Exp $
 //
 //
 
@@ -56,6 +56,10 @@
 #include "DataFormats/GeometrySurface/interface/PlaneBuilder.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+
+////////////////////// Now find detector IDs:
+
+#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 
 // constants, enums and typedefs
 typedef std::vector<L1MuGMTCand> L1MuonCollection;
@@ -130,7 +134,7 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 							       mySimTrack.momentum().z(),
 							       mySimTrack.momentum().t());
 
-    std::cout << " AND THIS IS MUON NO. " << fsimi << std::endl;
+    std::cout << " >>> And now propagate Muon NO. " << fsimi << std::endl;
     if (debug_) {
       std::cout << " ===> ParamMuonProducer::reconstruct() found SIMTRACK - pid = "
 		<< mySimTrack.type() ;
@@ -189,7 +193,7 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     TrajectoryStateOnSurface FinalState = prop.propagate( startingState, *muonPlane);
     if (FinalState.isValid()) {
       std::cout << "Yes! this muon reached final destination at position " << FinalState.globalPosition() << std::endl;
-      std::cout << "which corresponds to an eta of " << std::endl;
+      //      std::cout << "which corresponds to an eta of " << std::endl;
       nMuonTot++;
     } else {
       std::cout << "Oops, this muon got lost" << std::endl;
