@@ -1,21 +1,30 @@
 <MonElementConfiguration> 
 <TkMap name="Summary Map" update_frequency="200">
      <MonElement name="ndigis"></MonElement> 
-     <MonElement name="hitmap"></MonElement> 
      <MonElement name="adc"></MonElement> 
-     <MonElement name="col"></MonElement> 
-     <MonElement name="row"></MonElement> 
 </TkMap>
 <SummaryPlot>
 <SubStructureBarrelLevel name="Ladder_" update_frequency="300"> 
      <MonElement name="ndigis"></MonElement> 
-     <MonElement name="hitmap"></MonElement> 
      <MonElement name="adc"></MonElement> 
 </SubStructureBarrelLevel> 
+<SubStructureGrandBarrelLevel name="Layer_" update_frequency="300"> 
+     <MonElement name="ndigis"></MonElement> 
+     <MonElement name="adc"></MonElement> 
+</SubStructureGrandBarrelLevel> 
 <SubStructureEndcapLevel name="Panel_" update_frequency="300"> 
      <MonElement name="ndigis"></MonElement> 
-     <MonElement name="hitmap"></MonElement> 
      <MonElement name="adc"></MonElement> 
 </SubStructureEndcapLevel> 
+<SubStructureGrandEndcapLevel name="Blade_" update_frequency="300"> 
+     <MonElement name="ndigis"></MonElement> 
+     <MonElement name="adc"></MonElement> 
+</SubStructureGrandEndcapLevel> 
 </SummaryPlot>
+
+<QTests>
+<QTestMessageLimit name="limit" update_frequency="100">
+</QTestMessageLimit>
+</QTests>
+
 </MonElementConfiguration> 
