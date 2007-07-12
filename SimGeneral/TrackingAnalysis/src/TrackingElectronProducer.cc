@@ -33,8 +33,8 @@ using CLHEP::HepLorentzVector;
 typedef TkNavigableSimElectronAssembler::VertexPtr VertexPtr;
 
 TrackingElectronProducer::TrackingElectronProducer(const edm::ParameterSet &conf) {
-  produces<TrackingVertexCollection>();
-  produces<TrackingParticleCollection>();
+  produces<TrackingVertexCollection>("ElectronVertexTruth");
+  produces<TrackingParticleCollection>("ElectronTrackTruth");
 
   std::cout << " TrackingElectronProducer CTOR " << std::endl;
 
@@ -86,10 +86,14 @@ void TrackingElectronProducer::produce(Event &event, const EventSetup &) {
   std::auto_ptr<TrackingParticleCollection> trackingParticles(new TrackingParticleCollection);
   std::auto_ptr<TrackingVertexCollection> trackingVertices(new TrackingVertexCollection);
 
+  std::cout << "now getting refprods " << std::endl;
+
   edm::RefProd<TrackingParticleCollection> refTPC =
     event.getRefBeforePut<TrackingParticleCollection>("ElectronTrackTruth");
   edm::RefProd<TrackingVertexCollection>   refTVC =
     event.getRefBeforePut<TrackingVertexCollection>("ElectronVertexTruth");
+
+  std::cout << "now creating tk vertices " << std::endl;
 
   //
   // create TrackingVertices
@@ -101,26 +105,42 @@ void TrackingElectronProducer::produce(Event &event, const EventSetup &) {
   for ( TkNavigableSimElectronAssembler::ElectronList::const_iterator ie 
 	  = electrons.begin(); ie != electrons.end(); ie++ ) {
 
+    cout << "in loop on electron list" << endl;
+
     // store parent vertex of first track segment 
     // and decay vertex of last track segment
     TrackingVertexRef parentV = (*(*ie).front()).parentVertex();
+
+    cout << "has got parent vertex" << endl;
     if (parentV.isNonnull()) {
+    cout << "parent vertex is non null" << endl;
       (*trackingVertices).push_back(*parentV);
       trackingVertexMap[parentV.get()] = ntv++;
     }
+
     // for 131
-    //    TrackingVertexRef decayV = (*(*ie).back()).decayVertex();
-    
+    //    TrackingVertexRef decayV = (*(*ie).back()).decayVertex();    
+
     TrackingVertexRefVector decayVertices = (*(*ie).back()).decayVertices();
     if ( !decayVertices.empty() ) {
-      (*trackingVertices).push_back( *decayVertices.at(0) );
-      trackingVertexMap[ &(*decayVertices.at(0)) ] = ntv++;
+
+      // get first decay vertex
+      TrackingVertexRef decayV = decayVertices.at(0);
+      if (decayV.isNonnull()) {
+	cout << "making map: decay vertex is non null" << endl;
+	(*trackingVertices).push_back(*decayV);
+	trackingVertexMap[decayV.get()] = ntv++;
+      }
+      else {
+	cout << "making map: decay vertex is null" << endl;
+      }
     }
   }
    
   //
   // create TrackingParticles
   //
+  cout << "now creating tracking particles" << endl;
   typedef std::map<TrackingParticle const *,int> TPMap;
   TPMap trackingParticleMap;
   int ntp(0);
