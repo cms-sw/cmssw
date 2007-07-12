@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 <SpecParSection  xmlns="http://www.cern.ch/cms/DDL" label="Try1" eval="true">
 <!-- p o r t e d  f r o m  ORCA/Data/MuonData/EndcapData Tim Cox-->
 <!-- converted for just physical chambers - no ME1A - Tim Cox 02.04.2007-->
@@ -1056,3 +1058,4 @@
 
 </SpecPar>
 </SpecParSection>
+</DDDefinition>
