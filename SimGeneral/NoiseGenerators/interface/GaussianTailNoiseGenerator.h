@@ -10,13 +10,18 @@
  *
  * Fills in a map \< channel number, generated noise \>
  */
-
 #ifndef GaussianTailNoiseGenerator_h
-#define GaussianTailNoiseGenerator_h _ 1
+#define GaussianTailNoiseGenerator_h
 
+#include <gsl/gsl_sf_erf.h>
+#include <gsl/gsl_sf_result.h>
+#include <gsl/gsl_randist.h>
+#include <gsl/gsl_rng.h>
+#include <vector>
 #include <map>
 
 namespace CLHEP {
+  class RandGauss;
   class RandPoisson;
   class RandFlat;
   class HepRandomEngine;
@@ -34,12 +39,22 @@ public:
 		float noiseRMS, 
 		std::map<int,float, std::less<int> >& theMap );
 
+  void generate(int NumberOfchannels, 
+		float threshold,
+		float noiseRMS, 
+		std::vector<std::pair<int,float> >&);
+
+  void generateRaw(int NumberOfchannels, 
+		   float noiseRMS, 
+		   std::vector<std::pair<int,float> >&);
+
 
 private:
+  CLHEP::RandGauss *gaussDistribution_;
   CLHEP::RandPoisson *poissonDistribution_;
   CLHEP::RandFlat *flatDistribution_;
   CLHEP::HepRandomEngine& rndEngine;
-
+  gsl_rng * mt19937;
 };
 
 #endif
