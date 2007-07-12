@@ -3,7 +3,7 @@
 
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/ClusterParameterEstimator.h"
-
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
 
@@ -18,7 +18,7 @@
 class StripClusterParameterEstimator : public ClusterParameterEstimator<SiStripCluster> {
  public:
   typedef std::pair<MeasurementPoint,MeasurementError>  MeasurementValues; 
-  
+  virtual LocalVector driftDirection(const StripGeomDetUnit* det)const=0;
   //
   // methods to get directly the measurements
   //
