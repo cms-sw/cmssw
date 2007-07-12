@@ -41,12 +41,28 @@ TtDecaySubset::produce(edm::Event& evt, const edm::EventSetup& setup)
   evt.put( sel );
 }
 
+Particle::LorentzVector TtDecaySubset::fourVector(const reco::Candidate& p)
+{
+  Particle::LorentzVector vec;
+  Candidate::const_iterator pd=p.begin();
+  for( ; pd!=p.end(); ++pd){
+    if( status( *pd )==TtDecayID::status ){
+      vec+=fourVector( *pd );
+    }
+    else{
+      if( abs(pd->pdgId())!=24 )
+	vec+=pd->p4();
+    }
+  }
+  return vec;
+}
+
 void TtDecaySubset::fillOutput(const reco::CandidateCollection& src, reco::CandidateCollection& sel)
 {
   CandidateCollection::const_iterator t=src.begin();
   for(int idx=-1; t!=src.end(); ++t){
-    if( status( *t )==TtDecayID::status && abs( t->pdgId() )==TtDecayID::tID ){ //is top
-      GenParticleCandidate* cand = new GenParticleCandidate( t->charge(), t->p4(), 
+    if( status( *t )==TtDecayID::status && abs( t->pdgId() )==TtDecayID::tID ){ //is top      
+      GenParticleCandidate* cand = new GenParticleCandidate( t->charge(), fourVector( *t ), 
 							     t->vertex(), t->pdgId(), status( *t ) );
       auto_ptr<reco::Candidate> ptr( cand );
       sel.push_back( ptr );
@@ -60,15 +76,15 @@ void TtDecaySubset::fillOutput(const reco::CandidateCollection& src, reco::Candi
       //iterate over top daughters
       Candidate::const_iterator td=t->begin();
       for( ; td!=t->end(); ++td){
-	if( status( *td )==TtDecayID::status && abs( td->pdgId() )==TtDecayID::bID ){ //is beauty
-	  GenParticleCandidate* cand = new GenParticleCandidate( td->charge(), td->p4(), 
+	if( status( *td )==TtDecayID::status && abs( td->pdgId() )==TtDecayID::bID ){ //is beauty	  
+	  GenParticleCandidate* cand = new GenParticleCandidate( td->charge(), fourVector( *td ), 
 								 td->vertex(), td->pdgId(), status( *td ) );
 	  auto_ptr<Candidate> ptr( cand );
 	  sel.push_back( ptr );	  
 	  topDaughs.push_back( ++idx ); //push index of top daughter
 	}
 	if( status( *td )==TtDecayID::status && abs( td->pdgId() )==TtDecayID::WID ){ //is W boson
-	  GenParticleCandidate* cand = new GenParticleCandidate( td->charge(), td->p4(), 
+	  GenParticleCandidate* cand = new GenParticleCandidate( td->charge(), fourVector( *td ), 
 								 td->vertex(), td->pdgId(), status( *td ) );
 	  auto_ptr<Candidate> ptr( cand );
 	  sel.push_back( ptr );
@@ -81,13 +97,12 @@ void TtDecaySubset::fillOutput(const reco::CandidateCollection& src, reco::Candi
 	  //iterate over W daughters
 	  Candidate::const_iterator wd=td->begin();
 	  for( ; wd!=td->end(); ++wd){
-if (wd->pdgId() != td->pdgId()) {
-	    GenParticleCandidate* cand = new GenParticleCandidate( wd->charge(), wd->p4(), 
-								   wd->vertex(), wd->pdgId(), status( *wd ) );
-	    auto_ptr<Candidate> ptr( cand );
-	    sel.push_back( ptr );
-	    wDaughs.push_back( ++idx ); //push index of wBoson daughter
-}
+	    if (wd->pdgId() != td->pdgId()) {
+	      GenParticleCandidate* cand = new GenParticleCandidate( wd->charge(), fourVector( *wd ), 
+								     wd->vertex(), wd->pdgId(), status( *wd ) );	      auto_ptr<Candidate> ptr( cand );
+	      sel.push_back( ptr );
+	      wDaughs.push_back( ++idx ); //push index of wBoson daughter
+	    }
 	  }
 	}
       }

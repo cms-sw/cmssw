@@ -20,6 +20,8 @@ class TtDecaySubset : public edm::EDProducer {
   virtual void produce(edm::Event&, const edm::EventSetup&);
   void fillOutput(const reco::CandidateCollection&, reco::CandidateCollection&);
   void fillRefs(const reco::CandidateRefProd&, reco::CandidateCollection&);
+
+  reco::Particle::LorentzVector fourVector(const reco::Candidate&);
  private:
   edm::InputTag src_;  
   std::map<int,std::vector<int> > refs_; //management of daughter
