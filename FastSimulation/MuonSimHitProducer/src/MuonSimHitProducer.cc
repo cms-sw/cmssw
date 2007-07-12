@@ -13,7 +13,7 @@
 //
 // Original Author:  Martijn Mulders
 //         Created:  Wed Jul 30 11:37:24 CET 2007
-// $Id: MuonSimHitProducer.cc,v 1.1 2007/07/11 15:35:32 mulders Exp $
+// $Id: MuonSimHitProducer.cc,v 1.2 2007/07/12 14:14:04 mulders Exp $
 //
 //
 
@@ -52,14 +52,14 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolumeOutsideValidity.h"
-#include  "TrackPropagation/NavPropagator/interface/NavPropagator.h"
+// #include  "TrackPropagation/NavPropagator/interface/NavPropagator.h"
 #include "DataFormats/GeometrySurface/interface/PlaneBuilder.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 ////////////////////// Now find detector IDs:
 
-#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
+// #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 
 // constants, enums and typedefs
 typedef std::vector<L1MuGMTCand> L1MuonCollection;
@@ -146,6 +146,8 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
 // *** Reconstruct parameterized muons starting from undecayed simulated muons
  
+    /* -- Temporary fix for Patrick
+
     GlobalPoint startingPosition = GlobalPoint(mySimTrack.trackerSurfacePosition().x(),
 					       mySimTrack.trackerSurfacePosition().y(),
 					       mySimTrack.trackerSurfacePosition().z());
@@ -185,6 +187,7 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     GlobalPoint targetPos = startingPosition + PropVector;
     PlaneBuilder::ReturnType muonPlane = pb.plane( targetPos , rot);
 
+
     // Get a propagator
     NavPropagator prop(magfield.product());
     
@@ -198,7 +201,7 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     } else {
       std::cout << "Oops, this muon got lost" << std::endl;
     }
-    
+    -- End of Temporary fix for Patrick */ 
  
       
   } // end of loop over generated muons
