@@ -51,6 +51,7 @@ class GSTrackCandidateMaker : public edm::EDProducer
   std::string hitProducer;
 
   bool seedCleaning;
+  bool rejectOverlaps;
   unsigned int seedType;
   double originRadius;
   double originHalfLength;

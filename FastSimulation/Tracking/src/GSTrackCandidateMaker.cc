@@ -21,32 +21,26 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHit.h"
 #include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
-
-//for debug only 
-//#define FAMOS_DEBUG
-
-#ifdef FAMOS_DEBUG
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h" 
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h" 
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#endif
-
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h" 
 
 #include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
 //
 
+//for debug only 
+//#define FAMOS_DEBUG
 
 GSTrackCandidateMaker::GSTrackCandidateMaker(const edm::ParameterSet& conf) 
 {  
@@ -78,6 +72,9 @@ GSTrackCandidateMaker::GSTrackCandidateMaker(const edm::ParameterSet& conf)
   originRadius = conf.getParameter<double>("originRadius");
   originHalfLength = conf.getParameter<double>("originHalfLength");
   originpTMin = conf.getParameter<double>("originpTMin");
+
+  // Reject overlapping hits?
+  rejectOverlaps = conf.getParameter<bool>("overlapCleaning");
 
 }
 
@@ -284,62 +281,119 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
 	  
     
     // Create OwnVector with sorted GSRecHit's
+    unsigned int previousLayerNumber = 0;
+    unsigned int previousSubdetId = 0;
+    double previousLambda1 = 0.;
+    bool replacePreviousHit = false;
+    bool keepThisHit = true;
+    TrackingRecHit* previousHit = 0;
+    //
     edm::OwnVector<TrackingRecHit> recHits;
+    // 
     for ( iterRecHit = theRecHitRangeIteratorBegin; 
 	   iterRecHit != theRecHitRangeIteratorEnd; 
 	   ++iterRecHit) {
       const DetId& detId =  iterRecHit->geographicalId();
-      const GeomDet* geomDet( theGeometry->idToDet(detId) );
-      TrackingRecHit* aTrackingRecHit = 
-      	GenericTransientTrackingRecHit::build(geomDet,&(*iterRecHit))->hit()->clone();
-      recHits.push_back(aTrackingRecHit);
-      
-#ifdef FAMOS_DEBUG
-      unsigned int subdetId = detId.subdetId(); 
-      int layerNumber=0;
-      int ringNumber = 0;
-      int stereo = 0;
-      if ( subdetId == StripSubdetector::TIB) { 
+
+      if ( rejectOverlaps ) { 
+
+	unsigned int subdetId = detId.subdetId(); 
+	unsigned int layerNumber=0;
+	unsigned int ringNumber = 0;
+	unsigned int stereo = 0;
+	if ( subdetId == StripSubdetector::TIB) { 
 	  TIBDetId tibid(detId.rawId()); 
 	  layerNumber = tibid.layer();
 	  stereo = tibid.stereo();
-      } else if ( subdetId ==  StripSubdetector::TOB ) { 
+	} else if ( subdetId ==  StripSubdetector::TOB ) { 
 	  TOBDetId tobid(detId.rawId()); 
 	  layerNumber = tobid.layer();
 	  stereo = tobid.stereo();
-      } else if ( subdetId ==  StripSubdetector::TID) { 
+	} else if ( subdetId ==  StripSubdetector::TID) { 
 	  TIDDetId tidid(detId.rawId());
 	  layerNumber = tidid.wheel();
 	  ringNumber = tidid.ring();
 	  stereo = tidid.stereo();
-      } else if ( subdetId ==  StripSubdetector::TEC ) { 
+	} else if ( subdetId ==  StripSubdetector::TEC ) { 
 	  TECDetId tecid(detId.rawId()); 
 	  layerNumber = tecid.wheel(); 
 	  ringNumber = tecid.ring();
 	  stereo = tecid.stereo();
-      } else if ( subdetId ==  PixelSubdetector::PixelBarrel ) { 
+	} else if ( subdetId ==  PixelSubdetector::PixelBarrel ) { 
 	  PXBDetId pxbid(detId.rawId()); 
 	  layerNumber = pxbid.layer();  
 	  stereo = 1;
-      } else if ( subdetId ==  PixelSubdetector::PixelEndcap ) { 
+	} else if ( subdetId ==  PixelSubdetector::PixelEndcap ) { 
 	  PXFDetId pxfid(detId.rawId()); 
 	  layerNumber = pxfid.disk();  
 	  stereo = 1;
+	}
+
+	// Determine the smaller uncertainty for the current hit
+	double xx = iterRecHit->localPositionError().xx();
+	double yy = iterRecHit->localPositionError().yy();
+	double xy = iterRecHit->localPositionError().xy();
+	double delta = std::sqrt((xx-yy)*(xx-yy)+4.*xy*xy);
+	double lambda1 = 0.5 * (xx+yy-delta);
+
+	// Not the same layer : Add the current hit
+	if ( subdetId != previousSubdetId || layerNumber != previousLayerNumber ) {
+	  keepThisHit = true;
+	  replacePreviousHit = false;
+	// Same layer : keep the better hit, and drop the other 
+	} else {
+	  // In that case, the current hit is better -> drop the previous one
+	  if ( lambda1 < previousLambda1 ) {
+	    keepThisHit = true;
+	    replacePreviousHit = true;
+	  // In this case, the previous hit was better -> do nothing ! (ignore the current hit)
+	  } else {
+	    keepThisHit = false;
+	    replacePreviousHit = false;
+	  }
+	}
+	previousSubdetId = subdetId;
+	previousLayerNumber = layerNumber;
+	previousLambda1 = lambda1;
       }
 
-      std::cout << "Added RecHit from detid " << detId.rawId() 
-		<< " subdet = " << subdetId 
-		<< " layer = " << layerNumber 
-		<< " ring = " << ringNumber 
-		<< " Stereo = " << stereo
-		<< std::endl;
-      
-      std::cout << "Track/z/r : "
-		<< simTrackId << " " 
-		<< geomDet->surface().toGlobal(iterRecHit->localPosition()).z() << " " 
-		<< geomDet->surface().toGlobal(iterRecHit->localPosition()).perp() << std::endl;
+      // delete previous hit
+      if ( replacePreviousHit ) {
+	delete previousHit;
+	recHits.pop_back();
+#ifdef FAMOS_DEBUG
+	std::cout << "Removed this RecHit (found a better hit on the same layer)" << std::endl; 
+#endif
+      }
+
+      // add current hit
+      if ( keepThisHit ) { 
+
+	const GeomDet* geomDet( theGeometry->idToDet(detId) );
+	TrackingRecHit* aTrackingRecHit = 
+	  GenericTransientTrackingRecHit::build(geomDet,&(*iterRecHit))->hit()->clone();
+	recHits.push_back(aTrackingRecHit);	
+	previousHit = aTrackingRecHit;
+
+#ifdef FAMOS_DEBUG
+	std::cout << "Added RecHit from detid " << detId.rawId() 
+		  << " subdet = " << subdetId 
+		  << " layer = " << layerNumber 
+		  << " ring = " << ringNumber 
+		  << " Stereo = " << stereo
+		  << std::endl;
+	
+	std::cout << "Track/z/r : "
+		  << simTrackId << " " 
+		  << geomDet->surface().toGlobal(iterRecHit->localPosition()).z() << " " 
+		  << geomDet->surface().toGlobal(iterRecHit->localPosition()).perp() << std::endl;
 #endif
     
+      // ignore current hit
+      } else { 
+	previousHit = 0;
+      }
+      
     }
 
     //
@@ -452,8 +506,10 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
     output->push_back(newTrackCandidate);
     ++nTrackCandidates;
 
+
   }
   
+
 #ifdef FAMOS_DEBUG
   std::cout << " GSTrackCandidateMaker: Total SimTracks           = " << nSimTracks << std::endl 
 	    << "                        Total SimTracksWithHits   = " << nTracksWithHits  << std::endl 
