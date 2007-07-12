@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2007/05/22 12:12:56 $
- * $Revision: 1.0 $
+ * $Date: 2007/07/09 20:21:22 $
+ * $Revision: 1.1 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -20,7 +20,6 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripWebInterface.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
-//#include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQMServices/WebComponents/interface/Button.h"
@@ -46,7 +45,9 @@
 
 using namespace edm;
 using namespace std;
-
+//
+// -- Constructor
+//
 SiStripAnalyser::SiStripAnalyser(const edm::ParameterSet& ps) :
   ModuleWeb("SiStripAnalyser"){
   
@@ -65,29 +66,29 @@ SiStripAnalyser::SiStripAnalyser(const edm::ParameterSet& ps) :
 
   // instantiate web interface
   sistripWebInterface_ = new SiStripWebInterface("dummy", "dummy", &mui_);
-  xgi::bind(this, &SiStripAnalyser::handleWebRequest, "Request");
+  //  xgi::bind(this, &SiStripAnalyser::handleWebRequest, "Request");
   
 }
-
-
+//
+// -- Destructor
+//
 SiStripAnalyser::~SiStripAnalyser(){
 
   edm::LogInfo("SiStripAnalyser") <<  " Deleting SiStripAnalyser " << "\n" ;
   if (sistripWebInterface_) delete sistripWebInterface_;
 
 }
-
+//
+// -- End Job
+//
 void SiStripAnalyser::endJob(){
 
   cout << " Saving Monitoring Elements " << endl;
-  ostringstream fname;
-  fname << "SiStripWebInterface_" << runNumber_ << ".root";
-  sistripWebInterface_->setActionFlag(SiStripWebInterface::SaveData);
-  seal::Callback action(seal::CreateCallback(sistripWebInterface_, 
-					 &SiStripWebInterface::performAction));
-  mui_->addCallback(action); 
+  saveAll();
 }
-
+//
+// -- Begin Job
+//
 void SiStripAnalyser::beginJob(const edm::EventSetup& context){
 
   nevents = 0;
@@ -105,6 +106,7 @@ void SiStripAnalyser::beginJob(const edm::EventSetup& context){
 //
 void SiStripAnalyser::analyze(const edm::Event& e, const edm::EventSetup& context){
   nevents++;
+  runNumber_ = e.id().run();
   if (nevents <= 5) return;
 
   cout << " ===> Iteration #" << nevents << endl;
@@ -112,44 +114,35 @@ void SiStripAnalyser::analyze(const edm::Event& e, const edm::EventSetup& contex
   if (summaryFrequency_ != -1 && nevents%summaryFrequency_ == 1) {
     cout << " Creating Summary " << endl;
     sistripWebInterface_->setActionFlag(SiStripWebInterface::Summary);
-    seal::Callback action(seal::CreateCallback(sistripWebInterface_, 
-				    &SiStripWebInterface::performAction));
-    mui_->addCallback(action);	 
+    sistripWebInterface_->performAction();
   }
   // -- Create TrackerMap  according to the frequency
   if (tkMapFrequency_ != -1 && nevents%tkMapFrequency_ == 1) {
     cout << " Creating Tracker Map " << endl;
     sistripWebInterface_->setActionFlag(SiStripWebInterface::CreateTkMap);
-    seal::Callback action(seal::CreateCallback(sistripWebInterface_, 
-				    &SiStripWebInterface::performAction));
-    mui_->addCallback(action); 
+    sistripWebInterface_->performAction();
   }
   // Create predefined plots
   if (nevents%10  == 1) {
     cout << " Creating predefined plots " << endl;
     sistripWebInterface_->setActionFlag(SiStripWebInterface::PlotHistogramFromLayout);
-    seal::Callback action(seal::CreateCallback(sistripWebInterface_, 
-				       &SiStripWebInterface::performAction));
-    mui_->addCallback(action); 
+    sistripWebInterface_->performAction();
   }
 
   if (nevents % fileSaveFrequency_ == 1) {
-    runNumber_ = e.id().run();
     saveAll();
   }
 }
 //
-// -- save file
+// -- Save file
 //
 void SiStripAnalyser::saveAll() {
   ostringstream fname;
   fname << "SiStripWebInterface_" << runNumber_ << ".root";
   cout << " Saving Monitoring Elements in " << fname.str() <<endl;
-  
+  sistripWebInterface_->setOutputFileName(fname.str());
   sistripWebInterface_->setActionFlag(SiStripWebInterface::SaveData);
-  seal::Callback action(seal::CreateCallback(sistripWebInterface_, 
-				     &SiStripWebInterface::performAction));
-  mui_->addCallback(action); 
+  sistripWebInterface_->performAction();
 }
 //
 // -- Create default web page
@@ -233,6 +226,6 @@ void SiStripAnalyser::defaultWebPage(xgi::Input *in, xgi::Output *out)
 //
 // Handles all HTTP requests of the form ..../Request?RequestID=
 //
-void SiStripAnalyser::handleWebRequest(xgi::Input *in, xgi::Output *out) {
-  sistripWebInterface_->handleCustomRequest(in, out);
-}
+//void SiStripAnalyser::handleWebRequest(xgi::Input *in, xgi::Output *out) {
+//  sistripWebInterface_->handleCustomRequest(in, out);
+//}

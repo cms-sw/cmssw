@@ -33,7 +33,8 @@ class SiStripWebInterface : public WebInterface
   void setActionFlag(SiStripActionType flag) {theActionFlag = flag;}
 
   bool createTkMap();
-   
+  void setOutputFileName(std::string name) {fileName_ = name;}
+    
   private:
 
   SiStripActionType theActionFlag;
@@ -45,6 +46,7 @@ class SiStripWebInterface : public WebInterface
   bool tkMapCreated;
   std::multimap<std::string, std::string> requestMap_;
 
+  string fileName_;
  protected:
 
 

@@ -4,8 +4,8 @@
 /** \class SiStripAnalyser
  * *
  *  SiStrip SiStripAnalyser
- *  $Date: 2007/07/09 20:21:21 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/07/12 11:05:54 $
+ *  $Revision: 1.2 $
  *  \author  S. Dutta INFN-Pisa
  *   
  */
@@ -42,7 +42,7 @@ public:
 
   void defaultWebPage(xgi::Input *in, xgi::Output *out); 
   void publish(xdata::InfoSpace *){};
-  void handleWebRequest(xgi::Input *in, xgi::Output *out); 
+  //  void handleWebRequest(xgi::Input *in, xgi::Output *out); 
 
 protected:
 
