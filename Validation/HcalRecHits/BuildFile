@@ -9,7 +9,6 @@
 <use name=DataFormats/Common>
 <use name=DataFormats/HcalDetId>
 <use name=DataFormats/CaloRecHit>
-<use name=DataFormats/HcalRecHits>
 <use name=Geometry/CaloEventSetup>
 
 <export>
@@ -24,7 +23,6 @@
   <use name=DataFormats/HcalDetId>
   <use name=DataFormats/CaloRecHit>
   <use name=DataFormats/Common>	 
-  <use name=DataFormats/HcalRecHits>
   <use name=Geometry/CaloEventSetup>
 
 </export>
