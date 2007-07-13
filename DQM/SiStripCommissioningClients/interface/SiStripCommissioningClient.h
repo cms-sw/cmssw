@@ -16,7 +16,7 @@
 #include "boost/shared_ptr.hpp"
 #include <string>
 #include <vector>
-#include "toolbox/BSem.h"
+#include "BSem.h"
 
 class SiStripCommissioningWebClient;
 class CommissioningHistograms;
@@ -153,7 +153,7 @@ class SiStripCommissioningClient : public DQMBaseClient, public dqm::UpdateObser
   
   mutable bool first_;
 
-  toolbox::BSem* fCallBack;
+  BSem* fCallBack;
 
   HistogramDisplayHandler* hdis_;
 

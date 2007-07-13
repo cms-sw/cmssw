@@ -48,7 +48,7 @@ SiStripCommissioningClient::SiStripCommissioningClient( xdaq::ApplicationStub* s
 
   xgi::bind( this, &SiStripCommissioningClient::handleWebRequest, "Request" );
   xgi::bind( this, &SiStripCommissioningClient::CBHistogramViewer, "HistogramViewer" );
-  fCallBack = new toolbox::BSem(toolbox::BSem::EMPTY);
+  fCallBack = new BSem(BSem::EMPTY); //@@ new BSem(BSem::EMPTY);
   fCallBack->give();
   hdis_ = NULL;
 
