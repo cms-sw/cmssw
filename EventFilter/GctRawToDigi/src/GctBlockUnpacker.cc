@@ -17,6 +17,7 @@ using std::endl;
 GctBlockUnpacker::GctBlockUnpacker() {
 
   // setup block length map
+  blockLength_[0x00] = 0;
   blockLength_[0x5f] = 1;   // ConcJet: Bunch Counter Pattern Test
   blockLength_[0x68] = 4;   // ConcElec: Output to Global Trigger
   blockLength_[0x69] = 16;  // ConcElec: Sort Input
@@ -57,6 +58,8 @@ unsigned GctBlockUnpacker::blockLength(unsigned id) {
 void GctBlockUnpacker::convertBlock(const unsigned char * data, unsigned id, unsigned nSamples) {
 
   switch (id) {
+  case (0x00):
+    break;
   case (0x5f) :
     break;
   case (0x68) :
@@ -119,18 +122,38 @@ void GctBlockUnpacker::convertBlock(const unsigned char * data, unsigned id, uns
 
 // Output EM Candidates unpacking
 void GctBlockUnpacker::blockToGctEmCand(const unsigned char * data, unsigned id, unsigned nSamples) {
-  for (int i=0; i<blockLength(id)*nSamples; i=i+nSamples) {
-    unsigned offset = i*4*nSamples;
-    bool iso = (i > 1);
-    if (i > 1) {
-      gctIsoEm_->push_back( L1GctEmCand(data[offset]   + (data[offset+1]<<8), true, 0, 0) );
-      gctIsoEm_->push_back( L1GctEmCand(data[offset+2] + (data[offset+3]<<8), true, 0, 0) );
+
+  LogDebug("GCT") << "Unpacking EM Cands" << std::endl;
+
+  // re-interpret pointer
+  uint16_t * p = reinterpret_cast<uint16_t *>(const_cast<unsigned char *>(data));
+
+  for (int iso=0; iso<2; iso++) {   // loop over non-iso/iso candidates
+    for (int bx=0; bx<nSamples; bx++) {   // loop over time samples
+
+      bool isolated = (iso==1);
+      uint16_t * pp = p+ (2*bx) + (iso*4*nSamples);
+
+      L1GctEmCandCollection* em;
+      if (isolated) { em = gctIsoEm_; }
+      else { em = gctNonIsoEm_; }
+
+      pp=pp+3+(2*(nSamples-1));
+      em->push_back(L1GctEmCand(*pp, isolated, id, 0, bx));
+      pp=pp-(2*(nSamples-1))-2;
+      em->push_back(L1GctEmCand(*pp, isolated, id, 0, bx));
+      pp=pp+(2*(nSamples-1))+1;
+      em->push_back(L1GctEmCand(*pp, isolated, id, 0, bx));
+      pp=pp-(2*(nSamples-1))-2;
+      em->push_back(L1GctEmCand(*pp, isolated, id, 0, bx));
+
     }
-    else {
-      gctNonIsoEm_->push_back( L1GctEmCand(data[offset] + (data[offset+1]<<8), false, 0, 0) );
-      gctNonIsoEm_->push_back( L1GctEmCand(data[offset+2] + (data[offset+3]<<8), false, 0, 0) );
-    }
-  }  
+  }
+
+
+  LogDebug("GCT") << "Unpacked " << gctIsoEm_->size() << " iso EM cands, "
+		       << gctNonIsoEm_->size() << " non-iso EM cands" << std::endl;  
+
 }
 
 

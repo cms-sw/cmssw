@@ -27,7 +27,7 @@ void GctBlockPacker::writeFedHeader(unsigned char * d, uint32_t fedId) {
 
 
 // write FED Footer
-void GctBlockPacker::writeFedHeader(unsigned char * d, uint32_t fedId) {
+void GctBlockPacker::writeFedFooter(unsigned char * d, const unsigned char * s) {
 
 }
 
@@ -45,30 +45,35 @@ void GctBlockPacker::writeGctHeader(unsigned char * d, uint16_t id, uint16_t nsa
 // Output EM Candidates packing
 void GctBlockPacker::writeGctEmBlock(unsigned char * d, const L1GctEmCandCollection* iso, const L1GctEmCandCollection* nonIso) {
 
+  // number of time samples to write
+  uint16_t nSamples = 1;
+
   // write header
-  writeGctHeader(d, 0x68, 1);
+  writeGctHeader(d, 0x68, nSamples);
   d=d+4;
 
-  // cast to 16 bit pointer
-  uint16_t * p = reinterpret_cast<uint16_t*>(const_cast<unsigned char *>(d));
+  // re-interpret pointer
+  uint16_t * p = reinterpret_cast<uint16_t *>(const_cast<unsigned char *>(d));
 
-   // pack iso EM
-    for (int i=0; i<4; i++) {
-//      // in future, will only pack digis for 0th crossing, but this is not set yet!!!
-//      //    if (gctIsoEm_->at(i).bx() == 0) {
-        int j = i; // should be gctIsoEm_->at(i).capIndex(); but capIndex is not set yet!!!
-        *p = iso->at(i).raw();
-        p++;
-        //    }
+  for (int i=0; i<2; i++) {   // loop over non-iso/iso candidates
+    for (int bx=0; bx<nSamples; bx++) {   // loop over time samples
+
+      bool isolated = (i==1);
+      uint16_t * pp = p+ (2*bx) + (i*4*nSamples);
+      const L1GctEmCandCollection* em;
+      
+      if (isolated) { em = iso; }
+      else { em = nonIso; }
+
+      *pp = em->at(0).raw();
+      pp++;
+      *pp = em->at(2).raw();
+      pp=pp+nSamples;
+      *pp = em->at(1).raw();
+      pp++;
+      *pp = em->at(3).raw();
+      
     }
-
-   // pack non-iso EM
-   for (int i=0; i<4; i++) {
-     // in future will ony pack digis for 0th crossing, but this is not set yet!!!
-     //    if (gctNonIsoEm_->at(i).bx() == 0) {
-     *p = nonIso->at(i).raw();
-     p++;
-     //    }
   }
 
 }
