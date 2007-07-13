@@ -66,7 +66,7 @@ class GeometricSearchDet {
 		  const Propagator& prop, 
 		  const MeasurementEstimator& est) const {
     std::vector<DetWithState> result;
-    compatibleDetsV( startingState,, prop, est,result)
+    compatibleDetsV( startingState, prop, est,result);
     return result;
   }
   virtual void
