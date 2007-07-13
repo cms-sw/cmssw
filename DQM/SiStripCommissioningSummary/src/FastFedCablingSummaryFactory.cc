@@ -28,18 +28,20 @@ uint32_t SummaryPlotFactory<FastFedCablingAnalysis*>::init( const sistrip::Monit
     if ( !iter->second ) { continue; }
     float value = 1. * sistrip::invalid_;
     float error = 1. * sistrip::invalid_;
-    if ( SummaryPlotFactoryBase::mon_ == sistrip::FAST_FED_CABLING_HIGH_LEVEL ) { 
+    if ( SummaryPlotFactoryBase::mon_ == sistrip::FAST_CABLING_HIGH_LEVEL ) { 
       value = iter->second->highLevel(); 
       error = iter->second->highRms(); 
-    } else if ( SummaryPlotFactoryBase::mon_ == sistrip::FAST_FED_CABLING_LOW_LEVEL ) { 
+    } else if ( SummaryPlotFactoryBase::mon_ == sistrip::FAST_CABLING_LOW_LEVEL ) { 
       value = iter->second->lowLevel(); 
       error = iter->second->lowRms(); 
-    } else if ( SummaryPlotFactoryBase::mon_ == sistrip::FAST_FED_CABLING_MAX ) { 
+//     } else if ( SummaryPlotFactoryBase::mon_ == sistrip::FAST_CABLING_ADC_RANGE ) { 
+//       value = iter->second->highLevel() - iter->second->lowLevel(); 
+    } else if ( SummaryPlotFactoryBase::mon_ == sistrip::FAST_CABLING_MAX ) { 
       value = iter->second->max(); 
-    } else if ( SummaryPlotFactoryBase::mon_ == sistrip::FAST_FED_CABLING_MIN ) { 
+    } else if ( SummaryPlotFactoryBase::mon_ == sistrip::FAST_CABLING_MIN ) { 
       value = iter->second->min(); 
-      //} else if ( SummaryPlotFactoryBase::mon_ == sistrip::FAST_FED_CABLING_CONNS_PER_FED ) { 
-      //if ( iter->second->isValid() ) { value = 1.; } 
+    } else if ( SummaryPlotFactoryBase::mon_ == sistrip::FAST_CABLING_CONNS_PER_FED ) { 
+      value = 1. * static_cast<uint16_t>( iter->second->isValid() ); 
     } else { 
       edm::LogWarning(mlSummaryPlots_)
 	<< "[SummaryPlotFactory::" << __func__ << "]" 
@@ -56,7 +58,6 @@ uint32_t SummaryPlotFactory<FastFedCablingAnalysis*>::init( const sistrip::Monit
 
   }
   
-  SummaryPlotFactoryBase::generator_->printMap();
   return SummaryPlotFactoryBase::generator_->nBins();
   
 }
@@ -71,14 +72,16 @@ void SummaryPlotFactory<FastFedCablingAnalysis*>::fill( TH1& summary_histo ) {
   if ( !SummaryPlotFactoryBase::generator_ ) { return; }
   
   // Histogram formatting
-  if ( SummaryPlotFactoryBase::mon_ == sistrip::FAST_FED_CABLING_HIGH_LEVEL ) {
+  if ( SummaryPlotFactoryBase::mon_ == sistrip::FAST_CABLING_HIGH_LEVEL ) {
     SummaryPlotFactoryBase::generator_->axisLabel( "\"High\" light level [ADC]" );
-  } else if ( SummaryPlotFactoryBase::mon_ == sistrip::FAST_FED_CABLING_LOW_LEVEL ) {
+  } else if ( SummaryPlotFactoryBase::mon_ == sistrip::FAST_CABLING_LOW_LEVEL ) {
     SummaryPlotFactoryBase::generator_->axisLabel( "\"Low\" light level [ADC]" );
-  } else if ( SummaryPlotFactoryBase::mon_ == sistrip::FAST_FED_CABLING_MAX ) {
+  } else if ( SummaryPlotFactoryBase::mon_ == sistrip::FAST_CABLING_MAX ) {
     SummaryPlotFactoryBase::generator_->axisLabel( "Maximum light level [ADC]" );
-  } else if ( SummaryPlotFactoryBase::mon_ == sistrip::FAST_FED_CABLING_MIN ) {
+  } else if ( SummaryPlotFactoryBase::mon_ == sistrip::FAST_CABLING_MIN ) {
     SummaryPlotFactoryBase::generator_->axisLabel( "Minumum light level [ADC]" );
+  } else if ( SummaryPlotFactoryBase::mon_ == sistrip::FAST_CABLING_CONNS_PER_FED ) { 
+    SummaryPlotFactoryBase::generator_->axisLabel( "Connected channels per FED" );
   } else { 
     edm::LogWarning(mlSummaryPlots_)
       << "[SummaryPlotFactory::" << __func__ << "]" 

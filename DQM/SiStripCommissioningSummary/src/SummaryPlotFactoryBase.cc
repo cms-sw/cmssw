@@ -52,8 +52,49 @@ void SummaryPlotFactoryBase::init( const sistrip::Monitorable& mon,
   view_ = view;
   level_ = level;
   gran_ = gran;
+  
+  // Some checks
+  if ( mon_ == sistrip::UNKNOWN_MONITORABLE ||
+       mon_ == sistrip::UNDEFINED_MONITORABLE ) {
+    edm::LogWarning(mlSummaryPlots_) 
+      << "[SummaryPlotFactoryBase::" << __func__ << "]"
+      << " Unexpected monitorable: " 
+      << SiStripEnumsAndStrings::monitorable(mon_);
+  }
+  
+  if ( pres_ == sistrip::UNKNOWN_PRESENTATION ||
+       pres_ == sistrip::UNDEFINED_PRESENTATION ) {
+    edm::LogWarning(mlSummaryPlots_) 
+      << "[SummaryPlotFactoryBase::" << __func__ << "]"
+      << " Unexpected presentation: " 
+      << SiStripEnumsAndStrings::presentation(pres_);
+  } 
 
-//   std::stringstream ss;
+  if ( view_ == sistrip::UNKNOWN_VIEW ||
+       view_ == sistrip::UNDEFINED_VIEW ) {
+    edm::LogWarning(mlSummaryPlots_) 
+      << "[SummaryPlotFactoryBase::" << __func__ << "]"
+      << " Unexpected view: " 
+      << SiStripEnumsAndStrings::view(view_);
+  }
+  
+  if ( level_.empty() ||
+       level_.find(sistrip::unknownView_) != std::string::npos ||
+       level_.find(sistrip::undefinedView_) != std::string::npos ) {
+    edm::LogWarning(mlSummaryPlots_) 
+      << "[SummaryPlotFactoryBase::" << __func__ << "]"
+      << " Unexpected top-level directory: \"" 
+      << level_ << "\"";
+  } 
+  
+  if ( gran_ == sistrip::UNKNOWN_GRAN ||
+       gran_ == sistrip::UNDEFINED_GRAN ) {
+    edm::LogWarning(mlSummaryPlots_) 
+      << "[SummaryPlotFactoryBase::" << __func__ << "]"
+      << " Unexpected granularity: " 
+      << SiStripEnumsAndStrings::granularity(gran_);
+  }
+  
 //   ss << "[SummaryPlotFactoryBase::" << __func__ << "]" 
 //      << " Dump of parameters defining summary plot:" << std::endl
 //      << " Monitorable   : " << SiStripEnumsAndStrings::monitorable( mon_ ) << std::endl

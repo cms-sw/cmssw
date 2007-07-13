@@ -9,139 +9,98 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
-SummaryHistogramFactory<VpspScanAnalysis>::SummaryHistogramFactory() :
-  mon_(sistrip::UNKNOWN_MONITORABLE),
-  pres_(sistrip::UNKNOWN_PRESENTATION),
-  view_(sistrip::UNKNOWN_VIEW),
-  level_(sistrip::root_),
-  gran_(sistrip::UNKNOWN_GRAN),
-  generator_(0) 
-{
-} 
-
-
-// -----------------------------------------------------------------------------
-//
-SummaryHistogramFactory<VpspScanAnalysis>::~SummaryHistogramFactory() {
-  if ( generator_ ) { delete generator_; }
-}
-
-// -----------------------------------------------------------------------------
-//
-void SummaryHistogramFactory<VpspScanAnalysis>::init( const sistrip::Monitorable& mon, 
+uint32_t SummaryPlotFactory<VpspScanAnalysis*>::init( const sistrip::Monitorable& mon, 
 						      const sistrip::Presentation& pres,
 						      const sistrip::View& view, 
-						      const std::string& top_level_dir, 
-						      const sistrip::Granularity& gran ) {
-  mon_ = mon;
-  pres_ = pres;
-  view_ = view;
-  level_ = top_level_dir;
-  gran_ = gran;
-
-  // Retrieve utility class used to generate summary histograms
-  if ( generator_ ) { delete generator_; generator_ = 0; }
-  generator_ = SummaryGenerator::instance( view );
+						      const std::string& level, 
+						      const sistrip::Granularity& gran,
+						      const std::map<uint32_t,VpspScanAnalysis*>& data ) {
   
-}
-
-//------------------------------------------------------------------------------
-//
-uint32_t SummaryHistogramFactory<VpspScanAnalysis>::extract( const std::map<uint32_t,VpspScanAnalysis>& data  ) {
+  // Some initialisation
+  SummaryPlotFactoryBase::init( mon, pres, view, level, gran );
   
-  // Check if data are present
-  if ( data.empty() ) { 
-    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
-	 << " No data to histogram!";
-    return 0; 
-  } 
+  // Check if generator object exists
+  if ( !SummaryPlotFactoryBase::generator_ ) { return 0; }
   
-  // Check if instance of generator class exists
-  if ( !generator_ ) { 
-    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
-	 << " NULL pointer to SummaryGenerator object!";
-    return 0;  
-  }
-
-  // Transfer appropriate monitorables info to generator object
-  generator_->clearMap();
-  std::map<uint32_t,VpspScanAnalysis>::const_iterator iter = data.begin();
+  // Extract monitorable
+  std::map<uint32_t,VpspScanAnalysis*>::const_iterator iter = data.begin();
   for ( ; iter != data.end(); iter++ ) {
-    if ( mon_ == sistrip::VPSP_SCAN_BOTH_APVS ) {
-      generator_->fillMap( level_, gran_, iter->first, iter->second.vpsp()[0] ); 
-      generator_->fillMap( level_, gran_, iter->first, iter->second.vpsp()[1] ); 
-    } else if ( mon_ == sistrip::VPSP_SCAN_APV0 ) {
-      generator_->fillMap( level_, gran_, iter->first, iter->second.vpsp()[0] ); 
-    } else if ( mon_ == sistrip::VPSP_SCAN_APV1 ) {
-      generator_->fillMap( level_, gran_, iter->first, iter->second.vpsp()[1] ); 
+    if ( !iter->second ) { continue; }
+    std::vector<float> value( 2, 1. * sistrip::invalid_ );
+    std::vector<float> error( 2, 1. * sistrip::invalid_ );
+    bool two = true;
+    if ( mon_ == sistrip::VPSP_SCAN_APV_SETTINGS ) {
+      value[0] = 1. * iter->second->vpsp()[0]; 
+      value[1] = 1. * iter->second->vpsp()[1]; 
+    } else if ( mon_ == sistrip::VPSP_SCAN_APV0_SETTING ) {
+      value[0] = 1. * iter->second->vpsp()[0]; 
+      two = false;
+    } else if ( mon_ == sistrip::VPSP_SCAN_APV1_SETTING ) {
+      value[0] = 1. * iter->second->vpsp()[1]; 
+      two = false;
+    } else if ( mon_ == sistrip::VPSP_SCAN_ADC_LEVEL ) {
+      value[0] = 1. * iter->second->adcLevel()[0]; 
+      value[1] = 1. * iter->second->adcLevel()[1]; 
+    } else if ( mon_ == sistrip::VPSP_SCAN_DIGITAL_HIGH ) {
+      value[0] = 1. * iter->second->topLevel()[0]; 
+      value[1] = 1. * iter->second->topLevel()[1]; 
+    } else if ( mon_ == sistrip::VPSP_SCAN_DIGITAL_LOW ) {
+      value[0] = 1. * iter->second->bottomLevel()[0]; 
+      value[1] = 1. * iter->second->bottomLevel()[1]; 
     } else { 
-      edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
-	   << " Unexpected SummaryHisto value:"
-	   << SiStripEnumsAndStrings::monitorable( mon_ ) 
-	  ;
-      continue;
+      edm::LogWarning(mlSummaryPlots_)
+	<< "[SummaryPlotFactory::" << __func__ << "]" 
+	<< " Unexpected monitorable: "
+	<< SiStripEnumsAndStrings::monitorable( SummaryPlotFactoryBase::mon_ );
+      continue; 
     }
+    
+    SummaryPlotFactoryBase::generator_->fillMap( SummaryPlotFactoryBase::level_, 
+						 SummaryPlotFactoryBase::gran_, 
+						 iter->first, 
+						 value[0],
+						 error[0] );
+
+    if ( two ) {
+      SummaryPlotFactoryBase::generator_->fillMap( SummaryPlotFactoryBase::level_, 
+						   SummaryPlotFactoryBase::gran_, 
+						   iter->first, 
+						   value[1],
+						   error[1] );
+    }
+
   }
-  return generator_->size();
+  
+  return SummaryPlotFactoryBase::generator_->nBins();
+
 }
 
 //------------------------------------------------------------------------------
 //
-void SummaryHistogramFactory<VpspScanAnalysis>::fill( TH1& summary_histo ) {
+void SummaryPlotFactory<VpspScanAnalysis*>::fill( TH1& summary_histo ) {
 
-  // Check if instance of generator class exists
-  if ( !generator_ ) { 
-    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
-	 << " NULL pointer to SummaryGenerator object!";
-    return;
-  }
-
-  // Check if instance of generator class exists
-  if ( !(&summary_histo) ) { 
-    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
-	 << " NULL pointer to SummaryGenerator object!";
-    return;
-  }
-
-  // Check if std::map is filled
-  if ( !generator_->size() ) { 
-    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
-	 << " No data in the monitorables std::map!";
-    return; 
-  } 
-
-  // Generate appropriate summary histogram 
-  if ( pres_ == sistrip::HISTO_1D ) {
-    generator_->histo1D( summary_histo );
-  } else if ( pres_ == sistrip::HISTO_2D_SUM ) {
-    generator_->histo2DSum( summary_histo );
-  } else if ( pres_ == sistrip::HISTO_2D_SCATTER ) {
-    generator_->histo2DScatter( summary_histo );
-  } else if ( pres_ == sistrip::PROFILE_1D ) {
-    generator_->profile1D( summary_histo );
-  } else { 
-    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
-	 << " Unexpected SummaryType value:"
-	 << SiStripEnumsAndStrings::presentation( pres_ ) 
-	;
-    return; 
-  }
+  // Histogram filling and formating
+  SummaryPlotFactoryBase::fill( summary_histo );
+  
+  if ( !SummaryPlotFactoryBase::generator_ ) { return; }
   
   // Histogram formatting
-  if ( mon_ == sistrip::VPSP_SCAN_BOTH_APVS ) {
-  } else if ( mon_ == sistrip::VPSP_SCAN_APV0 ) { 
-  } else if ( mon_ == sistrip::VPSP_SCAN_APV1 ) {
+  if ( mon_ == sistrip::VPSP_SCAN_APV_SETTINGS ) {
+  } else if ( mon_ == sistrip::VPSP_SCAN_APV0_SETTING ) { 
+  } else if ( mon_ == sistrip::VPSP_SCAN_APV1_SETTING ) {
+  } else if ( mon_ == sistrip::VPSP_SCAN_ADC_LEVEL ) {
+  } else if ( mon_ == sistrip::VPSP_SCAN_DIGITAL_HIGH ) {
+  } else if ( mon_ == sistrip::VPSP_SCAN_DIGITAL_LOW ) {
   } else { 
-    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
-	 << " Unexpected SummaryHisto value:"
-	 << SiStripEnumsAndStrings::monitorable( mon_ ) 
-	;
+    edm::LogWarning(mlSummaryPlots_)
+      << "[SummaryPlotFactory::" << __func__ << "]" 
+      << " Unexpected SummaryHisto value: " 
+      << SiStripEnumsAndStrings::monitorable( SummaryPlotFactoryBase::mon_ );
   } 
-  generator_->format( sistrip::VPSP_SCAN, mon_, pres_, view_, level_, gran_, summary_histo );
   
 }
 
 // -----------------------------------------------------------------------------
 //
-template class SummaryHistogramFactory<VpspScanAnalysis>;
+template class SummaryPlotFactory<VpspScanAnalysis*>;
 

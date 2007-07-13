@@ -15,7 +15,7 @@ using namespace sistrip;
 // 
 SummaryGenerator::SummaryGenerator( std::string name ) : 
   map_(),
-  entries_(0.),
+  entries_(-1.),
   max_(-1.*sistrip::invalid_),
   min_(1.*sistrip::invalid_),
   label_(""),
@@ -122,12 +122,13 @@ void SummaryGenerator::format( const sistrip::RunType& run_type,
 			       const sistrip::Granularity& gran,
 			       TH1& summary_histo ) {
   
-  // Set name and title
+  // Set name, title and entries
   //std::stringstream ss;
   //std::string name = SummaryGenerator::name( run_type, mon, pres, view, directory );
   //summary_histo.SetName( name.c_str() );
   //summary_histo.SetTitle( name.c_str() );
-
+  if ( entries_ >= 0. ) { summary_histo.SetEntries( entries_ ); }
+  
   // X axis
   summary_histo.GetXaxis()->SetLabelSize(0.03);
   summary_histo.GetXaxis()->SetTitleSize(0.03);
@@ -150,7 +151,7 @@ void SummaryGenerator::format( const sistrip::RunType& run_type,
     std::string xtitle = SiStripEnumsAndStrings::granularity( gran ) + " within " + directory;
     summary_histo.GetXaxis()->SetTitle( xtitle.c_str() );
     summary_histo.GetYaxis()->SetTitle( label_.c_str() );
-    summary_histo.GetXaxis()->SetTitleOffset(1.5); //@@ override value set above
+    //summary_histo.GetXaxis()->SetTitleOffset(1.5); //@@ override value set above (3.5?)
   }    
   
   // Formatting for 2D plots
@@ -195,7 +196,7 @@ void SummaryGenerator::clearMap() {
   HistoData::iterator iter = map_.begin(); 
   for ( ; iter != map_.end(); iter++ ) { iter->second.clear(); }
   map_.clear();
-  entries_ = 0.;
+  entries_ = -1.;
   max_ = -1.*sistrip::invalid_;
   min_ =  1.*sistrip::invalid_;
 }
@@ -207,7 +208,7 @@ void SummaryGenerator::printMap() {
   std::stringstream ss;
   ss << "[SummaryGenerator::" << __func__ << "]"
      << " Printing contents of map: " << std::endl;
-
+  
   HistoData::iterator iter = map_.begin(); 
   for ( ; iter != map_.end(); iter++ ) { 
     ss << " bin/entries: " << iter->first << "/" << iter->second.size() << " ";
@@ -265,7 +266,7 @@ void SummaryGenerator::fill( const std::string& top_level_dir,
 //
 void SummaryGenerator::histo1D( TH1& his ) {
   
-  // Check number of entries in std::map
+  // Check number of entries in map
   if ( map_.empty() ) { 
     edm::LogWarning(mlSummaryPlots_) 
       << "[SummaryGenerator::" << __func__ << "]" 
@@ -310,30 +311,18 @@ void SummaryGenerator::histo1D( TH1& his ) {
   // Set histogram binning
   histo->SetBins( range, low, high ); 
   
-  //   LogTrace(mlSummaryPlots_) << " binning: " 
-  //        << max_ << " "
-  //        << min_ << " "
-  //        << high << " "
-  //        << low << " "
-  //        << range << " "
-  //       ;
-  
   // Iterate through std::map, set bin labels and fill histogram
+  entries_ = 0.;
   HistoData::const_iterator ibin = map_.begin();
   for ( ; ibin != map_.end(); ibin++ ) {
     if ( ibin->second.empty() ) { continue; }
     BinData::const_iterator ii = ibin->second.begin();
     for ( ; ii != ibin->second.end(); ii++ ) { 
-      histo->Fill( ii->first ); //, ii->second ); // bin (value) and weight (error)
+      // bin (value) and weight (error)
+      histo->Fill( ii->first ); //, ii->second ); 
+      entries_++;
     }
   }
-  
-//   LogTrace(mlSummaryPlots_)
-//     << "[SummaryGenerator::" << __func__ << "]"
-//     << " Added " << histo->GetEntries()
-//     << " entries to 1D histogram, which has " 
-//     << histo->GetNbinsX()
-//     << " bins";
   
 }
 
@@ -341,7 +330,7 @@ void SummaryGenerator::histo1D( TH1& his ) {
 //
 void SummaryGenerator::histo2DSum( TH1& his ) {
   
-  // Check number of entries in std::map
+  // Check number of entries in map
   if ( map_.empty() ) { 
     edm::LogWarning(mlSummaryPlots_)
       << "[SummaryGenerator::" << __func__ << "]" 
@@ -357,11 +346,9 @@ void SummaryGenerator::histo2DSum( TH1& his ) {
       << " NULL pointer to TH1F histogram!";
     return;
   }
-
-  // Set histogram number of bins and min/max
-  //histo->SetBins( map_.size(), 0., (Double_t)map_.size() );
   
-  // Iterate through std::map, set bin labels and fill histogram
+  // Iterate through map, set bin labels and fill histogram
+  entries_ = 0.;
   uint16_t bin = 0;
   HistoData::const_iterator ibin = map_.begin();
   for ( ; ibin != map_.end(); ibin++ ) {
@@ -371,13 +358,10 @@ void SummaryGenerator::histo2DSum( TH1& his ) {
     BinData::const_iterator ii = ibin->second.begin();
     for ( ; ii != ibin->second.end(); ii++ ) { 
       // x (bin), y (value) and weight (error)
-      histo->Fill( (Double_t)(bin-0.5), (Double_t)ii->first ); //, ii->second ); 
+      histo->Fill( static_cast<Double_t>(bin-0.5), 
+		   static_cast<Double_t>(ii->first) ); //, ii->second ); 
+      entries_ += 1. * ii->first;
     }
-//     LogTrace(mlSummaryPlots_) << "[SummaryGenerator::" << __func__ << "]"
-// 	 << " Added " << ibin->second.size() 
-// 	 << " contents to bin " << bin
-// 	 << " with bin label '" << ibin->first.c_str()
-// 	;
   }
   
 }
@@ -386,7 +370,7 @@ void SummaryGenerator::histo2DSum( TH1& his ) {
 //
 void SummaryGenerator::histo2DScatter( TH1& his ) {
 
-  // Check number of entries in std::map
+  // Check number of entries in map
   if ( map_.empty() ) { 
     edm::LogWarning(mlSummaryPlots_)
       << "[SummaryGenerator::" << __func__ << "]" 
@@ -403,31 +387,21 @@ void SummaryGenerator::histo2DScatter( TH1& his ) {
     return;
   }
   
-  // Set histogram number of bins and min/max
-  //histo->GetXaxis()->Set( 100*map_.size(), 0., 100.*static_cast<Double_t>(map_.size()) );
-  //histo->GetXaxis()->Set( map_.size(), 0., static_cast<Double_t>(map_.size()) );
-  //histo->GetYaxis()->Set( 1200, 0., 1200. );
-
-  //histo->Dump();
-
   // Iterate through std::map, set bin labels and fill histogram
+  entries_ = 0.;
   uint16_t bin = 0;
   HistoData::const_iterator ibin = map_.begin();
   for ( ; ibin != map_.end(); ibin++ ) {
     bin++;
-    //uint16_t jbin = 100*(bin-1)+50;
-    histo->GetXaxis()->SetBinLabel( (Int_t)(bin), ibin->first.c_str() );
+    histo->GetXaxis()->SetBinLabel( static_cast<Int_t>(bin), ibin->first.c_str() );
     if ( ibin->second.empty() ) { continue; }
     BinData::const_iterator ii = ibin->second.begin();
     for ( ; ii != ibin->second.end(); ii++ ) { 
       // x (bin), y (value) and weight (error)
-      histo->Fill( (Double_t)(bin-0.5), (Double_t)ii->first ); // , ii->second ); 
+      histo->Fill( static_cast<Double_t>(bin-0.5), 
+		   static_cast<Double_t>(ii->first) ); // , ii->second ); 
+      entries_++;
     }
-//     LogTrace(mlSummaryPlots_)
-//       << "[SummaryGenerator::" << __func__ << "]"
-//       << " Added " << ibin->second.size() 
-//       << " contents to bin " << bin
-//       << " with bin label '" << ibin->first.c_str();
   }
   
 }
@@ -436,7 +410,7 @@ void SummaryGenerator::histo2DScatter( TH1& his ) {
 //
 void SummaryGenerator::profile1D( TH1& his ) {
   
-  // Check number of entries in std::map
+  // Check number of entries in map
   if ( map_.empty() ) { 
     edm::LogWarning(mlSummaryPlots_)
       << "[SummaryGenerator::" << __func__ << "]" 
@@ -453,12 +427,8 @@ void SummaryGenerator::profile1D( TH1& his ) {
     return;
   }
   
-  // Set histogram number of bins and min/max
-  //histo->SetBins( map_.size(), 0., static_cast<Double_t>(map_.size()) );
-  //histo->GetXaxis()->Set( map_.size(), 0., static_cast<Double_t>(map_.size()) );
-  //histo->GetYaxis()->Set( 1025, 0., 1025. );
-  
   // Iterate through std::map, set bin labels and fill histogram
+  entries_ = 0.;
   uint16_t bin = 0;
   HistoData::const_iterator ibin = map_.begin();
   for ( ; ibin != map_.end(); ibin++ ) {
@@ -467,20 +437,11 @@ void SummaryGenerator::profile1D( TH1& his ) {
     if ( ibin->second.empty() ) { continue; }
     BinData::const_iterator ii = ibin->second.begin();
     for ( ; ii != ibin->second.end(); ii++ ) { 
-//       LogTrace(mlSummaryPlots_) << " bin: " << bin
-// 	   << " value: " << ii->first
-// 	   << " error: " << ii->second
-// 	  ;
-      //float wei = ii->second = 0 ? 
-      //histo->AddBinContent( bin+1, ii->first ); //, ii->second ); // x (bin), y (value) and weight (error)
-      histo->Fill( (Double_t)(bin-.5), (Double_t)ii->first ); //, ii->second ); // x (bin), y (value) and weight (error)
-      //histo->Fill( ibin->first.c_str(), ii->first ); //, ii->second ); // x (bin), y (value) and weight (error)
+      // x (bin), y (value) and weight (error)
+      histo->Fill( static_cast<Double_t>(bin-.5), 
+		   static_cast<Double_t>(ii->first) ); //, ii->second ); 
+      entries_++;
     }
-//     LogTrace(mlSummaryPlots_) << "[SummaryGenerator::" << __func__ << "]"
-// 	 << " Added " << ibin->second.size() 
-// 	 << " contents to bin " << bin
-// 	 << " with bin label '" << ibin->first.c_str()
-// 	;
   }
   
 }
