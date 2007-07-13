@@ -31,6 +31,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 @example_track #include "FWCore/ParameterSet/interface/InputTag.h"
 @example_track #include "DataFormats/TrackReco/interface/Track.h"
+
 //
 // class decleration
 //
@@ -64,6 +65,7 @@ class anlzrname : public edm::EDAnalyzer {
 anlzrname::anlzrname(const edm::ParameterSet& iConfig)
 @example_track :
 @example_track  trackTags_(iConfig.getUntrackedParameter<edm::InputTag>("tracks"))
+
 {
    //now do what ever initialization is needed
 
@@ -88,8 +90,9 @@ void
 anlzrname::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
-@example_track    using reco::TrackCollection;
-  
+   using namespace std;
+@example_track   using reco::TrackCollection;
+
 @example_track    Handle<TrackCollection> tracks;
 @example_track    iEvent.getByLabel(trackTags_,tracks);
 @example_track    for(TrackCollection::const_iterator itTrack = tracks->begin();
@@ -97,6 +100,7 @@ anlzrname::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 @example_track        ++itTrack) {
 @example_track       int charge = itTrack->charge();  
 @example_track    }
+
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
    Handle<ExampleData> pIn;
    iEvent.getByLabel("example",pIn);

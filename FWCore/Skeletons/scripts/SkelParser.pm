@@ -12,6 +12,7 @@ package SkelParser;
 #                               producername_DONT_TOUCH.cc
 #                         doc/
 #                         test/
+#                         data/
 #  required input:
 # 
 #  producername = name of the producer
@@ -30,7 +31,8 @@ package SkelParser;
 #                               src/MyProducer.cc
 #                               doc/
 #                               test/
-#  
+#                               data/  
+#                              
 #   the script tries to read in
 #   a filename .tmpl in users HOME directory which contains the following lines
 #             First : your first name
@@ -62,7 +64,7 @@ BEGIN {
     # set the version for version checking
     $VERSION     = 1.00;
     # if using RCS/CVS, this may be preferred
-    $VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)/g;
+    $VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)/g;
     
     @ISA         = qw(Exporter);
     @EXPORT      = qw(&copy_file &make_file &grandparent_parent_dir &mk_package_structure &find_mkTemplate_dir);
@@ -94,6 +96,7 @@ sub find_mkTemplate_dir {
     }
   }
   return "$base_dir/mkTemplates";
+
 }
 
 
@@ -131,6 +134,7 @@ sub mk_package_structure {
     mkdir("$name/src", 0777) || die "can not make dir $name/src";
     mkdir("$name/test", 0777) || die "can not make dir $name/test";
     mkdir("$name/doc", 0777) || die "can not make dir $name/doc";
+    mkdir("$name/data",0777) || die "can not make dir $name/data";
 }
 
 sub grandparent_parent_dir {
