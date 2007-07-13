@@ -1,4 +1,4 @@
-// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.6 2007/06/19 12:30:37 bainbrid Exp $
+// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.7 2007/07/04 08:39:13 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/ApvTimingHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -14,7 +14,7 @@ ApvTimingHistosUsingDb::ApvTimingHistosUsingDb( MonitorUserInterface* mui,
 						const DbParams& params )
   : ApvTimingHistograms( mui ),
     CommissioningHistosUsingDb( params ),
-    uploadPllSettings_(true),
+    uploadFecSettings_(true),
     uploadFedSettings_(true)
 {
   LogTrace(mlDqmClient_) 
@@ -28,7 +28,7 @@ ApvTimingHistosUsingDb::ApvTimingHistosUsingDb( MonitorUserInterface* mui,
 						SiStripConfigDb* const db ) 
   : ApvTimingHistograms( mui ),
     CommissioningHistosUsingDb( db ),
-    uploadPllSettings_(true),
+    uploadFecSettings_(true),
     uploadFedSettings_(true)
 {
   LogTrace(mlDqmClient_) 
@@ -42,7 +42,7 @@ ApvTimingHistosUsingDb::ApvTimingHistosUsingDb( DaqMonitorBEInterface* bei,
 						SiStripConfigDb* const db ) 
   : ApvTimingHistograms( bei ),
     CommissioningHistosUsingDb( db ),
-    uploadPllSettings_(true),
+    uploadFecSettings_(true),
     uploadFedSettings_(true)
 {
   LogTrace(mlDqmClient_) 
@@ -70,7 +70,7 @@ void ApvTimingHistosUsingDb::uploadToConfigDb() {
     return;
   }
   
-  if ( uploadPllSettings_ ) {
+  if ( uploadFecSettings_ ) {
 
     // Update PLL device descriptions
     db_->resetDeviceDescriptions();
@@ -346,14 +346,17 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
 	   << (*ifed)->getFedId() << "/" << ichan
 	   << " from "
 	   << static_cast<uint16_t>( (*ifed)->getFrameThreshold( addr ) );
-	(*ifed)->setFrameThreshold( addr, iter->second->frameFindingThreshold() );
-	updated++;
-	ss << " to "
-	   << static_cast<uint16_t>( (*ifed)->getFrameThreshold( addr ) )
-	   << " tick base/peak/height: " 
-	   << iter->second->base() << "/"
-	   << iter->second->peak() << "/"
-	   << iter->second->height() << std::endl;
+	if ( iter->second->frameFindingThreshold() < sistrip::valid_ ) {
+	  (*ifed)->setFrameThreshold( addr, iter->second->frameFindingThreshold() );
+	  updated++;
+	  ss << " to "
+	     << static_cast<uint16_t>( (*ifed)->getFrameThreshold( addr ) )
+	     << " tick base/peak/height: " 
+	     << iter->second->base() << "/"
+	     << iter->second->peak() << "/"
+	     << iter->second->height();
+	} else { ss << " to same value! (Invalid returned!)"; }
+	ss << std::endl; 
 	iter->second->print(ss);
 	LogTrace(mlDqmClient_) << ss.str();
 
