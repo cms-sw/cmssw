@@ -26,7 +26,7 @@ const uint16_t FastFedCablingAnalysis::nBitsForLldCh_ = 2;
 // ----------------------------------------------------------------------------
 // 
 FastFedCablingAnalysis::FastFedCablingAnalysis( const uint32_t& key ) 
-  : CommissioningAnalysis(key,sistrip::fastFedCablingAnalysis_),
+  : CommissioningAnalysis(key,sistrip::fastCablingAnalysis_),
     dcuId_(sistrip::invalid32_), 
     lldCh_(sistrip::invalid_),
     highMedian_(1.*sistrip::invalid_),
@@ -45,7 +45,7 @@ FastFedCablingAnalysis::FastFedCablingAnalysis( const uint32_t& key )
 // ----------------------------------------------------------------------------
 // 
 FastFedCablingAnalysis::FastFedCablingAnalysis() 
-  : CommissioningAnalysis(sistrip::fastFedCablingAnalysis_),
+  : CommissioningAnalysis(sistrip::fastCablingAnalysis_),
     dcuId_(sistrip::invalid32_), 
     lldCh_(sistrip::invalid_),
     highMedian_(1.*sistrip::invalid_),
@@ -100,7 +100,7 @@ void FastFedCablingAnalysis::extract( const std::vector<TH1*>& histos ) {
     
     // Check name
     SiStripHistoTitle title( (*ihis)->GetName() );
-    if ( title.runType() != sistrip::FAST_FED_CABLING ) {
+    if ( title.runType() != sistrip::FAST_CABLING ) {
       addErrorCode(sistrip::unexpectedTask_);
       continue;
     }

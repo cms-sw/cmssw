@@ -16,7 +16,7 @@ const float ApvTimingAnalysis::optimumSamplingPoint_ = 15.; // [ns]
 
 // ----------------------------------------------------------------------------
 // 
-const float ApvTimingAnalysis::tickMarkHeightThreshold_ = 100.; // [ADC]
+const float ApvTimingAnalysis::tickMarkHeightThreshold_ = 50.; // [ADC]
 
 // ----------------------------------------------------------------------------
 // 
@@ -196,14 +196,16 @@ void ApvTimingAnalysis::analyse() {
     mean2 = 0.; 
   }
   float baseline_rms = sqrt( fabs( mean2 - mean*mean ) ); 
-  
-  // Find rising edges (derivative across two bins > range/2) 
+
+  //LogTrace(mlTest_) << "TEST1 size: " << edges.size();
+
+  // Find rising edges (derivative across two bins > threshold) 
   std::map<uint16_t,float> edges;
   for ( uint16_t ibin = 1; ibin < nbins-1; ibin++ ) {
     if ( bin_entries[ibin+1] && 
 	 bin_entries[ibin-1] ) {
       float derivative = bin_contents[ibin+1] - bin_contents[ibin-1];
-      if ( derivative > 2.*baseline_rms ) { 
+      if ( derivative > 3.*baseline_rms ) { 
 	edges[ibin] = derivative; 
       }
     }
@@ -212,6 +214,8 @@ void ApvTimingAnalysis::analyse() {
     addErrorCode(sistrip::noRisingEdges_);
     return;
   }
+
+    
   
   // Iterate through "edges" map
   bool found = false;
@@ -245,17 +249,30 @@ void ApvTimingAnalysis::analyse() {
 
     }
 
+    //LogTrace(mlTest_) << "TEST 1";
+
     // Break from loop if tick mark found
     if ( valid ) { found = true; }
     else {
+      //LogTrace(mlTest_) << "TEST 3";
       max_derivative = -1.*sistrip::invalid_;
       max_derivative_bin = sistrip::invalid_;
-      edges.erase(iter);
+      //LogTrace(mlTest_) << "TEST 4 : size: " << edges.size();
+      //edges.erase(iter);
+      //LogTrace(mlTest_) << "TEST 5";
       addErrorCode(sistrip::rejectedCandidate_);
+      //LogTrace(mlTest_) << "TEST 6";
     }
+    //LogTrace(mlTest_) << "TEST 7";
     
     iter++;
   }
+  
+  
+  //LogTrace(mlTest_) << "TEST2 size: " << edges.size();
+  //for ( std::map<uint16_t,float>::iterator jter = edges.begin(); jter != edges.end(); jter++ ) {
+  //LogTrace(mlTest_) << "TEST2 : " << jter->first << " " << jter->second;
+  //}
   
   // Record time monitorable
   if ( max_derivative_bin <= sistrip::valid_ ) {
@@ -298,13 +315,13 @@ void ApvTimingAnalysis::refTime( const float& time ) {
 // ----------------------------------------------------------------------------
 // 
 uint32_t ApvTimingAnalysis::frameFindingThreshold() const { 
-  uint32_t temp = 32;
   if ( base_ < sistrip::valid_ &&
        peak_ < sistrip::valid_ &&
        height_ > tickMarkHeightThreshold_ ) { 
-    temp = static_cast<uint32_t>( base() + height() * ApvTimingAnalysis::frameFindingThreshold_ );
-  }
-  return ((temp/32)*32);
+    float temp1 = base() + height() * ApvTimingAnalysis::frameFindingThreshold_;
+    uint32_t temp2 = static_cast<uint32_t>( temp1 );
+    return ((temp2/32)*32);
+  } else { return sistrip::invalid_; }
 }
 
 // ----------------------------------------------------------------------------

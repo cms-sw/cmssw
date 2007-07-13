@@ -104,8 +104,14 @@ void VpspScanAnalysis::analyse() {
 // ----------------------------------------------------------------------------
 // 
 bool VpspScanAnalysis::isValid() const {
-  return ( vpsp_[0] < sistrip::maximum_ &&
-	   vpsp_[1] < sistrip::maximum_ );
+  return ( vpsp_[0] < 1. * sistrip::valid_ &&
+	   vpsp_[1] < 1. * sistrip::valid_ &&
+	   adcLevel_[0] < 1. * sistrip::valid_ &&
+	   adcLevel_[1] < 1. * sistrip::valid_ &&
+	   topLevel_[0] < 1. * sistrip::valid_ &&
+	   topLevel_[1] < 1. * sistrip::valid_ &&
+	   bottomLevel_[0] < 1. * sistrip::valid_ &&
+	   bottomLevel_[1] < 1. * sistrip::valid_ );
 } 
 
 // ----------------------------------------------------------------------------
@@ -164,32 +170,40 @@ void VpspScanAnalysis::deprecated() {
     if ( 0 ) { anal( histos, monitorables ); }
     else {
 
-      int first = 0;
-      float top = 0.;
+      int first = sistrip::invalid_;
+      float top = -1. * sistrip::invalid_;;
       for ( int k = 5; k < 55; k++ ) {
-	if ( histos[0]->GetBinContent(k) == 0 ) { continue; }
+	if ( !histos[0]->GetBinEntries(k) ) { continue; }
 	if ( histos[0]->GetBinContent(k) >= top ) { 
 	  first = k; 
 	  top = histos[0]->GetBinContent(k); 
 	}
       }
+      if ( top < -1. * sistrip::valid_ ) { top = sistrip::invalid_; }
 
-      int last = 60;
-      float bottom = 1025.;
+      int last = sistrip::invalid_;
+      float bottom = 1. * sistrip::invalid_;
       for ( int k = 55; k > 5; k-- ) {
-	if ( histos[0]->GetBinContent(k) == 0 ) { continue; }
+	if ( !histos[0]->GetBinEntries(k) ) { continue; }
 	if ( histos[0]->GetBinContent(k) <= bottom ) { 
 	  last = k; 
 	  bottom = histos[0]->GetBinContent(k); 
 	}
       }
-      
-      float opt = bottom + ( top - bottom ) * 1./3.;
-      uint16_t vpsp;
-      for ( vpsp = 5; vpsp < 55; vpsp++ ) { 
-	if ( histos[0]->GetBinContent(vpsp) < opt ) { break; }
+	
+      float opt = 1. * sistrip::invalid_;
+      if ( bottom < 1. * sistrip::valid_ &&
+	   top < 1. * sistrip::valid_ ) { 
+	opt = bottom + ( top - bottom ) * 1./3.; 
       }
-      if ( vpsp == 55 ) { vpsp = sistrip::invalid_; }
+      uint16_t vpsp = sistrip::invalid_;
+      if ( opt < 1. * sistrip::valid_ ) {
+	uint16_t ivpsp = 5; 
+	for ( ; ivpsp < 55; ivpsp++ ) { 
+	  if ( histos[0]->GetBinContent(ivpsp) < opt ) { break; }
+	}
+	if ( ivpsp != 54 ) { vpsp = ivpsp; }
+      }
       
       monitorables.push_back(vpsp);
       monitorables.push_back(static_cast<uint16_t>(opt));

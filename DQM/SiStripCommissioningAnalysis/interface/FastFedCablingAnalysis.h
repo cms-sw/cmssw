@@ -30,10 +30,10 @@ class FastFedCablingAnalysis : public CommissioningAnalysis {
 
   // ---------- Analysis results and histos ----------
 
-  /** FED id. */
+  /** DCU hardware id (32-bits). */
   inline const uint32_t& dcuId() const;
   
-  /** FED channel. */
+  /** Linear Laser Driver channel. */
   inline const uint16_t& lldCh() const; 
 
   /** "High" light level [ADC]. */

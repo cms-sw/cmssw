@@ -54,7 +54,7 @@ class ApvTimingAnalysis : public CommissioningAnalysis {
   /** Level of tick mark top [ADC]. */
   inline const float& peak() const; 
   
-  /** FED frame-finding threshold [ADC]. */
+  /** FED frame-finding threshold [ADC] (returns 65535 if invalid). */
   uint32_t frameFindingThreshold() const; 
   
   /** Container of histogram pointer and title. */
