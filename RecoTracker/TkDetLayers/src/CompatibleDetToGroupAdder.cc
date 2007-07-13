@@ -16,13 +16,14 @@ bool CompatibleDetToGroupAdder::add( const GeometricSearchDet& det,
     vector<DetGroup> tmp( det.groupedCompatibleDets( tsos, prop, est));
 
     if (!tmp.empty()) {
-      if (result.empty()) result = tmp;
+      if (result.empty()) result.swap(tmp);
       else                DetGroupMerger().addSameLevel( tmp, result);
       return true;
     }
   }
   else {
-    vector<GeometricSearchDet::DetWithState> compatDets = det.compatibleDets( tsos, prop, est);
+    vector<GeometricSearchDet::DetWithState> compatDets;
+    det.compatibleDetsV( tsos, prop, est, compatDets);
     if (!compatDets.empty()) {
 	if (result.empty()) {
 	  result.push_back( DetGroup( 0, 1)); // empty group for insertion

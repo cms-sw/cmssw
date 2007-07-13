@@ -64,7 +64,16 @@ class GeometricSearchDet {
   virtual std::vector<DetWithState> 
   compatibleDets( const TrajectoryStateOnSurface& startingState,
 		  const Propagator& prop, 
-		  const MeasurementEstimator& est) const=0;
+		  const MeasurementEstimator& est) const {
+    std::vector<DetWithState> result;
+    compatibleDetsV( startingState,, prop, est,result)
+    return result;
+  }
+  virtual void
+  compatibleDetsV( const TrajectoryStateOnSurface& startingState,
+		  const Propagator& prop, 
+		   const MeasurementEstimator& est,
+		   std::vector<DetWithState>& result) const=0;
 
   /** Similar to compatibleDets(), but the compatible Dets are grouped in 
    *  one or more groups.

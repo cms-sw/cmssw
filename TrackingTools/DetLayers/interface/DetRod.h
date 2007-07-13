@@ -16,10 +16,11 @@ class DetRod : public GeometricSearchDet   {
   virtual ~DetRod();
   
   //  It needs that propagator is committed
-  virtual std::vector<DetWithState> 
-  compatibleDets( const TrajectoryStateOnSurface& startingState,
-		  const Propagator& prop, 
-		  const MeasurementEstimator& est) const;
+  virtual void
+  compatibleDetsV( const TrajectoryStateOnSurface& startingState,
+		   const Propagator& prop, 
+		   const MeasurementEstimator& est,
+		   std::vector<DetWithState>& result) const;
   
 
   virtual const BoundSurface& surface() const {return *thePlane;}

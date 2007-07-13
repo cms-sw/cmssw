@@ -3,14 +3,14 @@
 
 using namespace std;
 
-vector<DetGroup> 
+
 DetGroupMerger::orderAndMergeTwoLevels( const vector<DetGroup>& one,  
 					const vector<DetGroup>& two,
+					std::vector<DetGroup>& result,
 					int firstIndex, 
 					int firstCrossed) const{
-  if (one.empty() && two.empty()) return vector<DetGroup>();
+  if (one.empty() && two.empty()) return;
 
-  vector<DetGroup> result;
 
   if (one.empty()) {
     result = two;
@@ -23,15 +23,14 @@ DetGroupMerger::orderAndMergeTwoLevels( const vector<DetGroup>& one,
     else                            incrementAndDoubleSize(result);
   }
   else { // both are not empty
-    if (firstIndex == firstCrossed) result = mergeTwoLevels( one, two);
-    else                            result = mergeTwoLevels( two, one);
+    if (firstIndex == firstCrossed) mergeTwoLevels( one, two,result);
+    else                            mergeTwoLevels( two, one, result);
   }
-  return result;
 }
 
-vector<DetGroup> 
-DetGroupMerger::mergeTwoLevels( const vector<DetGroup>& one,  const vector<DetGroup>& two) const{
-  vector<DetGroup> result;
+
+DetGroupMerger::mergeTwoLevels( const vector<DetGroup>& one,  const vector<DetGroup>& two, std::vector<DetGroup>& result) const{
+
   result.reserve( one.size() + two.size());
 
   int indSize1 = one.front().indexSize();
@@ -45,7 +44,6 @@ DetGroupMerger::mergeTwoLevels( const vector<DetGroup>& one,  const vector<DetGr
     result.push_back(*j);
     result.back().incrementIndex(indSize1);
   }
-  return result;
 }
 
 void 
