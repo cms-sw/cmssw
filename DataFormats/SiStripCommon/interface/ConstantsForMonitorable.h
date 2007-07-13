@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForMonitorable.h,v 1.4 2007/06/29 10:12:42 bainbrid Exp $
+// Last commit: $Id: ConstantsForMonitorable.h,v 1.5 2007/07/11 11:13:59 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForMonitorable_H
 #define DataFormats_SiStripCommon_ConstantsForMonitorable_H
@@ -32,6 +32,7 @@ namespace sistrip {
   static const std::string fastCablingHighRms_     = "SpreadInHighLightLevel";
   static const std::string fastCablingLowLevel_    = "LowLightLevel";
   static const std::string fastCablingLowRms_      = "SpreadInLowLightLevel";
+  static const std::string fastCablingAdcRange_    = "AdcRangeInLightLevel";
   static const std::string fastCablingMax_         = "MaximumLightLevel";
   static const std::string fastCablingMin_         = "MinimumLightLevel";
   static const std::string fastCablingConnsPerFed_ = "ConnectionsPerFed";
