@@ -1,5 +1,5 @@
-// Last commit: $Id: FedDescriptions.cc,v 1.8 2006/11/24 11:41:58 bainbrid Exp $
-// Latest tag:  $Name:  $
+// Last commit: $Id: FedDescriptions.cc,v 1.9 2007/05/24 15:35:51 bainbrid Exp $
+// Latest tag:  $Name: HEAD $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/FedDescriptions.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
@@ -58,7 +58,7 @@ void SiStripConfigDb::uploadFedDescriptions( bool new_major_version ) { //@@ thi
       deviceFactory(__func__)->setFed9UDescription( **ifed, 
  						    (uint16_t*)(&dbParams_.major_), 
  						    (uint16_t*)(&dbParams_.minor_),
- 						    (new_major_version?1:0) );
+ 						    false ); // (new_major_version?1:0) ); //@@ HARDWIRED!!!
     }
   }
   catch (...) { 
