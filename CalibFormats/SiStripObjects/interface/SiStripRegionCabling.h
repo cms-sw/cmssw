@@ -216,7 +216,7 @@ void SiStripRegionCabling::updateSiStripRefGetter(edm::SiStripRefGetter<T>& refg
   
   PositionIndex index = positionIndex(position);
   uint32_t deta = static_cast<uint32_t>(deltaeta/regionDimensions().first);
-  uint32_t dphi = deltaphi/regionDimensions().second;
+  uint32_t dphi = static_cast<uint32_t>(deltaphi/regionDimensions().second);
 
   for (uint32_t ieta = 0; ieta < 2*deta + 1; ieta++) {
     for (uint32_t iphi = 0; iphi < 2*dphi + 1; iphi++) {
