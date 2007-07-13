@@ -1,4 +1,4 @@
-#ifndef DQM_SiStripCommissioningClients_SiStripCommissioningClient_H
+#ifndef DQM_SiStripCommissioningClients_SiStripCommissioningClient_H 
 #define DQM_SiStripCommissioningClients_SiStripCommissioningClient_H
 
 #include "DQMServices/Components/interface/DQMBaseClient.h"
@@ -16,7 +16,7 @@
 #include "boost/shared_ptr.hpp"
 #include <string>
 #include <vector>
-#include "BSem.h"
+#include "toolbox/BSem.h"
 
 class SiStripCommissioningWebClient;
 class CommissioningHistograms;
@@ -153,7 +153,7 @@ class SiStripCommissioningClient : public DQMBaseClient, public dqm::UpdateObser
   
   mutable bool first_;
 
-  BSem* fCallBack;
+  toolbox::BSem* fCallBack;
 
   HistogramDisplayHandler* hdis_;
 

@@ -1,5 +1,5 @@
 #ifndef DQM_HistogramDisplayHandlers_HistogramDisplayHandler_H
-#define DQM_HistogramDisplayHandlers_HistogramDisplayHandler_H
+#define DQM_HistogramDisplayHandlers_HistogramDisplayHandler_H 
 
 #include "DQMServices/Components/interface/UpdateObserver.h"
 #include "DQMServices/Components/interface/Updater.h"
@@ -10,7 +10,7 @@
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 
 #include "TCanvas.h"
-#include "BSem.h"
+#include "toolbox/BSem.h"
 #include <string>
 #include <vector>
 
@@ -18,7 +18,7 @@ class HistogramDisplayHandler {
 
  public:
   
-  HistogramDisplayHandler( MonitorUserInterface* mui,BSem* b );
+  HistogramDisplayHandler( MonitorUserInterface* mui,toolbox::BSem* b );
   ~HistogramDisplayHandler(){delete fCanvas;}
   
   void HistogramViewer(xgi::Input*, xgi::Output* ) throw ( xgi::exception::Exception );
@@ -33,7 +33,7 @@ class HistogramDisplayHandler {
   void printImage(TCanvas* c1 ,xgi::Output* out);
   TCanvas* fCanvas;
   std::multimap<std::string, std::string> fReqMap;
-  BSem* fCallBack;
+  toolbox::BSem* fCallBack;
   MonitorUserInterface* mui_;
   
 };
