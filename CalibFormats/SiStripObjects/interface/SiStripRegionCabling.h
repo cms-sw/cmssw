@@ -59,7 +59,7 @@ class SiStripRegionCabling {
 
   inline const uint32_t phidivisions() const;
 
-  /** Utility methods for interchanging between region, region-indices and 
+  /** Methods for interchanging between region, region-indices and 
       eta/phi-position. */
 
   inline const std::pair<double,double> regionDimensions() const;
@@ -76,7 +76,12 @@ class SiStripRegionCabling {
   
   inline const Region region(PositionIndex) const;
 
-  /** Utility methods for interchanging between region-subdet-layer and the 
+  /** Method for periodic phi indices. Returns false if eta index is
+      beyond scope of CMS tracker */
+
+  inline bool periodicIndex(PositionIndex&) const;
+
+  /** Methods for interchanging between region-subdet-layer and the 
       corresponding element index. */
 
   inline static const ElementIndex elementIndex(const Region, const SubDet, const Layer);
@@ -89,13 +94,14 @@ class SiStripRegionCabling {
   
   inline static const Region region(const ElementIndex);
  
-  /** Utility methods for extracting det-id information */
+  /** Methods for extracting det-id information */
 
   static const SubDet subdetFromDetId(uint32_t);
 
   static const uint32_t layerFromDetId(uint32_t);
 
-  /** Utility methods for updating a SiStripRefGetter<T> container with elements of interest  */
+  /** Methods for updating a SiStripRefGetter<T> container with elements 
+      of interest  */
   
   template <class T>
     void updateSiStripRefGetter(edm::SiStripRefGetter<T>& refgetter, 
@@ -171,6 +177,14 @@ inline const SiStripRegionCabling::PositionIndex SiStripRegionCabling::positionI
 inline const SiStripRegionCabling::Region SiStripRegionCabling::region(PositionIndex index) const {
   return index.first*phidivisions_ + index.second;
 }
+
+inline bool SiStripRegionCabling::periodicIndex(PositionIndex& index) const {
+
+  if (index.second >= static_cast<uint32_t>(phidivisions_)) index.second -= phidivisions_;
+  else if (index.second < 0) index.second += phidivisions_;
+  if (index.first < 0 || index.first >= static_cast<uint32_t>(etadivisions_)) return false;
+  return true;
+}
   
 inline const SiStripRegionCabling::ElementIndex SiStripRegionCabling::elementIndex(const Region region, const SubDet subdet, const Layer layer) {
   return region*MAXSUBDETS*MAXLAYERS + subdet*MAXLAYERS + layer;
@@ -200,24 +214,15 @@ void SiStripRegionCabling::updateSiStripRefGetter(edm::SiStripRefGetter<T>& refg
 template <class T>
 void SiStripRegionCabling::updateSiStripRefGetter(edm::SiStripRefGetter<T>& refgetter, const edm::Handle< edm::SiStripLazyGetter<T> >& lazygetter, const SiStripRegionCabling::Position position, const double deltaeta, const double deltaphi, const SubDet subdet, const Layer layer) const {
   
-  //Calculate region of interest boundary
   PositionIndex index = positionIndex(position);
-  uint32_t deta = deltaeta/regionDimensions().first;
+  uint32_t deta = static_cast<uint32_t>(deltaeta/regionDimensions().first);
   uint32_t dphi = deltaphi/regionDimensions().second;
-  
-  //Loop eta index
+
   for (uint32_t ieta = 0; ieta < 2*deta + 1; ieta++) {
-    int etatemp = index.first - deta + ieta;
-    if ((etatemp < 0) || (etatemp >= (int)etadivisions_)) continue;
-    
-    //Loop phi index
     for (uint32_t iphi = 0; iphi < 2*dphi + 1; iphi++) {
-      int phitemp = index.second - dphi + iphi;
-      if (phitemp >= (int)phidivisions_) phitemp -= phidivisions_;
-      else if (phitemp < 0) phitemp += phidivisions_;
-      
-      //Update SiStripRefGetter<T>
-      updateSiStripRefGetter<T>(refgetter,lazygetter,elementIndex(Position(etatemp,phitemp),subdet,layer));
+      PositionIndex indextemp(index.first - deta + ieta,index.second - dphi + iphi);
+      if (!periodicIndex(indextemp)) continue;
+      updateSiStripRefGetter<T>(refgetter,lazygetter,elementIndex(Position(indextemp),subdet,layer));
     }
   }
 }
