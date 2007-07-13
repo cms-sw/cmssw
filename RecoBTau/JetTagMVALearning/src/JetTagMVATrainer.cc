@@ -12,10 +12,11 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/View.h"
 
 #include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
 
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/BTauReco/interface/JetTagInfo.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
 
