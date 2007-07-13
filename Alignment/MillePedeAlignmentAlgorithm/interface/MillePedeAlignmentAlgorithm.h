@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.9.2.3 $
-///  $Date: 2007/06/13 09:00:46 $
+///  $Revision: 1.12 $
+///  $Date: 2007/06/21 17:01:29 $
 ///  (last update by $Author: flucke $)
 
 
@@ -37,6 +37,7 @@ class AlignableDetOrUnitPtr;
 class MillePedeMonitor;
 class PedeSteerer;
 class Mille;
+class TrajectoryFactoryBase;
 
 class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 {
@@ -60,9 +61,6 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
  private:
   enum MeasurementDirection {kLocalX = 0, kLocalY};
 
-  ReferenceTrajectoryBase::ReferenceTrajectoryPtr
-    referenceTrajectory(const TrajectoryStateOnSurface &refTsos,
-			const Trajectory *traj, const MagneticField *magField) const;
   /// If hit is usable: callMille for x and (probably) y direction.
   /// If globalDerivatives fine: returns 2 if 2D-hit, 1 if 1D-hit, 0 if no Alignable for hit.
   /// Returns -1 if any problem (for params cf. globalDerivativesHierarchy)
@@ -81,7 +79,6 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 		 const std::vector<float> &globalDerivatives, const std::vector<int> &globalLabels);
   /// true if hit belongs to 2D detector (currently tracker specific)
   bool is2D(const TransientTrackingRecHit::ConstRecHitPointer &recHit) const;
-  const MagneticField* getMagneticField(const edm::EventSetup& setup) const;
 
   bool readFromPede();
   bool areEmptyParams(const std::vector<Alignable*> &alignables) const;
@@ -108,6 +105,7 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   MillePedeMonitor         *theMonitor;
   Mille                    *theMille;
   PedeSteerer              *thePedeSteer;
+  TrajectoryFactoryBase    *theTrajectoryFactory;
   int                       theMinNumHits;
   bool                      theUseTrackTsos;
 

@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.20 $
- *  $Date: 2007/06/21 17:01:30 $
+ *  $Revision: 1.21 $
+ *  $Date: 2007/07/12 17:32:39 $
  *  (last update by $Author: flucke $)
  */
 
@@ -28,7 +28,8 @@
 #include "PedeReader.h" // dito
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectoryBase.h"
-#include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
+#include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"
+#include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryPlugin.h"
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORoot.h"
 
@@ -56,7 +57,8 @@ MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet
   theConfig(cfg), theMode(this->decodeMode(theConfig.getUntrackedParameter<std::string>("mode"))),
   theDir(theConfig.getUntrackedParameter<std::string>("fileDir")),
   theAlignmentParameterStore(0), theAlignables(), theAlignableNavigator(0),
-  theMonitor(0), theMille(0), thePedeSteer(0), theMinNumHits(cfg.getParameter<int>("minNumHits")),
+  theMonitor(0), theMille(0), thePedeSteer(0), theTrajectoryFactory(0),
+  theMinNumHits(cfg.getParameter<int>("minNumHits")),
   theUseTrackTsos(cfg.getParameter<bool>("useTrackTsos"))
 {
   if (!theDir.empty() && theDir.find_last_of('/') != theDir.size()-1) theDir += '/';// may need '/'
@@ -73,6 +75,7 @@ MillePedeAlignmentAlgorithm::~MillePedeAlignmentAlgorithm()
   delete theMille;
   delete theMonitor;
   delete thePedeSteer;
+  delete theTrajectoryFactory;
 }
 
 // Call at beginning of job ---------------------------------------------------
@@ -105,6 +108,11 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
     theMille = new Mille((theDir + theConfig.getParameter<std::string>("binaryFile")).c_str());
     const std::string moniFile(theConfig.getUntrackedParameter<std::string>("monitorFile"));
     if (moniFile.size()) theMonitor = new MillePedeMonitor((theDir + moniFile).c_str());
+
+    // Get trajectory factory. In case nothing found, FrameWork will throw...
+    const edm::ParameterSet fctCfg(theConfig.getParameter<edm::ParameterSet>("TrajectoryFactory"));
+    const std::string fctName(fctCfg.getParameter<std::string>("TrajectoryFactoryName"));
+    theTrajectoryFactory = TrajectoryFactoryPlugin::get()->create(fctName, fctCfg);
   }
 
   // FIXME: for PlotMillePede hit statistics stuff we also might want doIO(0)... ?
@@ -161,6 +169,8 @@ void MillePedeAlignmentAlgorithm::terminate()
   theMonitor = 0;
   delete thePedeSteer;
   thePedeSteer = 0;
+  delete theTrajectoryFactory;
+  theTrajectoryFactory = 0;
 }
 
 // Run the algorithm on trajectories and tracks -------------------------------
@@ -170,18 +180,27 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup,
 {
   if (!this->isMode(myMilleBit)) return; // no theMille created...
 
-  const MagneticField *magField = this->getMagneticField(setup);
+  typedef TrajectoryFactoryBase::ReferenceTrajectoryCollection RefTrajColl;
+  const RefTrajColl trajectories(theTrajectoryFactory->trajectories(setup, tracks));
+  // Assume that same container size means same order... :-(
+  const bool canUseTrack = (trajectories.size() == tracks.size());
+  const bool useTrackTsosBack = theUseTrackTsos;
+  if (!canUseTrack) theUseTrackTsos = false;
 
-  std::vector<TrajectoryStateOnSurface> trackTsos;
-  // loop over tracks  
-  for (ConstTrajTrackPairCollection::const_iterator it = tracks.begin(); it != tracks.end(); ++it) {
-    const Trajectory *traj = (*it).first;
-    const reco::Track *track = (*it).second;
-    if (!this->orderedTsos(traj, trackTsos)) continue;
-    if (theMonitor) theMonitor->fillTrack(track);
+  std::vector<TrajectoryStateOnSurface> trackTsos; // some buffer...
+  // loop over ReferenceTrajectoryCollection and possibly over tracks  
+  ConstTrajTrackPairCollection::const_iterator iTrajTrack = tracks.begin();
+  for (RefTrajColl::const_iterator iRefTraj = trajectories.begin(), iRefTrajE = trajectories.end();
+       iRefTraj != iRefTrajE; ++iRefTraj) {
+    if (canUseTrack) {
+      if (!this->orderedTsos((*iTrajTrack).first, trackTsos)) continue; // first is Trajectory*
+      if (theMonitor) theMonitor->fillTrack((*iTrajTrack).second); // second is reco::Track*
+    } else {
+      trackTsos.clear();
+      trackTsos.resize((*iTrajTrack).second->recHitsSize());
+    }
 
-    ReferenceTrajectoryBase::ReferenceTrajectoryPtr refTrajPtr = 
-      this->referenceTrajectory(trackTsos.front(), traj, magField);
+    RefTrajColl::value_type refTrajPtr = *iRefTraj; 
     if (!refTrajPtr->isValid()) continue; // currently e.g. if any invalid hit (FIXME for cosmic?)
     
     std::vector<AlignmentParameters*> parVec(refTrajPtr->recHits().size());//to add hits if all fine
@@ -189,7 +208,7 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup,
     int nValidHitsX = 0;                                // ...assuming that there are no y-only hits
     // Use recHits from ReferenceTrajectory (since they have the right order!):
     for (unsigned int iHit = 0; iHit < refTrajPtr->recHits().size(); ++iHit) {
-      const int flagXY = this->addGlobalDerivatives(refTrajPtr, iHit, trackTsos[iHit],parVec[iHit]);
+      const int flagXY = this->addGlobalDerivatives(refTrajPtr,iHit,trackTsos[iHit],parVec[iHit]);
       if (flagXY < 0) { // problem
         nValidHitsX = -1;
         break;
@@ -211,33 +230,16 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup,
 	}
       }
       theMille->end();
-      if (theMonitor) theMonitor->fillUsedTrack(track, nValidHitsX, nValidHitsY);
+      if (canUseTrack && theMonitor) {
+        theMonitor->fillUsedTrack((*iTrajTrack).second, nValidHitsX, nValidHitsY);
+      }
     } else {
       theMille->kill();
     }
+    if (canUseTrack) ++iTrajTrack;
+  } // end of reference trajectory and track loop
 
-  } // end of track loop
-}
-
-//____________________________________________________
-ReferenceTrajectoryBase::ReferenceTrajectoryPtr MillePedeAlignmentAlgorithm::referenceTrajectory
-(const TrajectoryStateOnSurface &refTsos, const Trajectory *traj,
- const MagneticField *magField) const
-{
-  const PropagationDirection dir = traj->direction();
-  const bool backwardHits = (dir == oppositeToMomentum ? true : false);
-  if (backwardHits == false && dir != alongMomentum) {
-    edm::LogError("Alignment") << "$SUB=MillePedeAlignmentAlgorithm::referenceTrajectory"
-                               << "Trajectory neither along nor opposite to momentum.";
-  }
-
-  ReferenceTrajectoryBase::ReferenceTrajectoryPtr refTrajPtr =
-    new ReferenceTrajectory(refTsos, traj->recHits(), backwardHits,
-			    magField, ReferenceTrajectoryBase::combined); //none);//energyLoss);
-
-  if (theMonitor) theMonitor->fillRefTrajectory(refTrajPtr);
-
-  return refTrajPtr;
+  theUseTrackTsos = useTrackTsosBack;
 }
 
 //____________________________________________________
@@ -366,17 +368,6 @@ bool MillePedeAlignmentAlgorithm::is2D(const ConstRecHitPointer &recHit) const
 	  (!recHit->detUnit() // stereo strips (FIXME: endcap trouble due to non-parallel strips)
 	   || recHit->detUnit()->type().isTrackerPixel()));
 }
-
-//____________________________________________________
-const MagneticField*
-MillePedeAlignmentAlgorithm::getMagneticField(const edm::EventSetup &setup) const
-{
-  edm::ESHandle<MagneticField> fieldHandle;
-  setup.get<IdealMagneticFieldRecord>().get(fieldHandle); 
-
-  return fieldHandle.product();
-}
-
 
 //__________________________________________________________________________________________________
 bool MillePedeAlignmentAlgorithm::readFromPede()
