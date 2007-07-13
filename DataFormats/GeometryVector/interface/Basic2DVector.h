@@ -55,6 +55,7 @@ public:
    *  Same precision as the system atan2(x,y) function.
    *  The return type is Geom::Phi<T>, see it's documentation.
    */ 
+  T barePhi() const {return atan2(theY,theX);}
   Geom::Phi<T> phi() const {return Geom::Phi<T>(atan2(theY,theX));}
 
   /** Unit vector parallel to this.

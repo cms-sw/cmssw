@@ -93,12 +93,14 @@ public:
    *  Same precision as the system atan2(x,y) function.
    *  The return type is Geom::Phi<T>, see it's documentation.
    */ 
+  T barePhi() const {return atan2(theY,theX);}
   Geom::Phi<T> phi() const {return Geom::Phi<T>(atan2(theY,theX));}
 
   /** Polar angle. The value is returned in radians, in the range [0,pi]
    *  Same precision as the system atan2(x,y) function.
    *  The return type is Geom::Phi<T>, see it's documentation.
    */ 
+  T bareTheta() const {return atan2(perp(),z());}
   Geom::Theta<T> theta() const {return Geom::Theta<T>(atan2(perp(),z()));}
 
   /** Pseudorapidity. 

@@ -35,7 +35,7 @@ public:
 
   const RotationType& rotation() const { return theRot;}
 
-  Geom::Phi<T> phi() const { return thePhi;}
+  T phi() const { return thePhi;}
   T eta() const { return theEta;}
 
 
@@ -140,11 +140,11 @@ private:
   RotationType  theRot;
 
   void cache() {
-    thePhi = thePos.phi();
+    thePhi = thePos.barePhi();
     theEta = thePos.eta();
   }
   
-  Geom::Phi<T> thePhi;
+  T thePhi;
   T theEta;
 
 
