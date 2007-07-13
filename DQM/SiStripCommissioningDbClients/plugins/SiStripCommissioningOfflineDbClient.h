@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineDbClient.h,v 1.1 2007/06/04 13:32:11 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineDbClient.h,v 1.2 2007/06/19 12:30:36 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningDbClients_SiStripCommissioningOfflineDbClient_H
 #define DQM_SiStripCommissioningDbClients_SiStripCommissioningOfflineDbClient_H
@@ -6,10 +6,6 @@
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningOfflineClient.h"
 #include "DQM/SiStripCommissioningClients/interface/SiStripTFile.h"
-#include "DQM/SiStripCommissioningClients/interface/ConfigParser.h"
-#include <string>
-#include <vector>
-#include <map>
 
 /**
    @class SiStripCommissioningOfflineDbClient 
@@ -38,7 +34,7 @@ class SiStripCommissioningOfflineDbClient : public SiStripCommissioningOfflineCl
 
   bool test_;
 
-  bool uploadPllSettings_;
+  bool uploadFecSettings_;
 
   bool uploadFedSettings_;
   

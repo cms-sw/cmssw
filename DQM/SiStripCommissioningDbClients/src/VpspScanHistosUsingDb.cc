@@ -1,4 +1,4 @@
-// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.5 2007/05/25 10:33:48 bainbrid Exp $
+// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.6 2007/06/19 12:30:37 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/VpspScanHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -71,7 +71,7 @@ void VpspScanHistosUsingDb::uploadToConfigDb() {
     LogTrace(mlDqmClient_) 
       << "[VpspScanHistosUsingDb::" << __func__ << "]"
       << " Uploading VPSP settings to DB...";
-    db_->uploadDeviceDescriptions(false); 
+    db_->uploadDeviceDescriptions(true); 
   } else {
     edm::LogWarning(mlDqmClient_) 
       << "[VpspScanHistosUsingDb::" << __func__ << "]"
@@ -112,25 +112,38 @@ void VpspScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
 				      addr.fecRing_, 
 				      addr.ccuAddr_, 
 				      addr.ccuChan_,
-				      ichan ).key();
+				      ichan+1 ).key();
     fec_path = SiStripFecKey( fec_key );
       
     // Iterate through all channels and extract LLD settings 
-    map<uint32_t,VpspScanAnalysis>::const_iterator iter = data_.find( fec_key );
+    map<uint32_t,VpspScanAnalysis*>::const_iterator iter = data_.find( fec_key );
     if ( iter != data_.end() ) {
-      
-      LogTrace(mlDqmClient_) 
-	<< "[VpspScanHistosUsingDb::" << __func__ << "]"
-	<< " Initial VPSP setting: " 
-	<< static_cast<uint16_t>(desc->getVpsp());
-      
-      if ( iapv == 0 ) { desc->setVpsp( iter->second.vpsp()[0] ); }
-      if ( iapv == 1 ) { desc->setVpsp( iter->second.vpsp()[1] ); }
-      
-      LogTrace(mlDqmClient_) 
-	<< "[VpspScanHistosUsingDb::" << __func__ << "]"
-	<< " Updated VPSP setting: " 
-	<< static_cast<uint16_t>(desc->getVpsp());
+      if ( iter->second->isValid() ) {
+	std::stringstream ss;
+	ss << "[VpspScanHistosUsingDb::" << __func__ << "]"
+	   << " Updating VPSP setting for crate/FEC/slot/ring/CCU/LLD/APV " 
+	   << fec_path.fecCrate() << "/"
+	   << fec_path.fecSlot() << "/"
+	   << fec_path.fecRing() << "/"
+	   << fec_path.ccuAddr() << "/"
+	   << fec_path.ccuChan() << "/"
+	   << fec_path.channel() 
+	   << iapv
+	   << " from "
+	   << static_cast<uint16_t>(desc->getVpsp());
+	if ( iapv == 0 ) { desc->setVpsp( iter->second->vpsp()[0] ); }
+	if ( iapv == 1 ) { desc->setVpsp( iter->second->vpsp()[1] ); }
+	ss << " to "
+	   << static_cast<uint16_t>(desc->getVpsp());
+	LogTrace(mlDqmClient_) << ss.str();
+      } else {
+	std::stringstream ss;
+	ss << "[VpspScanHistosUsingDb::" << __func__ << "]"
+	   << " Invalid analysis!" << std::endl; 
+	iter->second->print( ss, 1 );
+	iter->second->print( ss, 2 );
+	edm::LogWarning(mlDqmClient_) << ss.str(); 
+      }
       
     } else {
       LogTrace(mlDqmClient_) 
@@ -141,7 +154,8 @@ void VpspScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
 	<< fec_path.fecRing() << "/"
 	<< fec_path.ccuAddr() << "/"
 	<< fec_path.ccuChan() << "/"
-	<< fec_path.channel() << "/" << iapv;
+	<< fec_path.channel() << "/" 
+	<< iapv+1;
 
     }
       

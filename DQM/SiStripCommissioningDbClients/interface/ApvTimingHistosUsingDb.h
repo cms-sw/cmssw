@@ -1,4 +1,4 @@
-// Last commit: $Id: ApvTimingHistosUsingDb.h,v 1.4 2007/05/24 15:59:44 bainbrid Exp $
+// Last commit: $Id: ApvTimingHistosUsingDb.h,v 1.5 2007/06/19 12:30:27 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_ApvTimingHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_ApvTimingHistosUsingDb_H
@@ -37,7 +37,7 @@ class ApvTimingHistosUsingDb : public ApvTimingHistograms, public CommissioningH
 
   void update( SiStripConfigDb::FedDescriptions& );
   
-  bool uploadPllSettings_;
+  bool uploadFecSettings_;
 
   bool uploadFedSettings_;
   
@@ -45,7 +45,7 @@ class ApvTimingHistosUsingDb : public ApvTimingHistograms, public CommissioningH
 
 // ---------- Inline methods ----------
 
-void ApvTimingHistosUsingDb::uploadPllSettings( bool upload ) { uploadPllSettings_ = upload; }
+void ApvTimingHistosUsingDb::uploadPllSettings( bool upload ) { uploadFecSettings_ = upload; }
 void ApvTimingHistosUsingDb::uploadFedSettings( bool upload ) { uploadFedSettings_ = upload; }
 
 #endif // DQM_SiStripCommissioningClients_ApvTimingHistosUsingDb_H

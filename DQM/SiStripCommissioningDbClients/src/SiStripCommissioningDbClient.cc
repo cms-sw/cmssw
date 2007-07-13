@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningDbClient.cc,v 1.3 2007/06/19 12:30:37 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningDbClient.cc,v 1.4 2007/07/04 14:21:16 andreasp Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/SiStripCommissioningDbClient.h"
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
@@ -65,7 +65,7 @@ void SiStripCommissioningDbClient::createHistograms( const sistrip::RunType& run
   params.minor_ = minor_.value_;
   
   // Create corresponding "commissioning histograms" object 
-  if ( run_type == sistrip::FAST_FED_CABLING ) { histos_ = new FastFedCablingHistosUsingDb( mui_, params ); }
+  if ( run_type == sistrip::FAST_CABLING ) { histos_ = new FastFedCablingHistosUsingDb( mui_, params ); }
   else if ( run_type == sistrip::FED_CABLING ) { histos_ = new FedCablingHistosUsingDb( mui_, params ); }
   else if ( run_type == sistrip::APV_TIMING ) { histos_ = new ApvTimingHistosUsingDb( mui_, params ); }
   //else if ( run_type == sistrip::FED_TIMING ) { histos_ = new FedTimingHistosUsingDb( mui_, params ); }

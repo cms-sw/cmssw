@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.3 2007/06/07 14:38:47 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.4 2007/06/19 12:30:36 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/plugins/SiStripCommissioningOfflineDbClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -16,10 +16,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
-#include <boost/cstdint.hpp>
-#include <iostream>
-#include <fstream>
-#include <sstream>
 
 using namespace sistrip;
 
@@ -27,9 +23,9 @@ using namespace sistrip;
 // 
 SiStripCommissioningOfflineDbClient::SiStripCommissioningOfflineDbClient( const edm::ParameterSet& pset ) 
   : SiStripCommissioningOfflineClient(pset),
-    uploadToDb_( pset.getUntrackedParameter<bool>("UploadToConfigDb",false) ),
-    test_( pset.getUntrackedParameter<bool>("Test",false) ),
-    uploadPllSettings_( pset.getUntrackedParameter<bool>("UploadPllSettings",true) ),
+    uploadToDb_( pset.getUntrackedParameter<bool>("DoNotUse",true) ),
+    test_( /* note the "!" -> */ !pset.getUntrackedParameter<bool>("UploadToConfigDb",false) ),
+    uploadFecSettings_( pset.getUntrackedParameter<bool>("UploadFecSettings",true) ),
     uploadFedSettings_( pset.getUntrackedParameter<bool>("UploadFedSettings",true) )
 {
   LogTrace(mlDqmClient_)
@@ -99,7 +95,7 @@ void SiStripCommissioningOfflineDbClient::createCommissioningHistograms() {
   } 
   
   // Create corresponding "commissioning histograms" object 
-  if ( runType_ == sistrip::FAST_FED_CABLING ) { histos_ = new FastFedCablingHistosUsingDb( mui_, db ); }
+  if ( runType_ == sistrip::FAST_CABLING ) { histos_ = new FastFedCablingHistosUsingDb( mui_, db ); }
   else if ( runType_ == sistrip::FED_CABLING ) { histos_ = new FedCablingHistosUsingDb( mui_, db ); }
   else if ( runType_ == sistrip::APV_TIMING ) { histos_ = new ApvTimingHistosUsingDb( mui_, db ); }
   else if ( runType_ == sistrip::OPTO_SCAN ) { histos_ = new OptoScanHistosUsingDb( mui_, db ); }
@@ -116,7 +112,7 @@ void SiStripCommissioningOfflineDbClient::createCommissioningHistograms() {
   // 
   ApvTimingHistosUsingDb* temp = dynamic_cast<ApvTimingHistosUsingDb*>(histos_);
   if ( temp ) { 
-    temp->uploadPllSettings( uploadPllSettings_ );
+    temp->uploadPllSettings( uploadFecSettings_ );
     temp->uploadFedSettings( uploadFedSettings_ );
   }
   
