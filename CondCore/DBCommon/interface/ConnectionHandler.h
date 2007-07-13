@@ -31,8 +31,7 @@ namespace cond{
     /// contructor
     ConnectionHandler(){}
     /// query connection
-    Connection* getConnection( const std::string& name, 
-			       bool isReadOnly );
+    Connection* getConnection( const std::string& name );
   private:
     /// hide copy constructor
     ConnectionHandler( ConnectionHandler& );

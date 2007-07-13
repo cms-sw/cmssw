@@ -29,7 +29,7 @@ int main(){
   conHandler.registerConnection("mysqlite2","sqlite_file:miodati.db","file:mycatalog.xml",0);
   session->open();
   conHandler.connect(session);
-  cond::Connection* myconnection=conHandler.getConnection("mysqlite1",false);
+  cond::Connection* myconnection=conHandler.getConnection("mysqlite1");
   std::cout<<"myconnection "<<myconnection<<std::endl;
   cond::CoralTransaction& coralTransaction=myconnection->coralTransaction(false);
   coralTransaction.start();
@@ -39,7 +39,7 @@ int main(){
   myobj->data.insert(std::make_pair<unsigned int,std::string>(2,"two"));
   cond::PoolTransaction& poolTransaction=myconnection->poolTransaction(false);
   poolTransaction.start();
-  cond::TypedRef<testCondObj> myref(poolTransaction,myobj);
+  cond::TypedRef<testCondObj> myref(myconnection->poolTransaction(false),myobj);
   myref.markWrite("testCondObjContainer");
   poolTransaction.commit();
   cond::Connection* myconnection2=conHandler.getConnection("mysqlite2",false);

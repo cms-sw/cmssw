@@ -40,8 +40,7 @@ cond::ConnectionHandler::~ConnectionHandler(){
   m_registry.clear();
 }
 cond::Connection* 
-cond::ConnectionHandler::getConnection( const std::string& name, 
-					      bool isReadOnly ){
+cond::ConnectionHandler::getConnection( const std::string& name ){
   std::map<std::string,cond::Connection*>::iterator it=m_registry.find(name);
   if( it!=m_registry.end() ){
     return it->second;

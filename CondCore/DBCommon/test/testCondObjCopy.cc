@@ -20,7 +20,7 @@ int main(){
   try{
     session->open();
     conHandler.connect(session);
-    cond::Connection* sourcewriter=conHandler.getConnection("sourcedata",false);
+    cond::Connection* sourcewriter=conHandler.getConnection("sourcedata");
     testCondObj* myobj=new testCondObj;
     myobj->data.insert(std::make_pair(1,"strangestring1"));
     myobj->data.insert(std::make_pair(100,"strangestring2"));
@@ -40,8 +40,8 @@ int main(){
     //end of prepare data
     
     //start of copying data
-    cond::Connection* sourcereader=conHandler.getConnection("sourcedata",true);
-    cond::Connection* destcon=conHandler.getConnection("mycopy",false);
+    cond::Connection* sourcereader=conHandler.getConnection("sourcedata");
+    cond::Connection* destcon=conHandler.getConnection("mycopy");
     cond::PoolTransaction& destTransaction=destcon->poolTransaction(false);
     poolTransaction=sourcereader->poolTransaction(true);
     poolTransaction.start();
