@@ -16,6 +16,8 @@
 
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 
+#include "TrackingTools/DetLayers/interface/DetLayer.h"
+
 class TrackingRegion;
 class MuonServiceProxy;
 
@@ -42,9 +44,10 @@ private:
   void makeSeeds_1(const reco::Track &,std::vector<TrajectorySeed> &);
   void makeSeeds_2(const reco::Track &,std::vector<TrajectorySeed> &);
   void makeSeeds_3(const reco::Track &,std::vector<TrajectorySeed> &);
-
+  void makeSeeds_4(const reco::Track &,std::vector<TrajectorySeed> &);
 
 private:
+  void pushTrajectorySeed(const reco::Track & muon, std::vector<DetLayer::DetWithState > & compatible, PropagationDirection direction, std::vector<TrajectorySeed>& result)const;
   edm::ParameterSet theConfig;
 
   edm::ESHandle<MeasurementTracker> _measurementTracker;

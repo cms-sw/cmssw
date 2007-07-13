@@ -35,6 +35,7 @@ TSGForRoadSearch::TSGForRoadSearch(const edm::ParameterSet & par){
   _propagatorCompatibleName = par.getParameter<std::string>("propagatorCompatibleName");
 
   _category = "TSGForRoadSearch|TrackerSeedGenerator";
+  //  _layerShift = par.GetParameter<uint>("layerShift");
 }
 TSGForRoadSearch::~TSGForRoadSearch(){
   delete _chi2Estimator;
@@ -82,6 +83,8 @@ std::vector<TrajectorySeed> TSGForRoadSearch::trackerSeeds(const TrackCand & muo
     makeSeeds_2(*muonTrackCand.second,result);break;
   case 3:
     makeSeeds_3(*muonTrackCand.second,result);break;
+  case 4:
+    makeSeeds_4(*muonTrackCand.second,result);break;
   }  
 
   return result;
@@ -112,21 +115,8 @@ void TSGForRoadSearch::makeSeeds_2(const reco::Track & muon, std::vector<Traject
   if (compatible.empty()) {LogDebug(_category)<<"no compatible hits."; return;}
   LogDebug(_category)<<"("<<compatible.size()<<") compatible dets found";
 
-  //transform it into a PTrajectoryStateOnDet
-  TrajectoryStateTransform tsTransform;
-  PTrajectoryStateOnDet & PTSOD = *tsTransform.persistentState(compatible.front().second,compatible.front().first->geographicalId().rawId());
-  LogDebug(_category)<<"state used to build a trajectory seed: \n"<<compatible.front().second
-		     <<"on detector: "<<compatible.front().first->geographicalId().rawId();
+  pushTrajectorySeed(muon,compatible,oppositeToMomentum,result);
 
-  BasicTrajectorySeed::recHitContainer rhContainer;
-  if (_copyMuonRecHit){
-    LogDebug(_category)<<"copying ("<<muon.recHitsSize()<<") muon recHits";
-    //copy the muon rechit into the seed
-    for (trackingRecHit_iterator trit = muon.recHitsBegin(); trit!=muon.recHitsEnd();trit++) {
-      rhContainer.push_back( (*trit).get()->clone() ); }}
-
-  //add this seed to the list and return it
-  result.push_back(TrajectorySeed(PTSOD,rhContainer,oppositeToMomentum));
 */
   return;
 }
@@ -157,21 +147,8 @@ void TSGForRoadSearch::makeSeeds_1(const reco::Track & muon, std::vector<Traject
   LogDebug(_category)<<"("<<compatible.size()<<") compatible dets found";
 
 
-  //transform it into a PTrajectoryStateOnDet
-  TrajectoryStateTransform tsTransform;
-  PTrajectoryStateOnDet & PTSOD = *tsTransform.persistentState(compatible.front().second,compatible.front().first->geographicalId().rawId());
-  LogDebug(_category)<<"state used to build a trajectory seed: \n"<<compatible.front().second
-		     <<"on detector: "<<compatible.front().first->geographicalId().rawId();
+  pushTrajectorySeed(muon,compatible,alongMomentum,result);
 
-  BasicTrajectorySeed::recHitContainer rhContainer;
-  if (_copyMuonRecHit){
-    LogDebug(_category)<<"copying ("<<muon.recHitsSize()<<") muon recHits";
-    //copy the muon rechit into the seed
-    for (trackingRecHit_iterator trit = muon.recHitsBegin(); trit!=muon.recHitsEnd();trit++) {
-      rhContainer.push_back( (*trit).get()->clone() ); }}
-
-  //add this seed to the list and return it
-  result.push_back(TrajectorySeed(PTSOD,rhContainer,alongMomentum));
 */  
   return;
 }
@@ -226,21 +203,7 @@ void TSGForRoadSearch::makeSeeds_0(const reco::Track & muon, std::vector<Traject
     compatible = inLayer->compatibleDets(inner,*theProxyService->propagator(_propagatorCompatibleName),*_chi2Estimator);
   }
 
-  //transform it into a PTrajectoryStateOnDet
-  TrajectoryStateTransform tsTransform;
-  PTrajectoryStateOnDet & PTSOD = *tsTransform.persistentState(compatible.front().second,compatible.front().first->geographicalId().rawId());
-  LogDebug(_category)<<"state used to build a trajectory seed: \n"<<compatible.front().second
-		     <<"on detector: "<<compatible.front().first->geographicalId().rawId();
-
-  BasicTrajectorySeed::recHitContainer rhContainer;
-  if (_copyMuonRecHit){
-    LogDebug(_category)<<"copying ("<<muon.recHitsSize()<<") muon recHits";
-    //copy the muon rechit into the seed
-    for (trackingRecHit_iterator trit = muon.recHitsBegin(); trit!=muon.recHitsEnd();trit++) {
-      rhContainer.push_back( (*trit).get()->clone() );  }}
-
-  //add this seed to the list and return it
-  result.push_back(TrajectorySeed(PTSOD,rhContainer,alongMomentum));
+  pushTrajectorySeed(muon,compatible,alongMomentum,result);
 
   return;
 }
@@ -265,7 +228,7 @@ void TSGForRoadSearch::makeSeeds_3(const reco::Track & muon, std::vector<Traject
   std::vector<ForwardDetLayer*> ntidc = _measurementTracker->geometricSearchTracker()->negTidLayers();
   std::vector<ForwardDetLayer*> ntecc = _measurementTracker->geometricSearchTracker()->negTecLayers();
 
-  uint layerShift=3;
+  uint layerShift=0;
   const DetLayer *inLayer = NULL;
   if (fabs(z) < ptecc.front()->surface().position().z()  ){
     inLayer = *(blc.rbegin()+layerShift);
@@ -300,6 +263,61 @@ void TSGForRoadSearch::makeSeeds_3(const reco::Track & muon, std::vector<Traject
     compatible = inLayer->compatibleDets(outer,*theProxyService->propagator(_propagatorCompatibleName),*_chi2Estimator);
   }
 
+  pushTrajectorySeed(muon,compatible,oppositeToMomentum,result);
+
+  return;
+}
+
+
+void TSGForRoadSearch::makeSeeds_4(const reco::Track & muon, std::vector<TrajectorySeed>& result){
+  //get the state at IP
+  TrajectoryStateTransform transform;
+  FreeTrajectoryState cIPFTS = transform.initialFreeState(muon,&*theProxyService->magneticField());
+  LogDebug(_category)<<cIPFTS;   
+
+  //take state at inner surface and check the first part reached
+  std::vector<BarrelDetLayer*> blc = _measurementTracker->geometricSearchTracker()->pixelBarrelLayers();
+  if (blc.empty()){edm::LogError(_category)<<"want to start from pixel layer, but no barrel exists"; return;}
+
+  TrajectoryStateOnSurface inner = theProxyService->propagator(_propagatorName)->propagate(cIPFTS,blc.front()->surface());
+  if ( !inner.isValid() ) {LogDebug(_category) <<"inner state is not valid"; return;}
+
+  double z = inner.globalPosition().z();
+
+  std::vector<ForwardDetLayer*> ppxlc = _measurementTracker->geometricSearchTracker()->posPixelForwardLayers();
+  std::vector<ForwardDetLayer*> npxlc = _measurementTracker->geometricSearchTracker()->negPixelForwardLayers();
+
+  if (ppxlc.empty() || npxlc.empty())
+    { edm::LogError(_category)<<"want to start from pixel layer, but no forward layer exists"; return;}
+
+  const DetLayer *inLayer = NULL;
+  
+  const double epsilon = 0.5 ;//cm
+  double barrel_half_length = blc.front()->specificSurface().bounds().length()/2. - epsilon;
+
+  if (fabs(z-blc.front()->surface().position().z()) < barrel_half_length)
+    {
+      inLayer = blc.front();
+    }
+  else 
+    {
+      inLayer = ( z < 0 ) ? npxlc.front() : ppxlc.front() ;
+    }
+
+  //find out at least one compatible detector reached
+  std::vector< DetLayer::DetWithState > compatible = inLayer->compatibleDets(inner,*theProxyService->propagator(_propagatorCompatibleName),*_chi2Estimator);
+
+  pushTrajectorySeed(muon,compatible,alongMomentum,result);
+
+  return;
+}
+
+void TSGForRoadSearch::pushTrajectorySeed(const reco::Track & muon, std::vector<DetLayer::DetWithState > & compatible, PropagationDirection direction, std::vector<TrajectorySeed>& result)const {
+
+  if (compatible.empty()){
+    LogDebug(_category)<<"pushTrajectorySeed with no compatible module. 0 seed.";
+    return;}
+
   //transform it into a PTrajectoryStateOnDet
   TrajectoryStateTransform tsTransform;
   PTrajectoryStateOnDet & PTSOD = *tsTransform.persistentState(compatible.front().second,compatible.front().first->geographicalId().rawId());
@@ -314,7 +332,7 @@ void TSGForRoadSearch::makeSeeds_3(const reco::Track & muon, std::vector<Traject
       rhContainer.push_back( (*trit).get()->clone() );  }}
 
   //add this seed to the list and return it
-  result.push_back(TrajectorySeed(PTSOD,rhContainer,oppositeToMomentum));
+  result.push_back(TrajectorySeed(PTSOD,rhContainer,direction));
 
   return;
 }
