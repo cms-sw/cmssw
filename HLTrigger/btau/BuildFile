@@ -21,6 +21,7 @@
 <use name=RecoVertex/VertexPrimitives>
 <use name=TrackingTools/Records>
 <use name=TrackingTools/TransientTrack>
+<use name=PhysicsTools/CandUtils>
 <use name=rootcore>
 <use name=rootmath>
 <flags EDM_PLUGIN=1>
