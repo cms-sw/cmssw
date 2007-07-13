@@ -20,11 +20,11 @@ int main(){
   try{
     session->open();
     conHandler.connect(session);
-    cond::Connection* sourcewriter=conHandler.getConnection("sourcedata");
+    cond::Connection* source=conHandler.getConnection("sourcedata");
     testCondObj* myobj=new testCondObj;
     myobj->data.insert(std::make_pair(1,"strangestring1"));
     myobj->data.insert(std::make_pair(100,"strangestring2"));
-    cond::PoolTransaction& poolTransaction=sourcewriter->poolTransaction(false);
+    cond::PoolTransaction& poolTransaction=source->poolTransaction(false);
     poolTransaction.start();
     cond::TypedRef<testCondObj> myref(poolTransaction,myobj);
     myref.markWrite("mycontainer");
@@ -40,10 +40,9 @@ int main(){
     //end of prepare data
     
     //start of copying data
-    cond::Connection* sourcereader=conHandler.getConnection("sourcedata");
     cond::Connection* destcon=conHandler.getConnection("mycopy");
     cond::PoolTransaction& destTransaction=destcon->poolTransaction(false);
-    poolTransaction=sourcereader->poolTransaction(true);
+    poolTransaction=source->poolTransaction(true);
     poolTransaction.start();
     cond::GenericRef mydata(poolTransaction,token,"testCondObj");
     std::string t=mydata.token();
