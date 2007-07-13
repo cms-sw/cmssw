@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2007/05/11 14:21:58 $
- *  $Revision: 1.48 $
+ *  $Date: 2007/05/28 13:22:21 $
+ *  $Revision: 1.49 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -59,6 +59,7 @@ MuonTrackLoader::MuonTrackLoader(ParameterSet &parameterSet, const MuonServicePr
 
   thePutTkTrackFlag = parameterSet.getUntrackedParameter<bool>("PutTkTrackIntoEvent",false);
   theSmoothTkTrackFlag = parameterSet.getUntrackedParameter<bool>("SmoothTkTrack",false);
+  theAllowNoVtxFlag = parameterSet.getUntrackedParameter<bool>("AllowNoVertex",false);
 }
 
 MuonTrackLoader::~MuonTrackLoader(){
@@ -329,8 +330,13 @@ pair<bool,reco::Track> MuonTrackLoader::buildTrackAtPCA(const Trajectory& trajec
       ftsAtVtx = *innerTSOS.freeState();
     }
     else{
-      LogWarning(metname) << "Stand Alone track: this track will be rejected";
-      return pair<bool,reco::Track>(false,reco::Track());
+      if ( theAllowNoVtxFlag ) {
+        LogWarning(metname) << "Propagation to PCA failed, taking the innermost state instead of the state at PCA";
+        ftsAtVtx = *innerTSOS.freeState();
+      } else {
+        LogWarning(metname) << "Stand Alone track: this track will be rejected";
+        return pair<bool,reco::Track>(false,reco::Track());
+      }
     }
   }
     

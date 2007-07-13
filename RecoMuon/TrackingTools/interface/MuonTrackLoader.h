@@ -5,8 +5,8 @@
  *  Class to load the tracks in the event, it provide some common functionalities
  *  both for all the RecoMuon producers.
  *
- *  $Date: 2007/05/04 18:12:29 $
- *  $Revision: 1.18 $
+ *  $Date: 2007/05/28 13:22:20 $
+ *  $Revision: 1.19 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -77,5 +77,6 @@ class MuonTrackLoader {
     std::string theL2SeededTkLabel; 
     bool thePutTkTrackFlag;
     bool theSmoothTkTrackFlag;
+    bool theAllowNoVtxFlag;
 };
 #endif
