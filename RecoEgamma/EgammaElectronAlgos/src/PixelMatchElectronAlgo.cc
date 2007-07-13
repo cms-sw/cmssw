@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.45 2007/06/30 00:10:34 charlot Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.46 2007/07/10 09:36:24 charlot Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
@@ -46,6 +46,9 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "TrackingTools/GsfTools/interface/GsfPropagatorAdapter.h"
+#include "TrackingTools/GsfTools/interface/MultiGaussianStateTransform.h"
+#include "TrackingTools/GsfTools/interface/MultiGaussianState1D.h"
+#include "TrackingTools/GsfTools/interface/GaussianSumUtilities1D.h"
 
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
@@ -322,63 +325,35 @@ bool PixelMatchElectronAlgo::preSelection(const SuperCluster& clus, const Global
 }  
 
 GlobalVector PixelMatchElectronAlgo::computeMode(const TrajectoryStateOnSurface &tsos) {
-  // mode computation	
+
+  // mode computation for momentum cartesian co-ordinates
+  // change to 5D in local parameters??
   float mode_Px = 0.;
   float mode_Py = 0.;
   float mode_Pz = 0.;
   if ( tsos.isValid() ){
-	  
-    int Count = 0;
-    unsigned int numb = tsos.components().size();
-    float *Wgt   = new float[numb];
-    float *Px    = new float[numb];
-    float *Py    = new float[numb];
-    float *Pz    = new float[numb];
-    float *PxErr = new float[numb];
-    float *PyErr = new float[numb];
-    float *PzErr = new float[numb];
-	  
-    for (unsigned int ii = 0; ii < numb; ii ++){
-      Wgt[ii]   = 0.;
-      Px[ii]    = 0.;
-      Py[ii]    = 0.;
-      Pz[ii]    = 0.;
-      PxErr[ii] = 0.;
-      PyErr[ii] = 0.;
-      PzErr[ii] = 0.;
+    std::vector<TrajectoryStateOnSurface> components(tsos.components());
+    unsigned int numb = components.size();
+    std::vector<SingleGaussianState1D> pxStates; pxStates.reserve(numb);
+    std::vector<SingleGaussianState1D> pyStates; pyStates.reserve(numb);
+    std::vector<SingleGaussianState1D> pzStates; pzStates.reserve(numb);
+    for ( std::vector<TrajectoryStateOnSurface>::const_iterator ic=components.begin();
+	  ic!=components.end(); ++ic ) {
+      GlobalVector momentum(ic->globalMomentum());
+      AlgebraicSymMatrix66 cov(ic->cartesianError().matrix());
+      pxStates.push_back(SingleGaussianState1D(momentum.x(),cov(3,3),ic->weight()));
+      pyStates.push_back(SingleGaussianState1D(momentum.y(),cov(4,4),ic->weight()));
+      pzStates.push_back(SingleGaussianState1D(momentum.z(),cov(5,5),ic->weight()));
     }
-	  
-    std::vector<TrajectoryStateOnSurface> comp = tsos.components();
-    for (std::vector<TrajectoryStateOnSurface>::const_iterator it_comp = comp.begin(); it_comp!= comp.end(); it_comp++){
-      Wgt[Count]    = it_comp->weight();
-      Px[Count]     = it_comp->globalMomentum().x();
-      Py[Count]     = it_comp->globalMomentum().y();
-      Pz[Count]     = it_comp->globalMomentum().z();
-      PxErr[Count]  = sqrt(it_comp->cartesianError().matrix()(3,3));
-      PyErr[Count]  = sqrt(it_comp->cartesianError().matrix()(4,4));
-      PzErr[Count]  = sqrt(it_comp->cartesianError().matrix()(5,5));
-      Count++;
-    }
-	  
-    GSUtilities *myGSUtil_Px = new GSUtilities(numb, Wgt, Px, PxErr);
-    GSUtilities *myGSUtil_Py = new GSUtilities(numb, Wgt, Py, PyErr);
-    GSUtilities *myGSUtil_Pz = new GSUtilities(numb, Wgt, Pz, PzErr);
-	  
-    mode_Px = myGSUtil_Px->mode();
-    mode_Py = myGSUtil_Py->mode();
-    mode_Pz = myGSUtil_Pz->mode();
-	 
-    if ( myGSUtil_Px ) { delete myGSUtil_Px; }
-    if ( myGSUtil_Py ) { delete myGSUtil_Py; }
-    if ( myGSUtil_Pz ) { delete myGSUtil_Pz; }
-	  
-    delete[] Wgt;
-    delete[] Px;
-    delete[] PxErr;
-    delete[] Py;
-    delete[] PyErr;
-    delete[] Pz;
-    delete[] PzErr;
+    MultiGaussianState1D pxState(pxStates);
+    MultiGaussianState1D pyState(pyStates);
+    MultiGaussianState1D pzState(pzStates);
+    GaussianSumUtilities1D pxUtils(pxState);
+    GaussianSumUtilities1D pyUtils(pyState);
+    GaussianSumUtilities1D pzUtils(pzState);
+    mode_Px = pxUtils.mode().mean();
+    mode_Py = pyUtils.mode().mean();
+    mode_Pz = pzUtils.mode().mean();
   } else edm::LogInfo("") << "tsos not valid!!";
   return GlobalVector(mode_Px,mode_Py,mode_Pz);	
 

@@ -4,8 +4,11 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
-#include "TrackingTools/GsfTools/interface/GSUtilities.h"
+#include "TrackingTools/GsfTools/interface/MultiGaussianState1D.h"
+#include "TrackingTools/GsfTools/interface/GaussianSumUtilities1D.h"
+#include "TrackingTools/GsfTools/interface/MultiGaussianStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -64,43 +67,9 @@ void ElectronMomentumCorrector::correct(reco::PixelMatchGsfElectron &electron, T
   float trackMomentum  = electron.trackMomentumAtVtx().R();
   // momentum error rescaling
   //  std::vector<TrajectoryStateOnSurface> vtx_loc_comp = electron.getGsfTrack()->impactPointState().components();
-  std::vector<TrajectoryStateOnSurface> vtx_loc_comp = vtxTsos.components();
-
-  int vtx_loc_oo = 0;	
-  float vtx_loc_weight[100];
-  float vtx_loc_qop[100];
-  float vtx_loc_qop_err[100];
-  float vtx_loc_dxdz[100];
-  float vtx_loc_dxdz_err[100];
-  float vtx_loc_dydz[100];
-  float vtx_loc_dydz_err[100];
-  float vtx_loc_locx[100];
-  float vtx_loc_locx_err[100];
-  float vtx_loc_locy[100];
-  float vtx_loc_locy_err[100];
-
-  for (std::vector<TrajectoryStateOnSurface>::const_iterator it_vtx_locComp = vtx_loc_comp.begin(); it_vtx_locComp!= vtx_loc_comp.end(); it_vtx_locComp++)
-    {
-      vtx_loc_weight[vtx_loc_oo]   =  it_vtx_locComp->weight();
-      vtx_loc_qop[vtx_loc_oo]      =  it_vtx_locComp->localParameters().vector()[0];      
-      vtx_loc_qop_err[vtx_loc_oo]  =  sqrt(it_vtx_locComp->localError().matrix()(0,0));
-      vtx_loc_dxdz[vtx_loc_oo]     =  it_vtx_locComp->localParameters().vector()[1];       
-      vtx_loc_dxdz_err[vtx_loc_oo] =  sqrt(it_vtx_locComp->localError().matrix()(1,1));
-      vtx_loc_dydz[vtx_loc_oo]     =  it_vtx_locComp->localParameters().vector()[2];    
-      vtx_loc_dydz_err[vtx_loc_oo] =  sqrt(it_vtx_locComp->localError().matrix()(2,2));
-      vtx_loc_locx[vtx_loc_oo]     =  it_vtx_locComp->localParameters().vector()[3];    
-      vtx_loc_locx_err[vtx_loc_oo] =  sqrt(it_vtx_locComp->localError().matrix()(3,3));
-      vtx_loc_locy[vtx_loc_oo]     =  it_vtx_locComp->localParameters().vector()[4];    
-      vtx_loc_locy_err[vtx_loc_oo] =  sqrt(it_vtx_locComp->localError().matrix()(4,4)); 
-      vtx_loc_oo++;   
-    }
-
-  GSUtilities my_vtx_loc_GSFUtilitiesQoP(vtx_loc_comp.size(), 
-					       vtx_loc_weight, vtx_loc_qop,
-					       vtx_loc_qop_err);
-  float vtx_loc_most_prob_errorQoP = my_vtx_loc_GSFUtilitiesQoP.errorMode();
-//  errorTrackMomentum_ = trackMomentum*trackMomentum*vtx_loc_most_prob_errorQoP*2*2.48980e-01*trackMomentum/25.; 
-  errorTrackMomentum_ = trackMomentum*trackMomentum*vtx_loc_most_prob_errorQoP*0.4173; 
+  MultiGaussianState1D qpState(MultiGaussianStateTransform::multiState1D(vtxTsos,0));
+  GaussianSumUtilities1D qpUtils(qpState);
+  errorTrackMomentum_ = trackMomentum*trackMomentum*sqrt(qpUtils.mode().variance()); 
 
   // calculate E/p and corresponding error	
   float eOverP = scEnergy / trackMomentum;
