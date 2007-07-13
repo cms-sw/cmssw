@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.15 2007/07/02 11:48:05 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.16 2007/07/13 13:51:11 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningOfflineClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -21,7 +21,7 @@
 #include <sstream>
 #include "TProfile.h"
 
-#define DO_SUMMARY
+//#define DO_SUMMARY
 
 using namespace sistrip;
 
