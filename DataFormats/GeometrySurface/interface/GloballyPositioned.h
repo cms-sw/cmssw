@@ -27,13 +27,17 @@ public:
   typedef Vector3DBase<T,LocalTag>      LocalVector;
 
   GloballyPositioned( const PositionType& pos, const RotationType& rot) :
-    thePos(pos), theRot(rot) {}
+    thePos(pos), theRot(rot) {cache();}
 
   virtual ~GloballyPositioned() {}
 
   const PositionType& position() const { return thePos;}
 
   const RotationType& rotation() const { return theRot;}
+
+  Geom::Phi<T> phi() const { return thePhi;}
+  T eta() const { return theEta;}
+
 
   /** Transform a local point (i.e. a point with coordinates in the
    *  local frame) to the global frame
@@ -119,6 +123,7 @@ public:
    */
   void move( const GlobalVector& displacement) {
     thePos += displacement;
+    cache();
   }
 
   /** Rotate the frame in the global frame.
@@ -126,12 +131,23 @@ public:
    */
   void rotate( const RotationType& rotation) {
     theRot *= rotation;
+    cache();
   }
 
 private:
 
   PositionType  thePos;
   RotationType  theRot;
+
+  void cache() {
+    thePhi = thePos.phi();
+    theEta = thePos.eta();
+  }
+  
+  Geom::Phi<T> thePhi;
+  T theEta;
+
+
 
 };
   
