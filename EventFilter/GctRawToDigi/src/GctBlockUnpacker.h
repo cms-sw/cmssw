@@ -60,8 +60,8 @@ class GctBlockUnpacker {
   std::map<unsigned, unsigned> blockLength_;  // size of a block
 
   // map of conversion functions
-  typedef  void (GctBlockConverter::*convFn)(uint16_t, uint16_t, int);
-  std::map< unsigned, convFn > convertFn_;
+  //  typedef  void (GctBlockUnpacker::*convFn)(uint16_t, uint16_t, int);
+  //  std::map< unsigned, convFn > convertFn_;
   
   // collections of RCT objects
   L1CaloEmCollection* rctEm_;

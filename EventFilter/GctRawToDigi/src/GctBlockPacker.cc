@@ -1,65 +1,152 @@
 
 #include "EventFilter/GctRawToDigi/src/GctBlockPacker.h"
+#include "EventFilter/GctRawToDigi/src/GctBlockHeader.h"
+
+
+GctBlockPacker::GctBlockPacker() {
+
+}
+
+GctBlockPacker::~GctBlockPacker() {
+
+}
+
+// write CDF FED header
+void GctBlockPacker::writeFedHeader(unsigned char * d, uint32_t fedId) {
+
+  uint64_t hdr = 0x18
+    + ((uint64_t)(fedId & 0xFFF)<<8)
+    + ((uint64_t)((uint64_t)bcid_ & 0xFFF)<<20)
+    + ((uint64_t)((uint64_t)evid_ & 0xFFFFFF)<<32)
+    + ((uint64_t)((uint64_t)0x51<<56));
+
+  uint64_t * p = reinterpret_cast<uint64_t *>(const_cast<unsigned char *>(d));
+  *p = hdr;
+  
+}
+
+
+// write FED Footer
+void GctBlockPacker::writeFedHeader(unsigned char * d, uint32_t fedId) {
+
+}
+
+
+// write GCT internal header
+void GctBlockPacker::writeGctHeader(unsigned char * d, uint16_t id, uint16_t nsamples) {
+  
+  uint32_t hdr = GctBlockHeader(id, nsamples, bcid_, evid_).data();
+  uint32_t * p = reinterpret_cast<uint32_t*>(const_cast<unsigned char *>(d));
+  *p = hdr;
+
+}
+
 
 // Output EM Candidates packing
-void GctBlockPacker::writeGctEmBlock(unsigned char * d, unsigned id) {
+void GctBlockPacker::writeGctEmBlock(unsigned char * d, const L1GctEmCandCollection* iso, const L1GctEmCandCollection* nonIso) {
 
   // write header
-  unsigned last = 0;
-  writeGctHeader(d, 0x68);
-  last += 4;
+  writeGctHeader(d, 0x68, 1);
+  d=d+4;
 
-  // pack iso EM
-  for (int i=0; i<4; i++) {
-    // in future, will only pack digis for 0th crossing, but this is not set yet!!!
-    //    if (gctIsoEm_->at(i).bx() == 0) {
-      int j = i; // should be gctIsoEm_->at(i).capIndex(); but capIndex is not set yet!!!
-      d[last] = gctIsoEm_->at(i).raw() & 0xff;
-      last++;
-      d[last] = (gctIsoEm_->at(i).raw()>>8) & 0xff;
-      last++;
-      //    }
-  }
+  // cast to 16 bit pointer
+  uint16_t * p = reinterpret_cast<uint16_t*>(const_cast<unsigned char *>(d));
 
-  // pack non-iso EM
-  for (int i=0; i<4; i++) {
-    // in future will ony pack digis for 0th crossing, but this is not set yet!!!
-    //    if (gctNonIsoEm_->at(i).bx() == 0) {
-      int j = i; // should be gctNonIsoEm_->at(i).capIndex(); but capIndex is not set yet!!!
-      d[last] = gctNonIsoEm_->at(i).raw() & 0xff;
-      last++;
-      d[last] = (gctNonIsoEm_->at(i).raw()>>8) & 0xff;
-      last++;
-      //    }
+   // pack iso EM
+    for (int i=0; i<4; i++) {
+//      // in future, will only pack digis for 0th crossing, but this is not set yet!!!
+//      //    if (gctIsoEm_->at(i).bx() == 0) {
+        int j = i; // should be gctIsoEm_->at(i).capIndex(); but capIndex is not set yet!!!
+        *p = iso->at(i).raw();
+        p++;
+        //    }
+    }
+
+   // pack non-iso EM
+   for (int i=0; i<4; i++) {
+     // in future will ony pack digis for 0th crossing, but this is not set yet!!!
+     //    if (gctNonIsoEm_->at(i).bx() == 0) {
+     *p = nonIso->at(i).raw();
+     p++;
+     //    }
   }
 
 }
 
+// NOTE : all methods below are placeholders for use before the real raw format is defined!
+// In particular, the block IDs are complete fiction
 
-// Output EM Candidates packing
-void GctBlockPacker::writeGctCenJetBlock(unsigned char * d, L1GctJetCandCollection* coll) {
+// Output Cen Jet Candidates packing
+void GctBlockPacker::writeGctCenJetBlock(unsigned char * d, const L1GctJetCandCollection* coll) {
 
+  // write header
+  writeGctHeader(d, 0x01, 1);
+  d=d+4;
+
+  // cast to 16 bit pointer
+  uint16_t * p = reinterpret_cast<uint16_t*>(const_cast<unsigned char *>(d));
+
+   // pack jets
+    for (int i=0; i<4; i++) {
+//      // in future, will only pack digis for 0th crossing, but this is not set yet!!!
+//      //    if (gctIsoEm_->at(i).bx() == 0) {
+        *p = coll->at(i).raw();
+        p++;
+        //    }
+    }
+  
 }
 
 
 // Output EM Candidates packing
-void GctBlockPacker::writeGctTauJetBlock(unsigned char * d, L1GctJetCandCollection* coll) {
+void GctBlockPacker::writeGctTauJetBlock(unsigned char * d, const L1GctJetCandCollection* coll) {
 
+  // write header
+  writeGctHeader(d, 0x02, 1);
+  d=d+4;
+
+  // cast to 16 bit pointer
+  uint16_t * p = reinterpret_cast<uint16_t*>(const_cast<unsigned char *>(d));
+
+   // pack jets
+    for (int i=0; i<4; i++) {
+//      // in future, will only pack digis for 0th crossing, but this is not set yet!!!
+//      //    if (gctIsoEm_->at(i).bx() == 0) {
+        *p = coll->at(i).raw();
+        p++;
+        //    }
+    }
+  
 }
 
 
 // Output EM Candidates packing
-void GctBlockConverter::writeGctForJetBlock(unsigned char * d, L1GctJetCandCollection* coll) {
+void GctBlockPacker::writeGctForJetBlock(unsigned char * d, const L1GctJetCandCollection* coll) {
+
+  // write header
+  writeGctHeader(d, 0x03, 1);
+  d=d+4;
+
+  // cast to 16 bit pointer
+  uint16_t * p = reinterpret_cast<uint16_t*>(const_cast<unsigned char *>(d));
+
+   // pack jets
+    for (int i=0; i<4; i++) {
+//      // in future, will only pack digis for 0th crossing, but this is not set yet!!!
+//      //    if (gctIsoEm_->at(i).bx() == 0) {
+        *p = coll->at(i).raw();
+        p++;
+        //    }
+    }
 
 }
 
+// Output Energy Sums packin
+void GctBlockPacker::writeEnergySumsBlock(unsigned char * d, const L1GctEtMiss* etm, const L1GctEtTotal* ett, const L1GctEtHad* eth) {
 
-// Write a header for packing
-void GctBlockPacker::writeGctHeader(unsigned char * d, unsigned id) {
-  d[0] = id & 0xff;
-  d[1] = 0;
-  d[2] = 0;
-  d[3] = 0;
+  // write header
+  writeGctHeader(d, 0x04, 1);
+  d=d+4;
+
 }
-
 

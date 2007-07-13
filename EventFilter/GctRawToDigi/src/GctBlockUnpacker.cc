@@ -1,6 +1,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "EventFilter/GctRawToDigi/src/GctBlockConverter.h"
+#include "EventFilter/GctRawToDigi/src/GctBlockUnpacker.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -9,12 +9,12 @@
 
 #include <iostream>
 
-#define CALL_GCT_CONVERT_FN(object,ptrToMember)  ((object).*(ptrToMember))
+//#define CALL_GCT_CONVERT_FN(object,ptrToMember)  ((object).*(ptrToMember))
 
 using std::cout;
 using std::endl;
 
-GctBlockConverter::GctBlockConverter() {
+GctBlockUnpacker::GctBlockUnpacker() {
 
   // setup block length map
   blockLength_[0x5f] = 1;   // ConcJet: Bunch Counter Pattern Test
@@ -36,25 +36,25 @@ GctBlockConverter::GctBlockConverter() {
   blockLength_[0xcb] = 4;   // Leaf-U2, Elec, PosEta, Sort Output
 
   // setup converter fn map
-  //  convertFn_[0x68] = &GctBlockConverter::wordToGctEmCand;
-  //  convertFn_[0x69] = &GctBlockConverter::wordToGctInterEmCand;
+  //  convertFn_[0x68] = &GctBlockUnpacker::wordToGctEmCand;
+  //  convertFn_[0x69] = &GctBlockUnpacker::wordToGctInterEmCand;
 
 }
 
-GctBlockConverter::~GctBlockConverter() { }
+GctBlockUnpacker::~GctBlockUnpacker() { }
 
 // recognise block ID
-bool GctBlockConverter::validBlock(unsigned id) {
+bool GctBlockUnpacker::validBlock(unsigned id) {
   return ( blockLength_.find(id) != blockLength_.end() );
 }
 
 // return block length in 32-bit words
-unsigned GctBlockConverter::blockLength(unsigned id) {
+unsigned GctBlockUnpacker::blockLength(unsigned id) {
   return blockLength_.find(id)->second;
 }
 
 // conversion
-void GctBlockConverter::convertBlock(const unsigned char * data, unsigned id, unsigned nSamples) {
+void GctBlockUnpacker::convertBlock(const unsigned char * data, unsigned id, unsigned nSamples) {
 
   switch (id) {
   case (0x5f) :
@@ -118,7 +118,7 @@ void GctBlockConverter::convertBlock(const unsigned char * data, unsigned id, un
 
 
 // Output EM Candidates unpacking
-void GctBlockConverter::blockToGctEmCand(const unsigned char * data, unsigned id, unsigned nSamples) {
+void GctBlockUnpacker::blockToGctEmCand(const unsigned char * data, unsigned id, unsigned nSamples) {
   for (int i=0; i<blockLength(id)*nSamples; i=i+nSamples) {
     unsigned offset = i*4*nSamples;
     bool iso = (i > 1);
@@ -135,7 +135,7 @@ void GctBlockConverter::blockToGctEmCand(const unsigned char * data, unsigned id
 
 
 // Internal EM Candidates unpacking
-void GctBlockConverter::blockToGctInternEmCand(const unsigned char * d, unsigned id, unsigned nSamples) {
+void GctBlockUnpacker::blockToGctInternEmCand(const unsigned char * d, unsigned id, unsigned nSamples) {
   for (int i=0; i<blockLength(id)*nSamples; i=i+nSamples) {  // temporarily just take 0th time sample
     unsigned offset = i*4*nSamples;
     uint16_t w0 = d[offset]   + (d[offset+1]<<8); 
@@ -148,7 +148,7 @@ void GctBlockConverter::blockToGctInternEmCand(const unsigned char * d, unsigned
 
 // Input EM Candidates unpacking
 // this is the last time I deal the RCT bit assignment travesty!!!
-void GctBlockConverter::blockToRctEmCand(const unsigned char * d, unsigned id, unsigned nSamples) {
+void GctBlockUnpacker::blockToRctEmCand(const unsigned char * d, unsigned id, unsigned nSamples) {
   
   uint16_t dd[6]; // index = source card output * 2 + cycle
   
@@ -198,7 +198,7 @@ void GctBlockConverter::blockToRctEmCand(const unsigned char * d, unsigned id, u
 
 
 // Fibre unpacking
-void GctBlockConverter::blockToFibres(const unsigned char * d, unsigned id, unsigned nSamples) {
+void GctBlockUnpacker::blockToFibres(const unsigned char * d, unsigned id, unsigned nSamples) {
   for (int i=0; i<blockLength(id); i++) {
     for (int j=0; j<nSamples; j++) {
       gctFibres_->push_back( L1GctFibreWord(d[i*nSamples + j], id, i, j) );
