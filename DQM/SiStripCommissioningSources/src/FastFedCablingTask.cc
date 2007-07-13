@@ -28,7 +28,7 @@ FastFedCablingTask::~FastFedCablingTask() {
 void FastFedCablingTask::book() {
   
   std::string title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
-					 sistrip::FAST_FED_CABLING,
+					 sistrip::FAST_CABLING,
 					 sistrip::FED_KEY, 
 					 fedKey(),
 					 sistrip::LLD_CHAN, 

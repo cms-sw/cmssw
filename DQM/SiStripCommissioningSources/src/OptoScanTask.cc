@@ -31,21 +31,23 @@ void OptoScanTask::book() {
 
   std::string title;
 
-  // Resize std::vector of "Histo sets" to accommodate the 4 different gain
-  // settings and the two different digital levels ("0" and "1").
+  // Resize "histo sets"
   opto_.resize( gains );
-  for ( uint16_t igain = 0; igain < opto_.size(); igain++ ) { opto_[igain].resize(2); }
-
-  // Book histos and resize std::vectors within "Histo sets"
+  for ( uint16_t igain = 0; igain < opto_.size(); igain++ ) { opto_[igain].resize(3); }
+  
   for ( uint16_t igain = 0; igain < opto_.size(); igain++ ) { 
-    for ( uint16_t ilevel = 0; ilevel < 2; ilevel++ ) { 
-
-      //@@ new histo: rms of "baseline" (280 samples mius 8 for tick marks) as func of bias setting 
+    for ( uint16_t ihisto = 0; ihisto < 2; ihisto++ ) { 
       
+      // Extra info
       std::stringstream extra_info; 
-      extra_info << sistrip::gain_ << igain 
-		 << sistrip::digital_ << ilevel;
-      
+      extra_info << sistrip::gain_ << igain;
+      if ( ihisto == 0 || ihisto == 1 ) {
+	extra_info << sistrip::digital_ << ihisto;
+      } else {
+	extra_info << sistrip::baselineRms_;
+      }
+
+      // Title
       title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
 				 sistrip::OPTO_SCAN, 
 				 sistrip::FED_KEY, 
@@ -53,14 +55,15 @@ void OptoScanTask::book() {
 				 sistrip::LLD_CHAN, 
 				 connection().lldChannel(),
 				 extra_info.str() ).title();
-    
-      opto_[igain][ilevel].histo_  = dqm()->bookProfile( title, title, 
-							 nbins, -0.5, nbins*1.-0.5,
-							 1025, 0., 1025. );
 
-      opto_[igain][ilevel].vNumOfEntries_.resize(nbins,0);
-      opto_[igain][ilevel].vSumOfContents_.resize(nbins,0);
-      opto_[igain][ilevel].vSumOfSquares_.resize(nbins,0);
+      // Book histo
+      opto_[igain][ihisto].histo_ = dqm()->bookProfile( title, title, 
+							nbins, -0.5, nbins*1.-0.5,
+							1025, 0., 1025. );
+      
+      opto_[igain][ihisto].vNumOfEntries_.resize(nbins,0);
+      opto_[igain][ihisto].vSumOfContents_.resize(nbins,0);
+      opto_[igain][ihisto].vSumOfSquares_.resize(nbins,0);
       
     }
   }
@@ -98,29 +101,30 @@ void OptoScanTask::fill( const SiStripEventSummary& summary,
 	<< "[OptoScanTask::" << __func__ << "]"
 	<< " Unexpected gain value! " << gain;
     }
-//     LogTrace(mlDqmSource_) 
-//       << "[OptoScanTask::" << __func__ << "]"
-//       << " Gain: " << opto.first 
-//       << " Bias: " << opto.second;
     
     // Find digital "0" and digital "1" levels from tick marks within scope mode data
-    std::pair< uint16_t, uint16_t > digital_range;
-    locateTicks( digis, digital_range, false );
-//     LogTrace(mlDqmSource_)
-//       << "[OptoScanTask::" << __func__ << "]"
-//       << " Digital \"0\" level: " << digital_range.first 
-//       << " Digital \"1\" level: " << digital_range.second;
+    std::pair<float,float> digital_range;
+    std::vector<float> baseline;
+    locateTicks( digis, digital_range, baseline );
     
     // Digital "0"
-    if ( digital_range.first <= 1024 ) {
+    if ( digital_range.first < 1. * sistrip::valid_ ) {
       updateHistoSet( opto_[gain][0], bias, digital_range.first );
     }
     
     // Digital "1"
-    if ( digital_range.second <= 1024 ) {
+    if ( digital_range.second < 1. * sistrip::valid_ ) {
       updateHistoSet( opto_[gain][1], bias, digital_range.second );
     }
-
+    
+    // Baseline rms
+    if ( !baseline.empty() ) {
+      std::vector<float>::const_iterator iter = baseline.begin();
+      for ( ; iter != baseline.end(); iter++ ) {
+	updateHistoSet( opto_[gain][2], bias, *iter );
+      }
+    }
+    
   }
 
 }
@@ -131,8 +135,8 @@ void OptoScanTask::fill( const SiStripEventSummary& summary,
 void OptoScanTask::update() {
   
   for ( uint16_t igain = 0; igain < opto_.size(); igain++ ) { 
-    for ( uint16_t ilevel = 0; ilevel < opto_[igain].size(); ilevel++ ) { 
-      updateHistoSet( opto_[igain][ilevel] );
+    for ( uint16_t ihisto = 0; ihisto < opto_[igain].size(); ihisto++ ) { 
+      updateHistoSet( opto_[igain][ihisto] );
     }
   }
 
@@ -141,9 +145,81 @@ void OptoScanTask::update() {
 // -----------------------------------------------------------------------------
 //
 void OptoScanTask::locateTicks( const edm::DetSet<SiStripRawDigi>& digis, 
-				std::pair< uint16_t, uint16_t >& digital_range, 
-				bool first_tick_only ) {
+				std::pair<float,float>& range, 
+				std::vector<float>& baseline ) {
+  
+  // Copy ADC values and sort 
+  std::vector<uint16_t> adc; 
+  adc.reserve( digis.data.size() ); 
+  for ( uint16_t iadc = 0; iadc < digis.data.size(); iadc++ ) { adc.push_back( digis.data[iadc].adc() ); }
+  sort( adc.begin(), adc.end() );
+    
+  // Initialization for "baseline" 
+  std::vector<float> base;
+  base.reserve( adc.size() );
+  float base_mean = 0.;
+  float base_rms = 0.;
+  float base_median = 0.;
+  
+  // Initialization for "tick marks" 
+  std::vector<float> tick;
+  tick.reserve( adc.size() );
+  float tick_mean = 0.;
+  float tick_rms = 0.;
+  float tick_median = 0.;
+  
+  // Calculate mid-range of data 
+  uint16_t mid_range = adc.front() + ( adc.back() + adc.front() ) / 2;
+  
+  // Associate ADC values with either "ticks" or "baseline"
+  std::vector<uint16_t>::const_iterator iter = adc.begin();
+  std::vector<uint16_t>::const_iterator jter = adc.end();
+  for ( ; iter != jter; iter++ ) { 
+    if ( *iter < mid_range ) {
+      base.push_back( *iter ); 
+      base_mean += *iter;
+      base_rms += (*iter) * (*iter);
+    } else {
+      tick.push_back( *iter ); 
+      tick_mean += *iter;
+      tick_rms += (*iter) * (*iter);
+    }
+  }
 
+  // Calc mean and rms of baseline
+  if ( !base.empty() ) { 
+    base_mean = base_mean / base.size();
+    base_rms = base_rms / base.size();
+    base_rms = sqrt( fabs( base_rms - base_mean*base_mean ) ); 
+  } else { 
+    base_mean = 1. * sistrip::invalid_; 
+    base_rms = 1. * sistrip::invalid_; 
+    base_median = 1. * sistrip::invalid_; 
+  }
+
+  // Calc mean and rms of tick marks
+  if ( !tick.empty() ) { 
+    tick_mean = tick_mean / tick.size();
+    tick_rms = tick_rms / tick.size();
+    tick_rms = sqrt( fabs( tick_rms - tick_mean*tick_mean ) ); 
+  } else { 
+    tick_mean = 1. * sistrip::invalid_; 
+    tick_rms = 1. * sistrip::invalid_; 
+    tick_median = 1. * sistrip::invalid_; 
+  }
+  
+  range.first = base_mean;
+  range.second = tick_mean;
+  copy( base.begin(), base.end(), baseline.begin() );
+
+}
+
+// -----------------------------------------------------------------------------
+//
+void OptoScanTask::deprecated( const edm::DetSet<SiStripRawDigi>& digis, 
+			       std::pair< uint16_t, uint16_t >& digital_range, 
+			       bool first_tick_only ) {
+  
   //@@ RUBBISH!!!! simplify!!! find min/max, mid-range and push back into base and tick vectors (based on mid-range)
   
   // Copy ADC values and sort
@@ -189,6 +265,3 @@ void OptoScanTask::locateTicks( const edm::DetSet<SiStripRawDigi>& digis,
   } else { digital_range.second = 1025; }
   
 }
-
-
-

@@ -92,11 +92,6 @@ void PedestalsTask::book() {
 //
 void PedestalsTask::fill( const SiStripEventSummary& summary,
 			  const edm::DetSet<SiStripRawDigi>& digis ) {
-
-  SiStripFecKey test( fecKey() );
-  SiStripFecKey temp1(1,3,1,111,29,3);
-  SiStripFecKey temp2(1,3,4,123,17,1);
-  SiStripFecKey temp3(1,3,4,123,17,3);
   
   if ( digis.data.size() != peds_[0].vNumOfEntries_.size() ) {
     edm::LogWarning(mlDqmSource_)
@@ -125,41 +120,12 @@ void PedestalsTask::fill( const SiStripEventSummary& summary,
     }
     sort( adc.begin(), adc.end() ); 
     uint16_t index = adc.size()%2 ? adc.size()/2 : adc.size()/2-1;
-    if ( !adc.empty() ) { 
-      cm[iapv] = adc[index]; 
-      if ( test.isEqual(temp1) || 
-	   test.isEqual(temp2) || 
-	   test.isEqual(temp3) ) {
-	LogTrace(mlTest_)
-	  << "TEST" << test << "\n"
-	  << " iapv: " << iapv
-	  << " adc.size(): " << adc.size()
-	  << " index: " << index
-	  << " adc[0]: " << adc[0]
-	  << " adc[index]: " << adc[index]
-	  << " adc[size()]: " << adc[adc.size()-1]
-	  << " cm[iapv]: " << cm[iapv];
-      }
-    } else {
-	LogTrace(mlTest_)
-	  << "TEST" << test << "\n"
-	  << " EMPTY CM VECTOR!";
-    }
+    if ( !adc.empty() ) { cm[iapv] = adc[index]; }
   }
   
   for ( uint16_t ibin = 0; ibin < nbins; ibin++ ) {
     updateHistoSet( peds_[0], ibin, digis.data[ibin].adc() ); // peds and raw noise
     updateHistoSet( peds_[1], ibin, (digis.data[ibin].adc()-cm[ibin/128]) ); // residuals and real noise
-//     if ( test.isEqual(temp1) || 
-// 	 test.isEqual(temp2) || 
-// 	 test.isEqual(temp3) ) {
-//       LogTrace(mlTest_)
-// 	<< "TEST" << test << "\n"
-// 	<< " ibin: " << ibin 
-// 	<< " digis.data[ibin].adc(): " << digis.data[ibin].adc()
-// 	<< " cm[ibin/128]: " << cm[ibin/128]
-// 	<< " diff: " << digis.data[ibin].adc() - cm[ibin/128];
-//     }
   }
   
   if ( cm.size() < cm_.size() ) {

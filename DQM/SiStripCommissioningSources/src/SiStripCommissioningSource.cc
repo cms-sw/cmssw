@@ -314,7 +314,7 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
 
   // Retrieve raw digis with mode appropriate to task 
   edm::Handle< edm::DetSetVector<SiStripRawDigi> > raw;
-  if ( task_ == sistrip::FAST_FED_CABLING ||
+  if ( task_ == sistrip::FAST_CABLING ||
        task_ == sistrip::FED_CABLING ||
        task_ == sistrip::APV_TIMING ||
        task_ == sistrip::FED_TIMING ||
@@ -898,13 +898,13 @@ void SiStripCommissioningSource::createTasks( sistrip::RunType run_type ) {
       // Set working directory prior to booking histograms 
       std::stringstream dir;
       dir << base_;
-      if ( run_type == sistrip::FAST_FED_CABLING ) { dir << fed_key.path(); }
+      if ( run_type == sistrip::FAST_CABLING ) { dir << fed_key.path(); }
       else { dir << fec_key.path(); }
       dqm()->setCurrentFolder( dir.str() );
       
       // Create commissioning task objects
       if ( !tasks_[iconn->fedId()][iconn->fedCh()] ) { 
-	if ( task_ == sistrip::FAST_FED_CABLING ) { tasks_[iconn->fedId()][iconn->fedCh()] = new FastFedCablingTask( dqm(), *iconn ); } 
+	if ( task_ == sistrip::FAST_CABLING ) { tasks_[iconn->fedId()][iconn->fedCh()] = new FastFedCablingTask( dqm(), *iconn ); } 
 	else if ( task_ == sistrip::APV_TIMING ) { tasks_[iconn->fedId()][iconn->fedCh()] = new ApvTimingTask( dqm(), *iconn ); } 
 	else if ( task_ == sistrip::FED_TIMING ) { tasks_[iconn->fedId()][iconn->fedCh()] = new FedTimingTask( dqm(), *iconn ); }
 	else if ( task_ == sistrip::OPTO_SCAN ) { tasks_[iconn->fedId()][iconn->fedCh()] = new OptoScanTask( dqm(), *iconn ); }
