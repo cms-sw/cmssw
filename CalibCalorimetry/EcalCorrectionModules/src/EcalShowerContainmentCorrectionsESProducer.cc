@@ -11,7 +11,7 @@
      
  \author  Stefano Argiro
          Created:  Mon Mar  5 08:39:12 CET 2007
- \id $Id$
+ \id $Id: EcalShowerContainmentCorrectionsESProducer.cc,v 1.1 2007/05/15 20:46:31 argiro Exp $
 */
 
 // system include files
@@ -127,4 +127,4 @@ EcalShowerContainmentCorrectionsESProducer::produce(const EcalShowerContainmentC
 }
 
 //define this as a plug-in
-DEFINE_FWK_EVENTSETUP_MODULE(EcalShowerContainmentCorrectionsESProducer)
+DEFINE_FWK_EVENTSETUP_MODULE(EcalShowerContainmentCorrectionsESProducer);
