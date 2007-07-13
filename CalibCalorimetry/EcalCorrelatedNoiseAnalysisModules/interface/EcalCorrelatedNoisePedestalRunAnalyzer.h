@@ -16,7 +16,7 @@
 //
 // Original Author:  Bernard Fabbro
 //         Created:  Fri Jun  2 10:27:01 CEST 2006
-// $Id$
+// $Id: EcalCorrelatedNoisePedestalRunAnalyzer.h,v 1.1 2007/07/12 12:54:32 fabbro Exp $
 //
 //
 
@@ -41,7 +41,7 @@
 // CMSSW include files
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -50,7 +50,7 @@
 #include "DataFormats/EcalDigi/interface/EcalMGPASample.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/Common/interface/EventID.h"
+#include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBEventHeader.h"
