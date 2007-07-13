@@ -9,7 +9,6 @@
 <use name=DataFormats/TrajectorySeed>
 <use name=DataFormats/TrackerRecHit2D>
 <use name=Geometry/CommonTopologies>
-<use name=Geometry/Surface>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=DataFormats/DetId>
 <use name=DataFormats/SiStripDetId>
@@ -31,7 +30,6 @@
  <use name=DataFormats/TrajectorySeed>
  <use name=DataFormats/TrackerRecHit2D>
  <use name=Geometry/CommonTopologies>
- <use name=Geometry/Surface>
  <use name=Geometry/TrackerGeometryBuilder>
  <use name=DataFormats/DetId>
  <use name=RecoTracker/TkTrackingRegions>
