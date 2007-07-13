@@ -471,7 +471,8 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
 #endif
     //
     
-    // Track Candidate stored
+    // Track Candidate stored if the number of hits is large enough.
+    if ( recHits.size() < minRecHits ) continue;
     TrackCandidate newTrackCandidate(recHits, TrajectorySeed(initialState, recHits, alongMomentum), initialState );
     
 #ifdef FAMOS_DEBUG
