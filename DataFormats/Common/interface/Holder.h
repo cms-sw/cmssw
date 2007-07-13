@@ -1,5 +1,5 @@
-#ifndef Common_Holder_h
-#define Common_Holder_h
+#ifndef DataFormats_Common_Holder_h
+#define DataFormats_Common_Holder_h
 #include "DataFormats/Common/interface/BaseHolder.h"
 #include "DataFormats/Common/interface/RefHolder.h"
 
@@ -144,18 +144,17 @@ namespace edm {
   }
 }
 
-#include "DataFormats/Common/interface/VectorHolder.h"
-#include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/Common/interface/HolderToVectorTrait.h"
 
 namespace edm {
   namespace reftobase {
-    template <class T, class REF>
+
+    template <typename T, typename REF>
     std::auto_ptr<BaseVectorHolder<T> > Holder<T,REF>::makeVectorHolder() const {
-      typedef RefVector<typename REF::collection_type,
-	                typename REF::value_type, 
-                       	typename REF::finder_type> REFV;
-      return std::auto_ptr<BaseVectorHolder<T> >( new VectorHolder<T, REFV> );
+      typedef typename HolderToVectorTrait<T, REF>::type helper;
+      return helper::makeVectorHolder();
     }
+
   }
 }
 

@@ -5,7 +5,7 @@
   
 Ref: A template for an interproduct reference to a product.
 
-$Id: RefProd.h,v 1.10 2007/05/15 17:10:24 wmtan Exp $
+$Id: RefProd.h,v 1.11 2007/07/09 07:28:49 llista Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -47,6 +47,7 @@ namespace edm {
   class RefProd {
   public:
     typedef C product_type;
+    typedef C value_type;
 
     /// Default constructor needed for reading from persistent store. Not for direct use.
     RefProd() : product_() {}
@@ -176,4 +177,38 @@ namespace edm {
     return (lhs.refCore() < rhs.refCore());
   }
 }
+
+#include "DataFormats/Common/interface/HolderToVectorTrait.h"
+
+namespace edm {
+  namespace reftobase {
+
+    template <typename T>
+    struct RefProdHolderToVector {
+      static  std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() {
+	throw edm::Exception(errors::InvalidReference)
+	  << "attempting to make a BaseVectorHolder<T> from a RefProd<C>.";
+      }
+    };
+
+    template<typename C, typename T>
+    struct HolderToVectorTrait<T, RefProd<C> > {
+      typedef RefProdHolderToVector<T> type;
+    };
+
+    struct RefProdRefHolderToRefVector {
+      static  std::auto_ptr<RefVectorHolderBase> makeVectorHolder() {
+	throw edm::Exception(errors::InvalidReference)
+	  << "attempting to make a RefVectorHolderBase from a RefProd<C>.";
+      }
+    };
+
+    template<typename C>
+    struct RefHolderToRefVectorTrait<RefProd<C> > {
+      typedef RefProdRefHolderToRefVector type;
+    };
+
+  }
+}
+
 #endif

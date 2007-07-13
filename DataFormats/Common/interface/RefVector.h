@@ -6,7 +6,7 @@
 RefVector: A template for a vector of interproduct references.
 	Each vector element is a reference to a member of the same product.
 
-$Id: RefVector.h,v 1.26 2007/05/24 16:35:46 paterno Exp $
+$Id: RefVector.h,v 1.27 2007/07/09 07:28:50 llista Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -22,6 +22,7 @@ $Id: RefVector.h,v 1.26 2007/05/24 16:35:46 paterno Exp $
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/traits.h"
 #include "FWCore/Utilities/interface/GCCPrerequisite.h"
+#include "DataFormats/Common/interface/RefTraits.h"
 
 namespace edm {
   template<typename C, typename T, typename F>
@@ -31,18 +32,14 @@ namespace edm {
   T const * getProduct(RefCore const & ref);
 
   namespace refhelper {
-    template<typename C>
+    template<typename C, typename T, typename F>
     struct RefVectorTrait {
-      typedef typename Ref<C>::value_type value_type;
-      typedef typename Ref<C>::finder_type finder_type;
-      typedef Ref<C> ref_type;
-      typedef RefVectorIterator<C> iterator_type;
+      typedef Ref<C, T, F> ref_type;
+      typedef RefVectorIterator<C, T, F> iterator_type;
     };
 
-    template<typename C, typename T, typename F>
-     struct RefVectorTrait<RefVector<C, T, F> > {
-      typedef T value_type;
-      typedef typename FindTrait<C, T>::value finder_type;
+    template<typename C, typename T, typename F, typename T1, typename F1>
+     struct RefVectorTrait<RefVector<C, T, F>, T1, F1> {
       typedef Ref<C, T, F> ref_type;
       typedef RefVectorIterator<C, T, F> iterator_type;
     };
@@ -50,16 +47,16 @@ namespace edm {
   }
 
   template <typename C, 
-	    typename T = typename refhelper::RefVectorTrait<C>::value_type, 
-	    typename F = typename refhelper::RefVectorTrait<C>::finder_type>
+	    typename T = typename refhelper::ValueTrait<C>::value, 
+	    typename F = typename refhelper::FindTrait<C, T>::value>
   class RefVector {
   public:
     typedef C                               collection_type;
     typedef T                               member_type;
     typedef F                               finder_type;
-    typedef typename refhelper::RefVectorTrait<C>::iterator_type iterator;
+    typedef typename refhelper::RefVectorTrait<C, T, F>::iterator_type iterator;
     typedef iterator                        const_iterator;
-    typedef typename refhelper::RefVectorTrait<C>::ref_type value_type;
+    typedef typename refhelper::RefVectorTrait<C, T, F>::ref_type value_type;
 
     // key_type is the type of the key into the collection
     typedef typename value_type::key_type   key_type;

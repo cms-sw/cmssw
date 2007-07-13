@@ -5,7 +5,7 @@
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.28 2007/07/12 09:45:31 llista Exp $
+$Id: Ref.h,v 1.29 2007/07/12 12:08:57 llista Exp $
 
 ----------------------------------------------------------------------*/
 /**
@@ -144,6 +144,8 @@ namespace GCC_3_2_3_WORKAROUND_2 {
 }
 #endif
 
+#include "DataFormats/Common/interface/RefTraits.h"
+
 namespace edm {
   template<typename C, typename T, typename F>
   class RefVector;
@@ -151,64 +153,6 @@ namespace edm {
   template<typename T>
   class RefToBaseVector;
 
-  namespace refhelper {
-    template<typename C, typename T>
-    struct FindUsingAdvance : public std::binary_function<C const&, typename C::size_type, T const*> {
-      typedef FindUsingAdvance<C, T> self;
-      typename self::result_type operator()(typename self::first_argument_type iContainer,
-                                            typename self::second_argument_type iIndex) {
-        typename C::const_iterator it = iContainer.begin();
-        std::advance(it, iIndex);
-        return it.operator->();
-      }
-    };
-    
-    template<typename REFV>
-    struct FindRefVectorUsingAdvance : public std::binary_function<REFV const&, 
-								   typename REFV::key_type, 
-								   typename REFV::member_type const*> {
-      typedef FindRefVectorUsingAdvance<REFV> self;
-      typename self::result_type operator()(typename self::first_argument_type iContainer,
-                                            typename self::second_argument_type iIndex) {
-        typename REFV::const_iterator it = iContainer.begin();
-        std::advance(it, iIndex);
-        return it.operator->()->get();;
-      }
-    };
-    
-    //Used in edm::Ref to set the default 'find' method to use based on the Container and 'contained' type
-    template<typename C, typename T> 
-    struct FindTrait {
-      typedef FindUsingAdvance<C, T> value;
-    };
-
-    template<typename C, typename T, typename F>
-     struct FindTrait<RefVector<C, T, F>, T> {
-      typedef FindRefVectorUsingAdvance<RefVector<C, T, F> > value;
-    };
-
-    template<typename T>
-     struct FindTrait<RefToBaseVector<T>, T> {
-      typedef FindRefVectorUsingAdvance<RefToBaseVector<T> > value;
-    };
-
-    template<typename C>
-    struct ValueTrait {
-      typedef typename C::value_type value;
-    };
-
-    template<typename C, typename T, typename F>
-    struct ValueTrait<RefVector<C, T, F> > {
-      typedef T value;
-    };
-
-    template<typename T>
-    struct ValueTrait<RefToBaseVector<T> > {
-      typedef T value;
-    };
-
-  }
-  
   template <typename C, 
 	    typename T = typename refhelper::ValueTrait<C>::value, 
 	    typename F = typename refhelper::FindTrait<C, T>::value>
@@ -226,7 +170,7 @@ namespace edm {
 
   public:
     /// for export
-    typedef C collection_type;
+    typedef C product_type;
     typedef T value_type; 
     typedef T const element_type; //used for generic programming
     typedef F finder_type;
@@ -423,6 +367,47 @@ namespace edm {
       return (lhs.id() == rhs.id() ? compare_key<C>(lhs.key(), rhs.key()) : lhs.id() < rhs.id());
   }
 
+}
+
+#include "DataFormats/Common/interface/HolderToVectorTrait.h"
+#include "DataFormats/Common/interface/Holder.h"
+#include "DataFormats/Common/interface/VectorHolder.h"
+#include "DataFormats/Common/interface/RefVector.h"
+
+namespace edm {
+  namespace reftobase {
+
+    template <typename T, typename REF>
+    struct RefHolderToVector {
+      static  std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() {
+	typedef RefVector<typename REF::product_type,
+	                  typename REF::value_type, 
+                       	  typename REF::finder_type> REFV;
+	return std::auto_ptr<BaseVectorHolder<T> >( new VectorHolder<T, REFV> );
+      }
+    };
+
+    template<typename T1, typename C, typename T, typename F>
+    struct HolderToVectorTrait<T1, Ref<C, T, F> > {
+      typedef RefHolderToVector<T1, Ref<C, T, F> > type;
+    };
+
+    template <typename REF>
+    struct RefRefHolderToRefVector {
+      static std::auto_ptr<RefVectorHolderBase> makeVectorHolder() {
+	typedef RefVector<typename REF::product_type,
+	                  typename REF::value_type, 
+                         	typename REF::finder_type> REFV;
+	return std::auto_ptr<RefVectorHolderBase>( new RefVectorHolder<REFV> );
+      }
+    };
+
+    template<typename C, typename T, typename F>
+    struct RefHolderToRefVectorTrait<Ref<C, T, F> > {
+      typedef RefRefHolderToRefVector<Ref<C, T, F> > type;
+    };
+
+  }
 }
   
 #endif

@@ -152,15 +152,14 @@ namespace edm {
 #include "DataFormats/Common/interface/IndirectVectorHolder.h"
 #include "DataFormats/Common/interface/RefVectorHolder.h"
 #include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/Common/interface/HolderToVectorTrait.h"
 
 namespace edm {
   namespace reftobase {
     template <class REF>
     std::auto_ptr<RefVectorHolderBase> RefHolder<REF>::makeVectorHolder() const {
-      typedef RefVector<typename REF::collection_type,
-	                typename REF::value_type, 
-                       	typename REF::finder_type> REFV;
-      return std::auto_ptr<RefVectorHolderBase>( new RefVectorHolder<REFV> );
+      typedef typename RefHolderToRefVectorTrait<REF>::type helper;
+      return helper::makeVectorHolder();
     }
   }
 }
