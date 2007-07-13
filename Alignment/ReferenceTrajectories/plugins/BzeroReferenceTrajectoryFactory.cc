@@ -1,5 +1,5 @@
-
-#include "Alignment/ReferenceTrajectories/plugins/BzeroReferenceTrajectoryFactory.h"
+// Do not include .h from plugin directory, but locally:
+#include "BzeroReferenceTrajectoryFactory.h"
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryPlugin.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -33,7 +33,7 @@ BzeroReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 
   while ( itTracks != tracks.end() )
   { 
-    TrajectoryInput input = innermostStateAndRecHits( *itTracks );
+    TrajectoryInput input = this->innermostStateAndRecHits( *itTracks );
     // set the flag for reversing the RecHits to false, since they are already in the correct order.
     trajectories.push_back( ReferenceTrajectoryPtr( new BzeroReferenceTrajectory( input.first, input.second, 
 										  false, magneticField.product(),

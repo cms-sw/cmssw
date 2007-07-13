@@ -1,4 +1,5 @@
-#include "Alignment/ReferenceTrajectories/plugins/TwoBodyDecayTrajectoryFactory.h"
+// Do not include .h from plugin directory, but locally:
+#include "TwoBodyDecayTrajectoryFactory.h"
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryPlugin.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
@@ -55,8 +56,8 @@ TwoBodyDecayTrajectoryFactory::trajectories( const edm::EventSetup& setup,
     }
 
     // get innermost valid trajectory state and hits from the tracks
-    TrajectoryInput input1 = innermostStateAndRecHits( tracks[0] );
-    TrajectoryInput input2 = innermostStateAndRecHits( tracks[1] );
+    TrajectoryInput input1 = this->innermostStateAndRecHits( tracks[0] );
+    TrajectoryInput input2 = this->innermostStateAndRecHits( tracks[1] );
 
     // produce TwoBodyDecayTrajectoryState (input for TwoBodyDecayTrajectory)
     TsosContainer tsos( input1.first, input2.first );
