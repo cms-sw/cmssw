@@ -16,7 +16,8 @@ class PedestalsHistograms : public CommissioningHistograms {
   PedestalsHistograms( DaqMonitorBEInterface* );
   virtual ~PedestalsHistograms();
 
-  typedef SummaryHistogramFactory<PedestalsAnalysis> Factory;
+  typedef SummaryPlotFactory<PedestalsAnalysis*> Factory;
+  typedef std::map<uint32_t,PedestalsAnalysis*> Analyses;
   
   /** */
   void histoAnalysis( bool debug );
@@ -29,8 +30,8 @@ class PedestalsHistograms : public CommissioningHistograms {
 
  protected:
 
-  std::map<uint32_t,PedestalsAnalysis> data_;
-
+  Analyses data_;
+  
   std::auto_ptr<Factory> factory_;
 
 };

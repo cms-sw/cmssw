@@ -685,49 +685,57 @@ TH1* CommissioningHistograms::histogram( const sistrip::Monitorable& mon,
 					 const uint32_t& xbins, 
 					 const float& xlow,
 					 const float& xhigh ) {
-
+  
   // Remember pwd 
   std::string pwd = mui_->pwd();
   mui_->setCurrentFolder( directory );
-
+  
   // Construct histogram name 
   std::string name = SummaryGenerator::name( task_, mon, pres, view, directory );
-
-  // Check if summary plot already exists
+  
+  // Check if summary plot already exists and remove
   MonitorElement* me = mui_->get( mui_->pwd() + "/" + name );
   if ( me ) { 
-    LogTrace(mlDqmClient_)
+    edm::LogWarning(mlDqmClient_)
       << "[CommissioningHistograms::" << __func__ << "]"
       << " Summary plots with name \"" << me->getName()
-      << "\" already exists!"; 
-  } else {
-
-    // Create summary plot
-    float xhigh = static_cast<float>( xbins );
-    if ( pres == sistrip::HISTO_1D ) { 
-      if ( xlow < 1. * sistrip::valid_ && 
-	   xhigh < 1. * sistrip::valid_ ) { 
-	me = mui_->getBEInterface()->book1D( name, name, xbins, xlow, xhigh ); 
-      } else {
-	me = mui_->getBEInterface()->book1D( name, name, xbins, 0., xhigh ); 
-      }
-    } else if ( pres == sistrip::HISTO_2D_SUM ) { 
-      me = mui_->getBEInterface()->book1D( name, name, 
-					   xbins, 0., xhigh ); 
-    } else if ( pres == sistrip::HISTO_2D_SCATTER ) { 
-      me = mui_->getBEInterface()->book2D( name, name, xbins, 0., xhigh, 
-					   sistrip::FED_ADC_RANGE+1, 
-					   0., 
-					   sistrip::FED_ADC_RANGE*1. ); 
-    } else if ( pres == sistrip::PROFILE_1D ) { 
-      me = mui_->getBEInterface()->bookProfile( name, name, xbins, 0., xhigh, 
-						sistrip::FED_ADC_RANGE+1, 
-						0., 
-						sistrip::FED_ADC_RANGE*1. ); 
-    } else { me = 0; }
-
+      << "\" already exists! Removing..."; 
+    mui_->getBEInterface()->removeElement( name );
+    me = 0;
+  } 
+  
+  // Create summary plot
+  float high = static_cast<float>( xbins );
+  if ( pres == sistrip::HISTO_1D ) { 
+    if ( xlow < 1. * sistrip::valid_ && 
+	 xhigh < 1. * sistrip::valid_ ) { 
+      me = mui_->getBEInterface()->book1D( name, name, xbins, xlow, xhigh ); 
+    } else {
+      me = mui_->getBEInterface()->book1D( name, name, xbins, 0., high ); 
+    }
+  } else if ( pres == sistrip::HISTO_2D_SUM ) { 
+    me = mui_->getBEInterface()->book1D( name, name, 
+					 xbins, 0., high ); 
+  } else if ( pres == sistrip::HISTO_2D_SCATTER ) { 
+    me = mui_->getBEInterface()->book2D( name, name, xbins, 0., high, 
+					 sistrip::FED_ADC_RANGE+1, 
+					 0., 
+					 sistrip::FED_ADC_RANGE*1. ); 
+  } else if ( pres == sistrip::PROFILE_1D ) { 
+    me = mui_->getBEInterface()->bookProfile( name, name, xbins, 0., high, 
+					      sistrip::FED_ADC_RANGE+1, 
+					      0., 
+					      sistrip::FED_ADC_RANGE*1. ); 
+  } else { 
+    me = 0; 
+    LogTrace(mlDqmClient_)
+      << "[CommissioningHistograms::" << __func__ << "]"
+      << " Unexpected presentation \"" 
+      << SiStripEnumsAndStrings::presentation( pres )
+      << "\" Unable to create summary plot!";
   }
   
+  // Check pointer
   if ( me ) { 
     LogTrace(mlDqmClient_)
       << "[CommissioningHistograms::" << __func__ << "]"
@@ -735,17 +743,16 @@ TH1* CommissioningHistograms::histogram( const sistrip::Monitorable& mon,
       << "\" in directory \""
       << mui_->pwd() << "\"!"; 
   } else {
-    LogTrace(mlDqmClient_)
+    edm::LogWarning(mlDqmClient_)
       << "[CommissioningHistograms::" << __func__ << "]"
-      << " Unexpected presentation: " << SiStripEnumsAndStrings::presentation( pres )
-      << " Unable to create summary plot!"
-      << " Returning NULL pointer!"; 
+      << " NULL pointer to MonitorElement!"
+      << " Unable to create summary plot!";
   }
-
+  
   // Extract root object
   TH1* summary = ExtractTObject<TH1>().extract( me ); 
   if ( !summary ) {
-    LogTrace(mlDqmClient_)
+    edm::LogWarning(mlDqmClient_)
       << "[CommissioningHistograms::" << __func__ << "]"
       << " Unable to extract root object!"
       << " Returning NULL pointer!"; 

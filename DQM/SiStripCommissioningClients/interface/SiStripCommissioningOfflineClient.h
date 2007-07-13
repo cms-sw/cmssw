@@ -1,11 +1,12 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.h,v 1.3 2007/06/04 13:11:15 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.h,v 1.4 2007/06/19 12:29:21 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_SiStripCommissioningOfflineClient_H
 #define DQM_SiStripCommissioningClients_SiStripCommissioningOfflineClient_H
 
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DQM/SiStripCommissioningClients/interface/SiStripTFile.h"
-#include "DQM/SiStripCommissioningClients/interface/ConfigParser.h"
+#include "DQM/SiStripCommissioningClients/interface/SummaryPlotXmlParser.h"
+#include "DQM/SiStripCommissioningSummary/interface/SummaryPlot.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -92,7 +93,7 @@ class SiStripCommissioningOfflineClient : public edm::EDAnalyzer {
   HistosMap map_;
   
   /** SummaryPlot objects. */
-  std::vector<ConfigParser::SummaryPlot> plots_;
+  std::vector<SummaryPlot> plots_;
   
 };
 

@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.14 2007/07/02 11:45:54 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.15 2007/07/02 11:48:05 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningOfflineClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -21,7 +21,7 @@
 #include <sstream>
 #include "TProfile.h"
 
-//#define DO_SUMMARY
+#define DO_SUMMARY
 
 using namespace sistrip;
 
@@ -151,7 +151,8 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
   for ( ; jfile != inputFiles_.end(); jfile++ ) {
     edm::LogVerbatim(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
-      << " Opening root file \"" << *jfile << "\"...";
+      << " Opening root file \"" << *jfile
+      << "\"... (This may take some time.)";
     bei->open( *jfile );
     edm::LogVerbatim(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
@@ -219,7 +220,7 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
     edm::LogVerbatim(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Parsing summary plot XML file...";
-    ConfigParser xml_file;
+    SummaryPlotXmlParser xml_file;
     xml_file.parseXML(xmlFile_);
     plots_ = xml_file.summaryPlots(runType_);
     edm::LogVerbatim(mlDqmClient_)
@@ -329,13 +330,13 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
     edm::LogVerbatim(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Generating summary plots...";
-    std::vector<ConfigParser::SummaryPlot>::const_iterator iplot =  plots_.begin();
+    std::vector<SummaryPlot>::const_iterator iplot =  plots_.begin();
     for ( ; iplot != plots_.end(); iplot++ ) {
       if ( histos_ ) { 
-	histos_->createSummaryHisto( iplot->mon_,
-				     iplot->pres_,
-				     iplot->level_,
-				     iplot->gran_ );
+	histos_->createSummaryHisto( iplot->monitorable(),
+				     iplot->presentation(),
+				     iplot->level(),
+				     iplot->granularity() );
       }
     }
     edm::LogVerbatim(mlDqmClient_)
@@ -391,7 +392,7 @@ void SiStripCommissioningOfflineClient::createCommissioningHistograms() {
   }
 
   // Create "commissioning histograms" object 
-  if ( runType_ == sistrip::FAST_FED_CABLING ) { histos_ = new FastFedCablingHistograms( mui_ ); }
+  if ( runType_ == sistrip::FAST_CABLING ) { histos_ = new FastFedCablingHistograms( mui_ ); }
   else if ( runType_ == sistrip::FED_CABLING ) { histos_ = new FedCablingHistograms( mui_ ); }
   else if ( runType_ == sistrip::APV_TIMING ) { histos_ = new ApvTimingHistograms( mui_ ); }
   else if ( runType_ == sistrip::OPTO_SCAN ) { histos_ = new OptoScanHistograms( mui_ ); }

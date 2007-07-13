@@ -5,8 +5,6 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-#include <string>
-#include <map>
 
 using namespace std;
 using namespace sistrip;
@@ -14,7 +12,7 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 /** */
 FastFedCablingHistograms::FastFedCablingHistograms( MonitorUserInterface* mui ) 
-  : CommissioningHistograms( mui, sistrip::FAST_FED_CABLING ),
+  : CommissioningHistograms( mui, sistrip::FAST_CABLING ),
   factory_( new Factory )
 {
   LogTrace(mlDqmClient_) 
@@ -25,7 +23,7 @@ FastFedCablingHistograms::FastFedCablingHistograms( MonitorUserInterface* mui )
 // -----------------------------------------------------------------------------
 /** */
 FastFedCablingHistograms::FastFedCablingHistograms( DaqMonitorBEInterface* bei ) 
-  : CommissioningHistograms( bei, sistrip::FAST_FED_CABLING ),
+  : CommissioningHistograms( bei, sistrip::FAST_CABLING ),
   factory_( new Factory )
 {
   LogTrace(mlDqmClient_) 

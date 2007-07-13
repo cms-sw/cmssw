@@ -16,8 +16,8 @@ class VpspScanHistograms : public CommissioningHistograms {
   VpspScanHistograms( DaqMonitorBEInterface* );
   virtual ~VpspScanHistograms();
   
-  typedef SummaryHistogramFactory<VpspScanAnalysis> Factory;
-  typedef std::map<uint32_t,VpspScanAnalysis> Analyses;
+  typedef SummaryPlotFactory<VpspScanAnalysis*> Factory;
+  typedef std::map<uint32_t,VpspScanAnalysis*> Analyses;
   
   /** */
   void histoAnalysis( bool debug );

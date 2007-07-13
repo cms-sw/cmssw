@@ -183,7 +183,7 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
 
   if ( !histos().empty() ) {
     edm::LogVerbatim(mlDqmClient_) 
-      << "[FastFedCablingHistograms::" << __func__ << "]"
+      << "[ApvTimingHistograms::" << __func__ << "]"
       << " Analyzed histograms for " << histos().size() 
       << " FED channels, of which " << valid 
       << " (" << 100 * valid / histos().size()

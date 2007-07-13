@@ -4,11 +4,75 @@
 
 <RunType name="FastCabling">
 
-<SummaryPlot monitorable="HighLightLevel" presentation="Histo1D" view="ReadoutView" level="FedSystem" granularity=""/>
-<SummaryPlot monitorable="LowLightLevel" presentation="Histo1D" view="ReadoutView" level="FedSystem" granularity=""/>
+<SummaryPlot monitorable="HighLightLevel" presentation="Histo1D" level="SiStrip/ReadoutView" granularity=""/>
+<SummaryPlot monitorable="LowLightLevel" presentation="Histo1D" level="SiStrip/ReadoutView" granularity=""/>
 
-<SummaryPlot monitorable="HighLightLevel" presentation="Histo2DScatter" view="ReadoutView" level="FedSystem" granularity="FedId"/>
-<SummaryPlot monitorable="LowLightLevel" presentation="Histo2DScatter" view="ReadoutView" level="FedSystem" granularity="FedId"/>
+<SummaryPlot monitorable="HighLightLevel" presentation="Histo2DScatter" level="SiStrip/ReadoutView" granularity="FrontEndDriver"/>
+<SummaryPlot monitorable="LowLightLevel" presentation="Histo2DScatter" level="SiStrip/ReadoutView" granularity="FrontEndDriver"/>
+<SummaryPlot monitorable="LowLightLevel" presentation="Histo2DScatter" level="SiStrip/ReadoutView" granularity="FrontEndDriver"/>
+
+<SummaryPlot monitorable="HighLightLevel" presentation="Profile1D" level="SiStrip/ReadoutView" granularity="FrontEndDriver"/>
+<SummaryPlot monitorable="LowLightLevel" presentation="Profile1D" level="SiStrip/ReadoutView" granularity="FrontEndDriver"/>
+
+<SummaryPlot monitorable="ConnectionsPerFed" presentation="Histo2DSum" level="SiStrip/ReadoutView" granularity="FrontEndDriver"/>
+
+</RunType>
+
+<RunType name="ApvTiming">
+
+<SummaryPlot monitorable="TimeOfTickMarkEdge" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="RequiredDelayAdjustment" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="TickMarkHeight" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+
+<SummaryPlot monitorable="TimeOfTickMarkEdge" presentation="Histo2DScatter" level="SiStrip/ControlView" granularity="CcuChan"/>
+<SummaryPlot monitorable="RequiredDelayAdjustment" presentation="Histo2DScatter" level="SiStrip/ControlView" granularity="CcuChan"/>
+<SummaryPlot monitorable="TickMarkHeight" presentation="Histo2DScatter" level="SiStrip/ControlView" granularity="CcuChan"/>
+
+<SummaryPlot monitorable="TimeOfTickMarkEdge" presentation="Profile1D" level="SiStrip/ControlView" granularity="CcuChan"/>
+<SummaryPlot monitorable="RequiredDelayAdjustment" presentation="Profile1D" level="SiStrip/ControlView" granularity="CcuChan"/>
+<SummaryPlot monitorable="TickMarkHeight" presentation="Profile1D" level="SiStrip/ControlView" granularity="CcuChan"/>
+
+</RunType>
+
+<RunType name="OptoScan">
+
+<SummaryPlot monitorable="LldBiasSetting" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="LldGainSetting" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="MeasuredGain" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="ZeroLightLevel" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="LinkNoise" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="BaselineLiftOff" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="LaserThreshold" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="TickMarkHeight" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+
+<SummaryPlot monitorable="ZeroLightLevel" presentation="Histo2DScatter" level="SiStrip/ControlView" granularity="CcuAddr"/>
+
+</RunType>
+
+<RunType name="VpspScan">
+
+<SummaryPlot monitorable="ApvVpspSettings" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="BaselineLevel" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="DigitalHigh" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="DigitalLow" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+
+<SummaryPlot monitorable="ApvVpspSettings" presentation="Histo2DScatter" level="SiStrip/ControlView" granularity="CcuChan"/>
+<SummaryPlot monitorable="BaselineLevel" presentation="Histo2DScatter" level="SiStrip/ControlView" granularity="CcuChan"/>
+
+</RunType>
+
+<RunType name="Pedestals">
+
+<SummaryPlot monitorable="StripPedestals" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="StripNoise" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="NumOfDeadStrips" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="NumOfNoisyStrips" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+
+<SummaryPlot monitorable="StripPedestals" presentation="Histo2DScatter" level="SiStrip/ControlView" granularity="CcuChan"/>
+<SummaryPlot monitorable="StripNoise" presentation="Histo2DScatter" level="SiStrip/ControlView" granularity="CcuChan"/>
+
+<SummaryPlot monitorable="StripPedestals" presentation="Profile1D" level="SiStrip/ControlView" granularity="CcuAddr"/>
+<SummaryPlot monitorable="StripNoise" presentation="Profile1D" level="SiStrip/ControlView" granularity="CcuAddr"/>
 
 </RunType>
 
