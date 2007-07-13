@@ -20,6 +20,7 @@
 #include "GeneratorInterface/GenFilters/interface/CosmicGenFilterHelix.h"
 #include "GeneratorInterface/GenFilters/interface/CosmicGenFilterLowE.h"
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterGammaGamma.h"
+#include "GeneratorInterface/GenFilters/interface/HZZ4lFilter.h"
 
 DEFINE_SEAL_MODULE();
   DEFINE_ANOTHER_FWK_MODULE(PythiaFilter);
@@ -42,3 +43,4 @@ DEFINE_SEAL_MODULE();
   DEFINE_ANOTHER_FWK_MODULE(CosmicGenFilterHelix);
   DEFINE_ANOTHER_FWK_MODULE(CosmicGenFilterLowE);
   DEFINE_ANOTHER_FWK_MODULE(PythiaFilterGammaGamma);
+  DEFINE_ANOTHER_FWK_MODULE(HZZ4lFilter);
