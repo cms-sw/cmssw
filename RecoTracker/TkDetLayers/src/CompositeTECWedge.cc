@@ -26,7 +26,7 @@ public:
   bool operator()(const GeomDet* a,const GeomDet* b) 
   {
     const float pi = 3.141592653592;
-    float diff = fmod(b->position().phi() - a->position().phi(), 2*pi);
+    float diff = fmod(b->surface().phi() - a->surface().phi(), 2*pi);
     if ( diff < 0) diff += 2*pi;
     return diff < pi;
   } 
@@ -69,7 +69,7 @@ CompositeTECWedge::CompositeTECWedge(vector<const GeomDet*>& innerDets,
   for(vector<const GeomDet*>::const_iterator it=theBackDets.begin(); 
       it!=theBackDets.end(); it++){
     LogDebug("TkDetLayers") << "backDet phi,z,r: " 
-			    << (*it)->surface().position().phi() << " , "
+			    << (*it)->surface().phi() << " , "
 			    << (*it)->surface().position().z() <<   " , "
 			    << (*it)->surface().position().perp() ;
   }
@@ -157,7 +157,7 @@ CompositeTECWedge::computeCrossings( const TrajectoryStateOnSurface& startingSta
 
 
   int frontIndex = findClosestDet(gFrontPoint,0); 
-  float frontDist = theFrontDets[frontIndex]->surface().position().phi()  - gFrontPoint.phi(); 
+  float frontDist = theFrontDets[frontIndex]->surface().phi()  - gFrontPoint.phi(); 
   SubLayerCrossing frontSLC( 0, frontIndex, gFrontPoint);
 
   pair<bool,double> backPath = crossing.pathLength( *theBackSector);
@@ -171,11 +171,11 @@ CompositeTECWedge::computeCrossings( const TrajectoryStateOnSurface& startingSta
     << gBackPoint.phi() << ")" << endl;
   
   int backIndex = findClosestDet(gBackPoint,1);
-  float backDist = theBackDets[backIndex]->surface().position().phi()  - gBackPoint.phi(); 
+  float backDist = theBackDets[backIndex]->surface().phi()  - gBackPoint.phi(); 
   SubLayerCrossing backSLC( 1, backIndex, gBackPoint);
 
-  frontDist *= PhiLess()( theFrontDets[frontIndex]->surface().position().phi(),gFrontPoint.phi()) ? -1. : 1.; 
-  backDist  *= PhiLess()( theBackDets[backIndex]->surface().position().phi(),gBackPoint.phi()) ? -1. : 1.;
+  frontDist *= PhiLess()( theFrontDets[frontIndex]->surface().phi(),gFrontPoint.phi()) ? -1. : 1.; 
+  backDist  *= PhiLess()( theBackDets[backIndex]->surface().phi(),gBackPoint.phi()) ? -1. : 1.;
   if (frontDist < 0.) { frontDist += 2.*Geom::pi();}
   if ( backDist < 0.) { backDist  += 2.*Geom::pi();}
 
@@ -273,17 +273,14 @@ CompositeTECWedge::calculatePhiWindow( const MeasurementEstimator::Local2DVector
 				       const TrajectoryStateOnSurface& ts, 
 				       const BoundPlane& plane) const
 {
-  vector<GlobalPoint> corners(4);
-  vector<LocalPoint> lcorners(4);
+
   LocalPoint start = ts.localPosition();
-  lcorners[0] = LocalPoint( start.x()+maxDistance.x(), start.y()+maxDistance.y());  
-  lcorners[1] = LocalPoint( start.x()-maxDistance.x(), start.y()+maxDistance.y());
-  lcorners[2] = LocalPoint( start.x()-maxDistance.x(), start.y()-maxDistance.y());
-  lcorners[3] = LocalPoint( start.x()+maxDistance.x(), start.y()-maxDistance.y());
+  GlobalPoint corners[]  =  { plane.toGlobal(LocalPoint( start.x()+maxDistance.x(), start.y()+maxDistance.y() )),
+                              plane.toGlobal(LocalPoint( start.x()-maxDistance.x(), start.y()+maxDistance.y() )),
+                              plane.toGlobal(LocalPoint( start.x()-maxDistance.x(), start.y()-maxDistance.y() )),
+                              plane.toGlobal(LocalPoint( start.x()+maxDistance.x(), start.y()-maxDistance.y() )) 
+                            };
   
-  for( int i = 0; i<4; i++) {
-    corners[i] = plane.toGlobal( lcorners[i]);
-  }
   float phimin = corners[0].phi();
   float phimax = phimin;
   for ( int i = 1; i<4; i++) {

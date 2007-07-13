@@ -154,7 +154,7 @@ TIDRing::computeCrossings(const TrajectoryStateOnSurface& startingState,
   GlobalPoint gFrontPoint(crossing.position(frontPath.second));
 
   int frontIndex = theFrontBinFinder.binIndex(gFrontPoint.phi());
-  float frontDist = theFrontDets[frontIndex]->surface().position().phi()  - gFrontPoint.phi(); 
+  float frontDist = theFrontDets[frontIndex]->surface().phi()  - gFrontPoint.phi(); 
   SubLayerCrossing frontSLC( 0, frontIndex, gFrontPoint);
 
 
@@ -164,13 +164,13 @@ TIDRing::computeCrossings(const TrajectoryStateOnSurface& startingState,
 
   GlobalPoint gBackPoint( crossing.position(backPath.second));
   int backIndex = theBackBinFinder.binIndex(gBackPoint.phi());
-  float backDist = theBackDets[backIndex]->surface().position().phi()  - gBackPoint.phi(); 
+  float backDist = theBackDets[backIndex]->surface().phi()  - gBackPoint.phi(); 
   SubLayerCrossing backSLC( 1, backIndex, gBackPoint);
 
   
   // 0ss: frontDisk has index=0, backDisk has index=1
-  frontDist *= PhiLess()( theFrontDets[frontIndex]->surface().position().phi(),gFrontPoint.phi()) ? -1. : 1.; 
-  backDist  *= PhiLess()( theBackDets[backIndex]->surface().position().phi(),gBackPoint.phi()) ? -1. : 1.;
+  frontDist *= PhiLess()( theFrontDets[frontIndex]->surface().phi(),gFrontPoint.phi()) ? -1. : 1.; 
+  backDist  *= PhiLess()( theBackDets[backIndex]->surface().phi(),gBackPoint.phi()) ? -1. : 1.;
   if (frontDist < 0.) { frontDist += 2.*Geom::pi();}
   if ( backDist < 0.) { backDist  += 2.*Geom::pi();}
 
@@ -225,7 +225,7 @@ void TIDRing::searchNeighbors( const TrajectoryStateOnSurface& tsos,
   int posStartIndex = closestIndex+1;
 
   if (checkClosest) { // must decide if the closest is on the neg or pos side
-    if ( PhiLess()( gCrossingPos.phi(), sLayer[closestIndex]->surface().position().phi())) {
+    if ( PhiLess()( gCrossingPos.phi(), sLayer[closestIndex]->surface().phi())) {
       posStartIndex = closestIndex;
     }
     else {
