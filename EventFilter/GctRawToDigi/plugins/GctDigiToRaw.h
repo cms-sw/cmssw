@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctDigiToRaw.h,v 1.2 2007/07/05 21:22:00 jbrooke Exp $
+// $Id: GctDigiToRaw.h,v 1.3 2007/07/11 19:46:13 jbrooke Exp $
 //
 //
 
@@ -33,7 +33,7 @@
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 
-#include "EventFilter/GctRawToDigi/src/GctBlockConverter.h"
+#include "EventFilter/GctRawToDigi/src/GctBlockPacker.h"
 
 //
 // class decleration
@@ -49,22 +49,24 @@ class GctDigiToRaw : public edm::EDProducer {
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   
-  void writeHeader(FEDRawData& data);
+  void print(FEDRawData& data);
 
  private:  // members
 
-  bool verbose_;         // print out for each event
+  // print out for each event
+  bool verbose_;
 
+  // input tags
   edm::InputTag rctInputLabel_;
   edm::InputTag gctInputLabel_;
 
-  int fedId_;            // GCT FED ID
+  // FED numbers
+  int fedId_;            
 
-  int counter_;          // counter events
-  int bx_;
-  int lv1_;
+  // counter events
+  int counter_;          
   
-  // Block to Digi converter
+  // digi to block converter
   GctBlockPacker blockPacker_;
 
 };

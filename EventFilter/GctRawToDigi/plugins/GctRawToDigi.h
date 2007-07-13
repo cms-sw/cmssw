@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctRawToDigi.h,v 1.5 2007/06/22 07:58:24 jbrooke Exp $
+// $Id: GctRawToDigi.h,v 1.6 2007/07/11 17:55:28 jbrooke Exp $
 //
 //
 
@@ -32,7 +32,7 @@
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 
-#include "EventFilter/GctRawToDigi/src/GctBlockConverter.h"
+#include "EventFilter/GctRawToDigi/src/GctBlockUnpacker.h"
 
 //
 // class decleration
@@ -65,7 +65,7 @@ class GctRawToDigi : public edm::EDProducer {
   bool doFibres_;
 
   // Block to Digi converter
-  GctBlockConverter converter_;
+  GctBlockUnpacker blockUnpacker_;
 
 };
 

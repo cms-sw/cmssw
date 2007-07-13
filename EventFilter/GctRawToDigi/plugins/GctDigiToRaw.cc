@@ -81,8 +81,8 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // counters
    counter_++;
-   bx_ = (counter_ % 3564);
-   lv1_ = counter_ % (0x1<<24);
+   blockPacker_.setBcId(counter_ % 3564);
+   blockPacker_.setEvId(counter_ % (0x1<<24));
 
    // get digis
    edm::Handle<L1GctEmCandCollection> isoEm;
@@ -96,19 +96,24 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // get the GCT buffer
    FEDRawData& feddata=rawColl->FEDData(fedId_);
+
+   // set the size & get pointer
+   feddata.resize(48);
    unsigned char * d = feddata.data();
 
-   // set the size
-   feddata.resize(32);
-
    // write CDF header
-   writeHeader(feddata);
+   blockPacker_.writeFedHeader(d, fedId_);
+   d=d+8;
 
    // pack GCT EM output digis
-   blockPacker_.writeGctEmBlock(&d[8], isoEm);
-
+   blockPacker_.writeGctEmBlock(d, isoEm.product(), nonIsoEm.product());      
 
    // write footer (is this necessary???)
+   const unsigned char * s = feddata.data();
+   blockPacker_.writeFedFooter(d, s);
+
+   // debug output
+   if (verbose_) print(feddata);
 
    // put the collection in the event
    iEvent.put(rawColl);
@@ -116,27 +121,17 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 
-// write Common Data Format header (nicked from EcalDigiToRaw)
-void GctDigiToRaw::writeHeader(FEDRawData& data) {
+void GctDigiToRaw::print(FEDRawData& data) {
 
-  typedef long long Word64;
+  const unsigned char * d = data.data();
 
-  // Allocate space for header+trailer+payload
-  data.resize(8);
-  
-  // Standard FEVT header
-  unsigned long long hdr;
-  hdr = 0x18
-    + ((fedId_ & 0xFFF)<<8)
-    + ((Word64)((Word64)bx_ & 0xFFF)<<20)
-    + ((Word64)((Word64)lv1_ & 0xFFFFFF)<<32)
-    + ((Word64)((Word64)0x51<<56));
+  for (int i=0; i<data.size(); i=i+4) {
+    uint32_t w = (uint32_t)d[i] + (uint32_t)(d[i+1]<<8) + (uint32_t)(d[i+2]<<16) + (uint32_t)(d[i+3]<<24);
+    cout << std::hex << std::setw(4) << i/4 << " " << std::setw(8) << w << endl;
+  }
 
-  unsigned char * pData = data.data();
-  Word64* pw = reinterpret_cast<Word64*>(const_cast<unsigned char*>(pData));
-  *pw = hdr;
-  
 }
+
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
@@ -148,8 +143,6 @@ GctDigiToRaw::beginJob(const edm::EventSetup&)
 void 
 GctDigiToRaw::endJob() {
 }
-
-
 
 /// make this a plugin
 DEFINE_FWK_MODULE(GctDigiToRaw);

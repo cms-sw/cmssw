@@ -133,12 +133,12 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
   std::auto_ptr<L1GctFibreCollection> gctFibres( new L1GctFibreCollection() );
 
 
-  // setup converter
-  converter_.setRctEmCollection( rctEm.get() );
-  converter_.setIsoEmCollection( gctIsoEm.get() );
-  converter_.setNonIsoEmCollection( gctNonIsoEm.get() );
-  converter_.setInternEmCollection( gctInternEm.get() );
-  converter_.setFibreCollection( gctFibres.get() );
+  // setup blockUnpackerer
+  blockUnpacker_.setRctEmCollection( rctEm.get() );
+  blockUnpacker_.setIsoEmCollection( gctIsoEm.get() );
+  blockUnpacker_.setNonIsoEmCollection( gctNonIsoEm.get() );
+  blockUnpacker_.setInternEmCollection( gctInternEm.get() );
+  blockUnpacker_.setFibreCollection( gctFibres.get() );
 
   // unpacking variables
   const unsigned char * data = d.data();
@@ -154,12 +154,12 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
     unsigned id = blockHead.id();
 
     // 2 get block size (in 32 bit words)
-    unsigned blockLen = converter_.blockLength(id);
+    unsigned blockLen = blockUnpacker_.blockLength(id);
     unsigned nSamples = blockHead.nSamples();
 
-    // 3 if block recognised, convert it and store header
-    if ( converter_.validBlock(id) ) {
-      converter_.convertBlock(&data[dPtr+4], id, nSamples);  // pass pointer to first word in block payload
+    // 3 if block recognised, unpack it and store header
+    if ( blockUnpacker_.validBlock(id) ) {
+      blockUnpacker_.convertBlock(&data[dPtr+4], id, nSamples);  // pass pointer to first word in block payload
       bHdrs.push_back(blockHead);
       dPtr += 4*(blockLen*nSamples+1); // *4 because blockLen is in 32-bit words, +1 for header
     }
