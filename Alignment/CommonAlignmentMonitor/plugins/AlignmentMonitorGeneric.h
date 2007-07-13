@@ -7,19 +7,28 @@
 // Produce histograms generic to all alignment algorithms.
 //
 // Histograms defined:
-//   hit residuals (x, y, z)
+//   pull of x hit residuals for positively charged tracks on each alignable
+//   pull of x hit residuals for negatively charged tracks on each alignable
+//   pull of y hit residuals for positively charged tracks on each alignable
+//   pull of y hit residuals for negatively charged tracks on each alignable
+//         pt for all tracks
+//        eta for all tracks
+//        phi for all tracks
+//         d0 for all tracks
+//         dz for all tracks
+//   chi2/dof for all tracks
 //
 // Original Author:  Jim Pivarski
 //         Created:  Thu Mar 29 13:59:56 CDT 2007
-// $Id: AlignmentMonitorGeneric.cc,v 1.1 2007/05/09 07:06:33 fronga Exp $
+// $Id: AlignmentMonitorGeneric.h,v 1.1 2007/07/09 17:09:52 cklae Exp $
 
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorBase.h"
-
-class TH3F;
 
 class AlignmentMonitorGeneric:
   public AlignmentMonitorBase
 {
+  typedef std::vector<TH1F*> Hist1Ds;
+
   public:
 
   AlignmentMonitorGeneric(
@@ -39,7 +48,11 @@ class AlignmentMonitorGeneric:
 
   private:
 
-  std::map<const Alignable*, TH3F*> m_residuals;
+  static const unsigned int nBin_ = 50;
+
+  Hist1Ds m_trkHists; // track parameters histograms
+
+  std::map<const Alignable*, Hist1Ds> m_resHists; // hit residuals histograms
 };
 
 #endif
