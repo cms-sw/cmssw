@@ -98,7 +98,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	 << " in FEDRawDataCollection"
 	 << " with non-zero pointer 0x" 
 	 << std::hex
-	 << std::setw(4) << std::setfill('0') << *(input.data())
+	 << std::setw(8) << std::setfill('0') << *(input.data())
 	 << std::dec
 	 << " and size (#char) " 
 	 << std::setw(5) << std::setfill(' ') << input.size();
