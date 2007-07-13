@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store mapping for Hcal channels
 $Author: ratnikov
-$Date: 2007/04/16 14:18:29 $
-$Revision: 1.18 $
+$Date: 2007/05/05 19:49:07 $
+$Revision: 1.19 $
 */
 
 #include <iostream>
@@ -13,6 +13,7 @@ $Revision: 1.18 $
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 HcalElectronicsMap::HcalElectronicsMap() : 
   mPItems(HcalElectronicsId::maxLinearIndex+1),
@@ -149,8 +150,8 @@ bool HcalElectronicsMap::mapEId2tId (HcalElectronicsId fElectronicsId, HcalTrigT
     item.mTrigId = fTriggerId.rawId (); // just cast avoiding long machinery
   } 
   else if (item.mTrigId != fTriggerId.rawId ()) {
-    std::cerr << "HcalElectronicsMap::mapEId2tId-> Electronics channel " <<  fElectronicsId.rawId () << " already mapped to trigger channel " 
-	      << item.mTrigId << ". New value " << fTriggerId.rawId () << " is ignored" << std::endl;
+    edm::LogWarning("HCAL") << "HcalElectronicsMap::mapEId2tId-> Electronics channel " <<  fElectronicsId  << " already mapped to trigger channel " 
+	      << (HcalTrigTowerDetId(item.mTrigId)) << ". New value " << fTriggerId << " is ignored" << std::endl;
     return false;
   }
   return true;
@@ -165,8 +166,8 @@ bool HcalElectronicsMap::mapEId2chId (HcalElectronicsId fElectronicsId, DetId fI
     item.mId = fId.rawId ();
   } 
   else if (item.mId != fId.rawId ()) {
-    std::cerr << "HcalElectronicsMap::mapEId2tId-> Electronics channel " <<  fElectronicsId.rawId () << " already mapped to channel " 
-	      << item.mId << ". New value " << fId.rawId () << " is ignored" << std::endl;
+     edm::LogWarning("HCAL") << "HcalElectronicsMap::mapEId2tId-> Electronics channel " <<  fElectronicsId << " already mapped to channel " 
+	      << HcalGenericDetId(item.mId) << ". New value " << HcalGenericDetId(fId) << " is ignored" << std::endl;
     return false;
   }
   return true;
