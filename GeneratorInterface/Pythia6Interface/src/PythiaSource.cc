@@ -1,6 +1,6 @@
 /*
- *  $Date: 2007/05/22 14:29:40 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/05/29 19:12:54 $
+ *  $Revision: 1.11 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -10,6 +10,8 @@
  *  Sasha Nikitenko : added single/double particle gun
  *
  *  Holger Pieta : added FileInPath for SLHA
+ *
+ *  Andrea Rizzi : add R-hadron part
  *
  */
 
@@ -74,6 +76,26 @@ extern "C" {
    void SLHA_INIT();
 }
 
+#define PYGLFR pyglfr_
+ extern "C" {
+   void PYGLFR();
+}
+
+#define PYGLRHAD pyglrhad_
+ extern "C" {
+   void PYGLRHAD();
+}
+
+#define PYSTFR pyglfr_
+ extern "C" {
+   void PYSTLFR();
+}
+
+#define PYSTRHAD pystrhad_
+ extern "C" {
+   void PYSTRHAD();
+}
+
 
 //used for defaults
   static const unsigned long kNanoSecPerSec = 1000000000;
@@ -87,8 +109,8 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
   comenergy(pset.getUntrackedParameter<double>("comEnergy",14000.)),
   extCrossSect(pset.getUntrackedParameter<double>("crossSection", -1.)),
-  extFilterEff(pset.getUntrackedParameter<double>("filterEfficiency", -1.))
-  
+  extFilterEff(pset.getUntrackedParameter<double>("filterEfficiency", -1.)),
+  stopHadronsEnabled(false),gluinoHadronsEnabled(false)    
 {
   
   
@@ -188,6 +210,16 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   
   }
   }
+  
+  
+   stopHadronsEnabled = pset.getParameter<bool>("stopHadrons");
+   gluinoHadronsEnabled = pset.getParameter<bool>("gluinoHadrons");
+
+  //Init names and pdg code of r-hadrons
+   if(stopHadronsEnabled)  PYSTRHAD();
+   if(gluinoHadronsEnabled)  PYGLRHAD();
+ 
+  
   //In the future, we will get the random number seed on each event and tell 
   // pythia to use that new seed
   edm::Service<RandomNumberGenerator> rng;
@@ -262,9 +294,21 @@ bool PythiaSource::produce(Event & e) {
 	  }
 	PYEXEC();
       } else {
-	call_pyevnt();      // generate one event with Pythia
+      	if(!gluinoHadronsEnabled && !stopHadronsEnabled)
+         {
+           call_pyevnt();      // generate one event with Pythia
+         }
+          else
+         {
+           call_pygive("MSTJ(14)=-1");
+           call_pyevnt();      // generate one event with Pythia
+	   call_pygive("MSTJ(14)=1");
+         if(gluinoHadronsEnabled)  PYGLFR();
+         if(stopHadronsEnabled)  PYSTFR();
+         }
       }
-
+   
+      
     call_pyhepc( 1 );
 
 
