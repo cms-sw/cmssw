@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri Mar 30 12:21:07 CDT 2007
-// $Id: AlignmentMonitorBase.cc,v 1.2 2007/07/02 19:47:40 pivarski Exp $
+// $Id: AlignmentMonitorBase.cc,v 1.3 2007/07/09 12:35:23 pivarski Exp $
 //
 
 // system include files
@@ -149,6 +149,7 @@ TObject *AlignmentMonitorBase::add(std::string dir, TObject *obj) {
 
       if (tdir->Get(obj->GetName())) {
 	 output = tdir->Get(obj->GetName());
+	 delete obj;
       }
       else {
 	 m_inSlashDir.push_back(obj);
