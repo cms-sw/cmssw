@@ -396,7 +396,7 @@ void AlignableTracker::buildTPE( const TrackerGeometry::DetContainer& dets )
 
   timeval t0;
   gettimeofday(&t0, 0);
-  std::cout << "t0 = " << t0.tv_usec << " us ";
+  LogDebug("AlignableTracker") << "t0 = " << t0.tv_usec << " us ";
 
 // In order not to depend on the order of the input DetContainer,
 // we define flags to indicate the existence of a structure;
@@ -562,7 +562,7 @@ void AlignableTracker::buildTPE( const TrackerGeometry::DetContainer& dets )
 
   timeval t1;
   gettimeofday(&t1, 0);
-  std::cout << "Time taken: " <<  (t1.tv_usec - t0.tv_usec) << " us\n";
+  LogDebug("AlignableTracker") << "Time taken: " <<  (t1.tv_usec - t0.tv_usec) << " us\n";
 }
 
 
