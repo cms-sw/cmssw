@@ -29,7 +29,7 @@
 
   <class name="edm::Wrapper<edm::RangeMap<DetId, edm::OwnVector<SiStripMatchedRecHit2D, edm::ClonePolicy<SiStripMatchedRecHit2D> >, edm::ClonePolicy<SiStripMatchedRecHit2D> > >"/>
   <class name="edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> >"/>
-  <class name="edm::Ref< edm::SiStripRefGetter<SiStripCluster, edm::SiStripLazyGetter<SiStripCluster> >, SiStripCluster, edm::FindValue< SiStripCluster, edm::SiStripRefGetter<SiStripCluster, edm::SiStripLazyGetter<SiStripCluster> > > >"/>
+  <class name="edm::Ref< edm::SiStripRefGetter<SiStripCluster>, SiStripCluster, edm::FindValue< SiStripCluster> >"/>
 
   <class pattern="edm::RefBase<*>"/>
   <class pattern="edm::RefItem<*>"/>
