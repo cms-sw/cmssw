@@ -41,6 +41,7 @@ public:
   T mag2() const { return basicVector().mag2();}
   T r() const    { return basicVector().r();}
   T mag() const  { return basicVector().mag();}
+  T barePhi() const  { return basicVector().barePhi();}
   Geom::Phi<T> phi() const { return basicVector().phi();}
 
 protected:

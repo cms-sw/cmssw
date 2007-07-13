@@ -55,15 +55,17 @@ public:
   
   T x() const { return basicVector().x();}
   T y() const { return basicVector().y();}
-  T z() const     { return basicVector().z();}
+  T z() const { return basicVector().z();}
 
   T mag2() const { return basicVector().mag2();}
   T mag() const  { return basicVector().mag();}
+  T barePhi() const  { return basicVector().barePhi();}
   Geom::Phi<T> phi() const  { return basicVector().phi();}
 
   T perp2() const { return basicVector().perp2();}
   T perp() const  { return basicVector().perp();}
   T transverse() const  { return basicVector().transverse();}
+  T bareTheta() const { return basicVector().bareTheta();}
   Geom::Theta<T> theta() const { return basicVector().theta();}
   T eta() const   { return basicVector().eta();}
 
