@@ -18,8 +18,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <map>
 #include <string>
+#include <iostream>
+#include <fstream>
 #include "HepMC/GenEvent.h"
-
 
 namespace CLHEP
 {
@@ -44,6 +45,9 @@ namespace edm
     bool call_pygive(const std::string& iParm );
     bool call_txgive(const std::string& iParm );
     int Nev_; // number of events in the input file
+
+    // .unw file with infos for AlpgenInfoProduct
+    std::ifstream* unwfile;
 
   private:
     

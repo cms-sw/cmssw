@@ -1,6 +1,6 @@
 /*
- *  $Date: 2007/06/22 16:29:15 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/06/22 17:18:48 $
+ *  $Revision: 1.6 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -13,6 +13,7 @@
 
 #include "GeneratorInterface/AlpgenInterface/interface/AlpgenSource.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/HepMCProduct/interface/AlpgenInfoProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -60,7 +61,10 @@ AlpgenSource::AlpgenSource( const ParameterSet & pset,
   if ( fileName.find("file:") || fileName.find("rfio:")){
     fileName.erase(0,5);
   }   
-  
+
+  // open the .unw file to store additional 
+  // informations in the AlpgenInfoProduct
+  unwfile = new ifstream((fileName+".unw").c_str());
   // get the number of input events from  _unw.par files
   char buffer[256];
   ifstream reader((fileName+"_unw.par").c_str());
@@ -162,6 +166,7 @@ AlpgenSource::AlpgenSource( const ParameterSet & pset,
   //********                                      
   
   produces<HepMCProduct>();
+  produces<AlpgenInfoProduct>();
   cout << "AlpgenSource: starting event generation ... " << endl;
 }
 
@@ -189,6 +194,24 @@ bool AlpgenSource::produce(Event & e) {
     auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
     //cout << "AlpgenSource: Generating event ...  " << endl;
     
+    // Additional information from unweighted file
+    auto_ptr<AlpgenInfoProduct> alp_product(new AlpgenInfoProduct());
+
+    // Extract from .unw file the info for AlpgenInfoProduct
+    
+    char buffer[512];
+    if(unwfile->getline(buffer,512)) {
+      alp_product->EventInfo(buffer);
+    }
+    if(unwfile->getline(buffer,512)) 
+      alp_product->InPartonInfo(buffer);
+    if(unwfile->getline(buffer,512)) 
+      alp_product->InPartonInfo(buffer);
+    for(int i_out = 0; i_out <  alp_product->nTot()-2; i_out++) {
+      if(unwfile->getline(buffer,512)) 
+	alp_product->OutPartonInfo(buffer);
+    }
+
     call_pyevnt();      // generate one event with Pythia
     //        call_pretauola(0);  // tau-lepton decays with TAUOLA 
     
@@ -223,7 +246,8 @@ bool AlpgenSource::produce(Event & e) {
     if(evt)  bare_product->addHepMCData(evt );
     
     e.put(bare_product);
-    
+    e.put(alp_product);
+
     return true;
   }
 }
