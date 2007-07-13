@@ -32,7 +32,7 @@ problems:
   where does the pluginmanager initialize call go?
 
 
-$Id: EventProcessor.h,v 1.38 2007/06/26 21:12:12 wmtan Exp $
+$Id: EventProcessor.h,v 1.39 2007/07/13 20:08:18 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -308,8 +308,8 @@ namespace edm {
     StatusCode processRuns(int numberEventsToProcess,
 		     event_processor::Msg m);
     StatusCode doneAsync(event_processor::Msg m);
-    EventHelperDescription runOnce(boost::shared_ptr<RunPrincipal> rp,
-                                   boost::shared_ptr<LuminosityBlockPrincipal> lbp);
+    EventHelperDescription runOnce(boost::shared_ptr<RunPrincipal>& rp,
+                                   boost::shared_ptr<LuminosityBlockPrincipal>& lbp);
     
     void rewind();
 

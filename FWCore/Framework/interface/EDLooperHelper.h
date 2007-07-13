@@ -16,11 +16,14 @@
 //
 // Author:      Valentin Kuznetsov
 // Created:     Wed Jul 12 11:26:26 EDT 2006
-// $Id: EDLooperHelper.h,v 1.4 2007/06/22 23:26:32 wmtan Exp $
+// $Id: EDLooperHelper.h,v 1.5 2007/07/13 20:08:18 chrjones Exp $
 //
 // Revision history
 //
 // $Log: EDLooperHelper.h,v $
+// Revision 1.5  2007/07/13 20:08:18  chrjones
+// Have the code used by the looper properly handle run and luminosity blocks
+//
 // Revision 1.4  2007/06/22 23:26:32  wmtan
 // Add Run and Lumi loops to the EventProcessor
 //
@@ -64,8 +67,8 @@ class EDLooperHelper
       virtual ~EDLooperHelper();
 
       // ---------- member functions ---------------------------
-      EventHelperDescription runOnce(boost::shared_ptr<edm::RunPrincipal> rp,
-                                     boost::shared_ptr<edm::LuminosityBlockPrincipal> lbp);
+      EventHelperDescription runOnce(boost::shared_ptr<edm::RunPrincipal>& rp,
+                                     boost::shared_ptr<edm::LuminosityBlockPrincipal>& lbp);
       void rewind(const std::set<edm::eventsetup::EventSetupRecordKey>& keys);
 
       // ---------- const member functions ---------------------

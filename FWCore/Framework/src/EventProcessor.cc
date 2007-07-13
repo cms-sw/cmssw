@@ -692,8 +692,8 @@ namespace edm {
   }
   
   EventHelperDescription
-  EventProcessor::runOnce(boost::shared_ptr<RunPrincipal> rp,
-                          boost::shared_ptr<LuminosityBlockPrincipal> lbp)
+  EventProcessor::runOnce(boost::shared_ptr<RunPrincipal>& rp,
+                          boost::shared_ptr<LuminosityBlockPrincipal>& lbp)
   {
     
     try {
