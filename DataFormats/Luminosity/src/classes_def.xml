@@ -1,0 +1,5 @@
+<lcgdict>
+  <class pattern="edm::Wrapper<*>"/>
+  <class name="LumiSummary"/>
+  <class name="LumiDetails"/>
+</lcgdict>
