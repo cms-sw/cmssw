@@ -35,11 +35,10 @@ protected:
   virtual const TrajectoryInput innermostStateAndRecHits( const ConstTrajTrackPair & track ) const;
   virtual const Trajectory::DataContainer orderedTrajectoryMeasurements( const Trajectory & trajectory ) const;
 
-  const MaterialEffects materialEffects( const std::string strME ) const;
+  const MaterialEffects materialEffects( const std::string & strME ) const;
 
-  bool theHitsAreReverse;
   MaterialEffects theMaterialEffects;
-
+  bool theUseInvalidHits;
 };
 
 

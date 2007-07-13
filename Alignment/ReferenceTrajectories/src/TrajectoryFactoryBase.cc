@@ -4,16 +4,16 @@
 
 TrajectoryFactoryBase::TrajectoryFactoryBase( const edm::ParameterSet & config )
 {
-  theHitsAreReverse = config.getParameter< bool >( "ReverseHits" );
-  std::string strMaterialEffects = config.getParameter< std::string >( "MaterialEffects" );
-  theMaterialEffects = materialEffects( strMaterialEffects );
+  const std::string strMaterialEffects = config.getParameter< std::string >( "MaterialEffects" );
+  theMaterialEffects = this->materialEffects( strMaterialEffects );
+  theUseInvalidHits = config.getParameter< bool >( "UseInvalidHits" );
 }
 
 
 TrajectoryFactoryBase::~TrajectoryFactoryBase( void ) {}
 
 
-const TrajectoryFactoryBase::MaterialEffects TrajectoryFactoryBase::materialEffects( const std::string strME ) const
+const TrajectoryFactoryBase::MaterialEffects TrajectoryFactoryBase::materialEffects( const std::string & strME ) const
 {
   if ( strME == "MultipleScattering" ) return ReferenceTrajectoryBase::multipleScattering;
   if ( strME == "EnergyLoss" ) return ReferenceTrajectoryBase::energyLoss;
@@ -31,11 +31,11 @@ const TrajectoryFactoryBase::MaterialEffects TrajectoryFactoryBase::materialEffe
 const TrajectoryFactoryBase::TrajectoryInput
 TrajectoryFactoryBase::innermostStateAndRecHits( const ConstTrajTrackPair & track ) const
 {
-  TransientTrackingRecHit::ConstRecHitContainer recHits;
-  TrajectoryStateOnSurface innermostState;
+  TrajectoryFactoryBase::TrajectoryInput result; // pair of TSOS and ConstRecHitContainer
 
   // get the trajectory measurements in the correct order, i.e. reverse if needed
-  Trajectory::DataContainer trajectoryMeasurements = orderedTrajectoryMeasurements( *track.first );
+  Trajectory::DataContainer trajectoryMeasurements 
+    = this->orderedTrajectoryMeasurements( *track.first );
   Trajectory::DataContainer::iterator itM = trajectoryMeasurements.begin();
 
   // get the innermost valid state
@@ -44,25 +44,32 @@ TrajectoryFactoryBase::innermostStateAndRecHits( const ConstTrajTrackPair & trac
     if ( ( *itM ).updatedState().isValid() ) break;
     ++itM;
   }
-  if ( itM != trajectoryMeasurements.end() ) innermostState = ( *itM ).updatedState();
+  if ( itM != trajectoryMeasurements.end() ) result.first = ( *itM ).updatedState();
 
   // get the valid RecHits
   while ( itM != trajectoryMeasurements.end() )
   {
     TransientTrackingRecHit::ConstRecHitPointer aRecHit = ( *itM ).recHit();
-    if ( aRecHit->isValid() ) recHits.push_back( aRecHit );
+    if ( theUseInvalidHits || aRecHit->isValid() ) result.second.push_back( aRecHit );
     ++itM;
   }
 
-  return make_pair( innermostState, recHits );
+  return result;
 }
 
 
 const Trajectory::DataContainer TrajectoryFactoryBase::orderedTrajectoryMeasurements( const Trajectory & trajectory ) const
 {
+  const PropagationDirection dir = trajectory.direction();
+  const bool hitsAreReverse = (dir == oppositeToMomentum ? true : false);
+  if (hitsAreReverse == false && dir != alongMomentum) {
+    edm::LogError("Alignment") << "$SUB=TrajectoryFactoryBase::orderedTrajectoryMeasurements"
+                               << "Trajectory neither along nor opposite to momentum.";
+  }
+
   const Trajectory::DataContainer & original = trajectory.measurements();
 
-  if ( theHitsAreReverse )
+  if ( hitsAreReverse )
   {
     Trajectory::DataContainer reordered;
     reordered.reserve( original.size() );
