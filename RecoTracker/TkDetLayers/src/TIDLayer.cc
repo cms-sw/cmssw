@@ -122,7 +122,7 @@ TIDLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& startingState,
 
   theComps[ringIndices[0]]->groupedCompatibleDetsV( startingState, prop, est, closestResult);		
   if ( closestResult.empty() ){
-    theComps[ringIndices[1]]->groupedCompatibleDetsV( startingState, prop, est, reusult); 
+    theComps[ringIndices[1]]->groupedCompatibleDetsV( startingState, prop, est, result); 
     return;
   }
 
@@ -264,7 +264,7 @@ TIDLayer::orderAndMergeLevels(const TrajectoryStateOnSurface& tsos,
 			      const Propagator& prop,
 			      const vector<vector<DetGroup> > groups,
 			      const vector<int> indices,
-			      std::vector<DetGroup> & result ) const 
+			      std::vector<DetGroup> & result )
 {
   vector< pair<vector<DetGroup>,int> > groupPlusIndex;
   for(unsigned int i=0;i<groups.size();i++){
