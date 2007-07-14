@@ -11,7 +11,7 @@
  *  built out of TOBRods
  */
 
-class TOBLayer : public RodBarrelLayer{
+class TOBLayer : public RodBarrelLayer, public GeometricSearchDetWithGroups{
  public:
   typedef PeriodicBinFinderInPhi<double>   BinFinderType;
 
@@ -26,19 +26,11 @@ class TOBLayer : public RodBarrelLayer{
 
   virtual const std::vector<const GeometricSearchDet*>& components() const {return theComps;}
 
-  
-  virtual std::vector<DetWithState> 
-  compatibleDets( const TrajectoryStateOnSurface& startingState,
-		  const Propagator& prop, 
-		  const MeasurementEstimator& est) const;
+  void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
+			       const Propagator& prop,
+			       const MeasurementEstimator& est,
+			       std::vector<DetGroup> & result) const;
 
-  virtual std::vector<DetGroup> 
-  groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
-			 const Propagator& prop,
-			 const MeasurementEstimator& est) const;
-
-
-  virtual bool hasGroups() const {return true;}  
 
   // DetLayer interface
   virtual SubDetector subDetector() const {return GeomDetEnumerators::TOB;}
