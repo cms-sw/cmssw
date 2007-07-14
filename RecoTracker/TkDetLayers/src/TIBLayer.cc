@@ -96,27 +96,6 @@ TIBLayer::~TIBLayer(){
 } 
 
   
-vector<DetWithState> 
-TIBLayer::compatibleDets( const TrajectoryStateOnSurface& startingState,
-			  const Propagator& prop, 
-			  const MeasurementEstimator& est) const{
-
-  // standard implementation of compatibleDets() for class which have 
-  // groupedCompatibleDets implemented.
-  // This code should be moved in a common place intead of being 
-  // copied many times.
-  
-  vector<DetWithState> result;  
-  vector<DetGroup> vectorGroups = groupedCompatibleDets(startingState,prop,est);
-  for(vector<DetGroup>::const_iterator itDG=vectorGroups.begin();
-      itDG!=vectorGroups.end();itDG++){
-    for(vector<DetGroupElement>::const_iterator itDGE=itDG->begin();
-	itDGE!=itDG->end();itDGE++){
-      result.push_back(DetWithState(itDGE->det(),itDGE->trajectoryState()));
-    }
-  }
-  return result;  
-}
 
 
 BoundCylinder* 
@@ -150,22 +129,21 @@ TIBLayer::cylinder( const vector<const GeometricSearchDet*>& rings)
 
 
 
-vector<DetGroup> 
-TIBLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
-				 const Propagator& prop,
-				 const MeasurementEstimator& est) const{
-  
-  vector<DetGroup> closestResult;
+void 
+TIBLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
+				  const Propagator& prop,
+				  const MeasurementEstimator& est,
+				  std::vector<DetGroup> & result) const {
   SubLayerCrossings  crossings; 
   crossings = computeCrossings( tsos, prop.propagationDirection());
-  if(! crossings.isValid()) return closestResult;
-
+  if(! crossings.isValid()) return;
+  
+  vector<DetGroup> closestResult;
   addClosest( tsos, prop, est, crossings.closest(), closestResult);
   // this differs from compatibleDets logic, which checks next in such cases!!!
-  if (closestResult.empty())    return closestResult;
+  if (closestResult.empty())    return;
   
   
-
   DetGroupElement closestGel( closestResult.front().front());
   float window = computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est);
 
@@ -177,9 +155,8 @@ TIBLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
 		   nextResult, true);
 
   int crossingSide = LayerCrossingSide().barrelSide( closestGel.trajectoryState(), prop);
-  DetGroupMerger merger;
-  return merger.orderAndMergeTwoLevels( closestResult, nextResult, 
-					crossings.closestIndex(), crossingSide);
+  DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result, 
+					  crossings.closestIndex(), crossingSide);
 }
 
 SubLayerCrossings TIBLayer::computeCrossings( const TrajectoryStateOnSurface& startingState,
@@ -255,16 +232,16 @@ void TIBLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
     }
   }
 
-  CompatibleDetToGroupAdder adder;
+  typedef CompatibleDetToGroupAdder Adder;
   for (int idet=negStartIndex; idet >= 0; idet--) {
     const GeometricSearchDet* neighborRing = sLayer[idet];
     if (!overlap( gCrossingPos, *neighborRing, window)) break;
-    if (!adder.add( *neighborRing, tsos, prop, est, result)) break;
+    if (!Adder::add( *neighborRing, tsos, prop, est, result)) break;
   }
   for (int idet=posStartIndex; idet < static_cast<int>(sLayer.size()); idet++) {
     const GeometricSearchDet* neighborRing = sLayer[idet];
     if (!overlap( gCrossingPos, *neighborRing, window)) break;
-    if (!adder.add( *neighborRing, tsos, prop, est, result)) break;
+    if (!Adder::add( *neighborRing, tsos, prop, est, result)) break;
   }
 }
 

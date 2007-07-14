@@ -11,7 +11,7 @@
  *  built out of TIBRings
  */
 
-class TIBLayer : public BarrelDetLayer {
+class TIBLayer : public BarrelDetLayer, public GeometricSearchDetWithGroups {
  public:
 
   TIBLayer(std::vector<const TIBRing*>& innerRings,
@@ -25,19 +25,11 @@ class TIBLayer : public BarrelDetLayer {
 
   virtual const std::vector<const GeometricSearchDet*>& components() const {return theComps;}
   
-  virtual std::vector<GeometricSearchDet::DetWithState> 
-  compatibleDets( const TrajectoryStateOnSurface& tsos,
-		  const Propagator& prop, 
-		  const MeasurementEstimator& est) const; 
-
-  virtual std::vector<DetGroup> 
-  groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
-			 const Propagator& prop,
-			 const MeasurementEstimator& est) const;
-
-
-  virtual bool hasGroups() const {return true;};  
-
+  void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
+			       const Propagator& prop,
+			       const MeasurementEstimator& est,
+			       std::vector<DetGroup> & result) const;
+ 
   // DetLayer interface
   virtual SubDetector subDetector() const {return GeomDetEnumerators::TIB;}
 

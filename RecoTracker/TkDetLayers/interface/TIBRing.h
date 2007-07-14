@@ -26,15 +26,17 @@ class TIBRing : public GeometricSearchDet{
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
 	      const MeasurementEstimator&) const;
 
-  virtual std::vector<DetWithState> 
-  compatibleDets( const TrajectoryStateOnSurface& startingState,
+  virtual void
+  compatibleDetsV( const TrajectoryStateOnSurface& startingState,
 		  const Propagator& prop, 
-		  const MeasurementEstimator& est) const;
+		   const MeasurementEstimator& est,  
+		   vector<DetWithState> & result) const;
 
-  virtual std::vector<DetGroup> 
-  groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
+  virtual void 
+  groupedCompatibleDetsV( const TrajectoryStateOnSurface& startingState,
 			 const Propagator& prop,
-			 const MeasurementEstimator& est) const;
+			  const MeasurementEstimator& est,
+			  vector<DetGroup> & result) const;
 
 
   virtual bool hasGroups() const {return true;}
