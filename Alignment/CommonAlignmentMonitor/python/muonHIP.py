@@ -131,7 +131,7 @@ class Convergence(Selection):
       tree = self.tfile.Get("iter%d/after" % iteration)
 
     if name == None: name = dummyName()
-    if title == None: title = "%s after %d iterations" % (self.param, iteration)
+    if title == None: title = "%s after %d iterations" % (self.hist, iteration)
 
     th1 = ROOT.TH1F(name, title, bins, low, high)
     values = []
@@ -144,18 +144,21 @@ class Convergence(Selection):
           # numerical constants defined in Alignment/CommonAlignment/AlignableObjectId.h
 
           if normalized:
-            if eval("t.%serr" % self.hist) != 0.:
-              values.append(eval("t.%s/t.%s" % (self.hist, self.hist)))
+            if eval("i.%serr" % self.hist) != 0.:
+              values.append(eval("i.%s/t.%s" % (self.hist, self.hist)))
               th1.Fill(values[-1])
           else:
-            values.append(eval("t.%s" % self.hist))
+            values.append(eval("i.%s" % self.hist))
             th1.Fill(values[-1])
           break
 
+    global lastprofile
+    lastprofile = th1
     if aslist: return values
-    else: return th1
+    else: return lastprofile
 
 last = None
+lastprofile = None
 empty = ROOT.TH1F("empty", "No matches.", 10, 0, 1)
 def select(func=(lambda c: True), hist="wxresid", granularity=Chamber, superset=None, tfile=tfile, iteration=1):
   if superset == None:
@@ -193,7 +196,7 @@ def select(func=(lambda c: True), hist="wxresid", granularity=Chamber, superset=
   last = Selection(func, hist, granularity, superset, tfile, iteration, merged, histograms, selected)
   return last
   
-def conv(func=(lambda c: True), param="x", granularity=Chamber, superset=None, tfile=tfile):
+def conv(func=(lambda c: True), hist="x", granularity=Chamber, superset=None, tfile=tfile):
   if superset == None:
     if granularity == Disk: superset = disks
     elif granularity == Chamber: superset = chambers
@@ -205,23 +208,25 @@ def conv(func=(lambda c: True), param="x", granularity=Chamber, superset=None, t
   tlist = ROOT.TList()
   histograms = {}
   selected = {}
+  bins = 21
   for rawid, c in superset.items():
     if (func.func_code.co_argcount == 1 and func(c)) or (func.func_code.co_argcount == 2):
 
-      th1 = tfile.Get("conv_%s_%s/conv_%s_%s_%d" % (param, dirname, param, dirname, rawid))
+      th1 = tfile.Get("conv_%s_%s/conv_%s_%s_%d" % (hist, dirname, hist, dirname, rawid))
 
       if (func.func_code.co_argcount == 1) or (func.func_code.co_argcount == 2 and th1 != None and func(c, th1)):
         if th1 != None:
           tlist.Add(th1)
           histograms[c] = th1
           selected[c.rawid] = c
+          if th1.GetNbinsX() > bins: bins = th1.GetNbinsX()
       
-  merged = ROOT.TH1F(dummyName(), "Convergence in %s" % param, 21, -0.5, 20.5)
+  merged = ROOT.TH1F(dummyName(), "Convergence in %s" % hist, bins, -0.5, bins + 0.5)
   merged.SetStats(0)
   merged.SetAxisRange(-1., 1., "Y")
   
   global last
-  last = Convergence(func, param, granularity, superset, tfile, None, merged, histograms, selected)
+  last = Convergence(func, hist, granularity, superset, tfile, None, merged, histograms, selected)
   return last
 
 textToFunc = {"All": (lambda c: True), \
