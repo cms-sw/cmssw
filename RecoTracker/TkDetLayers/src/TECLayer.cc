@@ -261,8 +261,8 @@ bool TECLayer::overlap( const GlobalPoint& gpos, const GeometricSearchDet& gsdet
 {
   const TECPetal& petal = dynamic_cast<const TECPetal&>(gsdet);
   pair<float,float> phiRange(gpos.phi()-phiWin,gpos.phi()+phiWin);
-  pair<float,float> petalPhiRange(petal.position().phi() - petal.specificSurface().phiExtension()/2.,
-				  petal.position().phi() + petal.specificSurface().phiExtension()/2.);
+  pair<float,float> petalPhiRange(petal.surface().phi() - 0.5*petal.specificSurface().phiExtension(),
+				  petal.surface().phi() + 0.5*petal.specificSurface().phiExtension());
 
 
   if ( rangesIntersect(phiRange, petalPhiRange, PhiLess())) {
@@ -303,8 +303,6 @@ TECLayer::computeDisk( vector<const GeometricSearchDet*>& petals) const
   return new BoundDisk( pos, rot,SimpleDiskBounds(rmin, rmax,    
 						  theZmin-zPos, theZmax-zPos));
 }
-
-
 
 
 float 
