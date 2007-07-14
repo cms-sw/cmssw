@@ -49,7 +49,7 @@ SimpleTECWedge::compatible( const TrajectoryStateOnSurface& tsos,
 
 
 void
-SimpleTECWedge::::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
+SimpleTECWedge::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 					  const Propagator& prop,
 					   const MeasurementEstimator& est,
 					   std::vector<DetGroup> & result) const{

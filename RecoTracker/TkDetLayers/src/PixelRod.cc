@@ -48,6 +48,7 @@ PixelRod::compatible( const TrajectoryStateOnSurface& ts, const Propagator&,
   return pair<bool,TrajectoryStateOnSurface>();
 }
 
+void
 PixelRod::compatibleDetsV( const TrajectoryStateOnSurface& startingState,
 			  const Propagator& prop, 
 			  const MeasurementEstimator& est,
@@ -55,10 +56,9 @@ PixelRod::compatibleDetsV( const TrajectoryStateOnSurface& startingState,
 {  
   typedef MeasurementEstimator::Local2DVector Local2DVector;
   TrajectoryStateOnSurface ts = prop.propagate( startingState, specificSurface());
-  if (!ts.isValid()) return vector<DetWithState>();  
+  if (!ts.isValid()) return;  
 
   GlobalPoint startPos = ts.globalPosition();
-
 
   int closest = theBinFinder.binIndex(startPos.z());
   pair<bool,TrajectoryStateOnSurface> closestCompat = 
