@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct 16 23:19:38 EDT 2006
-// $Id: L1ExtraParticleMapProd.cc,v 1.23 2007/06/16 16:50:08 wsun Exp $
+// $Id: L1ExtraParticleMapProd.cc,v 1.24 2007/07/04 16:23:23 wsun Exp $
 //
 //
 
@@ -665,6 +665,28 @@ L1ExtraParticleMapProd::L1ExtraParticleMapProd(
    prescales_[ L1ParticleMap::kQuadJet30 ] =
       iConfig.getParameter< int >( "L1_QuadJet30_prescale" ) ;
 
+   // Diffractive triggers
+   singleThresholds_[ L1ParticleMap::kExclusiveDoubleIsoEG6 ] =
+        iConfig.getParameter< double >( "L1_ExclusiveDoubleIsoEG6_thresh" ); 
+   prescales_[ L1ParticleMap::kExclusiveDoubleIsoEG6 ] =
+      iConfig.getParameter< int >( "L1_ExclusiveDoubleIsoEG6_prescale" ) ;
+   singleThresholds_[ L1ParticleMap::kExclusiveDoubleJet10 ] =
+        iConfig.getParameter< double >( "L1_ExclusiveDoubleJet10_thresh"  ); 
+   prescales_[ L1ParticleMap::kExclusiveDoubleJet10 ] =
+      iConfig.getParameter< int >( "L1_ExclusiveDoubleJet10_prescale" ) ;
+   singleThresholds_[ L1ParticleMap::kExclusiveJet20_Gap_Jet20 ] =
+        iConfig.getParameter< double >( "L1_ExclusiveJet20_Gap_Jet20_thresh" );
+   prescales_[ L1ParticleMap::kExclusiveJet20_Gap_Jet20 ] =
+      iConfig.getParameter< int >( "L1_ExclusiveJet20_Gap_Jet20_prescale" ) ;
+   doubleThresholds_[ L1ParticleMap::kIsoEG15_Jet20_ForJet10 ].first =
+      iConfig.getParameter< double >( "L1_IsoEG15_Jet20_ForJet10_thresh1" ) ;
+   doubleThresholds_[ L1ParticleMap::kIsoEG15_Jet20_ForJet10 ].second =
+      iConfig.getParameter< double >( "L1_IsoEG15_Jet20_ForJet10_thresh2" ) ;
+   singleThresholds_[ L1ParticleMap::kIsoEG15_Jet20_ForJet10 ] =
+      iConfig.getParameter< double >( "L1_IsoEG15_Jet20_ForJet10_thresh3" ) ;
+   prescales_[ L1ParticleMap::kIsoEG15_Jet20_ForJet10 ] =
+      iConfig.getParameter< int >( "L1_IsoEG15_Jet20_ForJet10_prescale" ) ;
+
    prescales_[ L1ParticleMap::kMinBias_HTT10 ] =
       iConfig.getParameter< int >( "L1_MinBias_HTT10_prescale" ) ;
    prescales_[ L1ParticleMap::kZeroBias ] =
@@ -688,6 +710,12 @@ L1ExtraParticleMapProd::L1ExtraParticleMapProd(
 
 //       if( singleThresholds_[ i ] > 0 )
 //       {
+// 	 if( doubleThresholds_[ i ].first > 0 )
+// 	 {
+// 	    std::cout << doubleThresholds_[ i ].first << ", "
+// 		      << doubleThresholds_[ i ].second << ", " ;
+// 	 }
+
 // 	 std::cout << singleThresholds_[ i ] ;
 //       }
 //       else if( doubleThresholds_[ i ].first > 0 )
@@ -777,6 +805,9 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
    addToVectorRefs( forJetHandle, inputJetRefs ) ;
    addToVectorRefs( cenJetHandle, inputJetRefs ) ;
    addToVectorRefs( tauJetHandle, inputJetRefs ) ;
+
+   L1JetParticleVectorRef inputForJetRefs ;
+   addToVectorRefs( forJetHandle, inputForJetRefs ) ;
 
    L1MuonParticleVectorRef inputMuonRefsSingle ;
    L1MuonParticleVectorRef inputMuonRefsDouble ;
@@ -1691,6 +1722,64 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 					outputJetRefsTmp,
 					combosTmp ) ;
       }
+      else if( itrig == L1ParticleMap::kExclusiveDoubleIsoEG6 )
+      {
+	 objectTypes.push_back( L1ParticleMap::kEM ) ;
+         objectTypes.push_back( L1ParticleMap::kEM ) ;
+
+         if( inputJetRefs.size() == 2 ) 
+         {
+	    evaluateDoubleSameObjectTrigger( inputIsoEmRefs,
+					     singleThresholds_[ itrig ],
+					     decision,
+					     outputEmRefsTmp,
+					     combosTmp ) ;
+         }
+      }
+      else if( itrig == L1ParticleMap::kExclusiveDoubleJet10 )
+      {
+         objectTypes.push_back( L1ParticleMap::kJet ) ;
+         objectTypes.push_back( L1ParticleMap::kJet ) ;
+
+	 if( inputJetRefs.size() == 2 )
+	 {
+	    evaluateDoubleSameObjectTrigger( inputJetRefs,
+					     singleThresholds_[ itrig ],
+					     decision,
+					     outputJetRefsTmp,
+					     combosTmp ) ;
+	 }
+      }
+      else if( itrig == L1ParticleMap::kExclusiveJet20_Gap_Jet20 )
+      {
+         objectTypes.push_back( L1ParticleMap::kJet ) ;
+         objectTypes.push_back( L1ParticleMap::kJet ) ;
+
+         if( inputJetRefs.size() == 2 )
+         {
+	    evaluateJetGapJetTrigger( inputForJetRefs,  
+				      singleThresholds_[ itrig ],
+				      decision,
+				      outputJetRefsTmp,
+				      combosTmp ) ;
+         }
+      }
+      else if( itrig == L1ParticleMap::kIsoEG15_Jet20_ForJet10  )
+      {
+         objectTypes.push_back( L1ParticleMap::kEM ) ;
+         objectTypes.push_back( L1ParticleMap::kJet ) ;
+
+         evaluateDoubleObjectPlusForwardRapidityGapTrigger(
+            inputIsoEmRefs,
+            inputJetRefs,
+            doubleThresholds_[ itrig ].first,
+            doubleThresholds_[ itrig ].second,
+            singleThresholds_[ itrig ],
+            decision,
+            outputEmRefsTmp,
+            outputJetRefsTmp,
+            combosTmp ) ;
+      }
       else if( itrig == L1ParticleMap::kMinBias_HTT10 )
       {
 	 objectTypes.push_back( L1ParticleMap::kEtTotal ) ;
@@ -2363,6 +2452,191 @@ L1ExtraParticleMapProd::evaluateDoubleDifferentCaloObjectTrigger(
    }
 }
 
+// ok if both objects are above the threshold and are in opposite hemispheres
+void L1ExtraParticleMapProd::evaluateJetGapJetTrigger(
+   const l1extra::L1JetParticleVectorRef& inputRefs,        // input
+   const double& etThreshold,                               // input
+   bool& decision,                                          // output
+   l1extra::L1JetParticleVectorRef& outputRefs,             // output
+   l1extra::L1ParticleMap::L1IndexComboVector& combos )     // output
+{
+   // Use i+1 < inputRefs.size() instead of i < inputRefs.size()-1
+   // because i is unsigned, and if size() is 0, then RHS undefined.
+   for( size_t i = 0 ; i+1 < inputRefs.size() ; ++i )
+   {
+      const l1extra::L1JetParticleRef& refi = inputRefs[ i ] ;
+      if( refi.get()->et() >= etThreshold )
+      {
+         for( size_t j = i+1 ; j < inputRefs.size() ; ++j )
+         {
+            const l1extra::L1JetParticleRef& refj = inputRefs[ j ] ;
+            if( ( refj.get()->et() >= etThreshold ) &&
+                ( ( ( refi.get()->eta() < 0. ) && ( refj.get()->eta() > 0. ) )
+		  ||
+		  ( ( refi.get()->eta() > 0. ) && ( refj.get()->eta() < 0. ) )
+		  )
+		)
+            {
+               decision = true ;
+
+               // If the two objects are already in the list, find
+               // their indices.
+               int iInList = kDefault ;
+               int jInList = kDefault ;
+               for( size_t iout = 0 ; iout < outputRefs.size() ; ++iout )
+               {
+                  if( refi == outputRefs[ iout ] )
+                  {
+                     iInList = iout ;
+                  }
+
+                  if( refj == outputRefs[ iout ] )
+                  {
+                     jInList = iout ;
+                  }
+               }
+
+               // If either object is not in the list, add it, and
+               // record its index.
+               if( iInList == kDefault )
+               {
+                  iInList = outputRefs.size() ;
+                  outputRefs.push_back( refi ) ;
+               }
+
+               if( jInList == kDefault )
+               {
+                  jInList = outputRefs.size() ;
+                  outputRefs.push_back( refj ) ;
+               }
+
+               // Record this object combination.
+               l1extra::L1ParticleMap::L1IndexCombo combo ;
+               combo.push_back( iInList ) ;
+               combo.push_back( jInList ) ;
+               combos.push_back( combo ) ;
+            }
+         }
+      }
+   }
+}
+
+
+// veto if both forward regions see some jet with e_T > threshold
+void
+L1ExtraParticleMapProd::evaluateForwardRapidityGap(
+   const l1extra::L1JetParticleVectorRef& inputRefs,        // input
+   const double& etThreshold,                               // input
+   bool& decision                                           // output
+   )
+{
+   decision = true;
+
+   // search for forward pair
+   for( size_t k = 0 ; k+1 < inputRefs.size() ; ++k )
+   {
+      const l1extra::L1JetParticleRef& refk = inputRefs[ k ] ;
+      double etak = refk.get()->eta();
+      if( ( refk.get()->type() == l1extra::L1JetParticle::kForward ) &&
+          ( refk.get()->et()   >= etThreshold ) )
+      {
+          for( size_t l = k+1 ; l < inputRefs.size() ; ++l )
+          {
+             const l1extra::L1JetParticleRef& refl = inputRefs[ l ] ;
+             double etal = refl.get()->eta();
+             if( (refl.get()->type()==l1extra::L1JetParticle::kForward) &&
+                 (refl.get()->et()  >= etThreshold    ) &&
+                 ((etak>0 && etal<0) || (etak<0 && etal>0))    )
+             {
+                 decision = false ;
+                 return ;// no need for going further -- for a faster algorithm
+             }
+          }
+      }
+   }
+}
+
+template< class TCollection1, class TCollection2 >
+void
+L1ExtraParticleMapProd::evaluateDoubleObjectPlusForwardRapidityGapTrigger(
+   const std::vector< edm::Ref< TCollection1 > >& inputRefs1, // input
+   const std::vector< edm::Ref< TCollection2 > >& inputRefs2, // input
+   const double& etThreshold1,                                // input
+   const double& etThreshold2,                                // input
+   const double& etThreshold3,                                // input
+   bool& decision,                                            // output
+   std::vector< edm::Ref< TCollection1 > >& outputRefs1,      // output
+   std::vector< edm::Ref< TCollection2 > >& outputRefs2,      // output
+   l1extra::L1ParticleMap::L1IndexComboVector& combos )       // output
+{
+   
+   for( size_t i = 0 ; i < inputRefs1.size() ; ++i )
+   {
+      decision = false;
+      const edm::Ref< TCollection1 >& refi = inputRefs1[ i ] ;
+      if( refi.get()->et() >= etThreshold1 )
+      {
+         for( size_t j = 0 ; j < inputRefs2.size() ; ++j )
+         {
+            const edm::Ref< TCollection2 >& refj = inputRefs2[ j ] ;
+
+            if( refj.get()->et() >= etThreshold2 )
+            {
+
+               // first conditions are ok
+               decision = true ;
+               // veto if 1 jets (with e_t(jet)>threshold2)
+	       // in each forward region, i.e. no rapidity gap
+               evaluateForwardRapidityGap( inputRefs2,
+					   etThreshold3,
+					   decision ) ;
+
+               if( decision )
+               {
+                  // If the two objects are already in their respective lists,
+                  // find their indices.
+                  int iInList = kDefault ;
+                  for( size_t iout = 0 ; iout < outputRefs1.size() ; ++iout )
+                  {
+                     if( refi == outputRefs1[ iout ] )
+                     {
+                        iInList = iout ;
+                     }
+                  }
+                  int jInList = kDefault ;
+                  for( size_t jout = 0 ; jout < outputRefs2.size() ; ++jout )
+                  {
+                     if( refj == outputRefs2[ jout ] )
+                     {
+                        jInList = jout ;
+                     }
+                  }
+
+                  // If either object is not in the list, add it, and
+                  // record its index.
+                  if( iInList == kDefault )
+                  {
+                     iInList = outputRefs1.size() ;
+                     outputRefs1.push_back( refi ) ;
+                  }
+
+                  if( jInList == kDefault )
+                  {
+                     jInList = outputRefs2.size() ;
+                     outputRefs2.push_back( refj ) ;
+                  }
+
+                  // Record this object combination.
+                  l1extra::L1ParticleMap::L1IndexCombo combo ;
+                  combo.push_back( iInList ) ;
+                  combo.push_back( jInList ) ;
+                  combos.push_back( combo ) ;
+               } 
+            }
+         }
+      }
+   }
+}
 
 
 //define this as a plug-in
