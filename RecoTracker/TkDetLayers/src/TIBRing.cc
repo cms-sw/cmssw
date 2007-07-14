@@ -156,7 +156,7 @@ TIBRing::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
   float detWidth = closestGel.det()->surface().bounds().width();
   if (crossings.nextDistance < detWidth + window) {
     vector<DetGroup> nextResult;
-    if (adder.add( *theDets[theBinFinder.binIndex(crossings.nextIndex)], 
+    if (Adder::add( *theDets[theBinFinder.binIndex(crossings.nextIndex)], 
 		   tsos, prop, est, nextResult)) {
       int crossingSide = LayerCrossingSide().barrelSide( tsos, prop);
       if (crossings.closestIndex < crossings.nextIndex) {
