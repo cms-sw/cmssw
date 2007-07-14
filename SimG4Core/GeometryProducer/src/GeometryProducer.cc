@@ -97,11 +97,9 @@ void GeometryProducer::beginJob(const edm::EventSetup & es)
 	std::cout << "B-field(T) at (0,0,0)(cm): " << pMF->inTesla(g) << std::endl;
 
 	m_fieldBuilder = std::auto_ptr<sim::FieldBuilder>
-	  (new sim::FieldBuilder(&(*pMF), map_, m_pField));
-	G4TransportationManager * tM = 
-	    G4TransportationManager::GetTransportationManager();
-	m_fieldBuilder->configure
-	    ("MagneticFieldType",tM->GetFieldManager(),tM->GetPropagatorInField());
+	  (new sim::FieldBuilder(&(*pMF), m_pField));
+	// G4TransportationManager * tM = G4TransportationManager::GetTransportationManager();
+	// m_fieldBuilder->configure("MagneticFieldType",tM->GetFieldManager(),tM->GetPropagatorInField());
     }
 
     if (m_pUseSensitiveDetectors)
