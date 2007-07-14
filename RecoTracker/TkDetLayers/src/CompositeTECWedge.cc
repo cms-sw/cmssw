@@ -15,6 +15,7 @@
 
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
+#include "RecoTracker/TkDetLayers/src/interface/TkDetUtil.h"
 
 using namespace std;
 
@@ -112,7 +113,7 @@ CompositeTECWedge::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
   if (closestResult.empty()) return;
   
   DetGroupElement closestGel( closestResult.front().front());
-  float window = computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est);
+  float window = tkDetUtil::computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est);
 
   searchNeighbors( tsos, prop, est, crossings.closest(), window,
 		   closestResult, false);
@@ -253,43 +254,6 @@ bool CompositeTECWedge::overlap( const GlobalPoint& crossPoint, const GeomDet& d
   return false;
 }
  
-float CompositeTECWedge::computeWindowSize( const GeomDet* det, 
-					    const TrajectoryStateOnSurface& tsos, 
-					    const MeasurementEstimator& est) const
-{
-  const BoundPlane& plane = det->surface();
-  MeasurementEstimator::Local2DVector maxDistance = 
-    est.maximalLocalDisplacement(tsos, plane);
-  return calculatePhiWindow( maxDistance, tsos, plane);
-}
-
-
-float 
-CompositeTECWedge::calculatePhiWindow( const MeasurementEstimator::Local2DVector& maxDistance, 
-				       const TrajectoryStateOnSurface& ts, 
-				       const BoundPlane& plane) const
-{
-
-  LocalPoint start = ts.localPosition();
-  GlobalPoint corners[]  =  { plane.toGlobal(LocalPoint( start.x()+maxDistance.x(), start.y()+maxDistance.y() )),
-                              plane.toGlobal(LocalPoint( start.x()-maxDistance.x(), start.y()+maxDistance.y() )),
-                              plane.toGlobal(LocalPoint( start.x()-maxDistance.x(), start.y()-maxDistance.y() )),
-                              plane.toGlobal(LocalPoint( start.x()+maxDistance.x(), start.y()-maxDistance.y() )) 
-                            };
-  
-  float phimin = corners[0].phi();
-  float phimax = phimin;
-  for ( int i = 1; i<4; i++) {
-    float cPhi = corners[i].phi();
-    if ( PhiLess()( cPhi, phimin)) { phimin = cPhi; }
-    if ( PhiLess()( phimax, cPhi)) { phimax = cPhi; }
-  }
-  float phiWindow = phimax - phimin;
-  if ( phiWindow < 0.) { phiWindow +=  2.*Geom::pi();}
-
-  return phiWindow;
-}
-
 
 
 pair<float, float>

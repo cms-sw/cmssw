@@ -3,16 +3,21 @@
 
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 
-
+class GeomDet;
 class BoundPlane;
 class TrajectoryStateOnSurface;
 
-namespace tkUtil {
+namespace tkDetUtil {
 
-float 
-calculatePhiWindow( const MeasurementEstimator::Local2DVector& maxDistance, 
-		    const TrajectoryStateOnSurface& ts, 
-		    const BoundPlane& plane) const;
+  float computeWindowSize( const GeomDet* det, 
+				   const TrajectoryStateOnSurface& tsos, 
+				   const MeasurementEstimator& est) const;
+
+
+  float 
+  calculatePhiWindow( const MeasurementEstimator::Local2DVector& maxDistance, 
+		      const TrajectoryStateOnSurface& ts, 
+		      const BoundPlane& plane);
 
 
 }

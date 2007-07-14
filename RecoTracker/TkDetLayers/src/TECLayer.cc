@@ -11,6 +11,8 @@
 #include "TrackingTools/GeomPropagators/interface/HelixForwardPlaneCrossing.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
+#include "RecoTracker/TkDetLayers/src/interface/TkDetUtil.h"
+
 
 using namespace std;
 
@@ -114,7 +116,7 @@ TECLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
   }  
   else {
     DetGroupElement closestGel( closestResult.front().front());  
-    float phiWindow = computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est); 
+    float phiWindow = tkDetUtil::computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est); 
     searchNeighbors( tsos, prop, est, crossings.closest(), phiWindow,
 		     closestResult, false); 
     vector<DetGroup> nextResult;  
@@ -149,7 +151,7 @@ SubLayerCrossings TECLayer::computeCrossings(const TrajectoryStateOnSurface& sta
   
 
   int frontIndex = theFrontBinFinder.binIndex(gFrontPoint.phi());
-  float frontDist = theFrontComps[frontIndex]->position().phi()  - gFrontPoint.phi(); 
+  float frontDist = theFrontComps[frontIndex]->surface().phi()  - gFrontPoint.phi(); 
   SubLayerCrossing frontSLC( 0, frontIndex, gFrontPoint);
 
 
@@ -167,13 +169,13 @@ SubLayerCrossings TECLayer::computeCrossings(const TrajectoryStateOnSurface& sta
 
 
   int backIndex = theBackBinFinder.binIndex(gBackPoint.phi());
-  float backDist = theBackComps[backIndex]->position().phi()  - gBackPoint.phi(); 
+  float backDist = theBackComps[backIndex]->surface().phi()  - gBackPoint.phi(); 
   SubLayerCrossing backSLC( 1, backIndex, gBackPoint);
 
   
   // 0ss: frontDisk has index=0, backDisk has index=1
-  frontDist *= PhiLess()( theFrontComps[frontIndex]->position().phi(),gFrontPoint.phi()) ? -1. : 1.; 
-  backDist  *= PhiLess()( theBackComps[backIndex]->position().phi(),gBackPoint.phi()) ? -1. : 1.;
+  frontDist *= PhiLess()( theFrontComps[frontIndex]->surface().phi(),gFrontPoint.phi()) ? -1. : 1.; 
+  backDist  *= PhiLess()( theBackComps[backIndex]->surface().phi(),gBackPoint.phi()) ? -1. : 1.;
   if (frontDist < 0.) { frontDist += 2.*Geom::pi();}
   if ( backDist < 0.) { backDist  += 2.*Geom::pi();}
 
@@ -246,17 +248,6 @@ void TECLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
   }
 }
 
-float TECLayer::computeWindowSize( const GeomDet* det, 
-				   const TrajectoryStateOnSurface& tsos, 
-				   const MeasurementEstimator& est) const
-{
-  const BoundPlane& startPlane = det->surface();  
-  MeasurementEstimator::Local2DVector maxDistance = 
-    est.maximalLocalDisplacement( tsos, startPlane);
-  return calculatePhiWindow( maxDistance, tsos, startPlane);
-}
-
-
 bool TECLayer::overlap( const GlobalPoint& gpos, const GeometricSearchDet& gsdet, float phiWin) const
 {
   const TECPetal& petal = dynamic_cast<const TECPetal&>(gsdet);
@@ -304,32 +295,3 @@ TECLayer::computeDisk( vector<const GeometricSearchDet*>& petals) const
 						  theZmin-zPos, theZmax-zPos));
 }
 
-
-float 
-TECLayer::calculatePhiWindow( const MeasurementEstimator::Local2DVector& maxDistance, 
-			      const TrajectoryStateOnSurface& ts, 
-			      const BoundPlane& plane) const
-{
-  vector<GlobalPoint> corners(4);
-  vector<LocalPoint> lcorners(4);
-  LocalPoint start = ts.localPosition();
-  lcorners[0] = LocalPoint( start.x()+maxDistance.x(), start.y()+maxDistance.y());  
-  lcorners[1] = LocalPoint( start.x()-maxDistance.x(), start.y()+maxDistance.y());
-  lcorners[2] = LocalPoint( start.x()-maxDistance.x(), start.y()-maxDistance.y());
-  lcorners[3] = LocalPoint( start.x()+maxDistance.x(), start.y()-maxDistance.y());
-  
-  for( int i = 0; i<4; i++) {
-    corners[i] = plane.toGlobal( lcorners[i]);
-  }
-  float phimin = corners[0].phi();
-  float phimax = phimin;
-  for ( int i = 1; i<4; i++) {
-    float cPhi = corners[i].phi();
-    if ( PhiLess()( cPhi, phimin)) { phimin = cPhi; }
-    if ( PhiLess()( phimax, cPhi)) { phimax = cPhi; }
-  }
-  float phiWindow = phimax - phimin;
-  if ( phiWindow < 0.) { phiWindow +=  2.*Geom::pi();}
-
-  return phiWindow;
-}

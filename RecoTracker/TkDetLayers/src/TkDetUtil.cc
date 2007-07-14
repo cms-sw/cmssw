@@ -1,12 +1,25 @@
 #include "RecoTracker/TkDetLayers/src/interface/TkDetUtil.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 
-namespace tkUtil {
+namespace tkDetUtil {
+
+  float computeWindowSize( const GeomDet* det, 
+			   const TrajectoryStateOnSurface& tsos, 
+			   const MeasurementEstimator& est) const
+  {
+    const BoundPlane& startPlane = det->surface();  
+    MeasurementEstimator::Local2DVector maxDistance = 
+      est.maximalLocalDisplacement( tsos, startPlane);
+    return calculatePhiWindow( maxDistance, tsos, startPlane);
+  }
+
+
 
   float 
   calculatePhiWindow( const MeasurementEstimator::Local2DVector& maxDistance, 
