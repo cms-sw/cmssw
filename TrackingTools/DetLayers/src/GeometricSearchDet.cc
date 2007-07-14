@@ -1,6 +1,6 @@
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
 
-std::vector<DetWithState> 
+std::vector<GeometricSearchDet::DetWithState> 
 GeometricSearchDet::compatibleDets( const TrajectoryStateOnSurface& startingState,
 				    const Propagator& prop, 
 				    const MeasurementEstimator& est) const {
