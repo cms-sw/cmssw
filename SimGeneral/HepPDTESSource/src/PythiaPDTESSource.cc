@@ -78,7 +78,6 @@ bool PythiaPDTESSource::cmsaddPythiaParticles( std::istream & pdfile, HepPDT::Ta
       }
     }
   }
-  std::cout << "found " << tb.size() << " particles" << std::endl;
   return true;
 }
 //define this as a plug-in
