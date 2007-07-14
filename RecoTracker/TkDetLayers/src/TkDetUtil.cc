@@ -1,4 +1,4 @@
-#include "RecoTracker/TkDetLayers/src/interface/TkDetUtil.h"
+#include "RecoTracker/TkDetLayers/interface/TkDetUtil.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -28,16 +28,16 @@ namespace tkDetUtil {
   {
     
     LocalPoint start = ts.localPosition();
-    GlobalPoint corners[]  =  { plane.toGlobal(LocalPoint( start.x()+maxDistance.x(), start.y()+maxDistance.y() )),
-				plane.toGlobal(LocalPoint( start.x()-maxDistance.x(), start.y()+maxDistance.y() )),
-				plane.toGlobal(LocalPoint( start.x()-maxDistance.x(), start.y()-maxDistance.y() )),
-				plane.toGlobal(LocalPoint( start.x()+maxDistance.x(), start.y()-maxDistance.y() )) 
+    float corners[]  =  { plane.toGlobal(LocalPoint( start.x()+maxDistance.x(), start.y()+maxDistance.y() )).barePhi(),
+			  plane.toGlobal(LocalPoint( start.x()-maxDistance.x(), start.y()+maxDistance.y() )).barePhi(),
+			  plane.toGlobal(LocalPoint( start.x()-maxDistance.x(), start.y()-maxDistance.y() )).barePhi(),
+			  plane.toGlobal(LocalPoint( start.x()+maxDistance.x(), start.y()-maxDistance.y() )).barePhi() 
     };
     
-    float phimin = corners[0].phi();
+    float phimin = corners[0];
     float phimax = phimin;
     for ( int i = 1; i<4; i++) {
-      float cPhi = corners[i].phi();
+      float cPhi = corners[i];
       if ( PhiLess()( cPhi, phimin)) { phimin = cPhi; }
       if ( PhiLess()( phimax, cPhi)) { phimax = cPhi; }
     }
