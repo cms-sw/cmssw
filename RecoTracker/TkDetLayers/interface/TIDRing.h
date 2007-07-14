@@ -23,6 +23,10 @@ class TIDRing : public GeometricSearchDetWithGroups{
   
   virtual const std::vector<const GeometricSearchDet*>& components() const;
 
+  virtual pair<bool, TrajectoryStateOnSurface>
+  TIDRing::compatible( const TrajectoryStateOnSurface&, const Propagator&, 
+		       const MeasurementEstimator&) const;
+
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,
 			       const MeasurementEstimator& est,
