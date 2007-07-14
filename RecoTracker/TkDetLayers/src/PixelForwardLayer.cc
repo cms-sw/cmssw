@@ -69,33 +69,8 @@ PixelForwardLayer::~PixelForwardLayer(){
   }
 } 
 
-  
-
-vector<DetWithState> 
-PixelForwardLayer::compatibleDets( const TrajectoryStateOnSurface& startingState,
-				   const Propagator& prop, 
-				   const MeasurementEstimator& est) const{
-
-  // standard implementation of compatibleDets() for class which have 
-  // groupedCompatibleDets implemented.
-  // This code should be moved in a common place intead of being 
-  // copied many times.
-  
-  vector<DetWithState> result;  
-  vector<DetGroup> vectorGroups = groupedCompatibleDets(startingState,prop,est);
-  for(vector<DetGroup>::const_iterator itDG=vectorGroups.begin();
-      itDG!=vectorGroups.end();itDG++){
-    for(vector<DetGroupElement>::const_iterator itDGE=itDG->begin();
-	itDGE!=itDG->end();itDGE++){
-      result.push_back(DetWithState(itDGE->det(),itDGE->trajectoryState()));
-    }
-  }
-  return result;  
-}
-
-
 void
-PixelForwardLayer::::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
+PixelForwardLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 					  const Propagator& prop,
 					   const MeasurementEstimator& est,
 					   std::vector<DetGroup> & result) const {
@@ -167,7 +142,7 @@ PixelForwardLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
   int quarter = theComps.size()/4;
  
   vector<DetGroup> tmp;
-  vector<DetGroup>& newResult;
+  vector<DetGroup> newResult;
   for (int idet=negStart; idet >= negStart - quarter+1; idet--) {
     tmp.clear();
     newResult.clear();

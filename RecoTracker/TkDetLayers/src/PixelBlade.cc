@@ -74,23 +74,23 @@ PixelBlade::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 					  const Propagator& prop,
 					   const MeasurementEstimator& est,
 					   std::vector<DetGroup> & result) const{
-  vector<DetGroup> closestResult;
-  SubLayerCrossings  crossings; 
+ SubLayerCrossings  crossings; 
   crossings = computeCrossings( tsos, prop.propagationDirection());
-  if(! crossings.isValid()) return closestResult;
+  if(! crossings.isValid()) return;
 
+  vector<DetGroup> closestResult;
   addClosest( tsos, prop, est, crossings.closest(), closestResult);
 
   if (closestResult.empty()){
     vector<DetGroup> nextResult;
     addClosest( tsos, prop, est, crossings.other(), nextResult);
-    if(nextResult.empty())    return nextResult;
-
+    if(nextResult.empty())    return;
+    
     DetGroupElement nextGel( nextResult.front().front());  
     int crossingSide = LayerCrossingSide().barrelSide( nextGel.trajectoryState(), prop);
-    DetGroupMerger merger;
-    return  merger.orderAndMergeTwoLevels( closestResult, nextResult, 
-					   crossings.closestIndex(), crossingSide);   
+
+    DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result,
+					    crossings.closestIndex(), crossingSide);   
   }
   
   DetGroupElement closestGel( closestResult.front().front());
@@ -104,10 +104,8 @@ PixelBlade::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 		   nextResult, true);
 
   int crossingSide = LayerCrossingSide().barrelSide( closestGel.trajectoryState(), prop);
-  DetGroupMerger merger;
-  return merger.orderAndMergeTwoLevels( closestResult, nextResult, 
-					crossings.closestIndex(), crossingSide);
-
+  DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result,
+					  crossings.closestIndex(), crossingSide);
 }
 
 
@@ -204,14 +202,14 @@ void PixelBlade::searchNeighbors( const TrajectoryStateOnSurface& tsos,
     }
   }
 
-  CompatibleDetToGroupAdder adder;
+  typedef CompatibleDetToGroupAdder Adder;
   for (int idet=negStartIndex; idet >= 0; idet--) {
     if (!overlap( gCrossingPos, *sBlade[idet], window)) break;
-    if (!adder.add( *sBlade[idet], tsos, prop, est, result)) break;
+    if (!Adder::add( *sBlade[idet], tsos, prop, est, result)) break;
   }
   for (int idet=posStartIndex; idet < static_cast<int>(sBlade.size()); idet++) {
     if (!overlap( gCrossingPos, *sBlade[idet], window)) break;
-    if (!adder.add( *sBlade[idet], tsos, prop, est, result)) break;
+    if (!Adder::add( *sBlade[idet], tsos, prop, est, result)) break;
   }
 }
 

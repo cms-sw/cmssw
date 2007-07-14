@@ -26,7 +26,7 @@ class PixelBlade : public GeometricSearchDetWithGroups {
 
   virtual const std::vector<const GeometricSearchDet*>& components() const;
 
-  pair<bool, TrajectoryStateOnSurface>
+  std::pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
 	      const MeasurementEstimator&) const;
   
