@@ -48,11 +48,10 @@ PixelRod::compatible( const TrajectoryStateOnSurface& ts, const Propagator&,
   return pair<bool,TrajectoryStateOnSurface>();
 }
 
-
-vector<DetWithState> 
-PixelRod::compatibleDets( const TrajectoryStateOnSurface& startingState,
+PixelRod::compatibleDetsV( const TrajectoryStateOnSurface& startingState,
 			  const Propagator& prop, 
-			  const MeasurementEstimator& est) const
+			  const MeasurementEstimator& est,
+			  std::vector<DetWithState> & result ) const
 {  
   typedef MeasurementEstimator::Local2DVector Local2DVector;
   TrajectoryStateOnSurface ts = prop.propagate( startingState, specificSurface());
@@ -60,7 +59,6 @@ PixelRod::compatibleDets( const TrajectoryStateOnSurface& startingState,
 
   GlobalPoint startPos = ts.globalPosition();
 
-  vector<DetWithState> result;
 
   int closest = theBinFinder.binIndex(startPos.z());
   pair<bool,TrajectoryStateOnSurface> closestCompat = 
@@ -69,7 +67,7 @@ PixelRod::compatibleDets( const TrajectoryStateOnSurface& startingState,
   if ( closestCompat.first) {
     result.push_back( DetWithState( theDets[closest], closestCompat.second));
   }else{
-    if(!closestCompat.second.isValid()) return result;  // to investigate why this happens
+    if(!closestCompat.second.isValid()) return;  // to investigate why this happens
   }
 
   const BoundPlane& closestPlane( theDets[closest]->specificSurface() );
@@ -97,18 +95,16 @@ PixelRod::compatibleDets( const TrajectoryStateOnSurface& startingState,
       break;
     }
   }
-
-  return result;
 }
 
 
-vector<DetGroup> 
-PixelRod::groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
-				 const Propagator& prop,
-				 const MeasurementEstimator& est) const
+void
+PixelRod::groupedCompatibleDetsV( const TrajectoryStateOnSurface&,
+				 const Propagator&,
+				 const MeasurementEstimator&,
+				 std::vector<DetGroup> &) const
 {
   LogDebug("TkDetLayers") << "dummy implementation of PixelRod::groupedCompatibleDets()" ;
-  return vector<DetGroup>();
 }
 
 

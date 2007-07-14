@@ -23,15 +23,17 @@ class PixelRod : public DetRodOneR{
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
 	      const MeasurementEstimator&) const;
 
-  virtual std::vector<DetWithState> 
-  compatibleDets( const TrajectoryStateOnSurface& startingState,
+  virtual void
+  compatibleDetsV( const TrajectoryStateOnSurface& startingState,
 		  const Propagator& prop, 
-		  const MeasurementEstimator& est) const;
+		  const MeasurementEstimator& est,
+		  std::vector<DetWithState> & result) const;
 
-  virtual std::vector<DetGroup> 
-  groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
-			 const Propagator& prop,
-			 const MeasurementEstimator& est) const;
+  virtual void  
+  groupedCompatibleDetsV( const TrajectoryStateOnSurface&,
+			 const Propagator&,
+			 const MeasurementEstimator&,
+			 std::vector<DetGroup> &) const;
 
 
   virtual bool hasGroups() const {return false;}
