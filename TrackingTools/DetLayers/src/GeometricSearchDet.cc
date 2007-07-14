@@ -22,16 +22,16 @@ void
 GeometricSearchDetWithGroups::compatibleDetsV( const TrajectoryStateOnSurface& startingState,
 					       const Propagator& prop, 
 					       const MeasurementEstimator& est,
-					       vector<DetWithState> &result) const{
+					       std::vector<DetWithState> &result) const{
   
   // standard implementation of compatibleDets() for class which have 
   // groupedCompatibleDets implemented.
   
-  vector<DetGroup> vectorGroups;
+  std::vector<DetGroup> vectorGroups;
   groupedCompatibleDetsV(startingState,prop,est,vectorGroups);
-  for(vector<DetGroup>::const_iterator itDG=vectorGroups.begin();
+  for(std::vector<DetGroup>::const_iterator itDG=vectorGroups.begin();
       itDG!=vectorGroups.end();itDG++){
-    for(vector<DetGroupElement>::const_iterator itDGE=itDG->begin();
+    for(std::vector<DetGroupElement>::const_iterator itDGE=itDG->begin();
 	itDGE!=itDG->end();itDGE++){
       result.push_back(DetWithState(itDGE->det(),itDGE->trajectoryState()));
     }
