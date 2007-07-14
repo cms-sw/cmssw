@@ -123,7 +123,6 @@ MuonCkfTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj
 	    TrajectoryStateOnSurface rescaledCurrentState = currentState;
 	    rescaledCurrentState.rescaleError(theRescaleErrorIfFail);
 	    invalidHits=0;
-	    result.clear();
 	    collectMeasurement(nl,rescaledCurrentState,result,invalidHits,theProximityPropagator);
           }
       }
