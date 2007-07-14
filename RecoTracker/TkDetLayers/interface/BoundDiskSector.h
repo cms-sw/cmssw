@@ -20,9 +20,9 @@ class BoundDiskSector : public BoundPlane {
 		   const Bounds& bounds) : Surface( pos,rot),
     BoundPlane( pos, rot, bounds) {}
   
-  float innerRadius() const { return bound().innerRadius();}
-  float outerRadius() const  { return bound().outerRadius();}
-  float phiExtension() const  { return bound().phiExtension();}
+  float innerRadius() const { return bounds().innerRadius();}
+  float outerRadius() const  { return bounds().outerRadius();}
+  float phiExtension() const  { return bounds().phiExtension();}
 
   // hide
   DiskSectorBounds const & bounds() const {
