@@ -86,39 +86,16 @@ TECLayer::~TECLayer(){
 } 
   
 
-vector<DetWithState> 
-TECLayer::compatibleDets( const TrajectoryStateOnSurface& startingState,
-		      const Propagator& prop, 
-		      const MeasurementEstimator& est) const{
-
-  // standard implementation of compatibleDets() for class which have 
-  // groupedCompatibleDets implemented.
-  // This code should be moved in a common place intead of being 
-  // copied many times.
-  
-  vector<DetWithState> result;  
-  vector<DetGroup> vectorGroups = groupedCompatibleDets(startingState,prop,est);
-  for(vector<DetGroup>::const_iterator itDG=vectorGroups.begin();
-      itDG!=vectorGroups.end();itDG++){
-    for(vector<DetGroupElement>::const_iterator itDGE=itDG->begin();
-	itDGE!=itDG->end();itDGE++){
-      result.push_back(DetWithState(itDGE->det(),itDGE->trajectoryState()));
-    }
-  }
-  return result;  
-}
-
-
-vector<DetGroup> 
-TECLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
-				 const Propagator& prop,
-				 const MeasurementEstimator& est) const
-{
-  vector<DetGroup> closestResult;
+void
+TECLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
+					  const Propagator& prop,
+					   const MeasurementEstimator& est,
+					   std::vector<DetGroup> & result) const {  
   SubLayerCrossings  crossings; 
   crossings = computeCrossings( tsos, prop.propagationDirection());
-  if(! crossings.isValid()) return closestResult;
+  if(! crossings.isValid()) return;
 
+  vector<DetGroup> closestResult;
   addClosest( tsos, prop, est, crossings.closest(), closestResult); 
   LogDebug("TkDetLayers") << "in TECLayer, closestResult.size(): " << closestResult.size();
 
@@ -127,14 +104,13 @@ TECLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
     vector<DetGroup> nextResult;
     addClosest( tsos, prop, est, crossings.other(), nextResult);   
     LogDebug("TkDetLayers") << "in TECLayer, nextResult.size(): " << nextResult.size();
-    if(nextResult.empty())       return nextResult;
+    if(nextResult.empty())       return;
     
 
     DetGroupElement nextGel( nextResult.front().front());  
     int crossingSide = LayerCrossingSide().endcapSide( nextGel.trajectoryState(), prop);
-    DetGroupMerger merger;
-    return  merger.orderAndMergeTwoLevels( closestResult, nextResult, 
-					   crossings.closestIndex(), crossingSide);   
+    DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result, 
+					    crossings.closestIndex(), crossingSide);   
   }  
   
   DetGroupElement closestGel( closestResult.front().front());  
@@ -146,9 +122,8 @@ TECLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
 		   nextResult, true); 
   
   int crossingSide = LayerCrossingSide().endcapSide( closestGel.trajectoryState(), prop);
-  DetGroupMerger merger;
-  return merger.orderAndMergeTwoLevels( closestResult, nextResult, 
-					crossings.closestIndex(), crossingSide);
+  DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result,
+					  crossings.closestIndex(), crossingSide);
 }
 
 
@@ -255,18 +230,18 @@ void TECLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 
   const BinFinderPhi& binFinder = (crossing.subLayerIndex()==0 ? theFrontBinFinder : theBackBinFinder);
 
-  CompatibleDetToGroupAdder adder;
+  typedef CompatibleDetToGroupAdder Adder;
   int half = sLayer.size()/2;  // to check if dets are called twice....
   for (int idet=negStartIndex; idet >= negStartIndex - half; idet--) {
     const GeometricSearchDet* neighborPetal = sLayer[binFinder.binIndex(idet)];
     if (!overlap( gCrossingPos, *neighborPetal, window)) break;
-    if (!adder.add( *neighborPetal, tsos, prop, est, result)) break;
+    if (!Adder::add( *neighborPetal, tsos, prop, est, result)) break;
     // maybe also add shallow crossing angle test here???
   }
   for (int idet=posStartIndex; idet < posStartIndex + half; idet++) {
     const GeometricSearchDet* neighborPetal = sLayer[binFinder.binIndex(idet)];
     if (!overlap( gCrossingPos, *neighborPetal, window)) break;
-    if (!adder.add( *neighborPetal, tsos, prop, est, result)) break;
+    if (!Adder::add( *neighborPetal, tsos, prop, est, result)) break;
     // maybe also add shallow crossing angle test here???
   }
 }

@@ -12,7 +12,7 @@
  *  built out of TECPetals
  */
 
-class TECLayer : public ForwardDetLayer{
+class TECLayer : public ForwardDetLayer , public GeometricSearchDetWithGroups {
  public:
   TECLayer(std::vector<const TECPetal*>& innerPetals,
 	   std::vector<const TECPetal*>& outerPetals);
@@ -24,19 +24,11 @@ class TECLayer : public ForwardDetLayer{
 
   virtual const std::vector<const GeometricSearchDet*>& components() const {return theComps;}
   
-  virtual std::vector<DetWithState> 
-  compatibleDets( const TrajectoryStateOnSurface& startingState,
-		  const Propagator& prop, 
-		  const MeasurementEstimator& est) const;
-
-  virtual std::vector<DetGroup> 
-  groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
-			 const Propagator& prop,
-			 const MeasurementEstimator& est) const;
-
-
-  virtual bool hasGroups() const {return true;}  
-
+  void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
+			       const Propagator& prop,
+			       const MeasurementEstimator& est,
+			       std::vector<DetGroup> & result) const;
+ 
   // DetLayer interface
   virtual SubDetector subDetector() const {return GeomDetEnumerators::TEC;}
   
