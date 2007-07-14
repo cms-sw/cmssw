@@ -9,8 +9,6 @@
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-#include "SealUtil/SealTimer.h"
-
 #include <memory>
 
 
@@ -24,8 +22,6 @@ XMLIdealGeometryESSource::XMLIdealGeometryESSource(const edm::ParameterSet & p):
 
     DDRootDef::instance().set(DDName(rootNodeName_));
 
-    seal::SealTimer txml("XMLIdealGeometryESSource");
-
     int result2 = parser->parse(cf);
 
     if (result2 != 0) throw DDException("DDD-Parser: parsing failed!");
@@ -33,7 +29,6 @@ XMLIdealGeometryESSource::XMLIdealGeometryESSource(const edm::ParameterSet & p):
     if ( !bool(DDLogicalPart( DDName(rootNodeName_) )) ) {
       throw DDException ("XMLIdealGeometryESSource was given a non-existent node name for the root. " + rootNodeName_ );
     }
-    std::cout << rootNodeName_ << std::endl;
     if ( rootNodeName_ == "MagneticFieldVolumes:MAGF" ) {
       setWhatProduced(this, &XMLIdealGeometryESSource::produceMagField, 
 		      edm::es::Label(p.getParameter<std::string>("@module_label")));
