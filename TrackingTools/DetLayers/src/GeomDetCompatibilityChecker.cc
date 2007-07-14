@@ -6,8 +6,7 @@ pair<bool, TrajectoryStateOnSurface>
 GeomDetCompatibilityChecker::isCompatible(const GeomDet* theDet,
 					  const TrajectoryStateOnSurface& tsos,
 					  const Propagator& prop, 
-					  const MeasurementEstimator& est) const
-{
+					  const MeasurementEstimator& est) {
   TrajectoryStateOnSurface propSt = prop.propagate( tsos, theDet->specificSurface());
   if ( propSt.isValid()) {
     if ( est.estimate( propSt, theDet->specificSurface()) ) {

@@ -21,10 +21,10 @@ class GeomDetCompatibilityChecker{
    *  If the propagation fails, or if the state is not compatible,
    *  a std::pair< false, propagatedState> is returned.
    */
-  std::pair<bool, TrajectoryStateOnSurface>  isCompatible(const GeomDet* theDet,
+  static std::pair<bool, TrajectoryStateOnSurface>  isCompatible(const GeomDet* theDet,
 							  const TrajectoryStateOnSurface& ts,
 							  const Propagator& prop, 
-							  const MeasurementEstimator& est) const;  
+							  const MeasurementEstimator& est);  
 };
 
 
