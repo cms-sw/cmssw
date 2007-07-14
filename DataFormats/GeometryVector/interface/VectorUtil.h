@@ -23,12 +23,12 @@ namespace Geom {
   bool phiLess( float phi1, float phi2) {
     float diff = phi2-phi1; 
     if ( diff < 0) diff += 2*M_PI;
-    return diff < pi;
+    return diff < M_PI;
   }
   bool phiLess(double phi1, double phi2) {
     double diff = phi2-phi1; 
     if ( diff < 0) diff += 2*M_PI;
-    return diff < pi;
+    return diff < M_PI;
   }
   template <class Vector1, class Vector2> 
   bool phiLess(const Vector1 & v1, const Vector2 & v2) {
