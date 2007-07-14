@@ -25,10 +25,7 @@ class DetPhiLess {
 public:
   bool operator()(const GeomDet* a,const GeomDet* b) 
   {
-    const float pi = 3.141592653592;
-    float diff = fmod(b->surface().phi() - a->surface().phi(), 2*pi);
-    if ( diff < 0) diff += 2*pi;
-    return diff < pi;
+    return phiLess(a->surface(), b->surface());
   } 
 };
 // ---------------------
@@ -42,8 +39,8 @@ CompositeTECWedge::CompositeTECWedge(vector<const GeomDet*>& innerDets,
 
 
   // 
-  sort( theFrontDets.begin(), theFrontDets.end(), DetPhiLess() );
-  sort( theBackDets.begin(),  theBackDets.end(),  DetPhiLess() );
+  std::sort( theFrontDets.begin(), theFrontDets.end(), DetPhiLess() );
+  std::sort( theBackDets.begin(),  theBackDets.end(),  DetPhiLess() );
   
   theFrontSector = ForwardDiskSectorBuilderFromDet()( theFrontDets );
   theBackSector  = ForwardDiskSectorBuilderFromDet()( theBackDets );
@@ -97,22 +94,21 @@ CompositeTECWedge::compatible( const TrajectoryStateOnSurface& ts, const Propaga
 }
 
 
-
-vector<DetGroup> 
-CompositeTECWedge::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
+void
+CompositeTECWedge::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 					  const Propagator& prop,
-					  const MeasurementEstimator& est) const{
-  vector<DetGroup> closestResult;
+					   const MeasurementEstimator& est,
+					   std::vector<DetGroup> & result) const{
   SubLayerCrossings  crossings; 
   crossings = computeCrossings( tsos, prop.propagationDirection());
-  if(! crossings.isValid()) return closestResult;
+  if(! crossings.isValid()) return;
 
   addClosest( tsos, prop, est, crossings.closest(), closestResult);
   LogDebug("TkDetLayers") 
     << "in CompositeTECWedge::groupedCompatibleDets,closestResult.size(): "
     << closestResult.size() ;
 
-  if (closestResult.empty()) return closestResult;
+  if (closestResult.empty()) return;
   
   DetGroupElement closestGel( closestResult.front().front());
   float window = computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est);
@@ -125,9 +121,8 @@ CompositeTECWedge::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
   		   nextResult, true);
 
   int crossingSide = LayerCrossingSide().barrelSide( closestGel.trajectoryState(), prop);
-  DetGroupMerger merger;
-  return merger.orderAndMergeTwoLevels( closestResult, nextResult, 
-					crossings.closestIndex(), crossingSide);
+  DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result,
+					  crossings.closestIndex(), crossingSide);
 }
 
 
