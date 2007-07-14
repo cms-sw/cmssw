@@ -93,7 +93,7 @@ TOBLayer::~TOBLayer(){
 
 
 void
-TOBLayer::groupedCompatibleDetV( const TrajectoryStateOnSurface& tsos,
+TOBLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 				 const Propagator& prop,
 				 const MeasurementEstimator& est,
 				 std::vector<DetGroup> & result) const
