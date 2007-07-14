@@ -20,8 +20,6 @@ namespace {
     std::map<int,int> siz;
     Counter() :old(0),diff(0),t(0),f(0){}
     ~Counter() {
-      std::cout << "DDCompare stat " << t << " " << f << std::endl;
-      // std::cout << "old/new " << old << " " << diff << std::endl;
       for (std::map<int,int>::const_iterator p=res.begin();p!=res.end(); ++p)
 	std::cout << (*p).first <<","<<(*p).second <<" "; 
       if (!res.empty()) std::cout << std::endl;

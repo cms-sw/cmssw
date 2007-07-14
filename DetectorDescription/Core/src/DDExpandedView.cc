@@ -96,8 +96,6 @@ namespace {
     int same;
     int diff;
     ~Counter() {
-      std::cout << "Sib rot stats same/diff "
-		<< same << " " << diff << std::endl;
     }
 
   };
