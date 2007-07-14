@@ -109,12 +109,12 @@ PixelForwardLayer::::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tso
     //	 << err.what() ;
     return;
   }
-  CompatibleDetToGroupAdder adder;
-  adder.add( *theComps[theBinFinder.binIndex(crossings.closestIndex)], 
+  typedef CompatibleDetToGroupAdder Adder;
+  Adder::add( *theComps[theBinFinder.binIndex(crossings.closestIndex)], 
 	     tsos, prop, est, closestResult);
 
   if(closestResult.empty()){
-    adder.add( *theComps[theBinFinder.binIndex(crossings.nextIndex)], 
+    Adder::add( *theComps[theBinFinder.binIndex(crossings.nextIndex)], 
 	       tsos, prop, est, result);
     return;
   }      
@@ -125,7 +125,7 @@ PixelForwardLayer::::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tso
   float detWidth = closestGel.det()->surface().bounds().width();
   if (crossings.nextDistance < detWidth + window) {
     vector<DetGroup> nextResult;
-    if (adder.add( *theComps[theBinFinder.binIndex(crossings.nextIndex)], 
+    if (Adder::add( *theComps[theBinFinder.binIndex(crossings.nextIndex)], 
 		   tsos, prop, est, nextResult)) {
       int crossingSide = LayerCrossingSide().endcapSide( tsos, prop);
       int theHelicity = computeHelicity(theComps[theBinFinder.binIndex(crossings.closestIndex)],
@@ -157,33 +157,40 @@ PixelForwardLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 				    float window, 
 				    vector<DetGroup>& result) const
 {
-  CompatibleDetToGroupAdder adder;
+   typedef CompatibleDetToGroupAdder Adder;
   int crossingSide = LayerCrossingSide().endcapSide( tsos, prop);
-  DetGroupMerger merger;
+  typedef DetGroupMerger Merger;
 
   int negStart = min( crossings.closestIndex, crossings.nextIndex) - 1;
   int posStart = max( crossings.closestIndex, crossings.nextIndex) + 1;
 
   int quarter = theComps.size()/4;
+ 
+  vector<DetGroup> tmp;
+  vector<DetGroup>& newResult;
   for (int idet=negStart; idet >= negStart - quarter+1; idet--) {
+    tmp.clear();
+    newResult.clear();
     const GeometricSearchDet* neighbor = theComps[theBinFinder.binIndex(idet)];
     // if (!overlap( gCrossingPos, *neighbor, window)) break; // mybe not needed?
     // maybe also add shallow crossing angle test here???
-    vector<DetGroup> tmp;
-    if (!adder.add( *neighbor, tsos, prop, est, tmp)) break;
+    if (!Adder::add( *neighbor, tsos, prop, est, tmp)) break;
     int theHelicity = computeHelicity(theComps[theBinFinder.binIndex(idet)],
 				      theComps[theBinFinder.binIndex(idet+1)] );
-    result = merger.orderAndMergeTwoLevels( tmp, result, theHelicity, crossingSide);
+    Merger::orderAndMergeTwoLevels( tmp, result, newResult, theHelicity, crossingSide);
+    result.swap(newResult);
   }
   for (int idet=posStart; idet < posStart + quarter-1; idet++) {
+    tmp.clear();
+    newResult.clear();
     const GeometricSearchDet* neighbor = theComps[theBinFinder.binIndex(idet)];
     // if (!overlap( gCrossingPos, *neighbor, window)) break; // mybe not needed?
     // maybe also add shallow crossing angle test here???
-    vector<DetGroup> tmp;
-    if (!adder.add( *neighbor, tsos, prop, est, tmp)) break;
+    if (!Adder::add( *neighbor, tsos, prop, est, tmp)) break;
     int theHelicity = computeHelicity(theComps[theBinFinder.binIndex(idet-1)],
 				      theComps[theBinFinder.binIndex(idet)] );
-    result = merger.orderAndMergeTwoLevels( result, tmp, theHelicity, crossingSide);
+    Merger::orderAndMergeTwoLevels( result, tmp, newResult, theHelicity, crossingSide);
+    result.swap(newResult);
   }
 }
 

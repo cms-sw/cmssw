@@ -11,7 +11,7 @@
 /** A concrete implementation for PixelBlade
  */
 
-class PixelBlade : public GeometricSearchDet{
+class PixelBlade : public GeometricSearchDetWithGroups {
  public:
 
   PixelBlade(std::vector<const GeomDet*>& frontDets,
@@ -26,25 +26,16 @@ class PixelBlade : public GeometricSearchDet{
 
   virtual const std::vector<const GeometricSearchDet*>& components() const;
 
-    
-  virtual std::pair<bool, TrajectoryStateOnSurface>
+  pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
 	      const MeasurementEstimator&) const;
-
-  virtual std::vector<DetWithState> 
-  compatibleDets( const TrajectoryStateOnSurface& startingState,
-		  const Propagator& prop, 
-		  const MeasurementEstimator& est) const;
-
-  virtual std::vector<DetGroup> 
-  groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
-			 const Propagator& prop,
-			 const MeasurementEstimator& est) const;
-
   
-
-  virtual bool hasGroups() const {return true;}
-
+  virtual void 
+  groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
+			  const Propagator& prop,
+			  const MeasurementEstimator& est,
+			  std::vector<DetGroup> & result) const;
+  
   //Extension of the interface
   virtual const BoundDiskSector& specificSurface() const {return *theDiskSector;}
 
