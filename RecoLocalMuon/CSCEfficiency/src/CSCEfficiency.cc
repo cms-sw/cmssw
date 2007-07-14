@@ -97,6 +97,28 @@ CSCEfficiency::CSCEfficiency(const ParameterSet& pset) : theSimHitMap("MuonCSCHi
       XY_ALCTmissing = (TH2F*)(theFile)->Get(SpecName);
     }
     //
+    sprintf(SpecName,"dydz_Eff_ALCT");
+    if(!update){
+      dydz_Eff_ALCT =
+        new TH1F(SpecName,"ALCT efficient events vs. dy/dz of the segment in ref. station;dydz;entries",30,-1.5,1.5);
+    }
+    else{
+      FullName = Path + to_string(SpecName);
+      strcpy(SpecName, FullName.c_str());
+      dydz_Eff_ALCT = (TH1F*)(theFile)->Get(SpecName);
+    }
+    //
+    sprintf(SpecName,"dydz_All_ALCT");
+    if(!update){
+      dydz_All_ALCT =
+        new TH1F(SpecName,"ALCT events vs. dy/dz of the segment in ref. station ;dydz;entries",30,-1.5,1.5);
+    }
+    else{
+      FullName = Path + to_string(SpecName);
+      strcpy(SpecName, FullName.c_str());
+      dydz_All_ALCT = (TH1F*)(theFile)->Get(SpecName);
+    }    
+    //
     sprintf(SpecName,"EfficientSegments");
     if(!update){
       EfficientSegments = 
@@ -254,13 +276,37 @@ CSCEfficiency::CSCEfficiency(const ParameterSet& pset) : theSimHitMap("MuonCSCHi
       sprintf(SpecName,"XvsY_InefficientRecHits_inSegment_L%d",iLayer);
       if(!update){
 	XvsY_InefficientRecHits_inSegment.push_back
-	  (new TH2F(SpecName,"Missing RecHit/layer in a segment (local system);X, cm; Y, cm",
+	  (new TH2F(SpecName,"Missing RecHit/layer in a segment (local system, good region);X, cm; Y, cm",
 		    nXbins,Xmin,Xmax,nYbins,Ymin, Ymax));
       }
       else{
 	FullName = Path + to_string(SpecName)+"_AllCh";
 	strcpy(SpecName, FullName.c_str());
 	XvsY_InefficientRecHits_inSegment.push_back( (TH2F*)((theFile))->Get(SpecName));
+      }
+      //
+      sprintf(SpecName,"Y_InefficientRecHits_inSegment_L%d",iLayer);
+      if(!update){
+	Y_InefficientRecHits_inSegment.push_back
+	  (new TH1F(SpecName,"Missing RecHit/layer in a segment (local system, whole chamber);Y, cm; entries",
+		    nYbins,Ymin, Ymax));
+      }
+      else{
+	FullName = Path + to_string(SpecName)+"_AllCh";
+	strcpy(SpecName, FullName.c_str());
+	Y_InefficientRecHits_inSegment.push_back( (TH1F*)((theFile))->Get(SpecName));
+      }    
+        //
+      sprintf(SpecName,"Y_AllRecHits_inSegment_L%d",iLayer);
+      if(!update){
+	Y_AllRecHits_inSegment.push_back
+	  (new TH1F(SpecName,"All (extrapolated from the segment) RecHit/layer in a segment (local system, whole chamber);Y, cm; entries",
+		    nYbins,Ymin, Ymax));
+      }
+      else{
+	FullName = Path + to_string(SpecName)+"_AllCh";
+	strcpy(SpecName, FullName.c_str());
+	Y_AllRecHits_inSegment.push_back( (TH1F*)((theFile))->Get(SpecName));
       }
     }
     //---- Book groups of histograms (for any chamber)
@@ -411,13 +457,37 @@ CSCEfficiency::CSCEfficiency(const ParameterSet& pset) : theSimHitMap("MuonCSCHi
 	sprintf(SpecName,"XvsY_InefficientRecHits_inSegment_Ch%d_L%d",iChamber,iLayer);
 	if(!update){
 	  ChHist[iChamber-FirstCh].XvsY_InefficientRecHits_inSegment.push_back
-	    (new TH2F(SpecName,"Missing RecHit/layer in a segment (local system);X, cm; Y, cm",
+	    (new TH2F(SpecName,"Missing RecHit/layer in a segment (local system, good region);X, cm; Y, cm",
 		      nXbins,Xmin,Xmax,nYbins,Ymin, Ymax));
 	}
 	else{
 	  FullName = Path + to_string(SpecName);
 	  strcpy(SpecName, FullName.c_str());
 	  ChHist[iChamber-FirstCh].XvsY_InefficientRecHits_inSegment.push_back((TH2F*)((theFile))->Get(SpecName));
+	}
+	//
+	sprintf(SpecName,"Y_InefficientRecHits_inSegment_Ch%d_L%d",iChamber,iLayer);
+	if(!update){
+	  ChHist[iChamber-FirstCh].Y_InefficientRecHits_inSegment.push_back
+	    (new TH1F(SpecName,"Missing RecHit/layer in a segment (local system, whole chamber);Y, cm; entries",
+		      nYbins,Ymin, Ymax));
+	}
+	else{
+	  FullName = Path + to_string(SpecName);
+	  strcpy(SpecName, FullName.c_str());
+	  ChHist[iChamber-FirstCh].Y_InefficientRecHits_inSegment.push_back((TH1F*)((theFile))->Get(SpecName));
+	}
+	//
+	sprintf(SpecName,"Y_AllRecHits_inSegment_Ch%d_L%d",iChamber,iLayer);
+	if(!update){
+	  ChHist[iChamber-FirstCh].Y_AllRecHits_inSegment.push_back
+	    (new TH1F(SpecName,"All (extrapolated from the segment) RecHit/layer in a segment (local system, whole chamber);Y, cm; entries",
+		      nYbins,Ymin, Ymax));
+	}
+	else{
+	  FullName = Path + to_string(SpecName);
+	  strcpy(SpecName, FullName.c_str());
+	  ChHist[iChamber-FirstCh].Y_AllRecHits_inSegment.push_back((TH1F*)((theFile))->Get(SpecName));
 	}
       }
       //Auto_ptr... ? better but it doesn't work... (with root?...) 
@@ -441,9 +511,16 @@ CSCEfficiency::~CSCEfficiency(){
   TH1F * writeHisto;
   std::vector<float> eff(2);
   //
+  const float Xmin = XMIN;
+  const float Xmax = XMAX;
+  const int nXbins = int(4.*(Xmax - Xmin));
+  const float Ymin = YMIN;
+  const float Ymax = YMAX;
+  const int nYbins = int(2.*(Ymax - Ymin));
   const float Layer_min = LAYER_MIN;
   const float Layer_max = LAYER_MAX-2.;
   const int nLayer_bins = int(Layer_max - Layer_min);
+
 
   //---- loop over chambers
   for(int iChamber=FirstCh;iChamber<FirstCh+NumCh;iChamber++){
@@ -513,6 +590,25 @@ CSCEfficiency::~CSCEfficiency(){
 	current_title = EfficientWireGroups->GetName();
 	changed_title = ChangeTitle(current_title);
 	EfficientWireGroups->SetName(changed_title);
+	for(int iLayer=0; iLayer<6;iLayer++){
+	  XvsY_InefficientRecHits_inSegment[iLayer] = 
+	    (TH2F*)ChHist[iChamber-FirstCh].XvsY_InefficientRecHits_inSegment[iLayer]->Clone();
+	  current_title = XvsY_InefficientRecHits_inSegment[iLayer]->GetName();
+	  changed_title = ChangeTitle(current_title);
+	  XvsY_InefficientRecHits_inSegment[iLayer]->SetName(changed_title);
+	  //
+	  Y_InefficientRecHits_inSegment[iLayer] = 
+	    (TH1F*)ChHist[iChamber-FirstCh].Y_InefficientRecHits_inSegment[iLayer]->Clone();
+	  current_title = Y_InefficientRecHits_inSegment[iLayer]->GetName();
+	  changed_title = ChangeTitle(current_title);
+	  Y_InefficientRecHits_inSegment[iLayer]->SetName(changed_title);
+	  //
+	  Y_AllRecHits_inSegment[iLayer] = 
+	    (TH1F*)ChHist[iChamber-FirstCh].Y_AllRecHits_inSegment[iLayer]->Clone();
+	  current_title = Y_AllRecHits_inSegment[iLayer]->GetName();
+	  changed_title = ChangeTitle(current_title);
+	  Y_AllRecHits_inSegment[iLayer]->SetName(changed_title);
+	}
       }
       else{
 	AllSingleHits->Add(ChHist[iChamber-FirstCh].AllSingleHits);
@@ -527,6 +623,13 @@ CSCEfficiency::~CSCEfficiency(){
 	EfficientLCTs->Add(ChHist[iChamber-FirstCh].EfficientLCTs);
 	EfficientStrips->Add(ChHist[iChamber-FirstCh].EfficientStrips);
 	EfficientWireGroups->Add(ChHist[iChamber-FirstCh].EfficientWireGroups);
+	for(int iLayer=0; iLayer<6;iLayer++){
+	  XvsY_InefficientRecHits_inSegment[iLayer]->
+	    Add(ChHist[iChamber-FirstCh].XvsY_InefficientRecHits_inSegment[iLayer]);
+	  Y_InefficientRecHits_inSegment[iLayer]->
+	    Add(ChHist[iChamber-FirstCh].Y_InefficientRecHits_inSegment[iLayer]);
+	  Y_AllRecHits_inSegment[iLayer]->Add(ChHist[iChamber-FirstCh].Y_AllRecHits_inSegment[iLayer]);
+	}
       }
       //---- Write histograms chamber by chamber 
       theFile->cd(SpecName);
@@ -545,6 +648,8 @@ CSCEfficiency::~CSCEfficiency(){
       ChHist[iChamber-FirstCh].EfficientWireGroups->Write();
       for(unsigned int iLayer = 0; iLayer< 6; iLayer++){
 	ChHist[iChamber-FirstCh].XvsY_InefficientRecHits_inSegment[iLayer]->Write();
+	ChHist[iChamber-FirstCh].Y_InefficientRecHits_inSegment[iLayer]->Write();
+	ChHist[iChamber-FirstCh].Y_AllRecHits_inSegment[iLayer]->Write();
       }
     }
     theFile->cd(SpecName);
@@ -637,6 +742,25 @@ CSCEfficiency::~CSCEfficiency(){
     histoEfficiency(readHisto, writeHisto,9);
     ChHist[iChamber-FirstCh].FINAL_WireGroup_Efficiency->Write(); 
     //
+    for(int iLayer=0; iLayer<6;iLayer++){
+      sprintf(SpecName,"FINAL_Y_RecHit_InSegment_Efficiency_Ch%d_L%d",iChamber,iLayer);
+      ChHist[iChamber-FirstCh].FINAL_Y_RecHit_InSegment_Efficiency.push_back
+	(new TH1F(SpecName,"RecHit/layer in a segment efficiency (local system, whole chamber);Y, cm;entries",
+		  nYbins,Ymin, Ymax));
+      ChHist[iChamber-FirstCh].FINAL_Y_RecHit_InSegment_Efficiency.back()->Sumw2();
+      sprintf(SpecName,"efficientRecHits_Ch%d_L%d",iChamber,iLayer);
+      TH1F *efficientRecHits_Y  = new TH1F(SpecName,"RecHit/layer in a segment efficiency (local system, whole chamber);Y, cm;entries",
+					   nYbins,Ymin, Ymax);
+      efficientRecHits_Y = (TH1F*)ChHist[iChamber-FirstCh].Y_AllRecHits_inSegment.back()->Clone();
+      efficientRecHits_Y->Add(ChHist[iChamber-FirstCh].Y_InefficientRecHits_inSegment.back(),-1.);
+      ChHist[iChamber-FirstCh].FINAL_Y_RecHit_InSegment_Efficiency.back()->
+      Divide(efficientRecHits_Y,
+             ChHist[iChamber-FirstCh].Y_AllRecHits_inSegment[iLayer],
+             1.,1.,"B");
+      delete efficientRecHits_Y;
+      ChHist[iChamber-FirstCh].FINAL_Y_RecHit_InSegment_Efficiency.back()->Write();
+    }
+    //
     theFile->cd();
     //
   }
@@ -661,8 +785,23 @@ CSCEfficiency::~CSCEfficiency(){
     EfficientLCTs->Write();
     EfficientStrips->Write();
     EfficientWireGroups->Write();
+    for(unsigned int iLayer = 0; iLayer< 6; iLayer++){
+      XvsY_InefficientRecHits_inSegment[iLayer]->Write();
+      Y_InefficientRecHits_inSegment[iLayer]->Write();
+      Y_AllRecHits_inSegment[iLayer]->Write();
+    }
   }
   theFile->cd(SpecName);
+  //
+  sprintf(SpecName,"FINAL_dydz_Efficiency_ALCT");
+  FINAL_dydz_Efficiency_ALCT=
+    new TH1F(SpecName,"ALCT efficiency vs dy/dz of the segment in ref. system;dydz;efficiency", 30, -1.5, 1.5);
+  FINAL_dydz_Efficiency_ALCT->Sumw2();
+
+  FINAL_dydz_Efficiency_ALCT->Divide(dydz_Eff_ALCT, dydz_All_ALCT, 1.,1.,"B");
+  FINAL_dydz_Efficiency_ALCT ->Write();
+  dydz_Eff_ALCT->Write();// skip?
+  dydz_All_ALCT->Write();// skip?
 
   //Calculate the efficiency, write the result in a histogram
   sprintf(SpecName,"FINAL_Segment_Efficiency");
@@ -763,7 +902,26 @@ CSCEfficiency::~CSCEfficiency(){
   writeHisto = FINAL_WireGroup_Efficiency;
   histoEfficiency(readHisto, writeHisto,9);
   FINAL_WireGroup_Efficiency->Write(); 
-
+  //
+  for(int iLayer=0; iLayer<6;iLayer++){
+    sprintf(SpecName,"FINAL_Y_RecHit_InSegment_Efficiency_L%d",iLayer);
+    FINAL_Y_RecHit_InSegment_Efficiency.push_back
+      (new TH1F(SpecName,"RecHit/layer in a segment efficiency (local system);Y, cm;entries",
+		nYbins,Ymin, Ymax));
+    FINAL_Y_RecHit_InSegment_Efficiency[iLayer]->Sumw2();
+    sprintf(SpecName,"efficientRecHits_L%d",iLayer);
+    TH1F *efficientRecHits_Y  = new TH1F(SpecName,"RecHit/layer in a segment efficiency (local system, whole chamber);Y, cm;entries",
+					 nYbins,Ymin, Ymax);
+    efficientRecHits_Y = (TH1F*)Y_AllRecHits_inSegment[iLayer]->Clone();
+    efficientRecHits_Y->Add(Y_InefficientRecHits_inSegment[iLayer],-1.);
+    FINAL_Y_RecHit_InSegment_Efficiency[iLayer]->
+      Divide(efficientRecHits_Y,
+	     Y_AllRecHits_inSegment[iLayer],
+	     1.,1.,"B");
+    delete efficientRecHits_Y;
+    FINAL_Y_RecHit_InSegment_Efficiency[iLayer]->Write(); 
+  }
+  
   //---- Close the file
   theFile->Close();
 }
@@ -1301,6 +1459,7 @@ void CSCEfficiency::analyze(const Event & event, const EventSetup& eventSetup){
 	  float diff_dxdz = XDirprime/ZDirprime - XDirsecond/ZDirsecond;
 	  if(fabs(diff_dxdz)<0.4){// && XDirprime/ZDirprime<0.4){
 	    flag = true;
+	    seg_dydz = YDirprime/ZDirprime;
 	  }
 	}
 	int NSegFound = 0;
@@ -1369,7 +1528,92 @@ void CSCEfficiency::analyze(const Event & event, const EventSetup& eventSetup){
 	      if(6!=NhitsCouple[1]){
 		ChHist[NChamberCouple[1]-FirstCh].XvsY_InefficientSegments_good->Fill(PosLocalCouple[1][0],PosLocalCouple[1][1]);
 	      }
-	      //
+	    }
+	    //
+	    ChamberRecHits *sChamber_p =
+	      &(*all_RecHits)[WorkInEndcap-1][ExtrapolateToStation-1][ExtrapolateToRing-1][NChamberCouple[1]-FirstCh].sChamber; 
+	    
+	    double Zlayer = 0.;
+	    int ChosenLayer = -1;
+	    if(sChamber_p->RecHitsPosZ[3-1].size()){
+	      ChosenLayer = 2;
+	      Zlayer = sChamber_p->RecHitsPosZ[3-1][0];
+	    }
+	    else if(sChamber_p->RecHitsPosZ[4-1].size()){
+	      ChosenLayer = 3;
+	      Zlayer = sChamber_p->RecHitsPosZ[4-1][0]; 
+	    }
+	    else if(sChamber_p->RecHitsPosZ[5-1].size()){
+	      ChosenLayer = 4;
+	      Zlayer = sChamber_p->RecHitsPosZ[5-1][0]; 
+	    }
+	    else if(sChamber_p->RecHitsPosZ[2-1].size()){
+	      ChosenLayer = 1;
+	      Zlayer = sChamber_p->RecHitsPosZ[2-1][0]; 
+	    }
+	    
+	    if(-1!=ChosenLayer){
+	      
+	      //---- hardcoded values... noot good
+	      double dist = 2.54; // distance between two layers is 2.54 cm except for ME1/1 chambers!
+	      for (int iLayer=0; iLayer<6; iLayer++) {
+		
+		//---- two steps because Zsegment is not (exactly) at the middle...
+		double z1Position = PosCouple[1][2]; // segment Z position (between layers 2 and 3)
+		double z2Position = Zlayer;// rechit in the chosen layer ;  Z position
+		double z1Direction = DirLocalCouple[1][2]; // segment Z direction
+		double initPosition = PosLocalCouple[1][1]; // segment Y position
+		double initDirection = DirLocalCouple[1][1]; // segment Y direction
+		double ParamLine = LineParam(z1Position, z2Position, z1Direction);
+		
+		//---- find extrapolated position of a segment at a given layer
+		double y = Extrapolate1D(initPosition, initDirection, ParamLine); // this is still the position 
+		//in the chosen layer!
+		
+		initPosition = PosLocalCouple[1][0];
+		initDirection = DirLocalCouple[1][0];
+		double x = Extrapolate1D(initPosition, initDirection, ParamLine);//  this is still the position 
+		// in the chosen layer!
+		int sign;
+		
+		if( z1Position>z2Position){
+		  sign = -1;
+		}
+		else{
+		  sign = 1;
+		}
+		z1Position = z2Position;// start from the chosen layer and go to layer iLayer (z2Position below)
+		int diffLayer = abs(ChosenLayer - iLayer);
+		z2Position = z1Position + float(sign)*float(diffLayer)*dist;
+		
+		ParamLine = LineParam(z1Position, z2Position, z1Direction);
+		initPosition = y;
+		initDirection = DirLocalCouple[1][1];
+		y = Extrapolate1D(initPosition, initDirection, ParamLine); // this is the extrapolated position in layer iLayer
+		
+		initPosition = x;
+		initDirection = DirLocalCouple[1][0];
+		x = Extrapolate1D(initPosition, initDirection, ParamLine); // this is the extrapolated position in layer iLayer
+		
+		if(GoodRegion(Ysecond, Yright, ExtrapolateToStation, ExtrapolateToRing, 0)){
+		  if(sChamber_p->NRecHits[iLayer]>0){
+		    ChHist[NChamberCouple[1]-FirstCh].EfficientRechits_inSegment->Fill(iLayer+1);
+		  }
+		  else{
+		    ChHist[NChamberCouple[1]-FirstCh].XvsY_InefficientRecHits_inSegment[iLayer]->Fill(x,y); 
+		  }
+		}
+		if(sChamber_p->NRecHits[iLayer]<1){
+		  ChHist[NChamberCouple[1]-FirstCh].Y_InefficientRecHits_inSegment[iLayer]->Fill(y); 
+		}
+		ChHist[NChamberCouple[1]-FirstCh].Y_AllRecHits_inSegment[iLayer]->Fill(y);
+	      }
+              //---- Normalization 
+	      if(GoodRegion(Ysecond, Yright, ExtrapolateToStation, ExtrapolateToRing, 0)){
+		ChHist[NChamberCouple[1]-FirstCh].EfficientRechits_inSegment->Fill(9);
+	      }
+	    }
+	      /*
 	      ChamberRecHits *sChamber_p =
 		&(*all_RecHits)[WorkInEndcap-1][ExtrapolateToStation-1][ExtrapolateToRing-1][NChamberCouple[1]-FirstCh].sChamber; 
 	      for (int iLayer=0; iLayer<6; iLayer++) {
@@ -1402,7 +1646,8 @@ void CSCEfficiency::analyze(const Event & event, const EventSetup& eventSetup){
 
               //---- Normalization 
 	      ChHist[NChamberCouple[1]-FirstCh].EfficientRechits_inSegment->Fill(9);
-	    }
+	      */
+	    //}
 	  }
 	}
       }
@@ -1816,6 +2061,7 @@ bool CSCEfficiency::LCT_Efficiencies(edm::Handle<CSCALCTDigiCollection> alcts,
       ChHist[iCh-FirstCh].EfficientLCTs->Fill(11);
       if(cond){
 	ChHist[iCh-FirstCh].EfficientLCTs->Fill(21);
+	dydz_Eff_ALCT->Fill(seg_dydz);
       }
     }
   }
@@ -1849,6 +2095,7 @@ bool CSCEfficiency::LCT_Efficiencies(edm::Handle<CSCALCTDigiCollection> alcts,
   if(cond){
     if(!Nalcts) if(printalot) std::cout<<"NO ALCT!"<<std::endl;
     ChHist[iCh-FirstCh].EfficientLCTs->Fill(28);
+    dydz_All_ALCT->Fill(seg_dydz);
   }
   return result;
 }

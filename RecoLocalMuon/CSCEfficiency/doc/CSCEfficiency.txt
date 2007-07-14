@@ -26,8 +26,8 @@ module ana = CSCEfficiency{
     untracked bool writeAsciiFiles = false # obsolete
     untracked string rootFileName = 'monHists.root' # this is the histogram output file
     untracked int32 WorkInEndcap = 1
-    untracked int32 ExtrapolateFromStation = 2 # this is the "reference" station
-    untracked int32 ExtrapolateToStation = 3 
+    untracked int32 ExtrapolateFromStation = 3 # this is the "reference" station
+    untracked int32 ExtrapolateToStation = 2 
     untracked int32 ExtrapolateToRing = 2
 #   if using existing file to recalculate efficiencies
     untracked bool update = false 
@@ -76,6 +76,9 @@ is required to be within a "good region". Then it is checked
 The result is in FINAL_LCTs_Efficiencies (3 sets - a), b), c); each set ALCT,
 CLCT, CorrLCT).
 
+Also check FINAL_dydz_Efficienciy_ALCT - this the dependence on dy/dz
+(direction of the segment in the refference station).
+
 2. Strip and wiregroup efficiencies.
   They are calculated in StripWire_Efficiencies() function. The extrapolated
 point is required to be within a "good region". Then it is checked if
@@ -98,9 +101,14 @@ results from the second and third ones (first one is just for completeness).
   a) The extrapolated point is required to be within a "good region";
 then it is checked if there is a rechit in layer x = 1,...,6;
 the result is in Final_Rechit_Efficiency; it is per layer.
-  b) It is required that ALL the rechits in the chamber are within a 
-"good region"; then it is checked if there is a rechit in layer x = 1,...,6
-the result is in Final_Rechit_Efficiency_good; it is per layer.
+  b) It is required that ALL the rechits in the chamber to which we
+extrapolate are within a "good region"; then it is checked if there 
+is a rechit in layer x = 1,...,6; the result is in 
+Final_Rechit_Efficiency_good; it is per layer.
+There is an additional requirement that there should not be bigger number 
+of "missing layers" (no rechits in them) in neighbouring chambers. This is
+to avoid dealing with noise rechits (important in MC when no trigger
+simulation).
   c) The extrapolated point is required to be within a "good region"; it
 is required also that there IS a segment in the chamber under investigation
 with "close" direction to the reference one; then it is checked if there is
@@ -108,6 +116,12 @@ a rechit in layer x = 1,...,6; the result is in
 Final_Rechit_inSegment_Efficiency; it is per layer.
 
 Events with 0 layers fired are excludedi from efficiency calculations!
+
+In addition to the efficiency plots there are 2D plots of inefficient
+events (under conditions in c) ) in every layer. Also there are 1D
+plots in local Y without the "good region" requirement (could help 
+recognize dead zones; plots in X should be made in strips number or 
+angle).
 
 4. Attachment efficiency (rechit to segment).
   It is required that one segment exists in the reference and one 
@@ -141,4 +155,7 @@ the chamber. Then the other efficiencies deal with specific requirements
 needed for the case. They would not give you a clue even if the whole 
 chamber is dead (number of events (or errors) would).      
 
-  There are various useful histograms in the output (not too much).
+  There are various other useful histograms in the output (not too much)
+  inluding histograms used to calculate the efficiency plots.
+
+

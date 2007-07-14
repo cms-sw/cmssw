@@ -82,7 +82,7 @@
 
 #define SQR(x) ((x)*(x))
 
-#define LastCh 32
+#define LastCh 36
 #define FirstCh  1
 #define NumCh (LastCh-FirstCh+1)
 //---- Useful structure 
@@ -170,6 +170,11 @@ private:
   //---- Histograms 
     TH1F * DataFlow;
     TH2F * XY_ALCTmissing;
+    //
+    TH1F * dydz_Eff_ALCT;
+    TH1F * dydz_All_ALCT;
+    TH1F * FINAL_dydz_Efficiency_ALCT;
+    //
     TH1F * EfficientSegments;
     TH1F * AllSegments;
     TH1F * EfficientRechits_inSegment;
@@ -186,6 +191,8 @@ private:
     TH1F * EfficientWireGroups;
     TH1F * Rechit_eff;
     std::vector<TH2F *> XvsY_InefficientRecHits_inSegment;
+    std::vector<TH1F *> Y_InefficientRecHits_inSegment;
+    std::vector<TH1F *> Y_AllRecHits_inSegment; 
 //---- Efficiencies
     TH1F * FINAL_Segment_Efficiency;
     TH1F * FINAL_Rechit_inSegment_Efficiency;
@@ -195,6 +202,7 @@ private:
     TH1F * FINAL_LCTs_Efficiency;
     TH1F * FINAL_Strip_Efficiency;
     TH1F * FINAL_WireGroup_Efficiency;
+    std::vector<TH1F *> FINAL_Y_RecHit_InSegment_Efficiency;
 //---- Histograms set (chambers)...
   struct ChamberHistos{
     TH1F * EfficientRechits_inSegment;
@@ -210,6 +218,8 @@ private:
     TH1F * EfficientStrips;
     TH1F * EfficientWireGroups;
     std::vector<TH2F *> XvsY_InefficientRecHits_inSegment;
+    std::vector<TH1F *> Y_InefficientRecHits_inSegment;
+    std::vector<TH1F *> Y_AllRecHits_inSegment;
 //---- Efficiencies
     TH1F * FINAL_Rechit_inSegment_Efficiency;
     TH1F * FINAL_Attachment_Efficiency;
@@ -218,12 +228,15 @@ private:
     TH1F * FINAL_LCTs_Efficiency;
     TH1F * FINAL_Strip_Efficiency;
     TH1F * FINAL_WireGroup_Efficiency;
+    std::vector<TH1F *> FINAL_Y_RecHit_InSegment_Efficiency;
     //Auto_ptr...
     //std::auto_ptr<TH1F> perLayerIneffRecHit;
     
   }ChHist[LastCh-FirstCh+1];
   // utility flag
   bool flag;
+  // dy/dz of the segment in the ref. station  
+  float seg_dydz;
   // printalot debug output
   bool printalot;
 
