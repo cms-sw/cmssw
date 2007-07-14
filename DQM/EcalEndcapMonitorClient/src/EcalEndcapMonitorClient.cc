@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/07/06 12:48:10 $
- * $Revision: 1.52 $
+ * $Date: 2007/07/13 09:26:57 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -968,8 +968,8 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
         cerr << e.what() << endl;
         try {
           cout << "Fetching RunIOV (again) ... " << flush;
-          runiov_ = econn->fetchRunIOV(&runtag, run_);
-//          runiov_ = econn->fetchRunIOV(location_, run_);
+//          runiov_ = econn->fetchRunIOV(&runtag, run_);
+          runiov_ = econn->fetchRunIOV(location_, run_);
           cout << "done." << endl;
           foundRunIOV = true;
         } catch (runtime_error &e) {

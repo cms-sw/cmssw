@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/07/04 06:33:41 $
- * $Revision: 1.295 $
+ * $Date: 2007/07/13 09:26:57 $
+ * $Revision: 1.296 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -940,8 +940,8 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
         cerr << e.what() << endl;
         try {
           cout << "Fetching RunIOV (again) ... " << flush;
-          runiov_ = econn->fetchRunIOV(&runtag, run_);
-//          runiov_ = econn->fetchRunIOV(location_, run_);
+//          runiov_ = econn->fetchRunIOV(&runtag, run_);
+          runiov_ = econn->fetchRunIOV(location_, run_);
           cout << "done." << endl;
           foundRunIOV = true;
         } catch (runtime_error &e) {
