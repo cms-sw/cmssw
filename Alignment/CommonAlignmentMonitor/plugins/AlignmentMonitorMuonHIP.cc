@@ -61,6 +61,7 @@ class AlignmentMonitorMuonHIP: public AlignmentMonitorBase {
       int m_params_bins;
       double m_params_xresid_low, m_params_xresid_high, m_params_xresidwide_low, m_params_xresidwide_high, m_params_yresid_low, m_params_yresid_high;
       double m_params_xDT_low, m_params_xDT_high, m_params_yDT_low, m_params_yDT_high, m_params_xCSC_low, m_params_xCSC_high, m_params_yCSC_low, m_params_yCSC_high;
+      double m_params_xpull_low, m_params_xpull_high, m_params_ypull_low, m_params_ypull_high;
 
       edm::ParameterSet m_book;
       std::string m_book_mode;
@@ -68,6 +69,7 @@ class AlignmentMonitorMuonHIP: public AlignmentMonitorBase {
       bool m_book_xresid, m_book_xresidwide, m_book_yresid;
       bool m_book_wxresid, m_book_wxresidwide, m_book_wyresid;
       bool m_book_wxresid_vsx, m_book_wxresid_vsy, m_book_wyresid_vsx, m_book_wyresid_vsy;
+      bool m_book_xpull, m_book_ypull;
       bool m_book_before, m_book_after;
       
       bool m_createPythonGeometry;
@@ -84,6 +86,7 @@ class AlignmentMonitorMuonHIP: public AlignmentMonitorBase {
       TH1FPtr *m_xresid, *m_xresidwide, *m_yresid;
       TH1FPtr *m_wxresid, *m_wxresidwide, *m_wyresid;
       TProfilePtr *m_wxresid_vsx, *m_wxresid_vsy, *m_wyresid_vsx, *m_wyresid_vsy;
+      TH1FPtr *m_xpull, *m_ypull;
 
       // The ntuple (ntuples MUST be different for each iteration, or you'll get problems declaring branches)
       TTree *m_before, *m_after;
@@ -152,6 +155,10 @@ AlignmentMonitorMuonHIP::AlignmentMonitorMuonHIP(const edm::ParameterSet& cfg)
    m_params_xCSC_high = m_params.getParameter<double>("xCSC_high");
    m_params_yCSC_low = m_params.getParameter<double>("yCSC_low");
    m_params_yCSC_high = m_params.getParameter<double>("yCSC_high");
+   m_params_xpull_low = m_params.getParameter<double>("xpull_low");
+   m_params_xpull_high = m_params.getParameter<double>("xpull_high");
+   m_params_ypull_low = m_params.getParameter<double>("ypull_low");
+   m_params_ypull_high = m_params.getParameter<double>("ypull_high");
 
    m_book_mode = m_book.getParameter<std::string>("mode");
    if (m_book_mode != std::string("selected")  &&
@@ -178,6 +185,8 @@ AlignmentMonitorMuonHIP::AlignmentMonitorMuonHIP(const edm::ParameterSet& cfg)
    m_book_wxresid_vsy = m_book.getParameter<bool>("wxresid_vsy");
    m_book_wyresid_vsx = m_book.getParameter<bool>("wyresid_vsx");
    m_book_wyresid_vsy = m_book.getParameter<bool>("wyresid_vsy");
+   m_book_xpull = m_book.getParameter<bool>("xpull");
+   m_book_ypull = m_book.getParameter<bool>("ypull");
    m_book_before = m_book.getParameter<bool>("before");
    m_book_after = m_book.getParameter<bool>("after");
 }
@@ -316,6 +325,8 @@ void AlignmentMonitorMuonHIP::book() {
    m_wxresid_vsy = new TProfilePtr[m_numHistograms];
    m_wyresid_vsx = new TProfilePtr[m_numHistograms];
    m_wyresid_vsy = new TProfilePtr[m_numHistograms];
+   m_xpull = new TH1FPtr[m_numHistograms];
+   m_ypull = new TH1FPtr[m_numHistograms];
 
    //////////////////////////////////////////////////////////////////////
    // These three loops book most of the histograms
@@ -380,6 +391,16 @@ void AlignmentMonitorMuonHIP::book() {
    m_wxresid_vsy[0] = NULL;
    m_wyresid_vsx[0] = NULL;
    m_wyresid_vsy[0] = NULL;
+
+   sprintf(dir, "/iterN/");
+   sprintf(name, "xpull");
+   sprintf(title, "x pull distribution for iteration %d", iteration());
+   m_xpull[0] = TH1FPtr(add(dir, new TH1F(name, title, m_params_bins, m_params_xpull_low, m_params_xpull_high)));
+
+   sprintf(dir, "/iterN/");
+   sprintf(name, "ypull");
+   sprintf(title, "y pull distribution for iteration %d", iteration());
+   m_ypull[0] = TH1FPtr(add(dir, new TH1F(name, title, m_params_bins, m_params_ypull_low, m_params_ypull_high)));
 
    //////////////////////////////////////////////////////////////////////
    // Finally, book the alignable-wise ntuple and fill "before"
@@ -658,6 +679,26 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
    else {
       m_wyresid_vsy[index] = NULL;
    }
+
+   if (m_book_xpull) {
+      sprintf(dir, "/iterN/xpull_%s/", level);
+      sprintf(name, "xpull_%s_%d", level, rawid);
+      sprintf(title, "x pull distribution on %s %d for iteration %d", level, rawid, iteration());
+      m_xpull[index] = TH1FPtr(add(dir, new TH1F(name, title, m_params_bins, m_params_xpull_low, m_params_xpull_high)));
+   }
+   else {
+      m_xpull[index] = NULL;
+   }
+
+   if (m_book_ypull  &&  !dt) {
+      sprintf(dir, "/iterN/ypull_%s/", level);
+      sprintf(name, "ypull_%s_%d", level, rawid);
+      sprintf(title, "y pull distribution on %s %d for iteration %d", level, rawid, iteration());
+      m_ypull[index] = TH1FPtr(add(dir, new TH1F(name, title, m_params_bins, m_params_ypull_low, m_params_ypull_high)));
+   }
+   else {
+      m_ypull[index] = NULL;
+   }
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -729,16 +770,18 @@ void AlignmentMonitorMuonHIP::event(const edm::EventSetup &iSetup, const ConstTr
 void AlignmentMonitorMuonHIP::fill(unsigned int index, double x_residual, double y_residual, double x_reserr2, double y_reserr2, double xpos, double ypos, bool y_valid) {
    if (m_nhits_vsiter[index]) m_nhits_vsiter[index]->Fill(iteration());
 		  
-   if (m_xresid[index])                   m_xresid[index]->Fill(x_residual);
-   if (m_xresidwide[index])               m_xresidwide[index]->Fill(x_residual);
-   if (y_valid && m_yresid[index])        m_yresid[index]->Fill(y_residual);
-   if (m_wxresid[index])                  m_wxresid[index]->Fill(x_residual, 1./x_reserr2);
-   if (m_wxresidwide[index])              m_wxresidwide[index]->Fill(x_residual, 1./x_reserr2);
-   if (y_valid && m_wyresid[index])       m_wyresid[index]->Fill(y_residual, 1./y_reserr2);
-   if (m_wxresid_vsx[index])              m_wxresid_vsx[index]->Fill(xpos, x_residual, 1./x_reserr2);
-   if (m_wxresid_vsy[index])              m_wxresid_vsy[index]->Fill(ypos, x_residual, 1./x_reserr2);
-   if (y_valid && m_wyresid_vsx[index])   m_wyresid_vsx[index]->Fill(xpos, y_residual, 1./y_reserr2);
-   if (y_valid && m_wyresid_vsy[index])   m_wyresid_vsy[index]->Fill(ypos, y_residual, 1./y_reserr2);
+   if (m_xresid[index])                                        m_xresid[index]->Fill(x_residual);
+   if (m_xresidwide[index])                                    m_xresidwide[index]->Fill(x_residual);
+   if (y_valid && m_yresid[index])                             m_yresid[index]->Fill(y_residual);
+   if (m_wxresid[index]  &&  x_reserr2 != 0.)                  m_wxresid[index]->Fill(x_residual, 1./x_reserr2);
+   if (m_wxresidwide[index]  &&  x_reserr2 != 0.)              m_wxresidwide[index]->Fill(x_residual, 1./x_reserr2);
+   if (y_valid && m_wyresid[index]  &&  y_reserr2 != 0.)       m_wyresid[index]->Fill(y_residual, 1./y_reserr2);
+   if (m_wxresid_vsx[index]  &&  x_reserr2 != 0.)              m_wxresid_vsx[index]->Fill(xpos, x_residual, 1./x_reserr2);
+   if (m_wxresid_vsy[index]  &&  x_reserr2 != 0.)              m_wxresid_vsy[index]->Fill(ypos, x_residual, 1./x_reserr2);
+   if (y_valid && m_wyresid_vsx[index]  &&  y_reserr2 != 0.)   m_wyresid_vsx[index]->Fill(xpos, y_residual, 1./y_reserr2);
+   if (y_valid && m_wyresid_vsy[index]  &&  y_reserr2 != 0.)   m_wyresid_vsy[index]->Fill(ypos, y_residual, 1./y_reserr2);
+   if (m_xpull[index]  &&  x_reserr2 != 0.)                    m_xpull[index]->Fill(x_residual / sqrt(fabs(x_reserr2)));
+   if (y_valid && m_ypull[index]  &&  y_reserr2 != 0.)         m_ypull[index]->Fill(y_residual / sqrt(fabs(y_reserr2)));
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -890,10 +933,10 @@ void AlignmentMonitorMuonHIP::afterAlignment(const edm::EventSetup &iSetup) {
    delete [] m_wxresid_vsy;
    delete [] m_wyresid_vsx;
    delete [] m_wyresid_vsy;
-   // but the ROOT objects live on...  I can't figure out what ROOT's
-   // policy is on deleting pointers; people seem to never delete them.
-   // They probably accont for a greater share of memory than these
-   // little arrays
+   delete [] m_xpull;
+   delete [] m_ypull;
+
+   // The histograms themselves are deleted by the base class.
 }
 
 void AlignmentMonitorMuonHIP::createPythonGeometry() {
