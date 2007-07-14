@@ -10,19 +10,12 @@
 /** A concrete implementation for TEC petals
  */
 
-class TECPetal : public GeometricSearchDet{
+class TECPetal : public GeometricSearchDetWithGroups {
  public:  
   // GeometricSearchDet interface  
   virtual const BoundSurface& surface() const{return *theDiskSector;}
 
 
-  virtual std::vector<DetWithState> 
-  compatibleDets( const TrajectoryStateOnSurface& startingState,
-		  const Propagator& prop, 
-		  const MeasurementEstimator& est) const;
-
-  virtual bool hasGroups() const {return true;}  
-  
   //Extension of the interface
   virtual const BoundDiskSector& specificSurface() const {return *theDiskSector;}
 

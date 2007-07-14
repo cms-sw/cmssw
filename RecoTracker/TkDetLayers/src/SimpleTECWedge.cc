@@ -43,30 +43,24 @@ SimpleTECWedge::compatible( const TrajectoryStateOnSurface& tsos,
 			    const Propagator& prop, 
 			    const MeasurementEstimator& est) const
 {
-  GeomDetCompatibilityChecker theCompatibilityChecker;
-  pair<bool, TrajectoryStateOnSurface> 
-    compat = theCompatibilityChecker.isCompatible( theDet,tsos, prop, est);
-  
-  return compat;
+  return GeomDetCompatibilityChecker::isCompatible( theDet,tsos, prop, est);
 }
 
 
 
-vector<DetGroup> 
-SimpleTECWedge::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
-				       const Propagator& prop,
-				       const MeasurementEstimator& est) const
-{
+void
+SimpleTECWedge::::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
+					  const Propagator& prop,
+					   const MeasurementEstimator& est,
+					   std::vector<DetGroup> & result) const{
   pair<bool, TrajectoryStateOnSurface> compat = this->compatible(tsos,prop,est);
 
-  vector<DetGroup> result;
   if (compat.first) {
     result.push_back( DetGroup(0,1) ); 
     DetGroupElement ge( theDet, compat.second);
     result.front().push_back(ge);
   }
 
-  return result;
 }
 
 
