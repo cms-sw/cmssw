@@ -21,12 +21,14 @@ namespace Geom {
    *  It makes sense only if ALL phis are in a single hemisphere...
    */
   inline bool phiLess( float phi1, float phi2) {
-    float diff = phi2-phi1; 
+    float diff = fmod(phi2 - phi1, 2.0*M_PI);
+    // float diff = phi2-phi1; 
     if ( diff < 0) diff += 2*M_PI;
     return diff < M_PI;
   }
   inline bool phiLess(double phi1, double phi2) {
-    double diff = phi2-phi1; 
+    double diff = fmod(phi2 - phi1, 2.0*M_PI);
+    diff = phi2-phi1; 
     if ( diff < 0) diff += 2*M_PI;
     return diff < M_PI;
   }
