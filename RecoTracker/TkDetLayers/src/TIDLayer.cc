@@ -20,7 +20,7 @@ typedef GeometricSearchDet::DetWithState DetWithState;
 class TIDringLess : public binary_function< int, int, bool> {
   // z-position ordering of TID rings indices
 public:
-  bool operator()( const pair<vector<DetGroup>,int>  a,const pair<vector<DetGroup>,int>  b) const {
+  bool operator()( const pair<vector<DetGroup>,int> & a,const pair<vector<DetGroup>,int> & b) const {
     if(a.second==2) {return true;}
     else if(a.second==0) {
       if(b.second==2) return false;
@@ -102,39 +102,17 @@ TIDLayer::~TIDLayer(){
 
   
 
-vector<DetWithState> 
-TIDLayer::compatibleDets( const TrajectoryStateOnSurface& startingState,
-			  const Propagator& prop, 
-			  const MeasurementEstimator& est) const
-{
-  // standard implementation of compatibleDets() for class which have 
-  // groupedCompatibleDets implemented.
-  // This code should be moved in a common place intead of being 
-  // copied many times.
-  
-  vector<DetWithState> result;  
-  vector<DetGroup> vectorGroups = groupedCompatibleDets(startingState,prop,est);
-  for(vector<DetGroup>::const_iterator itDG=vectorGroups.begin();
-      itDG!=vectorGroups.end();itDG++){
-    for(vector<DetGroupElement>::const_iterator itDGE=itDG->begin();
-	itDGE!=itDG->end();itDGE++){
-      result.push_back(DetWithState(itDGE->det(),itDGE->trajectoryState()));
-    }
-  }
-  return result;  
-}
-
-
-vector<DetGroup> 
-TIDLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
+void
+TIDLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& startingState,
 				 const Propagator& prop,
-				 const MeasurementEstimator& est) const
+				 const MeasurementEstimator& est,
+				 std::vector<DetGroup> & result) const
 {
   vector<int> ringIndices = ringIndicesByCrossingProximity(startingState,prop);
   if ( ringIndices.size()!=3 ) {
     edm::LogError("TkDetLayers") << "TkRingedForwardLayer::groupedCompatibleDets : ringIndices.size() = "
 				 << ringIndices.size() << " and not =3!!" ;
-    return vector<DetGroup>();
+    return;
   }
 
   vector<DetGroup> closestResult;
@@ -142,34 +120,41 @@ TIDLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
   vector<DetGroup> nextNextResult;
   vector<vector<DetGroup> > groupsAtRingLevel;
 
-  closestResult = theComps[ringIndices[0]]->groupedCompatibleDets( startingState, prop, est);		
+  theComps[ringIndices[0]]->groupedCompatibleDetsV( startingState, prop, est, closestResult);		
   if ( closestResult.empty() ){
-    nextResult = theComps[ringIndices[1]]->groupedCompatibleDets( startingState, prop, est); 
-    return nextResult;
+    theComps[ringIndices[1]]->groupedCompatibleDetsV( startingState, prop, est, reusult); 
+    return;
   }
 
   groupsAtRingLevel.push_back(closestResult);
 
   DetGroupElement closestGel( closestResult.front().front());  
   float rWindow = computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est); 
-  if(!overlapInR(closestGel.trajectoryState(),ringIndices[1],rWindow)) return closestResult;
+  if(!overlapInR(closestGel.trajectoryState(),ringIndices[1],rWindow)) {
+    result.swap(closestResult);
+    return;
+  };
 
-  nextResult = theComps[ringIndices[1]]->groupedCompatibleDets( startingState, prop, est);
-  if(nextResult.empty()) return closestResult;
+  nextResult.clear();
+  theComps[ringIndices[1]]->groupedCompatibleDetsV( startingState, prop, est, nextResult);
+  if(nextResult.empty()) {
+    result.swap(closestResult);
+    return;
+  }
   groupsAtRingLevel.push_back(nextResult);
 
   if(!overlapInR(closestGel.trajectoryState(),ringIndices[2],rWindow) ) 
     //then merge 2 levels & return 
-    return orderAndMergeLevels(closestGel.trajectoryState(),prop,groupsAtRingLevel,ringIndices);      
+    orderAndMergeLevels(closestGel.trajectoryState(),prop,groupsAtRingLevel,ringIndices,result);      
     
-  nextNextResult = theComps[ringIndices[2]]->groupedCompatibleDets( startingState, prop, est);   
+  theComps[ringIndices[2]]->groupedCompatibleDetsV( startingState, prop, est, nextNextResult);   
   if(nextNextResult.empty()) 
     // then merge 2 levels and return 
-    return orderAndMergeLevels(closestGel.trajectoryState(),prop,groupsAtRingLevel,ringIndices);
+    orderAndMergeLevels(closestGel.trajectoryState(),prop,groupsAtRingLevel,ringIndices,result);
   
   groupsAtRingLevel.push_back(nextNextResult);
   // merge 3 level and return merged   
-  return orderAndMergeLevels(closestGel.trajectoryState(),prop,groupsAtRingLevel,ringIndices);  
+  orderAndMergeLevels(closestGel.trajectoryState(),prop,groupsAtRingLevel,ringIndices, result);  
 }
 
 
@@ -242,65 +227,67 @@ TIDLayer::computeWindowSize( const GeomDet* det,
   return maxDistance.y();
 }
 
+namespace {
+  void mergeOutward(vector< pair<vector<DetGroup>,int> > const & groupPlusIndex, 
+		    std::vector<DetGroup> & result ) {
+    typedef DetGroupMerger Merger;
+    Merger::orderAndMergeTwoLevels(groupPlusIndex[0].first,
+				   groupPlusIndex[1].first,result,1,1);
+    int size = groupPlusIndex.size();
+    if(size==3) {
+      std::vector<DetGroup> tmp;
+      tmp.swap(result);
+      Merger::orderAndMergeTwoLevels(tmp,groupPlusIndex[2].first,result,1,1);      
+    }
+    
+  }
+  
+  void mergeInward(vector< pair<vector<DetGroup>,int> > const & groupPlusIndex, 
+		   std::vector<DetGroup> & result ) {
+    typedef DetGroupMerger Merger;
+    int size = groupPlusIndex.size();
+    
+    if(size==2){
+      Merger::orderAndMergeTwoLevels(groupPlusIndex[1].first,
+				     groupPlusIndex[0].first,result,1,1);
+    }else if(size==3){	
+      std::vector<DetGroup> tmp;
+      Merger::orderAndMergeTwoLevels(groupPlusIndex[2].first,
+				     groupPlusIndex[1].first,tmp,1,1);
+      Merger::orderAndMergeTwoLevels(tmp,groupPlusIndex[0].first,result,1,1);      
+    }      
+  }
+}
 
-
-vector<DetGroup> 
+void
 TIDLayer::orderAndMergeLevels(const TrajectoryStateOnSurface& tsos,
 			      const Propagator& prop,
 			      const vector<vector<DetGroup> > groups,
-			      const vector<int> indices ) const 
+			      const vector<int> indices,
+			      std::vector<DetGroup> & result ) const 
 {
   vector< pair<vector<DetGroup>,int> > groupPlusIndex;
   for(unsigned int i=0;i<groups.size();i++){
     groupPlusIndex.push_back(pair<vector<DetGroup>,int>(groups[i],indices[i]) );
   }
   //order is ring3,ring1,ring2
-  sort(groupPlusIndex.begin(),groupPlusIndex.end(),TIDringLess());
+  std::sort(groupPlusIndex.begin(),groupPlusIndex.end(),TIDringLess());
   
-
-  DetGroupMerger merger;
-  vector<DetGroup> result;
-  int size = groupPlusIndex.size();
 
   float zpos = tsos.globalPosition().z();
   if(tsos.globalMomentum().z()*zpos>0){ // momentum points outwards
-    if(prop.propagationDirection() == alongMomentum){
-      result = merger.orderAndMergeTwoLevels(groupPlusIndex[0].first,
-					     groupPlusIndex[1].first,1,1);
-      if(size==3)
-	result =  merger.orderAndMergeTwoLevels(result,groupPlusIndex[2].first,1,1);      
-    }
-    else{ 
-      if(size==2){
-	result =  merger.orderAndMergeTwoLevels(groupPlusIndex[1].first,
-						groupPlusIndex[0].first,1,1);
-      }else if(size==3){	
-	result = merger.orderAndMergeTwoLevels(groupPlusIndex[2].first,
-					       groupPlusIndex[1].first,1,1);
-	result =  merger.orderAndMergeTwoLevels(result,groupPlusIndex[0].first,1,1);      
-      }      
-    }
+    if(prop.propagationDirection() == alongMomentum)
+      mergeOutward(groupPlusIndex,result);
+    else
+      mergeInward(groupPlusIndex,result);
   }
   else{ //  momentum points inwards
-    if(prop.propagationDirection() == oppositeToMomentum){
-      result = merger.orderAndMergeTwoLevels(groupPlusIndex[0].first,
-					     groupPlusIndex[1].first,1,1);
-      if(size==3)
-	result =  merger.orderAndMergeTwoLevels(result,groupPlusIndex[2].first,1,1);      
-    }
-    else{ 
-      if(size==2){
-	result =  merger.orderAndMergeTwoLevels(groupPlusIndex[1].first,
-						groupPlusIndex[0].first,1,1);
-      }else if(size==3){	
-	result = merger.orderAndMergeTwoLevels(groupPlusIndex[2].first,
-					       groupPlusIndex[1].first,1,1);
-	result =  merger.orderAndMergeTwoLevels(result,groupPlusIndex[0].first,1,1);      
-      }      
-    } 
-    
+    if(prop.propagationDirection() == oppositeToMomentum)
+      mergeOutward(groupPlusIndex,result);
+    else
+      mergeInward(groupPlusIndex,result);    
   }  
-  return result;
+  
 }
 
 int

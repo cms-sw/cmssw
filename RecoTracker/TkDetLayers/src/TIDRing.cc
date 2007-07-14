@@ -85,42 +85,21 @@ TIDRing::compatible( const TrajectoryStateOnSurface& ts, const Propagator&,
 }
 
 
-vector<DetWithState> 
-TIDRing::compatibleDets( const TrajectoryStateOnSurface& startingState,
-			 const Propagator& prop, 
-			 const MeasurementEstimator& est) const{
 
-  // standard implementation of compatibleDets() for class which have 
-  // groupedCompatibleDets implemented.
-  // This code should be moved in a common place intead of being 
-  // copied many times.
-  
-  vector<DetWithState> result;  
-  vector<DetGroup> vectorGroups = groupedCompatibleDets(startingState,prop,est);
-  for(vector<DetGroup>::const_iterator itDG=vectorGroups.begin();
-      itDG!=vectorGroups.end();itDG++){
-    for(vector<DetGroupElement>::const_iterator itDGE=itDG->begin();
-	itDGE!=itDG->end();itDGE++){
-      result.push_back(DetWithState(itDGE->det(),itDGE->trajectoryState()));
-    }
-  }
-  return result;  
-}
-
-
-vector<DetGroup> 
-TIDRing::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
-				const Propagator& prop,
-				const MeasurementEstimator& est) const
+void 
+TIDRing::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
+				 const Propagator& prop,
+				 const MeasurementEstimator& est,
+				 std::vector<DetGroup>& result) const
 {
-  vector<DetGroup> closestResult;
   SubLayerCrossings  crossings; 
   crossings = computeCrossings( tsos, prop.propagationDirection());
-  if(! crossings.isValid()) return closestResult;
+  if(! crossings.isValid()) return;
 
+  std::vector<DetGroup> closestResult
   addClosest( tsos, prop, est, crossings.closest(), closestResult); 
-  if (closestResult.empty())     return closestResult;
-
+  if (closestResult.empty())     return;
+  
   DetGroupElement closestGel( closestResult.front().front());  
   float phiWindow = computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est); 
   searchNeighbors( tsos, prop, est, crossings.closest(), phiWindow,
@@ -131,10 +110,8 @@ TIDRing::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
 		   nextResult, true); 
 
   int crossingSide = LayerCrossingSide().endcapSide( closestGel.trajectoryState(), prop);
-  DetGroupMerger merger;
-
-  return merger.orderAndMergeTwoLevels( closestResult, nextResult, 
-					crossings.closestIndex(), crossingSide);
+  DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result,
+					  crossings.closestIndex(), crossingSide);
 }
 
 
@@ -190,7 +167,7 @@ bool TIDRing::addClosest( const TrajectoryStateOnSurface& tsos,
 {
   const vector<const GeomDet*>& sub( subLayer( crossing.subLayerIndex()));
   const GeomDet* det(sub[crossing.closestDetIndex()]);
-  return CompatibleDetToGroupAdder().add( *det, tsos, prop, est, result); 
+  return CompatibleDetToGroupAdder::add( *det, tsos, prop, est, result); 
 }
 
 
@@ -235,18 +212,18 @@ void TIDRing::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 
   const BinFinderType& binFinder = (crossing.subLayerIndex()==0 ? theFrontBinFinder : theBackBinFinder);
 
-  CompatibleDetToGroupAdder adder;
+  typedef CompatibleDetToGroupAdder Adder;
   int half = sLayer.size()/2;  // to check if dets are called twice....
   for (int idet=negStartIndex; idet >= negStartIndex - half; idet--) {
     const GeomDet* neighborDet = sLayer[binFinder.binIndex(idet)];
     if (!overlapInPhi( gCrossingPos, neighborDet, window)) break;
-    if (!adder.add( *neighborDet, tsos, prop, est, result)) break;
+    if (!Adder::add( *neighborDet, tsos, prop, est, result)) break;
     // maybe also add shallow crossing angle test here???
   }
   for (int idet=posStartIndex; idet < posStartIndex + half; idet++) {
     const GeomDet* neighborDet = sLayer[binFinder.binIndex(idet)];
     if (!overlapInPhi( gCrossingPos, neighborDet, window)) break;
-    if (!adder.add( *neighborDet, tsos, prop, est, result)) break;
+    if (!Adder::add( *neighborDet, tsos, prop, est, result)) break;
     // maybe also add shallow crossing angle test here???
   }
 }

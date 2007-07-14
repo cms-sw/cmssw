@@ -10,7 +10,7 @@
 /** A concrete implementation for TID rings 
  */
 
-class TIDRing : public GeometricSearchDet{
+class TIDRing : public GeometricSearchDetWithGroups{
  public:
   TIDRing(std::vector<const GeomDet*>& innerDets,
 	  std::vector<const GeomDet*>& outerDets);
@@ -23,25 +23,12 @@ class TIDRing : public GeometricSearchDet{
   
   virtual const std::vector<const GeometricSearchDet*>& components() const;
 
-    
-
-  virtual std::pair<bool, TrajectoryStateOnSurface>
-  compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-	      const MeasurementEstimator&) const;
-
-  virtual std::vector<DetWithState> 
-  compatibleDets( const TrajectoryStateOnSurface& startingState,
-		  const Propagator& prop, 
-		  const MeasurementEstimator& est) const;
-
-  virtual std::vector<DetGroup> 
-  groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
-			 const Propagator& prop,
-			 const MeasurementEstimator& est) const;
-
-
-  virtual bool hasGroups() const {return true;}  
-
+  void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
+			       const Propagator& prop,
+			       const MeasurementEstimator& est,
+			       std::vector<DetGroup> & result) const;
+  
+ 
   //Extension of interface
   virtual const BoundDisk& specificSurface() const {return *theDisk;}
   

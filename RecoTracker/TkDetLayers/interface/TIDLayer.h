@@ -10,7 +10,7 @@
  *  built out of TIDRings
  */
 
-class TIDLayer : public RingedForwardLayer{
+class TIDLayer : public RingedForwardLayer, public GeometricSearchDetWithGroups {
  public:
   TIDLayer(std::vector<const TIDRing*>& rings);
   ~TIDLayer();
@@ -21,18 +21,10 @@ class TIDLayer : public RingedForwardLayer{
   
   virtual const std::vector<const GeometricSearchDet*>& components() const {return theComps;}
 
-  virtual std::vector<DetWithState> 
-    compatibleDets( const TrajectoryStateOnSurface& startingState,
-		    const Propagator& prop, 
-		    const MeasurementEstimator& est) const;
-  
-  virtual std::vector<DetGroup> 
-  groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
-			 const Propagator& prop,
-			 const MeasurementEstimator& est) const;
-
-
-  virtual bool hasGroups() const {return true;}
+  void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
+			       const Propagator& prop,
+			       const MeasurementEstimator& est,
+			       std::vector<DetGroup> & result) const;
 
   // DetLayer interface
   virtual SubDetector subDetector() const {return GeomDetEnumerators::TID;}
@@ -60,12 +52,12 @@ class TIDLayer : public RingedForwardLayer{
   			   const TrajectoryStateOnSurface& tsos, 
 			   const MeasurementEstimator& est) const;
   
-  std::vector<DetGroup> orderAndMergeLevels(const TrajectoryStateOnSurface& tsos,
-					    const Propagator& prop,
-					    const std::vector<std::vector<DetGroup> > groups,
-					    const std::vector<int> indices ) const;
-
-
+  static void
+  orderAndMergeLevels(const TrajectoryStateOnSurface& tsos,
+		      const Propagator& prop,
+		      const std::vector<std::vector<DetGroup> > groups,
+		      const std::vector<int> indices,
+		      std::vector<DetGroup> & result );
 
 
  protected:
