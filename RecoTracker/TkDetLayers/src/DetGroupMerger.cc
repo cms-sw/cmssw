@@ -4,6 +4,7 @@
 using namespace std;
 
 
+void
 DetGroupMerger::orderAndMergeTwoLevels( const vector<DetGroup>& one,  
 					const vector<DetGroup>& two,
 					std::vector<DetGroup>& result,
@@ -29,6 +30,7 @@ DetGroupMerger::orderAndMergeTwoLevels( const vector<DetGroup>& one,
 }
 
 
+void
 DetGroupMerger::mergeTwoLevels( const vector<DetGroup>& one,  const vector<DetGroup>& two, std::vector<DetGroup>& result) {
 
   result.reserve( one.size() + two.size());
