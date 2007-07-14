@@ -24,7 +24,7 @@ namespace tkDetUtil {
   float 
   calculatePhiWindow( const MeasurementEstimator::Local2DVector& maxDistance, 
 		      const TrajectoryStateOnSurface& ts, 
-		      const BoundPlane& plane) const
+		      const BoundPlane& plane)
   {
     
     LocalPoint start = ts.localPosition();
