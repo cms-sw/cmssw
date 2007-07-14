@@ -12,9 +12,7 @@
 <use name=Geometry/CaloTopology>
 <use name=CondCore/DBCommon>
 <use name=CondCore/DBOutputService>
-
-<Use name=xerces-c>
-<flags EDM_PLUGIN=1>
+<use name=xerces-c>
 <export>
    <lib name=CalibCalorimetryCaloMiscalibTools>
    <use name=FWCore/Framework>
@@ -31,5 +29,5 @@
    <use name=Geometry/CaloTopology>
    <use name=CondCore/DBCommon>
    <use name=CondCore/DBOutputService>
-   <Use name=xerces-c>
+   <use name=xerces-c>
 </export>
