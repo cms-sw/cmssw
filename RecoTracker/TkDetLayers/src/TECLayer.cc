@@ -11,7 +11,7 @@
 #include "TrackingTools/GeomPropagators/interface/HelixForwardPlaneCrossing.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
-#include "RecoTracker/TkDetLayers/src/interface/TkDetUtil.h"
+#include "RecoTracker/TkDetLayers/interface/TkDetUtil.h"
 
 
 using namespace std;

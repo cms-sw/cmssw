@@ -15,7 +15,7 @@
 
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
-#include "RecoTracker/TkDetLayers/src/interface/TkDetUtil.h"
+#include "RecoTracker/TkDetLayers/interface/TkDetUtil.h"
 
 using namespace std;
 

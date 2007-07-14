@@ -11,7 +11,7 @@ namespace tkDetUtil {
 
   float computeWindowSize( const GeomDet* det, 
 			   const TrajectoryStateOnSurface& tsos, 
-			   const MeasurementEstimator& est) const
+			   const MeasurementEstimator& est)
   {
     const BoundPlane& startPlane = det->surface();  
     MeasurementEstimator::Local2DVector maxDistance = 
