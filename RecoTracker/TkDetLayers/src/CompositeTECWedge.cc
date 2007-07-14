@@ -25,7 +25,7 @@ class DetPhiLess {
 public:
   bool operator()(const GeomDet* a,const GeomDet* b) 
   {
-    return phiLess(a->surface(), b->surface());
+    return Geom::phiLess(a->surface(), b->surface());
   } 
 };
 // ---------------------
@@ -103,6 +103,7 @@ CompositeTECWedge::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
   crossings = computeCrossings( tsos, prop.propagationDirection());
   if(! crossings.isValid()) return;
 
+  std::vector<DetGroup> closestResult;
   addClosest( tsos, prop, est, crossings.closest(), closestResult);
   LogDebug("TkDetLayers") 
     << "in CompositeTECWedge::groupedCompatibleDets,closestResult.size(): "

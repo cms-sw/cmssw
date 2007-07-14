@@ -84,7 +84,7 @@ CompositeTECPetal::compatible( const TrajectoryStateOnSurface& ts, const Propaga
 
 
 void
-CompositeTECPetal::groupedCompatibleDetsV( const TrajectoryStateOnSurface& startingState,
+CompositeTECPetal::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 					   const Propagator& prop,
 					   const MeasurementEstimator& est,
 			 std::vector<DetGroup> & result) const {
@@ -120,8 +120,8 @@ CompositeTECPetal::groupedCompatibleDetsV( const TrajectoryStateOnSurface& start
 		   nextResult, true); 
 
   int crossingSide = LayerCrossingSide().endcapSide( closestGel.trajectoryState(), prop);
-  DetGroupMerger merger::orderAndMergeTwoLevels( closestResult, nextResult, result, 
-						 crossings.closestIndex(), crossingSide);
+  DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result, 
+				          crossings.closestIndex(), crossingSide);
   }
 }
 
