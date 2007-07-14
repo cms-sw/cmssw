@@ -99,7 +99,7 @@ class GeometricSearchDet {
   groupedCompatibleDetsV( const TrajectoryStateOnSurface& startingState,
 			 const Propagator& prop,
 			 const MeasurementEstimator& est,
-			  std::vector<DetGroup> & result) const = 0;
+			  std::vector<DetGroup> & result) const; // = 0;
 
 
   virtual bool hasGroups() const = 0; 
