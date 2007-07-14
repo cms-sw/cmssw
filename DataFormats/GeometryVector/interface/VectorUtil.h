@@ -20,12 +20,12 @@ namespace Geom {
    *  phi1 to phi2 in the counterclockwise direction is smaller than pi.
    *  It makes sense only if ALL phis are in a single hemisphere...
    */
-  bool phiLess( float phi1, float phi2) {
+  inline bool phiLess( float phi1, float phi2) {
     float diff = phi2-phi1; 
     if ( diff < 0) diff += 2*M_PI;
     return diff < M_PI;
   }
-  bool phiLess(double phi1, double phi2) {
+  inline bool phiLess(double phi1, double phi2) {
     double diff = phi2-phi1; 
     if ( diff < 0) diff += 2*M_PI;
     return diff < M_PI;
