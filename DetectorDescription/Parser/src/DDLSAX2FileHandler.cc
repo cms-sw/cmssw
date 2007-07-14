@@ -162,9 +162,9 @@ std::string DDLSAX2FileHandler::extractFileName(std::string fullname)
 
 void DDLSAX2FileHandler::dumpElementTypeCounter()
 {
-  for (std::map<std::string, int>::const_iterator it = elementTypeCounter_.begin();
-       it != elementTypeCounter_.end(); ++it)
-    std::cout << "Element: " << it->first << " (" << it->second << ")" << std::endl;
+    //for (std::map<std::string, int>::const_iterator it = elementTypeCounter_.begin();
+    //   it != elementTypeCounter_.end(); ++it)
+    // There used to be cout printout here. No longer.
 }
 
 void DDLSAX2FileHandler::createDDConstants() const
