@@ -40,6 +40,7 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
   theOutInTrackFinder_(0), 
   theInOutSeedFinder_(0),
   theInOutTrackFinder_(0),
+  theLayerMeasurements_(0),
   isInitialized(0)
 
 {
