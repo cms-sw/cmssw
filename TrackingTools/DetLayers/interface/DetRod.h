@@ -10,7 +10,7 @@
 
 class MeasurementEstimator;
 
-class DetRod : public GeometricSearchDet   {
+class DetRod : public virtual GeometricSearchDet   {
  public:
   
   virtual ~DetRod();
