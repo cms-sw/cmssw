@@ -112,20 +112,20 @@ TECLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
     DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result, 
 					    crossings.closestIndex(), crossingSide);   
   }  
-  
-  DetGroupElement closestGel( closestResult.front().front());  
-  float phiWindow = computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est); 
-  searchNeighbors( tsos, prop, est, crossings.closest(), phiWindow,
-		   closestResult, false); 
-  vector<DetGroup> nextResult;  
-  searchNeighbors( tsos, prop, est, crossings.other(), phiWindow,
-		   nextResult, true); 
-  
-  int crossingSide = LayerCrossingSide().endcapSide( closestGel.trajectoryState(), prop);
-  DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result,
-					  crossings.closestIndex(), crossingSide);
+  else {
+    DetGroupElement closestGel( closestResult.front().front());  
+    float phiWindow = computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est); 
+    searchNeighbors( tsos, prop, est, crossings.closest(), phiWindow,
+		     closestResult, false); 
+    vector<DetGroup> nextResult;  
+    searchNeighbors( tsos, prop, est, crossings.other(), phiWindow,
+		     nextResult, true); 
+    
+    int crossingSide = LayerCrossingSide().endcapSide( closestGel.trajectoryState(), prop);
+    DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result,
+					    crossings.closestIndex(), crossingSide);
+  }
 }
-
 
 SubLayerCrossings TECLayer::computeCrossings(const TrajectoryStateOnSurface& startingState,
 					     PropagationDirection propDir) const
