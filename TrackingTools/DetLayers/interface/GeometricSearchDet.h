@@ -110,7 +110,7 @@ class GeometricSearchDet {
 };
 
 
-class GeometricSearchDetWithGroups : public GeometricSearchDet {
+class GeometricSearchDetWithGroups : public virtual GeometricSearchDet {
 public:
 typedef GeometricSearchDet::DetWithState DetWithState;
   

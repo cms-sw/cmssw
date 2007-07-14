@@ -94,12 +94,11 @@ PixelForwardLayer::compatibleDets( const TrajectoryStateOnSurface& startingState
 }
 
 
-vector<DetGroup> 
-PixelForwardLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
+void
+PixelForwardLayer::::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 					  const Propagator& prop,
-					  const MeasurementEstimator& est) const
-{  
-  vector<DetGroup> result;  //to clean out
+					   const MeasurementEstimator& est,
+					   std::vector<DetGroup> & result) const {
   vector<DetGroup> closestResult;
   SubTurbineCrossings  crossings; 
   try{
@@ -108,48 +107,44 @@ PixelForwardLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
   catch(DetLayerException& err){
     //edm::LogInfo(TkDetLayers) << "Aie, got a DetLayerException in PixelForwardLayer::groupedCompatibleDets:" 
     //	 << err.what() ;
-    return closestResult;
+    return;
   }
   CompatibleDetToGroupAdder adder;
   adder.add( *theComps[theBinFinder.binIndex(crossings.closestIndex)], 
 	     tsos, prop, est, closestResult);
 
   if(closestResult.empty()){
-    vector<DetGroup> nextResult;
     adder.add( *theComps[theBinFinder.binIndex(crossings.nextIndex)], 
-	       tsos, prop, est, nextResult);
-    return nextResult;
+	       tsos, prop, est, result);
+    return;
   }      
 
   DetGroupElement closestGel( closestResult.front().front());
   float window = computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est);
 
-  //vector<DetGroup> result;
   float detWidth = closestGel.det()->surface().bounds().width();
   if (crossings.nextDistance < detWidth + window) {
     vector<DetGroup> nextResult;
     if (adder.add( *theComps[theBinFinder.binIndex(crossings.nextIndex)], 
 		   tsos, prop, est, nextResult)) {
       int crossingSide = LayerCrossingSide().endcapSide( tsos, prop);
-      DetGroupMerger merger;
       int theHelicity = computeHelicity(theComps[theBinFinder.binIndex(crossings.closestIndex)],
 					theComps[theBinFinder.binIndex(crossings.nextIndex)] );
-      result = merger.orderAndMergeTwoLevels( closestResult, nextResult, 
+      DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result, 
 					      theHelicity, crossingSide);
     }
     else {
-      result = closestResult;
+      result.swap(closestResult);
     }
   }
   else {
-    result = closestResult;
+    result.swap(closestResult);
   }
 
   // only loop over neighbors (other than closest and next) if window is BIG
   if (window > 0.5*detWidth) {
     searchNeighbors( tsos, prop, est, crossings, window, result);
   } 
-  return result;  
 }
 
 
