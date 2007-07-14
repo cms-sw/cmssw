@@ -92,22 +92,22 @@ PixelBlade::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
     DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result,
 					    crossings.closestIndex(), crossingSide);   
   }
-  
-  DetGroupElement closestGel( closestResult.front().front());
-  float window = computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est);
-
-  searchNeighbors( tsos, prop, est, crossings.closest(), window,
-		   closestResult, false);
-
-  vector<DetGroup> nextResult;
-  searchNeighbors( tsos, prop, est, crossings.other(), window,
-		   nextResult, true);
-
-  int crossingSide = LayerCrossingSide().barrelSide( closestGel.trajectoryState(), prop);
-  DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result,
-					  crossings.closestIndex(), crossingSide);
+  else {
+    DetGroupElement closestGel( closestResult.front().front());
+    float window = computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est);
+    
+    searchNeighbors( tsos, prop, est, crossings.closest(), window,
+		     closestResult, false);
+    
+    vector<DetGroup> nextResult;
+    searchNeighbors( tsos, prop, est, crossings.other(), window,
+		     nextResult, true);
+    
+    int crossingSide = LayerCrossingSide().barrelSide( closestGel.trajectoryState(), prop);
+    DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result,
+					    crossings.closestIndex(), crossingSide);
+  }
 }
-
 
 SubLayerCrossings 
 PixelBlade::computeCrossings( const TrajectoryStateOnSurface& startingState,
