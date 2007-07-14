@@ -1,5 +1,25 @@
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+
+ void
+ GeometricSearchDet::compatibleDetsV( const TrajectoryStateOnSurface&,
+				      const Propagator&, 
+				      const MeasurementEstimator&,
+				      std::vector<DetWithState>&) const {
+   edm::LogError("DetLayers") << "At the moment not a real implementation" ;
+ }
+
+void
+GeometricSearchDet::groupedCompatibleDetsV( const TrajectoryStateOnSurface& startingState,
+					    const Propagator&,
+					    const MeasurementEstimator&,
+					    std::vector<DetGroup> &) const {
+   edm::LogError("DetLayers") << "At the moment not a real implementation" ;
+}
+
+
 std::vector<GeometricSearchDet::DetWithState> 
 GeometricSearchDet::compatibleDets( const TrajectoryStateOnSurface& startingState,
 				    const Propagator& prop, 
@@ -17,6 +37,9 @@ GeometricSearchDet::groupedCompatibleDets( const TrajectoryStateOnSurface& start
   groupedCompatibleDetsV(startingState, prop, est,result);
   return result;
 }
+
+
+
 
 void
 GeometricSearchDetWithGroups::compatibleDetsV( const TrajectoryStateOnSurface& startingState,

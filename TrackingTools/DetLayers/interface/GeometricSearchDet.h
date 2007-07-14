@@ -69,7 +69,7 @@ class GeometricSearchDet {
   compatibleDetsV( const TrajectoryStateOnSurface& startingState,
 		  const Propagator& prop, 
 		   const MeasurementEstimator& est,
-		   std::vector<DetWithState>& result) const=0;
+		   std::vector<DetWithState>& result) const; //=0;
 
   /** Similar to compatibleDets(), but the compatible Dets are grouped in 
    *  one or more groups.
