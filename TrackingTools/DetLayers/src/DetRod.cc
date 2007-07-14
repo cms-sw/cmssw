@@ -5,14 +5,6 @@ using namespace std;
 
 DetRod::~DetRod(){}
 
-void
-DetRod::compatibleDetsV( const TrajectoryStateOnSurface&,
-			 const Propagator&, 
-			 const MeasurementEstimator&,
-			 std::vector<DetWithState>&) const{
-  edm::LogError("DetLayers") << "At the moment not a real implementation" ;  
-}
-
 
 
 //obsolete?
