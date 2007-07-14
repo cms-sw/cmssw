@@ -20,18 +20,18 @@ namespace Geom {
    *  phi1 to phi2 in the counterclockwise direction is smaller than pi.
    *  It makes sense only if ALL phis are in a single hemisphere...
    */
-  bool phiLess( float phi1, float phi2) const {
-    float dphi = phi2-phi1; 
+  bool phiLess( float phi1, float phi2) {
+    float diff = phi2-phi1; 
     if ( diff < 0) diff += 2*M_PI;
     return diff < pi;
   }
-  bool phiLess(double phi1, double phi2) const {
-    double dphi = phi2-phi1; 
+  bool phiLess(double phi1, double phi2) {
+    double diff = phi2-phi1; 
     if ( diff < 0) diff += 2*M_PI;
     return diff < pi;
   }
   template <class Vector1, class Vector2> 
-  bool phiLess(const Vector1 & v1, const Vector2 & v2) const {
+  bool phiLess(const Vector1 & v1, const Vector2 & v2) {
     return phiLess(v1.phi(),v2.phi()); 
   }
 
