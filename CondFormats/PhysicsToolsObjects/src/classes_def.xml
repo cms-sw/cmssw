@@ -54,4 +54,6 @@
 	<class name="PhysicsTools::Calibration::MVAComputerContainer">
 		<field name="cacheId" transient="true"/>
 	</class>
+
+	<class pattern="*vector*"/>
 </lcgdict>
