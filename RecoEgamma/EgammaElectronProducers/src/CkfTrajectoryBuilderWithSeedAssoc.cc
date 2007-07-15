@@ -1,4 +1,3 @@
-//#include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilderWithSeedAssoc.h"
 #include "RecoEgamma/EgammaElectronProducers/interface/CkfTrajectoryBuilderWithSeedAssoc.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -14,14 +13,13 @@
 #include "TrackingTools/TrajectoryState/interface/BasicSingleTrajectoryState.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 
-//#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
-
 #include "RecoTracker/CkfPattern/src/RecHitIsInvalid.h"
 #include "RecoTracker/CkfPattern/interface/TrajCandLess.h"
 #include "RecoTracker/CkfPattern/interface/MinPtTrajectoryFilter.h"
 #include "RecoTracker/CkfPattern/interface/MaxHitsTrajectoryFilter.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
- #include "RecoTracker/CkfPattern/interface/TempTrajectory.h" 
+
+#include "RecoTracker/CkfPattern/interface/IntermediateTrajectoryCleaner.h"
 
 using namespace std;
 
@@ -118,6 +116,14 @@ limitedCandidates( Trajectory& startingTraj,
     for (TrajectoryContainer::iterator traj=candidates.begin();
 	 traj!=candidates.end(); traj++) {
       std::vector<TM> meas = findCompatibleMeasurements(*traj);
+
+      // --- method for debugging
+      if(!analyzeMeasurementsDebugger(*traj,meas,
+				      theMeasurementTracker,
+				      theForwardPropagator,theEstimator,
+				      theTTRHBuilder)) return;
+      // ---
+
       if ( meas.empty()) {
 	if ( qualityFilter( *traj)) addToResult( *traj, result);
       }
@@ -153,13 +159,12 @@ limitedCandidates( Trajectory& startingTraj,
     }
 
 
-    // FIXME: restore intermediary cleaning
     //if (theIntermediateCleaning) {
-    // candidates.clear();
-    // candidates = intermediaryClean(newCand);
+    //    candidates.clear();
+    //    candidates = IntermediateTrajectoryCleaner::clean(newCand);
     //} else {
-    //cout << "calling candidates.swap(newCand) " << endl;
-    candidates.swap(newCand);
+    //    //cout << "calling candidates.swap(newCand) " << endl;
+        candidates.swap(newCand);
     //}
   }
 }
@@ -214,6 +219,10 @@ CkfTrajectoryBuilderWithSeedAssoc::seedMeasurements(const TrajectorySeed& seed) 
       //result.push_back(TM( invalidState, recHit, 0, hitLayer));
     }
   }
+
+  // method for debugging
+  fillSeedHistoDebugger(result.begin(),result.end());
+  
   return result;
 }
 

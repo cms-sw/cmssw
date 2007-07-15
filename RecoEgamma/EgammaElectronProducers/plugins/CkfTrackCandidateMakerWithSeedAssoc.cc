@@ -31,59 +31,27 @@ using namespace edm;
 using namespace std;
 
 namespace cms{
-  CkfTrackCandidateMakerWithSeedAssoc::CkfTrackCandidateMakerWithSeedAssoc(edm::ParameterSet const& conf) : 
 
-    conf_(conf),theTrajectoryBuilder(0),theTrajectoryCleaner(0),
-    theInitialState(0),theNavigationSchool(0),theSeedCleaner(0)
+  CkfTrackCandidateMakerWithSeedAssoc::CkfTrackCandidateMakerWithSeedAssoc(edm::ParameterSet const& conf) : 
+    CkfTrackCandidateMakerBase(conf)
   {  
     produces<TrackCandidateCollection>();  
     produces<reco::TrackCandidateSeedAssociationCollection>();
   }
 
-  
-  // Virtual destructor needed.
-  CkfTrackCandidateMakerWithSeedAssoc::~CkfTrackCandidateMakerWithSeedAssoc() {
-    delete theInitialState;  
-    delete theNavigationSchool;
-    delete theTrajectoryCleaner;    
-    if (theSeedCleaner) delete theSeedCleaner;
-  }  
+  CkfTrackCandidateMakerWithSeedAssoc::~CkfTrackCandidateMakerWithSeedAssoc() {}  
 
   void CkfTrackCandidateMakerWithSeedAssoc::beginJob (EventSetup const & es)
   {
-    //services
-    es.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
-    es.get<IdealMagneticFieldRecord>().get(theMagField);
-      
-    // get nested parameter set for the TransientInitialStateEstimator
-    ParameterSet tise_params = conf_.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
-    theInitialState          = new TransientInitialStateEstimator( es,tise_params);
-    theNavigationSchool      = new SimpleNavigationSchool(&(*theGeomSearchTracker),&(*theMagField));
-    theTrajectoryCleaner     = new TrajectoryCleanerBySharedHits();          
+    beginJobBase(es);
+  }  
 
-    // set the correct navigation
-    NavigationSetter setter( *theNavigationSchool);
-
-    // set the TrajectoryBuilder
-    std::string trajectoryBuilderName = conf_.getParameter<std::string>("TrajectoryBuilder");
-    edm::ESHandle<TrackerTrajectoryBuilder> theTrajectoryBuilderHandle;
-    es.get<CkfComponentsRecord>().get(trajectoryBuilderName,theTrajectoryBuilderHandle);
-    theTrajectoryBuilder = theTrajectoryBuilderHandle.product();    
-    std::string cleaner = conf_.getParameter<std::string>("RedundantSeedCleaner");
-    if (cleaner == "SeedCleanerByHitPosition") {
-        theSeedCleaner = new SeedCleanerByHitPosition();
-    } else if (cleaner == "CachingSeedCleanerByHitPosition") {
-        theSeedCleaner = new CachingSeedCleanerByHitPosition();
-    } else if (cleaner == "none") {
-        theSeedCleaner = 0;
-    } else {
-        throw cms::Exception("RedundantSeedCleaner not found", cleaner);
-    }
-  }
-  
   // Functions that gets called by framework every event
   void CkfTrackCandidateMakerWithSeedAssoc::produce(edm::Event& e, const edm::EventSetup& es)
   {        
+
+    // method for Debugging
+    printHitsDebugger(e);
 
     // Step A: set Event for the TrajectoryBuilder
     theTrajectoryBuilder->setEvent(e);        
@@ -99,19 +67,25 @@ namespace cms{
     // Step C: Create empty output collections
     std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection);    
     std::auto_ptr<reco::TrackCandidateSeedAssociationCollection> outAssoc(new reco::TrackCandidateSeedAssociationCollection);    
+
     // Step D: Invoke the building algorithm
       vector <int> seedLocations3;
     if ((*collseed).size()>0){
-       vector<Trajectory> theFinalTrajectories;
-       TrajectorySeedCollection::const_iterator iseed;
+      vector<Trajectory> theFinalTrajectories;
+      TrajectorySeedCollection::const_iterator iseed;
+      TrajectorySeedCollection::const_iterator end = lastSeed(theSeedColl);
      
       vector<Trajectory> rawResult;
       if (theSeedCleaner) theSeedCleaner->init( &rawResult );
+     
+     // method for debugging
+      countSeedsDebugger();
+
       vector <int> seedLocations;
       int seednr =0;
       int seedkept =0;
       
-      for(iseed=theSeedColl.begin();iseed!=theSeedColl.end();iseed++){
+     for(iseed=theSeedColl.begin();iseed!=theSeedColl.end();iseed++){
 	vector<Trajectory> theTmpTrajectories;
 	
 	if (!theSeedCleaner || theSeedCleaner->good(&(*iseed))) {
@@ -123,7 +97,7 @@ namespace cms{
 			       << " trajectories for this seed ========";
 
 	theTrajectoryCleaner->clean(theTmpTrajectories);
-      
+           
 	for(vector<Trajectory>::const_iterator it=theTmpTrajectories.begin();
 	    it!=theTmpTrajectories.end(); it++){
 	  if( it->isValid() ) {
@@ -145,8 +119,9 @@ namespace cms{
       // Step E: Clean the result
       seednr=0;
       vector<Trajectory> unsmoothedResult;
-      vector <int> seedLocations2;
       theTrajectoryCleaner->clean(rawResult);
+
+      vector <int> seedLocations2;
       
       for (vector<Trajectory>::const_iterator itraw = rawResult.begin();
 	   itraw != rawResult.end(); itraw++) {
@@ -176,11 +151,6 @@ namespace cms{
 	  theInitialState->innerState( *it);
       
 	// temporary protection againt invalid initial states
-	//CC
-	//if (! initState.first.isValid() || initState.second == 0) {
-        //  //cout << "invalid innerState, will not make TrackCandidate" << endl;
-        //  continue;
-        //}
         if (initState.first.isValid() && initState.second != 0) {
 	
 	PTrajectoryStateOnDet* state = TrajectoryStateTransform().persistentState( initState.first,
