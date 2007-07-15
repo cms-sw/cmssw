@@ -1,0 +1,52 @@
+#!/usr/bin/env python 
+
+import sys
+import copy
+
+
+class Branch(object):
+    pass  
+
+
+def branchType(branch):
+    type = cmstools.ROOT.branchToClass(branch).GetName()
+    if "edm::Wrapper" in type:
+        type = type.replace("edm::Wrapper<","").rstrip(">")
+    return type
+
+
+def dumpBranches(filename):
+    events = cmstools.EventTree(filename)
+    listOfBranches = events._tree.GetListOfBranches()
+    branches = []
+    for branch in listOfBranches:
+      tmpBranch = Branch()
+      tmpBranch.name = branch.GetName()
+      if not "EventAux" in tmpBranch.name:
+        tmpBranch.label = tmpBranch.name.split("_")[2]
+        tmpBranch.type = branchType(branch)
+        tmpBranch.module = tmpBranch.name.split("_")[1]
+        tmpBranch.cpp = events.cppCode(tmpBranch.name)
+        branches.append(copy.copy(tmpBranch))
+
+    for branch in branches:
+      print '%s    "%s"    "%s"' %(branch.type, branch.module, branch.label)
+
+
+if __name__ == "__main__":
+
+    args = sys.argv
+    if 2 == len(args):
+        try:
+            import PhysicsTools.PythonAnalysis as cmstools
+            import ROOT
+            ROOT.gSystem.Load("libFWCoreFWLite.so")
+            ROOT.AutoLibraryLoader.enable()
+            filename = args[1]
+            dumpBranches(filename)
+        except:
+            "Could not read %s" %filename
+    else:
+        print "Usage: EdmDumpEventContent filename.root"
+
+                                                    
