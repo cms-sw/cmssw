@@ -55,7 +55,15 @@ public:
 
   const Bounds& bounds() const { return *theBounds;}
 
+  std::pair<float,float> const & phiSpan() const { return m_phiSpan;}
+
 private:
+  void computePhiSpan();
+
+private:
+
+  std::pair<float,float> m_phiSpan;
+
   //own_ptr<Bounds,OwnerPolicy::Clone> theBounds;
   std::auto_ptr<Bounds> theBounds;
 };
