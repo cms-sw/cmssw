@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store mapping for Hcal channels
 $Author: ratnikov
-$Date: 2007/05/05 19:49:07 $
-$Revision: 1.19 $
+$Date: 2007/07/13 20:44:33 $
+$Revision: 1.20 $
 */
 
 #include <iostream>
@@ -151,7 +151,7 @@ bool HcalElectronicsMap::mapEId2tId (HcalElectronicsId fElectronicsId, HcalTrigT
   } 
   else if (item.mTrigId != fTriggerId.rawId ()) {
     edm::LogWarning("HCAL") << "HcalElectronicsMap::mapEId2tId-> Electronics channel " <<  fElectronicsId  << " already mapped to trigger channel " 
-	      << (HcalTrigTowerDetId(item.mTrigId)) << ". New value " << fTriggerId << " is ignored" << std::endl;
+	      << (HcalTrigTowerDetId(item.mTrigId)) << ". New value " << fTriggerId << " is ignored" ;
     return false;
   }
   return true;
@@ -167,8 +167,8 @@ bool HcalElectronicsMap::mapEId2chId (HcalElectronicsId fElectronicsId, DetId fI
   } 
   else if (item.mId != fId.rawId ()) {
      edm::LogWarning("HCAL") << "HcalElectronicsMap::mapEId2tId-> Electronics channel " <<  fElectronicsId << " already mapped to channel " 
-	      << HcalGenericDetId(item.mId) << ". New value " << HcalGenericDetId(fId) << " is ignored" << std::endl;
-    return false;
+			     << HcalGenericDetId(item.mId) << ". New value " << HcalGenericDetId(fId) << " is ignored" ;
+       return false;
   }
   return true;
 }
