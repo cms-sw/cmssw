@@ -8,8 +8,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/01/15 22:16:28 $
-// $Revision: 1.3 $
+// $Date: 2007/03/07 22:04:03 $
+// $Revision: 1.4 $
 //
 
 #include <memory>
@@ -59,6 +59,9 @@ namespace cms
   {
     // retrieve producer name of input SiStripRecHit2DCollection
     std::string trackProducer = conf_.getParameter<std::string>("TrackProducer");
+    double maxNormalizedChisq =  conf_.getParameter<double>("MaxNormalizedChisq");
+    double minPT =  conf_.getParameter<double>("MinPT");
+    unsigned int minFound = (unsigned int)conf_.getParameter<int>("MinFound");
   
     //
     // extract tracker geometry
@@ -90,38 +93,33 @@ namespace cms
     }
 
   //
-  //  1 raw cloud - nothing to try merging, but one cloud to duplicate
+  //  quality cuts first
   //
+    std::vector<int> selected; for (unsigned int i=0; i<tC.size(); ++i){selected.push_back(1);}
 
-    if ( 1==tC.size() ){
+      int i=-1;
       for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++){
-        reco::Track * theTrack = new reco::Track(track->chi2(),
-						 (short unsigned)track->ndof(),
-						 track->innerPosition(),
-						 track->innerMomentum(),
-						 track->charge(),
-						 track->innerStateCovariance());    
-        //fill the TrackCollection
-        reco::TrackExtraRef theTrackExtraRef=track->extra();    
-        theTrack->setExtra(theTrackExtraRef);    
-	theTrack->setHitPattern((*theTrackExtraRef).recHits());
-        output->push_back(*theTrack);
-        delete theTrack;
-      }//end faux loop over tracks
-      e.put(output);
-      return;
-    }  
+      i++;  if (!selected[i])continue;
+      if ((short unsigned)track->ndof() < 1){selected[i]=0; continue;}
+      float rcs = track->chi2()/(float)track->ndof();
+      if (track->normalizedChi2() > maxNormalizedChisq){selected[i]=0; continue;}
+      if (track->found() < minFound){selected[i]=0; continue;}
+      if (track->pt() < minPT){selected[i]=0; continue;}
+      }//end loop over tracks
+
   //
   //  > 1 track - try merging
   //
-    std::vector<int> not_dup; for (unsigned int i=0; i<tC.size(); ++i){not_dup.push_back(1);}
+   if ( 1<tC.size() ){
     int i=-1;
     for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++){
-      i++; std::cout << "Track number "<< i << std::endl ; if (!not_dup[i])continue;
+      i++; 
+      std::cout << "Track number "<< i << std::endl ; 
+      if (!selected[i])continue;
       int j=-1;
       for (reco::TrackCollection::const_iterator track2=tC.begin(); track2!=tC.end(); track2++){
         j++;
-        if ((j<=i)||(!not_dup[j])||(!not_dup[i]))continue;
+        if ((j<=i)||(!selected[j])||(!selected[i]))continue;
         int noverlap=0;
         for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); it++){
           if ((*it)->isValid()){
@@ -137,21 +135,25 @@ namespace cms
                   << track2->recHitsSize() << " " << noverlap << " " << fi << " " << fj  <<std::endl;
         if ((fi>0.66)||(fj>0.66)){
           if (fi<fj){
-            not_dup[j]=0; std::cout << " removing 2nd trk in pair " << std::endl;
+            selected[j]=0; std::cout << " removing 2nd trk in pair " << std::endl;
           }else{
             if (fi>fj){
-              not_dup[i]=0; std::cout << " removing 1st trk in pair " << std::endl;
+              selected[i]=0; std::cout << " removing 1st trk in pair " << std::endl;
             }else{
               std::cout << " removing worst chisq in pair " << std::endl;
-              if (track->chi2() > track2->chi2()){not_dup[i]=0;}else{not_dup[j]=0;}
+              if (track->chi2() > track2->chi2()){selected[i]=0;}else{selected[j]=0;}
             }//end fi > or = fj
           }//end fi < fj
         }//end got a duplicate
       }//end track2 loop
     }//end track loop
+   }//end more than 1 track
+  //
+  //  output select tracks - if any
+  //
     i=-1;
     for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++){
-      i++;  if (!not_dup[i])continue;
+      i++;  if (!selected[i])continue;
         reco::Track * theTrack = new reco::Track(track->chi2(),
 						 (short unsigned)track->ndof(),
 						 track->innerPosition(),
