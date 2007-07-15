@@ -105,12 +105,10 @@ void CtfSpecialSeedGenerator::beginJob(const edm::EventSetup& iSetup){
 	for (iPSet = pSets.begin(); iPSet != pSets.end(); iPSet++){
 		std::string hitsfactoryName = iPSet->getParameter<std::string>("ComponentName");
         	theGenerators.push_back(OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, *iPSet));
-        	std::string propagationDirection = iPSet->getUntrackedParameter<std::string>("PropagationDirection", 
-                                                                                                    "alongMomentum");
+        	std::string propagationDirection = iPSet->getParameter<std::string>("PropagationDirection");
         	if (propagationDirection == "alongMomentum") thePropDirs.push_back(alongMomentum);
         	else thePropDirs.push_back(oppositeToMomentum);
-		std::string navigationDirection = iPSet->getUntrackedParameter<std::string>("NavigationDirection",              
-                                                                                                    "insideOut");
+		std::string navigationDirection = iPSet->getParameter<std::string>("NavigationDirection");              
 		if (navigationDirection == "insideOut") theNavDirs.push_back(insideOut);
                 else theNavDirs.push_back(outsideIn);
         	edm::LogVerbatim("CtfSpecialSeedGenerator") << "hitsGenerator done";
