@@ -49,7 +49,8 @@ void testWriteMVAComputerCondDB::endJob()
 {
 // set up some dummy calibration by hand for testing
 
-	MVAComputer *computer = new MVAComputer();
+	MVAComputerContainer *container = new MVAComputerContainer();
+	MVAComputer *computer = &container->add("test");
 
 // vars
 
@@ -184,8 +185,8 @@ void testWriteMVAComputerCondDB::endJob()
 	if (!dbService.isAvailable())
 		return;
 
-	dbService->createNewIOV<MVAComputer>(
-		computer, dbService->endOfTime(),
+	dbService->createNewIOV<MVAComputerContainer>(
+		container, dbService->endOfTime(),
 		"BTauGenericMVAJetTagComputerRcd");
 }
 

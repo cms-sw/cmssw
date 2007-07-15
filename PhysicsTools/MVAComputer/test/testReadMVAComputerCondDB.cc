@@ -37,9 +37,9 @@ testReadMVAComputerCondDB::testReadMVAComputerCondDB(const edm::ParameterSet &pa
 void testReadMVAComputerCondDB::analyze(const edm::Event& iEvent,
                                         const edm::EventSetup& iSetup)
 {
-	edm::ESHandle<Calibration::MVAComputer> calib;
+	edm::ESHandle<Calibration::MVAComputerContainer> calib;
 	iSetup.get<BTauGenericMVAJetTagComputerRcd>().get(calib);
-	MVAComputer computer(calib.product());
+	MVAComputer computer(&calib.product()->find("test"));
 
 	Variable::Value values[] = {
 		Variable::Value("toast", 4.4),
