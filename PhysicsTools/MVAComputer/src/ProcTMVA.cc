@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:     Discriminator
+// Package:     MVAComputer
 // Class  :     ProcTMVA
 // 
 
@@ -12,7 +12,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id$
+// $Id: ProcTMVA.cc,v 1.3 2007/05/17 21:42:16 saout Exp $
 //
 
 #include <string>

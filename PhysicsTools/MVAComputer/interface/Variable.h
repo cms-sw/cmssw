@@ -2,14 +2,14 @@
 #define PhysicsTools_MVAComputer_Variable_h
 // -*- C++ -*-
 //
-// Package:     Discriminator
+// Package:     MVAComputer
 // Class  :     Variable
 //
 
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: Variable.h,v 1.2 2007/05/18 14:11:30 saout Exp $
+// $Id: Variable.h,v 1.3 2007/05/25 16:37:58 saout Exp $
 //
 
 #include <string>

@@ -2,14 +2,14 @@
 #define PhysicsTools_MVAComputer_VarProcessor_h
 // -*- C++ -*-
 //
-// Package:     Discriminator
+// Package:     MVAComputer
 // Class  :     VarProcessor
 //
 
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: VarProcessor.h,v 1.2 2007/05/15 21:35:51 saout Exp $
+// $Id: VarProcessor.h,v 1.3 2007/05/25 16:37:58 saout Exp $
 //
 
 #include <algorithm>

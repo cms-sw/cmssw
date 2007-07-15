@@ -2,14 +2,14 @@
 #define PhysicsTools_MVAComputer_ProcessRegistry_h
 // -*- C++ -*-
 //
-// Package:     Discriminator
+// Package:     MVAComputer
 // Class  :     ProcessRegistry
 //
 
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcessRegistry.h,v 1.2 2007/05/21 02:01:59 saout Exp $
+// $Id: ProcessRegistry.h,v 1.3 2007/05/25 16:37:58 saout Exp $
 //
 
 #include <string>

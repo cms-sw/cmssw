@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:     Discriminator
+// Package:     MVAComputer
 // Class  :     ProcNormalize
 // 
 
@@ -12,7 +12,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcNormalize.cc,v 1.2 2007/05/14 00:07:43 saout Exp $
+// $Id: ProcNormalize.cc,v 1.3 2007/05/17 15:04:08 saout Exp $
 //
 
 #include <algorithm>

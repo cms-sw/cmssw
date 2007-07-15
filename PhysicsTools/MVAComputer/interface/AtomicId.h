@@ -2,14 +2,14 @@
 #define PhysicsTools_MVAComputer_AtomicId_h
 // -*- C++ -*-
 //
-// Package:     Discriminator
+// Package:     MVAComputer
 // Class  :     AtomicID
 //
 
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: AtomicId.h,v 1.1 2007/05/07 18:30:54 saout Exp $
+// $Id: AtomicId.h,v 1.2 2007/05/25 16:37:58 saout Exp $
 //
 
 #include <ostream>

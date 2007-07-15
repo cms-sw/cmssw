@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:     Discriminator
+// Package:     MVAComputer
 // Class  :     VarProcessor
 // 
 
@@ -10,7 +10,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: VarProcessor.cc,v 1.1 2007/05/07 18:30:55 saout Exp $
+// $Id: VarProcessor.cc,v 1.2 2007/05/25 16:37:59 saout Exp $
 //
 
 #include "PhysicsTools/MVAComputer/interface/VarProcessor.h"

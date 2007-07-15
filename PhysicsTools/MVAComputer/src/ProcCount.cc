@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:     Discriminator
+// Package:     MVAComputer
 // Class  :     ProcCount
 // 
 
@@ -9,7 +9,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Fri May 18 20:05 CEST 2007
-// $Id: ProcCount.cc,v 1.2 2007/05/17 15:04:08 saout Exp $
+// $Id: ProcCount.cc,v 1.1 2007/05/18 19:15:30 saout Exp $
 //
 
 #include "FWCore/Utilities/interface/Exception.h"

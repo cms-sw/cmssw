@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:     Discriminator
+// Package:     MVAComputer
 // Class  :     Spline
 // 
 
@@ -9,7 +9,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id$
+// $Id: Spline.cc,v 1.1 2007/05/07 18:30:55 saout Exp $
 //
 
 #include <cstring>

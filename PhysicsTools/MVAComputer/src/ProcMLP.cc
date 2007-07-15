@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:     Discriminator
+// Package:     MVAComputer
 // Class  :     ProcMLP
 // 
 
@@ -12,7 +12,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcMLP.cc,v 1.1 2007/05/07 18:30:55 saout Exp $
+// $Id: ProcMLP.cc,v 1.2 2007/05/17 15:04:08 saout Exp $
 //
 
 #include <stdlib.h>

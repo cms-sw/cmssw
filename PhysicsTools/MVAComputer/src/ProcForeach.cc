@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:     Discriminator
+// Package:     MVAComputer
 // Class  :     ProcForeach
 // 
 
@@ -10,7 +10,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcForeach.cc,v 1.1 2007/05/21 02:02:01 saout Exp $
+// $Id: ProcForeach.cc,v 1.1 2007/05/25 16:37:59 saout Exp $
 //
 
 #include <algorithm>

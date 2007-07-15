@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:     Discriminator
+// Package:     MVAComputer
 // Class  :     ProcLikelihood
 // 
 
@@ -12,7 +12,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcLikelihood.cc,v 1.2 2007/05/17 15:04:08 saout Exp $
+// $Id: ProcLikelihood.cc,v 1.3 2007/05/25 16:37:59 saout Exp $
 //
 
 #include <algorithm>
@@ -116,7 +116,7 @@ void ProcLikelihood::eval(ValueIterator iter, unsigned int n) const
 	else if (signal + background > 1.0e-20)
 		iter(signal / (signal + background));
 	else
-		iter(0.5);
+		iter();
 }
 
 } // anonymous namespace
