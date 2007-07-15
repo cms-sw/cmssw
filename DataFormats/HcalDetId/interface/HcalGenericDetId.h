@@ -4,12 +4,12 @@
 /** \class HcalGenericDetId
     \author F.Ratnikov, UMd
    Generic HCAL detector ID suitable for all Hcal subdetectors
-   $Id: HcalGenericDetId.h,v 1.1 2006/07/31 18:31:02 fedor Exp $
+   $Id: HcalGenericDetId.h,v 1.1 2006/09/08 21:39:22 mansj Exp $
 */
 
+#include <ostream>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-
 
 class HcalGenericDetId : public DetId {
  public:
@@ -26,5 +26,8 @@ class HcalGenericDetId : public DetId {
   bool isHcalTrigTowerDetId () const;
   bool isHcalZDCDetId () const;
 };
+
+std::ostream& operator<<(std::ostream&,const HcalGenericDetId& id);
+
 
 #endif

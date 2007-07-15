@@ -1,10 +1,14 @@
 /** \class HcalGenericDetId
     \author F.Ratnikov, UMd
    Generic HCAL detector ID suitable for all Hcal subdetectors
-   $Id: HcalGenericDetId.cc,v 1.1 2006/07/31 18:31:03 fedor Exp $
+   $Id: HcalGenericDetId.cc,v 1.1 2006/09/08 21:39:22 mansj Exp $
 */
 
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalCalibDetId.h"
 
 HcalSubdetector HcalGenericDetId::subdet() const {
   if (det () != Hcal) return HcalEmpty;
@@ -27,7 +31,9 @@ HcalGenericDetId::HcalGenericSubdetector HcalGenericDetId::genericSubdet () cons
     switch (otherSubdet ()) {
     case HcalZDC: return HcalGenZDC;
     case HcalCalibration: return HcalGenCalibration;
+    default: return HcalGenEmpty;
     }
+  default: return HcalGenEmpty;
   }
   return HcalGenEmpty;
 }
@@ -52,3 +58,22 @@ bool HcalGenericDetId::isHcalZDCDetId () const {
   return subdet == HcalGenZDC;
 }
 
+std::ostream& operator<<(std::ostream& s,const HcalGenericDetId& id) {
+  if (id.null()) s << "(Null Id)";
+  else 
+    switch (id.subdet()) {
+    case HcalBarrel: 
+    case HcalEndcap: 
+    case HcalOuter: 
+    case HcalForward: s << HcalDetId(id); break;
+    case HcalTriggerTower: s << HcalTrigTowerDetId(id); break;
+    case HcalOther:
+      switch (id.otherSubdet ()) {
+      case HcalZDC: s << HcalZDCDetId(id); break;
+      case HcalCalibration: s << HcalCalibDetId(id); break;
+      default: s << "(Hcal Unknown Other Id: 0x" << std::hex << id.rawId() << std::dec << ')';
+      } break;
+    default: s << "(Hcal Unknown Id: 0x" << std::hex << id.rawId() << std::dec << ')';
+    }
+  return s;
+}
