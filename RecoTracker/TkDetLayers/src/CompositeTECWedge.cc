@@ -252,7 +252,7 @@ bool CompositeTECWedge::overlap( const GlobalPoint& crossPoint, const GeomDet& d
   float phi = crossPoint.barePhi();
   pair<float,float> phiRange(phi-phiWindow, phi+phiWindow);
   pair<float,float> detPhiRange = computeDetPhiRange( det.surface());
-  return rangesIntersect( phiRange, detPhiRange, boost::function<bool(*)(float,float)>(Geom::phiLess));
+  return rangesIntersect( phiRange, detPhiRange, boost::function<bool(float,float)>(Geom::phiLess));
 }
  
 
@@ -268,9 +268,8 @@ CompositeTECWedge::computeDetPhiRange( const BoundPlane& plane) const
 int
 CompositeTECWedge::findClosestDet( const GlobalPoint& startPos,int sectorId) const
 {
-
   vector<const GeomDet*> myDets = sectorId==0 ? theFrontDets : theBackDets;
-  
+
   int close = 0;
   float closeDist = fabs( (myDets.front()->toLocal(startPos)).x());
   for (unsigned int i = 0; i < myDets.size(); i++ ) {
