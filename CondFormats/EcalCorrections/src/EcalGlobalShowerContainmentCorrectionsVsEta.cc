@@ -1,6 +1,6 @@
 // Implementation of class EcalGlobalShowerContainmentCorrectionsVsEta
 // Author: Paolo Meridiani
-// $Id: $
+// $Id: EcalGlobalShowerContainmentCorrectionsVsEta.cc,v 1.1 2007/07/13 17:37:04 meridian Exp $
 
 #include "CondFormats/EcalCorrections/interface/EcalGlobalShowerContainmentCorrectionsVsEta.h"
 #include <DataFormats/DetId/interface/DetId.h>
@@ -24,24 +24,28 @@ EcalGlobalShowerContainmentCorrectionsVsEta::fillCorrectionCoefficients(const Co
 /** Calculate the correction for the given direction and type  */
 const double 
 EcalGlobalShowerContainmentCorrectionsVsEta::correction(const DetId& xtal, 
-							  EcalGlobalShowerContainmentCorrectionsVsEta::Type type
+							EcalGlobalShowerContainmentCorrectionsVsEta::Type type
 							  ) const
 {
-
-  int offset=0;
-  
-  if (type==e5x5) offset+=  4* Coefficients::kCoefficients;
-  
-  double corr=0;
-
-  for (  int i=offset; 
-	 i<offset+Coefficients::kCoefficients; 
-	 ++i){  
-    //FIXME implement the correct function 
-    corr+= coefficients_.data[i] * pow( EBDetId(xtal).ieta(), i-offset) ;    
-  }
-
-  return corr;  
+  if (xtal.det() == DetId::Ecal && xtal.subdetId() == EcalBarrel )
+    {
+      int offset=0;
+      
+      if (type==e5x5) offset+= Coefficients::kCoefficients;
+      
+      double corr=0;
+      
+      if (EBDetId(xtal).ieta() < coefficients_.data[0])
+	corr=coefficients_.data[1];
+      else
+	corr=coefficients_.data[1] + coefficients_.data[2] * pow ( EBDetId(xtal).ieta() - coefficients_.data[0] , 2);
+      
+      return corr;
+    }
+  else if (xtal.det() == DetId::Ecal && xtal.subdetId() == EcalEndcap )
+    return 1.;
+  else
+    return -1;
 }
 
 const double 

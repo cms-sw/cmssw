@@ -1,6 +1,6 @@
 // Implementation of class EcalShowerContainmentCorrections
 // Author: Stefano Argiro'
-// $Id$
+// $Id: EcalShowerContainmentCorrections.cc,v 1.1 2007/05/15 20:37:22 argiro Exp $
 
 #include "CondFormats/EcalCorrections/interface/EcalShowerContainmentCorrections.h"
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
@@ -9,8 +9,8 @@
 
 
 const EcalShowerContainmentCorrections::Coefficients
-EcalShowerContainmentCorrections::correctionCoefficients(const EBDetId& centerxtal) const {
-
+EcalShowerContainmentCorrections::correctionCoefficients(const EBDetId& centerxtal) const 
+{
   GroupMap::const_iterator iter = groupmap_.find(centerxtal.rawId());
 
   if (iter!=groupmap_.end()) {

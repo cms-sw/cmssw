@@ -22,7 +22,7 @@
 
  * \endcode
  * \author       Paolo Meridiani
- * \id           $Id: $
+ * \id           $Id: EcalGlobalShowerContainmentCorrectionsVsEta.h,v 1.1 2007/07/13 17:37:06 meridian Exp $
 */
 
 #include <vector>
@@ -37,8 +37,8 @@ class EcalGlobalShowerContainmentCorrectionsVsEta {
  public:
   
   /// Structure defining the container for correction coefficients
-  /**  data[0-3]    : 3x3
-   *   data[4-7]    : 5x5
+  /**  data[0-2]    : 3x3
+   *   data[3-5]    : 5x5
    */
 
   struct Coefficients{
@@ -57,7 +57,7 @@ class EcalGlobalShowerContainmentCorrectionsVsEta {
     }
     
     ///The degree of the polynomial used as correction function plus one
-    static const int kCoefficients = 4;
+    static const int kCoefficients = 3;
     
     ///Number of types of correction:  3x3, 5x5
     static const int kNTypes           = 2; 
