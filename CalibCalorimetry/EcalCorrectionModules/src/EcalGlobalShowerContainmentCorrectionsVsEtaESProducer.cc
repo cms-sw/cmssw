@@ -10,7 +10,7 @@
 
      
  \author  Paolo Meridiani
- \id $Id: $
+ \id $Id: EcalGlobalShowerContainmentCorrectionsVsEtaESProducer.cc,v 1.1 2007/07/13 17:44:28 meridian Exp $
 */
 
 // system include files
@@ -66,25 +66,20 @@ EcalGlobalShowerContainmentCorrectionsVsEtaESProducer::produce(const EcalGlobalS
 
    auto_ptr<EcalGlobalShowerContainmentCorrectionsVsEta> pEcalGlobalShowerContainmentCorrectionsVsEta(new EcalGlobalShowerContainmentCorrectionsVsEta) ;
    
-   double values[] = {   0.998959,       // 3x3 
-			 0.00124547,	  
-			 -0.000348259,
-			 6.04065e-006,  
-			 0.999032,       // 5x5 
-			 7.90628e-005,
-			 -0.000175699,
-			 -2.60715e-007,
+   double values[] = {   43.77,       // 3x3 
+			 1.,	  
+			 -3.97e-006,
+			 43.77,       // 5x5 
+			 1.,	  
+			 -3.97e-006,
    };
-
-
-
-
-     const size_t size = sizeof values / sizeof values[0];
-     EcalGlobalShowerContainmentCorrectionsVsEta::Coefficients coeff;
-     std::copy(values,values+size,coeff.data);
-     pEcalGlobalShowerContainmentCorrectionsVsEta->fillCorrectionCoefficients(coeff);
-
-     return pEcalGlobalShowerContainmentCorrectionsVsEta ;
+   
+   const size_t size = sizeof values / sizeof values[0];
+   EcalGlobalShowerContainmentCorrectionsVsEta::Coefficients coeff;
+   std::copy(values,values+size,coeff.data);
+   pEcalGlobalShowerContainmentCorrectionsVsEta->fillCorrectionCoefficients(coeff);
+   
+   return pEcalGlobalShowerContainmentCorrectionsVsEta ;
 }
 
 //define this as a plug-in
