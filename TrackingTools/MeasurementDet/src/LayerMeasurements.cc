@@ -26,7 +26,7 @@ LayerMeasurements::measurements( const DetLayer& layer,
 
     if ( compat.first) {
       result.push_back( TrajectoryMeasurement( compat.second, 
-					       InvalidTransientRecHit::build(0, TrackingRecHit::missing), 0.F,
+					       InvalidTransientRecHit::build(0, TrackingRecHit::missing,&layer), 0.F,
 					       &layer));
     }
     return result;
@@ -89,7 +89,7 @@ LayerMeasurements::groupedMeasurements( const DetLayer& layer,
   if (result.empty()) {
     pair<bool, TrajectoryStateOnSurface> compat = layer.compatible( startingState, prop, est);
     if ( compat.first) {
-      TrajectoryMeasurement inval( compat.second, InvalidTransientRecHit::build(0, TrackingRecHit::missing), 0.F,&layer);
+      TrajectoryMeasurement inval( compat.second, InvalidTransientRecHit::build(0, TrackingRecHit::missing,&layer), 0.F,&layer);
       vector<TrajectoryMeasurement> tmVec(1,inval);
       result.push_back( TrajectoryMeasurementGroup( tmVec, DetGroup()));
     }
