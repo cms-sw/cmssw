@@ -169,16 +169,20 @@ CompositeTECWedge::computeCrossings( const TrajectoryStateOnSurface& startingSta
   int backIndex = findClosestDet(gBackPoint,1);
   SubLayerCrossing backSLC( 1, backIndex, gBackPoint);
 
-  //  float frontDist = std::abs(Geom::deltaPhi( gFrontPoint.barePhi(), theFrontDets[frontIndex]->surface().phi()));
+  float frontDist = std::abs(Geom::deltaPhi( double(gFrontPoint.barePhi()), 
+                    double(theFrontDets[frontIndex]->surface().phi())));
+  /*
   float frontDist = theFrontDets[frontIndex]->surface().phi()  - gFrontPoint.phi(); 
   frontDist *= Geom::phiLess( theFrontDets[frontIndex]->surface().phi(),gFrontPoint.barePhi()) ? -1. : 1.; 
   if (frontDist < 0.) { frontDist += 2.*Geom::pi();}
-
-  //  float frontDist = std::abs(Geom::deltaPhi( gBackPoint.barePhi(), theBackDets[backIndex]->surface().phi()));
+  */
+  float backDist = std::abs(Geom::deltaPhi( double(gBackPoint.barePhi()), 
+          double(theBackDets[backIndex]->surface().phi())));
+  /*
   float backDist = theBackDets[backIndex]->surface().phi()  - gBackPoint.phi(); 
   backDist  *= Geom::phiLess( theBackDets[backIndex]->surface().phi(),gBackPoint.barePhi()) ? -1. : 1.;
   if ( backDist < 0.) { backDist  += 2.*Geom::pi();}
-
+  */
   
   if (frontDist < backDist) {
     return SubLayerCrossings( frontSLC, backSLC, 0);
