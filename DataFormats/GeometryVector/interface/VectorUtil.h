@@ -32,7 +32,7 @@ namespace Geom {
     return dphi;
   }
   inline double deltaPhi(double phi1, double phi2) { 
-    return deltaBarePhi(Phi_mpi_pi(phi2)-Phi_mpi_pi(phi1));
+    return deltaBarePhi(Phi_mpi_pi(phi2),Phi_mpi_pi(phi1));
   }
   template <class Vector1, class Vector2> 
   double deltaPhi( const Vector1 & v1, const Vector2 & v2) { 
