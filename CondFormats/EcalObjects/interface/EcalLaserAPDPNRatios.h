@@ -2,8 +2,8 @@
 #define CondFormats_EcalObjects_EcalLaserAPDPNRatios_H 
 /**
  *Author: Vladlen Timciuc, Caltech
- * Created: 14 May 2007
- * $Id: EcalLaserAPDPNRatios.cc, 1.2 2007/05/16 14:12:00 Vladlen Exp $
+ * Created: 10 July 2007
+ * $Id: EcalLaserAPDPNRatios.cc, 1.2 2007/07/10 14:12:00 Vladlen Exp $
  **/
 #include <map>
 #include <boost/cstdint.hpp>
@@ -11,23 +11,22 @@
 
 class EcalLaserAPDPNRatios {
  public:
-   struct EcalLaserAPDPNpair{
+  struct EcalLaserAPDPNpair{
     float p1;
     float p2;
   };
- struct EcalLaserTimeStamp{
+  struct EcalLaserTimeStamp{
     uint32_t t1;
     uint32_t t2;
   };
   
-  typedef std::map<uint32_t, EcalLaserAPDPNRatios::EcalLaserAPDPNpair> EcalLaserAPDPNRatiosMap;
-  typedef std::map<uint32_t, EcalLaserAPDPNRatios::EcalLaserTimeStamp> EcalLaserTimeStampMap;
-  typedef std::map<uint32_t, EcalLaserAPDPNRatios::EcalLaserAPDPNpair>::const_iterator EcalLaserAPDPNRatiosMapIterator;
-  typedef std::map<uint32_t, EcalLaserAPDPNRatios::EcalLaserTimeStamp>::const_iterator EcalLaserTimeStampMapIterator;
+  typedef std::map<uint32_t, EcalLaserAPDPNpair> EcalLaserAPDPNRatiosMap;
+  typedef std::map<uint32_t, EcalLaserTimeStamp> EcalLaserTimeStampMap;
+  typedef std::map<uint32_t, EcalLaserAPDPNpair>::const_iterator EcalLaserAPDPNRatiosMapIterator;
+  typedef std::map<uint32_t, EcalLaserTimeStamp>::const_iterator EcalLaserTimeStampMapIterator;
 
   EcalLaserAPDPNRatios();
   ~EcalLaserAPDPNRatios();
-
 
    
   void  setValue(const uint32_t& id, const EcalLaserAPDPNpair& value);
@@ -40,7 +39,7 @@ class EcalLaserAPDPNRatios {
  private:
   EcalLaserAPDPNRatiosMap laser_map;
   EcalLaserTimeStampMap time_map;
-
-  
+   
 };
+
 #endif

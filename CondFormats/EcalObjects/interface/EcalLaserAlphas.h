@@ -3,7 +3,7 @@
 /**
  * Author: Vladlen Timciuc, Caltech, Pasadena, USA
  * Created: 15 May 2007
- * $Id: EcalLaserAlphas.h,v 1.0 2007/05/15 12:28:34 vladlen Exp $
+ * $Id: EcalLaserAlphas.h,v 1.2 2007/05/15 12:28:34 vladlen Exp $
  **/
 #include <map>
 #include <boost/cstdint.hpp>
@@ -13,6 +13,7 @@ class EcalLaserAlphas {
   public:
    typedef float EcalLaserAlpha;
    typedef std::map<uint32_t, EcalLaserAlpha> EcalLaserAlphaMap;
+   typedef std::map<uint32_t, EcalLaserAlpha>::const_iterator EcalLaserAlphaMapIterator;
 
     EcalLaserAlphas();
     ~EcalLaserAlphas();
@@ -22,4 +23,5 @@ class EcalLaserAlphas {
   private:
     EcalLaserAlphaMap map_;
 };
+
 #endif

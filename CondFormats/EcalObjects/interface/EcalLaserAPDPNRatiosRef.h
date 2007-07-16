@@ -2,8 +2,8 @@
 #define CondFormats_EcalObjects_EcalLaserAPDPNRatiosRef_H
 /**
  * Author: Vladlen Timciuc, Caltech, Pasadena, USA
- * Created: 15 May 2007
- * $Id: EcalLaserAPDPNRatiosRef.cc,v 1.1 2007/05/16 11:46:00 vladlen Exp $
+ * Created: 10 July 2007
+ * $Id: EcalLaserAPDPNRatiosRef.cc,v 1.2 2007/07/10 11:46:00 vladlen Exp $
  **/
 #include <map>
 #include <boost/cstdint.hpp>
@@ -13,6 +13,7 @@ class EcalLaserAPDPNRatiosRef {
   public:
    typedef float EcalLaserAPDPNref;
    typedef std::map<uint32_t, EcalLaserAPDPNref> EcalLaserAPDPNRatiosRefMap;
+   typedef std::map<uint32_t, EcalLaserAPDPNref>::const_iterator EcalLaserAPDPNRatiosRefMapIterator;
 
    EcalLaserAPDPNRatiosRef();
    ~EcalLaserAPDPNRatiosRef();
@@ -22,4 +23,6 @@ class EcalLaserAPDPNRatiosRef {
   private:
     EcalLaserAPDPNRatiosRefMap map_;
 };
+
+
 #endif
