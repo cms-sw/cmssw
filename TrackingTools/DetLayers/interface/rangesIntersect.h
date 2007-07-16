@@ -10,16 +10,14 @@
  *  the interval and r.second is the end of the interval.
  */
 
-template <class Range>
+template <typename Range>
 inline bool rangesIntersect( const Range& a, const Range& b) {
-  if ( a.first > b.second || b.first > a.second) return false;
-  else return true;
+  return !( a.first > b.second || b.first > a.second);
 }
 
-template <class Range, class Less>
+template <typename Range, typename Less>
 inline bool rangesIntersect( const Range& a, const Range& b, 
-			     const Less& less) {
-  if ( less(b.second,a.first) || less(a.second,b.first)) return false;
-  else return true;
+			     Less const &less) {
+  return  !( less(b.second,a.first) || less(a.second,b.first));
 }
 #endif

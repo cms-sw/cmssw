@@ -8,14 +8,14 @@
 #include "RecoTracker/TkDetLayers/interface/CompatibleDetToGroupAdder.h"
 
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
-#include "TrackingTools/DetLayers/interface/PhiLess.h"
+
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "TrackingTools/GeomPropagators/interface/HelixForwardPlaneCrossing.h"
 
-#include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
-#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "RecoTracker/TkDetLayers/interface/TkDetUtil.h"
+#include "DataFormats/GeometryVector/interface/VectorUtil.h"
+
 
 using namespace std;
 
@@ -154,7 +154,6 @@ CompositeTECWedge::computeCrossings( const TrajectoryStateOnSurface& startingSta
 
 
   int frontIndex = findClosestDet(gFrontPoint,0); 
-  float frontDist = theFrontDets[frontIndex]->surface().phi()  - gFrontPoint.phi(); 
   SubLayerCrossing frontSLC( 0, frontIndex, gFrontPoint);
 
   pair<bool,double> backPath = crossing.pathLength( *theBackSector);
@@ -168,12 +167,16 @@ CompositeTECWedge::computeCrossings( const TrajectoryStateOnSurface& startingSta
     << gBackPoint.phi() << ")" << endl;
   
   int backIndex = findClosestDet(gBackPoint,1);
-  float backDist = theBackDets[backIndex]->surface().phi()  - gBackPoint.phi(); 
   SubLayerCrossing backSLC( 1, backIndex, gBackPoint);
 
-  frontDist *= PhiLess()( theFrontDets[frontIndex]->surface().phi(),gFrontPoint.phi()) ? -1. : 1.; 
-  backDist  *= PhiLess()( theBackDets[backIndex]->surface().phi(),gBackPoint.phi()) ? -1. : 1.;
+  //  float frontDist = std::abs(Geom::deltaPhi( gFrontPoint.barePhi(), theFrontDets[frontIndex]->surface().phi()));
+  float frontDist = theFrontDets[frontIndex]->surface().phi()  - gFrontPoint.phi(); 
+  frontDist *= Geom::phiLess( theFrontDets[frontIndex]->surface().phi(),gFrontPoint.phi()) ? -1. : 1.; 
   if (frontDist < 0.) { frontDist += 2.*Geom::pi();}
+
+  //  float frontDist = std::abs(Geom::deltaPhi( gBackPoint.barePhi(), theBackDets[backIndex]->surface().phi()));
+  float backDist = theBackDets[backIndex]->surface().phi()  - gBackPoint.phi(); 
+  backDist  *= Geom::phiLess( theBackDets[backIndex]->surface().phi(),gBackPoint.phi()) ? -1. : 1.;
   if ( backDist < 0.) { backDist  += 2.*Geom::pi();}
 
   
@@ -222,7 +225,7 @@ void CompositeTECWedge::searchNeighbors( const TrajectoryStateOnSurface& tsos,
   int posStartIndex = closestIndex+1;
 
   if (checkClosest) { // must decide if the closest is on the neg or pos side
-    if ( PhiLess() (gCrossingPos.phi(), sWedge[closestIndex]->surface().position().phi()) ) {
+    if ( Geom::phiLess(gCrossingPos.barePhi(), sWedge[closestIndex]->surface().phi()) ) {
       posStartIndex = closestIndex;
     }
     else {
@@ -230,28 +233,26 @@ void CompositeTECWedge::searchNeighbors( const TrajectoryStateOnSurface& tsos,
     }
   }
 
-  CompatibleDetToGroupAdder adder;
+  typedef CompatibleDetToGroupAdder Adder;
   for (int idet=negStartIndex; idet >= 0; idet--) {
     //if(idet <0 || idet>=sWedge.size()) {edm::LogInfo(TkDetLayers) << "==== warning! gone out vector bounds.idet: " << idet ;break;}
     if (!overlap( gCrossingPos, *sWedge[idet], window)) break;
-    if (!adder.add( *sWedge[idet], tsos, prop, est, result)) break;
+    if (!Adder::add( *sWedge[idet], tsos, prop, est, result)) break;
   }
   for (int idet=posStartIndex; idet < static_cast<int>(sWedge.size()); idet++) {
     //if(idet <0 || idet>=sWedge.size()) {edm::LogInfo(TkDetLayers) << "==== warning! gone out vector bounds.idet: " << idet ;break;}
     if (!overlap( gCrossingPos, *sWedge[idet], window)) break;
-    if (!adder.add( *sWedge[idet], tsos, prop, est, result)) break;
+    if (!Adder::add( *sWedge[idet], tsos, prop, est, result)) break;
   }
 }
 
 
 bool CompositeTECWedge::overlap( const GlobalPoint& crossPoint, const GeomDet& det, float phiWindow) const
 {
-  pair<float,float> phiRange(crossPoint.phi()-phiWindow, crossPoint.phi()+phiWindow);
+  float phi = crossPoint.barePhi();
+  pair<float,float> phiRange(phi-phiWindow, phi+phiWindow);
   pair<float,float> detPhiRange = computeDetPhiRange( det.surface());
-  if ( rangesIntersect( phiRange, detPhiRange, PhiLess())) { 
-    return true;
-  } 
-  return false;
+  return rangesIntersect( phiRange, detPhiRange, &Geom::phiLess);
 }
  
 
@@ -259,50 +260,7 @@ bool CompositeTECWedge::overlap( const GlobalPoint& crossPoint, const GeomDet& d
 pair<float, float>
 CompositeTECWedge::computeDetPhiRange( const BoundPlane& plane) const 
 {  
-  const TrapezoidalPlaneBounds* trapezoidalBounds( dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
-  const RectangularPlaneBounds* rectangularBounds( dynamic_cast<const RectangularPlaneBounds*>(&(plane.bounds())));  
-
-  vector<GlobalPoint> corners;
-  if (trapezoidalBounds) {
-    vector<float> parameters = (*trapezoidalBounds).parameters();
-    if ( parameters[0] == 0 ) 
-      edm::LogError("TkDetLayers") << "CompositeTkPetalWedge: something weird going on with trapezoidal Plane Bounds!" ;
-    // edm::LogInfo(TkDetLayers) << " Parameters of DetUnit (L2/L1/T/H): " ;
-    // for (int i = 0; i < 4; i++ ) { edm::LogInfo(TkDetLayers) << "  " << 2.*parameters[i]; }
-    // edm::LogInfo(TkDetLayers) ;
-    
-    float hbotedge = parameters[0];
-    float htopedge = parameters[1];
-    float hapothem = parameters[3];   
-
-    corners.push_back( plane.toGlobal( LocalPoint( -htopedge, hapothem, 0.)));
-    corners.push_back( plane.toGlobal( LocalPoint(  htopedge, hapothem, 0.)));
-    corners.push_back( plane.toGlobal( LocalPoint(  hbotedge, -hapothem, 0.)));
-    corners.push_back( plane.toGlobal( LocalPoint( -hbotedge, -hapothem, 0.)));
-
-  }else if(rectangularBounds) {
-    float length = rectangularBounds->length();
-    float width  = rectangularBounds->width();   
-  
-    corners.push_back( plane.toGlobal( LocalPoint( -width/2, -length/2, 0.)));
-    corners.push_back( plane.toGlobal( LocalPoint( -width/2, +length/2, 0.)));
-    corners.push_back( plane.toGlobal( LocalPoint( +width/2, -length/2, 0.)));
-    corners.push_back( plane.toGlobal( LocalPoint( +width/2, +length/2, 0.)));
-  }else{  
-    string errmsg="TkForwardRing: problems with dynamic cast to rectangular or trapezoidal bounds for Det";
-    throw DetLayerException(errmsg);
-    edm::LogError("TkDetLayers") << errmsg ;
-  }
- 
-  float phimin = corners[0].phi();
-  float phimax = phimin;
-  for ( int i = 1; i < 4; i++ ) {
-    float cPhi = corners[i].phi();
-    if ( PhiLess()( cPhi, phimin)) { phimin = cPhi; }
-    if ( PhiLess()( phimax, cPhi)) { phimax = cPhi; }
-  }
-  return make_pair( phimin, phimax);
-  
+  return plane.phiSpan();
 }
 
 
