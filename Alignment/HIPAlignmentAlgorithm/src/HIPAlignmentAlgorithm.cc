@@ -59,6 +59,7 @@ HIPAlignmentAlgorithm::HIPAlignmentAlgorithm(const edm::ParameterSet& cfg):
   aperp[1]=vaperp[1];
   aperp[2]=vaperp[2];
 
+  theMaxAllowedHitPull = cfg.getParameter<double>("maxAllowedHitPull");
   theMinimumNumberOfHits = cfg.getParameter<int>("minimumNumberOfHits");
   theMaxRelParameterError = cfg.getParameter<double>("maxRelParameterError");
 
@@ -409,6 +410,12 @@ void HIPAlignmentAlgorithm::run( const edm::EventSetup& setup,
 	// add hit and impact point covariance matrices
 	covmat = covmat + ipcovmat;
 
+	// calculate the x pull and y pull of this hit
+	double xpull = 0.;
+	double ypull = 0.;
+	if (covmat[0][0] != 0.) xpull = (pos[0] - coor[0])/sqrt(fabs(covmat[0][0]));
+	if (covmat[1][1] != 0.) ypull = (pos[1] - coor[1])/sqrt(fabs(covmat[1][1]));
+
 	// get Alignment Parameters
         AlignmentParameters* params = ali->alignmentParameters();
         // get derivatives
@@ -422,25 +429,34 @@ void HIPAlignmentAlgorithm::run( const edm::EventSetup& setup,
           return; 
         }
 
+	bool useThisHit = (theMaxAllowedHitPull <= 0.);
+
 	// ignore track minus center-of-chamber "residual" from 1d hits (only muon drift tubes)
 	if ((*ihit)->dimension() == 1) {
 	   covmat[1][1] = 0.;
 	   covmat[0][1] = 0.;
+
+	   useThisHit = useThisHit || (fabs(xpull) < theMaxAllowedHitPull);
+	}
+	else {
+	   useThisHit = useThisHit || (fabs(xpull) < theMaxAllowedHitPull  &&  fabs(ypull) < theMaxAllowedHitPull);
 	}
 
-        // calculate user parameters
-        int npar=derivs.num_row();
-        AlgebraicSymMatrix thisjtvj(npar);
-        AlgebraicVector thisjtve(npar);
-        thisjtvj=covmat.similarity(derivs);
-        thisjtve=derivs * covmat * (pos-coor);
+	if (useThisHit) {
+	   // calculate user parameters
+	   int npar=derivs.num_row();
+	   AlgebraicSymMatrix thisjtvj(npar);
+	   AlgebraicVector thisjtve(npar);
+	   thisjtvj=covmat.similarity(derivs);
+	   thisjtve=derivs * covmat * (pos-coor);
 
-        // access user variables (via AlignmentParameters)
-        HIPUserVariables* uservar =
-          dynamic_cast<HIPUserVariables*>(params->userVariables());
-        uservar->jtvj += thisjtvj;
-        uservar->jtve += thisjtve;
-        uservar->nhit ++;
+	   // access user variables (via AlignmentParameters)
+	   HIPUserVariables* uservar =
+	      dynamic_cast<HIPUserVariables*>(params->userVariables());
+	   uservar->jtvj += thisjtvj;
+	   uservar->jtve += thisjtve;
+	   uservar->nhit ++;
+	}
       }
 
       itsos++;

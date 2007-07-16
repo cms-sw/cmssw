@@ -67,6 +67,8 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
   // alignment position error parameters
   double apesp[3],aperp[3];
   std::string apeparam;
+  // max allowed pull (residual / uncertainty) on a hit used in alignment
+  double theMaxAllowedHitPull;
   // min number of hits on alignable to calc parameters
   int theMinimumNumberOfHits;
   // max allowed rel error on parameter (else not used)
