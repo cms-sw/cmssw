@@ -12,7 +12,7 @@
 //
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
-// $Id: SiPixelMonitorTrackResiduals.h,v 1.2 2007/05/24 06:11:33 schuang Exp $
+// $Id: SiPixelMonitorTrackResiduals.h,v 1.3 2007/06/11 18:18:05 schuang Exp $
 
 
 #include <boost/cstdint.hpp>
@@ -38,8 +38,9 @@ class SiPixelMonitorTrackResiduals : public edm::EDAnalyzer {
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
   private:
-    DaqMonitorBEInterface* dbe_;
     edm::ParameterSet conf_; 
+    edm::InputTag src_;
+    DaqMonitorBEInterface* dbe_;
 
     std::map<uint32_t, SiPixelResidualModule*> thePixelStructure; 
 
