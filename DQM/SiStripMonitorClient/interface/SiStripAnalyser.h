@@ -4,8 +4,8 @@
 /** \class SiStripAnalyser
  * *
  *  SiStrip SiStripAnalyser
- *  $Date: 2007/07/12 11:05:54 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/07/12 21:13:30 $
+ *  $Revision: 1.3 $
  *  \author  S. Dutta INFN-Pisa
  *   
  */
@@ -17,6 +17,7 @@
 
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include <iostream>
 #include <fstream>
@@ -27,6 +28,8 @@
 class MonitorUserInterface;
 class DaqMonitorBEInterface;
 class SiStripWebInterface;
+class SiStripFedCabling;
+class FedTrackerMap;
  
 class SiStripAnalyser: public edm::EDAnalyzer, public evf::ModuleWeb{
 
@@ -38,7 +41,7 @@ public:
   /// Destructor
   virtual ~SiStripAnalyser();
   /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& eSetup);
 
   void defaultWebPage(xgi::Input *in, xgi::Output *out); 
   void publish(xdata::InfoSpace *){};
@@ -47,10 +50,10 @@ public:
 protected:
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob(const edm::EventSetup& eSetup);
 
   /// BeginRun
-  void beginRun(const edm::EventSetup& c);
+  void beginRun(const edm::EventSetup& eSetup);
 
 
   /// Endjob
@@ -61,6 +64,8 @@ protected:
   void saveAll();
 
 private:
+
+  void createFedTrackerMap();
 
   int nevents;
 
@@ -75,6 +80,8 @@ private:
   int fileSaveFrequency_;
   unsigned int collationFlag_;
   unsigned int runNumber_;
+  edm::ESHandle< SiStripFedCabling > fedCabling_;
+  FedTrackerMap* fedTrackerMap_;
 };
 
 

@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2007/07/09 20:21:22 $
- * $Revision: 1.1 $
+ * $Date: 2007/07/12 21:13:30 $
+ * $Revision: 1.2 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -17,7 +17,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQM/SiStripMonitorClient/interface/SiStripWebInterface.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
@@ -27,6 +26,13 @@
 #include "DQMServices/WebComponents/interface/CgiReader.h"
 #include "DQMServices/WebComponents/interface/ConfigBox.h"
 #include "DQMServices/WebComponents/interface/WebPage.h"
+
+#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+#include "CommonTools/TrackerMap/interface/FedTrackerMap.h"
+
+#include "DQM/SiStripMonitorClient/interface/SiStripWebInterface.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 
 #include <SealBase/Callback.h>
 
@@ -76,6 +82,7 @@ SiStripAnalyser::~SiStripAnalyser(){
 
   edm::LogInfo("SiStripAnalyser") <<  " Deleting SiStripAnalyser " << "\n" ;
   if (sistripWebInterface_) delete sistripWebInterface_;
+  if (fedTrackerMap_) delete fedTrackerMap_;
 
 }
 //
@@ -89,7 +96,7 @@ void SiStripAnalyser::endJob(){
 //
 // -- Begin Job
 //
-void SiStripAnalyser::beginJob(const edm::EventSetup& context){
+void SiStripAnalyser::beginJob(const edm::EventSetup& eSetup){
 
   nevents = 0;
   runNumber_ = 0;
@@ -100,13 +107,20 @@ void SiStripAnalyser::beginJob(const edm::EventSetup& context){
                                       << summaryFrequency_ << endl ;
 
   collationFlag_ = parameters.getUntrackedParameter<int>("CollationtionFlag",0); 
+
+  // Get Fed cabling
+  eSetup.get<SiStripFedCablingRcd>().get(fedCabling_);
+  fedTrackerMap_ = new FedTrackerMap(fedCabling_);
 }
 //
 //  -- Analyze 
 //
-void SiStripAnalyser::analyze(const edm::Event& e, const edm::EventSetup& context){
+void SiStripAnalyser::analyze(const edm::Event& e, const edm::EventSetup& eSetup){
   nevents++;
   runNumber_ = e.id().run();
+
+  eSetup.get<SiStripFedCablingRcd>().get(fedCabling_);
+ 
   if (nevents <= 5) return;
 
   cout << " ===> Iteration #" << nevents << endl;
@@ -121,6 +135,7 @@ void SiStripAnalyser::analyze(const edm::Event& e, const edm::EventSetup& contex
     cout << " Creating Tracker Map " << endl;
     sistripWebInterface_->setActionFlag(SiStripWebInterface::CreateTkMap);
     sistripWebInterface_->performAction();
+    createFedTrackerMap();
   }
   // Create predefined plots
   if (nevents%10  == 1) {
@@ -229,3 +244,31 @@ void SiStripAnalyser::defaultWebPage(xgi::Input *in, xgi::Output *out)
 //void SiStripAnalyser::handleWebRequest(xgi::Input *in, xgi::Output *out) {
 //  sistripWebInterface_->handleCustomRequest(in, out);
 //}
+//
+// -- create FED Tracker Map
+//
+void SiStripAnalyser::createFedTrackerMap() {
+    
+  const vector<uint16_t>& feds = fedCabling_->feds(); 
+  for(vector<unsigned short>::const_iterator ifed = feds.begin(); 
+                      ifed < feds.end(); ifed++){
+    const std::vector<FedChannelConnection> fedChannels = fedCabling_->connections( *ifed );
+    for(std::vector<FedChannelConnection>::const_iterator iconn = fedChannels.begin(); iconn < fedChannels.end(); iconn++){
+      
+      uint32_t detId = iconn->detId();
+      vector<MonitorElement*> all_mes = dbe->get(detId);
+      for (vector<MonitorElement *>::const_iterator it = all_mes.begin();
+	   it!= all_mes.end(); it++) {
+	if (!(*it)) continue;
+	string me_name = (*it)->getName();        
+        if (me_name.find("NumberOfDigis") != string::npos) {
+	  int istat =  SiStripUtility::getStatus(*it);   
+	  int rval, gval, bval;
+	  SiStripUtility::getStatusColor(istat, rval, gval, bval);
+	  fedTrackerMap_->fillc(iconn->fedId(), iconn->fedCh(), rval, gval, bval);
+        }
+      }      
+    }
+  }
+  fedTrackerMap_->print();
+}
