@@ -38,11 +38,13 @@ fit(const TrajectorySeed& aSeed,
   vector<Trajectory> smoothed;
 
   do{//if no outliers the fit is done only once
-    for (unsigned int j=0;j<myHits.size();j++) 
+    for (unsigned int j=0;j<myHits.size();j++) { 
       if (myHits[j]->det()) 
-	LogTrace("TrackFitters") << "hit #:" << j << " rawId=" << myHits[j]->det()->geographicalId().rawId() << " validity=" << myHits[j]->isValid();
+	LogTrace("TrackFitters") << "hit #:" << j << " rawId=" << myHits[j]->det()->geographicalId().rawId() 
+				 << " validity=" << myHits[j]->isValid();
       else
-	LogTrace("TrackFitters") << "hit #:" << j << " Invalid hit with no Det information";
+	LogTrace("TrackFitters") << "hit #:" << j << " Hit with no Det information";
+    }
     hasoutliers = false;
     double cut = theEstimateCut;
     unsigned int outlierId = 0;
