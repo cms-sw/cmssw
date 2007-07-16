@@ -70,14 +70,17 @@ void L3MuonIsolationProducer::beginJob(const edm::EventSetup& iSetup)
     theCuts = Cuts(cutsPSet);
   } 
   else if (
-       (cutsName== "L3NominalEfficiencyCuts_PXLS" && depositType=="PXLS")
-    || (cutsName== "L3NominalEfficiencyCuts_TRKS" && depositType=="TRKS") ) {
+//        (cutsName== "L3NominalEfficiencyCuts_PXLS" && depositType=="PXLS")
+//     || (cutsName== "L3NominalEfficiencyCuts_TRKS" && depositType=="TRKS") 
+//! test cutsName only. The depositType is informational only (has not been used so far) [VK]
+	   (cutsName== "L3NominalEfficiencyCuts_PXLS" )
+	   || (cutsName== "L3NominalEfficiencyCuts_TRKS") ) {
     theCuts = L3NominalEfficiencyConfigurator(cutsPSet).cuts();
   } 
   else {
     LogError("L3MuonIsolationProducer::beginJob")
-      <<"cutsName: "<<cutsPSet<<" is not recognized or does not match deposit type:"
-      <<depositType<<", theCuts not set!";
+      <<"cutsName: "<<cutsPSet<<" is not recognized:"
+      <<" theCuts not set!";
   }
   LogTrace("")<< theCuts.print();
 }
