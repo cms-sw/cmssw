@@ -110,6 +110,9 @@ class RecoMuonValidator : public edm::EDAnalyzer
   virtual void endJob();
   virtual void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
 
+ private:
+  void computeEfficiency(MonitorElement*,MonitorElement*,MonitorElement*);
+
  protected:
   typedef TrajectoryStateOnSurface TSOS;
   std::pair<TSOS, reco::TransientTrack> matchTrack(const SimTrack& simTrack,
@@ -143,6 +146,7 @@ class RecoMuonValidator : public edm::EDAnalyzer
   std::string subDir_;
   DaqMonitorBEInterface * theDQMService_;
   MonitorElement * hSimEtaVsPhi_, * hStaEtaVsPhi_, * hGlbEtaVsPhi_, * hTkEtaVsPhi_, * hSeedEtaVsPhi_;
+  MonitorElement * hSeedSim_effEta,* hStaSim_effEta,* hStaSeed_effEta,* hGlbSim_effEta,* hGlbTk_effEta,* hGlbSta_effEta,* hGlbSeed_effEta;
   MonitorElement * hEtaVsNDtSimHits_, * hEtaVsNCSCSimHits_, * hEtaVsNRPCSimHits_, * hEtaVsNSimHits_;
   MonitorElement * hSeedEtaVsNHits_, * hStaEtaVsNHits_, * hGlbEtaVsNHits_;
 

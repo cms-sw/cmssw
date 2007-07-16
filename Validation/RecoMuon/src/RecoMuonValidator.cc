@@ -96,6 +96,14 @@ void RecoMuonValidator::beginJob(const EventSetup& eventSetup)
                                       nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
     hSeedEtaVsPhi_ = theDQMService_->book2D("SeedEtaVsPhi", "Seed #eta vs #phi",
                                       nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
+
+    hSeedSim_effEta = theDQMService_->book1D("SeedSim_effEta","SeedSim Efficiency",nBinEta_,minEta_,maxEta_);
+    hStaSim_effEta = theDQMService_->book1D("StaSim_effEta","StaSim Efficiency",nBinEta_,minEta_,maxEta_);
+    hStaSeed_effEta = theDQMService_->book1D("StaSeed_effEta","StaSeed Efficiency",nBinEta_,minEta_,maxEta_);
+    hGlbSim_effEta = theDQMService_->book1D("GlbSim_effEta","GlbSim Efficiency",nBinEta_,minEta_,maxEta_);
+    hGlbTk_effEta = theDQMService_->book1D("GlbTk_effEta","GlbTk Efficiency",nBinEta_,minEta_,maxEta_);
+    hGlbSta_effEta = theDQMService_->book1D("GlbSta_effEta","GlbSta Efficiency",nBinEta_,minEta_,maxEta_);
+    hGlbSeed_effEta = theDQMService_->book1D("GlbSeed_effEta","GlbSeed Efficiency",nBinEta_,minEta_,maxEta_);
  
     hEtaVsNDtSimHits_  = theDQMService_->book2D("SimEtaVsNDtHits", "Sim #eta vs number of DT SimHits",
                                           nBinEta_, minEta_, maxEta_, nHits_, 0, static_cast<float>(nHits_));
@@ -127,6 +135,15 @@ void RecoMuonValidator::beginJob(const EventSetup& eventSetup)
 
 void RecoMuonValidator::endJob()
 {
+
+  computeEfficiency(hSeedSim_effEta,hSeedEtaVsPhi_,hSimEtaVsPhi_);
+  computeEfficiency(hStaSim_effEta,hStaEtaVsPhi_,hSimEtaVsPhi_);
+  computeEfficiency(hStaSeed_effEta,hStaEtaVsPhi_,hSeedEtaVsPhi_);
+  computeEfficiency(hGlbSim_effEta,hGlbEtaVsPhi_,hSimEtaVsPhi_);
+  computeEfficiency(hGlbTk_effEta,hGlbEtaVsPhi_,hTkEtaVsPhi_);
+  computeEfficiency(hGlbSta_effEta,hGlbEtaVsPhi_,hStaEtaVsPhi_);
+  computeEfficiency(hGlbSeed_effEta,hGlbEtaVsPhi_,hSeedEtaVsPhi_);
+
   if ( theDQMService_ ) theDQMService_->save(outputFileName_);
 }
 
@@ -319,4 +336,35 @@ int RecoMuonValidator::getNSimHits(const Event& event, string simHitLabel, unsig
     }
   }
   return nSimHits;
+}
+
+
+void RecoMuonValidator::computeEfficiency(MonitorElement *effHist, MonitorElement *recoTH2, MonitorElement *simTH2){
+  TH2F * h1 =dynamic_cast<TH2F*>(&(**((MonitorElementRootH2 *)recoTH2)));
+  TH1D* reco = h1->ProjectionX();
+
+  TH2F * h2 =dynamic_cast<TH2F*>(&(**((MonitorElementRootH2 *)simTH2)));
+  TH1D* sim  = h2 ->ProjectionX();
+
+    
+  TH1F *hEff = (TH1F*) reco->Clone();  
+  
+  hEff->Divide(sim);
+  
+  hEff->SetName("tmp_"+TString(reco->GetName()));
+  
+  // Set the error accordingly to binomial statistics
+  int nBinsEta = hEff->GetNbinsX();
+  for(int bin = 1; bin <=  nBinsEta; bin++) {
+    float nSimHit = sim->GetBinContent(bin);
+    float eff = hEff->GetBinContent(bin);
+    float error = 0;
+    if(nSimHit != 0 && eff <= 1) {
+      error = sqrt(eff*(1-eff)/nSimHit);
+    }
+    hEff->SetBinError(bin, error);
+    effHist->setBinContent(bin,eff);
+    effHist->setBinError(bin,error);
+  }
+  
 }
