@@ -1321,7 +1321,11 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
   const MagneticField & magfield_ (*magfield);
   magfield2_ = &magfield_;
 
-  StripCPE stripcpe(conf_,&magfield_,tracker2);
+
+  edm::ESHandle<StripClusterParameterEstimator> stripcpe;
+  es.get<TkStripCPERecord>().get("SimpleStripCPE",stripcpe);
+
+    //
 
 
   // Mangano's
@@ -1555,8 +1559,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	    Mposition = topol.measurementPosition(position);
 	    Merror = topol.measurementError(position,error);
 
-	    //LocalVector drift= driftDirection(stripdet);
-	    LocalVector drift = stripcpe.driftDirection(stripdet);
+	    LocalVector drift = stripcpe->driftDirection(stripdet);
 	    float thickness=stripdet->surface().bounds().thickness();
 	    rechitrphithickness = thickness;
 
@@ -1566,8 +1569,13 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	    float tanalpha = tan(anglealpha/57.3);
 	    //cout<<"Valid:tanalpha = "<<tanalpha<<endl;
 	    float tanalphaL = drift.x()/drift.z();
+	    //float tanalphaLbis = driftbis.x()/driftbis.z();
+	    //float tanalphaLter = driftter.x()/driftter.z();
 	    //cout<<"Validmonofrommatched:drift.x() = "<<drift.x()<<endl;
-	    //cout<<"Valid:drift.z() = "<<drift.z()<<endl;
+	    //cout<<"Valid:drift.x() = "<<drift.x()<<endl;
+	    //cout<<"Valid:driftbis.x() = "<<driftbis.x()<<endl;
+	    //cout<<"Valid:driftter.x() = "<<driftter.x()<<endl;
+	    //cout<<"Valid:driftter.z() = "<<driftter.z()<<endl;
 	    //cout<<"Valid:tanalphaL = "<<tanalphaL<<endl;
 	    Wtrack = fabs((thickness/pitch)*tanalpha - (thickness/pitch)*tanalphaL);
 	    //cout<<"Valid1:Wtrack = "<<Wtrack<<endl;
@@ -1674,7 +1682,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	      Merror = topol.measurementError(position,error);
 
 	      //LocalVector drift= driftDirection(stripdet);
-	      LocalVector drift = stripcpe.driftDirection(stripdet);
+	      LocalVector drift = stripcpe->driftDirection(stripdet);
 	      float thickness=stripdet->surface().bounds().thickness();
 	      rechitsasthickness = thickness;
 	      //cout<<"thickness = "<<thickness<<endl;
@@ -1799,9 +1807,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  Mposition = topol.measurementPosition(position);
 	  Merror = topol.measurementError(position,error);
 
-	  //LocalVector drift= driftDirection(stripdet);
-	  LocalVector drift = stripcpe.driftDirection(stripdet);
-	  //LocalVector driftcpe = stripcpe.driftDirection(stripdet);
+	  LocalVector drift = stripcpe->driftDirection(stripdet);
 	  float thickness=stripdet->surface().bounds().thickness();
 	  rechitrphithickness = thickness;
 	  //cout<<"Valid:thickness = "<<thickness<<endl;
@@ -1976,7 +1982,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
           Merror = topol.measurementError(position,error);
 
 	  //	  LocalVector drift= driftDirection(stripdet);
-	  LocalVector drift = stripcpe.driftDirection(stripdet);
+	  LocalVector drift = stripcpe->driftDirection(stripdet);
 	  float thickness=stripdet->surface().bounds().thickness();
 	  rechitsasthickness = thickness;
 	  //cout<<"thickness = "<<thickness<<endl;
