@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: FileInPath.cc,v 1.18 2007/05/17 23:40:10 wmtan Exp $
+// $Id: FileInPath.cc,v 1.19 2007/06/14 04:56:00 wmtan Exp $
 //
 // ----------------------------------------------------------------------
 
@@ -320,11 +320,20 @@ namespace edm
 
   void 
   FileInPath::getEnvironment() {
-    if (!envstring(LOCALTOP, localTop_)) {
-      localTop_.clear();
-    }
     if (!envstring(RELEASETOP, releaseTop_)) {
       releaseTop_.clear();
+    }
+    if (releaseTop_.empty()) {
+      // RELEASETOP was not set.  This means that the environment is set
+      // for the base release itself.  So LOCALTOP actually contains the 
+      // location of the base release.
+      if (!envstring(LOCALTOP, releaseTop_)) {
+        releaseTop_.clear();
+      }
+    } else {
+      if (!envstring(LOCALTOP, localTop_)) {
+        localTop_.clear();
+      }
     }
     if (!envstring(DATATOP, dataTop_)) {
       dataTop_.clear();
