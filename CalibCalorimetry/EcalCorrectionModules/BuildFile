@@ -4,9 +4,7 @@
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/EcalCorrections>
 <use name=DataFormats/EcalDetId>
-
-
-<flags SEAL_PLUGIN_NAME="CalibCalorimetryEcalCorrectionModules">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=CalibCalorimetryEcalCorrectionModules>
    <use name=FWCore/Framework>
