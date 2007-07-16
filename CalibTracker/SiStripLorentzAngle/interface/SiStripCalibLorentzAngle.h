@@ -29,7 +29,7 @@ class SiStripCalibLorentzAngle : public ConditionDBWriter<SiStripLorentzAngle>
 
  private:
 
-  std::vector< std::pair<uint32_t, float> > detid_la;
+  std::map< uint32_t, float> detid_la;
   edm::ParameterSet conf_;
   //  double appliedVoltage_;
   //  double chargeMobility_;
