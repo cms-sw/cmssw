@@ -83,20 +83,32 @@ void ElectronMomentumCorrector::correct(reco::PixelMatchGsfElectron &electron, T
   float finalMomentum = (scEnergy/errorEnergy_/errorEnergy_ + trackMomentum/errorTrackMomentum_/errorTrackMomentum_) /
                        (1/errorEnergy_/errorEnergy_ + 1/errorTrackMomentum_/errorTrackMomentum_);
 
-//  if ( eOverP - 1 > 2*errorEOverP ) finalMomentum = scEnergy;
 
-  if ( eOverP - 1 > 2*errorEOverP ){
-    if (int(elClass/10)!=3 && int(elClass/10)!=13 && elClass!=40){
-      if (scEnergy<15) finalMomentum = trackMomentum;
-      else finalMomentum = scEnergy;
+
+//-------------------------------------
+
+    if ( eOverP  > 1 + 2.5*errorEOverP ){
+      finalMomentum = scEnergy;
+      if ((elClass==0 || elClass==100) && eOverP < 1.15){
+	if (scEnergy<15) finalMomentum = trackMomentum;
+      }
+    } 
+    else if ( eOverP < 1 - 2.5*errorEOverP ) {
+      finalMomentum = scEnergy;
+      if (int(elClass/10)==3){
+	if(scEnergy<18) finalMomentum = trackMomentum;
+      }
+      if(int(elClass/10)==13){  
+	if(scEnergy<13) finalMomentum = trackMomentum;
+      }
+      if (elClass==40){
+	if(scEnergy<60) finalMomentum = trackMomentum;
+      }
     }
-    else finalMomentum = scEnergy;
-  }
 
-  if ( eOverP < 1-2*errorEOverP ) {
-    if (scEnergy<15) finalMomentum = trackMomentum;
-    else finalMomentum = scEnergy;
-  }
+
+  //-------------------------------------
+
     
   //  HepLorentzVector oldMomentum = electron.fourMomentum();
   //  newMomentum_ = HepLorentzVector(
