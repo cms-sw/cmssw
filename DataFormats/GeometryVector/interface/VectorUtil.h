@@ -57,14 +57,14 @@ namespace Geom {
   }
   */
   inline bool phiLess(float phi1, float phi2) {
-    return deltaPhi(phi1,phi2)>0;
+    return deltaPhi(phi1,phi2)<0;
   }
   inline bool phiLess(double phi1, double phi2) {
-    return deltaPhi(phi1,phi2)>0;
+    return deltaPhi(phi1,phi2)<0;
   }
   template <class Vector1, class Vector2> 
   bool phiLess(const Vector1 & v1, const Vector2 & v2) {
-    return deltaPhi(v1,v2)>0.; 
+    return deltaPhi(v1,v2)<0.; 
   }
 
     
