@@ -1,4 +1,5 @@
 #include "DataFormats/GeometrySurface/interface/BoundSpan.h"
+#include "DataFormats/GeometrySurface/interface/BoundSurface.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 
