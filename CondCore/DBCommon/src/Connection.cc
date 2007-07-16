@@ -48,46 +48,35 @@ void cond::Connection::connect( cond::DBSession* session ){
 */
 cond::CoralTransaction&
 cond::Connection::coralTransaction(bool isReadOnly){
-  if( m_coralConnectionPool.size()==0 ){
-    cond::CoralConnectionProxy* me=new cond::CoralConnectionProxy(
-    m_connectionServiceHandle,m_con,isReadOnly,m_connectionTimeOut); 
-    m_coralConnectionPool.push_back(me);
-    return static_cast<cond::CoralTransaction&>( me->transaction() );
-  }else{
+  if( m_coralConnectionPool.size()!=0 ){
     std::vector<cond::CoralConnectionProxy*>::iterator it;
     std::vector<cond::CoralConnectionProxy*>::iterator itEnd=m_coralConnectionPool.end();
     for( it=m_coralConnectionPool.begin(); it!=itEnd; ++it ){
       if( (*it)->isReadOnly() == isReadOnly){ //found same type
 	return static_cast<cond::CoralTransaction&>((*it)->transaction());
-      }else{
-	cond::CoralConnectionProxy* me=new cond::CoralConnectionProxy(
-           m_connectionServiceHandle,m_con,isReadOnly,m_connectionTimeOut); 
-	m_coralConnectionPool.push_back(me);
-	return static_cast<cond::CoralTransaction&>( me->transaction() );
       }
     }
   }
+  cond::CoralConnectionProxy* me=new cond::CoralConnectionProxy(
+    m_connectionServiceHandle,m_con,isReadOnly,m_connectionTimeOut); 
+  m_coralConnectionPool.push_back(me);
+  return static_cast<cond::CoralTransaction&>( me->transaction() );
 }
 //return transaction object(poolproxy, current transactionCounter, current time
 cond::PoolTransaction&
 cond::Connection::poolTransaction(bool isReadOnly){
-  if( m_poolConnectionPool.size()==0 ){
-    cond::PoolConnectionProxy* me=new cond::PoolConnectionProxy(m_con,m_catalog,isReadOnly,m_connectionTimeOut); 
-    m_poolConnectionPool.push_back(me);
-    return static_cast<cond::PoolTransaction&>(me->transaction());
-  }else{
+  if( m_poolConnectionPool.size()!=0 ){
     std::vector<cond::PoolConnectionProxy*>::iterator it;
     std::vector<cond::PoolConnectionProxy*>::iterator itEnd=m_poolConnectionPool.end();
     for( it=m_poolConnectionPool.begin(); it!=itEnd; ++it ){
       if( (*it)->isReadOnly() == isReadOnly){ //found same type
 	return static_cast<cond::PoolTransaction&>((*it)->transaction());
-      }else{
-	 cond::PoolConnectionProxy* me=new cond::PoolConnectionProxy(m_con,m_catalog,isReadOnly,m_connectionTimeOut); 
-	 m_poolConnectionPool.push_back(me);
-	 return static_cast<cond::PoolTransaction&>(me->transaction());
       }
     }
   }
+  cond::PoolConnectionProxy* me=new cond::PoolConnectionProxy(m_con,m_catalog,isReadOnly,m_connectionTimeOut); 
+  m_poolConnectionPool.push_back(me);
+  return static_cast<cond::PoolTransaction&>(me->transaction());
 }
 std::string 
 cond::Connection::connectStr() const{

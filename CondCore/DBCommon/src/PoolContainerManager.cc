@@ -15,10 +15,11 @@ cond::PoolContainerManager::PoolContainerManager(  cond::PoolTransaction& pooldb
 void 
 cond::PoolContainerManager::listAll( std::vector<std::string>& containers ){
   std::string con=m_pooldb->parentConnection().connectStr();
-  std::cout<<"con "<<con<<std::endl;
   pool::IDatabase* mydb=m_pooldb->poolDataSvc().session().databaseHandle(con, pool::DatabaseSpecification::PFN);
-  std::cout<<"containers "<<mydb->containers().size()<<std::endl;
-  std::copy(mydb->containers().begin(),mydb->containers().end(),containers.begin());
+  mydb->connectForRead();
+  mydb->containers().swap(containers);
+  mydb->disconnect();
+  delete mydb;
 }
 void 
 cond::PoolContainerManager::exportContainer( cond::PoolTransaction& destdb, 

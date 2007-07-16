@@ -42,7 +42,7 @@ int main(){
   cond::TypedRef<testCondObj> myref(myconnection->poolTransaction(false),myobj);
   myref.markWrite("testCondObjContainer");
   poolTransaction.commit();
-  cond::Connection* myconnection2=conHandler.getConnection("mysqlite2",false);
+  cond::Connection* myconnection2=conHandler.getConnection("mysqlite2");
   std::cout<<"myconnection2 "<<myconnection2<<std::endl;
   cond::CoralTransaction& coralTransaction2=myconnection2->coralTransaction(false);
   coralTransaction2.start();

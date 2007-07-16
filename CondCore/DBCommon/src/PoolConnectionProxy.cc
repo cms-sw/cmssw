@@ -20,11 +20,11 @@ cond::PoolConnectionProxy::PoolConnectionProxy(const std::string& con,
   m_transactionCounter( 0 ),
   m_connectionTimeOut( connectionTimeOut )
 {
-  if(!m_isReadOnly){
-    m_catalog->setWriteCatalog(catalog);
-  }else{
-    m_catalog->addReadCatalog(catalog);
-  }
+  m_catalog->setWriteCatalog(catalog);
+  //if(!m_isReadOnly){
+  //}else{
+  //  m_catalog->addReadCatalog(catalog);
+  //}
 }
 cond::PoolConnectionProxy::~PoolConnectionProxy(){
   delete m_transaction;
@@ -65,10 +65,11 @@ cond::PoolConnectionProxy::connect(){
   if(m_connectionTimeOut!=0){
     m_timer.restart();
   }
+  
 }
 void
 cond::PoolConnectionProxy::disconnect(){
-  //m_datasvc->transaction().commit();
+  m_datasvc->transaction().commit();
   m_datasvc->session().disconnectAll();
   m_catalog->commit();
   m_catalog->disconnect();
@@ -77,14 +78,14 @@ cond::PoolConnectionProxy::disconnect(){
 }
 void 
 cond::PoolConnectionProxy::reactOnStartOfTransaction( const ITransaction* transactionSubject ){
-   if(m_transactionCounter==0){
-     this->connect();
-     static_cast<const cond::PoolTransaction*>(transactionSubject)->resetPoolDataSvc(m_datasvc);
-   }
-   ++m_transactionCounter;
+  if(m_transactionCounter==0){
+    this->connect();
+    static_cast<const cond::PoolTransaction*>(transactionSubject)->resetPoolDataSvc(m_datasvc);
+  }
+  ++m_transactionCounter;
 }
 void 
-cond::PoolConnectionProxy::reactOnEndOfTransaction( const ITransaction* transactionSubject ){
+cond::PoolConnectionProxy::reactOnEndOfTransaction( const ITransaction* transactionSubject ){  
   if(m_connectionTimeOut==0){
     this->disconnect();
   }else{

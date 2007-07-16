@@ -12,7 +12,7 @@
 #include <iostream>
 int main(){
   cond::DBSession* session=new cond::DBSession;
-  session->configuration().setMessageLevel(cond::Debug);
+  session->configuration().setMessageLevel(cond::Error);
   session->configuration().setAuthenticationMethod(cond::XML);
   static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
   conHandler.registerConnection("sourcedata","sqlite_file:source.db","file:mycatalog.xml",0);
@@ -31,7 +31,9 @@ int main(){
     std::string token=myref.token();
     std::cout<<"token "<<token<<std::endl;
     poolTransaction.commit();
+    std::cout<<"committed"<<std::endl;
     poolTransaction.start();
+    std::cout<<"started"<<std::endl;
     cond::TypedRef<testCondObj> myinstance(poolTransaction,token);
     std::cout<<"mem pointer "<<myinstance.ptr()<<std::endl;
     std::cout<<"read back 1   "<<myinstance->data[1]<<std::endl;

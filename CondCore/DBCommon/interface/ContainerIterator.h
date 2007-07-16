@@ -2,6 +2,8 @@
 #define CondCore_DBCommon_ContainerIterator_h
 #include "Collection/Collection.h"
 #include "CondCore/DBCommon/interface/TypedRef.h"
+
+//#include <iostream>
 namespace cond{
   class Connection;
   /*
@@ -14,7 +16,10 @@ namespace cond{
 		       const std::string& containername):
       m_pooldb(&pooldb), m_collection(new pool::Collection<DataT>( &(pooldb.poolDataSvc()),"ImplicitCollection","PFN:" + pooldb.parentConnection().connectStr(),containername, pool::ICollection::READ )),m_it(m_collection->select()){
     }
-    TypedRef<DataT> dataRef(){
+    std::string dataToken(){
+      return m_data.token();
+    }
+    cond::TypedRef<DataT>& dataRef(){
       return m_data;
     }
     bool next(){ 

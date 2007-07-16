@@ -69,12 +69,12 @@ cond::TypedRef<T>::TypedRef():m_datasvc(0),m_place(0){
 }
 template<typename T> 
 cond::TypedRef<T>::TypedRef(cond::PoolTransaction& pooldb, 
-			 pool::Ref<T> ref):
+			    pool::Ref<T> ref):
   m_datasvc(&(pooldb.poolDataSvc())), m_data(ref){
-  std::string con=pooldb.parentConnection().connectStr();
-  m_place = new pool::Placement;
-  m_place->setTechnology(pool::POOL_RDBMS_HOMOGENEOUS_StorageType.type());
-  m_place->setDatabase(con,pool::DatabaseSpecification::PFN);
+  //std::string con=pooldb.parentConnection().connectStr();
+  m_place =0;
+  //m_place->setTechnology(pool::POOL_RDBMS_HOMOGENEOUS_StorageType.type());
+  //m_place->setDatabase(con,pool::DatabaseSpecification::PFN);
 }
 // construct from token
 template<typename T> 
@@ -82,6 +82,7 @@ cond::TypedRef<T>::TypedRef( cond::PoolTransaction& pooldb,
 			  const std::string& token ):
   m_datasvc(&(pooldb.poolDataSvc())),m_data(m_datasvc, token){
   std::string con=pooldb.parentConnection().connectStr();
+  //m_place=0;
   m_place = new pool::Placement;
   m_place->setTechnology(pool::POOL_RDBMS_HOMOGENEOUS_StorageType.type());
   m_place->setDatabase(con,pool::DatabaseSpecification::PFN);
@@ -97,6 +98,9 @@ cond::TypedRef<T>::TypedRef( cond::PoolTransaction& pooldb, T* obj ):m_datasvc(&
 // copy constructor???
 template<typename T>
 cond::TypedRef<T>::TypedRef( const TypedRef<T>& aCopy){
+  m_datasvc=aCopy.m_datasvc;
+  m_place=0;
+  m_data=aCopy.m_data;
 }
 template<typename T> std::string 
 cond::TypedRef<T>::token() const{
@@ -159,6 +163,13 @@ cond::TypedRef<T>::operator*() const{
   }catch(const pool::Exception& er){
     throw cond::RefException( "operator * ",er.what() );
   }
+}
+template<typename T> cond::TypedRef<T>& 
+cond::TypedRef<T>::operator=(const cond::TypedRef<T>& aRef){
+  m_datasvc=aRef.m_datasvc;
+  m_place=0;
+  m_data=aRef.m_data;
+  return *this;  
 }
 template<typename T>
 cond::TypedRef<T>::~TypedRef(){
