@@ -2,11 +2,11 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 
 GlobalPoint TransientTrackingRecHit::globalPosition() const {
-  return  (geom_->surface().toGlobal(localPosition()));
+  return  (surface().toGlobal(localPosition()));
 }
 
 GlobalError TransientTrackingRecHit::globalPositionError() const {
-  return ErrorFrameTransformer().transform( localPositionError(), (geom_->surface()));
+  return ErrorFrameTransformer().transform( localPositionError(), surface() );
 }   
 
 TransientTrackingRecHit::ConstRecHitContainer TransientTrackingRecHit::transientHits() const 

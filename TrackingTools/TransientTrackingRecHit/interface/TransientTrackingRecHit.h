@@ -21,14 +21,17 @@ public:
   typedef std::vector<ConstRecHitPointer>                           RecHitContainer;
   typedef std::vector<ConstRecHitPointer>                           ConstRecHitContainer;
 
+  TransientTrackingRecHit() {}
+
   explicit TransientTrackingRecHit(const GeomDet * geom) : geom_(geom) {}
 
   //RC virtual TransientTrackingRecHit * clone() const = 0;
 
   // Extension of the TrackingRecHit interface
 
-  /// The GomeDet* is always non-zero
-  const GeomDet * det() const {return geom_;}
+  /// The GomeDet* can be zero for InvalidTransientRecHits and for TConstraintRecHit2Ds
+  virtual const GeomDet * det() const {return geom_;}
+  virtual const Surface& surface() const {return geom_->surface();}
 
   /// CAUTION: the GeomDetUnit* is zero for composite hits 
   /// (matched hits in the tracker, segments in the muon).
