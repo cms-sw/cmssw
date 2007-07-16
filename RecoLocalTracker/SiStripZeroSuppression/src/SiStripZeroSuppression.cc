@@ -5,16 +5,13 @@
 //--------------------------------------------
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripZeroSuppression.h"
 
-
 namespace cms
 {
   SiStripZeroSuppression::SiStripZeroSuppression(edm::ParameterSet const& conf): 
     conf_(conf),
     SiStripZeroSuppressionAlgorithm_(conf),
-    SiStripPedestalsService_(conf),
-    SiStripNoiseService_(conf),
     RawDigiProducersList(conf_.getParameter<Parameters>("RawDigiProducersList")){
-
+    
     edm::LogInfo("SiStripZeroSuppression") << "[SiStripZeroSuppression::SiStripZeroSuppression] Constructing object...";
 
 
@@ -30,21 +27,16 @@ namespace cms
     edm::LogInfo("SiStripZeroSuppression") << "[SiStripZeroSuppression::~SiStripZeroSuppression] Destructing object...";
   }  
   
-  //Get at the beginning Calibration data (pedestals)
-  void SiStripZeroSuppression::beginJob( const edm::EventSetup& es ) {
-    LogDebug("SiStripZeroSuppression") << "[SiStripZeroSuppression::beginJob]";
-    SiStripZeroSuppressionAlgorithm_.configure(&SiStripPedestalsService_,&SiStripNoiseService_);
-  }
-
   // Functions that gets called by framework every event
   void SiStripZeroSuppression::produce(edm::Event& e, const edm::EventSetup& es)
   {
     LogDebug("SiStripZeroSuppression") << "[SiStripZeroSuppression::produce] Analysing " << e.id();
-   
     // Step A: Get ESObject 
-    SiStripPedestalsService_.setESObjects(es);
-    SiStripNoiseService_.setESObjects(es);
-
+    edm::ESHandle<SiStripNoises> noiseHandle;
+    edm::ESHandle<SiStripPedestals> pedestalsHandle;
+    es.get<SiStripNoisesRcd>().get(noiseHandle);
+    es.get<SiStripPedestalsRcd>().get(pedestalsHandle);
+   
     edm::Handle< edm::DetSetVector<SiStripRawDigi> >  input;
 
     Parameters::iterator itRawDigiProducersList = RawDigiProducersList.begin();
@@ -60,7 +52,7 @@ namespace cms
       vSiStripDigi.reserve(10000);
       if (input->size()){
 	LogDebug("SiStripZeroSuppression") << "[SiStripZeroSuppression::produce] Analysing " << rawdigiProducer << " " << rawdigiLabel << std::endl;
-	SiStripZeroSuppressionAlgorithm_.run(rawdigiLabel,*input,vSiStripDigi);
+	SiStripZeroSuppressionAlgorithm_.run(rawdigiLabel,*input,vSiStripDigi,pedestalsHandle,noiseHandle);
       }
       // Step C: create and fill output collection
       std::auto_ptr< edm::DetSetVector<SiStripDigi> > output(new edm::DetSetVector<SiStripDigi>(vSiStripDigi) );

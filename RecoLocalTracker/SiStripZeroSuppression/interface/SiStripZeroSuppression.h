@@ -39,8 +39,10 @@
 //ZeroSuppression 
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripZeroSuppressionAlgorithm.h"
 //SiStripPedestalsService
-#include "CommonTools/SiStripZeroSuppression/interface/SiStripPedestalsService.h"
-#include "CommonTools/SiStripZeroSuppression/interface/SiStripNoiseService.h"
+#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
+#include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 
 #include <iostream> 
 #include <memory>
@@ -59,15 +61,11 @@ namespace cms
 
     virtual ~SiStripZeroSuppression();
 
-    virtual void beginJob( const edm::EventSetup& );
-
     virtual void produce(edm::Event& , const edm::EventSetup& );
 
   private:
     edm::ParameterSet conf_;
     SiStripZeroSuppressionAlgorithm SiStripZeroSuppressionAlgorithm_;
-    SiStripPedestalsService         SiStripPedestalsService_;  
-    SiStripNoiseService             SiStripNoiseService_;  
     Parameters                      RawDigiProducersList;
   };
 }

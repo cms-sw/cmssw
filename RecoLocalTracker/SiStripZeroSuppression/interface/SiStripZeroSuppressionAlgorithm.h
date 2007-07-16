@@ -23,7 +23,8 @@
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 //ES Data
-#include "CondFormats/SiStripObjects/interface/SiStripPedestals.h" 
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 
 
 #include <iostream> 
@@ -48,9 +49,7 @@ class SiStripZeroSuppressionAlgorithm
 
   /// Runs the algorithm
   void run(std::string RawDigiType, const edm::DetSetVector<SiStripRawDigi>& input,
-	   std::vector< edm::DetSet<SiStripDigi> >& output);
-
-  void configure( SiStripPedestalsService* , SiStripNoiseService* );
+	   std::vector< edm::DetSet<SiStripDigi> >& output,edm::ESHandle<SiStripPedestals> &, edm::ESHandle<SiStripNoises> &);
 
  private:
   edm::ParameterSet conf_;
