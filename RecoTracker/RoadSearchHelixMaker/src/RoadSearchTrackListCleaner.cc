@@ -7,9 +7,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2007/03/07 22:04:03 $
-// $Revision: 1.4 $
+// $Author: stevew $
+// $Date: 2007/07/15 23:50:39 $
+// $Revision: 1.5 $
 //
 
 #include <memory>
@@ -77,7 +77,7 @@ namespace cms
 
     const reco::TrackCollection tC = *(trackCollection.product());
 
-    std::cout << "Reconstructed "<< tC.size() << " tracks" << std::endl ;
+    //std::cout << "Reconstructed "<< tC.size() << " tracks" << std::endl ;
 
     // Step B: create empty output collection
     std::auto_ptr<reco::TrackCollection> output(new reco::TrackCollection);
@@ -99,12 +99,27 @@ namespace cms
 
       int i=-1;
       for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++){
-      i++;  if (!selected[i])continue;
-      if ((short unsigned)track->ndof() < 1){selected[i]=0; continue;}
-      float rcs = track->chi2()/(float)track->ndof();
-      if (track->normalizedChi2() > maxNormalizedChisq){selected[i]=0; continue;}
-      if (track->found() < minFound){selected[i]=0; continue;}
-      if (track->pt() < minPT){selected[i]=0; continue;}
+        i++;
+        if ((short unsigned)track->ndof() < 1){
+          selected[i]=0; 
+          //std::cout << "Track "<< i << " rejected in TrackListCleaner; ndof() < 1" << std::endl ;
+          continue;
+        }
+        if (track->normalizedChi2() > maxNormalizedChisq){
+          selected[i]=0; 
+          //std::cout << "Track "<< i << " rejected in TrackListCleaner; normalizedChi2() > maxNormalizedChisq " << track->normalizedChi2() << " " << maxNormalizedChisq << std::endl ;
+          continue;
+        }
+        if (track->found() < minFound){
+          selected[i]=0; 
+          //std::cout << "Track "<< i << " rejected in TrackListCleaner; found() < minFound " << track->found() << " " << minFound << std::endl ;
+          continue;
+        }
+        if (track->pt() < minPT){
+          selected[i]=0; 
+          //std::cout << "Track "<< i << " rejected in TrackListCleaner; pt() < minPT " << track->pt() << " " << minPT << std::endl ;
+          continue;
+        }
       }//end loop over tracks
 
   //
@@ -114,7 +129,7 @@ namespace cms
     int i=-1;
     for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++){
       i++; 
-      std::cout << "Track number "<< i << std::endl ; 
+      //std::cout << "Track number "<< i << std::endl ; 
       if (!selected[i])continue;
       int j=-1;
       for (reco::TrackCollection::const_iterator track2=tC.begin(); track2!=tC.end(); track2++){
@@ -131,16 +146,17 @@ namespace cms
           }
         }
         float fi=float(noverlap)/float(track->recHitsSize()); float fj=float(noverlap)/float(track2->recHitsSize());
-        std::cout << " trk1 trk2 nhits1 nhits2 nover " << i << " " << j << " " << track->recHitsSize() << " " 
-                  << track2->recHitsSize() << " " << noverlap << " " << fi << " " << fj  <<std::endl;
+        //std::cout << " trk1 trk2 nhits1 nhits2 nover " << i << " " << j << " " << track->recHitsSize() << " "  << track2->recHitsSize() << " " << noverlap << " " << fi << " " << fj  <<std::endl;
         if ((fi>0.66)||(fj>0.66)){
           if (fi<fj){
-            selected[j]=0; std::cout << " removing 2nd trk in pair " << std::endl;
+            selected[j]=0; 
+            //std::cout << " removing 2nd trk in pair " << std::endl;
           }else{
             if (fi>fj){
-              selected[i]=0; std::cout << " removing 1st trk in pair " << std::endl;
+              selected[i]=0; 
+              //std::cout << " removing 1st trk in pair " << std::endl;
             }else{
-              std::cout << " removing worst chisq in pair " << std::endl;
+              //std::cout << " removing worst chisq in pair " << std::endl;
               if (track->chi2() > track2->chi2()){selected[i]=0;}else{selected[j]=0;}
             }//end fi > or = fj
           }//end fi < fj
@@ -148,8 +164,9 @@ namespace cms
       }//end track2 loop
     }//end track loop
    }//end more than 1 track
+
   //
-  //  output select tracks - if any
+  //  output selected tracks - if any
   //
     i=-1;
     for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++){
