@@ -80,8 +80,8 @@ void L1GlobalTriggerObjectMap::print(std::ostream& myCout) const
     myCout << "  Algorithm name: " << m_algoName << std::endl;
     myCout << "    Bit number: " << m_algoBitNumber << std::endl;
     myCout << "    GTL result: " << m_algoGtlResult << std::endl;
-    myCout << "    Logical Expression: " << m_algoLogicalExpression << std::endl;
-    myCout << "    Numerical Expression: " << m_algoNumericalExpression << std::endl;
+    myCout << "    Logical expression: '" << m_algoLogicalExpression << "'" << std::endl;
+    myCout << "    Numerical expression: '" << m_algoNumericalExpression << "'" << std::endl;
     myCout << "    CombinationVector size: " << m_combinationVector.size() << std::endl;
     myCout << "    ObjectTypeVector size: " << m_objectTypeVector.size() << std::endl;
 

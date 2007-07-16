@@ -42,6 +42,10 @@ public:
     ///   from an object map
     L1GtLogicParser(const L1GlobalTriggerObjectMap& );
 
+    ///   from a logical expression
+    ///   numerical expression will be empty
+    L1GtLogicParser(const std::string logicalExpressionVal);
+
     ///   from a logical and a numerical expression
     L1GtLogicParser(const std::string logicalExpressionVal,
                     const std::string numericalExpressionVal);
@@ -55,6 +59,14 @@ public:
 
     /// destructor
     virtual ~L1GtLogicParser();
+
+public:
+
+    /// return the logical expression
+    inline std::string logicalExpression() const { return m_logicalExpression; }
+
+    /// return the numerical expression
+    inline std::string numericalExpression() const { return m_numericalExpression; }
 
 public:
 
@@ -75,11 +87,20 @@ public:
     /// return the result for the logical expression
     virtual const bool expressionResult() const;
 
+    /// convert the logical expression composed with names to
+    /// a logical expression composed with int numbers using
+    /// a (string, int)  map
+    void convertNameToIntLogicalExpression(
+        const std::map<std::string, int>& nameToIntMap);
+
+
     /// return the list of operands for the logical expression
-    virtual const std::list<int> expressionOperandList() const;
+    /// which are to be used as seeds
+    virtual const std::list<int> expressionSeedsOperandList() const;
 
     /// return the list of indices of the operands in the logical expression
-    virtual const std::list<int> expressionOperandIndexList() const;
+    /// which are to be used as seeds
+    virtual std::list<int> expressionSeedsOperandIndexList();
 
 private:
 
@@ -117,7 +138,7 @@ private:
     const OperationRule* getRuleFromType(OperationType t);
 
     /// build the rpn vector
-    int buildRpnVector(const std::string&);
+    bool buildRpnVector(const std::string&);
 
     /// clear possible old rpn vector
     void clearRpnVector();
@@ -130,17 +151,17 @@ private:
     void addBracketSpaces(const std::string&, std::string&);
 
     /// set the logical expression - check for correctness the input string
-    int setLogicalExpression(const std::string&);
+    bool setLogicalExpression(const std::string&);
 
     /// set the numerical expression (the logical expression with each operand
     /// replaced with the value) from a string
     /// check also for correctness the input string
-    int setNumericalExpression(const std::string&);
+    bool setNumericalExpression(const std::string&);
 
     /// convert the logical expression composed with algorithm bits into a
     /// numerical expression using values from DecisionWord.
     /// the map convert from algorithm name to algorithm bit number, if needed
-    int setNumericalExpression(const DecisionWord& decisionWordVal,
+    bool setNumericalExpression(const DecisionWord& decisionWordVal,
                                const std::map<std::string, int>& algoMap);
 
     /// return the result for an operand from a logical expression
