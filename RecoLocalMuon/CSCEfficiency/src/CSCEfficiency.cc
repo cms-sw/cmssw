@@ -511,9 +511,11 @@ CSCEfficiency::~CSCEfficiency(){
   TH1F * writeHisto;
   std::vector<float> eff(2);
   //
-  const float Xmin = XMIN;
-  const float Xmax = XMAX;
-  const int nXbins = int(4.*(Xmax - Xmin));
+  //@ Following 3 vars are Unused in dtor...
+  //  const float Xmin = XMIN;
+  //  const float Xmax = XMAX;
+  //  const int nXbins = int(4.*(Xmax - Xmin)); 
+
   const float Ymin = YMIN;
   const float Ymax = YMAX;
   const int nYbins = int(2.*(Ymax - Ymin));
