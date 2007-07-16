@@ -257,7 +257,7 @@ bool TECLayer::overlap( const GlobalPoint& gpos, const GeometricSearchDet& gsdet
 				  petal.surface().phi() + 0.5*petal.specificSurface().phiExtension());
 
 
-  return rangesIntersect(phiRange, petalPhiRange, PhiLess()));
+  return rangesIntersect(phiRange, petalPhiRange, PhiLess());
 }
 
 
