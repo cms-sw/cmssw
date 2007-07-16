@@ -321,8 +321,14 @@ std::string L1GlobalTriggerConfig::getXMLTextValue(DOMNode *node) {
         return ret;
     }
     retcstr = XMLString::transcode(retxmlch);
+    
+    XMLString::trim(retcstr); // trim spaces
+    
     ret = retcstr;
     XMLString::release(&retcstr);
+
+//    LogDebug("L1GlobalTriggerConfig") 
+//    << "Logical expression getXMLTextValue: '" << ret << "'\n"; 
 
     return ret;
 }
@@ -471,6 +477,9 @@ int L1GlobalTriggerConfig::insertAlgoIntoMap(DOMNode* node,
     // get the expression from the node
     std::string expression = getXMLTextValue(node);
     
+    LogDebug("L1GlobalTriggerConfig") 
+    << "Logical expression: '" << expression << "'\n"; 
+
     if ( algoparser->setExpression(expression, operandmap, nummap) != 0) {
         edm::LogError("L1GlobalTriggerConfig") 
             << "    Error parsing expression: " << expression 

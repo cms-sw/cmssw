@@ -230,9 +230,6 @@ std::string L1GlobalTriggerLogicParser::getLogicalExpression() {
     while (!expr_iss.eof()) {
         
         expr_iss >> tokenstr;
-        if (expr_iss.eof()) {
-            break;
-        }
 
         actoperation = getOperation(tokenstr, lastoperation, tokenrpn);
         if (actoperation == OP_INVALID) {
@@ -248,6 +245,8 @@ std::string L1GlobalTriggerLogicParser::getLogicalExpression() {
         lastoperation = actoperation;
     }
 
+    result.erase(result.size() - 1); // remove the last space
+    
     return result;
 
 }
@@ -283,9 +282,6 @@ std::string L1GlobalTriggerLogicParser::getNumericExpression() {
     while (!expr_iss.eof()) {
         
         expr_iss >> tokenstr;
-        if (expr_iss.eof()) {
-            break;
-        }
 
         actoperation = getOperation(tokenstr, lastoperation, tokenrpn);
         if (actoperation == OP_INVALID) {
@@ -304,6 +300,8 @@ std::string L1GlobalTriggerLogicParser::getNumericExpression() {
         result.append(" ");         // one whitespace after each token
         lastoperation = actoperation;
     }
+
+    result.erase(result.size() - 1); // remove the last space
 
     return result;
 
@@ -336,9 +334,6 @@ std::vector<CombinationsInCond>
     while (!expr_iss.eof()) {
         
         expr_iss >> tokenstr;
-        if (expr_iss.eof()) {
-            break;
-        }
 
         actoperation = getOperation(tokenstr, lastoperation, tokenrpn);
         if (actoperation == OP_INVALID) {
@@ -397,9 +392,6 @@ std::vector<ObjectTypeInCond>
     while (!expr_iss.eof()) {
         
         expr_iss >> tokenstr;
-        if (expr_iss.eof()) {
-            break;
-        }
 
         actoperation = getOperation(tokenstr, lastoperation, tokenrpn);
         if (actoperation == OP_INVALID) {
@@ -431,6 +423,10 @@ std::vector<ObjectTypeInCond>
 
 int L1GlobalTriggerLogicParser::buildRPNVector(const std::string& expression) {
     
+    LogDebug("L1GlobalTriggerLogicParser")
+    << "\nLogical expression = '" << expression << "'\n"
+    << std::endl;
+
     std::istringstream expr_iss(expression);	// stringstream to separate all tokens
 
     std::string tokenstr;           // one token
@@ -447,9 +443,14 @@ int L1GlobalTriggerLogicParser::buildRPNVector(const std::string& expression) {
     while (!expr_iss.eof()) {
         
         expr_iss >> std::skipws >> std::ws >> tokenstr;
+        
+        LogTrace("L1GlobalTriggerLogicParser")
+        << "Token string = " << tokenstr
+        << std::endl;
+        
         // skip the end 
         if (tokenstr.find_first_not_of(whitespaces) == std::string::npos || 
-            tokenstr.length() == 0 || expr_iss.eof()) { 
+            tokenstr.length() == 0) { 
             break; 
         }
         
@@ -618,13 +619,25 @@ int L1GlobalTriggerLogicParser::setExpression(const std::string& expression,
     p_operandmap = operandmap;
     p_nummap = nummap;
 
+    LogDebug("L1GlobalTriggerLogicParser")
+    << "\nLogical expression = '" << expression << "'\n"
+    << std::endl;
+
     // add spaces before and after brackets
     addBracketSpaces(p_expression, exprwithbs);
-    // LogDebug << exprwithbs << std::endl;
+
+    LogDebug("L1GlobalTriggerLogicParser")
+    << "\nLogical expression = '" << expression << "'\n"
+    << std::endl;
+
     if (buildRPNVector(exprwithbs) != 0) {
         return -1;
     }
     
+    LogDebug("L1GlobalTriggerLogicParser")
+    << "\nLogical expression = '" << expression << "'\n"
+    << std::endl;
+
     return 0;
 }
 
@@ -694,7 +707,7 @@ const struct L1GlobalTriggerLogicParser::OperationRule
         
     { "AND", OP_AND, OP_AND | OP_OR | OP_NOT | OP_OPENBRACKET | OP_NULL },
     { "OR", OP_OR, OP_AND | OP_OR | OP_NOT | OP_OPENBRACKET | OP_NULL },
-    { "NOT", OP_NOT, OP_OPERAND | OP_CLOSEBRACKET | OP_NULL},
+    { "NOT", OP_NOT, OP_OPERAND | OP_CLOSEBRACKET },
     { "(", OP_OPENBRACKET, OP_OPERAND | OP_CLOSEBRACKET },
     { ")", OP_CLOSEBRACKET, OP_AND | OP_OR | OP_NOT | OP_OPENBRACKET },
     { NULL, OP_OPERAND, OP_OPERAND | OP_CLOSEBRACKET }, // the default
