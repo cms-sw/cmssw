@@ -4,6 +4,7 @@
 #include "Calibration/EcalCalibAlgos/interface/ElectronCalibration.h"
 #include "Calibration/EcalCalibAlgos/interface/ZeeCalibration.h"
 #include "Calibration/EcalCalibAlgos/interface/PhiSymmetryCalibration.h"
+#include "Calibration/EcalCalibAlgos/interface/Pi0FixedMassWindowCalibration.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(miscalibExample);
