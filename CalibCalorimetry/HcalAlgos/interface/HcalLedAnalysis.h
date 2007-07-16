@@ -82,9 +82,12 @@ private:
   
   std::string m_outputFileROOT;
   std::string m_outputFileText;
+  std::string m_outputFileX;
   std::ofstream m_outFile;
   std::ofstream m_logFile;
-  
+  std::ofstream m_outputFileXML;
+  char output[100];
+ 
   int m_startTS;
   int m_endTS;
   int m_nevtsample;
@@ -97,7 +100,7 @@ private:
 //                     (preferred for laser & HF LED)
 //              3  - take average of peaks from landau fits per event
 //                     (preferred for LED)
-//              4  - 0+1+2+3
+//              4  - 0+1+2+3 REMOVED in 1_6
   int m_fitflag;
   
   const HcalQIEShape* m_shape;
