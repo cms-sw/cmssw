@@ -66,8 +66,8 @@ void KalmanAlignmentAlgorithm::initialize( const edm::EventSetup& setup,
   config = theConfiguration.getParameter< edm::ParameterSet >( identifier );
   theMetricsUpdator = KalmanAlignmentMetricsUpdatorPlugin::get()->create( identifier, config );
 
-  identifier = theConfiguration.getParameter< string >( "TrajectoryFactory" );
-  config = theConfiguration.getParameter< edm::ParameterSet >( identifier );
+  config = theConfiguration.getParameter< edm::ParameterSet >( "TrajectoryFactory" );
+  identifier = config.getParameter< string >( "TrajectoryFactoryName" );
   theTrajectoryFactory = TrajectoryFactoryPlugin::get()->create( identifier, config );
 
   theRefitterDebugFlag = theConfiguration.getUntrackedParameter< bool >( "DebugRefitter", true );
