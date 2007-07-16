@@ -197,12 +197,26 @@ void SiPixelWebInterface::handleCustomRequest(xgi::Input  * in,
     theActionFlag = PlotSingleHistogram;
 
   } else if (requestID == "PlotTkMapHistogram") {
+//    cout << ACYellow << ACBold 
+//    	 << "[SiPixelWebInterface::handleCustomRequest()]" 
+//   	 << ACPlain
+//   	 << " Requested PlotTkMapHistogram (theOut: "
+//	 << theOut
+//	 << ")" 
+//   	 << endl ;
+    string theMEName = get_from_multimap(requestMap_, "MEName");
+    string theModId  = get_from_multimap(requestMap_, "ModId");
+    infoExtractor_->plotTkMapHisto((*mui_p), theModId, theMEName);
+    out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
+    out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
+    out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
+    out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
+    *out << infoExtractor_->getNamedImage(theMEName).str();
+    theActionFlag = NoAction;    
+/*
     theActionFlag = PlotTkMapHistogram;
-    cout << ACYellow << ACBold 
-    	 << "[SiPixelWebInterface::handleCustomRequest()]" 
-   	 << ACPlain
-   	 << " Requested PlotTkMapHistogram" 
-   	 << endl ;
+    theOut = out ;
+*/
 
   } else if (requestID == "UpdatePlot") {
     string theMEName = get_from_multimap(requestMap_, "MEName");
@@ -356,14 +370,27 @@ void SiPixelWebInterface::performAction() {
 // --> new tkmap plot
       string theMEName = get_from_multimap(requestMap_, "MEName");
       string theModId  = get_from_multimap(requestMap_, "ModId");
-//       cout << ACYellow << ACBold 
-//            << "[SiPixelWebInterface::PlotTkMapHistogram()]"
-//            << ACPlain
-//            << " further processing request for "
-// 	   <<  theMEName
-// 	   << " (" << theModId << ")"
-//            << endl ;
       infoExtractor_->plotTkMapHisto((*mui_p), theModId, theMEName);
+
+      cout << ACYellow << ACBold 
+           << "[SiPixelWebInterface::PlotTkMapHistogram()]"
+           << ACPlain
+           << " Buffer for "
+ 	   <<  theMEName
+ 	   << " stored away: shipping back header (" << theOut << ")" 
+           << endl ;
+//      theOut->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
+//      theOut->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
+//      theOut->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
+//      theOut->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
+//      cout << ACYellow << ACBold 
+//           << "[SiPixelWebInterface::PlotTkMapHistogram()]"
+//           << ACPlain
+//           << " Buffer for "
+// 	   <<  theMEName
+// 	   << " stored away: shipping back data (" << theOut << ")" 
+//           << endl ;
+//      *theOut << infoExtractor_->getNamedImage(theMEName).str();
       break;
     }
   case SiPixelWebInterface::PlotSingleHistogram :

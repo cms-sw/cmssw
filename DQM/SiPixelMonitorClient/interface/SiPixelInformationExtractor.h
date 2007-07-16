@@ -12,6 +12,7 @@
 #include "xgi/Method.h"
 
 #include "TCanvas.h"
+#include "qstring.h"
 
 #include <fstream>
 #include <sstream>
@@ -58,9 +59,16 @@ class SiPixelInformationExtractor {
                               	std::string				& path,
 			      	xgi::Output				* out);
   void createModuleTree(      	MonitorUserInterface			* mui);
-  double computeStatus(         MonitorElement                          * mui) ;
+  void computeStatus(           MonitorElement                          * mui,
+                                double                                  & colorValue,
+				std::pair<double,double>                & norm) ;
   void getNormalization(        MonitorElement                          * mui,
-                                std::pair<double,double>                & norm) ;
+                                std::pair<double,double>                & norm,
+				QString                                   theMEType) ;
+  void getNormalization2D(      MonitorElement                          * mui,
+                                std::pair<double,double>                & normX,
+                                std::pair<double,double>                & normY,
+				QString                                   theMEType) ;
   void sendTkUpdatedStatus(     MonitorUserInterface			* mui,
                               	xgi::Output                             * out,
 				std::string                             & meName) ;
@@ -76,6 +84,7 @@ class SiPixelInformationExtractor {
 				std::string				  canvasW,
 				std::string				  canvasH);
   const std::ostringstream& getNamedImage( std::string                    theName);
+  std::string getMEType(        MonitorElement                          * mui) ;
   
 
  private:

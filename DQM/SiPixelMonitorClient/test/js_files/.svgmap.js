@@ -1,61 +1,63 @@
- var thisFile        = ".svgmap.js" ;
- var theZoomAmount   = 1.05 ;
- var theStepAmount   = 25 ;
- var zoomAmount      = theZoomAmount ;
- var stepAmount      = theStepAmount ;
- var theViewText     = null ;
- var theElementText  = null ;
- var theSelectedText = null ;
- var theClipArea     = null ;
- var where           = null ;
- var oldPosX         = 0 ;
- var oldPosY         = 0 ;
- var panning         = 0 ;
- var gotResponse     = 0 ;
- var timeOutHandle ;
+ var SvgMap = {} ;
+
+ SvgMap.thisFile	= ".SvgMap.js" ;
+ SvgMap.theZoomAmount   = 1.05 ;
+ SvgMap.theStepAmount   = 25 ;
+ SvgMap.zoomAmount	= SvgMap.theZoomAmount ;
+ SvgMap.stepAmount	= SvgMap.theStepAmount ;
+ SvgMap.theViewText	= null ;
+ SvgMap.theElementText  = null ;
+ SvgMap.theSelectedText = null ;
+ SvgMap.theClipArea     = null ;
+ SvgMap.where  	 	= null ;
+ SvgMap.oldPosX	 	= 0 ;
+ SvgMap.oldPosY	 	= 0 ;
+ SvgMap.panning	 	= 0 ;
+ SvgMap.gotResponse	= 0 ;
+ SvgMap.timeOutHandle ;
 
  //____________________________________________________________________________
- function init()
+ SvgMap.init = function()
  {
-  theClipArea         = document.getElementById("clipArea") ;
-  theViewText         = document.getElementById("currentViewText") ;
-  theElementText      = document.getElementById("currentElementText") ;
-  theSelectedText     = document.getElementById("selectedElementText") ;
+  SvgMap.theClipArea         = document.getElementById("clipArea") ;
+  SvgMap.theViewText         = document.getElementById("currentViewText") ;
+  SvgMap.theElementText      = document.getElementById("currentElementText") ;
+  SvgMap.theSelectedText     = document.getElementById("selectedElementText") ;
   var theRefresh      = top.opener.document.getElementById("refreshInterval") ;
   var refreshInterval = theRefresh.options[theRefresh.selectedIndex].value;
-  theClipArea.addEventListener('DOMMouseScroll',  mousescroll_listener, false);
-  theClipArea.addEventListener("mousedown",       mousedown_listener,   false);
-  setInterval("updateTrackerMap()",refreshInterval) ;
-//  DM_TraceWindow(thisFile,arguments.callee.name,"Initialized with refresh interval: "+refreshInterval) ;
+  SvgMap.theClipArea.addEventListener('DOMMouseScroll',  SvgMap.mouseScrollListener, false);
+  SvgMap.theClipArea.addEventListener("mousedown",       SvgMap.mouseDownListener,   false);
+  setInterval("SvgMap.updateTrackerMap()",refreshInterval) ;
+//  DM_TraceWindow(SvgMap.thisFile,arguments.callee.name,"Initialized with refresh interval: "+refreshInterval) ;
  }
  
  //____________________________________________________________________________
- function updateTrackerMap()
+ SvgMap.updateTrackerMap = function()
  {
 //   if( WebLib.http_request.readyState != 4 ) 
 //   {
-//    DM_TraceWindow(thisFile,arguments.callee.name,"Still waiting for completion...") ;
+//    DM_TraceWindow(SvgMap.thisFile,arguments.callee.name,"Still waiting for completion...") ;
 //    return ; // If previous submission got no answer, skip retry
 //   }
-//   DM_TraceWindow(thisFile,arguments.callee.name,"Udating...") ;
+//   DM_TraceWindow(SvgMap.thisFile,arguments.callee.name,"Udating...") ;
    var theMEList   = top.opener.document.getElementById("monitoring_element_list") ;
    var selME       =  theMEList.options[theMEList.selectedIndex].value;
    var queryString = "RequestID=periodicTrackerMapUpdate";
-   var url = WebLib.getApplicationURL2();
-   url    += "/Request?";
-   url    += queryString;   
-   url    += '&MEName='+selME;
-   makeRequest(url, repaintTrackerMap);     
+   var url	   = WebLib.getApplicationURL2();
+   url    	  += "/Request?";
+   url    	  += queryString;   
+   url    	  += '&MEName='+selME;
+   WebLib.makeRequest(url, SvgMap.repaintTrackerMap);     
  }
  //____________________________________________________________________________
- function changeRefreshInterval()
+ SvgMap.changeRefreshInterval = function()
  {
   var theRefresh      = top.opener.document.getElementById("refreshInterval") ;
   var refreshInterval = theRefresh.options[theRefresh.selectedIndex].value;
-//  DM_TraceWindow(thisFile,arguments.callee.name,"New refresh interval: "+refreshInterval) ;
+//  DM_TraceWindow(SvgMap.thisFile,arguments.callee.name,"New refresh interval: "+refreshInterval) ;
  }
  //____________________________________________________________________________
- function repaintTrackerMap()
+ SvgMap.repaintTrackerMap = function()
  {
   if (WebLib.http_request.readyState == 4) 
   {
@@ -87,63 +89,64 @@
       var markTag = document.getElementById(tagName) ;
       markTag.textContent = parseInt(i * deltaNorm) ;
      }
-     gotResponse = 1 ;
+     SvgMap.gotResponse = 1 ;
     } catch(error) {
-     alert("[.svgmap.js::repaintTrackerMap()] Error: " + error.message) ;
+     alert("[.SvgMap.js::SvgMap.repaintTrackerMap()] Error: " + error.message +
+           "\n\nMost likely this means the web-server died or we lost connection with it") ;
     }
    }
   }
  }
  //_____________________________________________MEName_______________________________
- function mousescroll_listener(evt)
+ SvgMap.mouseScrollListener = function(evt)
  {
   if (evt.detail) 
   {
-    zoomAmount = Math.abs(evt.detail / 3 * theZoomAmount) ;
+    SvgMap.zoomAmount = Math.abs(evt.detail / 3 * SvgMap.theZoomAmount) ;
     if( evt.detail > 0 )
     {
-     zoomIt("In") ;
+     SvgMap.zoomIt("In") ;
     } else {
-     zoomIt("Out") ;
+     SvgMap.zoomIt("Out") ;
     }
   }
  }
 
  //____________________________________________________________________________
- function mousedown_listener(evt)
+ SvgMap.mouseDownListener = function(evt)
  {
-  panning = 1 ;
-  oldPosX = evt.clientX ;
-  oldPosY = evt.clientY ;
-  theClipArea.setAttribute("style","cursor: move;");
-  document.addEventListener("mousemove", mousemove_listener, true);
-  document.addEventListener("mouseup",   mouseup_listener,   true);
+  SvgMap.panning = 1 ;
+  SvgMap.oldPosX = evt.clientX ;
+  SvgMap.oldPosY = evt.clientY ;
+  SvgMap.theClipArea.setAttribute("style","cursor: move;");
+  document.addEventListener("mousemove", SvgMap.mouseMoveListener, true);
+  document.addEventListener("mouseup",   SvgMap.mouseUpListener,   true);
  }
  
  //____________________________________________________________________________
- function mousemove_listener(evt)
+ SvgMap.mouseMoveListener = function(evt)
  {
   var stepTolerance = 1 ;
-  if( panning == 1 )
+  if( SvgMap.panning == 1 )
   {
-   var deltaX = evt.clientX - oldPosX ;
-   var deltaY = evt.clientY - oldPosY ;
-   oldPosX    = evt.clientX ;
-   oldPosY    = evt.clientY ;
+   var deltaX = evt.clientX - SvgMap.oldPosX ;
+   var deltaY = evt.clientY - SvgMap.oldPosY ;
+   SvgMap.oldPosX    = evt.clientX ;
+   SvgMap.oldPosY    = evt.clientY ;
    if( deltaX > stepTolerance && Math.abs(deltaY) < stepTolerance)
    {
-     zoomIt("Right") ;
+     SvgMap.zoomIt("Right") ;
      return ;
    } else if ( deltaX < -stepTolerance && Math.abs(deltaY) < stepTolerance){
-     zoomIt("Left") ;
+     SvgMap.zoomIt("Left") ;
      return ;
    } 
    if( deltaY > stepTolerance && Math.abs(deltaX) < stepTolerance )
    {
-     zoomIt("Down") ;
+     SvgMap.zoomIt("Down") ;
      return ;
    } else if( deltaY < -stepTolerance && Math.abs(deltaX) < stepTolerance ){
-     zoomIt("Up") ;
+     SvgMap.zoomIt("Up") ;
      return ;
    } 
   } else {
@@ -151,23 +154,23 @@
  }
  
  //____________________________________________________________________________
- function mouseup_listener(evt)
+ SvgMap.mouseUpListener = function(evt)
  {
-  panning = 0;
-  theClipArea.setAttribute("style","cursor: default;");
+  SvgMap.panning = 0;
+  SvgMap.theClipArea.setAttribute("style","cursor: default;");
  }
  
  //____________________________________________________________________________
- function showData(evt)
+ SvgMap.showData = function (evt)
  {
   var xlinkns = "http://www.w3.org/1999/xlink"; 
   var currentMEList = new Array() ;
   var currentMESrc  = new Array() ;
-  where  = evt.currentTarget;
+  SvgMap.where  = evt.currentTarget;
 
   if (evt.type == "click") //   <-------------------------------- C l i c k -------
   {
-   drawMarker("black") ;
+   SvgMap.drawMarker("black") ;
    var leftDoc  = top.left.document ;  
    var rightDoc = top.right.document ; // Fetch a pointer to the right frame
       
@@ -200,20 +203,20 @@
       queryString      += "&MEName=" + theMEList[i].value;
       var url1          = url_serv   + queryString;
       myTrackerPlot.setAttribute("src", url1);
-      pausecomp(1000);
-      queryString       = "RequestID=UpdateTkMapPlot" ;
-      queryString      += "&ModId="  + moduleId;
-      queryString      += "&MEName=" + theMEList[i].value;
-      var url2          = url_serv   + queryString;
-      myTrackerPlot.setAttribute("src", url2);  
+//      SvgMap.smallDelay(3000);
+//      queryString       = "RequestID=UpdateTkMapPlot" ;
+//      queryString      += "&ModId="  + moduleId;
+//      queryString      += "&MEName=" + theMEList[i].value;
+//      var url2          = url_serv   + queryString;
+//      myTrackerPlot.setAttribute("src", url2);  
       currentMEList[i] = "ME: " + theMEList[i].value + " Id: " + moduleId ;
       currentMESrc[i]  = myTrackerPlot.getAttribute("src") ;
     }
    } catch(error) {
-    alert("[svgmap.js::"+arguments.callee.name+"] Fatal: "+error.message) ;
+    alert("[SvgMap.js::"+arguments.callee.name+"] Fatal: "+error.message) ;
    }
 
-   theSelectedText.setAttribute("value",where.getAttribute("POS")) ;
+   SvgMap.theSelectedText.setAttribute("value",SvgMap.where.getAttribute("POS")) ;
    
    var innerPlots = currentMEList.length - 1 ; // Last one is the summary plot
 
@@ -227,18 +230,18 @@
 
   if (evt.type == "mouseover") //   <----------------------------------------------- 
   {
-    where.setAttribute("style","cursor:crosshair;") ;
-    theElementText.setAttribute("value",where.getAttribute("POS")) ;
+    SvgMap.where.setAttribute("style","cursor:crosshair;") ;
+    SvgMap.theElementText.setAttribute("value",SvgMap.where.getAttribute("POS")) ;
   }
 
   if (evt.type == "mouseout")  //   <-----------------------------------------------
   {
-   theElementText.setAttribute("value","-") ;
+   SvgMap.theElementText.setAttribute("value","-") ;
   }
  }
 
  //------------------------------------------------------------------------------------------
- function pausecomp(millis)
+ SvgMap.smallDelay = function(millis)
  {
    var inizio = new Date();
    var inizioint=inizio.getTime();
@@ -252,19 +255,19 @@
  }
  
  //____________________________________________________________________________
- function drawMarker(color) 
+ SvgMap.drawMarker = function(color) 
  {
-  document.getElementById("spot").setAttribute("points",where.getAttribute("points")) ;
+  document.getElementById("spot").setAttribute("points",SvgMap.where.getAttribute("points")) ;
   document.getElementById("spot").setAttribute("fill",color) ;
  }
 
  //____________________________________________________________________________
- function zoomIt(what)
+ SvgMap.zoomIt = function(what)
  {
-  var vBAtt = theClipArea.getAttribute("viewBox") ;
+  var vBAtt = SvgMap.theClipArea.getAttribute("viewBox") ;
   var geo   = vBAtt.split(/\s+/) ;
 
-  theViewText.setAttribute("value",what) ;
+  SvgMap.theViewText.setAttribute("value",what) ;
   switch (what) 
   {
    case "FPIX1-z":
@@ -310,26 +313,26 @@
        geo[3]= 1600 ;
        break;
    case "In":
-       geo[2]= parseFloat(geo[2]) / zoomAmount ;
-       geo[3]= parseFloat(geo[3]) / zoomAmount ;
+       geo[2]= parseFloat(geo[2]) / SvgMap.zoomAmount ;
+       geo[3]= parseFloat(geo[3]) / SvgMap.zoomAmount ;
        break;
    case "Out":
-       geo[2]= parseFloat(geo[2]) * zoomAmount ;
-       geo[3]= parseFloat(geo[3]) * zoomAmount ;
+       geo[2]= parseFloat(geo[2]) * SvgMap.zoomAmount ;
+       geo[3]= parseFloat(geo[3]) * SvgMap.zoomAmount ;
        break;
    case "Up":
-       geo[1]= parseInt(geo[1])   + stepAmount ;
+       geo[1]= parseInt(geo[1])   + SvgMap.stepAmount ;
        break;
    case "Down":
-       geo[1]= parseInt(geo[1])   - stepAmount ;
+       geo[1]= parseInt(geo[1])   - SvgMap.stepAmount ;
        break;
    case "Left":
-       geo[0]= parseInt(geo[0])   + stepAmount ;
+       geo[0]= parseInt(geo[0])   + SvgMap.stepAmount ;
        break;
    case "Right":
-       geo[0]= parseInt(geo[0])   - stepAmount ;
+       geo[0]= parseInt(geo[0])   - SvgMap.stepAmount ;
        break;
   }
   var newGeo = geo[0]+" "+geo[1]+" "+parseInt(geo[2])+" "+parseInt(geo[3]);
-  theClipArea.setAttribute("viewBox",newGeo) ;  
+  SvgMap.theClipArea.setAttribute("viewBox",newGeo) ;  
  }

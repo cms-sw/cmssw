@@ -32,7 +32,7 @@
  </head>
 
  <body bgcolor  = "#414141" 
-       onload	= "init();">
+       onload	= "SvgMap.init();">
 
   <fieldset style = "margin-top:    0px;
                      margin-bottom: 0px;
@@ -48,23 +48,23 @@
     <table border = "0">
      <tr>
       <td align = "center">
-       <button class = "controlButton" onclick = "zoomIt('FPIX1-z');">FPIX-z D1</button> 
-       <button class = "controlButton" onclick = "zoomIt('FPIX2-z');">FPIX-z D2</button> 
-       <button class = "controlButton" onclick = "zoomIt('BPIX1');"  >BPIX L1  </button>  
-       <button class = "controlButton" onclick = "zoomIt('BPIX2-3');">BPIX L2-3</button>  
-       <button class = "controlButton" onclick = "zoomIt('FPIX1+z');">FPIX+z D1</button> 
-       <button class = "controlButton" onclick = "zoomIt('FPIX2+z');">FPIX+z D2</button> 
+       <button class = "controlButton" onclick = "SvgMap.zoomIt('FPIX1-z');">FPIX-z D1</button> 
+       <button class = "controlButton" onclick = "SvgMap.zoomIt('FPIX2-z');">FPIX-z D2</button> 
+       <button class = "controlButton" onclick = "SvgMap.zoomIt('BPIX1');"  >BPIX L1  </button>  
+       <button class = "controlButton" onclick = "SvgMap.zoomIt('BPIX2-3');">BPIX L2-3</button>  
+       <button class = "controlButton" onclick = "SvgMap.zoomIt('FPIX1+z');">FPIX+z D1</button> 
+       <button class = "controlButton" onclick = "SvgMap.zoomIt('FPIX2+z');">FPIX+z D2</button> 
       </td>
      </tr>
      <tr>
       <td align = "center">
-       <button class = "controlButton" onclick = "zoomIt('Home');"   >Home     </button> 
-       <button class = "controlButton" onclick = "zoomIt('In');"     >Zoom in  </button>
-       <button class = "controlButton" onclick = "zoomIt('Out');"    >Zoom out </button>
-       <button class = "controlButton" onclick = "zoomIt('Up');"     >Up       </button> 
-       <button class = "controlButton" onclick = "zoomIt('Down');"   >Down     </button> 
-       <button class = "controlButton" onclick = "zoomIt('Left');"   >Left     </button>
-       <button class = "controlButton" onclick = "zoomIt('Right');"  >Right    </button>
+       <button class = "controlButton" onclick = "SvgMap.zoomIt('Home');"   >Home     </button> 
+       <button class = "controlButton" onclick = "SvgMap.zoomIt('In');"     >Zoom in  </button>
+       <button class = "controlButton" onclick = "SvgMap.zoomIt('Out');"    >Zoom out </button>
+       <button class = "controlButton" onclick = "SvgMap.zoomIt('Up');"     >Up       </button> 
+       <button class = "controlButton" onclick = "SvgMap.zoomIt('Down');"   >Down     </button> 
+       <button class = "controlButton" onclick = "SvgMap.zoomIt('Left');"   >Left     </button>
+       <button class = "controlButton" onclick = "SvgMap.zoomIt('Right');"  >Right    </button>
       </td>
      </tr>
     </table>

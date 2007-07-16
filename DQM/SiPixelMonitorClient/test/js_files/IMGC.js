@@ -19,6 +19,7 @@ IMGC.BASE_IMAGE_WIDTH    = IMGC.DEF_IMAGE_WIDTH;
 IMGC.BASE_IMAGE_HEIGHT   = parseInt(IMGC.BASE_IMAGE_WIDTH / IMGC.ASPECT_RATIO) ;
 IMGC.THUMB_IMAGE_WIDTH   = IMGC.BASE_IMAGE_WIDTH  / IMGC.IMAGES_PER_ROW;
 IMGC.THUMB_IMAGE_HEIGHT  = IMGC.BASE_IMAGE_HEIGHT / IMGC.IMAGES_PER_COL;
+IMGC.GLOBAL_RATIO        = .6 ;
 IMGC.lastSource          = "" ;
 
 //__________________________________________________________________________________________________________________________________
@@ -86,7 +87,6 @@ Event.observe(window, 'load', function()
   IMGC.BASE_IMAGE_WIDTH    = IMGC.DEF_IMAGE_WIDTH ;
   IMGC.BASE_IMAGE_HEIGHT   = parseInt(IMGC.BASE_IMAGE_WIDTH / IMGC.ASPECT_RATIO);
   IMGC.setBorderSize() ;
-  alert("Repainting 1x1") ;
   IMGC.paintImages();
  }, false);
  Event.observe($('twoXtwo'),       'click',     function()
@@ -161,6 +161,7 @@ IMGC.updateIMGC = function (source)
  } else {
   IMGC.lastSource = source ;
  }
+ 
  var url = WebLib.getApplicationURL2();
  url = url + 
        '/Request?RequestID=updateIMGCPlots&MEFolder=' +
@@ -207,25 +208,42 @@ IMGC.processIMGCPlots = function (ajax)
   return 0;	  
  }
 
+ date = new Date() ; // This is extremely important: adding a date to the QUERY_STRING of the
+                     // URL, forces the browser to reload the picture even if the Plot, Folder
+		     // and canvas size are the same (e.g. by clicking twice the same plot)
+		     // The reload is forced because the browser is faked to think that the
+		     // URL is ALWAYS different from an already existing one.
+		     // This was rather tricky... (Dario)
+ date = date.toString() ;
+ date = date.replace(/\s+/g,"_") ;
+
+ var canvasW             = window.innerWidth * IMGC.GLOBAL_RATIO ;
+ IMGC.DEF_IMAGE_WIDTH    = parseInt(canvasW);
+ IMGC.BASE_IMAGE_WIDTH   = IMGC.DEF_IMAGE_WIDTH;
+ IMGC.BASE_IMAGE_HEIGHT  = parseInt(IMGC.BASE_IMAGE_WIDTH / IMGC.ASPECT_RATIO) ;
+ IMGC.THUMB_IMAGE_WIDTH  = IMGC.BASE_IMAGE_WIDTH  / IMGC.IMAGES_PER_ROW;
+ IMGC.THUMB_IMAGE_HEIGHT = IMGC.BASE_IMAGE_HEIGHT / IMGC.IMAGES_PER_COL;
+ 
  var theFolder = imageURLs[0] ;
  for( var i=1; i<imageURLs.length-1; i++)
  {
-  imageURLs[i-1] = url + 
+  imageURLs[i-1] = url                                    + 
                    "/Request?RequestID=getIMGCPlot&Plot=" + 
-		   imageURLs[i] + 
-		   "&Folder=" + 
-		   theFolder +
-        	   '&canvasW=' +
-        	   IMGC.BASE_IMAGE_WIDTH +
-        	   '&canvasH=' +
-        	   IMGC.BASE_IMAGE_HEIGHT;
+		   imageURLs[i]  	 		  +
+		   "&Folder="    	 		  +
+		   theFolder    	 		  +
+        	   '&canvasW='  	 		  +
+        	   IMGC.BASE_IMAGE_WIDTH 		  +
+        	   '&canvasH='           		  +
+        	   IMGC.BASE_IMAGE_HEIGHT 		  +
+        	   "&Date="               		  +
+        	   date;
  }
 
  $('imageCanvas').imageList     = imageURLs;
  $('imageCanvas').titlesList    = imageURLs;
  $('imageCanvas').current_start = 0;
- IMGC.PATH_TO_PICTURES = "" ;
- 
+ IMGC.PATH_TO_PICTURES = "" ; 
  IMGC.computeCanvasSize() ;
 }
 //__________________________________________________________________________________________________________________________________
@@ -280,7 +298,7 @@ IMGC.resize = function ()
 //__________________________________________________________________________________________________________________________________
 IMGC.computeCanvasSize = function ()
 { 
- var canvasW             = window.innerWidth * .5 ;
+ var canvasW             = window.innerWidth * IMGC.GLOBAL_RATIO ;
  IMGC.DEF_IMAGE_WIDTH    = parseInt(canvasW);
  IMGC.BASE_IMAGE_WIDTH   = IMGC.DEF_IMAGE_WIDTH;
  IMGC.BASE_IMAGE_HEIGHT  = parseInt(IMGC.BASE_IMAGE_WIDTH / IMGC.ASPECT_RATIO) ;
@@ -332,6 +350,12 @@ IMGC.getStyleValue = function (tagName,styleType)
  var style = $(tagName).getStyle(styleType) ;
  var parts = style.split("px") ;
  return parseInt(parts[0]) ;
+}
+
+//__________________________________________________________________________________________________________________________________
+IMGC.repaintUponResize = function()
+{
+ IMGC.updateIMGC() ;
 }
 //__________________________________________________________________________________________________________________________________
 IMGC.paintImages = function ()	

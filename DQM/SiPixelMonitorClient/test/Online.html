@@ -29,7 +29,7 @@
   </script> 
  </head>
  
- <body onresize = "IMGC.updateIMGC()"
+ <body onresize = "IMGC.repaintUponResize()"
        onload   = "CloseUpperWindow()">
   <form id     = "theWholeForm"
   	action = "javascript:void%200">
@@ -43,8 +43,8 @@
 		 float:  left ;">
     <fieldset id    = "theCanvasField"
               style = "background: #225587;
-	               width: 95%;
-		       height: 100%;">
+	               width:      95%;
+		       height:     100%;">
      <legend >
       Drawing Canvas
      </legend>
@@ -275,9 +275,9 @@
                 <select name   = "refreshInterval"
         	        class  = "selector"
         	        id     = "refreshInterval"
-        	        onchange = "changeRefreshInterval()">
-                   <option selected value = "10000" >10 sec</option>
-                   <option	    value = "30000" >30 sec</option>
+        	        onchange = "SvgMap.changeRefreshInterval()">
+                   <option          value = "10000" >10 sec</option>
+                   <option selected value = "30000" >30 sec</option>
                    <option	    value = "60000" > 1 min</option>
                    <option	    value = "120000"> 2 min</option>
                 </select>

@@ -107,6 +107,9 @@ ClientActions.ReadResponseAndOpenTkMap = function()
     {
       try 
       {
+       var doc  = WebLib.http_request.responseXML;	  
+       var root = doc.documentElement;			  
+       var dets = root.getElementsByTagName("Response") ;  
        var win = window.open("TrackerMapFrame.html",
              		     "trackerMapWindow"    ,
              		     "menubar	= no,  "   +

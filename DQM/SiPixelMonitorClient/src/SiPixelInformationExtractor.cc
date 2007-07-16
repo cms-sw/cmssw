@@ -393,9 +393,9 @@ void SiPixelInformationExtractor::plotSingleModuleHistos(MonitorUserInterface* m
 //============================================================================================================
 // --  Plot a Selected Monitor Element
 // 
-void SiPixelInformationExtractor::plotTkMapHisto(MonitorUserInterface     * mui, 
-                                                 string                     theModId, 
-						 string                     theMEName) 
+void SiPixelInformationExtractor::plotTkMapHisto(MonitorUserInterface * mui, 
+                                                 string                 theModId, 
+						 string                 theMEName) 
 {
   vector<MonitorElement*> me_list;
   vector<string>	  theMENameList;
@@ -415,18 +415,64 @@ void SiPixelInformationExtractor::plotTkMapHisto(MonitorUserInterface     * mui,
 	<< endl ;
   }
 
+//  cout << ACYellow << ACBold 
+//       << "[SiPixelInformationExtractor::plotTkMapHisto()] "
+//       << ACPlain 
+//       << "Number of MEs to plot for "
+//       << theMEName
+//       << " ("
+//       << theModId
+//       << "): "
+//       << me_list.size() 
+//       << endl ;
   for( vector<MonitorElement*>::iterator it=me_list.begin(); it!=me_list.end(); it++)
   {
-   cout << ACYellow << ACBold 
-	<< "[SiPixelInformationExtractor::plotTkMapHisto()] "
-	<< ACPlain 
-	<< "Going to plot "
-	<< theMEName 
-	<< endl ;
-   plotHisto(*it, theMEName,"1600","1200") ;
+//   cout << ACYellow << ACBold 
+//	<< "[SiPixelInformationExtractor::plotTkMapHisto()] "
+//	<< ACPlain 
+//	<< "Going to plot "
+//	<< theMEName 
+//	<< " --> "
+//	<< (*it)->getName() 
+//	<< endl ;
+   plotHisto(*it, theMEName,"800","600") ;
   }
     
 }
+//============================================================================================================
+// --  Return type of ME
+//
+std::string  SiPixelInformationExtractor::getMEType(MonitorElement * theMe)
+{
+  MonitorElementT<TNamed>* histogramObj = dynamic_cast<MonitorElementT<TNamed>*>(theMe);
+  if(histogramObj) 
+  {
+    QString qtype = histogramObj->operator->()->IsA()->GetName() ;
+    if(         qtype.contains("TH1") > 0 )
+    {
+     return "TH1" ;
+    } else if ( qtype.contains("TH2") > 0  ) {
+     return "TH2" ;
+    } else if ( qtype.contains("TH3") > 0 ) {
+     return "TH3" ;
+    }
+    
+  } else {
+   cout << ACYellow << ACBold 
+   	<< "[SiPixelInformationExtractor::getMEType()] "
+   	<< ACRed << ACBold << ACReverse
+   	<< "WARNING:"
+   	<< ACPlain 
+	<< " Could not dynamic_cast "
+	<< ACCyan
+   	<< theMe->getName()
+	<< " to TNamed"
+	<< ACPlain
+   	<< endl ;
+  }
+  return "TH1" ;
+}
+
 //============================================================================================================
 // --  Plot Selected Monitor Elements
 // 
@@ -989,12 +1035,23 @@ void SiPixelInformationExtractor::fillNamedImageBuffer(TCanvas * c1, std::string
   ::free(buf); // buf is allocated via realloc() by a C language AfterStep library invoked by the
                // default (and so far only) TImage implementation in root, TASImage.
   
-//   cout << ACCyan << ACBold << ACReverse 
-//        << "[SiPixelInformationExtractor::fillNamedImageBuffer()]"
-//        << ACPlain
-//        << " Storing away " << theName
-//        << endl ;
   namedPictureBuffer[theName] = pictureBuffer_.str() ;
+//  cout << ACCyan << ACBold << ACReverse 
+//       << "[SiPixelInformationExtractor::fillNamedImageBuffer()]"
+//       << ACPlain
+//       << " Storing away " << theName
+//       << " size now is: " << namedPictureBuffer.size() 
+//       << endl ;
+//  for( map<std::string, std::string>::iterator buf =namedPictureBuffer.begin();
+//  					       buf!=namedPictureBuffer.end(); buf++)
+//  {
+//   cout << ACCyan << ACBold << ACReverse 
+//  	<< "[SiPixelInformationExtractor::fillNamedImageBuffer()]"
+//  	<< ACPlain
+//        << " ME: "
+//        << buf->first
+//        << endl ;
+//  }
 }
 
 //------------------------------------------------------------------------------
@@ -1005,7 +1062,7 @@ void SiPixelInformationExtractor::fillNamedImageBuffer(TCanvas * c1, std::string
 void SiPixelInformationExtractor::fillImageBuffer(TCanvas& c1) {
 //cout<<"entering SiPixelInformationExtractor::fillImageBuffer"<<endl;
   c1.SetFixedAspectRatio(kTRUE);
-  c1.SetCanvasSize(1000, 1300);
+  c1.SetCanvasSize(800, 600);
   gStyle->SetPalette(1);
   // Now extract the image
   // 114 - stands for "no write on Close"
@@ -1049,6 +1106,15 @@ const ostringstream&  SiPixelInformationExtractor::getIMGCImage(MonitorUserInter
 								std::string canvasH) 
 {
    MonitorElement * theME = mui->get(theFullPath) ;
+   if( !theME ) 
+   {
+     cout << ACRed << ACBold
+          << "[SiPixelInformationExtractor::getIMGCImage()] " 
+	  << ACPlain
+	  << "FATAL: no ME found for full path "
+	  << theFullPath
+	  << endl ;
+   }
    plotHisto(theME, theFullPath, canvasW, canvasH) ;
    return getNamedImage(theFullPath) ;   
 }
@@ -1076,9 +1142,31 @@ const ostringstream&  SiPixelInformationExtractor::getNamedImage(std::string the
 	 << ACPlain
 	 << "ME image buffer for "
 	 << theName
-	 << " not found"
+	 << " not found among "
+	 << namedPictureBuffer.size()
+	 << " MEs"
     	 << endl ;
+    for( map<std::string, std::string>::iterator buf =namedPictureBuffer.begin();
+                                                 buf!=namedPictureBuffer.end(); buf++)
+    {
+     cout << ACCyan << ACBold << ACReverse 
+    	  << "[SiPixelInformationExtractor::getNamedImage()]"
+          << ACPlain
+	  << " ME: "
+	  << buf->first
+	  << endl ;
+    }
+    cout << ACCyan << ACBold << ACReverse 
+         << "[SiPixelInformationExtractor::getNamedImage()] "
+    	 << ACPlain << endl ;
     return pictureBuffer_;
+  } else {
+//    cout << ACCyan << ACBold << ACReverse 
+//         << "[SiPixelInformationExtractor::getNamedImage()] "
+//    	 << ACPlain 
+//	 << "Buffer containing picture found for "
+//	 << theName
+//	 << endl ;
   }
   pictureBuffer_ << thisBuffer->second ;
 //   cout << ACCyan << ACBold << ACReverse 
@@ -1279,34 +1367,116 @@ void SiPixelInformationExtractor::readStatusMessage(MonitorUserInterface* mui, s
 /*! \brief (Documentation under construction).
  *  
  */
-double SiPixelInformationExtractor::computeStatus(MonitorElement * mE) 
+void SiPixelInformationExtractor::computeStatus(MonitorElement      * theME,
+                                                double              & colorValue,
+						pair<double,double> & norm) 
 {
-  double normalization = 1 ;
-  double mean = 0 ;
+  double normalizationX = 1 ;
+  double normalizationY = 1 ;
+  double meanX          = 0 ;
+  double meanY          = 0 ;
+  
+  colorValue = 0 ;
 
-  pair<double,double> norm ;
+  pair<double,double> normX ;
+  pair<double,double> normY ;
 
-  mean = (double)mE->getMean();
-//  norm = (double)mE->getNbinsX() ;
-  getNormalization(mE, norm) ;
-  normalization = fabs( norm.second - norm.first) ;
-  if( normalization == 0 ) {normalization=1.E-20;}
+  QString theMEType = getMEType(theME) ;
 
-  return mean / normalization ;
+  if( theMEType.contains("TH1") > 0 )
+  {
+   meanX = (double)theME->getMean();
+   getNormalization(theME, normX, "TH1") ;
+   normalizationX = fabs( normX.second - normX.first) ;
+   if( normalizationX == 0 ) {normalizationX=1.E-20;}
+   colorValue  = meanX / normalizationX ;
+   norm.first  = normX.first ;
+   norm.second = normX.second ;
+  }
+  
+  if( theMEType.contains("TH2") > 0 )
+  {
+   meanX = (double)theME->getMean(1);
+   meanY = (double)theME->getMean(2);
+   getNormalization2D(theME, normX, normY, "TH2") ;
+   normalizationX = fabs( normX.second - normX.first) ;
+   normalizationY = fabs( normY.second - normY.first) ;
+   if( normalizationX == 0 ) {normalizationX=1.E-20;}
+   if( normalizationY == 0 ) {normalizationY=1.E-20;}
+   double cVX = meanX / normalizationX ;
+   double cVY = meanY / normalizationY ;
+   colorValue = sqrt(cVX*cVX + cVY*cVY) ;
+   if( normalizationX >= normalizationY )
+   { 
+    norm.first  = normX.first;
+    norm.second = normX.second ;
+   } else { 
+    norm.first  = normY.first;
+    norm.second = normY.second ;
+   }
+//   cout << ACBlue << ACBold << ACReverse
+//        << "[SiPixelInformationExtractor::computeStatus()]"
+//	<< ACPlain << "    "
+//	<< theME->getName()
+//	<< " meanX:Y "
+//	<< meanX << ":" << meanY
+//	<< " normX:Y " 
+//	<< norm.first << ":" << norm.second
+//	<< endl ;
+  } 
+ 
+  return ;
 }
 
 //------------------------------------------------------------------------------
 /*! \brief (Documentation under construction).
  *  
  */
-void SiPixelInformationExtractor::getNormalization(MonitorElement * mE, pair<double,double>& norm) 
+void SiPixelInformationExtractor::getNormalization(MonitorElement     * theME, 
+                                                   pair<double,double>& norm,
+						   QString              theMEType) 
 {
   double normLow  = 0 ;
   double normHigh = 0 ;
 
-  normHigh    = (double)mE->getNbinsX() ;
-  norm.first  = normLow  ;
-  norm.second = normHigh ;
+  if( theMEType.contains("TH1") > 0 )
+  {
+   normHigh    = (double)theME->getNbinsX() ;
+   norm.first  = normLow  ;
+   norm.second = normHigh ;
+  }
+}
+
+//------------------------------------------------------------------------------
+/*! \brief (Documentation under construction).
+ *  
+ */
+void SiPixelInformationExtractor::getNormalization2D(MonitorElement     * theME, 
+                                                     pair<double,double>& normX,
+                                                     pair<double,double>& normY,
+						     QString              theMEType) 
+{
+  double normLow  = 0 ;
+  double normHigh = 0 ;
+
+  if( theMEType.contains("TH2") > 0 )
+  {
+   normHigh    = (double)theME->getNbinsX() ;
+   normX.first  = normLow  ;
+   normX.second = normHigh ;
+   normHigh    = (double)theME->getNbinsY() ;
+   normY.first  = normLow  ;
+   normY.second = normHigh ;
+//   cout << ACCyan << ACBold << ACReverse
+//        << "[SiPixelInformationExtractor::getNormalization2D()]"
+//	<< ACPlain << " "
+//	<< theME->getName()
+//	<< " normX: " 
+//	<< normX.first << ":" << normX.second
+//	<< " normY: " 
+//	<< normY.first << ":" << normY.second
+//	<< endl ;
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -1362,6 +1532,7 @@ void SiPixelInformationExtractor::sendTkUpdatedStatus(MonitorUserInterface  * mu
   vector<string>          colorMap ;
   vector<MonitorElement*> me_list;
   pair<double,double>     norm ;
+  double sts ;
     
   mui->cd();
   selectMEList(mui, theMEName, me_list) ;
@@ -1381,11 +1552,12 @@ void SiPixelInformationExtractor::sendTkUpdatedStatus(MonitorUserInterface  * mu
   stringstream jsSnippet ;
   for(vector<MonitorElement*>::iterator it=me_list.begin(); it!=me_list.end(); it++)
   {
-    QString meName = (*it)->getName() ;
+    QString meName    = (*it)->getName() ;
+    QString theMEType = getMEType(*it) ;
     if( rx.search(meName) != -1 )
     {
      detId = rx.cap(1).latin1() ;
-     double sts = computeStatus(*it) ;
+     computeStatus(*it, sts, norm) ;
 //     sts = random->Gaus(sts,sts/10.) ;
      SiPixelUtility::getStatusColor(sts, rval, gval, bval);
      jsSnippet.str("") ;
@@ -1399,10 +1571,10 @@ void SiPixelInformationExtractor::sendTkUpdatedStatus(MonitorUserInterface  * mu
      	       << bval
      	       << "'/>" ;
       colorMap.push_back(jsSnippet.str()) ;
-      if( it == me_list.begin()) // The first should be equall to all others...
-      {
-       getNormalization((*it), norm) ;
-      }
+//      if( it == me_list.begin()) // The first should be equal to all others...
+//      {
+//       getNormalization((*it), norm, theMEType.latin1()) ;
+//      }
     }
   }
 

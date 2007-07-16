@@ -131,22 +131,22 @@ void TrackerMapCreator::create(MonitorUserInterface * mui)
     sNm.str(""); sNm << "baseImage" << img ;
     string sid = sId.str() ;
     string snm = sNm.str() ;
-    innerFrame << "  <div   id	        = 'binding'					      " << "\n"
-               << "         name        = '" << sid << "'> 				      " << "\n"
-               << "   <img  id  	= '" << snm << "'  				      " << "\n"
-               << "	    name	= '" << snm << "'  				      " << "\n"
-               << "	    src 	= 'images/EmptyPlot.png'			      " << "\n"
-               << "	    alt 	= 'picture geometry:1600x1200'			      " << "\n"
-               << "	    onload	= 'innerLoading(\"" << sid << "\",\"" << snm << "\")'"  << "\n"
-               << "	    onclick	= 'innerTransport(event)'			      " << "\n"
-               << "	    onmouseover = 'this.T_SHADOWWIDTH=4;			      " << "\n"
-               << "			   this.T_OPACITY    =70;			      " << "\n"
-               << "			   this.T_FONTCOLOR  =\"#000000\";		      " << "\n"
-               << "			   this.T_WIDTH      =200;			      " << "\n"
-               << "			   return escape(\"Click to send to pan/zoom area\")' " << "\n"
-               << "	    width	= '267' 					      " << "\n"
-               << "	    height	= '200' />					      " << "\n"
-               << "  </div>								      " << endl ;
+    innerFrame << "  <div   id	        = 'binding'					      		   " << "\n" 
+               << "         name        = '" << sid << "'> 				      		   " << "\n" 
+               << "   <img  id  	= '" << snm << "'  				      		   " << "\n" 
+               << "	    name	= '" << snm << "'  				      		   " << "\n" 
+               << "	    src 	= 'images/EmptyPlot.png'			      		   " << "\n" 
+               << "	    alt 	= 'picture geometry:800x600'			      		   " << "\n" 
+               << "	    onload	= 'RightEmbedded.innerLoading(\"" << sid << "\",\"" << snm << "\")'" << "\n"
+               << "	    onclick	= 'RightEmbedded.innerTransport(event)'			           " << "\n"
+               << "	    onmouseover = 'this.T_SHADOWWIDTH=4;			      		   " << "\n"
+               << "			   this.T_OPACITY    =70;			      		   " << "\n"
+               << "			   this.T_FONTCOLOR  =\"#000000\";		      		   " << "\n"
+               << "			   this.T_WIDTH      =200;			      		   " << "\n"
+               << "			   return escape(\"Click to send to pan/zoom area\")' 		   " << "\n"
+               << "	    width	= '267' 					      		   " << "\n"
+               << "	    height	= '200' />					      		   " << "\n"
+               << "  </div>								      		   " << endl ;
   }
   innerFrame << "  									   " << "\n"
              << "</center>								   " << "\n"
@@ -170,10 +170,10 @@ void TrackerMapCreator::paintTkMap(MonitorElement * mE)
   double sts;
   int    rval, gval, bval, detId;
 
-  sts   = infoExtractor_->computeStatus(mE) ; 
-  detId = infoExtractor_->getDetId(     mE);
-  SiPixelUtility::getStatusColor(sts,   rval, gval, bval);
-  trackerMap->fillc(             detId, rval, gval, bval);
+//  sts   = infoExtractor_->computeStatus(mE) ; 
+//  detId = infoExtractor_->getDetId(     mE);
+//  SiPixelUtility::getStatusColor(sts,   rval, gval, bval);
+//  trackerMap->fillc(             detId, rval, gval, bval);
 }
 
 //==============================================================================

@@ -15,7 +15,7 @@
 //
 // Original Author:  Dario Menasce
 //         Created:  
-// $Id: SiPixelTrackerMap.cc,v 1.0 2007/05/18 20:24:44 menasce Exp $
+// $Id: SiPixelTrackerMap.cc,v 1.2 2007/06/06 14:26:49 menasce Exp $
 //
 //
 #include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
@@ -142,18 +142,18 @@ void SiPixelTrackerMap::drawModule(TmModule * mod, int key,int nlay, bool print_
   	    << mod->idex
   	    << "\" id=\""
   	    << mod->idex
-  	    << "\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""
+  	    << "\" onclick=\"SvgMap.showData(evt);\" onmouseover=\"SvgMap.showData(evt);\" onmouseout=\"SvgMap.showData(evt);\" MESSAGE=\""
   	    << mod->text
   	    << "\" POS=\""
   	    << mod->name
   	    << " Id "
   	    << mod->idex
   	    << " \" fill=\"rgb("
-  	    << mod->red
+  	    << 146
   	    << ","
-  	    << mod->green
+  	    << 0
   	    << ","
-  	    << mod->blue
+  	    << 255
   	    << ")\" points=\"";
    for(int k=0;k<np;k++)
    {
@@ -287,6 +287,14 @@ void SiPixelTrackerMap::print(bool print_total, float minval, float maxval)
   	{						  
   	    *svgfile << line << endl;			  
   	}						  
-  delete jsfile ;					  
+  delete jsfile ;
+  
+  svgfile->close() ;
+  cout << ACYellow << ACBold
+       << "[SiPixelTrackerMap::print(  )] "
+       << ACPlain
+       << "svgmap.xml file just closed..."
+       << endl ;
+       					  
   delete svgfile ;					  
 }

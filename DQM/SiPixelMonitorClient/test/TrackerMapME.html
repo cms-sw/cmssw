@@ -22,6 +22,9 @@
 	 href = "css_files/right.css">
 
  <script type = "text/javascript"
+         src  = "WebLib.js">
+ </script>
+ <script type = "text/javascript"
          src  = "js_files/magnifier.js">
  </script>
  <script type = "text/javascript" 
@@ -30,10 +33,14 @@
  <script type = "text/javascript"
          src  = "js_files/DMLibrary.js">
  </script>
- 
+ <script type = "text/javascript"
+         src  = "js_files/right.js">
+ </script>
+
 </head>
  
-<body bgcolor="#414141">
+<body onload  = "RightFrame.initializeRightFrame()"
+      bgcolor = "#414141">
 
  <center>
   <table id          = "pictTable"   
@@ -67,9 +74,9 @@
       <img  id          = "baseImage0"			
             src         = "images/EmptyPlot.png" 
             name        = "baseImage0"			
-	    alt         = "picture geometry:1600x1200"
-	    onload      = "loading('binding0','baseImage0')"
-	    onclick     = "transport(event)"			
+	    alt         = "picture geometry:800x600"
+	    onload      = "RightFrame.loading('binding0','baseImage0')"
+	    onclick     = "RightFrame.transport(event)"			
 	    onmouseover = "this.T_SHADOWWIDTH=4; 
 	                   this.T_OPACITY    =70;
 			   this.T_FONTCOLOR  ='#000000';
@@ -91,14 +98,14 @@
      	  <select id	   = "MEListCB"
      		  class    = "comboBox"
      		  name     = "MEListCB" 
-     		  onchange = "movePlotTo()">
+     		  onchange = "RightFrame.movePlotTo()">
      	   <option   value = "-">-</option>
      	  </select>
      	 </h1>
      	</form>
        </td>
        <td>
-     	<form	 action = "javascript:resizeToDefault()">
+     	<form	 action = "javascript:RightFrame.resizeToDefault()">
      	 <input  type	= "submit"
      		 class  = "button" 
      		 name	= "resizeToDefault"
@@ -112,7 +119,7 @@
           <select id	   = "resizeBy"
         	  class    = "comboBox"
         	  name     = "resizeBy" 
-        	  onchange = "resizeByStep()">
+        	  onchange = "RightFrame.resizeByStep()">
            <option          value = "0.1" >0.1</option>
            <option          value = "0.5" >0.5</option>
            <option selected value = "1.5" >1.5</option>
@@ -125,6 +132,16 @@
          </h1>
         </form>
        </td>
+<!--
+       <td>
+     	<form	 action = "javascript:RightFrame.externalImage()">
+     	 <input  type	= "submit"
+     		 class  = "button" 
+     		 name	= "externalImage"
+		 value  = "External"></button>
+     	</form>
+       </td>
+-->
       </tr>
      <table>
     </td>
@@ -147,7 +164,7 @@
      <img   id     	= "placeHolder"					     
             name   	= "placeHolder"					     
 	    src    	= "images/EmptyPlot.png"			     
-            onload      = "swapImage()"
+            onload      = "RightFrame.swapImage()"
  	    width    	= "0"   				       
  	    height   	= "0" />
     </td>				       
@@ -155,12 +172,11 @@
   </table>
  </center>
 
- <script type = "text/javascript"
-         src  = "js_files/right.js">
+ <script type = "text/javascript" 
+         src  = "js_files/wz_dragdrop.js">
  </script>
-
- <script type="text/javascript" 
-   	 src ="js_files/wz_tooltip.js">
+ <script type = "text/javascript">
+  SET_DHTML(CURSOR_MOVE, RESIZABLE, TRANSPARENT, "zoomedImg");
  </script>
 
 </body>

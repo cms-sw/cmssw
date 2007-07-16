@@ -267,8 +267,13 @@ dd.getImg = function(d_o, d_nm, d_xy, d_w)
 {
 	d_w = d_w || window;
 	var d_img;
+//alert("[wz_dragdrop.js::dd.getImg()] d_w.document.images.length "+d_w.document.images.length) ;
+//alert("[wz_dragdrop.js::dd.getImg()] document.images "+document.images+
+//                                 "\n d_nm "+d_nm+
+//				 "\n d_w.document.images[d_nm] "+d_w.document.images[d_nm]) ;
 	if(document.images && (d_img = d_w.document.images[d_nm]))
 	{
+//alert("[wz_dragdrop.js::dd.getImg()] d_xy "+d_xy) ;
 		if(d_xy)
 		{
 			if(dd.n4)
@@ -286,6 +291,7 @@ dd.getImg = function(d_o, d_nm, d_xy, d_w)
 		}
 		return d_img;
 	}
+//alert("[wz_dragdrop.js::dd.getImg()] dd.n4 "+dd.n4) ;
 	if(dd.n4) for(var d_i = d_w.document.layers.length; d_i;)
 	{
 		var d_y = dd.getImg(d_o, d_nm, d_xy, d_w.document.layers[--d_i]);
@@ -369,11 +375,13 @@ dd.mkWzDom = function()
 //==============================================================================================
 dd.addProps = function(d_o)
 {
+//alert("[wz_dragdrop.js::dd.addProps()] d_o "+d_o+" d_o.is_image: " +d_o.is_image) ; 
 	if(d_o.is_image)
 	{
 		d_o.div = dd.getDiv(d_o.id);
 		d_o.css = (d_o.div && typeof d_o.div.style != dd_u)? d_o.div.style : null;
 		d_o.nimg = (dd.n4 && d_o.div)? d_o.div.document.images[0] : (document.images[d_o.id+"NI1m6G"] || null);
+//alert("[wz_dragdrop.js::dd.addProps()] d_o.nimg "+d_o.nimg) ; 
 		if(!d_o.noalt && !dd.noalt && d_o.nimg && d_o.oimg)
 		{
 			d_o.nimg.alt = d_o.oimg.alt || '';
@@ -756,6 +764,7 @@ DDObj.prototype.swapImage = function(d_x, d_cp)
 {
 	if(!this.nimg) 
 	{
+//alert("[wz_dragdrop.js::DDObj.prototype.swapImage()] this.nimg: " +this.nimg) ;
 	 return;
 	}
 	this.nimg.src = d_x;
@@ -1392,6 +1401,7 @@ function SET_DHTML()
 		else if(d_ai == TRANSPARENT) 	       dd.diaphan   = 1;
 		else
 		{
+//alert("[wz_dragdrop.js::SET_DHTML()] building d_ai: "+d_ai) ;
 			d_o = new DDObj(d_ai);
 			dd.addElt(d_o);
 			d_htm += d_o.t_htm || '';
