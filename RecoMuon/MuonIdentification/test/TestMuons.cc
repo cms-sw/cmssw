@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: TestMuons.cc,v 1.16 2007/04/13 03:09:28 dmytro Exp $
+// $Id: TestMuons.cc,v 1.1 2007/07/12 19:27:56 dmytro Exp $
 //
 //
 
@@ -12,6 +12,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/View.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 
@@ -33,12 +34,11 @@ TestMuons::TestMuons(const edm::ParameterSet& iConfig)
 
 void TestMuons::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
-
-   Handle<reco::MuonCollection> muons;
+   // Handle<reco::MuonCollection> muons;
+   edm::Handle<edm::View<reco::Muon> > muons;
    iEvent.getByLabel(theInputCollection, muons);
    
-   for(reco::MuonCollection::const_iterator muon = muons->begin(); muon != muons->end(); ++muon){
+   for(edm::View<reco::Muon>::const_iterator muon = muons->begin(); muon != muons->end(); ++muon){
       std::cout << "\n----------------------------------------------------" << std::endl;
       std::cout << "Muon (pt,eta,phi): " << muon->pt() << ", " << muon->eta() << ", " << muon->phi() << std::endl;
       std::cout << "\t energy (ecal, hcal, ho): " << muon->getCalEnergy().em << ", " << 
