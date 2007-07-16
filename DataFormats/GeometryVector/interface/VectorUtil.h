@@ -13,31 +13,6 @@ namespace Geom {
   using ROOT::Math::VectorUtil::Phi_0_2pi;
   using ROOT::Math::VectorUtil::Phi_mpi_pi;
   
- 
-  
-  /** Definition of ordering of azimuthal angles.
-   *  phi1 is less than phi2 if the angle covered by a point going from
-   *  phi1 to phi2 in the counterclockwise direction is smaller than pi.
-   *  It makes sense only if ALL phis are in a single hemisphere...
-   */
-  inline bool phiLess( float phi1, float phi2) {
-    float diff = fmod(phi2 - phi1, 2.0*M_PI);
-    // float diff = phi2-phi1; 
-    if ( diff < 0) diff += 2*M_PI;
-    return diff < M_PI;
-  }
-  inline bool phiLess(double phi1, double phi2) {
-    double diff = fmod(phi2 - phi1, 2.0*M_PI);
-    diff = phi2-phi1; 
-    if ( diff < 0) diff += 2*M_PI;
-    return diff < M_PI;
-  }
-  template <class Vector1, class Vector2> 
-  bool phiLess(const Vector1 & v1, const Vector2 & v2) {
-    return phiLess(v1.phi(),v2.phi()); 
-  }
-
-
 
   /**
      Find aximutal Angle difference between two generic vectors ( v2.Phi() - v1.Phi() ) 
@@ -47,7 +22,7 @@ namespace Geom {
      \return  Phi difference
      \f[ \Delta \phi = \phi_2 - \phi_1 \f]
   */
-  inline double deltaPhi(double phi1, double phi2) { 
+  inline double deltaBarePhi(double phi1, double phi2) { 
     double dphi = phi2-phi1; 
     if ( dphi > M_PI ) {
       dphi -= 2.0*M_PI;
@@ -56,13 +31,37 @@ namespace Geom {
     }
     return dphi;
   }
+  inline double deltaPhi(double phi1, double phi2) { 
+    return deltaBarePhi(Phi_mpi_pi(phi2)-Phi_mpi_pi(phi1));
+  }
   template <class Vector1, class Vector2> 
   double deltaPhi( const Vector1 & v1, const Vector2 & v2) { 
-    return deltaPhi(v1.phi(),v2.phi()); 
+    return deltaBarePhi(v1.phi(),v2.phi()); 
   }
   
-  
-  
+
+  /** Definition of ordering of azimuthal angles.
+   *  phi1 is less than phi2 if the angle covered by a point going from
+   *  phi1 to phi2 in the counterclockwise direction is smaller than pi.
+   *  It makes sense only if ALL phis are in a single hemisphere...
+   */
+  /*
+  inline bool phiLess( float phi1, float phi2) {
+    float diff = fmod(phi2 - phi1, 2.0*M_PI);
+    // float diff = phi2-phi1; 
+    if ( diff < 0) diff += 2*M_PI;
+    return diff < M_PI;
+  }
+  */
+  inline bool phiLess(double phi1, double phi2) {
+    return deltaPhi(phi1,phi2)>0;
+  }
+  template <class Vector1, class Vector2> 
+  bool phiLess(const Vector1 & v1, const Vector2 & v2) {
+    return deltaPhi(v1,v2)>0.; 
+  }
+
+    
   /**
      Find difference in pseudorapidity (Eta) and Phi betwen two generic vectors
      The only requirements on the Vector classes is that they implement the Phi() and Eta() method
