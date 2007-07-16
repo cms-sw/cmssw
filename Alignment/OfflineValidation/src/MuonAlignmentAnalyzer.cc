@@ -3,8 +3,8 @@
  *  Makes histograms of high level Muon objects/quantities
  *  for Alignment Scenarios/DB comparison
  *
- *  $Date: 2007/07/09 16:43:39 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/07/16 18:03:37 $
+ *  $Revision: 1.4 $
  *  \author J. Fernandez - IFCA (CSIC-UC) <Javier.Fernandez@cern.ch>
  */
 
@@ -56,8 +56,8 @@ MuonAlignmentAnalyzer::MuonAlignmentAnalyzer(const ParameterSet& pset){
   theSTAMuonTag = pset.getParameter<edm::InputTag>("StandAloneTrackCollectionTag");
   theGLBMuonTag = pset.getParameter<edm::InputTag>("GlobalMuonTrackCollectionTag");
 
-  theRecHits4DLabelDT = pset.getUntrackedParameter<string>("RecHits4DDTCollectionLabel");
-  theRecHits2DLabelCSC = pset.getUntrackedParameter<string>("RecHits2DCSCCollectionLabel");
+  theRecHits4DTagDT = pset.getParameter<edm::InputTag>("RecHits4DDTCollectionTag");
+  theRecHits2DTagCSC = pset.getParameter<edm::InputTag>("RecHits2DCSCCollectionTag");
   
   theRootFileName = pset.getUntrackedParameter<string>("rootFileName");
 
@@ -68,7 +68,7 @@ MuonAlignmentAnalyzer::MuonAlignmentAnalyzer(const ParameterSet& pset){
   doResplots = pset.getUntrackedParameter<bool>("doResplots");
  
   if(theDataType != "RealData" && theDataType != "SimData")
-    cout<<"Error in Data Type!!"<<endl;
+    edm::LogError("MuonAlignmentAnalyzer") << "Error in Data Type!!"<<endl;
 
   numberOfSimTracks=0;
   numberOfSARecTracks=0;
@@ -152,16 +152,153 @@ void MuonAlignmentAnalyzer::beginJob(const EventSetup& eventSetup){
   hResidualPhiCSC = new TH1F("hResidualPhiCSC","hResidualPhiCSC",100,-1,1);
   hResidualZCSC = new TH1F("hResidualZCSC","hResidualZCSC",200,-10,10);
 
+// DT Wheels
+  hResidualRPhiDT_W[0]=new TH1F("hResidualRPhiDT_W-2","hResidualRPhiDT_W-2",200,-10,10);
+  hResidualPhiDT_W[0]=new TH1F("hResidualPhiDT_W-2","hResidualPhiDT_W-2",200,-1,1);
+  hResidualZDT_W[0] = new TH1F("hResidualZDT_W-2","hResidualZDT_W-2",200,-10,10);
+  hResidualRPhiDT_W[1]=new TH1F("hResidualRPhiDT_W-1","hResidualRPhiDT_W-1",200,-10,10);
+  hResidualPhiDT_W[1]=new TH1F("hResidualPhiDT_W-1","hResidualPhiDT_W-1",200,-1,1);
+  hResidualZDT_W[1] = new TH1F("hResidualZDT_W-1","hResidualZDT_W-1",200,-10,10);
+  hResidualRPhiDT_W[2]=new TH1F("hResidualRPhiDT_W0","hResidualRPhiDT_W0",200,-10,10);
+  hResidualPhiDT_W[2]=new TH1F("hResidualPhiDT_W0","hResidualPhiDT_W0",200,-1,1);
+  hResidualZDT_W[2] = new TH1F("hResidualZDT_W0","hResidualZDT_W0",200,-10,10);
+  hResidualRPhiDT_W[3]=new TH1F("hResidualRPhiDT_W1","hResidualRPhiDT_W1",200,-10,10);
+  hResidualPhiDT_W[3]=new TH1F("hResidualPhiDT_W1","hResidualPhiDT_W1",200,-1,1);
+  hResidualZDT_W[3] = new TH1F("hResidualZDT_W1","hResidualZDT_W1",200,-10,10);
+  hResidualRPhiDT_W[4]=new TH1F("hResidualRPhiDT_W2","hResidualRPhiDT_W2",200,-10,10);
+  hResidualPhiDT_W[4]=new TH1F("hResidualPhiDT_W2","hResidualPhiDT_W2",200,-1,1);
+  hResidualZDT_W[4] = new TH1F("hResidualZDT_W2","hResidualZDT_W2",200,-10,10);
+
+// DT Stations
+  hResidualRPhiDT_MB[0]=new TH1F("hResidualRPhiDT_MB-2/1","hResidualRPhiDT_MB-2/1",200,-10,10);
+  hResidualPhiDT_MB[0]=new TH1F("hResidualPhiDT_MB-2/1","hResidualPhiDT_MB-2/1",200,-1,1);
+  hResidualZDT_MB[0] = new TH1F("hResidualZDT_MB-2/1","hResidualZDT_MB-2/1",200,-10,10);
+  hResidualRPhiDT_MB[1]=new TH1F("hResidualRPhiDT_MB-2/2","hResidualRPhiDT_MB-2/2",200,-10,10);
+  hResidualPhiDT_MB[1]=new TH1F("hResidualPhiDT_MB-2/2","hResidualPhiDT_MB-2/2",200,-1,1);
+  hResidualZDT_MB[1] = new TH1F("hResidualZDT_MB-2/2","hResidualZDT_MB-2/2",200,-10,10);
+  hResidualRPhiDT_MB[2]=new TH1F("hResidualRPhiDT_MB-2/3","hResidualRPhiDT_MB-2/3",200,-10,10);
+  hResidualPhiDT_MB[2]=new TH1F("hResidualPhiDT_MB-2/3","hResidualPhiDT_MB-2/3",200,-1,1);
+  hResidualZDT_MB[2] = new TH1F("hResidualZDT_MB-2/3","hResidualZDT_MB-2/3",200,-10,10);
+  hResidualRPhiDT_MB[3]=new TH1F("hResidualRPhiDT_MB-2/4","hResidualRPhiDT_MB-2/4",200,-10,10);
+  hResidualPhiDT_MB[3]=new TH1F("hResidualPhiDT_MB-2/4","hResidualPhiDT_MB-2/4",200,-1,1);
+  hResidualZDT_MB[3] = new TH1F("hResidualZDT_MB-2/4","hResidualZDT_MB-2/4",200,-10,10);
+  hResidualRPhiDT_MB[4]=new TH1F("hResidualRPhiDT_MB-1/1","hResidualRPhiDT_MB-1/1",200,-10,10);
+  hResidualPhiDT_MB[4]=new TH1F("hResidualPhiDT_MB-1/1","hResidualPhiDT_MB-1/1",200,-1,1);
+  hResidualZDT_MB[4] = new TH1F("hResidualZDT_MB-1/1","hResidualZDT_MB-1/1",200,-10,10);
+  hResidualRPhiDT_MB[5]=new TH1F("hResidualRPhiDT_MB-1/2","hResidualRPhiDT_MB-1/2",200,-10,10);
+  hResidualPhiDT_MB[5]=new TH1F("hResidualPhiDT_MB-1/2","hResidualPhiDT_MB-1/2",200,-1,1);
+  hResidualZDT_MB[5] = new TH1F("hResidualZDT_MB-1/2","hResidualZDT_MB-1/2",200,-10,10);
+  hResidualRPhiDT_MB[6]=new TH1F("hResidualRPhiDT_MB-1/3","hResidualRPhiDT_MB-1/3",200,-10,10);
+  hResidualPhiDT_MB[6]=new TH1F("hResidualPhiDT_MB-1/3","hResidualPhiDT_MB-1/3",200,-1,1);
+  hResidualZDT_MB[6] = new TH1F("hResidualZDT_MB-1/3","hResidualZDT_MB-1/3",200,-10,10);
+  hResidualRPhiDT_MB[7]=new TH1F("hResidualRPhiDT_MB-1/4","hResidualRPhiDT_MB-1/4",200,-10,10);
+  hResidualPhiDT_MB[7]=new TH1F("hResidualPhiDT_MB-1/4","hResidualPhiDT_MB-1/4",200,-1,1);
+  hResidualZDT_MB[7] = new TH1F("hResidualZDT_MB-1/4","hResidualZDT_MB-1/4",200,-10,10);
+  hResidualRPhiDT_MB[8]=new TH1F("hResidualRPhiDT_MB0/1","hResidualRPhiDT_MB0/1",200,-10,10);
+  hResidualPhiDT_MB[8]=new TH1F("hResidualPhiDT_MB0/1","hResidualPhiDT_MB0/1",200,-1,1);
+  hResidualZDT_MB[8] = new TH1F("hResidualZDT_MB0/1","hResidualZDT_MB0/1",200,-10,10);
+  hResidualRPhiDT_MB[9]=new TH1F("hResidualRPhiDT_MB0/2","hResidualRPhiDT_MB0/2",200,-10,10);
+  hResidualPhiDT_MB[9]=new TH1F("hResidualPhiDT_MB0/2","hResidualPhiDT_MB0/2",200,-1,1);
+  hResidualZDT_MB[9] = new TH1F("hResidualZDT_MB0/2","hResidualZDT_MB0/2",200,-10,10);
+  hResidualRPhiDT_MB[10]=new TH1F("hResidualRPhiDT_MB0/3","hResidualRPhiDT_MB0/3",200,-10,10);
+  hResidualPhiDT_MB[10]=new TH1F("hResidualPhiDT_MB0/3","hResidualPhiDT_MB0/3",200,-1,1);
+  hResidualZDT_MB[10] = new TH1F("hResidualZDT_MB0/3","hResidualZDT_MB0/3",200,-10,10);
+  hResidualRPhiDT_MB[11]=new TH1F("hResidualRPhiDT_MB0/4","hResidualRPhiDT_MB0/4",200,-10,10);
+  hResidualPhiDT_MB[11]=new TH1F("hResidualPhiDT_MB0/4","hResidualPhiDT_MB0/4",200,-1,1);
+  hResidualZDT_MB[11] = new TH1F("hResidualZDT_MB0/4","hResidualZDT_MB0/4",200,-10,10);
+  hResidualRPhiDT_MB[12]=new TH1F("hResidualRPhiDT_MB1/1","hResidualRPhiDT_MB1/1",200,-10,10);
+  hResidualPhiDT_MB[12]=new TH1F("hResidualPhiDT_MB1/1","hResidualPhiDT_MB1/1",200,-1,1);
+  hResidualZDT_MB[12] = new TH1F("hResidualZDT_MB1/1","hResidualZDT_MB1/1",200,-10,10);
+  hResidualRPhiDT_MB[13]=new TH1F("hResidualRPhiDT_MB1/2","hResidualRPhiDT_MB1/2",200,-10,10);
+  hResidualPhiDT_MB[13]=new TH1F("hResidualPhiDT_MB1/2","hResidualPhiDT_MB1/2",200,-1,1);
+  hResidualZDT_MB[13] = new TH1F("hResidualZDT_MB1/2","hResidualZDT_MB1/2",200,-10,10);
+  hResidualRPhiDT_MB[14]=new TH1F("hResidualRPhiDT_MB1/3","hResidualRPhiDT_MB1/3",200,-10,10);
+  hResidualPhiDT_MB[14]=new TH1F("hResidualPhiDT_MB1/3","hResidualPhiDT_MB1/3",200,-1,1);
+  hResidualZDT_MB[14] = new TH1F("hResidualZDT_MB1/3","hResidualZDT_MB1/3",200,-10,10);
+  hResidualRPhiDT_MB[15]=new TH1F("hResidualRPhiDT_MB1/4","hResidualRPhiDT_MB1/4",200,-10,10);
+  hResidualPhiDT_MB[15]=new TH1F("hResidualPhiDT_MB1/4","hResidualPhiDT_MB1/4",200,-1,1);
+  hResidualZDT_MB[15] = new TH1F("hResidualZDT_MB1/4","hResidualZDT_MB1/4",200,-10,10);
+  hResidualRPhiDT_MB[16]=new TH1F("hResidualRPhiDT_MB2/1","hResidualRPhiDT_MB2/1",200,-10,10);
+  hResidualPhiDT_MB[16]=new TH1F("hResidualPhiDT_MB2/1","hResidualPhiDT_MB2/1",200,-1,1);
+  hResidualZDT_MB[16] = new TH1F("hResidualZDT_MB2/1","hResidualZDT_MB2/1",200,-10,10);
+  hResidualRPhiDT_MB[17]=new TH1F("hResidualRPhiDT_MB2/2","hResidualRPhiDT_MB2/2",200,-10,10);
+  hResidualPhiDT_MB[17]=new TH1F("hResidualPhiDT_MB2/2","hResidualPhiDT_MB2/2",200,-1,1);
+  hResidualZDT_MB[17] = new TH1F("hResidualZDT_MB2/2","hResidualZDT_MB2/2",200,-10,10);
+  hResidualRPhiDT_MB[18]=new TH1F("hResidualRPhiDT_MB2/3","hResidualRPhiDT_MB2/3",200,-10,10);
+  hResidualPhiDT_MB[18]=new TH1F("hResidualPhiDT_MB2/3","hResidualPhiDT_MB2/3",200,-1,1);
+  hResidualZDT_MB[18] = new TH1F("hResidualZDT_MB2/3","hResidualZDT_MB2/3",200,-10,10);
+  hResidualRPhiDT_MB[19]=new TH1F("hResidualRPhiDT_MB2/4","hResidualRPhiDT_MB2/4",200,-10,10);
+  hResidualPhiDT_MB[19]=new TH1F("hResidualPhiDT_MB2/4","hResidualPhiDT_MB2/4",200,-1,1);
+  hResidualZDT_MB[19] = new TH1F("hResidualZDT_MB2/4","hResidualZDT_MB2/4",200,-10,10);
+
+
+// CSC Stations
+  hResidualRPhiCSC_ME[0]=new TH1F("hResidualRPhiCSC_ME-4/1","hResidualRPhiCSC_ME-4/1",200,-10,10);
+  hResidualPhiCSC_ME[0]=new TH1F("hResidualPhiCSC_ME-4/1","hResidualPhiCSC_ME-4/1",200,-1,1);
+  hResidualZCSC_ME[0] = new TH1F("hResidualZCSC_ME-4/1","hResidualZCSC_ME-4/1",200,-10,10);
+  hResidualRPhiCSC_ME[1]=new TH1F("hResidualRPhiCSC_ME-4/2","hResidualRPhiCSC_ME-4/2",200,-10,10);
+  hResidualPhiCSC_ME[1]=new TH1F("hResidualPhiCSC_ME-4/2","hResidualPhiCSC_ME-4/2",200,-1,1);
+  hResidualZCSC_ME[1] = new TH1F("hResidualZCSC_ME-4/2","hResidualZCSC_ME-4/2",200,-10,10);
+  hResidualRPhiCSC_ME[2]=new TH1F("hResidualRPhiCSC_ME-3/1","hResidualRPhiCSC_ME-3/1",200,-10,10);
+  hResidualPhiCSC_ME[2]=new TH1F("hResidualPhiCSC_ME-3/1","hResidualPhiCSC_ME-3/1",200,-1,1);
+  hResidualZCSC_ME[2] = new TH1F("hResidualZCSC_ME-3/1","hResidualZCSC_ME-3/1",200,-10,10);
+  hResidualRPhiCSC_ME[3]=new TH1F("hResidualRPhiCSC_ME-3/2","hResidualRPhiCSC_ME-3/2",200,-10,10);
+  hResidualPhiCSC_ME[3]=new TH1F("hResidualPhiCSC_ME-3/2","hResidualPhiCSC_ME-3/2",200,-1,1);
+  hResidualZCSC_ME[3] = new TH1F("hResidualZCSC_ME-3/2","hResidualZCSC_ME-3/2",200,-10,10);
+  hResidualRPhiCSC_ME[4]=new TH1F("hResidualRPhiCSC_ME-2/1","hResidualRPhiCSC_ME-2/1",200,-10,10);
+  hResidualPhiCSC_ME[4]=new TH1F("hResidualPhiCSC_ME-2/1","hResidualPhiCSC_ME-2/1",200,-1,1);
+  hResidualZCSC_ME[4] = new TH1F("hResidualZCSC_ME-2/1","hResidualZCSC_ME-2/1",200,-10,10);
+  hResidualRPhiCSC_ME[5]=new TH1F("hResidualRPhiCSC_ME-2/2","hResidualRPhiCSC_ME-2/2",200,-10,10);
+  hResidualPhiCSC_ME[5]=new TH1F("hResidualPhiCSC_ME-2/2","hResidualPhiCSC_ME-2/2",200,-1,1);
+  hResidualZCSC_ME[5] = new TH1F("hResidualZCSC_ME-2/2","hResidualZCSC_ME-2/2",200,-10,10);
+  hResidualRPhiCSC_ME[6]=new TH1F("hResidualRPhiCSC_ME-1/1","hResidualRPhiCSC_ME-1/1",200,-10,10);
+  hResidualPhiCSC_ME[6]=new TH1F("hResidualPhiCSC_ME-1/1","hResidualPhiCSC_ME-1/1",200,-1,1);
+  hResidualZCSC_ME[6] = new TH1F("hResidualZCSC_ME-1/1","hResidualZCSC_ME-1/1",200,-10,10);
+  hResidualRPhiCSC_ME[7]=new TH1F("hResidualRPhiCSC_ME-1/2","hResidualRPhiCSC_ME-1/2",200,-10,10);
+  hResidualPhiCSC_ME[7]=new TH1F("hResidualPhiCSC_ME-1/2","hResidualPhiCSC_ME-1/2",200,-1,1);
+  hResidualZCSC_ME[7] = new TH1F("hResidualZCSC_ME-1/2","hResidualZCSC_ME-1/2",200,-10,10);
+  hResidualRPhiCSC_ME[8]=new TH1F("hResidualRPhiCSC_ME-1/3","hResidualRPhiCSC_ME-1/3",200,-10,10);
+  hResidualPhiCSC_ME[8]=new TH1F("hResidualPhiCSC_ME-1/3","hResidualPhiCSC_ME-1/3",200,-1,1);
+  hResidualZCSC_ME[8] = new TH1F("hResidualZCSC_ME-1/3","hResidualZCSC_ME-1/3",200,-10,10);
+  hResidualRPhiCSC_ME[9]=new TH1F("hResidualRPhiCSC_ME1/1","hResidualRPhiCSC_ME1/1",200,-10,10);
+  hResidualPhiCSC_ME[9]=new TH1F("hResidualPhiCSC_ME1/1","hResidualPhiCSC_ME1/1",100,-1,1);
+  hResidualZCSC_ME[9] = new TH1F("hResidualZCSC_ME1/1","hResidualZCSC_ME1/1",200,-10,10);
+  hResidualRPhiCSC_ME[10]=new TH1F("hResidualRPhiCSC_ME1/2","hResidualRPhiCSC_ME1/2",200,-10,10);
+  hResidualPhiCSC_ME[10]=new TH1F("hResidualPhiCSC_ME1/2","hResidualPhiCSC_ME1/2",200,-1,1);
+  hResidualZCSC_ME[10] = new TH1F("hResidualZCSC_ME1/2","hResidualZCSC_ME1/2",200,-10,10);
+  hResidualRPhiCSC_ME[11]=new TH1F("hResidualRPhiCSC_ME1/3","hResidualRPhiCSC_ME1/3",200,-10,10);
+  hResidualPhiCSC_ME[11]=new TH1F("hResidualPhiCSC_ME1/3","hResidualPhiCSC_ME1/3",200,-1,1);
+  hResidualZCSC_ME[11] = new TH1F("hResidualZCSC_ME1/3","hResidualZCSC_ME1/3",200,-10,10);
+  hResidualRPhiCSC_ME[12]=new TH1F("hResidualRPhiCSC_ME2/1","hResidualRPhiCSC_ME2/1",200,-10,10);
+  hResidualPhiCSC_ME[12]=new TH1F("hResidualPhiCSC_ME2/1","hResidualPhiCSC_ME2/1",200,-1,1);
+  hResidualZCSC_ME[12] = new TH1F("hResidualZCSC_ME2/1","hResidualZCSC_ME2/1",200,-10,10);
+  hResidualRPhiCSC_ME[13]=new TH1F("hResidualRPhiCSC_ME2/2","hResidualRPhiCSC_ME2/2",200,-10,10);
+  hResidualPhiCSC_ME[13]=new TH1F("hResidualPhiCSC_ME2/2","hResidualPhiCSC_ME2/2",200,-1,1);
+  hResidualZCSC_ME[13] = new TH1F("hResidualZCSC_ME2/2","hResidualZCSC_ME2/2",200,-10,10);
+  hResidualRPhiCSC_ME[14]=new TH1F("hResidualRPhiCSC_ME3/1","hResidualRPhiCSC_ME3/1",200,-10,10);
+  hResidualPhiCSC_ME[14]=new TH1F("hResidualPhiCSC_ME3/1","hResidualPhiCSC_ME3/1",200,-1,1);
+  hResidualZCSC_ME[14] = new TH1F("hResidualZCSC_ME3/1","hResidualZCSC_ME3/1",200,-10,10);
+  hResidualRPhiCSC_ME[15]=new TH1F("hResidualRPhiCSC_ME3/2","hResidualRPhiCSC_ME3/2",200,-10,10);
+  hResidualPhiCSC_ME[15]=new TH1F("hResidualPhiCSC_ME3/2","hResidualPhiCSC_ME3/2",200,-1,1);
+  hResidualZCSC_ME[15] = new TH1F("hResidualZCSC_ME3/2","hResidualZCSC_ME3/2",200,-10,10);
+  hResidualRPhiCSC_ME[16]=new TH1F("hResidualRPhiCSC_ME4/1","hResidualRPhiCSC_ME4/1",200,-10,10);
+  hResidualPhiCSC_ME[16]=new TH1F("hResidualPhiCSC_ME4/1","hResidualPhiCSC_ME4/1",200,-1,1);
+  hResidualZCSC_ME[16] = new TH1F("hResidualZCSC_ME4/1","hResidualZCSC_ME4/1",200,-10,10);
+  hResidualRPhiCSC_ME[17]=new TH1F("hResidualRPhiCSC_ME4/2","hResidualRPhiCSC_ME4/2",200,-10,10);
+  hResidualPhiCSC_ME[17]=new TH1F("hResidualPhiCSC_ME4/2","hResidualPhiCSC_ME4/2",200,-1,1);
+  hResidualZCSC_ME[17] = new TH1F("hResidualZCSC_ME4/2","hResidualZCSC_ME4/2",200,-10,10);
+
+
 }
 
 void MuonAlignmentAnalyzer::endJob(){
   // Write the histos to file
   theFile->cd();
 
-    cout << "----------------- " << endl << endl;
+    edm::LogInfo("MuonAlignmentAnalyzer") << "----------------- " << endl << endl;
 
   if(theDataType == "SimData"){
-    cout << "Number of Sim tracks: " << numberOfSimTracks << endl << endl;
+    edm::LogInfo("MuonAlignmentAnalyzer") << "Number of Sim tracks: " << numberOfSimTracks << endl << endl;
   hNmuonsSim->Write();
   hPTSim->Write();
   hSimInvM->Write();
@@ -171,7 +308,7 @@ void MuonAlignmentAnalyzer::endJob(){
   }
 
   if(doSAplots){
-    cout << "Number of SA Reco tracks: " << numberOfSARecTracks << endl << endl;
+    edm::LogInfo("MuonAlignmentAnalyzer") << "Number of SA Reco tracks: " << numberOfSARecTracks << endl << endl;
   hNmuonsSA->Write();
   if(theDataType == "SimData"){
   hSAPTres->Write();
@@ -191,7 +328,7 @@ void MuonAlignmentAnalyzer::endJob(){
 	}
 
   if(doGBplots){
-  cout << "Number of GB Reco tracks: " << numberOfGBRecTracks << endl << endl;
+  edm::LogInfo("MuonAlignmentAnalyzer") << "Number of GB Reco tracks: " << numberOfGBRecTracks << endl << endl;
   hNmuonsGB->Write();
   if(theDataType == "SimData"){
   hGBPTres->Write();
@@ -211,7 +348,7 @@ void MuonAlignmentAnalyzer::endJob(){
    }
 
   if(doResplots){
-  cout << "Number of Hits considered for residuals: " << numberOfHits << endl << endl;
+  edm::LogInfo("MuonAlignmentAnalyzer") << "Number of Hits considered for residuals: " << numberOfHits << endl << endl;
 
     for(std::vector<TH1F *>::iterator myIt = unitsRPhi.begin(); myIt != unitsRPhi.end(); myIt++) {
       (*myIt)->Write();
@@ -229,6 +366,23 @@ void MuonAlignmentAnalyzer::endJob(){
   hResidualRPhiCSC->Write(); 
   hResidualPhiCSC->Write(); 
   hResidualZCSC->Write(); 
+  
+  for (int j=0; j<20; j++){
+
+	if(j<5){
+  hResidualRPhiDT_W[j]->Write();
+  hResidualPhiDT_W[j]->Write();
+  hResidualZDT_W[j]->Write();	
+	}
+	if(j<18){
+  hResidualRPhiCSC_ME[j]->Write();
+  hResidualPhiCSC_ME[j]->Write();
+  hResidualZCSC_ME[j]->Write();
+  	}
+  hResidualRPhiDT_MB[j]->Write();
+  hResidualPhiDT_MB[j]->Write();
+  hResidualZDT_MB[j]->Write();
+  }
 }
 
   theFile->Close();
@@ -237,7 +391,6 @@ void MuonAlignmentAnalyzer::endJob(){
 
 void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
   
- // cout << "Run: " << event.id().run() << " Event: " << event.id().event() << endl;
   
   ESHandle<MagneticField> theMGField;
   eventSetup.get<IdealMagneticFieldRecord>().get(theMGField);
@@ -263,16 +416,12 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 
     SimTrackContainer::const_iterator simTrack;
 
-  //  cout<<"Simulated muons: "<<simTracks->size() <<endl;
 	i=0;
     for (simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack){
       if (abs((*simTrack).type()) == 13) {
 	i++;
-//	cout<<"Sim pT: "<<(*simTrack).momentum().perp()<<endl;
 	simPt=(*simTrack).momentum().perp();
-//	cout<<"Sim Eta: "<<(*simTrack).momentum().eta()<<endl;
 	simEta=(*simTrack).momentum().eta();
-//	cout<<"Sim Phi: "<<(*simTrack).momentum().phi()<<endl;
 	simPhi=(*simTrack).momentum().phi();
 	numberOfSimTracks++;
 	hPTSim->Fill(simPt);
@@ -300,7 +449,6 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
   if(abs(p1.eta())<1.04 && abs(p2.eta())<1.04) hSimInvM_Barrel->Fill(Minv);
   }
 
-//    cout << endl;
   } //simData
   
   
@@ -318,10 +466,8 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 
   reco::TrackCollection::const_iterator staTrack;
 
-  //cout<<"SA Reconstructed muons: " << staTracks->size() << endl;
   i=0;
   for (staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack){
-//    reco::TransientTrack track(*staTrack,&*theMGField,theTrackingGeometry); 
     i++;
     
     
@@ -388,11 +534,8 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 
   reco::TrackCollection::const_iterator glbTrack;
 	i=0;
- 	//cout <<endl<<endl;  
-  //cout<<"GB Reconstructed muons: " << glbTracks->size() << endl;
 
   for (glbTrack = glbTracks->begin(); glbTrack != glbTracks->end(); ++glbTrack){
-//    reco::TransientTrack track2(*glbTrack,&*theMGField,theTrackingGeometry); 
     i++;
 
     GBrecPt = (*glbTrack).pt(); 
@@ -455,12 +598,12 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 
   // Get the 4D DTSegments
   edm::Handle<DTRecSegment4DCollection> all4DSegmentsDT;
-  event.getByLabel(theRecHits4DLabelDT, all4DSegmentsDT);
+  event.getByLabel(theRecHits4DTagDT, all4DSegmentsDT);
   DTRecSegment4DCollection::const_iterator segmentDT;
 
   // Get the 2D CSCSegments
   edm::Handle<CSCSegmentCollection> all2DSegmentsCSC;
-  event.getByLabel(theRecHits2DLabelCSC, all2DSegmentsCSC);
+  event.getByLabel(theRecHits2DTagCSC, all2DSegmentsCSC);
   CSCSegmentCollection::const_iterator segmentCSC;
   
   //Create the propagator
@@ -617,31 +760,33 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 	    }
 	  }
 
+            DetId myDet(rawId);
+            int det = myDet.subdetId();
+            int wheel=0,station=0,sector=0;
+            int endcap=0,ring=0,chamber=0;
+
+            //If it's a DT
+            if(det == 1) {
+              DTChamberId myChamber(rawId);
+              wheel=myChamber.wheel();
+              station = myChamber.station();
+              sector=myChamber.sector();
+            } else if (det==2){
+              CSCDetId myChamber(rawId);
+              endcap= myChamber.endcap();
+              station = myChamber.station();
+                if(endcap==2) station = -station;
+              ring = myChamber.ring();
+              chamber=myChamber.chamber();
+
+            }
+
 	  if(newDetector) {
 	    
 	    //Create an RawIdDetector, fill it and push it into the collection 
 	    detectorCollection.push_back(rawId);
+
 	    //This piece of code calculates the range of the residuals
-	    DetId myDet(rawId);
-	    int wheel=0,station=0,sector=0;
-	    int endcap=0,ring=0,chamber=0;
-	    int det = myDet.subdetId();
-
-	    //If it's a DT
-	    if(det == 1) {
-	      DTChamberId myChamber(rawId);
-	      wheel=myChamber.wheel();
-	      station = myChamber.station();
-	      sector=myChamber.sector();
-	    } else if (det==2){
-	      CSCDetId myChamber(rawId);
-	      endcap= myChamber.endcap();
-              station = myChamber.station();
-		if(endcap==2) station = -station;
-	      ring = myChamber.ring();
-	      chamber=myChamber.chamber();
-
-	    }
 	    double range = 0.5;
 	    switch(abs(station)) {
 	    case 1:
@@ -665,30 +810,47 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 	    char nameOfHistoRPhi[50];
 	    char nameOfHistoPhi[50];
 	    char nameOfHistoZ[50];
+
 	
 	    if(det==1){ // DT
-	    sprintf(nameOfHistoRPhi, "ResidualRPhi_DTW%ldMB%1dS%1d",wheel,station,sector );
-	    sprintf(nameOfHistoPhi, "ResidualPhi_DTW%ldMB%1dS%1d",wheel,station,sector);
-	    sprintf(nameOfHistoZ, "ResidualZ_DTW%ldMB%1dS%1d",wheel,station,sector);
+	    sprintf(nameOfHistoRPhi, "ResidualRPhi_W%ldMB%1dS%1d",wheel,station,sector );
+	    sprintf(nameOfHistoPhi, "ResidualPhi_W%ldMB%1dS%1d",wheel,station,sector);
+	    sprintf(nameOfHistoZ, "ResidualZ_W%ldMB%1dS%1d",wheel,station,sector);
 	    hResidualRPhiDT->Fill(residualRPhi);
 	    hResidualPhiDT->Fill(residualPhi);
-	    hResidualZDT->Fill(residualZ);	
+	    hResidualZDT->Fill(residualZ);			
 
-	    	    }
+		int index = wheel+2;
+		hResidualRPhiDT_W[index]->Fill(residualRPhi);
+		hResidualPhiDT_W[index]->Fill(residualPhi);
+		hResidualZDT_W[index]->Fill(residualZ);
+		index=wheel*4+station+7;
+                hResidualRPhiDT_MB[index]->Fill(residualRPhi);
+                hResidualPhiDT_MB[index]->Fill(residualPhi);
+                hResidualZDT_MB[index]->Fill(residualZ);
+
+	    }
 	    else if(det==2){ //CSC
-	    sprintf(nameOfHistoRPhi, "ResidualRPhi_CSCSt%ldR%1dCh%1d",station,ring,chamber );
-	    sprintf(nameOfHistoPhi, "ResidualPhi_CSCSt%ldR%1dCh%1d",station,ring,chamber);
-	    sprintf(nameOfHistoZ, "ResidualZ_CSCSt%ldR%1dCh%1d",station,ring,chamber);
+	    sprintf(nameOfHistoRPhi, "ResidualRPhi_ME%ldR%1dCh%1d",station,ring,chamber );
+	    sprintf(nameOfHistoPhi, "ResidualPhi_ME%ldR%1dCh%1d",station,ring,chamber);
+	    sprintf(nameOfHistoZ, "ResidualZ_ME%ldR%1dCh%1d",station,ring,chamber);
 	    hResidualRPhiCSC->Fill(residualRPhi);
 	    hResidualPhiCSC->Fill(residualPhi);
-	    hResidualZCSC->Fill(residualZ);	
+	    hResidualZCSC->Fill(residualZ);
+
+		int index=2*station+ring+7;
+			if(ring==4) ring=1;
+		if(station==-1) index=5+ring;
+		if(station==1) index=8+ring;
+                hResidualRPhiCSC_ME[index]->Fill(residualRPhi);
+                hResidualPhiCSC_ME[index]->Fill(residualPhi);
+		hResidualZCSC_ME[index]->Fill(residualZ);	    		
 
 		}		    
 	    
 	    TH1F *histoRPhi = new TH1F(nameOfHistoRPhi, nameOfHistoRPhi, 100, -2.0*range, 2.0*range);
 	    TH1F *histoPhi = new TH1F(nameOfHistoPhi, nameOfHistoPhi, 100, -0.1*range, 0.1*range);
 	    TH1F *histoZ = new TH1F(nameOfHistoZ, nameOfHistoZ, 100, -2.0*range, 2.0*range);
-
 
 	    histoRPhi->Fill(residualRPhi);
 	    histoPhi->Fill(residualPhi);
@@ -698,11 +860,39 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 	    unitsPhi.push_back(histoPhi);
 	    unitsZ.push_back(histoZ);
 
-	  } else {
+	    } 
+	    else {
 	    //If the detector was not new, just fill the histogram
 	    unitsRPhi.at(position)->Fill(residualRPhi);
 	    unitsPhi.at(position)->Fill(residualPhi);
 	    unitsZ.at(position)->Fill(residualZ);
+		
+            if(det==1){ // DT
+            hResidualRPhiDT->Fill(residualRPhi);
+            hResidualPhiDT->Fill(residualPhi);
+            hResidualZDT->Fill(residualZ);
+	    	int index = wheel+2;
+		hResidualRPhiDT_W[index]->Fill(residualRPhi);
+		hResidualPhiDT_W[index]->Fill(residualPhi);
+		hResidualZDT_W[index]->Fill(residualZ);
+		index=wheel*4+station+7;
+            	hResidualRPhiDT_MB[index]->Fill(residualRPhi);
+                hResidualPhiDT_MB[index]->Fill(residualPhi);
+                hResidualZDT_MB[index]->Fill(residualZ);
+	    }
+	    else if(det==2){ //CSC
+            hResidualRPhiCSC->Fill(residualRPhi);
+            hResidualPhiCSC->Fill(residualPhi);
+            hResidualZCSC->Fill(residualZ);
+	    	int index=2*station+ring+7;
+		if(ring==4) ring=1;
+		if(station==-1) index=5+ring;
+		if(station==1) index=8+ring;
+                hResidualRPhiCSC_ME[index]->Fill(residualRPhi);
+                hResidualPhiCSC_ME[index]->Fill(residualPhi);
+		hResidualZCSC_ME[index]->Fill(residualZ);	    		
+	    }	
+	    
 	  }
 	  countPoints++;
 	
@@ -710,7 +900,7 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 
 
 	}catch(...) {
-	  cout << "<MuonAlignmentAnalyzer> Exception in propagator catched" << endl;
+	  edm::LogError("MuonAlignmentAnalyzer")<<" Error!! Exception in propagator catched" << endl;
 	  continue;
 	}
 
@@ -720,13 +910,11 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 	} // loop over recHitsSize
 
 	numberOfHits=numberOfHits+countPoints;
-//	cout << "Number of points considered in this track: "<< countPoints <<endl;
 	} //loop over STAtracks
 
 
  } //end doResplots
  
 
-//  cout<<"---"<<endl;  
 }
 
