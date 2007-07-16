@@ -15,7 +15,7 @@
 
 #include "RecoTracker/TkDetLayers/interface/TkDetUtil.h"
 #include "DataFormats/GeometryVector/interface/VectorUtil.h"
-
+#include <boost/function.hpp>
 
 using namespace std;
 
@@ -171,12 +171,12 @@ CompositeTECWedge::computeCrossings( const TrajectoryStateOnSurface& startingSta
 
   //  float frontDist = std::abs(Geom::deltaPhi( gFrontPoint.barePhi(), theFrontDets[frontIndex]->surface().phi()));
   float frontDist = theFrontDets[frontIndex]->surface().phi()  - gFrontPoint.phi(); 
-  frontDist *= Geom::phiLess( theFrontDets[frontIndex]->surface().phi(),gFrontPoint.phi()) ? -1. : 1.; 
+  frontDist *= Geom::phiLess( theFrontDets[frontIndex]->surface().phi(),gFrontPoint.barePhi()) ? -1. : 1.; 
   if (frontDist < 0.) { frontDist += 2.*Geom::pi();}
 
   //  float frontDist = std::abs(Geom::deltaPhi( gBackPoint.barePhi(), theBackDets[backIndex]->surface().phi()));
   float backDist = theBackDets[backIndex]->surface().phi()  - gBackPoint.phi(); 
-  backDist  *= Geom::phiLess( theBackDets[backIndex]->surface().phi(),gBackPoint.phi()) ? -1. : 1.;
+  backDist  *= Geom::phiLess( theBackDets[backIndex]->surface().phi(),gBackPoint.barePhi()) ? -1. : 1.;
   if ( backDist < 0.) { backDist  += 2.*Geom::pi();}
 
   
@@ -252,7 +252,7 @@ bool CompositeTECWedge::overlap( const GlobalPoint& crossPoint, const GeomDet& d
   float phi = crossPoint.barePhi();
   pair<float,float> phiRange(phi-phiWindow, phi+phiWindow);
   pair<float,float> detPhiRange = computeDetPhiRange( det.surface());
-  return rangesIntersect( phiRange, detPhiRange, &Geom::phiLess);
+  return rangesIntersect( phiRange, detPhiRange, boost::function<bool(*)(float,float)>(Geom::phiLess));
 }
  
 
@@ -282,5 +282,3 @@ CompositeTECWedge::findClosestDet( const GlobalPoint& startPos,int sectorId) con
   }
   return close;
 }
-
-
