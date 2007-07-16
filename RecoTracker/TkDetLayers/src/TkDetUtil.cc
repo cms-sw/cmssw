@@ -20,8 +20,8 @@ namespace tkDetUtil {
   bool overlapInPhi( const GlobalPoint& crossPoint,const GeomDet & det, float phiWindow) 
   {
     float phi = crossPoint.barePhi();
-    pair<float,float> phiRange(phi-phiWindow, phi+phiWindow);
-    pair<float,float> detPhiRange = det.surface().phiSpan(); 
+    std::pair<float,float> phiRange(phi-phiWindow, phi+phiWindow);
+    std::pair<float,float> detPhiRange = det.surface().phiSpan(); 
     //   return rangesIntersect( phiRange, detPhiRange, boost::function<bool(float,float)>(&Geom::phiLess));
     return rangesIntersect( phiRange, detPhiRange, PhiLess());
   }
@@ -56,8 +56,8 @@ namespace tkDetUtil {
     float phimax = phimin;
     for ( int i = 1; i<4; i++) {
       float cPhi = corners[i];
-      if ( PhiLess()( cPhi, phimin)) { phimin = cPhi; }
-      if ( PhiLess()( phimax, cPhi)) { phimax = cPhi; }
+      if ( Geom::phiLess(( cPhi, phimin)) { phimin = cPhi; }
+      if ( Geom::phiLess( phimax, cPhi)) { phimax = cPhi; }
     }
     float phiWindow = phimax - phimin;
     if ( phiWindow < 0.) { phiWindow +=  2.*Geom::pi();}
