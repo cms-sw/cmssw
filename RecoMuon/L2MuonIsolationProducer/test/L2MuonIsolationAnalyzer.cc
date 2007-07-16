@@ -92,7 +92,7 @@ void L2MuonIsolationAnalyzer::endJob(){
   overflow_bin = hEffVsCone->GetNbinsX()+1;
   norm = hEffVsCone->GetBinContent(overflow_bin);
   if (norm<=0.) norm = 1.;
-  Puts("");
+  Puts("EffVsCone Normalization= %f", norm);
   for (unsigned int k=1; k<overflow_bin; k++) {
             float aux = hEffVsCone->GetBinContent(k);
             float eff = 100*aux/norm;
@@ -100,11 +100,13 @@ void L2MuonIsolationAnalyzer::endJob(){
             Puts("\tEfficiency in cone index= %d (size=%f): %f"
                         , k, theConeCases[k-1], eff);
   }
+  hEffVsCone->Write();
 
   Puts("");
   overflow_bin = hEffVsEt->GetNbinsX()+1;
   norm = hEffVsEt->GetBinContent(overflow_bin);
   if (norm<=0.) norm = 1.;
+  Puts("EffVsEt Normalization= %f", norm);
   for (unsigned int k=1; k<overflow_bin; k++) {
             float aux = hEffVsEt->GetBinContent(k);
             float eff = 100*aux/norm;
@@ -118,6 +120,7 @@ void L2MuonIsolationAnalyzer::endJob(){
       overflow_bin = hEffVsEtArray[j]->GetNbinsX()+1;
       norm = hEffVsEtArray[j]->GetBinContent(overflow_bin);
       if (norm<=0.) norm = 1.;
+      Puts("EffVsEt[%d] Normalization= %f", j, norm);
       fprintf(theTxtFile, "%s\n", hEffVsEtArray[j]->GetTitle());
       fprintf(theTxtFile, "%s\n", "ET threshold(GeV), efficiency(%): ");
       for (unsigned int k=1; k<overflow_bin; k++) {
@@ -135,7 +138,6 @@ void L2MuonIsolationAnalyzer::endJob(){
 
   Puts("L2MuonIsolationAnalyzer>>> FINAL PRINTOUTS -> END");
 }
- 
 
 void L2MuonIsolationAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
   
@@ -169,16 +171,17 @@ void L2MuonIsolationAnalyzer::analyze(const Event & event, const EventSetup& eve
             if (etsum<etthr) hEffVsEt->Fill(etthr);
       }
 
-      unsigned int n = 0;
       for (unsigned int j=0; j<theConeCases.size() ; j++) {
             float etsum = dep.depositWithin(theConeCases[j]);
             for (unsigned int k=0; k<theCuts.size() ; k++) {
+                  unsigned int n = theCuts.size()*j + k;
+                  if (fabs(tk->eta())<theCuts[k].etaRange.min()) continue;
+                  if (fabs(tk->eta())>theCuts[k].etaRange.max()) continue;
                   hEffVsEtArray[n]->Fill(theEtMax+999.);
                   for (unsigned int l=0; l<theEtBins; l++) {
                         float etthr = theEtMin + (l+0.5)/theEtBins*(theEtMax-theEtMin);
                         if (etsum<etthr) hEffVsEtArray[n]->Fill(etthr);
                   }
-                  n++;
             }
       }
   }
@@ -196,6 +199,7 @@ void L2MuonIsolationAnalyzer::Puts(const char* va_(fmt), ...) {
       vsnprintf(chout, bufsize, va_(fmt), ap);
       va_end(ap);
       LogVerbatim("") << chout;
+      //LogError("") << chout;
 }
 
 DEFINE_FWK_MODULE(L2MuonIsolationAnalyzer);
