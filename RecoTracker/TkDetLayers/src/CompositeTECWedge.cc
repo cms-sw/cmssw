@@ -212,27 +212,6 @@ bool CompositeTECWedge::addClosest( const TrajectoryStateOnSurface& tsos,
 }
 
 
-namespace {
-
-  struct PhiLess {
-    bool operator()(float a, float b) const {
-      return Geom::phiLess(a,b);
-    }
-  };
-  
-  bool overlapInPhi( const GlobalPoint& crossPoint, const GeomDet& det, float phiWindow) 
-  {
-    float phi = crossPoint.barePhi();
-    pair<float,float> phiRange(phi-phiWindow, phi+phiWindow);
-    pair<float,float> detPhiRange = det.surface().phiSpan(); 
-    //   return rangesIntersect( phiRange, detPhiRange, boost::function<bool(float,float)>(&Geom::phiLess));
-    return rangesIntersect( phiRange, detPhiRange, PhiLess());
-  }
-  
-}
-
-
-
 void CompositeTECWedge::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 					 const Propagator& prop,
 					 const MeasurementEstimator& est,
@@ -261,12 +240,12 @@ void CompositeTECWedge::searchNeighbors( const TrajectoryStateOnSurface& tsos,
   typedef CompatibleDetToGroupAdder Adder;
   for (int idet=negStartIndex; idet >= 0; idet--) {
     //if(idet <0 || idet>=sWedge.size()) {edm::LogInfo(TkDetLayers) << "==== warning! gone out vector bounds.idet: " << idet ;break;}
-    if (!overlapInPhi( gCrossingPos, *sWedge[idet], window)) break;
+    if (!tkDetUtil::overlapInPhi( gCrossingPos, *sWedge[idet], window)) break;
     if (!Adder::add( *sWedge[idet], tsos, prop, est, result)) break;
   }
   for (int idet=posStartIndex; idet < static_cast<int>(sWedge.size()); idet++) {
     //if(idet <0 || idet>=sWedge.size()) {edm::LogInfo(TkDetLayers) << "==== warning! gone out vector bounds.idet: " << idet ;break;}
-    if (!overlapInPhi( gCrossingPos, *sWedge[idet], window)) break;
+    if (!tkDetUtil::overlapInPhi( gCrossingPos, *sWedge[idet], window)) break;
     if (!Adder::add( *sWedge[idet], tsos, prop, est, result)) break;
   }
 }

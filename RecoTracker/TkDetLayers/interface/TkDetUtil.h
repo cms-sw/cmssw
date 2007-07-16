@@ -9,6 +9,8 @@ class TrajectoryStateOnSurface;
 
 namespace tkDetUtil {
 
+  bool overlapInPhi( const GlobalPoint& crossPoint,const GeomDet & det, float phiWindow);
+
   float computeWindowSize( const GeomDet* det, 
 				   const TrajectoryStateOnSurface& tsos, 
 				   const MeasurementEstimator& est);

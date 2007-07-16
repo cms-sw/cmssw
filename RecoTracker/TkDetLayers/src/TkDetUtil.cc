@@ -9,6 +9,24 @@
 
 namespace tkDetUtil {
 
+  namespace {
+    struct PhiLess {
+      bool operator()(float a, float b) const {
+	return Geom::phiLess(a,b);
+      }
+    };
+  }
+
+  bool overlapInPhi( const GlobalPoint& crossPoint,const GeomDet & det, float phiWindow) 
+  {
+    float phi = crossPoint.barePhi();
+    pair<float,float> phiRange(phi-phiWindow, phi+phiWindow);
+    pair<float,float> detPhiRange = det.surface().phiSpan(); 
+    //   return rangesIntersect( phiRange, detPhiRange, boost::function<bool(float,float)>(&Geom::phiLess));
+    return rangesIntersect( phiRange, detPhiRange, PhiLess());
+  }
+ 
+
   float computeWindowSize( const GeomDet* det, 
 			   const TrajectoryStateOnSurface& tsos, 
 			   const MeasurementEstimator& est)

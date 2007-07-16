@@ -102,7 +102,7 @@ TIDRing::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
   if (closestResult.empty())     return;
   
   DetGroupElement closestGel( closestResult.front().front());  
-  float phiWindow = computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est); 
+  float phiWindow =  tkDetUtil::computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est); 
   searchNeighbors( tsos, prop, est, crossings.closest(), phiWindow,
 		   closestResult, false); 
 
@@ -172,64 +172,6 @@ bool TIDRing::addClosest( const TrajectoryStateOnSurface& tsos,
 
 
 
-float 
-TIDRing::calculatePhiWindow( const MeasurementEstimator::Local2DVector& maxDistance, 
-			     const TrajectoryStateOnSurface& ts, 
-			     const BoundPlane& plane)
-{
-  LocalPoint start = ts.localPosition();
-  float corners[] = { plane.toGlobal(LocalPoint( start.x()+maxDistance.x(), start.y()+maxDistance.y())).barePhi(),  
-		      plane.toGlobal(LocalPoint( start.x()-maxDistance.x(), start.y()+maxDistance.y())).barePhi(),
-		      plane.toGlobal(LocalPoint( start.x()-maxDistance.x(), start.y()-maxDistance.y())).barePhi(),
-		      plane.toGlobal(LocalPoint( start.x()+maxDistance.x(), start.y()-maxDistance.y())).barePhi()
-  };
-
-  float phimin = corners[0];
-  float phimax = phimin;
-  for ( int i = 1; i<4; i++) {
-    float cPhi = corners[i];
-    if ( Geom::phiLess( cPhi, phimin)) { phimin = cPhi; }
-    if ( Geom::phiLess( phimax, cPhi)) { phimax = cPhi; }
-  }
-  float phiWindow = phimax - phimin;
-  if ( phiWindow < 0.) { phiWindow +=  2.*Geom::pi();}
-
-  return phiWindow;
-}
-
-
-
-float TIDRing::computeWindowSize( const GeomDet* det, 
-				  const TrajectoryStateOnSurface& tsos, 
-				  const MeasurementEstimator& est)
-{
-  const BoundPlane& startPlane = det->surface() ;  
-  MeasurementEstimator::Local2DVector maxDistance = 
-    est.maximalLocalDisplacement( tsos, startPlane);
-  return calculatePhiWindow( maxDistance, tsos, startPlane);
-}
-
-
-
-namespace {
-
-  struct PhiLess {
-    bool operator()(float a, float b) const {
-      return Geom::phiLess(a,b);
-    }
-  };
-  
-  bool overlapInPhi( const GlobalPoint& crossPoint,const GeomDet & det, float phiWindow) 
-  {
-    float phi = crossPoint.barePhi();
-    pair<float,float> phiRange(phi-phiWindow, phi+phiWindow);
-    pair<float,float> detPhiRange = det.surface().phiSpan(); 
-    //   return rangesIntersect( phiRange, detPhiRange, boost::function<bool(float,float)>(&Geom::phiLess));
-    return rangesIntersect( phiRange, detPhiRange, PhiLess());
-  }
-  
-}
-
 void TIDRing::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 				     const Propagator& prop,
 				     const MeasurementEstimator& est,
@@ -261,13 +203,13 @@ void TIDRing::searchNeighbors( const TrajectoryStateOnSurface& tsos,
   int half = sLayer.size()/2;  // to check if dets are called twice....
   for (int idet=negStartIndex; idet >= negStartIndex - half; idet--) {
     const GeomDet & neighborDet = *sLayer[binFinder.binIndex(idet)];
-    if (!overlapInPhi( gCrossingPos, neighborDet, window)) break;
+    if (!tkDetUtil::overlapInPhi( gCrossingPos, neighborDet, window)) break;
     if (!Adder::add( neighborDet, tsos, prop, est, result)) break;
     // maybe also add shallow crossing angle test here???
   }
   for (int idet=posStartIndex; idet < posStartIndex + half; idet++) {
     const GeomDet & neighborDet = *sLayer[binFinder.binIndex(idet)];
-    if (!overlapInPhi( gCrossingPos, neighborDet, window)) break;
+    if (!tkDetUtil::overlapInPhi( gCrossingPos, neighborDet, window)) break;
     if (!Adder::add( neighborDet, tsos, prop, est, result)) break;
     // maybe also add shallow crossing angle test here???
   }
