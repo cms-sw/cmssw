@@ -224,7 +224,7 @@ namespace {
   {
     float phi = crossPoint.barePhi();
     pair<float,float> phiRange(phi-phiWindow, phi+phiWindow);
-    pair<float,float> detPhiRange = det.surface().phiSapn(); 
+    pair<float,float> detPhiRange = det.surface().phiSpan(); 
     //   return rangesIntersect( phiRange, detPhiRange, boost::function<bool(float,float)>(&Geom::phiLess));
     return rangesIntersect( phiRange, detPhiRange, PhiLess());
   }

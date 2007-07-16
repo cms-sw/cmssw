@@ -260,7 +260,7 @@ void TIDRing::searchNeighbors( const TrajectoryStateOnSurface& tsos,
   typedef CompatibleDetToGroupAdder Adder;
   int half = sLayer.size()/2;  // to check if dets are called twice....
   for (int idet=negStartIndex; idet >= negStartIndex - half; idet--) {
-    const GeomDet* neighborDet = sLayer[binFinder.binIndex(idet)];
+    const GeomDet & neighborDet = *sLayer[binFinder.binIndex(idet)];
     if (!overlapInPhi( gCrossingPos, neighborDet, window)) break;
     if (!Adder::add( *neighborDet, tsos, prop, est, result)) break;
     // maybe also add shallow crossing angle test here???
