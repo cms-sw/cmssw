@@ -17,12 +17,10 @@ GaussianTailNoiseGenerator::GaussianTailNoiseGenerator(CLHEP::HepRandomEngine& e
 }
 
 GaussianTailNoiseGenerator::~GaussianTailNoiseGenerator() {
-  gsl_rng_free(mt19937);
   delete gaussDistribution_;
   delete poissonDistribution_;
   delete flatDistribution_;
   delete mt19937;
-
 }
 
 void GaussianTailNoiseGenerator::generate(int NumberOfchannels, 
