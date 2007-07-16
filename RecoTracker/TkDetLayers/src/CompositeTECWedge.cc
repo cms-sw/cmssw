@@ -220,7 +220,7 @@ namespace {
     }
   };
   
-  bool overlapInPhi( const GlobalPoint& startPoint,const GeomDet* det, float phiWindow) 
+  bool overlapInPhi( const GlobalPoint& crossPoint, const GeomDet& det, float phiWindow) 
   {
     float phi = crossPoint.barePhi();
     pair<float,float> phiRange(phi-phiWindow, phi+phiWindow);

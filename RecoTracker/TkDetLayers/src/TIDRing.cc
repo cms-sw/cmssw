@@ -219,11 +219,11 @@ namespace {
     }
   };
   
-  bool overlapInPhi( const GlobalPoint& startPoint,const GeomDet* det, float phiWindow) 
+  bool overlapInPhi( const GlobalPoint& startPoint,const GeomDet & det, float phiWindow) 
   {
     float phi = crossPoint.barePhi();
     pair<float,float> phiRange(phi-phiWindow, phi+phiWindow);
-    pair<float,float> detPhiRange = det.surface().phiSapn(); 
+    pair<float,float> detPhiRange = det.surface().phiSpan(); 
     //   return rangesIntersect( phiRange, detPhiRange, boost::function<bool(float,float)>(&Geom::phiLess));
     return rangesIntersect( phiRange, detPhiRange, PhiLess());
   }
@@ -266,7 +266,7 @@ void TIDRing::searchNeighbors( const TrajectoryStateOnSurface& tsos,
     // maybe also add shallow crossing angle test here???
   }
   for (int idet=posStartIndex; idet < posStartIndex + half; idet++) {
-    const GeomDet* neighborDet = sLayer[binFinder.binIndex(idet)];
+    const GeomDet & neighborDet = *sLayer[binFinder.binIndex(idet)];
     if (!overlapInPhi( gCrossingPos, neighborDet, window)) break;
     if (!Adder::add( *neighborDet, tsos, prop, est, result)) break;
     // maybe also add shallow crossing angle test here???
