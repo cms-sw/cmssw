@@ -3,7 +3,7 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: TriggerNamesService.cc,v 1.8 2007/06/14 17:52:18 wmtan Exp $
+// $Id: TriggerNamesService.cc,v 1.9 2007/06/15 18:41:47 wdd Exp $
 //
 
 #include "FWCore/Framework/interface/TriggerNamesService.h"
@@ -29,8 +29,6 @@ namespace edm {
 	pset.getUntrackedParameter<ParameterSet>("options", defopts);
       wantSummary_ =
 	opts.getUntrackedParameter("wantSummary",false);
-      makeTriggerResults_ = 
-	opts.getUntrackedParameter("makeTriggerResults",false);
 
       process_name_ = pset.getParameter<std::string>("@process_name");
 

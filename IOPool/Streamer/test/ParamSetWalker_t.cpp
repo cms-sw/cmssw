@@ -86,7 +86,6 @@ int main() {
     untracked PSet maxEvents = { untracked int32 input = 10 }
     untracked PSet options = { 
           untracked bool wantSummary=false 
-          // untracked bool makeTriggerResults=true 
     } 
     source = EmptySource { } 
     module m1 = TestWalkPSets { int32 ivalue = 10 } 

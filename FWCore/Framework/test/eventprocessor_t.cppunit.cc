@@ -2,7 +2,7 @@
 
 Test of the EventProcessor class.
 
-$Id: eventprocessor_t.cppunit.cc,v 1.27 2007/04/09 23:13:20 chrjones Exp $
+$Id: eventprocessor_t.cppunit.cc,v 1.28 2007/05/08 03:18:40 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <exception>
@@ -280,7 +280,7 @@ void testeventprocessor::prepostTest()
     edm::EventProcessor const& crProc(proc);
     typedef std::vector<edm::ModuleDescription const*> ModuleDescs;
     ModuleDescs  allModules = crProc.getAllModuleDescriptions();
-    CPPUNIT_ASSERT(1 == allModules.size());
+    CPPUNIT_ASSERT(2 == allModules.size()); // TestMod and TriggerResultsInserter
     std::cout << "\nModuleDescriptions in testeventprocessor::prepostTest()---\n";
     for (ModuleDescs::const_iterator i = allModules.begin(),
 	    e = allModules.end() ; 

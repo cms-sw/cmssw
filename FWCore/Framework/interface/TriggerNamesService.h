@@ -6,7 +6,7 @@
 
  Original Author:  Jim Kowalkowski 26-01-06
 
- $Id: TriggerNamesService.h,v 1.7 2007/06/14 17:52:16 wmtan Exp $
+ $Id: TriggerNamesService.h,v 1.8 2007/06/15 18:41:46 wdd Exp $
 
  This service makes the trigger names available.  They are provided
  in the same order that the pass/fail status of these triggers is
@@ -17,9 +17,8 @@
  There are also accessors for the end path names.  
 
  There are other accessors for other trigger related information from the
- job configuration: the process name, whether TriggerResults production
- was explicitly requested, whether a report on trigger results was requested
- and the parameter set containing the list of trigger paths.
+ job configuration: the process name, whether a report on trigger results
+ was requested and the parameter set containing the list of trigger paths.
 
  Almost all the functions return information related to the current
  process only.  The second and third getTrigPaths functions are exceptions.
@@ -109,7 +108,6 @@ namespace edm {
       
       std::string const& getProcessName() const { return process_name_; }
       bool wantSummary() const { return wantSummary_; }
-      bool makeTriggerResults() const { return makeTriggerResults_; }
 
       // Parameter set containing the trigger paths
       edm::ParameterSet const& getTriggerPSet() const { return trigger_pset_; }
@@ -127,7 +125,6 @@ namespace edm {
 
       std::string process_name_;
       bool wantSummary_;
-      bool makeTriggerResults_;
     };
   }
 }

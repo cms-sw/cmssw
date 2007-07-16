@@ -4,7 +4,7 @@
 /*
   Author: Jim Kowalkowski  28-01-06
 
-  $Id: Schedule.h,v 1.23 2007/06/05 04:02:30 wmtan Exp $
+  $Id: Schedule.h,v 1.24 2007/06/15 18:41:46 wdd Exp $
 
   A class for creating a schedule based on paths in the configuration file.
   The schedule is maintained as a sequence of paths.
@@ -21,20 +21,16 @@
 
   This class requires the high-level process pset.  It uses @process_name.
   If the high-level pset contains an "options" pset, then the
-  following optional parameters can be present:
+  following optional parameter can be present:
   bool wantSummary = true/false   # default false
-  bool makeTriggerResults = true/false # default false
 
   wantSummary indicates whether or not the pass/fail/error stats
-  for modules and paths should be printed at the end-of-job or not.
+  for modules and paths should be printed at the end-of-job.
 
-  If makeTriggerResults is true, then a TriggerResults object will
-  always be inserted into the event for any schedule.  If this is false,
-  then a TriggerResults object will be placed into the event only if
-  there is an instance of a filter module present in any path.  If
-  TriggerResults are needed, the producer is always the first module
-  in the endpath.  The TriggerResultInserter is given a fixed label
-  of "TriggerResults".
+  A TriggerResults object will always be inserted into the event
+  for any schedule.  The producer of the TriggerResults EDProduct
+  is always the first module in the endpath.  The TriggerResultInserter
+  is given a fixed label of "TriggerResults".
 
   The Schedule prints a warning if output modules are present in paths.
   They belong in endpaths.  The Schedule moves them to the endpath.
@@ -50,7 +46,7 @@
   1) trigger paths that contribute directly to saved trigger bits
   2) end paths
   The Schedule holds these paths in two data structures:
-  1) main path list (both trigger/nontrigger paths maintained here)
+  1) main path list
   2) end path list
 
   Trigger path processing always precedes endpath processing.
@@ -224,7 +220,7 @@ namespace edm {
     void reportSkipped(RunPrincipal const&) const {}
 
     void fillWorkers(std::string const& name, PathWorkers& out);
-    bool fillTrigPath(int bitpos, std::string const& name, TrigResPtr);
+    void fillTrigPath(int bitpos, std::string const& name, TrigResPtr);
     void fillEndPath(int bitpos, std::string const& name);
     void handleWronglyPlacedModules();
 
@@ -251,7 +247,6 @@ namespace edm {
     PathWorkers tmp_wrongly_placed_;
 
     bool                             wantSummary_;
-    bool                             makeTriggerResults_;
     int                              total_events_;
     int                              total_passed_;
     RunStopwatch::StopwatchPointer   stopwatch_;

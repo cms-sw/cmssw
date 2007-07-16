@@ -76,7 +76,6 @@ namespace edmtest
     string name_;
     int bitMask_;
     std::vector<unsigned char> hltbits_;
-    bool expectTriggerResults_;
   };
 
   // -----------------------------------------------------------------
@@ -85,8 +84,7 @@ namespace edmtest
     edm::OutputModule(ps),
     name_(ps.getParameter<string>("name")),
     bitMask_(ps.getParameter<int>("bitMask")),
-    hltbits_(0),
-    expectTriggerResults_(ps.getUntrackedParameter<bool>("expectTriggerResults",true))
+    hltbits_(0)
   {
   }
     
@@ -99,37 +97,6 @@ namespace edmtest
     assert(currentContext() != 0);
 
     Trig prod;
-
-    // There should not be a TriggerResults object in the event
-    // if all three of the following requirements are met:
-    //
-    //     1.  MakeTriggerResults has not been explicitly set true
-    //     2.  There are no filter modules in any path
-    //     3.  The input file of the job does not have a TriggerResults object
-    //
-    // The user of this test module is expected to know
-    // whether these conditions are met and let the module know
-    // if no TriggerResults object is expected using the configuration
-    // file.  In this case, the next few lines of code will abort
-    // if a TriggerResults object is found.
-
-    if (!expectTriggerResults_) {
-
-      try {
-        prod = getTriggerResults(e);
-      }
-      catch (const edm::Exception&) {
-        // We did not find one as expected, nothing else to test.
-        return;
-      }
-      cerr << "\nTestOutputModule::write\n"
-           << "Expected there to be no TriggerResults object but we found one"
-           << endl;      
-      abort();
-    }
-
-    // Now deal with the other case where we expect the object
-    // to be present.
 
     prod = getTriggerResults(e);
 

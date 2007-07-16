@@ -133,7 +133,6 @@ namespace edm {
     end_paths_(),
     tmp_wrongly_placed_(),
     wantSummary_(tns.wantSummary()),
-    makeTriggerResults_(tns.makeTriggerResults()),
     total_events_(),
     total_passed_(),
     stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
@@ -173,23 +172,20 @@ namespace edm {
 
     ParameterSet opts(pset_.getUntrackedParameter<ParameterSet>("options", ParameterSet()));
 
-    bool hasFilter = false;
     int trig_bitpos=0;
     for (vstring::const_iterator i = trig_name_list_.begin(),
 	    e = trig_name_list_.end();
 	  i != e;
 	  ++i) {
-      hasFilter += fillTrigPath(trig_bitpos,*i, results_);
+      fillTrigPath(trig_bitpos,*i, results_);
       ++trig_bitpos;
     }
 
     // the results inserter stands alone
-    if(hasFilter || makeTriggerResults_) {
-      results_inserter_=makeInserter(pset_, tns.getTriggerPSet(), 
-                                     processName_,
-                                     preg, actions, results_);
-      all_workers_.insert(results_inserter_.get());
-    }
+    results_inserter_=makeInserter(pset_, tns.getTriggerPSet(), 
+                                   processName_,
+                                   preg, actions, results_);
+    all_workers_.insert(results_inserter_.get());
 
     // check whether an endpath for wrongly placed modules is needed
     if(tmp_wrongly_placed_.empty()) {
@@ -386,12 +382,11 @@ namespace edm {
     Worker* operator()(WorkerInPath& w) const { return w.getWorker(); }
   };
 
-  bool Schedule::fillTrigPath(int bitpos, std::string const& name, TrigResPtr trptr) {
+  void Schedule::fillTrigPath(int bitpos, std::string const& name, TrigResPtr trptr) {
     PathWorkers tmpworkers;
     PathWorkers goodworkers;
     Workers holder;
     fillWorkers(name,tmpworkers);
-    bool hasFilter = false;
 
     // check for any OutputModules
     for(PathWorkers::iterator wi(tmpworkers.begin()),
@@ -410,10 +405,6 @@ namespace edm {
 	goodworkers.push_back(*wi);
       }
 
-      if(dynamic_cast<FilterWorker*>(tworker)!=0) {
-	hasFilter = true;
-      }
-
       holder.push_back(tworker);
     }
 
@@ -424,7 +415,7 @@ namespace edm {
     }
     all_workers_.insert(holder.begin(),holder.end());
 
-    return hasFilter;
+    return;
   }
 
   void Schedule::fillEndPath(int bitpos, std::string const& name) {
