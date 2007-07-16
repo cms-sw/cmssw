@@ -9,7 +9,7 @@
 //
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
-// $Id: SiPixelResidualModule.cc,v 1.3 2007/05/24 06:11:46 schuang Exp $
+// $Id: SiPixelResidualModule.cc,v 1.2 2007/06/11 18:23:40 schuang Exp $
 
 
 #include <boost/cstdint.hpp>
@@ -38,17 +38,19 @@ SiPixelResidualModule::~SiPixelResidualModule() {
 
 
 void SiPixelResidualModule::book(const edm::ParameterSet& iConfig) {
-  DaqMonitorBEInterface* _dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  DaqMonitorBEInterface* dbe = edm::Service<DaqMonitorBEInterface>().operator->();
 
-  std::string hisID;
   edm::InputTag src = iConfig.getParameter<edm::InputTag>("src");
   SiPixelHistogramId* theHistogramId = new SiPixelHistogramId(src.label());
+  std::string hisID;
 
   hisID = theHistogramId->setHistoId("residualX",id_);
-  meResidualX_ = _dbe->book1D(hisID,"Hit-to-Track Residual in X",500,-5.,5.);
+  meResidualX_ = dbe->book1D(hisID,"Hit-to-Track Residual in X",500,-5.,5.);
 
   hisID = theHistogramId->setHistoId("residualY",id_);
-  meResidualY_ = _dbe->book1D(hisID,"Hit-to-Track Residual in Y",500,-5.,5.);
+  meResidualY_ = dbe->book1D(hisID,"Hit-to-Track Residual in Y",500,-5.,5.);
+  
+  delete theHistogramId;
 }
 
 

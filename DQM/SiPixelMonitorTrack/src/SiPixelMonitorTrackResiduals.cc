@@ -9,7 +9,7 @@
 //
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
-// $Id: SiPixelMonitorTrackResiduals.cc,v 1.3 2007/05/24 06:11:46 schuang Exp $
+// $Id: SiPixelMonitorTrackResiduals.cc,v 1.4 2007/06/11 18:25:34 schuang Exp $
 
 
 #include <boost/cstdint.hpp>
@@ -22,8 +22,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
+// #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
@@ -39,27 +39,32 @@ using namespace std;
 using namespace edm;
 
 
-SiPixelMonitorTrackResiduals::SiPixelMonitorTrackResiduals(const edm::ParameterSet& iConfig) {
+SiPixelMonitorTrackResiduals::SiPixelMonitorTrackResiduals(const edm::ParameterSet& iConfig) 
+                            : conf_(iConfig),
+                              src_(conf_.getParameter<edm::InputTag>("src")) {
   dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
-  conf_ = iConfig;
+  // conf_ = iConfig;
+  LogInfo("PixelDQM") << "SiPixelMonitorTrackResiduals constructed" << endl;
 }
 
 
 SiPixelMonitorTrackResiduals::~SiPixelMonitorTrackResiduals() {
+  LogInfo("PixelDQM") << "SiPixelMonitorTrackResiduals destructed" << endl;
 }
 
 
 void SiPixelMonitorTrackResiduals::beginJob(edm::EventSetup const& iSetup) {
-  std::cout << " *** SiPixelMonitorTrackResiduals " << std::endl;
+  LogInfo("PixelDQM") << "SiPixelMonitorTrackResiduals jobBegun" << endl;
 
   edm::ESHandle<TrackerGeometry> pDD;
   iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
 
-  std::cout <<" *** Geometry node for TrackerGeom is " << &(*pDD) << std::endl;
-  std::cout <<" *** " << pDD->dets().size() <<" detectors; "
-                      << pDD->detTypes().size() <<" types" << std::endl;
-  
-  for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it!=pDD->dets().end(); it++) {
+  LogVerbatim("PixelDQM") << "geometry node for TrackerGeom is " << &(*pDD) << endl; 
+  LogVerbatim("PixelDQM") << pDD->dets().size() <<" detectors; "
+                          << pDD->detTypes().size() <<" types" << endl;
+ 
+  for (TrackerGeometry::DetContainer::const_iterator it=pDD->dets().begin(); 
+       it!=pDD->dets().end(); it++) {
     if (dynamic_cast<PixelGeomDetUnit*>((*it))!=0) {
       DetId detId = (*it)->geographicalId();
 
@@ -75,16 +80,17 @@ void SiPixelMonitorTrackResiduals::beginJob(edm::EventSetup const& iSetup) {
       }
     }
   }
-  std::cout << " *** size of thePixelStructure is " << thePixelStructure.size() << std::endl; 
+  LogInfo("PixelDQM") << "SiPixelStructure size is " << thePixelStructure.size() << endl;
   dbe_->setVerbose(0);
 
   // create a folder tree and book histograms 
   // 
   SiPixelFolderOrganizer theSiPixelFolder;
-  std::map<uint32_t, SiPixelResidualModule*>::iterator struct_iter;
-  for (struct_iter = thePixelStructure.begin(); struct_iter!=thePixelStructure.end(); struct_iter++) {
+  // std::map<uint32_t, SiPixelResidualModule*>::iterator struct_iter;
+  for (std::map<uint32_t, SiPixelResidualModule*>::iterator struct_iter=thePixelStructure.begin(); 
+       struct_iter!=thePixelStructure.end(); struct_iter++) {
     if (theSiPixelFolder.setModuleFolder((*struct_iter).first)) (*struct_iter).second->book(conf_);
-    else throw cms::Exception("LogicError") << " *** creation of SiPixelMonitorTrackResiduals folder failed"; 
+    else throw cms::Exception("LogicError") << "SiPixelMonitorTrackResiduals folder creation failed"; 
   }
   /* dbe_->setCurrentFolder("Tracker"); 
   char hisID[80]; 
@@ -130,7 +136,7 @@ void SiPixelMonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::
   Handle<TrackCandidateCollection> trackCandidateCollection;
   iEvent.getByLabel(TrackCandidateProducer, TrackCandidateLabel, trackCandidateCollection);
 
-  for (TrackCandidateCollection::const_iterator track = trackCandidateCollection->begin(); 
+  for (TrackCandidateCollection::const_iterator track=trackCandidateCollection->begin(); 
        track!=trackCandidateCollection->end(); ++track) {
     const TrackCandidate* theTC = &(*track);
     PTrajectoryStateOnDet state = theTC->trajectoryStateOnDet();
@@ -194,4 +200,6 @@ void SiPixelMonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::
 }
 
 
-DEFINE_FWK_MODULE(SiPixelMonitorTrackResiduals); // define this as a plug-in
+// define this as a plug-in 
+// 
+DEFINE_FWK_MODULE(SiPixelMonitorTrackResiduals); 
