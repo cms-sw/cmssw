@@ -21,7 +21,7 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
   conf_(conf),rndEngine(eng){
 
   theThreshold      = conf_.getParameter<double>("NoiseSigmaThreshold");
-  theElectronPerADC = conf_.getParameter<double>("ElectronPerAdc");
+  theElectronPerADC = conf_.getParameter<double>("electronPerAdc");
   theFedAlgo        = conf_.getParameter<int>("FedAlgorithm");
   peakMode          = conf_.getParameter<bool>("APVpeakmode");
   noise             = conf_.getParameter<bool>("Noise");
@@ -191,6 +191,10 @@ void SiStripDigitizerAlgorithm::push_link_raw(const DigitalRawVecType &digis,
       
       float threshold = 0.;
       if (totalAmplitudePerSimHit[(*iter).first]/totalAmplitude1 >= threshold) {
+
+
+
+
 	float fraction = totalAmplitudePerSimHit[(*iter).first]/totalAmplitude1;
 	
 	//Noise fluctuation could make fraction>1. Unphysical, set it by hand.
