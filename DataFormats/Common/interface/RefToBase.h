@@ -28,7 +28,7 @@ reference type.
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Apr  3 16:37:59 EDT 2006
-// $Id: RefToBase.h,v 1.20 2007/07/02 13:03:03 llista Exp $
+// $Id: RefToBase.h,v 1.21 2007/07/09 07:28:49 llista Exp $
 //
 
 // system include files
@@ -36,7 +36,8 @@ reference type.
 // user include files
 
 #include "boost/shared_ptr.hpp"
-
+#include "boost/static_assert.hpp"
+#include "boost/type_traits/is_base_of.hpp"
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/Common/interface/BaseHolder.h"
@@ -55,6 +56,8 @@ namespace edm {
   /// type not known to RefToBase<T>) which itself it in an Event.
 
   template<typename T> class RefToBaseVector;
+  template<typename C, typename T, typename F> class Ref;
+  template<typename C> class RefProd;
 
   template <class T>
   class RefToBase
@@ -64,7 +67,12 @@ namespace edm {
 
     RefToBase();
     RefToBase(RefToBase const& other);
-    template <class REF> explicit RefToBase(REF const& r);
+    template <typename C1, typename T1, typename F1> 
+    explicit RefToBase(Ref<C1, T1, F1> const& r);
+    template <typename C> 
+    explicit RefToBase(RefProd<C> const& r);
+    template <typename T1>
+    explicit RefToBase(RefToBase<T1> const & r );
     RefToBase(boost::shared_ptr<reftobase::RefHolderBase> p);
 
     ~RefToBase();
@@ -94,6 +102,7 @@ namespace edm {
     value_type const* getPtrImpl() const;
     reftobase::BaseHolder<value_type>* holder_;
     friend class RefToBaseVector<T>;
+    template<typename B> friend class RefToBase;
   };
 
   //--------------------------------------------------------------------
@@ -113,11 +122,36 @@ namespace edm {
   { }
 
   template <class T>
-  template <class REF>
+  template <typename C1, typename T1, typename F1> 
   inline
-  RefToBase<T>::RefToBase(REF const& iRef) : 
-    holder_(new reftobase::Holder<T,REF>(iRef)) 
+  RefToBase<T>::RefToBase(Ref<C1, T1, F1> const& iRef) : 
+    holder_(new reftobase::Holder<T,Ref<C1, T1, F1> >(iRef)) 
   { }
+
+  template <class T>
+  template <typename C> 
+  inline
+  RefToBase<T>::RefToBase(RefProd<C> const& iRef) : 
+    holder_(new reftobase::Holder<T,RefProd<C> >(iRef)) 
+  { }
+
+  template <class T>
+  template <typename T1> 
+  inline
+  RefToBase<T>::RefToBase(RefToBase<T1> const& iRef) : 
+    holder_( new reftobase::Holder<T,RefToBase<T1> >(iRef ) )  { 
+    // WARNING: the following is an hack.
+    // it is left to support the current HLT code, but
+    // should be replaced by a proper treatment of
+    // "up-casting" of RefToBase. 
+    // The implementation would be much easy if 
+    // the following simplification is adopted:
+    //
+    // https://hypernews.cern.ch/HyperNews/CMS/get/edmFramework/928.html
+    //
+    // L.L.
+    BOOST_STATIC_ASSERT( ( boost::is_base_of<T, T1>::value ) );
+  }
 
   template <class T>
   inline
