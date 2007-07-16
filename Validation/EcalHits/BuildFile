@@ -8,7 +8,9 @@
  <use name=SimG4Core/Notification>
  <use name=SimG4Core/Watcher>
  <use name=SimG4CMS/Calo>
+ <use name=SimDataFormats/HepMCProduct>
  <use name=SimDataFormats/EcalValidation>
+ <use name=DQMServices/CoreROOT>
 </export>
 
 <use name=DataFormats/Common>
@@ -19,6 +21,8 @@
 <use name=SimG4Core/Notification>
 <use name=SimG4Core/Watcher>
 <use name=SimG4CMS/Calo>
+<use name=SimDataFormats/HepMCProduct>
 <use name=SimDataFormats/EcalValidation>
+<use name=DQMServices/CoreROOT>
 
 <Flags EDM_PLUGIN=1>
