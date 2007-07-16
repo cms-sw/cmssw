@@ -97,7 +97,7 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<reco::TrackCollection>& tr
 	    }
 	  }
 	}else{
-	  edm::LogVerbatim("TrackAssociator") <<"\t\t Invalid Hit On "<<(*it)->geographicalId().rawId();
+	  LogTrace("TrackAssociator") <<"\t\t Invalid Hit On "<<(*it)->geographicalId().rawId();
 	}
       }
       //save id for the track
@@ -117,9 +117,9 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<reco::TrackCollection>& tr
 	      for (TrackingParticle::g4t_iterator g4T = t -> g4Track_begin();
 		   g4T !=  t -> g4Track_end(); ++g4T) {
 		if((*g4T).trackId() == matchedIds[j].first && t->eventId() == matchedIds[j].second){
-		  edm::LogVerbatim("TrackAssociator") << " TP   (ID, Ev, BC) = " << (*g4T).trackId() 
+		  LogTrace("TrackAssociator") << " TP   (ID, Ev, BC) = " << (*g4T).trackId() 
 						     << ", " << t->eventId().event() << ", "<< t->eventId().bunchCrossing(); 
-		  edm::LogVerbatim("TrackAssociator") << " Match(ID, Ev, BC) = " <<  matchedIds[j].first
+		  LogTrace("TrackAssociator") << " Match(ID, Ev, BC) = " <<  matchedIds[j].first
 						     << ", " << matchedIds[j].second.event() << ", "<< matchedIds[j].second.bunchCrossing() 
 						     << "\n G4  Track Momentum " << (*g4T).momentum() 
 						     << " \t reco Track Momentum " << track->momentum();  
@@ -135,12 +135,12 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<reco::TrackCollection>& tr
 		outputCollection.insert(reco::TrackRef(trackCollectionH,tindex), 
 					std::make_pair(edm::Ref<TrackingParticleCollection>(TPCollectionH, tpindex),
 						       fraction));
-		edm::LogVerbatim("TrackAssociator") <<"reco::Track number " << tindex  << " associated with hit fraction =" << fraction;
-		edm::LogVerbatim("TrackAssociator") <<"associated to TP (pdgId, nb segments, p) = " 
+		LogTrace("TrackAssociator") <<"reco::Track number " << tindex  << " associated with hit fraction =" << fraction;
+		LogTrace("TrackAssociator") <<"associated to TP (pdgId, nb segments, p) = " 
 						   << (*t).pdgId() << " " << (*t).g4Tracks().size() 
 						   << " " << (*t).momentum();
 	      } else {
-		edm::LogVerbatim("TrackAssociator") <<"reco::Track number " << tindex << " NOT associated with hit fraction =" << fraction;
+		LogTrace("TrackAssociator") <<"reco::Track number " << tindex << " NOT associated with hit fraction =" << fraction;
 	      }
 	    }
 	  }
@@ -197,7 +197,7 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<reco::TrackCollection>& tr
 	      }
 	    }
 	  }else{
-	    edm::LogVerbatim("TrackAssociator") <<"\t\t Invalid Hit On "<<(*it)->geographicalId().rawId();
+	    LogTrace("TrackAssociator") <<"\t\t Invalid Hit On "<<(*it)->geographicalId().rawId();
 	  }
       }
       //save id for the track
@@ -221,18 +221,18 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<reco::TrackCollection>& tr
 	      for (TrackingParticle::g4t_iterator g4T = t -> g4Track_begin();
 		   g4T !=  t -> g4Track_end(); ++g4T) {
 		if((*g4T).trackId() == matchedIds[j].first && t->eventId() == matchedIds[j].second) {
-		  edm::LogVerbatim("TrackAssociator") << " TP   (pdgId, ID, Ev, BC) = " 
+		  LogTrace("TrackAssociator") << " TP   (pdgId, ID, Ev, BC) = " 
 						     << (*g4T).type() << " " << (*g4T).trackId() 
 			    << ", " << t->eventId().event() << ", "<< t->eventId().bunchCrossing(); 
-		  edm::LogVerbatim("TrackAssociator") << " Match(ID, Ev, BC) = " <<  matchedIds[j].first
+		  LogTrace("TrackAssociator") << " Match(ID, Ev, BC) = " <<  matchedIds[j].first
 						     << ", " << matchedIds[j].second.event() << ", "<< matchedIds[j].second.bunchCrossing() 
 						     << "\n G4  Track Momentum " << (*g4T).momentum() 
 						     << "\t reco Track Momentum " << track->momentum();  
 		  nshared += std::count(matchedIds.begin(), matchedIds.end(), matchedIds[j]);
 
-		  edm::LogVerbatim("TrackAssociator") << "hits shared by this segment : " 
+		  LogTrace("TrackAssociator") << "hits shared by this segment : " 
 						     << std::count(matchedIds.begin(), matchedIds.end(), matchedIds[j]);
-		  edm::LogVerbatim("TrackAssociator") << "hits shared so far : " << nshared;
+		  LogTrace("TrackAssociator") << "hits shared so far : " << nshared;
 		  
 		  nsimhit += t->trackPSimHit().size(); 
 		  
@@ -255,7 +255,7 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<reco::TrackCollection>& tr
 		    newdet = detId.subdetId();
 		    if(oldlay !=newlay || (oldlay==newlay && olddet!=newdet) ){
 		      totsimhitlay++;
-		      edm::LogVerbatim("TrackAssociator") <<  " hit = " << TPhit->trackId() << " det ID = " << detid 
+		      LogTrace("TrackAssociator") <<  " hit = " << TPhit->trackId() << " det ID = " << detid 
 							 << " SUBDET = " << detId.subdetId() << "layer = " << LayerFromDetid(detId); 
 		    }
 		    
@@ -265,15 +265,15 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<reco::TrackCollection>& tr
 		}
 	      }
 	      if(totsimhit!=0) fraction = ((double) nshared)/((double)totsimhit);
-	      edm::LogVerbatim("TrackAssociator") << "Final count: nhit(TP) = " << nsimhit << " re-counted = " << totsimhit 
+	      LogTrace("TrackAssociator") << "Final count: nhit(TP) = " << nsimhit << " re-counted = " << totsimhit 
 						 << "re-count(lay) = " << totsimhit << " nshared = " << nshared << " nrechit = " << ri;
 	      if (fraction>minHitFraction) {
 		outputCollection.insert(edm::Ref<TrackingParticleCollection>(TPCollectionH, tpindex), 
 					std::make_pair(reco::TrackRef(trackCollectionH,tindex),fraction));
-		edm::LogVerbatim("TrackAssociator") << "TrackingParticle number " << tpindex << " associated with hit fraction =" << fraction;
+		LogTrace("TrackAssociator") << "TrackingParticle number " << tpindex << " associated with hit fraction =" << fraction;
 	      }
 	      else {
-		edm::LogVerbatim("TrackAssociator") << "TrackingParticle number " << tpindex << " NOT associated with fraction =" << fraction;
+		LogTrace("TrackAssociator") << "TrackingParticle number " << tpindex << " NOT associated with fraction =" << fraction;
 	      }
 	    }
 	  }
@@ -322,7 +322,7 @@ int TrackAssociatorByHits::LayerFromDetid(const DetId& detId ) const
       layerNumber = pxfid.disk();  
     }
   else
-    edm::LogVerbatim("TrackAssociator") << "Unknown subdetid: " <<  subdetId;
+    LogTrace("TrackAssociator") << "Unknown subdetid: " <<  subdetId;
   
   return layerNumber;
 } 
