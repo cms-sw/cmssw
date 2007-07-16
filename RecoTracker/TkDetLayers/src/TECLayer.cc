@@ -235,23 +235,24 @@ void TECLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
   typedef CompatibleDetToGroupAdder Adder;
   int half = sLayer.size()/2;  // to check if dets are called twice....
   for (int idet=negStartIndex; idet >= negStartIndex - half; idet--) {
-    const GeometricSearchDet* neighborPetal = sLayer[binFinder.binIndex(idet)];
-    if (!overlap( gCrossingPos, *neighborPetal, window)) break;
-    if (!Adder::add( *neighborPetal, tsos, prop, est, result)) break;
+    const GeometricSearchDet & neighborPetal = sLayer[binFinder.binIndex(idet)];
+    if (!overlap( gCrossingPos, neighborPetal, window)) break;
+    if (!Adder::add( neighborPetal, tsos, prop, est, result)) break;
     // maybe also add shallow crossing angle test here???
   }
   for (int idet=posStartIndex; idet < posStartIndex + half; idet++) {
-    const GeometricSearchDet* neighborPetal = sLayer[binFinder.binIndex(idet)];
-    if (!overlap( gCrossingPos, *neighborPetal, window)) break;
-    if (!Adder::add( *neighborPetal, tsos, prop, est, result)) break;
+    const GeometricSearchDet & neighborPetal = *sLayer[binFinder.binIndex(idet)];
+    if (!overlap( gCrossingPos, neighborPetal, window)) break;
+    if (!Adder::add( neighborPetal, tsos, prop, est, result)) break;
     // maybe also add shallow crossing angle test here???
   }
 }
 
 bool TECLayer::overlap( const GlobalPoint& gpos, const GeometricSearchDet& gsdet, float phiWin) const
 {
+  float phi = gpos.barePhi();
   const TECPetal& petal = dynamic_cast<const TECPetal&>(gsdet);
-  pair<float,float> phiRange(gpos.phi()-phiWin,gpos.phi()+phiWin);
+  pair<float,float> phiRange(phi-phiWin,phi+phiWin);
   pair<float,float> petalPhiRange(petal.surface().phi() - 0.5*petal.specificSurface().phiExtension(),
 				  petal.surface().phi() + 0.5*petal.specificSurface().phiExtension());
 

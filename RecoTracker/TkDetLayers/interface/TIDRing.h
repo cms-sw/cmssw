@@ -49,15 +49,6 @@ class TIDRing : public GeometricSearchDetWithGroups{
 		   const SubLayerCrossing& crossing,
 		   std::vector<DetGroup>& result) const;
 
-  static
-  float computeWindowSize( const GeomDet* det, 
-			   const TrajectoryStateOnSurface& tsos, 
-			   const MeasurementEstimator& est);
-  static
-  float calculatePhiWindow( const MeasurementEstimator::Local2DVector&  maxDistance, 
-  			    const TrajectoryStateOnSurface& ts, 
-			    const BoundPlane& plane);
-
   void searchNeighbors( const TrajectoryStateOnSurface& tsos,
 			const Propagator& prop,
 			const MeasurementEstimator& est,
