@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.26 2007/05/11 20:04:26 futyand Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.27 2007/05/22 16:16:11 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
@@ -142,7 +142,7 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClust
       float clusterEnergyT = clusterEnergy*sin(seedCluster->position().theta()) ;
 
       float deltaPhi1 = 1.4/clusterEnergyT ;
-      float deltaPhi2 = 0.7/clusterEnergyT ;
+      float deltaPhi2 = 0.07/clusterEnergyT ;
       float ephimin1 = -deltaPhi1*0.625 ;
       float ephimax1 =  deltaPhi1*0.375 ;
       float pphimin1 = -deltaPhi1*0.375 ;
