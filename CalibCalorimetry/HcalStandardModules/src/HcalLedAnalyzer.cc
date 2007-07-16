@@ -115,7 +115,11 @@ void HcalLedAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& eventS
   edm::ESHandle<HcalDbService> conditions;
   eventSetup.get<HcalDbRecord>().get(conditions);
 
+//  int runNumber = e.id().run();
+//  m_ledAnal->processLedEvent(*hbhe, *ho, *hf, *calib, *conditions, *runNumber);
+
   m_ledAnal->processLedEvent(*hbhe, *ho, *hf, *calib, *conditions);
+
 
   if(m_ievt%1000 == 0)
     std::cout << "HcalLedAnalyzer: analyzed " << m_ievt << " events" << std::endl;
