@@ -116,7 +116,11 @@ void TrackProducerBase::putInEvt(edm::Event& evt,
     }
     const TrajectoryFitter::RecHitContainer& transHits = theTraj->recHits();
 
-    reco::Track * theTrack = (*i).second;
+    reco::Track * theTrack = (*i).second.first;
+    PropagationDirection seedDir = (*i).second.second;
+    
+    LogDebug("TrackProducer") << "In TrackProducerBase::putInEvt - seedDir=" << seedDir;
+
     reco::Track t = * theTrack;
     selTracks->push_back( t );
     iTkRef++;
@@ -154,16 +158,18 @@ void TrackProducerBase::putInEvt(edm::Event& evt,
     track.setExtra( teref );
     selTrackExtras->push_back( reco::TrackExtra (outpos, outmom, true, inpos, inmom, true,
 						 outertsos.curvilinearError(), outerId,
-						 innertsos.curvilinearError(), innerId));
+						 innertsos.curvilinearError(), innerId,seedDir));
 
     reco::TrackExtra & tx = selTrackExtras->back();
     size_t i = 0;
     for( TrajectoryFitter::RecHitContainer::const_iterator j = transHits.begin();
 	 j != transHits.end(); j ++ ) {
-      TrackingRecHit * hit = (**j).hit()->clone();
-      track.setHitPattern( * hit, i ++ );
-      selHits->push_back( hit );
-      tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
+      if ((**j).hit()!=0){
+	TrackingRecHit * hit = (**j).hit()->clone();
+	track.setHitPattern( * hit, i ++ );
+	selHits->push_back( hit );
+	tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
+      }
     }
     delete theTrack;
     delete theTraj;

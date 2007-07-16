@@ -104,8 +104,8 @@ void GsfTrackProducerBase::putInEvt(edm::Event& evt,
     if(trajectoryInEvent_) selTrajectories->push_back(*theTraj);
     const TrajectoryFitter::RecHitContainer& transHits = theTraj->recHits();
 
-    reco::GsfTrack * theTrack = (*i).second;
-    
+    reco::GsfTrack * theTrack = (*i).second.first;
+    PropagationDirection seedDir = (*i).second.second;  
     //     if( ) {
     reco::GsfTrack t = * theTrack;
     selTracks->push_back( t );
@@ -141,7 +141,7 @@ void GsfTrackProducerBase::putInEvt(edm::Event& evt,
     selTrackExtras->push_back( reco::TrackExtra (outpos, outmom, true,
 						 inpos, inmom, true,
 						 outertsos.curvilinearError(), outerId, 
-						 innertsos.curvilinearError(), innerId));
+						 innertsos.curvilinearError(), innerId,seedDir));
 
     reco::TrackExtra & tx = selTrackExtras->back();
     size_t i = 0;

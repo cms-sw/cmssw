@@ -109,7 +109,7 @@ std::vector<reco::TransientTrack> TrackProducer::getTransient(edm::Event& theEve
 
 
   for (AlgoProductCollection::iterator prod=algoResults.begin();prod!=algoResults.end(); prod++){
-    ttks.push_back( reco::TransientTrack(*((*prod).second),thePropagator.product()->magneticField() ));
+    ttks.push_back( reco::TransientTrack(*((*prod).second.first),thePropagator.product()->magneticField() ));
   }
 
   LogDebug("TrackProducer") << "end" << "\n";

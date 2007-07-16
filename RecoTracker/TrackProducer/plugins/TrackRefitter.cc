@@ -18,6 +18,7 @@ TrackRefitter::TrackRefitter(const edm::ParameterSet& iConfig):
   setSrc( iConfig.getParameter<std::string>( "src" ));
   setProducer( iConfig.getParameter<std::string>( "producer" ));
   setAlias( iConfig.getParameter<std::string>( "@module_label" ) );
+  constraint_ = iConfig.getParameter<std::string>( "constraint" );
   //register your products
   produces<reco::TrackCollection>().setBranchAlias( alias_ + "Tracks" );
   produces<reco::TrackExtraCollection>().setBranchAlias( alias_ + "TrackExtras" );
@@ -53,15 +54,30 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   //
   AlgoProductCollection algoResults;
   try {
-    edm::Handle<reco::TrackCollection> theTCollection;
-    getFromEvt(theEvent,theTCollection);
-    
-    //
-    //run the algorithm  
-    //
-    LogDebug("TrackProducer") << "run the algorithm" << "\n";
-    theAlgo.runWithTrack(theG.product(), theMF.product(), *theTCollection, 
-			 theFitter.product(), thePropagator.product(), theBuilder.product(), algoResults);
+    if (constraint_==""){
+      edm::Handle<reco::TrackCollection> theTCollection;
+      getFromEvt(theEvent,theTCollection);
+      
+      //
+      //run the algorithm  
+      //
+      LogDebug("TrackProducer") << "run the algorithm" << "\n";
+      theAlgo.runWithTrack(theG.product(), theMF.product(), *theTCollection, 
+			   theFitter.product(), thePropagator.product(), theBuilder.product(), algoResults);
+    } else if (constraint_=="momentum"){
+      edm::Handle<TrackMomConstraintAssociationCollection> theTCollectionWithConstraint;
+      theEvent.getByType(theTCollectionWithConstraint);
+      LogDebug("TrackProducer") << "run the algorithm" << "\n";
+      theAlgo.runWithMomentum(theG.product(), theMF.product(), *theTCollectionWithConstraint, 
+			      theFitter.product(), thePropagator.product(), theBuilder.product(), algoResults);
+    } else if (constraint_=="vertex"){
+      edm::Handle<TrackVtxConstraintAssociationCollection> theTCollectionWithConstraint;
+      theEvent.getByType(theTCollectionWithConstraint);
+      LogDebug("TrackProducer") << "run the algorithm" << "\n";
+      theAlgo.runWithVertex(theG.product(), theMF.product(), *theTCollectionWithConstraint, 
+			      theFitter.product(), thePropagator.product(), theBuilder.product(), algoResults);      
+    } else throw cms::Exception("TrackRefitter") << "unknown type of contraint! Set it to 'momentum', 'vertex' or leave it empty";
+
   } catch (cms::Exception &e){}
   //
   //put everything in th event

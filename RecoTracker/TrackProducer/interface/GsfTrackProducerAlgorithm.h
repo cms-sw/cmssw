@@ -8,7 +8,7 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Thu Mar  9 17:29:31 CET 2006
-// $Id: GsfTrackProducerAlgorithm.h,v 1.1 2006/10/06 12:12:26 adamwo Exp $
+// $Id: GsfTrackProducerAlgorithm.h,v 1.2 2007/01/26 11:05:04 adamwo Exp $
 //
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -31,7 +31,7 @@ class TransientTrackingRecHitBuilder;
 class GsfTrackProducerAlgorithm {
   
  public:
-  typedef std::pair<Trajectory*, reco::GsfTrack*> AlgoProduct; 
+  typedef std::pair<Trajectory*, std::pair<reco::GsfTrack*,PropagationDirection> > AlgoProduct; 
   typedef std::vector< AlgoProduct >  AlgoProductCollection;
 
   GsfTrackProducerAlgorithm(const edm::ParameterSet& conf) : 
