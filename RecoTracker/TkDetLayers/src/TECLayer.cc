@@ -235,7 +235,7 @@ void TECLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
   typedef CompatibleDetToGroupAdder Adder;
   int half = sLayer.size()/2;  // to check if dets are called twice....
   for (int idet=negStartIndex; idet >= negStartIndex - half; idet--) {
-    const GeometricSearchDet & neighborPetal = sLayer[binFinder.binIndex(idet)];
+    const GeometricSearchDet & neighborPetal = *sLayer[binFinder.binIndex(idet)];
     if (!overlap( gCrossingPos, neighborPetal, window)) break;
     if (!Adder::add( neighborPetal, tsos, prop, est, result)) break;
     // maybe also add shallow crossing angle test here???
@@ -257,14 +257,8 @@ bool TECLayer::overlap( const GlobalPoint& gpos, const GeometricSearchDet& gsdet
 				  petal.surface().phi() + 0.5*petal.specificSurface().phiExtension());
 
 
-  if ( rangesIntersect(phiRange, petalPhiRange, PhiLess())) {
-//     edm::LogInfo(TkDetLayers) << " overlapInPhi:  Ranges intersect " ;
-    return true;
-  } else {
-//     edm::LogInfo(TkDetLayers) << "  overlapInPhi: Ranges DO NOT intersect " ;
-    return false;
-  }
-} 
+  return rangesIntersect(phiRange, petalPhiRange, PhiLess()));
+}
 
 
 
