@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Track.h,v 1.32 2007/01/31 08:51:35 llista Exp $
+ * \version $Id: Track.h,v 1.33 2007/03/20 14:19:53 namapane Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/TrackBase.h"
@@ -24,7 +24,7 @@ namespace reco {
     Track() { }
     /// constructor from fit parameters and error matrix  
     Track( double chi2, double ndof, const Point & referencePoint,
-	   const Vector & momentum, int charge, const CovarianceMatrix & );
+	   const Vector & momentum, int charge, const CovarianceMatrix &);
     /// return true if the outermost hit is valid
     bool outerOk() const { return extra_->outerOk(); }
     /// return true if the innermost hit is valid
@@ -92,9 +92,14 @@ namespace reco {
     unsigned short lost() const {return  numberOfLostHits();  }
     /// number of invalid hits
     //    unsigned short invalid() const { return invalid_; }
+
+    // direction how the hits were sorted in the original seed
+    PropagationDirection seedDirection() const {return extra_->seedDirection();}
+
   private:
     /// reference to "extra" extension
     TrackExtraRef extra_;
+
   };
 
 }
