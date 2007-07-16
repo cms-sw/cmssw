@@ -19,7 +19,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 
-DDTIBRadCableAlgo::DDTIBRadCableAlgo(): layRin(0),cableMat(0),strucMat(0) {
+DDTIBRadCableAlgo::DDTIBRadCableAlgo(): layRin(0),strucMat(0) {
   LogDebug("TIBGeom") <<"DDTIBRadCableAlgo info: Creating an instance";
 }
 
@@ -56,13 +56,6 @@ void DDTIBRadCableAlgo::initialize(const DDNumericArguments & nArgs,
 		      << "Thickness " << supportT << "\tExtra width along "
 		      << "R " << supportDR << "\tMaterial: " << supportMat;
 
-  cableT       = nArgs["CableThick"];     
-  cableMat     = vsArgs["CableMaterial"];
-  LogDebug("TIBGeom") << "DDTIBRadCableAlgo debug: Cable Thickness " 
-		      << cableT << " with materials: ";
-  for (int i = 0; i < (int)(cableMat.size()); i++)
-    LogDebug("TIBGeom") << "\tcableMat[" << i << "] = " << cableMat[i];
-
   strucMat     = vsArgs["StructureMaterial"];
   LogDebug("TIBGeom") << "DDTIBRadCableAlgo debug: " << strucMat.size()
 		      << " materials for open structure:";
@@ -82,7 +75,7 @@ void DDTIBRadCableAlgo::execute() {
   // Loop over sub disks
   DDName suppName(DDSplit(supportMat).first, DDSplit(supportMat).second);
   DDMaterial suppMatter(suppName);
-  double diskDz = 0.5 * (supportT + cableT*layRin.size());
+  double diskDz = 0.5*supportT;
   double dz     = 0.5*supportT;
 
   for (int i=0; i<(int)(layRin.size()); i++) {
@@ -128,41 +121,6 @@ void DDTIBRadCableAlgo::execute() {
     LogDebug("TIBGeom") << "DDTIBRadCableAlgo test: "
 			<< DDName(name,idNameSpace) << " number " << i+1
 			<< " positioned in " << diskName << " at " << r2
-			<< " with no rotation";
-
-    //Now the radial cable
-    name  = "TIBRadCable" + dbl_to_string(i);
-    double rv = layRin[i]+0.5*deltaR;
-    std::vector<double> pgonZ;
-    pgonZ.push_back(-0.5*cableT); 
-    pgonZ.push_back(cableT*(rv/rMax-0.5));
-    pgonZ.push_back(0.5*cableT);
-    std::vector<double> pgonRmin;
-    pgonRmin.push_back(rv); 
-    pgonRmin.push_back(rv); 
-    pgonRmin.push_back(rv); 
-    std::vector<double> pgonRmax;
-    pgonRmax.push_back(rMax); 
-    pgonRmax.push_back(rMax); 
-    pgonRmax.push_back(rv); 
-    solid = DDSolidFactory::polycone(DDName(name, idNameSpace), 0, twopi,
-				     pgonZ, pgonRmin, pgonRmax);
-    LogDebug("TIBGeom") << "DDTIBRadCableAlgo test: "
-			<< DDName(name, idNameSpace) <<" Polycone made of "
-			<< cableMat[i] << " from 0 to " << twopi/deg
-			<< " and with " << pgonZ.size() << " sections";
-    for (int ii = 0; ii < (int)(pgonZ.size()); ii++) 
-      LogDebug("TIBGeom") << "\t" << "\tZ = " << pgonZ[ii] << "\tRmin = " 
-			  << pgonRmin[ii] << "\tRmax = " << pgonRmax[ii];
-    DDName cableName(DDSplit(cableMat[i]).first, DDSplit(cableMat[i]).second);
-    DDMaterial cableMatter(cableName);
-    DDLogicalPart cableLogic(DDName(name, idNameSpace), cableMatter, solid);
-
-    DDTranslation r3(0, 0, (diskDz-(i+0.5)*cableT));
-    DDpos(DDName(name,idNameSpace), diskName, i+1, r3, DDRotation());
-    LogDebug("TIBGeom") << "DDTIBRadCableAlgo test: " 
-			<< DDName(name,idNameSpace) << " number " <<i+1
-			<< " positioned in " << diskName << " at " << r3 
 			<< " with no rotation";
     
   }

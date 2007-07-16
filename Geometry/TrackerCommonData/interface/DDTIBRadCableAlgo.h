@@ -33,8 +33,6 @@ private:
   double              supportT;      //Support disk thickness
   double              supportDR;     //Extra width along R
   std::string         supportMat;    //Material for support disk
-  double              cableT;        //Cable thickness
-  std::vector<std::string> cableMat; //Materials for cables
   std::vector<std::string> strucMat; //Materials for open structures
 };
 
