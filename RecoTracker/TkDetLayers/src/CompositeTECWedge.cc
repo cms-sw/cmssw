@@ -246,13 +246,23 @@ void CompositeTECWedge::searchNeighbors( const TrajectoryStateOnSurface& tsos,
   }
 }
 
+namespace {
+
+struct PhiLess {
+   bool operator()(float a, float b) const {
+      return Geom::phiLess(a,b);
+   }
+};
+
+}
 
 bool CompositeTECWedge::overlap( const GlobalPoint& crossPoint, const GeomDet& det, float phiWindow) const
 {
   float phi = crossPoint.barePhi();
   pair<float,float> phiRange(phi-phiWindow, phi+phiWindow);
-  pair<float,float> detPhiRange = computeDetPhiRange( det.surface());
-  return rangesIntersect( phiRange, detPhiRange, boost::function<bool(float,float)>(Geom::phiLess));
+  pair<float,float> detPhiRange = computeDetPhiRange( det.surface()); 
+//   return rangesIntersect( phiRange, detPhiRange, boost::function<bool(float,float)>(&Geom::phiLess));
+  return rangesIntersect( phiRange, detPhiRange, PhiLess());
 }
  
 
