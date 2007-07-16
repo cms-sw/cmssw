@@ -83,15 +83,20 @@ MuIsoDeposit CaloExtractorByAssociator::deposit( const Event & event, const Even
 }
 
 
-//Make separate deposits: for ECAL, HCAL, HO
+//! Make separate deposits: for ECAL, HCAL, HO
 std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & event, const EventSetup& eventSetup, const Track & muon) const
 {
+
   if (thePropagator == 0){
+    //! get the propagator form ES if it's not picked up yet
     ESHandle<Propagator> prop;
     eventSetup.get<TrackingComponentsRecord>().get(thePropagatorName, prop);
     thePropagator = prop->clone();
     theAssociator->setPropagator(thePropagator);
   }
+
+  //! check configuration consistency
+  //! could've been made at construction stage (fix later?)
   if (theDepositInstanceLabels.size() != 3){
     LogError("MuonIsolation")<<"Configuration is inconsistent: Need 3 deposit instance labels";
   }
@@ -103,6 +108,8 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
   }
 
   typedef MuIsoDeposit::Veto Veto;
+  //! this should be (eventually) set to the eta-phi of the crossing point of 
+  //! a straight line tangent to a muon at IP and the calorimeter
   MuIsoDeposit::Direction muonDir(muon.eta(), muon.phi());
   
   MuIsoDeposit depEcal(theDepositInstanceLabels[0], muonDir);
@@ -117,6 +124,7 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
   FreeTrajectoryState iFTS = tMuon.initialFreeState();
   TrackDetMatchInfo mInfo = theAssociator->associate(event, eventSetup, iFTS, *theAssociatorParameters);
 
+  //! each deposit type veto is at the point of intersect with that detector
   depEcal.setVeto(Veto(Direction(mInfo.trkGlobPosAtEcal.eta(), mInfo.trkGlobPosAtEcal.phi()),
 		       theDR_Veto_E));
   depHcal.setVeto(Veto(Direction(mInfo.trkGlobPosAtHcal.eta(), mInfo.trkGlobPosAtHcal.phi()),
@@ -125,6 +133,8 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
 			theDR_Veto_HO));
 
   if (theUseRecHitsFlag){
+    //! do things based on rec-hits here
+    //! too much copy-pasting now (refactor later?)
     edm::ESHandle<CaloGeometry> caloGeom;
     eventSetup.get<IdealGeometryRecord>().get(caloGeom);
 
@@ -141,12 +151,19 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
 
       bool vetoHit = false;
       double deltar = deltaR(mInfo.trkGlobPosAtEcal, eHitPos);
+      //! first check if the hit is inside the veto cone by dR-alone
       if (deltar < theDR_Veto_E ){
 	LogDebug("RecoMuon|CaloExtractorByAssociator")
 	  << " >>> Veto ECAL hit: Calo deltaR= " << deltar;
 	LogDebug("RecoMuon|CaloExtractorByAssociator")
 	  << " >>> Calo eta phi ethcal: " << eHitPos.eta() << " " << eHitPos.phi() << " " << et;
 	vetoHit = true;
+      }
+      //! and now pitch those in the crossed list
+      if (! vetoHit){
+	for (uint iH = 0; iH< mInfo.crossedEcalIds.size() && ! vetoHit; ++iH){
+	  if (mInfo.crossedEcalIds[iH].rawId() == eHitCI->detid().rawId()) vetoHit = true;
+	}
       }
 
       if (vetoHit ){
@@ -169,12 +186,19 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
 
       bool vetoHit = false;
       double deltar = deltaR(mInfo.trkGlobPosAtHcal, hHitPos);
+      //! first check if the hit is inside the veto cone by dR-alone
       if (deltar < theDR_Veto_H ){
 	LogDebug("RecoMuon|CaloExtractorByAssociator")
 	  << " >>> Veto HBHE hit: Calo deltaR= " << deltar;
 	LogDebug("RecoMuon|CaloExtractorByAssociator")
 	  << " >>> Calo eta phi ethcal: " << hHitPos.eta() << " " << hHitPos.phi() << " " << et;
 	vetoHit = true;
+      }
+      //! and now pitch those in the crossed list
+      if (! vetoHit){
+	for (uint iH = 0; iH< mInfo.crossedHcalIds.size() && ! vetoHit; ++iH){
+	  if (mInfo.crossedHcalIds[iH].rawId() == hHitCI->detid().rawId()) vetoHit = true;
+	}
       }
 
       if (vetoHit ){
@@ -197,12 +221,19 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
 
       bool vetoHit = false;
       double deltar = deltaR(mInfo.trkGlobPosAtHO, hoHitPos);
+      //! first check if the hit is inside the veto cone by dR-alone
       if (deltar < theDR_Veto_HO ){
 	LogDebug("RecoMuon|CaloExtractorByAssociator")
 	  << " >>> Veto HO hit: Calo deltaR= " << deltar;
 	LogDebug("RecoMuon|CaloExtractorByAssociator")
 	  << " >>> Calo eta phi ethcal: " << hoHitPos.eta() << " " << hoHitPos.phi() << " " << et;
 	vetoHit = true;
+      }
+      //! and now pitch those in the crossed list
+      if (! vetoHit){
+	for (uint iH = 0; iH< mInfo.crossedHOIds.size() && ! vetoHit; ++iH){
+	  if (mInfo.crossedHOIds[iH].rawId() == hoHitCI->detid().rawId()) vetoHit = true;
+	}
       }
 
       if (vetoHit ){
@@ -214,7 +245,7 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
 
 
   } else {
-    //use calo towers    
+    //! use calo towers    
     CaloTowerCollection::const_iterator calCI = mInfo.towers.begin();
     for (; calCI != mInfo.towers.end(); ++calCI){
       double deltar0 = deltaR(muon,*calCI);
@@ -234,6 +265,7 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
     
       bool vetoTowerEcal = false;
       double deltarEcal = deltaR(mInfo.trkGlobPosAtEcal, *calCI);
+      //! first check if the tower is inside the veto cone by dR-alone
       if (deltarEcal < theDR_Veto_E ){
 	LogDebug("RecoMuon|CaloExtractorByAssociator")
 	  << " >>> Veto ecal tower: Calo deltaR= " << deltarEcal;
@@ -243,6 +275,7 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
       }
       bool vetoTowerHcal = false;
       double deltarHcal = deltaR(mInfo.trkGlobPosAtHcal, *calCI);
+      //! first check if the tower is inside the veto cone by dR-alone
       if (deltarHcal < theDR_Veto_H ){
 	LogDebug("RecoMuon|CaloExtractorByAssociator")
 	  << " >>> Veto hcal tower: Calo deltaR= " << deltarHcal;
@@ -252,6 +285,7 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
       }
       bool vetoTowerHOCal = false;
       double deltarHOcal = deltaR(mInfo.trkGlobPosAtHO, *calCI);
+      //! first check if the tower is inside the veto cone by dR-alone
       if (deltarHOcal < theDR_Veto_HO ){
 	LogDebug("RecoMuon|CaloExtractorByAssociator")
 	  << " >>> Veto HO tower: Calo deltaR= " << deltarHOcal;
@@ -260,7 +294,20 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
 	vetoTowerHOCal = true;
       }
 
+      //! and now pitch those in the crossed list
+      if (! (vetoTowerHOCal && vetoTowerHcal &&  vetoTowerEcal )){
+	for (uint iH = 0; iH< mInfo.crossedTowerIds.size(); ++iH){
+	  if (mInfo.crossedTowerIds[iH].rawId() == calCI->id().rawId()){
+	    vetoTowerEcal = true;
+	    vetoTowerHcal = true;
+	    vetoTowerHOCal = true;
+	    break;
+	  }
+	}
+      }
+
       Direction towerDir(calCI->eta(), calCI->phi());
+      //! add the Et of the tower to deposits if it's not a vetoed; put into muonEnergy otherwise
       if (doEcal){
 	if (vetoTowerEcal) depEcal.addMuonEnergy(etecal);
 	else depEcal.addDeposit(towerDir, etecal);
