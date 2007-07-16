@@ -31,6 +31,9 @@ namespace Geom {
     }
     return dphi;
   }
+  inline double deltaPhi(float phi1, float phi2) { 
+    return deltaBarePhi(Phi_mpi_pi(phi2),Phi_mpi_pi(phi1));
+  }
   inline double deltaPhi(double phi1, double phi2) { 
     return deltaBarePhi(Phi_mpi_pi(phi2),Phi_mpi_pi(phi1));
   }
@@ -53,6 +56,9 @@ namespace Geom {
     return diff < M_PI;
   }
   */
+  inline bool phiLess(float phi1, float phi2) {
+    return deltaPhi(phi1,phi2)>0;
+  }
   inline bool phiLess(double phi1, double phi2) {
     return deltaPhi(phi1,phi2)>0;
   }
