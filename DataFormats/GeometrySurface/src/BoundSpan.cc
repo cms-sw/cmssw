@@ -3,6 +3,8 @@
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 
+#include "DataFormats/GeometryVector/interface/VectorUtil.h"
+
 namespace boundSpan {
   
   std::pair<float, float> computePhiSpan( const BoundSurface& plane) {
