@@ -49,16 +49,14 @@ class TIDRing : public GeometricSearchDetWithGroups{
 		   const SubLayerCrossing& crossing,
 		   std::vector<DetGroup>& result) const;
 
+  static
   float computeWindowSize( const GeomDet* det, 
 			   const TrajectoryStateOnSurface& tsos, 
-			   const MeasurementEstimator& est) const;
-
+			   const MeasurementEstimator& est);
+  static
   float calculatePhiWindow( const MeasurementEstimator::Local2DVector&  maxDistance, 
   			    const TrajectoryStateOnSurface& ts, 
-			    const BoundPlane& plane) const;
-
-  std::pair<float, float> computeDetPhiRange( const BoundPlane& plane) const;
-  
+			    const BoundPlane& plane);
 
   void searchNeighbors( const TrajectoryStateOnSurface& tsos,
 			const Propagator& prop,
@@ -67,8 +65,6 @@ class TIDRing : public GeometricSearchDetWithGroups{
 			float window, 
 			std::vector<DetGroup>& result,
 			bool checkClosest) const;
-
-  bool overlapInPhi( const GlobalPoint& startPoint,const GeomDet* det, float phiWin ) const;  
 
   const std::vector<const GeomDet*>& subLayer( int ind) const {
     return (ind==0 ? theFrontDets : theBackDets);

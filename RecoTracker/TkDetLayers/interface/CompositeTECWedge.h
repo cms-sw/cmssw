@@ -50,11 +50,7 @@ class CompositeTECWedge : public TECWedge{
 			float window, 
 			std::vector<DetGroup>& result,
 			bool checkClosest) const;
-
-  bool overlap( const GlobalPoint& gpos, const GeomDet& det, float window) const;
-
-  std::pair<float, float> computeDetPhiRange( const BoundPlane& plane) const;
-
+  
   int findClosestDet( const GlobalPoint& startPos,int sectorId) const;
 
   const std::vector<const GeomDet*>& subWedge( int ind) const {
