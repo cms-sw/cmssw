@@ -12,7 +12,7 @@ class BoundSurface;
 
 namespace boundSpan {
   
-  pair<float, float> 
+  std::pair<float, float> 
   computePhiSpan( const BoundSurface& plane);
 
 }

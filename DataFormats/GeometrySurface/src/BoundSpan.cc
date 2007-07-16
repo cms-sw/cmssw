@@ -4,8 +4,8 @@
 
 namespace boundSpan {
   
-  pair<float, float> computePhiSpan( const BoundSurface& plane) {
-    typedef pair<float, float> return_type;  
+  std::pair<float, float> computePhiSpan( const BoundSurface& plane) {
+    typedef std::pair<float, float> return_type;  
     const TrapezoidalPlaneBounds* trapezoidalBounds( dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
     const RectangularPlaneBounds* rectangularBounds( dynamic_cast<const RectangularPlaneBounds*>(&(plane.bounds())));  
     

@@ -50,7 +50,7 @@ public:
 
   BoundSurface( const BoundSurface& iToCopy) :
     Surface( iToCopy ), 
-    m_phiSpan(iRHS.m_phiSpan),
+    m_phiSpan(iToCopy.m_phiSpan),
     theBounds( iToCopy.theBounds->clone() ) {}
 
   const BoundSurface& operator=(const BoundSurface& iRHS ) {
