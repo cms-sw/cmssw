@@ -25,31 +25,38 @@ public:
   BoundSurface( const PositionType& pos, 
 		const RotationType& rot, 
 		const Bounds* bounds) :
-    Surface( pos, rot), theBounds( bounds->clone()) {}
+    Surface( pos, rot),  m_phiSpan(0.,0.),
+    theBounds( bounds->clone()) { computePhiSpan();}
 
   BoundSurface( const PositionType& pos, 
 		const RotationType& rot, 
 		const Bounds& bounds) :
-    Surface( pos, rot), theBounds( bounds.clone()) {}
+    Surface( pos, rot),  m_phiSpan(0.,0.),
+    theBounds( bounds.clone()) { computePhiSpan();}
 
   BoundSurface( const PositionType& pos, 
 		const RotationType& rot, 
 		const Bounds* bounds, 
 		MediumProperties* mp) :
-    Surface( pos, rot, mp), theBounds( bounds->clone()) {}
+    Surface( pos, rot, mp),  m_phiSpan(0.,0.),
+    theBounds( bounds->clone()) { computePhiSpan();}
 
   BoundSurface( const PositionType& pos, 
 		const RotationType& rot, 
 		const Bounds& bounds, 
 		MediumProperties* mp) :
-    Surface( pos, rot, mp), theBounds( bounds.clone()) {}
+    Surface( pos, rot, mp),  m_phiSpan(0.,0.),
+    theBounds( bounds.clone()) { computePhiSpan();}
 
   BoundSurface( const BoundSurface& iToCopy) :
-    Surface( iToCopy ),
-      theBounds( iToCopy.theBounds->clone() ) {}
+    Surface( iToCopy ), 
+    m_phiSpan(iRHS.m_phiSpan),
+    theBounds( iToCopy.theBounds->clone() ) {}
 
   const BoundSurface& operator=(const BoundSurface& iRHS ) {
-    theBounds = std::auto_ptr<Bounds>( iRHS.theBounds->clone() );
+    Surface::operator=(iRHS);
+    m_phiSpan=iRHS.m_phiSpan;
+    theBounds.reset( iRHS.theBounds->clone() );
     return *this;
   }
 
@@ -57,7 +64,7 @@ public:
 
   std::pair<float,float> const & phiSpan() const { return m_phiSpan;}
 
-private:
+protected:
   void computePhiSpan();
 
 private:
