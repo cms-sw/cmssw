@@ -123,13 +123,13 @@ EcalLaserDbAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
 
   EcalLaserAPDPNRatios::EcalLaserAPDPNpair apdpnpair;
   const EcalLaserAPDPNRatios* myapdpn =  pSetup->getAPDPNRatios();
-  const EcalLaserAPDPNRatiosMap& laserMap =  myapdpn->laser_map;
+  const EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap& laserMap =  myapdpn->getLaserMap();
 
   //  EcalLaserAPDPNRatios::EcalLaserTimeStamp timestamp;
   //  const EcalLaserTimeStampMap&   timeMap  =  myapdpn->time_map;
   //  EcalLaserTimeStampMapIterator timeIter; //TiemStamp iterator
   
-  EcalLaserAPDPNRatiosMapIterator laserIter; // Laser iterator
+  EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMapIterator laserIter; // Laser iterator
 	 
   int iEta = 83;
   int iPhi = 168;

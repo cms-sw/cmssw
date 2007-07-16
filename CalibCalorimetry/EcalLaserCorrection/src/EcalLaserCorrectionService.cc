@@ -79,6 +79,3 @@ void EcalLaserCorrectionService::apdpnCallback (const EcalLaserAPDPNRatiosRcd& f
   fRecord.get (item);
   mService->setData (item.product ());
 }
-
-
-
