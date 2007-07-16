@@ -219,7 +219,7 @@ namespace {
     }
   };
   
-  bool overlapInPhi( const GlobalPoint& startPoint,const GeomDet & det, float phiWindow) 
+  bool overlapInPhi( const GlobalPoint& crossPoint,const GeomDet & det, float phiWindow) 
   {
     float phi = crossPoint.barePhi();
     pair<float,float> phiRange(phi-phiWindow, phi+phiWindow);
@@ -247,7 +247,7 @@ void TIDRing::searchNeighbors( const TrajectoryStateOnSurface& tsos,
   int posStartIndex = closestIndex+1;
 
   if (checkClosest) { // must decide if the closest is on the neg or pos side
-    if ( Geom::phiLess( gCrossingPos.phi(), sLayer[closestIndex]->surface().phi())) {
+    if ( Geom::phiLess( gCrossingPos.barePhi(), sLayer[closestIndex]->surface().phi())) {
       posStartIndex = closestIndex;
     }
     else {
@@ -272,5 +272,3 @@ void TIDRing::searchNeighbors( const TrajectoryStateOnSurface& tsos,
     // maybe also add shallow crossing angle test here???
   }
 }
-
-
