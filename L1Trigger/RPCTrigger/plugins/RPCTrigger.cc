@@ -1,7 +1,7 @@
 /** \file RPCTrigger.cc
  *
- *  $Date: 2007/06/06 13:39:14 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/06/06 15:19:20 $
+ *  $Revision: 1.4 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/interface/RPCTrigger.h"
@@ -200,14 +200,15 @@ std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(L1RpcTBMuonsVec 
     l1Cand.setEtaValue(eta);
 */
     //Note: etaAddr is packed in special way: see CMS IN 2004-022
-    signed short etaAddr = finalMuons[iMu].getEtaAddr()-16; // -16..16
-    bool etaNegative = false;
-    if (etaAddr < 0){
-      etaNegative = true;
-      etaAddr = ~(-etaAddr)+1; // convert to negative :)
-    }
+    signed short etaAddr = finalMuons[iMu].getEtaAddr(); // 
+//    signed short etaAddr = finalMuons[iMu].getEtaAddr()-16; // -16..16
+//    bool etaNegative = false;
+//    if (etaAddr < 0){
+//      etaNegative = true;
+//      etaAddr = ~(-etaAddr)+1; // convert to negative :)
+//    }
 
-    etaAddr &= 63; // 6 bits only
+//    etaAddr &= 63; // 6 bits only
          
     l1Cand.setEtaPacked(etaAddr);
     l1Cand.setChargeValid(true);
@@ -217,7 +218,7 @@ std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(L1RpcTBMuonsVec 
              << finalMuons[iMu].getPhiAddr() << std::endl ;
     std::cout<< "cand " <<  l1Cand.eta_packed() << " " 
              << l1Cand.phi_packed() << std::endl ;
-    //*/
+    */
 
     RPCCand.push_back(l1Cand);
         
