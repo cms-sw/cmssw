@@ -414,6 +414,7 @@ int PixelDataFormatter::word2digi(const SiPixelFrameConverter* converter,
   static SiPixelFrameConverter::CablingIndex lastcabl;
   static bool lastcablexists = false;
 
+/*
 // check to make sure row and dcol values are in order (lowest to highest)
   if (lastcablexists && (lastcabl.roc == cabling.roc) ) {
     if ((cabling.dcol < lastcabl.dcol) || (cabling.dcol==lastcabl.dcol && cabling.pxid < lastcabl.pxid)) {
@@ -424,6 +425,7 @@ int PixelDataFormatter::word2digi(const SiPixelFrameConverter* converter,
       return 4;
     }
   }
+*/
     
   static bool debug = edm::MessageDrop::instance()->debugEnabled;
   if (debug) {
