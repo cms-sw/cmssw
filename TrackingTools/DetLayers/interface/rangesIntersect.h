@@ -20,4 +20,9 @@ inline bool rangesIntersect( const Range& a, const Range& b,
 			     Less const &less) {
   return  !( less(b.second,a.first) || less(a.second,b.first));
 }
+template <typename Range, typename T>
+inline bool rangesIntersect( const Range& a, const Range& b, 
+			     bool (*less)(T,T)) {
+  return  !( less(b.second,a.first) || less(a.second,b.first));
+}
 #endif
