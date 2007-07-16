@@ -76,11 +76,22 @@ void SiStripLAProfileBooker::beginJob(const edm::EventSetup& c){
   c.get<TrackerDigiGeometryRecord>().get(estracker);
   tracker=&(*estracker); 
 
-  edm::ESHandle<SiStripDetCabling> tkmechstruct;
-  c.get<SiStripDetCablingRcd>().get(tkmechstruct);
   std::vector<uint32_t> activeDets;
-  activeDets.clear();
-  tkmechstruct->addActiveDetectorsRawIds(activeDets);
+  edm::ESHandle<SiStripDetCabling> tkmechstruct=0;
+  if (conf_.getParameter<bool>("UseStripCablingDB")){ 
+    c.get<SiStripDetCablingRcd>().get(tkmechstruct);
+    activeDets.clear();
+    tkmechstruct->addActiveDetectorsRawIds(activeDets);
+  }
+  else {
+    const TrackerGeometry::DetIdContainer& Id = estracker->detIds();
+    TrackerGeometry::DetIdContainer::const_iterator Iditer;    
+    activeDets.clear();
+    for(Iditer=Id.begin();Iditer!=Id.end();Iditer++){
+      activeDets.push_back(Iditer->rawId());
+    }
+  }
+
   edm::InputTag TkTag = conf_.getParameter<edm::InputTag>("Tracks");
   //Get Ids;
   double ModuleRangeMin=conf_.getParameter<double>("ModuleXMin");
@@ -99,9 +110,7 @@ void SiStripLAProfileBooker::beginJob(const edm::EventSetup& c){
   dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
 
   //get all detids
-  //  const TrackerGeometry::DetIdContainer& Id = estracker->detIds();
-  
-  // TrackerGeometry::DetIdContainer::const_iterator Iditer;
+
   for(std::vector<uint32_t>::const_iterator Id = activeDets.begin(); Id!=activeDets.end(); Id++){
 
     //  for(Iditer=Id.begin();Iditer!=Id.end();Iditer++){ //loop on detids
