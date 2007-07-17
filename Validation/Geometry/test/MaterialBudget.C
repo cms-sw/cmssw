@@ -46,7 +46,7 @@ MaterialBudget(TString detector) {
   // detector
   theDetector = detector;
   if(
-     theDetector!="TIB" && theDetector!="TIDF" && theDetector!="TIDB" 
+     theDetector!="TIB" && theDetector!="TIDF" && theDetector!="TIDB" && theDetector!="InnerServices"
      && theDetector!="TOB" && theDetector!="TEC" && theDetector!="TkStrct" 
      && theDetector!="PixBar" && theDetector!="PixFwdPlus" && theDetector!="PixFwdMinus" 
      && theDetector!="Tracker" && theDetector!="TrackerSum"
@@ -67,18 +67,18 @@ MaterialBudget(TString detector) {
     theDetectorFileName = "matbdg_TIB.root";
   }
   if(theDetector == "Pixel") {
-    iFirst = 7;
-    iLast  = 8;
+    iFirst = 8;
+    iLast  = 9;
     theDetectorFileName = "matbdg_PixBar.root";
   }
   if(theDetector == "Strip") {
     iFirst = 1;
-    iLast  = 4;
+    iLast  = 5;
     theDetectorFileName = "matbdg_TIB.root";
   }
   if(theDetector == "InnerTracker") {
     iFirst = 1;
-    iLast  = 2;
+    iLast  = 3;
     theDetectorFileName = "matbdg_TIB.root";
   }
   cout << "*** Open file... " << endl;
@@ -172,26 +172,30 @@ void createPlots(TString plot) {
 	break;
       }
       case 3: {
-	subDetector = "TOB";
+	subDetector = "InnerServices";
 	break;
       }
       case 4: {
-	subDetector = "TEC";
+	subDetector = "TOB";
 	break;
       }
       case 5: {
-	subDetector = "TkStrct";
+	subDetector = "TEC";
 	break;
       }
       case 6: {
-	subDetector = "PixBar";
+	subDetector = "TkStrct";
 	break;
       }
       case 7: {
-	subDetector = "PixFwdPlus";
+	subDetector = "PixBar";
 	break;
       }
       case 8: {
+	subDetector = "PixFwdPlus";
+	break;
+      }
+      case 9: {
 	subDetector = "PixFwdMinus";
 	break;
       }
@@ -324,26 +328,30 @@ void create2DPlots(TString plot) {
 	break;
       }
       case 3: {
-	subDetector = "TOB";
+	subDetector = "InnerServices";
 	break;
       }
       case 4: {
-	subDetector = "TEC";
+	subDetector = "TOB";
 	break;
       }
       case 5: {
-	subDetector = "TkStrct";
+	subDetector = "TEC";
 	break;
       }
       case 6: {
-	subDetector = "PixBar";
+	subDetector = "TkStrct";
 	break;
       }
       case 7: {
-	subDetector = "PixFwdPlus";
+	subDetector = "PixBar";
 	break;
       }
       case 8: {
+	subDetector = "PixFwdPlus";
+	break;
+      }
+      case 9: {
 	subDetector = "PixFwdMinus";
 	break;
       }
@@ -432,26 +440,30 @@ void createRatioPlots(TString plot) {
 	break;
       }
       case 3: {
+	subDetector = "InnerServices";
+	break;
+      }
+      case 4 {
 	subDetector = "TOB";
 	break;
       }
-      case 4: {
+      case 5: {
 	subDetector = "TEC";
 	break;
       }
-      case 5: {
+      case 6: {
 	subDetector = "TkStrct";
 	break;
       }
-      case 6: {
+      case 7: {
 	subDetector = "PixBar";
 	break;
       }
-      case 7: {
+      case 8: {
 	subDetector = "PixFwdPlus";
 	break;
       }
-      case 8: {
+      case 9: {
 	subDetector = "PixFwdMinus";
 	break;
       }

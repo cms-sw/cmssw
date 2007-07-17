@@ -21,6 +21,7 @@ TProfile* prof_x0_PixFwdMinus;
 TProfile* prof_x0_TIB;
 TProfile* prof_x0_TIDF;
 TProfile* prof_x0_TIDB;
+TProfile* prof_x0_InnerServices;
 TProfile* prof_x0_TOB;
 TProfile* prof_x0_TEC;
 TProfile* prof_x0_Outside;
@@ -125,7 +126,7 @@ void createPlots(TString plot){
   }
   
   TString subDetector("empty");
-  for(unsigned int i_detector=0; i_detector<=9; i_detector++) {
+  for(unsigned int i_detector=0; i_detector<=10; i_detector++) {
     switch(i_detector) {
     case 0: {
       subDetector = "TIB";
@@ -140,30 +141,34 @@ void createPlots(TString plot){
       break;
     }
     case 3: {
-      subDetector = "TOB";
+      subDetector = "InnerServices";
       break;
     }
     case 4: {
-      subDetector = "TEC";
+      subDetector = "TOB";
       break;
     }
     case 5: {
-      subDetector = "TkStrct";
+      subDetector = "TEC";
       break;
     }
     case 6: {
-      subDetector = "PixBar";
+      subDetector = "TkStrct";
       break;
     }
     case 7: {
-      subDetector = "PixFwdPlus";
+      subDetector = "PixBar";
       break;
     }
     case 8: {
-      subDetector = "PixFwdMinus";
+      subDetector = "PixFwdPlus";
       break;
     }
     case 9: {
+      subDetector = "PixFwdMinus";
+      break;
+    }
+    case 10: {
       subDetector = "BeamPipe";
       break;
     }
@@ -227,8 +232,8 @@ void createPlots(TString plot){
     case 2: {
       // subDetector = "TIDB";
       // subdetector profiles
-      prof_x0_IB = (TProfile*)subDetectorFile->Get(Form("%u", plotNumber));
-      hist_x0_IB->Add( (TH1D*)prof_x0_IB->ProjectionX("B") , +1.000 );
+      prof_x0_TIDB = (TProfile*)subDetectorFile->Get(Form("%u", plotNumber));
+      hist_x0_IB->Add( (TH1D*)prof_x0_TIDB->ProjectionX("B") , +1.000 );
       // category profiles
       prof_x0_SUP   = (TProfile*)subDetectorFile->Get(Form("%u", 100 + plotNumber));
       prof_x0_SEN   = (TProfile*)subDetectorFile->Get(Form("%u", 200 + plotNumber));
@@ -248,6 +253,29 @@ void createPlots(TString plot){
       break;
     }
     case 3: {
+      // subDetector = "InnerServices";
+      // subdetector profiles
+      prof_x0_InnerServices = (TProfile*)subDetectorFile->Get(Form("%u", plotNumber));
+      hist_x0_IB->Add( (TH1D*)prof_x0_InnerServices->ProjectionX("B") , +1.000 );
+      // category profiles
+      prof_x0_SUP   = (TProfile*)subDetectorFile->Get(Form("%u", 100 + plotNumber));
+      prof_x0_SEN   = (TProfile*)subDetectorFile->Get(Form("%u", 200 + plotNumber));
+      prof_x0_CAB   = (TProfile*)subDetectorFile->Get(Form("%u", 300 + plotNumber));
+      prof_x0_COL   = (TProfile*)subDetectorFile->Get(Form("%u", 400 + plotNumber));
+      prof_x0_ELE   = (TProfile*)subDetectorFile->Get(Form("%u", 500 + plotNumber));
+      prof_x0_OTH   = (TProfile*)subDetectorFile->Get(Form("%u", 600 + plotNumber));
+      prof_x0_AIR   = (TProfile*)subDetectorFile->Get(Form("%u", 700 + plotNumber));
+      // add to summary histogram
+      hist_x0_SUP->Add(   (TH1D*)prof_x0_SUP->ProjectionX("B")  , +1.000 );
+      hist_x0_SEN->Add(   (TH1D*)prof_x0_SEN->ProjectionX("B")  , +1.000 );
+      hist_x0_CAB->Add(   (TH1D*)prof_x0_CAB->ProjectionX("B")  , +1.000 );
+      hist_x0_COL->Add(   (TH1D*)prof_x0_COL->ProjectionX("B")  , +1.000 );
+      hist_x0_ELE->Add(   (TH1D*)prof_x0_ELE->ProjectionX("B")  , +1.000 );
+      hist_x0_OTH->Add(   (TH1D*)prof_x0_OTH->ProjectionX("B")  , +1.000 );
+      hist_x0_OTH->Add(   (TH1D*)prof_x0_AIR->ProjectionX("B")  , +1.000 );
+      break;
+    }
+    case 4: {
       // subDetector = "TOB";
       // subdetector profiles
       prof_x0_TOB = (TProfile*)subDetectorFile->Get(Form("%u", plotNumber));
@@ -270,7 +298,7 @@ void createPlots(TString plot){
       hist_x0_OTH->Add(   (TH1D*)prof_x0_AIR->ProjectionX("B")  , +1.000 );
       break;
     }
-    case 4: {
+    case 5: {
       // subDetector = "TEC";
       // subdetector profiles
       prof_x0_TEC = (TProfile*)subDetectorFile->Get(Form("%u", plotNumber));
@@ -293,14 +321,14 @@ void createPlots(TString plot){
       hist_x0_OTH->Add(   (TH1D*)prof_x0_AIR->ProjectionX("B")  , +1.000 );
       break;
     }
-    case 5: {
+    case 6: {
       // subDetector = "TkStrct";
       // subdetector profiles
       prof_x0_Outside = (TProfile*)subDetectorFile->Get(Form("%u", plotNumber));
       hist_x0_Outside = (TH1D*)prof_x0_Outside->ProjectionX();
       break;
     }
-    case 6: {
+    case 7: {
       // subDetector = "PixBar";
       // subdetector profiles
       prof_x0_PixBar = (TProfile*)subDetectorFile->Get(Form("%u", plotNumber));
@@ -323,7 +351,7 @@ void createPlots(TString plot){
       hist_x0_OTH->Add(   (TH1D*)prof_x0_AIR->ProjectionX("B")  , +1.000 );
       break;
     }
-    case 7: {
+    case 8: {
       // subDetector = "PixFwdPlus";
       // subdetector profiles
       prof_x0_PixFwdPlus = (TProfile*)subDetectorFile->Get(Form("%u", plotNumber));
@@ -346,7 +374,7 @@ void createPlots(TString plot){
       hist_x0_OTH->Add(   (TH1D*)prof_x0_AIR->ProjectionX("B")  , +1.000 );
       break;
     }
-    case 8: {
+    case 9: {
       subDetector = "PixFwdMinus";
       // subdetector profiles
       prof_x0_PixFwdMinus = (TProfile*)subDetectorFile->Get(Form("%u", plotNumber));
@@ -369,7 +397,7 @@ void createPlots(TString plot){
       hist_x0_OTH->Add(   (TH1D*)prof_x0_AIR->ProjectionX("B")  , +1.000 );
       break;
     }
-    case 9: {
+    case 10: {
       // subDetector = "BeamPipe";
       // subdetector profiles
       prof_x0_BeamPipe = (TProfile*)subDetectorFile->Get(Form("%u", plotNumber));

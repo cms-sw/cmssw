@@ -63,7 +63,7 @@ TrackerMaterialBudgetComparison(TString detector) {
   // detector
   theDetector = detector;
   if(
-     theDetector!="TIB" && theDetector!="TIDF" && theDetector!="TIDB" 
+     theDetector!="TIB" && theDetector!="TIDF" && theDetector!="TIDB" && theDetector!="InnerServices"
      && theDetector!="TOB" && theDetector!="TEC" && theDetector!="TkStrct" 
      && theDetector!="PixBar" && theDetector!="PixFwdPlus" && theDetector!="PixFwdMinus" 
      && theDetector!="Tracker" && theDetector!="TrackerSum"
@@ -85,20 +85,20 @@ TrackerMaterialBudgetComparison(TString detector) {
     theDetectorFileName_new = "matbdg_TIB_new.root";
   }
   if(theDetector == "Pixel") {
-    iFirst = 7;
-    iLast  = 8;
+    iFirst = 8;
+    iLast  = 9;
     theDetectorFileName_old = "matbdg_PixBar_old.root";
     theDetectorFileName_new = "matbdg_PixBar_new.root";
   }
   if(theDetector == "Strip") {
     iFirst = 1;
-    iLast  = 4;
+    iLast  = 5;
     theDetectorFileName_old = "matbdg_TIB_old.root";
     theDetectorFileName_new = "matbdg_TIB_new.root";
   }
   if(theDetector == "InnerTracker") {
     iFirst = 1;
-    iLast  = 2;
+    iLast  = 3;
     theDetectorFileName = "matbdg_TIB.root";
   }
   cout << "*** Open file... " << endl;
@@ -209,26 +209,30 @@ void createPlots(TString plot) {
 	break;
       }
       case 3: {
-	subDetector = "TOB";
+	subDetector = "InnerServices";
 	break;
       }
       case 4: {
-	subDetector = "TEC";
+	subDetector = "TOB";
 	break;
       }
       case 5: {
-	subDetector = "TkStrct";
+	subDetector = "TEC";
 	break;
       }
       case 6: {
-	subDetector = "PixBar";
+	subDetector = "TkStrct";
 	break;
       }
       case 7: {
-	subDetector = "PixFwdPlus";
+	subDetector = "PixBar";
 	break;
       }
       case 8: {
+	subDetector = "PixFwdPlus";
+	break;
+      }
+      case 9: {
 	subDetector = "PixFwdMinus";
 	break;
       }
