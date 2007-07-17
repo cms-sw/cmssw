@@ -41,9 +41,9 @@ class TIDLayer : public RingedForwardLayer, public GeometricSearchDetWithGroups 
   //  bool isCompatible( const TrajectoryStateOnSurface& ms,
   //	     const MeasurementEstimator& est) const;
 
-  int findClosest( const std::vector<GlobalPoint>& ) const;
+  int findClosest( const GlobalPoint[3] ) const;
   
-  int findNextIndex( const std::vector<GlobalPoint>& , int ) const;
+  int findNextIndex( const GlobalPoint[3] , int ) const;
   
   bool overlapInR( const TrajectoryStateOnSurface& tsos, int i, double ymax) const;
   

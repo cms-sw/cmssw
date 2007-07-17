@@ -286,7 +286,7 @@ TIDLayer::orderAndMergeLevels(const TrajectoryStateOnSurface& tsos,
 }
 
 int
-TIDLayer::findClosest(const vector<GlobalPoint>& ringCrossing ) const
+TIDLayer::findClosest(const GlobalPoint ringCrossing[3] ) const
 {
   int theBin = 0;
   const TIDRing* theFrontRing = dynamic_cast<const TIDRing*>(theComps[0]);
@@ -294,7 +294,7 @@ TIDLayer::findClosest(const vector<GlobalPoint>& ringCrossing ) const
   //	     theComps.front()->specificSurface().outerRadius())/2.;
   float initialR = 0.5*( theFrontRing->specificSurface().innerRadius() +
 			 theFrontRing->specificSurface().outerRadius());
-  float rDiff = fabs( ringCrossing.front().perp() - initialR);
+  float rDiff = fabs( ringCrossing[0].perp() - initialR);
   for (int i = 1; i < 3 ; i++){
     const TIDRing* theRing = dynamic_cast<const TIDRing*>(theComps[i]);
     float ringR = 0.5*( theRing->specificSurface().innerRadius() + 
@@ -309,7 +309,7 @@ TIDLayer::findClosest(const vector<GlobalPoint>& ringCrossing ) const
 }
 
 int
-TIDLayer::findNextIndex(const vector<GlobalPoint>& ringCrossing, int closest ) const
+TIDLayer::findNextIndex(const GlobalPoint ringCrossing[3], int closest ) const
 {
 
   int firstIndexToCheck = (closest != 0)? 0 : 1; 
@@ -317,7 +317,7 @@ TIDLayer::findNextIndex(const vector<GlobalPoint>& ringCrossing, int closest ) c
   float initialR = ( theFrontRing->specificSurface().innerRadius() +
 		     theFrontRing->specificSurface().outerRadius())/2.;	     
 
-  float rDiff = fabs( ringCrossing.front().perp() - initialR);
+  float rDiff = fabs( ringCrossing[0].perp() - initialR);
   int theBin = firstIndexToCheck;
   for (int i = firstIndexToCheck+1; i < 3 ; i++){
     if ( i != closest) {
