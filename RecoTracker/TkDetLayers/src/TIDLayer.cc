@@ -20,7 +20,7 @@ typedef GeometricSearchDet::DetWithState DetWithState;
 class TIDringLess : public binary_function< int, int, bool> {
   // z-position ordering of TID rings indices
 public:
-  bool operator()( const pair<vector<DetGroup>,int> & a,const pair<vector<DetGroup>,int> & b) const {
+  bool operator()( const pair<vector<DetGroup> const *,int> & a,const pair<vector<DetGroup>const *,int> & b) const {
     if(a.second==2) {return true;}
     else if(a.second==0) {
       if(b.second==2) return false;
@@ -55,9 +55,6 @@ TIDLayer::TIDLayer(vector<const TIDRing*>& rings):
 			  << this->specificSurface().bounds().thickness() << " , "
 			  << this->specificSurface().innerRadius() << " , "
 			  << this->specificSurface().outerRadius() ;
-
-
-
 }
 
 
@@ -175,25 +172,22 @@ TIDLayer::ringIndicesByCrossingProximity(const TrajectoryStateOnSurface& startin
   
   Crossing myXing(  startPos, startDir, rho, propDir );
 
-  vector<GlobalPoint>   ringCrossings;
-  vector<GlobalVector>  ringXDirections;
+  GlobalPoint   ringCrossings[3];
+  // vector<GlobalVector>  ringXDirections;
 
   for (int i = 0; i < 3 ; i++ ) {
     const TIDRing* theRing = dynamic_cast<const TIDRing*>(theComps[i]);
     pair<bool,double> pathlen = myXing.pathLength( theRing->specificSurface());
     if ( pathlen.first ) { 
-      ringCrossings.push_back( GlobalPoint( myXing.position(pathlen.second )));
-      ringXDirections.push_back( GlobalVector( myXing.direction(pathlen.second )));
+      ringCrossings[i] = GlobalPoint( myXing.position(pathlen.second ));
+      // ringXDirections.push_back( GlobalVector( myXing.direction(pathlen.second )));
     } else {
       // TO FIX.... perhaps there is something smarter to do
       //throw DetLayerException("trajectory doesn't cross TID rings");
-      ringCrossings.push_back( GlobalPoint( 0.,0.,0.));
-      ringXDirections.push_back( GlobalVector( 0.,0.,0.));
+      ringCrossings[i] = GlobalPoint( 0.,0.,0.);
+      //  ringXDirections.push_back( GlobalVector( 0.,0.,0.));
     }
   }
-  if (ringCrossings.size() != 3 )  
-    throw DetLayerException("TIDLayer::groupedCompDets => Problem with crossing size, not equal 3 !");
-  
 
   int closestIndex = findClosest(ringCrossings);
   int nextIndex    = findNextIndex(ringCrossings,closestIndex);
@@ -228,33 +222,33 @@ TIDLayer::computeWindowSize( const GeomDet* det,
 }
 
 namespace {
-  void mergeOutward(vector< pair<vector<DetGroup>,int> > const & groupPlusIndex, 
+  void mergeOutward(vector< pair<vector<DetGroup> const *,int> > const & groupPlusIndex, 
 		    std::vector<DetGroup> & result ) {
     typedef DetGroupMerger Merger;
-    Merger::orderAndMergeTwoLevels(groupPlusIndex[0].first,
-				   groupPlusIndex[1].first,result,1,1);
+    Merger::orderAndMergeTwoLevels(*groupPlusIndex[0].first,
+				   *groupPlusIndex[1].first,result,1,1);
     int size = groupPlusIndex.size();
     if(size==3) {
       std::vector<DetGroup> tmp;
       tmp.swap(result);
-      Merger::orderAndMergeTwoLevels(tmp,groupPlusIndex[2].first,result,1,1);      
+      Merger::orderAndMergeTwoLevels(tmp,*groupPlusIndex[2].first,result,1,1);      
     }
     
   }
   
-  void mergeInward(vector< pair<vector<DetGroup>,int> > const & groupPlusIndex, 
+  void mergeInward(vector< pair<vector<DetGroup> const *,int> > const & groupPlusIndex, 
 		   std::vector<DetGroup> & result ) {
     typedef DetGroupMerger Merger;
     int size = groupPlusIndex.size();
     
     if(size==2){
-      Merger::orderAndMergeTwoLevels(groupPlusIndex[1].first,
-				     groupPlusIndex[0].first,result,1,1);
+      Merger::orderAndMergeTwoLevels(*groupPlusIndex[1].first,
+				     *groupPlusIndex[0].first,result,1,1);
     }else if(size==3){	
       std::vector<DetGroup> tmp;
-      Merger::orderAndMergeTwoLevels(groupPlusIndex[2].first,
-				     groupPlusIndex[1].first,tmp,1,1);
-      Merger::orderAndMergeTwoLevels(tmp,groupPlusIndex[0].first,result,1,1);      
+      Merger::orderAndMergeTwoLevels(*groupPlusIndex[2].first,
+				     *groupPlusIndex[1].first,tmp,1,1);
+      Merger::orderAndMergeTwoLevels(tmp,*groupPlusIndex[0].first,result,1,1);      
     }      
   }
 }
@@ -262,13 +256,14 @@ namespace {
 void
 TIDLayer::orderAndMergeLevels(const TrajectoryStateOnSurface& tsos,
 			      const Propagator& prop,
-			      const vector<vector<DetGroup> > groups,
-			      const vector<int> indices,
+			      const vector<vector<DetGroup> > & groups,
+			      const vector<int> & indices,
 			      std::vector<DetGroup> & result )
 {
-  vector< pair<vector<DetGroup>,int> > groupPlusIndex;
+  vector< pair<vector<DetGroup> const *,int> > groupPlusIndex;
+
   for(unsigned int i=0;i<groups.size();i++){
-    groupPlusIndex.push_back(pair<vector<DetGroup>,int>(groups[i],indices[i]) );
+    groupPlusIndex.push_back(pair<vector<DetGroup> const *,int>(&groups[i],indices[i]) );
   }
   //order is ring3,ring1,ring2
   std::sort(groupPlusIndex.begin(),groupPlusIndex.end(),TIDringLess());
@@ -297,12 +292,13 @@ TIDLayer::findClosest(const vector<GlobalPoint>& ringCrossing ) const
   const TIDRing* theFrontRing = dynamic_cast<const TIDRing*>(theComps[0]);
   //float initialR = ( theComps.front()->specificSurface().innerRadius() +
   //	     theComps.front()->specificSurface().outerRadius())/2.;
-  float initialR = ( theFrontRing->specificSurface().innerRadius() +
-		     theFrontRing->specificSurface().outerRadius())/2.;
+  float initialR = 0.5*( theFrontRing->specificSurface().innerRadius() +
+			 theFrontRing->specificSurface().outerRadius());
   float rDiff = fabs( ringCrossing.front().perp() - initialR);
-  for (int i = 0; i < 3 ; i++){
+  for (int i = 1; i < 3 ; i++){
     const TIDRing* theRing = dynamic_cast<const TIDRing*>(theComps[i]);
-    float ringR = ( theRing->specificSurface().innerRadius() + theRing->specificSurface().outerRadius())/2.;
+    float ringR = 0.5*( theRing->specificSurface().innerRadius() + 
+			theRing->specificSurface().outerRadius());
     float testDiff = fabs( ringCrossing[i].perp() - ringR);
     if ( theBin<0 || testDiff<rDiff ) {
       rDiff = testDiff;
@@ -326,7 +322,8 @@ TIDLayer::findNextIndex(const vector<GlobalPoint>& ringCrossing, int closest ) c
   for (int i = firstIndexToCheck+1; i < 3 ; i++){
     if ( i != closest) {
       const TIDRing* theRing = dynamic_cast<const TIDRing*>(theComps[i]);
-      float ringR = ( theRing->specificSurface().innerRadius() + theRing->specificSurface().outerRadius())/2.;
+      float ringR = ( theRing->specificSurface().innerRadius() + 
+		      theRing->specificSurface().outerRadius())/2.;
       float testDiff = fabs( ringCrossing[i].perp() - ringR);
       if ( testDiff<rDiff ) {
 	rDiff = testDiff;
@@ -356,9 +353,7 @@ TIDLayer::overlapInR( const TrajectoryStateOnSurface& tsos, int index, double ym
 
   // do the theta regions overlap ?
 
-  if ( thetamin > thetaRingMax || thetaRingMin > thetamax) { return false;}
-
-  return true;
+  return !( thetamin > thetaRingMax || thetaRingMin > thetamax);
 }
 
 

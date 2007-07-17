@@ -35,7 +35,7 @@ class TIDLayer : public RingedForwardLayer, public GeometricSearchDetWithGroups 
   virtual BoundDisk* computeDisk( const std::vector<const TIDRing*>& rings) const;
 
   virtual std::vector<int> ringIndicesByCrossingProximity(const TrajectoryStateOnSurface& startingState,
-						     const Propagator& prop ) const;
+							  const Propagator& prop ) const;
 
  protected:  
   //  bool isCompatible( const TrajectoryStateOnSurface& ms,
@@ -55,8 +55,8 @@ class TIDLayer : public RingedForwardLayer, public GeometricSearchDetWithGroups 
   static void
   orderAndMergeLevels(const TrajectoryStateOnSurface& tsos,
 		      const Propagator& prop,
-		      const std::vector<std::vector<DetGroup> > groups,
-		      const std::vector<int> indices,
+		      const std::vector<std::vector<DetGroup> > & groups,
+		      const std::vector<int> & indices,
 		      std::vector<DetGroup> & result );
 
 
