@@ -5,6 +5,7 @@
  */
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
+#include <vector> 
 
 class ZToLLEdmNtupleDumper : public edm::EDProducer {
 public:
