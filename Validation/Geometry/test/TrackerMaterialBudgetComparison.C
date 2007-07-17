@@ -68,7 +68,7 @@ TrackerMaterialBudgetComparison(TString detector) {
      && theDetector!="PixBar" && theDetector!="PixFwdPlus" && theDetector!="PixFwdMinus" 
      && theDetector!="Tracker" && theDetector!="TrackerSum"
      && theDetector!="Pixel" && theDetector!="Strip"
-     &7 theDetector!="InnerTracker"
+     && theDetector!="InnerTracker"
      ){
     cerr << "MaterialBudget - ERROR detector not found " << theDetector << endl;
     break;
@@ -99,7 +99,8 @@ TrackerMaterialBudgetComparison(TString detector) {
   if(theDetector == "InnerTracker") {
     iFirst = 1;
     iLast  = 3;
-    theDetectorFileName = "matbdg_TIB.root";
+    theDetectorFileName_old = "matbdg_TIB_old.root";
+    theDetectorFileName_new = "matbdg_TIB_new.root";
   }
   cout << "*** Open file... " << endl;
   cout << " old: " << theDetectorFileName_old << endl;
