@@ -1,8 +1,8 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.9 $
-///  last update: $Date: 2007/07/09 14:16:44 $
+///  Revision   : $Revision: 1.10 $
+///  last update: $Date: 2007/07/09 14:33:14 $
 ///  by         : $Author: pivarski $
 
 #include "Alignment/CommonAlignmentProducer/plugins/AlignmentProducer.h"
@@ -351,10 +351,10 @@ void AlignmentProducer::endOfJob()
        Alignments*      cscAlignments      = theAlignableMuon->cscAlignments();
        AlignmentErrors* cscAlignmentErrors = theAlignableMuon->cscAlignmentErrors();
 
-       std::string dtAlignRecordName( "DTAlignments" );
-       std::string dtErrorRecordName( "DTAlignmentErrors" );
-       std::string cscAlignRecordName( "CSCAlignments" );
-       std::string cscErrorRecordName( "CSCAlignmentErrors" );
+       std::string dtAlignRecordName( "DTAlignmentRcd" );
+       std::string dtErrorRecordName( "DTAlignmentErrorRcd" );
+       std::string cscAlignRecordName( "CSCAlignmentRcd" );
+       std::string cscErrorRecordName( "CSCAlignmentErrorRcd" );
 
        if (poolDbService->isNewTagRequest(dtAlignRecordName)) {
 	  poolDbService->createNewIOV<Alignments>( &(*dtAlignments), poolDbService->endOfTime(), dtAlignRecordName);
