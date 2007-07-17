@@ -74,9 +74,9 @@ void FedTrackerMap::drawApvPair(int nlay, int numfed_inlayer, bool print_total, 
     if(!print_total)apvPair->value=apvPair->value*apvPair->count;//restore mod->value
     
     if(apvPair->count > 0)
-      *svgfile <<"<polygon detid=\""<<apvPair->idex<<"\" count=\""<<apvPair->count <<"\" value=\""<<apvPair->value<<"\" id=\""<<apvPair->idex<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<apvPair->text<<"\" POS=\"Fed/Ch "<<apvPair->getFedId()<<"/"<<apvPair->getFedCh()<<" connected to "<<apvPair->mod->name<<" Id "<<buffer<<" \" fill=\"rgb(255,"<<255-green<<",0)\" points=\"";
+      *svgfile <<"<svg:polygon detid=\""<<apvPair->idex<<"\" count=\""<<apvPair->count <<"\" value=\""<<apvPair->value<<"\" id=\""<<apvPair->idex<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<apvPair->text<<"\" POS=\"Fed/Ch "<<apvPair->getFedId()<<"/"<<apvPair->getFedCh()<<" connected to "<<apvPair->mod->name<<" Id "<<buffer<<" \" fill=\"rgb(255,"<<255-green<<",0)\" points=\"";
     else
-      *svgfile <<"<polygon detid=\""<<apvPair->idex<<"\" count=\""<<apvPair->count <<"\" value=\""<<apvPair->value<<"\" id=\""<<apvPair->idex<<"\"  onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<apvPair->text<<"\" POS=\"Fed/Ch "<<apvPair->getFedId()<<"/"<<apvPair->getFedCh()<<" connected to "<<apvPair->mod->name<<" Id "<<buffer<<" \" fill=\"white\" points=\"";
+      *svgfile <<"<svg:polygon detid=\""<<apvPair->idex<<"\" count=\""<<apvPair->count <<"\" value=\""<<apvPair->value<<"\" id=\""<<apvPair->idex<<"\"  onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<apvPair->text<<"\" POS=\"Fed/Ch "<<apvPair->getFedId()<<"/"<<apvPair->getFedCh()<<" connected to "<<apvPair->mod->name<<" Id "<<buffer<<" \" fill=\"white\" points=\"";
     for(int k=0;k<np;k++){
       *svgfile << xd[k] << "," << yd[k] << " " ;
     }
@@ -85,7 +85,7 @@ void FedTrackerMap::drawApvPair(int nlay, int numfed_inlayer, bool print_total, 
     if(apvPair->red>255)apvPair->red=255;
     if(apvPair->green>255)apvPair->green=255;
     if(apvPair->blue>255)apvPair->blue=255;
-    *svgfile <<"<polygon detid=\""<<apvPair->idex<<"\" count=\""<<apvPair->count <<"\" value=\""<<apvPair->value<<"\" id=\""<<apvPair->idex<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<apvPair->text<<"\" POS=\"Fed/Ch "<<apvPair->getFedId()<<"/"<<apvPair->getFedCh()<<" connected to "<<apvPair->mod->name<<" Id "<<buffer<<" \" fill=\"rgb("<<apvPair->red<<","<<apvPair->green<<","<<apvPair->blue<<")\" points=\"";
+    *svgfile <<"<svg:polygon detid=\""<<apvPair->idex<<"\" count=\""<<apvPair->count <<"\" value=\""<<apvPair->value<<"\" id=\""<<apvPair->idex<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""<<apvPair->text<<"\" POS=\"Fed/Ch "<<apvPair->getFedId()<<"/"<<apvPair->getFedCh()<<" connected to "<<apvPair->mod->name<<" Id "<<buffer<<" \" fill=\"rgb("<<apvPair->red<<","<<apvPair->green<<","<<apvPair->blue<<")\" points=\"";
     for(int k=0;k<np;k++){
       *svgfile << xd[k] << "," << yd[k] << " " ;
     }
@@ -97,7 +97,7 @@ void FedTrackerMap::drawApvPair(int nlay, int numfed_inlayer, bool print_total, 
 void FedTrackerMap::print(bool print_total, float minval, float maxval)
 {
   minvalue=minval; maxvalue=maxval;
-  svgfile = new ofstream("svgmap_fed.svg",ios::out);
+  svgfile = new ofstream("svgmap_fed.xml",ios::out);
   jsfile = new ifstream("trackermap.txt",ios::in);
   
   //copy javascript interface from trackermap.txt file
@@ -153,9 +153,10 @@ void FedTrackerMap::print(bool print_total, float minval, float maxval)
       }
     }
   }
-  *svgfile << "</g></svg>"<<endl;
-  *svgfile << " <text id=\"Title\" class=\"normalText\"  x=\"100\" y=\"0\">"<<title<<"</text>"<<endl;
-  *svgfile << "</svg>"<<endl;
+  *svgfile << "</svg:g></svg:svg>"<<endl;
+  *svgfile << " <svg:text id=\"Title\" class=\"normalText\"  x=\"100\" y=\"0\">"<<title<<"</svg:text>"<<endl;
+  *svgfile << "</svg:svg>"<<endl;
+  *svgfile << "</body></html>"<<endl;
 }
 
 void FedTrackerMap::fillc(int fedId,int fedCh, int red, int green, int blue  )
