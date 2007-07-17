@@ -1,6 +1,6 @@
 /*
- *  $Date: 2007/06/22 17:18:48 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/07/13 16:07:50 $
+ *  $Revision: 1.7 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -14,7 +14,9 @@
 #include "GeneratorInterface/AlpgenInterface/interface/AlpgenSource.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/HepMCProduct/interface/AlpgenInfoProduct.h"
+#include "SimDataFormats/HepMCProduct/interface/AlpWgtFileInfoProduct.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/JamesRandom.h"
@@ -56,18 +58,18 @@ AlpgenSource::AlpgenSource( const ParameterSet & pset,
 {
   
   cout << "ALPGEN file base: " << fileNames()[0] << endl;
-  string fileName = fileNames()[0];
+  fileName_ = fileNames()[0];
   // strip the file: 
-  if ( fileName.find("file:") || fileName.find("rfio:")){
-    fileName.erase(0,5);
+  if ( fileName_.find("file:") || fileName_.find("rfio:")){
+    fileName_.erase(0,5);
   }   
 
   // open the .unw file to store additional 
   // informations in the AlpgenInfoProduct
-  unwfile = new ifstream((fileName+".unw").c_str());
+  unwfile = new ifstream((fileName_+".unw").c_str());
   // get the number of input events from  _unw.par files
   char buffer[256];
-  ifstream reader((fileName+"_unw.par").c_str());
+  ifstream reader((fileName_+"_unw.par").c_str());
   char sNev[80];
   while ( reader.getline (buffer,256) ) {
     istringstream is(buffer);
@@ -143,7 +145,7 @@ AlpgenSource::AlpgenSource( const ParameterSet & pset,
       call_txgive(*itPar);          
     }
   // giving to txgive a string with the alpgen filename
-  string tmpstring = "UNWFILE = " + fileName;
+  string tmpstring = "UNWFILE = " + fileName_;
   call_txgive(tmpstring);
   }
   
@@ -167,6 +169,8 @@ AlpgenSource::AlpgenSource( const ParameterSet & pset,
   
   produces<HepMCProduct>();
   produces<AlpgenInfoProduct>();
+
+  produces<AlpWgtFileInfoProduct, edm::InRun>();
   cout << "AlpgenSource: starting event generation ... " << endl;
 }
 
@@ -183,9 +187,20 @@ void AlpgenSource::clear() {
   
 }
 
+void AlpgenSource::beginRun(Run & r) {
+  // information on weighted events
+  auto_ptr<AlpWgtFileInfoProduct> wgtFile(new AlpWgtFileInfoProduct());
+  
+  ifstream wgtascii((fileName_+".wgt").c_str());
+  char buffer[512];
+  while(wgtascii.getline(buffer,512)) {
+    wgtFile->AddEvent(buffer);
+  }
+  r.put(wgtFile);
+}
 
 bool AlpgenSource::produce(Event & e) {
-
+  
   // exit if N(events asked) has been exceeded
   if(event()> Nev_) {
     return false;

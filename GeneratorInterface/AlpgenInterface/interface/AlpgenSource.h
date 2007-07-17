@@ -52,8 +52,8 @@ namespace edm
   private:
     
     virtual bool produce(Event & e);
-    void clear();
-    
+    void beginRun(Run& r);
+    void clear();    
     HepMC::GenEvent  *evt;
     
     /// Pythia PYLIST Verbosity flag
@@ -63,7 +63,8 @@ namespace edm
     /// Events to print if verbosity
     unsigned int maxEventsToPrint_;    
     
- 
+    std::string fileName_;
+    
     // for single particle generation in pythia
     int    particleID;
     bool   doubleParticle;
