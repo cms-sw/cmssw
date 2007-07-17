@@ -55,11 +55,11 @@ class CompositeTECPetal : public TECPetal{
 			std::vector<DetGroup>& result,
 			bool checkClosest) const;
 
-  bool overlap( const GlobalPoint& gpos, const GeometricSearchDet& rod, float window) const;
+  bool overlap( const GlobalPoint& gpos, const GeometricSearchDet& rod, float window);
 
   float computeWindowSize( const GeomDet* det, 
 			   const TrajectoryStateOnSurface& tsos, 
-			   const MeasurementEstimator& est) const;
+			   const MeasurementEstimator& est);
 
   int findBin( float R,int layer) const;
   
@@ -75,6 +75,9 @@ class CompositeTECPetal : public TECPetal{
   std::vector<const GeometricSearchDet*> theFrontComps;
   std::vector<const GeometricSearchDet*> theBackComps;
   std::vector<const GeomDet*> theBasicComps;
+
+  std::vector<float> theFrontBoundaries;
+  std::vector<float> theBackBoundaries;
 
   ReferenceCountingPointer<BoundDiskSector> theFrontSector;
   ReferenceCountingPointer<BoundDiskSector> theBackSector;  
