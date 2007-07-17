@@ -70,6 +70,7 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
   } 
   TSOS currTsos;
   if (hits.front()->isValid()) {
+
     //update
     TransientTrackingRecHit::RecHitPointer preciseHit = hits.front()->clone(predTsos);
     currTsos = updator()->update(predTsos, *preciseHit);
@@ -79,8 +80,8 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
     currTsos = predTsos;
     myTraj.push(TM(predTsos, *hits.begin() ));
   }
-  const TransientTrackingRecHit & firsthit = *hits.front();
-  
+
+  const TransientTrackingRecHit & firsthit = *hits.front();  
   if (firsthit.isValid()){  
     LogDebug("TrackFitters")
       <<" ----------------- FIRST HIT -----------------------\n"
@@ -119,6 +120,14 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
   }
 
   for(RecHitContainer::const_iterator ihit = hits.begin() + 1; ihit != hits.end(); ihit++) {
+
+    if ((**ihit).isValid() == false) {
+      try { (**ihit).surface(); } 
+      catch (...){
+	LogDebug("TrackFitters")<< " Error: invalid hit with no GeomDet attached .... skipping";
+	continue;
+      }
+    }
 
     if ((**ihit).isValid()){
       LogDebug("TrackFitters")
