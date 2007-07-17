@@ -1,6 +1,6 @@
 /** \class HLTRapGapFilter
  *
- * $Id: HLTRapGapFilter.cc,v 1.2 2007/03/08 22:46:25 apana Exp $
+ * $Id: HLTRapGapFilter.cc,v 1.1 2007/07/17 19:28:07 apana Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -54,7 +54,7 @@ HLTRapGapFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // look at all candidates,  check cuts and add to filter object
   int n(0);
   
-  std::cout << "Found " << recocalojets->size() << " jets in this event" << std::endl;
+  //std::cout << "Found " << recocalojets->size() << " jets in this event" << std::endl;
 
   if(recocalojets->size() > 1){
     // events with two or more jets
@@ -73,15 +73,15 @@ HLTRapGapFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if(fabs(etajet) > absEtaMin_ && fabs(etajet) < absEtaMax_)
 	{
 	  sumets += etjet;
-	  std::cout << "Adding jet with eta = " << etajet << ", and e = " 
-		    << etjet << std::endl;
+	  //std::cout << "Adding jet with eta = " << etajet << ", and e = " 
+	  //	    << etjet << std::endl;
 	}
       countjets++;
     }
 
-    std::cout << "Sum jet energy = " << sumets << std::endl;
+    //std::cout << "Sum jet energy = " << sumets << std::endl;
     if(sumets<=caloThresh_){
-      std::cout << "Passed filter!" << std::endl;
+      //std::cout << "Passed filter!" << std::endl;
       for (reco::CaloJetCollection::const_iterator recocalojet = recocalojets->begin(); 
 	   recocalojet<=(recocalojets->begin()+1); recocalojet++) {
 	ref=edm::RefToBase<reco::Candidate>(reco::CaloJetRef(recocalojets,
