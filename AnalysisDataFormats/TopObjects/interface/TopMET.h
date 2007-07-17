@@ -1,5 +1,5 @@
 //
-// $Id: TopMET.h,v 1.6 2007/07/05 23:09:31 lowette Exp $
+// $Id: TopMET.h,v 1.7 2007/07/05 23:49:59 lowette Exp $
 //
 
 #ifndef TopObjects_TopMET_h
@@ -12,7 +12,7 @@
    TopMET contains a missing ET 4-vector as a TopObject
 
   \author   Steven Lowette
-  \version  $Id: TopMET.h,v 1.6 2007/07/05 23:09:31 lowette Exp $
+  \version  $Id: TopMET.h,v 1.7 2007/07/05 23:49:59 lowette Exp $
 */
 
 
@@ -36,15 +36,6 @@ class TopMET : public TopObject<TopMETType> {
     virtual ~TopMET();
           
     reco::Particle getGenMET() const;
-    // solve for neutrino Pz constraining to the W mass in W -> mu + nu
-    // type defines how to choose the roots:
-    // type = 1: the closest nu_pz to mu_pz if real roots,
-    //           or just the real part if solution is complex.
-    // type = 2: pending
-    // type = 3: pending
-    TopParticle    getPz(const TopParticle & lepton, int type = 0);
-    // return true if the solution is complex
-    bool           isSolutionComplex() const;
 
   protected:
 
@@ -53,7 +44,6 @@ class TopMET : public TopObject<TopMETType> {
   protected:
 
     std::vector<reco::Particle> genMET_;
-    bool isComplex_;
 
 };
 
