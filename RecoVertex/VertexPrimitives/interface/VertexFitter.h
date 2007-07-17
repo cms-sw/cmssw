@@ -3,6 +3,7 @@
 
 #include "RecoVertex/VertexPrimitives/interface/CachingVertex.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include <vector>
 
@@ -28,13 +29,14 @@ public:
   virtual CachingVertex 
   vertex(const vector<reco::TransientTrack> & tracks) const = 0;
 
-  /** Fit vertex out of a set of VertexTracks
+  /** Fit vertex out of a set of VertexTracks. For the first iteration, the already 
+   * linearized track will be used.
    */
   virtual CachingVertex 
   vertex(const vector<RefCountedVertexTrack> & tracks) const = 0;
 
   /** Fit vertex out of a set of TransientTracks. 
-   *  Uses the specified linearization point.
+   *  The specified point will be used as linearization point, but will NOT be used as prior.
    */
   virtual CachingVertex 
   vertex(const vector<reco::TransientTrack> & tracks, const GlobalPoint& linPoint) const = 0;
@@ -48,9 +50,16 @@ public:
   vertex(const vector<reco::TransientTrack> & tracks, const GlobalPoint& priorPos,
   	 const GlobalError& priorError) const = 0;
 
+  /** Fit vertex out of a set of TransientTracks. 
+   *  The specified BeamSpot will be used as priot, but NOT for the linearization.
+   * The specified LinearizationPointFinder will be used to find the linearization point.
+   */
+  virtual CachingVertex 
+  vertex(const vector<reco::TransientTrack> & tracks, const reco::BeamSpot& beamSpot) const = 0;
+
   /** Fit vertex out of a set of VertexTracks.
    *  Uses the specified point and error as the prior estimate of the vertex.
-   *  This position is not used to relinearize the tracks.
+   *  This position is NOT used to relinearize the tracks.
    */
   virtual CachingVertex 
   vertex(const vector<RefCountedVertexTrack> & tracks, 

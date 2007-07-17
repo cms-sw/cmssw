@@ -1,5 +1,6 @@
 #include "RecoVertex/VertexPrimitives/interface/BasicSingleVertexState.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
+#include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
 
 
 typedef BasicSingleVertexState              BSVS;
@@ -21,3 +22,8 @@ VertexState::VertexState(const GlobalPoint & pos,
 VertexState::VertexState(const AlgebraicVector & weightTimesPosition,
 	const GlobalWeight & posWeight,	const double & weightInMix) :
   Base ( new BSVS (weightTimesPosition, posWeight, weightInMix)) {}
+
+VertexState::VertexState(const reco::BeamSpot& beamSpot) :
+  Base ( new BSVS ( RecoVertex::convertPos(beamSpot.position()), 
+  	RecoVertex::convertError(beamSpot.rotatedCovariance3D()), 1.0)) {}
+
