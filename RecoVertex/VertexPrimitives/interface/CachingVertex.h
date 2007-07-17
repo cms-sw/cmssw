@@ -35,7 +35,7 @@ public:
   CachingVertex(const GlobalPoint & pos, const GlobalWeight & posWeight, 
 		const vector<RefCountedVertexTrack> & tks, float totalChiSq);
 
-  CachingVertex(const AlgebraicVector3 & weightTimesPosition, 
+  CachingVertex(const AlgebraicVector & weightTimesPosition, 
 		const GlobalWeight & posWeight, 
 		const vector<RefCountedVertexTrack> & tks, 
 		float totalChiSq);
@@ -49,7 +49,7 @@ public:
 		const vector<RefCountedVertexTrack> & tks, float totalChiSq);
 
   CachingVertex(const GlobalPoint & priorPos, const GlobalError & priorErr,
-  		const AlgebraicVector3 & weightTimesPosition, 
+  		const AlgebraicVector & weightTimesPosition, 
 		const GlobalWeight & posWeight, 
 		const vector<RefCountedVertexTrack> & tks, 
 		float totalChiSq);
@@ -82,7 +82,7 @@ public:
   GlobalPoint position() const;
   GlobalError error() const;
   GlobalWeight weight() const;
-  AlgebraicVector3 weightTimesPosition() const;
+  AlgebraicVector weightTimesPosition() const;
   vector<RefCountedVertexTrack> tracks() const { return theTracks; }
   GlobalPoint priorPosition() const {return priorVertexState().position();}
   GlobalError priorError() const {return priorVertexState().error();}
@@ -100,7 +100,7 @@ public:
 
   /** Track to track covariance
    */
-  AlgebraicMatrix33 tkToTkCovariance(const RefCountedVertexTrack t1, 
+  AlgebraicMatrix tkToTkCovariance(const RefCountedVertexTrack t1, 
 				   const RefCountedVertexTrack t2) const;
   bool tkToTkCovarianceIsAvailable() const { return theCovMapAvailable; }
 

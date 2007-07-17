@@ -32,7 +32,7 @@ CachingVertex::CachingVertex(const GlobalPoint & pos,
 
 
 //to be removed
-CachingVertex::CachingVertex(const AlgebraicVector3 & weightTimesPosition, 
+CachingVertex::CachingVertex(const AlgebraicVector & weightTimesPosition, 
 			     const GlobalWeight & posWeight, 
 			     const vector<RefCountedVertexTrack> & tks, 
 			     float totalChiSq)
@@ -105,7 +105,7 @@ CachingVertex::CachingVertex(const GlobalPoint & priorPos,
 //to be removed
 CachingVertex::CachingVertex(const GlobalPoint & priorPos, 
 			     const GlobalError & priorErr,
-			     const AlgebraicVector3 & weightTimesPosition, 
+			     const AlgebraicVector & weightTimesPosition, 
 			     const GlobalWeight & posWeight, 
 			     const vector<RefCountedVertexTrack> & tks, 
 			     float totalChiSq)
@@ -154,7 +154,7 @@ GlobalWeight CachingVertex::weight() const
 }
 
 
-AlgebraicVector3 CachingVertex::weightTimesPosition() const 
+AlgebraicVector CachingVertex::weightTimesPosition() const 
 {
   return theVertexState.weightTimesPosition();
 }
@@ -186,7 +186,7 @@ void CachingVertex::computeNDF() const
 }
 
 
-AlgebraicMatrix33 
+AlgebraicMatrix 
 CachingVertex::tkToTkCovariance(const RefCountedVertexTrack t1, 
 				const RefCountedVertexTrack t2) const
 {

@@ -8,7 +8,7 @@
  *          elt = map of(key = RecTrack, elt = covariance matrix))
  */
 
-typedef std::map<reco::TransientTrack, AlgebraicMatrix33> TTmap;
+typedef std::map<reco::TransientTrack, AlgebraicMatrix> TTmap;
 typedef std::map<reco::TransientTrack, TTmap> TTtoTTmap;
 
 
