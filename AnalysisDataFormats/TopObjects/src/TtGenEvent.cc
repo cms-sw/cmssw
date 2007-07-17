@@ -1,5 +1,5 @@
 //
-// $Id: TtGenEvent.cc,v 1.7 2007/07/05 23:25:17 lowette Exp $
+// $Id: TtGenEvent.cc,v 1.8 2007/07/09 14:59:49 lowette Exp $
 //
 
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
@@ -38,24 +38,11 @@ TtGenEvent::numberOfBQuarks() const
   const reco::CandidateCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
     if (abs(partsColl[i].pdgId())==5) {// &&
-//        abs(partsColl[i].mother()->pdgId())==6) {
+      //abs(partsColl[i].mother()->pdgId())==6) {
       ++bq;
     }
   }  
   return bq;
-}
-
-const reco::Candidate*
-TtGenEvent::candidate(int id) const
-{
-  const reco::Candidate* cand=0;
-  const reco::CandidateCollection & partsColl = *parts_;
-  for (unsigned int i = 0; i < partsColl.size(); ++i) {
-    if (partsColl[i].pdgId()==id) {
-      cand = &partsColl[i];
-    }
-  }  
-  return cand;
 }
 
 const reco::Candidate* 

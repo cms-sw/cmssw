@@ -3,6 +3,7 @@
 #include "AnalysisDataFormats/TopObjects/interface/TopMET.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/StGenEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TopGenEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtDilepEvtSolution.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiMassSolution.h"
@@ -57,10 +58,13 @@ namespace {
 
     TtGenEvent                                            ttgen;
     StGenEvent                                            stgen;
+    TopGenEvent                                           topgen;
     edm::Wrapper<TtGenEvent>                              w_ttgen;
     edm::Wrapper<StGenEvent>                              w_stgen;
+    edm::Wrapper<TopGenEvent>                             w_topgen;
     edm::RefProd<TtGenEvent>                              rp_ttgen;
     edm::RefProd<StGenEvent>                              rp_stgen;
+    edm::RefProd<TopGenEvent>                             rp_topgen;
 
     TtDilepEvtSolution                                    ttdilep;
     TtSemiEvtSolution                                     ttsemi;
