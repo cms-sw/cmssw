@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: TestMuons.cc,v 1.1 2007/07/12 19:27:56 dmytro Exp $
+// $Id: TestMuons.cc,v 1.2 2007/07/16 23:57:33 dmytro Exp $
 //
 //
 
@@ -12,7 +12,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/View.h"
+#include "DataFormats/Common/interface/View.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 
