@@ -150,8 +150,7 @@ SubLayerCrossings TECLayer::computeCrossings(const TrajectoryStateOnSurface& sta
     << gFrontPoint.phi() << ")" << endl;
   
 
-  int frontIndex = theFrontBinFinder.binIndex(gFrontPoint.phi());
-  float frontDist = theFrontComps[frontIndex]->surface().phi()  - gFrontPoint.phi(); 
+  int frontIndex = theFrontBinFinder.binIndex(gFrontPoint.barePhi()); 
   SubLayerCrossing frontSLC( 0, frontIndex, gFrontPoint);
 
 
@@ -168,16 +167,16 @@ SubLayerCrossings TECLayer::computeCrossings(const TrajectoryStateOnSurface& sta
     << gBackPoint.phi() << ")" << endl;
 
 
-  int backIndex = theBackBinFinder.binIndex(gBackPoint.phi());
-  float backDist = theBackComps[backIndex]->surface().phi()  - gBackPoint.phi(); 
+  int backIndex = theBackBinFinder.binIndex(gBackPoint.barePhi());
   SubLayerCrossing backSLC( 1, backIndex, gBackPoint);
 
   
   // 0ss: frontDisk has index=0, backDisk has index=1
-  frontDist *= PhiLess()( theFrontComps[frontIndex]->surface().phi(),gFrontPoint.phi()) ? -1. : 1.; 
-  backDist  *= PhiLess()( theBackComps[backIndex]->surface().phi(),gBackPoint.phi()) ? -1. : 1.;
-  if (frontDist < 0.) { frontDist += 2.*Geom::pi();}
-  if ( backDist < 0.) { backDist  += 2.*Geom::pi();}
+  float frontDist = std::abs(Geom::deltaPhi( double(gFrontPoint.barePhi()), 
+					     double(theFrontDets[frontIndex]->surface().phi())));
+  float backDist = std::abs(Geom::deltaPhi( double(gBackPoint.barePhi()), 
+					    double(theBackDets[backIndex]->surface().phi())));
+  
 
   if (frontDist < backDist) {
     return SubLayerCrossings( frontSLC, backSLC, 0);

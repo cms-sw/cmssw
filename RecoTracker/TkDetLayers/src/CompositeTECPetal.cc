@@ -42,7 +42,7 @@ namespace details {
     std::transform(dets.begin(), dets.end(),  boundaries.begin(),
 		   boost::bind(&GlobalPoint::perp,boost::bind(&GeometricSearchDet::position,_1))
 		   );
-    std::adjacent_difference(boundaries.begin()+1,boundaries.end(),  boundaries.begin(), Mean());
+    std::adjacent_difference(boundaries.begin(),boundaries.end(),  boundaries.begin(), Mean());
   }
 
   int findBin(std::vector<float> const & boundaries, float r) {
