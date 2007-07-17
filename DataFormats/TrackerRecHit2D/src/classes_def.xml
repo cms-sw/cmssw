@@ -32,7 +32,9 @@
   <class name="edm::Ref< edm::SiStripRefGetter<SiStripCluster>, SiStripCluster, edm::FindValue< SiStripCluster> >"/>
 
   <class pattern="edm::RefBase<*>"/>
-  <class pattern="edm::RefItem<*>"/>
+  <class pattern="edm::RefItem<*>">
+    <field name="ptr_" transient="true"/>
+  </class>
 
   <class name="std::map<DetId, std::pair<unsigned int, unsigned int> >"/>
   <class name="std::map<DetId, std::pair<unsigned long, unsigned long> >"/>
