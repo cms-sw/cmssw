@@ -3,8 +3,12 @@
 <use name=DQMServices/Components>
 <use name=DQMServices/WebComponents>
 <use name=DQMServices/ClientConfig>
+<use name=CalibFormats/SiStripObjects>
+<use name=CondFormats/SiStripObjects>
+<use name=CondFormats/DataRecord>
 <use name=CommonTools/TrackerMap>
 <use name=boost>
+
 <flags EDM_PLUGIN=1>
 
 <export>
@@ -14,6 +18,9 @@
   <use name=DQMServices/Components>
   <use name=DQMServices/WebComponents>
   <use name=DQMServices/ClientConfig>
+  <use name=CalibFormats/SiStripObjects>
+  <use name=CondFormats/SiStripObjects>
+  <use name=CondFormats/DataRecord>
   <use name=CommonTools/TrackerMap>
   <use name=boost>
 </export>
