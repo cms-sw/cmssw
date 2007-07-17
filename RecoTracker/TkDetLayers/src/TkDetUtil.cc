@@ -5,6 +5,7 @@
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/DetLayers/interface/rangesIntersect.h"
 
 
 namespace tkDetUtil {
@@ -56,8 +57,8 @@ namespace tkDetUtil {
     float phimax = phimin;
     for ( int i = 1; i<4; i++) {
       float cPhi = corners[i];
-      if ( Geom::phiLess(( cPhi, phimin)) { phimin = cPhi; }
-      if ( Geom::phiLess( phimax, cPhi)) { phimax = cPhi; }
+      if ( Geom::phiLess(cPhi, phimin) ) { phimin = cPhi; }
+      if ( Geom::phiLess( phimax, cPhi) ) { phimax = cPhi; }
     }
     float phiWindow = phimax - phimin;
     if ( phiWindow < 0.) { phiWindow +=  2.*Geom::pi();}
