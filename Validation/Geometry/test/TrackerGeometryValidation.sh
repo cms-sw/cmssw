@@ -39,17 +39,18 @@ fi
 
 # Download the reference files and rename them to 'old'
 echo "Download the reference 'old' files..." | tee -a $reportFile
-cp $referenceDir/matbdg_TkStrct.root     matbdg_TkStrct_old.root 
-cp $referenceDir/matbdg_PixBar.root      matbdg_PixBar_old.root 
-cp $referenceDir/matbdg_PixFwdPlus.root  matbdg_PixFwdPlus_old.root 
-cp $referenceDir/matbdg_PixFwdMinus.root matbdg_PixFwdMinus_old.root 
-cp $referenceDir/matbdg_TIB.root         matbdg_TIB_old.root 
-cp $referenceDir/matbdg_TIDF.root        matbdg_TIDF_old.root 
-cp $referenceDir/matbdg_TIDB.root        matbdg_TIDB_old.root 
-cp $referenceDir/matbdg_TOB.root         matbdg_TOB_old.root 
-cp $referenceDir/matbdg_TEC.root         matbdg_TEC_old.root 
-cp $referenceDir/matbdg_Tracker.root     matbdg_Tracker_old.root 
-cp $referenceDir/matbdg_BeamPipe.root    matbdg_BeamPipe_old.root 
+cp $referenceDir/matbdg_TkStrct.root       matbdg_TkStrct_old.root 
+cp $referenceDir/matbdg_PixBar.root        matbdg_PixBar_old.root 
+cp $referenceDir/matbdg_PixFwdPlus.root    matbdg_PixFwdPlus_old.root 
+cp $referenceDir/matbdg_PixFwdMinus.root   matbdg_PixFwdMinus_old.root 
+cp $referenceDir/matbdg_TIB.root           matbdg_TIB_old.root 
+cp $referenceDir/matbdg_TIDF.root          matbdg_TIDF_old.root 
+cp $referenceDir/matbdg_TIDB.root          matbdg_TIDB_old.root 
+cp $referenceDir/matbdg_InnerServices.root matbdg_InnerServices_old.root 
+cp $referenceDir/matbdg_TOB.root           matbdg_TOB_old.root 
+cp $referenceDir/matbdg_TEC.root           matbdg_TEC_old.root 
+cp $referenceDir/matbdg_Tracker.root       matbdg_Tracker_old.root 
+cp $referenceDir/matbdg_BeamPipe.root      matbdg_BeamPipe_old.root 
 echo "...done" | tee -a $reportFile
 #
 
@@ -58,59 +59,64 @@ echo "Run all the scripts to produce the 'new' files..." | tee -a $reportFile
 #
 echo "Running Tracker Structure..." | tee -a $reportFile
 rm -rf TkStrct.txt
-cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_TkStrct.cfg     > TkStrct.txt
+cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_TkStrct.cfg       > TkStrct.txt
 echo "...done" | tee -a $reportFile
 echo "Running Pixel Barrel..." | tee -a $reportFile
 rm -rf PixBar.txt
-cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_PixBar.cfg      > PixBar.txt
+cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_PixBar.cfg        > PixBar.txt
 echo "...done" | tee -a $reportFile
 echo "Running Pixel Forward Plus..." | tee -a $reportFile
 rm -rf PixFwdPlus.txt
-cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_PixFwdPlus.cfg  > PixFwdPlus.txt
+cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_PixFwdPlus.cfg    > PixFwdPlus.txt
 echo "...done" | tee -a $reportFile
 echo "Running Pixel Forward Minus..." | tee -a $reportFile
 rm -rf  PixFwdMinus.txt
-cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_PixFwdMinus.cfg > PixFwdMinus.txt
+cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_PixFwdMinus.cfg   > PixFwdMinus.txt
 echo "...done" | tee -a $reportFile
 echo "Running TIB..." | tee -a $reportFile
 rm -rf TIB.txt
-cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_TIB.cfg         > TIB.txt
+cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_TIB.cfg           > TIB.txt
 echo "...done" | tee -a $reportFile
 echo "Running TID+..." | tee -a $reportFile
 rm -rf TIDF.txt
-cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_TIDF.cfg        > TIDF.txt
+cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_TIDF.cfg          > TIDF.txt
 echo "...done" | tee -a $reportFile
 echo "Running TID-..." | tee -a $reportFile
 rm -rf TIDB.txt
-cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_TIDB.cfg        > TIDB.txt
+cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_TIDB.cfg          > TIDB.txt
+echo "...done" | tee -a $reportFile
+echo "Running Inner Tracker Services..." | tee -a $reportFile
+rm -rf InnerServices.txt
+cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_InnerServices.cfg > InnerServices.txt
 echo "...done" | tee -a $reportFile
 echo "Running TOB..." | tee -a $reportFile
 rm -rf TOB.txt
-cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_TOB.cfg         > TOB.txt
+cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_TOB.cfg           > TOB.txt
 echo "...done" | tee -a $reportFile
 echo "Running TEC..." | tee -a $reportFile
 rm -rf TEC.txt
-cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_TEC.cfg         > TEC.txt
+cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_TEC.cfg           > TEC.txt
 echo "...done" | tee -a $reportFile
 echo "Running Tracker..." | tee -a $reportFile
 rm -rf Tracker.txt
-cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_Tracker.cfg     > Tracker.txt
+cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_Tracker.cfg       > Tracker.txt
 echo "...done" | tee -a $reportFile
 echo "Running BeamPipe..." | tee -a $reportFile
 rm -rf BeamPipe.txt
-cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_BeamPipe.cfg    > BeamPipe.txt
+cmsRun $CMSSW_RELEASE_BASE/src/Validation/Geometry/test/runP_BeamPipe.cfg      > BeamPipe.txt
 #
-cp matbdg_TkStrct.root     matbdg_TkStrct_new.root 
-cp matbdg_PixBar.root      matbdg_PixBar_new.root 
-cp matbdg_PixFwdPlus.root  matbdg_PixFwdPlus_new.root 
-cp matbdg_PixFwdMinus.root matbdg_PixFwdMinus_new.root 
-cp matbdg_TIB.root         matbdg_TIB_new.root 
-cp matbdg_TIDF.root        matbdg_TIDF_new.root 
-cp matbdg_TIDB.root        matbdg_TIDB_new.root 
-cp matbdg_TOB.root         matbdg_TOB_new.root 
-cp matbdg_TEC.root         matbdg_TEC_new.root 
-cp matbdg_Tracker.root     matbdg_Tracker_new.root 
-cp matbdg_BeamPipe.root    matbdg_BeamPipe_new.root 
+cp matbdg_TkStrct.root       matbdg_TkStrct_new.root 
+cp matbdg_PixBar.root        matbdg_PixBar_new.root 
+cp matbdg_PixFwdPlus.root    matbdg_PixFwdPlus_new.root 
+cp matbdg_PixFwdMinus.root   matbdg_PixFwdMinus_new.root 
+cp matbdg_TIB.root           matbdg_TIB_new.root 
+cp matbdg_TIDF.root          matbdg_TIDF_new.root 
+cp matbdg_TIDB.root          matbdg_TIDB_new.root 
+cp matbdg_InnerServices.root matbdg_InnerServices_new.root 
+cp matbdg_TOB.root           matbdg_TOB_new.root 
+cp matbdg_TEC.root           matbdg_TEC_new.root 
+cp matbdg_Tracker.root       matbdg_Tracker_new.root 
+cp matbdg_BeamPipe.root      matbdg_BeamPipe_new.root 
 echo "...done" | tee -a $reportFile
 #
 
@@ -122,6 +128,7 @@ root -b -q 'MaterialBudget.C("PixFwdMinus")'
 root -b -q 'MaterialBudget.C("TIB")'
 root -b -q 'MaterialBudget.C("TIDF")'
 root -b -q 'MaterialBudget.C("TIDB")'
+root -b -q 'MaterialBudget.C("InnerServices")'
 root -b -q 'MaterialBudget.C("TOB")'
 root -b -q 'MaterialBudget.C("TEC")'
 root -b -q 'MaterialBudget.C("TkStrct")'
@@ -142,6 +149,7 @@ root -b -q 'TrackerMaterialBudgetComparison.C("PixFwdMinus")'
 root -b -q 'TrackerMaterialBudgetComparison.C("TIB")'
 root -b -q 'TrackerMaterialBudgetComparison.C("TIDF")'
 root -b -q 'TrackerMaterialBudgetComparison.C("TIDB")'
+root -b -q 'TrackerMaterialBudgetComparison.C("InnerServices")'
 root -b -q 'TrackerMaterialBudgetComparison.C("TOB")'
 root -b -q 'TrackerMaterialBudgetComparison.C("TEC")'
 root -b -q 'TrackerMaterialBudgetComparison.C("TkStrct")'
