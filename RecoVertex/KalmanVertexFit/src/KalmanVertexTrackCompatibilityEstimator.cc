@@ -60,6 +60,8 @@ KalmanVertexTrackCompatibilityEstimator::estimate(const reco::Vertex & vertex,
   CachingVertex cachingVertex(linP, err, initialTracks,
   			    vertex.chi2());
   // FIXME: this should work also for tracks without a persistent ref.
+  return estimateNFittedTrack(cachingVertex, vertexTrack);
+  /*
   const TrackTransientTrack* ttt = dynamic_cast<const TrackTransientTrack*>(track.basicTransientTrack());
   if ((ttt!=0) && 
   	(find(vertex.tracks_begin(), vertex.tracks_end(), ttt->persistentTrackRef()) != vertex.tracks_end()))
@@ -68,6 +70,7 @@ KalmanVertexTrackCompatibilityEstimator::estimate(const reco::Vertex & vertex,
   } else {
     return estimateNFittedTrack(cachingVertex, vertexTrack);
   }
+  */
 }
 
 

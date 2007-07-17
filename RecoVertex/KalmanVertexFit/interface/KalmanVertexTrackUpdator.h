@@ -44,9 +44,9 @@ public:
    *   \return	The refitted state with the track-to-vertex covariance.
    */
 
-  pair<RefCountedRefittedTrackState, AlgebraicMatrix33> 
+  pair<RefCountedRefittedTrackState, AlgebraicMatrix> 
 	trackRefit(const VertexState & vertex,
-		RefCountedLinearizedTrackState linTrackState) const;
+		RefCountedLinearizedTrackState linTrackState, float weight=1.0 ) const;
 
   /**
    *  Clone method
