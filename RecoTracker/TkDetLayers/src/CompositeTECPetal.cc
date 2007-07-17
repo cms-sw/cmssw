@@ -15,6 +15,7 @@
 #include "DataFormats/GeometryVector/interface/VectorUtil.h"
 
 #include <boost/function.hpp>
+#include <boost/bind.hpp>
 #include<algorithm>
 #include<numeric>
 #include<iterator>
@@ -30,12 +31,18 @@ namespace {
     float operator()(const GeometricSearchDet*  a, const GeometricSearchDet* b) const {
       return 0.5*(b->position().perp()+a->position().perp());
     }
+    float operator()(float  a, float b) const {
+      return 0.5*(b+a);
+    }
   };
 
   void fillBoundaries(std::vector<const GeometricSearchDet*> const & dets,
 		      std::vector<float> & boundaries) {
     boundaries.resize(dets.size());
-    std::adjacent_difference(dets.begin(), dets.end(),  boundaries.begin(), Mean());
+    std::transfrom(dets.begin(), dets.end(),  boundaries.begin(),
+		   boost::bind(&GlobalPoint::perp,boost::bind(&GeometricSearchDet::position,_1))
+		   );
+    std::adjacent_difference(boundaries.begin()+1,boundaries.end(),  boundaries.begin(), Mean());
   }
 
   int findBin(std::vector<float> const & boundaries, float r) {
