@@ -30,11 +30,6 @@ class L1RCTParameters {
 
  public:
 
-  // Definition of a container used to store LUTs
-
-  typedef std::vector< std::pair< float, float > > ScaleFactors;
-  typedef ScaleFactors::iterator ScaleFactors_iter;
-
   // constructor
   L1RCTParameters(double eGammaLSB,
 		  double jetMETLSB,
@@ -45,8 +40,10 @@ class L1RCTParameters {
 		  double eMaxForHoECut,
 		  double eActivityCut,
 		  double hActivityCut,
-		  std::string eGammaLUTFile,
-		  std::string jetMETLUTFile
+		  std::vector<double>& eGammaECalScaleFactors,
+		  std::vector<double>& eGammaHCalScaleFactors,
+		  std::vector<double>& jetMETECalScaleFactors,
+		  std::vector<double>& jetMETHCalScaleFactors
 		  );
   // this can only be set after construction -- constructor inits to zero
   // to indicate that transcoder cannot be used -- if this function is
@@ -154,20 +151,19 @@ class L1RCTParameters {
   
   double hActivityCut_;
 
-  std::string eGammaLUTFile_;
-  std::string jetMETLUTFile_;
-
   // eGamma object ET is computed using the trigger tower ET defined as
-  // ecal * eGammaScaleFactors.first + hcal * eGammaScaleFactors.second
+  // ecal * eGammaECalScaleFactors[iEta] + hcal * eGammaHCalScaleFactors[iEta]
   // The result is then digitized using the eGamma LSB
 
-  ScaleFactors eGammaScaleFactors_;
+  std::vector<double> eGammaECalScaleFactors_;
+  std::vector<double> eGammaHCalScaleFactors_;
 
   // jetMET object ET is computed using the trigger tower ET defined as
-  // ecal * jetMETScaleFactors.first + hcal * jetMETScaleFactors.second
+  // ecal * jetMETECalScaleFactors[iEta] + hcal * jetMETHCalScaleFactors[iEta]
   // The result is then digitized using the jetMET LSB
 
-  ScaleFactors jetMETScaleFactors_;
+  std::vector<double> jetMETECalScaleFactors_;
+  std::vector<double> jetMETHCalScaleFactors_;
 
   edm::ESHandle<CaloTPGTranscoder> transcoder_;
 

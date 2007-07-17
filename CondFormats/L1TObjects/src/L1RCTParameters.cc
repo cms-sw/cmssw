@@ -1,7 +1,7 @@
 /**
  * Author: Sridhara Dasu
  * Created: 04 July 2007
- * $Id: L1RCTParameters.cc,v 1.1 2007/07/16 13:51:26 dasu Exp $
+ * $Id: L1RCTParameters.cc,v 1.2 2007/07/17 09:54:22 dasu Exp $
  **/
 
 #include <iostream>
@@ -21,8 +21,10 @@ L1RCTParameters::L1RCTParameters(double eGammaLSB,
 				 double eMaxForHoECut,
 				 double eActivityCut,
 				 double hActivityCut,
-				 std::string eGammaLUTFile,
-				 std::string jetMETLUTFile
+				 std::vector<double>& eGammaECalScaleFactors,
+				 std::vector<double>& eGammaHCalScaleFactors,
+				 std::vector<double>& jetMETECalScaleFactors,
+				 std::vector<double>& jetMETHCalScaleFactors
 				 ) :
   eGammaLSB_(eGammaLSB),
   jetMETLSB_(jetMETLSB),
@@ -33,34 +35,12 @@ L1RCTParameters::L1RCTParameters(double eGammaLSB,
   eMaxForHoECut_(eMaxForHoECut),
   eActivityCut_(eActivityCut),
   hActivityCut_(hActivityCut),
-  eGammaLUTFile_(eGammaLUTFile),
-  jetMETLUTFile_(jetMETLUTFile),
-  eGammaScaleFactors_(),
-  jetMETScaleFactors_(),
+  eGammaECalScaleFactors_(eGammaECalScaleFactors),
+  eGammaHCalScaleFactors_(eGammaHCalScaleFactors),
+  jetMETECalScaleFactors_(jetMETECalScaleFactors),
+  jetMETHCalScaleFactors_(jetMETHCalScaleFactors),
   transcoder_()
 {
-  std::ifstream eFile;
-  eFile.open(eGammaLUTFile.c_str());
-  if( eFile )
-    {
-      char junk[1024];
-      eFile >> junk;
-      int iEta;
-      float eFactor, hFactor;
-      eFile >> iEta >> eFactor >> hFactor;
-      eGammaScaleFactors_.push_back(std::pair<float, float>(eFactor, hFactor));
-    }
-  std::ifstream hFile;
-  hFile.open(jetMETLUTFile.c_str());
-  if( hFile )
-    {
-      char junk[1024];
-      hFile >> junk;
-      int iEta;
-      float eFactor, hFactor;
-      hFile >> iEta >> eFactor >> hFactor;
-      jetMETScaleFactors_.push_back(std::pair<float, float>(eFactor, hFactor));
-    }
 }
 
 // maps rct iphi, ieta of tower to crate
@@ -204,15 +184,17 @@ unsigned long L1RCTParameters::convertToInteger(float et,
 
 unsigned int L1RCTParameters::eGammaETCode(float ecal, float hcal, int iAbsEta)
 {
-  float etLinear = eGammaScaleFactors_[iAbsEta].first * ecal +
-    eGammaScaleFactors_[iAbsEta].second * hcal;
+  float etLinear = 
+    eGammaECalScaleFactors_[iAbsEta] * ecal +
+    eGammaHCalScaleFactors_[iAbsEta] * hcal;
   return convertToInteger(etLinear, eGammaLSB_, 7);
 }
 
 unsigned int L1RCTParameters::jetMETETCode(float ecal, float hcal, int iAbsEta)
 {
-  float etLinear = jetMETScaleFactors_[iAbsEta].first * ecal +
-    jetMETScaleFactors_[iAbsEta].second * hcal;
+  float etLinear = 
+    jetMETECalScaleFactors_[iAbsEta] * ecal +
+    jetMETHCalScaleFactors_[iAbsEta] * hcal;
   return convertToInteger(etLinear, jetMETLSB_, 9);
 }
 
