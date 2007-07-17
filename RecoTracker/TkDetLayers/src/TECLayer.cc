@@ -173,9 +173,9 @@ SubLayerCrossings TECLayer::computeCrossings(const TrajectoryStateOnSurface& sta
   
   // 0ss: frontDisk has index=0, backDisk has index=1
   float frontDist = std::abs(Geom::deltaPhi( double(gFrontPoint.barePhi()), 
-					     double(theFrontDets[frontIndex]->surface().phi())));
+					     double(theFrontComps[frontIndex]->surface().phi())));
   float backDist = std::abs(Geom::deltaPhi( double(gBackPoint.barePhi()), 
-					    double(theBackDets[backIndex]->surface().phi())));
+					    double(theBackComps[backIndex]->surface().phi())));
   
 
   if (frontDist < backDist) {
