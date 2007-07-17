@@ -55,8 +55,10 @@ class CompositeTECPetal : public TECPetal{
 			std::vector<DetGroup>& result,
 			bool checkClosest) const;
 
+  static
   bool overlap( const GlobalPoint& gpos, const GeometricSearchDet& rod, float window);
 
+  static
   float computeWindowSize( const GeomDet* det, 
 			   const TrajectoryStateOnSurface& tsos, 
 			   const MeasurementEstimator& est);

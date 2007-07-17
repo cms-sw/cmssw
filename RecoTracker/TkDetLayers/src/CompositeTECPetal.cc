@@ -25,7 +25,7 @@ using namespace std;
 typedef GeometricSearchDet::DetWithState DetWithState;
 
 
-namespace {
+namespace details {
 
   struct Mean {
     float operator()(const GeometricSearchDet*  a, const GeometricSearchDet* b) const {
@@ -39,7 +39,7 @@ namespace {
   void fillBoundaries(std::vector<const GeometricSearchDet*> const & dets,
 		      std::vector<float> & boundaries) {
     boundaries.resize(dets.size());
-    std::transfrom(dets.begin(), dets.end(),  boundaries.begin(),
+    std::transform(dets.begin(), dets.end(),  boundaries.begin(),
 		   boost::bind(&GlobalPoint::perp,boost::bind(&GeometricSearchDet::position,_1))
 		   );
     std::adjacent_difference(boundaries.begin()+1,boundaries.end(),  boundaries.begin(), Mean());
@@ -62,8 +62,8 @@ CompositeTECPetal::CompositeTECPetal(vector<const TECWedge*>& innerWedges,
   theComps.assign(theFrontComps.begin(),theFrontComps.end());
   theComps.insert(theComps.end(),theBackComps.begin(),theBackComps.end());
 
-  fillBoundaries( theFrontComps, theFrontBoundaries);
-  fillBoundaries( theBackComps, theBackBoundaries);
+  details::fillBoundaries( theFrontComps, theFrontBoundaries);
+  details::fillBoundaries( theBackComps, theBackBoundaries);
 
 
   for(vector<const GeometricSearchDet*>::const_iterator it=theComps.begin();
@@ -240,7 +240,7 @@ bool CompositeTECPetal::addClosest( const TrajectoryStateOnSurface& tsos,
     << "wedge comps size: " 
     << det->basicComponents().size();
 
-  return CompatibleDetToGroupAdder().add( *det, tsos, prop, est, result);
+  return CompatibleDetToGroupAdder::add( *det, tsos, prop, est, result);
 }
 
 
@@ -287,7 +287,7 @@ CompositeTECPetal::searchNeighbors( const TrajectoryStateOnSurface& tsos,
     //if(idet<0 || idet>= theSize) {edm::LogInfo(TkDetLayers) << "===== error! gone out vector bounds.idet: " << idet ;exit;}
     const GeometricSearchDet & neighborWedge = *sLayer[idet];
     if (!overlap( gCrossingPos, neighborWedge, window)) break;  // ---- to check
-    if (!adder::add( neighborWedge, tsos, prop, est, result)) break;
+    if (!Adder::add( neighborWedge, tsos, prop, est, result)) break;
     // maybe also add shallow crossing angle test here???
   }
 }
@@ -331,7 +331,7 @@ float CompositeTECPetal::computeWindowSize( const GeomDet* det,
 
 int CompositeTECPetal::findBin( float R, int diskSectorType) const 
 {
-  return findBin(diskSectorType==0 ? theFrontBoundaries : theBackBoundaries,R);
+  return details::findBin(diskSectorType==0 ? theFrontBoundaries : theBackBoundaries,R);
 }
 
 
