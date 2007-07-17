@@ -28,14 +28,14 @@ namespace {
 
   struct Mean {
     float operator()(const GeometricSearchDet*  a, const GeometricSearchDet* b) const {
-      return 0.5*(b->position.perp()+a->position.perp());
+      return 0.5*(b->position().perp()+a->position().perp());
     }
   };
 
   void fillBoundaries(std::vector<const GeometricSearchDet*> const & dets,
-		      std::vector<float> & boundaries} {
+		      std::vector<float> & boundaries) {
     boundaries.resize(dets.size());
-    std::adjacent_difference(dets.begin(), dets.end(),  boundaries, Mean());
+    std::adjacent_difference(dets.begin(), dets.end(),  boundaries.begin(), Mean());
   }
 
   int findBin(std::vector<float> const & boundaries, float r) {
