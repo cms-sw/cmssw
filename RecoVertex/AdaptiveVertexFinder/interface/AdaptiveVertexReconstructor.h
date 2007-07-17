@@ -29,6 +29,9 @@ public:
   AdaptiveVertexReconstructor( const edm::ParameterSet & s );
 
   std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack> & v ) const;
+  
+  std::vector<TransientVertex> 
+    vertices(const std::vector<reco::TransientTrack> &, const reco::BeamSpot & ) const; 
 
   virtual AdaptiveVertexReconstructor * clone() const {
     return new AdaptiveVertexReconstructor( * this );
@@ -41,6 +44,12 @@ public:
   TransientVertex cleanUp ( const TransientVertex & old ) const;
 
 private:
+  /**
+   *  the actual fit to avoid code duplication
+   */
+  std::vector<TransientVertex> 
+    vertices( const std::vector<reco::TransientTrack> &, const reco::BeamSpot &,
+              bool usespot ) const; 
 
   /**
    *  contrary to what its name has you believe, ::erase removes all

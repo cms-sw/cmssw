@@ -3,6 +3,7 @@
 #include "RecoVertex/VertexTools/interface/GeometricAnnealing.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "RecoVertex/VertexTools/interface/DummyVertexSmoother.h"
 #include <algorithm>
 
 using namespace std;
@@ -46,11 +47,6 @@ AdaptiveVertexReconstructor::AdaptiveVertexReconstructor( const edm::ParameterSe
 
 TransientVertex AdaptiveVertexReconstructor::cleanUp ( const TransientVertex & old ) const
 {
-  if ( old.hasPrior() )
-  {
-    std::cout << "[AdaptiveVertexReconstructor] WARNING prior is discarded!" << std::endl;
-  }
-  // TransientVertex ret ( old );
   vector < reco::TransientTrack > trks = old.originalTracks();
   vector < reco::TransientTrack > newtrks;
   TransientVertex::TransientTrackToFloatMap mp;
@@ -63,22 +59,55 @@ TransientVertex AdaptiveVertexReconstructor::cleanUp ( const TransientVertex & o
       mp[*i]=old.trackWeight ( *i );
     }
   }
-  TransientVertex ret ( old.vertexState(), newtrks,
-                        old.totalChiSquared(), old.degreesOfFreedom() );
-  ret.weightMap ( mp );
+
+  TransientVertex ret;
+
+  if ( old.hasPrior() )
+  {
+    VertexState priorstate ( old.priorPosition(), old.priorError() );
+    ret=TransientVertex ( priorstate, old.vertexState(), newtrks,
+        old.totalChiSquared(), old.degreesOfFreedom() );
+  } else {
+    ret=TransientVertex ( old.vertexState(), newtrks,
+                          old.totalChiSquared(), old.degreesOfFreedom() );
+  }
+  ret.weightMap ( mp ); // set weight map
+  vector < reco::TransientTrack > newrfs;
+  vector < reco::TransientTrack > oldrfs=old.refittedTracks();
+  for ( vector< reco::TransientTrack >::const_iterator i=oldrfs.begin(); i!=oldrfs.end() ; ++i )
+  {
+    if ( old.trackWeight ( old.originalTrack ( *i ) ) > 1.e-8 )
+    {
+      newrfs.push_back ( *i );
+    }
+  }
+  ret.refittedTracks ( newrfs ); // copy refitted tracks
   return ret;
+}
+  
+std::vector<TransientVertex> 
+    AdaptiveVertexReconstructor::vertices(const std::vector<reco::TransientTrack> & t, 
+        const reco::BeamSpot & s ) const
+{
+  return vertices ( t,s, true );
 }
 
 std::vector<TransientVertex> AdaptiveVertexReconstructor::vertices (
     const std::vector<reco::TransientTrack> & tracks ) const
 {
+  return vertices ( tracks, reco::BeamSpot() , false );
+}
+
+std::vector<TransientVertex> AdaptiveVertexReconstructor::vertices (
+    const std::vector<reco::TransientTrack> & tracks,
+    const reco::BeamSpot & s, bool usespot ) const
+{
   std::vector < TransientVertex > ret;
   std::set < reco::TransientTrack > remainingtrks;
-  for ( vector< reco::TransientTrack >::const_iterator i=tracks.begin();
-        i!=tracks.end() ; ++i )
-  {
-    remainingtrks.insert ( *i );
-  }
+
+  std::copy(tracks.begin(), tracks.end(), 
+	    std::inserter(remainingtrks, remainingtrks.begin()));
+
   int ctr=0;
   unsigned int n_tracks = remainingtrks.size();
   try {
@@ -91,23 +120,30 @@ std::vector<TransientVertex> AdaptiveVertexReconstructor::vertices (
         cut = thePrimCut;
       };
       GeometricAnnealing ann ( cut );
-      AdaptiveVertexFitter fitter ( ann );
+      AdaptiveVertexFitter fitter ( ann, DefaultLinearizationPointFinder(),
+          KalmanVertexUpdator(), KalmanVertexTrackCompatibilityEstimator(),
+          DummyVertexSmoother() );
       vector < reco::TransientTrack > fittrks;
       fittrks.reserve ( remainingtrks.size() );
-      for ( set < reco::TransientTrack >::const_iterator i=remainingtrks.begin();
-            i!=remainingtrks.end() ; ++i )
+
+      std::copy(remainingtrks.begin(), remainingtrks.end(), std::back_inserter(fittrks));
+
+      TransientVertex tmpvtx;
+      if ( ret.size() == 0 && usespot )
       {
-        fittrks.push_back ( *i );
+        tmpvtx=fitter.vertex ( fittrks, s );
+      } else {
+        tmpvtx=fitter.vertex ( fittrks );
       }
-      TransientVertex newvtx = cleanUp ( fitter.vertex ( fittrks ) );
+      TransientVertex newvtx = cleanUp ( tmpvtx );
       ret.push_back ( newvtx );
       erase ( newvtx, remainingtrks );
       if ( n_tracks == remainingtrks.size() )
       {
-        cout << "[AdaptiveVertexReconstructor] warning: all tracks (" << n_tracks
-             << ") would be recycled for next fit." << endl;
-        cout << "                              breaking after reconstruction of "
-             << ret.size() << " vertices." << endl;
+        edm::LogWarning("") << "all tracks (" << n_tracks
+             << ") would be recycled for next fit."
+             << " breaking after reconstruction of "
+             << ret.size() << " vertices.";
         break;
       };
       n_tracks = remainingtrks.size();
@@ -115,7 +151,6 @@ std::vector<TransientVertex> AdaptiveVertexReconstructor::vertices (
   } catch ( exception & e ) {
     // Will catch all (not enough significant tracks exceptions.
     // in this case, the iteration can safely terminate.
-
     // cout << "[AdaptiveVertexReconstructor] exception: " << e.what() << endl;
   } catch ( ... ) {
     // cout << "[AdaptiveVertexReconstructor] exception" << endl;
