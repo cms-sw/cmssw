@@ -18,6 +18,8 @@ public:
   MultiVertexReconstructor ( const MultiVertexReconstructor & );
   ~MultiVertexReconstructor();
 
+  std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack> &,
+      const reco::BeamSpot & ) const; 
   std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack> &) const; 
   std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack> &,
       const std::vector < reco::TransientTrack > & primaries ) const;
