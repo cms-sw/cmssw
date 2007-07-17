@@ -5,6 +5,8 @@ void SiStripTrackingRecHitsPlots()
  gStyle->SetOptStat(1111111);
  char*  rfilename = "striptrackingrechitshisto.root";
 
+ gStyle->SetOptStat(1111111);
+
  delete gROOT->GetListOfFiles()->FindObject(rfilename);
 
  TText* te = new TText();
@@ -12,14 +14,16 @@ void SiStripTrackingRecHitsPlots()
  Char_t histo[200];
 
  rfile->cd("DQMData");
+ rfile->cd("DQMData/ALL");
  gDirectory->ls();
-
 
 ////////////////////////////////////
 //            TIB                 //
 ////////////////////////////////////
 
  rfile->cd("DQMData/TrackingRecHits/Strip/TIB");
+
+
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(2,3);
@@ -35,8 +39,59 @@ void SiStripTrackingRecHitsPlots()
  Adc_sas_layer1tib->Draw();
  SiStrip->cd(6);
  Adc_sas_layer2tib->Draw();
- SiStrip->Print("AdcOfTIB.eps");
+ SiStrip->Print("AdcOfTIB.ps");
+ /*
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(2,3);
+ SiStrip->cd(1);
+ Pitch_rphi_layer1tib->Draw();
+ SiStrip->cd(2);
+ Pitch_rphi_layer2tib->Draw();
+ SiStrip->cd(3);
+ Pitch_rphi_layer3tib->Draw();
+ SiStrip->cd(4);
+ Pitch_rphi_layer4tib->Draw();
+ SiStrip->cd(5);
+ Pitch_sas_layer1tib->Draw();
+ SiStrip->cd(6);
+ Pitch_sas_layer2tib->Draw();
+ SiStrip->Print("PitchOfTIB.ps");
 
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(2,3);
+ SiStrip->cd(1);
+ Thickness_rphi_layer1tib->Draw();
+ SiStrip->cd(2);
+ Thickness_rphi_layer2tib->Draw();
+ SiStrip->cd(3);
+ Thickness_rphi_layer3tib->Draw();
+ SiStrip->cd(4);
+ Thickness_rphi_layer4tib->Draw();
+ SiStrip->cd(5);
+ Thickness_sas_layer1tib->Draw();
+ SiStrip->cd(6);
+ Thickness_sas_layer2tib->Draw();
+ SiStrip->Print("ThicknessOfTIB.ps");
+ */
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(2,3);
+ SiStrip->cd(1);
+ Trackwidth_rphi_layer1tib->Draw();
+ SiStrip->cd(2);
+ Trackwidth_rphi_layer2tib->Draw();
+ SiStrip->cd(3);
+ Trackwidth_rphi_layer3tib->Draw();
+ SiStrip->cd(4);
+ Trackwidth_rphi_layer4tib->Draw();
+ SiStrip->cd(5);
+ Trackwidth_sas_layer1tib->Draw();
+ SiStrip->cd(6);
+ Trackwidth_sas_layer2tib->Draw();
+ SiStrip->Print("TrackwidthOfTIB.ps");
+ 
+
+
+ /*
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(2,3);
  SiStrip->cd(1);
@@ -51,7 +106,39 @@ void SiStripTrackingRecHitsPlots()
  Pull_sas_layer1tib->Draw();
  SiStrip->cd(6);
  Pull_sas_layer2tib->Draw();
- SiStrip->Print("PullOfTIB.eps");
+ SiStrip->Print("PullOfTIB.ps");
+ */
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(2,3);
+ SiStrip->cd(1);
+ Pull_LF_rphi_layer1tib->Draw();
+ SiStrip->cd(2);
+ Pull_LF_rphi_layer2tib->Draw();
+ SiStrip->cd(3);
+ Pull_LF_rphi_layer3tib->Draw();
+ SiStrip->cd(4);
+ Pull_LF_rphi_layer4tib->Draw();
+ SiStrip->cd(5);
+ Pull_LF_sas_layer1tib->Draw();
+ SiStrip->cd(6);
+ Pull_LF_sas_layer2tib->Draw();
+ SiStrip->Print("PullLFOfTIB.ps");
+
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(2,3);
+ SiStrip->cd(1);
+ Pull_MF_rphi_layer1tib->Draw();
+ SiStrip->cd(2);
+ Pull_MF_rphi_layer2tib->Draw();
+ SiStrip->cd(3);
+ Pull_MF_rphi_layer3tib->Draw();
+ SiStrip->cd(4);
+ Pull_MF_rphi_layer4tib->Draw();
+ SiStrip->cd(5);
+ Pull_MF_sas_layer1tib->Draw();
+ SiStrip->cd(6);
+ Pull_MF_sas_layer2tib->Draw();
+ SiStrip->Print("PullMFOfTIB.ps");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(2,3);
@@ -67,8 +154,24 @@ void SiStripTrackingRecHitsPlots()
  Trackangle_sas_layer1tib->Draw();
  SiStrip->cd(6);
  Trackangle_sas_layer2tib->Draw();
- SiStrip->Print("TrackangleOfTIB.eps");
-
+ SiStrip->Print("TrackangleOfTIB.ps");
+ /*
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(2,3);
+ SiStrip->cd(1);
+ Lorentzangle_rphi_layer1tib ->Draw();
+ SiStrip->cd(2);
+ Lorentzangle_rphi_layer2tib->Draw();
+ SiStrip->cd(3);
+ Lorentzangle_rphi_layer3tib ->Draw();
+ SiStrip->cd(4);
+ Lorentzangle_rphi_layer4tib->Draw();
+ SiStrip->cd(5);
+ Lorentzangle_sas_layer1tib->Draw();
+ SiStrip->cd(6);
+ Lorentzangle_sas_layer2tib->Draw();
+ SiStrip->Print("LorentzangleOfTIB.ps");
+ */
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(2,3);
  SiStrip->cd(1);
@@ -83,7 +186,7 @@ void SiStripTrackingRecHitsPlots()
  PullTrackangleProfile_sas_layer1tib->Draw();
  SiStrip->cd(6);
  PullTrackangleProfile_sas_layer2tib->Draw();
- SiStrip->Print("PullTrackangleProfileOfTIB.eps");
+ SiStrip->Print("PullTrackangleProfileOfTIB.ps");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(2,3);
@@ -99,7 +202,7 @@ void SiStripTrackingRecHitsPlots()
  Nstp_sas_layer1tib->Draw();
  SiStrip->cd(6);
  Nstp_sas_layer2tib->Draw();
- SiStrip->Print("NstpOfTIB.eps");
+ SiStrip->Print("NstpOfTIB.ps");
    
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(2,3);
@@ -115,8 +218,8 @@ void SiStripTrackingRecHitsPlots()
  Posx_sas_layer1tib->Draw();
  SiStrip->cd(6);
  Posx_sas_layer2tib->Draw();
- SiStrip->Print("PosOfTIB.eps");
-
+ SiStrip->Print("PosOfTIB.ps");
+ /*
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(2,3);
  SiStrip->cd(1);
@@ -131,8 +234,40 @@ void SiStripTrackingRecHitsPlots()
  Errx_sas_layer1tib->Draw();
  SiStrip->cd(6);
  Errx_sas_layer2tib->Draw();
- SiStrip->Print("ErrOfTIB.eps");
+ SiStrip->Print("ErrOfTIB.ps");
+*/
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(2,3);
+ SiStrip->cd(1);
+ Errx_LF_rphi_layer1tib->Draw();
+ SiStrip->cd(2);
+ Errx_LF_rphi_layer2tib->Draw();
+ SiStrip->cd(3);
+ Errx_LF_rphi_layer3tib->Draw();
+ SiStrip->cd(4);
+ Errx_LF_rphi_layer4tib->Draw();
+ SiStrip->cd(5);
+ Errx_LF_sas_layer1tib->Draw();
+ SiStrip->cd(6);
+ Errx_LF_sas_layer2tib->Draw();
+ SiStrip->Print("ErrLFOfTIB.ps");
 
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(2,3);
+ SiStrip->cd(1);
+ Errx_MF_rphi_layer1tib->Draw();
+ SiStrip->cd(2);
+ Errx_MF_rphi_layer2tib->Draw();
+ SiStrip->cd(3);
+ Errx_MF_rphi_layer3tib->Draw();
+ SiStrip->cd(4);
+ Errx_MF_rphi_layer4tib->Draw();
+ SiStrip->cd(5);
+ Errx_MF_sas_layer1tib->Draw();
+ SiStrip->cd(6);
+ Errx_MF_sas_layer2tib->Draw();
+ SiStrip->Print("ErrMFOfTIB.ps");
+ /*
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(2,3);
  SiStrip->cd(1);
@@ -147,7 +282,55 @@ void SiStripTrackingRecHitsPlots()
  Res_sas_layer1tib->Draw();
  SiStrip->cd(6);
  Res_sas_layer2tib->Draw();
- SiStrip->Print("ResOfTIB.eps");
+ SiStrip->Print("ResOfTIB.ps");
+*/
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(2,3);
+ SiStrip->cd(1);
+ Res_LF_rphi_layer1tib->Draw();
+ SiStrip->cd(2);
+ Res_LF_rphi_layer2tib->Draw();
+ SiStrip->cd(3);
+ Res_LF_rphi_layer3tib->Draw();
+ SiStrip->cd(4);
+ Res_LF_rphi_layer4tib->Draw();
+ SiStrip->cd(5);
+ Res_LF_sas_layer1tib->Draw();
+ SiStrip->cd(6);
+ Res_LF_sas_layer2tib->Draw();
+ SiStrip->Print("ResLFOfTIB.ps");
+
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(2,3);
+ SiStrip->cd(1);
+ Res_MF_rphi_layer1tib->Draw();
+ SiStrip->cd(2);
+ Res_MF_rphi_layer2tib->Draw();
+ SiStrip->cd(3);
+ Res_MF_rphi_layer3tib->Draw();
+ SiStrip->cd(4);
+ Res_MF_rphi_layer4tib->Draw();
+ SiStrip->cd(5);
+ Res_MF_sas_layer1tib->Draw();
+ SiStrip->cd(6);
+ Res_MF_sas_layer2tib->Draw();
+ SiStrip->Print("ResMFOfTIB.ps");
+
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(2,3);
+ SiStrip->cd(1);
+ Category_rphi_layer1tib->Draw();
+ SiStrip->cd(2);
+ Category_rphi_layer2tib->Draw();
+ SiStrip->cd(3);
+ Category_rphi_layer3tib->Draw();
+ SiStrip->cd(4);
+ Category_rphi_layer4tib->Draw();
+ SiStrip->cd(5);
+ Category_sas_layer1tib->Draw();
+ SiStrip->cd(6);
+ Category_sas_layer2tib->Draw();
+ SiStrip->Print("CategoryOfTIB.ps");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(4,4);
@@ -183,7 +366,7 @@ void SiStripTrackingRecHitsPlots()
  Pullx_matched_layer2tib->Draw();
  SiStrip->cd(16);
  Pully_matched_layer2tib->Draw();
- SiStrip->Print("MatchedOfTIB.eps");
+ SiStrip->Print("MatchedOfTIB.ps");
 
 ////////////////////////////////////
 //            TOB                 //
@@ -210,27 +393,107 @@ void SiStripTrackingRecHitsPlots()
  Adc_sas_layer1tob->Draw();
  SiStrip->cd(8);
  Adc_sas_layer2tob->Draw();
- SiStrip->Print("AdcOfTOB.eps");
+ SiStrip->Print("AdcOfTOB.ps");
+ /*
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(3,3);
+ SiStrip->cd(1);
+ Pitch_rphi_layer1tob->Draw();
+ SiStrip->cd(2);
+ Pitch_rphi_layer2tob->Draw();
+ SiStrip->cd(3);
+ Pitch_rphi_layer3tob->Draw();
+ SiStrip->cd(4);
+ Pitch_rphi_layer4tob->Draw();
+ SiStrip->cd(5);
+ Pitch_rphi_layer5tob->Draw();
+ SiStrip->cd(6);
+ Pitch_rphi_layer6tob->Draw();
+ SiStrip->cd(7);
+ Pitch_sas_layer1tob->Draw();
+ SiStrip->cd(8);
+ Pitch_sas_layer2tob->Draw();
+ SiStrip->Print("PitchOfTOB.ps");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(3,3);
  SiStrip->cd(1);
- Pull_rphi_layer1tob->Draw();
+ Thickness_rphi_layer1tob->Draw();
  SiStrip->cd(2);
- Pull_rphi_layer2tob->Draw();
+ Thickness_rphi_layer2tob->Draw();
  SiStrip->cd(3);
- Pull_rphi_layer3tob->Draw();
+ Thickness_rphi_layer3tob->Draw();
  SiStrip->cd(4);
- Pull_rphi_layer4tob->Draw();
+ Thickness_rphi_layer4tob->Draw();
  SiStrip->cd(5);
- Pull_rphi_layer5tob->Draw();
+ Thickness_rphi_layer5tob->Draw();
  SiStrip->cd(6);
- Pull_rphi_layer6tob->Draw();
+ Thickness_rphi_layer6tob->Draw();
  SiStrip->cd(7);
- Pull_sas_layer1tob->Draw();
+ Thickness_sas_layer1tob->Draw();
  SiStrip->cd(8);
- Pull_sas_layer2tob->Draw();
- SiStrip->Print("PullOfTOB.eps");
+ Thickness_sas_layer2tob->Draw();
+ SiStrip->Print("ThicknessOfTOB.ps");
+ */
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(3,3);
+ SiStrip->cd(1);
+ Trackwidth_rphi_layer1tob->Draw();
+ SiStrip->cd(2);
+ Trackwidth_rphi_layer2tob->Draw();
+ SiStrip->cd(3);
+ Trackwidth_rphi_layer3tob->Draw();
+ SiStrip->cd(4);
+ Trackwidth_rphi_layer4tob->Draw();
+ SiStrip->cd(5);
+ Trackwidth_rphi_layer5tob->Draw();
+ SiStrip->cd(6);
+ Trackwidth_rphi_layer6tob->Draw();
+ SiStrip->cd(7);
+ Trackwidth_sas_layer1tob->Draw();
+ SiStrip->cd(8);
+ Trackwidth_sas_layer2tob->Draw();
+ SiStrip->Print("TrackwidthOfTOB.ps");
+
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(3,3);
+ SiStrip->cd(1);
+ Pull_LF_rphi_layer1tob->Draw();
+ SiStrip->cd(2);
+ Pull_LF_rphi_layer2tob->Draw();
+ SiStrip->cd(3);
+ Pull_LF_rphi_layer3tob->Draw();
+ SiStrip->cd(4);
+ Pull_LF_rphi_layer4tob->Draw();
+ SiStrip->cd(5);
+ Pull_LF_rphi_layer5tob->Draw();
+ SiStrip->cd(6);
+ Pull_LF_rphi_layer6tob->Draw();
+ SiStrip->cd(7);
+ Pull_LF_sas_layer1tob->Draw();
+ SiStrip->cd(8);
+ Pull_LF_sas_layer2tob->Draw();
+ SiStrip->Print("PullLFOfTOB.ps");
+
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(3,3);
+ SiStrip->cd(1);
+ Pull_MF_rphi_layer1tob->Draw();
+ SiStrip->cd(2);
+ Pull_MF_rphi_layer2tob->Draw();
+ SiStrip->cd(3);
+ Pull_MF_rphi_layer3tob->Draw();
+ SiStrip->cd(4);
+ Pull_MF_rphi_layer4tob->Draw();
+ SiStrip->cd(5);
+ Pull_MF_rphi_layer5tob->Draw();
+ SiStrip->cd(6);
+ Pull_MF_rphi_layer6tob->Draw();
+ SiStrip->cd(7);
+ Pull_MF_sas_layer1tob->Draw();
+ SiStrip->cd(8);
+ Pull_MF_sas_layer2tob->Draw();
+ SiStrip->Print("PullMFOfTOB.ps");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(3,3);
@@ -250,8 +513,28 @@ void SiStripTrackingRecHitsPlots()
  Trackangle_sas_layer1tob->Draw();
  SiStrip->cd(8);
  Trackangle_sas_layer2tob->Draw();
- SiStrip->Print("TrackangleOfTOB.eps");
-
+ SiStrip->Print("TrackangleOfTOB.ps");
+ /*
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(3,3);
+ SiStrip->cd(1);
+ Lorentzangle_rphi_layer1tob ->Draw();
+ SiStrip->cd(2);
+ Lorentzangle_rphi_layer2tob->Draw();
+ SiStrip->cd(3);
+ Lorentzangle_rphi_layer3tob ->Draw();
+ SiStrip->cd(4);
+ Lorentzangle_rphi_layer4tob->Draw();
+ SiStrip->cd(5);
+ Lorentzangle_rphi_layer5tob ->Draw();
+ SiStrip->cd(6);
+ Lorentzangle_rphi_layer6tob->Draw();
+ SiStrip->cd(7);
+ Lorentzangle_sas_layer1tob->Draw();
+ SiStrip->cd(8);
+ Lorentzangle_sas_layer2tob->Draw();
+ SiStrip->Print("LorentzangleOfTOB.ps");
+ */
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(3,3);
  SiStrip->cd(1);
@@ -270,7 +553,7 @@ void SiStripTrackingRecHitsPlots()
  PullTrackangleProfile_sas_layer1tob->Draw();
  SiStrip->cd(6);
  PullTrackangleProfile_sas_layer2tob->Draw();
- SiStrip->Print("PullTrackangleProfileOfTOB.eps");
+ SiStrip->Print("PullTrackangleProfileOfTOB.ps");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(3,3);
@@ -290,7 +573,7 @@ void SiStripTrackingRecHitsPlots()
  Nstp_sas_layer1tob->Draw();
  SiStrip->cd(8);
  Nstp_sas_layer2tob->Draw();
- SiStrip->Print("NstpOfTOB.eps");
+ SiStrip->Print("NstpOfTOB.ps");
    
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(3,3);
@@ -310,47 +593,107 @@ void SiStripTrackingRecHitsPlots()
  Posx_sas_layer1tob->Draw();
  SiStrip->cd(8);
  Posx_sas_layer2tob->Draw();
- SiStrip->Print("PosOfTOB.eps");
+ SiStrip->Print("PosOfTOB.ps");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(3,3);
  SiStrip->cd(1);
- Errx_rphi_layer1tob->Draw();
+ Errx_LF_rphi_layer1tob->Draw();
  SiStrip->cd(2);
- Errx_rphi_layer2tob->Draw();
+ Errx_LF_rphi_layer2tob->Draw();
  SiStrip->cd(3);
- Errx_rphi_layer3tob->Draw();
+ Errx_LF_rphi_layer3tob->Draw();
  SiStrip->cd(4);
- Errx_rphi_layer4tob->Draw();
+ Errx_LF_rphi_layer4tob->Draw();
  SiStrip->cd(5);
- Errx_rphi_layer5tob->Draw();
+ Errx_LF_rphi_layer5tob->Draw();
  SiStrip->cd(6);
- Errx_rphi_layer6tob->Draw();
+ Errx_LF_rphi_layer6tob->Draw();
  SiStrip->cd(7);
- Errx_sas_layer1tob->Draw();
+ Errx_LF_sas_layer1tob->Draw();
  SiStrip->cd(8);
- Errx_sas_layer2tob->Draw();
- SiStrip->Print("ErrOfTOB.eps");
+ Errx_LF_sas_layer2tob->Draw();
+ SiStrip->Print("ErrLFOfTOB.ps");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(3,3);
  SiStrip->cd(1);
- Res_rphi_layer1tob->Draw();
+ Errx_MF_rphi_layer1tob->Draw();
  SiStrip->cd(2);
- Res_rphi_layer2tob->Draw();
+ Errx_MF_rphi_layer2tob->Draw();
  SiStrip->cd(3);
- Res_rphi_layer3tob->Draw();
+ Errx_MF_rphi_layer3tob->Draw();
  SiStrip->cd(4);
- Res_rphi_layer4tob->Draw();
+ Errx_MF_rphi_layer4tob->Draw();
  SiStrip->cd(5);
- Res_rphi_layer5tob->Draw();
+ Errx_MF_rphi_layer5tob->Draw();
  SiStrip->cd(6);
- Res_rphi_layer6tob->Draw();
+ Errx_MF_rphi_layer6tob->Draw();
  SiStrip->cd(7);
- Res_sas_layer1tob->Draw();
+ Errx_MF_sas_layer1tob->Draw();
  SiStrip->cd(8);
- Res_sas_layer2tob->Draw();
- SiStrip->Print("ResOfTOB.eps");
+ Errx_MF_sas_layer2tob->Draw();
+ SiStrip->Print("ErrMFOfTOB.ps");
+
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(3,3);
+ SiStrip->cd(1);
+ Res_LF_rphi_layer1tob->Draw();
+ SiStrip->cd(2);
+ Res_LF_rphi_layer2tob->Draw();
+ SiStrip->cd(3);
+ Res_LF_rphi_layer3tob->Draw();
+ SiStrip->cd(4);
+ Res_LF_rphi_layer4tob->Draw();
+ SiStrip->cd(5);
+ Res_LF_rphi_layer5tob->Draw();
+ SiStrip->cd(6);
+ Res_LF_rphi_layer6tob->Draw();
+ SiStrip->cd(7);
+ Res_LF_sas_layer1tob->Draw();
+ SiStrip->cd(8);
+ Res_LF_sas_layer2tob->Draw();
+ SiStrip->Print("ResLFOfTOB.ps");
+
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(3,3);
+ SiStrip->cd(1);
+ Res_MF_rphi_layer1tob->Draw();
+ SiStrip->cd(2);
+ Res_MF_rphi_layer2tob->Draw();
+ SiStrip->cd(3);
+ Res_MF_rphi_layer3tob->Draw();
+ SiStrip->cd(4);
+ Res_MF_rphi_layer4tob->Draw();
+ SiStrip->cd(5);
+ Res_MF_rphi_layer5tob->Draw();
+ SiStrip->cd(6);
+ Res_MF_rphi_layer6tob->Draw();
+ SiStrip->cd(7);
+ Res_MF_sas_layer1tob->Draw();
+ SiStrip->cd(8);
+ Res_MF_sas_layer2tob->Draw();
+ SiStrip->Print("ResMFOfTOB.ps");
+
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(3,3);
+ SiStrip->cd(1);
+ Category_rphi_layer1tob->Draw();
+ SiStrip->cd(2);
+ Category_rphi_layer2tob->Draw();
+ SiStrip->cd(3);
+ Category_rphi_layer3tob->Draw();
+ SiStrip->cd(4);
+ Category_rphi_layer4tob->Draw();
+ SiStrip->cd(5);
+ Category_rphi_layer5tob->Draw();
+ SiStrip->cd(6);
+ Category_rphi_layer6tob->Draw();
+ SiStrip->cd(7);
+ Category_sas_layer1tob->Draw();
+ SiStrip->cd(8);
+ Category_sas_layer2tob->Draw();
+ SiStrip->Print("CategoryOfTOB.ps");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(4,4);
@@ -386,7 +729,7 @@ void SiStripTrackingRecHitsPlots()
  Pullx_matched_layer2tob->Draw();
  SiStrip->cd(16);
  Pully_matched_layer2tob->Draw();
- SiStrip->Print("MatchedOfTOB.eps");
+ SiStrip->Print("MatchedOfTOB.ps");
 
 ////////////////////////////////////
 //            TID                 //
@@ -406,21 +749,49 @@ void SiStripTrackingRecHitsPlots()
  Adc_sas_layer1tid->Draw();
  SiStrip->cd(5);
  Adc_sas_layer2tid->Draw();
- SiStrip->Print("AdcOfTID.eps");
+ SiStrip->Print("AdcOfTID.ps");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(3,2);
  SiStrip->cd(1);
- Pull_rphi_layer1tid->Draw();
+ Trackwidth_rphi_layer1tid->Draw();
  SiStrip->cd(2);
- Pull_rphi_layer2tid->Draw();
+ Trackwidth_rphi_layer2tid->Draw();
  SiStrip->cd(3);
- Pull_rphi_layer3tid->Draw();
+ Trackwidth_rphi_layer3tid->Draw();
  SiStrip->cd(4);
- Pull_sas_layer1tid->Draw();
+ Trackwidth_sas_layer1tid->Draw();
  SiStrip->cd(5);
- Pull_sas_layer2tid->Draw();
- SiStrip->Print("PullOfTID.eps");
+ Trackwidth_sas_layer2tid->Draw();
+ SiStrip->Print("TrackwidthOfTID.ps");
+
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(3,2);
+ SiStrip->cd(1);
+ Pull_LF_rphi_layer1tid->Draw();
+ SiStrip->cd(2);
+ Pull_LF_rphi_layer2tid->Draw();
+ SiStrip->cd(3);
+ Pull_LF_rphi_layer3tid->Draw();
+ SiStrip->cd(4);
+ Pull_LF_sas_layer1tid->Draw();
+ SiStrip->cd(5);
+ Pull_LF_sas_layer2tid->Draw();
+ SiStrip->Print("PullLFOfTID.ps");
+
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(3,2);
+ SiStrip->cd(1);
+ Pull_MF_rphi_layer1tid->Draw();
+ SiStrip->cd(2);
+ Pull_MF_rphi_layer2tid->Draw();
+ SiStrip->cd(3);
+ Pull_MF_rphi_layer3tid->Draw();
+ SiStrip->cd(4);
+ Pull_MF_sas_layer1tid->Draw();
+ SiStrip->cd(5);
+ Pull_MF_sas_layer2tid->Draw();
+ SiStrip->Print("PullMFOfTID.ps");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(3,2);
@@ -434,8 +805,22 @@ void SiStripTrackingRecHitsPlots()
  Trackangle_sas_layer1tid->Draw();
  SiStrip->cd(5);
  Trackangle_sas_layer2tid->Draw();
- SiStrip->Print("TrackangleOfTID.eps");
-
+ SiStrip->Print("TrackangleOfTID.ps");
+ /*
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(3,2);
+ SiStrip->cd(1);
+ Lorentzangle_rphi_layer1tid ->Draw();
+ SiStrip->cd(2);
+ Lorentzangle_rphi_layer2tid->Draw();
+ SiStrip->cd(3);
+ Lorentzangle_rphi_layer3tid ->Draw();
+ SiStrip->cd(4);
+ Lorentzangle_sas_layer1tid->Draw();
+ SiStrip->cd(5);
+ Lorentzangle_sas_layer2tid->Draw();
+ SiStrip->Print("LorentzangleOfTID.ps");
+ */
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(3,2);
  SiStrip->cd(1);
@@ -448,7 +833,7 @@ void SiStripTrackingRecHitsPlots()
  PullTrackangleProfile_sas_layer1tid->Draw();
  SiStrip->cd(5);
  PullTrackangleProfile_sas_layer2tid->Draw();
- SiStrip->Print("PullTrackangleProfileOfTID.eps");
+ SiStrip->Print("PullTrackangleProfileOfTID.ps");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(3,2);
@@ -462,7 +847,7 @@ void SiStripTrackingRecHitsPlots()
  Nstp_sas_layer1tid->Draw();
  SiStrip->cd(5);
  Nstp_sas_layer2tid->Draw();
- SiStrip->Print("NstpOfTID.eps");
+ SiStrip->Print("NstpOfTID.ps");
    
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(3,2);
@@ -476,35 +861,77 @@ void SiStripTrackingRecHitsPlots()
  Posx_sas_layer1tid->Draw();
  SiStrip->cd(5);
  Posx_sas_layer2tid->Draw();
- SiStrip->Print("PosOfTID.eps");
+ SiStrip->Print("PosOfTID.ps");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(3,2);
  SiStrip->cd(1);
- Errx_rphi_layer1tid->Draw();
+ Errx_LF_rphi_layer1tid->Draw();
  SiStrip->cd(2);
- Errx_rphi_layer2tid->Draw();
+ Errx_LF_rphi_layer2tid->Draw();
  SiStrip->cd(3);
- Errx_rphi_layer3tid->Draw();
+ Errx_LF_rphi_layer3tid->Draw();
  SiStrip->cd(4);
- Errx_sas_layer1tid->Draw();
+ Errx_LF_sas_layer1tid->Draw();
  SiStrip->cd(5);
- Errx_sas_layer2tid->Draw();
- SiStrip->Print("ErrOfTID.eps");
+ Errx_LF_sas_layer2tid->Draw();
+ SiStrip->Print("ErrLFOfTID.ps");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(3,2);
  SiStrip->cd(1);
- Res_rphi_layer1tid->Draw();
+ Errx_MF_rphi_layer1tid->Draw();
  SiStrip->cd(2);
- Res_rphi_layer2tid->Draw();
+ Errx_MF_rphi_layer2tid->Draw();
  SiStrip->cd(3);
- Res_rphi_layer3tid->Draw();
+ Errx_MF_rphi_layer3tid->Draw();
  SiStrip->cd(4);
- Res_sas_layer1tid->Draw();
+ Errx_MF_sas_layer1tid->Draw();
  SiStrip->cd(5);
- Res_sas_layer2tid->Draw();
- SiStrip->Print("ResOfTID.eps");
+ Errx_MF_sas_layer2tid->Draw();
+ SiStrip->Print("ErrMFOfTID.ps");
+
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(3,2);
+ SiStrip->cd(1);
+ Res_LF_rphi_layer1tid->Draw();
+ SiStrip->cd(2);
+ Res_LF_rphi_layer2tid->Draw();
+ SiStrip->cd(3);
+ Res_LF_rphi_layer3tid->Draw();
+ SiStrip->cd(4);
+ Res_LF_sas_layer1tid->Draw();
+ SiStrip->cd(5);
+ Res_LF_sas_layer2tid->Draw();
+ SiStrip->Print("ResLFOfTID.ps");
+
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(3,2);
+ SiStrip->cd(1);
+ Res_MF_rphi_layer1tid->Draw();
+ SiStrip->cd(2);
+ Res_MF_rphi_layer2tid->Draw();
+ SiStrip->cd(3);
+ Res_MF_rphi_layer3tid->Draw();
+ SiStrip->cd(4);
+ Res_MF_sas_layer1tid->Draw();
+ SiStrip->cd(5);
+ Res_MF_sas_layer2tid->Draw();
+ SiStrip->Print("ResMFOfTID.ps");
+
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(3,2);
+ SiStrip->cd(1);
+ Category_rphi_layer1tid->Draw();
+ SiStrip->cd(2);
+ Category_rphi_layer2tid->Draw();
+ SiStrip->cd(3);
+ Category_rphi_layer3tid->Draw();
+ SiStrip->cd(4);
+ Category_sas_layer1tid->Draw();
+ SiStrip->cd(5);
+ Category_sas_layer2tid->Draw();
+ SiStrip->Print("CategoryOfTID.ps");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(4,4);
@@ -540,7 +967,7 @@ void SiStripTrackingRecHitsPlots()
  Pullx_matched_layer2tid->Draw();
  SiStrip->cd(16);
  Pully_matched_layer2tid->Draw();
- SiStrip->Print("MatchedOfTID.eps");
+ SiStrip->Print("MatchedOfTID.ps");
 
 ////////////////////////////////////
 //            TEC                 //
@@ -571,31 +998,79 @@ void SiStripTrackingRecHitsPlots()
  Adc_sas_layer2tec->Draw();
  SiStrip->cd(10);
  Adc_sas_layer5tec->Draw();
- SiStrip->Print("AdcOfTEC.eps");
+ SiStrip->Print("AdcOfTEC.ps");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(3,4);
  SiStrip->cd(1);
- Pull_rphi_layer1tec->Draw();
+ Trackwidth_rphi_layer1tec->Draw();
  SiStrip->cd(2);
- Pull_rphi_layer2tec->Draw();
+ Trackwidth_rphi_layer2tec->Draw();
  SiStrip->cd(3);
- Pull_rphi_layer3tec->Draw();
+ Trackwidth_rphi_layer3tec->Draw();
  SiStrip->cd(4);
- Pull_rphi_layer4tec->Draw();
+ Trackwidth_rphi_layer4tec->Draw();
  SiStrip->cd(5);
- Pull_rphi_layer5tec->Draw();
+ Trackwidth_rphi_layer5tec->Draw();
  SiStrip->cd(6);
- Pull_rphi_layer6tec->Draw();
+ Trackwidth_rphi_layer6tec->Draw();
  SiStrip->cd(7);
- Pull_rphi_layer7tec->Draw();
+ Trackwidth_rphi_layer7tec->Draw();
  SiStrip->cd(8);
- Pull_sas_layer1tec->Draw();
+ Trackwidth_sas_layer1tec->Draw();
  SiStrip->cd(9);
- Pull_sas_layer2tec->Draw();
+ Trackwidth_sas_layer2tec->Draw();
  SiStrip->cd(10);
- Adc_sas_layer5tec->Draw();
- SiStrip->Print("PullOfTEC.eps");
+ Trackwidth_sas_layer5tec->Draw();
+ SiStrip->Print("TrackwidthOfTEC.ps");
+
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(3,4);
+ SiStrip->cd(1);
+ Pull_LF_rphi_layer1tec->Draw();
+ SiStrip->cd(2);
+ Pull_LF_rphi_layer2tec->Draw();
+ SiStrip->cd(3);
+ Pull_LF_rphi_layer3tec->Draw();
+ SiStrip->cd(4);
+ Pull_LF_rphi_layer4tec->Draw();
+ SiStrip->cd(5);
+ Pull_LF_rphi_layer5tec->Draw();
+ SiStrip->cd(6);
+ Pull_LF_rphi_layer6tec->Draw();
+ SiStrip->cd(7);
+ Pull_LF_rphi_layer7tec->Draw();
+ SiStrip->cd(8);
+ Pull_LF_sas_layer1tec->Draw();
+ SiStrip->cd(9);
+ Pull_LF_sas_layer2tec->Draw();
+ SiStrip->cd(10);
+ Pull_LF_sas_layer5tec->Draw();
+ SiStrip->Print("PullLFOfTEC.ps");
+
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(3,4);
+ SiStrip->cd(1);
+ Pull_MF_rphi_layer1tec->Draw();
+ SiStrip->cd(2);
+ Pull_MF_rphi_layer2tec->Draw();
+ SiStrip->cd(3);
+ Pull_MF_rphi_layer3tec->Draw();
+ SiStrip->cd(4);
+ Pull_MF_rphi_layer4tec->Draw();
+ SiStrip->cd(5);
+ Pull_MF_rphi_layer5tec->Draw();
+ SiStrip->cd(6);
+ Pull_MF_rphi_layer6tec->Draw();
+ SiStrip->cd(7);
+ Pull_MF_rphi_layer7tec->Draw();
+ SiStrip->cd(8);
+ Pull_MF_sas_layer1tec->Draw();
+ SiStrip->cd(9);
+ Pull_MF_sas_layer2tec->Draw();
+ SiStrip->cd(10);
+ Pull_MF_sas_layer5tec->Draw();
+ SiStrip->Print("PullMFOfTEC.ps");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(3,4);
@@ -619,8 +1094,32 @@ void SiStripTrackingRecHitsPlots()
  Trackangle_sas_layer2tec->Draw();
  SiStrip->cd(10);
  Trackangle_sas_layer5tec->Draw();
- SiStrip->Print("TrackangleOfTEC.eps");
-
+ SiStrip->Print("TrackangleOfTEC.ps");
+ /*
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(3,4);
+ SiStrip->cd(1);
+ Lorentzangle_rphi_layer1tec ->Draw();
+ SiStrip->cd(2);
+ Lorentzangle_rphi_layer2tec->Draw();
+ SiStrip->cd(3);
+ Lorentzangle_rphi_layer3tec ->Draw();
+ SiStrip->cd(4);
+ Lorentzangle_rphi_layer4tec->Draw();
+ SiStrip->cd(5);
+ Lorentzangle_rphi_layer5tec->Draw();
+ SiStrip->cd(6);
+ Lorentzangle_rphi_layer6tec->Draw();
+ SiStrip->cd(7);
+ Lorentzangle_rphi_layer7tec->Draw();
+ SiStrip->cd(8);
+ Lorentzangle_sas_layer1tec->Draw();
+ SiStrip->cd(9);
+ Lorentzangle_sas_layer2tec->Draw();
+ SiStrip->cd(10);
+ Lorentzangle_sas_layer5tec->Draw();
+ SiStrip->Print("LorentzangleOfTEC.ps");
+ */
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(3,4);
  SiStrip->cd(1);
@@ -643,7 +1142,7 @@ void SiStripTrackingRecHitsPlots()
  PullTrackangleProfile_sas_layer2tec->Draw();
  SiStrip->cd(10);
  PullTrackangleProfile_sas_layer5tec->Draw();
- SiStrip->Print("PullTrackangleProfileOfTEC.eps");
+ SiStrip->Print("PullTrackangleProfileOfTEC.ps");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(3,4);
@@ -667,7 +1166,7 @@ void SiStripTrackingRecHitsPlots()
  Nstp_sas_layer2tec->Draw();
  SiStrip->cd(10);
  Nstp_sas_layer5tec->Draw();
- SiStrip->Print("NstpOfTEC.eps");
+ SiStrip->Print("NstpOfTEC.ps");
    
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(3,4);
@@ -691,55 +1190,127 @@ void SiStripTrackingRecHitsPlots()
  Posx_sas_layer2tec->Draw();
  SiStrip->cd(10);
  Posx_sas_layer5tec->Draw();
- SiStrip->Print("PosOfTEC.eps");
+ SiStrip->Print("PosOfTEC.ps");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(3,4);
  SiStrip->cd(1);
- Errx_rphi_layer1tec->Draw();
+ Errx_LF_rphi_layer1tec->Draw();
  SiStrip->cd(2);
- Errx_rphi_layer2tec->Draw();
+ Errx_LF_rphi_layer2tec->Draw();
  SiStrip->cd(3);
- Errx_rphi_layer3tec->Draw();
+ Errx_LF_rphi_layer3tec->Draw();
  SiStrip->cd(4);
- Errx_rphi_layer4tec->Draw();
+ Errx_LF_rphi_layer4tec->Draw();
  SiStrip->cd(5);
- Errx_rphi_layer5tec->Draw();
+ Errx_LF_rphi_layer5tec->Draw();
  SiStrip->cd(6);
- Errx_rphi_layer6tec->Draw();
+ Errx_LF_rphi_layer6tec->Draw();
  SiStrip->cd(7);
- Errx_rphi_layer7tec->Draw();
+ Errx_LF_rphi_layer7tec->Draw();
  SiStrip->cd(8);
- Errx_sas_layer1tec->Draw();
+ Errx_LF_sas_layer1tec->Draw();
  SiStrip->cd(9);
- Errx_sas_layer2tec->Draw();
+ Errx_LF_sas_layer2tec->Draw();
  SiStrip->cd(10);
- Errx_sas_layer5tec->Draw();
- SiStrip->Print("ErrOfTEC.eps");
+ Errx_LF_sas_layer5tec->Draw();
+ SiStrip->Print("ErrLFOfTEC.ps");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(3,4);
  SiStrip->cd(1);
- Res_rphi_layer1tec->Draw();
+ Errx_MF_rphi_layer1tec->Draw();
  SiStrip->cd(2);
- Res_rphi_layer2tec->Draw();
+ Errx_MF_rphi_layer2tec->Draw();
  SiStrip->cd(3);
- Res_rphi_layer3tec->Draw();
+ Errx_MF_rphi_layer3tec->Draw();
  SiStrip->cd(4);
- Res_rphi_layer4tec->Draw();
+ Errx_MF_rphi_layer4tec->Draw();
  SiStrip->cd(5);
- Res_rphi_layer5tec->Draw();
+ Errx_MF_rphi_layer5tec->Draw();
  SiStrip->cd(6);
- Res_rphi_layer6tec->Draw();
+ Errx_MF_rphi_layer6tec->Draw();
  SiStrip->cd(7);
- Res_rphi_layer7tec->Draw();
+ Errx_MF_rphi_layer7tec->Draw();
  SiStrip->cd(8);
- Res_sas_layer1tec->Draw();
+ Errx_MF_sas_layer1tec->Draw();
  SiStrip->cd(9);
- Res_sas_layer2tec->Draw();
+ Errx_MF_sas_layer2tec->Draw();
  SiStrip->cd(10);
- Res_sas_layer5tec->Draw();
- SiStrip->Print("ResOfTEC.eps");
+ Errx_MF_sas_layer5tec->Draw();
+ SiStrip->Print("ErrMFOfTEC.ps");
+
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(3,4);
+ SiStrip->cd(1);
+ Res_LF_rphi_layer1tec->Draw();
+ SiStrip->cd(2);
+ Res_LF_rphi_layer2tec->Draw();
+ SiStrip->cd(3);
+ Res_LF_rphi_layer3tec->Draw();
+ SiStrip->cd(4);
+ Res_LF_rphi_layer4tec->Draw();
+ SiStrip->cd(5);
+ Res_LF_rphi_layer5tec->Draw();
+ SiStrip->cd(6);
+ Res_LF_rphi_layer6tec->Draw();
+ SiStrip->cd(7);
+ Res_LF_rphi_layer7tec->Draw();
+ SiStrip->cd(8);
+ Res_LF_sas_layer1tec->Draw();
+ SiStrip->cd(9);
+ Res_LF_sas_layer2tec->Draw();
+ SiStrip->cd(10);
+ Res_LF_sas_layer5tec->Draw();
+ SiStrip->Print("ResLFOfTEC.ps");
+
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(3,4);
+ SiStrip->cd(1);
+ Res_MF_rphi_layer1tec->Draw();
+ SiStrip->cd(2);
+ Res_MF_rphi_layer2tec->Draw();
+ SiStrip->cd(3);
+ Res_MF_rphi_layer3tec->Draw();
+ SiStrip->cd(4);
+ Res_MF_rphi_layer4tec->Draw();
+ SiStrip->cd(5);
+ Res_MF_rphi_layer5tec->Draw();
+ SiStrip->cd(6);
+ Res_MF_rphi_layer6tec->Draw();
+ SiStrip->cd(7);
+ Res_MF_rphi_layer7tec->Draw();
+ SiStrip->cd(8);
+ Res_MF_sas_layer1tec->Draw();
+ SiStrip->cd(9);
+ Res_MF_sas_layer2tec->Draw();
+ SiStrip->cd(10);
+ Res_MF_sas_layer5tec->Draw();
+ SiStrip->Print("ResMFOfTEC.ps");
+
+ TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
+ SiStrip->Divide(3,4);
+ SiStrip->cd(1);
+ Category_rphi_layer1tec->Draw();
+ SiStrip->cd(2);
+ Category_rphi_layer2tec->Draw();
+ SiStrip->cd(3);
+ Category_rphi_layer3tec->Draw();
+ SiStrip->cd(4);
+ Category_rphi_layer4tec->Draw();
+ SiStrip->cd(5);
+ Category_rphi_layer5tec->Draw();
+ SiStrip->cd(6);
+ Category_rphi_layer6tec->Draw();
+ SiStrip->cd(7);
+ Category_rphi_layer7tec->Draw();
+ SiStrip->cd(8);
+ Category_sas_layer1tec->Draw();
+ SiStrip->cd(9);
+ Category_sas_layer2tec->Draw();
+ SiStrip->cd(10);
+ Category_sas_layer5tec->Draw();
+ SiStrip->Print("CategoryOfTEC.ps");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(4,3);
@@ -767,7 +1338,7 @@ void SiStripTrackingRecHitsPlots()
  Errx_matched_layer5tec->Draw();
  SiStrip->cd(12);
  Erry_matched_layer5tec->Draw();
- SiStrip->Print("MatchedOfTEC_1.eps");
+ SiStrip->Print("MatchedOfTEC_1.ps");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(2,6);
@@ -796,7 +1367,6 @@ void SiStripTrackingRecHitsPlots()
  SiStrip->cd(12);
  Pully_matched_layer5tec->Draw();
    
- SiStrip->Print("MatchedOfTEC_2.eps");
+ SiStrip->Print("MatchedOfTEC_2.ps");
 
 }
-
