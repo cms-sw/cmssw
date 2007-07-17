@@ -1,7 +1,7 @@
 /**
  * Author: Sridhara Dasu
  * Created: 04 July 2007
- * $Id$
+ * $Id: L1RCTParameters.cc,v 1.1 2007/07/16 13:51:26 dasu Exp $
  **/
 
 #include <iostream>
@@ -22,9 +22,7 @@ L1RCTParameters::L1RCTParameters(double eGammaLSB,
 				 double eActivityCut,
 				 double hActivityCut,
 				 std::string eGammaLUTFile,
-				 std::string jetMETLUTFile,
-				 edm::ESHandle<CaloTPGTranscoder> transcoder,
-				 bool useTranscoder
+				 std::string jetMETLUTFile
 				 ) :
   eGammaLSB_(eGammaLSB),
   jetMETLSB_(jetMETLSB),
@@ -39,8 +37,7 @@ L1RCTParameters::L1RCTParameters(double eGammaLSB,
   jetMETLUTFile_(jetMETLUTFile),
   eGammaScaleFactors_(),
   jetMETScaleFactors_(),
-  transcoder_(transcoder),
-  useTranscoder_(useTranscoder)
+  transcoder_()
 {
   std::ifstream eFile;
   eFile.open(eGammaLUTFile.c_str());
@@ -176,14 +173,20 @@ float L1RCTParameters::convertEcal(unsigned short ecal, int iAbsEta)
 // converts compressed hcal energy to linear (real) scale
 float L1RCTParameters::convertHcal(unsigned short hcal, int iAbsEta)
 {
-  if(useTranscoder_)
+  static bool first = true;
+  if(transcoder_.isValid())
     {
+      if(first)
+	std::cout << "L1RCTParameters: Using transcoder" << std::endl;
       return (transcoder_->hcaletValue(iAbsEta, hcal));
     }
   else
     {
+      if(first)
+	std::cout << "L1RCTParameters: Not using transcoder" << std::endl;
       return ((float) hcal) * jetMETLSB_;
     }
+  first = false;
 }
 
 // integerize given an LSB and set maximum value of 2^precision-1

@@ -46,10 +46,15 @@ class L1RCTParameters {
 		  double eActivityCut,
 		  double hActivityCut,
 		  std::string eGammaLUTFile,
-		  std::string jetMETLUTFile,
-		  edm::ESHandle<CaloTPGTranscoder> transcoder,
-		  bool useTranscoder
+		  std::string jetMETLUTFile
 		  );
+  // this can only be set after construction -- constructor inits to zero
+  // to indicate that transcoder cannot be used -- if this function is
+  // called to set transcoder, lookup after that call will use it.
+  void setTranscoder(edm::ESHandle<CaloTPGTranscoder> transcoder)
+    {
+      transcoder_ = transcoder;
+    }
   
   // destructor -- no virtual methods in this class
   ~L1RCTParameters() {;}
@@ -165,8 +170,6 @@ class L1RCTParameters {
   ScaleFactors jetMETScaleFactors_;
 
   edm::ESHandle<CaloTPGTranscoder> transcoder_;
-
-  bool useTranscoder_;
 
 };
 
