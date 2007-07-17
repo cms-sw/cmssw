@@ -9,6 +9,11 @@
 
 #include <algorithm>
 
+// #define STORE_WEIGHTS
+#ifdef STORE_WEIGHTS
+#include <dataharvester/Writer.h>
+#endif
+
 using namespace std;
 
 namespace {
@@ -17,6 +22,21 @@ namespace {
   {
     return 0;
   }
+
+  #ifdef STORE_WEIGHTS
+  map < RefCountedLinearizedTrackState, int > ids;
+  int iter=0;
+
+  int getId ( const RefCountedLinearizedTrackState & r )
+  {
+    static int ctr=1;
+    if ( ids.count(r) == 0 )
+    {
+      ids[r]=ctr++;
+    }
+    return ids[r];
+  }
+  #endif
 }
 
 AdaptiveVertexFitter::AdaptiveVertexFitter(
@@ -156,6 +176,13 @@ AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
   };
 
   VertexState beamSpotState(beamSpot);
+
+  /*
+  cout << "[AdaptiveVertexFitter] beamspot vtx state=" << beamSpotState.position()
+       << endl
+       << beamSpotState.error().matrix()
+       << endl;
+       */
   vector<RefCountedVertexTrack> vtContainer;
 
   if (tracks.size() > 1) {
@@ -304,6 +331,9 @@ AdaptiveVertexFitter::reWeightTracks(
 
   vector<RefCountedVertexTrack> finalTracks;
   VertexTrackFactory vTrackFactory;
+  #ifdef STORE_WEIGHTS
+  iter++;
+  #endif
   for(vector<RefCountedLinearizedTrackState>::const_iterator i
         = lTracks.begin(); i != lTracks.end(); i++)
   {
@@ -326,6 +356,18 @@ AdaptiveVertexFitter::reWeightTracks(
 
     RefCountedVertexTrack vTrData
        = vTrackFactory.vertexTrack(*i, seed, theAssProbComputer->weight(chi2));
+
+    #ifdef STORE_WEIGHTS
+    map < string, dataharvester::MultiType > m;
+    m["chi2"]=chi2;
+    m["w"]=theAssProbComputer->weight(chi2);
+    m["T"]=theAssProbComputer->currentTemp();
+    m["n"]=iter;
+    m["pos"]="reweight";
+    m["id"]=getId ( *i );
+    dataharvester::Writer::file("w.txt").save ( m );
+    #endif
+
     finalTracks.push_back(vTrData);
   }
   return finalTracks;
@@ -343,6 +385,9 @@ AdaptiveVertexFitter::weightTracks(
   vector<RefCountedVertexTrack> finalTracks;
   VertexTrackFactory vTrackFactory;
   KalmanChiSquare computer;
+  #ifdef STORE_WEIGHTS
+  iter++;
+  #endif
   for(vector<RefCountedLinearizedTrackState>::const_iterator i
         = lTracks.begin(); i != lTracks.end(); i++)
   {
@@ -365,6 +410,16 @@ AdaptiveVertexFitter::weightTracks(
 
     RefCountedVertexTrack vTrData
        = vTrackFactory.vertexTrack(*i, seed, theAssProbComputer->weight(chi2));
+    #ifdef STORE_WEIGHTS
+    map < string, dataharvester::MultiType > m;
+    m["chi2"]=chi2;
+    m["w"]=theAssProbComputer->weight(chi2);
+    m["T"]=theAssProbComputer->currentTemp();
+    m["n"]=iter;
+    m["id"]=getId ( *i );
+    m["pos"]="weight";
+    dataharvester::Writer::file("w.txt").save ( m );
+    #endif
     finalTracks.push_back(vTrData);
   }
   return finalTracks;
@@ -400,6 +455,11 @@ AdaptiveVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
                           const VertexState & priorSeed,
                           bool withPrior) const
 {
+  /*
+  cout << "[AVF] debug: fitting wp=" << withPrior << " prior czz=" << priorSeed.error().czz() 
+       << ", cxx=" << priorSeed.error().cxx() 
+       << ", cyy=" << priorSeed.error().cyy() << endl;
+       */
   theAssProbComputer->resetAnnealing();
   vector<RefCountedVertexTrack> initialTracks;
   GlobalPoint priorVertexPosition = priorSeed.position();
@@ -445,12 +505,15 @@ AdaptiveVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
       globalVTracks = reWeightTracks( globalVTracks,
                                       returnVertex );
     }
+    // cout << "-- new iteration" << endl;
     // update sequentially the vertex estimate
     for(vector<RefCountedVertexTrack>::const_iterator i
           = globalVTracks.begin(); i != globalVTracks.end(); i++)
     {
       try {
+        // cout << "  -- fVtx pos=" << fVertex.position() << " cxx=" << fVertex.error().cxx() << " ndf=" << fVertex.degreesOfFreedom() << " add " << (**i).weight() << endl;
         fVertex = theUpdator->add( fVertex, *i );
+        // cout << "  +- fVtx pos=" << fVertex.position() << " cxx=" << fVertex.error().cxx() << " ndf=" << fVertex.degreesOfFreedom() << endl;
         if ( (**i).weight() >= theWeightThreshold )
         {
           ns_trks++;
@@ -470,11 +533,14 @@ AdaptiveVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
     returnVertex = fVertex;
     theAssProbComputer->anneal();
     step++;
+    if ( step >= theMaxStep ) break;
 
   } while (
-         ( step != theMaxStep &&
-         ( (previousPosition - newPosition).mag() > theMaxShift ||
-           (!(theAssProbComputer->isAnnealed()) ) ) ) );
+      // repeat as long as
+      // - vertex moved too much or
+      // - we're not yet annealed
+         ( ((previousPosition - newPosition).mag() > theMaxShift) ||
+           (!(theAssProbComputer->isAnnealed()) ) ) ) ;
 
   if (debug() ) cout << "[AdaptiveVertexFitter] debug: steps=" << step
      << " final temp=" << theAssProbComputer->currentTemp() 
@@ -486,6 +552,17 @@ AdaptiveVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
     o << "fewer than two significant tracks (w>" << theWeightThreshold << ")";
     throw VertexException( o.str() );
   };
+
+  #ifdef STORE_WEIGHTS
+  map < string, dataharvester::MultiType > m;
+  m["chi2"]=chi2;
+  m["w"]=theAssProbComputer->weight(chi2);
+  m["T"]=theAssProbComputer->currentTemp();
+  m["n"]=iter;
+  m["id"]=getId ( *i );
+  m["pos"]="final";
+  dataharvester::Writer::file("w.txt").save ( m );
+  #endif
 
   return theSmoother->smooth( returnVertex );
 }
