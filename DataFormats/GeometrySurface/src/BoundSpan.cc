@@ -13,7 +13,6 @@ namespace boundSpan {
     const RectangularPlaneBounds* rectangularBounds( dynamic_cast<const RectangularPlaneBounds*>(&(plane.bounds())));  
     
     Surface::GlobalPoint corners[8];
-    float thickness = plane.thickness();
 
     if (trapezoidalBounds) {
       std::vector<float> const & parameters = (*trapezoidalBounds).parameters();
@@ -21,6 +20,7 @@ namespace boundSpan {
       float hbotedge = parameters[0];
       float htopedge = parameters[1];
       float hapothem = parameters[3];   
+      float thickness =  (*trapezoidalBounds).thickness();
       
       corners[0] = plane.toGlobal( LocalPoint( -htopedge, hapothem,  thickness/2));
       corners[1] = plane.toGlobal( LocalPoint(  htopedge, hapothem,  thickness/2));
@@ -34,6 +34,7 @@ namespace boundSpan {
     }else if(rectangularBounds) {
       float length = rectangularBounds->length();
       float width  = rectangularBounds->width();   
+      float thickness =  (*rectangularBounds).thickness();
       
       corners[0] = plane.toGlobal( LocalPoint( -width/2, -length/2, thickness/2));
       corners[1] = plane.toGlobal( LocalPoint( -width/2, +length/2, thickness/2));

@@ -13,7 +13,7 @@ class BoundSurface;
 namespace boundSpan {
   
   void
-  computePhiSpan(BoundSurface& plane);
+  computeSpan(BoundSurface& plane);
 
 }
 
