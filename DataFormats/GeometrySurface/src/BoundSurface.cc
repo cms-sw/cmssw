@@ -2,6 +2,6 @@
 #include "DataFormats/GeometrySurface/interface/BoundSpan.h"
 
 
-void BoundSurface::computePhiSpan() {
-  m_phiSpan =  boundSpan::computePhiSpan(*this);
+void BoundSurface::computeSpan() {
+  boundSpan::computeSpan(*this);
 }

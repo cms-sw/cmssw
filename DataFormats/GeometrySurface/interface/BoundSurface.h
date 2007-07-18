@@ -18,6 +18,8 @@
 
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 
+#include "DataFormats/GeometrySurface/interface/BoundSpan.h"
+
 
 class BoundSurface : public virtual Surface {
 public:
@@ -25,28 +27,28 @@ public:
   BoundSurface( const PositionType& pos, 
 		const RotationType& rot, 
 		const Bounds* bounds) :
-    Surface( pos, rot),  m_phiSpan(0.,0.),
-    theBounds( bounds->clone()) { computePhiSpan();}
+    Surface( pos, rot),  m_phiSpan(0.,0.),m_zSpan(0.,0.),
+    theBounds( bounds->clone()) { computeSpan();}
 
   BoundSurface( const PositionType& pos, 
 		const RotationType& rot, 
 		const Bounds& bounds) :
-    Surface( pos, rot),  m_phiSpan(0.,0.),
-    theBounds( bounds.clone()) { computePhiSpan();}
+    Surface( pos, rot),  m_phiSpan(0.,0.),m_zSpan(0.,0.),
+    theBounds( bounds.clone()) { computeSpan();}
 
   BoundSurface( const PositionType& pos, 
 		const RotationType& rot, 
 		const Bounds* bounds, 
 		MediumProperties* mp) :
-    Surface( pos, rot, mp),  m_phiSpan(0.,0.),
-    theBounds( bounds->clone()) { computePhiSpan();}
+    Surface( pos, rot, mp),  m_phiSpan(0.,0.),m_zSpan(0.,0.),
+    theBounds( bounds->clone()) { computeSpan();}
 
   BoundSurface( const PositionType& pos, 
 		const RotationType& rot, 
 		const Bounds& bounds, 
 		MediumProperties* mp) :
-    Surface( pos, rot, mp),  m_phiSpan(0.,0.),
-    theBounds( bounds.clone()) { computePhiSpan();}
+    Surface( pos, rot, mp),  m_phiSpan(0.,0.),m_zSpan(0.,0.),
+    theBounds( bounds.clone()) { computeSpan();}
 
   BoundSurface( const BoundSurface& iToCopy) :
     Surface( iToCopy ), 
@@ -63,13 +65,16 @@ public:
   const Bounds& bounds() const { return *theBounds;}
 
   std::pair<float,float> const & phiSpan() const { return m_phiSpan;}
+  std::pair<float,float> const & zSpan() const { return m_zSpan;}
 
 protected:
-  void computePhiSpan();
+  friend  void boundSpan::computeSpan(BoundSurface& plane);
+  void computeSpan();
 
 private:
 
   std::pair<float,float> m_phiSpan;
+  std::pair<float,float> m_zSpan;
 
   //own_ptr<Bounds,OwnerPolicy::Clone> theBounds;
   std::auto_ptr<Bounds> theBounds;

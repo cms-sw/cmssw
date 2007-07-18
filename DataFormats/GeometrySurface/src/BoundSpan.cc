@@ -7,12 +7,14 @@
 
 namespace boundSpan {
   
-  std::pair<float, float> computePhiSpan( const BoundSurface& plane) {
+  void computeSpan(BoundSurface& plane) {
     typedef std::pair<float, float> return_type;  
     const TrapezoidalPlaneBounds* trapezoidalBounds( dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
     const RectangularPlaneBounds* rectangularBounds( dynamic_cast<const RectangularPlaneBounds*>(&(plane.bounds())));  
     
-    float corners[4];
+    Surface::GlobalPoint corners[8];
+    float thickness = plane.thickness();
+
     if (trapezoidalBounds) {
       std::vector<float> const & parameters = (*trapezoidalBounds).parameters();
       
@@ -20,31 +22,46 @@ namespace boundSpan {
       float htopedge = parameters[1];
       float hapothem = parameters[3];   
       
-      corners[0] = plane.toGlobal( LocalPoint( -htopedge, hapothem, 0.)).barePhi();
-      corners[1] = plane.toGlobal( LocalPoint(  htopedge, hapothem, 0.)).barePhi();
-      corners[2] = plane.toGlobal( LocalPoint(  hbotedge, -hapothem, 0.)).barePhi();
-      corners[3] = plane.toGlobal( LocalPoint( -hbotedge, -hapothem, 0.)).barePhi();
+      corners[0] = plane.toGlobal( LocalPoint( -htopedge, hapothem,  thickness/2));
+      corners[1] = plane.toGlobal( LocalPoint(  htopedge, hapothem,  thickness/2));
+      corners[2] = plane.toGlobal( LocalPoint(  hbotedge, -hapothem, thickness/2));
+      corners[3] = plane.toGlobal( LocalPoint( -hbotedge, -hapothem, thickness/2));
+      corners[4] = plane.toGlobal( LocalPoint( -htopedge, hapothem,  -thickness/2));
+      corners[5] = plane.toGlobal( LocalPoint(  htopedge, hapothem,  -thickness/2));
+      corners[6] = plane.toGlobal( LocalPoint(  hbotedge, -hapothem, -thickness/2));
+      corners[7] = plane.toGlobal( LocalPoint( -hbotedge, -hapothem, -thickness/2));
       
     }else if(rectangularBounds) {
       float length = rectangularBounds->length();
       float width  = rectangularBounds->width();   
       
-      corners[0] = plane.toGlobal( LocalPoint( -width/2, -length/2, 0.)).barePhi();
-      corners[1] = plane.toGlobal( LocalPoint( -width/2, +length/2, 0.)).barePhi();
-      corners[2] = plane.toGlobal( LocalPoint( +width/2, -length/2, 0.)).barePhi();
-      corners[3] = plane.toGlobal( LocalPoint( +width/2, +length/2, 0.)).barePhi();
+      corners[0] = plane.toGlobal( LocalPoint( -width/2, -length/2, thickness/2));
+      corners[1] = plane.toGlobal( LocalPoint( -width/2, +length/2, thickness/2));
+      corners[2] = plane.toGlobal( LocalPoint( +width/2, -length/2, thickness/2));
+      corners[3] = plane.toGlobal( LocalPoint( +width/2, +length/2, thickness/2));
+      corners[4] = plane.toGlobal( LocalPoint( -width/2, -length/2, -thickness/2));
+      corners[5] = plane.toGlobal( LocalPoint( -width/2, +length/2, -thickness/2));
+      corners[6] = plane.toGlobal( LocalPoint( +width/2, -length/2, -thickness/2));
+      corners[7] = plane.toGlobal( LocalPoint( +width/2, +length/2, -thickness/2));
     }else{  
-      return return_type(-Geom::pi(),Geom::pi()); 
+      
     }
     
-    float phimin = corners[0];
-    float phimax = phimin;
-    for ( int i = 1; i < 4; i++ ) {
-      float cPhi = corners[i];
+    float phimin = corners[0].barePhi(); float phimax = phimin;
+    float zmin   = corners[0].z();    float zmax   = zmin;
+    for ( int i = 1; i < 8; i++ ) {
+      float cPhi = corners[i].barePhi;
       if ( Geom::phiLess( cPhi, phimin)) { phimin = cPhi; }
       if ( Geom::phiLess( phimax, cPhi)) { phimax = cPhi; }
+      float z = corners[i].z();
+      if ( z < zmin) zmin = z;
+      if ( z > zmax) zmax = z;  
     }
-    return return_type( phimin, phimax);
+    plane.m_zSpan.first    = zmin;
+    plane.m_zSpan.second   = zmax;
+    plane.m_phiSpan.first  = phimin;
+    plane.m_phiSpan.second = phimax;
+    
     
   }
   
