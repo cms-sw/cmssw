@@ -1,5 +1,17 @@
 <use name=FWCore/Framework>
-<use name=RecoBTau/JetTagComputer>
-<library file="*.cc" name=RecoBTauJetTagComputerPlugins>
+<library file="module.cc" name=RecoBTauJetTagComputerPlugins>
+      <use name=RecoBTau/JetTagComputer>
+      <flags EDM_PLUGIN=1>
+</library>
+
+<library file="BTauFakeMVAJetTagConditions.cc" name=BTauFakeMVAJetTagConditions>
+      <use name=FWCore/ParameterSet>
+      <use name=FWCore/ServiceRegistry>
+      <use name=FWCore/Utilities>
+      <use name=CondFormats/DataRecord>
+      <use name=CondFormats/PhysicsToolsObjects>
+      <use name=rootcore>
+      <flags LDFLAGS="-lXMLIO">
+      <flags CXXFLAGS="-fpermissive">
       <flags EDM_PLUGIN=1>
 </library>
