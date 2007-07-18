@@ -5,7 +5,6 @@
 #include "RecoTracker/TkDetLayers/interface/LayerCrossingSide.h"
 #include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
 #include "RecoTracker/TkDetLayers/interface/CompatibleDetToGroupAdder.h"
-#include "RecoTracker/TkDetLayers/interface/GlobalDetRodRangeZPhi.h"
 
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
@@ -253,22 +252,10 @@ bool PixelBarrelLayer::overlap( const GlobalPoint& gpos, const GeometricSearchDe
 
   // detector phi range
   const PixelRod& rod = dynamic_cast<const PixelRod&>(gsdet);
-  GlobalDetRodRangeZPhi rodRange( rod.specificSurface());
   pair<float,float> phiRange(crossPoint.phi()-phiWin, crossPoint.phi()+phiWin);
 
-  //   // debug
-  //   edm::LogInfo(TkDetLayers) ;
-  //   edm::LogInfo(TkDetLayers) << " overlapInPhi: position, det phi range " 
-  //        << "("<< rod.position().perp() << ", " << rod.position().phi() << ")  "
-  //        << rodRange.phiRange().first << " " << rodRange.phiRange().second ;
-  //   edm::LogInfo(TkDetLayers) << " overlapInPhi: cross point phi, window " << crossPoint.phi() << " " << phiWin ;
-  //   edm::LogInfo(TkDetLayers) << " overlapInPhi: search window: " << crossPoint.phi()-phiWin << "  " << crossPoint.phi()+phiWin ;
+  return rangesIntersect(phiRange, theRod.specificSurface().phiSpan(), PhiLess());
 
-  if ( rangesIntersect(phiRange, rodRange.phiRange(), PhiLess())) {
-    return true;
-  } else {
-    return false;
-  }
 } 
 
 

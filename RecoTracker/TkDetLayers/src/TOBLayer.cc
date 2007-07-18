@@ -5,7 +5,6 @@
 #include "RecoTracker/TkDetLayers/interface/LayerCrossingSide.h"
 #include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
 #include "RecoTracker/TkDetLayers/interface/CompatibleDetToGroupAdder.h"
-#include "RecoTracker/TkDetLayers/interface/GlobalDetRodRangeZPhi.h"
 
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
@@ -199,9 +198,9 @@ double TOBLayer::calculatePhiWindow( double Xmax, const GeomDet& det,
   //LocalPoint shift2( startPoint); //original code;
   //shift2 -= shift;
 
-  double phi1 = det.surface().toGlobal(shift1).phi();
-  double phi2 = det.surface().toGlobal(shift2).phi();
-  double phiStart = state.globalPosition().phi();
+  double phi1 = det.surface().toGlobal(shift1).barePhi();
+  double phi2 = det.surface().toGlobal(shift2).barePhi();
+  double phiStart = state.globalPosition().barePhi();
   double phiWin = min(fabs(phiStart-phi1),fabs(phiStart-phi2));
 
   return phiWin;
@@ -225,7 +224,7 @@ void TOBLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
   int posStartIndex = closestIndex+1;
 
   if (checkClosest) { // must decide if the closest is on the neg or pos side
-    if ( PhiLess()( gCrossingPos.phi(), sLayer[closestIndex]->position().phi())) {
+    if ( PhiLess()( gCrossingPos.phi(), sLayer[closestIndex]->surface().phi())) {
       posStartIndex = closestIndex;
     }
     else {
@@ -235,18 +234,18 @@ void TOBLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 
   const BinFinderType& binFinder = (crossing.subLayerIndex()==0 ? theInnerBinFinder : theOuterBinFinder);
 
-  CompatibleDetToGroupAdder adder;
+  typename CompatibleDetToGroupAdder Adder;
   int quarter = sLayer.size()/4;
   for (int idet=negStartIndex; idet >= negStartIndex - quarter; idet--) {
-    const GeometricSearchDet* neighborRod = sLayer[binFinder.binIndex(idet)];
-    if (!overlap( gCrossingPos, *neighborRod, window)) break;
-    if (!adder.add( *neighborRod, tsos, prop, est, result)) break;
+    const GeometricSearchDet & neighborRod = *sLayer[binFinder.binIndex(idet)];
+    if (!overlap( gCrossingPos, neighborRod, window)) break;
+    if (!Adder::add( neighborRod, tsos, prop, est, result)) break;
     // maybe also add shallow crossing angle test here???
   }
   for (int idet=posStartIndex; idet < posStartIndex + quarter; idet++) {
-    const GeometricSearchDet* neighborRod = sLayer[binFinder.binIndex(idet)];
-    if (!overlap( gCrossingPos, *neighborRod, window)) break;
-    if (!adder.add( *neighborRod, tsos, prop, est, result)) break;
+    const GeometricSearchDet & neighborRod = *sLayer[binFinder.binIndex(idet)];
+    if (!overlap( gCrossingPos, neighborRod, window)) break;
+    if (!Adder::add( neighborRod, tsos, prop, est, result)) break;
     // maybe also add shallow crossing angle test here???
   }
 }
@@ -262,8 +261,7 @@ bool TOBLayer::overlap( const GlobalPoint& gpos, const GeometricSearchDet& gsdet
 
   // detector phi range
   const TOBRod& theRod = dynamic_cast<const TOBRod&>(gsdet);
-  GlobalDetRodRangeZPhi rodRange( theRod.specificSurface());
-  pair<float,float> phiRange(crossPoint.phi()-phiWin, crossPoint.phi()+phiWin);
+  std::pair<float,float> phiRange(crossPoint.phi()-phiWin, crossPoint.phi()+phiWin);
 
   //   // debug
   //   edm::LogInfo(TkDetLayers) ;
@@ -273,11 +271,7 @@ bool TOBLayer::overlap( const GlobalPoint& gpos, const GeometricSearchDet& gsdet
   //   edm::LogInfo(TkDetLayers) << " overlapInPhi: cross point phi, window " << crossPoint.phi() << " " << phiWin ;
   //   edm::LogInfo(TkDetLayers) << " overlapInPhi: search window: " << crossPoint.phi()-phiWin << "  " << crossPoint.phi()+phiWin ;
 
-  if ( rangesIntersect(phiRange, rodRange.phiRange(), PhiLess())) {
-    return true;
-  } else {
-    return false;
-  }
+  return rangesIntersect(phiRange, theRod.specificSurface().phiSpan(), PhiLess());
 } 
 
 
