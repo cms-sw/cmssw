@@ -232,7 +232,7 @@ void TrackProducerAlgorithm::runWithVertex(const TrackingGeometry * theG,
 	hits = sorter.sortHits(hits,theT->seedDirection());
 
 	//use the state on the surface of the first hit (could be the constraint or not)
-	theInitialStateForRefitting = myPropagator->propagate(*theInitialStateForRefitting.freeState(),hits[0]->surface());	  
+	theInitialStateForRefitting = myPropagator->propagate(*theInitialStateForRefitting.freeState(), *(hits[0]->surface()) );	  
 	delete myPropagator;
 
 	// the seed has dummy state and hits.What matters for the fitting is the seedDirection;
