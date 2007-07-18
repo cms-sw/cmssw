@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.cc,v 1.21 2007/06/22 23:26:33 wmtan Exp $
+$Id: ConfigurableInputSource.cc,v 1.22 2007/06/24 22:59:36 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -35,6 +35,7 @@ namespace edm {
     newRun_(true),
     newLumi_(true),
     isRealData_(realData),
+    eType_(pset.getUntrackedParameter<std::string>("experimentType", std::string("Unspecified"))),
     holder_(0)
   { }
 
@@ -92,7 +93,7 @@ namespace edm {
       }
       result = std::auto_ptr<EventPrincipal>(
 	  new EventPrincipal(eventID_, Timestamp(presentTime_),
-	  productRegistry(), lbp, processConfiguration(), isRealData_));
+	  productRegistry(), lbp, processConfiguration(), isRealData_, eType_));
       if (newRun_ || newLumi_) {
 	holder_ = result;
 	return result;

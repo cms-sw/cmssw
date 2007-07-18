@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.70 2007/06/25 20:53:32 wmtan Exp $
+$Id: RootFile.cc,v 1.71 2007/06/28 23:11:22 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -227,7 +227,7 @@ boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
     // We're not done ... so prepare the EventPrincipal
     std::auto_ptr<EventPrincipal> thisEvent(new EventPrincipal(
                 eventID(), eventAux_.time(), pReg,
-		lbp, processConfiguration_, eventAux_.isRealData(),
+		lbp, processConfiguration_, eventAux_.isRealData(), eventAux_.experimentType(),
 		eventAux_.processHistoryID_, eventTree().makeDelayedReader()));
 
     // Create a group in the event for each product

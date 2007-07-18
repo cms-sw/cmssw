@@ -12,10 +12,11 @@ namespace edm {
         boost::shared_ptr<LuminosityBlockPrincipal> lbp,
 	ProcessConfiguration const& pc,
         bool isReal,
+        std::string const& eType,
 	ProcessHistoryID const& hist,
 	boost::shared_ptr<DelayedReader> rtrv) :
 	  Base(reg, pc, hist, rtrv),
-	  aux_(id, time, lbp->luminosityBlock(), isReal),
+	  aux_(id, time, lbp->luminosityBlock(), isReal, eType),
 	  luminosityBlockPrincipal_(lbp),
 	  unscheduledHandler_() { }
 
@@ -25,10 +26,11 @@ namespace edm {
 	LuminosityBlockNumber_t lumi,
 	ProcessConfiguration const& pc,
         bool isReal,
+        std::string const& eType,
 	ProcessHistoryID const& hist,
 	boost::shared_ptr<DelayedReader> rtrv) :
 	  Base(reg, pc, hist, rtrv),
-	  aux_(id, time, lumi, isReal),
+	  aux_(id, time, lumi, isReal, eType),
 	  luminosityBlockPrincipal_(new LuminosityBlockPrincipal(lumi, reg, id.run(), pc)),
 	  unscheduledHandler_() { }
 
