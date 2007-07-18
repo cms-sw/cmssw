@@ -12,12 +12,10 @@
   <class name="std::vector<L1GctEmCand>"/>
   <class name="std::vector<L1GctJetCand>"/>
   <class name="std::vector<L1GctFibreWord>"/>
-  <class name="edm::Ref<std::vector<L1GctInternEmCand>,L1GctInternEmCand,edm::refhelper::FindUsingAdv
-ance<std::vector<L1GctInternEmCand>,L1GctInternEmCand>>"/>
-  <class name="edm::Ref<std::vector<L1GctEmCand>,L1GctEmCand,edm::refhelper::FindUsingAdv
-ance<std::vector<L1GctEmCand>,L1GctEmCand>>"/>
-  <class name="edm::Ref<std::vector<L1GctJetCand>,L1GctJetCand,edm::refhelper::FindUsingA
-dvance<std::vector<L1GctJetCand>,L1GctJetCand>>"/>
+  <class name="edm::Ref<std::vector<L1GctInternEmCand>,L1GctInternEmCand,edm::refhelper::FindUsingAdvance<std::vector<L1GctInternEmCand>,L1GctInternEmCand>>"/>
+  <class name="edm::Ref<std::vector<L1GctEmCand>,L1GctEmCand,edm::refhelper::FindUsingAdvance<std::vector<L1GctEmCand>,L1GctEmCand>>"/>
+  <class name="edm::Ref<std::vector<L1GctJetCand>,L1GctJetCand,edm::refhelper::FindUsingAdvance<std::vector<L1GctJetCand>,L1GctJetCand>>"/>
+  <class name="edm::Ref<std::vector<L1GctFibreWord>,L1GctFibreWord,edm::refhelper::FindUsingAdvance<std::vector<L1GctFibreWord>,L1GctFibreWord>>"/>
   <class name="edm::RefProd<L1GctEtTotal>"/>
   <class name="edm::RefProd<L1GctEtHad>"/>
   <class name="edm::RefProd<L1GctEtMiss>"/>
