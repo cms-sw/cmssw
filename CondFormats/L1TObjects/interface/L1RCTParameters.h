@@ -40,10 +40,10 @@ class L1RCTParameters {
 		  double eMaxForHoECut,
 		  double eActivityCut,
 		  double hActivityCut,
-		  std::vector<double>& eGammaECalScaleFactors,
-		  std::vector<double>& eGammaHCalScaleFactors,
-		  std::vector<double>& jetMETECalScaleFactors,
-		  std::vector<double>& jetMETHCalScaleFactors
+		  std::vector<double> eGammaECalScaleFactors,
+		  std::vector<double> eGammaHCalScaleFactors,
+		  std::vector<double> jetMETECalScaleFactors,
+		  std::vector<double> jetMETHCalScaleFactors
 		  );
   // this can only be set after construction -- constructor inits to zero
   // to indicate that transcoder cannot be used -- if this function is
