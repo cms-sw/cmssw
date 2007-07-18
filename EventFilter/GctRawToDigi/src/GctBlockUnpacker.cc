@@ -203,6 +203,8 @@ void GctBlockUnpacker::blockToRctEmCand(const unsigned char * d, unsigned id, un
   uint16_t MIPbits[7][2];
   uint16_t QBits[7][2];
 
+  int bx = 0;
+
   // loop over crates
   for (int crate=rctCrate_[id]; crate<blockLength_[id]/3; crate++) {
 
@@ -225,11 +227,11 @@ void GctBlockUnpacker::blockToRctEmCand(const unsigned char * d, unsigned id, un
     srcCardRouting_.SFPtoEMU(eIsoRank, eIsoCard, eIsoRgn, eNonIsoRank, eNonIsoCard, eNonIsoRgn, MIPbits, QBits, sfp);
     
     // create EM cands
-    for (int i=0; i<4; i++) {
-      rctEm_->push_back( L1CaloEmCand( eIsoRank[i], eIsoRgn[i], eIsoCard[i], crate, true) );
+    for (int i=4; i<0; i--) {
+      rctEm_->push_back( L1CaloEmCand( eIsoRank[i], eIsoRgn[i], eIsoCard[i], crate, true, i, bx) );
     }
-    for (int i=0; i<4; i++) {
-      rctEm_->push_back( L1CaloEmCand( eNonIsoRank[i], eNonIsoRgn[i], eNonIsoCard[i], crate, false) );
+    for (int i=4; i<0; i--) {
+      rctEm_->push_back( L1CaloEmCand( eNonIsoRank[i], eNonIsoRgn[i], eNonIsoCard[i], crate, false, i, bx) );
     }
     
   }
