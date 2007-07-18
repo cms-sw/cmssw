@@ -72,6 +72,21 @@ protected:
   // The *.ps file which contains the summary histos
   TPostScript *psFile;
   std::string PsFileName;
+
+  // The histos to write in the *.ps file
+  bool DataIntegrityHistos;
+  bool DigiHistos;
+  bool RecoHistos;
+  bool ResoHistos;
+  bool EfficiencyHistos;
+  bool TestPulsesHistos;
+  bool TriggerHistos;
+  
+  // The DDUId
+  int DDUId;
+  // The run number
+  int runNumber;
+
 };
 
 #endif
