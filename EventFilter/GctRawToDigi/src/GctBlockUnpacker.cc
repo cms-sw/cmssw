@@ -227,10 +227,10 @@ void GctBlockUnpacker::blockToRctEmCand(const unsigned char * d, unsigned id, un
     srcCardRouting_.SFPtoEMU(eIsoRank, eIsoCard, eIsoRgn, eNonIsoRank, eNonIsoCard, eNonIsoRgn, MIPbits, QBits, sfp);
     
     // create EM cands
-    for (int i=4; i<0; i--) {
+    for (int i=0; i<4; i++) {
       rctEm_->push_back( L1CaloEmCand( eIsoRank[i], eIsoRgn[i], eIsoCard[i], crate, true, i, bx) );
     }
-    for (int i=4; i<0; i--) {
+    for (int i=0; i<4; i++) {
       rctEm_->push_back( L1CaloEmCand( eNonIsoRank[i], eNonIsoRgn[i], eNonIsoCard[i], crate, false, i, bx) );
     }
     
