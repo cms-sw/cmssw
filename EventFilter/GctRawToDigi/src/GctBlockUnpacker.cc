@@ -14,7 +14,13 @@
 using std::cout;
 using std::endl;
 
-GctBlockUnpacker::GctBlockUnpacker() {
+GctBlockUnpacker::GctBlockUnpacker() :
+  rctEm_(0),
+  gctIsoEm_(0),
+  gctNonIsoEm_(0),
+  gctInternEm_(0),
+  gctFibres_(0)
+{
 
   // setup block length map
   blockLength_[0x00] = 0;
@@ -56,6 +62,8 @@ unsigned GctBlockUnpacker::blockLength(unsigned id) {
 
 // conversion
 void GctBlockUnpacker::convertBlock(const unsigned char * data, unsigned id, unsigned nSamples) {
+
+  if (nSamples<1) { return; }
 
   switch (id) {
   case (0x00):
@@ -121,12 +129,12 @@ void GctBlockUnpacker::convertBlock(const unsigned char * data, unsigned id, uns
 
 
 // Output EM Candidates unpacking
-void GctBlockUnpacker::blockToGctEmCand(const unsigned char * data, unsigned id, unsigned nSamples) {
+void GctBlockUnpacker::blockToGctEmCand(const unsigned char * d, unsigned id, unsigned nSamples) {
 
   LogDebug("GCT") << "Unpacking EM Cands" << std::endl;
 
   // re-interpret pointer
-  uint16_t * p = reinterpret_cast<uint16_t *>(const_cast<unsigned char *>(data));
+  uint16_t * p = reinterpret_cast<uint16_t *>(const_cast<unsigned char *>(d));
 
   for (int iso=0; iso<2; iso++) {   // loop over non-iso/iso candidates
     for (int bx=0; bx<nSamples; bx++) {   // loop over time samples
@@ -172,9 +180,22 @@ void GctBlockUnpacker::blockToGctInternEmCand(const unsigned char * d, unsigned 
 // Input EM Candidates unpacking
 // this is the last time I deal the RCT bit assignment travesty!!!
 void GctBlockUnpacker::blockToRctEmCand(const unsigned char * d, unsigned id, unsigned nSamples) {
-  
-  uint16_t dd[6]; // index = source card output * 2 + cycle
-  
+
+  // re-interpret pointer
+  uint16_t * p = reinterpret_cast<uint16_t *>(const_cast<unsigned char *>(d));
+
+  // arrays of source card data
+  uint16_t sfp[2][4]; // [ cycle ] [ SFP ]
+  uint16_t eIsoRank[4];
+  uint16_t eIsoCard[4];
+  uint16_t eIsoRgn[4];
+  uint16_t eNonIsoRank[4];
+  uint16_t eNonIsoCard[4];
+  uint16_t eNonIsoRgn[4];
+  uint16_t MIPbits[7][2];
+  uint16_t QBits[7][2];
+
+  // RCT crates
   unsigned first=0;
   unsigned last=0;
   if (id==0x81) { 
@@ -196,25 +217,33 @@ void GctBlockUnpacker::blockToRctEmCand(const unsigned char * d, unsigned id, un
 
   // loop over crates
   for (int crate=first; crate<=last; crate++) {
-    
-    unsigned offset = (crate-first)*12*nSamples; // just get 0th time sample for now
-    
-    // read 16 bit words
-    for (int j=0; j<6; j++) {
-      dd[j] = d[offset+(2*nSamples*j)] + (d[offset+(2*nSamples*j)+1]<<8);
+
+    // read SC SFP words
+    for (int cyc=0; cyc<2; cyc++) {
+      for (int iSfp=0; iSfp<4; iSfp++) {
+
+	if (iSfp==4) { sfp[cyc][iSfp] = 0; } // muon bits
+	else {                              // EM candidate
+	  sfp[cyc][iSfp] = *p;
+	}
+
+      }
     }
 
-    // create candidates and add to collections
-    rctEm_->push_back( L1CaloEmCand( dd[0] & 0x3ff, crate, true, 0, 0, true) );
-    unsigned em = ((dd[0] & 0x3800)>>10) + ((dd[2] & 0x7800)>>7) + ((dd[4] & 0x3800)>>3);
-    rctEm_->push_back( L1CaloEmCand(   em & 0x3ff, crate, true, 0, 0, true) );
-    rctEm_->push_back( L1CaloEmCand( dd[1] & 0x3ff, crate, true, 0, 0, true) );
-    em = ((dd[1] & 0x3800)>>10) + ((dd[3] & 0x7800)>>7) + ((dd[5] & 0x3800)>>3);
-    rctEm_->push_back( L1CaloEmCand(   em & 0x3ff, crate, true, 0, 0, true) );
-    rctEm_->push_back( L1CaloEmCand( dd[2] & 0x3ff, crate, false, 0, 0, true) );
-    rctEm_->push_back( L1CaloEmCand( dd[4] & 0x3ff, crate, false, 0, 0, true) );
-    rctEm_->push_back( L1CaloEmCand( dd[3] & 0x3ff, crate, false, 0, 0, true) );
-    rctEm_->push_back( L1CaloEmCand( dd[5] & 0x3ff, crate, false, 0, 0, true) );
+    // fill SC arrays
+    srcCardRouting_.SFPtoEMU(eIsoRank, eIsoCard, eIsoRgn, eNonIsoRank, eNonIsoCard, eNonIsoRgn, MIPbits, QBits, sfp);
+
+    // create EM cands
+    for (int i=0; i<4; i++) {
+      rctEm_->push_back( L1CaloEmCand( eIsoRank[i], eIsoRgn[i], eIsoCard[i], crate, true) );
+    }
+
+    for (int i=0; i<4; i++) {
+      rctEm_->push_back( L1CaloEmCand( eNonIsoRank[i], eNonIsoRgn[i], eNonIsoCard[i], crate, false) );
+    }
+    
+    // move pointer
+    p = p + 12*nSamples; // just get 0th time sample for now
   }
 
 }

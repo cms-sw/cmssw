@@ -12,7 +12,7 @@
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 
-
+#include "L1Trigger/TextToDigi/src/SourceCardRouting.h"
 
 class GctBlockUnpacker {
  public:
@@ -58,6 +58,9 @@ class GctBlockUnpacker {
 
   // block info
   std::map<unsigned, unsigned> blockLength_;  // size of a block
+
+  // source card mapping info
+  SourceCardRouting srcCardRouting_;
 
   // map of conversion functions
   //  typedef  void (GctBlockUnpacker::*convFn)(uint16_t, uint16_t, int);
