@@ -144,6 +144,10 @@ void RecoMuonValidator::endJob()
   computeEfficiency(hGlbSta_effEta,hGlbEtaVsPhi_,hStaEtaVsPhi_);
   computeEfficiency(hGlbSeed_effEta,hGlbEtaVsPhi_,hSeedEtaVsPhi_);
 
+  hStaResol_->doFits();
+  hGlbResol_->doFits();
+  hSeedResol_->doFits();
+
   if ( theDQMService_ ) theDQMService_->save(outputFileName_);
 }
 
@@ -247,7 +251,7 @@ pair<TSOS, TransientTrack> RecoMuonValidator::matchTrack(const SimTrack& simTrac
     Hep3Vector trackVect = Hep3Vector(tsosVect.x(), tsosVect.y(), tsosVect.z());
     double deltaR = trackVect.deltaR(simTrack.momentum().vect());
 
-    if ( candDeltaR < 0 || deltaR < candDeltaR ) {
+    if ( candDeltaR < 0 || deltaR < candDeltaR  ) {
       LogDebug("RecoMuonValidator") << "Matching Track with DeltaR = " << deltaR;
       candDeltaR = deltaR;
       candTrack  = track;

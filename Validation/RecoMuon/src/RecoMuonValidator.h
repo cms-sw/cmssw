@@ -25,6 +25,8 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "Validation/RecoMuon/interface/FitSlicesYTool.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <utility>
 
 class HResolution
@@ -35,69 +37,90 @@ class HResolution
               int nBinPull, double widthPull,
               int nBinEta, double minEta, double maxEta,
               int nBinPhi, double minPhi, double maxPhi)
-  {
-    theDQMService_ = theDQMService;
+    {
+      theDQMService_ = theDQMService;
+      
+      hEtaVsErrQPt_  = theDQMService_->book2D((name+"EtaVsErrQPt").c_str(), (name+" #eta vs #sigma(q/p_{T})").c_str(),
+					      nBinEta, minEta, maxEta, nBinErrQPt, -widthErrQPt, widthErrQPt);
+      hPtResMean_ = theDQMService_->book1D((name+"PtResMean").c_str(),(name+" gaussian mean(#deltap_{t}/p_{t}) vs #eta").c_str(),nBinEta,minEta,maxEta);
+      hPtResSigma_ = theDQMService_->book1D((name+"PtResSigma").c_str(),(name+" #sigma(#deltap_{t}/p_{t}) vs #eta").c_str(),nBinEta,minEta,maxEta);
 
-    hEtaVsErrQPt_  = theDQMService_->book2D((name+"EtaVsErrQPt").c_str(), (name+" #eta vs #sigma(q/p_{T})").c_str(),
-                              nBinEta, minEta, maxEta, nBinErrQPt, -widthErrQPt, widthErrQPt);
-    hEtaVsPullPt_  = theDQMService_->book2D((name+"EtaVsPullPt").c_str(), (name+" #eta vs Pull p_{T}").c_str(),
-                              nBinEta, minEta, maxEta, nBinPull, -widthPull, widthPull);
-    hPhiVsPullPt_  = theDQMService_->book2D((name+"PhiVsPullPt").c_str(), (name+" #phi vs Pull p_{T}").c_str(),
-                              nBinPhi, minPhi, maxPhi, nBinPull, -widthPull, widthPull);
-    hEtaVsPullEta_ = theDQMService_->book2D((name+"EtaVsPullEta").c_str(), (name+" #eta vs Pull #eta").c_str(),
-                              nBinEta, minEta, maxEta, nBinPull, -widthPull, widthPull);
-    hPhiVsPullEta_ = theDQMService_->book2D((name+"PhiVsPullEta").c_str(), (name+" #phi vs Pull #eta").c_str(),
-                              nBinPhi, minPhi, maxPhi, nBinPull, -widthPull, widthPull);
-    hEtaVsPullPhi_ = theDQMService_->book2D((name+"EtaVsPullPhi").c_str(), (name+" #eta vs Pull #phi").c_str(),
-                              nBinEta, minEta, maxEta, nBinPull, -widthPull, widthPull);
-    hPhiVsPullPhi_ = theDQMService_->book2D((name+"PhiVsPullPhi").c_str(), (name+" #phi vs Pull #phi").c_str(),
-                              nBinPhi, minPhi, maxPhi, nBinPull, -widthPull, widthPull);
-    hMisQAboutEta_ = theDQMService_->book1D((name+"MisQAboutEta").c_str(), (name+" mischarge about #eta").c_str(),
-                              nBinEta, minEta, maxEta);
-  };
+      hEtaVsPullPt_  = theDQMService_->book2D((name+"EtaVsPullPt").c_str(), (name+" #eta vs Pull p_{T}").c_str(),
+					      nBinEta, minEta, maxEta, nBinPull, -widthPull, widthPull);
+      hPullPtMean_ = theDQMService_->book1D((name+"PullPtMean").c_str(),(name+" gaussian mean(Pull p_{t}) vs #eta").c_str(),nBinEta,minEta,maxEta);
+      hPullPtSigma_ = theDQMService_->book1D((name+"PullPtSigma").c_str(),(name+" #sigma(Pull p_{t}) vs #eta").c_str(),nBinEta,minEta,maxEta);
+
+      hPhiVsPullPt_  = theDQMService_->book2D((name+"PhiVsPullPt").c_str(), (name+" #phi vs Pull p_{T}").c_str(),
+					      nBinPhi, minPhi, maxPhi, nBinPull, -widthPull, widthPull);
+
+      hEtaVsPullEta_ = theDQMService_->book2D((name+"EtaVsPullEta").c_str(), (name+" #eta vs Pull #eta").c_str(),
+					      nBinEta, minEta, maxEta, nBinPull, -widthPull, widthPull);
+      hPhiVsPullEta_ = theDQMService_->book2D((name+"PhiVsPullEta").c_str(), (name+" #phi vs Pull #eta").c_str(),
+					      nBinPhi, minPhi, maxPhi, nBinPull, -widthPull, widthPull);
+      hEtaVsPullPhi_ = theDQMService_->book2D((name+"EtaVsPullPhi").c_str(), (name+" #eta vs Pull #phi").c_str(),
+					      nBinEta, minEta, maxEta, nBinPull, -widthPull, widthPull);
+      hPhiVsPullPhi_ = theDQMService_->book2D((name+"PhiVsPullPhi").c_str(), (name+" #phi vs Pull #phi").c_str(),
+					      nBinPhi, minPhi, maxPhi, nBinPull, -widthPull, widthPull);
+      hMisQAboutEta_ = theDQMService_->book1D((name+"MisQAboutEta").c_str(), (name+" mischarge about #eta").c_str(),
+					      nBinEta, minEta, maxEta);
+    };
   ~HResolution() { };
-
+  
   void fillInfo(const SimTrack& simTrack, const TrajectoryStateOnSurface& tsos)
-  {
-    const TrackCharge simQ = static_cast<TrackCharge>(simTrack.charge());
-    const double simPt  = simTrack.momentum().perp();
-    const double simEta = simTrack.momentum().eta();
-    const double simPhi = simTrack.momentum().phi();
-    const double simQPt = simQ/simPt;
-
-    const TrackCharge recQ = static_cast<TrackCharge>(tsos.charge());
-    const double recPt  = tsos.globalMomentum().perp();
-    const double recEta = tsos.globalMomentum().eta();
-    const double recPhi = tsos.globalMomentum().phi();
-    const double recQPt = recQ/recPt;
-
-    AlgebraicSymMatrix cartErr = tsos.cartesianError().matrix_old();
-    const double px = tsos.globalMomentum().x();
-    const double py = tsos.globalMomentum().y();
-    //const double pz = tsos.globalMomentum().z();
-    const double errPt  = sqrt(cartErr[3][3]*px*px+cartErr[4][4]*py*py)/tsos.globalMomentum().perp();
-    //const double errP   = sqrt(cartErr[3][3]*px*px+cartErr[4][4]*py*py+cartErr[5][5]*pz*pz)/tsos.globalMomentum().mag();
-    AlgebraicSymMatrix curvErr = tsos.curvilinearError().matrix_old();
-    const double errEta = sqrt(curvErr[1][1])*fabs(sin(tsos.globalMomentum().theta()));
-    const double errPhi = sqrt(curvErr[2][2]);
-    hEtaVsErrQPt_ ->Fill(simEta, (recQPt-simQPt)/simQPt);
-    hEtaVsPullPt_ ->Fill(simEta, (recPt-simPt)/errPt);
-    hPhiVsPullPt_ ->Fill(simPhi, (recPt-simPt)/errPt);
-    hEtaVsPullEta_->Fill(simEta, (recEta-simEta)/errEta);
-    hPhiVsPullEta_->Fill(simPhi, (recEta-simEta)/errEta);
-    hEtaVsPullPhi_->Fill(simEta, (recPhi-simPhi)/errPhi);
-    hPhiVsPullPhi_->Fill(simPhi, (recPhi-simPhi)/errPhi);
-    if ( simQ != recQ ) hMisQAboutEta_->Fill(simEta);
-  };
+    {
+      const TrackCharge simQ = static_cast<TrackCharge>(simTrack.charge());
+      const double simPt  = simTrack.momentum().perp();
+      const double simEta = simTrack.momentum().eta();
+      const double simPhi = simTrack.momentum().phi();
+      const double simQPt = simQ/simPt;
+      
+      const TrackCharge recQ = static_cast<TrackCharge>(tsos.charge());
+      const double recPt  = tsos.globalMomentum().perp();
+      const double recEta = tsos.globalMomentum().eta();
+      const double recPhi = tsos.globalMomentum().phi();
+      const double recQPt = recQ/recPt;
+      
+      AlgebraicSymMatrix cartErr = tsos.cartesianError().matrix_old();
+      const double px = tsos.globalMomentum().x();
+      const double py = tsos.globalMomentum().y();
+      //const double pz = tsos.globalMomentum().z();
+      const double errPt  = sqrt(cartErr[3][3]*px*px+cartErr[4][4]*py*py)/tsos.globalMomentum().perp();
+      //const double errP   = sqrt(cartErr[3][3]*px*px+cartErr[4][4]*py*py+cartErr[5][5]*pz*pz)/tsos.globalMomentum().mag();
+      AlgebraicSymMatrix curvErr = tsos.curvilinearError().matrix_old();
+      const double errEta = sqrt(curvErr[1][1])*fabs(sin(tsos.globalMomentum().theta()));
+      const double errPhi = sqrt(curvErr[2][2]);
+      hEtaVsErrQPt_ ->Fill(simEta, (recQPt-simQPt)/simQPt);
+      hEtaVsPullPt_ ->Fill(simEta, (recPt-simPt)/errPt);
+      hPhiVsPullPt_ ->Fill(simPhi, (recPt-simPt)/errPt);
+      hEtaVsPullEta_->Fill(simEta, (recEta-simEta)/errEta);
+      hPhiVsPullEta_->Fill(simPhi, (recEta-simEta)/errEta);
+      hEtaVsPullPhi_->Fill(simEta, (recPhi-simPhi)/errPhi);
+      hPhiVsPullPhi_->Fill(simPhi, (recPhi-simPhi)/errPhi);
+      if ( simQ != recQ ) hMisQAboutEta_->Fill(simEta);
+    };
+  
+  void doFits() 
+    {
+      FitSlicesYTool fsyt_pt(hEtaVsErrQPt_);
+      fsyt_pt.getFittedSigmaWithError(hPtResSigma_);
+      fsyt_pt.getFittedMeanWithError(hPtResMean_);
+ 
+      FitSlicesYTool fsyt_pullpt(hEtaVsPullPt_);
+      fsyt_pullpt.getFittedSigmaWithError(hPullPtSigma_);
+      fsyt_pullpt.getFittedMeanWithError(hPullPtMean_);
+    };
+  
  protected:
   DaqMonitorBEInterface * theDQMService_;
-
+  
   MonitorElement * hEtaVsErrQPt_ ;
   MonitorElement * hEtaVsPullPt_ , * hPhiVsPullPt_ ;
   MonitorElement * hEtaVsPullEta_, * hPhiVsPullEta_;
   MonitorElement * hEtaVsPullPhi_, * hPhiVsPullPhi_;
   MonitorElement * hMisQAboutEta_;
-
+  MonitorElement * hPtResMean_, * hPtResSigma_;
+  MonitorElement * hPullPtMean_, * hPullPtSigma_;
+  
 };
 
 class RecoMuonValidator : public edm::EDAnalyzer
