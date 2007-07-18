@@ -28,15 +28,18 @@ using std::endl;
 //
 DumpGctDigis::DumpGctDigis(const edm::ParameterSet& iConfig) :
   rawLabel_( iConfig.getUntrackedParameter<edm::InputTag>("rawInput", edm::InputTag("L1GctRawDigis") ) ),
-  emuLabel_( iConfig.getUntrackedParameter<edm::InputTag>("emuInput", edm::InputTag("L1GctEmuDigis") ) ),
+  emuRctLabel_( iConfig.getUntrackedParameter<edm::InputTag>("emuRctInput", edm::InputTag("L1RctEmuDigis") ) ),
+  emuGctLabel_( iConfig.getUntrackedParameter<edm::InputTag>("emuGctInput", edm::InputTag("L1GctEmuDigis") ) ),
   outFilename_( iConfig.getUntrackedParameter<string>("outFile", "gctAnalyzer.txt") ),
   doHW_( iConfig.getUntrackedParameter<bool>("doHardware", true) ),
   doEmu_( iConfig.getUntrackedParameter<bool>("doEmulated", true) ),
   doRctEM_( iConfig.getUntrackedParameter<bool>("doRctEm", true) ),
-  doInternEM_( iConfig.getUntrackedParameter<bool>("doInternEm", true) ),
   doEM_( iConfig.getUntrackedParameter<bool>("doEm", true) ),
+  doRegions_( iConfig.getUntrackedParameter<bool>("doRegions", 0) ),
   doJets_( iConfig.getUntrackedParameter<bool>("doJets", 0) ),
-  rctEmMinRank_( iConfig.getUntrackedParameter<unsigned>("rctEmMinRank", 0) )
+  rctEmMinRank_( iConfig.getUntrackedParameter<unsigned>("rctEmMinRank", 0) ),
+  doInternEM_( iConfig.getUntrackedParameter<bool>("doInternEm", true) ),
+  doFibres_( iConfig.getUntrackedParameter<bool>("doFibres", false) )
 {
   //now do what ever initialization is needed
 
@@ -68,14 +71,21 @@ DumpGctDigis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   outFile_ << "Run :" << iEvent.id().run() << "  Event :" << iEvent.id().event() << endl;
   
+  // EM
   if (doRctEM_ && doHW_) { doRctEM(iEvent, rawLabel_); }
-  if (doRctEM_ && doEmu_) { doRctEM(iEvent, emuLabel_); }
-  if (doInternEM_ && doHW_) { doInternEM(iEvent, rawLabel_); }
-  if (doInternEM_ && doEmu_) { } //doInternEM(iEvent, emuLabel_); }
+  if (doRctEM_ && doEmu_) { doRctEM(iEvent, emuRctLabel_); }
   if (doEM_ && doHW_) { doEM(iEvent, rawLabel_); }
-  if (doEM_ && doEmu_){ doEM(iEvent, emuLabel_); }
+  if (doEM_ && doEmu_){ doEM(iEvent, emuGctLabel_); }
+
+  // Jets
+  if (doRegions_ && doHW_) { doRegions(iEvent, rawLabel_); }
+  if (doRegions_ && doEmu_) { doRegions(iEvent, emuRctLabel_); }
   if (doJets_ && doHW_) { doJets(iEvent, rawLabel_); }
-  if (doJets_ && doEmu_) { doJets(iEvent, emuLabel_); }
+  if (doJets_ && doEmu_) { doJets(iEvent, emuGctLabel_); }
+
+  // debugging
+  if (doInternEM_ && doHW_) { doInternEM(iEvent, rawLabel_); }
+  if (doFibres_ && doHW_) { doFibres(iEvent, rawLabel_); }
 
 }
 
@@ -114,7 +124,7 @@ void DumpGctDigis::doRctEM(const edm::Event& iEvent, edm::InputTag label) {
 
   L1CaloEmCollection::const_iterator e;
  
-  iEvent.getByLabel(label.label(), "", em);
+  iEvent.getByLabel(label, em);
 
   outFile_ << "RCT EM :" << " from : " << label.label() << endl;
   for (e=em->begin(); e!=em->end(); e++) {
@@ -127,24 +137,23 @@ void DumpGctDigis::doRctEM(const edm::Event& iEvent, edm::InputTag label) {
 }
 
 
-void DumpGctDigis::doInternEM(const edm::Event& iEvent, edm::InputTag label) {
+void DumpGctDigis::doRegions(const edm::Event& iEvent, edm::InputTag label) {
 
   using namespace edm;
 
-  Handle<L1GctInternEmCandCollection> em;
+  Handle<L1CaloRegionCollection> rgns;
 
-  L1GctInternEmCandCollection::const_iterator e;
+  L1CaloRegionCollection::const_iterator r;
   
-  iEvent.getByLabel(label.label(), "", em);
+  iEvent.getByLabel(label, rgns);
 
-  outFile_ << "Internal EM :" << " from : " << label.label() << endl;
-  for (e=em->begin(); e!=em->end(); e++) {
-    outFile_ << (*e) << endl;
+  outFile_ << "Regions :" << " from : " << label.label() << endl;
+  for (r=rgns->begin(); r!=rgns->end(); r++) {
+    outFile_ << (*r) << endl;
   } 
   outFile_ << endl;
-  
-}
 
+}
 
 
 void DumpGctDigis::doJets(const edm::Event& iEvent, edm::InputTag label) {
@@ -180,8 +189,45 @@ void DumpGctDigis::doJets(const edm::Event& iEvent, edm::InputTag label) {
   for (tj=tauJets->begin(); tj!=tauJets->end(); tj++) {
     outFile_ << (*tj) << endl;
   } 
+  outFile_ << endl; 
+
+}
+
+
+void DumpGctDigis::doInternEM(const edm::Event& iEvent, edm::InputTag label) {
+
+  using namespace edm;
+
+  Handle<L1GctInternEmCandCollection> em;
+
+  L1GctInternEmCandCollection::const_iterator e;
+  
+  iEvent.getByLabel(label, em);
+
+  outFile_ << "Internal EM :" << " from : " << label.label() << endl;
+  for (e=em->begin(); e!=em->end(); e++) {
+    outFile_ << (*e) << endl;
+  } 
   outFile_ << endl;
   
+}
 
+
+void DumpGctDigis::doFibres(const edm::Event& iEvent, edm::InputTag label) {
+
+  using namespace edm;
+
+  Handle<L1GctFibreCollection> fibres;
+
+  L1GctFibreCollection::const_iterator f;
+  
+  iEvent.getByLabel(label, fibres);
+
+  outFile_ << "Fibres :" << " from : " << label.label() << endl;
+  for (f=fibres->begin(); f!=fibres->end(); f++) {
+    outFile_ << (*f) << endl;
+  } 
+  outFile_ << endl;
+  
 }
 
