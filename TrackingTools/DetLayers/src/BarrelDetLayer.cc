@@ -88,7 +88,7 @@ BarrelDetLayer::compatible( const TrajectoryStateOnSurface& ts,
   // take into account the error on the predicted state
   const float nSigma = 3.;
   if (myState.hasError()) {
-    deltaZ += nSigma * sqrt( ts.cartesianError().position().czz());
+    deltaZ += nSigma * sqrt( myState.cartesianError().position().czz());
   }
   //
   // check z assuming symmetric bounds around position().z()
