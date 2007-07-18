@@ -234,7 +234,7 @@ void TOBLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 
   const BinFinderType& binFinder = (crossing.subLayerIndex()==0 ? theInnerBinFinder : theOuterBinFinder);
 
-  typename CompatibleDetToGroupAdder Adder;
+  typedef CompatibleDetToGroupAdder Adder;
   int quarter = sLayer.size()/4;
   for (int idet=negStartIndex; idet >= negStartIndex - quarter; idet--) {
     const GeometricSearchDet & neighborRod = *sLayer[binFinder.binIndex(idet)];
