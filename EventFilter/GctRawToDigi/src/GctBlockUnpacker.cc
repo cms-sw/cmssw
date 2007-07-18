@@ -42,6 +42,14 @@ GctBlockUnpacker::GctBlockUnpacker() :
   blockLength_[0xc9] = 12;  // Leaf-U2, Elec, PosEta, Raw Input
   blockLength_[0xcb] = 4;   // Leaf-U2, Elec, PosEta, Sort Output
 
+  // RCT crates
+  unsigned first=0;
+  //  unsigned last=0;
+  rctCrate_[0x81] = 4;
+  rctCrate_[0x89] = 0;
+  rctCrate_[0xC1] = 13;
+  rctCrate_[0xC9] = 9;
+
   // setup converter fn map
   //  convertFn_[0x68] = &GctBlockUnpacker::wordToGctEmCand;
   //  convertFn_[0x69] = &GctBlockUnpacker::wordToGctInterEmCand;
@@ -195,28 +203,8 @@ void GctBlockUnpacker::blockToRctEmCand(const unsigned char * d, unsigned id, un
   uint16_t MIPbits[7][2];
   uint16_t QBits[7][2];
 
-  // RCT crates
-  unsigned first=0;
-  unsigned last=0;
-  if (id==0x81) { 
-    first = 4;
-    last = 8;
-  }
-  else if (id==0x89) { 
-    first = 0;
-    last = 3;
-  }
-  else if (id==0xc1) { 
-    first = 13;
-    last = 17;
-  }
-  else if (id==0xc9) { 
-    first = 9;
-    last = 12;
-  }
-
   // loop over crates
-  for (int crate=first; crate<=last; crate++) {
+  for (int crate=rctCrate_[id]; crate<=blockLength_[id]/3; crate++) {
 
     // read SC SFP words
     for (int cyc=0; cyc<2; cyc++) {
@@ -237,13 +225,12 @@ void GctBlockUnpacker::blockToRctEmCand(const unsigned char * d, unsigned id, un
     for (int i=0; i<4; i++) {
       rctEm_->push_back( L1CaloEmCand( eIsoRank[i], eIsoRgn[i], eIsoCard[i], crate, true) );
     }
-
     for (int i=0; i<4; i++) {
       rctEm_->push_back( L1CaloEmCand( eNonIsoRank[i], eNonIsoRgn[i], eNonIsoCard[i], crate, false) );
     }
     
     // move pointer
-    p = p + 12*nSamples; // just get 0th time sample for now
+    p = p + blockLength_[id]*nSamples; // just get 0th time sample for now
   }
 
 }

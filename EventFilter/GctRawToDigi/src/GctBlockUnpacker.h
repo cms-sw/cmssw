@@ -62,6 +62,9 @@ class GctBlockUnpacker {
   // source card mapping info
   SourceCardRouting srcCardRouting_;
 
+  // RCT crate map
+  std::map<unsigned, unsigned> rctCrate_;
+
   // map of conversion functions
   //  typedef  void (GctBlockUnpacker::*convFn)(uint16_t, uint16_t, int);
   //  std::map< unsigned, convFn > convertFn_;
