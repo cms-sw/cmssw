@@ -34,7 +34,7 @@ public:
   /// returns an index in the valid range for the bin closest to Z
   virtual int binIndex( T z) const {
     int bin = binIndex( int((z-theZOffset)/theZStep)+1);
-
+    
     // check left border
     if (bin > 0) {
       if ( z < theBorders[bin-1]) {
@@ -46,7 +46,7 @@ public:
       }
     } 
     else return 0;
-
+    
     // check right border
     if (bin < theNbins-1) {
       if ( z > theBorders[bin]) {
@@ -58,7 +58,7 @@ public:
       }
     }
     else return theNbins-1;
-
+    
     // if we arrive here it means that the bin is ok 
     return bin;
   }
