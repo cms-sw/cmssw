@@ -6,7 +6,7 @@
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # (Tagcollector interface taken from CmsTCPackageList.pl (author D.Lange))
 # Update: 2006-04-10 16:15:32+0200
-# Revision: $Id: PackageManagement.pl,v 1.9 2007/06/22 10:44:16 sashby Exp $ 
+# Revision: $Id: PackageManagement.pl,v 1.10 2007/07/18 15:25:15 sashby Exp $ 
 #
 # Copyright: 2006 (C) Shaun ASHBY
 #
@@ -345,13 +345,13 @@ sub getpklistfromtc() {
     # Subroutine to get a list of packages/tags for a given release:
     # Check the version of wget.
     # --no-check-certificate needed for 1.10 and above:
-    my $wgetver = (`/usr/bin/wget --version` =~ /^GNU Wget 1\.1.*?/);
+    my $wgetver = (`wget --version` =~ /^GNU Wget 1\.1.*?/);
     my $options = ""; $options = "--no-check-certificate", if ($wgetver == 1);
     my $user="cmstcreader";
     my $pass="CmsTC";
     my $gotpacks=0;
     
-    open(CMSTCQUERY,"/usr/bin/wget $options  -nv -o /dev/null -O- 'http://$user:$pass\@cmsdoc.cern.ch/swdev/CmsTC/cgi-bin/CreateTagList?release=$releaseid' |");
+    open(CMSTCQUERY,"wget $options  -nv -o /dev/null -O- 'http://$user:$pass\@cmsdoc.cern.ch/swdev/CmsTC/cgi-bin/CreateTagList?release=$releaseid' |");
     
     my %tags;
     while ( <CMSTCQUERY> ) {
