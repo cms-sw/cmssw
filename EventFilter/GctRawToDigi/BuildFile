@@ -2,6 +2,7 @@
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/L1CaloTrigger>
 <use name=DataFormats/L1GlobalCaloTrigger>
+<use name=L1Trigger/TextToDigi>
 
 <export>
    <lib name=EventFilterGctRawToDigi>
@@ -9,4 +10,5 @@
    <use name=DataFormats/FEDRawData>
    <use name=DataFormats/L1CaloTrigger>
    <use name=DataFormats/L1GlobalCaloTrigger>
+   <use name=L1Trigger/TextToDigi>
 </export>
