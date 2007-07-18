@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/06/08 10:05:20 $
- * $Revision: 1.35 $
+ * $Date: 2007/06/24 09:41:11 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  *
 */
@@ -80,7 +80,8 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
   mePedestal_       = 0;
   mePedestalPN_     = 0;
   meTestPulse_      = 0;
-  meTestPulsePN_      = 0;
+  meTestPulsePN_    = 0;
+  meGlobalSummary_    = 0;
 
   qtg01_ = 0;
   qtg02_ = 0;
@@ -91,6 +92,7 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
   qtg05PN_ = 0;
   qtg06_ = 0;
   qtg06PN_ = 0;
+  qtg07_  = 0;
 
 }
 
@@ -138,6 +140,9 @@ void EBSummaryClient::beginJob(MonitorUserInterface* mui){
     sprintf(qtname, "EBTPT PN summary quality test");
     qtg06PN_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
+    sprintf(qtname, "EB global summary quality test");
+    qtg07_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
     qtg01_->setMeanRange(1., 6.);
     qtg02_->setMeanRange(1., 6.);
     qtg03_->setMeanRange(1., 6.);
@@ -147,6 +152,7 @@ void EBSummaryClient::beginJob(MonitorUserInterface* mui){
     qtg05PN_->setMeanRange(1., 6.);
     qtg06_->setMeanRange(1., 6.);
     qtg06PN_->setMeanRange(1., 6.);
+    qtg07_->setMeanRange(1., 6.);
 
     qtg01_->setErrorProb(1.00);
     qtg02_->setErrorProb(1.00);
@@ -157,6 +163,7 @@ void EBSummaryClient::beginJob(MonitorUserInterface* mui){
     qtg05PN_->setErrorProb(1.00);
     qtg06_->setErrorProb(1.00);
     qtg06PN_->setErrorProb(1.00);
+    qtg07_->setErrorProb(1.00);
 
   }
 
@@ -237,6 +244,10 @@ void EBSummaryClient::setup(void) {
   sprintf(histo, "EBTPT PN test pulse quality summary");
   meTestPulsePN_ = dbe->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
 
+  if( meGlobalSummary_ ) dbe->removeElement( meGlobalSummary_->getName() );
+  sprintf(histo, "EB global summary");
+  meGlobalSummary_ = dbe->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+
 }
 
 void EBSummaryClient::cleanup(void) {
@@ -270,6 +281,9 @@ void EBSummaryClient::cleanup(void) {
 
   if ( meTestPulsePN_ ) dbe->removeElement( meTestPulsePN_->getName() );
   meTestPulsePN_ = 0;
+
+  if ( meGlobalSummary_ ) dbe->removeElement( meGlobalSummary_->getName() );
+  meGlobalSummary_ = 0;
 
 }
 
@@ -310,6 +324,8 @@ void EBSummaryClient::subscribe(void){
   if ( qtg06_ ) mui_->useQTest(histo, qtg06_->getName());
   sprintf(histo, "EcalBarrel/EBSummaryClient/EBTPT PN test pulse quality summary");
   if ( qtg06PN_ ) mui_->useQTest(histo, qtg06PN_->getName());
+  sprintf(histo, "EcalBarrel/EBSummaryClient/EB global summary");
+  if ( qtg07_ ) mui_->useQTest(histo, qtg07_->getName());
 
 }
 
@@ -345,6 +361,8 @@ void EBSummaryClient::analyze(void){
       meLaserL1_->setBinContent( ipx, iex, -1. );
       mePedestal_->setBinContent( ipx, iex, -1. );
       meTestPulse_->setBinContent( ipx, iex, -1. );
+
+      meGlobalSummary_->setBinContent( ipx, iex, -1. );
     }
   }
 
@@ -730,6 +748,32 @@ void EBSummaryClient::analyze(void){
 
   }
 
+  // The global-summary
+  // right now a summary of Integrity and PO
+  for ( int iex = 1; iex <= 170; iex++ ) {
+    for ( int ipx = 1; ipx <= 360; ipx++ ) {
+
+      if(meIntegrity_ && mePedestalOnline_) {
+
+	float xval = 2;
+	float val_in = meIntegrity_->getBinContent(ipx,iex);
+	float val_po = mePedestalOnline_->getBinContent(ipx,iex);
+	
+	// turn each dark color to bright green
+	if(val_in>2) val_in=1;
+	if(val_po>2) val_po=1;
+
+	if(val_in==0) xval=0;
+	else if(val_in==2) xval=2;
+	else xval=val_po;
+
+	meGlobalSummary_->setBinContent( ipx, iex, xval );
+
+      }
+
+    }
+  }
+
 }
 
 void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
@@ -793,6 +837,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   labelGridPN.SetMinimum(-18.01);
 
   string imgNameMapI, imgNameMapO, imgNameMapPO, imgNameMapLL1, imgNameMapLL1_PN, imgNameMapP, imgNameMapP_PN, imgNameMapTP, imgNameMapTP_PN, imgName, meName;
+  string imgNameMapSS;
 
   TCanvas* cMap = new TCanvas("cMap", "Temp", int(360./170.*csize), csize);
   TCanvas* cMapPN = new TCanvas("cMapPN", "Temp", int(360./170.*csize), int(20./90.*360./170.*csize));
@@ -1094,7 +1139,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
       }
     }
     imgNameMapTP_PN = meName + ".png";
-    imgName = htmlDir + imgNameMapTP;
+    imgName = htmlDir + imgNameMapTP_PN;
 
     cMapPN->cd();
     gStyle->SetOptStat(" ");
@@ -1113,6 +1158,40 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMapPN->Update();
     cMapPN->SaveAs(imgName.c_str());
     gStyle->SetTitleX(saveTitleOffset);
+  }
+
+  imgNameMapSS = "";
+
+  obj2f = 0;
+  obj2f = UtilsClient::getHisto<TH2F*>( meGlobalSummary_ );
+
+  if ( obj2f ) {
+
+    meName = obj2f->GetName();
+
+    for ( unsigned int i = 0; i < meName.size(); i++ ) {
+      if ( meName.substr(i, 1) == " " )  {
+        meName.replace(i, 1 ,"_" );
+      }
+    }
+    imgNameMapSS = meName + ".png";
+    imgName = htmlDir + imgNameMapSS;
+
+    cMap->cd();
+    gStyle->SetOptStat(" ");
+    gStyle->SetPalette(6, pCol3);
+    obj2f->GetXaxis()->SetNdivisions(18, kFALSE);
+    obj2f->GetYaxis()->SetNdivisions(2);
+    cMap->SetGridx();
+    cMap->SetGridy();
+    obj2f->SetMinimum(-0.00000001);
+    obj2f->SetMaximum(6.0);
+    obj2f->SetTitleSize(0.5);
+    obj2f->Draw("col");
+    labelGrid.Draw("text,same");
+    cMap->Update();
+    cMap->SaveAs(imgName.c_str());
+
   }
 
 
