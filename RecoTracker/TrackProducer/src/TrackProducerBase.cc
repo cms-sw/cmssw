@@ -174,6 +174,13 @@ void TrackProducerBase::putInEvt(edm::Event& evt,
     delete theTrack;
     delete theTraj;
   }
+
+  edm::LogVerbatim("TrackProducer") << "number of finalTracks: " << selTracks->size();
+  for (reco::TrackCollection::const_iterator it = selTracks->begin(); it != selTracks->end(); it++) {
+    edm::LogVerbatim("TrackProducer") << "n valid and invalid hit, chi2 : " 
+				   << it->found() << " , " << it->lost() <<" , " <<it->normalizedChi2();
+  }
+  edm::LogVerbatim("TrackProducer") << "=================================================";
   
   rTracks_ = evt.put( selTracks );
   evt.put( selTrackExtras );
