@@ -2,8 +2,8 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2007/06/04 14:22:48 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/07/10 16:56:29 $
+ *  $Revision: 1.6 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -44,9 +44,8 @@ TSGFromPropagation::~TSGFromPropagation()
 
 }
 
-std::vector<TrajectorySeed> TSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const TrackingRegion&) {
+void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const TrackingRegion&, std::vector<TrajectorySeed> & result) {
 
-  std::vector<TrajectorySeed> result;
   const std::string category = "Muon|RecoMuon|TSGFromPropagation";
   MuonPatternRecoDumper debug;
 
@@ -56,7 +55,7 @@ std::vector<TrajectorySeed> TSGFromPropagation::trackerSeeds(const TrackCand& st
 
   if ( !staState.isValid() ) staState = innerState(staMuon);
 
-  if ( !staState.isValid() ) return result;
+  if ( !staState.isValid() ) return ;
 
   LogTrace(category) << " staState pos: "<<staState.globalPosition()
                      << " mom: "<<staState.globalMomentum() <<"eta: "<<staState.globalPosition().eta();
@@ -68,7 +67,7 @@ std::vector<TrajectorySeed> TSGFromPropagation::trackerSeeds(const TrackCand& st
 
   LogTrace(category) << " compatible layers: "<<nls.size();
 
-  if ( nls.empty() ) return result;
+  if ( nls.empty() ) return ;
 
 //// debug only ===========
 /*
@@ -188,7 +187,7 @@ for (std::vector<TkStripMeasurementDet*>::const_iterator isd = stripdets.begin()
     }
   }
 
-  return result;
+  return ;
 
 }
     

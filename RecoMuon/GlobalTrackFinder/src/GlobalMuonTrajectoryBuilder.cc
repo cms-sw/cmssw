@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/07/03 08:23:05 $
- *  $Revision: 1.104 $
+ *  $Date: 2007/07/03 16:43:57 $
+ *  $Revision: 1.105 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -1139,7 +1139,7 @@ vector<GlobalMuonTrajectoryBuilder::TrackCand> GlobalMuonTrajectoryBuilder::make
       timerName = category + "::makeSeeds";
       times.push(timerName);
       RectangularEtaPhiTrackingRegion region = defineRegionOfInterest((staCand.second));
-      tkSeeds = theTkSeedGenerator->trackerSeeds(staCand,region);
+      theTkSeedGenerator->trackerSeeds(staCand,region, tkSeeds);
 
       LogTrace(category) << "Found " << tkSeeds.size() << " tracker seeds";
 

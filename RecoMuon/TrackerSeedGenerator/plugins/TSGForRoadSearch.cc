@@ -69,11 +69,7 @@ void TSGForRoadSearch::setEvent(const edm::Event &event){
 }
 
 
-std::vector<TrajectorySeed> TSGForRoadSearch::trackerSeeds(const TrackCand & muonTrackCand, const TrackingRegion& region){
-
-  //default result
-  std::vector<TrajectorySeed> result;
-
+void  TSGForRoadSearch::trackerSeeds(const TrackCand & muonTrackCand, const TrackingRegion& region, std::vector<TrajectorySeed> & result){
   switch (_option){
   case 0:
     makeSeeds_0(*muonTrackCand.second,result);break;
@@ -86,8 +82,6 @@ std::vector<TrajectorySeed> TSGForRoadSearch::trackerSeeds(const TrackCand & muo
   case 4:
     makeSeeds_4(*muonTrackCand.second,result);break;
   }  
-
-  return result;
 }
 
 

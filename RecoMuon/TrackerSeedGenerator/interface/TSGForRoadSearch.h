@@ -34,7 +34,7 @@ public:
   void init(const MuonServiceProxy *service);
   void setEvent(const edm::Event &event);
 
-  BTSeedCollection trackerSeeds(const TrackCand&, const TrackingRegion&);
+  void  trackerSeeds(const TrackCand&, const TrackingRegion&, BTSeedCollection&);
 
 private:
   //  virtual void run(TrajectorySeedCollection &seeds, 
