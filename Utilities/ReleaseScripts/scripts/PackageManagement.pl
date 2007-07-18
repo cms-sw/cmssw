@@ -6,14 +6,18 @@
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # (Tagcollector interface taken from CmsTCPackageList.pl (author D.Lange))
 # Update: 2006-04-10 16:15:32+0200
-# Revision: $Id: PackageManagement.pl,v 1.8 2007/04/08 18:04:47 dlange Exp $ 
+# Revision: $Id: PackageManagement.pl,v 1.9 2007/06/22 10:44:16 sashby Exp $ 
 #
 # Copyright: 2006 (C) Shaun ASHBY
 #
 #--------------------------------------------------------------------
+use warnings;
+use strict;
+
 use Cwd;
 use Getopt::Long ();
 use threads;
+use Thread::Semaphore;
 
 # Fixed parameters:
 my $cvs = '/usr/bin/cvs';
@@ -31,8 +35,10 @@ my $packagelist;
 my $startdir=cwd();
 my $package_search_regexp = '*';
 my $n_threads = 1;
+my $semaphore;
 
 # Support for colours in messages:
+my ($bold,$normal,$status,$fail,$pass,$good,$error);
 if ( -t STDIN && -t STDOUT && $^O !~ /MSWin32|cygwin/ ) {
     $bold = "\033[1m";
     $normal = "\033[0m";
@@ -108,7 +114,7 @@ if (! Getopt::Long::GetOptions(\%opts, %options)) {
     # Now see if we have a file containing the developers packages or whether the user
     # specified packages on the command line. In either case, make copies of the wanted tags:
     if ($opts{MYPACKAGES}) {
-	$mypfile = cwd()."/".$mypackagefile;
+	my $mypfile = cwd()."/".$mypackagefile;
 	if ($opts{QUERY}) {
 	    my $mypacklist=&getmypackages($mypfile);
 	    &do_query($mypacklist);
@@ -217,41 +223,52 @@ sub getmypackages() {
     return $packlist;
 }
 
-sub thr_checkout() {
-    my ($pkg,$vers,$subsys,$pname,$tempdir)=@_;
-    my $rv = 0;
-    if (-d $pkg && -f $pkg."/CVS/Tag") {
- 	my $tagfile=$pkg."/CVS/Tag";
- 	open(TAGFILE,"$tagfile") || die "PackageManagement: Can't read CVS/Tag for package $pkg","\n";
- 	chomp(my ($CVSTAG)=(<TAGFILE>));
- 	close(TAGFILE);
- 	# Strip any characters from the start of the tag (before "V"):
- 	$CVSTAG =~ s/^[A-Z](V.*?)/$1/g;
- 	# Check to see if the tags match:
- 	if ($vers ne $CVSTAG) {
- 	    print "-> ".$status."Removing $pkg for a clean re-checkout:".$normal."\n",if ($opts{VERBOSE});
-	    my $rv = system("rm -rf $pkg; cd $tempdir; $cvs -Q -d $cvsroot co -P -r $vers -d . $pkg && mv $pname $outdir/$subsys");
+sub thr_co {
+    my ($packages,$id)=@_;
+    my ($rv)=0;
+    # Use semaphores to restrict the number of running threads to $n_threads:
+    $semaphore->down();
+    # Loop over packages:
+    foreach my $p (@$packages) {
+	my ($name,$tag)=each %$p;
+	if (-d $name && -f $name."/CVS/Tag") {
+	    # Open tag file and compare against the tag we want:
+	    my $tagfile=$name."/CVS/Tag";
+	    open(TAGFILE,"$tagfile") || die "PackageManagement: Can't read CVS/Tag for package $name","\n";
+	    chomp(my ($CVSTAG)=(<TAGFILE>));
+	    close(TAGFILE);
+	    # Strip any characters from the start of the tag (before "V"):
+	    $CVSTAG =~ s/^[A-Z](V.*?)/$1/g;
+	    # Check to see if the tags match:
+	    if ($tag ne $CVSTAG) {
+		print "-> ".$status."Removing $name for a clean re-checkout:".$normal."\n", if ($opts{VERBOSE});
+		system("rm","-rf",$name);
+		$rv=system($cvs,"-Q","-d",$cvsroot,"co","-P","-r",$tag,$name);
+		# Check the status of the checkout and report if a package tag doesn't exist:
+		if ($rv == 0) {
+		    printf("Package %-45s version %-10s checkout ".$good."SUCCESSFUL".$normal."\n",$name, $tag), if ($opts{VERBOSE});
+		} else {
+		    printf STDERR ("Package %-45s version %-10s checkout ".$error."FAILED".$normal."\n",$name, $tag);
+		    printf STDERR "Checkout ERROR: tag ".$tag." for package $name is not correct!","\n";
+		    print "\n";
+		}
+	    }
+	} else {
+	    # New checkout:
+	    $rv=system($cvs,"-Q","-d",$cvsroot,"co","-P","-r",$tag,$name);
 	    # Check the status of the checkout and report if a package tag doesn't exist:
 	    if ($rv == 0) {
-		printf ("Package %-45s version %-10s checkout ".$good."SUCCESSFUL".$normal."\n",$pkg, $vers), if ($opts{VERBOSE});
+		printf("Package %-45s version %-10s checkout ".$good."SUCCESSFUL".$normal."\n",$name, $tag), if ($opts{VERBOSE});
 	    } else {
-		printf STDERR ("Package %-45s version %-10s checkout ".$error."FAILED".$normal."\n",$pkg, $vers);
-		printf STDERR "Checkout ERROR: tag ".$vers." for package $pkg is not correct!","\n";
+		printf STDERR ("Package %-45s version %-10s checkout ".$error."FAILED".$normal."\n",$name, $tag);
+		printf STDERR "Checkout ERROR: tag ".$tag." for package $name is not correct!","\n";
 		print "\n";
 	    }
- 	}
-    } else {
-	# A fresh area so do a complete checkout
-	$rv = system("cd $tempdir; $cvs -Q -d $cvsroot co -P -r $vers -d . $pkg && mv $pname $outdir/$subsys");
-	# Check the status of the checkout and report if a package tag doesn't exist:
-	if ($rv == 0) {
-	    printf ("Package %-45s version %-10s checkout ".$good."SUCCESSFUL".$normal."\n",$pkg, $vers), if ($opts{VERBOSE});
-	} else {
-	    printf STDERR ("Package %-45s version %-10s checkout ".$error."FAILED".$normal."\n",$pkg, $vers);
-	    printf STDERR "Checkout ERROR: tag ".$vers." for package $pkg is not correct!","\n";
-	    print "\n";
 	}
-    }    
+    }
+    
+    # Done with this thread:
+    $semaphore->up();
     return $rv;
 }
 
@@ -259,7 +276,7 @@ sub do_checkout() {
     my ($packagelist,$noversions)=@_;
     die "PackageManagement: No packages to check out!","\n", unless (scalar (my $nkeys = keys %$packagelist) > 0);
     print "PackageManagement: Checking out packages from HEAD of CVS repo.","\n\n", if ($noversions && $opts{VERBOSE});
-    my ($subsys,$pname);
+    
     # Create the output directory if it doesn't already exist:
     if (! -d $outdir) {
 	system("mkdir",$outdir);
@@ -268,41 +285,40 @@ sub do_checkout() {
     # Move to the output directory:
     chdir $outdir;
     
-    my $npack = scalar(keys %$packagelist);
-    print "There are $npack packages\n";
-    
-    my $packlist = [ sort keys %$packagelist ];
-    my %threadlist;
-    
-    while (my (@block) = splice(@$packlist,0,$n_threads)) {
-	foreach my $pack (@block) {
-	    ($subsys,$pname) = split("/",$pack);
-	    # Create the subsystem dir if it doesn't already exist:
-	    if (! -d $outdir."/".$subsys) {
-		system("mkdir",$outdir."/".$subsys);
-	    }
-	    my $tempdir = &mktmpdir($subsys);
-	    $threadlist{$pack} = threads->new(\&thr_checkout,$pack,$packagelist->{$pack},$subsys,$pname,$tempdir);
-	}
-	
-	foreach my $pack (@block) {
-	    $threadlist{$pack}->join;
+    # First, process the list of packages so that we end up with a hash of arrays of packages (hash key has value <SUBSYS>
+    # and points to an array of its' packages):
+    my $packages={};
+    while (my ($fullpack,$version) = each %$packagelist) {
+	my ($subsys,$pack)=split("/",$fullpack);
+	if (exists $packages->{$subsys}) {
+	    push(@{$packages->{$subsys}},{ $fullpack => $version });
+	} else {
+	    $packages->{$subsys}=[ { $fullpack => $version } ];
 	}
     }
-    # Clean up temp dir:
-    system("rm","-rf","tmp");
-    print "\nDone\n";
-}
 
-sub mktmpdir() {
-    my ($subsys)=@_;
-    my $dir="";
-    srand();
-    do {
-	$dir=int(rand 99999999)+1;
-    } until ( ! ( -d "tmp/".$subsys."/".$dir ) );
-    my $rv = system("mkdir","-p","tmp/".$subsys."/".$dir);
-    return "tmp/".$subsys."/".$dir;
+    # Get list of subsystems as an array:
+    my ($subsyslist) = [ reverse sort keys %$packages ];
+    my $threadlist={};
+    my $i=0;
+
+    $semaphore=Thread::Semaphore->new($n_threads);
+    
+    while ($#$subsyslist != -1) {
+	$i++;
+	my $subsys=pop(@$subsyslist);
+	
+	if ($subsys) {
+	    $threadlist->{$i} = threads->new(\&thr_co,$packages->{$subsys},$i);    
+	} else {
+	    # Join any remaining threads:
+	    map { $_->join } values %$threadlist;
+	    last;
+	}	
+    }
+    
+    map { $_->join } values %$threadlist;    
+    print "\nDone\n";
 }
 
 sub do_query() {
@@ -357,7 +373,7 @@ sub getpklistfromtc() {
 sub dumptaglisttofile() {
     my ($versionfile)=@_;
     # Default dump of tags to a file:
-    open (OUTFILE,">$versionfile") or die "PackageManagement: Cannot dump tag output file $filename.";   
+    open (OUTFILE,">$versionfile") or die "PackageManagement: Cannot dump tag output file $versionfile.";   
     foreach my $pk (sort keys %$packagelist) {
 	printf OUTFILE ("%-45s %-10s\n",$pk,$packagelist->{$pk});
     }
