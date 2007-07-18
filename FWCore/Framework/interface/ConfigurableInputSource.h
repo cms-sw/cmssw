@@ -2,13 +2,14 @@
 #define Framework_ConfigurableInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.h,v 1.23 2007/06/24 22:59:35 wmtan Exp $
+$Id: ConfigurableInputSource.h,v 1.24 2007/07/18 13:22:40 marafino Exp $
 ----------------------------------------------------------------------*/
 
 #include "boost/shared_ptr.hpp"
 
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
@@ -74,7 +75,7 @@ namespace edm {
     bool newRun_;
     bool newLumi_;
     bool isRealData_;
-    std::string eType_;
+    EventAuxiliary::ExperimentType eType_;
     std::auto_ptr<EventPrincipal> holder_;
   };
 }

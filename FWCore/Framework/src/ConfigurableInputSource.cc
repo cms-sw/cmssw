@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.cc,v 1.22 2007/06/24 22:59:36 wmtan Exp $
+$Id: ConfigurableInputSource.cc,v 1.23 2007/07/18 13:22:41 marafino Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -35,9 +35,12 @@ namespace edm {
     newRun_(true),
     newLumi_(true),
     isRealData_(realData),
-    eType_(pset.getUntrackedParameter<std::string>("experimentType", std::string("Unspecified"))),
+    eType_(EventAuxiliary::Unspecified),
     holder_(0)
-  { }
+  { 
+    // We need to map this string to the EventAuxiliary::ExperimentType enumeration
+    // std::string eType = pset.getUntrackedParameter<std::string>("experimentType", std::string("Unspecified"))),
+  }
 
   ConfigurableInputSource::~ConfigurableInputSource() {
   }

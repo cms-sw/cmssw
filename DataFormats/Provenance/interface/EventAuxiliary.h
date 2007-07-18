@@ -2,7 +2,6 @@
 #define DataFormats_Provenance_EventAuxiliary_h
 
 #include <iosfwd>
-#include <string>
 #include <vector>
 
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
@@ -15,21 +14,31 @@
 namespace edm
 {
   struct EventAuxiliary {
+    // These types are very tentative for now
+    enum ExperimentType {
+      Unspecified = 0,
+      DAQ = 1,
+      Testing = 2,
+      Cosmics = 3, 
+      Geant4 = 4,
+      ParticleGun = 5,
+      Pythia = 6
+    };
     EventAuxiliary() :
 	processHistoryID_(),
 	id_(),
 	time_(),
 	luminosityBlock_(),
 	isRealData_(false), 
-	experimentType_(checkExperimentType(std::string("DAQ"))) {}
+	experimentType_(Unspecified) {}
     EventAuxiliary(EventID const& theId, Timestamp const& theTime, LuminosityBlockNumber_t lb,
-                     bool isReal, std::string eType = std::string("DAQ")) :
+                     bool isReal, ExperimentType eType = Unspecified) :
 	processHistoryID_(),
 	id_(theId),
 	time_(theTime),
 	luminosityBlock_(lb),
 	isRealData_(isReal),
-        experimentType_(checkExperimentType(eType)) {}
+        experimentType_(eType) {}
     ~EventAuxiliary() {}
     void write(std::ostream& os) const;
     ProcessHistoryID& processHistoryID() const {return processHistoryID_;}
@@ -39,25 +48,21 @@ namespace edm
     EventNumber_t event() const {return id_.event();}
     RunNumber_t run() const {return id_.run();}
     bool isRealData() const {return isRealData_;}
-    std::string experimentType() const {return experimentType_;}
+    ExperimentType experimentType() const {return experimentType_;}
 
-    std::string & checkExperimentType(const std::string &);
-
-// most recently process that processed this event
-// is the last on the list, this defines what "latest" is
+    // most recently process that processed this event
+    // is the last on the list, this defines what "latest" is
     mutable ProcessHistoryID processHistoryID_;
-// Event ID
-    EventID                  id_;
-// Time from DAQ.
-    Timestamp                time_;
-// Associated Luminosity Block identifier.
-    LuminosityBlockNumber_t  luminosityBlock_;
-// Is this real data (i.e. not simulated).
-    bool                     isRealData_;
-// Something descriptive of the source of the data.
-    std::string              experimentType_;
-
-    typedef std::vector<std::string> svec;
+    // Event ID
+    EventID id_;
+    // Time from DAQ
+    Timestamp time_;
+    // Associated Luminosity Block identifier
+    LuminosityBlockNumber_t luminosityBlock_;
+    // Is this real data (i.e. not simulated)
+    bool isRealData_;
+    // Something descriptive of the source of the data
+    ExperimentType experimentType_;
   };
 
   inline
@@ -66,6 +71,7 @@ namespace edm
     p.write(os);
     return os;
   }
+
 }
 
 #endif

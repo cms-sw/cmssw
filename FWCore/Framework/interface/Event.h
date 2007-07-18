@@ -15,7 +15,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: Event.h,v 1.57 2007/07/05 17:57:37 lsexton Exp $
+$Id: Event.h,v 1.58 2007/07/18 13:22:41 marafino Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -51,7 +51,7 @@ namespace edm {
     LuminosityBlockNumber_t
     luminosityBlock() const {return aux_.luminosityBlock();}
     bool isRealData() const {return aux_.isRealData();}
-    std::string experimentType() const {return aux_.experimentType();}
+    EventAuxiliary::ExperimentType experimentType() const {return aux_.experimentType();}
 
     using DataViewImpl::get;
     using DataViewImpl::getAllProvenance;
