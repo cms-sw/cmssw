@@ -225,7 +225,7 @@ void DumpGctDigis::doFibres(const edm::Event& iEvent, edm::InputTag label) {
 
   outFile_ << "Fibres :" << " from : " << label.label() << endl;
   for (f=fibres->begin(); f!=fibres->end(); f++) {
-    outFile_ << (*f) << endl;
+    outFile_ << std::hex << f->data() << std::dec << endl;
   } 
   outFile_ << endl;
   
