@@ -206,7 +206,7 @@ void GctBlockUnpacker::blockToRctEmCand(const unsigned char * d, unsigned id, un
   int bx = 0;
 
   // loop over crates
-  for (int crate=rctCrate_[id]; crate<blockLength_[id]/3; crate++) {
+  for (int crate=rctCrate_[id]; crate<blockLength(id)/3; crate++) {
 
     // read SC SFP words
     for (int iSfp=0; iSfp<4; iSfp++) {
@@ -241,9 +241,14 @@ void GctBlockUnpacker::blockToRctEmCand(const unsigned char * d, unsigned id, un
 
 // Fibre unpacking
 void GctBlockUnpacker::blockToFibres(const unsigned char * d, unsigned id, unsigned nSamples) {
+  
+  // re-interpret pointer
+  uint32_t * p = reinterpret_cast<uint32_t *>(const_cast<unsigned char *>(d));
+
   for (int i=0; i<blockLength(id); i++) {
-    for (int j=0; j<nSamples; j++) {
-      gctFibres_->push_back( L1GctFibreWord(d[i*nSamples + j], id, i, j) );
+    for (int bx=0; bx<nSamples; bx++) {
+      gctFibres_->push_back( L1GctFibreWord(*p, id, i, bx) );
+      p++;
     }
   }  
 }
