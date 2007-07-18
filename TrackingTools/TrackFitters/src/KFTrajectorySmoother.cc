@@ -60,45 +60,42 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
     currTsos = updator()->update(predTsos, *(avtm.back().recHit()));
 
     const TransientTrackingRecHit & firsthit = *(avtm.back().recHit());
-    try {  //check surface just for safety: should never be ==0 because they are skipped in the fitter 
-      LogDebug("TrackFitters")
-	<<" ----------------- FIRST HIT -----------------------\n"
-	<<"  HIT IS AT R   "<<(firsthit).globalPosition().perp()<<"\n"
-	<<"  HIT IS AT Z   "<<(firsthit).globalPosition().z()<<"\n"
-	<<"  HIT IS AT Phi "<<(firsthit).globalPosition().phi()<<"\n"
-	<<"  HIT IS AT Loc "<<(firsthit).localPosition()<<"\n"
-	<<"  WITH LocError "<<(firsthit).localPositionError()<<"\n"
-	<<"  HIT IS AT Glo "<<(firsthit).globalPosition()<<"\n"
-	<<"  HIT parameters "<<(firsthit).parameters()<<"\n"
-	<<"  HIT parametersError "<<(firsthit).parametersError()<<"\n"
-	<<"SURFACE POSITION"<<"\n"
-	<<(firsthit).surface().position()<<"\n"
-	<<"SURFACE ROTATION"<<"\n"
-	<<(firsthit).surface().rotation();
-      LogTrace("TrackFitters") <<" hit id="<<(firsthit).geographicalId().rawId();
-      if ((firsthit).geographicalId().subdetId() == StripSubdetector::TIB ) {
-	LogTrace("TrackFitters") <<" I am TIB "<<TIBDetId((firsthit).geographicalId()).layer();
-      }else if ((firsthit).geographicalId().subdetId() == StripSubdetector::TOB ) { 
-	LogTrace("TrackFitters") <<" I am TOB "<<TOBDetId((firsthit).geographicalId()).layer();
-      }else if ((firsthit).geographicalId().subdetId() == StripSubdetector::TEC ) { 
-	LogTrace("TrackFitters") <<" I am TEC "<<TECDetId((firsthit).geographicalId()).wheel();
-      }else if ((firsthit).geographicalId().subdetId() == StripSubdetector::TID ) { 
-	LogTrace("TrackFitters") <<" I am TID "<<TIDDetId((firsthit).geographicalId()).wheel();
-      }else if ((firsthit).geographicalId().subdetId() == (int) PixelSubdetector::PixelBarrel ) {
-	LogTrace("TrackFitters") <<" I am PixBar "<< PXBDetId((firsthit).geographicalId()).layer();
-      }
-      else {
-	LogTrace("TrackFitters") <<" I am PixFwd "<< PXFDetId((firsthit).geographicalId()).disk();
-      }
-      LogTrace("TrackFitters")
-	<<" predTsos !"<<"\n"
-	<<predTsos<<"\n"
-	<<" currTsos !"<<"\n"
-	<<currTsos<<"\n";
-    }
-    catch (...){ LogDebug("TrackFitters") << "KFTrajectorySmoother: first with no surface attached" ;  }
-    
 
+    LogDebug("TrackFitters")
+      <<" ----------------- FIRST HIT -----------------------\n"
+      <<"  HIT IS AT R   "<<(firsthit).globalPosition().perp()<<"\n"
+      <<"  HIT IS AT Z   "<<(firsthit).globalPosition().z()<<"\n"
+      <<"  HIT IS AT Phi "<<(firsthit).globalPosition().phi()<<"\n"
+      <<"  HIT IS AT Loc "<<(firsthit).localPosition()<<"\n"
+      <<"  WITH LocError "<<(firsthit).localPositionError()<<"\n"
+      <<"  HIT IS AT Glo "<<(firsthit).globalPosition()<<"\n"
+      <<"  HIT parameters "<<(firsthit).parameters()<<"\n"
+      <<"  HIT parametersError "<<(firsthit).parametersError()<<"\n"
+      <<"SURFACE POSITION"<<"\n"
+      <<(firsthit).surface()->position()<<"\n"
+      <<"SURFACE ROTATION"<<"\n"
+      <<(firsthit).surface()->rotation();
+    LogTrace("TrackFitters") <<" hit id="<<(firsthit).geographicalId().rawId();
+    if ((firsthit).geographicalId().subdetId() == StripSubdetector::TIB ) {
+	LogTrace("TrackFitters") <<" I am TIB "<<TIBDetId((firsthit).geographicalId()).layer();
+    }else if ((firsthit).geographicalId().subdetId() == StripSubdetector::TOB ) { 
+      LogTrace("TrackFitters") <<" I am TOB "<<TOBDetId((firsthit).geographicalId()).layer();
+    }else if ((firsthit).geographicalId().subdetId() == StripSubdetector::TEC ) { 
+      LogTrace("TrackFitters") <<" I am TEC "<<TECDetId((firsthit).geographicalId()).wheel();
+    }else if ((firsthit).geographicalId().subdetId() == StripSubdetector::TID ) { 
+      LogTrace("TrackFitters") <<" I am TID "<<TIDDetId((firsthit).geographicalId()).wheel();
+    }else if ((firsthit).geographicalId().subdetId() == (int) PixelSubdetector::PixelBarrel ) {
+      LogTrace("TrackFitters") <<" I am PixBar "<< PXBDetId((firsthit).geographicalId()).layer();
+    }
+    else {
+      LogTrace("TrackFitters") <<" I am PixFwd "<< PXFDetId((firsthit).geographicalId()).disk();
+    }
+    LogTrace("TrackFitters")
+      <<" predTsos !"<<"\n"
+      <<predTsos<<"\n"
+      <<" currTsos !"<<"\n"
+      <<currTsos<<"\n";
+      
     myTraj.push(TM(avtm.back().forwardPredictedState(), 
 		   predTsos,
 		   avtm.back().updatedState(), 
@@ -117,12 +114,17 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
       itm != avtm.rend() - 1; itm++) {
 
     //check surface just for safety: should never be ==0 because they are skipped in the fitter 
-    if ((*itm).recHit()->isValid() == false) {
-      try { (*itm).recHit()->surface(); } 
-      catch (...){
+    if ( (*itm).recHit()->surface()==0 ) {
 	LogDebug("TrackFitters")<< " Error: invalid hit with no GeomDet attached .... skipping";
 	continue;
-      }
+    }
+
+    predTsos = thePropagator->propagate( currTsos, *((*itm).recHit()->surface()) );
+
+    if(!predTsos.isValid()) {
+      LogDebug("TrackFitters") << 
+	"KFTrajectorySmoother: predicted tsos not valid!";
+      return std::vector<Trajectory>();
     }
 
     if((*itm).recHit()->isValid()) {
@@ -135,9 +137,9 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
 	<<"  WITH LocError "<<(*itm).recHit()->localPositionError()<<"\n"
 	<<"  HIT IS AT Glo "<<(*itm).recHit()->globalPosition()<<"\n"
 	<<"SURFACE POSITION"<<"\n"
-	<<(*itm).recHit()->surface().position()<<"\n"
+	<<(*itm).recHit()->surface()->position()<<"\n"
 	<<"SURFACE ROTATION"<<"\n"
-	<<(*itm).recHit()->surface().rotation();
+	<<(*itm).recHit()->surface()->rotation();
       LogTrace("TrackFitters") <<" hit id="<<(*itm).recHit()->geographicalId().rawId();
       if ((*itm).recHit()->geographicalId().subdetId() == StripSubdetector::TIB ) {
 	LogTrace("TrackFitters") <<" I am TIB "<<TIBDetId((*itm).recHit()->geographicalId()).layer();
@@ -153,19 +155,6 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
       else {
 	LogTrace("TrackFitters") <<" I am PixFwd "<< PXFDetId((*itm).recHit()->geographicalId()).disk();
       }
-    } else LogDebug("TrackFitters") <<" ----------------- NEW INVALID HIT -----------------------";
-
-
-    predTsos = thePropagator->propagate(currTsos,
-					(*itm).recHit()->surface());
-    
-    if(!predTsos.isValid()) {
-      LogDebug("TrackFitters") << 
-	"KFTrajectorySmoother: predicted tsos not valid!";
-      return std::vector<Trajectory>();
-    }
-
-    if((*itm).recHit()->isValid()) {
 
       //update
       currTsos = updator()->update(predTsos, (*(*itm).recHit()));
@@ -179,7 +168,7 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
 	  "KFTrajectorySmoother: combined tsos not valid!\n"<<
 	  "pred Tsos pos: "<<predTsos.globalPosition()<< "\n" <<
 	  "pred Tsos mom: "<<predTsos.globalMomentum()<< "\n" <<
-	  "TrackingRecHit: "<<(*itm).recHit()->surface().toGlobal((*itm).recHit()->localPosition())<< "\n" ;
+	  "TrackingRecHit: "<<(*itm).recHit()->surface()->toGlobal((*itm).recHit()->localPosition())<< "\n" ;
 	return std::vector<Trajectory>();
       }
 
@@ -224,15 +213,14 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
   }
   
   //last smoothed tm is last filtered
-
-  try {  //check surface just for safety: should never be ==0 because they are skipped in the fitter 
-    predTsos = thePropagator->propagate(currTsos,
-					avtm.front().recHit()->surface());
-  } 
-  catch (...){
+  if ( avtm.front().recHit()->surface()!=0 ) {
+    //check surface just for safety: should never be ==0 because they are skipped in the fitter 
+    predTsos = thePropagator->propagate( currTsos, *(avtm.front().recHit()->surface()) );
+  } else {
     LogDebug("TrackFitters")<< " Error: invalid hit with no GeomDet attached .... skipping";
     myTraj.push(TM(avtm.front().forwardPredictedState(),
   		   avtm.front().recHit()));
+    return std::vector<Trajectory>(1, myTraj); 
   }
 
   if(!predTsos.isValid()) {
@@ -246,6 +234,7 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
     //update
     currTsos = updator()->update(predTsos, *(avtm.front().recHit()));
     const TransientTrackingRecHit & lasthit = *(avtm.front().recHit());
+
     LogDebug("TrackFitters")
       <<" ----------------- LAST HIT -----------------------\n"
       <<"  HIT IS AT R   "<<(lasthit).globalPosition().perp()<<"\n"
@@ -257,9 +246,9 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
       <<"  HIT parameters "<<(lasthit).parameters()<<"\n"
       <<"  HIT parametersError "<<(lasthit).parametersError()<<"\n"
       <<"SURFACE POSITION"<<"\n"
-      <<(lasthit).surface().position()<<"\n"
+      <<(lasthit).surface()->position()<<"\n"
       <<"SURFACE ROTATION"<<"\n"
-      <<(lasthit).surface().rotation();
+      <<(lasthit).surface()->rotation();
     LogTrace("TrackFitters") <<"  GOING TO examine hit "<<(lasthit).geographicalId().rawId();
     if ((lasthit).geographicalId().subdetId() == StripSubdetector::TIB ) {
       LogTrace("TrackFitters") <<" I am TIB "<<TIBDetId((lasthit).geographicalId()).layer();

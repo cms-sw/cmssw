@@ -94,9 +94,9 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
       <<"  HIT parameters "<<(firsthit).parameters()<<"\n"
       <<"  HIT parametersError "<<(firsthit).parametersError()<<"\n"
       <<"SURFACE POSITION"<<"\n"
-      <<(firsthit).surface().position()<<"\n"
+      <<(firsthit).surface()->position()<<"\n"
       <<"SURFACE ROTATION"<<"\n"
-      <<(firsthit).surface().rotation();
+      <<(firsthit).surface()->rotation();
     LogTrace("TrackFitters") <<" hit id="<<(firsthit).geographicalId().rawId();
     if ((firsthit).geographicalId().subdetId() == StripSubdetector::TIB ) {
       LogTrace("TrackFitters") <<" I am TIB "<<TIBDetId((firsthit).geographicalId()).layer();
@@ -121,12 +121,9 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
 
   for(RecHitContainer::const_iterator ihit = hits.begin() + 1; ihit != hits.end(); ihit++) {
 
-    if ((**ihit).isValid() == false) {
-      try { (**ihit).surface(); } 
-      catch (...){
+    if ((**ihit).isValid() == false && (**ihit).surface() == 0) {
 	LogDebug("TrackFitters")<< " Error: invalid hit with no GeomDet attached .... skipping";
 	continue;
-      }
     }
 
     if ((**ihit).isValid()){
@@ -139,9 +136,9 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
 	<<"  WITH LocError "<<(**ihit).localPositionError()<<"\n"
 	<<"  HIT IS AT Glo "<<(**ihit).globalPosition()<<"\n"
 	<<"SURFACE POSITION"<<"\n"
-	<<(**ihit).surface().position()<<"\n"
+	<<(**ihit).surface()->position()<<"\n"
 	<<"SURFACE ROTATION"<<"\n"
-	<<(**ihit).surface().rotation();
+	<<(**ihit).surface()->rotation();
       LogTrace("TrackFitters") <<" hit det="<<(**ihit).geographicalId().rawId();
       if ((**ihit).geographicalId().subdetId() == StripSubdetector::TIB ) {
 	LogTrace("TrackFitters") <<" I am TIB "<<TIBDetId((**ihit).geographicalId()).layer();
@@ -161,8 +158,8 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
       }
     }
 
-    predTsos = thePropagator->propagate(currTsos,
-					(**ihit).surface());
+    predTsos = thePropagator->propagate( currTsos, *((**ihit).surface()) );
+
     if(!predTsos.isValid()) {
       LogDebug("TrackFitters") 
 	<<" SOMETHING WRONG !"<<"\n"
@@ -170,7 +167,7 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
 	<<"current TSOS: "<<currTsos<< "\n";
       if((**ihit).isValid())
 	LogTrace("TrackFitters")
-	  << "next Surface: "<<(**ihit).surface().position()<< "\n";
+	  << "next Surface: "<<(**ihit).surface()->position()<< "\n";
       return std::vector<Trajectory>();
     }
     if((**ihit).isValid()) {

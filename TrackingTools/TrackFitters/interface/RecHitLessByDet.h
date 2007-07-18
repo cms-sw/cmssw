@@ -7,8 +7,8 @@
  *  would be seen by an outgoing (or an incoming) track.
  *  Only meaningful for RecHits from the same trajectory. Ported from ORCA
  *
- *  $Date: 2007/05/09 14:17:57 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/07/16 10:15:53 $
+ *  $Revision: 1.6 $
  *  \author todorov, cerati
  */
 
@@ -28,10 +28,10 @@ public:
   bool operator()(const RecHitPointer& aHit, const RecHitPointer& bHit) const{
 
     return (theDirection == alongMomentum ? 
-	    (aHit->surface().toGlobal(aHit->localPosition()).mag() < 
-	     bHit->surface().toGlobal(bHit->localPosition()).mag() ) :
-	    (aHit->surface().toGlobal(aHit->localPosition()).mag() >
-	     bHit->surface().toGlobal(bHit->localPosition()).mag()) );
+	    (aHit->surface()->toGlobal(aHit->localPosition()).mag() < 
+	     bHit->surface()->toGlobal(bHit->localPosition()).mag() ) :
+	    (aHit->surface()->toGlobal(aHit->localPosition()).mag() >
+	     bHit->surface()->toGlobal(bHit->localPosition()).mag()) );
   }
 
 private:
