@@ -74,14 +74,14 @@ void DDHCalAngular::execute() {
 
     if (iphi != 0) {
       rotstr = "R"; 
-      if (phideg < 100) rotstr = "R0"; 
+      if (phideg >=0 && phideg < 100) rotstr = "R0"; 
       rotstr = rotstr + dbl_to_string(phideg);
       rotation = DDRotation(DDName(rotstr, rotns)); 
       if (!rotation) {
         LogDebug("HCalGeom") << "DDHCalAngular test: Creating a new rotation "
 			     << DDName(rotstr, idNameSpace) << "\t90, " 
 			     << phideg << ", 90, " << (phideg+90) << ", 0, 0";
-        rotation = DDrot(DDName(rotstr, idNameSpace), 90*deg, phideg*deg, 
+        rotation = DDrot(DDName(rotstr, rotns), 90*deg, phideg*deg, 
                          90*deg, (90+phideg)*deg, 0*deg,  0*deg);
       } 
     }

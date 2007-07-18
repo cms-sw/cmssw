@@ -416,7 +416,7 @@ void DDHCalBarrelAlgo::constructGeneralVolume() {
 	LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: Creating a new rotat"
 			     << "ion " << rotstr << "\t" << 90 << "," << phideg
 			     << ","  << 90 << "," << (phideg+90) << ", 0, 0";
-	rotation = DDrot(DDName(rotstr, idNameSpace), 90*deg, phideg*deg, 
+	rotation = DDrot(DDName(rotstr, rotns), 90*deg, phideg*deg, 
 			 90*deg, (90+phideg)*deg, 0*deg,  0*deg);
       } //if !rotation
     } //if phideg!=0
