@@ -408,7 +408,9 @@ void  LinkDataXMLReader::clear(){
 
 std::pair<int,int>  LinkDataXMLReader::getDCCInputChannelNum(int tcNumber, int tbNumber){
 
-  int fedNumber = 790 + tcNumber/4;
+  //int fedNumber = 790 + tcNumber/4;
+
+  int fedNumber = 792 - tcNumber/4;
   int dccInputChannelNum = tbNumber + 9*(tcNumber%4);
 
   return std::pair<int,int>(fedNumber,dccInputChannelNum);
