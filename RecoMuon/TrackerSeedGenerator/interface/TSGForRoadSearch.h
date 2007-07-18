@@ -20,6 +20,7 @@
 
 class TrackingRegion;
 class MuonServiceProxy;
+class TrajectoryStateUpdator;
 
 class TSGForRoadSearch : public TrackerSeedGenerator {
 
@@ -50,19 +51,20 @@ private:
   void pushTrajectorySeed(const reco::Track & muon, std::vector<DetLayer::DetWithState > & compatible, PropagationDirection direction, std::vector<TrajectorySeed>& result)const;
   edm::ParameterSet theConfig;
 
-  edm::ESHandle<MeasurementTracker> _measurementTracker;
-  //  edm::ESHandle<GlobalTrackingGeometry> _glbtrackergeo;
-  //edm::ESHandle<MagneticField> _field;
+  edm::ESHandle<MeasurementTracker> theMeasurementTracker;
+  //  edm::ESHandle<TrajectoryStateUpdator> theUpdator;
+  TrajectoryStateUpdator * theUpdator;
   const MuonServiceProxy * theProxyService;
 
-  uint _option;
-  bool _copyMuonRecHit;
-  std::string _propagatorName;
-  edm::ESHandle<Propagator> _prop;
-  std::string _propagatorCompatibleName;
-  edm::ESHandle<Propagator> _propCompatible;
-  Chi2MeasurementEstimator * _chi2Estimator;
-  std::string _category;
+  uint theOption;
+  bool theCopyMuonRecHit;
+  bool theManySeeds;
+  std::string thePropagatorName;
+  edm::ESHandle<Propagator> theProp;
+  std::string thePropagatorCompatibleName;
+  edm::ESHandle<Propagator> thePropCompatible;
+  Chi2MeasurementEstimator * theChi2Estimator;
+  std::string theCategory;
 
 };
 
