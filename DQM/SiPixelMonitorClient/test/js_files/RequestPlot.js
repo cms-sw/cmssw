@@ -234,7 +234,6 @@ RequestPlot.FillStatus = function()
 	   fullPath += path[i] + "/";
 	  }
 	  if (hpath != "NOME") IMGC.updateIMGC(fullPath);
-	  alert("[RequestPlot.FillStatus] "+fullPath) ;
 	}
       }
       catch (err) {

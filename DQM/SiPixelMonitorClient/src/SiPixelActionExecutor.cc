@@ -87,7 +87,9 @@ bool SiPixelActionExecutor::readConfiguration(int& tkmap_freq,
 //=============================================================================================================
 // -- Create Tracker Map
 //
-void SiPixelActionExecutor::createTkMap(MonitorUserInterface* mui, string mEName) 
+void SiPixelActionExecutor::createTkMap(MonitorUserInterface* mui, 
+                                        string mEName,
+					string theTKType) 
 {
  
   TrackerMapCreator tkmap_creator(mEName);
@@ -96,7 +98,10 @@ void SiPixelActionExecutor::createTkMap(MonitorUserInterface* mui, string mEName
   cout << ACYellow << ACBold 
        << "[SiPixelActionExecutor::createTkMap()]"
        << ACPlain
-       << " Tracker map created " << endl;
+       << " Tracker map created (type:" 
+       << theTKType
+       << ")"
+       << endl;
 }
 
 //=============================================================================================================

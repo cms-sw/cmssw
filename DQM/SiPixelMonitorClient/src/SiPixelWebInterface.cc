@@ -310,11 +310,11 @@ void SiPixelWebInterface::performAction() {
     {
      if (createTkMap()) {
        tkMapCreated = true;
-       theOut->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
-      *theOut << "<?xml version=\"1.0\" ?>"	     << endl;
-      *theOut << "<TkMap>"			     << endl;
-      *theOut << " <Response>Successfull</Response>" << endl;
-      *theOut << "</TkMap>"			     << endl;
+//       theOut->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
+//      *theOut << "<?xml version=\"1.0\" ?>"	     << endl;
+//      *theOut << "<TkMap>"			     << endl;
+//      *theOut << " <Response>Successfull</Response>" << endl;
+//      *theOut << "</TkMap>"			     << endl;
      }
       break;
     }
@@ -436,8 +436,9 @@ void SiPixelWebInterface::returnReplyXml(xgi::Output * out, const std::string& n
 //____________________________________________________________________________________________________
 bool SiPixelWebInterface::createTkMap() {
   if (theActionFlag == SiPixelWebInterface::CreateTkMap) {
-    string sname = get_from_multimap(requestMap_, "MEName");
-    actionExecutor_->createTkMap((*mui_p), sname);
+    string sname     = get_from_multimap(requestMap_, "MEName");
+    string theTKType = get_from_multimap(requestMap_, "TKMapType");
+    actionExecutor_->createTkMap((*mui_p), sname, theTKType);
     return true;
   } else {
     return false;
@@ -449,6 +450,7 @@ bool SiPixelWebInterface::createTkMap() {
 //____________________________________________________________________________________________________
 void SiPixelWebInterface::periodicTkMapUpdate(xgi::Output * out)
 {
-  string sname = get_from_multimap(requestMap_, "MEName");
-  infoExtractor_->sendTkUpdatedStatus((*mui_p), out, sname) ;
+  string sname     = get_from_multimap(requestMap_, "MEName");
+  string theTKType = get_from_multimap(requestMap_, "TKMapType");
+  infoExtractor_->sendTkUpdatedStatus((*mui_p), out, sname, theTKType) ;
 }

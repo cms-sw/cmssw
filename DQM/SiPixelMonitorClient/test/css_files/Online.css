@@ -46,3 +46,28 @@ table
  visibility:       hidden ;
  background:       yellow;
 }
+
+#theLegend .theLegend
+{
+ font-size:        18px	  ;
+ color:            red	  ;
+}
+
+.largeCheckBox 
+{  
+ width  : 	   1.8em ; 
+ height : 	   1.8em ; 
+ }	
+
+.mediumCheckBox 
+{  
+ width  : 	   1.2em ; 
+ height : 	   1.2em ; 
+ }	
+
+.smallCheckBox 
+{  
+ width  :  	   1.0em ;
+ height :     	   1.0em ;
+}  
+

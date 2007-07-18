@@ -106,8 +106,8 @@ RightFrame.resizeByStep = function()
 {
  var currW = dd.elements.zoomedImg.w ;
  var currH = dd.elements.zoomedImg.h ;
- currW = 267 ;
- currH = 200 ;
+ currW = 400 ;
+ currH = 300 ;
 
  var theResizeSelection = top.right.document.forms['resizeByForm'].resizeBy ;
  var theSelIndex	= theResizeSelection.selectedIndex ;

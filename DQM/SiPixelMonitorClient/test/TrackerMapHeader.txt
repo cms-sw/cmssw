@@ -75,7 +75,7 @@
    <tr>
     <td>
      <form action = "javascript:void(0)"
-          style   = "color:red;">
+           style  = "color: #ffb400; font-family: Verdana; Arial">
       <h3>
        Color codes according to ME: 
        <input id    = "currentColorCodeME"
@@ -93,13 +93,13 @@
               name  = "currentViewText"
               size  = "8">
        </input><br/>
-       Det. element : 
+       Det: 
        <input id    = "currentElementText"
  	      class = "inputBox"
  	      type  = "text" 
  	      value = ""
  	      name  = "currentElementText" 
- 	      size  = "58">
+ 	      size  = "75">
        </input>
       </h3> 
      </form>

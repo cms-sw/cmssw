@@ -71,14 +71,17 @@ ClientActions.SaveToFile = function() {
 //
 ClientActions.CreateTrackerMap = function() {
   var queryString = "RequestID=CreateTkMap";
-  var obj = document.getElementById("create_tkmap");
+  var obj         = document.getElementById("create_tkmap");
 
-  var url = WebLib.getApplicationURL2();
-  url += "/Request?";
-  url += queryString; 
-  var obj = document.getElementById("monitoring_element_list");
-  var sname =  obj.options[obj.selectedIndex].value;
-  url += '&MEName='+sname;
+  var url         = WebLib.getApplicationURL2();
+  url		 += "/Request?";
+  url 		 += queryString;
+  var obj   	  = document.getElementById("monitoring_element_list");
+  var sname 	  = obj.options[obj.selectedIndex].value;
+  obj       	  = document.getElementById("TKMapContentType");
+  var stype 	  = obj.options[obj.selectedIndex].value;
+  url 		 += '&MEName='    + sname;
+  url 		 += '&TKMapType=' + stype;
    
   WebLib.makeRequest(url, ClientActions.ReadResponseAndOpenTkMap);
 }

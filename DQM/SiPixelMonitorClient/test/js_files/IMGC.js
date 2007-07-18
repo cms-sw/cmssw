@@ -114,6 +114,18 @@ Event.observe(window, 'load', function()
   IMGC.setBorderSize() ;
   IMGC.paintImages();
  }, false);
+ Event.observe($('twoXone'),      'click', function()	
+ {
+  IMGC.IMAGES_PER_ROW      = 2   ;
+  IMGC.IMAGES_PER_COL      = 1;
+  IMGC.IMAGES_PER_PAGE     = IMGC.IMAGES_PER_ROW * IMGC.IMAGES_PER_COL;
+  IMGC.ASPECT_RATIO        = 1.5 ;
+  IMGC.THUMB_MICROFICATION = 4 ;
+  IMGC.BASE_IMAGE_WIDTH    = IMGC.DEF_IMAGE_WIDTH ;
+  IMGC.BASE_IMAGE_HEIGHT   = parseInt(IMGC.BASE_IMAGE_WIDTH / IMGC.ASPECT_RATIO) ;
+  IMGC.setBorderSize() ;
+  IMGC.paintImages();
+ }, false);
 
  IMGC.loadingProgress('hidden') ;
 
@@ -412,12 +424,18 @@ IMGC.paintImages = function ()
    var thisPlot   = $('imageCanvas').titlesList[element.imageNumber].split("Plot=") ;
    var plotName   = "" ;
    var plotFolder = "" ;
+   var temp ;
    try 
    {
-    thisPlot      = thisPlot[1].split("&Folder=") ;
-    thisPlot[1].replace("Collector/(FU\d+)/Tracker","$1") ;
-    plotName   = thisPlot[0] ;
-    plotFolder = thisPlot[1] ;
+    temp          = thisPlot[1].split(/&/g) ;
+    plotName      = temp[0] ;
+    plotFolder    = temp[1] ;
+    temp          = plotFolder.split("Folder=" );
+    plotFolder    = temp[1] ;
+    plotFolder.replace(/Collector\/(FU\d+)\/Tracker/,"$1/") ;
+    plotFolder.replace(/Collector/,"") ;
+    plotFolder.replace(/Collated/,"") ;
+    plotFolder.replace(/Tracker/,"") ;
    } catch(e) {}
    
 //   $('traceRegion').value = "Plot: " + element.imageNumber + "  " + plotName + " | " +  plotFolder;
@@ -434,7 +452,7 @@ IMGC.paintImages = function ()
  	   		   'left'   : [element.offsetLeft, element.offsetLeft - IMGC.THUMB_IMAGE_WIDTH * .05],
  	   		   'top'    : [element.offsetTop,  element.offsetTop  - IMGC.THUMB_IMAGE_WIDTH * .05]
                            });
-   $('imgTitle').value = "Plot: " + element.imageNumber + "  " + thisPlot[0] + " | " +  thisPlot[1];
+   $('imgTitle').value = element.imageNumber + "]  " + plotFolder + "  |  " +  plotName;;
   }, false);
  
   Event.observe(img, 'mouseout', function()	  
@@ -588,4 +606,65 @@ IMGC.loadingProgress = function (state)
 			    'opacity' : [1, 0]
 			    });
  }
+}
+//__________________________________________________________________________________________________________________________________
+IMGC.selectedIMGCItems = function ()	
+{
+ var url       = WebLib.getApplicationURL2();
+ var imageURLs = new Array();
+ var selection = document.getElementsByName("selected") ;
+ date = new Date() ; // This is extremely important: adding a date to the QUERY_STRING of the
+                     // URL, forces the browser to reload the picture even if the Plot, Folder
+		     // and canvas size are the same (e.g. by clicking twice the same plot)
+		     // The reload is forced because the browser is faked to think that the
+		     // URL is ALWAYS different from an already existing one.
+		     // This was rather tricky... (Dario)
+ date = date.toString() ;
+ date = date.replace(/\s+/g,"_") ;
+
+ var canvasW             = window.innerWidth * IMGC.GLOBAL_RATIO ;
+ IMGC.DEF_IMAGE_WIDTH    = parseInt(canvasW);
+ IMGC.BASE_IMAGE_WIDTH   = IMGC.DEF_IMAGE_WIDTH;
+ IMGC.BASE_IMAGE_HEIGHT  = parseInt(IMGC.BASE_IMAGE_WIDTH / IMGC.ASPECT_RATIO) ;
+ IMGC.THUMB_IMAGE_WIDTH  = IMGC.BASE_IMAGE_WIDTH  / IMGC.IMAGES_PER_ROW;
+ IMGC.THUMB_IMAGE_HEIGHT = IMGC.BASE_IMAGE_HEIGHT / IMGC.IMAGES_PER_COL;
+ 
+ for( var i=0; i<selection.length; i++)
+ {
+  if( selection[i].checked )
+  {
+   var qs = url                                    + 
+            "/Request?RequestID=getIMGCPlot&Plot=" + 
+	    selection[i].value  		   +
+	    "&Folder="  			   +
+	    selection[i].getAttribute("folder")    +
+            '&canvasW=' 			   +
+            IMGC.BASE_IMAGE_WIDTH		   +
+            '&canvasH=' 			   +
+            IMGC.BASE_IMAGE_HEIGHT		   +
+            "&Date="				   +
+            date;
+   imageURLs.push(qs) ;
+  }
+ }
+
+ $('imageCanvas').imageList     = imageURLs;
+ $('imageCanvas').titlesList    = imageURLs;
+ $('imageCanvas').current_start = 0;
+ IMGC.PATH_TO_PICTURES = "" ; 
+ IMGC.computeCanvasSize() ;
+}
+//__________________________________________________________________________________________________________________________________
+IMGC.clearSelection = function ()	
+{
+ var selection = document.getElementsByName("selected") ;
+ for( var i=0; i<selection.length; i++)
+ {
+  if( selection[i].checked )
+  {
+   selection[i].checked = false ;
+  }
+ }
+ 
+ IMGC.selectedIMGCItems() ;
 }

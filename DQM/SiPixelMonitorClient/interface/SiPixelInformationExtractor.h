@@ -71,14 +71,15 @@ class SiPixelInformationExtractor {
 				QString                                   theMEType) ;
   void sendTkUpdatedStatus(     MonitorUserInterface			* mui,
                               	xgi::Output                             * out,
-				std::string                             & meName) ;
+				std::string                             & meName,
+				std::string                             & theTKType) ;
   void selectMEList(            MonitorUserInterface                    * mui,  
                                 std::string                             & name, 
 				std::vector<MonitorElement*>            & mes);
   void getMEList(               MonitorUserInterface                    * mui,  
 				std::map<std::string, int>              & mEHash);
   int getDetId(                 MonitorElement                          * mui) ;				
-  const std::ostringstream& getImage(                                     void)                const;
+  const std::ostringstream& getImage(                                     void)        const;
   const std::ostringstream& getIMGCImage(MonitorUserInterface		* mui,
   				std::string				  theFullPath,
 				std::string				  canvasW,

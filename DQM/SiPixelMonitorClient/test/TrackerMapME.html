@@ -119,15 +119,17 @@
           <select id	   = "resizeBy"
         	  class    = "comboBox"
         	  name     = "resizeBy" 
+        	  onselect = "RightFrame.resizeByStep()"
         	  onchange = "RightFrame.resizeByStep()">
-           <option          value = "0.1" >0.1</option>
-           <option          value = "0.5" >0.5</option>
-           <option selected value = "1.5" >1.5</option>
-           <option          value = "2.0" >2.0</option>
-           <option   	    value = "2.5" >2.5</option>
-           <option   	    value = "3.0" >3.0</option>
-           <option   	    value = "3.5" >3.5</option>
-           <option   	    value = "4.0" >4.0</option>
+           <option          value = "0.1" >0.1  	</option>
+           <option          value = "0.5" >0.5  	</option>
+           <option selected value = "1.0" >1.0  	</option>
+           <option selected value = "1.5" >1.5  	</option>
+           <option          value = "2.0" >2.0 (Optimal)</option>
+           <option   	    value = "2.5" >2.5  	</option>
+           <option   	    value = "3.0" >3.0  	</option>
+           <option   	    value = "3.5" >3.5  	</option>
+           <option   	    value = "4.0" >4.0  	</option>
           </select>
          </h1>
         </form>
@@ -154,8 +156,8 @@
             name   	= "zoomedImg"	
 	    alt         = "picture geometry:1600x1200"				     
 	    src    	= "images/EmptyPlot.png"			     
- 	    width    	= "267"   				       
- 	    height   	= "200" />				       
+ 	    width    	= "400"   				       
+ 	    height   	= "300" />				       
      </div>
     </td>
    </tr>

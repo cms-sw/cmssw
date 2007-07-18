@@ -45,7 +45,7 @@
               style = "background: #225587;
 	               width:      95%;
 		       height:     100%;">
-     <legend >
+     <legend id = "theLegend">
       Drawing Canvas
      </legend>
      <div id	= "mainContainer"
@@ -53,12 +53,6 @@
 
       <!-- The canvas control buttons -->
       <div  id    = "controls">
-       <button type    = "submit"
-               class   = "controlButton"
-               id      = "fourXfour"
-               value   = "4x4">4x4
-       </button>
-       <span> | </span>
        <button type    = "submit"
                class   = "controlButton"
                id      = "normalSize"
@@ -110,8 +104,20 @@
        <span> | </span>
        <button type    = "submit"
                class   = "controlButton"
+               id      = "fourXfour"
+               value   = "4x4">4x4
+       </button>
+       <span> | </span>
+       <button type    = "submit"
+               class   = "controlButton"
                id      = "twoXtwo"
                value   = "2x2">2x2
+       </button>
+       <span> | </span>
+       <button type    = "submit"
+               class   = "controlButton"
+               id      = "twoXone"
+               value   = "2x1">2x1
        </button>
        <span> | </span>
        <button type    = "submit"
@@ -272,14 +278,26 @@
                        class   = "label">
                  Refresh:
                 </label>
-                <select name   = "refreshInterval"
-        	        class  = "selector"
-        	        id     = "refreshInterval"
+                <select name     = "refreshInterval"
+        	        class    = "selector"
+        	        id       = "refreshInterval"
         	        onchange = "SvgMap.changeRefreshInterval()">
                    <option          value = "10000" >10 sec</option>
                    <option selected value = "30000" >30 sec</option>
                    <option	    value = "60000" > 1 min</option>
                    <option	    value = "120000"> 2 min</option>
+                </select>
+		<p />
+                <label id      = "TrackerMapStyle"
+                       class   = "label">
+                 Content:
+                </label>
+                <select name     = "TKMapContentType"
+        	        class    = "selector"
+        	        id       = "TKMapContentType"
+        	        onchange = "SvgMap.changeContentType()">
+                   <option selected value = "Continuous" >Continuous</option>
+                   <option 	    value = "Alarms"     >Alarms    </option>
                 </select>
 	        <div id = "progressIcon">	
 	           <img src="images/loading.gif" border="0"> &nbsp; Please, wait, loading...
@@ -307,28 +325,37 @@
                       <select name  = "struc_name"
                               id    = "structure_for_module"
                               class = "selector">
-                         <option value = "Tracker" SELECTED> ALL PIXELS									      </option>
-                         <option value = "Tracker/PixelBarrel"> BPIX  									      </option>
-                         <option value = "Tracker/PixelEndcap"> FPIX  									      </option>
-                         <option value = "Tracker/PixelBarrel/Shell_mI"> BPIX/Shell_mI							      </option>
-                         <option value = "Tracker/PixelBarrel/Shell_mO"> BPIX/Shell_mO							      </option>
-                         <option value = "Tracker/PixelBarrel/Shell_pI"> BPIX/Shell_pI							      </option>
-                         <option value = "Tracker/PixelBarrel/Shell_pO"> BPIX/Shell_pO							      </option>
-                         <option value = "Tracker/PixelEndcap/HalfCylinder_mI"> FPIX/HalfCylinder_mI  					      </option>
-                         <option value = "Tracker/PixelEndcap/HalfCylinder_mO"> FPIX/HalfCylinder_mO  					      </option>
-                         <option value = "Tracker/PixelEndcap/HalfCylinder_pI"> FPIX/HalfCylinder_pI  					      </option>
-                         <option value = "Tracker/PixelEndcap/HalfCylinder_pO"> FPIX/HalfCylinder_pO  					      </option>
-                         <option value = "Tracker/PixelEndcap/HalfCylinder_pO/Disk_1/Blade_01/Panel_1"> FPIX/HalfCylinder_pO/Disk_1/Blade_01/Panel_1</option>
+                         <option value = "Tracker" > ALL PIXELS									   </option>
+                         <option value = "Tracker/PixelBarrel"> BPIX  								   </option>
+                         <option value = "Tracker/PixelEndcap"> FPIX  								   </option>
+                         <option value = "Tracker/PixelBarrel/Shell_mI" SELECTED> BPIX/Shell_mI					   </option>
+                         <option value = "Tracker/PixelBarrel/Shell_mO"> BPIX/Shell_mO						   </option>
+                         <option value = "Tracker/PixelBarrel/Shell_pI"> BPIX/Shell_pI						   </option>
+                         <option value = "Tracker/PixelBarrel/Shell_pO"> BPIX/Shell_pO						   </option>
+                         <option value = "Tracker/PixelEndcap/HalfCylinder_mI"> FPIX/HalfCylinder_mI  				   </option>
+                         <option value = "Tracker/PixelEndcap/HalfCylinder_mO"> FPIX/HalfCylinder_mO  				   </option>
+                         <option value = "Tracker/PixelEndcap/HalfCylinder_pI"> FPIX/HalfCylinder_pI  				   </option>
+                         <option value = "Tracker/PixelEndcap/HalfCylinder_pO"> FPIX/HalfCylinder_pO  				   </option>
+                         <option value = "Tracker/PixelEndcap/HalfCylinder_pO/Disk_1/Blade_01/Panel_1"> FPIX/HalfCylinder_pO/Disk_1</option>
+                         <option value = "Tracker/PixelEndcap/HalfCylinder_pO/Disk_1/Blade_01/Panel_1"> FPIX/HalfCylinder_pO/Disk_2</option>
                       </select>
+		      <p />
                       <input name    = "listmodule"
                              id	     = "list_module"
                              class   = "controlButton"
                              value   = "Get Tree"
-                             onClick = "RequestHistos.RequestModuleTree()"
+                             onClick = "javascript:RequestHistos.RequestModuleTree()"
+                             type    = "submit">
+                      </input>
+                      <input name    = "clearSingleModuleViewTree"
+                             id	     = "clearSingleModuleViewTree"
+                             class   = "controlButton"
+                             value   = "Clear selection"
+                             onClick = "javascript:IMGC.clearSelection()"
                              type    = "submit">
                       </input>
                 </div>
-                </br>
+                <p />
                 <div class = "bloc" 
 	             id    = "modtree_list" 
 	             style = "overflow:scroll;height:300px;width:100%;background:#FFF;">
@@ -347,10 +374,11 @@
                       <select name  = "struc_name"
                               id    = "structure_name"
                               class = "selector">
-                         <option value = "Tracker" SELECTED> ALL PIXELS </option>
-                         <option value = "Tracker/PixelBarrel"> BPIX    </option>
-                         <option value = "Tracker/PixelEndcap"> FPIX    </option>
+                         <option value = "Tracker"> ALL PIXELS                </option>
+                         <option value = "Tracker/PixelBarrel" SELECTED> BPIX </option>
+                         <option value = "Tracker/PixelEndcap"> FPIX          </option>
                       </select>
+		      <p />
                       <input name    = "listsummary"
                              id      = "list_summary"
                              class   = "controlButton"
@@ -358,8 +386,15 @@
                              onClick = "RequestHistos.RequestSummaryHistoList()"
                              type    = "submit">
                       </input>
+                      <input name    = "clearSingleModuleViewTree"
+                             id	     = "clearSingleModuleViewTree"
+                             class   = "controlButton"
+                             value   = "Clear selection"
+                             onClick = "javascript:IMGC.clearSelection()"
+                             type    = "submit">
+                      </input>
                 </div>
-                </br>
+                <p />
                 <div class = "bloc" 
 	             id    = "tree_list" 
 	             style = "overflow:scroll;height:300px;width:100%;background:#FFF;">
@@ -378,10 +413,11 @@
                       <select name  = "struc_alarm"
                               id    = "structure_for_alarm"
                               class = "selector">
-                         <option value = "Tracker" SELECTED> ALL PIXELS </option>
-                         <option value = "Tracker/PixelBarrel"> BPIX    </option>
-                         <option value = "Tracker/PixelEndcap"> FPIX    </option>
+                         <option value = "Tracker"> ALL PIXELS                </option>
+                         <option value = "Tracker/PixelBarrel" SELECTED> BPIX </option>
+                         <option value = "Tracker/PixelEndcap"> FPIX          </option>
                       </select> 
+		      <p />
                       <input name    = "listalarm"
                              id      = "read_alarm"
                              class   = "controlButton"
@@ -389,8 +425,15 @@
                              onClick = "RequestHistos.RequestAlarmList()"
                              type    = "submit">
                       </input>
+                      <input name    = "clearSingleModuleViewTree"
+                             id	     = "clearSingleModuleViewTree"
+                             class   = "controlButton"
+                             value   = "Clear selection"
+                             onClick = "javascript:IMGC.clearSelection()"
+                             type    = "submit">
+                      </input>
                 </div>
-                </br>
+                <p />
                 <div class = "bloc" 
 	             id    = "alarm_list" 
 	             style = "overflow:scroll;height:200px;width:100%;background:#FFF;">

@@ -20,37 +20,45 @@ class SiPixelActionExecutor {
   SiPixelActionExecutor();
  ~SiPixelActionExecutor();
 
- void createSummary(MonitorUserInterface* mui);
+ void createSummary(    	    MonitorUserInterface    	 * mui);
 
- void setupQTests(MonitorUserInterface * mui);
- void checkQTestResults(MonitorUserInterface * mui);
- void createCollation(MonitorUserInterface * mui);
- void createTkMap(MonitorUserInterface* mui, std::string mEName);
- bool readConfiguration(int& tkmap_freq, 
-                        int& sum_barrel_freq, 
-			int& sum_endcap_freq, 
-			int& sum_grandbarrel_freq, 
-			int& sum_grandendcap_freq,
-			int& message_limit);
- void readConfiguration();
- void createLayout(MonitorUserInterface * mui);
- void fillLayout(MonitorUserInterface * mui);
- void saveMEs(MonitorUserInterface * mui, std::string fname);
+ void setupQTests(      	    MonitorUserInterface    	 * mui);
+ void checkQTestResults(	    MonitorUserInterface    	 * mui);
+ void createCollation(  	    MonitorUserInterface    	 * mui);
+ void createTkMap(      	    MonitorUserInterface    	 * mui, 
+                        	    std::string 	    	   mEName,
+				    std::string 	    	   theTKType);
+ bool readConfiguration(	    int 			 & tkmap_freq, 
+                        	    int 			 & sum_barrel_freq, 
+				    int 			 & sum_endcap_freq, 
+				    int 			 & sum_grandbarrel_freq, 
+				    int 			 & sum_grandendcap_freq,
+				    int 			 & message_limit);
+ void readConfiguration(	    );
+ void createLayout(     	    MonitorUserInterface    	 * mui);
+ void fillLayout(       	    MonitorUserInterface    	 * mui);
+ void saveMEs(          	    MonitorUserInterface    	 * mui, 
+                        	    std::string 	    	   fname);
+ int getTkMapMENames(               std::vector<std::string>	 & names);
  bool getCollationFlag(){return collationDone;}
- int getTkMapMENames(std::vector<std::string>& names);
 
  private:
-  MonitorElement* getSummaryME(MonitorUserInterface* mui, std::string me_name);
-  void fillBarrelSummary(MonitorUserInterface* mui, std::string dir_name,
-     std::vector<std::string>& me_names);
-  void fillEndcapSummary(MonitorUserInterface* mui, std::string dir_name,
-     std::vector<std::string>& me_names);
-  void fillGrandBarrelSummaryHistos(MonitorUserInterface* mui, 
-			      std::vector<std::string>& me_names);
-  void fillGrandEndcapSummaryHistos(MonitorUserInterface* mui, 
-			      std::vector<std::string>& me_names);
-  void getGrandSummaryME(MonitorUserInterface* mui,int nbin, 
-      std::string& me_name, std::vector<MonitorElement*> & mes);
+  MonitorElement* getSummaryME(     MonitorUserInterface     	 * mui, 
+                                    std::string 	     	   me_name);
+  void fillBarrelSummary(           MonitorUserInterface     	 * mui, 
+                                    std::string 	     	   dir_name,
+                                    std::vector<std::string> 	 & me_names);
+  void fillEndcapSummary(           MonitorUserInterface     	 * mui, 
+                                    std::string 	     	   dir_name,
+                                    std::vector<std::string> 	 & me_names);
+  void fillGrandBarrelSummaryHistos(MonitorUserInterface     	 * mui, 
+			            std::vector<std::string> 	 & me_names);
+  void fillGrandEndcapSummaryHistos(MonitorUserInterface     	 * mui, 
+			            std::vector<std::string> 	 & me_names);
+  void getGrandSummaryME(           MonitorUserInterface     	 * mui,
+                                    int                      	   nbin, 
+                                    std::string              	 & me_name, 
+				    std::vector<MonitorElement*> & mes);
 
 
   SiPixelConfigParser* configParser_;

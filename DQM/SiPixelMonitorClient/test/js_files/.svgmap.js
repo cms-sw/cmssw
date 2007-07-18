@@ -23,30 +23,28 @@
   SvgMap.theViewText         = document.getElementById("currentViewText") ;
   SvgMap.theElementText      = document.getElementById("currentElementText") ;
   SvgMap.theSelectedText     = document.getElementById("selectedElementText") ;
-  var theRefresh      = top.opener.document.getElementById("refreshInterval") ;
-  var refreshInterval = theRefresh.options[theRefresh.selectedIndex].value;
+  var theRefresh             = top.opener.document.getElementById("refreshInterval") ;
+  var refreshInterval        = theRefresh.options[theRefresh.selectedIndex].value;
   SvgMap.theClipArea.addEventListener('DOMMouseScroll',  SvgMap.mouseScrollListener, false);
   SvgMap.theClipArea.addEventListener("mousedown",       SvgMap.mouseDownListener,   false);
+  setTimeout( "SvgMap.updateTrackerMap()",1000) ; // Capture first data snapshot as soon as possibile
   setInterval("SvgMap.updateTrackerMap()",refreshInterval) ;
-//  DM_TraceWindow(SvgMap.thisFile,arguments.callee.name,"Initialized with refresh interval: "+refreshInterval) ;
+
  }
  
  //____________________________________________________________________________
  SvgMap.updateTrackerMap = function()
  {
-//   if( WebLib.http_request.readyState != 4 ) 
-//   {
-//    DM_TraceWindow(SvgMap.thisFile,arguments.callee.name,"Still waiting for completion...") ;
-//    return ; // If previous submission got no answer, skip retry
-//   }
-//   DM_TraceWindow(SvgMap.thisFile,arguments.callee.name,"Udating...") ;
-   var theMEList   = top.opener.document.getElementById("monitoring_element_list") ;
-   var selME       =  theMEList.options[theMEList.selectedIndex].value;
+   var obj         = top.opener.document.getElementById("monitoring_element_list") ;
+   var selME       = obj.options[obj.selectedIndex].value;
+   obj             = top.opener.document.getElementById("TKMapContentType");
+   var stype 	   = obj.options[obj.selectedIndex].value;
    var queryString = "RequestID=periodicTrackerMapUpdate";
    var url	   = WebLib.getApplicationURL2();
    url    	  += "/Request?";
    url    	  += queryString;   
-   url    	  += '&MEName='+selME;
+   url    	  += '&MEName='    + selME;
+   url 		  += '&TKMapType=' + stype;
    WebLib.makeRequest(url, SvgMap.repaintTrackerMap);     
  }
  //____________________________________________________________________________
@@ -262,6 +260,11 @@
  }
 
  //____________________________________________________________________________
+ SvgMap.changeContentType = function()
+ {
+ }
+ 
+ //____________________________________________________________________________
  SvgMap.zoomIt = function(what)
  {
   var vBAtt = SvgMap.theClipArea.getAttribute("viewBox") ;
@@ -271,16 +274,16 @@
   switch (what) 
   {
    case "FPIX1-z":
-       geo[0]=   30 ;
-       geo[1]=   50 ;
-       geo[2]=  593 ;
-       geo[3]=  307 ;
+       geo[0]=  -30 ;
+       geo[1]= -250 ;
+       geo[2]= 1200 ;
+       geo[3]= 1200 ;
        break;
    case "FPIX2-z":
-       geo[0]=   30 ;
-       geo[1]=  450 ;
-       geo[2]=  593 ;
-       geo[3]=  307 ;
+       geo[0]=  -30 ;
+       geo[1]=  490 ;
+       geo[2]= 1200 ;
+       geo[3]= 1200 ;
        break;
    case "BPIX1":
        geo[0]=  475 ;
@@ -295,16 +298,16 @@
        geo[3]=  727 ;
        break;
    case "FPIX1+z":
-       geo[0]= 1525 ;
-       geo[1]=   45 ;
-       geo[2]=  686 ;
-       geo[3]=  309 ;
+       geo[0]= 1285 ;
+       geo[1]= -250 ;
+       geo[2]= 1200 ;
+       geo[3]= 1200 ;
        break;
    case "FPIX2+z":
-       geo[0]= 1525 ;
-       geo[1]=  445 ;
-       geo[2]=  686 ;
-       geo[3]=  309 ;
+       geo[0]= 1285 ;
+       geo[1]=  540 ;
+       geo[2]= 1200 ;
+       geo[3]= 1100 ;
        break;
    case "Home":
        geo[0]=    0 ;
@@ -336,3 +339,28 @@
   var newGeo = geo[0]+" "+geo[1]+" "+parseInt(geo[2])+" "+parseInt(geo[3]);
   SvgMap.theClipArea.setAttribute("viewBox",newGeo) ;  
  }
+ //____________________________________________________________________________
+ SvgMap.hideIt = function(evt)
+ {
+  SvgMap.where = evt.currentTarget;
+  var theStyle = SvgMap.where.getAttribute("style") ;
+  if( theStyle.match(/hidden/)) 
+  {
+   return ;
+  }
+  theStyle    += " visibility: hidden;" ;
+  SvgMap.where.setAttribute("style", theStyle) ;
+ }
+ //____________________________________________________________________________
+ SvgMap.showIt = function(evt)
+ {
+  SvgMap.where = evt.currentTarget;
+  var theStyle = SvgMap.where.getAttribute("style") ;
+  if( theStyle.match(/visible/)) 
+  {
+   return ;
+  }
+  theStyle    += " visibility: visible;" ;
+  SvgMap.where.setAttribute("style", theStyle) ;
+ }
+

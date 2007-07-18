@@ -204,20 +204,37 @@ void SiPixelInformationExtractor::printSummaryHistoList(MonitorUserInterface * m
   string currDir = mui->pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
   if (dname.find("Module_") ==0) return;
-  str_val << "<li><a href=\"#\" id=\"" 
-          << currDir << "\">" << dname << "</a>" << endl;
-  vector<string> meVec = mui->getMEs(); 
+  str_val << " <li>\n"
+          << "  <a href=\"#\" id=\"" << currDir << "\">\n   " 
+	  <<     dname 
+	  << "  </a>" 
+	  << endl;
+  vector<string> meVec     = mui->getMEs(); 
   vector<string> subDirVec = mui->getSubdirs();
   if ( meVec.size()== 0  && subDirVec.size() == 0 ) {
-    str_val << "</li> "<< endl;    
+    str_val << " </li> "<< endl;    
     return;
   }
-  str_val << "<ul>" << endl;      
+  str_val << "\n   <ul>" << endl;      
   for (vector<string>::const_iterator it = meVec.begin();
        it != meVec.end(); it++) {
     if ((*it).find("Summary") == 0) {
-      str_val << "<li class=\"dhtmlgoodies_sheet.gif\"><a href=\"javascript:IMGC.updateIMGC('"
-              << currDir << "')\">" << (*it) << "</a></li>" << endl;
+      QString qit = (*it) ;
+      QRegExp rx("(\\w+)_siPixel") ;
+      if( rx.search(qit) > -1 ) {qit = rx.cap(1);} 
+      str_val << "    <li class=\"dhtmlgoodies_sheet.gif\">\n"
+	      << "     <input id      = \"selectedME\""
+	      << "            folder  = \"" << currDir << "\""
+	      << "            type    = \"checkbox\""
+	      << "            name    = \"selected\""
+	      << "            class   = \"smallCheckBox\""
+	      << "            value   = \"" << (*it) << "\""
+	      << "            onclick = \"javascript:IMGC.selectedIMGCItems()\" />\n"
+              << "     <a href=\"javascript:IMGC.updateIMGC('" << currDir << "')\">\n       " 
+	      <<        qit << "\n"
+	      << "     </a>\n"
+	      << "    </li>" 
+	      << endl;
     }
   }
 
@@ -227,8 +244,8 @@ void SiPixelInformationExtractor::printSummaryHistoList(MonitorUserInterface * m
     printSummaryHistoList(mui, str_val);
     mui->goUp();
   }
-  str_val << "</ul> "<< endl;  
-  str_val << "</li> "<< endl;  
+  str_val << "   </ul> "<< endl;  
+  str_val << "  </li> "<< endl;  
 //cout<<"leaving SiPixelInformationExtractor::printSummaryHistoList"<<endl;
 }
 
@@ -252,13 +269,17 @@ void SiPixelInformationExtractor::printAlarmList(MonitorUserInterface * mui, ost
   string image_name;
   selectImage(image_name,mui->getStatus(currDir));
   if(image_name!="images/LI_green.gif")
-    str_val << "<li><a href=\"#\" id=\"" 
-            << currDir << "\">" << dname << "</a> <img src=\"" 
-            << image_name << "\">" << endl;
+    str_val << " <li>\n"
+            << "  <a href=\"#\" id=\"" << currDir << "\">\n   " 
+	    <<     dname 
+	    << "  </a>\n"
+	    << "  <img src=\"" 
+            <<     image_name 
+	    << "\">" << endl;
   vector<string> subDirVec = mui->getSubdirs();
   vector<string> meVec = mui->getMEs(); 
   if (subDirVec.size() == 0 && meVec.size() == 0) {
-    str_val << "</li> "<< endl;    
+    str_val <<  "</li> "<< endl;    
     return;
   }
   str_val << "<ul>" << endl;
@@ -271,10 +292,30 @@ void SiPixelInformationExtractor::printAlarmList(MonitorUserInterface * mui, ost
     if (my_map.size() > 0) {
       string image_name1;
       selectImage(image_name1,my_map);
-      if(image_name1!="images/LI_green.gif")
-        str_val << "<li class=\"dhtmlgoodies_sheet.gif\"><a href=\"javascript:RequestPlot.ReadStatus('"
-		<< full_path<< "')\">" << (*it) << "</a><img src=\""
-		<< image_name1 << "\""<< "</li>" << endl;
+      if(image_name1!="images/LI_green.gif") {
+         QString qit = (*it) ;
+        QRegExp rx("(\\w+)_siPixel") ;
+        if( rx.search(qit) > -1 ) {qit = rx.cap(1);} 
+//        str_val << "<li class=\"dhtmlgoodies_sheet.gif\"><a href=\"javascript:RequestPlot.ReadStatus('"
+//		<< full_path<< "')\">" << (*it) << "</a><img src=\""
+//		<< image_name1 << "\""<< "</li>" << endl;
+        str_val << "	<li class=\"dhtmlgoodies_sheet.gif\">\n"
+        	<< "	 <input id	= \"selectedME\""
+        	<< "		folder  = \"" << currDir << "\""
+        	<< "		type	= \"checkbox\""
+        	<< "		name	= \"selected\""
+        	<< "		class	= \"smallCheckBox\""
+        	<< "		value	= \"" << (*it) << "\""
+        	<< "		onclick = \"javascript:IMGC.selectedIMGCItems()\" />\n"
+        	<< "	 <a href=\"javascript:IMGC.updateIMGC('" << currDir << "')\">\n       " 
+        	<<	  qit << "\n"
+        	<< "	 </a>\n"
+		<< "     <img src=\""
+		<<        image_name1 
+		<< "\">"
+        	<< "	</li>" 
+        	<< endl;
+	}	
     }
   }
   for (vector<string>::const_iterator ic = subDirVec.begin();
@@ -816,9 +857,13 @@ void SiPixelInformationExtractor::readModuleHistoTree(MonitorUserInterface* mui,
 //cout<<"entering  SiPixelInformationExtractor::readModuleHistoTree"<<endl;
   ostringstream modtree;
   if (goToDir(mui, str_name, coll_flag)) {
+    modtree << "<form name=\"IMGCanvasItemsSelection\" "
+            << "action=\"javascript:void%200\">" 
+	    << endl ;
     modtree << "<ul id=\"dhtmlgoodies_tree\" class=\"dhtmlgoodies_tree\">" << endl;
     printModuleHistoList(mui,modtree);
     modtree <<"</ul>" << endl;   
+    modtree <<"</form>" << endl;   
   } else {
     modtree << "Desired Directory does not exist";
   }
@@ -847,30 +892,47 @@ void SiPixelInformationExtractor::printModuleHistoList(MonitorUserInterface * mu
   static string indent_str = "";
   string currDir = mui->pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
-  str_val << "<li><a href=\"#\" id=\"" 
-          << currDir << "\">" << dname << "</a>" << endl;
-  vector<string> meVec = mui->getMEs(); 
+  str_val << " <li>\n"
+	  << "  <a href=\"#\" id=\"" << currDir << "\">\n   " 
+	  <<     dname << "\n"
+	  << "  </a>\n"
+	  << endl << endl;
+  vector<string> meVec     = mui->getMEs(); 
   vector<string> subDirVec = mui->getSubdirs();
   if ( meVec.size()== 0  && subDirVec.size() == 0 ) {
-    str_val << "</li> "<< endl;    
+    str_val << " </li>" << endl;    
     return;
   }
-  str_val << "<ul>" << endl; 
-  for (vector<string>::const_iterator it = meVec.begin();
-     it != meVec.end(); it++) {
+  str_val << "\n   <ul>" << endl; 
+  for (vector<string>::const_iterator it  = meVec.begin();
+                                      it != meVec.end(); it++) {
     if ((*it).find("_siPixel")!=string::npos) {
-      str_val << "<li class=\"dhtmlgoodies_sheet.gif\"><a href=\"javascript:IMGC.updateIMGC('"
-              << currDir << "')\">" << (*it) << "</a></li>" << endl;
+      QString qit = (*it) ;
+      QRegExp rx("(\\w+)_siPixel") ;
+      if( rx.search(qit) > -1 ) {qit = rx.cap(1);} 
+      str_val << "    <li class=\"dhtmlgoodies_sheet.gif\">\n"
+	      << "     <input id      = \"selectedME\""
+	      << "            folder  = \"" << currDir << "\""
+	      << "            type    = \"checkbox\""
+	      << "            name    = \"selected\""
+	      << "            class   = \"smallCheckBox\""
+	      << "            value   = \"" << (*it) << "\""
+	      << "            onclick = \"javascript:IMGC.selectedIMGCItems()\" />\n"
+	      << "     <a href=\"javascript:IMGC.updateIMGC('" << currDir << "')\">\n       " 
+	      <<        qit << "\n"
+	      << "     </a>\n"
+	      << "    </li>" 
+	      << endl;
     }
   }
-  for (vector<string>::const_iterator ic = subDirVec.begin();
-     ic != subDirVec.end(); ic++) {
+  for (vector<string>::const_iterator ic  = subDirVec.begin();
+                                      ic != subDirVec.end(); ic++) {
     mui->cd(*ic);
     printModuleHistoList(mui, str_val);
     mui->goUp();
   }
-  str_val << "</ul> "<< endl;  
-  str_val << "</li> "<< endl;  
+  str_val << "   </ul>" << endl;  
+  str_val << "  </li>"  << endl;  
 //cout<<"leaving SiPixelInformationExtractor::printModuleHistoList"<<endl;
 }
 
@@ -1526,7 +1588,8 @@ void SiPixelInformationExtractor::selectMEList(MonitorUserInterface    * mui,
  */
 void SiPixelInformationExtractor::sendTkUpdatedStatus(MonitorUserInterface  * mui, 
                                                       xgi::Output           * out,
-						      std::string           & theMEName) 
+						      std::string           & theMEName,
+						      std::string           & theTKType) 
 {
   int rval, gval, bval;
   vector<string>          colorMap ;
@@ -1542,11 +1605,13 @@ void SiPixelInformationExtractor::sendTkUpdatedStatus(MonitorUserInterface  * mu
 
   QRegExp rx("\\w+_siPixel\\w+_(\\d+)") ;
 
-//   cout << ACYellow << ACBold
-//        << "[SiPixelInformationExtractor::sendTkUpdatedStatus()] "
-//        << ACPlain
-//        << "Preparing color map update" 
-//        << endl ;
+  cout << ACYellow << ACBold
+       << "[SiPixelInformationExtractor::sendTkUpdatedStatus()] "
+       << ACPlain
+       << "Preparing color map update for " 
+       << theTKType
+       << " type"
+       << endl ;
 //  TRandom  * random = new TRandom() ;
   
   stringstream jsSnippet ;
@@ -1557,9 +1622,26 @@ void SiPixelInformationExtractor::sendTkUpdatedStatus(MonitorUserInterface  * mu
     if( rx.search(meName) != -1 )
     {
      detId = rx.cap(1).latin1() ;
-     computeStatus(*it, sts, norm) ;
-//     sts = random->Gaus(sts,sts/10.) ;
-     SiPixelUtility::getStatusColor(sts, rval, gval, bval);
+     if( theTKType == "Continuous") 
+     {
+      computeStatus(*it, sts, norm) ;
+//      sts = random->Gaus(sts,sts/10.) ;
+      SiPixelUtility::getStatusColor(sts, rval, gval, bval);
+     } else {
+      int status =  SiPixelUtility::getStatus((*it));
+      if(        status == dqm::qstatus::ERROR ) 
+      {
+       rval = 255; gval =   0; bval =   0;
+      } else if (status == dqm::qstatus::WARNING ) {
+       rval = 255; gval = 255; bval =   0;
+      } else if (status = dqm::qstatus::OTHER)     {
+       rval =   0; gval =   0; bval = 255;
+      } else if (status = dqm::qstatus::STATUS_OK) {
+       rval =   0; gval = 255; bval =   0;
+      } else {  
+       rval = 255; gval = 255; bval = 255;
+      }
+     }
      jsSnippet.str("") ;
      jsSnippet << " <DetInfo DetId='"
      	       << detId

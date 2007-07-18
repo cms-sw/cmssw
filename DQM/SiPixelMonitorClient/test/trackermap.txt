@@ -46,7 +46,7 @@
 	if (evt.type == "click") {
 		myDynamicTrackerText.firstChild.nodeValue="-";	
 		var moduleId = myPoly.getAttribute("detid");
-                var url_serv = "http://lxplus219.cern.ch:1972/urn:xdaq-application:lid=15/Request?";
+                var url_serv = "http://lxplus216.cern.ch:1972/urn:xdaq-application:lid=15/Request?";
                 var queryString = "RequestID=PlotTkMapHistogram";
 		queryString+= "&ModId=" + moduleId;
                 var url1 = url_serv  + queryString;

@@ -29,3 +29,8 @@ a{
   font-size:0.8em;
   padding-left:2px;
 }
+
+#selectedME .selectedME
+{
+  font-size: 6px;
+}
