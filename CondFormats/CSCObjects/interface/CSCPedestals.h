@@ -13,7 +13,11 @@ class CSCPedestals{
     float ped;
     float rms;
   };
-  std::map< int,std::vector<Item> > pedestals;
+
+  const Item & item(int cscId, int strip) const;
+
+  typedef std::map< int,std::vector<Item> > PedestalMap;
+  PedestalMap pedestals;
 };
 
 #endif
