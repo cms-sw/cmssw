@@ -204,23 +204,26 @@ void GctBlockUnpacker::blockToRctEmCand(const unsigned char * d, unsigned id, un
   uint16_t QBits[7][2];
 
   // loop over crates
-  for (int crate=rctCrate_[id]; crate<=blockLength_[id]/3; crate++) {
+  for (int crate=rctCrate_[id]; crate<blockLength_[id]/3; crate++) {
 
     // read SC SFP words
-    for (int cyc=0; cyc<2; cyc++) {
-      for (int iSfp=0; iSfp<4; iSfp++) {
-
-	if (iSfp==4) { sfp[cyc][iSfp] = 0; } // muon bits
-	else {                              // EM candidate
+    for (int iSfp=0; iSfp<4; iSfp++) {
+      for (int cyc=0; cyc<2; cyc++) {
+	
+	if (iSfp==3) { sfp[cyc][iSfp] = 0; } // muon bits
+	else {                               // EM candidate
 	  sfp[cyc][iSfp] = *p;
+	  p++;
 	}
-
+	  
       }
+      
+      p = p + 2*(nSamples-1);
     }
 
     // fill SC arrays
     srcCardRouting_.SFPtoEMU(eIsoRank, eIsoCard, eIsoRgn, eNonIsoRank, eNonIsoCard, eNonIsoRgn, MIPbits, QBits, sfp);
-
+    
     // create EM cands
     for (int i=0; i<4; i++) {
       rctEm_->push_back( L1CaloEmCand( eIsoRank[i], eIsoRgn[i], eIsoCard[i], crate, true) );
@@ -229,10 +232,8 @@ void GctBlockUnpacker::blockToRctEmCand(const unsigned char * d, unsigned id, un
       rctEm_->push_back( L1CaloEmCand( eNonIsoRank[i], eNonIsoRgn[i], eNonIsoCard[i], crate, false) );
     }
     
-    // move pointer
-    p = p + blockLength_[id]*nSamples; // just get 0th time sample for now
   }
-
+  
 }
 
 
