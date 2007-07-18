@@ -51,7 +51,7 @@ namespace boundSpan {
     float phimin = corners[0].barePhi(); float phimax = phimin;
     float zmin   = corners[0].z();    float zmax   = zmin;
     for ( int i = 1; i < 8; i++ ) {
-      float cPhi = corners[i].barePhi;
+      float cPhi = corners[i].barePhi();
       if ( Geom::phiLess( cPhi, phimin)) { phimin = cPhi; }
       if ( Geom::phiLess( phimax, cPhi)) { phimax = cPhi; }
       float z = corners[i].z();
