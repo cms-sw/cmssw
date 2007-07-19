@@ -19,6 +19,7 @@ typedef Vector2DBase<float,GlobalTag> Global2DVector;
 
 class DetLayer;
 class OrderedHitPair;
+class TrackingRecHit;
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -40,7 +41,8 @@ public:
   void getRanges(float rORz           , float phi[],float rz[]);
 
   bool isCompatibleWithMultipleScattering
-    (GlobalPoint g3, vector<GlobalVector>& localDirs, const edm::EventSetup& es);
+    (GlobalPoint g3, const TrackingRecHit* h3,
+     vector<GlobalVector>& localDirs, const edm::EventSetup& es);
 
 private:
   void initLayer(const DetLayer *layer);
