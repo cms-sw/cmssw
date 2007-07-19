@@ -26,6 +26,8 @@
   <class name="SiStripModuleHV"/>
   <class name="std::vector<uint32_t>"/>
 
+  <class name="SiStripRunSummary"/>
+
   <class pattern="*iterator*"/>
   <class pattern="*vector*"/>
   <class pattern="*map*"/>
