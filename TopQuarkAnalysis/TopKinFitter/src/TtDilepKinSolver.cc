@@ -51,10 +51,10 @@ TtDilepEvtSolution TtDilepKinSolver::addKinSolInfo(TtDilepEvtSolution * asol) {
                           fitsol.getElectronp().pz(), fitsol.getElectronp().energy());
   }
   if (fitsol.getWmDecay() == "muon") {
-    LV_e = TLorentzVector(fitsol.getMuonm().px(), fitsol.getMuonm().py(),
+    LV_e_ = TLorentzVector(fitsol.getMuonm().px(), fitsol.getMuonm().py(),
                           fitsol.getMuonm().pz(), fitsol.getMuonm().energy());
   } else if (fitsol.getWmDecay() == "electron") {
-    LV_e = TLorentzVector(fitsol.getElectronm().px(), fitsol.getElectronm().py(),
+    LV_e_ = TLorentzVector(fitsol.getElectronm().px(), fitsol.getElectronm().py(),
                           fitsol.getElectronm().pz(), fitsol.getElectronm().energy());
   }
 
