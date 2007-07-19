@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/06/02 10:41:18 $
- * $Revision: 1.41 $
+ * $Date: 2007/07/09 15:23:37 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -75,17 +75,21 @@ EBTriggerTowerClient::EBTriggerTowerClient(const ParameterSet& ps){
     i01_[ism-1] = 0;
     j01_[ism-1] = 0;
     l01_[ism-1] = 0;
+    m01_[ism-1] = 0;
+    n01_[ism-1] = 0;
 
     h02_[ism-1] = 0;
     i02_[ism-1] = 0;
     j02_[ism-1] = 0;
-
+    
 
     meh01_[ism-1] = 0;
     mei01_[ism-1] = 0;
     mej01_[ism-1] = 0;
     mel01_[ism-1] = 0;
-
+    mem01_[ism-1] = 0;
+    men01_[ism-1] = 0;
+    
     meh02_[ism-1] = 0;
     mei02_[ism-1] = 0;
     mej02_[ism-1] = 0;
@@ -170,6 +174,8 @@ void EBTriggerTowerClient::cleanup(void) {
       if ( i02_[ism-1] ) delete i02_[ism-1];
       if ( j02_[ism-1] ) delete j02_[ism-1];
       if ( l01_[ism-1] ) delete l01_[ism-1];
+      if ( m01_[ism-1] ) delete m01_[ism-1];
+      if ( n01_[ism-1] ) delete n01_[ism-1];
     }
 
     h01_[ism-1] = 0;
@@ -180,11 +186,15 @@ void EBTriggerTowerClient::cleanup(void) {
     i02_[ism-1] = 0;
     j02_[ism-1] = 0;
     l01_[ism-1] = 0;
+    m01_[ism-1] = 0;
+    n01_[ism-1] = 0;
 
     meh01_[ism-1] = 0;
     mei01_[ism-1] = 0;
     mej01_[ism-1] = 0;
     mel01_[ism-1] = 0;
+    mem01_[ism-1] = 0;
+    men01_[ism-1] = 0;
 
     meh02_[ism-1] = 0;
     mei02_[ism-1] = 0;
@@ -251,6 +261,10 @@ void EBTriggerTowerClient::subscribe( const char* nameext,
     if(!emulated) {
       sprintf(histo, "*/EcalBarrel/%s/EBTTT EmulError %s %s", folder, nameext, Numbers::sEB(ism).c_str());
       mui_->subscribe(histo, ism);
+      sprintf(histo, "*/EcalBarrel/%s/EBTTT EmulFlagError %s %s", folder, nameext, Numbers::sEB(ism).c_str());
+      mui_->subscribe(histo, ism);
+      sprintf(histo, "*/EcalBarrel/%s/EBTTT EmulFineGrainVetoError %s %s", folder, nameext, Numbers::sEB(ism).c_str());
+      mui_->subscribe(histo, ism);
     }
 
 //     for (int j = 0; j < 68 ; j++) {
@@ -292,6 +306,17 @@ void EBTriggerTowerClient::subscribe( const char* nameext,
 	me_l01_[ism-1] = mui_->collate3D(histo, histo, CollatedFolder);
 	sprintf(histo, "*/EcalBarrel/%s/EBTTT EmulError %s %s", folder, nameext, Numbers::sEB(ism).c_str());
 	mui_->add(me_l01_[ism-1], histo);
+
+	sprintf(histo, "EBTTT EmulFlagError %s %s", nameext, Numbers::sEB(ism).c_str());
+	me_m01_[ism-1] = mui_->collate3D(histo, histo, CollatedFolder);
+	sprintf(histo, "*/EcalBarrel/%s/EBTTT EmulFlagError %s %s", folder, nameext, Numbers::sEB(ism).c_str());
+	mui_->add(me_m01_[ism-1], histo);
+
+	sprintf(histo, "EBTTT EmulFineGrainVetoError %s %s", nameext, Numbers::sEB(ism).c_str());
+	me_n01_[ism-1] = mui_->collate3D(histo, histo, CollatedFolder);
+	sprintf(histo, "*/EcalBarrel/%s/EBTTT EmulFineGrainVetoError %s %s", folder, nameext, Numbers::sEB(ism).c_str());
+	mui_->add(me_n01_[ism-1], histo);
+
       }
 
 //       for (int j = 0; j < 68 ; j++) {
@@ -339,6 +364,10 @@ void EBTriggerTowerClient::subscribeNew( const char* nameext,
     mui_->subscribeNew(histo, ism);
     sprintf(histo, "*/EcalBarrel/%s/EBTTT Flags %s %s", folder, nameext, Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalBarrel/%s/EBTTT EmulFlagError %s %s", folder, nameext, Numbers::sEB(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalBarrel/%s/EBTTT EmulFineGrainVetoError %s %s", folder, nameext, Numbers::sEB(ism).c_str());
+    mui_->subscribeNew(histo, ism);
 
 //     for (int j = 0; j < 68 ; j++) {
 //       sprintf(histo, "*/EcalBarrel/EBTriggerTowerTask/EnergyMaps/EBTTT Et T %s TT%02d", ism, j+1);
@@ -383,8 +412,11 @@ void EBTriggerTowerClient::unsubscribe( const char* nameext,
 
         mui_->removeCollate((!emulated) ? me_j01_[ism-1] : me_j02_[ism-1]);
 
-	if(!emulated) mui_->removeCollate(me_l01_[ism-1]);
-
+	if(!emulated) {
+	  mui_->removeCollate(me_l01_[ism-1]);
+	  mui_->removeCollate(me_m01_[ism-1]);
+	  mui_->removeCollate(me_n01_[ism-1]);
+	}
 //         for (int j = 0; j < 68 ; j++) {
 
 //           mui_->removeCollate(me_k01_[ism-1][j]);
@@ -415,6 +447,10 @@ void EBTriggerTowerClient::unsubscribe( const char* nameext,
     if(!emulated) {
       sprintf(histo, "*/EcalBarrel/%s/EBTTT EmulError %s %s", folder, nameext, Numbers::sEB(ism).c_str());
       mui_->unsubscribe(histo, ism);
+      sprintf(histo, "*/EcalBarrel/%s/EBTTT EmulFlagError %s %s", folder, nameext, Numbers::sEB(ism).c_str());
+      mui_->unsubscribe(histo, ism);
+      sprintf(histo, "*/EcalBarrel/%s/EBTTT EmulFineGrainVetoError %s %s", folder, nameext, Numbers::sEB(ism).c_str());
+      mui_->unsubscribe(histo, ism);
     }
 
 //     for (int j = 0; j < 68 ; j++) {
@@ -438,6 +474,8 @@ void EBTriggerTowerClient::softReset(void){
     if ( mei01_[ism-1] ) mui_->softReset(mei01_[ism-1]);
     if ( mej01_[ism-1] ) mui_->softReset(mej01_[ism-1]);
     if ( mel01_[ism-1] ) mui_->softReset(mel01_[ism-1]);
+    if ( mem01_[ism-1] ) mui_->softReset(mem01_[ism-1]);
+    if ( men01_[ism-1] ) mui_->softReset(men01_[ism-1]);
     if ( meh02_[ism-1] ) mui_->softReset(meh02_[ism-1]);
     if ( mei02_[ism-1] ) mui_->softReset(mei02_[ism-1]);
     if ( mej02_[ism-1] ) mui_->softReset(mej02_[ism-1]);
@@ -541,6 +579,27 @@ void EBTriggerTowerClient::analyze(const char* nameext,
       l01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, l01_[ism-1] );
       if(l01_[ism-1])  l01_[ism-1]->SetEntries(1.+l01_[ism-1]->GetEntries());
       mel01_[ism-1] = me;
+      
+      if ( collateSources_ ) {
+	sprintf(histo, "EcalBarrel/Sums/%s/EBTTT EmulFlagError %s %s", folder, nameext, Numbers::sEB(ism).c_str());
+      } else {
+	sprintf(histo, (prefixME_+"EcalBarrel/%s/EBTTT EmulFlagError %s %s").c_str(), folder, nameext, Numbers::sEB(ism).c_str());
+      }
+      me = mui_->get(histo);
+      m01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, m01_[ism-1] );
+      if(m01_[ism-1])  m01_[ism-1]->SetEntries(1.+m01_[ism-1]->GetEntries());
+      mem01_[ism-1] = me;
+
+      if ( collateSources_ ) {
+	sprintf(histo, "EcalBarrel/Sums/%s/EBTTT EmulFineGrainVetoError %s %s", folder, nameext, Numbers::sEB(ism).c_str());
+      } else {
+	sprintf(histo, (prefixME_+"EcalBarrel/%s/EBTTT EmulFineGrainVetoError %s %s").c_str(), folder, nameext, Numbers::sEB(ism).c_str());
+      }
+      me = mui_->get(histo);
+      n01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, n01_[ism-1] );
+      if(n01_[ism-1])  n01_[ism-1]->SetEntries(1.+n01_[ism-1]->GetEntries());
+      men01_[ism-1] = me;
+      
     }
 
 //     for (int j = 0; j < 68 ; j++) {
@@ -632,7 +691,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
   dummy.SetMarkerSize(2);
   dummy.SetMinimum(0.1);
 
-  string imgName[2], meName[2], imgMeName[2];
+  string imgName[3], meName[3], imgMeName[3];
 
   TCanvas* cMe1 = new TCanvas("cMe1", "Temp", 2*csize, csize);
   //  TCanvas* cMe2 = new TCanvas("cMe2", "Temp", int(1.2*csize), int(0.4*csize));
@@ -789,11 +848,13 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( int j=1; j<8; j++ ) {
 
-      for(int iemu=0;iemu<2;iemu++) {
+      for(int iemu=0;iemu<3;iemu++) {
 
 	imgName[iemu] = "";
 
-	obj3f = (iemu+1==1) ? j01_[ism-1] : j02_[ism-1];
+	if( iemu==0 ) obj3f = m01_[ism-1];
+	else if( iemu==1 ) obj3f = j01_[ism-1];
+	else if( iemu==2 ) obj3f = j02_[ism-1];
 
 	if ( obj3f ) {
 
@@ -829,7 +890,10 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 	  cMe2->SetGridy();
 
 	  std::stringstream title;
-	  std::string emustring = (iemu+1==1) ? "Real Digis " : "Emulated Digis ";
+	  std::string emustring;
+	  if (iemu==0) emustring = "Errors ";
+	  else if(iemu==1) emustring = "Real Digis ";
+	  else if(iemu==2) emustring = "Emulated Digis ";
 	  if ( j < 7 ) {
 	    title << "EBTTT Flags " << emustring << Numbers::sEB(ism).c_str() << ", bit " << binary(j-1);
 	  } else {
@@ -845,12 +909,14 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 	  delete obj2f;
 
 	  htmlFile[ism] << "<td><img src=\"" << imgName[iemu] << "\"></td>" << std::endl;
-	  if ( counter%2 == 0 ) htmlFile[ism] << "</tr><tr>" << std::endl;
+	  if ( counter%3 == 0 ) htmlFile[ism] << "</tr><tr>" << std::endl;
 	}
       }
     }
 
     htmlFile[ism] << "</tr>" << std::endl << "</table>" << std::endl;
+
+
 
     // ---------------------------  Fine Grain Veto
 
@@ -862,11 +928,13 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( int j=1; j<=2; j++ ) {
 
-      for(int iemu=0;iemu<2;iemu++) {
+      for(int iemu=0;iemu<3;iemu++) {
 
 	imgName[iemu] = "";
 
-	obj3f = (iemu+1==1) ? i01_[ism-1] : i02_[ism-1];
+	if( iemu==0 ) obj3f = n01_[ism-1];
+	else if( iemu==1 ) obj3f = i01_[ism-1];
+	else if( iemu==2 ) obj3f = i02_[ism-1];
 
 	if ( obj3f ) {
 
@@ -895,7 +963,10 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 	  cMe2->SetGridy();
 
 	  std::stringstream title;
-	  std::string emustring = (iemu+1==1) ? "Real Digis " : "Emulated Digis ";
+	  std::string emustring;
+	  if (iemu==0) emustring = "Errors ";
+	  else if(iemu==1) emustring = "Real Digis ";
+	  else if(iemu==2) emustring = "Emulated Digis ";
 	  title << "EBTTT FineGrainVeto " << emustring << Numbers::sEB(ism).c_str() << ", FineGrainVeto = " << j-1;
 	  obj2f->SetTitle( title.str().c_str() );
 

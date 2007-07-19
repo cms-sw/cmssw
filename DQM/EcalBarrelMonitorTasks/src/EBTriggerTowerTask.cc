@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2007/05/30 23:12:03 $
- * $Revision: 1.36 $
+ * $Date: 2007/05/31 07:20:01 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  *
 */
@@ -45,7 +45,8 @@ EBTriggerTowerTask::EBTriggerTowerTask(const ParameterSet& ps) {
   reserveArray(meVetoEmul_);
   reserveArray(meFlagsEmul_);
   reserveArray(meEmulError_);
-
+  reserveArray(meVetoEmulError_);
+  reserveArray(meFlagEmulError_);
 
   realCollection_ =  ps.getParameter<InputTag>("EcalTrigPrimDigiCollectionReal");
   emulCollection_ =  ps.getParameter<InputTag>("EcalTrigPrimDigiCollectionEmul");
@@ -134,7 +135,7 @@ void EBTriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
 
   array1*  meEtMap = &meEtMapReal_;
   array1*  meVeto = &meVetoReal_;
-  array1*  meFlags= &meFlagsReal_;
+  array1*  meFlags = &meFlagsReal_;
 
   if( emulated ) {
     meEtMap = &meEtMapEmul_;
@@ -159,7 +160,10 @@ void EBTriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
   string flagsName = histo;
   sprintf(histo, "EBTTT EmulError %s", nameext);
   string emulErrorName = histo;
-
+  sprintf(histo, "EBTTT EmulFineGrainVetoError %s", nameext);
+  string emulFineGrainVetoErrorName = histo;
+  sprintf(histo, "EBTTT EmulFlagError %s", nameext);
+  string emulFlagErrorName = histo;
 
   for (int i = 0; i < 36 ; i++) {
 
@@ -202,6 +206,27 @@ void EBTriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
 				    nTTEta, 0., nTTEta,
 				    nTTPhi, 0., nTTPhi );
       dbe->tag(meEmulError_[i], i+1);
+
+      string  emulFineGrainVetoErrorNameSM = emulFineGrainVetoErrorName;
+      emulFineGrainVetoErrorNameSM += " " + Numbers::sEB(i+1);
+
+      meVetoEmulError_[i] = dbe->book3D(emulFineGrainVetoErrorNameSM.c_str(),
+					  emulFineGrainVetoErrorNameSM.c_str(),
+					  nTTEta, 0., nTTEta,
+					  nTTPhi, 0., nTTPhi,
+					  8, 0., 8.);
+      dbe->tag(meVetoEmulError_[i], i+1);
+
+      string  emulFlagErrorNameSM = emulFlagErrorName;
+      emulFlagErrorNameSM += " " + Numbers::sEB(i+1);
+
+      meFlagEmulError_[i] = dbe->book3D(emulFlagErrorNameSM.c_str(),
+					  emulFlagErrorNameSM.c_str(),
+					  nTTEta, 0., nTTEta,
+					  nTTPhi, 0., nTTPhi,
+					  8, 0., 8.);
+      dbe->tag(meFlagEmulError_[i], i+1);
+
     }
   }
 
@@ -344,19 +369,38 @@ EBTriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
       ID compDigiItr = compDigis->find( id.rawId() );
 
       bool good = true;
+      bool goodFlag = true;
+      bool goodVeto = true;
       if( compDigiItr != compDigis->end() ) {
 	str<<"found corresponding digi! "<<*compDigiItr<<endl;
 	if( data.compressedEt() != compDigiItr->compressedEt() ) {
 	  str<<"but it is different..."<<endl;
 	  good = false;
 	}
+	if( data.ttFlag() != compDigiItr->ttFlag() ) {
+	  str<<"but flag is different..."<<endl;
+	  goodFlag = false;
+	}
+	if( data.fineGrain() != compDigiItr->fineGrain() ) {
+	  str<<"but fine grain veto is different..."<<endl;
+	  goodVeto = false;
+	}
       }
       else {
 	good = false;
+	goodFlag = false;
 	str<<"could not find corresponding digi... "<<endl;
       }
       if(!good ) {
 	if ( meEmulError_[ismt-1] ) meEmulError_[ismt-1]->Fill(xiet-1, xipt-1);
+      }
+      if(!goodFlag) {
+	float zval = compDigiItr->ttFlag();
+	if ( meFlagEmulError_[ismt-1] ) meFlagEmulError_[ismt-1]->Fill(xiet-1, xipt-1, zval);
+      }
+      if(!goodVeto) {
+	float zval = compDigiItr->fineGrain();
+	if ( meVetoEmulError_[ismt-1] ) meVetoEmulError_[ismt-1]->Fill(xiet-1, xipt-1, zval);
       }
     }
   }

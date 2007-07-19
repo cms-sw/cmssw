@@ -4,8 +4,8 @@
 /*
  * \file EBTriggerTowerClient.h
  *
- * $Date: 2007/05/30 23:14:19 $
- * $Revision: 1.12 $
+ * $Date: 2007/07/09 15:23:38 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -112,6 +112,8 @@ CollateMonitorElement* me_h01_[36];
 CollateMonitorElement* me_i01_[36];
 CollateMonitorElement* me_j01_[36];
 CollateMonitorElement* me_l01_[36];
+CollateMonitorElement* me_m01_[36];
+CollateMonitorElement* me_n01_[36];
 CollateMonitorElement* me_h02_[36];
 CollateMonitorElement* me_i02_[36];
 CollateMonitorElement* me_j02_[36];
@@ -121,6 +123,8 @@ MonitorElement* meh01_[36];
 MonitorElement* mei01_[36];
 MonitorElement* mej01_[36];
 MonitorElement* mel01_[36];
+MonitorElement* mem01_[36];
+MonitorElement* men01_[36];
 MonitorElement* meh02_[36];
 MonitorElement* mei02_[36];
 MonitorElement* mej02_[36];
@@ -130,6 +134,8 @@ TH3F* h01_[36];
 TH3F* i01_[36];
 TH3F* j01_[36];
 TH2F* l01_[36];
+TH3F* m01_[36];
+TH3F* n01_[36];
 TH3F* h02_[36];
 TH3F* i02_[36];
 TH3F* j02_[36];

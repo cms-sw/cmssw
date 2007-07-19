@@ -4,8 +4,8 @@
 /*
  * \file EBTriggerTowerTask.h
  *
- * $Date: 2006/09/13 07:37:45 $
- * $Revision: 1.2 $
+ * $Date: 2007/05/28 16:35:14 $
+ * $Revision: 1.8 $
  * \author C. Bernet
  *
 */
@@ -115,6 +115,8 @@ class EBTriggerTowerTask : public edm::EDAnalyzer {
   /// the error flag is set to true in case of a discrepancy between 
   /// the emulator and the real data
   array1 meEmulError_;
+  array1 meVetoEmulError_;
+  array1 meFlagEmulError_;
 
   /// not sure this is necessary
   bool init_;
