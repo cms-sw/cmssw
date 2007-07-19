@@ -212,7 +212,7 @@ void GctBlockUnpacker::blockToRctEmCand(const unsigned char * d, unsigned id, un
     for (int iSfp=0; iSfp<4; iSfp++) {
       for (int cyc=0; cyc<2; cyc++) {
 	
-	if (iSfp==3) { sfp[cyc][iSfp] = 0; } // muon bits
+	if (iSfp==0) { sfp[cyc][iSfp] = 0; } // muon bits
 	else {                               // EM candidate
 	  sfp[cyc][iSfp] = *p;
 	  p++;
