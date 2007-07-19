@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/07/03 16:43:57 $
- *  $Revision: 1.105 $
+ *  $Date: 2007/07/18 17:30:03 $
+ *  $Revision: 1.106 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -604,7 +604,21 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
 
   }
   else {
-    refittedResult = tkTrajs;
+    LogTrace(category)<<"theMuonHitsOption="<<theMuonHitsOption<<"\n"
+                      <<tkTrajs.size()<<" total trajectories.";
+    //    do not just copy the collection over. you need to refit it for the smoother to work properly.
+    //    refittedResult = tkTrajs;
+    //loop over them and refit them.
+    for ( CandidateContainer::const_iterator it = tkTrajs.begin(); it != tkTrajs.end(); it++ ) {
+      std::vector<Trajectory> tmp = refitTrajectory((*it)->trackerTrajectory());
+      for (std::vector<Trajectory>::iterator nit = tmp.begin(); nit!=tmp.end(); ++nit){
+        refittedResult.push_back( new MuonCandidate(new Trajectory(*nit),(*it)->muonTrack(),(*it)->trackerTrack(), new Trajectory(*nit)));
+      }
+      //clear memory since we wasted a lot of it ...
+      if ((*it)->trajectory() ) delete (*it)->trajectory();
+      if ( (*it)->trackerTrajectory() ) delete (*it)->trackerTrajectory();
+      if ( *it ) delete (*it);
+    }
   }
 
   //return refittedResult;
