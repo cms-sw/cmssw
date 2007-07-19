@@ -443,7 +443,8 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 
     // == ALCT Header found right after DMB Header
     //   (check for all currently reserved/fixed bits in ALCT first 4 words)
-    if( ( (buf0 [0]&0xF800)==0x6000 && (buf0 [1]&0xFF80)==0x0080 && (buf0 [2]&0xF000)==0x0000 && (buf0 [3]&0xc000)==0x0000 )
+    // if( ( (buf0 [0]&0xF800)==0x6000 && (buf0 [1]&0xFF80)==0x0080 && (buf0 [2]&0xF000)==0x0000 && (buf0 [3]&0xc000)==0x0000 )
+    if( ( (buf0 [0]&0xF800)==0x6000 && (buf0 [1]&0x8F80)==0x0080 && (buf0 [2]&0x8000)==0x0000 && (buf0 [3]&0xc000)==0x0000 )
 	&&
 	( (buf_1[0]&0xF000)==0xA000 && (buf_1[1]&0xF000)==0xA000 && (buf_1[2]&0xF000)==0xA000 && (buf_1[3]&0xF000)==0xA000 ) ){
       fALCT_Header              = true;
