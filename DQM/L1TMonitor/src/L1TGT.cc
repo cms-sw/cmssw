@@ -1,8 +1,8 @@
 /*
  * \file L1TGT.cc
  *
- * $Date: 2007/05/25 15:45:48 $
- * $Revision: 1.6 $
+ * $Date: 2007/05/29 20:21:55 $
+ * $Revision: 1.7 $
  * \author J. Berryhill
  *
  */
@@ -156,7 +156,7 @@ void L1TGT::analyze(const Event& e, const EventSetup& c)
 
    if (0)
      {
-     L1GtPsbWord mygtPsbWord = myGTReadoutRecord->gtPsbWord();
+     L1GtPsbWord mygtPsbWord = myGTReadoutRecord->gtPsbWord(0,0);
      //   boost::uint16_t boardIdValue,
      //   int bxInEventValue,
      //   boost::uint16_t bxNrValue,

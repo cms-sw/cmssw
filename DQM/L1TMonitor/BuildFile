@@ -19,7 +19,7 @@
 <use name=DQMServices/ClientConfig>
 <use name=mimetic>
 <use name=xdaq>
-<flags SEALPLUGIN=1>
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=DQML1TMonitor>
    <use name=FWCore/Framework>
