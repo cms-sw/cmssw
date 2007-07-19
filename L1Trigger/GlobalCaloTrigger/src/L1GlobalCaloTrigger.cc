@@ -10,12 +10,11 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronFinalSort.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCounterLut.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
 
-using std::cout;
-using std::endl;
 using std::vector;
 
 //DEFINE STATICS
@@ -185,7 +184,6 @@ void L1GlobalCaloTrigger::setJetFinderParams(const L1GctJetFinderParams* jfpars)
 /// setup the Jet Calibration Lut
 void L1GlobalCaloTrigger::setJetEtCalibrationLut(const L1GctJetEtCalibrationLut* lut) {
 
-  std::cout << "gct::setJetEtCalibrationLut called, lut is " << lut << std::endl;
   m_jetEtCalLut = lut;
   // Need to propagate the new lut to all the JetFinders
   for (int i=0; i<N_JET_LEAF_CARDS; i++) {
@@ -269,53 +267,56 @@ void L1GlobalCaloTrigger::fillEmCands(vector<L1CaloEmCand> em)
 
 void L1GlobalCaloTrigger::print() {
 
-  cout << "=== Global Calo Trigger ===" << endl;
-  cout << "=== START DEBUG OUTPUT  ===" << endl;
+  using edm::LogInfo;
+  using std::endl;
 
-  cout << endl;
-  cout << "N Jet Leaf Cards " << theJetLeafCards.size() << endl;
-  cout << "N Wheel Jet Fpgas " << theWheelJetFpgas.size() << endl;
-  cout << "N Wheel Energy Fpgas " << theWheelEnergyFpgas.size() << endl;
-  cout << "N Em Leaf Cards " << theEmLeafCards.size() << endl;
-  cout << endl;
+  LogInfo("L1GlobalCaloTrigger") << "=== Global Calo Trigger ===" << endl;
+  LogInfo("L1GlobalCaloTrigger") << "=== START DEBUG OUTPUT  ===" << endl;
+
+  LogInfo("L1GlobalCaloTrigger") << endl;
+  LogInfo("L1GlobalCaloTrigger") << "N Jet Leaf Cards " << theJetLeafCards.size() << endl;
+  LogInfo("L1GlobalCaloTrigger") << "N Wheel Jet Fpgas " << theWheelJetFpgas.size() << endl;
+  LogInfo("L1GlobalCaloTrigger") << "N Wheel Energy Fpgas " << theWheelEnergyFpgas.size() << endl;
+  LogInfo("L1GlobalCaloTrigger") << "N Em Leaf Cards " << theEmLeafCards.size() << endl;
+  LogInfo("L1GlobalCaloTrigger") << endl;
 
   for (unsigned i=0; i<theJetLeafCards.size(); i++) {
-    cout << "Jet Leaf Card " << i << " : " << theJetLeafCards.at(i) << endl;
-    cout << (*theJetLeafCards.at(i));
+    LogInfo("L1GlobalCaloTrigger") << "Jet Leaf Card " << i << " : " << theJetLeafCards.at(i) << endl;
+    LogInfo("L1GlobalCaloTrigger") << (*theJetLeafCards.at(i));
   }
-  cout << endl;
+  LogInfo("L1GlobalCaloTrigger") << endl;
 
   for (unsigned i=0; i<theWheelJetFpgas.size(); i++) {
-    cout << "Wheel Jet FPGA " << i << " : " << theWheelJetFpgas.at(i) << endl; 
-    cout << (*theWheelJetFpgas.at(i));
+    LogInfo("L1GlobalCaloTrigger") << "Wheel Jet FPGA " << i << " : " << theWheelJetFpgas.at(i) << endl; 
+    LogInfo("L1GlobalCaloTrigger") << (*theWheelJetFpgas.at(i));
   }
-  cout << endl;
+  LogInfo("L1GlobalCaloTrigger") << endl;
 
   for (unsigned i=0; i<theWheelEnergyFpgas.size(); i++) {
-    cout << "Wheel Energy FPGA " << i <<" : " << theWheelEnergyFpgas.at(i) << endl; 
-    cout << (*theWheelEnergyFpgas.at(i));
+    LogInfo("L1GlobalCaloTrigger") << "Wheel Energy FPGA " << i <<" : " << theWheelEnergyFpgas.at(i) << endl; 
+    LogInfo("L1GlobalCaloTrigger") << (*theWheelEnergyFpgas.at(i));
   }
-  cout << endl;
+  LogInfo("L1GlobalCaloTrigger") << endl;
 
-  cout << (*theJetFinalStage);
-  cout << endl;
+  LogInfo("L1GlobalCaloTrigger") << (*theJetFinalStage);
+  LogInfo("L1GlobalCaloTrigger") << endl;
 
-  cout << (*theEnergyFinalStage);
-  cout << endl;
+  LogInfo("L1GlobalCaloTrigger") << (*theEnergyFinalStage);
+  LogInfo("L1GlobalCaloTrigger") << endl;
 
   for (unsigned i=0; i<theEmLeafCards.size(); i++) {
-    cout << "EM Leaf Card " << i << " : " << theEmLeafCards.at(i) << endl;
-    cout << (*theEmLeafCards.at(i));
+    LogInfo("L1GlobalCaloTrigger") << "EM Leaf Card " << i << " : " << theEmLeafCards.at(i) << endl;
+    LogInfo("L1GlobalCaloTrigger") << (*theEmLeafCards.at(i));
   }
-  cout << endl;
+  LogInfo("L1GlobalCaloTrigger") << endl;
 
-  cout << (*theIsoEmFinalStage);
-  cout << endl;
+  LogInfo("L1GlobalCaloTrigger") << (*theIsoEmFinalStage);
+  LogInfo("L1GlobalCaloTrigger") << endl;
 
-  cout << (*theNonIsoEmFinalStage);
+  LogInfo("L1GlobalCaloTrigger") << (*theNonIsoEmFinalStage);
 
-  cout << "=== Global Calo Trigger ===" << endl;
-  cout << "===  END DEBUG OUTPUT   ===" << endl;
+  LogInfo("L1GlobalCaloTrigger") << "=== Global Calo Trigger ===" << endl;
+  LogInfo("L1GlobalCaloTrigger") << "===  END DEBUG OUTPUT   ===" << endl;
  
 }
 
