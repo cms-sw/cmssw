@@ -109,7 +109,7 @@ namespace cms
 	const Trajectory  theTraj = *(*tmpTraj.begin());
 	if(trinevents) outputTJ->push_back(theTraj);
 	bool seedplus=(theTraj.seed().direction()==alongMomentum);
-    
+	PropagationDirection seedDir =theTraj.seed().direction();
 	if (seedplus)
 	  LogDebug("CosmicTrackFinder")<<"Reconstruction along momentum ";
 	else
@@ -181,7 +181,7 @@ namespace cms
 //	reco::TrackExtra *theTrackExtra = new reco::TrackExtra(outpos, outmom, true);
 	reco::TrackExtra *theTrackExtra = new reco::TrackExtra(outpos, outmom, true, inpos, inmom, true,
 							       UpState.curvilinearError(), outerId,
-							       LowState.curvilinearError(), innerId);
+							       LowState.curvilinearError(), innerId,seedDir);
 	//RC for(edm::OwnVector<const TransientTrackingRecHit>::const_iterator j=transHits.begin();
 	for(Trajectory::RecHitContainer::const_iterator j=transHits.begin();
 	    j!=transHits.end(); j++){
