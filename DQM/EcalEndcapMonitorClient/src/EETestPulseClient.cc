@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2007/06/12 18:18:06 $
- * $Revision: 1.14 $
+ * $Date: 2007/06/24 09:37:59 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -122,7 +122,7 @@ EETestPulseClient::EETestPulseClient(const ParameterSet& ps){
 
   }
 
-  amplitudeThreshold_ = 400.0;
+  percentVariation_ = 0.2;
   RMSThreshold_ = 300.0;
   threshold_on_AmplitudeErrorsNumber_ = 0.02;
 
@@ -182,9 +182,9 @@ void EETestPulseClient::beginJob(MonitorUserInterface* mui){
       sprintf(qtname, "EETPT pedestal quality PNs %s G16", Numbers::sEE(ism).c_str());
       qtha07_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      qtha01_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.0*12.);
-      qtha02_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.0*12.);
-      qtha03_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.0*12.);
+      qtha01_[ism-1]->setMeanTolerance(percentVariation_);
+      qtha02_[ism-1]->setMeanTolerance(percentVariation_);
+      qtha03_[ism-1]->setMeanTolerance(percentVariation_);
 
       qtha04_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
       qtha05_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
@@ -1118,7 +1118,52 @@ void EETestPulseClient::analyze(void){
     
     UtilsClient::resetHisto( mer04_[ism-1] );
     UtilsClient::resetHisto( mer05_[ism-1] );
-    
+
+    float meanAmpl01, meanAmpl02, meanAmpl03;
+
+    int nCry01, nCry02, nCry03;
+
+    meanAmpl01 = meanAmpl02 = meanAmpl03 = 0.;
+
+    nCry01 = nCry02 = nCry03 = 0;
+
+    for ( int ie = 1; ie <= 85; ie++ ) {
+      for ( int ip = 1; ip <= 20; ip++ ) {
+
+        bool update01;
+        bool update02;
+        bool update03;
+
+        float num01, num02, num03;
+        float mean01, mean02, mean03;
+        float rms01, rms02, rms03;
+
+        update01 = UtilsClient::getBinStats(ha01_[ism-1], ie, ip, num01, mean01, rms01);
+        update02 = UtilsClient::getBinStats(ha02_[ism-1], ie, ip, num02, mean02, rms02);
+        update03 = UtilsClient::getBinStats(ha03_[ism-1], ie, ip, num03, mean03, rms03);
+
+        if ( update01 ) {
+          meanAmpl01 += mean01;
+          nCry01++;
+        }
+
+        if ( update02 ) {
+          meanAmpl02 += mean02;
+          nCry02++;
+        }
+
+        if ( update03 ) {
+          meanAmpl03 += mean03;
+          nCry03++;
+        }
+
+      }
+    }
+
+    if ( nCry01 > 0 ) meanAmpl01 /= float (nCry01);
+    if ( nCry02 > 0 ) meanAmpl02 /= float (nCry02);
+    if ( nCry03 > 0 ) meanAmpl03 /= float (nCry03);
+
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 	
@@ -1149,7 +1194,7 @@ void EETestPulseClient::analyze(void){
           float val;
 
           val = 1.;
-          if ( mean01 < amplitudeThreshold_ )
+          if ( fabs(mean01 - meanAmpl01) > fabs(percentVariation_ * meanAmpl01) )
             val = 0.;
           if ( rms01 > RMSThreshold_ )
             val = 0.;
@@ -1175,7 +1220,7 @@ void EETestPulseClient::analyze(void){
           float val;
 
           val = 1.;
-          if ( mean02 < amplitudeThreshold_ )
+          if ( fabs(mean02 - meanAmpl02) > fabs(percentVariation_ * meanAmpl02) )
             val = 0.;
           if ( rms02 > RMSThreshold_ )
             val = 0.;
@@ -1201,7 +1246,7 @@ void EETestPulseClient::analyze(void){
           float val;
 
           val = 1.;
-          if ( mean03 < amplitudeThreshold_ )
+          if ( fabs(mean03 - meanAmpl03) > fabs(percentVariation_ * meanAmpl03) )
             val = 0.;
           if ( rms03 > RMSThreshold_ )
             val = 0.;
