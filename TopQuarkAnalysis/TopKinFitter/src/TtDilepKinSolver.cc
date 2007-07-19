@@ -36,19 +36,27 @@ TtDilepEvtSolution TtDilepKinSolver::addKinSolInfo(TtDilepEvtSolution * asol) {
   TLorentzVector LV_b, LV_b_;
   
   //provisional
-  genLV_n = TLorentzVector(fitsol.getGenN().px(), fitsol.getGenN().py(),
-                           fitsol.getGenN().pz(), fitsol.getGenN().energy());
+  genLV_n = TLorentzVector(fitsol.getGenN()->px(), fitsol.getGenN()->py(),
+                           fitsol.getGenN()->pz(), fitsol.getGenN()->energy());
 			  
-  genLV_n_ = TLorentzVector(fitsol.getGenNbar().px(), fitsol.getGenNbar().py(),
-                         fitsol.getGenNbar().pz(), fitsol.getGenNbar().energy());
+  genLV_n_ = TLorentzVector(fitsol.getGenNbar()->px(), fitsol.getGenNbar()->py(),
+                            fitsol.getGenNbar()->pz(), fitsol.getGenNbar()->energy());
   //provisional
-  
-  
-  LV_e = TLorentzVector(fitsol.getRecLepp().px(), fitsol.getRecLepp().py(),
-                        fitsol.getRecLepp().pz(), fitsol.getRecLepp().energy());
-			  
-  LV_e_ = TLorentzVector(fitsol.getRecLepm().px(), fitsol.getRecLepm().py(),
-                         fitsol.getRecLepm().pz(), fitsol.getRecLepm().energy());
+
+  if (fitsol.getWpDecay() == "muon") {
+    LV_e = TLorentzVector(fitsol.getMuonp().px(), fitsol.getMuonp().py(),
+                          fitsol.getMuonp().pz(), fitsol.getMuonp().energy());
+  } else if (fitsol.getWpDecay() == "electron") {
+    LV_e = TLorentzVector(fitsol.getElectronp().px(), fitsol.getElectronp().py(),
+                          fitsol.getElectronp().pz(), fitsol.getElectronp().energy());
+  }
+  if (fitsol.getWmDecay() == "muon") {
+    LV_e = TLorentzVector(fitsol.getMuonm().px(), fitsol.getMuonm().py(),
+                          fitsol.getMuonm().pz(), fitsol.getMuonm().energy());
+  } else if (fitsol.getWmDecay() == "electron") {
+    LV_e = TLorentzVector(fitsol.getElectronm().px(), fitsol.getElectronm().py(),
+                          fitsol.getElectronm().pz(), fitsol.getElectronm().energy());
+  }
 
   LV_b = TLorentzVector(fitsol.getCalJetB().px(), fitsol.getCalJetB().py(),
                         fitsol.getCalJetB().pz(), fitsol.getCalJetB().energy());
