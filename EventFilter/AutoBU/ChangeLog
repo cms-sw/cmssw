@@ -1,3 +1,9 @@
+2007-07-19  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-05-02
+	* all changes concern initialize script
+	* have SM write output to /tmp/$USER/sm
+	
 2007-07-03  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-05-01
