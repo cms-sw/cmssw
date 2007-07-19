@@ -65,7 +65,7 @@ class TRecHit1DMomConstraint : public TransientTrackingRecHit {
     return RecHitPointer( new TRecHit1DMomConstraint( charge, mom, err, surface));
   }
 
-  virtual const Surface& surface() const {return *surface_;}
+  virtual const Surface * surface() const {return surface_;}
 
  private:
   const int    charge_;
@@ -80,7 +80,7 @@ class TRecHit1DMomConstraint : public TransientTrackingRecHit {
     charge_(charge),mom_(mom),err_(err),surface_(surface) {}
   
   TRecHit1DMomConstraint( const TRecHit1DMomConstraint& other ):
-    charge_( other.charge() ), mom_( other.mom() ),err_( other.err() ), surface_(&(other.surface())) {}
+    charge_( other.charge() ), mom_( other.mom() ),err_( other.err() ), surface_((other.surface())) {}
   
   virtual TRecHit1DMomConstraint * clone() const {
     return new TRecHit1DMomConstraint(*this);

@@ -5,6 +5,9 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 
+//remove
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 class InvalidTransientRecHit : public GenericTransientTrackingRecHit {
 public:
 
@@ -17,13 +20,13 @@ public:
     return RecHitPointer( new InvalidTransientRecHit( geom, layer, type ));
   }
 
-  virtual const BoundSurface& surface() const {
-    if (det() != 0 ) return det()->surface();
-    else if (layer_ != 0) return layer_->surface();
-    else {
-      throw cms::Exception("InvalidTransientRecHit") << "Trying to access surface of an Invalid hit without GeomDet or DetLayer";
-    }
-  }
+  const Surface* surface() const ;/* { */
+/*     const BoundSurface* ret = 0; */
+/*     if (det() != 0 ) { LogTrace("TrackFitters") <<"A "<<&(det()->surface()); return &(det()->surface()); } */
+/*     else if (layer_ != 0) { LogTrace("TrackFitters") <<"B"; return &(layer_->surface()); } */
+/*     else { LogTrace("TrackFitters") <<"C"; return ret; } */
+/*     //{throw cms::Exception("InvalidTransientRecHit") << "Trying to access surface of an Invalid hit without GeomDet or DetLayer";} */
+/*   } */
 
 private:
   const DetLayer * layer_;

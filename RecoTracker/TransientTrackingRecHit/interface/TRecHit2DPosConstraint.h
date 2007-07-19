@@ -64,7 +64,7 @@ public:
     return RecHitPointer( new TRecHit2DPosConstraint( pos, err, surface));
   }
 
-  virtual const Surface& surface() const {return *surface_;}
+  virtual const Surface * surface() const {return surface_;}
 
 private:
   const LocalPoint& pos_;
@@ -77,7 +77,7 @@ private:
     pos_(pos),err_(err),surface_(surface) {}
 
   TRecHit2DPosConstraint( const TRecHit2DPosConstraint& other ):
-    pos_( other.localPosition() ),err_( other.localPositionError() ), surface_(&(other.surface())) {}
+    pos_( other.localPosition() ),err_( other.localPositionError() ), surface_((other.surface())) {}
 
   virtual TRecHit2DPosConstraint * clone() const {
     return new TRecHit2DPosConstraint(*this);

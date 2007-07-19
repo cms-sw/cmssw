@@ -9,6 +9,12 @@ InvalidTransientRecHit::InvalidTransientRecHit( const GeomDet* geom, const DetLa
 {
 }
 
+const Surface* InvalidTransientRecHit::surface() const {
+  if (det() != 0 )  return &(det()->surface()); 
+  else if (layer_ != 0)  return &(layer_->surface()); 
+  else return 0;
+}
+
 /*
 AlgebraicVector InvalidTransientRecHit::parameters(const TrajectoryStateOnSurface& ts) const
 {
