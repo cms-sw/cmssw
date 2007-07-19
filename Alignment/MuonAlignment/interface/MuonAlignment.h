@@ -4,8 +4,8 @@
 /** \class MuonAlignment
  *  The MuonAlignment helper class for alignment jobs
  *
- *  $Date: 2006/11/22 13:15:25 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/01/26 19:39:41 $
+ *  $Revision: 1.6 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
@@ -29,6 +29,8 @@ class MuonAlignment{
       void moveAlignableGlobalCoord( DetId& , std::vector<float>& , std::vector<float>& );
 
 
+      void saveDTtoDB();
+      void saveCSCtoDB();
       void saveToDB();
 
 

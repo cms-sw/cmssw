@@ -88,8 +88,8 @@ void MuonAlignment::moveAlignableGlobalCoord( DetId& detid, std::vector<float>& 
 
 //____________________________________________________________________________________
 // Code needed to store alignments to DB
-void MuonAlignment::saveToDB( void ){
-   
+
+void MuonAlignment::saveDTtoDB(void) {
    // Call service
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if( !poolDbService.isAvailable() ) // Die if not available
@@ -98,8 +98,6 @@ void MuonAlignment::saveToDB( void ){
   // Get alignments and errors
   Alignments*      dt_Alignments       = theAlignableMuon->dtAlignments() ;
   AlignmentErrors* dt_AlignmentErrors  = theAlignableMuon->dtAlignmentErrors();
-  Alignments*      csc_Alignments      = theAlignableMuon->cscAlignments();
-  AlignmentErrors* csc_AlignmentErrors = theAlignableMuon->cscAlignmentErrors();
 
   // Store DT alignments and errors
   if ( poolDbService->isNewTagRequest(theDTAlignRecordName) ){
@@ -121,7 +119,17 @@ void MuonAlignment::saveToDB( void ){
                                                     poolDbService->currentTime(),
                                                     theDTErrorRecordName );
   }							  
+}
 
+void MuonAlignment::saveCSCtoDB(void) {
+   // Call service
+  edm::Service<cond::service::PoolDBOutputService> poolDbService;
+  if( !poolDbService.isAvailable() ) // Die if not available
+	throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
+
+  // Get alignments and errors
+  Alignments*      csc_Alignments      = theAlignableMuon->cscAlignments();
+  AlignmentErrors* csc_AlignmentErrors = theAlignableMuon->cscAlignmentErrors();
 
   // Store CSC alignments and errors
   if ( poolDbService->isNewTagRequest(theCSCAlignRecordName) ){
@@ -143,8 +151,9 @@ void MuonAlignment::saveToDB( void ){
                                                     poolDbService->currentTime(),
                                                     theCSCErrorRecordName );
   }							  
-
-
-
 }
 
+void MuonAlignment::saveToDB(void) {
+   saveDTtoDB();
+   saveCSCtoDB();
+}
