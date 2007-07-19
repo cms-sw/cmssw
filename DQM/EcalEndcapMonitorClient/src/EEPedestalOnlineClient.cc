@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2007/06/24 09:37:59 $
- * $Revision: 1.13 $
+ * $Date: 2007/07/03 19:29:44 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -312,7 +312,7 @@ bool EEPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
   if ( econn ) {
     try {
       cout << "Inserting MonPedestalsOnlineDat ... " << flush;
-      if ( dataset.size() != 0 ) econn->insertDataSet(&dataset, moniov);
+      if ( dataset.size() != 0 ) econn->insertDataArraySet(&dataset, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;

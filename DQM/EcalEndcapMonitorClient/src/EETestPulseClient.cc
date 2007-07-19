@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2007/06/24 09:37:59 $
- * $Revision: 1.15 $
+ * $Date: 2007/07/19 11:54:13 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -567,7 +567,7 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
   if ( econn ) {
     try {
       cout << "Inserting MonTestPulseDat ... " << flush;
-      if ( dataset1.size() != 0 ) econn->insertDataSet(&dataset1, moniov);
+      if ( dataset1.size() != 0 ) econn->insertDataArraySet(&dataset1, moniov);
       if ( dataset2.size() != 0 ) econn->insertDataSet(&dataset2, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
@@ -645,7 +645,7 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
   if ( econn ) {
     try {
       cout << "Inserting MonPNMGPADat ... " << flush;
-      if ( dataset3.size() != 0 ) econn->insertDataSet(&dataset3, moniov);
+      if ( dataset3.size() != 0 ) econn->insertDataArraySet(&dataset3, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
