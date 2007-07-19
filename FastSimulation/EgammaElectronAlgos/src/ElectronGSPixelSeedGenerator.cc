@@ -281,7 +281,7 @@ void ElectronGSPixelSeedGenerator::addASeedToThisCluster(
       float clusterEnergyT = clusterEnergy*sin(seedCluster->position().theta()) ;
 
       float deltaPhi1 = 1.4/clusterEnergyT ;
-      float deltaPhi2 = 0.7/clusterEnergyT ;
+      float deltaPhi2 = 0.07/clusterEnergyT ;
       float ephimin1 = -deltaPhi1*0.625 ;
       float ephimax1 =  deltaPhi1*0.375 ;
       float pphimin1 = -deltaPhi1*0.375 ;

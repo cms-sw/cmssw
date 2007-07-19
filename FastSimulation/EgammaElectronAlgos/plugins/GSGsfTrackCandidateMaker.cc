@@ -100,6 +100,7 @@ GSGsfTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es)
     TrajectorySeedCollection::const_iterator theLastSeed = theSeedCollection->end();
     
     for( ; iseed != theLastSeed; ++iseed ) {
+      ++seednr;
       // The first hit of the seed  and its simtrack id
       BasicTrajectorySeed::const_iterator theFirstHit = iseed->recHits().first;
       BasicTrajectorySeed::const_iterator theSecondHit = theFirstHit; ++theSecondHit;
@@ -229,7 +230,7 @@ GSGsfTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es)
       if ( recHits.size() >= minimumNumberOfHits && ptSim > ptCut ) { 
 
 	output->push_back(TrackCandidate(recHits,*iseed,iseed->startingState()));
-	seedLocations.push_back(++seednr);
+	seedLocations.push_back(seednr);
 
 	// Count the seed selected (and the track candidates)
 	++seedkept;
