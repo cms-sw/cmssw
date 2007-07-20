@@ -7,171 +7,141 @@
 #include <bitset>
 
 bool CSCALCTHeader::debug=false;
+short unsigned int CSCALCTHeader::firmwareVersion=2006; 
 
-
-CSCALCTHeader::CSCALCTHeader(int chamberType) 
-{
+CSCALCTHeader::CSCALCTHeader(int chamberType) { //constructor for digi->raw packing based on header2006 
   // we count from 1 to 10, ME11, ME12, ME13, ME1A, ME21, ME22, ....
-  //static int nAFEBsForChamberType[11] = {0,3,3,3,3,7,4,6,4,6,4};
-  // same numbers as above, with one bit for every board
-  //static int activeFEBsForChamberType[11] = {0,7,7,7,7,0x7f, 0xf,0x3f,0xf,0x3f,0xf};
-  //static int nTBinsForChamberType[11] = {7,7,7,7,7,7,7,7,7,7,7};
   static int activeFEBsForChamberType[11] = {0,7,7,0xf,7,0x7f, 0xf,0x3f,0xf,0x3f,0xf};
   static int nTBinsForChamberType[11] = {7,7,7,7,7,7,7,7,7,7,7};
-
-
-
-  bzero(this, sizeInWords()*2); 
-  flag_0 = 0xC;
-  lctChipRead = activeFEBsForChamberType[chamberType];
-  activeFEBs = lctChipRead;
-  nTBins = nTBinsForChamberType[chamberType];
+  header2006.flag_0 = 0xC;
+  header2006.lctChipRead = activeFEBsForChamberType[chamberType];
+  header2006.activeFEBs = header2006.lctChipRead;
+  header2006.nTBins = nTBinsForChamberType[chamberType];
   if (debug)
     edm::LogInfo ("CSCALCTHeader") << "MAKING ALCTHEADER " << chamberType 
-				   << " " << activeFEBs << " " << nTBins;
+				   << " " << header2006.activeFEBs << " " << header2006.nTBins;
 }
 
-CSCALCTHeader::CSCALCTHeader(const unsigned short * buf) 
-{
-  memcpy(this, buf, sizeInWords()*2);
-  //printf("%04x %04x %04x %04x\n",buf[4],buf[5],buf[6],buf[7]);
-}
-
-CSCALCTHeader::CSCALCTHeader(const CSCALCTStatusDigi & digi)
-{
-  memcpy(this, digi.header(), sizeInWords()*2);
-}
+CSCALCTHeader::CSCALCTHeader(const unsigned short * buf) {
+  ///collision and hot channel masks are variable sized
+  ///the sizes vary depending on type of the ALCT board
+  ///                                        number of words for various
+  ///                                        alct board types:  1  2  3     5  6
+  static unsigned short int collisionMaskWordcount[7]    = { 8, 8,12,16,16,24,28};
+  static unsigned short int hotChannelMaskWordcount[7]   = {18,18,24,36,36,48,60};
 
 
+  ///first determine the correct format  
+  if (buf[2]==0xDB0A) {
+    firmwareVersion=2007;
+  }
+  else if ( (buf[0]&0xF800)==0x6000 ) {
+    firmwareVersion=2006;
+  }
+  else {
+    edm::LogError("CSCALCTHeader") <<"failed to determine ALCT firmware version!!";
+  }
 
-
-
-void CSCALCTHeader::setEventInformation(const CSCDMBHeader & dmb) 
-{
-  l1Acc = dmb.l1a();
-  cscID = dmb.dmbID();
-  nTBins = 16;
-  bxnCount = dmb.bxn();
-}
-
-unsigned short CSCALCTHeader::nLCTChipRead() const 
-{
-  int count = 0;
-  for(int i=0; i<7; ++i) 
-    {
-      if( (lctChipRead>>i) & 1) ++count;
+  ///Now fill data 
+  switch (firmwareVersion) {
+  case 2006:
+    memcpy(&header2006, buf, header2006.sizeInWords()*2);///the header part
+    buf +=header2006.sizeInWords();
+    alcts.reserve(2);
+    for (unsigned int i=0; i<2; ++i) {
+      memcpy(&alcts[i], buf, alcts[i].sizeInWords()*2);
+      buf += alcts[i].sizeInWords()*2; ///2006 alct consists of 2 words but we are only storing one
     }
-  return count;
+    break;
+
+  case 2007:
+    memcpy(&header2007, buf, header2007.sizeInWords()*2); ///the fixed sized header part
+    buf +=header2007.sizeInWords();
+    sizeInWords2007_ = header2007.sizeInWords();
+    ///now come the variable parts
+    if (header2007.configPresent==1) {
+      memcpy(&virtexID, buf, virtexID.sizeInWords()*2);
+      buf +=virtexID.sizeInWords();
+      sizeInWords2007_ = virtexID.sizeInWords();
+      memcpy(&configRegister, buf, configRegister.sizeInWords()*2);
+      buf +=configRegister.sizeInWords();
+      sizeInWords2007_ += configRegister.sizeInWords();
+      
+      collisionMasks.reserve(collisionMaskWordcount[header2007.boardType]);
+      for (unsigned int i=0; i<collisionMaskWordcount[header2007.boardType]; ++i){
+	memcpy(&collisionMasks[i], buf, collisionMasks[i].sizeInWords()*2);
+	buf += collisionMasks[i].sizeInWords();
+	sizeInWords2007_ += collisionMasks[i].sizeInWords();
+      }
+
+      hotChannelMasks.reserve(hotChannelMaskWordcount[header2007.boardType]);
+      for (unsigned int i=0; i<hotChannelMaskWordcount[header2007.boardType]; ++i) {
+	memcpy(&hotChannelMasks[i], buf, hotChannelMasks[i].sizeInWords()*2);
+	buf += hotChannelMasks[i].sizeInWords();
+	sizeInWords2007_ += hotChannelMasks[i].sizeInWords();
+      }
+
+      alcts.reserve(header2007.lctBins*2); ///2007 has LCTbins * 2 alct words
+      for (unsigned int i=0; i<header2007.lctBins*2; ++i) {
+	memcpy(&alcts[i], buf, alcts[i].sizeInWords()*2);
+	buf += alcts[i].sizeInWords(); 
+	sizeInWords2007_ += alcts[i].sizeInWords();
+      }
+    }
+    break;
+
+    ///also store raw data buffer too; it is later returned by data() method
+    memcpy(theOriginalBuffer, buf, sizeInWords()*2); 
+    
+  default:
+    edm::LogError("CSCALCTHeader")
+      <<"ALCT firmware version is bad/not defined!";
+    break;
+  }
 }
 
-int CSCALCTHeader::ALCTCRCcalc() 
-{
-  std::vector< std::bitset<16> > theTotalALCTData;
-  int nTotalLines = sizeInWords()+nLCTChipRead()*NTBins()*6*2;
-  theTotalALCTData.reserve(nTotalLines);
-  for (int line=0; line<nTotalLines; ++line) 
-    {
-      theTotalALCTData[line] = std::bitset<16>(theOriginalBuffer[line]);
-    }
 
-  if ( theTotalALCTData.size() > 0 ) 
-    {
-      std::bitset<22> CRC=calCRC22(theTotalALCTData);
-      return CRC.to_ulong();
-    } 
-  else 
-    {
-      edm::LogWarning ("CSCALCTHeader") << "theTotalALCTData doesn't exist";
-      return 0;
-    }
+CSCALCTHeader::CSCALCTHeader(const CSCALCTStatusDigi & digi){
+  CSCALCTHeader(digi.header());
 }
+
+void CSCALCTHeader::setEventInformation(const CSCDMBHeader & dmb) {
+ header2006.l1Acc = dmb.l1a();
+ header2006.cscID = dmb.dmbID();
+ header2006.nTBins = 16;
+ header2006.bxnCount = dmb.bxn();
+}
+
+unsigned short CSCALCTHeader::nLCTChipRead() const {///header2006 method
+int count = 0;
+ for(int i=0; i<7; ++i) {
+   if( (header2006.lctChipRead>>i) & 1) ++count;
+ }
+ return count;
+}
+
 
 std::vector<CSCALCTDigi> CSCALCTHeader::ALCTDigis() const 
 { 
 
   std::vector<CSCALCTDigi> result;
-  
-  //for the zeroth ALCT word:  
-  if (debug) 
-    edm::LogInfo("CSCALCTHeader") << "ALCT DIGI 1 valid = " << alct0Valid() 
-				  << "  quality = "  << alct0Quality()
-				  << "  accel = " << alct0Accel()
-				  << "  pattern = " << alct0Pattern() 
-				  << "  Key Wire Group = " << alct0KeyWire() 
-				  << "  BX = " << alct0BXN();  
-
-  CSCALCTDigi digi(alct0Valid(), alct0Quality(), alct0Accel(), alct0Pattern(),
-		   alct0KeyWire(), alct0BXN(), 1);
-  digi.setFullBX(BXNCount());
-  result.push_back(digi);
-
-  //for the first ALCT word:  
-  if (debug) 
-    edm::LogInfo("CSCALCTHeader") << "ALCT DIGI 2 valid = " << alct1Valid() 
-				  << "  quality = "  << alct1Quality()
-				  << "  accel = " << alct1Accel()
-				  << "  pattern = " << alct1Pattern() 
-				  << "  Key Wire Group = " << alct1KeyWire() 
-				  << "  BX = " << alct1BXN();  
-
-
-  digi = CSCALCTDigi(alct1Valid(), alct1Quality(), alct1Accel(), alct1Pattern(),
-		     alct1KeyWire(), alct1BXN(), 2);
-  digi.setFullBX(BXNCount());
-  result.push_back(digi);
+  result.reserve(alcts.size());
+  for (unsigned int i=0; i<alcts.size(); ++i) {///loop over all alct words
+    CSCALCTDigi digi(alcts[i].valid, alcts[i].quality, alcts[i].accel, alcts[i].pattern,
+		     alcts[i].keyWire, 0, 1);
+    digi.setFullBX(BXNCount());
+    result.push_back(digi);
+  }
   return result;
 }
 
-
-std::bitset<22> CSCALCTHeader::calCRC22(const std::vector< std::bitset<16> >& datain)
-{
-  std::bitset<22> CRC;
-  CRC.reset();
-  for(int i=0;i<(int) datain.size();++i)
-    {
-      if (debug) edm::LogInfo ("CSCALCTHeader") << std::ios::hex << datain[i].to_ulong();
-      CRC=nextCRC22_D16(datain[i],CRC);
-    }
-  return CRC;
-}
-
-
-std::bitset<22> CSCALCTHeader::nextCRC22_D16(const std::bitset<16>& D, 
-				       const std::bitset<22>& C)
-{
-  std::bitset<22> NewCRC;
-  
-  NewCRC[ 0] = D[ 0] ^ C[ 6];
-  NewCRC[ 1] = D[ 1] ^ D[ 0] ^ C[ 6] ^ C[ 7];
-  NewCRC[ 2] = D[ 2] ^ D[ 1] ^ C[ 7] ^ C[ 8];
-  NewCRC[ 3] = D[ 3] ^ D[ 2] ^ C[ 8] ^ C[ 9];
-  NewCRC[ 4] = D[ 4] ^ D[ 3] ^ C[ 9] ^ C[10];
-  NewCRC[ 5] = D[ 5] ^ D[ 4] ^ C[10] ^ C[11];
-  NewCRC[ 6] = D[ 6] ^ D[ 5] ^ C[11] ^ C[12];
-  NewCRC[ 7] = D[ 7] ^ D[ 6] ^ C[12] ^ C[13];
-  NewCRC[ 8] = D[ 8] ^ D[ 7] ^ C[13] ^ C[14];
-  NewCRC[ 9] = D[ 9] ^ D[ 8] ^ C[14] ^ C[15];
-  NewCRC[10] = D[10] ^ D[ 9] ^ C[15] ^ C[16];
-  NewCRC[11] = D[11] ^ D[10] ^ C[16] ^ C[17];
-  NewCRC[12] = D[12] ^ D[11] ^ C[17] ^ C[18];
-  NewCRC[13] = D[13] ^ D[12] ^ C[18] ^ C[19];
-  NewCRC[14] = D[14] ^ D[13] ^ C[19] ^ C[20];
-  NewCRC[15] = D[15] ^ D[14] ^ C[20] ^ C[21];
-  NewCRC[16] = D[15] ^ C[ 0] ^ C[21];
-  NewCRC[17] = C[ 1];
-  NewCRC[18] = C[ 2];
-  NewCRC[19] = C[ 3];
-  NewCRC[20] = C[ 4];
-  NewCRC[21] = C[ 5];
-  
-  return NewCRC;
-}
 
 std::ostream & operator<<(std::ostream & os, const CSCALCTHeader & header) 
 {
   os << "ALCT HEADER CSCID " << header.CSCID()
      << "  L1ACC " << header.L1Acc() << std::endl;
-  os << "# ALCT chips read : "  << header.nLCTChipRead() 
-     << " time samples " << header.NTBins() << std::endl;
+  os << " time samples " << header.NTBins() << std::endl;
   return os;
 }
+
+

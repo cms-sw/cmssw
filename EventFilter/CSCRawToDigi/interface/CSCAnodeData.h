@@ -39,6 +39,24 @@ private:
   //unsigned short ddu_code_ : 1;
 };
 
+class CSCAnodeDataFrame2007 {
+ public:
+  CSCAnodeDataFrame2007() {}
+
+  /// given a wiregroup between 0 and 11, it tells whether this bit was on
+  bool isHit(unsigned wireGroup) const {
+    assert(wireGroup < 12);
+    return ( (data_>>wireGroup) & 0x1 );
+  }
+
+  unsigned short data() const {return data_;}
+  
+ private:
+  unsigned short data_     : 12;
+  unsigned short reserved_ : 3;
+  unsigned short flag_     : 1;
+};
+
 
 class CSCAnodeData {
 
@@ -57,7 +75,7 @@ public:
 
   unsigned short * data() {return theDataFrames;}
   /// the amount of the input binary buffer read, in 16-bit words
-  int sizeInWords() const {return nFrames();}
+  unsigned short int sizeInWords() const;
 
   /// the number of data frames
   int nFrames() const {return nAFEBs_ * nTimeBins_ * 6 * 2;}
@@ -72,6 +90,8 @@ public:
   const CSCAnodeDataFrame & rawHit(int afeb, int tbin, int layer, int halfLayer) const {
     return (const CSCAnodeDataFrame &)(theDataFrames[index(afeb, tbin, layer)+halfLayer]);
   }
+  
+  const CSCAnodeDataFrame2007 & findFrame(int tbin, int layer, int layerPart) const;
 
   /// nonconst version
   CSCAnodeDataFrame & rawHit(int afeb, int tbin, int layer, int halfLayer) {
@@ -93,8 +113,13 @@ private:
 
   /// we don't know the size at first.  Max should be 7 boards * 32 bins * 6 layers * 2
   unsigned short theDataFrames[2700];
+  /// in 2007 format the max number of frames is 1860
   int nAFEBs_;
   int nTimeBins_;
+  unsigned short int firmwareVersion;
+  unsigned short int sizeInWords2007_;
+  unsigned short int layerParts_;///number of layer parts in the ALCT
+  unsigned short int maxWireGroups_;///number of wiregroups in the ALCT
 };
 
 #endif
