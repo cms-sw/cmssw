@@ -115,7 +115,7 @@ namespace edm {
     {
       if(name().find(s,0) != std::string::npos) 
       {
-        out << "Found " << name() << "\n";
+        print(out);
         printTrace(out);
         out << "\n";
       }
