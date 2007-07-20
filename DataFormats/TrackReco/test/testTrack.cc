@@ -25,7 +25,7 @@ void testTrack::checkAll() {
 		 1.4, 2.4, 3.4, 4.4,
 		 1.5, 2.5, 3.5, 4.5, 5.5 };
   reco::TrackBase::CovarianceMatrix cov( e, e + 15 );
-  reco::Track t( chi2, ndof, v, p, +1, cov );
+  reco::Track t( chi2, ndof, v, p, +1, cov);
   CPPUNIT_ASSERT( t.chi2() == chi2 );
   CPPUNIT_ASSERT( t.ndof() == ndof );
   CPPUNIT_ASSERT( t.normalizedChi2() == chi2 / ndof );
