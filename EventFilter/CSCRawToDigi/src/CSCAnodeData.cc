@@ -162,11 +162,11 @@ std::vector < std::vector<CSCWireDigi> > CSCAnodeData::wireDigis() const
   return result;
 }
 
-const CSCAnodeDataFrame2007 & findFrame(int tbin, int layer, int layerPart) const {
+const CSCAnodeDataFrame2007 & CSCAnodeData::findFrame(int tbin, int layer, int layerPart) const {
   assert(tbin<nTimeBins_);
   assert(layer<=6);
   assert(layerPart<layerParts_);
-  return (CSCAnodeDataFrame2007 &)(theDataFrames[tbin*6*layerParts_+(layer-1)*layerParts_
+  return (const CSCAnodeDataFrame2007 &)(theDataFrames[tbin*6*layerParts_+(layer-1)*layerParts_
 				   +layerPart]);
   ///loop over tbins + layers + given layerPart
 }
