@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolution.h,v 1.13 2007/07/05 23:43:07 lowette Exp $
+// $Id: TtSemiEvtSolution.h,v 1.14 2007/07/06 03:07:47 lowette Exp $
 //
 
 #ifndef TopObjects_TtSemiEvtSolution_h
@@ -25,6 +25,7 @@
 class TtSemiEvtSolution {
 
   friend class TtSemiEvtSolutionMaker;
+  friend class TtSemiKinFitter;
   friend class TtSemiKinFitterEMom;
   friend class TtSemiKinFitterEtEtaPhi;
   friend class TtSemiKinFitterEtThetaPhi;
@@ -36,7 +37,7 @@ class TtSemiEvtSolution {
   public:
 
     TtSemiEvtSolution();
-    virtual ~TtSemiEvtSolution();     
+    virtual ~TtSemiEvtSolution();
 
     // methods to get original TopObjects 
     TopJet                    getHadb() const;
@@ -167,6 +168,7 @@ class TtSemiEvtSolution {
 
   private:
 
+    // particle content
     edm::RefProd<TtGenEvent>            theGenEvt_;
     edm::Ref<std::vector<TopJet> >      hadb_, hadp_, hadq_, lepb_;
     edm::Ref<std::vector<TopMuon> >     muon_;
@@ -174,7 +176,7 @@ class TtSemiEvtSolution {
     edm::Ref<std::vector<TopMET> >      met_;
     std::vector<TopParticle>            fitHadb_, fitHadp_, fitHadq_;
     std::vector<TopParticle>            fitLepb_, fitLepl_, fitLepn_;
-
+    // miscellaneous
     std::string               decay_;
     double                    sumAnglejp_, angleHadp_, angleHadq_, angleHadb_, angleLepb_;
     int                       changeWQ_;
