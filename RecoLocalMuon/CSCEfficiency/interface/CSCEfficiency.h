@@ -240,6 +240,10 @@ private:
   // printalot debug output
   bool printalot;
 
+  // Data (true) or MC (false) input file
+  bool DATA;
+
+  
   // calculate efficiencies from existing file (if set to "true")
   bool update;
 
@@ -255,7 +259,7 @@ private:
   //---- Utility functions
   bool GoodRegion(double Yreal, double Yborder, int Station, int Ring, int Chamber);
   bool GoodLocalRegion(double Xreal, double Yreal, int Station, int Ring, int Chamber);
-  bool CheckLocal(double Yreal, double Yborder, int Station, int Ring);
+  bool CheckLocal(double Yreal, double Yborder, int Station, int Ring, bool withinChamberOnly);
   void getEfficiency(float bin, float Norm, std::vector <float> &eff);
   void histoEfficiency(TH1F *readHisto, TH1F *writeHisto, int flag);
   const char*  ChangeTitle(const char * name);

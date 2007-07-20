@@ -8,7 +8,7 @@
   
 #include "RecoLocalMuon/CSCEfficiency/interface/CSCEfficiency.h"
 
-#define DATA 1 // 0 - MC; 1 - data 
+//#define DATA 1 // 0 - MC; 1 - data 
 #define SQR(x) ((x)*(x))
 //---- Histogram limits
 #define XMIN  -70.
@@ -52,6 +52,7 @@ CSCEfficiency::CSCEfficiency(const ParameterSet& pset) : theSimHitMap("MuonCSCHi
   ExtrapolateFromStation      = pset.getUntrackedParameter<int>("ExtrapolateFromStation");
   ExtrapolateToStation     = pset.getUntrackedParameter<int>("ExtrapolateToStation");
   ExtrapolateToRing     = pset.getUntrackedParameter<int>("ExtrapolateToRing");
+  DATA  = pset.getUntrackedParameter<bool>("runOnData");// // 0 - MC; 1 - data
   update  = pset.getUntrackedParameter<bool>("update");
   //
   //if(!update){
@@ -511,10 +512,6 @@ CSCEfficiency::~CSCEfficiency(){
   TH1F * writeHisto;
   std::vector<float> eff(2);
   //
-  //@ Following 3 vars are Unused in dtor...
-  //  const float Xmin = XMIN;
-  //  const float Xmax = XMAX;
-  //  const int nXbins = int(4.*(Xmax - Xmin)); 
 
   const float Ymin = YMIN;
   const float Ymax = YMAX;
@@ -1031,8 +1028,6 @@ void CSCEfficiency::analyze(const Event & event, const EventSetup& eventSetup){
       float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
       float threshold = 13.3 ;
       float diff = 0.;
-      float sum1 = 0.;
-      float sum2 = 0.;
       float peakADC  = -1000.;
       int peakTime = -1;
       for (unsigned int iCount = 0; iCount < myADCVals.size(); iCount++) {
@@ -1044,21 +1039,10 @@ void CSCEfficiency::analyze(const Event & event, const EventSetup& eventSetup){
 	    largestStrip = myStrip;
 	  }
 	}
-	sum1 = sum1 + diff;
-	sum2 = sum2 + diff*diff;
 	if (diff > threshold && diff > peakADC) {
 	  peakADC  = diff;
 	  peakTime = iCount;
 	}
-      }
-      sum1 = sum1/8.;
-      sum2 = sum2/8.;
-      float rms = sum2-sum1*sum1;
-      if (rms > 0.) {
-	rms = sqrt(rms);
-      } else {
-	printf("***** ERROR in CSCEfficiency: illegal rms**2 = %f\n",rms);
-	rms = -100.;
       }
       if(largestADCValue>maxADC){
 	maxADC = largestADCValue;
@@ -1201,7 +1185,7 @@ void CSCEfficiency::analyze(const Event & event, const EventSetup& eventSetup){
   //---- get CSC segment collection
   if (printalot) printf("\tGet CSC segment collection...\n");
   Handle<CSCSegmentCollection> cscSegments;
-  event.getByLabel("segmentproducer", cscSegments);
+  event.getByLabel("cscSegments", cscSegments);
   int nSegments = cscSegments->size();
   if (printalot) printf("  The size is %i\n",nSegments);
 
@@ -1615,41 +1599,6 @@ void CSCEfficiency::analyze(const Event & event, const EventSetup& eventSetup){
 		ChHist[NChamberCouple[1]-FirstCh].EfficientRechits_inSegment->Fill(9);
 	      }
 	    }
-	      /*
-	      ChamberRecHits *sChamber_p =
-		&(*all_RecHits)[WorkInEndcap-1][ExtrapolateToStation-1][ExtrapolateToRing-1][NChamberCouple[1]-FirstCh].sChamber; 
-	      for (int iLayer=0; iLayer<6; iLayer++) {
-		//---- hardcoded values... noot good
-		float dist = 2.54;                
-		//---- in fact segment position is not exactly in the middle... 
-		float z1Position = 2.5 * dist;                                           
-		float z2Position = float(iLayer) * dist;                                 
-		if(ExtrapolateToStation>2){                                              
-		  z1Position = -z1Position;                                              
-		  z2Position = -z2Position;                                              
-		}                                                                        
-		float z1Direction = DirLocalCouple[1][2];                                
-		float ParamLine = LineParam(z1Position, z2Position, z1Direction);        
-		float initPosition = PosLocalCouple[1][0];                               
-		float initDirection = DirLocalCouple[1][0];                              
-		
-		//---- find extrapolated position of a segment at a given layer
-		float x = Extrapolate1D(initPosition, initDirection, ParamLine);         
-		initPosition = PosLocalCouple[1][1];                                     
-		initDirection = DirLocalCouple[1][1];                                    
-		float y = Extrapolate1D(initPosition, initDirection, ParamLine); 
-		if(sChamber_p->NRecHits[iLayer]>0){
-		  ChHist[NChamberCouple[1]-FirstCh].EfficientRechits_inSegment->Fill(iLayer+1);
-		}
-		else{
-		  ChHist[NChamberCouple[1]-FirstCh].XvsY_InefficientRecHits_inSegment[iLayer]->Fill(x,y); 
-		}
-	      }
-
-              //---- Normalization 
-	      ChHist[NChamberCouple[1]-FirstCh].EfficientRechits_inSegment->Fill(9);
-	      */
-	    //}
 	  }
 	}
       }
@@ -1693,7 +1642,8 @@ bool CSCEfficiency::GoodRegion(double Y, double Yborder, int Station, int Ring, 
   Ycenter = -Ycenter;
   double Y_local = -(Y - Ycenter);
   double Yborder_local = -(Yborder - Ycenter);
-  pass = CheckLocal(Y_local, Yborder_local, Station, Ring); 
+  bool  withinChamberOnly = false;
+  pass = CheckLocal(Y_local, Yborder_local, Station, Ring, withinChamberOnly); 
   return pass;
 }
 bool CSCEfficiency::GoodLocalRegion(double X, double Y, int Station, int Ring, int Chamber){
@@ -1729,14 +1679,15 @@ bool CSCEfficiency::GoodLocalRegion(double X, double Y, int Station, int Ring, i
   double LineSlope = (Yup - Ydown)/(XBound2Shifted-XBound1Shifted);
   double LineConst = Yup - LineSlope*XBound2Shifted;
   double Yborder =  LineSlope*abs(X) + LineConst;
-  pass = CheckLocal(Y, Yborder, Station, Ring);
+  bool  withinChamberOnly = false;
+  pass = CheckLocal(Y, Yborder, Station, Ring, withinChamberOnly);
   return pass;
 }
 
-bool CSCEfficiency::CheckLocal(double Y, double Yborder, int Station, int Ring){
+bool CSCEfficiency::CheckLocal(double Y, double Yborder, int Station, int Ring, bool withinChamberOnly){
 //---- check if it is in a good local region (sensitive area - geometrical and HV boundaries excluded) 
   bool pass = false;
-  bool withinChamberOnly = false;// false = "good region"; true - boundaries only
+  //bool withinChamberOnly = false;// false = "good region"; true - boundaries only
   std::vector <float> DeadZoneCenter(6);
   float CutZone = 10.;//cm
   //---- hardcoded... not good
@@ -1868,29 +1819,40 @@ void CSCEfficiency::CalculateEfficiencies(const Event & event, const EventSetup&
       double LineConst = Yup - LineSlope*XBound2Shifted;
       double Yborder =  LineSlope*abs(ExtrapolatedSegmentLocal.x()) + LineConst;
       CSCDetId id  = cscchamber->id();
-      if( CheckLocal(ExtrapolatedSegmentLocal.y(), Yborder, id.station(), id.ring())){
-	DataFlow->Fill(9.);  
-	int cond = 0;
-	if(flag){
-	  cond = 1;
-	}
+      bool  withinChamberOnly = false;
+      if( CheckLocal(ExtrapolatedSegmentLocal.y(), Yborder, id.station(), id.ring(), withinChamberOnly)){
+        DataFlow->Fill(9.);
+        int cond = 0;
+        if(flag){
+          cond = 1;
+        }
 
         //---- So at this point a segments from the reference station points
         //---- to a chamber ("good region") in the investigated station and ring
-        //---- Calculate efficiencies    
-        bool LCTflag;
-	if(DATA){
-	  LCTflag = LCT_Efficiencies(alcts, clcts, correlatedlcts, id.chamber(), cond);
-	}
+        //---- Calculate efficiencies
+        bool LCTflag = false;
+        if(DATA){
+          LCTflag = LCT_Efficiencies(alcts, clcts, correlatedlcts, id.chamber(), cond);
+        }
         if(!LCTflag){
           XY_ALCTmissing->Fill(ExtrapolatedSegmentLocal.x(),ExtrapolatedSegmentLocal.y());
           std::cout<<"NO ALCT when ME1 and ME3"<<std::endl;
         }
-	StripWire_Efficiencies(id.chamber());
-	Segment_Efficiency(id.chamber(), NSegFound);
+        StripWire_Efficiencies(id.chamber());
+        Segment_Efficiency(id.chamber(), NSegFound);
       }
-      //---- Good regions are checked separately within
-      RecHitEfficiency(ExtrapolatedSegmentLocal.x() , ExtrapolatedSegmentLocal.y(), id.chamber());
+      //---- Good regions are checked separately within;
+      // here just check chamber (this is a quick fix to avoid noise hits)
+      withinChamberOnly = true;
+      ShiftFromEdge = 10.; //cm from the edge
+      XBound1Shifted = LayerBounds[0] - ShiftFromEdge;//
+      XBound2Shifted = LayerBounds[1] - ShiftFromEdge;//
+      LineSlope = (Yup - Ydown)/(XBound2Shifted-XBound1Shifted);
+      LineConst = Yup - LineSlope*XBound2Shifted;
+      Yborder =  LineSlope*abs(ExtrapolatedSegmentLocal.x()) + LineConst;
+      if( CheckLocal(ExtrapolatedSegmentLocal.y(), Yborder, id.station(), id.ring(), withinChamberOnly)){
+        RecHitEfficiency(ExtrapolatedSegmentLocal.x() , ExtrapolatedSegmentLocal.y(), id.chamber());
+      }
     }
   }
 }
@@ -1908,67 +1870,93 @@ double CSCEfficiency::LineParam(double z1Position, double z2Position, double z1D
 void CSCEfficiency::RecHitEfficiency(double X, double Y, int iCh){
   ChamberRecHits *sChamber_p =
     &(*all_RecHits)[WorkInEndcap-1][ExtrapolateToStation-1][ExtrapolateToRing-1][iCh-FirstCh].sChamber;
+  ChamberRecHits *sChamberLeft_p = sChamber_p;
+  ChamberRecHits *sChamberRight_p = sChamber_p;
+  // neighbouring chamber (-1)
+
+  if(iCh-FirstCh-1>=0){
+    sChamberLeft_p =
+      &(*all_RecHits)[WorkInEndcap-1][ExtrapolateToStation-1][ExtrapolateToRing-1][iCh-FirstCh-1].sChamber;
+  }
+  // neighbouring chamber (+1)
+  if(iCh-FirstCh+1<NumCh){
+    sChamberRight_p =
+      &(*all_RecHits)[WorkInEndcap-1][ExtrapolateToStation-1][ExtrapolateToRing-1][iCh-FirstCh+1].sChamber;
+  }
+  int missingLayersLeft = 0;
+  int missingLayersRight = 0;
   int missingLayers = 0;
   for(int iLayer=0;iLayer<6;iLayer++){
     if(!sChamber_p->RecHitsPosX[iLayer].size()){
       missingLayers++;
     }
-  }
-  //---- The segments points to "good region"  
-  if(GoodLocalRegion(X, Y, ExtrapolateToStation, ExtrapolateToRing, iCh)){
-    if(6==missingLayers){
-      if(printalot) std::cout<<"missing all layers"<<std::endl;
+    if(!sChamberLeft_p->RecHitsPosX[iLayer].size()){
+      missingLayersLeft++;
     }
-    for(int iLayer=0;iLayer<6;iLayer++){
-      if(missingLayers){
-	for(unsigned int iRH=0; iRH<sChamber_p->RecHitsPosX[iLayer].size();iRH++){
-	  ChHist[iCh-FirstCh].XvsY_InefficientRecHits->Fill(sChamber_p->RecHitsPosXlocal[iLayer][iRH],
-					    sChamber_p->RecHitsPosYlocal[iLayer][iRH]);
+    if(!sChamberRight_p->RecHitsPosX[iLayer].size()){
+      missingLayersRight++;
+    }
+  }
+  if(missingLayers>missingLayersLeft || missingLayers>missingLayersRight){
+    // Skip that chamber - the signal is noise most probably
+  }
+  else{
+    //---- The segments points to "good region"  
+    if(GoodLocalRegion(X, Y, ExtrapolateToStation, ExtrapolateToRing, iCh)){
+      if(6==missingLayers){
+	if(printalot) std::cout<<"missing all layers"<<std::endl;
+      }
+      for(int iLayer=0;iLayer<6;iLayer++){
+	if(missingLayers){
+	  for(unsigned int iRH=0; iRH<sChamber_p->RecHitsPosX[iLayer].size();iRH++){
+	    ChHist[iCh-FirstCh].XvsY_InefficientRecHits->Fill(sChamber_p->RecHitsPosXlocal[iLayer][iRH],
+							      sChamber_p->RecHitsPosYlocal[iLayer][iRH]);
+	  }
+	}
+	//---- Are there rechits in the layer
+	if(sChamber_p->NRecHits[iLayer]>0){
+	  ChHist[iCh-FirstCh].EfficientRechits->Fill(iLayer+1);
 	}
       }
-      //---- Are there rechits in the layer
-      if(sChamber_p->NRecHits[iLayer]>0){
-	ChHist[iCh-FirstCh].EfficientRechits->Fill(iLayer+1);
+      if(6!=missingLayers){
+	ChHist[iCh-FirstCh].EfficientRechits->Fill(8);
       }
+      ChHist[iCh-FirstCh].EfficientRechits->Fill(9);
     }
-    if(6!=missingLayers){
-      ChHist[iCh-FirstCh].EfficientRechits->Fill(8);
-    }
-    ChHist[iCh-FirstCh].EfficientRechits->Fill(9);
-  }
-  //
-  int badhits = 0;
-  int realhit = 0; 
-  for(int iLayer=0;iLayer<6;iLayer++){
-    for(unsigned int iRH=0; iRH<sChamber_p->RecHitsPosX[iLayer].size();iRH++){
-      realhit++;
-      //---- A rechit in "good region"
-      if(!GoodLocalRegion(sChamber_p->RecHitsPosXlocal[iLayer][iRH], 
-			  sChamber_p->RecHitsPosYlocal[iLayer][iRH], 
-			  ExtrapolateToStation, ExtrapolateToRing, iCh)){
-	badhits++;
-      }
-    }
-  }
-
-  //---- All rechits are in "good region" (no segment is required in the chamber)
-  if(0!=realhit && 0==badhits ){
-    if(printalot) std::cout<<"good rechits"<<std::endl;
+    //
+    int badhits = 0;
+    int realhit = 0; 
     for(int iLayer=0;iLayer<6;iLayer++){
-      if(missingLayers){
-	for(unsigned int iRH=0; iRH<sChamber_p->RecHitsPosX[iLayer].size();iRH++){
-	  ChHist[iCh-FirstCh].XvsY_InefficientRecHits_good->Fill(sChamber_p->RecHitsPosXlocal[iLayer][iRH],
-								 sChamber_p->RecHitsPosYlocal[iLayer][iRH]);
+      for(unsigned int iRH=0; iRH<sChamber_p->RecHitsPosX[iLayer].size();iRH++){
+	realhit++;
+	//---- A rechit in "good region"
+	if(!GoodLocalRegion(sChamber_p->RecHitsPosXlocal[iLayer][iRH], 
+			    sChamber_p->RecHitsPosYlocal[iLayer][iRH], 
+			    ExtrapolateToStation, ExtrapolateToRing, iCh)){
+	  badhits++;
 	}
       }
-      if(sChamber_p->NRecHits[iLayer]>0){
-	ChHist[iCh-FirstCh].EfficientRechits_good->Fill(iLayer+1);
+    }
+    
+    //---- All rechits are in "good region" (no segment is required in the chamber)
+    if(0!=realhit && 0==badhits ){
+      if(printalot) std::cout<<"good rechits"<<std::endl;
+      for(int iLayer=0;iLayer<6;iLayer++){
+	if(missingLayers){
+	  for(unsigned int iRH=0; iRH<sChamber_p->RecHitsPosX[iLayer].size();iRH++){
+	    ChHist[iCh-FirstCh].XvsY_InefficientRecHits_good->Fill(sChamber_p->RecHitsPosXlocal[iLayer][iRH],
+								   sChamber_p->RecHitsPosYlocal[iLayer][iRH]);
+	  }
+	}
+	if(sChamber_p->NRecHits[iLayer]>0){
+	  ChHist[iCh-FirstCh].EfficientRechits_good->Fill(iLayer+1);
+	}
       }
+      if(6!=missingLayers){
+	ChHist[iCh-FirstCh].EfficientRechits_good->Fill(8);
+      }
+      ChHist[iCh-FirstCh].EfficientRechits_good->Fill(9);
     }
-    if(6!=missingLayers){
-      ChHist[iCh-FirstCh].EfficientRechits_good->Fill(8);
-    }
-    ChHist[iCh-FirstCh].EfficientRechits_good->Fill(9);
   }
 }
 //
