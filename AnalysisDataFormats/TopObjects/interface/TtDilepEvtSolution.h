@@ -1,75 +1,100 @@
+//
+// $Id$
+//
+
 #ifndef TopObjects_TtDilepEvtSolution_h
 #define TopObjects_TtDilepEvtSolution_h
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "TtGenEvent.h"
-#include "TopJet.h"
-#include "TopLepton.h"
-#include "TopMET.h"
+
+#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/Common/interface/Ref.h"
+
+#include "DataFormats/Candidate/interface/Particle.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TopJet.h"
+#include "AnalysisDataFormats/TopObjects/interface/TopLepton.h"
+#include "AnalysisDataFormats/TopObjects/interface/TopMET.h"
+
 #include <vector>
+#include <string>
 
 
-class TtDilepEvtSolution
-{
- public:
-  TtDilepEvtSolution();
-  virtual ~TtDilepEvtSolution();
-  
-  void setGenEvt(const TtGenEvent&);
-  void setBestSol(bool);
-  void setMuonLepp(TopMuon);
-  void setMuonLepm(TopMuon);
-  void setElectronLepp(TopElectron);
-  void setElectronLepm(TopElectron);
-  void setB(TopJet);
-  void setBbar(TopJet);
-  void setMET(TopMET);
-  
-  std::string getWpDecay() const { return WpDecay; }; 
-  std::string getWmDecay() const { return WmDecay; };
-  
-  reco::Particle getGenLepp() const {return genLepp;};
-  reco::Particle getGenN() const {return genN;};
-  reco::Particle getGenB() const {return genB;};
-  reco::Particle getGenBbar() const {return genBbar;};
-  reco::Particle getGenLepm() const {return genLepm;};
-  reco::Particle getGenNbar() const {return genNbar;};
-  reco::Particle getGenWp() const {return genWp;};
-  reco::Particle getGenWm() const {return genWm;};
-  reco::Particle getGenT() const {return genT;};
-  reco::Particle getGenTbar() const {return genTbar;};
-  bool getBestSol() const { return bestSol; };      
-  TopJetType getRecJetB() const;
-  TopJetType getRecJetBbar() const;
-  TopMET getRecMET() const;
-  reco::Particle getRecLepp() const;
-  reco::Particle getRecLepm() const;
-  TopElectron getElectronLepp() const {return elecLepp;};
-  TopElectron getElectronLepm() const {return elecLepm;};
-  TopMuon getMuonLepp() const {return muonLepp;};
-  TopMuon getMuonLepm() const {return muonLepm;};
-  TopJet getJetB() const {return jetB;};
-  TopJet getJetBbar() const {return jetBbar;};
-  TopMET getMET() const {return met;};
-  TopJet getCalJetB() const;
-  TopJet getCalJetBbar() const;
-  
-  double getRecTopMass() const {return topmass_;};
-  double getRecWeightMax() const {return weightmax_;};
-  void setRecTopMass(double);
-  void setRecWeightMax(double);
+class TtDilepEvtSolution {
+
+  friend class TtDilepKinSolver;
+  friend class TtDilepEvtSolutionMaker;
+
+  public:
+
+    TtDilepEvtSolution();
+    virtual ~TtDilepEvtSolution();
+
+    // methods to et the original TopObjects
+    TopJet      getJetB() const;
+    TopJet      getJetBbar() const;
+    TopElectron getElectronp() const;
+    TopElectron getElectronm() const;
+    TopMuon     getMuonp() const;
+    TopMuon     getMuonm() const;
+    TopMET      getMET() const;
+    // methods to get the MC matched particles
+    const TtGenEvent &      getGenEvent() const;
+    const reco::Candidate * getGenT() const;
+    const reco::Candidate * getGenWp() const;
+    const reco::Candidate * getGenB() const;
+    const reco::Candidate * getGenLepp() const;
+    const reco::Candidate * getGenN() const;
+    const reco::Candidate * getGenTbar() const;
+    const reco::Candidate * getGenWm() const;
+    const reco::Candidate * getGenBbar() const;
+    const reco::Candidate * getGenLepm() const;
+    const reco::Candidate * getGenNbar() const;
+    // methods to explicitly get reconstructed and calibrated objects 
+    TopJetType  getRecJetB() const;
+    TopJet      getCalJetB() const;
+    TopJetType  getRecJetBbar() const;
+    TopJet      getCalJetBbar() const;
+    // method to get info on the W decays
+    std::string getWpDecay() const { return wpDecay_; }
+    std::string getWmDecay() const { return wmDecay_; }
+    // miscellaneous methods
+    bool getBestSol() const { return bestSol_; }
+    double getRecTopMass() const {return topmass_; }
+    double getRecWeightMax() const {return weightmax_; }
     
- private:
-  reco::Particle genLepp, genN, genB, genBbar, genLepm, genNbar, genWp, genWm, genT, genTbar;
-  TopElectron elecLepp, elecLepm;
-  TopMuon muonLepp, muonLepm;
-  TopJet jetB, jetBbar;
-  TopMET met;
-  bool bestSol;
-  double topmass_;
-  double weightmax_;
-  
-  std::string WpDecay;
-  std::string WmDecay;      
+  protected:
+
+    // method to set the generated event
+    void setGenEvt(const edm::Handle<TtGenEvent> & aGenEvt);
+    // methods to set the basic TopObjects
+    void setB(const edm::Handle<std::vector<TopJet> > & jh, int i);
+    void setBbar(const edm::Handle<std::vector<TopJet> > & jh, int i);
+    void setMuonp(const edm::Handle<std::vector<TopMuon> > & mh, int i);
+    void setMuonm(const edm::Handle<std::vector<TopMuon> > & mh, int i);
+    void setElectronp(const edm::Handle<std::vector<TopElectron> > & eh, int i);
+    void setElectronm(const edm::Handle<std::vector<TopElectron> > & eh, int i);
+    void setMET(const edm::Handle<std::vector<TopMET> > & nh, int i);
+    // miscellaneous methods
+    void setBestSol(bool bs);
+    void setRecTopMass(double j);
+    void setRecWeightMax(double j);
+
+  private:
+
+    // particle content
+    edm::RefProd<TtGenEvent>            theGenEvt_;
+    edm::Ref<std::vector<TopElectron> > elecp_, elecm_;
+    edm::Ref<std::vector<TopMuon> >     muonp_, muonm_;
+    edm::Ref<std::vector<TopJet> >      jetB_, jetBbar_;
+    edm::Ref<std::vector<TopMET> >      met_;
+    // miscellaneous
+    std::string wpDecay_;
+    std::string wmDecay_;      
+    bool bestSol_;
+    double topmass_;
+    double weightmax_;
+
 };
+
 
 #endif
