@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <fstream>
 
 #include "TROOT.h"
 #include "TStyle.h"
@@ -348,8 +349,9 @@ EcalShape::EcalShape(double timePhase)
 
   double T0 = computeT0();
   binstart = (int)(T0*tconv);
+}//constructor
 
-}
+
 
 double EcalShape::operator () (double time_) const
 {
@@ -406,8 +408,9 @@ double EcalShape::computeT0() const {
 
   int istart = 0;
   int i = 1;
+
   while ( istart == 0 && i < nsamp*tconv ) {
-    
+
     if (nt[i] >threshold && i > 0) istart = i-1;
     
     ++i;
@@ -457,3 +460,124 @@ void EcalShape::display () const
   delete showShape;
 
 }
+
+// Alex Zabi 20/07/07 
+// Adding member function load which can be used to load a 
+// specific profile. The signal output profile of a given
+// crystal can be loaded instead of using the reference
+// signal representation described above. 
+// WARNING: This function is meant to be used only for test
+// beam studies. Specific profiles can be loaded to compute
+// optimized weights for resolution studies. 
+//NOTE: The format of the profile.txt file is as follows:
+
+// Number of profiles in the file
+// xtal number
+// bin 1 (starting from 1)  value  error
+// bin 2  value error
+// bin 3 value error
+// ...
+// ...
+// bin 250 value error
+// xtal number
+// bin 1  value error
+// bin 2  value error
+// ...
+// ...
+// ....
+
+// There are 250 bins in a profile. 1bin = 1ns timing interval.
+// 10 samples x 25 TDC (test beam trigger) bins of 1ns  
+
+void EcalShape::load(int xtal_, int SuperModule_)
+{
+
+  std::cout << "LOADING NEW XTAL SHAPE" << std::endl;
+  //clearing vectors
+  for(unsigned int l=0; l < nt.size(); ++l)
+    {nt[l] = 0.0; ntd[l] = 0.0;}
+
+  char profile_file[250];
+  std::sprintf (profile_file,"profile_SM%02u.txt",SuperModule_);
+  std::cout << "LOOKING for " << profile_file << " FILE" << std::endl;
+  std::ifstream profile(profile_file);
+  int nProfile = 0;
+  profile >> nProfile;
+  std::cout << "There are " << nProfile 
+	    << " Xtal available in the file" << std::endl;
+  
+  std::vector<double> ProfileData;
+  std::vector<int>    Xtal;
+  for(int ite=0; ite < nProfile; ++ite)
+    {
+      int xtalin;
+      profile >> xtalin;
+      Xtal.push_back(xtalin);
+      for(int nb=0; nb < 250; ++nb){
+	int    bini  = 0;
+	double val   = 0.0;
+	double error = 0.0;
+	profile >> bini >> val >> error;
+	ProfileData.push_back(val);
+      }//loop bin
+    }//loop profile
+  
+  int index = 0;
+  bool found = false;
+  for(int it=0; it < nProfile; ++it)
+    if(Xtal[it] == xtal_){
+      index = it; found = true;
+      std::cout << "XTAL SELECTED=" << Xtal[it] << " index=" << index << std::endl;
+    }//check xtal
+
+  if(!found) std::cout << "No XTAL=" << xtal_ << " HERE, taking default" << std::endl;
+  else {
+    std::vector<double> shapeArray(500,0.0);
+    for(int nb=0; nb < 250; ++nb){
+      shapeArray[nb] = ProfileData[index*250+nb];      
+      //std::cout << nb << " " << ProfileData[index*250+nb] 
+      //<< " " << shapeArray[nb] << std::endl;
+    }//loop bin
+    
+    std::vector<double> ntmp(500,0.0);   // zero output pulse shape
+    std::vector<double> ntmpd(500,0.0);  // zero output derivative pulse shape
+    
+    int j;
+    double xb;
+    double value,deriv;
+    
+    double delta = (1./(double)tconv)/2.;
+    
+    for(j=0;j<nbin;j++){
+      xb = ((double)(j+1))/tconv-delta; 
+      value = 0.0;
+      deriv = 0.0;
+      
+      unsigned int ibin = j/(int)tconv;
+      
+      // A la H4SIM, parabolic interpolation and analytic continuation
+      if (ibin < 0 ) { value = 0.; deriv = 0.; }
+      else if (ibin == 0) { value = shapeArray[ibin]; deriv = 0.; }
+      else if (ibin+1 == shapeArray.size()) { value = shapeArray[ibin]; deriv = 0.;}
+      else {
+	double x = xb - ((double)ibin+0.5);
+	double f1 = shapeArray[ibin - 1];
+	double f2 = shapeArray[ibin];
+	double f3 = shapeArray[ibin + 1];
+	double a = f2;
+	double b = (f3 - f1)/2.;
+	double c = (f1 + f3)/2. - f2;
+	value = a + b*x + c*x*x;
+	deriv = (b + 2*c*x)/delta;
+      }
+      nt[j]  = value;
+      ntd[j] = deriv;
+    }
+
+    binstart = 0;
+    double T0 = computeT0();
+    binstart  = (int)(T0*tconv);
+  }//loading shape
+
+  profile.close();
+}//loading new shape

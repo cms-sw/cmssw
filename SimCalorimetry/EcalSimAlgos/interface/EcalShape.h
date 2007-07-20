@@ -19,12 +19,14 @@ public:
   ~EcalShape(){}
   
   double operator () (double time_) const;
-  void display () const;
+  void   display () const;
   double derivative (double time_) const;
   
   double computeTimeOfMaximum() const;
   double computeT0() const;
   double computeRisingTime() const;
+
+  void   load(int xtal_, int SuperModule_); //modif Alex 20/07/07
 
  private:
 
