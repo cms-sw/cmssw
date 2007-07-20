@@ -1,12 +1,9 @@
 //
-// $Id$
+// $Id: TtSemiEvtSolutionMaker.h,v 1.13 2007/07/06 02:49:41 lowette Exp $
 //
 
 #ifndef TopEventProducers_TtSemiEvtSolutionMaker_h
 #define TopEventProducers_TtSemiEvtSolutionMaker_h
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"

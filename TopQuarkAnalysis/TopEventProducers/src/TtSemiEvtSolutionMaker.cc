@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: TtSemiEvtSolutionMaker.cc,v 1.14 2007/07/06 02:49:42 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiEvtSolutionMaker.h"
@@ -18,7 +18,6 @@
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLRJetCombCalc.h"
 #include "TopQuarkAnalysis/TopEventSelection/interface/TtSemiLRSignalSelObservables.h"
 #include "TopQuarkAnalysis/TopEventSelection/interface/TtSemiLRSignalSelCalc.h"
-
 
 #include <memory>
 
