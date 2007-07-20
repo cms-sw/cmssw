@@ -106,15 +106,18 @@ void FedTrackerMap::print(bool print_total, float minval, float maxval)
     {
       *svgfile << line << endl;
     }
-  
+   
   std::map<int , TmApvPair *>::iterator i_apv;
   std::map<int , int>::iterator i_fed;
   if(!print_total){
+  cout << "before first loop"<<endl;
     for( i_apv=SvgApvPair::apvMap.begin();i_apv !=SvgApvPair::apvMap.end(); i_apv++){
       TmApvPair *  apvPair= i_apv->second;
+      if(apvPair!=0) {
       TmModule * apv_mod = apvPair->mod;
       if(apv_mod !=0 && !apv_mod->notInUse()){
         apvPair->value = apvPair->value / apvPair->count;
+      }
       }
     }
   }
@@ -122,16 +125,19 @@ void FedTrackerMap::print(bool print_total, float minval, float maxval)
   if(minvalue>=maxvalue){
     minvalue=9999999.;
     maxvalue=-9999999.;
+  cout << "before second loop"<<endl;
     for(i_apv=SvgApvPair::apvMap.begin();i_apv !=SvgApvPair::apvMap.end(); i_apv++){
       TmApvPair *  apvPair= i_apv->second;
+      if(apvPair!=0) {
       TmModule * apv_mod = apvPair->mod;
-      if(apv_mod !=0 && !apv_mod->notInUse()){
+      if( apv_mod !=0 && !apv_mod->notInUse()){
 	if (minvalue > apvPair->value)minvalue=apvPair->value;
 	if (maxvalue < apvPair->value)maxvalue=apvPair->value;
       }
+      }
     }
   }
-  
+  cout << "before third loop"<<endl;
   for (int layer=1; layer < 44; layer++){
     nlay=layer;
     defwindow(nlay);
