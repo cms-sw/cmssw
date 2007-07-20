@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: TtSemiEvtSolution.cc,v 1.13 2007/07/05 23:43:08 lowette Exp $
 //
 
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
@@ -170,8 +170,8 @@ void TtSemiEvtSolution::setHadb(const edm::Handle<std::vector<TopJet> > & jh, in
 void TtSemiEvtSolution::setHadp(const edm::Handle<std::vector<TopJet> > & jh, int i)          { hadp_ = edm::Ref<std::vector<TopJet> >(jh, i); }
 void TtSemiEvtSolution::setHadq(const edm::Handle<std::vector<TopJet> > & jh, int i)          { hadq_ = edm::Ref<std::vector<TopJet> >(jh, i); }
 void TtSemiEvtSolution::setLepb(const edm::Handle<std::vector<TopJet> > & jh, int i)          { lepb_ = edm::Ref<std::vector<TopJet> >(jh, i); }
-void TtSemiEvtSolution::setMuon(const edm::Handle<std::vector<TopMuon> > & mh, int i)         { muon_ = edm::Ref<std::vector<TopMuon> >(mh, i); decay_ = "muon";}
-void TtSemiEvtSolution::setElectron(const edm::Handle<std::vector<TopElectron> > & eh, int i) { electron_ = edm::Ref<std::vector<TopElectron> >(eh, i);  decay_ = "electron";}
+void TtSemiEvtSolution::setMuon(const edm::Handle<std::vector<TopMuon> > & mh, int i)         { muon_ = edm::Ref<std::vector<TopMuon> >(mh, i); decay_ = "muon"; }
+void TtSemiEvtSolution::setElectron(const edm::Handle<std::vector<TopElectron> > & eh, int i) { electron_ = edm::Ref<std::vector<TopElectron> >(eh, i); decay_ = "electron"; }
 void TtSemiEvtSolution::setMET(const edm::Handle<std::vector<TopMET> > & nh, int i)           { met_ = edm::Ref<std::vector<TopMET> >(nh, i); }
 
 
