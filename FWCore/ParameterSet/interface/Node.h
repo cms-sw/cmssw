@@ -72,7 +72,7 @@ namespace edm {
 
       /// whether or not to expand the contents of included files
       enum PrintOptions { COMPRESSED, EXPANDED };
-      virtual void print(std::ostream& ost, PrintOptions options) const = 0;
+      virtual void print(std::ostream& ost, PrintOptions options=COMPRESSED) const = 0;
       virtual ~Node();
       virtual void accept(Visitor& v) const = 0;
 
