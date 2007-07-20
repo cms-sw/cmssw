@@ -20,7 +20,7 @@ GaussianTailNoiseGenerator::~GaussianTailNoiseGenerator() {
   delete gaussDistribution_;
   delete poissonDistribution_;
   delete flatDistribution_;
-  delete mt19937;
+  gsl_rng_free(mt19937);
 }
 
 void GaussianTailNoiseGenerator::generate(int NumberOfchannels, 
