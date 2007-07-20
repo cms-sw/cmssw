@@ -108,8 +108,16 @@ class PhiSymmetryCalibration :  public edm::EDAnalyzer
   double eCut_endc_;  
   int eventSet_;
 
-  TH1F* etsum_barl_histos_[85];
-  TH1F* etsum_endc_histos_[39];
+   TH1F* etsum_barl_histos_[85]; 
+   TH1F* etsum_endc_histos_[39]; 
+   TH1F* etsumVsPhi_histos1[39][2]; 
+   TH1F* etsumVsPhi_histos[39][2]; 
+   TH1F* areaVsPhi_histos[39]; 
+   TH1F* etaVsPhi_histos[39]; 
+   float phi_endc[300][39]; 
+    
+   
+
 
   TGraph* k_barl_graph_[85];
   TGraph* k_endc_graph_[39];
