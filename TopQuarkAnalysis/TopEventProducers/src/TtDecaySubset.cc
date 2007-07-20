@@ -7,13 +7,6 @@
 using namespace std;
 using namespace reco;
 
-namespace TtDecayID{
-  static const int status = 3;
-  static const int tID = 6;
-  static const int bID = 5;
-  static const int WID =24;
-}
-
 TtDecaySubset::TtDecaySubset(const edm::ParameterSet& cfg):
   src_ ( cfg.getParameter<edm::InputTag>( "src" ) )
 {
@@ -46,13 +39,13 @@ Particle::LorentzVector TtDecaySubset::fourVector(const reco::Candidate& p)
   Particle::LorentzVector vec;
   Candidate::const_iterator pd=p.begin();
   for( ; pd!=p.end(); ++pd){
-    if( status( *pd )==TtDecayID::status ){
+    if( status( *pd )==TopDecayID::status ){
       vec+=fourVector( *pd );
     }
     else{
       //skip W with status 2 to
       //prevent double counting
-      if( abs(pd->pdgId())!=TtDecayID::WID )
+      if( abs(pd->pdgId())!=TopDecayID::WID )
 	vec+=pd->p4();
     }
   }
@@ -63,7 +56,7 @@ void TtDecaySubset::fillOutput(const reco::CandidateCollection& src, reco::Candi
 {
   CandidateCollection::const_iterator t=src.begin();
   for(int idx=-1; t!=src.end(); ++t){
-    if( status( *t )==TtDecayID::status && abs( t->pdgId() )==TtDecayID::tID ){ //is top      
+    if( status( *t )==TopDecayID::status && abs( t->pdgId() )==TopDecayID::tID ){ //is top      
       GenParticleCandidate* cand = new GenParticleCandidate( t->charge(), fourVector( *t ), 
 							     t->vertex(), t->pdgId(), status( *t ) );
       auto_ptr<reco::Candidate> ptr( cand );
@@ -78,14 +71,14 @@ void TtDecaySubset::fillOutput(const reco::CandidateCollection& src, reco::Candi
       //iterate over top daughters
       Candidate::const_iterator td=t->begin();
       for( ; td!=t->end(); ++td){
-	if( status( *td )==TtDecayID::status && abs( td->pdgId() )==TtDecayID::bID ){ //is beauty	  
+	if( status( *td )==TopDecayID::status && abs( td->pdgId() )==TopDecayID::bID ){ //is beauty	  
 	  GenParticleCandidate* cand = new GenParticleCandidate( td->charge(), fourVector( *td ), 
 								 td->vertex(), td->pdgId(), status( *td ) );
 	  auto_ptr<Candidate> ptr( cand );
 	  sel.push_back( ptr );	  
 	  topDaughs.push_back( ++idx ); //push index of top daughter
 	}
-	if( status( *td )==TtDecayID::status && abs( td->pdgId() )==TtDecayID::WID ){ //is W boson
+	if( status( *td )==TopDecayID::status && abs( td->pdgId() )==TopDecayID::WID ){ //is W boson
 	  GenParticleCandidate* cand = new GenParticleCandidate( td->charge(), fourVector( *td ), 
 								 td->vertex(), td->pdgId(), status( *td ) );
 	  auto_ptr<Candidate> ptr( cand );

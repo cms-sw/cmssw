@@ -12,6 +12,13 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 
+namespace TopDecayID{
+  static const int status = 3;
+  static const int tID = 6;
+  static const int bID = 5;
+  static const int WID =24;
+}
+
 class TtDecaySubset : public edm::EDProducer {
  public:
   explicit TtDecaySubset(const edm::ParameterSet&);
