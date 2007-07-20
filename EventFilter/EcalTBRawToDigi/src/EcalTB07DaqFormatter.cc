@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2007/07/11 17:35:56 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/07/17 22:22:49 $
+ *  $Revision: 1.4 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -34,7 +34,10 @@
 #include <iostream>
 #include <string>
 
-EcalTB07DaqFormatter::EcalTB07DaqFormatter (edm::FileInPath tbChannelMap, edm::FileInPath tbTowerMap, std::string tbName) {
+EcalTB07DaqFormatter::EcalTB07DaqFormatter (std::string tbName,
+					    int cryIcMap[68][5][5], 
+					    int tbStatusToLocation[71], 
+					    int tbTowerIDToLocation[201]) {
 
   LogDebug("EcalTB07RawToDigi") << "@SUB=EcalTB07DaqFormatter";
   std::vector<ulong> parameters;
@@ -52,11 +55,21 @@ EcalTB07DaqFormatter::EcalTB07DaqFormatter (edm::FileInPath tbChannelMap, edm::F
   theParser_ = new DCCDataParser(parameters);
 
   tbName_ = tbName;
-  if ( !getTBMaps(tbChannelMap, tbTowerMap) ) 
-    edm::LogError("EcalTB07RawToDigi") << "No test beam map was found!";
+
+  for(int i=0; i<68; ++i) 
+    for (int j=0; j<5; ++j)
+      for (int k=0; k<5; ++k)
+	cryIcMap_[i][j][k] = cryIcMap[i][j][k];
+  
+  for(int i=0; i<71; ++i)
+    tbStatusToLocation_[i] = tbStatusToLocation[i];
+  
+  for(int i=0; i<201; ++i)
+    tbTowerIDToLocation_[i] = tbTowerIDToLocation[i];
+
 
 }
-
+ 
 void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData , 
 					    EBDigiCollection& digicollection,
 					    EEDigiCollection& eeDigiCollection,
@@ -72,7 +85,7 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
 					    EcalElectronicsIdCollection & memgaincollection,  
 					    EcalElectronicsIdCollection & memchidcollection,
 					    EcalTrigPrimDigiCollection &tpcollection)
-{
+  {
 
 
   const unsigned char * pData = fedData.data();
@@ -895,18 +908,6 @@ void EcalTB07DaqFormatter::DecodeMEM( DCCTowerBlock *  towerblock,  EcalPnDiodeD
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 std::pair<int,int>  EcalTB07DaqFormatter::cellIndex(int tower_id, int strip, int ch) {
   
   int xtal= (strip-1)*5+ch-1;
@@ -943,10 +944,10 @@ int EcalTB07DaqFormatter::getEE_ix(int tower, int strip, int ch){
   int ic = cryIc(tower, strip, ch);
   int ix = 0;
   if ( tbName_ == "h2" ) 
-    ix = (int)ic/20 + 6;
+    ix = 95 - (ic-1)/20;
 
   if ( tbName_ == "h4" )
-    ix = 66 + (ic-1)%20;
+    ix = 35 - (ic-1)%20;
 
   return ix;
 
@@ -955,77 +956,13 @@ int EcalTB07DaqFormatter::getEE_iy(int tower, int strip, int ch){
   int ic = cryIc(tower, strip, ch);
   int iy = 0;
   if ( tbName_ == "h2" ) 
-    iy = 55 - (ic-1)%20;
+    iy = 46 + (ic-1)%20;
 
   if ( tbName_ == "h4" )
-    iy = 50 - (int)(ic/20);
+    iy = 51 + (int)((ic-1)/20);
 
   return iy;
 }
-
-//YM use h2 mapping scheme =============================================================
-bool EcalTB07DaqFormatter::getTBMaps(edm::FileInPath tbChannelMap, edm::FileInPath tbTowerMap) {
-  // clear the array (put the other unused channels to 1700
-  for (unsigned it=1; it <= 68; ++it )
-    for (unsigned is=1; is <=5; ++is )
-      for (unsigned ic=1; ic <=5; ++ic)
-	cryIcMap_[it-1][is-1][ic-1] = 1700;
-
-  std::cout << "Reading up TB07 mapping files from" << std::endl 
-	    << tbChannelMap.fullPath() << "\t and " 
-	    << tbTowerMap.fullPath() << std::endl;
-
-  // read in tbChannelMap: ic tower_id(EB style) strip_id channel_id
-  std::ifstream towerStripChannelMap(tbChannelMap.fullPath().c_str());
-  if ( towerStripChannelMap.eof() ) {
-    edm::LogInfo("EcalTB07RawToDigi") << "No map found!";
-    return false;
-  }
-  while (!towerStripChannelMap.eof()) {
-    int ic, tower, strip, channel;
-    if (!(towerStripChannelMap >> ic     )) break;
-    if (!(towerStripChannelMap >> tower  )) break;
-    if (!(towerStripChannelMap >> strip  )) break;
-    if (!(towerStripChannelMap >> channel)) break;
-    cryIcMap_[tower-1][strip-1][channel-1] = ic;
-    //std::cout << ic << " " << tower << " " << strip << " " << channel << std::endl;
-  }
-  
-  for (unsigned it=1; it <= 70; ++it) {
-    tbStatusToLocation_[it] = it;
-  }
-  for (unsigned it=1; it <=200; ++it) {
-    tbTowerIDToLocation_[it] = it;
-  }
-	
-  // read in tbTowerMap: status_id tower_id tower_id(EB style)
-  std::ifstream towerMapFile(tbTowerMap.fullPath().c_str());
-  if ( towerMapFile.eof() ) {
-    edm::LogInfo("EcalTB07RawToDigi") << "No Tower map found!";
-    return false;
-  }
-
-  while (!towerMapFile.eof()) {
-    int is, it, itEB;
-    if (!(towerMapFile >> is   )) break;
-    if (!(towerMapFile >> it   )) break;
-    if (!(towerMapFile >> itEB )) break;
-    if ( is > 70 ) {
-      edm::LogInfo("EcalTB07RawToDigi") << "Bad towerMap File!";
-      return false;
-    }
-    if ( itEB > 200 ) {
-      edm::LogInfo("EcalTB07RawToDigi") << "Bad towerMap File! TowerID exceeds 200";
-      return false;
-    }
-    tbStatusToLocation_[is] = itEB;
-    tbTowerIDToLocation_[it] = itEB;
-    std::cout << is << " " << it << " " << itEB << " " << std::endl;
-  }
-  
-  return true;
-}
-
 
 int  EcalTB07DaqFormatter::cryIc(int tower, int strip, int ch) {
 

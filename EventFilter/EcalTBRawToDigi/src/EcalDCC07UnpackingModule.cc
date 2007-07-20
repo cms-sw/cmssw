@@ -1,7 +1,7 @@
 /* \file EcalDCC07UnpackingModule.h
  *
- *  $Date: 2007/07/05 07:22:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/07/11 17:35:56 $
+ *  $Revision: 1.3 $
  *  \author N. Marinelli
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -47,7 +47,83 @@ EcalDCC07UnpackingModule::EcalDCC07UnpackingModule(const edm::ParameterSet& pset
   edm::FileInPath tbTowerMapFile = pset.getUntrackedParameter<edm::FileInPath >("tbTowerMapFile", edm::FileInPath("EventFilter/EcalTBRawToDigi/data/h2_towers.map") );
   std::string tbName = pset.getUntrackedParameter<std::string >("tbName", std::string("h2") );
 
-  formatter_ = new EcalTB07DaqFormatter(tbStripChannelMapFile, tbTowerMapFile, tbName);
+  // index of crystal <-> tower ID (DQM plots) position <-> stripIDs <-> channelIDs for the test beam (2007)
+  std::vector<int> ics        = pset.getUntrackedParameter<std::vector<int> >("ics",          std::vector<int>());
+  std::vector<int> towerIDs   = pset.getUntrackedParameter<std::vector<int> >("towerIDs",     std::vector<int>());
+  std::vector<int> stripIDs   = pset.getUntrackedParameter<std::vector<int> >("stripIDs",     std::vector<int>());
+  std::vector<int> channelIDs = pset.getUntrackedParameter<std::vector<int> >("channelIDs",   std::vector<int>());
+
+  // status id <-> tower CCU ID <-> DQM plots position mapping for the test beam (2007)
+  std::vector<int> statusIDs   = pset.getUntrackedParameter<std::vector<int> >("statusIDs",   std::vector<int>());
+  std::vector<int> ccuIDs      = pset.getUntrackedParameter<std::vector<int> >("ccuIDs",      std::vector<int>());
+  std::vector<int> positionIDs = pset.getUntrackedParameter<std::vector<int> >("positionIDs", std::vector<int>());
+
+  // check if vectors are filled
+  if ( ics.size() == 0 || towerIDs.size() == 0 || stripIDs.size() == 0 || channelIDs.size() == 0 ){
+    edm::LogError("EcalDCC07UnpackingModule") << "Some of the mapping info is missing! Check config files! " <<
+      " Size of IC vector is " << ics.size() <<
+      " Size of Tower ID vector is " << towerIDs.size() <<
+      " Size of Strip ID vector is " << stripIDs.size() <<
+      " Size of Channel ID vector is " << channelIDs.size();
+  }
+  if ( statusIDs.size() == 0 || ccuIDs.size() == 0 || positionIDs.size() == 0 ) {
+    edm::LogError("EcalDCC07UnpackingModule") << "Some of the mapping info is missing! Check config files! " <<
+      " Size of status ID vector is " << statusIDs.size() <<
+      " Size of ccu ID vector is " << ccuIDs.size() <<
+      " positionIDs size is " << positionIDs.size();
+  }
+  
+  // check if vectors have the same size
+  if ( ics.size() != towerIDs.size() || ics.size() != stripIDs.size() || ics.size() != channelIDs.size() ||
+       towerIDs.size() != stripIDs.size() || towerIDs.size() != channelIDs.size() ||
+       stripIDs.size() != channelIDs.size() )
+    edm::LogError("EcalDCC07UnpackingModule") << "Mapping information is corrupted. " <<
+      "Tower/DQM position/strip/channel vectors are of different size! Check cfi files! \n" <<
+      " Size of IC vector is " << ics.size() <<
+      " Size of Tower ID vector is " << towerIDs.size() <<
+      " Size of Strip ID vector is " << stripIDs.size() <<
+      " Size of Channel ID vector is " << channelIDs.size();
+  
+  if ( statusIDs.size() != ccuIDs.size() || statusIDs.size() != positionIDs.size() ||
+       ccuIDs.size() != positionIDs.size() ) 
+    edm::LogError("EcalDCC07UnpackingModule") << "Mapping information is corrupted. " <<
+      "Status/CCU ID/DQM position vectors are of different size! Check cfi files! \n" <<
+      " Size of status ID vector is " << statusIDs.size() <<
+      " Size of ccu ID vector is " << ccuIDs.size() <<
+      " positionIDs size is " << positionIDs.size();
+  
+  int cryIcMap[68][5][5];
+  int tbStatusToLocation[71];
+  int tbTowerIDToLocation[201];
+  for (unsigned it=1; it <= 68; ++it )
+    for (unsigned is=1; is <=5; ++is )
+      for (unsigned ic=1; ic <=5; ++ic)
+	cryIcMap[it-1][is-1][ic-1] = 1700;
+
+  for (unsigned it=1; it <=71; ++it)
+    tbStatusToLocation[it-1] = it - 1;
+
+  for (unsigned it=1; it <= 201; ++it)
+    tbTowerIDToLocation[it-1] = it - 1;
+
+  // Fill the cry IC map
+  for(unsigned int i=0; i < ics.size(); ++i) {
+    int tower = towerIDs[i];
+    int strip = stripIDs[i];
+    int channel = channelIDs[i];
+    int ic = ics[i];
+    cryIcMap[tower-1][strip-1][channel-1] = ic;
+  }
+  for(unsigned int i = 0; i < statusIDs.size(); ++i) {
+    int is = statusIDs[i];
+    int it = ccuIDs[i];
+    int itEB = positionIDs[i];
+
+    tbStatusToLocation[is] = itEB;
+    tbTowerIDToLocation[it] = itEB;
+  }
+
+  formatter_ = new EcalTB07DaqFormatter(tbName, cryIcMap, tbStatusToLocation, tbTowerIDToLocation);
   ecalSupervisorFormatter_ = new EcalSupervisorDataFormatter();
   camacTBformatter_ = new CamacTBDataFormatter();
   tableFormatter_ = new TableDataFormatter();
