@@ -1,5 +1,5 @@
 //
-// $Id: TtGenEvent.cc,v 1.8 2007/07/09 14:59:49 lowette Exp $
+// $Id: TtGenEvent.cc,v 1.9 2007/07/17 09:09:15 rwolf Exp $
 //
 
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
@@ -9,9 +9,10 @@ TtGenEvent::TtGenEvent()
 {
 }
 
-TtGenEvent::TtGenEvent(reco::CandidateRefProd & candRefVec)
+TtGenEvent::TtGenEvent(reco::CandidateRefProd & parts, std::vector<const reco::Candidate*> inits)
 {
-  parts_ = candRefVec;
+  parts_ = parts;
+  initPartons_= inits;
 }
 
 TtGenEvent::~TtGenEvent()

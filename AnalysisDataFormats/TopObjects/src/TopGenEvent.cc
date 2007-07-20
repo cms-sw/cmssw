@@ -1,5 +1,11 @@
 #include "AnalysisDataFormats/TopObjects/interface/TopGenEvent.h"
 
+TopGenEvent::TopGenEvent(reco::CandidateRefProd& parts, std::vector<const reco::Candidate*> inits)
+{
+  parts_ = parts; 
+  initPartons_= inits;
+}
+
 const reco::Candidate*
 TopGenEvent::candidate(int id) const
 {

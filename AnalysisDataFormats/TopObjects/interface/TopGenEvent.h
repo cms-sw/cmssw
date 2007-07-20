@@ -7,10 +7,11 @@ class TopGenEvent {
  public:
 
   TopGenEvent(){};
-  TopGenEvent(reco::CandidateRefProd& vec){parts_ = vec;};
+  TopGenEvent(reco::CandidateRefProd&, std::vector<const reco::Candidate*>);
   virtual ~TopGenEvent(){};
-  
-  const reco::CandidateCollection & particles() const { return *parts_; }
+
+  const reco::CandidateCollection& particles() const { return *parts_; }
+  const std::vector<const reco::Candidate*> initialPartons() const { return initPartons_;}
   const reco::Candidate* candidate(int) const;
   
   //common getters
@@ -26,7 +27,7 @@ class TopGenEvent {
   const reco::Candidate* wBar() const     { return candidate(-24 );}
   const reco::Candidate* b() const        { return candidate( 5 );}
   const reco::Candidate* bBar() const     { return candidate(-5 );}
-  
+
  protected:
   
   bool isLepton(const reco::Candidate& part) const 
@@ -37,9 +38,9 @@ class TopGenEvent {
   {return (double)(part.pdgId() / abs(part.pdgId()) );}
   
  protected:
-  
-  reco::CandidateRefProd parts_;
-};
 
+  reco::CandidateRefProd parts_;                    //top decay chain
+  std::vector<const reco::Candidate*> initPartons_; //initial partons
+};
 
 #endif

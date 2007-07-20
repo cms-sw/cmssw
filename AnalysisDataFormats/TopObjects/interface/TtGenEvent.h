@@ -7,7 +7,7 @@ class TtGenEvent: public TopGenEvent {
  public:
   
   TtGenEvent();
-  TtGenEvent(reco::CandidateRefProd&);
+  TtGenEvent(reco::CandidateRefProd&, std::vector<const reco::Candidate*>);
   virtual ~TtGenEvent();
 
   int numberOfLeptons() const;
@@ -49,6 +49,5 @@ class TtGenEvent: public TopGenEvent {
   double flavour(const reco::Candidate& part) const 
   {return (double)(part.pdgId() / abs(part.pdgId()) );}
 };
-
 
 #endif

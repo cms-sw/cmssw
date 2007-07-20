@@ -43,6 +43,8 @@
   <class name="edm::RefProd<TtGenEvent>" />
   <class name="edm::RefProd<StGenEvent>" />
   <class name="edm::RefProd<TopGenEvent>" />
+  <class name="std::vector<const reco::Candidate*>" />
+  <class name="edm::Wrapper<std::vector<const reco::Candidate*> >" />
 
   <class name="TtDilepEvtSolution" />
   <class name="TtSemiEvtSolution" />
