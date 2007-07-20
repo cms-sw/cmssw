@@ -7,10 +7,6 @@
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/OneToValue.h"
 #include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
-//#include "DataFormats/TrackReco/interface/DeDxHitFwd.h"
-#include "DataFormats/TrackReco/interface/DeDxHit.h"
-#include "DataFormats/TrackReco/interface/TrackDeDxHits.h"
-#include "DataFormats/TrackReco/interface/TrackDeDxEstimate.h"
 
 #include <vector>
 
@@ -43,32 +39,5 @@ namespace {
     edm::helpers::KeyVal<reco::TrackRef,reco::TrackRef> kvtttmap1;
     reco::TrackToTrackMap tttmap1;
     edm::Wrapper<reco::TrackToTrackMap> wtttmap1;
-
-// DEDX containers
-    reco::DeDxHit dedx1;
-    //reco::DeDxHitCollection dedx2;
-    //reco::DeDxHitRef dedx3;
-    //reco::DeDxHitRefProd dedx4;
-    //reco::DeDxHitRefVector dedx5;
-
-    reco::TrackDeDxHitsCollection dedx6;
-    reco::TrackDeDxHits dedx7;
-    reco::TrackDeDxHitsRef dedx8;
-    reco::TrackDeDxHitsRefProd dedx9;
-    reco::TrackDeDxHitsRefVector dedx10;
-   std::vector<std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,std::vector<reco::DeDxHit> > > dedx11;
-   std::vector<std::vector<reco::DeDxHit> > dedx12;
-   
-   reco::TrackDeDxEstimateCollection dedxe1;
-   reco::TrackDeDxEstimate dedxe2;
-   reco::TrackDeDxEstimateRef dedxe3;
-   reco::TrackDeDxEstimateRefProd dedxe4;
-   reco::TrackDeDxEstimateRefVector dedxe5;
-
-   edm::Wrapper<reco::TrackDeDxHitsCollection> dedxw1; 
-   edm::Wrapper<reco::TrackDeDxEstimateCollection> dedxw2; 
-
-//
-
   }
 }

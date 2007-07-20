@@ -60,30 +60,4 @@
   </class>
 
 
-      <class name="reco::DeDxHit" />
-      <class name="reco::DeDxHitCollection" />
-
-  <class pattern="edm::AssociationVector<*>">
-    <field name="transientVector_" transient="true"/>
-    <field name="fixed_" transient="true"/>
-  </class>
-
-     <!-- <class name="reco::TrackDeDxHitsCollection" />-->
-      <class name="reco::TrackDeDxHits" />
-      <class name="reco::TrackDeDxHitsRef" />
-      <class name="reco::TrackDeDxHitsRefProd" />
-      <class name="reco::TrackDeDxHitsRefVector" />
-      <class name="std::vector<std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,std::vector<reco::DeDxHit> > >"/>
-      <class name="std::vector<std::vector<reco::DeDxHit> >"/>
-
-      <!--   <class name="reco::TrackDeDxEstimateCollection"/> -->
-         <class name="reco::TrackDeDxEstimate"/>
-         <class name="reco::TrackDeDxEstimateRef"/>
-         <class name="reco::TrackDeDxEstimateRefProd"/>
-         <class name="reco::TrackDeDxEstimateRefVector"/>
-      <class name="std::vector<std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,float > >"/>
-      
-     <class name="edm::Wrapper<reco::TrackDeDxHitsCollection>"/>
-     <class name="edm::Wrapper<reco::TrackDeDxEstimateCollection>"/>
- 
   </lcgdict>

@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: TrackExtra.h,v 1.15 2007/07/16 10:31:11 gpetrucc Exp $
+ * \version $Id: TrackExtra.h,v 1.14 2007/01/31 08:51:35 llista Exp $
  *
  */
 #include <Rtypes.h>
@@ -17,7 +17,6 @@
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/TrackReco/interface/TrackExtraBase.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
-#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 namespace reco {
   class TrackExtra : public TrackExtraBase {
@@ -41,8 +40,7 @@ namespace reco {
     TrackExtra( const Point & outerPosition, const Vector & outerMomentum, bool ok ,
 		const Point & innerPosition, const Vector & innerMomentum, bool iok,
 		const CovarianceMatrix& outerState, unsigned int outerId,
-		const CovarianceMatrix& innerState, unsigned int innerId, 
-		PropagationDirection& seedDir);
+		const CovarianceMatrix& innerState, unsigned int innerId);
     /// outermost hit position
     const Point & outerPosition() const { return outerPosition_; }
     /// momentum vector at outermost hit position
@@ -92,8 +90,6 @@ namespace reco {
     unsigned int outerDetId() const { return outerDetId_; }
     /// DetId of the detector on which surface the innermost state is located
     unsigned int innerDetId() const { return innerDetId_; }
-    // direction how the hits were sorted in the original seed
-    PropagationDirection seedDirection() const {return seedDir_;}
 
   private:
     /// outermost hit position
@@ -116,9 +112,6 @@ namespace reco {
     /// innermost trajectory state 
     Double32_t innerCovariance_[ covarianceSize ];
     unsigned int innerDetId_;
-
-    PropagationDirection seedDir_;
-
   };
 
 }
