@@ -41,15 +41,23 @@ EcalFixedAlphaBetaFitUncalibRecHitProducer::EcalFixedAlphaBetaFitUncalibRecHitPr
   EBhitCollection_  = ps.getParameter<std::string>("EBhitCollection");
   EEhitCollection_  = ps.getParameter<std::string>("EEhitCollection");
 
+  //AmplThrEB_ =  ps.getParameter<double> ("MinAmplBarrel")
+  //AmplThrEE_ =  ps.getParameter<double> ("MinAmplEndcap")
+
   produces< EBUncalibratedRecHitCollection >(EBhitCollection_);
   produces< EEUncalibratedRecHitCollection >(EEhitCollection_);
 
+  
  alpha_= ps.getUntrackedParameter<double>("alpha",1.2);
    beta_= ps.getUntrackedParameter<double>("beta",1.7);
 
    alphabetaFilename_= ps.getUntrackedParameter<std::string>("AlphaBetaFilename","NOFILE");
    useAlphaBetaArray_=setAlphaBeta();//set crystalwise values of alpha and beta
    if(!useAlphaBetaArray_){edm::LogInfo("EcalUncalibRecHitError") << " No alfa-beta file found. Using the deafult values.";}
+
+   algoEB_.SetMinAmpl( ps.getParameter<double> ("MinAmplBarrel") );
+   algoEE_.SetMinAmpl(  ps.getParameter<double> ("MinAmplEndcap") );
+
 }
 
 EcalFixedAlphaBetaFitUncalibRecHitProducer::~EcalFixedAlphaBetaFitUncalibRecHitProducer() {

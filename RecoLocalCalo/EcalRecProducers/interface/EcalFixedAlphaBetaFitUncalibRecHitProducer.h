@@ -27,6 +27,8 @@ class EcalFixedAlphaBetaFitUncalibRecHitProducer : public edm::EDProducer {
     std::string EBhitCollection_; // secondary name to be given to collection of hit
     std::string EEhitCollection_; // secondary name to be given to collection of hits
 
+    double AmplThrEB_;
+    double AmplThrEE_;
 
    EcalUncalibRecHitFixedAlphaBetaAlgo<EBDataFrame> algoEB_;
    EcalUncalibRecHitFixedAlphaBetaAlgo<EEDataFrame> algoEE_;
