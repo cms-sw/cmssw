@@ -54,7 +54,9 @@ public:
     {
         unsigned int et_threshold;
         bool en_overflow;
-        unsigned int phi;           // only for etm
+
+        u_int64_t phi0word; // ETM phi has 72 bins - two 64-bits words            
+        u_int64_t phi1word;            
     } ConditionParameter;
       
     enum SumType {

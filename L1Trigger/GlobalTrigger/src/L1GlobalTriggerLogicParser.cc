@@ -25,6 +25,8 @@
 
 #include <iostream>
 
+#include <boost/algorithm/string.hpp>
+
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
 
@@ -215,6 +217,10 @@ std::string L1GlobalTriggerLogicParser::getLogicalExpression() {
     // add spaces before and after brackets to the original expression
     std::string exprwithbs;
     addBracketSpaces(p_expression, exprwithbs);
+    
+    // trim leading or trailing spaces
+    boost::trim(exprwithbs);
+    
 
     std::string result;         // result string
     result.clear();
@@ -268,6 +274,9 @@ std::string L1GlobalTriggerLogicParser::getNumericExpression() {
     std::string exprwithbs;
     addBracketSpaces(p_expression, exprwithbs);
 
+    // trim leading or trailing spaces
+    boost::trim(exprwithbs);
+    
     std::string result;         // result string
     result.clear();
 
@@ -319,6 +328,9 @@ std::vector<CombinationsInCond>
     // add spaces before and after brackets to the original expression
     std::string exprwithbs;
     addBracketSpaces(p_expression, exprwithbs);
+
+    // trim leading or trailing spaces
+    boost::trim(exprwithbs);
 
     std::vector<CombinationsInCond> result;
     result.clear();
@@ -377,6 +389,10 @@ std::vector<ObjectTypeInCond>
     // add spaces before and after brackets to the original expression
     std::string exprwithbs;
     addBracketSpaces(p_expression, exprwithbs);
+
+    // trim leading or trailing spaces
+    boost::trim(exprwithbs);
+    
 
     std::vector<ObjectTypeInCond> result;
     result.clear();
@@ -625,6 +641,10 @@ int L1GlobalTriggerLogicParser::setExpression(const std::string& expression,
 
     // add spaces before and after brackets
     addBracketSpaces(p_expression, exprwithbs);
+    
+    // trim leading or trailing spaces
+    boost::trim(exprwithbs);
+    
 
     LogDebug("L1GlobalTriggerLogicParser")
     << "\nLogical expression = '" << expression << "'\n"

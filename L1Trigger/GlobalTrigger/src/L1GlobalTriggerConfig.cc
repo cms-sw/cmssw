@@ -1505,14 +1505,23 @@ int L1GlobalTriggerConfig::parseESums(DOMNode* node,
     // fill into structure
     conditionparameter.et_threshold = tmpvalue;
     
-    // for etm read phi value
+    // for ETM read phi value
+    // phi is larger than 64 bits -it needs two 64bits words
     if (sumtype == L1GlobalTriggerEsumsTemplate::ETM_ST) {
-         if (getConditionChildValues(node, xml_phi_tag, 1, &tmpvalue) != 0) {
+        
+        u_int64_t tmpvalues[2]; // temporary storage of values
+
+        if (getXMLHexTextValue128(findXMLChild(node->getFirstChild(), 
+            xml_phi_tag), tmpvalues[0], tmpvalues[1]) != 0) {
+            edm::LogError("L1GlobalTriggerConfig") 
+                << "    Could not get phi for ETM condition (" << name << ")" 
+                << std::endl;
             return -1;
-         }
-         
-         // fill into structure
-         conditionparameter.phi = tmpvalue;
+        }
+        
+        conditionparameter.phi0word = tmpvalues[0];
+        conditionparameter.phi1word = tmpvalues[1];
+        
     }
 
 

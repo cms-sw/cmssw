@@ -192,9 +192,19 @@ const bool L1GlobalTriggerEsumsTemplate::blockCondition() const
 
     /// for etm check phi also
     if (p_sumtype == ETM_ST) {
-        if (!checkBit(p_conditionparameter.phi, candPhi)) {
-            return false;
+
+        // phi bitmask is saved in two u_int64_t (see parser)
+        if (candPhi < 64) {
+            if (!checkBit(p_conditionparameter.phi0word, candPhi) ) {
+                return false;
+            }
+        } else {
+            if (!checkBit(p_conditionparameter.phi1word, candPhi - 64)) {
+                return false;
+            }
         }
+
+
     }
 
     // condition matches
@@ -262,8 +272,10 @@ void L1GlobalTriggerEsumsTemplate::printThresholds(std::ostream& myCout) const
     myCout << "    en_overflow           "
     << std::hex << p_conditionparameter.en_overflow << std::endl;
     if (p_sumtype == ETM_ST) {
-        myCout << "    phi                   "
-        << std::hex << p_conditionparameter.phi << std::endl;
+        myCout << "    phi0word                   "
+        << std::hex << p_conditionparameter.phi0word << std::endl;
+        myCout << "    phi1word                   "
+        << std::hex << p_conditionparameter.phi1word << std::endl;
     }
 
     // reset to decimal output

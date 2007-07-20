@@ -175,10 +175,10 @@ void L1GlobalTriggerCaloTemplate::setConditionParameter(
     memcpy(p_particleparameter, particlep, sizeof(ParticleParameter)*p_number);
     memcpy(&p_conditionparameter, conditionp, sizeof(ConditionParameter));
 
-    LogTrace("L1GlobalTriggerCaloTemplate")
-    << "\n  Maximum number of candidates = " << maxNumberCands
-    << "; particles in condition: p_number = " << p_number
-    << std::endl;
+    //LogTrace("L1GlobalTriggerCaloTemplate")
+    //<< "\n  Maximum number of candidates = " << maxNumberCands
+    //<< "; particles in condition: p_number = " << p_number
+    //<< std::endl;
 
 }
 
@@ -193,7 +193,7 @@ const bool L1GlobalTriggerCaloTemplate::blockCondition() const
 {
 
     // maximum number of candidates
-    int maxNumberCands;
+    int maxNumberCands = 0;
 
     switch (p_particletype) {
         case EG:
@@ -216,10 +216,10 @@ const bool L1GlobalTriggerCaloTemplate::blockCondition() const
             break;
     }
 
-    LogTrace("L1GlobalTriggerCaloTemplate")
-    << "\n  Maximum number of candidates = " << maxNumberCands
-    << "; particles in condition: p_number = " << p_number
-    << std::endl;
+    //LogTrace("L1GlobalTriggerCaloTemplate")
+    //<< "\n  Maximum number of candidates = " << maxNumberCands
+    //<< "; particles in condition: p_number = " << p_number
+    //<< std::endl;
 
     //    // the candidates
     //    L1GctCand* v[maxNumberCands];
