@@ -200,6 +200,8 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 						}
 						track.first.setFineHaloPacked(iter->halo());
 
+						track.first.m_output_link |= iter->MS_id()<<4;
+
 						std::vector<CSCSP_MEblock> lcts = iter->LCTs();
 
 						for(std::vector<CSCSP_MEblock>::const_iterator lct=lcts.begin(); lct!=lcts.end(); lct++){
