@@ -41,6 +41,7 @@ namespace {
 
   struct CandidateRefGreaterByEt {
     bool operator() (const reco::CandidateRef& first, const reco::CandidateRef& second) {
+      std::cout << "CandidateRefGreaterByEt::operator()->" << std::endl;
       NumericSafeGreaterByEt<reco::Candidate> comparator;
       return comparator (*first, *second);
     }
@@ -48,48 +49,29 @@ namespace {
 
 }
 
-ProtoJet::ProtoJet()
-  : mOrdered (false) {}
-
 ProtoJet::ProtoJet(const Constituents& fConstituents) 
-  : mConstituents (fConstituents),
-    mOrdered (false)
+  : mConstituents (fConstituents)
 {
+  reorderTowers ();
   calculateLorentzVector(); 
 }//end of constructor
 
 ProtoJet::ProtoJet(const LorentzVector& fP4, const Constituents& fConstituents) 
-  : mP4 (fP4), 
-    mConstituents (fConstituents),
-    mOrdered (false)
-{}
-
-const ProtoJet::Constituents& ProtoJet::getTowerList() {
+  : mP4 (fP4), mConstituents (fConstituents) 
+{
   reorderTowers ();
-  return mConstituents;
-}
-  
-const ProtoJet::Constituents ProtoJet::getTowerList() const {
-  if (mOrdered) return mConstituents;
-
-  Constituents result = mConstituents;
-  CandidateRefGreaterByEt comparator;
-  std::sort (result.begin(), result.end(), comparator);
-  return result;
 }
 
 void ProtoJet::putTowers(const Constituents& towers) {
   mConstituents = towers; 
-  mOrdered = false;
+  reorderTowers ();
   calculateLorentzVector();
 }
 
 void ProtoJet::reorderTowers () {
-  if (!mOrdered) {
-    CandidateRefGreaterByEt comparator;
-    std::sort (mConstituents.begin(), mConstituents.end(), comparator); 
-    mOrdered = true;
-  }
+  return;
+  CandidateRefGreaterByEt comparator;
+  std::sort (mConstituents.begin(), mConstituents.end(), comparator); 
 }
 
 void ProtoJet::calculateLorentzVectorERecombination() {
