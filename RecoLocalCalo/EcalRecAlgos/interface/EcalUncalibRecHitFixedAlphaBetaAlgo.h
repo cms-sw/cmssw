@@ -33,7 +33,8 @@ template<class C> class EcalUncalibRecHitFixedAlphaBetaAlgo : public EcalUncalib
 
 
  private:
-
+  double MinAmpl_;
+  
   double fAlpha_;//parameter of the shape
   double fBeta_;//parameter of the shape
   double fAmp_max_;// peak amplitude 
@@ -41,7 +42,7 @@ template<class C> class EcalUncalibRecHitFixedAlphaBetaAlgo : public EcalUncalib
   double fPed_max_;// pedestal value
   double alfabeta_; 
 
-
+  
   int fNb_iter_;
   int  fNum_samp_bef_max_ ;
   int fNum_samp_after_max_;
@@ -51,6 +52,8 @@ template<class C> class EcalUncalibRecHitFixedAlphaBetaAlgo : public EcalUncalib
   //temporary solution for different alpha and beta
   float alpha_table_[36][1701];
   float beta_table_[36][1701];
+
+  bool doFit_;
 
   double pulseShapeFunction(double t);
   float PerformAnalyticFit(double* samples, int max_sample);
@@ -66,6 +69,8 @@ template<class C> class EcalUncalibRecHitFixedAlphaBetaAlgo : public EcalUncalib
 	beta_table_[i][j]  =  1.7 ;
       }
     }
+    doFit_ = false;
+    MinAmpl_ = 16;
   }
   EcalUncalibRecHitFixedAlphaBetaAlgo<C>(int n_iter, int n_bef_max =1, int n_aft_max =3, float sigma_ped = 1.1):fAlpha_(0.),fBeta_(0.),fAmp_max_(-1.),fTim_max_(-1),fPed_max_(0),alfabeta_(0),DM1_(3),temp_(3){
     
@@ -80,7 +85,8 @@ template<class C> class EcalUncalibRecHitFixedAlphaBetaAlgo : public EcalUncalib
        beta_table_[i][j]  =  1.7 ;
      }
    }
-   
+   doFit_ = false;
+   MinAmpl_ = 16;
   };
 
   virtual ~EcalUncalibRecHitFixedAlphaBetaAlgo<C>() { };
@@ -89,7 +95,7 @@ template<class C> class EcalUncalibRecHitFixedAlphaBetaAlgo : public EcalUncalib
 					    const EcalWeightSet::EcalWeightMatrix** weights, 
 					    const EcalWeightSet::EcalChi2WeightMatrix** chi2Matrix); 
   void SetAlphaBeta( double alpha, double beta);
-  
+  void SetMinAmpl(double ampl);
 };
 
 
@@ -176,17 +182,23 @@ template<class C> void  EcalUncalibRecHitFixedAlphaBetaAlgo<C>::InitFitParameter
   // in a first attempt just use the value of the maximum sample 
   fAmp_max_ = samples[max_sample];
   fTim_max_ = max_sample;
-
-  // use a 2nd polynomial around maximum
-  if( max_sample < 1){return;}
-  //y=a*(x-xM)^2+b*(x-xM)+c
-  float a = float(samples[max_sample-1]+samples[max_sample+1]-2*samples[max_sample])/2.;
-  if(a==0){return;}
-  float b = float(samples[max_sample+1]-samples[max_sample-1])/2.;
-  
-  fTim_max_ = max_sample - b/(2*a);
-  fAmp_max_ =  samples[max_sample] - b*b/(4*a); 
   fPed_max_ = 0;
+  if(max_sample <1 || max_sample > 7 || fAmp_max_ <  MinAmpl_){
+    fAmp_max_ = samples[5];
+    fTim_max_ = 5;
+    doFit_ = false;
+  }
+  else{
+    //y=a*(x-xM)^2+b*(x-xM)+c
+    doFit_ = true;
+    float a = float(samples[max_sample-1]+samples[max_sample+1]-2*samples[max_sample])/2.;
+    if(a==0){return;}
+    float b = float(samples[max_sample+1]-samples[max_sample-1])/2.;
+  
+    fTim_max_ = max_sample - b/(2*a);
+    fAmp_max_ =  samples[max_sample] - b*b/(4*a); 
+  }  
+  
 } 
 
 template<class C> float EcalUncalibRecHitFixedAlphaBetaAlgo<C>::PerformAnalyticFit(double* samples, int max_sample){
@@ -210,8 +222,8 @@ template<class C> float EcalUncalibRecHitFixedAlphaBetaAlgo<C>::PerformAnalyticF
   //if (num_fit_max>=fNsamples-1) num_fit_max = fNsamples-2 ;
   if (num_fit_max>= C::MAXSAMPLES ) {num_fit_max = C::MAXSAMPLES-1 ;}
 
-  if(fAmp_max_ < 8.) {
-    LogDebug("EcalUncalibRecHitFixedAlphaBetaAlgo")<<"amplitude less than 8 ADC counts, no fit performed"; return -1;
+  if(! doFit_ ) {
+    LogDebug("EcalUncalibRecHitFixedAlphaBetaAlgo")<<"No fit performed. The amplitue of sample 5 will be used";
     return -1;
   }
 
@@ -308,6 +320,10 @@ template<class C> void EcalUncalibRecHitFixedAlphaBetaAlgo<C>::SetAlphaBeta( dou
   fAlpha_ = alpha;
   fBeta_=  beta;
   alfabeta_ = fAlpha_*fBeta_;
+}
+
+template<class C> void EcalUncalibRecHitFixedAlphaBetaAlgo<C>::SetMinAmpl( double ampl){
+  MinAmpl_ = ampl;
 }
 
 #endif
