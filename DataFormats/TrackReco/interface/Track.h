@@ -24,7 +24,7 @@ namespace reco {
     Track() { }
     /// constructor from fit parameters and error matrix  
     Track( double chi2, double ndof, const Point & referencePoint,
-	   const Vector & momentum, int charge, const CovarianceMatrix &);
+	   const Vector & momentum, int charge, const CovarianceMatrix & );
     /// return true if the outermost hit is valid
     bool outerOk() const { return extra_->outerOk(); }
     /// return true if the innermost hit is valid
@@ -92,14 +92,9 @@ namespace reco {
     unsigned short lost() const {return  numberOfLostHits();  }
     /// number of invalid hits
     //    unsigned short invalid() const { return invalid_; }
-
-    // direction how the hits were sorted in the original seed
-    PropagationDirection seedDirection() const {return extra_->seedDirection();}
-
   private:
     /// reference to "extra" extension
     TrackExtraRef extra_;
-
   };
 
 }
