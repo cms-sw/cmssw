@@ -38,7 +38,19 @@ CSCGainAnalyzer::CSCGainAnalyzer(edm::ParameterSet const& conf) {
   i_chamber=0,i_layer=0,reportedChambers=0;
   length=1,gainSlope=-999.0,gainIntercept=-999.0;
   
-  adcCharge = TH2F("adcCharge","adcCharge", 100,0,300,100,0,2000);
+  adcCharge_ch0 = TH2F("adcCharge Cham 0","adcCharge", 100,0,300,100,0,3000);
+  adcCharge_ch1 = TH2F("adcCharge Cham 1","adcCharge", 100,0,300,100,0,3000);
+  adcCharge_ch2 = TH2F("adcCharge Cham 2","adcCharge", 100,0,300,100,0,3000);
+  adcCharge_ch3 = TH2F("adcCharge Cham 3","adcCharge", 100,0,300,100,0,3000);
+  adcCharge_ch4 = TH2F("adcCharge Cham 4","adcCharge", 100,0,300,100,0,3000);
+  adcCharge_ch5 = TH2F("adcCharge Cham 5","adcCharge", 100,0,300,100,0,3000);
+  adcCharge_ch6 = TH2F("adcCharge Cham 6","adcCharge", 100,0,300,100,0,3000);
+  adcCharge_ch7 = TH2F("adcCharge Cham 7","adcCharge", 100,0,300,100,0,3000);
+  adcCharge_ch8 = TH2F("adcCharge Cham 8","adcCharge", 100,0,300,100,0,3000);
+  adcCharge_ch9 = TH2F("adcCharge Cham 9","adcCharge", 100,0,300,100,0,3000);
+  adcCharge_ch10 = TH2F("adcCharge Cham 10","adcCharge", 100,0,300,100,0,3000);
+  adcCharge_ch11 = TH2F("adcCharge Cham 11","adcCharge", 100,0,300,100,0,3000);
+  adcCharge_ch12 = TH2F("adcCharge Cham 12","adcCharge", 100,0,300,100,0,3000);
 
   for (int i=0; i<NUMMODTEN_ga; i++){
     for (int j=0; j<CHAMBERS_ga; j++){
@@ -93,11 +105,14 @@ void CSCGainAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup
       
       const std::vector<CSCDDUEventData> & dduData = dccData.dduData(); 
 
-      evt++;      
       for (unsigned int iDDU=0; iDDU<dduData.size(); ++iDDU) {  ///loop over DDUs
 	
 	///get a reference to chamber data
 	const std::vector<CSCEventData> & cscData = dduData[iDDU].cscData();
+	//exclude empty events with no DMB/CFEB data
+        if(dduData[iDDU].cscData().size()==0) continue;
+        if(dduData[iDDU].cscData().size() !=0) evt++;
+	
 	Nddu = dduData.size();
 	reportedChambers += dduData[iDDU].header().ncsc();
 	NChambers = cscData.size();
@@ -128,22 +143,20 @@ void CSCGainAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup
 		    adcMax[iDDU][i_chamber][i_layer-1][strip-1]=adc[k]-ped;
 		  }
 		}
-		//changed from 20 to 100 events per setting!!!
-
-		adcMean_max[iDDU][i_chamber][i_layer-1][strip-1] += adcMax[iDDU][i_chamber][i_layer-1][strip-1]/100.;  
+		adcMean_max[iDDU][i_chamber][i_layer-1][strip-1] += adcMax[iDDU][i_chamber][i_layer-1][strip-1]/PULSES_ga;  
 		
-		//On the 20th event save
-		if (evt%20 == 0 && (strip-1)%16 == (evt-1)/NUMMODTEN_ga){
-		  int ten = int((evt-1)/20)%NUMBERPLOTTED_ga ;
-		  maxmodten[ten][i_chamber][i_layer-1][strip-1] = adcMean_max[iDDU][i_chamber][i_layer-1][strip-1];
+		//Ever x event save
+		if (evt%PULSES_ga == 0 && (strip-1)%16 == (evt-1)/NUMMODTEN_ga){
+		  int pulsesNr = int((evt-1)/PULSES_ga)%NUMBERPLOTTED_ga ;
+		  maxmodten[pulsesNr][i_chamber][i_layer-1][strip-1] = adcMean_max[iDDU][i_chamber][i_layer-1][strip-1];
 		}
 	      }//end digis loop
 	    }//end cfeb.available loop
 	  }//end layer loop
 	}//end chamber loop
 	
-	//was %20
-	if((evt-1)%20==0){
+	//ever 25 events reset
+	if((evt-1)%PULSES_ga==0){
 	  for(int iii=0;iii<DDU_ga;iii++){
 	    for(int ii=0; ii<CHAMBERS_ga; ii++){
 	      for(int jj=0; jj<LAYERS_ga; jj++){
@@ -154,9 +167,9 @@ void CSCGainAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup
 	    }
 	  }
 	}
-
       	eventNumber++;
 	edm::LogInfo ("CSCGainAnalyzer")  << "end of event number " << eventNumber;
+	edm::LogInfo ("CSCGainAnalyzer")  << "end of event non-zero number " << evt;
       }
     }
   }
@@ -185,15 +198,19 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
   std::string myname= name.substr(runNameStart+1,nameSize);
   std::string myRootName= name.substr(runNameStart+1,myRootSize);
   std::string myRootEnd = ".root";
+  std::string myASCIIFileEnd = ".dat";
   std::string runFile= myRootName;
   std::string myRootFileName = runFile+myRootEnd;
+  std::string myASCIIFileName= runFile+myASCIIFileEnd;
   const char *myNewName=myRootFileName.c_str();
+  const char *myFileName=myASCIIFileName.c_str();
   
   struct tm* clock;			    
   struct stat attrib;			    
   stat(myname.c_str(), &attrib);          
   clock = localtime(&(attrib.st_mtime));  
   std::string myTime=asctime(clock);
+  std::ofstream myfile(myFileName,std::ios::out);
   
   //DB object and map
   CSCobject *cn = new CSCobject();
@@ -240,31 +257,42 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
 		float gainIntercept = 0.0;
 		float chi2      = 0.0;
 		
-		float charge[NUMBERPLOTTED_ga]={22.4, 44.8, 67.2, 89.6, 112, 134.4, 156.8, 179.2, 201.6, 224.0};
-
-		
-		for(int ii=0; ii<NUMBERPLOTTED_ga; ii++){//numbers    
+		//now start at 0.1V and step 0.25 inbetween
+		float charge[NUMBERPLOTTED_ga]={11.2, 39.2, 67.2, 95.2, 123.2, 151.2, 179.2, 207.2, 235.2, 263.2, 291.2, 319.2, 347.2, 375.2, 403.2, 431.2, 459.2, 487.2, 515.2, 543.2};
+ 
+		for(int ii=0; ii<FITNUMBERS_ga; ii++){//numbers    
 		  sumOfX  += charge[ii];
 		  sumOfY  += maxmodten[ii][cham][j][k];
 		  sumOfXY += (charge[ii]*maxmodten[ii][cham][j][k]);
 		  sumx2   += (charge[ii]*charge[ii]);
-		  myCharge[ii] = 22.4 +(22.4*ii);
-		  adcCharge.Fill(myCharge[ii],maxmodten[ii][cham][j][k]);
+		  myCharge[ii] = 11.2 +(28.0*ii);
+		  if(cham==0) adcCharge_ch0.Fill(myCharge[ii],maxmodten[ii][cham][j][k]);
+		  if(cham==1) adcCharge_ch1.Fill(myCharge[ii],maxmodten[ii][cham][j][k]);
+		  if(cham==2) adcCharge_ch2.Fill(myCharge[ii],maxmodten[ii][cham][j][k]);
+		  if(cham==3) adcCharge_ch3.Fill(myCharge[ii],maxmodten[ii][cham][j][k]);
+		  if(cham==4) adcCharge_ch4.Fill(myCharge[ii],maxmodten[ii][cham][j][k]);
+		  if(cham==5) adcCharge_ch5.Fill(myCharge[ii],maxmodten[ii][cham][j][k]);
+		  if(cham==6) adcCharge_ch6.Fill(myCharge[ii],maxmodten[ii][cham][j][k]);
+		  if(cham==7) adcCharge_ch7.Fill(myCharge[ii],maxmodten[ii][cham][j][k]);
+		  if(cham==8) adcCharge_ch8.Fill(myCharge[ii],maxmodten[ii][cham][j][k]);
+		  if(cham==9) adcCharge_ch9.Fill(myCharge[ii],maxmodten[ii][cham][j][k]);
+		  if(cham==10) adcCharge_ch10.Fill(myCharge[ii],maxmodten[ii][cham][j][k]);
+		  if(cham==11) adcCharge_ch11.Fill(myCharge[ii],maxmodten[ii][cham][j][k]);
+		  if(cham==12) adcCharge_ch12.Fill(myCharge[ii],maxmodten[ii][cham][j][k]);
 		}
 	
-		
 		//Fit parameters for straight line
-		gainSlope     = ((NUMBERPLOTTED_ga*sumOfXY) - (sumOfX * sumOfY))/((NUMBERPLOTTED_ga*sumx2) - (sumOfX*sumOfX));//k
-		gainIntercept = ((sumOfY*sumx2)-(sumOfX*sumOfXY))/((NUMBERPLOTTED_ga*sumx2)-(sumOfX*sumOfX));//m
+		gainSlope     = ((FITNUMBERS_ga*sumOfXY) - (sumOfX * sumOfY))/((FITNUMBERS_ga*sumx2) - (sumOfX*sumOfX));//k
+		gainIntercept = ((sumOfY*sumx2)-(sumOfX*sumOfXY))/((FITNUMBERS_ga*sumx2)-(sumOfX*sumOfX));//m
 		
 		//if (gainSlope <3.0)  gainSlope = 0.0;
 		if (isnan(gainSlope)) gainSlope = 0.0;
 		
-		for(int ii=0; ii<NUMBERPLOTTED_ga; ii++){
-		  chi2  += (maxmodten[ii][cham][j][k]-(gainIntercept+(gainSlope*charge[ii])))*(maxmodten[ii][cham][j][k]-(gainIntercept+(gainSlope*charge[ii])))/(NUMBERPLOTTED_ga*NUMBERPLOTTED_ga);
+		for(int ii=0; ii<FITNUMBERS_ga; ii++){
+		  chi2  += (maxmodten[ii][cham][j][k]-(gainIntercept+(gainSlope*charge[ii])))*(maxmodten[ii][cham][j][k]-(gainIntercept+(gainSlope*charge[ii])))/(FITNUMBERS_ga*FITNUMBERS_ga);
 		}
 		
-		std::cout <<"Chamber: "<<cham<<" Layer:   "<<j<<" Strip:   "<<k<<"  Slope:    "<<gainSlope <<"    Intercept:    "<<gainIntercept <<"        chi2 "<<chi2<<std::endl;
+		//std::cout <<"Chamber: "<<cham<<" Layer:   "<<j<<" Strip:   "<<k<<"  Slope:    "<<gainSlope <<"    Intercept:    "<<gainIntercept <<"        chi2 "<<chi2<<std::endl;
 		
 
 		if (gainSlope>5.0 && gainSlope<10.0) flagGain=1; // ok
@@ -275,6 +303,8 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
 		if (gainIntercept< -40.)                       flagIntercept = 2 ;
 		if (gainIntercept> 15.)                        flagIntercept = 3 ;  
 
+		//dump values to ASCII file
+		myfile <<layer_id<<"  "<<k<<"  "<<gainSlope<<"  "<<gainIntercept<<"  "<<chi2<<std::endl;
 		calib_evt.slope     = gainSlope;
 		calib_evt.intercept = gainIntercept;
 		calib_evt.chi2      = chi2;
@@ -302,7 +332,20 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
   dbon->cdbon_last_record("gains",&record);
   std::cout<<"Last gains record "<<record<<" for run file "<<myname<<" saved "<<myTime<<std::endl;
   if(debug) dbon->cdbon_write(cn,"gains",12,3498,myTime);
-  adcCharge.Write();
+  adcCharge_ch0.Write();
+  adcCharge_ch1.Write();
+  adcCharge_ch2.Write();
+  adcCharge_ch3.Write();
+  adcCharge_ch4.Write();
+  adcCharge_ch5.Write();
+  adcCharge_ch6.Write();
+  adcCharge_ch7.Write();
+  adcCharge_ch8.Write();
+  adcCharge_ch9.Write();
+  adcCharge_ch10.Write();
+  adcCharge_ch11.Write();
+  adcCharge_ch12.Write();
+
   calibfile.Write();
   calibfile.Close();
   

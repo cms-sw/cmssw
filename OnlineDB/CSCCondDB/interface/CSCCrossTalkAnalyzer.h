@@ -53,13 +53,15 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
   virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
   ~CSCCrossTalkAnalyzer();
 
-#define CHAMBERS_xt 9
+#define CHAMBERS_xt 13
 #define LAYERS_xt 6
 #define STRIPS_xt 80
 #define TIMEBINS_xt 8
-#define DDU_xt 9
+#define DDU_xt 2
 #define TOTALSTRIPS_xt 480
 #define TOTALEVENTS_xt 320
+#define PULSES 25 
+#define NUMMODTEN_xt 10 
 
  private:
   int eventNumber,evt,strip,misMatch,fff,ret_code,length,Nddu,myevt;
@@ -67,15 +69,15 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
   int dmbID[CHAMBERS_xt],crateID[CHAMBERS_xt],size[CHAMBERS_xt];
   std::vector<int> adc;
   std::string chamber_id;
-  int thebins[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt][TIMEBINS_xt*20];
-  int theadccountsc[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt][TIMEBINS_xt*20];
-  int theadccountsl[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt][TIMEBINS_xt*20];
-  int theadccountsr[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt][TIMEBINS_xt*20];
+  int thebins[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt][TIMEBINS_xt*PULSES];
+  int theadccountsc[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt][TIMEBINS_xt*PULSES];
+  int theadccountsl[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt][TIMEBINS_xt*PULSES];
+  int theadccountsr[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt][TIMEBINS_xt*PULSES];
   float pedMean,pedMean1,time,max1,max2,min1, aPeak,sumFive,maxRMS,maxPed;
   float maxPeakTime, minPeakTime, maxPeakADC, minPeakADC;
   float meanPedestal,meanPeak,meanPeakSquare,meanPedestalSquare,theRMS;
   float thePeak,thePeakMin, thePeakRMS,theSumFive,thePedestal,theRSquare;
-  float thetime[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt][TIMEBINS_xt*20];
+  float thetime[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt][TIMEBINS_xt*PULSES];
   float xtalk_intercept_left[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt];
   float xtalk_intercept_right[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt];
   float xtalk_slope_left[DDU_xt][CHAMBERS_xt][LAYERS_xt][STRIPS_xt];
@@ -126,6 +128,18 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
   TH1F ped_mean_all; 
   TH1F ped_RMS_all;
   TH1F maxADC;
-  TH2F pulseshape;
+  TH2F pulseshape_ch0;
+  TH2F pulseshape_ch1;
+  TH2F pulseshape_ch2;
+  TH2F pulseshape_ch3;
+  TH2F pulseshape_ch4;
+  TH2F pulseshape_ch5;
+  TH2F pulseshape_ch6;
+  TH2F pulseshape_ch7;
+  TH2F pulseshape_ch8;
+  TH2F pulseshape_ch9;
+  TH2F pulseshape_ch10;
+  TH2F pulseshape_ch11;
+  TH2F pulseshape_ch12;
 };
 

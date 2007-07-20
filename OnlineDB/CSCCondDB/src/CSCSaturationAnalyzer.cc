@@ -37,53 +37,21 @@ CSCSaturationAnalyzer::CSCSaturationAnalyzer(edm::ParameterSet const& conf) {
   length=1;
   aVar=0.0,bVar=0.0;
 
-  adc_vs_charge  = TH2F("Saturation"   ,"ADC_vs_charge", 100,0,700,100,0,4000);
-  adc01_vs_charge = TH2F("Saturation01","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc02_vs_charge = TH2F("Saturation02","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc03_vs_charge = TH2F("Saturation03","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc04_vs_charge = TH2F("Saturation04","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc05_vs_charge = TH2F("Saturation05","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc11_vs_charge = TH2F("Saturation11","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc12_vs_charge = TH2F("Saturation12","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc13_vs_charge = TH2F("Saturation13","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc14_vs_charge = TH2F("Saturation14","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc15_vs_charge = TH2F("Saturation15","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc21_vs_charge = TH2F("Saturation21","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc22_vs_charge = TH2F("Saturation22","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc23_vs_charge = TH2F("Saturation23","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc24_vs_charge = TH2F("Saturation24","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc25_vs_charge = TH2F("Saturation25","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc31_vs_charge = TH2F("Saturation31","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc32_vs_charge = TH2F("Saturation32","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc33_vs_charge = TH2F("Saturation33","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc34_vs_charge = TH2F("Saturation34","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc35_vs_charge = TH2F("Saturation35","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc41_vs_charge = TH2F("Saturation41","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc42_vs_charge = TH2F("Saturation42","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc43_vs_charge = TH2F("Saturation43","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc44_vs_charge = TH2F("Saturation44","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc45_vs_charge = TH2F("Saturation45","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc51_vs_charge = TH2F("Saturation51","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc52_vs_charge = TH2F("Saturation52","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc53_vs_charge = TH2F("Saturation53","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc54_vs_charge = TH2F("Saturation54","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc55_vs_charge = TH2F("Saturation55","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc61_vs_charge = TH2F("Saturation61","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc62_vs_charge = TH2F("Saturation62","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc63_vs_charge = TH2F("Saturation63","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc64_vs_charge = TH2F("Saturation64","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc65_vs_charge = TH2F("Saturation65","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc71_vs_charge = TH2F("Saturation71","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc72_vs_charge = TH2F("Saturation72","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc73_vs_charge = TH2F("Saturation73","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc74_vs_charge = TH2F("Saturation74","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc75_vs_charge = TH2F("Saturation75","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc81_vs_charge = TH2F("Saturation81","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc82_vs_charge = TH2F("Saturation82","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc83_vs_charge = TH2F("Saturation83","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc84_vs_charge = TH2F("Saturation84","ADC_vs_charge", 100,0,700,100,0,4000);
-  adc85_vs_charge = TH2F("Saturation85","ADC_vs_charge", 100,0,700,100,0,4000);  
-
+  adc_vs_charge   = TH2F("Saturation"  ,"ADC_vs_charge", 100,0,700,100,0,4000);
+  adc00_vs_charge = TH2F("Saturation01","ADC_vs_charge", 100,0,700,100,0,4000);
+  adc01_vs_charge = TH2F("Saturation02","ADC_vs_charge", 100,0,700,100,0,4000);
+  adc02_vs_charge = TH2F("Saturation03","ADC_vs_charge", 100,0,700,100,0,4000);
+  adc03_vs_charge = TH2F("Saturation04","ADC_vs_charge", 100,0,700,100,0,4000);
+  adc04_vs_charge = TH2F("Saturation05","ADC_vs_charge", 100,0,700,100,0,4000);
+  adc05_vs_charge = TH2F("Saturation06","ADC_vs_charge", 100,0,700,100,0,4000);
+  adc06_vs_charge = TH2F("Saturation07","ADC_vs_charge", 100,0,700,100,0,4000);
+  adc07_vs_charge = TH2F("Saturation08","ADC_vs_charge", 100,0,700,100,0,4000);
+  adc08_vs_charge = TH2F("Saturation09","ADC_vs_charge", 100,0,700,100,0,4000);
+  adc09_vs_charge = TH2F("Saturation10","ADC_vs_charge", 100,0,700,100,0,4000);
+  adc10_vs_charge = TH2F("Saturation11","ADC_vs_charge", 100,0,700,100,0,4000);
+  adc11_vs_charge = TH2F("Saturation12","ADC_vs_charge", 100,0,700,100,0,4000);
+  adc12_vs_charge = TH2F("Saturation13","ADC_vs_charge", 100,0,700,100,0,4000);
+  
   for (int i=0; i<NUMMODTEN_sat; i++){
     for (int j=0; j<CHAMBERS_sat; j++){
       for (int k=0; k<LAYERS_sat; k++){
@@ -131,11 +99,14 @@ void CSCSaturationAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& 
       
       const std::vector<CSCDDUEventData> & dduData = dccData.dduData(); 
       
-      evt++;      
       for (unsigned int iDDU=0; iDDU<dduData.size(); ++iDDU) {  ///loop over DDUs
 	
 	///get a reference to chamber data
 	const std::vector<CSCEventData> & cscData = dduData[iDDU].cscData();
+	//exclude empty events with no DMB/CFEB data
+        if(dduData[iDDU].cscData().size()==0) continue;
+        if(dduData[iDDU].cscData().size() !=0) evt++;
+	
 	Nddu = dduData.size();
 	reportedChambers += dduData[iDDU].header().ncsc();
 	NChambers = cscData.size();
@@ -166,20 +137,23 @@ void CSCSaturationAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& 
 		    adcMax[iDDU][i_chamber][i_layer-1][strip-1]=adc[k]-ped;
 		  }
 		}
-		adcMean_max[iDDU][i_chamber][i_layer-1][strip-1] += adcMax[iDDU][i_chamber][i_layer-1][strip-1]/20.;  
+		adcMean_max[iDDU][i_chamber][i_layer-1][strip-1] += adcMax[iDDU][i_chamber][i_layer-1][strip-1]/PULSES_sat;  
 		
-		//On the 20th event save one value
-		if (evt%20 == 0 && (strip-1)%16 == (evt-1)/NUMMODTEN_sat){
-		  //save 24 values from 24 settings
-		  int twentyfour = int((evt-1)/20)%NUMBERPLOTTED_sat ;
-		  maxmodten[twentyfour][i_chamber][i_layer-1][strip-1] = adcMean_max[iDDU][i_chamber][i_layer-1][strip-1];
+		//On the 25th event save one value
+		if (evt%PULSES_sat == 0 && (strip-1)%16 == (evt-1)/NUMMODTEN_sat){
+		  //float voltageEvent = 3.0+(3.0*evt);
+		  //int DAC_SETTING = (voltageEvent *4095/5.0)%4096;
+		  //float charge_event = 22.4 * DAC_SETTING;
+		//save 25 values from 25 settings
+		  int pulsesNr = int((evt-1)/PULSES_sat)%NUMBERPLOTTED_sat ;
+		  maxmodten[pulsesNr][i_chamber][i_layer-1][strip-1] = adcMean_max[iDDU][i_chamber][i_layer-1][strip-1];
 		}
 	      }//end digis loop
 	    }//end cfeb.available loop
 	  }//end layer loop
 	}//end chamber loop
 	
-	if((evt-1)%20==0){
+	if((evt-1)%PULSES_sat==0){
 	  for(int iii=0;iii<DDU_sat;iii++){
 	    for(int ii=0; ii<CHAMBERS_sat; ii++){
 	      for(int jj=0; jj<LAYERS_sat; jj++){
@@ -216,21 +190,25 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
   }
   std::string::size_type runNameStart = name.find("\"",0);
   std::string::size_type runNameEnd   = name.find("raw",0);
-  std::string::size_type rootStart    = name.find("Saturation",0);
+  std::string::size_type rootStart    = name.find("Gains",0);
   int nameSize = runNameEnd+2-runNameStart;
-  int myRootSize = rootStart-runNameStart+9;
+  int myRootSize = rootStart-runNameStart+8;
   std::string myname= name.substr(runNameStart+1,nameSize);
   std::string myRootName= name.substr(runNameStart+1,myRootSize);
-  std::string myRootEnd = ".root";
+  std::string myRootEnd = "Sat.root";
+  std::string myASCIIFileEnd = "Sat.dat";
   std::string runFile= myRootName;
   std::string myRootFileName = runFile+myRootEnd;
+  std::string myASCIIFileName= runFile+myASCIIFileEnd;
   const char *myNewName=myRootFileName.c_str();
-  
+  const char *myFileName=myASCIIFileName.c_str();
+
   struct tm* clock;			    
   struct stat attrib;			    
   stat(myname.c_str(), &attrib);          
   clock = localtime(&(attrib.st_mtime));  
   std::string myTime=asctime(clock);
+  std::ofstream myfile(myFileName,std::ios::out);
     
   //DB object and map
   CSCobject *cn = new CSCobject();
@@ -276,63 +254,33 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
 		}
 		
 		for(int ii=0; ii<NUMBERPLOTTED_sat; ii++){//numbers    
-		  myCharge[ii] = 22.4 +(22.4*ii);//224(3V) to 560(5V) fC
+		  myCharge[ii] = 11.2 +(28.0*ii);//224(3V) to 560(5V) fC
 		  mySatADC[ii] = maxmodten[ii][cham][j][k];
+		  //newCharge[ii] = charge_event;
 		  //fill one histogram with all values for all chambers
 		  adc_vs_charge.Fill(myCharge[ii],maxmodten[ii][cham][j][k]);
 		  //for the rest look for one strip in the middle of each CFEBs
-		  if(cham==0 && k==8)  adc01_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==0 && k==24) adc02_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==0 && k==40) adc03_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==0 && k==56) adc04_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==0 && k==72) adc05_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==1 && k==8)  adc11_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==1 && k==24) adc12_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==1 && k==40) adc13_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==1 && k==56) adc14_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==1 && k==72) adc15_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==2 && k==8)  adc21_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==2 && k==24) adc22_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==2 && k==40) adc23_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==2 && k==56) adc24_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==2 && k==72) adc25_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==3 && k==8)  adc31_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==3 && k==24) adc32_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==3 && k==40) adc33_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==3 && k==56) adc34_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==3 && k==72) adc35_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==4 && k==8)  adc41_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==4 && k==24) adc42_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==4 && k==40) adc43_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==4 && k==56) adc44_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==4 && k==72) adc45_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==5 && k==8)  adc51_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==5 && k==24) adc52_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==5 && k==40) adc53_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==5 && k==56) adc54_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==5 && k==72) adc55_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==6 && k==8)  adc61_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==6 && k==24) adc62_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==6 && k==40) adc63_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==6 && k==56) adc64_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==6 && k==72) adc65_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==7 && k==8)  adc71_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==7 && k==24) adc72_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==7 && k==40) adc73_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==7 && k==56) adc74_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==7 && k==72) adc75_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==8 && k==8)  adc81_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==8 && k==24) adc82_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==8 && k==40) adc83_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==8 && k==56) adc84_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
-		  if(cham==8 && k==72) adc85_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
+		  if(cham==0)  adc00_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
+		  if(cham==1)  adc01_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
+		  if(cham==2)  adc02_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
+		  if(cham==3)  adc03_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
+		  if(cham==4)  adc04_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
+		  if(cham==5)  adc05_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
+		  if(cham==6)  adc06_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
+		  if(cham==7)  adc07_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
+		  if(cham==8)  adc08_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
+		  if(cham==9)  adc09_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
+		  if(cham==10) adc10_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
+		  if(cham==11) adc11_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
+		  if(cham==12) adc12_vs_charge.Fill(myCharge[ii] ,maxmodten[ii][cham][j][k]);
+
 		}//number_plotted
 
 		//Use Minuit to do the fit
 		float u0_ptr=0.0, u1_ptr=0.0, u2_ptr=0.0,u3_ptr=0.0;
 		SaturationFit s(NUMBERPLOTTED_sat,myCharge,mySatADC,&u0_ptr, &u1_ptr, &u2_ptr, &u3_ptr);
 		//u0_ptr=N,u1_ptr=a,u2_ptr=b,u3_ptr=c
-		std::cout<<"Fitresults: " <<cham<<" lay "<<j<<" strip " <<k<<" param0-3  "<< u0_ptr<<" "<<u1_ptr<<" "<<u2_ptr<<" "<<u3_ptr<<std::endl;
+		//std::cout<<"Fitresults: " <<cham<<" lay "<<j<<" strip " <<k<<" param0-3  "<< u0_ptr<<" "<<u1_ptr<<" "<<u2_ptr<<" "<<u3_ptr<<std::endl;
 
 		calib_evt.strip = k;
 		calib_evt.layer = j;
@@ -344,12 +292,16 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
 
 		calibtree.Fill();
 
+		myfile<<u0_ptr<<"  "<<u1_ptr<<"  "<<u2_ptr<<"  "<<u3_ptr<<std::endl;
+
 		//send constants to DB
+		/*
 		cn->obj[layer_id][k].resize(4);
 		cn->obj[layer_id][k][0] = u0_ptr;
 		cn->obj[layer_id][k][1] = u1_ptr;
 		cn->obj[layer_id][k][2] = u2_ptr;
 		cn->obj[layer_id][k][3] = u3_ptr;
+		*/
 	      }//strip
 	    }//j loop
 	  }//stripiter loop
@@ -365,52 +317,20 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
 
   //write histograms 
   adc_vs_charge.Write();
+  adc00_vs_charge.Write();
   adc01_vs_charge.Write();
   adc02_vs_charge.Write();
   adc03_vs_charge.Write();
   adc04_vs_charge.Write();
   adc05_vs_charge.Write();
+  adc06_vs_charge.Write();
+  adc07_vs_charge.Write();
+  adc08_vs_charge.Write();
+  adc09_vs_charge.Write();
+  adc10_vs_charge.Write();
   adc11_vs_charge.Write();
   adc12_vs_charge.Write();
-  adc13_vs_charge.Write();
-  adc14_vs_charge.Write();
-  adc15_vs_charge.Write();
-  adc21_vs_charge.Write();
-  adc22_vs_charge.Write();
-  adc23_vs_charge.Write();
-  adc24_vs_charge.Write();
-  adc25_vs_charge.Write();
-  adc31_vs_charge.Write();
-  adc32_vs_charge.Write();
-  adc33_vs_charge.Write();
-  adc34_vs_charge.Write();
-  adc35_vs_charge.Write();
-  adc41_vs_charge.Write();
-  adc42_vs_charge.Write();
-  adc43_vs_charge.Write();
-  adc44_vs_charge.Write();
-  adc45_vs_charge.Write();
-  adc51_vs_charge.Write();
-  adc52_vs_charge.Write();
-  adc53_vs_charge.Write();
-  adc54_vs_charge.Write();
-  adc55_vs_charge.Write();
-  adc61_vs_charge.Write();
-  adc62_vs_charge.Write();
-  adc63_vs_charge.Write();
-  adc64_vs_charge.Write();
-  adc65_vs_charge.Write();
-  adc71_vs_charge.Write();
-  adc72_vs_charge.Write();
-  adc73_vs_charge.Write();
-  adc74_vs_charge.Write();
-  adc75_vs_charge.Write();
-  adc81_vs_charge.Write();
-  adc82_vs_charge.Write();
-  adc83_vs_charge.Write();
-  adc84_vs_charge.Write();
-  adc85_vs_charge.Write();
-
+ 
   calibfile.Write();
   calibfile.Close();
 }

@@ -33,12 +33,13 @@ class CSCSaturationAnalyzer : public edm::EDAnalyzer {
   explicit CSCSaturationAnalyzer(edm::ParameterSet const& conf);
   virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
   
-#define CHAMBERS_sat 9
+#define CHAMBERS_sat 13
 #define LAYERS_sat 6
 #define STRIPS_sat 80
-#define NUMBERPLOTTED_sat 24 
-#define NUMMODTEN_sat 480
-#define DDU_sat 2
+#define NUMBERPLOTTED_sat 20 
+#define NUMMODTEN_sat 500
+#define PULSES_sat 25
+#define DDU_sat 4
 
   ~CSCSaturationAnalyzer();
   float (*charge_ptr)[NUMBERPLOTTED_sat];
@@ -58,52 +59,20 @@ class CSCSaturationAnalyzer : public edm::EDAnalyzer {
   std::ifstream filein;
   std::string PSet,name;
   bool debug;
-  float myCharge[24],mySatADC[24],aVar,bVar;
+  float myCharge[NUMBERPLOTTED_sat],mySatADC[NUMBERPLOTTED_sat],aVar,bVar;
   TH2F adc_vs_charge;
+  TH2F adc00_vs_charge;
   TH2F adc01_vs_charge;
   TH2F adc02_vs_charge;
   TH2F adc03_vs_charge;
   TH2F adc04_vs_charge;
   TH2F adc05_vs_charge;
+  TH2F adc06_vs_charge;
+  TH2F adc07_vs_charge;
+  TH2F adc08_vs_charge;
+  TH2F adc09_vs_charge;
+  TH2F adc10_vs_charge;
   TH2F adc11_vs_charge;
   TH2F adc12_vs_charge;
-  TH2F adc13_vs_charge;
-  TH2F adc14_vs_charge;
-  TH2F adc15_vs_charge;
-  TH2F adc21_vs_charge;
-  TH2F adc22_vs_charge;
-  TH2F adc23_vs_charge;
-  TH2F adc24_vs_charge;
-  TH2F adc25_vs_charge;
-  TH2F adc31_vs_charge;
-  TH2F adc32_vs_charge;
-  TH2F adc33_vs_charge;
-  TH2F adc34_vs_charge;
-  TH2F adc35_vs_charge;
-  TH2F adc41_vs_charge;
-  TH2F adc42_vs_charge;
-  TH2F adc43_vs_charge;
-  TH2F adc44_vs_charge;
-  TH2F adc45_vs_charge;
-  TH2F adc51_vs_charge;
-  TH2F adc52_vs_charge;
-  TH2F adc53_vs_charge;
-  TH2F adc54_vs_charge;
-  TH2F adc55_vs_charge;
-  TH2F adc61_vs_charge;
-  TH2F adc62_vs_charge;
-  TH2F adc63_vs_charge;
-  TH2F adc64_vs_charge;
-  TH2F adc65_vs_charge;
-  TH2F adc71_vs_charge;
-  TH2F adc72_vs_charge;
-  TH2F adc73_vs_charge;
-  TH2F adc74_vs_charge;
-  TH2F adc75_vs_charge;
-  TH2F adc81_vs_charge;
-  TH2F adc82_vs_charge;
-  TH2F adc83_vs_charge;
-  TH2F adc84_vs_charge;
-  TH2F adc85_vs_charge;
-
+  
 };

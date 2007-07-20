@@ -18,7 +18,7 @@
 #include "TH2F.h"
 
 class TCalibGainEvt {
-  public:
+ public:
   Float_t slope;
   Float_t intercept;
   Float_t chi2;
@@ -35,12 +35,14 @@ class CSCGainAnalyzer : public edm::EDAnalyzer {
   explicit CSCGainAnalyzer(edm::ParameterSet const& conf);
   virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
   
-#define CHAMBERS_ga 468
+#define CHAMBERS_ga 13
 #define LAYERS_ga 6
 #define STRIPS_ga 80
-#define NUMBERPLOTTED_ga 10 
-#define NUMMODTEN_ga 200
-#define DDU_ga 36
+#define NUMBERPLOTTED_ga 20
+#define PULSES_ga 25
+#define FITNUMBERS_ga 10 
+#define NUMMODTEN_ga 500
+#define DDU_ga 4
 
   ~CSCGainAnalyzer();
   
@@ -58,10 +60,22 @@ class CSCGainAnalyzer : public edm::EDAnalyzer {
   float newGain[480];
   float newIntercept[480];
   float newChi2[480];
-  float myCharge[10];
+  float myCharge[20];
   int lines,flagGain,flagIntercept;
   std::ifstream filein;
   std::string PSet,name;
   bool debug;
-  TH2F adcCharge;
+  TH2F adcCharge_ch0;
+  TH2F adcCharge_ch1;
+  TH2F adcCharge_ch2;
+  TH2F adcCharge_ch3;
+  TH2F adcCharge_ch4;
+  TH2F adcCharge_ch5;
+  TH2F adcCharge_ch6;
+  TH2F adcCharge_ch7;
+  TH2F adcCharge_ch8;
+  TH2F adcCharge_ch9;
+  TH2F adcCharge_ch10;
+  TH2F adcCharge_ch11;
+  TH2F adcCharge_ch12;
 };
