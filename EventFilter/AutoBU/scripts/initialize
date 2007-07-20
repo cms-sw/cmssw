@@ -97,7 +97,7 @@ print "make directories ...\n";
 `mkdir soap`                 if (! -e "soap");
 `mkdir xml`                  if (! -e "xml");
 `mkdir cfg`                  if (! -e "cfg");
-`mkdir $SMout`        if (! -e "$SMout");
+`mkdir -p $SMout`     if (! -e "$SMout");
 `mkdir $SMout/open`   if (! -e "$SMout/open");
 `mkdir $SMout/closed` if (! -e "$SMout/closed");
 `mkdir $SMout/mbox`   if (! -e "$SMout/mbox");
