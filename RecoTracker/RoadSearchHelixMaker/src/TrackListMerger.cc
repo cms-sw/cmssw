@@ -8,8 +8,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: stevew $
-// $Date: 2007/07/16 20:25:35 $
-// $Revision: 1.6 $
+// $Date: 2007/07/16 23:46:09 $
+// $Revision: 1.1 $
 //
 
 #include <memory>
@@ -64,6 +64,8 @@ namespace cms
     double maxNormalizedChisq =  conf_.getParameter<double>("MaxNormalizedChisq");
     double minPT =  conf_.getParameter<double>("MinPT");
     unsigned int minFound = (unsigned int)conf_.getParameter<int>("MinFound");
+    double epsilon =  conf_.getParameter<double>("Epsilon");
+    double shareFrac =  conf_.getParameter<double>("ShareFrac");
   
     //
     // extract tracker geometry
@@ -101,7 +103,6 @@ namespace cms
   //  quality cuts first
   // 
     int i;
-    float epsilon = 0.0001;
 
     std::vector<int> selected1; for (unsigned int i=0; i<tC1.size(); ++i){selected1.push_back(1);}
 
@@ -187,7 +188,7 @@ namespace cms
         }
         float fi=float(noverlap)/float(track->recHitsSize()); float fj=float(noverlap)/float(track2->recHitsSize());
         //std::cout << " trk1 trk2 nhits1 nhits2 nover " << i << " " << j << " " << track->recHitsSize() << " "  << track2->recHitsSize() << " " << noverlap << " " << fi << " " << fj  <<std::endl;
-        if ((fi>0.66)||(fj>0.66)){
+        if ((fi>shareFrac)||(fj>shareFrac)){
           if (fi<fj){
             selected1[j]=0; 
             //std::cout << " removing 2nd trk in pair " << std::endl;
@@ -230,7 +231,7 @@ namespace cms
         }
         float fi=float(noverlap)/float(track->recHitsSize()); float fj=float(noverlap)/float(track2->recHitsSize());
         //std::cout << " trk1 trk2 nhits1 nhits2 nover " << i << " " << j << " " << track->recHitsSize() << " "  << track2->recHitsSize() << " " << noverlap << " " << fi << " " << fj  <<std::endl;
-        if ((fi>0.66)||(fj>0.66)){
+        if ((fi>shareFrac)||(fj>shareFrac)){
           if (fi<fj){
             selected2[j]=0; 
             //std::cout << " removing 2nd trk in pair " << std::endl;
@@ -274,7 +275,7 @@ namespace cms
         }
         float fi=float(noverlap)/float(track->recHitsSize()); float fj=float(noverlap)/float(track2->recHitsSize());
         //std::cout << " trk1 trk2 nhits1 nhits2 nover " << i << " " << j << " " << track->recHitsSize() << " "  << track2->recHitsSize() << " " << noverlap << " " << fi << " " << fj  <<std::endl;
-        if ((fi>0.66)||(fj>0.66)){
+        if ((fi>shareFrac)||(fj>shareFrac)){
           if (fi<fj){
             selected2[j]=0; 
             //std::cout << " removing L2 trk in pair " << std::endl;
@@ -283,7 +284,7 @@ namespace cms
               selected1[i]=0; 
               //std::cout << " removing L1 trk in pair " << std::endl;
             }else{
-              //std::cout << " removing worst chisq in pair " << std::endl;
+              //std::cout << " removing worst chisq in pair " << track->normalizedChi2() << " " << track2->normalizedChi2() << std::endl;
               if (track->normalizedChi2() > track2->normalizedChi2()){selected1[i]=0;}else{selected2[j]=0;}
             }//end fi > or = fj
           }//end fi < fj
