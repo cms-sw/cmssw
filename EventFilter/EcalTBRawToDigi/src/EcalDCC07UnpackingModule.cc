@@ -1,7 +1,7 @@
 /* \file EcalDCC07UnpackingModule.h
  *
- *  $Date: 2007/07/11 17:35:56 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/07/20 19:18:20 $
+ *  $Revision: 1.4 $
  *  \author N. Marinelli
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -43,8 +43,6 @@
 
 EcalDCC07UnpackingModule::EcalDCC07UnpackingModule(const edm::ParameterSet& pset){
 
-  edm::FileInPath tbStripChannelMapFile = pset.getUntrackedParameter<edm::FileInPath >("tbTowerStripChannelMapFile", edm::FileInPath("EventFilter/EcalTBRawToDigi/data/h2.map") );
-  edm::FileInPath tbTowerMapFile = pset.getUntrackedParameter<edm::FileInPath >("tbTowerMapFile", edm::FileInPath("EventFilter/EcalTBRawToDigi/data/h2_towers.map") );
   std::string tbName = pset.getUntrackedParameter<std::string >("tbName", std::string("h2") );
 
   // index of crystal <-> tower ID (DQM plots) position <-> stripIDs <-> channelIDs for the test beam (2007)
