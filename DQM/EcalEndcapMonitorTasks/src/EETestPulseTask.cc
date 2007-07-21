@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseTask.cc
  *
- * $Date: 2007/06/12 18:18:07 $
- * $Revision: 1.12 $
+ * $Date: 2007/06/13 18:01:30 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  *
 */
@@ -53,21 +53,15 @@ EETestPulseTask::EETestPulseTask(const ParameterSet& ps){
   for (int i = 0; i < 18 ; i++) {
     meShapeMapG01_[i] = 0;
     meAmplMapG01_[i] = 0;
-    meAmplErrorMapG01_[i] = 0;
     meShapeMapG06_[i] = 0;
     meAmplMapG06_[i] = 0;
-    meAmplErrorMapG06_[i] = 0;
     meShapeMapG12_[i] = 0;
     meAmplMapG12_[i] = 0;
-    meAmplErrorMapG12_[i] = 0;
     mePnAmplMapG01_[i] = 0;
     mePnPedMapG01_[i] = 0;
     mePnAmplMapG16_[i] = 0;
     mePnPedMapG16_[i] = 0;
   }
-
-  // amplitudeThreshold_ = 200;
-  amplitudeThreshold_ = 0;
 
 }
 
@@ -103,9 +97,6 @@ void EETestPulseTask::setup(void){
       sprintf(histo, "EETPT amplitude %s G01", Numbers::sEE(i+1).c_str());
       meAmplMapG01_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
       dbe_->tag(meAmplMapG01_[i], i+1);
-      sprintf(histo, "EETPT amplitude error %s G01", Numbers::sEE(i+1).c_str());
-      meAmplErrorMapG01_[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
-      dbe_->tag(meAmplErrorMapG01_[i], i+1);
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EETestPulseTask/Gain06");
@@ -116,9 +107,6 @@ void EETestPulseTask::setup(void){
       sprintf(histo, "EETPT amplitude %s G06", Numbers::sEE(i+1).c_str());
       meAmplMapG06_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
       dbe_->tag(meAmplMapG06_[i], i+1);
-      sprintf(histo, "EETPT amplitude error %s G06", Numbers::sEE(i+1).c_str());
-      meAmplErrorMapG06_[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
-      dbe_->tag(meAmplErrorMapG06_[i], i+1);
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EETestPulseTask/Gain12");
@@ -129,9 +117,6 @@ void EETestPulseTask::setup(void){
       sprintf(histo, "EETPT amplitude %s G12", Numbers::sEE(i+1).c_str());
       meAmplMapG12_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
       dbe_->tag(meAmplMapG12_[i], i+1);
-      sprintf(histo, "EETPT amplitude error %s G12", Numbers::sEE(i+1).c_str());
-      meAmplErrorMapG12_[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
-      dbe_->tag(meAmplErrorMapG12_[i], i+1);
    }
 
     dbe_->setCurrentFolder("EcalEndcap/EETestPulseTask/PN");
@@ -173,8 +158,6 @@ void EETestPulseTask::cleanup(void){
       meShapeMapG01_[i] = 0;
       if ( meAmplMapG01_[i] ) dbe_->removeElement( meAmplMapG01_[i]->getName() );
       meAmplMapG01_[i] = 0;
-      if ( meAmplErrorMapG01_[i] ) dbe_->removeElement( meAmplErrorMapG01_[i]->getName() );
-      meAmplErrorMapG01_[i] = 0;
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EETestPulseTask/Gain06");
@@ -183,8 +166,6 @@ void EETestPulseTask::cleanup(void){
       meShapeMapG06_[i] = 0;
       if ( meAmplMapG06_[i] ) dbe_->removeElement( meAmplMapG06_[i]->getName() );
       meAmplMapG06_[i] = 0;
-      if ( meAmplErrorMapG06_[i] ) dbe_->removeElement( meAmplErrorMapG06_[i]->getName() );
-      meAmplErrorMapG06_[i] = 0;
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EETestPulseTask/Gain12");
@@ -193,8 +174,6 @@ void EETestPulseTask::cleanup(void){
       meShapeMapG12_[i] = 0;
       if ( meAmplMapG12_[i] ) dbe_->removeElement( meAmplMapG12_[i]->getName() );
       meAmplMapG12_[i] = 0;
-      if ( meAmplErrorMapG12_[i] ) dbe_->removeElement( meAmplErrorMapG12_[i]->getName() );
-      meAmplErrorMapG12_[i] = 0;
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EETestPulseTask/PN");
@@ -374,19 +353,7 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
       if ( meAmplMap ) meAmplMap->Fill(xie, xip, xval);
 
-      MonitorElement* meAmplErrorMap = 0;
-
-      if ( dccMap[ism].getMgpaGain() == 3 ) meAmplErrorMap = meAmplErrorMapG01_[ism-1];
-      if ( dccMap[ism].getMgpaGain() == 2 ) meAmplErrorMap = meAmplErrorMapG06_[ism-1];
-      if ( dccMap[ism].getMgpaGain() == 1 ) meAmplErrorMap = meAmplErrorMapG12_[ism-1];
-
       LogDebug("EETestPulseTask") << "Crystal " << ie << " " << ip << " Amplitude = " << xval;
-
-      if ( xval < amplitudeThreshold_ ) {
-
-        if ( meAmplErrorMap ) meAmplErrorMap->Fill(xie, xip);
-
-      }
 
     }
 

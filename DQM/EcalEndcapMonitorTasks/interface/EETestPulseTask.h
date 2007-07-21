@@ -4,8 +4,8 @@
 /*
  * \file EETestPulseTask.h
  *
- * $Date: 2007/04/05 14:54:03 $
- * $Revision: 1.3 $
+ * $Date: 2007/05/12 09:28:32 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -62,10 +62,6 @@ MonitorElement* meShapeMapG12_[18];
 MonitorElement* meAmplMapG01_[18];
 MonitorElement* meAmplMapG06_[18];
 MonitorElement* meAmplMapG12_[18];
-
-MonitorElement* meAmplErrorMapG01_[18];
-MonitorElement* meAmplErrorMapG06_[18];
-MonitorElement* meAmplErrorMapG12_[18];
 
 MonitorElement* mePnAmplMapG01_[18];
 MonitorElement* mePnAmplMapG16_[18];

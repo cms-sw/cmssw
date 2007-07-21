@@ -4,8 +4,8 @@
 /*
  * \file EETestPulseClient.h
  *
- * $Date: 2007/06/11 19:07:32 $
- * $Revision: 1.3 $
+ * $Date: 2007/07/19 11:54:12 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -109,10 +109,6 @@ CollateMonitorElement* me_hs01_[18];
 CollateMonitorElement* me_hs02_[18];
 CollateMonitorElement* me_hs03_[18];
 
-CollateMonitorElement* me_he01_[18];
-CollateMonitorElement* me_he02_[18];
-CollateMonitorElement* me_he03_[18];
-
 TProfile2D* ha01_[18];
 TProfile2D* ha02_[18];
 TProfile2D* ha03_[18];
@@ -129,10 +125,6 @@ MEContentsProf2DWithinRangeROOT* qtha07_[18];
 TProfile2D* hs01_[18];
 TProfile2D* hs02_[18];
 TProfile2D* hs03_[18];
-
-TH2F* he01_[18];
-TH2F* he02_[18];
-TH2F* he03_[18];
 
 MonitorElement* meg01_[18];
 MonitorElement* meg02_[18];
@@ -162,7 +154,6 @@ TProfile2D* i04_[18];
 
 float percentVariation_;
 float RMSThreshold_;
-float threshold_on_AmplitudeErrorsNumber_;
 
 // Quality check on PNs
 
