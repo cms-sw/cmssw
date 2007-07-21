@@ -2,8 +2,8 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2007/07/10 16:56:29 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/07/18 17:29:46 $
+ *  $Revision: 1.7 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -125,6 +125,14 @@ for (std::vector<TkStripMeasurementDet*>::const_iterator isd = stripdets.begin()
 */
 ///// ======
 
+  float staeta = fabs(staState.globalPosition().eta());
+
+  if ( theSkipFirstLayerFlag && nls.size() > 5 && staeta > 1.0 && staeta < 1.5  ) {
+     nls.erase(nls.begin());
+     if (staeta > 1.2 ) nls.erase(nls.begin());
+  }
+
+
   std::vector<TrajectoryMeasurement> alltm = findMeasurements(nls.front(), staState);
   LogTrace(category) << " allmeas first: "<<alltm.size();
 
@@ -201,6 +209,8 @@ void TSGFromPropagation::init(const MuonServiceProxy* service) {
   theErrorReset = theConfig.getUntrackedParameter<double>("ErrorReset", 100.0);
 
   theVtxFlag = theConfig.getUntrackedParameter<bool>("ApplyVertexConstraint",  true);
+
+  theSkipFirstLayerFlag = theConfig.getUntrackedParameter<bool>("SkipFirstLayer", true);
 
   theEstimator = new Chi2MeasurementEstimator(theMaxChi2);
 
