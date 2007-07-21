@@ -63,10 +63,4 @@
   <function name="reco::JetToFloatAssociation::allJets"/>
   <function name="reco::JetToFloatAssociation::hasJet"/>
 
-  <class name="edm::RefToBase<reco::Jet>" />
-  <class name="edm::reftobase::BaseHolder<reco::Jet>" />
-  <class name="edm::reftobase::Holder<reco::Jet, reco::CaloJetRef>" />
-  <class name="edm::reftobase::Holder<reco::Jet, reco::GenJetRef>" />
-  <class name="edm::reftobase::Holder<reco::Jet, reco::PFJetRef>" />
-  
 </lcgdict>

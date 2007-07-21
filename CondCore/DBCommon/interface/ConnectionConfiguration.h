@@ -1,6 +1,5 @@
 #ifndef COND_DBCommon_ConnectionConfiguration_h
 #define COND_DBCommon_ConnectionConfiguration_h
-#include "RelationalAccess/IMonitoring.h"
 namespace cond{
   class ConnectionConfiguration{
   public:
@@ -84,16 +83,13 @@ namespace cond{
      * Returns true if the parallel thread for idle pool cleaning up is enabled
      */
     bool isPoolAutomaticCleanUpEnabled() const;
-    // monitoring level
-    coral::monitor::Level monitorLevel() const;
   private:
     bool m_enableConSharing;
     int m_connectionRetrialPeriod;
     int m_connectionRetrialTimeOut;
     int m_connectionTimeOut;
     bool m_enableCommonConnection;
-    bool m_enablePoolAutomaticCleanUp; 
-    coral::monitor::Level m_monitorLevel;
+    bool m_enablePoolAutomaticCleanUp;    
   };
 }
 #endif

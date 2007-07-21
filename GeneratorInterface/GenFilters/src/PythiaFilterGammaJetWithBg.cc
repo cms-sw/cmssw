@@ -61,6 +61,9 @@ PythiaFilterGammaJetWithBg::~PythiaFilterGammaJetWithBg(){}
 // ------------ method called to produce the data  ------------
 bool PythiaFilterGammaJetWithBg::filter(edm::Event& iEvent, const edm::EventSetup& iSetup){
 
+  if(theNumberOfSelected>=maxnumberofeventsinrun)   {
+    throw cms::Exception("endJob")<<"we have reached the maximum number of events ";
+  }
 
   bool accepted = false;
   edm::Handle<edm::HepMCProduct> evt;

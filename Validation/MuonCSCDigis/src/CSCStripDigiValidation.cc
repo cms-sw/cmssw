@@ -4,14 +4,11 @@
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
 
 
-CSCStripDigiValidation::CSCStripDigiValidation(DaqMonitorBEInterface* dbe, 
-                                               const edm::InputTag & inputTag,
-                                               bool doSim)
+CSCStripDigiValidation::CSCStripDigiValidation(DaqMonitorBEInterface* dbe, const edm::InputTag & inputTag)
 : CSCBaseValidation(dbe, inputTag),
   thePedestalSum(0),
   thePedestalCovarianceSum(0),
   thePedestalCount(0),
-  theDoSimFlag(doSim),
   thePedestalPlot( dbe_->book1D("CSCPedestal", "CSC Pedestal ", 400, 550, 650) ),
   thePedestalTimeCorrelationPlot(0),
   thePedestalNeighborCorrelationPlot(0),
@@ -22,13 +19,11 @@ CSCStripDigiValidation::CSCStripDigiValidation(DaqMonitorBEInterface* dbe,
   theNDigisPerChamberPlot(0),
   theNDigisPerEventPlot( dbe_->book1D("CSCStripDigisPerEvent", "Number of CSC Strip Digis per event", 100, 0, 500) )
 {
-  if(doSim) {
-    for(int i = 0; i < 10; ++i)
-    {
-      char title1[200];
-      sprintf(title1, "CSCStripDigiResolution%d", i+1);
-      theResolutionPlots[i] = dbe_->book1D(title1, title1, 100, -5, 5);
-    }
+   for(int i = 0; i < 10; ++i)
+  {
+    char title1[200];
+    sprintf(title1, "CSCStripDigiResolution%d", i+1);
+    theResolutionPlots[i] = dbe_->book1D(title1, title1, 100, -5, 5);
   }
 
 }
@@ -37,17 +32,14 @@ CSCStripDigiValidation::CSCStripDigiValidation(DaqMonitorBEInterface* dbe,
 CSCStripDigiValidation::~CSCStripDigiValidation() {}
 
 
-void CSCStripDigiValidation::analyze(const edm::Event& e, 
-                                     const edm::EventSetup&)
+void CSCStripDigiValidation::analyze(const edm::Event& e, const edm::EventSetup&)
 {
   edm::Handle<CSCStripDigiCollection> strips;
 
-  try
-  {
+  try {
     e.getByLabel(theInputTag, strips);
   } catch (...) {
-    edm::LogError("CSCDigiValidation") << "Cannot get strips by label " 
-                                       << theInputTag.encode();
+    edm::LogError("CSCDigiDump") << "Cannot get strips by label " << theInputTag.encode();
   }
 
  unsigned nDigisPerEvent = 0;
@@ -68,11 +60,11 @@ void CSCStripDigiValidation::analyze(const edm::Event& e,
       thePedestalSum += adcCounts[0];
       thePedestalSum += adcCounts[1];
       thePedestalCount += 2;
-      float pedestal = thePedestalSum/thePedestalCount;
-      if(adcCounts[4]-pedestal > maxAmplitude)
+
+      if(adcCounts[4] > maxAmplitude)
       {
         maxStrip = digiItr->getStrip();
-        maxAmplitude = adcCounts[4]-pedestal;
+        maxAmplitude = adcCounts[4];
       }
 
       // if we have enough pedestal statistics

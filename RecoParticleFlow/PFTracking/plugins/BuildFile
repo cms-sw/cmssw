@@ -1,0 +1,25 @@
+<use name=boost>
+<use name=FWCore/Framework>
+<use name=SimDataFormats/HepMCProduct>
+<use name=hepmc> 
+<use name=heppdt>
+<use name=clhep> 
+<use name=root>
+<use name=pythia6>
+<use name=GeneratorInterface/Pythia6Interface>
+<use name=SimGeneral/HepPDTRecord>
+
+<use name=DataFormats/GeometryVector>
+<use name=DataFormats/GeometrySurface>
+<use name=TrackPropagation/SteppingHelixPropagator>
+<use name=MagneticField/Records>
+<use name=TrackingTools/TrajectoryState>
+<use name=TrackingTools/TrajectoryParametrization>
+
+<use name=PhysicsTools/UtilAlgos>
+<use name=FWCore/ServiceRegistry>
+
+
+<library file="*.cc" name=JpsieeFilter>
+<flags EDM_PLUGIN=1>
+</library>

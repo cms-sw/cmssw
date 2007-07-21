@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.h,v 1.4 2007/06/17 13:53:31 chinhan Exp $
+// $Id: FastL1GlobalAlgo.h,v 1.1 2007/02/20 01:14:53 chinhan Exp $
 //
 
 // system include files
@@ -53,8 +53,6 @@
 #include "DataFormats/L1Trigger/interface/L1ParticleMapFwd.h"
 
 #include "FastSimulation/L1CaloTriggerProducer/interface/FastL1Region.h"
-// No BitInfos for release versions
-//#include "DataFormats/FastL1/interface/FastL1BitInfo.h"
 
 //
 // constants, enums and typedefs
@@ -74,20 +72,18 @@ class FastL1GlobalAlgo {
 
       void CaloTowersDump(edm::Event const& e);
 
-      l1extra::L1EtMissParticle getMET() const { return m_MET; }
-      l1extra::L1JetParticleCollection getTauJets() const { return m_TauJets; }
-      l1extra::L1JetParticleCollection getCenJets() const { return m_CenJets; }
-      l1extra::L1JetParticleCollection getForJets() const { return m_ForJets; }
-      l1extra::L1EmParticleCollection getEgammas() const { return m_Egammas; }
-      l1extra::L1EmParticleCollection getisoEgammas() const { return m_isoEgammas; }
-      //FastL1BitInfoCollection getBitInfos() { return m_BitInfos; }
+      l1extra::L1EtMissParticle getMET() const { return m_MET; };
+      l1extra::L1JetParticleCollection getTauJets() const { return m_TauJets; };
+      l1extra::L1JetParticleCollection getCenJets() const { return m_CenJets; };
+      l1extra::L1JetParticleCollection getForJets() const { return m_ForJets; };
+      l1extra::L1EmParticleCollection getEgammas() const { return m_Egammas; };
+      l1extra::L1EmParticleCollection getisoEgammas() const { return m_isoEgammas; };
 
       void FillMET(); // old version
       void FillMET(edm::Event const& e);
       void FillL1Regions(edm::Event const& e, const edm::EventSetup& c);
       void FillJets(const edm::EventSetup& e) { findJets(); };
       void FillEgammas(edm::Event const&);
-      //void FillBitInfos();
 
  private:
       bool isMaxEtRgn_Window33(int rgnid);
@@ -106,7 +102,6 @@ class FastL1GlobalAlgo {
       l1extra::L1JetParticleCollection m_ForJets;
       l1extra::L1EmParticleCollection m_Egammas;
       l1extra::L1EmParticleCollection m_isoEgammas;
-      //FastL1BitInfoCollection m_BitInfos;
 
       std::vector<FastL1Region> m_Regions;
       FastL1RegionMap* m_RMap;

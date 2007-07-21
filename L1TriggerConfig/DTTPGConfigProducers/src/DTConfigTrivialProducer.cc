@@ -24,8 +24,6 @@ using std::auto_ptr;
 DTConfigTrivialProducer::DTConfigTrivialProducer(const edm::ParameterSet& ps)
 {
  
-  cout << "Constructing a DTConfigTrivialProducer" << endl;
-
   //the following line is needed to tell the framework what
   // data is being produced
   setWhatProduced(this);

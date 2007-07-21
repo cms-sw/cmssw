@@ -1,8 +1,8 @@
 /** \file Alignable.cc
  *
- *  $Date: 2007/06/24 01:08:22 $
- *  $Revision: 1.15 $
- *  (last update by $Author: cklae $)
+ *  $Date: 2007/06/21 12:11:05 $
+ *  $Revision: 1.11.2.1 $
+ *  (last update by $Author: flucke $)
  */
 
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
@@ -38,6 +38,23 @@ Alignable::~Alignable()
   delete theSurvey;
 }
 
+
+//__________________________________________________________________________________________________
+void Alignable::deepComponents( std::vector<const Alignable*>& result ) const
+{
+  const Alignables& comp = components();
+
+  unsigned int nComp = comp.size();
+
+  if (nComp > 0)
+    for (unsigned int i = 0; i < nComp; ++i)
+    {
+      comp[i]->deepComponents(result);
+    }
+  else
+    result.push_back(this);
+}
+
 //__________________________________________________________________________________________________
 void Alignable::deepComponents( std::vector<Alignable*>& result )
 {
@@ -53,6 +70,7 @@ void Alignable::deepComponents( std::vector<Alignable*>& result )
   else
     result.push_back(this);
 }
+
 
 //__________________________________________________________________________________________________
 bool Alignable::firstCompsWithParams(Alignables &paramComps) const

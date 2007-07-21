@@ -1,5 +1,5 @@
 #include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
-cond::ConnectionConfiguration::ConnectionConfiguration():m_enableConSharing(false),m_connectionRetrialPeriod(0),m_connectionRetrialTimeOut(0),m_connectionTimeOut(0),m_enableCommonConnection(false),m_enablePoolAutomaticCleanUp(false),m_monitorLevel(coral::monitor::Off){}
+cond::ConnectionConfiguration::ConnectionConfiguration():m_enableConSharing(false),m_connectionRetrialPeriod(0),m_connectionRetrialTimeOut(0),m_connectionTimeOut(0),m_enableCommonConnection(false),m_enablePoolAutomaticCleanUp(false){}
 cond::ConnectionConfiguration::~ConnectionConfiguration(){}
 void cond::ConnectionConfiguration::enableConnectionSharing(){
   m_enableConSharing=true;
@@ -45,8 +45,4 @@ void cond::ConnectionConfiguration::disablePoolAutomaticCleanUp(){
 }
 bool cond::ConnectionConfiguration::isPoolAutomaticCleanUpEnabled() const{
   return m_enablePoolAutomaticCleanUp;
-}
-coral::monitor::Level 
-cond::ConnectionConfiguration::monitorLevel() const{
-  return m_monitorLevel;
 }

@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1RegionMap.cc,v 1.3 2007/04/18 18:54:51 chinhan Exp $
+// $Id: FastL1RegionMap.cc,v 1.1 2007/04/02 13:49:20 beaudett Exp $
 //
 
 
@@ -80,7 +80,7 @@ FastL1RegionMap::getRegionEtaPhiIndex(std::pair<int, int> EtaPhi)
   int iTwrEta = EtaPhi.first;
   int iTwrPhi = EtaPhi.second;
 
-  //iTwrPhi = convertFromECal_to_HCal_iphi(iTwrPhi);
+  iTwrPhi = convertFromECal_to_HCal_iphi(iTwrPhi);
 
   int iphi=999; // 0-17 
   int ieta=999; // 0-21 (barrel: 6-15, endcap: 4,5,16,17, HF: 0-3,18-21??)
@@ -99,38 +99,6 @@ FastL1RegionMap::getRegionEtaPhiIndex(std::pair<int, int> EtaPhi)
     }
   }
 
-  // Test HF!!!
-  if (abs(iTwrEta)>=29 && abs(iTwrEta)<=41) {
-    iphi = ((iTwrPhi + 1) / 4) % 18;
-
-    if (iTwrEta >= 29 && iTwrEta <= 32) {
-      ieta = 18;
-    } 
-    if (iTwrEta >= 33 && iTwrEta <= 35) {
-      ieta = 19;
-    } 
-    if (iTwrEta >= 36 && iTwrEta <= 38) {
-      ieta = 20;
-    } 
-    if (iTwrEta >= 39 && iTwrEta <= 41) {
-      ieta = 21;
-    } 
-
-    if (iTwrEta <= -29 && iTwrEta >= -32) {
-      ieta = 3;
-    } 
-    if (iTwrEta <= -33 && iTwrEta >= -35) {
-      ieta = 2;
-    } 
-    if (iTwrEta <= -36 && iTwrEta >= -38) {
-      ieta = 1;
-    } 
-    if (iTwrEta <= -39 && iTwrEta >= -41) {
-      ieta = 0;
-    } 
-
-  }
-
   return std::pair<int, int>(ieta, iphi);
 }
 
@@ -143,14 +111,12 @@ FastL1RegionMap::getRegionTowerIndex(std::pair<int, int> EtaPhi)
   int iTwrEta = EtaPhi.first;
   int iTwrPhi = EtaPhi.second;
 
-  //iTwrPhi = convertFromECal_to_HCal_iphi(iTwrPhi);
+  iTwrPhi = convertFromECal_to_HCal_iphi(iTwrPhi);
 
   // Right now: only barrel/encap part!!!
   int isub = 999; // 0-15 4x4 region matrix 
 
-  //if (abs(iTwrEta)<=28) {
-  // Test HF!!!
-  if (abs(iTwrEta)<=41) {
+  if (abs(iTwrEta)<=28) {
     if (iTwrEta > 0) {
       isub = 4*(3 - (iTwrPhi + 1) %4) + ((iTwrEta  - 1)  % 4) ;
     } else {
@@ -170,6 +136,7 @@ FastL1RegionMap::getRegionTowerIndex(int iEta, int iPhi)
 std::pair<int, int>
 FastL1RegionMap::getRegionEtaPhiIndex(int regionId)
 {
+  // Right now: only barrel/encap part!!!
   int ieta = regionId%22;  
   int iphi = regionId/22;
 
@@ -227,19 +194,17 @@ FastL1RegionMap::getRegionCenterEtaPhi(int iRgn)
 
   // phi
   if (ep.second <= 9) 
-    phi = ep.second * 0.349066 + 0.174533; // 20 degrees
-  //phi = ep.second * 0.3490658504 + 0.1745329252; // 20 degrees
+    phi = ep.second * 0.3490658504 + 0.1745329252; // 20 degrees
   else 
-    phi = (18-ep.second)  * (-0.349066)  + 0.174533; // -20 degrees
+    phi = (18-ep.second)  * (-0.3490658504)  + 0.1745329252; // -20 degrees
 
   // eta
   if (ep.first >= 11 && ep.first <= 15 )
-    eta = (ep.first-11)*0.348 + 0.174;
-    //eta = (ep.first-11)*0.3490658504 + 0.1745329252;
+    eta = (ep.first-11)*0.3490658504 + 0.1745329252;
   if (ep.first == 16 )
-    eta = 1.956;
+    eta = 1.93;
   if (ep.first == 17 )
-    eta = 2.586;
+    eta = 2.5;
   if (ep.first == 18 )
     eta = 3.25;
   if (ep.first == 19 )
@@ -250,11 +215,11 @@ FastL1RegionMap::getRegionCenterEtaPhi(int iRgn)
     eta = 4.75;
 
   if (ep.first >= 6 && ep.first <= 10 )
-    eta = (10-ep.first)*(-0.348) - 0.174;
+    eta = (10-ep.first)*(-0.3490658504) - 0.1745329252;
   if (ep.first == 5 )
-    eta = -1.956;
+    eta = -1.93;
   if (ep.first == 4 )
-    eta = -2.586;
+    eta = -2.5;
   if (ep.first == 3 )
     eta = -3.25;
   if (ep.first == 2 )

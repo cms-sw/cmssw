@@ -1,11 +1,16 @@
 /*
  * \file L1THCALTPG.cc
  *
- * $Date: 2007/02/23 22:00:16 $
- * $Revision: 1.3 $
+ * $Date: 2007/06/12 19:32:53 $
+ * $Revision: 1.4 $
  * \author J. Berryhill
  *
  * $Log: L1THCALTPG.cc,v $
+ * Revision 1.4  2007/06/12 19:32:53  berryhil
+ *
+ *
+ * config files now include hcal tpg monitoring modules
+ *
  * Revision 1.3  2007/02/23 22:00:16  wittich
  * add occ (weighted and unweighted) and rank histos
  *
@@ -155,9 +160,9 @@ void L1THCALTPG::analyze(const Event& e, const EventSetup& c)
   std::cout << "raw  " <<  i->t0().raw() << std::endl;
   std::cout << "raw Et " <<  i->t0().compressedEt() << std::endl;
   std::cout << "raw FG " <<  i->t0().fineGrain() << std::endl;
-  std::cout << "raw fiber " <<  i->t0().fiber() << std::endl;
-  std::cout << "raw fiberChan " <<  i->t0().fiberChan() << std::endl;
-  std::cout << "raw fiberAndChan " <<  i->t0().fiberAndChan() << std::endl;
+  //  std::cout << "raw fiber " <<  i->t0().fiber() << std::endl;
+  //  std::cout << "raw fiberChan " <<  i->t0().fiberChan() << std::endl;
+  //  std::cout << "raw fiberAndChan " <<  i->t0().fiberAndChan() << std::endl;
       }
 
    int e = i->SOI_compressedEt();

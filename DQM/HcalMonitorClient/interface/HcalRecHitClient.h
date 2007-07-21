@@ -76,7 +76,7 @@ void setup(void);
   bool hasWarnings() const { return dqmReportMapWarn_.size(); }
   bool hasOther() const { return dqmReportMapOther_.size(); }
 
-  void resetAllME();
+  void resetME();
   void createTests();
 private:
   int ievt_;

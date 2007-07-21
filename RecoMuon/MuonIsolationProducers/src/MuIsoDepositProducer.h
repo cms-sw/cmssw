@@ -23,8 +23,6 @@ public:
 private:
 
   edm::ParameterSet theConfig;
-  bool theReadFromRecoMuon;
-  std::string theMuonTrackRefType;
   edm::InputTag theMuonCollectionTag;
   std::vector<std::string> theDepositNames;
   bool theMultipleDepositsFlag;

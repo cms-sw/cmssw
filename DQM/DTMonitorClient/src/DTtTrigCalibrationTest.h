@@ -5,7 +5,7 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/03/30 16:10:05 $
+ *  $Date: 2007/05/22 07:15:56 $
  *  $Revision: 1.2 $
  *  \author  M. Zanetti CERN
  *   
@@ -23,9 +23,6 @@
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
-// the TB fitter
-#include "CalibMuon/DTCalibration/src/DTTTrigCalibration.h"
 
 #include <memory>
 #include <iostream>

@@ -83,16 +83,15 @@ CompositeTECPetal::compatible( const TrajectoryStateOnSurface& ts, const Propaga
 }
 
 
-void
-CompositeTECPetal::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
-					   const Propagator& prop,
-					   const MeasurementEstimator& est,
-			 std::vector<DetGroup> & result) const {
-
+vector<DetGroup> 
+CompositeTECPetal::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
+					  const Propagator& prop,
+					  const MeasurementEstimator& est) const
+{
   vector<DetGroup> closestResult;
   SubLayerCrossings  crossings; 
   crossings = computeCrossings( tsos, prop.propagationDirection());
-  if(! crossings.isValid()) return;
+  if(! crossings.isValid()) return closestResult;
 
   addClosest( tsos, prop, est, crossings.closest(), closestResult); 
   LogDebug("TkDetLayers") << "in TECPetal, closestResult.size(): "<< closestResult.size();
@@ -101,14 +100,17 @@ CompositeTECPetal::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
     vector<DetGroup> nextResult;
     addClosest( tsos, prop, est, crossings.other(), nextResult); 
     LogDebug("TkDetLayers") << "in TECPetal, nextResult.size(): "<< nextResult.size() ;
-    if(nextResult.empty())    return;
+    if(nextResult.empty())    return nextResult;
     
     DetGroupElement nextGel( nextResult.front().front());  
     int crossingSide = LayerCrossingSide().endcapSide( nextGel.trajectoryState(), prop);
-    DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result, 
-					    crossings.closestIndex(), crossingSide);
-  } else {
+    DetGroupMerger merger;
+    return  merger.orderAndMergeTwoLevels( closestResult, nextResult, 
+					   crossings.closestIndex(), crossingSide);   
+  } 
     
+
+
   DetGroupElement closestGel( closestResult.front().front());  
   float window = computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est); 
 
@@ -120,10 +122,11 @@ CompositeTECPetal::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 		   nextResult, true); 
 
   int crossingSide = LayerCrossingSide().endcapSide( closestGel.trajectoryState(), prop);
-  DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result, 
-				          crossings.closestIndex(), crossingSide);
-  }
+  DetGroupMerger merger;
+  return merger.orderAndMergeTwoLevels( closestResult, nextResult, 
+					crossings.closestIndex(), crossingSide);
 }
+
 
 SubLayerCrossings 
 CompositeTECPetal::computeCrossings(const TrajectoryStateOnSurface& startingState,

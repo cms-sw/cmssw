@@ -1,8 +1,8 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.9 $
-///  last update: $Date: 2007/07/09 14:16:44 $
+///  Revision   : $Revision: 1.7 $
+///  last update: $Date: 2007/07/02 18:31:03 $
 ///  by         : $Author: pivarski $
 
 #include "Alignment/CommonAlignmentProducer/plugins/AlignmentProducer.h"
@@ -42,10 +42,6 @@
 #include "CondFormats/DataRecord/interface/CSCAlignmentErrorRcd.h"
 #include "CondFormats/DataRecord/interface/TrackerSurveyRcd.h"
 #include "CondFormats/DataRecord/interface/TrackerSurveyErrorRcd.h"
-#include "CondFormats/DataRecord/interface/DTSurveyRcd.h"
-#include "CondFormats/DataRecord/interface/DTSurveyErrorRcd.h"
-#include "CondFormats/DataRecord/interface/CSCSurveyRcd.h"
-#include "CondFormats/DataRecord/interface/CSCSurveyErrorRcd.h"
 
 // Tracking 	 
 #include "TrackingTools/PatternTools/interface/Trajectory.h" 
@@ -204,46 +200,14 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
       iSetup.get<TrackerSurveyRcd>().get(surveys);
       iSetup.get<TrackerSurveyErrorRcd>().get(surveyErrors);
 
-      theSurveyIndex  = 0;
       theSurveyValues = &*surveys;
       theSurveyErrors = &*surveyErrors;
+
       addSurveyInfo_(theAlignableTracker);
     }
   }
 
-  if (doMuon_)
-  {
-     theAlignableMuon = new AlignableMuon( &(*theMuonDT), &(*theMuonCSC) );
-
-     if (useSurvey_)
-     {
-	edm::ESHandle<Alignments> dtSurveys;
-	edm::ESHandle<SurveyErrors> dtSurveyErrors;
-	edm::ESHandle<Alignments> cscSurveys;
-	edm::ESHandle<SurveyErrors> cscSurveyErrors;
-	
-	iSetup.get<DTSurveyRcd>().get(dtSurveys);
-	iSetup.get<DTSurveyErrorRcd>().get(dtSurveyErrors);
-	iSetup.get<CSCSurveyRcd>().get(cscSurveys);
-	iSetup.get<CSCSurveyErrorRcd>().get(cscSurveyErrors);
-
-	theSurveyIndex  = 0;
-	theSurveyValues = &*dtSurveys;
-	theSurveyErrors = &*dtSurveyErrors;
-	std::vector<Alignable*> barrels = theAlignableMuon->DTBarrel();
-	for (std::vector<Alignable*>::const_iterator iter = barrels.begin();  iter != barrels.end();  ++iter) {
-	   addSurveyInfo_(*iter);
-	}
-
-	theSurveyIndex  = 0;
-	theSurveyValues = &*cscSurveys;
-	theSurveyErrors = &*cscSurveyErrors;
-	std::vector<Alignable*> endcaps = theAlignableMuon->CSCEndcaps();
-	for (std::vector<Alignable*>::const_iterator iter = endcaps.begin();  iter != endcaps.end();  ++iter) {
-	   addSurveyInfo_(*iter);
-	}
-     }
-  }
+  if (doMuon_) theAlignableMuon = new AlignableMuon( &(*theMuonDT), &(*theMuonCSC) );
 
   // Create alignment parameter builder
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginOfJob" 
@@ -569,13 +533,15 @@ void AlignmentProducer::createGeometries_( const edm::EventSetup& iSetup )
 
 void AlignmentProducer::addSurveyInfo_(Alignable* ali)
 {
+  static unsigned int s(0); // index for survey values, errors
+
   const std::vector<Alignable*>& comp = ali->components();
 
   unsigned int nComp = comp.size();
 
   for (unsigned int i = 0; i < nComp; ++i) addSurveyInfo_(comp[i]);
 
-  const SurveyError& error = theSurveyErrors->m_surveyErrors[theSurveyIndex];
+  const SurveyError& error = theSurveyErrors->m_surveyErrors[s];
 
   if ( ali->geomDetId().rawId() != error.rawId() ||
        ali->alignableObjectId() != error.structureType() )
@@ -584,8 +550,8 @@ void AlignmentProducer::addSurveyInfo_(Alignable* ali)
       << "Error reading survey info from DB. Mismatched id!";
   }
 
-  const CLHEP::Hep3Vector&  pos = theSurveyValues->m_align[theSurveyIndex].translation();
-  const CLHEP::HepRotation& rot = theSurveyValues->m_align[theSurveyIndex].rotation();
+  const CLHEP::Hep3Vector&  pos = theSurveyValues->m_align[s].translation();
+  const CLHEP::HepRotation& rot = theSurveyValues->m_align[s].rotation();
 
   AlignableSurface surf( align::PositionType( pos.x(), pos.y(), pos.z() ),
 			 align::RotationType( rot.xx(), rot.xy(), rot.xz(),
@@ -597,7 +563,7 @@ void AlignmentProducer::addSurveyInfo_(Alignable* ali)
 
   ali->setSurvey( new SurveyDet( surf, error.matrix() ) );
 
-  ++theSurveyIndex;
+  ++s;
 }
 
 DEFINE_ANOTHER_FWK_LOOPER( AlignmentProducer );

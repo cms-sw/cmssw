@@ -5,13 +5,12 @@ using namespace reco;
 TrackExtra::TrackExtra( const Point & outerPosition, const Vector & outerMomentum, bool ok ,
 			const Point & innerPosition, const Vector & innerMomentum, bool iok,
 			const CovarianceMatrix& outerCov, unsigned int outerId,
-			const CovarianceMatrix& innerCov, unsigned int innerId,
-			PropagationDirection& seedDir):
+			const CovarianceMatrix& innerCov, unsigned int innerId):
   TrackExtraBase(),
   outerPosition_( outerPosition ), outerMomentum_( outerMomentum ), outerOk_( ok ), 
   outerDetId_( outerId ),
   innerPosition_( innerPosition ), innerMomentum_( innerMomentum ), innerOk_( iok ),
-  innerDetId_( innerId ), seedDir_(seedDir) {
+  innerDetId_( innerId ) {
   index idx = 0;
   for( index i = 0; i < dimension; ++ i ) {
     for( index j = 0; j <= i; ++ j ) {

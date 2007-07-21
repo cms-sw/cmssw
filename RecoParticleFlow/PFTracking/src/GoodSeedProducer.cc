@@ -377,7 +377,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
       vector<TrajectoryMeasurement> tm=Tj[i].measurements();
 
-      for (uint ihit=tm.size()-1; ihit>=tm.size()-nHitsinSeed;ihit-- ){ 
+      for (int ihit=tm.size()-1; ihit>=int(tm.size()-nHitsinSeed);ihit-- ){ 
 	//for the first n measurement put the TM in the trajectory
 	// and save the corresponding hit
 	if ((*tm[ihit].recHit()).hit()->clone()->isValid()){

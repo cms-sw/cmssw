@@ -4,8 +4,8 @@
 /*
  * \file L1TCSCTF.h
  *
- * $Date: 2007/02/19 19:24:08 $
- * $Revision: 1.1 $
+ * $Date: 2007/02/22 19:43:52 $
+ * $Revision: 1.2 $
  * \author J. Berryhill
  *
 */
@@ -69,7 +69,20 @@ private:
   MonitorElement* csctfquality;
   MonitorElement* csctfchargevalue;
   MonitorElement* csctfntrack;
+///KK
+  // Type of input data for the DQM
+  bool emulation;
 
+  // geometry may not be properly set in CSC TF hardware (and in data respectively)
+  // make an artificial assignment of each of 12 SPs (slots 6-11 and 16-21) to 12 sectors (1-12, 0-not assigned)
+  std::vector<int> slot2sector;
+
+  // following arrays are indexed by sector # (1-12)
+  //   and have one spare element [0] for unknown SP board ID (in case of corrupted data)
+  MonitorElement* cscsp_fmm_status[13]; // FMM status for each SP
+  MonitorElement* cscsp_errors[13];     // Logical 'OR' of various data errors that SP can detect
+  MonitorElement* csctf_errors;         // Cumulative errors for the whole TF crate
+///
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput
   bool verbose_;

@@ -23,8 +23,6 @@
 
 using namespace std;
 
-void resetME(const char* name, MonitorUserInterface* mui);
-
 bool isValidGeom(int subdet, int iEta, int iPhi, int depth);
 
 TH2F* getHisto2(string name, string process, MonitorUserInterface* mui_, bool verb=false, bool clone=false);

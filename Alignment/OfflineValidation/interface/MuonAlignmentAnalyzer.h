@@ -6,8 +6,8 @@
  *  Makes histograms of high level Muon objects/quantities
  *  for Alignment Scenarios/DB comparison
  *
- *  $Date: 2007/07/16 18:03:36 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/07/09 16:43:38 $
+ *  $Revision: 1.3 $
  *  \author J. Fernandez - IFCA (CSIC-UC) <Javier.Fernandez@cern.ch>
  */
 
@@ -18,6 +18,7 @@
 
 namespace edm {
   class ParameterSet;
+//  class Event;
   class EventSetup;
   class InputTag;
 }
@@ -28,6 +29,7 @@ class TH2F;
 
 using namespace std;
 using namespace edm;
+//using namespace reco;
 
 class MuonAlignmentAnalyzer: public edm::EDAnalyzer {
 public:
@@ -54,8 +56,8 @@ edm::InputTag theGLBMuonTag;
 edm::InputTag theSTAMuonTag; 
 
 // Collections needed
-  edm::InputTag theRecHits4DTagDT;
-  edm::InputTag theRecHits2DTagCSC;
+  std::string theRecHits4DLabelDT;
+  std::string theRecHits2DLabelCSC;
 
 // To switch between real data and MC
   std::string theDataType;
@@ -108,15 +110,6 @@ edm::InputTag theSTAMuonTag;
   TH1F *hResidualRPhiCSC; 
   TH1F *hResidualPhiCSC; 
   TH1F *hResidualZCSC; 
-  TH1F *hResidualRPhiDT_W[5];
-  TH1F *hResidualPhiDT_W[5];
-  TH1F *hResidualZDT_W[5];	
-  TH1F *hResidualRPhiCSC_ME[18];
-  TH1F *hResidualPhiCSC_ME[18];
-  TH1F *hResidualZCSC_ME[18];
-  TH1F *hResidualRPhiDT_MB[20];
-  TH1F *hResidualPhiDT_MB[20];
-  TH1F *hResidualZDT_MB[20];
 
   std::vector<long> detectorCollection;  
 

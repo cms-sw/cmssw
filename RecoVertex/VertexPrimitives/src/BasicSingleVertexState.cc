@@ -3,9 +3,9 @@
 
 BasicSingleVertexState::BasicSingleVertexState()
   : thePos(GlobalPoint(0, 0, 0)), thePosAvailable(false),
-    theErr(AlgebraicSymMatrix33()), theErrAvailable(false),
-    theWeight(AlgebraicSymMatrix33()), theWeightAvailable(false),
-    theWeightTimesPos(AlgebraicVector3()), theWeightTimesPosAvailable(false),
+    theErr(AlgebraicSymMatrix(3, 0)), theErrAvailable(false),
+    theWeight(AlgebraicSymMatrix(3, 0)), theWeightAvailable(false),
+    theWeightTimesPos(3, 0), theWeightTimesPosAvailable(false),
     isValid(false), theWeightInMix(0.)
 {}
 
@@ -15,8 +15,8 @@ BasicSingleVertexState::BasicSingleVertexState(const GlobalPoint & pos,
 			     const double & weightInMix)
   : thePos(pos), thePosAvailable(true),
     theErr(posErr), theErrAvailable(true),
-    theWeight(AlgebraicSymMatrix33()), theWeightAvailable(false),
-    theWeightTimesPos(AlgebraicVector3()), theWeightTimesPosAvailable(false),
+    theWeight(AlgebraicSymMatrix(3, 0)), theWeightAvailable(false),
+    theWeightTimesPos(3, 0), theWeightTimesPosAvailable(false),
     isValid(true), theWeightInMix(weightInMix)
 {}
 
@@ -25,18 +25,18 @@ BasicSingleVertexState::BasicSingleVertexState(const GlobalPoint & pos,
 			     const GlobalWeight & posWeight,
 			     const double & weightInMix)
   : thePos(pos), thePosAvailable(true),
-    theErr(AlgebraicSymMatrix33()), theErrAvailable(false),
+    theErr(AlgebraicSymMatrix(3, 0)), theErrAvailable(false),
     theWeight(posWeight), theWeightAvailable(true),
-    theWeightTimesPos(AlgebraicVector3()), theWeightTimesPosAvailable(false),
+    theWeightTimesPos(3, 0), theWeightTimesPosAvailable(false),
     isValid(true), theWeightInMix(weightInMix)
 {}
 
 
-BasicSingleVertexState::BasicSingleVertexState(const AlgebraicVector3 & weightTimesPosition,
+BasicSingleVertexState::BasicSingleVertexState(const AlgebraicVector & weightTimesPosition,
 			     const GlobalWeight & posWeight,
 			     const double & weightInMix)
   : thePos(GlobalPoint(0, 0, 0)), thePosAvailable(false),
-    theErr(AlgebraicSymMatrix33()), theErrAvailable(false),
+    theErr(AlgebraicSymMatrix(3, 0)), theErrAvailable(false),
     theWeight(posWeight), theWeightAvailable(true),
     theWeightTimesPos(weightTimesPosition), theWeightTimesPosAvailable(true),
     isValid(true), theWeightInMix(weightInMix)
@@ -67,7 +67,7 @@ GlobalWeight BasicSingleVertexState::weight() const
 }
 
 
-AlgebraicVector3 BasicSingleVertexState::weightTimesPosition() const
+AlgebraicVector BasicSingleVertexState::weightTimesPosition() const
 {
   if (!isValid) throw VertexException("BasicSingleVertexState::invalid");
   if (!theWeightTimesPosAvailable) computeWeightTimesPos();
@@ -91,7 +91,7 @@ double BasicSingleVertexState::weightInMixture() const
 void BasicSingleVertexState::computePosition() const
 {
   if (!isValid) throw VertexException("BasicSingleVertexState::invalid");
-  AlgebraicVector3 pos = error().matrix_new()*weightTimesPosition();
+  AlgebraicVector pos = error().matrix()*weightTimesPosition();
   thePos = GlobalPoint(pos[0], pos[1], pos[2]);
   thePosAvailable = true;
 }
@@ -120,9 +120,9 @@ void BasicSingleVertexState::computeWeight() const
 void BasicSingleVertexState::computeWeightTimesPos() const
 {
   if (!isValid) throw VertexException("BasicSingleVertexState::invalid");
-  AlgebraicVector3 pos; pos(0) = position().x();
-  pos(1) = position().y(); pos(2) = position().z();
-  theWeightTimesPos = weight().matrix_new()*pos;
+  AlgebraicVector pos(3); pos[0] = position().x();
+  pos[1] = position().y(); pos[2] = position().z();
+  theWeightTimesPos = weight().matrix()*pos;
   theWeightTimesPosAvailable = true;
 }
 

@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1Region.h,v 1.7 2007/06/17 13:53:31 chinhan Exp $
+// $Id: FastL1Region.h,v 1.1 2007/04/02 13:49:19 beaudett Exp $
 //
 
 // user include files
@@ -38,22 +38,15 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
-
+#include "Geometry/CaloEventSetup/plugins/CaloTowerConstituentsMapBuilder.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 
-#include "Geometry/CaloTopology/interface/CaloTowerConstituentsMap.h"
-
 #include "FastSimulation/L1CaloTriggerProducer/interface/FastL1RegionMap.h"
-// No BitInfos for release versions
-//#include "DataFormats/FastL1/interface/FastL1BitInfo.h" // FastL1BitInfo is not yet for publication
 
 struct FastL1Config {
-  bool DoJetCorr;
-  bool DoEMCorr;
-
   double JetSeedEtThreshold;
   double EMSeedEnThreshold;
  
@@ -71,11 +64,6 @@ struct FastL1Config {
   double MuonNoiseLevel; 
   double CrystalEBThreshold;
   double CrystalEEThreshold;
-
-  double TowerEMLSB;
-  double TowerHadLSB;
-  double EMLSB;
-  double JetLSB;
 
   double TowerEBThreshold;
   double TowerEEThreshold;
@@ -104,7 +92,6 @@ class FastL1Region {
 
   void SetParameters(FastL1Config);
   void FillTower(const CaloTower& t, int& tid); 
-  void FillTowerZero(const CaloTower& t, int& tid); 
   void FillTower_Scaled(const CaloTower& t, int& tid); 
   void FillEMCrystals(const edm::Event&, const edm::EventSetup&,FastL1RegionMap* m_RMap);
   void Dump();
@@ -157,10 +144,6 @@ class FastL1Region {
 
   std::pair<int, int> GetTowerNorthEtaPhi(int ieta, int iphi); 
 
-  //FastL1BitInfo getBitInfo() { return BitInfo; }
-
-  // public - has to bechanged!!!
-  //FastL1BitInfo BitInfo;
 
  private:
   void SetTauBit(edm::Event const& e);
@@ -204,24 +187,5 @@ class FastL1Region {
 
   FastL1Config Config;
 };
-
-
-double 
-corrJetEt(double et, double eta);
-
-// Jet Calibration from Frederick(Helsinki), Monika/Creighton (Wisconsin)
-double 
-corrJetEt1(double et, double eta);
-
-// Jet Calibration from CMSSW_1_3_0
-double 
-corrJetEt2(double et, double eta);
-
-// EM correction from ORCA for cmsim 133
-double 
-corrEmEt(double et, double eta);
-
-double 
-TPEnergyRound(double et, double Resol = 1., double thres = 1.);
 
 #endif

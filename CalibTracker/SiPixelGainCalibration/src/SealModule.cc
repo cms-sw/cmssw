@@ -13,4 +13,8 @@ DEFINE_ANOTHER_FWK_MODULE(SiPixelGainCalibrationAnalysis);
 #include "CalibTracker/SiPixelGainCalibration/interface/SiPixelGainCalibrationUnpackLocal.h"
 DEFINE_ANOTHER_FWK_MODULE(SiPixelGainCalibrationUnpackLocal);
 
+//define this as a plug-in
+// include header file here:
+#include "CalibTracker/SiPixelGainCalibration/interface/SiPixelGainCalibrationDBAnalysis.h"
+DEFINE_ANOTHER_FWK_MODULE(SiPixelGainCalibrationDBAnalysis);
 

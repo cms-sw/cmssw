@@ -13,10 +13,8 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1Region.cc,v 1.5 2007/06/17 13:53:32 chinhan Exp $
+// $Id: FastL1Region.cc,v 1.5 2007/03/02 23:00:41 chinhan Exp $
 //
-
-// No BitInfos for release versions
 
 #include "FastSimulation/L1CaloTriggerProducer/interface/FastL1Region.h"
 
@@ -43,16 +41,6 @@ FastL1Region::FastL1Region()
     }
   }
 
-  /*
-  BitInfo.eta = -9999.;
-  BitInfo.phi = -9999.;
-  BitInfo.TauVeto = false;
-  BitInfo.EmTauVeto = false;
-  BitInfo.HadTauVeto = false;
-  BitInfo.SumEtBelowThres = false;
-  BitInfo.IsolationVeto = false;
-  */
-
   // default values
   Config.EMSeedEnThreshold = 2.;
   Config.EMActiveLevel = 3.;
@@ -69,11 +57,6 @@ FastL1Region::FastL1Region()
   Config.JetSeedEtThreshold = 2.;  
   Config.CrystalEBThreshold = 0.09;
   Config.CrystalEEThreshold = 0.45;
-
-  Config.TowerEMLSB = 1.;
-  Config.TowerHadLSB = 1.;
-  Config.EMLSB = 1.;
-  Config.JetLSB = 1.;
 
   Config.TowerEBThreshold = 0.2;
   Config.TowerEEThreshold = 0.45;
@@ -129,6 +112,15 @@ FastL1Region::SetTowerBits()
 void
 FastL1Region::FillEMCrystals(const edm::Event& e, const edm::EventSetup& c,FastL1RegionMap* m_RMap) 
 {
+
+  bool printIt = false;
+  double sEta = 2.1;
+  double sPhi = -3.0;
+  double dEta = 0.55;
+  double dPhi = 0.55;
+  int sRun = 1;
+  int sEvent = 51;
+
   edm::ESHandle<CaloTowerConstituentsMap> cttopo;
   c.get<IdealGeometryRecord>().get(cttopo);
   const CaloTowerConstituentsMap* theTowerConstituentsMap = cttopo.product();
@@ -181,6 +173,16 @@ FastL1Region::FillEMCrystals(const edm::Event& e, const edm::EventSetup& c,FastL
 	else crIeta = 4 + (detId.ieta()+1)%5;
 	int crIphi = (detId.iphi() - 1)%5;
 	
+	/*
+	std::cout<<"********************************************"<<std::endl;
+	std::cout<<detId.ieta()<<" | "<<detId.iphi()<<std::endl;
+	std::cout<<Towers[i].id().ieta()<<" | "<<Towers[i].id().iphi()<<std::endl;
+	std::cout<<crIeta<<" | "<<crIphi<<std::endl;
+	std::cout<<"Tower eta,phi:" <<Towers[i].eta()<<" | "<<Towers[i].phi()<<std::endl;
+	std::cout<<"Crys. eta,phi:" <<gP.eta()<<" | "<<gP.phi()<<std::endl;
+	std::cout<<i<<" | "<<crIeta + 5*crIphi<<std::endl;
+	*/
+
 	EMCrystalEnergy[i][crIeta + 5*crIphi] = recHit.energy();
       }
     }  
@@ -189,21 +191,31 @@ FastL1Region::FillEMCrystals(const edm::Event& e, const edm::EventSetup& c,FastL
   // After having filled crsystal info set all veto bits
   SetTowerBits();
  
-  // EE FG bits are filled here!!!
-  //e.getByLabel(la[1].first,la[1].second,ec);
-
   if (GetiEta()==4 || GetiEta()==5 ||  GetiEta()==6 ||  
-      GetiEta()==15 || GetiEta()==16 || GetiEta()==17 ) {
-    
+      GetiEta()==15 || GetiEta()==16 || GetiEta()==17) {
+    // EE FG bits are filled here!!!
+    //e.getByLabel(la[1].first,la[1].second,ec);
     e.getByLabel(Config.EmInputs.at(1),ec);
     ethres = Config.CrystalEEThreshold;
     double towerEnergy[16];
     // loop over towers
     for(int i=0;i<16;i++) {
       fgBit[i] = false; // re-iniate
+      if ((int)e.id().event() == sEvent && (int)e.id().run() == sRun
+	  && Towers[i].eta() > (sEta-dEta) && Towers[i].eta() < (sEta+dEta) && 
+	  Towers[i].phi() > (sPhi-dPhi) && Towers[i].phi() < (sPhi+dPhi)
+	  && printIt ) 
+	{
+	  std::cout<<"-----------------------------------------------"<<std::endl;
+	  std::cout<<"Run: " << e.id().run() << " Event: "<< e.id().event()<< std::endl;  
+	  std::cout<<"Tower (et,eta,phi): "<<Towers[i].et()<<", "<<Towers[i].eta()<<", "<<
+	    Towers[i].phi()<<std::endl;
+	  std::cout<<" Tower (ieta,iphi): "<<Towers[i].id().ieta()<<", "
+		   <<Towers[i].id().ieta()<<std::endl;
+	}
             
       //if (Towers[i].hadEt()>Config.HadNoiseLevel && Towers[i].emEt()>Config.EMNoiseLevel ) {
-      if (Towers[i].emEt()>=Config.EMNoiseLevel ) {
+      if (Towers[i].emEt()>Config.EMNoiseLevel ) {
       //if (Towers[i].emEnergy()>Config.EMNoiseLevel ) {
 	//towerEnergy[i]  = Towers[i].hadEt() + Towers[i].emEt(); 
 	towerEnergy[i]  = Towers[i].hadEnergy() + Towers[i].emEnergy(); 
@@ -225,7 +237,6 @@ FastL1Region::FillEMCrystals(const edm::Event& e, const edm::EventSetup& c,FastL
       CaloRecHit maxRecHit;
       CaloRecHit maxRecHit2;
       double max2En = 0.;
-      
       for(EcalRecHitCollection::const_iterator ecItr = ec->begin();
 	  ecItr != ec->end(); ++ecItr) {
 	CaloRecHit recHit = (CaloRecHit)(*ecItr);
@@ -239,11 +250,22 @@ FastL1Region::FillEMCrystals(const edm::Event& e, const edm::EventSetup& c,FastL
 	if (Towers[i].id().iphi()==hiphi && 
 	    Towers[i].id().ieta()==towerDetId.ieta() ) {	
 	  if (maxRecHit.energy()<recHit.energy()) {
+	    if (maxRecHit2.energy()<maxRecHit.energy()) {
+	      maxRecHit2 = maxRecHit;
+	    }	
 	    maxRecHit = recHit;
 	  }	
 	}
-      } 
-
+      }  
+      
+      if ((int)e.id().event() == sEvent && (int)e.id().run() == sRun
+	  && Towers[i].eta() > (sEta-dEta) && Towers[i].eta() < (sEta+dEta) && 
+	  Towers[i].phi() > (sPhi-dPhi) && Towers[i].phi() < (sPhi+dPhi)
+	  && printIt ) 
+	{
+	  std::cout<<"MaxHit found E: " << maxRecHit.energy()<< std::endl;  
+	}
+      
       std::vector<DetId> westV = calotopo->west(maxRecHit.detid());
       std::vector<DetId> eastV = calotopo->east(maxRecHit.detid());
       std::vector<DetId> southV = calotopo->south(maxRecHit.detid());
@@ -260,16 +282,32 @@ FastL1Region::FillEMCrystals(const edm::Event& e, const edm::EventSetup& c,FastL
 	int hiphi = towerDetId.iphi();
 	if (Towers[i].id().iphi()==hiphi && 
 	    Towers[i].id().ieta()==towerDetId.ieta() ) {
-	  if ( 
-	      (!westV.empty() && recHit.detid()==westV[0]) || 
-	      (!eastV.empty() && recHit.detid()==eastV[0]) || 
-	      (!northV.empty() && recHit.detid()==northV[0]) || 
-	      (!southV.empty() && recHit.detid()==southV[0]) 
-	      ) {
-	    if (maxRecHit2.energy()<recHit.energy()) {
-	      maxRecHit2 = recHit;
-	    }	
+	  //std::cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<std::endl;
+	  if ((int)e.id().event() == sEvent && (int)e.id().run() == sRun
+	      && Towers[i].eta() > (sEta-dEta) && Towers[i].eta() < (sEta+dEta) && 
+	      Towers[i].phi() > (sPhi-dPhi) && Towers[i].phi() < (sPhi+dPhi)
+	      && printIt ) 
+	    {
+	      std::cout<<"Crystal in same tower found!!!"<< std::endl;  
+	    }
+	  
+	  if ( (!westV.empty() && recHit.detid()==westV[0]) || 
+	       (!eastV.empty() && recHit.detid()==eastV[0]) || 
+	       (!northV.empty() && recHit.detid()==northV[0]) || 
+	       (!southV.empty() && recHit.detid()==southV[0]) 
+	       ) {
+	    //if (maxRecHit2.energy()<recHit.energy()) {
+	    //  maxRecHit2 = recHit;
+	    //}	
 	    max2En += recHit.energy();
+	    if ((int)e.id().event() == sEvent && (int)e.id().run() == sRun
+		&& Towers[i].eta() > (sEta-dEta) && Towers[i].eta() < (sEta+dEta) && 
+		Towers[i].phi() > (sPhi-dPhi) && Towers[i].phi() < (sPhi+dPhi)
+		&& printIt ) 
+	      {
+		std::cout<<"Neighbour Crystal enrgy added: "<<recHit.energy()<< std::endl;  
+	      }
+	    
 	  }
 	}
       }  
@@ -282,7 +320,18 @@ FastL1Region::FillEMCrystals(const edm::Event& e, const edm::EventSetup& c,FastL
 	//if (totE/towerEnergy[i]<Config.FGEBThreshold) fgBit[i] = true;    
 	if (totE/towerEnergy[i]<eeThres) fgBit[i] = true;    
       }
-            
+      
+      if ((int)e.id().event() == sEvent && (int)e.id().run() == sRun
+	  && Towers[i].eta() > (sEta-dEta) && Towers[i].eta() < (sEta+dEta) && 
+	  Towers[i].phi() > (sPhi-dPhi) && Towers[i].phi() < (sPhi+dPhi)
+	  && printIt ) 
+	{
+	  std::cout<<"********************************************"<<std::endl;
+	  std::cout<<"TotE,TwrE: "<<totE<<" | "<<towerEnergy[i]<<std::endl;	
+	  std::cout<<"Ratio (cut 0.4): "<<totE/towerEnergy[i]<< std::endl;  
+	  std::cout<<"Rgn ieta/iphi: "<<GetiEta()<<" | "<<i<<": "<<fgBit[i]<<std::endl;
+	}   
+      
     }
   }
    
@@ -291,69 +340,17 @@ FastL1Region::FillEMCrystals(const edm::Event& e, const edm::EventSetup& c,FastL
 
 //
 void
-FastL1Region::FillTowerZero(const CaloTower& t, int& tid) 
+FastL1Region::FillTower(const CaloTower& t, int& tid) 
 {
   Towers[tid] = CaloTower(t);
 }
 
-void
-FastL1Region::FillTower(const CaloTower& t, int& tid) 
-{
-  double EThres = 0.;
-  double HThres = 0.;
-  double EBthres = Config.TowerEBThreshold;
-  double HBthres = Config.TowerHBThreshold;
-  double EEthres = Config.TowerEBThreshold;
-  double HEthres = Config.TowerEEThreshold;
-  
-  if(std::abs(t.eta())<2.322) {
-    EThres = EBthres;
-  } else {
-    EThres = EEthres;
-  }
-  if(std::abs(t.eta())<2.322) {
-    HThres = HBthres;
-  } else {
-    HThres = HEthres;
-  }
-
-  double emet = TPEnergyRound(emet,Config.TowerEMLSB,EThres);
-  double hadet = TPEnergyRound(hadet,Config.TowerHadLSB,HThres);
-  double eme = TPEnergyRound(eme,Config.TowerEMLSB,EThres);
-  double hade = TPEnergyRound(hade,Config.TowerHadLSB,HThres);
-
-  if ( emet<EThres) emet = 0.;
-  if ( hadet<HThres) hadet = 0.;
-  //if ( eme<EThres) emet = 0.;
-  //if ( hade<HThres) hadet = 0.;
- 
-  //Towers[tid] = CaloTower(t);
-  Towers[tid] = CaloTower(t.id(),t.momentum(),emet,hadet,t.outerEt(),0,0);
-}
 
 
 //
 void
 FastL1Region::FillTower_Scaled(const CaloTower& t, int& tid) 
 {
-  double EThres = 0.;
-  double HThres = 0.;
-  double EBthres = Config.TowerEBThreshold;
-  double HBthres = Config.TowerHBThreshold;
-  double EEthres = Config.TowerEBThreshold;
-  double HEthres = Config.TowerEEThreshold;
-  
-  if(std::abs(t.eta())<2.322) {
-    EThres = EBthres;
-  } else {
-    EThres = EEthres;
-  }
-  if(std::abs(t.eta())<2.322) {
-    HThres = HBthres;
-  } else {
-    HThres = HEthres;
-  }
-
   double emScale = 1.0;
   double hadScale = 1.0;
   //double outerScale = 1.0;
@@ -367,24 +364,7 @@ FastL1Region::FillTower_Scaled(const CaloTower& t, int& tid)
     emScale = Config.TowerEBScale;
   }
 
-  double emet = emScale * t.emEt();
-  double hadet = hadScale * t.hadEt();
-  double eme = emScale * t.emEnergy();
-  double hade = hadScale * t.hadEnergy();
-
-  emet = TPEnergyRound(emet,Config.TowerEMLSB,EThres);
-  hadet = TPEnergyRound(hadet,Config.TowerHadLSB,HThres);
-  eme = TPEnergyRound(eme,Config.TowerEMLSB,EThres);
-  hade = TPEnergyRound(hade,Config.TowerHadLSB,HThres);
-
-  if ( emet<EThres) emet = 0.;
-  if ( hadet<HThres) hadet = 0.;
-  //if ( eme<EThres) emet = 0.;
-  //if ( hade<HThres) hadet = 0.;
- 
-  //Towers[tid] = CaloTower(t);
-  Towers[tid] = CaloTower(t.id(),t.momentum(),emet,hadet,t.outerEt(),0,0);
-  
+  Towers[tid] = CaloTower(t.id(),t.momentum(),emScale * t.emEt(),hadScale * t.hadEt(),t.outerEt(),0,0);
 }
 
 void 
@@ -495,6 +475,20 @@ FastL1Region::SetFGBit()
 void 
 FastL1Region::SetTauBit(edm::Event const& iEvent)
 {
+
+  bool printIt = false;
+  double sEta = 2.1;
+  double sPhi = -3.0;
+  double dEta = 0.55;
+  double dPhi = 0.55;
+  int sRun = 1;
+  int sEvent = 51;
+
+  //double cenEta = Towers[6].eta();
+  //double cenPhi = Towers[6].phi();
+  double cenEta = sEta;
+  double cenPhi = sPhi;
+
   float emThres = Config.EMActiveLevel;
   float hadThres = Config.HadActiveLevel;
 
@@ -504,6 +498,39 @@ FastL1Region::SetTauBit(edm::Event const& iEvent)
   unsigned hadEtaPat = 0;
   unsigned hadPhiPat = 0;
   unsigned one = 1;
+
+  if ((int)iEvent.id().event() == sEvent && (int)iEvent.id().run() == sRun
+      && cenEta > (sEta-dEta) && cenEta < (sEta+dEta) && cenPhi > (sPhi-dPhi) && cenPhi < (sPhi+dPhi)
+      && printIt ) {
+    std::cout<<"Region Pattern -----------------------------------------------"<<std::endl;
+    std::cout<<"Region (ieta,iphi): "<<GetiEta()<<", "<<GetiPhi()<<std::endl;
+    std::cout<<"Tower center (eta,phi): "<<cenEta<<", "<<cenPhi<<std::endl;
+    for (int i=0; i<16; i++) {
+      std::cout<<Towers[i].emEt()<<" ";
+      if ((i%4)==3) std::cout<<std::endl;
+    }
+    std::cout<<"Em Pattern -----"<<std::endl;
+    for (int i=0; i<16; i++) {
+      if (Towers[i].emEt() > emThres)
+	std::cout<<"1 ";
+      else
+	std::cout<<"0 ";
+      if ((i%4)==3) std::cout<<std::endl;
+    }
+    std::cout<<"Had Pattern ***"<<std::endl;
+    for (int i=0; i<16; i++) {
+      std::cout<<Towers[i].hadEt()<<" ";
+      if ((i%4)==3) std::cout<<std::endl;
+    }
+    std::cout<<"-----"<<std::endl;
+    for (int i=0; i<16; i++) {
+      if( Towers[i].hadEt() > hadThres)
+	std::cout<<"1 ";
+      else
+	std::cout<<"0 ";
+      if ((i%4)==3) std::cout<<std::endl;
+    }
+  }
 
 
   // fill hits as bit pattern
@@ -518,6 +545,38 @@ FastL1Region::SetTauBit(edm::Event const& iEvent)
       hadPhiPat |= (one << (unsigned)(i/4));
     }
 
+  }
+
+  // equivalent code:
+  /*
+  for (int i=0; i<16; i++) {
+    if(Towers[i].emEt() > emThres) {
+      //emEtaPat |= ((unsigned)pow(2,i%4));
+      //emPhiPat |= ((unsigned)pow(2,i/4));
+      emEtaPat |= ((unsigned)pow(2,i%4));
+      emPhiPat |= ((unsigned)pow(2,i/4));
+    }
+
+    if( Towers[i].hadEt() > hadThres) {
+      hadEtaPat |= ((unsigned)pow(2,i%4));
+      hadPhiPat |= ((unsigned)pow(2,i/4));
+    }
+
+  }
+  */
+
+  if ((int)iEvent.id().event() == sEvent && (int)iEvent.id().run() == sRun
+      && cenEta > (sEta-dEta) && cenEta < (sEta+dEta) && cenPhi > (sPhi-dPhi) && cenPhi < (sPhi+dPhi)
+      && printIt ) {
+    unsigned etaPattern = emEtaPat | hadEtaPat;
+    unsigned phiPattern = emPhiPat | hadPhiPat;
+
+    std::cout<<"em eta pattern: "<<emEtaPat<<std::endl;  
+    std::cout<<"em phi pattern: "<<emPhiPat<<std::endl;  
+    std::cout<<"hd eta pattern: "<<hadEtaPat<<std::endl;  
+    std::cout<<"hd phi pattern: "<<hadPhiPat<<std::endl;  
+    std::cout<<"eta pattern: "<<etaPattern<<std::endl;  
+    std::cout<<"phi pattern: "<<phiPattern<<std::endl;  
   }
 
   // Patterns with two or less contiguous bits set are passed
@@ -536,33 +595,78 @@ FastL1Region::SetTauBit(edm::Event const& iEvent)
     vetoPatterns.push_back(15);
   }
 
+  
+  //std::cout<<"*******************************************"<<std::endl;
+  //std::cout<<"Tower Pattern: "<<std::endl;
+  //std::cout<<emEtaPat<<std::endl;
+  //std::cout<<emPhiPat<<std::endl;
+  //std::cout<<hadEtaPat<<std::endl;
+  //std::cout<<hadPhiPat<<std::endl;
+  //std::cout<<emEtaPat<<" | "<<emEtaPattern<<std::endl;
+  //std::cout<<emPhiPat<<" | "<<emPhiPattern<<std::endl;
+  //std::cout<<hadEtaPat<<" | "<<hadEtaPattern<<std::endl;
+  //std::cout<<hadPhiPat<<" | "<<hadPhiPattern<<std::endl;
+
 
   for(std::vector<unsigned>::iterator i = vetoPatterns.begin();
       i != vetoPatterns.end();  i++) {
     unsigned etaPattern = emEtaPat | hadEtaPat;
     unsigned phiPattern = emPhiPat | hadPhiPat;
-
-    /*
-    //  em pattern
-    if(emEtaPat == *i || emPhiPat == *i) {
-      BitInfo.EmTauVeto = true;
-    }
-    //  had pattern
-    if(hadEtaPat == *i || hadPhiPat == *i) {
-      BitInfo.HadTauVeto = true;
-    }
-    */
-
     if(etaPattern == *i || phiPattern == *i) // combined pattern
       //if(emEtaPat == *i || emPhiPat == *i || hadEtaPat == *i || hadPhiPat == *i)
       {
 	tauBit = true;
-	//BitInfo.TauVeto = true;
 
+	/*
+	std::cout<<"************************ tauveto fired!!! *****************************************"<<std::endl;
+	std::cout << "Run: " << iEvent.id().run() << " Event: " << iEvent.id().event()<< std::endl;  
+	if(emEtaPat == *i || emPhiPat == *i || hadEtaPat == *i || hadPhiPat == *i) {
+	  std::cout<<"******* alternate tauveto fired as well! *******"<<std::endl;
+	} else {
+	  std::cout<<"####### alternate tauveto didn't fire! #######"<<std::endl;
+	}
+
+	std::cout<<"Region Pattern -----------------------------------------------"<<std::endl;
+	std::cout<<"Region (ieta,iphi): "<<GetiEta()<<", "<<GetiPhi()<<std::endl;
+	std::cout<<"Tower center (eta,phi): "<<cenEta<<", "<<cenPhi<<std::endl;
+	for (int i=0; i<16; i++) {
+	  std::cout<<Towers[i].emEt()<<" ";
+	  if ((i%4)==3) std::cout<<std::endl;
+	}
+	std::cout<<"Em Pattern -----"<<std::endl;
+	for (int i=0; i<16; i++) {
+	  if (Towers[i].emEt() > emThres)
+	    std::cout<<"1 ";
+	  else
+	    std::cout<<"0 ";
+	  if ((i%4)==3) std::cout<<std::endl;
+	}
+	std::cout<<"Had Pattern ***"<<std::endl;
+	for (int i=0; i<16; i++) {
+	  std::cout<<Towers[i].hadEt()<<" ";
+	  if ((i%4)==3) std::cout<<std::endl;
+	}
+	std::cout<<"-----"<<std::endl;
+	for (int i=0; i<16; i++) {
+	  if( Towers[i].hadEt() > hadThres)
+	    std::cout<<"1 ";
+	  else
+	    std::cout<<"0 ";
+	  if ((i%4)==3) std::cout<<std::endl;
+	}
+	
+	std::cout<<"em eta pattern: "<<emEtaPat<<std::endl;  
+	std::cout<<"em phi pattern: "<<emPhiPat<<std::endl;  
+	std::cout<<"hd eta pattern: "<<hadEtaPat<<std::endl;  
+	std::cout<<"hd phi pattern: "<<hadPhiPat<<std::endl;  
+	std::cout<<"eta pattern: "<<etaPattern<<std::endl;  
+	std::cout<<"phi pattern: "<<phiPattern<<std::endl;  
+	*/
 	
 	return;
       }  
     
+
   }
 
   tauBit = false;
@@ -577,10 +681,32 @@ FastL1Region::CalcSumEt()
 {
   double sumet=0;
   for (int i=0; i<16; i++) {
-    sumet += Towers[i].emEt();
-    sumet += Towers[i].hadEt();
-  }
 
+    double EThres = 0.;
+    double HThres = 0.;
+    double EBthres = Config.TowerEBThreshold;
+    double HBthres = Config.TowerHBThreshold;
+    double EEthres = Config.TowerEBThreshold;
+    double HEthres = Config.TowerEEThreshold;
+    //if(std::abs(Towers[i].eta())<1.479) {
+    if(std::abs(Towers[i].eta())<2.322) {
+      EThres = EBthres;
+    } else {
+      EThres = EEthres;
+    }
+    //if(std::abs(Towers[i].eta())<1.305) {
+    if(std::abs(Towers[i].eta())<2.322) {
+      HThres = HBthres;
+    } else {
+      HThres = HEthres;
+    }
+
+    if ( Towers[i].emEt() >= EThres )
+      sumet += Towers[i].emEt();
+    if ( Towers[i].hadEt() >= HThres )
+      sumet += Towers[i].hadEt();
+
+  }
   return sumet;
 }
 
@@ -589,8 +715,29 @@ FastL1Region::CalcSumE()
 {
   double sume=0;
   for (int i=0; i<16; i++) {
-    sume += Towers[i].emEnergy();
-    sume += Towers[i].hadEnergy();
+    double EThres = 0.;
+    double HThres = 0.;
+    double EBthres = Config.TowerEBThreshold;
+    double HBthres = Config.TowerHBThreshold;
+    double EEthres = Config.TowerEBThreshold;
+    double HEthres = Config.TowerEEThreshold;
+    //if(std::abs(Towers[i].eta())<1.479) {
+    if(std::abs(Towers[i].eta())<2.322) {
+      EThres = EBthres;
+    } else {
+      EThres = EEthres;
+    }
+    //if(std::abs(Towers[i].eta())<1.305) {
+    if(std::abs(Towers[i].eta())<2.322) {
+      HThres = HBthres;
+    } else {
+      HThres = HEthres;
+    }
+
+    if ( Towers[i].emEt() >= EThres )
+      sume += Towers[i].emEnergy();
+    if ( Towers[i].hadEt() >= HThres )
+      sume += Towers[i].hadEnergy();
 
   }
   return sume;
@@ -705,197 +852,4 @@ FastL1Region::GetSEId()
     return 999; 
   }
 }
-
-double 
-corrJetEt(double et, double eta)
-{
-  return corrJetEt1(et,eta);
-  //return corrJetEt2(et,eta);
-}
-
-
-// Jet Calibration from CMSSW_1_3_0
-double 
-corrJetEt2(double et, double eta)
-{
-  const int NUMBER_ETA_VALUES = 11;
-  std::vector< std::vector<float> > m_calibFunc;
-
-  m_calibFunc.resize(NUMBER_ETA_VALUES);
-
-  // still fill manually 
-  m_calibFunc.at(0).push_back(1);
-  m_calibFunc.at(0).push_back(1);
-  m_calibFunc.at(0).push_back(2);
-
-  m_calibFunc.at(1).push_back(1);
-  m_calibFunc.at(1).push_back(2);
-  m_calibFunc.at(1).push_back(2);
-
-  m_calibFunc.at(2).push_back(2);
-  m_calibFunc.at(2).push_back(2);
-  m_calibFunc.at(2).push_back(2);
-  m_calibFunc.at(2).push_back(2);
-  m_calibFunc.at(2).push_back(3);
-  m_calibFunc.at(2).push_back(3);
-
-  m_calibFunc.at(3).push_back(1);
-  m_calibFunc.at(3).push_back(1);
-  m_calibFunc.at(3).push_back(3);
-
-  m_calibFunc.at(4).push_back(1);
-  m_calibFunc.at(4).push_back(3);
-  m_calibFunc.at(4).push_back(3);
-  m_calibFunc.at(4).push_back(6);
-  m_calibFunc.at(4).push_back(6);
-  m_calibFunc.at(4).push_back(6);
-  m_calibFunc.at(4).push_back(6);
-  m_calibFunc.at(4).push_back(6);
-
-  m_calibFunc.at(5).push_back(3);
-  m_calibFunc.at(5).push_back(3);
-  m_calibFunc.at(5).push_back(3);
-
-  m_calibFunc.at(6).push_back(1);
-  m_calibFunc.at(6).push_back(1);
-  m_calibFunc.at(6).push_back(4);
-
-  m_calibFunc.at(7).push_back(1);
-  m_calibFunc.at(7).push_back(4);
-  m_calibFunc.at(7).push_back(4);
-
-  m_calibFunc.at(8).push_back(4);
-  m_calibFunc.at(8).push_back(4);
-  m_calibFunc.at(8).push_back(4);
-  m_calibFunc.at(8).push_back(1);
-  m_calibFunc.at(8).push_back(1);
-  m_calibFunc.at(8).push_back(1);
-
-  m_calibFunc.at(9).push_back(1);
-  m_calibFunc.at(9).push_back(1);
-  m_calibFunc.at(9).push_back(5);
-
-  m_calibFunc.at(10).push_back(1);
-  m_calibFunc.at(10).push_back(5);
-  m_calibFunc.at(10).push_back(5);
-
-
-  double etabin[12] = { 0.0, 0.348, 0.696, 1.044, 1.392, 1.74, 2.172, 3.0,
-			3.33, 3.839, 4.439, 5.115};
-  int BinID = 0;
-  for(int i = 0; i < 11; i++){
-    if(std::abs(eta) >= etabin[i] && eta < etabin[i+1])
-      BinID = i;
-  }
-
-  double corrEt = 0;
-  for (unsigned i=0; i<m_calibFunc.at(BinID).size();i++){
-    corrEt += m_calibFunc.at(BinID).at(i)*pow(et,(int)i); 
-  }
-  
-  uint16_t jetEtOut = (uint16_t)corrEt;
-  
-  if(jetEtOut < 1024) {
-    return (double)jetEtOut;
-  }
-  return (double)1023;
-
-}
-
-// Jet Calibration from Frederick(Helsinki), Monika/Creighton (Wisconsin)
-double 
-corrJetEt1(double et, double eta)
-{
-  double etabin[23] = {-5.115, -4.439, -3.839, -3.33, 
-			-3.0, -2.172, -1.74, -1.392, -1.044, -0.696, -0.348, 
-			0.0, 0.348, 0.696, 1.044, 1.392, 1.74, 2.172, 3.0,
-			3.33, 3.839, 4.439, 5.115};
-
-  int BinID = 0;
-      
-  double domainbin_L[22] = {6.52223337753073373e+00,6.64347505748981959e+00,6.78054870174118296e+00,6.75191887554567405e+00,
-			    6.60891660595437802e+00,6.57813476381055473e+00,6.96764764481347232e+00,6.77192746888150943e+00,
-			    7.16209661824076260e+00,7.09640803784948027e+00,7.29886808171882517e+00,7.29883431473330546e+00,
-			    7.24561741344293875e+00,7.05381822724987995e+00,6.52340799679028827e+00,6.96091042775473401e+00,
-			    6.69803071767842262e+00,7.79138848427964259e+00,6.78565437835616603e+00,6.71201461174192904e+00,
-			    6.60832257380386334e+00,6.54875448717649267e+00};
-
-  double domainbin_U[22] = {8.90225568813317558e+00,1.24483653543590922e+01,1.32037091554958987e+01,1.70036104608977681e+01,
-			    3.54325008263432011e+01,4.28758696753095450e+01,4.73079850563588025e+01,4.74182802251108981e+01,
-			    4.62509826468679748e+01,5.02198002212212913e+01,4.69817029938948352e+01,4.77263481299233732e+01,
-			    4.86083837976362076e+01,4.80105593452927337e+01,5.11550616006504200e+01,4.90703092811585861e+01,
-			    4.11879629179572788e+01,3.21820720507165845e+01,1.71844078553560529e+01,1.33158534849654764e+01,
-			    1.43586396719878149e+01,1.08629843894704248e+01};
-
-  double A[22] = {2.03682,-4.36824,-4.45258,-6.76524,-22.5984,-24.5289,-24.0313,-22.1896,-21.7818,-22.9882,-20.3321,
-		  -21.0595,-22.1007,-22.658,-23.6898,-24.8888,-23.3246,-21.5343,-6.41221,-4.58952,-3.17222,0.637666};
-
-  double B[22] = {0.226303,0.683099,0.704578,0.704623,0.825928,0.80086,0.766475,0.726059,0.760964,0.792227,0.789188,0.795219,
-		  0.781097,0.768022,0.740101,0.774782,0.788106,0.814502,0.686877,0.709556,0.628581,0.317453};
-  
-  double C[22] = {0.00409083,0.000235995,8.22958e-05,2.47567e-05,0.000127995,0.000132914,0.000133342,0.000133035,0.000125993,
-		  8.25968e-05,9.94442e-05,9.11652e-05,0.000109351,0.000115883,0.00011112,0.000122559,0.00015868,0.000152601,
-		  0.000112927,6.29999e-05,0.000741798,0.00274605};
-
-  double D[22] = {8.24022,7.55916,7.16448,6.31577,5.96339,5.31203,5.35456,4.95243,5.34809,4.93339,5.05723,5.08575,5.18643,5.15202,
-		  4.48249,5.2734,5.51785,8.00182,6.21742,6.96692,7.22975,8.12257};
-  
-  double E[22] = {-0.343598,-0.294067,-0.22529,-0.0718625,0.004164,0.081987,0.124964,0.15006,0.145201,0.182151,0.187525,0.184763,
-		  0.170689,0.155268,0.174603,0.133432,0.0719798,-0.0921457,-0.0525274,-0.208415,-0.253542,-0.318476};
-
-  double F[22] = {0.0171799,0.0202499,0.0186897,0.0115477,0.00603883,0.00446235,0.00363449,0.00318894,0.00361997,0.00341508,
-		  0.00366392,0.0036545,0.00352303,0.00349116,0.00294891,0.00353187,0.00460384,0.00711028,0.0109351,0.0182924,
-		  0.01914,0.0161094};
-
-  for(int i = 0; i < 22; i++){
-    if(eta > etabin[i] && eta <= etabin[i+1])
-      BinID = i;
-  }
-
-  if(et >= domainbin_U[BinID]){
-    return 2*(et-A[BinID])/(B[BinID]+sqrt(B[BinID]*B[BinID]-4*A[BinID]*C[BinID]+4*et*C[BinID]));
-  }
-  else if(et > domainbin_L[BinID]){
-    return 2*(et-D[BinID])/(E[BinID]+sqrt(E[BinID]*E[BinID]-4*D[BinID]*F[BinID]+4*et*F[BinID]));
-  }
-  else return et;
-}
-
-
-// EM correction from ORCA for cmsim 133
-double 
-corrEmEt(double et, double eta) {
-
-  const int nscales = 26;
-
-  double etalimit[nscales] = { 0.087,0.174,0.261,0.348,0.435,0.522,0.609,0.696,0.783,0.870,0.957,
-			  1.044,1.131,1.218,1.305,1.392,1.479,1.566,1.653,1.740,1.830,1.930,
-			  2.043,2.172,2.322,2.500};
-  
-  double scfactor[nscales] = { 
-    1.00,1.01,1.02,1.02,1.02,1.06,1.04,1.04,1.05,1.09,1.10,1.10,1.15,
-    1.20,1.27,1.29,1.32,1.52,1.52,1.48,1.40,1.32,1.26,1.21,1.17,1.15};
-
-  double scale=1.;
-  for (int i=0;i<nscales;i++) {
-    if (std::abs(eta)<etalimit[i]) {
-      scale = scfactor[i];
-    }
-  }
-
-  return (scale*et);
-}
-
-
-// Rounding the Et info for simulating the regional Et resolution
-double 
-TPEnergyRound(double et, double Resol, double thres) {
-  double ret = (int)(et / Resol) * Resol;
-  //if (et>=thres) ret += Resol;
-  //else ret = 0.;
-
-  return ret;
-}
-
-
 

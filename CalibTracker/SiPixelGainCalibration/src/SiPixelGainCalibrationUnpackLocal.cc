@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Thu Apr 26 10:38:32 CEST 2007
-// $Id: SiPixelGainCalibrationUnpackLocal.cc,v 1.1 2007/05/20 18:08:10 fblekman Exp $
+// $Id$
 //
 //
 
@@ -36,7 +36,7 @@ Implementation:
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 // calibration information and worker classes
-#include "CalibFormats/SiPixelObjects/interface/PixelCalib.h"
+#include "CalibTracker/SiPixelGainCalibration/interface/PixelCalib.h"
 #include "CalibTracker/SiPixelGainCalibration/interface/PixelROCGainCalibHists.h"
 #include "CalibTracker/SiPixelGainCalibration/interface/PixelSLinkDataHit.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"

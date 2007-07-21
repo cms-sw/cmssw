@@ -50,15 +50,7 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
 
   if (scheme)  setNumberingScheme(scheme);
   LogDebug("EcalSim") 
-    << "***************************************************" 
-    << "\n"
-    << "*                                                 *" 
-    << "\n"
-    << "* Constructing a ECalSD  with name " << GetName()
-    << "\n"
-    << "*                                                 *"
-    << "\n"
-    << "***************************************************" ;
+    << "Constructing a ECalSD  with name " << GetName() << "\n";
   edm::LogInfo("EcalSim")  << "ECalSD:: Use of Birks law is set to      " 
 			   << useBirk << "        with the two constants C1 = "
 			   << birk1 << ", C2 = " << birk2 << "\n"

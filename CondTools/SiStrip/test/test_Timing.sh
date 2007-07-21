@@ -2,7 +2,7 @@
 
 function test_db() {
 
-    [ $# = 0 ] && echo -e "usage: test_db -mode<write/read> -what<gain,ped,noise,pednoise,modulehv,badstrip> -stream<blob,noblob> -geom_mtcc<-geom_ideal> <-debug>\n"
+    [ $# = 0 ] && echo -e "usage: test_db -mode<write/read> -what<gain,ped,noise,pednoise> -stream<blob,noblob> -geom_mtcc<-geom_ideal> <-debug>\n"
 
     mode=""
     [ `echo $@ | grep -c "\-write[ ]*"` = 1 ] && mode=write 
@@ -12,8 +12,6 @@ function test_db() {
     
     blobflag=noblob
     [ `echo $@ | grep -c "\-blob[ ]*"` = 1 ] && blobflag=blob 
-    [ `echo $@ | grep -c "\-badstrip[ ]*"`      = 1 ] && module=badstrip     
-    [ `echo $@ | grep -c "\-modulehv[ ]*"`      = 1 ] && module=modulehv     
     [ `echo $@ | grep -c "\-gain[ ]*"`      = 1 ] && module=gain     
     [ `echo $@ | grep -c "\-ped[ ]*"`      = 1 ] && module=ped     
     [ `echo $@ | grep -c "\-noise[ ]*"`    = 1 ] && module=noise   
@@ -98,7 +96,7 @@ if [ "$1" == "doLoop" ];
       do
       for mode in write read;
 	do
-	for what in badstrip gain ped noise pednoise;
+	for what in gain ped noise pednoise;
 	  do
 	      #echo -e "\n\n$mode $what with $stream on geometry mtcc\n\n"      
 	      #test_db -$mode -$what -$stream -geom_mtcc -debug
@@ -120,7 +118,7 @@ if [ "$1" == "doLoop" ];
       do
       for mode in write read;
 	do
-	for what in modulehv badstrip gain ped noise pednoise;
+	for what in gain ped noise pednoise;
 	  do
 	     # echo -e "$mode \t$what \twith $stream on geometry mtcc debug \t\t" ${timeis[$i]}     
 	     # let i++
@@ -132,5 +130,5 @@ if [ "$1" == "doLoop" ];
 else
     echo -e "\n[usage]:  "
     echo -e "\n\ttest_Timing.sh doLoop"
-    echo -e "OR\n\ttest_db -mode<write/read> -what<modulehv, badstrip,gain,ped,noise,pednoise> -stream<blob,noblob> -geom_mtcc<-geom_ideal> <-debug>\n"
+    echo -e "OR\n\ttest_db -mode<write/read> -what<gain,ped,noise,pednoise> -stream<blob,noblob> -geom_mtcc<-geom_ideal> <-debug>\n"
 fi

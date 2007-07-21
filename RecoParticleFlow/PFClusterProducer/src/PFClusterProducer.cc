@@ -249,10 +249,10 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
   produceRecHits_ = 
     iConfig.getUntrackedParameter<bool>("produce_RecHits", false );
 
-//  if ( produceRecHits_ )
-//    std::cout << "<PFClusterProducer::PFClusterProducer>: will produce PFRecHits." << std::endl;
-//  else
-//    std::cout << "<PFClusterProducer::PFClusterProducer>: will not produce any PFRecHits !" << std::endl;
+  if ( produceRecHits_ )
+    std::cout << "<PFClusterProducer::PFClusterProducer>: will produce PFRecHits." << std::endl;
+  else
+    std::cout << "<PFClusterProducer::PFClusterProducer>: will not produce any PFRecHits !" << std::endl;
 
   //register products
   if(produceRecHits_) {

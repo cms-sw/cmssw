@@ -63,10 +63,6 @@ namespace {
     JetToFloatAssociation::Objects         j2f_oo;
     edm::Wrapper<JetToFloatAssociation::Container>  j2f_c_w;
 
-    // RefToBase Holders for Jets
-    edm::reftobase::Holder<reco::Jet, reco::CaloJetRef> rb_cj;
-    edm::reftobase::Holder<reco::Jet, reco::GenJetRef>  rb_gj;
-    edm::reftobase::Holder<reco::Jet, reco::PFJetRef>   rb_pfj;
   }
 }
 #endif

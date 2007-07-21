@@ -13,10 +13,8 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.cc,v 1.6 2007/06/17 13:53:32 chinhan Exp $
+// $Id: FastL1GlobalAlgo.cc,v 1.1 2007/04/02 13:49:20 beaudett Exp $
 //
-
-// No BitInfos for release versions
 
 #include "FastSimulation/L1CaloTriggerProducer/interface/FastL1GlobalAlgo.h"
 
@@ -28,9 +26,6 @@ FastL1GlobalAlgo::FastL1GlobalAlgo(const edm::ParameterSet& iConfig)
   m_RMap = FastL1RegionMap::getL1RegionMap();
 
   // Get L1 config
-  m_L1Config.DoEMCorr = iConfig.getParameter<bool>("DoEMCorr");
-  m_L1Config.DoJetCorr = iConfig.getParameter<bool>("DoJetCorr");
-
   m_L1Config.EMSeedEnThreshold = iConfig.getParameter<double>("EMSeedEnThreshold");
   m_L1Config.EMActiveLevel = iConfig.getParameter<double>("EMActiveLevel");
   m_L1Config.HadActiveLevel = iConfig.getParameter<double>("HadActiveLevel");
@@ -45,11 +40,6 @@ FastL1GlobalAlgo::FastL1GlobalAlgo(const edm::ParameterSet& iConfig)
   m_L1Config.QuietRegionThreshold = iConfig.getParameter<double>("QuietRegionThreshold");
   m_L1Config.JetSeedEtThreshold = iConfig.getParameter<double>("JetSeedEtThreshold");
 
-  m_L1Config.TowerEMLSB = iConfig.getParameter<double>("TowerEMLSB");
-  m_L1Config.TowerHadLSB = iConfig.getParameter<double>("TowerHadLSB");
-  m_L1Config.EMLSB = iConfig.getParameter<double>("EMLSB");
-  m_L1Config.JetLSB = iConfig.getParameter<double>("JetLSB");
-
   m_L1Config.CrystalEBThreshold = iConfig.getParameter<double>("CrystalEBThreshold");
   m_L1Config.CrystalEEThreshold = iConfig.getParameter<double>("CrystalEEThreshold");
 
@@ -63,6 +53,8 @@ FastL1GlobalAlgo::FastL1GlobalAlgo(const edm::ParameterSet& iConfig)
   m_L1Config.TowerHBScale = iConfig.getParameter<double>("TowerHBScale");
   m_L1Config.TowerHEScale = iConfig.getParameter<double>("TowerHEScale");
 
+  // new: 
+  // turn off fg bit
   m_L1Config.noFGThreshold = iConfig.getParameter<double>("noFGThreshold");	
   
   m_L1Config.EmInputs = iConfig.getParameter <std::vector<edm::InputTag> >("EmInputs");
@@ -142,22 +134,20 @@ FastL1GlobalAlgo::findJets() {
   //for (int i=0; i<396 ; i++) {
   for (int i=0; i<396; i++) {
     // barrel/endcap part only right now
-    //if ((i%22)>3 && (i%22)<18) {
-    // Test HF!!!
-    if (m_Regions.at(i).SumEt()>m_L1Config.JetSeedEtThreshold) {
-      if (isMaxEtRgn_Window33(i)) {
-	if (isTauJet(i)) {
-	  addJet(i,true);    
-	} else {
-	  addJet(i,false);    
+    //if ((i%22)>0 && (i%22)<21) {
+    if ((i%22)>3 && (i%22)<18) {
+      if (m_Regions.at(i).SumEt()>m_L1Config.JetSeedEtThreshold) {
+	if (isMaxEtRgn_Window33(i)) {
+	  if (isTauJet(i)) {
+	    addJet(i,true);    
+	  } else {
+	    addJet(i,false);    
+	  }
 	}
-      }
-    } else {
-      //m_Regions[i].BitInfo.SumEtBelowThres = true;
+      }	
     }
-    //}
   }
-  
+
 }
 
 
@@ -166,28 +156,17 @@ void
 FastL1GlobalAlgo::addJet(int iRgn, bool taubit) {
   std::pair<double, double> p = m_RMap->getRegionCenterEtaPhi(iRgn);
 
-  //double e     = m_Regions.at(iRgn).GetJetE();
-  double et     = TPEnergyRound(m_Regions.at(iRgn).GetJetEt(),m_L1Config.JetLSB,
-				m_L1Config.JetSeedEtThreshold);
+  double e     = m_Regions.at(iRgn).GetJetE();
+  double et     = m_Regions.at(iRgn).GetJetEt();
 
   double eta   = p.first;
   double phi   = p.second;
-
-  if (m_L1Config.DoJetCorr) {
-    et = TPEnergyRound(corrJetEt(et,eta),m_L1Config.JetLSB,
-		       m_L1Config.JetSeedEtThreshold);
-  }
-
   double theta = 2.*atan(exp(-eta));
-  double ex = et*cos(phi);
-  double ey = et*sin(phi);
-  //double ex = e*sin(theta)*cos(phi);
-  //double ey = e*sin(theta)*sin(phi);
-  double e = ex/sin(theta)/cos(phi);
+  //double ex = et*cos(phi);
+  //double ey = et*sin(phi);
+  double ex = e*sin(theta)*cos(phi);
+  double ey = e*sin(theta)*sin(phi);
   double ez = e*cos(theta);
-
-  //m_Regions[iRgn].BitInfo.eta = eta;
-  //m_Regions[iRgn].BitInfo.phi = phi;
 
   reco::Particle::LorentzVector rp4(ex,ey,ez,e); 
   l1extra::L1JetParticle tjet(rp4);
@@ -310,6 +289,7 @@ FastL1GlobalAlgo::FillMET(edm::Event const& e) {
       eme    *= emScale;
       hade   *= hadScale;
       
+
       if (eme>=EThres || hade>=HThres) {
 	double phi   = candidate->phi();
 	double eta = candidate->eta();
@@ -328,68 +308,124 @@ FastL1GlobalAlgo::FillMET(edm::Event const& e) {
 	if (hade>=HThres) {
  	  et    += candidate->hadEt();
 	  e    += candidate->hadEnergy();
- 	  had_et  += candidate->hadEt();
-	  had_e   += candidate->hadEnergy();
+ 	  had_et    += candidate->hadEt();
+	  had_e    += candidate->hadEnergy();
 	}
 
+	sum_e += e;
+	sum_ez += e*cos(theta);
 	sum_et += et;
-	sum_ex += et*cos(phi);
-	sum_ey += et*sin(phi); 
-	//sum_ex += e*sin(theta)*cos(phi);
-	//sum_ey += e*sin(theta)*sin(phi); 
-	//sum_e += e;
-	sum_e += et/sin(theta);
-	sum_ez += et*cos(theta)/sin(theta);
+	//sum_ex += et*cos(phi);
+	//sum_ey += et*sin(phi); 
+	sum_ex += e*sin(theta)*cos(phi);
+	sum_ey += e*sin(theta)*sin(phi); 
 
+	sum_hade += had_e;
+	sum_hadez += had_e*cos(theta);
 	sum_hadet += had_et;
-	sum_hadex += had_et*cos(phi);
-	sum_hadey += had_et*sin(phi); 
-	//sum_hadex += had_e*sin(theta)*cos(phi);
-	//sum_hadey += had_e*sin(theta)*sin(phi); 
-	//sum_hade += had_e;
-	sum_hade += had_et/sin(theta);
-	sum_hadez += had_et*cos(theta)/sin(theta);
+	//sum_hadex += had_et*cos(phi);
+	//sum_hadey += had_et*sin(phi); 
+	sum_hadex += had_e*sin(theta)*cos(phi);
+	sum_hadey += had_e*sin(theta)*sin(phi); 
       }
     }
   //}
 
-  reco::Particle::LorentzVector rp4(-sum_ex,-sum_ey,0.,std::sqrt(sum_ex*sum_ex + sum_ey*sum_ey));
-  m_MET = l1extra::L1EtMissParticle(rp4,sum_et,0.);  
+  reco::Particle::LorentzVector rp4(-sum_ex,-sum_ey,-sum_ez,sum_e); 
+  m_MET = l1extra::L1EtMissParticle(rp4,sum_et,sum_hadet);  
 }
 
 // ------------ Fill MET 2: loop over regions ------------
 void
 FastL1GlobalAlgo::FillMET() {
+  double sum_hade = 0.0;
+  double sum_hadet = 0.0;
+  double sum_hadex = 0.0;
+  double sum_hadey = 0.0;
+  double sum_hadez = 0.0;
   double sum_e = 0.0;
   double sum_et = 0.0;
   double sum_ex = 0.0;
   double sum_ey = 0.0;
   double sum_ez = 0.0;
-
   for (int i=0; i<396; i++) { 
-    std::pair<double, double> etaphi = m_RMap->getRegionCenterEtaPhi(i);
-    double phi   = etaphi.second;
-    double eta = etaphi.first;
-    double theta = 2.*atan(exp(-eta));
-    
-    double et = m_Regions[i].SumEt();
-    //double e = m_Regions[i].SumE();
-    sum_et += et;
-    sum_ex += et*cos(phi);
-    sum_ey += et*sin(phi); 
-    //sum_ex += e*sin(theta)*cos(phi);
-    //sum_ey += e*sin(theta)*sin(phi); 
-    //sum_e += e;
-    sum_e += et/sin(theta);
-    sum_ez += et*cos(theta)/sin(theta);
-    //sum_ez += e*cos(theta);
-    //sum_et += e*sin(theta);
+    // barrel/endcap part only right now
+    if ((i%22)>3 && (i%22)<18) {
+      CaloTowerCollection c = m_Regions[i].GetCaloTowers();
+      
+      for (CaloTowerCollection::const_iterator candidate=c.begin(); candidate!=c.end(); candidate++) {
+	//double eme    = candidate->emEnergy();
+	//double hade    = candidate->hadEnergy();
+	double eme    = candidate->emEt();
+	double hade    = candidate->hadEt();
+	
+	double EThres = 0.;
+	double HThres = 0.;
+	double EBthres = m_L1Config.TowerEBThreshold;
+	double HBthres = m_L1Config.TowerHBThreshold;
+	double EEthres = m_L1Config.TowerEBThreshold;
+	double HEthres = m_L1Config.TowerEEThreshold;
+	//if(std::abs(candidate->eta())<1.479) {
+	if(std::abs(candidate->eta())<2.322) {
+	  EThres = EBthres;
+	} else {
+	  EThres = EEthres;
+	}
+	//if(std::abs(candidate->eta())<1.305) {
+	if(std::abs(candidate->eta())<2.322) {
+	  HThres = HBthres;
+	} else {
+	  HThres = HEthres;
+	}
+	
+
+	if (eme>=EThres || hade>=HThres) {
+	  double phi   = candidate->phi();
+	  double eta = candidate->eta();
+	  //double et    = candidate->et();
+	  //double e     = candidate->energy();
+	  //double et    = candidate->emEt()+candidate->hadEt();
+	  //double e     = candidate->emEnergy()+candidate->hadEnergy();
+	  double theta = 2.*atan(exp(-eta));
+	  
+	  double et    = 0.;
+	  double e     = 0.;
+	  double had_et    = 0.;
+	  double had_e     = 0.;
+
+	  if (eme>=EThres) {
+	    et    += candidate->emEt();
+	    e    += candidate->emEnergy();
+	  }
+	  if (hade>=HThres) {
+	    et    += candidate->hadEt();
+	    e    += candidate->hadEnergy();
+	    had_et    += candidate->hadEt();
+	    had_e    += candidate->hadEnergy();
+	  }
+
+	  sum_e += e;
+	  sum_ez += e*cos(theta);
+	  sum_et += et;
+	  //sum_ex += et*cos(phi);
+	  //sum_ey += et*sin(phi); 
+	  sum_ex += e*sin(theta)*cos(phi);
+	  sum_ey += e*sin(theta)*sin(phi); 
+
+	  sum_hade += had_e;
+	  sum_hadez += had_e*cos(theta);
+	  sum_hadet += had_et;
+	  //sum_hadex += had_et*cos(phi);
+	  //sum_hadey += had_et*sin(phi); 
+	  sum_hadex += had_e*sin(theta)*cos(phi);
+	  sum_hadey += had_e*sin(theta)*sin(phi); 
+	}
+      }
+    }
   }
   
-  //reco::Particle::LorentzVector rp4(-sum_ex,-sum_ey,-sum_ez,sum_e);
-  reco::Particle::LorentzVector rp4(-sum_ex,-sum_ey,0.,std::sqrt(sum_ex*sum_ex + sum_ey*sum_ey));
-  //edm::LogInfo("********** FastL1GlobalAlgo::FillMET()")<<rp4.mass()<<std::endl; 
-  m_MET = l1extra::L1EtMissParticle(rp4,sum_et,0.);  
+  reco::Particle::LorentzVector rp4(-sum_ex,-sum_ey,-sum_ez,sum_e); 
+  m_MET = l1extra::L1EtMissParticle(rp4,sum_et,sum_hadet);  
   
 }
 
@@ -398,7 +434,7 @@ void
 FastL1GlobalAlgo::FillL1Regions(edm::Event const& e, const edm::EventSetup& iConfig) 
 {
   m_Regions.clear();
-  m_Regions = std::vector<FastL1Region>(396); // ieta: 1-22, iphi: 1-18
+  m_Regions = std::vector<FastL1Region>(396); // ieta: 0-21, iphi: 0-18
 
   // init regions
   for (int i=0; i<396; i++) {
@@ -408,8 +444,7 @@ FastL1GlobalAlgo::FillL1Regions(edm::Event const& e, const edm::EventSetup& iCon
     m_Regions[i].SetEtaPhiIndex(p.first,p.second,i);
     CaloTowerCollection c(16);
     for (int twrid=0; twrid<16; twrid++) {
-      m_Regions[i].FillTowerZero(c[twrid],twrid);
-      //std::cout << "+++++++++++++++++++++++++++++" << std::endl;
+      m_Regions[i].FillTower(c[twrid],twrid);
     }
   }
 
@@ -432,24 +467,17 @@ FastL1GlobalAlgo::FillL1Regions(edm::Event const& e, const edm::EventSetup& iCon
 
       CaloTowerDetId cid   = cnd->id();
       std::pair<int, int> pep = m_RMap->getRegionEtaPhiIndex(cid);
-
-      //if (abs(cid.ieta())>=0) {
-      //std::cout << cid.ieta() << " " << cid.iphi() << std::endl;
-      //std::cout << cnd->eta() << " " << cnd->phi() << std::endl;
-      //std::cout << pep.first << " " << pep.second << std::endl;
-      //std::cout << "**************************************************" << std::endl;
-      //}
  
       int rgnid = 999;
       int twrid = 999;
-      
+
       //std::cout << "FastL1GlobalAlgo::FillL1Regions calotowers dump: " << *cnd << std::endl;
-      
-      if (std::abs(pep.first)<=22) {
+
+      if (std::abs(pep.first)<=28) {
 	rgnid = pep.second*22 + pep.first;
 	twrid = m_RMap->getRegionTowerIndex(cid);
 	//std::cout << rgnid << " " << twrid << std::endl;
-      } 
+      }
 
       if (rgnid<396 && twrid<16) {
 	m_Regions[rgnid].FillTower_Scaled(*cnd,twrid);
@@ -458,11 +486,11 @@ FastL1GlobalAlgo::FillL1Regions(edm::Event const& e, const edm::EventSetup& iCon
 	//std::cerr << "FastL1GlobalAlgo::FillL1Regions(): ERROR - invalid region or tower ID: " << rgnid << " | " << twrid  << std::endl;
       }
 
-  }
+    }
 
   //}
-  
-  // Fill EM Crystals
+
+  // Fill EM Crystals: 1st approach
   for (int i=0; i<396; i++) {
     m_Regions[i].FillEMCrystals(e,iConfig,m_RMap);
   }
@@ -471,17 +499,6 @@ FastL1GlobalAlgo::FillL1Regions(edm::Event const& e, const edm::EventSetup& iCon
   
 }
 
-
-/*
-// Fill Bitwords
-void 
-FastL1GlobalAlgo::FillBitInfos() {
-  m_BitInfos.clear();
-  for (int i=0; i<396; i++) {
-    m_BitInfos.push_back(m_Regions[i].getBitInfo());
-  }
-}
-*/
 
 // ------------ Check if jet is taujet ------------
 bool 
@@ -501,26 +518,12 @@ FastL1GlobalAlgo::isTauJet(int cRgn) {
 
   if (nwid==999 || neid==999 || nid==999 || swid==999 || seid==999 || sid==999 || wid==999 || 
       eid==999 ) { 
-    //std::cerr << "FastL1GlobalAlgo::isTauJet(): RegionId out of bounds: " << std::endl
-    //      << nwid << " " << nid << " "  << neid << " " << std::endl
-    //      << wid << " " << cRgn << " "  << eid << " " << std::endl
-    //      << swid << " " << sid << " "  << seid << " " << std::endl;    
+    std::cerr << "FastL1GlobalAlgo::isTauJet(): RegionId out of bounds: " << std::endl
+	      << nwid << " " << nid << " "  << neid << " " << std::endl
+	      << wid << " " << cRgn << " "  << eid << " " << std::endl
+	      << swid << " " << sid << " "  << seid << " " << std::endl;    
     return false;
   }
-
-  /*
-  if (
-      m_Regions[nwid].GetTauBit() ||
-      m_Regions[nid].GetTauBit()  ||
-      m_Regions[neid].GetTauBit() ||
-      m_Regions[wid].GetTauBit()  ||
-      m_Regions[eid].GetTauBit()  ||
-      m_Regions[swid].GetTauBit() ||
-      m_Regions[seid].GetTauBit() ||
-      m_Regions[sid].GetTauBit()
-      ) 
-    m_Regions[cRgn].BitInfo.IsolationVeto = true;
-  */
 
   if (
       m_Regions[nwid].GetTauBit() ||
@@ -535,8 +538,6 @@ FastL1GlobalAlgo::isTauJet(int cRgn) {
       ) 
     return false;
   else return true;
-
-
 }
 
 // ------------ Check if tower is emcand ------------
@@ -548,20 +549,15 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   int crgn = m_RMap->getRegionIndex(cid);
   int ctwr = m_RMap->getRegionTowerIndex(cid);
 
-  // crystals only in barrel/endcap part
+  // barrel/endcap part only right now
   if ((crgn%22)<4 || (crgn%22)>17) return 0;
   if (crgn>395 || crgn < 1 || ctwr > 15 || ctwr < 0) return 0;
 
   CaloTowerCollection c = m_Regions.at(crgn).GetCaloTowers();
   double cenEt = c[ctwr].emEt();
-  //double cenE = c[ctwr].emEnergy();
-  
-  // Using region position rather than tower position
-  std::pair<double, double> crpos = m_RMap->getRegionCenterEtaPhi(crgn);
-  //double cenEta = c[ctwr].eta();
-  //double cenPhi = c[ctwr].phi();
-  double cenEta = crpos.first;
-  double cenPhi = crpos.second;
+  double cenE = c[ctwr].emEnergy();
+  double cenEta = c[ctwr].eta();
+  double cenPhi = c[ctwr].phi();
 
   double cenFGbit = m_Regions.at(crgn).GetFGBit(ctwr);
   double cenHOEbit = m_Regions.at(crgn).GetHOEBit(ctwr);
@@ -613,7 +609,7 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   if (norgn>395 || norgn < 0 || notwr > 15 || notwr < 0) return 0;
   c = m_Regions[norgn].GetCaloTowers();
   double noEt = c[notwr].emEt();
-  //double noE = c[notwr].emEnergy();
+  double noE = c[notwr].emEnergy();
   // check fine grain bit
   bool noFGbit = m_Regions[norgn].GetFGBit(notwr);
   // check H/E bit
@@ -623,7 +619,7 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   if (sorgn>395 || sorgn < 0 || sotwr > 15 || sotwr < 0) return 0;
   c = m_Regions[sorgn].GetCaloTowers();
   double soEt = c[sotwr].emEt();
-  //double soE = c[sotwr].emEnergy();
+  double soE = c[sotwr].emEnergy();
   // check fine grain bit
   bool soFGbit = m_Regions[sorgn].GetFGBit(sotwr);
   // check H/E bit
@@ -633,7 +629,7 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   if (wergn>395 || wergn < 0 || wetwr > 15 || wetwr < 0) return 0;
   c = m_Regions[wergn].GetCaloTowers();
   double weEt = c[wetwr].emEt();
-  //double weE = c[wetwr].emEnergy();
+  double weE = c[wetwr].emEnergy();
   // check fine grain bit
   bool weFGbit = m_Regions[wergn].GetFGBit(wetwr);
   // check H/E bit
@@ -643,7 +639,7 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   if (eargn>395 || eargn < 0 || eatwr > 15 || eatwr < 0) return 0;
   c = m_Regions[eargn].GetCaloTowers();
   double eaEt = c[eatwr].emEt();
-  //double eaE = c[eatwr].emEnergy();
+  double eaE = c[eatwr].emEnergy();
   // check fine grain bit
   bool eaFGbit = m_Regions[eargn].GetFGBit(eatwr);
   // check H/E bit
@@ -700,34 +696,24 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
 
   // find highest neighbour
   double hitEt = cenEt;
-  //double hitE = cenE;
+  double hitE = cenE;
   double maxEt = std::max(noEt,std::max(soEt,std::max(weEt,eaEt)));
-  //double maxE = std::max(noE,std::max(soE,std::max(weE,eaE)));
+  double maxE = std::max(noE,std::max(soE,std::max(weE,eaE)));
 
   // check 2 tower Et
   float emEtThres = m_L1Config.EMSeedEnThreshold;
+  if ((hitEt+maxEt)<emEtThres) return 0;
   
+
   // at this point candidate is at least non-iso Egamma
-  //double eme = (hitE+maxE);
-  //double eme = (hitE+maxE);
+  double eme = (hitE+maxE);
   //double emet = (hitEt+maxEt);
-  double emet = TPEnergyRound((hitEt+maxEt),m_L1Config.EMLSB,
-			      m_L1Config.EMSeedEnThreshold); 
-
-  if (m_L1Config.DoEMCorr) {
-    emet = TPEnergyRound(corrEmEt(emet,cenEta),m_L1Config.EMLSB,
-			 m_L1Config.EMSeedEnThreshold); 
-  }
-
-  if ((emet)<emEtThres) return 0;
-
   double emtheta = 2.*atan(exp(-cenEta));
   //double emet = eme*sin(emtheta);
-  double emex = emet*cos(cenPhi);
-  double emey = emet*sin(cenPhi);
-  //double emex = eme*sin(emtheta)*cos(cenPhi);
-  //double emey = eme*sin(emtheta)*sin(cenPhi);
-  double eme = emex/sin(emtheta)/cos(cenPhi);
+  //double emex = emet*cos(cenPhi);
+  //double emey = emet*sin(cenPhi);
+  double emex = eme*sin(emtheta)*cos(cenPhi);
+  double emey = eme*sin(emtheta)*sin(cenPhi);
   double emez = eme*cos(emtheta);
 
   reco::Particle::LorentzVector rp4(emex,emey,emez,eme);
@@ -781,10 +767,10 @@ FastL1GlobalAlgo::isMaxEtRgn_Window33(int crgn) {
 
   if (nwid==999 || neid==999 || nid==999 || swid==999 || seid==999 || sid==999 || wid==999 || 
       eid==999 ) { 
-    //std::cerr << "FastL1GlobalAlgo::isMaxEtRgn_Window33(): RegionId out of bounds: " << std::endl
-    //      << nwid << " " << nid << " "  << neid << " " << std::endl
-    //      << wid << " " << crgn << " "  << eid << " " << std::endl
-    //      << swid << " " << sid << " "  << seid << " " << std::endl;    
+    std::cerr << "FastL1GlobalAlgo::isMaxEtRgn_Window33(): RegionId out of bounds: " << std::endl
+	      << nwid << " " << nid << " "  << neid << " " << std::endl
+	      << wid << " " << crgn << " "  << eid << " " << std::endl
+	      << swid << " " << sid << " "  << seid << " " << std::endl;    
     return false;
   }
 
@@ -856,4 +842,5 @@ FastL1GlobalAlgo::checkMapping() {
   }
 
 }
+
 

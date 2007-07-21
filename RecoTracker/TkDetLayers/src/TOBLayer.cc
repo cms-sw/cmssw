@@ -91,22 +91,45 @@ TOBLayer::~TOBLayer(){
 } 
 
 
+  
+vector<DetWithState> 
+TOBLayer::compatibleDets( const TrajectoryStateOnSurface& startingState,
+		      const Propagator& prop, 
+		      const MeasurementEstimator& est) const{
 
-void
-TOBLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
+  // standard implementation of compatibleDets() for class which have 
+  // groupedCompatibleDets implemented.
+  // This code should be moved in a common place intead of being 
+  // copied many times.
+  
+  vector<DetWithState> result;  
+  vector<DetGroup> vectorGroups = groupedCompatibleDets(startingState,prop,est);
+  for(vector<DetGroup>::const_iterator itDG=vectorGroups.begin();
+      itDG!=vectorGroups.end();itDG++){
+    for(vector<DetGroupElement>::const_iterator itDGE=itDG->begin();
+	itDGE!=itDG->end();itDGE++){
+      result.push_back(DetWithState(itDGE->det(),itDGE->trajectoryState()));
+    }
+  }
+  return result;  
+}
+
+
+vector<DetGroup> 
+TOBLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
 				 const Propagator& prop,
-				 const MeasurementEstimator& est,
-				 std::vector<DetGroup> & result) const
+				 const MeasurementEstimator& est) const
 {
+  vector<DetGroup> closestResult;
   SubLayerCrossings crossings;
   crossings = computeCrossings( tsos, prop.propagationDirection());
-  if(! crossings.isValid()) return;
+  if(! crossings.isValid()) return closestResult;
 
-  vector<DetGroup> closestResult;
   addClosest( tsos, prop, est, crossings.closest(), closestResult);
   if (closestResult.empty()){
-    addClosest( tsos, prop, est, crossings.other(), result);
-    return;
+    vector<DetGroup> nextResult;
+    addClosest( tsos, prop, est, crossings.other(), nextResult);
+    return nextResult;
   }
   
   DetGroupElement closestGel( closestResult.front().front());
@@ -120,8 +143,9 @@ TOBLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 		   nextResult, true);
   
   int crossingSide = LayerCrossingSide().barrelSide( closestGel.trajectoryState(), prop);
-  DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result,
-					  crossings.closestIndex(), crossingSide);
+  DetGroupMerger merger;
+  return merger.orderAndMergeTwoLevels( closestResult, nextResult, 
+					crossings.closestIndex(), crossingSide);
 }
 
 
@@ -175,7 +199,7 @@ bool TOBLayer::addClosest( const TrajectoryStateOnSurface& tsos,
 {
   const vector<const GeometricSearchDet*>& sub( subLayer( crossing.subLayerIndex()));
   const GeometricSearchDet* det(sub[crossing.closestDetIndex()]);
-  return CompatibleDetToGroupAdder::add( *det, tsos, prop, est, result);
+  return CompatibleDetToGroupAdder().add( *det, tsos, prop, est, result);
 }
 
 float TOBLayer::computeWindowSize( const GeomDet* det, 

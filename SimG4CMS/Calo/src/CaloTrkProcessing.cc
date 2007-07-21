@@ -15,7 +15,7 @@
 #include "G4Step.hh"
 #include "G4Track.hh"
 
-//#define DEBUG
+//#define MYDEBUG
 
 CaloTrkProcessing::CaloTrkProcessing(G4String name, 
 				     const DDCompactView & cpv,
@@ -45,7 +45,7 @@ CaloTrkProcessing::CaloTrkProcessing(G4String name,
 
   G4String value                     = "Calorimeter";
   std::vector<std::string> caloNames = getNames (value, sv);
-#ifdef DEBUG
+#ifdef MYDEBUG
   LogDebug("CaloSim") << "CaloTrkProcessing: Names for " << value << ":";
   for (unsigned int i=0; i<caloNames.size(); i++)
     LogDebug("CaloSim") << " (" << i << ") " << caloNames[i];
@@ -53,7 +53,7 @@ CaloTrkProcessing::CaloTrkProcessing(G4String name,
 
   value                                = "Levels";
   std::vector<double>      levels      = getNumbers (value, sv);
-#ifdef DEBUG
+#ifdef MYDEBUG
   LogDebug("CaloSim") << "CaloTrkProcessing: Names for " << value << ":";
   for (unsigned int i=0; i<levels.size(); i++)
     LogDebug("CaloSim") << " (" << i << ") " << levels[i];
@@ -61,7 +61,7 @@ CaloTrkProcessing::CaloTrkProcessing(G4String name,
 
   value                                = "Neighbours";
   std::vector<double>      neighbours  = getNumbers (value, sv);
-#ifdef DEBUG
+#ifdef MYDEBUG
   LogDebug("CaloSim") << "CaloTrkProcessing: Names for " << value << ":";
   for (unsigned int i=0; i<neighbours.size(); i++)
     LogDebug("CaloSim") << " (" << i << ") " << neighbours[i];
@@ -69,7 +69,7 @@ CaloTrkProcessing::CaloTrkProcessing(G4String name,
 
   value                                = "Inside";
   std::vector<std::string> insideNames = getNames (value, sv);
-#ifdef DEBUG
+#ifdef MYDEBUG
   LogDebug("CaloSim") << "CaloTrkProcessing: Names for " << value << ":";
   for (unsigned int i=0; i<insideNames.size(); i++)
     LogDebug("CaloSim") << " (" << i << ") " << insideNames[i];
@@ -77,7 +77,7 @@ CaloTrkProcessing::CaloTrkProcessing(G4String name,
 
   value                                = "InsideLevel";
   std::vector<double>      insideLevel = getNumbers (value, sv);
-#ifdef DEBUG
+#ifdef MYDEBUG
   LogDebug("CaloSim") << "CaloTrkProcessing: Names for " << value << ":";
   for (unsigned int i=0; i<insideLevel.size(); i++)
     LogDebug("CaloSim") << " (" << i << ") " << insideLevel[i];
@@ -156,7 +156,7 @@ void CaloTrkProcessing::update(const G4Step * aStep) {
   
   if (testBeam) {
     if (trkInfo->getIDonCaloSurface() == 0) {
-#ifdef DEBUG
+#ifdef MYDEBUG
       LogDebug("CaloSim") << "CaloTrkProcessing set IDonCaloSurface to " << id 
 			  << " at step Number "
 			  << theTrack->GetCurrentStepNumber();
@@ -167,7 +167,7 @@ void CaloTrkProcessing::update(const G4Step * aStep) {
 	trkInfo->putInHistory();
     } 
   } else {
-#ifdef DEBUG
+#ifdef MYDEBUG
     LogDebug("CaloSim") << "CaloTrkProcessing Entered for " << id 
 			<< " at stepNumber "<< theTrack->GetCurrentStepNumber()
 			<< " IDonCaloSur.. " << trkInfo->getIDonCaloSurface()
@@ -198,7 +198,7 @@ void CaloTrkProcessing::update(const G4Step * aStep) {
           trkInfo->setCaloIDChecked(true);
 	  lastTrackID = id;
 	  if (theTrack->GetKineticEnergy()/MeV > eMin) trkInfo->putInHistory();
-#ifdef DEBUG
+#ifdef MYDEBUG
 	  LogDebug("CaloSim") <<"CaloTrkProcessing: set ID on Calo " << ical
 			      << " surface (Inside " << inside << ") to " 
 			      << id << " of a Track with Kinetic Energy " 
@@ -269,7 +269,7 @@ int CaloTrkProcessing::isItCalo(const G4VTouchable* touch) {
     if (lastLevel != detectors[it].level) {
       lastLevel = detectors[it].level;
       name      = detName(touch, lastLevel);
-#ifdef DEBUG
+#ifdef MYDEBUG
       LogDebug("CaloSim") << "CaloTrkProcessing: volume " << name
 			      << " at Level " << lastLevel;
       int levels = detLevels(touch);
@@ -300,7 +300,7 @@ int CaloTrkProcessing::isItInside(const G4VTouchable* touch, int idcal,
 	if (lastLevel != detectors[it1].fromLevels[it2]) {
 	  lastLevel = detectors[it1].fromLevels[it2];
 	  name      = detName(touch, lastLevel);
-#ifdef DEBUG
+#ifdef MYDEBUG
 	  LogDebug("CaloSim") << "CaloTrkProcessing: volume " << name
 			      << " at Level " << lastLevel;
 	  int levels = detLevels(touch);
@@ -318,7 +318,7 @@ int CaloTrkProcessing::isItInside(const G4VTouchable* touch, int idcal,
     } else {
       lastLevel = detectors[it1].fromLevels[idin];
       name      = detName(touch, lastLevel);
-#ifdef DEBUG
+#ifdef MYDEBUG
       LogDebug("CaloSim") << "CaloTrkProcessing: volume " << name
 			  << " at Level " << lastLevel;
       int levels = detLevels(touch);

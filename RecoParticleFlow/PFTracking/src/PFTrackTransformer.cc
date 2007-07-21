@@ -178,9 +178,13 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
 
     GlobalPoint v=beamPipeTSOS.globalPosition();
     GlobalVector p=beamPipeTSOS.globalMomentum();
-    pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::BeamPipe,
+    pftrack.addPoint(PFTrajectoryPoint(-1,
+				       PFTrajectoryPoint::BeamPipeOrEndVertex,
 				       math::XYZPoint(v.x(), v.y(), v.z()),
-				       math::XYZTLorentzVector(p.x(),p.y(),p.z(),p.mag())));
+				       math::XYZTLorentzVector(p.x(),
+							       p.y(),
+							       p.z(),
+							       p.mag())));
     //    LogDebug("PFProducer")<<"beam pipe point "<<endl;
   
   } else return false;

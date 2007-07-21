@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.21 2007/06/28 20:37:42 hcheung Exp $
+// $Id: StorageManager.cc,v 1.22 2007/07/03 17:50:32 klute Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -104,10 +104,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   // Careful with next line: state machine fsm_ has to be setup first
   setupFlashList();
 
-  std::ostringstream oss;
-  oss << "urn:xdaq-monitorable-" << class_.value_ << "-" << instance_.value_;
-  toolbox::net::URN urn = this->createQualifiedInfoSpace(oss.str());
-  xdata::InfoSpace *ispace = xdata::getInfoSpaceFactory()->get(urn.toString());
+  xdata::InfoSpace *ispace = getApplicationInfoSpace();
 
   ispace->fireItemAvailable("STparameterSet",&offConfig_);
   ispace->fireItemAvailable("runNumber",     &runNumber_);
@@ -1793,8 +1790,9 @@ void StorageManager::setupFlashList()
   // Create/Retrieve an infospace which can be monitored
   //----------------------------------------------------------------------------
   std::ostringstream oss;
-  oss << "urn:xdaq-monitorable:" << class_.value_ << ":" << instance_.value_;
-  xdata::InfoSpace *is = xdata::InfoSpace::get(oss.str());
+  oss << "urn:xdaq-monitorable-" << class_.value_ << "-" << instance_.value_;
+  toolbox::net::URN urn = this->createQualifiedInfoSpace(oss.str());
+  xdata::InfoSpace *is = xdata::getInfoSpaceFactory()->get(urn.toString());
 
   //----------------------------------------------------------------------------
   // Publish monitor data in monitorable info space -- Head

@@ -177,7 +177,6 @@ bool GsfTrackProducerAlgorithm::buildTrack (const TrajectoryFitter * theFitter,
   std::vector<Trajectory> trajVec;
   reco::GsfTrack * theTrack;
   Trajectory * theTraj; 
-  PropagationDirection seedDir = seed.direction();
       
   //perform the fit: the result's size is 1 if it succeded, 0 if fails
   trajVec = theFitter->fit(seed, hits, theTSOS);
@@ -230,16 +229,16 @@ bool GsfTrackProducerAlgorithm::buildTrack (const TrajectoryFitter * theFitter,
     math::XYZVector mom( p.x(), p.y(), p.z() );
 
     theTrack = new reco::GsfTrack(theTraj->chiSquared(),
-				  int(ndof),//FIXME fix weight() in TrackingRecHit
-				  //			       theTraj->foundHits(),//FIXME to be fixed in Trajectory.h
-				  //			       0, //FIXME no corresponding method in trajectory.h
-				  //			       theTraj->lostHits(),//FIXME to be fixed in Trajectory.h
-				  pos, mom, tscp.charge(), tscp.theState().curvilinearError().matrix());
+			       int(ndof),//FIXME fix weight() in TrackingRecHit
+			       //			       theTraj->foundHits(),//FIXME to be fixed in Trajectory.h
+			       //			       0, //FIXME no corresponding method in trajectory.h
+			       //			       theTraj->lostHits(),//FIXME to be fixed in Trajectory.h
+			       pos, mom, tscp.charge(), tscp.theState().curvilinearError().matrix());
 
 
     LogDebug("GsfTrackProducer") <<"track done\n";
 
-    AlgoProduct aProduct(theTraj,std::make_pair(theTrack,seedDir));
+    AlgoProduct aProduct(theTraj,theTrack);
     LogDebug("GsfTrackProducer") <<"track done1\n";
     algoResults.push_back(aProduct);
     LogDebug("GsfTrackProducer") <<"track done2\n";

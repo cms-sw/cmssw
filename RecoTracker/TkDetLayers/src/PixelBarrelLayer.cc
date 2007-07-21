@@ -76,25 +76,49 @@ PixelBarrelLayer::~PixelBarrelLayer(){
 } 
   
 
-void 
-PixelBarrelLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
-					  const Propagator& prop,
-					   const MeasurementEstimator& est,
-					   std::vector<DetGroup> & result) const {
+vector<DetWithState> 
+PixelBarrelLayer::compatibleDets( const TrajectoryStateOnSurface& startingState,
+		      const Propagator& prop, 
+		      const MeasurementEstimator& est) const{
+
+  // standard implementation of compatibleDets() for class which have 
+  // groupedCompatibleDets implemented.
+  // This code should be moved in a common place intead of being 
+  // copied many times.
+  
+  vector<DetWithState> result;  
+  vector<DetGroup> vectorGroups = groupedCompatibleDets(startingState,prop,est);
+  for(vector<DetGroup>::const_iterator itDG=vectorGroups.begin();
+      itDG!=vectorGroups.end();itDG++){
+    for(vector<DetGroupElement>::const_iterator itDGE=itDG->begin();
+	itDGE!=itDG->end();itDGE++){
+      result.push_back(DetWithState(itDGE->det(),itDGE->trajectoryState()));
+    }
+  }
+  return result;  
+}
+
+
+vector<DetGroup> 
+PixelBarrelLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
+					 const Propagator& prop,
+					 const MeasurementEstimator& est) const
+{
   vector<DetGroup> closestResult;
   SubLayerCrossings  crossings;
   crossings = computeCrossings( tsos, prop.propagationDirection());
-  if(! crossings.isValid()) return;  
-  
-  addClosest( tsos, prop, est, crossings.closest(), closestResult);
-  if (closestResult.empty()) {
-    addClosest( tsos, prop, est, crossings.other(), result);
-    return;
-  }
+  if(! crossings.isValid()) return closestResult;  
 
+  addClosest( tsos, prop, est, crossings.closest(), closestResult);
+  if (closestResult.empty()){
+    vector<DetGroup> nextResult;
+    addClosest( tsos, prop, est, crossings.other(), nextResult);
+    return nextResult;
+  }
+  
   DetGroupElement closestGel( closestResult.front().front());
   float window = computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est);
-  
+
   searchNeighbors( tsos, prop, est, crossings.closest(), window,
 		   closestResult, false);
   
@@ -103,8 +127,9 @@ PixelBarrelLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 		   nextResult, true);
   
   int crossingSide = LayerCrossingSide().barrelSide( closestGel.trajectoryState(), prop);
-  DetGroupMerger::orderAndMergeTwoLevels( closestResult, nextResult, result, 
-					  crossings.closestIndex(), crossingSide);
+  DetGroupMerger merger;
+  return merger.orderAndMergeTwoLevels( closestResult, nextResult, 
+					crossings.closestIndex(), crossingSide);
 }
 
 
@@ -116,7 +141,7 @@ SubLayerCrossings PixelBarrelLayer::computeCrossings( const TrajectoryStateOnSur
   GlobalPoint startPos( startingState.globalPosition());
   GlobalVector startDir( startingState.globalMomentum());
   double rho( startingState.transverseCurvature());
-  
+
   HelixBarrelCylinderCrossing innerCrossing( startPos, startDir, rho,
 					     propDir,*theInnerCylinder);
 
@@ -166,7 +191,7 @@ bool PixelBarrelLayer::addClosest( const TrajectoryStateOnSurface& tsos,
 {
   const vector<const GeometricSearchDet*>& sub( subLayer( crossing.subLayerIndex()));
   const GeometricSearchDet* det(sub[crossing.closestDetIndex()]);
-  return CompatibleDetToGroupAdder::add( *det, tsos, prop, est, result);
+  return CompatibleDetToGroupAdder().add( *det, tsos, prop, est, result);
 }
 
 float PixelBarrelLayer::computeWindowSize( const GeomDet* det, 

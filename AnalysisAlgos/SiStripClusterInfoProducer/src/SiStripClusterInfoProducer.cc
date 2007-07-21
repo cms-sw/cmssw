@@ -18,18 +18,16 @@
 
 #include <sstream>
 
+#include <cmath>
+
 namespace cms
 {
   SiStripClusterInfoProducer::SiStripClusterInfoProducer(edm::ParameterSet const& conf) : 
     conf_(conf),
-    SiStripNoiseService_(conf),
-    SiStripPedestalsService_(conf),
     _NEIGH_STRIP_(conf.getParameter<uint32_t>("NeighbourStripNumber")),
     CMNSubtractionMode_(conf.getParameter<std::string>("CommonModeNoiseSubtractionMode")){
-
     
     edm::LogInfo("SiStripClusterInfoProducer") << "[SiStripClusterInfoProducer::SiStripClusterInfoProducer] Constructing object...";
-      
  
     //------------------------
     if ( CMNSubtractionMode_ == "Median") { 
@@ -48,8 +46,6 @@ namespace cms
   //------------------------
 
     SiStripPedestalsSubtractor_ = new SiStripPedestalsSubtractor();
-    SiStripPedestalsSubtractor_->setSiStripPedestalsService(&SiStripPedestalsService_);
-
     produces< edm::DetSetVector<SiStripClusterInfo> > ();
   }
 
@@ -62,8 +58,10 @@ namespace cms
   void SiStripClusterInfoProducer::produce(edm::Event& e, const edm::EventSetup& es)
   {    
     // Step A: Get ESObject 
-    SiStripNoiseService_.setESObjects(es);
-    SiStripPedestalsService_.setESObjects(es);
+    edm::ESHandle<SiStripNoises> noiseHandle;
+    edm::ESHandle<SiStripPedestals> pedestalsHandle;
+    es.get<SiStripNoisesRcd>().get(noiseHandle);
+    es.get<SiStripPedestalsRcd>().get(pedestalsHandle);
 
     // Step B: Get Inputs 
     edm::Handle< edm::DetSetVector<SiStripCluster> >  input_cluster;
@@ -80,7 +78,7 @@ namespace cms
     if (input_cluster->size()){
     
       //Dump Cluster Info from Cluster to ClusterInfo
-      cluster_algorithm(*input_cluster,vSiStripClusterInfo);
+      cluster_algorithm(*input_cluster,vSiStripClusterInfo,noiseHandle);
     
       //Dump Digi Info from (Raw)Digi to ClusterInfo
       bool RawMode=false;      
@@ -93,7 +91,7 @@ namespace cms
 	e.getByLabel(rawdigiProducer,rawdigiLabel,input_rawdigi);
 	if (input_rawdigi->size()){
 	  RawMode=true;
-	  rawdigi_algorithm(*input_rawdigi,vSiStripClusterInfo,rawdigiLabel);
+	  rawdigi_algorithm(*input_rawdigi,vSiStripClusterInfo,rawdigiLabel,pedestalsHandle,noiseHandle);
 	}
       }
       if (!RawMode){
@@ -114,9 +112,12 @@ namespace cms
   }
 
 
-  void SiStripClusterInfoProducer::cluster_algorithm(const edm::DetSetVector<SiStripCluster>& input,std::vector< edm::DetSet<SiStripClusterInfo> >& output){
+  void SiStripClusterInfoProducer::cluster_algorithm(const edm::DetSetVector<SiStripCluster>& input,
+						     std::vector< edm::DetSet<SiStripClusterInfo> >& output,
+						     edm::ESHandle<SiStripNoises> & noiseHandle){
     edm::DetSetVector<SiStripCluster>::const_iterator detset_iter=input.begin();
     for (; detset_iter!=input.end();detset_iter++){
+      SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detset_iter->id);
       edm::DetSet<SiStripClusterInfo> DetSet_(detset_iter->id);
       edm::DetSet<SiStripCluster>::const_iterator cluster_iter=detset_iter->data.begin();
       for (; cluster_iter!=detset_iter->data.end(); cluster_iter++){
@@ -135,7 +136,7 @@ namespace cms
 	
 	const std::vector<uint16_t>& amplitudes_ =  cluster_iter->amplitudes();
 	for(size_t i=0; i<amplitudes_.size();i++){
-	  float noise=SiStripNoiseService_.getNoise(detset_iter->id,cluster_iter->firstStrip()+i);
+	  float noise=noiseHandle->getNoise(cluster_iter->firstStrip()+i,detNoiseRange);
 	  stripNoises.push_back(noise);
 	  
 	  if (amplitudes_[i]>0){
@@ -160,7 +161,7 @@ namespace cms
 	    chargeR+=amplitudes_[i];
 	}
 	
-	noise=sqrt(noise2/count);
+	noise= sqrt(noise2/count);
 	maxPosition+=cluster_iter->firstStrip();
 
 	SiStripClusterInfo_.setCharge(charge);
@@ -211,7 +212,12 @@ namespace cms
     }
   }  
 
-  void SiStripClusterInfoProducer::rawdigi_algorithm(const edm::DetSetVector<SiStripRawDigi>& input,std::vector< edm::DetSet<SiStripClusterInfo> >& output,std::string rawdigiLabel){
+  void SiStripClusterInfoProducer::rawdigi_algorithm(const edm::DetSetVector<SiStripRawDigi>& input,
+						     std::vector< edm::DetSet<SiStripClusterInfo> >& output,
+						     std::string rawdigiLabel,
+						     edm::ESHandle<SiStripPedestals> & pedestalsHandle,
+						     edm::ESHandle<SiStripNoises> & noiseHandle){
+
     LogTrace("SiStripClusterInfoProducer") << "["<<__PRETTY_FUNCTION__<<"]";    
     
     std::vector< edm::DetSet<SiStripClusterInfo> >::iterator output_iter=output.begin();
@@ -246,7 +252,7 @@ namespace cms
 	  }
 
 	  //Subtract Pedestals
-	  SiStripPedestalsSubtractor_->subtract(*detset_iter,vssRd);
+	  SiStripPedestalsSubtractor_->subtract(*detset_iter,vssRd,pedestalsHandle);
 	  
 	  if (edm::isDebugEnabled()){
 	    std::stringstream sss;
@@ -259,7 +265,7 @@ namespace cms
 
 	  //Subtract CMN
 	  if (validCMNSubtraction_){
-	    SiStripCommonModeNoiseSubtractor_->subtract(detset_iter->id,vssRd);
+	    SiStripCommonModeNoiseSubtractor_->subtract(detset_iter->id,vssRd,noiseHandle);
 
 	    if (edm::isDebugEnabled()){
 	      std::stringstream sss;

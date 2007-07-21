@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: TrackProbabilityXMLtoDB.cc,v 1.2 2007/02/16 09:46:51 arizzi Exp $
+// $Id: TrackProbabilityXMLtoDB.cc,v 1.1 2007/02/16 08:37:53 arizzi Exp $
 //
 //
 
@@ -157,4 +157,5 @@ TrackProbabilityXMLtoDB::analyze(const edm::Event& iEvent, const edm::EventSetup
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(TrackProbabilityXMLtoDB);
+DEFINE_SEAL_MODULE();
+DEFINE_ANOTHER_FWK_MODULE(TrackProbabilityXMLtoDB);

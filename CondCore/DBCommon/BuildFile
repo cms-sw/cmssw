@@ -1,13 +1,13 @@
-<use name=boost>
 <use name=Framework/SealKernel>
 <use name=RelationalAccess>
 <use name=DataSvc>
 <use name=Collection>
 <use name=ObjectRelationalAccess>
+<use name=FWCore/Utilities>
 <use name=FWCore/Framework>
 <export>
+  <use name=FWCore/Utilities>
   <use name=FWCore/Framework>
-  <use name=RelationalAccess>
   <use name=ObjectRelationalAccess>
   <lib name=CondCoreDBCommon>
 </export>

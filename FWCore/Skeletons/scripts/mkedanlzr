@@ -8,12 +8,10 @@
 # 
 #  output:  analyzername/
 #                         Buildfile
-#                         analyzername.cfg
 #                         interface/
 #                         src/analyzername.cc
 #                         doc/
 #                         test/
-#                         data/analyzername.cfi
 #  required input:
 # 
 #  analyzername = name of the analyzer
@@ -26,12 +24,10 @@
 #  mkedanlzr MyAnalyzer 
 #        --> write  MyAnalyzer/
 #                               Buildfile
-#                               myanalyzer.cfg
 #                               interface/
 #                               src/MyAnalyzer.cc
 #                               doc/
 #                               test/
-#                               data/myanalyzer.cfi
 #  
 #   the script tries to read in
 #   a filename .tmpl in users HOME directory which contains the following lines
@@ -82,10 +78,6 @@ $skeletons{"$skel_dir/EDAnalyzer/edanalyzer.cc"} =
     "$name/src/" . $name . '.cc';
 $skeletons{"$skel_dir/EDAnalyzer/BuildFile.temp"} =
     "$name/BuildFile";
-$skeletons{"$skel_dir/EDAnalyzer/ConfFile.cfg"} =
-        " $name/" . lc($name) . '.cfg';
-$skeletons{"$skel_dir/EDAnalyzer/CfiFile.cfi"} =
-        "$name/data/" . lc($name) . '.cfi';
 
 if ( ! $do_list )
 {
@@ -189,12 +181,10 @@ mkedanlzr  h: execution:  mkedanlzr analyzername [options]
 mkedanlzr  h:
 mkedanlzr  h: output:  analyzername/
 mkedanlzr  h:                       BuildFile
-mkedanlzr  h:                       analyzername.cfg
 mkedanlzr  h:                       interface/
 mkedanlzr  h:                       src/analyzername.cc
 mkedanlzr  h:                       doc/
 mkedanlzr  h:                       test/
-mkedanlzr  h:                       data/analyzername.cfi
 mkedanlzr  h:
 mkedanlzr  h: required input:
 mkedanlzr  h:
@@ -210,12 +200,10 @@ mkedanlzr  h: example:
 mkedanlzr  h: mkedanlzr MyAnalyzer
 mkedanlzr  h:       --> write  MyAnalyzer/
 mkedanlzr  h:                              BuildFile
-mkedanlzr  h:                              myanalyzer.cfg
 mkedanlzr  h:                              interface/
 mkedanlzr  h:                              src/MyAnalyzer.cc
 mkedanlzr  h:                              doc/
 mkedanlzr  h:                              test/
-mkedanlzr  h:                              data/myanalyzer.cfi
 ENDHELP
 
     print "mkedanlzr  Q: Please enter analyzer name [<return> exits]: ";

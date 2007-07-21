@@ -1,9 +1,12 @@
 /*
  * \file L1TCompare.cc
- * $Id: L1TCompare.cc,v 1.2 2007/06/08 08:37:43 wittich Exp $
+ * $Id: L1TCompare.cc,v 1.3 2007/06/13 11:33:39 wittich Exp $
  * \author P. Wittich
  * \brief Compare different parts of the trigger chain (e.g., RCT-GCT )
  * $Log: L1TCompare.cc,v $
+ * Revision 1.3  2007/06/13 11:33:39  wittich
+ * add axis titles
+ *
  * Revision 1.2  2007/06/08 08:37:43  wittich
  * Add ECAL TP - RCT comparisons. Lingering problems with
  * mismatches right now - still needs work.
@@ -302,9 +305,13 @@ void L1TCompare::analyze(const Event & e, const EventSetup & c)
   RctObjectCollection rcj, rcj_iso, rcj_non_iso;
   for (L1CaloEmCollection::const_iterator iem = em->begin();
        iem != em->end(); ++iem) { 
-    L1CaloRegionDetId id(false, iem->rctCrate(), iem->rctCard(), 
-			 iem->rctRegion());
-    RctObject h(id.gctEta(), id.gctPhi(), iem->rank());
+    //   L1CaloRegionDetId id(false, iem->rctCrate(), iem->rctCard(), 
+    //			 iem->rctRegion());
+       L1CaloRegionDetId id(iem->rctCrate(), iem->rctCard(), 
+    			 iem->rctRegion());
+
+       // RctObject h(id.gctEta(), id.gctPhi(), iem->rank());
+    RctObject h(id.rctEta(), id.rctPhi(), iem->rank());
     if ( !iem->isolated() ) 
       rcj_non_iso.push_back(h);
     else 

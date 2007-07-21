@@ -35,7 +35,7 @@ public:
   VertexTrack(const RefCountedLinearizedTrackState lt, 
 	      const VertexState v, 
 	      float weight, const RefCountedRefittedTrackState & refittedState,
-	      float smoothedChi2, const AlgebraicMatrix33 & tVCov);
+	      float smoothedChi2, const AlgebraicMatrix & tVCov);
 
   /** Access methods
    */ 
@@ -65,7 +65,7 @@ public:
 
   /** Track to vertex covariance 
    */   
-  AlgebraicMatrix33 tkToVtxCovariance() const {
+  AlgebraicMatrix tkToVtxCovariance() const {
     if (!tkToVertexCovarianceAvailable()) {
       throw VertexException("VertexTrack::track to vertex covariance not available"); 
     }
@@ -82,7 +82,7 @@ public:
 
   /** Method helping Kalman vertex fit
    */
-  AlgebraicVector5 refittedParamFromEquation() const;
+  AlgebraicVector refittedParamFromEquation() const;
  
 
 private:
@@ -93,7 +93,7 @@ private:
   bool stAvailable;
   bool covAvailable;
   RefCountedRefittedTrackState theRefittedState;
-  AlgebraicMatrix33  tkTVCovariance;
+  AlgebraicMatrix  tkTVCovariance;
   float smoothedChi2_;
 };
 

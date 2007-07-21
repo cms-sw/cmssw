@@ -75,8 +75,8 @@ namespace edm
       (void)value_type_of(possible_ref, result);
       return true;
     } else {
-      return false;
       result = possible_ref;	
+      return false;
     }
   }
 
@@ -98,7 +98,7 @@ namespace edm
   is_sequence_wrapper(Type const& possible_sequence_wrapper,
 		      Type& found_sequence_value_type)
   {
-     Type possible_sequence;
+    Type possible_sequence;
     if (!edm::wrapper_type_of(possible_sequence_wrapper, possible_sequence))
       return false;
 

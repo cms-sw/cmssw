@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1CaloSim.h,v 1.2 2007/06/17 13:53:31 chinhan Exp $
+// $Id: FastL1CaloSim.h,v 1.2 2007/03/09 17:08:34 chinhan Exp $
 //
 //
 
@@ -30,8 +30,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FastSimulation/L1CaloTriggerProducer/interface/FastL1GlobalAlgo.h"
-// No BitInfos for release versions
-//#include "DataFormats/FastL1/interface/FastL1BitInfo.h"
 
 //
 // class decleration
@@ -46,8 +44,6 @@ class FastL1CaloSim : public edm::EDProducer {
    private:
       // ----------member data ---------------------------
       FastL1GlobalAlgo* m_L1GlobalAlgo;
-
-      bool m_DoBitInfo;
 };
 
 #endif

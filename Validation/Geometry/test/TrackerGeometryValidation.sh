@@ -7,12 +7,7 @@ export here=$PWD
 export reportFile=TrackerGeometryValidation.log
 
 cd $here
-echo "------------------------------------------------------" | tee    $reportFile
-echo "   VALIDATION OF THE TRACKER GEOMETRY"                  | tee -a $reportFile
-echo "     NEW = $CMSSW_VERSION vs OLD = $Version"            | tee -a $reportFile
-echo "------------------------------------------------------" | tee -a $reportFile
-
-echo "Working area:" $here | tee -a $reportFile
+echo "Working area:" $here | tee $reportFile
 eval `scramv1 runtime -sh`
 
 # OLD: from CMSSW_1_6_* no more updated:

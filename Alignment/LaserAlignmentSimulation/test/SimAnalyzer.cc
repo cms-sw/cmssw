@@ -1,8 +1,8 @@
 /** \file SimAnalyzer.cc
  *  Get some statistics and plots about the simulation of the Laser Alignment System
  *
- *  $Date: 2007/03/20 12:01:01 $
- *  $Revision: 1.2 $
+ *  $Date: Mon Mar 19 12:28:40 CET 2007 $
+ *  $Revision: 1.1 $
  *  \author Maarten Thomas
  */
 
@@ -185,7 +185,7 @@ void SimAnalyzer::initHistograms()
 	theEndcapSimHitsYvsZ->Sumw2();
 
 	theEndcapSimHitsRvsZ = new TH2D("EndcapSimHitsRvsZ","R vs Z Position of the SimHits",
-		600, -300.0, 300.0, 1000, 0.0, 100.0);
+		600, -300.0, 300.0, 100, 0.0, 100.0);
 	theEndcapSimHitsRvsZ->SetDirectory(EndcapDir);
 	theEndcapSimHitsRvsZ->Sumw2();
 
@@ -205,11 +205,11 @@ void SimAnalyzer::initHistograms()
 	theEndcapSimHitsPhivsZ->Sumw2();
 
 	// histograms for all SimHits
-	theSimHitsRvsZ = new TH2D("SimHitsRvsZ","R vs Z Position of the SimHits", 600, -300.0, 300.0, 1000, 0.0, 100.0);
+	theSimHitsRvsZ = new TH2D("SimHitsRvsZ","R vs Z Position of the SimHits", 600, -300.0, 300.0, 100, 0.0, 100.0);
 	theSimHitsRvsZ->SetDirectory(SimHitDir);
 	theSimHitsRvsZ->Sumw2();
 
-	theSimHitsPhivsZ = new TH2D("SimHitsPhivsZ","Phi [rad] vs Z Position of the SimHits", 600, -300.0, 300.0, 700, 0.0, 7.0);
+	theSimHitsPhivsZ = new TH2D("SimHitsPhivsZ","Phi [rad] vs Z Position of the SimHits", 600, -300.0, 300.0, 70, 0.0, 7.0);
 	theSimHitsPhivsZ->SetDirectory(SimHitDir);
 	theSimHitsPhivsZ->Sumw2();
 }
