@@ -7,12 +7,12 @@
 // 
 // Description:     Hit Dumper
 //
-// Original Author: Oliver Gutsche, gutsche@fnal.gov
+// Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2007/03/07 22:04:03 $
-// $Revision: 1.2 $
+// $Author: stevew $
+// $Date: 2007/07/16 23:46:08 $
+// $Revision: 1.1 $
 //
 
 #include "FWCore/Framework/interface/EDProducer.h"
