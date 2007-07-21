@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/06/24 09:41:11 $
- * $Revision: 1.147 $
+ * $Date: 2007/07/19 08:55:58 $
+ * $Revision: 1.148 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -82,10 +82,6 @@ EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps){
     hs02_[ism-1] = 0;
     hs03_[ism-1] = 0;
 
-    he01_[ism-1] = 0;
-    he02_[ism-1] = 0;
-    he03_[ism-1] = 0;
-
     i01_[ism-1] = 0;
     i02_[ism-1] = 0;
     i03_[ism-1] = 0;
@@ -131,7 +127,6 @@ EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps){
 
   percentVariation_ = 0.2;
   RMSThreshold_ = 300.0;
-  threshold_on_AmplitudeErrorsNumber_ = 0.02;
 
   amplitudeThresholdPnG01_ = 200./16.;
   amplitudeThresholdPnG16_ = 200.;
@@ -393,10 +388,6 @@ void EBTestPulseClient::cleanup(void) {
       if ( hs02_[ism-1] ) delete hs02_[ism-1];
       if ( hs03_[ism-1] ) delete hs03_[ism-1];
 
-      if ( he01_[ism-1] ) delete he01_[ism-1];
-      if ( he02_[ism-1] ) delete he02_[ism-1];
-      if ( he03_[ism-1] ) delete he03_[ism-1];
-
       if ( i01_[ism-1] ) delete i01_[ism-1];
       if ( i02_[ism-1] ) delete i02_[ism-1];
       if ( i03_[ism-1] ) delete i03_[ism-1];
@@ -410,10 +401,6 @@ void EBTestPulseClient::cleanup(void) {
     hs01_[ism-1] = 0;
     hs02_[ism-1] = 0;
     hs03_[ism-1] = 0;
-
-    he01_[ism-1] = 0;
-    he02_[ism-1] = 0;
-    he03_[ism-1] = 0;
 
     i01_[ism-1] = 0;
     i02_[ism-1] = 0;
@@ -713,19 +700,13 @@ void EBTestPulseClient::subscribe(void){
     mui_->subscribe(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT shape %s G01", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude error %s G01", Numbers::sEB(ism).c_str());
-    mui_->subscribe(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude %s G06", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT shape %s G06", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude error %s G06", Numbers::sEB(ism).c_str());
-    mui_->subscribe(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude %s G12", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT shape %s G12", Numbers::sEB(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude error %s G12", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
 
     sprintf(histo, "*/EcalBarrel/EBTestPulseTask/PN/Gain01/EBPDT PNs amplitude %s G01", Numbers::sEB(ism).c_str());
@@ -776,21 +757,6 @@ void EBTestPulseClient::subscribe(void){
       me_hs03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBTestPulseTask/Gain12");
       sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT shape %s G12", Numbers::sEB(ism).c_str());
       mui_->add(me_hs03_[ism-1], histo);
-
-      sprintf(histo, "EBTPT amplitude error %s G01", Numbers::sEB(ism).c_str());
-      me_he01_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EBTestPulseTask/Gain01");
-      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude error %s G01", Numbers::sEB(ism).c_str());
-      mui_->add(me_he01_[ism-1], histo);
-
-      sprintf(histo, "EBTPT amplitude error %s G06", Numbers::sEB(ism).c_str());
-      me_he02_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EBTestPulseTask/Gain06");
-      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude error %s G06", Numbers::sEB(ism).c_str());
-      mui_->add(me_he02_[ism-1], histo);
-
-      sprintf(histo, "EBTPT amplitude error %s G12", Numbers::sEB(ism).c_str());
-      me_he03_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EBTestPulseTask/Gain12");
-      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude error %s G12", Numbers::sEB(ism).c_str());
-      mui_->add(me_he03_[ism-1], histo);
 
       sprintf(histo, "EBPDT PNs amplitude %s G01", Numbers::sEB(ism).c_str());
       me_i01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBTestPulseTask/PN/Gain01");
@@ -897,19 +863,13 @@ void EBTestPulseClient::subscribeNew(void){
     mui_->subscribeNew(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT shape %s G01", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude error %s G01", Numbers::sEB(ism).c_str());
-    mui_->subscribeNew(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude %s G06", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT shape %s G06", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude error %s G06", Numbers::sEB(ism).c_str());
-    mui_->subscribeNew(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude %s G12", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT shape %s G12", Numbers::sEB(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude error %s G12", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
 
     sprintf(histo, "*/EcalBarrel/EBTestPulseTask/PN/Gain01/EBPDT PNs amplitude %s G01", Numbers::sEB(ism).c_str());
@@ -947,10 +907,6 @@ void EBTestPulseClient::unsubscribe(void){
         mui_->removeCollate(me_hs02_[ism-1]);
         mui_->removeCollate(me_hs03_[ism-1]);
 
-        mui_->removeCollate(me_he01_[ism-1]);
-        mui_->removeCollate(me_he02_[ism-1]);
-        mui_->removeCollate(me_he03_[ism-1]);
-
         mui_->removeCollate(me_i01_[ism-1]);
         mui_->removeCollate(me_i02_[ism-1]);
         mui_->removeCollate(me_i03_[ism-1]);
@@ -972,19 +928,13 @@ void EBTestPulseClient::unsubscribe(void){
     mui_->unsubscribe(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT shape %s G01", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude error %s G01", Numbers::sEB(ism).c_str());
-    mui_->unsubscribe(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude %s G06", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT shape %s G06", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude error %s G06", Numbers::sEB(ism).c_str());
-    mui_->unsubscribe(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude %s G12", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT shape %s G12", Numbers::sEB(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude error %s G12", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
 
     sprintf(histo, "*/EcalBarrel/EBTestPulseTask/PN/Gain01/EBPDT PNs amplitude %s G01", Numbers::sEB(ism).c_str());
@@ -1103,30 +1053,6 @@ void EBTestPulseClient::analyze(void){
     }
     me = mui_->get(histo);
     hs03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs03_[ism-1] );
-
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain01/EBTPT amplitude error %s G01", Numbers::sEB(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude error %s G01").c_str(), Numbers::sEB(ism).c_str());
-    }
-    me = mui_->get(histo);
-    he01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, he01_[ism-1] );
-
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain06/EBTPT amplitude error %s G06", Numbers::sEB(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude error %s G06").c_str(), Numbers::sEB(ism).c_str());
-    }
-    me = mui_->get(histo);
-    he02_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, he02_[ism-1] );
-
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain12/EBTPT amplitude error %s G12", Numbers::sEB(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude error %s G12").c_str(), Numbers::sEB(ism).c_str());
-    }
-    me = mui_->get(histo);
-    he03_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, he03_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/PN/Gain01/EBPDT PNs amplitude %s G01", Numbers::sEB(ism).c_str());
@@ -1253,10 +1179,6 @@ void EBTestPulseClient::analyze(void){
             val = 0.;
           if ( rms01 > RMSThreshold_ )
             val = 0.;
-          if ( he01_[ism-1] && numEventsinCry[0] > 0 ) {
-            float errorRate = he01_[ism-1]->GetBinContent(ie, ip) / numEventsinCry[0];
-            if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
-          }
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, val );
 
           if ( mea01_[ism-1] ) {
@@ -1279,10 +1201,6 @@ void EBTestPulseClient::analyze(void){
             val = 0.;
           if ( rms02 > RMSThreshold_ )
             val = 0.;
-          if ( he02_[ism-1] && numEventsinCry[1] > 0 ) {
-            float errorRate = he02_[ism-1]->GetBinContent(ie, ip) / numEventsinCry[1];
-            if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
-          }
           if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, val );
 
           if ( mea02_[ism-1] ) {
@@ -1305,10 +1223,6 @@ void EBTestPulseClient::analyze(void){
             val = 0.;
           if ( rms03 > RMSThreshold_ )
             val = 0.;
-          if ( he03_[ism-1] && numEventsinCry[2] > 0 ) {
-            float errorRate = he03_[ism-1]->GetBinContent(ie, ip) / numEventsinCry[2];
-            if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
-          }
           if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, val );
 
           if ( mea03_[ism-1] ) {
