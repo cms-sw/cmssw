@@ -96,6 +96,27 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& iConfig)
 
     m_totalBxInEvent = m_gtSetup->getParameterSet()->getParameter<int>("totalBxInEvent");
 
+    if (m_totalBxInEvent > 0) {
+        if ( (m_totalBxInEvent%2) == 0 ) {
+            m_totalBxInEvent = m_totalBxInEvent - 1;
+
+            edm::LogInfo("L1GlobalTrigger")
+            << "\nWARNING: Number of bunch crossing in event rounded to: "
+            << m_totalBxInEvent << "\n         The number must be an odd number!\n"
+            << std::endl;
+        }
+    } else {
+
+        edm::LogInfo("L1GlobalTrigger")
+        << "\nWARNING: Number of bunch crossing in event must be a positive number!"
+        << "\n  Requested value was: " << m_totalBxInEvent
+        << "\n  Reset to 1 (L1Accept bunch only).\n"
+        << std::endl;
+
+        m_totalBxInEvent = 1;
+
+    }
+
     m_minBxInEvent = (m_totalBxInEvent + 1)/2 - m_totalBxInEvent;
     m_maxBxInEvent = (m_totalBxInEvent + 1)/2 - 1;
 
@@ -209,14 +230,14 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     // set the list of active boards
     gtfeExtWordValue.setActiveBoards(m_activeBoards);
 
-    // ** fill L1GtfeWord in GT DAQ record 
+    // ** fill L1GtfeWord in GT DAQ record
 
     L1GtfeWord& gtfeWordValue = dynamic_cast<L1GtfeExtWord&>(gtfeExtWordValue);
     gtReadoutRecord->setGtfeWord(gtfeWordValue);
-    
-    // ** fill L1GtfeExtWord in GT EVM record 
+
+    // ** fill L1GtfeExtWord in GT EVM record
     gtEvmReadoutRecord->setGtfeWord(gtfeExtWordValue);
-    
+
     LogDebug("L1GlobalTrigger")
     << "\n  GTFE board " << gtReadoutRecord->gtfeWord().boardId() << "\n"
     << "    GTFE word: total number of bx in DAQ record = "
@@ -431,7 +452,8 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
             for (std::vector<L1MuGMTReadoutRecord>::const_iterator itMu = muRecords.begin();
                     itMu < muRecords.end(); ++itMu) {
 
-                std::vector<L1MuGMTExtendedCand>::const_iterator gmt_iter;
+                std::vector<L1MuGMTExtendedCand>
+                ::const_iterator gmt_iter;
                 std::vector<L1MuGMTExtendedCand> exc = itMu->getGMTCands();
                 for(gmt_iter = exc.begin(); gmt_iter != exc.end(); gmt_iter++) {
                     (*gmt_iter).print();
@@ -474,19 +496,19 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
             (*it).print(myCoutStream);
         }
 
-        const CombinationsInCond*
-        comb = gtObjectMapRecord->getCombinationsInCond("Algo_ComplexSyntax", "Mu_60");
+        //const CombinationsInCond*
+        //comb = gtObjectMapRecord->getCombinationsInCond("Algo_ComplexSyntax", "Mu_60");
 
-        if (comb != 0) {
-            myCoutStream << "\n  Number of combinations passing (Algo_ComplexSyntax, Mu_60): "
-            << comb->size();
-        }
+        //if (comb != 0) {
+        //    myCoutStream << "\n  Number of combinations passing (Algo_ComplexSyntax, Mu_60): "
+        //    << comb->size();
+        //}
 
 
-        bool result = gtObjectMapRecord->getConditionResult("Algo_ComplexSyntax", "Mu_60");
+        //bool result = gtObjectMapRecord->getConditionResult("Algo_ComplexSyntax", "Mu_60");
 
-        myCoutStream << "\n  Result for condition Mu_60 in Algo_ComplexSyntax: "
-        << result;
+        //myCoutStream << "\n  Result for condition Mu_60 in Algo_ComplexSyntax: "
+        //<< result;
 
         LogDebug("L1GlobalTrigger")
         << "Test gtObjectMapRecord in L1GlobalTrigger \n\n" << myCoutStream.str() << "\n\n"

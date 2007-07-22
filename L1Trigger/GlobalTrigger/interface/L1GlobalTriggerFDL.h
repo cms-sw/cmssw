@@ -12,8 +12,8 @@
  * \author: M. Fierro            - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -56,6 +56,15 @@ public:
     const L1GlobalTrigger& m_GT;
     
     L1GtFdlWord* m_gtFdlWord;
+    
+    /// algorithm prescale factors 
+    std::vector<int> m_prescaleFactor;
+
+    /// prescale counters: NumberPhysTriggers counters per bunch cross
+    std::vector<std::vector<int> > m_prescaleCounter;
+
+    /// total Bx's in the event
+    int m_totalBxInEvent;
 
 };
   
