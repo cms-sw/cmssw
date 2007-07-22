@@ -1,5 +1,4 @@
 
-<use name=Geometry/Surface>
 <use name=MagneticField/VolumeGeometry>
 <use name=MagneticField/Interpolation>
 <use name=TrackingTools/GeomPropagators>
@@ -7,7 +6,6 @@
 
 <export>
  <lib name=TrackPropagationNavGeometry>
- <use name=Geometry/Surface>
  <use name=MagneticField/VolumeGeometry>
  <use name=MagneticField/Interpolation>
  <use name=TrackingTools/GeomPropagators>
