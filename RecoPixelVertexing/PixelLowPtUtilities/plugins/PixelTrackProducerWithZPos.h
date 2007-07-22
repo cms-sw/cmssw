@@ -11,9 +11,6 @@ class TrackHitsFilter;
 class OrderedHitsGenerator;
 class TrackingRegionProducer;
 
-//class GlobalTrackingRegion;
-//class SiPixelRecHitCollection;
-
 namespace edm { class Event; class EventSetup; }
 
 class PixelTrackProducerWithZPos :  public edm::EDProducer
@@ -24,7 +21,6 @@ class PixelTrackProducerWithZPos :  public edm::EDProducer
     virtual void produce(edm::Event& ev, const edm::EventSetup& es);
  
   private:
-//    SiPixelRecHitCollection getHits(const edm::Event& ev);
     void beginJob(const edm::EventSetup& es);
     void store(edm::Event& ev,
                const pixeltrackfitting::TracksWithRecHits & selectedTracks);

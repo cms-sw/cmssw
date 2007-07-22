@@ -18,7 +18,8 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
-#include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
+//#include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
+#include "RecoVertex/VertexTools/interface/ClosestApproachInRPhi.h"
 
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -34,6 +35,14 @@
 
 #include <fstream>
 #include <string>
+
+struct sortByPabs
+{
+  bool operator() (const PSimHit& a, const PSimHit& b) const
+  {
+    return (a.pabs() > b.pabs());
+  }
+};
 
 /*****************************************************************************/
 EventPlotter::EventPlotter(const edm::EventSetup& es)
@@ -82,6 +91,10 @@ void EventPlotter::printHelix
   GlobalPoint P0 = p1;
   GlobalPoint P1;
 
+  charge = ((p1 - c).x() * (p2 - c).y() - (p1 - c).y() * (p2 - c).x() > 0 ?
+            -1 : 1);
+  if(dp.x()*v2.x() + dp.y()*v2.y() < 0) charge = -charge;
+
   for(int i = 0; i < nstep; i++)
   {
     float a = -charge * (i+1)*dphi;
@@ -126,7 +139,9 @@ void EventPlotter::printSimTracks
                                                  simTrack++)
   {
     vector<PSimHit> simHits = simTrack->trackPSimHit();
-    // could reorder with help of tof(), but it does not seem to be correct
+
+    // reorder with help of momentum
+    sort(simHits.begin(), simHits.end(), sortByPabs());
 
     for(vector<PSimHit>::const_iterator simHit = simHits.begin();
                                         simHit!= simHits.end(); simHit++)
@@ -325,11 +340,11 @@ void EventPlotter::printVZeros
     GlobalVector b  = r  - (r_*p_)*p  / p_.mag2();
 
     outFile << ", Line[{{" << vZero->vertex().position().x()
-            << "," << vZero->vertex().position().y()
-            << "," << vZero->vertex().position().z()
-            << "}, {" << b.x()
-            << "," << b.y()
-            << "," << b.z() << "}}]" << endl;
+                    << "," << vZero->vertex().position().y()
+                    << "," << vZero->vertex().position().z()/2
+                 << "}, {" << b.x()
+                    << "," << b.y()
+                    << "," << b.z()/2 << "}}]" << endl;
   }
 
   outFile.close();
@@ -537,8 +552,8 @@ void EventPlotter::printEvent(const edm::Event& ev)
   ev.getByLabel("ctfTripletTracks",trajCollection);
 
   // Get vzeros
-//  edm::Handle<reco::VZeroCollection> vZeroCollection;
-//  ev.getByType(vZeroCollection);
+  edm::Handle<reco::VZeroCollection> vZeroCollection;
+  ev.getByType(vZeroCollection);
   
   // Get vertices
   edm::Handle<reco::VertexCollection> vertexCollection;
@@ -547,7 +562,7 @@ void EventPlotter::printEvent(const edm::Event& ev)
   // Get products
   const TrackingParticleCollection* simTracks = simCollection.product();
   const reco::TrackCollection*      recTracks = recCollection.product();
-//  const reco::VZeroCollection*      vZeros    = vZeroCollection.product();
+  const reco::VZeroCollection*      vZeros    = vZeroCollection.product();
   const vector<Trajectory>*         recTrajes = trajCollection.product();
   const reco::VertexCollection*     vertices  = vertexCollection.product();
 
@@ -555,14 +570,14 @@ void EventPlotter::printEvent(const edm::Event& ev)
   labelFile << "run:"    << ev.id().run()
             << " event:" << ev.id().event()
             << "   rec=" << recTracks->size()
-//            << " v0="    << vZeros->size()
+            << " v0="    << vZeros->size()
             << " vtx="   << vertices->size()
             << endl;
   labelFile.close();
 
   printSimTracks(simTracks);
   printRecTracks(recTracks, recTrajes);
-//  printVZeros   (vZeros);
+  printVZeros   (vZeros);
   printVertices (vertices);
 
   printPixelRecHits(ev);

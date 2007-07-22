@@ -5,6 +5,8 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "FWCore/Framework/interface/Event.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -42,8 +44,6 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/RecHitRemover.h"
 
 #include <vector>
 
@@ -97,31 +97,6 @@ void PixelTrackProducerWithZPos::beginJob(const edm::EventSetup& es)
   theCleaner = PixelTrackCleanerFactory::get()->create( cleanerName, cleanerPSet);
 
 }
-
-/*****************************************************************************/
-/*
-SiPixelRecHitCollection PixelTrackProducerWithZPos::getHits
-  (const edm::Event& ev)
-{
-  edm::Handle<SiPixelRecHitCollection> pixelHits;
-  edm::InputTag hitCollectionLabel = theConfig.getParameter<edm::InputTag>("HitCollectionLabel");
-  ev.getByLabel(hitCollectionLabel, pixelHits);
-  const SiPixelRecHitCollection* thePixelHits = pixelHits.product();
-  
-  // Remove hits belonging to already found tracks (no or yes, if yes,
-  // which?)
-  SiPixelRecHitCollection freeHits;
-
-  if(theConfig.getParameter<bool>("removeHitsOnTracks"))
-  {
-    RecHitRemover theRecHitRemover(theConfig);
-    freeHits = theRecHitRemover.getFreeHits(ev);
-  }
-  else freeHits = *thePixelHits;
-
-  return freeHits;
-}
-*/
 
 /*****************************************************************************/
 void PixelTrackProducerWithZPos::produce

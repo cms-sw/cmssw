@@ -6,6 +6,10 @@ DEFINE_SEAL_MODULE();
 #include "PixelTrackProducerWithZPos.h"
 DEFINE_ANOTHER_FWK_MODULE(PixelTrackProducerWithZPos);
 
+// Remover
+#include "RecoPixelVertexing/PixelLowPtUtilities/interface/SiPixelRecHitRemover.h"
+DEFINE_ANOTHER_FWK_MODULE(SiPixelRecHitRemover);
+
 // Region
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"

@@ -1,4 +1,4 @@
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/RecHitRemover.h"
+#include "RecoPixelVertexing/PixelLowPtUtilities/interface/SiPixelRecHitRemover.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 
@@ -22,24 +22,33 @@ class HitComparator
 };
 
 /*****************************************************************************/
-RecHitRemover::RecHitRemover(const edm::ParameterSet& ps)
+SiPixelRecHitRemover::SiPixelRecHitRemover(const edm::ParameterSet& ps) 
 {
-  hitCollectionLabel = ps.getParameter<edm::InputTag>("HitCollectionLabel");
+  hitCollectionLabel = ps.getParameter<string>("HitCollectionLabel");
   removeHitsList     = ps.getParameter<vector<string> >("removeHitsList");
-}
 
+  produces<SiPixelRecHitCollection>();
+}
+  
 /*****************************************************************************/
-RecHitRemover::~RecHitRemover()
+SiPixelRecHitRemover::~SiPixelRecHitRemover() 
 {
-}
+}  
+  
+/*****************************************************************************/
+//void SiPixelRecHitRemover::beginJob(const edm::EventSetup& es) 
+//{
+//}
 
 /*****************************************************************************/
-SiPixelRecHitCollection RecHitRemover::getFreeHits(const edm::Event& ev)
+void SiPixelRecHitRemover::produce
+  (edm::Event& ev, const edm::EventSetup& es)
 {
   // Sets
   set<const SiPixelRecHit*, HitComparator> allHits,usedHits,freeHits;
 
   // Get hits
+//cerr << " !!!!!!!!!!! hitcoll = " << hitCollectionLabel << endl;
   edm::Handle<SiPixelRecHitCollection> pixelCollection;
   ev.getByLabel(hitCollectionLabel,    pixelCollection);
   const SiPixelRecHitCollection* recHits = pixelCollection.product();
@@ -47,21 +56,22 @@ SiPixelRecHitCollection RecHitRemover::getFreeHits(const edm::Event& ev)
   for(SiPixelRecHitCollection::const_iterator recHit = recHits->begin();
                                               recHit!= recHits->end();
                                               recHit++)
-  {
-    const SiPixelRecHit* pixelHit = &(*recHit);  
+  { 
+    const SiPixelRecHit* pixelHit = &(*recHit);
 
     allHits.insert(pixelHit);
   }
-
+  
   // Get tracks
   edm::Handle<reco::TrackCollection> recCollection;
-
+  
   for(vector<string>::const_iterator label = removeHitsList.begin();
                                      label!= removeHitsList.end(); label++)
-  {
-    ev.getByLabel(*label,  recCollection);
+  { 
+//cerr << " !!!!!!!!!! remove " << *label << endl;
+    ev.getByLabel(*label,  recCollection); 
     const reco::TrackCollection* recTracks = recCollection.product();
-  
+
     for(reco::TrackCollection::const_iterator recTrack = recTracks->begin();
                                               recTrack!= recTracks->end();
                                               recTrack++)
@@ -72,7 +82,7 @@ SiPixelRecHitCollection RecHitRemover::getFreeHits(const edm::Event& ev)
         {
           const SiPixelRecHit* pixelHit =
             dynamic_cast<const SiPixelRecHit *>(&(**recHit));
-  
+
           usedHits.insert(pixelHit);
         }
   }
@@ -81,20 +91,20 @@ SiPixelRecHitCollection RecHitRemover::getFreeHits(const edm::Event& ev)
   set_difference(allHits.begin(), allHits.end(),
                 usedHits.begin(),usedHits.end(),
                inserter(freeHits,freeHits.begin()), HitComparator());
-
-  SiPixelRecHitCollection output;
-
+  
+  std::auto_ptr<SiPixelRecHitCollection> output(new SiPixelRecHitCollection);
+  
   DetId detId(0);
   edm::OwnVector<SiPixelRecHit> recHitsOnDetUnit;
-
+  
   for(set<const SiPixelRecHit*, HitComparator>::iterator
       pixelHit = freeHits.begin(); pixelHit!= freeHits.end(); pixelHit++)
-  {
+  { 
     if((*pixelHit)->geographicalId() != detId)
     {
       if(recHitsOnDetUnit.size() > 0)
-      { 
-        output.put(detId, recHitsOnDetUnit.begin(), recHitsOnDetUnit.end());
+      {
+        output->put(detId, recHitsOnDetUnit.begin(), recHitsOnDetUnit.end());
         recHitsOnDetUnit.clear();
       }
 
@@ -104,15 +114,15 @@ SiPixelRecHitCollection RecHitRemover::getFreeHits(const edm::Event& ev)
     SiPixelRecHit* recHit = const_cast<SiPixelRecHit*> (*pixelHit);
     recHitsOnDetUnit.push_back(recHit->clone());
   }
-
+  
   if(recHitsOnDetUnit.size() > 0)
-    output.put(detId, recHitsOnDetUnit.begin(), recHitsOnDetUnit.end());
-
+    output->put(detId, recHitsOnDetUnit.begin(), recHitsOnDetUnit.end());
+  
   cerr << " [RecHitRemover] all/used/free hits:"
             << " " <<  allHits.size()
             << "/" << usedHits.size()
-            << "/" << output.size()
+            << "/" << output->size()
             << endl;
-
-  return output;
+  
+  ev.put(output);
 }
