@@ -28,10 +28,11 @@ void HcaluLUTTPGCoder::compress(const IntegerCaloSamples& ics, const std::vector
 }
 
 HcaluLUTTPGCoder::~HcaluLUTTPGCoder() {
-  delete [] inputLUT;
+  for (int i = 0; i < nluts; i++) {
+    if (inputLUT[i] != 0) delete [] inputLUT[i];
+  }
   delete [] _gain;
   delete [] _ped;
- 
 }
 
 void HcaluLUTTPGCoder::AllocateLUTs() {
