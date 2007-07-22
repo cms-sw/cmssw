@@ -969,10 +969,10 @@ const L1GtLogicParser::OperationRule* L1GtLogicParser::getRuleFromType(Operation
 bool L1GtLogicParser::buildRpnVector(const std::string& logicalExpressionVal)
 {
 
-    LogDebug("L1GtLogicParser")
-    << "\nL1GtLogicParser::buildRpnVector - "
-    << "\nLogical expression = '" << logicalExpressionVal << "'\n"
-    << std::endl;
+    //LogDebug("L1GtLogicParser")
+    //<< "\nL1GtLogicParser::buildRpnVector - "
+    //<< "\nLogical expression = '" << logicalExpressionVal << "'\n"
+    //<< std::endl;
 
     OperationType actualOperation = OP_NULL;
     OperationType lastOperation   = OP_NULL;
@@ -1007,10 +1007,10 @@ bool L1GtLogicParser::buildRpnVector(const std::string& logicalExpressionVal)
 
         actualOperation = getOperation(tokenString, lastOperation, rpnToken);
 
-        LogTrace("L1GtLogicParser")
-        << "  Token string = '" << tokenString << "'"
-        << "\tActual Operation = " << actualOperation
-        << std::endl;
+        //LogTrace("L1GtLogicParser")
+        //<< "  Token string = '" << tokenString << "'"
+        //<< "\tActual Operation = " << actualOperation
+        //<< std::endl;
 
         // http://en.wikipedia.org/wiki/Postfix_notation#Converting_from_infix_notation
 
@@ -1249,10 +1249,10 @@ bool L1GtLogicParser::setLogicalExpression(const std::string& logicalExpressionV
 
     m_logicalExpression = logicalExpressionBS;
 
-    LogDebug("L1GtLogicParser")
-    << "\nL1GtLogicParser::setLogicalExpression - "
-    << "\nLogical expression = '" << m_logicalExpression << "'\n"
-    << std::endl;
+    //LogDebug("L1GtLogicParser")
+    //<< "\nL1GtLogicParser::setLogicalExpression - "
+    //<< "\nLogical expression = '" << m_logicalExpression << "'\n"
+    //<< std::endl;
 
     return true;
 
@@ -1276,10 +1276,10 @@ bool L1GtLogicParser::setNumericalExpression(const std::string& numericalExpress
 
     m_numericalExpression = numericalExpressionBS;
 
-    LogDebug("L1GtLogicParser")
-    << "\nL1GtLogicParser::setNumericalExpression - "
-    << "\nNumerical Expression = '" << m_numericalExpression << "'\n"
-    << std::endl;
+    //LogDebug("L1GtLogicParser")
+    //<< "\nL1GtLogicParser::setNumericalExpression - "
+    //<< "\nNumerical Expression = '" << m_numericalExpression << "'\n"
+    //<< std::endl;
 
     return true;
 
@@ -1356,10 +1356,10 @@ bool L1GtLogicParser::setNumericalExpression(const DecisionWord& decisionWordVal
     //m_numericalExpression.erase(m_numericalExpression.size() - 1);
     boost::trim(m_numericalExpression);
 
-    LogDebug("L1GtLogicParser")
-    << "\nL1GtLogicParser::setNumericalExpression - "
-    << "\nNumerical Expression = '" << m_numericalExpression << "'\n"
-    << std::endl;
+    //LogDebug("L1GtLogicParser")
+    //<< "\nL1GtLogicParser::setNumericalExpression - "
+    //<< "\nNumerical Expression = '" << m_numericalExpression << "'\n"
+    //<< std::endl;
 
     return true;
 
