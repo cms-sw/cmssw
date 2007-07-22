@@ -1,7 +1,7 @@
-#ifndef HLTLeptonTauNonCollProducer_h
-#define HLTLeptonTauNonCollProducer_h
+#ifndef HLTLeptonTauNonCollEMProducer_h
+#define HLTLeptonTauNonCollEMProducer_h
 
-/** \class HLTLeptonTauNonCollProducer
+/** \class HLTLeptonTauNonCollEMProducer
  *
  *  
  *  This class is an EDFilter implementing tagged multijet trigger
@@ -33,11 +33,11 @@
 // class declaration
 //
 
-class HLTLeptonTauNonCollProducer : public edm::EDProducer {
+class HLTLeptonTauNonCollEMProducer : public edm::EDProducer {
 
 public:
-  explicit HLTLeptonTauNonCollProducer(const edm::ParameterSet&);
-  ~HLTLeptonTauNonCollProducer();
+  explicit HLTLeptonTauNonCollEMProducer(const edm::ParameterSet&);
+  ~HLTLeptonTauNonCollEMProducer();
 
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
@@ -50,4 +50,4 @@ private:
   std::string label_;                               // Label of this filter in configuration file.
 };
 
-#endif //HLTLeptonTauNonCollProducer_h
+#endif //HLTLeptonTauNonCollEMProducer_h

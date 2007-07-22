@@ -5,9 +5,10 @@
 #include "RecoTauTag/HLTProducers/interface/L2TauJetsProvider.h"
 #include "RecoTauTag/HLTProducers/interface/CaloTowerCreatorForTauHLT.h"
 #include "RecoTauTag/HLTProducers/interface/HLTLeptonTauNonCollProducer.h"
+#include "RecoTauTag/HLTProducers/interface/HLTLeptonTauNonCollEMProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h" 	 
- #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h" 	 
- #include "TauRegionalPixelSeedGenerator.h" 	 
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h" 	 
+#include "TauRegionalPixelSeedGenerator.h" 	 
  	 
 DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, TauRegionalPixelSeedGenerator, "TauRegionalPixelSeedGenerator"); 	 
 
@@ -17,6 +18,5 @@ DEFINE_ANOTHER_FWK_MODULE(EMIsolatedTauJetsSelector);
 DEFINE_ANOTHER_FWK_MODULE(L2TauJetsProvider);
 DEFINE_ANOTHER_FWK_MODULE(CaloTowerCreatorForTauHLT);
 DEFINE_ANOTHER_FWK_MODULE(HLTLeptonTauNonCollProducer);
-
-
+DEFINE_ANOTHER_FWK_MODULE(HLTLeptonTauNonCollEMProducer);
 

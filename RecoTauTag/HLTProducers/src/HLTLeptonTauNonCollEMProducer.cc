@@ -1,4 +1,4 @@
-/** \class HLTLeptonTauNonCollProducer
+/** \class HLTLeptonTauNonCollEMProducer
  *
   * See header file for documentation
  *
@@ -8,7 +8,7 @@
  *
  */
 
-#include "RecoTauTag/HLTProducers/interface/HLTLeptonTauNonCollProducer.h"
+#include "RecoTauTag/HLTProducers/interface/HLTLeptonTauNonCollEMProducer.h"
 
 
 //
@@ -16,7 +16,7 @@
 //
 
 
-HLTLeptonTauNonCollProducer::HLTLeptonTauNonCollProducer(const edm::ParameterSet& iConfig) :
+HLTLeptonTauNonCollEMProducer::HLTLeptonTauNonCollEMProducer(const edm::ParameterSet& iConfig) :
   jetSrc_  (iConfig.getParameter<vtag> ("JetSrc")),
   leptonTag_ (iConfig.getParameter<edm::InputTag>("LeptonTag")),
   min_dphi_(iConfig.getParameter<double>        ("MinDphi")),
@@ -27,14 +27,14 @@ HLTLeptonTauNonCollProducer::HLTLeptonTauNonCollProducer(const edm::ParameterSet
 {
   
   //register your products
-  produces<reco::IsolatedTauTagInfoCollection>("Tau");
+  produces<reco::EMIsolatedTauTagInfoCollection>("Tau");
   produces<reco::HLTFilterObjectWithRefs>("Lepton");
   produces<reco::CaloJetCollection>("TauJet");
   
   
 }
 
-HLTLeptonTauNonCollProducer::~HLTLeptonTauNonCollProducer()
+HLTLeptonTauNonCollEMProducer::~HLTLeptonTauNonCollEMProducer()
 {
   edm::LogInfo("") << "Destroyed !";
 }
@@ -45,7 +45,7 @@ HLTLeptonTauNonCollProducer::~HLTLeptonTauNonCollProducer()
 
 // ------------ method called to produce the data  ------------
 void
-HLTLeptonTauNonCollProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTLeptonTauNonCollEMProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace std;
   using namespace edm;
@@ -55,8 +55,8 @@ HLTLeptonTauNonCollProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 
   // Needed to store jets used for triggering.
   
-  IsolatedTauTagInfoCollection * extendedCollection = new IsolatedTauTagInfoCollection;
-  auto_ptr<IsolatedTauTagInfoCollection> product_Tau (extendedCollection);
+  EMIsolatedTauTagInfoCollection * extendedCollection = new EMIsolatedTauTagInfoCollection;
+  auto_ptr<EMIsolatedTauTagInfoCollection> product_Tau (extendedCollection);
   CaloJetCollection * baseCollection = new CaloJetCollection;
   auto_ptr<reco::CaloJetCollection> product_TauTag(baseCollection);
   auto_ptr<HLTFilterObjectWithRefs>
@@ -73,9 +73,9 @@ HLTLeptonTauNonCollProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
       nTau=0;nLep=0;
       std::vector<int> tau_list,lep_list;
            
-      Handle<IsolatedTauTagInfoCollection> jetsHandle;
+      Handle<EMIsolatedTauTagInfoCollection> jetsHandle;
       iEvent.getByLabel(*s, jetsHandle);
-      IsolatedTauTagInfoCollection::const_iterator jet = jetsHandle->begin();
+      EMIsolatedTauTagInfoCollection::const_iterator jet = jetsHandle->begin();
       
       for (; jet != jetsHandle->end(); ++jet) 
 	{
