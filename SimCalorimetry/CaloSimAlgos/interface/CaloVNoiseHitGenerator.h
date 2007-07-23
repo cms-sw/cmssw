@@ -4,10 +4,10 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include<vector>
 
-class CaloVNoiseHitGenerator()
+class CaloVNoiseHitGenerator
 {
 public:
-  void getNoiseHits(std::vector<PCaloHit> & noiseHits) = 0;
+  virtual void getNoiseHits(std::vector<PCaloHit> & noiseHits) = 0;
 };
 
 #endif
