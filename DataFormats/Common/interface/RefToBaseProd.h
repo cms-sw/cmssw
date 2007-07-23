@@ -12,8 +12,8 @@
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Common/interface/RefCore.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
-// circular dependency to be removed !!! L.L.
 #include "DataFormats/Common/interface/View.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 namespace edm {
 
@@ -128,8 +128,8 @@ namespace edm {
   template <typename T>
   inline
   RefToBaseProd<T>::RefToBaseProd(Handle<View<T> > const& handle) :
-    product_(handle->id(), 0, handle->productGetter() ),
-    view_( new View<T>( *handle ) ) {
+    product_(handle.id(), 0, handle->productGetter() ),
+    view_( new View<T>( * handle ) ) {
    }
 
 
@@ -168,7 +168,7 @@ namespace edm {
   template <typename C>
   inline
   RefToBaseProd<T>::RefToBaseProd( const RefProd<C> & ref ) :
-    product_( ref.recCore() ) {
+    product_( ref.refCore() ) {
     std::vector<void const*> pointers;
     typedef typename refhelper::RefToBaseProdTrait<C>::ref_vector_type ref_vector;
     typedef reftobase::RefVectorHolder<ref_vector> holder_type;
