@@ -11,19 +11,18 @@
 #include <FWCore/Framework/interface/EventSetup.h>
 #include "SimMuon/RPCDigitizer/src/RPCSynchronizer.h"
 
-<<<<<<< RPCSimParam.h
 class RPCGeometry;
 
 namespace CLHEP {
   class HepRandomEngine;
   class RandFlat;
 }
-=======
+
 namespace CLHEP {
   class HepRandomEngine;
   class RandFlat;
 }
->>>>>>> 1.4
+
 class RPCSimParam : public RPCSim
 {
  public:
@@ -48,15 +47,11 @@ class RPCSimParam : public RPCSim
   double sspeed;
   double lbGate;
   bool rpcdigiprint;
-<<<<<<< RPCSimParam.h
 
   CLHEP::HepRandomEngine* rndEngine;
   CLHEP::RandFlat* flatDistribution;
 
   RPCSynchronizer* _rpcSync;
-=======
-  CLHEP::HepRandomEngine* rndEngine;
-  CLHEP::RandFlat* flatDistribution;
->>>>>>> 1.4
+
 };
 #endif

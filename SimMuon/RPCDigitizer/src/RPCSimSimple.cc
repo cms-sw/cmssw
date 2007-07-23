@@ -4,7 +4,6 @@
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 
-<<<<<<< RPCSimSimple.cc
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -20,14 +19,6 @@
 #include<stdlib.h>
 #include <utility>
 #include <map>
-=======
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "CLHEP/Random/RandomEngine.h"
-#include "CLHEP/Random/RandFlat.h"
-#include <cmath>
->>>>>>> 1.8
 
 RPCSimSimple::RPCSimSimple(const edm::ParameterSet& config) : RPCSim(config){
 
@@ -44,24 +35,7 @@ RPCSimSimple::RPCSimSimple(const edm::ParameterSet& config) : RPCSim(config){
   rndEngine = &(rng->getEngine());
   flatDistribution = new CLHEP::RandFlat(rndEngine);
 
-<<<<<<< RPCSimSimple.cc
-=======
-RPCSimSimple::RPCSimSimple(const edm::ParameterSet& config) : RPCSim(config){
-
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-      << "RPCDigitizer requires the RandomNumberGeneratorService\n"
-      "which is not present in the configuration file.  You must add the service\n"
-      "in the configuration file or remove the modules that require it.";
-  }
-  
-  rndEngine = &(rng->getEngine());
-  flatDistribution = new CLHEP::RandFlat(rndEngine);
-
->>>>>>> 1.8
 }
-
 
 void
 RPCSimSimple::simulate(const RPCRoll* roll,

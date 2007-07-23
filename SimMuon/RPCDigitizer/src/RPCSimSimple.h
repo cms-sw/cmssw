@@ -35,15 +35,10 @@ class RPCSimSimple : public RPCSim
 
  private:
   void init(){};
-<<<<<<< RPCSimSimple.h
+
   CLHEP::HepRandomEngine* rndEngine;
   CLHEP::RandFlat* flatDistribution;
   RPCSynchronizer* _rpcSync;
 
-=======
-  CLHEP::HepRandomEngine* rndEngine;
-  CLHEP::RandFlat* flatDistribution;
-
->>>>>>> 1.4
 };
 #endif

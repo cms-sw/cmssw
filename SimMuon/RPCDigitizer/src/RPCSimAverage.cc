@@ -66,7 +66,7 @@ RPCSimAverage::RPCSimAverage(const edm::ParameterSet& config) :
     std::cout <<"Link Board Gate Width     = "<<lbGate<<" ns"<<std::endl;
   }
 
-  string ifile="ClSizeTot.dat";
+  string ifile="../data/ClSizeTot.dat";
 
   infile = new ifstream(ifile.c_str(), ios::in);
   if(! *infile) {
@@ -182,12 +182,9 @@ RPCSimAverage::simulate(const RPCRoll* roll,
     float posX = roll->strip(_hit->localPosition()) - static_cast<int>(roll->strip(_hit->localPosition()));
 
     // Effinciecy
-<<<<<<< RPCSimAverage.cc
+
     if (flatDistribution->fire() < aveEff) {
 
-=======
-    if (flatDistribution->fire() < aveEff) {
->>>>>>> 1.3
       int centralStrip = topology.channel(entr)+1;  
       int fstrip=centralStrip;
       int lstrip=centralStrip;

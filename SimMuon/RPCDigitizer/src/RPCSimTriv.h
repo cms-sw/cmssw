@@ -37,15 +37,10 @@ class RPCSimTriv : public RPCSim
 		const RPCGeometry* geo );
  private:
   void init(){};
-<<<<<<< RPCSimTriv.h
+
   CLHEP::HepRandomEngine* rndEngine;
   CLHEP::RandFlat* flatDistribution;
   RPCSynchronizer* _rpcSync;
 
-=======
-  CLHEP::HepRandomEngine* rndEngine;
-  CLHEP::RandFlat* flatDistribution;
-
->>>>>>> 1.2
 };
 #endif

@@ -11,11 +11,6 @@
 #include "CLHEP/Random/RandFlat.h"
 #include <cmath>
 
-<<<<<<< RPCSimParam.cc
-=======
-
-
->>>>>>> 1.5
 RPCSimParam::RPCSimParam(const edm::ParameterSet& config) : RPCSim(config){
   aveEff = config.getParameter<double>("averageEfficiency");
   aveCls = config.getParameter<double>("averageClusterSize");
@@ -36,7 +31,7 @@ RPCSimParam::RPCSimParam(const edm::ParameterSet& config) : RPCSim(config){
     std::cout <<"Signal propagation time   = "<<sspeed<<" x c"<<std::endl;
     std::cout <<"Link Board Gate Width     = "<<lbGate<<" ns"<<std::endl;
   }
-<<<<<<< RPCSimParam.cc
+
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable()) {
     throw cms::Exception("Configuration")
@@ -49,18 +44,7 @@ RPCSimParam::RPCSimParam(const edm::ParameterSet& config) : RPCSim(config){
 
   rndEngine = &(rng->getEngine());
   flatDistribution = new CLHEP::RandFlat(rndEngine);
-=======
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-      << "RPCDigitizer requires the RandomNumberGeneratorService\n"
-      "which is not present in the configuration file.  You must add the service\n"
-      "in the configuration file or remove the modules that require it.";
-  }
-  
-  rndEngine = &(rng->getEngine());
-  flatDistribution = new CLHEP::RandFlat(rndEngine);
->>>>>>> 1.5
+
 }
 
 

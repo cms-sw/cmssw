@@ -5,7 +5,6 @@
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 
-<<<<<<< RPCSimTriv.cc
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -23,35 +22,11 @@ RPCSimTriv::RPCSimTriv(const edm::ParameterSet& config) : RPCSim(config){
       "which is not present in the configuration file.  You must add the service\n"
       "in the configuration file or remove the modules that require it.";
   }
-=======
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "CLHEP/Random/RandomEngine.h"
-#include "CLHEP/Random/RandFlat.h"
-#include <cmath>
->>>>>>> 1.2
-
-<<<<<<< RPCSimTriv.cc
   _rpcSync = new RPCSynchronizer(config);
 
   rndEngine = &(rng->getEngine());
   flatDistribution = new CLHEP::RandFlat(rndEngine);
-=======
-RPCSimTriv::RPCSimTriv(const edm::ParameterSet& config) : RPCSim(config){
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-      << "RPCDigitizer requires the RandomNumberGeneratorService\n"
-      "which is not present in the configuration file.  You must add the service\n"
-      "in the configuration file or remove the modules that require it.";
-  }
-  
-  rndEngine = &(rng->getEngine());
-  flatDistribution = new CLHEP::RandFlat(rndEngine);
->>>>>>> 1.2
 }
-
 
 void
 RPCSimTriv::simulate(const RPCRoll* roll,

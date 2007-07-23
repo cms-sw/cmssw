@@ -60,17 +60,10 @@ class RPCSimAverage : public RPCSim
   std::fstream *MyOutput2;
   std::fstream *MyOutput3;
 
-<<<<<<< RPCSimAverage.h
-  CLHEP::HepRandomEngine* rndEngine;
-  CLHEP::RandFlat* flatDistribution;
-
   RPCSynchronizer* _rpcSync;
 
-
-=======
   CLHEP::HepRandomEngine* rndEngine;
   CLHEP::RandFlat* flatDistribution;
 
->>>>>>> 1.2
 };
 #endif
