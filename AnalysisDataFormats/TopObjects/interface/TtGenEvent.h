@@ -35,6 +35,7 @@ class TtGenEvent: public TopGenEvent {
   const reco::Candidate* neutrinoBar() const;
   
   //full-hadronic getters
+  std::vector<const reco::Candidate*> lightQuarks(bool plusB=false) const;
   const reco::Candidate* quarkFromTop() const;
   const reco::Candidate* quarkFromTopBar() const;
   const reco::Candidate* quarkFromAntiTop() const;

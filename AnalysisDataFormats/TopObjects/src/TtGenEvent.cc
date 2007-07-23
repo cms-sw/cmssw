@@ -1,9 +1,9 @@
 //
-// $Id: TtGenEvent.cc,v 1.9 2007/07/17 09:09:15 rwolf Exp $
+// $Id: TtGenEvent.cc,v 1.10 2007/07/20 14:36:45 rwolf Exp $
 //
-
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
-
+#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 
 TtGenEvent::TtGenEvent()
 {
@@ -315,3 +315,20 @@ TtGenEvent::quarkFromAntiTopBar() const
   }
   return cand;
 }
+
+std::vector<const reco::Candidate*> 
+TtGenEvent::lightQuarks(bool plusB=false) const 
+{
+  std::vector<const reco::Candidate*> lightQuarks;
+  reco::CandidateCollection::const_iterator part = parts_->begin();
+  for ( ; part < parts_->end(); ++part) {
+    if( (plusB && abs(part->pdgId())==5) || (abs(part->pdgId())<5) ) {
+      if( dynamic_cast<const reco::GenParticleCandidate*>( &(*part) ) == 0){
+	throw edm::Exception( edm::errors::InvalidReference, "Not a GenParticleCandidate" );
+      }
+      lightQuarks.push_back( part->clone() );
+    }
+  }  
+  return lightQuarks;
+}
+
