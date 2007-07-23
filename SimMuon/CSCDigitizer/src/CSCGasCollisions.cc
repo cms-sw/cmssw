@@ -45,7 +45,6 @@ CSCGasCollisions::CSCGasCollisions() : me("CSCGasCollisions"),
   deCut( 1.e05 ), eion( 10.4 ), ework( 70.0 ), clusterExtent( 0.001 ),
   theGammaBins(N_GAMMA, 0.), theEnergyBins(N_ENERGY, 0.), 
   theCollisionTable(N_ENTRIES, 0.), theCrossGap( 0 ),
-  theParticleDataTable(0),
   saveGasCollisions ( false )
 {
 
@@ -134,13 +133,6 @@ void CSCGasCollisions::readCollisionTable() {
   fin.close();
 }
 
-
-void CSCGasCollisions::setParticleDataTable(const ParticleDataTable * pdt)
-{
-  theParticleDataTable = pdt;
-}
-
-
 void CSCGasCollisions::simulate( const PSimHit& simHit,
   std::vector<LocalPoint>& positions, std::vector<int>& electrons ) {
 
@@ -153,20 +145,7 @@ void CSCGasCollisions::simulate( const PSimHit& simHit,
   double mom    = simHit.pabs();
   int iam       = simHit.particleType();           // PDG type
   delete theCrossGap;                              // before building new one
-  assert(theParticleDataTable != 0);
-  ParticleData const * particle = theParticleDataTable->particle( simHit.particleType() );
-  double mass = 0.105658; // assume a muon
-  if(particle == 0)
-  {
-     edm::LogError("CSCGasCollisions") << "Cannot find particle of type " << simHit.particleType()
-                                       << " in the PDT";
-  }
-  else 
-  {
-    mass = particle->mass();
-  }
-
-  theCrossGap   = new CSCCrossGap( mass, mom, simHit.exitPoint() - simHit.entryPoint() );
+  theCrossGap   = new CSCCrossGap( iam, mom, simHit.exitPoint() - simHit.entryPoint() );
   float gapSize = theCrossGap->length();
 
   // Test the simhit 'length' (beware of angular effects)

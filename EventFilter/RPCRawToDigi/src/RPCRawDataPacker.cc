@@ -77,7 +77,7 @@ FEDRawData * RPCRawDataPacker::rawData( int fedId, const RPCDigiCollection * dig
   unsigned char *pTrailer = pHeader + raw->size()-sizeof(Word64);
   int crc = 0;
   int evt_stat = 15;
-  int tts = 0;
+  int tts = 15;
   int datasize =  raw->size()/sizeof(Word64);
   FEDTrailer::set(pTrailer, datasize, crc, evt_stat, tts);
   

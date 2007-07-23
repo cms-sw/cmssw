@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCUnpackingModule
  *
- *  $Date: 2007/01/04 21:29:04 $
- *  $Revision: 1.24 $
+ *  $Date: 2006/10/26 18:25:42 $
+ *  $Revision: 1.23 $
  *
  * \author Ilaria Segoni
  */
@@ -124,9 +124,10 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
       /// Unpack FED Trailer(s)
       const unsigned char* trailerIndex=index+fedData.size()- rpc::unpacking::SLINK_WORD_SIZE;
       int ttsSTatus=this->unpackTrailer(trailerIndex, rpcRawData);
+       
       if(ttsSTatus){
         edm::LogError ("RPCUnpacker") <<"ERROR REPORTED FROM TTS Status= "<< ttsSTatus;
-        break;
+//        break;
       }
 
      				

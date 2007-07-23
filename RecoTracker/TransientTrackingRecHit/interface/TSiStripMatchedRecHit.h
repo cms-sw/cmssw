@@ -3,6 +3,7 @@
 
 #include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHit.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
+#include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
 
 class TSiStripMatchedRecHit : public GenericTransientTrackingRecHit{
 public:
@@ -24,14 +25,16 @@ public:
 
   const GeomDetUnit* detUnit() const {return 0;}
 
-  static RecHitPointer build( const GeomDet * geom, const TrackingRecHit * rh) {
-    return RecHitPointer( new TSiStripMatchedRecHit( geom, rh));
+  static RecHitPointer build( const GeomDet * geom, const TrackingRecHit * rh, const SiStripRecHitMatcher *matcher) {
+    return RecHitPointer( new TSiStripMatchedRecHit( geom, rh, matcher));
   }
 
+  virtual RecHitPointer clone( const TrajectoryStateOnSurface& ts) const;
+  virtual bool canImproveWithTrack() const {return (theMatcher != 0);}
 private:
-
-  TSiStripMatchedRecHit (const GeomDet * geom, const TrackingRecHit * rh) : 
-     GenericTransientTrackingRecHit(geom, *rh){}
+  const SiStripRecHitMatcher *theMatcher; 
+  TSiStripMatchedRecHit (const GeomDet * geom, const TrackingRecHit * rh, const SiStripRecHitMatcher *matcher) : 
+     GenericTransientTrackingRecHit(geom, *rh), theMatcher(matcher) {}
 
   virtual TSiStripMatchedRecHit* clone() const {
     return new TSiStripMatchedRecHit(*this);

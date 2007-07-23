@@ -15,7 +15,7 @@ private:
   void analyze( const edm::Event &, const edm::EventSetup & );
   edm::InputTag src_;
   void printDecay( const reco::Candidate &, const std::string & pre ) const;
-  edm::ESHandle<DefaultConfig::ParticleDataTable> pdt_;
+  edm::ESHandle<ParticleDataTable> pdt_;
   /// print parameters
   bool printP4_, printPtEtaPhi_, printVertex_, printStatus_, printIndex_;
   /// accepted status codes
@@ -33,7 +33,7 @@ private:
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -56,7 +56,7 @@ ParticleTreeDrawer::ParticleTreeDrawer( const ParameterSet & cfg ) :
 
 bool ParticleTreeDrawer::accept( const reco::Candidate & c ) const {
   if ( status_.size() == 0 ) return true;
-  return find( status_.begin(), status_.end(), reco::status( c ) ) != status_.end();
+  return find( status_.begin(), status_.end(), reco::status(c) ) != status_.end();
 }
 
 bool ParticleTreeDrawer::hasValidDaughters( const reco::Candidate & c ) const {
@@ -91,7 +91,7 @@ void ParticleTreeDrawer::printInfo( const Candidate & c ) const {
   if ( printP4_ ) cout << " (" << c.px() << ", " << c.py() << ", " << c.pz() << "; " << c.energy() << ")"; 
   if ( printPtEtaPhi_ ) cout << " [" << c.pt() << ": " << c.eta() << ", " << c.phi() << "]";
   if ( printVertex_ ) cout << " {" << c.vx() << ", " << c.vy() << ", " << c.vz() << "}";
-  if ( printStatus_ ) cout << "{status: " << status( c ) << "}";
+  if ( printStatus_ ) cout << "{status: " << reco::status(c) << "}";
   if ( printIndex_ ) {
     int idx = -1;
     vector<const Candidate *>::const_iterator found = find( cands_.begin(), cands_.end(), & c );
@@ -104,7 +104,7 @@ void ParticleTreeDrawer::printInfo( const Candidate & c ) const {
 
 void ParticleTreeDrawer::printDecay( const Candidate & c, const string & pre ) const {
   int id = c.pdgId();
-  const DefaultConfig::ParticleData * pd = pdt_->particle( id );  
+  const ParticleData * pd = pdt_->particle( id );  
   assert( pd != 0 );
 
   cout << pd->name(); 
@@ -131,7 +131,7 @@ void ParticleTreeDrawer::printDecay( const Candidate & c, const string & pre ) c
     for( size_t i = 0; i < ndau; ++ i ) {
       const Candidate * d = c.daughter( i );
       if ( accept( * d ) ) {
-	const DefaultConfig::ParticleData * pd = pdt_->particle( d->pdgId() );  
+	const ParticleData * pd = pdt_->particle( d->pdgId() );  
 	assert( pd != 0 );
 	cout << pd->name();
 	printInfo( * d );

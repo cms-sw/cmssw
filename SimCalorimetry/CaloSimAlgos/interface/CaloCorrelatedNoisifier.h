@@ -180,22 +180,19 @@ public:
 
   virtual void noisify(CaloSamples & frame);
 
-  void computeDecomposition();
+  void computeNormalization();
 
   void checkOffDiagonal(bool & isDiagonal_);
 
   // for test purpose
-  const caloMath::SparseMatrix<double> & covmatrix() const {
-    return theCovarianceMatrix;
-  }
   const caloMath::SparseMatrix<double> & matrix() const {
     return theMatrix;
   }
 private:
-  caloMath::SparseMatrix<double> theCovarianceMatrix;
   caloMath::SparseMatrix<double> theMatrix;
   mutable RandGaussQ theRandomGaussian;
   int theSize; 
+  std::valarray<double> theNorma;
   bool isDiagonal_;
 
 };

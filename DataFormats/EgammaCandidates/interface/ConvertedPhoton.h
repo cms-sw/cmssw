@@ -6,7 +6,7 @@
  *
  * \author N.Marinelli  University of Notre Dame, US
  *
- * \version $Id: ConvertedPhoton.h,v 1.2 2006/12/19 18:12:53 nancy Exp $
+ * \version $Id: ConvertedPhoton.h,v 1.4 2007/01/26 16:24:39 nancy Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"

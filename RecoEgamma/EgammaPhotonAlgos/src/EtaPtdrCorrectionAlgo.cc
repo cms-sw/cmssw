@@ -113,13 +113,13 @@ double EtaPtdrCorrectionAlgo::barrelCorrection(const reco::Photon& ph, const rec
   
   //plus a small overall shift  //CHANGED from ORCA to CMSSW
   if(r9>CUTR9_BAR_1) {
-    par[1]= 1.33791e-03     -0.0035; //Mean
+    par[1]= -0.0035; //Mean
   }
   else if(r9>CUTR9_BAR_2) {
-    par[1]= 3.03155e-04     -0.006; //Mean
+    par[1]= -0.006; //Mean
   }
   else {
-    par[1]= 3.05011e-03     -0.001; //Mean
+    par[1]= -0.001; //Mean
   }
 
   float g = par[1];
@@ -187,13 +187,13 @@ double EtaPtdrCorrectionAlgo::endcapCorrection(const reco::Photon& ph, const rec
 
   //plus a small overall shift //CHANGED from ORCA to CMSSW
   if(r9>CUTR9_END_1) {
-    par[1]= 5.95200e-04 -0.0044; //Mean
+    par[1]= -0.0044; //Mean
   }
   else if(r9>CUTR9_END_2) {
-    par[1]= 7.66434e-04 -0.006; //Mean
+    par[1]= -0.006; //Mean
   }
   else {
-    par[1]=-1.22161e-04 -0.005; //Mean
+    par[1]= -0.005; //Mean
   }
   
 

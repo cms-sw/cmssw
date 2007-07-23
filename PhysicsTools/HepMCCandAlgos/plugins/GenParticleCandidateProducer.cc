@@ -2,15 +2,18 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: GenParticleCandidateProducer.cc,v 1.1 2007/02/01 11:55:49 llista Exp $
+ * \version $Id: GenParticleCandidateProducer.cc,v 1.13 2007/05/09 08:11:39 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidateFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
+#include "SimGeneral/HepPDTRecord/interface/PdtEntry.h"
 #include <vector>
 #include <map>
 #include <set>
+
+static const double mmToCm = 0.1;
 
 namespace edm { class ParameterSet; }
 namespace HepMC { class GenParticle; class GenEvent; }
@@ -24,7 +27,7 @@ class GenParticleCandidateProducer : public edm::EDProducer {
 
  private:
   /// vector of strings
-  typedef std::vector<std::string> vstring;
+  typedef std::vector<PdtEntry> vpdt;
   /// module init at begin of job
   void beginJob( const edm::EventSetup & );
   /// process one event
@@ -34,7 +37,7 @@ class GenParticleCandidateProducer : public edm::EDProducer {
   // selects only stable particles (HEPEVT status = 1)
   bool stableOnly_;
   /// exclude list
-  vstring excludeList_;
+  vpdt excludeList_;
   /// set of excluded particle id's
   std::set<int> excludedIds_;
   /// minimum thresholds
@@ -85,7 +88,7 @@ class GenParticleCandidateProducer : public edm::EDProducer {
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -109,7 +112,7 @@ static const int PDGCacheMax = 32768;
 GenParticleCandidateProducer::GenParticleCandidateProducer( const ParameterSet & p ) :
   src_( p.getParameter<string>( "src" ) ),
   stableOnly_( p.getParameter<bool>( "stableOnly" ) ),
-  excludeList_( p.getParameter<vstring>( "excludeList" ) ),
+  excludeList_( p.getParameter<vpdt>( "excludeList" ) ),
   ptMinNeutral_( p.getParameter<double>( "ptMinNeutral" ) ),
   ptMinCharged_( p.getParameter<double>( "ptMinCharged" ) ),
   ptMinGluon_( p.getParameter<double>( "ptMinGluon" ) ),
@@ -127,25 +130,22 @@ int GenParticleCandidateProducer::chargeTimesThree( int id ) const {
     return id > 0 ? chargeP_[ id ] : chargeM_[ - id ];
   map<int, int>::const_iterator f = chargeMap_.find( id );
   if ( f == chargeMap_.end() )
-    throw edm::Exception( edm::errors::InvalidReference ) 
+    throw edm::Exception( edm::errors::LogicError ) 
       << "invalid PDG id: " << id << endl;
   return f->second;
 }
 
 void GenParticleCandidateProducer::beginJob( const EventSetup & es ) {
-  ESHandle<DefaultConfig::ParticleDataTable> pdt;
-  es.getData( pdt );
-  
-  for( vstring::const_iterator e = excludeList_.begin(); 
+  for( vpdt::iterator e = excludeList_.begin(); 
        e != excludeList_.end(); ++ e ) {
-    const DefaultConfig::ParticleData * p = pdt->particle( * e );
-    if ( p == 0 ) 
-      throw cms::Exception( "ConfigError" )
-	<< "can't find particle: " << * e;
-    excludedIds_.insert( abs( p->pid() ) );
+    e->setup( es );
+    excludedIds_.insert( abs( e->pdgId() ) );
   }
 
-  for( DefaultConfig::ParticleDataTable::const_iterator p = pdt->begin(); p != pdt->end(); ++ p ) {
+  ESHandle<ParticleDataTable> pdt;
+  es.getData( pdt );
+
+  for( ParticleDataTable::const_iterator p = pdt->begin(); p != pdt->end(); ++ p ) {
     const HepPDT::ParticleID & id = p->first;
     int pdgId = id.pid(), apdgId = abs( pdgId );
     int q3 = id.threeCharge();
@@ -160,7 +160,7 @@ void GenParticleCandidateProducer::beginJob( const EventSetup & es ) {
 }
 
 void GenParticleCandidateProducer::produce( Event& evt, const EventSetup& es ) {
-  ESHandle<DefaultConfig::ParticleDataTable> pdt;
+  ESHandle<ParticleDataTable> pdt;
   es.getData( pdt );
 
   Handle<HepMCProduct> mcp;
@@ -227,18 +227,25 @@ void GenParticleCandidateProducer::fillMothers( const vector<const HepMC::GenPar
   const size_t size = particles.size();
   for( size_t i = 0; i < size; ++ i ) {
     const GenParticle * part = particles[ i ];
-    if ( part->hasParents() ) {
-      const GenParticle * mother = part->mother();
-      mothers[ i ] = mother->barcode() - 1;
-      const GenParticle * mother2 = part->secondMother();
-      if( mother2 != 0 && mother2 != mother ) {
-	mothers2[ i ] = mother2->barcode() - 1;
+    const GenVertex * productionVertex = part-> production_vertex();
+    if ( productionVertex != 0 ) {
+      throw edm::Exception( edm::errors::InvalidReference ) 
+	<< "particle has no production vertex. PDG id: " << part->pdg_id() << endl;
+    } else {
+      size_t numberOfMothers = productionVertex->particles_in_size();
+      if ( numberOfMothers > 0 ) {
+	GenVertex::particles_in_const_iterator motherIt = productionVertex->particles_in_const_begin();
+	const GenParticle * mother = * motherIt;
+	mothers[ i ] = mother->barcode() - 1;
+	if ( numberOfMothers > 1 ) {
+	  ++ motherIt;
+	  const GenParticle * mother2 = * motherIt;
+	  mothers2[ i ] = mother2->barcode() - 1;
+	}
       } else {
+	mothers[ i ] = -1;
 	mothers2[ i ] = -1;
       }
-    } else {
-      mothers[ i ] = -1;
-      mothers2[ i ] = -1;
     }
   }
 }
@@ -365,20 +372,19 @@ void GenParticleCandidateProducer::fillOutput( const vector<const GenParticle *>
     GenParticleCandidate * cand = 0;
     size_t index = 0;
     if ( ! skip[ i ] ) {
-      CLHEP::HepLorentzVector p4 =part->momentum();
-      Candidate::LorentzVector momentum( p4.x(), p4.y(), p4.z(), p4.t() );
+      Candidate::LorentzVector momentum( part->momentum() );
       Candidate::Point vertex( 0, 0, 0 );
       const HepMC::GenVertex * v = part->production_vertex();
       if ( v != 0 ) {
-	HepGeom::Point3D<double> vtx = v->point3d();
-	vertex.SetXYZ( vtx.x() / 10. , vtx.y() / 10. , vtx.z() / 10. );
+ 	HepGeom::Point3D<double> vtx = v->point3d();
+	vertex.SetXYZ( vtx.x() * mmToCm, vtx.y() * mmToCm, vtx.z() * mmToCm );
       }
-      int pdgId = part->pdg_id(), status = part->status();
-      int q = chargeTimesThree( pdgId ) / 3;
-      GenParticleCandidate * c = new GenParticleCandidate( q, momentum, vertex, pdgId, status );
-      cand = c;
+      int pdgId = part->pdg_id();
+      cand = new GenParticleCandidate( chargeTimesThree( pdgId ), momentum, vertex, 
+				       pdgId, part->status() );
+      auto_ptr<Candidate> ptr( cand );
       index = indices.size();
-      cands.push_back( c );
+      cands.push_back( ptr );
       indices.push_back( i );
     }
     candidates[ i ] = make_pair( cand, index );

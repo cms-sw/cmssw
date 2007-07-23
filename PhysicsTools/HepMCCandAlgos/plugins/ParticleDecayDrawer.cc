@@ -15,7 +15,7 @@ private:
   void analyze( const edm::Event &, const edm::EventSetup & );
   edm::InputTag src_;
   std::string decay( const reco::Candidate &, std::list<const reco::Candidate *> & ) const;
-  edm::ESHandle<DefaultConfig::ParticleDataTable> pdt_;
+  edm::ESHandle<ParticleDataTable> pdt_;
   /// print parameters
   bool printP4_, printPtEtaPhi_, printVertex_;
   /// print 4 momenta
@@ -30,7 +30,7 @@ private:
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -55,7 +55,7 @@ bool ParticleDecayDrawer::accept( const reco::Candidate & c, const list<const Ca
 }
 
 bool ParticleDecayDrawer::select( const reco::Candidate & c ) const {
-  return reco::status( c ) == 3;
+  return reco::status(c) == 3;
 }
 
 bool ParticleDecayDrawer::hasValidDaughters( const reco::Candidate & c ) const {
@@ -138,7 +138,7 @@ string ParticleDecayDrawer::decay( const Candidate & c,
 
   
   int id = c.pdgId();
-  const DefaultConfig::ParticleData * pd = pdt_->particle( id );  
+  const ParticleData * pd = pdt_->particle( id );  
   assert( pd != 0 );
   out += ( pd->name() + printP4( c ) );
   

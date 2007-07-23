@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/05/24 13:45:19 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/02/19 11:43:57 $
+ *  $Revision: 1.10 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -21,7 +21,7 @@ DTLinearDriftAlgo::DTLinearDriftAlgo(const ParameterSet& config) :
   DTRecHitBaseAlgo(config) {
     // Get the Drift Velocity from parameter set. 
     vDrift = config.getParameter<double>("driftVelocity"); // FIXME: Default was 0.00543 cm/ns
-    vDriftMB1W1 = config.getParameter<double>("driftVelocityMB1W1"); // FIXME: Default was 0.00543 cm/ns
+    // vDriftMB1W1 = config.getParameter<double>("driftVelocityMB1W1"); // FIXME: Default was 0.00543 cm/ns
 
     minTime = config.getParameter<double>("minTime"); // FIXME: Default was -3 ns
 
@@ -116,10 +116,10 @@ bool DTLinearDriftAlgo::compute(const DTLayer* layer,
   // Compute the drift distance
   // SL 21-Dec-2006: Use specific Drift for MB1W1 (non fluxed chamber)
   float vd=vDrift;
-  if (wireId.wheel()==1 && wireId.station()==1) {
-    vd=vDriftMB1W1;
-    //cout << "Using Vd " << vd<< endl;
-  }
+  // if (wireId.wheel()==1 && wireId.station()==1) {
+  //   vd=vDriftMB1W1;
+  //   //cout << "Using Vd " << vd<< endl;
+  // }
 
   float drift = driftTime * vd;
 
@@ -191,7 +191,7 @@ bool DTLinearDriftAlgo::compute(const DTLayer* layer,
 
 
 float DTLinearDriftAlgo::vDrift;
-float DTLinearDriftAlgo::vDriftMB1W1;
+//float DTLinearDriftAlgo::vDriftMB1W1;
 
   
 float DTLinearDriftAlgo::hitResolution;

@@ -2,39 +2,17 @@
 \page PhysicsTools_HepMCCandAlgos Package PhysicsTools/HepMCCandAlgos
 <center>
 <small>
-<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/PhysicsTools/HepMCCandAlgos/?cvsroot=CMSSW>CVS head for this package</a> - 
-<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/PhysicsTools/HepMCCandAlgos/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/PhysicsTools/HepMCCandAlgos/?cvsroot=CMSSW>CVS head for this package</a> - 
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/PhysicsTools/HepMCCandAlgos/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
 </small>
 </center>
 
 \section desc Description
-Common algorihtm specific for \ref DataFormats_Candidate "Candidate" types
-with HepMC generator particle components.
+Utilities and framework modules to analyze and manipulate generator particle Candidates.
 
-\subsection interface Public interface
-None.
-
-\subsection modules Modules
-- HepMCCandidateProducer: produces a collection of reco::Candidate of concrete type 
-reco::HepMCCandidate with a HepMC::GenParticle component.
-It is possible to specify that only stable particles should be used to 
-build candidates setting the boolean parameter <tt>stableOnly</tt>, 
-and it is possible to specify a list of particle types to be excluded
-with the string list parameter <tt>excludeList</tt>. Charge conjugate particles 
-will be excluded as well.
-<br><br>
-Examples of configuration for the modules is the following:
-<pre>
-\htmlinclude genCandidates.cfi
-</pre>
-
-- GenParticleCandidateProducer:  produces a collection of reco::Candidate of concrete type
-reco::GenParticleCandidate representing generator particles.
-<br><br>
-Examples of configuration for the modules is the following:
-<pre>
-\htmlinclude genParticleCandidates.cfi
-</pre>
+For more details, refer to the
+<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePhysicsTools">Analysis Tools</a>
+TWiki on the Software Guide.
 
 <hr>
 Last updated: @DATE@ L. Lista

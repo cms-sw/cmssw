@@ -4,9 +4,10 @@
 /*
  * \file EBTimingClient.h
  *
- * $Date: 2007/02/20 15:28:47 $
- * $Revision: 1.2 $
+ * $Date: 2007/02/01 15:25:24 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
+ * \author F. Cossutti
  *
 */
 
@@ -33,8 +34,6 @@ class EcalCondDBInterface;
 class MonRunIOV;
 
 class EBTimingClient : public EBClient {
-
-friend class EBSummaryClient;
 
 public:
 

@@ -36,7 +36,6 @@ const float degsPerRad = 57.29578;
 //  will be initialized in setTheDet().
 //-----------------------------------------------------------------------------
 PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *mag) 
-  : nRecHitsTotal_(0), nRecHitsUsedEdge_(0)
 {
   //--- Lorentz angle tangent per Tesla
   theTanLorentzAnglePerTesla =
@@ -209,11 +208,11 @@ computeAnglesFromDetPosition(const SiPixelCluster & cl,
   beta_  = atan2( gv_dot_gvz, gv_dot_gvy );
 
   // calculate cotalpha and cotbeta
-  //   cotalpha_ = 1.0/tan(alpha_);
-  //   cotbeta_  = 1.0/tan(beta_ );
+  cotalpha_ = 1.0/tan(alpha_);
+  cotbeta_  = 1.0/tan(beta_ );
   // or like this
-  cotalpha_ = gv_dot_gvx / gv_dot_gvz;
-  cotbeta_  = gv_dot_gvy / gv_dot_gvz;
+  //cotalpha_ = gv_dot_gvx / gv_dot_gvz;
+  //cotbeta_  = gv_dot_gvy / gv_dot_gvz;
 
 }
 
@@ -241,8 +240,6 @@ computeAnglesFromTrajectory( const SiPixelCluster & cl,
     alpha_ = PI - alpha_ ;
   
   beta_ = acos(locy/sqrt(locy*locy+locz*locz));
-
-  // &&& In the above, why not use atan2() ?
   
   cotalpha_ = localDir.x()/localDir.z();
   cotbeta_  = localDir.y()/localDir.z();
@@ -412,9 +409,8 @@ bool PixelCPEBase::isFlipped() const
 }
 
 //-----------------------------------------------------------------------------
-// HALF OF the Lorentz shift (so for the full shift multiply by 2), and
-// in the units of pitch.  (So note these are neither local nor measurement
-// units!)
+// Lorentz shift. For the moment only in X direction (barrel & endcaps)
+// For the forward the y componenet might have to be added.
 //-----------------------------------------------------------------------------
 float PixelCPEBase::lorentzShiftX() const 
 {
@@ -511,9 +507,6 @@ PixelCPEBase::yCharge(const vector<SiPixelCluster::Pixel>& pixelsVec,
 //  The formulas used for dir_x,y,z have to be exactly the same as the ones
 //  used in the digitizer (SiPixelDigitizerAlgorithm.cc).
 //  Assumption: setTheDet() has been called already.
-//
-//  Petar (2/23/07): uhm, actually, there is a bug in the sign for both X and Y!
-//  (The signs have been fixed in SiPixelDigitizer, but not in here.)
 //-----------------------------------------------------------------------------
 LocalVector 
 PixelCPEBase::driftDirection( GlobalVector bfield ) const 
@@ -531,7 +524,6 @@ PixelCPEBase::driftDirection( GlobalVector bfield ) const
       alpha2 = 0.0;
     }
   
-  // &&& dir_x should have a "-" and dir_y a "+"
   float dir_x =  ( theTanLorentzAnglePerTesla * Bfield.y() + alpha2* Bfield.z()* Bfield.x() );
   float dir_y = -( theTanLorentzAnglePerTesla * Bfield.x() - alpha2* Bfield.z()* Bfield.y() );
   float dir_z = -( 1 + alpha2* Bfield.z()*Bfield.z() );
@@ -553,58 +545,5 @@ PixelCPEBase::driftDirection( GlobalVector bfield ) const
 }
 
 
-//-----------------------------------------------------------------------------
-//  One-shot computation of the driftDirection and both lorentz shifts
-//-----------------------------------------------------------------------------
-void
-PixelCPEBase::computeLorentzShifts() const 
-{
-  Frame detFrame(theDet->surface().position(), theDet->surface().rotation());
-  GlobalVector global_Bfield = magfield_->inTesla( theDet->surface().position() );
-  LocalVector  Bfield        = detFrame.toLocal(global_Bfield);
-  
-  double alpha2;
-  if ( alpha2Order) {
-    alpha2 = theTanLorentzAnglePerTesla * theTanLorentzAnglePerTesla;
-  }
-  else  {
-    alpha2 = 0.0;
-  }
 
-  // **********************************************************************
-  // Our convention is the following:
-  // +x is defined by the direction of the Lorentz drift!
-  // +z is defined by the direction of E field (so electrons always go into -z!)
-  // +y is defined by +x and +z, and it turns out to be always opposite to the +B field.
-  // **********************************************************************
-      
-  // Note correct signs for dir_x and dir_y!
-  double dir_x = -( theTanLorentzAnglePerTesla * Bfield.y() + alpha2* Bfield.z()* Bfield.x() );
-  double dir_y =  ( theTanLorentzAnglePerTesla * Bfield.x() - alpha2* Bfield.z()* Bfield.y() );
-  double dir_z = -( 1                                       + alpha2* Bfield.z()* Bfield.z() );
-
-  // &&& Why do we need to scale???
-  //double scale = (1 + alpha2* Bfield.z()*Bfield.z() );
-  double scale = fabs( dir_z );  // same as 1 + alpha2*Bfield.z()*Bfield.z()
-  driftDirection_ = LocalVector(dir_x/scale, dir_y/scale, dir_z/scale );  // last is -1 !
-
-  // Max shift (at the other side of the sensor) in cm 
-  lorentzShiftInCmX_ = driftDirection_.x()/driftDirection_.z() * theThickness;  // &&& redundant
-  // Express the shift in units of pitch, 
-  lorentzShiftX_ = lorentzShiftInCmX_ / thePitchX ; 
-   
-  // Max shift (at the other side of the sensor) in cm 
-  lorentzShiftInCmY_ = driftDirection_.y()/driftDirection_.z() * theThickness;  // &&& redundant
-  // Express the shift in units of pitch, 
-  lorentzShiftY_ = lorentzShiftInCmY_ / thePitchY;
-
-
-  if ( theVerboseLevel > 9 ) {
-    LogDebug("PixelCPEBase") << " The drift direction in local coordinate is " 
-			     << driftDirection_    ;
-    
-    cout << "Lorentz Drift (in cm) along X = " << lorentzShiftInCmX_ << endl;
-    cout << "Lorentz Drift (in cm) along Y = " << lorentzShiftInCmY_ << endl;
-  }
-}
 

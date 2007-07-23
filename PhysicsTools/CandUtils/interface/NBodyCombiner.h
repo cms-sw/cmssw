@@ -28,16 +28,13 @@ private:
   bool preselect( const reco::Candidate &, const reco::Candidate & ) const;
   /// returns a composite candidate combined from two daughters
   reco::Candidate * combine( const reco::CandidateRef &, const reco::CandidateRef & ) const;
-  /// charge information flag
-  enum ChargeInfo { undetermined, same, opposite, invalid };
-  /// return charge information
-  static ChargeInfo chargeInfo( int q1, int q2 ); 
   /// temporary candidate stack
   typedef std::vector<std::pair<reco::CandidateRef, 
-                                std::vector<reco::CandidateRefProd>::const_iterator> 
+                      std::vector<reco::CandidateRefProd>::const_iterator> 
                      > CandStack;
+  typedef std::vector<int> ChargeStack;
   /// returns a composite candidate combined from two daughters
-  void combine( size_t collectionIndex, ChargeInfo ch, CandStack &, 
+  void combine( size_t collectionIndex, CandStack &, ChargeStack &,
 		std::vector<reco::CandidateRefProd>::const_iterator begin,
 		std::vector<reco::CandidateRefProd>::const_iterator end,
 		std::auto_ptr<reco::CandidateCollection> & comps

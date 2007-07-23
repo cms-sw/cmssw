@@ -32,7 +32,8 @@ class EcalFenixEtStrip : public EcalVAdder {
  public:
   EcalFenixEtStrip();
   virtual ~EcalFenixEtStrip();
-  virtual std::vector<int> process(const std::vector<EBDataFrame *> &); 
+  //  virtual std::vector<int> process(const std::vector<EBDataFrame *> &); 
+  virtual std::vector<int> process(const std::vector<std::vector<int> > ); 
   };
 
 #endif

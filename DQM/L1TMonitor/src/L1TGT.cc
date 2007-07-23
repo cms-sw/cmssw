@@ -1,8 +1,8 @@
 /*
  * \file L1TGT.cc
  *
- * $Date: 2007/02/19 19:24:09 $
- * $Revision: 1.1 $
+ * $Date: 2007/02/02 06:01:40 $
+ * $Revision: 1.00 $
  * \author J. Berryhill
  *
  */
@@ -13,7 +13,6 @@ using namespace std;
 using namespace edm;
 
 L1TGT::L1TGT(const ParameterSet& ps)
-  : gtSource_( ps.getParameter< InputTag >("gtSource") )
 {
 
   // verbosity switch
@@ -114,7 +113,7 @@ void L1TGT::analyze(const Event& e, const EventSetup& c)
 	}
 
      Handle<L1GlobalTriggerReadoutRecord> myGTReadoutRecord;
-     e.getByLabel(gtSource_,myGTReadoutRecord);
+     e.getByType(myGTReadoutRecord);
 
      /// get Global Trigger decision and the decision word
      L1GlobalTriggerReadoutRecord::DecisionWord 

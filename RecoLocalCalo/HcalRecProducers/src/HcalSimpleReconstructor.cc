@@ -1,5 +1,5 @@
 using namespace std;
-#include "HcalSimpleReconstructor.h"
+#include "RecoLocalCalo/HcalRecProducers/interface/HcalSimpleReconstructor.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/Common/interface/EDCollection.h"

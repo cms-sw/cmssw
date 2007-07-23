@@ -38,10 +38,10 @@ void GlobalOptionMgr::setDefaultGlobalOptions()
   theGlobalOptions[ ALIstring("length_error_dimension") ] = 0;  
   theGlobalOptions[ ALIstring("angle_value_dimension") ] = 0;  
   theGlobalOptions[ ALIstring("angle_error_dimension") ] = 0;  
-  theGlobalOptions[ ALIstring("output_length_value_dimension") ] = 1;  
-  theGlobalOptions[ ALIstring("output_length_error_dimension") ] = 1;  
-  theGlobalOptions[ ALIstring("output_angle_value_dimension") ] = 3;  
-  theGlobalOptions[ ALIstring("output_angle_error_dimension") ] = 3;  
+  theGlobalOptions[ ALIstring("output_length_value_dimension") ] = 0;  
+  theGlobalOptions[ ALIstring("output_length_error_dimension") ] = 0;  
+  theGlobalOptions[ ALIstring("output_angle_value_dimension") ] = 0;  
+  theGlobalOptions[ ALIstring("output_angle_error_dimension") ] = 0;  
   theGlobalOptions[ ALIstring("check_extra_entries") ] = 0;  
   theGlobalOptions[ ALIstring("cms_link") ] = 0;  
   theGlobalOptions[ ALIstring("cms_link_halfplanes") ] = 0;  
@@ -77,8 +77,7 @@ void GlobalOptionMgr::setDefaultGlobalOptions()
   theGlobalOptions[ ALIstring("MaxDeviDerivative") ] = 1.E-6;
 
   theGlobalOptions[ ALIstring("stopAfter1stIteration") ] = 0;
-  theGlobalOptions[ ALIstring("calParamInyfMatrix") ] = 1;
-  theGlobalOptions[ ALIstring("dumpOptOGlobalInReport") ] = 0;
+  theGlobalOptions[ ALIstring("calParamInyfMatrix") ] = 0;
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

@@ -19,7 +19,7 @@ through the MessageLogger.
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.h,v 1.10 2006/12/18 18:42:51 evansde Exp $
+// $Id: JobReport.h,v 1.14 2007/05/29 20:27:27 evansde Exp $
 //
 
 #include <cstddef>
@@ -33,12 +33,11 @@ through the MessageLogger.
 
 #include "boost/scoped_ptr.hpp"
 
-#include "DataFormats/Common/interface/EventID.h"
-
 namespace edm {
 
     class JobReport {
     public:
+      typedef unsigned int RunNumber;
       typedef std::size_t Token;
 
       /**\struct InputFile
@@ -51,7 +50,7 @@ namespace edm {
       */
   
       struct InputFile {
-        typedef std::set<edm::RunNumber_t> RunNumberCollection;
+        typedef std::set<RunNumber> RunNumberCollection;
         typedef std::vector<std::string>   StringVector;
   
         std::string     logicalFileName;
@@ -65,6 +64,28 @@ namespace edm {
         StringVector    branchNames;
         bool            fileHasBeenClosed;
       };
+
+      /**\struct LumiSectionReport
+  
+      Description: Holds information about a Lumi section associated to a
+      file
+  
+      Usage: struct contains parameters describing a Lumi Section, OutputFile
+             object stores a vector of these for each file
+      */
+
+      struct LumiSectionReport {
+	unsigned int runNumber;
+	unsigned int lumiSectionId;
+	/// So far we are proceeding without extra information, but
+	/// this may be added in the future...
+	///unsigned int startEvent;
+	///unsigned int lastEvent;
+	///std::string lumiStartTime;
+	///std::string lumiEndTime;
+	
+      };
+
   
       /**\struct OutputFile 
   
@@ -74,7 +95,8 @@ namespace edm {
       Data Handling wishes to accumulate about the use of a file that has
       been opened for output.
       */
-  
+
+
       struct OutputFile {
         typedef InputFile::RunNumberCollection RunNumberCollection;
         typedef InputFile::StringVector        StringVector;
@@ -89,6 +111,7 @@ namespace edm {
         size_t          numEventsWritten;
         StringVector    branchNames;
         std::vector<Token> contributingInputs;
+	std::vector<LumiSectionReport> lumiSections;
         bool            fileHasBeenClosed;
       };
   
@@ -123,7 +146,19 @@ namespace edm {
          * input file tokens are used to initialise its list of contributors
          */
         std::vector<Token> openInputFiles(void);
+
+	/*
+	 * Get a vector of Tokens for all currently open output files
+	 * Used to add lumi sections to open files
+	 */
+        std::vector<Token> openOutputFiles(void);
   
+	/*
+	 * Associate a Lumi Section to all open output files
+	 *
+	 */
+	void associateLumiSection(LumiSectionReport  rep);
+
         /*
          * Write an InputFile object to the Logger 
          * Generate XML string for InputFile instance and dispatch to 
@@ -163,7 +198,7 @@ namespace edm {
          *  Flush all open files to logger in event of a problem.
          */
         void flushFiles(void);
-  
+	
         std::vector<InputFile> inputFiles_;
         std::vector<OutputFile> outputFiles_;
 	std::map<std::string, std::string> generatorInfo_;
@@ -242,9 +277,17 @@ namespace edm {
 
 
       ///
+      /// API for reporting a Lumi Section to the job report.
+      /// 
+      ///
+      ///
+      void reportLumiSection(unsigned int run, unsigned int lumiSectId);
+
+
+      ///
       /// Report an exception, providing details of the problem as
-      /// a short description (Eg "SEALError") and a long description 
-      /// (Eg "Seal crashed because...")
+      /// a short description (Eg "XXXError") and a long description 
+      /// (Eg "XXX crashed because...")
       /// Also overload this method to accept an optional standard exit code
       void  reportError(std::string const& shortDesc,
 			std::string const& longDesc);
@@ -279,16 +322,21 @@ namespace edm {
       /// Eg:  reportGeneratorInfo("CrossSection" , "ValueHere")
       /// No special chars in the value string. 
       void reportGeneratorInfo(std::string  name, std::string  value);
+      
+      /// debug/test util
+      std::string dumpFiles(void);
 
    protected:
       boost::scoped_ptr<JobReportImpl>& impl() {return impl_;}
 
    private:
       boost::scoped_ptr<JobReportImpl> impl_;
+
    };
 
    std::ostream& operator<< (std::ostream& os, JobReport::InputFile const& f);
    std::ostream& operator<< (std::ostream& os, JobReport::OutputFile const& f);
+   std::ostream& operator<< (std::ostream& os, JobReport::LumiSectionReport const& rep);
 
     /*
      * Note that output formatting is spattered across these classes
@@ -309,7 +357,7 @@ namespace edm {
     os << "\n<ModuleLabel>" << f.moduleLabel << "</ModuleLabel>";
     os << "\n<GUID>" << f.guid << "</GUID>";
     os << "\n<Runs>";
-    std::set<edm::RunNumber_t>::iterator iRun;
+    std::set<JobReport::RunNumber>::iterator iRun;
     for ( iRun = f.runsSeen.begin(); iRun != f.runsSeen.end(); iRun++) {
       os << "\n  <Run>" << *iRun << "</Run>";
     }

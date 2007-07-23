@@ -7,7 +7,6 @@
 <use name=FWCore/Utilities>
 <use name=TBDataFormats/HcalTBObjects>
 <use name=root>
-<flags SEAL_PLUGIN_NAME="RecoTBCaloHcalPlotter">
 <export>
   <lib name=RecoTBCaloHcalPlotter>
 </export>

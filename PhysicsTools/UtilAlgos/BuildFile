@@ -5,6 +5,7 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
 <use name=DataFormats/Common>
+<use name=DataFormats/Provenance>
 <use name=root>
 <export>
   <lib name=PhysicsToolsUtilAlgos>
@@ -15,5 +16,6 @@
   <use name=FWCore/ParameterSet>
   <use name=FWCore/Utilities>
   <use name=DataFormats/Common>
+  <use name=DataFormats/Provenance>
   <use name=root>
 </export>

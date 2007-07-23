@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu May 25 11:10:50 CDT 2006
-// $Id: PhotonCorrectionProducer.cc,v 1.12 2007/02/14 23:48:08 futyand Exp $
+// $Id: PhotonCorrectionProducer.cc,v 1.13 2007/02/19 21:58:49 futyand Exp $
 //
 
 #include "RecoEgamma/EgammaPhotonProducers/interface/PhotonCorrectionProducer.h"
@@ -100,7 +100,7 @@ void PhotonCorrectionProducer::produce(edm::Event& evt, const edm::EventSetup& e
     {
       edm::LogError("PhotonCorrectionProducer") << "Error! Can't get the product "<<endcapClusterShapeMapCollection_.c_str();
     }
-       
+
   for (reco::PhotonCollection::const_iterator ph = photonCollection.begin(); ph != photonCollection.end(); ph++)
     {
       double corrfactor = 1.;
@@ -109,14 +109,14 @@ void PhotonCorrectionProducer::produce(edm::Event& evt, const edm::EventSetup& e
 	  DetId id = ph->superCluster()->seed()->getHitsByDetId()[0];
 	  if (id.subdetId() == EcalBarrel) {
 	    corrfactor *= (*algoItr)->barrelCorrection(*ph,*barrelClShpHandle);
-	    //std::cout << "barrel correction factor = " << corrfactor << std::endl;
 	  } else {
 	    corrfactor *= (*algoItr)->endcapCorrection(*ph,*endcapClShpHandle);
-	    //std::cout << "endcap correction factor = " << corrfactor << std::endl;
 	  }
 	}
       
-      reco::Photon correctedPhoton(ph->charge(), ph->p4()/ph->energy()*ph->superCluster()->rawEnergy()*corrfactor, ph->unconvertedPosition(), ph->r9(), ph->r19(), ph->e5x5(), ph->hasPixelSeed(), ph->vertex());
+      float correctedEnergy = (ph->superCluster()->rawEnergy() +
+	                       ph->superCluster()->preshowerEnergy())*corrfactor;
+      reco::Photon correctedPhoton(ph->charge(), ph->p4()/ph->energy()*correctedEnergy, ph->unconvertedPosition(), ph->r9(), ph->r19(), ph->e5x5(), ph->hasPixelSeed(), ph->vertex());
       //std::cout << "photon energy before, after correction: " << ph->energy() << ", " << correctedPhoton.energy() << std::endl;
       correctedPhoton.setSuperCluster(ph->superCluster());
       photon_ap->push_back(correctedPhoton);

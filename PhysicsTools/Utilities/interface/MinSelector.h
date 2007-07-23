@@ -4,15 +4,15 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: MinSelector.h,v 1.2 2006/10/03 11:44:47 llista Exp $
+ * $Id: MinSelector.h,v 1.3 2007/01/31 14:42:59 llista Exp $
  */
 
-template<typename T, double (T::*fun)() const>
+template<typename T>
 struct MinSelector {
   typedef T value_type;
-  MinSelector( double min ) : 
-    min_( min ) { }
-  bool operator()( const value_type & t ) const { return (t.*fun)() >= min_; }
+  MinSelector( T min ) : min_( min ) { }
+  bool operator()( T t ) const { return t >= min_; }
+
 private:
   double min_;
 };

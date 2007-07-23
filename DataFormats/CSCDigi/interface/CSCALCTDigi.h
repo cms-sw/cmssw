@@ -5,8 +5,8 @@
  *
  * Digi for ALCT trigger primitives. 
  *
- * $Date: 2006/11/17 17:45:11 $
- * $Revision: 1.9 $
+ * $Date: 2006/05/16 15:22:57 $
+ * $Revision: 1.7 $
  *
  * \author N. Terentiev, CMU
  */
@@ -67,11 +67,8 @@ class CSCALCTDigi {
   /// Print content of digi.
   void print() const;
 
-  /// set wiregroup number
-  void setWireGroup(unsigned int wiregroup) {keywire_= wiregroup;}
-
  private:
-
+  friend class testCSCDigis;
   uint16_t valid_      ;
   uint16_t quality_    ;
   uint16_t accel_      ;

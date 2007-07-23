@@ -1,12 +1,12 @@
 /// \file TrackerAlignableId.cc
 ///
-///  $Revision: 1.7 $
-///  $Date: 2006/10/19 17:09:12 $
-///  (last update by $Author: flucke $)
+///  $Revision$
+///  $Date$
+///  (last update by $Author$)
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
+#include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 #include "Alignment/CommonAlignment/interface/AlignableDet.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"

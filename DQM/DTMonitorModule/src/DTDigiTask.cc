@@ -1,8 +1,8 @@
 /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2006/10/31 00:16:28 $
- * $Revision: 1.15 $
+ * $Date: 2006/10/08 16:00:24 $
+ * $Revision: 1.12 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -64,8 +64,7 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
   daemon.operator->();
 
   dbe->setVerbose(1);
-  dbe->setCurrentFolder("DT/DTDigiTask");
-  runId = dbe->bookInt("iRun");
+
 
 }
 
@@ -439,13 +438,9 @@ void DTDigiTask::bookHistos(const DTChamberId& dtCh, string folder, string histo
 
 void DTDigiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
-  // fake
-  runId->Fill(7);
-
-
   nevents++;
-  if (nevents%1000 == 0 && debug) {}
-  //cout<<"[DTDigiTask]: "<<e.runID()<<" events analyzed"<<endl;
+  if (nevents%1000 == 0 && debug) 
+    cout<<"[DTDigiTask]: "<<nevents<<" events analyzed"<<endl;
 
   edm::Handle<DTDigiCollection> dtdigis;
   e.getByLabel("dtunpacker", dtdigis);

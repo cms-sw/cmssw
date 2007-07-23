@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.35 2007/02/05 14:01:23 rahatlou Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.37 2007/03/08 18:34:43 futyand Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
@@ -52,8 +52,8 @@
 
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -129,7 +129,7 @@ void  PixelMatchElectronAlgo::run(Event& e, PixelMatchGsfElectronCollection & ou
   HBHERecHitMetaCollection *mhbhe=0;
   if (hOverEConeSize_ > 0.) {
     e.getByLabel(hbheLabel_,hbheInstanceName_,hbhe);  
-    mhbhe=  &HBHERecHitMetaCollection(*hbhe);  //FIXME, generates warning
+    mhbhe=  new HBHERecHitMetaCollection(*hbhe);
   }
   e.getByLabel(trackBarrelLabel_,trackBarrelInstanceName_,tracksBarrelH);
   e.getByLabel(trackEndcapLabel_,trackEndcapInstanceName_,tracksEndcapH);
@@ -152,7 +152,7 @@ void  PixelMatchElectronAlgo::run(Event& e, PixelMatchGsfElectronCollection & ou
   process(tracksBarrelH,sclAss,barrelTSAssocH.product(),mhbhe,outEle);
   sclAss=&(*endcapH);
   process(tracksEndcapH,sclAss,endcapTSAssocH.product(),mhbhe,outEle);
-
+  delete mhbhe;
   std::ostringstream str;
 
   str << "========== PixelMatchElectronAlgo Info ==========";

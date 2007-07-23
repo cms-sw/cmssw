@@ -146,6 +146,8 @@ FastJetAlgorithmWrapper::FastJetAlgorithmWrapper(const edm::ParameterSet& ps){
   
 }
 
+//void FastJetAlgorithmWrapper::run(const std::vector <const reco::Candidate*>& fInput, 
+//			  std::vector<ProtoJet>* fOutput){
 void FastJetAlgorithmWrapper::run(const std::vector<FJCand>& fInput, 
 				  std::vector<ProtoJet>* fOutput){
   
@@ -158,15 +160,6 @@ void FastJetAlgorithmWrapper::run(const std::vector<FJCand>& fInput,
       double py=(*inputCand)->py();
       double pz=(*inputCand)->pz();
       double E=(*inputCand)->energy();
-      
-      // The following fix is applyed because FastJet and KtJet have different treatments of fourvectors with E<P. The fix makes the 
-      // output equal. - Maybe a better solution could be found.
-      double P=sqrt(px*px+py*py+pz*pz);          
-      if (E<P) {
-        if ( (E-P)<(-0.5) ) LogWarning("FastJetBrokenInput")<<"Jet input with (E-P)= "<<(E-P)<<" < -0.5 GeV - BROKEN FOURVECTOR!";
-        E=P;
-      }
-      
       fastjet::PseudoJet PsJet(px,py,pz,E);
       PsJet.set_user_index(index_);
       input_vectors.push_back(PsJet);

@@ -2,10 +2,11 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: GenParticleCandidateSelector.h,v 1.2 2007/01/25 15:28:55 hegner Exp $
+ * \version $Id: GenParticleCandidateSelector.cc,v 1.5 2007/03/27 08:43:51 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "SimGeneral/HepPDTRecord/interface/PdtEntry.h"
 #include <string>
 #include <vector>
 #include <set>
@@ -19,7 +20,7 @@ class GenParticleCandidateSelector : public edm::EDProducer {
 
  private:
   /// vector of strings
-  typedef std::vector<std::string> vstring;
+  typedef std::vector<PdtEntry> vpdt;
   /// module init at begin of job
   void beginJob( const edm::EventSetup & );
   /// process one event
@@ -29,7 +30,7 @@ class GenParticleCandidateSelector : public edm::EDProducer {
   // selects only stable particles (HEPEVT status = 1)
   bool stableOnly_;
   /// name of particles in include or exclude list
-  vstring pNameList_;
+  vpdt pdtList_;
   /// using include list?
   bool bInclude_;
   /// output string for debug
@@ -43,7 +44,7 @@ class GenParticleCandidateSelector : public edm::EDProducer {
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -66,18 +67,15 @@ GenParticleCandidateSelector::GenParticleCandidateSelector( const ParameterSet &
   //check optional parameters includeList and excludeList
   const std::string excludeString("excludeList");
   const std::string includeString("includeList");
-  vstring includeList, excludeList;
+  vpdt includeList, excludeList;
 
-  std::vector<std::string> vstringParams = 
-    p.getParameterNamesForType<vstring>();
+  vector<string> vPdtParams = p.getParameterNamesForType<vpdt>();
   // check for include list
-  bool found = std::find( vstringParams.begin(), vstringParams.end(), 
-    includeString) != vstringParams.end();
-  if ( found ) includeList = p.getParameter<vstring>( includeString );
+  bool found = std::find( vPdtParams.begin(), vPdtParams.end(), includeString) != vPdtParams.end();
+  if ( found ) includeList = p.getParameter<vpdt>( includeString );
   // check for exclude list
-  found = std::find( vstringParams.begin(), vstringParams.end(), 
-    excludeString) != vstringParams.end();
-  if ( found ) excludeList = p.getParameter<vstring>( excludeString );
+  found = std::find( vPdtParams.begin(), vPdtParams.end(), excludeString) != vPdtParams.end();
+  if ( found ) excludeList = p.getParameter<vpdt>( excludeString );
 
   // checking configuration cases
   bool bExclude(0);
@@ -89,11 +87,11 @@ GenParticleCandidateSelector::GenParticleCandidateSelector( const ParameterSet &
   }
   else if ( bInclude_ ) {
     caseString_ = "Including";
-    pNameList_ = includeList;
+    pdtList_ = includeList;
   }
   else {
     caseString_ = "Excluding";
-    pNameList_ = excludeList;
+    pdtList_ = excludeList;
   }
 
 }
@@ -103,20 +101,16 @@ GenParticleCandidateSelector::~GenParticleCandidateSelector() {
 
 void GenParticleCandidateSelector::beginJob( const EventSetup & es ) {
   //  const PDTRecord & rec = es.get<PDTRecord>();
-  ESHandle<DefaultConfig::ParticleDataTable> pdt;
+  ESHandle<ParticleDataTable> pdt;
   es.getData( pdt );
   
   if ( verbose_ && stableOnly_ )
     LogInfo ( "INFO" ) << "Excluding unstable particles";
-  for( vstring::const_iterator name = pNameList_.begin(); 
-       name != pNameList_.end(); ++ name ) {
-    const DefaultConfig::ParticleData * p = pdt->particle( * name );
-    if ( p == 0 ) 
-      throw cms::Exception( "ConfigError", "can't find particle" )
-	<< "can't find particle: " << * name;
-    if ( verbose_ )
-      LogInfo ( "INFO" ) << caseString_ <<" particle " << *name << ", id: " << p->pid();
-    pIds_.insert( abs( p->pid() ) );
+  for( vpdt::iterator p = pdtList_.begin(); 
+       p != pdtList_.end(); ++ p ) {
+    p->setup( es );
+    LogInfo ( "INFO" ) << caseString_ <<" particle " << p->name() << ", id: " << p->pdgId();
+    pIds_.insert( abs( p->pdgId() ) );
   }
 }
 
@@ -128,9 +122,9 @@ void GenParticleCandidateSelector::produce( Event& evt, const EventSetup& ) {
   size_t idx = 0;
   for( CandidateCollection::const_iterator p = particles->begin(); 
        p != particles->end(); ++ p, ++ idx ) {
-    int status = reco::status( * p );
+    int status = reco::status( *p );
     if ( ! stableOnly_ || status == 1 ) {
-      int id = abs( reco::pdgId( * p ) );
+      int id = abs( p->pdgId() );
       // id not in list + exclude= keep, in list + include = keep, otherwise drop
       // -> XOR operation: end XOR bInclude; 
       if ( pIds_.find( id ) == pIds_.end() ^ bInclude_) { 

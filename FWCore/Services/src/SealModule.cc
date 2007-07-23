@@ -1,6 +1,5 @@
 #include "FWCore/Services/src/SiteLocalConfigService.h"
 #include "FWCore/Services/src/Tracer.h"
-#include "FWCore/Services/src/PrescaleService.h"
 #include "FWCore/Services/src/InitRootHandlers.h"
 #include "FWCore/Services/src/UnixSignalService.h"
 
@@ -15,7 +14,6 @@
 
 using edm::service::JobReportService;
 using edm::service::Tracer;
-using edm::service::PrescaleService;
 using edm::service::Timing;
 using edm::service::SimpleMemoryCheck;
 using edm::service::SimpleProfiling;
@@ -28,7 +26,6 @@ using edm::rootfix::LockService;
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_SERVICE(Tracer);
-DEFINE_ANOTHER_FWK_SERVICE(PrescaleService);
 DEFINE_ANOTHER_FWK_SERVICE(Timing);
 typedef edm::serviceregistry::AllArgsMaker<edm::SiteLocalConfig,SiteLocalConfigService> SiteLocalConfigMaker;
 DEFINE_ANOTHER_FWK_SERVICE_MAKER(SiteLocalConfigService,SiteLocalConfigMaker);

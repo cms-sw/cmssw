@@ -14,7 +14,7 @@
  *
  * \author Dmytro Kovalskyi, UCSB
  *
- * \version $Id: MuonWithMatchInfo.h,v 1.3 2007/01/30 18:15:20 dmytro Exp $
+ * \version $Id: MuonWithMatchInfo.h,v 1.4.2.1 2007/03/20 12:30:02 llista Exp $
  *
  */
 
@@ -57,6 +57,8 @@ namespace reco {
 	 float dYdZErr;    // propagation uncertainty in dY/dZ
 	 DetId id;          // chamber ID
       };
+      /// return a clone
+     MuonWithMatchInfo * clone() const;
       /// get energy deposition information
       MuonEnergy calEnergy() const { return calEnergy_; }
       /// set energy deposition information

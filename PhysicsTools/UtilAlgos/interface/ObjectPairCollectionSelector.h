@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.5 $
+ * \version $Revision: 1.7 $
  *
- * $Id: ObjectPairCollectionSelector.h,v 1.5 2006/11/23 14:50:56 llista Exp $
+ * $Id: ObjectPairCollectionSelector.h,v 1.7 2007/03/09 14:07:08 llista Exp $
  *
  */
 
@@ -20,23 +20,24 @@
 
 namespace edm { class Event; }
 
-template<typename C, typename S,
-	 typename SC = std::vector<const typename C::value_type *>, 
-	 typename A = typename helper::SelectionAdderTrait<SC>::type>
+template<typename InputCollection, typename Selector,
+	 typename StoreContainer = std::vector<const typename InputCollection::value_type *>, 
+	 typename RefAdder = typename helper::SelectionAdderTrait<InputCollection, StoreContainer>::type>
 class ObjectPairCollectionSelector {
 public:
-  typedef C collection;
+  typedef InputCollection collection;
+  
 private:
-  typedef const typename C::value_type * reference;
-  typedef SC container;
+  typedef const typename InputCollection::value_type * reference;
+  typedef StoreContainer container;
   typedef typename container::const_iterator const_iterator;
-
+  
 public:
   ObjectPairCollectionSelector( const edm::ParameterSet & cfg ) : 
-    select_( reco::modules::make<S>( cfg ) ) { }
+    select_( reco::modules::make<Selector>( cfg ) ) { }
   const_iterator begin() const { return selected_.begin(); }
   const_iterator end() const { return selected_.end(); }
-  void select( const edm::Handle<C> & c, const edm::Event & ) {
+  void select( const edm::Handle<InputCollection> & c, const edm::Event & ) {
     unsigned int s = c->size();
     std::vector<bool> v( s, false );
     for( unsigned int i = 0; i < s; ++ i )
@@ -46,12 +47,14 @@ public:
       }
     selected_.clear();
     for( unsigned int i = 0; i < s; ++i )
-      if ( v[ i ] ) A::add( selected_, c, i );
+    if ( v[ i ] ) 
+      addRef_( selected_, c, i );
   }
   
 private:
-  S select_;
-  container selected_;
+  Selector select_;
+  StoreContainer selected_;
+  RefAdder addRef_;
 };
 
 #endif

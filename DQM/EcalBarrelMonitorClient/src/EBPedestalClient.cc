@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/02/20 13:27:16 $
- * $Revision: 1.128 $
+ * $Date: 2007/02/08 15:23:59 $
+ * $Revision: 1.125 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -11,7 +11,6 @@
 #include <memory>
 #include <iostream>
 #include <fstream>
-#include <iomanip>
 
 #include "TStyle.h"
 
@@ -137,7 +136,7 @@ EBPedestalClient::EBPedestalClient(const ParameterSet& ps){
   RMSThreshold_[1] = 1.2;
   RMSThreshold_[2] = 2.0;
 
-  pedestalThresholdPn_ = 200.;
+  meanThresholdPN_ = 200.;
 
 }
 
@@ -181,8 +180,8 @@ void EBPedestalClient::beginJob(MonitorUserInterface* mui){
       qth02_[ism-1]->setMeanRange(expectedMean_[1] - discrepancyMean_[1], expectedMean_[1] + discrepancyMean_[1]);
       qth03_[ism-1]->setMeanRange(expectedMean_[2] - discrepancyMean_[2], expectedMean_[2] + discrepancyMean_[2]);
 
-      qth04_[ism-1]->setMeanRange(pedestalThresholdPn_, 4096.0);
-      qth05_[ism-1]->setMeanRange(pedestalThresholdPn_, 4096.0);
+      qth04_[ism-1]->setMeanRange(meanThresholdPN_, 4096.0);
+      qth05_[ism-1]->setMeanRange(meanThresholdPN_, 4096.0);
 
       qth01_[ism-1]->setRMSRange(0.0, RMSThreshold_[0]);
       qth02_[ism-1]->setRMSRange(0.0, RMSThreshold_[1]);
@@ -1163,7 +1162,7 @@ void EBPedestalClient::analyze(void){
         float val;
 
         val = 1.;
-        if ( mean01 < pedestalThresholdPn_ )
+        if ( mean01 < meanThresholdPN_ )
           val = 0.;
         if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent(i, 1, val);
 
@@ -1174,7 +1173,7 @@ void EBPedestalClient::analyze(void){
         float val;
 
         val = 1.;
-        if ( mean02 < pedestalThresholdPn_ ) 
+        if ( mean02 < meanThresholdPN_ ) 
           val = 0.;
         if ( meg05_[ism-1] ) meg05_[ism-1]->setBinContent(i, 1, val);
 
@@ -1420,8 +1419,7 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</head>  " << endl;
   htmlFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << endl;
   htmlFile << "<body>  " << endl;
-  //htmlFile << "<br>  " << endl;
-  htmlFile << "<a name=""top""></a>" << endl;
+  htmlFile << "<br>  " << endl;
   htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
   htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">" << run << "</span></h2>" << endl;
@@ -1431,13 +1429,7 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<table border=1><tr><td bgcolor=red>channel has problems in this task</td>" << endl;
   htmlFile << "<td bgcolor=lime>channel has NO problems</td>" << endl;
   htmlFile << "<td bgcolor=yellow>channel is missing</td></table>" << endl;
-  htmlFile << "<br>" << endl;
-  htmlFile << "<table border=1>" << std::endl;
-  for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
-    htmlFile << "<td bgcolor=white><a href=""#" << superModules_[i] << ">" 
-	     << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
-  } 
-  htmlFile << std::endl << "</table>" << std::endl;
+  htmlFile << "<hr>" << endl;
 
   // Produce the plots to be shown as .png files from existing histograms
 
@@ -1820,10 +1812,7 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     }
 
-    if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
-    htmlFile << "<hr>" << std::endl;
-    htmlFile << "<h3><a name=""" << ism << """></a><strong>Supermodule&nbsp;&nbsp;" 
-	     << ism << "</strong></h3>" << endl;
+    htmlFile << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;

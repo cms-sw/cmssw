@@ -215,12 +215,14 @@ namespace edmtest {
       size_(p.getParameter<int>("size")) 
     {
       produces<OVSimpleProduct>();
+      produces<OVSimpleDerivedProduct>("derived");
       assert ( size_ > 1 );
     }
 
     explicit OVSimpleProducer(int i) : size_(i) 
     {
       produces<OVSimpleProduct>();
+      produces<OVSimpleDerivedProduct>("derived");
       assert ( size_ > 1 );
     }
 
@@ -248,6 +250,66 @@ namespace edmtest {
     
     // Put the product into the Event
     e.put(p);
+
+    // Fill up a collection of SimpleDerived objects
+    std::auto_ptr<OVSimpleDerivedProduct> pd(new OVSimpleDerivedProduct());
+    
+    for (int i = 0; i < size_; ++i)
+      {
+	std::auto_ptr<SimpleDerived> simpleDerived(new SimpleDerived()); 
+	simpleDerived->key = size_ - i;
+	simpleDerived->value = 1.5 * i + 100.0;
+	simpleDerived->dummy = 0.0;
+	pd->push_back(simpleDerived);
+      }
+    
+    // Put the product into the Event
+    e.put(pd, "derived");
+  }
+    
+  //--------------------------------------------------------------------
+  //
+  // Produces and OVSimpleProduct product instance.
+  //
+  class VSimpleProducer : public edm::EDProducer {
+  public:
+    explicit VSimpleProducer(edm::ParameterSet const& p) : 
+      size_(p.getParameter<int>("size")) 
+    {
+      produces<VSimpleProduct>();
+      assert ( size_ > 1 );
+    }
+
+    explicit VSimpleProducer(int i) : size_(i) 
+    {
+      produces<VSimpleProduct>();
+      assert ( size_ > 1 );
+    }
+
+    virtual ~VSimpleProducer() { }
+    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    
+  private:
+    int size_;  // number of Simples to put in the collection
+  };
+
+  void
+  VSimpleProducer::produce(edm::Event& e, 
+			   edm::EventSetup const& /* unused */) 
+  {
+    // Fill up a collection
+    std::auto_ptr<VSimpleProduct> p(new VSimpleProduct());
+
+    for (int i = 0; i < size_; ++i)
+      {
+	Simple simple;
+	simple.key = size_ - i;
+	simple.value = 1.5 * i;
+        p->push_back(simple);
+      }
+    
+    // Put the product into the Event
+    e.put(p);
   }
 
   //--------------------------------------------------------------------
@@ -258,38 +320,32 @@ namespace edmtest {
   class AVSimpleProducer : public edm::EDProducer {
   public:
 
-    explicit AVSimpleProducer(edm::ParameterSet const& p) : 
-      size_(p.getParameter<int>("size")) 
-    {
+    explicit AVSimpleProducer(edm::ParameterSet const& p) :
+    src_(p.getParameter<edm::InputTag>("src")) { 
       produces<AVSimpleProduct>();
-      assert ( size_ > 1 );
-    }
-
-    explicit AVSimpleProducer(int i) : size_(i) 
-    {
-      produces<AVSimpleProduct>();
-      assert ( size_ > 1 );
     }
 
     virtual ~AVSimpleProducer() { }
     virtual void produce(edm::Event& e, edm::EventSetup const& c);
     
   private:
-    int size_;  // number of Simple objects to put in the collection
+    edm::InputTag src_;
   };
 
   void
   AVSimpleProducer::produce(edm::Event& e, 
                             edm::EventSetup const& /* unused */) 
   {
+    edm::Handle<std::vector<edmtest::Simple> > vs;
+    e.getByLabel( src_, vs );
     // Fill up a collection
-    std::auto_ptr<AVSimpleProduct> p(new AVSimpleProduct());
+    std::auto_ptr<AVSimpleProduct> p(new AVSimpleProduct(edm::RefProd<std::vector<edmtest::Simple> >(vs)));
 
-    for (int i = 0; i < size_; ++i)
+    for (unsigned int i = 0; i < vs->size(); ++i)
       {
         edmtest::Simple simple;
         simple.key = 100 + i;  // just some arbitrary number for testing
-        p->push_back(simple);
+        p->setValue(i,simple);
       }
 
     // Put the product into the Event
@@ -670,6 +726,7 @@ using edmtest::IntProducer;
 using edmtest::DoubleProducer;
 using edmtest::SCSimpleProducer;
 using edmtest::OVSimpleProducer;
+using edmtest::VSimpleProducer;
 using edmtest::AVSimpleProducer;
 using edmtest::DSVProducer;
 using edmtest::IntTestAnalyzer;
@@ -681,6 +738,7 @@ using edmtest::IntListProducer;
 using edmtest::IntDequeProducer;
 using edmtest::IntSetProducer;
 using edmtest::IntVecRefVectorProducer;
+
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(FailingProducer);
 DEFINE_ANOTHER_FWK_MODULE(IntProducer);
@@ -698,4 +756,3 @@ DEFINE_ANOTHER_FWK_MODULE(IntListProducer);
 DEFINE_ANOTHER_FWK_MODULE(IntDequeProducer);
 DEFINE_ANOTHER_FWK_MODULE(IntSetProducer);
 DEFINE_ANOTHER_FWK_MODULE(IntVecRefVectorProducer);
-

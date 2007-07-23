@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.14 $
+ * \version $Revision: 1.15 $
  *
- * $Id: TrackSelector.h,v 1.14 2006/12/07 10:28:30 llista Exp $
+ * $Id: TrackSelector.h,v 1.15 2006/12/07 11:28:31 llista Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -71,10 +71,11 @@ namespace helper {
    };
 
   template<>
-  struct CollectionStoreManager<reco::TrackCollection> {
+  struct StoreManagerTrait<reco::TrackCollection> {
     typedef TrackCollectionStoreManager type;
     typedef TrackSelectorBase base;
   };
+
 }
 
 #endif

@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeCandidate.h,v 1.10 2007/02/19 12:59:04 llista Exp $
+ * \version $Id: CompositeCandidate.h,v 1.14.2.1 2007/05/11 10:57:14 llista Exp $
  *
  */
 
@@ -20,6 +20,8 @@ namespace reco {
     typedef CandidateCollection daughters;
     /// default constructor
     CompositeCandidate() : Candidate() { }
+    /// default constructor
+    CompositeCandidate( const Particle & p ) : Candidate( p ) { }
     /// constructor from values
     CompositeCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) :
       Candidate( q, p4, vtx ) { }
@@ -42,7 +44,9 @@ namespace reco {
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1
     virtual Candidate * daughter( size_type );
     /// add a clone of the passed candidate as daughter 
-    void addDaughter( const Candidate & );
+    void addDaughter( const Candidate & );    
+    /// add a clone of the passed candidate as daughter 
+    void addDaughter( std::auto_ptr<Candidate> );
     /// implementation of const_iterator. 
     /// should be private; declared public only 
     /// for ROOT reflex dictionay problems    
@@ -109,6 +113,10 @@ namespace reco {
   inline void CompositeCandidate::addDaughter( const Candidate & cand ) { 
     Candidate * c = cand.clone();
     dau.push_back( c ); 
+  }
+
+  inline void CompositeCandidate::addDaughter( std::auto_ptr<Candidate> cand ) {
+    dau.push_back( cand );
   }
 }
 

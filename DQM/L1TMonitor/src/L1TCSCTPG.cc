@@ -1,8 +1,8 @@
 /*
  * \file L1TCSCTPG.cc
  *
- * $Date: 2007/02/20 21:42:10 $
- * $Revision: 1.2 $
+ * $Date: 2007/02/02 06:01:40 $
+ * $Revision: 1.00 $
  * \author J. Berryhill
  *
  */
@@ -13,7 +13,6 @@ using namespace std;
 using namespace edm;
 
 L1TCSCTPG::L1TCSCTPG(const ParameterSet& ps)
-  : csctpgSource_( ps.getParameter< InputTag >("csctpgSource") )
 {
 
   // verbosity switch
@@ -118,12 +117,14 @@ void L1TCSCTPG::analyze(const Event& e, const EventSetup& c)
 
 
   Handle<CSCCorrelatedLCTDigiCollection> pCSCTPGcorrlcts;
-  e.getByLabel(csctpgSource_,pCSCTPGcorrlcts);
-  for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator cscItr1 = pCSCTPGcorrlcts->begin();
-       cscItr1 != pCSCTPGcorrlcts->end();
+  e.getByLabel("lctproducer","MPCSORTED",pCSCTPGcorrlcts);
+  const CSCCorrelatedLCTDigiCollection* myCSCTPGcorrlcts =
+    pCSCTPGcorrlcts.product();
+  for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator cscItr1 = myCSCTPGcorrlcts->begin();
+       cscItr1 != myCSCTPGcorrlcts->end();
        cscItr1++)
     {
-     CSCCorrelatedLCTDigiCollection::Range range1 = pCSCTPGcorrlcts->get((*cscItr1).first);
+     CSCCorrelatedLCTDigiCollection::Range range1 = myCSCTPGcorrlcts->get((*cscItr1).first);
      for (CSCCorrelatedLCTDigiCollection::const_iterator lctItr1 = range1.first;
 	   lctItr1 != range1.second;
 	   lctItr1++) 

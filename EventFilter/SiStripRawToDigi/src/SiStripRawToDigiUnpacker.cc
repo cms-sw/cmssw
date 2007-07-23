@@ -33,13 +33,11 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 /** */
 SiStripRawToDigiUnpacker::SiStripRawToDigiUnpacker( int16_t appended_bytes, 
-						    int16_t fed_buffer_dump_freq, 
-						    int16_t fed_event_dump_freq, 
+						    int16_t dump_frequency, 
 						    int16_t trigger_fed_id,
 						    bool using_fed_key  ) :
   headerBytes_( appended_bytes ),
-  fedBufferDumpFreq_( fed_buffer_dump_freq ),
-  fedEventDumpFreq_( fed_event_dump_freq ),
+  dumpFrequency_( dump_frequency ),
   triggerFedId_( trigger_fed_id ),
   useFedKey_( using_fed_key ),
   fedEvent_(0),
@@ -66,6 +64,9 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 					    const edm::Handle<FEDRawDataCollection>& buffers, 
 					    const SiStripEventSummary& summary,
 					    auto_ptr<SiStripDigiCollection>& digis ) {
+  LogTrace(mlRawToDigi_)
+    << "[SiStripRawToDigiUnpacker::"<<__func__<<"]"
+    << " Creating SiStripDigiCollection ('pseudo-digis')...";
   
   // Information for the pseudo-digis object
   vector<sistrip::FedBufferFormat> formats;
@@ -81,6 +82,9 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
   // Retrieve FED ids from cabling map and iterate through 
   vector<uint16_t>::const_iterator ifed = cabling.feds().begin();
   for ( ; ifed != cabling.feds().end(); ifed++ ) {
+    LogTrace(mlRawToDigi_)
+      << "[SiStripRawToDigiUnpacker::"<<__func__<<"]"
+      << " Extracting payload from FED id: " << *ifed << "...";
     
     // Retrieve FED raw data for given FED 
     const FEDRawData& input = buffers->FEDData( static_cast<int>(*ifed) );
@@ -149,9 +153,17 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 					    RawDigis& virgin_raw,
 					    RawDigis& proc_raw,
 					    Digis& zero_suppr ) {
-
+  LogTrace(mlRawToDigi_)
+    << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+    << " Creating Digis...";
+ 
   // Check if FEDs found in cabling map and event data
-  if ( cabling.feds().empty() ) {
+  if ( !cabling.feds().empty() ) {
+    LogTrace(mlRawToDigi_)
+      << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+      << " Found " << cabling.feds().size() 
+      << " FEDs in cabling map!";
+  } else {
     edm::LogWarning(mlRawToDigi_)
       << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
       << " No FEDs found in cabling map!";
@@ -173,15 +185,18 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
   // Retrieve FED ids from cabling map and iterate through 
   vector<uint16_t>::const_iterator ifed = cabling.feds().begin();
   for ( ; ifed != cabling.feds().end(); ifed++ ) {
+    LogTrace(mlRawToDigi_)
+      << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+      << " Extracting payload from FED id: " << *ifed;
     
     // Retrieve FED raw data for given FED 
     const FEDRawData& input = buffers.FEDData( static_cast<int>(*ifed) );
-    
+
     // Dump of FEDRawData to stdout
-    if ( fedBufferDumpFreq_ && !(event_%fedBufferDumpFreq_) ) {
+    if ( dumpFrequency_ && !(event_%dumpFrequency_) ) {
       stringstream ss;
       dumpRawData( *ifed, input, ss );
-      edm::LogVerbatim(mlRawToDigi_) << ss.str();
+      LogTrace(mlRawToDigi_) << ss.str();
     }
     
     // Locate start of FED buffer within raw data
@@ -199,15 +214,15 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	<< " NULL pointer to FEDRawData for FED id " << *ifed;
       continue;
     }	
-    
+
     // Check on FEDRawData size
     if ( !size_u32 ) {
       edm::LogWarning(mlRawToDigi_)
 	<< "[SiStripRawToDigiUnpacker::" << __func__ << "]"
 	<< " FEDRawData has zero size for FED id " << *ifed;
       continue;
-    }
-    
+    }	
+
     // Initialise Fed9UEvent using present FED buffer
     try {
       fedEvent_->Init( data_u32, 0, size_u32 ); 
@@ -221,32 +236,32 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
     } catch(...) { handleException( __func__, "Problem extracting readout mode from Fed9UEvent" ); } 
     
     // Dump of FED buffer
-    if ( fedEventDumpFreq_ && !(event_%fedEventDumpFreq_) ) {
+    if ( dumpFrequency_ && !(event_%dumpFrequency_) ) {
       stringstream ss;
       fedEvent_->dump( ss );
-      edm::LogVerbatim(mlRawToDigi_) << ss.str();
+      LogTrace(mlRawToDigi_) << ss.str();
     }
-    
+
     // Iterate through FED channels, extract payload and create Digis
     Fed9U::Fed9UAddress addr;
     for ( uint16_t channel = 0; channel < 96; channel++ ) {
       
-      uint16_t iunit = channel / 12;
-      uint16_t ichan = channel % 12;
-      uint16_t chan  = channel;
+      uint16_t iunit = 0;
+      uint16_t ichan = 0;
+      uint16_t chan = 0;
       try {
 	addr.setFedChannel( static_cast<unsigned char>( channel ) );
 	iunit = addr.getFedFeUnit();
 	ichan = addr.getFeUnitChannel();
-	chan  = 12*( addr.getFedFeUnit() ) + addr.getFeUnitChannel();
+	chan = 12*( addr.getFedFeUnit() ) + addr.getFeUnitChannel();
       } catch(...) { 
 	handleException( __func__, "Problem using Fed9UAddress" ); 
       } 
-      
+
       // Retrieve cabling map information and define "FED key" for Digis
       const FedChannelConnection& conn = cabling.connection( *ifed, chan );
 
-      // Determine whether FED key is inferred from cabling or channel loop
+      // Determine whether FED key is infered from cabling or channel loop
       uint32_t fed_key = 0;
       if ( summary.task() == sistrip::FED_CABLING ) { 
 	fed_key = SiStripFedKey::key( *ifed, chan ); 
@@ -266,15 +281,15 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
       uint16_t ipair = ( useFedKey_ || mode == sistrip::SCOPE_MODE ) ? 0 : conn.apvPairNumber();
 
       if ( mode == sistrip::SCOPE_MODE ) {
-	
+
 	edm::DetSet<SiStripRawDigi>& sm = scope_mode.find_or_insert( key );
 	vector<uint16_t> samples; samples.reserve( 1024 ); // theoretical maximum for scope mode length
 	try { 
-   	  samples = fedEvent_->feUnit( iunit ).channel( ichan ).getSamples();
+	  samples = fedEvent_->feUnit( iunit ).channel( ichan ).getSamples();
 	} catch(...) { 
 	  stringstream sss;
-	  sss << "Problem accessing SCOPE_MODE data for FedId/FeUnit/FeChan: " 
-	      << *ifed << "/" << iunit << "/" << ichan;
+	  sss << "Problem accessing SCOPE_MODE data for FED id/ch: " 
+	      << *ifed << "/" << ichan;
 	  handleException( __func__, sss.str() ); 
 	} 
 	if ( !samples.empty() ) { 
@@ -282,20 +297,26 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	  for ( uint16_t i = 0; i < samples.size(); i++ ) {
 	    sm.data[i] = SiStripRawDigi( samples[i] ); 
 	  }
+	  if ( samples[0] > 500 ) {
+	    LogTrace(mlRawToDigi_)
+	      << "##### SAMPLE ABOVE 500! for FedId " << *ifed
+	      << " and FedCh " << ichan
+	      << " with value " << samples[0];
+	  }
 	}
+	
       } else if ( mode == sistrip::VIRGIN_RAW ) {
 
 	edm::DetSet<SiStripRawDigi>& vr = virgin_raw.find_or_insert( key );
-	vector<uint16_t> samples; samples.reserve(256); 
+	vector<uint16_t> samples; samples.reserve(256);
 	try {
-   	  samples = fedEvent_->channel( iunit, ichan ).getSamples();
+	  samples = fedEvent_->channel( iunit, ichan ).getSamples();
 	} catch(...) { 
 	  stringstream sss;
 	  sss << "Problem accessing VIRGIN_RAW data for FED id/ch: " 
 	      << *ifed << "/" << ichan;
 	  handleException( __func__, sss.str() ); 
 	} 
-	//@@ NEED FIX BELOW: vr.data.size() should be 256 * conn.nApvPairs()
 	if ( !samples.empty() ) { 
 	  if ( vr.data.size() < static_cast<uint16_t>(256*(ipair+1)) ) { 
 	    vr.data.reserve( 256*(ipair+1) ); vr.data.resize( 256*(ipair+1) ); 
@@ -309,20 +330,19 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	    vr.data[ipair*256+i] = SiStripRawDigi( samples[readout] ); 
 	  }
 	}
-	
+
       } else if ( mode == sistrip::PROC_RAW ) {
 
 	edm::DetSet<SiStripRawDigi>& pr = proc_raw.find_or_insert( key ) ;
 	vector<uint16_t> samples; samples.reserve(256);
 	try {
-   	  samples = fedEvent_->channel( iunit, ichan ).getSamples();
+	  samples = fedEvent_->channel( iunit, ichan ).getSamples();
 	} catch(...) { 
 	  stringstream sss;
 	  sss << "Problem accessing PROC_RAW data for FED id/ch: " 
 	      << *ifed << "/" << ichan;
 	  handleException( __func__, sss.str() ); 
 	} 
-	//@@ NEED FIX BELOW: pr.data.size() should be 256 * conn.nApvPairs()
 	if ( !samples.empty() ) { 
 	  if ( pr.data.size() < static_cast<uint16_t>(256*(ipair+1)) ) { 
 	    pr.data.reserve( 256*(ipair+1) ); pr.data.resize( 256*(ipair+1) ); 
@@ -385,11 +405,11 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
 	   << " Unknown FED readout mode (" << mode
 	   << ")! Assuming SCOPE MODE..."; 
-  	edm::LogWarning(mlRawToDigi_) << ss.str();
+	edm::LogWarning(mlRawToDigi_) << ss.str();
 	edm::DetSet<SiStripRawDigi>& sm = scope_mode.find_or_insert( key );
 	vector<uint16_t> samples; samples.reserve( 1024 ); // theoretical maximum
 	try {
-   	  samples = fedEvent_->feUnit( iunit ).channel( ichan ).getSamples();
+	  samples = fedEvent_->feUnit( iunit ).channel( ichan ).getSamples();
 	} catch(...) { 
 	  stringstream sss;
 	  sss << "Problem accessing data (UNKNOWN FED READOUT MODE) for FED id/ch: " 
@@ -397,21 +417,22 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	  handleException( __func__, sss.str() ); 
 	} 
 	if ( samples.empty() ) { 
- 	  edm::LogWarning(mlRawToDigi_)
- 	    << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
- 	    << " No SM digis found!"; 
+	  edm::LogWarning(mlRawToDigi_)
+	    << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	    << " No SM digis found!"; 
 	} else {
 	  sm.data.clear(); sm.data.reserve( samples.size() ); sm.data.resize( samples.size() ); 
 	  for ( uint16_t i = 0; i < samples.size(); i++ ) {
 	    sm.data[i] = SiStripRawDigi( samples[i] ); 
 	  }
- 	  stringstream ss;
- 	  ss << "Extracted " << samples.size() 
- 	     << " SCOPE MODE digis (samples[0] = " << samples[0] 
- 	     << ") from FED id/ch " 
- 	     << conn.fedId() << "/" << conn.fedCh();
- 	  //LogTrace(mlRawToDigi_) << ss.str();
+	  stringstream ss;
+	  ss << "Extracted " << samples.size() 
+	     << " SCOPE MODE digis (samples[0] = " << samples[0] 
+	     << ") from FED id/ch " 
+	     << conn.fedId() << "/" << conn.fedCh();
+	  LogTrace(mlRawToDigi_) << ss.str();
 	}
+
 
       }
 
@@ -426,8 +447,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 // -----------------------------------------------------------------------------
 /** */
 void SiStripRawToDigiUnpacker::triggerFed( const FEDRawDataCollection& buffers,
-					   SiStripEventSummary& summary,
-					   const uint32_t& event ) {
+					   SiStripEventSummary& summary ) {
   
   // Pointer to data (recast as 32-bit words) and number of 32-bit words
   uint32_t* data_u32 = 0;
@@ -514,8 +534,8 @@ void SiStripRawToDigiUnpacker::triggerFed( const FEDRawDataCollection& buffers,
     // Write commissioning information to event 
     uint32_t hsize = sizeof(TFHeaderDescription)/sizeof(uint32_t);
     uint32_t* head = &data_u32[hsize];
-    summary.commissioningInfo( head, event );
-    
+    summary.commissioningInfo( head );
+
   }
   
 }
@@ -674,25 +694,25 @@ void SiStripRawToDigiUnpacker::dumpRawData( uint16_t fed_id,
 
   } else {
     
-    ss << "  Byte |  <---- Byte order ----<  | Byte" << endl;
+    ss << "  Byte |  <---- byte order ----<  | Byte" << endl;
     ss << "  cntr |  7  6  5  4  3  2  1  0  | cntr" << endl;
     for ( uint32_t i = 0; i < buffer.size()/8; i++ ) {
-      //if ( i>=20 && ((i+4)<(buffer.size()/8)) ) { continue; }
-      uint16_t tmp0 = buffer.data()[i*8+0] & 0xFF;
-      uint16_t tmp1 = buffer.data()[i*8+1] & 0xFF;
-      uint16_t tmp2 = buffer.data()[i*8+2] & 0xFF;
-      uint16_t tmp3 = buffer.data()[i*8+3] & 0xFF;
-      uint16_t tmp4 = buffer.data()[i*8+4] & 0xFF;
-      uint16_t tmp5 = buffer.data()[i*8+5] & 0xFF;
-      uint16_t tmp6 = buffer.data()[i*8+6] & 0xFF;
-      uint16_t tmp7 = buffer.data()[i*8+7] & 0xFF;
-      if ( !tmp0 && !tmp1 && !tmp2 && !tmp3 &&
+
+      if ( i>=20 && ((i+4)<(buffer.size()/8)) ) { continue; }
+
+      unsigned int tmp0 = buffer.data()[i*8+0] & 0xFF;
+      unsigned int tmp1 = buffer.data()[i*8+1] & 0xFF;
+      unsigned int tmp2 = buffer.data()[i*8+2] & 0xFF;
+      unsigned int tmp3 = buffer.data()[i*8+3] & 0xFF;
+      unsigned int tmp4 = buffer.data()[i*8+4] & 0xFF;
+      unsigned int tmp5 = buffer.data()[i*8+5] & 0xFF;
+      unsigned int tmp6 = buffer.data()[i*8+6] & 0xFF;
+      unsigned int tmp7 = buffer.data()[i*8+7] & 0xFF;
+      if ( !tmp0 && !tmp1 && !tmp2 && !tmp3&&
 	   !tmp4 && !tmp5 && !tmp6 && !tmp7 ) { empty++; }
       else { 
 	if ( empty ) { 
-	  ss << "         [.." 
-	     << dec << setfill('.') << setw(4) << empty 
-	     << " null words....]" << endl; 
+	  ss << "         ......empty words......" << endl; 
 	  empty = 0; 
 	}
 	ss << dec

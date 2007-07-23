@@ -1,23 +1,13 @@
 /*
  * \file L1TECALTPG.cc
  *
- * $Date: 2007/02/20 22:49:00 $
- * $Revision: 1.3 $
+ * $Date: 2007/02/19 19:24:09 $
+ * $Revision: 1.1 $
  * \author J. Berryhill
  *
  * - initial version stolen from GCTMonnitor (thanks!) (wittich 02/07)
  *
- * $Log: L1TECALTPG.cc,v $
- * Revision 1.3  2007/02/20 22:49:00  wittich
- * - change from getByType to getByLabel in ECAL TPG,
- *   and make it configurable.
- * - fix problem in the GCT with incorrect labels. Not the ultimate
- *   solution - will probably have to go to many labels.
- *
- * Revision 1.2  2007/02/19 22:07:26  wittich
- * - Added three monitorables to the ECAL TPG monitoring (from GCTMonitor)
- * - other minor tweaks in GCT, etc
- *
+ * $Log$
  */
 
 #include "DQM/L1TMonitor/interface/L1TECALTPG.h"
@@ -41,8 +31,7 @@ const float TPETAMIN = -32.5;
 const float TPETAMAX = 32.5;
 
 
-L1TECALTPG::L1TECALTPG(const ParameterSet & ps):
-  ecaltpgSource_(ps.getParameter<edm::InputTag>("ecaltpgSource"))
+L1TECALTPG::L1TECALTPG(const ParameterSet & ps)
 {
 
   // verbosity switch
@@ -139,13 +128,12 @@ void L1TECALTPG::endJob(void)
 void L1TECALTPG::analyze(const Event & e, const EventSetup & c)
 {
   nev_++;
-  if (verbose_) {
+  if (verbose_)
     std::cout << "L1TECALTPG: analyze...." << std::endl;
-  }
 
   // Get the ECAL TPGs
   edm::Handle < EcalTrigPrimDigiCollection > eTP;
-  e.getByLabel(ecaltpgSource_, eTP);
+  e.getByType(eTP);
 
   // Fill the ECAL TPG histograms
   for (EcalTrigPrimDigiCollection::const_iterator ieTP = eTP->begin();

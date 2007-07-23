@@ -11,12 +11,12 @@ SiPixelWebClient::SiPixelWebClient(xdaq::ApplicationStub *stub)
 		  9090       // the port at which the collector listens
 		  )
 {
-//  cout<<"entering WebClient constructor"<<endl;
+  cout<<"entering WebClient constructor"<<endl;
   // Instantiate a web interface:
   webInterface_p = new SiPixelWebInterface(getContextURL(),getApplicationURL(), & mui_);
   
   xgi::bind(this, &SiPixelWebClient::handleWebRequest, "Request");
-//  cout<<"leaving WebClient constructor"<<endl;
+  cout<<"leaving WebClient constructor"<<endl;
 }
 
 /*
@@ -24,10 +24,10 @@ SiPixelWebClient::SiPixelWebClient(xdaq::ApplicationStub *stub)
 */
 void SiPixelWebClient::general(xgi::Input * in, xgi::Output * out ) throw (xgi::exception::Exception)
 {
-//  cout<<"entering general"<<endl;
+  cout<<"entering general"<<endl;
   // the web interface should know what to do:
   webInterface_p->Default(in, out);
-//  cout<<"leaving general"<<endl;
+  cout<<"leaving general"<<endl;
 }
 
 
@@ -36,10 +36,10 @@ void SiPixelWebClient::general(xgi::Input * in, xgi::Output * out ) throw (xgi::
 */
 void SiPixelWebClient::handleWebRequest(xgi::Input * in, xgi::Output * out)
 {
-//  cout<<"entering handleWebRequest"<<endl;
+  cout<<"entering handleWebRequest"<<endl;
   // the web interface should know what to do:
   webInterface_p->handleRequest(in, out);
-//  cout<<"leaving handleWebRequest"<<endl;
+  cout<<"leaving handleWebRequest"<<endl;
 }
 
 /*
@@ -47,13 +47,13 @@ void SiPixelWebClient::handleWebRequest(xgi::Input * in, xgi::Output * out)
 */
 void SiPixelWebClient::configure()
 {
-//  cout << "SiPixelClient::configure: Reading Configuration " << endl;
+  cout << "SiPixelClient::configure: Reading Configuration " << endl;
 //  webInterface_p->readConfiguration(updateFrequencyForTrackerMap_, 
 //				    updateFrequencyForSummary_);
   webInterface_p->readConfiguration(updateFrequencyForTrackerMap_, 
 				    updateFrequencyForBarrelSummary_,
 				    updateFrequencyForEndcapSummary_);
-//  cout<<"leaving configure"<<endl;
+  cout<<"leaving configure"<<endl;
 }
 
 /*
@@ -61,9 +61,9 @@ void SiPixelWebClient::configure()
 */
 void SiPixelWebClient::newRun()
 {
-//  cout<<"entering newRun"<<endl;
+  cout<<"entering newRun"<<endl;
   upd_->registerObserver(this);
-//  cout<<"leaving newRun"<<endl;
+  cout<<"leaving newRun"<<endl;
 }
 
 /*

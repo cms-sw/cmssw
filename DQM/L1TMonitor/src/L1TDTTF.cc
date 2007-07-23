@@ -1,8 +1,8 @@
 /*
  * \file L1TDTTF.cc
  *
- * $Date: 2007/02/19 19:24:09 $
- * $Revision: 1.1 $
+ * $Date: 2007/02/02 06:01:40 $
+ * $Revision: 1.00 $
  * \author J. Berryhill
  *
  */
@@ -13,7 +13,6 @@ using namespace std;
 using namespace edm;
 
 L1TDTTF::L1TDTTF(const ParameterSet& ps)
-  : dttfSource_( ps.getParameter< InputTag >("dttfSource") )
 {
 
   // verbosity switch
@@ -116,7 +115,7 @@ void L1TDTTF::analyze(const Event& e, const EventSetup& c)
 
 
   edm::Handle<std::vector<L1MuRegionalCand> > L1DTTFTracks;  
-  e.getByLabel(dttfSource_,L1DTTFTracks);
+  e.getByLabel("dttf","DT",L1DTTFTracks);
   std::cout << "DT TF collection size: " << L1DTTFTracks->size()
    	    << std::endl;
   int ndttftrack = 0;

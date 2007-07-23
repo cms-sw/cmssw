@@ -35,7 +35,7 @@ class CSCCFEBData {
   std::vector<std::vector<CSCStripDigi> > stripDigis() const;
  
   /// returns one status digi per cfeb
-  CSCCFEBStatusDigi statusDigi() const;
+  //CSCCFEBStatusDigi statusDigi() const;
 
   unsigned short * data() {return theData;}
   unsigned sizeInWords() const {return theSize;} 

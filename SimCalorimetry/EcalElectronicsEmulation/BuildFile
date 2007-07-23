@@ -5,6 +5,7 @@
 <use name=Geometry/CaloTopology>
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalDetId>
+<use name=SimDataFormats/CaloHit>
 <use name=SimCalorimetry/EcalSelectiveReadoutAlgos>
 <use name=root>
 
@@ -19,5 +20,6 @@
    <use name=Geometry/CaloTopology>
    <use name=DataFormats/EcalDigi>
    <use name=DataFormats/EcalDetId>
+   <use name=SimDataFormats/CaloHit>
    <use name=SimCalorimetry/EcalSelectiveReadoutAlgos>
 </export>

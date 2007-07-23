@@ -9,41 +9,13 @@
 #include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
 #include "DataFormats/Common/interface/RefVector.h"
 
-namespace helper {
-  
-  struct RefVectorShallowCloneStoreMananger {
-    RefVectorShallowCloneStoreMananger() : selected_( new reco::CandidateCollection ) { 
-    }
-    template<typename I>
-    void cloneAndStore( const I & begin, const I & end, edm::Event & ) {
-      for( I i = begin; i != end; ++ i )
-	selected_->push_back( new reco::ShallowCloneCandidate( reco::CandidateBaseRef( * i ) ) );
-    }
-    void put( edm::Event & evt ) {
-      evt.put( selected_ );
-    }
-    bool empty() const { return selected_->empty(); }
-  private:
-    std::auto_ptr<reco::CandidateCollection> selected_;
-  };
-
-  template<typename C>
-  struct ShallowCloneCollectionStoreManager {
-    typedef RefVectorShallowCloneStoreMananger type;
-    typedef ObjectSelectorBase<reco::CandidateCollection> base;
-  };
- 
-}
-
-template<typename S, 
-	 typename N = NonNullNumberSelector,
-         typename P = reco::helpers::NullPostProcessor<typename S::collection>,
-	 typename M = typename helper::CollectionStoreManager<typename S::collection>::type, 
-	 typename B = typename helper::CollectionStoreManager<typename S::collection>::base>
-class ObjectShallowCloneSelector : public ObjectSelector<S, N, P, M, B> {
+template<typename Selector, 
+	 typename SizeSelector = NonNullNumberSelector,
+         typename PostProcessor = helper::NullPostProcessor<reco::CandidateCollection> >
+class ObjectShallowCloneSelector : public ObjectSelector<Selector, reco::CandidateCollection, SizeSelector> {
 public:
   explicit ObjectShallowCloneSelector( const edm::ParameterSet & cfg ) :
-    ObjectSelector<S, N, P, M, B>( cfg ) { }
+    ObjectSelector<Selector, reco::CandidateCollection, SizeSelector, PostProcessor>( cfg ) { }
 };
 
 #endif

@@ -1,7 +1,3 @@
-// Last commit: $Id: $
-// Latest tag:  $Name:  $
-// Location:    $Source: $
-
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "PluginManager/ModuleDef.h"
 DEFINE_SEAL_MODULE();

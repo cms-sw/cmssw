@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.65 2007/01/27 00:10:10 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.64.2.1 2007/03/14 02:47:17 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -49,7 +49,7 @@ namespace edm {
     maxFileSize_(pset.getUntrackedParameter<int>("maxSize", 0x7f000000)),
     compressionLevel_(pset.getUntrackedParameter<int>("compressionLevel", 1)),
     moduleLabel_(pset.getParameter<std::string>("@module_label")),
-    fileCount_(0),
+    fileCount_(-1),
     poolFile_() {
     ClassFiller();
     // We need to set a custom streamer for edm::RefCore so that it will not be split.
@@ -73,11 +73,13 @@ namespace edm {
   }
 
   void PoolOutputModule::beginJob(EventSetup const&) {
-    poolFile_ = boost::shared_ptr<PoolFile>(new PoolFile(this));
   }
 
   void PoolOutputModule::endJob() {
-    poolFile_->endFile();
+    if (poolFile_.get() != 0) {
+      poolFile_->endFile();
+      poolFile_.reset();
+    }
   }
 
   PoolOutputModule::~PoolOutputModule() {
@@ -85,20 +87,29 @@ namespace edm {
 
   void PoolOutputModule::write(EventPrincipal const& e) {
       if (hasNewlyDroppedBranch_[InEvent]) e.addToProcessHistory();
-      if (poolFile_->writeOne(e)) {
-	++fileCount_;
-	poolFile_ = boost::shared_ptr<PoolFile>(new PoolFile(this));
-      }
+      poolFile_->writeOne(e);
   }
 
   void PoolOutputModule::endLuminosityBlock(LuminosityBlockPrincipal const& lb) {
       if (hasNewlyDroppedBranch_[InLumi]) lb.addToProcessHistory();
       poolFile_->writeLuminosityBlock(lb);
+      Service<JobReport> reportSvc;
+      reportSvc->reportLumiSection(lb.runNumber(), lb.id());
+  }
+
+  void PoolOutputModule::beginRun(RunPrincipal const&) {
+    if (poolFile_.get() == 0) {
+      ++fileCount_;
+      poolFile_ = boost::shared_ptr<PoolFile>(new PoolFile(this));
+    }
   }
 
   void PoolOutputModule::endRun(RunPrincipal const& r) {
       if (hasNewlyDroppedBranch_[InRun]) r.addToProcessHistory();
-      poolFile_->writeRun(r);
+      if (poolFile_->writeRun(r)) {
+        poolFile_->endFile();
+	poolFile_.reset();
+      }
   }
 
   PoolOutputModule::PoolFile::PoolFile(PoolOutputModule *om) :
@@ -112,7 +123,8 @@ namespace edm {
       moduleDescriptionPlacement_(),
       processHistoryPlacement_(),
       fileFormatVersionPlacement_(),
-      om_(om) {
+      om_(om),
+      newFileAtEndOfRun_(false) {
     TTree::SetMaxTreeSize(kMaxLong64);
     std::string suffix(".root");
     std::string::size_type offset = om_->fileName().rfind(suffix);
@@ -224,7 +236,7 @@ namespace edm {
     placement.setContainerName(poolNames::containerName(treeName_, branchName));
   }
 
-  bool PoolOutputModule::PoolFile::writeOne(EventPrincipal const& e) {
+  void PoolOutputModule::PoolFile::writeOne(EventPrincipal const& e) {
     ++eventCount_;
     startTransaction();
     // Write auxiliary branch
@@ -250,8 +262,9 @@ namespace edm {
 	unsigned int size = om_->context_.getFileSize(file_)/oneK;
 	unsigned int eventSize = std::max(size/eventCount_, 1U);
 	if (size + 2*eventSize >= om_->maxFileSize_) {
-	  endFile();
-	  return true;
+	  newFileAtEndOfRun_ = true;
+	  // endFile();
+	  // return true;
 	} else {
 	  unsigned int increment = (om_->maxFileSize_ - size)/eventSize;
 	  increment -= increment/8;	// Prevents overshoot
@@ -262,7 +275,6 @@ namespace edm {
       commitAndFlushTransaction();
       startTransaction();
     }
-    return false;
   }
 
   void
@@ -279,7 +291,7 @@ namespace edm {
     commitTransaction();
   }
 
-  void
+  bool
   PoolOutputModule::PoolFile::writeRun(RunPrincipal const& r) {
     startTransaction();
     // Write auxiliary branch
@@ -290,6 +302,7 @@ namespace edm {
     ra.markWrite(auxiliaryPlacement_[InRun]);	
     if (!outputItemList_[InRun].empty()) fillBranches(outputItemList_[InRun], r.groupGetter());
     commitTransaction();
+    return newFileAtEndOfRun_;
   }
 
   void
