@@ -53,7 +53,7 @@ TProfile* prof_x0_str_OTH_new;
 TProfile* prof_x0_str_AIR_new;
 //
 unsigned int iFirst = 1;
-unsigned int iLast  = 8;
+unsigned int iLast  = 9;
 //
 
 using namespace std;
@@ -80,7 +80,7 @@ TrackerMaterialBudgetComparison(TString detector) {
   theDetectorFileName_new = "matbdg_" + theDetector + "_new.root";
   if(theDetector == "TrackerSum") {
     iFirst = 1;
-    iLast  = 8;
+    iLast  = 9;
     theDetectorFileName_old = "matbdg_TIB_old.root";
     theDetectorFileName_new = "matbdg_TIB_new.root";
   }
