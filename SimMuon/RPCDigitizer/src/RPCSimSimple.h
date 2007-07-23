@@ -8,6 +8,14 @@
  *  \author Marcello Maggi -- INFN Bari
  */
 #include "SimMuon/RPCDigitizer/src/RPCSim.h"
+#include "SimMuon/RPCDigitizer/src/RPCSynchronizer.h"
+
+class RPCGeometry;
+
+namespace CLHEP {
+  class HepRandomEngine;
+  class RandFlat;
+}
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -20,11 +28,22 @@ class RPCSimSimple : public RPCSim
   RPCSimSimple(const edm::ParameterSet& config);
   ~RPCSimSimple(){}
   void simulate(const RPCRoll* roll,
-			const edm::PSimHitContainer& rpcHits );
+		const edm::PSimHitContainer& rpcHits ){};
+
+  void simulate(const RPCRoll* roll,
+		const edm::PSimHitContainer& rpcHits, const RPCGeometry*);
+
  private:
   void init(){};
+<<<<<<< RPCSimSimple.h
+  CLHEP::HepRandomEngine* rndEngine;
+  CLHEP::RandFlat* flatDistribution;
+  RPCSynchronizer* _rpcSync;
+
+=======
   CLHEP::HepRandomEngine* rndEngine;
   CLHEP::RandFlat* flatDistribution;
 
+>>>>>>> 1.4
 };
 #endif

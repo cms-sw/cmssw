@@ -1,6 +1,8 @@
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
 #include "Geometry/RPCGeometry/interface/RPCRollSpecs.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimAverage.h"
+
+#include "SimMuon/RPCDigitizer/src/RPCSynchronizer.h"
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 
@@ -13,17 +15,36 @@
 #include <CLHEP/Random/RandGaussQ.h>
 #include <CLHEP/Random/RandFlat.h>
 
+#include <FWCore/Framework/interface/Frameworkfwd.h>
+#include <FWCore/Framework/interface/EventSetup.h>
+#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/Event.h>
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <FWCore/Framework/interface/ESHandle.h>
+
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include <Geometry/Records/interface/MuonGeometryRecord.h>
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+
 #include<cstring>
 #include<iostream>
 #include<fstream>
 #include<string>
 #include<vector>
 #include<stdlib.h>
+#include <utility>
+#include <map>
 
 using namespace std;
 
+RPCSimAverage::RPCSimAverage(const edm::ParameterSet& config) : 
+  RPCSim(config)
+{
 
-RPCSimAverage::RPCSimAverage(const edm::ParameterSet& config) : RPCSim(config){
+  _rpcSync = new RPCSynchronizer(config);
+
   aveEff = config.getParameter<double>("averageEfficiency");
   aveCls = config.getParameter<double>("averageClusterSize");
   resRPC = config.getParameter<double>("timeResolution");
@@ -45,14 +66,20 @@ RPCSimAverage::RPCSimAverage(const edm::ParameterSet& config) : RPCSim(config){
     std::cout <<"Link Board Gate Width     = "<<lbGate<<" ns"<<std::endl;
   }
 
+  string ifile="ClSizeTot.dat";
+
+  infile = new ifstream(ifile.c_str(), ios::in);
+  if(! *infile) {
+    cerr << "error: unable to open input file: "
+         <<  ifile  << endl;
+    //    return -1;
+  }
 
   string buffer;
   double sum = 0;
   unsigned int counter = 1;
   unsigned int row = 1;
   std::vector<double> sum_clsize;
-
-
 
   while ( *infile >> buffer ) {
     const char *buffer1 = buffer.c_str();
@@ -129,21 +156,38 @@ int RPCSimAverage::getClSize(float posX)
 
 void
 RPCSimAverage::simulate(const RPCRoll* roll,
-		      const edm::PSimHitContainer& rpcHits )
+			const edm::PSimHitContainer& rpcHits,const RPCGeometry* geo)
 {
+
+  _rpcSync->setGeometry(geo);
+  _rpcSync->setReadOutTime(geo);
+
+  //  if(_rpcSync->getReadOutTime(roll->id()) < 1){
+//     std::cout<<"Region = "<<roll->id().region()<<"  Ring = "<<roll->id().ring()<<"  Station = "<<roll->id().station()<<"  Sector = "<<roll->id().sector()<<"  Layer = "<<roll->id().layer()<<"  Subsector = "<<roll->id().subsector()<<"  Roll = "<<roll->id().roll()<<std::endl;
+//     std::cout<<"IL TIME DELLA ROLL E': "<<_rpcSync->getReadOutTime(roll->id())<<std::endl;
+    //  }
+  //  _rpcSync->getReadOutTime(roll->id());
+ 
   const Topology& topology=roll->specs()->topology();
+
   for (edm::PSimHitContainer::const_iterator _hit = rpcHits.begin();
        _hit != rpcHits.end(); ++_hit){
-
  
+
     // Here I hould check if the RPC are up side down;
     const LocalPoint& entr=_hit->entryPoint();
+
     //    const LocalPoint& exit=_hit->exitPoint();
 
     float posX = roll->strip(_hit->localPosition()) - static_cast<int>(roll->strip(_hit->localPosition()));
 
     // Effinciecy
+<<<<<<< RPCSimAverage.cc
     if (flatDistribution->fire() < aveEff) {
+
+=======
+    if (flatDistribution->fire() < aveEff) {
+>>>>>>> 1.3
       int centralStrip = topology.channel(entr)+1;  
       int fstrip=centralStrip;
       int lstrip=centralStrip;
@@ -182,9 +226,14 @@ RPCSimAverage::simulate(const RPCRoll* roll,
 	  }
 	}
       }
+
+//       std::cout<<"CLUSTER SIZE: "<<cls.size()<<std::endl;
+
       for (std::vector<int>::iterator i=cls.begin(); i!=cls.end();i++){
 	// Check the timing of the adjacent strip
-	strips.insert(*i);
+	std::pair<int, int> digi(*i,_rpcSync->getDigiBx(&(*_hit), centralStrip, *i));
+	//	std::cout<<"STRIP: "<<*i<<"  "<<"BX: "<<bx<<std::endl;
+	strips.insert(digi);
       }
     }
   }

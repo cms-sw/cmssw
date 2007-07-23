@@ -9,21 +9,30 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <FWCore/Framework/interface/EventSetup.h>
 #include <set>
 
 class RPCRoll;
+class RPCGeometry;
+
 class RPCSim
 {
  public:
   virtual ~RPCSim(){};
   virtual void simulate(const RPCRoll* roll,
 			const edm::PSimHitContainer& rpcHits )=0;
+
+  virtual void simulate(const RPCRoll* roll,
+			const edm::PSimHitContainer& rpcHits, 
+			const RPCGeometry*)=0;
+
   virtual void fillDigis(int rollDetId, RPCDigiCollection& digis);
  protected:
   RPCSim(const edm::ParameterSet& config);
   virtual void init()=0;
  protected:
-  std::set<int> strips;
+  std::set< std::pair<int,int> > strips;
+  //  int _bx;
 
 };
 #endif

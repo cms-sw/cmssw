@@ -11,8 +11,11 @@
 #include "CLHEP/Random/RandFlat.h"
 #include <cmath>
 
+<<<<<<< RPCSimParam.cc
+=======
 
 
+>>>>>>> 1.5
 RPCSimParam::RPCSimParam(const edm::ParameterSet& config) : RPCSim(config){
   aveEff = config.getParameter<double>("averageEfficiency");
   aveCls = config.getParameter<double>("averageClusterSize");
@@ -33,6 +36,20 @@ RPCSimParam::RPCSimParam(const edm::ParameterSet& config) : RPCSim(config){
     std::cout <<"Signal propagation time   = "<<sspeed<<" x c"<<std::endl;
     std::cout <<"Link Board Gate Width     = "<<lbGate<<" ns"<<std::endl;
   }
+<<<<<<< RPCSimParam.cc
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if ( ! rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+      << "RPCDigitizer requires the RandomNumberGeneratorService\n"
+      "which is not present in the configuration file.  You must add the service\n"
+      "in the configuration file or remove the modules that require it.";
+  }
+  
+  _rpcSync = new RPCSynchronizer(config);
+
+  rndEngine = &(rng->getEngine());
+  flatDistribution = new CLHEP::RandFlat(rndEngine);
+=======
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable()) {
     throw cms::Exception("Configuration")
@@ -43,13 +60,19 @@ RPCSimParam::RPCSimParam(const edm::ParameterSet& config) : RPCSim(config){
   
   rndEngine = &(rng->getEngine());
   flatDistribution = new CLHEP::RandFlat(rndEngine);
+>>>>>>> 1.5
 }
 
 
 void
 RPCSimParam::simulate(const RPCRoll* roll,
-		       const edm::PSimHitContainer& rpcHits )
+		      const edm::PSimHitContainer& rpcHits,
+		      const RPCGeometry* geo )
 {
+
+  _rpcSync->setGeometry(geo);
+  _rpcSync->setReadOutTime(geo);
+
   const Topology& topology=roll->specs()->topology();
   for (edm::PSimHitContainer::const_iterator _hit = rpcHits.begin();
        _hit != rpcHits.end(); ++_hit){
@@ -98,12 +121,18 @@ RPCSimParam::simulate(const RPCRoll* roll,
 	  }
 	}
       }
+
       for (std::vector<int>::iterator i=cls.begin(); i!=cls.end();i++){
 	// Check the timing of the adjacent strip
-	strips.insert(*i);
+	std::pair<int, int> digi(*i,_rpcSync->getDigiBx(&(*_hit), centralStrip, *i));
+	//	std::cout<<"STRIP: "<<*i<<"  "<<"BX: "<<bx<<std::endl;
+	strips.insert(digi);
       }
     }
   }
 }
+
+
+
 
 
