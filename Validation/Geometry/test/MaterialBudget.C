@@ -36,7 +36,7 @@ TProfile* prof_x0_str_AIR;
 TProfile2D* prof2d_x0_det_total;
 //
 unsigned int iFirst = 1;
-unsigned int iLast  = 8;
+unsigned int iLast  = 9;
 //
 
 using namespace std;
@@ -63,7 +63,7 @@ MaterialBudget(TString detector) {
   
   if(theDetector == "TrackerSum") {
     iFirst = 1;
-    iLast  = 8;
+    iLast  = 9;
     theDetectorFileName = "matbdg_TIB.root";
   }
   if(theDetector == "Pixel") {
