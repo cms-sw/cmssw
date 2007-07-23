@@ -23,10 +23,13 @@ namespace edm {
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/RefToBaseVector.h"
 #include "DataFormats/Common/interface/RefToBaseProd.h"
+#include "DataFormats/Common/interface/View.h"
 
 namespace reco {
   /// collection of Candidate objects
   typedef edm::OwnVector<Candidate> CandidateCollection;
+  /// view of a collection containing candidates
+  typedef edm::View<Candidate> CandidateView;
   /// persistent reference to an object in a collection of Candidate objects
   typedef edm::Ref<CandidateCollection> CandidateRef;
   /// persistent reference to an object in a collection of Candidate objects

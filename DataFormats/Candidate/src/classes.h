@@ -33,6 +33,10 @@ namespace {
     edm::Wrapper<reco::CandDoubleAssociations> wav2;
     edm::Wrapper<reco::CandIntAssociations> wav3;
     edm::Wrapper<reco::CandUIntAssociations> wav4;
+    edm::Wrapper<reco::CandViewFloatAssociations> wav5;
+    edm::Wrapper<reco::CandViewDoubleAssociations> wav6;
+    edm::Wrapper<reco::CandViewIntAssociations> wav7;
+    edm::Wrapper<reco::CandViewUIntAssociations> wav8;
     edm::helpers::KeyVal<reco::CandidateRef,reco::CandidateRef> kv1;
     reco::CandMatchMap cmm1;
     reco::CandMatchMap::const_iterator cmm1it;
