@@ -5,13 +5,14 @@
 #include "TH2.h"
 #include "TFile.h"
 #include "TNamed.h"
+#include "TLorentzVector.h"
 #include <vector>
 #include <map>
 
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -20,7 +21,13 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
-#include "DataFormats/Common/interface/EventID.h"
+#include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
+
+
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
@@ -66,8 +73,8 @@
 
 /** \class JetAnalyzer
   *  
-  * $Date: 2007/03/16 15:31:54 $
-  * $Revision: 1.4 $
+  * $Date: 2007/03/19 17:27:05 $
+  * $Revision: 1.5 $
   * \author L. Apanasevich - UIC and Anwar Bhatti
   */
 class JetAnalyzer : public edm::EDAnalyzer {
@@ -194,13 +201,14 @@ public:
   template <typename T> void DiJetBalance(const T& jets, const TString& prefix);
 
   void bookMCParticles();
-  void fillMCParticles(const HepMC::GenEvent mctruth);
+  //  void fillMCParticles(const HepMC::GenEvent mctruth);
+  void fillMCParticles(edm::Handle<CandidateCollection> genParticles);
   void bookMCParticles(const TString& prefix );
   void fillMCParticlesInsideJet(const HepMC::GenEvent genEvent,const GenJetCollection& genJets);
 
   void GetIntegratedEnergy(GenJetCollection::const_iterator ijet,int nbin,const HepMC::GenEvent genEvent,std::vector<double>& Bins,std::vector<double>& e,std::vector<double>& pt);
 
-  void GetGenPhoton(const HepMC::GenEvent mctruth,CLHEP::HepLorentzVector& momentum);
+  void GetGenPhoton(math::XYZTLorentzVector& momentum);
   template <typename T> void DarkEnergyPlots(const T& jets, const TString& prefix,const CaloTowerCollection& caloTowers );
 
   void bookDarkMetPlots(const TString& prefix );
@@ -230,7 +238,7 @@ public:
 
 
   void PtSpectrumInSideAJet(const GenJetCollection& genJets,const HepMC::GenEvent genEvent);
-  void GetParentPartons(const HepMC::GenEvent genEvent,std::vector<HepMC::GenParticle>& ParentParton);
+  void GetParentPartons(std::vector<Candidate*>& ParentParton);
 
   int GetPtBin(double GenJetPt);
 
@@ -244,13 +252,14 @@ private:
 
   HepMC::GenEvent genEvent;
 
+  edm::Handle<CandidateCollection> genParticles;
   edm::SimVertexContainer simVertex;
   edm::SimTrackContainer simTrack;
 
-  //  const CaloTowerCollection caloTowers_;
-
 
   double _EtaMin,_EtaMax;
+
+  std::map <std::string, edm::PCaloHitContainer> caloSimHits_;
 
   edm::Handle<CaloJetCollection> calojets;
   edm::Handle<GenJetCollection>  genJets;

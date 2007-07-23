@@ -5,7 +5,6 @@
 // 
 #include "RecoJets/JetAnalyzers/interface/CaloTowersExample.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <TROOT.h>
@@ -49,3 +48,5 @@ void CaloTowersExample::endJob() {
   m_file->Write(); 
 
 }
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(CaloTowersExample);

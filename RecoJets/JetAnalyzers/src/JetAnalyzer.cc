@@ -16,10 +16,12 @@
 
 #include "RecoJets/JetAnalyzers/interface/JetAnalyzer.h"
 #include "RecoJets/JetAnalyzers/interface/JetUtil.h"
-#include "RecoJets/JetAnalyzers/interface/CaloTowerBoundries.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
 
+#include "RecoJets/JetAnalyzers/interface/CaloTowerBoundries.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+
 
 //#include "RecoJets/Geom/interface/TTrajectoryPoint.hh"
 //#include "RecoJets/Geom/interface/TSimpleExtrapolator.hh"
@@ -37,6 +39,8 @@
 
 typedef CaloJetCollection::const_iterator CalJetIter;
 typedef GenJetCollection::const_iterator GenJetIter;
+
+using namespace reco;
 
 
 double radius(const CalCell& i,const CalCell& j){
@@ -137,30 +141,21 @@ void JetAnalyzer::analyze(edm::Event const& evt, edm::EventSetup const& iSetup) 
   edm::Handle<edm::SimVertexContainer> simVertexContainer;
   edm::Handle<edm::SimTrackContainer>  simTrackContainer;
 
-
   //  edm::Handle<CaloJetCollection> calojets;
   //  edm::Handle<GenJetCollection>  genjets;
   //  edm::Handle<CaloMETCollection> recmet;
   //  edm::Handle<GenMETCollection>  genmet;
   //  edm::Handle<CaloTowerCollection> caloTowers;
-
-
-
- //  edm::Handle<CaloTowerCollection> caloTowers;
-
- //   edm::Handle<EBRecHitCollection> EBRecHits;
- //   edm::Handle<EERecHitCollection> EERecHits;
-
- //   edm::Handle<HBHERecHitCollection> HBHERecHits;
- //   edm::Handle<HORecHitCollection> HORecHits;
- //   edm::Handle<HFRecHitCollection> HFRecHits;
-
-
- //  edm::Handle<HBHEDigiCollection> HBHEDigis;
- //   edm::Handle<HODigiCollection> HODigis;
- //   edm::Handle<HFDigiCollection> HFDigis;
-
- //   edm::Handle<HcalTBTriggerData> trigger;
+  //  edm::Handle<CaloTowerCollection> caloTowers;
+  //   edm::Handle<EBRecHitCollection> EBRecHits;
+  //   edm::Handle<EERecHitCollection> EERecHits;
+  //   edm::Handle<HBHERecHitCollection> HBHERecHits;
+  //   edm::Handle<HORecHitCollection> HORecHits;
+  //   edm::Handle<HFRecHitCollection> HFRecHits;
+  //  edm::Handle<HBHEDigiCollection> HBHEDigis;
+  //   edm::Handle<HODigiCollection> HODigis;
+  //   edm::Handle<HFDigiCollection> HFDigis;
+  //   edm::Handle<HcalTBTriggerData> trigger;
 
   edm::Handle<std::vector<reco::PFCluster> > PFCluster;
   //  edm::Handle< vector<reco::PFCluster> > clustersECAL;
@@ -273,10 +268,12 @@ void JetAnalyzer::analyze(edm::Event const& evt, edm::EventSetup const& iSetup) 
     }
   }
 
+
   if(_PlotMCParticles) {
     try {
-      evt.getByLabel("VtxSmeared","",genEventHandle);
+      evt.getByLabel("source","",genEventHandle);
       genEvent = genEventHandle->getHepMCData();
+      evt.getByLabel("genParticleCandidates",genParticles);
   
     } catch (...) {
       errMsg=errMsg + "  -- No MC truth";
@@ -290,6 +287,24 @@ void JetAnalyzer::analyze(edm::Event const& evt, edm::EventSetup const& iSetup) 
 
     evt.getByLabel ("g4SimHits",simTrackContainer);
     simTrack = *simTrackContainer;
+
+
+    std::vector<edm::Handle<std::vector<PCaloHit> > > caloSimHitHandle;
+
+    evt.getManyByType(caloSimHitHandle);
+
+    //    int sc=caloSimHitHandle.size();
+
+//      for (int ii=0;ii<sc;ii++){
+//        edm::BranchDescription desc = caloSimHitHandle[ii].provenance()->product;
+//        const std::string subdet = desc.productInstanceName_;
+//        cout << " subDet name " << subdet << endl;
+
+//        const edm::PCaloHitContainer *calohits = caloSimHitHandle[ii].product();
+//        caloSimHits_.insert(std::map <std::string,edm::PCaloHitContainer>::value_type(subdet,*calohits));
+//      }
+
+
 
 
 //     int simvert_size = SimVertexContainer->size();
@@ -448,7 +463,7 @@ void JetAnalyzer::analyze( const CaloJetCollection& calojets,
   }
 
   if(_PlotMCParticles) {
-    if(&genEvent) fillMCParticles(genEvent);
+    if(&genEvent) fillMCParticles(genParticles);
   }
 
   // Plot RecHits
@@ -456,6 +471,47 @@ void JetAnalyzer::analyze( const CaloJetCollection& calojets,
     if (&HBHERecHits) fillRecHits(HBHERecHits);
     if (&HORecHits) fillRecHits(HORecHits);
     if (&HFRecHits) fillRecHits(HFRecHits);
+
+    double sumEB(0.0);
+    double sumEE(0.0);
+    double sumHB(0.0);
+    double sumHE(0.0);
+    double sumHO(0.0);
+
+    fillRecHitHists(caloGeometry,EBRecHits,"EB",sumEB);
+    fillRecHitHists(caloGeometry,EERecHits,"EE",sumEE);
+    fillRecHitHists(caloGeometry,HBHERecHits,"HB",sumHB);
+    fillRecHitHists(caloGeometry,HBHERecHits,"HE",sumHE);
+    fillRecHitHists(caloGeometry,HORecHits,"HO",sumHO);
+
+    double sumEmRecHits=sumEB+sumEE;
+    double sumHadRecHits=sumHB+sumHE+sumHO;
+    double sumEnergyRecHits=sumEmRecHits+sumHadRecHits;
+    
+    hname="RecHitsSumEmEnergy";
+    fillHist1D(hname,sumEmRecHits);
+    
+    hname="RecHitsSumHadEnergy";
+    fillHist1D(hname,sumHadRecHits);
+    
+    hname="RecHitsSumEnergy";
+    fillHist1D(hname,sumEnergyRecHits);
+    
+    if(sumEmRecHits<0.6) {
+      hname="RecHitsSumEmEnergyMIP";
+      fillHist1D(hname,sumEmRecHits);
+      
+      hname="RecHitsSumHadEnergyMIP";
+      fillHist1D(hname,sumHadRecHits);
+      
+      hname="RecHitsSumEnergyMIP";
+      fillHist1D(hname,sumEnergyRecHits);
+    }
+    
+    IsItMIP_ = (sumEB+sumEE<0.6) ? true : false;
+  
+    MakeLocalClusters(caloGeometry,calojets,recmets,caloTowers,EBRecHits,EERecHits,HBHERecHits,HORecHits,HFRecHits);
+
   }
 
   // Plot Digis
@@ -469,60 +525,17 @@ void JetAnalyzer::analyze( const CaloJetCollection& calojets,
 
   if(_PlotLocalClusters) {
     if(&genEvent && &genJets){
-      std::vector<HepMC::GenParticle> ParentParton;
-      GetParentPartons(genEvent,ParentParton);
+      std::vector<Candidate*> ParentParton;
+      GetParentPartons(ParentParton);
       PtSpectrumInSideAJet(genJets,genEvent);
     }
   }
 
-  double sumEB(0.0);
-  double sumEE(0.0);
-  double sumHB(0.0);
-  double sumHE(0.0);
-  double sumHO(0.0);
-
-  fillRecHitHists(caloGeometry,EBRecHits,"EB",sumEB);
-  fillRecHitHists(caloGeometry,EERecHits,"EE",sumEE);
-  fillRecHitHists(caloGeometry,HBHERecHits,"HB",sumHB);
-  fillRecHitHists(caloGeometry,HBHERecHits,"HE",sumHE);
-  fillRecHitHists(caloGeometry,HORecHits,"HO",sumHO);
-
-  double sumEmRecHits=sumEB+sumEE;
-  double sumHadRecHits=sumHB+sumHE+sumHO;
-  double sumEnergyRecHits=sumEmRecHits+sumHadRecHits;
-
-  hname="RecHitsSumEmEnergy";
-  fillHist1D(hname,sumEmRecHits);
-
-  hname="RecHitsSumHadEnergy";
-  fillHist1D(hname,sumHadRecHits);
-
-  hname="RecHitsSumEnergy";
-  fillHist1D(hname,sumEnergyRecHits);
-
-  if(sumEmRecHits<0.6) {
-    hname="RecHitsSumEmEnergyMIP";
-    fillHist1D(hname,sumEmRecHits);
-
-    hname="RecHitsSumHadEnergyMIP";
-    fillHist1D(hname,sumHadRecHits);
-
-    hname="RecHitsSumEnergyMIP";
-    fillHist1D(hname,sumEnergyRecHits);
-  }
-  
-  IsItMIP_ = (sumEB+sumEE<0.6) ? true : false;
-  
-
-  MakeLocalClusters(caloGeometry,calojets,recmets,caloTowers,EBRecHits,EERecHits,HBHERecHits,HORecHits,HFRecHits);
 }
 
 void JetAnalyzer::bookGeneralHistograms() {
 
   TString hname; TString htitle;
-  hname="Nevents"; htitle="Number of events";
-  m_HistNames[hname]= new TH1F(hname,htitle,5,0.0,5.0);
-
   hname="Nevents"; htitle="Number of events";
   m_HistNames[hname]= new TH1F(hname,htitle,5,0.0,5.0);
 
@@ -742,6 +755,9 @@ template <typename T> void JetAnalyzer::fillJetHists(const T& jets, const TStrin
     //    const std::vector<CaloTowerDetId>&  barcodes=ijet->getTowerIndices();
     //   int nConstituents= barcodes.size();
 
+    //  std::vector <CaloTowerRef> constituents = ijet->getConstituents ();
+    // int nConstituents= constituents.size();
+
     //  if(prefix=="Calo") Double_t emEnergyFraction  = ijet->emEnergyFraction();
 //     Double_t emEnergyInEB = ijet->emEnergyInEB();
 //     Double_t emEnergyInEE = ijet->emEnergyInEE();
@@ -798,8 +814,12 @@ void JetAnalyzer::fillJetHists(const CaloJetCollection& jets,const TString& pref
     Double_t jetEta = ijet->eta();
     Double_t jetPhi = ijet->phi();
 
-    const std::vector<CaloTowerDetId>&  barcodes=ijet->getTowerIndices();
-    int nConstituents= barcodes.size();
+    //    const std::vector<CaloTowerDetId>&  barcodes=ijet->getTowerIndices();
+    //  int nConstituents= barcodes.size();
+
+    std::vector <CaloTowerRef> constituents = ijet->getConstituents ();
+    int nConstituents= constituents.size();
+
 
     Double_t emEnergyFraction  = ijet->emEnergyFraction();
 
@@ -1443,26 +1463,30 @@ void JetAnalyzer::bookMCParticles(){
   }
 }
 
-void JetAnalyzer::fillMCParticles(const HepMC::GenEvent genEvent){
+void JetAnalyzer::fillMCParticles(edm::Handle<CandidateCollection> genParticles){
 
 
-  for (HepMC::GenEvent::particle_const_iterator partIter = genEvent.particles_begin(); partIter != genEvent.particles_end();
-         ++partIter) {
+  for (size_t i =0;i< genParticles->size(); i++) {
 
-    int status =  (*partIter)->status();
-    bool ParticleIsStable = status==1;
+    const Candidate &p = (*genParticles)[i];
+
+    int Status =  p.status();
+
+    //    int Status =  reco::status(&p);
+
+    bool ParticleIsStable = Status==1;
       
     if(ParticleIsStable){
-       CLHEP::HepLorentzVector vertex = (*partIter)->CreationVertex();
-       CLHEP::HepLorentzVector momentum = (*partIter)->Momentum();
-       HepPDT::ParticleID id = (*partIter)->particleID();  // electrons and positrons are 11 and -11
-       //   cout << "MC particle id " << id.pid() << ", creationVertex " << vertex << " cm, initialMomentum " << momentum << " GeV/c" << endl;   
-       fillHist1D("Pid00",id.pid()); 
+      math::XYZVector vertex(p.vx(),p.vy(),p.vz());
+      math::XYZTLorentzVector momentum=p.p4();
+      int id = p.pdgId();  
+      //cout << "MC particle id " << id << ", creationVertex " << vertex << " cm, initialMomentum " << momentum << " GeV/c" << endl;   
+       fillHist1D("Pid00",id); 
      
        fillHist1D("VertexY00",vertex.y());  
        fillHist1D("VertexZ00",vertex.z());  
 
-       fillHist1D("Pt00",momentum.perp());
+       fillHist1D("Pt00",momentum.pt());
     }
   }
 }
@@ -1473,8 +1497,6 @@ void JetAnalyzer::fillMCParticlesInsideJet(const HepMC::GenEvent genEvent,const 
 
   const double  GenJetPtCut[6]={10.,30.,50.,100.,120.,170.};
   const int imax=5;
-
- 
 
   int njet=0;
   for(GenJetIter ijet=genJets.begin();ijet!=genJets.end(); ijet++){
@@ -1516,6 +1538,8 @@ void JetAnalyzer::fillMCParticlesInsideJet(const HepMC::GenEvent genEvent,const 
 	      Double_t Eta = jetconst[i]->eta();
 	      Double_t Phi = jetconst[i]->phi();
 	      Double_t Pt  = jetconst[i]->pt();
+
+	      int pdgCode = jetconst[i]->pdgId();
 
 	      fillHist1D("PtOfParticleinJet"+pi.str(),Pt);          
 
@@ -1640,11 +1664,11 @@ template <typename T> void JetAnalyzer::DarkEnergyPlots(const T& jets, const TSt
       sumJetPx +=jetPx;
       sumJetPy +=jetPy;   
 
-      const std::vector<CaloTowerDetId>&  barcodes=ijet->getTowerIndices();
-      int nConstituents= barcodes.size();
-      for (int i = 0; i <nConstituents ; i++){
-	UsedTowerList.push_back(barcodes[i]);
-      }
+      //      const std::vector<CaloTowerDetId>&  barcodes=ijet->getTowerIndices();
+      //   int nConstituents= barcodes.size();
+      //  for (int i = 0; i <nConstituents ; i++){
+      //	UsedTowerList.push_back(barcodes[i]);
+      //  }
       SumPtJet +=jetPt;
     }
   }
@@ -1980,14 +2004,17 @@ void JetAnalyzer::MakeHadCellList(const CaloGeometry& caloGeometry,
   }
 }
 
-void JetAnalyzer::GetGenPhoton(const HepMC::GenEvent genEvent,CLHEP::HepLorentzVector& momentum){
+void JetAnalyzer::GetGenPhoton(math::XYZTLorentzVector& momentum){
 
+  for (size_t i =0;i< genParticles->size(); i++) {
+    const Candidate &p = (*genParticles)[i];
+    int Status =  p.status();
+    //   int Status =  reco::status(&p);
 
-  for (HepMC::GenEvent::particle_const_iterator p = genEvent.particles_begin(); p != genEvent.particles_end();
-         ++p) {
-    if((*p)->status() ==3 &&  (*p)->pdg_id()==22){
-      momentum = (*p)->Momentum();
-      //  cout << " status " << (*p)->status() << " pid " << (*p)->pdg_id()<< " barcode " << (*p)->barcode() <<" pt " << (*p)->Momentum().perp() <<endl;
+    int id = p.pdgId();
+    if(Status ==3 && id==22){
+      momentum = p.p4();
+      break;
     }
   }
 }
@@ -2707,7 +2734,7 @@ void JetAnalyzer::PtSpectrumInSideAJet(const GenJetCollection& genJets,const Hep
   HepMC::GenEvent::particle_const_iterator it;
 
   std::vector<const GenParticleCandidate*> genPartUsedInJets;
-  std::vector<const GenParticleCandidate*> genPartNotUsedInJets;
+  std::vector<const Candidate*> genPartNotUsedInJets;
 
   double  SumPtJet[10][6];
 
@@ -2716,14 +2743,14 @@ void JetAnalyzer::PtSpectrumInSideAJet(const GenJetCollection& genJets,const Hep
     Double_t jetPt = ijet->pt();
     if(jetPt>10.){
 
-      std::vector <const GenParticleCandidate*> jetconst =  ijet->getConstituents() ;
-      int nConstituents= jetconst.size();
-      genPartUsedInJets=jetconst;
+      std::vector <const GenParticleCandidate*> jetconstituents =  ijet->getConstituents() ;
+      int nConstituents= jetconstituents.size();
+      genPartUsedInJets=jetconstituents;
       
       for (int i = 0; i <nConstituents ; i++){
 	
         if(njet<10){
-          double pt= jetconst[i]->pt();
+          double pt= jetconstituents[i]->pt();
           for(int icut=0;icut<nbins;icut++){
             if(pt>PtCut[icut]){
 	      SumPtJet[njet][icut] +=pt;
@@ -2751,17 +2778,17 @@ void JetAnalyzer::PtSpectrumInSideAJet(const GenJetCollection& genJets,const Hep
 
   int NumStableparticles(0);
 
+  for (size_t i =0;i< genParticles->size(); i++) {
 
-  for (it = genEvent.particles_begin(); it != genEvent.particles_end();++it){
-    int status =  (*it)->status();
-    bool ParticleIsStable = status==1;
+    const Candidate &p = (*genParticles)[i];
+    int Status =  p.status();
+    //  int Status =  reco::status(&p);
+
+    bool ParticleIsStable = Status==1;
     if(ParticleIsStable){
 
       NumStableparticles++;
 
-      HepMC::GenParticle* part = (*it);
-      const GenParticleCandidate* genpart = new GenParticleCandidate(part);
-      //std::cout <<  "genpart " << genpart->px() << " " <<  genpart->py() << " " << genpart->energy() << std::endl;
 
       bool ParticleUsed(false);
       for(int i=0;i<NumPartUsedInJets;i++){
@@ -2769,21 +2796,21 @@ void JetAnalyzer::PtSpectrumInSideAJet(const GenJetCollection& genJets,const Hep
       const GenParticleCandidate* genpartused =   genPartUsedInJets[i];
       //std::cout <<  "genpartused " << genpartused->px() << " " <<  genpartused->py() << " " << genpartused->energy() << std::endl;
 
-      if( genpartused->px() == genpart->px() &&
-	  genpartused->py() == genpart->py() &&
-	  genpartused->pz() == genpart->pz() &&
-	  genpartused->energy() == genpart->energy() &&
-	  genpartused->charge() == genpart->charge() &&
-	  genpartused->pdgId() == genpart->pdgId()  &&
-	  genpartused->status() == genpart->status()
+      if( genpartused->px() == p.px()
+	  && genpartused->py() == p.py() 
+	  && genpartused->pz() == p.pz() 
+	  && genpartused->energy() == p.energy()
+	  && genpartused->charge() == p.charge()
+	  && genpartused->pdgId() ==  p.pdgId() 
+	  //	  && reco::status(genpartused) ==   reco::status(&p)
+
 	  ){
 	//std::cout << "MATCHED " <<  genpart->px() << " " << genpartused->px() << std::endl;
           ParticleUsed=true; continue;
        }
       }
-      if(!ParticleUsed) genPartNotUsedInJets.push_back(genpart);
+      if(!ParticleUsed) genPartNotUsedInJets.push_back(&p);
 
-      delete genpart;
     }
   }
 
@@ -2800,15 +2827,19 @@ void JetAnalyzer::PtSpectrumInSideAJet(const GenJetCollection& genJets,const Hep
   std::vector<double> SumPyFromAllParticles(nbins);
   std::vector<double> GenMetFromAllParticles(nbins);
 
-  for (it = genEvent.particles_begin(); it != genEvent.particles_end();++it){
-    int status =  (*it)->status();
-    bool ParticleIsStable = status==1;
+  for (size_t i =0;i< genParticles->size(); i++) {
+
+    const Candidate &p = (*genParticles)[i];
+
+    int Status =  p.status();
+    //int Status =  reco::status(p);
+
+    bool ParticleIsStable = Status==1;
       
     if(ParticleIsStable){
-      HepMC::GenParticle part = **it;
-      double  pt =part.Momentum().perp();
-      double  px =part.Momentum().px();
-      double  py =part.Momentum().py();
+      double  pt =p.pt();
+      double  px =p.px();
+      double  py =p.py();
       for(int i=0;i<nbins;i++){
 	if(pt>PtCut[i]){
 	  SumPtFromAllParticles[i] +=pt;
@@ -2895,17 +2926,29 @@ void JetAnalyzer::PtSpectrumInSideAJet(const GenJetCollection& genJets,const Hep
   }
 }
 
-void JetAnalyzer::GetParentPartons(const HepMC::GenEvent genEvent,std::vector<HepMC::GenParticle>& ParentParton){
+void JetAnalyzer::GetParentPartons(std::vector<Candidate*>& ParentParton){
 
+  cout << " %GetParentPartons -- This function needs to be fixed " << endl;
   ParentParton.clear();
   int np(0);
-  for (HepMC::GenEvent::particle_const_iterator p = genEvent.particles_begin(); p != genEvent.particles_end();++p){
+
+  for (size_t i =0;i< genParticles->size(); i++) {
+    const Candidate &p = (*genParticles)[i];
+    int Status =  p.status();
+    //   int Status =  reco::status(*p);
+
     np++;
-    if((*p)->status()==3) {
+    if(Status==3) {
       //      cout << " np " << np << "Status " << (*p)->status() <<" Mother 1 " << (*p)->Mother() << "  Mother 2 " << (*p)->SecondMother() << "  Type " << (*p)->pdg_id() << " Pt " << (*p)->Momentum().perp() <<endl; 
-      if(((*p)->Mother())==5 && ((*p)->SecondMother())==6){ 
-	HepMC::GenParticle parton = **p;
-	ParentParton.push_back(parton);
+
+      if(p.numberOfMothers()==2){
+	const Candidate &m0 = *(p.mother(0));
+	const Candidate &m1 = *(p.mother(1));
+
+			      
+			      //==5 && *(p.mother(1))==6){
+
+	//        ParentParton.push_back((*genParticles)[i]);
 	//if(ParentParton.size()==2) return;
       }
     }
@@ -3283,3 +3326,9 @@ void JetAnalyzer::bookFillEoPCorrectionPlots(){
     }
   }
 }
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_SEAL_MODULE(); 
+DEFINE_FWK_MODULE( JetAnalyzer );
+

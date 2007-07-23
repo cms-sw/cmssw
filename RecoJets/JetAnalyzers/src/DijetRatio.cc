@@ -13,7 +13,7 @@
 //
 // Original Author:  Manoj Jha
 //         Created:  Thu Apr 12 15:04:37 CDT 2007
-// $Id$
+// $Id: DijetRatio.cc,v 1.1 2007/06/25 19:26:51 rharris Exp $
 //
 //
 
@@ -113,3 +113,5 @@ hOutputFile->Close() ;
 return ;
 }
 
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(DijetRatio);
