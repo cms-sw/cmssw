@@ -4,6 +4,8 @@
 #include <TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 
+#include "DataFormats/Math/interface/deltaR.h"
+
 using namespace edm;
 using namespace reco;
 
@@ -69,7 +71,22 @@ double TrackAssociatorByPosition::quality(const TrajectoryStateOnSurface & tr, c
       return (tr.globalPosition() - sim.globalPosition()).mag();
       break;
     }
+  case 2:
+    {
+      return  (deltaR<double>(tr.globalDirection().eta(),tr.globalDirection().phi(),
+			      sim.globalDirection().eta(),sim.globalDirection().phi()));
+      break;
+    }
+  case 3:
+    {
+      return (deltaR<double>(tr.globalPosition().eta(),tr.globalPosition().phi(),
+			     sim.globalPosition().eta(),sim.globalPosition().phi()));
+      break;
+    }
   }
+  //should never be reached
+  edm::LogError("TrackAssociatorByPosition")<<"option: "<<theMethod<<" has not been recognized. association has no meaning.";
+  return -1;
 }
 
 
