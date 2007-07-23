@@ -80,14 +80,16 @@ L1GctJetEtCalibrationLut* produceTrivialCalibrationLut::produce()
   L1CaloEtScale* jetScale = new L1CaloEtScale(m_jetEtScaleInputLsb, m_jetEtThresholds);
   L1GctJetEtCalibrationFunction* calibFun = new L1GctJetEtCalibrationFunction();
 
-  calibFun->setOutputEtScale(*jetScale);
   calibFun->setParams(m_htScaleLSB, m_threshold,
                       m_jetCalibFunc,
                       m_tauCalibFunc);
 
   calibFun->setCorrectionFunctionType(m_corrFunType);
 
-  L1GctJetEtCalibrationLut* lut = new L1GctJetEtCalibrationLut(calibFun);
+  L1GctJetEtCalibrationLut* lut = new L1GctJetEtCalibrationLut();
+  lut->setFunction(calibFun);
+  lut->setOutputEtScale(jetScale);
+
 
   return lut;
 }

@@ -2,22 +2,16 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 
 #include "CondFormats/L1TObjects/interface/L1GctJetEtCalibrationFunction.h"
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 
 //DEFINE STATICS
 const int L1GctJetEtCalibrationLut::NAddress=JET_ET_CAL_LUT_ADD_BITS;
 const int L1GctJetEtCalibrationLut::NData=JET_ET_CAL_LUT_DAT_BITS;
-const unsigned L1GctJetEtCalibrationLut::JET_ENERGY_BITWIDTH = L1GctJetEtCalibrationFunction::JET_ENERGY_BITWIDTH;
+const unsigned L1GctJetEtCalibrationLut::JET_ENERGY_BITWIDTH = 10;
 
-//L1GctJetEtCalibrationLut* L1GctJetEtCalibrationLut::setupLut(const L1GctJetEtCalibrationFunction* lutfn)
-//{
-//  L1GctJetEtCalibrationLut* newLut = new L1GctJetEtCalibrationLut();
-//  return newLut;
-//}
-
-L1GctJetEtCalibrationLut::L1GctJetEtCalibrationLut(const L1GctJetEtCalibrationFunction* lutfn) :
+L1GctJetEtCalibrationLut::L1GctJetEtCalibrationLut() :
   L1GctLut<NAddress,NData>()
 {
-  setFunction(lutfn);
 }
 
 
@@ -25,15 +19,29 @@ L1GctJetEtCalibrationLut::~L1GctJetEtCalibrationLut()
 {
 }
 
-void L1GctJetEtCalibrationLut::setFunction(const L1GctJetEtCalibrationFunction* lutfn)
+void L1GctJetEtCalibrationLut::setFunction(const L1GctJetEtCalibrationFunction* const lutfn)
 {
   m_lutFunction = lutfn;
   m_setupOk = (lutfn!=0);
 }
 
+void L1GctJetEtCalibrationLut::setOutputEtScale(const L1CaloEtScale* const scale) {
+  m_outputEtScale = scale;
+}
+
 uint16_t L1GctJetEtCalibrationLut::value (const uint16_t lutAddress) const
 {
-  return m_lutFunction->lutValue(lutAddress);
+  static const unsigned nEtaBits = 4;
+  static const uint16_t maxEtMask  = static_cast<uint16_t>((1 << JET_ENERGY_BITWIDTH) - 1);
+  static const uint16_t etaMask    = static_cast<uint16_t>((1 << nEtaBits) - 1);
+  static const uint16_t tauBitMask = static_cast<uint16_t>( 1 << (JET_ENERGY_BITWIDTH + nEtaBits));
+  uint16_t jetEt = lutAddress & maxEtMask;
+  unsigned eta = static_cast<unsigned>((lutAddress >> JET_ENERGY_BITWIDTH) & etaMask);
+  bool tauVeto = ((lutAddress & tauBitMask)==0);
+  
+  double corrEt = m_lutFunction->correctedEt(jetEt, eta, tauVeto);
+  return m_lutFunction->calibratedEt(corrEt) | (m_outputEtScale->rank(corrEt) << JET_ENERGY_BITWIDTH);
+
 }
 
 std::ostream& operator << (std::ostream& os, const L1GctJetEtCalibrationLut& lut)
