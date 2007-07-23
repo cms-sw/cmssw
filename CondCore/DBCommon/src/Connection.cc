@@ -58,7 +58,7 @@ cond::Connection::coralTransaction(bool isReadOnly){
     }
   }
   cond::CoralConnectionProxy* me=new cond::CoralConnectionProxy(
-    m_connectionServiceHandle,m_con,isReadOnly,m_connectionTimeOut); 
+    m_connectionServiceHandle,m_con,isReadOnly,m_connectionTimeOut);
   m_coralConnectionPool.push_back(me);
   return static_cast<cond::CoralTransaction&>( me->transaction() );
 }

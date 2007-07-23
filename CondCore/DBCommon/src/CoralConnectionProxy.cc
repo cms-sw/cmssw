@@ -17,15 +17,12 @@ cond::CoralConnectionProxy::CoralConnectionProxy(
   m_coralHandle(0),
   m_transactionCounter(0),
   m_connectionTimeOut(connectionTimeOut),
-  m_transaction(0){
+  m_transaction(new cond::CoralTransaction(this)){
 }
 cond::CoralConnectionProxy::~CoralConnectionProxy(){
 }
 cond::ITransaction&  
 cond::CoralConnectionProxy::transaction(){
-  if(!m_transaction){
-    m_transaction=new cond::CoralTransaction(this);
-  }
   return *m_transaction;
 }
 bool 
@@ -53,10 +50,6 @@ cond::CoralConnectionProxy::disconnect(){
     delete m_coralHandle;
     m_coralHandle=0;
   }
-  if(m_transaction){
-    delete m_transaction;
-  }
-  m_transactionCounter=0;
 }
 coral::ISessionProxy&
 cond::CoralConnectionProxy::coralProxy(){
