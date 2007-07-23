@@ -21,7 +21,7 @@ cvs co -r $CMSSW_VERSION Validation/RecoTrack
 # Geometry Validation
 #
 cd ${DATADIR}/Validation/Geometry/test
-./TrackerGeometryValidation.sh
+./TrackerGeometryValidation.sh ${1}
 ./copyWWWTrackerGeometry.sh
 #
 # Run validation chain
