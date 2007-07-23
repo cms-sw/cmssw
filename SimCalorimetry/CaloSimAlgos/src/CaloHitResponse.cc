@@ -48,31 +48,37 @@ void CaloHitResponse::run(MixCollection<PCaloHit> & hits) {
     if ( hitItr.bunch() < theMinBunch || hitItr.bunch() > theMaxBunch ) 
       { continue; }
   
-    // check the hit time makes sense
-    if ( isnan(((*hitItr).time())) ) { continue; }
-
-    // maybe it's not from this subdetector
-    if(theHitFilter == 0 || theHitFilter->accepts(*hitItr)) {
-      LogDebug("CaloHitResponse") << *hitItr;
-      CaloSamples signal = makeAnalogSignal(*hitItr);
-      LogDebug("CaloHitResponse") << signal;
-      // if there's already a frame for this in the map, superimpose it
-      DetId id(hitItr->id());
-      CaloSamples * oldSignal = findSignal(id);
-      if (oldSignal == 0) {
-        theAnalogSignalMap[id] = signal;
-      } else  {
-        // need a "+=" to CaloSamples
-        int sampleSize =  oldSignal->size();
-        assert(sampleSize == signal.size());
-        assert(signal.presamples() == oldSignal->presamples());
- 
-        for(int i = 0; i < sampleSize; ++i) {
-          (*oldSignal)[i] += signal[i];
-        }
-      }
-    } //  filter accepts 
+    add(*hitItr);
   } // loop over hits
+}
+
+
+void CaloHitResponse::add(const PCaloHit & hit)
+{
+  // check the hit time makes sense
+  if ( isnan(hit.time()) ) { return; }
+
+  // maybe it's not from this subdetector
+  if(theHitFilter == 0 || theHitFilter->accepts(hit)) {
+    LogDebug("CaloHitResponse") << hit;
+    CaloSamples signal = makeAnalogSignal(hit);
+    LogDebug("CaloHitResponse") << signal;
+    // if there's already a frame for this in the map, superimpose it
+    DetId id(hit.id());
+    CaloSamples * oldSignal = findSignal(id);
+    if (oldSignal == 0) {
+      theAnalogSignalMap[id] = signal;
+    } else  {
+      // need a "+=" to CaloSamples
+      int sampleSize =  oldSignal->size();
+      assert(sampleSize == signal.size());
+      assert(signal.presamples() == oldSignal->presamples());
+
+      for(int i = 0; i < sampleSize; ++i) {
+        (*oldSignal)[i] += signal[i];
+      }
+    }
+  }
 }
 
 

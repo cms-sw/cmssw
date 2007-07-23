@@ -45,6 +45,9 @@ public:
   /// Complete cell digitization.
   virtual void run(MixCollection<PCaloHit> & hits);
 
+  /// process a single SimHit
+  virtual void add(const PCaloHit & hit);
+
   /// if you want to reject hits, for example, from a certain subdetector, set this
   void setHitFilter(const CaloVHitFilter * filter) {
     theHitFilter = filter;
