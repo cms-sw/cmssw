@@ -5,13 +5,12 @@
  *
  *  Digi for CSC TMB info available in DDU
  *  
- *  $Date: 2007/05/22 21:04:15 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/05/23 18:02:50 $
+ *  $Revision: 1.6 $
  *
  */
 
 #include <vector>
-#include <boost/cstdint.hpp>
 
 class CSCTMBStatusDigi{
 

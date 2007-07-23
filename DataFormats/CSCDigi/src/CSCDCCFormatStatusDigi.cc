@@ -1,15 +1,12 @@
 /** \file
  * 
- *  $Date:$
- *  $Revision:$
+ *  $Date: 2006/09/08 15:40:01 $
+ *  $Revision: 1.1 $
  *
  * \author N.Terentiev, CMU
  */
 #include <DataFormats/CSCDigi/interface/CSCDCCFormatStatusDigi.h>
-#include <iostream>
 #include <bitset>
-#include <vector>
-#include <boost/cstdint.hpp>
 
 using namespace std;
 

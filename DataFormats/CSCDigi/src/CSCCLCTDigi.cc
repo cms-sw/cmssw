@@ -2,15 +2,14 @@
  *
  * Digi for CLCT trigger primitives.
  *
- * $Date: 2006/11/09 10:51:10 $
- * $Revision: 1.10 $
+ * $Date: 2007/03/21 15:50:43 $
+ * $Revision: 1.11 $
  *
  * \author N. Terentiev, CMU
  */
 
 #include <DataFormats/CSCDigi/interface/CSCCLCTDigi.h>
 
-#include <iostream>
 #include <iomanip>
 
 using namespace std;

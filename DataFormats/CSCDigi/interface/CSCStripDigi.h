@@ -5,15 +5,14 @@
  *
  * Digi for CSC Cathode Strips.
  *  
- *  $Date: 2006/12/14 22:33:47 $
- *  $Revision: 1.14 $
+ *  $Date: 2007/05/03 23:27:44 $
+ *  $Revision: 1.15 $
  *
  * \author M. Schmitt, Northwestern
  *
  */
 
 #include <vector>
-#include <boost/cstdint.hpp>
 
 class CSCStripDigi{
 

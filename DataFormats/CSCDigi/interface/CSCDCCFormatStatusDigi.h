@@ -5,8 +5,8 @@
  *
  * Digi for CSC DCC/DDU Format status.
  *  
- *  $Date: 2006/09/08 15:39:41 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/11/17 17:45:11 $
+ *  $Revision: 1.2 $
  *
  * \author N. Terentiev, CMU
  *
@@ -14,7 +14,6 @@
 
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <vector>
-#include <boost/cstdint.hpp>
 
 class CSCDCCFormatStatusDigi{
 

@@ -1,16 +1,12 @@
 /** \file
  * 
- *  $Date: 2006/12/14 22:34:11 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/05/03 23:27:45 $
+ *  $Revision: 1.12 $
  *
  * \author M.Schmitt, Northwestern
  */
 #include <DataFormats/CSCDigi/interface/CSCStripDigi.h>
-#include <iostream>
 #include <bitset>
-#include <vector>
-#include <boost/cstdint.hpp>
-
 
 using namespace std;
 

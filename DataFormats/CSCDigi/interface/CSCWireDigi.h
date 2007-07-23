@@ -8,7 +8,6 @@
  */
 
 #include <vector>
-#include <boost/cstdint.hpp>
 
 class CSCWireDigi{
 

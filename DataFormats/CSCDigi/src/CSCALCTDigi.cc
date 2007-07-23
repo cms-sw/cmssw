@@ -2,15 +2,14 @@
  *
  * Digi for ALCT trigger primitives.
  *
- * $Date: 2006/06/06 16:01:20 $
- * $Revision: 1.8 $
+ * $Date: 2007/03/21 15:50:43 $
+ * $Revision: 1.9 $
  *
  * \author N. Terentiev, CMU
  */
 
 #include <DataFormats/CSCDigi/interface/CSCALCTDigi.h>
 
-#include <iostream>
 #include <iomanip>
 
 using namespace std;

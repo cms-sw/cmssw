@@ -5,15 +5,14 @@
  *
  * Digi for CSC CFEB status.
  *  
- *  $Date: 2006/12/05 22:47:01 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/12/14 22:33:47 $
+ *  $Revision: 1.4 $
  *
  * \author N. Terentiev, CMU
  *
  */
 
 #include <vector>
-#include <boost/cstdint.hpp>
 
 class CSCCFEBStatusDigi{
 

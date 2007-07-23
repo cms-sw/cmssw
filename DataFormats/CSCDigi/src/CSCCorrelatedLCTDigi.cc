@@ -2,14 +2,13 @@
  *
  * Digi for Correlated LCT trigger primitives.
  *
- * $Date: 2006/06/01 07:52:28 $
- * $Revision: 1.8 $
+ * $Date: 2006/06/23 14:29:57 $
+ * $Revision: 1.9 $
  *
  * \author L.Gray, UF
  */
 
 #include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h>
-#include <iostream>
 
 /// Constructors
 CSCCorrelatedLCTDigi::CSCCorrelatedLCTDigi(const int itrknmb, const int ivalid,

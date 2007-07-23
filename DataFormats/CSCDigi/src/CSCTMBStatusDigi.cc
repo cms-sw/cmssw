@@ -2,14 +2,12 @@
  * 
  *  Digi for CSC TMB info available in DDU
  *
- *  $Date: 2007/05/18 18:52:04 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/05/21 20:05:07 $
+ *  $Revision: 1.4 $
  *
  */
 #include <DataFormats/CSCDigi/interface/CSCTMBStatusDigi.h>
-#include <iostream>
 #include <bitset>
-#include <boost/cstdint.hpp>
 
 using namespace std;
 
