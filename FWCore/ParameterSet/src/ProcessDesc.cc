@@ -3,17 +3,16 @@
    Implementation of calss ProcessDesc
 
    \author Stefano ARGIRO
-   \version $Id: ProcessDesc.cc,v 1.16 2007/06/15 18:41:49 wdd Exp $
+   \version $Id: ProcessDesc.cc,v 1.17 2007/06/25 21:23:12 rpw Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.16 2007/06/15 18:41:49 wdd Exp $";
+static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.17 2007/06/25 21:23:12 rpw Exp $";
 
 
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/ParameterSet/interface/ParseTree.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/Entry.h"
 
 #include "FWCore/ParameterSet/src/ScheduleValidator.h"
 #include "FWCore/ParameterSet/interface/OperatorNode.h"

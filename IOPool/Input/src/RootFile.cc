@@ -1,16 +1,14 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.71 2007/06/28 23:11:22 wmtan Exp $
+$Id: RootFile.cc,v 1.72 2007/07/18 13:22:47 marafino Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
-#include "Inputfwd.h"
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"

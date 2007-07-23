@@ -1,12 +1,11 @@
 /*----------------------------------------------------------------------
-$Id: RawInputSource.cc,v 1.7 2007/07/18 20:12:06 wmtan Exp $
+$Id: RawInputSource.cc,v 1.8 2007/07/21 14:24:02 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Sources/interface/RawInputSource.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
 
 namespace edm {

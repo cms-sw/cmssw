@@ -4,13 +4,9 @@
 #include "IOPool/TFileAdaptor/interface/TStorageFactoryFile.h"
 
 #include <TROOT.h>
-#include <TSystem.h>
 #include <TPluginManager.h>
-#include <TEnv.h>
 #include <TFile.h>
 #include <iostream>
-#include <vector>
-#include <string>
 #include <algorithm>
 
 void  TFileAdaptorParams::init() const {
