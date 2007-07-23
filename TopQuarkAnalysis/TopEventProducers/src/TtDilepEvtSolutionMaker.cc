@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: TtDilepEvtSolutionMaker.cc,v 1.5 2007/07/20 06:52:09 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtDilepEvtSolutionMaker.h"
@@ -186,6 +186,9 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
                      (*mets)[0].py();
       
       if (calcTopMass_) {
+        Handle<TtGenEvent> genEvent;
+        iEvent.getByLabel ("genEvt",genEvent);
+        asol.setGenEvt(genEvent);
         TtDilepKinSolver solver(tmassbegin_, tmassend_, tmassstep_, xconstraint, yconstraint);
         asol = solver.addKinSolInfo(&asol);
       }
