@@ -12,6 +12,7 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 typedef reco::modules::CandCombiner<
+  reco::CandidateCollection,
   StringCutObjectSelector<reco::Candidate>,
   DeltaPhiMinPairSelector
 > DeltaPhiMinCandCombiner;

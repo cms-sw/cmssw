@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.7 $
+ * \version $Revision: 1.8 $
  *
- * $Id: CandCombiner.h,v 1.7 2007/06/27 08:56:26 llista Exp $
+ * $Id: CandCombiner.h,v 1.8 2007/07/09 08:54:11 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -45,7 +45,8 @@ namespace reco {
       std::vector<cand::parser::ConjInfo> labels_;
     };
     
-    template<typename Selector, 
+    template<typename Helper, 
+	     typename Selector, 
              typename PairSelector = AnyPairSelector,
              typename Cloner = ::combiner::helpers::NormalClone, 
              typename Setup = AddFourMomenta,
@@ -83,7 +84,7 @@ namespace reco {
     }
     
     /// combiner utility
-    ::CandCombiner<Selector, PairSelector, Cloner, Setup> combiner_;
+    ::CandCombiner<Helper, Selector, PairSelector, Cloner, Setup> combiner_;
     };
 
   }
