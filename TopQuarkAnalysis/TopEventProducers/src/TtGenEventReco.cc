@@ -2,7 +2,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
-#include "TopQuarkAnalysis/TopEventProducers/interface/TtDecaySubset.h"
+#include "TopQuarkAnalysis/TopEventProducers/interface/TopDecaySubset.h"
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtGenEventReco.h"
 
 using namespace std;

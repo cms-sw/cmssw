@@ -19,10 +19,10 @@ namespace TopDecayID{
   static const int WID =24;
 }
 
-class TtDecaySubset : public edm::EDProducer {
+class TopDecaySubset : public edm::EDProducer {
  public:
-  explicit TtDecaySubset(const edm::ParameterSet&);
-  ~TtDecaySubset();
+  explicit TopDecaySubset(const edm::ParameterSet&);
+  ~TopDecaySubset();
   
   virtual void produce(edm::Event&, const edm::EventSetup&);
   void fillOutput(const reco::CandidateCollection&, reco::CandidateCollection&);

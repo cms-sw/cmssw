@@ -2,23 +2,23 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
-#include "TopQuarkAnalysis/TopEventProducers/interface/TtDecaySubset.h"
+#include "TopQuarkAnalysis/TopEventProducers/interface/TopDecaySubset.h"
 
 using namespace std;
 using namespace reco;
 
-TtDecaySubset::TtDecaySubset(const edm::ParameterSet& cfg):
+TopDecaySubset::TopDecaySubset(const edm::ParameterSet& cfg):
   src_ ( cfg.getParameter<edm::InputTag>( "src" ) )
 {
   produces<reco::CandidateCollection>();
 }
 
-TtDecaySubset::~TtDecaySubset()
+TopDecaySubset::~TopDecaySubset()
 {
 }
 
 void
-TtDecaySubset::produce(edm::Event& evt, const edm::EventSetup& setup)
+TopDecaySubset::produce(edm::Event& evt, const edm::EventSetup& setup)
 {     
   edm::Handle<reco::CandidateCollection> src;
   evt.getByLabel(src_, src);
@@ -34,7 +34,7 @@ TtDecaySubset::produce(edm::Event& evt, const edm::EventSetup& setup)
   evt.put( sel );
 }
 
-Particle::LorentzVector TtDecaySubset::fourVector(const reco::Candidate& p)
+Particle::LorentzVector TopDecaySubset::fourVector(const reco::Candidate& p)
 {
   Particle::LorentzVector vec;
   Candidate::const_iterator pd=p.begin();
@@ -52,7 +52,7 @@ Particle::LorentzVector TtDecaySubset::fourVector(const reco::Candidate& p)
   return vec;
 }
 
-void TtDecaySubset::fillOutput(const reco::CandidateCollection& src, reco::CandidateCollection& sel)
+void TopDecaySubset::fillOutput(const reco::CandidateCollection& src, reco::CandidateCollection& sel)
 {
   CandidateCollection::const_iterator t=src.begin();
   for(int idx=-1; t!=src.end(); ++t){
@@ -107,7 +107,7 @@ void TtDecaySubset::fillOutput(const reco::CandidateCollection& src, reco::Candi
   }
 }
 
-void TtDecaySubset::fillRefs(const reco::CandidateRefProd& ref, reco::CandidateCollection& sel)
+void TopDecaySubset::fillRefs(const reco::CandidateRefProd& ref, reco::CandidateCollection& sel)
 { 
   CandidateCollection::iterator p=sel.begin();
   for(int idx=0; p!=sel.end(); ++p, ++idx){
