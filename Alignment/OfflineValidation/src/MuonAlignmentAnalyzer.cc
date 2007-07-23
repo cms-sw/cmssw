@@ -3,8 +3,8 @@
  *  Makes histograms of high level Muon objects/quantities
  *  for Alignment Scenarios/DB comparison
  *
- *  $Date: 2007/07/19 17:53:06 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/07/20 14:47:10 $
+ *  $Revision: 1.6 $
  *  \author J. Fernandez - IFCA (CSIC-UC) <Javier.Fernandez@cern.ch>
  */
 
@@ -132,7 +132,7 @@ void MuonAlignmentAnalyzer::beginJob(const EventSetup& eventSetup){
 
   if(theDataType == "SimData"){
   hNmuonsSim = fs->make<TH1F>("SimNmuons","Nmuons",10,0,10);
-  hPTSim = fs->make<TH1F>("pTSim","p_{T}^{gen} ",300,0,300);
+  hPTSim = fs->make<TH1F>("SimPT","p_{T}^{gen} ",300,0,300);
   hSimPTvsEta = fs->make<TH2F> ("SimPTvsEta","p_{T}^{gen} VS #eta",100,-2.5,2.5,300,0,300);
   hSimPTvsPhi = fs->make<TH2F> ("SimPTvsPhi","p_{T}^{gen} VS #phi",100,-6,6,300,0,300);
   hSimInvM = fs->make<TH1F>("SimInvM","M_{inv}^{gen} ",200,0,200);
@@ -361,7 +361,7 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
     }
 	hNmuonsSim->Fill(i);
 
-  if(i==2){
+  if(i>1){ //Take first 2 muons :-(
   TLorentzVector mu1(p1.x(), p1.y(), p1.z(), p1.mag());
   TLorentzVector mu2(p2.x(), p2.y(), p2.z(), p2.mag());
   TLorentzVector pair = mu1 + mu2;
@@ -428,8 +428,7 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 }
 
 	hNmuonsSA->Fill(i);
-
-  if(i==2){
+  if(i>1){ //Take first 2 muons :-(
   TLorentzVector mu1(p1.x(), p1.y(), p1.z(), p1.mag());
   TLorentzVector mu2(p2.x(), p2.y(), p2.z(), p2.mag());
   TLorentzVector pair = mu1 + mu2;
@@ -498,8 +497,7 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
   }
 
 	hNmuonsGB->Fill(i);
-
-  if(i==2){
+  if(i>1){ //Take first 2 muons :-(
   TLorentzVector mu1(p1.x(), p1.y(), p1.z(), p1.mag());
   TLorentzVector mu2(p2.x(), p2.y(), p2.z(), p2.mag());
   TLorentzVector pair = mu1 + mu2;
