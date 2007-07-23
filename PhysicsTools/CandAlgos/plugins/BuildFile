@@ -28,6 +28,7 @@
 <library file=DeltaRMinCandCombiner.cc></library>
 <library file=DeltaPhiMinCandCombiner.cc></library>
 <library file=CandShallowCloneCombiner.cc></library>
+<library file=CandViewShallowCloneCombiner.cc></library>
 <library file=CandMerger.cc></library>
 <library file=CandShallowCloneProducer.cc></library>
 <library file=CandCountFilter.cc></library>
