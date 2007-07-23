@@ -9,12 +9,10 @@
  */
 
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
-#include "DataFormats/BTauReco/interface/PFCombinedTauTagInfoFwd.h"
-#include "DataFormats/BTauReco/interface/PFIsolatedTauTagInfo.h"
+#include "DataFormats/BTauReco/interface/PFIsolatedTauTagInfoFwd.h" 
 
 #include "DataFormats/JetReco/interface/PFJet.h"
 
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 #include <limits>

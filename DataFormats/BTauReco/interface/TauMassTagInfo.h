@@ -4,11 +4,8 @@
 #include <vector>
 #include <map>
 
-#include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
-#include "DataFormats/BTauReco/interface/TauMassTagInfoFwd.h"
-#include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/BTauReco/interface/IsolatedTauTagInfoFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 

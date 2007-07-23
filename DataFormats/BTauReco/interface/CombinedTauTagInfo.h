@@ -8,9 +8,8 @@
  *  author: Ludovic Houchu.
  */
 
-#include "DataFormats/BTauReco/interface/CombinedTauTagInfoFwd.h"
-#include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
-#include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/BTauReco/interface/IsolatedTauTagInfoFwd.h"
+#include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"

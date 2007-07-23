@@ -2,11 +2,8 @@
 #define DataFormats_BTauReco_CombinedSVTagInfo_h
 
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
-#include "DataFormats/BTauReco/interface/VertexTypes.h"
 // #include "RecoBTag/CombinedSVTagInfo/interface/CombinedData.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
-#include "DataFormats/BTauReco/interface/JetTagFwd.h"
-#include "DataFormats/BTauReco/interface/CombinedSVTagInfoFwd.h"
 
 namespace reco {
   class CombinedSVTagInfo : public JTATagInfo {

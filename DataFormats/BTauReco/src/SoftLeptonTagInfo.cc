@@ -1,5 +1,6 @@
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
-#include "DataFormats/BTauReco/interface/TaggingVariable.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/JetReco/interface/Jet.h"
 
 namespace reco {
 

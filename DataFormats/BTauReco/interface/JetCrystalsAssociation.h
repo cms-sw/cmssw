@@ -7,9 +7,7 @@
 //
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/LorentzVectorFwd.h"

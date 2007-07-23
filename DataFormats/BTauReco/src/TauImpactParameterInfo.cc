@@ -1,7 +1,5 @@
 #include "DataFormats/BTauReco/interface/TauImpactParameterInfo.h"
-
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
 
 using namespace edm;
 using namespace reco;

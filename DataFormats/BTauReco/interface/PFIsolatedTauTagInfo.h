@@ -10,18 +10,11 @@
  */
 
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
-#include "DataFormats/BTauReco/interface/PFIsolatedTauTagInfoFwd.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 
-#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
-#include "Math/GenVector/VectorUtil.h"
 #include "Math/GenVector/PxPyPzE4D.h"
 
 #include "math.h"

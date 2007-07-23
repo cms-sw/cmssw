@@ -12,10 +12,7 @@
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
-#include "DataFormats/BTauReco/interface/JetTagFwd.h"
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
-#include "DataFormats/BTauReco/interface/JTATagInfo.h"
 
 namespace reco {
   class JetTag {

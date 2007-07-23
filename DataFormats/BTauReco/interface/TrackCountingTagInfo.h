@@ -1,11 +1,8 @@
 #ifndef BTauReco_BJetTagTrackCounting_h
 #define BTauReco_BJetTagTrackCounting_h
 
-
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/BTauReco/interface/JetTracksAssociation.h" 
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
-#include "DataFormats/BTauReco/interface/TrackCountingTagInfoFwd.h"
 
 namespace reco {
  

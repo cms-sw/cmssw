@@ -1,12 +1,9 @@
 #ifndef BTauReco_SoftLeptonTagInfo_h
 #define BTauReco_SoftLeptonTagInfo_h
 
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/BTauReco/interface/JetTagInfo.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
-#include "DataFormats/BTauReco/interface/SoftLeptonTagInfoFwd.h"
 
 namespace reco {
  

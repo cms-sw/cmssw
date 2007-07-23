@@ -1,5 +1,6 @@
 #include "DataFormats/BTauReco/interface/TauMassTagInfo.h"
-
+#include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Common/interface/RefVector.h"
 

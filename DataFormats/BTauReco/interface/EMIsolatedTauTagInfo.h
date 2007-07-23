@@ -6,8 +6,6 @@
 
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 #include "DataFormats/BTauReco/interface/JetCrystalsAssociation.h"
-#include "DataFormats/BTauReco/interface/EMIsolatedTauTagInfoFwd.h"
-#include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/LorentzVectorFwd.h"
 //Math

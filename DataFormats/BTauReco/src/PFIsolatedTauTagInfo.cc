@@ -1,4 +1,8 @@
 #include "DataFormats/BTauReco/interface/PFIsolatedTauTagInfo.h"
+#include "DataFormats/TrackReco/interface/Track.h" 
+#include "DataFormats/ParticleFlowReco/interface/PFBlock.h" 
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
+#include "Math/GenVector/VectorUtil.h" 
 
 using namespace edm;
 using namespace reco;

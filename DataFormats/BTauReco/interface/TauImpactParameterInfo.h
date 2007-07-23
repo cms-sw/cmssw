@@ -4,10 +4,9 @@
 #include <vector>
 #include <map>
 
-#include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/BTauReco/interface/TauImpactParameterInfoFwd.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
-#include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
+#include "DataFormats/BTauReco/interface/IsolatedTauTagInfoFwd.h" 
 #include "DataFormats/BTauReco/interface/TrackTauImpactParameterAssociation.h"
 
 using namespace std;
