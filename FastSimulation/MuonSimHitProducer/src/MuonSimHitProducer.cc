@@ -13,7 +13,7 @@
 //
 // Original Author:  Martijn Mulders
 //         Created:  Wed Jul 30 11:37:24 CET 2007
-// $Id: MuonSimHitProducer.cc,v 1.2 2007/07/12 14:14:04 mulders Exp $
+// $Id: MuonSimHitProducer.cc,v 1.3 2007/07/12 14:42:44 mulders Exp $
 //
 //
 
@@ -52,7 +52,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolumeOutsideValidity.h"
-// #include  "TrackPropagation/NavPropagator/interface/NavPropagator.h"
+#include  "TrackPropagation/NavPropagator/interface/NavPropagator.h"
 #include "DataFormats/GeometrySurface/interface/PlaneBuilder.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -146,7 +146,6 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
 // *** Reconstruct parameterized muons starting from undecayed simulated muons
  
-    /* -- Temporary fix for Patrick
 
     GlobalPoint startingPosition = GlobalPoint(mySimTrack.trackerSurfacePosition().x(),
 					       mySimTrack.trackerSurfacePosition().y(),
@@ -180,7 +179,7 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     TrajectoryStateOnSurface startingState( gtp, *startingPlane);
 
     // Define destination plane, 1 meter away in the direction of the muon momentum:
-    float propDistance = 100;
+    float propDistance = 300;
     //GlobalPoint targetPos ((propDistance*startingMomentum.unit() + mySimTrack.trackerSurfacePosition());
     //    targetPos = targetPos + startingPosition;
     GlobalVector PropVector = propDistance*startingMomentum.unit();
@@ -201,7 +200,6 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     } else {
       std::cout << "Oops, this muon got lost" << std::endl;
     }
-    -- End of Temporary fix for Patrick */ 
  
       
   } // end of loop over generated muons
