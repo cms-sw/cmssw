@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.8 $
+ * \version $Revision: 1.9 $
  *
- * $Id: CandCombiner.h,v 1.8 2007/07/09 08:54:11 llista Exp $
+ * $Id: CandCombiner.h,v 1.9 2007/07/23 10:04:07 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -45,7 +45,7 @@ namespace reco {
       std::vector<cand::parser::ConjInfo> labels_;
     };
     
-    template<typename Helper, 
+    template<typename InputCollection, 
 	     typename Selector, 
              typename PairSelector = AnyPairSelector,
              typename Cloner = ::combiner::helpers::NormalClone, 
@@ -54,7 +54,7 @@ namespace reco {
             >
     class CandCombiner : public CandCombinerBase {
     public:
-      /// constructor from parameter set
+      /// constructor from parameter settypedef 
       explicit CandCombiner( const edm::ParameterSet & cfg ) :
       CandCombinerBase( cfg ), 
       combiner_( reco::modules::make<Selector>( cfg ), 
@@ -71,20 +71,22 @@ namespace reco {
     void produce( edm::Event& evt, const edm::EventSetup& es ) {
       Init::init( combiner_.setup(), es );
       int n = labels_.size();
-      std::vector<edm::Handle<reco::CandidateCollection> > colls( n );
+      std::vector<edm::Handle<InputCollection> > colls( n );
       for( int i = 0; i < n; ++i )
       evt.getByLabel( labels_[ i ].tag_, colls[ i ] );
-      
-      std::vector<reco::CandidateRefProd> cv;
-      for( std::vector<edm::Handle<reco::CandidateCollection> >::const_iterator c = colls.begin();
-	   c != colls.end(); ++ c )
-      cv.push_back( reco::CandidateRefProd( * c ) );
+      typedef typename combiner::helpers::template CandRefHelper<InputCollection>::RefProd RefProd;
+      std::vector<RefProd> cv;
+      for( typename std::vector<edm::Handle<InputCollection> >::const_iterator c = colls.begin();
+	   c != colls.end(); ++ c ) {
+	RefProd r( *c );
+	cv.push_back( r );
+      }
       
       evt.put( combiner_.combine( cv ) );
     }
     
     /// combiner utility
-    ::CandCombiner<Helper, Selector, PairSelector, Cloner, Setup> combiner_;
+    ::CandCombiner<InputCollection, Selector, PairSelector, Cloner, Setup> combiner_;
     };
 
   }

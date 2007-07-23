@@ -15,7 +15,8 @@
 namespace combiner {
   namespace helpers {
     struct NormalClone {
-      static void addDaughter( reco::CompositeCandidate & cmp, const reco::CandidateRef & c ) {
+      template<typename Ref>
+      static void addDaughter( reco::CompositeCandidate & cmp, const Ref & c ) {
 	cmp.addDaughter( * c );
       }
     };
@@ -23,6 +24,9 @@ namespace combiner {
     struct ShallowClone {
       static void addDaughter( reco::CompositeCandidate & cmp, const reco::CandidateRef & c ) {
 	cmp.addDaughter( reco::ShallowCloneCandidate( reco::CandidateBaseRef( c ) ) );
+      }
+      static void addDaughter( reco::CompositeCandidate & cmp, const reco::CandidateBaseRef & c ) {
+	cmp.addDaughter( reco::ShallowCloneCandidate( c ) );
       }
     };
   }
@@ -116,6 +120,8 @@ public:
   Setup & setup() { return setup_; }
 
 private:
+  typedef typename CandCombinerBase<Helper>::Ref Ref;
+
   /// select a candidate
   virtual bool select( const reco::Candidate & c ) const {
     return select_( c );
@@ -129,7 +135,7 @@ private:
     setup_.set( * c );
   }
   /// add candidate daughter
-  virtual void addDaughter( reco::CompositeCandidate * cmp, const reco::CandidateRef & c ) const {
+  virtual void addDaughter( reco::CompositeCandidate * cmp, const Ref & c ) const {
     Cloner::addDaughter( * cmp, c );
   }
   /// candidate selector
