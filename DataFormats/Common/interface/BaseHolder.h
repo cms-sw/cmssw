@@ -29,7 +29,7 @@ namespace edm {
       // Return the ProductID of the collection to which the hidden
       // Ref refers.
       virtual ProductID id() const = 0;
-
+      virtual size_t key() const = 0;
       // Check to see if the Ref hidden in 'rhs' is equal to the Ref
       // hidden in 'this'. They can not be equal if they are of
       // different types. Note that the equality test also returns

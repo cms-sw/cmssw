@@ -2,7 +2,7 @@
 #define Common_RefHolderBase_h
 /* \class edm::reftobase::Base
  *
- * $Id: RefHolderBase.h,v 1.1 2007/07/02 13:03:03 llista Exp $
+ * $Id: RefHolderBase.h,v 1.2 2007/07/12 12:08:57 llista Exp $
  *
  */
 #include "Reflex/Type.h"
@@ -20,6 +20,7 @@ namespace edm {
       virtual RefHolderBase* clone() const = 0;
 
       virtual ProductID id() const = 0;
+      virtual size_t key() const = 0;
 
       // Check to see if the Ref hidden in 'rhs' is equal to the Ref
       // hidden in 'this'. They can not be equal if they are of

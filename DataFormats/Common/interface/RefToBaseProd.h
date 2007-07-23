@@ -5,7 +5,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id$
+ * $Id: RefToBaseProd.h,v 1.1 2007/07/09 07:28:49 llista Exp $
  *
  */
   
@@ -32,11 +32,12 @@ namespace edm {
     //   product(), returning a C*.
     template <class HandleC>
     explicit RefToBaseProd(HandleC const& handle);
-
+    explicit RefToBaseProd(Handle<View<T> > const& handle);
     /// Constructor from Ref<C,T,F>
     template <typename C, typename F>
     explicit RefToBaseProd(Ref<C, T, F> const& ref);
     explicit RefToBaseProd( const View<T> & );
+    RefToBaseProd( const RefToBaseProd<T> & );
 
     /// Destructor
     ~RefToBaseProd() {}
@@ -81,6 +82,8 @@ namespace edm {
     /// Checks if product is in memory.
     bool hasCache() const {return product_.productPtr() != 0;}
 
+    RefToBaseProd<T> & operator=( const RefToBaseProd<T> & other );
+
   private:
     RefCore product_;
     mutable std::auto_ptr<View<T> > view_;
@@ -120,6 +123,13 @@ namespace edm {
     view_.reset( new View<T>( pointers, helpers ) );
   }
 
+  template <typename T>
+  inline
+  RefToBaseProd<T>::RefToBaseProd(Handle<View<T> > const& handle) :
+    product_(handle->id(), 0, handle->productGetter() ),
+    view_( new View<T>( *handle ) ) {
+   }
+
 
   /// Constructor from Ref.
   template <typename T>
@@ -143,6 +153,21 @@ namespace edm {
   RefToBaseProd<T>::RefToBaseProd( const View<T> & view ) :
     product_( view.id(), 0, view.productGetter() ),
     view_( new View<T>( view ) ) {
+  }
+
+  template <typename T>
+  inline
+  RefToBaseProd<T>::RefToBaseProd( const RefToBaseProd<T> & other ) :
+    product_( other.product_ ),
+    view_( other.view_ ) {
+  }
+
+  template <typename T>
+  inline
+  RefToBaseProd<T> & RefToBaseProd<T>::operator=( const RefToBaseProd<T> & other ) {
+    product_ = other.product_;
+    view_ = other.view_;
+    return *this;
   }
 
 

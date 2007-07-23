@@ -22,6 +22,7 @@ namespace edm {
 
       virtual T const* getPtr() const;
       virtual ProductID id() const;
+      virtual size_t key() const;
       virtual bool isEqualTo(BaseHolder<T> const& rhs) const;
       REF const& getRef() const;
 
@@ -104,6 +105,14 @@ namespace edm {
     Holder<T,REF>::id() const
     {
       return ref_.id();
+    }
+
+    template <class T, class REF>
+    inline
+    size_t
+    Holder<T,REF>::key() const
+    {
+      return ref_.key();
     }
 
     template <class T, class REF>

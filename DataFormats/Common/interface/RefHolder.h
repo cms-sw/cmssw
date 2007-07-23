@@ -28,6 +28,7 @@ namespace edm {
       virtual RefHolderBase* clone() const;
 
       virtual ProductID id() const;
+      virtual size_t key() const;
       virtual bool isEqualTo(RefHolderBase const& rhs) const;
       virtual bool fillRefIfMyTypeMatches(RefHolderBase& fillme,
 					  std::string& msg) const;
@@ -82,6 +83,13 @@ namespace edm {
     RefHolder<REF>::id() const 
     {
       return ref_.id();
+    }
+
+    template <class REF>
+    size_t
+    RefHolder<REF>::key() const 
+    {
+      return ref_.key();
     }
 
     template <class REF>
