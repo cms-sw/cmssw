@@ -1,10 +1,11 @@
-#include "CondCore/DBCommon/interface/RelationalStorageManager.h"
+#include "CondCore/DBCommon/interface/CoralTransaction.h"
+#include "CondCore/DBCommon/interface/ConnectionHandler.h"
+#include "CondCore/DBCommon/interface/Connection.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
-#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/DBCommon/interface/MessageLevel.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
-#include "SealKernel/IMessageService.h"
 #include <string>
 #include <vector>
 #include <iterator>
@@ -14,61 +15,72 @@ int main(){
   ::putenv("CORAL_AUTH_USER=cms_xiezhen_dev");
   ::putenv("CORAL_AUTH_PASSWORD=xiezhen123");
   try{
-    cond::DBSession* session=new cond::DBSession(true);
-    session->sessionConfiguration().setMessageLevel(cond::Debug);
-    session->connectionConfiguration().setConnectionTimeOut(0);
+    cond::DBSession* session=new cond::DBSession;
+    session->configuration().setMessageLevel(cond::Error);
+    session->configuration().setAuthenticationMethod(cond::XML);
+    static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
+    conHandler.registerConnection("mysqlite1","sqlite_file:pippo.db",0);
     session->open();
-    cond::RelationalStorageManager coraldb("sqlite_file:pippo.db",session);
-    cond::MetaData metadata_svc(coraldb);
+    conHandler.connect(session);
+    std::cout<<1<<std::endl;
+    cond::Connection* myconnection=conHandler.getConnection("mysqlite1");
+    std::cout<<"myconnection "<<myconnection<<std::endl;
+    cond::CoralTransaction& coralTransaction=myconnection->coralTransaction(false);
+    std::cout<<2<<&coralTransaction<<std::endl;
+    cond::MetaData metadata_svc(coralTransaction);
+    std::cout<<3<<&coralTransaction<<std::endl;
+    coralTransaction.start();
+    std::cout<<4<<&coralTransaction<<std::endl;
     std::string t1("token1");
-    coraldb.connect(cond::ReadWriteCreate);
-    coraldb.startTransaction(false);
     metadata_svc.addMapping("mytest1",t1);
-    coraldb.commit();
-    coraldb.disconnect();
+    coralTransaction.commit();
+    std::cout<<6<<&coralTransaction<<std::endl;
     std::string t2("token2");
-    coraldb.connect(cond::ReadWriteCreate);
-    coraldb.startTransaction(false);
+    std::cout<<6.5<<&coralTransaction<<std::endl;
+    coralTransaction.start();
+    std::cout<<7<<std::endl;
     metadata_svc.addMapping("mytest2",t2);
-    coraldb.commit();
-    coraldb.disconnect();
-    std::cout<<"clean up idle connections"<<std::endl;
-    //session->purgeConnections();
-    coraldb.connect(cond::ReadOnly);
-    coraldb.startTransaction(true);
+    std::cout<<8<<std::endl;
+    coralTransaction.commit();
+    std::cout<<9<<std::endl;
+    coralTransaction.start();
+    std::cout<<10<<std::endl;
     std::string tok1=metadata_svc.getToken("mytest2");
-    coraldb.commit();
-    coraldb.disconnect();
+    std::cout<<11<<std::endl;
+    coralTransaction.commit();
+    std::cout<<12<<std::endl;
     std::cout<<"got token1 "<<tok1<<std::endl;
-    coraldb.connect(cond::ReadOnly);
-    coraldb.startTransaction(true);
+    //coralTransaction.start();
+    coralTransaction.start();
+    std::cout<<13<<std::endl;
     std::string tok2=metadata_svc.getToken("mytest2");
-    coraldb.commit();
-    coraldb.disconnect();
+    std::cout<<14<<std::endl;
+    coralTransaction.commit();
+    //coralTransaction.commit();
+    std::cout<<15<<std::endl;
     std::cout<<"got token2 "<<tok2<<std::endl;
     std::string newtok2="newtoken2";
-    coraldb.connect(cond::ReadWriteCreate);
-    coraldb.startTransaction(false);
+    coralTransaction.start();
+    //coralTransaction.start();
+    std::cout<<"abp"<<std::endl;
     metadata_svc.replaceToken("mytest2",newtok2);
-    coraldb.commit();
-    coraldb.disconnect();
-    coraldb.connect(cond::ReadOnly);
-    coraldb.startTransaction(true);
+    coralTransaction.commit();
+    //coralTransaction.commit();
+    //coralTransaction.start();
+    coralTransaction.start();
     std::string mytok2=metadata_svc.getToken("mytest2");
     std::cout<<"get back new tok2 "<<newtok2<<" "<<mytok2<<std::endl;
     std::cout<<"tag exists mytest2 "<<metadata_svc.hasTag("mytest2")<<std::endl;
     std::cout<<"tag exists crap "<<metadata_svc.hasTag("crap")<<std::endl;
     std::vector<std::string> alltags;
     metadata_svc.listAllTags(alltags);
-    coraldb.commit();
-    coraldb.disconnect();
+    //coralTransaction.commit();
+    coralTransaction.commit();
     std::copy (alltags.begin(),
 	       alltags.end(),
 	       std::ostream_iterator<std::string>(std::cout,"\n")
 	       );
-    //metadata_svc.deleteAllEntries();
-    //metadata_svc.disconnect();
-    session->close();
+    conHandler.disconnectAll();
     delete session;
   }catch(cond::Exception& er){
     std::cout<<er.what()<<std::endl;
