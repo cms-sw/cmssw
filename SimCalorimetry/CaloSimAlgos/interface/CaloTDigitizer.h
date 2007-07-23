@@ -24,12 +24,12 @@ public:
 
   CaloTDigitizer(CaloHitResponse * hitResponse, ElectronicsSim * electronicsSim, bool addNoise)
   :  theHitResponse(hitResponse),
+     theNoiseHitGenerator(0),
      theElectronicsSim(electronicsSim),
      theDetIds(0),
      addNoise_(addNoise)
   {
   }
-
 
 
   /// doesn't delete the pointers passed in
@@ -38,11 +38,18 @@ public:
   /// tell the digitizer which cells exist
   void setDetIds(const std::vector<DetId> & detIds) {theDetIds = detIds;}
 
+  void setNoiseHitGenerator(CaloVNoiseHitGenerator * generator) 
+  {
+    theNoiseHitGenerator = generator;
+  }
+
   /// turns hits into digis
   void run(MixCollection<PCaloHit> & input, DigiCollection & output) {
     assert(theDetIds.size() != 0);
 
     theHitResponse->run(input);
+
+    if(theNoiseHitGenerator != 0) addNoiseHits();
 
     theElectronicsSim->newEvent();
 
@@ -76,8 +83,21 @@ public:
   }
 
 
+  void addNoiseHits()
+  {
+    std::vector<PCaloHit> noiseHits;
+    theNoiseHitGenerator->getNoiseHits(noiseHits);
+    for(std::vector<PCaloHit>::const_iterator hitItr = noiseHits.begin(),
+        hitEnd = noiseHits.end(); hitItr != hitEnd; ++hitItr)
+    {
+      theHitResponse->add(*hitItr);
+    }
+  }
+
+
 private:
   CaloHitResponse * theHitResponse;
+  CaloVNoiseHitGenerator * theNoiseHitGenerator;
   ElectronicsSim * theElectronicsSim;
   std::vector<DetId> theDetIds;
   bool addNoise_;
