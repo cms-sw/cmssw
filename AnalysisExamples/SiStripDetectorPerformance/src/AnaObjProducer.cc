@@ -1,4 +1,5 @@
-//#define DEBUG
+// #define DEBUG
+#define SIM
 
 #include <memory>
 #include <string>
@@ -29,7 +30,6 @@
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
-#include "AnalysisDataFormats/SiStripClusterInfo/interface/SiStripClusterInfo.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
@@ -55,6 +55,15 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+// Added for the reco/sim association:
+#include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimTracker/TrackAssociation/test/testTrackAssociator.h"
+#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
+
 using namespace std;
 using namespace anaobj;
 
@@ -63,22 +72,21 @@ using namespace anaobj;
 AnaObjProducer::AnaObjProducer(edm::ParameterSet const& conf) : 
   conf_                     (conf), 
   filename_                 (conf.getParameter<std::string>            ("fileName")                 ),
-  oSiStripDigisLabel_       (conf.getUntrackedParameter<std::string>   ("oSiStripDigisLabel")       ),
-  oSiStripDigisProdInstName_(conf.getUntrackedParameter<std::string>   ("oSiStripDigisProdInstName")),
   analyzedtrack_            (conf.getParameter<std::string>            ("analyzedtrack")            ),
   analyzedcluster_          (conf.getParameter<std::string>            ("analyzedcluster")          ),
-  dCROSS_TALK_ERR           (conf.getUntrackedParameter<double>        ("dCrossTalkErr")            ) {
-  
-  Anglefinder = new TrackLocalAngleTIF();  
+  dCROSS_TALK_ERR           (conf.getUntrackedParameter<double>        ("dCrossTalkErr")            ),
+  SIM_                      (conf.getParameter<bool>                   ("Simulation")               ) {
+
+    Anglefinder = new TrackLocalAngleTIF();  
 
 #ifdef DEBUG
-  std::cout << "analyzedtrack_ = " << analyzedtrack_ << std::endl;
-  std::cout << "analyzedcluster_ = " << analyzedcluster_ << std::endl;
+    std::cout << "analyzedtrack_ = " << analyzedtrack_ << std::endl;
+    std::cout << "analyzedcluster_ = " << analyzedcluster_ << std::endl;
 #endif
 
-  produces<AnalyzedTrackCollection>( analyzedtrack_ );
-  produces<AnalyzedClusterCollection>( analyzedcluster_ );
-}
+    produces<AnalyzedTrackCollection>( analyzedtrack_ );
+    produces<AnalyzedClusterCollection>( analyzedcluster_ );
+  }
 
 
 // BeginJob
@@ -101,6 +109,8 @@ void AnaObjProducer::beginJob(const edm::EventSetup& es) {
   es.get<TrackerDigiGeometryRecord>().get(estracker);
   tracker=&(*estracker);
 
+  //  const TrackingParticleCollection tPC   = *(TPCollectionH.product());
+
 }
 
 // Virtual destructor needed
@@ -116,7 +126,6 @@ void AnaObjProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
   using namespace edm;
 
-  std::vector<SiStripDigi>                          oDigis;
   std::vector<SiStripClusterInfo>                   oClusterInfos;
 
   // Vector to store the AnalyzedCluster structs:
@@ -165,28 +174,20 @@ void AnaObjProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   edm::Handle<edm::DetSetVector<SiStripCluster> > oDSVCluster;
   e.getByLabel( "siStripClusters", oDSVCluster);    
 
-  // DetSetVector SiStripDigis
-  // -------------------------
-  edm::Handle<edm::DetSetVector<SiStripDigi> > oDSVDigis;
-
-  // Take the Digis
-  // --------------
-#ifdef DEBUG
-  std::cout << "oSiStripDigisProdInstName_.size() = " 
-	    << oSiStripDigisProdInstName_.size() << std::endl;
-#endif
-  if( oSiStripDigisProdInstName_.size()) {
-#ifdef DEBUG
-    std::cout << "if" << std::endl;
-#endif
-    e.getByLabel( oSiStripDigisLabel_.c_str(), 
-		  oSiStripDigisProdInstName_.c_str(), oDSVDigis);
-  } else {
-#ifdef DEBUG
-    std::cout << "else" << std::endl;
-#endif
-    e.getByLabel( oSiStripDigisLabel_.c_str(), oDSVDigis);
+#ifdef SIM
+  edm::Handle<TrackingParticleCollection>  TPCollectionH ;
+  edm::ESHandle<TrackAssociatorBase> theHitsAssociator;
+  reco::RecoToSimCollection myRecoToSimCollection;
+  if ( SIM_ ) {
+    // RECO/MC ASSOCIATION:
+    e.getByLabel("trackingtruth","TrackTruth",TPCollectionH);
+    // Associator setup, change per event
+    es.get<TrackAssociatorRecord>().get("TrackAssociatorByHits",theHitsAssociator);
+    associatorByHits = (TrackAssociatorBase *) theHitsAssociator.product();
+    //Associate reco to sim tracks
+    myRecoToSimCollection = associatorByHits->associateRecoToSim(trackCollection, TPCollectionH, &e);
   }
+#endif
 
   // Take the number of cluster in the event
   // ---------------------------------------
@@ -251,7 +252,6 @@ void AnaObjProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   
     // Extract ClusterInfos collection for given module
     oClusterInfos = oDSVclusterInfoIter->data;
-    oDigis        = oDSVDigis->operator[]( oDSVclusterInfoIter->id).data;
 
     // Loop over ClusterInfos collection
     // ---------------------------------
@@ -295,16 +295,16 @@ void AnaObjProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       clusterchgr      =      oIter->chargeR();
       clusternoise     =      oIter->noise();
       clustermaxchg    =      oIter->maxCharge();
-      clustereta       = getClusterEta(oIter->stripAmplitudes(), 
-				       oIter->firstStrip(),
-				       oDigis);
-      clustercrosstalk = getClusterCrossTalk(oIter->stripAmplitudes(),
-					     oIter->firstStrip(),
-					     oDigis);
-      
+
+      clustereta       =      getClusterEta( *oIter );
+      clustercrosstalk =      getClusterCrossTalk( *oIter );
+
       geoId            = oIter->geographicalId();
       firstStrip       = oIter->firstStrip();
       clusterstripnoises = oIter->stripNoises();
+
+      rawDigiAmplitudesL_ptr_ = &( oIter->rawdigiAmplitudesL() );
+      rawDigiAmplitudesR_ptr_ = &( oIter->rawdigiAmplitudesR() );
 
       uint32_t detid = oIter->geographicalId();
       edm::DetSetVector<SiStripCluster>::const_iterator DSViter = oDSVCluster->find(detid);
@@ -314,8 +314,6 @@ void AnaObjProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	  clusterbarycenter = ClusIter->barycenter();
 	  clusterseednoise = oIter->stripNoises()[( (int) ClusIter->barycenter() - 
 						    ClusIter->firstStrip()         )];
-
-
 
 
 	  // This is taken from "RecoLocalTracker/SiStripRecHitConverter/src/StripCPE.cc" in CMSSW_1_3_1
@@ -339,17 +337,6 @@ void AnaObjProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	  LocalPoint  result=LocalPoint(position.x(),position.y(),0);
 	  // -------------------------------------
 
-// 	  // Cluster position
-// 	  LclPos_X = hit->localPosition().x();
-// 	  LclPos_Y = hit->localPosition().y();
-// 	  LclPos_Z = hit->localPosition().z();
-	    
-// 	  GlobalPoint oRecHitGlobalPos = 
-// 	    tracker->idToDet(hit->geographicalId())->toGlobal(hit->localPosition());
-// 	  GlbPos_X = oRecHitGlobalPos.x();
-// 	  GlbPos_Y = oRecHitGlobalPos.y();
-// 	  GlbPos_Z = oRecHitGlobalPos.z();
-
 	  // Cluster position
 	  LclPos_X = result.x();
 	  LclPos_Y = result.y();
@@ -360,7 +347,6 @@ void AnaObjProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	  GlbPos_X = oRecHitGlobalPos.x();
 	  GlbPos_Y = oRecHitGlobalPos.y();
 	  GlbPos_Z = oRecHitGlobalPos.z();
-
 	}
       }
       
@@ -406,6 +392,9 @@ void AnaObjProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       analyzedCluster.clusterbarycenter  = clusterbarycenter;
       analyzedCluster.clusterseednoise   = clusterseednoise;
 
+      analyzedCluster.rawDigiAmplitudesL = *(rawDigiAmplitudesL_ptr_);
+      analyzedCluster.rawDigiAmplitudesR = *(rawDigiAmplitudesR_ptr_);
+
       // Index of the cluster inside the collection. The vector is updated later
       // so the index is the size of the old vector
       analyzedCluster.clu_id.push_back( v_anaclu_ptr->size() );
@@ -432,6 +421,16 @@ void AnaObjProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   if(numberoftracks>0){
 
     int nTrackNum = 0;
+
+    // Initialize tracking particle quantities
+    trackingparticleP = -999.;
+    trackingparticlePt = -999.;
+    trackingparticleEta = -999.;
+    trackingparticlePhi = -999.;
+    trackingparticleAssocChi2 = -999.;
+    trackingparticlepdgId = -999;
+    trackingparticletrackId = -999;
+
     // Loop on track collection   
     // ------------------------
 #ifdef DEBUG
@@ -460,6 +459,8 @@ void AnaObjProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       vy           = trackIter->vy();
       vz           = trackIter->vz();
       outerPt      = trackIter->outerPt();
+      found        = trackIter->found();
+      lost         = trackIter->lost();
 
       // Set the id here, so that tk_id = 0 if not on track
       //                            and > 0 for track index
@@ -467,6 +468,56 @@ void AnaObjProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       tk_id        = nTrackNum;
 
       reco::TrackRef trackref=reco::TrackRef(trackCollection,nTrackNum-1);
+
+#ifdef SIM
+      if ( SIM_ ) {
+	// PID (associate a TrackingParticle to the Track):
+	std::vector<std::pair<TrackingParticleRef, double> > myTrackingParticleRefMap1 = myRecoToSimCollection[trackref];
+	if ( myTrackingParticleRefMap1.size() != 0 ) {
+	  std::vector<std::pair<TrackingParticleRef, double> >::const_iterator myTrackingParticleIt1 = myTrackingParticleRefMap1.begin();
+	  TrackingParticleRef myTrackingParticle1 = myTrackingParticleIt1->first;
+#ifdef DEBUG
+	  cout << "~~~ Reco Track " << trackref.index() << " pT: " << trackref->pt() 
+	       <<  " matched to " << myTrackingParticleRefMap1.size() << " MC Tracks" << std::endl;
+#endif
+
+	  // ---------------------------------------------------------------------------------------------------------
+	  // Taking the iterator and overwriting the value. The track will have the values of the last associated
+	  // mctrack. Not a problem in TIF simulation since are single muon events and usually there is only one match
+	  // but should be changed
+	  // ---------------------------------------------------------------------------------------------------------
+	  for (std::vector<std::pair<TrackingParticleRef, double> >::const_iterator it = myTrackingParticleRefMap1.begin(); 
+	       it != myTrackingParticleRefMap1.end(); ++it) {
+	    TrackingParticleRef tpr = it->first;
+
+	    trackingparticleP = tpr->p();
+	    trackingparticlePt = tpr->pt();
+	    trackingparticleEta = tpr->eta();
+	    trackingparticlePhi = tpr->phi();
+	    trackingparticleAssocChi2 = it->second;
+	    trackingparticlepdgId = tpr->pdgId();
+
+	    // Loop on simtracks
+	    TrackingParticle::g4t_iterator g4T = tpr->g4Track_begin();
+	    if ( g4T != tpr->g4Track_end() ) {
+	      trackingparticletrackId = g4T->trackId();
+	    }
+
+	    // 	  for (TrackingParticle::g4t_iterator g4T = tpr->g4Track_begin();
+	    // 	       g4T !=  tpr->g4Track_end(); ++g4T) {
+	    // 	    std::cout << "simtrackid = " << g4T->trackId() << std::endl;
+	    // 	  }
+
+#ifdef DEBUG
+	    std::cout << "charge = " << tpr->charge() << std::endl;
+	    std::cout << "chi2 = " << trackingparticleAssocChi2 << std::endl;
+#endif
+
+	  }
+	}
+      } // end if SIM_
+#endif
+
 #ifdef DEBUG
       std::cout << "Track pt= " << trackref->pt() << std::endl;
 #endif
@@ -505,11 +556,6 @@ void AnaObjProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 #endif
       std::vector<std::pair<const TrackingRecHit *,float> >::iterator recHitsIter;
       for( recHitsIter=hitangle.begin(); recHitsIter!=hitangle.end(); ++recHitsIter ){
-
-//  	TrackLocalAngleTIF::HitAngleAssociation::reference hitsrefXZ = hitangleXZ[nHitNum];
-//  	TrackLocalAngleTIF::HitAngleAssociation::reference hitsrefYZ = hitangleYZ[nHitNum];
-//  	TrackLocalAngleTIF::HitAngleAssociation::reference hitsref3D = hit3dangle[nHitNum];
-	  
 
 	std::pair<const TrackingRecHit*, float> hitangleXZ( (*hitangleXZ)[nHitNum] );
 	std::pair<const TrackingRecHit*, float> hitangleYZ( (*hitangleYZ)[nHitNum] );
@@ -645,13 +691,6 @@ void AnaObjProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	    
 	    AnalyzedCluster* tmpAnaClu = &((*v_anaclu_ptr)[anaCluVecIndex]);
 
-// 	    tmpAnaClu->LclPos_X.insert( make_pair( tk_id, LclPos_X ) );
-// 	    tmpAnaClu->LclPos_Y.insert( make_pair( tk_id, LclPos_Y ) );
-// 	    tmpAnaClu->LclPos_Z.insert( make_pair( tk_id, LclPos_Z ) );
-// 	    tmpAnaClu->GlbPos_X.insert( make_pair( tk_id, GlbPos_X ) );
-// 	    tmpAnaClu->GlbPos_Y.insert( make_pair( tk_id, GlbPos_Y ) );
-// 	    tmpAnaClu->GlbPos_Z.insert( make_pair( tk_id, GlbPos_Z ) );
-
 	    tmpAnaClu->LclDir_X.insert( make_pair( tk_id, LclDir_X ) );
 	    tmpAnaClu->LclDir_Y.insert( make_pair( tk_id, LclDir_Y ) );
 	    tmpAnaClu->LclDir_Z.insert( make_pair( tk_id, LclDir_Z ) );
@@ -673,13 +712,6 @@ void AnaObjProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	    tmpAnaClu->stereocorrection.insert( make_pair( tk_id, stereocorrection ) );
 	    tmpAnaClu->localmagfield.insert( make_pair( tk_id, localmagfield ) );
 
-	    // For now use the pointer
-	    //	    analyzedTrack.vecClusterOwned.push_back(tmpAnaClu);
-	    // Work in progress to insert the Ref
-	    //	    edm::Ref< std::vector<AnalyzedCluster>,AnalyzedCluster > tmpRefAnaClu = 
-	    //	      edm::Ref< std::vector<AnalyzedCluster>,AnalyzedCluster > ((*v_anaclu_ptr),anaCluVecIndex);
-	    //	    analyzedTrack.vecRefClusterOwned.push_back(tmpRefAnaClu);
-      
 	    countOn++;
 
 	    // Add the cross references
@@ -724,7 +756,17 @@ void AnaObjProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       analyzedTrack.vz           = vz;
       analyzedTrack.outerPt      = outerPt;
       analyzedTrack.tk_id        = tk_id;
+      analyzedTrack.found        = found;
+      analyzedTrack.lost         = lost;
 
+#ifdef SIM
+      analyzedTrack.simP = trackingparticleP;
+      analyzedTrack.simPt = trackingparticlePt;
+      analyzedTrack.simEta = trackingparticleEta;
+      analyzedTrack.simPhi = trackingparticlePhi;
+      analyzedTrack.simAssocChi2 = trackingparticleAssocChi2;
+      analyzedTrack.simpdgId = trackingparticlepdgId;
+#endif
 
       v_anatk_ptr->push_back(analyzedTrack);
 
@@ -779,44 +821,44 @@ void AnaObjProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     if(numAssTrk!=0){
       for(int AssTrkIter=0; AssTrkIter!=numAssTrk; ++AssTrkIter){
 
-// 	dLclX = tmpAnaClu.dLclX[AssTrkIter];
-// 	dLclY = tmpAnaClu.dLclY[AssTrkIter];
-// 	dLclZ = tmpAnaClu.dLclZ[AssTrkIter];
-// 	dGlbX = tmpAnaClu.dGlbX[AssTrkIter];
-// 	dGlbY = tmpAnaClu.dGlbY[AssTrkIter];
-// 	dGlbZ = tmpAnaClu.dGlbZ[AssTrkIter];
+	// 	dLclX = tmpAnaClu.dLclX[AssTrkIter];
+	// 	dLclY = tmpAnaClu.dLclY[AssTrkIter];
+	// 	dLclZ = tmpAnaClu.dLclZ[AssTrkIter];
+	// 	dGlbX = tmpAnaClu.dGlbX[AssTrkIter];
+	// 	dGlbY = tmpAnaClu.dGlbY[AssTrkIter];
+	// 	dGlbZ = tmpAnaClu.dGlbZ[AssTrkIter];
 	
-// 	tk_id    = tmpAnaClu.tk_id[AssTrkIter];
-// 	tk_phi   = tmpAnaClu.tk_phi[AssTrkIter];
-// 	tk_theta = tmpAnaClu.tk_theta[AssTrkIter];
+	// 	tk_id    = tmpAnaClu.tk_id[AssTrkIter];
+	// 	tk_phi   = tmpAnaClu.tk_phi[AssTrkIter];
+	// 	tk_theta = tmpAnaClu.tk_theta[AssTrkIter];
 	
-// 	sign             = tmpAnaClu.sign[AssTrkIter];
-// 	angle            = tmpAnaClu.angle[AssTrkIter];
-// 	stereocorrection = tmpAnaClu.stereocorrection[AssTrkIter];
-// 	localmagfield    = tmpAnaClu.localmagfield[AssTrkIter];
+	// 	sign             = tmpAnaClu.sign[AssTrkIter];
+	// 	angle            = tmpAnaClu.angle[AssTrkIter];
+	// 	stereocorrection = tmpAnaClu.stereocorrection[AssTrkIter];
+	// 	localmagfield    = tmpAnaClu.localmagfield[AssTrkIter];
 	
 	clustercounter++;
       }
     }else{
       
-//       dLclX = -99;
-//       dLclY = -99;
-//       dLclZ = -99;
-//       dGlbX = -99;
-//       dGlbY = -99;
-//       dGlbZ = -99;
+      //       dLclX = -99;
+      //       dLclY = -99;
+      //       dLclZ = -99;
+      //       dGlbX = -99;
+      //       dGlbY = -99;
+      //       dGlbZ = -99;
       
-//       tk_id    = 0;
-//       tk_phi   = -99.;
-//       tk_theta = -99.;
+      //       tk_id    = 0;
+      //       tk_phi   = -99.;
+      //       tk_theta = -99.;
       
-//       clusterseednoise  = -99.;
-//       clusterbarycenter = -99.;
+      //       clusterseednoise  = -99.;
+      //       clusterbarycenter = -99.;
       
-//       sign             = -99;
-//       angle            = -99.;
-//       stereocorrection = -99.;
-//       localmagfield    = -99.;
+      //       sign             = -99;
+      //       angle            = -99.;
+      //       stereocorrection = -99.;
+      //       localmagfield    = -99.;
       
       clustercounter++;
       clusterNNTKcounter++;
@@ -851,7 +893,7 @@ void AnaObjProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     outerPt      = tmpAnaTrk.outerPt;
   }
 
-// Fill the event with the analyzed objects collections
+  // Fill the event with the analyzed objects collections
 #ifdef DEBUG
   std::cout << "analyzedtrack_ before = " << analyzedtrack_ << std::endl;
   std::cout << "analyzedcluster_ before = " << analyzedcluster_ << std::endl;
@@ -947,6 +989,11 @@ void AnaObjProducer::GetSubDetInfo(StripSubdetector oStripSubdet){
     }
   }
 }
+
+
+
+
+
 //-----------------------------------------------------------------------
 // ClusterEta = SignalL / ( SignalL + SignalR)
 // where:
@@ -959,113 +1006,79 @@ void AnaObjProducer::GetSubDetInfo(StripSubdetector oStripSubdet){
 //   roDIGIS		 vector of digis within current module
 // @return
 //   int  ClusterEta or -99 on error
-double AnaObjProducer::getClusterEta( const std::vector<uint16_t> &roSTRIP_AMPLITUDES,
-				      const int			  &rnFIRST_STRIP,
-				      const DigisVector		  &roDIGIS) const {
+double AnaObjProducer::getClusterEta( const SiStripClusterInfo & CLUSTERINFO ) const {
   // Given value is used to separate non-physical values
   // [Example: cluster with empty amplitudes vector]
   double dClusterEta = -99;
 
-  // Cluster eta calculation
-  // -----------------------
-  int anMaxSignal[2][2];
+  // Get the vector of amplitudes
+  const std::vector<uint16_t> * amplitudes_ptr = &( CLUSTERINFO.stripAmplitudes() );
 
-  // Null array before using it
-  for( int i = 0; i < 2; ++i) {
-    for( int j = 0; j < 2; ++j) {
-      anMaxSignal[i][j] = 0;
-    }
-  }
-	
-  // Find two strips with highest amplitudes
-  // i is a stip number within module
-  for( int i = 0, nSize = roSTRIP_AMPLITUDES.size(); nSize > i; ++i) {
-    int nCurCharge = roSTRIP_AMPLITUDES[i];
+  if ( amplitudes_ptr != 0 ) {
+    if ( amplitudes_ptr->size() > 0 ) {
 
-    if( nCurCharge > anMaxSignal[1][1]) {
-      anMaxSignal[0][0] = anMaxSignal[1][0];
-      anMaxSignal[0][1] = anMaxSignal[1][1];
-      // Convert to global strip number within module
-      anMaxSignal[1][0] = i + rnFIRST_STRIP; 
-      anMaxSignal[1][1] = nCurCharge;
-    } else if( nCurCharge > anMaxSignal[0][1]) {
-      // Convert to global strip number within module
-      anMaxSignal[0][0] = i + rnFIRST_STRIP;
-      anMaxSignal[0][1] = nCurCharge;
-    }
-  }
-  
-  if( ( anMaxSignal[1][1] + anMaxSignal[0][1]) != 0) {
-    if( anMaxSignal[0][0] > anMaxSignal[1][0]) {
-      // anMaxSignal[1] is Left one
-      dClusterEta = ( 1.0 * anMaxSignal[1][1]) / ( anMaxSignal[1][1] + 
-						   anMaxSignal[0][1]);
-    } else if( 0 == anMaxSignal[0][0] && 
-	       0 == anMaxSignal[0][1]) {
+      // Get the index of the maxcharge strip
+      uint16_t maxPos = CLUSTERINFO.maxPos();
+      uint16_t firstStrip = CLUSTERINFO.firstStrip();
+      int max_pos_index = int( maxPos - firstStrip );
 
-      // One Strip cluster: check for Digis
-      DigisVector::const_iterator oITER( roDIGIS.begin());
-      for( ;
-	   oITER != roDIGIS.end() && oITER->strip() != anMaxSignal[1][0];
-	   ++oITER) {}
+      float maxCharge = CLUSTERINFO.maxCharge();
+      float max_L = 0;
+      float max_R = 0;
 
-      // Check if Digi for given cluster strip was found
-      if( oITER != roDIGIS.end()) {
+      int amplitudes_size = amplitudes_ptr->size();
 
-	// Check if previous neighbouring strip exists
-	DigisVector::const_iterator oITER_PREV( roDIGIS.end());
-	if( oITER != roDIGIS.begin() &&
-	    ( oITER->strip() - 1) == ( oITER - 1)->strip()) {
-	  // There is previous strip specified :)
-	  oITER_PREV = oITER - 1;
+      // For clusters of size > 1
+      if ( amplitudes_size > 1) {
+
+	// Take the amplitude of the strip on the left (if any)
+	max_L = 0;
+	if ( max_pos_index > 0 ) {
+	  max_L = (*amplitudes_ptr)[ max_pos_index - 1 ];
 	}
+	// Not taking the digis. If the cluster.size() > 1 at least one neighbouring strip
+	// inside the cluster exist. It has higher amplitudes of those outside the cluster
+	// which are under the cut value.
 
-	// Check if next neighbouring strip exists
-	DigisVector::const_iterator oITER_NEXT( roDIGIS.end());
-	if( oITER != roDIGIS.end() &&
-	    oITER != ( roDIGIS.end() - 1) &&
-	    ( oITER->strip() + 1) == ( oITER + 1)->strip()) {
-	  // There is previous strip specified :)
-	  oITER_NEXT = oITER + 1;
+	// Take the amplitude of the strip on the right (if any)
+	max_R = 0;
+	if ( (max_pos_index + 1) < amplitudes_size ) {
+	  max_R = (*amplitudes_ptr)[ max_pos_index + 1 ];
 	}
+      }
+      // For size = 1 clusters
+      else {
+	// only needed if amplitudes.size() == 1
+	// Get the vector of amplitudesL and amplitudesR of the strips around the cluster
+	const std::vector<short> * rawDigiAmplitudesL_ptr = &( CLUSTERINFO.rawdigiAmplitudesL() );
+	const std::vector<short> * rawDigiAmplitudesR_ptr = &( CLUSTERINFO.rawdigiAmplitudesR() );
 
-	if( oITER_PREV != oITER_NEXT) {
-	  if( oITER_PREV != roDIGIS.end() && oITER_NEXT != roDIGIS.end()) {
-	    // Both Digis are specified
-	    // Now Pick the one with max amplitude
-	    if( oITER_PREV->adc() > oITER_NEXT->adc()) {
-	      dClusterEta = ( 1.0 * oITER_PREV->adc()) / ( oITER_PREV->adc() + 
-							   anMaxSignal[1][1]);
-	    } else {
-	      dClusterEta = ( 1.0 * anMaxSignal[1][1]) / ( oITER_NEXT->adc() + 
-							   anMaxSignal[1][1]);
-	    }
-	  } else if( oITER_PREV != roDIGIS.end()) {
-	    // only Prev digi is specified
-	    dClusterEta = ( 1.0 * oITER_PREV->adc()) / ( oITER_PREV->adc() + 
-							 anMaxSignal[1][1]);
-	  } else {
-	    // only Next digi is specified
-	    dClusterEta = ( 1.0 * anMaxSignal[1][1]) / ( oITER_NEXT->adc() + 
-							 anMaxSignal[1][1]);
+	// Take the amplitude of the first strip on the left of the cluster
+	max_L = 0;
+	if ( rawDigiAmplitudesL_ptr ) {
+	  if ( rawDigiAmplitudesL_ptr->size() > 0 ) {
+	    max_L = (*rawDigiAmplitudesL_ptr)[0];
 	  }
-	} else {
-	  // PREV and NEXT iterators point to the end of DIGIs vector. 
-	  // Consequently it is assumed there are no neighbouring digis at all
-	  // for given cluster. It is obvious why ClusterEta should be Zero.
-	  // [Hint: take a look at the case [0][0] < [1][0] ]
-	  dClusterEta = 0;
-	} // End check if any neighbouring digi is specified
-      } else {
-	// Digi for given Clusters strip was not found
-	dClusterEta = 0;
-      } // end check if Digi for given cluster strip was found
-    } else {
-      // anMaxSignal[0] is Left one
-      dClusterEta = ( 1.0 * anMaxSignal[0][1]) / ( anMaxSignal[1][1] + 
-						   anMaxSignal[0][1]);
-    }
-  } 
+	}
+	// Take the amplitude of the first strip on the right of the cluster
+	max_R = 0;
+	if ( rawDigiAmplitudesR_ptr ) {
+	  if ( rawDigiAmplitudesR_ptr->size() > 0 ) {
+	    max_R = (*rawDigiAmplitudesR_ptr)[0];
+	  }
+	}
+      }
+
+      // Take the left and right for the clustereta
+      if ( max_L >= max_R ) {
+	dClusterEta = max_L/( max_L + maxCharge );
+      }
+      else {
+	dClusterEta = maxCharge/( maxCharge + max_R );
+      }
+    } // end if amplitudes_size > 0
+  } // end if amplitudes_ptr != 0
+
   return dClusterEta;
 }
 
@@ -1093,82 +1106,98 @@ double AnaObjProducer::getClusterEta( const std::vector<uint16_t> &roSTRIP_AMPLI
 //   N+1     x * SignalN
 //
 // @arguments
-//   roSTRIP_AMPLITUDES	 vector of strips ADC counts in cluster
-//   rnFIRST_STRIP	 cluster first strip shift whithin module
-//   roDIGIS		 vector of digis within current module
+// SiStripClusterInfo object from which all the needed quantities are extracted
+// it is taken by reference
 // @return
 //   int  ClusterCrosstalk or -99 on error
-double AnaObjProducer::getClusterCrossTalk( const std::vector<uint16_t> 
-					    &roSTRIP_AMPLITUDES,
-					    const int         &rnFIRST_STRIP,
-					    const DigisVector &roDIGIS) const {
+double AnaObjProducer::getClusterCrossTalk( const SiStripClusterInfo & CLUSTERINFO ) const {
   // Given value is used to separate non-physical values
   // [Example: cluster with empty amplitudes vector]
   double dClusterCrossTalk = -99;
 
-  switch( roSTRIP_AMPLITUDES.size()) {
+  // Get the vector of amplitudes
+  const std::vector<uint16_t> * amplitudes_ptr = &( CLUSTERINFO.stripAmplitudes() );
+
+  // Get the index of the maxcharge strip
+  uint16_t maxPos = CLUSTERINFO.maxPos();
+  uint16_t firstStrip = CLUSTERINFO.firstStrip();
+  int max_pos_index = int( maxPos - firstStrip );
+
+  // We define this differently from getClusterEta,
+  // so as to have the correct types for calculateClusterCrossTalk
+  int maxCharge = int(CLUSTERINFO.maxCharge());
+  double max_L = 0;
+  int max_R = 0;
+
+  int amplitudes_size = amplitudes_ptr->size();
+
+  switch( amplitudes_size ) {
   case 1: {
-    // One Strip cluster: try to find corresponding Digi
-    DigisVector::const_iterator oITER( roDIGIS.begin());
-    for( ;
-	 oITER != roDIGIS.end() && oITER->strip() != roSTRIP_AMPLITUDES[0];
-	 ++oITER) {}
 
-    // Check if Digi for given cluster strip was found
-    if( oITER != roDIGIS.end()) {
+    // only needed if amplitudes.size() == 1
+    // Get the vector of amplitudesL and amplitudesR of the strips around the cluster
+    const std::vector<short> * rawDigiAmplitudesL_ptr = &( CLUSTERINFO.rawdigiAmplitudesL() );
+    const std::vector<short> * rawDigiAmplitudesR_ptr = &( CLUSTERINFO.rawdigiAmplitudesR() );
 
-      // Check if previous neighbouring strip exists
-      DigisVector::const_iterator oITER_PREV( roDIGIS.end());
-      if( oITER != roDIGIS.begin() &&
-	  ( oITER->strip() - 1) == ( oITER - 1)->strip()) {
-	// There is previous strip specified :)
-	oITER_PREV = oITER - 1;
+    // Take the amplitude of the first strip on the left of the cluster
+    max_L = 0;
+    if ( rawDigiAmplitudesL_ptr ) {
+      if ( rawDigiAmplitudesL_ptr->size() > 0 ) {
+	max_L = (*rawDigiAmplitudesL_ptr)[0];
       }
-
-      // Check if next neighbouring strip exists
-      DigisVector::const_iterator oITER_NEXT( roDIGIS.end());
-      if( oITER != roDIGIS.end() &&
-	  oITER != ( roDIGIS.end() - 1) &&
-	  ( oITER->strip() + 1) == ( oITER + 1)->strip()) {
-	// There is previous strip specified :)
-	oITER_NEXT = oITER + 1;
+    }
+    // Take the amplitude of the first strip on the right of the cluster
+    max_R = 0;
+    if ( rawDigiAmplitudesR_ptr ) {
+      if ( rawDigiAmplitudesR_ptr->size() > 0 ) {
+	max_R = (*rawDigiAmplitudesR_ptr)[0];
       }
+    }
 
-      // Now check if both neighbouring digis exist
-      if( oITER_PREV != roDIGIS.end() && oITER_NEXT != roDIGIS.end()) {
-	// Both Digis are specified
-	// Now Pick the one with max amplitude
-	dClusterCrossTalk = 
-	  calculateClusterCrossTalk( oITER_PREV->adc(),
-				     roSTRIP_AMPLITUDES[0],
-				     oITER_NEXT->adc());
-      } // End check if both neighbouring digis exist
-    } // end check if Digi for given cluster strip was found
+    dClusterCrossTalk = calculateClusterCrossTalk( max_L, maxCharge, max_R );
+
+    // end of case 1
+    break;
   }
   case 3: {
-    dClusterCrossTalk = calculateClusterCrossTalk( roSTRIP_AMPLITUDES[0],
-						   roSTRIP_AMPLITUDES[1],
-						   roSTRIP_AMPLITUDES[2]);
+
+    // Take the amplitude of the strip on the left (if any)
+    max_L = 0;
+    if ( max_pos_index > 0 ) {
+      max_L = (*amplitudes_ptr)[ max_pos_index - 1 ];
+    }
+
+    // Take the amplitude of the strip on the left (if any)
+    max_R = 0;
+    if ( (max_pos_index + 1) < amplitudes_size ) {
+      max_R = (*amplitudes_ptr)[ max_pos_index + 1 ];
+    }
+
+    //      dClusterCrossTalk = calculateClusterCrossTalk( roSTRIP_AMPLITUDES[0],
+    //  						   roSTRIP_AMPLITUDES[1],
+    //  						   roSTRIP_AMPLITUDES[2]);
+
+    // end case 3
+    break;
   }
   default:
     break;
   }
+
+  dClusterCrossTalk = calculateClusterCrossTalk( max_L, maxCharge, max_R );
   return dClusterCrossTalk;
 }
 
 // Calculate Cluster CrossTalk:
 // ClusterCrosstalk = ( SignalL + SignalR) / SignalSeed
 // @arguments
-//   rdADC_STRIPL  ADC in left strip
-//   rnADC_STRIP   ADC in Center strip
-//   rnADC_STRIPR  ADC in right strip
+// SiStripClusterInfo object from which all the needed quantities are extracted
+// it is taken by reference
 // @return
 //   double  Calculated crosstalk or -99 on error 
-double 
-AnaObjProducer::calculateClusterCrossTalk( const double &rdADC_STRIPL,
-					   const int    &rnADC_STRIP,
-					   const int    &rnADC_STRIPR) const 
-{
+double AnaObjProducer::calculateClusterCrossTalk(  const double &rdADC_STRIPL,
+					    const int    &rnADC_STRIP,
+					    const int    &rnADC_STRIPR ) const {
   // Check if neigbouring strips have signals amplitudes within some
   // error
   return ( abs( rdADC_STRIPL - rnADC_STRIPR) < 
@@ -1177,108 +1206,6 @@ AnaObjProducer::calculateClusterCrossTalk( const double &rdADC_STRIPL,
 	   ( rdADC_STRIPL + rnADC_STRIPR) / rnADC_STRIP : 
 	   -99);
 }
-
-/*
-  double 
-  AnaObjProducer::getClusterCrossTalk( const std::vector<uint16_t> 
-  &roSTRIP_AMPLITUDES,
-  const int         &rnFIRST_STRIP,
-  const DigisVector &roDIGIS) const {
-  // Given value is used to separate non-physical values
-  // [Example: cluster with empty amplitudes vector]
-  double dClusterCrossTalk = -99;
-
-  switch( roSTRIP_AMPLITUDES.size()) {
-  case 1: {
-  // One Strip cluster: try to find corresponding Digi
-  DigisVector::const_iterator oITER( roDIGIS.begin());
-  for( ;
-  oITER != roDIGIS.end() && oITER->strip() != roSTRIP_AMPLITUDES[0];
-  ++oITER) {}
-
-  // Check if Digi for given cluster strip was found
-  if( oITER != roDIGIS.end()) {
-
-  // Check if previous neighbouring strip exists
-  DigisVector::const_iterator oITER_PREV( roDIGIS.end());
-  if( oITER != roDIGIS.begin() &&
-  ( oITER->strip() - 1) == ( oITER - 1)->strip()) {
-  // There is previous strip specified :)
-  oITER_PREV = oITER - 1;
-  }
-
-  // Check if next neighbouring strip exists
-  DigisVector::const_iterator oITER_NEXT( roDIGIS.end());
-  if( oITER != roDIGIS.end() &&
-  oITER != ( roDIGIS.end() - 1) &&
-  ( oITER->strip() + 1) == ( oITER + 1)->strip()) {
-  // There is previous strip specified :)
-  oITER_NEXT = oITER + 1;
-  }
-
-  // Now check if both neighbouring digis exist and there is no
-  // anything in N-2 and N+2 to make sure neighbouring digis were
-  // created from central one
-  if( oITER_PREV != roDIGIS.end() && 
-  oITER_NEXT != roDIGIS.end() &&
-  !( oITER_PREV != roDIGIS.begin() && 
-  ( oITER_PREV - 1)->strip() == oITER_PREV->strip() - 1) && 
-  !( oITER_NEXT != roDIGIS.end() - 1 &&
-  ( oITER_NEXT + 1)->strip() == oITER_NEXT->strip() + 1)) {
-
-  // Both Digis are specified
-  // Now Pick the one with max amplitude
-  dClusterCrossTalk = 
-  calculateClusterCrossTalk( oITER_PREV->adc(),
-  roSTRIP_AMPLITUDES[0],
-  oITER_NEXT->adc());
-  } // End check if both neighbouring digis exist
-  } // end check if Digi for given cluster strip was found
-  }
-  case 3: {
-  // Try to find Digi that corresponds to central strip
-  DigisVector::const_iterator oITER( roDIGIS.begin());
-  for( ;
-  oITER != roDIGIS.end() && oITER->strip() != roSTRIP_AMPLITUDES[1];
-  ++oITER) {}
-
-  // Check if Digi for given cluster strip was found
-  if( oITER != roDIGIS.end()) {
-  DigisVector::const_iterator oITER_N_MINUS_2( oITER);
-  for( int i = 2; i > 0; --i) {
-  if( oITER_N_MINUS_2 == roDIGIS.begin()) {
-  // There is no N-2 Digi
-  oITER_N_MINUS_2 = roDIGIS.end();
-  break;
-  }
-  --oITER_N_MINUS_2;
-  }
-
-  DigisVector::const_iterator oITER_N_PLUS_2( oITER);
-  for( int i = 2; oITER_N_PLUS_2 != roDIGIS.end() && i > 0; --i) {
-  ++oITER_N_PLUS_2;
-  }
-
-  // Check if there is no N-2/N+2 Digi specified
-  if( ( ( oITER_N_MINUS_2 == roDIGIS.end() ||
-  oITER_N_MINUS_2->strip() + 1 != ( oITER_N_MINUS_2 + 1)->strip()) &&
-  ( oITER_N_PLUS_2 == roDIGIS.end() ||
-  oITER_N_PLUS_2->strip() - 1 != ( oITER_N_PLUS_2 - 1)->strip())) ) {
-  dClusterCrossTalk = calculateClusterCrossTalk( roSTRIP_AMPLITUDES[0],
-  roSTRIP_AMPLITUDES[1],
-  roSTRIP_AMPLITUDES[2]);
-  }
-  }
-  }
-  default:
-  break;
-  }
-
-
-
-  return dClusterCrossTalk;
-  }
-*/
 
 // double AnaObjProducer::moduleThickness(const TrackingRecHit* hit)
 double AnaObjProducer::moduleThickness(const uint32_t detid)

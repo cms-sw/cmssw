@@ -44,12 +44,20 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "AnalysisDataFormats/SiStripClusterInfo/interface/SiStripClusterInfo.h"
 
 //#include "CommonTools/SiStripZeroSuppression/interface/SiStripNoiseService.h"
 
 #include "AnalysisExamples/SiStripDetectorPerformance/interface/TrackLocalAngleTIF.h"
 #include "AnalysisExamples/AnalysisObjects/interface/AnalyzedCluster.h"
 #include "AnalysisExamples/AnalysisObjects/interface/AnalyzedTrack.h"
+
+// Added for the trackassociator
+#include "SimTracker/TrackAssociation/test/testTrackAssociator.h"
+#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 
 #include <TMath.h>
 
@@ -84,7 +92,6 @@ class AnaObjProducer : public edm::EDProducer
   typedef std::map <const reco::Track *, hitanglevector>                           trackhitmap;
   typedef std::map <const reco::Track *, TrackLocalAngleTIF::HitLclDirAssociation> trklcldirmap;
   typedef std::map <const reco::Track *, TrackLocalAngleTIF::HitGlbDirAssociation> trkglbdirmap;
-  typedef std::vector<SiStripDigi> DigisVector;
   // Map to store the pair needed to identify the cluster with the AnalyzedCluster                         
   // and the index of the AnalyzedCluster stored in the vector (to have access to it later)  
   typedef std::map<std::pair <uint32_t, int>, int> clustermap;
@@ -103,12 +110,8 @@ class AnaObjProducer : public edm::EDProducer
   // From track to clusters
   typedef edm::RefProd<anaobj::AnalyzedClusterCollection> AnalyzedClusterRefProd;
 
-  double getClusterEta( const std::vector<uint16_t> &roSTRIP_AMPLITUDES,
-			const int		    &rnFIRST_STRIP,
-			const DigisVector	    &roDIGIS) const;
-  double getClusterCrossTalk( const std::vector<uint16_t> &roSTRIP_AMPLITUDES,
-			      const int		          &rnFIRST_STRIP,
-			      const DigisVector	          &roDIGIS) const;
+  double getClusterEta( const SiStripClusterInfo & CLUSTERINFO ) const;
+  double getClusterCrossTalk( const SiStripClusterInfo & CLUSTERINFO ) const;
   // First argument is double to simplify calculations otherwise convertion
   // to double should be performed each time division is used
   double calculateClusterCrossTalk( const double &rdADC_STRIPL,
@@ -122,12 +125,10 @@ class AnaObjProducer : public edm::EDProducer
 
   edm::ParameterSet conf_;
   std::string filename_;
-  std::string oSiStripDigisLabel_;
-  std::string oSiStripDigisProdInstName_;
   std::string analyzedtrack_;
   std::string analyzedcluster_;
-//  bool bUseLTCDigis_;
   const double dCROSS_TALK_ERR;
+  bool SIM_;
   //SiStripNoiseService m_oSiStripNoiseService; 
   
   std::vector<DetId> Detvector;
@@ -197,15 +198,31 @@ class AnaObjProducer : public edm::EDProducer
   int      numberoftkclusters;
   int      numberofnontkclusters; 
 
+  // Vectors of strip amplitudes from clusterinfo
+  const std::vector<short> * rawDigiAmplitudesL_ptr_;
+  const std::vector<short> * rawDigiAmplitudesR_ptr_;
+
+  // Tracking particle quantities
+  float    trackingparticleP;
+  float    trackingparticlePt;
+  float    trackingparticleEta;
+  float    trackingparticlePhi;
+  float    trackingparticleAssocChi2;
+  int      trackingparticlepdgId;
+  int      trackingparticletrackId;
+
   float d0;
   float vx;
   float vy;
   float vz;
   float outerPt;
+  short found;
+  short lost;
 
   const TrackerGeometry * tracker;
   const MagneticField * magfield;
-    
+  const TrackAssociatorBase *associatorByHits;
+
 
   int nTrackClusters;
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Marco De Mattia
 //         Created:  Tue May  8 13:05:37 CEST 2007
-// $Id$
+// $Id: AnaObjAnalyzer.h,v 1.2 2007/07/20 17:26:45 demattia Exp $
 //
 //
 
