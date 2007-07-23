@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.21 $
+ * \version $Revision: 1.22 $
  */
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -48,6 +48,7 @@ namespace edm {
     typedef AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceTrait> self;
 
   public:
+    typedef KeyRefProd RefProd;
     typedef typename KeyRefProd::product_type CKey;
     typedef SizeType size_type;
     typedef typename KeyRef::value_type key_type;
