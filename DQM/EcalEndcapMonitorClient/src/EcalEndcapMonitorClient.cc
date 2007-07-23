@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/07/13 09:26:57 $
- * $Revision: 1.53 $
+ * $Date: 2007/07/14 07:24:52 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1381,7 +1381,9 @@ void EcalEndcapMonitorClient::analyze(void){
   if ( verbose_ ) cout << " updates = " << updates << endl;
 
   // run QTs on MEs updated during last cycle (offline mode)
-  if ( enableQT_ ) mui_->runQTests();
+  if ( ! enableStateMachine_ ) {
+    if ( enableQT_ ) mui_->runQTests();
+  }
 
   // update MEs (online mode)
   if ( ! enableStateMachine_ ) {
@@ -1527,7 +1529,9 @@ void EcalEndcapMonitorClient::analyze(void){
         if ( status_ == "running" || status_ == "end-of-run" || forced_update_ ) {
 
           // run QTs on local MEs, updated in analyze()
-          if ( enableQT_ ) mui_->runQTests();
+          if ( ! enableStateMachine_ ) {
+            if ( enableQT_ ) mui_->runQTests();
+          }
 
           // update MEs [again, just to silence a warning]
           if ( ! enableStateMachine_ ) {
