@@ -443,7 +443,7 @@ void createRatioPlots(TString plot) {
 	subDetector = "InnerServices";
 	break;
       }
-      case 4 {
+      case 4: {
 	subDetector = "TOB";
 	break;
       }
