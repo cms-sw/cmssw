@@ -5,6 +5,11 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalElectronicsSim.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/ESElectronicsSim.h"
 
+#include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
+#include "DataFormats/EcalDigi/interface/EBDataFrame.h"
+#include "DataFormats/EcalDigi/interface/EEDataFrame.h"
+
+
 /* \class EBDigitizerTraits
  * \brief typenames for the ECAL barrel digitization
  *

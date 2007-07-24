@@ -25,6 +25,15 @@ EcalCoder::EcalCoder(bool addNoise, CorrelatedNoisifier * theCorrNoise)
   
 }  
 
+void  EcalCoder::setPedestals(const EcalPedestals * pedestals) {
+  thePedestals = pedestals;
+  (*thePedestals).update();
+}
+
+void  EcalCoder::setGainRatios(const EcalGainRatios * gainRatios) {
+    theGainRatios = gainRatios; 
+}
+
 
 double EcalCoder::fullScaleEnergy(const DetId & detId) const 
 {
@@ -190,6 +199,7 @@ double EcalCoder::decode(const EcalMGPASample & sample, const DetId & id) const
 void EcalCoder::findPedestal(const DetId & detId, int gainId, 
                              double & ped, double & width) const
 {
+  /*
   EcalPedestalsMapIterator mapItr 
     = thePedestals->m_pedestals.find(detId.rawId());
   // should I care if it doesn't get found?
@@ -197,7 +207,11 @@ void EcalCoder::findPedestal(const DetId & detId, int gainId,
     edm::LogError("EcalCoder") << "Could not find pedestal for " << detId.rawId() << " among the " << thePedestals->m_pedestals.size();
   } else {
     EcalPedestals::Item item = mapItr->second;
-
+  */
+  EcalPedestals::Item const & item = (*thePedestals)(detId);
+  ped = item.mean(gainId);
+  width = item.rms(gainId);
+  /*
     switch(gainId) {
     case 0:
       ped = 0.;
@@ -218,9 +232,10 @@ void EcalCoder::findPedestal(const DetId & detId, int gainId,
       edm::LogError("EcalCoder") << "Bad Pedestal " << gainId;
       break;
     }
-    LogDebug("EcalCoder") << "Pedestals for " << detId.rawId() << " gain range " << gainId << " : \n" << "Mean = " << ped << " rms = " << width;
-  }
+  */
+  LogDebug("EcalCoder") << "Pedestals for " << detId.rawId() << " gain range " << gainId << " : \n" << "Mean = " << ped << " rms = " << width;
 }
+
 
 void EcalCoder::findGains(const DetId & detId, double Gains[]) const
 {

@@ -46,9 +46,9 @@ class EcalCoder
   virtual ~EcalCoder() {}
 
   /// can be fetched every event from the EventSetup
-  void setPedestals(const EcalPedestals * pedestals) {thePedestals = pedestals;}
+  void setPedestals(const EcalPedestals * pedestals);
 
-  void setGainRatios(const EcalGainRatios * gainRatios) {theGainRatios = gainRatios; }
+  void setGainRatios(const EcalGainRatios * gainRatios);
 
   void setFullScaleEnergy(const double EBscale , const double EEscale) {m_maxEneEB = EBscale; m_maxEneEE = EEscale; }
 
