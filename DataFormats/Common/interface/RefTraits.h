@@ -2,6 +2,9 @@
 #define DataFormats_Common_RefTraits_h
 
 namespace edm {
+  template<typename C, typename T, typename F> class RefVector;
+  template<typename T> class RefToBaseVector;
+
   namespace refhelper {
     template<typename C, typename T>
     struct FindUsingAdvance : public std::binary_function<C const&, typename C::size_type, T const*> {

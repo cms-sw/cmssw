@@ -6,7 +6,7 @@
 Several fillView function templates, to provide View support for 
 Standard Library containers.
 
-$Id: FillView.h,v 1.3 2007/07/09 07:28:49 llista Exp $
+$Id: FillView.h,v 1.4 2007/07/24 11:37:36 llista Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -15,7 +15,8 @@ $Id: FillView.h,v 1.3 2007/07/09 07:28:49 llista Exp $
 #include <list>
 #include <deque>
 #include <set>
-
+#include "DataFormats/Common/interface/RefTraits.h"
+#include "DataFormats/Common/interface/RefVectorTraits.h"
 
 namespace edm {
   template<typename C, typename T, typename F> class RefVector;
@@ -26,21 +27,22 @@ namespace edm {
     // standard-library collections of appropriate types (vector, list,
     // deque, set).
 
-    template<typename C>
+    template<typename C, typename T, typename F>
     struct FillViewRefTypeTrait {
-      typedef Ref<C> type;
+      typedef Ref<C, T, F> type;
     };
     
-    template<typename C, typename T, typename F>
-    struct FillViewRefTypeTrait<RefVector<C, T, F> > {
-      typedef typename RefVector<C, T, F>::value_type type;
+    template<typename C, typename T, typename F, typename T1, typename F1>
+    struct FillViewRefTypeTrait<RefVector<C, T, F>, T1, F1> {
+      typedef typename refhelper::RefVectorTrait<C, T, F>::ref_type type;
     };
   }
 }
 
 #include "DataFormats/Common/interface/EDProductfwd.h"
-#include "DataFormats/Common/interface/RefHolder.h"
+#include "DataFormats/Common/interface/RefHolder_.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
+#include "DataFormats/Common/interface/RefVectorHolderBase.h"
 
 namespace edm {
   namespace detail {
@@ -55,7 +57,10 @@ namespace edm {
       typedef typename product_type::value_type     element_type;
       typedef typename product_type::const_iterator iter;
       typedef typename product_type::size_type      size_type;
-      typedef typename FillViewRefTypeTrait<product_type>::type ref_type;
+      typedef typename FillViewRefTypeTrait<product_type, 
+	typename refhelper::ValueTrait<product_type>::value, 
+	typename refhelper::FindTrait<product_type, 
+	typename refhelper::ValueTrait<product_type>::value>::value>::type ref_type;
       typedef reftobase::RefHolder<ref_type>        holder_type;
       
       size_type key = 0;
@@ -110,8 +115,12 @@ namespace edm {
 
 }
 
+#include "DataFormats/Common/interface/RefHolder.h"
+
+/*
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefToBase.h"
+*/
 
 #endif

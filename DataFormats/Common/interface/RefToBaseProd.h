@@ -5,7 +5,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: RefToBaseProd.h,v 1.4 2007/07/23 12:40:32 llista Exp $
+ * $Id: RefToBaseProd.h,v 1.5 2007/07/24 11:37:36 llista Exp $
  *
  */
   
@@ -96,7 +96,6 @@ namespace edm {
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefCoreGet.h"
-#include "DataFormats/Common/interface/FillView.h"
 #include "DataFormats/Common/interface/RefVectorHolder.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefTraits.h"
@@ -118,41 +117,10 @@ namespace edm {
   }
 
   template <typename T>
-  template <class HandleC>
-  inline
-  RefToBaseProd<T>::RefToBaseProd(HandleC const& handle) :
-    product_(handle.id(), handle.product(), 0) { 
-    std::vector<void const*> pointers;
-    typedef typename refhelper::RefToBaseProdTrait<typename HandleC::product_type>::ref_vector_type ref_vector;
-    typedef reftobase::RefVectorHolder<ref_vector> holder_type;
-    helper_vector_ptr helpers( new holder_type );
-    detail::reallyFillView( * handle, handle.id(), pointers, * helpers );
-    view_.reset( new View<T>( pointers, helpers ) );
-  }
-
-  template <typename T>
   inline
   RefToBaseProd<T>::RefToBaseProd(Handle<View<T> > const& handle) :
     product_(handle.id(), 0, handle->productGetter() ),
     view_( new View<T>( * handle ) ) {
-   }
-
-
-  /// Constructor from Ref.
-  template <typename T>
-  template <typename C, typename F>
-  inline
-  RefToBaseProd<T>::RefToBaseProd(Ref<C, T, F> const& ref) :
-      product_(ref.id(), 
-	       ref.hasProductCache() ? 
-	       ref.product() : 
-	       0, ref.productGetter()) {
-    std::vector<void const*> pointers;
-    typedef typename refhelper::RefToBaseProdTrait<C>::ref_vector_type ref_vector;
-    typedef reftobase::RefVectorHolder<ref_vector> holder_type;
-    helper_vector_ptr helpers( new holder_type );
-    detail::reallyFillView( * ref.product(), ref.id(), pointers, * helpers );
-    view_.reset( new View<T>( pointers, helpers ) );
   }
 
   template <typename T>
@@ -167,20 +135,6 @@ namespace edm {
   RefToBaseProd<T>::RefToBaseProd( const RefToBaseProd<T> & ref ) :
     product_( ref.product_ ),
     view_( ref.view_ ) {
-  }
-
-  template <typename T>
-  template <typename C>
-  inline
-  RefToBaseProd<T>::RefToBaseProd( const RefProd<C> & ref ) :
-    product_( ref.refCore() ) {
-    std::vector<void const*> pointers;
-    typedef typename refhelper::RefToBaseProdTrait<C>::ref_vector_type ref_vector;
-    typedef reftobase::RefVectorHolder<ref_vector> holder_type;
-    helper_vector_ptr helpers( new holder_type );
-    detail::reallyFillView( * ref.product(), ref.id(), pointers, * helpers );
-    view_.reset( new View<T>( pointers, helpers ) );
-   
   }
 
   template <typename T>
@@ -226,4 +180,54 @@ namespace edm {
     return (lhs.refCore() < rhs.refCore());
   }
 }
+
+#include "DataFormats/Common/interface/FillView.h"
+
+namespace edm {
+  template <typename T>
+  template <typename C>
+  inline
+  RefToBaseProd<T>::RefToBaseProd( const RefProd<C> & ref ) :
+    product_( ref.refCore() ) {
+    std::vector<void const*> pointers;
+    typedef typename refhelper::RefToBaseProdTrait<C>::ref_vector_type ref_vector;
+    typedef reftobase::RefVectorHolder<ref_vector> holder_type;
+    helper_vector_ptr helpers( new holder_type );
+    detail::reallyFillView( * ref.product(), ref.id(), pointers, * helpers );
+    view_.reset( new View<T>( pointers, helpers ) );
+   
+  }
+
+  template <typename T>
+  template <class HandleC>
+  inline
+  RefToBaseProd<T>::RefToBaseProd(HandleC const& handle) :
+    product_(handle.id(), handle.product(), 0) { 
+    std::vector<void const*> pointers;
+    typedef typename refhelper::RefToBaseProdTrait<typename HandleC::product_type>::ref_vector_type ref_vector;
+    typedef reftobase::RefVectorHolder<ref_vector> holder_type;
+    helper_vector_ptr helpers( new holder_type );
+    detail::reallyFillView( * handle, handle.id(), pointers, * helpers );
+    view_.reset( new View<T>( pointers, helpers ) );
+  }
+
+  /// Constructor from Ref.
+  template <typename T>
+  template <typename C, typename F>
+  inline
+  RefToBaseProd<T>::RefToBaseProd(Ref<C, T, F> const& ref) :
+      product_(ref.id(), 
+	       ref.hasProductCache() ? 
+	       ref.product() : 
+	       0, ref.productGetter()) {
+    std::vector<void const*> pointers;
+    typedef typename refhelper::RefToBaseProdTrait<C>::ref_vector_type ref_vector;
+    typedef reftobase::RefVectorHolder<ref_vector> holder_type;
+    helper_vector_ptr helpers( new holder_type );
+    detail::reallyFillView( * ref.product(), ref.id(), pointers, * helpers );
+    view_.reset( new View<T>( pointers, helpers ) );
+  }
+
+}
+
 #endif

@@ -1,9 +1,9 @@
 #ifndef DataFormats_Common_RefKeyTrait_h
 #define DataFormats_Common_RefKeyTrait_h
-#include "DataFormats/Common/interface/RefProd.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 namespace edm {
+  template <typename C> class RefProd;
   namespace reftobase {
 
     struct RefKey {
