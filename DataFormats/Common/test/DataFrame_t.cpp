@@ -84,7 +84,7 @@ namespace {
       ++n;
       CPPUNIT_ASSERT(df.id()==20+n); 
       std::vector<edm::DataFrame::data_type> v2(10);
-      std::copy(df.begin(),df.end(),v2);
+      std::copy(df.begin(),df.end(),v2.begin());
       CPPUNIT_ASSERT(test.sv==v2);
     }
     
@@ -99,7 +99,7 @@ void TestDataFrame::iterator() {
     int id=20+n;
     frames.push_back(id);
     edm::DataFrame df = frames.back();
-    std::copy(v,v+10,df.begin());
+    std::copy(sv.begin(),sv.end(),df.begin());
   }
   CPPUNIT_ASSERT(std::for_each(frames.begin(),frames.end(),VerifyIter(this)).n==4);
 
