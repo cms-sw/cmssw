@@ -41,8 +41,9 @@ unsigned GctRawToDigi::MAX_BLOCKS = 128;
 
 
 GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
-  fedId_(iConfig.getParameter<int>("GctFedId")),
-  verbose_(iConfig.getUntrackedParameter<bool>("Verbose",false)),
+  inputLabel_(iConfig.getParameter<edm::InputTag>("inputLabel")),
+  fedId_(iConfig.getParameter<int>("gctFedId")),
+  verbose_(iConfig.getUntrackedParameter<bool>("verbose",false)),
   doInternEm_(iConfig.getUntrackedParameter<bool>("unpackInternEm",true)),
   doFibres_(iConfig.getUntrackedParameter<bool>("unpackFibres",true))
 {
@@ -86,9 +87,9 @@ GctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
-   // get raw data collection (by type?!?)
+   // get raw data collection
    edm::Handle<FEDRawDataCollection> feds;
-   iEvent.getByType(feds);
+   iEvent.getByLabel(inputLabel_, feds);
    const FEDRawData& gctRcd = feds->FEDData(fedId_);
    
    edm::LogInfo("GCT") << "Upacking FEDRawData of size " << std::dec << gctRcd.size() << std::endl;
