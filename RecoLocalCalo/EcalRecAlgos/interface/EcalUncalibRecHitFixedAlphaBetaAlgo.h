@@ -71,6 +71,7 @@ template<class C> class EcalUncalibRecHitFixedAlphaBetaAlgo : public EcalUncalib
     }
     doFit_ = false;
     MinAmpl_ = 16;
+    dyn_pedestal = true;
   }
   EcalUncalibRecHitFixedAlphaBetaAlgo<C>(int n_iter, int n_bef_max =1, int n_aft_max =3, float sigma_ped = 1.1):fAlpha_(0.),fBeta_(0.),fAmp_max_(-1.),fTim_max_(-1),fPed_max_(0),alfabeta_(0),DM1_(3),temp_(3){
     
@@ -87,6 +88,7 @@ template<class C> class EcalUncalibRecHitFixedAlphaBetaAlgo : public EcalUncalib
    }
    doFit_ = false;
    MinAmpl_ = 16;
+   dyn_pedestal = true;
   };
 
   virtual ~EcalUncalibRecHitFixedAlphaBetaAlgo<C>() { };
