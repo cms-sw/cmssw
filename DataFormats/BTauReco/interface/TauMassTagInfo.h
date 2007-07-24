@@ -6,6 +6,7 @@
 
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfoFwd.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 
@@ -16,6 +17,8 @@ namespace reco {
 
     typedef edm::AssociationMap < edm::OneToValue<BasicClusterCollection,
       float, unsigned short> > ClusterTrackAssociationCollection;
+
+    typedef ClusterTrackAssociationCollection::value_type ClusterTrackAssociation;
 
     TauMassTagInfo() {}
     virtual ~TauMassTagInfo() {}
