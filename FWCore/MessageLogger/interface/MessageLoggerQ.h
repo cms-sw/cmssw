@@ -28,6 +28,7 @@ public:
   , SUMMARIZE      // SUM
   , JOBREPORT      // JOB
   , JOBMODE        // MOD
+  , SHUT_UP        // SHT
   };  // OpCode
 
   // ---  birth via a surrogate:
@@ -41,6 +42,7 @@ public:
   static  void  SUM();
   static  void  JOB( std::string * j );
   static  void  MOD( std::string * jm );
+  static  void  SHT();
 
   // ---  obtain a message from the queue:
   static  void  consume( OpCode & opcode, void * & operand );

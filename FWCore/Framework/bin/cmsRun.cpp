@@ -4,7 +4,7 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about
 it.
 
-$Id: cmsRun.cpp,v 1.36 2007/06/28 23:23:25 wmtan Exp $
+$Id: cmsRun.cpp,v 1.37 2007/07/03 00:20:57 rpw Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -152,9 +152,26 @@ int main(int argc, char* argv[])
     
   if(vm.count(kHelpOpt)) {
     std::cout << desc <<std::endl;
+    if(!vm.count(kParameterSetOpt)) edm::HaltMessageLogging();
     return 0;
   }
   
+  if(!vm.count(kParameterSetOpt)) {
+    std::string shortDesc("ConfigFileNotFound");
+    std::ostringstream longDesc;
+    longDesc << "cmsRun: No configuration file given.\n"
+	     << "For usage and an options list, please do '"
+	     << argv[0]
+	     <<  " --"
+	     << kHelpOpt
+	     << "'.";
+    int exitCode = 7001;
+    edm::LogAbsolute(shortDesc) << longDesc.str() << "\n";
+    edm::HaltMessageLogging();
+    return exitCode;
+  }
+
+#ifdef CHANGED_FROM
   if(!vm.count(kParameterSetOpt)) {
     std::string shortDesc("ConfigFileNotFound");
     std::ostringstream longDesc;
@@ -169,6 +186,7 @@ int main(int argc, char* argv[])
     edm::LogSystem(shortDesc) << longDesc.str() << "\n";
     return exitCode;
   }
+#endif
 
   std::string configstring;
   std::string fileName(vm[kParameterSetOpt].as<std::string>());

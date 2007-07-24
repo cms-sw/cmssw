@@ -22,4 +22,8 @@ bool isWarningEnabled() {
   return( edm::MessageDrop::instance()->warningEnabled );
 }
 
+void HaltMessageLogging() {
+  edm::MessageLoggerQ::SHT ( ); // Shut the logger up
+}
+
 }  // namespace edm

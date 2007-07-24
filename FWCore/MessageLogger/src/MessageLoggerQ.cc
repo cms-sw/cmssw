@@ -19,6 +19,8 @@
 //	Addition of JOB command, to be used by --jobreport
 // 2 - 6/19/07 mf
 //	Addition of MOD command, to be used by --mode
+// 3 - 7/24/07 mf
+//	Addition of SHT command, to be used when no .cfg file was given
 
 using namespace edm;
 
@@ -55,6 +57,19 @@ void
   b.commit(buf_size);
 }  // MessageLoggerQ::END()
 
+void
+  MessageLoggerQ::SHT()
+{
+  SingleConsumerQ::ProducerBuffer b(buf);
+  char * slot_p = static_cast<char *>(b.buffer());
+
+  OpCode o(SHUT_UP);
+  void * v(0);
+
+  std::memcpy(slot_p               , &o, sizeof(OpCode));
+  std::memcpy(slot_p+sizeof(OpCode), &v, sizeof(void *));
+  b.commit(buf_size);
+}  // MessageLoggerQ::SHT()
 
 void
   MessageLoggerQ::LOG( ErrorObj * p )

@@ -127,6 +127,11 @@
 //	 Major mods to hardwire defaults taken from the .cfi file 
 //	 To allow flexibility, this depends on MessageLoggerDefaults.h
 //
+//  25 - 7/24/07 mf - in run() 
+//	 A command SUUT_UP to deactivate, and in the LOG_A_MESSGE case, response to 
+//	 that command.  This allows supression of the generator info in case of a
+//	 completely .cfg-less cmsRun command.  
+//
 // ----------------------------------------------------------------------
 
 #include "FWCore/MessageService/interface/ELadministrator.h"
@@ -165,6 +170,7 @@ MessageLoggerScribe::MessageLoggerScribe()
 , extern_dests( )
 , jobReportOption( )
 , clean_slate_configuration( true )
+, active( true )
 {
   admin_p->setContextSupplier(msg_context);
 }
@@ -205,29 +211,29 @@ void
       case MessageLoggerQ::LOG_A_MESSAGE:  {
         ErrorObj *  errorobj_p = static_cast<ErrorObj *>(operand);
 	try {
-	  if(!purge_mode) log (errorobj_p);        
+	  if(active && !purge_mode) log (errorobj_p);        
 	}
 	catch(cms::Exception& e)
-	  {
+	{
 	    ++count;
 	    cerr << "MessageLoggerScribe caught " << count
 		 << " cms::Exceptions, text = \n"
 		 << e.what() << "\n";
-	    
+
 	    if(count > 25)
 	      {
 		cerr << "MessageLogger will no longer be processing "
 		     << "messages due to errors (entering purge mode).\n";
 		purge_mode = true;
 	      }
-	  }
+	}
 	catch(...)
-	  {
+	{
 	    cerr << "MessageLoggerScribe caught an unknown exception and "
 		 << "will no longer be processing "
 		 << "messages. (entering purge mode)\n";
 	    purge_mode = true;
-	  }
+	}
         delete errorobj_p;  // dispose of the message text
         break;
       }
@@ -333,6 +339,11 @@ void
 		// Note - since messageLoggerDefaults is a value_ptr, 
 		//        there is no concern about deleting here.
 	delete jobMode_p;  // dispose of the message text
+        break;
+      }
+      case MessageLoggerQ::SHUT_UP:  {
+        assert( operand == 0 );
+        active = false;
         break;
       }
     }  // switch
