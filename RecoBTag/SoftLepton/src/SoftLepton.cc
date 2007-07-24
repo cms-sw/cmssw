@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.26 2007/06/11 13:47:33 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.27 2007/06/20 17:19:11 fwyzard Exp $
 //
 
 
@@ -62,7 +62,8 @@ SoftLepton::SoftLepton(const edm::ParameterSet & iConfig) :
   m_jets(          iConfig.getParameter<edm::InputTag>( "jets" ) ),
   m_primaryVertex( iConfig.getParameter<edm::InputTag>( "primaryVertex" ) ),
   m_leptons(       iConfig.getParameter<edm::InputTag>( "leptons" ) ),
-  m_algo(          iConfig.getParameter<edm::ParameterSet> ( "algorithmConfiguration") )
+  m_algo(          iConfig.getParameter<edm::ParameterSet> ( "algorithmConfiguration") ),
+  m_quality(       iConfig.getParameter<double>( "leptonQuality" ) )
 {
   produces<reco::SoftLeptonTagInfoCollection>();
 }
@@ -168,10 +169,13 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     Handle<reco::MuonCollection> h_muons;
     iEvent.get(leptons_id, h_muons);
     for (reco::MuonCollection::const_iterator muon = h_muons->begin(); muon != h_muons->end(); ++muon)
-      if(! muon->combinedMuon().isNull() )
+    {
+      if (! muon->combinedMuon().isNull() and muon->getCaloCompatibility() > m_quality)
         leptons.push_back(edm::RefToBase<reco::Track>( muon->combinedMuon() ));
       else 
-        cerr << "SoftLepton::produce : found a Null edm::Ref in MuonCollection " << m_leptons << ", skipping it" << endl;
+      if (! muon->track().isNull() and muon->getCaloCompatibility() > m_quality)
+        leptons.push_back(edm::RefToBase<reco::Track>( muon->track() ));
+    }
   }
   else
   // look for GsfTracks
@@ -183,7 +187,7 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       leptons.push_back(edm::RefToBase<reco::Track>( reco::GsfTrackRef(h_tracks, i) ));
   }
   else
-  // electrons or muons not found, look for tracks
+  // look for Tracks
   if (leptons_id = edm::findProductIDByLabel<reco::TrackCollection>(iEvent, m_leptons), leptons_id.isValid())
   {
     Handle<reco::TrackCollection> h_tracks;
