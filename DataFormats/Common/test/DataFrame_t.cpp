@@ -28,14 +28,14 @@ class TestDataFrame: public CppUnit::TestFixture
   void iterator();
 
 public:
-  std::vector<DataFrame::data_type> sv(10);
+  std::vector<edm::DataFrame::data_type> sv(10);
 
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestDataFrame);
 
 TestDataFrame::TestDataFrame() sv(10){ 
-  DataFrame::data_type v[10] = {0,1,2,3,4,5,6,7,8,9};
+  edm::DataFrame::data_type v[10] = {0,1,2,3,4,5,6,7,8,9};
   std::copy(v,v+10,sv.begin());
 } 
 
@@ -69,7 +69,7 @@ void TestDataFrame::filling() {
     
     std::copy(v,v+10,df.begin());
 
-    std::vector<DataFrame::data_type> v2(10);
+    std::vector<edm::DataFrame::data_type> v2(10);
     std::copy(frames.m_data.begin()+(n-1)*10,frames.m_data.begin()+n*10,v2.begin());
     CPPUNIT_ASSERT(sv==v2);
   }
@@ -83,7 +83,7 @@ namespace {
     void operator()(edm::DataFrame const & df) {
       ++n;
       CPPUNIT_ASSERT(df.id()==20+n); 
-      std::vector<DataFrame::data_type> v2(10);
+      std::vector<edm::DataFrame::data_type> v2(10);
       std::copy(df.begin(),df.end(),v2);
       CPPUNIT_ASSERT(test.sv==v2);
     }
@@ -94,10 +94,6 @@ namespace {
 }
 
 void TestDataFrame::iterator() {
-  DataFrame::data_type v[10] = {0,1,2,3,4,5,6,7,8,9};
-  std::vector<DataFrame::data_type> sv(10);
-  std::copy(v,v+10,sv.begin());
-
   edm::DataFrameContainer frames(10,2);
   for (int n=1;n<5;++n) {
     int id=20+n;

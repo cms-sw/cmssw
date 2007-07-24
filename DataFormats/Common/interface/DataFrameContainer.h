@@ -103,7 +103,7 @@ namespace edm {
       std::copy(idata,idata+m_stride,m_data.begin()+cs);
     }
 
-    DataFrame back(size_t i) {
+    DataFrame back() {
       return DataFrame(*this,size()-1);
     }
 
