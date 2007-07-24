@@ -38,9 +38,9 @@ void TestDataFrame::default_ctor() {
   CPPUNIT_ASSERT(frames.size()==0);
   frames.resize(2);
   CPPUNIT_ASSERT(frames.size()==2);
-  edm::DataFrame df = frame[1];
+  edm::DataFrame df = frames[1];
   CPPUNIT_ASSERT(df.size()==10); 
-  CPPUNIT_ASSERT(df.m_data==frames.m_data+10); 
+  CPPUNIT_ASSERT(df.m_data==&frames.m_data.front()+10); 
 }
 
 void TestDataFrame::filling() {
