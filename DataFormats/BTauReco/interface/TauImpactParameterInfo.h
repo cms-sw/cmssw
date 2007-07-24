@@ -1,25 +1,28 @@
 #ifndef BTauReco_TauTagImpactParameterInfo_h
 #define BTauReco_TauTagImpactParameterInfo_h
 
-#include <vector>
-#include <map>
-
-#include "DataFormats/BTauReco/interface/TauImpactParameterInfoFwd.h"
+#include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/BTauReco/interface/TauImpactParameterInfoFwd.h"
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfoFwd.h" 
-#include "DataFormats/BTauReco/interface/TrackTauImpactParameterAssociation.h"
-
-using namespace std;
 
 namespace reco {
  
-  class TauImpactParameterTrackData {
-    public:
-	TauImpactParameterTrackData() { }
-	Measurement1D  transverseIp;
-	Measurement1D  ip3D;
+  struct TauImpactParameterTrackData {
+    Measurement1D transverseIp;
+    Measurement1D ip3D;
   };
- 
+
+  typedef edm::AssociationMap <
+            edm::OneToValue<
+              reco::TrackCollection,
+              reco::TauImpactParameterTrackData
+            >
+          > TrackTauImpactParameterAssociationCollection;
+
+  typedef TrackTauImpactParameterAssociationCollection::value_type TrackTauImpactParameterAssociation;
+
   class TauImpactParameterInfo {
   public:
     TauImpactParameterInfo() {}
@@ -30,16 +33,15 @@ namespace reco {
     float discriminator(double,double,double,bool,bool) const;
     float discriminator() const;
     
-    const TauImpactParameterTrackData* getTrackData(reco::TrackRef) const;
-    void 	         storeTrackData(reco::TrackRef,const TauImpactParameterTrackData&);
+    const TauImpactParameterTrackData * getTrackData(const reco::TrackRef &) const;
+    void storeTrackData(const reco::TrackRef &, const TauImpactParameterTrackData &);
     
-    void 		 setIsolatedTauTag(const IsolatedTauTagInfoRef);
-    const IsolatedTauTagInfoRef& getIsolatedTauTag() const;
+    const IsolatedTauTagInfoRef & getIsolatedTauTag() const;
+    void setIsolatedTauTag(const IsolatedTauTagInfoRef &);
     
   private:
-    
     TrackTauImpactParameterAssociationCollection trackDataMap;
-    IsolatedTauTagInfoRef isolatedTaus;
+    IsolatedTauTagInfoRef                        isolatedTaus;
   };
  
 }
