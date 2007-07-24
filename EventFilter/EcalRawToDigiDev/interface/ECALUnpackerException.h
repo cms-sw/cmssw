@@ -8,8 +8,6 @@
 #include <string>
 #include <sstream>
 
-using namespace std;
-
 
 class ECALUnpackerException { 
   public :
@@ -17,17 +15,17 @@ class ECALUnpackerException {
     /**
      * Constructor
      */
-    ECALUnpackerException(ostringstream a){ info_=a.str(); }
+    ECALUnpackerException(std::ostringstream a){ info_=a.str(); }
   
-    ECALUnpackerException(string a){info_=a;}		
+    ECALUnpackerException(std::string a){info_=a;}		
     /**
      * Exception's discription
      */
-    string what() const throw() { return info_;}
+    std::string what() const throw() { return info_;}
 			
   protected :
 	
-    string info_;
+    std::string info_;
 
 };
 

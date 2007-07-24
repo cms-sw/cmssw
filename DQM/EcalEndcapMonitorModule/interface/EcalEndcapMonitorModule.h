@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorModule.h
  *
- * $Date: 2007/03/24 20:52:10 $
- * $Revision: 1.41 $
+ * $Date: 2007/05/12 09:32:24 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -54,6 +54,8 @@ int evtType_;
 int runNumber_;
 int evtNumber_;
 
+bool fixedRunNumber_;
+
 int ievt_;
 
 edm::InputTag EcalTBEventHeader_;
@@ -69,6 +71,8 @@ bool enableEventDisplay_;
 
 DaqMonitorBEInterface* dbe_;
 
+bool enableCleanup_;
+
 MonitorElement* meStatus_;
 
 MonitorElement* meRun_;
@@ -82,7 +86,7 @@ MonitorElement* meEEDCC_;
 MonitorElement* meEEdigi_;
 MonitorElement* meEEhits_;
 
-MonitorElement* meEvent_[36];
+MonitorElement* meEvent_[18];
 
 bool init_;
 

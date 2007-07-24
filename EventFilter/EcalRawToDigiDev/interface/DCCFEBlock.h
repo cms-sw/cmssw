@@ -16,9 +16,6 @@
 
 #include "DCCDataBlockPrototype.h"
 
-using namespace std;
-using namespace edm;
-
 class DCCEventBlock;
 class DCCDataUnpacker;
 
@@ -34,7 +31,7 @@ class DCCFEBlock : public DCCDataBlockPrototype {
 	 
     virtual void updateCollectors();
     
-    void display(ostream & o); 
+    void display(std::ostream & o); 
     
     void unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedTowerID);
 
@@ -63,8 +60,8 @@ class DCCFEBlock : public DCCDataBlockPrototype {
     uint l1_;
     
     short * xtalGains_;	 
-    auto_ptr<EcalTrigTowerDetIdCollection> * invalidTTIds_;
-    auto_ptr<EcalTrigTowerDetIdCollection> * invalidBlockLengths_;
+    std::auto_ptr<EcalTrigTowerDetIdCollection> * invalidTTIds_;
+    std::auto_ptr<EcalTrigTowerDetIdCollection> * invalidBlockLengths_;
 	 
    
 		

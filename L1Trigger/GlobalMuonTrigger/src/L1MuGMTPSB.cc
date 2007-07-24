@@ -5,8 +5,8 @@
 //   Description: Pipelined Synchronising Buffer module 
 //
 //
-//   $Date: 2007/03/23 18:51:35 $
-//   $Revision: 1.5 $
+//   $Date: 2007/04/02 15:45:39 $
+//   $Revision: 1.6 $
 //
 //   Author :
 //   N. Neumeister            CERN EP 
@@ -165,12 +165,12 @@ void L1MuGMTPSB::reset() {
 //
 void L1MuGMTPSB::print() const {
 
-  edm::LogVerbatim("GMT_PSB_info") << endl;
+  edm::LogVerbatim("GMT_PSB_info") << " ";
   printDTBX();
   printRPCbarrel();
   printCSC();
   printRPCendcap();
-  edm::LogVerbatim("GMT_PSB_info") << endl;
+  edm::LogVerbatim("GMT_PSB_info") << " ";
   
 }
 
@@ -310,7 +310,7 @@ void L1MuGMTPSB::getDTBX(std::vector<L1MuRegionalCand> const* data, int bx) {
   int idtbx = 0;
   std::vector<L1MuRegionalCand>::const_iterator iter;
   for ( iter = data->begin(); iter != data->end(); iter++ ) {
-    if ( L1MuGMTConfig::Debug(2) ) edm::LogVerbatim("") << "DTTF BX: " << (*iter).bx() << " my bx: " << bx << endl;
+    if ( L1MuGMTConfig::Debug(2) ) edm::LogVerbatim("") << "DTTF BX: " << (*iter).bx() << " my bx: " << bx;
     if ( (*iter).bx() > 10) bxoffset=16;
     if ( (*iter).bx() != bx+bxoffset ) continue;
     if ( idtbx < (int)L1MuGMTConfig::MAXDTBX ) { 
@@ -346,7 +346,7 @@ void L1MuGMTPSB::getCSC(std::vector<L1MuRegionalCand> const* data, int bx) {
 //
 void L1MuGMTPSB::printRPCbarrel() const {
 
-  edm::LogVerbatim("GMT_PSB_info") << "RPC barrel  muons received by the GMT :" << endl;
+  edm::LogVerbatim("GMT_PSB_info") << "RPC barrel  muons received by the GMT :";
 
   for ( unsigned i = 0; i < L1MuGMTConfig::MAXRPCbarrel; i++ ) {
     if (!m_RpcMuons[i].empty()) m_RpcMuons[i].print();
@@ -360,7 +360,7 @@ void L1MuGMTPSB::printRPCbarrel() const {
 //
 void L1MuGMTPSB::printRPCendcap() const {
 
-  edm::LogVerbatim("GMT_PSB_info") << "RPC endcap  muons received by the GMT :" << endl;
+  edm::LogVerbatim("GMT_PSB_info") << "RPC endcap  muons received by the GMT :";
 
   for ( unsigned i = 0; i < L1MuGMTConfig::MAXRPCendcap; i++ ) {
     if (!m_RpcMuons[i+4].empty()) m_RpcMuons[i+4].print();
@@ -374,7 +374,7 @@ void L1MuGMTPSB::printRPCendcap() const {
 //
 void L1MuGMTPSB::printDTBX() const {
 
-  edm::LogVerbatim("GMT_PSB_info") << "DTBX muons received by the GMT :" << endl;
+  edm::LogVerbatim("GMT_PSB_info") << "DTBX muons received by the GMT :";
 
   for ( unsigned i = 0; i < L1MuGMTConfig::MAXDTBX; i++ ) {
     if (!m_DtbxMuons[i].empty()) m_DtbxMuons[i].print();
@@ -388,7 +388,7 @@ void L1MuGMTPSB::printDTBX() const {
 //
 void L1MuGMTPSB::printCSC() const {
 
-  edm::LogVerbatim("GMT_PSB_info") << "CSC  muons received by the GMT :" << endl;
+  edm::LogVerbatim("GMT_PSB_info") << "CSC  muons received by the GMT :";
 
   for ( unsigned i = 0; i < L1MuGMTConfig::MAXCSC; i++ ) {
     if (!m_CscMuons[i].empty()) m_CscMuons[i].print();

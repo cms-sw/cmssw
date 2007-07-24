@@ -41,7 +41,8 @@ CSCDDUDataItr::CSCDDUDataItr(const CSCDDUEventData * dduData) :
 }
 
 
-CSCDDUDataItr::~CSCDDUDataItr() {
+CSCDDUDataItr::~CSCDDUDataItr() 
+{
   if(theDataIsOwnedByMe) delete theDDUData;
 }
 
@@ -51,27 +52,34 @@ CSCDDUDataItr::CSCDDUDataItr(const CSCDDUDataItr & i) :
   theNumberOfCSCs(i.theNumberOfCSCs),
   theDataIsOwnedByMe(i.theDataIsOwnedByMe)
 {
-  if(theDataIsOwnedByMe) {
-    if(i.theDDUData != 0) {
-      theDDUData = new CSCDDUEventData(*(i.theDDUData));
+  if(theDataIsOwnedByMe) 
+    {
+      if(i.theDDUData != 0) 
+	{
+	  theDDUData = new CSCDDUEventData(*(i.theDDUData));
+	}
     }
-  }
-  else {
-    theDDUData = i.theDDUData;
-  }
+  else
+    {
+      theDDUData = i.theDDUData;
+    }
 }
 
 
-void CSCDDUDataItr::operator=(const CSCDDUDataItr & i) {
-  if(theDataIsOwnedByMe) {
-    delete theDDUData;
-    if(i.theDDUData != 0) {
-      theDDUData = new CSCDDUEventData(*(i.theDDUData));
+void CSCDDUDataItr::operator=(const CSCDDUDataItr & i) 
+{
+  if(theDataIsOwnedByMe) 
+    {
+      delete theDDUData;
+      if(i.theDDUData != 0) 
+	{
+	  theDDUData = new CSCDDUEventData(*(i.theDDUData));
+	}
     }
-  }
-  else {
-    theDDUData = i.theDDUData;
-  }
+  else
+    {
+      theDDUData = i.theDDUData;
+    }
 
   theDDUData = i.theDDUData;
   theCurrentCSC = i.theCurrentCSC;
@@ -80,12 +88,14 @@ void CSCDDUDataItr::operator=(const CSCDDUDataItr & i) {
 }  
 
 
-bool CSCDDUDataItr::next() {
+bool CSCDDUDataItr::next() 
+{
   return (++theCurrentCSC < theNumberOfCSCs);
 }
 
 
-const CSCEventData &  CSCDDUDataItr::operator*() {
+const CSCEventData &  CSCDDUDataItr::operator*() 
+{
   assert(theCurrentCSC >= 0 && theCurrentCSC < theNumberOfCSCs);
   return theDDUData->cscData()[theCurrentCSC];
 }

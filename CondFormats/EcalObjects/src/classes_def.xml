@@ -3,13 +3,10 @@
  <class name="EcalPedestals::Item"/>
 
  <class name="EcalWeightSet"/>
- <class name="EcalWeight"/>
- <class name="std::vector< EcalWeight >"/>
- <class name="std::vector< std::vector< EcalWeight > >"/>
+
 
  <class name="EcalWeightXtalGroups"/>
  <class name="EcalXtalGroupId"/>
-
  <class name="EcalTBWeights"/>
 
  <class name="EcalADCToGeVConstant"/>

@@ -18,17 +18,15 @@
 
 #include <vector>
 
-using boost::multi_index_container;
-using namespace boost::multi_index;
-
 
 /** \class EcalElectronicsMapping
   *  
-  * $Id: EcalElectronicsMapping.h,v 1.1 2006/05/25 15:44:47 meridian Exp $
+  * $Id: EcalElectronicsMapping.h,v 1.1 2007/03/09 07:31:42 eperez Exp $
   * \author P.Meridiani (INFN Roma1),  E. Perez (CERN)  
   */
 
 class EcalElectronicsMapping {
+
   
  public:
   
@@ -188,42 +186,42 @@ class EcalElectronicsMapping {
 
 
   //hashed indexes to be preferred to ordered (faster for lookup, here we are not interested in ordering...)
-  typedef multi_index_container<
+  typedef boost::multi_index::multi_index_container<
     MapItem,
-    indexed_by<
+    boost::multi_index::indexed_by<
     // hashed_unique< member < MapItem,DetId,&MapItem::cell > >,
     // hashed_unique< member < MapItem,EcalElectronicsId,&MapItem::elid > >,
     // hashed_unique< member < MapItem,EcalTriggerElectronicsId,&MapItem::trelid > >
-     ordered_unique< member < MapItem,DetId,&MapItem::cell > >,
-     ordered_unique< member < MapItem,EcalElectronicsId,&MapItem::elid > >,
-     ordered_unique< member < MapItem,EcalTriggerElectronicsId,&MapItem::trelid > >,
-     ordered_non_unique< const_mem_fun < MapItem, int, &MapItem::dccId > >,
-     ordered_non_unique<
-	composite_key<
+     boost::multi_index::ordered_unique< boost::multi_index::member < MapItem,DetId,&MapItem::cell > >,
+     boost::multi_index::ordered_unique< boost::multi_index::member < MapItem,EcalElectronicsId,&MapItem::elid > >,
+     boost::multi_index::ordered_unique< boost::multi_index::member < MapItem,EcalTriggerElectronicsId,&MapItem::trelid > >,
+     boost::multi_index::ordered_non_unique< boost::multi_index::const_mem_fun < MapItem, int, &MapItem::dccId > >,
+     boost::multi_index::ordered_non_unique<
+	boost::multi_index::composite_key<
 		MapItem,
-		const_mem_fun < MapItem, int, &MapItem::dccId > ,
-		const_mem_fun < MapItem, int, &MapItem::towerId  >  
+		boost::multi_index::const_mem_fun < MapItem, int, &MapItem::dccId > ,
+		boost::multi_index::const_mem_fun < MapItem, int, &MapItem::towerId  >  
 	> >,
-     ordered_non_unique<
-        composite_key<
+     boost::multi_index::ordered_non_unique<
+        boost::multi_index::composite_key<
                 MapItem,
-                const_mem_fun < MapItem, int, &MapItem::dccId > ,
-                const_mem_fun < MapItem, int, &MapItem::towerId  >,
-		const_mem_fun < MapItem, int, &MapItem::stripId >
+                boost::multi_index::const_mem_fun < MapItem, int, &MapItem::dccId > ,
+                boost::multi_index::const_mem_fun < MapItem, int, &MapItem::towerId  >,
+		boost::multi_index::const_mem_fun < MapItem, int, &MapItem::stripId >
 	> >,
-     ordered_non_unique< const_mem_fun < MapItem, int, &MapItem::tccId > >,
-     ordered_non_unique<
-        composite_key<
+     boost::multi_index::ordered_non_unique< boost::multi_index::const_mem_fun < MapItem, int, &MapItem::tccId > >,
+     boost::multi_index::ordered_non_unique<
+        boost::multi_index::composite_key<
                 MapItem,
-                const_mem_fun < MapItem, int, &MapItem::tccId > ,
-                const_mem_fun < MapItem, int, &MapItem::ttId  >
+                boost::multi_index::const_mem_fun < MapItem, int, &MapItem::tccId > ,
+                boost::multi_index::const_mem_fun < MapItem, int, &MapItem::ttId  >
         > >,
-     ordered_non_unique<
-        composite_key<
+     boost::multi_index::ordered_non_unique<
+        boost::multi_index::composite_key<
                 MapItem,
-                const_mem_fun < MapItem, int, &MapItem::tccId > ,
-                const_mem_fun < MapItem, int, &MapItem::ttId  >,
-                const_mem_fun < MapItem, int, &MapItem::pseudoStripId >
+                boost::multi_index::const_mem_fun < MapItem, int, &MapItem::tccId > ,
+                boost::multi_index::const_mem_fun < MapItem, int, &MapItem::ttId  >,
+                boost::multi_index::const_mem_fun < MapItem, int, &MapItem::pseudoStripId >
         > >
     >
     > EcalElectronicsMap;

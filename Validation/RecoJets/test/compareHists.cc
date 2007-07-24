@@ -70,9 +70,9 @@ double makeGifHists (TH1* fHist, TH1* fRefHist, TCanvas* fCanvas, const std::str
   char buf [1024];
   sprintf (buf, "%s: Kolmogorov Test PV = %5.3f", fPrefix.c_str(), pv);
   TPaveText title (0.3,0.85,0.95, 0.99, buf);
-  title.SetFillColor(pv > 0.01 ? 3 : 2);
+  title.SetFillColor(pv > 0.1 ? 3 : 2);
   TText* t1 = title.AddText (fPrefix.c_str());
-  sprintf (buf, "Kolmogorov Test PV = %6.4f", pv);
+  sprintf (buf, "Kolmogorov Test PV = %5.3f", pv);
   TText* t2 = title.AddText (buf);
   // t2->SetTextSize(0.3);
   title.Draw();
@@ -87,14 +87,10 @@ double makeGifHists (TH1* fHist, TH1* fRefHist, TCanvas* fCanvas, const std::str
   fRefHist->SetLineColor (2);
   fRefHist->SetFillColor (42);
   std::string name = fRefHist->GetTitle ();
-  int blank = name.rfind (' ');
-  if (blank >= 0) name.erase (0, blank+1);
-  fHist->SetXTitle (name.c_str());
-  fHist->SetTitle ("");
 
   fRefHist->Draw ();
   fHist->Draw ("e1p,same");
-  std::string filename = name + ".gif";
+  std::string filename = fPrefix + "_" + name + ".gif";
   fCanvas->Print (filename.c_str());
   fCanvas->Update ();
   return pv;
@@ -107,7 +103,6 @@ int main (int argn, char* argv []) {
 
   std::string inputFileName (argv[1]);
   std::string refFileName (argv[2]);
-  std::string globalTitle = argn > 2 ? argv[3] : "";
   std::cout << "Processing file " << inputFileName << std::endl;
   TFile* inputFile = TFile::Open (inputFileName.c_str());
   TFile* refFile = TFile::Open (refFileName.c_str());
@@ -141,8 +136,7 @@ int main (int argn, char* argv []) {
 		histPathName.push_back (histKeys[ihist]);
 		TH1* refhist = (TH1*) getObject (refFile, histPathName);
 		if (refhist) {
-		  std::string title = globalTitle.empty () ? dirName2[idir2] : globalTitle;
-		  double pv = makeGifHists (hist, refhist, &canvas, title);
+		  double pv = makeGifHists (hist, refhist, &canvas, dirName2[idir2]);
 		  std::cout << "pv for hist " << dirName1[idir] << '/' << dirName2[idir2] << '/' << histKeys[ihist] << " is " << pv << std::endl; 
 		  ps.NewPage();
 		}

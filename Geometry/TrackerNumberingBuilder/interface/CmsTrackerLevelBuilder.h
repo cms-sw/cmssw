@@ -88,6 +88,46 @@ class CmsTrackerLevelBuilder : public CmsTrackerAbstractConstruction {
       }
     }
   };
+
+  struct ExtractPhiGluedModule:public uFcn{
+    double operator()(const GeometricDet* a)const{
+      const double pi = 3.141592653592;
+      std::vector<const GeometricDet*> comp = a->deepComponents();
+      float phi = 0.;
+      bool sum = true;
+
+      for(unsigned int i=0;i<comp.size();i++){
+	if(fabs(comp[i]->translation().phi())>pi/2.) sum = false;
+      }
+      if(sum){
+	for(unsigned int i=0;i<comp.size();i++){
+	  phi+= comp[i]->translation().phi();
+	}
+    
+	double temp = phi/float(comp.size()) < 0. ? 
+	  2*pi + phi/float(comp.size()):
+	  phi/float(comp.size());
+	//	std::cout << "phi = " << temp << std::endl;
+	return temp;
+	
+      }else{
+	for(unsigned int i=0;i<comp.size();i++){
+	  double phi1 = comp[i]->translation().phi() >= 0 ? comp[i]->translation().phi(): 
+	    comp[i]->translation().phi()+2*pi; 
+	  phi+= phi1;
+	}
+       
+	double com = comp.front()->translation().phi() >= 0 ? comp.front()->translation().phi():
+	  2*pi + comp.front()->translation().phi();
+	double temp = fabs(phi/float(comp.size()) - com) > 2. ? 
+	  pi - phi/float(comp.size()):
+	  phi/float(comp.size());
+	temp = temp >= 0? temp:2*pi+temp;
+	//	std::cout << "phi = " << temp << std::endl;
+	return temp;
+      }
+    }
+  };
   
   struct ExtractPhiMirror:public uFcn{
     double operator()(const GeometricDet* a)const{
@@ -108,13 +148,23 @@ class CmsTrackerLevelBuilder : public CmsTrackerAbstractConstruction {
       return (pi-phi);
     }
   };
+
+  struct ExtractPhiGluedModuleMirror:public uFcn{
+    double operator()(const GeometricDet* a)const{
+      const double pi = 3.141592653592;
+      double phi = ExtractPhiGluedModule()(a); // [0,2pi)
+      phi = ( phi <= pi ? phi : phi-2*pi );   // (-pi,pi]   
+      //      std::cout << "phi = " << phi << " pi-phi = " << (pi-phi) << std::endl;
+      return (pi-phi);
+    }
+  };
   
   struct LessR_module{
     bool operator()(const GeometricDet* a, const GeometricDet* b)
     {
       
-      return a->components().front()->translation().perp() < 
-	b->components().front()->translation().perp();
+      return a->deepComponents().front()->translation().perp() < 
+	b->deepComponents().front()->translation().perp();
       
     }
   };

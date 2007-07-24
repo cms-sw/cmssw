@@ -4,8 +4,8 @@
 /*
  * \file EEClusterTask.h
  *
- * $Date: 2007/03/26 16:17:12 $
- * $Revision: 1.8 $
+ * $Date: 2007/05/22 15:08:12 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
  */
@@ -46,32 +46,26 @@ private:
 
 int ievt_;
 
-edm::InputTag islandBarrelBasicClusterCollection_;
-edm::InputTag islandBarrelSuperClusterCollection_;
+DaqMonitorBEInterface* dbe_;
 
-edm::InputTag hybridSuperClusterCollection_;
+bool enableCleanup_;
 
-edm::InputTag hybridBarrelClusterShapeAssociation_;
+edm::InputTag islandEndcapSuperClusterCollection_;
+edm::InputTag islandEndcapBasicClusterCollection_;
 
-MonitorElement* meIslBEne_;
-MonitorElement* meIslBNum_;
-MonitorElement* meIslBCry_;
+MonitorElement* meEne_, *meEneBasic_;
+MonitorElement* meNum_, *meNumBasic_;
+MonitorElement* meSiz_, *meSizBasic_;
 
-MonitorElement* meIslBEneMap_;
-MonitorElement* meIslBNumMap_;
-MonitorElement* meIslBETMap_;
-MonitorElement* meIslBCryMap_;
+MonitorElement* meEneFwdMap_, *meEneFwdMapBasic_;
+MonitorElement* meNumFwdMap_, *meNumFwdMapBasic_;
+MonitorElement* meEneFwdPolarMap_, *meEneFwdPolarMapBasic_;
+MonitorElement* meNumFwdPolarMap_, *meNumFwdPolarMapBasic_;
+MonitorElement* meEneBwdMap_, *meEneBwdMapBasic_;
+MonitorElement* meNumBwdMap_, *meNumBwdMapBasic_;
+MonitorElement* meEneBwdPolarMap_, *meEneBwdPolarMapBasic_;
+MonitorElement* meNumBwdPolarMap_, *meNumBwdPolarMapBasic_;
 
-MonitorElement* meIslSEne_;
-MonitorElement* meIslSNum_;
-MonitorElement* meIslSSiz_;
-
-MonitorElement* meIslSEneMap_;
-MonitorElement* meIslSNumMap_;
-MonitorElement* meIslSETMap_;
-MonitorElement* meIslSSizMap_;
-
-MonitorElement* meHybS1toE_;
 MonitorElement* meInvMass_;
 
 bool init_;

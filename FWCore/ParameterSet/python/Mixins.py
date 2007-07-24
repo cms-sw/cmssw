@@ -45,13 +45,13 @@ class _Parameterizable(object):
 
 class _TypedParameterizable(_Parameterizable):
     """Base class for classes which are Parameterizable and have a 'type' assigned"""
-    def __init__(self,type,*arg,**kargs):
-        self.__dict__['_TypedParameterizable__type'] = type
+    def __init__(self,type_,*arg,**kargs):
+        self.__dict__['_TypedParameterizable__type'] = type_
         #the 'type' is also placed in the 'arg' list and we need to remove it
-        if 'type' not in kargs:
+        if 'type_' not in kargs:
             arg = arg[1:]
         else:
-            del args['type']
+            del args['type_']
         super(_TypedParameterizable,self).__init__(*arg,**kargs)
     def _place(self,name,proc):
         self._placeImpl(name,proc)

@@ -23,7 +23,7 @@ macro EVENTSETUP_RECORD_REG is used to create that code.
 //
 // Author:      Chris Jones
 // Created:     Wed Apr  6 14:33:32 EDT 2005
-// $Id: eventsetuprecord_registration_macro.h,v 1.4 2006/10/26 20:38:09 wmtan Exp $
+// $Id: eventsetuprecord_registration_macro.h,v 1.5 2006/10/30 23:07:53 wmtan Exp $
 //
 
 // system include files
@@ -44,8 +44,8 @@ macro EVENTSETUP_RECORD_REG is used to create that code.
 #if GCC_PREREQUISITE(3,4,4)
 
 #define EVENTSETUP_RECORD_REG(_recordclassname_) \
-template<> const char* \
-edm::eventsetup::heterocontainer::HCTypeTagTemplate<_recordclassname_, edm::eventsetup::EventSetupRecordKey>::className() {return # _recordclassname_; }\
+namespace edm { namespace eventsetup { namespace heterocontainer { template<> const char* \
+HCTypeTagTemplate<_recordclassname_, edm::eventsetup::EventSetupRecordKey>::className() {return # _recordclassname_; } } } }\
 static edm::eventsetup::EventSetupRecordProviderFactoryTemplate<_recordclassname_> EVENTSETUP_RECORD_NAME2(s_factory,__LINE__);\
 template void edm::eventsetup::eventSetupGetImplementation<_recordclassname_>(edm::EventSetup const&, _recordclassname_ const*&); \
 template  edm::eventsetup::EventSetupRecordKey edm::eventsetup::heterocontainer::makeKey<_recordclassname_, edm::eventsetup::EventSetupRecordKey>() ;\

@@ -5,7 +5,7 @@
 <use name=heppdt>
 <use name=clhep> 
 <use name=root>
-<use name=pythia6_227>
+<use name=pythia6>
 <use name=GeneratorInterface/Pythia6Interface>
 <use name=SimGeneral/HepPDTRecord>
 
@@ -20,6 +20,7 @@
 <use name=FWCore/ServiceRegistry>
 
 <flags SEAL_PLUGIN_NAME="GeneratorInterfaceGenFilters">
+#<flags EDM_PLUGIN=1>
 <export>
  <use name=boost>
  <use name=FWCore/Framework>
@@ -29,7 +30,7 @@
  <use name=SimGeneral/HepPDTRecord>
  <use name=clhep>
  <use name=root> 
- <use name=pythia6_227>
+ <use name=pythia6>
  <use name=GeneratorInterface/Pythia6Interface>
  <use name=DataFormats/GeometryVector>
  <use name=DataFormats/GeometrySurface>

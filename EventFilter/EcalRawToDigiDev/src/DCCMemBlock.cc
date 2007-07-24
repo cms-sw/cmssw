@@ -50,10 +50,10 @@ void DCCMemBlock::unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID)
 
  
   if( (*dwToEnd_)<1){
-    ostringstream output;
+    std::ostringstream output;
     output<<"EcalRawToDigi@SUB=DCCMemBlock"
       <<"\nUnable to unpack MEM block for event "<<event_->l1A()<<" in dcc <<"<<mapper_->getActiveDCC()
-      <<"\nThe end of event was reached !"<<endl;
+      <<"\nThe end of event was reached !";
     throw ECALUnpackerException(output.str());
   }
   
@@ -84,10 +84,10 @@ void DCCMemBlock::unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID)
   if ( unfilteredTowerBlockLength_ != blockLength_ ){    
     // chosing channel 1 as representative as a dummy...
     EcalElectronicsId id(mapper_->getActiveSM(), expTowerID_,1, 1);
-    ostringstream output;
+    std::ostringstream output;
     output<<"EcalRawToDigi@SUB=DCCMemBlock"
       <<"\nFor event "<<event_->l1A()<<", dcc "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
-   	<<"\nExpected block size is "<<(unfilteredTowerBlockLength_*8)<<" bytes while "<<(blockLength_*8)<<" was found"<<endl;
+   	<<"\nExpected block size is "<<(unfilteredTowerBlockLength_*8)<<" bytes while "<<(blockLength_*8)<<" was found";
     (*invalidMemBlockSizes_)->push_back(id);
     throw ECALUnpackerException(output.str());
 	 
@@ -95,11 +95,12 @@ void DCCMemBlock::unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID)
 
   // Block Length Check (2)
   if((*dwToEnd_)<blockLength_){
-    ostringstream output;
+    std::ostringstream output;
     output<<"EcalRawToDigi@SUB=DCCMemBlock::unpack"
           <<"\nUnable to unpack MEM block for event "<<event_->l1A()<<" in dcc <<"<<mapper_->getActiveDCC()
-	  <<"\n Only "<<((*dwToEnd_)*8)<<" bytes are available while "<<(blockLength_*8)<<" are needed!"<<endl;
+	  <<"\n Only "<<((*dwToEnd_)*8)<<" bytes are available while "<<(blockLength_*8)<<" are needed!";
     //Note : add to error collection 
+    //could this be the same collection as previous case, i.e. invalidMemBlockSizes_  ?
     throw ECALUnpackerException(output.str());
   }
   
@@ -108,21 +109,22 @@ void DCCMemBlock::unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID)
     uint dccBx = ( event_->l1A())&TOWER_BX_MASK;
     uint dccL1 = ( event_->bx() )&TOWER_L1_MASK;
     if( dccBx != bx_ || dccL1 != l1_ ){
-      ostringstream output;
+      std::ostringstream output;
       output<<"EcalRawToDigi@SUB=DCCMemBlock::unpack"
         <<"\nSynchronization error for Mem block in event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in dcc <<"<<mapper_->getActiveDCC()
         <<"\nMem local l1A is  "<<l1_<<" Mem local bx is "<<bx_;
-      //Note : add to error collection ?		 
+      //Note : add to error collection ?
+      // need of a new collection
       throw ECALUnpackerException(output.str());
     }
   }  
     
   // Number Of Samples Check
   if( nTSamples_ != expXtalTSamples_ ){
-    ostringstream output;
+    std::ostringstream output;
     output<<"EcalRawToDigi@SUB=DCCMemBlock::unpack"
       <<"\nUnable to unpack MEM block for event "<<event_->l1A()<<" in dcc <<"<<mapper_->getActiveDCC()
-      <<"\nNumber of time samples "<<nTSamples_<<" is not the same as expected ("<<expXtalTSamples_<<")"<<endl;
+      <<"\nNumber of time samples "<<nTSamples_<<" is not the same as expected ("<<expXtalTSamples_<<")";
     //Note : add to error collection ?		 
     throw ECALUnpackerException(output.str());
   }
@@ -134,14 +136,14 @@ void DCCMemBlock::unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID)
     // chosing channel 1 as representative as a dummy...
     EcalElectronicsId id( mapper_->getActiveSM(), expTowerID_, 1,1);
     
-    LogWarning("EcalRawToDigi")<<"@SUB=DCCMemBlock::unpack"
+    edm::LogWarning("EcalRawToDigiDevTowerId")
     <<"\nFor event "<<event_->l1A()<<" and dcc "<<mapper_->getActiveDCC()
-    <<"\nExpected trigger tower is "<<expTowerID_<<" while "<<towerId_<<" was found "<<endl;
+    <<"\nExpected trigger tower is "<<expTowerID_<<" while "<<towerId_<<" was found ";
     
     (*invalidMemTtIds_)->push_back(id);
     towerId_=expTowerID_;
     
-    // todo : go to the next mem	
+    // todo : go to the next mem
     error_= true;
   }
    
@@ -149,7 +151,7 @@ void DCCMemBlock::unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID)
   //point to xtal data
   data_++;
   
-  //LogInfo("EcalRawToDigi")<<"@SUB=DCCMemBlock::unpackPnData"
+  //LogInfo("EcalRawToDigi")
   // <<"\n Tower id "<<dec<<towerId_<<" , Data pointer to XTAL DATA "<<hex<<(*data_)<<dec<<endl;
 		               
   
@@ -167,6 +169,14 @@ void DCCMemBlock::unpackMemTowerData(){
   
     
   //todo: move EcalPnDiodeDetId to electronics mapper
+
+
+  lastTowerBeforeMem_ = 0;
+  // differentiating the barrel and the endcap case
+  if (9 < mapper_->getActiveSM() || mapper_->getActiveSM() < 46){
+    lastTowerBeforeMem_ = 69; }
+  else {
+    lastTowerBeforeMem_ = 69; } 
   
 
   for(uint expStripId = 1; expStripId<= 5; expStripId++){
@@ -182,12 +192,12 @@ void DCCMemBlock::unpackMemTowerData(){
       bool errorOnDecoding(false);
 	  
       if(expStripId != stripId || expXtalId != xtalId){ 
-        // chosing channel 1 as representative of a dummy...
+        // chosing channel and strip as EcalElectronicsId
         EcalElectronicsId id(mapper_->getActiveSM(), towerId_, expStripId, expXtalId);
-        LogWarning("EcalRawToDigi")<<"@SUB=DCCMemBlock::unpackPnDiodeData"
-	       <<"\nFor event "<<event_->l1A()<<",dcc "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
+        edm::LogWarning("EcalRawToDigiDevChId")
+	  <<"\nFor event "<<event_->l1A()<<",dcc "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
           <<"\nThe expected strip is "<<expStripId<<" and "<<stripId<<" was found"
-	       <<"\nThe expected xtal  is "<<expXtalId <<" and "<<xtalId<<" was found"<<endl;
+	  <<"\nThe expected xtal  is "<<expXtalId <<" and "<<xtalId<<" was found";
 
         stripId = expStripId;
    	  xtalId  = expXtalId;
@@ -201,8 +211,8 @@ void DCCMemBlock::unpackMemTowerData(){
 	 
      uint ipn, index;
 		
-     if((stripId-1)%2==0){ ipn = (towerId_-69)*5 + xtalId - 1; }
-     else                { ipn = (towerId_-69)*5 + 5 - xtalId; }
+     if((stripId-1)%2==0){ ipn = (towerId_-lastTowerBeforeMem_)*5 + xtalId - 1; }
+     else                { ipn = (towerId_-lastTowerBeforeMem_)*5 + 5 - xtalId; }
 	 
 	  	
       //Cooking samples
@@ -212,8 +222,8 @@ void DCCMemBlock::unpackMemTowerData(){
 		  
         index = ipn*50 + (stripId-1)*nTSamples_+i;
 		 
-	LogDebug("EcalRawToDigi")<<"EcalRawToDigi@SUB=DCCMemBlock::unpackPnData"<<"\n Strip id "<<dec<<stripId<<" Xtal id "<<xtalId
-	    <<" tsamp = "<<i<<" 16b = 0x "<<hex<<(*xData_)<<dec;
+	//edm::LogDebug("EcalRawToDigiDevChId")<<"\n Strip id "<<std::dec<<stripId<<" Xtal id "<<xtalId
+	//  <<" tsamp = "<<i<<" 16b = 0x "<<std::hex<<(*xData_)<<dec;
 	   
         uint temp = (*xData_)&TOWER_DIGI_MASK;
 		
@@ -236,7 +246,7 @@ void DCCMemBlock::unpackMemTowerData(){
 		 
 		 
 	     /* 
-	       LogInfo("EcalRawToDigi")<<"@SUB=DCCMemBlock::unpackPnData"
+	       LogInfo("EcalRawToDigi")
 	       <<"\n After cooking... "<<" 12b = 0x "<<hex<<(sample&0xFFF)<<" "<<dec<<(sample&0xFFF)<<" gain is "<<gain<<endl;;
 	     */
 			
@@ -244,12 +254,13 @@ void DCCMemBlock::unpackMemTowerData(){
 		  
           EcalElectronicsId id(mapper_->getActiveDCC(), towerId_, stripId,xtalId);
 	  
-	       LogWarning("EcalRawToDigi")<<"@SUB=DCCMemBlock::unpackPnData"
-	         <<"\nFor event "<<event_->l1A()<<",dcc "<<mapper_->getActiveDCC()<<" ,tower "<<towerId_
-	         <<"\nIn strip "<<stripId<<" xtal "<<xtalId<<" the gain is "<<gain<<" in sample "<<(i+1)<<endl;
+	  edm::LogWarning("EcalRawToDigiDevGainZero")
+	    <<"\nFor event "<<event_->l1A()<<",dcc "<<mapper_->getActiveDCC()<<" ,tower "<<towerId_
+	    <<"\nIn strip "<<stripId<<" xtal "<<xtalId<<" the gain is "<<gain<<" in sample "<<(i+1);
+
 			 
-	       (*invalidMemGains_)->push_back(id);
-	       errorOnDecoding=true;
+	  (*invalidMemGains_)->push_back(id);
+	  errorOnDecoding=true;
         }
 		
         if( !errorOnDecoding && !error_){pn_[index]=sample;} //Note : move to the next versus flag...
@@ -275,14 +286,37 @@ void DCCMemBlock::fillPnDiodeDigisCollection(){
 	 
     // Note : we are assuming always 5 VFE channels enabled 
     // This means we all have 5 pns per tower 
-    EcalPnDiodeDetId PnId(EcalBarrel, mapper_->getActiveSM(), realPnId );
+
+
+    // temporary solution before sending creation of PnDigi's in mapper as done with crystals
+    //     mapper_->getActiveSM()  : this is the 'dccid', number ranging internally in ECAL from 1 to 54
+    //     mapper_->getActiveDCC() : this is the FED_id
+    int ism;
+    int dccId = mapper_->getActiveSM();
+    
+    if        (9< dccId && dccId < 28){
+      ism  = dccId-9+18;}
+    
+    else if (27 < dccId && dccId< 46){
+      ism  = dccId-9-18;}
+    
+    else
+      {ism = -999;}
+    
+    
+    //    EcalPnDiodeDetId PnId(EcalBarrel, mapper_->getActiveSM(), realPnId );
+    // using ism insead of DCCId, to locate pn in the same place as the crystals that receive same laser pulses
+    EcalPnDiodeDetId PnId(EcalBarrel, ism , realPnId );
+    
+
+
     EcalPnDiodeDigi thePnDigi(PnId );
     thePnDigi.setSize(kSamplesPerPn_);
 	 
 	
     for (uint ts =0; ts <kSamplesPerPn_; ts++){
       
-      short pnDiodeData = pn_[(towerId_-69)*250 + (pnId-1)*kSamplesPerPn_ + ts];
+      short pnDiodeData = pn_[(towerId_-lastTowerBeforeMem_)*250 + (pnId-1)*kSamplesPerPn_ + ts];
       if( pnDiodeData == -1){
         errorOnPn=true;
 	     break;
@@ -300,7 +334,7 @@ void DCCMemBlock::fillPnDiodeDigisCollection(){
 
 
 
-void DCCMemBlock::display(ostream& o){
+void DCCMemBlock::display(std::ostream& o){
 
   o<<"\n Unpacked Info for DCC MEM Block"
   <<"\n DW1 ============================="
@@ -308,8 +342,7 @@ void DCCMemBlock::display(ostream& o){
   <<"\n Numb Samp "<<nTSamples_
   <<"\n Bx "<<bx_
   <<"\n L1 "<<l1_
-  <<"\n blockLength "<<blockLength_
-  <<endl;  
+  <<"\n blockLength "<<blockLength_;  
 } 
 
 

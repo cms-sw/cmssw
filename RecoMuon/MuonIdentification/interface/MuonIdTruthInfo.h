@@ -8,7 +8,8 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/MuonReco/interface/MuonWithMatchInfo.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonSegmentMatch.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -21,9 +22,9 @@ class MuonIdTruthInfo
  public:
    static void truthMatchMuon( const edm::Event& iEvent,
 			       const edm::EventSetup& iSetup,
-			       reco::MuonWithMatchInfo& aMuon);
+			       reco::Muon& aMuon);
  private:
-   static void checkSimHitForBestMatch(reco::MuonWithMatchInfo::MuonSegmentMatch& segmentMatch,
+   static void checkSimHitForBestMatch(reco::MuonSegmentMatch& segmentMatch,
 				       double& distance,
 				       const PSimHit& hit, 
 				       const DetId& chamberId,

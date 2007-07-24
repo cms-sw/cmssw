@@ -201,12 +201,12 @@ void ECALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 void ECALRecHitAnalyzer::WriteECALRecHits(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  Handle<EBRecHitCollection> EBRecHits;
-  Handle<EERecHitCollection> EERecHits;
+  edm::Handle<EBRecHitCollection> EBRecHits;
+  edm::Handle<EERecHitCollection> EERecHits;
   iEvent.getByLabel( "ecalRecHit", "EcalRecHitsEB", EBRecHits );
   iEvent.getByLabel( "ecalRecHit", "EcalRecHitsEE", EERecHits );
   
-  Handle<reco::CandidateCollection> to;
+  edm::Handle<reco::CandidateCollection> to;
   iEvent.getByLabel( "caloTowers", to );
   const CandidateCollection *towers = (CandidateCollection *)to.product();
   reco::CandidateCollection::const_iterator tower = towers->begin();

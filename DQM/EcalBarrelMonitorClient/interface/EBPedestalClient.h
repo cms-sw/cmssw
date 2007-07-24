@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalClient.h
  *
- * $Date: 2007/03/13 10:14:25 $
- * $Revision: 1.51 $
+ * $Date: 2007/04/29 17:17:49 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -145,6 +145,9 @@ MonitorElement* mer01_[36];
 MonitorElement* mer02_[36];
 MonitorElement* mer03_[36];
 
+MonitorElement* mer04_[36];
+MonitorElement* mer05_[36];
+
 MonitorElement* mes01_[36];
 MonitorElement* mes02_[36];
 MonitorElement* mes03_[36];
@@ -167,7 +170,16 @@ float RMSThreshold_[3];
 
 // Quality check on PNs
 
-float pedestalThresholdPn_;
+float expectedMeanPn_[2];
+float discrepancyMeanPn_[2];
+float RMSThresholdPn_[2];
+
+MEContentsTH2FWithinRangeROOT* qtg01_[36];
+MEContentsTH2FWithinRangeROOT* qtg02_[36];
+MEContentsTH2FWithinRangeROOT* qtg03_[36];
+
+MEContentsTH2FWithinRangeROOT* qtg04_[36];
+MEContentsTH2FWithinRangeROOT* qtg05_[36];
 
 };
 

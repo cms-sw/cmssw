@@ -1,5 +1,7 @@
-#ifndef HepMCFileReader_H
-#define HepMCFileReader_H
+#ifndef Input_HepMCFileReader_h
+#define Input_HepMCFileReader_h
+
+// $Id:$
 
 /** \class HepMCFileReader
 * 
@@ -10,74 +12,70 @@
 *  always invoke the method initialize before starting using the interface
 *  it exposes.
 *
-*  $Date: 2005/10/05 04:45:33 $
-*  $Revision: 1.1 $
+*  $Date: 2007/03/22 18:17:57 $
+*  $Revision: 1.2 $
 *  \author G. Bruno - CERN, EP Division
 */   
-#include <iostream>
-#include <iomanip>
+
 #include <vector>
-#include <fstream>
-#include <string>
-#include <algorithm>
-#include "HepMC/GenEvent.h"
-#include "HepMC/IO_Ascii.h"
+#include <map>
+
+
+namespace HepMC {
+  class IO_BaseClass;
+  class GenEvent;
+  class GenParticle;
+}
+
 
 class HepMCFileReader {
-	
-	protected:
-	
-	/// Constructor
-	HepMCFileReader();
-	void setInitialized(bool value);
-	
-	public:	
-	/// Destructor
-	virtual ~HepMCFileReader();	
-	static HepMCFileReader * instance();
-	virtual void initialize(const std::string & filename);	
-	bool isInitialized();
+  
+  protected:
+  HepMCFileReader();
+  
+  public: 
+  virtual ~HepMCFileReader(); 
+  virtual void initialize(const std::string &filename, bool useExtendedAscii);  
+  inline bool isInitialized() const;
 
-	
-	virtual bool setEvent(int event);
-	virtual bool readCurrentEvent();
-	virtual bool printHepMcEvent() const;	
-	HepMC::GenEvent* fillCurrentEventData();
-	  //	virtual bool fillEventData(HepMC::GenEvent  * event);
-	// this method prints the event information as 
-	// obtained by the input file in HepEvt style
-	void printEvent() const;
-	// get all the 'integer' properties of a particle 
-	// like mother, daughter, pid and status
-	// 'j' is the number of the particle in the HepMc
-	virtual void getStatsFromTuple(int &mo1, int &mo2, 
-	int &da1, int &da2, 
-	int &status, int &pid,
-	int j) const;
-	virtual void ReadStats();
+  virtual bool setEvent(int event);
+  virtual bool readCurrentEvent();
+  virtual bool printHepMcEvent() const; 
+  HepMC::GenEvent *fillCurrentEventData();
+  //  virtual bool fillEventData(HepMC::GenEvent *event);
+  // this method prints the event information as 
+  // obtained by the input file in HepEvt style
+  void printEvent() const;
+  // get all the 'integer' properties of a particle 
+  // like mother, daughter, pid and status
+  // 'j' is the number of the particle in the HepMc
+  virtual void getStatsFromTuple(int &mo1, int &mo2, int &da1, int &da2,
+                                 int &status, int &pid, int j) const;
+  virtual void ReadStats();
 
+  static HepMCFileReader *instance();
 
+  private:
+  // current  HepMC evt
+  HepMC::GenEvent *evt_;
+  HepMC::IO_BaseClass *input_;
 
-	private:
-	static HepMCFileReader * instance_;
-	// current  HepMC evt
-	HepMC::GenEvent * evt;
-	bool initialized_;
-        HepMC::IO_Ascii * input_;
-      	// # of particles in evt
-	int  nParticles;
+  static HepMCFileReader *instance_;
 
-	//maps to convert HepMC::GenParticle to particles # and vice versa
-	// -> needed for HepEvt like output
-	std::vector<HepMC::GenParticle*> index_to_particle;  
-	std::map<HepMC::GenParticle *,int> particle_to_index;    
-	// find index to HepMC::GenParticle* p in map m
-	int find_in_map(const std::map<HepMC::GenParticle*,int>& m,
-	HepMC::GenParticle* p) const;
-	
-
-	
+  int rdstate() const;
+  //maps to convert HepMC::GenParticle to particles # and vice versa
+  // -> needed for HepEvt like output
+  std::vector<HepMC::GenParticle*> index_to_particle;  
+  std::map<HepMC::GenParticle*,int> particle_to_index;    
+  // find index to HepMC::GenParticle* p in map m
+  int find_in_map(const std::map<HepMC::GenParticle*,int>& m,
+                  HepMC::GenParticle *p) const;
 };
 
-#endif // HepMCFileReader_H
 
+bool HepMCFileReader::isInitialized() const
+{
+  return input_ != 0;
+}
+
+#endif

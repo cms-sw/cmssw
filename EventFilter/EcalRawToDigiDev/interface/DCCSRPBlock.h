@@ -9,8 +9,8 @@
  *
  * \file DCCSRPBlock.h
  *
- * $Date: 2007/03/28 00:43:18 $
- * $Revision: 1.1.2.2 $
+ * $Date: 2007/04/02 11:09:45 $
+ * $Revision: 1.3 $
  *
  * \author N. Almeida
  *
@@ -38,7 +38,7 @@ class DCCSRPBlock : public DCCDataBlockPrototype {
 
     DCCSRPBlock( DCCDataUnpacker * u,EcalElectronicsMapper * m, DCCEventBlock * e, bool unpack);
 	 
-    void display(ostream & o); 
+    void display(std::ostream & o); 
 
     void unpack(uint64_t ** data, uint * dwToEnd, uint numbFlags = SRP_NUMBFLAGS);     	 
 

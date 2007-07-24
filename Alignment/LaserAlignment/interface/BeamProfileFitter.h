@@ -56,8 +56,6 @@ class BeamProfileFitter {
   bool theClearHistoAfterFit;
   bool theScaleHisto;
   double theMinSignalHeight;
-	bool theCorrectBSkink; ///< correct for the beam splitter kink?
-	double theBSAnglesSystematic; ///< add the systematic deviation to the measured BS angles
 
   /// function to calculate the error on phi
   Double_t phiError(TVector3 thePosition, TMatrix theCovarianceMatrix);

@@ -1,11 +1,11 @@
-// $Id: MonitorElementsDb.cc,v 1.5 2006/10/16 18:29:44 dellaric Exp $
+// $Id: MonitorElementsDb.cc,v 1.1 2007/04/02 16:20:48 dellaric Exp $
 
 /*!
   \file MonitorElementsDb.cc
   \brief Generate a Monitor Element from DB data
   \author B. Gobbo 
-  \version $Revision: 1.5 $
-  \date $Date: 2006/10/16 18:29:44 $
+  \version $Revision: 1.1 $
+  \date $Date: 2007/04/02 16:20:48 $
 */
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -28,7 +28,6 @@
 #include "SealKernel/ComponentLoader.h"
 #include "SealKernel/Exception.h"
 #include "SealKernel/IMessageService.h"
-#include "PluginManager/PluginManager.h"
 #include "RelationalAccess/IConnectionService.h"
 #include "RelationalAccess/IConnectionServiceConfiguration.h"
 

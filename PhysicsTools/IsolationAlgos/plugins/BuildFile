@@ -1,0 +1,5 @@
+<use name=PhysicsTools/IsolationAlgos>
+
+<library file=CandPtIsolationProducer.cc>
+  <use name=DataFormats/Candidate>
+</library>

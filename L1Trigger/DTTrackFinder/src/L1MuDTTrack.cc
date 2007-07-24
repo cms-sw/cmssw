@@ -5,8 +5,8 @@
 //   Description: Muon Track Candidate
 //
 //
-//   $Date: 2006/11/20 15:41:03 $
-//   $Revision: 1.2 $
+//   $Date: 2007/02/27 11:44:00 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -34,8 +34,9 @@
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSecProcId.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegPhi.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegEta.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuTriggerScales.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuPacking.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
+#include "CondFormats/L1TObjects/interface/L1MuPacking.h"
 
 using namespace std;
 
@@ -196,13 +197,13 @@ void L1MuDTTrack::setTSeta(const vector<const L1MuDTTrackSegEta*>& tsList) {
 //
 // convert pt value in GeV to pt code
 //
-unsigned int L1MuDTTrack::triggerScale(float value) const {
+unsigned int L1MuDTTrack::triggerScale(float value, const edm::EventSetup& c) const {
 
   const float eps = 1.e-5; // add an epsilon so that setting works with low edge value
 
-  L1MuTriggerScales* theTriggerScales = new L1MuTriggerScales;
+  edm::ESHandle< L1MuTriggerScales > theTriggerScales;
+  c.get< L1MuTriggerScalesRcd >().get( theTriggerScales );
   unsigned int t_Scale = theTriggerScales->getPtScale()->getPacked( value + eps );
-  delete theTriggerScales;
 
   return t_Scale;
 }

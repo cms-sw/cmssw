@@ -1,6 +1,6 @@
 <use name=root>
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloEventSetup>
@@ -21,11 +21,12 @@
 <use name=SimDataFormats/HepMCProduct>
 <use name=DataFormats/L1Trigger>
 <use name=DataFormats/L1GlobalTrigger>
+<use name=hepmc>
 <flags SEAL_PLUGIN_NAME="HLTriggerHLTanalyzers">
 <export>
   <lib name=HLTriggerHLTanalyzers>
   <use name=FWCore/Framework>
-  <use name=Foundation/PluginManager>
+  <use name=FWCore/PluginManager>
   <use name=FWCore/ParameterSet>
   <use name=root>
   <use name=Geometry/CaloGeometry>

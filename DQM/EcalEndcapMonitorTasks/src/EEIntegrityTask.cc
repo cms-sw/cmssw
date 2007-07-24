@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2007/03/26 17:34:07 $
- * $Revision: 1.35 $
+ * $Date: 2007/05/24 12:28:49 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
  */
@@ -22,6 +22,8 @@
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 
+#include <DQM/EcalCommon/interface/Numbers.h>
+
 #include <DQM/EcalEndcapMonitorTasks/interface/EEIntegrityTask.h>
 
 using namespace cms;
@@ -30,7 +32,14 @@ using namespace std;
 
 EEIntegrityTask::EEIntegrityTask(const ParameterSet& ps){
 
+  Numbers::maxSM = 18;
+
   init_ = false;
+
+  // get hold of back-end interface
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
 
   EBDetIdCollection0_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection0");
   EBDetIdCollection1_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection1");
@@ -45,7 +54,7 @@ EEIntegrityTask::EEIntegrityTask(const ParameterSet& ps){
   EcalElectronicsIdCollection4_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection4");
 
   meIntegrityDCCSize = 0;
-  for (int i = 0; i < 36 ; i++) {
+  for (int i = 0; i < 18 ; i++) {
     meIntegrityGain[i] = 0;
     meIntegrityChId[i] = 0;
     meIntegrityGainSwitch[i] = 0;
@@ -69,14 +78,9 @@ void EEIntegrityTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  DaqMonitorBEInterface* dbe = 0;
-
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask");
-    dbe->rmdir("EcalEndcap/EEIntegrityTask");
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask");
+    dbe_->rmdir("EcalEndcap/EEIntegrityTask");
   }
 
 }
@@ -87,98 +91,93 @@ void EEIntegrityTask::setup(void){
 
   Char_t histo[200];
 
-  DaqMonitorBEInterface* dbe = 0;
-
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask");
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask");
 
     // checking when number of towers in data different than expected from header
     sprintf(histo, "EEIT DCC size error");
-    meIntegrityDCCSize = dbe->book1D(histo, histo, 36, 1, 37.);
+    meIntegrityDCCSize = dbe_->book1D(histo, histo, 18, 1, 19.);
 
     // checking when the gain is 0
-    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/Gain");
-    for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EEIT gain SM%02d", i+1);
-      meIntegrityGain[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
-      dbe->tag(meIntegrityGain[i], i+1);
+    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/Gain");
+    for (int i = 0; i < 18 ; i++) {
+      sprintf(histo, "EEIT gain %s", Numbers::sEE(i+1).c_str());
+      meIntegrityGain[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      dbe_->tag(meIntegrityGain[i], i+1);
     }
 
     // checking when channel has unexpected or invalid ID
-    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/ChId");
-    for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EEIT ChId SM%02d", i+1);
-      meIntegrityChId[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
-      dbe->tag(meIntegrityChId[i], i+1);
+    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/ChId");
+    for (int i = 0; i < 18 ; i++) {
+      sprintf(histo, "EEIT ChId %s", Numbers::sEE(i+1).c_str());
+      meIntegrityChId[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      dbe_->tag(meIntegrityChId[i], i+1);
     }
 
     // checking when channel has unexpected or invalid ID
-    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/GainSwitch");
-    for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EEIT gain switch SM%02d", i+1);
-      meIntegrityGainSwitch[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
-      dbe->tag(meIntegrityGainSwitch[i], i+1);
+    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/GainSwitch");
+    for (int i = 0; i < 18 ; i++) {
+      sprintf(histo, "EEIT gain switch %s", Numbers::sEE(i+1).c_str());
+      meIntegrityGainSwitch[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      dbe_->tag(meIntegrityGainSwitch[i], i+1);
     }
 
     // checking when channel has unexpected or invalid ID
-    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/GainSwitchStay");
-    for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EEIT gain switch stay SM%02d", i+1);
-      meIntegrityGainSwitchStay[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
-      dbe->tag(meIntegrityGainSwitchStay[i], i+1);
+    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/GainSwitchStay");
+    for (int i = 0; i < 18 ; i++) {
+      sprintf(histo, "EEIT gain switch stay %s", Numbers::sEE(i+1).c_str());
+      meIntegrityGainSwitchStay[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      dbe_->tag(meIntegrityGainSwitchStay[i], i+1);
     }
 
     // checking when trigger tower has unexpected or invalid ID
-    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/TTId");
-    for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EEIT TTId SM%02d", i+1);
-      meIntegrityTTId[i] = dbe->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
-      dbe->tag(meIntegrityTTId[i], i+1);
+    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/TTId");
+    for (int i = 0; i < 18 ; i++) {
+      sprintf(histo, "EEIT TTId %s", Numbers::sEE(i+1).c_str());
+      meIntegrityTTId[i] = dbe_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
+      dbe_->tag(meIntegrityTTId[i], i+1);
     }
 
     // checking when trigger tower has unexpected or invalid size
-    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/TTBlockSize");
-    for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EEIT TTBlockSize SM%02d", i+1);
-      meIntegrityTTBlockSize[i] = dbe->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
-      dbe->tag(meIntegrityTTBlockSize[i], i+1);
+    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/TTBlockSize");
+    for (int i = 0; i < 18 ; i++) {
+      sprintf(histo, "EEIT TTBlockSize %s", Numbers::sEE(i+1).c_str());
+      meIntegrityTTBlockSize[i] = dbe_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
+      dbe_->tag(meIntegrityTTBlockSize[i], i+1);
     }
 
     // checking when mem channels have unexpected ID
-    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemChId");
-    for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EEIT MemChId SM%02d", i+1);
-      meIntegrityMemChId[i] = dbe->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
-      dbe->tag(meIntegrityMemChId[i], i+1);
+    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemChId");
+    for (int i = 0; i < 18 ; i++) {
+      sprintf(histo, "EEIT MemChId %s", Numbers::sEE(i+1).c_str());
+      meIntegrityMemChId[i] = dbe_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
+      dbe_->tag(meIntegrityMemChId[i], i+1);
     }
 
     // checking when mem samples have second bit encoding the gain different from 0
     // note: strictly speaking, this does not corrupt the mem sample gain value (since only first bit is considered)
     // but indicates that data are not completely correct
-    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemGain");
-    for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EEIT MemGain SM%02d", i+1);
-      meIntegrityMemGain[i] = dbe->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
-      dbe->tag(meIntegrityMemGain[i], i+1);
+    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemGain");
+    for (int i = 0; i < 18 ; i++) {
+      sprintf(histo, "EEIT MemGain %s", Numbers::sEE(i+1).c_str());
+      meIntegrityMemGain[i] = dbe_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
+      dbe_->tag(meIntegrityMemGain[i], i+1);
     }
 
     // checking when mem tower block has unexpected ID
-    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemTTId");
-    for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EEIT MemTTId SM%02d", i+1);
-      meIntegrityMemTTId[i] = dbe->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
-      dbe->tag(meIntegrityMemTTId[i], i+1);
+    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemTTId");
+    for (int i = 0; i < 18 ; i++) {
+      sprintf(histo, "EEIT MemTTId %s", Numbers::sEE(i+1).c_str());
+      meIntegrityMemTTId[i] = dbe_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
+      dbe_->tag(meIntegrityMemTTId[i], i+1);
     }
 
     // checking when mem tower block has invalid size
-    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemSize");
-    for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EEIT MemSize SM%02d", i+1);
-      meIntegrityMemTTBlockSize[i] = dbe->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
-      dbe->tag(meIntegrityMemTTBlockSize[i], i+1);
+    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemSize");
+    for (int i = 0; i < 18 ; i++) {
+      sprintf(histo, "EEIT MemSize %s", Numbers::sEE(i+1).c_str());
+      meIntegrityMemTTBlockSize[i] = dbe_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
+      dbe_->tag(meIntegrityMemTTBlockSize[i], i+1);
     }
 
   }
@@ -187,74 +186,71 @@ void EEIntegrityTask::setup(void){
 
 void EEIntegrityTask::cleanup(void){
 
-  DaqMonitorBEInterface* dbe = 0;
+  if ( ! enableCleanup_ ) return;
 
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask");
 
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask");
-
-    if ( meIntegrityDCCSize ) dbe->removeElement( meIntegrityDCCSize->getName() );
+    if ( meIntegrityDCCSize ) dbe_->removeElement( meIntegrityDCCSize->getName() );
     meIntegrityDCCSize = 0;
 
-    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/Gain");
-    for (int i = 0; i < 36 ; i++) {
-      if ( meIntegrityGain[i] ) dbe->removeElement( meIntegrityGain[i]->getName() );
+    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/Gain");
+    for (int i = 0; i < 18 ; i++) {
+      if ( meIntegrityGain[i] ) dbe_->removeElement( meIntegrityGain[i]->getName() );
       meIntegrityGain[i] = 0;
     }
 
-    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/ChId");
-    for (int i = 0; i < 36 ; i++) {
-      if ( meIntegrityChId[i] ) dbe->removeElement( meIntegrityChId[i]->getName() );
+    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/ChId");
+    for (int i = 0; i < 18 ; i++) {
+      if ( meIntegrityChId[i] ) dbe_->removeElement( meIntegrityChId[i]->getName() );
       meIntegrityChId[i] = 0;
     }
 
-    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/GainSwitch");
-    for (int i = 0; i < 36 ; i++) {
-      if ( meIntegrityGainSwitch[i] ) dbe->removeElement( meIntegrityGainSwitch[i]->getName() );
+    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/GainSwitch");
+    for (int i = 0; i < 18 ; i++) {
+      if ( meIntegrityGainSwitch[i] ) dbe_->removeElement( meIntegrityGainSwitch[i]->getName() );
       meIntegrityGainSwitch[i] = 0;
     }
 
-    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/GainSwitchStay");
-    for (int i = 0; i < 36 ; i++) {
-      if ( meIntegrityGainSwitchStay[i] ) dbe->removeElement( meIntegrityGainSwitchStay[i]->getName() );
+    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/GainSwitchStay");
+    for (int i = 0; i < 18 ; i++) {
+      if ( meIntegrityGainSwitchStay[i] ) dbe_->removeElement( meIntegrityGainSwitchStay[i]->getName() );
       meIntegrityGainSwitchStay[i] = 0;
     }
 
-    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/TTId");
-    for (int i = 0; i < 36 ; i++) {
-      if ( meIntegrityTTId[i] ) dbe->removeElement( meIntegrityTTId[i]->getName() );
+    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/TTId");
+    for (int i = 0; i < 18 ; i++) {
+      if ( meIntegrityTTId[i] ) dbe_->removeElement( meIntegrityTTId[i]->getName() );
       meIntegrityTTId[i] = 0;
     }
 
-    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/TTBlockSize");
-    for (int i = 0; i < 36 ; i++) {
-      if ( meIntegrityTTBlockSize[i] ) dbe->removeElement( meIntegrityTTBlockSize[i]->getName() );
+    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/TTBlockSize");
+    for (int i = 0; i < 18 ; i++) {
+      if ( meIntegrityTTBlockSize[i] ) dbe_->removeElement( meIntegrityTTBlockSize[i]->getName() );
       meIntegrityTTBlockSize[i] = 0;
     }
 
-    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemChId");
-    for (int i = 0; i < 36 ; i++) {
-      if ( meIntegrityMemChId[i] ) dbe->removeElement( meIntegrityMemChId[i]->getName() );
+    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemChId");
+    for (int i = 0; i < 18 ; i++) {
+      if ( meIntegrityMemChId[i] ) dbe_->removeElement( meIntegrityMemChId[i]->getName() );
       meIntegrityMemChId[i] = 0;
     }
 
-    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemGain");
-    for (int i = 0; i < 36 ; i++) {
-      if ( meIntegrityMemGain[i] ) dbe->removeElement( meIntegrityMemGain[i]->getName() );
+    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemGain");
+    for (int i = 0; i < 18 ; i++) {
+      if ( meIntegrityMemGain[i] ) dbe_->removeElement( meIntegrityMemGain[i]->getName() );
       meIntegrityMemGain[i] = 0;
     }
 
-    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemTTId");
-    for (int i = 0; i < 36 ; i++) {
-      if ( meIntegrityMemTTId[i] ) dbe->removeElement( meIntegrityMemTTId[i]->getName() );
+    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemTTId");
+    for (int i = 0; i < 18 ; i++) {
+      if ( meIntegrityMemTTId[i] ) dbe_->removeElement( meIntegrityMemTTId[i]->getName() );
       meIntegrityMemTTId[i] = 0;
     }
 
-    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemSize");
-    for (int i = 0; i < 36 ; i++) {
-      if ( meIntegrityMemTTBlockSize[i] ) dbe->removeElement( meIntegrityMemTTBlockSize[i]->getName() );
+    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemSize");
+    for (int i = 0; i < 18 ; i++) {
+      if ( meIntegrityMemTTBlockSize[i] ) dbe_->removeElement( meIntegrityMemTTBlockSize[i]->getName() );
       meIntegrityMemTTBlockSize[i] = 0;
     }
 
@@ -287,7 +283,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       EBDetId id = (*idItr);
 
-      int ism = id.ism();
+      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
 
       float xism = ism - 0.5;
 
@@ -314,7 +310,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = id.ism();
+      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;
@@ -342,7 +338,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = id.ism();
+      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;
@@ -370,7 +366,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = id.ism();
+      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;
@@ -398,7 +394,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = id.ism();
+      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;
@@ -432,7 +428,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       //    if ( id.zside() >0)
       //      { ipt = 5 - ipt;      }
 
-      int ismt = id.iDCC();
+      int ismt = Numbers::iSM( id ); if ( ismt > 18 ) continue;
 
       float xiet = iet - 0.5;
       float xipt = ipt - 0.5;
@@ -467,7 +463,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       //    if ( id.zside() >0)
       //      { ipt = 5 - ipt;      }
 
-      int ismt = id.iDCC();
+      int ismt = Numbers::iSM( id ); if ( ismt > 18 ) continue;
 
       float xiet = iet - 0.5;
       float xipt = ipt - 0.5;
@@ -493,7 +489,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       int itt   = id.towerId();
       float iTt = itt + 0.5 - 69;
-      int ism = id.dccId();
+      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
 
       if ( meIntegrityMemTTId[ism-1] ) meIntegrityMemTTId[ism-1]->Fill(iTt,0);
 
@@ -516,7 +512,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       int itt   = id.towerId();
       float iTt = itt + 0.5 - 69;
-      int ism = id.dccId();
+      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
 
       if ( meIntegrityMemTTBlockSize[ism-1] ) meIntegrityMemTTBlockSize[ism-1]->Fill(iTt,0);
 
@@ -537,7 +533,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       EcalElectronicsId id = (*idItr);
 
-      int ism = id.dccId();
+      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
 
       int chid = id.channelId();
       int ie = EEIntegrityTask::chMemAbscissa[chid-1];
@@ -568,7 +564,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       EcalElectronicsId id = (*idItr);
 
-      int ism = id.dccId();
+      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
 
       int chid = id.channelId();
       int ie = EEIntegrityTask::chMemAbscissa[chid-1];

@@ -1,6 +1,7 @@
 #include "RecoVertex/VertexTools/interface/GeometricAnnealing.h"
 #include <cmath>
 #include <iostream>
+#include <limits>
 
 GeometricAnnealing::GeometricAnnealing (
      const double cutoff, const double T, const double ratio ) :
@@ -14,7 +15,9 @@ void GeometricAnnealing::anneal()
 
 double GeometricAnnealing::weight ( double chi2 ) const
 {
-  return 1. / ( 1. + phi ( theCutoff * theCutoff ) / phi ( chi2 ) );
+  double mphi = phi ( chi2 );
+  if ( mphi < std::numeric_limits<double>::epsilon() ) return 0.;
+  return 1. / ( 1. + phi ( theCutoff * theCutoff ) / mphi );
 }
 
 void GeometricAnnealing::resetAnnealing()

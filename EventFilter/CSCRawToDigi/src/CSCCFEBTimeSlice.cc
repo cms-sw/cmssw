@@ -11,7 +11,8 @@ unsigned channelGrayCode[] = {0,1,3,2, 6,7,5,4, 12,13,15,14, 10,11,9,8};
 unsigned channelInverseGrayCode[] = {0,1,3,2, 7,6,4,5, 15,14,12,13, 8,9,11,10};
 
 
-CSCCFEBDataWord * CSCCFEBTimeSlice::timeSample(int layer, int channel) const {
+CSCCFEBDataWord * CSCCFEBTimeSlice::timeSample(int layer, int channel) const 
+{
   assert(layer >= 1 && layer <= 6);
   assert(channel >=1 && channel <= 16);
   int layerIndex = layerInverseGrayCode[layer-1];
@@ -22,7 +23,8 @@ CSCCFEBDataWord * CSCCFEBTimeSlice::timeSample(int layer, int channel) const {
 }
 
 
-CSCCFEBSCAControllerWord CSCCFEBTimeSlice::scaControllerWord(int layer) const {
+CSCCFEBSCAControllerWord CSCCFEBTimeSlice::scaControllerWord(int layer) const 
+{
   unsigned int result=0;
   for(unsigned i = 0; i < 16; ++i) {
      result |= timeSample(i*6+layer-1)->controllerData << i;
@@ -31,27 +33,33 @@ CSCCFEBSCAControllerWord CSCCFEBTimeSlice::scaControllerWord(int layer) const {
 }
 
 
-void CSCCFEBTimeSlice::setControllerWord(const CSCCFEBSCAControllerWord & controllerWord) {
-  for(int layer = 1; layer <= 6; ++layer) {
-    for(int channel = 1; channel <= 16; ++channel) {
-       unsigned short * shortWord = (unsigned short *) &controllerWord;
-       timeSample(layer, channel)->controllerData
-         = ( *shortWord >> (channel-1)) & 1;
+void CSCCFEBTimeSlice::setControllerWord(const CSCCFEBSCAControllerWord & controllerWord) 
+{
+  for(int layer = 1; layer <= 6; ++layer)
+    {
+      for(int channel = 1; channel <= 16; ++channel)
+	{
+	  unsigned short * shortWord = (unsigned short *) &controllerWord;
+	  timeSample(layer, channel)->controllerData
+	    = ( *shortWord >> (channel-1)) & 1;
+	}
     }
-  }
 }
 
 
-std::ostream & operator<<(std::ostream & os, const CSCCFEBTimeSlice & slice) {
-  for(int ichannel = 1; ichannel <= 16; ++ichannel) {
-    for(int ilayer = 1; ilayer <= 6; ++ilayer) {
-      //unsigned index = (ilayer-1) + (ichannel-1)*6;
-      //int value = (slice.timeSample(index))->adcCounts - 560;
-      int value = (slice.timeSample(ilayer, ichannel))->adcCounts - 560; 
-      os << " " << std::setw(5) << std::dec << value;
+std::ostream & operator<<(std::ostream & os, const CSCCFEBTimeSlice & slice) 
+{
+  for(int ichannel = 1; ichannel <= 16; ++ichannel) 
+    {
+      for(int ilayer = 1; ilayer <= 6; ++ilayer)
+	{
+	  //unsigned index = (ilayer-1) + (ichannel-1)*6;
+	  //int value = (slice.timeSample(index))->adcCounts - 560;
+	  int value = (slice.timeSample(ilayer, ichannel))->adcCounts - 560; 
+	  os << " " << std::setw(5) << std::dec << value;
+	}
+      os << std::endl;
     }
-    os << std::endl;
-  }
   return os;
 }
 
