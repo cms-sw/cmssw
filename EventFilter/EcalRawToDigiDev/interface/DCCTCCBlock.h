@@ -9,8 +9,8 @@
  *
  * \file DCCTCCBlock.h
  *
- * $Date: 2007/04/02 11:09:45 $
- * $Revision: 1.3 $
+ * $Date: 2007/04/10 17:33:48 $
+ * $Revision: 1.4 $
  *
  * \author N. Almeida
  * 
@@ -46,14 +46,14 @@ class DCCTCCBlock : public DCCDataBlockPrototype {
     /**
       Unpacks TCC data 
      */
-    void unpack(uint64_t ** data, uint * dwToEnd);
+    int unpack(uint64_t ** data, uint * dwToEnd);
 	 
     void display(std::ostream & o); 
 	 
   
   protected :
 
-    virtual void checkTccIdAndNumbTTs(){};
+    virtual bool checkTccIdAndNumbTTs(){return true;};
 	  
     uint tccId_;
     uint bx_;

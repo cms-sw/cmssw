@@ -12,8 +12,8 @@
  *
  * \file DCCEventBlock.h
  *
- * $Date: 2007/04/10 17:33:48 $
- * $Revision: 1.4 $
+ * $Date: 2007/06/12 23:30:54 $
+ * $Revision: 1.5 $
  *
  * \author N. Almeida
  * \author G. Franzoni
@@ -58,7 +58,7 @@ class DCCEventBlock {
      
     void addHeaderToCollection();
 	 
-     void virtual unpackTCCBlocks(){};
+    int virtual unpackTCCBlocks(){ return BLOCK_UNPACKED;}
  
     DCCDataUnpacker  *  unpacker_;
     uint64_t         *  data_; 

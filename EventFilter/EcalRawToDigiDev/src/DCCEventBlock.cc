@@ -61,53 +61,61 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   
   // Check if fed id is the same as expected...
   if( fedId_ != expFedId  ){ 
-    std::ostringstream output;
-    output<<"EcalRawToDigi@SUB=DCCEventBlock:unpack"
-      <<"\n Expected FED id is "<<expFedId<<" while current FED id is "<<fedId_
-      <<"\n => Skipping this event...";
-    //TODO : add this to a error event collection
+    
+  edm::LogWarning("EcalRawToDigiDev")
+    <<"\n For event "<<l1_
+    <<"\n Expected FED id is "<<expFedId<<" while current FED id is "<<fedId_
+    <<"\n => Skipping this event...";
 
-    throw ECALUnpackerException(output.str());
+    //TODO : add this to an error event collection
+
+	return;
   } 
   
   // Check if this event is an empty event 
   if( eventSize_ == EMPTYEVENTSIZE ){ 
-    std::ostringstream output;
-    output<<"EcalRawToDigi@SUB=DCCEventBlock:unpack"
+  
+    edm::LogWarning("EcalRawToDigiDev")
       <<"\n Event "<<l1_<<" is empty for dcc "<<fedId_
       <<"\n => Skipping this event...";
-    //TODO : add this to a dcc empty event collection 	 
-    throw ECALUnpackerException(output.str());
+    
+	//TODO : add this to a dcc empty event collection 	 
+    
+	return;
+	
   } 
 
   //Check if event size allows at least building the header
   else if( eventSize_ < HEADERSIZE ){    
-    std::ostringstream output;
-    output<<"EcalRawToDigi@SUB=DCCEventBlock:unpack"
-      <<"\n Event "<<l1_<<", dcc "<< fedId_
+    
+	edm::LogWarning("EcalRawToDigiDev")
+      <<"\n Event "<<l1_<<" in dcc "<< fedId_
       <<"\n Event size is "<<eventSize_<<" bytes while the minimum is "<<HEADERSIZE<<" bytes"
       <<"\n => Skipping this event..."; 
+
     //TODO : add this to a dcc size error collection  
-    throw ECALUnpackerException(output.str()); 
+
+	return;
+  
   }
   
   //Second Header Word
   data_++;
 	 
   blockLength_  =  (*data_ )              & H_EVLENGTH_MASK;
-  dccErrors_      =  ((*data_)>>H_ERRORS_B) & H_ERRORS_MASK  ;
+  dccErrors_    =  ((*data_)>>H_ERRORS_B) & H_ERRORS_MASK  ;
   runNumber_    =  ((*data_)>>H_RNUMB_B ) & H_RNUMB_MASK   ;
    
   
   if( eventSize_ != blockLength_*8 ){
-    std::ostringstream output;
-    output<<"EcalRawToDigi@SUB=DCCEventBlock:unpack"
-      <<"\n Event "<<l1_<<", dcc "<< fedId_
+  
+    edm::LogWarning("EcalRawToDigiDev")
+      <<"\n Event "<<l1_<<" in dcc "<< fedId_
       <<"\n Event size is "<<eventSize_<<" bytes while "<<(blockLength_*8)<<" are set in the event header "
       <<"\n => Skipping this event ...";
     //TODO : add this to a dcc size error collection 
+	return;
 	 
-   throw ECALUnpackerException(output.str());
   }  
   
   
@@ -137,8 +145,8 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   for( int dw = 0; dw<5; dw++ ){
     data_++;
     for( int i = 0; i<14; i++, channel++){
-     uint shift = i*4; //each channel has 4 bits
-      feChStatus_[channel]= ( (*data_)>>shift ) &  H_CHSTATUS_MASK ;
+      uint shift = i*4; //each channel has 4 bits
+      feChStatus_[channel] = ( (*data_)>>shift ) &  H_CHSTATUS_MASK ;
     }
   }
    
@@ -153,9 +161,9 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   // Update number of available dwords
   dwToEnd_ = blockLength_ - HEADERLENGTH ;
    
-  unpackTCCBlocks();
+  int STATUS = unpackTCCBlocks();
  
-  if(feUnpacking_||srpUnpacking_){
+  if(  STATUS != STOP_EVENT_UNPACKING && feUnpacking_ || srpUnpacking_ ){
 
     //NMGA note : SR comes before TCC blocks 
     // Emmanuelle please change this in the digi to raw
@@ -163,7 +171,7 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
  
     // Unpack SRP block
     if(srChStatus_ != CH_TIMEOUT &&  srChStatus_ != CH_DISABLED){
-      srpBlock_->unpack(&data_,&dwToEnd_);
+      STATUS = srpBlock_->unpack(&data_,&dwToEnd_);
     }
   }
 
@@ -174,18 +182,20 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   if(       triggerType_ == PHYSICTRIGGER      ){ numbChannels = 68; }
   else if ( triggerType_ == CALIBRATIONTRIGGER ){ numbChannels = 70; }
   else { 
-    std::ostringstream output;
-    output<<"EcalRawToDigi@SUB=DCCEventBlock:unpack"
-     <<"\n Event "<<l1_<<", dcc "<< fedId_
+     edm::LogWarning("EcalRawToDigiDev")
+     <<"\n Event "<<l1_<<" in dcc "<< fedId_
      <<"\n Event has an unsupported trigger type "<<triggerType_
      <<"\n => Skipping this event "; 
-     //TODO : add this to a dcc trigger type error collection 
-     throw ECALUnpackerException(output.str());
+     
+	 //TODO : add this to a dcc trigger type error collection 
+     
+	 return;
+	 
   }  
   
-  if( feUnpacking_ || memUnpacking_){ 	     					
+  if( feUnpacking_ || memUnpacking_ ){ 	     					
     it = feChStatus_.begin();
-    for( uint i=1; i<= numbChannels; i++, it++ ){			
+    for( uint i=1; i<= numbChannels && STATUS!=STOP_EVENT_UNPACKING; i++, it++ ){			
 
       short  chStatus(*it);
     
@@ -193,18 +203,18 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
       if(sr_ && chStatus != CH_TIMEOUT && chStatus != CH_DISABLED && chStatus != CH_SUPPRESS && i<=68){
       
         if (feUnpacking_ && srpBlock_->srFlag(i) != SRP_NREAD ){
-          towerBlock_->unpack(&data_,&dwToEnd_,true,i);
+          STATUS = towerBlock_->unpack(&data_,&dwToEnd_,true,i);
         }
       
       }else if (feUnpacking_ && chStatus != CH_TIMEOUT && chStatus != CH_DISABLED && chStatus != CH_SUPPRESS && i<=68){
-	// if tzs_ data are not really suppresses, even though zs flags are calculated
+	    // if tzs_ data are not really suppressed, even though zs flags are calculated
         if(tzs_){ zs_ = false;}
-	towerBlock_->unpack(&data_,&dwToEnd_,zs_,i);
+        STATUS = towerBlock_->unpack(&data_,&dwToEnd_,zs_,i);
       }		 
   
       // Unpack Mem blocks
       if(memUnpacking_&& i>68 && chStatus != CH_TIMEOUT && chStatus != CH_DISABLED){
-        memBlock_->unpack(&data_,&dwToEnd_,i);
+        STATUS = memBlock_->unpack(&data_,&dwToEnd_,i);
       }
 		       				
     }// closing loop of channels
@@ -244,8 +254,6 @@ void DCCEventBlock::addHeaderToCollection(){
   
   theDCCheader.setId(ism);
   
-
-
 
   theDCCheader.setRunNumber(runNumber_);  
   theDCCheader.setBasicTriggerType(triggerType_);

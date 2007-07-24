@@ -3,7 +3,6 @@
 #include "EventFilter/EcalRawToDigiDev/interface/DCCEventBlock.h"
 #include "EventFilter/EcalRawToDigiDev/interface/DCCDataUnpacker.h"
 #include "EventFilter/EcalRawToDigiDev/interface/DCCEventBlock.h"
-#include "EventFilter/EcalRawToDigiDev/interface/ECALUnpackerException.h"
 #include <stdio.h>
 #include "EventFilter/EcalRawToDigiDev/interface/EcalElectronicsMapper.h"
 

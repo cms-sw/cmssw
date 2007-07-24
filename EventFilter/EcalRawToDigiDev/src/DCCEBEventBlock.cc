@@ -32,10 +32,12 @@ DCCEBEventBlock::DCCEBEventBlock( DCCDataUnpacker * u, EcalElectronicsMapper * m
 
 
  // Unpack TCC blocks
-void DCCEBEventBlock::unpackTCCBlocks(){
+int DCCEBEventBlock::unpackTCCBlocks(){
+
 
     if(tccChStatus_[0] != CH_TIMEOUT && tccChStatus_[0] != CH_DISABLED)
-      tccBlock_->unpack(&data_,&dwToEnd_);
+      return tccBlock_->unpack(&data_,&dwToEnd_);
+	else return BLOCK_UNPACKED;
 
 
 }

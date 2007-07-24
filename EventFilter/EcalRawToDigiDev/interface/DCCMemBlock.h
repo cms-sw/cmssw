@@ -8,8 +8,8 @@
  *
  * \file DCCTCCBlock.h
  *
- * $Date: 2007/04/10 17:33:48 $
- * $Revision: 1.4 $
+ * $Date: 2007/05/11 14:04:28 $
+ * $Revision: 1.5 $
  *
  * \author N. Almeida
  * \author G. Franzoni
@@ -45,7 +45,7 @@ class DCCMemBlock : public DCCDataBlockPrototype {
     
     void display(std::ostream & o); 
     
-    void unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID);   
+    int unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID);   
     			
   protected :
 	 
