@@ -1,5 +1,4 @@
 <lcgdict>
-   <class name="DataFrame"/>
    <class name="EcalMGPASample"/>
    <class name="EcalFEMSample"/>
    <class name="ESSample"/>
@@ -23,11 +22,9 @@
    <class name="std::vector<EcalPnDiodeDigi>"/>
    <class name="std::vector<EcalMatacqDigi>"/>
 
-   <class name="DataFrameContainer"/>
    <class name="EcalDigiCollection"/>
    <class name="EBDigiCollection"/>
    <class name="EEDigiCollection"/>
-   <class name="edm::Wrapper<DataFrameContainer>"/>
    <class name="edm::Wrapper<EcalDigiCollection>"/>
    <class name="edm::Wrapper<EBDigiCollection>" />
    <class name="edm::Wrapper<EEDigiCollection>" />
