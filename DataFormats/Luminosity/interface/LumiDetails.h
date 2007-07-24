@@ -11,7 +11,7 @@
  *         David Dagenhart
  *
  * \version   1st Version June 7 2007>
- * $Id: LumiDetails.h,v 1.1 2007/07/13 20:13:02 wdd Exp $
+ * $Id: LumiDetails.h,v 1.2 2007/07/24 16:00:16 valerieh Exp $
  *
  ************************************************************/
  
@@ -27,9 +27,9 @@ class LumiDetails {
     LumiDetails() {}
 
     /// set default constructor
-    LumiDetails(const std::vector<double>& lumietsum,const std::vector<double>& lumietsumerr, 
-		const std::vector<double>& lumietsumqual, const std::vector<double>& lumiocc,
-		const std::vector<double>& lumioccerr,const std::vector<double>& lumioccqual):
+    LumiDetails(const std::vector<double>& lumietsum, const std::vector<double>& lumietsumerr, 
+		const std::vector<int>& lumietsumqual, const std::vector<double>& lumiocc,
+		const std::vector<double>& lumioccerr, const std::vector<int>& lumioccqual):
       lumietsum_(lumietsum), lumietsumerr_(lumietsumerr), lumietsumqual_(lumietsumqual),
       lumiocc_(lumiocc), lumioccerr_(lumioccerr), lumioccqual_(lumioccqual)
     { }
@@ -43,11 +43,11 @@ class LumiDetails {
 
     double lumiEtSum(int bx) const { return lumietsum_.at(bx); }
     double lumiEtSumErr(int bx) const { return lumietsumerr_.at(bx); }
-    double lumiEtSumQual(int bx) const { return lumietsumqual_.at(bx); }
+    int lumiEtSumQual(int bx) const { return lumietsumqual_.at(bx); }
 
     double lumiOcc(int bx) const { return lumiocc_.at(bx); }
     double lumiOccErr(int bx) const { return lumioccerr_.at(bx); }
-    double lumiOccQual(int bx) const { return lumioccqual_.at(bx); }
+    int lumiOccQual(int bx) const { return lumioccqual_.at(bx); }
 
     //get array of lumi values per BX based on EtSum method
     const std::vector<double>&  lumiEtSum() const {return lumietsum_;}
