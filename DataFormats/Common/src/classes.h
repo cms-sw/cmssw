@@ -82,7 +82,7 @@ namespace {
   edm::Wrapper<std::map<int,std::pair<unsigned int,unsigned int> > > dummyypwmv9;
   edm::Wrapper<std::map<int,std::pair<unsigned long,unsigned long> > > dummyypwmv10;
 
-  edm::Wrapper<DataFrameContainer> dummywdfc;
+  edm::Wrapper<edm::DataFrameContainer> dummywdfc;
 
   edm::Wrapper<unsigned long> dummyw1;
   edm::Wrapper<unsigned int> dummyw2;

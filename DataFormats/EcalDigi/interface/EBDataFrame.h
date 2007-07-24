@@ -9,7 +9,7 @@
 
 /** \class EBDataFrame
       
-$Id: EBDataFrame.h,v 1.4 2006/07/05 17:38:51 meridian Exp $
+$Id: EBDataFrame.h,v 1.5 2007/07/24 10:21:04 innocent Exp $
 */
 class EBDataFrame : public EcalDataFrame 
 {
@@ -19,7 +19,7 @@ class EBDataFrame : public EcalDataFrame
 
   EBDataFrame() {}
   // EBDataFrame(DetId i) :  Base(i) {}
-  EBDataFrame(DataFrame const & base) : Base(base) {}
+  EBDataFrame(edm::DataFrame const & base) : Base(base) {}
   EBDataFrame(EcalDataFrame const & base) : Base(base) {}
     
   virtual ~EBDataFrame() {}

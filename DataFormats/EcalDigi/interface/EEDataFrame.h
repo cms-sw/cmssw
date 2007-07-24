@@ -3,14 +3,13 @@
 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
-#include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include <iosfwd>
 
 
 
 /** \class EEDataFrame
       
-$Id: EEDataFrame.h,v 1.4 2006/07/05 17:38:51 meridian Exp $
+$Id: EEDataFrame.h,v 1.5 2007/07/24 10:21:04 innocent Exp $
 */
 
 
@@ -22,7 +21,7 @@ class EEDataFrame : public EcalDataFrame
 
   EEDataFrame() {}
   // EEDataFrame(DetId i) :  Base(i) {}
-  EEDataFrame(DataFrame const & base) : Base(base) {}
+  EEDataFrame(edm::DataFrame const & base) : Base(base) {}
   EEDataFrame(EcalDataFrame const & base) : Base(base) {}
     
   virtual ~EEDataFrame() {}

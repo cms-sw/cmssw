@@ -18,19 +18,19 @@
 class EcalDigiCollection : public edm::DataFrameContainer {
 public:
   static const int MAXSAMPLES = 10;
-  explicit EcalDigiCollection(int isubdet)  : 
+  explicit EcalDigiCollection(int isubdet=0)  : 
     edm::DataFrameContainer(MAXSAMPLES,isubdet){}
 };
 
 // make edm (and ecal client) happy
 class EBDigiCollection : public  EcalDigiCollection {
 public:  
-  EcalDigiCollection() : EcalDigiCollection(EcalBarrel){}
+  EBDigiCollection() : EcalDigiCollection(EcalBarrel){}
 };
 
-class EBDigiCollection : public  EcalDigiCollection {
+class EEDigiCollection : public  EcalDigiCollection {
 public:  
-  EcalDigiCollection() : EcalDigiCollection(EcalEndcap){}
+  EEDigiCollection() : EcalDigiCollection(EcalEndcap){}
 };
 
 

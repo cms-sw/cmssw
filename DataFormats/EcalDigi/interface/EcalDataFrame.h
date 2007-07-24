@@ -3,20 +3,20 @@
 
 #include "DataFormats/EcalDigi/interface/EcalMGPASample.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/EcalDigi/interface/DataFrame.h"
+#include "DataFormats/Common/interface/DataFrame.h"
 
 
 
 
 /** \class EcalDataFrame
       
-$Id: EcalDataFrame.h,v 1.3 2007/04/16 12:58:56 meridian Exp $
+$Id: EcalDataFrame.h,v 1.4 2007/07/24 10:21:04 innocent Exp $
 */
 class EcalDataFrame {
  public:
   EcalDataFrame() {}
   // EcalDataFrame(DetId i) :  m_data(i) {}
-  EcalDataFrame(DataFrame const & iframe) : m_data(iframe){} 
+  EcalDataFrame(edm::DataFrame const & iframe) : m_data(iframe){} 
 
   virtual ~EcalDataFrame() {} 
 
@@ -35,7 +35,7 @@ class EcalDataFrame {
 
  private:
  
-  DataFrame m_data;
+  edm::DataFrame m_data;
   
 };
   
