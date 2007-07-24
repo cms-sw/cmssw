@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalTDigitizer.h"
 #include "SimGeneral/NoiseGenerators/interface/CorrelatedNoisifier.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalShape.h"
@@ -41,8 +42,8 @@ private:
   void checkCalibrations(const edm::EventSetup & eventSetup);
 
   /** Reconstruction algorithm*/
-  typedef CaloTDigitizer<EBDigitizerTraits> EBDigitizer;
-  typedef CaloTDigitizer<EEDigitizerTraits> EEDigitizer;
+  typedef EcalTDigitizer<EBDigitizerTraits> EBDigitizer;
+  typedef EcalTDigitizer<EEDigitizerTraits> EEDigitizer;
   typedef CaloTDigitizer<ESDigitizerTraits> ESDigitizer;
 
   EBDigitizer * theBarrelDigitizer;

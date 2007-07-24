@@ -176,12 +176,14 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
     theBarrelDigitizer->run(*barrelHits, *barrelResult);
     edm::LogInfo("DigiInfo") << "EB Digis: " << barrelResult->size();
 
+    /*
     std::vector<EBDataFrame> sortedDigisEB = sorter.sortedVector(*barrelResult);
     LogDebug("EcalDigi") << "Top 10 EB digis";
     for(int i = 0; i < std::min(10,(int) sortedDigisEB.size()); ++i) 
       {
         LogDebug("EcalDigi") << sortedDigisEB[i];
       }
+    */
   }
 
   if ( isEE ) {
@@ -190,12 +192,14 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
     theEndcapDigitizer->run(*endcapHits, *endcapResult);
     edm::LogInfo("EcalDigi") << "EE Digis: " << endcapResult->size();
 
+    /*
     std::vector<EEDataFrame> sortedDigisEE = sorter.sortedVector(*endcapResult);
     LogDebug("EcalDigi")  << "Top 10 EE digis";
     for(int i = 0; i < std::min(10,(int) sortedDigisEE.size()); ++i) 
       {
         LogDebug("EcalDigi") << sortedDigisEE[i];
       }
+    */
   }
 
   if ( isES ) {
