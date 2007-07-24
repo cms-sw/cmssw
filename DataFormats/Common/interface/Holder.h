@@ -109,14 +109,6 @@ namespace edm {
 
     template <class T, class REF>
     inline
-    size_t
-    Holder<T,REF>::key() const
-    {
-      return ref_.key();
-    }
-
-    template <class T, class REF>
-    inline
     bool
     Holder<T,REF>::isEqualTo(BaseHolder<T> const& rhs) const
     {
@@ -167,4 +159,20 @@ namespace edm {
   }
 }
 
+#include "DataFormats/Common/interface/RefKeyTrait.h"
+
+namespace edm {
+  namespace reftobase {
+
+    template <class T, class REF>
+    inline
+    size_t
+    Holder<T,REF>::key() const
+    {
+      typedef typename RefKeyTrait<REF>::type helper;
+      return helper::key( ref_ );
+    }
+    
+  }
+}
 #endif
