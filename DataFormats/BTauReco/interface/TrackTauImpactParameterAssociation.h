@@ -12,6 +12,8 @@ namespace reco {
               reco::TauImpactParameterTrackData
             > 
           > TrackTauImpactParameterAssociationCollection;
+
+  typedef TrackTauImpactParameterAssociationCollection::value_type TrackTauImpactParameterAssociation;
 }
 
 #endif
