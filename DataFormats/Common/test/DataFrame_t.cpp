@@ -3,6 +3,7 @@
 
 #define private public
 #include "DataFormats/Common/interface/DataFrame.h"
+#include "DataFormats/Common/interface/DataFrameContainer.h"
 #undef private
 
 class TestDataFrame: public CppUnit::TestFixture
@@ -41,3 +42,15 @@ void TestDataFrame::default_ctor() {
   CPPUNIT_ASSERT(df.size()==10); 
   CPPUNIT_ASSERT(df.m_data==frames.m_data+10); 
 }
+
+void TestDataFrame::filling() {
+
+
+}
+
+void TestDataFrame::iterator() {
+
+
+}
+
+
