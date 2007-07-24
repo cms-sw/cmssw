@@ -15,8 +15,6 @@
 
 #include <gsl/gsl_sf_erf.h>
 #include <gsl/gsl_sf_result.h>
-#include <gsl/gsl_randist.h>
-#include <gsl/gsl_rng.h>
 #include <vector>
 #include <map>
 
@@ -48,13 +46,13 @@ public:
 		   float noiseRMS, 
 		   std::vector<std::pair<int,float> >&);
 
+  double generate_gaussian_tail(const double,const double);
 
 private:
   CLHEP::RandGauss *gaussDistribution_;
   CLHEP::RandPoisson *poissonDistribution_;
   CLHEP::RandFlat *flatDistribution_;
   CLHEP::HepRandomEngine& rndEngine;
-  gsl_rng * mt19937;
 };
 
 #endif
