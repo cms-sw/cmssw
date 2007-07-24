@@ -34,7 +34,7 @@ public:
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestDataFrame);
 
-TestDataFrame::TestDataFrame() sv(10){ 
+TestDataFrame::TestDataFrame() : sv(10){ 
   edm::DataFrame::data_type v[10] = {0,1,2,3,4,5,6,7,8,9};
   std::copy(v,v+10,sv.begin());
 } 
@@ -89,8 +89,8 @@ namespace {
     }
     
     int n;
-  TestDataFrame & itest;
-  }
+  TestDataFrame & test;
+  };
 }
 
 void TestDataFrame::iterator() {
