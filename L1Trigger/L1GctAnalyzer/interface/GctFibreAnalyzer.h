@@ -14,7 +14,7 @@ Description: Analyzer individual fibre channels from the source card.
 //
 // Original Author:  Alex Tapper
 //         Created:  Thu Jul 12 14:21:06 CEST 2007
-// $Id$
+// $Id: GctFibreAnalyzer.h,v 1.1 2007/07/18 13:14:06 tapper Exp $
 //
 //
 
@@ -27,18 +27,29 @@ Description: Analyzer individual fibre channels from the source card.
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+// Gct fibre data format
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctFibreWord.h"
+
 class GctFibreAnalyzer : public edm::EDAnalyzer {
+
  public:
+
   explicit GctFibreAnalyzer(const edm::ParameterSet&);
   ~GctFibreAnalyzer();
 
-
  private:
-  virtual void beginJob(const edm::EventSetup&) ;
+
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+
+  bool CheckFibreWord(const L1GctFibreWord fibre);
+  bool CheckForBC0(const L1GctFibreWord fibre);
+  void CheckLogicalID(const L1GctFibreWord fibre);
+  void CheckCounter(const L1GctFibreWord fibre);
 
   edm::InputTag m_fibreSource;
+  bool m_doLogicalID;
+  bool m_doCounter;
+
 };
 
 #endif
