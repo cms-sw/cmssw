@@ -34,7 +34,7 @@ template<class C> class EcalUncalibRecHitFixedAlphaBetaAlgo : public EcalUncalib
 
  private:
   double MinAmpl_;
-  
+  bool dyn_pedestal;
   double fAlpha_;//parameter of the shape
   double fBeta_;//parameter of the shape
   double fAmp_max_;// peak amplitude 
@@ -96,6 +96,7 @@ template<class C> class EcalUncalibRecHitFixedAlphaBetaAlgo : public EcalUncalib
 					    const EcalWeightSet::EcalChi2WeightMatrix** chi2Matrix); 
   void SetAlphaBeta( double alpha, double beta);
   void SetMinAmpl(double ampl);
+  void SetDynamicPedestal(bool dyn_pede);
 };
 
 
@@ -120,14 +121,17 @@ template<class C> EcalUncalibratedRecHit  EcalUncalibRecHitFixedAlphaBetaAlgo<C>
   // Get time samples checking for Gain Switch and pedestals
   if(pedestals){
     external_pede = true;
-    pedestal = pedestals[0];
-      for(int iSample = 0; iSample < C::MAXSAMPLES; iSample++) {
+    if(dyn_pedestal) { pedestal = (double(dataFrame.sample(0).adc()) + double(dataFrame.sample(1).adc()))/2.;}
+    else{ pedestal  = pedestals[0];}
+    for(int iSample = 0; iSample < C::MAXSAMPLES; iSample++) {
 	//create frame in adc gain 12 equivalent
 	GainId = dataFrame.sample(iSample).gainId();
 	// FIX-ME: warning: the vector pedestal is supposed to have in the order G12, G6 and G1
-	frame[iSample] = (double(dataFrame.sample(iSample).adc())-pedestals[GainId-1])*gainRatios[GainId-1];
+	
+	if(GainId==gainId0){frame[iSample] = double(dataFrame.sample(iSample).adc())-pedestal ;}
+	else {frame[iSample] = (double(dataFrame.sample(iSample).adc())-pedestals[GainId-1])*gainRatios[GainId-1];}
 	//Gain12Equivalent[GainId];
-	if (GainId == 0 ) GainId = 3;
+	if (GainId == 0 ) GainId = 3;//Fix ME this should be before frame construction for saturated channels
 	if (GainId != gainId0) iGainSwitch = 1;
 	if( frame[iSample]>maxsample ) {
           maxsample = frame[iSample];
@@ -143,7 +147,7 @@ template<class C> EcalUncalibratedRecHit  EcalUncalibRecHitFixedAlphaBetaAlgo<C>
       GainId = dataFrame.sample(iSample).gainId();
       //no gain switch forseen if there is no external pedestal
       frame[iSample] = double(dataFrame.sample(iSample).adc())-pedestal ;
-      if (GainId == 0 ) GainId = 3;
+      if (GainId == 0 ) GainId = 3;//Fix ME this should be before frame construction for saturated channels
       if (GainId > gainId0) iGainSwitch = 1;
       if( frame[iSample]>maxsample ) {
 	maxsample = frame[iSample];
@@ -192,7 +196,7 @@ template<class C> void  EcalUncalibRecHitFixedAlphaBetaAlgo<C>::InitFitParameter
     //y=a*(x-xM)^2+b*(x-xM)+c
     doFit_ = true;
     float a = float(samples[max_sample-1]+samples[max_sample+1]-2*samples[max_sample])/2.;
-    if(a==0){return;}
+    if(a==0){doFit_ =false; return;}
     float b = float(samples[max_sample+1]-samples[max_sample-1])/2.;
   
     fTim_max_ = max_sample - b/(2*a);
@@ -223,7 +227,7 @@ template<class C> float EcalUncalibRecHitFixedAlphaBetaAlgo<C>::PerformAnalyticF
   if (num_fit_max>= C::MAXSAMPLES ) {num_fit_max = C::MAXSAMPLES-1 ;}
 
   if(! doFit_ ) {
-    LogDebug("EcalUncalibRecHitFixedAlphaBetaAlgo")<<"No fit performed. The amplitue of sample 5 will be used";
+    LogDebug("EcalUncalibRecHitFixedAlphaBetaAlgo")<<"No fit performed. The amplitude of sample 5 will be used";
     return -1;
   }
 
@@ -325,5 +329,7 @@ template<class C> void EcalUncalibRecHitFixedAlphaBetaAlgo<C>::SetAlphaBeta( dou
 template<class C> void EcalUncalibRecHitFixedAlphaBetaAlgo<C>::SetMinAmpl( double ampl){
   MinAmpl_ = ampl;
 }
-
+template<class C> void EcalUncalibRecHitFixedAlphaBetaAlgo<C>::SetDynamicPedestal (bool p){
+  dyn_pedestal = p;
+}
 #endif
