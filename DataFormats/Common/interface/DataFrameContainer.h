@@ -39,11 +39,13 @@ namespace edm {
       typedef DataFrame result_type;
       IterHelp(DataFrameContainer const & iv) : v(iv){}
       
-      DataFrame operator()(int i) const {
-	return DataFrame(v,i);
+      DataFrame const & operator()(int i) const {
+	frame.set(v,i);
+	return frame;
       } 
     private:
       DataFrameContainer const & v;
+      DataFrame frame;
     };
     
     typedef boost::transform_iterator<IterHelp,boost::counting_iterator<int> > const_iterator;
@@ -100,6 +102,12 @@ namespace edm {
       size_t cs = m_data.size()-m_stride;
       std::copy(idata,idata+m_stride,m_data.begin()+cs);
     }
+
+    DataFrame back(size_t i) {
+      return DataFrame(*this,size()-1);
+    }
+
+
     //---------------------------------------------------------
     
     IterPair pair(size_t i) {
@@ -173,6 +181,14 @@ namespace edm {
   DataFrame::DataFrame(DataFrameContainer const & icont,
 		       size_t i) :
     m_id(icont.id(i)), m_data(icont.frame(i)), m_size(icont.stride()){}
+
+  inline
+  void DataFrame::set(DataFrameContainer const & icont,
+		      size_t i) {
+    m_id=icont.id(i); 
+    m_data=icont.frame(i);
+    m_size=icont.stride();
+  }
   
 }
 
