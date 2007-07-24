@@ -97,7 +97,7 @@ bool PythiaFilterZgamma::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     } 
     
   }
-
+/*
   if(accepted) {
     std::cout << "Accepted event Number: " << theNumberOfSelected 
               << "  of category " << selProc << std::endl;
@@ -118,7 +118,7 @@ bool PythiaFilterZgamma::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
     }  
   }
-
+*/
   if (accepted) {
     theNumberOfSelected++;
     return true; 
