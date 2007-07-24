@@ -90,7 +90,7 @@
   <class name="edm::Wrapper<reco::TaggingVariableListCollection>"/>
 
   <class name="reco::TrackTauImpactParameterAssociation"/>
-  <class name="edm::AssociationMap<edm::OneToValue<reco::TrackCollection, reco::TauImpactParameterTrackData, unsigned int> >">
+  <class name="reco::TrackTauImpactParameterAssociationCollection">
     <field name="transientMap_" transient="true"/>
   </class>
   <class name="reco::TrackTauImpactParameterAssociationMapType"/>
@@ -103,8 +103,8 @@
   <class name="reco::TauImpactParameterInfoRefVector"/>
   <class name="edm::Wrapper<reco::TauImpactParameterInfoCollection>"/>
 
-  <class name="reco::TauMassTagInfo_ClusterTrackAssociation"/>
-  <class name="edm::AssociationMap<edm::OneToValue<reco::BasicClusterCollection, float, unsigned short> >">
+  <class name="reco::TauMassTagInfo::ClusterTrackAssociation"/>
+  <class name="reco::TauMassTagInfo::ClusterTrackAssociationCollection">
     <field name="transientMap_" transient="true"/>
   </class>
   <class name="reco::TauMassTagInfo_ClusterTrackAssociationMapType"/>

@@ -7,33 +7,48 @@
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 #include "DataFormats/BTauReco/interface/JetCrystalsAssociation.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
+//#include "DataFormats/BTauReco/interface/JetTagFwd.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
+//#include "DataFormats/BTauReco/interface/TaggingVariableFwd.h"
 #include "DataFormats/BTauReco/interface/TrackCountingTagInfo.h"
+//#include "DataFormats/BTauReco/interface/TrackCountingTagInfoFwd.h"
 #include "DataFormats/BTauReco/interface/TrackProbabilityTagInfo.h"
+//#include "DataFormats/BTauReco/interface/TrackProbabilityTagInfoFwd.h"
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
+//#include "DataFormats/BTauReco/interface/IsolatedTauTagInfoFwd.h"
 #include "DataFormats/BTauReco/interface/PFIsolatedTauTagInfo.h"
+//#include "DataFormats/BTauReco/interface/PFIsolatedTauTagInfoFwd.h"
 #include "DataFormats/BTauReco/interface/EMIsolatedTauTagInfo.h"
+//#include "DataFormats/BTauReco/interface/EMIsolatedTauTagInfoFwd.h"
 #include "DataFormats/BTauReco/interface/CombinedTauTagInfo.h"
+//#include "DataFormats/BTauReco/interface/CombinedTauTagInfoFwd.h"
 #include "DataFormats/BTauReco/interface/PFCombinedTauTagInfo.h"
+//#include "DataFormats/BTauReco/interface/PFCombinedTauTagInfoFwd.h"
 #include "DataFormats/BTauReco/interface/CombinedSVTagInfo.h"
+//#include "DataFormats/BTauReco/interface/CombinedSVTagInfoFwd.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
+//#include "DataFormats/BTauReco/interface/SoftLeptonTagInfoFwd.h"
 #include "DataFormats/BTauReco/interface/TauImpactParameterInfo.h"
+//#include "DataFormats/BTauReco/interface/TauImpactParameterInfoFwd.h"
 #include "DataFormats/BTauReco/interface/TauMassTagInfo.h"
+//#include "DataFormats/BTauReco/interface/TauMassTagInfoFwd.h"
 #include "DataFormats/BTauReco/interface/TrackTauImpactParameterAssociation.h"
 #include "DataFormats/BTauReco/interface/JetEisolAssociation.h"
 //#include "DataFormats/BTauReco/interface/TrackIPData.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
+//#include "DataFormats/BTauReco/interface/TrackIPTagInfoFwd.h"
+#include "DataFormats/BTauReco/interface/BaseTagInfo.h"
+//#include "DataFormats/BTauReco/interface/BaseTagInfoFwd.h"
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
+//#include "DataFormats/BTauReco/interface/JTATagInfoFwd.h"
 #include "DataFormats/BTauReco/interface/JetTagInfo.h"
+//#include "DataFormats/BTauReco/interface/JetTagInfoFwd.h"
 
 namespace reco {
     typedef TrackTauImpactParameterAssociationCollection::map_type          TrackTauImpactParameterAssociationMapType;
     typedef TrackTauImpactParameterAssociationCollection::ref_type          TrackTauImpactParameterAssociationRefType;
-    typedef TrackTauImpactParameterAssociationCollection::value_type        TrackTauImpactParameterAssociation;
     typedef TauMassTagInfo::ClusterTrackAssociationCollection::map_type     TauMassTagInfo_ClusterTrackAssociationMapType;
-    typedef TauMassTagInfo::ClusterTrackAssociationCollection               TauMassTagInfo_ClusterTrackAssociationCollection;
     typedef TauMassTagInfo::ClusterTrackAssociationCollection::ref_type     TauMassTagInfo_ClusterTrackAssociationRefType;
-    typedef TauMassTagInfo::ClusterTrackAssociationCollection::value_type   TauMassTagInfo_ClusterTrackAssociation;
 //  typedef JetTracksIPDataAssociationCollection::map_type                  JetTracksIPDataAssociationMapType;
 //  typedef JetTracksIPDataAssociationCollection::ref_type                  JetTracksIPDataAssociationRefType;
 }
@@ -122,8 +137,8 @@ namespace {
     reco::TauImpactParameterInfoRefVector                               tip_rv;
     edm::Wrapper<reco::TauImpactParameterInfoCollection>                tip_wc;
 
-    reco::TauMassTagInfo_ClusterTrackAssociation                        cta;
-    reco::TauMassTagInfo_ClusterTrackAssociationCollection              cta_c;
+    reco::TauMassTagInfo::ClusterTrackAssociation                       cta;
+    reco::TauMassTagInfo::ClusterTrackAssociationCollection             cta_c;
     reco::TauMassTagInfo_ClusterTrackAssociationMapType                 cta_cm;
     reco::TauMassTagInfo_ClusterTrackAssociationRefType                 cta_cr;
     reco::TauMassTagInfo                                                tmt;
