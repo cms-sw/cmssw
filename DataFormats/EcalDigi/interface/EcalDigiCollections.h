@@ -24,12 +24,18 @@ public:
 
 // make edm (and ecal client) happy
 class EBDigiCollection : public  EcalDigiCollection {
-public:  
+public:
+  typedef EBDataFrame Digi;
+  typedef Digi::key_type DetId;
+
   EBDigiCollection() : EcalDigiCollection(EcalBarrel){}
 };
 
 class EEDigiCollection : public  EcalDigiCollection {
 public:  
+  typedef EEDataFrame Digi;
+  typedef Digi::key_type DetId;
+
   EEDigiCollection() : EcalDigiCollection(EcalEndcap){}
 };
 
