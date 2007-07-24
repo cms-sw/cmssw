@@ -45,7 +45,7 @@ namespace edm {
       } 
     private:
       DataFrameContainer const & v;
-      DataFrame frame;
+      mutable DataFrame frame;
     };
     
     typedef boost::transform_iterator<IterHelp,boost::counting_iterator<int> > const_iterator;

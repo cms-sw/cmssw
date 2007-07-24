@@ -30,8 +30,8 @@ namespace edm {
     DataFrame(DataFrameContainer const & icont,
 	      size_t i);
     inline
-    set(DataFrameContainer const & icont,
-	      size_t i);
+    void set(DataFrameContainer const & icont,
+	     size_t i);
     inline
     data_type & operator[](size_t i) {
       return data()[i];
