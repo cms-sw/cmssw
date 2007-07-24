@@ -288,6 +288,7 @@ void createPlots(TString plot) {
   can.Update();
   can.SaveAs( Form( "%s/%s_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   can.SaveAs( Form( "%s/%s_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //
   
 }
@@ -297,36 +298,43 @@ void create2DPlots(TString plot) {
   unsigned int plotNumber = 0;
   TString abscissaName = "dummy";
   TString ordinateName = "dummy";
+  Int_t zLog = 0;
   if(plot.CompareTo("x_vs_eta_vs_phi") == 0) {
     plotNumber = 30;
     abscissaName = TString("#eta");
     ordinateName = TString("#varphi");
     quotaName    = TString("x/X_{0}");
+    zLog = 0;
   } else if(plot.CompareTo("l_vs_eta_vs_phi") == 0) {
     plotNumber = 1030;
     abscissaName = TString("#eta");
     ordinateName = TString("#varphi");
     quotaName    = TString("#lambda/#lambda_{0}");
+    zLog = 0;
   } else if(plot.CompareTo("x_vs_z_vs_Rsum") == 0) {
     plotNumber = 50;
     abscissaName = TString("z [mm]");
     ordinateName = TString("R [mm]");
     quotaName    = TString("#Sigmax/X_{0}");
+    zLog = 0;
   } else if(plot.CompareTo("x_vs_z_vs_R") == 0) {
     plotNumber = 60;
     abscissaName = TString("z [mm]");
     ordinateName = TString("R [mm]");
     quotaName    = TString("x/X_{0}");
+    zLog = 1;
   } else if(plot.CompareTo("l_vs_z_vs_Rsum") == 0) {
     plotNumber = 1050;
     abscissaName = TString("z [mm]");
     ordinateName = TString("R [mm]");
     quotaName    = TString("#Sigma#lambda/#lambda_{0}");
+    zLog = 0;
   } else if(plot.CompareTo("l_vs_z_vs_R") == 0) {
     plotNumber = 1060;
     abscissaName = TString("z [mm]");
     ordinateName = TString("R [mm]");
     quotaName    = TString("#lambda/#lambda_{0}");
+    zLog = 1;
   } else {
     cout << " error: chosen plot name not known " << plot << endl;
     return;
@@ -408,7 +416,7 @@ void create2DPlots(TString plot) {
   //
   
   // canvas
-  TCanvas can("can","can",1200,800);
+  TCanvas can("can","can",2000,800);
   can.Range(0,0,25,25);
   can.SetFillColor(kWhite);
   gStyle->SetOptStat(0);
@@ -416,6 +424,7 @@ void create2DPlots(TString plot) {
   
   // Draw
   gStyle->SetPalette(1);
+  can.SetLogz(zLog);
   hist2d_x0_total->Draw("COLZ");
   hist2d_x0_total->GetXaxis()->SetNoExponent(true);
   hist2d_x0_total->GetYaxis()->SetNoExponent(true);
@@ -424,8 +433,25 @@ void create2DPlots(TString plot) {
   
   // Store
   can.Update();
-  can.SaveAs( Form( "%s/%s_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  can.SaveAs( Form( "%s/%s_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_%s_col.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_%s_col.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_%s_col.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //
+  
+  // Draw
+  gStyle->SetPalette(8);
+  can.SetLogz(zLog);
+  hist2d_x0_total->Draw("COLZ");
+  hist2d_x0_total->GetXaxis()->SetNoExponent(true);
+  hist2d_x0_total->GetYaxis()->SetNoExponent(true);
+  //
+  
+  
+  // Store
+  can.Update();
+  can.SaveAs( Form( "%s/%s_%s_bw.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_%s_bw.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_%s_bw.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //
   
   // restore properties
@@ -540,6 +566,7 @@ void createRatioPlots(TString plot) {
   can.Update();
   can.SaveAs( Form( "%s/%s_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   can.SaveAs( Form( "%s/%s_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //
   
 }
