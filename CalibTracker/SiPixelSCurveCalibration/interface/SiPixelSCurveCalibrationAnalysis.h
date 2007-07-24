@@ -24,7 +24,8 @@
 #include "FWCore/Framework/interface/ESHandle.h" 
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 
-#include <TF1.h> 
+#include <TF1.h>
+#include <TH1F.h> 
 #include <TObjArray.h>
 
 #include <memory>
@@ -44,8 +45,8 @@ class SiPixelSCurveCalibrationAnalysis : public edm::EDAnalyzer
     std::string makeTitle(const int&, const int&, const DetId&); 
     std::string makeRocName(const int&, const int&, const DetId&, const int&);
     std::string makeRocTitle(const int&, const int&, const DetId&, const int&);
-    void makeHistogram(const SCurveContainer&, const int&, const int&);
-    bool isPeculiar(const TF1*);
+    bool makeHistogram(const SCurveContainer&, const int&, const int&, const int&);
+    bool isPeculiar(const TH1F*);
 
   private:
     edm::ParameterSet conf_; 

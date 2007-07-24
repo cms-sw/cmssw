@@ -23,7 +23,6 @@
 
 #include <TFile.h>
 #include <TMath.h>
-#include <TH1F.h>
 
 #include <iostream>
 #include <sstream>
@@ -45,8 +44,8 @@ SiPixelSCurveCalibrationAnalysis::SiPixelSCurveCalibrationAnalysis(const edm::Pa
     vcalstep_ = calib_->vcal_step();
     ntriggers_ = calib_->nTriggersPerPattern();
     fitfunc_ = new TF1("fit", "0.5*[0]*(1+TMath::Erf((x-[1])/([2]*sqrt(2))))", vcalmin_, vcalmax_);
-    meanhistos_ = new TObjArray();
-    sigmahistos_ = new TObjArray();
+    meanhistos_ = new TObjArray(calib_->rocList().size());
+    sigmahistos_ = new TObjArray(calib_->rocList().size());
   }
 
 SiPixelSCurveCalibrationAnalysis::~SiPixelSCurveCalibrationAnalysis()
@@ -127,7 +126,7 @@ void SiPixelSCurveCalibrationAnalysis::endJob()
         if(!tempmean)
         {
           std::string meantitle = "Mean for " + makeRocTitle(j, k, holder, cable.roc);
-          tempmean = fs_->make<TH1F>(meanname.c_str(), meantitle.c_str(), vcalmax_*10, vcalmin_, vcalmax_);
+          tempmean = fs_->make<TH1F>(meanname.c_str(), meantitle.c_str(), 100, 0, 0);
           meanhistos_->Add(tempmean);
         }
 
@@ -136,16 +135,14 @@ void SiPixelSCurveCalibrationAnalysis::endJob()
         if(!tempsigma)
         {
           std::string sigmatitle = "Sigma for " + makeRocTitle(j, k, holder, cable.roc);
-          tempsigma = fs_->make<TH1F>(sigmaname.c_str(), sigmatitle.c_str(), 100, 0.0, 1.0);
+          tempsigma = fs_->make<TH1F>(sigmaname.c_str(), sigmatitle.c_str(), 100, 0, 0);
           sigmahistos_->Add(tempsigma);
         }
-        makeHistogram(siter->second, j, k);
-        
+        if(makeHistogram(siter->second, j, k, i))
+        { 
           tempmean->Fill(fitfunc_->GetParameter(1));
           tempsigma->Fill(fitfunc_->GetParameter(2));
-        
-        if(i % 1000 == 0)
-          LogInfo("SCurve Calibration") << "Making histogram " << i << " out of " << histoNum_;
+        }
         ++i;
       }
     }
@@ -160,18 +157,12 @@ void SiPixelSCurveCalibrationAnalysis::endJob()
   {
     TH1F* tempmean = ((TH1F*)(*meanhistos_)[j]);
     TH1F* tempsigma = ((TH1F*)(*sigmahistos_)[j]);
-    TF1* meanfit = new TF1("meanfit", "gaus", vcalmin_, vcalmax_);
-    TF1* sigmafit = new TF1("sigmafit", "gaus", 0, 1);
-    meanfit->SetParameter(1, 15.0);
-    sigmafit->SetParameter(1, 0.2);
-    tempmean->Fit("meanfit", "RQ0");
-    tempsigma->Fit("sigmafit", "RQ0");
     std::string rocid(tempmean->GetTitle());
     rocid.erase(0, 9);
-    double meanmean = meanfit->GetParameter(1);
-    double meansigma = meanfit->GetParameter(2);
-    double sigmamean = sigmafit->GetParameter(1);
-    double sigmasigma = sigmafit->GetParameter(2);
+    double meanmean = tempmean->GetMean();
+    double meansigma = tempmean->GetRMS();
+    double sigmamean = tempsigma->GetMean();
+    double sigmasigma = tempsigma->GetRMS();
     out << rocid << "     " << meanmean << "(" << meansigma << ")     "
         << sigmamean << "(" << sigmasigma << ")" << std::endl; 
   }
@@ -202,13 +193,13 @@ std::string SiPixelSCurveCalibrationAnalysis::makeRocName(const int& row, const 
   if(pixdet.subdetId() == 1)
   {
     PixelBarrelName barrel(pixdet);
-    name << barrel.name() << "ROC " << roc;
+    name << barrel.name() << "_ROC_" << roc;
   }
 
   else
   {
     PixelEndcapName endcap(pixdet);
-    name << endcap.name() << "ROC " << roc;
+    name << endcap.name() << "_ROC_" << roc;
   }
 
   return name.str();
@@ -221,13 +212,13 @@ std::string SiPixelSCurveCalibrationAnalysis::makeTitle(const int& row, const in
   if(pixdet.subdetId() == 1)
   {
     PixelBarrelName barrel(pixdet);
-    title << "SCurve for" << barrel.name() << " Row " << row << " Col " << col;
+    title << "SCurve for " << barrel.name() << " Row " << row << " Col " << col;
   }
 
   else
   {
     PixelEndcapName endcap(pixdet);
-    title << "SCurve for" << endcap.name() << " Row " << row << " Col " << col;
+    title << "SCurve for " << endcap.name() << " Row " << row << " Col " << col;
   }
   return title.str();
 } 
@@ -250,12 +241,12 @@ std::string SiPixelSCurveCalibrationAnalysis::makeRocTitle(const int& row, const
   return title.str();
 } 
 
-void SiPixelSCurveCalibrationAnalysis::makeHistogram(const SCurveContainer& sc, const int& row, const int& col)
+bool SiPixelSCurveCalibrationAnalysis::makeHistogram(const SCurveContainer& sc, const int& row, const int& col, const int& iter)
 {
   DetId detector(sc.getRawId());
   std::string name = makeName(row, col, detector);
   std::string title = makeTitle(row, col, detector); 
-  TH1F* histo = fs_->make<TH1F>(name.c_str(), title.c_str(), calib_->nVcal(), vcalmin_, vcalmax_);
+  TH1F* histo = new TH1F(name.c_str(), title.c_str(), calib_->nVcal(), vcalmin_, vcalmax_ + vcalstep_);
   histo->GetXaxis()->SetTitle("Vcal");
   histo->GetYaxis()->SetTitle("Efficiency");
   for(int l = vcalmin_; l != vcalmax_ + vcalstep_; l += vcalstep_)
@@ -263,22 +254,26 @@ void SiPixelSCurveCalibrationAnalysis::makeHistogram(const SCurveContainer& sc, 
     double tempy = sc.getEff(l, row, col);
     histo->Fill(l, tempy);
   } 
-  fitfunc_->SetParameters(1.0, 15.0, 0.2);
+  fitfunc_->SetParameters(1.0, vcalmax_/4.0, 1.0);
   histo->Fit("fit", "RQ0");
-  if(printHistos_)
+  bool check = isPeculiar(histo);
+  if(printHistos_ || iter%1000 == 0 || check)
   {
     fs_->mkdir("pixels");
-    histo->Write();
+    histo->Write(); 
+    edm::LogInfo("SCurve Calibration") << "Making histogram " << iter << " out of " << histoNum_;
   }
   delete histo;
+  return !check;
 }
 
-bool SiPixelSCurveCalibrationAnalysis::isPeculiar(const TF1* function)
+bool SiPixelSCurveCalibrationAnalysis::isPeculiar(const TH1F* hist)
 {
-  int plateau = function->GetParameter(0);
-  int mean = function->GetParameter(1);
-  int sigma = function->GetParameter(2);
-
-  return (plateau < 0.9 || mean >= vcalmax_ || mean <= vcalmin_ || sigma < 0.0);
+  double plateau = hist->GetFunction("fit")->GetParameter(0);
+  double mean = hist->GetFunction("fit")->GetParameter(1);
+  double sigma = hist->GetFunction("fit")->GetParameter(2);
+  double integral = hist->Integral();
+  bool peculiar = (plateau < 0.9) || (plateau > 1.01) || (mean > vcalmax_) || (mean < vcalmin_) || (sigma < 0.0) || (integral < 1.0);
+  return peculiar;
 }
 
