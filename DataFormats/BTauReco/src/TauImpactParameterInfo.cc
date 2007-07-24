@@ -29,9 +29,9 @@ float reco::TauImpactParameterInfo::discriminator() const {
 	return isolatedTaus->discriminator();
 }
 
-const reco::TauImpactParameterTrackData* TauImpactParameterInfo::getTrackData(reco::TrackRef trackRef) const {
+const reco::TauImpactParameterTrackData* TauImpactParameterInfo::getTrackData(const reco::TrackRef & trackRef) const {
 
-        TrackTauImpactParameterAssociationCollection::const_iterator iter
+        reco::TrackTauImpactParameterAssociationCollection::const_iterator iter
 	    = trackDataMap.find(trackRef);
 
         if (iter != trackDataMap.end()) return &(iter->val);
@@ -39,13 +39,13 @@ const reco::TauImpactParameterTrackData* TauImpactParameterInfo::getTrackData(re
 	return 0; // if track not found return 0
 }
 
-void reco::TauImpactParameterInfo::storeTrackData(reco::TrackRef trackRef,
+void reco::TauImpactParameterInfo::storeTrackData(const reco::TrackRef & trackRef,
                   const reco::TauImpactParameterTrackData& trackData) {
 
 	trackDataMap.insert(trackRef, trackData);
 }
 
-void reco::TauImpactParameterInfo::setIsolatedTauTag(const IsolatedTauTagInfoRef isolationRef){
+void reco::TauImpactParameterInfo::setIsolatedTauTag(const IsolatedTauTagInfoRef & isolationRef){
 	isolatedTaus = isolationRef;
 }
 
