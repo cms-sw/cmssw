@@ -3,7 +3,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: LRHelpFunctions.h,v 1.6 2007/06/15 08:55:21 heyninck Exp $
+// $Id: LRHelpFunctions.h,v 1.7 2007/07/05 14:18:52 heyninck Exp $
 //
 
 #ifndef LRHelpFunctions_h
@@ -14,7 +14,7 @@
   \brief    Help functionalities to implement and evaluate LR ratio method
 
   \author   Jan Heyninck
-  \version  $Id: LRHelpFunctions.h,v 1.6 2007/06/15 08:55:21 heyninck Exp $
+  \version  $Id: LRHelpFunctions.h,v 1.7 2007/07/05 14:18:52 heyninck Exp $
 */
 
 #include "TString.h"
@@ -38,7 +38,7 @@ class LRHelpFunctions {
     LRHelpFunctions(std::vector<int>, int, std::vector<double>, std::vector<double>,std::vector<const char*>);
     LRHelpFunctions(int, double, double, const char*);
     ~LRHelpFunctions();	
-
+    void 	initLRHistsAndFits(int, double, double, const char*);
     void 	setObsFitParameters(int obs,std::vector<double>);
     void 	fillToSignalHists(std::vector<double>);
     void 	fillToBackgroundHists(std::vector<double>);

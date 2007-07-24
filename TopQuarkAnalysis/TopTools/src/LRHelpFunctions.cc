@@ -2,13 +2,16 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: LRHelpFunctions.cc,v 1.8 2007/06/18 11:40:21 heyninck Exp $
+// $Id: LRHelpFunctions.cc,v 1.9 2007/07/05 14:18:54 heyninck Exp $
 //
 #include "TopQuarkAnalysis/TopTools/interface/LRHelpFunctions.h"
 #include "TopQuarkAnalysis/TopEventProducers/bin/tdrstyle.C"
 
 // constructors
-LRHelpFunctions::LRHelpFunctions() {}
+LRHelpFunctions::LRHelpFunctions() {
+  setTDRStyle();
+  gStyle->SetCanvasDefW(900);
+}
 
 
 LRHelpFunctions::LRHelpFunctions(std::vector<int> obsNr, int nrBins, std::vector<double> obsMin, std::vector<double> obsMax, std::vector<const char*> functions) { 
@@ -55,6 +58,17 @@ LRHelpFunctions::LRHelpFunctions(int nrLRbins, double LRmin, double LRmax, const
 // destructor
 LRHelpFunctions::~LRHelpFunctions() {}
 
+
+// member function to initialize the LR hists and fits
+void LRHelpFunctions::initLRHistsAndFits(int nrLRbins, double LRmin, double LRmax, const char* LRfunction){ 
+  constructPurity = true;
+  // create LR histograms
+  hLRtotS = new TH1F("hLRtotS","hLRtotS",nrLRbins,LRmin,LRmax);
+  hLRtotB = new TH1F("hLRtotB","hLRtotB",nrLRbins,LRmin,LRmax);
+  hLRtotSoverSplusB = new TH1F("hLRtotSoverSplusB","hLRtotSoverSplusB",nrLRbins,LRmin,LRmax);    
+  // create LR fit function
+  fLRtotSoverSplusB = new TF1("fLRtotSoverSplusB",LRfunction,LRmin,LRmax);
+}
 
 
 
@@ -310,6 +324,7 @@ double 	LRHelpFunctions::calcLRval(std::vector<double> vals){
    
 // member function to fill a signal contribution to the LR histogram 
 void  LRHelpFunctions::fillLRSignalHist(double val){
+  //  std::cout<< "@@@===> LRHelpf Signal LRval = "<< val<<std::endl;
   hLRtotS -> Fill(val);
 }   
   
@@ -317,6 +332,7 @@ void  LRHelpFunctions::fillLRSignalHist(double val){
    
 // member function to fill a background contribution to the LR histogram 
 void  LRHelpFunctions::fillLRBackgroundHist(double val){
+  // std::cout<< "@@@===> LRHelpf Backgroud LRval = "<< val<<std::endl;
   hLRtotB -> Fill(val);
 }    
   
@@ -324,11 +340,16 @@ void  LRHelpFunctions::fillLRBackgroundHist(double val){
    
 // member function to make and fit the purity vs. LRval histogram, and the purity vs. efficiency graph
 void  LRHelpFunctions::makeAndFitPurityHists(){
+
   for(int b=0; b<=hLRtotS->GetNbinsX(); b++) {
+
     if(!(hLRtotS->GetBinContent(b)==0 && hLRtotB->GetBinContent(b)==0)) {
+
       hLRtotSoverSplusB->SetBinContent(b,hLRtotS->GetBinContent(b)/(hLRtotS->GetBinContent(b)+hLRtotB->GetBinContent(b)));
+
       Float_t error = sqrt((pow(hLRtotS->GetBinContent(b)*hLRtotB->GetBinError(b),2)+pow(hLRtotB->GetBinContent(b)*hLRtotS->GetBinError(b),2)))/
       				pow((hLRtotS->GetBinContent(b)+hLRtotB->GetBinContent(b)),2);
+
       hLRtotSoverSplusB->SetBinError(b,error);
     }
   }
