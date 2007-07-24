@@ -3,8 +3,8 @@
  *  Makes histograms of high level Muon objects/quantities
  *  for Alignment Scenarios/DB comparison
  *
- *  $Date: 2007/07/19 17:53:06 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/07/24 15:15:24 $
+ *  $Revision: 1.8 $
  *  \author J. Fernandez - IFCA (CSIC-UC) <Javier.Fernandez@cern.ch>
  */
 
@@ -469,7 +469,7 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 	hNmuonsSA_Barrel->Fill(ib);
 	hNmuonsSA_Endcap->Fill(ie);
 
-  if(i==2){
+  if(i>1){ //Take first 2 muons :-(
   TLorentzVector mu1(p1.x(), p1.y(), p1.z(), p1.mag());
   TLorentzVector mu2(p2.x(), p2.y(), p2.z(), p2.mag());
   TLorentzVector pair = mu1 + mu2;
@@ -545,7 +545,7 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 	hNmuonsGB_Barrel->Fill(ib);
 	hNmuonsGB_Endcap->Fill(ie);
 
-  if(i==2){
+  if(i>1){ //Take first 2 muons :-(
   TLorentzVector mu1(p1.x(), p1.y(), p1.z(), p1.mag());
   TLorentzVector mu2(p2.x(), p2.y(), p2.z(), p2.mag());
   TLorentzVector pair = mu1 + mu2;
