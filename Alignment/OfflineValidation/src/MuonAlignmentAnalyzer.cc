@@ -3,8 +3,8 @@
  *  Makes histograms of high level Muon objects/quantities
  *  for Alignment Scenarios/DB comparison
  *
- *  $Date: 2007/07/20 14:47:10 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/07/19 17:53:06 $
+ *  $Revision: 1.5 $
  *  \author J. Fernandez - IFCA (CSIC-UC) <Javier.Fernandez@cern.ch>
  */
 
@@ -58,13 +58,17 @@ MuonAlignmentAnalyzer::MuonAlignmentAnalyzer(const ParameterSet& pset){
   theRecHits2DTagCSC = pset.getParameter<edm::InputTag>("RecHits2DCSCCollectionTag");
   
   theDataType = pset.getUntrackedParameter<string>("DataType");
+  ptRangeMin = pset.getUntrackedParameter<unsigned int>("ptRangeMin");
+  ptRangeMax = pset.getUntrackedParameter<unsigned int>("ptRangeMax");
+  invMassRangeMin = pset.getUntrackedParameter<unsigned int>("invMassRangeMin");
+  invMassRangeMax = pset.getUntrackedParameter<unsigned int>("invMassRangeMax");
 
   doSAplots = pset.getUntrackedParameter<bool>("doSAplots");
   doGBplots = pset.getUntrackedParameter<bool>("doGBplots");
   doResplots = pset.getUntrackedParameter<bool>("doResplots");
  
   if(theDataType != "RealData" && theDataType != "SimData")
-    cout << "Error in Data Type!!"<<endl;
+    edm::LogError("MuonAlignmentAnalyzer") << "Error in Data Type!!"<<endl;
 
   numberOfSimTracks=0;
   numberOfSARecTracks=0;
@@ -88,55 +92,81 @@ void MuonAlignmentAnalyzer::beginJob(const EventSetup& eventSetup){
 
   if(doGBplots) {
   hNmuonsGB = fs->make<TH1F>("GBNmuons","Nmuons",10,0,10);
-  hGBPTRec = fs->make<TH1F>("GBpTRec","p_{T}^{rec}",300,0,300);
-  hGBPTvsEta = fs->make<TH2F> ("GBPTvsEta","p_{T}^{rec} VS #eta",100,-2.5,2.5,300,0,300);
-  hGBPTvsPhi = fs->make<TH2F> ("GBPTvsPhi","p_{T}^{rec} VS #phi",100,-6,6,300,0,300);
+  hNmuonsGB_Barrel = fs->make<TH1F>("GBNmuons_Barrel","Nmuons",10,0,10);
+  hNmuonsGB_Endcap = fs->make<TH1F>("GBNmuons_Endcap","Nmuons",10,0,10);
+  hGBPTRec = fs->make<TH1F>("GBpTRec","p_{T}^{rec}",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hGBPTRec_Barrel = fs->make<TH1F>("GBpTRec_Barrel","p_{T}^{rec}",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hGBPTRec_Endcap = fs->make<TH1F>("GBpTRec_Endcap","p_{T}^{rec}",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hGBPTvsEta = fs->make<TH2F> ("GBPTvsEta","p_{T}^{rec} VS #eta",100,-2.5,2.5,ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hGBPTvsPhi = fs->make<TH2F> ("GBPTvsPhi","p_{T}^{rec} VS #phi",100,-6,6,ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
 
   if(theDataType == "SimData"){
   hGBPTDiff = fs->make<TH1F>("GBpTDiff","p_{T}^{rec} - p_{T}^{gen} ",250,-120,120);
   hGBPTDiffvsEta = fs->make<TH2F> ("GBPTDiffvsEta","p_{T}^{rec} - p_{T}^{gen} VS #eta",100,-2.5,2.5,250,-120,120);
   hGBPTDiffvsPhi = fs->make<TH2F> ("GBPTDiffvsPhi","p_{T}^{rec} - p_{T}^{gen} VS #phi",100,-6,6,250,-120,120);
   hGBPTres = fs->make<TH1F>("GBpTRes","pT Resolution",100,-2,2);
+  hGBPTres_Barrel = fs->make<TH1F>("GBpTRes_Barrel","pT Resolution",100,-2,2);
+  hGBPTres_Endcap = fs->make<TH1F>("GBpTRes_Endcap","pT Resolution",100,-2,2);
   hGBinvPTres = fs->make<TH1F>("GBinvPTRes","1/pT Resolution",100,-2,2);  
   hGBinvPTvsEta = fs->make<TH2F> ("GBinvPTvsEta","1/p_{T}^{rec} VS #eta",100,-2.5,2.5,100,-2,2);
   hGBinvPTvsPhi = fs->make<TH2F> ("GBinvPTvsPhi","1/p_{T}^{rec} VS #phi",100,-6,6,100,-2,2);
   }
   
   hGBChi2 = fs->make<TH1F>("GBChi2","Chi2",200,0,200);
-  hGBInvM = fs->make<TH1F>("GBInvM","M_{inv}^{rec}",200,0,200);
-  hGBInvM_Barrel = fs->make<TH1F>("GBInvM_Barrel","M_{inv}^{rec}",200,0,200);
+  hGBChi2_Barrel = fs->make<TH1F>("GBChi2_Barrel","Chi2",200,0,200);
+  hGBChi2_Endcap  = fs->make<TH1F>("GBChi2_Endcap ","Chi2",200,0,200);
+  hGBInvM = fs->make<TH1F>("GBInvM","M_{inv}^{rec}",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
+  hGBInvM_Barrel = fs->make<TH1F>("GBInvM_Barrel","M_{inv}^{rec}",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
+  hGBInvM_Endcap  = fs->make<TH1F>("GBInvM_Endcap ","M_{inv}^{rec}",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
+  hGBInvM_Overlap = fs->make<TH1F>("GBInvM_Overlap","M_{inv}^{rec}",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
   }
   
   
   if(doSAplots) {
   hNmuonsSA = fs->make<TH1F>("SANmuons","Nmuons",10,0,10);
-  hSAPTRec = fs->make<TH1F>("SApTRec","p_{T}^{rec}",300,0,300);
-  hSAPTvsEta = fs->make<TH2F> ("SAPTvsEta","p_{T}^{rec} VS #eta",100,-2.5,2.5,300,0,300);
-  hSAPTvsPhi = fs->make<TH2F> ("SAPTvsPhi","p_{T}^{rec} VS #phi",100,-6,6,300,0,300);
+  hNmuonsSA_Barrel = fs->make<TH1F>("SANmuons_Barrel","Nmuons",10,0,10);
+  hNmuonsSA_Endcap = fs->make<TH1F>("SANmuons_Endcap","Nmuons",10,0,10);
+  hSAPTRec = fs->make<TH1F>("SApTRec","p_{T}^{rec}",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hSAPTRec_Barrel = fs->make<TH1F>("SApTRec_Barrel","p_{T}^{rec}",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hSAPTRec_Endcap = fs->make<TH1F>("SApTRec_Endcap","p_{T}^{rec}",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hSAPTvsEta = fs->make<TH2F> ("SAPTvsEta","p_{T}^{rec} VS #eta",100,-2.5,2.5,ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hSAPTvsPhi = fs->make<TH2F> ("SAPTvsPhi","p_{T}^{rec} VS #phi",100,-6,6,ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
 
   if(theDataType == "SimData"){
   hSAPTDiff = fs->make<TH1F>("SApTDiff","p_{T}^{rec} - p_{T}^{gen} ",250,-120,120);
   hSAPTDiffvsEta = fs->make<TH2F> ("SAPTDiffvsEta","p_{T}^{rec} - p_{T}^{gen} VS #eta",100,-2.5,2.5,250,-120,120);
   hSAPTDiffvsPhi = fs->make<TH2F> ("SAPTDiffvsPhi","p_{T}^{rec} - p_{T}^{gen} VS #phi",100,-6,6,250,-120,120);
   hSAPTres = fs->make<TH1F>("SApTRes","pT Resolution",100,-2,2);
+  hSAPTres_Barrel = fs->make<TH1F>("SApTRes_Barrel","pT Resolution",100,-2,2);
+  hSAPTres_Endcap = fs->make<TH1F>("SApTRes_Endcap","pT Resolution",100,-2,2);
   hSAinvPTres = fs->make<TH1F>("SAinvPTRes","1/pT Resolution",100,-2,2);
 
   hSAinvPTvsEta = fs->make<TH2F> ("SAinvPTvsEta","1/p_{T}^{rec} VS #eta",100,-2.5,2.5,100,-2,2);
   hSAinvPTvsPhi = fs->make<TH2F> ("SAinvPTvsPhi","1/p_{T}^{rec} VS #phi",100,-6,6,100,-2,2);
   }
-  hSAInvM = fs->make<TH1F>("SAInvM","M_{inv}^{rec}",200,0,200);
-  hSAInvM_Barrel = fs->make<TH1F>("SAInvM_Barrel","M_{inv}^{rec}",200,0,200);
+  hSAInvM = fs->make<TH1F>("SAInvM","M_{inv}^{rec}",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
+  hSAInvM_Barrel = fs->make<TH1F>("SAInvM_Barrel","M_{inv}^{rec}",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
+  hSAInvM_Endcap = fs->make<TH1F>("SAInvM_Endcap","M_{inv}^{rec}",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
+  hSAInvM_Overlap = fs->make<TH1F>("SAInvM_Overlap","M_{inv}^{rec}",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
   hSAChi2 = fs->make<TH1F>("SAChi2","Chi2",200,0,200);
+  hSAChi2_Barrel = fs->make<TH1F>("SAChi2_Barrel","Chi2",200,0,200);
+  hSAChi2_Endcap = fs->make<TH1F>("SAChi2_Endcap","Chi2",200,0,200);
   }
 
 
   if(theDataType == "SimData"){
   hNmuonsSim = fs->make<TH1F>("SimNmuons","Nmuons",10,0,10);
-  hPTSim = fs->make<TH1F>("SimPT","p_{T}^{gen} ",300,0,300);
-  hSimPTvsEta = fs->make<TH2F> ("SimPTvsEta","p_{T}^{gen} VS #eta",100,-2.5,2.5,300,0,300);
-  hSimPTvsPhi = fs->make<TH2F> ("SimPTvsPhi","p_{T}^{gen} VS #phi",100,-6,6,300,0,300);
-  hSimInvM = fs->make<TH1F>("SimInvM","M_{inv}^{gen} ",200,0,200);
-  hSimInvM_Barrel = fs->make<TH1F>("SimInvM_Barrel","M_{inv}^{rec}",200,0,200);
+  hNmuonsSim_Barrel = fs->make<TH1F>("SimNmuons_Barrel","Nmuons",10,0,10);
+  hNmuonsSim_Endcap = fs->make<TH1F>("SimNmuons_Endcap","Nmuons",10,0,10);
+  hPTSim = fs->make<TH1F>("pTSim","p_{T}^{gen} ",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hPTSim_Barrel = fs->make<TH1F>("pTSim_Barrel","p_{T}^{gen} ",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hPTSim_Endcap = fs->make<TH1F>("pTSim_Endcap","p_{T}^{gen} ",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hSimPTvsEta = fs->make<TH2F> ("SimPTvsEta","p_{T}^{gen} VS #eta",100,-2.5,2.5,ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hSimPTvsPhi = fs->make<TH2F> ("SimPTvsPhi","p_{T}^{gen} VS #phi",100,-6,6,ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hSimInvM = fs->make<TH1F>("SimInvM","M_{inv}^{gen} ",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
+  hSimInvM_Barrel = fs->make<TH1F>("SimInvM_Barrel","M_{inv}^{rec}",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
+  hSimInvM_Endcap = fs->make<TH1F>("SimInvM_Endcap","M_{inv}^{gen} ",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
+  hSimInvM_Overlap = fs->make<TH1F>("SimInvM_Overlap","M_{inv}^{gen} ",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
   }
 
   if(doResplots){
@@ -290,22 +320,22 @@ void MuonAlignmentAnalyzer::beginJob(const EventSetup& eventSetup){
 void MuonAlignmentAnalyzer::endJob(){
 
 
-    cout << "----------------- " << endl << endl;
+    edm::LogError("MuonAlignmentAnalyzer") << "----------------- " << endl << endl;
 
   if(theDataType == "SimData")
-    cout << "Number of Sim tracks: " << numberOfSimTracks << endl << endl;
+    edm::LogInfo("MuonAlignmentAnalyzer") << "Number of Sim tracks: " << numberOfSimTracks << endl << endl;
 
   if(doSAplots)
-    cout << "Number of SA Reco tracks: " << numberOfSARecTracks << endl << endl;
+    edm::LogInfo("MuonAlignmentAnalyzer") << "Number of SA Reco tracks: " << numberOfSARecTracks << endl << endl;
 
   if(doGBplots)
-  cout << "Number of GB Reco tracks: " << numberOfGBRecTracks << endl << endl;
+  edm::LogError("MuonAlignmentAnalyzer") << "Number of GB Reco tracks: " << numberOfGBRecTracks << endl << endl;
 
   if(doResplots){
 
   delete thePropagator;
 
-  cout << "Number of Hits considered for residuals: " << numberOfHits << endl << endl;
+  edm::LogInfo("MuonAlignmentAnalyzer") << "Number of Hits considered for residuals: " << numberOfHits << endl << endl;
 
   }
 
@@ -321,7 +351,6 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
   
   GlobalVector p1,p2;
   std::vector< double > simPar[3] ; //pt,eta,phi
-  int i=0;
   
 
 // ######### if data= MC, do Simulation Plots#####
@@ -329,6 +358,7 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
   double simEta=0;
   double simPt=0;
   double simPhi=0;
+  int i=0, ie=0,ib=0;
 
   // Get the SimTrack collection from the event
     Handle<SimTrackContainer> simTracks;
@@ -337,7 +367,6 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 
     SimTrackContainer::const_iterator simTrack;
 
-	i=0;
     for (simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack){
       if (abs((*simTrack).type()) == 13) {
 	i++;
@@ -346,6 +375,8 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 	simPhi=(*simTrack).momentum().phi();
 	numberOfSimTracks++;
 	hPTSim->Fill(simPt);
+	if(simEta<1.04) {hPTSim_Barrel->Fill(simPt);ib++;}
+	else {hPTSim_Endcap->Fill(simPt);ie++;}
 	hSimPTvsEta->Fill(simEta,simPt);
 	hSimPTvsPhi->Fill(simPhi,simPt);
 
@@ -360,14 +391,18 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
      }    
     }
 	hNmuonsSim->Fill(i);
+	hNmuonsSim_Barrel->Fill(ib);
+	hNmuonsSim_Endcap->Fill(ie);
 
-  if(i>1){ //Take first 2 muons :-(
+ if(i>1){ // Take 2 first muons :-(
   TLorentzVector mu1(p1.x(), p1.y(), p1.z(), p1.mag());
   TLorentzVector mu2(p2.x(), p2.y(), p2.z(), p2.mag());
   TLorentzVector pair = mu1 + mu2;
   double Minv = pair.M();
   hSimInvM->Fill(Minv);
   if(abs(p1.eta())<1.04 && abs(p2.eta())<1.04) hSimInvM_Barrel->Fill(Minv);
+  else if(abs(p1.eta())>=1.04 && abs(p2.eta())>=1.04) hSimInvM_Endcap->Fill(Minv);
+  else  hSimInvM_Overlap->Fill(Minv);  
   }
 
   } //simData
@@ -379,6 +414,7 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
   double SArecPt=0.;
   double SAeta=0.;
   double SAphi=0.;
+  int i=0, ie=0,ib=0;
 
   // Get the RecTrack collection from the event
   Handle<reco::TrackCollection> staTracks;
@@ -387,17 +423,17 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 
   reco::TrackCollection::const_iterator staTrack;
 
-  i=0;
   for (staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack){
-    i++;
-    
+    i++;    
     
     SArecPt = (*staTrack).pt();
-
-    hSAPTRec->Fill(SArecPt);
     SAeta = (*staTrack).eta();
     SAphi = (*staTrack).phi();
+
+    hSAPTRec->Fill(SArecPt);
     hSAChi2->Fill((*staTrack).chi2());
+    if(SAeta<1.04) {hSAPTRec_Barrel->Fill(SArecPt); hSAChi2_Barrel->Fill((*staTrack).chi2()); ib++;}
+    else {hSAPTRec_Endcap->Fill(SArecPt); hSAChi2_Endcap->Fill((*staTrack).chi2()); ie++;}
 
 // save the muon pair
     if(i==1)  p1=GlobalVector((*staTrack).momentum().x(),(*staTrack).momentum().y(),(*staTrack).momentum().z());
@@ -410,6 +446,8 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
      double simPt=simPar[0][iSim];
      if(sqrt((SAeta-simPar[1][iSim])*(SAeta-simPar[1][iSim])+(SAphi-simPar[2][iSim])*(SAphi-simPar[2][iSim]))<0.3){
       hSAPTres->Fill( (SArecPt-simPt)/simPt);
+    	if(SAeta<1.04) hSAPTres_Barrel->Fill((SArecPt-simPt)/simPt);
+	else hSAPTres_Endcap->Fill((SArecPt-simPt)/simPt);
 
       hSAPTDiff->Fill(SArecPt-simPt);
 
@@ -428,13 +466,18 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 }
 
 	hNmuonsSA->Fill(i);
-  if(i>1){ //Take first 2 muons :-(
+	hNmuonsSA_Barrel->Fill(ib);
+	hNmuonsSA_Endcap->Fill(ie);
+
+  if(i==2){
   TLorentzVector mu1(p1.x(), p1.y(), p1.z(), p1.mag());
   TLorentzVector mu2(p2.x(), p2.y(), p2.z(), p2.mag());
   TLorentzVector pair = mu1 + mu2;
   double Minv = pair.M();
   hSAInvM->Fill(Minv);
   if(abs(p1.eta())<1.04 && abs(p2.eta())<1.04) hSAInvM_Barrel->Fill(Minv);
+  else if(abs(p1.eta())>=1.04 && abs(p2.eta())>=1.04) hSAInvM_Endcap->Fill(Minv);
+  else hSAInvM_Overlap->Fill(Minv);
   }
 
   }//end doSAplots
@@ -452,9 +495,9 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
   double GBrecPt = 0; 
   double GBeta = 0;
   double GBphi = 0;
+  int i=0, ie=0,ib=0;
 
   reco::TrackCollection::const_iterator glbTrack;
-	i=0;
 
   for (glbTrack = glbTracks->begin(); glbTrack != glbTracks->end(); ++glbTrack){
     i++;
@@ -463,14 +506,14 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
     GBeta = (*glbTrack).eta();
     GBphi = (*glbTrack).phi();
     
+    hGBPTRec->Fill(GBrecPt);
+    hGBChi2->Fill((*glbTrack).chi2());
+    if(GBeta<1.04) {hGBPTRec_Barrel->Fill(GBrecPt); hGBChi2_Barrel->Fill((*glbTrack).chi2()); ib++;}
+    else {hGBPTRec_Endcap->Fill(GBrecPt); hGBChi2_Endcap->Fill((*glbTrack).chi2()); ie++;}
+  
 // save the muon pair
     if(i==1)  p1=GlobalVector((*glbTrack).momentum().x(),(*glbTrack).momentum().y(),(*glbTrack).momentum().z());
     if(i==2)  p2=GlobalVector((*glbTrack).momentum().x(),(*glbTrack).momentum().y(),(*glbTrack).momentum().z());
-
-  
-    hGBPTRec->Fill(GBrecPt);
-    hGBChi2->Fill((*glbTrack).chi2());
-   
 
     if(GBrecPt && theDataType == "SimData"){  
      for(unsigned int  iSim = 0; iSim <simPar[0].size(); iSim++) {
@@ -478,6 +521,8 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
      if(sqrt((GBeta-simPar[1][iSim])*(GBeta-simPar[1][iSim])+(GBphi-simPar[2][iSim])*(GBphi-simPar[2][iSim]))<0.3){
 	
       hGBPTres->Fill( (GBrecPt-simPt)/simPt);
+    	if(GBeta<1.04) hGBPTres_Barrel->Fill((GBrecPt-simPt)/simPt);
+	else hGBPTres_Endcap->Fill((GBrecPt-simPt)/simPt);
 
       hGBPTDiff->Fill(GBrecPt-simPt);
 
@@ -497,14 +542,20 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
   }
 
 	hNmuonsGB->Fill(i);
-  if(i>1){ //Take first 2 muons :-(
+	hNmuonsGB_Barrel->Fill(ib);
+	hNmuonsGB_Endcap->Fill(ie);
+
+  if(i==2){
   TLorentzVector mu1(p1.x(), p1.y(), p1.z(), p1.mag());
   TLorentzVector mu2(p2.x(), p2.y(), p2.z(), p2.mag());
   TLorentzVector pair = mu1 + mu2;
   double Minv = pair.M();
   hGBInvM->Fill(Minv);
   if(abs(p1.eta())<1.04 && abs(p2.eta())<1.04)   hGBInvM_Barrel->Fill(Minv);
+  else if(abs(p1.eta())>=1.04 && abs(p2.eta())>=1.04) hGBInvM_Endcap->Fill(Minv);
+  else hGBInvM_Overlap->Fill(Minv);
   }
+
 } //end doGBplots
 
 
@@ -794,7 +845,7 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 
 
 	}catch(...) {
-	  cout<<" Error!! Exception in propagator catched" << endl;
+	  edm::LogError("MuonAlignmentAnalyzer")<<" Error!! Exception in propagator catched" << endl;
 	  continue;
 	}
 

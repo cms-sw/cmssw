@@ -70,10 +70,20 @@ private:
   TH1F	*hNmuonsGB;
   TH1F	*hNmuonsSA;
   TH1F	*hNmuonsSim;
+  TH1F	*hNmuonsGB_Barrel;
+  TH1F	*hNmuonsSA_Barrel;
+  TH1F	*hNmuonsSim_Barrel;
+  TH1F	*hNmuonsGB_Endcap;
+  TH1F	*hNmuonsSA_Endcap;
+  TH1F	*hNmuonsSim_Endcap;
 
   // Chi2 of Track
   TH1F *hGBChi2;
   TH1F *hSAChi2;
+  TH1F *hGBChi2_Barrel;
+  TH1F *hSAChi2_Barrel;
+  TH1F *hGBChi2_Endcap;
+  TH1F *hSAChi2_Endcap;
 
   // Invariant mass for dimuons
   TH1F *hGBInvM;
@@ -83,11 +93,26 @@ private:
   TH1F *hGBInvM_Barrel;
   TH1F *hSAInvM_Barrel;
   TH1F *hSimInvM_Barrel;
+  // Invariant Mass distributions in Endcap (eta>=1.04) region
+  TH1F *hGBInvM_Endcap;
+  TH1F *hSAInvM_Endcap;
+  TH1F *hSimInvM_Endcap;
+  // Invariant Mass distributions in Barrel-Endcap overlap region 
+  // 1 muon barrel & 1 muon endcap
+  TH1F *hGBInvM_Overlap;
+  TH1F *hSAInvM_Overlap;
+  TH1F *hSimInvM_Overlap;
 
   // pT 
   TH1F *hSAPTRec;
   TH1F *hGBPTRec;
   TH1F *hPTSim; 
+  TH1F *hSAPTRec_Barrel;
+  TH1F *hGBPTRec_Barrel;
+  TH1F *hPTSim_Barrel; 
+  TH1F *hSAPTRec_Endcap;
+  TH1F *hGBPTRec_Endcap;
+  TH1F *hPTSim_Endcap; 
   TH2F *hGBPTvsEta;
   TH2F *hGBPTvsPhi;
   TH2F *hSAPTvsEta;
@@ -100,6 +125,10 @@ private:
   TH1F *hSAinvPTres;
   TH1F *hGBPTres;
   TH1F *hGBinvPTres;
+  TH1F *hSAPTres_Barrel;
+  TH1F *hSAPTres_Endcap;
+  TH1F *hGBPTres_Barrel;
+  TH1F *hGBPTres_Endcap;
   //pT rec - pT gen
   TH1F *hSAPTDiff;
   TH1F *hGBPTDiff;
@@ -111,7 +140,6 @@ private:
   TH2F	*hGBinvPTvsPhi;
   TH2F	*hSAinvPTvsEta;
   TH2F	*hSAinvPTvsPhi;
-
 
 
   // Vector of chambers Residuals
@@ -147,6 +175,9 @@ private:
   int numberOfGBRecTracks;
   int numberOfSARecTracks;
   int numberOfHits;
+
+  // hist kinematic range
+  unsigned int ptRangeMin,ptRangeMax,invMassRangeMin,invMassRangeMax;
   
 };
 #endif
