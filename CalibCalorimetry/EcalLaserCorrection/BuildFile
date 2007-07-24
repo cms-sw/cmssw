@@ -3,6 +3,7 @@
 <use name=FWCore/ParameterSet>
 <use name=CondFormats/EcalObjects>
 <use name=CondFormats/DataRecord>
+<use name=Geometry/EcalMapping>
 <use name=DataFormats/EcalDetId>
 <use name=FWCore/Utilities>
 <use name=boost>

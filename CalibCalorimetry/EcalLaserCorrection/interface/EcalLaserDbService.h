@@ -10,6 +10,7 @@
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -28,28 +29,20 @@ class EcalLaserDbService {
   EcalLaserDbService ();
   EcalLaserDbService (const edm::ParameterSet&);
 
-  //  const EcalLaserAlphas* getAlpha (const EBDetId& fId) const;
-  //  const EcalLaserAPDPNRatiosRef* getAPDPNRatiosRef (const EBDetId& fId) const;
-  //  const EcalLaserAPDPNRatios* getAPDPNRatio (const EBDetId& fId) const;
-
   const EcalLaserAlphas* getAlphas () const;
   const EcalLaserAPDPNRatiosRef* getAPDPNRatiosRef () const;
   const EcalLaserAPDPNRatios* getAPDPNRatios () const;
+  float  calcLaserCorrection (EBDetId const & xid, edm::Timestamp const & iTime) const;
 
-  //  const HcalQIEShape* getHcalShape () const;
-  //  const HcalElectronicsMap* getHcalMapping () const;
-  
   void setData (const EcalLaserAlphas* fItem) {mAlphas = fItem;}
   void setData (const EcalLaserAPDPNRatiosRef* fItem) {mAPDPNRatiosRef = fItem;}
   void setData (const EcalLaserAPDPNRatios* fItem) {mAPDPNRatios = fItem;}
 
-  //  void setData (const HcalElectronicsMap* fItem) {mElectronicsMap = fItem;}
  private:
   const EcalLaserAlphas* mAlphas;
   const EcalLaserAPDPNRatiosRef* mAPDPNRatiosRef;
   const EcalLaserAPDPNRatios* mAPDPNRatios;
 
-  //  const HcalElectronicsMap* mElectronicsMap;
 };
 
 #endif

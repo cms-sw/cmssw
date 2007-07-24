@@ -26,12 +26,12 @@ EcalLaserCorrectionService::EcalLaserCorrectionService( const edm::ParameterSet&
 {
   //the following line is needed to tell the framework what
   // data is being produced
-  setWhatProduced (this, (dependsOn (&EcalLaserCorrectionService::apdpnCallback)));
+  //  setWhatProduced (this, (dependsOn (&EcalLaserCorrectionService::apdpnCallback)));
 
-  //  setWhatProduced (this, (dependsOn (&EcalLaserCorrectionService::alphaCallback) &
-  //   			  &EcalLaserCorrectionService::apdpnRefCallback &
-  //   			  &EcalLaserCorrectionService::apdpnCallback )
-  //   		   );
+  setWhatProduced (this, (dependsOn (&EcalLaserCorrectionService::alphaCallback) &
+     			  &EcalLaserCorrectionService::apdpnRefCallback &
+     			  &EcalLaserCorrectionService::apdpnCallback )
+     		   );
 
   //now do what ever other initialization is needed
 
