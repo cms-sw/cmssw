@@ -11,7 +11,7 @@
  *         David Dagenhart
  *
  * \version   1st Version June 7 2007>
- * $Id$
+ * $Id: LumiDetails.h,v 1.1 2007/07/13 20:13:02 wdd Exp $
  *
  ************************************************************/
  
@@ -56,7 +56,7 @@ class LumiDetails {
     const std::vector<double>&  lumiEtSumErr() const {return lumietsumerr_;}
        
     //get array of lumi values quality per BX based on EtSum method
-    const std::vector<double>&  lumiEtSumQual() const {return lumietsumqual_;}
+    const std::vector<int>&  lumiEtSumQual() const {return lumietsumqual_;}
        
     //get array of lumi values per BX based on Occupancy method
     const std::vector<double>&  lumiOcc() const {return lumiocc_;}
@@ -65,17 +65,17 @@ class LumiDetails {
     const std::vector<double>&  lumiOccErr() const {return lumioccerr_;}
        
     //get array of lumi values errors per BX based on Occupancy method
-    const std::vector<double>&  lumiOccQual() const {return lumioccqual_;}
+    const std::vector<int>&  lumiOccQual() const {return lumioccqual_;}
 
   private :
 
     std::vector<double> lumietsum_;
     std::vector<double> lumietsumerr_;
-    std::vector<double> lumietsumqual_;
+    std::vector<int> lumietsumqual_;
 
     std::vector<double> lumiocc_;
     std::vector<double> lumioccerr_;
-    std::vector<double> lumioccqual_;
+    std::vector<int> lumioccqual_;
 }; 
 
 std::ostream& operator<<(std::ostream& s, const LumiDetails& lumiDetails);
