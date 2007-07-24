@@ -15,10 +15,11 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/Common/interface/DataFrameContainer.h"
 
-class EcalDigiCollection : public DataFrameContainer {
+class EcalDigiCollection : public edm::DataFrameContainer {
 public:
   static const int MAXSAMPLES = 10;
-  explicit EcalDigiCollection(int isubdet)  : DataFrameContainer(MAXSAMPLES,isubdet){}
+  explicit EcalDigiCollection(int isubdet)  : 
+    edm::DataFrameContainer(MAXSAMPLES,isubdet){}
 };
 
 // make edm (and ecal client) happy
