@@ -5,17 +5,17 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: RefToBaseProd.h,v 1.2 2007/07/23 11:08:55 llista Exp $
+ * $Id: RefToBaseProd.h,v 1.4 2007/07/23 12:40:32 llista Exp $
  *
  */
   
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Common/interface/RefCore.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
-#include "DataFormats/Common/interface/View.h"
-#include "DataFormats/Common/interface/Handle.h"
 
 namespace edm {
+  template<typename T> class View;
+  template<typename C> class Handle;
 
   template <typename T>
   class RefToBaseProd {
@@ -92,23 +92,28 @@ namespace edm {
   };
 }
 
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefCoreGet.h"
 #include "DataFormats/Common/interface/FillView.h"
 #include "DataFormats/Common/interface/RefVectorHolder.h"
 #include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/Common/interface/RefTraits.h"
 
 namespace edm {
 
   namespace refhelper {
-    template<typename C>
+    template<typename C,
+	     typename T = typename refhelper::ValueTrait<C>::value, 
+	     typename F = typename refhelper::FindTrait<C, T>::value>
     struct RefToBaseProdTrait {
-      typedef RefVector<C> ref_vector_type;
+      typedef RefVector<C, T, F> ref_vector_type;
     };
 
-    template<typename C>
-    struct RefToBaseProdTrait<RefVector<C> > {
-      typedef RefVector<C> ref_vector_type;
+    template<typename C, typename T, typename F, typename T1, typename F1>
+    struct RefToBaseProdTrait<RefVector<C, T, F>, T1, F1> {
+      typedef RefVector<C, T, F> ref_vector_type;
     };
   }
 
@@ -185,7 +190,6 @@ namespace edm {
     view_ = other.view_;
     return *this;
   }
-
 
   /// Dereference operator
   template <typename T>

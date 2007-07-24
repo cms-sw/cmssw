@@ -6,7 +6,7 @@
 Several fillView function templates, to provide View support for 
 Standard Library containers.
 
-$Id: FillView.h,v 1.2 2007/05/24 16:35:46 paterno Exp $
+$Id: FillView.h,v 1.3 2007/07/09 07:28:49 llista Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -16,15 +16,11 @@ $Id: FillView.h,v 1.2 2007/05/24 16:35:46 paterno Exp $
 #include <deque>
 #include <set>
 
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/RefVector.h"
-#include "DataFormats/Common/interface/RefToBase.h"
 
-namespace edm 
-{
-
-  namespace detail 
-  {
+namespace edm {
+  template<typename C, typename T, typename F> class RefVector;
+  template<typename C, typename T, typename F> class Ref;
+  namespace detail {
 
     // Function template reallyFillView<C> can fill views for
     // standard-library collections of appropriate types (vector, list,
@@ -39,7 +35,15 @@ namespace edm
     struct FillViewRefTypeTrait<RefVector<C, T, F> > {
       typedef typename RefVector<C, T, F>::value_type type;
     };
-    
+  }
+}
+
+#include "DataFormats/Common/interface/EDProductfwd.h"
+#include "DataFormats/Common/interface/RefHolder.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
+
+namespace edm {
+  namespace detail {
     template <class COLLECTION>
     void
     reallyFillView(COLLECTION const& coll,
@@ -105,5 +109,9 @@ namespace edm
   }
 
 }
+
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/Common/interface/RefToBase.h"
 
 #endif

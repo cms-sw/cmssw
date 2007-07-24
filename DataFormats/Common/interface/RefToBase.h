@@ -28,7 +28,7 @@ reference type.
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Apr  3 16:37:59 EDT 2006
-// $Id: RefToBase.h,v 1.22 2007/07/16 14:40:56 llista Exp $
+// $Id: RefToBase.h,v 1.23 2007/07/23 11:08:55 llista Exp $
 //
 
 // system include files
@@ -137,12 +137,6 @@ namespace edm {
   RefToBase<T>::RefToBase(RefProd<C> const& iRef) : 
     holder_(new reftobase::Holder<T,RefProd<C> >(iRef)) 
   { }
-
-  template <class T>
-  inline
-  RefToBase<T>::RefToBase(RefToBaseProd<T> const& r, size_t i) :
-    holder_( r->refAt( i ).holder_->clone() ) {
-  }
 
   template <class T>
   template <typename T1> 
@@ -331,7 +325,16 @@ namespace edm {
   {
     a.swap(b);
   }
+}
 
+#include "DataFormats/Common/interface/RefToBaseProd.h"
+
+namespace edm {
+  template <class T>
+  inline
+  RefToBase<T>::RefToBase(RefToBaseProd<T> const& r, size_t i) :
+    holder_( r->refAt( i ).holder_->clone() ) {
+  }
 }
 
 #endif

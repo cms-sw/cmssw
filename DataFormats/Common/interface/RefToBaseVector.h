@@ -4,18 +4,21 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: RefToBaseVector.h,v 1.9 2007/07/09 07:28:50 llista Exp $
+ * $Id: RefToBaseVector.h,v 1.10 2007/07/12 12:08:57 llista Exp $
  *
  */
 
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/Common/interface/VectorHolder.h"
-#include "DataFormats/Common/interface/IndirectVectorHolder.h"
-#include "DataFormats/Common/interface/RefVectorHolder.h"
-#include "FWCore/Utilities/interface/EDMException.h"
-#include "DataFormats/Common/interface/traits.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
+#include "boost/shared_ptr.hpp"
 
 namespace edm {
+  template<typename T> class RefToBase;
+  class EDProductGetter;
+  namespace reftobase {
+    template<typename T> class BaseVectorHolder;
+    class RefVectorHolderBase;
+  }
+
   template <class T>
   class RefToBaseVector {
   public:
@@ -27,7 +30,8 @@ namespace edm {
 
     RefToBaseVector();
     RefToBaseVector(RefToBaseVector const& );
-    template <class REFV> explicit RefToBaseVector(REFV const& );
+    template<class REFV> 
+    explicit RefToBaseVector(REFV const& );
     RefToBaseVector(boost::shared_ptr<reftobase::RefVectorHolderBase> p);
     RefToBaseVector& operator=(RefToBaseVector const& iRHS);
     void swap(RefToBaseVector& other);
@@ -45,7 +49,7 @@ namespace edm {
     size_type size() const;
     //size_type capacity() const;
     ProductID id() const;
-    EDProductGetter const* productGetter() const;
+    EDProductGetter const * productGetter() const;
     const_iterator begin() const;
     const_iterator end() const;
 
@@ -53,14 +57,21 @@ namespace edm {
 
     void fillView(std::vector<void const*>& pointers) const;
 
-    std::auto_ptr<reftobase::RefVectorHolderBase> vectorHolder() const {
-      return holder_->vectorHolder();
-    }
+    std::auto_ptr<reftobase::RefVectorHolderBase> vectorHolder() const;
 
   private:
     holder_type * holder_;
   };
-  
+}
+
+#include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/Common/interface/VectorHolder.h"
+#include "DataFormats/Common/interface/IndirectVectorHolder.h"
+#include "DataFormats/Common/interface/RefVectorHolder.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "DataFormats/Common/interface/traits.h"
+
+namespace edm {  
   template <class T>
   inline
   void
@@ -232,7 +243,6 @@ namespace edm {
     obj.fillView(pointers);
   }
 
-
   template <typename T>
   struct has_fillView<RefToBaseVector<T> > {
     static bool const value = true;
@@ -246,6 +256,12 @@ namespace edm {
     }
     holder_->push_back( r.holder_ );
   }
+
+  template <typename T>
+  std::auto_ptr<reftobase::RefVectorHolderBase> RefToBaseVector<T>::vectorHolder() const {
+    return holder_->vectorHolder();
+  }
+
 }
 
 #endif
