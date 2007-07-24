@@ -61,10 +61,10 @@ void CaloHitResponse::add(const PCaloHit & hit)
   // maybe it's not from this subdetector
   if(theHitFilter == 0 || theHitFilter->accepts(hit)) {
     LogDebug("CaloHitResponse") << hit;
-    CaloSamples signal = makeAnalogSignal(hit);
+    CaloSamples signal(makeAnalogSignal(hit));
     LogDebug("CaloHitResponse") << signal;
     // if there's already a frame for this in the map, superimpose it
-    DetId id(hit.id());
+    DetId id(signal.id());
     CaloSamples * oldSignal = findSignal(id);
     if (oldSignal == 0) {
       theAnalogSignalMap[id] = signal;
