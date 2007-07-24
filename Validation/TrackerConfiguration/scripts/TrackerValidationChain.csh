@@ -22,13 +22,14 @@ cvs co -r $CMSSW_VERSION Validation/RecoTrack
 #
 cd ${DATADIR}/Validation/Geometry/test
 ./TrackerGeometryValidation.sh ${1}
+chmod a+x copyWWWTrackerGeometry.sh    
 ./copyWWWTrackerGeometry.sh
 #
 # Run validation chain
 #
 cd ${DATADIR}/Validation/TrackerConfiguration/test
 
-#cp /afs/cern.ch/cms/data/CMSSW/Validation/TrackerHits/data/Muon.root .
+cp /afs/cern.ch/cms/data/CMSSW/Validation/TrackerHits/data/Muon.root .
 
 cmsRun Muon_FullChain.cfg
 
