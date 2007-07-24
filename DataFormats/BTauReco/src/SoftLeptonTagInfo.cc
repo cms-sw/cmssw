@@ -21,6 +21,8 @@ TaggingVariableList SoftLeptonTagInfo::taggingVariables(void) const {
     list.insert( TaggingVariable(trackEta,       track.eta()),   true );
     list.insert( TaggingVariable(trackPhi,       track.phi()),   true );
     const SoftLeptonProperties & data = m_leptons[i].second;
+    list.insert( TaggingVariable(leptonQuality , data.quality),  true );
+    list.insert( TaggingVariable(trackSip2d,     data.sip2d),    true );
     list.insert( TaggingVariable(trackSip3d,     data.sip3d),    true );
     list.insert( TaggingVariable(trackPtRel,     data.ptRel),    true );
     list.insert( TaggingVariable(trackEtaRel,    data.etaRel),   true );
@@ -33,3 +35,4 @@ TaggingVariableList SoftLeptonTagInfo::taggingVariables(void) const {
 }
 
 }
+

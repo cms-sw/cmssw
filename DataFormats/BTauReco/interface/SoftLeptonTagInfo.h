@@ -18,30 +18,31 @@ public:
     };
 
     unsigned int axisRefinement;            // if and how the jet axis is refined
-    double sip3d;                           // 3D signed impact parameter
-    double ptRel;                           // transverse momentum wrt. jet axis
-    double etaRel;                          // (pseudo)rapidity along jet axis
-    double deltaR;                          // pseudoangular distance to jet axis
-    double ratio;                           // momentum over jet energy
-    double ratioRel;                        // momentum parallet to jet axis over jet energy
-    double tag;                             // discriminant using this track as tagging lepton
+    float quality;                          // lepton quality
+    float sip2d;                            // 2D signed impact parameter
+    float sip3d;                            // 3D signed impact parameter
+    float ptRel;                            // transverse momentum wrt. jet axis
+    float etaRel;                           // (pseudo)rapidity along jet axis
+    float deltaR;                           // pseudoangular distance to jet axis
+    float ratio;                            // momentum over jet energy
+    float ratioRel;                         // momentum parallet to jet axis over jet energy
 };
 
 class SoftLeptonTagInfo : public JetTagInfo {
 public:
-    typedef std::vector< std::pair< TrackRef, SoftLeptonProperties > > LeptonMap;
+    typedef std::vector< std::pair< edm::RefToBase<reco::Track>, SoftLeptonProperties > > LeptonMap;
     
     SoftLeptonTagInfo(void) : m_leptons() {}
 
     virtual ~SoftLeptonTagInfo(void) {}
   
-    virtual SoftLeptonTagInfo* clone(void)  const { return new SoftLeptonTagInfo(*this); }
+    virtual SoftLeptonTagInfo* clone(void) const { return new SoftLeptonTagInfo(*this); }
 
     unsigned int leptons(void) const { 
         return m_leptons.size(); 
     } 
 
-    const TrackRef & lepton(size_t i) const {
+    const edm::RefToBase<reco::Track> & lepton(size_t i) const {
         return m_leptons[i].first;
     }
     
@@ -49,8 +50,8 @@ public:
         return m_leptons[i].second;
     }
 
-    void insert(const TrackRef & lepton, const SoftLeptonProperties & properties) {
-        m_leptons.push_back( std::pair< TrackRef, SoftLeptonProperties > (lepton, properties) );
+    void insert(const edm::RefToBase<reco::Track> & lepton, const SoftLeptonProperties & properties) {
+        m_leptons.push_back( std::pair< edm::RefToBase<reco::Track>, SoftLeptonProperties > (lepton, properties) );
     }
 
     /// returns a description of the extended informations in a TaggingVariableList
