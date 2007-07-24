@@ -31,6 +31,8 @@ private:
   double                   dlTop;             //Width at top of wafer
   double                   dlBottom;          //Width at bottom of wafer
   double                   dlHybrid;          //Width at the hybrid end
+  bool                     doComponents;      //Components to be made
+
   std::string              topFrameName;      //Top frame     name
   std::string              topFrameMat;       //              material
   double                   topFrameHeight;    //              height

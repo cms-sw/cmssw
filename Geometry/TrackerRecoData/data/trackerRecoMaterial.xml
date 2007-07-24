@@ -196,12 +196,12 @@
     </SpecPar>
 
     <SpecPar name="TrackerRecMaterialTIDDisk1Fw" eval="true">
-      <PartSelector path="//TIDF/TIDWheelF[1]/TIDRing0F/TIDModule0/TIDModule0RphiWafer/TIDModule0RphiActive" />
-      <PartSelector path="//TIDF/TIDWheelF[1]/TIDRing0F/TIDModule0/TIDModule0StereoWafer/TIDModule0StereoActive" />
+      <PartSelector path="//TIDF/TIDWheelF[1]/TIDRing0F/TIDModule0L/TIDModule0RphiWafer/TIDModule0RphiActive" />
+      <PartSelector path="//TIDF/TIDWheelF[1]/TIDRing0F/TIDModule0L/TIDModule0StereoWafer/TIDModule0StereoActive" />
       <PartSelector path="//TIDF/TIDWheelF[1]/TIDRing0F/TIDModule0R/TIDModule0RphiWafer/TIDModule0RphiActive" />
       <PartSelector path="//TIDF/TIDWheelF[1]/TIDRing0F/TIDModule0R/TIDModule0StereoWafer/TIDModule0StereoActive" />
-      <PartSelector path="//TIDF/TIDWheelF[1]/TIDRing1F/TIDModule1/TIDModule1RphiWafer/TIDModule1RphiActive" />
-      <PartSelector path="//TIDF/TIDWheelF[1]/TIDRing1F/TIDModule1/TIDModule1StereoWafer/TIDModule1StereoActive" />
+      <PartSelector path="//TIDF/TIDWheelF[1]/TIDRing1F/TIDModule1L/TIDModule1RphiWafer/TIDModule1RphiActive" />
+      <PartSelector path="//TIDF/TIDWheelF[1]/TIDRing1F/TIDModule1L/TIDModule1StereoWafer/TIDModule1StereoActive" />
       <PartSelector path="//TIDF/TIDWheelF[1]/TIDRing1F/TIDModule1R/TIDModule1RphiWafer/TIDModule1RphiActive" />
       <PartSelector path="//TIDF/TIDWheelF[1]/TIDRing1F/TIDModule1R/TIDModule1StereoWafer/TIDModule1StereoActive" />
       <PartSelector path="//TIDF/TIDWheelF[1]/TIDRing2/TIDModule2/TIDModule2RphiWafer/TIDModule2RphiActive" />
@@ -210,12 +210,12 @@
     </SpecPar>
 
     <SpecPar name="TrackerRecMaterialTIDDisk2Fw" eval="true">
-      <PartSelector path="//TIDF/TIDWheelF[2]/TIDRing0F/TIDModule0/TIDModule0RphiWafer/TIDModule0RphiActive" />
-      <PartSelector path="//TIDF/TIDWheelF[2]/TIDRing0F/TIDModule0/TIDModule0StereoWafer/TIDModule0StereoActive" />
+      <PartSelector path="//TIDF/TIDWheelF[2]/TIDRing0F/TIDModule0L/TIDModule0RphiWafer/TIDModule0RphiActive" />
+      <PartSelector path="//TIDF/TIDWheelF[2]/TIDRing0F/TIDModule0L/TIDModule0StereoWafer/TIDModule0StereoActive" />
       <PartSelector path="//TIDF/TIDWheelF[2]/TIDRing0F/TIDModule0R/TIDModule0RphiWafer/TIDModule0RphiActive" />
       <PartSelector path="//TIDF/TIDWheelF[2]/TIDRing0F/TIDModule0R/TIDModule0StereoWafer/TIDModule0StereoActive" />
-      <PartSelector path="//TIDF/TIDWheelF[2]/TIDRing1F/TIDModule1/TIDModule1RphiWafer/TIDModule1RphiActive" />
-      <PartSelector path="//TIDF/TIDWheelF[2]/TIDRing1F/TIDModule1/TIDModule1StereoWafer/TIDModule1StereoActive" />
+      <PartSelector path="//TIDF/TIDWheelF[2]/TIDRing1F/TIDModule1L/TIDModule1RphiWafer/TIDModule1RphiActive" />
+      <PartSelector path="//TIDF/TIDWheelF[2]/TIDRing1F/TIDModule1L/TIDModule1StereoWafer/TIDModule1StereoActive" />
       <PartSelector path="//TIDF/TIDWheelF[2]/TIDRing1F/TIDModule1R/TIDModule1RphiWafer/TIDModule1RphiActive" />
       <PartSelector path="//TIDF/TIDWheelF[2]/TIDRing1F/TIDModule1R/TIDModule1StereoWafer/TIDModule1StereoActive" />
       <PartSelector path="//TIDF/TIDWheelF[2]/TIDRing2/TIDModule2/TIDModule2RphiWafer/TIDModule2RphiActive" />
@@ -224,12 +224,12 @@
     </SpecPar>
 
     <SpecPar name="TrackerRecMaterialTIDDisk3Fw" eval="true">
-      <PartSelector path="//TIDF/TIDWheelF[3]/TIDRing0F/TIDModule0/TIDModule0RphiWafer/TIDModule0RphiActive" />
-      <PartSelector path="//TIDF/TIDWheelF[3]/TIDRing0F/TIDModule0/TIDModule0StereoWafer/TIDModule0StereoActive" />
+      <PartSelector path="//TIDF/TIDWheelF[3]/TIDRing0F/TIDModule0L/TIDModule0RphiWafer/TIDModule0RphiActive" />
+      <PartSelector path="//TIDF/TIDWheelF[3]/TIDRing0F/TIDModule0L/TIDModule0StereoWafer/TIDModule0StereoActive" />
       <PartSelector path="//TIDF/TIDWheelF[3]/TIDRing0F/TIDModule0R/TIDModule0RphiWafer/TIDModule0RphiActive" />
       <PartSelector path="//TIDF/TIDWheelF[3]/TIDRing0F/TIDModule0R/TIDModule0StereoWafer/TIDModule0StereoActive" />
-      <PartSelector path="//TIDF/TIDWheelF[3]/TIDRing1F/TIDModule1/TIDModule1RphiWafer/TIDModule1RphiActive" />
-      <PartSelector path="//TIDF/TIDWheelF[3]/TIDRing1F/TIDModule1/TIDModule1StereoWafer/TIDModule1StereoActive" />
+      <PartSelector path="//TIDF/TIDWheelF[3]/TIDRing1F/TIDModule1L/TIDModule1RphiWafer/TIDModule1RphiActive" />
+      <PartSelector path="//TIDF/TIDWheelF[3]/TIDRing1F/TIDModule1L/TIDModule1StereoWafer/TIDModule1StereoActive" />
       <PartSelector path="//TIDF/TIDWheelF[3]/TIDRing1F/TIDModule1R/TIDModule1RphiWafer/TIDModule1RphiActive" />
       <PartSelector path="//TIDF/TIDWheelF[3]/TIDRing1F/TIDModule1R/TIDModule1StereoWafer/TIDModule1StereoActive" />
       <PartSelector path="//TIDF/TIDWheelF[3]/TIDRing2/TIDModule2/TIDModule2RphiWafer/TIDModule2RphiActive" />
@@ -238,12 +238,12 @@
     </SpecPar>
 
     <SpecPar name="TrackerRecMaterialTIDDisk1Bw" eval="true">
-      <PartSelector path="//TIDB/TIDWheelB[1]/TIDRing0B/TIDModule0/TIDModule0RphiWafer/TIDModule0RphiActive" />
-      <PartSelector path="//TIDB/TIDWheelB[1]/TIDRing0B/TIDModule0/TIDModule0StereoWafer/TIDModule0StereoActive" />
+      <PartSelector path="//TIDB/TIDWheelB[1]/TIDRing0B/TIDModule0L/TIDModule0RphiWafer/TIDModule0RphiActive" />
+      <PartSelector path="//TIDB/TIDWheelB[1]/TIDRing0B/TIDModule0L/TIDModule0StereoWafer/TIDModule0StereoActive" />
       <PartSelector path="//TIDB/TIDWheelB[1]/TIDRing0B/TIDModule0R/TIDModule0RphiWafer/TIDModule0RphiActive" />
       <PartSelector path="//TIDB/TIDWheelB[1]/TIDRing0B/TIDModule0R/TIDModule0StereoWafer/TIDModule0StereoActive" />
-      <PartSelector path="//TIDB/TIDWheelB[1]/TIDRing1B/TIDModule1/TIDModule1RphiWafer/TIDModule1RphiActive" />
-      <PartSelector path="//TIDB/TIDWheelB[1]/TIDRing1B/TIDModule1/TIDModule1StereoWafer/TIDModule1StereoActive" />
+      <PartSelector path="//TIDB/TIDWheelB[1]/TIDRing1B/TIDModule1L/TIDModule1RphiWafer/TIDModule1RphiActive" />
+      <PartSelector path="//TIDB/TIDWheelB[1]/TIDRing1B/TIDModule1L/TIDModule1StereoWafer/TIDModule1StereoActive" />
       <PartSelector path="//TIDB/TIDWheelB[1]/TIDRing1B/TIDModule1R/TIDModule1RphiWafer/TIDModule1RphiActive" />
       <PartSelector path="//TIDB/TIDWheelB[1]/TIDRing1B/TIDModule1R/TIDModule1StereoWafer/TIDModule1StereoActive" />
       <PartSelector path="//TIDB/TIDWheelB[1]/TIDRing2/TIDModule2/TIDModule2RphiWafer/TIDModule2RphiActive" />
@@ -252,12 +252,12 @@
     </SpecPar>
 
     <SpecPar name="TrackerRecMaterialTIDDisk2Bw" eval="true">
-      <PartSelector path="//TIDB/TIDWheelB[2]/TIDRing0B/TIDModule0/TIDModule0RphiWafer/TIDModule0RphiActive" />
-      <PartSelector path="//TIDB/TIDWheelB[2]/TIDRing0B/TIDModule0/TIDModule0StereoWafer/TIDModule0StereoActive" />
+      <PartSelector path="//TIDB/TIDWheelB[2]/TIDRing0B/TIDModule0L/TIDModule0RphiWafer/TIDModule0RphiActive" />
+      <PartSelector path="//TIDB/TIDWheelB[2]/TIDRing0B/TIDModule0L/TIDModule0StereoWafer/TIDModule0StereoActive" />
       <PartSelector path="//TIDB/TIDWheelB[2]/TIDRing0B/TIDModule0R/TIDModule0RphiWafer/TIDModule0RphiActive" />
       <PartSelector path="//TIDB/TIDWheelB[2]/TIDRing0B/TIDModule0R/TIDModule0StereoWafer/TIDModule0StereoActive" />
-      <PartSelector path="//TIDB/TIDWheelB[2]/TIDRing1B/TIDModule1/TIDModule1RphiWafer/TIDModule1RphiActive" />
-      <PartSelector path="//TIDB/TIDWheelB[2]/TIDRing1B/TIDModule1/TIDModule1StereoWafer/TIDModule1StereoActive" />
+      <PartSelector path="//TIDB/TIDWheelB[2]/TIDRing1B/TIDModule1L/TIDModule1RphiWafer/TIDModule1RphiActive" />
+      <PartSelector path="//TIDB/TIDWheelB[2]/TIDRing1B/TIDModule1L/TIDModule1StereoWafer/TIDModule1StereoActive" />
       <PartSelector path="//TIDB/TIDWheelB[2]/TIDRing1B/TIDModule1R/TIDModule1RphiWafer/TIDModule1RphiActive" />
       <PartSelector path="//TIDB/TIDWheelB[2]/TIDRing1B/TIDModule1R/TIDModule1StereoWafer/TIDModule1StereoActive" />
       <PartSelector path="//TIDB/TIDWheelB[2]/TIDRing2/TIDModule2/TIDModule2RphiWafer/TIDModule2RphiActive" />
@@ -266,12 +266,12 @@
     </SpecPar>
 
     <SpecPar name="TrackerRecMaterialTIDDisk3Bw" eval="true">
-      <PartSelector path="//TIDB/TIDWheelB[3]/TIDRing0B/TIDModule0/TIDModule0RphiWafer/TIDModule0RphiActive" />
-      <PartSelector path="//TIDB/TIDWheelB[3]/TIDRing0B/TIDModule0/TIDModule0StereoWafer/TIDModule0StereoActive" />
+      <PartSelector path="//TIDB/TIDWheelB[3]/TIDRing0B/TIDModule0L/TIDModule0RphiWafer/TIDModule0RphiActive" />
+      <PartSelector path="//TIDB/TIDWheelB[3]/TIDRing0B/TIDModule0L/TIDModule0StereoWafer/TIDModule0StereoActive" />
       <PartSelector path="//TIDB/TIDWheelB[3]/TIDRing0B/TIDModule0R/TIDModule0RphiWafer/TIDModule0RphiActive" />
       <PartSelector path="//TIDB/TIDWheelB[3]/TIDRing0B/TIDModule0R/TIDModule0StereoWafer/TIDModule0StereoActive" />
-      <PartSelector path="//TIDB/TIDWheelB[3]/TIDRing1B/TIDModule1/TIDModule1RphiWafer/TIDModule1RphiActive" />
-      <PartSelector path="//TIDB/TIDWheelB[3]/TIDRing1B/TIDModule1/TIDModule1StereoWafer/TIDModule1StereoActive" />
+      <PartSelector path="//TIDB/TIDWheelB[3]/TIDRing1B/TIDModule1L/TIDModule1RphiWafer/TIDModule1RphiActive" />
+      <PartSelector path="//TIDB/TIDWheelB[3]/TIDRing1B/TIDModule1L/TIDModule1StereoWafer/TIDModule1StereoActive" />
       <PartSelector path="//TIDB/TIDWheelB[3]/TIDRing1B/TIDModule1R/TIDModule1RphiWafer/TIDModule1RphiActive" />
       <PartSelector path="//TIDB/TIDWheelB[3]/TIDRing1B/TIDModule1R/TIDModule1StereoWafer/TIDModule1StereoActive" />
       <PartSelector path="//TIDB/TIDWheelB[3]/TIDRing2/TIDModule2/TIDModule2RphiWafer/TIDModule2RphiActive" />
