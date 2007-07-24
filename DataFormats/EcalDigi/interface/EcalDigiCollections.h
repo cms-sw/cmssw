@@ -11,8 +11,32 @@
 #include "DataFormats/EcalDigi/interface/EcalMatacqDigi.h"
 #include "DataFormats/Common/interface/SortedCollection.h"
 
-typedef edm::SortedCollection<EBDataFrame> EBDigiCollection;
-typedef edm::SortedCollection<EEDataFrame> EEDigiCollection;
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/Common/interface/DataFrameContainer.h"
+
+class EcalDigiCollection : public DataFrameContainer {
+public:
+  static const int MAXSAMPLES = 10;
+  explicit EcalDigiCollection(int isubdet)  : DataFrameContainer(MAXSAMPLES,isubdet){}
+};
+
+// make edm (and ecal client) happy
+class EBDigiCollection : public  EcalDigiCollection {
+public:  
+  EcalDigiCollection() : EcalDigiCollection(EcalBarrel){}
+};
+
+class EBDigiCollection : public  EcalDigiCollection {
+public:  
+  EcalDigiCollection() : EcalDigiCollection(EcalEndcap){}
+};
+
+
+
+//typedef  EcalDigiCollection EBDigiCollection;
+//typedef  EcalDigiCollection EEDigiCollection;
+
 typedef edm::SortedCollection<ESDataFrame> ESDigiCollection;
 typedef edm::SortedCollection<EcalTriggerPrimitiveDigi> EcalTrigPrimDigiCollection;
 typedef edm::SortedCollection<EBSrFlag> EBSrFlagCollection;

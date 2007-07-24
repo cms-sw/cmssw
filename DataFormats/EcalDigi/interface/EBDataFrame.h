@@ -3,35 +3,32 @@
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
-#include "DataFormats/EcalDigi/interface/EcalMGPASample.h"
-
+#include <iosfwd>
 
 
 
 /** \class EBDataFrame
       
-$Id: EBDataFrame.h,v 1.3 2006/06/24 13:28:11 meridian Exp $
+$Id: EBDataFrame.h,v 1.4 2006/07/05 17:38:51 meridian Exp $
 */
-
 class EBDataFrame : public EcalDataFrame 
 {
  public:
   typedef EBDetId key_type; ///< For the sorted collection
+  typedef EcalDataFrame Base;
 
-  EBDataFrame(); // for persistence
-  explicit EBDataFrame(const EBDetId& id);
+  EBDataFrame() {}
+  // EBDataFrame(DetId i) :  Base(i) {}
+  EBDataFrame(DataFrame const & base) : Base(base) {}
+  EBDataFrame(EcalDataFrame const & base) : Base(base) {}
     
-  virtual ~EBDataFrame() {};
+  virtual ~EBDataFrame() {}
 
-  virtual const EBDetId& id() const { return id_; }
-
- private:
-  EBDetId id_;
+  key_type id() const { return Base::id(); }
 
 };
-  
-std::ostream& operator<<(std::ostream&, const EBDataFrame&);
 
+std::ostream& operator<<(std::ostream&, const EBDataFrame&);
 
 
 #endif

@@ -3,39 +3,40 @@
 
 #include "DataFormats/EcalDigi/interface/EcalMGPASample.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include <vector>
-#include <ostream>
+#include "DataFormats/EcalDigi/interface/DataFrame.h"
+
 
 
 
 /** \class EcalDataFrame
       
-$Id: EcalDataFrame.h,v 1.2 2007/03/27 09:55:01 meridian Exp $
+$Id: EcalDataFrame.h,v 1.3 2007/04/16 12:58:56 meridian Exp $
 */
-
 class EcalDataFrame {
  public:
-  EcalDataFrame(); 
+  EcalDataFrame() {}
+  // EcalDataFrame(DetId i) :  m_data(i) {}
+  EcalDataFrame(DataFrame const & iframe) : m_data(iframe){} 
 
-  virtual ~EcalDataFrame() {};    
+  virtual ~EcalDataFrame() {} 
 
-  virtual const DetId& id() const=0;
+  DetId id() const { return m_data.id();}
     
-  int size() const { return size_; }
+  int size() const { return  MAXSAMPLES;}
 
-  const EcalMGPASample& operator[](int i) const { return data_[i]; }
-  const EcalMGPASample& sample(int i) const { return data_[i]; }
+  EcalMGPASample operator[](int i) const { return m_data[i];}
+  EcalMGPASample sample(int i) const { return m_data[i]; }
     
-  void setSize(int size);
-  //    void setPresamples(int ps);
-  void setSample(int i, const EcalMGPASample& sam) { data_[i]=sam; }
+  void setSize(int){}
+  // void setPresamples(int ps);
+  void setSample(int i, EcalMGPASample sam) { m_data[i]=sam; }
 
   static const int MAXSAMPLES = 10;
 
- protected:
-  int size_;
-  //    int ecalPresamples_;
-  std::vector<EcalMGPASample> data_;    
+ private:
+ 
+  DataFrame m_data;
+  
 };
   
 #endif

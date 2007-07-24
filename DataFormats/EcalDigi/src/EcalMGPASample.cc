@@ -1,4 +1,5 @@
 #include "DataFormats/EcalDigi/interface/EcalMGPASample.h"
+#include<iostream>
 
 EcalMGPASample::EcalMGPASample(int adc,int gainId) {
   theSample=(adc&0xFFF) | ((gainId&0x3)<<12);
