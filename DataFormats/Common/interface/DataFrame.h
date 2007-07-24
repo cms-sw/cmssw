@@ -32,7 +32,6 @@ namespace edm {
       return data()[i];
     }
     
-    
     inline
     data_type operator[](size_t i) const {
       return m_data[i];

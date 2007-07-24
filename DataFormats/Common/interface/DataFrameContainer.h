@@ -23,6 +23,7 @@ namespace edm {
    */
   class DataFrameContainer {
   public:
+    typedef unsigned int size_type; // nfor persistency
     typedef unsigned int id_type;
     typedef unsigned short data_type;
     typedef std::vector<id_type> IdContainer;
@@ -49,8 +50,8 @@ namespace edm {
     
     DataFrameContainer(){}
     
-    explicit DataFrameContainer(size_t istride, size_t isize=0) :
-      m_stride(istride),
+    explicit DataFrameContainer(size_t istride, int isubdet=0, size_t isize=0) :
+      m_subdetId(isubdet), m_stride(istride),
       m_ids(isize), m_data(isize*m_stride){}
     
     void swap(DataFrameContainer & rh) {
@@ -135,9 +136,11 @@ namespace edm {
     }
     
     
-    size_t stride() const { return m_stride; }
+    int subdetId() const { return m_subdetId; }
+
+    size_type stride() const { return m_stride; }
     
-    size_t size() const { return m_ids.size();}
+    size_type size() const { return m_ids.size();}
     
     data_type operator()(size_t cell, size_t frame) const {
       return m_data[cell*m_stride+frame];
@@ -155,8 +158,11 @@ namespace edm {
     // DataContainer const & data() const { return  m_data;}
     
   private:
+    // subdetector id (as returned by  DetId::subdetId())
+    int m_subdetId;
+
     // can be a enumerator, or a template argument
-    size_t m_stride;
+    size_type m_stride;
     
     IdContainer m_ids;
     DataContainer m_data;
