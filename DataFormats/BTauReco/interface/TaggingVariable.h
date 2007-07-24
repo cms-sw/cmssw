@@ -50,6 +50,7 @@ namespace reco {
       neutralclusterRadius,                     // mean DR between neutral ECAL clus. and lead.track
       secondaryVtxWeightedEnergyRatio,          // ratio of weighted energy at secondary vertex over total energy
       jetNVertices,                             // number of vertices found in a jet
+      leptonQuality,                            // lepton identification quality
       
       lastTaggingVariable
     };

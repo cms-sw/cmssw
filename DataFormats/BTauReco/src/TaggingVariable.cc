@@ -40,6 +40,7 @@ const char* TaggingVariableDescription[] = {
   /* [neutralclusterRadius]                     = */ "mean DR between neutral ECAL clus. and lead.track",
   /* [secondaryVtxWeightedEnergyRatio]          = */ "ratio of weighted energy at secondary vertex over total energy",
   /* [jetNVertices]                             = */ "number of vertices found in a jet",
+  /* [leptonQuality]                            = */ "quality of the reconstructed lepton",
   
   /* [lastTaggingVariable]                      = */ ""
 };
@@ -78,6 +79,7 @@ const char* TaggingVariableTokens[] = {
   /* [neutralclusterRadius]                     = */ "neutralclusterRadius",
   /* [secondaryVtxWeightedEnergyRatio]          = */ "secondaryVtxWeightedEnergyRatio",
   /* [jetNVertices]                             = */ "jetNVertices",
+  /* [leptonQuality]                            = */ "leptonQuality",
 
   /* [lastTaggingVariable]                      = */ "lastTaggingVariable"
 };
