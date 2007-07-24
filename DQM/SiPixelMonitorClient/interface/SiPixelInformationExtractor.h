@@ -141,6 +141,8 @@ class SiPixelInformationExtractor {
   
   std::ostringstream                     pictureBuffer_ ;
   map<std::string, std::string>          namedPictureBuffer ;
+  
+  int                                    alarmCounter_;
 
   SiPixelConfigParser   	       * configParser_  ;
   SiPixelConfigWriter   	       * configWriter_  ;
