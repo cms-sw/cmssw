@@ -3,8 +3,8 @@
  *  Makes histograms of high level Muon objects/quantities
  *  for Alignment Scenarios/DB comparison
  *
- *  $Date: 2007/07/24 15:15:24 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/07/24 15:20:50 $
+ *  $Revision: 1.9 $
  *  \author J. Fernandez - IFCA (CSIC-UC) <Javier.Fernandez@cern.ch>
  */
 
@@ -158,9 +158,9 @@ void MuonAlignmentAnalyzer::beginJob(const EventSetup& eventSetup){
   hNmuonsSim = fs->make<TH1F>("SimNmuons","Nmuons",10,0,10);
   hNmuonsSim_Barrel = fs->make<TH1F>("SimNmuons_Barrel","Nmuons",10,0,10);
   hNmuonsSim_Endcap = fs->make<TH1F>("SimNmuons_Endcap","Nmuons",10,0,10);
-  hPTSim = fs->make<TH1F>("pTSim","p_{T}^{gen} ",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
-  hPTSim_Barrel = fs->make<TH1F>("pTSim_Barrel","p_{T}^{gen} ",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
-  hPTSim_Endcap = fs->make<TH1F>("pTSim_Endcap","p_{T}^{gen} ",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hPTSim = fs->make<TH1F>("SimPT","p_{T}^{gen} ",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hPTSim_Barrel = fs->make<TH1F>("SimPT_Barrel","p_{T}^{gen} ",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hPTSim_Endcap = fs->make<TH1F>("SimPT_Endcap","p_{T}^{gen} ",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
   hSimPTvsEta = fs->make<TH2F> ("SimPTvsEta","p_{T}^{gen} VS #eta",100,-2.5,2.5,ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
   hSimPTvsPhi = fs->make<TH2F> ("SimPTvsPhi","p_{T}^{gen} VS #phi",100,-6,6,ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
   hSimInvM = fs->make<TH1F>("SimInvM","M_{inv}^{gen} ",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
