@@ -143,15 +143,18 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
   for(int i=2;i<8;++i){
     hwbmch.PART1[i]  = ' ';
     hwbmch.PART2[i]  = ' ';}
-  hwproc.MAXEV = pset.getUntrackedParameter<int>("maxEvents",10);
-  hwevnt.MAXER = pset.getUntrackedParameter<int>("maxErrors",hwproc.MAXEV/10);
+  int numEvents = desc.maxEvents_;
   //hwproc.MAXEV = pset.getUntrackedParameter<int>("maxEvents",10);
-  //hwevnt.MAXER = hwproc.MAXEV/10;
-  if(hwevnt.MAXER<10) hwevnt.MAXER = 10;
 
   // initialize other common blocks ...
   hwigin();
-  
+ 
+  double fracErrors_ = pset.getUntrackedParameter<double>("fracErrors",0.1);
+  int maxerrors = int(fracErrors_*numEvents);
+  hwevnt.MAXER = maxerrors;
+  if(hwevnt.MAXER<100) hwevnt.MAXER = 100;
+  std::cout<<"   MAXER set to "<< hwevnt.MAXER << std::endl;
+
   // set some 'non-herwig' defaults
   hwevnt.MAXPR =  maxEventsToPrint_;           // no printing out of events
   hwpram.IPRINT = herwigVerbosity_;            // HERWIG print out mode
