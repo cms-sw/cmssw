@@ -48,8 +48,8 @@ EcalFixedAlphaBetaFitUncalibRecHitProducer::EcalFixedAlphaBetaFitUncalibRecHitPr
   produces< EEUncalibratedRecHitCollection >(EEhitCollection_);
 
   
- alpha_= ps.getUntrackedParameter<double>("alpha",1.2);
-   beta_= ps.getUntrackedParameter<double>("beta",1.7);
+  alpha_= ps.getParameter<double>("alpha");
+  beta_= ps.getParameter<double>("beta");
 
    alphabetaFilename_= ps.getUntrackedParameter<std::string>("AlphaBetaFilename","NOFILE");
    useAlphaBetaArray_=setAlphaBeta();//set crystalwise values of alpha and beta
@@ -58,7 +58,12 @@ EcalFixedAlphaBetaFitUncalibRecHitProducer::EcalFixedAlphaBetaFitUncalibRecHitPr
    algoEB_.SetMinAmpl( ps.getParameter<double> ("MinAmplBarrel") );
    algoEE_.SetMinAmpl(  ps.getParameter<double> ("MinAmplEndcap") );
 
+   bool dyn_pede = ps.getParameter<bool>("UseDynamicPedestal");
+   algoEB_.SetDynamicPedestal(dyn_pede);
+   algoEE_.SetDynamicPedestal(dyn_pede);
+
 }
+
 
 EcalFixedAlphaBetaFitUncalibRecHitProducer::~EcalFixedAlphaBetaFitUncalibRecHitProducer() {
 }
