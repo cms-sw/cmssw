@@ -6,7 +6,7 @@
 #include "DataFormats/Common/interface/RefProd.h"
 
 namespace reco {
-  class TauImpactParameterTrackData;
+  struct TauImpactParameterTrackData;
   class TauImpactParameterInfo;
   typedef std::vector<TauImpactParameterInfo> TauImpactParameterInfoCollection;
   typedef edm::Ref<TauImpactParameterInfoCollection> TauImpactParameterInfoRef;
