@@ -1000,6 +1000,11 @@ def _makeProcess(s,loc,toks):
         for replace in replaces:
             if not isinstance(getattr(adapted,replace.rootLabel()),cms.PSet):
                 replace.do(adapted)
+        #NEED to call this a second time so replace statements applying to modules
+        # where the replace statements contain using statements will have the
+        # using statements replaced by their actual values
+        _findAndHandleProcessUsingBlock(values)
+
 
         # adding modules to the process involves cloning.
         # but for the usings we only know the original object
@@ -1912,7 +1917,8 @@ process USER =
             self.assertEqual(t[0].m2.x.value(),2)
             self.assertEqual(t[0].J.j.value(),1)
             self.assertEqual(t[0].I.j.value(),1)
-            #print t[0].dumpConfig()
+            #make sure dump succeeds
+            t[0].dumpConfig()
 
             _allUsingLabels = set()
             t=process.parseString("""
@@ -1926,6 +1932,54 @@ process USER =
             self.assertEqual(t[0].b.c.i.value(),1)
             self.assertEqual(t[0].d[0].i.value(),1)
             self.assertEqual(t[0].b.c.e[0].i.value(), 1)
+            #make sure dump succeeds
+            t[0].dumpConfig()
+
+            _allUsingLabels = set()
+            t=process.parseString("""
+process USER = 
+{
+    block a = {int32 i = 1}
+    PSet b = { PSet c = {}
+               VPSet g = {} }
+    replace b.c = {using a
+       VPSet e={{using a} } }
+    VPSet d = {{using a}, {}}
+}""")
+            self.assertEqual(t[0].b.c.i.value(),1)
+            self.assertEqual(t[0].d[0].i.value(),1)
+            self.assertEqual(t[0].b.c.e[0].i.value(), 1)
+            #make sure dump succeeds
+            t[0].dumpConfig()
+
+            _allUsingLabels = set()
+            t=process.parseString("""
+process USER = 
+{
+    block a = {int32 i = 1}
+    PSet b = { PSet c = {} }
+    replace b.c = { PSet d = { using a }
+       VPSet e={{using a} } }
+}""")
+            self.assertEqual(t[0].b.c.d.i.value(),1)
+            self.assertEqual(t[0].b.c.e[0].i.value(), 1)
+            #make sure dump succeeds
+            t[0].dumpConfig()
+
+            t=process.parseString("""
+process USER = 
+{
+    block a = {int32 i = 1}
+    module b = BWorker { PSet c = {} }
+    replace b.c = { PSet d = { using a }
+       VPSet e={{using a} } }
+}""")
+            self.assertEqual(t[0].b.c.d.i.value(),1)
+            self.assertEqual(t[0].b.c.e[0].i.value(), 1)
+            #make sure dump succeeds
+            t[0].dumpConfig()
+
+            
         def testPath(self):
             p = cms.Process('Test')
             p.out = cms.OutputModule('PoolOutputModule')
