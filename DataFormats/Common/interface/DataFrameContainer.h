@@ -23,7 +23,7 @@ namespace edm {
    */
   class DataFrameContainer {
   public:
-    typedef unsigned int size_type; // nfor persistency
+    typedef unsigned int size_type; // for persistency
     typedef unsigned int id_type;
     typedef unsigned short data_type;
     typedef std::vector<id_type> IdContainer;
