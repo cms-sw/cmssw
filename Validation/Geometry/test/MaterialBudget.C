@@ -99,6 +99,10 @@ MaterialBudget(TString detector) {
   //  createPlots("l_vs_R");
   create2DPlots("x_vs_eta_vs_phi");
   create2DPlots("l_vs_eta_vs_phi");
+  create2DPlots("x_vs_z_vs_R");
+  create2DPlots("l_vs_z_vs_R");
+  create2DPlots("x_vs_z_vs_Rsum");
+  create2DPlots("l_vs_z_vs_Rsum");
   //
   createRatioPlots("x_over_l_vs_eta");
   createRatioPlots("x_over_l_vs_phi");
@@ -120,7 +124,7 @@ void createPlots(TString plot) {
     ordinateName = TString("x/X_{0}");
   } else if(plot.CompareTo("x_vs_R") == 0) {
     plotNumber = 40;
-    abscissaName = TString("R [cm]");
+    abscissaName = TString("R [mm]");
     ordinateName = TString("x/X_{0}");
   } else if(plot.CompareTo("l_vs_eta") == 0) {
     plotNumber = 1010;
@@ -132,7 +136,7 @@ void createPlots(TString plot) {
     ordinateName = TString("#lambda/#lambda_{0}");
   } else if(plot.CompareTo("l_vs_R") == 0) {
     plotNumber = 1040;
-    abscissaName = TString("R [cm]");
+    abscissaName = TString("R [mm]");
     ordinateName = TString("#lambda/#lambda_{0}");
   } else {
     cout << " error: chosen plot name not known " << plot << endl;
@@ -303,6 +307,26 @@ void create2DPlots(TString plot) {
     abscissaName = TString("#eta");
     ordinateName = TString("#varphi");
     quotaName    = TString("#lambda/#lambda_{0}");
+  } else if(plot.CompareTo("x_vs_z_vs_Rsum") == 0) {
+    plotNumber = 50;
+    abscissaName = TString("z [mm]");
+    ordinateName = TString("R [mm]");
+    quotaName    = TString("#Sigmax/X_{0}");
+  } else if(plot.CompareTo("x_vs_z_vs_R") == 0) {
+    plotNumber = 60;
+    abscissaName = TString("z [mm]");
+    ordinateName = TString("R [mm]");
+    quotaName    = TString("x/X_{0}");
+  } else if(plot.CompareTo("l_vs_z_vs_Rsum") == 0) {
+    plotNumber = 1050;
+    abscissaName = TString("z [mm]");
+    ordinateName = TString("R [mm]");
+    quotaName    = TString("#Sigma#lambda/#lambda_{0}");
+  } else if(plot.CompareTo("l_vs_z_vs_R") == 0) {
+    plotNumber = 1060;
+    abscissaName = TString("z [mm]");
+    ordinateName = TString("R [mm]");
+    quotaName    = TString("#lambda/#lambda_{0}");
   } else {
     cout << " error: chosen plot name not known " << plot << endl;
     return;
@@ -374,6 +398,7 @@ void create2DPlots(TString plot) {
   
   // properties
   gStyle->SetPalette(1);
+  gStyle->SetStripDecimals(false);
   //
   
   // stack
@@ -392,6 +417,8 @@ void create2DPlots(TString plot) {
   // Draw
   gStyle->SetPalette(1);
   hist2d_x0_total->Draw("COLZ");
+  hist2d_x0_total->GetXaxis()->SetNoExponent(true);
+  hist2d_x0_total->GetYaxis()->SetNoExponent(true);
   //
   
   
@@ -401,6 +428,9 @@ void create2DPlots(TString plot) {
   can.SaveAs( Form( "%s/%s_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //
   
+  // restore properties
+  gStyle->SetStripDecimals(true);
+  //
 }
 
 void createRatioPlots(TString plot) {
@@ -443,7 +473,7 @@ void createRatioPlots(TString plot) {
 	subDetector = "InnerServices";
 	break;
       }
-      case 4: {
+      case 4 {
 	subDetector = "TOB";
 	break;
       }

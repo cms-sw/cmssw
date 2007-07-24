@@ -120,6 +120,12 @@ TrackerMaterialBudgetComparison(TString detector) {
   createPlots("l_vs_eta");
   createPlots("l_vs_phi");
   //  createPlots("l_vs_R");
+  create2DPlots("x_vs_eta_vs_phi");
+  create2DPlots("l_vs_eta_vs_phi");
+  create2DPlots("x_vs_z_vs_R");
+  create2DPlots("l_vs_z_vs_R");
+  create2DPlots("x_vs_z_vs_Rsum");
+  create2DPlots("l_vs_z_vs_Rsum");
   //
 }
 
@@ -138,7 +144,7 @@ void createPlots(TString plot) {
     ordinateName = TString("x/X_{0}");
   } else if(plot.CompareTo("x_vs_R") == 0) {
     plotNumber = 40;
-    abscissaName = TString("R [cm]");
+    abscissaName = TString("R [mm]");
     ordinateName = TString("x/X_{0}");
   } else if(plot.CompareTo("l_vs_eta") == 0) {
     plotNumber = 1010;
@@ -150,7 +156,7 @@ void createPlots(TString plot) {
     ordinateName = TString("#lambda/#lambda_{0}");
   } else if(plot.CompareTo("l_vs_R") == 0) {
     plotNumber = 1040;
-    abscissaName = TString("R [cm]");
+    abscissaName = TString("R [mm]");
     ordinateName = TString("#lambda/#lambda_{0}");
   } else {
     cout << " error: chosen plot name not known " << plot << endl;
@@ -436,4 +442,152 @@ void createPlots(TString plot) {
   //  can_ratio.SaveAs( Form( "%s/%s_ComparisonRatio_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //
   
+}
+
+void create2DPlots(TString plot) {
+  unsigned int plotNumber = 0;
+  TString abscissaName = "dummy";
+  TString ordinateName = "dummy";
+  if(plot.CompareTo("x_vs_eta_vs_phi") == 0) {
+    plotNumber = 30;
+    abscissaName = TString("#eta");
+    ordinateName = TString("#varphi");
+    quotaName    = TString("x/X_{0}");
+  } else if(plot.CompareTo("l_vs_eta_vs_phi") == 0) {
+    plotNumber = 1030;
+    abscissaName = TString("#eta");
+    ordinateName = TString("#varphi");
+    quotaName    = TString("#lambda/#lambda_{0}");
+  } else if(plot.CompareTo("x_vs_z_vs_Rsum") == 0) {
+    plotNumber = 50;
+    abscissaName = TString("z [mm]");
+    ordinateName = TString("R [mm]");
+    quotaName    = TString("#Sigmax/X_{0}");
+  } else if(plot.CompareTo("x_vs_z_vs_R") == 0) {
+    plotNumber = 60;
+    abscissaName = TString("z [mm]");
+    ordinateName = TString("R [mm]");
+    quotaName    = TString("x/X_{0}");
+  } else if(plot.CompareTo("l_vs_z_vs_Rsum") == 0) {
+    plotNumber = 1050;
+    abscissaName = TString("z [mm]");
+    ordinateName = TString("R [mm]");
+    quotaName    = TString("#Sigma#lambda/#lambda_{0}");
+  } else if(plot.CompareTo("l_vs_z_vs_R") == 0) {
+    plotNumber = 1060;
+    abscissaName = TString("z [mm]");
+    ordinateName = TString("R [mm]");
+    quotaName    = TString("#lambda/#lambda_{0}");
+  } else {
+    cout << " error: chosen plot name not known " << plot << endl;
+    return;
+  }
+  
+  // get TProfiles
+  prof2d_x0_det_total_old = (TProfile2D*)theDetectorFile_old->Get(Form("%u", plotNumber));
+  prof2d_x0_det_total_new = (TProfile2D*)theDetectorFile_new->Get(Form("%u", plotNumber));
+  
+  // histos
+  TH2D* hist_x0_total_old = (TH2D*)prof2d_x0_det_total_old->ProjectionXY();
+  TH2D* hist_x0_total_new = (TH2D*)prof2d_x0_det_total_new->ProjectionXY();
+  //
+  
+  if(theDetector=="TrackerSum" || theDetector=="Pixel" || theDetector=="Strip" || theDetector=="InnerTracker") {
+    TString subDetector = "TIB";
+    for(unsigned int i_detector=iFirst; i_detector<=iLast; i_detector++) {
+      switch(i_detector) {
+      case 1: {
+	subDetector = "TIDF";
+	break;
+      }
+      case 2: {
+	subDetector = "TIDB";
+	break;
+      }
+      case 3: {
+	subDetector = "InnerServices";
+	break;
+      }
+      case 4: {
+	subDetector = "TOB";
+	break;
+      }
+      case 5: {
+	subDetector = "TEC";
+	break;
+      }
+      case 6: {
+	subDetector = "TkStrct";
+	break;
+      }
+      case 7: {
+	subDetector = "PixBar";
+	break;
+      }
+      case 8: {
+	subDetector = "PixFwdPlus";
+	break;
+      }
+      case 9: {
+	subDetector = "PixFwdMinus";
+	break;
+      }
+      default: cout << " something wrong" << endl;
+      }
+      // file name
+      TString subDetectorFileName_old = "matbdg_" + subDetector + "_old.root";
+      TString subDetectorFileName_new = "matbdg_" + subDetector + "_new.root";
+      // open file
+      TFile* subDetectorFile_old = new TFile(subDetectorFileName_old);
+      TFile* subDetectorFile_new = new TFile(subDetectorFileName_new);
+      cout << "*** Open file... " << endl;
+      cout << " old: " << subDetectorFileName_old << endl;
+      cout << " new: " << subDetectorFileName_new << endl;
+      cout << "***" << endl;
+      // subdetector profiles
+      prof2d_x0_det_total_old = (TProfile2D*)subDetectorFile_old->Get(Form("%u", plotNumber));
+      prof2d_x0_det_total_new = (TProfile2D*)subDetectorFile_new->Get(Form("%u", plotNumber));
+      // add to summary histogram
+      hist_x0_total_old->Add( (TH2D*)prof2d_x0_det_total_old->ProjectionXY("B"), +1.000 );
+      hist_x0_total_new->Add( (TH2D*)prof2d_x0_det_total_new->ProjectionXY("B"), +1.000 );
+    }
+  }
+  //
+  
+  // properties
+  gStyle->SetPalette(1);
+  gStyle->SetStripDecimals(false);
+  //
+  
+  // Ratio
+  TH2D* histo_ratio = new TH2D(*hist_x0_total_new);
+  TString hist2dTitle = Form( "Material Budget Ratio (New/Old) (%s) ",quotaName.Data() ) + theDetector + Form( ";%s;%s;%s",abscissaName.Data(),ordinateName.Data(),quotaName.Data() );
+  histo_ratio->SetTitle(hist2dTitle);
+  histo_ratio->Divide(hist_x0_total_old);
+  //
+  
+  // canvas
+  TCanvas can("TkMB_ComparisonRatio","TkMB_ComparisonRatio",1200,800);
+  can.Range(0,0,25,25);
+  can.SetFillColor(kWhite);
+  gStyle->SetOptStat(0);
+  //
+  
+  // Draw
+  gStyle->SetPalette(1);
+  histo_ratio->Draw("COLZ");
+  histo_ratio->GetXaxis()->SetNoExponent(true);
+  histo_ratio->GetYaxis()->SetNoExponent(true);
+  //
+  
+  
+  // Store
+  can.Update();
+  can.SaveAs( Form( "%s/%s_ComparisonRatio_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_ComparisonRatio_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //
+  
+  // restore properties
+  gStyle->SetStripDecimals(true);
+  //
 }
