@@ -28,7 +28,7 @@ class TestDataFrame: public CppUnit::TestFixture
   void iterator();
 
 public:
-  std::vector<edm::DataFrame::data_type> sv(10);
+  std::vector<edm::DataFrame::data_type> sv;
 
 };
 
@@ -67,7 +67,7 @@ void TestDataFrame::filling() {
     CPPUNIT_ASSERT(df.size()==10); 
     CPPUNIT_ASSERT(df.id()==id); 
     
-    std::copy(v,v+10,df.begin());
+    std::copy(sv.begin(),sv.end(),df.begin());
 
     std::vector<edm::DataFrame::data_type> v2(10);
     std::copy(frames.m_data.begin()+(n-1)*10,frames.m_data.begin()+n*10,v2.begin());
@@ -77,7 +77,7 @@ void TestDataFrame::filling() {
 }
 
 namespace {
-  void VerifyIter{
+  struct VerifyIter{
     VerifyIter(TestDataFrame * itest):n(0), test(*itest){}
     
     void operator()(edm::DataFrame const & df) {
@@ -101,7 +101,7 @@ void TestDataFrame::iterator() {
     edm::DataFrame df = frames.back();
     std::copy(v,v+10,df.begin());
   }
-  CPPUNIT_ASSERT(foreach(frames.begin(),frames.end(),VerifyIter(this)).n==4);
+  CPPUNIT_ASSERT(std::for_each(frames.begin(),frames.end(),VerifyIter(this)).n==4);
 
 
 }
