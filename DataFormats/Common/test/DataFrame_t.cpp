@@ -47,7 +47,7 @@ void TestDataFrame::default_ctor() {
   CPPUNIT_ASSERT(frames.subdetId()==2);
   CPPUNIT_ASSERT(frames.size()==0);
   frames.resize(3);
-  CPPUNIT_ASSERT(frames.size()==2);
+  CPPUNIT_ASSERT(frames.size()==3);
   edm::DataFrame df = frames[1];
   CPPUNIT_ASSERT(df.size()==10); 
   CPPUNIT_ASSERT(df.m_data==&frames.m_data.front()+10); 
@@ -62,7 +62,7 @@ void TestDataFrame::filling() {
   for (int n=1;n<5;++n) {
     int id=20+n;
     frames.push_back(id);
-    CPPUNIT_ASSERT(frames.size()==1);
+    CPPUNIT_ASSERT(frames.size()==n);
     edm::DataFrame df = frames.back();
     CPPUNIT_ASSERT(df.size()==10); 
     CPPUNIT_ASSERT(df.id()==id); 
