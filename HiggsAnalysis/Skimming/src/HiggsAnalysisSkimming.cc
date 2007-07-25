@@ -67,9 +67,7 @@ bool HiggsAnalysisSkimming::filter(edm::Event& event, const edm::EventSetup& set
 
   bool keepEvent = false;
 
-  int whichTrig = 0;
-
-  keepEvent = skimFilter->skim( event, setup, whichTrig );
+  keepEvent = skimFilter->skim( event, setup );
   nEvents++;
   if( keepEvent ) nSelectedEvents++;
 

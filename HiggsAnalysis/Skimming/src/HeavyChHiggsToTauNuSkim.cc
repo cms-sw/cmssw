@@ -49,10 +49,9 @@ void HeavyChHiggsToTauNuSkim::endJob() {
 }
 
 // ------------ method called to skim the data  ------------
-bool HeavyChHiggsToTauNuSkim::skim(edm::Event& iEvent, const edm::EventSetup& iSetup, int& trigger){
+bool HeavyChHiggsToTauNuSkim::skim(edm::Event& iEvent, const edm::EventSetup& iSetup ){
 
 	nEvents++;
-	trigger = 0;
 
 	Handle<JetTagCollection> jetTagHandle;
 	try{
