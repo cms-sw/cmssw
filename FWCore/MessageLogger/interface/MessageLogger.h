@@ -14,7 +14,7 @@
 //         Created:  Fri Nov 11 16:38:19 CST 2005
 //     Major Split:  Tue Feb 14 11:00:00 CST 2006
 //		     See MessageService/interface/MessageLogger.h
-// $Id: MessageLogger.h,v 1.21 2007/06/01 21:08:48 fischler Exp $
+// $Id: MessageLogger.h,v 1.22 2007/07/24 17:49:50 fischler Exp $
 //
 // =================================================
 // Change log
@@ -28,7 +28,7 @@
 //
 // 4 mf 6/1/07      Added LogAbsolute and LogProblem
 //
-// 5 mf 7/24/07      Added HaltMessageLogging
+// 5 mf 7/24/07     Added HaltMessageLogging
 //
 // =================================================
 

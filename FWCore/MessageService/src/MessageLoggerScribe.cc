@@ -128,7 +128,7 @@
 //	 To allow flexibility, this depends on MessageLoggerDefaults.h
 //
 //  25 - 7/24/07 mf - in run() 
-//	 A command SUUT_UP to deactivate, and in the LOG_A_MESSGE case, response to 
+//	 A command SHUT_UP to deactivate, and in the LOG_A_MESSGE case, response to 
 //	 that command.  This allows supression of the generator info in case of a
 //	 completely .cfg-less cmsRun command.  
 //

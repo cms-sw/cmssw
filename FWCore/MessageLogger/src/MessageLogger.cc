@@ -4,7 +4,7 @@
 namespace edm {
 
 void LogStatistics() { 
-  edm::MessageLoggerQ::SUM ( ); // trigger summary info
+  edm::MessageLoggerQ::MLqSUM ( ); // trigger summary info
 }
 
 LogDebug_ dummyLogDebugObject_( "dummy_id", __FILE__, __LINE__ );
@@ -23,7 +23,7 @@ bool isWarningEnabled() {
 }
 
 void HaltMessageLogging() {
-  edm::MessageLoggerQ::SHT ( ); // Shut the logger up
+  edm::MessageLoggerQ::MLqSHT ( ); // Shut the logger up
 }
 
 }  // namespace edm

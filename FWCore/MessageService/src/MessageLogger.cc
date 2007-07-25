@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.23 2007/06/25 23:22:14 wmtan Exp $
+// $Id: MessageLogger.cc,v 1.24 2007/06/29 03:43:25 wmtan Exp $
 //
 // Change log
 //
@@ -34,7 +34,8 @@
 // 7 mf   6/19/07	Support for --jobreport option
 //
 // 8 wmtan 6/25/07	Enable suppression for sources, just as for modules
-
+//
+// 9 mf   7/25/07	Modify names of the MessageLoggerQ methods, eg MLqLOG
 
 // system include files
 // user include files
@@ -135,15 +136,15 @@ MessageLogger( ParameterSet const & iPS
   std::string jr_name = edm::MessageDrop::instance()->jobreport_name; 
   if (!jr_name.empty()) {			
     std::string * jr_name_p = new std::string(jr_name);
-    MessageLoggerQ::JOB( jr_name_p ); 
+    MessageLoggerQ::MLqJOB( jr_name_p ); 			// change log 8
   }
   
   								// change log 7
   std::string jm = edm::MessageDrop::instance()->jobMode; 
   std::string * jm_p = new std::string(jm);
-  MessageLoggerQ::MOD( jm_p ); 
+  MessageLoggerQ::MLqMOD( jm_p ); 				// change log 8
   
-  MessageLoggerQ::CFG( new ParameterSet(iPS) );
+  MessageLoggerQ::MLqCFG( new ParameterSet(iPS) );		// change log 8
 
   iRegistry.watchPostBeginJob(this,&MessageLogger::postBeginJob);
   iRegistry.watchPostEndJob(this,&MessageLogger::postEndJob);
@@ -204,7 +205,7 @@ MessageLogger::postBeginJob()
 void
 MessageLogger::postEndJob()
 {
-  MessageLoggerQ::SUM ( ); // trigger summary info.
+  MessageLoggerQ::MLqSUM ( ); // trigger summary info.		// change log 8
 }
 
 void

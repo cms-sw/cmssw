@@ -21,6 +21,8 @@
 //	Addition of MOD command, to be used by --mode
 // 3 - 7/24/07 mf
 //	Addition of SHT command, to be used when no .cfg file was given
+// 4 - 7/25/07 mf
+//	Change of each mommand function to start with MLq, e.g. MLqLOG
 
 using namespace edm;
 
@@ -44,7 +46,7 @@ MessageLoggerQ *
 }  // MessageLoggerQ::instance()
 
 void
-  MessageLoggerQ::END()
+  MessageLoggerQ::MLqEND()
 {
   SingleConsumerQ::ProducerBuffer b(buf);
   char * slot_p = static_cast<char *>(b.buffer());
@@ -58,7 +60,7 @@ void
 }  // MessageLoggerQ::END()
 
 void
-  MessageLoggerQ::SHT()
+  MessageLoggerQ::MLqSHT()
 {
   SingleConsumerQ::ProducerBuffer b(buf);
   char * slot_p = static_cast<char *>(b.buffer());
@@ -72,7 +74,7 @@ void
 }  // MessageLoggerQ::SHT()
 
 void
-  MessageLoggerQ::LOG( ErrorObj * p )
+  MessageLoggerQ::MLqLOG( ErrorObj * p )
 {
   SingleConsumerQ::ProducerBuffer b(buf);
   char * slot_p = static_cast<char *>(b.buffer());
@@ -87,7 +89,7 @@ void
 
 
 void
-  MessageLoggerQ::CFG( ParameterSet * p )
+  MessageLoggerQ::MLqCFG( ParameterSet * p )
 {
   Place_for_passing_exception_ptr epp = new Pointer_to_new_exception_on_heap(0);
   ConfigurationHandshake h(p,epp);
@@ -121,7 +123,7 @@ void
 }  // MessageLoggerQ::CFG()
 
 void
-MessageLoggerQ::EXT( service::NamedDestination* p )
+MessageLoggerQ::MLqEXT( service::NamedDestination* p )
 {
   SingleConsumerQ::ProducerBuffer b(buf);
   char * slot_p = static_cast<char *>(b.buffer());
@@ -135,7 +137,7 @@ MessageLoggerQ::EXT( service::NamedDestination* p )
 }
 
 void
-  MessageLoggerQ::SUM( )
+  MessageLoggerQ::MLqSUM( )
 {
   SingleConsumerQ::ProducerBuffer b(buf);
   char * slot_p = static_cast<char *>(b.buffer());
@@ -149,7 +151,7 @@ void
 }  // MessageLoggerQ::SUM()
 
 void
-  MessageLoggerQ::JOB( std::string * j )
+  MessageLoggerQ::MLqJOB( std::string * j )
 {
   SingleConsumerQ::ProducerBuffer b(buf);
   char * slot_p = static_cast<char *>(b.buffer());
@@ -163,7 +165,7 @@ void
 }  // MessageLoggerQ::JOB()
 
 void
-  MessageLoggerQ::MOD( std::string * jm )
+  MessageLoggerQ::MLqMOD( std::string * jm )
 {
   SingleConsumerQ::ProducerBuffer b(buf);
   char * slot_p = static_cast<char *>(b.buffer());
@@ -174,7 +176,7 @@ void
   std::memcpy(slot_p+0             , &o, sizeof(OpCode));
   std::memcpy(slot_p+sizeof(OpCode), &v, sizeof(void *));
   b.commit(buf_size);
-}  // MessageLoggerQ::JOB()
+}  // MessageLoggerQ::MOD()
 
 
 void
