@@ -14,7 +14,7 @@ public:
   ~BaseSiTrackerRecHit2DLocalPos() {}
 
   BaseSiTrackerRecHit2DLocalPos( const LocalPoint& p, const LocalError&e,
-				 DetId id) : pos_(p), err_(e), RecHit2DLocalPos(id){}
+				 DetId id) :  RecHit2DLocalPos(id), pos_(p), err_(e){}
 
   //  virtual BaseSiTrackerRecHit2DLocalPos * clone() const {return new BaseSiTrackerRecHit2DLocalPos( * this); }
 
