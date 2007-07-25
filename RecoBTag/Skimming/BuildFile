@@ -9,11 +9,8 @@
 <use name=DataFormats/EgammaCandidates>
 <use name=root>
 
-<flags SEAL_PLUGIN_NAME="RecoBTagSkimming">
+<flags EDM_PLUGIN=1>
 
 <export>
    <lib name=RecoBTagSkimming>
-   <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
-   <use name=FWCore/ParameterSet>
 </exports>
