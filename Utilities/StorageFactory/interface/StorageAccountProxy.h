@@ -47,7 +47,7 @@ public:
    
   virtual void          preseek(const IOVec& iov);
 
-private:
+protected:
     std::string			m_storageClass;
     seal::Storage		*m_baseStorage;
 
