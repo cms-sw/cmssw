@@ -9,38 +9,28 @@
 class BaseSiTrackerRecHit2DLocalPos : public RecHit2DLocalPos {
 public:
 
-  BaseSiTrackerRecHit2DLocalPos(): id_(0) {}
+  BaseSiTrackerRecHit2DLocalPos(): RecHit2DLocalPos(0) {}
 
   ~BaseSiTrackerRecHit2DLocalPos() {}
 
   BaseSiTrackerRecHit2DLocalPos( const LocalPoint& p, const LocalError&e,
-			       const DetId&id) : pos_(p), err_(e), id_(id){}
+				 DetId id) : pos_(p), err_(e), RecHit2DLocalPos(id){}
 
   //  virtual BaseSiTrackerRecHit2DLocalPos * clone() const {return new BaseSiTrackerRecHit2DLocalPos( * this); }
 
   virtual LocalPoint localPosition() const {return pos_;}
 
   virtual LocalError localPositionError() const{ return err_;}
-
-  virtual DetId geographicalId() const {return id_;}
-
-  /// returns the DetId by means of a not virtual function
-  inline DetId trackerId() const { return id_;}
   
  private:
   
   LocalPoint pos_;
   LocalError err_;
-  DetId id_;
 };
 
 // Comparison operators
 inline bool operator<( const BaseSiTrackerRecHit2DLocalPos& one, const BaseSiTrackerRecHit2DLocalPos& other) {
-  if ( one.trackerId() < other.trackerId() ) {
-    return true;
-  } else {
-    return false;
-  }
+  return ( one.geographicalId() < other.geographicalId() );
 }
 
 #endif

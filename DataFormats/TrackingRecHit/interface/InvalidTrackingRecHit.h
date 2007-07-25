@@ -10,8 +10,8 @@ class InvalidTrackingRecHit : public TrackingRecHit {
 public:
   typedef TrackingRecHit::Type Type;
 
-  InvalidTrackingRecHit( const DetId& id, Type type ) : detId_(id), type_(type) {}
-  InvalidTrackingRecHit() : detId_(0), type_(TrackingRecHit::missing) {}
+  InvalidTrackingRecHit(DetId id, Type type ) : TrackingRecHit(id, type) {}
+  InvalidTrackingRecHit() : TrackingRecHit(0, TrackingRecHit::missing) {}
 
   virtual ~InvalidTrackingRecHit() {}
   
@@ -25,8 +25,6 @@ public:
 
   virtual int dimension() const;
 
-  virtual DetId geographicalId() const {return detId_;}
-
   virtual LocalPoint localPosition() const;
 
   virtual LocalError localPositionError() const;
@@ -35,15 +33,9 @@ public:
 
   virtual std::vector<TrackingRecHit*> recHits();
 
-  virtual bool isValid() const {return false;}
-  virtual Type getType() const { return type_; }
-
   virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const;
 
 private:
-
-  DetId detId_;
-  Type type_;
 
   void throwError() const;
 

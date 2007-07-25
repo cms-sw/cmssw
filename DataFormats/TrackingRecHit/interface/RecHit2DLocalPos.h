@@ -11,6 +11,8 @@ public:
 
   typedef Surface::LocalPoint LocalPoint;
   
+  RecHit2DLocalPos(DetId id) : TrackingRecHit(id) {}
+  RecHit2DLocalPos(TrackingRecHit::id_type=0) : TrackingRecHit(id) {}
   virtual ~RecHit2DLocalPos() {}
   
   virtual RecHit2DLocalPos * clone() const = 0;
