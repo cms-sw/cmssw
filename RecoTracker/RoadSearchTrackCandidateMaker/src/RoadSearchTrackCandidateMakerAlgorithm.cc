@@ -10,8 +10,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/06/29 23:54:04 $
-// $Revision: 1.39 $
+// $Date: 2007/07/08 20:32:40 $
+// $Revision: 1.40 $
 //
 
 #include <vector>
@@ -528,9 +528,9 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
             
             for (std::vector<Trajectory>::const_iterator itr = rawTrajectories.begin();
                  itr != rawTrajectories.end(); ++itr) {
-              Trajectory traj = *itr;
               for(RoadSearchCloud::RecHitVector::const_iterator ihit = hits.begin();
                   ihit != hits.end(); ihit++) {
+		Trajectory traj = *itr; // have to get the original trajectory each time
                 const DetLayer* thisLayer =
 		  theMeasurementTracker->geometricSearchTracker()->detLayer((*ihit)->geographicalId());
                 if (thisLayer == innerHitLayer){
