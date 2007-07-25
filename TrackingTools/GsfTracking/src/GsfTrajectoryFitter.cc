@@ -127,7 +127,10 @@ std::vector<Trajectory> GsfTrajectoryFitter::fit(const TrajectorySeed& aSeed,
       //       if((**ihit).isValid())
       // 	edm::LogInfo("GsfTrajectoryFitter") << "next Surface: "<<(**ihit).det().surface().position();
 //       return std::vector<Trajectory>();
-      return std::vector<Trajectory>(1,myTraj);
+      if ( myTraj.foundHits()>=3 ) 
+	return std::vector<Trajectory>(1,myTraj);
+      else
+	return std::vector<Trajectory>();
     }
     if ( merger() ) predTsos = merger()->merge(predTsos);
     
