@@ -8,7 +8,8 @@
 #undef private
 #include<vector>
 #include<algorithm>
-#include<boost::function>
+#include<boost/function.hpp>
+#include<boost/bind.hpp>
 
 template<typename DigiCollection>
 class TestEcalDigi: public CppUnit::TestFixture
@@ -138,7 +139,7 @@ namespace {
     try {
       EEDetId detid(id);
     } catch(...) {
-      bool NoEndcapID=false;
+      bool NotEndcapID=false;
       CPPUNIT_ASSERT(NotEndcapID);
     }
   }
@@ -151,7 +152,7 @@ namespace {
       DetId id(df.id());
       if (id.subdetId()==EcalBarrel)
 	b(df);n=b.n;
-      elseif(id.subdetId()==EcalEndcap)
+      else if(id.subdetId()==EcalEndcap)
 	e(df);n=e.n;
       else {
 	bool WrongSubdetId=false;
@@ -169,14 +170,14 @@ namespace {
     boost::function<void(DetId)> verifyID;
     if (frames.subdetId()==EcalBarrel)
       verifyId=verifyBarrelId;
-    elseif(frames.subdetId()==EcalEndcap)
+    else if(frames.subdetId()==EcalEndcap)
       verifyId=verifyEndcapId;
     else {
       bool WrongSubdetId=false;
       CPPUNIT_ASSERT(WrongSubdetId);
     }
     std::for_each(frames.begin(),frames.end(),
-		  boost::bind(verifyID,boost::bind(edm::DataFrame::id,_1)));
+		  boost::bind(verifyID,boost::bind(&edm::DataFrame::id,_1)));
     // same as above....
     for (int n=0;n<int(frames.size());++n) {
       edm::DataFrame df = frames[i];
