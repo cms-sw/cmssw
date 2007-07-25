@@ -34,7 +34,7 @@ DCacheStorageMaker::pathForUrl (const std::string &proto, const std::string &pat
 /** Open a storage object for the given URL (protocol + path), using the
     @a mode bits.  No temporary files are downloaded.  */
 seal::Storage *
-DCacheStorageMaker::open_ (const std::string &proto,
+DCacheStorageMaker::doOpen (const std::string &proto,
 			  const std::string &path,
 			  int mode,
 			  const std::string & /* tmpdir */)
@@ -43,7 +43,7 @@ DCacheStorageMaker::open_ (const std::string &proto,
 /** Check if the given URL (protocol + path) exists, and if so and @a size is
     non-null, update @a size to the file's size.  */
 bool	  
-DCacheStorageMaker::check_ (const std::string &proto,
+DCacheStorageMaker::doCheck (const std::string &proto,
 			   const std::string &path,
 			   seal::IOOffset *size /* = 0 */)
 {
