@@ -1,0 +1,19 @@
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/Common>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/JetReco>
+<use name=DataFormats/MuonReco>
+<use name=DataFormats/EgammaCandidates>
+<use name=root>
+
+<flags SEAL_PLUGIN_NAME="RecoBTagSkimming">
+
+<export>
+   <lib name=RecoBTagSkimming>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+</exports>
