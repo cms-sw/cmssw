@@ -25,7 +25,6 @@ public:
     // return theHitData->parametersError();
   }
 
-  virtual DetId geographicalId() const {return theHitData.trackerId();}
   virtual AlgebraicMatrix projectionMatrix() const {return theHitData.projectionMatrix();}
   virtual int dimension() const {return theHitData.dimension();}
 
@@ -34,8 +33,6 @@ public:
 
   virtual const TrackingRecHit * hit() const {return &theHitData;};
   
-  virtual bool isValid() const {return theHitData.isValid();}
-
   virtual std::vector<const TrackingRecHit*> recHits() const {
     return hit()->recHits();
   }
