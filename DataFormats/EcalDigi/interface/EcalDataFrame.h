@@ -10,7 +10,7 @@
 
 /** \class EcalDataFrame
       
-$Id: EcalDataFrame.h,v 1.4 2007/07/24 10:21:04 innocent Exp $
+$Id: EcalDataFrame.h,v 1.5 2007/07/24 10:57:51 innocent Exp $
 */
 class EcalDataFrame {
  public:
@@ -32,6 +32,9 @@ class EcalDataFrame {
   void setSample(int i, EcalMGPASample sam) { m_data[i]=sam; }
 
   static const int MAXSAMPLES = 10;
+
+  edm::DataFrame const & frame() const { return m_data;}
+  edm::DataFrame & frame() { return m_data;}
 
  private:
  
