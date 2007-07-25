@@ -5,9 +5,6 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 
-//remove
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 class InvalidTransientRecHit : public GenericTransientTrackingRecHit {
 public:
 
