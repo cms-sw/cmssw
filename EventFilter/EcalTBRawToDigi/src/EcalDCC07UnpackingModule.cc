@@ -1,11 +1,10 @@
 /* \file EcalDCC07UnpackingModule.h
  *
- *  $Date: 2007/07/20 19:18:20 $
- *  $Revision: 1.4 $
- *  \author N. Marinelli
- *  \author G. Della Ricca
+ *  $Date: 2007/07/20 22:39:29 $
+ *  $Revision: 1.5 $
+ *  \author Y. Maravin
  *  \author G. Franzoni
- *  \author A. Ghezzi
+ *  \author G. Della Ricca
  */
 
 #include <EventFilter/EcalTBRawToDigi/interface/EcalDCC07UnpackingModule.h>
@@ -44,6 +43,9 @@
 EcalDCC07UnpackingModule::EcalDCC07UnpackingModule(const edm::ParameterSet& pset){
 
   std::string tbName = pset.getUntrackedParameter<std::string >("tbName", std::string("h2") );
+
+  ProduceEEDigis_ = pset.getUntrackedParameter<bool >("produceEEdigi", true );
+  ProduceEBDigis_ = pset.getUntrackedParameter<bool >("produceEBdigi", false );
 
   // index of crystal <-> tower ID (DQM plots) position <-> stripIDs <-> channelIDs for the test beam (2007)
   std::vector<int> ics        = pset.getUntrackedParameter<std::vector<int> >("ics",          std::vector<int>());
@@ -126,6 +128,7 @@ EcalDCC07UnpackingModule::EcalDCC07UnpackingModule(const edm::ParameterSet& pset
   camacTBformatter_ = new CamacTBDataFormatter();
   tableFormatter_ = new TableDataFormatter();
   matacqFormatter_ = new MatacqDataFormatter();
+
 
   // digis
   produces<EBDigiCollection>("ebDigis");
@@ -295,24 +298,24 @@ void EcalDCC07UnpackingModule::produce(edm::Event & e, const edm::EventSetup& c)
 
   // commit to the event  
   e.put(productPN);
-  e.put(productEb,"ebDigis");
-  e.put(productEe,"eeDigis");
+  if (ProduceEBDigis_)  e.put(productEb,"ebDigis");
+  if (ProduceEEDigis_)  e.put(productEe,"eeDigis");
   e.put(productMatacq);
   e.put(productDCCHeader);
   e.put(productTriggerPrimitives);
-
-  e.put(productDCCSize,"EcalIntegrityDCCSizeErrors");
-  e.put(productTTId,"EcalIntegrityTTIdErrors");
-  e.put(productBlockSize,"EcalIntegrityBlockSizeErrors");
-  e.put(productChId,"EcalIntegrityChIdErrors");
-  e.put(productGain,"EcalIntegrityGainErrors");
-  e.put(productGainSwitch,"EcalIntegrityGainSwitchErrors");
-  e.put(productGainSwitchStay,"EcalIntegrityGainSwitchStayErrors");
-
-  e.put(productMemTtId,"EcalIntegrityMemTtIdErrors");
-  e.put(productMemBlockSize,"EcalIntegrityMemBlockSize");
-  e.put(productMemChIdErrors,"EcalIntegrityMemChIdErrors");
-  e.put(productMemGain,"EcalIntegrityMemGainErrors");
+  
+  if (ProduceEBDigis_)  e.put(productDCCSize,"EcalIntegrityDCCSizeErrors");
+  if (ProduceEBDigis_)  e.put(productTTId,"EcalIntegrityTTIdErrors");
+  if (ProduceEBDigis_)  e.put(productBlockSize,"EcalIntegrityBlockSizeErrors");
+  if (ProduceEBDigis_)  e.put(productChId,"EcalIntegrityChIdErrors");
+  if (ProduceEBDigis_)  e.put(productGain,"EcalIntegrityGainErrors");
+  if (ProduceEBDigis_)  e.put(productGainSwitch,"EcalIntegrityGainSwitchErrors");
+  if (ProduceEBDigis_)  e.put(productGainSwitchStay,"EcalIntegrityGainSwitchStayErrors");
+  
+  if (ProduceEBDigis_)  e.put(productMemTtId,"EcalIntegrityMemTtIdErrors");
+  if (ProduceEBDigis_)  e.put(productMemBlockSize,"EcalIntegrityMemBlockSize");
+  if (ProduceEBDigis_)  e.put(productMemChIdErrors,"EcalIntegrityMemChIdErrors");
+  if (ProduceEBDigis_)  e.put(productMemGain,"EcalIntegrityMemGainErrors");
 
   e.put(productHodo);
   e.put(productTdc);
