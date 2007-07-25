@@ -42,7 +42,7 @@ public:
   void add(CSCEventData &);
 
   /// trailer info
-  int ddubytes, errorstat;
+  long unsigned int errorstat;
 
   bool check() const;
 

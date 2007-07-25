@@ -205,7 +205,7 @@ void CSCDDUEventData::unpack_data(unsigned short *buf)
   memcpy(&theDDUTrailer, buf, theDDUTrailer.sizeInWords()*2);
   if (debug) edm::LogInfo ("CSCDDUEventData") << theDDUTrailer.check();
   errorstat=theDDUTrailer.errorstat();
-  if (errorstat&errMask != 0)  
+  if ((errorstat&errMask) != 0)  
     {
       if (theDDUTrailer.check())
 	{
