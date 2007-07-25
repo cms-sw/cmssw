@@ -28,7 +28,7 @@ public:
     TrackingRecHit(id, type), geom_(geom) {}
   explicit TransientTrackingRecHit(const GeomDet * geom, TrackingRecHit::id_type id, Type type=valid ) : 
     TrackingRecHit(id, type), geom_(geom) {}
-  explicit TransientTrackingRecHit(const GeomDet * geom, TrackingRecHit & rh ) : 
+  explicit TransientTrackingRecHit(const GeomDet * geom, TrackingRecHit const & rh ) : 
     TrackingRecHit(rh.geographicalId(), rh.type()), geom_(geom) {}
 
 
