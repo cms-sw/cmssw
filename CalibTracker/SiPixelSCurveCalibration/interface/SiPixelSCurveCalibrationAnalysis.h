@@ -61,8 +61,7 @@ class SiPixelSCurveCalibrationAnalysis : public edm::EDAnalyzer
     PixelCalib* calib_;
     unsigned int vcalmin_;
     unsigned int vcalmax_;
-    unsigned int vcalstep_;
-    unsigned int ntriggers_; 
+    unsigned int vcalstep_; 
     edm::Service<TFileService> fs_;
     std::map<unsigned int, SCurveContainer> detIdMap_;
     TF1* fitfunc_;

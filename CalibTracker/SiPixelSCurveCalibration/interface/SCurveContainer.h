@@ -19,9 +19,7 @@ class SCurveContainer
 {
   public:
     SCurveContainer();
-    SCurveContainer(int vcalmin, int vcalmax, int vcalstep,
-                      int ntriggers, int rowmax, int colmax,
-                      int detid);
+    SCurveContainer(const int& vcalmax, int ntriggers, int rowmax, int colmax, int detid);
     ~SCurveContainer();
 
     double getEff(const int&, const int&, const int&) const;
@@ -31,9 +29,6 @@ class SCurveContainer
     unsigned int getRawId() const {return detid_;}
 
   private:
-    unsigned int vcalmin_;
-    unsigned int vcalmax_;
-    unsigned int vcalstep_;
     unsigned int ntriggers_;
     unsigned int rowmax_;
     unsigned int colmax_;

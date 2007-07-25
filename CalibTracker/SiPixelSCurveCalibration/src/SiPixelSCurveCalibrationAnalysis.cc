@@ -5,8 +5,6 @@
 
 
 #include "CalibTracker/SiPixelSCurveCalibration/interface/SiPixelSCurveCalibrationAnalysis.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h" 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -24,7 +22,6 @@
 #include <TFile.h>
 #include <TMath.h>
 
-#include <iostream>
 #include <sstream>
 #include <fstream>
 
@@ -42,7 +39,6 @@ SiPixelSCurveCalibrationAnalysis::SiPixelSCurveCalibrationAnalysis(const edm::Pa
     vcalmin_ = calib_->vcal_first();
     vcalmax_ = calib_->vcal_last();
     vcalstep_ = calib_->vcal_step();
-    ntriggers_ = calib_->nTriggersPerPattern();
     fitfunc_ = new TF1("fit", "0.5*[0]*(1+TMath::Erf((x-[1])/([2]*sqrt(2))))", vcalmin_, vcalmax_);
     meanhistos_ = new TObjArray(calib_->rocList().size());
     sigmahistos_ = new TObjArray(calib_->rocList().size());
@@ -59,7 +55,7 @@ void SiPixelSCurveCalibrationAnalysis::beginJob(const edm::EventSetup& iSetup)
   LogInfo("SCurve Calibration") << "The starting Vcal value is " << vcalmin_;
   LogInfo("SCurve Calibration") << "The ending Vcal value is " << vcalmax_;
   LogInfo("SCurve Calibration") << "Vcal will be incremented in steps of " << vcalstep_;
-  LogInfo("SCurve Calibration") << "The number of triggers is " << ntriggers_; 
+  LogInfo("SCurve Calibration") << "The number of triggers is " << calib_->nTriggersPerPattern(); 
   iSetup.get<SiPixelFedCablingMapRcd>().get(map_);
 }
 
@@ -86,8 +82,7 @@ void SiPixelSCurveCalibrationAnalysis::analyze(const edm::Event& e, const edm::E
       unsigned int rows = theGeomDet->specificTopology().nrows();
       unsigned int cols = theGeomDet->specificTopology().ncolumns();
       histoNum_ += rows * cols;
-      SCurveContainer temp(vcalmin_, vcalmax_, vcalstep_,
-                           ntriggers_, rows, cols, detid);
+      SCurveContainer temp(vcalmax_, calib_->nTriggersPerPattern(), rows, cols, detid);
       detIdMap_.insert(std::make_pair(detid, temp));
     }
 
@@ -254,7 +249,7 @@ bool SiPixelSCurveCalibrationAnalysis::makeHistogram(const SCurveContainer& sc, 
     double tempy = sc.getEff(l, row, col);
     histo->Fill(l, tempy);
   } 
-  fitfunc_->SetParameters(1.0, vcalmax_/4.0, 1.0);
+  fitfunc_->SetParameters(1.0, (vcalmax_ - vcalmin_)/4.0 + vcalmin_, 1.0/vcalstep_);
   histo->Fit("fit", "RQ0");
   bool check = isPeculiar(histo);
   if(printHistos_ || iter%1000 == 0 || check)
