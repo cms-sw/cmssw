@@ -127,7 +127,7 @@ namespace {
     std::vector<edm::DataFrame::data_type> const & sv;
   };
 
-  void verifyBarrelID(DetId id) {
+  void verifyBarrelId(DetId id) {
     try {
       EBDetId detid(id);
     } catch(...) {
@@ -135,7 +135,7 @@ namespace {
       CPPUNIT_ASSERT(NotBarrelID);
     }
   }
-  void verifyEndcapID(DetId id) {
+  void verifyEndcapId(DetId id) {
     try {
       EEDetId detid(id);
     } catch(...) {
@@ -159,9 +159,9 @@ namespace {
 	CPPUNIT_ASSERT(WrongSubdetId);
       }
     }
+    int n;
     VerifyIter<EBDataFrame> b;
     VerifyIter<EEDataFrame> e;
-    int n;
   };
 
 
