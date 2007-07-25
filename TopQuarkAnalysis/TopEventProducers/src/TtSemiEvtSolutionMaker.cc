@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolutionMaker.cc,v 1.14 2007/07/06 02:49:42 lowette Exp $
+// $Id: TtSemiEvtSolutionMaker.cc,v 1.15 2007/07/20 06:46:53 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiEvtSolutionMaker.h"
@@ -179,10 +179,10 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
       edm::Handle<TtGenEvent> genEvt;
       iEvent.getByLabel ("genEvt",genEvt);
       vector<const reco::Candidate*> quarks;
-      const reco::Candidate & genp  = *(genEvt->hadronicQuark());
-      const reco::Candidate & genq  = *(genEvt->hadronicQuarkBar());
-      const reco::Candidate & genbh = *(genEvt->hadronicB());
-      const reco::Candidate & genbl = *(genEvt->leptonicB());
+      const reco::Candidate & genp  = *(genEvt->hadronicDecayQuark());
+      const reco::Candidate & genq  = *(genEvt->hadronicDecayQuarkBar());
+      const reco::Candidate & genbh = *(genEvt->hadronicDecayB());
+      const reco::Candidate & genbl = *(genEvt->leptonicDecayB());
       quarks.push_back( &genp );
       quarks.push_back( &genq );
       quarks.push_back( &genbh );
