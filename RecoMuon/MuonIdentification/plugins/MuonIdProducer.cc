@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.5 2007/06/08 17:25:44 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.6 2007/07/25 11:41:15 meijer Exp $
 //
 //
 
@@ -102,7 +102,7 @@ MuonIdProducer::~MuonIdProducer()
 {
    if (muIsoExtractorCalo_) delete muIsoExtractorCalo_;
    if (muIsoExtractorTrack_) delete muIsoExtractorTrack_;
-   TimingReport::current()->dump(std::cout);
+   // TimingReport::current()->dump(std::cout);
 }
 
 void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup)
