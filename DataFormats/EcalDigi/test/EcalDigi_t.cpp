@@ -150,11 +150,11 @@ namespace {
     
     void operator()(edm::DataFrame const & df) {
       DetId id(df.id());
-      if (id.subdetId()==EcalBarrel)
+      if (id.subdetId()==EcalBarrel) {
 	b(df);n=b.n;
-      else if(id.subdetId()==EcalEndcap)
+      } else if(id.subdetId()==EcalEndcap) {
 	e(df);n=e.n;
-      else {
+      } else {
 	bool WrongSubdetId=false;
 	CPPUNIT_ASSERT(WrongSubdetId);
       }
@@ -167,7 +167,7 @@ namespace {
 
   // an alternative way
   void iterate(EcalDigiCollection const & frames) {
-    boost::function<void(DetId)> verifyID;
+    boost::function<void(DetId)> verifyId;
     if (frames.subdetId()==EcalBarrel)
       verifyId=verifyBarrelId;
     else if(frames.subdetId()==EcalEndcap)
@@ -177,11 +177,11 @@ namespace {
       CPPUNIT_ASSERT(WrongSubdetId);
     }
     std::for_each(frames.begin(),frames.end(),
-		  boost::bind(verifyID,boost::bind(&edm::DataFrame::id,_1)));
+		  boost::bind(verifyId,boost::bind(&edm::DataFrame::id,_1)));
     // same as above....
     for (int n=0;n<int(frames.size());++n) {
       edm::DataFrame df = frames[n];
-      verifyID(df.id());
+      verifyId(df.id());
     }
 
   }
