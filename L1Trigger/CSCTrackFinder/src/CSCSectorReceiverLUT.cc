@@ -36,11 +36,17 @@ CSCSectorReceiverLUT::CSCSectorReceiverLUT(int endcap, int sector, int subsector
 	mb_global_phi = new gblphidat[1<<CSCBitWidths::kGlobalPhiAddressWidth];
 	me_global_phi = new gblphidat[1<<CSCBitWidths::kGlobalPhiAddressWidth];
 	me_global_eta = new gbletadat[1<<CSCBitWidths::kGlobalEtaAddressWidth];
+    me_lcl_phi    = new lclphidat[1<<CSCBitWidths::kLocalPhiAddressWidth];
+
+	edm::ESHandle<L1MuCSCLocalPhiLut>  localLUT;
+	c.get<L1MuCSCLocalPhiLutRcd>().get(localLUT);
+	const L1MuCSCLocalPhiLut *myConfigLocal_ = localLUT.product();
+	memcpy((void*)me_lcl_phi,(void*)myConfigLocal_->lut(),(1<<19)*sizeof(lclphidat));
 
 	edm::ESHandle<L1MuCSCGlobalLuts> globalLUTs;
 	c.get<L1MuCSCGlobalLutsRcd>().get(globalLUTs);
 	const L1MuCSCGlobalLuts *myConfigGlobal_ = globalLUTs.product();
-	int mpc = (station==1?subsector-1:station); 
+	int mpc = (station==1?subsector-1:station);
 	if( mpc<0 || mpc>4 ) throw cms::Exception("Configuration error")<<"CSCSectorReceiverLUT|ctor: station="<<station<<" subsector="<<subsector<<" doesn't exist. Initialization error in CSCTFTrackProducer|CSCTFTrackBuilder|CSCTFSectorProcessor.";
 	memcpy((void*)me_global_phi,(void*)myConfigGlobal_->phi_lut(mpc),(1<<19)*sizeof(gblphidat));
 	memcpy((void*)me_global_eta,(void*)myConfigGlobal_->eta_lut(mpc),(1<<19)*sizeof(gbletadat));
@@ -49,14 +55,6 @@ CSCSectorReceiverLUT::CSCSectorReceiverLUT(int endcap, int sector, int subsector
 	c.get<L1MuCSCDTLutRcd>().get(dtLUTs);
 	const L1MuCSCDTLut *myConfigDT_ = dtLUTs.product();
 	memcpy((void*)mb_global_phi,(void*)myConfigDT_->lut(0),(1<<19)*sizeof(gblphidat));
-
-//std::ofstream file("/tmp/kkotov/test.bin",std::ios::binary);
-////unsigned short *tmp = (unsigned short *)pt_lut;
-////const unsigned short *tmp = myConfigPt_->lut();
-////for(int address=0; address<1<<21; address++)
-////   file<<tmp[address]<<std::endl;
-//file.write((char*)pt_lut,(1<<21)*sizeof(ptdat));
-//file.close();
 }
 ///
 
@@ -86,6 +84,7 @@ CSCSectorReceiverLUT::CSCSectorReceiverLUT(int endcap, int sector, int subsector
 												       + (isBinary ? std::string(".bin") : std::string(".dat")))));
       readLUTsFromFile();
     }
+
 }
 
 CSCSectorReceiverLUT::CSCSectorReceiverLUT(const CSCSectorReceiverLUT& lut):_endcap(lut._endcap),
@@ -191,6 +190,7 @@ lclphidat CSCSectorReceiverLUT::calcLocalPhi(const lclphiadd& theadd) const
   double binPhiL = static_cast<double>(maxPhiL)/(2.*CSCConstants::MAX_NUM_STRIPS);
 
   memset(&data,0,sizeof(lclphidat));
+
   double patternOffset = CSCPatternLUT::getPosition(theadd.clct_pattern);
 
   // The phiL value stored is for the center of the half-/di-strip.
@@ -319,7 +319,8 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
 	<< CSCTriggerNumbering::maxTriggerCscId() << "-"
 	<< CSCTriggerNumbering::maxTriggerCscId() << "]\n";
       cscid = CSCTriggerNumbering::minTriggerCscId();
-    }
+	}
+
   if(cscid > CSCTriggerNumbering::maxTriggerCscId())
     {
       edm::LogWarning("CSCSectorReceiverLUT|getGlobalPhiValue")
@@ -328,13 +329,15 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
 	<< CSCTriggerNumbering::maxTriggerCscId() << "]\n";
       cscid = CSCTriggerNumbering::maxTriggerCscId();
     }
+
   if(wire_group >= 1<<5)
     {
       edm::LogWarning("CSCSectorReceiverLUT|getGlobalPhiValue")
 	<< "warning: wire_group" << wire_group
 	<< " is out of bounds (1-" << ((1<<5)-1) << "]\n";
       wire_group = (1<<5) - 1;
-    }
+	}
+
   if(local_phi >= maxPhiL)
     {
       edm::LogWarning("CSCSectorReceiverLUT|getGlobalPhiValue")
