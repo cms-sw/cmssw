@@ -143,7 +143,7 @@ namespace {
       CPPUNIT_ASSERT(NotEndcapID);
     }
   }
-
+  
   //one more way
   struct VerifyFrame {
     VerifyFrame(std::vector<edm::DataFrame::data_type> const & v): n(0), b(v), e(v){}
@@ -180,7 +180,7 @@ namespace {
 		  boost::bind(verifyID,boost::bind(&edm::DataFrame::id,_1)));
     // same as above....
     for (int n=0;n<int(frames.size());++n) {
-      edm::DataFrame df = frames[i];
+      edm::DataFrame df = frames[n];
       verifyID(df.id());
     }
 
