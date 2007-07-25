@@ -63,7 +63,6 @@
 		y     	    = "705"
 		transform   = "rotate(-90)"
 		onmouseover = "SvgMap.hideIt(evt)" 
-		onmouseout  = "SvgMap.showIt(evt)" 
 		style       = "fill: yellow; stroke: black; stroke-width: 4; fill-opacity: 0.2; stroke-opacity: 0.2;"
 		font-family = "Verdana" 
 		font-size   = "80px">
@@ -76,7 +75,6 @@
 		y     	    = "615" 
 		transform   = "rotate(-90)" 
 		onmouseover = "SvgMap.hideIt(evt)" 
-		onmouseout  = "SvgMap.showIt(evt)" 
 		style       = "fill: yellow; stroke: black; stroke-width: 4; fill-opacity: 0.2; stroke-opacity: 0.2;"
 		font-family = "Verdana" 
 		font-size   = "80px">
@@ -89,11 +87,31 @@
 		y     	    = "800" 
 		transform   = "rotate(-90)" 
 		onmouseover = "SvgMap.hideIt(evt)" 
-		onmouseout  = "SvgMap.showIt(evt)" 
 		style       = "fill: yellow; stroke: black; stroke-width: 4; fill-opacity: 0.2; stroke-opacity: 0.2;"
 		font-family = "Verdana" 
 		font-size   = "75px">
 	Layer 3
+      </svg:text>
+
+      <svg:text id    	    = "minEntries" 
+                class 	    = "normalText" 
+                name        = "minEntries"
+		x     	    = "10" 
+		y     	    = "750" 
+		style       = "fill: black; stroke: yellow; stroke-width: 1; fill-opacity: 0.8; stroke-opacity: 0.4;"
+		font-family = "Verdana, Arial, Courier" 
+		font-size   = "30px">
+	Min: 
+      </svg:text>
+      <svg:text id    	    = "maxEntries" 
+                class 	    = "normalText" 
+                name        = "maxEntries"
+		x     	    = "10" 
+		y     	    = "780" 
+		style       = "fill: red;   stroke: black;  stroke-width: 1; fill-opacity: 0.8; stroke-opacity: 0.4;"
+		font-family = "Verdana, Arial, Courier" 
+		font-size   = "30px">
+	Max: 
       </svg:text>
 
      </svg:g>
@@ -105,24 +123,42 @@
    <tr>
     <td>
      <form action  = "javascript:void(0)"
- 	   class   = "inputBox"
- 	   style   = "color:red;">
+ 	   class   = "inputBox">
       <h3>
-       Detector element selected: 
+       Selected det: 
        <input id    = "selectedElementText"
  	      class = "inputBox"
  	      type  = "text" 
  	      value = ""
  	      style = "font-weight:bold;"
  	      name  = "currentElementText" 
- 	      size  = "60">
+ 	      size  = "50">
        </input>
       </h3>
      </form>
     </td>
    </tr> 
-   <tr style="height:400px">
+   <tr>
     <td>
+     <fieldset style = "background:#414141;">
+      <legend id    = "theLegend"
+              class = "legend">
+       TKMap controls 
+      </legend>
+      <button class   = "controlButton" 
+              onclick = "SvgMap.entriesOpacity();" >
+       Full Opacity    
+      </button>
+      <h3>
+       Transparency:
+       <input id      = "statisticsOpacity"
+              type    = "checkbox"
+              name    = "statisticsOpacity"
+              class   = "smallCheckBox"
+	      checked = "">
+       </input>
+      </h3>
+     </fieldset>
     </td>
    </tr> 
   </table>
@@ -132,16 +168,6 @@
   <input type="hidden" name="MEReference" value=""/>
   <input type="hidden" name="MEReference" value=""/>
   <input type="hidden" name="MEReference" value=""/>
- 
-  <script type="text/javascript">
-   function displayColorCodeME()
-   {
-    var cCodeMEText  = document.getElementById("colorCodeME").textContent ;
-    var cCodeMEField = document.getElementById("currentColorCodeME") ;
-    cCodeMEField.setAttribute("value",cCodeMEText) ;
-   }
-   displayColorCodeME() ;
-  </script>
-     
+
  </body>
 </html>

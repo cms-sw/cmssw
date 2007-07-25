@@ -208,15 +208,21 @@ void SiPixelInformationExtractor::selectSingleModuleHistos(MonitorUserInterface 
 							   vector<MonitorElement*> & mes) 
 {  
   string currDir = mui->pwd();
-  //QRegExp rx1("(\\w+)_siPixel") ;
+  QRegExp rx("(\\w+)_siPixel") ;
   //QRegExp rx2("(\\w+)_ctfWithMaterialTracks") ;
-  QRegExp rx("(\\w+)_3") ;
+  //QRegExp rx("(\\w+)_3") ;
   QString theME ;
   if (currDir.find("Module_") != string::npos)  
   {
     vector<string> contents = mui->getMEs();    
     for (vector<string>::const_iterator it = contents.begin(); it != contents.end(); it++) 
     {
+//       cout << ACRed << ACReverse
+//            << "[SiPixelInformationExtractor::selectSingleModuleHistos()]"
+// 	   << ACPlain
+// 	   << " Got: "
+// 	   <<  *it
+// 	   << endl ;
       if((*it).find(mid) != string::npos)
       {
         for (vector<string>::const_iterator ih = names.begin(); ih != names.end(); ih++) 
@@ -639,7 +645,7 @@ void SiPixelInformationExtractor::plotHistos(multimap<string,string>& req_map,
  */
 void SiPixelInformationExtractor::readModuleAndHistoList(MonitorUserInterface* mui, xgi::Output * out, bool coll_flag) {
 //cout<<"entering SiPixelInformationExtractor::readModuleAndHistoList"<<endl;
-   std::vector<std::string> hnames;
+   std::map<std::string,std::string> hnames;
    std::vector<std::string> mod_names;
    if (coll_flag)  mui->cd("Collector/Collated");
    fillModuleAndHistoList(mui, mod_names, hnames);
@@ -656,10 +662,14 @@ void SiPixelInformationExtractor::readModuleAndHistoList(MonitorUserInterface* m
    *out << "</ModuleList>" << endl;
    *out << "<HistoList>" << endl;
 
-   for (std::vector<std::string>::iterator ih = hnames.begin();
+   for (std::map<std::string,std::string>::iterator ih = hnames.begin();
         ih != hnames.end(); ih++) {
-     *out << "<Histo>" << *ih << "</Histo>" << endl;     
-
+     *out << "<Histo type=\"" 
+          << ih->second
+	  << "\">" 
+	  << ih->first 
+	  << "</Histo>" 
+	  << endl;     
    }
    *out << "</HistoList>" << endl;
    *out << "</ModuleAndHistoList>" << endl;
@@ -672,7 +682,9 @@ void SiPixelInformationExtractor::readModuleAndHistoList(MonitorUserInterface* m
  *
  *  This method 
  */
-void SiPixelInformationExtractor::fillModuleAndHistoList(MonitorUserInterface * mui, vector<string>& modules, vector<string>& histos) {
+void SiPixelInformationExtractor::fillModuleAndHistoList(MonitorUserInterface * mui, 
+                                                         vector<string>       & modules,
+							 map<string,string>   & histos) {
 //cout<<"entering SiPixelInformationExtractor::fillModuleAndHistoList"<<endl;
   string currDir = mui->pwd();
   if (currDir.find("Module_") != string::npos)  {
@@ -681,14 +693,25 @@ void SiPixelInformationExtractor::fillModuleAndHistoList(MonitorUserInterface * 
       vector<string> contents = mui->getMEs();    
       for (vector<string>::const_iterator it = contents.begin();
 	   it != contents.end(); it++) {
-	string hname = (*it).substr(0, (*it).find("_siPixel"));
+	string hname          = (*it).substr(0, (*it).find("_siPixel"));
 	if (hname==" ") hname = (*it).substr(0, (*it).find("_ctfWithMaterialTracks"));
+        string fullpathname   = mui->pwd() + "/" + (*it); 
+        MonitorElement * me   = mui->get(fullpathname);
+        string htype          = "undefined" ;
+        if (me) 
+	{
+         MonitorElementT<TNamed>* histogramObj = dynamic_cast<MonitorElementT<TNamed>*> (me);
+         if(histogramObj) 
+         {
+          htype = histogramObj->operator->()->IsA()->GetName() ;
+	 }
+	}
 	//cout<<"hname="<<hname<<endl;
-        histos.push_back(hname);
+        histos[hname] = htype ;
         string mId=" ";
-	if(hname.find("ndigis")!=string::npos) mId = (*it).substr((*it).find("ndigis_siPixelDigis_")+20, 9);
-	if(mId==" " && hname.find("nclusters")!=string::npos) mId = (*it).substr((*it).find("nclusters_siPixelClusters_")+26, 9);
-        if(mId==" " && hname.find("residualX")!=string::npos) mId = (*it).substr((*it).find("residualX_ctfWithMaterialTracks_")+32, 9);
+	if(hname.find("ndigis")                !=string::npos) mId = (*it).substr((*it).find("ndigis_siPixelDigis_")+20, 9);
+	if(mId==" " && hname.find("nclusters") !=string::npos) mId = (*it).substr((*it).find("nclusters_siPixelClusters_")+26, 9);
+        if(mId==" " && hname.find("residualX") !=string::npos) mId = (*it).substr((*it).find("residualX_ctfWithMaterialTracks_")+32, 9);
         if(mId!=" ") modules.push_back(mId);
         //cout<<"mId="<<mId<<endl;
       }    
@@ -764,16 +787,10 @@ void SiPixelInformationExtractor::printModuleHistoList(MonitorUserInterface * mu
   str_val << "\n   <ul>" << endl; 
   for (vector<string>::const_iterator it  = meVec.begin();
                                       it != meVec.end(); it++) {
-    //if ((*it).find("_siPixel")!=string::npos ||
-    //    (*it).find("_ctfWithMaterialTracks")!=string::npos) {
-    if (currDir.find("Pixel")!=string::npos && (*it).find("_3")!=string::npos) {
+    if ((*it).find("_siPixel")!=string::npos) {
       QString qit = (*it) ;
-      //QRegExp rx1("(\\w+)_siPixel") ;
-      //QRegExp rx2("(\\w+)_ctfWithMaterialTracks") ;
-      QRegExp rx("(\\w+)_3") ;
-      //if( rx1.search(qit) > -1 ) {qit = rx1.cap(1);} 
+      QRegExp rx("(\\w+)_(siPixel|ctfWithMaterialTracks|_3)") ;
       if( rx.search(qit) > -1 ) {qit = rx.cap(1);} 
-      //else if( rx2.search(qit) > -1 ) {qit = rx2.cap(1);} 
       str_val << "    <li class=\"dhtmlgoodies_sheet.gif\">\n"
 	      << "     <input id      = \"selectedME\""
 	      << "            folder  = \"" << currDir << "\""
@@ -1463,6 +1480,13 @@ void SiPixelInformationExtractor::computeStatus(MonitorElement      * theME,
 
   QString theMEType = getMEType(theME) ;
 
+//   cout << ACRed << ACReverse
+//        << "[SiPixelInformationExtractor::computeStatus()]"
+//        << ACPlain
+//        << " Computing average for "
+//        << theME->getName()
+//        << endl ;
+
   if( theMEType.contains("TH1") > 0 )
   {
    meanX = (double)theME->getMean();
@@ -1570,9 +1594,9 @@ void SiPixelInformationExtractor::selectMEList(MonitorUserInterface    * mui,
 {  
   string currDir = mui->pwd();
    
-  //QRegExp rx1("(\\w+)_siPixel") ;
+  QRegExp rx("(\\w+)_siPixel") ;
   //QRegExp rx2("(\\w+)_ctfWithMaterialTracks") ;
-  QRegExp rx("(\\w+)_3") ;
+  //QRegExp rx("(\\w+)_3") ;
   QString theME ;
    
   // Get ME from Collector/FU0/Tracker/PixelEndcap/HalfCylinder_pX/Disk_X/Blade_XX/Panel_XX/Module_XX
@@ -1630,15 +1654,28 @@ void SiPixelInformationExtractor::sendTkUpdatedStatus(MonitorUserInterface  * mu
   //QRegExp rx2("\\w+_ctfWithMaterialTracks\\w+_(\\d+)") ;
   QRegExp rx("\\w+_\\w+_(\\d+)") ;
 
-  cout << ACYellow << ACBold
-       << "[SiPixelInformationExtractor::sendTkUpdatedStatus()] "
-       << ACPlain
-       << "Preparing color map update for " 
-       << theTKType
-       << " type"
-       << endl ;
-//  TRandom  * random = new TRandom() ;
+//   cout << ACYellow << ACBold
+//        << "[SiPixelInformationExtractor::sendTkUpdatedStatus()] "
+//        << ACPlain
+//        << "Preparing color map update for " 
+//        << theMEName
+//        << " type "
+//        << theTKType
+//        << " - List size: "
+//        << me_list.size() 
+//        << endl ;
   
+  int maxEntries = 0 ;
+  if( theTKType == "Entries") // In this case find the ME with the highest number of entries
+  {			      // first and use that as a vertical scale normalization
+   for(vector<MonitorElement*>::iterator it=me_list.begin(); it!=me_list.end(); it++)
+   {
+    int entries = (int)(*it)->getEntries() ;
+    if( entries > maxEntries ) maxEntries = entries ;
+   }
+  }
+  
+  int entries = 0 ;
   stringstream jsSnippet ;
   for(vector<MonitorElement*>::iterator it=me_list.begin(); it!=me_list.end(); it++)
   {
@@ -1651,21 +1688,27 @@ void SiPixelInformationExtractor::sendTkUpdatedStatus(MonitorUserInterface  * mu
      //detId = rx1.cap(1).latin1() ;
      //if (detId=="undefined") detId = rx2.cap(1).latin1() ;
      detId = rx.cap(1).latin1() ;
-     if( theTKType == "Continuous") 
+     entries = (int)(*it)->getEntries() ;
+     if( theTKType == "Averages") 
      {
       computeStatus(*it, sts, norm) ;
-//      sts = random->Gaus(sts,sts/10.) ;
       SiPixelUtility::getStatusColor(sts, rval, gval, bval);
+     } else if( theTKType == "Entries") {
+      sts = (double)entries / (double)maxEntries ;
+      SiPixelUtility::getStatusColor(sts, rval, gval, bval);
+      if( entries > maxEntries ) maxEntries = entries ;
+      norm.first  = 0 ;
+      norm.second = maxEntries ;
      } else {
-      int status =  SiPixelUtility::getStatus((*it));
+      int status  =  SiPixelUtility::getStatus((*it));
       if(        status == dqm::qstatus::ERROR ) 
       {
        rval = 255; gval =   0; bval =   0;
-      } else if (status == dqm::qstatus::WARNING ) {
-       rval = 255; gval = 255; bval =   0;
-      } else if (status = dqm::qstatus::OTHER)     {
+      } else if (status == dqm::qstatus::WARNING )  {
+       rval = 255; gval = 255; bval =   0; 
+      } else if (status == dqm::qstatus::OTHER)     {
        rval =   0; gval =   0; bval = 255;
-      } else if (status = dqm::qstatus::STATUS_OK) {
+      } else if (status == dqm::qstatus::STATUS_OK) {
        rval =   0; gval = 255; bval =   0;
       } else {  
        rval = 255; gval = 255; bval = 255;
@@ -1680,8 +1723,10 @@ void SiPixelInformationExtractor::sendTkUpdatedStatus(MonitorUserInterface  * mu
      	       << gval
      	       << "' blue='"
      	       << bval
+     	       << "' entries='"
+     	       << entries
      	       << "'/>" ;
-      colorMap.push_back(jsSnippet.str()) ;
+     colorMap.push_back(jsSnippet.str()) ;
 //      if( it == me_list.begin()) // The first should be equal to all others...
 //      {
 //       getNormalization((*it), norm, theMEType.latin1()) ;
@@ -1720,7 +1765,10 @@ void SiPixelInformationExtractor::sendTkUpdatedStatus(MonitorUserInterface  * mu
 //   cout << ACYellow << ACBold
 //        << "[SiPixelInformationExtractor::sendTkUpdatedStatus()] "
 //        << ACPlain
-//        << "Color map updated" 
+//        << "Color map updated within range " 
+//        << norm.first
+//        << "-"
+//        << norm.second
 //        << endl ;
 }
 
@@ -1767,7 +1815,14 @@ void SiPixelInformationExtractor::getMEList(MonitorUserInterface     * mui,
 {
   string currDir = mui->pwd();
    
-  //QRegExp rx1("(\\w+)_siPixel") ;
+//   cout << ACRed << ACBold
+//        << "[SiPixelInformationExtractor::getMEList()]"
+//        << ACPlain
+//        << " Requesting ME list in " 
+//        << currDir
+//        << endl ;
+       
+//  QRegExp rx("(\\w+)_siPixel") ;
   //QRegExp rx2("(\\w+)_ctfWithMaterialTracks") ;
   QRegExp rx("(\\w+)_3") ;
   QString theME ;
@@ -1780,7 +1835,22 @@ void SiPixelInformationExtractor::getMEList(MonitorUserInterface     * mui,
     {
       theME = *it ;
       //if( rx1.search(theME) == -1 && rx2.search(theME) == -1 ) {continue ;} // If the ME is not a siPixel or ctfWithMaterialTracks one, skip
-      if( rx.search(theME) == -1 ) {continue ;} // If the ME is not a siPixel or ctfWithMaterialTracks one, skip
+//       cout << ACRed << ACReverse
+//            << "[SiPixelInformationExtractor::getMEList()]"
+//            << ACPlain
+//            << " ME: " 
+//            << theME
+//            << endl ;
+      if( rx.search(theME) == -1 ) 
+      {
+       cout << ACRed << ACBold
+            << "[SiPixelInformationExtractor::getMEList()]"
+	    << ACPlain
+	    << " ----> Skipping " 
+	    << theME
+	    << endl ;
+       continue ;
+      } // If the ME is not a siPixel one, skip
       string full_path = currDir + "/" + (*it);
       //string mEName = rx1.cap(1).latin1() ;
       //if(mEName==" ") mEName = rx2.cap(1).latin1() ;

@@ -5,9 +5,6 @@
  <head>
   <link   rel  = "stylesheet" 
  	  type = "text/css" 
- 	  href = "css_files/trace.css"/>
-  <link   rel  = "stylesheet" 
- 	  type = "text/css" 
  	  href = "css_files/magnifier.css"/>
   <link   rel  = "stylesheet" 
  	  type = "text/css" 
@@ -48,23 +45,24 @@
     <table border = "0">
      <tr>
       <td align = "center">
-       <button class = "controlButton" onclick = "SvgMap.zoomIt('FPIX1-z');">FPIX-z D1</button> 
-       <button class = "controlButton" onclick = "SvgMap.zoomIt('FPIX2-z');">FPIX-z D2</button> 
-       <button class = "controlButton" onclick = "SvgMap.zoomIt('BPIX1');"  >BPIX L1  </button>  
-       <button class = "controlButton" onclick = "SvgMap.zoomIt('BPIX2-3');">BPIX L2-3</button>  
-       <button class = "controlButton" onclick = "SvgMap.zoomIt('FPIX1+z');">FPIX+z D1</button> 
-       <button class = "controlButton" onclick = "SvgMap.zoomIt('FPIX2+z');">FPIX+z D2</button> 
+       <button class = "controlButton" onclick = "SvgMap.zoomIt('FPIX1-z');"  >FPIX-z D1</button> 
+       <button class = "controlButton" onclick = "SvgMap.zoomIt('FPIX2-z');"  >FPIX-z D2</button> 
+       <button class = "controlButton" onclick = "SvgMap.zoomIt('BPIX1');"    >BPIX L1  </button>  
+       <button class = "controlButton" onclick = "SvgMap.zoomIt('BPIX2-3');"  >BPIX L2-3</button>  
+       <button class = "controlButton" onclick = "SvgMap.zoomIt('FPIX1+z');"  >FPIX+z D1</button> 
+       <button class = "controlButton" onclick = "SvgMap.zoomIt('FPIX2+z');"  >FPIX+z D2</button> 
       </td>
      </tr>
      <tr>
       <td align = "center">
-       <button class = "controlButton" onclick = "SvgMap.zoomIt('Home');"   >Home     </button> 
-       <button class = "controlButton" onclick = "SvgMap.zoomIt('In');"     >Zoom in  </button>
-       <button class = "controlButton" onclick = "SvgMap.zoomIt('Out');"    >Zoom out </button>
-       <button class = "controlButton" onclick = "SvgMap.zoomIt('Up');"     >Up       </button> 
-       <button class = "controlButton" onclick = "SvgMap.zoomIt('Down');"   >Down     </button> 
-       <button class = "controlButton" onclick = "SvgMap.zoomIt('Left');"   >Left     </button>
-       <button class = "controlButton" onclick = "SvgMap.zoomIt('Right');"  >Right    </button>
+       <button class = "controlButton" onclick = "SvgMap.zoomIt('Home');"     >Home	</button> 
+       <button class = "controlButton" onclick = "SvgMap.zoomIt('In');"       >Zoom in  </button>
+       <button class = "controlButton" onclick = "SvgMap.zoomIt('Out');"      >Zoom out </button>
+       <button class = "controlButton" onclick = "SvgMap.zoomIt('Up');"       >Up	</button> 
+       <button class = "controlButton" onclick = "SvgMap.zoomIt('Down');"     >Down	</button> 
+       <button class = "controlButton" onclick = "SvgMap.zoomIt('Left');"     >Left	</button>
+       <button class = "controlButton" onclick = "SvgMap.zoomIt('Right');"    >Right	</button>
+       <button class = "controlButton" onclick = "SvgMap.updateTrackerMap();" >Refresh  </button>
       </td>
      </tr>
     </table>
@@ -77,29 +75,30 @@
      <form action = "javascript:void(0)"
            style  = "color: #ffb400; font-family: Verdana; Arial">
       <h3>
-       Color codes according to ME: 
+       Color criteria: 
        <input id    = "currentColorCodeME"
      	      class = "inputBox"
               type  = "text" 
               value = "" 
               name  = "currentColorCodeME"
-              size  = "25">
+              size  = "40">
        </input>
-       Current view: 
+       View: 
        <input id    = "currentViewText"
      	      class = "inputBox"
               type  = "text" 
               value = "Home" 
               name  = "currentViewText"
               size  = "8">
-       </input><br/>
+       </input>
+       <br/>
        Det: 
        <input id    = "currentElementText"
  	      class = "inputBox"
  	      type  = "text" 
  	      value = ""
  	      name  = "currentElementText" 
- 	      size  = "75">
+ 	      size  = "67">
        </input>
       </h3> 
      </form>

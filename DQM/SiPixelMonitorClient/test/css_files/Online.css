@@ -4,6 +4,13 @@ body
  font-size:        small  ;
 }
       
+h3
+{
+ font-size:        8pt;
+ font-family:      Verdana, Arial;
+ font-color:       maroon; 
+}
+
 table 
 {
  color:            yellow ;

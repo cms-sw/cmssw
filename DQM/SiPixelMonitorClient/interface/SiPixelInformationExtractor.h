@@ -98,7 +98,7 @@ class SiPixelInformationExtractor {
                               	std::vector<std::string>		& me_names);
   void fillModuleAndHistoList(	MonitorUserInterface			* mui,
                               	std::vector<std::string>		& modules, 
-			      	std::vector<std::string>		& histos);
+			      	std::map<std::string,std::string>	& histos);
   void selectSingleModuleHistos(MonitorUserInterface                    * mui,  
                                 std::string                               mid, 
                                 std::vector<std::string>                & names, 

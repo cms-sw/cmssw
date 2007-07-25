@@ -1,15 +1,23 @@
-  h1
-  {
-    font-size:  8pt; 
-    color:      #fceeb8;
-  }
+h1
+{
+ font-family: 	    Verdana, Arial;
+ font-size:         12pt; 
+ color:             #ffb400;
+}
 
-  .comboBox
-  {
-    font-size:  8pt ;
-  }
+h3
+{
+ font-size:   	    8pt;
+ font-family: 	    Verdana, Arial;
+ color:       	    #ffb400;
+}
 
-  .button
-  {
-     font-size:  8pt ;
- }
+.comboBox
+{
+  font-size:  	    8pt ;
+}
+
+.button
+{
+    font-size:      8pt ;
+}

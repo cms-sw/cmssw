@@ -142,12 +142,6 @@ void SiPixelWebInterface::handleCustomRequest(xgi::Input  * in,
     std::string canvasH = get_from_multimap(requestMap_, "canvasH");
     std::stringstream fullPath ;
     fullPath << folder << "/" << plot ;
-    cout << ACYellow << ACBold
-         << "[SiPixelWebInterface::handleCustomRequest] "
-	 << ACPlain
-	 << "Getting images from " 
-	 << fullPath.str()
-	 << endl ;
     out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
     out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
     out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");

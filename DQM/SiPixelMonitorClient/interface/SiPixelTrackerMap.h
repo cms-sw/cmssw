@@ -15,7 +15,7 @@
 //
 // Original Author:  Dario Menasce
 //         Created:  
-// $Id: SiPixelTrackerMap.cc,v 1.0 2007/05/18 20:24:44 menasce Exp $
+// $Id: SiPixelTrackerMap.h,v 1.2 2007/06/06 14:26:48 menasce Exp $
 //
 //
 
@@ -27,18 +27,19 @@ class SiPixelTrackerMap : public TrackerMap
 {
  public :
  
-          SiPixelTrackerMap(string   s           = " ",
-	                    int      xsize1      = 340,
-			    int      ysize1      = 200  ) ;
+          SiPixelTrackerMap(string     s           = " ",
+	                    int        xsize1      = 340,
+			    int        ysize1      = 200  ) ;
          ~SiPixelTrackerMap(void) {;} 
 	 
-	  void drawModule(TmModule * mod, 
-	                  int        key,
-			  int        nlay, 
-			  bool       print_total        ) ;
-          void print(     bool       print_total = true,
-	                  float      minval      = 0., 
-			  float      maxval      = 0.   ) ;
+	  void drawModule(TmModule   * mod, 
+	                  int          key,
+			  int          nlay, 
+			  bool         print_total        ) ;
+          void print(     bool         print_total = true,
+	                  std::string  TKType      = "Averages",
+	                  float        minval      = 0., 
+			  float        maxval      = 0.   ) ;
  
  private :
  

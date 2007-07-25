@@ -45,6 +45,20 @@
    url    	  += queryString;   
    url    	  += '&MEName='    + selME;
    url 		  += '&TKMapType=' + stype;
+   var theColorMap = document.getElementById("theColorMap") ;
+   var theAlarmMap = document.getElementById("theAlarmMap") ;
+   if( stype == "Alarms" )
+   {
+    theColorMap.setAttribute("style","visibility: hidden;" ) ;
+    theAlarmMap.setAttribute("style","visibility: visible;" ) ;
+   } else {
+    theColorMap.setAttribute("style","visibility: visible;" ) ;
+    theAlarmMap.setAttribute("style","visibility: hidden;" ) ;
+   }
+//   var cCodeMEText  = document.getElementById("colorCodeME").textContent ;
+   var cCodeMEField = document.getElementById("currentColorCodeME") ;
+   cCodeMEField.setAttribute("value",stype+" for ME "+selME) ;
+
    WebLib.makeRequest(url, SvgMap.repaintTrackerMap);     
  }
  //____________________________________________________________________________
@@ -63,9 +77,21 @@
    {
     try 
     {
-     var doc  = WebLib.http_request.responseXML;
-     var root = doc.documentElement;
-     var dets = root.getElementsByTagName("DetInfo") ;
+     SvgMap.theElementText      = document.getElementById("currentElementText") ;
+     var opaFlag    = document.getElementById('statisticsOpacity') ;
+     var theMin     = document.getElementById('minEntries') ;
+     var theMax     = document.getElementById('maxEntries') ;
+     var doc        = WebLib.http_request.responseXML;
+     var root       = doc.documentElement;
+     var dets       = root.getElementsByTagName("DetInfo") ;
+     var minEntries = 9999999999 ;
+     var maxEntries = 0 ;
+     var theMinId  ;
+     var theMaxId  ;
+     var theMinOpa ;
+     var theMaxOpa ;
+     var theMinID  ;
+     var theMaxID  ;
      for (var i = 0; i < dets.length; i++) 
      {
       var detId      = dets[i].getAttribute("DetId") ;
@@ -75,18 +101,47 @@
       var thePolygon = document.getElementById(detId) ;
       var rgb	     = "rgb(" + red + "," + green + "," + blue + ")" ;
       thePolygon.setAttribute("fill",rgb) ;
+      var entries    = parseInt(dets[i].getAttribute("entries" )) ;
+      var opacity    = parseFloat(entries) / 100 + .1 ;
+      if( opacity > 1 || !opaFlag.checked) {opacity = 1;}
+      thePolygon.setAttribute("style","fill-opacity: "+opacity) ;
+      thePolygon.setAttribute("entries",entries) ;
+      if( entries < minEntries ) 
+      {
+       minEntries = entries ;
+       theMinId   = thePolygon ;
+       theMinOpa  = opacity ;
+       theMinID   = detId ;
+      }
+      if( entries > maxEntries ) 
+      {
+       maxEntries = entries ;
+       theMaxId   = thePolygon ;
+       theMaxOpa  = opacity ;
+       theMaxID   = detId ;
+      }
      }
+     try
+     {
+      theMinId.setAttribute("style","fill-opacity: "+theMinOpa+"; stroke: black; stroke-width: 4") ;
+      theMaxId.setAttribute("style","fill-opacity: "+theMaxOpa+"; stroke: red;	 stroke-width: 4") ;
+     } catch(e) {}
+     theMin.textContent = "Min: " + minEntries + " ("+theMinID+")";
+     theMax.textContent = "Max: " + maxEntries + " ("+theMaxID+")";
      var normTag     = root.getElementsByTagName("theLimits") ;
      var normLow     = parseFloat(normTag[0].getAttribute("normLow" )) ;
      var normHigh    = parseFloat(normTag[0].getAttribute("normHigh")) ;
      var deltaNorm   = (normHigh - normLow)/5 ;
      var tagName     = "colorCodeMark" ;
-     for( var i=5; i>=0; i-- )
+     try 
      {
-      tagName = "colorCodeMark" + i ;
-      var markTag = document.getElementById(tagName) ;
-      markTag.textContent = parseInt(i * deltaNorm) ;
-     }
+      for( var i=5; i>=0; i-- )
+      {
+       tagName = "colorCodeMark" + i ;
+       var markTag = document.getElementById(tagName) ;
+       markTag.textContent = parseInt(i * deltaNorm) ;
+      }
+     } catch(e) {}
      SvgMap.gotResponse = 1 ;
     } catch(error) {
      alert("[.SvgMap.js::SvgMap.repaintTrackerMap()] Error: " + error.message +
@@ -228,8 +283,18 @@
 
   if (evt.type == "mouseover") //   <----------------------------------------------- 
   {
-    SvgMap.where.setAttribute("style","cursor:crosshair;") ;
-    SvgMap.theElementText.setAttribute("value",SvgMap.where.getAttribute("POS")) ;
+    var theStyle = SvgMap.where.getAttribute("style") ;
+    try
+    {
+     var opacity  = theStyle.match(/fill-opacity:\\s+(\\d+)/) ;
+     theStyle     = "cursor:crosshair; fill-opacity: " + opacity ;
+    } catch(error) {
+     theStyle     = "cursor:crosshair; fill-opacity: 1" ;
+    } 
+    SvgMap.where.setAttribute("style",theStyle) ;
+    SvgMap.theElementText.setAttribute("value",SvgMap.where.getAttribute("POS")+
+                                               " -- Entries:" + 
+					       SvgMap.where.getAttribute("entries")) ;
   }
 
   if (evt.type == "mouseout")  //   <-----------------------------------------------
@@ -238,6 +303,15 @@
   }
  }
 
+ //------------------------------------------------------------------------------------------
+ SvgMap.entriesOpacity = function()
+ {
+  var polygons = document.getElementsByTagName("polygon") ;
+  for( var i=0; i<polygons.length; i++)
+  {
+    polygons[i].setAttribute("style","") ;
+  }
+ }
  //------------------------------------------------------------------------------------------
  SvgMap.smallDelay = function(millis)
  {
@@ -337,7 +411,8 @@
        break;
   }
   var newGeo = geo[0]+" "+geo[1]+" "+parseInt(geo[2])+" "+parseInt(geo[3]);
-  SvgMap.theClipArea.setAttribute("viewBox",newGeo) ;  
+  SvgMap.theClipArea.setAttribute("viewBox",newGeo) ;
+  SvgMap.showIt() ;  
  }
  //____________________________________________________________________________
  SvgMap.hideIt = function(evt)
@@ -352,15 +427,21 @@
   SvgMap.where.setAttribute("style", theStyle) ;
  }
  //____________________________________________________________________________
- SvgMap.showIt = function(evt)
+ SvgMap.showIt = function()
  {
-  SvgMap.where = evt.currentTarget;
-  var theStyle = SvgMap.where.getAttribute("style") ;
-  if( theStyle.match(/visible/)) 
+  var where = document.getElementsByTagName("text");
+  for( var i=0; i<where.length; i++)
   {
-   return ;
+   if( where[i].getAttribute("name") == "overlappingDetectorLabel" )
+   {
+    var theStyle = where[i].getAttribute("style") ;
+    if( theStyle.match(/visible/)) 
+    {
+     return ;
+    }
+    theStyle    += " visibility: visible;" ;
+    where[i].setAttribute("style", theStyle) ;
+   }
   }
-  theStyle    += " visibility: visible;" ;
-  SvgMap.where.setAttribute("style", theStyle) ;
  }
 

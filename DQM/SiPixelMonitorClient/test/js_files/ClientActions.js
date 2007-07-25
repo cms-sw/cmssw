@@ -69,7 +69,10 @@ ClientActions.SaveToFile = function() {
 // eisenach watburg gotha
 // Create Tracker Map
 //
-ClientActions.CreateTrackerMap = function() {
+ClientActions.CreateTrackerMap = function() 
+{
+  IMGC.loadingProgress("visible") ;	
+  
   var queryString = "RequestID=CreateTkMap";
   var obj         = document.getElementById("create_tkmap");
 
@@ -110,6 +113,7 @@ ClientActions.ReadResponseAndOpenTkMap = function()
     {
       try 
       {
+       ClientActions.smallDelay(5000) ;
        var doc  = WebLib.http_request.responseXML;	  
        var root = doc.documentElement;			  
        var dets = root.getElementsByTagName("Response") ;  
@@ -124,9 +128,10 @@ ClientActions.ReadResponseAndOpenTkMap = function()
              		     "left	=   0, "   +
              		     "top	=   0, "   +
              		     "height	= 700, "   +
-             		     "width	= 1280 ")  ;
+             		     "width	= 1150 ")  ;
        win.moveTo(0,0) ;
        win.focus();	       
+       IMGC.loadingProgress("hidden") ;	
       } catch (err) {
         alert ("[ClientActions.ReadResponseAndOpenTkMap] ERROR: " + err.message);
       }
@@ -134,8 +139,21 @@ ClientActions.ReadResponseAndOpenTkMap = function()
       alert("[ClientActions.ReadResponseAndOpenTkMap] ERROR: "+WebLib.http_request.readyState+", "+WebLib.http_request.status);
     }
   }
-}
+ }
 
+ //------------------------------------------------------------------------------------------
+ ClientActions.smallDelay = function(millis)
+ {
+   var inizio     = new Date();
+   var inizioint  = inizio.getTime();
+   var intervallo = 0;
+   while(intervallo<millis)
+   {
+     var fine     = new Date();
+     var fineint  = fine.getTime();
+     intervallo   = fineint-inizioint;
+   }
+ }
 //___________________________________________________________________________________
 //
 // Check Quality Test Results

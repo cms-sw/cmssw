@@ -16,7 +16,7 @@
 //
 // Original Author:  Dario Menasce
 //         Created:  
-// $Id: SiPixelTrackerMap.cc,v 1.3 2007/07/16 15:55:44 menasce Exp $
+// $Id: SiPixelTrackerMap.cc,v 1.4 2007/07/18 16:40:14 menasce Exp $
 //
 //
 #include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
@@ -172,7 +172,7 @@ void SiPixelTrackerMap::drawModule(TmModule * mod, int key,int nlay, bool print_
   	    << mod->idex
   	    << "\" id=\""
   	    << mod->idex
-  	    << "\" onclick=\"SvgMap.showData(evt);\" onmouseover=\"SvgMap.showData(evt);\" onmouseout=\"SvgMap.showData(evt);\" MESSAGE=\""
+  	    << "\" onclick=\"SvgMap.showData(evt);\" onmouseover=\"SvgMap.showData(evt);\" onmouseout=\"SvgMap.showData(evt);\" entries=\""
   	    << mod->text
   	    << "\" POS=\""
   	    << mod->name
@@ -232,7 +232,7 @@ void SiPixelTrackerMap::drawModule(TmModule * mod, int key,int nlay, bool print_
 //print in svg format tracker map
 //print_total = true represent in color the total stored in the module
 //print_total = false represent in color the average  
-void SiPixelTrackerMap::print(bool print_total, float minval, float maxval)
+void SiPixelTrackerMap::print(bool print_total, string TKType, float minval, float maxval)
 {
  minvalue=minval; maxvalue=maxval;
  svgfile = new ofstream("svgmap.xml",ios::out);
@@ -305,8 +305,22 @@ void SiPixelTrackerMap::print(bool print_total, float minval, float maxval)
   }
  }
 
- *svgfile << "  " << endl ;
- *svgfile << "      <svg:g id=\"theColorMap\" transform=\"translate(0, 0)\">" << endl ;
+//  cout << ACYellow << ACBold
+//       << "[SiPixelTrackerMap::print()] "
+//       << ACPlain
+//       << "TKType: |" 
+//       << TKType
+//       << "|"
+//       << endl ;
+
+  *svgfile << "  " << endl ;
+
+ if( TKType == "Averages" || TKType == "Entries")
+ {
+  *svgfile << "      <svg:g id=\"theColorMap\" transform=\"translate(0, 0)\" style=\"visibility: visible;\">" << endl ;
+ } else {
+  *svgfile << "      <svg:g id=\"theColorMap\" transform=\"translate(0, 0)\" style=\"visibility: hidden;\">" << endl ;
+ }
  int px = 1370 ;
  int dx =   25 ;
  int py =   50 ;
@@ -316,34 +330,34 @@ void SiPixelTrackerMap::print(bool print_total, float minval, float maxval)
  {
   *svgfile << "       <svg:polygon id=\"map\" fill=\"rgb("
  	   << SiPixelContinuousPalette::r[i]
-           << ","
+ 	   << ","
  	   << SiPixelContinuousPalette::g[i]
-           << ","
+ 	   << ","
  	   << SiPixelContinuousPalette::b[i]
-           << ")\" points=\""
-           << px
-           << ","
-           << py
+ 	   << ")\" points=\""
+ 	   << px
+ 	   << ","
+ 	   << py
  	   << " "
-           << px+dx
-           << ","
-           << py
-           << " "
-           << px+dx
-           << ","
-           << py+dy
-           << " "
-           << px
-           << ","
-           << py+dy
-           << "\" />"
-           << endl ;
+ 	   << px+dx
+ 	   << ","
+ 	   << py
+ 	   << " "
+ 	   << px+dx
+ 	   << ","
+ 	   << py+dy
+ 	   << " "
+ 	   << px
+ 	   << ","
+ 	   << py+dy
+ 	   << "\" />"
+ 	   << endl ;
   if( i == 0 || i==20 || i==40 || i==60 || i==80 || i==99) 
   {
    *svgfile << "  " << endl ;
    *svgfile << "       <svg:text id=\"colorCodeMark"
  	    << j-- 
-            << "\" class=\"normalText\" x=\""
+ 	    << "\" class=\"normalText\" x=\""
  	    << px+dx+5
  	    << "\" y=\""
  	    << py + 3
@@ -356,6 +370,31 @@ void SiPixelTrackerMap::print(bool print_total, float minval, float maxval)
   py += dy + 1;
  }
  *svgfile << "      </svg:g>" << endl ;
+
+ if( TKType == "Alarms" )
+ {
+  *svgfile << "      <svg:g id=\"theAlarmMap\" transform=\"translate(0, 0)\" style=\"visibility: visible;\">" << endl ;
+ } else {
+  *svgfile << "      <svg:g id=\"theAlarmMap\" transform=\"translate(0, 0)\" style=\"visibility: hidden;\">" << endl ;
+ }
+ *svgfile << " "															  << endl ;
+ *svgfile << "       <svg:polygon id=\"map\"	  fill =\"rgb(255,0,0)\"     points=\"1300,300  1325,300  1325,320  1300,320\"  />"	  << endl ;
+ *svgfile << "       <svg:text    id=\"ERROR\"     class=\"normalText\"      x=\"1334\" y=\"317\" font-size=\"20\">ERROR    </svg:text>"  << endl ;
+ *svgfile << " "															  << endl ;  
+ *svgfile << "       <svg:polygon id=\"map\"	  fill =\"rgb(0,255,0)\"     points=\"1300,330  1325,330  1325,350  1300,350\" />"	  << endl ;
+ *svgfile << "       <svg:text    id=\"OK\"	  class=\"normalText\"       x=\"1334\" y=\"347\" font-size=\"20\">OK	     </svg:text>" << endl ;
+ *svgfile << " "															  << endl ;  
+ *svgfile << "       <svg:polygon id=\"map\"	  fill =\"rgb(255,255,0)\"   points=\"1300,360  1325,360  1325,380  1300,380\" />"	  << endl ;
+ *svgfile << "       <svg:text    id=\"WARNING\"   class=\"normalText\"      x=\"1334\" y=\"377\" font-size=\"20\">WARNING  </svg:text>"  << endl ;
+ *svgfile << " "															  << endl ;  
+ *svgfile << "       <svg:polygon id=\"map\"	  fill =\"rgb(0,0,255)\"     points=\"1300,390  1325,390  1325,410  1300,410\" />"	  << endl ;
+ *svgfile << "       <svg:text    id=\"OTHER\"     class=\"normalText\"      x=\"1334\" y=\"407\" font-size=\"20\">OTHER    </svg:text>"  << endl ;
+ *svgfile << " "															  << endl ;  
+ *svgfile << "       <svg:polygon id=\"map\"	  fill =\"rgb(255,255,255)\" points=\"1300,420  1325,420  1325,440  1300,440\" />"	  << endl ;
+ *svgfile << "       <svg:text    id=\"UNDEFINED\" class=\"normalText\"      x=\"1334\" y=\"437\" font-size=\"20\">UNDEFINED</svg:text>"  << endl ;
+ *svgfile << " "															  << endl ;  
+ *svgfile << "      </svg:g>"														  << endl ;
+
  *svgfile << " " << endl ;
 
  *svgfile << "      <svg:text id=\"colorCodeME\" class=\"normalText\" x=\"1000\" y=\"4000\">"
@@ -371,11 +410,11 @@ void SiPixelTrackerMap::print(bool print_total, float minval, float maxval)
  delete jsfile ;
  
  svgfile->close() ;
- cout << ACYellow << ACBold
-      << "[SiPixelTrackerMap::print(  )] "
-      << ACPlain
-      << "svgmap.xml file just closed..."
-      << endl ;
+//  cout << ACYellow << ACBold
+//       << "[SiPixelTrackerMap::print(  )] "
+//       << ACPlain
+//       << "svgmap.xml file just closed..."
+//       << endl ;
  					 
  delete svgfile ;					 
 }

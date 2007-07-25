@@ -12,7 +12,7 @@ IMGC.IMAGES_PER_ROW      = 2;
 IMGC.IMAGES_PER_COL      = 2;
 IMGC.IMAGES_PER_PAGE     = IMGC.IMAGES_PER_ROW * IMGC.IMAGES_PER_COL;
 IMGC.THUMB_MICROFICATION = 4;
-IMGC.INACTIVE_OPACITY    = 0.5;
+IMGC.INACTIVE_OPACITY    = 0.7;
 IMGC.DEF_IMAGE_WIDTH     = 600;
 IMGC.ASPECT_RATIO        = 1.5 ;
 IMGC.BASE_IMAGE_WIDTH    = IMGC.DEF_IMAGE_WIDTH;
@@ -447,10 +447,10 @@ IMGC.paintImages = function ()
  
    element.slide_fx.clearTimer();
    element.slide_fx.custom({
- 	   		   'width'  : [element.offsetWidth,  IMGC.THUMB_IMAGE_WIDTH  * 1.1],
- 	   		   'height' : [element.offsetHeight, IMGC.THUMB_IMAGE_HEIGHT * 1.1],
- 	   		   'left'   : [element.offsetLeft, element.offsetLeft - IMGC.THUMB_IMAGE_WIDTH * .05],
- 	   		   'top'    : [element.offsetTop,  element.offsetTop  - IMGC.THUMB_IMAGE_WIDTH * .05]
+ 	   		   'width'  : [element.offsetWidth,  IMGC.THUMB_IMAGE_WIDTH  * 1.05],
+ 	   		   'height' : [element.offsetHeight, IMGC.THUMB_IMAGE_HEIGHT * 1.05],
+ 	   		   'left'   : [element.offsetLeft, element.offsetLeft - IMGC.THUMB_IMAGE_WIDTH * .01],
+ 	   		   'top'    : [element.offsetTop,  element.offsetTop  - IMGC.THUMB_IMAGE_WIDTH * .01]
                            });
    $('imgTitle').value = element.imageNumber + "]  " + plotFolder + "  |  " +  plotName;;
   }, false);

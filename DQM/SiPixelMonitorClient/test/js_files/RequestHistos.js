@@ -136,8 +136,10 @@ RequestHistos.FillMEList = function() {
         var hrows = root.getElementsByTagName('Histo');
         for (var j = 0; j < hrows.length; j++) 
 	{
-          var name  = hrows[j].childNodes[0].nodeValue;
-          var boption = new Option(name, name);
+          var name     = hrows[j].childNodes[0].nodeValue;
+          var htype    = hrows[j].getAttribute("type");
+	  var fullName = htype + " - " + name ;  
+          var boption = new Option(fullName, name);
           try 
 	  {
             bobj.add(boption, null);

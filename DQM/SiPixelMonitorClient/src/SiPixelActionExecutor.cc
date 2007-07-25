@@ -92,16 +92,16 @@ void SiPixelActionExecutor::createTkMap(MonitorUserInterface* mui,
 					string theTKType) 
 {
  
-  TrackerMapCreator tkmap_creator(mEName);
+  TrackerMapCreator tkmap_creator(mEName,theTKType);
   tkmap_creator.create(mui);
   
-  cout << ACYellow << ACBold 
-       << "[SiPixelActionExecutor::createTkMap()]"
-       << ACPlain
-       << " Tracker map created (type:" 
-       << theTKType
-       << ")"
-       << endl;
+//   cout << ACYellow << ACBold 
+//        << "[SiPixelActionExecutor::createTkMap()]"
+//        << ACPlain
+//        << " Tracker map created (type:" 
+//        << theTKType
+//        << ")"
+//        << endl;
 }
 
 //=============================================================================================================

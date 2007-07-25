@@ -46,26 +46,25 @@
   <table id          = "pictTable"   
          border      = "1"
 	 width       = "100%"	     
-	 cellpadding = "2"	     
-	 cellspacing = "2">	     
+	 cellpadding = "1"	     
+	 cellspacing = "1">	     
    <tr>
     <td align="center">
-     <h1>Currently selected MEs</h1>
+     <h3>Available MEs</h3>
     </td>
     <td align="center">
-     <h1>Currently selected ME Summary</h1> 
+     <h3>TKMap color code generator</h3> 
     </td>
    </tr>
    
    <tr align="center">
-    <td width="325">
-     <iframe src	="rightEmbedded.html"	  
+    <td width="150">
+     <iframe src	="rightEmbedded.html"	 
      	     id 	="superFrame"
-     	     width	="320"
-     	     height	="240"
+     	     width	="290"
+     	     height	="230"
      	     scrolling  ="auto" 
-     	     frameborder="1">
-     </iframe>
+     	     frameborder="1"></iframe>
     </td>
 
     <td>
@@ -89,39 +88,42 @@
    </tr>
    <tr>
     <td colspan="2">
-     <table border="0" cellpadding="4">
+     <table border      = "0" 
+            cellpadding = "2"	 
+	    cellspacing = "1">	     
       <tr>
        <td>
      	<form name   = "MEListForm"
      	      action = "javascript:void()">
-     	 <h1>MEs:
+     	 <h3>MEs:
      	  <select id	   = "MEListCB"
      		  class    = "comboBox"
      		  name     = "MEListCB" 
      		  onchange = "RightFrame.movePlotTo()">
      	   <option   value = "-">-</option>
      	  </select>
-     	 </h1>
+     	 </h3>
      	</form>
        </td>
        <td>
      	<form	 action = "javascript:RightFrame.resizeToDefault()">
-     	 <input  type	= "submit"
-     		 class  = "button" 
-     		 name	= "resizeToDefault"
-		 value  = "Resize to default"></button>
+     	 <h3>
+     	  <input  type   = "submit"
+     	  	  class  = "button" 
+     	  	  name   = "resizeToDefault"
+	  	  value  = "Default size" />
+     	 </h3>
      	</form>
        </td>
        <td>
         <form name   = "resizeByForm"
               action = "javascript:void()">
-         <h1>Resize by:
+         <h3>Size:
           <select id	   = "resizeBy"
         	  class    = "comboBox"
         	  name     = "resizeBy" 
         	  onselect = "RightFrame.resizeByStep()"
         	  onchange = "RightFrame.resizeByStep()">
-           <option          value = "0.1" >0.1  	</option>
            <option          value = "0.5" >0.5  	</option>
            <option selected value = "1.0" >1.0  	</option>
            <option selected value = "1.5" >1.5  	</option>
@@ -131,7 +133,7 @@
            <option   	    value = "3.5" >3.5  	</option>
            <option   	    value = "4.0" >4.0  	</option>
           </select>
-         </h1>
+         </h3>
         </form>
        </td>
 <!--
@@ -145,11 +147,11 @@
        </td>
 -->
       </tr>
-     <table>
+     </table>
     </td>
    </tr>
    <tr>
-    <td>
+    <td colspan="2">
      <div   id     	= "zoomedImgDiv"				     
 	    align       = "center"> 
       <img  id     	= "zoomedImg"					     

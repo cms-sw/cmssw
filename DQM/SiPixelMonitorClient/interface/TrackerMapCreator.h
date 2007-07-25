@@ -15,23 +15,25 @@ class TrackerMapCreator {
 
  public:
 
-  TrackerMapCreator(std::string themEName);
+  TrackerMapCreator(         std::string            themEName,
+                             std::string            theTKType);
  ~TrackerMapCreator();
 
-  void create(               MonitorUserInterface     	    * mui);
+  void create(               MonitorUserInterface * mui);
 
  private:
-  MonitorElement* getTkMapMe(MonitorUserInterface     	    * mui,
-                             std::string              	    & me_name,
-			     int                      	      ndet);
+  MonitorElement* getTkMapMe(MonitorUserInterface * mui,
+                             std::string          & me_name,
+			     int                    ndet);
 
-  void paintTkMap(           MonitorElement                 * mui);
+  void paintTkMap(           MonitorElement       * mui);
 
-  SiPixelInformationExtractor * infoExtractor_;
-  SiPixelTrackerMap           * trackerMap;
+  SiPixelInformationExtractor			  * infoExtractor_;
+  SiPixelTrackerMap          			  * trackerMap;
+  						  
+  std::string					    mEName ;
+  std::string					    TKType ;
   
-  std::string mEName ;
-  
-  bool exploreMuiStructure(MonitorUserInterface* mui) ;
+  bool exploreMuiStructure(  MonitorUserInterface * mui) ;
 };
 #endif

@@ -21,13 +21,14 @@ using namespace std;
 //==============================================================================
 // -- Constructor
 // 
-TrackerMapCreator::TrackerMapCreator(string themEName) 
+TrackerMapCreator::TrackerMapCreator(string themEName, string theTKType) 
 {
   cout << ACYellow << ACBold 
        << "[TrackerMapCreator::TrackerMapCreator()]" 
        << ACPlain << " ctor" << endl ;
        
   mEName = themEName ;
+  TKType = theTKType ;
 
   stringstream title ;
   title.str("") ; 
@@ -42,11 +43,11 @@ TrackerMapCreator::TrackerMapCreator(string themEName)
 //
 TrackerMapCreator::~TrackerMapCreator() 
 {
+  if (trackerMap)     delete trackerMap;
+  if (infoExtractor_) delete infoExtractor_;
   cout << ACYellow << ACBold 
        << "[TrackerMapCreator::~TrackerMapCreator()]" 
        << ACPlain << " dtor" << endl ;
-  if (trackerMap)     delete trackerMap;
-  if (infoExtractor_) delete infoExtractor_;
 }
 
 //------------------------------------------------------------------------------
@@ -55,12 +56,12 @@ TrackerMapCreator::~TrackerMapCreator()
  */
 void TrackerMapCreator::create(MonitorUserInterface * mui) 
 {
-  cout << ACYellow << ACBold
-       << "[TrackerMapCreator::create()] "
-       << ACPlain 
-       << " Creating tracker map for ME: " 
-       << mEName 
-       << endl;
+//   cout << ACYellow << ACBold
+//        << "[TrackerMapCreator::create()] "
+//        << ACPlain 
+//        << " Creating tracker map for ME: " 
+//        << mEName 
+//        << endl;
 
   vector<MonitorElement*> mEList ;
   map<string, int>        mEHash ;
@@ -75,7 +76,7 @@ void TrackerMapCreator::create(MonitorUserInterface * mui)
     paintTkMap(*it);
   }
 
-  trackerMap->print(true);  
+  trackerMap->print(true, TKType);  
 
   ofstream innerFrame ;
 
