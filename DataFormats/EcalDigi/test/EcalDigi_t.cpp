@@ -8,6 +8,7 @@
 #undef private
 #include<vector>
 #include<algorithm>
+#include<boost::function>
 
 template<typename DigiCollection>
 class TestEcalDigi: public CppUnit::TestFixture
@@ -124,6 +125,66 @@ namespace {
     int n;
     std::vector<edm::DataFrame::data_type> const & sv;
   };
+
+  void verifyBarrelID(DetId id) {
+    try {
+      EBDetId detid(id);
+    } catch(...) {
+      bool NotBarrelID=false;
+      CPPUNIT_ASSERT(NotBarrelID);
+    }
+  }
+  void verifyEndcapID(DetId id) {
+    try {
+      EEDetId detid(id);
+    } catch(...) {
+      bool NoEndcapID=false;
+      CPPUNIT_ASSERT(NotEndcapID);
+    }
+  }
+
+  //one more way
+  struct VerifyFrame {
+    VerifyFrame(std::vector<edm::DataFrame::data_type> const & v): n(0), b(v), e(v){}
+    
+    void operator()(edm::DataFrame const & df) {
+      DetId id(df.id());
+      if (id.subdetId()==EcalBarrel)
+	b(df);n=b.n;
+      elseif(id.subdetId()==EcalEndcap)
+	e(df);n=e.n;
+      else {
+	bool WrongSubdetId=false;
+	CPPUNIT_ASSERT(WrongSubdetId);
+      }
+    }
+    VerifyIter<EBDataFrame> b;
+    VerifyIter<EEDataFrame> e;
+    int n;
+  };
+
+
+  // an alternative way
+  void iterate(EcalDigiCollection const & frames) {
+    boost::function<void(DetId)> verifyID;
+    if (frames.subdetId()==EcalBarrel)
+      verifyId=verifyBarrelId;
+    elseif(frames.subdetId()==EcalEndcap)
+      verifyId=verifyEndcapId;
+    else {
+      bool WrongSubdetId=false;
+      CPPUNIT_ASSERT(WrongSubdetId);
+    }
+    std::for_each(frames.begin(),frames.end(),
+		  boost::bind(verifyID,boost::bind(edm::DataFrame::id,_1)));
+    // same as above....
+    for (int n=0;n<int(frames.size());++n) {
+      edm::DataFrame df = frames[i];
+      verifyID(df.id());
+    }
+
+  }
+
 }
 
 template<typename DigiCollection>
@@ -145,6 +206,9 @@ void TestEcalDigi<DigiCollection>::iterator() {
     typename DigiCollection::Digi digi(frames[n]);
     vi(digi);
   } 
+  // alternatives
+  iterate(frames);
+  CPPUNIT_ASSERT(std::for_each(frames.begin(),frames.end(),VerifyFrame(sv)).n==4);
 }
 
 
