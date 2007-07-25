@@ -20,7 +20,14 @@ template <class CategoryT,class CalibDataT> class CalibrationInterface
       return(getCalibData(getIndex(calibrationInput)));
      }
 
-    const CalibDataT* getCalibData(int index) const ;
+    CalibDataT* getCalibData(const typename CategoryT::Input & calibrationInput) 
+     {
+      return(getCalibData(getIndex(calibrationInput)));
+     }
+
+    const CalibDataT* getCalibData(int index) const ; 
+    CalibDataT* getCalibData(int index);
+
     const CategoryT* getCategoryDefinition(int index) const ;
 
     int getIndex(const typename CategoryT::Input & calibrationInput) const ; 
@@ -70,9 +77,19 @@ int  CalibrationInterface<CategoryT,CalibDataT>::getIndex(const typename Categor
   }
   return found;
 }
+template <class CategoryT,class CalibDataT>
+const CalibDataT * CalibrationInterface<CategoryT,CalibDataT>::getCalibData(int i) const
+{
+ size_t ii=i;
+ if(i>=0 && ii < m_categoriesWithData.size() )
+  return &m_categoriesWithData[i].second;
+ else
+  return 0;
+}
+
 
 template <class CategoryT,class CalibDataT> 
-const CalibDataT * CalibrationInterface<CategoryT,CalibDataT>::getCalibData(int i) const
+CalibDataT * CalibrationInterface<CategoryT,CalibDataT>::getCalibData(int i) 
 {
  size_t ii=i;
  if(i>=0 && ii < m_categoriesWithData.size() )
