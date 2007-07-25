@@ -24,7 +24,7 @@ class TestEcalDigi: public CppUnit::TestFixture
   ~TestEcalDigi() {}
   void setUp() {}
   void tearDown() {}
-
+  
   void default_ctor();
   void filling();
   void iterator();
@@ -38,7 +38,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(TestEcalDigi<EBDigiCollection>);
 CPPUNIT_TEST_SUITE_REGISTRATION(TestEcalDigi<EEDigiCollection>);
 
 template<typename DigiCollection>
-TestEcalDigi::TestEcalDigi() : sv(10){ 
+TestEcalDigi<DigiCollection>::TestEcalDigi() : sv(10){ 
   edm::DataFrame::data_type v[10] = {0,1,2,3,4,5,6,7,8,9};
   std::copy(v,v+10,sv.begin());
 } 
@@ -57,7 +57,7 @@ namespace {
 
 
 template<typename DigiCollection>
-void TestEcalDigi::default_ctor() {
+void TestEcalDigi<DigiCollection>::default_ctor() {
 
   DigiCollection frames();
   CPPUNIT_ASSERT(frames.stride()==10);
@@ -68,7 +68,7 @@ void TestEcalDigi::default_ctor() {
 }
 
 template<typename DigiCollection>
-void TestEcalDigi::filling() {
+void TestEcalDigi<DigiCollection>::filling() {
 
   DigiCollection frames();
   for (int n=1;n<5;++n) {
@@ -127,7 +127,7 @@ namespace {
 }
 
 template<typename DigiCollection>
-void TestEcalDigi::iterator() {
+void TestEcalDigi<DigiCollection>::iterator() {
   DigiCollection frames();
   for (int n=1;n<5;++n) {
     typename DigiCollection::DetId id = DigiCollection::DetId::unhashIndex(n);
