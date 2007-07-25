@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: TrackProbabilityXMLtoDB.cc,v 1.3 2007/06/28 17:28:20 fwyzard Exp $
+// $Id: CalibrationSkeleton.cc,v 1.1 2007/07/25 14:53:14 arizzi Exp $
 //
 //
 
@@ -82,28 +82,29 @@ class CalibrationSkeleton : public edm::EDAnalyzer {
    public:
       explicit CalibrationSkeleton(const edm::ParameterSet&);
 
-   virtual vois beginJob()
+   virtual void beginJob()
     {
+   bool resetData=true;
+   bool newBinning=false;
       edm::FileInPath f2d("RecoBTag/TrackProbability/data/2DHisto.xml");
       edm::FileInPath f3d("RecoBTag/TrackProbability/data/3DHisto.xml");
       calibrationNew   =  new AlgorithmCalibration<TrackClassFilterCategory,CalibratedHistogramXML>((f3d.fullPath()).c_str());
       calibration2dNew =  new AlgorithmCalibration<TrackClassFilterCategory,CalibratedHistogramXML>((f2d.fullPath()).c_str());
       vector<float> * bins =0;
-      if(m_resetData)
+      if(resetData)
           {
-              if(m_newBinning)
-                bins = new  vector<float>(CalibratedHistogram::constantBinning(1000,0,50));
+              if(newBinning)  bins = new  vector<float>(CalibratedHistogram::constantBinning(1000,0,50));
           vector<pair<TrackClassFilterCategory, CalibratedHistogramXML> > data = calibrationNew->categoriesWithData();
-          vector<pair<TrackClassFilterCategory, CalibratedHistogramXML> > data2d = calibration2dNew>categoriesWithData();
+          vector<pair<TrackClassFilterCategory, CalibratedHistogramXML> > data2d = calibration2dNew->categoriesWithData();
           for(int i = 0 ; i < data.size();i++)
           {
-            data[i].second->reset();
-            if(bins)  data2d[i].second->setUpperLimits(*bins)
+            data[i].second.reset();
+            if(bins)  data2d[i].second.setUpperLimits(*bins);
           }
           for(int i = 0 ; i < data2d.size();i++)
           {
-            data2d[i].second->reset();
-            if(bins)  data2d[i].second->setUpperLimits(*bins)
+            data2d[i].second.reset();
+            if(bins)  data2d[i].second.setUpperLimits(*bins);
           }
 
           }
@@ -113,8 +114,12 @@ class CalibrationSkeleton : public edm::EDAnalyzer {
 
     virtual void endJob()
     {
-          vector<pair<TrackClassFilterCategory, CalibratedHistogramXML> > data = calibrationNew->categoriesWithData();
-          vector<pair<TrackClassFilterCategory, CalibratedHistogramXML> > data2d = calibration2dNew>categoriesWithData();
+    
+               edm::Service<cond::service::PoolDBOutputService> mydbservice;
+              if( !mydbservice.isAvailable() ) return;
+
+      vector<pair<TrackClassFilterCategory, CalibratedHistogramXML> > data = calibrationNew->categoriesWithData();
+          vector<pair<TrackClassFilterCategory, CalibratedHistogramXML> > data2d = calibration2dNew->categoriesWithData();
           TrackProbabilityCalibration * calibration= new TrackProbabilityCalibration();
           TrackProbabilityCalibration * calibration2d= new TrackProbabilityCalibration();
           for(int i = 0 ; i < data.size();i++)
@@ -174,7 +179,7 @@ int ntracks;
 //
 // constructors and destructor
 //
-CalibrationSkeleton::TrackProbabilityXMLtoDB(const edm::ParameterSet& parameters)
+CalibrationSkeleton::CalibrationSkeleton(const edm::ParameterSet& parameters)
 {
 }
 
