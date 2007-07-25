@@ -22,7 +22,7 @@ public:
   typedef std::vector<ConstRecHitPointer>                           ConstRecHitContainer;
 
   explicit TransientTrackingRecHit(const GeomDet * geom=0) : 
-    TrackingRecHit(geom ? geom->geographicalId() ? 0), geom_(geom) {}
+    TrackingRecHit(geom ? geom->geographicalId().rawId() : 0), geom_(geom) {}
 
   explicit TransientTrackingRecHit(const GeomDet * geom, DetId id, Type type=valid ) : 
     TrackingRecHit(id, type), geom_(geom) {}
