@@ -77,7 +77,7 @@ private:
   /// TrackingRecHit exist already in some collection
   TSiPixelRecHit(const GeomDet * geom, const SiPixelRecHit* rh, 
 		 const PixelClusterParameterEstimator* cpe) : 
-    TransientTrackingRecHit(geom), theHitData(*rh), theCPE(cpe) {}
+    TransientTrackingRecHit(geom, *rh), theHitData(*rh), theCPE(cpe) {}
 
   /// Creates the TrackingRecHit internally, avoids redundent cloning
   TSiPixelRecHit( const LocalPoint& pos, const LocalError& err,
