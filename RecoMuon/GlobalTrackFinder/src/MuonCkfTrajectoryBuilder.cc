@@ -26,7 +26,7 @@ MuonCkfTrajectoryBuilder::MuonCkfTrajectoryBuilder(const edm::ParameterSet&     
 }
 
 MuonCkfTrajectoryBuilder::~MuonCkfTrajectoryBuilder()
-{;}
+{}
 
 
 std::string dumpMeasurement(const TrajectoryMeasurement & tm)
