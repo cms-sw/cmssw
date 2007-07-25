@@ -38,7 +38,7 @@ class HeavyChHiggsToTauNuSkim : public HiggsAnalysisSkimType {
         virtual ~HeavyChHiggsToTauNuSkim();
         virtual void endJob() ;
 
-  	virtual bool skim(edm::Event&, const edm::EventSetup&, int& trigger);
+  	virtual bool skim(edm::Event&, const edm::EventSetup& );
 
 
    private:

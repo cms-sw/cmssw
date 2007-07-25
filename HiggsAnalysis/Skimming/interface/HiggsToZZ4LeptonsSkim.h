@@ -34,24 +34,16 @@ class HiggsToZZ4LeptonsSkim : public HiggsAnalysisSkimType {
   virtual ~HiggsToZZ4LeptonsSkim(){};
 
   /// Get event properties to send to builder to fill seed collection
-  virtual bool skim(edm::Event&, const edm::EventSetup&, int& whichTrigger);
+  virtual bool skim(edm::Event&, const edm::EventSetup& );
 
 
  private:
   bool debug;
-  bool useChargeBalance;
-  bool searchForEtMiss;  // SUSY...
   float muonMinPt;
   float elecMinEt;
   int nLeptonMin;
 
-  // Cuts to mimic HLT while HLT is not available
-  float singleMuonHLTPtCut;
-  float doubleMuonHLTPtCut;
-  float singleElecHLTEtCut;
-  float doubleElecHLTEtCut;
-
-
+  // Reco samples
   edm::InputTag recTrackLabel;
   edm::InputTag theGLBMuonLabel;
   edm::InputTag thePixelGsfELabel;
