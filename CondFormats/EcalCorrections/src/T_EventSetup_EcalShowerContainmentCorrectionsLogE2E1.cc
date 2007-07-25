@@ -1,0 +1,4 @@
+#include "CondFormats/EcalCorrections/interface/EcalShowerContainmentCorrectionsLogE2E1.h"
+#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+
+EVENTSETUP_DATA_REG(EcalShowerContainmentCorrectionsLogE2E1)
