@@ -137,7 +137,7 @@ namespace {
   }
   void verifyEndcapId(edm::DataFrame::id_type id) {
     try {
-      EEDetId detid(DetId(id));
+      EEDetId detid(DetId(id)); // detid(id) does not throw
     } catch(...) {
       bool NotEndcapID=false;
       CPPUNIT_ASSERT(NotEndcapID);
@@ -176,8 +176,9 @@ namespace {
       bool WrongSubdetId=false;
       CPPUNIT_ASSERT(WrongSubdetId);
     }
-    std::for_each(frames.begin(),frames.end(),
-		  boost::bind(verifyId,boost::bind(&edm::DataFrame::id,_1)));
+
+    //    std::for_each(frames.begin(),frames.end(),
+    //		  boost::bind(verifyId,boost::bind(&edm::DataFrame::id,_1)));
     // same as above....
     for (int n=0;n<int(frames.size());++n) {
       edm::DataFrame df = frames[n];
