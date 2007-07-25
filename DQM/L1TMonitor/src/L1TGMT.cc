@@ -1,8 +1,8 @@
 /*
  * \file L1TGMT.cc
  *
- * $Date: 2007/02/22 19:43:53 $
- * $Revision: 1.3 $
+ * $Date: 2007/05/25 15:45:48 $
+ * $Revision: 1.4 $
  * \author J. Berryhill
  *
  */
@@ -81,18 +81,18 @@ void L1TGMT::beginJob(const EventSetup& c)
   {
     dbe->setCurrentFolder("L1TMonitor/L1TGMT");
     
-    gmtetavalue = dbe->book1D("CSC TF eta value", 
-       "CSC TF eta value", 100, -2.5, 2.5 ) ;
-    gmtphivalue = dbe->book1D("CSC TF phi value", 
-       "CSC TF phi value", 100, 0.0, 6.2832 ) ;
-    gmtptvalue = dbe->book1D("CSC TF pt value", 
-       "CSC TF pt value", 160, -0.5, 159.5 ) ;
-    gmtquality = dbe->book1D("CSC TF quality", 
-       "CSC TF quality", 20, -0.5, 19.5 ) ;
-    gmtcharge = dbe->book1D("CSC TF charge", 
-       "CSC TF charge", 2, -1.5, 1.5 ) ;
-    gmtntrack = dbe->book1D("CSC TF ntrack", 
-       "CSC TF ntrack", 20, -0.5, 19.5 ) ;
+    gmtetavalue = dbe->book1D("GMT_eta_value", 
+       "GMT eta value", 100, -2.5, 2.5 ) ;
+    gmtphivalue = dbe->book1D("GMT_phi_value", 
+       "GMT phi value", 100, 0.0, 6.2832 ) ;
+    gmtptvalue = dbe->book1D("GMT_pt_value", 
+       "GMT pt value", 160, -0.5, 159.5 ) ;
+    gmtquality = dbe->book1D("GMT_quality", 
+       "GMT quality", 20, -0.5, 19.5 ) ;
+    gmtcharge = dbe->book1D("GMT_charge", 
+       "GMT charge", 2, -1.5, 1.5 ) ;
+    gmtntrack = dbe->book1D("GMT_ntrack", 
+       "GMT ntrack", 20, -0.5, 19.5 ) ;
 
 
   }  
@@ -127,22 +127,26 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
     return;
   }
 
+  L1MuGMTReadoutCollection const* gmtrc = pCollection.product();
+  vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
+  vector<L1MuGMTReadoutRecord>::const_iterator RRItr;
+
   int ngmttrack = 0;
-  for( vector<L1MuGMTReadoutRecord>::const_iterator 
-       RRItr = pCollection->getRecords().begin() ;
-       RRItr != pCollection->getRecords().end() ;
-       ++RRItr ) 
+  for( RRItr = gmt_records.begin() ;
+       RRItr != gmt_records.end() ;
+       RRItr++ ) 
   {
 
     if (verbose_)
     {
-    cout << "Readout Record " << RRItr->getBxInEvent()
+     cout << "Readout Record " << RRItr->getBxInEvent()
    	    << endl;
-    }
+   }
 
-    vector<L1MuGMTExtendedCand> GMTCands = RRItr->getGMTCands();
+   vector<L1MuGMTExtendedCand> GMTCands = RRItr->getGMTCands();
+ 
 
-    if (verbose_) 
+   if (verbose_) 
     {
      cout << "GMTCands " << GMTCands.size()
    	    << endl;
