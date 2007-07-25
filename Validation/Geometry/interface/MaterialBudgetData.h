@@ -113,6 +113,8 @@ public:
     return thePVcopyNo; }
   float getRadLen() const {
     return theRadLen; }
+  float getIntLen() const {
+    return theIntLen; }
   
   float getStepDmb( int is ) {
     return theDmb[is];
