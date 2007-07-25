@@ -168,7 +168,7 @@ template<class C> EcalUncalibratedRecHit  EcalUncalibRecHitFixedAlphaBetaAlgo<C>
   /*    std::cout << "separate fits\nA: " << fAmp_max_  << ", ResidualPed: " <<  fPed_max_
               <<", pedestal: "<<pedestal << ", tPeak " << fTim_max_ << std::endl;
   */
-  return EcalUncalibratedRecHit( dataFrame.id(),fAmp_max_, pedestal+fPed_max_, fTim_max_ , chi2_ );
+  return EcalUncalibratedRecHit( dataFrame.id(),fAmp_max_, pedestal+fPed_max_, fTim_max_ - 6 , chi2_ );
 }
 
 template<class C> double EcalUncalibRecHitFixedAlphaBetaAlgo<C>::pulseShapeFunction(double t){
@@ -191,7 +191,9 @@ template<class C> void  EcalUncalibRecHitFixedAlphaBetaAlgo<C>::InitFitParameter
   fPed_max_ = 0;
   if(max_sample <1 || max_sample > 7 || fAmp_max_ <  MinAmpl_){
     fAmp_max_ = samples[5];
-    fTim_max_ = 5;
+    double sumA = samples[5]+samples[4]+samples[6];
+    if(sumA != 0) { fTim_max_ = 6+(samples[6]-samples[4])/sumA; }
+    else{ fTim_max_ = -993; }//-999+6
     doFit_ = false;
   }
   else{
