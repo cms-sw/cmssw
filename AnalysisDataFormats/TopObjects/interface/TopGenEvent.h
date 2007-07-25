@@ -15,18 +15,18 @@ class TopGenEvent {
   const reco::Candidate* candidate(int) const;
   
   //common getters
-  const reco::Candidate* electron() const { return candidate( 11 );}
-  const reco::Candidate* positron() const { return candidate(-11 );}
-  const reco::Candidate* muon() const     { return candidate( 13 );}
-  const reco::Candidate* muonBar() const  { return candidate(-13 );}
-  const reco::Candidate* tau() const      { return candidate( 15 );}
-  const reco::Candidate* tauBar() const   { return candidate(-15 );}
-  const reco::Candidate* top() const      { return candidate( 6 );}
-  const reco::Candidate* topBar() const   { return candidate(-6 );}
-  const reco::Candidate* w() const        { return candidate( 24 );}
-  const reco::Candidate* wBar() const     { return candidate(-24 );}
-  const reco::Candidate* b() const        { return candidate( 5 );}
-  const reco::Candidate* bBar() const     { return candidate(-5 );}
+  const reco::Candidate* eMinus() const   { return candidate( 11 );}
+  const reco::Candidate* ePlus() const    { return candidate(-11 );}
+  const reco::Candidate* muMinus() const  { return candidate( 13 );}
+  const reco::Candidate* muPlus() const   { return candidate(-13 );}
+  const reco::Candidate* tauMinus() const { return candidate( 15 );}
+  const reco::Candidate* tauPlus() const  { return candidate(-15 );}
+  const reco::Candidate* wMinus() const   { return candidate( 24 );}
+  const reco::Candidate* wPlus() const    { return candidate(-24 );}
+  const reco::Candidate* top() const      { return candidate(  6 );}
+  const reco::Candidate* topBar() const   { return candidate( -6 );}
+  const reco::Candidate* b() const        { return candidate(  5 );}
+  const reco::Candidate* bBar() const     { return candidate( -5 );}
 
  protected:
   

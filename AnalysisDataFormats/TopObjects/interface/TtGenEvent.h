@@ -19,14 +19,14 @@ class TtGenEvent: public TopGenEvent {
   //semi-leptonic getters
   const reco::Candidate* singleLepton() const;
   const reco::Candidate* singleNeutrino() const;
-  const reco::Candidate* leptonicW() const;
-  const reco::Candidate* leptonicB() const;
-  const reco::Candidate* leptonicTop() const;
-  const reco::Candidate* hadronicW() const;
-  const reco::Candidate* hadronicB() const;
-  const reco::Candidate* hadronicTop() const;
-  const reco::Candidate* hadronicQuark() const;
-  const reco::Candidate* hadronicQuarkBar() const;
+  const reco::Candidate* leptonicDecayW() const;
+  const reco::Candidate* leptonicDecayB() const;
+  const reco::Candidate* leptonicDecayTop() const;
+  const reco::Candidate* hadronicDecayW() const;
+  const reco::Candidate* hadronicDecayB() const;
+  const reco::Candidate* hadronicDecayTop() const;
+  const reco::Candidate* hadronicDecayQuark() const;
+  const reco::Candidate* hadronicDecayQuarkBar() const;
   
   //full-leptonic getters
   const reco::Candidate* lepton() const;

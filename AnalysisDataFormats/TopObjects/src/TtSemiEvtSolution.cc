@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolution.cc,v 1.13 2007/07/05 23:43:08 lowette Exp $
+// $Id: TtSemiEvtSolution.cc,v 1.14 2007/07/20 07:02:37 lowette Exp $
 //
 
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
@@ -43,14 +43,14 @@ TopMET      TtSemiEvtSolution::getMET() const      { return *met_; }
 
 // methods to get the MC matched particles
 // FIXME: provide defaults if the genevent is invalid
-const reco::Candidate * TtSemiEvtSolution::getGenHadt() const { return theGenEvt_->hadronicTop(); }
-const reco::Candidate * TtSemiEvtSolution::getGenHadW() const { return theGenEvt_->hadronicW(); }
-const reco::Candidate * TtSemiEvtSolution::getGenHadb() const { return theGenEvt_->hadronicB(); }
-const reco::Candidate * TtSemiEvtSolution::getGenHadp() const { return theGenEvt_->hadronicQuark(); }
-const reco::Candidate * TtSemiEvtSolution::getGenHadq() const { return theGenEvt_->hadronicQuarkBar(); }
-const reco::Candidate * TtSemiEvtSolution::getGenLept() const { return theGenEvt_->leptonicTop(); }
-const reco::Candidate * TtSemiEvtSolution::getGenLepW() const { return theGenEvt_->leptonicW(); }
-const reco::Candidate * TtSemiEvtSolution::getGenLepb() const { return theGenEvt_->leptonicB(); }
+const reco::Candidate * TtSemiEvtSolution::getGenHadt() const { return theGenEvt_->hadronicDecayTop(); }
+const reco::Candidate * TtSemiEvtSolution::getGenHadW() const { return theGenEvt_->hadronicDecayW(); }
+const reco::Candidate * TtSemiEvtSolution::getGenHadb() const { return theGenEvt_->hadronicDecayB(); }
+const reco::Candidate * TtSemiEvtSolution::getGenHadp() const { return theGenEvt_->hadronicDecayQuark(); }
+const reco::Candidate * TtSemiEvtSolution::getGenHadq() const { return theGenEvt_->hadronicDecayQuarkBar(); }
+const reco::Candidate * TtSemiEvtSolution::getGenLept() const { return theGenEvt_->leptonicDecayTop(); }
+const reco::Candidate * TtSemiEvtSolution::getGenLepW() const { return theGenEvt_->leptonicDecayW(); }
+const reco::Candidate * TtSemiEvtSolution::getGenLepb() const { return theGenEvt_->leptonicDecayB(); }
 const reco::Candidate * TtSemiEvtSolution::getGenLepl() const { return theGenEvt_->singleLepton(); }
 const reco::Candidate * TtSemiEvtSolution::getGenLepn() const { return theGenEvt_->singleNeutrino(); }
 

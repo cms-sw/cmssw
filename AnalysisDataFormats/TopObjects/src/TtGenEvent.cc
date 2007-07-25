@@ -1,5 +1,5 @@
 //
-// $Id: TtGenEvent.cc,v 1.10 2007/07/20 14:36:45 rwolf Exp $
+// $Id: TtGenEvent.cc,v 1.11 2007/07/23 11:49:32 rwolf Exp $
 //
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
@@ -77,7 +77,7 @@ TtGenEvent::singleNeutrino() const
 }
 
 const reco::Candidate* 
-TtGenEvent::hadronicQuark() const 
+TtGenEvent::hadronicDecayQuark() const 
 {
   const reco::Candidate* cand=0;
   if (singleLepton()) {
@@ -92,7 +92,7 @@ TtGenEvent::hadronicQuark() const
 }
 
 const reco::Candidate* 
-TtGenEvent::hadronicQuarkBar() const 
+TtGenEvent::hadronicDecayQuarkBar() const 
 {
   const reco::Candidate* cand=0;
   if (singleLepton()) {
@@ -107,7 +107,7 @@ TtGenEvent::hadronicQuarkBar() const
 }
 
 const reco::Candidate* 
-TtGenEvent::hadronicB() const 
+TtGenEvent::hadronicDecayB() const 
 {
   const reco::Candidate* cand=0;
   if (singleLepton()) {
@@ -124,7 +124,7 @@ TtGenEvent::hadronicB() const
 }
 
 const reco::Candidate* 
-TtGenEvent::hadronicW() const 
+TtGenEvent::hadronicDecayW() const 
 {
   const reco::Candidate* cand=0;
   if (singleLepton()) {
@@ -141,7 +141,7 @@ TtGenEvent::hadronicW() const
 }
 
 const reco::Candidate* 
-TtGenEvent::hadronicTop() const 
+TtGenEvent::hadronicDecayTop() const 
 {
   const reco::Candidate* cand=0;
   if (singleLepton()) {
@@ -158,7 +158,7 @@ TtGenEvent::hadronicTop() const
 }
 
 const reco::Candidate* 
-TtGenEvent::leptonicB() const 
+TtGenEvent::leptonicDecayB() const 
 {
   const reco::Candidate* cand=0;
   if (singleLepton()) {
@@ -175,7 +175,7 @@ TtGenEvent::leptonicB() const
 }
 
 const reco::Candidate* 
-TtGenEvent::leptonicW() const 
+TtGenEvent::leptonicDecayW() const 
 {
   const reco::Candidate* cand=0;
   if (singleLepton()) {
@@ -192,7 +192,7 @@ TtGenEvent::leptonicW() const
 }
 
 const reco::Candidate* 
-TtGenEvent::leptonicTop() const 
+TtGenEvent::leptonicDecayTop() const 
 {
   const reco::Candidate* cand=0;
   if (singleLepton()) {
