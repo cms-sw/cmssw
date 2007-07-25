@@ -8,6 +8,7 @@
 #include <memory>
 #include <map>
 
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
@@ -32,16 +33,19 @@ class EcalLaserDbService {
   const EcalLaserAlphas* getAlphas () const;
   const EcalLaserAPDPNRatiosRef* getAPDPNRatiosRef () const;
   const EcalLaserAPDPNRatios* getAPDPNRatios () const;
-  float  calcLaserCorrection (EBDetId const & xid, edm::Timestamp const & iTime) const;
+  float getLaserCorrection (DetId const & xid, edm::Timestamp const & iTime) const;
 
   void setData (const EcalLaserAlphas* fItem) {mAlphas = fItem;}
   void setData (const EcalLaserAPDPNRatiosRef* fItem) {mAPDPNRatiosRef = fItem;}
   void setData (const EcalLaserAPDPNRatios* fItem) {mAPDPNRatios = fItem;}
+  //  void setVerbosity (const bool verb) const {verbose = verb;}
 
  private:
   const EcalLaserAlphas* mAlphas;
   const EcalLaserAPDPNRatiosRef* mAPDPNRatiosRef;
   const EcalLaserAPDPNRatios* mAPDPNRatios;
+
+  //  bool verbose;
 
 };
 

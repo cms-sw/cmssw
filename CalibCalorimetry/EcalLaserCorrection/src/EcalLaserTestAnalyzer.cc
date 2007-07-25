@@ -55,6 +55,7 @@ private:
   //  unsigned long m_firstRun ;
   //  unsigned long m_lastRun ;
 
+
   // ----------member data ---------------------------
 };
 
@@ -122,35 +123,62 @@ EcalLaserTestAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
   edm::ESHandle<EcalLaserDbService> pSetup;
   iSetup.get<EcalLaserDbRecord>().get( pSetup );
   std::cout << "EcalLaserTestAnalyzer::analyze-> got EcalLaserDbRecord: " << std::endl;
+  //  pSetup->setVerbosity(true);
 
-  int ieta = 83;
-  int iphi = 168;
-  EBDetId testid(ieta,iphi);
-  edm::Timestamp testtime(2222);
+//   int ieta = 83;
+//   int iphi = 168;
+//   EBDetId testid(ieta,iphi);
+//   edm::Timestamp testtime(2222);
 
-  float blah = pSetup->calcLaserCorrection(testid, testtime);
-  std::cout << " EcalLaserTestAnalyzer: " << blah << std::endl; 
+//   float blah = pSetup->getLaserCorrection(testid, testtime);
+//   std::cout << " EcalLaserTestAnalyzer: " << blah << std::endl; 
 
-//    for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
-//      if(ieta==0) continue;
-//      for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
-//        try
-//  	{
-
-// 	  //   int ieta = 83;
-// 	  //   int iphi = 168;
-// 	  EBDetId testid(ieta,iphi);
-// 	  edm::Timestamp testtime(2222);
-
-// 	  float blah = pSetup->calcLaserCorrection(testid, testtime);
-// 	  std::cout << " EcalLaserTestAnalyzer: " << blah << std::endl; 
+  // ECAL Barrel
+  for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
+    if(ieta==0) continue;
+    for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
+      try
+ 	{
 	  
-//  	}
-//        catch (...)
-// 	 {
-// 	 }
-//      }
-//    }
+	  EBDetId testid(ieta,iphi);
+	  edm::Timestamp testtime(2222);
+	  
+	  float blah = pSetup->getLaserCorrection(testid, testtime);
+	  std::cout << " EcalLaserTestAnalyzer: " << blah << std::endl; 
+	  
+ 	}
+      catch (...)
+	{
+	}
+    }
+  }
+  
+  
+  // ECAL Endcap
+  for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
+    for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
+      // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
+      try 
+	{
+	  	  
+	  EEDetId testidpos(iX,iY,1);
+	  edm::Timestamp testtime(2222);
+	  std::cout << " EcalLaserTestAnalyzer: " << testidpos << " " << testidpos.isc() << endl;
+
+	  float blah = pSetup->getLaserCorrection(testidpos, testtime);
+	  std::cout << " EcalLaserTestAnalyzer: " << blah << std::endl; 
+	  
+	  EEDetId testidneg(iX,iY,-1);
+	  std::cout << " EcalLaserTestAnalyzer: " << testidneg << " " << testidneg.isc() << endl;
+	  blah = pSetup->getLaserCorrection(testidneg, testtime);
+	  std::cout << " EcalLaserTestAnalyzer: " << blah << std::endl; 
+
+	}
+      catch (...)
+	{
+	}
+    }
+  }
 
 
 }
