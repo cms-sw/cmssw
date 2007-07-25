@@ -12,7 +12,7 @@ SiPixelRecHit::SiPixelRecHit( const LocalPoint& pos, const LocalError& err,
 bool SiPixelRecHit::sharesInput( const TrackingRecHit* other, 
 				 SharedInputType what) const
 {
-  if (trackerId() != other->geographicalId()) return false;
+  if (geographicalId() != other->geographicalId()) return false;
   if(! other->isValid()) return false;
 
   const SiPixelRecHit* otherCast = static_cast<const SiPixelRecHit*>(other);

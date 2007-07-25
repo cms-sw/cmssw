@@ -46,7 +46,7 @@ private:
 
 // Comparison operators
 inline bool operator<( const SiPixelRecHit& one, const SiPixelRecHit& other) {
-  if ( one.trackerId() < other.trackerId() ) {
+  if ( one.geographicalId() < other.geographicalId() ) {
     return true;
   } else {
     return false;
