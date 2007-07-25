@@ -5,7 +5,7 @@
   
 Ref: A template for an interproduct reference to a product.
 
-$Id: RefProd.h,v 1.11 2007/07/09 07:28:49 llista Exp $
+$Id: RefProd.h,v 1.12 2007/07/13 08:49:32 llista Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -117,6 +117,8 @@ namespace edm {
     /// Checks if product is in memory.
     bool hasCache() const {return product_.productPtr() != 0;}
 
+    void swap( RefProd<C> & );
+
   private:
     // Compile time check that the argument is a C* or C const*
     // or derived from it.
@@ -156,6 +158,13 @@ namespace edm {
     return edm::template getProduct<C>(product_);
   } 
 
+
+  template<typename C>
+  inline
+  void RefProd<C>::swap( RefProd<C> & other ) {
+    std::swap( product_, other.product_ );
+  }
+
   template <typename C>
   inline
   bool
@@ -175,6 +184,14 @@ namespace edm {
   bool
   operator< (RefProd<C> const& lhs, RefProd<C> const& rhs) {
     return (lhs.refCore() < rhs.refCore());
+  }
+}
+
+namespace std {
+  template<typename C>
+  inline
+  void swap( const edm::RefProd<C> & lhs, const edm::RefProd<C> & rhs ) {
+    lhs.swap( rhs );
   }
 }
 

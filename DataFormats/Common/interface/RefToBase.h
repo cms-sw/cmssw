@@ -28,7 +28,7 @@ reference type.
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Apr  3 16:37:59 EDT 2006
-// $Id: RefToBase.h,v 1.23 2007/07/23 11:08:55 llista Exp $
+// $Id: RefToBase.h,v 1.24 2007/07/24 11:37:36 llista Exp $
 //
 
 // system include files
@@ -72,7 +72,7 @@ namespace edm {
     explicit RefToBase(Ref<C1, T1, F1> const& r);
     template <typename C> 
     explicit RefToBase(RefProd<C> const& r);
-    explicit RefToBase(RefToBaseProd<T> const& r, size_t i );
+    explicit RefToBase(RefToBaseProd<T> const& r, size_t i);
     template <typename T1>
     explicit RefToBase(RefToBase<T1> const & r );
     RefToBase(boost::shared_ptr<reftobase::RefHolderBase> p);
@@ -174,8 +174,8 @@ namespace edm {
   RefToBase<T> const&
   RefToBase<T>:: operator= (RefToBase<T> const& iRHS) 
   {
-    RefToBase<T> temp(iRHS);
-    this->swap(temp);
+    reftobase::BaseHolder<value_type>* h = iRHS.holder_;
+    holder_ = h == 0 ? 0 : h->clone();
     return *this;
   }
 
@@ -325,6 +325,7 @@ namespace edm {
   {
     a.swap(b);
   }
+
 }
 
 #include "DataFormats/Common/interface/RefToBaseProd.h"
@@ -332,8 +333,11 @@ namespace edm {
 namespace edm {
   template <class T>
   inline
-  RefToBase<T>::RefToBase(RefToBaseProd<T> const& r, size_t i) :
-    holder_( r->refAt( i ).holder_->clone() ) {
+  RefToBase<T>::RefToBase(RefToBaseProd<T> const& r, size_t i) {
+    const View<T> * v = r.operator->();
+    RefToBase<T> ri = v->refAt( i );
+    reftobase::BaseHolder<value_type> * h = ri.holder_;
+    holder_ = h->clone();
   }
 }
 

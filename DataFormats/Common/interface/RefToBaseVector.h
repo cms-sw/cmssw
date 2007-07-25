@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: RefToBaseVector.h,v 1.10 2007/07/12 12:08:57 llista Exp $
+ * $Id: RefToBaseVector.h,v 1.11 2007/07/24 11:37:36 llista Exp $
  *
  */
 
@@ -56,9 +56,9 @@ namespace edm {
     void push_back( const RefToBase<T> & );
 
     void fillView(std::vector<void const*>& pointers) const;
-
     std::auto_ptr<reftobase::RefVectorHolderBase> vectorHolder() const;
-
+    const void * product() const;
+ 
   private:
     holder_type * holder_;
   };
@@ -260,6 +260,11 @@ namespace edm {
   template <typename T>
   std::auto_ptr<reftobase::RefVectorHolderBase> RefToBaseVector<T>::vectorHolder() const {
     return holder_->vectorHolder();
+  }
+
+  template <typename T>
+  const void * RefToBaseVector<T>::product() const {
+    return holder_->product();
   }
 
 }

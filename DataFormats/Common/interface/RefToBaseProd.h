@@ -5,7 +5,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: RefToBaseProd.h,v 1.5 2007/07/24 11:37:36 llista Exp $
+ * $Id: RefToBaseProd.h,v 1.6 2007/07/24 21:05:12 llista Exp $
  *
  */
   
@@ -23,7 +23,7 @@ namespace edm {
     typedef View<T> product_type;
 
     /// Default constructor needed for reading from persistent store. Not for direct use.
-    RefToBaseProd() : product_() {}
+    RefToBaseProd() : product_(), view_(0) {}
 
     /// General purpose constructor from handle-like object.
     // The templating is artificial.
@@ -86,6 +86,8 @@ namespace edm {
 
     RefToBaseProd<T> & operator=( const RefToBaseProd<T> & other );
 
+    void swap(RefToBaseProd<T> &);
+
   private:
     RefCore product_;
     mutable std::auto_ptr<View<T> > view_;
@@ -121,6 +123,7 @@ namespace edm {
   RefToBaseProd<T>::RefToBaseProd(Handle<View<T> > const& handle) :
     product_(handle.id(), 0, handle->productGetter() ),
     view_( new View<T>( * handle ) ) {
+    assert( handle->productGetter() == 0 );
   }
 
   template <typename T>
@@ -134,14 +137,14 @@ namespace edm {
   inline
   RefToBaseProd<T>::RefToBaseProd( const RefToBaseProd<T> & ref ) :
     product_( ref.product_ ),
-    view_( ref.view_ ) {
+    view_( new View<T>( * ref ) ) {
   }
 
   template <typename T>
   inline
   RefToBaseProd<T> & RefToBaseProd<T>::operator=( const RefToBaseProd<T> & other ) {
     product_ = other.product_;
-    view_ = other.view_;
+    view_.reset( new View<T>( * other ) );
     return *this;
   }
 
@@ -158,6 +161,17 @@ namespace edm {
   View<T> const* RefToBaseProd<T>::operator->() const {
     return view_.get();
   } 
+
+  template<typename T>
+  inline
+  void RefToBaseProd<T>::swap(RefToBaseProd<T> & other) {
+    std::swap( product_, other.product_ );
+    // why this does not compile? 
+    // std::swap( view_, other.view_ );
+     std::auto_ptr<View<T> > tmp = view_;
+     view_ = other.view_;
+     other.view_ = tmp;
+  }
 
   template <typename T>
   inline
@@ -178,6 +192,13 @@ namespace edm {
   bool
   operator< (RefToBaseProd<T> const& lhs, RefToBaseProd<T> const& rhs) {
     return (lhs.refCore() < rhs.refCore());
+  }
+}
+
+namespace std {
+  template<typename T>
+  inline void swap( edm::RefToBaseProd<T> const& lhs, edm::RefToBaseProd<T> const& rhs ) {
+    lhs.swap( rhs );
   }
 }
 

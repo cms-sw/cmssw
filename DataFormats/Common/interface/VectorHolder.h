@@ -48,6 +48,9 @@ namespace edm {
       virtual std::auto_ptr<RefVectorHolderBase> vectorHolder() const {
 	return std::auto_ptr<RefVectorHolderBase>( new RefVectorHolder<REFV>( refVector_ ) );
       }
+      virtual const void * product() const {
+	return refVector_.product();
+      }
 
     private:
       typedef typename base_type::const_iterator_imp const_iterator_imp;
