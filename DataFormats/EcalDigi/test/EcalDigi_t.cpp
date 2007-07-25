@@ -46,10 +46,10 @@ TestEcalDigi<DigiCollection>::TestEcalDigi() : sv(10){
 namespace {
 
   void check_ctor(EBDigiCollection const& digis) {
-    CPPUNIT_ASSERT(frames.subdetId()==EcalBarrel);
+    CPPUNIT_ASSERT(digis.subdetId()==EcalBarrel);
   }
   void check_ctor(EEDigiCollection const& digis) {
-    CPPUNIT_ASSERT(frames.subdetId()==EcalEndcap);
+    CPPUNIT_ASSERT(digis.subdetId()==EcalEndcap);
   }
 
 
@@ -74,7 +74,7 @@ void TestEcalDigi<DigiCollection>::filling() {
   for (int n=1;n<5;++n) {
     typename DigiCollection::DetId id = DigiCollection::DetId::unhashIndex(n);
     frames.push_back(id);
-    CPPUNIT_ASSERT(frames.size()==n);
+    CPPUNIT_ASSERT(int(frames.size())==n);
     typename DigiCollection::Digi df(frames.back());
     CPPUNIT_ASSERT(df.size()==10); 
     CPPUNIT_ASSERT(df.id()==id); 
@@ -142,7 +142,7 @@ void TestEcalDigi<DigiCollection>::iterator() {
   // classical
   VerifyIter<typename DigiCollection::Digi> vi(sv);
   for (int n=0;n<int(frames.size());++n) {
-    typename DigiCollection::Digi digi(frames[i]);
+    typename DigiCollection::Digi digi(frames[n]);
     vi(digi);
   } 
 }
