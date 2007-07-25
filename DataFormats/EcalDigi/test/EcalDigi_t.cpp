@@ -69,7 +69,7 @@ void TestEcalDigi<DigiCollection>::default_ctor() {
 
 template<typename DigiCollection>
 void TestEcalDigi<DigiCollection>::filling() {
-
+  
   DigiCollection frames;
   for (int n=1;n<5;++n) {
     typename DigiCollection::DetId id = DigiCollection::DetId::unhashIndex(n);
@@ -95,11 +95,11 @@ void TestEcalDigi<DigiCollection>::filling() {
       CPPUNIT_ASSERT(sv==v2);
     }
   }
-
+  
 }
 
 namespace {
-  teplate<typename Digi>
+  template<typename Digi>
   struct VerifyIter{
     VerifyIter( std::vector<edm::DataFrame::data_type> const & v):n(0), sv(v){}
     void operator()(Digi const & df) {
@@ -133,7 +133,7 @@ void TestEcalDigi<DigiCollection>::iterator() {
     typename DigiCollection::DetId id = DigiCollection::DetId::unhashIndex(n);
     frames.push_back(id);
     typename DigiCollection::Digi df(frames.back());
-      std::copy(sv.begin(),sv.end(),df.frame().begin());
+    std::copy(sv.begin(),sv.end(),df.frame().begin());
   }
   // modern
   CPPUNIT_ASSERT(std::for_each(frames.begin(),frames.end(),
@@ -141,7 +141,7 @@ void TestEcalDigi<DigiCollection>::iterator() {
 			       ).n==4);
   // classical
   VerifyIter<typename DigiCollection::Digi> vi(sv);
-  for (int n=0;n<frames.size();++n) {
+  for (int n=0;n<int(frames.size());++n) {
     typename DigiCollection::Digi digi(frames[i]);
     vi(digi);
   } 
