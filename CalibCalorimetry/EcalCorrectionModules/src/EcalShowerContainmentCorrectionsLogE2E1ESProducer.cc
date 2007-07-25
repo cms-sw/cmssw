@@ -6,33 +6,38 @@
 #include "boost/shared_ptr.hpp"
 
 // user include files
+#include "FWCore/Framework/interface/ModuleFactory.h"
+
+
 #include "FWCore/Framework/interface/ESHandle.h"
+
+#include "CondFormats/EcalCorrections/interface/EcalShowerContainmentCorrectionsLogE2E1.h"
+#include "CondFormats/DataRecord/interface/EcalShowerContainmentCorrectionsLogE2E1Rcd.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+
 #include "CalibCalorimetry/EcalCorrectionModules/interface/EcalShowerContainmentCorrectionsLogE2E1ESProducer.h"
 
-#include "CalibCalorimetry/EcalCorrectionModules/interface/EcalShowerContainmentCorrectionsESProducer.h"
-
-EcalShowerContainmentCorrectionsESProducer::EcalShowerContainmentCorrectionsESProducer(const edm::ParameterSet& iConfig)
+EcalShowerContainmentCorrectionsLogE2E1ESProducer::EcalShowerContainmentCorrectionsLogE2E1ESProducer(const edm::ParameterSet& iConfig)
 {   
    setWhatProduced(this);
 }
 
 
-EcalShowerContainmentCorrectionsESProducer::~EcalShowerContainmentCorrectionsESProducer(){ }
+EcalShowerContainmentCorrectionsLogE2E1ESProducer::~EcalShowerContainmentCorrectionsLogE2E1ESProducer(){ }
 
 
 //
 // member functions
 //
 
-EcalShowerContainmentCorrectionsESProducer::ReturnType
-EcalShowerContainmentCorrectionsESProducer::produce(const EcalShowerContainmentCorrectionsRcd& iRecord)
+EcalShowerContainmentCorrectionsLogE2E1ESProducer::ReturnType
+EcalShowerContainmentCorrectionsLogE2E1ESProducer::produce(const EcalShowerContainmentCorrectionsLogE2E1Rcd& iRecord)
 {
 
    using namespace edm::es;
    using namespace std;
 
-   auto_ptr<EcalShowerContainmentCorrections> pEcalShowerContainmentCorrections(new EcalShowerContainmentCorrections) ;
+   auto_ptr<EcalShowerContainmentCorrectionsLogE2E1> pEcalShowerContainmentCorrectionsLogE2E1(new EcalShowerContainmentCorrectionsLogE2E1) ;
    int sm=1; // in testbeam data sw believes we always are on sm01
 
    // where is the n of xtals per sm coded ?
@@ -81,14 +86,14 @@ EcalShowerContainmentCorrectionsESProducer::produce(const EcalShowerContainmentC
 
 
      const size_t size = sizeof values / sizeof values[0];
-     EcalShowerContainmentCorrections::Coefficients coeff;
+     EcalShowerContainmentCorrectionsLogE2E1::Coefficients coeff;
      std::copy(values,values+size,coeff.data);
 
      EBDetId id(sm,xtal,EBDetId::SMCRYSTALMODE);
      
      // we are filling always the same group ...
-     pEcalShowerContainmentCorrections->fillCorrectionCoefficients(id,3,coeff);
+     pEcalShowerContainmentCorrectionsLogE2E1->fillCorrectionCoefficients(id,3,coeff);
    }
 
-   return pEcalShowerContainmentCorrections ;
+   return pEcalShowerContainmentCorrectionsLogE2E1 ;
 }
