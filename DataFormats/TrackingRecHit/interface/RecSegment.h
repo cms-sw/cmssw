@@ -7,8 +7,8 @@
  *  
  * In addition to RecHit, it has direction, chi2 and other stuff
  *
- * $Date: 2007/01/17 23:07:06 $
- * $Revision: 1.4 $
+ * $Date: 2007/07/25 10:22:23 $
+ * $Revision: 1.5 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  *
  */
@@ -30,7 +30,7 @@ class RecSegment : public TrackingRecHit{
 
  public:
   RecSegment(DetId id) : TrackingRecHit(id) {}
-  RecSegment(TrackingRecHit::id_type=0) : TrackingRecHit(id) {}
+  RecSegment(TrackingRecHit::id_type id=0) : TrackingRecHit(id) {}
 
   /// Destructor
   virtual ~RecSegment() {};

@@ -23,7 +23,7 @@ public:
   enum SharedInputType {all, some};
   
   explicit TrackingRecHit(DetId id, Type type=valid ) : m_id(id), m_status(type) {}
-  explicit TrackingRecHit(id_type=0, Type type=valid ) : m_id(id), m_status(type) {}
+  explicit TrackingRecHit(id_type id=0, Type type=valid ) : m_id(id), m_status(type) {}
   
   virtual ~TrackingRecHit() {}
   
@@ -39,11 +39,11 @@ public:
   
   /// Access to component RecHits (if any)
   virtual std::vector<const TrackingRecHit*> recHits() const = 0;
-  virtual recHitsV(std::vector<const TrackingRecHit*> & ) const = 0;
+  virtual void recHitsV(std::vector<const TrackingRecHit*> & ) const;
   
   /// Non-const access to component RecHits (if any)
   virtual std::vector<TrackingRecHit*> recHits() = 0;
-  virtual recHitsV(std::vector<TrackingRecHit*> & );
+  virtual void recHitsV(std::vector<TrackingRecHit*> & );
   
   DetId geographicalId() const {return m_id;}
   
@@ -53,8 +53,8 @@ public:
   
   virtual float weight() const {return 1.;}
   
-  Type getType() const { return m_status; }
-  bool isValid() const {return getType==valid;}
+  Type getType() const { return Type(m_status); }
+  bool isValid() const {return getType()==valid;}
   
   /** Returns true if the two TrackingRecHits are using the same input information 
    * (like Digis, Clusters, etc), false otherwise. The second argument specifies 

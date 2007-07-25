@@ -9,8 +9,8 @@
  * To be used as base class for all 1D positional TrackingRecHits.
  * The coordinate measured is assumend to be the local "x"
  *
- *  $Date: 2007/01/17 23:07:06 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/07/25 10:22:23 $
+ *  $Revision: 1.4 $
  *  \author S. Lacaprara, G. Cerminara
  */
 
@@ -23,7 +23,7 @@ class RecHit1D : public TrackingRecHit {
  public:
 
   RecHit1D(DetId id) : TrackingRecHit(id) {}
-  RecHit1D(TrackingRecHit::id_type=0) : TrackingRecHit(id) {}
+  RecHit1D(TrackingRecHit::id_type id=0) : TrackingRecHit(id) {}
 
   /// Destructor
   virtual ~RecHit1D() {}
