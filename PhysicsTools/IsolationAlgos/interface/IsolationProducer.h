@@ -31,7 +31,9 @@ namespace helper {
 }
 
 template <typename C1, typename C2, typename Alg, 
-	  typename Setup = typename helper::IsolationAlgorithmSetup<Alg>::type>
+	  typename OutputCollection = edm::AssociationVector<edm::RefProd<C1>, 
+							     std::vector<typename Alg::value_type> >,
+ 	  typename Setup = typename helper::IsolationAlgorithmSetup<Alg>::type>
 class IsolationProducer : public edm::EDProducer {
 public:
   IsolationProducer( const edm::ParameterSet & );
@@ -41,25 +43,24 @@ private:
   void produce( edm::Event&, const edm::EventSetup& );
   edm::InputTag src_, elements_;
   Alg alg_;
-  typedef typename Alg::value_type value_type;
-  typedef edm::AssociationVector<edm::RefProd<C1>, 
-				 std::vector<value_type> > IsolationCollection;
 };
 
-template <typename C1, typename C2, typename Alg, typename Setup>
-IsolationProducer<C1, C2, Alg, Setup>::IsolationProducer( const edm::ParameterSet & cfg ) :
+template <typename C1, typename C2, typename Alg, typename OutputCollection, typename Setup>
+IsolationProducer<C1, C2, Alg, OutputCollection, Setup>::IsolationProducer( const edm::ParameterSet & cfg ) :
   src_( cfg.template getParameter<edm::InputTag>( "src" ) ),
   elements_( cfg.template getParameter<edm::InputTag>( "elements" ) ),
   alg_( reco::modules::make<Alg>( cfg ) ) {
-  produces<IsolationCollection>();
+  produces<OutputCollection>();
 }
 
-template <typename C1, typename C2, typename Alg, typename Setup>
-IsolationProducer<C1, C2, Alg, Setup>::~IsolationProducer() {
+template <typename C1, typename C2, typename Alg, typename OutputCollection, typename Setup>
+IsolationProducer<C1, C2, Alg, OutputCollection, Setup>::~IsolationProducer() {
 }
 
-template <typename C1, typename C2, typename Alg, typename Setup>
-void IsolationProducer<C1, C2, Alg, Setup>::produce( edm::Event& evt, const edm::EventSetup& es ) {
+#include <iostream>
+
+template <typename C1, typename C2, typename Alg, typename OutputCollection, typename Setup>
+void IsolationProducer<C1, C2, Alg, OutputCollection, Setup>::produce( edm::Event& evt, const edm::EventSetup& es ) {
   using namespace edm;
   using namespace std;
   Handle<C1> src;
@@ -69,11 +70,17 @@ void IsolationProducer<C1, C2, Alg, Setup>::produce( edm::Event& evt, const edm:
 
   Setup::init( alg_, es );
 
-  auto_ptr<IsolationCollection> isolations( new IsolationCollection( edm::RefProd<C1>( src ) )  );
+  cout << ">>> make reference" << endl;
+  typename OutputCollection::refprod_type ref( src );
+  cout << ">>> ref. size:" << ref->size() << endl;
+  cout << ">>> make collection" << endl;
+  auto_ptr<OutputCollection> isolations( new OutputCollection( ref )  );
+  cout << ">>> fill collection" << endl;
 
   size_t i = 0;
   for( typename C1::const_iterator lep = src->begin(); lep != src->end(); ++ lep ) {
-    value_type iso= alg_(*lep,*elements); 
+    typename Alg::value_type iso= alg_(*lep,*elements); 
+    cout << ">>> fill with index " << i << endl;
     isolations->setValue( i++, iso );
   }
   evt.put( isolations );

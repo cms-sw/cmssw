@@ -11,8 +11,7 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
 typedef IsolationProducer<reco::MuonCollection, CaloTowerCollection,
-			  CalIsolationAlgo<reco::Muon, CaloTowerCollection>,
-			  helper::BFieldIsolationAlgorithmSetup<CalIsolationAlgo<reco::Muon, CaloTowerCollection> > > 
-                             MuonCalIsolationProducer;
+			  CalIsolationAlgo<reco::Muon, CaloTowerCollection>
+                         > MuonCalIsolationProducer;
 
 DEFINE_FWK_MODULE( MuonCalIsolationProducer );

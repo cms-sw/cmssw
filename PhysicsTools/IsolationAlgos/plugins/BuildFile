@@ -4,6 +4,10 @@
   <use name=DataFormats/Candidate>
 </library>
 
+<library file=CandViewPtIsolationProducer.cc>
+  <use name=DataFormats/Candidate>
+</library>
+
 
 <library file=MuonCalIsolationProducer.cc>
   <use name=DataFormats/MuonReco>
