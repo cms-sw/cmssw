@@ -127,17 +127,17 @@ namespace {
     std::vector<edm::DataFrame::data_type> const & sv;
   };
 
-  void verifyBarrelId(DetId id) {
+  void verifyBarrelId(edm::DataFrame::id_type id) {
     try {
-      EBDetId detid(id);
+      EBDetId detid(DetId(id));
     } catch(...) {
       bool NotBarrelID=false;
       CPPUNIT_ASSERT(NotBarrelID);
     }
   }
-  void verifyEndcapId(DetId id) {
+  void verifyEndcapId(edm::DataFrame::id_type id) {
     try {
-      EEDetId detid(id);
+      EEDetId detid(DetId(id));
     } catch(...) {
       bool NotEndcapID=false;
       CPPUNIT_ASSERT(NotEndcapID);
@@ -167,7 +167,7 @@ namespace {
 
   // an alternative way
   void iterate(EcalDigiCollection const & frames) {
-    boost::function<void(DetId)> verifyId;
+    boost::function<void(edm::DataFrame::id_type)> verifyId;
     if (frames.subdetId()==EcalBarrel)
       verifyId=verifyBarrelId;
     else if(frames.subdetId()==EcalEndcap)
