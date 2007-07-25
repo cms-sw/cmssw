@@ -14,8 +14,8 @@
 
     /** \class HcalSimpleReconstructor
 	
-    $Date: 2006/09/19 18:19:46 $
-    $Revision: 1.7 $
+    $Date: 2007/03/07 19:29:02 $
+    $Revision: 1.1 $
     \author J. Mans - Minnesota
     */
     class HcalSimpleReconstructor : public edm::EDProducer {
@@ -23,9 +23,10 @@
       explicit HcalSimpleReconstructor(const edm::ParameterSet& ps);
       virtual ~HcalSimpleReconstructor();
       virtual void produce(edm::Event& e, const edm::EventSetup& c);
-    private:
+    private:      
       HcalSimpleRecAlgo reco_;
-      HcalSubdetector subdet_;
+      DetId::Detector det_;
+      int subdet_;
       HcalOtherSubdetector subdetOther_;
       edm::InputTag inputLabel_;
     };

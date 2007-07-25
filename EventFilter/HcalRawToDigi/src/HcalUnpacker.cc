@@ -146,37 +146,39 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
       DetId did=emap.lookup(eid);
 
       if (!did.null()) {
-	switch (((HcalSubdetector)did.subdetId())) {
-	case (HcalBarrel):
-	case (HcalEndcap): {
-	  colls.hbheCont->push_back(HBHEDataFrame(HcalDetId(did)));
-	  qie_work=HcalUnpacker_impl::unpack<HBHEDataFrame>(qie_work, qie_end, colls.hbheCont->back(), nps, eid, startSample_, endSample_);
-	} break;
-	case (HcalOuter): {
-	  colls.hoCont->push_back(HODataFrame(HcalDetId(did)));
-	  qie_work=HcalUnpacker_impl::unpack<HODataFrame>(qie_work, qie_end, colls.hoCont->back(), nps, eid, startSample_, endSample_);
-	} break;
-	case (HcalForward): {
-	  colls.hfCont->push_back(HFDataFrame(HcalDetId(did)));
-	  qie_work=HcalUnpacker_impl::unpack<HFDataFrame>(qie_work, qie_end, colls.hfCont->back(), nps, eid, startSample_, endSample_);
-	} break;
-	case (HcalOther) : {
-	  HcalOtherDetId odid(did);
-	  if (odid.subdet()==HcalCalibration) {
-	    colls.calibCont->push_back(HcalCalibDataFrame(HcalCalibDetId(did)));
-	    qie_work=HcalUnpacker_impl::unpack<HcalCalibDataFrame>(qie_work, qie_end, colls.calibCont->back(), nps, eid, startSample_, endSample_); 
-	  } else if (odid.subdet()==HcalZDC) {
-	    colls.zdcCont->push_back(ZDCDataFrame(HcalZDCDetId(did)));
-	    qie_work=HcalUnpacker_impl::unpack<ZDCDataFrame>(qie_work, qie_end, colls.zdcCont->back(), nps, eid, startSample_, endSample_); 
+	if (did.det()==DetId::Calo && did.subdetId()==HcalZDCDetId::SubdetectorId) {
+	  colls.zdcCont->push_back(ZDCDataFrame(HcalZDCDetId(did)));
+	  qie_work=HcalUnpacker_impl::unpack<ZDCDataFrame>(qie_work, qie_end, colls.zdcCont->back(), nps, eid, startSample_, endSample_); 
+	} else if (did.det()==DetId::Hcal) {
+	  switch (((HcalSubdetector)did.subdetId())) {
+	  case (HcalBarrel):
+	  case (HcalEndcap): {
+	    colls.hbheCont->push_back(HBHEDataFrame(HcalDetId(did)));
+	    qie_work=HcalUnpacker_impl::unpack<HBHEDataFrame>(qie_work, qie_end, colls.hbheCont->back(), nps, eid, startSample_, endSample_);
+	  } break;
+	  case (HcalOuter): {
+	    colls.hoCont->push_back(HODataFrame(HcalDetId(did)));
+	    qie_work=HcalUnpacker_impl::unpack<HODataFrame>(qie_work, qie_end, colls.hoCont->back(), nps, eid, startSample_, endSample_);
+	  } break;
+	  case (HcalForward): {
+	    colls.hfCont->push_back(HFDataFrame(HcalDetId(did)));
+	    qie_work=HcalUnpacker_impl::unpack<HFDataFrame>(qie_work, qie_end, colls.hfCont->back(), nps, eid, startSample_, endSample_);
+	  } break;
+	  case (HcalOther) : {
+	    HcalOtherDetId odid(did);
+	    if (odid.subdet()==HcalCalibration) {
+	      colls.calibCont->push_back(HcalCalibDataFrame(HcalCalibDetId(did)));
+	      qie_work=HcalUnpacker_impl::unpack<HcalCalibDataFrame>(qie_work, qie_end, colls.calibCont->back(), nps, eid, startSample_, endSample_); 
+	    }
+	  } break;
+	  case (HcalEmpty): 
+	  default: {
+	    for (int fiberC=qie_work->fiberAndChan();
+		 qie_work!=qie_end && qie_work->fiberAndChan()==fiberC;
+		 qie_work++);
 	  }
-	} break;
-	case (HcalEmpty): 
-	default: {
-	  for (int fiberC=qie_work->fiberAndChan();
-	       qie_work!=qie_end && qie_work->fiberAndChan()==fiberC;
-	       qie_work++);
-	}
 	  break;
+	  }
 	}
       } else {
 	report.countUnmappedDigi();

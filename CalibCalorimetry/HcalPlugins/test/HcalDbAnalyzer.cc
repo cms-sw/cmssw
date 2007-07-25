@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id: HcalDbAnalyzer.cc,v 1.17 2006/10/26 23:35:32 wmtan Exp $
+// $Id: HcalDbAnalyzer.cc,v 1.18 2007/03/25 12:20:46 mansj Exp $
 //
 //
 
@@ -53,6 +53,9 @@
 namespace {
   std::ostream& operator<<(std::ostream& fOut, const DetId& id) {
     if (id.null ()) fOut << "NULL";
+    else if (id.det() == DetId:: Calo && id.subdetId()==HcalZDCDetId::SubdetectorId) {
+      fOut << HcalZDCDetId (id);
+    }
     else if (id.det () != DetId::Hcal)  fOut << "Not HCAL";
     else {
       HcalSubdetector sub = HcalSubdetector (id.subdetId());
@@ -64,7 +67,6 @@ namespace {
 	HcalOtherDetId osub (id);
 	HcalOtherSubdetector odetid = osub.subdet();
 	if (odetid == HcalCalibration)  fOut << HcalCalibDetId (id);
-	else if (odetid == HcalZDC)  fOut << HcalZDCDetId (id);
 	else fOut << "Unknown subtype";
       }
       else fOut << "Unknown type";
