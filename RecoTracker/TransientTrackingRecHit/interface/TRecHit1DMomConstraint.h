@@ -23,8 +23,6 @@ class TRecHit1DMomConstraint : public TransientTrackingRecHit {
     return m;
   }
 
-  virtual DetId geographicalId() const {return DetId(0);}
-
   virtual AlgebraicMatrix projectionMatrix() const {
     AlgebraicMatrix theProjectionMatrix;
     theProjectionMatrix = AlgebraicMatrix( 1, 5, 0);
@@ -42,7 +40,7 @@ class TRecHit1DMomConstraint : public TransientTrackingRecHit {
 
   virtual const TrackingRecHit * hit() const {return 0;}//fixme return invalid
   
-  virtual bool isValid() const {return true;}
+
 
   virtual std::vector<const TrackingRecHit*> recHits() const {
     return hit()->recHits();

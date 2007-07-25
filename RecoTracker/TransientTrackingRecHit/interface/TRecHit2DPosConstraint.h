@@ -27,8 +27,6 @@ public:
     return m;
   }
 
-  virtual DetId geographicalId() const {return DetId(0);}
-
   virtual AlgebraicMatrix projectionMatrix() const {
     AlgebraicMatrix theProjectionMatrix;
     theProjectionMatrix = AlgebraicMatrix( 2, 5, 0);
@@ -42,8 +40,6 @@ public:
   virtual LocalError localPositionError() const {return err_;}
 
   virtual const TrackingRecHit * hit() const {return 0;}//fixme return invalid
-  
-  virtual bool isValid() const {return true;}
 
   virtual std::vector<const TrackingRecHit*> recHits() const {
     return hit()->recHits();
@@ -84,7 +80,5 @@ private:
   }
 
 };
-
-
 
 #endif
