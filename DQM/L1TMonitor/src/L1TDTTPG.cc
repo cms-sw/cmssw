@@ -1,11 +1,16 @@
 /*
  * \file L1TDTTPG.cc
  *
- * $Date: 2007/06/27 13:06:23 $
- * $Revision: 1.8 $
+ * $Date: 2007/07/12 16:06:18 $
+ * $Revision: 1.9 $
  * \author J. Berryhill
  *
- * $Log$
+ * $Log: L1TDTTPG.cc,v $
+ * Revision 1.9  2007/07/12 16:06:18  wittich
+ * add simple phi output track histograms.
+ * note that the label of this class is different than others
+ * from the DTFFReader creates.
+ *
  */
 #include <iostream>
 #include <fstream>
@@ -293,17 +298,22 @@ void L1TDTTPG::analyze(const Event& e, const EventSetup& c)
     cout << "DTTPG theta ntrack " << ndttpgthtrack << endl;
   }
 
-  // Phi output
-  edm::Handle<L1MuDTTrackContainer> phiTracksOut;
+  edm::Handle<L1MuDTTrackContainer > myL1MuDTTrackContainer;
+
   try {
-    e.getByLabel(dttpgSource_,phiTracksOut);
+    std::string trstring;
+    trstring = dttpgSource_.label()+":"+"DATA"+":"+dttpgSource_.process();
+    edm::InputTag trInputTag(trstring);
+  e.getByLabel(trInputTag,myL1MuDTTrackContainer);
+  //  e.getByType(myL1MuDTTrackContainer);
   }
   catch (...) {
-    edm::LogInfo("L1TDTTPG") << "can't find L1MuDTChambThContainer "
-			     << "with label " << dttpgSource_.label() ;
+    edm::LogInfo("L1TDTTPG") << "can't find L1MuDTTrackContainer with label "
+                               << dttpgSource_.label() ;
     return;
   }
-  L1MuDTTrackContainer::TrackContainer *t =  phiTracksOut->getContainer();
+
+  L1MuDTTrackContainer::TrackContainer *t =  myL1MuDTTrackContainer->getContainer();
   for ( L1MuDTTrackContainer::TrackContainer::const_iterator i 
 	  = t->begin(); i != t->end(); ++i ) {
     if ( verbose_ ||1) {
