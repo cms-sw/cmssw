@@ -11,7 +11,7 @@ Description: Analyzer individual fibre channels from the source card.
 //
 // Original Author:  Alex Tapper
 //         Created:  Thu Jul 12 14:21:06 CEST 2007
-// $Id: GctFibreAnalyzer.cc,v 1.2 2007/07/19 20:17:19 tapper Exp $
+// $Id: GctFibreAnalyzer.cc,v 1.3 2007/07/24 10:50:38 tapper Exp $
 //
 //
 
@@ -48,7 +48,7 @@ void GctFibreAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     // Check for corrupt fibre data
     if (!CheckFibreWord(*f)){
-      edm::LogInfo("GCT fibre data error") << "Fibre data corrupt " << (*f);
+      edm::LogInfo("GCT fibre data error") << "Missing phase bit (clock) in fibre data " << (*f);
     }
     
     // Check for BC0
@@ -83,8 +83,8 @@ bool GctFibreAnalyzer::CheckForBC0(const L1GctFibreWord fibre)
 
 bool GctFibreAnalyzer::CheckFibreWord(const L1GctFibreWord fibre)
 {
-  // Check that the last bit on cycle 1 is set as it should be
-  if ((fibre.data() & 0x80000000)){
+  // Check that the phase or clock bit (MSB bit on cycle 1) is set as it should be
+  if (fibre.data() & 0x80000000){
     return true;
   } else {
     return false;
@@ -168,6 +168,14 @@ void GctFibreAnalyzer::CheckCounter(const L1GctFibreWord fibre)
   
   cycle0Data = fibre.data() & 0x20007FFF;
   cycle1Data = (fibre.data() >> 16) & 0x20007FFF;
+
+  // Check to see if fibre numbers are consistent
+  if ((cycle0Data+1)!=cycle1Data){
+    edm::LogInfo("GCT fibre data error") << "Fibre data not incrementing in cycles 0 and 1 "
+                                         << " Cycle 0 data=" << cycle0Data
+                                         << " Cycle 1 data=" << cycle1Data
+                                         << " " << fibre;      
+  }  
   
   // For now just write out the data
   edm::LogInfo("GCT fibre counter data") << " Fibre data: cycle0=" << cycle0Data 
