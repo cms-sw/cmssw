@@ -59,7 +59,7 @@ namespace {
 template<typename DigiCollection>
 void TestEcalDigi<DigiCollection>::default_ctor() {
 
-  DigiCollection frames();
+  DigiCollection frames;
   CPPUNIT_ASSERT(frames.stride()==10);
   // against enum in ExDetID
   CPPUNIT_ASSERT(frames.subdetId()==DigiCollection::DetId::Subdet);
@@ -70,12 +70,12 @@ void TestEcalDigi<DigiCollection>::default_ctor() {
 template<typename DigiCollection>
 void TestEcalDigi<DigiCollection>::filling() {
 
-  DigiCollection frames();
+  DigiCollection frames;
   for (int n=1;n<5;++n) {
     typename DigiCollection::DetId id = DigiCollection::DetId::unhashIndex(n);
     frames.push_back(id);
     CPPUNIT_ASSERT(frames.size()==n);
-    DigiCollection::Digi df(frames.back());
+    typename DigiCollection::Digi df(frames.back());
     CPPUNIT_ASSERT(df.size()==10); 
     CPPUNIT_ASSERT(df.id()==id); 
     if (n%2==0) {
@@ -122,17 +122,17 @@ namespace {
       }
     }
     int n;
-     std::vector<edm::DataFrame::data_type> const & sv;
+    std::vector<edm::DataFrame::data_type> const & sv;
   };
 }
 
 template<typename DigiCollection>
 void TestEcalDigi<DigiCollection>::iterator() {
-  DigiCollection frames();
+  DigiCollection frames;
   for (int n=1;n<5;++n) {
     typename DigiCollection::DetId id = DigiCollection::DetId::unhashIndex(n);
     frames.push_back(id);
-    DigiCollection::Digi df(frames.back());
+    typename DigiCollection::Digi df(frames.back());
       std::copy(sv.begin(),sv.end(),df.frame().begin());
   }
   // modern
@@ -140,7 +140,7 @@ void TestEcalDigi<DigiCollection>::iterator() {
 			       VerifyIter<typename DigiCollection::Digi>(this->sv)
 			       ).n==4);
   // classical
-  VerifyIter<typename DigiCollection::Digi> vi(this->sv);
+  VerifyIter<typename DigiCollection::Digi> vi(sv);
   for (int n=0;n<frames.size();++n) {
     typename DigiCollection::Digi digi(frames[i]);
     vi(digi);
