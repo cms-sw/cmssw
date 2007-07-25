@@ -2,8 +2,7 @@
 #define HcalZDCDetId_h_included 1
 
 #include <ostream>
-#include "DataFormats/HcalDetId/interface/HcalOtherDetId.h"
-#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "DataFormats/DetId/interface/DetId.h"
 
 /** \class HcalZDCDetId
   *  
@@ -12,13 +11,15 @@
   *     [5:4] Section (EM/HAD/Lumi)
   *     [3:0] Channel (depth)
   *
-  * $Date: 2006/02/21 22:11:16 $
-  * $Revision: 1.3 $
+  * $Date: 2006/06/16 16:45:04 $
+  * $Revision: 1.1 $
   * \author J. Mans - Minnesota
   */
-class HcalZDCDetId : public HcalOtherDetId {
+class HcalZDCDetId : public DetId {
 public:
   enum Section { Unknown=0, EM=1, HAD=2, LUM=3 };
+  // 1 => CaloTower, 3 => Castor
+  static const int SubdetectorId = 2;
 
   /** Create a null cellid*/
   HcalZDCDetId();

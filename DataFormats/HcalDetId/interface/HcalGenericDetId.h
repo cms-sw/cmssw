@@ -4,7 +4,7 @@
 /** \class HcalGenericDetId
     \author F.Ratnikov, UMd
    Generic HCAL detector ID suitable for all Hcal subdetectors
-   $Id: HcalGenericDetId.h,v 1.1 2006/09/08 21:39:22 mansj Exp $
+   $Id: HcalGenericDetId.h,v 1.2 2007/07/15 20:36:35 mansj Exp $
 */
 
 #include <ostream>
@@ -14,11 +14,10 @@
 class HcalGenericDetId : public DetId {
  public:
   enum HcalGenericSubdetector {HcalGenEmpty=0, HcalGenBarrel=1, HcalGenEndcap=2, HcalGenOuter=3, HcalGenForward=4, 
-			       HcalGenTriggerTower=5, HcalGenZDC=8, HcalGenCalibration=9};
+			       HcalGenTriggerTower=5, HcalGenZDC=8, HcalGenCalibration=9, HcalGenUnknown=99};
   HcalGenericDetId () : DetId () {}
   HcalGenericDetId (uint32_t rawid) : DetId (rawid) {}
   HcalGenericDetId (const DetId& id) : DetId (id) {}
-  HcalSubdetector subdet() const;
   HcalOtherSubdetector otherSubdet () const;
   HcalGenericSubdetector genericSubdet () const;
   bool isHcalDetId () const;
