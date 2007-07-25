@@ -53,6 +53,7 @@ public:
   
   virtual float weight() const {return 1.;}
   
+  Type type() const { return Type(m_status); }
   Type getType() const { return Type(m_status); }
   bool isValid() const {return getType()==valid;}
   
