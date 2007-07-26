@@ -3,7 +3,7 @@
 
 Test program for edm::Event.
 
-$Id: Event_t.cpp,v 1.16 2007/07/18 13:22:42 marafino Exp $
+$Id: Event_t.cpp,v 1.17 2007/07/18 20:12:05 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
@@ -340,7 +340,7 @@ void testEvent::setUp()
                                    1,
                                    currentModuleDescription_->processConfiguration(),
                                    true,
-				   EventAuxiliary::Unspecified,
+				   EventAuxiliary::Any,
                                    processHistoryID);
 
   currentEvent_ = new Event(*principal_, *currentModuleDescription_);
