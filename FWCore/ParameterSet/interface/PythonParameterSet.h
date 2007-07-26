@@ -86,6 +86,8 @@ public:
 
   boost::python::list getVPSet(bool tracked, std::string const& name);
 
+  std::string dump() const {return theParameterSet.dump();}
+
 private:
   edm::ParameterSet theParameterSet;
 };
