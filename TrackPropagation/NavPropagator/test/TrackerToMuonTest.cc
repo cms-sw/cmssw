@@ -71,7 +71,7 @@ void TrackerToMuonTest::propagateToMuon( const MagneticField* field) const
       
       PlaneBuilder pb;
       float sinth = sqrt(1-costh*costh);
-      GlobalVector startingMomentum(20*sin(phi)*sinth,20*cos(phi)*sinth,-20*costh);
+      GlobalVector startingMomentum(50*sin(phi)*sinth,50*cos(phi)*sinth,-50*costh); // locks up with 20
       GlobalPoint startingPosition(-3,-2,-1);
       Surface::RotationType rot = rotation( startingMomentum);
 
