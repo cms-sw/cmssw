@@ -2,10 +2,10 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: LRHelpFunctions.cc,v 1.9 2007/07/05 14:18:54 heyninck Exp $
+// $Id: LRHelpFunctions.cc,v 1.10 2007/07/24 15:26:44 heyninck Exp $
 //
 #include "TopQuarkAnalysis/TopTools/interface/LRHelpFunctions.h"
-#include "TopQuarkAnalysis/TopEventProducers/bin/tdrstyle.C"
+#include "TopQuarkAnalysis/TopTools/test/tdrstyle.C"
 
 // constructors
 LRHelpFunctions::LRHelpFunctions() {
