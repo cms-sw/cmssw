@@ -6,7 +6,7 @@
 
 <ConstantsSection label="hcalalgo.xml" eval="true">
  <Constant name="Z0HBHE" value="375.000*cm"/>
- <Constant name="Z1HB"   value="324.000*cm"/>
+ <Constant name="Z1HB"   value="324.200*cm"/>
  <Constant name="z2HB"   value="370.460*cm"/>
  <Constant name="z3HB"   value="375.022*cm"/>
  <Constant name="z4HB"   value="446.079*cm"/>

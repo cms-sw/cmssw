@@ -604,12 +604,12 @@ void DDHCalEndcapAlgo::parameterLayer0(int mod, int layer, int iphi,
 }
 
 
-void DDHCalEndcapAlgo::parameterLayer(int iphi, double rinF, double routF, 
-				      double rinB, double routB, double zi, 
-				      double zo, double& yh1, double& bl1, 
-                                      double& tl1, double& yh2, double& bl2, 
+void DDHCalEndcapAlgo::parameterLayer(int iphi, double rinF, double routF,
+				      double rinB, double routB, double zi,
+				      double zo, double& yh1, double& bl1,
+				      double& tl1, double& yh2, double& bl2,
 				      double& tl2, double& alp, double& theta,
-                                      double& phi, double& xpos, double& ypos, 
+				      double& phi, double& xpos, double& ypos,
 				      double& zpos) {
 
   //Given rin, rout compute parameters of the trapezoid and 
@@ -699,10 +699,16 @@ void DDHCalEndcapAlgo::constructInsideModule0(DDLogicalPart module, int mod) {
     rinB  = zo * tan(getAngBot());
     routB = zo * tan(getAngTop());
   }
+  LogDebug("HCalGeom") << "DDHCalEndcapAlgo test: Module " << mod << " Front "
+		       << zi << ", " << rinF << ", " << routF << " Back "
+		       << zo << ", " << rinB << ", " << routB;
   double yh1, bl1, tl1, yh2, bl2, tl2, theta, phi, alp;
   parameterLayer(0, rinF, routF, rinB, routB, zi, zo, yh1, bl1, tl1, yh2, bl2, 
                  tl2, alp, theta, phi, xpos, ypos, zpos);
   double fact= 1.0 - getTrim(mod,0)/yh1;
+  LogDebug("HCalGeom") << "DDHCalEndcapAlgo test: Trim " << fact << " Param "
+		       << yh1 << ", " << bl1 << ", " << tl1 << ", " << yh2
+		       << ", " << bl2 << ", " << tl2;
   yh1 *= fact;
   bl1 *= fact;
   tl1 *= fact;
@@ -767,6 +773,10 @@ void DDHCalEndcapAlgo::constructInsideModule(DDLogicalPart module, int mod) {
       double routB = (zo    - getZ1Beam()) * getSlope();
       if (routF > getRoutBlock2(mod)) routF =  getRoutBlock2(mod);
       if (routB > getRoutBlock2(mod)) routB =  getRoutBlock2(mod);
+      LogDebug("HCalGeom") << "DDHCalEndcapAlgo test: Layer " << i << " Phi "
+			   << iphi << " Front " << ziAir << ", " << rinF
+			   << ", " << routF << " Back " << zo << ", " << rinB
+			   << ", " << routB;
       double yh1, bl1, tl1, yh2, bl2, tl2, theta, phi, alp;
       double xpos, ypos, zpos;
       parameterLayer(iphi, rinF, routF, rinB, routB, ziAir, zo, yh1, bl1, tl1, 
