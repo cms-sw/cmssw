@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2007/06/07 22:12:45 $
- * $Revision: 1.33 $
+ * $Date: 2007/06/15 14:56:57 $
+ * $Revision: 1.34 $
  * \author W Fisher
  *
 */
@@ -321,12 +321,3 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   return;
 }
-
-// Here are the necessary incantations to declare your module to the 	 
- // framework, so it can be referenced in a cmsRun file. 	 
- // 	 
- #include "FWCore/PluginManager/interface/ModuleDef.h" 	 
- #include "FWCore/Framework/interface/MakerMacros.h" 	 
-  	 
- DEFINE_SEAL_MODULE(); 	 
- DEFINE_ANOTHER_FWK_MODULE(HcalMonitorModule);
