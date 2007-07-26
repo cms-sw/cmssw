@@ -67,6 +67,9 @@ private:
   std::vector< std::vector<double> > subTrackerLength;
   std::vector<double> tmpRadius;
   std::vector<double> tmpLength;
+
+  std::vector<unsigned> stoppedPions;
+  std::vector<unsigned> interactingPions;
   /*
   std::vector<MonitorElement*> h6;
   std::vector<MonitorElement*> h7;
@@ -98,6 +101,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   htmp(2,static_cast<MonitorElement*>(0)),
   tmpRadius(2,static_cast<double>(0.)),
   tmpLength(2,static_cast<double>(0.)),
+  stoppedPions(2,static_cast<unsigned>(0)),
+  interactingPions(2,static_cast<unsigned>(0)),
   /*
   h6(2,static_cast<MonitorElement*>(0)),
   h7(2,static_cast<MonitorElement*>(0)),
@@ -654,6 +659,9 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
 
 testNuclearInteractions::~testNuclearInteractions()
 {
+  std::cout << "Number of stopped pions : " << stoppedPions[0] << " " << stoppedPions[1] << " " << std::endl;
+  std::cout << "Number of interac pions : " << interactingPions[0] << " " << interactingPions[1] << " " << std::endl;
+
   dbe->save(outputFileName);
 
   if ( saveNU ) {
@@ -735,10 +743,15 @@ testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     //    const std::vector<FSimVertex>& fsimVertices = *(mySimEvent[ievt]->vertices() );
     //    if ( !fsimVertices.size() ) continue;
     if ( !mySimEvent[ievt]->nVertices() ) continue; 
+    FSimTrack& thePion = mySimEvent[ievt]->track(0);
 
     //    h1[ievt]->Fill(fsimVertices.size());
     //    if ( fsimVertices.size() == 1 ) continue;  
     h1[ievt]->Fill(mySimEvent[ievt]->nVertices());
+    // Count stopping particles
+    if ( mySimEvent[ievt]->nVertices() == 1 ) { 
+      if ( thePion.trackerSurfaceMomentum().e() < 1E-10 ) ++stoppedPions[ievt];
+    }
     if ( mySimEvent[ievt]->nVertices() == 1 ) continue;  
 
     FSimVertex& thePionVertex = mySimEvent[ievt]->vertex(1);
@@ -751,7 +764,7 @@ testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 		        thePionVertex.position().pt());
 
     // Pion's number of daughters
-    FSimTrack& thePion = mySimEvent[ievt]->track(0);
+    // FSimTrack& thePion = mySimEvent[ievt]->track(0);
  
     unsigned ndaugh = thePionVertex.nDaughters();
     h2[ievt]->Fill(ndaugh);
@@ -774,6 +787,11 @@ testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       FSimTrack myDaugh = mySimEvent[ievt]->track(firstDaughter);
       if (abs(myDaugh.type()) == 11 || abs(myDaugh.type()) == 13 ) return;
     } 
+
+    if ( ndaugh ) 
+      ++interactingPions[ievt];
+    else 
+      ++stoppedPions[ievt];
 
     // Find the daughters, and boost them.
     if(!(firstDaughter<0||lastDaughter<0)) {
