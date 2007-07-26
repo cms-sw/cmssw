@@ -101,11 +101,11 @@ bool muonid::isGoodMuon( const reco::Muon& muon, SelectionType type )
 {
   switch (type)
      {
-      case LastStationTight:
-	return isGoodMuon(muon,LastStation,2,3,3,9999,9999,-3,-3,reco::Muon::SegmentAndTrackArbitration);
+      case TMLastStationTight:
+	return isGoodMuon(muon,TMLastStation,2,3,3,9999,9999,-3,-3,reco::Muon::SegmentAndTrackArbitration);
 	break;
-      case LastStationLoose:
-	return isGoodMuon(muon,LastStation,2,3,3,3,3,-3,-3,reco::Muon::SegmentAndTrackArbitration);
+      case TMLastStationLoose:
+	return isGoodMuon(muon,TMLastStation,2,3,3,3,3,-3,-3,reco::Muon::SegmentAndTrackArbitration);
 	break;
       default:
 	return false;

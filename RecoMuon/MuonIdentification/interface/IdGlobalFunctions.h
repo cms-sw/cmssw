@@ -5,16 +5,16 @@
 // 
 //
 // Original Author:  Jake Ribnik, Dmytro Kovalskyi
-// $Id$
+// $Id: IdGlobalFunctions.h,v 1.1 2007/07/25 23:38:14 dmytro Exp $
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace muonid {
-   enum AlgorithmType { LastStation };
-   enum SelectionType { LastStationLoose, LastStationTight };
+   enum AlgorithmType { TMLastStation };
+   enum SelectionType { TMLastStationLoose, TMLastStationTight };
    
-   bool isGoodMuon( const reco::Muon& muon, SelectionType type = LastStationLoose );
+   bool isGoodMuon( const reco::Muon& muon, SelectionType type = TMLastStationLoose );
    
    bool isGoodMuon( const reco::Muon& muon, 
 		    AlgorithmType type,
