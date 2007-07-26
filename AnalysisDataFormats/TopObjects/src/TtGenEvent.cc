@@ -1,5 +1,5 @@
 //
-// $Id: TtGenEvent.cc,v 1.11 2007/07/23 11:49:32 rwolf Exp $
+// $Id: TtGenEvent.cc,v 1.12 2007/07/25 13:32:35 rwolf Exp $
 //
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
@@ -111,9 +111,9 @@ TtGenEvent::hadronicDecayB() const
 {
   const reco::Candidate* cand=0;
   if (singleLepton()) {
-    const reco::Candidate & singleLep = *singleLepton();
     const reco::CandidateCollection & partsColl = *parts_;
-    for (unsigned int i = 0; i < parts_->size(); ++i) {
+    const reco::Candidate & singleLep = *singleLepton();
+    for (unsigned int i = 0; i < partsColl.size(); ++i) {
       if (abs(partsColl[i].pdgId())==5 && 
 	  flavour(singleLep)==flavour(partsColl[i])) {
         cand = &partsColl[i];
@@ -128,8 +128,8 @@ TtGenEvent::hadronicDecayW() const
 {
   const reco::Candidate* cand=0;
   if (singleLepton()) {
-    const reco::Candidate & singleLep = *singleLepton();
     const reco::CandidateCollection & partsColl = *parts_;
+    const reco::Candidate & singleLep = *singleLepton();
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
       if (abs(partsColl[i].pdgId())==24 && 
           flavour(singleLep) != - flavour(partsColl[i])) { // PDG Id:13=mu- 24=W+ (+24)->(-13) (-24)->(+13) opposite sign
@@ -145,8 +145,8 @@ TtGenEvent::hadronicDecayTop() const
 {
   const reco::Candidate* cand=0;
   if (singleLepton()) {
-    const reco::Candidate & singleLep = *singleLepton();
     const reco::CandidateCollection & partsColl = *parts_;
+    const reco::Candidate & singleLep = *singleLepton();
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
       if (abs(partsColl[i].pdgId())==6 &&
           flavour(singleLep)==flavour(partsColl[i])) {
@@ -162,8 +162,8 @@ TtGenEvent::leptonicDecayB() const
 {
   const reco::Candidate* cand=0;
   if (singleLepton()) {
-    const reco::Candidate & singleLep = *singleLepton();
     const reco::CandidateCollection & partsColl = *parts_;
+    const reco::Candidate & singleLep = *singleLepton();
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
       if (abs(partsColl[i].pdgId())==5 &&
           flavour(singleLep)!=flavour(partsColl[i])) {
@@ -179,8 +179,8 @@ TtGenEvent::leptonicDecayW() const
 {
   const reco::Candidate* cand=0;
   if (singleLepton()) {
-    const reco::Candidate & singleLep = *singleLepton();
     const reco::CandidateCollection & partsColl = *parts_;
+    const reco::Candidate & singleLep = *singleLepton();
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
       if (abs(partsColl[i].pdgId())==24 &&
           flavour(singleLep) == - flavour(partsColl[i])) { // PDG Id:13=mu- 24=W+ (+24)->(-13) (-24)->(+13) opposite sign
@@ -196,8 +196,8 @@ TtGenEvent::leptonicDecayTop() const
 {
   const reco::Candidate* cand=0;
   if (singleLepton()) {
-    const reco::Candidate & singleLep = *singleLepton();
     const reco::CandidateCollection & partsColl = *parts_;
+    const reco::Candidate & singleLep = *singleLepton();
     for (unsigned int i = 0; i < partsColl.size(); ++i) {
       if (abs(partsColl[i].pdgId())==6 &&
           flavour(singleLep)!=flavour(partsColl[i])) {
@@ -317,7 +317,7 @@ TtGenEvent::quarkFromAntiTopBar() const
 }
 
 std::vector<const reco::Candidate*> 
-TtGenEvent::lightQuarks(bool plusB=false) const 
+TtGenEvent::lightQuarks(bool plusB) const 
 {
   std::vector<const reco::Candidate*> lightQuarks;
   reco::CandidateCollection::const_iterator part = parts_->begin();
