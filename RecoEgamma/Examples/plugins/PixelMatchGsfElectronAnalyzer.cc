@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchGsfElectronAnalyzer.cc,v 1.1 2007/07/05 10:34:45 charlot Exp $
+// $Id: PixelMatchGsfElectronAnalyzer.cc,v 1.2 2007/07/05 11:40:05 charlot Exp $
 //
 //
 
@@ -82,7 +82,7 @@ void PixelMatchGsfElectronAnalyzer::beginJob(edm::EventSetup const&iSetup){
   // mc  
   h_simEta             = new TH1F( "h_mc_eta",             "mc #eta",           50, -2.5, 2.5); 
   h_simAbsEta             = new TH1F( "h_mc_abseta",             "mc |#eta|",           25, 0., 2.5); 
-  h_simP               = new TH1F( "h_mc_P",               "mc p",              50, 0., 55.); 
+  h_simP               = new TH1F( "h_mc_P",               "mc p",              50, 0., 200.); 
   h_simPt               = new TH1F( "h_mc_Pt",               "mc pt",            9, 5., 50.); 
 
   // ctf tracks
@@ -90,7 +90,7 @@ void PixelMatchGsfElectronAnalyzer::beginJob(edm::EventSetup const&iSetup){
   h_ctf_lostHitsVsEta       = new TH2F( "h_ctf_lostHitsVsEta",       "ctf track # lost hits vs eta",   50,-2.5,2.5,10,0.,10.);
   
   // all electrons  
-  h_ele_vertexPt_all       = new TH1F( "h_ele_vertexPt_all",       "all ele p_{T} at vertex",  18, 5., 50. );
+  h_ele_vertexPt_all       = new TH1F( "h_ele_vertexPt_all",       "all ele p_{T} at vertex",  9, 5., 50. );
   h_ele_vertexEta_all      = new TH1F( "h_ele_vertexEta_all",      "all ele #eta at vertex",    50, -2.5, 2.5 );
 
   // matched electrons
@@ -98,8 +98,8 @@ void PixelMatchGsfElectronAnalyzer::beginJob(edm::EventSetup const&iSetup){
   h_ele_chargeVsEta    = new TH2F( "h_ele_chargeVsEta",         "ele charge vs eta", 50,-2.5,2.5,5,-2.,2.);   
   h_ele_chargeVsPhi    = new TH2F( "h_ele_chargeVsPhi",         "ele charge vs phi", 50,-3.15,3.15,5,-2.,2.);   
   h_ele_chargeVsPt    = new TH2F( "h_ele_chargeVsPt",         "ele charge vs pt", 50,0.,100.,5,-2.,2.);   
-  h_ele_vertexP        = new TH1F( "h_ele_vertexP",        "ele p at vertex",       50, 0., 80. );
-  h_ele_vertexPt       = new TH1F( "h_ele_vertexPt",       "ele p_{T} at vertex",  80, 0., 20. );
+  h_ele_vertexP        = new TH1F( "h_ele_vertexP",        "ele p at vertex",       50, 0., 200. );
+  h_ele_vertexPt       = new TH1F( "h_ele_vertexPt",       "ele p_{T} at vertex",  50, 0., 50. );
   h_ele_vertexPtVsEta   = new TH2F( "h_ele_vertexPtVsEta",       "ele p_{T} at vertex vs eta",50,-2.5,2.5,80,0.,20.);
   h_ele_vertexPtVsPhi   = new TH2F( "h_ele_vertexPtVsPhi",       "ele p_{T} at vertex vs phi",50,-3.15,3.15,80,0.,20.);
   h_ele_simPt_matched       = new TH1F( "h_ele_simPt_matched",       "sim p_{T}, matched electrons",  9, 5., 50. );
@@ -148,7 +148,7 @@ void PixelMatchGsfElectronAnalyzer::beginJob(edm::EventSetup const&iSetup){
   h_ele_foundHitsVsPhi      = new TH2F( "h_ele_foundHitsVsPhi",      "ele track # found hits vs phi",  50,-3.15,3.15,20,0.,20.);
   h_ele_foundHitsVsPt      = new TH2F( "h_ele_foundHitsVsPt",      "ele track # found hits vs pt",  50,0.,100.,20,0.,20.);
   h_ctf_foundHits      = new TH1F( "h_ctf_foundHits",      "ctf track # found hits",      20, 0., 20. );
-  h_ele_lostHits       = new TH1F( "h_ele_lostHits",       "ele track # lost hits",       20, 0., 20. );
+  h_ele_lostHits       = new TH1F( "h_ele_lostHits",       "ele track # lost hits",       5, 0., 5. );
   h_ele_lostHitsVsEta       = new TH2F( "h_ele_lostHitsVsEta",       "ele track # lost hits vs eta",   50,-2.5,2.5,10,0.,10.);
   h_ele_lostHitsVsPhi       = new TH2F( "h_ele_lostHitsVsPhi",       "ele track # lost hits vs eta",   50,-3.15,3.15,10,0.,10.);
   h_ele_lostHitsVsPt       = new TH2F( "h_ele_lostHitsVsPt",       "ele track # lost hits vs eta",   50,0.,100.,10,0.,10.);
@@ -365,7 +365,16 @@ PixelMatchGsfElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
 
     // select electrons
     if ( (*mcIter)->pdg_id() == 11 || (*mcIter)->pdg_id() == -11 ){       
-    
+
+      // single primary electrons or electrons from Zs
+      HepMC::GenParticle* mother = 0;
+      if ( (*mcIter)->production_vertex() )  {
+       if ( (*mcIter)->production_vertex()->particles_begin(HepMC::parents) != 
+           (*mcIter)->production_vertex()->particles_end(HepMC::parents))  
+            mother = *((*mcIter)->production_vertex()->particles_begin(HepMC::parents));
+      } 
+      if ( ((mother == 0) || ((mother != 0) && (mother->pdg_id() == 23)))) {       
+   
       genPc=(*mcIter);
       pAssSim = genPc->momentum();
 
@@ -570,8 +579,9 @@ PixelMatchGsfElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
 
       } // gsf electron found
 
-    } // mc particle
+    } // mc particle found
 
+    }
 
   } // loop over mc particle 
   
