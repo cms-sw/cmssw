@@ -5,6 +5,8 @@ from ExceptionHandling import format_typename, format_outerframe
 import codecs
 _string_escape_encoder = codecs.getencoder('string_escape')
 
+#import libFWCoreParameterSet
+
 class _Untracked(object):
     """Class type for 'untracked' to allow nice syntax"""
     __name__ = "untracked"
@@ -38,6 +40,8 @@ class int32(_SimpleParameterTypeBase):
         if len(value) >1 and '0x' == value[:2]:
             return int32(int(value,16))
         return int32(int(value))
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addInt32(self.isTracked(), myname, self.value())
 
 
 class uint32(_SimpleParameterTypeBase):
@@ -51,6 +55,9 @@ class uint32(_SimpleParameterTypeBase):
         if len(value) >1 and '0x' == value[:2]:
             return uint32(long(value,16))
         return uint32(long(value))
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addUInt32(self.isTracked(), myname, self.value())
+
 
 
 class int64(_SimpleParameterTypeBase):
@@ -65,6 +72,9 @@ class int64(_SimpleParameterTypeBase):
         if len(value) >1 and '0x' == value[:2]:
             return uint32(long(value,16))
         return int64(long(value))
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addInt64(self.isTracked(), myname, self.value())
+
 
 
 class uint64(_SimpleParameterTypeBase):
@@ -78,6 +88,9 @@ class uint64(_SimpleParameterTypeBase):
         if len(value) >1 and '0x' == value[:2]:
             return uint32(long(value,16))
         return uint64(long(value))
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addUInt64(self.isTracked(), myname, self.value())
+
 
 
 class double(_SimpleParameterTypeBase):
@@ -88,6 +101,9 @@ class double(_SimpleParameterTypeBase):
     def _valueFromString(value):
         """only used for cfg-parsing"""
         return double(float(value))
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addDouble(self.isTracked(), myname, self.value())
+
 
 import __builtin__
 class bool(_SimpleParameterTypeBase):
@@ -106,6 +122,9 @@ class bool(_SimpleParameterTypeBase):
         except:
             pass
         raise RuntimeError('can not make bool from string '+value)
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addBool(self.isTracked(), myname, self.value())
+
 
 
 class string(_SimpleParameterTypeBase):
@@ -130,6 +149,9 @@ class string(_SimpleParameterTypeBase):
     def _valueFromString(value):
         """only used for cfg-parsing"""
         return string(value)
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addString(self.isTracked(), myname, self.value())
+
 
 
 class InputTag(_ParameterTypeBase):
@@ -172,6 +194,9 @@ class InputTag(_ParameterTypeBase):
     def _valueFromString(string):
         parts = string.split(":")
         return InputTag(*parts)
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addInputTag(self.isTracked(), myname, self.value())
+
 
 
 class SecSource(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
@@ -265,6 +290,9 @@ class vint32(_ValidatingParameterListBase):
     @staticmethod
     def _valueFromString(value):
         return vint32(*_ValidatingParameterListBase._itemsFromStrings(value,int32._valueFromString))
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addVInt32(self.isTracked(), myname, self.value())
+
 
 
 class vuint32(_ValidatingParameterListBase):
@@ -276,6 +304,9 @@ class vuint32(_ValidatingParameterListBase):
     @staticmethod
     def _valueFromString(value):
         return vuint32(*_ValidatingParameterListBase._itemsFromStrings(value,uint32._valueFromString))
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addVUInt32(self.isTracked(), myname, self.value())
+
 
     
 class vint64(_ValidatingParameterListBase):
@@ -287,6 +318,9 @@ class vint64(_ValidatingParameterListBase):
     @staticmethod
     def _valueFromString(value):
         return vint64(*_ValidatingParameterListBase._itemsFromStrings(value,int64._valueFromString))
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addVInt64(self.isTracked(), myname, self.value())
+
 
 
 class vuint64(_ValidatingParameterListBase):
@@ -298,6 +332,9 @@ class vuint64(_ValidatingParameterListBase):
     @staticmethod
     def _valueFromString(value):
         return vuint64(*_ValidatingParameterListBase._itemsFromStrings(value,vuint64._valueFromString))
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addVUInt64(self.isTracked(), myname, self.value())
+
 
     
 class vdouble(_ValidatingParameterListBase):
@@ -309,6 +346,9 @@ class vdouble(_ValidatingParameterListBase):
     @staticmethod
     def _valueFromString(value):
         return vdouble(*_ValidatingParameterListBase._itemsFromStrings(value,double._valueFromString))
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addVDouble(self.isTracked(), myname, self.value())
+
 
 
 class vbool(_ValidatingParameterListBase):
@@ -320,6 +360,9 @@ class vbool(_ValidatingParameterListBase):
     @staticmethod
     def _valueFromString(value):
         return vbool(*_ValidatingParameterListBase._itemsFromStrings(value,bool._valueFromString))
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addVBool(self.isTracked(), myname, self.value())
+
 
 
 class vstring(_ValidatingParameterListBase):
@@ -333,6 +376,9 @@ class vstring(_ValidatingParameterListBase):
     @staticmethod
     def _valueFromString(value):
         return vstring(*_ValidatingParameterListBase._itemsFromStrings(value,string._valueFromString))
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addVString(self.isTracked(), myname, self.value())
+
 
 
 class VInputTag(_ValidatingParameterListBase):
@@ -346,6 +392,9 @@ class VInputTag(_ValidatingParameterListBase):
     @staticmethod
     def _valueFromString(value):
         return VInputTag(*_ValidatingParameterListBase._itemsFromStrings(value,InputTag._valueFromString))
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addVInputTag(self.isTracked(), myname, self.value())
+
 
 
 class VPSet(_ValidatingParameterListBase,_ConfigureComponent,_Labelable):
@@ -361,6 +410,7 @@ class VPSet(_ValidatingParameterListBase,_ConfigureComponent,_Labelable):
         return copy.copy(self)
     def _place(self,name,proc):
         proc._placeVPSet(name,self)
+
 
 
 if __name__ == "__main__":
