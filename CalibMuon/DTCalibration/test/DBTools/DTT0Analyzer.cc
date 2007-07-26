@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/01/24 16:04:11 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/03/28 17:19:35 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -79,7 +79,7 @@ void DTT0Analyzer::endJob() {
     if(hSigmaT0Histo == 0) {
       theFile->cd();
       TString name = getHistoName(layerId).c_str();
-      hSigmaT0Histo = new TH1D(name+"_t0sigma",
+      hSigmaT0Histo = new TH1D(name+"_t0Sigma",
 			  "T0 from pulses by Channel", nWires,0,nWires);
       theSigmaHistoMap[layerId] = hSigmaT0Histo;
      }
