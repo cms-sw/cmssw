@@ -19,8 +19,8 @@
    std::vector<reco::Muon> muons;
    std::vector<reco::Muon> trackerMuons;
    
-   int LastStationLoose = 0;
-   int LastStationTight = 1;
+   int TMLastStationLoose = 0;
+   int TMLastStationTight = 1;
    
    TString branchName1 = tree->GetAlias("muons");
    tree->SetBranchAddress(branchName1,&muons);
@@ -35,8 +35,8 @@
       for(unsigned int i=0; i<muons.size(); i++) h1->Fill(muons[i].pt());
       for(unsigned int i=0; i<trackerMuons.size(); i++) {
 	 h2->Fill(trackerMuons[i].pt());
-	 if (muonid::isGoodMuon(trackerMuons[i],LastStationLoose)) h3->Fill(trackerMuons[i].pt());
-	 if (muonid::isGoodMuon(trackerMuons[i],LastStationTight)) h4->Fill(trackerMuons[i].pt());
+	 if (muonid::isGoodMuon(trackerMuons[i],TMLastStationLoose)) h3->Fill(trackerMuons[i].pt());
+	 if (muonid::isGoodMuon(trackerMuons[i],TMLastStationTight)) h4->Fill(trackerMuons[i].pt());
       }
    }
    
