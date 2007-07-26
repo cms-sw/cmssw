@@ -11,7 +11,6 @@ public:
 
   virtual AlgebraicVector parameters() const {return trackingRecHit_->parameters();}
   virtual AlgebraicSymMatrix parametersError() const {return trackingRecHit_->parametersError();}
-  virtual DetId geographicalId() const {return trackingRecHit_->geographicalId();}
   virtual AlgebraicMatrix projectionMatrix() const {return trackingRecHit_->projectionMatrix();}
   virtual int dimension() const {return trackingRecHit_->dimension();}
 
@@ -24,8 +23,6 @@ public:
 
   virtual const TrackingRecHit * hit() const {return trackingRecHit_;};
   
-  virtual bool isValid() const{return trackingRecHit_->isValid();}
-  virtual Type getType() const{return trackingRecHit_->getType();}
 
   virtual std::vector<const TrackingRecHit*> recHits() const {
     return ((const TrackingRecHit *)(trackingRecHit_))->recHits();
@@ -42,16 +39,16 @@ protected:
 
   // private constructors enforce usage of builders
   GenericTransientTrackingRecHit(const GeomDet * geom, const TrackingRecHit& rh) :
-    TransientTrackingRecHit(geom) {
+    TransientTrackingRecHit(geom,rh) {
     trackingRecHit_ = rh.clone();
   }
 
   /// for derived classes convenience, does not clone!
   GenericTransientTrackingRecHit(const GeomDet * geom, TrackingRecHit* rh) :
-    TransientTrackingRecHit(geom), trackingRecHit_(rh) {}
+    TransientTrackingRecHit(geom,*rh), trackingRecHit_(rh) {}
 
   GenericTransientTrackingRecHit( const GenericTransientTrackingRecHit & other ) :
-    TransientTrackingRecHit( other.det()) {
+    TransientTrackingRecHit( other.det(),other) {
     trackingRecHit_ = other.hit()->clone();
   }
 
@@ -59,6 +56,7 @@ private:
 
   TrackingRecHit * trackingRecHit_;
 
+  
   // should not have assignment operator (?)
   GenericTransientTrackingRecHit & operator= (const GenericTransientTrackingRecHit & t) {
     trackingRecHit_ = t.hit()->clone();

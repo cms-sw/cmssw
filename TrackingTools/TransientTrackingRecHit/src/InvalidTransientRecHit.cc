@@ -5,7 +5,7 @@
 
 
 InvalidTransientRecHit::InvalidTransientRecHit( const GeomDet* geom, const DetLayer * layer, Type type ) :
-  GenericTransientTrackingRecHit( geom, InvalidTrackingRecHit( geom == 0 ? DetId(0) : geom->geographicalId(), type)), 
+  GenericTransientTrackingRecHit( geom, new InvalidTrackingRecHit( geom == 0 ? DetId(0) : geom->geographicalId(), type)), 
   layer_(layer)
 {
 }
