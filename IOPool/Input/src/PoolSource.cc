@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.56 2007/07/23 23:42:36 wmtan Exp $
+$Id: PoolSource.cc,v 1.57 2007/07/26 23:43:54 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
 #include "RootFile.h"
@@ -91,8 +91,8 @@ namespace edm {
 
   void PoolSource::init(FileCatalogItem const& file) {
     TTree::SetMaxTreeSize(kMaxLong64);
-    //TFile *filePtr = (file.fileName().empty() ? 0 : TFile::Open(file.fileName().c_str()));
-    //if (filePtr != 0) filePtr->Close();
+    TFile *filePtr = (file.fileName().empty() ? 0 : TFile::Open(file.fileName().c_str()));
+    if (filePtr != 0) filePtr->Close();
     rootFile_ = RootFileSharedPtr(new RootFile(file.fileName(), catalog().url(),
 	processConfiguration(), file.logicalFileName()));
   }
