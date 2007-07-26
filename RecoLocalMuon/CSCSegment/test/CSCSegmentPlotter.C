@@ -34,6 +34,10 @@ TString segment = "DF";
 
  TString plot3  = "nhits_per_seg_"+segment+suffixps;
 
+ TString plot4a = "dx_seg_Ori_"+segment+suffixps;
+ TString plot4b = "dy_seg_Ori_"+segment+suffixps;
+ TString plot4c = "dphi_seg_Dir_"+segment+suffixps;
+ TString plot4d = "dtheta_seg_Dir_"+segment+suffixps;
 
 // ********************************************************************
 // Pointers to histograms
@@ -47,8 +51,14 @@ TString segment = "DF";
 // 2) Chi^2
  hChi2       = (TH1F *) file->Get("h4");
 
-// 5) Number hit/segment
+// 3) Number hit/segment
  hNhit       = (TH1F *) file->Get("h5");
+
+// 4) Resolution on segment origin (dx, dy), and direction (dphi, dtheta)
+ hdxME1A     = (TH1F *) file->Get("h20"); 
+ hdyME1A     = (TH1F *) file->Get("h30"); 
+ hdphiME1A   = (TH1F *) file->Get("h40"); 
+ hdthetaME1A = (TH1F *) file->Get("h50"); 
 
 // *****************************************************************
 // 1) Efficiency
@@ -83,17 +93,18 @@ TString segment = "DF";
 
  gStyle->SetOptStat(kTRUE);
  TCanvas *c1 = new TCanvas("c1","");
+ gPad->SetLogy(kTRUE);
  c1->SetFillColor(10);   
  c1->SetFillColor(10);
  hChi2->SetTitle(segment);
  hChi2->Draw();
- hChi2->GetXaxis()->SetTitle("#chi^{2}");
+ hChi2->GetXaxis()->SetTitle("#chi^{2}/(2 N_{hit} - 4)");
  hChi2->GetYaxis()->SetTitle(" ");
  c1->Print(plot2);
 
 
 // *****************************************************************
-// 2) Number of hits per segment 
+// 3) Number of hits per segment 
 // *****************************************************************
 
  gStyle->SetOptStat(kTRUE);
@@ -102,10 +113,53 @@ TString segment = "DF";
  c1->SetFillColor(10);
  hNhit->SetTitle(segment);
  hNhit->Draw();
- hNhit->GetXaxis()->SetTitle("#chi^{2}");
+ hNhit->GetXaxis()->SetTitle("number of hits/segment");
  hNhit->GetYaxis()->SetTitle(" ");
  c1->Print(plot3);
 
+// *****************************************************************
+// 4) Resolution
+// *****************************************************************
+
+ gStyle->SetOptStat(kTRUE);
+ TCanvas *c1 = new TCanvas("c1","");
+ c1->SetFillColor(10);   
+ c1->SetFillColor(10);
+ hdxME1A->SetTitle(segment);
+ hdxME1A->Draw();
+ hdxME1A->GetXaxis()->SetTitle("#Delta X for seg. origin (cm)");
+ hdxME1A->GetYaxis()->SetTitle(" ");
+ c1->Print(plot4a);
+
+ gStyle->SetOptStat(kTRUE);
+ TCanvas *c1 = new TCanvas("c1","");
+ c1->SetFillColor(10);   
+ c1->SetFillColor(10);
+ hdyME1A->SetTitle(segment);
+ hdyME1A->Draw();
+ hdyME1A->GetXaxis()->SetTitle("#Delta Y for seg. origin (cm)");
+ hdyME1A->GetYaxis()->SetTitle(" ");
+ c1->Print(plot4b);
+
+ gStyle->SetOptStat(kTRUE);
+ TCanvas *c1 = new TCanvas("c1","");
+ c1->SetFillColor(10);   
+ c1->SetFillColor(10);
+ hdphiME1A->SetTitle(segment);
+ hdphiME1A->Draw();
+ hdphiME1A->GetXaxis()->SetTitle("#Delta #phi on seg. direction (global)");
+ hdphiME1A->GetYaxis()->SetTitle(" ");
+ c1->Print(plot4c);
+
+ gStyle->SetOptStat(kTRUE);
+ TCanvas *c1 = new TCanvas("c1","");
+ c1->SetFillColor(10);   
+ c1->SetFillColor(10);
+ hdthetaME1A->SetTitle(segment);
+ hdthetaME1A->Draw();
+ hdthetaME1A->GetXaxis()->SetTitle("#Delta #theta on seg. direction (global)");
+ hdthetaME1A->GetYaxis()->SetTitle(" ");
+ c1->Print(plot4d);
 
 
  gROOT->ProcessLine(".q");
