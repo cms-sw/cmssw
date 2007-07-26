@@ -741,8 +741,7 @@ namespace edm {
           toerror.succeeded();
           return evtDesc;
         }
-        // Run principal needs a timestamp!
-        IOVSyncValue ts(EventID(rp->run(),0), Timestamp::invalidTimestamp());
+        IOVSyncValue ts(EventID(rp->run(),0), rp->time());
         EventSetup const& es = esp_->eventSetupForInstance(ts);
         schedule_->runOneEvent(*rp, es, BranchActionBegin);
         {
@@ -754,7 +753,7 @@ namespace edm {
           continue;
         }
         {
-          IOVSyncValue ts(EventID(lbp->runNumber(),0), Timestamp::invalidTimestamp());
+          IOVSyncValue ts(EventID(lbp->runNumber(),0), lbp->time());
           EventSetup const& es = esp_->eventSetupForInstance(ts);
           schedule_->runOneEvent(*lbp, es, BranchActionBegin);
         }
@@ -782,8 +781,9 @@ namespace edm {
       {
         CallPrePost holder(*actReg_);
         input_->doFinishLumi(*lbp);
+
       }
-      IOVSyncValue ts(EventID(lbp->runNumber(),EventID::maxEventNumber()), Timestamp::invalidTimestamp());
+      IOVSyncValue ts(EventID(lbp->runNumber(),EventID::maxEventNumber()), lbp->time());
       EventSetup const& es = esp_->eventSetupForInstance(ts);
       schedule_->runOneEvent(*lbp, es, BranchActionEnd);
 
@@ -815,8 +815,7 @@ namespace edm {
           toerror.succeeded();
           return evtDesc;
         }
-        // Run principal needs a timestamp!
-        IOVSyncValue ts(EventID(rp->run(),0), Timestamp::invalidTimestamp());
+        IOVSyncValue ts(EventID(rp->run(),0), rp->time());
         EventSetup const& es = esp_->eventSetupForInstance(ts);
         schedule_->runOneEvent(*rp, es, BranchActionBegin);
       }
@@ -891,7 +890,7 @@ namespace edm {
     StatusCode rc = epSuccess;
 
     // Just use the Run's # for now
-    IOVSyncValue tsDummy(EventID(rp->run(),0), Timestamp::invalidTimestamp());
+    IOVSyncValue tsDummy(EventID(rp->run(),0), rp->time());
     EventSetup const& esDummy = esp_->eventSetupForInstance(tsDummy);
 
     while(state_ == sRunning) {
@@ -917,8 +916,8 @@ namespace edm {
 	break;
       }
 
-      //Should add a timestamp to Lumis and IOVSyncValue should know about Lumi #s
-      //IOVSyncValue tsDummy(EventID(rp->run(),0), Timestamp::invalidTimestamp());
+      //IOVSyncValue should know about Lumi #s
+      IOVSyncValue tsDummy(EventID(rp->run(),0), lbp->time());
       //EventSetup const& esDummy = esp_->eventSetupForInstance(tsDummy);
       schedule_->runOneEvent(*lbp, esDummy, BranchActionBegin);
       rc = processEvents(numberEventsToProcess, lbp);
@@ -978,9 +977,8 @@ namespace edm {
 	continue;
       }
 
-      //Run needs to have an associated timestamp
       {
-        IOVSyncValue ts(EventID(rp->run(),0), Timestamp::invalidTimestamp());
+        IOVSyncValue ts(EventID(rp->run(),0), rp->time());
         EventSetup const& es = esp_->eventSetupForInstance(ts);
         schedule_->runOneEvent(*rp, es, BranchActionBegin);
         rc = processLumis(numberEventsToProcess, rp);
@@ -990,7 +988,7 @@ namespace edm {
         input_->doFinishRun(*rp);
       }
       {
-        IOVSyncValue ts(EventID(rp->run(),EventID::maxEventNumber()), Timestamp::invalidTimestamp());
+        IOVSyncValue ts(EventID(rp->run(),EventID::maxEventNumber()), rp->time());
         EventSetup const& es = esp_->eventSetupForInstance(ts);      
         schedule_->runOneEvent(*rp, es, BranchActionEnd);
       }

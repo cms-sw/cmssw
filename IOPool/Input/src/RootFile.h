@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.28 2007/06/25 23:22:15 wmtan Exp $
+$Id: RootFile.h,v 1.29 2007/06/28 23:11:22 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -58,6 +58,7 @@ namespace edm {
 
   private:
     void validateFile();
+    void fillEventAuxiliary();
     RootFile(RootFile const&); // disable copy construction
     RootFile & operator=(RootFile const&); // disable assignment
     std::string const file_;

@@ -10,7 +10,7 @@ such code sees the Run class, which is a proxy for RunPrincipal.
 The major internal component of the RunPrincipal
 is the DataBlock.
 
-$Id: RunPrincipal.h,v 1.14 2007/06/21 16:52:42 wmtan Exp $
+$Id: RunPrincipal.h,v 1.15 2007/06/22 23:26:32 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -25,11 +25,12 @@ namespace edm {
   typedef Principal Base;
   public:
     RunPrincipal(RunNumber_t const& id,
+        Timestamp const& time,
 	boost::shared_ptr<ProductRegistry const> reg,
 	ProcessConfiguration const& pc,
 	ProcessHistoryID const& hist = ProcessHistoryID(),
 	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader)) :
-	  Base(reg, pc, hist, rtrv), aux_(id) {}
+	  Base(reg, pc, hist, rtrv), aux_(id, time) {}
     ~RunPrincipal() {}
 
     RunAuxiliary const& aux() const {
@@ -43,6 +44,10 @@ namespace edm {
 
     RunID const& id() const {
       return aux().id();
+    }
+
+    Timestamp const& time() const {
+      return aux().time();
     }
 
     using Base::addGroup;

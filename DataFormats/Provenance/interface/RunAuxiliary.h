@@ -5,6 +5,7 @@
 
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/RunID.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
 
 // Auxiliary run data that is persistent
 
@@ -13,17 +14,21 @@ namespace edm
   struct RunAuxiliary {
     RunAuxiliary() :
 	processHistoryID_(),
-	id_() {}
-    explicit RunAuxiliary(RunID const& theId) :
+	id_(),
+	time_() {}
+    RunAuxiliary(RunID const& theId, Timestamp const& theTime) :
 	processHistoryID_(),
-	id_(theId) {}
-    explicit RunAuxiliary(RunNumber_t const& run) :
+	id_(theId),
+	time_(theTime) {}
+    RunAuxiliary(RunNumber_t const& run, Timestamp const& theTime) :
 	processHistoryID_(),
-	id_(run) {}
+	id_(run),
+	time_(theTime) {}
     ~RunAuxiliary() {}
     void write(std::ostream& os) const;
     ProcessHistoryID& processHistoryID() const {return processHistoryID_;}
     RunID const& id() const {return id_;}
+    Timestamp const& time() const {return time_;}
     RunNumber_t run() const {return id_.run();}
 
     // most recent process that processed this run
@@ -31,6 +36,8 @@ namespace edm
     mutable ProcessHistoryID processHistoryID_;
     // Run ID
     RunID id_;
+    // Time from DAQ
+    Timestamp time_;
   };
 
   inline

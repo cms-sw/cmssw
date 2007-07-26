@@ -31,7 +31,7 @@ namespace edm {
 	boost::shared_ptr<DelayedReader> rtrv) :
 	  Base(reg, pc, hist, rtrv),
 	  aux_(id, time, lumi, isReal, eType),
-	  luminosityBlockPrincipal_(new LuminosityBlockPrincipal(lumi, reg, id.run(), pc)),
+	  luminosityBlockPrincipal_(new LuminosityBlockPrincipal(lumi, time, reg, id.run(), pc)),
 	  unscheduledHandler_() { }
 
   RunPrincipal const&
