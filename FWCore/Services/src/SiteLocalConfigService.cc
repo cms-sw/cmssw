@@ -108,9 +108,13 @@ edm::service::SiteLocalConfigService::calibCatalog (void) const
 
     if (m_calibCatalog == "")
     {
-	// None in config file, use default calib catalog.
-	edm::FileInPath fip("FWCore/Services/data/calibcatalog.xml");
-	m_calibCatalog = "file:" + fip.fullPath();
+	// No catalog in config file, use default relationalcatalog
+	std::string logicalserverurl = calibLogicalServer();
+	std::string logicalservername = 
+		logicalserverurl.substr(logicalserverurl.rfind('/')+1,
+					logicalserverurl.length());
+	m_calibCatalog = "relationalcatalog_frontier://" + 
+		logicalservername + "/CMS_COND_FRONTIER";
     }
 
     return  m_calibCatalog;    
