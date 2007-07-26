@@ -1,9 +1,9 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/02/21 11:15:50 $
- *  $Revision: 1.6 $
- *  \author G. Cerminara - INFN Torino
+ *  $Date: 2007/07/26 07:31:28 $
+ *  $Revision: 1.2 $
+ *  \author S. Bolognesi - INFN Torino
  */
 #include "CalibMuon/DTCalibration/plugins/DTT0Calibration.h"
 #include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
