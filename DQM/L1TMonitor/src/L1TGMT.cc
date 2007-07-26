@@ -1,8 +1,8 @@
 /*
  * \file L1TGMT.cc
  *
- * $Date: 2007/05/25 15:45:48 $
- * $Revision: 1.4 $
+ * $Date: 2007/07/25 15:05:21 $
+ * $Revision: 1.5 $
  * \author J. Berryhill
  *
  */
@@ -143,18 +143,18 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
    	    << endl;
    }
 
-   vector<L1MuGMTExtendedCand> GMTCands = RRItr->getGMTCands();
+   vector<L1MuGMTExtendedCand> GMTBrlCands = RRItr->getGMTBrlCands();
  
 
    if (verbose_) 
     {
-     cout << "GMTCands " << GMTCands.size()
+     cout << "GMTCands " << GMTBrlCands.size()
    	    << endl;
     }
 
     for( vector<L1MuGMTExtendedCand>::const_iterator 
-         ECItr = GMTCands.begin() ;
-         ECItr != GMTCands.end() ;
+         ECItr = GMTBrlCands.begin() ;
+         ECItr != GMTBrlCands.end() ;
          ++ECItr ) 
     {
 
@@ -201,7 +201,66 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
    	    << endl;
 	}
 
+    }
 
+
+   vector<L1MuGMTExtendedCand> GMTFwdCands = RRItr->getGMTFwdCands();
+ 
+
+   if (verbose_) 
+    {
+     cout << "GMTCands " << GMTFwdCands.size()
+   	    << endl;
+    }
+
+    for( vector<L1MuGMTExtendedCand>::const_iterator 
+         ECItr = GMTFwdCands.begin() ;
+         ECItr != GMTFwdCands.end() ;
+         ++ECItr ) 
+    {
+
+      ngmttrack++;
+
+      if (verbose_)
+	{  
+     cout << "GMTCand name " << ECItr->name()
+   	    << endl;
+	}
+
+      gmtetavalue->Fill(ECItr->etaValue());
+      if (verbose_)
+	{     
+     cout << "\tGMTCand eta value " << ECItr->etaValue()
+   	    << endl;
+	}
+
+      gmtphivalue->Fill(ECItr->phiValue());
+      if (verbose_)
+	{     
+     cout << "\tGMTCand phi value " << ECItr->phiValue()
+   	    << endl;
+	}
+
+      gmtptvalue->Fill(ECItr->ptValue());
+      if (verbose_)
+	{     
+     cout << "\tGMTCand pt value " << ECItr->ptValue()
+   	    << endl;
+	}
+
+      gmtquality->Fill(ECItr->quality());
+      if (verbose_)
+	{     
+     cout << "\tGMTCand quality " << ECItr->quality()
+   	    << endl;
+	}
+
+      gmtcharge->Fill(ECItr->charge());
+      if (verbose_)
+	{     
+     cout << "\tGMTCand charge " << ECItr->charge()
+   	    << endl;
+	}
 
     }
   }
