@@ -4,8 +4,8 @@
 /** \class DTChamberId
  *  DetUnit identifier for DT chambers.
  *  
- *  $Date: 2006/06/06 16:24:14 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/07/31 21:22:16 $
+ *  $Revision: 1.7 $
  *  \author Stefano ARGIRO & G. Cerminara
  */
 
@@ -27,7 +27,8 @@ public:
   /// (proper Detector and  SubDet fields), otherwise an exception is thrown.
   /// Any bits outside the DTChamberId fields are zeroed; apart for
   /// this, no check is done on the vaildity of the values.
-  explicit DTChamberId(uint32_t id);
+  DTChamberId(uint32_t id);
+  DTChamberId(DetId id);
 
 
   /// Construct from indexes.

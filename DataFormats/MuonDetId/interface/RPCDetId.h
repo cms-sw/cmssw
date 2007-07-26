@@ -5,9 +5,9 @@
  * 
  *  DetUnit identifier for RPCs
  *
- *  $Date: 2006/09/13 09:00:55 $
- *  \version $Id: RPCDetId.h,v 1.18 2006/09/13 09:00:55 trentad Exp $
- *  $Revision: 1.18 $
+ *  $Date: 2006/12/30 09:32:54 $
+ *  \version $Id: RPCDetId.h,v 1.19 2006/12/30 09:32:54 mmaggi Exp $
+ *  $Revision: 1.19 $
  *  \author Ilaria Segoni
  */
 
@@ -26,7 +26,8 @@ class RPCDetId :public DetId {
 
   /// Construct from a packed id. It is required that the Detector part of
   /// id is Muon and the SubDet part is RPC, otherwise an exception is thrown.
-  explicit RPCDetId(uint32_t id);
+  RPCDetId(uint32_t id);
+  RPCDetId(DetId id);
 
 
   /// Construct from fully qualified identifier.

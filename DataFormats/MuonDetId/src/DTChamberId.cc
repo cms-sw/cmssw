@@ -1,8 +1,8 @@
 /** \file
  *  See header file for a description of this class.
  *
- *  $Date: 2006/01/19 15:42:59 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/04/12 17:52:40 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -17,6 +17,10 @@ DTChamberId::DTChamberId() : DetId(DetId::Muon, MuonSubdetId::DT){}
 
 DTChamberId::DTChamberId(uint32_t id) :
   DetId(id & chamberIdMask_) { // Mask the bits outside DTChamberId fields
+  checkMuonId();               // Check this is a valid id for muon DTs.
+}
+DTChamberId::DTChamberId(DetId id) :
+  DetId(id.raw() & chamberIdMask_) { // Mask the bits outside DTChamberId fields
   checkMuonId();               // Check this is a valid id for muon DTs.
 }
 
