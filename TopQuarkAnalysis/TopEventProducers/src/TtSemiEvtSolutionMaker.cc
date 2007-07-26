@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolutionMaker.cc,v 1.17 2007/07/26 08:40:13 lowette Exp $
+// $Id: TtSemiEvtSolutionMaker.cc,v 1.18 2007/07/26 14:00:18 heyninck Exp $
 //
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiEvtSolutionMaker.h"
@@ -172,10 +172,10 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
       iEvent.getByLabel ("genEvt",genEvt); 
       if(genEvt->numberOfBQuarks() == 2){ 	//in rare cases W->bc decay, resulting in a wrong filled genEvt leading to a segmentation fault
         vector<const reco::Candidate*> quarks;
-        const reco::Candidate & genp  = *(genEvt->hadronicQuark());
-        const reco::Candidate & genq  = *(genEvt->hadronicQuarkBar());
-        const reco::Candidate & genbh = *(genEvt->hadronicB());
-        const reco::Candidate & genbl = *(genEvt->leptonicB());
+        const reco::Candidate & genp  = *(genEvt->hadronicDecayQuark());
+        const reco::Candidate & genq  = *(genEvt->hadronicDecayQuarkBar());
+        const reco::Candidate & genbh = *(genEvt->hadronicDecayB());
+        const reco::Candidate & genbl = *(genEvt->leptonicDecayB());
         quarks.push_back( &genp );
         quarks.push_back( &genq );
         quarks.push_back( &genbh );
