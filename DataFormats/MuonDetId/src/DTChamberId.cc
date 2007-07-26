@@ -20,7 +20,7 @@ DTChamberId::DTChamberId(uint32_t id) :
   checkMuonId();               // Check this is a valid id for muon DTs.
 }
 DTChamberId::DTChamberId(DetId id) :
-  DetId(id.raw() & chamberIdMask_) { // Mask the bits outside DTChamberId fields
+  DetId(id.rawId() & chamberIdMask_) { // Mask the bits outside DTChamberId fields
   checkMuonId();               // Check this is a valid id for muon DTs.
 }
 

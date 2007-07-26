@@ -2,7 +2,7 @@
  * Impl of RPCDetId
  *
  * \author Ilaria Segoni
- * \version $Id: RPCDetId.cc,v 1.16 2006/06/06 16:08:32 mmaggi Exp $
+ * \version $Id: RPCDetId.cc,v 1.17 2006/09/05 17:31:38 mmaggi Exp $
  * \date 02 Aug 2005
  */
 
@@ -13,6 +13,15 @@ RPCDetId::RPCDetId():DetId(DetId::Muon, MuonSubdetId::RPC),trind(0){}
 
 
 RPCDetId::RPCDetId(uint32_t id):DetId(id),trind(0) {
+  //  std::cout<<" constructor of the RPCDetId" <<std::endl;
+  if (det()!=DetId::Muon || subdetId()!=MuonSubdetId::RPC) {
+    throw cms::Exception("InvalidDetId") << "RPCDetId ctor:"
+					 << " det: " << det()
+					 << " subdet: " << subdetId()
+					 << " is not a valid RPC id";  
+  }
+}
+RPCDetId::RPCDetId(DetId id):DetId(id),trind(0) {
   //  std::cout<<" constructor of the RPCDetId" <<std::endl;
   if (det()!=DetId::Muon || subdetId()!=MuonSubdetId::RPC) {
     throw cms::Exception("InvalidDetId") << "RPCDetId ctor:"
