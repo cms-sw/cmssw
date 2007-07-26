@@ -4,29 +4,27 @@
 /** \class DTT0Calibration
  *  Analyzer class computes the mean and RMS of t0 from pulses.
  *  Those values are written in the DB with cell granularity. The
- *  mean value for each channel is normalized to the mean within the chamber.
- *  The TProfile histograms filled with cell granularity are also saved to root file.
+ *  mean value for each channel is normalized to a reference time common to all the sector.
+ *  The t0 of wires in odd layers are corrected for the relative difference between 
+ *  odd and even layers 
  *
  *  $Date: 2006/06/08 15:41:58 $
  *  $Revision: 1.2 $
- *  \author G. Cerminara - INFN Torino
+ *  \author S. Bolognesi - INFN Torino
  */
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "DataFormats/MuonDetId/interface/DTLayerId.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include <string>
+#include <vector>
 #include <map>
 
-
-namespace edm {
-  class ParameterSet;
-  class Event;
-  class EventSetup;
-}
-
 class TFile;
-class TProfile;
+class TH1I;
+class TH1D;
 class DTT0;
 
 class DTT0Calibration : public edm::EDAnalyzer {
@@ -39,10 +37,10 @@ public:
 
   // Operations
 
-  /// Fill the histos with t0 times (by channel)
+  /// Fill the maps with t0 (by channel)
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
 
-  /// Get the mean and rhe RMS of the t0 from the histo and write them to the DB with channel granularity
+  /// Compute the mean and the RMS of the t0 from the maps and write them to the DB with channel granularity
   void endJob();
 
 
@@ -50,10 +48,8 @@ protected:
 
 private:
   // Generate the histo name
+  std::string getHistoName(const DTWireId& wId) const;
   std::string getHistoName(const DTLayerId& lId) const;
-
-  // Print computed t0s
-  void dumpT0Map(const DTT0* t0s) const;
 
   // Debug flag
   bool debug;
@@ -61,12 +57,47 @@ private:
   // The label used to retrieve digis from the event
   std::string digiLabel;
 
-  // The file which will contain the time boxes
+  // The root file which contain the histos per layer
   TFile *theFile;
-  
-  // Map of the histograms by Layer
-  std::map<DTLayerId, TProfile*> theHistoMap;
+  // The root file which will contain the histos per wire (for the given layer)
+  TFile *theOutputFile;
 
+  //The event counter
+  unsigned int nevents;
+  //Number of events to be used for the t0 per layer histos
+  unsigned int eventsForLayerT0;
+ 
+  //The wheels,sector to be calibrated (default All)
+  std::string theCalibWheel;
+  int selWheel;
+  std::string theCalibSector;
+  int selSector;
+
+  // Map of the histos and graph by layer
+  std::map<DTLayerId, TH1I*> theHistoLayerMap;
+  //Histo with t0 mean per layer for all the sector
+  TH1D* hT0SectorHisto;
+  
+  //Layer with histos for each wire
+  std::vector<DTWireId> wireIdWithHistos;
+  std::vector<std::string> cellsWithHistos;
+
+  //Maps with t0, sigma, number of digi per wire
+  std::map<DTWireId,double> theAbsoluteT0PerWire;
+  std::map<DTWireId,double> theRelativeT0PerWire;
+  std::map<DTWireId,double> theSigmaT0PerWire;
+  std::map<DTWireId,int> nDigiPerWire;
+  //Map with histo per wire for the chosen layer
+  std::map<DTWireId,TH1I*> theHistoWireMap;
+  //Map with mean and RMS of t0 per layer
+  std::map<std::string,double> theT0LayerMap;
+  std::map<std::string,double> theSigmaT0LayerMap;
+
+  //DTGeometry used to loop on the SL in the endJob
+  edm::ESHandle<DTGeometry> dtGeom;
+
+  // The object to be written to DB
+  DTT0* t0s; 
 };
 #endif
 
