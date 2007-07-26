@@ -19,6 +19,7 @@ namespace edm {
     template <class T>
     class BaseHolder {
     public:
+      BaseHolder();
       virtual ~BaseHolder();
       virtual BaseHolder<T>* clone() const = 0;
 
@@ -50,7 +51,6 @@ namespace edm {
 
     protected:
       // We want the following called only by derived classes.
-      BaseHolder();
       BaseHolder(BaseHolder const& other);
       BaseHolder& operator= (BaseHolder const& rhs);
 
