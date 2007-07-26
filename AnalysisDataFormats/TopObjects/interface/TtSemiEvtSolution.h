@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolution.h,v 1.14 2007/07/06 03:07:47 lowette Exp $
+// $Id: TtSemiEvtSolution.h,v 1.15 2007/07/20 07:03:14 lowette Exp $
 //
 
 #ifndef TopObjects_TtSemiEvtSolution_h
@@ -26,9 +26,6 @@ class TtSemiEvtSolution {
 
   friend class TtSemiEvtSolutionMaker;
   friend class TtSemiKinFitter;
-  friend class TtSemiKinFitterEMom;
-  friend class TtSemiKinFitterEtEtaPhi;
-  friend class TtSemiKinFitterEtThetaPhi;
   friend class TtSemiLRSignalSelObservables;
   friend class TtSemiLRSignalSelCalc;
   friend class TtSemiLRJetCombObservables;
@@ -106,7 +103,7 @@ class TtSemiEvtSolution {
     int                       getMCChangeWQ() const            { return changeWQ_; };     
     // methods to get the selected kinfit parametrisations of each type of object 
     int                       getJetParametrisation() const    { return jetParam_; }
-    int                       getLeptonParametrisation() const { return leptonParam_; }
+    int                       getLeptonParametrisation() const { return lepParam_; }
     int                       getMETParametrisation() const    { return metParam_; }
     // method to get the prob. of the chi2 value resulting from the kinematic fit
     double                    getProbChi2() const              { return probChi2_; }
@@ -180,7 +177,7 @@ class TtSemiEvtSolution {
     std::string               decay_;
     double                    sumAnglejp_, angleHadp_, angleHadq_, angleHadb_, angleLepb_;
     int                       changeWQ_;
-    int                       jetParam_, leptonParam_, metParam_;
+    int                       jetParam_, lepParam_, metParam_;
     double                    probChi2_;
     int                       mcCorrJetComb_, simpleCorrJetComb_, lrCorrJetComb_;
     double                    lrJetCombLRval_, lrJetCombProb_;

@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolution.cc,v 1.14 2007/07/20 07:02:37 lowette Exp $
+// $Id: TtSemiEvtSolution.cc,v 1.15 2007/07/25 13:32:35 rwolf Exp $
 //
 
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
@@ -195,7 +195,7 @@ void TtSemiEvtSolution::setMCChangeWQ(int wq)          { changeWQ_ = wq; }
 
 // methods to set the kinfit parametrisations of each type of object
 void TtSemiEvtSolution::setJetParametrisation(int jp)    { jetParam_ = jp; }
-void TtSemiEvtSolution::setLeptonParametrisation(int lp) { leptonParam_ = lp; }
+void TtSemiEvtSolution::setLeptonParametrisation(int lp) { lepParam_ = lp; }
 void TtSemiEvtSolution::setMETParametrisation(int mp)    { metParam_ = mp; }
 
 
