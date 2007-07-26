@@ -1,11 +1,16 @@
 /*
  * \file L1TDTTPG.cc
  *
- * $Date: 2007/07/12 16:06:18 $
- * $Revision: 1.9 $
+ * $Date: 2007/07/25 09:03:58 $
+ * $Revision: 1.10 $
  * \author J. Berryhill
  *
  * $Log: L1TDTTPG.cc,v $
+ * Revision 1.10  2007/07/25 09:03:58  berryhil
+ *
+ *
+ * conform to DTTFFEDReader input tag.... for now
+ *
  * Revision 1.9  2007/07/12 16:06:18  wittich
  * add simple phi output track histograms.
  * note that the label of this class is different than others
@@ -316,7 +321,7 @@ void L1TDTTPG::analyze(const Event& e, const EventSetup& c)
   L1MuDTTrackContainer::TrackContainer *t =  myL1MuDTTrackContainer->getContainer();
   for ( L1MuDTTrackContainer::TrackContainer::const_iterator i 
 	  = t->begin(); i != t->end(); ++i ) {
-    if ( verbose_ ||1) {
+    if ( verbose_ ) {
       std::cout << "quality (packed) = " << i->quality_packed() 
 		<< std::endl;
       std::cout << "pt      (packed) = " << i->pt_packed() 
