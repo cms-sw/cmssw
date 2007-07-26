@@ -58,6 +58,12 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
   
   /// Calculate phi range for histograms
   std::pair<float,float> phiRange(const DTChamberId& id);
+
+  /// Convert phi to local x coordinate
+  float phi2Pos(const DTChamberId & id, int phi);
+
+  /// Convert phib to global angle coordinate
+  float phib2Ang(const DTChamberId & id, int phib, double phi);
   
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
@@ -76,7 +82,7 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
   std::string seg_label;
   std::string outputFile;  
   int nevents;
-  
+ 
   DaqMonitorBEInterface* dbe;
   edm::ParameterSet parameters;
   edm::ESHandle<DTGeometry> muonGeom;
