@@ -47,6 +47,10 @@ Generator::~Generator()
 void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 {
 
+  //protection against empty events
+  if ( *(evt_orig->vertices_begin()) == 0 ) 
+    throw cms::Exception("EventCorruption") << "Input GenEvent with no vertex \n" ;
+
   HepMC::GenEvent* evt = new HepMC::GenEvent(*evt_orig) ;
     
   //M. Vander Donckt : modified to take the generator event weight  
