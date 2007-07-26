@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/07/26 07:31:28 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/07/26 07:35:21 $
+ *  $Revision: 1.3 $
  *  \author S. Bolognesi - INFN Torino
  */
 #include "CalibMuon/DTCalibration/plugins/DTT0Calibration.h"
@@ -375,7 +375,7 @@ void DTT0Calibration::endJob() {
 	cout<<"[DTT0Calibration] Wire "<<(*wiret0).first<<" has    t0 "<<(*wiret0).second<<" (relative, after even-odd layer corrections)  "
 	    <<"    sigma "<<theSigmaT0PerWire[(*wiret0).first]<<endl;
 	//Store the results into DB
-	t0s->setCellT0((*wiret0).first, t0, theSigmaT0PerWire[(*wiret0).first]); 
+	t0s->setCellT0((*wiret0).first, t0, theSigmaT0PerWire[(*wiret0).first],DTTimeUnits::counts); 
       }
     }
   }
