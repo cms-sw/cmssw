@@ -5,8 +5,8 @@
  *  Basic analyzer class which accesses CSCSegment
  *  and plot efficiency of the builder
  *
- *  $Date: 2006/12/15 03:34:52 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/03/09 12:50:43 $
+ *  $Revision: 1.6 $
  *  \author M. Sani
  */
 
@@ -77,6 +77,7 @@ private:
     int minLayerWithSimhitChamber;
     double maxPhi, maxTheta;
     int simhit;
+    int maxNhits;
     int n6hitSegmentMC[9];
     int n6hitSegmentReco[9];
     int near_segment;

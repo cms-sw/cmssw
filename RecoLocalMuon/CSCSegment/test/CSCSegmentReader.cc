@@ -1,7 +1,7 @@
 /** \file CSCSegmentReader.cc
  *
- *  $Date: 2007/01/22 23:04:24 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/02/13 01:34:43 $
+ *  $Revision: 1.11 $
  *  \author M. Sani
  *
  *  Modified by D. Fortin - UC Riverside
@@ -29,6 +29,7 @@ CSCSegmentReader::CSCSegmentReader(const ParameterSet& pset) {
   filename                  = pset.getUntrackedParameter<string>("RootFileName");	
   minLayerWithRechitChamber = pset.getUntrackedParameter<int>("minLayerWithRechitPerChamber");
   minLayerWithSimhitChamber = pset.getUntrackedParameter<int>("minLayerWithSimhitPerChamber");
+  maxNhits                  = pset.getUntrackedParameter<int>("maxNhits"); 
   minRechitSegment          = pset.getUntrackedParameter<int>("minRechitPerSegment");
   maxPhi                    = pset.getUntrackedParameter<double>("maxPhiSeparation");
   maxTheta                  = pset.getUntrackedParameter<double>("maxThetaSeparation");
@@ -191,12 +192,10 @@ void CSCSegmentReader::recInfo(const edm::Handle<edm::PSimHitContainer> simHits,
 
       if (nLayerWithSimhitsInChamber < minLayerWithSimhitChamber) continue;
 
-      chaMap1[chamber->specs()->chamberTypeName()]++;                
-
       bool satisfied0 = false;
       ith_layer = 0;
       int nLayerWithRechitsInChamber = 0; 
-
+      int nRecHitChamber = 0;
       // Test if have 6 layers with rechits in chamber
       for (CSCRecHit2DCollection::const_iterator recIt = recHits->begin(); recIt != recHits->end(); recIt++) {
 	CSCDetId idrec = (CSCDetId)(*recIt).cscDetId();	
@@ -207,8 +206,19 @@ void CSCSegmentReader::recInfo(const edm::Handle<edm::PSimHitContainer> simHits,
             (idrec.layer()   != ith_layer     )) {
           nLayerWithRechitsInChamber++;
           ith_layer = idrec.layer();
+        } 
+        else if 
+           ((idrec.endcap()  == simId.endcap())  &&
+            (idrec.ring()    == simId.ring())    &&
+            (idrec.station() == simId.station()) &&
+            (idrec.chamber() == simId.chamber())) {
+          nRecHitChamber++;
         }
       }
+
+      if ( nRecHitChamber > maxNhits ) continue;
+
+      chaMap1[chamber->specs()->chamberTypeName()]++;                
 
       if (nLayerWithRechitsInChamber >= minLayerWithRechitChamber) {
         chaMap2[chamber->specs()->chamberTypeName()]++;
