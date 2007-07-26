@@ -16,13 +16,13 @@ namespace edm
     // These types are very tentative for now
     enum ExperimentType {
       Any = 0,
-      align = 1,
-      calib = 2,
+      Align = 1,
+      Calib = 2,
       Cosmic = 3, 
-      data = 4,
-      mc = 5,
-      raw = 6,
-      test = 7
+      Data = 4,
+      Mc = 5,
+      Raw = 6,
+      Test = 7
     };
     EventAuxiliary() :
 	processHistoryID_(),
