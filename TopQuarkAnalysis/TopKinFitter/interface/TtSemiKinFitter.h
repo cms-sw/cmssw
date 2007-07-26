@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: TtSemiKinFitter.h,v 1.1 2007/07/19 00:32:12 lowette Exp $
 //
 
 #ifndef TopKinFitter_TtSemiKinFitter_h
@@ -28,7 +28,8 @@ class TtSemiKinFitter {
   public:
 
     TtSemiKinFitter();
-    TtSemiKinFitter(Parametrization jetParam, Parametrization leptParam, Parametrization metParam, int maxNrIter, double maxDeltaS, double maxF, std::vector<int> constraints);
+    TtSemiKinFitter(int jetParam, int lepParam, int metParam, int maxNrIter, double maxDeltaS, double maxF, std::vector<int> constraints);
+    TtSemiKinFitter(Parametrization jetParam, Parametrization lepParam, Parametrization metParam, int maxNrIter, double maxDeltaS, double maxF, std::vector<int> constraints);
     ~TtSemiKinFitter();
 
     TtSemiEvtSolution addKinFitInfo(TtSemiEvtSolution * asol);

@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: TtSemiKinFitter.cc,v 1.1 2007/07/19 00:32:13 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtSemiKinFitter.h"
@@ -14,13 +14,23 @@
 /*#include "PhysicsTools/KinFitter/interface/TFitParticleESpher.h"
 #include "PhysicsTools/KinFitter/interface/TFitParticleMCPInvSpher.h"
 //#include "PhysicsTools/KinFitter/interface/TFitConstraintMGaus.h"
-#include "PhysicsTools/KinFitter/interface/TFitConstraintEp.h"
-*/
+#include "PhysicsTools/KinFitter/interface/TFitConstraintEp.h"*/
+
 
 /// default constructor
 TtSemiKinFitter::TtSemiKinFitter() :
     jetParam_(EMom), lepParam_(EMom), metParam_(EMom),
     maxNrIter_(200), maxDeltaS_(5e-5), maxF_(1e-4) {
+  setupFitter();
+}
+
+
+/// constructor from configurables
+TtSemiKinFitter::TtSemiKinFitter(int jetParam, int lepParam, int metParam,
+                                 int maxNrIter, double maxDeltaS, double maxF, std::vector<int> constraints) :
+    jetParam_((Parametrization) jetParam), lepParam_((Parametrization) lepParam), metParam_((Parametrization) metParam),
+    maxNrIter_(maxNrIter), maxDeltaS_(maxDeltaS), maxF_(maxF),
+    constraints_(constraints) {
   setupFitter();
 }
 
