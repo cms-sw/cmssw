@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolutionMaker.cc,v 1.15 2007/07/20 06:46:53 lowette Exp $
+// $Id: TtSemiEvtSolutionMaker.cc,v 1.16 2007/07/25 14:03:10 rwolf Exp $
 //
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiEvtSolutionMaker.h"
@@ -10,9 +10,7 @@
 
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
 #include "TopQuarkAnalysis/TopTools/interface/JetPartonMatching.h"
-#include "TopQuarkAnalysis/TopKinFitter/interface/TtSemiKinFitterEtThetaPhi.h"
-#include "TopQuarkAnalysis/TopKinFitter/interface/TtSemiKinFitterEtEtaPhi.h"
-#include "TopQuarkAnalysis/TopKinFitter/interface/TtSemiKinFitterEMom.h"
+#include "TopQuarkAnalysis/TopKinFitter/interface/TtSemiKinFitter.h"
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiSimpleBestJetComb.h"
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLRJetCombObservables.h"
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLRJetCombCalc.h"
@@ -41,17 +39,15 @@ TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet & iConfig
   maxNrIter_       = iConfig.getParameter<int>              ("maxNrIter");
   maxDeltaS_       = iConfig.getParameter<double>           ("maxDeltaS");
   maxF_            = iConfig.getParameter<double>           ("maxF");
-  param_           = iConfig.getParameter<int>              ("parametrisation");
+  jetParam_        = iConfig.getParameter<int>              ("jetParametrisation");
+  lepParam_        = iConfig.getParameter<int>              ("lepParametrisation");
+  metParam_        = iConfig.getParameter<int>              ("metParametrisation");
   constraints_     = iConfig.getParameter<std::vector<int> >("constraints");
   matchToGenEvt_   = iConfig.getParameter<bool>             ("matchToGenEvt");
 
   // define kinfitter
-  if(doKinFit_){
-    if(param_ == 1) myKinFitterEtEtaPhi   = new TtSemiKinFitterEtEtaPhi(maxNrIter_, maxDeltaS_, maxF_, constraints_);
-    if(param_ == 2) myKinFitterEtThetaPhi = new TtSemiKinFitterEtThetaPhi(maxNrIter_, maxDeltaS_, maxF_, constraints_);
-    if(param_ == 3) myKinFitterEMom       = new TtSemiKinFitterEMom(maxNrIter_, maxDeltaS_, maxF_, constraints_);
-  }
-  
+  if(doKinFit_)        myKinFitter       = new TtSemiKinFitter(jetParam_, lepParam_, metParam_, maxNrIter_, maxDeltaS_, maxF_, constraints_);
+
   // define jet combinations related calculators
   mySimpleBestJetComb                    = new TtSemiSimpleBestJetComb();
   myLRSignalSelObservables               = new TtSemiLRSignalSelObservables();
@@ -67,13 +63,8 @@ TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet & iConfig
 
 
 /// destructor
-TtSemiEvtSolutionMaker::~TtSemiEvtSolutionMaker()
-{
-  if (doKinFit_) {
-    if(param_ == 1) delete myKinFitterEtEtaPhi;
-    if(param_ == 2) delete myKinFitterEtThetaPhi;
-    if(param_ == 3) delete myKinFitterEMom;
-  }
+TtSemiEvtSolutionMaker::~TtSemiEvtSolutionMaker() {
+  if (doKinFit_)      delete myKinFitter;
   delete mySimpleBestJetComb;
   delete myLRSignalSelObservables;
   delete myLRJetCombObservables;
@@ -136,13 +127,12 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
                 asol.setHadq(lJets, q);
                 asol.setHadb(bJets, bh);
                 asol.setLepb(bJets, bl);
-                if(doKinFit_){
-                  if(param_ == 1) asol = myKinFitterEtEtaPhi->addKinFitInfo(&asol);
-                  if(param_ == 2) asol = myKinFitterEtThetaPhi->addKinFitInfo(&asol);
-                  if(param_ == 3) asol = myKinFitterEMom->addKinFitInfo(&asol);
-                  asol.setJetParametrisation(param_);
-                  asol.setLeptonParametrisation(param_);
-                  asol.setMETParametrisation(param_);
+                if (doKinFit_) {
+                  asol = myKinFitter->addKinFitInfo(&asol);
+                  // just to keep a record in the event (drop? -> present in provenance anyway...)
+                  asol.setJetParametrisation(jetParam_);
+                  asol.setLeptonParametrisation(lepParam_);
+                  asol.setMETParametrisation(metParam_);
                 }
                 // these lines calculate the observables to be used in the TtSemiSignalSelection LR
                 (*myLRSignalSelObservables)(asol);

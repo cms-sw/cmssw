@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolutionMaker.h,v 1.13 2007/07/06 02:49:41 lowette Exp $
+// $Id: TtSemiEvtSolutionMaker.h,v 1.14 2007/07/20 06:46:56 lowette Exp $
 //
 
 #ifndef TopEventProducers_TtSemiEvtSolutionMaker_h
@@ -14,9 +14,7 @@
 #include <string>
 
 
-class TtSemiKinFitterEtThetaPhi;
-class TtSemiKinFitterEtEtaPhi;
-class TtSemiKinFitterEMom;
+class TtSemiKinFitter;
 class TtSemiSimpleBestJetComb;
 class TtSemiLRJetCombObservables;
 class TtSemiLRJetCombCalc;
@@ -46,12 +44,10 @@ class TtSemiEvtSolutionMaker : public edm::EDProducer {
     bool addLRSignalSel_, addLRJetComb_, doKinFit_, matchToGenEvt_;
     int maxNrIter_;
     double maxDeltaS_, maxF_;
-    int param_;
+    int jetParam_, lepParam_, metParam_;
     std::vector<int> lrSignalSelObs_, lrJetCombObs_, constraints_;
     // tools
-    TtSemiKinFitterEtThetaPhi    * myKinFitterEtThetaPhi;
-    TtSemiKinFitterEtEtaPhi      * myKinFitterEtEtaPhi;
-    TtSemiKinFitterEMom          * myKinFitterEMom;
+    TtSemiKinFitter              * myKinFitter;
     TtSemiSimpleBestJetComb      * mySimpleBestJetComb;
     TtSemiLRJetCombObservables   * myLRJetCombObservables;
     TtSemiLRJetCombCalc          * myLRJetCombCalc;
