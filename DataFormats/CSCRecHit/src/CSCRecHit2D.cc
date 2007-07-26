@@ -2,7 +2,6 @@
 #include <iostream>
 
 CSCRecHit2D::CSCRecHit2D() :
-  theDetId(),
   theLocalPosition(0.,0.), 
   theLocalError(0.,0.,0.),
   theChaCo( ChannelContainer() ),
@@ -22,7 +21,7 @@ CSCRecHit2D::CSCRecHit2D( const CSCDetId& id,
                           const float tpeak, 
 	                  float chi2, 
                           float prob ) :
-  theDetId( id ), 
+  RecHit2DLocalPos( id ), 
   theLocalPosition( pos ), 
   theLocalError( err ),
   theChaCo( channels ),

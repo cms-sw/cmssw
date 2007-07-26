@@ -39,9 +39,7 @@ public:
   LocalPoint localPosition() const { return theLocalPosition; }
   LocalError localPositionError() const { return theLocalError; }
 
-  /// TrackingRecHit base class interface
-  DetId geographicalId() const { return theDetId; }
-  CSCDetId cscDetId() const { return theDetId; }
+  CSCDetId cscDetId() const { return geographicalId(); }
 
   /// Probability from fit during rechit build
   float prob() const { return theProb; }
@@ -76,7 +74,7 @@ public:
   //  bool nearby(float otherX, float maxDeltaRPhi);
 
 private:
-  CSCDetId theDetId;
+
   //  const GeomDet* theDet;
   LocalPoint theLocalPosition;
   LocalError theLocalError;

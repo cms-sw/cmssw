@@ -6,7 +6,7 @@
  *  This is 4-dimensional since it has an origin (x,y) and a direction (x,y)
  *  in the local coordinate system of the chamber.
  *
- *  $Date: 2006/09/26 09:01:44 $
+ *  $Date: 2006/11/21 18:04:50 $
  *  \author Matteo Sani
  *  \author Rick Wilkinson
  *  \author Tim Cox
@@ -24,7 +24,7 @@ class CSCSegment : public RecSegment {
 public:
 
     /// Default constructor
-    CSCSegment() {};
+    CSCSegment() {}
 	
     /// Constructor
     CSCSegment(std::vector<const CSCRecHit2D*> proto_segment, LocalPoint origin, 
@@ -61,21 +61,18 @@ public:
 
     virtual int degreesOfFreedom() const { return 2*nRecHits() - 4;}	 
 
-    virtual DetId geographicalId() const { return theDetId; }  // Slice off the CSC part :)
-
     //--- Extension of the interface
         
     const std::vector<CSCRecHit2D>& specificRecHits() const { return theCSCRecHits; }
 
     int nRecHits() const { return theCSCRecHits.size(); }        
 
-    CSCDetId cscDetId() const { return theDetId; }
+    CSCDetId cscDetId() const { return  geographicalId(); }
 		
     void print() const;		
    
 private:
     
-    CSCDetId theDetId;
     std::vector<CSCRecHit2D> theCSCRecHits;
     LocalPoint theOrigin;   // in chamber frame - the GeomDet local coordinate system
     LocalVector theLocalDirection; // in chamber frame - the GeomDet local coordinate system

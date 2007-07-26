@@ -34,7 +34,8 @@ public:
 
   /// Construct from a packed id. It is required that the Detector part of
   /// id is Muon and the SubDet part is CSC, otherwise an exception is thrown.
-  explicit CSCDetId(uint32_t id);
+  CSCDetId(uint32_t id);
+  CSCDetId(DetId id);
 
 
   /// Construct from fully qualified identifier.

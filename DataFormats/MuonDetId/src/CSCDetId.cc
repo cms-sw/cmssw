@@ -15,6 +15,14 @@ CSCDetId::CSCDetId(uint32_t id):DetId(id) {
 					 << " is not a valid CSC id";  
   }
 }
+CSCDetId::CSCDetId(DetId id):DetId(id) {
+  if (det()!=DetId::Muon || subdetId()!=MuonSubdetId::CSC) {
+    throw cms::Exception("InvalidDetId") << "CSCDetId ctor:"
+					 << " det: " << det()
+					 << " subdet: " << subdetId()
+					 << " is not a valid CSC id";  
+  }
+}
 
 
 CSCDetId::CSCDetId( int iendcap, int istation, int iring, int ichamber, 

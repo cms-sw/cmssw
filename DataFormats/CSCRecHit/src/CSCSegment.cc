@@ -1,6 +1,6 @@
 /** \file CSCSegment.cc
  *
- *  $Date: 2006/09/26 09:01:51 $
+ *  $Date: 2006/11/23 11:02:48 $
  *  \author Matteo Sani
  */
 
@@ -8,16 +8,23 @@
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h>
 #include <iostream>
 
+namespace {
+  // Get CSCDetId from one of the rechits, but then remove the layer part so it's a _chamber_ id
+  inline
+  DetId buildDetId(CSCDetId id) {
+    return CSCDetId(id.endcap(),id.station(),id.ring(),id.chamber(), 0);
+  }
+
+}
+
 CSCSegment::CSCSegment(std::vector<const CSCRecHit2D*> proto_segment, LocalPoint origin, 
-	LocalVector direction, AlgebraicSymMatrix errors, double chi2) : 	theOrigin(origin), 
+	LocalVector direction, AlgebraicSymMatrix errors, double chi2) : 
+  RecSegment(buildDetId(proto_segment.front()->cscDetId())),
+  theOrigin(origin), 
   theLocalDirection(direction), theCovMatrix(errors), theChi2(chi2) {
 
   for(unsigned int i=0; i<proto_segment.size(); i++)
     theCSCRecHits.push_back(*proto_segment[i]);
-
-	// Get CSCDetId from one of the rechits, but then remove the layer part so it's a _chamber_ id
-	CSCDetId id = theCSCRecHits.begin()->cscDetId();
-	theDetId = CSCDetId(id.endcap(),id.station(),id.ring(),id.chamber(), 0);
 }
 
 CSCSegment::~CSCSegment() {}
