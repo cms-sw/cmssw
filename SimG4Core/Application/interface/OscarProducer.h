@@ -11,6 +11,8 @@
 
 #include "SimG4Core/Application/interface/RunManager.h"
 
+#include "SimG4Core/Application/interface/CustomUIsession.h"
+
 namespace CLHEP {
     class HepRandomEngine;
 }
@@ -28,6 +30,7 @@ public:
 protected:
     RunManager*   m_runManager;
     Producers     m_producers;
+    CustomUIsession* m_UIsession;
 
 private:
     CLHEP::HepRandomEngine*  m_engine;

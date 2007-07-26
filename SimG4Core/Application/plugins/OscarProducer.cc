@@ -97,6 +97,10 @@ OscarProducer::OscarProducer(edm::ParameterSet const & p)
 	++itProd) {
        (*itProd)->registerProducts(*this);
     }
+
+    //UIsession manager for message handling
+    m_UIsession = new CustomUIsession();
+
 }
 
 OscarProducer::~OscarProducer() 
@@ -104,6 +108,8 @@ OscarProducer::~OscarProducer()
   //this is causing a seg fault when an exception occurs while constructing
   // an HcalSD.  Need to check for memory problems. 
   if (m_runManager!=0) delete m_runManager; 
+  if (m_UIsession!=0) delete m_UIsession;
+
 }
 
 void OscarProducer::beginJob(const edm::EventSetup & es)
