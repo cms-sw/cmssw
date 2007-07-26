@@ -1,7 +1,7 @@
 /**
  * Author: Sridhara Dasu
  * Created: 04 July 2007
- * $Id: L1RCTParameters.cc,v 1.3 2007/07/17 14:05:22 dasu Exp $
+ * $Id: L1RCTParameters.cc,v 1.4 2007/07/18 08:03:16 dasu Exp $
  **/
 
 #include <iostream>
@@ -9,8 +9,10 @@
 
 #include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 
 L1RCTParameters::L1RCTParameters(double eGammaLSB,
 				 double jetMETLSB,
@@ -39,12 +41,13 @@ L1RCTParameters::L1RCTParameters(double eGammaLSB,
   eGammaHCalScaleFactors_(eGammaHCalScaleFactors),
   jetMETECalScaleFactors_(jetMETECalScaleFactors),
   jetMETHCalScaleFactors_(jetMETHCalScaleFactors),
-  transcoder_()
+  transcoder_(0),
+  l1CaloEtScale_(0)
 {
 }
 
 // maps rct iphi, ieta of tower to crate
-unsigned short L1RCTParameters::calcCrate(unsigned short rct_iphi, short ieta)
+unsigned short L1RCTParameters::calcCrate(unsigned short rct_iphi, short ieta) const
 {
   unsigned short crate = rct_iphi/8;
   if(abs(ieta) > 28) crate = rct_iphi / 2;
@@ -56,7 +59,7 @@ unsigned short L1RCTParameters::calcCrate(unsigned short rct_iphi, short ieta)
 
 //map digi rct iphi, ieta to card
 unsigned short L1RCTParameters::calcCard(unsigned short rct_iphi, 
-					 unsigned short absIeta)
+					 unsigned short absIeta) const
 {
   unsigned short card = 999;
   // Note absIeta counts from 1-32 (not 0-31)
@@ -73,7 +76,7 @@ unsigned short L1RCTParameters::calcCard(unsigned short rct_iphi,
 
 //map digi rct iphi, ieta to tower
 unsigned short L1RCTParameters::calcTower(unsigned short rct_iphi, 
-					  unsigned short absIeta)
+					  unsigned short absIeta) const
 {
   unsigned short tower = 999;
   unsigned short iphi = rct_iphi;
@@ -107,7 +110,7 @@ unsigned short L1RCTParameters::calcTower(unsigned short rct_iphi,
 }
 
 short L1RCTParameters::calcIEta(unsigned short iCrate, unsigned short iCard, 
-				unsigned short iTower)
+				unsigned short iTower) const
 {
   unsigned short absIEta;
   if(iCard < 6) 
@@ -128,7 +131,7 @@ short L1RCTParameters::calcIEta(unsigned short iCrate, unsigned short iCard,
 
 unsigned short L1RCTParameters::calcIPhi(unsigned short iCrate, 
 					 unsigned short iCard, 
-					 unsigned short iTower)
+					 unsigned short iTower) const
 {
   short iPhi;
   if(iCard < 6)
@@ -145,16 +148,16 @@ unsigned short L1RCTParameters::calcIPhi(unsigned short iCrate,
 }
 
 // converts compressed ecal energy to linear (real) scale
-float L1RCTParameters::convertEcal(unsigned short ecal, int iAbsEta)
+float L1RCTParameters::convertEcal(unsigned short ecal, int iAbsEta) const
 {
   return ((float) ecal) * eGammaLSB_;
 }
 
 // converts compressed hcal energy to linear (real) scale
-float L1RCTParameters::convertHcal(unsigned short hcal, int iAbsEta)
+float L1RCTParameters::convertHcal(unsigned short hcal, int iAbsEta) const
 {
   static bool first = true;
-  if(transcoder_.isValid())
+  if(transcoder_ != 0)
     {
       if(first)
 	std::cout << "L1RCTParameters: Using transcoder" << std::endl;
@@ -172,7 +175,7 @@ float L1RCTParameters::convertHcal(unsigned short hcal, int iAbsEta)
 // integerize given an LSB and set maximum value of 2^precision-1
 unsigned long L1RCTParameters::convertToInteger(float et, 
 						float lsb, 
-						int precision)
+						int precision) const
 {
   unsigned long etBits = (unsigned long)(et/lsb);
   unsigned long maxValue = (1 << precision) - 1;
@@ -182,7 +185,7 @@ unsigned long L1RCTParameters::convertToInteger(float et,
     return etBits;
 }
 
-unsigned int L1RCTParameters::eGammaETCode(float ecal, float hcal, int iAbsEta)
+unsigned int L1RCTParameters::eGammaETCode(float ecal, float hcal, int iAbsEta) const
 {
   float etLinear = 
     eGammaECalScaleFactors_[iAbsEta] * ecal +
@@ -190,7 +193,7 @@ unsigned int L1RCTParameters::eGammaETCode(float ecal, float hcal, int iAbsEta)
   return convertToInteger(etLinear, eGammaLSB_, 7);
 }
 
-unsigned int L1RCTParameters::jetMETETCode(float ecal, float hcal, int iAbsEta)
+unsigned int L1RCTParameters::jetMETETCode(float ecal, float hcal, int iAbsEta) const
 {
   float etLinear = 
     jetMETECalScaleFactors_[iAbsEta] * ecal +
@@ -203,7 +206,7 @@ unsigned int L1RCTParameters::lookup(unsigned short ecalInput,
 				     unsigned short fgbit,
 				     unsigned short crtNo,
 				     unsigned short crdNo,
-				     unsigned short twrNo)
+				     unsigned short twrNo) const
 {
   if(ecalInput > 0xFF) 
     throw cms::Exception("Invalid Data") 
@@ -234,7 +237,7 @@ unsigned int L1RCTParameters::lookup(unsigned short hfInput,
 				     unsigned short crtNo,
 				     unsigned short crdNo,
 				     unsigned short twrNo
-				     )
+				     ) const
 {
   if(hfInput > 0xFF) 
     throw cms::Exception("Invalid Data") 
@@ -248,7 +251,7 @@ unsigned int L1RCTParameters::lookup(unsigned short hfInput,
   return convertToInteger(et, jetMETLSB(), 8);
 }
 
-bool L1RCTParameters::hOeFGVetoBit(float ecal, float hcal, bool fgbit)
+bool L1RCTParameters::hOeFGVetoBit(float ecal, float hcal, bool fgbit) const
 {
   bool veto = false;
   if(ecal > eMinForFGCut_ && ecal < eMaxForFGCut_)
@@ -262,7 +265,7 @@ bool L1RCTParameters::hOeFGVetoBit(float ecal, float hcal, bool fgbit)
   return veto;
 }
 
-bool L1RCTParameters::activityBit(float ecal, float hcal)
+bool L1RCTParameters::activityBit(float ecal, float hcal) const
 {
   return ((ecal > eActivityCut_) || (hcal > hActivityCut_));
 }

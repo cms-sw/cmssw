@@ -23,8 +23,8 @@
 #include <vector>
 #include <ostream>
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 
 class L1RCTParameters {
 
@@ -48,9 +48,14 @@ class L1RCTParameters {
   // this can only be set after construction -- constructor inits to zero
   // to indicate that transcoder cannot be used -- if this function is
   // called to set transcoder, lookup after that call will use it.
-  void setTranscoder(edm::ESHandle<CaloTPGTranscoder> transcoder)
+  void setTranscoder(const CaloTPGTranscoder* transcoder)
     {
       transcoder_ = transcoder;
+    }
+  // ditto for caloEtScale
+  void setL1CaloEtScale(const L1CaloEtScale* l1CaloEtScale)
+    {
+      l1CaloEtScale_ = l1CaloEtScale;
     }
   
   // destructor -- no virtual methods in this class
@@ -58,14 +63,14 @@ class L1RCTParameters {
   
   // accessors
   
-  double eGammaLSB() {return eGammaLSB_;}
-  double jetMETLSB() {return jetMETLSB_;}
-  double hOeCut() {return hOeCut_;}
-  double eMinForHoECut() {return eMinForHoECut_;}
-  double eMaxForHoECut() {return eMaxForHoECut_;}
-  double eActivityCut() {return eActivityCut_;}
-  double hActivityCut() {return hActivityCut_;}
-  double eMaxForFGCut() {return eMaxForFGCut_;}
+  double eGammaLSB() const {return eGammaLSB_;}
+  double jetMETLSB() const {return jetMETLSB_;}
+  double hOeCut() const {return hOeCut_;}
+  double eMinForHoECut() const {return eMinForHoECut_;}
+  double eMaxForHoECut() const {return eMaxForHoECut_;}
+  double eActivityCut() const {return eActivityCut_;}
+  double hActivityCut() const {return hActivityCut_;}
+  double eMaxForFGCut() const {return eMaxForFGCut_;}
 
   unsigned int lookup(unsigned short ecalInput,
 		      unsigned short hcalInput,
@@ -73,27 +78,29 @@ class L1RCTParameters {
 		      unsigned short crtNo,
 		      unsigned short crdNo,
 		      unsigned short twrNo
-		      );
+		      ) const;
 
   unsigned int lookup(unsigned short hfInput, 
 		      unsigned short crtNo,
 		      unsigned short crdNo,
 		      unsigned short twrNo
-		      );
+		      ) const;
 
-  unsigned int eGammaETCode(float ecal, float hcal, int iAbsEta);
-  unsigned int jetMETETCode(float ecal, float hcal, int iAbsEta);
-  bool hOeFGVetoBit(float ecal, float hcal, bool fgbit);
-  bool activityBit(float ecal, float hcal);
+  unsigned int emRank(unsigned short energy) const {return l1CaloEtScale_->rank(energy);}
+
+  unsigned int eGammaETCode(float ecal, float hcal, int iAbsEta) const;
+  unsigned int jetMETETCode(float ecal, float hcal, int iAbsEta) const;
+  bool hOeFGVetoBit(float ecal, float hcal, bool fgbit) const;
+  bool activityBit(float ecal, float hcal) const;
   
   // Helper methods to convert from trigger tower (iphi, ieta) 
   // to RCT (crate, card, tower)
   
-  unsigned short calcCrate(unsigned short rct_iphi, short ieta);
-  unsigned short calcCard(unsigned short rct_iphi, unsigned short absIeta);
-  unsigned short calcTower(unsigned short rct_iphi, unsigned short absIeta);
-  short calcIEta(unsigned short iCrate, unsigned short iCard, unsigned short iTower); // negative eta is used
-  unsigned short calcIPhi(unsigned short iCrate, unsigned short iCard, unsigned short iTower);
+  unsigned short calcCrate(unsigned short rct_iphi, short ieta) const;
+  unsigned short calcCard(unsigned short rct_iphi, unsigned short absIeta) const;
+  unsigned short calcTower(unsigned short rct_iphi, unsigned short absIeta) const;
+  short calcIEta(unsigned short iCrate, unsigned short iCard, unsigned short iTower) const; // negative eta is used
+  unsigned short calcIPhi(unsigned short iCrate, unsigned short iCard, unsigned short iTower) const;
 
   void print(std::ostream& s) const {return;}
 
@@ -105,11 +112,9 @@ class L1RCTParameters {
 
   // helper functions
 
-  float convertEcal(unsigned short ecal, int iAbsEta);
-  float convertHcal(unsigned short hcal, int iAbsEta);
-  unsigned short calcActivityBit(float ecal, float hcal);
-  unsigned short calcHEBit(float ecal,float hcal, bool fgbit);
-  unsigned long convertToInteger(float et, float lsb, int precision);
+  float convertEcal(unsigned short ecal, int iAbsEta) const;
+  float convertHcal(unsigned short hcal, int iAbsEta) const;
+  unsigned long convertToInteger(float et, float lsb, int precision) const;
 
   // LSB of the eGamma object corresponds to this ET (in GeV)
 
@@ -165,7 +170,8 @@ class L1RCTParameters {
   std::vector<double> jetMETECalScaleFactors_;
   std::vector<double> jetMETHCalScaleFactors_;
 
-  edm::ESHandle<CaloTPGTranscoder> transcoder_;
+  const CaloTPGTranscoder* transcoder_;
+  const L1CaloEtScale* l1CaloEtScale_;
 
 };
 
