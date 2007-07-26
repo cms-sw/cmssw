@@ -2,7 +2,6 @@
 #define DataFormats_Provenance_EventAuxiliary_h
 
 #include <iosfwd>
-#include <vector>
 
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/EventID.h"
@@ -16,13 +15,14 @@ namespace edm
   struct EventAuxiliary {
     // These types are very tentative for now
     enum ExperimentType {
-      Unspecified = 0,
-      DAQ = 1,
-      Testing = 2,
-      Cosmics = 3, 
-      Geant4 = 4,
-      ParticleGun = 5,
-      Pythia = 6
+      Any = 0,
+      align = 1,
+      calib = 2,
+      Cosmic = 3, 
+      data = 4,
+      mc = 5,
+      raw = 6,
+      test = 7
     };
     EventAuxiliary() :
 	processHistoryID_(),
@@ -30,9 +30,9 @@ namespace edm
 	time_(),
 	luminosityBlock_(),
 	isRealData_(false), 
-	experimentType_(Unspecified) {}
+	experimentType_(Any) {}
     EventAuxiliary(EventID const& theId, Timestamp const& theTime, LuminosityBlockNumber_t lb,
-                     bool isReal, ExperimentType eType = Unspecified) :
+                     bool isReal, ExperimentType eType = Any) :
 	processHistoryID_(),
 	id_(theId),
 	time_(theTime),
