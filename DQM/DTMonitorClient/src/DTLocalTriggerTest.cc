@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/06/19 09:38:04 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/06/19 10:20:52 $
+ *  $Revision: 1.7 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -83,6 +83,14 @@ void DTLocalTriggerTest::bookChambHistos(DTChamberId chambId, string htype) {
     chambME[indexChId][htype] = dbe->book1D(HistoName.c_str(),HistoName.c_str(),50,-2.,2.);
     return;
   }
+  if (htype.find("TrigPosition_Phi") == 0){
+    chambME[indexChId][htype] = dbe->book1D(HistoName.c_str(),HistoName.c_str(),100,-500.,500.);
+    return;
+  }
+  if (htype.find("TrigDirection_Phi") == 0){
+    chambME[indexChId][htype] = dbe->book1D(HistoName.c_str(),HistoName.c_str(),200,-2.,2.);
+    return;
+  }
   if (htype.find("TrigEffPos_Phi") == 0 ){
     pair<float,float> range = phiRange(chambId);
     int nbins = int((range.second - range.first)/15);
@@ -93,6 +101,7 @@ void DTLocalTriggerTest::bookChambHistos(DTChamberId chambId, string htype) {
     chambME[indexChId][htype] = dbe->book1D(HistoName.c_str(),HistoName.c_str(),40,-117.5,117.5);
     return;
   }
+  
 
 }
 
@@ -173,12 +182,13 @@ void DTLocalTriggerTest::analyze(const edm::Event& e, const edm::EventSetup& con
   for (int stat=1; stat<=4; ++stat){
     for (int wh=-2; wh<=2; ++wh){
       for (int sect=1; sect<=12; ++sect){
-	DTChamberId chID(wh,stat,sect);
+	DTChamberId chId(wh,stat,sect);
 	int sector_id = (wh+3)+(sect-1)*5;
-	
+	uint32_t indexCh = chId.rawId();
+
 	// Get the ME produced by DTLocalTriggeTask Source (Phi ones)
-	MonitorElement * DDU_BXvsQual_ME = dbe->get(getMEName("BXvsQual","LocalTriggerPhi", chID));
-	MonitorElement * DDU_Flag1stvsBX_ME = dbe->get(getMEName("Flag1stvsBX","LocalTriggerPhi", chID));
+	MonitorElement * DDU_BXvsQual_ME = dbe->get(getMEName("BXvsQual","LocalTriggerPhi", chId));
+	MonitorElement * DDU_Flag1stvsBX_ME = dbe->get(getMEName("Flag1stvsBX","LocalTriggerPhi", chId));
 	
 	if(DDU_BXvsQual_ME && DDU_Flag1stvsBX_ME) {
   
@@ -215,9 +225,41 @@ void DTLocalTriggerTest::analyze(const edm::Event& e, const edm::EventSetup& con
 	    }
 	  }
 	}  
+
+	// Get the ME produced by DTLocalTriggeTask Source (Phi from DCC)
+	MonitorElement * QualvsPhirad_ME  = dbe->get(getMEName("QualvsPhirad","LocalTriggerPhi", chId));
+	MonitorElement * QualvsPhibend_ME = dbe->get(getMEName("QualvsPhibend","LocalTriggerPhi", chId));
+	
+	if(QualvsPhirad_ME && QualvsPhibend_ME) {
+  
+	  MonitorElementT<TNamed>* QualvsPhirad  = dynamic_cast<MonitorElementT<TNamed>*>(QualvsPhirad_ME);
+	  MonitorElementT<TNamed>* QualvsPhibend = dynamic_cast<MonitorElementT<TNamed>*>(QualvsPhibend_ME);	  
+	  if (QualvsPhirad && QualvsPhibend ) {
+	  
+	    TH2F * QualvsPhirad_histo  = dynamic_cast<TH2F*> (QualvsPhirad->operator->());
+	    TH2F * QualvsPhibend_histo = dynamic_cast<TH2F*> (QualvsPhibend->operator->());
+	    if (QualvsPhirad_histo && QualvsPhibend_histo) {
+	      
+	      TH1D* proj_phir = QualvsPhirad_histo->ProjectionX();
+	      TH1D* proj_phib = QualvsPhibend_histo->ProjectionX();
+
+	      // Fill client histos
+	      if( chambME[indexCh].find("TrigDirection_Phi") == chambME[indexCh].end() ){
+		bookChambHistos(chId,"TrigDirection_Phi");
+		bookChambHistos(chId,"TrigPosition_Phi");
+	      }
+	      std::map<std::string,MonitorElement*> innerME = chambME[indexCh];
+	      for (int i=-1;i<(proj_phib->GetNbinsX()+1);i++)
+		innerME.find("TrigDirection_Phi")->second->setBinContent(i,proj_phib->GetBinContent(i));
+	      for (int i=-1;i<(proj_phir->GetNbinsX()+1);i++)
+		innerME.find("TrigPosition_Phi")->second->setBinContent(i,proj_phir->GetBinContent(i));
+	     
+	    }
+	  }
+	}
 	
 	// Get the ME produced by DTLocalTriggerTask Source (Theta ones)
-	MonitorElement * DDU_BXvsThQual_ME = dbe->get(getMEName("ThetaBXvsQual","LocalTriggerTheta", chID));	
+	MonitorElement * DDU_BXvsThQual_ME = dbe->get(getMEName("ThetaBXvsQual","LocalTriggerTheta", chId));	
 	if(DDU_BXvsThQual_ME) {
 	  
 	  MonitorElementT<TNamed>* DDU_BXvsThQual    = dynamic_cast<MonitorElementT<TNamed>*>(DDU_BXvsThQual_ME);
@@ -247,10 +289,10 @@ void DTLocalTriggerTest::analyze(const edm::Event& e, const edm::EventSetup& con
 	}
 
 	// Get the ME produced by DTLocalTriggerTask Source (Phi+Segments)
-	MonitorElement * Track_pos_ME = dbe->get(getMEName("TrackPos","Segment", chID));	
-	MonitorElement * Track_pos_andtrig_ME = dbe->get(getMEName("TrackPosandTrig","Segment", chID));	
-	MonitorElement * Track_angle_ME = dbe->get(getMEName("TrackAngle","Segment", chID));	
-	MonitorElement * Track_angle_andtrig_ME = dbe->get(getMEName("TrackAngleandTrig","Segment", chID));		
+	MonitorElement * Track_pos_ME = dbe->get(getMEName("TrackPos","Segment", chId));	
+	MonitorElement * Track_pos_andtrig_ME = dbe->get(getMEName("TrackPosandTrig","Segment", chId));	
+	MonitorElement * Track_angle_ME = dbe->get(getMEName("TrackAngle","Segment", chId));	
+	MonitorElement * Track_angle_andtrig_ME = dbe->get(getMEName("TrackAngleandTrig","Segment", chId));		
 
 	// ME -> TH1F
 	if(Track_pos_ME && Track_pos_andtrig_ME && Track_angle_ME && Track_angle_andtrig_ME) {
@@ -277,11 +319,9 @@ void DTLocalTriggerTest::analyze(const edm::Event& e, const edm::EventSetup& con
 	      float binerr = sqrt(bineff*(1-bineff)/Track_pos_histo->GetEntries());
 	      globaleff->setBinContent(stat,bineff);
 	      globaleff->setBinError(stat,binerr);
-	      DTChamberId dtChId(wh,stat,sect);
-	      uint32_t indexCh = dtChId.rawId();
 	      if( chambME[indexCh].find("TrigEffAngle_Phi") == chambME[indexCh].end()){
-		bookChambHistos(dtChId,"TrigEffPos_Phi");
-		bookChambHistos(dtChId,"TrigEffAngle_Phi");
+		bookChambHistos(chId,"TrigEffPos_Phi");
+		bookChambHistos(chId,"TrigEffAngle_Phi");
 	      }
 	      innerME = chambME[indexCh];
 	      makeEfficiencyME(Track_pos_andtrig_histo,Track_pos_histo,innerME.find("TrigEffPos_Phi")->second);
@@ -292,10 +332,10 @@ void DTLocalTriggerTest::analyze(const edm::Event& e, const edm::EventSetup& con
 	}
 	
 	// Get the ME produced by DTLocalTriggerTask Source (Theta+Segments)
-	MonitorElement * Track_thpos_ME = dbe->get(getMEName("TrackThetaPos","Segment", chID));	
-	MonitorElement * Track_thpos_andtrig_ME = dbe->get(getMEName("TrackThetaPosandTrig","Segment", chID));	
-	MonitorElement * Track_thangle_ME = dbe->get(getMEName("TrackThetaAngle","Segment", chID));	
-	MonitorElement * Track_thangle_andtrig_ME = dbe->get(getMEName("TrackThetaAngleandTrig","Segment", chID));		
+	MonitorElement * Track_thpos_ME = dbe->get(getMEName("TrackThetaPos","Segment", chId));	
+	MonitorElement * Track_thpos_andtrig_ME = dbe->get(getMEName("TrackThetaPosandTrig","Segment", chId));	
+	MonitorElement * Track_thangle_ME = dbe->get(getMEName("TrackThetaAngle","Segment", chId));	
+	MonitorElement * Track_thangle_andtrig_ME = dbe->get(getMEName("TrackThetaAngleandTrig","Segment", chId));		
 
 	// ME -> TH1F
 	if(Track_thpos_ME && Track_thpos_andtrig_ME && Track_thangle_ME && Track_thangle_andtrig_ME) {
@@ -322,11 +362,9 @@ void DTLocalTriggerTest::analyze(const edm::Event& e, const edm::EventSetup& con
 	      float binerr = sqrt(bineff*(1-bineff)/Track_thpos_histo->GetEntries());
 	      globaleff->setBinContent(stat,bineff);
 	      globaleff->setBinError(stat,binerr);
-	      DTChamberId dtChId(wh,stat,sect);
-	      uint32_t indexCh = dtChId.rawId();
 	      if( chambME[indexCh].find("TrigEffAngle_Theta") == chambME[indexCh].end()){
-		bookChambHistos(dtChId,"TrigEffPos_Theta");
-		bookChambHistos(dtChId,"TrigEffAngle_Theta");
+		bookChambHistos(chId,"TrigEffPos_Theta");
+		bookChambHistos(chId,"TrigEffAngle_Theta");
 	      }
 	      innerME = chambME[indexCh];
 	      makeEfficiencyME(Track_thpos_andtrig_histo,Track_thpos_histo,innerME.find("TrigEffPos_Theta")->second);
