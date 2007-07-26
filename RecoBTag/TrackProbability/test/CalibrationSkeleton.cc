@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: CalibrationSkeleton.cc,v 1.1 2007/07/25 14:53:14 arizzi Exp $
+// $Id: CalibrationSkeleton.cc,v 1.2 2007/07/25 15:14:35 arizzi Exp $
 //
 //
 
@@ -34,6 +34,7 @@ using namespace std;
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/JetReco/interface/Jet.h"
@@ -64,6 +65,7 @@ using namespace std;
 #include "RecoBTag/XMLCalibration/interface/AlgorithmCalibration.h"
 #include "RecoBTag/XMLCalibration/interface/CalibratedHistogramXML.h"
 #include "RecoBTag/TrackProbability/interface/TrackClassFilterCategory.h"
+#include "TrackingTools/IPTools/interface/IPTools.h"
 
 //#include "TH1F.h"
 //#include "TFile.h"
@@ -80,100 +82,101 @@ using namespace reco;
 
 class CalibrationSkeleton : public edm::EDAnalyzer {
    public:
-      explicit CalibrationSkeleton(const edm::ParameterSet&);
-
-   virtual void beginJob()
-    {
-   bool resetData=true;
-   bool newBinning=false;
-      edm::FileInPath f2d("RecoBTag/TrackProbability/data/2DHisto.xml");
-      edm::FileInPath f3d("RecoBTag/TrackProbability/data/3DHisto.xml");
-      calibrationNew   =  new AlgorithmCalibration<TrackClassFilterCategory,CalibratedHistogramXML>((f3d.fullPath()).c_str());
-      calibration2dNew =  new AlgorithmCalibration<TrackClassFilterCategory,CalibratedHistogramXML>((f2d.fullPath()).c_str());
-      vector<float> * bins =0;
-      if(resetData)
-          {
-              if(newBinning)  bins = new  vector<float>(CalibratedHistogram::constantBinning(1000,0,50));
-          vector<pair<TrackClassFilterCategory, CalibratedHistogramXML> > data = calibrationNew->categoriesWithData();
-          vector<pair<TrackClassFilterCategory, CalibratedHistogramXML> > data2d = calibration2dNew->categoriesWithData();
-          for(int i = 0 ; i < data.size();i++)
+  explicit CalibrationSkeleton(const edm::ParameterSet&);
+  
+  virtual void beginJob()
+  {
+    bool resetData=true;
+    bool newBinning=false;
+    edm::FileInPath f2d("RecoBTag/TrackProbability/data/2DHisto.xml");
+    edm::FileInPath f3d("RecoBTag/TrackProbability/data/3DHisto.xml");
+    calibrationNew   =  new AlgorithmCalibration<TrackClassFilterCategory,CalibratedHistogramXML>((f3d.fullPath()).c_str());
+    calibration2dNew =  new AlgorithmCalibration<TrackClassFilterCategory,CalibratedHistogramXML>((f2d.fullPath()).c_str());
+    vector<float> * bins =0;
+    if(resetData)
+      {
+	if(newBinning)  bins = new  vector<float>(CalibratedHistogram::constantBinning(1000,0,50));
+	vector<pair<TrackClassFilterCategory, CalibratedHistogramXML> > data = calibrationNew->categoriesWithData();
+	vector<pair<TrackClassFilterCategory, CalibratedHistogramXML> > data2d = calibration2dNew->categoriesWithData();
+	for(unsigned int i = 0 ; i < data.size();i++)
           {
             data[i].second.reset();
             if(bins)  data2d[i].second.setUpperLimits(*bins);
           }
-          for(int i = 0 ; i < data2d.size();i++)
+	for(unsigned int i = 0 ; i < data2d.size();i++)
           {
             data2d[i].second.reset();
             if(bins)  data2d[i].second.setUpperLimits(*bins);
           }
-
-          }
-     if(bins) delete bins;
-
-    }    
-
-    virtual void endJob()
-    {
+	
+      }
+    if(bins) delete bins;
+//    calibrationNew->startCalibration();
+  //  calibration2dNew->startCalibration();
+  }    
+  
+  virtual void endJob()
+  {
     
-               edm::Service<cond::service::PoolDBOutputService> mydbservice;
-              if( !mydbservice.isAvailable() ) return;
+    edm::Service<cond::service::PoolDBOutputService> mydbservice;
+    if( !mydbservice.isAvailable() ) return;
+    
+    vector<pair<TrackClassFilterCategory, CalibratedHistogramXML> > data = calibrationNew->categoriesWithData();
+    vector<pair<TrackClassFilterCategory, CalibratedHistogramXML> > data2d = calibration2dNew->categoriesWithData();
+    TrackProbabilityCalibration * calibration= new TrackProbabilityCalibration();
+    TrackProbabilityCalibration * calibration2d= new TrackProbabilityCalibration();
+    for(unsigned int i = 0 ; i < data.size();i++)
+      {
+	TrackProbabilityCalibration::Entry entry;
+	entry.category=data[i].first.categoryData();
+	entry.histogram=data[i].second;
+	calibration->data.push_back(entry);
+      }
+    for(unsigned int i = 0 ; i < data2d.size();i++)
+      {
+	TrackProbabilityCalibration::Entry entry;
+	entry.category=data2d[i].first.categoryData();
+	entry.histogram=data2d[i].second;
+	calibration2d->data.push_back(entry);
+      }
+    
+    
+    mydbservice->createNewIOV<TrackProbabilityCalibration>(calibration,  mydbservice->endOfTime(),"BTagTrackProbability3DRcd");
+    
+    mydbservice->createNewIOV<TrackProbabilityCalibration>(calibration2d,  mydbservice->endOfTime(),"BTagTrackProbability2DRcd");
+    
+    
+  }
+  
+  
+  ~CalibrationSkeleton() 
+  {
+  }
 
-      vector<pair<TrackClassFilterCategory, CalibratedHistogramXML> > data = calibrationNew->categoriesWithData();
-          vector<pair<TrackClassFilterCategory, CalibratedHistogramXML> > data2d = calibration2dNew->categoriesWithData();
-          TrackProbabilityCalibration * calibration= new TrackProbabilityCalibration();
-          TrackProbabilityCalibration * calibration2d= new TrackProbabilityCalibration();
-          for(int i = 0 ; i < data.size();i++)
-          {
-            TrackProbabilityCalibration::Entry entry;
-            entry.category=data[i].first.categoryData();
-            entry.histogram=data[i].second;
-            calibration->data.push_back(entry);
-          }
-          for(int i = 0 ; i < data2d.size();i++)
-          {
-            TrackProbabilityCalibration::Entry entry;
-            entry.category=data2d[i].first.categoryData();
-            entry.histogram=data2d[i].second;
-            calibration2d->data.push_back(entry);
-          }
+  
+  
+  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  
+private:
+  AlgorithmCalibration<TrackClassFilterCategory, CalibratedHistogramXML>*  calibrationNew;
+  AlgorithmCalibration<TrackClassFilterCategory, CalibratedHistogramXML>* calibration2dNew;
+  
+  
+  int count;
+  int ntracks;
+  int  m_cutPixelHits;
+  int  m_cutTotalHits;
+  double  m_cutMaxTIP;
+  double  m_cutMinPt;
+  double  m_cutMaxDecayLen;
+  double  m_cutMaxChiSquared;
+  double  m_cutMaxLIP;
+  double m_cutMaxDistToAxis;
+  double m_cutMinProb;
 
-
-         mydbservice->createNewIOV<TrackProbabilityCalibration>(calibration,  mydbservice->endOfTime(),"BTagTrackProbability3DRcd");
-
-         mydbservice->createNewIOV<TrackProbabilityCalibration>(calibration2d,  mydbservice->endOfTime(),"BTagTrackProbability2DRcd");
-
-
-    }
-
-
-     ~CalibrationSkeleton() 
-    {
-    }
-
-
-
-      virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-
-   private:
-          AlgorithmCalibration<TrackClassFilterCategory, CalibratedHistogramXML>*  calibrationNew;
-          AlgorithmCalibration<TrackClassFilterCategory, CalibratedHistogramXML>* calibration2dNew;
-
-
-    int count;
-int ntracks;
-    int  m_cutPixelHits;
-    int  m_cutTotalHits;
-    double  m_cutMaxTIP;
-    double  m_cutMinPt;
-    double  m_cutMaxDecayLen;
-    double  m_cutMaxChiSquared;
-    double  m_cutMaxLIP;
-    double m_cutMaxDistToAxis;
-    double m_cutMinProb;
-
-     edm::InputTag m_assoc;
-     edm::InputTag m_jets;
-     edm::InputTag m_primaryVertexProducer;
+  edm::InputTag m_assoc;
+  edm::InputTag m_jets;
+  edm::InputTag m_primaryVertexProducer;
 };
 
 //
@@ -187,15 +190,101 @@ void
 CalibrationSkeleton::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-//loop on jets and tracks 
-{
-//  TrackClassFilterInput input(track,jet,vertex);
-//  m_calibrationNew->getCalibData(input)->Fill(significance3D);
-//  m_calibration2dNew->getCalibData(input)->Fill(significance2D);
+
+
+  using namespace edm;
+  using namespace reco;
+  using namespace std;
+ 
+  Handle<reco::VertexCollection> primaryVertex;
+  iEvent.getByLabel("offlinePrimaryVerticesFromCTFTracks",primaryVertex);
+  
+  //*********************************************************************************** 
+  //look at reco vertices 
+  const  reco::Vertex  *pv;
+  bool newvertex = false;
+  
+  bool pvFound = (primaryVertex->size() != 0);
+  if(pvFound)
+    {
+      pv = &(*primaryVertex->begin());
+    }
+  else 
+    { 
+      reco::Vertex::Error e;
+      e(0,0)=0.0015*0.0015;
+      e(1,1)=0.0015*0.0015;
+      e(2,2)=15.*15.;
+      reco::Vertex::Point p(0,0,0);
+      pv=  new reco::Vertex(p,e,1,1,1);
+      newvertex=true;
+    }
+  
+  //*************************************************************************
+  //look at JetTracks
+  edm::Handle<JetTracksAssociationCollection> associationHandle;
+  iEvent.getByLabel("jetTrackAssociations", associationHandle);
+  reco::JetTracksAssociationCollection::const_iterator it = associationHandle->begin();
+  
+  
+  
+  //***********************************************************************************
+  //mandatory for ip significance reco
+  const TransientTrackBuilder * m_transientTrackBuilder_producer;
+  edm::ESHandle<TransientTrackBuilder> builder;
+  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",builder);
+  m_transientTrackBuilder_producer = builder.product();
+  //***********************************************************************************
+  
+    int i = 0;
+  for(; it != associationHandle->end(); it++, i++)
+    { 
+      
+      const  JetTracksAssociationRef & jetTracks = Ref<JetTracksAssociationCollection>(associationHandle,i);
+      
+      
+      //GlobalVector direction(jetTracks->key->px(),jetTracks->key->py(),jetTracks->key->pz());
+       
+ //     if(jetTracks->second.size() <2 ) continue;
+       
+       bool directionWithTracks = false;
+       TrackRefVector tracks = it->second;
+       math::XYZVector jetMomentum=it->first->momentum()/2.;
+        if(directionWithTracks)
+         {
+           for (TrackRefVector::const_iterator itTrack = tracks.begin(); itTrack != tracks.end(); ++itTrack) {
+               if((**itTrack).numberOfValidHits() >= m_cutTotalHits )  //minimal quality cuts
+                  jetMomentum+=(**itTrack).momentum();
+             }
+         }
+          else
+         {
+            jetMomentum=it->first->momentum();
+         }
+        GlobalVector direction(jetMomentum.x(),jetMomentum.y(),jetMomentum.z());
+ 
+      
+      
+      
+      for(RefVector<reco::TrackCollection>::const_iterator itt=tracks.begin() ; itt!=tracks.end(); itt++ )
+	 {
+	   
+	   //loop on jets and tracks 
+	   
+	   TrackClassFilterInput input(**itt,*(it->first), *pv);
+	   
+           const TransientTrack & transientTrack = builder->build(&(**itt));
+	   calibrationNew->getCalibData(input)->fill(          IPTools::signedImpactParameter3D(transientTrack,direction,*pv).second.significance());
+//  calibration2dNew->getCalibData(input)->Fill(significance2D);
+	   
+//	   calibrationNew->updateCalibration(input);
+//	   calibration2dNew->updateCalibration(input);
+	   
+	 }
+       
+       
+    }
+  
 }
-
-
-}
-
 //define this as a plug-in
 DEFINE_FWK_MODULE(CalibrationSkeleton);
