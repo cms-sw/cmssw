@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolutionMaker.cc,v 1.16 2007/07/25 14:03:10 rwolf Exp $
+// $Id: TtSemiEvtSolutionMaker.cc,v 1.17 2007/07/26 08:40:13 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiEvtSolutionMaker.h"
@@ -166,44 +166,46 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
    
     // if asked for, match the event solutions to the gen Event
     if(matchToGenEvt_){
-      edm::Handle<TtGenEvent> genEvt;
-      iEvent.getByLabel ("genEvt",genEvt);
-      vector<const reco::Candidate*> quarks;
-      const reco::Candidate & genp  = *(genEvt->hadronicDecayQuark());
-      const reco::Candidate & genq  = *(genEvt->hadronicDecayQuarkBar());
-      const reco::Candidate & genbh = *(genEvt->hadronicDecayB());
-      const reco::Candidate & genbl = *(genEvt->leptonicDecayB());
-      quarks.push_back( &genp );
-      quarks.push_back( &genq );
-      quarks.push_back( &genbh );
-      quarks.push_back( &genbl );
-      vector<const reco::Candidate*> jets;  
       int bestSolution = -999; 
       int bestSolutionChangeWQ = -999;
-      for(size_t s=0; s<evtsols->size(); s++) {
-        jets.clear();
-        const reco::Candidate & jetp  = (*evtsols)[s].getRecHadp();
-        const reco::Candidate & jetq  = (*evtsols)[s].getRecHadq();
-        const reco::Candidate & jetbh = (*evtsols)[s].getRecHadb();
-        const reco::Candidate & jetbl = (*evtsols)[s].getRecLepb();
-        jets.push_back( &jetp );
-        jets.push_back( &jetq );
-        jets.push_back( &jetbh );
-        jets.push_back( &jetbl );
-        JetPartonMatching aMatch(quarks,jets,1);  // 1: SpaceAngle; 2: DeltaR   
-        (*evtsols)[s].setGenEvt(genEvt);   
-        (*evtsols)[s].setMCBestSumAngles(aMatch.getSumAngles());
-        (*evtsols)[s].setMCBestAngleHadp(aMatch.getAngleForParton(0));
-        (*evtsols)[s].setMCBestAngleHadq(aMatch.getAngleForParton(1));
-        (*evtsols)[s].setMCBestAngleHadb(aMatch.getAngleForParton(2));
-        (*evtsols)[s].setMCBestAngleLepb(aMatch.getAngleForParton(3));
-        if(aMatch.getMatchForParton(2) == 2 && aMatch.getMatchForParton(3) == 3){
-          if(aMatch.getMatchForParton(0) == 0 && aMatch.getMatchForParton(1) == 1) {
-            bestSolution = s;
-            bestSolutionChangeWQ = 0;
-          } else if(aMatch.getMatchForParton(0) == 1 && aMatch.getMatchForParton(1) == 0) {
-            bestSolution = s;
-            bestSolutionChangeWQ = 1;
+      edm::Handle<TtGenEvent> genEvt;
+      iEvent.getByLabel ("genEvt",genEvt); 
+      if(genEvt->numberOfBQuarks() == 2){ 	//in rare cases W->bc decay, resulting in a wrong filled genEvt leading to a segmentation fault
+        vector<const reco::Candidate*> quarks;
+        const reco::Candidate & genp  = *(genEvt->hadronicQuark());
+        const reco::Candidate & genq  = *(genEvt->hadronicQuarkBar());
+        const reco::Candidate & genbh = *(genEvt->hadronicB());
+        const reco::Candidate & genbl = *(genEvt->leptonicB());
+        quarks.push_back( &genp );
+        quarks.push_back( &genq );
+        quarks.push_back( &genbh );
+        quarks.push_back( &genbl );
+        vector<const reco::Candidate*> jets;  
+        for(size_t s=0; s<evtsols->size(); s++) {
+          jets.clear();
+          const reco::Candidate & jetp  = (*evtsols)[s].getRecHadp();
+          const reco::Candidate & jetq  = (*evtsols)[s].getRecHadq();
+          const reco::Candidate & jetbh = (*evtsols)[s].getRecHadb();
+          const reco::Candidate & jetbl = (*evtsols)[s].getRecLepb();
+          jets.push_back( &jetp );
+          jets.push_back( &jetq );
+          jets.push_back( &jetbh );
+          jets.push_back( &jetbl );
+          JetPartonMatching aMatch(quarks,jets,1);  // 1: SpaceAngle; 2: DeltaR   
+          (*evtsols)[s].setGenEvt(genEvt);   
+          (*evtsols)[s].setMCBestSumAngles(aMatch.getSumAngles());
+          (*evtsols)[s].setMCBestAngleHadp(aMatch.getAngleForParton(0));
+          (*evtsols)[s].setMCBestAngleHadq(aMatch.getAngleForParton(1));
+          (*evtsols)[s].setMCBestAngleHadb(aMatch.getAngleForParton(2));
+          (*evtsols)[s].setMCBestAngleLepb(aMatch.getAngleForParton(3));
+          if(aMatch.getMatchForParton(2) == 2 && aMatch.getMatchForParton(3) == 3){
+            if(aMatch.getMatchForParton(0) == 0 && aMatch.getMatchForParton(1) == 1) {
+              bestSolution = s;
+              bestSolutionChangeWQ = 0;
+            } else if(aMatch.getMatchForParton(0) == 1 && aMatch.getMatchForParton(1) == 0) {
+              bestSolution = s;
+              bestSolutionChangeWQ = 1;
+            }
           }
         }
       }
