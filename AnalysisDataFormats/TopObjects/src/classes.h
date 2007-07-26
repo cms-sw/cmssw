@@ -8,12 +8,24 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiMassSolution.h"
 #include "AnalysisDataFormats/TopObjects/interface/StEvtSolution.h"
+#include "AnalysisDataFormats/TopObjects/interface/JetRejObs.h"
 
 #include "DataFormats/Common/interface/Wrapper.h"
 
 
 namespace {
   namespace {
+   std::pair<int,double>  dummy0;
+   std::vector<std::pair<int, double> >    dummy1;
+   std::vector<std::vector<std::pair<int, double> >  >  dummy2;
+   typedef edm::Ref<std::vector<JetRejObs> > JetRejObsRef;
+
+ 
+    JetRejObs                                  jro;
+    std::vector<JetRejObs>                     v_jro;
+    edm::Wrapper<std::vector<JetRejObs> >      w_v_jro;
+    edm::Ref<std::vector<JetRejObs> >          r_jro;
+
 
     std::vector<std::pair<double, double> >               v_p_dbl_dbl;
     std::pair<unsigned int, std::vector<unsigned int> >   p_uint_vint;
