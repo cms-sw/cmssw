@@ -3,8 +3,8 @@
  *  Makes histograms of high level Muon objects/quantities
  *  for Alignment Scenarios/DB comparison
  *
- *  $Date: 2007/07/24 15:20:50 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/07/24 16:28:15 $
+ *  $Revision: 1.10 $
  *  \author J. Fernandez - IFCA (CSIC-UC) <Javier.Fernandez@cern.ch>
  */
 
@@ -375,7 +375,7 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 	simPhi=(*simTrack).momentum().phi();
 	numberOfSimTracks++;
 	hPTSim->Fill(simPt);
-	if(simEta<1.04) {hPTSim_Barrel->Fill(simPt);ib++;}
+	if(abs(simEta)<1.04) {hPTSim_Barrel->Fill(simPt);ib++;}
 	else {hPTSim_Endcap->Fill(simPt);ie++;}
 	hSimPTvsEta->Fill(simEta,simPt);
 	hSimPTvsPhi->Fill(simPhi,simPt);
@@ -432,7 +432,7 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 
     hSAPTRec->Fill(SArecPt);
     hSAChi2->Fill((*staTrack).chi2());
-    if(SAeta<1.04) {hSAPTRec_Barrel->Fill(SArecPt); hSAChi2_Barrel->Fill((*staTrack).chi2()); ib++;}
+    if(abs(SAeta)<1.04) {hSAPTRec_Barrel->Fill(SArecPt); hSAChi2_Barrel->Fill((*staTrack).chi2()); ib++;}
     else {hSAPTRec_Endcap->Fill(SArecPt); hSAChi2_Endcap->Fill((*staTrack).chi2()); ie++;}
 
 // save the muon pair
@@ -446,7 +446,7 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
      double simPt=simPar[0][iSim];
      if(sqrt((SAeta-simPar[1][iSim])*(SAeta-simPar[1][iSim])+(SAphi-simPar[2][iSim])*(SAphi-simPar[2][iSim]))<0.3){
       hSAPTres->Fill( (SArecPt-simPt)/simPt);
-    	if(SAeta<1.04) hSAPTres_Barrel->Fill((SArecPt-simPt)/simPt);
+    	if(abs(SAeta)<1.04) hSAPTres_Barrel->Fill((SArecPt-simPt)/simPt);
 	else hSAPTres_Endcap->Fill((SArecPt-simPt)/simPt);
 
       hSAPTDiff->Fill(SArecPt-simPt);
@@ -508,7 +508,7 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
     
     hGBPTRec->Fill(GBrecPt);
     hGBChi2->Fill((*glbTrack).chi2());
-    if(GBeta<1.04) {hGBPTRec_Barrel->Fill(GBrecPt); hGBChi2_Barrel->Fill((*glbTrack).chi2()); ib++;}
+    if(abs(GBeta)<1.04) {hGBPTRec_Barrel->Fill(GBrecPt); hGBChi2_Barrel->Fill((*glbTrack).chi2()); ib++;}
     else {hGBPTRec_Endcap->Fill(GBrecPt); hGBChi2_Endcap->Fill((*glbTrack).chi2()); ie++;}
   
 // save the muon pair
@@ -521,7 +521,7 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
      if(sqrt((GBeta-simPar[1][iSim])*(GBeta-simPar[1][iSim])+(GBphi-simPar[2][iSim])*(GBphi-simPar[2][iSim]))<0.3){
 	
       hGBPTres->Fill( (GBrecPt-simPt)/simPt);
-    	if(GBeta<1.04) hGBPTres_Barrel->Fill((GBrecPt-simPt)/simPt);
+    	if(abs(GBeta)<1.04) hGBPTres_Barrel->Fill((GBrecPt-simPt)/simPt);
 	else hGBPTres_Endcap->Fill((GBrecPt-simPt)/simPt);
 
       hGBPTDiff->Fill(GBrecPt-simPt);
