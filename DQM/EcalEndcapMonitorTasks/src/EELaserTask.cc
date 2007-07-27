@@ -139,7 +139,7 @@ void EELaserTask::setup(void){
       meAmplMapL1A_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
       dbe_->tag(meAmplMapL1A_[i], i+1);
       sprintf(histo, "EELT timing %s L1A", Numbers::sEE(i+1).c_str());
-      meTimeMapL1A_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, -4., 4., "s");
+      meTimeMapL1A_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
       dbe_->tag(meTimeMapL1A_[i], i+1);
       sprintf(histo, "EELT amplitude over PN %s L1A", Numbers::sEE(i+1).c_str());
       meAmplPNMapL1A_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
@@ -152,7 +152,7 @@ void EELaserTask::setup(void){
       meAmplMapL1B_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
       dbe_->tag(meAmplMapL1B_[i], i+1);
       sprintf(histo, "EELT timing %s L1B", Numbers::sEE(i+1).c_str());
-      meTimeMapL1B_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, -4., 4., "s");
+      meTimeMapL1B_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
       dbe_->tag(meTimeMapL1B_[i], i+1);
       sprintf(histo, "EELT amplitude over PN %s L1B", Numbers::sEE(i+1).c_str());
       meAmplPNMapL1B_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
@@ -168,7 +168,7 @@ void EELaserTask::setup(void){
       meAmplMapL2A_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
       dbe_->tag(meAmplMapL2A_[i], i+1);
       sprintf(histo, "EELT timing %s L2A", Numbers::sEE(i+1).c_str());
-      meTimeMapL2A_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, -4., 4., "s");
+      meTimeMapL2A_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
       dbe_->tag(meTimeMapL2A_[i], i+1);
       sprintf(histo, "EELT amplitude over PN %s L2A", Numbers::sEE(i+1).c_str());
       meAmplPNMapL2A_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
@@ -181,7 +181,7 @@ void EELaserTask::setup(void){
       meAmplMapL2B_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
       dbe_->tag(meAmplMapL2B_[i], i+1);
       sprintf(histo, "EELT timing %s L2B", Numbers::sEE(i+1).c_str());
-      meTimeMapL2B_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, -4., 4., "s");
+      meTimeMapL2B_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
       dbe_->tag(meTimeMapL2B_[i], i+1);
       sprintf(histo, "EELT amplitude over PN %s L2B", Numbers::sEE(i+1).c_str());
       meAmplPNMapL2B_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
@@ -197,7 +197,7 @@ void EELaserTask::setup(void){
       meAmplMapL3A_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
       dbe_->tag(meAmplMapL3A_[i], i+1);
       sprintf(histo, "EELT timing %s L3A", Numbers::sEE(i+1).c_str());
-      meTimeMapL3A_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, -4., 4., "s");
+      meTimeMapL3A_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
       dbe_->tag(meTimeMapL3A_[i], i+1);
       sprintf(histo, "EELT amplitude over PN %s L3A", Numbers::sEE(i+1).c_str());
       meAmplPNMapL3A_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
@@ -210,7 +210,7 @@ void EELaserTask::setup(void){
       meAmplMapL3B_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
       dbe_->tag(meAmplMapL3B_[i], i+1);
       sprintf(histo, "EELT timing %s L3B", Numbers::sEE(i+1).c_str());
-      meTimeMapL3B_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, -4., 4., "s");
+      meTimeMapL3B_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
       dbe_->tag(meTimeMapL3B_[i], i+1);
       sprintf(histo, "EELT amplitude over PN %s L3B", Numbers::sEE(i+1).c_str());
       meAmplPNMapL3B_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
@@ -226,7 +226,7 @@ void EELaserTask::setup(void){
       meAmplMapL4A_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
       dbe_->tag(meAmplMapL4A_[i], i+1);
       sprintf(histo, "EELT timing %s L4A", Numbers::sEE(i+1).c_str());
-      meTimeMapL4A_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, -4., 4., "s");
+      meTimeMapL4A_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
       dbe_->tag(meTimeMapL4A_[i], i+1);
       sprintf(histo, "EELT amplitude over PN %s L4A", Numbers::sEE(i+1).c_str());
       meAmplPNMapL4A_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
@@ -239,7 +239,7 @@ void EELaserTask::setup(void){
       meAmplMapL4B_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
       dbe_->tag(meAmplMapL4B_[i], i+1);
       sprintf(histo, "EELT timing %s L4B", Numbers::sEE(i+1).c_str());
-      meTimeMapL4B_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, -4., 4., "s");
+      meTimeMapL4B_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
       dbe_->tag(meTimeMapL4B_[i], i+1);
       sprintf(histo, "EELT amplitude over PN %s L4B", Numbers::sEE(i+1).c_str());
       meAmplPNMapL4B_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
@@ -817,8 +817,11 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
       }
 
       float xval = hit.amplitude();
-      float yval = hit.jitter();
+      if ( xval <= 0. ) xval = 0.0;
+      float yval = hit.jitter() + 6.0;
+      if ( yval <= 0. ) yval = 0.0;
       float zval = hit.pedestal();
+      if ( zval <= 0. ) zval = 0.0;
 
       LogDebug("EELaserTask") << " hit amplitude " << xval;
       LogDebug("EELaserTask") << " hit jitter " << yval;

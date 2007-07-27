@@ -99,7 +99,7 @@ void EELedTask::setup(void){
       meAmplMapA_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
       dbe_->tag(meAmplMapA_[i], i+1);
       sprintf(histo, "EELDT timing %s A", Numbers::sEE(i+1).c_str());
-      meTimeMapA_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, -4., 4., "s");
+      meTimeMapA_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
       dbe_->tag(meTimeMapA_[i], i+1);
       sprintf(histo, "EELDT amplitude over PN %s A", Numbers::sEE(i+1).c_str());
       meAmplPNMapA_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
@@ -112,7 +112,7 @@ void EELedTask::setup(void){
       meAmplMapB_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
       dbe_->tag(meAmplMapB_[i], i+1);
       sprintf(histo, "EELDT timing %s B", Numbers::sEE(i+1).c_str());
-      meTimeMapB_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, -4., 4., "s");
+      meTimeMapB_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
       dbe_->tag(meTimeMapB_[i], i+1);
       sprintf(histo, "EELDT amplitude over PN %s B", Numbers::sEE(i+1).c_str());
       meAmplPNMapB_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
@@ -450,8 +450,11 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
       }
 
       float xval = hit.amplitude();
-      float yval = hit.jitter();
+      if ( xval <= 0. ) xval = 0.0;
+      float yval = hit.jitter() + 6.0;
+      if ( yval <= 0. ) yval = 0.0;
       float zval = hit.pedestal();
+      if ( zval <= 0. ) zval = 0.0;
 
       LogDebug("EELedTask") << " hit amplitude " << xval;
       LogDebug("EELedTask") << " hit jitter " << yval;
