@@ -134,7 +134,7 @@ namespace edmNew {
     }
     
     void swap(DetSetVector & rh) {
-      std::swap(m_subdetId,rh.m_subDetId);
+      std::swap(m_subdetId,rh.m_subdetId);
       std::swap(m_ids,rh.m_ids);
       std::swap(m_data,rh.m_data);
     }

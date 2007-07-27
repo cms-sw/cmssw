@@ -69,6 +69,16 @@ void TestDetSet::default_ctor() {
   df.set(detsets,2);
   CPPUNIT_ASSERT(df.size()==0); 
   CPPUNIT_ASSERT(df.m_data==&detsets.m_data.front()); 
+  DSTV detsets2(3);
+  detsets.swap(detsets2);
+  CPPUNIT_ASSERT(detsets.subdetId()==3);
+  CPPUNIT_ASSERT(detsets.size()==0);
+  CPPUNIT_ASSERT(detsets.dataSize()==0);
+  CPPUNIT_ASSERT(detsets2.subdetId()==2);
+  CPPUNIT_ASSERT(detsets2.size()==3);
+  CPPUNIT_ASSERT(detsets2.dataSize()==10);
+  
+
 }
 
 void TestDetSet::inserting() {
