@@ -405,7 +405,6 @@ void EELaserClient::beginJob(MonitorUserInterface* mui){
       qth22_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[1]);
       qth23_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[1]);
       qth24_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[1]);
-
       qth01_[ism-1]->setMinimumEntries(10*1700);
       qth02_[ism-1]->setMinimumEntries(10*1700);
       qth03_[ism-1]->setMinimumEntries(10*1700);
@@ -598,28 +597,28 @@ void EELaserClient::setup(void) {
 
     if ( metav01_[ism-1] ) dbe->removeElement( metav01_[ism-1]->getName() );
     sprintf(histo, "EELT timing mean L1A %s", Numbers::sEE(ism).c_str());
-    metav01_[ism-1] = dbe->book1D(histo, histo, 100, -4., 4.);
+    metav01_[ism-1] = dbe->book1D(histo, histo, 100, 0., 10.);
     if ( metav02_[ism-1] ) dbe->removeElement( metav02_[ism-1]->getName() );
     sprintf(histo, "EELT timing mean L2A %s", Numbers::sEE(ism).c_str());
-    metav02_[ism-1] = dbe->book1D(histo, histo, 100, -4., 4.);
+    metav02_[ism-1] = dbe->book1D(histo, histo, 100, 0., 10.);
     if ( metav03_[ism-1] ) dbe->removeElement( metav03_[ism-1]->getName() );
     sprintf(histo, "EELT timing mean L3A %s", Numbers::sEE(ism).c_str());
-    metav03_[ism-1] = dbe->book1D(histo, histo, 100, -4., 4.);
+    metav03_[ism-1] = dbe->book1D(histo, histo, 100, 0., 10.);
     if ( metav04_[ism-1] ) dbe->removeElement( metav04_[ism-1]->getName() );
     sprintf(histo, "EELT timing mean L4A %s", Numbers::sEE(ism).c_str());
-    metav04_[ism-1] = dbe->book1D(histo, histo, 100, -4., 4.);
+    metav04_[ism-1] = dbe->book1D(histo, histo, 100, 0., 10.);
     if ( metav05_[ism-1] ) dbe->removeElement( metav05_[ism-1]->getName() );
     sprintf(histo, "EELT timing mean L1B %s", Numbers::sEE(ism).c_str());
-    metav05_[ism-1] = dbe->book1D(histo, histo, 100, -4., 4.);
+    metav05_[ism-1] = dbe->book1D(histo, histo, 100, 0., 10.);
     if ( metav06_[ism-1] ) dbe->removeElement( metav06_[ism-1]->getName() );
     sprintf(histo, "EELT timing mean L2B %s", Numbers::sEE(ism).c_str());
-    metav06_[ism-1] = dbe->book1D(histo, histo, 100, -4., 4.);
+    metav06_[ism-1] = dbe->book1D(histo, histo, 100, 0., 10.);
     if ( metav07_[ism-1] ) dbe->removeElement( metav07_[ism-1]->getName() );
     sprintf(histo, "EELT timing mean L3B %s", Numbers::sEE(ism).c_str());
-    metav07_[ism-1] = dbe->book1D(histo, histo, 100, -4., 4.);
+    metav07_[ism-1] = dbe->book1D(histo, histo, 100, 0., 10.);
     if ( metav08_[ism-1] ) dbe->removeElement( metav08_[ism-1]->getName() );
     sprintf(histo, "EELT timing mean L4B %s", Numbers::sEE(ism).c_str());
-    metav08_[ism-1] = dbe->book1D(histo, histo, 100, -4., 4.);
+    metav08_[ism-1] = dbe->book1D(histo, histo, 100, 0., 10.);
 
     if ( metrms01_[ism-1] ) dbe->removeElement( metrms01_[ism-1]->getName() );
     sprintf(histo, "EELT timing rms L1A %s", Numbers::sEE(ism).c_str());
@@ -4132,8 +4131,8 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         cTim->cd();
         gStyle->SetOptStat("euo");
         obj1f->SetStats(kTRUE);
-        obj1f->SetMinimum(-4.0);
-        obj1f->SetMaximum(4.0);
+        obj1f->SetMinimum(0.0);
+        obj1f->SetMaximum(10.0);
         obj1f->Draw();
         cTim->Update();
         cTim->SaveAs(imgName.c_str());

@@ -671,28 +671,28 @@ void EBLaserClient::setup(void) {
 
     if ( metav01_[ism-1] ) dbe->removeElement( metav01_[ism-1]->getName() );
     sprintf(histo, "EBLT timing mean L1A %s", Numbers::sEB(ism).c_str());
-    metav01_[ism-1] = dbe->book1D(histo, histo, 100, -4., 4.);
+    metav01_[ism-1] = dbe->book1D(histo, histo, 100, 0., 10.);
     if ( metav02_[ism-1] ) dbe->removeElement( metav02_[ism-1]->getName() );
     sprintf(histo, "EBLT timing mean L2A %s", Numbers::sEB(ism).c_str());
-    metav02_[ism-1] = dbe->book1D(histo, histo, 100, -4., 4.);
+    metav02_[ism-1] = dbe->book1D(histo, histo, 100, 0., 10.);
     if ( metav03_[ism-1] ) dbe->removeElement( metav03_[ism-1]->getName() );
     sprintf(histo, "EBLT timing mean L3A %s", Numbers::sEB(ism).c_str());
-    metav03_[ism-1] = dbe->book1D(histo, histo, 100, -4., 4.);
+    metav03_[ism-1] = dbe->book1D(histo, histo, 100, 0., 10.);
     if ( metav04_[ism-1] ) dbe->removeElement( metav04_[ism-1]->getName() );
     sprintf(histo, "EBLT timing mean L4A %s", Numbers::sEB(ism).c_str());
-    metav04_[ism-1] = dbe->book1D(histo, histo, 100, -4., 4.);
+    metav04_[ism-1] = dbe->book1D(histo, histo, 100, 0., 10.);
     if ( metav05_[ism-1] ) dbe->removeElement( metav05_[ism-1]->getName() );
     sprintf(histo, "EBLT timing mean L1B %s", Numbers::sEB(ism).c_str());
-    metav05_[ism-1] = dbe->book1D(histo, histo, 100, -4., 4.);
+    metav05_[ism-1] = dbe->book1D(histo, histo, 100, 0., 10.);
     if ( metav06_[ism-1] ) dbe->removeElement( metav06_[ism-1]->getName() );
     sprintf(histo, "EBLT timing mean L2B %s", Numbers::sEB(ism).c_str());
-    metav06_[ism-1] = dbe->book1D(histo, histo, 100, -4., 4.);
+    metav06_[ism-1] = dbe->book1D(histo, histo, 100, 0., 10.);
     if ( metav07_[ism-1] ) dbe->removeElement( metav07_[ism-1]->getName() );
     sprintf(histo, "EBLT timing mean L3B %s", Numbers::sEB(ism).c_str());
-    metav07_[ism-1] = dbe->book1D(histo, histo, 100, -4., 4.);
+    metav07_[ism-1] = dbe->book1D(histo, histo, 100, 0., 10.);
     if ( metav08_[ism-1] ) dbe->removeElement( metav08_[ism-1]->getName() );
     sprintf(histo, "EBLT timing mean L4B %s", Numbers::sEB(ism).c_str());
-    metav08_[ism-1] = dbe->book1D(histo, histo, 100, -4., 4.);
+    metav08_[ism-1] = dbe->book1D(histo, histo, 100, 0., 10.);
 
     if ( metrms01_[ism-1] ) dbe->removeElement( metrms01_[ism-1]->getName() );
     sprintf(histo, "EBLT timing rms L1A %s", Numbers::sEB(ism).c_str());
@@ -4235,8 +4235,8 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         cTim->cd();
         gStyle->SetOptStat("euo");
         obj1f->SetStats(kTRUE);
-        obj1f->SetMinimum(-4.0);
-        obj1f->SetMaximum(4.0);
+        obj1f->SetMinimum(0.0);
+        obj1f->SetMaximum(10.0);
         obj1f->Draw();
         cTim->Update();
         cTim->SaveAs(imgName.c_str());

@@ -331,11 +331,11 @@ void EELedClient::setup(void) {
 
     if ( metav01_[ism-1] ) dbe->removeElement( metav01_[ism-1]->getName() );
     sprintf(histo, "EELDT timing mean A %s", Numbers::sEE(ism).c_str());
-    metav01_[ism-1] = dbe->book1D(histo, histo, 100, -4., 4.);
+    metav01_[ism-1] = dbe->book1D(histo, histo, 100, 0., 10.);
 
     if ( metav05_[ism-1] ) dbe->removeElement( metav05_[ism-1]->getName() );
     sprintf(histo, "EELDT timing mean B %s", Numbers::sEE(ism).c_str());
-    metav05_[ism-1] = dbe->book1D(histo, histo, 100, -4., 4.);
+    metav05_[ism-1] = dbe->book1D(histo, histo, 100, 0., 10.);
 
     if ( metrms01_[ism-1] ) dbe->removeElement( metrms01_[ism-1]->getName() );
     sprintf(histo, "EELDT timing rms A %s", Numbers::sEE(ism).c_str());
@@ -1753,8 +1753,8 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
         cTim->cd();
         gStyle->SetOptStat("euo");
         obj1f->SetStats(kTRUE);
-        obj1f->SetMinimum(-4.0);
-        obj1f->SetMaximum(4.0);
+        obj1f->SetMinimum(0.0);
+        obj1f->SetMaximum(10.0);
         obj1f->Draw();
         cTim->Update();
         cTim->SaveAs(imgName.c_str());
