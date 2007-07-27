@@ -35,7 +35,7 @@ using namespace edm;
 
 class ParticleListDrawer : public edm::EDAnalyzer {
   public:
-    explicit ParticleListDrawer(const edm::ParameterSet & ) {};
+    explicit ParticleListDrawer(const edm::ParameterSet & );
     ~ParticleListDrawer() {};
     void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
@@ -44,13 +44,22 @@ class ParticleListDrawer : public edm::EDAnalyzer {
     edm::InputTag source_;
     edm::Handle<reco::CandidateCollection> particles;
     edm::ESHandle<ParticleDataTable> pdt_;
-
+    unsigned int maxEventsToPrint_; 
+    unsigned int nEventAnalyzed_;	
 };
 
+ParticleListDrawer::ParticleListDrawer(const edm::ParameterSet & pset) :
+maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
+nEventAnalyzed_(0) {
+
+  //Max number of events printed on verbosity level 
+  //maxEventsToPrint_ = pset.getUntrackedParameter<int>("maxEventsToPrint",0);
+
+}
+
 void ParticleListDrawer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-  cout << "[ParticleListDrawer] analysing event " << iEvent.id() << endl;
-  
+{  
+
   try {
     iEvent.getByLabel ("genParticleCandidates", particles );
     iSetup.getData( pdt_ );
@@ -59,31 +68,32 @@ void ParticleListDrawer::analyze(const edm::Event& iEvent, const edm::EventSetup
     return;
   }
 
-  //
-  // Printout for GenEvent
-  //
-  cout << endl;
-  cout << "**********************" << endl;
-  cout << "* GenEvent           *" << endl;
-  cout << "**********************" << endl;
+  if(nEventAnalyzed_ < maxEventsToPrint_) {
 
-  printf(" idx  |    ID -       Name |Stat|  Mo1  Mo2  Da1  Da2 |nMo nDa|    pt       eta     phi   |     px         py         pz        m     |\n");
-  int idx  = -1;
-  int iMo1 = -1;
-  int iMo2 = -1;
-  int iDa1 = -1;
-  int iDa2 = -1;
-  std::vector<const reco::Candidate *> cands_;
-  cands_.clear();
-  vector<const Candidate *>::const_iterator found = cands_.begin();
-  for( CandidateCollection::const_iterator p = particles->begin();
-       p != particles->end(); ++ p ) {
-    cands_.push_back( & * p );
-  }
+    cout << "[ParticleListDrawer] analysing event " << iEvent.id() << endl;
 
-  for( CandidateCollection::const_iterator p  = particles->begin();
-                                           p != particles->end(); 
-                                           p ++) {
+    cout << endl;
+    cout << "**********************" << endl;
+    cout << "* GenEvent           *" << endl;
+    cout << "**********************" << endl;
+
+    printf(" idx  |    ID -       Name |Stat|  Mo1  Mo2  Da1  Da2 |nMo nDa|    pt       eta     phi   |     px         py         pz        m     |\n");
+    int idx  = -1;
+    int iMo1 = -1;
+    int iMo2 = -1;
+    int iDa1 = -1;
+    int iDa2 = -1;
+    std::vector<const reco::Candidate *> cands_;
+    cands_.clear();
+    vector<const Candidate *>::const_iterator found = cands_.begin();
+    for( CandidateCollection::const_iterator p = particles->begin();
+         p != particles->end(); ++ p ) {
+      cands_.push_back( & * p );
+    }
+
+    for( CandidateCollection::const_iterator p  = particles->begin();
+                                             p != particles->end(); 
+                                             p ++) {
       // Particle Name
       int id = p->pdgId();
       const ParticleData * pd = pdt_->particle( id );
@@ -126,8 +136,9 @@ void ParticleListDrawer::analyze(const edm::Event& iEvent, const edm::EventSetup
              p->pz(),
              p->mass()
             );
+    }
+  nEventAnalyzed_++;
   }
-  
 }
 
 DEFINE_FWK_MODULE( ParticleListDrawer );
