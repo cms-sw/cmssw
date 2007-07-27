@@ -11,7 +11,7 @@
 struct T {
   T(float iv=0) : v(iv){}
   float v;
-  bool operator==(T t) { return v==t.v;}
+  bool operator==(T t) const { return v==t.v;}
 };
 
 typedef edmNew::DetSetVector<T> DSTV;
