@@ -477,14 +477,14 @@ namespace edmtest {
   
   
   void 
-  DSTVProducer::fill_a_data(DSTVSimpleDerivedProduct::data_type & d, int i);
+  DSTVProducer::fill_a_data(DSTVSimpleDerivedProduct::data_type & d, int i)
   {
     d.key = size_ - i;
     d.value = 1.5 * i;
   }
   
   void 
-  DSTVProducer::fill_a_data(DSTVSimpleProduct::data_type & d, int i);
+  DSTVProducer::fill_a_data(DSTVSimpleProduct::data_type & d, int i)
   {
     d.data=size_ - i;
   }
