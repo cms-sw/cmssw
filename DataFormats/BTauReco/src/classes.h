@@ -239,11 +239,5 @@ namespace {
     edm::reftobase::Holder<reco::BaseTagInfo, reco::SoftLeptonTagInfoRef>       rb_sl;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::TauMassTagInfoRef>          rb_tmt;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackProbabilityTagInfoRef> rb_tp;
-    
-    // RefToBase Holders for Jets
-    edm::reftobase::Holder<reco::Jet, reco::CaloJetRef>                         rb_cj;
-    // edm::reftobase::Holder<reco::Jet, reco::GenJetRef>                       rb_gj;
-    // edm::reftobase::Holder<reco::Jet, reco::PFJetRef>                        rb_pfj;
-
   }
 }
