@@ -112,11 +112,11 @@ void TestDetSet::filling() {
     ff.push_back(3.14);
     CPPUNIT_ASSERT(detsets.dataSize()==ntot);
     CPPUNIT_ASSERT(detsets.detsetSize(n-1)==1);
-    CPPUNIT_ASSERT(detsets.m_data.back().v==T(3.14));
+    CPPUNIT_ASSERT(detsets.m_data.back().v==3.14f);
     CPPUNIT_ASSERT(ff.item.offset==detsets.size()-1); 
     CPPUNIT_ASSERT(ff.item.size==1);  
     ntot+=n-1;
-    ff.resize(ntot);
+    ff.resize(n);
     CPPUNIT_ASSERT(detsets.dataSize()==ntot);
     CPPUNIT_ASSERT(detsets.detsetSize(n-1)==n);
     CPPUNIT_ASSERT(ff.item.offset==detsets.dataSize()-n); 
