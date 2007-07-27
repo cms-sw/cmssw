@@ -1,5 +1,5 @@
-#ifndef BTauReco_PFTauTagIsolation_h
-#define BTauReco_PFTauTagIsolation_h
+#ifndef DataFormats_BTauReco_PFIsolatedTauTagInfo_h
+#define DataFormats_BTauReco_PFIsolatedTauTagInfo_h
 
 /* class PFIsolatedTauTagInfo
  * Extended object for the Particle Flow Tau Isolation algorithm,
@@ -9,15 +9,15 @@
  * authors: Simone Gennai, Ludovic Houchu
  */
 
-#include "DataFormats/BTauReco/interface/BaseTagInfo.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
-
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include <math.h>
 
 #include "Math/GenVector/PxPyPzE4D.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/BTauReco/interface/BaseTagInfo.h"
+#include "DataFormats/BTauReco/interface/PFIsolatedTauTagInfoFwd.h"
 
-#include "math.h"
 
 using namespace std;
 using namespace edm;
@@ -140,4 +140,4 @@ namespace reco{
   };
 }
 
-#endif
+#endif // DataFormats_BTauReco_PFIsolatedTauTagInfo_h

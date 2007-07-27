@@ -1,14 +1,15 @@
-#ifndef BTauReco_TauMassTagInfo_h
-#define BTauReco_TauMassTagInfo_h
+#ifndef DataFormats_BTauReco_TauMassTagInfo_h
+#define DataFormats_BTauReco_TauMassTagInfo_h
 
 #include <vector>
 #include <map>
 
-#include "DataFormats/BTauReco/interface/JTATagInfo.h"
-#include "DataFormats/BTauReco/interface/IsolatedTauTagInfoFwd.h"
+#include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
-#include "DataFormats/Common/interface/AssociationMap.h"
+#include "DataFormats/BTauReco/interface/JTATagInfo.h"
+#include "DataFormats/BTauReco/interface/IsolatedTauTagInfoFwd.h"
+#include "DataFormats/BTauReco/interface/TauMassTagInfoFwd.h"
 
 namespace reco {
  

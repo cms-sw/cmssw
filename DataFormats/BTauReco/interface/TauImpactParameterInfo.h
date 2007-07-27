@@ -1,11 +1,12 @@
-#ifndef BTauReco_TauTagImpactParameterInfo_h
-#define BTauReco_TauTagImpactParameterInfo_h
+#ifndef DataFormats_BTauReco_TauImpactParameterInfo_h
+#define DataFormats_BTauReco_TauImpactParameterInfo_h
 
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/BTauReco/interface/TauImpactParameterInfoFwd.h"
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfoFwd.h" 
+#include "DataFormats/BTauReco/interface/TauImpactParameterInfoFwd.h" 
 
 namespace reco {
  
@@ -45,6 +46,5 @@ namespace reco {
   };
  
 }
-#endif
 
-
+#endif // DataFormats_BTauReco_TauImpactParameterInfo_h

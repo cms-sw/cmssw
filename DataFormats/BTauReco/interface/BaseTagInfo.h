@@ -3,8 +3,9 @@
 
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/BTauReco/interface/TaggingVariable.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/BTauReco/interface/TaggingVariable.h"
+#include "DataFormats/BTauReco/interface/BaseTagInfoFwd.h"
 
 namespace reco {
  

@@ -1,5 +1,5 @@
-#ifndef BTauReco_PFTauTagCombination_h
-#define BTauReco_PFTauTagCombination_h
+#ifndef DataFormats_BTauReco_PFCombinedTauTagInfo_h
+#define DataFormats_BTauReco_PFCombinedTauTagInfo_h
 
 /* class PFCombinedTauTagInfo
  *  Extended object for the Particle Flow Tau Combination algorithm, 
@@ -8,15 +8,14 @@
  *  author: Ludovic Houchu.
  */
 
-#include "DataFormats/BTauReco/interface/BaseTagInfo.h"
-#include "DataFormats/BTauReco/interface/PFIsolatedTauTagInfoFwd.h" 
-
-#include "DataFormats/JetReco/interface/PFJet.h"
-
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-
 #include <limits>
 #include <math.h>
+
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/BTauReco/interface/BaseTagInfo.h"
+#include "DataFormats/BTauReco/interface/PFIsolatedTauTagInfoFwd.h" 
+#include "DataFormats/BTauReco/interface/PFCombinedTauTagInfoFwd.h" 
 
 using namespace edm;
 using namespace std;
@@ -186,4 +185,5 @@ namespace reco {
    double HCALEtleadPFChargedHadrCandPtRatio_;
  };
 }
-#endif
+
+#endif // DataFormats_BTauReco_PFCombinedTauTagInfo_h

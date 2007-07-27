@@ -1,5 +1,5 @@
-#ifndef BTauReco_TauTagCombination_h
-#define BTauReco_TauTagCombination_h
+#ifndef DataFormats_BTauReco_CombinedTauTagInfo_h
+#define DataFormats_BTauReco_CombinedTauTagInfo_h
 
 /* class CombinedTauTagInfo
  *  Extended object for the Tau Combination algorithm, 
@@ -7,18 +7,18 @@
  *  revised: Jul 02 2007
  *  author: Ludovic Houchu.
  */
-
-#include "DataFormats/BTauReco/interface/IsolatedTauTagInfoFwd.h"
-#include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
-#include "DataFormats/BTauReco/interface/JTATagInfo.h"
-#include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
+#include <limits>
+#include <math.h>
 
 #include "CLHEP/Vector/LorentzVector.h"
 
-#include <limits>
-#include <math.h>
+#include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/BTauReco/interface/IsolatedTauTagInfoFwd.h"
+#include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
+#include "DataFormats/BTauReco/interface/JTATagInfo.h"
+#include "DataFormats/BTauReco/interface/CombinedTauTagInfoFwd.h"
 
 namespace reco {
 
@@ -188,4 +188,5 @@ namespace reco {
    double theHCALEt_o_leadTkPt;
  };
 }
-#endif
+
+#endif // DataFormsts_BTauReco_CombinedTauTagInfo_h

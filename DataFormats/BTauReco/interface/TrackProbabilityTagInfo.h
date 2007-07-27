@@ -4,6 +4,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h" 
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
+#include "DataFormats/BTauReco/interface/TrackProbabilityTagInfoFwd.h"
 
 namespace reco {
  

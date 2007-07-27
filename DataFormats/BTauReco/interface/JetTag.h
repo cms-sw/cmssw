@@ -1,5 +1,5 @@
-#ifndef BTauReco_JetTag_h
-#define BTauReco_JetTag_h
+#ifndef DataFormats_BTauReco_JetTag_h
+#define DataFormats_BTauReco_JetTag_h
 // \class JetTag
 // 
 // \short base class for persistent tagging result 
@@ -13,6 +13,7 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
+#include "DataFormats/BTauReco/interface/JetTagFwd.h"
 
 namespace reco {
   class JetTag {
@@ -41,4 +42,4 @@ namespace reco {
   };
   
 }
-#endif
+#endif // DataFormats_BTauReco_JetTag_h

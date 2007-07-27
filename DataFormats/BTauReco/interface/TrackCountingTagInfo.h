@@ -1,8 +1,9 @@
-#ifndef BTauReco_BJetTagTrackCounting_h
-#define BTauReco_BJetTagTrackCounting_h
+#ifndef DataFormats_BTauReco_BJetTagTrackCounting_h
+#define DataFormats_BTauReco_BJetTagTrackCounting_h
 
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h" 
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
+#include "DataFormats/BTauReco/interface/TrackCountingTagInfoFwd.h"
 
 namespace reco {
  
@@ -86,4 +87,5 @@ class TrackCountingTagInfo : public JTATagInfo
 //typedef edm::OneToOneAssociation<JetTagCollection, TrackCountingTagInfo> TrackCountingExtCollection;
  
 }
-#endif
+
+#endif // DataFormats_BTauReco_BJetTagTrackCounting_h

@@ -4,6 +4,7 @@
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
 // #include "RecoBTag/CombinedSVTagInfo/interface/CombinedData.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
+#include "DataFormats/BTauReco/interface/CombinedSVTagInfoFwd.h"
 
 namespace reco {
   class CombinedSVTagInfo : public JTATagInfo {
@@ -31,4 +32,4 @@ namespace reco {
   };
 }
 
-#endif
+#endif // DataFormats_BTauReco_CombinedSVTagInfo_h

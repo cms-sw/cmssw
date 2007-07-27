@@ -10,9 +10,10 @@
 //
 
 
+#include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
-#include "DataFormats/Math/interface/Vector3D.h"
+#include "DataFormats/BTauReco/interface/IsolatedTauTagInfoFwd.h"
 
 namespace reco { 
 

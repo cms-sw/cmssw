@@ -1,17 +1,16 @@
-#ifndef BTauReco_EMTauTagIsolation_h
-#define BTauReco_EMTauTagIsolation_h
+#ifndef DataFormats_BTauReco_EMIsolatedTauTagInfo_h
+#define DataFormats_BTauReco_EMIsolatedTauTagInfo_h
 //
 // \class EMIsolatedTauTagInfo
 //
 
-#include "DataFormats/BTauReco/interface/BaseTagInfo.h"
-#include "DataFormats/BTauReco/interface/JetCrystalsAssociation.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/Math/interface/LorentzVectorFwd.h"
-//Math
 #include "Math/GenVector/VectorUtil.h"
 #include "Math/GenVector/PxPyPzE4D.h"
-
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/Math/interface/LorentzVectorFwd.h"
+#include "DataFormats/BTauReco/interface/BaseTagInfo.h"
+#include "DataFormats/BTauReco/interface/JetCrystalsAssociation.h"
+#include "DataFormats/BTauReco/interface/EMIsolatedTauTagInfoFwd.h"
 
 namespace reco {
 
@@ -79,4 +78,4 @@ namespace reco {
   };
 }
 
-#endif
+#endif // DataFormats_BTauReco_EMIsolatedTauTagInfo_h
