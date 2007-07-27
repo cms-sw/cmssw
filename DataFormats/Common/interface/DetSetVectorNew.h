@@ -31,7 +31,7 @@ namespace edmNew {
       };
 
     };
-    void errorFilling(){}
+    inline void errorFilling(){}
   }
 
   /** an optitimized container that linearized a "map of vector".
@@ -53,6 +53,10 @@ namespace edmNew {
     typedef unsigned int id_type;
     typedef T data_type;
     typedef DetSet<T> DetSet;
+
+    // FIXME not sure make sense....
+    typedef DetSet value_type;
+    typedef id_type key_type;
 
 
     typedef std::vector<Item> IdContainer;
@@ -85,6 +89,9 @@ namespace edmNew {
      */
     class FastFiller {
     public:
+      typedef data_type value_type;
+      typedef id_type key_type;
+
       FastFiller(DetSetVector<T> & iv, id_type id) : 
 	v(iv), item(v.push_back(id)){
 	if (v.filling) details::errorFilling();

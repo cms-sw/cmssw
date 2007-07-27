@@ -18,8 +18,12 @@ namespace edmNew {
     typedef unsigned int size_type; // for persistency
     typedef unsigned int id_type;
     typedef T data_type;
+
     typedef data_type * iterator;
     typedef data_type const * const_iterator;
+
+    typedef data_type value_type;
+    typedef id_type key_type;
     
     
     inline
