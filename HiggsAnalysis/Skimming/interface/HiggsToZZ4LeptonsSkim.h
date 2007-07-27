@@ -16,28 +16,38 @@
  *
  */
 
-// user include files
-#include <HiggsAnalysis/Skimming/interface/HiggsAnalysisSkimType.h>
+// system include files
+#include <memory>
 
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <FWCore/Framework/interface/Event.h>
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDFilter.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
+using namespace edm;
+using namespace std;
 
-class HiggsToZZ4LeptonsSkim : public HiggsAnalysisSkimType {
+class HiggsToZZ4LeptonsSkim : public edm::EDFilter {
   
  public:
   // Constructor
   explicit HiggsToZZ4LeptonsSkim(const edm::ParameterSet&);
 
   // Destructor
-  virtual ~HiggsToZZ4LeptonsSkim(){};
+  ~HiggsToZZ4LeptonsSkim();
 
   /// Get event properties to send to builder to fill seed collection
-  virtual bool skim(edm::Event&, const edm::EventSetup& );
+  virtual bool filter(edm::Event&, const edm::EventSetup& );
 
 
  private:
+  int nEvents, nSelectedEvents;
+
+
   bool debug;
   float muonMinPt;
   float elecMinEt;

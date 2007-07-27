@@ -23,8 +23,7 @@ using namespace std;
 using namespace reco;
 
 
-HeavyChHiggsToTauNuSkim::HeavyChHiggsToTauNuSkim(const edm::ParameterSet& iConfig) :
-  HiggsAnalysisSkimType(iConfig), nEvents(0), nAccepted(0) {
+HeavyChHiggsToTauNuSkim::HeavyChHiggsToTauNuSkim(const edm::ParameterSet& iConfig) {
 
 	// Local Debug flag
 	debug           = iConfig.getParameter<bool>("DebugHeavyChHiggsToTauNuSkim");
@@ -34,22 +33,23 @@ HeavyChHiggsToTauNuSkim::HeavyChHiggsToTauNuSkim(const edm::ParameterSet& iConfi
 	jetEtMin        = iConfig.getUntrackedParameter<double>("jetEtMin",20.);
 	jetEtaMin       = iConfig.getUntrackedParameter<double>("jetEtaMin",-2.4);
 	jetEtaMax       = iConfig.getUntrackedParameter<double>("jetEtaMax",2.4);
+
+        nEvents         = 0;
+        nSelectedEvents = 0;
+
 }
 
 
 HeavyChHiggsToTauNuSkim::~HeavyChHiggsToTauNuSkim(){
+  edm::LogVerbatim("HeavyChHiggsToTauNuSkim") 
+  << " Number_events_read " << nEvents
+  << " Number_events_kept " << nSelectedEvents
+  << " Efficiency         " << ((double)nSelectedEvents)/((double) nEvents + 0.01) << std::endl;
+
 }
 
-void HeavyChHiggsToTauNuSkim::endJob() {
-	edm::LogVerbatim("HeavyChHiggsToTauNuSkim") 
-	    << "Events read " << nEvents 
-            << " Events accepted " << nAccepted 
-            << "\nEfficiency " << ((double)nAccepted)/((double)nEvents) 
-	    << std::endl;
-}
 
-// ------------ method called to skim the data  ------------
-bool HeavyChHiggsToTauNuSkim::skim(edm::Event& iEvent, const edm::EventSetup& iSetup ){
+bool HeavyChHiggsToTauNuSkim::filter(edm::Event& iEvent, const edm::EventSetup& iSetup ){
 
 	nEvents++;
 
@@ -73,7 +73,7 @@ bool HeavyChHiggsToTauNuSkim::skim(edm::Event& iEvent, const edm::EventSetup& iS
 
 		if(nJets >= minNumberOfjets) {
 			accepted = true;
-			nAccepted++;
+			nSelectedEvents++;
 		}
 	}
 	return accepted;

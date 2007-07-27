@@ -3,34 +3,45 @@
 
 /** \class VBFHiggsTo2TauLJetSkim
  *
- * From HiggsAnalysis/Skimming/interface/HiggsToXexample.h
+ * From HiggsAnalysis/Skimming/interface/HiggsToZZ4LeptonsSkim.h
  *
  * \author S.Greder
  *
  */
 
-#include <HiggsAnalysis/Skimming/interface/HiggsAnalysisSkimType.h>
+// system include files
+#include <memory>
 
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <FWCore/Framework/interface/Event.h>
-// #include "FWCore/ParameterSet/interface/InputTag.h"
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDFilter.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
+   
+using namespace edm;
+using namespace std;   
 
 
-class VBFHiggsTo2TauLJetSkim : public HiggsAnalysisSkimType 
-{
+class VBFHiggsTo2TauLJetSkim : public edm::EDFilter {
   
  public:
   // Constructor
   explicit VBFHiggsTo2TauLJetSkim(const edm::ParameterSet&);
 
   // Destructor
-  virtual ~VBFHiggsTo2TauLJetSkim(){};
+  ~VBFHiggsTo2TauLJetSkim();
 
   /// Get event properties to send to builder to fill seed collection
-  virtual bool skim(edm::Event&, const edm::EventSetup&);
+  virtual bool filter(edm::Event&, const edm::EventSetup&);
 
  private:
   bool debug;
+
+  // To keep track of statistics:
+  int nEvents, nSelectedEvents;
 
   // Cuts 
 };

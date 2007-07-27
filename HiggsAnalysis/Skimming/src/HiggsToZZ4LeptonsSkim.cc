@@ -12,10 +12,7 @@
 #include <HiggsAnalysis/Skimming/interface/HiggsToZZ4LeptonsSkim.h>
 
 // User include files
-#include <DataFormats/Common/interface/Handle.h>
-#include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <FWCore/MessageLogger/interface/MessageLogger.h> 
 
 // Muons:
 #include <DataFormats/TrackReco/interface/Track.h>
@@ -24,7 +21,6 @@
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 
 // C++
-#include <algorithm>
 #include <iostream>
 #include <vector>
 
@@ -34,12 +30,10 @@ using namespace reco;
 
 
 // Constructor
-HiggsToZZ4LeptonsSkim::HiggsToZZ4LeptonsSkim(const edm::ParameterSet& pset) : HiggsAnalysisSkimType(pset) {
+HiggsToZZ4LeptonsSkim::HiggsToZZ4LeptonsSkim(const edm::ParameterSet& pset) {
 
   // Local Debug flag
   debug              = pset.getParameter<bool>("DebugHiggsToZZ4LeptonsSkim");
-
-  // Eventually, HLT objects:
 
   // Reconstructed objects
   recTrackLabel      = pset.getParameter<edm::InputTag>("RecoTrackLabel");
@@ -51,13 +45,28 @@ HiggsToZZ4LeptonsSkim::HiggsToZZ4LeptonsSkim(const edm::ParameterSet& pset) : Hi
   elecMinEt          = pset.getParameter<double>("electronMinimumEt");
   nLeptonMin         = pset.getParameter<int>("nLeptonMinimum");
 
+  nEvents         = 0;
+  nSelectedEvents = 0;
+
 }
 
 
-// Filter event
-bool HiggsToZZ4LeptonsSkim::skim(edm::Event& event, const edm::EventSetup& setup ) {
+// Destructor
+HiggsToZZ4LeptonsSkim::~HiggsToZZ4LeptonsSkim() {
 
-  //using namespace edm;
+  edm::LogVerbatim("HiggsToZZ4LeptonsSkim") 
+  << " Number_events_read " << nEvents          
+  << " Number_events_kept " << nSelectedEvents 
+  << " Efficiency         " << ((double)nSelectedEvents)/((double) nEvents + 0.01) << std::endl;
+}
+
+
+
+// Filter event
+bool HiggsToZZ4LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& setup ) {
+
+  nEvents++;
+
   using reco::TrackCollection;
 
   bool keepEvent   = false;
@@ -113,7 +122,9 @@ bool HiggsToZZ4LeptonsSkim::skim(edm::Event& event, const edm::EventSetup& setup
   
   // Make decision:
   if ( nLeptons >= nLeptonMin) keepEvent = true;
-  
+
+  if (keepEvent) nSelectedEvents++;
+
   return keepEvent;
 }
 

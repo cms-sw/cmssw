@@ -7,42 +7,54 @@
 #include <FWCore/MessageLogger/interface/MessageLogger.h> 
 
 // Muons:
-// #include <DataFormats/TrackReco/interface/Track.h>
+#include <DataFormats/TrackReco/interface/Track.h>
 
-// Electrons:
-// #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
-
-// Other particles ??? --> You may need to update the BuildFile as well !
+// Electrons
+#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 
 // C++
-// #include <algorithm>
-// #include <iostream>
-// #include <vector>
+#include <algorithm>
+#include <iostream>
+#include <vector>
 
 using namespace std;
 using namespace edm;
-// using namespace reco;
+using namespace reco;
 
-VBFHiggsTo2TauLJetSkim::VBFHiggsTo2TauLJetSkim(const edm::ParameterSet& pset) : HiggsAnalysisSkimType(pset) 
-{
+VBFHiggsTo2TauLJetSkim::VBFHiggsTo2TauLJetSkim(const edm::ParameterSet& pset) {
+
  debug = pset.getParameter<bool>("Debug");
-
-  // Eventually, HLT objects:
 
   // Reconstructed objects
 //   recTrackLabel      = pset.getParameter<edm::InputTag>("RecoTrackLabel");
 //   theGLBMuonLabel    = pset.getParameter<edm::InputTag>("GlobalMuonCollectionLabel");
 //   thePixelGsfELabel  = pset.getParameter<edm::InputTag>("ElectronCollectionLabel");
 
+  nEvents         = 0;
+  nSelectedEvents = 0;
+
 }
 
-// --------------------------------------------------------------------------------------------
 
-bool VBFHiggsTo2TauLJetSkim::skim(edm::Event& event, const edm::EventSetup& setup) {
+VBFHiggsTo2TauLJetSkim::~VBFHiggsTo2TauLJetSkim() {
+
+  edm::LogVerbatim("VBFHiggsTo2TauLJetSkim")
+  << " Number_events_read " << nEvents
+  << " Number_events_kept " << nSelectedEvents
+  << " Efficiency         " << ((double)nSelectedEvents)/((double) nEvents + 0.01) << std::endl;
+}
+
+
+bool VBFHiggsTo2TauLJetSkim::filter(edm::Event& event, const edm::EventSetup& setup) {
+
+  nEvents++;
 
   bool keepEvent = false;
 
   // Enter your filtering algorithm here...
   
+
+  if (keepEvent) nSelectedEvents++;
+
   return keepEvent;
 }
