@@ -432,6 +432,95 @@ namespace edmtest {
 
   //--------------------------------------------------------------------
   //
+  // Produces two products: (new DataSetVector)
+  //    DSTVSimpleProduct
+  //    DSTVSimpleDerivedProduct
+  //
+  class DSTVProducer : public edm::EDProducer 
+  {
+  public:
+
+    explicit DSTVProducer(edm::ParameterSet const& p) :
+      size_(p.getParameter<int>("size"))
+    {
+      produces<DSTVSimpleProduct>();
+      produces<DSTVSimpleDerivedProduct>();
+      assert(size_ > 1);
+    }
+    
+    explicit DSTVProducer(int i) : size_(i)
+    {
+      produces<DSTVSimpleProduct>();
+      produces<DSTVSimpleDerivedProduct>();
+      assert(size_ > 1);
+    }
+
+    virtual ~DSVTProducer() { }
+
+    virtual void produce(edm::Event& e, edm::EventSetup const&);
+
+  private:
+    template <class PROD> void make_a_product(edm::Event& e);
+    void fill_a_data(DSTVSimpleProduct::data_type & d, int i);
+    void fill_a_data(DSTVSimpleDerivedProduct::data_type & d, int i);
+
+    int size_;
+  };
+
+  void
+  DSVProducer::produce(edm::Event& e, 
+			     edm::EventSetup const& /* unused */)
+  {
+    this->make_a_product<DSTVSimpleProduct>(e);
+    this->make_a_product<DSTVSimpleDerivedProduct>(e);
+  }
+
+
+  void 
+  DSVProducer::fill_a_data(DSTVSimpleDerivedProduct::data_type & d, int i);
+  {
+    d.key = size_ - i;
+    d.value = 1.5 * i;
+  }
+
+ void 
+  DSVProducer::fill_a_data(DSTVSimplProduct::data_type & d, int i);
+  {
+    d.data=size_ - i;
+  }
+
+  template <class PROD>
+  void
+  DSTVProducer::make_a_product(edm::Event& e)
+  {
+    typedef PROD                     product_type;
+    //FIXME
+    typedef typename product_type::FastFiller detset;
+    typedef typename detset::value_type       value_type;
+    typedef typename detset::id_type       id_type;
+    
+    
+    
+    std::auto_ptr<product_type> p(new product_type());
+    product_type & v = *p;
+    
+    int n=0;
+    for (id_type id=1;id<size_;++id) {
+      ++n;
+      detset item(v,id); // this will get DetID id
+      item.resize(n);
+      for (int i=0;i<n;++i)
+	fill_a_data(item[i],i);
+    }
+    
+    // Put the product into the Event, thus sorting is not done by magic, 
+    // up to one user-line
+    e.put(p);
+  }
+  
+
+  //--------------------------------------------------------------------
+  //
   // Produces an std::vector<int> instance.
   //
   class IntVectorProducer : public edm::EDProducer {
@@ -764,6 +853,7 @@ using edmtest::SCSimpleProducer;
 using edmtest::OVSimpleProducer;
 using edmtest::VSimpleProducer;
 using edmtest::AVSimpleProducer;
+using edmtest::DSTVProducer;
 using edmtest::DSVProducer;
 using edmtest::IntTestAnalyzer;
 using edmtest::SCSimpleAnalyzer;
@@ -783,6 +873,7 @@ DEFINE_FWK_MODULE(OVSimpleProducer);
 DEFINE_FWK_MODULE(VSimpleProducer);
 DEFINE_FWK_MODULE(AVSimpleProducer);
 DEFINE_FWK_MODULE(DSVProducer);
+DEFINE_FWK_MODULE(DSTVProducer);
 DEFINE_FWK_MODULE(IntTestAnalyzer);
 DEFINE_FWK_MODULE(SCSimpleAnalyzer);
 DEFINE_FWK_MODULE(DSVAnalyzer);
