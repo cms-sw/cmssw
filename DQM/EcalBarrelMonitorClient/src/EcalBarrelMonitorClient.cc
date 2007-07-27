@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/07/14 07:24:54 $
- * $Revision: 1.297 $
+ * $Date: 2007/07/18 09:38:26 $
+ * $Revision: 1.298 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -696,8 +696,10 @@ void EcalBarrelMonitorClient::beginRun(void){
 void EcalBarrelMonitorClient::beginRun(const Run& r, const EventSetup& c) {
 
   cout << endl;
-  cout << "Standard beginRun() for run " << r.id() << endl;
+  cout << "Standard beginRun() for " << r.id() << endl;
   cout << endl;
+
+  last_run_  = run_;
 
   if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
 
@@ -823,7 +825,7 @@ void EcalBarrelMonitorClient::endRun(void) {
 void EcalBarrelMonitorClient::endRun(const Run& r, const EventSetup& c) {
 
   cout << endl;
-  cout << "Standard endRun() for run " << r.id() << endl;
+  cout << "Standard endRun() for " << r.id() << endl;
   cout << endl;
 
   if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
@@ -1347,7 +1349,6 @@ void EcalBarrelMonitorClient::analyze(void){
   int updates = mui_->getNumUpdates();
 
   if ( enableStateMachine_ ) updates = -1;
-  // if ( enableStateMachine_ ) forced_update_ = true;
 
   if ( verbose_ ) cout << " updates = " << updates << endl;
 
