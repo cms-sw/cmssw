@@ -143,6 +143,10 @@
  <class name="edm::Wrapper<std::map<unsigned long long,std::basic_string<char> > >"/>
 
 
+<class name="edmnew::details::DetSetVectorTrans">
+   <field name="filling" transient="true"/>
+</class>
+
 <class name="edm::DataFrame"/>
 <class name="edm::DataFrameContainer"/>
 <class name="edm::Wrapper<edm::DataFrameContainer>"/>

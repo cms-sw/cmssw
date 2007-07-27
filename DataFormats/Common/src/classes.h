@@ -16,6 +16,7 @@
 #include "DataFormats/Common/interface/FillView.h"
 #include "DataFormats/Common/interface/DataFrame.h"
 #include "DataFormats/Common/interface/DataFrameContainer.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 
 #include <map>
 #include <vector>
@@ -149,5 +150,7 @@ namespace {
   std::allocator<double> adouble;
 
   edm::RangeMap<int, std::vector<float>, edm::CopyPolicy<float> > dummyRangeMap1;
+
+    std::vector<edmnew::details::DetSetVectorTrans::Item>  dummyDSTVItemVector;
 };
 }

@@ -19,6 +19,17 @@ namespace edmNew {
     struct DetSetVectorTrans {
       DetSetVectorTrans(): filling(false){}
       bool filling;
+      typedef unsigned int size_type; // for persistency
+      typedef unsigned int id_type;
+
+      struct Item {
+	Item(id_type i=0, size_type io=0, size_type is=0) : id(i), offset(io), size(is){}
+	id_type id;
+	size_type offset;
+	size_type size;
+	bool operator<(Item const &rh) const { return id<rh.id;}
+      };
+
     };
     void errorFilling(){}
   }
@@ -29,26 +40,20 @@ namespace edmNew {
    *
    * FIXME interface to be finalized once use-cases fully identified
    *
-   * although it can be sorted internally it is strongly adviced to
+   * although it is sorted internally it is strongly adviced to
    * fill it already sorted....
    *
    */
   template<typename T>
   class DetSetVector  : private details::DetSetVectorTrans {
   public:
-    typedef  details::DetSetVectorTrans Trans;
+    typedef details::DetSetVectorTrans Trans;
+    typedef Trans::Item Item;
     typedef unsigned int size_type; // for persistency
     typedef unsigned int id_type;
     typedef T data_type;
     typedef DetSet<T> DetSet;
 
-    struct Item {
-      Item(id_type i=0, size_type io=0, size_type is=0) : id(i), offset(io), size(is){}
-      id_type id;
-      size_type offset;
-      size_type size;
-      bool operator<(Item const &rh) const { return id<rh.id;}
-    };
 
     typedef std::vector<Item> IdContainer;
     typedef std::vector<data_type> DataContainer;
