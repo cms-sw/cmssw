@@ -455,7 +455,7 @@ namespace edmtest {
       assert(size_ > 1);
     }
 
-    virtual ~DSVTProducer() { }
+    virtual ~DSTVProducer() { }
 
     virtual void produce(edm::Event& e, edm::EventSetup const&);
 
@@ -463,32 +463,32 @@ namespace edmtest {
     template <class PROD> void make_a_product(edm::Event& e);
     void fill_a_data(DSTVSimpleProduct::data_type & d, int i);
     void fill_a_data(DSTVSimpleDerivedProduct::data_type & d, int i);
-
+    
     int size_;
   };
-
+  
   void
-  DSVProducer::produce(edm::Event& e, 
-			     edm::EventSetup const& /* unused */)
+  DSTVProducer::produce(edm::Event& e, 
+			edm::EventSetup const& /* unused */)
   {
     this->make_a_product<DSTVSimpleProduct>(e);
     this->make_a_product<DSTVSimpleDerivedProduct>(e);
   }
-
-
+  
+  
   void 
-  DSVProducer::fill_a_data(DSTVSimpleDerivedProduct::data_type & d, int i);
+  DSTVProducer::fill_a_data(DSTVSimpleDerivedProduct::data_type & d, int i);
   {
     d.key = size_ - i;
     d.value = 1.5 * i;
   }
-
- void 
-  DSVProducer::fill_a_data(DSTVSimplProduct::data_type & d, int i);
+  
+  void 
+  DSTVProducer::fill_a_data(DSTVSimpleProduct::data_type & d, int i);
   {
     d.data=size_ - i;
   }
-
+  
   template <class PROD>
   void
   DSTVProducer::make_a_product(edm::Event& e)
