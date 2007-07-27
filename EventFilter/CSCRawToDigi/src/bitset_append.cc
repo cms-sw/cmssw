@@ -29,8 +29,6 @@ namespace bitset_utilities {
 					 unsigned short * buf)
   {
     boost::dynamic_bitset<> result(numberOfBits);
-    std::cout<<"ushort to bitset number of bits =" <<std::dec<<numberOfBits <<std::endl;
-    std::cout<<"ushort to bitset result size =" <<std::dec<< result.size() <<std::endl;
     for(unsigned i = 0; i < result.size(); ++i)
       {
         result[i] = (buf[i/16]>>(i%16)) & 0x1;
