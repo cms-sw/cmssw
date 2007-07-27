@@ -146,6 +146,9 @@
 <class name="edmnew::details::DetSetVectorTrans">
    <field name="filling" transient="true"/>
 </class>
+<class name="edmNew::details::DetSetVectorTrans::Item"/>
+<class name="std::vector<edmNew::details::DetSetVectorTrans::Item>"/>
+
 
 <class name="edm::DataFrame"/>
 <class name="edm::DataFrameContainer"/>

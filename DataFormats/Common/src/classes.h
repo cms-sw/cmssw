@@ -151,6 +151,6 @@ namespace {
 
   edm::RangeMap<int, std::vector<float>, edm::CopyPolicy<float> > dummyRangeMap1;
 
-    std::vector<edmnew::details::DetSetVectorTrans::Item>  dummyDSTVItemVector;
+    std::vector<edmNew::details::DetSetVectorTrans::Item>  dummyDSTVItemVector;
 };
 }
