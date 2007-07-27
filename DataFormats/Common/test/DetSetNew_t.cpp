@@ -90,7 +90,7 @@ void TestDetSet::inserting() {
     std::vector<DST::data_type> v1(n);
     std::vector<DST::data_type> v2(n);
     std::copy(detsets.m_data.begin()+ntot-n,detsets.m_data.begin()+ntot,v2.begin());
-    std::copy(sv.begin(),sv.begin()+n,v1);
+    std::copy(sv.begin(),sv.begin()+n,v1.begin());
     CPPUNIT_ASSERT(v1==v2);
   }
 
@@ -127,7 +127,7 @@ void TestDetSet::filling() {
     std::vector<DST::data_type> v1(n);
     std::vector<DST::data_type> v2(n);
     std::copy(detsets.m_data.begin()+ntot-n,detsets.m_data.begin()+ntot,v2.begin());
-    std::copy(sv.begin(),sv.begin()+n,v1);
+    std::copy(sv.begin(),sv.begin()+n,v1.begin());
     CPPUNIT_ASSERT(v1==v2);
   }
 
@@ -143,7 +143,7 @@ namespace {
       std::vector<DST::data_type> v1(n);
       std::vector<DST::data_type> v2(n);
       std::copy(df.begin(),df.end(),v2.begin());
-      std::copy(test.sv.begin(),test.sv.begin()+n,v1);
+      std::copy(test.sv.begin(),test.sv.begin()+n,v1.begin());
       CPPUNIT_ASSERT(v1==v2);
     }
     
