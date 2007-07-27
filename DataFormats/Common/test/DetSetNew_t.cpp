@@ -9,9 +9,9 @@
 #include<algorithm>
 
 struct T {
-  T(float iv) : v(iv){}
+  T(float iv=0) : v(iv){}
   float v;
-}
+};
 
 typedef edmNew::DetSetVector<T> DSTV;
 typedef edmNew::DetSet<T> DST;
@@ -73,10 +73,10 @@ void TestDetSet::default_ctor() {
 void TestDetSet::inserting() {
 
   DSTV detsets(2);
-  int ntot=0;
-  for (int n=1;n<5;++n) {
+  unsigned int ntot=0;
+  for (unsigned int n=1;n<5;++n) {
     ntot+=n;
-    int id=20+n;
+    unsigned int id=20+n;
     DST df = detsets.insert(id,n);
     CPPUNIT_ASSERT(detsets.size()==n);
     CPPUNIT_ASSERT(detsets.dataSize()==ntot);
@@ -97,9 +97,9 @@ void TestDetSet::inserting() {
 void TestDetSet::filling() {
 
   DSTV detsets(2);
-  int ntot=0;
-  for (int n=1;n<5;++n) {
-    int id=20+n;
+  unsigned int ntot=0;
+  for (unsigned int n=1;n<5;++n) {
+    unsigned int id=20+n;
     FF ff(detsets, id);
     CPPUNIT_ASSERT(detsets.size()==n);
     CPPUNIT_ASSERT(detsets.dataSize()==ntot);
@@ -111,7 +111,7 @@ void TestDetSet::filling() {
     ff.push_back(3.14);
     CPPUNIT_ASSERT(detsets.dataSize()==ntot);
     CPPUNIT_ASSERT(detsets.detsetSize(n-1)==1);
-    CPPUNIT_ASSERT(detsets.m_data.back()==3.14);
+    CPPUNIT_ASSERT(detsets.m_data.back().v==3.14);
     CPPUNIT_ASSERT(ff.item.offset==detsets.size()-1); 
     CPPUNIT_ASSERT(ff.item.size==1);  
     ntot+=n-1;
@@ -142,19 +142,19 @@ namespace {
       std::vector<DST::data_type> v1(n);
       std::vector<DST::data_type> v2(n);
       std::copy(df.begin(),df.end(),v2.begin());
-      std::copy(sv.begin(),sv.begin()+n,v1);
+      std::copy(test.sv.begin(),test.sv.begin()+n,v1);
       CPPUNIT_ASSERT(test.v1==v2);
     }
     
-    int n;
+    unsigned int n;
     TestDetSet & test;
   };
 }
 
 void TestDetSet::iterator() {
   DSTV detsets(2);
-  for (int n=1;n<5;++n) {
-    int id=20+n;
+  for (unsigned int n=1;n<5;++n) {
+    unsigned int id=20+n;
     FF ff(detsets,id);
     ff.resize(n);
     std::copy(sv.begin(),sv.begin()+n,ff.begin());

@@ -65,7 +65,7 @@ namespace edmNew {
     id_type id() const { return m_id;}
     
     inline
-    int size() const { return m_size; }
+    size_type size() const { return m_size; }
     
   private:
     data_type * data() {
