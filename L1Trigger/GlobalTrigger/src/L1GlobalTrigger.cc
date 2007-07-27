@@ -452,8 +452,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
             for (std::vector<L1MuGMTReadoutRecord>::const_iterator itMu = muRecords.begin();
                     itMu < muRecords.end(); ++itMu) {
 
-                std::vector<L1MuGMTExtendedCand>
-                ::const_iterator gmt_iter;
+                std::vector<L1MuGMTExtendedCand>::const_iterator gmt_iter;
                 std::vector<L1MuGMTExtendedCand> exc = itMu->getGMTCands();
                 for(gmt_iter = exc.begin(); gmt_iter != exc.end(); gmt_iter++) {
                     (*gmt_iter).print();
