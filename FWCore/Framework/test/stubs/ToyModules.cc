@@ -419,12 +419,16 @@ namespace edmtest {
       {
  	assert( guts[i-1].data > guts[i].data);
       }
-    detset item(1); // this will get DetID 1
-    item.data = guts;
 
     std::auto_ptr<product_type> p(new product_type());
-    p->insert(item);
-    
+    int n=0;
+    for (id_type id=1;id<size_;++id) {
+      ++n;
+      detset item(id); // this will get DetID id
+      item.data.insert(item.data.end(),guts.begin(),guts.begin()+n);     
+      p->insert(item);
+    }
+
     // Put the product into the Event, thus sorting it ... or not,
     // depending upon the product type.
     e.put(p);
@@ -803,8 +807,8 @@ namespace edmtest {
     // manipulate them via an interface different from
     // DetSet, just so that we can make sure the collection
     // is sorted.
-    std::vector<value_type> after( h->begin()->data.begin(),
-				   h->begin()->data.end() );
+    std::vector<value_type> after( h->back().data.begin(),
+				   h->back().data.end() );
     typedef std::vector<value_type>::size_type size_type;
     
 
@@ -832,8 +836,8 @@ namespace edmtest {
     // manipulate them via an interface different from
     // DetSet, just so that we can make sure the collection
     // is not sorted.
-    std::vector<value_type> after( h->begin()->data.begin(),
-				   h->begin()->data.end() );
+    std::vector<value_type> after( h->back().data.begin(),
+				   h->back().data.end() );
     typedef std::vector<value_type>::size_type size_type;
     
 
