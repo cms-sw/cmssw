@@ -20,7 +20,7 @@ namespace edmNew {
       DetSetVectorTrans(): filling(false){}
       bool filling;
     };
-    void errorFilling(){};
+    void errorFilling(){}
   }
 
   /** an optitimized container that linearized a "map of vector".

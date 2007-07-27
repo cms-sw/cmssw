@@ -42,4 +42,4 @@ int main() {
   std::for_each(dstv.begin(),dstv.end(),boost::function<void(DST const&)>(print0));
 
   return 0;
-};
+}
