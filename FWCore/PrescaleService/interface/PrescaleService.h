@@ -9,9 +9,9 @@
 // Implementation:
 //     Cache and make prescale factors available online.
 //
-// Current revision: $Revision: 1.2 $
-// On branch: $Name: CMSSW_1_5_0_pre5 $
-// Latest change by $Author: wmtan $ at $Date: 2007/04/23 23:54:10 $
+// Current revision: $Revision: 1.3 $
+// On branch: $Name:  $
+// Latest change by $Author: wmtan $ at $Date: 2007/06/14 21:03:39 $
 //
 
 #include "DataFormats/Provenance/interface/EventID.h"
@@ -34,7 +34,7 @@ namespace edm {
 
       boost::mutex mutex;        // protect std::vectors
       edm::EventID curr_event_;
-      int count_;                // counter incremented in postEventProcessing
+      unsigned int count_;       // counter incremented in postEventProcessing
       edm::EventProcessor *fu_;  // pointer to FUEP
       edm::TriggerReport tr_;    // trigger report
       edm::TriggerReport trold;  // trigger report at start of event
@@ -44,6 +44,7 @@ namespace edm {
       std::vector<std::string> triggers;   // trigger counter cache
       std::string stsstr;             // last status std::string sent
       std::string trgstr;             // last trigger statistics std::string sent
+      std::string trstr;              // trigger report string
 
       unsigned int blsn;         // putPrescaler error decoding LS#
       unsigned int bpath;        // putPrescaler error decoding path
@@ -58,7 +59,7 @@ namespace edm {
       unsigned int lsg;          // getPrescaler max LS# associated with cache
       unsigned int lsc;          // cached LS# associated with lsg
       unsigned int bang;         // error count of spoilt events
-
+      unsigned int nops;         // count of empty prescaler vector
 
     public:
 
@@ -75,6 +76,7 @@ namespace edm {
       void postModule(const ModuleDescription&);
 
       int getPrescale(unsigned int ls, std::string module);
+      int getPrescale(std::string module);
       int putPrescale(std::string s);
       int sizePrescale();
       void putHandle(edm::EventProcessor *proc_);
@@ -82,9 +84,11 @@ namespace edm {
       std::string getStatus();
       std::string getLs();
       std::string getLs(std::string lsAsString);
+      std::string getTr();
 	
     };
   }
 }
 
 #endif
+
