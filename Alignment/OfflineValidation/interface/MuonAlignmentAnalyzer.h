@@ -6,8 +6,8 @@
  *  Makes histograms of high level Muon objects/quantities
  *  for Alignment Scenarios/DB comparison
  *
- *  $Date: 2007/07/19 17:53:05 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/07/24 15:15:24 $
+ *  $Revision: 1.7 $
  *  \author J. Fernandez - IFCA (CSIC-UC) <Javier.Fernandez@cern.ch>
  */
 
@@ -67,15 +67,23 @@ private:
   // Histograms
 
   //# muons per event
-  TH1F	*hNmuonsGB;
-  TH1F	*hNmuonsSA;
-  TH1F	*hNmuonsSim;
-  TH1F	*hNmuonsGB_Barrel;
-  TH1F	*hNmuonsSA_Barrel;
-  TH1F	*hNmuonsSim_Barrel;
-  TH1F	*hNmuonsGB_Endcap;
-  TH1F	*hNmuonsSA_Endcap;
-  TH1F	*hNmuonsSim_Endcap;
+  TH1F  *hGBNmuons;
+  TH1F  *hSANmuons;
+  TH1F  *hSimNmuons;
+  TH1F  *hGBNmuons_Barrel;
+  TH1F  *hSANmuons_Barrel;
+  TH1F  *hSimNmuons_Barrel;
+  TH1F  *hGBNmuons_Endcap;
+  TH1F  *hSANmuons_Endcap;
+  TH1F  *hSimNmuons_Endcap;
+  
+  // # hits per track
+  TH1F  *hGBNhits;
+  TH1F  *hGBNhits_Barrel;
+  TH1F  *hGBNhits_Endcap;
+  TH1F  *hSANhits;
+  TH1F  *hSANhits_Barrel;
+  TH1F  *hSANhits_Endcap;
 
   // Chi2 of Track
   TH1F *hGBChi2;
@@ -106,13 +114,13 @@ private:
   // pT 
   TH1F *hSAPTRec;
   TH1F *hGBPTRec;
-  TH1F *hPTSim; 
+  TH1F *hSimPT; 
   TH1F *hSAPTRec_Barrel;
   TH1F *hGBPTRec_Barrel;
-  TH1F *hPTSim_Barrel; 
+  TH1F *hSimPT_Barrel; 
   TH1F *hSAPTRec_Endcap;
   TH1F *hGBPTRec_Endcap;
-  TH1F *hPTSim_Endcap; 
+  TH1F *hSimPT_Endcap; 
   TH2F *hGBPTvsEta;
   TH2F *hGBPTvsPhi;
   TH2F *hSAPTvsEta;

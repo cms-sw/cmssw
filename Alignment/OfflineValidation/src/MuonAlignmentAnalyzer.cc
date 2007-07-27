@@ -3,8 +3,8 @@
  *  Makes histograms of high level Muon objects/quantities
  *  for Alignment Scenarios/DB comparison
  *
- *  $Date: 2007/07/24 16:28:15 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/07/26 09:29:30 $
+ *  $Revision: 1.11 $
  *  \author J. Fernandez - IFCA (CSIC-UC) <Javier.Fernandez@cern.ch>
  */
 
@@ -91,9 +91,12 @@ void MuonAlignmentAnalyzer::beginJob(const EventSetup& eventSetup){
 // Define and book histograms for SA and GB muon quantities/objects
 
   if(doGBplots) {
-  hNmuonsGB = fs->make<TH1F>("GBNmuons","Nmuons",10,0,10);
-  hNmuonsGB_Barrel = fs->make<TH1F>("GBNmuons_Barrel","Nmuons",10,0,10);
-  hNmuonsGB_Endcap = fs->make<TH1F>("GBNmuons_Endcap","Nmuons",10,0,10);
+  hGBNmuons = fs->make<TH1F>("GBNmuons","Nmuons",10,0,10);
+  hGBNmuons_Barrel = fs->make<TH1F>("GBNmuons_Barrel","Nmuons",10,0,10);
+  hGBNmuons_Endcap = fs->make<TH1F>("GBNmuons_Endcap","Nmuons",10,0,10);
+  hGBNhits = fs->make<TH1F>("GBNhits","Nhits",100,0,100);
+  hGBNhits_Barrel = fs->make<TH1F>("GBNhits_Barrel","Nhits",100,0,100);
+  hGBNhits_Endcap = fs->make<TH1F>("GBNhits_Endcap","Nhits",100,0,100);
   hGBPTRec = fs->make<TH1F>("GBpTRec","p_{T}^{rec}",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
   hGBPTRec_Barrel = fs->make<TH1F>("GBpTRec_Barrel","p_{T}^{rec}",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
   hGBPTRec_Endcap = fs->make<TH1F>("GBpTRec_Endcap","p_{T}^{rec}",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
@@ -123,9 +126,12 @@ void MuonAlignmentAnalyzer::beginJob(const EventSetup& eventSetup){
   
   
   if(doSAplots) {
-  hNmuonsSA = fs->make<TH1F>("SANmuons","Nmuons",10,0,10);
-  hNmuonsSA_Barrel = fs->make<TH1F>("SANmuons_Barrel","Nmuons",10,0,10);
-  hNmuonsSA_Endcap = fs->make<TH1F>("SANmuons_Endcap","Nmuons",10,0,10);
+  hSANmuons = fs->make<TH1F>("SANmuons","Nmuons",10,0,10);  
+  hSANmuons_Barrel = fs->make<TH1F>("SANmuons_Barrel","Nmuons",10,0,10);
+  hSANmuons_Endcap = fs->make<TH1F>("SANmuons_Endcap","Nmuons",10,0,10);  
+  hSANhits = fs->make<TH1F>("SANhits","Nhits",100,0,100);
+  hSANhits_Barrel = fs->make<TH1F>("SANhits_Barrel","Nhits",100,0,100);
+  hSANhits_Endcap = fs->make<TH1F>("SANhits_Endcap","Nhits",100,0,100);
   hSAPTRec = fs->make<TH1F>("SApTRec","p_{T}^{rec}",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
   hSAPTRec_Barrel = fs->make<TH1F>("SApTRec_Barrel","p_{T}^{rec}",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
   hSAPTRec_Endcap = fs->make<TH1F>("SApTRec_Endcap","p_{T}^{rec}",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
@@ -155,12 +161,12 @@ void MuonAlignmentAnalyzer::beginJob(const EventSetup& eventSetup){
 
 
   if(theDataType == "SimData"){
-  hNmuonsSim = fs->make<TH1F>("SimNmuons","Nmuons",10,0,10);
-  hNmuonsSim_Barrel = fs->make<TH1F>("SimNmuons_Barrel","Nmuons",10,0,10);
-  hNmuonsSim_Endcap = fs->make<TH1F>("SimNmuons_Endcap","Nmuons",10,0,10);
-  hPTSim = fs->make<TH1F>("SimPT","p_{T}^{gen} ",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
-  hPTSim_Barrel = fs->make<TH1F>("SimPT_Barrel","p_{T}^{gen} ",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
-  hPTSim_Endcap = fs->make<TH1F>("SimPT_Endcap","p_{T}^{gen} ",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hSimNmuons = fs->make<TH1F>("SimNmuons","Nmuons",10,0,10);
+  hSimNmuons_Barrel = fs->make<TH1F>("SimNmuons_Barrel","Nmuons",10,0,10);
+  hSimNmuons_Endcap = fs->make<TH1F>("SimNmuons_Endcap","Nmuons",10,0,10);
+  hSimPT = fs->make<TH1F>("SimPT","p_{T}^{gen} ",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hSimPT_Barrel = fs->make<TH1F>("SimPT_Barrel","p_{T}^{gen} ",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);  
+  hSimPT_Endcap = fs->make<TH1F>("SimPT_Endcap","p_{T}^{gen} ",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
   hSimPTvsEta = fs->make<TH2F> ("SimPTvsEta","p_{T}^{gen} VS #eta",100,-2.5,2.5,ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
   hSimPTvsPhi = fs->make<TH2F> ("SimPTvsPhi","p_{T}^{gen} VS #phi",100,-6,6,ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
   hSimInvM = fs->make<TH1F>("SimInvM","M_{inv}^{gen} ",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
@@ -374,9 +380,9 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 	simEta=(*simTrack).momentum().eta();
 	simPhi=(*simTrack).momentum().phi();
 	numberOfSimTracks++;
-	hPTSim->Fill(simPt);
-	if(abs(simEta)<1.04) {hPTSim_Barrel->Fill(simPt);ib++;}
-	else {hPTSim_Endcap->Fill(simPt);ie++;}
+	hSimPT->Fill(simPt);
+	if(abs(simEta)<1.04) {hSimPT_Barrel->Fill(simPt);ib++;}
+	else {hSimPT_Endcap->Fill(simPt);ie++;}
 	hSimPTvsEta->Fill(simEta,simPt);
 	hSimPTvsPhi->Fill(simPhi,simPt);
 
@@ -390,9 +396,11 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
     	if(i==2)  p2=GlobalVector((*simTrack).momentum().x(),(*simTrack).momentum().y(),(*simTrack).momentum().z());
      }    
     }
-	hNmuonsSim->Fill(i);
-	hNmuonsSim_Barrel->Fill(ib);
-	hNmuonsSim_Endcap->Fill(ie);
+
+        hSimNmuons->Fill(i);
+        hSimNmuons_Barrel->Fill(ib);
+        hSimNmuons_Endcap->Fill(ie);
+
 
  if(i>1){ // Take 2 first muons :-(
   TLorentzVector mu1(p1.x(), p1.y(), p1.z(), p1.mag());
@@ -432,8 +440,10 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 
     hSAPTRec->Fill(SArecPt);
     hSAChi2->Fill((*staTrack).chi2());
-    if(abs(SAeta)<1.04) {hSAPTRec_Barrel->Fill(SArecPt); hSAChi2_Barrel->Fill((*staTrack).chi2()); ib++;}
-    else {hSAPTRec_Endcap->Fill(SArecPt); hSAChi2_Endcap->Fill((*staTrack).chi2()); ie++;}
+    hSANhits->Fill((*staTrack).recHitsSize());
+    if(abs(SAeta)<1.04) {hSAPTRec_Barrel->Fill(SArecPt); hSAChi2_Barrel->Fill((*staTrack).chi2()); hSANhits_Barrel->Fill((*staTrack).recHitsSize()); ib++;}
+    else {hSAPTRec_Endcap->Fill(SArecPt); hSAChi2_Endcap->Fill((*staTrack).chi2()); hSANhits_Endcap->Fill((*staTrack).recHitsSize()); ie++;}
+
 
 // save the muon pair
     if(i==1)  p1=GlobalVector((*staTrack).momentum().x(),(*staTrack).momentum().y(),(*staTrack).momentum().z());
@@ -465,9 +475,10 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
       hSAPTvsPhi->Fill(SAphi,SArecPt);
 }
 
-	hNmuonsSA->Fill(i);
-	hNmuonsSA_Barrel->Fill(ib);
-	hNmuonsSA_Endcap->Fill(ie);
+        hSANmuons->Fill(i);
+        hSANmuons_Barrel->Fill(ib);
+        hSANmuons_Endcap->Fill(ie);
+
 
   if(i>1){ //Take first 2 muons :-(
   TLorentzVector mu1(p1.x(), p1.y(), p1.z(), p1.mag());
@@ -508,8 +519,10 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
     
     hGBPTRec->Fill(GBrecPt);
     hGBChi2->Fill((*glbTrack).chi2());
-    if(abs(GBeta)<1.04) {hGBPTRec_Barrel->Fill(GBrecPt); hGBChi2_Barrel->Fill((*glbTrack).chi2()); ib++;}
-    else {hGBPTRec_Endcap->Fill(GBrecPt); hGBChi2_Endcap->Fill((*glbTrack).chi2()); ie++;}
+    hGBNhits->Fill((*glbTrack).recHitsSize());
+    if(abs(GBeta)<1.04) {hGBPTRec_Barrel->Fill(GBrecPt); hGBChi2_Barrel->Fill((*glbTrack).chi2()); hGBNhits_Barrel->Fill((*glbTrack).recHitsSize()); ib++;}
+    else {hGBPTRec_Endcap->Fill(GBrecPt); hGBChi2_Endcap->Fill((*glbTrack).chi2()); hGBNhits_Endcap->Fill((*glbTrack).recHitsSize()); ie++;}
+
   
 // save the muon pair
     if(i==1)  p1=GlobalVector((*glbTrack).momentum().x(),(*glbTrack).momentum().y(),(*glbTrack).momentum().z());
@@ -541,9 +554,9 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 
   }
 
-	hNmuonsGB->Fill(i);
-	hNmuonsGB_Barrel->Fill(ib);
-	hNmuonsGB_Endcap->Fill(ie);
+        hGBNmuons->Fill(i);
+        hGBNmuons_Barrel->Fill(ib);
+        hGBNmuons_Endcap->Fill(ie);
 
   if(i>1){ //Take first 2 muons :-(
   TLorentzVector mu1(p1.x(), p1.y(), p1.z(), p1.mag());
