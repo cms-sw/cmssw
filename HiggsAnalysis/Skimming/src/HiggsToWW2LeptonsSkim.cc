@@ -3,8 +3,8 @@
  *  
  *  This class is an EDFilter for HWW events
  *
- *  $Date: 2007/05/31 16:52:02 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/06/19 03:28:11 $
+ *  $Revision: 1.2 $
  *
  *  \author Ezio Torassa  -  INFN Padova
  *
@@ -87,7 +87,7 @@ bool HiggsToWW2LeptonsSkim::filter(edm::Event& iEvent, const edm::EventSetup& iS
     if ( cref->pt() > diTrackPtMin_     && cref->eta() > etaMin_ && cref->eta() < etaMax_ )  nTrackOver2ndCut++;
   }
 
-  if ( accepted1 = true && nTrackOver2ndCut >= 2 ) accepted = true;
+  if ( accepted1 && nTrackOver2ndCut >= 2 ) accepted = true;
 
   if ( accepted ) nAccepted_++;
 
