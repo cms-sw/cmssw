@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/07/09 15:23:37 $
- * $Revision: 1.42 $
+ * $Date: 2007/07/19 11:48:51 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -13,6 +13,7 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
+#include <bitset>
 
 #include "TStyle.h"
 
@@ -628,16 +629,6 @@ void EBTriggerTowerClient::analyze(const char* nameext,
 
 }
 
-std::string binary( int i ) {
-  if ( i == 0 ) return( "0" );
-  std::string s;
-  while( i > 0 ) {
-    s = char( 48 + (i&1) ) + s;
-    i = i >> 1;
-  }
-  return s;
-}
-
 void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   cout << "Preparing EBTriggerTowerClient html output ..." << std::endl;
@@ -895,7 +886,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 	  else if(iemu==1) emustring = "Real Digis ";
 	  else if(iemu==2) emustring = "Emulated Digis ";
 	  if ( j < 7 ) {
-	    title << "EBTTT Flags " << emustring << Numbers::sEB(ism).c_str() << ", bit " << binary(j-1);
+	    title << "EBTTT Flags " << emustring << Numbers::sEB(ism).c_str() << ", bit " << bitset<8>(j-1);
 	  } else {
 	    title << "EBTTT Flags " << emustring << Numbers::sEB(ism).c_str() << " bits 110+111";
 	  }
