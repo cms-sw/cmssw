@@ -43,8 +43,7 @@ namespace edmNew {
     typedef DetSet<T> DetSet;
 
     struct Item {
-      Item(){}
-      Item(id_type i, size_type io=0, size_type is=0) : id(i), offset(io), size(is){}
+      Item(id_type i=0, size_type io=0, size_type is=0) : id(i), offset(io), size(is){}
       id_type id;
       size_type offset;
       size_type size;
@@ -103,6 +102,7 @@ namespace edmNew {
 	v.m_data.resize(item.offset+s);
 	item.size=s;
       }
+
       data_type & operator[](size_type i) {
 	return 	v.m_data[item.offset+i];
       }
