@@ -101,6 +101,7 @@ namespace edmNew {
 
       void resize(size_type s) {
 	v.m_data.resize(item.offset+s);
+	item.size=s;
       }
       data_type & operator[](size_type i) {
 	return 	v.m_data[item.offset+i];
@@ -194,20 +195,35 @@ namespace edmNew {
       return p!=m_ids.end() && (*p).id==i; 
     }
         
-    DetSet operator[](size_t i) {
-      return DetSet(*this,i);
+
+
+    /*
+    DetSet operator[](id_type i) {
+      const_IdIter p = findItem(i);
+      if (p==m_ids.end()) what???
+      return DetSet(*this,p-m_ids.begin());
     }
-    
-    DetSet operator[](size_t i) const {
-      return DetSet(*this,i);
+    */
+
+    /*
+    DetSet operator[](id_type i) const {
+      const_IdIter p = findItem(i);
+      if (p==p-m_ids.begin()) thow???
+      return DetSet(*this,p-m_ids.begin());
     }
-    
+    */
+
     // slow interface
     const_iterator find(id_type i) const {
-      const_IdIter p = std::lower_bound(m_ids.begin(),m_ids.end(),i);
+      const_IdIter p = findItem(i);
       return (p==m_ids.end() || (*p).id!=i) ? end() :
 	boost::make_transform_iterator(boost::counting_iterator<int>(p-m_ids.begin()),
 				       IterHelp(*this));
+    }
+
+    // slow interface
+    const_IdIter findItem(id_type i) const {
+      return std::lower_bound(m_ids.begin(),m_ids.end(),i);
     }
     
     const_iterator begin() const {
