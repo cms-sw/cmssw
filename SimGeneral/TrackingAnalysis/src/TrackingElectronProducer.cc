@@ -156,10 +156,19 @@ void TrackingElectronProducer::produce(Event &event, const EventSetup &) {
 			  (*tk).pdgId(), (*tk).eventId() );
 
     // add G4 tracks and hits of all segments
+    int ngenp = 0;
     for ( TkNavigableSimElectronAssembler::TrackList::const_iterator it 
 	    = (*ie).begin(); it != (*ie).end(); it++ ) {
+
+      for (TrackingParticle::genp_iterator uz=(*it)->genParticle_begin();
+	   uz!=(*it)->genParticle_end();uz++) {
+	tkp.addGenParticle(*uz);
+	ngenp++;
+      }
       addG4Track(tkp, *it);
+
     }
+    if (ngenp > 1) cout << "ERROR::TrackingElectron has more than 1 GenParticle" << endl << "Nb of associated GenParticles = " << ngenp << endl;
 
     //    std::vector<PSimHit> hits = tkp.trackPSimHit();
     /*
