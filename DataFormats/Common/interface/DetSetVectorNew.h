@@ -89,8 +89,9 @@ namespace edmNew {
      */
     class FastFiller {
     public:
-      typedef data_type value_type;
-      typedef id_type key_type;
+      typedef typename DetSetVector<T>::data_type value_type;
+      typedef typename DetSetVector<T>::id_type key_type;
+      typedef typenmae DetSetVector<T>::id_type id_type;
 
       FastFiller(DetSetVector<T> & iv, id_type id) : 
 	v(iv), item(v.push_back(id)){
