@@ -12,6 +12,7 @@
  <class name="edm::OwnVector<edmtest::SimpleDerived, edm::ClonePolicy<edmtest::SimpleDerived> >"/>
  <class name="std::vector<edmtest::Simple>"/>
  <class name="std::vector<edmtest::Simple*>"/>
+ <class name="std::vector<edmtest::SimpleDerived>"/>
  <class name="std::vector<edmtest::SimpleDerived*>"/>
  <class name="edm::RefProd<std::vector<edmtest::Simple> >"/>
  <class name="edm::DetSet<edmtest::Sortable>"/>
@@ -38,6 +39,13 @@
 -->
  <class name="edm::Wrapper<edm::DetSetVector<edmtest::Sortable> >"/>
  <class name="edm::Wrapper<edm::DetSetVector<edmtest::Unsortable> >"/>
+
+ <class name="edmNew::DetSetVector<edmtest::Sortable>"/>
+ <class name="edmNew::DetSetVector<edmtest::SimpleDerived>"/>
+ <class name="edm::Wrapper<edmNew::DetSetVector<edmtest::Sortable> >"/>
+ <class name="edm::Wrapper<edmNew::DetSetVector<edmtest::SimpleDerived> >"/>
+
+
  <class name="edmtest::Thing"/>
  <class name="edmtest::OtherThing"/>
  <class name="std::vector<edmtest::Thing>"/>
