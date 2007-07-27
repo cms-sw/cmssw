@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2007/05/22 15:05:47 $
- * $Revision: 1.27 $
+ * $Date: 2007/06/24 09:41:12 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  *
 */
@@ -94,7 +94,7 @@ EBTimingClient::EBTimingClient(const ParameterSet& ps){
 
   }
 
-  expectedMean_ = 6.0;
+  expectedMean_ = 0.0;
   discrepancyMean_ = 0.5;
   RMSThreshold_ = 0.5;
 
@@ -198,7 +198,7 @@ void EBTimingClient::setup(void) {
 
     if ( mep01_[ism-1] ) dbe->removeElement( mep01_[ism-1]->getName() );
     sprintf(histo, "EBTMT timing mean %s", Numbers::sEB(ism).c_str());
-    mep01_[ism-1] = dbe->book1D(histo, histo, 100, 0.0, 10.0);
+    mep01_[ism-1] = dbe->book1D(histo, histo, 100, -4.0, 4.0);
 
     if ( mer01_[ism-1] ) dbe->removeElement( mer01_[ism-1]->getName() );
     sprintf(histo, "EBTMT timing rms %s", Numbers::sEB(ism).c_str());
@@ -646,8 +646,8 @@ void EBTimingClient::htmlOutput(int run, string htmlDir, string htmlName){
 //      } else {
 //        gPad->SetLogy(0);
 //      }
-      obj1f->SetMinimum(0.0);
-      obj1f->SetMaximum(10.0);
+      obj1f->SetMinimum(-4.0);
+      obj1f->SetMaximum(4.0);
       obj1f->Draw();
       cTim->Update();
       cTim->SaveAs(imgName.c_str());
