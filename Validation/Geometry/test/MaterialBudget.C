@@ -97,8 +97,8 @@ MaterialBudget(TString detector) {
   createPlots("l_vs_eta");
   createPlots("l_vs_phi");
   //  createPlots("l_vs_R");
-  create2DPlots("x_vs_eta_vs_phi");
-  create2DPlots("l_vs_eta_vs_phi");
+  //create2DPlots("x_vs_eta_vs_phi");
+  //create2DPlots("l_vs_eta_vs_phi");
   create2DPlots("x_vs_z_vs_R");
   create2DPlots("l_vs_z_vs_R");
   create2DPlots("x_vs_z_vs_Rsum");
@@ -299,6 +299,9 @@ void create2DPlots(TString plot) {
   TString abscissaName = "dummy";
   TString ordinateName = "dummy";
   Int_t zLog = 0;
+  Int_t zCol = 0; // 0 linear grayscale, 1 quadratic grayscale
+  Double_t histoMin = -1.;
+  Double_t histoMax = -1.;
   if(plot.CompareTo("x_vs_eta_vs_phi") == 0) {
     plotNumber = 30;
     abscissaName = TString("#eta");
@@ -317,17 +320,24 @@ void create2DPlots(TString plot) {
     ordinateName = TString("R [mm]");
     quotaName    = TString("#Sigmax/X_{0}");
     zLog = 0;
+    histoMin = 0.;
+    histoMax = 2.;
   } else if(plot.CompareTo("x_vs_z_vs_R") == 0) {
     plotNumber = 60;
     abscissaName = TString("z [mm]");
     ordinateName = TString("R [mm]");
     quotaName    = TString("x/X_{0}");
     zLog = 1;
+    zCol = 1;
+    histoMin = 0.00001;
+    histoMax = 0.1;
   } else if(plot.CompareTo("l_vs_z_vs_Rsum") == 0) {
     plotNumber = 1050;
     abscissaName = TString("z [mm]");
     ordinateName = TString("R [mm]");
     quotaName    = TString("#Sigma#lambda/#lambda_{0}");
+    histoMin = 0.;
+    histoMax = 0.6;
     zLog = 0;
   } else if(plot.CompareTo("l_vs_z_vs_R") == 0) {
     plotNumber = 1060;
@@ -335,6 +345,9 @@ void create2DPlots(TString plot) {
     ordinateName = TString("R [mm]");
     quotaName    = TString("#lambda/#lambda_{0}");
     zLog = 1;
+    zCol = 1;
+    histoMin = 0.000001;
+    histoMax = 0.01;
   } else {
     cout << " error: chosen plot name not known " << plot << endl;
     return;
@@ -413,42 +426,98 @@ void create2DPlots(TString plot) {
   TString hist2dTitle = Form( "Material Budget (%s) ",quotaName.Data() ) + theDetector + Form( ";%s;%s;%s",abscissaName.Data(),ordinateName.Data(),quotaName.Data() );
   TH2D* hist2d_x0_total = hist_x0_total; //->Rebin2D(5,5);
   hist2d_x0_total->SetTitle(hist2dTitle);
+
+  if ( histoMin != -1. ) hist2d_x0_total->SetMinimum(histoMin);      
+  if ( histoMax != -1. ) hist2d_x0_total->SetMaximum(histoMax);      
+
+
   //
   
   // canvas
-  TCanvas can("can","can",2000,800);
-  can.Range(0,0,25,25);
+  //1200*300
+
+  TCanvas can("can","can",2400+240,580+58+58);
+  can.SetTopMargin(0.1);
+  can.SetBottomMargin(0.1);
+  can.SetLeftMargin(0.04);
+  can.SetRightMargin(0.06);
   can.SetFillColor(kWhite);
   gStyle->SetOptStat(0);
   //
   
-  // Draw
+
+  // Color palette
   gStyle->SetPalette(1);
+
+  // Log?
   can.SetLogz(zLog);
+
+  // Draw in colors
   hist2d_x0_total->Draw("COLZ");
+
+  // Store
+  can.Update();
+
+  //Aesthetic
+  TPaletteAxis *palette = 
+    (TPaletteAxis*)hist2d_x0_total->GetListOfFunctions()->FindObject("palette");
+  palette->SetX1NDC(0.955);
+  palette->SetX2NDC(0.97);
+  palette->SetY1NDC(0.1);
+  palette->SetY2NDC(0.9);
+  palette->GetAxis()->SetTitle("");
+  if ( zLog==1 ) {  palette->GetAxis()->SetLabelOffset(-0.01); }
+  palette->GetAxis()->SetTitleOffset(5.);
+  hist2d_x0_total->GetYaxis()->SetTickLength(hist2d_x0_total->GetXaxis()->GetTickLength()/4.);
+  hist2d_x0_total->SetTitleOffset(0.5,"Y");
   hist2d_x0_total->GetXaxis()->SetNoExponent(true);
   hist2d_x0_total->GetYaxis()->SetNoExponent(true);
   //
-  
-  
-  // Store
-  can.Update();
+
+  can.Modified();
+
   can.SaveAs( Form( "%s/%s_%s_col.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   can.SaveAs( Form( "%s/%s_%s_col.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   can.SaveAs( Form( "%s/%s_%s_col.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //
   
-  // Draw
-  gStyle->SetPalette(8);
-  can.SetLogz(zLog);
-  hist2d_x0_total->Draw("COLZ");
-  hist2d_x0_total->GetXaxis()->SetNoExponent(true);
-  hist2d_x0_total->GetYaxis()->SetNoExponent(true);
-  //
+  // Grayscale palette
+  Int_t ncol = 100;
+  Int_t colors[100]; 
+  TColor *col; 
+  Double_t dg=1/(Double_t)ncol;
+  Double_t gray=1.;
+  for (Int_t i=0; i<ncol; i++) {     
+    colors[i]= i+100; 
+    col = gROOT->GetColor(colors[i]);  
+    gray = gray-dg;
+    if ( zCol == 0. ) { col->SetRGB(gray, gray,gray); }
+    if ( zCol == 1. ) { col->SetRGB(gray*gray, gray*gray, gray*gray); }
+  }
+  hist2d_x0_total->SetContour(100);      
+  gStyle->SetPalette(100,colors);
   
   
   // Store
   can.Update();
+
+  //Aesthetic
+  TPaletteAxis *palette = 
+    (TPaletteAxis*)hist2d_x0_total->GetListOfFunctions()->FindObject("palette");
+  palette->SetX1NDC(0.955);
+  palette->SetX2NDC(0.97);
+  palette->SetY1NDC(0.1);
+  palette->SetY2NDC(0.9);
+  palette->GetAxis()->SetTickSize(.01);
+  //  palette->GetAxis()->SetLabelOffset(-0.01);
+  hist2d_x0_total->GetYaxis()->SetTickLength(hist2d_x0_total->GetXaxis()->GetTickLength()/4.);
+  hist2d_x0_total->SetTitleOffset(0.5,"Y");
+  hist2d_x0_total->GetZaxis()->SetNoExponent(true);
+  hist2d_x0_total->GetXaxis()->SetNoExponent(true);
+  hist2d_x0_total->GetYaxis()->SetNoExponent(true);
+
+  can.Modified();
+
   can.SaveAs( Form( "%s/%s_%s_bw.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   can.SaveAs( Form( "%s/%s_%s_bw.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   can.SaveAs( Form( "%s/%s_%s_bw.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
@@ -570,4 +639,5 @@ void createRatioPlots(TString plot) {
   //
   
 }
+
 

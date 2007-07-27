@@ -120,8 +120,8 @@ TrackerMaterialBudgetComparison(TString detector) {
   createPlots("l_vs_eta");
   createPlots("l_vs_phi");
   //  createPlots("l_vs_R");
-  create2DPlots("x_vs_eta_vs_phi");
-  create2DPlots("l_vs_eta_vs_phi");
+  //  create2DPlots("x_vs_eta_vs_phi");
+  //  create2DPlots("l_vs_eta_vs_phi");
   create2DPlots("x_vs_z_vs_R");
   create2DPlots("l_vs_z_vs_R");
   create2DPlots("x_vs_z_vs_Rsum");
@@ -300,14 +300,22 @@ void createPlots(TString plot) {
 
   // Comparison
   // canvas
-  TCanvas can_comparison("TkMB_Comparison","TkMB_Comparison",1200,800);
+  TCanvas can_comparison("TkMB_Comparison","TkMB_Comparison",2400+240,580+58+58);
+  can_comparison.SetTopMargin(0.1);
+  can_comparison.SetBottomMargin(0.1);
+  can_comparison.SetLeftMargin(0.04);
+  can_comparison.SetRightMargin(0.06);
   can_comparison.Range(0,0,25,25);
   can_comparison.Divide(4,2);
   can_comparison.SetFillColor(kWhite);
   can_comparison.SetGridy(1);
   can_comparison.SetLogy(0);
   // canvas
-  TCanvas can_ratio("TkMB_ComparisonRatio","TkMB_ComparisonRatio",1200,800);
+  TCanvas can_ratio("TkMB_ComparisonRatio","TkMB_ComparisonRatio",2400+240,580+58+58);
+  can_ratio.SetTopMargin(0.1);
+  can_ratio.SetBottomMargin(0.1);
+  can_ratio.SetLeftMargin(0.04);
+  can_ratio.SetRightMargin(0.06);
   can_ratio.Range(0,0,25,25);
   can_ratio.Divide(4,2);
   can_ratio.SetFillColor(kWhite);
@@ -434,14 +442,12 @@ void createPlots(TString plot) {
   can_comparison.Update();
   can_comparison.SaveAs( Form( "%s/%s_Comparison_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //  can_comparison.SaveAs( Form( "%s/%s_Comparison_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  can_comparison.SaveAs( Form( "%s/%s_Comparison_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //
   
   // Store Ratio
   can_ratio.Update();
   can_ratio.SaveAs( Form( "%s/%s_ComparisonRatio_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //  can_ratio.SaveAs( Form( "%s/%s_ComparisonRatio_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  can_ratio.SaveAs( Form( "%s/%s_ComparisonRatio_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //
   
 }
@@ -451,42 +457,39 @@ void create2DPlots(TString plot) {
   TString abscissaName = "dummy";
   TString ordinateName = "dummy";
   Int_t zLog = 0;
+  Int_t zCol = 0; // 0 linear grayscale, 1 quadratic grayscale
+  Double_t histoMin = -1.;
+  Double_t histoMax = -1.;
   if(plot.CompareTo("x_vs_eta_vs_phi") == 0) {
     plotNumber = 30;
     abscissaName = TString("#eta");
     ordinateName = TString("#varphi");
     quotaName    = TString("x/X_{0}");
-    zLog = 0;
   } else if(plot.CompareTo("l_vs_eta_vs_phi") == 0) {
     plotNumber = 1030;
     abscissaName = TString("#eta");
     ordinateName = TString("#varphi");
     quotaName    = TString("#lambda/#lambda_{0}");
-    zLog = 0;
   } else if(plot.CompareTo("x_vs_z_vs_Rsum") == 0) {
     plotNumber = 50;
     abscissaName = TString("z [mm]");
     ordinateName = TString("R [mm]");
     quotaName    = TString("#Sigmax/X_{0}");
-    zLog = 0;
   } else if(plot.CompareTo("x_vs_z_vs_R") == 0) {
     plotNumber = 60;
     abscissaName = TString("z [mm]");
     ordinateName = TString("R [mm]");
     quotaName    = TString("x/X_{0}");
-    zLog = 1;
   } else if(plot.CompareTo("l_vs_z_vs_Rsum") == 0) {
     plotNumber = 1050;
     abscissaName = TString("z [mm]");
     ordinateName = TString("R [mm]");
     quotaName    = TString("#Sigma#lambda/#lambda_{0}");
-    zLog = 0;
   } else if(plot.CompareTo("l_vs_z_vs_R") == 0) {
     plotNumber = 1060;
     abscissaName = TString("z [mm]");
     ordinateName = TString("R [mm]");
     quotaName    = TString("#lambda/#lambda_{0}");
-    zLog = 1;
   } else {
     cout << " error: chosen plot name not known " << plot << endl;
     return;
@@ -576,44 +579,86 @@ void create2DPlots(TString plot) {
   //
   
   // canvas
-  TCanvas can("TkMB_ComparisonRatio","TkMB_ComparisonRatio",2000,800);
-  can.Range(0,0,25,25);
+  TCanvas can("can","can",2400+240,580+58+58);
+  can.SetTopMargin(0.1);
+  can.SetBottomMargin(0.1);
+  can.SetLeftMargin(0.04);
+  can.SetRightMargin(0.06);
   can.SetFillColor(kWhite);
   gStyle->SetOptStat(0);
   //
   
   // Draw
   gStyle->SetPalette(1);
-  can.SetLogz(zLog);
   histo_ratio->Draw("COLZ");
+
+  // Store
+  can.Update();
+
+  //Aesthetic
+  TPaletteAxis *palette = 
+    (TPaletteAxis*)histo_ratio->GetListOfFunctions()->FindObject("palette");
+  palette->SetX1NDC(0.945);
+  palette->SetX2NDC(0.96);
+  palette->SetY1NDC(0.1);
+  palette->SetY2NDC(0.9);
+  palette->GetAxis()->SetTitle("");
+  if ( zLog==1 ) {  palette->GetAxis()->SetLabelOffset(-0.01); }
+  palette->GetAxis()->SetTitleOffset(5.);
+  histo_ratio->GetYaxis()->SetTickLength(histo_ratio->GetXaxis()->GetTickLength()/4.);
+  histo_ratio->SetTitleOffset(0.5,"Y");
   histo_ratio->GetXaxis()->SetNoExponent(true);
   histo_ratio->GetYaxis()->SetNoExponent(true);
   //
   
-  
-  // Store
-  can.Update();
+
   can.SaveAs( Form( "%s/%s_ComparisonRatio_%s_col.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   can.SaveAs( Form( "%s/%s_ComparisonRatio_%s_col.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   can.SaveAs( Form( "%s/%s_ComparisonRatio_%s_col.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //
   
-  // Draw
-  gStyle->SetPalette(8);
-  can.SetLogz(zLog);
-  histo_ratio->Draw("COLZ");
-  histo_ratio->GetXaxis()->SetNoExponent(true);
-  histo_ratio->GetYaxis()->SetNoExponent(true);
-  //
+  // Grayscale palette
+  Int_t ncol = 100;
+  Int_t colors[100]; 
+  TColor *col; 
+  Double_t dg=1/(Double_t)ncol;
+  Double_t gray=1.;
+  for (Int_t i=0; i<ncol; i++) {     
+    colors[i]= i+100; 
+    col = gROOT->GetColor(colors[i]);  
+    gray = gray-dg;
+    if ( zCol == 0. ) { col->SetRGB(gray, gray,gray); }
+    if ( zCol == 1. ) { col->SetRGB(gray*gray, gray*gray, gray*gray); }
+  }
+  histo_ratio->SetContour(100);      
+  gStyle->SetPalette(100,colors);
   
   
   // Store
   can.Update();
+
+  //Aesthetic
+  TPaletteAxis *palette = 
+    (TPaletteAxis*)histo_ratio->GetListOfFunctions()->FindObject("palette");
+  palette->SetX1NDC(0.945);
+  palette->SetX2NDC(0.96);
+  palette->SetY1NDC(0.1);
+  palette->SetY2NDC(0.9);
+  palette->GetAxis()->SetTickSize(.01);
+  //  palette->GetAxis()->SetLabelOffset(-0.01);
+  histo_ratio->GetYaxis()->SetTickLength(histo_ratio->GetXaxis()->GetTickLength()/4.);
+  histo_ratio->SetTitleOffset(0.5,"Y");
+  histo_ratio->GetZaxis()->SetNoExponent(true);
+  histo_ratio->GetXaxis()->SetNoExponent(true);
+  histo_ratio->GetYaxis()->SetNoExponent(true);
+
+  can.Modified();
+
   can.SaveAs( Form( "%s/%s_ComparisonRatio_%s_bw.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   can.SaveAs( Form( "%s/%s_ComparisonRatio_%s_bw.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   can.SaveAs( Form( "%s/%s_ComparisonRatio_%s_bw.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //
-  
+
   // restore properties
   gStyle->SetStripDecimals(true);
   //
