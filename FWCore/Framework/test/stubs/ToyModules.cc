@@ -422,7 +422,7 @@ namespace edmtest {
 
     std::auto_ptr<product_type> p(new product_type());
     int n=0;
-    for (id_type id=1;id<size_;++id) {
+    for (int id=1;id<size_;++id) {
       ++n;
       detset item(id); // this will get DetID id
       item.data.insert(item.data.end(),guts.begin(),guts.begin()+n);     
@@ -807,8 +807,8 @@ namespace edmtest {
     // manipulate them via an interface different from
     // DetSet, just so that we can make sure the collection
     // is sorted.
-    std::vector<value_type> after( h->back().data.begin(),
-				   h->back().data.end() );
+    std::vector<value_type> after( (h->end()-1)->data.begin(),
+				   (h->end()-1)->data.end() );
     typedef std::vector<value_type>::size_type size_type;
     
 
@@ -836,8 +836,8 @@ namespace edmtest {
     // manipulate them via an interface different from
     // DetSet, just so that we can make sure the collection
     // is not sorted.
-    std::vector<value_type> after( h->back().data.begin(),
-				   h->back().data.end() );
+    std::vector<value_type> after(  (h->end()-1).data.begin(),
+				    (h->end()-1).data.end() );
     typedef std::vector<value_type>::size_type size_type;
     
 
