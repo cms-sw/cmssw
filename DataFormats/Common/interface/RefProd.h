@@ -5,7 +5,7 @@
   
 Ref: A template for an interproduct reference to a product.
 
-$Id: RefProd.h,v 1.12 2007/07/13 08:49:32 llista Exp $
+$Id: RefProd.h,v 1.13 2007/07/25 15:33:00 llista Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -185,9 +185,7 @@ namespace edm {
   operator< (RefProd<C> const& lhs, RefProd<C> const& rhs) {
     return (lhs.refCore() < rhs.refCore());
   }
-}
 
-namespace std {
   template<typename C>
   inline
   void swap( const edm::RefProd<C> & lhs, const edm::RefProd<C> & rhs ) {

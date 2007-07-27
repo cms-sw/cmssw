@@ -5,7 +5,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: RefToBaseProd.h,v 1.6 2007/07/24 21:05:12 llista Exp $
+ * $Id: RefToBaseProd.h,v 1.7 2007/07/25 15:33:00 llista Exp $
  *
  */
   
@@ -193,9 +193,7 @@ namespace edm {
   operator< (RefToBaseProd<T> const& lhs, RefToBaseProd<T> const& rhs) {
     return (lhs.refCore() < rhs.refCore());
   }
-}
 
-namespace std {
   template<typename T>
   inline void swap( edm::RefToBaseProd<T> const& lhs, edm::RefToBaseProd<T> const& rhs ) {
     lhs.swap( rhs );
