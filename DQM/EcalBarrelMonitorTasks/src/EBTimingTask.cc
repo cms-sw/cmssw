@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2007/05/21 11:45:10 $
- * $Revision: 1.16 $
+ * $Date: 2007/05/21 11:47:45 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */
@@ -77,7 +77,7 @@ void EBTimingTask::setup(void){
 
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBTMT timing %s", Numbers::sEB(i+1).c_str());
-      meTimeMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
+      meTimeMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, -4., 4., "s");
       dbe_->tag(meTimeMap_[i], i+1);
     }
 
@@ -147,11 +147,8 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
       meTimeMap = meTimeMap_[ism-1];
 
       float xval = hit.amplitude();
-      if ( xval <= 0. ) xval = 0.0;
       float yval = hit.jitter();
-      if ( yval <= 0. ) yval = 0.0;
       float zval = hit.pedestal();
-      if ( zval <= 0. ) zval = 0.0;
 
       LogDebug("EBTimingTask") << " hit amplitude " << xval;
       LogDebug("EBTimingTask") << " hit jitter " << yval;

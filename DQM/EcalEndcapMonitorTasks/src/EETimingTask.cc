@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2007/05/21 09:57:46 $
- * $Revision: 1.8 $
+ * $Date: 2007/05/24 13:26:12 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -79,7 +79,7 @@ void EETimingTask::setup(void){
 
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EETMT timing %s", Numbers::sEE(i+1).c_str());
-      meTimeMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
+      meTimeMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, -4., 4., "s");
       dbe_->tag(meTimeMap_[i], i+1);
     }
 
@@ -149,11 +149,8 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
       meTimeMap = meTimeMap_[ism-1];
 
       float xval = hit.amplitude();
-      if ( xval <= 0. ) xval = 0.0;
       float yval = hit.jitter();
-      if ( yval <= 0. ) yval = 0.0;
       float zval = hit.pedestal();
-      if ( zval <= 0. ) zval = 0.0;
 
       LogDebug("EETimingTask") << " hit amplitude " << xval;
       LogDebug("EETimingTask") << " hit jitter " << yval;
