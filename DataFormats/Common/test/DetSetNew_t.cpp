@@ -143,7 +143,7 @@ namespace {
       std::vector<DST::data_type> v2(n);
       std::copy(df.begin(),df.end(),v2.begin());
       std::copy(test.sv.begin(),test.sv.begin()+n,v1);
-      CPPUNIT_ASSERT(test.v1==v2);
+      CPPUNIT_ASSERT(v1==v2);
     }
     
     unsigned int n;
