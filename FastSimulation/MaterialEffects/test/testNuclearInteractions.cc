@@ -55,6 +55,7 @@ private:
   std::vector<MonitorElement*> h4;
   std::vector<MonitorElement*> h5;
   std::vector<MonitorElement*> htmp;
+  std::vector<MonitorElement*> totalCharge;
 
   std::vector< std::vector<MonitorElement*> > h100;
   std::vector< std::vector<MonitorElement*> > h200;
@@ -99,6 +100,7 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   h4(2,static_cast<MonitorElement*>(0)),
   h5(2,static_cast<MonitorElement*>(0)),
   htmp(2,static_cast<MonitorElement*>(0)),
+  totalCharge(2,static_cast<MonitorElement*>(0)),
   tmpRadius(2,static_cast<double>(0.)),
   tmpLength(2,static_cast<double>(0.)),
   stoppedPions(2,static_cast<unsigned>(0)),
@@ -190,6 +192,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // Beam Pipe
   htmp[0] = dbe->book1D("BeamPipeFull", "Full Beam Pipe",120,0.,3.);
   htmp[1] = dbe->book1D("BeamPipeFast", "Fast Beam Pipe",120,0.,3.);
+  totalCharge[0] = dbe->book1D("ChargeFull", "Total Charge (full)",19,-9.5,9.5);
+  totalCharge[1] = dbe->book1D("ChargeFast", "Total Charge (fast)",19,-9.5,9.5);
   tmpRadius[0] = 3.8;
   tmpRadius[1] = 3.05;
   tmpLength[0] = 999.;
@@ -743,7 +747,7 @@ testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     //    const std::vector<FSimVertex>& fsimVertices = *(mySimEvent[ievt]->vertices() );
     //    if ( !fsimVertices.size() ) continue;
     if ( !mySimEvent[ievt]->nVertices() ) continue; 
-    FSimTrack& thePion = mySimEvent[ievt]->track(0);
+    const FSimTrack& thePion = mySimEvent[ievt]->track(0);
 
     //    h1[ievt]->Fill(fsimVertices.size());
     //    if ( fsimVertices.size() == 1 ) continue;  
@@ -754,7 +758,7 @@ testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     }
     if ( mySimEvent[ievt]->nVertices() == 1 ) continue;  
 
-    FSimVertex& thePionVertex = mySimEvent[ievt]->vertex(1);
+    const FSimVertex& thePionVertex = mySimEvent[ievt]->vertex(1);
 
     double zed = thePionVertex.position().z();
     double radius = thePionVertex.position().pt();
@@ -784,7 +788,7 @@ testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
     // Reject pion decays (already simulated in FAMOS)
     if ( thePionVertex.nDaughters() == 1 ) { 
-      FSimTrack myDaugh = mySimEvent[ievt]->track(firstDaughter);
+      const FSimTrack& myDaugh = mySimEvent[ievt]->track(firstDaughter);
       if (abs(myDaugh.type()) == 11 || abs(myDaugh.type()) == 13 ) return;
     } 
 
@@ -810,10 +814,12 @@ testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	++totalNU;
       }
 
+      double qTot = 0.;
       for(int idaugh=firstDaughter;idaugh<=lastDaughter;++idaugh) {
 
 	// Boost the tracks
-	FSimTrack myDaugh = mySimEvent[ievt]->track(idaugh);
+	const FSimTrack& myDaugh = mySimEvent[ievt]->track(idaugh);
+	qTot += myDaugh.charge();
 	//	std::cout << "Daughter " << idaugh << " " << myDaugh << std::endl;
         RawParticle theMom(myDaugh.momentum());
 	theMom.boost(-theBoost.x(),-theBoost.y(),-theBoost.z());
@@ -833,10 +839,14 @@ testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	}
       }
 
+
       // Save some histograms
       h3[ievt]->Fill(ecm);
       h4[ievt]->Fill(theTotal.mag()/ecm);
       h5[ievt]->Fill(sqrt(theTotal.Vect().mag2()));
+
+      // Total charge of daughters
+      totalCharge[ievt]->Fill(qTot);
 
       // Fill the individual layer histograms !
       bool filled = false;
