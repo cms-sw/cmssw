@@ -836,8 +836,8 @@ namespace edmtest {
     // manipulate them via an interface different from
     // DetSet, just so that we can make sure the collection
     // is not sorted.
-    std::vector<value_type> after(  (h->end()-1).data.begin(),
-				    (h->end()-1).data.end() );
+    std::vector<value_type> after(  (h->end()-1)->data.begin(),
+				    (h->end()-1)->data.end() );
     typedef std::vector<value_type>::size_type size_type;
     
 
