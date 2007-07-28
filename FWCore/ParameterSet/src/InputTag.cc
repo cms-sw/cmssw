@@ -12,10 +12,10 @@ namespace edm {
   }
 
 
-  InputTag::InputTag(const std::string & label, const std::string & instance)
+  InputTag::InputTag(const std::string & label, const std::string & instance, const std::string & processName)
   : label_(label),
     instance_(instance),
-    process_()
+    process_(processName)
   {
   }
 
