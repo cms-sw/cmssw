@@ -6,4 +6,10 @@
   <class name="edm::RefProd<std::vector<reco::Tau> >"/>
   <class name="edm::RefVector<std::vector<reco::Tau>,reco::Tau,edm::refhelper::FindUsingAdvance<std::vector<reco::Tau>,reco::Tau> >"/>
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::Tau>,reco::Tau,edm::refhelper::FindUsingAdvance<std::vector<reco::Tau>,reco::Tau> > >" />
-</lcgdict>
+  <class name="reco::TauDiscriminatorByIsolation"/>
+  <class pattern="edm::AssociationVector<*>">
+     <field name="transientVector_" transient="true"/>
+     <field name="fixed_" transient="true"/>
+   </class>
+   <class pattern="edm::Wrapper<edm::AssociationVector<*>"/>
+  </lcgdict>
