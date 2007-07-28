@@ -5,6 +5,9 @@
 #include "DataFormats/Common/interface/DetSetNew.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #undef private
+
+#include "FWCore/Utilities/interface/EDMException.h"
+
 #include<vector>
 #include<algorithm>
 
@@ -109,7 +112,7 @@ void TestDetSet::inserting() {
   
   // test error conditions
   try {
-    DST dfe = detsets.insert(22,n);
+    DST dfe = detsets.insert(22,6);
     CPPUNIT_ASSERT("insert did not threw"==0);
   } 
   catch (edm::Exception const &) {
