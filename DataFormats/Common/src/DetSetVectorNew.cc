@@ -8,7 +8,7 @@ namespace edmNew {
 	<< "only one DetSetVector::FastFiller can be active at a given time!";
     }
     void throw_range(det_id_type i) {
-      throw edm::Exception(errors::InvalidReference)
+      throw edm::Exception(edm::errors::InvalidReference)
 	<< "DetSetVector::operator[] called with index not in collection;\n"
 	<< "index value: " << i;
     }
