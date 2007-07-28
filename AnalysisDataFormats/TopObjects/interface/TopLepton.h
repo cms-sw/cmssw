@@ -1,5 +1,5 @@
 //
-// $Id: TopLepton.h,v 1.7 2007/06/29 12:29:21 jlamb Exp $
+// $Id: TopLepton.h,v 1.8 2007/07/05 23:34:19 lowette Exp $
 //
 
 #ifndef TopObjects_TopLepton_h
@@ -13,7 +13,7 @@
    store and retrieve the high-level likelihood ratio information.
 
   \author   Steven Lowette
-  \version  $Id: TopLepton.h,v 1.7 2007/06/29 12:29:21 jlamb Exp $
+  \version  $Id: TopLepton.h,v 1.8 2007/07/05 23:34:19 lowette Exp $
 */
 
 
@@ -23,10 +23,12 @@
 
 #include "AnalysisDataFormats/TopObjects/interface/TopObject.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopParticle.h"
+#include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
 
 
 typedef reco::PixelMatchGsfElectron TopElectronType;
 typedef reco::Muon TopMuonType;
+typedef reco::IsolatedTauTagInfo TopTauType;
 
 
 template <class LeptonType>
@@ -34,6 +36,7 @@ class TopLepton : public TopObject<LeptonType> {
 
   friend class TopElectronProducer;
   friend class TopMuonProducer;
+  friend class TopTauProducer;
   friend class TopLeptonLRCalc;
 
   public:
@@ -74,10 +77,12 @@ template <class LeptonType>
 TopLepton<LeptonType>::TopLepton() :
     TopObject<LeptonType>(LeptonType()),
     lrComb_(0) {
+  /*
   // no common constructor, so initialize the candidate manually
   this->setCharge(0);
   this->setP4(reco::Particle::LorentzVector(0, 0, 0, 0));
   this->setVertex(reco::Particle::Point(0, 0, 0));
+  */
 }
 
 
@@ -188,6 +193,8 @@ unsigned int TopLepton<LeptonType>::getLRSize() const {
 typedef TopLepton<TopElectronType> TopElectron;
 /// definition of TopMuon as a TopLepton of TopMuonType
 typedef TopLepton<TopMuonType> TopMuon;
+/// definition of TopTau as a TopLepton of TopTauType
+typedef TopLepton<TopTauType> TopTau;
 
 
 #endif

@@ -37,32 +37,38 @@ namespace {
 
     // we need these typedefs, it won't work directly - NO IDEA WHY!!!
     typedef edm::Ref<std::vector<TopElectron> > TopElectronRef;
+    typedef edm::Ref<std::vector<TopTau> >      TopTauRef;
     typedef edm::Ref<std::vector<TopMuon> >     TopMuonRef;
     typedef edm::Ref<std::vector<TopJet> >      TopJetRef;
     typedef edm::Ref<std::vector<TopMET> >      TopMETRef;
     typedef edm::Ref<std::vector<TopParticle> > TopParticleRef;
 
     TopObject<TopElectronType>                            to_el;
+    TopObject<TopTauType>                                 to_tau;
     TopObject<TopMuonType>                                to_mu;
     TopObject<TopJetType>                                 to_jet;
     TopObject<TopMETType>                                 to_met;
     TopObject<TopParticleType>                            to_part;
     TopElectron                                           el; 
+    TopTau                                                tau; 
     TopMuon                                               mu; 
     TopJet                                                jet;
     TopMET                                                met;
     TopParticle                                           part;
     std::vector<TopElectron>                              v_el;
+    std::vector<TopTau>                                   v_tau;
     std::vector<TopMuon>                                  v_mu;
     std::vector<TopJet>                                   v_jet;
     std::vector<TopMET>                                   v_met;
     std::vector<TopParticle>                              v_part;
     edm::Wrapper<std::vector<TopElectron> >               w_v_el;
+    edm::Wrapper<std::vector<TopTau> >                    w_v_tau;
     edm::Wrapper<std::vector<TopMuon> >                   w_v_mu;
     edm::Wrapper<std::vector<TopJet> >                    w_v_jet;
     edm::Wrapper<std::vector<TopMET> >                    w_v_met;
     edm::Wrapper<std::vector<TopParticle> >               w_v_part;
     edm::Ref<std::vector<TopElectron> >                   r_el;
+    edm::Ref<std::vector<TopTau> >                        r_tau;
     edm::Ref<std::vector<TopMuon> >                       r_mu;
     edm::Ref<std::vector<TopJet> >                        r_jet;
     edm::Ref<std::vector<TopMET> >                        r_met;
