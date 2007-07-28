@@ -164,7 +164,7 @@ void TestDetSet::filling() {
   
   // test error conditions
   try {
-    FF ff(detsets, 22);
+    FF ff1(detsets, 22);
     CPPUNIT_ASSERT(" fast filler did not threw"==0);
   } 
   catch (edm::Exception const &) {
@@ -176,8 +176,8 @@ void TestDetSet::filling() {
   }
   
   try {
-    FF ff(detsets, 44);
-    FF ff(detsets, 45);
+    FF ff1(detsets, 44);
+    FF ff2(detsets, 45);
     CPPUNIT_ASSERT(" fast filler did not threw"==0);
   } catch (edm::Exception const &) {
     
