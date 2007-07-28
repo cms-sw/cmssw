@@ -97,7 +97,7 @@ namespace edmNew {
 
       FastFiller(DetSetVector<T> & iv, id_type id) : 
 	v(iv), item(v.push_back(id)){
-	if (v.filling) details::errorFilling();
+	if (v.filling) dstvdetails::errorFilling();
 	v.filling=true;
       }
       FastFiller(DetSetVector<T> & iv, typename DetSetVector<T>::Item & it) : 
@@ -237,7 +237,7 @@ namespace edmNew {
     const_IdIter findItem(id_type i) const {
       std::pair<const_IdIter,const_IdIter> p =
 	std::equal_range(m_ids.begin(),m_ids.end(),i);
-      return (p.first==p.second) ? m_ids.end() ? p.first;
+      return (p.first!=p.second) ? p.first : m_ids.end();
     }
     
     const_iterator begin() const {
