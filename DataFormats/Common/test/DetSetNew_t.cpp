@@ -261,7 +261,7 @@ void TestDetSet::iterator() {
     DST df = detsets[44];
     CPPUNIT_ASSERT("[] did not threw"==0);
   } 
-  catch (edm::Exception const &) {
+  catch (edm::Exception const & err) {
        CPPUNIT_ASSERT(err.categoryCode()==edm::errors::InvalidReference);
   }
   catch(...) {
