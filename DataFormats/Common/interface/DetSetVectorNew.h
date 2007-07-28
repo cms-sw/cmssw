@@ -236,7 +236,7 @@ namespace edmNew {
     // slow interface
     const_IdIter findItem(id_type i) const {
       std::pair<const_IdIter,const_IdIter> p =
-	std::equal_range(m_ids.begin(),m_ids.end(),i);
+	std::equal_range(m_ids.begin(),m_ids.end(),Item(i));
       return (p.first!=p.second) ? p.first : m_ids.end();
     }
     
