@@ -9,7 +9,7 @@ using namespace boost::python;
 BOOST_PYTHON_MODULE(libFWCoreParameterSet)
 {
   class_<edm::InputTag>("InputTag", init<std::string>())
-      .def(init<std::string, std::string>())
+      .def(init<std::string, std::string, std::string>())
       .def("label",    &edm::InputTag::label)
       .def("instance", &edm::InputTag::instance)
       .def("process",  &edm::InputTag::process)
