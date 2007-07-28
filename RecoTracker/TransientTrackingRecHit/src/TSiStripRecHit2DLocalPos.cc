@@ -22,7 +22,7 @@ TSiStripRecHit2DLocalPos::clone (const TrajectoryStateOnSurface& ts) const
        StripClusterParameterEstimator::LocalValues lv = 
 	 theCPE->localParameters( clust, *detUnit(), ts.localParameters());
        return TSiStripRecHit2DLocalPos::build( lv.first, lv.second, det(), 
-					       specificHit()->cluster(), theCPE);       
+					       specificHit()->cluster_regional(), theCPE);       
      }
 
   }
