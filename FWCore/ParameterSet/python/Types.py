@@ -5,7 +5,7 @@ from ExceptionHandling import format_typename, format_outerframe
 import codecs
 _string_escape_encoder = codecs.getencoder('string_escape')
 
-#import libFWCoreParameterSet
+import libFWCoreParameterSet
 
 class _Untracked(object):
     """Class type for 'untracked' to allow nice syntax"""
@@ -194,8 +194,13 @@ class InputTag(_ParameterTypeBase):
     def _valueFromString(string):
         parts = string.split(":")
         return InputTag(*parts)
+    # convert to the wrapper class for C++ InputTags
+    def cppTag(self):
+        return libFWCoreParameterSet.InputTag(self.getModuleLabel(),
+                                              self.getProductInstanceLabel(),
+                                              self.getProcessName())
     def insertInto(self, parameterSet, myname):
-        parameterSet.addInputTag(self.isTracked(), myname, self.value())
+        parameterSet.addInputTag(self.isTracked(), myname, self.cppTag())
 
 
 
@@ -251,6 +256,10 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
         proc._placePSet(name,self)
     def __str__(self):
         return object.__str__(self)
+    def insertInto(self, parameterSet, myname):
+        newpset = libFWCoreParameterSet.ParameterSet()
+        self.insertContentsInto(newpset)
+        parameterSet.addPSet(True, myname, newpset)
 
 
 class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
@@ -392,8 +401,22 @@ class VInputTag(_ValidatingParameterListBase):
     @staticmethod
     def _valueFromString(value):
         return VInputTag(*_ValidatingParameterListBase._itemsFromStrings(value,InputTag._valueFromString))
+    def cppTags(self):
+        result = list()
+        for i in self:
+           # reconstruct an inputtag from the strings in the tupl
+           s1 = i[0];
+           s2 = ""
+           s3 = ""
+           if len(i)>1:
+              s2 = i[1]
+           if len(i)>2:
+              s3 = i[2]
+           it = InputTag(s1,s2,s3)
+           result.append(it.cppTag()) 
+        return result 
     def insertInto(self, parameterSet, myname):
-        parameterSet.addVInputTag(self.isTracked(), myname, self.value())
+        parameterSet.addVInputTag(self.isTracked(), myname, self.cppTags())
 
 
 

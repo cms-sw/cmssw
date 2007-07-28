@@ -4,6 +4,7 @@ from Mixins import _TypedParameterizable
 from SequenceTypes import _Sequenceable
 
 from ExceptionHandling import *
+import libFWCoreParameterSet
 
 class Service(_ConfigureComponent,_TypedParameterizable,_Unlabelable):
     def __init__(self,type_,*arg,**kargs):
@@ -30,6 +31,7 @@ class ESProducer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelab
         proc._placeESProducer(name,self)
 
 
+
 class ESPrefer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable):
     def __init__(self,type_,*arg,**kargs):
         super(ESPrefer,self).__init__(type_,*arg,**kargs)
@@ -52,6 +54,13 @@ class _Module(_ConfigureComponent,_TypedParameterizable,_Labelable,_Sequenceable
     def _errorstr(self):
         typename = format_typename(self)
         return "%s('%s', ...)" %(typename, self.type_())
+    def insertInto(self, parameterSet, myname):
+        newpset = libFWCoreParameterSet.ParameterSet()
+        newpset.addString(True, "@module_label", myname)
+        newpset.addString(True, "@module_type", self.type_())
+        self.insertContentsInto(newpset)
+        parameterSet.addPSet(True, myname, newpset)
+        
 
 class EDProducer(_Module):
     def __init__(self,type_,*arg,**kargs):
@@ -93,6 +102,7 @@ class Looper(_ConfigureComponent,_TypedParameterizable):
         super(Looper,self).__init__(type_,*arg,**kargs)
     def _placeImpl(self,name,proc):
         proc._placeLooper(name,self)
+
 
 
 if __name__ == "__main__":

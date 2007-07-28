@@ -41,6 +41,10 @@ class _Parameterizable(object):
     def __delattr__(self,name):
         super(_Parameterizable,self).__delattr__(name)
         self.__parameterNames.remove(name)
+    def insertContentsInto(self, parameterSet):
+        for name in self.parameterNames_():
+            param = getattr(self,name)
+            param.insertInto(parameterSet, name)
 
 
 class _TypedParameterizable(_Parameterizable):

@@ -16,6 +16,7 @@ from SequenceTypes import _ModuleSequenceType  #extend needs it
 import DictTypes
 
 from ExceptionHandling import *
+import libFWCoreParameterSet
 
 def findProcess(module):
     """Look inside the module and find the Processes it contains"""
@@ -328,6 +329,36 @@ class Process(object):
 #                                  indent)
         config += "}\n"
         return config
+    def insertOneInto(self, parameterSet, label, item):
+        vitems = [item]
+        parameterSet.addVString(True, label, vitems)
+        if not item == None:
+            item.insertInto(parameterSet, label)
+    def insertManyInto(self, parameterSet, label, itemDict):
+        parameterSet.addVString(True, label, itemDict.keys())
+        print "keys",itemDict.keys()
+        for name,value in itemDict.iteritems():
+          print "value",value,type(value)
+          value.insertInto(parameterSet, name)
+    def makePSet(self):
+        print self.dumpConfig()
+        parameterSet = libFWCoreParameterSet.ParameterSet()
+        all_modules = self.__producers
+        all_modules.update(self.filters_())
+        all_modules.update(self.analyzers_())
+        all_modules.update(self.outputModules_())
+        #self.insertInto(parameterSet, "@all_modules", all_modules)
+        self.insertManyInto(parameterSet, "@all_modules", self.producers_())
+        self.insertOneInto(parameterSet, "@all_sources", self.source_())
+        self.insertOneInto(parameterSet, "@all_loopers",   self.looper_())
+        self.insertManyInto(parameterSet, "@all_esmodules", self.es_producers_())
+        self.insertManyInto(parameterSet, "@all_essources", self.es_sources_())
+        self.insertManyInto(parameterSet, "@all_esprefers", self.es_prefers_())
+        self.insertManyInto(parameterSet, "@trigger_paths", self.paths_())
+        self.insertManyInto(parameterSet, "@end_paths", self.endpaths_())
+        self.insertOneInto(parameterSet, "@paths", self.schedule_())
+        return parameterSet
+
 
 class FileInPath(_SimpleParameterTypeBase):
     def __init__(self,value):
