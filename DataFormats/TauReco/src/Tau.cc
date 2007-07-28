@@ -5,78 +5,68 @@ using namespace reco;
 Tau::Tau() {
  TrackRefVector tmp;
   TrackRef leadTk;
-  leadingTrack_ = leadTk;
+  leadTrack_ = leadTk;
   signalTracks_ =tmp ;
   isolationTracks_= tmp;
   selectedTracks_ = tmp;
 
   PFCandidateRef pfLead;
-  leadingPFChargedHadron_ = pfLead;
+  leadPFChargedHadrCand_ = pfLead;
   PFCandidateRefVector pfTmp;
-  selectedSignalPFChargedHadrons_ =pfTmp;
-  selectedSignalPFNeutralHadrons_=pfTmp;
-  selectedSignalPFGammaCandidates_ = pfTmp;
+  selectedSignalPFChargedHadrCands_ =pfTmp;
+  selectedSignalPFNeutrHadrCands_=pfTmp;
+  selectedSignalPFGammaCands_ = pfTmp;
 
-  selectedIsolationPFChargedHadrons_ = pfTmp;
-  selectedIsolationPFNeutralHadrons_ = pfTmp;
-  selectedIsolationPFGammaCandidates_ = pfTmp;
+  selectedIsolationPFChargedHadrCands_ = pfTmp;
+  selectedIsolationPFNeutrHadrCands_ = pfTmp;
+  selectedIsolationPFGammaCands_ = pfTmp;
 
-  selectedPFChargedHadrons_ = pfTmp;
-  selectedPFNeutralHadrons_ = pfTmp;
-  selectedPFGammaCandidates_ = pfTmp;
+  selectedPFChargedHadrCands_ = pfTmp;
+  selectedPFNeutrHadrCands_ = pfTmp;
+  selectedPFGammaCands_ = pfTmp;
 
-  maximumHcalTowerEnergy_ = -1000.;
-    transverseIpSignificance_leadTk_ =-1000.;
-    mass_ = -1000; 
-     trackerMass_ = -1000;
-     sumPtIsolation_=-1000;
-     emOverHadronEnergy_=-1000;
-     emIsolation_=-1000;
+  maximumHcalTowerEnergy_ = NAN;
+  leadPFChargedHadrCandsignedSipt_=NAN;
+  leadTracksignedSipt_=NAN;
+  mass_ = NAN; 
+  trackerMass_ = NAN;
+  sumPtIsolation_=NAN;
+  emOverHadronEnergy_=NAN;
+  emIsolation_=NAN;
+  numberOfEcalClusters_=std::numeric_limits<int>::quiet_NaN();
 }
 
 Tau::Tau(Charge q, const LorentzVector & p4, const Point & vtx ) :
    RecoCandidate( q, p4, vtx, -15 * q ) {
   TrackRefVector tmp;
   TrackRef leadTk;
-  leadingTrack_ = leadTk;
+  leadTrack_ = leadTk;
   signalTracks_ =tmp ;
   isolationTracks_= tmp;
   selectedTracks_ = tmp;
 
   PFCandidateRef pfLead;
-  leadingPFChargedHadron_ = pfLead;
+  leadPFChargedHadrCand_ = pfLead;
   PFCandidateRefVector pfTmp;
-  selectedSignalPFChargedHadrons_ =pfTmp;
-  selectedSignalPFNeutralHadrons_=pfTmp;
-  selectedSignalPFGammaCandidates_ = pfTmp;
+  selectedSignalPFChargedHadrCands_ =pfTmp;
+  selectedSignalPFNeutrHadrCands_=pfTmp;
+  selectedSignalPFGammaCands_ = pfTmp;
 
-  selectedIsolationPFChargedHadrons_ = pfTmp;
-  selectedIsolationPFNeutralHadrons_ = pfTmp;
-  selectedIsolationPFGammaCandidates_ = pfTmp;
+  selectedIsolationPFChargedHadrCands_ = pfTmp;
+  selectedIsolationPFNeutrHadrCands_ = pfTmp;
+  selectedIsolationPFGammaCands_ = pfTmp;
 
-  selectedPFChargedHadrons_ = pfTmp;
-  selectedPFNeutralHadrons_ = pfTmp;
-  selectedPFGammaCandidates_ = pfTmp;
+  selectedPFChargedHadrCands_ = pfTmp;
+  selectedPFNeutrHadrCands_ = pfTmp;
+  selectedPFGammaCands_ = pfTmp;
 
-  maximumHcalTowerEnergy_ = -1000;
-    transverseIpSignificance_leadTk_ =-1000.;
-    mass_ = -1000; 
-     trackerMass_ = -1000;
-     sumPtIsolation_=-1000;
-     emOverHadronEnergy_=-1000;
-     emIsolation_=-1000;
+  maximumHcalTowerEnergy_ = NAN;
+  leadPFChargedHadrCandsignedSipt_=NAN;
+  leadTracksignedSipt_ =NAN;
+  mass_ = NAN; 
+  trackerMass_ = NAN;
+  sumPtIsolation_=NAN;
+  emOverHadronEnergy_=NAN;
+  emIsolation_=NAN;
+  numberOfEcalClusters_=std::numeric_limits<int>::quiet_NaN();
 }
-
-
-
-Tau * Tau::clone() const {
-  return new Tau( * this );
-}
-
-bool Tau::overlap( const Candidate & c ) const {
-  const RecoCandidate * o = dynamic_cast<const RecoCandidate *>( & c );
-  return ( o != 0 && 
-	   ( checkOverlap( track(), o->track() ))
-	   );
-}
-
