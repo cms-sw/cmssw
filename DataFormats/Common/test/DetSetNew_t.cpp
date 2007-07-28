@@ -58,10 +58,12 @@ void TestDetSet::default_ctor() {
   DSTV detsets(2);
   CPPUNIT_ASSERT(detsets.subdetId()==2);
   CPPUNIT_ASSERT(detsets.size()==0);
+  CPPUNIT_ASSERT(detsets.empty());
   CPPUNIT_ASSERT(detsets.dataSize()==0);
   detsets.resize(3,10);
   CPPUNIT_ASSERT(detsets.size()==3);
   CPPUNIT_ASSERT(detsets.dataSize()==10);
+  CPPUNIT_ASSERT(!detsets.empty());
   // follow is nonsense still valid construct...
   DST df(detsets,1);
   CPPUNIT_ASSERT(df.size()==0); 
@@ -70,6 +72,7 @@ void TestDetSet::default_ctor() {
   CPPUNIT_ASSERT(df.size()==0); 
   CPPUNIT_ASSERT(df.m_data==&detsets.m_data.front()); 
   DSTV detsets2(3);
+  // test swap
   detsets.swap(detsets2);
   CPPUNIT_ASSERT(detsets.subdetId()==3);
   CPPUNIT_ASSERT(detsets.size()==0);
@@ -96,17 +99,31 @@ void TestDetSet::inserting() {
     CPPUNIT_ASSERT(df.id()==id); 
     
     std::copy(sv.begin(),sv.begin()+n,df.begin());
-
+    
     std::vector<DST::data_type> v1(n);
     std::vector<DST::data_type> v2(n);
     std::copy(detsets.m_data.begin()+ntot-n,detsets.m_data.begin()+ntot,v2.begin());
     std::copy(sv.begin(),sv.begin()+n,v1.begin());
     CPPUNIT_ASSERT(v1==v2);
   }
-
+  
+  // test error conditions
+  try {
+    DST dfe = detsets.insert(22,n);
+    CPPUNIT_ASSERT("insert did not threw"==0);
+  } 
+  catch (edm::Exception const &) {
+    
+  }
+  catch(...) {
+    CPPUNIT_ASSERT("insert threw wrong exception"==0);
+    
+  }
+  
 }
-void TestDetSet::filling() {
 
+void TestDetSet::filling() {
+  
   DSTV detsets(2);
   unsigned int ntot=0;
   for (unsigned int n=1;n<5;++n) {
@@ -141,6 +158,32 @@ void TestDetSet::filling() {
     CPPUNIT_ASSERT(v1==v2);
   }
 
+  
+  // test error conditions
+  try {
+    FF ff(detsets, 22);
+    CPPUNIT_ASSERT(" fast filler did not threw"==0);
+  } 
+  catch (edm::Exception const &) {
+    
+  }
+  catch(...) {
+    CPPUNIT_ASSERT("fast filler threw wrong exception"==0);
+    
+  }
+  
+  try {
+    FF ff(detsets, 44);
+    FF ff(detsets, 45);
+    CPPUNIT_ASSERT(" fast filler did not threw"==0);
+  } catch (edm::Exception const &) {
+    
+  }
+  catch(...) {
+    CPPUNIT_ASSERT("fast filler threw wrong exception"==0);
+    
+  }
+  
 }
 
 namespace {
@@ -172,5 +215,46 @@ void TestDetSet::iterator() {
   }
   CPPUNIT_ASSERT(std::for_each(detsets.begin(),detsets.end(),VerifyIter(this)).n==4);
 
-
+  try {
+    {
+      CPPUNIT_ASSERT(detsets.exists(22));
+      CPPUNIT_ASSERT(!detsets.exists(44));
+      DST df = *detsets.find(22);
+      CPPUNIT_ASSERT(df.id()==22);
+      CPPUNIT_ASSERT(df.size()==2);
+    }
+    {
+      DST df = detsets[22];
+      CPPUNIT_ASSERT(df.id()==22);
+      CPPUNIT_ASSERT(df.size()==2);
+    }
+  }
+  catch (...) {
+    CPPUNIT_ASSERT("DetSetVector threw when not expected"==0);
+  }
+  
+  try{
+    DSTV::const_iterator p = detsets.find(44);
+    CPPUNIT_ASSERT(p==detsets.end());
+  } 
+  catch (edm::Exception const &) {
+    CPPUNIT_ASSERT("find threw edm exception when not expected"==0);
+    
+  }
+  catch(...) {
+    CPPUNIT_ASSERT("find threw wrong exception"==0);
+    
+  }
+  try{
+    DST df = detsets[44];
+    CPPUNIT_ASSERT("[] did not threw"==0);
+  } 
+  catch (edm::Exception const &) {
+    
+  }
+  catch(...) {
+    CPPUNIT_ASSERT("[] threw wrong exception"==0);
+    
+  }
+  
 }

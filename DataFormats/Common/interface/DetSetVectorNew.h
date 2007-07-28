@@ -47,7 +47,7 @@ namespace edmNew {
    *
    */
   template<typename T>
-  class DetSetVector  : private details::DetSetVectorTrans {
+  class DetSetVector  : private dstvdetails::DetSetVectorTrans {
   public:
     typedef dstvdetails::DetSetVectorTrans Trans;
     typedef Trans::Item Item;
@@ -252,6 +252,9 @@ namespace edmNew {
     
     
     int subdetId() const { return m_subdetId; }
+
+    bool empty() const { return m_ids.empty();}
+
 
     size_type dataSize() const { return m_data.size(); }
     
