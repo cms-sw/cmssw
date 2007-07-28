@@ -115,11 +115,14 @@ void TestDetSet::inserting() {
     DST dfe = detsets.insert(22,6);
     CPPUNIT_ASSERT("insert did not threw"==0);
   } 
-  catch (edm::Exception const &) {
-    
+  catch (edm::Exception const & ) {
+     
+  }
+  catch(std::exception const& ce) {
+    CPPUNIT_ASSERT(ce.what()==0);
   }
   catch(...) {
-    CPPUNIT_ASSERT("insert threw wrong exception"==0);
+    CPPUNIT_ASSERT("insert threw unknow exception"==0);
     
   }
   
@@ -167,8 +170,11 @@ void TestDetSet::filling() {
     FF ff1(detsets, 22);
     CPPUNIT_ASSERT(" fast filler did not threw"==0);
   } 
-  catch (edm::Exception const &) {
-    
+  catch (edm::Exception const & err) {
+    //    CPPUNIT_ASSERT(err.categoryCode()==edm::errors::LogicError);
+  }
+  catch(std::exception const& ce) {
+    CPPUNIT_ASSERT(ce.what()==0);
   }
   catch(...) {
     CPPUNIT_ASSERT("fast filler threw wrong exception"==0);
@@ -179,8 +185,11 @@ void TestDetSet::filling() {
     FF ff1(detsets, 44);
     FF ff2(detsets, 45);
     CPPUNIT_ASSERT(" fast filler did not threw"==0);
-  } catch (edm::Exception const &) {
-    
+  } catch (edm::Exception const &err) {
+    CPPUNIT_ASSERT(err.categoryCode()==edm::errors::LogicError);
+  }
+  catch(std::exception const& ce) {
+    CPPUNIT_ASSERT(ce.what()==0);
   }
   catch(...) {
     CPPUNIT_ASSERT("fast filler threw wrong exception"==0);
@@ -253,7 +262,7 @@ void TestDetSet::iterator() {
     CPPUNIT_ASSERT("[] did not threw"==0);
   } 
   catch (edm::Exception const &) {
-    
+       CPPUNIT_ASSERT(err.categoryCode()==edm::errors::InvalidReference);
   }
   catch(...) {
     CPPUNIT_ASSERT("[] threw wrong exception"==0);
