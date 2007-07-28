@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: TopObjectResolutionCalc.cc,v 1.3 2007/06/09 01:17:31 lowette Exp $
+// $Id: TopObjectResolutionCalc.cc,v 1.4 2007/06/15 16:10:04 heyninck Exp $
 //
 #include "TopQuarkAnalysis/TopObjectResolutions/interface/TopObjectResolutionCalc.h"
 
@@ -23,7 +23,7 @@ TopObjectResolutionCalc::TopObjectResolutionCalc(TString resopath) {
   TString  resObsName[6] = {"pres","eres","thres","phres","etres","etares"};
   TString def[1] = {"_abs"};
   for(Int_t ro=0; ro<6; ro++) {
-    if(objectType == "muon" ||objectType == "electron" ||objectType == "lJets" ||objectType == "bJets"){
+    if(objectType == "muon" ||objectType == "electron" ||objectType == "lJets" ||objectType == "bJets" || objectType == "tau"){
       for(Int_t i=0; i<10; i++) { 
         TString obsName = objectType; obsName += resObsName[ro]; obsName += "_etabin"; obsName += i; obsName += def[0]; 
         TH1F *tmp = (TH1F*) (resoFile->GetKey(obsName)->ReadObj());
@@ -97,3 +97,18 @@ void  TopObjectResolutionCalc::operator()(TopMET& obj){
   obj.setResET(    this->getObsRes(4,0,obj.et())  );
   obj.setResEta(   1000000.  );    			// Total freedom
 }
+void  TopObjectResolutionCalc::operator()(TopTau& obj){
+  const reco::Jet& theJet = obj.getJetTag()->jet();
+  double etabin[11] = {0,0.175,0.3625,0.5375,0.725,0.925,1.15,1.4,1.7,2.075,2.5};
+  int bin = 9;
+  for(Int_t i=0; i<10; i++) {
+    if(fabs(theJet.eta()) > etabin[i] && fabs(theJet.eta()) < etabin[i+1]) bin = i;
+  }
+  obj.setResPinv(  this->getObsRes(0,bin,theJet.et()) );	
+  obj.setResD(     this->getObsRes(1,bin,theJet.et()) );	
+  obj.setResTheta( this->getObsRes(2,bin,theJet.et()) );	 
+  obj.setResPhi(   this->getObsRes(3,bin,theJet.et()) );	
+  obj.setResET(    this->getObsRes(4,bin,theJet.et()) );	
+  obj.setResEta(   this->getObsRes(5,bin,theJet.et()) );
+}
+

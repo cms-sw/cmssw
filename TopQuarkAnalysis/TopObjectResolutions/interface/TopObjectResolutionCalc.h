@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: TopObjectResolutionCalc.h,v 1.3 2007/06/08 19:43:38 lowette Exp $
+// $Id: TopObjectResolutionCalc.h,v 1.4 2007/06/09 01:17:33 lowette Exp $
 //
 
 #ifndef TopObjectResolutionCalc_h
@@ -11,7 +11,7 @@
 /**
   \class    TopObjectResolutionCalc TopObjectResolutionCalc.h "TopQuarkAnalysis/TopLeptonSelection/interface/TopObjectResolutionCalc.h"
   \author   Jan Heyninck
-  \version  $Id: TopObjectResolutionCalc.h,v 1.3 2007/06/08 19:43:38 lowette Exp $
+  \version  $Id: TopObjectResolutionCalc.h,v 1.4 2007/06/09 01:17:33 lowette Exp $
 */
 
 
@@ -42,6 +42,7 @@ class TopObjectResolutionCalc {
     double getObsRes(int, int, double);
     void  operator()(TopJet&);
     void  operator()(TopMET&);
+    void  operator()(TopTau&);
     void  operator()(TopMuon&);
     void  operator()(TopElectron&);
 

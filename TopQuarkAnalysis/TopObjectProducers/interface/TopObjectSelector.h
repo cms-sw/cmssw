@@ -2,7 +2,7 @@
 // Author:  Steven Lowette
 // Created: Thu Jun  7 05:49:16 2007 UTC
 //
-// $Id$
+// $Id: TopObjectSelector.h,v 1.3 2007/06/23 07:31:51 lowette Exp $
 //
 
 #ifndef TopObjectProducer_TopObjectSelector_h
@@ -33,6 +33,12 @@ typedef ObjectSelector<
             SingleObjectSelector<TopElectron>
           >
         > TopElectronSelector;
+typedef ObjectSelector<
+          SingleElementCollectionSelector<
+            std::vector<TopTau>,
+            SingleObjectSelector<TopTau>
+          >
+        > TopTauSelector;
 typedef ObjectSelector<
           SingleElementCollectionSelector<
             std::vector<TopMuon>,
