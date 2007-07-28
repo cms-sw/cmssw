@@ -2,6 +2,8 @@
 #define Common_DetSetNew_H
 
 namespace edmNew {
+  //  FIXME move it elsewhere....
+  typedef unsigned int det_id_type;
 
   template<typename T> class DetSetVector;
   
@@ -32,6 +34,7 @@ namespace edmNew {
     DetSet(id_type i, data_type const * idata, size_type isize) :
       m_id(i), m_data(idata), m_size(isize) {}
     
+    //FIXME (it may confuse users as size_type is same type as id_type...)
     inline
     DetSet(Container const & icont,
 	      size_type i);
@@ -39,6 +42,7 @@ namespace edmNew {
     DetSet(Container const & icont,
 	   typename Container::Item const & item );
 
+    //FIXME (it may confuse users as size_type is same type as id_type...)
     inline
     void set(Container const & icont,
 	     size_type i);

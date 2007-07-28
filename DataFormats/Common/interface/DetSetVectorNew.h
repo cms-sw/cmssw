@@ -2,6 +2,7 @@
 #define Common_DetSetVectorNew_H
 
 #include "DataFormats/Common/interface/DetSetNew.h"
+#include "DataFormats/Common/interface/traits.h"
 
 #include <boost/iterator_adaptors.hpp>
 #include <boost/iterator/transform_iterator.hpp>
@@ -15,7 +16,7 @@ namespace edmNew {
   /* transient component of DetSetVector
    * for pure conviniency of dictioanary declaration
    */
-  namespace details {
+  namespace dstvdetails {
     struct DetSetVectorTrans {
       DetSetVectorTrans(): filling(false){}
       bool filling;
@@ -31,8 +32,9 @@ namespace edmNew {
       };
 
     };
-    inline void errorFilling(){}
-  }
+    void errorFilling();
+    void throw_range(det_id_type i);
+   }
 
   /** an optitimized container that linearized a "map of vector".
    *  It corresponds to a set of variable size array of T each belonging
@@ -47,7 +49,7 @@ namespace edmNew {
   template<typename T>
   class DetSetVector  : private details::DetSetVectorTrans {
   public:
-    typedef details::DetSetVectorTrans Trans;
+    typedef dstvdetails::DetSetVectorTrans Trans;
     typedef Trans::Item Item;
     typedef unsigned int size_type; // for persistency
     typedef unsigned int id_type;
@@ -100,7 +102,7 @@ namespace edmNew {
       }
       FastFiller(DetSetVector<T> & iv, typename DetSetVector<T>::Item & it) : 
 	v(iv), item(it){
-	if (v.filling) details::errorFilling();
+	if (v.filling) dstvdetails::errorFilling();
 	v.filling=true;
       }
       ~FastFiller() {
@@ -177,7 +179,7 @@ namespace edmNew {
     }
     //make space for it
     DetSet insert(id_type iid, size_type isize) {
-      // if (exists()) errorIdExists(iid);
+      // if (exists(iid)) errorIdExists(iid);
       size_t cs = m_data.size();
       Item it(iid,size_type(cs),isize);
       IdIter p = m_ids.insert(std::lower_bound(m_ids.begin(),
@@ -190,7 +192,7 @@ namespace edmNew {
 
     // to be used with a FastFiller
     Item & push_back(id_type iid) {
-      // if (exists()) errorIdExists(iid);
+      // if (exists(iid)) errorIdExists(iid);
       size_t cs = m_data.size();
       Item it(iid,size_type(cs),0);
       IdIter p = m_ids.insert(std::lower_bound(m_ids.begin(),
@@ -204,11 +206,9 @@ namespace edmNew {
     //---------------------------------------------------------
     
     bool exists(id_type i) const  {
-      const_IdIter p = std::lower_bound(m_ids.begin(),m_ids.end(),i);
-      return p!=m_ids.end() && (*p).id==i; 
+      return  findItem(i)!=m_ids.end(); 
     }
         
-
 
     /*
     DetSet operator[](id_type i) {
@@ -218,31 +218,33 @@ namespace edmNew {
     }
     */
 
-    /*
+    
     DetSet operator[](id_type i) const {
       const_IdIter p = findItem(i);
-      if (p==p-m_ids.begin()) thow???
+      if (p==m_ids.end()) dstvdetails::throw_range(i);
       return DetSet(*this,p-m_ids.begin());
     }
-    */
-
+    
     // slow interface
     const_iterator find(id_type i) const {
       const_IdIter p = findItem(i);
-      return (p==m_ids.end() || (*p).id!=i) ? end() :
+      return (p==m_ids.end()) ? end() :
 	boost::make_transform_iterator(boost::counting_iterator<int>(p-m_ids.begin()),
 				       IterHelp(*this));
     }
 
     // slow interface
     const_IdIter findItem(id_type i) const {
-      return std::lower_bound(m_ids.begin(),m_ids.end(),i);
+      std::pair<const_IdIter,const_IdIter> p =
+	std::equal_range(m_ids.begin(),m_ids.end(),i);
+      return (p.first==p.second) ? m_ids.end() ? p.first;
     }
     
     const_iterator begin() const {
       return  boost::make_transform_iterator(boost::counting_iterator<int>(0),
 					     IterHelp(*this));
     }
+
     const_iterator end() const {
       return  boost::make_transform_iterator(boost::counting_iterator<int>(size()),
 					     IterHelp(*this));
