@@ -350,7 +350,7 @@ namespace edmNew {
     // no getter or already updated
     if (getter.empty() || item.offset!=-1) return;
     item.offset = int(m_data.size());
-    boost::any_cast<boost::shared_ptr<Getter> >(&getter)->fill(FastFiller(*this,item));
+    (*boost::any_cast<boost::shared_ptr<Getter> >(&getter))->fill(FastFiller(*this,item));
   }
 
 
