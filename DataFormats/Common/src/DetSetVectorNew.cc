@@ -10,13 +10,13 @@ namespace edmNew {
     void errorIdExists(det_id_type iid) {
       throw edm::Exception(edm::errors::InvalidReference)
 	<< "DetSetVector::inserv called with index already in collection;\n"
-	<< "index value: " << i;
+	<< "index value: " << iid;
     }
 
-    void throw_range(det_id_type i) {
+    void throw_range(det_id_type iid) {
       throw edm::Exception(edm::errors::InvalidReference)
 	<< "DetSetVector::operator[] called with index not in collection;\n"
-	<< "index value: " << i;
+	<< "index value: " << iid;
     }
  
   }

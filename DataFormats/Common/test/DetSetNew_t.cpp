@@ -116,7 +116,7 @@ void TestDetSet::inserting() {
     CPPUNIT_ASSERT("insert did not threw"==0);
   } 
   catch (edm::Exception const & err) {
-    CPPUNIT_ASSERT(err.categoryCode()==edm::error::InvalidReference);
+    CPPUNIT_ASSERT(err.categoryCode()==edm::errors::InvalidReference);
   }
   
 }
@@ -164,7 +164,7 @@ void TestDetSet::filling() {
     CPPUNIT_ASSERT(" fast filler did not threw"==0);
   } 
   catch (edm::Exception const & err) {
-    CPPUNIT_ASSERT(err.categoryCode()==edm::error::InvalidReference);
+    CPPUNIT_ASSERT(err.categoryCode()==edm::errors::InvalidReference);
   }
   
   try {

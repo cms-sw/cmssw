@@ -34,7 +34,7 @@ namespace edmNew {
     };
     void errorFilling();
     void errorIdExists(det_id_type iid);
-    void throw_range(det_id_type i);
+    void throw_range(det_id_type iid);
    }
 
   /** an optitimized container that linearized a "map of vector".
@@ -194,8 +194,8 @@ namespace edmNew {
       IdIter p = std::lower_bound(m_ids.begin(),
 				  m_ids.end(),
 				  it);
-      if (!(it<p)) dstvdetails::errorIdExists(iid);
-      p = m_ids.insert(std::lower_bound(p,it);
+      if (!(it<*p)) dstvdetails::errorIdExists(iid);
+      p = m_ids.insert(p,it);
       return *p;
     }
 
