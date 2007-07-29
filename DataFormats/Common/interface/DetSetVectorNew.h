@@ -66,7 +66,7 @@ namespace edmNew {
     typedef T data_type;
     typedef DetSetVector<T> self;
     typedef DetSet<T> DetSet;
-
+    typedef dslv::LazyGetter<T> Getter;
     // FIXME not sure make sense....
     typedef DetSet value_type;
     typedef id_type key_type;
@@ -202,8 +202,7 @@ namespace edmNew {
   private:
 
     Item & addItem(id_type iid,  size_type isize) {
-      size_t cs = m_data.size();
-      Item it(iid,size_type(cs),isize);
+      Item it(iid,size_type(m_data.size()),isize);
       IdIter p = std::lower_bound(m_ids.begin(),
 				  m_ids.end(),
 				  it);
@@ -305,11 +304,7 @@ namespace edmNew {
    
   private:
 
-    void updateImpl(Item & item)  {
-      // no getter or nothing to update
-      if (getter.empty() || item.offset!=-1) return;
-      boost::any_cast<boost::shared_ptr<Getter> >(&getter)->fill(FastFiller(*this,item));
-    }
+    void updateImpl(Item & item);
     
   private:
     // subdetector id (as returned by  DetId::subdetId())
@@ -345,8 +340,16 @@ namespace edmNew {
 	++itDetId) {
       assert(sanityCheck < *itDetId && "vector of det_id_type was not ordered");
       sanityCheck = *itDetId;
-      m_ids_.push_back(*itDetId);
+      m_ids.push_back(*itDetId);
     }
+  }
+
+  template<typename T>
+  inline void DetSetVector<T>::updateImpl(Item & item)  {
+    // no getter or already updated
+    if (getter.empty() || item.offset!=-1) return;
+    item.offset = int(m_data.size());
+    boost::any_cast<boost::shared_ptr<Getter> >(&getter)->fill(FastFiller(*this,item));
   }
 
 
