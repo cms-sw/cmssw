@@ -285,7 +285,7 @@ void TestDetSet::onDemand() {
       CPPUNIT_ASSERT(g.ntot==1);
     }
     {
-      DST df = detsets[23];
+      DST df = detsets[25];
       CPPUNIT_ASSERT(df.id()==25);
       CPPUNIT_ASSERT(df.size()==5);
       CPPUNIT_ASSERT(g.ntot==1+5);
