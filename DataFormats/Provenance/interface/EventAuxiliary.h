@@ -30,15 +30,19 @@ namespace edm
 	time_(),
 	luminosityBlock_(),
 	isRealData_(false), 
-	experimentType_(Any) {}
+	experimentType_(Any),
+	bunchCrossing_(),
+        storeNumber_() {}
     EventAuxiliary(EventID const& theId, Timestamp const& theTime, LuminosityBlockNumber_t lb,
-                     bool isReal, ExperimentType eType = Any) :
+                     bool isReal, ExperimentType eType = Any, int bunchXing = 0, int storeNo = 0) :
 	processHistoryID_(),
 	id_(theId),
 	time_(theTime),
 	luminosityBlock_(lb),
 	isRealData_(isReal),
-        experimentType_(eType) {}
+        experimentType_(eType),
+	bunchCrossing_(bunchXing),
+	storeNumber_(storeNo) {}
     ~EventAuxiliary() {}
     void write(std::ostream& os) const;
     ProcessHistoryID& processHistoryID() const {return processHistoryID_;}
@@ -49,6 +53,8 @@ namespace edm
     RunNumber_t run() const {return id_.run();}
     bool isRealData() const {return isRealData_;}
     ExperimentType experimentType() const {return experimentType_;}
+    int bunchCrossing() const {return bunchCrossing_;}
+    int storeNumber() const {return storeNumber_;}
 
     // most recently process that processed this event
     // is the last on the list, this defines what "latest" is
@@ -63,6 +69,10 @@ namespace edm
     bool isRealData_;
     // Something descriptive of the source of the data
     ExperimentType experimentType_;
+    //  The bunch crossing number
+    int bunchCrossing_;
+    //  The LHC store number
+    int storeNumber_;
   };
 
   inline

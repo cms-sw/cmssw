@@ -10,7 +10,7 @@ such code sees the Event class, which is a proxy for EventPrincipal.
 The major internal component of the EventPrincipal
 is the DataBlock.
 
-$Id: EventPrincipal.h,v 1.60 2007/07/18 20:12:04 wmtan Exp $
+$Id: EventPrincipal.h,v 1.61 2007/07/26 20:08:31 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -36,6 +36,8 @@ namespace edm {
         ProcessConfiguration const& pc,
         bool isReal,
 	EventAuxiliary::ExperimentType const eType = EventAuxiliary::Any,
+	int bunchXing = 999,
+	int storeNo = 0,
 	ProcessHistoryID const& hist = ProcessHistoryID(),
 	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
     EventPrincipal(EventID const& id,
@@ -45,6 +47,8 @@ namespace edm {
         ProcessConfiguration const& pc,
         bool isReal,
 	EventAuxiliary::ExperimentType const eType = EventAuxiliary::Any,
+	int bunchXing = 999,
+	int storeNo = 0,
 	ProcessHistoryID const& hist = ProcessHistoryID(),
 	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
     ~EventPrincipal() {}
@@ -68,6 +72,22 @@ namespace edm {
 
     Timestamp const& time() const {
       return aux().time();
+    }
+
+    bool const isReal() const {
+      return aux().isRealData();
+    }
+
+    EventAuxiliary::ExperimentType ExperimentType() const {
+      return aux().experimentType();
+    }
+
+    int const bunchCrossing() const {
+      return aux().bunchCrossing();
+    }
+
+    int const storeNumber() const {
+      return aux().storeNumber();
     }
 
     EventAuxiliary const& aux() const {
