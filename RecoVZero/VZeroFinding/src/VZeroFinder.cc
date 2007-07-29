@@ -52,8 +52,9 @@ FreeTrajectoryState VZeroFinder::getTrajectory(const reco::Track& track)
 
 /*****************************************************************************/
 bool VZeroFinder::checkTrackPair(const reco::Track& posTrack,
-                                      const reco::Track& negTrack,
-                                      reco::VZeroData& data)
+                                 const reco::Track& negTrack,
+                                 const reco::VertexCollection* vertices,
+                                       reco::VZeroData& data)
 {
   // Get trajectories
   FreeTrajectoryState posTraj = getTrajectory(posTrack);
@@ -89,13 +90,36 @@ bool VZeroFinder::checkTrackPair(const reco::Track& posTrack,
     {
       // Momentum of the mother
       GlobalVector momentum = momenta.first + momenta.second;
+      float impact = -1.;
 
-      // Impact parameter of the mother in the plane
-      GlobalVector r_(crossing.x(),crossing.y(),0);
-      GlobalVector p_(momentum.x(),momentum.y(),0);
+      if(vertices->size() > 0)
+      {
+        // Impact parameter of the mother wrt vertices, choose smallest
 
-      GlobalVector b_ = r_ - (r_*p_)*p_ / p_.mag2();
-      float impact = b_.mag(); 
+        for(reco::VertexCollection::const_iterator
+            vertex = vertices->begin(); vertex!= vertices->end(); vertex++)
+        {
+        GlobalVector r(crossing.x(),
+                       crossing.y(),
+                       crossing.z() - vertex->position().z());
+        GlobalVector p(momentum.x(),momentum.y(),momentum.z());
+  
+        GlobalVector b = r - (r*p)*p / p.mag2();
+
+        float im = b.mag();
+        if(im < impact || vertex == vertices->begin())
+          impact = im; 
+        }
+      }
+      else
+      {
+        // Impact parameter of the mother in the plane
+        GlobalVector r_(crossing.x(),crossing.y(),0);
+        GlobalVector p_(momentum.x(),momentum.y(),0);
+  
+        GlobalVector b_ = r_ - (r_*p_)*p_ / p_.mag2();
+        impact = b_.mag(); 
+      }
 
       if(impact < maxImpactMother)
       {

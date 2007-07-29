@@ -37,11 +37,15 @@ void VZeroProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 
   cerr << "[V0 finder]" << endl;
 
+  // Get tracks
   edm::Handle<reco::TrackCollection> trackCollection;
   ev.getByLabel("ctfTripletTracks",  trackCollection);
-
-  // Get tracks
   const reco::TrackCollection tracks = *(trackCollection.product());
+
+  // Get primary vertices
+  edm::Handle<reco::VertexCollection> vertexCollection;
+  ev.getByType(vertexCollection);
+  const reco::VertexCollection* vertices = vertexCollection.product();
 
   // Find vzeros
   VZeroFinder theFinder(es,pset_);
@@ -76,7 +80,7 @@ void VZeroProducer::produce(edm::Event& ev, const edm::EventSetup& es)
     {
       reco::VZeroData data;
 
-      if(theFinder.checkTrackPair(**ipos,**ineg, data) == true)
+      if(theFinder.checkTrackPair(**ipos,**ineg, vertices, data) == true)
       {
         // Create vertex (creation point)
         reco::Vertex vertex(reco::Vertex::Point(data.crossingPoint.x(),
@@ -92,6 +96,7 @@ void VZeroProducer::produce(edm::Event& ev, const edm::EventSetup& es)
         result->push_back(reco::VZero(vertex,data));
       }
     }
+
   cerr << " [VZeroProducer] found candidates : " << result->size() << endl;
 
   // Put result back to the event

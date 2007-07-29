@@ -16,7 +16,8 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-#include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
+//#include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
+#include "RecoVertex/VertexTools/interface/ClosestApproachInRPhi.h"
 
 class VZeroFinder
 {
@@ -27,6 +28,7 @@ class VZeroFinder
 
    bool checkTrackPair(const reco::Track& posTrack,
                        const reco::Track& negTrack,
+                       const reco::VertexCollection* vertices,
                        reco::VZeroData& data);
 
  private:
