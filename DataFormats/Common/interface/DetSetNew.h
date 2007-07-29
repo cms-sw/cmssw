@@ -34,18 +34,14 @@ namespace edmNew {
     DetSet(id_type i, data_type const * idata, size_type isize) :
       m_id(i), m_data(idata), m_size(isize) {}
     
-    //FIXME (it may confuse users as size_type is same type as id_type...)
-    inline
+   inline
     DetSet(Container const & icont,
-	      size_type i);
-    inline
-    DetSet(Container const & icont,
-	   typename Container::Item const & item );
+	   typename Container::Item const & item);
 
     //FIXME (it may confuse users as size_type is same type as id_type...)
     inline
     void set(Container const & icont,
-	     size_type i);
+	     typename Container::Item const & item);
     inline
     data_type & operator[](size_type i) {
       return data()[i];

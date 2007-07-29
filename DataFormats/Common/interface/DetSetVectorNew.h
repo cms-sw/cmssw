@@ -76,8 +76,8 @@ namespace edmNew {
       typedef DetSet result_type;
       IterHelp(DetSetVector<T> const & iv) : v(iv){}
       
-       result_type & operator()(int i) const {
-	detset.set(v,i);
+       result_type & operator()(Item& item) const {
+	detset.set(v,item);
 	return detset;
       } 
     private:
@@ -85,7 +85,7 @@ namespace edmNew {
       mutable result_type detset;
     };
     
-    typedef boost::transform_iterator<IterHelp,boost::counting_iterator<int> > const_iterator;
+    typedef boost::transform_iterator<IterHelp,const_IdIter> const_iterator;
     
 
     /* fill the lastest inserted DetSet
@@ -228,7 +228,7 @@ namespace edmNew {
     const_iterator find(id_type i) const {
       const_IdIter p = findItem(i);
       return (p==m_ids.end()) ? end() :
-	boost::make_transform_iterator(boost::counting_iterator<int>(p-m_ids.begin()),
+	boost::make_transform_iterator(p,
 				       IterHelp(*this));
     }
 
@@ -240,12 +240,12 @@ namespace edmNew {
     }
     
     const_iterator begin() const {
-      return  boost::make_transform_iterator(boost::counting_iterator<int>(0),
+      return  boost::make_transform_iterator(m_ids.begin(),
 					     IterHelp(*this));
     }
 
     const_iterator end() const {
-      return  boost::make_transform_iterator(boost::counting_iterator<int>(size()),
+      return  boost::make_transform_iterator(m_ids.end(),
 					     IterHelp(*this));
     }
     
@@ -259,6 +259,8 @@ namespace edmNew {
     
     size_type size() const { return m_ids.size();}
     
+    //FIXME fast interfaces, not consistent with associative nature of container....
+
     data_type operator()(size_t cell, size_t frame) const {
       return m_data[m_ids[cell].offset+frame];
     }
@@ -276,6 +278,9 @@ namespace edmNew {
     Item const & item(size_t cell) const {
       return m_ids[cell];
     }
+
+    //------------------------------
+
     // IdContainer const & ids() const { return m_ids;}
     DataContainer const & data() const { return  m_data;}
     
@@ -292,22 +297,16 @@ namespace edmNew {
   
   template<typename T>
   inline DetSet<T>::DetSet(DetSetVector<T> const & icont,
-		    size_type i) :
-    m_id(icont.id(i)), m_data(icont.data(i)), m_size(icont.detsetSize(i)){}
-  
-  
-  template<typename T>
-  inline DetSet<T>::DetSet(DetSetVector<T> const & icont,
 			   typename DetSetVector<T>::Item const & item ) :
     m_id(item.id), m_data(&icont.data()[item.offset]), m_size(item.size){}
   
   
   template<typename T>
   inline void DetSet<T>::set(DetSetVector<T> const & icont,
-		      size_type i) {
-    m_id=icont.id(i); 
-    m_data=icont.data(i);
-    m_size=icont.detsetSize(i);
+			     typename Container::Item const & item) {
+    m_id=item.id; 
+    m_data=&icont.data()[item.offset]; 
+    m_size=item.size;
   }
   
 }
