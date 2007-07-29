@@ -353,12 +353,16 @@ namespace edmNew {
   template<typename T>
   inline DetSet<T>::DetSet(DetSetVector<T> const & icont,
 			   typename DetSetVector<T>::Item const & item ) :
-    m_id(item.id), m_data(&icont.data()[item.offset]), m_size(item.size){}
+    m_id(0), m_data(0), m_size(0){
+    icont.update(item);
+    set(icont,item);
+  }
   
   
   template<typename T>
   inline void DetSet<T>::set(DetSetVector<T> const & icont,
 			     typename Container::Item const & item) {
+    icont.update(item);
     m_id=item.id; 
     m_data=&icont.data()[item.offset]; 
     m_size=item.size;
