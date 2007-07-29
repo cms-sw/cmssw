@@ -145,6 +145,7 @@
 
 <class name="edmNew::dstvdetails::DetSetVectorTrans">
    <field name="filling" transient="true"/>
+   <field name="getter" transient="true"/>
 </class>
 <class name="edmNew::dstvdetails::DetSetVectorTrans::Item"/>
 <class name="std::vector<edmNew::dstvdetails::DetSetVectorTrans::Item>"/>

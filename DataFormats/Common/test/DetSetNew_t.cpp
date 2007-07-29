@@ -146,7 +146,7 @@ void TestDetSet::filling() {
     ff.resize(n);
     CPPUNIT_ASSERT(detsets.dataSize()==ntot);
     CPPUNIT_ASSERT(detsets.detsetSize(n-1)==n);
-    CPPUNIT_ASSERT(ff.item.offset==int(detsets.dataSize())-n); 
+    CPPUNIT_ASSERT(ff.item.offset==int(detsets.dataSize()-n)); 
     CPPUNIT_ASSERT(ff.item.size==n);  
     
     std::copy(sv.begin(),sv.begin()+n,ff.begin());
