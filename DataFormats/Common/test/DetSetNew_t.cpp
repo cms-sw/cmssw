@@ -29,6 +29,7 @@ class TestDetSet: public CppUnit::TestFixture
   CPPUNIT_TEST(inserting);
   CPPUNIT_TEST(filling);
   CPPUNIT_TEST(iterator);
+  CPPUNIT_TEST(onDemand);
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -42,6 +43,7 @@ class TestDetSet: public CppUnit::TestFixture
   void inserting();
   void filling();
   void iterator();
+  void onDemand();
 
 public:
   std::vector<DSTV::data_type> sv;
@@ -196,6 +198,22 @@ namespace {
     unsigned int n;
     TestDetSet & test;
   };
+
+  struct Getter : public DSTV::Getter {
+    Getter(TestDetSet * itest):ntot(0), test(*itest){}
+
+    void fill(FF& ff) {
+      int n=ff.id()-20;
+      CPPUNIT_ASSERT(n>0);
+      ff.resize(n);
+      std::copy(test.sv.begin(),test.sv.begin()+n,ff.begin());
+      ntot+=n;
+    }
+
+    unsigned int ntot;
+    TestDetSet & test;
+  }
+
 }
 
 void TestDetSet::iterator() {
@@ -236,6 +254,60 @@ void TestDetSet::iterator() {
   }
   try{
     DST df = detsets[44];
+    CPPUNIT_ASSERT("[] did not threw"==0);
+  } 
+  catch (edm::Exception const & err) {
+       CPPUNIT_ASSERT(err.categoryCode()==edm::errors::InvalidReference);
+  }
+}
+#include <boost/assign/std/vector.hpp>
+// for operator =+
+using namespace boost::assign;
+
+
+void TestDetSet::onDemand() {
+  Getter g(this);
+  std::vector<unsigned int> v; v+= 21,23,25,27;
+  DSTV detsets(2,g,v);
+  CPPUNIT_ASSERT(g.ntot==0);
+  try {
+    {
+      CPPUNIT_ASSERT(detsets.exists(21));
+      CPPUNIT_ASSERT(!detsets.exists(22));
+      CPPUNIT_ASSERT(!detsets.isValid(21));
+      CPPUNIT_ASSERT(!detsets.isValid(22));
+      DST df = *detsets.find(21);
+      CPPUNIT_ASSERT(df.id()==21);
+      CPPUNIT_ASSERT(df.size()==1);
+      CPPUNIT_ASSERT(detsets.isValid(21));
+      CPPUNIT_ASSERT(!detsets.isValid(23));
+      CPPUNIT_ASSERT(g.ntot==1);
+    }
+    {
+      DST df = detsets[23];
+      CPPUNIT_ASSERT(df.id()==25);
+      CPPUNIT_ASSERT(df.size()==5);
+      CPPUNIT_ASSERT(g.ntot==1+5);
+    }
+  }
+  catch (edm::Exception const &) {
+    CPPUNIT_ASSERT("DetSetVector threw when not expected"==0);
+  }
+
+  CPPUNIT_ASSERT(std::for_each(detsets.begin(),detsets.end(),VerifyIter(this)).n==4);
+  CPPUNIT_ASSERT(g.ntot==1+3+5+7);
+
+  
+  try{
+    DSTV::const_iterator p = detsets.find(22);
+    CPPUNIT_ASSERT(p==detsets.end());
+  } 
+  catch (edm::Exception const &) {
+    CPPUNIT_ASSERT("find threw edm exception when not expected"==0);
+    
+  }
+  try{
+    DST df = detsets[22];
     CPPUNIT_ASSERT("[] did not threw"==0);
   } 
   catch (edm::Exception const & err) {

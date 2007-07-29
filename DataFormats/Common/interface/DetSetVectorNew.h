@@ -221,6 +221,10 @@ namespace edmNew {
       return  findItem(i)!=m_ids.end(); 
     }
         
+    bool isValid(id_type i) const {
+      const_IdIter p = findItem(i);
+      return p!=m_ids.end() && (*p).offset!=-1;
+    }
 
     /*
     DetSet operator[](id_type i) {
