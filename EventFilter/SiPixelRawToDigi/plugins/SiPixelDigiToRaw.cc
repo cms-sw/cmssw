@@ -49,7 +49,6 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
   edm::LogInfo("SiPixelDigiToRaw") << "[SiPixelDigiToRaw::produce] "
                         << "event number: "
                         << eventCounter_;
-  cout << " -- event:" << eventCounter_ << endl;
 
   edm::Handle< edm::DetSetVector<PixelDigi> > digiCollection;
   static string label = config_.getUntrackedParameter<string>("InputLabel","source");
@@ -71,7 +70,6 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
 
   edm::ESHandle<SiPixelFedCablingMap> map;
   es.get<SiPixelFedCablingMapRcd>().get( map );
-  cout << map->version() << endl;
   
   PixelDataFormatter formatter(map.product());
 
@@ -89,9 +87,6 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
     LogDebug("SiPixelDigiToRaw")<<"size of data in fedRawData: "<<fedRawData.size();
   }
   allWordCounter += formatter.nWords();
-  cout << "Words/Digis this ev: "<<digiCounter<<"(fm:"<<formatter.nDigis()<<")/"
-        <<formatter.nWords()
-       <<"  all: "<< allDigiCounter <<"/"<<allWordCounter<<endl;
   
   ev.put( buffers );
   
