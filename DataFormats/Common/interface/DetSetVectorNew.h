@@ -129,6 +129,8 @@ namespace edmNew {
 	item.size=s;
       }
 
+      id_type id() const { return item.id;}
+
       data_type & operator[](size_type i) {
 	return 	v.m_data[item.offset+i];
       }
