@@ -321,7 +321,7 @@ namespace edmNew {
     class LazyGetter {
     public:
       virtual ~LazyGetter() {}
-      virtual void fill(DetSetVector<T>::FastFiller&) = 0;
+      virtual void fill(typename DetSetVector<T>::FastFiller&) = 0;
     };
   }
   
@@ -332,7 +332,7 @@ namespace edmNew {
 				       const std::vector<det_id_type>& iDets,
 				       int isubdet):  
     m_subdetId(isubdet) {
-    getter=igetter;
+    getter=iGetter;
 
     m_ids.reserve(iDets.size());
     det_id_type sanityCheck = 0;

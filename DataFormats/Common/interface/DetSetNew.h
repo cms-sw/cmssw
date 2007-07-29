@@ -72,7 +72,11 @@ namespace edmNew {
     size_type size() const { return m_size; }
     
   private:
-    data_type * data() {
+    data_type const * data() const {
+      return m_data;
+    }
+
+   data_type * data() {
       return const_cast<data_type *>(m_data);
     }
     
