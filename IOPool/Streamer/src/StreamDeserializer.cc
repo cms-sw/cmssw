@@ -140,6 +140,8 @@ namespace edm
                                                    processConfiguration_,
                                                    true,
 						   EventAuxiliary::Any,
+						   999,
+						   0,
 						   processHistoryID_));
     // no process name list handling
 
