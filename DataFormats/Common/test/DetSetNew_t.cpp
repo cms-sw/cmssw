@@ -183,19 +183,22 @@ void TestDetSet::filling() {
 
 namespace {
   struct VerifyIter{
-    VerifyIter(TestDetSet * itest):n(0), test(*itest){}
+    VerifyIter(TestDetSet * itest, unsigned int in=1, int iincr=1):
+      n(in), incr(iicr), test(*itest){}
     
     void operator()(DST const & df) {
-      ++n;
       CPPUNIT_ASSERT(df.id()==20+n); 
+      CPPUNIT_ASSERT(df.size()==n); 
       std::vector<DST::data_type> v1(n);
       std::vector<DST::data_type> v2(n);
       std::copy(df.begin(),df.end(),v2.begin());
       std::copy(test.sv.begin(),test.sv.begin()+n,v1.begin());
       CPPUNIT_ASSERT(v1==v2);
+      n+=incr;
     }
     
     unsigned int n;
+    int incr;
     TestDetSet & test;
   };
 
@@ -224,7 +227,7 @@ void TestDetSet::iterator() {
     ff.resize(n);
     std::copy(sv.begin(),sv.begin()+n,ff.begin());
   }
-  CPPUNIT_ASSERT(std::for_each(detsets.begin(),detsets.end(),VerifyIter(this)).n==4);
+  CPPUNIT_ASSERT(std::for_each(detsets.begin(),detsets.end(),VerifyIter(this)).n==5);
 
   try {
     {
@@ -295,7 +298,7 @@ void TestDetSet::onDemand() {
     CPPUNIT_ASSERT("DetSetVector threw when not expected"==0);
   }
 
-  CPPUNIT_ASSERT(std::for_each(detsets.begin(),detsets.end(),VerifyIter(this)).n==4);
+  CPPUNIT_ASSERT(std::for_each(detsets.begin(),detsets.end(),VerifyIter(this,1,2)).n==9);
   CPPUNIT_ASSERT(g.ntot==1+3+5+7);
 
   
