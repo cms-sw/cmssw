@@ -266,9 +266,10 @@ using namespace boost::assign;
 
 
 void TestDetSet::onDemand() {
-  boost::shared_ptr<DSTV::Getter> g(new Getter(this));
+  boost::shared_ptr<Getter> pg(new Getter(this));
+  Getter & g = *pg;
   std::vector<unsigned int> v; v+= 21,23,25,27;
-  DSTV detsets(2,g,v);
+  DSTV detsets(2,pg,v);
   CPPUNIT_ASSERT(g.ntot==0);
   try {
     {
