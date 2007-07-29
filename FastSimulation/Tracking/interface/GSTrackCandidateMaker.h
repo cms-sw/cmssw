@@ -22,7 +22,7 @@ namespace edm {
 class GSTrackCandidateMaker : public edm::EDProducer
 {
  public:
-  
+
   explicit GSTrackCandidateMaker(const edm::ParameterSet& conf);
   
   virtual ~GSTrackCandidateMaker();
@@ -56,6 +56,10 @@ class GSTrackCandidateMaker : public edm::EDProducer
   double originRadius;
   double originHalfLength;
   double originpTMin;
+  //PR-like hit rejection
+  std::string fname;
+  double chi2Cut;
+  unsigned int minTkHits;
 
 };
 

@@ -7,37 +7,42 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OwnVector.h"
-#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-
-#include "FastSimulation/Tracking/interface/GSTrackCandidateMaker.h"
-
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-
-#include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHit.h"
-#include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h" 
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h" 
 #include "DataFormats/SiStripDetId/interface/TECDetId.h" 
+#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
+
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHit.h"
+#include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+#include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
 
 #include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
-//
+#include "FastSimulation/Tracking/interface/GSTrackCandidateMaker.h"
+
+//RC
+typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer;
+typedef TransientTrackingRecHit::RecHitPointer        RecHitPointer;
+typedef TransientTrackingRecHit::RecHitContainer      RecHitContainer;
 
 //for debug only 
 //#define FAMOS_DEBUG
@@ -75,6 +80,14 @@ GSTrackCandidateMaker::GSTrackCandidateMaker(const edm::ParameterSet& conf)
 
   // Reject overlapping hits?
   rejectOverlaps = conf.getParameter<bool>("overlapCleaning");
+
+  //Pattern-Recognition-like hit rejection 
+  //fit name
+  fname = conf.getParameter<std::string>("fitter");
+  //chi2 cut to add a hit
+  chi2Cut = conf.getParameter<double>("maxChi2");
+  //min number of hits to keep the track
+  minTkHits = conf.getParameter<unsigned int>("minNumberOfHits");
 
 }
 
@@ -129,6 +142,11 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
   
   edm::Handle<edm::SimVertexContainer> theSimVtx;
   e.getByLabel("famosSimHits",theSimVtx);
+
+//get the fitter 
+  edm::ESHandle<TrajectoryFitter> fitterHandle;
+  es.get<TrackingComponentsRecord>().get(fname,fitterHandle);
+  const KFTrajectoryFitter* fitter = dynamic_cast <const KFTrajectoryFitter*>(fitterHandle.product());
 
 #ifdef FAMOS_DEBUG
   std::cout << " Step A: SimTracks found " << theSimTracks->size() << std::endl;
@@ -266,7 +284,7 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
 		  if(id2.wheel()<4 && id2.ring()<3){
 		    
 		    compatible = compatibleWithVertex(gpos1,gpos2);
-		    //std::cout << "Pair into PXF and TEC = " << id2.wheel() << ",\t" << id2.ring() << std::endl; 
+
 		    if(compatible) break;
 		  }
 		}
@@ -289,6 +307,7 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
     TrackingRecHit* previousHit = 0;
     //
     edm::OwnVector<TrackingRecHit> recHits;
+
     // 
     for ( iterRecHit = theRecHitRangeIteratorBegin; 
 	   iterRecHit != theRecHitRangeIteratorEnd; 
@@ -361,6 +380,7 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
       if ( replacePreviousHit ) {
 	delete previousHit;
 	recHits.pop_back();
+
 #ifdef FAMOS_DEBUG
 	std::cout << "Removed this RecHit (found a better hit on the same layer)" << std::endl; 
 #endif
@@ -368,12 +388,12 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
 
       // add current hit
       if ( keepThisHit ) { 
-
-	const GeomDet* geomDet( theGeometry->idToDet(detId) );
+	const GeomDet* geomDet( theGeometry->idToDet(detId));
 	TrackingRecHit* aTrackingRecHit = 
 	  GenericTransientTrackingRecHit::build(geomDet,&(*iterRecHit))->hit()->clone();
 	recHits.push_back(aTrackingRecHit);	
 	previousHit = aTrackingRecHit;
+
 
 #ifdef FAMOS_DEBUG
 	std::cout << "Added RecHit from detid " << detId.rawId() 
@@ -423,9 +443,7 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
 
     AlgebraicSymMatrix errorMatrix(5,1);
 
-    //why?
     errorMatrix = errorMatrix * 10;
-    // Ben oui, pourquoi?
     
 #ifdef FAMOS_DEBUG
     std::cout << "GSTrackCandidateMaker: SimTrack parameters " << std::endl;
@@ -473,7 +491,62 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
     
     // Track Candidate stored if the number of hits is large enough.
     if ( recHits.size() < minRecHits ) continue;
-    TrackCandidate newTrackCandidate(recHits, TrajectorySeed(initialState, recHits, alongMomentum), initialState );
+    //not necessary here  
+
+    //===================================================================
+    //add Pattern-Recognition-like hit rejection 
+
+    //use the fit method that takes a  trajectory seed and hits
+    //initialState is a PTSOS, se no initialTSOS is a TSOS
+
+    //add for later fitting
+    std::vector<ConstRecHitPointer> anotherRecHits;
+    anotherRecHits.resize(recHits.size());
+    //add for later fit
+
+    // Loop over the tracking recHits
+    edm::OwnVector<TrackingRecHit>::const_iterator aTrackingRecHit = recHits.begin();
+    edm::OwnVector<TrackingRecHit>::const_iterator lastTrackingRecHit = recHits.end();
+    unsigned int nTRH=0;
+    for( ; aTrackingRecHit!=lastTrackingRecHit; ++aTrackingRecHit ) {
+      const DetId& newdetId = aTrackingRecHit->geographicalId();
+      const GeomDet* geomDet( theGeometry->idToDet(newdetId));
+
+      anotherRecHits[nTRH++]
+	= GenericTransientTrackingRecHit::build(geomDet,&(*aTrackingRecHit));
+
+    }
+
+    // Attempt a fit
+    const TrajectorySeed theTSeed = TrajectorySeed(initialState, recHits, alongMomentum);
+    std::vector<Trajectory> trajectories(fitter->fit(theTSeed,anotherRecHits,initialTSOS));
+    if(trajectories.empty()) return; //failed
+    Trajectory newTrajCandidate;
+    const Trajectory& trajectory = trajectories.front();
+    std::vector<TrajectoryMeasurement> tms(trajectory.measurements());
+
+    //loop over TrajectoryMeasurement is exactly as rechits
+    std::vector<TrajectoryMeasurement>::const_iterator aTM=tms.begin();
+    std::vector<TrajectoryMeasurement>::const_iterator lastTM=tms.end();
+    for ( ; aTM!=lastTM; ++aTM) {
+
+      // Check if this Trajectory Measurement has 
+      // too large a contribution to the chi**2
+      if( aTM->estimate()<chi2Cut ) {
+	//add new Candidate
+	newTrajCandidate.push(*aTM);
+
+      } else {
+	//std::cout << "Fit Stopped for hit with large chi2" << std::endl;
+	//allow for lost hits? not for now
+	break; 
+      }
+    }
+    
+    
+    //==============================================================
+    
+    
     
 #ifdef FAMOS_DEBUG
     // Log
@@ -504,10 +577,39 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
     std::cout << std::endl;
 #endif
 
-    output->push_back(newTrackCandidate);
-    ++nTrackCandidates;
+    //check new size 
 
+    /*
+    if( newTrajCandidate.measurements().size() < minTkHits) 
+      std::cout << "Tracks rejected b/c too few hits " 
+		<< newTrajCandidate.measurements().size() 
+		<< std::endl;
+    */
+    
+    if( newTrajCandidate.measurements().size() >= minTkHits ) {
+      Trajectory::RecHitContainer thits;
+      newTrajCandidate.recHitsV(thits);
+      edm::OwnVector<TrackingRecHit> newRecHits;
+      newRecHits.reserve(thits.size());
 
+      Trajectory::RecHitContainer::const_iterator aHitIt = thits.begin();
+      Trajectory::RecHitContainer::const_iterator lastHitIt = thits.end();
+      for ( ; aHitIt != lastHitIt; ++aHitIt) {
+	newRecHits.push_back( (*aHitIt)->hit()->clone() );
+      }  
+      
+      //      TrackCandidate newTrackCandidate(newRecHits);
+      TrackCandidate newTrackCandidate(newRecHits, 
+				       TrajectorySeed(initialState, 
+						      newRecHits, 
+						      alongMomentum), 
+				       initialState); 
+
+      output->push_back(newTrackCandidate);
+      ++nTrackCandidates;
+
+    }
+    
   }
   
 
