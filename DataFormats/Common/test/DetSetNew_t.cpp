@@ -184,7 +184,7 @@ void TestDetSet::filling() {
 namespace {
   struct VerifyIter{
     VerifyIter(TestDetSet * itest, unsigned int in=1, int iincr=1):
-      n(in), incr(iicr), test(*itest){}
+      n(in), incr(iincr), test(*itest){}
     
     void operator()(DST const & df) {
       CPPUNIT_ASSERT(df.id()==20+n); 
