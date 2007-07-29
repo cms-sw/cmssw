@@ -188,15 +188,13 @@ namespace edmNew {
   private:
 
     Item & addItem(id_type iid,  size_type isize) {
-      // if (exists(iid)) errorIdExists(iid);
       size_t cs = m_data.size();
       Item it(iid,size_type(cs),isize);
       IdIter p = std::lower_bound(m_ids.begin(),
 				  m_ids.end(),
 				  it);
-      if (!(it<*p)) dstvdetails::errorIdExists(iid);
-      p = m_ids.insert(p,it);
-      return *p;
+      if (p!=m_ids.end() && !(it<*p)) dstvdetails::errorIdExists(iid);
+      return *m_ids.insert(p,it);
     }
 
 
