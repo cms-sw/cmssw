@@ -113,17 +113,10 @@ void TestDetSet::inserting() {
   // test error conditions
   try {
     DST dfe = detsets.insert(22,6);
-    // CPPUNIT_ASSERT("insert did not threw"==0);
+    CPPUNIT_ASSERT("insert did not threw"==0);
   } 
-  catch (edm::Exception const & ) {
-     
-  }
-  catch(std::exception const& ce) {
-    CPPUNIT_ASSERT(ce.what()==0);
-  }
-  catch(...) {
-    CPPUNIT_ASSERT("insert threw unknow exception"==0);
-    
+  catch (edm::Exception const & err) {
+    CPPUNIT_ASSERT(err.categoryCode()==edm::error::InvalidReference);
   }
   
 }
@@ -168,17 +161,10 @@ void TestDetSet::filling() {
   // test error conditions
   try {
     FF ff1(detsets, 22);
-    // CPPUNIT_ASSERT(" fast filler did not threw"==0);
+    CPPUNIT_ASSERT(" fast filler did not threw"==0);
   } 
   catch (edm::Exception const & err) {
-    //    CPPUNIT_ASSERT(err.categoryCode()==edm::errors::LogicError);
-  }
-  catch(std::exception const& ce) {
-    CPPUNIT_ASSERT(ce.what()==0);
-  }
-  catch(...) {
-    CPPUNIT_ASSERT("fast filler threw wrong exception"==0);
-    
+    CPPUNIT_ASSERT(err.categoryCode()==edm::error::InvalidReference);
   }
   
   try {
@@ -188,14 +174,8 @@ void TestDetSet::filling() {
   } catch (edm::Exception const &err) {
     CPPUNIT_ASSERT(err.categoryCode()==edm::errors::LogicError);
   }
-  catch(std::exception const& ce) {
-    CPPUNIT_ASSERT(ce.what()==0);
-  }
-  catch(...) {
-    CPPUNIT_ASSERT("fast filler threw wrong exception"==0);
-    
-  }
-  
+ 
+ 
 }
 
 namespace {
@@ -241,7 +221,7 @@ void TestDetSet::iterator() {
       CPPUNIT_ASSERT(df.size()==2);
     }
   }
-  catch (...) {
+  catch (edm::Exception const &) {
     CPPUNIT_ASSERT("DetSetVector threw when not expected"==0);
   }
   
@@ -253,10 +233,6 @@ void TestDetSet::iterator() {
     CPPUNIT_ASSERT("find threw edm exception when not expected"==0);
     
   }
-  catch(...) {
-    CPPUNIT_ASSERT("find threw wrong exception"==0);
-    
-  }
   try{
     DST df = detsets[44];
     CPPUNIT_ASSERT("[] did not threw"==0);
@@ -264,9 +240,4 @@ void TestDetSet::iterator() {
   catch (edm::Exception const & err) {
        CPPUNIT_ASSERT(err.categoryCode()==edm::errors::InvalidReference);
   }
-  catch(...) {
-    CPPUNIT_ASSERT("[] threw wrong exception"==0);
-    
-  }
-  
 }

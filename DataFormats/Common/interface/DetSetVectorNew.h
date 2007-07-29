@@ -33,6 +33,7 @@ namespace edmNew {
 
     };
     void errorFilling();
+    void errorIdExists(det_id_type iid);
     void throw_range(det_id_type i);
    }
 
@@ -166,41 +167,41 @@ namespace edmNew {
     
     // FIXME not sure what the best way to add one cell to cont
     DetSet insert(id_type iid, data_type const * idata, size_type isize) {
-      // if (exists()) errorIdExists(iid);
-      size_t cs = m_data.size();
-      Item it(iid,size_type(cs),isize);
-      IdIter p = m_ids.insert(std::lower_bound(m_ids.begin(),
-				    m_ids.end(),
-				    it),
-		   it);
+      Item & item = addItem(iid,isize);
       m_data.resize(m_data.size()+isize);
-      std::copy(idata,idata+isize,m_data.begin()+cs);
-     return DetSet(*this,p-m_ids.begin());
+      std::copy(idata,idata+isize,m_data.begin()+item.offset);
+     return DetSet(*this,item);
     }
     //make space for it
     DetSet insert(id_type iid, size_type isize) {
-      // if (exists(iid)) errorIdExists(iid);
-      size_t cs = m_data.size();
-      Item it(iid,size_type(cs),isize);
-      IdIter p = m_ids.insert(std::lower_bound(m_ids.begin(),
-					       m_ids.end(),
-					       it),
-			      it);
+      Item & item = addItem(iid,isize);
       m_data.resize(m_data.size()+isize);
-      return DetSet(*this,p-m_ids.begin());
+      return DetSet(*this,item);
     }
 
     // to be used with a FastFiller
     Item & push_back(id_type iid) {
+      return addItem(iid,0);
+    }
+
+
+  private:
+
+    Item & addItem(id_type iid,  size_type isize) {
       // if (exists(iid)) errorIdExists(iid);
       size_t cs = m_data.size();
-      Item it(iid,size_type(cs),0);
-      IdIter p = m_ids.insert(std::lower_bound(m_ids.begin(),
-					       m_ids.end(),
-					       it),
-			      it);
+      Item it(iid,size_type(cs),isize);
+      IdIter p = std::lower_bound(m_ids.begin(),
+				  m_ids.end(),
+				  it);
+      if (!(it<p)) dstvdetails::errorIdExists(iid);
+      p = m_ids.insert(std::lower_bound(p,it);
       return *p;
     }
+
+
+
+  public:
 
 
     //---------------------------------------------------------
