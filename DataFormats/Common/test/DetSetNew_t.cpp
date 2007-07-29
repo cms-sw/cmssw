@@ -68,10 +68,10 @@ void TestDetSet::default_ctor() {
   CPPUNIT_ASSERT(detsets.dataSize()==10);
   CPPUNIT_ASSERT(!detsets.empty());
   // follow is nonsense still valid construct...
-  DST df(detsets,1);
+  DST df(detsets,detsets.item(1));
   CPPUNIT_ASSERT(df.size()==0); 
   CPPUNIT_ASSERT(df.m_data==&detsets.m_data.front()); 
-  df.set(detsets,2);
+  df.set(detsets,detsets.item(2));
   CPPUNIT_ASSERT(df.size()==0); 
   CPPUNIT_ASSERT(df.m_data==&detsets.m_data.front()); 
   DSTV detsets2(3);
