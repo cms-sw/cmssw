@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/07/19 11:48:51 $
- * $Revision: 1.43 $
+ * $Date: 2007/07/27 14:54:01 $
+ * $Revision: 1.44 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -886,7 +886,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 	  else if(iemu==1) emustring = "Real Digis ";
 	  else if(iemu==2) emustring = "Emulated Digis ";
 	  if ( j < 7 ) {
-	    title << "EBTTT Flags " << emustring << Numbers::sEB(ism).c_str() << ", bit " << bitset<8>(j-1);
+	    title << "EBTTT Flags " << emustring << Numbers::sEB(ism).c_str() << ", bit " << bitset<3>(j-1);
 	  } else {
 	    title << "EBTTT Flags " << emustring << Numbers::sEB(ism).c_str() << " bits 110+111";
 	  }

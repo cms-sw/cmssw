@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2007/07/09 15:23:35 $
- * $Revision: 1.5 $
+ * $Date: 2007/07/27 14:53:50 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -621,7 +621,7 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         std::stringstream title;
         if ( j < 7 ) {
-          title << "EETTT Flags SM" << std::setfill('0') << std::setw(2) << ism << ", bit " << bitset<8>(j-1);
+          title << "EETTT Flags SM" << std::setfill('0') << std::setw(2) << ism << ", bit " << bitset<3>(j-1);
         } else {
           title << "EETTT Flags SM" << std::setfill('0') << std::setw(2) << ism << " bits 110+111";
         }
