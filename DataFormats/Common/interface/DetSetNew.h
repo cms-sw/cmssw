@@ -49,7 +49,7 @@ namespace edmNew {
     
     inline
     data_type operator[](size_type i) const {
-      return m_data[i];
+      return data()[i];
     }
     
     inline
@@ -59,10 +59,10 @@ namespace edmNew {
     iterator end() { return data()+m_size;}
 
     inline
-    const_iterator begin() const { return m_data;}
+    const_iterator begin() const { return data();}
 
     inline
-    const_iterator end() const { return m_data+m_size;}
+    const_iterator end() const { return data()+m_size;}
 
 
     inline

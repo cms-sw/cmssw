@@ -7,11 +7,18 @@
 #include <boost/iterator_adaptors.hpp>
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/iterator/counting_iterator.hpp>
+#include <boost/any.hpp>
+#include <boost/shared_ptr.hpp>
+
 
 #include<vector>
 
 //FIXME remove New when ready
 namespace edmNew {
+
+  namespace dslv {
+    template< typename T> class LazyGetter;
+  }
 
   /* transient component of DetSetVector
    * for pure conviniency of dictioanary declaration
@@ -20,13 +27,15 @@ namespace edmNew {
     struct DetSetVectorTrans {
       DetSetVectorTrans(): filling(false){}
       bool filling;
+      boost::any getter;
+
       typedef unsigned int size_type; // for persistency
       typedef unsigned int id_type;
 
       struct Item {
-	Item(id_type i=0, size_type io=0, size_type is=0) : id(i), offset(io), size(is){}
+	Item(id_type i=0, int io=-1, size_type is=0) : id(i), offset(io), size(is){}
 	id_type id;
-	size_type offset;
+	int offset;
 	size_type size;
 	bool operator<(Item const &rh) const { return id<rh.id;}
       };
@@ -55,6 +64,7 @@ namespace edmNew {
     typedef unsigned int size_type; // for persistency
     typedef unsigned int id_type;
     typedef T data_type;
+    typedef DetSetVector<T> self;
     typedef DetSet<T> DetSet;
 
     // FIXME not sure make sense....
@@ -139,6 +149,10 @@ namespace edmNew {
 
     explicit DetSetVector(int isubdet=0) :
       m_subdetId(isubdet) {}
+
+    DetSetVector(boost::shared_ptr<dslv::LazyGetter<T> > iGetter, const std::vector<det_id_type>& iDets,
+		 int isubdet=0);
+
 
     ~DetSetVector() {
       // delete content if T is pointer...
@@ -283,6 +297,19 @@ namespace edmNew {
 
     // IdContainer const & ids() const { return m_ids;}
     DataContainer const & data() const { return  m_data;}
+
+
+    void update(Item const & item) const {
+      const_cast<self*>(this)->updateImpl(const_cast<Item&>(item));
+    }
+   
+  private:
+
+    void updateImpl(Item & item)  {
+      // no getter or nothing to update
+      if (getter.empty() || item.offset!=-1) return;
+      boost::any_cast<boost::shared_ptr<Getter> >(&getter)->fill(FastFiller(*this,item));
+    }
     
   private:
     // subdetector id (as returned by  DetId::subdetId())
@@ -294,7 +321,35 @@ namespace edmNew {
     
   };
   
+ namespace dslv {
+    template< typename T>
+    class LazyGetter {
+    public:
+      virtual ~LazyGetter() {}
+      virtual void fill(DetSetVector<T>::FastFiller&) = 0;
+    };
+  }
   
+    
+
+  template<typename T>
+  inline DetSetVector<T>::DetSetVector(boost::shared_ptr<dslv::LazyGetter<T> > iGetter, const std::vector<det_id_type>& iDets,
+				       int isubdet=0):  
+    m_subdetId(isubdet) {
+    getter=igetter;
+
+    m_ids.reserve(iDets.size());
+    det_id_type sanityCheck = 0;
+    for(std::vector<det_id_type>::const_iterator itDetId = iDets.begin(), itDetIdEnd = iDets.end();
+	itDetId != itDetIdEnd;
+	++itDetId) {
+      assert(sanityCheck < *itDetId && "vector of det_id_type was not ordered");
+      sanityCheck = *itDetId;
+      m_ids_.push_back(*itDetId);
+    }
+  }
+
+
   template<typename T>
   inline DetSet<T>::DetSet(DetSetVector<T> const & icont,
 			   typename DetSetVector<T>::Item const & item ) :
