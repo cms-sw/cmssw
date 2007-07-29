@@ -46,13 +46,13 @@ TtDecayChannelSelector::operator()(const reco::CandidateCollection& parts) const
   int iTop=0,iBeauty=0,iElec=0,iMuon=0,iTau=0;
   reco::CandidateCollection::const_iterator top=parts.begin();
   for(; top!=parts.end(); ++top){
-    if( reco::status(*top)==3 && abs((*top).pdgId())==6 ){
+    if( top->status()==3 && abs((*top).pdgId())==6 ){
       ++iTop;
       reco::Candidate::const_iterator td=(*top).begin();
       for(; td!=(*top).end(); ++td){
-	if( reco::status(*td)==3 && abs((*td).pdgId())==5 )
+	if( td->status()==3 && abs((*td).pdgId())==5 )
 	  {++iBeauty;}
-	if( reco::status(*td)==3 && abs((*td).pdgId())==24 ){
+	if( td->status()==3 && abs((*td).pdgId())==24 ){
 	  reco::Candidate::const_iterator wd=(*td).begin();
 	  for(; wd!=(*td).end(); ++wd){
 	    if( abs((*wd).pdgId())==11 ){++iElec;}
