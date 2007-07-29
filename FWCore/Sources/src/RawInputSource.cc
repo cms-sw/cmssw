@@ -1,9 +1,10 @@
 /*----------------------------------------------------------------------
-$Id: RawInputSource.cc,v 1.9 2007/07/23 23:42:35 wmtan Exp $
+$Id: RawInputSource.cc,v 1.10 2007/07/26 23:44:27 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Sources/interface/RawInputSource.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -82,7 +83,7 @@ namespace edm {
     eventId = EventID(runNumber_, eventId.event());
     ep_ = std::auto_ptr<EventPrincipal>(
 	new EventPrincipal(eventId, Timestamp(tstamp),
-	productRegistry(), lbp_, processConfiguration(), true));
+	productRegistry(), lbp_, processConfiguration(), true, EventAuxiliary::Data));
     std::auto_ptr<Event> e(new Event(*ep_, moduleDescription()));
     return e;
   }
