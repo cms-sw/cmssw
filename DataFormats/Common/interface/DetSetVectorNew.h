@@ -221,7 +221,7 @@ namespace edmNew {
     DetSet operator[](id_type i) const {
       const_IdIter p = findItem(i);
       if (p==m_ids.end()) dstvdetails::throw_range(i);
-      return DetSet(*this,p-m_ids.begin());
+      return DetSet(*this,*p);
     }
     
     // slow interface
