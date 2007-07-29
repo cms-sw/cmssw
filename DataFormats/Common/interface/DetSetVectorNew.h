@@ -328,8 +328,9 @@ namespace edmNew {
     
 
   template<typename T>
-  inline DetSetVector<T>::DetSetVector(boost::shared_ptr<dslv::LazyGetter<T> > iGetter, const std::vector<det_id_type>& iDets,
-				       int isubdet=0):  
+  inline DetSetVector<T>::DetSetVector(boost::shared_ptr<dslv::LazyGetter<T> > iGetter, 
+				       const std::vector<det_id_type>& iDets,
+				       int isubdet):  
     m_subdetId(isubdet) {
     getter=igetter;
 
