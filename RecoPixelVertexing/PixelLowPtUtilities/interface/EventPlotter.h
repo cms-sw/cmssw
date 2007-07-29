@@ -45,7 +45,8 @@ GlobalVector& n2, ofstream& outFile, int charge);
     void printRecTracks(const reco::TrackCollection* recTracks,
                         const vector<Trajectory>*    recTrajes);
     void printPixelRecHit
-      (const SiPixelRecHit * recHit, ofstream& pixelDetUnits);
+      (const SiPixelRecHit * recHit, ofstream& pixelDetUnits,
+                                     ofstream& pixelHits);
     void printPixelRecHits(const edm::Event& ev);
 
     void printStripRecHit

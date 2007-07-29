@@ -403,12 +403,12 @@ void EventPlotter::printStripRecHit
   lpos = LocalPoint(recHit->localPosition().x(),
                 -y, recHit->localPosition().z());
   p = theTracker->idToDet(id)->toGlobal(lpos);
-  stripHits << ""<<p.x()<<","<<p.y()<<","<<p.z()/2<<"}}]" << endl;;
+  stripHits << ""<<p.x()<<","<<p.y()<<","<<p.z()/2<<"}}]" << endl;
 }
 
 /*****************************************************************************/
 void EventPlotter::printPixelRecHit
- (const SiPixelRecHit * recHit, ofstream& pixelDetUnits)
+ (const SiPixelRecHit * recHit, ofstream& pixelDetUnits, ofstream& pixelHits)
 {
   DetId id = recHit->geographicalId();
 
@@ -431,12 +431,23 @@ void EventPlotter::printPixelRecHit
                   << p10.x()<<","<<p10.y()<<","<<p10.z()/2<<"}}]"
     << ", Line[{{"<< p10.x()<<","<<p10.y()<<","<<p10.z()/2<<"}, {"
                   << p00.x()<<","<<p00.y()<<","<<p00.z()/2<<"}}]" << endl;
+
+  // RecHit
+  LocalPoint lpos; GlobalPoint p;
+  
+  lpos = LocalPoint(recHit->localPosition().x(),
+                    recHit->localPosition().y(),
+                    recHit->localPosition().z());
+  p = theTracker->idToDet(id)->toGlobal(lpos);
+  pixelHits << ", Point[{"<<p.x()<<","<<p.y()<<","<<p.z()/2<<"}]" << endl;
 }
 
 /*****************************************************************************/
 void EventPlotter::printPixelRecHits(const edm::Event& ev)
 {
-  ofstream pixelDetUnits("pixelDetUnits.m");
+  ofstream pixelDetUnits, pixelHitsSingle;
+  pixelHitsSingle.open("pixelHitsSingle.m");
+  pixelDetUnits.open  ("pixelDetUnits.m");
 
   // Get pixel hit collections
   vector<edm::Handle<SiPixelRecHitCollection> > pixelColls;
@@ -457,7 +468,7 @@ void EventPlotter::printPixelRecHits(const edm::Event& ev)
       for(SiPixelRecHitCollection::const_iterator
             recHit = range.first; recHit!= range.second; recHit++)
       if(recHit->isValid())
-        printPixelRecHit(&(*recHit), pixelDetUnits);
+        printPixelRecHit(&(*recHit), pixelDetUnits, pixelHitsSingle);
     }
   }
 }
@@ -466,8 +477,8 @@ void EventPlotter::printPixelRecHits(const edm::Event& ev)
 void EventPlotter::printStripRecHits(const edm::Event& ev)
 {
   ofstream stripDetUnits, stripHitsSingle, stripHitsMatched;
-  stripDetUnits.open("stripDetUnits.m");
-  stripHitsSingle.open("stripHitsSingle.m");
+  stripDetUnits.open   ("stripDetUnits.m");
+  stripHitsSingle.open( "stripHitsSingle.m");
   stripHitsMatched.open("stripHitsMatched.m");
 
   {

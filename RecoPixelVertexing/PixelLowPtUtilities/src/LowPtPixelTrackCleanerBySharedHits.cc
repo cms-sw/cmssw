@@ -89,8 +89,12 @@ TracksWithRecHits LowPtPixelTrackCleanerBySharedHits::cleanTracks
       unsigned int j = (*sharing).first;
       if(!keep[i] || !keep[j]) continue;
 
-      // At least 2 rechits shared
-      if((*sharing).second >= 2)
+      // Old: At least 2 rechits shared
+      // if((*sharing).second >= 2)
+      // New: More than min(hits1,hits2)/2 rechits are shared
+
+      if((*sharing).second > min(tracks[i].second.size(),
+                                 tracks[j].second.size())/2)
       {
         if(fabs(tracks[i].first->d0() - tracks[j].first->d0()) < 0.1)
         { // merge tracks, add separate hits of the second to the first one

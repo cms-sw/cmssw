@@ -121,7 +121,7 @@ void PixelTripletLowPtGenerator::hitTriplets(
         vector<GlobalVector> globalDirs;
         if(thePrediction.isCompatibleWithMultipleScattering
              (points[2], recHits[2], globalDirs, es) == false)
-          continue;
+           continue;
 
         // Convert to localDirs
         vector<LocalVector> localDirs;
