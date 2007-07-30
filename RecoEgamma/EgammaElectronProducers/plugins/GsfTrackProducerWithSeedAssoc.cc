@@ -268,11 +268,11 @@ void GsfTrackProducerWithSeedAssoc::produce(edm::Event& theEvent, const edm::Eve
 						 innertsos.curvilinearError(), innerId, dir));
 
      reco::TrackExtra & tx = selTrackExtras->back();
-    size_t i = 0;
+    size_t k = 0;
     for( TrajectoryFitter::RecHitContainer::const_iterator j = transHits.begin();
 	 j != transHits.end(); j ++ ) {
       TrackingRecHit * hit = (**j).hit()->clone();
-      track.setHitPattern( * hit, i ++ );
+      track.setHitPattern( * hit, k ++ );
       selHits->push_back( hit );
       tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
     }
