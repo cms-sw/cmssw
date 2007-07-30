@@ -37,8 +37,8 @@ public:
   // Extension of the TrackingRecHit interface
 
   /// The GomeDet* can be zero for InvalidTransientRecHits and for TConstraintRecHit2Ds
-  virtual const GeomDet * det() const {return geom_;}
-  virtual const Surface * surface() const {return &(geom_->surface());}
+  const GeomDet * det() const {return geom_;}
+  const Surface * surface() const {return &(geom_->surface());}
 
   /// CAUTION: the GeomDetUnit* is zero for composite hits 
   /// (matched hits in the tracker, segments in the muon).
