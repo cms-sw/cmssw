@@ -6,9 +6,9 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 
-class InvalidTransientRecHit : public GenericTransientTrackingRecHitByValue<InvalidTrackingRecHit> {
+class InvalidTransientRecHit : public TransientTrackingRecHitByValue<InvalidTrackingRecHit> {
 public:
-
+  typedef TransientTrackingRecHitByValue<InvalidTrackingRecHit> Base;
   typedef TrackingRecHit::Type Type;
 
   static RecHitPointer build( const GeomDet * geom, Type type=TrackingRecHit::missing, const DetLayer * layer=0) {

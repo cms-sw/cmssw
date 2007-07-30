@@ -38,12 +38,12 @@ protected:
   
   // private constructors enforce usage of builders
   TransientTrackingRecHitByValue(const GeomDet * geom, const RecHit& rh) :
-    TransientTrackingRecHit(geom,rh) : m_trackingRecHit(rh) {
+    TransientTrackingRecHit(geom,rh), m_trackingRecHit(rh) {
   }
   
   
   TransientTrackingRecHitByValue( const TransientTrackingRecHitByValue<RecHit> & other ) :
-    TransientTrackingRecHit( other.det(),other) : m_trackingRecHit(*other.hit()) {
+    TransientTrackingRecHit( other.det(),other), m_trackingRecHit(*other.hit()) {
   }
   
 private:
