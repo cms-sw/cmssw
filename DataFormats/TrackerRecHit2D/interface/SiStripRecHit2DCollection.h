@@ -2,13 +2,10 @@
 #define DATAFORMATS_SISTRIPRECHIT2DCOLLECTION_H
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-#include "DataFormats/Common/interface/RangeMap.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include <vector>
-#include "DataFormats/Common/interface/ClonePolicy.h"
-#include "DataFormats/Common/interface/OwnVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 
-typedef edm::RangeMap <DetId, edm::OwnVector<SiStripRecHit2D> > SiStripRecHit2DCollection;
+
+typedef edmNew::DetSetVector<SiStripRecHit2D> SiStripRecHit2DCollection;
 
 
 #endif

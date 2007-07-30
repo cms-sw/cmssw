@@ -50,4 +50,11 @@
   <class name="edm::Ref<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit2D,edm::ClonePolicy<SiStripRecHit2D> >,edm::ClonePolicy<SiStripRecHit2D> >,SiStripRecHit2D,edm::refhelper::FindUsingAdvance<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit2D,edm::ClonePolicy<SiStripRecHit2D> >,edm::ClonePolicy<SiStripRecHit2D> >,SiStripRecHit2D> >"/>
   <class name="edm::RefVector<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit2D,edm::ClonePolicy<SiStripRecHit2D> >,edm::ClonePolicy<SiStripRecHit2D> >,SiStripRecHit2D,edm::refhelper::FindUsingAdvance<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit2D,edm::ClonePolicy<SiStripRecHit2D> >,edm::ClonePolicy<SiStripRecHit2D> >,SiStripRecHit2D> >"/>
 
+ <class name="std::vector<SiStripRecHit2D>"/>
+ <class name="edmNew::DetSetVector<SiStripRecHit2D>"/>
+ <class name=""edm::Wrapper<edmNew::DetSetVector<SiStripRecHit2D> >"/>
+ <class name="std::vector<SiPixelRecHit>"/>
+ <class name="edmNew::DetSetVector<SiPixelRecHit>"/>
+ <class name=""edm::Wrapper<edmNew::DetSetVector<SiPixelRecHit> >"/>
+
 </lcgdict>
