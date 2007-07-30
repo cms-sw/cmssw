@@ -101,8 +101,8 @@ namespace {
   }
 
   edm::Wrapper<edmNew::DetSetVector<SiStripRecHit2D> > wdstvDummy1;
-  edm::Wrapper<edmNew::DetSetVector<SiStripMatchedRecHit2D> > wdstvDummy1;
-  edm::Wrapper<edmNew::DetSetVector<SiPixelRecHit> > wdstvDummy2;
+  edm::Wrapper<edmNew::DetSetVector<SiStripMatchedRecHit2D> > wdstvDummy2;
+  edm::Wrapper<edmNew::DetSetVector<SiPixelRecHit> > wdstvDummy3;
 
 }
 
