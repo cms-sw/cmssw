@@ -9,11 +9,11 @@
 // \author Marcel Vos, Andrea Rizzi, Andrea Bocci based on ORCA version by Christian Weiser, Andrea Rizzi
 // \version first version on January 12, 2006
 
+#include "DataFormats/BTauReco/interface/RefMacros.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
-#include "DataFormats/BTauReco/interface/JetTagFwd.h"
 
 namespace reco {
   class JetTag {
@@ -41,5 +41,8 @@ namespace reco {
     edm::RefToBase<BaseTagInfo> m_tagInfo;
   };
   
+DECLARE_EDM_REFS( JetTag )
+
 }
+
 #endif // DataFormats_BTauReco_JetTag_h

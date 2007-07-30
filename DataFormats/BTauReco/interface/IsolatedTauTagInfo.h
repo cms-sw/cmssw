@@ -9,11 +9,10 @@
 // \author: Simone Gennai, based on ORCA class by S. Gennai and F. Moortgat
 //
 
-
+#include "DataFormats/BTauReco/interface/RefMacros.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
-#include "DataFormats/BTauReco/interface/IsolatedTauTagInfoFwd.h"
 
 namespace reco { 
 
@@ -62,6 +61,9 @@ namespace reco {
   private:
     TrackRefVector selectedTracks_;
   };
+
+  DECLARE_EDM_REFS( IsolatedTauTagInfo )
+
 }
 
 #endif // DataFormats_BTauReco_IsolatedTauTagInfo_h

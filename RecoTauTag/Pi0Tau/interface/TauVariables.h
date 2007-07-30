@@ -16,7 +16,7 @@
 //
 // Original Author:  Dongwook Jang
 //         Created:  Tue Jan  9 16:40:36 CST 2007
-// $Id: TauVariables.h,v 1.2 2007/04/05 19:27:49 dwjang Exp $
+// $Id: TauVariables.h,v 1.3 2007/06/01 22:00:53 dwjang Exp $
 //
 //
 
@@ -29,7 +29,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
-#include "DataFormats/BTauReco/interface/IsolatedTauTagInfoFwd.h"
 #include "RecoTauTag/Pi0Tau/interface/Pi0.h"
 #include "RecoTauTag/Pi0Tau/interface/Pi0Fwd.h"
 #include "RecoTauTag/Pi0Tau/interface/Tau3D.h"

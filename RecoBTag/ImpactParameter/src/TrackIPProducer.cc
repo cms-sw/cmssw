@@ -13,26 +13,26 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: TrackIPProducer.cc,v 1.5 2007/06/08 00:44:57 elmer Exp $
+// $Id: TrackIPProducer.cc,v 1.6 2007/07/12 22:47:35 arizzi Exp $
 //
 //
 
 
 // system include files
 #include <memory>
+#include <iostream>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "RecoBTag/ImpactParameter/interface/TrackIPProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+//#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/BTauReco/interface/TrackIPTagInfoFwd.h"
+#include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 
@@ -40,13 +40,8 @@
 #include "TrackingTools/IPTools/interface/IPTools.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-//#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "RecoBTag/TrackProbability/interface/HistogramProbabilityEstimator.h"
-
-#include <iostream>
+#include "RecoBTag/ImpactParameter/interface/TrackIPProducer.h"
 
 using namespace std;
 using namespace reco;

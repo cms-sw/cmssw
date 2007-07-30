@@ -4,12 +4,12 @@
 #include <vector>
 #include <map>
 
+#include "DataFormats/BTauReco/interface/RefMacros.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
-#include "DataFormats/BTauReco/interface/IsolatedTauTagInfoFwd.h"
-#include "DataFormats/BTauReco/interface/TauMassTagInfoFwd.h"
+#include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
 
 namespace reco {
  
@@ -53,6 +53,8 @@ namespace reco {
 
   };
  
+  DECLARE_EDM_REFS( TauMassTagInfo )
+
 }
 #endif
 

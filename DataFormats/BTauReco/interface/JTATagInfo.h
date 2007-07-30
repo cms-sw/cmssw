@@ -1,9 +1,9 @@
 #ifndef DataFormats_BTauReco_JTATagInfo_h
 #define DataFormats_BTauReco_JTATagInfo_h
 
+#include "DataFormats/BTauReco/interface/RefMacros.h"
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
-#include "DataFormats/BTauReco/interface/JTATagInfoFwd.h"
 
 namespace reco {
  
@@ -28,6 +28,8 @@ public:
 protected:
   JetTracksAssociationRef m_jetTracksAssociation;
 };
+
+DECLARE_EDM_REFS( JTATagInfo )
 
 }
 

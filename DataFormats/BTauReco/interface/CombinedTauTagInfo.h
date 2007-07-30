@@ -7,18 +7,17 @@
  *  revised: Jul 02 2007
  *  author: Ludovic Houchu.
  */
+
 #include <limits>
 #include <math.h>
-
 #include "CLHEP/Vector/LorentzVector.h"
-
+#include "DataFormats/BTauReco/interface/RefMacros.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/BTauReco/interface/IsolatedTauTagInfoFwd.h"
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
-#include "DataFormats/BTauReco/interface/CombinedTauTagInfoFwd.h"
+#include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
 
 namespace reco {
 
@@ -61,8 +60,8 @@ namespace reco {
     //                               NaN       the values of the likelihood functions PDFs are 0 (test the result of discriminator() with bool isnan(.));   
     
     //the reference to the IsolatedTauTagInfo
-    const IsolatedTauTagInfoRef& isolatedtautaginfoRef()const{return IsolatedTauTagInfoRef_;}
-    void setisolatedtautaginfoRef(const IsolatedTauTagInfoRef x) {IsolatedTauTagInfoRef_=x;}
+    const IsolatedTauTagInfoRef & isolatedtautaginfoRef() const { return IsolatedTauTagInfoRef_; }
+    void setisolatedtautaginfoRef(const IsolatedTauTagInfoRef & x) { IsolatedTauTagInfoRef_ = x; }
    
     //get the tracks from the JetTag
     const TrackRefVector& allTks() const { return m_jetTracksAssociation->second; }
@@ -187,6 +186,9 @@ namespace reco {
    double theECALEt_o_leadTkPt;
    double theHCALEt_o_leadTkPt;
  };
+
+ DECLARE_EDM_REFS( CombinedTauTagInfo )
+
 }
 
 #endif // DataFormsts_BTauReco_CombinedTauTagInfo_h

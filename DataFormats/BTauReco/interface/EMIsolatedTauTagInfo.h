@@ -4,13 +4,13 @@
 // \class EMIsolatedTauTagInfo
 //
 
+#include "DataFormats/BTauReco/interface/RefMacros.h"
 #include "Math/GenVector/VectorUtil.h"
 #include "Math/GenVector/PxPyPzE4D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/LorentzVectorFwd.h"
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 #include "DataFormats/BTauReco/interface/JetCrystalsAssociation.h"
-#include "DataFormats/BTauReco/interface/EMIsolatedTauTagInfoFwd.h"
 
 namespace reco {
 
@@ -76,6 +76,9 @@ namespace reco {
     float m_discriminator; //Default discriminator assigned in the EDProducer
     JetCrystalsAssociationRef m_jetCrystalsAssociation;
   };
+
+  DECLARE_EDM_REFS( EMIsolatedTauTagInfo )
+
 }
 
 #endif // DataFormats_BTauReco_EMIsolatedTauTagInfo_h

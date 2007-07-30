@@ -1,12 +1,11 @@
 #ifndef DataFormats_BTauReco_TauImpactParameterInfo_h
 #define DataFormats_BTauReco_TauImpactParameterInfo_h
 
+#include "DataFormats/BTauReco/interface/RefMacros.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/BTauReco/interface/TauImpactParameterInfoFwd.h"
-#include "DataFormats/BTauReco/interface/IsolatedTauTagInfoFwd.h" 
-#include "DataFormats/BTauReco/interface/TauImpactParameterInfoFwd.h" 
+#include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
 
 namespace reco {
  
@@ -45,6 +44,8 @@ namespace reco {
     IsolatedTauTagInfoRef                        isolatedTaus;
   };
  
+  DECLARE_EDM_REFS( TauImpactParameterInfo )
+
 }
 
 #endif // DataFormats_BTauReco_TauImpactParameterInfo_h

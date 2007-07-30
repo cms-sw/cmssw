@@ -1,10 +1,10 @@
 #ifndef BTauReco_BJetTagTrackProbability_h
 #define BTauReco_BJetTagTrackProbability_h
 
+#include "DataFormats/BTauReco/interface/RefMacros.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h" 
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
-#include "DataFormats/BTauReco/interface/TrackProbabilityTagInfoFwd.h"
 
 namespace reco {
  
@@ -136,5 +136,7 @@ int factorial(int n) const
 //typedef edm::ExtCollection< TrackProbabilityTagInfo,JetTagCollection> TrackProbabilityExtCollection;
 //typedef edm::OneToOneAssociation<JetTagCollection, TrackProbabilityTagInfo> TrackProbabilityExtCollection;
  
+DECLARE_EDM_REFS( TrackProbabilityTagInfo )
+
 }
 #endif

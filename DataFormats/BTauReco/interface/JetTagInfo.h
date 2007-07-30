@@ -1,8 +1,8 @@
 #ifndef DataFormats_BTauReco_JetTagInfo_h
 #define DataFormats_BTauReco_JetTagInfo_h
 
+#include "DataFormats/BTauReco/interface/RefMacros.h"
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
-#include "DataFormats/BTauReco/interface/JetTagInfoFwd.h"
 
 namespace reco {
  
@@ -29,6 +29,8 @@ public:
 protected:
   edm::RefToBase<Jet> m_jet;
 };
+
+DECLARE_EDM_REFS( JetTagInfo )
 
 }
 

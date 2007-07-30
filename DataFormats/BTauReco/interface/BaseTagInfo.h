@@ -1,11 +1,11 @@
 #ifndef DataFormats_BTauReco_BaseTagInfo_h
 #define DataFormats_BTauReco_BaseTagInfo_h
 
+#include "DataFormats/BTauReco/interface/RefMacros.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
-#include "DataFormats/BTauReco/interface/BaseTagInfoFwd.h"
 
 namespace reco {
  
@@ -35,6 +35,8 @@ public:
     return TaggingVariableList();
   }
 };
+
+DECLARE_EDM_REFS( BaseTagInfo )
 
 }
 

@@ -1,10 +1,9 @@
 #ifndef DataFormats_BTauReco_CombinedSVTagInfo_h
 #define DataFormats_BTauReco_CombinedSVTagInfo_h
 
+#include "DataFormats/BTauReco/interface/RefMacros.h"
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
-// #include "RecoBTag/CombinedSVTagInfo/interface/CombinedData.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
-#include "DataFormats/BTauReco/interface/CombinedSVTagInfoFwd.h"
 
 namespace reco {
   class CombinedSVTagInfo : public JTATagInfo {
@@ -30,6 +29,9 @@ namespace reco {
     reco::TaggingVariableList vars_;
     double discriminator_;
   };
+
+  DECLARE_EDM_REFS( CombinedSVTagInfo )
+
 }
 
 #endif // DataFormats_BTauReco_CombinedSVTagInfo_h

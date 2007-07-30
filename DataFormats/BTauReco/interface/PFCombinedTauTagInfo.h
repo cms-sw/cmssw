@@ -11,11 +11,10 @@
 #include <limits>
 #include <math.h>
 
+#include "DataFormats/BTauReco/interface/RefMacros.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
-#include "DataFormats/BTauReco/interface/PFIsolatedTauTagInfoFwd.h" 
-#include "DataFormats/BTauReco/interface/PFCombinedTauTagInfoFwd.h" 
 
 using namespace edm;
 using namespace std;
@@ -184,6 +183,9 @@ namespace reco {
    double ECALEtleadPFChargedHadrCandPtRatio_;
    double HCALEtleadPFChargedHadrCandPtRatio_;
  };
+
+  DECLARE_EDM_REFS( PFCombinedTauTagInfo )
+
 }
 
 #endif // DataFormats_BTauReco_PFCombinedTauTagInfo_h

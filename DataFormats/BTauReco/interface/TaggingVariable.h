@@ -9,7 +9,7 @@
 #include <boost/pointee.hpp>
 #include <boost/type_traits/is_convertible.hpp>
 
-#include "DataFormats/BTauReco/interface/TaggingVariableFwd.h" 
+#include "DataFormats/BTauReco/interface/RefMacros.h"
 
 namespace reco {
 
@@ -135,6 +135,8 @@ namespace reco {
       return get( tag );
     }
   };
+
+  DECLARE_EDM_REFS( TaggingVariableList )
 
 }
 

@@ -14,7 +14,7 @@ Implementation:
 //
 // Original Author:  Dongwook Jang
 //         Created:  Wed Oct 11 11:08:40 CDT 2006
-// $Id: TauAna.cc,v 1.2 2007/04/05 19:27:50 dwjang Exp $
+// $Id: TauAna.cc,v 1.1 2007/06/04 23:11:24 dwjang Exp $
 //
 //
 
@@ -22,7 +22,6 @@ Implementation:
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
-#include "DataFormats/BTauReco/interface/IsolatedTauTagInfoFwd.h"
 #include "RecoTauTag/Pi0Tau/interface/Pi0.h"
 #include "RecoTauTag/Pi0Tau/interface/Pi0Fwd.h"
 #include "RecoTauTag/Pi0Tau/interface/Tau3D.h"

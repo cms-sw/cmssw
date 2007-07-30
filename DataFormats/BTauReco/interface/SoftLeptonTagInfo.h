@@ -1,10 +1,10 @@
 #ifndef DataFormats_BTauReco_SoftLeptonTagInfo_h
 #define DataFormats_BTauReco_SoftLeptonTagInfo_h
 
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/BTauReco/interface/RefMacros.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BTauReco/interface/JetTagInfo.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
-#include "DataFormats/BTauReco/interface/SoftLeptonTagInfoFwd.h"
 
 namespace reco {
  
@@ -62,6 +62,8 @@ private:
     LeptonMap m_leptons;
 
 };
+
+DECLARE_EDM_REFS( SoftLeptonTagInfo )
 
 }
 

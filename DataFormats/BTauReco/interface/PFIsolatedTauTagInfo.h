@@ -11,12 +11,13 @@
 
 #include <math.h>
 
+#include "DataFormats/BTauReco/interface/RefMacros.h"
+
 #include "Math/GenVector/PxPyPzE4D.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
-#include "DataFormats/BTauReco/interface/PFIsolatedTauTagInfoFwd.h"
 
 
 using namespace std;
@@ -138,6 +139,9 @@ namespace reco{
     bool passedtrackerisolation_;
     bool passedECALisolation_;
   };
+
+  DECLARE_EDM_REFS( PFIsolatedTauTagInfo )
+
 }
 
 #endif // DataFormats_BTauReco_PFIsolatedTauTagInfo_h
