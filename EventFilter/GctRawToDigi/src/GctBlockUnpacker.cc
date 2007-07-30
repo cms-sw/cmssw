@@ -24,6 +24,8 @@ GctBlockUnpacker::GctBlockUnpacker() :
 
   // setup block length map
   blockLength_[0x00] = 0;
+  blockLength_[0x58] = 0;
+  blockLength_[0x59] = 0;
   blockLength_[0x5f] = 1;   // ConcJet: Bunch Counter Pattern Test
   blockLength_[0x68] = 4;   // ConcElec: Output to Global Trigger
   blockLength_[0x69] = 16;  // ConcElec: Sort Input
@@ -75,6 +77,10 @@ void GctBlockUnpacker::convertBlock(const unsigned char * data, unsigned id, uns
 
   switch (id) {
   case (0x00):
+    break;
+  case (0x58):
+    break;
+  case (0x59):
     break;
   case (0x5f) :
     break;
