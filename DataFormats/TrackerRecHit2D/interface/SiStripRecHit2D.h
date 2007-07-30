@@ -37,11 +37,11 @@ public:
  private:
 
   // DetSetVector ref
-  edm::Ref<edm::DetSetVector<SiStripCluster>,SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster>  >  const cluster_;
+  edm::Ref<edm::DetSetVector<SiStripCluster>,SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster>  >  cluster_;
 
 
   // SiStripRefGetter ref.
-  edm::SiStripRefGetter<SiStripCluster>::value_ref const clusterRegional_;
+  edm::SiStripRefGetter<SiStripCluster>::value_ref clusterRegional_;
 
   /// cache for the matcher....
   mutable double sigmaPitch_;  // transient....

@@ -40,7 +40,7 @@ public:
 
 private:
 
-  edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster > const cluster_;
+  edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster > cluster_;
 
 };
 

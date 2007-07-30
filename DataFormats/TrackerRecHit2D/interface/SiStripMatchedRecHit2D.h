@@ -21,7 +21,7 @@ class SiStripMatchedRecHit2D : public BaseSiTrackerRecHit2DLocalPos{
  
   
  private:
-  const SiStripRecHit2D componentMono_,componentStereo_;
+  SiStripRecHit2D componentMono_,componentStereo_;
 };
 
 
