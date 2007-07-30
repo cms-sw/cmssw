@@ -43,7 +43,7 @@ public:
   /// CAUTION: the GeomDetUnit* is zero for composite hits 
   /// (matched hits in the tracker, segments in the muon).
   /// Always check this pointer before using it!
-  virtual const GeomDetUnit * detUnit() const = 0;
+  virtual const GeomDetUnit * detUnit() const;
 
   virtual GlobalPoint globalPosition() const ;
   virtual GlobalError globalPositionError() const ;

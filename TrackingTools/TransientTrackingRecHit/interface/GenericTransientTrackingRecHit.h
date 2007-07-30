@@ -17,8 +17,6 @@ public:
   virtual LocalPoint localPosition() const {return trackingRecHit_->localPosition();}
   virtual LocalError localPositionError() const {return trackingRecHit_->localPositionError();}
 
-  virtual const GeomDetUnit * detUnit() const;
-
   virtual bool canImproveWithTrack() const {return false;}
 
   virtual const TrackingRecHit * hit() const {return trackingRecHit_;};
