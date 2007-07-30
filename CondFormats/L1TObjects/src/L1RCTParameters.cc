@@ -1,7 +1,7 @@
 /**
  * Author: Sridhara Dasu
  * Created: 04 July 2007
- * $Id: L1RCTParameters.cc,v 1.4 2007/07/18 08:03:16 dasu Exp $
+ * $Id: L1RCTParameters.cc,v 1.5 2007/07/26 09:07:53 dasu Exp $
  **/
 
 #include <iostream>
@@ -11,9 +11,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
-#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
-
 L1RCTParameters::L1RCTParameters(double eGammaLSB,
 				 double jetMETLSB,
 				 double eMinForFGCut,
@@ -22,11 +19,7 @@ L1RCTParameters::L1RCTParameters(double eGammaLSB,
 				 double eMinForHoECut,
 				 double eMaxForHoECut,
 				 double eActivityCut,
-				 double hActivityCut,
-				 std::vector<double> eGammaECalScaleFactors,
-				 std::vector<double> eGammaHCalScaleFactors,
-				 std::vector<double> jetMETECalScaleFactors,
-				 std::vector<double> jetMETHCalScaleFactors
+				 double hActivityCut
 				 ) :
   eGammaLSB_(eGammaLSB),
   jetMETLSB_(jetMETLSB),
@@ -36,13 +29,7 @@ L1RCTParameters::L1RCTParameters(double eGammaLSB,
   eMinForHoECut_(eMinForHoECut),
   eMaxForHoECut_(eMaxForHoECut),
   eActivityCut_(eActivityCut),
-  hActivityCut_(hActivityCut),
-  eGammaECalScaleFactors_(eGammaECalScaleFactors),
-  eGammaHCalScaleFactors_(eGammaHCalScaleFactors),
-  jetMETECalScaleFactors_(jetMETECalScaleFactors),
-  jetMETHCalScaleFactors_(jetMETHCalScaleFactors),
-  transcoder_(0),
-  l1CaloEtScale_(0)
+  hActivityCut_(hActivityCut)
 {
 }
 
@@ -145,127 +132,4 @@ unsigned short L1RCTParameters::calcIPhi(unsigned short iCrate,
   else
     iPhi = (iCrate % 9) * 2 + iTower / 4;
   return iPhi;
-}
-
-// converts compressed ecal energy to linear (real) scale
-float L1RCTParameters::convertEcal(unsigned short ecal, int iAbsEta) const
-{
-  return ((float) ecal) * eGammaLSB_;
-}
-
-// converts compressed hcal energy to linear (real) scale
-float L1RCTParameters::convertHcal(unsigned short hcal, int iAbsEta) const
-{
-  static bool first = true;
-  if(transcoder_ != 0)
-    {
-      if(first)
-	std::cout << "L1RCTParameters: Using transcoder" << std::endl;
-      return (transcoder_->hcaletValue(iAbsEta, hcal));
-    }
-  else
-    {
-      if(first)
-	std::cout << "L1RCTParameters: Not using transcoder" << std::endl;
-      return ((float) hcal) * jetMETLSB_;
-    }
-  first = false;
-}
-
-// integerize given an LSB and set maximum value of 2^precision-1
-unsigned long L1RCTParameters::convertToInteger(float et, 
-						float lsb, 
-						int precision) const
-{
-  unsigned long etBits = (unsigned long)(et/lsb);
-  unsigned long maxValue = (1 << precision) - 1;
-  if(etBits > maxValue)
-    return maxValue;
-  else
-    return etBits;
-}
-
-unsigned int L1RCTParameters::eGammaETCode(float ecal, float hcal, int iAbsEta) const
-{
-  float etLinear = 
-    eGammaECalScaleFactors_[iAbsEta] * ecal +
-    eGammaHCalScaleFactors_[iAbsEta] * hcal;
-  return convertToInteger(etLinear, eGammaLSB_, 7);
-}
-
-unsigned int L1RCTParameters::jetMETETCode(float ecal, float hcal, int iAbsEta) const
-{
-  float etLinear = 
-    jetMETECalScaleFactors_[iAbsEta] * ecal +
-    jetMETHCalScaleFactors_[iAbsEta] * hcal;
-  return convertToInteger(etLinear, jetMETLSB_, 9);
-}
-
-unsigned int L1RCTParameters::lookup(unsigned short ecalInput,
-				     unsigned short hcalInput,
-				     unsigned short fgbit,
-				     unsigned short crtNo,
-				     unsigned short crdNo,
-				     unsigned short twrNo) const
-{
-  if(ecalInput > 0xFF) 
-    throw cms::Exception("Invalid Data") 
-      << "ECAL compressedET should be less than 0xFF, is " << ecalInput;
-  if(hcalInput > 0xFF) 
-    throw cms::Exception("Invalid Data") 
-      << "HCAL compressedET should be less than 0xFF, is " << hcalInput;
-  if(fgbit > 1) 
-    throw cms::Exception("Invalid Data") 
-      << "ECAL finegrain should be a single bit, is " << fgbit;
-  int iEta = calcIEta(crtNo, crdNo, twrNo);
-  int iAbsEta = abs(iEta);
-  if(iAbsEta < 1 || iAbsEta > 28) 
-    throw cms::Exception("Invalid Data") 
-      << "1 <= |IEta| <= 28, is " << iAbsEta;
-  float ecal = convertEcal(ecalInput, iAbsEta);
-  float hcal = convertHcal(hcalInput, iAbsEta);
-  unsigned long etIn7Bits = eGammaETCode(ecal, hcal, iAbsEta);
-  unsigned long etIn9Bits = jetMETETCode(ecal, hcal, iAbsEta);
-  unsigned long shiftEtIn9Bits = etIn9Bits<<8;
-  unsigned long shiftHE_FGBit = hOeFGVetoBit(ecal, hcal, fgbit)<<7;
-  unsigned long shiftActivityBit = activityBit(ecal, hcal)<<17;
-  unsigned long output=etIn7Bits+shiftHE_FGBit+shiftEtIn9Bits+shiftActivityBit;
-  return output;
-}
-
-unsigned int L1RCTParameters::lookup(unsigned short hfInput,
-				     unsigned short crtNo,
-				     unsigned short crdNo,
-				     unsigned short twrNo
-				     ) const
-{
-  if(hfInput > 0xFF) 
-    throw cms::Exception("Invalid Data") 
-      << "HF compressedET should be less than 0xFF, is " << hfInput;
-  int iEta = calcIEta(crtNo, crdNo, twrNo);
-  int iAbsEta = abs(iEta);
-  if(iAbsEta < 29 || iAbsEta > 32) 
-    throw cms::Exception("Invalid Data") 
-      << "29 <= |iEta| <= 32, is " << iAbsEta;
-  float et = convertHcal(hfInput, iAbsEta);
-  return convertToInteger(et, jetMETLSB(), 8);
-}
-
-bool L1RCTParameters::hOeFGVetoBit(float ecal, float hcal, bool fgbit) const
-{
-  bool veto = false;
-  if(ecal > eMinForFGCut_ && ecal < eMaxForFGCut_)
-    {
-      if(fgbit) veto = true;
-    }
-  if(ecal > eMinForHoECut_ && ecal < eMaxForHoECut_)
-    {
-      if((hcal / ecal) > hOeCut_) veto = true;
-    }
-  return veto;
-}
-
-bool L1RCTParameters::activityBit(float ecal, float hcal) const
-{
-  return ((ecal > eActivityCut_) || (hcal > hActivityCut_));
 }
