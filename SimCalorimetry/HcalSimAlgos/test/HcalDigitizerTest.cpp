@@ -26,7 +26,7 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalHitCorrection.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalHardcodeGeometryLoader.h"
-
+#include "CLHEP/Random/JamesRandom.h"
 #include <vector>
 #include<iostream>
 #include<iterator>
@@ -116,7 +116,13 @@ int main() {
   hbheResponse.setHitCorrection(&hitCorrection);
   hoResponse.setHitCorrection(&hitCorrection);
 
-  // none for HF
+  CLHEP::HepJamesRandom randomEngine;
+  hbheResponse.setRandomEngine(randomEngine);
+  hoResponse.setRandomEngine(randomEngine);
+  hfResponse.setRandomEngine(randomEngine);
+  
+
+
 
   HBHEHitFilter hbheHitFilter;
   HOHitFilter hoHitFilter;
@@ -157,7 +163,10 @@ std::cout << "TEST Pedestal " << pedestals.getValue(barrelDetId,  1) << std::end
   HcalCoderFactory coderFactory(HcalCoderFactory::NOMINAL);
   HcalElectronicsSim electronicsSim(&amplifier, &coderFactory);
   amplifier.setDbService(&calibratorHandle);
-  //parameterMap.setDbService(&calibratorHandle);
+  amplifier.setRandomEngine(randomEngine);
+  electronicsSim.setRandomEngine(randomEngine);
+  parameterMap.setDbService(&calibratorHandle);
+
 
   CaloTDigitizer<HBHEDigitizerTraits> hbheDigitizer(&hbheResponse, &electronicsSim, addNoise);
   CaloTDigitizer<HODigitizerTraits> hoDigitizer(&hoResponse, &electronicsSim, addNoise);
