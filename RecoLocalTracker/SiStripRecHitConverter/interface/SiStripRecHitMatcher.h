@@ -19,13 +19,13 @@ class GluedGeomDet;
 class SiStripRecHitMatcher {
 public:
   
-  typedef  SiStripRecHit2DCollection::const_iterator RecHitIterator;
-  typedef std::vector<const SiStripRecHit2D *>       SimpleHitCollection;
-  typedef SimpleHitCollection::const_iterator                SimpleHitIterator;
+  typedef SiStripRecHit2DCollection::DetSet::const_iterator RecHitIterator;
+  typedef std::vector<const SiStripRecHit2D *>              SimpleHitCollection;
+  typedef SimpleHitCollection::const_iterator               SimpleHitIterator;
 
 
 
-  typedef std::pair<LocalPoint,LocalPoint>                   StripPosition; 
+  typedef std::pair<LocalPoint,LocalPoint>                  StripPosition; 
 
   SiStripRecHitMatcher(const edm::ParameterSet& conf);
   SiStripRecHitMatcher(const double theScale);
@@ -43,14 +43,14 @@ public:
   
   edm::OwnVector<SiStripMatchedRecHit2D> 
   match( const SiStripRecHit2D *monoRH,
-	 RecHitIterator &begin, RecHitIterator &end, 
+	 RecHitIterator begin, RecHitIterator end, 
 	 const GluedGeomDet* gluedDet) const {
     return match(monoRH,begin, end, gluedDet,LocalVector(0.,0.,0.));
   }
 
   edm::OwnVector<SiStripMatchedRecHit2D> 
   match( const SiStripRecHit2D *monoRH,
-	 RecHitIterator &begin, RecHitIterator &end, 
+	 RecHitIterator begin, RecHitIterator end, 
 	 const GluedGeomDet* gluedDet,
 	 LocalVector trackdirection) const;
 
