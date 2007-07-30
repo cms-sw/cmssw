@@ -51,6 +51,7 @@ DTTracoCard::DTTracoCard(DTTrigGeom* geo, DTBtiCard* bticard,
 
   // get traco configuration map
   DTChamberId sid = geom()->statId();
+  _debug = _conf_manager->getDTTPGDebug();
   _conf_traco_map = _conf_manager->getDTConfigTracoMap(sid);	
 
 }

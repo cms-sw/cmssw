@@ -66,13 +66,13 @@ DTSectColl::DTSectColl(const DTConfigManager * _conf_manager, DTSectCollId id) :
 //--------------
 DTSectColl::~DTSectColl(){
 
+  localClear();
+
   for(int istat=0;istat<4;istat++){
     for(int istep=0;istep<DTConfigSectColl::NSTEPL-DTConfigSectColl::NSTEPF+1;istep++){
       delete _tsc[istep][istat];
     }
   }
-
-  localClear();
 
 }
 
