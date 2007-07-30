@@ -5,7 +5,6 @@
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "IOPool/Streamer/interface/Messages.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "IOPool/Streamer/interface/StreamDeserializer.h"
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -200,7 +199,7 @@ namespace edm
     //edm::InitMsg msg(&regdata[0],len);
     //std::auto_ptr<SendJobHeader> p = decoder.decodeJobHeader(msg);
     InitMsgView initView(&regdata[0]);
-    std::auto_ptr<SendJobHeader> p = StreamDeserializer::deserializeRegistry(initView);
+    std::auto_ptr<SendJobHeader> p = StreamerInputSource::deserializeRegistry(initView);
     return p;
   }
 

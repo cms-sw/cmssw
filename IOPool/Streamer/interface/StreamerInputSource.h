@@ -1,13 +1,26 @@
-#ifndef Streamer_InputSource_h
-#define Streamer_InputSource_h
+#ifndef StreamerInputSource_h
+#define StreamerInputSource_h
+
+/**
+ * StreamerInputSource.h
+ *
+ * Base class for translating streamer message objects into
+ * framework objects (e.g. ProductRegistry and EventPrincipal)
+ */
 
 #include "boost/shared_ptr.hpp"
 
-#include "DataFormats/Streamer/interface/StreamedProducts.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/InputSource.h"
-#include "IOPool/Streamer/interface/StreamDeserializer.h"
+
+#include "DataFormats/Streamer/interface/StreamedProducts.h"
+#include "DataFormats/Provenance/interface/ProcessConfiguration.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
+#include "TBuffer.h"
+#include <vector>
+
+class InitMsgView;
+class EventMsgView;
 
 namespace edm {
   class StreamerInputSource : public InputSource {
@@ -16,18 +29,32 @@ namespace edm {
                  InputSourceDescription const& desc);
     virtual ~StreamerInputSource();
 
-    std::auto_ptr<SendJobHeader> deserializeRegistry(InitMsgView const& initView) {
-      return deserializer_.deserializeRegistry(initView);
-    }
+    static
+    std::auto_ptr<SendJobHeader> deserializeRegistry(InitMsgView const& initView);
 
-    std::auto_ptr<EventPrincipal> deserializeEvent(EventMsgView const& eventView, boost::shared_ptr<ProductRegistry const> preg) {
-      return deserializer_.deserializeEvent(eventView, preg);
-    }
+    std::auto_ptr<EventPrincipal> deserializeEvent(EventMsgView const& eventView);
 
-    void mergeWithRegistry(SendDescs const& descs, ProductRegistry&);
+    void mergeWithRegistry(SendDescs const& descs);
 
     static void mergeIntoRegistry(SendDescs const& descs, ProductRegistry&);
 
+    void
+    setProcessHistoryID(ProcessHistoryID phid) {
+      processHistoryID_ = phid;
+    }
+
+    /**
+     * Uncompresses the data in the specified input buffer into the
+     * specified output buffer.  The inputSize should be set to the size
+     * of the compressed data in the inputBuffer.  The expectedFullSize should
+     * be set to the original size of the data (before compression).
+     * Returns the actual size of the uncompressed data.
+     * Errors are reported by throwing exceptions.
+     */
+    static unsigned int uncompressBuffer(unsigned char *inputBuffer,
+                                         unsigned int inputSize,
+                                         std::vector<unsigned char> &outputBuffer,
+                                         unsigned int expectedFullSize);
   protected:
     void declareStreamers(SendDescs const& descs);
     void buildClassCache(SendDescs const& descs);
@@ -44,9 +71,18 @@ namespace edm {
     virtual std::auto_ptr<EventPrincipal>
     readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
 
-    StreamDeserializer deserializer_;
-    
     std::auto_ptr<EventPrincipal> holder_;
+    boost::shared_ptr<LuminosityBlockPrincipal> lbp_;
+    boost::shared_ptr<RunPrincipal> rp_;
+
+    ProcessHistoryID processHistoryID_;
+    TClass* tc_;
+    std::vector<unsigned char> dest_;
+    TBuffer xbuf_;
+
+    //Do not like these to be static, but no choice as deserializeRegistry() that sets it is a static memeber 
+    static std::string processName_;
+    static unsigned int protocolVersion_;
   }; //end-of-class-def
 } // end of namespace-edm
   

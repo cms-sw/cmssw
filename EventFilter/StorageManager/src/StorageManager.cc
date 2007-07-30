@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.22 2007/07/03 17:50:32 klute Exp $
+// $Id: StorageManager.cc,v 1.23 2007/07/19 08:45:33 klute Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -32,7 +32,7 @@
 #include "IOPool/Streamer/interface/HLTInfo.h"
 #include "IOPool/Streamer/interface/Utilities.h"
 #include "IOPool/Streamer/interface/TestFileReader.h"
-#include "IOPool/Streamer/interface/StreamDeserializer.h"
+#include "IOPool/Streamer/interface/StreamerInputSource.h"
 
 #include "xcept/tools.h"
 
@@ -309,8 +309,8 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
       // cannot test byte for byte the serialized registry
       InitMsgView testmsg(regPtr);
       InitMsgView refmsg(&serialized_prods_[0]);
-      std::auto_ptr<edm::SendJobHeader> header = StreamDeserializer::deserializeRegistry(testmsg);
-      std::auto_ptr<edm::SendJobHeader> refheader = StreamDeserializer::deserializeRegistry(refmsg);
+      std::auto_ptr<edm::SendJobHeader> header = StreamerInputSource::deserializeRegistry(testmsg);
+      std::auto_ptr<edm::SendJobHeader> refheader = StreamerInputSource::deserializeRegistry(refmsg);
       // should test this well to see if a try block is needed for next line
       if(edm::registryIsSubset(*header, *refheader)) {  // using clunky method
         FDEBUG(9) << "copyAndTestRegistry: Received registry is okay" << std::endl;
