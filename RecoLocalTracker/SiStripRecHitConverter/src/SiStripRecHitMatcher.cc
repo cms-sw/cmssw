@@ -54,7 +54,7 @@ SiStripMatchedRecHit2D* SiStripRecHitMatcher::match(const SiStripMatchedRecHit2D
 
 edm::OwnVector<SiStripMatchedRecHit2D> 
 SiStripRecHitMatcher::match( const  SiStripRecHit2D *monoRH,
-			     RecHitIterator &begin, RecHitIterator &end, 
+			     RecHitIterator begin, RecHitIterator end, 
 			     const GluedGeomDet* gluedDet,
 			     LocalVector trackdirection) const
 {
