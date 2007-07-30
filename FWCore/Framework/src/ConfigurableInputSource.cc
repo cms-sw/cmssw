@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.cc,v 1.25 2007/07/26 20:08:31 wmtan Exp $
+$Id: ConfigurableInputSource.cc,v 1.26 2007/07/26 23:44:26 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -47,8 +47,9 @@ namespace edm {
 
   boost::shared_ptr<RunPrincipal>
   ConfigurableInputSource::readRun_() {
+    Timestamp ts = Timestamp(presentTime_);
     boost::shared_ptr<RunPrincipal> runPrincipal(
-        new RunPrincipal(eventID_.run(), Timestamp(presentTime_), productRegistry(), processConfiguration()));
+        new RunPrincipal(eventID_.run(), ts, ts, productRegistry(), processConfiguration()));
     RunPrincipal & rp =
        const_cast<RunPrincipal &>(*runPrincipal);
     Run run(rp, moduleDescription());
@@ -61,9 +62,10 @@ namespace edm {
   boost::shared_ptr<LuminosityBlockPrincipal>
   ConfigurableInputSource::readLuminosityBlock_(boost::shared_ptr<RunPrincipal> rp) {
     if (newRun_) return boost::shared_ptr<LuminosityBlockPrincipal>();
+    Timestamp ts = Timestamp(presentTime_);
     boost::shared_ptr<LuminosityBlockPrincipal> luminosityBlockPrincipal(
         new LuminosityBlockPrincipal(
-	    luminosityBlock_, Timestamp(presentTime_), productRegistry(), rp, processConfiguration()));
+	    luminosityBlock_, ts, ts, productRegistry(), rp, processConfiguration()));
     LuminosityBlockPrincipal & lbp =
        const_cast<LuminosityBlockPrincipal &>(*luminosityBlockPrincipal);
     LuminosityBlock lb(lbp, moduleDescription());

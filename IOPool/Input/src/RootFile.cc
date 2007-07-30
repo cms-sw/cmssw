@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.74 2007/07/26 23:43:54 wmtan Exp $
+$Id: RootFile.cc,v 1.75 2007/07/29 17:56:20 marafino Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -212,9 +212,10 @@ namespace edm {
 
     if (lbp.get() == 0) {
 	boost::shared_ptr<RunPrincipal> rp(
-	  new RunPrincipal(eventAux_.run(), eventAux_.time(), pReg, processConfiguration_));
+	  new RunPrincipal(eventAux_.run(), eventAux_.time(), eventAux_.time(), pReg, processConfiguration_));
 	lbp = boost::shared_ptr<LuminosityBlockPrincipal>(
 	  new LuminosityBlockPrincipal(eventAux_.luminosityBlock(),
+				       eventAux_.time(),
 				       eventAux_.time(),
 				       pReg,
 				       rp,
@@ -255,7 +256,7 @@ namespace edm {
       // back up, so event will not be skipped.
       eventTree().previous();
       return boost::shared_ptr<RunPrincipal>(
-          new RunPrincipal(eventAux.id_.run(), eventAux.time_, pReg, processConfiguration_));
+          new RunPrincipal(eventAux.id_.run(), eventAux.time_, eventAux.time_, pReg, processConfiguration_));
     }
     if (!runTree().next()) {
       return boost::shared_ptr<RunPrincipal>();
@@ -269,18 +270,19 @@ namespace edm {
       runTree().fillAux<RunAux>(pRunAux);
       conversion(runAux, runAux_);
     }
-    if (runAux_.time() == Timestamp::invalidTimestamp()) {
+    if (runAux_.beginTime() == Timestamp::invalidTimestamp()) {
       // RunAuxiliary did not contain a timestamp.  Take it from the next event.
       if (eventTree().next()) {
         fillEventAuxiliary();
         // back up, so event will not be skipped.
         eventTree().previous();
       }
-      runAux_.time_ = eventAux_.time(); 
+      runAux_.endTime_ = runAux_.beginTime_ = eventAux_.time(); 
     }
     boost::shared_ptr<RunPrincipal> thisRun(
 	new RunPrincipal(runAux_.run(),
-			 runAux_.time(),
+			 runAux_.beginTime(),
+			 runAux_.endTime(),
 			 pReg,
 			 processConfiguration_,
 			 runAux_.processHistoryID_,
@@ -308,7 +310,7 @@ namespace edm {
       }
       // Prior to support of lumi blocks, always use 1 for lumi block number.
       return boost::shared_ptr<LuminosityBlockPrincipal>(
-	new LuminosityBlockPrincipal(1, eventAux.time_, pReg, rp, processConfiguration_));
+	new LuminosityBlockPrincipal(1, eventAux.time_, eventAux.time_, pReg, rp, processConfiguration_));
     }
     if (!lumiTree().next()) {
       return boost::shared_ptr<LuminosityBlockPrincipal>();
@@ -328,18 +330,22 @@ namespace edm {
       lumiTree().previous();
       return boost::shared_ptr<LuminosityBlockPrincipal>();
     }
-    if (lumiAux_.time() == Timestamp::invalidTimestamp()) {
+    if (lumiAux_.beginTime() == Timestamp::invalidTimestamp()) {
       // LuminosityBlockAuxiliary did not contain a timestamp. Take it from the next event.
       if (eventTree().next()) {
         fillEventAuxiliary();
         // back up, so event will not be skipped.
         eventTree().previous();
       }
-      lumiAux_.time_ = eventAux_.time();
+      lumiAux_.endTime_ = lumiAux_.beginTime_ = eventAux_.time();
     }
     boost::shared_ptr<LuminosityBlockPrincipal> thisLumi(
-	new LuminosityBlockPrincipal(lumiAux_.luminosityBlock(), lumiAux_.time(), pReg, rp, processConfiguration_,
-		lumiAux_.processHistoryID_, lumiTree().makeDelayedReader()));
+	new LuminosityBlockPrincipal(lumiAux_.luminosityBlock(),
+				     lumiAux_.beginTime(),
+				     lumiAux_.endTime(),
+				     pReg, rp, processConfiguration_,
+				     lumiAux_.processHistoryID_,
+				     lumiTree().makeDelayedReader()));
     // Create a group in the lumi for each product
     lumiTree().fillGroups(thisLumi->groupGetter());
     return thisLumi;
