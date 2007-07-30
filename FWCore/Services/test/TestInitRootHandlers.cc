@@ -300,12 +300,21 @@ void RootErrorHandler( int level, bool die, const char* location, const char* me
         }
     }
 
-// Intercept "dictionary not found" error-level message and alter its severity
+// Intercept some Root messages and downgrade the severity
 
   if (el_severity >= edm::ELseverityLevel::ELsev_error)
     { if (el_message.find("dictionary") != std::string::npos)
-        { el_severity = edm::ELseverityLevel::ELsev_warning ;
+        { el_severity = edm::ELseverityLevel::ELsev_info ;
         }
+    }
+
+    if (el_message.find("already in TClassTable") != std::string::npos) {
+      el_severity = edm::ELseverityLevel::ELsev_info;
+    }
+
+    if ((el_message.find("ShowMembers")    != std::string::npos)
+     && (el_message.find("TrackingRecHit") != std::string::npos)) {
+      el_severity = edm::ELseverityLevel::ELsev_info;
     }
 
 // Feed the message to the MessageLogger... let it choose to suppress or not.

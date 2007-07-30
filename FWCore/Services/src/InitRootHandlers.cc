@@ -65,13 +65,19 @@ void RootErrorHandler(int level, bool die, const char* location, const char* mes
     }
   }
 
-// Intercept "dictionary not found" messages, downgrade the severity
-// and assign then a separate message category.
+// Intercept some messages and downgrade the severity
 
-    bool no_dictionary = false;
     if (el_message.find("dictionary") != std::string::npos) {
       el_severity = edm::ELseverityLevel::ELsev_info;
-      no_dictionary = true;
+    }
+
+    if (el_message.find("already in TClassTable") != std::string::npos) {
+      el_severity = edm::ELseverityLevel::ELsev_info;
+    }
+
+    if ((el_message.find("ShowMembers")    != std::string::npos)
+     && (el_message.find("TrackingRecHit") != std::string::npos)) {
+      el_severity = edm::ELseverityLevel::ELsev_info;
     }
 
 // Feed the message to the MessageLogger... let it choose to suppress or not.
@@ -89,11 +95,7 @@ void RootErrorHandler(int level, bool die, const char* location, const char* mes
     edm::LogWarning("Root_Warning") << el_location << el_message ;
   }
   else if (el_severity == edm::ELseverityLevel::ELsev_info) {
-    if(no_dictionary) {
-      edm::LogInfo("Root_NoDictionary") << el_location << el_message ;
-    } else {
-      edm::LogInfo("Root_Information") << el_location << el_message ;
-    }
+    edm::LogInfo("Root_Information") << el_location << el_message ;
   }
 
 // Root has declared a fatal error.  Throw an EDMException.
