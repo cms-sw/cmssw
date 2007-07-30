@@ -13,19 +13,20 @@ if($dir eq ""){$dir=$curdir;}
 if($dir ne "INTERNAL_RUNNING_OF_SCRIPT")
 {
   if(!-d $dir){die "No such directory: $dir\n";}
-  system("$0 INTERNAL_RUNNING_OF_SCRIPT $dir @ARGV 2>&1 | grep '^DATA:' | sed 's|^DATA:||'");
+  system("$0 INTERNAL_RUNNING_OF_SCRIPT $dir @ARGV | grep '^DATA:' | sed 's|^DATA:||'");
   exit $?;
 }
 else{$dir=shift;}
 
-if($dir=~/^[^\/]/){$dir=&SCRAMGenUtils::fixPath("${curdir}/${dir}");}
+if($dir=~/^[^\/]/){$dir="${curdir}/${dir}";}
+$dir=&SCRAMGenUtils::fixPath($dir);
 my $arch=shift || "";
 my $scram_list_skip=5;
 my $flags="";
 my $tmprel="";
 
 my $release=&SCRAMGenUtils::scramReleaseTop($dir);
-if($release eq ""){print "\"$dir\" is not SCRAM-base project area.\n";exit 1;}
+if($release eq ""){die "\"$dir\" is not SCRAM-base project area.\n";}
 
 my $headerext="\\.(h|hh|hpp)\$";
 my $srcext="\\.(cc|cpp|c|cxx)\$";
@@ -38,11 +39,13 @@ if($release eq $dir){$dir.="/${src}";}
 
 my $packdir=$dir;
 if($packdir=~/^${release}\/${src}(\/.+|)$/){$packdir=$1;$packdir=~s/^\/*//;}
+else{die "Wrong subsystem/package directory \"$dir\".\n";}
+my $actualdir=$packdir;
 if($packdir eq ""){$packdir=".+";}
 else{$packdir="^$packdir(\/.+|)\$";}
 
-if (!-f "${release}/${config}/scram_version"){print "${release}/${config}/scram_version file does not exist.\n"; exit 1;}
-if (!-d "${release}/${src}"){print "${release}/${src} directory does not exist. No sources to work on.\n"; exit 1;}
+if (!-f "${release}/${config}/scram_version"){die "${release}/${config}/scram_version file does not exist.\n"; exit 1;}
+if (!-d "${release}/${src}"){die "${release}/${src} directory does not exist. No sources to work on.\n"; exit 1;}
 
 my $SCRAM_CMD="scram";
 my $SCRAM_VER=`cat ${release}/${config}/scram_version`; chomp $SCRAM_VER;
@@ -56,16 +59,48 @@ print 'DATA:OWNHEADER=^(.+)\\/[^\\/]+\\/([^\\.]+)\\.(cc|CC|cpp|C|c|CPP|cxx|CXX)$
 print "DATA:BASE_DIR=${release}/${src}\n";
 $flags="-I${release}/${src}";
 
+my $cache={};
 if($releasetop ne $release)
 {
   print "DATA:BASE_DIR=${releasetop}/${src}\n";
   $flags.=" -I${releasetop}/${src}";
-  if((!-f "${release}/tmp/${arch}/Makefile") || (!-f "${release}/.SCRAM/${arch}/ProjectCache.db"))
-  {system("cd $release; $SCRAM_CMD b -r echo_CXX 2>&1 > /dev/null");}
+  my $doscramb=1;
+  if((-f "${release}/tmp/${arch}/Makefile") && (-f "${release}/.SCRAM/${arch}/ProjectCache.db"))
+  {
+    $cache->{cache}=&SCRAMGenUtils::readCache("${release}/.SCRAM/${arch}/ProjectCache.db");
+    my %dirstocheck=();
+    if($actualdir=~/\//){$dirstocheck{$actualdir}=1;}
+    else
+    {
+      if($actualdir ne ""){$actualdir.="/";}
+      foreach my $d (&SCRAMGenUtils::readDir("${release}/${src}/${actualdir}",1))
+      {
+        $d="${actualdir}${d}";
+        if($d!~/\//)
+        {foreach my $d1 (&SCRAMGenUtils::readDir("${release}/${src}/${d}",1)){$dirstocheck{"${d}/${d1}"}=1;}}
+        else{$dirstocheck{$d}=1;}
+      }
+    }
+    my $dircount=scalar(keys %dirstocheck);
+    foreach my $d (keys %{$cache->{cache}{BUILDTREE}})
+    {
+      if(exists $dirstocheck{$d})
+      {
+        delete $dirstocheck{$d};
+	$dircount--;
+	if($dircount == 0){$doscramb=0;last;}
+      }
+    }
+  }
+  if($doscramb)
+  {
+    system("cd $release; $SCRAM_CMD b -r echo_CXX 2>&1 > /dev/null");
+    $cache->{cache}=&SCRAMGenUtils::readCache("${release}/.SCRAM/${arch}/ProjectCache.db");
+  }
 }
 
 my $tmprel=$release;
-if((!-f "${release}/tmp/${arch}/Makefile") || (!-f "${release}/.SCRAM/${arch}/ProjectCache.db"))
+if(!-f "${release}/tmp/${arch}/Makefile")
 {
   my $dev=0;
   if($releasetop ne $release){$dev=1;}
@@ -86,10 +121,8 @@ if((!-f "${release}/tmp/${arch}/Makefile") || (!-f "${release}/.SCRAM/${arch}/Pr
     close(MAKEOUT);
     system("mv ${tmprel}/${f}.new ${tmprel}/${f}");
   }
+  $cache->{cache}=&SCRAMGenUtils::readCache("${tmprel}/.SCRAM/${arch}/ProjectCache.db");
 }
-
-my $cache={};
-$cache->{cache}=&SCRAMGenUtils::readCache("${tmprel}/.SCRAM/${arch}/ProjectCache.db");
 $cache->{tools}=&SCRAMGenUtils::readCache("${tmprel}/.SCRAM/${arch}/ToolCache.db");
 
 my $cxx="/usr/bin/c++";
@@ -226,13 +259,8 @@ sub genConfig ()
     print "DATA:COMPILER_FLAGS=".$data->{prods}{$prod}{flags}."\n";
     foreach my $file (@{$data->{prods}{$prod}{files}})
     {
-      my $lcount=`cat ${release}/${src}/${file} | wc -l`; chomp $lcount;
-      if($lcount<2){print "DATA:SKIP_FILES=^$file\$\n";}
-      else
-      {
-        print "DATA:FILES=$file\n";
-	if($file=~/$lexparseext/){print "DATA:SKIP_AND_ADD_REMOVED_INCLUDES=^$file\$\n";}
-      }
+      print "DATA:FILES=$file\n";
+      if($file=~/$lexparseext/){print "DATA:SKIP_AND_ADD_REMOVED_INCLUDES=^$file\$\n";}
     }
   }
 }
@@ -243,7 +271,7 @@ sub addPack()
   my $cache=shift;
   my $d=&SCRAMGenUtils::fixPath(shift);
   my $prod=&run_func("safename",$project,"${release}/${src}/${d}");
-  if($prod eq ""){print STDERR "ERROR: Script is not ready for $project SCRAM-based project.\n"; exit 1;}
+  if($prod eq ""){die "ERROR: Script is not ready for $project SCRAM-based project.\n";}
   $data->{prods}{$prod}{files}=[];
   my $pkinterface=&run_func("pkg_interface",$project,$d);
   my $pksrc=&run_func("pkg_src",$project,$d);

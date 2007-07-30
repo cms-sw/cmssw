@@ -116,14 +116,13 @@ sub check_includes ()
   my $inc_added=0;
   my $actual_inc_added=0;
   my $inc_removed=0;
-  
-  if($cache->{code_lines} == $total_inc){$config_cache->{SKIP_FILES}{$origfile}=1;}
+
+  my $skip=1;
+  if(($total_inc+$cache->{incsafe}) < $cache->{code_lines}){$skip=&is_skipped($origfile);}
+  $config_cache->{FILES}{$origfile}{INTERNAL_SKIP}=$skip;
   
   for(my $i=0; $i<$total_inc; $i++)
   {$config_cache->{FILES}{$origfile}{INCLUDES}{$cache->{includes}[$i]}=$cache->{includes_line}[$i];}
-  
-  my $skip=&is_skipped($origfile);
-  $config_cache->{FILES}{$origfile}{INTERNAL_SKIP}=$skip;
   
   my $inc_type="ALL_INCLUDES_REMOVED";
   my $skip_add=&match_data($origfile,"SKIP_AND_ADD_REMOVED_INCLUDES");
@@ -171,12 +170,13 @@ sub check_includes ()
     {
       if (!exists $config_cache->{FILES}{$inc_file})
       {
+	if(&should_skip("${b}/${inc_file}")){$config_cache->{SKIP_FILES}{$inc_file}=1;$inc_skip=1;}
 	$config_cache->{FILES}{$inc_file}{COMPILER_FLAGS_INDEX}=$config_cache->{FILES}{$origfile}{COMPILER_FLAGS_INDEX};
 	$config_cache->{FILES}{$inc_file}{BASE_DIR}=$b;
       }
       $config_cache->{FILES}{$inc_file}{INTERNAL_SKIP}=$inc_skip;
       &check_file($inc_file);
-      
+      $inc_skip=$config_cache->{FILES}{$inc_file}{INTERNAL_SKIP};
       my $num=$cache->{includes_line_number}[$i];
       my $cur_total = scalar(@{$cache->{includes}});
       if($includeall)
@@ -794,6 +794,21 @@ sub check_cyclic ()
   return $msg;
 }
 
+sub should_skip ()
+{
+  my $file=shift;
+  if(-f "$file")
+  {
+    foreach my $line (`cat $file`)
+    {
+     chomp $line;
+     if($line=~/^\s*\#\s*define\s+.+?\\$/){return 1;}
+     if($line=~/^\s*template\s*<.+/){return 1;}
+   }
+ }
+ return 0;
+}
+
 sub check_file ()
 {
   my $file=shift;
@@ -843,6 +858,7 @@ sub check_file ()
     {if($ext!~/^\s*$/){print "  $ext\n";}}
     $config_cache->{FILES}{$file}{FINAL_DONE}=1;
   }
+  $cache{$tmpfile}{incsafe}=0;
   
   if ($tmpfile ne "")
   {
@@ -931,6 +947,7 @@ sub read_file ()
   
   $cache->{includes}=[];
   $cache->{includes_line_number}=[];
+  $cache->{incsafe} = 0;
 
   my $total_lines=scalar(@{$cache->{lines}});
   my $first_ifndef=0;
@@ -939,7 +956,7 @@ sub read_file ()
   {
     my $line=$cache->{lines}[$i];
     my $num=$cache->{line_numbers}[$i];
-    if ($cache->{isheader} && !$first_ifndef && ($line=~/^\s*#\s*ifndef\s+/)){$first_ifndef=1; next;}
+    if ($cache->{isheader} && !$first_ifndef && ($line=~/^\s*#\s*ifndef\s+/)){$first_ifndef=1; $cache->{incsafe}=3; next;}
     if($line=~/^\s*#\s*if(n|\s+|)def(ined|\s+|)/)
     {$i=&SCRAMGenUtils::skipIfDirectiveCXX ($cache->{lines}, $i+1, $total_lines);next;}
     
@@ -983,15 +1000,17 @@ sub updateFromCachedFiles ()
     {
       my $file=$fp;
       $file=~s/^$bdir\///;
+      my $pcom=undef;
+      if(exists $config_cache->{FILES}{$file}{COMPILER_FLAGS_INDEX}){$pcom=$config_cache->{FILES}{$file}{COMPILER_FLAGS_INDEX};}
       $config_cache->{FILES}{$file}={};
       $config_cache->{FILES}{$file}=&SCRAMGenUtils::readHashCache($fp);
-      if($detail){print "MSG: Updating already done file information: $file\n";}
+      if(defined $pcom){$config_cache->{FILES}{$file}{COMPILER_FLAGS_INDEX}=$pcom;}
       delete $config_cache->{FILES}{$file}{INC_ORIG_PATH};
       delete $config_cache->{FILES}{$file}{ALL_ACTUAL_INCLUDE_DIRS};
       delete $config_cache->{FILES}{$file}{DUMMY_INCLUDE};
     }
   }
-  if($dir eq $bdir){system("rm -rf $dir");}
+  #if($dir eq $bdir){system("rm -rf $dir");}
 }
 
 sub init ()
@@ -1009,7 +1028,7 @@ sub init ()
       if(-d "${tmp_dir}/cache/files"){&updateFromCachedFiles("${tmp_dir}/cache/files");}
       foreach my $f (keys %{$config_cache->{FILES}})
       {
-	if($redo && ($f=~/$redo/)){delete $config_cache->{FILES}{$f}{DONE};next;}
+	if($redo && ($f=~/$redo/)){delete $config_cache->{FILES}{$f}{DONE};delete $config_cache->{FILES}{$f}{INTERNAL_SKIP};next;}
         if(exists $config_cache->{FILES}{$f}{DONE})
         {
           if(($config_cache->{FILES}{$f}{FINAL_DONE}==1) || 
@@ -1059,8 +1078,11 @@ sub init ()
   $config_cache->{INCLUDEALL}=$includeall;
   $config_cache->{FILEFILTER}=$filefilter;
   $config_cache->{SYSTEM_HEADER_SKIP}=$system_header_skip;
-  delete $config_cache->{INC_LIST};
-  if($keep){&SCRAMGenUtils::writeHashCache($config_cache, "${tmp_dir}/cache/${cache_file}");}
+  if($keep)
+  {
+    &SCRAMGenUtils::writeHashCache($config_cache, "${tmp_dir}/cache/${cache_file}");
+    &init($config);
+  }
 }
 
 sub final_exit ()
@@ -1174,15 +1196,15 @@ sub read_config ()
   if($fil eq ""){$fil=".+";}
   foreach my $f (sort keys %{$config_cache->{FILES}})
   {
-    if($f!~/$fil/){delete $config_cache->{FILES}{$f};next;}
-    foreach my $type ("SKIP_FILES","FWDHEADER")
-    {if(&match_data($f,$type)){delete $config_cache->{FILES}{$f};$f="";last;}}
-    if($f)
-    {
+    #if($f!~/$fil/){delete $config_cache->{FILES}{$f};next;}
+    #foreach my $type ("SKIP_FILES","FWDHEADER")
+    #{if(&match_data($f,$type)){delete $config_cache->{FILES}{$f};$f="";last;}}
+    #if($f)
+    #{
       my $b=&find_file($f);
       if($b){$config_cache->{FILES}{$f}{BASE_DIR}=$b;}
       else{delete $config_cache->{FILES}{$f}; print "$f does not exist in any base directory.\n";}
-    }
+    #}
   }
 }
 

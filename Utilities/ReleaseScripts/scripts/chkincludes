@@ -20,11 +20,13 @@ my $localtop = &SCRAMGenUtils::scramReleaseTop($curdir);
 if($localtop eq ""){die "\"$curdir\" is not a SCRAM-based project area. Please create a SCRAM-based project dev area and run this script";}
 if(&SCRAMGenUtils::getFromEnvironmentFile("RELEASETOP",$localtop) eq "")
 {die "\"$localtop\" is a release area. Please run this script in your developer area.\n";}
+my $releasetop=&SCRAMGenUtils::getFromEnvironmentFile("RELEASETOP","$localtop") || $localtop;
+if($releasetop eq $localtop){die "Release top should not equal to localtop \"$localtop\"\n";}
 
 my $arch=&SCRAMGenUtils::getScramArch();
-my $tmpdirtop="${localtop}/tmp/${arch}/includechecker";
+my $tmpdir="${localtop}/tmp/${arch}/includechecker";
 $package=~s/^\s*//;$package=~s/\s*$//;
-if($package=~/^clean$/i){system("rm -rf $tmpdirtop");print "Tmp area \"$tmpdirtop\" cleaned up.\n";exit 0;}
+if($package=~/^clean$/i){system("rm -rf $tmpdir");print "Tmp area \"$tmpdir\" cleaned up.\n";exit 0;}
 
 my $src=&SCRAMGenUtils::getFromEnvironmentFile("SCRAM_SOURCEDIR",$localtop) || "src";
 if(-d $package)
@@ -39,80 +41,130 @@ if(!-d "${localtop}/${src}/${package}")
 {die "There is no such subsystem/package/directory \"$package\" available under \"${localtop}/${src}\". Please first checkout this package.";}
 
 my $scram=$SCRAMGenUtils::SCRAM_CMD;
-my $uniqpack=$package; $uniqpack=~s/\///g;
-my $tmpdir="${tmpdirtop}/${uniqpack}";
-my $configfile="${tmpdirtop}/${uniqpack}.conf";
+if(!-d $tmpdir){system("mkdir -p ${tmpdir}/config ${tmpdir}/log");}
 
-system("rm -rf $tmpdir; mkdir -p $tmpdir");
-if(!-f $configfile)
-{system("${scriptdir}/createconfig.pl ${localtop}/${src}/${package} > ${configfile}.tmp && mv ${configfile}.tmp $configfile");}
-system("${scriptdir}/includechecker.pl --config $configfile --tmpdir ${tmpdir} --filter '^$package/' --keep --detail --recursive $xincargs 2>&1 > ${tmpdir}/run.log");
+print ">> IncludeChecker temporary directory: ${tmpdir}\n";
 
-my $newfiles = &getNewFiles("${tmpdir}/cache/files/${package}");
-my $done=[];
-my $failed=[];
-my $skipped=[];
-foreach my $f (@$newfiles)
+my $cache={};
+my $cfile="${tmpdir}/cache/files.info";
+if(-f $cfile){$cache=&SCRAMGenUtils::readHashCache($cfile);}
+&processPack ($package,$cache);
+if(-d "${tmpdir}/cache"){&SCRAMGenUtils::writeHashCache($cache,$cfile);}
+exit 0;
+
+sub processPack ($package)
 {
-  if(-f $f)
+  my $package=shift;
+  my $cache=shift;
+  my $uniqpack=$package; $uniqpack=~s/\///g;
+  my $configfile="${tmpdir}/config/${uniqpack}";
+  print "################# $package #############################\n";
+  print ">> IncludeChecker log file           : ${tmpdir}/log/${uniqpack}\n";
+  print ">> IncludeChecker config file        : ${tmpdir}/config/${uniqpack}\n";
+  if(-f "${tmpdir}/log/${uniqpack}")
   {
-    my $rf=$f; $rf=~s/^${tmpdir}\/cache\/files\///;
-    foreach my $line (`cat $f`)
-    {
-      chomp $line;
-      if($line=~/^\s*(ERROR|INTERNAL_SKIP|FINAL_DONE)\=\>\((\d+)\)\s*$/)
-      {
-	my $type=$1; my $val=$2;
-	if($val == 1)
-	{
-	  if($type eq "ERROR"){push @$failed,$rf;}
-	  elsif($type eq "FINAL_DONE"){push @$done,$rf;}
-	  else{push @$skipped,$rf;}
-	  last;
-	}
-      }
-    }
+    my $c=0;
+    while(-f "${tmpdir}/log/${uniqpack}.${c}"){$c++;}
+    system("mv ${tmpdir}/log/${uniqpack} ${tmpdir}/log/${uniqpack}.${c}");
+  }
+  if(-f "${tmpdir}/cache/config_cache"){system("rm -f ${tmpdir}/cache/config_cache");}
+  if(!-f $configfile)
+  {
+    print ">> Running \"${scriptdir}/createconfig.pl ${localtop}/${src}/${package}\"\n";
+    system("${scriptdir}/createconfig.pl ${localtop}/${src}/${package} > ${configfile}.tmp && mv ${configfile}.tmp $configfile");
+  }
+  print ">> Running \"includechecker.pl --config $configfile --tmpdir $tmpdir --keep --detail --recursive $xincargs\"\n";
+  system("${scriptdir}/includechecker.pl --config $configfile --tmpdir $tmpdir --keep --detail --recursive $xincargs 2>&1 > ${tmpdir}/log/${uniqpack}");
+  &processResult($cache);
+  my $deps=&copyNewFiles();
+  foreach my $pack (keys %$deps)
+  {
+    my $packx=$pack; $packx=~s/\///;
+    if(($pack!~/^$package(\/.+|)$/) && (!-f "${tmpdir}/config/${packx}"))
+    {&processPack($pack,$cache);}
   }
 }
 
-print "Total files checked:           ",scalar(@$newfiles),"\n";
-print "  Failed due to compilation:   ",scalar(@$failed),"\n";
-foreach my $f (@$failed){print "    $f\n";}
-print "  Skipped:                     ",scalar(@$skipped),"\n";
-foreach my $f (@$skipped){print "    $f\n";}
-print "  Successfully processed:      ",scalar(@$done),"\n";
-if   (scalar(@$newfiles) == 0){print "It seemed there were no files under \"$package\" to process.\n";}
-elsif(scalar(@$done) == 0){print "There were no files successfully processed by includechecker.\n";}
-else
+sub processResult ()
 {
-  $newfiles = &getNewFiles("${tmpdir}/includechecker");
-  if(scalar(@$newfiles) == 0){print "It seemed that file(s) processed successfully by includechecker are all good. No include statement added/removed.\n";}
-  else
+  my $cache=shift;
+  my $newfiles = &getNewFiles("${tmpdir}/cache/files");
+  my $done=[];
+  my $failed=[];
+  my $skipped=[];
+  my $total=0;
+  foreach my $f (@$newfiles)
   {
-    print "  Modified by includechecker:  ",scalar(@$newfiles),"\n";
-    foreach my $f (@$newfiles)
+    if(-f $f)
     {
-      my $rf=$f; $rf=~s/^${tmpdir}\/includechecker\/${src}\///;
-      my $oref; my $iref;
-      my $added=0; my $removed=0;
-      open($iref,$f) || die "Can not open file for writing.";
-      open($oref,">$f.new") || die "Can not open file for writing.";
-      while(my $line=<$iref>)
+      my $rf=$f; $rf=~s/^${tmpdir}\/cache\/files\///;
+      if(exists $cache->{read}{$rf}){next;}
+      $cache->{read}{$rf}=1;
+      $total++;
+      foreach my $line (`cat $f`)
       {
         chomp $line;
-	if($line=~/^\s*\/\/INCLUDECHECKER: Removed this line:/){$removed++;next;}
-	elsif($line=~/(.*?)\/\/INCLUDECHECKER: Added this line\s*$/){$added++;$line=$1;}
-	print $oref "$line\n";
+        if($line=~/^\s*(ERROR|INTERNAL_SKIP|FINAL_DONE)\=\>\((\d+)\)\s*$/)
+        {
+	  my $type=$1; my $val=$2;
+	  if($val == 1)
+	  {
+	    if($type eq "ERROR"){push @$failed,$rf;}
+	    elsif($type eq "FINAL_DONE"){push @$done,$rf;}
+	    else{push @$skipped,$rf;}
+	  }
+        }
       }
-      close($oref); close($iref);
-      system("mv $f.new ${localtop}/${src}/${rf}");
-      print "    $rf ($removed,$added)\n";
     }
   }
+  print "Total files checked:           $total\n";
+  print "  Failed due to compilation:   ",scalar(@$failed),"\n";
+  foreach my $f (@$failed){print "    $f\n";}
+  print "  Skipped:                     ",scalar(@$skipped),"\n";
+  foreach my $f (@$skipped){print "    $f\n";}
+  print "  Successfully processed:      ",scalar(@$done),"\n";
 }
-print ">> IncludeChecker temporary directory: ${tmpdir}\n";
-print ">> IncludeChecker log file           : ${tmpdir}/run.log\n";
-exit 0;
+
+sub copyNewFiles ()
+{
+  my $newdeps={};
+  my $newfiles = &getNewFiles("${tmpdir}/includechecker");
+  if(scalar(@$newfiles) == 0){print "It seemed that file(s) processed successfully by includechecker are all good. No include statement added/removed.\n";return $newdeps;}
+  print "  Modified by includechecker:  ",scalar(@$newfiles),"\n";
+  my $doscramb=0;
+  foreach my $f (@$newfiles)
+  {
+    my $rf=$f; $rf=~s/^${tmpdir}\/includechecker\/${src}\///;
+    my $pack=$rf; $pack=~s/^([^\/]+?\/[^\/]+?)\/.+/$1/;
+    if(!-d "${localtop}/${src}/${pack}")
+    {
+      if(-d "${releasetop}/${src}/${pack}")
+      {
+        my $subsys=dirname("${localtop}/${src}/${pack}");
+        system("mkdir -p $subsys; cp -r ${releasetop}/${src}/${pack} $subsys");
+        $doscramb=1;
+	$newdeps->{$pack}=1;
+      }
+    }
+    else{$newdeps->{$pack}=1;}
+    my $oref; my $iref;
+    my $added=0; my $removed=0;
+    open($iref,$f) || die "Can not open file \"$f\" for reading.";
+    open($oref,">$f.backup_new") || die "Can not open file \"$f.backup_new\" for writing.";
+    while(my $line=<$iref>)
+    {
+      chomp $line;
+      if($line=~/^\s*\/\/INCLUDECHECKER: Removed this line:/){$removed++;next;}
+      elsif($line=~/(.*?)\/\/INCLUDECHECKER: Added this line\s*$/){$added++;$line=$1;}
+      print $oref "$line\n";
+    }
+    close($oref); close($iref);
+    system("cp $f.backup_new ${localtop}/${src}/${rf}; mv $f $f.modified_by_incchk");
+    print "    $rf ($removed,$added)\n";
+  }
+  if($doscramb){system("cd $localtop; $scram b -r echo_CXX 2>&1 > /dev/null");}
+  return $newdeps;
+}
 
 sub getNewFiles ()
 {
@@ -124,7 +176,7 @@ sub getNewFiles ()
     if(-d $fullpath){&getNewFiles($fullpath,$files);}
     elsif(-f $fullpath)
     {
-      if($fullpath=~/(.*?)\.new$/){if(-f $1){next;}}
+      if($fullpath=~/(.*?)\.(backup_new|modified_by_incchk)$/){next;}
       push @$files,$fullpath;
     }
   }
