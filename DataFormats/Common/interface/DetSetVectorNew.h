@@ -106,17 +106,20 @@ namespace edmNew {
       typedef typename DetSetVector<T>::id_type key_type;
       typedef typename DetSetVector<T>::id_type id_type;
 
-      FastFiller(DetSetVector<T> & iv, id_type id) : 
-	v(iv), item(v.push_back(id)){
+      FastFiller(DetSetVector<T> & iv, id_type id, isaveEmpty=false) : 
+	v(iv), item(v.push_back(id)), saveEmpty(isaveEmpty) {
 	if (v.filling) dstvdetails::errorFilling();
 	v.filling=true;
       }
-      FastFiller(DetSetVector<T> & iv, typename DetSetVector<T>::Item & it) : 
-	v(iv), item(it){
+      FastFiller(DetSetVector<T> & iv, typename DetSetVector<T>::Item & it, isaveEmpty=false) : 
+	v(iv), item(it), saveEmpty(isaveEmpty) {
 	if (v.filling) dstvdetails::errorFilling();
 	v.filling=true;
       }
       ~FastFiller() {
+	if (!saveEmpty && item.size==0) {
+	  v.pop_back(it);
+	}
 	v.filling=false;
       }
 
@@ -145,7 +148,7 @@ namespace edmNew {
     private:
       DetSetVector<T> & v;
       typename DetSetVector<T>::Item & item;
-
+      bool saveEmpty;
     };
     friend class FastFiller;
 
@@ -200,6 +203,14 @@ namespace edmNew {
       return addItem(iid,0);
     }
 
+    // remove last entry (usually only if empty...)
+    void pop_back(id_type iid) {
+      const_IdIter p = findItem(iid);
+      if (p==m_ids.end()) return; //bha!
+      if ((*p).size>0&&m_data.size()==(*p).offset+(*p).size)
+	m_data.resize((*p).offset);
+      m_ids.erase(p);
+    }
 
   private:
 
