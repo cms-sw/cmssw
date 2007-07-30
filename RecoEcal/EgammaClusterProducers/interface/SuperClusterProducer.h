@@ -59,8 +59,8 @@ class SuperClusterProducer : public edm::EDProducer
       double totalE;
       int noSuperClusters;
 
-      reco::BasicClusterRefVector *
-	getClusterRefVector(edm::Event& evt, std::string clusterProducer_, std::string clusterCollection_);
+      
+      void getClusterRefVector(edm::Event& evt, std::string clusterProducer_, std::string clusterCollection_, reco::BasicClusterRefVector *);
   
       void produceSuperclustersForECALPart(edm::Event& evt, 
 					   std::string clusterProducer, 

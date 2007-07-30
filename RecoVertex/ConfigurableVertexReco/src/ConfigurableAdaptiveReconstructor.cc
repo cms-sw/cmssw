@@ -8,7 +8,7 @@ namespace {
   {
     edm::ParameterSet ret;
     ret.addParameter<double>("primcut",2.0);
-    ret.addParameter<double>("seccut",6.0);
+    ret.addParameter<double>("seccut",2.0);
     ret.addParameter<double>("minweight",0.5);
     return ret;
   }

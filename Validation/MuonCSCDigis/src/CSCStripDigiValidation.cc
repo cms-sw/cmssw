@@ -60,11 +60,11 @@ void CSCStripDigiValidation::analyze(const edm::Event& e, const edm::EventSetup&
       thePedestalSum += adcCounts[0];
       thePedestalSum += adcCounts[1];
       thePedestalCount += 2;
-      float pedestal = thePedestalSum/thePedestalCount;
-      if(adcCounts[4]-pedestal > maxAmplitude)
+
+      if(adcCounts[4] > maxAmplitude)
       {
         maxStrip = digiItr->getStrip();
-        maxAmplitude = adcCounts[4]-pedestal;
+        maxAmplitude = adcCounts[4];
       }
 
       // if we have enough pedestal statistics

@@ -3,7 +3,7 @@
 
 Test program for edm::Event.
 
-$Id: Event_t.cpp,v 1.12 2007/03/27 23:13:09 wmtan Exp $
+$Id: Event_t.cpp,v 1.13 2007/04/09 22:18:57 wdd Exp $
 ----------------------------------------------------------------------*/
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
@@ -263,7 +263,6 @@ testEvent::testEvent() :
 
 testEvent::~testEvent()
 {
-  delete availableProducts_;
   delete principal_;
   delete currentEvent_;
   delete currentModuleDescription_;
@@ -334,9 +333,10 @@ void testEvent::setUp()
   // and that is used to create the group in the principal used to
   // look up the object.
 
+  boost::shared_ptr<ProductRegistry const> preg = boost::shared_ptr<ProductRegistry const>(availableProducts_);
   principal_  = new EventPrincipal(make_id(),
 				   make_timestamp(),
-				   *availableProducts_,
+				   preg,
                                    1,
                                    currentModuleDescription_->processConfiguration(),
                                    processHistoryID);

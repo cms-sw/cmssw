@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 27 17:58:10 EDT 2006
-// $Id: TFWLiteSelectorBasic.cc,v 1.17 2007/05/10 12:27:04 wmtan Exp $
+// $Id: TFWLiteSelectorBasic.cc,v 1.18 2007/05/29 19:36:57 wmtan Exp $
 //
 
 // system include files
@@ -265,7 +265,8 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
       try {
 	 m_->reader_->setEntry(iEntry);
 	 edm::ProcessConfiguration pc;
-	 edm::EventPrincipal ep(aux.id(), aux.time(), m_->reg_,
+	 boost::shared_ptr<edm::ProductRegistry const> reg(&m_->reg_);
+	 edm::EventPrincipal ep(aux.id(), aux.time(), reg,
 	     1, pc, aux.processHistoryID(), m_->reader_);
          m_->processNames_ = ep.processHistory();
 

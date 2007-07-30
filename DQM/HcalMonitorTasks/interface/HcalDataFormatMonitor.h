@@ -3,13 +3,20 @@
 
 #include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalUnpacker.h"
-#include "EventFilter/HcalRawToDigi/interface/HcalHTRData.h"
+#include "EventFilter/HcalRawToDigi/interface/HcalDataFrameFilter.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
+#include "EventFilter/HcalRawToDigi/interface/HcalHTRData.h"
+#include "DataFormats/HcalDigi/interface/HcalQIESample.h"
+#include "TH1F.h"
+#include "DQMServices/CoreROOT/interface/MonitorElementRootT.h"
+#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 
 /** \class Hcaldataformatmonitor
   *  
-  * $Date: 2007/04/02 13:19:38 $
-  * $Revision: 1.11 $
+  * $Date: 2006/12/12 19:10:27 $
+  * $Revision: 1.8 $
   * \author W. Fisher - FNAL
   */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
@@ -18,7 +25,7 @@ public:
   ~HcalDataFormatMonitor(); 
 
   void setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe);
-  void processEvent(const FEDRawDataCollection& rawraw, const HcalUnpackerReport& report, const HcalElectronicsMap& emap);
+  void processEvent(const FEDRawDataCollection& rawraw, const HcalElectronicsMap& emap);
   void unpack(const FEDRawData& raw, const HcalElectronicsMap& emap);
   void clearME();
 
@@ -31,19 +38,14 @@ private:  ///Monitoring elements
 
   MonitorElement* meEVT_;
 
-  MonitorElement* meSpigotFormatErrors_;
-  MonitorElement* meBadQualityDigis_;
-  MonitorElement* meUnmappedDigis_;
-  MonitorElement* meUnmappedTPDigis_;
-  MonitorElement* meFEDerrorMap_;
-  
   struct{
     MonitorElement* ERR_MAP;
     MonitorElement* DCC_ERRWD;
+    MonitorElement* FiberMap;
     MonitorElement* SpigotMap;
-  } hbHists, heHists, hfHists,hoHists;
-
-  
+    //    HcalElectronicsId eid(fc,f,spigot,dccid);
+    //    eid.setHTR(htr.readoutVMECrateId(),htr.htrSlot(),htr.htrTopBottom());
+  } hbHists, hfHists,hoHists;
 
 };
 

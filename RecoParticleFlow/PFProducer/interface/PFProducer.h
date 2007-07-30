@@ -42,6 +42,9 @@ class PFProducer : public edm::EDProducer {
   /// instance name for retrieving input collection of PFBlocks  
   std::string blocksInstanceName_;
 
+  /// verbose ?
+  bool   verbose_;
+
   /// particle flow algorithm
   PFAlgo      pfAlgo_;
 

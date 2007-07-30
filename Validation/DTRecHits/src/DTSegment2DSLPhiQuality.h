@@ -5,12 +5,13 @@
  *  Basic analyzer class which accesses 2D DTSegments reconstructed with both SL Phi
  *  and plot resolution comparing reconstructed and simulated quantities
  *
- *  $Date: 2006/08/04 10:35:29 $
+ *  $Date: 2007/01/30 10:59:54 $
  *  $Revision: 1.1 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "Histograms.h"
 
 #include <vector>
 #include <map>
@@ -57,6 +58,7 @@ private:
   //Sigma resolution on angle
   double sigmaResAngle;
 
-
+  HRes2DHit *h2DHitSuperPhi;
+  HEff2DHit *h2DHitEff_SuperPhi;
 };
 #endif

@@ -44,15 +44,13 @@ VpspScanHistograms::~VpspScanHistograms() {
 void VpspScanHistograms::histoAnalysis( bool debug ) {
 
   uint16_t valid = 0;
-  HistosMap::const_iterator iter = 0;
-  //Analyses::iterator ianal = 0;
-
+  
   // Clear map holding analysis objects
   data_.clear();
   
   // Iterate through map containing histograms
-  for ( iter = histos().begin();
-	iter != histos().end(); iter++ ) {
+  HistosMap::const_iterator iter = histos().begin();
+  for ( ; iter != histos().end(); iter++ ) {
     
     // Check vector of histos is not empty
     if ( iter->second.empty() ) {
@@ -74,11 +72,9 @@ void VpspScanHistograms::histoAnalysis( bool debug ) {
     VpspScanAnalysis anal( iter->first );
     anal.analysis( profs );
     data_[iter->first] = anal; 
-    if ( anal.isValid() ) { valid++; }
     if ( debug ) {
       std::stringstream ss;
-      anal.print( ss, 1 ); 
-      anal.print( ss, 2 ); 
+      anal.print( ss ); 
       if ( anal.isValid() ) { 
 	LogTrace(mlDqmClient_) << ss.str(); 
 	valid++;
@@ -108,16 +104,15 @@ void VpspScanHistograms::createSummaryHisto( const sistrip::Monitorable& histo,
 					     const sistrip::Presentation& type, 
 					     const std::string& directory,
 					     const sistrip::Granularity& gran ) {
-  LogTrace(mlDqmClient_)
-    << "[VpspScanHistograms::" << __func__ << "]";
+  LogTrace(mlDqmClient_) << "[VpspScanHistograms::" << __func__ << "]";
   
   // Check view 
   sistrip::View view = SiStripEnumsAndStrings::view(directory);
   if ( view == sistrip::UNKNOWN_VIEW ) { return; }
 
   // Analyze histograms
-  if ( data_.empty() ) { histoAnalysis( false ); }
-  
+  histoAnalysis( false );
+
   // Extract data to be histogrammed
   factory_->init( histo, type, view, directory, gran );
   uint32_t xbins = factory_->extract( data_ );

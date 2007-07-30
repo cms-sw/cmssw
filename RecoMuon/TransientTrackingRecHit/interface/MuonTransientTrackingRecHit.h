@@ -5,8 +5,8 @@
  *
  *  A TransientTrackingRecHit for muons.
  *
- *  $Date: 2006/08/10 10:42:52 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/08/28 14:27:10 $
+ *  $Revision: 1.13 $
  *
  *   \author   C. Liu            Purdue University
  */
@@ -37,6 +37,8 @@ public:
   /// Error on the global direction
   virtual GlobalError globalDirectionError() const;
  
+  virtual AlgebraicSymMatrix parametersError() const;
+
   /// Chi square of the fit for segments, else 0
   virtual double chi2() const;
 

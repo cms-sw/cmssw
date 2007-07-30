@@ -26,7 +26,7 @@ RawFile* RawFile::open(const char* path) {
 
   //cout << " Full path: " << path << endl;
 
-  char* chaux = new char[strlen(path)+1];
+  char* chaux = new char[strlen(path)];
   strcpy(chaux,path);
   char* prefix = strtok(chaux,":");
   //cout << " Prefix: " << prefix << endl;

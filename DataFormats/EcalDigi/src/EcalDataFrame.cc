@@ -6,7 +6,7 @@ EcalDataFrame::EcalDataFrame() : size_(0),
 }
 
 
-void EcalDataFrame::setSize(int size) 
+void EcalDataFrame::setSize(const int& size) 
 {
   if (size>MAXSAMPLES) size_=MAXSAMPLES;
   else if (size<=0) size_=0;

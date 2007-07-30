@@ -187,12 +187,10 @@ int DDLTestDoc::readConfig(const std::string& filename)
       return 4;
     }
 
-  fnames_ = sch->getFileNames();
-  urls_ = sch->getURLs();
-   std::cout << "there are " << fnames_.size() << " files." << std::endl;
-   for (size_t i = 0; i < fnames_.size(); ++i)
-     //std::cout << "url=" << sch->getURLs()[i] << " file=" << sch->getFileNames()[i] << std::endl;
-     std::cout << "url=" << urls_[i] << " file=" << fnames_[i] << std::endl;
+//   std::vector<std::string> fnames = sch_->getFileNames();
+//   std::cout << "there are " << fnames.size() << " files." << std::endl;
+//   for (size_t i = 0; i < fnames.size(); ++i)
+//     std::cout << "url=" << sch_->getURLs()[i] << " file=" << sch_->getFileNames()[i] << std::endl;
   return 0;
 }
 
@@ -383,9 +381,6 @@ void testLogicalParts() {
   cout << "LogicalPart MotherOfAllBoxes:" << endl;
   cout << DDLogicalPart(DDName("MotherOfAllBoxes", "testLogicalParts")) << endl;
   cout << endl;
-  cout << "LogicalPart torus:" << endl;
-  cout << DDLogicalPart(DDName("torus", "testLogicalParts")) << endl;
-  cout << endl;
   cout << "LogicalPart trd2mirror:" << endl;
   cout << DDLogicalPart(DDName("trd2mirror", "testLogicalParts")) << endl;
   cout << endl;
@@ -398,6 +393,7 @@ void testLogicalParts() {
   cout << "LogicalPart intsolid:" << endl;
   cout << DDLogicalPart(DDName("intsolid", "testLogicalParts")) << endl;
   cout << endl;
+
 }
 
 void testPosParts() { 
@@ -425,10 +421,9 @@ int main(int argc, char *argv[])
   if (argc < 2) {
     cout << "DEFAULT test using testConfiguration.xml" << endl;
 
-    DDLTestDoc dp; //DDLConfiguration dp;
+    DDLConfiguration dp;
 
     dp.readConfig("testConfiguration.xml");
-    dp.dumpFileList();
 
     cout << "About to start parsing..." << endl;
 

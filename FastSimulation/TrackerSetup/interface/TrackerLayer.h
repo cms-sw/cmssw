@@ -32,10 +32,14 @@ public:
      theLastRing = 0;
      if ( isForward ) { 
        theDisk = dynamic_cast<BoundDisk*>(theSurface);
+       theDiskInnerRadius = theDisk->innerRadius();
+       theDiskOuterRadius = theDisk->outerRadius();
        theCylinder = 0;
      } else {
        theCylinder = dynamic_cast<BoundCylinder*>(theSurface);
        theDisk = 0;
+       theDiskInnerRadius = 0.;
+       theDiskOuterRadius = 0.;
      }
 
    }
@@ -57,6 +61,8 @@ public:
      theResolutionAlongY = 0.;
      theHitEfficiency = 1.;
      theDisk = dynamic_cast<BoundDisk*>(theSurface);
+     theDiskInnerRadius = theDisk->innerRadius();
+     theDiskOuterRadius = theDisk->outerRadius();
      theCylinder = 0;
    }
 
@@ -96,6 +102,11 @@ public:
   /// Returns the sensitive module thickness
   inline double moduleThickness() const { return theModuleThickness; }
 
+  /// Returns the inner radius of a disk
+  inline double diskInnerRadius() const { return theDiskInnerRadius; }
+  /// Returns the outer radius of a disk
+  inline double diskOuterRadius() const { return theDiskOuterRadius; }
+
 private:
 
   BoundSurface* theSurface;
@@ -110,6 +121,8 @@ private:
   double theHitEfficiency;
   double theModuleThickness;
   bool isSensitive;
+  double theDiskInnerRadius;
+  double theDiskOuterRadius;
 
 };
 #endif

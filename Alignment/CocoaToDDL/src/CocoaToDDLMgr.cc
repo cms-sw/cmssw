@@ -244,7 +244,7 @@ void CocoaToDDLMgr::ma(CocoaMaterialElementary* ma)
   
   
   // finish last two attributes and end material element
-  file_ << " atomicWeight=\"" << (ma->getA()) << "*g/mole\""
+  file_ << " atomicWeight=\"" << (ma->getA())/(g/mole) << "*g/mole\""
 	<< " atomicNumber=\"" << ma->getZ() << "\""
 	<< "/>" << std::endl;
   
@@ -278,9 +278,9 @@ void CocoaToDDLMgr::so(OpticalObject * opto)
   if( opto->type() == "system" ){
     //    file_ << " <Box name=\"" << name << "\"";
     file_ << " <Box name=\"" << opto->name() << "\"";
-    file_ << " dx=\"10.*m" 
-	  << "\" dy=\"10.*m" 
-	  << "\" dz=\"10.*m" 
+    file_ << " dx=\"0.*mm" 
+	  << "\" dy=\"0.*mm" 
+	  << "\" dz=\"0.*mm" 
 	  << "\"/>" << std::endl;
     return;
   }
@@ -537,7 +537,6 @@ void CocoaToDDLMgr::pv(OpticalObject * opto)
    Hep3Vector t =  opto->centreLocal();
    if(t != Hep3Vector()) { //if (0,0,0) write nothing
      const Hep3Vector t = opto->centreLocal();
-
      file_ << "  <Translation x=\"" <<  UC(t[0],"Length") << "\""
            <<               " y=\"" << UC(t[1],"Length") << "\""
 	   <<               " z=\"" << UC(t[2],"Length")<< "\" />"

@@ -84,7 +84,7 @@ class Process(object):
         self._placeLooper('looper',lpr)
     looper = property(looper_,setLooper_,doc='the main looper or None if not set')
     def analyzers_(self):
-        """returns a dict of the filters which have been added to the Process"""
+        """returns a dict of the analyzers which have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__analyzers)
     analyzers = property(analyzers_,doc="dictionary containing the analyzers for the process")
     def outputModules_(self):
@@ -356,6 +356,11 @@ def include(fileName):
     from FWCore.ParameterSet.parseConfig import importConfig
     return importConfig(fileName)
 
+def processFromString(processString):
+    """Reads a string containing the equivalent content of a .cfg file and
+    creates a Process object"""
+    from FWCore.ParameterSet.parseConfig import processFromString
+    return processFromString(processString)
 
 if __name__=="__main__":
     import unittest
@@ -556,5 +561,13 @@ if __name__=="__main__":
             self.assertEqual(deps['c'],set(['a']))
             #deps= path.moduleDependencies()
             #print deps['a']
+        def testProcessFromString(self):
+            process = processFromString(
+"""process Test = {
+   source = PoolSource {}
+   module out = OutputModule {}
+   endpath o = {out}
+}""")
+            self.assertEqual(process.source.type_(),"PoolSource")
                                
     unittest.main()

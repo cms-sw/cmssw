@@ -8,8 +8,8 @@
  *
  * \author    : Gero Flucke
  * date       : October 2006
- * $Date: 2007/05/11 16:14:43 $
- * $Revision: 1.8.2.1 $
+ * $Date: 2007/02/13 12:03:11 $
+ * $Revision: 1.7 $
  * (last update by $Author: flucke $)
  */
 
@@ -22,8 +22,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class Alignable;
-class AlignableTracker;
-class AlignableMuon;
 class AlignmentParameterStore;
 
 /***************************************
@@ -31,10 +29,9 @@ class AlignmentParameterStore;
 class PedeSteerer
 {
  public:
-  /// constructor from e.g. AlignableTracker/AlignableMuon and the AlignmentParameterStore
-  PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon,
-	      AlignmentParameterStore *store, const edm::ParameterSet &config,
-	      const std::string &defaultDir = "");
+  /// constructor from e.g. AlignableTracker and the AlignmentParameterStore
+  PedeSteerer(Alignable *highestLevelAlignable, AlignmentParameterStore *store,
+	      const edm::ParameterSet &config);
   /** non-virtual destructor: do not inherit from this class */
   ~PedeSteerer();
     
@@ -50,10 +47,6 @@ class PedeSteerer
   unsigned int alignableLabelFromLabel(unsigned int label) const;
   /// alignable from alignable or parameter label
   Alignable* alignableFromLabel(unsigned int label) const;
-  /// If some parameters Alignable* were chosen to be excluded as subcomponent of a hierarchical
-  /// parameterisation, return vector indicating these parameters (all but '0' mean excluded).
-  /// Otherwise empty return value.
-  const std::vector<char>& noHieraParamSel(const Alignable* ali) const;
 
   /// construct (and return name of) master steering file from config, binaryFiles etc.
   std::string buildMasterSteer(const std::vector<std::string> &binaryFiles);
@@ -62,24 +55,24 @@ class PedeSteerer
   double cmsToPedeFactor(unsigned int parNum) const;
   /// results from pede (and start values for pede) might need a sign flip
   double parameterSign() const;
-  /// directory from constructor input, '/' is attached if needed
-  const std::string& directory() const { return myDirectory;}
+  /// directory from configuration, '/' is attached if needed
+  std::string directory() const;
 
  private:
   typedef std::map <Alignable*, unsigned int> AlignableToIdMap;
-  typedef AlignableToIdMap::value_type AlignableToIdPair;
-  typedef std::map <unsigned int, Alignable*> IdToAlignableMap;
-  typedef std::map<const Alignable*, std::vector<char> > AlignableSelVecMap;
+  typedef std::pair<Alignable*, unsigned int> AlignableToIdPair;
 
-  unsigned int buildMap(Alignable *highestLevelAli1, Alignable *highestLevelAli2);
+  typedef std::map <unsigned int, Alignable*> IdToAlignableMap;
+  typedef std::pair<unsigned int, Alignable*> IdToAlignablePair;
+
+  unsigned int buildMap(Alignable *highestLevelAli);
   unsigned int buildReverseMap();
-  void buildNoHierarchyMap(AlignableTracker *aliTracker, AlignableMuon *aliMuon,
-			   const edm::ParameterSet &selPSet);
 
   std::pair<unsigned int, unsigned int> fixParameters(const std::vector<Alignable*> &alignables,
 						      const std::string &file);
   int fixParameter(Alignable *ali, unsigned int iParam, char selector, std::ofstream &file) const;
-  unsigned int hierarchyConstraints(const std::vector<Alignable*> &alis, const std::string &file);
+  unsigned int hierarchyConstraints(const std::vector<Alignable*> &alis,
+				    const std::string &file);
   void hierarchyConstraint(const Alignable *ali, const std::vector<Alignable*> &components,
 			   std::ofstream &file) const;
 
@@ -90,13 +83,9 @@ class PedeSteerer
 
   const AlignmentParameterStore *myParameterStore;
   edm::ParameterSet myConfig;
-  std::string myDirectory; /// directory of all files
-
   std::vector<std::string> mySteeringFiles; /// keeps track of created 'secondary' steering files
   AlignableToIdMap  myAlignableToIdMap; /// providing unique ID for alignable, space for param IDs
   IdToAlignableMap  myIdToAlignableMap; /// reverse map
-
-  AlignableSelVecMap myNoHierarchyMap; /// Alignable(Params) deselected for hierarchy constraints
 
   static const unsigned int theMaxNumParam;
   static const unsigned int theMinLabel;

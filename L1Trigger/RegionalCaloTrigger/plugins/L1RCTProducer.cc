@@ -1,4 +1,4 @@
-#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTProducer.h" 
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTProducer.h"
 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
@@ -26,11 +26,7 @@ L1RCTProducer::L1RCTProducer(const edm::ParameterSet& conf) :
   rctTestInputFile(conf.getParameter<std::string>("rctTestInputFile")),
   rctTestOutputFile(conf.getParameter<std::string>("rctTestOutputFile")),
   patternTest(conf.getUntrackedParameter<bool>("patternTest")),
-  lutFile2(conf.getParameter<edm::FileInPath>("lutFile2")),
-  useEcal(conf.getParameter<bool>("useEcal")),
-  useHcal(conf.getParameter<bool>("useHcal")),
-  ecalDigisLabel(conf.getParameter<edm::InputTag>("ecalDigisLabel")),
-  hcalDigisLabel(conf.getParameter<edm::InputTag>("hcalDigisLabel"))
+  lutFile2(conf.getParameter<edm::FileInPath>("lutFile2"))
 {
   //produces<JSCOutput>();
   
@@ -66,30 +62,25 @@ void L1RCTProducer::produce(edm::Event& e, const edm::EventSetup& c)
   //vector<vector<vector<unsigned short> > > barrel;
   //vector<vector<unsigned short> > hf;
   
+  //cout << "L1RCT: produce method entered" << endl;
+
   if (!orcaFileInput){
-    
+    // my try:
     edm::Handle<EcalTrigPrimDigiCollection> ecal;
     edm::Handle<HcalTrigPrimDigiCollection> hcal;
     edm::ESHandle<L1CaloEtScale> emScale;
-    
-    //if (useEcal) { e.getByLabel("ecalTriggerPrimitiveDigis",ecal); }
-    //if (useHcal) { e.getByLabel("hcalTriggerPrimitiveDigis",hcal); }
-    if (useEcal) { e.getByLabel(ecalDigisLabel, ecal); }
-    if (useHcal) { e.getByLabel(hcalDigisLabel, hcal); }
+    //e.getByType(ecal);
+    //e.getByType(hcal);
+    e.getByLabel("ecalTriggerPrimitiveDigis",ecal);
+    e.getByLabel("hcalTriggerPrimitiveDigis",hcal);
     c.get<L1EmEtScaleRcd>().get(emScale);
 
+    // as in L1GctEmulator.cc
     if (emScale.product() != 0) {
       rct->setGctEmScale(emScale.product());
     }
-    
-    EcalTrigPrimDigiCollection ecalColl;
-    HcalTrigPrimDigiCollection hcalColl;
-    if (ecal.isValid()) { ecalColl = *ecal; }
-    if (hcal.isValid()) { hcalColl = *hcal; }
-
-    //rct->digiInput(*ecal, *hcal);
-    rct->digiInput(ecalColl, hcalColl);
-
+    rct->digiInput(*ecal, *hcal);
+    //cout << "L1RCT: digis have been filled in" << endl;
   }
   
   else if (orcaFileInput){
@@ -103,6 +94,7 @@ void L1RCTProducer::produce(edm::Event& e, const edm::EventSetup& c)
   } 
 
   rct->processEvent();
+  //cout << "L1RCT: event has been processed" << endl;
   //rct->printJSC();
   
   
@@ -155,7 +147,7 @@ void L1RCTProducer::produce(edm::Event& e, const edm::EventSetup& c)
   //putting stuff back into event
   e.put(rctEmCands);
   e.put(rctRegions);
-
+  
 }
 
 //#include "FWCare/PluginManager/interface/ModuleDef.h"

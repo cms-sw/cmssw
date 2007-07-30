@@ -23,6 +23,7 @@ class CSCDetectorHit;
 class PSimHit;
 class MagneticField;
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGaussQ.h"
 
@@ -56,6 +57,7 @@ private:
   double avgDrift() const;
   double driftSigma() const;
   double avalancheCharge();
+  double gasGain(const CSCDetId & id) const;
 
   // local magnetic field
   float bz;

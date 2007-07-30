@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/08/11 10:56:16 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/10/19 14:42:16 $
+ *  $Revision: 1.7 $
  *  \author N. Amapane - CERN
  */
 
@@ -97,8 +97,7 @@ MuDetRod::compatibleDets( const TrajectoryStateOnSurface& startingState,
   // Try the neighbors on each side until no more compatible.
   // If closest is not compatible the next cannot be either
   if (!result.empty()) {
-    const BoundPlane& closestPlane(dynamic_cast<const BoundPlane&>
-                                   (dets[closest]->surface()));    
+    const BoundPlane& closestPlane(dets[closest]->surface());
     MeasurementEstimator::Local2DVector maxDistance = 
       est.maximalLocalDisplacement( result.front().second, closestPlane);
     

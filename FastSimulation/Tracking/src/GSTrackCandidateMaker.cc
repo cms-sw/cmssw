@@ -117,10 +117,10 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
   std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection);    
   
   edm::Handle<edm::SimTrackContainer> theSimTracks;
-  e.getByType<edm::SimTrackContainer>(theSimTracks);
+  e.getByLabel("famosSimHits",theSimTracks);
   
   edm::Handle<edm::SimVertexContainer> theSimVtx;
-  e.getByType(theSimVtx);
+  e.getByLabel("famosSimHits",theSimVtx);
 
 #ifdef FAMOS_DEBUG
   std::cout << " Step A: SimTracks found " << theSimTracks->size() << std::endl;

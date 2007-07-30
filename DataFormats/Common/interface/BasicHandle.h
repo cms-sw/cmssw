@@ -19,22 +19,19 @@ Handles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: BasicHandle.h,v 1.3 2007/04/01 15:45:36 wmtan Exp $
+$Id: BasicHandle.h,v 1.4 2007/05/29 21:23:37 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
-#include <stdexcept>
 #include <typeinfo>
-
 #include "DataFormats/Provenance/interface/Provenance.h"
-#include "FWCore/Utilities/interface/EDMException.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 
 namespace edm {
   class EDProduct;
   class BasicHandle {
   public:
-    // Default constructed handles are invalid.
     BasicHandle() :
       wrap_(0),
       prov_(0) {}
@@ -45,8 +42,6 @@ namespace edm {
 
     BasicHandle(EDProduct const* prod, Provenance const* prov) :
       wrap_(prod), prov_(prov) {
-      assert(wrap_);
-      assert(prov_);
     }
 
     ~BasicHandle() {}
@@ -68,19 +63,17 @@ namespace edm {
     }
 
     EDProduct const* wrapper() const {
-    // Should we throw if the pointer is null?
       return wrap_;
     }
 
     Provenance const* provenance() const {
-    // Should we throw if the pointer is null?
       return prov_;
     }
 
     ProductID id() const {
-      if (!prov_) 
-	throw Exception(errors::NullPointerError)
-	  << "Attempt to get ID from an invalid BasicHandle\n";
+      if (!prov_) {
+        return ProductID();
+      }
       return prov_->productID();
     }
 
@@ -92,8 +85,7 @@ namespace edm {
   // Free swap function
   inline
   void
-  swap(BasicHandle& a, BasicHandle& b) 
-  {
+  swap(BasicHandle& a, BasicHandle& b) {
     a.swap(b);
   }
 }

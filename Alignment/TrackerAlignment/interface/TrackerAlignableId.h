@@ -1,6 +1,12 @@
 #ifndef Alignment_CommonAlignment_TrackerAlignableId_H
 #define Alignment_CommonAlignment_TrackerAlignableId_H
 
+#include <map>
+
+#include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/AlignableDet.h"
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
+
 /// \class TrackerAlignableId
 ///
 /// Helper class to provide unique numerical ID's for Alignables. 
@@ -10,24 +16,27 @@
 /// A mapping between the AlignableObjectId and the string name
 /// is also provided.
 ///
-///  $Revision: 1.8 $
-///  $Date: 2007/05/11 19:59:47 $
-///  (last update by $Author: cklae $)
+///  $Revision$
+///  $Date$
+///  (last update by $Author$)
 
-#include <string>
-#include <utility>
-#include <boost/cstdint.hpp>
-
-class Alignable;
-class DetId;
 class GeomDet;
+class Alignable;
 
 class TrackerAlignableId
 {
 
 public:
   
+  typedef AlignableObjectId::AlignableObjectIdType idType;
+  typedef std::map<int,std::string> MapEnumType;
   typedef std::pair<uint32_t,int> UniqueId;
+
+  /// Constructor (builds map)
+  TrackerAlignableId( );
+
+  /// Destructor
+  ~TrackerAlignableId() {};
 
   /// Return geographical ID of first GeomDet
   uint32_t alignableId( const Alignable* alignable ) const;
@@ -48,19 +57,19 @@ public:
   std::pair<int,int> typeAndLayerFromDetId( const DetId& detId ) const;
 
   /// Return string corresponding to given Alignable
-  const std::string& alignableTypeName( const Alignable* alignable ) const;
+  const std::string alignableTypeName( const Alignable* alignable ) const;
 
   /// Return string corresponding to given alignable object ID
-  const std::string& alignableTypeIdToName( int id ) const;
+  const std::string alignableTypeIdToName( const int& id ) const;
   
 
 private:
 
-  /// Get first sensor of an Alignable
-  const Alignable& firstDet( const Alignable& alignable ) const;
+  /// Get first AlignableDet of an Alignable
+  const AlignableDet* firstDet( const Alignable* alignable ) const;
  
   /// Get unique identifyer of first AlignableDet of alignable
-  uint32_t firstDetId( const Alignable& alignable ) const;
+  uint32_t firstDetId( const Alignable* alignable ) const;
 
 };
 

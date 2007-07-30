@@ -139,7 +139,7 @@ EventSetupRecordProvider::usePreferred(const DataToPreferredProviderMap& iMap)
       <<"Please use an es_prefer statement to choose only one of them as the provider of the record's IOV";
     }
     if (1 < chosen.size()) {
-      throw cms::Exception("EventSetupMultipleSources")<<"the following sources have been chosen by es_prefer to deliver the EVentSetup record '"
+      throw cms::Exception("EventSetupMultipleSources")<<"the following sources have been chosen by es_prefer to deliver the EventSetup record '"
       <<key_.name()<<"'\n"
       <<chosenList
       <<"Please change the es_prefer statements so that only one is chosen";

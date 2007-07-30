@@ -1,7 +1,7 @@
 // system include files
 #include "boost/shared_ptr.hpp"
 // user include files
-#include "PoolDBESSource.h"
+#include "CondCore/ESSources/interface/PoolDBESSource.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/ConnectMode.h"
@@ -369,9 +369,5 @@ void PoolDBESSource::tagToToken( const std::vector< std::pair < std::string, std
     throw e;
   }
 }
-// ------------ method called to produce the data  ------------
 
-//define this as a plug-in
-//using namespace cond;
-DEFINE_FWK_EVENTSETUP_SOURCE(PoolDBESSource);
-  
+

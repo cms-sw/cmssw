@@ -4,8 +4,8 @@
 /*
  * \file EEPedestalClient.h
  *
- * $Date: 2007/04/02 16:15:35 $
- * $Revision: 1.1 $
+ * $Date: 2007/05/12 09:39:05 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -144,6 +144,9 @@ MonitorElement* mep03_[18];
 MonitorElement* mer01_[18];
 MonitorElement* mer02_[18];
 MonitorElement* mer03_[18];
+ 
+MonitorElement* mer04_[18];
+MonitorElement* mer05_[18];
 
 MonitorElement* mes01_[18];
 MonitorElement* mes02_[18];
@@ -166,9 +169,10 @@ float discrepancyMean_[3];
 float RMSThreshold_[3];
 
 // Quality check on PNs
-
-float pedestalThresholdPn_;
-
+ 
+float expectedMeanPn_[2];
+float discrepancyMeanPn_[2];
+float RMSThresholdPn_[2];
 };
 
 #endif

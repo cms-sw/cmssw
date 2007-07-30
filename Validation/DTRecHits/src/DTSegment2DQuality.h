@@ -5,12 +5,13 @@
  *  Basic analyzer class which accesses 2D DTSegments
  *  and plot resolution comparing reconstructed and simulated quantities
  *
- *  $Date: July 2006$
- *  $Revision: 1.0$
+ *  $Date: 2006/08/04 10:35:29 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "Histograms.h"
 
 #include <vector>
 #include <map>
@@ -57,6 +58,16 @@ private:
   //Sigma resolution on angle
   double sigmaResAngle;
 
+  HRes2DHit *h2DHitRPhi;
+  HRes2DHit *h2DHitRZ;
+  HRes2DHit *h2DHitRZ_W0;
+  HRes2DHit *h2DHitRZ_W1;
+  HRes2DHit *h2DHitRZ_W2;
 
+  HEff2DHit *h2DHitEff_RPhi;
+  HEff2DHit *h2DHitEff_RZ;
+  HEff2DHit *h2DHitEff_RZ_W0;
+  HEff2DHit *h2DHitEff_RZ_W1;
+  HEff2DHit *h2DHitEff_RZ_W2;
 };
 #endif

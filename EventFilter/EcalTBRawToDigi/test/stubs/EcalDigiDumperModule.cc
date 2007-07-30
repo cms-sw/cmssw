@@ -3,8 +3,8 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2007/04/12 08:36:47 $
- * $Revision: 1.13 $
+ * $Date: 2007/05/01 20:30:56 $
+ * $Revision: 1.14 $
  * \author N. Amapane - S. Argiro'
  * \author G. Franzoni
  *
@@ -125,7 +125,7 @@ class EcalDigiDumperModule: public edm::EDAnalyzer{
     
     // retrieving crystal data from Event
     edm::Handle<EBDigiCollection>  digis;
-    e.getByLabel("ecalEBunpacker", digis);
+    e.getByLabel("ecalEBunpacker", "ebDigis", digis);
 
     // retrieving crystal PN diodes from Event
     edm::Handle<EcalPnDiodeDigiCollection>  PNs;

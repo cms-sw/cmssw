@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: eventprincipal_t.cppunit.cc,v 1.40 2007/04/02 15:55:10 wmtan Exp $
+$Id: eventprincipal_t.cppunit.cc,v 1.41 2007/04/09 22:18:57 wdd Exp $
 
 ----------------------------------------------------------------------*/  
 #include <map>
@@ -201,7 +201,8 @@ void testeventprincipal::setUp()
     edm::ProcessConfiguration* process = processConfigurations_[tag];
     assert(process);
     edm::Timestamp now(1234567UL);
-    pEvent_  = new edm::EventPrincipal(eventID_, now, *pProductRegistry_, 1, *process);
+    boost::shared_ptr<edm::ProductRegistry const> preg = boost::shared_ptr<edm::ProductRegistry const>(pProductRegistry_);
+    pEvent_  = new edm::EventPrincipal(eventID_, now, preg, 1, *process);
     pEvent_->put(product, provenance);
   }
   
@@ -223,8 +224,8 @@ void testeventprincipal::tearDown()
   delete pEvent_;
   pEvent_ = 0;
 
-  delete pProductRegistry_;
   pProductRegistry_ = 0;
+
 }
 
 #if 0

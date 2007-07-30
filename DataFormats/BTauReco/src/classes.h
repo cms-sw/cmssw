@@ -24,10 +24,6 @@
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
 #include "DataFormats/BTauReco/interface/JetTagInfo.h"
 
-#include "PhysicsTools/IsolationUtils/interface/TauConeIsolationAlgo.h"
-#include "PhysicsTools/Utilities/interface/DeltaR.h"
-#include "PhysicsTools/Utilities/interface/Angle.h"
-
 namespace reco {
     typedef TrackTauImpactParameterAssociationCollection::map_type          TrackTauImpactParameterAssociationMapType;
     typedef TrackTauImpactParameterAssociationCollection::ref_type          TrackTauImpactParameterAssociationRefType;
@@ -77,10 +73,6 @@ namespace {
     reco::IsolatedTauTagInfoRefProd                                     it_rp;
     reco::IsolatedTauTagInfoRefVector                                   it_rv;
     edm::Wrapper<reco::IsolatedTauTagInfoCollection>                    it_wc;
-    Angle<math::XYZVector>                                              it_a;
-    DeltaR<math::XYZVector>                                             it_dr;
-    TauConeIsolationAlgo<math::XYZVector, reco::TrackCollection, Angle<math::XYZVector> > it_tciaa;
-    TauConeIsolationAlgo<math::XYZVector, reco::TrackCollection, DeltaR<math::XYZVector> > it_tciadr;
 
     reco::SoftLeptonProperties                                          slp;
     std::pair<reco::TrackRef, reco::SoftLeptonProperties>               slp_p;

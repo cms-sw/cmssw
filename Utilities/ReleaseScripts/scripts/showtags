@@ -1,5 +1,7 @@
 #!/usr/bin/perl -w
 #
+# $Id:$
+#
 # Created by: Shahram Rahatlou
 #             University of Rome & INFN
 #             23 Feb 2006
@@ -12,8 +14,10 @@ my $doCVS;
 my $doDiff;
 my $doHelp;
 my $tagCollector;
+my $reltag;
 GetOptions("check|c" => \$doCVS,
            "diff|d" => \$doDiff,
+           "release|r" => \$reltag,
            "tagCollector|t" => \$tagCollector,
            "help|h" => \$doHelp);
 
@@ -37,11 +41,14 @@ die "CMSSW_RELEASE_BASE not defined! run scramv1 first!\n" unless defined $ENV{C
 my @v1 = split('/',$ENV{CMSSW_RELEASE_BASE});
 my $nlast = @v1;
 
+my $taglist = "$ENV{CMSSW_RELEASE_BASE}/src/PackageList.cmssw";
+die "Cannot find release package/tag list at $taglist\n" if (!-e $taglist);
+
 # this is our release
 my $relver = $v1[$nlast-1];
 
 print STDOUT "Test Release based on: $relver\n";
-print STDOUT "Production release in: $ENV{CMSSW_RELEASE_BASE}\n";
+print STDOUT "Base Release in: $ENV{CMSSW_RELEASE_BASE}\n";
 print STDOUT "Your Test release in: $ENV{CMSSW_BASE}\n";
 
 if(defined $doCVS) {
@@ -59,12 +66,7 @@ my $c2 = cwd();
 # now get the list of subsystems
 my @f1 = `ls`;
 
-if(defined $tagCollector) {
-  printf '%-40s %s', "-------- Package --------", "--- Tag ---\n";
-} else {
-  printf '%-14s %s', "--- Tag ---", "---------- Package ----------\n";
-}
-
+# Get the list of packages
 for my $f (@f1) {
   chomp($f);
   chdir("$maindir");
@@ -78,63 +80,116 @@ for my $f (@f1) {
       if(-d $ff && ($ff ne "CVS") ) {
         my $pack = "$f/$ff";
         push @packages, "$pack";
-        my $tag = "NoCVS";
-        if(-d "$ff/CVS" ) {
-          my $tagfile = "$ff/CVS/Tag";
-          if(-f $tagfile) { $tag = `cat $tagfile`; chomp($tag); $tag = substr($tag,1,1000);} # use exisiting tag
-          else {            $tag = "NoTag"; }                                                # no tag available
-        }
-        #print "package: $pack\ttag: $tag\n";
-        if(defined $tagCollector) {
-          printf '%-40s %s',"$pack", "$tag\n";
-        } else {
-          printf '%-14s %s', $tag, "$pack\n";
-        }
-
-        $tagMap{"$pack"} = $tag;
-        my $ocvs = "";
-
-        # check against release version
-        my @filesToDiff; # files to diff with CVS
-        my @newFiles;    # files not in repo
-
-        if( (defined $doCVS) && ($tag ne "NoTag") && ($tag ne "NoCVS") ) {
-
-           #print STDOUT "-------- cvs diff : begin ---------\n";
-           open CL, "cvs -n update -r $tag $ff 2>&1 |";
-           while(my $l = <CL>) {
-             chomp($l);
-             next if($l =~ /cvs update: Updating/);
-             print STDOUT "  $l\n";
-             if($l =~ /M (.*)/) { push @filesToDiff, $1;}
-             if($l =~ /\? (.*)/) { push @newFiles, $1;}
-           }
-           close CL;
-           #print STDOUT "-------- cvs diff : end   ---------\n";
-           my $ndiff = @filesToDiff;
-           my $nnew = @newFiles;
-           #if( $ndiff>0 ) { print STDOUT "Files modified: $ndiff\n"; }
-           #if( $nnew>0 ) { print STDOUT "New files: $nnew\n"; }
-        }
-
-        # diff with CvS if requested
-        if( (defined $doDiff) && (@filesToDiff>0) ) {
-          #print STDOUT "running cvs diff -ub -r $relver\n";
-          for my $nf ( @filesToDiff ) {
-            open D, "cvs diff -ub -r $relver $nf 2>&1|";
-            while(my $l = <D>) {
-              chomp $l;
-              next if($l =~/^kserver/);
-              print STDOUT "$l\n";
-            }
-          }
-          close D;
-        }
       }
     }
   }
 
 }
+
+# Print the headers
+my $pkgheader = "-------- Package --------";
+my $tagheader = "--- Tag ---";
+my $reltagheader = "--- RelTag ---";
+if(defined $reltag) {
+  if(defined $tagCollector) {
+    printf '%-48s %-14s %-14s %s', $pkgheader,$tagheader,$reltagheader,"\n";
+  } else {
+    printf '%-14s %-14s %-48s %s', $tagheader,$reltagheader,$pkgheader,"\n";
+  }
+} else {
+  if(defined $tagCollector) {
+    printf '%-48s %-14s %s', $pkgheader, $tagheader,"\n";
+  } else {
+    printf '%-14s %-48s %s', $tagheader, $pkgheader,"\n";
+  }
+}
+
+# Loop over the packages and get the requested information for them
+chdir("$maindir");
+foreach my $ipack (@packages) {
+  # First look at the tag in the scram developer area
+  my $tag = "NoCVS";
+  if(-d "$ipack/CVS" ) {
+    my $tagfile = "$ipack/CVS/Tag";
+    if(-f $tagfile) { 
+      # use existing tag
+      $tag = `cat $tagfile`; 
+      chomp($tag); 
+      $tag = substr($tag,1,1000);
+    } else {            
+      # no tag available
+      $tag = "NoTag"; 
+    }
+  }
+  # If requested, look also at the tag in the base release
+  my $tagrel = ""; 
+  if (defined $reltag) {
+    open IN, "$taglist";
+    my $l2="";
+    my $thepack=""; my $thetag="";
+    while(my $l = <IN>) {
+      chomp $l;
+      ($thepack,$thetag) = split '\s+', $l;
+      if($thepack eq $ipack) { $tagrel = $thetag; last; }
+    }
+    close IN;
+  }
+  #print "package: $pack\ttag: $tag\n";
+  if (defined $reltag) {
+    if(defined $tagCollector) {
+      printf '%-48s %-14s %-14s %s', $ipack, $tag, $tagrel, "\n";
+    } else {
+      printf '%-14s %-14s %-48s %s', $tag, $tagrel, "$ipack", "\n";
+    }
+  } else {
+    if(defined $tagCollector) {
+      printf '%-48s %-14s %s', $ipack, $tag, "\n";
+    } else {
+      printf '%-14s %-48s %s', $tag, "$ipack", "\n";
+    }
+  }
+  $tagMap{"$ipack"} = $tag;
+  my $ocvs = "";
+
+  # check against release version
+  my @filesToDiff; # files to diff with CVS
+  my @newFiles;    # files not in repo
+
+  if( (defined $doCVS) && ($tag ne "NoTag") && ($tag ne "NoCVS") ) {
+
+     #print STDOUT "-------- cvs diff : begin ---------\n";
+     open CL, "cvs -n update -r $tag $ipack 2>&1 |";
+     while(my $l = <CL>) {
+       chomp($l);
+       next if($l =~ /cvs update: Updating/);
+       print STDOUT "  $l\n";
+       if($l =~ /M (.*)/) { push @filesToDiff, $1;}
+       if($l =~ /\? (.*)/) { push @newFiles, $1;}
+     }
+     close CL;
+     #print STDOUT "-------- cvs diff : end   ---------\n";
+     my $ndiff = @filesToDiff;
+     my $nnew = @newFiles;
+     #if( $ndiff>0 ) { print STDOUT "Files modified: $ndiff\n"; }
+     #if( $nnew>0 ) { print STDOUT "New files: $nnew\n"; }
+  }
+
+  # diff with CVS if requested
+  if( (defined $doDiff) && (@filesToDiff>0) ) {
+    #print STDOUT "running cvs diff -ub -r $relver\n";
+    for my $nf ( @filesToDiff ) {
+      open D, "cvs diff -ub -r $relver $nf 2>&1|";
+      while(my $l = <D>) {
+        chomp $l;
+        next if($l =~/^kserver/);
+        print STDOUT "$l\n";
+      }
+    }
+    close D;
+  }
+}
+
+
 my $nsys = @packages;
 print "---------------------------------------\n";
 print STDOUT "total packages: $nsys\n";
@@ -151,8 +206,9 @@ print STDOUT <<ENDHELP;
 showtags [--check|-c] [--diff|-d] [--help|-h]
 
   usage:      --help|-h    print this message
-              --check|-c   check for differences wrt tag in the release
-              --diff|-d    do cvs diff with tag in the release
+              --check|-c   check for differences wrt tag in the base release
+              --diff|-d    do cvs diff with tag in the base release
+              --release|-r show also the tag used for the base release 
               --tagCollector|-t print "package   tag" instead of default "tag   package"
 
 ENDHELP

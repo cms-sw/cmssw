@@ -17,6 +17,7 @@
 
 
 EcalEndcapRecHitsMaker::EcalEndcapRecHitsMaker(edm::ParameterSet const & p, 
+					       edm::ParameterSet const & pcalib,
 					       const RandomEngine * myrandom) 
   : random_(myrandom)
 {
@@ -25,6 +26,8 @@ EcalEndcapRecHitsMaker::EcalEndcapRecHitsMaker(edm::ParameterSet const & p,
   threshold_ = RecHitsParameters.getParameter<double>("Threshold");
   theCalorimeterHits_.resize(20000,0.);
   noisified_ = (noise_==0.);
+  double c1 = pcalib.getParameter<double>("EEs25notContainment");
+  calibfactor_= 1./c1;
 }
 
 EcalEndcapRecHitsMaker::~EcalEndcapRecHitsMaker()
@@ -92,7 +95,8 @@ void EcalEndcapRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
 	{
 	  theFiredCells_.push_back(hashedindex); 
 	}
-      theCalorimeterHits_[hashedindex]+=cficalo->energy();   
+      // the famous 1/0.97 calibration factor is applied here ! 
+      theCalorimeterHits_[hashedindex]+=cficalo->energy()*calibfactor_;   
     }
 }
 

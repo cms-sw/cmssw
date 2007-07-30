@@ -1,13 +1,9 @@
 #include "SimMuon/CSCDigitizer/src/CSCWireHitSim.h"
 #include "SimMuon/CSCDigitizer/src/CSCDriftSim.h"
-#include "SimMuon/CSCDigitizer/src/CSCCrossGap.h"
-#include "SimMuon/CSCDigitizer/src/CSCDetectorHit.h"
 #include "SimMuon/CSCDigitizer/src/CSCGasCollisions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
 #include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
-#include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 
 
 CSCWireHitSim::CSCWireHitSim(CSCDriftSim* driftSim) 

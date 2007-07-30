@@ -168,6 +168,11 @@ class InputTag(_ParameterTypeBase):
     @staticmethod
     def formatValueForConfig(value):
         return value.configValue('','')
+    @staticmethod
+    def _valueFromString(string):
+        parts = string.split(":")
+        return InputTag(*parts)
+
 
 class SecSource(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
     def __init__(self,type_,*arg,**args):

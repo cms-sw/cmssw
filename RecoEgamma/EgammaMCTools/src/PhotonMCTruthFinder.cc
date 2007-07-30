@@ -1,5 +1,6 @@
 #include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruthFinder.h"
 #include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruth.h"
+#include "RecoEgamma/EgammaMCTools/interface/ElectronMCTruth.h"
 //
 //
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
@@ -37,10 +38,11 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
   
   
   std::vector<SimTrack*> photonTracks;
-  std::vector<SimTrack*> pizeroTracks;
-  std::vector<const SimTrack *> trkFromConversion;
+  
+  std::vector<SimTrack> trkFromConversion;
+  std::vector<ElectronMCTruth> electronsFromConversions;
   SimVertex primVtx;   
-  std::vector<int> convInd;
+
 
 
   
@@ -66,6 +68,8 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
     
   }
   
+  HepLorentzVector primVtxPos= primVtx.position();           
+
   // Look at a second track
   iFirstSimTk++;
   if ( iFirstSimTk!=  theSimTracks.end() ) {
@@ -97,12 +101,9 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
       npv++;
       if ( (*iSimTk).type() == 22) {
 	std::cout << " Found a primary photon with ID  " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  std::endl; 
-	convInd.push_back(0);
+
         
 	photonTracks.push_back( &(*iSimTk) );
-	
-	
-	CLHEP::HepLorentzVector momentum = (*iSimTk).momentum();
 
       } 
       
@@ -135,29 +136,31 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
    //////  Look into converted photons  
 
    int isAconversion=0;   
-   if(ievflav == PHOTON_FLAV) {
+   if(ievflav == PHOTON_FLAV || ievflav== PIZERO_FLAV ) {
 
-     std::cout << " It's a primary PHOTON event with " << photonTracks.size() << " photons " << std::endl;
+     std::cout << " It's a primary PHOTON or PIZERO event with " << photonTracks.size() << " photons " << std::endl;
+        
 
-     int nConv=0;
-     int iConv=0;
-     iPho=0;
-     for (std::vector<SimTrack*>::iterator iPhoTk = photonTracks.begin(); iPhoTk != photonTracks.end(); ++iPhoTk){
-       std::cout << " Looping on the primary gamma looking for conversions " << (*iPhoTk)->momentum() << " photon track ID " << (*iPhoTk)->trackId() << std::endl;
+     for (std::vector<SimTrack>::iterator iPhoTk = theSimTracks.begin(); iPhoTk != theSimTracks.end(); ++iPhoTk){
+       std::cout << " Looping on the primary gamma looking for conversions " << (*iPhoTk).momentum() << " photon track ID " << (*iPhoTk).trackId() << std::endl;
        trkFromConversion.clear();           
+       electronsFromConversions.clear();
 
+       if ( (*iPhoTk).type() != 22 ) continue;
+       int photonVertexIndex= (*iPhoTk).vertIndex();
+       int phoTrkId= (*iPhoTk).trackId();
 
-       for (std::vector<SimTrack>::iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk){
-	 if (  (*iSimTk).noVertex() )                    continue;
-	 if ( (*iSimTk).vertIndex() == iPV )             continue; 
-         if ( abs((*iSimTk).type()) != 11  )             continue;
+       for (std::vector<SimTrack>::iterator iEleTk = theSimTracks.begin(); iEleTk != theSimTracks.end(); ++iEleTk){
+	 if (  (*iEleTk).noVertex() )                    continue;
+	 if ( (*iEleTk).vertIndex() == iPV )             continue; 
+         if ( abs((*iEleTk).type()) != 11  )             continue;
 
-	 int vertexId = (*iSimTk).vertIndex();
+	 int vertexId = (*iEleTk).vertIndex();
 	 SimVertex vertex = theSimVertices[vertexId];
          int motherId=-1;
 	
 
-         std::cout << " Secondary from photons particle type " << (*iSimTk).type() << " trackId " <<  (*iSimTk).trackId() << " vertex ID " << vertexId << std::endl;
+         std::cout << " Secondary from photons particle type " << (*iEleTk).type() << " trackId " <<  (*iEleTk).trackId() << " vertex ID " << vertexId << std::endl;
          if ( vertex.parentIndex()  ) {
 
 	   unsigned  motherGeantId = vertex.parentIndex(); 
@@ -170,12 +173,96 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
 	   
 	   std::cout << " Parent to this vertex   motherId " << motherId << " mother type " <<  motherType << " Sim track ID " <<  theSimTracks[motherId].trackId() << std::endl;
 
-
-	   if ( theSimTracks[motherId].trackId() == (*iPhoTk)->trackId() ) {
+	   std::vector<Hep3Vector> bremPos;  
+	   std::vector<HepLorentzVector> pBrem;
+	   std::vector<float> xBrem;
+	   
+	   if ( theSimTracks[motherId].trackId() == (*iPhoTk).trackId() ) {
 	     std::cout << " Found the Mother Photon " << std::endl;
-             /// store this electron since it's from a converted photon
-	     trkFromConversion.push_back(&(*iSimTk ) );
-	   }
+             /// find truth about this electron and store it since it's from a converted photon
+
+
+
+	     trkFromConversion.push_back( (*iEleTk ) );
+	     SimTrack trLast =(*iEleTk); 
+	     float remainingEnergy =trLast.momentum().e();
+	     HepLorentzVector primEleMom=(*iEleTk).momentum();  
+             HepLorentzVector motherMomentum=(*iEleTk).momentum();  
+	     int eleId = (*iEleTk).trackId();     
+             int eleVtxIndex= (*iEleTk).vertIndex();
+           
+    
+	     bremPos.clear();
+	     pBrem.clear();
+	     xBrem.clear();   
+	     	     
+	     for (std::vector<SimTrack>::iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk){
+	       
+	       if (  (*iSimTk).noVertex() )                    continue;
+	       if ( (*iSimTk).vertIndex() == iPV )             continue;
+	       
+	       std::cout << " (*iEleTk)->trackId() " << (*iEleTk).trackId() << " (*iEleTk)->vertIndex() "<< (*iEleTk).vertIndex()  << " (*iSimTk).vertIndex() "  <<  (*iSimTk).vertIndex() << " (*iSimTk).type() " <<   (*iSimTk).type() << " (*iSimTk).trackId() " << (*iSimTk).trackId() << std::endl;
+	       
+	       int vertexId1 = (*iSimTk).vertIndex();
+	       SimVertex vertex1 = theSimVertices[vertexId1];
+	       int vertexId2 = trLast.vertIndex();
+	       SimVertex vertex2 = theSimVertices[vertexId2];
+	       
+	       
+	       int motherId=-1;
+	       
+	       if(  (  vertexId1 ==  vertexId2 ) && ( (*iSimTk).type() == (*iEleTk).type() ) && trLast.type() == 22   ) {
+		 std::cout << " Here a e/gamma brem vertex " << std::endl;
+		 
+		 std::cout << " Secondary from electron:  particle1  type " << (*iSimTk).type() << " trackId " <<  (*iSimTk).trackId() << " vertex ID " << vertexId1 << " vertex position " << vertex1.position().perp() << " parent index "<< vertex1.parentIndex() << std::endl;
+		 
+		 std::cout << " Secondary from electron:  particle2  type " << trLast.type() << " trackId " <<  trLast.trackId() << " vertex ID " << vertexId2 << " vertex position " << vertex2.position().perp() << " parent index " << vertex2.parentIndex() << std::endl;
+		 
+		 std::cout << " Electron pt " << (*iSimTk).momentum().perp() << " photon pt " <<  trLast.momentum().perp() << " Mother electron pt " <<  motherMomentum.perp() << std::endl;
+		 std::cout << " eleId " << eleId << std::endl;
+		 float eLoss = remainingEnergy - ( (*iSimTk).momentum() + trLast.momentum()).e();
+		 std::cout << " eLoss " << eLoss << std::endl;              
+		 
+		 
+		 if ( vertex1.parentIndex()  ) {
+		   
+		   unsigned  motherGeantId = vertex1.parentIndex(); 
+		   std::map<unsigned, unsigned >::iterator association = geantToIndex_.find( motherGeantId );
+		   if(association != geantToIndex_.end() )
+		     motherId = association->second;
+		   
+		   int motherType = motherId == -1 ? 0 : theSimTracks[motherId].type();
+		   std::cout << " Parent to this vertex   motherId " << motherId << " mother type " <<  motherType << " Sim track ID " <<  theSimTracks[motherId].trackId() << std::endl; 
+		   if ( theSimTracks[motherId].trackId() == eleId ) {
+		     
+		     std::cout << "  ***** Found the Initial Mother Electron ****   theSimTracks[motherId].trackId() " <<  theSimTracks[motherId].trackId() << " eleId " <<  eleId << std::endl;
+		     eleId= (*iSimTk).trackId();
+		     remainingEnergy =   (*iSimTk).momentum().e();
+		     motherMomentum = (*iSimTk).momentum();
+		     
+		     
+		     pBrem.push_back(trLast.momentum());
+		     bremPos.push_back(vertex1.position());
+		     xBrem.push_back(eLoss);
+		     
+		   }
+		   
+		   
+		   
+		   
+		 } else {
+		   std::cout << " This vertex has no parent tracks " <<  std::endl;
+		 }
+		 
+	       }
+	       trLast=(*iSimTk);
+	       
+	     } // End loop over all SimTracks 
+	     std::cout << " Going to build the ElectronMCTruth for this electron from converted photon: pBrem size " << pBrem.size() << std::endl;
+	     /// here fill the electron
+
+	     electronsFromConversions.push_back ( ElectronMCTruth( primEleMom, eleVtxIndex,  bremPos, pBrem, xBrem,  primVtxPos , (*iEleTk)  )  ) ;
+	   }   //// Electron from conversion found
  
            
 
@@ -187,47 +274,32 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
 	 
        } // End of loop over the SimTracks      
        
-       if ( trkFromConversion.size() > 0 ) {
+       std::cout << " DEBUG trkFromConversion.size() " << trkFromConversion.size() << " electronsFromConversions.size() " << electronsFromConversions.size() << std::endl;
+
+       if ( electronsFromConversions.size() > 0 ) {
+       // if ( trkFromConversion.size() > 0 ) {
          isAconversion=1;
 	 std::cout  << " CONVERTED photon " <<   "\n";    
-	 nConv++;
-	 convInd[iPho]=nConv;         
 
-	 int convVtxId =  trkFromConversion[0]->vertIndex();
+	 //int convVtxId =  trkFromConversion[0].vertIndex();
+         int convVtxId =electronsFromConversions[0].vertexInd();
 	 SimVertex convVtx = theSimVertices[convVtxId];
 	 CLHEP::HepLorentzVector vtxPosition = convVtx.position();
-
-	 CLHEP::HepLorentzVector momentum = (*iPhoTk)->momentum();
-	 float sign= vtxPosition.y()/fabs(vtxPosition.y() );
-
-         if ( nConv <= 10) {         
-	   std::cout  << " MC conversion vertex R " << vtxPosition.perp() << " R " << vtxPosition.z() << "\n";
+         
 	   
-	   if ( trkFromConversion.size() > 1) {
-	     idTrk1_[iConv]= trkFromConversion[0]->trackId();
-	     idTrk2_[iConv]= trkFromConversion[1]->trackId();
-	    
-	   } else {
-	     idTrk1_[iConv]=trkFromConversion[0]->trackId();
-	     idTrk2_[iConv]=-1;
-	   }
-	   
-	 }
-	 
-         iConv++;
-	   
-         result.push_back( PhotonMCTruth(isAconversion, (*iPhoTk)->momentum(), vtxPosition,   primVtx.position(), trkFromConversion ));
+         //result.push_back( PhotonMCTruth(isAconversion, (*iPhoTk).momentum(), photonVertexIndex, phoTrkId, vtxPosition,   primVtx.position(), trkFromConversion ));
+	 result.push_back( PhotonMCTruth(isAconversion, (*iPhoTk).momentum(), photonVertexIndex, phoTrkId, vtxPosition,   primVtxPos, electronsFromConversions ));
 
        } else {
          isAconversion=0;
 	 std::cout  << " UNCONVERTED photon " <<   "\n";    
 	 CLHEP::HepLorentzVector vtxPosition(0.,0.,0.,0.);
-	 result.push_back( PhotonMCTruth(isAconversion, (*iPhoTk)->momentum(),  vtxPosition,   primVtx.position(), trkFromConversion ));
+	 //	 result.push_back( PhotonMCTruth(isAconversion, (*iPhoTk).momentum(),  photonVertexIndex, phoTrkId, vtxPosition,   primVtx.position(), trkFromConversion ));
+	 result.push_back( PhotonMCTruth(isAconversion, (*iPhoTk).momentum(),  photonVertexIndex, phoTrkId, vtxPosition,   primVtxPos, electronsFromConversions ));
 	
        }
        
 
-       iPho++;   
 
      } // End loop over the primary photons
      
@@ -235,7 +307,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
    }   // Event with one or two photons 
 
 
-
+   std::cout << "  PhotonMCTruthFinder photon size " << result.size() << std::endl;
 
 
    return result;

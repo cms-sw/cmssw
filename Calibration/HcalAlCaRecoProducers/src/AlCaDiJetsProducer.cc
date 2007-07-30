@@ -8,6 +8,7 @@
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 using namespace edm;
 using namespace std;
@@ -119,7 +120,7 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
              result->push_back (fJet2n);
              if(jets->size()>2) {fJet3n = (*jets)[2];result->push_back (fJet3n);}
        }
-        catch (std::exception& e) { // can't find it!
+        catch (cms::Exception& e) { // can't find it!
             if (!allowMissingInputs_) {
 	      throw e;
 	    }  
@@ -163,7 +164,7 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       } 
    }
        }
-        catch (std::exception& e) { // can't find it!
+        catch (cms::Exception& e) { // can't find it!
             if (!allowMissingInputs_) throw e;
        }
 
@@ -197,7 +198,7 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
        }
 
-    } catch (std::exception& e) { // can't find it!
+    } catch (cms::Exception& e) { // can't find it!
     if (!allowMissingInputs_) throw e;
     }
     }
@@ -225,7 +226,7 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
          if( dr1 < 1.4 || dr2 < 1.4 )  miniDiJetsHBHERecHitCollection->push_back(*hbheItr);
         }
-    } catch (std::exception& e) { // can't find it!
+    } catch (cms::Exception& e) { // can't find it!
     if (!allowMissingInputs_) {cout<<"No HBHE collection "<<endl; throw e;}
     }
 
@@ -256,7 +257,7 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
          if( dr1 < 1.4 || dr2 < 1.4 )  miniDiJetsHORecHitCollection->push_back(*hoItr);
         }
-    } catch (std::exception& e) { // can't find it!
+    } catch (cms::Exception& e) { // can't find it!
         if (!allowMissingInputs_) {cout<<" No HO collection "<<endl; throw e;}
     }
 //  cout<<" Size of mini HO collection "<<miniDiJetsHORecHitCollection->size()<<endl;
@@ -281,7 +282,7 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
          if( dr1 < 1.4 || dr2 < 1.4 )  miniDiJetsHFRecHitCollection->push_back(*hfItr);
       }
-    } catch (std::exception& e) { // can't find it!
+    } catch (cms::Exception& e) { // can't find it!
     if (!allowMissingInputs_) throw e;
     }
  //  cout<<" Size of mini HF collection "<<miniDiJetsHFRecHitCollection->size()<<endl;

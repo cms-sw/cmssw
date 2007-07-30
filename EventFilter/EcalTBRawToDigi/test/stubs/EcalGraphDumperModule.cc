@@ -3,8 +3,8 @@
  * module dumping TGraph with 10 data frames
  *   
  * 
- * $Date: 2007/03/04 13:10:16 $
- * $Revision: 1.11 $
+ * $Date: 2007/04/12 16:41:18 $
+ * $Revision: 1.1 $
  * \author N. Amapane - S. Argiro'
  * \author G. Franzoni
  *
@@ -146,7 +146,7 @@ void EcalGraphDumperModule::analyze( const edm::Event & e, const  edm::EventSetu
 
   // retrieving crystal data from Event
   edm::Handle<EBDigiCollection>  digis;
-  e.getByLabel("ecalEBunpacker", digis);
+  e.getByLabel("ecalEBunpacker", "ebDigis", digis);
 
   // retrieving crystal PN diodes from Event
   edm::Handle<EcalPnDiodeDigiCollection>  PNs;

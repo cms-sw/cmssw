@@ -1,8 +1,5 @@
 #include "SimMuon/CSCDigitizer/src/CSCCrosstalkGenerator.h"
 #include "SimMuon/CSCDigitizer/src/CSCAnalogSignal.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include <iostream>
 
 CSCAnalogSignal CSCCrosstalkGenerator::getCrosstalk(const CSCAnalogSignal & inputSignal) const {
   int nBins = inputSignal.getSize();

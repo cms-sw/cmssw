@@ -9,7 +9,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimCalorimetry/EcalSelectiveReadoutAlgos/src/EcalSelectiveReadout.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
+#include <memory>
 
 class EcalSelectiveReadoutSuppressor{
 public:
@@ -67,7 +67,9 @@ public:
 
   /** For debugging purposes.
    */
-  EcalSelectiveReadout* getEcalSelectiveReadout(){return ecalSelectiveReadout;}
+  EcalSelectiveReadout* getEcalSelectiveReadout(){
+    return ecalSelectiveReadout.get();
+  }
 
   /** Writes out TT flags. On of the 'run' method must be called beforehand.
    * Beware this method might be removed in future.
@@ -89,17 +91,7 @@ public:
   template<class T>
   bool accept(const T& frame, int thr);
   
-  /// helpers for constructors
-  /** When a trigger tower (TT) is classified
-   * as 'center', the TTs in the area (deltaEta+1)x(deltaPhi+1) 
-   * around the 'center' are classified as 'neighbour'.
-   *
-   * The thresholds are the Low Et and High Et 
-   * threshold for selective readout trigger tower classification
-   */
-  void initTowerThresholds(double lowThreshold, double highThreshold,
-			   int deltaEta, int deltaPhi);
-  
+  /// helpers for constructors  
   /** Initializes ZS threshold and SR classificion to SR ("action") flags
    */
   void initCellThresholds(double barrelLowInterest, double endcapLowInterest,
@@ -168,14 +160,18 @@ public:
     return iPhi-1;
   }
 
-  
-  double threshold(const EBDetId & detId) const;
-  double threshold(const EEDetId & detId) const;
-
+  /** Help function to set the srFlags field. Used in TrigPrimByPass mode
+   * @param eventSetup the EDM event setup
+   * @param ebDigi the ECAL barrel APD digis
+   * @param eeDigi the ECAL endcap VPT digis
+   */
   void setTtFlags(const edm::EventSetup& eventSetup,
 		  const EBDigiCollection& ebDigis,
 		  const EEDigiCollection& eeDigis);
-  
+
+  /** Help function to set the srFlags field.
+   * @param trigPrim the trigger primitive digi collection
+   */
   void setTtFlags(const EcalTrigPrimDigiCollection & trigPrims);
 
   template<class T>
@@ -205,7 +201,8 @@ public:
   
   /** Number of eta divisions in trigger towers for the whole ECAL
    */
-  const static size_t nTriggerTowersInEta = 2*nEndcapTriggerTowersInEta+nBarrelTriggerTowersInEta;
+  const static size_t nTriggerTowersInEta
+  = 2*nEndcapTriggerTowersInEta+nBarrelTriggerTowersInEta;
   
   /** Number of phi divisions in trigger towers.
    */
@@ -214,7 +211,7 @@ public:
 
   /** Help class to comput selective readout flags. 
    */
-  EcalSelectiveReadout* ecalSelectiveReadout;
+  std::auto_ptr<EcalSelectiveReadout> ecalSelectiveReadout;
 
   const EcalTrigTowerConstituentsMap * theTriggerMap;
      

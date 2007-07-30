@@ -113,7 +113,6 @@ private:
   bool collateSources_;
   bool cloneME_;
   bool offline_;
-  bool subscribed_;
 
   string clientName_;
   string hostName_;

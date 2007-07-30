@@ -16,7 +16,7 @@ pointer to a Group, when queried.
 
 (Historical note: prior to April 2007 this class was named DataBlockImpl)
 
-$Id: Principal.h,v 1.6 2007/05/26 18:58:49 wmtan Exp $
+$Id: Principal.h,v 1.7 2007/05/29 19:32:03 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -65,7 +65,7 @@ namespace edm {
       Iter iterEnd_;
     };
 
-    Principal(ProductRegistry const& reg,
+    Principal(boost::shared_ptr<ProductRegistry const> reg,
 	      ProcessConfiguration const& pc,
               ProcessHistoryID const& hist = ProcessHistoryID(),
               boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
@@ -211,7 +211,7 @@ namespace edm {
 
     // Pointer to the product registry. There is one entry in the registry
     // for each EDProduct in the event.
-    ProductRegistry const* preg_;
+    boost::shared_ptr<ProductRegistry const> preg_;
 
     // Pointer to the 'source' that will be used to obtain EDProducts
     // from the persistent store.

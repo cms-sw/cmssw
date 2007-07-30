@@ -22,7 +22,7 @@ bool EcalDCCHeaderRuntypeDecoder::Decode(ulong headerWord, EcalDCCHeaderBlock* E
   uint ThreeBitsMask = 7;
   uint ThirdBitMask = 4;
   
-//  EcalDCCHeaderInfos->setId( int ( headerWord & DCCNumberMask) );
+  EcalDCCHeaderInfos->setId( int ( headerWord & DCCNumberMask) );
   EcalDCCHeaderInfos-> setRtHalf( int ((headerWord / WhichHalfOffSet) & TwoBitsMask) );
   int type = int ((headerWord / TypeOffSet)      & ThreeBitsMask);
   int sequence  = int ((headerWord / SubTypeOffSet)   & ThreeBitsMask);
@@ -49,7 +49,7 @@ bool EcalDCCHeaderRuntypeDecoder::Decode(ulong headerWord, EcalDCCHeaderBlock* E
   else if (type ==3 && sequence == 2){EcalDCCHeaderInfos->setRunType(EcalDCCHeaderBlock::PEDESTAL_25NS_SCAN);}
   else if (type ==4 && sequence == 0){EcalDCCHeaderInfos->setRunType(EcalDCCHeaderBlock::LED_STD);}
   else {
-    edm::LogWarning("EcalDCCHeaderRuntypeDecoder") <<"Unrecognized runtype and sequence: "<<type<<" "<<sequence;
+    edm::LogWarning("EcalTBRawToDigi") <<"@SUB=EcalDCCHeaderRuntypeDecoder::Decode unrecognized runtype and sequence: "<<type<<" "<<sequence;
     EcalDCCHeaderInfos->setRunType(-1);
     WasDecodingOk_ = false;
   }
@@ -104,7 +104,7 @@ void  EcalDCCHeaderRuntypeDecoder::DecodeSetting ( int Setting,  EcalDCCHeaderBl
     theSettings.wavelength = Setting & 7;
   }
   else {
-    edm::LogWarning("EcalDCCHeaderRuntypeDecoder") <<"Unrecognized run type: "<<theHeader->getRunType();
+    edm::LogWarning("EcalTBRawToDigi") <<"@SUB=EcalDCCHeaderRuntypeDecoder::DecodeSettings unrecognized run type: "<<theHeader->getRunType();
     WasDecodingOk_ = false;
   }
   theHeader->setEventSettings(theSettings);

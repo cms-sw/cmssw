@@ -359,7 +359,7 @@ void SiStripInformationExtractor::plotHistosFromLayout(MonitorUserInterface * mu
       canvas_->cd(ival);
       if (!me) setCanvasMessage("Plot not ready yet!!");
       else {
-	TH1F* hist1 = ExtractTObject<TH1F>().extract(me);
+	TH1* hist1 = ExtractTObject<TH1>().extract(me);
 	if (hist1) {
           setDrawingOption(hist1);
 	  hist1->DrawCopy();
@@ -367,9 +367,10 @@ void SiStripInformationExtractor::plotHistosFromLayout(MonitorUserInterface * mu
           string hname = hist1->GetTitle();
 	  MonitorElement* me_ref = mui->get(ref_path);
 	  if (me_ref) {
-	    TH1F* hist1_ref = ExtractTObject<TH1F>().extract(me_ref);
+	    TH1* hist1_ref = ExtractTObject<TH1>().extract(me_ref);
 	    if (hist1_ref) {
               hist1_ref->SetLineColor(3);
+              hist1_ref->SetMarkerColor(3);
               if (hname.find("Summary") != string::npos) hist1_ref->DrawCopy("same");
               else hist1_ref->DrawNormalized("same", hist1->GetEntries());
             }

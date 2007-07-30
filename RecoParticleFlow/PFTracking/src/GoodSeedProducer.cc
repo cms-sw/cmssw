@@ -176,6 +176,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       for(vector<reco::PFCluster>::const_iterator aClus = basClus.begin();
 	  aClus != basClus.end(); aClus++) {
 
+
 	ReferenceCountingPointer<Surface> showerMaxWall=
 	  pfTransformer_->showerMaxSurface(aClus->energy(),true,ecalTsos,side);
 
@@ -317,7 +318,9 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       TrajectorySeed NewSeed(*state,rhits,alongMomentum);
 
       output_preid->push_back(NewSeed);
-      
+    
+      delete state;
+  
       if(produceCkfPFT_){
 
 	reco::PFRecTrack pftrack( trackRef->charge(), 

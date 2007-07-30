@@ -36,7 +36,7 @@ namespace stor
 
   const edm::ProductRegistry& EPRunner::getRegistry()
   {
-    return ep_.getInputSource().productRegistry();
+    return *ep_.getInputSource().productRegistry();
   }
 
   void EPRunner::start()

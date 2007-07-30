@@ -41,7 +41,7 @@ void DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expected
     std::ostringstream output;
     output<<"EcalRawToDigi@SUB=DCCFEBlock"
       <<"\n Unable to unpack Tower block for event "<<event_->l1A()<<" in dcc <<"<<mapper_->getActiveDCC()
-      <<"\n The end of event was reached !";
+      <<"\n The end of event was reached !"<<std::endl;
     //TODO : add this to a dcc event size collection error?
     throw ECALUnpackerException(output.str());
   }
@@ -71,7 +71,7 @@ void DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expected
     output<<"EcalRawToDigi@SUB=DCCFEBlock::unpack"
       <<"\n For event "<<event_->l1A()<<" and dcc "<<mapper_->getActiveDCC()
       <<"\n Expected trigger tower is "<<expTowerID_<<" while "<<towerId_<<" was found "
-      <<"\n => Skipping this event...";
+      <<"\n => Skipping this event..."<<std::endl;
     
     EcalTrigTowerDetId *  tp = mapper_->getTTDetIdPointer(mapper_->getActiveSM()+TCCID_SMID_SHIFT_EB,expTowerID_);
     (*invalidTTIds_)->push_back(*tp);
@@ -89,7 +89,7 @@ void DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expected
       output<<"EcalRawToDigi@SUB=DCCFEBlock::unpack"
        <<"\n Synchronization error for Tower Block "<<towerId_<<" in event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in dcc "<<mapper_->getActiveDCC()
        <<"\n TCC local l1A is  "<<l1_<<" and local bx is "<<bx_
-       <<"\n => Skipping this event...";
+       <<"\n => Skipping this event..."<<std::endl;
       //Note : add to error collection ?		 
       throw ECALUnpackerException(output.str());
     }
@@ -101,7 +101,7 @@ void DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expected
     output<<"EcalRawToDigi@SUB=DCCFEBlock::unpack"
       <<"\n Unable to unpack Tower Block "<<towerId_<<" for event "<<event_->l1A()<<" in dcc <<"<<mapper_->getActiveDCC()
       <<"\n Number of time samples "<<nTSamples_<<" is not the same as expected ("<<expXtalTSamples_<<")"
-      <<"\n => Skipping this event...";
+      <<"\n => Skipping this event..."<<std::endl;
     //Note : add to error collection ?		 
     throw ECALUnpackerException(output.str());
   }  
@@ -114,7 +114,7 @@ void DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expected
     output<<"EcalRawToDigi@SUB=DCCFEBlock::unpack"
       <<"\n Unable to unpack Tower Block "<<towerId_<<" for event "<<event_->l1A()<<" in dcc <<"<<mapper_->getActiveDCC()
       <<"\n Only "<<((*dwToEnd_)*8)<<" bytes are available while "<<blockSize_<<" are needed!"
-      <<"\n => Skipping this event...";
+      <<"\n => Skipping this event..."<<std::endl;
     //TODO : add to error collection 
     throw ECALUnpackerException(output.str());
   }
@@ -128,7 +128,7 @@ void DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expected
       output<<"EcalRawToDigi@SUB=DCCFEBlock"
         <<"\n For event "<<event_->l1A()<<", dcc "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
         <<"\n Expected block size is "<<(unfilteredDataBlockLength_*8)<<" bytes while "<<(blockLength_*8)<<" was found"
-        <<"\n => Skipping this event...";
+        <<"\n => Skipping this event..."<<std::endl;
      
       EcalTrigTowerDetId *  tp = mapper_->getTTDetIdPointer(mapper_->getActiveSM()+TCCID_SMID_SHIFT_EB,expTowerID_);
       (*invalidBlockLengths_)->push_back(*tp);
@@ -142,7 +142,7 @@ void DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expected
       output<<"EcalRawToDigi@SUB=DCCFEBlock"
         <<"\n For event "<<event_->l1A()<<" and dcc "<<mapper_->getActiveDCC()
         <<"\n The tower "<<towerId_<<" has a wrong number of bytes : "<<(blockLength_*8)	   
-        <<"\n => Skipping this event...";
+        <<"\n => Skipping this event..."<<std::endl;
       
       EcalTrigTowerDetId *  tp = mapper_->getTTDetIdPointer(mapper_->getActiveSM()+TCCID_SMID_SHIFT_EB,expTowerID_);
       (*invalidBlockLengths_)->push_back(*tp);
@@ -189,7 +189,8 @@ void DCCFEBlock::display(std::ostream& o){
   <<"\n Numb Samp "<<nTSamples_
   <<"\n Bx "<<bx_
   <<"\n L1 "<<l1_
-  <<"\n blockLength "<<blockLength_;  
+  <<"\n blockLength "<<blockLength_
+  <<std::endl;  
 } 
 
 

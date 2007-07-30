@@ -51,6 +51,8 @@ FSimTrack::setPropagate() {
 void 
 FSimTrack::setLayer1(const RawParticle& pp, int success) { 
   Layer1_Entrance=pp; 
+  setTkPosition(Hep3Vector(pp.X(),pp.Y(),pp.Z()));
+  setTkMomentum(HepLorentzVector(pp.Px(),pp.Py(),pp.Pz(),pp.E()));
   layer1=success; 
 }
 
@@ -58,6 +60,10 @@ FSimTrack::setLayer1(const RawParticle& pp, int success) {
 void 
 FSimTrack::setLayer2(const RawParticle& pp, int success) { 
   Layer2_Entrance=pp; 
+  if ( !layer1 ) { 
+    setTkPosition(Hep3Vector(pp.X(),pp.Y(),pp.Z()));
+    setTkMomentum(HepLorentzVector(pp.Px(),pp.Py(),pp.Pz(),pp.E()));
+  }
   layer2=success; 
 }
 
@@ -65,6 +71,10 @@ FSimTrack::setLayer2(const RawParticle& pp, int success) {
 void 
 FSimTrack::setEcal(const RawParticle& pp, int success) { 
   ECAL_Entrance=pp; 
+  if ( !layer1 && !layer2 ) { 
+    setTkPosition(Hep3Vector(pp.X(),pp.Y(),pp.Z()));
+    setTkMomentum(HepLorentzVector(pp.Px(),pp.Py(),pp.Pz(),pp.E()));
+  }
   ecal=success; 
 }
 
@@ -72,6 +82,10 @@ FSimTrack::setEcal(const RawParticle& pp, int success) {
 void 
 FSimTrack::setHcal(const RawParticle& pp, int success) { 
   HCAL_Entrance=pp; 
+  if ( !layer1 && !layer2 && !ecal ) { 
+    setTkPosition(Hep3Vector(pp.X(),pp.Y(),pp.Z()));
+    setTkMomentum(HepLorentzVector(pp.Px(),pp.Py(),pp.Pz(),pp.E()));
+  }
   hcal=success; 
 }
 
@@ -79,6 +93,10 @@ FSimTrack::setHcal(const RawParticle& pp, int success) {
 void 
 FSimTrack::setVFcal(const RawParticle& pp, int success) { 
   VFCAL_Entrance=pp; 
+  if ( !layer1 && !layer2 && !ecal && !hcal ) { 
+    setTkPosition(Hep3Vector(pp.X(),pp.Y(),pp.Z()));
+    setTkMomentum(HepLorentzVector(pp.Px(),pp.Py(),pp.Pz(),pp.E()));
+  }
   vfcal=success; 
 }
 

@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.10 $
-///  $Date: 2007/04/19 11:36:57 $
+///  $Revision: 1.9 $
+///  $Date: 2007/04/05 16:30:25 $
 ///  (last update by $Author: flucke $)
 
 
@@ -32,7 +32,6 @@ class MagneticField;
 
 class AlignmentParameters;
 class AlignableNavigator;
-class AlignableDetOrUnitPtr;
 
 class MillePedeMonitor;
 class PedeSteerer;
@@ -77,8 +76,7 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 			AlignmentParameters *&params) const;
   /// recursively adding derivatives and labels
   bool globalDerivativesHierarchy(const TrajectoryStateOnSurface &tsos,
-				  Alignable *ali, const AlignableDetOrUnitPtr &alidet,
-				  MeasurementDirection xOrY,
+				  Alignable *ali, AlignableDet *alidet, MeasurementDirection xOrY,
 				  std::vector<float> &globalDerivatives,
 				  std::vector<int> &globalLabels,
 				  AlignmentParameters *&lowestParams) const;

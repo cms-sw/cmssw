@@ -12,6 +12,10 @@
 class L1GctCand {
 public:
 
+  L1GctCand();
+
+  virtual ~L1GctCand();
+ 
   /// access origin of candidate
   virtual L1CaloRegionDetId regionId() const = 0;
 
@@ -33,10 +37,14 @@ public:
   /// get phi index (0-17)
   virtual unsigned phiIndex() const = 0;
 
+ private:
 
+  /// dummy data member to make derived classes perstistable
+  bool dummy_;
 
 
 };
+
 
 
 #endif

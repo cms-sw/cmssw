@@ -35,6 +35,8 @@ CaloRecHitsProducer::CaloRecHitsProducer(edm::ParameterSet const & p)
   random = new RandomEngine(&(*rng));
 
   edm::ParameterSet RecHitsParameters = p.getParameter<edm::ParameterSet>("RecHitsFactory");
+  edm::ParameterSet CalibParameters = p.getParameter<edm::ParameterSet>("ecal_notCont_sim"); 
+
   EBrechitCollection_ = RecHitsParameters.getParameter<std::string>("EBrechitCollection");
   EErechitCollection_ = RecHitsParameters.getParameter<std::string>("EErechitCollection");
   ESrechitCollection_ = RecHitsParameters.getParameter<std::string>("ESrechitCollection");
@@ -50,9 +52,9 @@ CaloRecHitsProducer::CaloRecHitsProducer(edm::ParameterSet const & p)
   HcalRecHitsMaker_ = 
     new HcalRecHitsMaker(RecHitsParameters,random);
   EcalBarrelRecHitsMaker_ = 
-    new EcalBarrelRecHitsMaker(RecHitsParameters,random);
+    new EcalBarrelRecHitsMaker(RecHitsParameters,CalibParameters,random);
   EcalEndcapRecHitsMaker_ = 
-    new EcalEndcapRecHitsMaker(RecHitsParameters,random);
+    new EcalEndcapRecHitsMaker(RecHitsParameters,CalibParameters,random);
   EcalPreshowerRecHitsMaker_ = 
     new EcalPreshowerRecHitsMaker(RecHitsParameters,random);
 }

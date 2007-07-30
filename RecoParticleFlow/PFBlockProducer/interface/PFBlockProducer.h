@@ -45,6 +45,7 @@ class PFBlockProducer : public edm::EDProducer {
  private:
 
   
+
   /// module label for retrieving input rec tracks, see PFSimParticleProducer
   std::string recTrackModuleLabel_;
 
@@ -61,7 +62,10 @@ class PFBlockProducer : public edm::EDProducer {
   std::string pfClusterPSInstanceName_;
 
   /// module label for retrieving input simtrack and simvertex
-  std::string simModuleLabel_;  
+/*   std::string simModuleLabel_;   */
+
+  /// verbose ?
+  bool   verbose_;
 
   
   /// Particle flow block algorithm 

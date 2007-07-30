@@ -7,7 +7,7 @@
  *
  * \author U.Berthon, ClaudeCharlot,LLR
  *
- * \version $Id: PixelMatchGsfElectron.h,v 1.16 2007/03/16 13:59:37 llista Exp $
+ * \version $Id: PixelMatchGsfElectron.h,v 1.17 2007/05/09 13:10:10 uberthon Exp $
  *
  */
 
@@ -25,6 +25,9 @@
 // Ursula Berthon - LLR Ecole polytechnique
 // 
 // $Log: PixelMatchGsfElectron.h,v $
+// Revision 1.17  2007/05/09 13:10:10  uberthon
+// implement track-method with warning
+//
 // Revision 1.16  2007/03/16 13:59:37  llista
 // restored 140 version
 //
@@ -113,6 +116,10 @@ class PixelMatchGsfElectron : public RecoCandidate {
   int classification() const {return electronClass_;}
 
   PixelMatchGsfElectron * clone() const;
+
+  // setters
+  void setSuperCluster(const reco::SuperClusterRef &scl) {superCluster_=scl;}
+  void setGsfTrack(const reco::GsfTrackRef &t) { track_=t;}
 
   // supercluster and electron track related quantities
   //! the super cluster energy corrected by EnergyScaleFactor

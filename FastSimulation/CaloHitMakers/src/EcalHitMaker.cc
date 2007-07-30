@@ -83,7 +83,6 @@ EcalHitMaker::EcalHitMaker(CaloGeometryHelper * theCalo,
   etasize_ = size;
   phisize_ = size;
 
-
   // Build the grid
   // The result is put in CellsWindow and is ordered by distance to the pivot
   myCalorimeter->getWindow(pivot_.getDetId(),size,size,CellsWindow_);
@@ -1142,21 +1141,16 @@ EcalHitMaker::configureGeometry()
 
 // project fPoint on the plane (original,normal)
 bool 
-EcalHitMaker::pulled(const XYZPoint & origin, const XYZNormal& normal, XYZPoint & fPoint) const 
+EcalHitMaker::pulled(const XYZPoint & origin, 
+		     const XYZNormal& normal, 
+		     XYZPoint & fPoint) const 
 {
-  XYZVector vec1=fPoint-origin;
   // check if fPoint is behind the origin
-  double dotproduct=normal.Dot(vec1);
-  if(dotproduct<=0.) 
-    {
-      //      std::cout << " Pulled : nothing done " << std::endl;
-      return false;
-    }
+  double dotproduct=normal.Dot(fPoint-origin);
+  if(dotproduct<=0.) return false;
+
   //norm of normal is 1 
-  XYZVector vec2=vec1-dotproduct*normal;
-  //  std::cout << " Pulled : " << fPoint << " " << origin+vec2 -normal<< std::endl;  
-  fPoint = origin+vec2-normal;
-  //                  ^^^^^^^ security margin when the intersection is computed
+  fPoint -= (1+dotproduct)*normal;
   return true;
 }
 
@@ -1207,7 +1201,7 @@ EcalHitMaker::reorganizePads()
   ncrackpadsatdepth_=0;
   std::vector<neighbour> gaps;
   std::vector<std::vector<neighbour> > cracks;  
-  cracks.clear();
+  //  cracks.clear();
   cracks.resize(ncrystals_);
 
 
@@ -1356,7 +1350,7 @@ EcalHitMaker::gapsLifting(std::vector<neighbour>& gaps,unsigned iq)
 	  }
 	CaloDirection corner0=CaloDirectionOperations::add2d(gaps[0].first,gaps[1].first);
 
-	Hep2Vector point;
+	Hep2Vector point(0.,0.);
 	if(corner0!=NONE&&diagonalEdge(iq,corner0,point))
 	  {
 	    CaloDirection corner1=CaloDirectionOperations::add2d(CaloDirectionOperations::oppositeSide(gaps[0].first),gaps[1].first);
@@ -1405,7 +1399,7 @@ EcalHitMaker::gapsLifting(std::vector<neighbour>& gaps,unsigned iq)
 	  // in this case the four corners have to be changed 
 	  unsigned iubd,idir1,idir2;
 	  CaloDirection diag;
-	  Hep2Vector point;
+	  Hep2Vector point(0.,0.);
 	  //	  std::cout << " Yes : 3 gaps" << std::endl;
 	  if(unbalancedDirection(gaps,iubd,idir1,idir2))		
 	    {
@@ -1432,7 +1426,7 @@ EcalHitMaker::gapsLifting(std::vector<neighbour>& gaps,unsigned iq)
 	    //	    std::cout << " Waouh :4 gaps" << std::endl;
 	    //	    std::cout << " Avant " << std::endl;
 	    //	    std::cout << myPad<< std::endl;
-	    Hep2Vector point;
+	    Hep2Vector point(0.,0.);
 	    if(diagonalEdge(iq,NORTHEAST,point)) 
 	      myPad.edge(NORTHEAST)=point;
 	    if(diagonalEdge(iq,NORTHWEST,point)) 
@@ -1503,24 +1497,22 @@ EcalHitMaker::cracksPads(std::vector<neighbour> & cracks, unsigned iq)
 }
 
 
-bool EcalHitMaker::inside3D(const std::vector<XYZPoint>& corners, const XYZPoint& p) const
+bool EcalHitMaker::inside3D(const std::vector<XYZPoint>& corners, 
+			    const XYZPoint& p) const
 {
   // corners and p are in the same plane
-  // p is inside "corners" if the four crossproducts (corners[i]xcorners[i+1]) are in the same direction
-  bool result=true;
-  std::vector<XYZVector> vec(4);
-  vec[0]=corners[0]-p;
-  XYZVector crossproduct,previouscrossproduct;
-  for(unsigned ip=0;ip<4 ; ++ip)
-    {
-      if(ip!=3) vec[ip+1]=corners[ip+1]-p;
-      crossproduct = XYZVector(vec[ip].Cross(vec[(ip+1)%4]));
-      if(ip==0)
+  // p is inside "corners" if the four crossproducts (corners[i]xcorners[i+1]) 
+  // are in the same direction
+
+  XYZVector crossproduct(0.,0.,0.),previouscrossproduct(0.,0.,0.);
+
+  for(unsigned ip=0;ip<4 ; ++ip) {
+    crossproduct = (corners[ip]-p).Cross(corners[(ip+1)%4]-p);
+    if(ip==0)
 	previouscrossproduct=crossproduct;
-      else
-	{
-	  result=result&&(crossproduct.Dot(previouscrossproduct)>0.); 
-	}      
-    }
-  return result;
+    else
+      if (crossproduct.Dot(previouscrossproduct)<0.) return false;       
+  }
+
+  return true;
 }

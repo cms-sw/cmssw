@@ -5,12 +5,13 @@
  *  Basic analyzer class which accesses 4D DTSegments
  *  and plot resolution comparing reconstructed and simulated quantities
  *
- *  $Date: July 2006$
- *  $Revision: 1.0$
+ *  $Date: 2006/08/04 10:36:16 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "Histograms.h"
 
 #include <vector>
 #include <map>
@@ -59,5 +60,15 @@ private:
   double sigmaResAlpha;
   double sigmaResBeta;
 
+  HRes4DHit *h4DHit;
+  HRes4DHit *h4DHit_W0;
+  HRes4DHit *h4DHit_W1;
+  HRes4DHit *h4DHit_W2;
+
+  HEff4DHit *hEff_All;
+  HEff4DHit *hEff_W0;
+  HEff4DHit *hEff_W1;
+  HEff4DHit *hEff_W2;
 };
+
 #endif

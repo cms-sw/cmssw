@@ -37,6 +37,7 @@
 
 class DTGeometry;
 class DTChamberId;
+//class DTTtrig;   CB is it needed
 
 class DTLocalTriggerTask: public edm::EDAnalyzer{
 
@@ -56,7 +57,7 @@ protected:
 void beginJob(const edm::EventSetup& c);
 
 //SM Book the histograms
-void bookHistos(const DTChamberId& dtCh, std::string folder, std::string histoTag );
+void bookHistos(const DTChamberId& dtCh, std::string folder, std::string histoTag, std::string triggerSource);
 //SM end
 
 /// Analyze
@@ -73,14 +74,10 @@ std::string triggerSource();
 private:
  
   bool debug;
-  edm::ESHandle<DTGeometry> muonGeom;
   std::string dcc_label;
   std::string ros_label;
   std::string seg_label;
   int nevents;
-
-
-
 
   DaqMonitorBEInterface* dbe;
   edm::ParameterSet parameters;
@@ -88,8 +85,10 @@ private:
 
   // My monitor elements
   std::string outputFile;  
+  std::ofstream logFile;
   std::map<std::string, std::map<uint32_t, MonitorElement*> > digiHistos;
-
+  MonitorElement * runId;
+  
 };
 
 #endif

@@ -4,6 +4,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurements.h"
 
+using namespace std;
 #include <iostream>
 
 #include "TROOT.h"
@@ -54,18 +55,18 @@ bool CocoaDaqReaderRoot::ReadEvent( int nev )
   // Loop over all events
   nb = theTree->GetEntry(nev);  // read in entire event
 
-//  std::cout << "CocoaDaqReaderRoot reading event " << nev << " " << nb << std::endl;
+  std::cout << "CocoaDaqReaderRoot reading event " << nev << " " << nb << std::endl;
   if( nb == 0 ) return 0; //end of file reached??
 
   // Every n events, dump one to screen
   if(nev%50 == 0) theEvent->DumpIt();
   
-//  std::cout<<" CocoaDaqReaderRoot::ReadEvent "<< nev <<std::endl;
+  cout<<" Event "<< nev <<endl;
   
   for(int ii=0; ii<theEvent->GetNumPos2D(); ii++) {
     AliDaqPosition2D* pos2D = (AliDaqPosition2D*) theEvent->GetArray_Position2D()->At(ii);
- //   std::cout<<"2D sensor "<<ii<<" has ID = "<<pos2D->GetID()
-//	<<" and (x,y) = ("<<pos2D->GetX()<<","<<pos2D->GetY()<<")"<<std::endl;
+    cout<<"2D sensor "<<ii<<" has ID = "<<pos2D->GetID()
+	<<" and (x,y) = ("<<pos2D->GetX()<<","<<pos2D->GetY()<<")"<<endl;
      measList.push_back( GetMeasFromPosition2D( pos2D ) );
   }
   for(int ii=0; ii<theEvent->GetNumPosCOPS(); ii++) {

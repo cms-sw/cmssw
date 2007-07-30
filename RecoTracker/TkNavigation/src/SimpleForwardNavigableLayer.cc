@@ -141,9 +141,7 @@ SimpleForwardNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
 
   //establish whether the tracks is crossing the tracker from outer layers to inner ones 
   //or from inner to outer
-  //bool isInOutTrack  = (fts.position().basicVector().dot(fts.momentum().basicVector())>0) ? 1 : 0;
-  float zpos = fts.position().z();
-  bool isInOutTrack = fts.momentum().z()*zpos>0;
+  bool isInOutTrack  = (fts.position().basicVector().dot(fts.momentum().basicVector())>0) ? 1 : 0;
 
   //establish whether inner or outer layers are crossed after propagation, according
   //to BOTH propagationDirection AND track momentum
@@ -198,9 +196,7 @@ SimpleForwardNavigableLayer::compatibleLayers( const FreeTrajectoryState& fts,
 
   //establish whether the tracks is crossing the tracker from outer layers to inner ones 
   //or from inner to outer.
-  //bool isInOutTrack  = (fts.position().basicVector().dot(fts.momentum().basicVector())>0) ? 1 : 0;
-  float zpos = fts.position().z();
-  bool isInOutTrack = fts.momentum().z()*zpos>0;
+  bool isInOutTrack  = (fts.position().basicVector().dot(fts.momentum().basicVector())>0) ? 1 : 0;
   
   //establish whether inner or outer layers are crossed after propagation, according
   //to BOTH propagationDirection AND track momentum

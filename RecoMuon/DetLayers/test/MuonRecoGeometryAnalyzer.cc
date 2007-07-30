@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/10/19 11:02:27 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/10/26 07:45:06 $
+ *  $Revision: 1.7 $
  */
 
 #include <FWCore/Framework/interface/Frameworkfwd.h>
@@ -23,7 +23,7 @@
 
 #include "RecoMuon/DetLayers/interface/MuRodBarrelLayer.h"
 #include "RecoMuon/DetLayers/interface/MuDetRod.h"
-#include "RecoMuon/DetLayers/interface/MuRingForwardLayer.h"
+#include "RecoMuon/DetLayers/interface/MuRingForwardDoubleLayer.h"
 #include "RecoMuon/DetLayers/interface/MuDetRing.h"
 
 #include <DataFormats/MuonDetId/interface/DTWireId.h>
@@ -221,7 +221,7 @@ void MuonRecoGeometryAnalyzer::testDTLayers(const MuonDetLayerGeometry* geo,cons
 	 << " phi=" << comp.second.globalPosition().phi()
 	 << " Z=" <<  comp.second.globalPosition().z()
 	 << endl;
-  
+
     vector<DetLayer::DetWithState> compDets = layer->compatibleDets(tsos,prop,*theEstimator);
     if (compDets.size()) {
       cout << "compatibleDets: " << compDets.size() << endl
@@ -240,11 +240,10 @@ void MuonRecoGeometryAnalyzer::testDTLayers(const MuonDetLayerGeometry* geo,cons
 }
 
 void MuonRecoGeometryAnalyzer::testCSCLayers(const MuonDetLayerGeometry* geo,const MagneticField* field) {
-
   const vector<DetLayer*>& layers = geo->allCSCLayers();
 
   for (vector<DetLayer*>::const_iterator ilay = layers.begin(); ilay!=layers.end(); ++ilay) {
-    const MuRingForwardLayer* layer = (const MuRingForwardLayer*) (*ilay);
+    const MuRingForwardDoubleLayer* layer = (const MuRingForwardDoubleLayer*) (*ilay);
   
     const BoundDisk& disk = layer->specificSurface();
 
@@ -290,7 +289,18 @@ void MuonRecoGeometryAnalyzer::testCSCLayers(const MuonDetLayerGeometry* geo,con
 	   << endl
 	   << endl;
     } else {
-      cout << " ERROR : no compatible det found" << endl;
+      if(layer->isCrack(gp))
+      {
+         cout << " CSC crack found ";
+      }
+      else
+      {
+        cout << " ERROR : no compatible det found in CSC"
+          << " at: R=" << gp.perp()
+          << " phi= " << gp.phi().degrees()
+          << " Z= " << gp.z();
+      }
+
     }
   }
 }

@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2007/04/05 14:53:54 $
- * $Revision: 1.132 $
+ * $Date: 2007/06/02 10:50:10 $
+ * $Revision: 1.135 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -50,8 +50,8 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
   // this should come from the event header
   runNumber_ = ps.getUntrackedParameter<int>("runNumber", 0);
 
-  fixedRunNumber_ = true;
-  if ( runNumber_ != 0 ) fixedRunNumber_ = false;
+  fixedRunNumber_ = false;
+  if ( runNumber_ != 0 ) fixedRunNumber_ = true;
 
   if ( fixedRunNumber_ ) {
     LogInfo("EcalBarrelMonitor") << " using fixed Run Number = " << runNumber_ << endl;
@@ -287,9 +287,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   LogInfo("EcalBarrelMonitor") << "processing event " << ievt_;
 
-  if ( fixedRunNumber_ ) {
-    if ( e.id().run() != 0 ) runNumber_ = e.id().run();
-  }
+  if ( ! fixedRunNumber_ ) runNumber_ = e.id().run();
 
   evtNumber_ = e.id().event();
 
@@ -314,15 +312,15 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       meEBDCC_->Fill((dcch.id()+1)+0.5);
 
-      if ( fixedRunNumber_ ) {
-        if ( dcch.getRunNumber() != 0 ) runNumber_ = dcch.getRunNumber();
-      }
+      if ( ! fixedRunNumber_ ) runNumber_ = dcch.getRunNumber();
+
+      evtNumber_ = dcch.getLV1();
 
       if ( dcch.getRunType() != -1 ) runType_ = dcch.getRunType();
 
       if ( dcch.getRunType() != -1 ) evtType_ = dcch.getRunType();
 
-      if ( evtType_ < 0 || evtType_ > 12 ) {
+      if ( evtType_ < 0 || evtType_ > 22 ) {
         LogWarning("EcalBarrelMonitor") << "Unknown event type = " << evtType_;
         evtType_ = -1;
       }
@@ -343,9 +341,9 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       meEBDCC_->Fill(1);
 
-      if ( fixedRunNumber_ ) {
-        if ( evtHeader->runNumber() != 0 ) runNumber_ = evtHeader->runNumber();
-      }
+      if ( ! fixedRunNumber_ ) runNumber_ = evtHeader->runNumber();
+
+      evtNumber_ = evtHeader->eventNumber();
 
       runType_ = EcalDCCHeaderBlock::BEAMH4;
 

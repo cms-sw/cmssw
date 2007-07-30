@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:07:03 EDT 2007
-// $Id: Event.cc,v 1.3 2007/05/16 14:37:18 chrjones Exp $
+// $Id: Event.cc,v 1.4 2007/05/23 21:23:14 chrjones Exp $
 //
 
 // system include files
@@ -232,6 +232,7 @@ Event::getByLabel(const std::type_info& iInfo,
   boost::shared_ptr<internal::Data> theData;
   DataMap::iterator itFind = data_.find(key);
   if(itFind == data_.end() ) {
+    //std::cout <<"did not find the key"<<std::endl;
     //see if such a branch actually exists
     const std::string sep("_");
     //CHANGE: If this fails, need to lookup the the friendly name which was used to write the file
@@ -261,13 +262,19 @@ Event::getByLabel(const std::type_info& iInfo,
       }
       //do we already have this one?
       if(0!=lastLabel) {
+        //std::cout <<" process name "<<*lastLabel<<std::endl;
         internal::DataKey fullKey(type,iModuleLabel,iProductInstanceLabel,lastLabel->c_str());
-        itFind = data_.find(key);
+        itFind = data_.find(fullKey);
         if(itFind != data_.end()) {
           //remember the data we've found
+          //std::cout <<"  key already exists"<<std::endl;
           theData = itFind->second;
+        } else {
+          //only set this if we don't already have it 
+          // since it this string is not empty we re-register
+          //std::cout <<"  key does not already exists"<<std::endl;
+          foundProcessLabel = *lastLabel;
         }
-        foundProcessLabel = *lastLabel;
       }
     }else {
       //we have all the pieces
@@ -331,6 +338,7 @@ Event::getByLabel(const std::type_info& iInfo,
   }
   if(eventIndex_ != itFind->second->lastEvent_) {
     //haven't gotten the data for this event
+    //std::cout <<" getByLabel getting data"<<std::endl;
 
     //Make sure the edm::Ref* talk to this Event
     GetterOperate op(getter_.get());
@@ -442,13 +450,21 @@ Event::getByProductID(edm::ProductID const& iID) const
     }
     itFound = idToData_.insert(std::make_pair(iID,itData->second)).first;
   }
+  if(eventIndex_ != itFound->second->lastEvent_) {
+    //haven't gotten the data for this event
+    //std::cout <<" getByProductID getting data"<<std::endl;
+    //Make sure the edm::Ref* talk to this Event
+    GetterOperate op(getter_.get());
+    itFound->second->branch_->GetEntry(eventIndex_);
+    itFound->second->lastEvent_=eventIndex_;
+  }  
   if(0==itFound->second->pProd_) {
     //std::cout <<"  need to convert"<<std::endl;
     //need to convert pointer to proper type
     static ROOT::Reflex::Type sEDProd( ROOT::Reflex::Type::ByTypeInfo(typeid(edm::EDProduct)));
     //assert( sEDProd != ROOT::Reflex::Type() );
     ROOT::Reflex::Object edProdObj = itFound->second->obj_.CastObject( sEDProd );
-    
+        
     itFound->second->pProd_ = reinterpret_cast<edm::EDProduct*>(edProdObj.Address());
 
     //std::cout <<" type "<<typeid(itFound->second->pProd_).name()<<std::endl;

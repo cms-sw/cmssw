@@ -1,34 +1,50 @@
 #ifndef PizeroMCTruth_h
 #define PizeroMCTruth_h
 
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include <CLHEP/Matrix/Vector.h>
 #include <CLHEP/Vector/LorentzVector.h>
 #include <vector>
 
+
+
+/** \class PizeroMCTruth
+ *       
+ *  This class stores all the MC truth information needed about the
+ *  pi0 
+ * 
+ *  $Date: $
+ *  $Revision  $
+ *  \author N. Marinelli  University of Notre Dame
+*/
+
+class PhotonMCTruth;
+class ElectronMCTruth;
 class PizeroMCTruth {
 
   public:
-
     PizeroMCTruth();
-    void SetDecay(float r, float z, CLHEP::HepLorentzVector momentum1, CLHEP::HepLorentzVector momentum2);
-    void SetDalitzDecay(float r, float z, CLHEP::HepLorentzVector momentum1, CLHEP::HepLorentzVector momentum2, CLHEP::HepLorentzVector momentum3);
+    PizeroMCTruth( const HepLorentzVector&  pizMom, 
+		   std::vector<PhotonMCTruth>& photons,
+		   const HepLorentzVector& pV);  
+		    
 
-    bool IsDalitz() { return dalitz_; };
-    float GetR() { return r_; };
-    float GetZ() { return z_; };
-    CLHEP::HepLorentzVector GetMomentum1() { return momentum1_; };
-    CLHEP::HepLorentzVector GetMomentum2() { return momentum2_; };
-    CLHEP::HepLorentzVector GetMomentum3() { return momentum3_; };
 
-  private:
-    bool dalitz_;
-    float r_;
-    float z_;
-    CLHEP::HepLorentzVector momentum1_;
-    CLHEP::HepLorentzVector momentum2_;
-    CLHEP::HepLorentzVector momentum3_;
+    HepLorentzVector fourMomentum() const {return thePizero_;} 
+    HepLorentzVector primaryVertex() const {return thePrimaryVertex_;} 
+    std::vector<PhotonMCTruth> photons() const { return thePhotons_;}
+ 
+
+
+ private:
+    HepLorentzVector thePizero_;
+    std::vector<PhotonMCTruth> thePhotons_;
+    HepLorentzVector thePrimaryVertex_;
+    
+
+
+
 };
 
 #endif
-  

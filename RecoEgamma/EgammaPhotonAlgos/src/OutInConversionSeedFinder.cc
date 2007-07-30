@@ -105,6 +105,7 @@ void OutInConversionSeedFinder::makeSeeds( const reco::BasicClusterCollection& a
   LogDebug("OutInConversionSeedFinder") << "Built vector of seeds of size  " << theSeeds_.size() <<  "\n" ;
   
   ///// This part is only for local debugging: will be trhown away when no longer needed
+  /*
   int nSeed=0;
   for ( std::vector<TrajectorySeed>::const_iterator iSeed= theSeeds_.begin(); iSeed != theSeeds_.end(); ++iSeed) {
     nSeed++;
@@ -135,7 +136,7 @@ void OutInConversionSeedFinder::makeSeeds( const reco::BasicClusterCollection& a
     }
   } 
   
-
+  */
 
   
   
@@ -440,6 +441,8 @@ void OutInConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,
         edm::OwnVector<TrackingRecHit> myHits;
 	myHits.push_back(meas1.recHit()->hit()->clone());
 	myHits.push_back(meas2.recHit()->hit()->clone());
+
+        if ( nSeedsPerBC_ >= maxNumberOfOutInSeedsPerBC_ ) return;
    
 	TrajectoryStateTransform tsTransform;
 	PTrajectoryStateOnDet* ptsod= tsTransform.persistentState(state2, meas2.recHit()->hit()->geographicalId().rawId()  );
@@ -447,7 +450,7 @@ void OutInConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,
 	LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::createSeed new seed  from state " << state2.globalPosition()  <<  "\n";
 	LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::createSeed new seed  ptsod " <<  ptsod->parameters().position() << " R " << ptsod->parameters().position().perp() << " phi " << ptsod->parameters().position().phi() << " eta " << ptsod->parameters().position().eta() << "\n" ;
 	
-        if ( nSeedsPerBC_ >= maxNumberOfOutInSeedsPerBC_ ) return;
+
 
 	theSeeds_.push_back(TrajectorySeed( *ptsod, myHits, oppositeToMomentum ));
         nSeedsPerBC_++;

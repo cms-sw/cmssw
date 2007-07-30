@@ -46,18 +46,13 @@ void FedCablingHistograms::histoAnalysis( bool debug ) {
     << "[FedCablingHistograms::" << __func__ << "]";
 
   uint16_t valid = 0;
-  HistosMap::const_iterator iter = 0;
-  Analyses::iterator ianal = 0;
-  
+
   // Clear map holding analysis objects
-  for ( ianal = data_.begin(); ianal != data_.end(); ianal++ ) { 
-    if ( ianal->second ) { delete ianal->second; }
-  } 
   data_.clear();
-  
+
   // Iterate through map containing histograms
-  for ( iter = histos().begin(); 
-	iter != histos().end(); iter++ ) {
+  HistosMap::const_iterator iter = histos().begin();
+  for ( ; iter != histos().end(); iter++ ) {
     
     // Check vector of histos is not empty
     if ( iter->second.empty() ) {
@@ -76,17 +71,18 @@ void FedCablingHistograms::histoAnalysis( bool debug ) {
     } 
     
     // Perform histo analysis
-    FedCablingAnalysis* anal = new FedCablingAnalysis( iter->first );
-    anal->analysis( profs );
+    FedCablingAnalysis anal( iter->first );
+    anal.analysis( profs );
     data_[iter->first] = anal; 
-    if ( anal->isValid() ) { valid++; }
     if ( debug ) {
       std::stringstream ss;
-      anal->print( ss ); 
-      if ( anal->isValid() ) { LogTrace(mlDqmClient_) << ss.str(); }
-      else { edm::LogWarning(mlDqmClient_) << ss.str(); }
+      anal.print( ss ); 
+      if ( anal.isValid() ) { 
+	LogTrace(mlDqmClient_) << ss.str(); 
+	valid++;
+      } else { edm::LogWarning(mlDqmClient_) << ss.str(); }
     }
-    
+
   }
   
   if ( !histos().empty() ) {
@@ -108,23 +104,24 @@ void FedCablingHistograms::histoAnalysis( bool debug ) {
 /** */
 void FedCablingHistograms::createSummaryHisto( const sistrip::Monitorable& histo, 
 					       const sistrip::Presentation& type, 
-					       const std::string& dir,
+					       const std::string& directory,
 					       const sistrip::Granularity& gran ) {
   LogTrace(mlDqmClient_)
     << "[FedCablingHistograms::" << __func__ << "]";
   
   // Check view 
-  sistrip::View view = SiStripEnumsAndStrings::view(dir);
+  sistrip::View view = SiStripEnumsAndStrings::view(directory);
   if ( view == sistrip::UNKNOWN_VIEW ) { return; }
-  
-  // Analyze histograms if not done already
-  if ( data_.empty() ) { histoAnalysis( false ); }
-  
+
+  // Analyze histograms
+  histoAnalysis( false );
+
   // Extract data to be histogrammed
-  uint32_t xbins = factory_->init( histo, type, view, dir, gran, data_ );
-  
+  factory_->init( histo, type, view, directory, gran );
+  uint32_t xbins = factory_->extract( data_ );
+
   // Create summary histogram (if it doesn't already exist)
-  TH1* summary = histogram( histo, type, view, dir, xbins );
+  TH1* summary = histogram( histo, type, view, directory, xbins );
 
   // Fill histogram with data
   factory_->fill( *summary );

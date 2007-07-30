@@ -2,12 +2,12 @@
 #define TrackPropagation_Geant4ePropagator_h
 
 
-//CMS includes
-// - Propagator
+//CMS
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
-// - Geant4e
-#include "SimG4Core/Geant4e/interface/G4eManager.hh"
+
+//Geant4e includes
+#include "G4eManager.hh"
 
 
 

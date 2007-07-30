@@ -22,8 +22,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2007/04/11 10:05:17 $
-//   $Revision: 1.17 $
+//   $Date: 2007/04/18 16:08:55 $
+//   $Revision: 1.18 $
 //
 //   Modifications: 
 //
@@ -914,7 +914,7 @@ void CSCCathodeLCTProcessor::getKeyStripData(const int strip[CSCConstants::NUM_L
     // Loop in reverse order, in order to give priority to a straighter
     // pattern (larger pattern_num) in case of equal qualities.
     // Exclude pattern 0 since it is not defined.
-    for (int pattern_num = CSCConstants::NUM_CLCT_PATTERNS; pattern_num > 0; pattern_num--) {
+    for (int pattern_num = CSCConstants::NUM_CLCT_PATTERNS-1; pattern_num > 0; pattern_num--) {
       // Get the pattern quality from lct_pattern.
       // TMB latches LCTs drift_delay clocks after pretrigger.
       int latch_bx = first_bx + drift_delay;
@@ -1028,7 +1028,8 @@ std::vector <CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const int halfstrip[C
 	<< "\n ..... waiting drift delay ..... ";
     }
 
-//#ifdef LATER
+    // FOR MTCC RUNS ONLY.
+#ifdef MTCC
     // Empirically-found trick allowing to dramatically improve agreement
     // with MTCC-II data.  Needs to be better understood.
     // The trick is to ignore hits in a few first time bins when latching
@@ -1051,8 +1052,7 @@ std::vector <CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const int halfstrip[C
 	}
       }
     }
-//#endif
-    //first_bx += 3;
+#endif
 
     // TMB latches LCTs drift_delay clocks after pretrigger.
     int latch_bx = first_bx + drift_delay;

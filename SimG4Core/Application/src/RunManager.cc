@@ -134,6 +134,8 @@ RunManager::RunManager(edm::ParameterSet const & p)
     m_CustomExceptionHandler = new ExceptionHandler(this) ;
     
     m_check = p.getUntrackedParameter<bool>("CheckOverlap",false);
+    std::cout << " Run Manager constructed " << std::endl;
+    if (m_nonBeam) std::cout << " Run Manager: simulating non beam events!!! " << std::endl;
 
     //Look for an outside SimActivityRegistry
     // this is used by the visualization code
@@ -169,9 +171,9 @@ void RunManager::initG4(const edm::EventSetup & es)
 	edm::ESHandle<MagneticField> pMF;
 	es.get<IdealMagneticFieldRecord>().get(pMF);
 	const GlobalPoint g(0.,0.,0.);
+	std::cout << "B-field(T) at (0,0,0)(cm): " << pMF->inTesla(g) << std::endl;
 
 	m_fieldBuilder = std::auto_ptr<sim::FieldBuilder>(new sim::FieldBuilder(&(*pMF), map_, m_pField));
-	// m_fieldBuilder = std::auto_ptr<sim::FieldBuilder>(new sim::FieldBuilder(&(*pMF), m_pField));
 	G4TransportationManager * tM = G4TransportationManager::GetTransportationManager();
 	m_fieldBuilder->build( tM->GetFieldManager(),tM->GetPropagatorInField() ) ;
 	// m_fieldBuilder->configure("MagneticFieldType",tM->GetFieldManager(),tM->GetPropagatorInField());

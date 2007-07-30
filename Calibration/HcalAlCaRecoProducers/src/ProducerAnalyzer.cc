@@ -13,7 +13,14 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 
+#include "Geometry/Records/interface/IdealGeometryRecord.h" 
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h" 
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h" 
 
+#include <string>
+#include <memory>
+#include <map>
+#
 using namespace std;
 using namespace reco;
 
@@ -65,15 +72,22 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 {
 
   using namespace edm;
+
+   const CaloGeometry* geo;
+   edm::ESHandle<CaloGeometry> pG;
+   iSetup.get<IdealGeometryRecord>().get(pG);
+   geo = pG.product();
+   
   std::vector<Provenance const*> theProvenance;
   iEvent.getAllProvenance(theProvenance);
   for( std::vector<Provenance const*>::const_iterator ip = theProvenance.begin();
                                                       ip != theProvenance.end(); ip++)
   {
-     cout<<" Print all module/label names "<<(**ip).moduleName()<<" "<<(**ip).moduleLabel()<<
-     " "<<(**ip).productInstanceName()<<endl;
+//     cout<<" Print all module/label names "<<(**ip).moduleName()<<" "<<(**ip).moduleLabel()<<
+//     " "<<(**ip).productInstanceName()<<endl;
   }
-
+   if(nameProd_ != "IsoProd")
+   {
    edm::Handle<HBHERecHitCollection> hbhe;
    iEvent.getByLabel(nameProd_,hbheInput_, hbhe);
    const HBHERecHitCollection Hithbhe = *(hbhe.product());
@@ -90,9 +104,84 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    iEvent.getByLabel(nameProd_,hfInput_, hf);
    const HFRecHitCollection Hithf = *(hf.product());
    std::cout<<" Size of HF "<<(Hithf).size()<<std::endl;
-
-   if(nameProd_ == "GammaJet" || nameProd_ == "DiJProd")
+   }
+   if(nameProd_ == "IsoProd")
    {
+   cout<<" We are here "<<endl;
+   edm::Handle<reco::TrackCollection> tracks;
+   iEvent.getByLabel(nameProd_,Tracks_,tracks);
+ 
+   
+   std::cout<<" Tracks size "<<(*tracks).size()<<std::endl;
+   reco::TrackCollection::const_iterator track = tracks->begin ();
+
+          for (; track != tracks->end (); track++)
+         {
+           cout<<" P track "<<(*track).p()<<" eta "<<(*track).eta()<<" phi "<<(*track).phi()<<endl;
+         }  
+
+   edm::Handle<EcalRecHitCollection> ecal;
+   iEvent.getByLabel(nameProd_,ecalInput_,ecal);
+   const EcalRecHitCollection Hitecal = *(ecal.product());
+   std::cout<<" Size of Ecal "<<(Hitecal).size()<<std::endl;
+   EcalRecHitCollection::const_iterator hite = (ecal.product())->begin ();
+
+         double energyECAL = 0.;
+         double energyHCAL = 0.;
+
+          for (; hite != (ecal.product())->end (); hite++)
+         {
+
+//           cout<<" Energy ECAL "<<(*hite).energy()<<endl;
+
+
+//	   " eta "<<(*hite).detid()<<" phi "<<(*hite).detid().getPosition().phi()<<endl;
+
+	 GlobalPoint posE = geo->getPosition((*hite).detid());
+
+           cout<<" Energy ECAL "<<(*hite).energy()<<
+	   " eta "<<posE.eta()<<" phi "<<posE.phi()<<endl;
+
+         energyECAL = energyECAL + (*hite).energy();
+	 
+         }
+
+   edm::Handle<HBHERecHitCollection> hbhe;
+   iEvent.getByLabel(nameProd_,hbheInput_,hbhe);
+   const HBHERecHitCollection Hithbhe = *(hbhe.product());
+   std::cout<<" Size of HBHE "<<(Hithbhe).size()<<std::endl;
+   HBHERecHitCollection::const_iterator hith = (hbhe.product())->begin ();
+
+          for (; hith != (hbhe.product())->end (); hith++)
+         {
+
+	 GlobalPoint posH = geo->getPosition((*hith).detid());
+
+           cout<<" Energy HCAL "<<(*hith).energy()<<
+	   " eta "<<posH.eta()<<" phi "<<posH.phi()<<endl;
+
+         energyHCAL = energyHCAL + (*hith).energy();
+	 
+         }
+   
+   cout<<" Energy ECAL "<< energyECAL<<" Energy HCAL "<< energyHCAL<<endl;
+   
+   edm::Handle<HORecHitCollection> ho;
+   iEvent.getByLabel(nameProd_,hoInput_,ho);
+   const HORecHitCollection Hitho = *(ho.product());
+   std::cout<<" Size of HO "<<(Hitho).size()<<std::endl;
+   HORecHitCollection::const_iterator hito = (ho.product())->begin ();
+
+          for (; hito != (ho.product())->end (); hito++)
+         {
+//           cout<<" Energy HO    "<<(*hito).energy()<<endl;
+//	   " eta "<<(*hite).eta()<<" phi "<<(*hite).phi()<<endl;
+         }
+
+   }
+   if(nameProd_ == "GammaJetProd" || nameProd_ == "DiJProd")
+   {
+    cout<<" we are in GammaJetProd area "<<endl;
    edm::Handle<EcalRecHitCollection> ecal;
    iEvent.getByLabel(nameProd_,ecalInput_, ecal);
    std::cout<<" Size of ECAL "<<(*ecal).size()<<std::endl;
@@ -110,7 +199,7 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    iEvent.getByLabel(nameProd_,Tracks_, tracks);
    std::cout<<" Tracks size "<<(*tracks).size()<<std::endl; 
    }
-   if( nameProd_ == "GammaJet")
+   if( nameProd_ == "GammaJetProd")
    {
    edm::Handle<reco::SuperClusterCollection> eclus;
    iEvent.getByLabel(nameProd_,gammaClus_, eclus);

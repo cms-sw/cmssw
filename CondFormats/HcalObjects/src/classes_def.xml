@@ -11,7 +11,12 @@
  <class name="HcalQIECoder"/>
  <class name="HcalCalibrationQIEData" id="FA66C28E-F2E7-B335-7C6D-3225C672FC9C"/>
  <class name="HcalCalibrationQIECoder"/>
- <class name="HcalElectronicsMap" id="1EC50DB8-886B-ABB4-E875-20AF1C0C66E3"/>
+ <class name="HcalElectronicsMap" id="1EC50DB8-886B-ABB4-E875-20AF1C0C66E3">
+  <field name="mPItemsById" transient="true"/>
+  <field name="sortedByPId" transient="true"/>
+  <field name="mTItemsByTrigId" transient="true"/>
+  <field name="sortedByTId" transient="true"/>
+</class>
  <class name="HcalElectronicsMap::PrecisionItem"/>
  <class name="HcalElectronicsMap::TriggerItem"/>
  <class name="HcalChannelQuality" id="6AD128B1-6893-20A1-F739-079F9223BF21"/>

@@ -8,6 +8,8 @@
  * framework objects (e.g. ProductRegistry and EventPrincipal)
  */
 
+#include "boost/shared_ptr.hpp"
+
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "TBuffer.h"
@@ -32,7 +34,7 @@ namespace edm {
 
     std::auto_ptr<EventPrincipal>
         deserializeEvent(EventMsgView const& eventView,
-                         ProductRegistry const& productRegistry);
+                         boost::shared_ptr<ProductRegistry const> productRegistry);
     void
     setProcessConfiguration(ProcessConfiguration pc) {
       processConfiguration_ = pc;

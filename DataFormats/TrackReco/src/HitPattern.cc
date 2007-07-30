@@ -133,7 +133,7 @@ int HitPattern::numberOfLostHits() const {
   int count=0;
   for (int i = 0 ; i < (PatternSize * 32) / HitSize ; i++) {
     uint32_t pattern = getHitPattern(i);
-    if (muonHitFilter(pattern) || trackerHitFilter(pattern)) {
+    if (pattern != 0) {
       if (!validHitFilter(pattern)) count++;
     }
   }

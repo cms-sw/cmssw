@@ -117,12 +117,12 @@ class TrajectoryManager
   /// and there
   void makePSimHits( const GeomDet* det, const TrajectoryStateOnSurface& ts,
 		     std::map<double,PSimHit>& theHitMap,
-		     int tkID, float el, int pID);
+		     int tkID, float el, float thick, int pID);
 
   /// and there
   std::pair<double,PSimHit> makeSinglePSimHit( const GeomDetUnit& det,
 					       const TrajectoryStateOnSurface& ts, 
-					       int tkID, float el, int pID) const;
+					       int tkID, float el, float thick, int pID) const;
 
   /// Returns the DetLayer pointer corresponding to the FAMOS layer 
   const DetLayer* detLayer( const TrackerLayer& layer, float zpos) const;

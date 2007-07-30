@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForDqm.h,v 1.2 2007/03/21 08:22:59 bainbrid Exp $
+// Last commit: $Id: $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForDqm_H
 #define DataFormats_SiStripCommon_ConstantsForDqm_H
@@ -27,7 +27,6 @@ namespace sistrip {
   static const std::string root_        = "SiStrip";
   static const std::string taskId_      = "SiStripCommissioningTask";
   static const std::string summaryPlot_ = "SummaryPlot";
-  static const std::string runNumber_   = "RunNumber";
 
   static const std::string gain_              = "Gain";
   static const std::string digital_           = "Digital";
