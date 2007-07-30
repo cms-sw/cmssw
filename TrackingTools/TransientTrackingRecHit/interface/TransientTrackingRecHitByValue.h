@@ -31,7 +31,7 @@ public:
   }
 
   static RecHitPointer build( const GeomDet * geom, const RecHit * rh) {
-    return RecHitPointer( new TransientTrackingRecHitByValue( geom, *rh));
+    return RecHitPointer( new TransientTrackingRecHitByValue<RecHit>( geom, *rh));
   }
 
 protected:
@@ -41,9 +41,6 @@ protected:
     TransientTrackingRecHit(geom,rh) : m_trackingRecHit(rh);
   }
 
-  /// for derived classes convenience, does not clone!
-  TransientTrackingRecHitByValue(const GeomDet * geom, RecHit* rh) :
-    TransientTrackingRecHit(geom,*rh), m_trackingRecHit(*rh) {}
 
   TransientTrackingRecHitByValue( const TransientTrackingRecHitByValue<RecHit> & other ) :
     TransientTrackingRecHit( other.det(),other) : m_trackingRecHit(*other.hit());
