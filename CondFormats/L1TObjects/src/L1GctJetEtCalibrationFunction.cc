@@ -89,7 +89,8 @@ double L1GctJetEtCalibrationFunction::correctedEt(double et, unsigned eta, bool 
     double result=0;
     // TEMP
     if (m_corrFunType==OLD_ORCA_STYLE_CORRECTION) {
-      result = static_cast<double>(orcaCalibFn( static_cast<float>(et), eta ));
+      unsigned gctEta = eta + NUMBER_ETA_VALUES;
+      result = static_cast<double>(orcaCalibFn( static_cast<float>(et), gctEta ));
     } else {
     if (tauVeto) {
       assert(eta<m_jetCalibFunc.size());
