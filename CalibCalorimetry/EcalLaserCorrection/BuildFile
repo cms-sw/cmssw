@@ -7,7 +7,6 @@
 <use name=DataFormats/EcalDetId>
 <use name=FWCore/Utilities>
 <use name=boost>
-<flags EDM_PLUGIN=1>
 <export>
    <lib name=CalibCalorimetryEcalLaserCorrection>
 </export>
