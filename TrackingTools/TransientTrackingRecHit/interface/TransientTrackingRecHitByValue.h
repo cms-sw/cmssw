@@ -20,7 +20,7 @@ public:
   
   virtual bool canImproveWithTrack() const {return false;}
   
-  virtual const TrackingRecHit * hit() const {return &m_trackingRecHit;};
+  virtual const RecHit * hit() const {return &m_trackingRecHit;};
   
   
   virtual std::vector<const TrackingRecHit*> recHits() const {
