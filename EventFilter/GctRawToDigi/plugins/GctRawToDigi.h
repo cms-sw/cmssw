@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctRawToDigi.h,v 1.7 2007/07/13 08:50:08 jbrooke Exp $
+// $Id: GctRawToDigi.h,v 1.8 2007/07/24 20:19:40 jbrooke Exp $
 //
 //
 
@@ -51,7 +51,7 @@ class GctRawToDigi : public edm::EDProducer {
   
   void unpack(const FEDRawData& d, edm::Event& e);
 
- private:  // members
+ private: // members
 
   static unsigned MAX_EXCESS;
   static unsigned MAX_BLOCKS;
@@ -64,8 +64,12 @@ class GctRawToDigi : public edm::EDProducer {
   int nDebugSamples_;    // number of samples per block in debug mode
   
   // unpacking options
+  bool doEm_;
+  bool doJets_;
+  bool doEtSums_;
   bool doInternEm_;
   bool doFibres_;
+
 
   // Block to Digi converter
   GctBlockUnpacker blockUnpacker_;

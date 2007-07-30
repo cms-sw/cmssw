@@ -44,6 +44,9 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   inputLabel_(iConfig.getParameter<edm::InputTag>("inputLabel")),
   fedId_(iConfig.getParameter<int>("gctFedId")),
   verbose_(iConfig.getUntrackedParameter<bool>("verbose",false)),
+  doEm_(iConfig.getUntrackedParameter<bool>("unpackEm",true)),
+  doJets_(iConfig.getUntrackedParameter<bool>("unpackJets",true)),
+  doEtSums_(iConfig.getUntrackedParameter<bool>("unpackEtSums",true)),
   doInternEm_(iConfig.getUntrackedParameter<bool>("unpackInternEm",true)),
   doFibres_(iConfig.getUntrackedParameter<bool>("unpackFibres",true))
 {
@@ -191,14 +194,19 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
 
 
   // put data into the event
-  e.put(rctEm);
-  e.put(rctRgn);
-  e.put(gctIsoEm, "isoEm");
-  e.put(gctNonIsoEm, "nonIsoEm");
-  e.put(gctCenJets,"cenJets");
-  e.put(gctForJets,"forJets");
-  e.put(gctTauJets,"tauJets");
-
+  if (doEm_) {
+    e.put(rctEm);
+    e.put(gctIsoEm, "isoEm");
+    e.put(gctNonIsoEm, "nonIsoEm");
+  }
+  if (doJets_) {
+    e.put(rctRgn);
+    e.put(gctCenJets,"cenJets");
+    e.put(gctForJets,"forJets");
+    e.put(gctTauJets,"tauJets");
+  }
+  if (doEtSums_) {
+  }
   if (doInternEm_) {
     e.put(gctInternEm);
   }
