@@ -16,29 +16,43 @@ namespace edm
     LuminosityBlockAuxiliary() :
 	processHistoryID_(),
 	id_(),
-	time_() {}
-    LuminosityBlockAuxiliary(LuminosityBlockID const& theId, Timestamp const& theTime) :
+	beginTime_(),
+	endTime_() {}
+    LuminosityBlockAuxiliary(LuminosityBlockID const& theId,
+			     Timestamp const& theTime,
+			     Timestamp const& theEndTime) :
 	processHistoryID_(),
 	id_(theId),
-	time_(theTime) {}
-    LuminosityBlockAuxiliary(RunNumber_t const& theRun, LuminosityBlockNumber_t const& theLumi, Timestamp const& theTime) :
+	beginTime_(theTime),
+	endTime_(theEndTime) {}
+    LuminosityBlockAuxiliary(RunNumber_t const& theRun,
+			     LuminosityBlockNumber_t const& theLumi,
+			     Timestamp const& theTime,
+			     Timestamp const& theEndTime) :
 	processHistoryID_(),
 	id_(theRun, theLumi),
-	time_(theTime) {}
+	beginTime_(theTime),
+	endTime_(theEndTime) {}
     ~LuminosityBlockAuxiliary() {}
     void write(std::ostream& os) const;
     ProcessHistoryID& processHistoryID() const {return processHistoryID_;}
     LuminosityBlockNumber_t luminosityBlock() const {return id().luminosityBlock();}
     RunNumber_t run() const {return id().run();}
     LuminosityBlockID const& id() const {return id_;}
-    Timestamp const& time() const {return time_;}
+    Timestamp const& beginTime() const {return beginTime_;}
+    Timestamp const& endTime() const {return endTime_;}
+    Timestamp const& updateEndTime(Timestamp const& time) {
+      if (time > endTime_) endTime_ = time;
+      return endTime_;
+    }
     // most recent process that processed this lumi block
     // is the last on the list, this defines what "latest" is
     mutable ProcessHistoryID processHistoryID_;
     // LuminosityBlock ID
     LuminosityBlockID id_;
-    // Time from DAQ
-    Timestamp time_;
+    // Times from DAQ
+    Timestamp beginTime_;
+    Timestamp endTime_;
   };
 
   inline

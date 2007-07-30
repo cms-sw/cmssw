@@ -15,29 +15,38 @@ namespace edm
     RunAuxiliary() :
 	processHistoryID_(),
 	id_(),
-	time_() {}
-    RunAuxiliary(RunID const& theId, Timestamp const& theTime) :
+	beginTime_(),
+	endTime_() {}
+    RunAuxiliary(RunID const& theId, Timestamp const& theTime, Timestamp const& theEndTime) :
 	processHistoryID_(),
 	id_(theId),
-	time_(theTime) {}
-    RunAuxiliary(RunNumber_t const& run, Timestamp const& theTime) :
+	beginTime_(theTime),
+	endTime_(theEndTime) {}
+    RunAuxiliary(RunNumber_t const& run, Timestamp const& theTime, Timestamp const& theEndTime) :
 	processHistoryID_(),
 	id_(run),
-	time_(theTime) {}
+	beginTime_(theTime),
+	endTime_(theEndTime) {}
     ~RunAuxiliary() {}
     void write(std::ostream& os) const;
     ProcessHistoryID& processHistoryID() const {return processHistoryID_;}
     RunID const& id() const {return id_;}
-    Timestamp const& time() const {return time_;}
+    Timestamp const& beginTime() const {return beginTime_;}
+    Timestamp const& endTime() const {return endTime_;}
     RunNumber_t run() const {return id_.run();}
+    Timestamp const& updateEndTime(Timestamp const& time) {
+      if (time > endTime_) endTime_ = time;
+      return endTime_;
+    }
 
     // most recent process that processed this run
     // is the last on the list, this defines what "latest" is
     mutable ProcessHistoryID processHistoryID_;
     // Run ID
     RunID id_;
-    // Time from DAQ
-    Timestamp time_;
+    // Times from DAQ
+    Timestamp beginTime_;
+    Timestamp endTime_;
   };
 
   inline
