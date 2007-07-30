@@ -333,8 +333,8 @@ void TIFNtupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es) {
       // The method requires only the trackinfo.
       // ---------------------------------------      
       std::vector<std::pair<const TrackingRecHit *,float> > hitangle;
-      std::vector<std::pair<const TrackingRecHit *,float> > hitangleXZ;
-      std::vector<std::pair<const TrackingRecHit *,float> > hitangleYZ;
+      std::auto_ptr<std::vector<std::pair<const TrackingRecHit *,float> > > hitangleXZ;
+      std::auto_ptr<std::vector<std::pair<const TrackingRecHit *,float> > > hitangleYZ;
       hitangle   = Anglefinder->SeparateHits(trackinforef);
       hitangleXZ = Anglefinder->getXZHitAngle();
       hitangleYZ = Anglefinder->getYZHitAngle();
@@ -346,8 +346,8 @@ void TIFNtupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es) {
       std::vector<std::pair<const TrackingRecHit *,float> >::iterator hitsIter;
       for( hitsIter=hitangle.begin(); hitsIter!=hitangle.end(); ++hitsIter ){
 	
-	TrackLocalAngleTIF::HitAngleAssociation::reference hitsrefXZ = hitangleXZ[nHitNum];
-	TrackLocalAngleTIF::HitAngleAssociation::reference hitsrefYZ = hitangleYZ[nHitNum];
+	TrackLocalAngleTIF::HitAngleAssociation::reference hitsrefXZ = (*hitangleXZ)[nHitNum];
+	TrackLocalAngleTIF::HitAngleAssociation::reference hitsrefYZ = (*hitangleYZ)[nHitNum];
 	 
 	// Initializations per hit
 	// -----------------------
