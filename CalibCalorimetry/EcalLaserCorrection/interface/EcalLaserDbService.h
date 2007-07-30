@@ -38,8 +38,6 @@ class EcalLaserDbService {
   void setData (const EcalLaserAlphas* fItem) {mAlphas = fItem;}
   void setData (const EcalLaserAPDPNRatiosRef* fItem) {mAPDPNRatiosRef = fItem;}
   void setData (const EcalLaserAPDPNRatios* fItem) {mAPDPNRatios = fItem;}
-  //  void setVerbosity (const bool verb) const {verbose = verb;}
-
 
  private:
 
@@ -47,9 +45,7 @@ class EcalLaserDbService {
 
   const EcalLaserAlphas* mAlphas;
   const EcalLaserAPDPNRatiosRef* mAPDPNRatiosRef;
-  const EcalLaserAPDPNRatios* mAPDPNRatios;
-
-  //  bool verbose;
+  const EcalLaserAPDPNRatios* mAPDPNRatios;  
 
 };
 

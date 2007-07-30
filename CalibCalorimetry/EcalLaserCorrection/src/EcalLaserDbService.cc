@@ -42,14 +42,14 @@ float EcalLaserDbService::getLaserCorrection (DetId const & xid, edm::Timestamp 
   
   float correctionFactor = 1.0;
   
-  const EcalLaserAlphas* myalpha = mAlphas;         
-  const EcalLaserAPDPNRatios* myapdpn = mAPDPNRatios;    
-  const EcalLaserAPDPNRatiosRef* myapdpnref = mAPDPNRatiosRef; 
+  //  const EcalLaserAlphas* myalpha = mAlphas;         
+  //  const EcalLaserAPDPNRatios* myapdpn = mAPDPNRatios;    
+  //  const EcalLaserAPDPNRatiosRef* myapdpnref = mAPDPNRatiosRef; 
   
-  const EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap& laserRatiosMap =  myapdpn->getLaserMap();
-  const EcalLaserAPDPNRatios::EcalLaserTimeStampMap& laserTimeMap =  myapdpn->getTimeMap();
-  const EcalLaserAPDPNRatiosRef::EcalLaserAPDPNRatiosRefMap& laserRefMap =  myapdpnref->getMap();
-  const EcalLaserAlphas::EcalLaserAlphaMap& laserAlphaMap =  myalpha->getMap();
+  const EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap& laserRatiosMap =  mAPDPNRatios->getLaserMap();
+  const EcalLaserAPDPNRatios::EcalLaserTimeStampMap& laserTimeMap =  mAPDPNRatios->getTimeMap();
+  const EcalLaserAPDPNRatiosRef::EcalLaserAPDPNRatiosRefMap& laserRefMap =  mAPDPNRatiosRef->getMap();
+  const EcalLaserAlphas::EcalLaserAlphaMap& laserAlphaMap =  mAlphas->getMap();
   
   EcalLaserAPDPNRatios::EcalLaserAPDPNpair apdpnpair;
   EcalLaserAPDPNRatios::EcalLaserTimeStamp timestamp;
@@ -61,12 +61,13 @@ float EcalLaserDbService::getLaserCorrection (DetId const & xid, edm::Timestamp 
   EcalLaserAPDPNRatiosRef::EcalLaserAPDPNRatiosRefMapIterator laserRefIter; 
   EcalLaserAlphas::EcalLaserAlphaMapIterator laserAlphaIter; 	  
 
-  
   if (xid.det()==DetId::Ecal) {
-    std::cout << "XID is in Ecal : ";
+    std::cout << " XID is in Ecal : ";
   } else {
-    std::cout << "XID is NOT in Ecal : ";
-  }
+    std::cout << " XID is NOT in Ecal : ";
+    edm::LogError("EcalLaserDbService") << " DetId is NOT in ECAL" << endl;
+    return correctionFactor;
+  } 
 
   if (xid.subdetId()==EcalBarrel) {
     std::cout << "EcalBarrel" << std::endl;
@@ -74,39 +75,36 @@ float EcalLaserDbService::getLaserCorrection (DetId const & xid, edm::Timestamp 
     std::cout << "EcalEndcap" << std::endl;
   } else {
     std::cout << "NOT EcalBarrel or EcalEndCap" << std::endl;
+    edm::LogError("EcalLaserDbService") << " DetId is NOT in ECAL Barrel or Endcap" << endl;
+    return correctionFactor;
   }
 
   // need to fix this so we map xtal with light monitoring modules!!
   int iLM = getLMNumber(xid);
   //  std::cout << " LM num ====> " << iLM << endl;
 
-  //  std::cout << "CRYSTAL  EBDetId: " << xid << " Timestamp: " << iTime.value() << std::endl;
-  
   // get alpha, apd/pn ref, apd/pn pairs and timestamps for interpolation
   
   laserRatiosIter = laserRatiosMap.find(xid.rawId());
   if( laserRatiosIter != laserRatiosMap.end() ) {
     apdpnpair = laserRatiosIter->second;
-    std::cout << " APDPN pair " << apdpnpair.p1 << " , " << apdpnpair.p2 << std::endl; 
   } else {
     edm::LogError("EcalLaserDbService") << "error with laserRatiosMap!" << endl;
     return correctionFactor;
-  }
-  
+  }  
 
   laserTimeIter = laserTimeMap.find(iLM); // need to change this!
   if( laserTimeIter != laserTimeMap.end() ) {
     timestamp = laserTimeIter->second;
-    std::cout << " TIME pair " << timestamp.t1 << " , " << timestamp.t2 << std::endl; 
   } else {
-    edm::LogError("EcalLaserDbService") << "error with laserTimeMap!" << endl;
+    //    std::cout << " TIME pair error " << iLM << std::endl;
+    edm::LogError("EcalLaserDbService") << "error with laserTimeMap! " << iLM << endl;
     return correctionFactor;
   }
   
   laserRefIter = laserRefMap.find(xid.rawId());
   if( laserRefIter != laserRefMap.end() ) {
     apdpnref = laserRefIter->second;
-    std::cout << " APDPN ref " << apdpnref << std::endl; 
   } else {
     edm::LogError("EcalLaserDbService") << "error with laserRefMap!" << endl;
     return correctionFactor;
@@ -115,11 +113,15 @@ float EcalLaserDbService::getLaserCorrection (DetId const & xid, edm::Timestamp 
   laserAlphaIter = laserAlphaMap.find(xid.rawId());
   if( laserAlphaIter != laserAlphaMap.end() ) {
     alpha = laserAlphaIter->second;    
-    std::cout << " ALPHA " << alpha << std::endl; 
   } else {
     edm::LogError("EcalLaserDbService") << "error with laserAlphaMap!" << endl;
     return correctionFactor;
   }
+
+  std::cout << " APDPN pair " << apdpnpair.p1 << " , " << apdpnpair.p2 << std::endl; 
+  std::cout << " TIME pair " << timestamp.t1 << " , " << timestamp.t2 << " iLM " << iLM << std::endl; 
+  std::cout << " APDPN ref " << apdpnref << std::endl; 
+  std::cout << " ALPHA " << alpha << std::endl; 
   
   // should implement some default in case of error...
 
@@ -160,7 +162,7 @@ float EcalLaserDbService::getLaserCorrection (DetId const & xid, edm::Timestamp 
 //
 int EcalLaserDbService::getLMNumber(DetId const & xid) const {
 
-  int iLM = -1;
+  int iLM = 0;
 
   if (xid.subdetId()==EcalBarrel) {
     
@@ -179,7 +181,7 @@ int EcalLaserDbService::getLMNumber(DetId const & xid) const {
     // now assign light module within SM
     if (iPHI>10&&iETA>5) { iLM++; }   
 
-    std::cout << "SM , LM ---> " << iSM << " " << iLM << std::endl;
+    std::cout << " SM , LM ---> " << iSM << " " << iLM << std::endl;
     
   } else if (xid.subdetId()==EcalEndcap) {
     
@@ -242,13 +244,18 @@ int EcalLaserDbService::getLMNumber(DetId const & xid) const {
       iLM++;
     }
 
+    //    std::cout << "DCC , LM ---> " << tempdcc << " " << iLM << std::endl;
     std::cout << "SC DCC : LM : XYZ ---> " << iSC << " \t" << tempdcc << ": \t" << iLM << ": \t" << iX << " \t" << iY << " \t" << iZ << std::endl;
   
     //    iLM = tempid.isc();
-  } 
+  } else {
+    edm::LogError("EcalLaserDbService") << " getLMNumber: DetId is not in ECAL." << endl;
+
+  }
 
   return iLM;
 
 }
+
 
 EVENTSETUP_DATA_REG(EcalLaserDbService);
