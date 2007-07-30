@@ -97,7 +97,7 @@ int RPCSynchronizer::getDigiBx(const PSimHit* simhit, int centralstrip, int stri
 
   float csdt_tot = 0.;
   if(diffstrip > 0){
-    for(unsigned int n = 0; n < diffstrip; ++n){
+    for(int n = 0; n < diffstrip; ++n){
       float rr_dt = RandFlat::shoot();
       if (rr_dt <= 1.e-10) rr_dt = 1.e-10 ;
       float dif_time = -(dtimCs)*log(rr_dt);
