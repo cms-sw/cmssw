@@ -99,7 +99,7 @@ void createPlots(TString plot){
   } else if(plot.CompareTo("l_vs_eta") == 0) {
     plotNumber = 1010;
     abscissaName = TString("#eta");
-    ordinateName = TString("#lambda/#lambda_{0}");
+    ordinateName = TString("x/#lambda_{0}");
     mbmin  =  0.0;
     mbmax  =  0.6;
     etamin = -4.0;
@@ -107,7 +107,7 @@ void createPlots(TString plot){
   } else if(plot.CompareTo("l_vs_phi") == 0) {
     plotNumber = 1020;
     abscissaName = TString("#varphi [rad]");
-    ordinateName = TString("#lambda/#lambda_{0}");
+    ordinateName = TString("x/#lambda_{0}");
     mbmin  =  0.0;
     mbmax  =  1.0;
     etamin = -4.0;
@@ -115,7 +115,7 @@ void createPlots(TString plot){
   } else if(plot.CompareTo("l_vs_R") == 0) {
     plotNumber = 1040;
     abscissaName = TString("R [cm]");
-    ordinateName = TString("#lambda/#lambda_{0}");
+    ordinateName = TString("x/#lambda_{0}");
     mbmin  =  0.0;
     mbmax  =  0.7;
     etamin = -4.0;

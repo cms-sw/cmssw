@@ -149,15 +149,15 @@ void createPlots(TString plot) {
   } else if(plot.CompareTo("l_vs_eta") == 0) {
     plotNumber = 1010;
     abscissaName = TString("#eta");
-    ordinateName = TString("#lambda/#lambda_{0}");
+    ordinateName = TString("x/#lambda_{0}");
   } else if(plot.CompareTo("l_vs_phi") == 0) {
     plotNumber = 1020;
     abscissaName = TString("#varphi [rad]");
-    ordinateName = TString("#lambda/#lambda_{0}");
+    ordinateName = TString("x/#lambda_{0}");
   } else if(plot.CompareTo("l_vs_R") == 0) {
     plotNumber = 1040;
     abscissaName = TString("R [mm]");
-    ordinateName = TString("#lambda/#lambda_{0}");
+    ordinateName = TString("x/#lambda_{0}");
   } else {
     cout << " error: chosen plot name not known " << plot << endl;
     return;
@@ -300,22 +300,14 @@ void createPlots(TString plot) {
 
   // Comparison
   // canvas
-  TCanvas can_comparison("TkMB_Comparison","TkMB_Comparison",2400+240,580+58+58);
-  can_comparison.SetTopMargin(0.1);
-  can_comparison.SetBottomMargin(0.1);
-  can_comparison.SetLeftMargin(0.04);
-  can_comparison.SetRightMargin(0.06);
+  TCanvas can_comparison("TkMB_Comparison","TkMB_Comparison",1200,800);
   can_comparison.Range(0,0,25,25);
   can_comparison.Divide(4,2);
   can_comparison.SetFillColor(kWhite);
   can_comparison.SetGridy(1);
   can_comparison.SetLogy(0);
   // canvas
-  TCanvas can_ratio("TkMB_ComparisonRatio","TkMB_ComparisonRatio",2400+240,580+58+58);
-  can_ratio.SetTopMargin(0.1);
-  can_ratio.SetBottomMargin(0.1);
-  can_ratio.SetLeftMargin(0.04);
-  can_ratio.SetRightMargin(0.06);
+  TCanvas can_ratio("TkMB_ComparisonRatio","TkMB_ComparisonRatio",1200,800);
   can_ratio.Range(0,0,25,25);
   can_ratio.Divide(4,2);
   can_ratio.SetFillColor(kWhite);
@@ -469,27 +461,40 @@ void create2DPlots(TString plot) {
     plotNumber = 1030;
     abscissaName = TString("#eta");
     ordinateName = TString("#varphi");
-    quotaName    = TString("#lambda/#lambda_{0}");
+    quotaName    = TString("x/#lambda_{0}");
   } else if(plot.CompareTo("x_vs_z_vs_Rsum") == 0) {
     plotNumber = 50;
     abscissaName = TString("z [mm]");
     ordinateName = TString("R [mm]");
     quotaName    = TString("#Sigmax/X_{0}");
+    zLog = 1;
+    zCol = 1;
+    histoMin = 0.4762;
+    histoMax = 2.1;
   } else if(plot.CompareTo("x_vs_z_vs_R") == 0) {
     plotNumber = 60;
     abscissaName = TString("z [mm]");
     ordinateName = TString("R [mm]");
-    quotaName    = TString("x/X_{0}");
+    quotaName    = TString("1/X_{0}");
+    zLog = 1;
+    histoMin = 1E-4;
+    histoMax = 1E+4;
   } else if(plot.CompareTo("l_vs_z_vs_Rsum") == 0) {
     plotNumber = 1050;
     abscissaName = TString("z [mm]");
     ordinateName = TString("R [mm]");
-    quotaName    = TString("#Sigma#lambda/#lambda_{0}");
+    quotaName    = TString("#Sigmax/#lambda_{0}");
+    zLog = 1;
+    histoMin = 0.4762;
+    histoMax = 2.1;
   } else if(plot.CompareTo("l_vs_z_vs_R") == 0) {
     plotNumber = 1060;
     abscissaName = TString("z [mm]");
     ordinateName = TString("R [mm]");
-    quotaName    = TString("#lambda/#lambda_{0}");
+    quotaName    = TString("1/#lambda_{0}");
+    zLog = 1;
+    histoMin = 1E-4;
+    histoMax = 1E+4;
   } else {
     cout << " error: chosen plot name not known " << plot << endl;
     return;
@@ -571,15 +576,27 @@ void create2DPlots(TString plot) {
   gStyle->SetStripDecimals(false);
   //
   
+  // Create "null" histo
+  TH2F *frame = new TH2F("frame","",10,-3100.,3100.,10,-50.,1400.); 
+  frame->SetMinimum(0.1);
+  frame->SetMaximum(10.);
+  frame->GetXaxis()->SetTickLength(frame->GetXaxis()->GetTickLength()*0.50);
+  frame->GetYaxis()->SetTickLength(frame->GetXaxis()->GetTickLength()/4.);
+
   // Ratio
   TH2D* histo_ratio = new TH2D(*hist_x0_total_new);
   TString hist2dTitle = Form( "Material Budget Ratio (New/Old) (%s) ",quotaName.Data() ) + theDetector + Form( ";%s;%s;%s",abscissaName.Data(),ordinateName.Data(),quotaName.Data() );
-  histo_ratio->SetTitle(hist2dTitle);
+  frame->SetTitle(hist2dTitle);
+  frame->SetTitleOffset(0.5,"Y");
   histo_ratio->Divide(hist_x0_total_old);
   //
   
+  //Set minimum and maximum
+  if ( histoMin != -1. ) histo_ratio->SetMinimum(histoMin);      
+  if ( histoMax != -1. ) histo_ratio->SetMaximum(histoMax);      
+
   // canvas
-  TCanvas can("can","can",2400+240,580+58+58);
+  TCanvas can("can","can",2480+248,580+58+58);
   can.SetTopMargin(0.1);
   can.SetBottomMargin(0.1);
   can.SetLeftMargin(0.04);
@@ -590,50 +607,14 @@ void create2DPlots(TString plot) {
   
   // Draw
   gStyle->SetPalette(1);
-  histo_ratio->Draw("COLZ");
 
-  // Store
-  can.Update();
+  // Log?
+  can.SetLogz(zLog);
 
-  //Aesthetic
-  TPaletteAxis *palette = 
-    (TPaletteAxis*)histo_ratio->GetListOfFunctions()->FindObject("palette");
-  palette->SetX1NDC(0.945);
-  palette->SetX2NDC(0.96);
-  palette->SetY1NDC(0.1);
-  palette->SetY2NDC(0.9);
-  palette->GetAxis()->SetTitle("");
-  if ( zLog==1 ) {  palette->GetAxis()->SetLabelOffset(-0.01); }
-  palette->GetAxis()->SetTitleOffset(5.);
-  histo_ratio->GetYaxis()->SetTickLength(histo_ratio->GetXaxis()->GetTickLength()/4.);
-  histo_ratio->SetTitleOffset(0.5,"Y");
-  histo_ratio->GetXaxis()->SetNoExponent(true);
-  histo_ratio->GetYaxis()->SetNoExponent(true);
-  //
-  
+  // Draw in colors
+  frame->Draw();
+  histo_ratio->Draw("COLZsame");
 
-  can.SaveAs( Form( "%s/%s_ComparisonRatio_%s_col.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  can.SaveAs( Form( "%s/%s_ComparisonRatio_%s_col.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  can.SaveAs( Form( "%s/%s_ComparisonRatio_%s_col.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  //
-  
-  // Grayscale palette
-  Int_t ncol = 100;
-  Int_t colors[100]; 
-  TColor *col; 
-  Double_t dg=1/(Double_t)ncol;
-  Double_t gray=1.;
-  for (Int_t i=0; i<ncol; i++) {     
-    colors[i]= i+100; 
-    col = gROOT->GetColor(colors[i]);  
-    gray = gray-dg;
-    if ( zCol == 0. ) { col->SetRGB(gray, gray,gray); }
-    if ( zCol == 1. ) { col->SetRGB(gray*gray, gray*gray, gray*gray); }
-  }
-  histo_ratio->SetContour(100);      
-  gStyle->SetPalette(100,colors);
-  
-  
   // Store
   can.Update();
 
@@ -645,21 +626,126 @@ void create2DPlots(TString plot) {
   palette->SetY1NDC(0.1);
   palette->SetY2NDC(0.9);
   palette->GetAxis()->SetTickSize(.01);
-  //  palette->GetAxis()->SetLabelOffset(-0.01);
+  if ( zLog==1 ) {  palette->GetAxis()->SetLabelOffset(-0.0045); }
+  palette->GetAxis()->SetTitle("");
+  TLatex *paletteTitle = new TLatex(3450.,1400.,quotaName); 
+  paletteTitle->SetTextAngle(90.);
+  paletteTitle->SetTextSize(0.05);
+  paletteTitle->SetTextAlign(31);
+  paletteTitle->Draw();     
+  histo_ratio->GetYaxis()->SetTickLength(histo_ratio->GetXaxis()->GetTickLength()/4.);
   histo_ratio->GetYaxis()->SetTickLength(histo_ratio->GetXaxis()->GetTickLength()/4.);
   histo_ratio->SetTitleOffset(0.5,"Y");
-  histo_ratio->GetZaxis()->SetNoExponent(true);
   histo_ratio->GetXaxis()->SetNoExponent(true);
   histo_ratio->GetYaxis()->SetNoExponent(true);
+  if ( zLog == 1 && abs(histo_ratio->GetMaximum()/histo_ratio->GetMinimum())<1000. ) { 
+    palette->GetAxis()->SetMoreLogLabels(kTRUE); 
+    palette->GetAxis()->SetNoExponent(kTRUE);
+  }
+
+
+  // Color plots not optimized... skipping for now
+  //  can.SaveAs( Form( "%s/%s_ComparisonRatio_%s_col.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //  can.SaveAs( Form( "%s/%s_ComparisonRatio_%s_col.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //  can.SaveAs( Form( "%s/%s_ComparisonRatio_%s_col.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //
+  
+  // Double color palette
+  Int_t ncol = 50;
+  Int_t colors[100]; 
+  TColor *col; 
+  Double_t dg=1/(Double_t)(ncol-1);
+  Double_t gray=0.;
+
+  for (Int_t i=0; i<ncol; i++) {     
+    colors[i]= i+100; 
+    col = gROOT->GetColor(colors[i]);  
+    if ( zCol == 0. ) { col->SetRGB(gray, gray, 1.); }
+    if ( zCol == 1. ) { col->SetRGB(gray*gray, gray*gray, 1.); }
+//    cout << i << " " << gray << "\n";
+    gray = gray+dg;
+  }
+  gray = 1.;
+  for (Int_t i=ncol; i<2*ncol; i++) {     
+    colors[i]= i+100; 
+    col = gROOT->GetColor(colors[i]);  
+    if ( zCol == 0. ) { col->SetRGB(1., gray, gray); }
+    if ( zCol == 1. ) { col->SetRGB(1., gray*gray, gray*gray); }
+//    cout << i << " " << gray << "\n";;
+    gray = gray-dg;
+  }
+
+  histo_ratio->SetContour(100);      
+  gStyle->SetPalette(100,colors);
+  
+  // Store
+  can.Update();
+
+  //Add eta labels
+  drawEtaValues();
 
   can.Modified();
 
-  can.SaveAs( Form( "%s/%s_ComparisonRatio_%s_bw.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  can.SaveAs( Form( "%s/%s_ComparisonRatio_%s_bw.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  can.SaveAs( Form( "%s/%s_ComparisonRatio_%s_bw.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_ComparisonRatio_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_ComparisonRatio_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_ComparisonRatio_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //
 
   // restore properties
   gStyle->SetStripDecimals(true);
   //
 }
+
+void drawEtaValues(){
+
+  //Add eta labels
+  Float_t etas[33] = {-3.4, -3.0, -2.8, -2.6, -2.4, -2.2, -2.0, -1.8, -1.6, -1.4., -1.2, -1., -0.8, -0.6, -0.4, -0.2, 0., 0.2, 0.4, 0.6, 0.8, 1., 1.2, 1.4, 1.6, 1.8, 2., 2.2, 2.4, 2.6, 2.8, 3.0, 3.4};
+  Float_t etax = 2940.;
+  Float_t etay = 1240.;
+  Float_t lineL = 100.;
+  Float_t offT = 10.;
+  Float_t pi = 3.1415926;
+  for (Int_t ieta=0; ieta<33; ieta++){
+    Float_t th = 2*atan(exp(-etas[ieta]));
+    Int_t talign = 21;
+
+    //IP
+    TLine *lineh = new TLine(-20.,0.,20.,0.); 
+    lineh->Draw();  
+    TLine *linev = new TLine(0.,-10.,0.,10.); 
+    linev->Draw();  
+
+    if ( etas[ieta]>-1.6 && etas[ieta]<1.6 ){
+      Float_t x1 = etay/tan(th);
+      Float_t y1 = etay;
+    } else if ( etas[ieta]<=-1.6 ) {
+      Float_t x1 = -etax;
+      Float_t y1 = -etax*tan(th);
+      talign = 11;
+    } else if ( etas[ieta]>=1.6 ){
+      Float_t x1 = etax;
+      Float_t y1 = etax*tan(th);
+      talign = 31;
+    }
+    Float_t x2 = x1+lineL*cos(th);
+    Float_t y2 = y1+lineL*sin(th);
+    Float_t xt = x2;
+    Float_t yt = y2+offT;
+    //      cout << isign << " " << th*180./pi << " " << x1 << " " << y1 << "\n";
+    TLine *line1 = new TLine(x1,y1,x2,y2); 
+    line1->Draw();  
+    char text[20];
+    int rc = sprintf(text, "%3.1f", etas[ieta]);
+    if ( etas[ieta] == 0 ) {
+      TLatex *t1 = new TLatex(xt,yt,"#eta = 0"); 
+    } else {
+      TLatex *t1 = new TLatex(xt,yt,text); 
+    }
+    t1->SetTextSize(0.03);
+    t1->SetTextAlign(talign);
+    t1->Draw();     
+    
+  }
+
+}
+
