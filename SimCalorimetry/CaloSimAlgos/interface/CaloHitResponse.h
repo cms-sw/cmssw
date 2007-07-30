@@ -6,6 +6,8 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
+#include "CLHEP/Random/RandPoisson.h"
+
 #include<map>
 #include<vector>
 
@@ -34,7 +36,7 @@ public:
   CaloHitResponse(const CaloVSimParameterMap * parameterMap, const CaloVShape * shape);
 
   /// doesn't delete the pointers passed in
-  virtual ~CaloHitResponse() {}
+  virtual ~CaloHitResponse();
 
   /// tells it which pileup bunches to do
   void setBunchRange(int minBunch, int maxBunch);
@@ -57,6 +59,8 @@ public:
   void setHitCorrection(const CaloVHitCorrection * hitCorrection) {
     theHitCorrection = hitCorrection;
   }
+
+  void setRandomEngine(CLHEP::HepRandomEngine & engine);
 
   /// frees up memory
   void clear() {theAnalogSignalMap.clear();}
@@ -98,6 +102,8 @@ protected:
   const CaloVHitFilter * theHitFilter;
 
   const CaloGeometry * theGeometry;
+
+  mutable CLHEP::RandPoisson * theRandPoisson;
 
   int theMinBunch;
   int theMaxBunch;

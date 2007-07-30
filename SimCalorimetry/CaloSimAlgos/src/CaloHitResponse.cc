@@ -26,6 +26,7 @@ CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap * parametersMap,
   theHitCorrection(0),
   theHitFilter(0),
   theGeometry(0),
+  theRandPoisson(0),
   theMinBunch(-10), 
   theMaxBunch(10),
   thePhaseShift_(1.)
@@ -33,9 +34,21 @@ CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap * parametersMap,
 }
 
 
+CaloHitResponse::~CaloHitResponse()
+{
+  delete theRandPoisson;
+}
+
+
 void CaloHitResponse::setBunchRange(int minBunch, int maxBunch) {
   theMinBunch = minBunch;
   theMaxBunch = maxBunch;
+}
+
+
+void CaloHitResponse::setRandomEngine(CLHEP::HepRandomEngine & engine)
+{
+  theRandPoisson = new CLHEP::RandPoisson(engine);
 }
 
 
@@ -116,23 +129,24 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit & inputHit) const {
 
 double CaloHitResponse::analogSignalAmplitude(const PCaloHit & hit, const CaloSimParameters & parameters) const {
 
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-      << "CaloHitResponse requires the RandomNumberGeneratorService\n"
-      "which is not present in the configuration file.  You must add the service\n"
-      "in the configuration file or remove the modules that require it.";
+  if(!theRandPoisson)
+  {
+    edm::Service<edm::RandomNumberGenerator> rng;
+    if ( ! rng.isAvailable()) {
+      throw cms::Exception("Configuration")
+        << "CaloHitResponse requires the RandomNumberGeneratorService\n"
+        "which is not present in the configuration file.  You must add the service\n"
+        "in the configuration file or remove the modules that require it.";
+    }
+    theRandPoisson = new CLHEP::RandPoisson(rng->getEngine());
   }
 
   // OK, the "energy" in the hit could be a real energy, deposited energy,
   // or pe count.  This factor converts to photoelectrons
-  DetId id(hit.id());
-  double npe = hit.energy() * parameters.simHitToPhotoelectrons(id);
+  double npe = hit.energy() * parameters.simHitToPhotoelectrons( DetId(hit.id()) );
   // do we need to doPoisson statistics for the photoelectrons?
   if(parameters.doPhotostatistics()) {
-
-    CLHEP::RandPoisson poissonDistribution(rng->getEngine(), static_cast<int>(npe));
-    npe = poissonDistribution.fire();
+    npe = theRandPoisson->fire(npe);
   }
   return npe;
 }
