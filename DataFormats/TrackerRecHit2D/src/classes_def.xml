@@ -52,9 +52,12 @@
 
  <class name="std::vector<SiStripRecHit2D>"/>
  <class name="edmNew::DetSetVector<SiStripRecHit2D>"/>
- <class name=""edm::Wrapper<edmNew::DetSetVector<SiStripRecHit2D> >"/>
+ <class name="edm::Wrapper<edmNew::DetSetVector<SiStripRecHit2D> >"/>
+ <class name="std::vector<SiStripMatchedRecHit2D>"/>
+ <class name="edmNew::DetSetVector<SiStrippMatchedRecHit2D>"/>
+ <class name="edm::Wrapper<edmNew::DetSetVector<SiStrippMatchedRecHit2D> >"/>
  <class name="std::vector<SiPixelRecHit>"/>
  <class name="edmNew::DetSetVector<SiPixelRecHit>"/>
- <class name=""edm::Wrapper<edmNew::DetSetVector<SiPixelRecHit> >"/>
+ <class name="edm::Wrapper<edmNew::DetSetVector<SiPixelRecHit> >"/>
 
 </lcgdict>
