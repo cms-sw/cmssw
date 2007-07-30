@@ -49,7 +49,8 @@
 class L1GctJetEtCalibrationFunction
 {
 public:
-  enum CorrectionFunctionType { POWER_SERIES_CORRECTION, ORCA_STYLE_CORRECTION };
+  enum CorrectionFunctionType { POWER_SERIES_CORRECTION, ORCA_STYLE_CORRECTION,
+                                OLD_ORCA_STYLE_CORRECTION, NO_CORRECTION };
 
   static const unsigned NUMBER_ETA_VALUES;     ///< Number of eta bins used in correction
   static const unsigned N_CENTRAL_ETA_VALUES;  ///< Number of eta bins for separate tau correction
@@ -91,7 +92,7 @@ private:
   uint16_t rank(const double Et) const;
 
   //  void checkCalibrationAgainstOrca() const;
-  //float orcaCalibFn(float et, unsigned eta) const;
+  float orcaCalibFn(float et, unsigned eta) const;
 
   // PARAMETERS FOR THE CONVERSION
   /// type of correction function to apply

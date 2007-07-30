@@ -1,3 +1,4 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "L1TriggerConfig/GctConfigProducers/interface/L1GctConfigProducers.h"
@@ -53,13 +54,16 @@ L1GctConfigProducers::L1GctConfigProducers(const edm::ParameterSet& iConfig) :
     calibCoeffs = iConfig.getParameter<edm::ParameterSet>("OrcaStyleCoefficients");
   }
 
-  if ((CalibStyle != "PowerSeries") && (CalibStyle != "ORCAStyle")) { 
-    throw cms::Exception("L1GctConfigError")
-      << "L1GctConfigProducers cannot continue.\n"
-      << "Invalid option " << CalibStyle << " read from configuration file.\n"
-      << "Should be PowerSeries or ORCAStyle.\n";
-  }
+  // TEMP -- enable old ORCA style corrections for comparison
+  if (CalibStyle == "oldORCAStyle") {
+    m_corrFunType = L1GctJetEtCalibrationFunction::OLD_ORCA_STYLE_CORRECTION;
+    m_jetCalibFunc.resize(L1GctJetEtCalibrationFunction::NUMBER_ETA_VALUES);
+    m_tauCalibFunc.resize(L1GctJetEtCalibrationFunction::N_CENTRAL_ETA_VALUES);
+  } else {
 
+  if ((CalibStyle == "PowerSeries") || (CalibStyle == "ORCAStyle")) {
+
+   // Read the coefficients from file
    // coefficients for non-tau jet corrections
    for (unsigned i=0; i<L1GctJetEtCalibrationFunction::NUMBER_ETA_VALUES; ++i) {
      std::stringstream ss;
@@ -79,6 +83,20 @@ L1GctConfigProducers::L1GctConfigProducers(const edm::ParameterSet& iConfig) :
 
    if (m_corrFunType==L1GctJetEtCalibrationFunction::ORCA_STYLE_CORRECTION)
      { setOrcaStyleParams(); }
+
+   } else {
+     // No corrections to be applied
+     m_corrFunType = L1GctJetEtCalibrationFunction::NO_CORRECTION;
+     // Set the vector sizes to those expected by the CalibrationFunction
+     m_jetCalibFunc.resize(L1GctJetEtCalibrationFunction::NUMBER_ETA_VALUES);
+     m_tauCalibFunc.resize(L1GctJetEtCalibrationFunction::N_CENTRAL_ETA_VALUES);
+     if (CalibStyle != "None") {
+       edm::LogWarning("L1GctConfig") << "Unrecognised Calibration Style option " << CalibStyle
+                                      << "; no Level-1 jet corrections will be applied" << std::endl;
+     }
+   }
+   }
+                                   
 }
 
 
