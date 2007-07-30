@@ -25,7 +25,7 @@ foreach my $inc (@{$cache->{order}})
   my $c=&readcachefile($inc);
   foreach my $i (keys %{$c->{ALL_INCLUDES_REMOVED}})
   {
-    print "$inc >= $i\n";
+    if(&wasremoved($inc,$i)){print "$inc >= $i\n";}
   }
 }
 exit 0;
@@ -53,4 +53,18 @@ sub readcachefile()
   if(-f $cfile){$c=&SCRAMGenUtils::readHashCache($cfile);}
   $cache->{data}{$file}=$c;
   return $c;
+}
+
+sub wasremoved ()
+{
+  my $file=shift;
+  my $inc=shift;
+  my $cfile="${rel}/tmp/${arch}/includechecker/includechecker/src/${file}.modified_by_incchk";
+  if(!-f $cfile){return 0;}
+  foreach my $l (`cat $cfile`)
+  {
+    chomp $l;
+    if($l=~/^\/\/INCLUDECHECKER: Removed this line:\s+#\s*include\s*(<|")\s*$inc\s*(<|")/)
+    {return 1;}
+  }
 }
