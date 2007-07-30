@@ -134,8 +134,8 @@ namespace edm {
         // make sure the openFiles list isn't corrupted
         assert(openFiles.back() == name());
         openFiles.pop_back();
+        check(strict);
       }
-      check(strict);
     }
 
     void IncludeNode::insertInto(edm::ProcessDesc & procDesc) const
@@ -176,14 +176,13 @@ namespace edm {
           std::ostringstream message;
    
           message
-           << "WARNING: " << nModules << " modules were defined in " 
+           << nModules << " modules were defined in " 
            << name() << ".\nOnly one module should be defined per .cfi."
            <<"\nfrom: " << traceback();
 
           if(strict)
           {
-            //throw edm::Exception(errors::Configuration) << message.str();
-            edm::LogWarning("Configuration") << message.str();
+            throw edm::Exception(errors::Configuration) << message.str();
           }
 
         }
@@ -192,15 +191,22 @@ namespace edm {
       // now check if this is included from a .cfi
       if(includeParentSuffix() == "cfi")
       {
-        ok = false;
-        std::ostringstream message;
-        message << "include statements should not be used in a .cfi file."
-                << "\nfrom:" << traceback();
-
-        if(strict)
+        if(strict) 
         {
-          //throw edm::Exception(errors::Configuration) << message.str();
-          edm::LogWarning("Configuration") << message.str();
+          // the only object that can be included within a .cfi is a block.
+          // see if this include file has only one node, a block.
+          // tolerate further nesting for now, as long as the result
+          // is just one block
+          NodePtrListPtr kids = children();
+          ok = (kids->size()==1 && kids->front()->type() == "block");
+
+          if(!ok)
+          {
+            std::ostringstream message;
+            message << "include statements should not be used in a .cfi file."
+                    << "\nfrom:" << traceback();
+            throw edm::Exception(errors::Configuration) << message.str();
+          }
         }
       }
 
