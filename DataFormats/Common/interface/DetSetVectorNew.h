@@ -214,7 +214,7 @@ namespace edmNew {
       if (p==m_ids.end()) return; //bha!
       if ((*p).size>0&&m_data.size()==(*p).offset+(*p).size)
 	m_data.resize((*p).offset);
-      m_ids.erase(p);
+      m_ids.erase( m_ids.begin()+(p-m_ids.begin()));
     }
 
   private:
