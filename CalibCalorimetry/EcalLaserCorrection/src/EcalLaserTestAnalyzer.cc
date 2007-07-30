@@ -34,6 +34,7 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
+#include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
@@ -129,9 +130,26 @@ EcalLaserTestAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
 //   int iphi = 168;
 //   EBDetId testid(ieta,iphi);
 //   edm::Timestamp testtime(2222);
+  
+
+//   edm::ESHandle< EcalElectronicsMapping > ecalmapping;
+//   iSetup.get< EcalMappingRcd >().get(ecalmapping);
+//   const EcalElectronicsMapping* TheMapping = ecalmapping.product();
+// //   int dccid = TheMapping-> DCCid(testid);
+// //   int tccid = TheMapping-> TCCid(testid);
+
+// //   std::cout << std::endl 
+// // 	    << "TESTID: " << testid << " " 
+// // 	    << testid.ietaSM() << " " << testid.iphiSM() << " "
+// // 	    << testid.rawId() << " " 
+// // 	    << dccid << " " << tccid 
+// // 	    << std::endl;
+
 
 //   float blah = pSetup->getLaserCorrection(testid, testtime);
 //   std::cout << " EcalLaserTestAnalyzer: " << blah << std::endl; 
+
+
 
   // ECAL Barrel
   for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
@@ -141,8 +159,21 @@ EcalLaserTestAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
  	{
 	  
 	  EBDetId testid(ieta,iphi);
-	  edm::Timestamp testtime(2222);
+	  edm::Timestamp testtime(12000);
+
+// 	  int dccid = TheMapping-> DCCid(testid);
+// 	  int tccid = TheMapping-> TCCid(testid);
+
+// 	  EcalElectronicsId myid = TheMapping->getElectronicsId(testid);
+// 	  EcalTriggerElectronicsId mytid = TheMapping->getTriggerElectronicsId(testid);
 	  
+// 	  std::cout << std::endl 
+// 		    << "TESTID EB: " << testid << " " 
+// 		    << testid.ietaSM() << " " << testid.iphiSM() << " : "
+// 		    << testid.rawId() << " : " << myid << " " << myid.rawId() << " : "
+// 	  	    << dccid << " " << tccid 
+// 	  	    << std::endl;
+
 	  float blah = pSetup->getLaserCorrection(testid, testtime);
 	  std::cout << " EcalLaserTestAnalyzer: " << blah << std::endl; 
 	  
@@ -160,19 +191,37 @@ EcalLaserTestAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
       // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
       try 
 	{
-	  	  
+
+	  // +Z side
 	  EEDetId testidpos(iX,iY,1);
-	  edm::Timestamp testtime(2222);
+	  edm::Timestamp testtime(12000);
 	  std::cout << " EcalLaserTestAnalyzer: " << testidpos << " " << testidpos.isc() << endl;
+
+// 	  // test of elec mapping
+// 	  EcalElectronicsId myidpos = TheMapping->getElectronicsId(testidpos);
+// 	  std::cout << std::endl 
+// 		    << "TESTID EE: " << testidpos << " " << testidpos.isc() << " "
+// 		    << testidpos.rawId() << " : " << myidpos << " " << myidpos.rawId() << " : "
+// 		    << myidpos.dccId()
+// 	  	    << std::endl;
+// 	  //
 
 	  float blah = pSetup->getLaserCorrection(testidpos, testtime);
 	  std::cout << " EcalLaserTestAnalyzer: " << blah << std::endl; 
-	  
+
+	  // -Z side
 	  EEDetId testidneg(iX,iY,-1);
 	  std::cout << " EcalLaserTestAnalyzer: " << testidneg << " " << testidneg.isc() << endl;
+
+// 	  EcalElectronicsId myidneg = TheMapping->getElectronicsId(testidneg);
+// 	  std::cout << std::endl 
+// 		    << "TESTID EE: " << testidneg << " " << testidneg.isc() << " "
+// 		    << testidneg.rawId() << " : " << myidneg << " " << myidneg.rawId() << " : "
+// 		    << myidneg.dccId()
+// 	  	    << std::endl;
+
 	  blah = pSetup->getLaserCorrection(testidneg, testtime);
 	  std::cout << " EcalLaserTestAnalyzer: " << blah << std::endl; 
-
 	}
       catch (...)
 	{

@@ -40,7 +40,11 @@ class EcalLaserDbService {
   void setData (const EcalLaserAPDPNRatios* fItem) {mAPDPNRatios = fItem;}
   //  void setVerbosity (const bool verb) const {verbose = verb;}
 
+
  private:
+
+  int getLMNumber(DetId const & xid) const;
+
   const EcalLaserAlphas* mAlphas;
   const EcalLaserAPDPNRatiosRef* mAPDPNRatiosRef;
   const EcalLaserAPDPNRatios* mAPDPNRatios;
