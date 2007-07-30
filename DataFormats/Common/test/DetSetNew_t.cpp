@@ -192,7 +192,7 @@ void TestDetSet::filling() {
    CPPUNIT_ASSERT(!detsets.exists(31));
  }
  CPPUNIT_ASSERT(detsets.size()==5);
- CPPUNIT_ASSERT(!detsets.exists(30));
+ CPPUNIT_ASSERT(!detsets.exists(31));
  
 
   // test error conditions

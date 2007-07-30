@@ -212,7 +212,9 @@ namespace edmNew {
     void pop_back(id_type iid) {
       const_IdIter p = findItem(iid);
       if (p==m_ids.end()) return; //bha!
-      if ((*p).size>0&&m_data.size()==(*p).offset+(*p).size)
+      // sanity checks...  (shall we throw or assert?)
+      if ((*p).size>0&& (*p).offset>-1 && 
+	  m_data.size()==(*p).offset+(*p).size)
 	m_data.resize((*p).offset);
       m_ids.erase( m_ids.begin()+(p-m_ids.begin()));
     }
