@@ -3,7 +3,7 @@
 // Class:      SiStripGainTickMarkCalculator
 // Original Author:  G. Bruno
 //         Created:  Mon May 20 10:04:31 CET 2007
-// $Id: SiStripGainTickMarkCalculator.cc,v 1.4 2007/06/13 14:03:35 gbruno Exp $
+// $Id: SiStripGainTickMarkCalculator.cc,v 1.1 2007/07/09 11:13:08 gbruno Exp $
 
 #include "CalibTracker/SiStripChannelGain/plugins/SiStripGainTickMarkCalculator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -13,14 +13,16 @@
 
 
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h" 
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
+// #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h" 
+// #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+// #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+// #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+// #include "Geometry/CommonTopologies/interface/StripTopology.h"
+// #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+// #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+
+#include "DataFormats/SiStripCommon/interface/ConstantsForPresentation.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 #include "CLHEP/Random/RandFlat.h"
@@ -31,15 +33,16 @@ using namespace cms;
 using namespace std;
 
 
-SiStripGainTickMarkCalculator::SiStripGainTickMarkCalculator(const edm::ParameterSet& iConfig) : ConditionDBWriter<SiStripApvGain>::ConditionDBWriter<SiStripApvGain>(iConfig), histos_(0),runType_(sistrip::UNKNOWN_RUN_TYPE), runNumber_(0){
+SiStripGainTickMarkCalculator::SiStripGainTickMarkCalculator(const edm::ParameterSet& iConfig) : ConditionDBWriter<SiStripApvGain>::ConditionDBWriter<SiStripApvGain>(iConfig), histos_(0), runNumber_(0){
 
   
   edm::LogInfo("SiStripGainTickMarkCalculator::SiStripGainTickMarkCalculator");
 
+  mui_ =  new MonitorUIRoot() ;
 
 
+  outputFileName_=iConfig.getUntrackedParameter<std::string>("HistoFile", "output.root");
 
-//   std::string Mode=iConfig.getParameter<std::string>("Mode");
 //   if (Mode==std::string("Gaussian")) GaussianMode_=true;
 //   else if (IOVMode==std::string("Constant")) ConstantMode_=true;
 //   else  edm::LogError("SiStripGainTickMarkCalculator::SiStripGainTickMarkCalculator(): ERROR - unknown generation mode...will not store anything on the DB") << std::endl;
@@ -59,11 +62,21 @@ SiStripGainTickMarkCalculator::SiStripGainTickMarkCalculator(const edm::Paramete
 
 SiStripGainTickMarkCalculator::~SiStripGainTickMarkCalculator(){
 
-   edm::LogInfo("SiStripGainTickMarkCalculator::~SiStripGainTickMarkCalculator");
+  edm::LogInfo("SiStripGainTickMarkCalculator::~SiStripGainTickMarkCalculator");
 
 
-   if ( histos_ ) { delete histos_; }
+  if ( histos_ ) { 
+    histos_->remove(); 
+    delete histos_; 
+  }
 
+  if ( mui_ ) { 
+    if ( mui_->getBEInterface() ) { 
+      mui_->getBEInterface()->setVerbose(0); 
+    }
+    delete mui_; 
+  }
+  
 }
 
 
@@ -81,16 +94,17 @@ SiStripApvGain * SiStripGainTickMarkCalculator::getNewObject() {
   std::vector<std::string> contents;
 
   //had to comment because method is protected
-  //  bei_->getContents( contents ); 
+  mui_->getContents( contents ); 
 
-  histos_ = new OptoScanHistograms( bei_ );
+  histos_ = new OptoScanHistograms( mui_ );
 
   //get run type from histo content. Maybe unnecessary 
-  runType_ = histos_->runType( bei_, contents );
+  //  runType_ = histos_->runType( mui_->getBEInterface(), contents );
   //get run number from histo content
-  runNumber_ = histos_->runNumber( bei_, contents );
+  runNumber_ = histos_->runNumber( mui_->getBEInterface(), contents );
   //collate if necessary
-  histos_->createCollations( contents );
+  //histos_->createCollations( contents );
+  histos_->extractHistograms( contents );
   //perform analysis 
   histos_->histoAnalysis(printdebug_);
 
@@ -99,11 +113,26 @@ SiStripApvGain * SiStripGainTickMarkCalculator::getNewObject() {
   //  pair<sistrip::Monitorable, sistrip::Presentation> summ0(OPTO_SCAN_MEASURED_GAIN, HISTO_1D);
   //  pair<std::string,sistrip::Granularity> summ1(sistrip::detectorView_ , APV);
 
+
+  sistrip::Monitorable mymon = sistrip::OPTO_SCAN_MEASURED_GAIN;
+  sistrip::Presentation mypres = sistrip::HISTO_1D;
+  sistrip::Granularity mygran = sistrip::APV;
+
+  histos_->createSummaryHisto(mymon, mypres, "DetectorView", mygran);
+
   // histos_->createSummaryHisto(summ0, summ1 );
 
+  //save histos
+  histos_->save( outputFileName_, runNumber_ ); 
   //  bei_->save();
 
-  SiStripApvGain * obj = new SiStripApvGain();
+
+
+   SiStripApvGain * obj = new SiStripApvGain();
+
+
+
+
 
   //  const std::map<uint32_t,OptoScanAnalysis*> analyses = histos_->getData();
 
@@ -143,5 +172,4 @@ SiStripApvGain * SiStripGainTickMarkCalculator::getNewObject() {
 
 
 }
-
 

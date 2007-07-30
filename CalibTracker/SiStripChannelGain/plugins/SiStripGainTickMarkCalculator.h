@@ -13,13 +13,14 @@
      <Notes on implementation>
 */
 //
-// Original Author:  Dorian Kcira, Pierre Rodeghiero
+// Original Author:  Giacomo Bruno
 //         Created:  Mon Nov 20 10:04:31 CET 2006
-// $Id: SiStripGainTickMarkCalculator.h,v 1.1 2007/06/13 14:03:35 gbruno Exp $
+// $Id: SiStripGainTickMarkCalculator.h,v 1.1 2007/07/09 11:13:08 gbruno Exp $
 //
 //
-
-#include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
+//#include "DQMServices/Core/interface/MonitorUserInterface.h"
+//#include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
+#include "DQMServices/UI/interface/MonitorUIRoot.h"
 #include "DQM/SiStripCommissioningClients/interface/OptoScanHistograms.h"
 #include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
@@ -40,11 +41,16 @@ private:
 
 private:
 
-  CommissioningHistograms* histos_;
-  sistrip::RunType runType_;
+  OptoScanHistograms* histos_;
+  //CommissioningHistograms* histos_;
+  //  sistrip::RunType runType_;
   uint32_t runNumber_;  
   //  mutable bool first_;
-  DaqMonitorBEInterface* bei_;
+  //  DaqMonitorBEInterface* bei_;
+
+  MonitorUIRoot* mui_;
+/** Output .root file. */
+  std::string outputFileName_;
 
 
   bool printdebug_;
