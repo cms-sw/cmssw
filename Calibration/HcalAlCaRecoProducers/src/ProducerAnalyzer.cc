@@ -7,12 +7,14 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
-
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h" 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h" 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h" 
@@ -83,10 +85,28 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   for( std::vector<Provenance const*>::const_iterator ip = theProvenance.begin();
                                                       ip != theProvenance.end(); ip++)
   {
-//     cout<<" Print all module/label names "<<(**ip).moduleName()<<" "<<(**ip).moduleLabel()<<
-//     " "<<(**ip).productInstanceName()<<endl;
+     cout<<" Print all module/label names "<<(**ip).moduleName()<<" "<<(**ip).moduleLabel()<<
+     " "<<(**ip).productInstanceName()<<endl;
   }
-   if(nameProd_ != "IsoProd")
+   if(nameProd_ == "ALCARECOMuAlZMuMu" )
+   {
+   
+   edm::Handle<HORecHitCollection> ho;
+   iEvent.getByLabel("horeco", ho);
+   const HORecHitCollection Hitho = *(ho.product());
+   std::cout<<" Size of HO "<<(Hitho).size()<<std::endl;
+   edm::Handle<MuonCollection> mucand;
+   iEvent.getByLabel(nameProd_,"SelectedMuons", mucand);
+   std::cout<<" Size of muon collection "<<mucand->size()<<std::endl;
+   for(MuonCollection::const_iterator it =  mucand->begin(); it != mucand->end(); it++)
+   {
+      TrackRef mu = (*it).combinedMuon();
+      std::cout<<" Pt muon "<<mu->innerMomentum()<<std::endl;
+   }
+   
+   }  
+  
+   if(nameProd_ != "IsoProd" && nameProd_ != "ALCARECOMuAlZMuMu" )
    {
    edm::Handle<HBHERecHitCollection> hbhe;
    iEvent.getByLabel(nameProd_,hbheInput_, hbhe);
