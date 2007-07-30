@@ -25,7 +25,7 @@ foreach my $inc (@{$cache->{order}})
   my $c=&readcachefile($inc);
   foreach my $i (keys %{$c->{ALL_INCLUDES_REMOVED}})
   {
-    if(&wasremoved($inc,$i)){print "$inc >= $i\n";}
+    if(&wasremoved($inc,$i)){print "$inc => $i\n";}
   }
 }
 exit 0;
