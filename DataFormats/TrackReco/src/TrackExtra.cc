@@ -6,7 +6,7 @@ TrackExtra::TrackExtra( const Point & outerPosition, const Vector & outerMomentu
 			const Point & innerPosition, const Vector & innerMomentum, bool iok,
 			const CovarianceMatrix& outerCov, unsigned int outerId,
 			const CovarianceMatrix& innerCov, unsigned int innerId,
-			PropagationDirection& seedDir):
+			PropagationDirection seedDir):
   TrackExtraBase(),
   outerPosition_( outerPosition ), outerMomentum_( outerMomentum ), outerOk_( ok ), 
   outerDetId_( outerId ),

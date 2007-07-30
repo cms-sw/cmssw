@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: TrackExtra.h,v 1.15 2007/07/16 10:31:11 gpetrucc Exp $
+ * \version $Id: TrackExtra.h,v 1.19 2007/07/20 21:18:32 gpetrucc Exp $
  *
  */
 #include <Rtypes.h>
@@ -42,7 +42,7 @@ namespace reco {
 		const Point & innerPosition, const Vector & innerMomentum, bool iok,
 		const CovarianceMatrix& outerState, unsigned int outerId,
 		const CovarianceMatrix& innerState, unsigned int innerId, 
-		PropagationDirection& seedDir);
+		PropagationDirection seedDir);
     /// outermost hit position
     const Point & outerPosition() const { return outerPosition_; }
     /// momentum vector at outermost hit position
