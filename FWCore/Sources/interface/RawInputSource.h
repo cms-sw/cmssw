@@ -2,12 +2,13 @@
 #define FWCore_Sources_RawInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: RawInputSource.h,v 1.2 2007/06/14 21:03:40 wmtan Exp $
+$Id: RawInputSource.h,v 1.3 2007/06/22 23:26:34 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
 #include "boost/shared_ptr.hpp"
 
+#include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
@@ -41,6 +42,7 @@ namespace edm {
     bool newLumi_;
     std::auto_ptr<EventPrincipal> ep_;
     boost::shared_ptr<LuminosityBlockPrincipal> lbp_;
+    Timestamp time_;
   };
 }
 #endif
