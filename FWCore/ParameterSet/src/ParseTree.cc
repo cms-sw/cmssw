@@ -535,8 +535,16 @@ namespace edm {
         string topLevel = tokenize((**modifierItr).name(), ".")[0];
         if(blocks_.find(topLevel) != blocks_.end())
         {
-          blockModifiers.push_back(*modifierItr);
-          modifierNodes.erase(modifierItr);
+          if(strict_)
+          {
+            throw edm::Exception(errors::Configuration)
+              << "Strict parsing disallows modifying blocks";
+          }
+          else 
+          {
+            blockModifiers.push_back(*modifierItr);
+            modifierNodes.erase(modifierItr);
+          }
         }
         modifierItr = next;
       }
