@@ -32,7 +32,7 @@
   <use name=FWCore/ParameterSet>
   <use name=MagneticField/Engine>
   <use name=clhep>
-  <lib name=RecoTrackerRoadSearchHelixMaker>
+  <lib name=RecoTrackerFinalTrackSelectors>
   <use name=Geometry/Surface>
 </export>
 
