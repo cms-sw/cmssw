@@ -70,7 +70,7 @@ private:
   SiPixelRecHit                         theHitData;
   const PixelClusterParameterEstimator* theCPE;
 
-  /// This constructor clones the TrackingRecHit, it should be used when the 
+  /// This constructor copy the TrackingRecHit, it should be used when the 
   /// TrackingRecHit exist already in some collection
   TSiPixelRecHit(const GeomDet * geom, const SiPixelRecHit* rh, 
 		 const PixelClusterParameterEstimator* cpe) : 
