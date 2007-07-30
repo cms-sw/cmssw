@@ -5,7 +5,7 @@
 #  
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # Update: 2006-04-28 09:50:38+0200
-# Revision: $Id: CreateCVSPackage.pl,v 1.9 2006/07/06 10:39:35 sashby Exp $ 
+# Revision: $Id: CreateCVSPackage.pl,v 1.10 2006/12/07 15:25:22 sashby Exp $ 
 #
 # Copyright: 2006 (C) Shaun ASHBY
 #
@@ -78,7 +78,7 @@ if (! Getopt::Long::GetOptions(\%opts, %options)) {
 	} else {
 	    # We use a wget request to the database (via a CGI script):
 	    print "Running in batch mode: getting approved packages from the TagCollector.\n";
-	    open(SOURCE,"wget --no-check-certificate -o /dev/null -nv -O- 'https://cmsdoc.cern.ch/swdev/CmsTC/cgi-bin/GetPacksForCVS?noupdate=1' |")
+	    open(SOURCE,"wget --no-check-certificate -o /dev/null -nv -O- 'https://cmstags.cern.ch/cgi-bin/CmsTC/GetPacksForCVS?noupdate=1' |")
 		|| die "Can't run wget request: $!","\n";
 	}
 
@@ -97,14 +97,14 @@ if (! Getopt::Long::GetOptions(\%opts, %options)) {
 	# Reset the TC:
 	print "Updating approved package list in the TagCollector.\n";
 	print "Packages are assumed to have been created successfully!\n";
-	my $rv = system("wget","--no-check-certificate","-o","/dev/null","-nv","-O-",'https://cmsdoc.cern.ch/swdev/CmsTC/cgi-bin/GetPacksForCVS');
+	my $rv = system("wget","--no-check-certificate","-o","/dev/null","-nv","-O-",'https://cmstags.cern.ch/cgi-bin/CmsTC/GetPacksForCVS');
 	if ($rv != 0) {
 	    print "There were ERRORS when updating the tag collector!","\n";
 	}
 	exit($rv);
     } elsif ($opts{TCQUERY}) {
 	# Query th tag collector and dump the package list:
-	open(WGET,"wget --no-check-certificate -o /dev/null -nv -O- 'https://cmsdoc.cern.ch/swdev/CmsTC/cgi-bin/GetPacksForCVS?noupdate=1' |") || die "Can't run wget request: $!","\n";
+	open(WGET,"wget --no-check-certificate -o /dev/null -nv -O- 'https://cmstags.cern.ch/cgi-bin/CmsTC/GetPacksForCVS?noupdate=1' |") || die "Can't run wget request: $!","\n";
 	my $n = 0;
 	while(<WGET>) {
 	    chomp;

@@ -5,7 +5,7 @@
 #  
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # Update: 2006-04-11 14:46:41+0200
-# Revision: $Id: ProjectCVSStatus.pl,v 1.1 2006/04/26 15:41:56 sashby Exp $ 
+# Revision: $Id: ProjectCVSStatus.pl,v 1.2 2006/04/27 13:47:58 sashby Exp $ 
 #
 # Copyright: 2006 (C) Shaun ASHBY
 #
@@ -273,7 +273,7 @@ sub getReferenceTags()
    my $pass="CmsTC";
    my $gotpacks=0;
    
-   open(CMSTCQUERY,"wget $options  -nv -o /dev/null -O- 'http://$user:$pass\@cmsdoc.cern.ch/swdev/CmsTC/cgi-bin/CreateTagList?release=$basereleaseid' |");
+   open(CMSTCQUERY,"wget $options  -nv -o /dev/null -O- 'https://$user:$pass\@cmstags.cern.ch/cgi-bin/CmsTC/CreateTagList?release=$basereleaseid' |");
    
    my %tags;
    while ( <CMSTCQUERY> )
