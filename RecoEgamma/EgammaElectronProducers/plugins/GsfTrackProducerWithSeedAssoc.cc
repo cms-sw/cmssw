@@ -261,10 +261,11 @@ void GsfTrackProducerWithSeedAssoc::produce(edm::Event& theEvent, const edm::Eve
     reco::TrackExtraRef teref= reco::TrackExtraRef ( rTrackExtras, idx ++ );
     reco::GsfTrack & track = selTracks->back();
     track.setExtra( teref );
+    PropagationDirection dir = theTraj->direction();
     selTrackExtras->push_back( reco::TrackExtra (outpos, outmom, true,
 						 inpos, inmom, true,
 						 outertsos.curvilinearError(), outerId, 
-						 innertsos.curvilinearError(), innerId));
+						 innertsos.curvilinearError(), innerId, dir));
 
      reco::TrackExtra & tx = selTrackExtras->back();
     size_t i = 0;
