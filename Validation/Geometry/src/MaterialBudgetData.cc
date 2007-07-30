@@ -14,6 +14,7 @@ MaterialBudgetData::MaterialBudgetData()
   //instantiate categorizer to assing an ID to volumes and materials
   myMaterialBudgetCategorizer = 0;
   allStepsToTree = false;
+  densityConvertionFactor = 6.24E18;
 }
 
 MaterialBudgetData::~MaterialBudgetData() {
@@ -68,6 +69,7 @@ void MaterialBudgetData::SetAllStepsToTree()
   theMaterialName    = new std::string[MAXNUMBERSTEPS];
   theMaterialX0      = new float[MAXNUMBERSTEPS];
   theMaterialLambda0 = new float[MAXNUMBERSTEPS];
+  theMaterialDensity = new float[MAXNUMBERSTEPS];
   theStepID             = new int[MAXNUMBERSTEPS];
   theStepInitialPt      = new float[MAXNUMBERSTEPS];
   theStepInitialEta     = new float[MAXNUMBERSTEPS];
@@ -182,10 +184,12 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
 
   G4double radlen;
   G4double intlen;
+  G4double density;
 
-  radlen = theMaterialPre->GetRadlen();
-  intlen = theMaterialPre->GetNuclearInterLength();
-
+  radlen  = theMaterialPre->GetRadlen();
+  intlen  = theMaterialPre->GetNuclearInterLength();
+  density = theMaterialPre->GetDensity() / densityConvertionFactor; // always g/cm3
+  
   G4String name = theMaterialPre->GetName();
   //  std::cout << " steplen " << steplen << " radlen " << radlen << " mb " << steplen/radlen << " mate " << theMaterialPre->GetName() << std::endl;
      
@@ -234,7 +238,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
   G4ThreeVector            objectTranslation = t->GetTranslation();
   const G4RotationMatrix*  objectRotation    = t->GetRotation();
   const G4VProcess*        interactionPre    = prePoint->GetProcessDefinedStep();
-  //  const G4VProcess*        interactionPost   = postPoint->GetProcessDefinedStep();
+  const G4VProcess*        interactionPost   = postPoint->GetProcessDefinedStep();
   
   G4Track* track = aStep->GetTrack();
   if(theStepN==0) std::cout << " Simulated Particle " << theID
@@ -288,6 +292,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
     theMaterialName[theStepN]    = materialName;
     theMaterialX0[theStepN]      = radlen;
     theMaterialLambda0[theStepN] = intlen;
+    theMaterialDensity[theStepN] = density;
     theStepID[theStepN]             = track->GetDefinition()->GetPDGEncoding();
     theStepInitialPt[theStepN]      = prePoint->GetMomentum().perp();
     theStepInitialEta[theStepN]     = prePoint->GetMomentum().eta();
@@ -357,6 +362,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
     std::cout << "\tvolume " << volumeID << " " << theVolumeName[theStepN] 
 	      << " copy number " << theVolumeCopy[theStepN]
 	      << "\tmaterial " << theMaterialID[theStepN] << " " << theMaterialName[theStepN]
+	      << "\tDensity = " << theMaterialDensity[theStepN] << " g/cm3"
 	      << "\tX0 = " << theMaterialX0[theStepN] << " mm"
 	      << "\tLambda0 = " << theMaterialLambda0[theStepN] << " mm"
 	      << std::endl;

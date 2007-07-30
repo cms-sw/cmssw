@@ -270,6 +270,9 @@ public:
   float getStepMaterialLambda0( int is ) {
     return theMaterialLambda0[is];
   }
+  float getStepMaterialDensity( int is ) {
+    return theMaterialDensity[is];
+  }
   // rr
   
   bool allStepsON() {
@@ -319,6 +322,7 @@ public:
   std::string* theMaterialName;
   float*       theMaterialX0;
   float*       theMaterialLambda0;
+  float*       theMaterialDensity;
   int*   theStepID;
   float* theStepInitialPt;
   float* theStepInitialEta;
@@ -351,6 +355,8 @@ public:
   int stepN;
   int MAXNUMBERSTEPS;
   bool allStepsToTree;
+  
+  double densityConvertionFactor;
 };
 
 #endif
