@@ -5,7 +5,7 @@
 
 
 InvalidTransientRecHit::InvalidTransientRecHit( const GeomDet* geom, const DetLayer * layer, Type type ) :
-  GenericTransientTrackingRecHit( geom, new InvalidTrackingRecHit( geom == 0 ? DetId(0) : geom->geographicalId(), type)), 
+  Base( geom, InvalidTrackingRecHit( geom == 0 ? DetId(0) : geom->geographicalId(), type)), 
   layer_(layer)
 {
 }
@@ -16,16 +16,3 @@ const Surface* InvalidTransientRecHit::surface() const {
   else return 0;
 }
 
-/*
-AlgebraicVector InvalidTransientRecHit::parameters(const TrajectoryStateOnSurface& ts) const
-{
-  throw cms::Exception("Invalid TransientTrackingRecHit used");
-  return AlgebraicVector();
-}
-
-AlgebraicSymMatrix InvalidTransientRecHit::parametersError(const TrajectoryStateOnSurface& ts) const
-{
-  throw cms::Exception("Invalid TransientTrackingRecHit used");
-  return AlgebraicSymMatrix();
-}
-*/
