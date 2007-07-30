@@ -47,8 +47,11 @@ unsigned int CSCTFEvent::unpack(const unsigned short *buf, unsigned int length) 
 			const unsigned short *spWord = (unsigned short*) &dduWord[index-1];
 			// we are here because we have a header => we are safe from crash instantiating one
 			header.unpack(spWord);
+
+			// Counter block exists only in format version 4.3 and higher
+			if( header.format_version() && !header.empty() ) spWord += 4;
+
 			// calculate expected record length (internal variable 'shift' counts 16-bit words)
-			if( header.format_version() && !header.empty() ) spWordCountExpected += 1; // exists only in format version 4.3
 			for(unsigned short tbin=0,shift=0; tbin<header.nTBINs() && !header.empty(); tbin++){
 				// check if didn't pass end of event, keep in mind that 'index' counts 64-bit words, and 'sp_record_length' - 16-bits
 				if( length <= index+spWordCountExpected+1 ){
@@ -74,6 +77,9 @@ unsigned int CSCTFEvent::unpack(const unsigned short *buf, unsigned int length) 
 				}
 			}
 
+			// Counter block exists only in format version 4.3 and higher
+			if( header.format_version() && !header.empty() ) spWordCountExpected += 1;
+
 			if( coruptions&OUT_OF_BUFFER ) break;
 		}
 
@@ -96,7 +102,7 @@ unsigned int CSCTFEvent::unpack(const unsigned short *buf, unsigned int length) 
 			else {
 				coruptions |= CONFIGURATION;
 				break;
-			}
+			} 
 		}
 
 		index++;
