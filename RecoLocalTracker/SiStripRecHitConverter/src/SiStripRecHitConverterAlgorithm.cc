@@ -134,11 +134,11 @@ void SiStripRecHitConverterAlgorithm::run(edm::Handle<edm::SiStripRefGetter<SiSt
 	edm::SiStripRefGetter<SiStripCluster>::value_ref cluster = edm::makeRefToSiStripRefGetter(inputhandle,icluster);
 	
 	if(!specDetId.stereo()){ 
-	  collectorrphi.push_back(SiStripRecHit2D(parameters.first, parameters.second,detId,cluster));
+	  collectorrphi->push_back(SiStripRecHit2D(parameters.first, parameters.second,detId,cluster));
 	  nmono++;
 	}
 	else{           
-	  collectorstereo.push_back(SiStripRecHit2D(parameters.first, parameters.second,detId,cluster));
+	  collectorstereo->push_back(SiStripRecHit2D(parameters.first, parameters.second,detId,cluster));
 	  nstereo++;
 	}
       }
@@ -167,23 +167,21 @@ void SiStripRecHitConverterAlgorithm::match(SiStripMatchedRecHit2DCollection & o
   
   for ( SiStripRecHit2DCollection::const_iterator pdetset = outrphi.begin(); pdetset != outrphi.end(); ++pdetset ) {//loop over detectors
     SiStripRecHit2DCollection::DetSet detset = *pdetset;
-    SiStripMatchedRecHit2DCollection::FastFiller collectorMatched(outmatched, id); 
     
     StripSubdetector specDetId(detset.id());
     unsigned int id = specDetId.partnerDetId();
     SiStripMatchedRecHit2DCollection::FastFiller collectorMatched(outmatched, specDetId.glued());
-    const DetId theId(id);
     
     //find if the detid of the stereo is in the list of stereo RH
-    SiStripRecHit2DCollection::const_iterator partnerIter = outstereo.find(theId);
+    SiStripRecHit2DCollection::const_iterator partnerIter = outstereo.find(id);
     if(partnerIter==outstereo.end()) continue;	
     
     for (SiStripRecHit2DCollection::DetSet::const_iterator iter = detset.begin(); iter!=detset.end(); ++iter) {
       SiStripRecHit2DCollection::DetSet partnerDetset = *partnerIter;
       
-      const GluedGeomDet* gluedDet = (const GluedGeomDet*)tracker.idToDet(DetId(specDetId.glued()));
+      const GluedGeomDet* gluedDet = (const GluedGeomDet*)tracker.idToDet(specDetId.glued());
       
-      // perform the matchin looping over the hit on the stereo dets
+      // perform the matchin looping over the hit on the stereo dets  (FIXME: get rid of OwnVector)
       edm::OwnVector<SiStripMatchedRecHit2D> collectorMatchedSingleHit=matcher.match(&(*iter),partnerDetset.begin(),partnerDetset.end(),gluedDet,trackdirection);
       
       if (collectorMatchedSingleHit.size() > 0) { //if a matched is found add the hit to the temporary collection
