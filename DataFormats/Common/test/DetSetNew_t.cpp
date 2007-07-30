@@ -160,7 +160,41 @@ void TestDetSet::filling() {
     CPPUNIT_ASSERT(v1==v2);
   }
 
-  
+  // test abort and empty
+  {
+    FF ff1(detsets, 30);
+    CPPUNIT_ASSERT(detsets.size()==5);
+    CPPUNIT_ASSERT(detsets.exists(30));
+    CPPUNIT_ASSERT(detsets.isValid(30));
+  }
+  CPPUNIT_ASSERT(detsets.size()==4);
+  CPPUNIT_ASSERT(!detsets.exists(30));
+ {
+   FF ff1(detsets, 30,true);
+   CPPUNIT_ASSERT(detsets.size()==5);
+   CPPUNIT_ASSERT(detsets.exists(30));
+   CPPUNIT_ASSERT(detsets.isValid(30));
+  }
+ CPPUNIT_ASSERT(detsets.size()==5);
+ CPPUNIT_ASSERT(detsets.exists(30));
+
+ {
+   unsigned int cs = detsets.dataSize();
+   FF ff1(detsets, 31);
+   ff1.resize(4);
+   CPPUNIT_ASSERT(detsets.size()==6);
+   CPPUNIT_ASSERT(detsets.dataSize()==cs+4);
+   CPPUNIT_ASSERT(detsets.exists(31));
+   CPPUNIT_ASSERT(detsets.isValid(31));
+   ff1.abort();
+   CPPUNIT_ASSERT(detsets.size()==5);
+   CPPUNIT_ASSERT(detsets.dataSize()==cs);
+   CPPUNIT_ASSERT(!detsets.exists(31));
+ }
+ CPPUNIT_ASSERT(detsets.size()==5);
+ CPPUNIT_ASSERT(!detsets.exists(30));
+ 
+
   // test error conditions
   try {
     FF ff1(detsets, 22);

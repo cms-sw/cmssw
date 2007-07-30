@@ -106,12 +106,12 @@ namespace edmNew {
       typedef typename DetSetVector<T>::id_type key_type;
       typedef typename DetSetVector<T>::id_type id_type;
 
-      FastFiller(DetSetVector<T> & iv, id_type id, isaveEmpty=false) : 
+      FastFiller(DetSetVector<T> & iv, id_type id, bool isaveEmpty=false) : 
 	v(iv), item(v.push_back(id)), saveEmpty(isaveEmpty) {
 	if (v.filling) dstvdetails::errorFilling();
 	v.filling=true;
       }
-      FastFiller(DetSetVector<T> & iv, typename DetSetVector<T>::Item & it, isaveEmpty=false) : 
+      FastFiller(DetSetVector<T> & iv, typename DetSetVector<T>::Item & it, bool isaveEmpty=false) : 
 	v(iv), item(it), saveEmpty(isaveEmpty) {
 	if (v.filling) dstvdetails::errorFilling();
 	v.filling=true;
