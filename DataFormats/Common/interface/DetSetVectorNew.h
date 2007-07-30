@@ -118,13 +118,13 @@ namespace edmNew {
       }
       ~FastFiller() {
 	if (!saveEmpty && item.size==0) {
-	  v.pop_back(item.id());
+	  v.pop_back(item.id);
 	}
 	v.filling=false;
       }
       
       void abort() {
-	v.pop_back(item.id());
+	v.pop_back(item.id);
 	saveEmpty=true; // avoid mess in destructor
       }
 
