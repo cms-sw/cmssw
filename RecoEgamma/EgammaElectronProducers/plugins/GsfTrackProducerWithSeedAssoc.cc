@@ -192,7 +192,7 @@ void GsfTrackProducerWithSeedAssoc::produce(edm::Event& theEvent, const edm::Eve
 
 
 //   for (AlgoProductCollection::iterator prod=algoResults.begin();prod!=algoResults.end(); prod++){
-//     ttks.push_back( reco::TransientTrack(*((*prod).second),thePropagator.product()->magneticField() ));
+//     ttks.push_back( reco::TransientTrack(*(((*prod).second).first),thePropagator.product()->magneticField() ));
 //   }
 
 //   LogDebug("GsfTrackProducerWithSeedAssoc") << "end" << "\n";
@@ -228,7 +228,7 @@ void GsfTrackProducerWithSeedAssoc::produce(edm::Event& theEvent, const edm::Eve
     if(myTrajectoryInEvent_) selTrajectories->push_back(*theTraj);
     const TrajectoryFitter::RecHitContainer& transHits = theTraj->recHits();
 
-    reco::GsfTrack * theTrack = (*i).second;
+    reco::GsfTrack * theTrack = ((*i).second).first;
     
     //     if( ) {
     reco::GsfTrack t = * theTrack;

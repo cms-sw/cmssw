@@ -188,7 +188,7 @@ std::vector<reco::TransientTrack> TrackProducerWithSeedAssoc::getTransient(edm::
 
 
   for (AlgoProductCollection::iterator prod=algoResults.begin();prod!=algoResults.end(); prod++){
-    ttks.push_back( reco::TransientTrack(*((*prod).second),thePropagator.product()->magneticField() ));
+    ttks.push_back( reco::TransientTrack(*(((*prod).second).first),thePropagator.product()->magneticField() ));
   }
 
   LogDebug("TrackProducerWithSeedAssoc") << "end" << "\n";
@@ -220,7 +220,7 @@ std::vector<reco::TransientTrack> TrackProducerWithSeedAssoc::getTransient(edm::
     if(myTrajectoryInEvent_) selTrajectories->push_back(*theTraj);
     const TrajectoryFitter::RecHitContainer& transHits = theTraj->recHits();
 
-    reco::Track * theTrack = (*i).second;
+    reco::Track * theTrack = ((*i).second).first;
     
     //     if( ) {
     reco::Track t = * theTrack;
