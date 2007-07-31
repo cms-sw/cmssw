@@ -7,7 +7,7 @@
  *
  * \author Fedor Ratnikov, July 27, 2007
  *
- * \version   $Id: JetToTracksAssociation.h,v 1.2 2007/06/13 17:58:03 fedor Exp $
+ * \version   $Id: JetToTracksAssociation.h,v 1.1 2007/07/31 00:28:02 fedor Exp $
  ************************************************************/
 
 #include "DataFormats/JetReco/interface/Jet.h"
@@ -18,8 +18,8 @@
 
 namespace reco {
   namespace JetToTracksAssociation {
-    typedef edm::RefToBase<reco::Jet> Object;
-    typedef std::vector <std::pair <Object, reco::TrackRefVector> > Container;
+    typedef std::pair <edm::RefToBase<reco::Jet>, reco::TrackRefVector> Object;
+    typedef std::vector <Object> Container;
     typedef edm::Ref <Container> Ref;
     typedef edm::RefProd <Container> RefProd;
     typedef edm::RefVector <Container> RefVector;
