@@ -88,6 +88,8 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         deps = dict()
         self._findDependencies(deps,set())
         return deps
+    def insertInto(self, parameterSet, myname):
+        pass
 
 
 class _SequenceOpAids(_Sequenceable):
