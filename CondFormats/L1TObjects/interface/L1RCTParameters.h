@@ -50,12 +50,13 @@ class L1RCTParameters {
   
   double eGammaLSB() const {return eGammaLSB_;}
   double jetMETLSB() const {return jetMETLSB_;}
+  double eMinForFGCut() const {return eMinForFGCut_;}
+  double eMaxForFGCut() const {return eMaxForFGCut_;}
   double hOeCut() const {return hOeCut_;}
   double eMinForHoECut() const {return eMinForHoECut_;}
   double eMaxForHoECut() const {return eMaxForHoECut_;}
   double eActivityCut() const {return eActivityCut_;}
   double hActivityCut() const {return hActivityCut_;}
-  double eMaxForFGCut() const {return eMaxForFGCut_;}
   std::vector<double> eGammaECalScaleFactors() const {return eGammaECalScaleFactors_;}
   std::vector<double> eGammaHCalScaleFactors() const {return eGammaHCalScaleFactors_;}
   std::vector<double> jetMETECalScaleFactors() const {return jetMETECalScaleFactors_;}
