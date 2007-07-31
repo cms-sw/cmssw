@@ -85,14 +85,14 @@ namespace edmNew {
     
     struct IterHelp {
       typedef DetSet result_type;
-      IterHelp(DetSetVector<T> const & iv) : v(iv){}
+      IterHelp(DetSetVector<T> const & iv) : v(&iv){}
       
        result_type & operator()(Item const& item) const {
-	detset.set(v,item);
+	detset.set(*v,item);
 	return detset;
       } 
     private:
-      const DetSetVector<T> & v;
+      DetSetVector<T> const * v;
       mutable result_type detset;
     };
     
