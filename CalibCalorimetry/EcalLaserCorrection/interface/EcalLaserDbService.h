@@ -35,17 +35,17 @@ class EcalLaserDbService {
   const EcalLaserAPDPNRatios* getAPDPNRatios () const;
   float getLaserCorrection (DetId const & xid, edm::Timestamp const & iTime) const;
 
-  void setData (const EcalLaserAlphas* fItem) {mAlphas = fItem;}
-  void setData (const EcalLaserAPDPNRatiosRef* fItem) {mAPDPNRatiosRef = fItem;}
-  void setData (const EcalLaserAPDPNRatios* fItem) {mAPDPNRatios = fItem;}
+  void setData (const EcalLaserAlphas* fItem) {mAlphas_ = fItem;}
+  void setData (const EcalLaserAPDPNRatiosRef* fItem) {mAPDPNRatiosRef_ = fItem;}
+  void setData (const EcalLaserAPDPNRatios* fItem) {mAPDPNRatios_ = fItem;}
 
  private:
 
   int getLMNumber(DetId const & xid) const;
 
-  const EcalLaserAlphas* mAlphas;
-  const EcalLaserAPDPNRatiosRef* mAPDPNRatiosRef;
-  const EcalLaserAPDPNRatios* mAPDPNRatios;  
+  const EcalLaserAlphas* mAlphas_;
+  const EcalLaserAPDPNRatiosRef* mAPDPNRatiosRef_;
+  const EcalLaserAPDPNRatios* mAPDPNRatios_;  
 
 };
 
