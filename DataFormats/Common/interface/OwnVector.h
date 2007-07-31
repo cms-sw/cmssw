@@ -1,6 +1,6 @@
 #ifndef Common_OwnVector_h
 #define Common_OwnVector_h
-// $Id: OwnVector.h,v 1.29 2007/06/27 14:17:19 llista Exp $
+// $Id: OwnVector.h,v 1.30 2007/07/09 07:28:49 llista Exp $
 
 #include <algorithm>
 #include <functional>
@@ -129,7 +129,8 @@ namespace edm {
     private:
       typename base::iterator i;
       friend const_iterator::const_iterator(const iterator &);
-    };
+      friend class OwnVector<T, P>;
+   };
       
     OwnVector();
     OwnVector(size_type);
@@ -159,6 +160,8 @@ namespace edm {
     const_reference front() const;
     const base & data() const; 
     void clear();
+    iterator erase(iterator pos);
+    iterator erase(iterator first, iterator last);
     template<typename S> 
     void sort(S s);
     void sort();
@@ -169,7 +172,6 @@ namespace edm {
 		  std::vector<void const*>& pointers,
 		  helper_vector& helpers) const;
 
-    void fixup() { fixup_(data_); }
   private:
     void destroy();
     template<typename O>
@@ -187,6 +189,8 @@ namespace edm {
     }
     base data_;      
     typename helpers::PostReadFixupTrait<T>::type fixup_;
+    inline void fixup() const { fixup_(data_); }
+    inline void touch() { fixup_.touch(); }
   };
   
   template<typename T, typename P>
@@ -219,25 +223,25 @@ namespace edm {
   
   template<typename T, typename P>
   inline typename OwnVector<T, P>::iterator OwnVector<T, P>::begin() {
-    fixup_(data_);
+    fixup();
     return iterator(data_.begin());
   }
   
   template<typename T, typename P>
   inline typename OwnVector<T, P>::iterator OwnVector<T, P>::end() {
-    fixup_(data_);
+    fixup();
     return iterator(data_.end());
   }
   
   template<typename T, typename P>
   inline typename OwnVector<T, P>::const_iterator OwnVector<T, P>::begin() const {
-    fixup_(data_);
+    fixup();
     return const_iterator(data_.begin());
   }
   
   template<typename T, typename P>
   inline typename OwnVector<T, P>::const_iterator OwnVector<T, P>::end() const {
-    fixup_(data_);
+    fixup();
     return const_iterator(data_.end());
   }
   
@@ -253,13 +257,13 @@ namespace edm {
   
   template<typename T, typename P>
   inline typename OwnVector<T, P>::reference OwnVector<T, P>::operator[](size_type n) {
-    fixup_(data_);
+    fixup();
     return *data_[n];
   }
   
   template<typename T, typename P>
   inline typename OwnVector<T, P>::const_reference OwnVector<T, P>::operator[](size_type n) const {
-    fixup_(data_);
+    fixup();
     return *data_[n];
   }
   
@@ -276,7 +280,7 @@ namespace edm {
     // This should be called only for lvalues.
     data_.push_back(d);
     d = 0;
-    fixup_.touch();
+    touch();
   }
 
   template<typename T, typename P>
@@ -288,7 +292,7 @@ namespace edm {
     // does not require an lvalue->rvalue conversion). Thus this
     // signature should only be chosen for rvalues.
     data_.push_back(d);
-    fixup_.touch();
+    touch();
   }
 
 
@@ -296,7 +300,7 @@ namespace edm {
   template<typename D>
   inline void OwnVector<T, P>::push_back(std::auto_ptr<D> d) {
     data_.push_back(d.release());
-    fixup_.touch();
+    touch();
   }
 
 
@@ -306,7 +310,7 @@ namespace edm {
     // out of the vector...
     delete data_.back();
     data_.pop_back();
-    fixup_.touch();
+    touch();
   }
 
   template <typename T, typename P>
@@ -324,7 +328,7 @@ namespace edm {
 	<< "pointer at the end of the collection is not null before calling back()\n"
 	<< "if you wish to avoid this exception.\n"
 	<< "Consider using OwnVector::is_back_safe()\n";
-    fixup_(data_);
+    fixup();
     return *data_.back();
   }
   
@@ -338,19 +342,19 @@ namespace edm {
 	<< "pointer at the end of the collection is not null before calling back()\n"
 	<< "if you wish to avoid this exception.\n"
 	<< "Consider using OwnVector::is_back_safe()\n";
-    fixup_(data_);
+    fixup();
     return *data_.back();
   }
   
   template<typename T, typename P>
   inline typename OwnVector<T, P>::reference OwnVector<T, P>::front() {
-    fixup_(data_);
+    fixup();
     return *data_.front();
   }
   
   template<typename T, typename P>
   inline typename OwnVector<T, P>::const_reference OwnVector<T, P>::front() const {
-    fixup_(data_);
+    fixup();
     return *data_.front();
   }
   
@@ -363,7 +367,7 @@ namespace edm {
   
   template<typename T, typename P>
   inline const typename OwnVector<T, P>::base & OwnVector<T, P>::data() const {
-    fixup_(data_);
+    fixup();
     return data_;
   }
 
@@ -371,6 +375,18 @@ namespace edm {
   inline void OwnVector<T, P>::clear() {
     destroy();
     data_.clear();
+  }
+
+  template<typename T, typename P>
+  typename OwnVector<T, P>::iterator OwnVector<T, P>::erase(iterator pos) {
+    data_.erase(pos.i);
+    touch();
+  }
+
+  template<typename T, typename P>
+  typename OwnVector<T, P>::iterator OwnVector<T, P>::erase(iterator first, iterator last) {
+    data_.erase(first.i, last.i);
+    touch();
   }
 
   template<typename T, typename P> template<typename S>
@@ -432,8 +448,7 @@ namespace edm {
   fillView(OwnVector<T,P> const& obj,
 	   ProductID const& id,
 	   std::vector<void const*>& pointers,
-	   helper_vector& helpers)
-  {
+	   helper_vector& helpers) {
     obj.fillView(id, pointers, helpers);
   }
 

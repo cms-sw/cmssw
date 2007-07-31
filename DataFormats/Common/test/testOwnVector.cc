@@ -1,4 +1,4 @@
-// $Id: testOwnVector.cc,v 1.5 2006/10/25 21:32:01 paterno Exp $
+// $Id: testOwnVector.cc,v 1.6 2007/01/22 23:56:59 wmtan Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
 #include <iterator>
@@ -81,6 +81,13 @@ void testOwnVector::checkAll() {
   CPPUNIT_ASSERT(v[0].value == 0);
   CPPUNIT_ASSERT(v[1].value == 1);
   CPPUNIT_ASSERT(v[2].value == 2);
+  i = v.begin() + 1;
+  v.erase( i );
+  CPPUNIT_ASSERT(v.size() == 2);
+  CPPUNIT_ASSERT(v[0].value == 0);
+  CPPUNIT_ASSERT(v[1].value == 2);
+  v.erase( v.begin(), v.begin() );
+  CPPUNIT_ASSERT(v.size() == 1);
   v.clear();
   CPPUNIT_ASSERT(v.size() == 0);
   CPPUNIT_ASSERT(v.empty());
