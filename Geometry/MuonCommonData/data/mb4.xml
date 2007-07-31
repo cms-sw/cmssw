@@ -3045,25 +3045,25 @@
    <rParent name="mb4:MB4BigChimRPC_N"/>
    <rChild name="mb4:MB4BigChimRPC_GasLeft"/>
   <rRotation name="rotations:R180" />
-  <Translation x="[mb4:MB4RPC_Gas_x_pos]" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
+  <Translation x="-[mb4:MB4RPC_Gas_x_pos]" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="mb4:MB4BigChimRPC_N"/>
    <rChild name="mb4:MB4BigChimRPC_GasLeft"/>
   <rRotation name="rotations:R180" />
-  <Translation x="-[mb4:MB4RPC_Gas_x_pos]" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
+  <Translation x="[mb4:MB4RPC_Gas_x_pos]" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb4:MB4BigChimRPC_N"/>
    <rChild name="mb4:MB4BigChimRPC_GasRight"/>
   <rRotation name="rotations:R180" />
-  <Translation x="[mb4:MB4RPC_Gas_x_pos]" y="[mb4:MB4ChimRPC_GasRight_y_pos]" z="0*cm" />
+  <Translation x="-[mb4:MB4RPC_Gas_x_pos]" y="[mb4:MB4ChimRPC_GasRight_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="mb4:MB4BigChimRPC_N"/>
    <rChild name="mb4:MB4BigChimRPC_GasRight"/>
   <rRotation name="rotations:R180" />
-  <Translation x="-[mb4:MB4RPC_Gas_x_pos]" y="[mb4:MB4ChimRPC_GasRight_y_pos]" z="0*cm" />
+  <Translation x="[mb4:MB4RPC_Gas_x_pos]" y="[mb4:MB4ChimRPC_GasRight_y_pos]" z="0*cm" />
  </PosPart>
 
 </PosPartSection>
