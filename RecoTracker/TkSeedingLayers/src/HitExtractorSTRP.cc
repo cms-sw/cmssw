@@ -86,6 +86,7 @@ namespace {
     Add(const SeedingLayer & isl, const edm::EventSetup& ies) : sl(isl), es(ies), cond(True){}
     void operator()(const TrackingRecHit & hit) {
       if (cond(hit)) result.push_back(SeedingHit(&hit, sl, es) );
+    }
     void operator()(TrackingRecHit & hit) {
       if (cond(hit)) result.push_back(SeedingHit(&hit, sl, es) );
     }
