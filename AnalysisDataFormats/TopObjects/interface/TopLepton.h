@@ -1,5 +1,5 @@
 //
-// $Id: TopLepton.h,v 1.8 2007/07/05 23:34:19 lowette Exp $
+// $Id: TopLepton.h,v 1.9 2007/07/28 09:53:33 delaer Exp $
 //
 
 #ifndef TopObjects_TopLepton_h
@@ -13,62 +13,62 @@
    store and retrieve the high-level likelihood ratio information.
 
   \author   Steven Lowette
-  \version  $Id: TopLepton.h,v 1.8 2007/07/05 23:34:19 lowette Exp $
+  \version  $Id: TopLepton.h,v 1.9 2007/07/28 09:53:33 delaer Exp $
 */
 
-
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
-
 #include "AnalysisDataFormats/TopObjects/interface/TopObject.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopParticle.h"
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
 
-
-typedef reco::PixelMatchGsfElectron TopElectronType;
 typedef reco::Muon TopMuonType;
+typedef reco::MuonCollection TopMuonTypeCollection;
+typedef reco::PixelMatchGsfElectron TopElectronType;
+typedef reco::PixelMatchGsfElectronCollection TopElectronTypeCollection;
 typedef reco::IsolatedTauTagInfo TopTauType;
-
 
 template <class LeptonType>
 class TopLepton : public TopObject<LeptonType> {
-
+  
   friend class TopElectronProducer;
   friend class TopMuonProducer;
   friend class TopTauProducer;
   friend class TopLeptonLRCalc;
-
-  public:
-
-    TopLepton();
-    TopLepton(const LeptonType & aLepton);
-    virtual ~TopLepton();
-
-    reco::GenParticleCandidate getGenLepton() const;
-    double                     getTrackIso() const;
-    double                     getCaloIso() const;
-    double                     getLRVar(const unsigned int i) const;
-    double                     getLRVal(const unsigned int i) const;
-    double                     getLRComb() const;
-    
-  protected:
-
-    void setGenLepton(const reco::GenParticleCandidate & gl);
-    void setTrackIso(const double trackIso);
-    void setCaloIso(const double caloIso);
-    void setLRVarVal(const std::pair<double, double> lrVarVal, const unsigned int i);
-    void setLRComb(const double lr);
-    unsigned int getLRSize() const;
-
-  protected:
-
-    std::vector<reco::GenParticleCandidate> genLepton_;
-    double trackIso_;
-    double caloIso_;
-    std::vector<std::pair<double, double> > lrVarVal_;
-    double lrComb_;
-
+  
+ public:
+  
+  TopLepton();
+  TopLepton(const LeptonType&);
+  virtual ~TopLepton();
+  
+  reco::GenParticleCandidate getGenLepton() const;
+  double getTrackIso() const;
+  double getCaloIso() const;
+  double getLRVar(const unsigned int) const;
+  double getLRVal(const unsigned int) const;
+  double getLeptonID() const;
+  double getLRComb() const;
+  
+ protected:
+  
+  void setGenLepton(const reco::GenParticleCandidate&);
+  void setTrackIso(const double);
+  void setCaloIso(const double);
+  void setLRVarVal(const std::pair<double, double>, const unsigned int);
+  void setLeptonID(const double);
+  void setLRComb(const double);
+  unsigned int getLRSize() const;
+  
+ protected:
+  
+  std::vector<reco::GenParticleCandidate> genLepton_;
+  std::vector<std::pair<double, double> > lrVarVal_;
+  double trackIso_;
+  double caloIso_;
+  double leptonID_;
+  double lrComb_;
 };
 
 
@@ -88,7 +88,7 @@ TopLepton<LeptonType>::TopLepton() :
 
 /// constructor from LeptonType
 template <class LeptonType>
-TopLepton<LeptonType>::TopLepton(const LeptonType & aLepton) :
+TopLepton<LeptonType>::TopLepton(const LeptonType& aLepton) :
   TopObject<LeptonType>(aLepton),
   lrComb_(0) {
 }
@@ -144,6 +144,10 @@ double TopLepton<LeptonType>::getLRComb() const {
   return lrComb_;
 }
 
+template <class LeptonType>
+double TopLepton<LeptonType>::getLeptonID() const {
+  return leptonID_;
+}
 
 /// method to set the generated lepton
 template <class LeptonType>
@@ -181,6 +185,10 @@ void TopLepton<LeptonType>::setLRComb(double lr) {
   lrComb_ = lr;
 }
 
+template <class LeptonType>
+void TopLepton<LeptonType>::setLeptonID(double id) {
+  leptonID_ = id;
+}
 
 /// method to give back the size of the LR vector
 template <class LeptonType>
@@ -195,6 +203,5 @@ typedef TopLepton<TopElectronType> TopElectron;
 typedef TopLepton<TopMuonType> TopMuon;
 /// definition of TopTau as a TopLepton of TopTauType
 typedef TopLepton<TopTauType> TopTau;
-
 
 #endif
