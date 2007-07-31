@@ -104,7 +104,10 @@ void L1RCT::fileInput(const char* filename){            // added "const" also in
 
 
 // takes hcal and ecal digi input, including HF
-void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDigiCollection hcalCollection){
+void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection,
+		      HcalTrigPrimDigiCollection hcalCollection,
+		      const ostream* os)
+{
   vector<vector<vector<unsigned short> > > barrel(18,vector<vector<unsigned short> >(7,vector<unsigned short>(64)));
   vector<vector<unsigned short> > hf(18,vector<unsigned short>(8));
 
@@ -198,14 +201,16 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
   
   input(barrel,hf);
 
+  if(os != 0) saveRCTInput(barrel, os);
+
   return;
 
 }
 
 //As the name implies, it will randomly generate input for the 
 //regional calotrigger.
-void L1RCT::randomInput(){
-  
+void L1RCT::randomInput(const ostream* os)
+{
   vector<vector<vector<unsigned short> > > barrel(18,vector<vector<unsigned short> >(7,vector<unsigned short>(64)));
   vector<vector<unsigned short> > hf(18,vector<unsigned short>(8));
   
@@ -221,7 +226,11 @@ void L1RCT::randomInput(){
   }
   
   input(barrel,hf);
+
+  if(os != 0) saveRCTInput(barrel, os);
+
   return;
+
 }
 
 
@@ -388,4 +397,60 @@ vector<L1CaloRegion> L1RCT::getRegions(int crate){
     regionCollection.push_back(hfRegion);
   }
   return regionCollection;
+}
+
+// Create file for hardware playback when requested
+void L1RCT::saveRCTInput(vector<vector<vector<unsigned short> > > barrel,
+			 const ostream* os)
+{
+  // Mike and Kira -- this is your playpen
+  static int event = 0;
+  if(event == 0)
+    {
+      *os
+	<< "Crate = 0-17" << std::endl
+	<< "Card = 0-7 within the crate" << std::endl
+	<< "Tower = 0-32 covers 4 x 8 covered by the card" << std::endl
+	<< "EMAddr(0:8) = EMFGBit(0:0)+CompressedEMET(1:8)" << std::endl
+	<< "HDAddr(0:8) = HDFGBit(0:0)+CompressedHDET(1:8) - note: HDFGBit(0:0) is not part of the hardware LUT address" << std::endl
+	<< "LutOut(0:17)= LinearEMET(0:6)+HoEFGVetoBit(7:7)+LinearJetET(8:16)+ActivityBit(17:17)" << std::endl
+	<< "Event" << "\t"
+	<< "Crate" << "\t"
+	<< "Card" << "\t"
+	<< "Tower" << "\t"
+	<< "EMAddr" << "\t"
+	<< "HDAddr" << "\t"
+	<< "LUTOut"
+	<< std::endl;
+    }
+  if(event < 64)
+    {
+      for(unsigned short iCrate = 0; iCrate < 18; iCrate++)
+	{
+	  for(unsigned short iCard = 0; iCard < 7; iCard++)
+	    {
+	      for(unsigned short iTower = 0; iTower < 32; iTower++)
+		{
+		  unsigned short ecal = barrel[iCrate][iCard][iTower] / 2;
+		  unsigned short hcal = barrel[iCrate][iCard][iTower+32] / 2;
+		  unsigned short fgbit = barrel[iCrate][iCard][iTower] & 1;
+		  unsigned long lutOutput = lut->lookup(ecal, hcal, fgbit, iCrate, iCard, iTower);
+		  *os
+		    << std::hex 
+		    << event << "\t"
+		    << iCrate << "\t"
+		    << iCard << "\t"
+		    << iTower << "\t"
+		    << barrel[iCrate][iCard][iTower] << "\t"
+		    << barrel[iCrate][iCard][iTower+32] << "\t"
+		    << lutOutput
+		    << std::dec 
+		    << std::endl;
+		  
+		}
+	    }
+	}
+    }
+  event++;
+  return;
 }

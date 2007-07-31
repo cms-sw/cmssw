@@ -21,7 +21,7 @@ unsigned int L1RCTLookupTables::lookup(unsigned short ecalInput,
 				       unsigned short crdNo,
 				       unsigned short twrNo) const
 {
-  if(rctParameters_)
+  if(rctParameters_ == 0)
     throw cms::Exception("L1RCTParameters Invalid")
       << "L1RCTParameters should be set every event" << rctParameters_;
   if(ecalInput > 0xFF) 
@@ -54,7 +54,7 @@ unsigned int L1RCTLookupTables::lookup(unsigned short hfInput,
 				       unsigned short twrNo
 				       ) const
 {
-  if(rctParameters_)
+  if(rctParameters_ == 0)
     throw cms::Exception("L1RCTParameters Invalid")
       << "L1RCTParameters should be set every event" << rctParameters_;
   if(hfInput > 0xFF) 
@@ -70,7 +70,7 @@ unsigned int L1RCTLookupTables::lookup(unsigned short hfInput,
 
 bool L1RCTLookupTables::hOeFGVetoBit(float ecal, float hcal, bool fgbit) const
 {
-  if(rctParameters_)
+  if(rctParameters_ == 0)
     throw cms::Exception("L1RCTParameters Invalid")
       << "L1RCTParameters should be set every event" << rctParameters_;
   bool veto = false;
@@ -89,7 +89,7 @@ bool L1RCTLookupTables::hOeFGVetoBit(float ecal, float hcal, bool fgbit) const
 
 bool L1RCTLookupTables::activityBit(float ecal, float hcal) const
 {
-  if(rctParameters_)
+  if(rctParameters_ == 0)
     throw cms::Exception("L1RCTParameters Invalid")
       << "L1RCTParameters should be set every event" << rctParameters_;
   return ((ecal > rctParameters_->eActivityCut()) || 
@@ -102,15 +102,15 @@ unsigned int L1RCTLookupTables::emRank(unsigned short energy) const
   if(etScale_)
     return etScale_->rank(energy);
   else
-    edm::LogInfo("L1RegionalCaloTrigger") 
-      << "CaloEtScale was not used - energy instead of rank" << endl;
+    //    edm::LogInfo("L1RegionalCaloTrigger") 
+    //      << "CaloEtScale was not used - energy instead of rank" << endl;
   return energy;
 }
 
 // converts compressed ecal energy to linear (real) scale
 float L1RCTLookupTables::convertEcal(unsigned short ecal, int iAbsEta) const
 {
-  if(rctParameters_)
+  if(rctParameters_ == 0)
     throw cms::Exception("L1RCTParameters Invalid")
       << "L1RCTParameters should be set every event" << rctParameters_;
   return ((float) ecal) * rctParameters_->eGammaLSB();
@@ -125,8 +125,8 @@ float L1RCTLookupTables::convertHcal(unsigned short hcal, int iAbsEta) const
     }
   else
     {
-      edm::LogInfo("L1RegionalCaloTrigger") 
-	<< "CaloTPGTranscoder was not used" << std::endl;
+      //      edm::LogInfo("L1RegionalCaloTrigger") 
+      //	<< "CaloTPGTranscoder was not used" << std::endl;
       return ((float) hcal) * rctParameters_->jetMETLSB();
     }
 }
@@ -146,7 +146,7 @@ unsigned long L1RCTLookupTables::convertToInteger(float et,
 
 unsigned int L1RCTLookupTables::eGammaETCode(float ecal, float hcal, int iAbsEta) const
 {
-  if(rctParameters_)
+  if(rctParameters_ == 0)
     throw cms::Exception("L1RCTParameters Invalid")
       << "L1RCTParameters should be set every event" << rctParameters_;
   float etLinear = 
@@ -157,7 +157,7 @@ unsigned int L1RCTLookupTables::eGammaETCode(float ecal, float hcal, int iAbsEta
 
 unsigned int L1RCTLookupTables::jetMETETCode(float ecal, float hcal, int iAbsEta) const
 {
-  if(rctParameters_)
+  if(rctParameters_ == 0)
     throw cms::Exception("L1RCTParameters Invalid")
       << "L1RCTParameters should be set every event" << rctParameters_;
   float etLinear = 

@@ -24,8 +24,8 @@ using std::cout;
 using std::endl;
 
 L1RCTProducer::L1RCTProducer(const edm::ParameterSet& conf) : 
-  rct(0),
-  rctLookupTables(0),
+  rctLookupTables(new L1RCTLookupTables),
+  rct(new L1RCT(rctLookupTables)),
   useEcal(conf.getParameter<bool>("useEcal")),
   useHcal(conf.getParameter<bool>("useHcal")),
   ecalDigisLabel(conf.getParameter<edm::InputTag>("ecalDigisLabel")),
@@ -43,8 +43,6 @@ L1RCTProducer::~L1RCTProducer()
 
 void L1RCTProducer::beginJob(const edm::EventSetup& eventSetup)
 {
-  rctLookupTables = new L1RCTLookupTables();
-  rct = new L1RCT(rctLookupTables);
 }
 
 void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)

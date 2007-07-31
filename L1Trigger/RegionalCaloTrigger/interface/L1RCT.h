@@ -41,9 +41,14 @@ class L1RCT {
 
   void fileInput(const char* filename);       // added "const" also in .cc
 
-  void digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDigiCollection hcalCollection);
+  void digiInput(EcalTrigPrimDigiCollection ecalCollection, 
+		 HcalTrigPrimDigiCollection hcalCollection,
+		 const ostream* os = 0);
 
-  void randomInput();
+  void saveRCTInput(vector<vector<vector<unsigned short> > > barrel,
+		    const ostream* os);
+
+  void randomInput(const ostream* os = 0);
 
   void print();
   void printCrate(int i){
