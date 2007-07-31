@@ -72,28 +72,16 @@ namespace {
     return v.equal_range(p.first,p.second);
   }
 
-  template <typename C, typename A, typename B, typename F>
-  void foreachHit(C const & v, std::pair<A,B> const & p, F & f) {
-    typename C::Range range = rangeFromPair(v,p);
-    for(typename C::const_iterator id=range.first; id!=range.second; id++)
-      std::for_each((*id).begin(), (*id).end(), boost::ref(f));
-  }
 
   bool True(const TrackingRecHit&) { return true;}
 
   
   struct Add {
     Add(const SeedingLayer & isl, const edm::EventSetup& ies) : sl(isl), es(ies), cond(True){}
+
     void operator()(const TrackingRecHit & hit) {
       if (cond(hit)) result.push_back(SeedingHit(&hit, sl, es) );
     }
-    void operator()(const SiStripMatchedRecHit2D & hit) {
-      if (cond(hit)) result.push_back(SeedingHit(&hit, sl, es) );
-    }
-     void operator()(const SiStripRecHit2D & hit) {
-      if (cond(hit)) result.push_back(SeedingHit(&hit, sl, es) );
-    }
-    
    
     std::vector<SeedingHit> result;
     const SeedingLayer &      sl;
@@ -106,6 +94,14 @@ namespace {
     Add & operator=(Add&);
 
   }; 
+
+  template <typename C, typename A, typename B>
+  void foreachHit(C const & v, std::pair<A,B> const & p, Add & f) {
+    typename C::Range range = rangeFromPair(v,p);
+    for(typename C::const_iterator id=range.first; id!=range.second; id++)
+      std::for_each((*id).begin(), (*id).end(), boost::function<void(const TrackingRecHit&)>(boost::ref(f)));
+  }
+
 
 }
 
