@@ -4,6 +4,7 @@
 <use name=PhysicsTools/UtilAlgos>
 <use name=PhysicsTools/CandAlgos>
 <library file=CandHistoAnalyzer.cc></library>
+<library file=CandViewHistoAnalyzer.cc></library>
 <library file=CandSelector.cc></library>
 <library file=PtMinCandSelector.cc></library>
 <library file=AssociatedVariableMaxCutCandSelector.cc></library>
@@ -17,6 +18,9 @@
 <library file=PdgIdAndStatusCandSelector.cc></library>
 <library file=PdgIdAndStatusCandDecaySelector.cc></library>
 <library file=PdgIdCandRefSelector.cc></library>
+<library file=StatusCandSelector.cc></library>
+<library file=StatusCandRefSelector.cc></library>
+<library file=StatusCandViewSelector.cc></library>
 <library file=MassRangeCandCombiner.cc></library>
 <library file=MassRangeCandShallowCloneCombiner.cc></library>
 <library file=MassMinCandCombiner.cc></library>

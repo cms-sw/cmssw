@@ -1,4 +1,4 @@
-/* \class CandHistoAnalyzer
+/* \class CandViewHistoAnalyzer
  * 
  * Configurable Candidate Histogram creator
  *
@@ -9,7 +9,7 @@
 #include "PhysicsTools/UtilAlgos/interface/HistoAnalyzer.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-typedef HistoAnalyzer<reco::CandidateCollection> CandHistoAnalyzer;
+typedef HistoAnalyzer<reco::CandidateView> CandViewHistoAnalyzer;
 
-DEFINE_FWK_MODULE( CandHistoAnalyzer );
+DEFINE_FWK_MODULE( CandViewHistoAnalyzer );
 
