@@ -39,6 +39,15 @@ public:
   /**  Destructor*/
   ~ProtoJet() {}
 
+  /// Set Jet area as calculated by algorithm
+  void setJetArea (float fArea);
+
+  ///  Set pileup energy contribution as calculated by algorithm
+  void setPileup (float fEnergy);
+
+  ///  Set number of passes taken by algorithm
+  void setNPasses (int fPasses);
+
 
   // The Jet four-vector as a true Lorentz vector
   /** Returns the jet momentum component along the x axis */
@@ -98,6 +107,10 @@ private:
   LorentzVector mP4;
   /** Jet constituents */
   Constituents mConstituents;
+  /// Parameters returning from algorithms 
+  float mJetArea;
+  float mPileupEnergy;
+  int mPassNumber;
   bool mOrdered;
 };
 
