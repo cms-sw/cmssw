@@ -11,8 +11,8 @@
  *  which had a problem with directories more than one level deep.
  *  (see macro hadd_old.C for this previous implementation).
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2007/07/21 07:53:42 $
+ *  $Revision: 1.1 $
  *
  *  Authors:
  *  A. Everett Purdue University
@@ -59,7 +59,7 @@ int main(int argc, char *argv[] )
   
   //sourcelist->Print();
 
-  bool writePdf = true;
+  bool writePdf = false;
   TCanvas* c1 = new TCanvas("c1") ;
   pdf = 0 ;
   if (writePdf) pdf = new TPDF(TString(argv[1])+".pdf") ;
@@ -110,7 +110,7 @@ void drawLoop( TDirectory *target, TList *sourcelist, TCanvas *c1 )
 	 && !obj->IsA()->InheritsFrom("TH2") ) {
 
       // descendant of TH1 -> merge it
-      gLegend = new TLegend(.85,.15,1.0,.30,"");
+      gLegend = new TLegend(.7,.15,.95,.4,"");
       gLegend->SetHeader(gDirectory->GetName());
       Color_t color = 1;
       Style_t style = 22;
@@ -150,6 +150,7 @@ void drawLoop( TDirectory *target, TList *sourcelist, TCanvas *c1 )
       }
     }
     else if ( obj->IsA()->InheritsFrom( "TH2" ) ) {
+      
       // descendant of TH2 -> merge it
       gLegend = new TLegend(.85,.15,1.0,.30,"");
       gLegend->SetHeader(gDirectory->GetName());
@@ -189,6 +190,7 @@ void drawLoop( TDirectory *target, TList *sourcelist, TCanvas *c1 )
         nextsource = (TFile*)sourcelist->After( nextsource );
       }
       //      c1->Update();c1->Write(obj->GetName(),TObject::kOverwrite);
+
     }
     else if ( obj->IsA()->InheritsFrom( "TTree" ) ) {
       cout << "I don't draw trees" << endl;
@@ -224,11 +226,13 @@ void drawLoop( TDirectory *target, TList *sourcelist, TCanvas *c1 )
 	else {
 	  //- obj->Write( key->GetName() );
 	}
-	if ( obj->IsA()->InheritsFrom( "TH1" ) ) {
-	  c1->Write( obj->GetName() );
+	if ( obj->IsA()->InheritsFrom( "TH1") ) {
+	  //	 && !obj->IsA()->InheritsFrom("TH2") ) {
+	  c1->Write( obj->GetName(),TObject::kOverwrite );
 	}
     }
-
+    // delete here?
+    //if(gLegend) delete gLegend;
   } // while ( ( TKey *key = (TKey*)nextkey() ) )
 
   // save modifications to target file
