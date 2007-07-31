@@ -65,20 +65,17 @@ boost::shared_ptr<EcalLaserDbService> EcalLaserCorrectionService::produce( const
 void EcalLaserCorrectionService::alphaCallback (const EcalLaserAlphasRcd& fRecord) {
   edm::ESHandle <EcalLaserAlphas> item;
   fRecord.get (item);
-  std::cout << "--> EcalLaserCorrectionService::alphaCallback" << std::endl;
   mService_->setData (item.product ());
 }
 
 void EcalLaserCorrectionService::apdpnRefCallback (const EcalLaserAPDPNRatiosRefRcd& fRecord) {
   edm::ESHandle <EcalLaserAPDPNRatiosRef> item;
   fRecord.get (item);
-  std::cout << "--> EcalLaserCorrectionService::apdpnRefCallback" << std::endl;
   mService_->setData (item.product ());
 }
 
 void EcalLaserCorrectionService::apdpnCallback (const EcalLaserAPDPNRatiosRcd& fRecord) {
   edm::ESHandle <EcalLaserAPDPNRatios> item;
   fRecord.get (item);
-  std::cout << "--> EcalLaserCorrectionService::apdpnCallback" << std::endl;
   mService_->setData (item.product ());
 }
