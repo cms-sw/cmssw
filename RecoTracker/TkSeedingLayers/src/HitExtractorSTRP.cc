@@ -87,7 +87,10 @@ namespace {
     void operator()(const TrackingRecHit & hit) {
       if (cond(hit)) result.push_back(SeedingHit(&hit, sl, es) );
     }
-    void operator()(TrackingRecHit & hit) {
+    void operator()(const SiStripMatchedRecHit2D & hit) {
+      if (cond(hit)) result.push_back(SeedingHit(&hit, sl, es) );
+    }
+     void operator()(const SiStripRecHit2D & hit) {
       if (cond(hit)) result.push_back(SeedingHit(&hit, sl, es) );
     }
     
