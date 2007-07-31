@@ -1,9 +1,9 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.cc,v 1.9 2007/04/05 13:33:31 meridian Exp $
- *  $Date: 2007/04/05 13:33:31 $
- *  $Revision: 1.9 $
+ *  $Id: EcalRecHitProducer.cc,v 1.10 2007/07/31 17:29:33 ferriff Exp $
+ *  $Date: 2007/07/31 17:29:33 $
+ *  $Revision: 1.10 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -126,7 +126,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 	 
 	 // find intercalib constant for this xtal
 	 EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalit=icalMap.find(it->id().rawId());
-	 EcalIntercalibConstants::EcalIntercalibConstant icalconst;
+         EcalIntercalibConstants::EcalIntercalibConstant icalconst = 1;
 	 if( icalit!=icalMap.end() ){
 	   icalconst = icalit->second;
 	   //	   LogDebug("EcalRecHitDebug") << "Found intercalib for xtal " << EBDetId(it->id()).ic() << " " << icalconst ;
@@ -163,7 +163,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 	 
 	 // find intercalib constant for this xtal
 	 EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalit=icalMap.find(it->id().rawId());
-	 EcalIntercalibConstants::EcalIntercalibConstant icalconst;
+	 EcalIntercalibConstants::EcalIntercalibConstant icalconst = 1;
 	 if( icalit!=icalMap.end() ){
 	   icalconst = icalit->second;
 	   // LogDebug("EcalRecHitDebug") << "Found intercalib for xtal " << EEDetId(it->id()).ic() << " " << icalconst ;
