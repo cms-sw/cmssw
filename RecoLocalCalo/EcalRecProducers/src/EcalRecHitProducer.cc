@@ -1,9 +1,9 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.cc,v 1.8 2007/03/09 10:15:04 meridian Exp $
- *  $Date: 2007/03/09 10:15:04 $
- *  $Revision: 1.8 $
+ *  $Id: EcalRecHitProducer.cc,v 1.9 2007/04/05 13:33:31 meridian Exp $
+ *  $Date: 2007/04/05 13:33:31 $
+ *  $Revision: 1.9 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -13,6 +13,8 @@
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
+#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
+#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -112,6 +114,8 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 #endif
    // ADC -> GeV Scale
 
+   edm::ESHandle<EcalLaserDbService> pLaser;
+   es.get<EcalLaserDbRecord>().get( pLaser );
 
    if (EBuncalibRecHits)
      {
@@ -130,10 +134,12 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 	   edm::LogError("EcalRecHitError") << "No intercalib const found for xtal " << EBDetId(it->id()) << "! something wrong with EcalIntercalibConstants in your DB? "
 	     ;
 	 }
+         // get laser coefficient
+         float lasercalib = pLaser->getLaserCorrection( EBDetId(it->id()), evt.time() );
 	 
 	 // make the rechit and put in the output collection
 	 // must implement op= for EcalRecHit
-	 EcalRecHit aHit( EBalgo_->makeRecHit(*it, icalconst ) );
+	 EcalRecHit aHit( EBalgo_->makeRecHit(*it, icalconst * lasercalib) );
 	 EBrechits->push_back( aHit );
 	 
 #ifdef DEBUG	 
@@ -165,10 +171,12 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 	   edm::LogError("EcalRecHitError") << "No intercalib const found for xtal " << EEDetId(it->id()) << "! something wrong with EcalIntercalibConstants in your DB? "
 	     ;
 	 }
+         // get laser coefficient
+         float lasercalib = pLaser->getLaserCorrection( EEDetId(it->id()), evt.time() );
 	 
 	 // make the rechit and put in the output collection
 	 // must implement op= for EcalRecHit
-	 EcalRecHit aHit( EEalgo_->makeRecHit(*it, icalconst ) );
+	 EcalRecHit aHit( EEalgo_->makeRecHit(*it, icalconst * lasercalib) );
 	 EErechits->push_back( aHit );
 	 
 #ifdef DEBUG
