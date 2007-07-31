@@ -374,6 +374,8 @@ class FileInPath(_SimpleParameterTypeBase):
     @staticmethod
     def _valueFromString(value):
         return FileInPath(value)
+    def insertInto(self, parameterSet, myname):
+      parameterSet.addFileInPath( self.isTracked(), myname, libFWCoreParameterSet.FileInPath(self.value()) ) 
 
 
 class Looper(_ConfigureComponent,_TypedParameterizable):
