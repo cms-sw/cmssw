@@ -18,8 +18,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
-//#include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
-#include "RecoVertex/VertexTools/interface/ClosestApproachInRPhi.h"
+#include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
 
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
