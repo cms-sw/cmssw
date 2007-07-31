@@ -105,6 +105,7 @@ namespace edmNew {
       typedef typename DetSetVector<T>::data_type value_type;
       typedef typename DetSetVector<T>::id_type key_type;
       typedef typename DetSetVector<T>::id_type id_type;
+      typedef typename DetSetVector<T>::size_type size_type;
 
       FastFiller(DetSetVector<T> & iv, id_type id, bool isaveEmpty=false) : 
 	v(iv), item(v.push_back(id)), saveEmpty(isaveEmpty) {
@@ -138,6 +139,8 @@ namespace edmNew {
       }
 
       id_type id() const { return item.id;}
+      size_type size() const { return item.size;}
+      bool empty() const { return item.size==0;}
 
       data_type & operator[](size_type i) {
 	return 	v.m_data[item.offset+i];
