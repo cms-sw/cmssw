@@ -38,6 +38,7 @@ namespace edmNew {
 	int offset;
 	size_type size;
 	bool operator<(Item const &rh) const { return id<rh.id;}
+	operator id_type() const { return id;}
       };
 
     };
@@ -96,7 +97,7 @@ namespace edmNew {
     };
     
     typedef boost::transform_iterator<IterHelp,const_IdIter> const_iterator;
-    
+    typedef std::pair<const_iterator,const_iterator> Range;
 
     /* fill the lastest inserted DetSet
      */
@@ -289,6 +290,16 @@ namespace edmNew {
 					     IterHelp(*this));
     }
     
+
+    // return an iterator range (implemented here to avoid dereference of detset)
+    template<typename CMP>
+    Range equal_range(id_type i, CMP cmp) const {
+      std::pair<const_IdIter,const_IdIter> p =
+	std::equal_range(m_ids.begin(),m_ids.end(),i,cmp);
+      return  Range(boost::make_transform_iterator(p.first,IterHelp(*this)),
+		    boost::make_transform_iterator(p.second,IterHelp(*this))
+		    );
+    }
     
     int subdetId() const { return m_subdetId; }
 
