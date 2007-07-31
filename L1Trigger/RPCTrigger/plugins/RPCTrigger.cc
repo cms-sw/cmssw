@@ -1,7 +1,7 @@
 /** \file RPCTrigger.cc
  *
- *  $Date: 2007/06/06 15:19:20 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/07/16 08:33:08 $
+ *  $Revision: 1.5 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/interface/RPCTrigger.h"
@@ -193,7 +193,8 @@ std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(L1RpcTBMuonsVec 
     //Note: pac numbering begins at 5 deg and goes from 1 to 144.
     // we want phi values from 0 to 2.5 deg to be phiPacked=0 
     // max phiPacked value is 143 (see CMS IN 2004-022)
-    int phiPacked = (finalMuons[iMu].getPhiAddr()+2)%144;
+    //int phiPacked = (finalMuons[iMu].getPhiAddr()+2)%144;
+    int phiPacked = finalMuons[iMu].getPhiAddr();
     l1Cand.setPhiPacked(phiPacked);
 /*
     float eta = RPCConst::etaFromTowerNum(cone.m_Tower);
