@@ -27,6 +27,10 @@ public:
 
 private:
   bool ringRange(int ring) const;
+  bool ringRangeTEC(const TrackingRecHit& hit) const;
+  bool ringRangeNodsTEC(const TrackingRecHit& hit) const;
+  bool ringRangeTID(const TrackingRecHit& hit) const;
+  bool ringRangeNodsTID(const TrackingRecHit& hit) const;
 private:
   const DetLayer * theLayer;
   SeedingLayer::Side theSide;

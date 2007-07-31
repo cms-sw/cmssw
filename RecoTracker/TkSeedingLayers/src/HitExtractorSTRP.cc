@@ -74,8 +74,8 @@ namespace {
 
   template <typename C, typename A, typename B, typename F>
   void foreachHit(C const & v, std::pair<A,B> const & p, F & f) {
-    const typename C::Range range = rangeFromPair(v,p);
-    for(C::const_iterator id=range.first; id!=range.second; id++)
+    typename C::Range range = rangeFromPair(v,p);
+    for(typename C::const_iterator id=range.first; id!=range.second; id++)
       std::for_each((*id).begin(), (*id).end, boost::ref(f));
   }
 
