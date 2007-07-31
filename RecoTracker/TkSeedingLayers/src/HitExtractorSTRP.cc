@@ -96,8 +96,8 @@ namespace {
     
   private:
     // just make sure
-    Add(Add const &){}
-    Add & operator=(Add&){return *this;}
+    Add(Add const &);
+    Add & operator=(Add&);
 
   }; 
 
