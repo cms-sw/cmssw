@@ -31,10 +31,10 @@ vector<SeedingHit> HitExtractorPIX::hits(const SeedingLayer & sl,const edm::Even
   ev.getByLabel( theHitProducer, pixelHits);
 
   const SiPixelRecHitCollection::Range range = (theSide==SeedingLayer::Barrel) ?
-    rangeFromPair(pixelHits,accessor.pixelBarrelLayer(theIdLayer))
-    :  rangeFromPair(pixelHits,accessor.pixelForwardDisk(theSide,theIdLayer));
+    rangeFromPair(*pixelHits,accessor.pixelBarrelLayer(theIdLayer))
+    :  rangeFromPair(*pixelHits,accessor.pixelForwardDisk(theSide,theIdLayer));
   for(SiPixelRecHitCollection::const_iterator id = range.first; id != range.second; id++)
-    for(SiPixelRecHitCollection::DetSet::const_iterator it = id.begin(); it != id.end(); it++){
+    for(SiPixelRecHitCollection::DetSet::const_iterator it = (*id).begin(); it != (*id).end(); it++){
       result.push_back( SeedingHit(&(*it), sl, es) );
     }
   return result;
