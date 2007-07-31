@@ -159,7 +159,7 @@ EcalLaserTestAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
  	{
 	  
 	  EBDetId testid(ieta,iphi);
-	  edm::Timestamp testtime(12000);
+	  //	  edm::Timestamp testtime(12000);
 
 	  // 	  int dccid = TheMapping-> DCCid(testid);
 	  // 	  int tccid = TheMapping-> TCCid(testid);
@@ -175,8 +175,8 @@ EcalLaserTestAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
  	  	    << std::endl;
 	  //	  std::cout << testid << std::endl;
 	  
-	  float blah = pSetup->getLaserCorrection(testid, testtime);
-	  std::cout << " EcalLaserTestAnalyzer: " << blah << std::endl; 
+	  float blah = pSetup->getLaserCorrection(testid, iEvent.time());
+	  std::cout << " EcalLaserTestAnalyzer: " << iEvent.time().value() << " " << blah << std::endl; 
 	  
  	}
       catch (...)
@@ -196,8 +196,8 @@ EcalLaserTestAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
 	  
 	  // +Z side
  	  EEDetId testidpos(iX,iY,1);
- 	  edm::Timestamp testtime(12000);
-	  std::cout << " EcalLaserTestAnalyzer: " << testidpos << " " << testidpos.isc() << endl;
+	  // 	  edm::Timestamp testtime(12000);
+	  //	  std::cout << " EcalLaserTestAnalyzer: " << testidpos << " " << testidpos.isc() << endl;
 	  
 	  // 	  // test of elec mapping
 	  // 	  EcalElectronicsId myidpos = TheMapping->getElectronicsId(testidpos);
@@ -208,12 +208,12 @@ EcalLaserTestAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
  	  	    << std::endl;
 	  // 	  //
 	  
- 	  float blah = pSetup->getLaserCorrection(testidpos, testtime);
-	  std::cout << " EcalLaserTestAnalyzer: " << blah << std::endl; 
+ 	  float blah = pSetup->getLaserCorrection(testidpos, iEvent.time());
+	  std::cout << " EcalLaserTestAnalyzer: " << iEvent.time().value() << " " <<  blah << std::endl; 
 	  
 	  // -Z side
 	  EEDetId testidneg(iX,iY,-1);
-	  std::cout << " EcalLaserTestAnalyzer: " << testidneg << " " << testidneg.isc() << endl;
+	  //	  std::cout << " EcalLaserTestAnalyzer: " << testidneg << " " << testidneg.isc() << endl;
 	  
 	  // 	  EcalElectronicsId myidneg = TheMapping->getElectronicsId(testidneg);
  	  std::cout << std::endl 
@@ -222,8 +222,8 @@ EcalLaserTestAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
 	    // 		    << myidneg.dccId()
  	  	    << std::endl;
 	  
-	  blah = pSetup->getLaserCorrection(testidneg, testtime);
-	  std::cout << " EcalLaserTestAnalyzer: " << blah << std::endl; 
+	  blah = pSetup->getLaserCorrection(testidneg, iEvent.time());
+	  std::cout << " EcalLaserTestAnalyzer: " << iEvent.time().value() << " " << blah << std::endl; 
 	}
       catch (...)
 	{
