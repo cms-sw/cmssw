@@ -17,12 +17,15 @@
 //class DetIdComparator : public binary_function<DetId, DetId, bool> {
 class DetIdComparator {
 public:
-  virtual bool operator()( DetId i1, DetId i2 ) const =0;
+  bool operator()( DetId i1, DetId i2 ) const {
+    return (*this)(i1.rawId(),i2.rawId());
+  };
+  virtual bool operator()(uint32_t  i1, uint32_t  i2 ) const =0;
 };
 
 class DetIdTIBSameLayerComparator : public  DetIdComparator {
  public:
-  virtual bool operator()( DetId i1, DetId i2 ) const {
+  virtual bool operator()(uint32_t i1,uint32_t i2 ) const {
     TIBDetId id1(i1);
     TIBDetId id2(i2);
     if ((id1.det() == id2.det()) &&
@@ -33,7 +36,7 @@ class DetIdTIBSameLayerComparator : public  DetIdComparator {
 };
 class DetIdTOBSameLayerComparator : public  DetIdComparator {
  public:
-  virtual bool operator()( DetId i1, DetId i2 ) const {
+  virtual bool operator()(uint32_t i1,uint32_t i2 ) const {
     TOBDetId id1(i1);
     TOBDetId id2(i2);
     if ((id1.det() == id2.det()) &&
@@ -44,7 +47,7 @@ class DetIdTOBSameLayerComparator : public  DetIdComparator {
 };
 class DetIdPXBSameLayerComparator : public  DetIdComparator {
  public:
-  virtual bool operator()( DetId i1, DetId i2 ) const {
+  virtual bool operator()(uint32_t i1,uint32_t i2 ) const {
     PXBDetId id1(i1);
     PXBDetId id2(i2);
     if ((id1.det() == id2.det()) &&
@@ -55,7 +58,7 @@ class DetIdPXBSameLayerComparator : public  DetIdComparator {
 };
 class DetIdPXFSameDiskComparator : public  DetIdComparator {
  public:
-  virtual bool operator()( DetId i1, DetId i2 ) const {
+  virtual bool operator()(uint32_t i1,uint32_t i2 ) const {
     PXFDetId id1(i1);
     PXFDetId id2(i2);
     if ((id1.det() == id2.det()) &&
@@ -67,7 +70,7 @@ class DetIdPXFSameDiskComparator : public  DetIdComparator {
 };
 class DetIdTECSameDiskComparator : public  DetIdComparator {
  public:
-  virtual bool operator()( DetId i1, DetId i2 ) const {
+  virtual bool operator()(uint32_t i1,uint32_t i2 ) const {
     TECDetId id1(i1);
     TECDetId id2(i2);
     if ((id1.det() == id2.det()) &&
@@ -79,7 +82,7 @@ class DetIdTECSameDiskComparator : public  DetIdComparator {
 };
 class DetIdTIDSameDiskComparator : public  DetIdComparator {
  public:
-  virtual bool operator()( DetId i1, DetId i2 ) const {
+  virtual bool operator()(uint32_t i1,uint32_t i2 ) const {
     TIDDetId id1(i1);
     TIDDetId id2(i2);
     if ((id1.det() == id2.det()) &&
