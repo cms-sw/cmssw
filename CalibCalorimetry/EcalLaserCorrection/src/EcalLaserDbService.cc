@@ -58,19 +58,19 @@ float EcalLaserDbService::getLaserCorrection (DetId const & xid, edm::Timestamp 
   EcalLaserAlphas::EcalLaserAlphaMapIterator laserAlphaIter; 	  
 
   if (xid.det()==DetId::Ecal) {
-    std::cout << " XID is in Ecal : ";
+    //    std::cout << " XID is in Ecal : ";
   } else {
-    std::cout << " XID is NOT in Ecal : ";
+    //    std::cout << " XID is NOT in Ecal : ";
     edm::LogError("EcalLaserDbService") << " DetId is NOT in ECAL" << endl;
     return correctionFactor;
   } 
 
   if (xid.subdetId()==EcalBarrel) {
-    std::cout << "EcalBarrel" << std::endl;
+    //    std::cout << "EcalBarrel" << std::endl;
   } else if (xid.subdetId()==EcalEndcap) {
-    std::cout << "EcalEndcap" << std::endl;
+    //    std::cout << "EcalEndcap" << std::endl;
   } else {
-    std::cout << "NOT EcalBarrel or EcalEndCap" << std::endl;
+    //    std::cout << "NOT EcalBarrel or EcalEndCap" << std::endl;
     edm::LogError("EcalLaserDbService") << " DetId is NOT in ECAL Barrel or Endcap" << endl;
     return correctionFactor;
   }
@@ -114,10 +114,10 @@ float EcalLaserDbService::getLaserCorrection (DetId const & xid, edm::Timestamp 
     return correctionFactor;
   }
 
-  std::cout << " APDPN pair " << apdpnpair.p1 << " , " << apdpnpair.p2 << std::endl; 
-  std::cout << " TIME pair " << timestamp.t1 << " , " << timestamp.t2 << " iLM " << iLM << std::endl; 
-  std::cout << " APDPN ref " << apdpnref << std::endl; 
-  std::cout << " ALPHA " << alpha << std::endl; 
+  //  std::cout << " APDPN pair " << apdpnpair.p1 << " , " << apdpnpair.p2 << std::endl; 
+  //  std::cout << " TIME pair " << timestamp.t1 << " , " << timestamp.t2 << " iLM " << iLM << std::endl; 
+  //  std::cout << " APDPN ref " << apdpnref << std::endl; 
+  //  std::cout << " ALPHA " << alpha << std::endl; 
   
   // should implement some default in case of error...
 
@@ -130,8 +130,8 @@ float EcalLaserDbService::getLaserCorrection (DetId const & xid, edm::Timestamp 
   // interpolation
 
   if (apdpnref!=0&&(timestamp.t2-timestamp.t1)!=0) {
-    float interpolatedLaserResponse = apdpnpair.p1 + (iTime.value()-timestamp.t1)*(apdpnpair.p2-apdpnpair.p1)/apdpnref/(timestamp.t2-timestamp.t1);
-    std::cout << " interpolatedLaserResponse = " << interpolatedLaserResponse << std::endl; 
+    float interpolatedLaserResponse = apdpnpair.p1/apdpnref + (iTime.value()-timestamp.t1)*(apdpnpair.p2-apdpnpair.p1)/apdpnref/(timestamp.t2-timestamp.t1);
+    //    std::cout << " interpolatedLaserResponse = " << interpolatedLaserResponse << std::endl; 
 
     if (interpolatedLaserResponse<=0) {
       edm::LogError("EcalLaserDbService") << "interpolatedLaserResponse is <= zero!" << endl;
@@ -145,9 +145,8 @@ float EcalLaserDbService::getLaserCorrection (DetId const & xid, edm::Timestamp 
     return correctionFactor;
   }
   
-  std::cout << " correctionFactor = " << correctionFactor << std::endl; 
+  //  std::cout << " correctionFactor = " << correctionFactor << std::endl; 
 
-  correctionFactor = 1.0;  // set to correction of 1.0 for testing
   return correctionFactor;
 
 }
@@ -177,7 +176,7 @@ int EcalLaserDbService::getLMNumber(DetId const & xid) const {
     // now assign light module within SM
     if (iPHI>10&&iETA>5) { iLM++; }   
 
-    std::cout << " SM , LM ---> " << iSM << " " << iLM << std::endl;
+    //    std::cout << " SM , LM ---> " << iSM << " " << iLM << std::endl;
     
   } else if (xid.subdetId()==EcalEndcap) {
     
@@ -185,7 +184,7 @@ int EcalLaserDbService::getLMNumber(DetId const & xid) const {
 
     int iSC = tempid.isc();
     int iX  = tempid.ix();
-    int iY  = tempid.iy();
+    //    int iY  = tempid.iy();
     int iZ  = tempid.zside();
     
     const int nSC = 312; 
@@ -241,7 +240,7 @@ int EcalLaserDbService::getLMNumber(DetId const & xid) const {
     }
 
     //    std::cout << "DCC , LM ---> " << tempdcc << " " << iLM << std::endl;
-    std::cout << "SC DCC : LM : XYZ ---> " << iSC << " \t" << tempdcc << ": \t" << iLM << ": \t" << iX << " \t" << iY << " \t" << iZ << std::endl;
+    //    std::cout << "SC DCC : LM : XYZ ---> " << iSC << " \t" << tempdcc << ": \t" << iLM << ": \t" << iX << " \t" << iY << " \t" << iZ << std::endl;
   
     //    iLM = tempid.isc();
   } else {
