@@ -33,13 +33,11 @@ void DDTIDModuleAlgo::initialize(const DDNumericArguments & nArgs,
   int i;
   genMat       = sArgs["GeneralMaterial"];
   detectorN    = (int)(nArgs["DetectorNumber"]);
-  tol          = nArgs["Tolerance"];
   DDName parentName = parent().name(); 
 
   LogDebug("TIDGeom") << "DDTIDModuleAlgo debug: Parent " << parentName 
 		      << " General Material " << genMat 
-		      << " Detector Planes " << detectorN
-		      << " Tolerance " << tol;
+		      << " Detector Planes " << detectorN;
 
   moduleThick       = nArgs["ModuleThick"];
   detTilt           = nArgs["DetTilt"];
@@ -85,9 +83,12 @@ void DDTIDModuleAlgo::initialize(const DDNumericArguments & nArgs,
 
   waferName         =vsArgs["WaferName"];
   waferMat          = sArgs["WaferMaterial"];
-  sideWidth         = nArgs["SideWidth"];
+  sideWidthTop   = nArgs["SideWidthTop"];
+  sideWidthBottom= nArgs["SideWidthBottom"];
+
   LogDebug("TIDGeom") << "DDTIDModuleAlgo debug: Wafer Material " 
-		      << waferMat << " Side Width " << sideWidth;
+		      << waferMat  << " Side Width Top " << sideWidthTop
+		      << " Side Width Bottom " << sideWidthBottom;
   for (i = 0; i < detectorN; i++)
     LogDebug("TIDGeom") << "\twafrName[" << i << "] = " << waferName[i];
 
@@ -195,13 +196,13 @@ void DDTIDModuleAlgo::execute() {
     }
     h1 = 0.5 * sideFrameThick;
     dz = 0.5 * (fullHeight + topfr);
-    solid = DDSolidFactory::trap(name, dz, 0, 0, h1, bl1-tol, bl1-tol, 0, h1, 
-				 bl2-tol, bl2-tol, 0);
+    solid = DDSolidFactory::trap(name, dz, 0, 0, h1, bl1, bl1, 0, h1, 
+				 bl2, bl2, 0);
     LogDebug("TIDGeom") << "DDTIDModuleAlgo test:\t" << solid.name() 
 			<< " Trap made of " << matname << " of dimensions "
-			<< dz << ", 0, 0, " << h1 << ", " << bl1-tol << ", " 
-			<< bl1-tol << ", 0, " << h1 << ", " << bl2-tol << ", " 
-			<< bl2-tol << ", 0";
+			<< dz << ", 0, 0, " << h1 << ", " << bl1 << ", " 
+			<< bl1 << ", 0, " << h1 << ", " << bl2 << ", " 
+			<< bl2 << ", 0";
     DDLogicalPart sideFrame(solid.ddname(), matter, solid);
 
     name    = DDName(DDSplit(dumyFrameName).first,DDSplit(dumyFrameName).second);
@@ -272,8 +273,14 @@ void DDTIDModuleAlgo::execute() {
 		       DDSplit(activeName[k]).second);
       matname = DDName(DDSplit(activeMat).first, DDSplit(activeMat).second);
       matter  = DDMaterial(matname);
-      bl1    -= sideWidth;
-      bl2    -= sideWidth;
+      if (k == 0 && dlHybrid < dlTop) {
+	bl1    -= sideWidthTop;
+	bl2    -= sideWidthBottom;
+      }
+      else {
+	bl1    -= sideWidthBottom;
+	bl2    -= sideWidthTop;
+      }
       dz      = 0.5 * activeThick[k];
       h1      = 0.5 * activeHeight;
       solid = DDSolidFactory::trap(name, dz, 0,0, h1,bl2,bl1,0, h1,bl2,bl1,0);

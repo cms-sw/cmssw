@@ -48,7 +48,8 @@ private:
   std::string              dumyFrameName;     //Dummy frame   name
   std::vector<std::string> waferName;         //Wafer         name
   std::string              waferMat;          //              material
-  double                   sideWidth;         //              width on the side
+  double                   sideWidthTop;      //              width on the side Top
+  double                   sideWidthBottom;   //                                Bottom
   std::vector<std::string> activeName;        //Sensitive     name
   std::string              activeMat;         //              material
   double                   activeHeight;      //              height
@@ -63,7 +64,6 @@ private:
   std::string              pitchMat;          //              material
   double                   pitchHeight;       //              height
   double                   pitchThick;        //              thickness
-  double                   tol;               //Tolerance in size
 };
 
 #endif
