@@ -50,8 +50,8 @@ bool HitExtractorSTRP::ringRangeTID(const TrackingRecHit& hit) const {
 
 bool HitExtractorSTRP::ringRangeNodsTID(const TrackingRecHit& hit) const {
   int ring = TIDDetId(hit.geographicalId() ).ring();
-  return ringRange(ring)) &&
-  (!hasMatchedHits || (ring!=1 && ring!=2));
+  return ringRange(ring) &&
+    (!hasMatchedHits || (ring!=1 && ring!=2));
 }
 
 bool HitExtractorSTRP::ringRangeTEC(const TrackingRecHit& hit) const {
@@ -60,8 +60,8 @@ bool HitExtractorSTRP::ringRangeTEC(const TrackingRecHit& hit) const {
 
 bool HitExtractorSTRP::ringRangeNodsTEC(const TrackingRecHit& hit) const {
   int ring = TECDetId(hit.geographicalId() ).ring();
-  return ringRange(ring)) &&
-  (!hasMatchedHits || (ring!=1 && ring!=2 && ring!=5));
+  return ringRange(ring) &&
+    (!hasMatchedHits || (ring!=1 && ring!=2 && ring!=5));
 }
 
 
