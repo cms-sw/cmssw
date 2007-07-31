@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialObjectAnalyzer.cc,v 1.8 2007/04/05 13:14:52 meridian Exp $
+// $Id: EcalTrivialObjectAnalyzer.cc,v 1.9 2007/04/05 14:39:33 meridian Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -36,6 +36,18 @@
 
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
+
+#include "CondFormats/EcalObjects/interface/EcalLaserAlphas.h"
+#include "CondFormats/DataRecord/interface/EcalLaserAlphasRcd.h"
+ 
+#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosRef.h"
+#include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRefRcd.h"
+ 
+#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
+#include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRcd.h"
+
+//#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
+//#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
 
 #include "CLHEP/Matrix/Matrix.h"
 
@@ -178,6 +190,96 @@ using namespace std;
      std::cout << "No weights found for EcalGroupId: " << gid.id() << " and  EcalTDCId: " << tdcid << std::endl;
   }
 
+   // laser correction
+
+   // laser alphas
+   edm::ESHandle<EcalLaserAlphas> pAlpha; 
+   context.get<EcalLaserAlphasRcd>().get(pAlpha);
+   const EcalLaserAlphas* lalpha = pAlpha.product();
+   
+   EcalLaserAlphas::EcalLaserAlphaMapIterator lalphait;
+   lalphait = lalpha->getMap().find(ebid.rawId());
+   EcalLaserAlphas::EcalLaserAlpha lalphaconst;
+
+   if( lalphait!=lalpha->getMap().end() ){
+     lalphaconst = lalphait->second;     
+     std::cout << "EcalLaserAlpha: "
+       //	       <<e.id().run() << " " << e.id().event() << " " 
+	       <<std::setprecision(6)
+	       << lalphaconst
+	       << std::endl;
+   } else {
+     std::cout << "No laser alpha found for this xtal! something wrong with EcalLaserAlphas in your DB? "
+               << std::endl;
+   }
+
+   // laser apdpnref
+   edm::ESHandle<EcalLaserAPDPNRatiosRef> pAPDPNRatiosRef;          
+   context.get<EcalLaserAPDPNRatiosRefRcd>().get(pAPDPNRatiosRef);  
+   const EcalLaserAPDPNRatiosRef* lref = pAPDPNRatiosRef.product(); 
+   
+   EcalLaserAPDPNRatiosRef::EcalLaserAPDPNRatiosRefMapIterator lrefit;
+   lrefit = lref->getMap().find(ebid.rawId());
+   EcalLaserAPDPNRatiosRef::EcalLaserAPDPNref lrefconst;      
+
+   if( lrefit!=lref->getMap().end() ){
+     lrefconst = lrefit->second;     
+     std::cout << "EcalLaserAPDPNRatiosRef: "
+       //	       <<e.id().run() << " " << e.id().event() << " " 
+  	       <<std::setprecision(6)
+  	       << lrefconst
+  	       << std::endl;
+   } else {
+     std::cout << "No laser apd/pn ref found for this xtal! something wrong with EcalLaserAPDPNRatiosRef in your DB? "
+	       << std::endl;
+   }
+
+
+   // laser apdpn ratios 
+   edm::ESHandle<EcalLaserAPDPNRatios> pAPDPNRatios;          
+   context.get<EcalLaserAPDPNRatiosRcd>().get(pAPDPNRatios);  
+   const EcalLaserAPDPNRatios* lratio = pAPDPNRatios.product();
+
+   EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMapIterator lratioit; 
+   lratioit = lratio->getLaserMap().find(ebid.rawId());
+   EcalLaserAPDPNRatios::EcalLaserAPDPNpair lratioconst;
+   
+   if( lratioit!=lratio->getLaserMap().end() ){
+     lratioconst = lratioit->second;
+     
+     std::cout << "EcalLaserAPDPNRatios: "
+       //	       <<e.id().run() << " " << e.id().event() << " " 
+    	       << std::setprecision(6)
+    	       << lratioconst.p1 << " " << lratioconst.p2
+    	       << std::endl;
+   } else {
+     std::cout << "No laser apd/pn ratio found for this xtal! something wrong with EcalLaserAPDPNRatios in your DB? "
+  	       << std::endl;
+   }
+
+   // laser timestamps
+   EcalLaserAPDPNRatios::EcalLaserTimeStampMapIterator ltimeit;
+   EcalLaserAPDPNRatios::EcalLaserTimeStamp ltimestamp;
+   
+   std::cout << "EcalLaserTimeStamp: ";
+   for (int i=1; i<=92; i++) {     
+     ltimeit = lratio->getTimeMap().find(i);
+     if( ltimeit != lratio->getTimeMap().end() ) {
+       ltimestamp = ltimeit->second;
+       
+	 //		 <<e.id().run() << " " << e.id().event() << " " 
+       std::cout << std::setprecision(6)
+		   << ltimestamp.t1 << " " << ltimestamp.t2 << " : " ;
+     } else {
+       std::cout << "No laser timestamp found for this xtal! something wrong with EcalLaserAPDPNRatios in your DB? "
+		 << std::endl;
+     }
+   }
+   std::cout << std::endl;
+
+
+   // laser transparency correction
+   
 
 
 /*
