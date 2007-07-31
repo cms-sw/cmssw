@@ -10,7 +10,7 @@ such code sees the LuminosityBlock class, which is a proxy for LuminosityBlockPr
 The major internal component of the LuminosityBlockPrincipal
 is the DataBlock.
 
-$Id: LuminosityBlockPrincipal.h,v 1.20 2007/07/26 23:44:25 wmtan Exp $
+$Id: LuminosityBlockPrincipal.h,v 1.21 2007/07/30 04:16:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -71,7 +71,9 @@ namespace edm {
       return aux().endTime();
     }
 
-    Timestamp const& updateEndTime(Timestamp const& time);
+    void setEndTime(Timestamp const& time) {
+      aux_.setEndTime(time);
+    }
 
     LuminosityBlockNumber_t luminosityBlock() const {
       return aux().luminosityBlock();

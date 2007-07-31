@@ -10,7 +10,7 @@ such code sees the Run class, which is a proxy for RunPrincipal.
 The major internal component of the RunPrincipal
 is the DataBlock.
 
-$Id: RunPrincipal.h,v 1.16 2007/07/26 23:44:25 wmtan Exp $
+$Id: RunPrincipal.h,v 1.17 2007/07/30 04:16:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -55,8 +55,8 @@ namespace edm {
       return aux().endTime();
     }
 
-    Timestamp const& updateEndTime(Timestamp const& time) {
-      return aux_.updateEndTime(time);
+    void setEndTime(Timestamp const& time) {
+      aux_.setEndTime(time);
     }
 
     using Base::addGroup;

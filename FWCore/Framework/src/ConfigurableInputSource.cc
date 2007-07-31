@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.cc,v 1.26 2007/07/26 23:44:26 wmtan Exp $
+$Id: ConfigurableInputSource.cc,v 1.27 2007/07/30 04:18:12 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -38,6 +38,7 @@ namespace edm {
     eType_(EventAuxiliary::Any),
     holder_(0)
   { 
+    setTimestamp(Timestamp(presentTime_));
     // We need to map this string to the EventAuxiliary::ExperimentType enumeration
     // std::string eType = pset.getUntrackedParameter<std::string>("experimentType", std::string("Any"))),
   }
@@ -49,7 +50,7 @@ namespace edm {
   ConfigurableInputSource::readRun_() {
     Timestamp ts = Timestamp(presentTime_);
     boost::shared_ptr<RunPrincipal> runPrincipal(
-        new RunPrincipal(eventID_.run(), ts, ts, productRegistry(), processConfiguration()));
+        new RunPrincipal(eventID_.run(), ts, Timestamp::invalidTimestamp(), productRegistry(), processConfiguration()));
     RunPrincipal & rp =
        const_cast<RunPrincipal &>(*runPrincipal);
     Run run(rp, moduleDescription());
@@ -65,7 +66,7 @@ namespace edm {
     Timestamp ts = Timestamp(presentTime_);
     boost::shared_ptr<LuminosityBlockPrincipal> luminosityBlockPrincipal(
         new LuminosityBlockPrincipal(
-	    luminosityBlock_, ts, ts, productRegistry(), rp, processConfiguration()));
+	    luminosityBlock_, ts, Timestamp::invalidTimestamp(), productRegistry(), rp, processConfiguration()));
     LuminosityBlockPrincipal & lbp =
        const_cast<LuminosityBlockPrincipal &>(*luminosityBlockPrincipal);
     LuminosityBlock lb(lbp, moduleDescription());
@@ -73,20 +74,6 @@ namespace edm {
     lb.commit_();
     newLumi_ = false;
     return luminosityBlockPrincipal;
-  }
-
-  void
-  ConfigurableInputSource::finishRun(RunPrincipal& rp) {
-    Run run(rp, moduleDescription());
-    endRun(run);
-    run.commit_();
-  }
-
-  void
-  ConfigurableInputSource::finishLumi(LuminosityBlockPrincipal & lbp) {
-    LuminosityBlock lb(lbp, moduleDescription());
-    endLuminosityBlock(lb);
-    lb.commit_();
   }
 
   std::auto_ptr<EventPrincipal>
@@ -104,7 +91,7 @@ namespace edm {
       if (newRun_ || newLumi_) {
 	holder_ = result;
 	return result;
-      }
+      } 
     } else {
       result = holder_;
     }

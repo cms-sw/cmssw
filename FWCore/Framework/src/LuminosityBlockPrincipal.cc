@@ -24,11 +24,4 @@ namespace edm {
 	boost::shared_ptr<DelayedReader> rtrv) :
           Base(reg, pc, hist, rtrv),
 	  runPrincipal_(new RunPrincipal(run, beginTm, endTm, reg, pc)), aux_(run, lb, beginTm, endTm) {}
-
-  Timestamp const& 
-  LuminosityBlockPrincipal::updateEndTime(Timestamp const& time) {
-    runPrincipal_->updateEndTime(time);
-    return aux_.updateEndTime(time);
-  }
-
 }

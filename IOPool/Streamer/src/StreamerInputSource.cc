@@ -285,14 +285,19 @@ namespace edm {
     if(lbp_.get() == 0) {
       if (rp_.get() == 0) {
 	rp_ = boost::shared_ptr<RunPrincipal>(
-          new RunPrincipal(sd->id_.run(), sd->time_, sd->time_, productRegistry(), processConfiguration()));
+          new RunPrincipal(sd->id_.run(),
+			   sd->time_,
+			   Timestamp::invalidTimestamp(),
+			   productRegistry(),
+			   processConfiguration()));
       }
       lbp_ = boost::shared_ptr<LuminosityBlockPrincipal>(
         new LuminosityBlockPrincipal(eventView.lumi(),
-                                     sd->time_, sd->time_,
-                                     productRegistry(),
-                                     rp_,
-                                     processConfiguration()));
+				     sd->time_,
+				     Timestamp::invalidTimestamp(),
+				     productRegistry(),
+				     rp_,
+				     processConfiguration()));
     }
     std::auto_ptr<EventPrincipal> ep(new EventPrincipal(sd->id_,
                                                    sd->time_,

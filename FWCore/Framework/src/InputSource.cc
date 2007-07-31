@@ -1,10 +1,14 @@
 /*----------------------------------------------------------------------
-$Id: InputSource.cc,v 1.28 2007/06/25 23:22:13 wmtan Exp $
+$Id: InputSource.cc,v 1.29 2007/06/29 03:43:21 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <cassert> 
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -43,7 +47,8 @@ namespace edm {
       unlimited_(maxEvents_ < 0),
       moduleDescription_(desc.moduleDescription_),
       productRegistry_(createSharedPtrToStatic<ProductRegistry const>(desc.productRegistry_)),
-      primary_(pset.getParameter<std::string>("@module_label") == std::string("@main_input")) {
+      primary_(pset.getParameter<std::string>("@module_label") == std::string("@main_input")),
+      time_() {
     // Secondary input sources currently do not have a product registry.
     if (primary_) {
       assert(desc.productRegistry_ != 0);
@@ -112,6 +117,7 @@ namespace edm {
         postRead(event);
         if (!unlimited_) --remainingEvents_;
 	++readCount_;
+        setTimestamp(result->time());
 	issueReports(result->id());
       }
     }
@@ -211,4 +217,35 @@ namespace edm {
       }
     }
   }
+
+  void
+  InputSource::doFinishRun(RunPrincipal& rp) {
+    rp.setEndTime(time_);
+    Run run(rp, moduleDescription());
+    endRun(run);
+    run.commit_();
+  }
+
+  void
+  InputSource::doFinishLumi(LuminosityBlockPrincipal & lbp) {
+    lbp.setEndTime(time_);
+    LuminosityBlock lb(lbp, moduleDescription());
+    endLuminosityBlock(lb);
+    lb.commit_();
+  }
+
+  void 
+  InputSource::wakeUp_() {}
+
+  void
+  InputSource::endLuminosityBlock(LuminosityBlock &) {}
+
+  void
+  InputSource::endRun(Run &) {}
+
+  void
+  InputSource::beginJob(EventSetup const&) {}
+
+  void
+  InputSource::endJob() {}
 }

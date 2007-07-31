@@ -2,7 +2,7 @@
 #define FWCore_Sources_RawInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: RawInputSource.h,v 1.3 2007/06/22 23:26:34 wmtan Exp $
+$Id: RawInputSource.h,v 1.4 2007/07/30 04:20:02 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -42,7 +42,6 @@ namespace edm {
     bool newLumi_;
     std::auto_ptr<EventPrincipal> ep_;
     boost::shared_ptr<LuminosityBlockPrincipal> lbp_;
-    Timestamp time_;
   };
 }
 #endif

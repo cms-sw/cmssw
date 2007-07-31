@@ -21,7 +21,6 @@ namespace edm {
 	  aux_(id, time, lbp->luminosityBlock(), isReal, eType, bunchXing, storeNo),
 	  luminosityBlockPrincipal_(lbp),
 	  unscheduledHandler_() {
-	    luminosityBlockPrincipal_->updateEndTime(time);
 	  }
 
   EventPrincipal::EventPrincipal(EventID const& id,

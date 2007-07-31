@@ -34,9 +34,8 @@ namespace edm
     Timestamp const& beginTime() const {return beginTime_;}
     Timestamp const& endTime() const {return endTime_;}
     RunNumber_t run() const {return id_.run();}
-    Timestamp const& updateEndTime(Timestamp const& time) {
-      if (time > endTime_) endTime_ = time;
-      return endTime_;
+    void setEndTime(Timestamp const& time) {
+      if (endTime_ == Timestamp::invalidTimestamp()) endTime_ = time;
     }
 
     // most recent process that processed this run

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.75 2007/07/29 17:56:20 marafino Exp $
+$Id: RootFile.cc,v 1.76 2007/07/30 04:22:28 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -256,7 +256,10 @@ namespace edm {
       // back up, so event will not be skipped.
       eventTree().previous();
       return boost::shared_ptr<RunPrincipal>(
-          new RunPrincipal(eventAux.id_.run(), eventAux.time_, eventAux.time_, pReg, processConfiguration_));
+          new RunPrincipal(eventAux.id_.run(),
+	  eventAux.time_,
+	  Timestamp::invalidTimestamp(), pReg,
+	  processConfiguration_));
     }
     if (!runTree().next()) {
       return boost::shared_ptr<RunPrincipal>();
@@ -271,13 +274,14 @@ namespace edm {
       conversion(runAux, runAux_);
     }
     if (runAux_.beginTime() == Timestamp::invalidTimestamp()) {
-      // RunAuxiliary did not contain a timestamp.  Take it from the next event.
+      // RunAuxiliary did not contain a valid timestamp.  Take it from the next event.
       if (eventTree().next()) {
         fillEventAuxiliary();
         // back up, so event will not be skipped.
         eventTree().previous();
       }
-      runAux_.endTime_ = runAux_.beginTime_ = eventAux_.time(); 
+      runAux_.beginTime_ = eventAux_.time(); 
+      runAux_.endTime_ = Timestamp::invalidTimestamp();
     }
     boost::shared_ptr<RunPrincipal> thisRun(
 	new RunPrincipal(runAux_.run(),
@@ -310,7 +314,12 @@ namespace edm {
       }
       // Prior to support of lumi blocks, always use 1 for lumi block number.
       return boost::shared_ptr<LuminosityBlockPrincipal>(
-	new LuminosityBlockPrincipal(1, eventAux.time_, eventAux.time_, pReg, rp, processConfiguration_));
+	new LuminosityBlockPrincipal(1,
+				     eventAux.time_,
+				     Timestamp::invalidTimestamp(),
+				     pReg,
+				     rp,
+				     processConfiguration_));
     }
     if (!lumiTree().next()) {
       return boost::shared_ptr<LuminosityBlockPrincipal>();
@@ -337,7 +346,8 @@ namespace edm {
         // back up, so event will not be skipped.
         eventTree().previous();
       }
-      lumiAux_.endTime_ = lumiAux_.beginTime_ = eventAux_.time();
+      lumiAux_.beginTime_ = eventAux_.time();
+      lumiAux_.endTime_ = Timestamp::invalidTimestamp();
     }
     boost::shared_ptr<LuminosityBlockPrincipal> thisLumi(
 	new LuminosityBlockPrincipal(lumiAux_.luminosityBlock(),

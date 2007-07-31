@@ -41,9 +41,8 @@ namespace edm
     LuminosityBlockID const& id() const {return id_;}
     Timestamp const& beginTime() const {return beginTime_;}
     Timestamp const& endTime() const {return endTime_;}
-    Timestamp const& updateEndTime(Timestamp const& time) {
-      if (time > endTime_) endTime_ = time;
-      return endTime_;
+    void setEndTime(Timestamp const& time) {
+      if (endTime_ == Timestamp::invalidTimestamp()) endTime_ = time;
     }
     // most recent process that processed this lumi block
     // is the last on the list, this defines what "latest" is
