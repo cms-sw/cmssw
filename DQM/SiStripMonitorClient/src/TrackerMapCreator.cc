@@ -218,6 +218,7 @@ void TrackerMapCreator::create(const edm::ESHandle<SiStripFedCabling> fedcabling
       paintFedTkMap(iconn->fedId(), iconn->fedCh(),local_mes);      
     }
   }
+  trackerMap_->print();
   fedTrackerMap_->print();  
 }
 //
