@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <ostream>
+#include <string>
 
 // data block header
 // blockId = 7:0
@@ -27,9 +28,16 @@ class GctBlockHeader {
   unsigned int bcId() const { return (d>>12) & 0xfff; }
   unsigned int eventId() const { return (d>>24) & 0xff; }
 
+  //  unsigned int length() const { return blockLength_.find(id()); }
+
  private:
   
   uint32_t d;
+
+  static std::map<unsigned, unsigned> blockLength_;  // fundamental size of a block (ie for 1 readout sample)
+  static std::map<unsigned, std::string> blockName_;  // block name!
+
+
 
 };
 
