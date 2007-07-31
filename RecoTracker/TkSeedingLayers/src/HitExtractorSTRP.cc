@@ -76,7 +76,7 @@ namespace {
   void foreachHit(C const & v, std::pair<A,B> const & p, F & f) {
     typename C::Range range = rangeFromPair(v,p);
     for(typename C::const_iterator id=range.first; id!=range.second; id++)
-      std::for_each((*id).begin(), (*id).end, boost::ref(f));
+      std::for_each((*id).begin(), (*id).end(), boost::ref(f));
   }
 
   bool True(const TrackingRecHit&) { return true;}
