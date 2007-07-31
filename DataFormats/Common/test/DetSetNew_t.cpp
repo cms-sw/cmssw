@@ -251,6 +251,13 @@ namespace {
     TestDetSet & test;
   };
 
+  struct cmp10 {
+    bool operator()(id_type i1, id_type i2) const {
+      return i1/10 < i2/10;
+    }
+  };
+
+
 }
 
 void TestDetSet::iterator() {
@@ -262,6 +269,26 @@ void TestDetSet::iterator() {
     std::copy(sv.begin(),sv.begin()+n,ff.begin());
   }
   CPPUNIT_ASSERT(std::for_each(detsets.begin(),detsets.end(),VerifyIter(this)).n==5);
+  {
+    FF ff(detsets,31);
+    ff.resize(2);
+    std::copy(sv.begin(),sv.begin()+2,ff.begin());
+  }
+  {
+    FF ff(detsets,11);
+    ff.resize(2);
+    std::copy(sv.begin(),sv.begin()+2,ff.begin());
+  }
+  {
+    FF ff(detsets,34);
+    ff.resize(4);
+    std::copy(sv.begin(),sv.begin()+4,ff.begin());
+  }
+
+  DSTV::range r = detsets.equal_range(30,cmd10());
+  CPPUNIT_ASSERT(r.second-r.first==2);
+  r = detsets.equal_range(40,cmd10());
+  CPPUNIT_ASSERT(r.second-r.first==0);
 
   try {
     {
@@ -281,6 +308,8 @@ void TestDetSet::iterator() {
     CPPUNIT_ASSERT("DetSetVector threw when not expected"==0);
   }
   
+
+
   try{
     DSTV::const_iterator p = detsets.find(44);
     CPPUNIT_ASSERT(p==detsets.end());
