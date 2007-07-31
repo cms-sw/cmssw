@@ -73,6 +73,9 @@ system qq[perl], qq[-pi -e], qq[s#COLLECTOR#$collectorhost#], qq[$ENV{PWD}/cfg/c
 
 copy("$ENV{PWD}/../test/MESubscriptionList.xml", "$ENV{PWD}/cfg/.");
 copy("$ENV{PWD}/../test/sistrip_qualitytest_config.xml", "$ENV{PWD}/cfg/.");
+copy("$ENV{PWD}/../test/trackermap.txt", "$ENV{PWD}/.");
+copy("$ENV{PWD}/../test/tracker.dat", "$ENV{PWD}/.");
+
 
 
 #
@@ -82,7 +85,8 @@ print "make xdaq profile ...\n";
 
 my @EXproperties = ("logUrl",  "string","console",
 		    "logLevel","string","INFO");
-my @Pathproperties = ("aliasName",  "string","temporary",
+my @Pathproperties = ("documentRoot", "string",$ENV{"XDAQ_DOCUMENT_ROOT"},
+                     "aliasName",  "string","temporary",
 		    "aliasPath","string",$ENV{"PWD"});
 
 open (XML,">./xml/profile.xml") or die ("Can't open file: $!\n");
@@ -97,7 +101,7 @@ print XML makeXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libpthttp.so");
 print XML makeXmlAppHeader(0,"pt::fifo::PeerTransportFifo",8);
 print XML makeXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libptfifo.so");
 print XML makeXmlAppHeader(0,"xrelay::Application",4);
-print XML makeXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libxr.so");
+print XML makeXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libxrelay.so");
 print XML makeXmlAppHeader(0,"hyperdaq::Application",3);
 print XML makeXmlAppTrailer(0,$ENV{"XDAQ_ROOT"}."/lib","libhyperdaq.so");
 print XML makeXmlProfileTrailer();
@@ -237,7 +241,7 @@ my $script=<<"EOS";
 
 if [ \"\$1\" == \"source\" ]; then
   xdaq.exe -h $hostname -p $EPport -e xml/profile.xml -c xml/evf.xml
-elif [\"\$1\" == \"client\"]; then
+elif [ \"\$1\" == \"client\" ]; then
   xdaq.exe -h $hostname -p $DPport -e xml/profile.xml -c xml/evf.xml
 fi
 EOS
@@ -606,6 +610,7 @@ sub makeCtlDestroy
 	"start configure enable halt stop gennums.txt summaryCatalog.txt test.root`;\n\n";
     $result = $result . "`rm -rf Online.html loader.html "
           . "\*.png css_files js_files images WebLib.js `;\n\n";
+    $result = $result . "`rm -rf tracker.dat  trackermap.txt`;\n\n";
     $result = $result . "print \"FUShmCleanUp_t ...\\n\";\n\n";
     $result = $result . "`FUShmCleanUp_t`;\n\n";
     $result = $result . "print \"XDAQ session destroyed!\\n\";\n\n";

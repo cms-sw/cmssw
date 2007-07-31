@@ -3,11 +3,13 @@
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQM/SiStripMonitorClient/interface/SiStripConfigWriter.h"
 #include <fstream>
 #include <map>
 #include <vector>
 #include <string>
+
+
+class SiStripConfigWriter;
 
 class SiStripSummaryCreator {
 
@@ -15,12 +17,14 @@ class SiStripSummaryCreator {
 
   SiStripSummaryCreator();
   virtual ~SiStripSummaryCreator();
+  bool readConfiguration();
 
   void createSummary(MonitorUserInterface* mui);
 
   void createLayout(MonitorUserInterface * mui);
   void fillLayout(MonitorUserInterface * mui);
   void setSummaryMENames( std::map<std::string, std::string>& me_names);
+  int getFrequency() { return summaryFrequency_;}
 
  private:
  MonitorElement* getSummaryME(MonitorUserInterface* mui,
@@ -31,8 +35,14 @@ class SiStripSummaryCreator {
   void fillSummaryHistos(MonitorUserInterface* mui);
   void fillHistos(int ival, int istep, std::string htype, 
 		  MonitorElement* me_src, MonitorElement* me);
+
+
   std::map<std::string, std::string> summaryMEMap;
 
+  
   SiStripConfigWriter* configWriter_;
+  int summaryFrequency_;
+
+
 };
 #endif

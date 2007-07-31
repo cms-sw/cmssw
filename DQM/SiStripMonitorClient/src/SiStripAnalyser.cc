@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2007/07/12 21:13:30 $
- * $Revision: 1.2 $
+ * $Date: 2007/07/16 20:19:21 $
+ * $Revision: 1.3 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -29,9 +29,9 @@
 
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-#include "CommonTools/TrackerMap/interface/FedTrackerMap.h"
 
 #include "DQM/SiStripMonitorClient/interface/SiStripWebInterface.h"
+#include "DQM/SiStripMonitorClient/interface/TrackerMapCreator.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 
 #include <SealBase/Callback.h>
@@ -82,7 +82,7 @@ SiStripAnalyser::~SiStripAnalyser(){
 
   edm::LogInfo("SiStripAnalyser") <<  " Deleting SiStripAnalyser " << "\n" ;
   if (sistripWebInterface_) delete sistripWebInterface_;
-  if (fedTrackerMap_) delete fedTrackerMap_;
+  if (trackerMapCreator_) delete trackerMapCreator_;
 
 }
 //
@@ -100,17 +100,20 @@ void SiStripAnalyser::beginJob(const edm::EventSetup& eSetup){
 
   nevents = 0;
   runNumber_ = 0;
-  sistripWebInterface_->readConfiguration(tkMapFrequency_, summaryFrequency_);
+  sistripWebInterface_->readConfiguration(summaryFrequency_);
   edm::LogInfo("SiStripAnalyser") << " Configuration files read out correctly" 
                                   << "\n" ;
-  cout  << " Update Fruquencies are " << tkMapFrequency_ << " " 
+  cout  << " Update Frequencies are " << tkMapFrequency_ << " " 
                                       << summaryFrequency_ << endl ;
 
   collationFlag_ = parameters.getUntrackedParameter<int>("CollationtionFlag",0); 
 
   // Get Fed cabling
   eSetup.get<SiStripFedCablingRcd>().get(fedCabling_);
-  fedTrackerMap_ = new FedTrackerMap(fedCabling_);
+  trackerMapCreator_ = new TrackerMapCreator();
+  if (trackerMapCreator_->readConfiguration()) {
+    tkMapFrequency_ = trackerMapCreator_->getFrequency();
+  }
 }
 //
 //  -- Analyze 
@@ -121,7 +124,7 @@ void SiStripAnalyser::analyze(const edm::Event& e, const edm::EventSetup& eSetup
 
   eSetup.get<SiStripFedCablingRcd>().get(fedCabling_);
  
-  if (nevents <= 5) return;
+  if (nevents <= 3) return;
 
   cout << " ===> Iteration #" << nevents << endl;
   // -- Create summary monitor elements according to the frequency
@@ -133,9 +136,8 @@ void SiStripAnalyser::analyze(const edm::Event& e, const edm::EventSetup& eSetup
   // -- Create TrackerMap  according to the frequency
   if (tkMapFrequency_ != -1 && nevents%tkMapFrequency_ == 1) {
     cout << " Creating Tracker Map " << endl;
-    sistripWebInterface_->setActionFlag(SiStripWebInterface::CreateTkMap);
-    sistripWebInterface_->performAction();
-    createFedTrackerMap();
+    //    trackerMapCreator_->create(mui_);
+    trackerMapCreator_->create(fedCabling_, mui_);
   }
   // Create predefined plots
   if (nevents%10  == 1) {
@@ -244,31 +246,3 @@ void SiStripAnalyser::defaultWebPage(xgi::Input *in, xgi::Output *out)
 //void SiStripAnalyser::handleWebRequest(xgi::Input *in, xgi::Output *out) {
 //  sistripWebInterface_->handleCustomRequest(in, out);
 //}
-//
-// -- create FED Tracker Map
-//
-void SiStripAnalyser::createFedTrackerMap() {
-    
-  const vector<uint16_t>& feds = fedCabling_->feds(); 
-  for(vector<unsigned short>::const_iterator ifed = feds.begin(); 
-                      ifed < feds.end(); ifed++){
-    const std::vector<FedChannelConnection> fedChannels = fedCabling_->connections( *ifed );
-    for(std::vector<FedChannelConnection>::const_iterator iconn = fedChannels.begin(); iconn < fedChannels.end(); iconn++){
-      
-      uint32_t detId = iconn->detId();
-      vector<MonitorElement*> all_mes = dbe->get(detId);
-      for (vector<MonitorElement *>::const_iterator it = all_mes.begin();
-	   it!= all_mes.end(); it++) {
-	if (!(*it)) continue;
-	string me_name = (*it)->getName();        
-        if (me_name.find("NumberOfDigis") != string::npos) {
-	  int istat =  SiStripUtility::getStatus(*it);   
-	  int rval, gval, bval;
-	  SiStripUtility::getStatusColor(istat, rval, gval, bval);
-	  fedTrackerMap_->fillc(iconn->fedId(), iconn->fedCh(), rval, gval, bval);
-        }
-      }      
-    }
-  }
-  fedTrackerMap_->print();
-}

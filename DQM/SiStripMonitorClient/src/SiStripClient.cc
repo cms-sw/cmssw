@@ -1,5 +1,6 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripClient.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
+#include "DQM/SiStripMonitorClient/interface/TrackerMapCreator.h"
 #include <SealBase/Callback.h>
 
 SiStripClient::SiStripClient(xdaq::ApplicationStub *stub) 
@@ -14,6 +15,8 @@ SiStripClient::SiStripClient(xdaq::ApplicationStub *stub)
   webInterface_p = new SiStripWebInterface(getContextURL(),getApplicationURL(), & mui_);
   webInterface_p->createAll();
   xgi::bind(this, &SiStripClient::handleWebRequest, "Request");
+  trackerMapCreator_ = 0;
+  trackerMapCreator_ = new TrackerMapCreator();
 }
 
 /*
@@ -42,8 +45,10 @@ void SiStripClient::handleWebRequest(xgi::Input * in, xgi::Output * out)
 void SiStripClient::configure()
 {
   std::cout << "SiStripClient::configure: Reading Configuration " << std::endl;
-  webInterface_p->readConfiguration(updateFrequencyForTrackerMap_, 
-				    updateFrequencyForSummary_);
+  webInterface_p->readConfiguration(updateFrequencyForSummary_);
+  if (trackerMapCreator_->readConfiguration()) {
+    updateFrequencyForTrackerMap_ = trackerMapCreator_->getFrequency();
+  } else updateFrequencyForTrackerMap_ = -1;
 }
 
 /*
@@ -97,10 +102,12 @@ void SiStripClient::onUpdate() const
     }	
     // Creation of TrackerMap
     if (updateFrequencyForTrackerMap_ != -1 && nUpdate%updateFrequencyForTrackerMap_ == 1) {
-      webInterface_p->setActionFlag(SiStripWebInterface::CreateTkMap);
-      seal::Callback action(seal::CreateCallback(webInterface_p, 
-						 &SiStripWebInterface::performAction));
-      mui_->addCallback(action); 
+      //      webInterface_p->setActionFlag(SiStripWebInterface::CreateTkMap);
+      //      seal::Callback action(seal::CreateCallback(webInterface_p, 
+      //						 &SiStripWebInterface::performAction));
+      //    mui_->addCallback(action); 
+      trackerMapCreator_->create(mui_);      
+      
     }
     // Create predefined plots 
     if (nUpdate%10  == 1) {

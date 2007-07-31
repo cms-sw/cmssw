@@ -1,5 +1,7 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripSummaryCreator.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripConfigParser.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripConfigWriter.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
@@ -14,6 +16,7 @@ SiStripSummaryCreator::SiStripSummaryCreator() {
     " Creating SiStripSummaryCreator " << "\n" ;
   summaryMEMap.clear();
   configWriter_ = 0;
+  summaryFrequency_ = -1;
 }
 //
 // --  Destructor
@@ -23,6 +26,25 @@ SiStripSummaryCreator::~SiStripSummaryCreator() {
     " Deleting SiStripSummaryCreator " << "\n" ;
   summaryMEMap.clear();
   if (configWriter_) delete configWriter_;
+}
+//
+// -- Read Configuration
+//
+bool SiStripSummaryCreator::readConfiguration() {
+    summaryMEMap.clear();
+  SiStripConfigParser config_parser;
+  string localPath = string("DQM/SiStripMonitorClient/test/sistrip_monitorelement_config.xml");
+  config_parser.getDocument(edm::FileInPath(localPath).fullPath());
+  if (!config_parser.getFrequencyForSummary(summaryFrequency_)){
+    cout << "SiStripSummaryCreator::readConfiguration: Failed to read Summary configuration parameters!! ";
+    summaryFrequency_ = -1;
+    return false;
+  }  
+  if (!config_parser.getMENamesForSummary(summaryMEMap)) {
+    cout << "SiStripSummaryCreator::readConfiguration: Failed to read Summary configuration parameters!! ";
+    return false;
+  }
+  return true;
 }
 //
 // -- Set Summary ME names
@@ -39,6 +61,7 @@ void SiStripSummaryCreator::setSummaryMENames(map<string, string>& me_names) {
 // -- Browse through the Folder Structure
 //
 void SiStripSummaryCreator::createSummary(MonitorUserInterface* mui) {
+  if (summaryMEMap.size() == 0) return;
   string currDir = mui->pwd();
   vector<string> subdirs = mui->getSubdirs();
   int nmod = 0;

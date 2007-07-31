@@ -3,8 +3,6 @@
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQM/SiStripMonitorClient/interface/SiStripLayoutParser.h"
-
 
 #include "xgi/Utils.h"
 #include "xgi/Method.h"
@@ -18,6 +16,8 @@
 #include <vector>
 #include <string>
 #include <map>
+
+class SiStripLayoutParser;
 
 class SiStripInformationExtractor {
 
@@ -33,7 +33,7 @@ class SiStripInformationExtractor {
                       std::multimap<std::string, std::string>& req_map);
   void plotHistosFromPath(MonitorUserInterface * mui,std::multimap<std::string, std::string>& req_map);
   void plotHistosFromLayout(MonitorUserInterface * mui);
-
+  void plotTrackerMapHistos(MonitorUserInterface* mui, std::multimap<std::string, std::string>& req_map);
   const std::ostringstream& getImage() const;
   void readSummaryHistoTree(MonitorUserInterface* mui, std::string& str_name, 
                 xgi::Output * out, bool coll_flag);

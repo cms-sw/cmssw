@@ -97,9 +97,9 @@ void SiStripWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
   else if (requestID == "CollateME") {
      theActionFlag = Collate;
   } 
-  else if (requestID == "CreateTkMap") {
-     theActionFlag = CreateTkMap;
-  } 
+  //  else if (requestID == "CreateTkMap") {
+  //     theActionFlag = CreateTkMap;
+  //  } 
   else if (requestID == "OpenTkMap") {
     std::string name = "TkMap";
     std::string comment;
@@ -180,11 +180,10 @@ void SiStripWebInterface::setupQTests() {
 //
 // -- Read Configurations 
 //
-void SiStripWebInterface::readConfiguration(int& tkmap_freq, int& sum_freq){
+void SiStripWebInterface::readConfiguration(int& sum_freq){
   if (actionExecutor_)  {
-    if (actionExecutor_->readConfiguration(tkmap_freq,sum_freq));
+    if (actionExecutor_->readConfiguration(sum_freq));
   } else {
-    tkmap_freq = -1;
     sum_freq   = -1;
   }
 }
@@ -204,13 +203,13 @@ void SiStripWebInterface::performAction() {
       actionExecutor_->createCollation((*mui_p));
       break;
     }
-  case SiStripWebInterface::CreateTkMap :
-    {
-     if (createTkMap()) {
-       tkMapCreated = true;
-     }
-      break;
-    }
+  //  case SiStripWebInterface::CreateTkMap :
+  //    {
+  //     if (createTkMap()) {
+  //       tkMapCreated = true;
+  //     }
+  //      break;
+  //    }
   case SiStripWebInterface::Summary :
     {
       actionExecutor_->createSummary((*mui_p));
@@ -234,13 +233,14 @@ void SiStripWebInterface::performAction() {
     }
   case SiStripWebInterface::PlotTkMapHistogram :
     {
-      vector<string> mes;
+      /*      vector<string> mes;  // commenting out
       int nval = actionExecutor_->getTkMapMENames(mes);
       if (nval == 0) break;
       for  (vector<string>::iterator it = mes.begin();
 	    it != mes.end(); it++) {
 	requestMap_.insert(pair<string,string>("histo",(*it)));  
       }
+      infoExtractor_->plotSingleModuleHistos((*mui_p), requestMap_);*/ 
       infoExtractor_->plotSingleModuleHistos((*mui_p), requestMap_);
       break;
     }
@@ -271,11 +271,11 @@ void SiStripWebInterface::returnReplyXml(xgi::Output * out, const std::string& n
   //  cout << " <Response>" << comment << "</Response>" << endl;
   //  cout << "</"<<name<<">" << endl;
 }
-bool SiStripWebInterface::createTkMap() {
-  if (theActionFlag == SiStripWebInterface::CreateTkMap) {
-    actionExecutor_->createTkMap((*mui_p));
-    return true;
-  } else {
-    return false;
-  }
-}
+//bool SiStripWebInterface::createTkMap() {
+//  if (theActionFlag == SiStripWebInterface::CreateTkMap) {
+//    actionExecutor_->createTkMap((*mui_p));
+//    return true;
+//  } else {
+//    return false;
+//  }
+//}

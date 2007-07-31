@@ -1,5 +1,7 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripInformationExtractor.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripLayoutParser.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripConfigParser.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/WebComponents/interface/CgiReader.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
@@ -393,6 +395,25 @@ void SiStripInformationExtractor::plotHistosFromLayout(MonitorUserInterface * mu
     canvas_->Clear();
   }
 }
+//
+// -- Plot Tracker Map MEs
+//
+void SiStripInformationExtractor::plotTrackerMapHistos(MonitorUserInterface* mui, std::multimap<std::string, std::string>& req_map) {
+
+  vector<string> me_names;
+  string tkmap_name;
+  SiStripConfigParser config_parser;
+  string localPath = string("DQM/SiStripMonitorClient/test/sistrip_monitorelement_config.xml");
+  if (!config_parser.getMENamesForTrackerMap(tkmap_name, me_names));
+  if (me_names.size() == 0) return;
+
+  for (vector<string>::iterator it = me_names.begin();
+       it != me_names.end(); it++) {
+    req_map.insert(pair<string,string>("histo",(*it)));  
+  }   
+  plotSingleModuleHistos(mui, req_map);
+}
+
 //
 // -- Plot Dummy Histograms from Layout
 //
