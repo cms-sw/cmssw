@@ -285,7 +285,7 @@ void TestDetSet::iterator() {
     std::copy(sv.begin(),sv.begin()+4,ff.begin());
   }
 
-  DSTV::range r = detsets.equal_range(30,cmd10());
+  DSTV::Range r = detsets.equal_range(30,cmd10());
   CPPUNIT_ASSERT(r.second-r.first==2);
   r = detsets.equal_range(40,cmd10());
   CPPUNIT_ASSERT(r.second-r.first==0);
