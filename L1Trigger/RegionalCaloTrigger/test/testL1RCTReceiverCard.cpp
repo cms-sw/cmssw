@@ -1,13 +1,38 @@
+#include <vector>
+
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTReceiverCard.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
+#include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
+
 #include <vector>
 using std::vector;
+
 int main() {
-  std::string filename("../data/TPGcalc.txt");
-  L1RCTLookupTables lut(filename);
-  L1RCTReceiverCard flip(9,0);
-  L1RCTReceiverCard card(0,0);
-  L1RCTReceiverCard six(0,6);
+  // For testing use 1:1 LUT
+  std::vector<double> eGammaECalScaleFactors(32, 1.0);
+  std::vector<double> eGammaHCalScaleFactors(32, 1.0);
+  std::vector<double> jetMETECalScaleFactors(32, 1.0);
+  std::vector<double> jetMETHCalScaleFactors(32, 1.0);
+  L1RCTParameters* rctParameters = 
+    new L1RCTParameters(1.0,                       // eGammaLSB
+			1.0,                       // jetMETLSB
+			3.0,                       // eMinForFGCut
+			40.0,                      // eMaxForFGCut
+			0.5,                       // hOeCut
+			1.0,                       // eMinForHoECut
+			50.0,                      // eMaxForHoECut
+			2.0,                       // eActivityCut
+			3.0,                       // hActivityCut
+			eGammaECalScaleFactors,
+			eGammaHCalScaleFactors,
+			jetMETECalScaleFactors,
+			jetMETHCalScaleFactors
+			);
+  L1RCTLookupTables* lut = new L1RCTLookupTables();
+  lut->setRCTParameters(rctParameters);  // transcoder and etScale are not used
+  L1RCTReceiverCard flip(9,0,lut);
+  L1RCTReceiverCard card(0,0,lut);
+  L1RCTReceiverCard six(0,6,lut);
   vector<unsigned short> input1(64);
   vector<unsigned short> input2(64);
   vector<unsigned short> input3(64);
@@ -24,7 +49,7 @@ int main() {
   //The energy sum should be 300 and
   //the tau bit should be set to on because
   //the phi pattern is 1101
-  card.fillInput(input1, &lut);
+  card.fillInput(input1);
   card.fillTauBits();
   card.fillRegionSums();
   card.fillMuonBits();
@@ -39,7 +64,7 @@ int main() {
   //The tau bit should be off.
   input2.at(0) = 50;
   input2.at(32) = 50;
-  card.fillInput(input2, &lut);
+  card.fillInput(input2);
   card.fillTauBits();
   card.fillRegionSums();
   card.fillMuonBits();
@@ -56,7 +81,7 @@ int main() {
   //should be on and the tau bit should be off.
   input3.at(32) = 356;
   input3.at(1) = 356;
-  card.fillInput(input3,&lut);
+  card.fillInput(input3);
   card.fillTauBits();
   card.fillRegionSums();
   card.fillMuonBits();
@@ -69,19 +94,19 @@ int main() {
 
   for(int i =0;i<32;i++)
     input4.at(i)=i+1;
-  card.fillInput(input4,&lut);
+  card.fillInput(input4);
   card.fillMuonBits();
   card.fillTauBits();
   card.fillRegionSums();
   card.print();
 
-  flip.fillInput(input4,&lut);
+  flip.fillInput(input4);
   flip.fillMuonBits();
   flip.fillTauBits();
   flip.fillRegionSums();
   flip.print();
 
-  six.fillInput(input4,&lut);
+  six.fillInput(input4);
   six.fillMuonBits();
   six.fillTauBits();
   six.fillRegionSums();

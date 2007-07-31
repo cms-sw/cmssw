@@ -15,7 +15,7 @@ class L1RCTReceiverCard {
 
  public:
 
-  L1RCTReceiverCard(int crateNumber, int cardNumber);
+  L1RCTReceiverCard(int crateNumber, int cardNumber, const L1RCTLookupTables *rctLookupTables);
   ~L1RCTReceiverCard();
 
   //Information needed to identify cards
@@ -45,7 +45,7 @@ class L1RCTReceiverCard {
   //In either case it is set up as so that 0-31 are the 8bit ecal energies
   //plus the fine grain bit, and 32-63 are the 8bit hcal energies plus
   //the muon bit.
-  void fillInput(std::vector<unsigned short> input, L1RCTLookupTables *lut);
+  void fillInput(std::vector<unsigned short> input);
   void fillTauBits();
   void fillRegionSums();
   void fillMuonBits();
@@ -69,8 +69,9 @@ class L1RCTReceiverCard {
     regions.at(1).printEdges();
   }
 
-  void randomInput(L1RCTLookupTables *lut);
-  void fileInput(char* filename, L1RCTLookupTables *lut);
+  void randomInput();
+  void fileInput(char* filename);
+
  private:
  
   std::vector<L1RCTRegion> regions;
@@ -80,6 +81,9 @@ class L1RCTReceiverCard {
   unsigned short calcMuonBit(L1RCTRegion region);
   unsigned short crtNo;
   unsigned short cardNo;
+
+  const L1RCTLookupTables* rctLookupTables_;
+
   std::vector<unsigned short> etIn10Bits;
   std::vector<unsigned short> overFlowBits;
   std::vector<unsigned short> muonBits;

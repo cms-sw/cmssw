@@ -15,6 +15,7 @@
 #include <string>
 
 class L1RCT;
+class L1RCTLookupTables;
 
 class L1RCTProducer : public edm::EDProducer
 {
@@ -25,6 +26,7 @@ class L1RCTProducer : public edm::EDProducer
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
  private:
   L1RCT* rct;
+  L1RCTLookupTables* rctLookupTables;
   edm::FileInPath src;
   bool orcaFileInput;
   edm::FileInPath lutFile;

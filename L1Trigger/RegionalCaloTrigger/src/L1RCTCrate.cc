@@ -1,26 +1,29 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTCrate.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
 
-L1RCTCrate::L1RCTCrate(int crtNo) : jetSummaryCard(crtNo),crtNo(crtNo)
+L1RCTCrate::L1RCTCrate(int crtNo, const L1RCTLookupTables* rctLookupTables) : 
+  jetSummaryCard(crtNo, rctLookupTables),
+  crtNo(crtNo),
+  rctLookupTables_(rctLookupTables)
 {
   for(int i = 0; i <7; i++){
-    L1RCTReceiverCard rc(crtNo,i);
-    L1RCTElectronIsolationCard eic(crtNo,i);
+    L1RCTReceiverCard rc(crtNo,i,rctLookupTables);
+    L1RCTElectronIsolationCard eic(crtNo,i,rctLookupTables);
     receiverCards.push_back(rc);
     electronCards.push_back(eic);
   }
 }
 void L1RCTCrate::input(std::vector<std::vector<unsigned short> > RCInput,
-		       std::vector<unsigned short> HFInput,
-		       L1RCTLookupTables *lut){
+		       std::vector<unsigned short> HFInput)
+{
   //std::cout << "Crate.input() entered" << std::endl;
   for(int i =0; i<7; i++){
     //std::cout << "calling RC.fillInput() for RC " << i << std::endl;
-    receiverCards.at(i).fillInput(RCInput.at(i), lut);
+    receiverCards.at(i).fillInput(RCInput.at(i));
     //std::cout << "RC " << i << " filled" << std::endl;
   }
   //std::cout << "calling JSC.fillHFRegionSums()" << std::endl;
-  jetSummaryCard.fillHFRegionSums(HFInput, lut);
+  jetSummaryCard.fillHFRegionSums(HFInput);
   //std::cout << "JSC.fillHF called" << std::endl;
 } 
 void L1RCTCrate::processReceiverCards(){

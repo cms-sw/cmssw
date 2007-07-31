@@ -1,12 +1,15 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTElectronIsolationCard.h"
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
 
 #include <iostream>
 #include <iomanip>
 
 L1RCTElectronIsolationCard::L1RCTElectronIsolationCard(int crateNumber,
-						       int cardNumber) :
-  crtNo(crateNumber),cardNo(cardNumber),isoElectrons(2),nonIsoElectrons(2),
-  regions(2)
+						       int cardNumber,
+						       const L1RCTLookupTables* rctLookupTables) :
+  crtNo(crateNumber),cardNo(cardNumber),
+  rctLookupTables_(rctLookupTables),
+  isoElectrons(2),nonIsoElectrons(2), regions(2)
 {
   regions.at(0) = new L1RCTRegion();
   regions.at(1) = new L1RCTRegion();
@@ -104,8 +107,6 @@ L1RCTElectronIsolationCard::calcElectronCandidates(L1RCTRegion* region){
 	}
 	else if(candidateEt > nonIsoElectron)
 	  nonIsoElectron = candidateEt;
-
-	bool isolated = !(quietVeto || neighborVeto);
 
       }
     }

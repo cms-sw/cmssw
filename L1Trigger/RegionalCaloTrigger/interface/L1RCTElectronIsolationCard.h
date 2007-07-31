@@ -14,12 +14,15 @@
 //rather has pointers to regions that were created in L1RCTReceiverCard
 //for efficiency purposes.
 
+class L1RCTLookupTables;
+
 class L1RCTElectronIsolationCard {
 
  public:
 
   L1RCTElectronIsolationCard(int crateNumber,
-			     int cardNumber);
+			     int cardNumber,
+			     const L1RCTLookupTables *rctLookupTables);
   ~L1RCTElectronIsolationCard();
 
   int crateNumber() {return crtNo;}
@@ -52,6 +55,8 @@ class L1RCTElectronIsolationCard {
 
   unsigned short crtNo;  // changed from int
   unsigned short cardNo;  // changed from int
+
+  const L1RCTLookupTables* rctLookupTables_;
 
   L1RCTRegion empty;
 

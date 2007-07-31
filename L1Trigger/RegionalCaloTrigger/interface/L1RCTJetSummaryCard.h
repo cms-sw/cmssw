@@ -12,7 +12,7 @@ class L1RCTJetSummaryCard
   //There is no default constructor.
   //It is required to have a crate number attached to it
   //for bookeeping purposes.  
-  L1RCTJetSummaryCard(int crtNo);
+  L1RCTJetSummaryCard(int crtNo, const L1RCTLookupTables* rctLookupTables);
   
   int crateNumber() {return crtNo;}
 
@@ -71,7 +71,7 @@ class L1RCTJetSummaryCard
 
   std::vector<unsigned short> getHFFineGrainBits() {return hfFineGrainBits;}
 
-  void fillHFRegionSums(std::vector<unsigned short> hfRegionSums, L1RCTLookupTables *lut);
+  void fillHFRegionSums(std::vector<unsigned short> hfRegionSums);
   void fillRegionSums(std::vector<unsigned short> regSums){
     barrelRegions = regSums;
   }
@@ -88,6 +88,10 @@ class L1RCTJetSummaryCard
   void print();
  private:
 
+  int crtNo;
+
+  const L1RCTLookupTables* rctLookupTables_;
+
   std::vector<unsigned short> isolatedEGObjects;
   std::vector<unsigned short> nonisolatedEGObjects;
   std::vector<unsigned short> jetRegions;
@@ -101,8 +105,6 @@ class L1RCTJetSummaryCard
   unsigned short overFlowBits;
 
   std::vector<unsigned short> hfFineGrainBits;
-
-  int crtNo;
 
   unsigned short quietThreshold;
 

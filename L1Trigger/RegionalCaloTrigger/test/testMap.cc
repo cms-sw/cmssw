@@ -1,12 +1,30 @@
 #include <iostream>
 #include <string>
 
-#include "L1Trigger/RegionalCaloTrigger/interface/L1RCT.h"
+#include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
 
 int main()
 {
-  std::string filename("../data/TPGcalc.txt");
-  L1RCT rct(filename);
+  // For testing use 1:1 LUT
+  std::vector<double> eGammaECalScaleFactors(32, 1.0);
+  std::vector<double> eGammaHCalScaleFactors(32, 1.0);
+  std::vector<double> jetMETECalScaleFactors(32, 1.0);
+  std::vector<double> jetMETHCalScaleFactors(32, 1.0);
+  L1RCTParameters* rctParameters = 
+    new L1RCTParameters(1.0,                       // eGammaLSB
+			1.0,                       // jetMETLSB
+			3.0,                       // eMinForFGCut
+			40.0,                      // eMaxForFGCut
+			0.5,                       // hOeCut
+			1.0,                       // eMinForHoECut
+			50.0,                      // eMaxForHoECut
+			2.0,                       // eActivityCut
+			3.0,                       // hActivityCut
+			eGammaECalScaleFactors,
+			eGammaHCalScaleFactors,
+			jetMETECalScaleFactors,
+			jetMETHCalScaleFactors
+			);
   const unsigned short iPhiMax = 72;
   const short iAbsEtaMax = 32;
   for(unsigned short iPhi = 0; iPhi < iPhiMax; iPhi++)
@@ -25,11 +43,11 @@ int main()
 	  else
 	    if(iEta != 0)
 	      {
-		iCrate = rct.calcCrate(iPhi, iEta);
-		iCard = rct.calcCard(iPhi, (unsigned short) abs(iEta));
-		iTower = rct.calcTower(iPhi, (unsigned short) abs(iEta));
-		short jEta = rct.calcIEta(iCrate, iCard, iTower);
-		unsigned short jPhi = rct.calcIPhi(iCrate, iCard, iTower);
+		iCrate = rctParameters->calcCrate(iPhi, iEta);
+		iCard = rctParameters->calcCard(iPhi, (unsigned short) abs(iEta));
+		iTower = rctParameters->calcTower(iPhi, (unsigned short) abs(iEta));
+		short jEta = rctParameters->calcIEta(iCrate, iCard, iTower);
+		unsigned short jPhi = rctParameters->calcIPhi(iCrate, iCard, iTower);
 		if(iEta != jEta || iPhi != jPhi)
 		  std::cout << "Problem 1: "
 			    << "\tiEta   = " << iEta << "\tjEta   = " << jEta 
@@ -53,11 +71,11 @@ int main()
 	{
 	  for(unsigned short iTower = 1; iTower <= 32; iTower++)
 	    {
-	      short iEta = rct.calcIEta(iCrate, iCard, iTower);
-	      unsigned short iPhi = rct.calcIPhi(iCrate, iCard, iTower);
-	      short jCrate = rct.calcCrate(iPhi, iEta);
-	      short jCard = rct.calcCard(iPhi, (unsigned short) abs(iEta));
-	      short jTower = rct.calcTower(iPhi, (unsigned short) abs(iEta));
+	      short iEta = rctParameters->calcIEta(iCrate, iCard, iTower);
+	      unsigned short iPhi = rctParameters->calcIPhi(iCrate, iCard, iTower);
+	      short jCrate = rctParameters->calcCrate(iPhi, iEta);
+	      short jCard = rctParameters->calcCard(iPhi, (unsigned short) abs(iEta));
+	      short jTower = rctParameters->calcTower(iPhi, (unsigned short) abs(iEta));
 	      if(iCrate != jCrate || iCard != jCard || iTower != jTower)
 		std::cout << "Problem 2:"
 			  << "\tiCrate = " << iCrate << "\tiCard  = " << iCard << "\tiTower = " << iTower 
@@ -72,12 +90,11 @@ int main()
       unsigned short iCard = 999;
       for(unsigned short iTower = 0; iTower < 8; iTower++)
 	{
-	  short iEta = rct.calcIEta(iCrate, iCard, iTower);
-	  short iPhi = rct.calcIPhi(iCrate, iCard, iTower);
-	  short jCrate = rct.calcCrate(iPhi, iEta);
-	  short jCard = rct.calcCard(iPhi, (unsigned short) abs(iEta));
-	  short jTower = rct.calcTower(iPhi, (unsigned short) abs(iEta));
-	  unsigned short iAEta = iEta + iAbsEtaMax;
+	  short iEta = rctParameters->calcIEta(iCrate, iCard, iTower);
+	  short iPhi = rctParameters->calcIPhi(iCrate, iCard, iTower);
+	  short jCrate = rctParameters->calcCrate(iPhi, iEta);
+	  short jCard = rctParameters->calcCard(iPhi, (unsigned short) abs(iEta));
+	  short jTower = rctParameters->calcTower(iPhi, (unsigned short) abs(iEta));
 	  if(iCrate != jCrate || iCard != jCard || iTower != jTower)
 	    std::cout << "Problem 2:"
 		      << "\tiCrate = " << iCrate << "\tiCard  = " << iCard << "\tiTower = " << iTower 

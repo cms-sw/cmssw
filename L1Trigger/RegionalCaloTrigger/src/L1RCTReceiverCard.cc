@@ -15,22 +15,23 @@ using std::endl;
 #include <string>
 using std::string;
 
-L1RCTReceiverCard::L1RCTReceiverCard(int crateNumber,int cardNumber) :
-  regions(2),crtNo(crateNumber),cardNo(cardNumber),etIn10Bits(2),
-  overFlowBits(2),muonBits(2),tauBits(2)
+L1RCTReceiverCard::L1RCTReceiverCard(int crateNumber,int cardNumber, const L1RCTLookupTables* rctLookupTables) :
+  regions(2),crtNo(crateNumber),cardNo(cardNumber),
+  rctLookupTables_(rctLookupTables),
+  etIn10Bits(2), overFlowBits(2),muonBits(2),tauBits(2)
 {
 }
 
 L1RCTReceiverCard::~L1RCTReceiverCard(){}
 
-void L1RCTReceiverCard::randomInput(L1RCTLookupTables *lut){
+void L1RCTReceiverCard::randomInput(){
   vector<unsigned short> input(64);
   for(int i = 0; i<64;i++)
     input.at(i) = rand()&511;
-  fillInput(input, lut);
+  fillInput(input);
 }
 
-void L1RCTReceiverCard::fileInput(char* filename, L1RCTLookupTables *lut){
+void L1RCTReceiverCard::fileInput(char* filename){
   vector<unsigned short> input(64);
   unsigned short x;
   std::ifstream instream(filename);
@@ -42,7 +43,7 @@ void L1RCTReceiverCard::fileInput(char* filename, L1RCTLookupTables *lut){
 	input.at(i) = x;
     }
   }
-  fillInput(input, lut);
+  fillInput(input);
 }
 
 
@@ -65,7 +66,7 @@ void L1RCTReceiverCard::fileInput(char* filename, L1RCTLookupTables *lut){
 // 19 23 27 31
 // 20 24 28 32
 
-void L1RCTReceiverCard::fillInput(vector<unsigned short> input, L1RCTLookupTables *lut){
+void L1RCTReceiverCard::fillInput(vector<unsigned short> input){
   
   vector<unsigned short> ecalInput(32);
   vector<unsigned short> ecalFG(32);
@@ -77,7 +78,7 @@ void L1RCTReceiverCard::fillInput(vector<unsigned short> input, L1RCTLookupTable
     ecalFG.at(i) = input.at(i) & 1;
     hcalInput.at(i) = input.at(i+32)/2;
     hcalMuon.at(i) = input.at(i+32) & 1;
-    unsigned long lookup = lut->lookup(ecalInput.at(i),hcalInput.at(i),ecalFG.at(i),crtNo, cardNo, i+1);
+    unsigned long lookup = rctLookupTables_->lookup(ecalInput.at(i),hcalInput.at(i),ecalFG.at(i),crtNo, cardNo, i+1);
     unsigned short etIn7Bits = lookup&127;
     unsigned short etIn9Bits = (lookup >> 8)&511;
     unsigned short HE_FGBit = (lookup>>7)&1;

@@ -9,26 +9,28 @@ using std::vector;
 #include <bitset>
 using std::bitset;
 
-L1RCTJetSummaryCard::L1RCTJetSummaryCard(int crtNo):isolatedEGObjects(4),
-						    nonisolatedEGObjects(4),
-						    jetRegions(22),
-						    HFRegions(8),
-						    barrelRegions(14),
-						    mipBits(0),
-						    quietBits(0),
-						    tauBits(0),
-						    overFlowBits(0),
-						    hfFineGrainBits(8),
-						    crtNo(crtNo),
-						    quietThreshold(3)
+L1RCTJetSummaryCard::L1RCTJetSummaryCard(int crtNo, const L1RCTLookupTables* rctLookupTables) : 
+  crtNo(crtNo),
+  rctLookupTables_(rctLookupTables),
+  isolatedEGObjects(4),
+  nonisolatedEGObjects(4),
+  jetRegions(22),
+  HFRegions(8),
+  barrelRegions(14),
+  mipBits(0),
+  quietBits(0),
+  tauBits(0),
+  overFlowBits(0),
+  hfFineGrainBits(8),
+  quietThreshold(3)
 {
 }
 
-void L1RCTJetSummaryCard::fillHFRegionSums(vector<unsigned short> hfRegionSums, L1RCTLookupTables *lut){
+void L1RCTJetSummaryCard::fillHFRegionSums(vector<unsigned short> hfRegionSums){
   //cout << "JSC.fillHFRegionSums() entered" << endl;
   for(int i=0;i<8;i++){
     //cout << "filling hf region at " << i << endl;
-    HFRegions.at(i) = lut->lookup( (hfRegionSums.at(i)/2), crtNo, 999, i);
+    HFRegions.at(i) = rctLookupTables_->lookup( (hfRegionSums.at(i)/2), crtNo, 999, i);
     //cout << "hf region " << i << " et filled" << endl;
     hfFineGrainBits.at(i) = (hfRegionSums.at(i)&1);
     //cout << "hf region " << i << " fine grain bit filled" << endl;

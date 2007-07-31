@@ -11,7 +11,7 @@ class L1RCTLookupTables;
 class L1RCTCrate {
 
  public:
-  L1RCTCrate(int crtNo);
+  L1RCTCrate(int crtNo, const L1RCTLookupTables* rctLookupTables);
 
   int crateNumber(){return crtNo;}
 
@@ -28,8 +28,7 @@ class L1RCTCrate {
   //to the JSC for this crate.  The RCs never see the HF data.  Instead
   //the JSC acts like a primitive RC for these regions.
   void input(std::vector<std::vector<unsigned short> > RCInput,
-	     std::vector<unsigned short> HFInput,
-	     L1RCTLookupTables *lut);
+	     std::vector<unsigned short> HFInput);
   //The two following are methods for running the actual data processing
   //in the RCs and the EICs.  They're to be called for each card
   //from the L1RCT process method
@@ -104,6 +103,7 @@ class L1RCTCrate {
   L1RCTJetSummaryCard jetSummaryCard;
   
   int crtNo;
+  const L1RCTLookupTables* rctLookupTables_;
 
   L1RCTCrate();
 

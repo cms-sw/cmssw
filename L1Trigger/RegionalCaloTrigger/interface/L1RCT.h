@@ -1,11 +1,9 @@
 #ifndef L1RCT_h
 #define L1RCT_h
 
-//#include <math>
 #include <vector>
 #include <bitset>
 #include <iostream>
-//#include <fstream>
 #include <iomanip>
 #include <string>
 
@@ -17,25 +15,13 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
-
-class L1CaloEtScale;
 class L1RCTLookupTables;
 
 class L1RCT {
 
  public:
   
-  L1RCT(std::string lutFile);
-  L1RCT(std::string lutFile, std::string lutFile2, 
-	std::string rctTestInputFile,
-	std::string rctTestOutputFile,
-	bool patternTest);
-  L1RCT(std::string lutFile, edm::ESHandle<CaloTPGTranscoder> transcoder,
-	std::string rctTestInputFile, std::string rctTestOutputFile);
-
-  void setGctEmScale(const L1CaloEtScale* scale);
+  L1RCT(const L1RCTLookupTables* rctLookupTables);
 
   //Should organize the input into the crates and cards then pass on
   //the output.  The data will come into the trigger in the form
@@ -56,8 +42,6 @@ class L1RCT {
   void fileInput(const char* filename);       // added "const" also in .cc
 
   void digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDigiCollection hcalCollection);
-
-  void saveRCTInput(std::vector<std::vector<std::vector<unsigned short> > > barrel);
 
   void randomInput();
 
@@ -94,19 +78,11 @@ class L1RCT {
 
   std::vector<L1CaloRegion> getRegions(int crate);
 
-  // Helper methods to convert from trigger tower (iphi, ieta) to RCT (crate, card, tower)
-  // Static methods that are globally accessible for now -- this should be designed better!
-  static unsigned short calcCrate(unsigned short rct_iphi, short ieta);
-  static unsigned short calcCard(unsigned short rct_iphi, unsigned short absIeta);
-  static unsigned short calcTower(unsigned short rct_iphi, unsigned short absIeta);
-  static short calcIEta(unsigned short iCrate, unsigned short iCard, unsigned short iTower); // negative eta is used
-  static unsigned short calcIPhi(unsigned short iCrate, unsigned short iCard, unsigned short iTower);
-  
-  L1RCTLookupTables* getLUT() {return lut;}
-
  private:
   
   L1RCT();  // Do not implement this
+
+  const L1RCTLookupTables* rctLookupTables_;
 
   //Helper methods called by constructor
   //Set all the neighbors properly.
@@ -131,17 +107,6 @@ class L1RCT {
   //While 9-17 are eta 0 -> 5
   //Crate i and crate i+9 are next to each other  
   std::vector<L1RCTCrate> crates;
-
-  // scale for converting electron energy to GCT rank
-  const L1CaloEtScale* gctEmScale;
-
-  edm::ESHandle<CaloTPGTranscoder> transcoder_;
-  L1RCTLookupTables* lut;
-
-  std::string rctTestInputFile_;
-  std::string rctTestOutputFile_;
-
-  bool patternTest_;
 
 };
 
