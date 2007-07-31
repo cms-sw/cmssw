@@ -8,6 +8,7 @@
 #include "DataFormats/JetReco/interface/GenericJet.h"
 #include "DataFormats/JetReco/interface/JetTrackMatch.h"
 #include "DataFormats/JetReco/interface/JetToFloatAssociation.h"
+#include "DataFormats/JetReco/interface/JetToTracksAssociation.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
@@ -62,6 +63,13 @@ namespace {
     JetToFloatAssociation::Object          j2f_o;
     JetToFloatAssociation::Objects         j2f_oo;
     edm::Wrapper<JetToFloatAssociation::Container>  j2f_c_w;
+
+    JetToTracksAssociation::Container       j2t_c;
+    JetToTracksAssociation::Object          j2t_o;
+    JetToTracksAssociation::Ref             j2t_r;
+    JetToTracksAssociation::RefProd         j2t_rp;
+    JetToTracksAssociation::RefVector       j2t_rv;
+    edm::Wrapper<JetToTracksAssociation::Container>  j2t_c_w;
 
     // RefToBase Holders for Jets
     edm::reftobase::Holder<reco::Jet, reco::CaloJetRef> rb_cj;
