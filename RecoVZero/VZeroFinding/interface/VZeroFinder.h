@@ -16,8 +16,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-//#include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
-#include "RecoVertex/VertexTools/interface/ClosestApproachInRPhi.h"
+#include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
 
 class VZeroFinder
 {
