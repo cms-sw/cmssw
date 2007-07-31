@@ -252,7 +252,7 @@ namespace {
   };
 
   struct cmp10 {
-    bool operator()(id_type i1, id_type i2) const {
+    bool operator()(DSTV::id_type i1, DSTV::id_type i2) const {
       return i1/10 < i2/10;
     }
   };
