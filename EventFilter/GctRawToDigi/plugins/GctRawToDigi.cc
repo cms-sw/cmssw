@@ -153,31 +153,23 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
   // read blocks
   for (unsigned nb=0; !lost && dPtr<dEnd && nb<MAX_BLOCKS; nb++) {
 
-    // 1 read block header
+    // read block header
     GctBlockHeader blockHead(&data[dPtr]);
-    unsigned id = blockHead.id();
 
-    // 2 get block size (in 32 bit words)
-    unsigned blockLen = blockUnpacker_.blockLength(id);
+    // unpack the block
+    blockUnpacker_.convertBlock(&data[dPtr+4], blockHead);
+
+    // store the header
+    bHdrs.push_back(blockHead);
+    
+    // advance pointer
+    unsigned blockLen = blockHead.length();
     unsigned nSamples = blockHead.nSamples();
-
-    // 3 if block recognised, unpack it and store header
-    if ( blockUnpacker_.validBlock(id) ) {
-      blockUnpacker_.convertBlock(&data[dPtr+4], id, nSamples);  // pass pointer to first word in block payload
-      bHdrs.push_back(blockHead);
-      dPtr += 4*(blockLen*nSamples+1); // *4 because blockLen is in 32-bit words, +1 for header
-    }
-    else {  // otherwise bail out
-      lost = true;
-      std::ostringstream os;
-      os << "Unrecognised data block at byte " << dPtr << ". Bailing out" << endl;
-      os << blockHead << endl;
-      edm::LogError("GCT") << os.str();
-    }
+    dPtr += 4*(blockLen*nSamples+1); // *4 because blockLen is in 32-bit words, +1 for header
     
   }
-
-  // print info (to be removed!)
+  
+  // dump summary in verbose mode
   if (verbose_) {
     std::ostringstream os;
     os << "Found " << bHdrs.size() << " GCT internal headers" << endl;

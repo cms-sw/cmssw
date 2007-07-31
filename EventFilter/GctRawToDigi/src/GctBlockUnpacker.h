@@ -14,18 +14,14 @@
 
 #include "L1Trigger/TextToDigi/src/SourceCardRouting.h"
 
+#include "EventFilter/GctRawToDigi/src/GctBlockHeader.h"
+
 class GctBlockUnpacker {
  public:
 
   GctBlockUnpacker();
   ~GctBlockUnpacker();
   
-  /// find out whether a block ID is recognised
-  bool validBlock(unsigned id);
-
-  /// return block length in 32-bit words
-  unsigned blockLength(unsigned id);
-    
   /// set collection pointers
   /// when unpacking set these to empty collections which will be filled
   /// when packing, set these to the full collections of input data
@@ -36,28 +32,25 @@ class GctBlockUnpacker {
   void setFibreCollection(L1GctFibreCollection* coll) { gctFibres_ = coll; }
 
   // get digis from block
-  void convertBlock(const unsigned char * d, unsigned id, unsigned nSamples);
+  void convertBlock(const unsigned char * d, GctBlockHeader& hdr);
 
  private:
 
   // convert functions for each type of block
   /// unpack GCT EM Candidates
-  void blockToGctEmCand(const unsigned char * d, unsigned id, unsigned nSamples);
+  void blockToGctEmCand(const unsigned char * d, GctBlockHeader& hdr);
 
   /// unpack GCT internal EM Candidates
-  void blockToGctInternEmCand(const unsigned char * d, unsigned id, unsigned nSamples);
+  void blockToGctInternEmCand(const unsigned char * d, GctBlockHeader& hdr);
 
   /// unpack RCT EM Candidates
-  void blockToRctEmCand(const unsigned char * d, unsigned id, unsigned nSamples);
+  void blockToRctEmCand(const unsigned char * d, GctBlockHeader& hdr);
 
   /// unpack Fibres
-  void blockToFibres(const unsigned char * d, unsigned id, unsigned nSamples);
+  void blockToFibres(const unsigned char * d, GctBlockHeader& hdr);
 
 
  private:
-
-  // block info
-  std::map<unsigned, unsigned> blockLength_;  // size of a block
 
   // source card mapping info
   SourceCardRouting srcCardRouting_;
@@ -66,8 +59,8 @@ class GctBlockUnpacker {
   std::map<unsigned, unsigned> rctCrate_;
 
   // map of conversion functions
-  //  typedef  void (GctBlockUnpacker::*convFn)(uint16_t, uint16_t, int);
-  //  std::map< unsigned, convFn > convertFn_;
+  //   typedef  void (GctBlockUnpacker::*convFn)(const unsigned char*, GctBlockHeader&);
+  //   std::vector< unsigned, convFn > convertFn_;
   
   // collections of RCT objects
   L1CaloEmCollection* rctEm_;

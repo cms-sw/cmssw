@@ -1,6 +1,12 @@
 
 #include "EventFilter/GctRawToDigi/src/GctBlockHeader.h"
 
+#include <utility>
+
+using std::map;
+using std::pair;
+using std::string;
+
 GctBlockHeader::GctBlockHeader(const uint32_t data) { d = data; }
 
 GctBlockHeader::GctBlockHeader(const unsigned char * data) { 
@@ -14,52 +20,60 @@ GctBlockHeader::GctBlockHeader(uint16_t id, uint16_t nsamples, uint16_t bcid, ui
 GctBlockHeader::~GctBlockHeader() { }
 
 std::ostream& operator<<(std::ostream& os, const GctBlockHeader& h) {
-  os << "ID " << std::hex << h.id() << " : Samples " << h.nSamples() << " : BX " << h.bcId() << " : Event " << h.eventId() << std::dec;
+  os << "GCT Raw Data Block : " << h.name() << " : ID " << std::hex << h.id() << " : Length : " << h.length() << " : Samples " << h.nSamples() << " : BX " << h.bcId() << " : Event " << h.eventId() << std::dec;
   return os;
 }
 
 
-// /// setup class statics to lookup block length
+/// setup class static to lookup block length
+pair<unsigned, unsigned> a[] = {
+  pair<unsigned, unsigned>(0x00,0),
+  pair<unsigned, unsigned>(0x58,0),
+  pair<unsigned, unsigned>(0x59,0),
+  pair<unsigned, unsigned>(0x5f,1),
+  pair<unsigned, unsigned>(0x68,4),
+  pair<unsigned, unsigned>(0x69,16),
+  pair<unsigned, unsigned>(0x6b,2),
+  pair<unsigned, unsigned>(0x6f,1),
+  pair<unsigned, unsigned>(0x80,20),
+  pair<unsigned, unsigned>(0x81,15),
+  pair<unsigned, unsigned>(0x83,4),
+  pair<unsigned, unsigned>(0x88,16),
+  pair<unsigned, unsigned>(0x89,12),
+  pair<unsigned, unsigned>(0x8b,4),
+  pair<unsigned, unsigned>(0xc0,20),
+  pair<unsigned, unsigned>(0xc1,15),
+  pair<unsigned, unsigned>(0xc3,4),
+  pair<unsigned, unsigned>(0xc8,16),
+  pair<unsigned, unsigned>(0xc9,12),
+  pair<unsigned, unsigned>(0xcb,4),
+};
 
-// GctBlockHeader::blockLength_[0x00] = 0;
-// GctBlockHeader::blockLength_[0x58] = 0;
-// GctBlockHeader::blockLength_[0x59] = 0;
-// GctBlockHeader::blockLength_[0x5f] = 1;   // ConcJet: Bunch Counter Pattern Test
-// GctBlockHeader::blockLength_[0x68] = 4;   // ConcElec: Output to Global Trigger
-// GctBlockHeader::blockLength_[0x69] = 16;  // ConcElec: Sort Input
-// GctBlockHeader::blockLength_[0x6b] = 2;   // ConcElec: GT Serdes Loopback
-// GctBlockHeader::blockLength_[0x6f] = 1;   // ConcElec: Bunch Counter Pattern Test
-// GctBlockHeader::blockLength_[0x80] = 20;  // Leaf-U1, Elec, NegEta, Sort Input
-// GctBlockHeader::blockLength_[0x81] = 15;  // Leaf-U1, Elec, NegEta, Raw Input
-// GctBlockHeader::blockLength_[0x83] = 4;   // Leaf-U1, Elec, NegEta, Sort Output
-// GctBlockHeader::blockLength_[0x88] = 16;  // Leaf-U2, Elec, NegEta, Sort Input
-// GctBlockHeader::blockLength_[0x89] = 12;  // Leaf-U2, Elec, NegEta, Raw Input
-// GctBlockHeader::blockLength_[0x8b] = 4;   // Leaf-U2, Elec, NegEta, Sort Output
-// GctBlockHeader::blockLength_[0xc0] = 20;  // Leaf-U1, Elec, PosEta, Sort Input
-// GctBlockHeader::blockLength_[0xc1] = 15;  // Leaf-U1, Elec, PosEta, Raw Input
-// GctBlockHeader::blockLength_[0xc3] = 4;   // Leaf-U1, Elec, PosEta, Sort Output
-// GctBlockHeader::blockLength_[0xc8] = 16;  // Leaf-U2, Elec, PosEta, Sort Input
-// GctBlockHeader::blockLength_[0xc9] = 12;  // Leaf-U2, Elec, PosEta, Raw Input
-// GctBlockHeader::blockLength_[0xcb] = 4;   // Leaf-U2, Elec, PosEta, Sort Output
+map<unsigned, unsigned> GctBlockHeader::blockLength_(a, a + sizeof(a) / sizeof(a[0]));
 
-// // setup block names
-// GctBlockHeader::blockName_[0x00] = "null block";
-// GctBlockHeader::blockName_[0x58] = ;
-// GctBlockHeader::blockName_[0x59] = ;
-// GctBlockHeader::blockName_[0x5f] = ;
-// GctBlockHeader::blockName_[0x68] = ;
-// GctBlockHeader::blockName_[0x69] = ;
-// GctBlockHeader::blockName_[0x6b] = ;
-// GctBlockHeader::blockName_[0x6f] = ;
-// GctBlockHeader::blockName_[0x80] = ;
-// GctBlockHeader::blockName_[0x81] = ;
-// GctBlockHeader::blockName_[0x58] = ;
-// GctBlockHeader::blockName_[0x58] = ;
-// GctBlockHeader::blockName_[0x58] = ;
-// GctBlockHeader::blockName_[0x58] = ;
-// GctBlockHeader::blockName_[0x58] = ;
-// GctBlockHeader::blockName_[0x58] = ;
-// GctBlockHeader::blockName_[0x58] = ;
-// GctBlockHeader::blockName_[0x58] = ;
-// GctBlockHeader::blockName_[0x58] = ;
-// GctBlockHeader::blockName_[0x58] = ;
+/// setup class static to lookup block name
+pair<unsigned, string> b[] = {
+  pair<unsigned, string>(0x00,"NULL"),
+  pair<unsigned, string>(0x58,"Greg's random register"),
+  pair<unsigned, string>(0x59,"Greg's other random register"),
+  pair<unsigned, string>(0x5f,"ConcJet: Bunch Counter Pattern Test"),
+  pair<unsigned, string>(0x68,"ConcElec: Output to Global Trigger"),
+  pair<unsigned, string>(0x69,"ConcElec: Sort Input"),
+  pair<unsigned, string>(0x6b,"ConcElec: GT Serdes Loopback"),
+  pair<unsigned, string>(0x6f,"ConcElec: Bunch Counter Pattern Test"),
+  pair<unsigned, string>(0x80,"Leaf-U1, Elec, NegEta, Sort Input"),
+  pair<unsigned, string>(0x81,"Leaf-U1, Elec, NegEta, Raw Input"),
+  pair<unsigned, string>(0x83,"Leaf-U1, Elec, NegEta, Sort Output"),
+  pair<unsigned, string>(0x88,"Leaf-U2, Elec, NegEta, Sort Input"),
+  pair<unsigned, string>(0x89,"Leaf-U2, Elec, NegEta, Raw Input"),
+  pair<unsigned, string>(0x8b,"Leaf-U2, Elec, NegEta, Sort Output"),
+  pair<unsigned, string>(0xc0,"Leaf-U1, Elec, PosEta, Sort Input"),
+  pair<unsigned, string>(0xc1,"Leaf-U1, Elec, PosEta, Raw Input"),
+  pair<unsigned, string>(0xc3,"Leaf-U1, Elec, PosEta, Sort Output"),
+  pair<unsigned, string>(0xc8,"Leaf-U2, Elec, PosEta, Sort Input"),
+  pair<unsigned, string>(0xc9,"Leaf-U2, Elec, PosEta, Raw Input"),
+  pair<unsigned, string>(0xcb,"Leaf-U2, Elec, PosEta, Sort Output"),
+};
+
+map<unsigned, string> GctBlockHeader::blockName_(b, b + sizeof(b) / sizeof(b[0]));
+
