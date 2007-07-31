@@ -54,13 +54,6 @@ class _Module(_ConfigureComponent,_TypedParameterizable,_Labelable,_Sequenceable
     def _errorstr(self):
         typename = format_typename(self)
         return "%s('%s', ...)" %(typename, self.type_())
-    def insertInto(self, parameterSet, myname):
-        newpset = libFWCoreParameterSet.ParameterSet()
-        newpset.addString(True, "@module_label", myname)
-        newpset.addString(True, "@module_type", self.type_())
-        self.insertContentsInto(newpset)
-        parameterSet.addPSet(True, myname, newpset)
-        
 
 class EDProducer(_Module):
     def __init__(self,type_,*arg,**kargs):

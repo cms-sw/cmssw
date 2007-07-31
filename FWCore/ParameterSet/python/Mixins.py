@@ -1,3 +1,5 @@
+import libFWCoreParameterSet
+
 class _ConfigureComponent(object):
     """Denotes a class that can be used by the Processes class"""
     pass
@@ -112,6 +114,13 @@ class _TypedParameterizable(_Parameterizable):
             config+=indent+deltaIndent+param.configTypeName()+' '+name+' = '+param.configValue(indent+deltaIndent,deltaIndent)+'\n'
         config += indent+'}\n'
         return config
+    def insertInto(self, parameterSet, myname):
+        newpset = libFWCoreParameterSet.ParameterSet()
+        newpset.addString(True, "@module_label", myname)
+        newpset.addString(True, "@module_type", self.type_())
+        self.insertContentsInto(newpset)
+        parameterSet.addPSet(True, myname, newpset)
+
 
 
 class _Labelable(object):
