@@ -18,39 +18,35 @@ using namespace std;
 
 EcalLaserDbService::EcalLaserDbService () 
   : 
-  mAlphas (0),
-  mAPDPNRatiosRef (0),
-  mAPDPNRatios (0)
+  mAlphas_ (0),
+  mAPDPNRatiosRef_ (0),
+  mAPDPNRatios_ (0)
  {}
 
 
 
 const EcalLaserAlphas* EcalLaserDbService::getAlphas () const {
-  return mAlphas;
+  return mAlphas_;
 }
 
 const EcalLaserAPDPNRatiosRef* EcalLaserDbService::getAPDPNRatiosRef () const {
-  return mAPDPNRatiosRef;
+  return mAPDPNRatiosRef_;
 }
 
 const EcalLaserAPDPNRatios* EcalLaserDbService::getAPDPNRatios () const {
-  return mAPDPNRatios;
+  return mAPDPNRatios_;
 }
 
 
 float EcalLaserDbService::getLaserCorrection (DetId const & xid, edm::Timestamp const & iTime) const {
   
   float correctionFactor = 1.0;
-  
-  //  const EcalLaserAlphas* myalpha = mAlphas;         
-  //  const EcalLaserAPDPNRatios* myapdpn = mAPDPNRatios;    
-  //  const EcalLaserAPDPNRatiosRef* myapdpnref = mAPDPNRatiosRef; 
-  
-  const EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap& laserRatiosMap =  mAPDPNRatios->getLaserMap();
-  const EcalLaserAPDPNRatios::EcalLaserTimeStampMap& laserTimeMap =  mAPDPNRatios->getTimeMap();
-  const EcalLaserAPDPNRatiosRef::EcalLaserAPDPNRatiosRefMap& laserRefMap =  mAPDPNRatiosRef->getMap();
-  const EcalLaserAlphas::EcalLaserAlphaMap& laserAlphaMap =  mAlphas->getMap();
-  
+
+  const EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap& laserRatiosMap =  mAPDPNRatios_->getLaserMap();
+  const EcalLaserAPDPNRatios::EcalLaserTimeStampMap& laserTimeMap =  mAPDPNRatios_->getTimeMap();
+  const EcalLaserAPDPNRatiosRef::EcalLaserAPDPNRatiosRefMap& laserRefMap =  mAPDPNRatiosRef_->getMap();
+  const EcalLaserAlphas::EcalLaserAlphaMap& laserAlphaMap =  mAlphas_->getMap();
+
   EcalLaserAPDPNRatios::EcalLaserAPDPNpair apdpnpair;
   EcalLaserAPDPNRatios::EcalLaserTimeStamp timestamp;
   EcalLaserAPDPNRatiosRef::EcalLaserAPDPNref apdpnref;
