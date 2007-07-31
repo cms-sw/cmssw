@@ -57,8 +57,6 @@ template <typename C1, typename C2, typename Alg, typename OutputCollection, typ
 IsolationProducer<C1, C2, Alg, OutputCollection, Setup>::~IsolationProducer() {
 }
 
-#include <iostream>
-
 template <typename C1, typename C2, typename Alg, typename OutputCollection, typename Setup>
 void IsolationProducer<C1, C2, Alg, OutputCollection, Setup>::produce( edm::Event& evt, const edm::EventSetup& es ) {
   using namespace edm;
@@ -70,17 +68,12 @@ void IsolationProducer<C1, C2, Alg, OutputCollection, Setup>::produce( edm::Even
 
   Setup::init( alg_, es );
 
-  cout << ">>> make reference" << endl;
   typename OutputCollection::refprod_type ref( src );
-  cout << ">>> ref. size:" << ref->size() << endl;
-  cout << ">>> make collection" << endl;
   auto_ptr<OutputCollection> isolations( new OutputCollection( ref )  );
-  cout << ">>> fill collection" << endl;
 
   size_t i = 0;
   for( typename C1::const_iterator lep = src->begin(); lep != src->end(); ++ lep ) {
     typename Alg::value_type iso= alg_(*lep,*elements); 
-    cout << ">>> fill with index " << i << endl;
     isolations->setValue( i++, iso );
   }
   evt.put( isolations );
