@@ -8,8 +8,8 @@
  *  for one bunch crossing.
 */
 //
-//   $Date: 2007/04/02 15:44:10 $
-//   $Revision: 1.5 $
+//   $Date: 2007/04/12 13:20:53 $
+//   $Revision: 1.6 $
 //
 //   Author :
 //   H. Sakulin                  HEPHY Vienna
@@ -37,8 +37,6 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
 
 using namespace std;
 

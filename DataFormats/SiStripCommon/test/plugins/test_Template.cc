@@ -1,9 +1,9 @@
-// Last commit: $Id: test_Template.cc,v 1.1 2007/04/04 07:35:50 bainbrid Exp $
+// Last commit: $Id: test_Template.cc,v 1.1 2007/04/24 12:20:00 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/test/plugins/test_Template.h"
+#include "FWCore/Framework/interface/Event.h" 
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <boost/cstdint.hpp>
 #include <iostream>
 #include <sstream>
 

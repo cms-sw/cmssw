@@ -2,7 +2,6 @@
 #define HcalOtherDetId_h_included 1
 
 #include <ostream>
-#include <boost/cstdint.hpp>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
@@ -18,8 +17,8 @@ Packing:
 [24:20] Other subdet id
 [19:0]  Available for use
 
-$Date: 2006/02/16 17:01:57 $
-$Revision: 1.4 $
+$Date: 2006/06/16 16:43:38 $
+$Revision: 1.1 $
 \author J. Mans - Minnesota
 */
 class HcalOtherDetId : public DetId {

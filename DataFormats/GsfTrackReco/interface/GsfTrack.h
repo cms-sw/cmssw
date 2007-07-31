@@ -4,7 +4,7 @@
  * one additional Ref to a GsfTrackExtra object.
  */
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackExtraFwd.h" 
 
 namespace reco {
 

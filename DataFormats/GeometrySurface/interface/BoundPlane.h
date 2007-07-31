@@ -13,6 +13,7 @@
 
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/GeometrySurface/interface/BoundSurface.h"
+#include "boost/intrusive_ptr.hpp" 
 
 
 class BoundPlane : public Plane, public BoundSurface {

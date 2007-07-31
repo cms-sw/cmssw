@@ -18,6 +18,9 @@
 // Ursula Berthon - LLR Ecole polytechnique
 // 
 // $Log: PixelMatchElectron.h,v $
+// Revision 1.7  2007/03/16 12:46:30  uberthon
+// make PixelMatchElectrons inherit from RecoCandidate
+//
 // Revision 1.6  2007/03/13 09:28:37  llista
 // updated to latest candidate interface
 //
@@ -47,12 +50,10 @@
 //
 //-------------------------------------------------------------------
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchElectronFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h" 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 

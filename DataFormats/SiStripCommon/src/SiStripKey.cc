@@ -1,6 +1,7 @@
-// Last commit: $Id: SiStripKey.cc,v 1.3 2007/03/26 10:12:43 bainbrid Exp $
+// Last commit: $Id: SiStripKey.cc,v 1.4 2007/06/19 12:16:53 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripKey.h"
+#include "DataFormats/SiStripCommon/interface/Constants.h" 
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include <iomanip>
 #include <sstream>

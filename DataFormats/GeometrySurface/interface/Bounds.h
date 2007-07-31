@@ -3,7 +3,6 @@
 
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "DataFormats/GeometryVector/interface/LocalVector.h"
 
 class LocalError;
 

@@ -19,6 +19,7 @@ namespace {
 }
 
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
+#include "boost/cstdint.hpp" 
 namespace {
   namespace {
     edm::Wrapper<SiStripRawDigi > raw0;

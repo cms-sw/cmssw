@@ -1,5 +1,4 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
-#include "DataFormats/TrackReco/interface/fillCovariance.h"
 using namespace reco;
 
 GsfTrackExtra::GsfTrackExtra( const std::vector<GsfComponent5D>& outerStates, 

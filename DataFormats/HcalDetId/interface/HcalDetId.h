@@ -2,7 +2,6 @@
 #define DATAFORMATS_HCALDETID_HCALDETID_H 1
 
 #include <ostream>
-#include <boost/cstdint.hpp>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
@@ -10,8 +9,8 @@
 /** \class HcalDetId
  *  Cell identifier class for the HCAL subdetectors, precision readout cells only
  *
- *  $Date: 2006/02/15 20:14:17 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/08/08 16:13:48 $
+ *  $Revision: 1.9 $
  *  \author J. Mans - Minnesota
  */
 class HcalDetId : public DetId {

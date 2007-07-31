@@ -1,14 +1,10 @@
-// Last commit: $Id: test_SiStripKey.h,v 1.1 2007/03/26 10:13:48 bainbrid Exp $
+// Last commit: $Id: test_SiStripKey.h,v 1.1 2007/04/24 12:20:00 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_test_SiStripKey_H
 #define DataFormats_SiStripCommon_test_SiStripKey_H
 
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <boost/cstdint.hpp>
 #include <string>
 
 /**

@@ -24,6 +24,7 @@ namespace {
   }
 }
 
+#include "boost/cstdint.hpp" 
 #include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
 namespace {
   namespace {

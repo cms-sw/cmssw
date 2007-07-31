@@ -1,5 +1,4 @@
 #include <cppunit/extensions/HelperMacros.h>
-#include "DataFormats/MuonReco/interface/Muon.h"
 #include <algorithm>
 class testMuon : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testMuon);

@@ -1,6 +1,7 @@
-// Last commit: $Id: SiStripFedKey.cc,v 1.9 2007/06/05 14:06:27 bainbrid Exp $
+// Last commit: $Id: SiStripFedKey.cc,v 1.10 2007/06/29 10:12:43 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
+#include "DataFormats/SiStripCommon/interface/Constants.h" 
 #include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForDqm.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForView.h"

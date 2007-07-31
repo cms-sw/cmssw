@@ -1,5 +1,4 @@
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 
 //---------------------------------------------------------------------------
 //!  \class SiPixelCluster

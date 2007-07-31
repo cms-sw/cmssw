@@ -6,11 +6,10 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Photon.h,v 1.10 2007/03/16 13:31:53 llista Exp $
+ * \version $Id: Photon.h,v 1.11 2007/03/16 13:59:37 llista Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
 namespace reco {
 

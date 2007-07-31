@@ -1,10 +1,9 @@
-// Last commit: $Id: SiStripEventSummary.h,v 1.2 2007/05/24 15:26:49 bainbrid Exp $
+// Last commit: $Id: SiStripEventSummary.h,v 1.3 2007/06/19 12:16:52 bainbrid Exp $
 
 #ifndef DataFormats_SiStripEventSummary_SiStripEventSummary_H
 #define DataFormats_SiStripEventSummary_SiStripEventSummary_H
 
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "boost/cstdint.hpp"
 #include <sstream>
 #include <vector>
 

@@ -1,6 +1,5 @@
-// $Id: Candidate.cc,v 1.8 2007/02/19 12:59:04 llista Exp $
+// $Id: Candidate.cc,v 1.9 2007/05/08 13:11:17 llista Exp $
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 using namespace reco;
 
 Candidate::~Candidate() { }

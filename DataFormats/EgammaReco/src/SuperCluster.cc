@@ -1,8 +1,6 @@
-// $Id: SuperCluster.cc,v 1.7 2007/02/06 23:58:53 futyand Exp $
+// $Id: SuperCluster.cc,v 1.8 2007/02/13 20:26:44 futyand Exp $
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/ClusterShape.h"
-#include "DataFormats/EgammaReco/interface/ClusterPi0Discriminator.h"
 using namespace reco;
 
 SuperCluster::SuperCluster( double energy, const math::XYZPoint& position ) :

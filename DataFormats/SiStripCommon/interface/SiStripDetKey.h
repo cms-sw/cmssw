@@ -1,13 +1,11 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripDetKey.h,v 1.5 2007/03/21 08:22:59 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_SiStripDetKey_h
 #define DataFormats_SiStripCommon_SiStripDetKey_h
 
-#include "DataFormats/SiStripCommon/interface/Constants.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForGranularity.h"
 #include "DataFormats/SiStripCommon/interface/SiStripKey.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
-#include <boost/cstdint.hpp>
 #include <ostream>
 #include <string>
 

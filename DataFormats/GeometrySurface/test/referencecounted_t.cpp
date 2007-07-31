@@ -78,8 +78,6 @@ namespace testreferencecounted {
    }
 }
 
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/ui/text/TestRunner.h>
 
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testreferencecounted::Test);

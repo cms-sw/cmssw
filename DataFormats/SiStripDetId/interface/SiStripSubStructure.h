@@ -16,10 +16,9 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Jan 25 07:18:21 CET 2006
-// $Id: SiStripSubStructure.h,v 1.2 2006/04/11 10:13:01 dkcira Exp $
+// $Id: SiStripSubStructure.h,v 1.3 2007/03/16 09:57:09 dkcira Exp $
 //
 
-#include <boost/cstdint.hpp>
 #include <vector>
 
 class SiStripSubStructure

@@ -1,6 +1,7 @@
 
 
 #include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h" 
 #include <algorithm>
 #include <cmath>
 

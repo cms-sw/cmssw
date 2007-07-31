@@ -1,4 +1,7 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/CLHEP/interface/Migration.h" 
+#include <boost/cstdint.hpp> 
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h" 
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/RefVectorIterator.h"
 #include "DataFormats/Common/interface/Ref.h"

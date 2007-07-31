@@ -12,8 +12,11 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Fri Jul 14 19:46:30 EDT 2006
-// $Id: L1ParticleMap.h,v 1.24 2007/06/16 16:50:03 wsun Exp $
+// $Id: L1ParticleMap.h,v 1.25 2007/07/14 19:03:25 wsun Exp $
 // $Log: L1ParticleMap.h,v $
+// Revision 1.25  2007/07/14 19:03:25  wsun
+// Added diffractive triggers from X. Rouby and S. Ovyn.
+//
 // Revision 1.24  2007/06/16 16:50:03  wsun
 // Added SingleTauJet35 and DoubleTauJet35 for 131HLT6.
 //
@@ -92,11 +95,11 @@
 #include <string>
 
 // user include files
-#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h" 
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h" 
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h" 
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
-#include "DataFormats/L1Trigger/interface/L1ParticleMapFwd.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h" 
 
 // forward declarations
 

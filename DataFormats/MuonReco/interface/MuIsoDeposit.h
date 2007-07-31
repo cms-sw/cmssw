@@ -13,7 +13,6 @@
  *  Ported with an alternative interface to CMSSW by J. Alcaraz
  */
 
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/MuonReco/interface/Direction.h"
 #include <map>
@@ -120,6 +119,5 @@ namespace reco {
 
 }
 
-#include "DataFormats/MuonReco/interface/MuIsoDepositFwd.h"
 
 #endif

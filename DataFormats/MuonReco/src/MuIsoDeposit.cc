@@ -1,5 +1,4 @@
 #include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <sstream>
 

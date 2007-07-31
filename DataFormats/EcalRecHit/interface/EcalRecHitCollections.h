@@ -6,7 +6,6 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
-#include "DataFormats/Common/interface/RefProd.h"
 
 
 typedef edm::SortedCollection<EcalRecHit> EcalRecHitCollection;

@@ -2,7 +2,6 @@
 #define DATAFORMATS_HCALDETID_HCALTRIGTOWERDETID_H 1
 
 #include <ostream>
-#include <boost/cstdint.hpp>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
@@ -10,8 +9,8 @@
     
 Cell id for an Calo Trigger tower
 
-   $Date: 2006/02/10 21:14:46 $
-   $Revision: 1.6 $
+   $Date: 2006/02/16 17:01:57 $
+   $Revision: 1.7 $
    \author J. Mans - Minnesota
 */
 class HcalTrigTowerDetId : public DetId {

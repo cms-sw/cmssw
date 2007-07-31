@@ -1,4 +1,5 @@
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h" 
 #include <cmath>
 
 RectangularPlaneBounds::RectangularPlaneBounds( float w, float h, float t) : 

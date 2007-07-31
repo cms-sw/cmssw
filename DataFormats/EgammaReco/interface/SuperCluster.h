@@ -7,11 +7,10 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: SuperCluster.h,v 1.8 2007/02/06 23:49:53 futyand Exp $
+ * \version $Id: SuperCluster.h,v 1.9 2007/02/13 20:16:19 futyand Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/EcalCluster.h"
 #include "DataFormats/DetId/interface/DetId.h"

@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik
  *
- * \version $Id: Muon.h,v 1.33 2007/05/16 09:32:37 dmytro Exp $
+ * \version $Id: Muon.h,v 1.34 2007/07/12 19:16:18 dmytro Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -163,6 +163,5 @@ namespace reco {
 
 }
 
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 #endif

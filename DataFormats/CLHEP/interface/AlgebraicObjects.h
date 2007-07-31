@@ -13,6 +13,5 @@ typedef HepVector      AlgebraicVector;
 typedef HepMatrix      AlgebraicMatrix;
 typedef HepSymMatrix   AlgebraicSymMatrix;
 
-#include "DataFormats/CLHEP/interface/Migration.h"
 
 #endif

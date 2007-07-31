@@ -1,7 +1,6 @@
 #ifndef DATAFORMATS_HCALRECHIT_HCALSOURCEPOSITIONDATA_H
 #define DATAFORMATS_HCALRECHIT_HCALSOURCEPOSITIONDATA_H 1
 
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
 
 class HcalSourcePositionData {

@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 15:43:14 EDT 2006
-// $Id: SiStripElectron.h,v 1.10 2007/03/16 13:31:53 llista Exp $
+// $Id: SiStripElectron.h,v 1.11 2007/03/16 13:59:37 llista Exp $
 //
 
 // system include files
@@ -26,10 +26,8 @@
 // user include files
 
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "DataFormats/EgammaCandidates/interface/SiStripElectronFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
+#include "DataFormats/Common/interface/RefVector.h" 
 
 // forward declarations
 

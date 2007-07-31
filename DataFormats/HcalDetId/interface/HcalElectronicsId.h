@@ -1,7 +1,6 @@
 #ifndef DATAFORMATS_HCALDETID_HCALELECTRONICSID_H
 #define DATAFORMATS_HCALDETID_HCALELECTRONICSID_H 1
 
-#include <boost/cstdint.hpp>
 #include <string>
 #include <ostream>
 

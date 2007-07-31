@@ -3,7 +3,6 @@
 
 #include <ostream>
 #include "DataFormats/HcalDetId/interface/HcalOtherDetId.h"
-#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 
 /** \class HcalCalibDetId
@@ -16,8 +15,8 @@
   *     [8:5] Detector sector (HB+,HB-,HE+,HE-,HF+,HF-,HO2-,HO1-,HOO,HO1+,HO2+)
   *     [4:0] RBX number
   *
-  * $Date: 2006/02/21 22:11:16 $
-  * $Revision: 1.3 $
+  * $Date: 2006/06/16 16:44:04 $
+  * $Revision: 1.4 $
   * \author J. Mans - Minnesota
   */
 class HcalCalibDetId : public HcalOtherDetId {

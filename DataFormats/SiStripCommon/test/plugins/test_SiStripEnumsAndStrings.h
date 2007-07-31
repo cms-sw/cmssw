@@ -1,12 +1,9 @@
-// Last commit: $Id: test_SiStripEnumsAndStrings.h,v 1.2 2007/03/21 08:23:00 bainbrid Exp $
+// Last commit: $Id: test_SiStripEnumsAndStrings.h,v 1.1 2007/04/24 12:19:59 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_test_SiStripEnumsAndStrings_H
 #define DataFormats_SiStripCommon_test_SiStripEnumsAndStrings_H
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 /**
    @class test_SiStripEnumsAndStrings 

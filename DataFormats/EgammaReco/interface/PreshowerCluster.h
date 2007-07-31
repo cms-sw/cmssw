@@ -5,11 +5,11 @@
  *
  * \authors Dmirty Bandurin (KSU), Ted Kolberg (ND)
  */
-// $Id: PreshowerCluster.h,v 1.14 2007/02/13 20:23:05 futyand Exp $
+// $Id: PreshowerCluster.h,v 1.15 2007/02/14 15:45:10 futyand Exp $
 //
 #include "DataFormats/Math/interface/Point3D.h"
-#include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h" 
 
 #include <cmath>
 

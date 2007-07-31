@@ -1,7 +1,6 @@
 #ifndef Geom_Surface_H
 #define Geom_Surface_H
 
-#include "boost/intrusive_ptr.hpp"
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"

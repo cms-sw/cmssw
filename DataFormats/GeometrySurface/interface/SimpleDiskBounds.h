@@ -3,7 +3,6 @@
 
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 
 

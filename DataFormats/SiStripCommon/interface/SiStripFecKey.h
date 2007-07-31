@@ -1,12 +1,10 @@
-// Last commit: $Id: SiStripFecKey.h,v 1.9 2007/06/06 08:32:48 bainbrid Exp $
+// Last commit: $Id: SiStripFecKey.h,v 1.10 2007/06/06 09:09:22 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_SiStripFecKey_H
 #define DataFormats_SiStripCommon_SiStripFecKey_H
 
-#include "DataFormats/SiStripCommon/interface/Constants.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForGranularity.h"
 #include "DataFormats/SiStripCommon/interface/SiStripKey.h"
-#include <boost/cstdint.hpp>
 #include <ostream>
 #include <string>
 

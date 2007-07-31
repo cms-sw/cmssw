@@ -3,11 +3,11 @@
 // \class ElectronIsolationAssociation
 // 
 // \short association of Isolation to an Electron
-// $Id: $
+// $Id: ElectronIsolationAssociation.h,v 1.1 2006/10/20 12:59:03 rahatlou Exp $
 //
 
 #include "DataFormats/Common/interface/AssociationMap.h"
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h" 
 #include <vector>
 
 namespace reco {

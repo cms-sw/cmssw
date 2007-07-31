@@ -3,7 +3,6 @@
 
 #include <string>
 #include <iostream>
-#include <boost/cstdint.hpp>
 
 /** \class PixelModuleName
  * Base class to Pixel modules naming, provides a name as in PixelDatabase

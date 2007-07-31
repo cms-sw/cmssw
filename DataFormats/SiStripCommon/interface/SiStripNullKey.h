@@ -1,12 +1,10 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripNullKey.h,v 1.2 2007/03/21 08:22:59 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_SiStripNullKey_H
 #define DataFormats_SiStripCommon_SiStripNullKey_H
 
-#include "DataFormats/SiStripCommon/interface/Constants.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForGranularity.h"
 #include "DataFormats/SiStripCommon/interface/SiStripKey.h"
-#include <boost/cstdint.hpp>
 #include <ostream>
 #include <string>
 

@@ -2,7 +2,6 @@
 #define DataFormats_SiStripDetId_SiStripDetId_h
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include <boost/cstdint.hpp>
 #include <ostream>
 
 class SiStripDetId;

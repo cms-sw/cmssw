@@ -1,12 +1,13 @@
-// Last commit: $Id: test_SiStripHistoTitle.cc,v 1.1 2007/04/24 12:20:00 bainbrid Exp $
+// Last commit: $Id: test_SiStripHistoTitle.cc,v 1.2 2007/06/19 12:16:53 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/test/plugins/test_SiStripHistoTitle.h"
+#include "FWCore/Framework/interface/Event.h" 
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
+#include "DataFormats/SiStripCommon/interface/Constants.h" 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <boost/cstdint.hpp>
 #include <iostream>
 #include <iomanip>
 #include <sstream>

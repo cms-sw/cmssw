@@ -1,9 +1,7 @@
-// Last commit: $Id: SiStripDetKey.cc,v 1.5 2007/03/21 08:22:59 bainbrid Exp $
+// Last commit: $Id: SiStripDetKey.cc,v 1.6 2007/03/26 10:12:43 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripDetKey.h"
-#include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
-#include "DataFormats/SiStripCommon/interface/ConstantsForDqm.h"
-#include "DataFormats/SiStripCommon/interface/ConstantsForView.h"
+#include "DataFormats/SiStripCommon/interface/Constants.h" 
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include <iomanip>
 #include <sstream>

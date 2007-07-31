@@ -12,14 +12,13 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1MuonParticle.h,v 1.7 2006/11/13 00:18:08 wsun Exp $
+// $Id: L1MuonParticle.h,v 1.8 2007/04/02 08:03:13 wsun Exp $
 //
 
 // system include files
 
 // user include files
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
 
 // forward declarations

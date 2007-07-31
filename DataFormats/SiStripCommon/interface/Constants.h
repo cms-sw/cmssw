@@ -1,9 +1,8 @@
-// Last commit: $Id: Constants.h,v 1.4 2007/06/19 12:16:52 bainbrid Exp $
+// Last commit: $Id: Constants.h,v 1.5 2007/06/29 10:12:42 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_Constants_H
 #define DataFormats_SiStripCommon_Constants_H
 
-#include "boost/cstdint.hpp"
 #include <string>
 
 /** 

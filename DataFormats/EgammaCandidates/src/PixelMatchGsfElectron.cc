@@ -1,6 +1,7 @@
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h" 
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h" 
 
 #include <cmath>
 

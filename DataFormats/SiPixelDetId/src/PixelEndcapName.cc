@@ -2,7 +2,6 @@
 
 #include <sstream>
 
-#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 
 using namespace std;

@@ -10,12 +10,13 @@
  *  using the static build() method. 
  *  (The normal constructor will become private in the future).
  *
- *  $Date: 2006/08/18 11:02:36 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/01/17 20:58:42 $
+ *  $Revision: 1.1 $
  */
 
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "DataFormats/GeometrySurface/interface/BoundSurface.h"
+#include "boost/intrusive_ptr.hpp" 
 
 class BoundCylinder : public Cylinder, public BoundSurface {
 public:

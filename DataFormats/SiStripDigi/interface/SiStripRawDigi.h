@@ -2,7 +2,6 @@
 #define DataFormats_SiStripDigi_SiStripRawDigi_H
 
 #include "DataFormats/Common/interface/traits.h"
-#include "boost/cstdint.hpp"
 
 /** 
     @brief A Digi for the silicon strip detector, containing only adc

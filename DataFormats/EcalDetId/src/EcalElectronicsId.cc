@@ -1,6 +1,5 @@
 #include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 
 #include <iostream>

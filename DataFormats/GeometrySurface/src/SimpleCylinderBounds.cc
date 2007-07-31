@@ -1,8 +1,5 @@
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
-#include <cmath>
-#include <algorithm>
 
 
 SimpleCylinderBounds::SimpleCylinderBounds( float rmin, float rmax, float zmin, float zmax) : 

@@ -1,11 +1,10 @@
-// Last commit: $Id: ConstantsForHardwareSystems.h,v 1.3 2007/03/28 10:26:59 bainbrid Exp $
+// Last commit: $Id: ConstantsForHardwareSystems.h,v 1.4 2007/07/02 11:38:42 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForHardwareSystems_H
 #define DataFormats_SiStripCommon_ConstantsForHardwareSystems_H
 
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/SiStripCommon/interface/Constants.h"
-#include "boost/cstdint.hpp"
 
 /**
    @file ConstantsForHardwareSystems.h

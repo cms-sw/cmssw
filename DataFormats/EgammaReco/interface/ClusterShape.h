@@ -8,7 +8,7 @@
  * \author Michael A. Balazs, UVa
  * \author Luca Lista, INFN
  *
- * \version $Id: ClusterShape.h,v 1.5 2006/11/06 14:38:47 mabalazs Exp $
+ * \version $Id: ClusterShape.h,v 1.6 2006/11/13 18:02:05 futyand Exp $
  *
  */
 
@@ -16,7 +16,6 @@
 
 #include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/Math/interface/Point3D.h"
 
 namespace reco {
 

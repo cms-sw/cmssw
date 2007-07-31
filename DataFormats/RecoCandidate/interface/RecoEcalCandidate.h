@@ -6,11 +6,10 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: RecoEcalCandidate.h,v 1.3 2006/10/25 16:29:14 rahatlou Exp $
+ * \version $Id: RecoEcalCandidate.h,v 1.4 2006/10/26 09:14:55 llista Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 
 namespace reco {
 

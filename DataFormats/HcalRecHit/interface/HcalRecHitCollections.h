@@ -8,7 +8,6 @@
 #include "DataFormats/HcalRecHit/interface/ZDCRecHit.h"
 #include "DataFormats/HcalRecHit/interface/HcalCalibRecHit.h"
 
-#include "DataFormats/HcalRecHit/interface/HcalRecHitFwd.h"
 
 typedef edm::SortedCollection<HBHERecHit> HBHERecHitCollection;
 typedef edm::SortedCollection<HORecHit> HORecHitCollection;

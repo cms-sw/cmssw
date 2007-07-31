@@ -1,12 +1,9 @@
-// Last commit: $Id: test_SiStripNullKey.h,v 1.3 2007/03/26 10:14:41 bainbrid Exp $
+// Last commit: $Id: test_SiStripNullKey.h,v 1.1 2007/04/24 12:20:00 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_test_SiStripNullKey_H
 #define DataFormats_SiStripCommon_test_SiStripNullKey_H
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 /**
    @class test_SiStripNullKey 

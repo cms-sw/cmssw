@@ -3,7 +3,6 @@
 #include <sstream>
 #include <iostream>
 
-#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 
 using namespace std;

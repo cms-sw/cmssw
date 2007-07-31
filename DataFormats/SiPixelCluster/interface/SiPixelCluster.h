@@ -145,7 +145,6 @@ inline bool operator<( const SiPixelCluster& one, const SiPixelCluster& other) {
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/DetSetRefVector.h"
-#include "DataFormats/Common/interface/RefProd.h"
 
 typedef edm::DetSetVector<SiPixelCluster> SiPixelClusterCollection;
 typedef edm::Ref<SiPixelClusterCollection, SiPixelCluster> SiPixelClusterRef;

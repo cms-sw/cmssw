@@ -1,10 +1,11 @@
-// Last commit: $Id: test_SiStripFedKey.cc,v 1.4 2007/03/21 08:23:00 bainbrid Exp $
+// Last commit: $Id: test_SiStripFedKey.cc,v 1.1 2007/04/24 12:20:00 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/test/plugins/test_SiStripFedKey.h"
+#include "FWCore/Framework/interface/Event.h" 
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
+#include "DataFormats/SiStripCommon/interface/Constants.h" 
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <boost/cstdint.hpp>
 #include <iostream>
 #include <iomanip>
 #include <sstream>

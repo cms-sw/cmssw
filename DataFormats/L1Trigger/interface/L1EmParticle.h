@@ -12,14 +12,13 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1EmParticle.h,v 1.5 2006/08/10 18:47:41 wsun Exp $
+// $Id: L1EmParticle.h,v 1.6 2007/04/02 08:03:13 wsun Exp $
 //
 
 // system include files
 
 // user include files
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
-#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 #include "DataFormats/Common/interface/Ref.h"
 

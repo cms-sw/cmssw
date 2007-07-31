@@ -1,5 +1,7 @@
 
 #include "DataFormats/EgammaCandidates/interface/ConvertedPhoton.h"
+#include "DataFormats/TrackReco/interface/Track.h" 
+#include "DataFormats/EgammaReco/interface/SuperCluster.h" 
 
 
 using namespace reco;

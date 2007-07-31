@@ -10,11 +10,12 @@
  *  using the static build() method. 
  *  (The normal constructors will become private in the future).
  *
- *  $Date: 2006/08/18 11:03:30 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/01/17 20:58:43 $
+ *  $Revision: 1.1 $
  */
 
 #include "DataFormats/GeometrySurface/interface/Surface.h"
+#include "boost/intrusive_ptr.hpp" 
 
 class Cone : public virtual Surface {
 public:

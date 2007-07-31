@@ -1,8 +1,6 @@
 #ifndef Math_Point3D_h
 #define Math_Point3D_h
-// $Id: Point3D.h,v 1.7 2006/06/26 08:56:09 llista Exp $
-#include "Rtypes.h"
-#include "Math/Cartesian3D.h"
+// $Id: Point3D.h,v 1.8 2006/11/20 09:06:52 llista Exp $
 #include "Math/Point3D.h"
 #include "Math/GenVector/CoordinateSystemTags.h"
 

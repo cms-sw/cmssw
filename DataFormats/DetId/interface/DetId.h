@@ -1,7 +1,6 @@
 #ifndef DATAFORMATS_DETID_H
 #define DATAFORMATS_DETID_H
 
-#include <boost/cstdint.hpp>
 
 //FIXME shall be removed and implemented where the operator is defined
 #include <ostream>
@@ -14,8 +13,8 @@ the large-scale detector (e.g. Tracker or Ecal) while the next three
 bits ([27:25]) identify a part of the detector (such as HcalBarrel
 (HB) for Hcal).
 
-$Date: 2007/06/04 12:10:48 $
-$Revision: 1.7 $
+$Date: 2007/06/04 12:30:05 $
+$Revision: 1.8 $
 */
 class DetId {
 public:

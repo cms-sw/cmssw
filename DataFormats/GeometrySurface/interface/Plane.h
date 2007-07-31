@@ -12,6 +12,7 @@
  */
 
 #include "DataFormats/GeometrySurface/interface/Surface.h"
+#include "boost/intrusive_ptr.hpp" 
 
 class Plane : public virtual Surface {
 public:

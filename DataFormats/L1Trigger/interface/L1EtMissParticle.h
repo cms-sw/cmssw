@@ -12,14 +12,13 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1EtMissParticle.h,v 1.6 2006/08/10 18:47:41 wsun Exp $
+// $Id: L1EtMissParticle.h,v 1.7 2007/04/02 08:03:13 wsun Exp $
 //
 
 // system include files
 
 // user include files
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
-#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
 #include "DataFormats/Common/interface/RefProd.h"
 

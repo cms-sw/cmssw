@@ -1,7 +1,6 @@
 
 
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
-#include "DataFormats/GeometrySurface/interface/TangentPlane.h"
 #include "DataFormats/GeometrySurface/interface/OpenBounds.h"
 
 

@@ -3,12 +3,10 @@
 /** Extension of a GSF track providing multi-states
  * at the inner- and outermost measurement
  */
-#include <Rtypes.h>
 // #include "DataFormats/Math/interface/Vector3D.h"
 // #include "DataFormats/Math/interface/Point3D.h"
 // #include "DataFormats/Math/interface/Vector.h"
 // #include "DataFormats/Math/interface/Error.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrackExtraFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfComponent5D.h"
 
 namespace reco {

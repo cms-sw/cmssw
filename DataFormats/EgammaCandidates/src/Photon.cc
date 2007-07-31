@@ -1,6 +1,7 @@
-// $Id: Photon.cc,v 1.5 2007/02/19 21:37:16 futyand Exp $
+// $Id: Photon.cc,v 1.6 2007/03/24 23:13:30 futyand Exp $
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h" 
 
 using namespace reco;
 

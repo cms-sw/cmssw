@@ -4,8 +4,7 @@
 #include <vector>
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
-#include "DataFormats/Common/interface/RefProd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 

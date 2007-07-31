@@ -1,10 +1,9 @@
-// Last commit: $Id: SiStripHistoTitle.h,v 1.2 2007/03/21 08:22:59 bainbrid Exp $
+// Last commit: $Id: SiStripHistoTitle.h,v 1.3 2007/06/19 12:16:52 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_SiStripHistoTitle_H
 #define DataFormats_SiStripCommon_SiStripHistoTitle_H
 
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "boost/cstdint.hpp"
 #include <ostream>
 #include <sstream>
 #include <string>

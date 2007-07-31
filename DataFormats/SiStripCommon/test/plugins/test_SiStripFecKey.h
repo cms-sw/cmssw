@@ -1,12 +1,9 @@
-// Last commit: $Id: test_SiStripFecKey.h,v 1.4 2007/03/26 10:14:41 bainbrid Exp $
+// Last commit: $Id: test_SiStripFecKey.h,v 1.1 2007/04/24 12:19:59 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_test_SiStripFecKey_H
 #define DataFormats_SiStripCommon_test_SiStripFecKey_H
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 /**
    @class test_SiStripFecKey 
