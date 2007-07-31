@@ -83,7 +83,7 @@ namespace {
 
   
   struct Add {
-    Add(const SeedingLayer & isl, const edm::EventSetup& ies) : sl(isl), es(ies) : cond(True){}
+    Add(const SeedingLayer & isl, const edm::EventSetup& ies) : sl(isl), es(ies), cond(True){}
     void operator()(const TrackingRecHit & hit) {
       if (cond(hit)) result.push_back(SeedingHit(&hit, sl, es) );
     }
@@ -106,7 +106,7 @@ namespace {
 vector<SeedingHit> HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Event& ev, const edm::EventSetup& es) const
 {
   TrackerLayerIdAccessor accessor;
-  Add add(sl,ev);
+  Add add(sl,es);
  
   edm::Handle<SiStripMatchedRecHit2DCollection> matchedHits;
   if (hasMatchedHits) ev.getByLabel( theMatchedHits, matchedHits);
