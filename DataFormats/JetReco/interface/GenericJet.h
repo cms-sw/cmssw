@@ -11,11 +11,10 @@
  * \author Fedor Ratnikov, UMd
  *
  * \version   Mar 23, 2007 by F.R.
- * \version   $Id: GenericJet.h,v 1.2 2007/03/26 22:05:41 fedor Exp $
+ * \version   $Id: GenericJet.h,v 1.3 2007/05/03 21:13:18 fedor Exp $
  ************************************************************/
 #include <string>
 #include "DataFormats/Candidate/interface/CompositeRefBaseCandidate.h"
-#include "DataFormats/JetReco/interface/GenericJetfwd.h"
 
 namespace reco {
   class GenericJet : public CompositeRefBaseCandidate {

@@ -12,13 +12,12 @@
  * \author Fedor Ratnikov, UMd
  *
  * \version   Original March 31, 2006 by F.R.
- * \version   $Id: GenJet.h,v 1.9 2006/12/08 21:15:11 fedor Exp $
+ * \version   $Id: GenJet.h,v 1.10 2007/05/03 21:13:18 fedor Exp $
  ************************************************************/
 
 
 #include "DataFormats/JetReco/interface/Jet.h"
 
-#include "DataFormats/JetReco/interface/GenJetfwd.h"
 
 namespace reco {
   class GenParticleCandidate;

@@ -11,12 +11,11 @@
  *
  * \author Fedor Ratnikov, UMd
  *
- * \version   $Id: BasicJet.h,v 1.4 2006/12/08 21:15:11 fedor Exp $
+ * \version   $Id: BasicJet.h,v 1.5 2007/05/03 21:13:17 fedor Exp $
  ************************************************************/
 
 
 #include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/JetReco/interface/BasicJetfwd.h"
 
 namespace reco {
 class BasicJet : public Jet {

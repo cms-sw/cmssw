@@ -10,14 +10,13 @@
  * in addition to generic Jet parameters
  *
  * \author Fedor Ratnikov, UMd, Apr 24, 2007
-  * \version   $Id: PFJet.h,v 1.4 2007/05/08 21:36:51 fedor Exp $
+  * \version   $Id: PFJet.h,v 1.5 2007/05/19 04:26:33 fedor Exp $
  ************************************************************/
 
 
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
 
-#include "DataFormats/JetReco/interface/PFJetfwd.h"
 
 namespace reco {
 class PFJet : public Jet {

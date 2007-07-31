@@ -2,10 +2,22 @@
 #define JetObjects_classes_h
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
+#include "Rtypes.h" 
+#include "Math/Cartesian3D.h" 
+#include "Math/Polar3D.h" 
+#include "Math/CylindricalEta3D.h" 
+#include "Math/PxPyPzE4D.h" 
+#include <boost/cstdint.hpp> 
+#include "DataFormats/JetReco/interface/CaloJetfwd.h" 
 #include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/PFJetfwd.h" 
 #include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/JetReco/interface/GenJetfwd.h" 
 #include "DataFormats/JetReco/interface/BasicJet.h"
+#include "DataFormats/JetReco/interface/BasicJetfwd.h" 
 #include "DataFormats/JetReco/interface/GenericJet.h"
+#include "DataFormats/JetReco/interface/GenericJetfwd.h" 
+#include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include "DataFormats/JetReco/interface/JetTrackMatch.h"
 #include "DataFormats/JetReco/interface/JetToFloatAssociation.h"
 #include "DataFormats/JetReco/interface/JetToTracksAssociation.h"

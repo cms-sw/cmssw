@@ -18,14 +18,13 @@
  *
  * \version   May 3, 2006, F.Ratnikov, include all different
  *            energy components separately
- * \version   $Id: CaloJet.h,v 1.23 2007/05/04 23:23:03 fedor Exp $
+ * \version   $Id: CaloJet.h,v 1.24 2007/05/08 21:36:51 fedor Exp $
  ************************************************************/
 
 
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
-#include "DataFormats/JetReco/interface/CaloJetfwd.h"
 
 namespace reco {
 class CaloJet : public Jet {
