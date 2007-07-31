@@ -36,7 +36,11 @@ class L1RCTParameters {
 		  double eMinForHoECut,
 		  double eMaxForHoECut,
 		  double eActivityCut,
-		  double hActivityCut
+		  double hActivityCut,
+		  std::vector<double> eGammaECalScaleFactors,
+		  std::vector<double> eGammaHCalScaleFactors,
+		  std::vector<double> jetMETECalScaleFactors,
+		  std::vector<double> jetMETHCalScaleFactors
 		  );
 
   // destructor -- no virtual methods in this class
@@ -52,6 +56,10 @@ class L1RCTParameters {
   double eActivityCut() const {return eActivityCut_;}
   double hActivityCut() const {return hActivityCut_;}
   double eMaxForFGCut() const {return eMaxForFGCut_;}
+  std::vector<double> eGammaECalScaleFactors() const {return eGammaECalScaleFactors_;}
+  std::vector<double> eGammaHCalScaleFactors() const {return eGammaHCalScaleFactors_;}
+  std::vector<double> jetMETECalScaleFactors() const {return jetMETECalScaleFactors_;}
+  std::vector<double> jetMETHCalScaleFactors() const {return jetMETHCalScaleFactors_;}
 
   // Helper methods to convert from trigger tower (iphi, ieta) 
   // to RCT (crate, card, tower)
@@ -61,6 +69,7 @@ class L1RCTParameters {
   unsigned short calcTower(unsigned short rct_iphi, unsigned short absIeta) const;
   short calcIEta(unsigned short iCrate, unsigned short iCard, unsigned short iTower) const; // negative eta is used
   unsigned short calcIPhi(unsigned short iCrate, unsigned short iCard, unsigned short iTower) const;
+  unsigned short calcIAbsEta(unsigned short iCrate, unsigned short iCard, unsigned short iTower) const;
 
   void print(std::ostream& s) const {return;}
 
@@ -109,6 +118,20 @@ class L1RCTParameters {
   // for tau pattern logic
   
   double hActivityCut_;
+
+  // eGamma object ET is computed using the trigger tower ET defined as
+  // ecal * eGammaECalScaleFactors[iEta] + hcal * eGammaHCalScaleFactors[iEta]
+  // The result is then digitized using the eGamma LSB
+
+  std::vector<double> eGammaECalScaleFactors_;
+  std::vector<double> eGammaHCalScaleFactors_;
+
+  // jetMET object ET is computed using the trigger tower ET defined as
+  // ecal * jetMETECalScaleFactors[iEta] + hcal * jetMETHCalScaleFactors[iEta]
+  // The result is then digitized using the jetMET LSB
+
+  std::vector<double> jetMETECalScaleFactors_;
+  std::vector<double> jetMETHCalScaleFactors_;
 
 };
 

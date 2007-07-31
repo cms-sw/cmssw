@@ -1,7 +1,7 @@
 /**
  * Author: Sridhara Dasu
  * Created: 04 July 2007
- * $Id: L1RCTParameters.cc,v 1.5 2007/07/26 09:07:53 dasu Exp $
+ * $Id: L1RCTParameters.cc,v 1.6 2007/07/30 15:40:55 dasu Exp $
  **/
 
 #include <iostream>
@@ -19,7 +19,11 @@ L1RCTParameters::L1RCTParameters(double eGammaLSB,
 				 double eMinForHoECut,
 				 double eMaxForHoECut,
 				 double eActivityCut,
-				 double hActivityCut
+				 double hActivityCut,
+				 std::vector<double> eGammaECalScaleFactors,
+				 std::vector<double> eGammaHCalScaleFactors,
+				 std::vector<double> jetMETECalScaleFactors,
+				 std::vector<double> jetMETHCalScaleFactors
 				 ) :
   eGammaLSB_(eGammaLSB),
   jetMETLSB_(jetMETLSB),
@@ -29,7 +33,11 @@ L1RCTParameters::L1RCTParameters(double eGammaLSB,
   eMinForHoECut_(eMinForHoECut),
   eMaxForHoECut_(eMaxForHoECut),
   eActivityCut_(eActivityCut),
-  hActivityCut_(hActivityCut)
+  hActivityCut_(hActivityCut),
+  eGammaECalScaleFactors_(eGammaECalScaleFactors),
+  eGammaHCalScaleFactors_(eGammaHCalScaleFactors),
+  jetMETECalScaleFactors_(jetMETECalScaleFactors),
+  jetMETHCalScaleFactors_(jetMETHCalScaleFactors)
 {
 }
 
@@ -99,17 +107,7 @@ unsigned short L1RCTParameters::calcTower(unsigned short rct_iphi,
 short L1RCTParameters::calcIEta(unsigned short iCrate, unsigned short iCard, 
 				unsigned short iTower) const
 {
-  unsigned short absIEta;
-  if(iCard < 6) 
-    absIEta = (iCard / 2) * 8 + ((iTower - 1) / 4) + 1;
-  else if(iCard == 6) {
-    if(iTower < 17)
-      absIEta = 25 + (iTower - 1) / 4;
-    else
-      absIEta = 28 - ((iTower - 17) / 4);
-  }
-  else
-    absIEta = 29 + iTower % 4;
+  unsigned short absIEta = calcIAbsEta(iCrate, iCard, iTower);
   short iEta;
   if(iCrate < 9) iEta = -absIEta;
   else iEta = absIEta;
@@ -133,3 +131,21 @@ unsigned short L1RCTParameters::calcIPhi(unsigned short iCrate,
     iPhi = (iCrate % 9) * 2 + iTower / 4;
   return iPhi;
 }
+
+unsigned short L1RCTParameters::calcIAbsEta(unsigned short iCrate, unsigned short iCard, 
+					    unsigned short iTower) const
+{
+  unsigned short absIEta;
+  if(iCard < 6) 
+    absIEta = (iCard / 2) * 8 + ((iTower - 1) / 4) + 1;
+  else if(iCard == 6) {
+    if(iTower < 17)
+      absIEta = 25 + (iTower - 1) / 4;
+    else
+      absIEta = 28 - ((iTower - 17) / 4);
+  }
+  else
+    absIEta = 29 + iTower % 4;
+  return absIEta;
+}
+
