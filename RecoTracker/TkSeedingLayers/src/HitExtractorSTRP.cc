@@ -107,7 +107,7 @@ vector<SeedingHit> HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
 {
   TrackerLayerIdAccessor accessor;
   Add add(sl,es);
- 
+  
   edm::Handle<SiStripMatchedRecHit2DCollection> matchedHits;
   if (hasMatchedHits) ev.getByLabel( theMatchedHits, matchedHits);
   edm::Handle<SiStripRecHit2DCollection> rphiHits;
@@ -128,10 +128,10 @@ vector<SeedingHit> HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
 	foreachHit(*rphiHits,accessor.stripTIBLayer(theIdLayer),add );
     }
     if (hasStereoHits) {
-     foreachHit(*stereoHits,accessor.stripTIBLayer(theIdLayer),add );
+      foreachHit(*stereoHits,accessor.stripTIBLayer(theIdLayer),add );
     }
   }
-
+  
   //
   // TID
   //
@@ -157,7 +157,7 @@ vector<SeedingHit> HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
   //
   else if (theLayer->subDetector() == GeomDetEnumerators::TOB) {
     if (hasMatchedHits) {
-	foreachHit(*matchedHits,accessor.stripTOBLayer(theIdLayer),add );
+      foreachHit(*matchedHits,accessor.stripTOBLayer(theIdLayer),add );
     }
     if (hasRPhiHits) {
       if ((!hasMatchedHits) || (theIdLayer != 1 && theIdLayer != 2) )
@@ -167,7 +167,7 @@ vector<SeedingHit> HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
       foreachHit(*stereoHits,accessor.stripTOBLayer(theIdLayer),add );
     }
   }
-
+  
   //
   // TEC
   //
@@ -187,7 +187,7 @@ vector<SeedingHit> HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
       foreachHit(*stereoHits,accessor.stripTECDisk(theSide,theIdLayer),add);
       add.cond=True;  
     }
-    return add.result;
+  } 
+   return add.result;
 }
-
 
