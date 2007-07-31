@@ -137,17 +137,17 @@ vector<SeedingHit> HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
   //
   else if (theLayer->subDetector() == GeomDetEnumerators::TID) {
     if (hasMatchedHits) {
-      add.cond=boost::bind(HitExtractorSTRP::ringRangeTID,this); // error prone, shall change
+      add.cond=boost::bind(&HitExtractorSTRP::ringRangeTID,this); // error prone, shall change
       foreachHit(*matchedHits,accessor.stripTIDDisk(theSide,theIdLayer),add);
       add.cond=True;
     }
     if (hasRPhiHits) {
-      add.cond=boost::bind(HitExtractorSTRP::ringRangeNodsTID,this); // error prone, shall change
+      add.cond=boost::bind(&HitExtractorSTRP::ringRangeNodsTID,this); // error prone, shall change
       foreachHit(*rphiHits,accessor.stripTIDDisk(theSide,theIdLayer),add);
       add.cond=True;  
     }
     if (hasStereoHits) {
-      add.cond=boost::bind(HitExtractorSTRP::ringRangeTID,this); // error prone, shall change
+      add.cond=boost::bind(&HitExtractorSTRP::ringRangeTID,this); // error prone, shall change
       foreachHit(*stereoHits,accessor.stripTIDDisk(theSide,theIdLayer),add);
       add.cond=True;  
     }
@@ -173,17 +173,17 @@ vector<SeedingHit> HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
   //
   else if (theLayer->subDetector() == GeomDetEnumerators::TEC) {
     if (hasMatchedHits) {
-      add.cond=boost::bind(HitExtractorSTRP::ringRangeTEC,this); // error prone, shall change
+      add.cond=boost::bind(&HitExtractorSTRP::ringRangeTEC,this); // error prone, shall change
       foreachHit(*matchedHits,accessor.stripTECDisk(theSide,theIdLayer),add);
       add.cond=True;
     }
     if (hasRPhiHits) {
-      add.cond=boost::bind(HitExtractorSTRP::ringRangeNodsTEC,this); // error prone, shall change
+      add.cond=boost::bind(&HitExtractorSTRP::ringRangeNodsTEC,this); // error prone, shall change
       foreachHit(*rphiHits,accessor.stripTECDisk(theSide,theIdLayer),add);
       add.cond=True;  
     }
     if (hasStereoHits) {
-      add.cond=boost::bind(HitExtractorSTRP::ringRangeTEC,this); // error prone, shall change
+      add.cond=boost::bind(&HitExtractorSTRP::ringRangeTEC,this); // error prone, shall change
       foreachHit(*stereoHits,accessor.stripTECDisk(theSide,theIdLayer),add);
       add.cond=True;  
     }
