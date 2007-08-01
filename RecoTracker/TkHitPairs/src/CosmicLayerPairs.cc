@@ -269,7 +269,7 @@ namespace {
 
   struct Pointer {
     template<typename H> 
-    const TrackingRecHit* operator(H const& h) const { return &h;}
+    const TrackingRecHit* operator()(H const& h) const { return &h;}
   }
 
   template <typename C, typename A, typename B>
