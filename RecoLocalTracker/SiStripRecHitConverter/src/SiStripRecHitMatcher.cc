@@ -105,8 +105,8 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
 			     std::vector<SiStripMatchedRecHit2D*> & collector, 
 			     const GluedGeomDet* gluedDet,
 			     LocalVector trackdirection) const {
-  Collector result(std::bind(&std::vector<SiStripMatchedRecHit2D*>::push_back,boost::ref(collector),
-			     std::bind(&SiStripMatchedRecHit2D::clone,_1)));
+  Collector result(boost::bind(&std::vector<SiStripMatchedRecHit2D*>::push_back,boost::ref(collector),
+			     boost::bind(&SiStripMatchedRecHit2D::clone,_1)));
   match(monoRH,begin,end,result,gluedDet,trackdirection);
 }
 
@@ -138,7 +138,7 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
 			     const GluedGeomDet* gluedDet,
 			     LocalVector trackdirection) const {
 
-  Collector result(std::bind(&CollectorMatched::push_back,boost::ref(collector),_1));
+  Collector result(boost::bind(&CollectorMatched::push_back,boost::ref(collector),_1));
   match(monoRH,begin,end,result,gluedDet,trackdirection);
   
 }

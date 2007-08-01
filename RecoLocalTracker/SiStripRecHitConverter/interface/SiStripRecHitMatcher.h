@@ -30,7 +30,7 @@ public:
   typedef std::vector<const SiStripRecHit2D *>              SimpleHitCollection;
   typedef SimpleHitCollection::const_iterator               SimpleHitIterator;
 
-  typedef boost::function<void(SiStripMatchedRecHit2D&)>    Collector;
+  typedef boost::function<void(SiStripMatchedRecHit2D const&)>    Collector;
 
 
   typedef std::pair<LocalPoint,LocalPoint>                  StripPosition; 
