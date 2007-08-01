@@ -8,8 +8,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: stevew $
-// $Date: 2007/07/28 19:56:25 $
-// $Revision: 1.1 $
+// $Date: 2007/08/01 01:00:36 $
+// $Revision: 1.2 $
 //
 
 #include <memory>
@@ -65,6 +65,8 @@ namespace cms
     double minPT =  conf_.getParameter<double>("MinPT");
     unsigned int minFound = (unsigned int)conf_.getParameter<int>("MinFound");
     double epsilon =  conf_.getParameter<double>("Epsilon");
+    bool use_sharesInput = true;
+    if ( epsilon > 0.0 )use_sharesInput = false;
     double shareFrac =  conf_.getParameter<double>("ShareFrac");
   
     //
@@ -212,10 +214,13 @@ namespace cms
             for (trackingRecHit_iterator jt = track2->recHitsBegin();  jt != track2->recHitsEnd(); jt++){
 	      if ((*jt)->isValid()){
 //                if (((*it)->geographicalId()==(*jt)->geographicalId())&&((*it)->localPosition().x()==(*jt)->localPosition().x()))noverlap++;
+               if (!use_sharesInput){
                 float delta = fabs ( (*it)->localPosition().x()-(*jt)->localPosition().x() ); 
                 if (((*it)->geographicalId()==(*jt)->geographicalId())&&(delta<epsilon))noverlap++;
-//                const TrackingRecHit* kt = &(**jt);
-//                if ( (*it)->sharesInput(kt,TrackingRecHit::some) )noverlap++;
+               }else{
+                const TrackingRecHit* kt = &(**jt);
+                if ( (*it)->sharesInput(kt,TrackingRecHit::some) )noverlap++;
+               }
               }
             }
           }
@@ -259,10 +264,13 @@ namespace cms
             for (trackingRecHit_iterator jt = track2->recHitsBegin();  jt != track2->recHitsEnd(); jt++){
 	      if ((*jt)->isValid()){
 //                if (((*it)->geographicalId()==(*jt)->geographicalId())&&((*it)->localPosition().x()==(*jt)->localPosition().x()))noverlap++;
+               if (!use_sharesInput){
                 float delta = fabs ( (*it)->localPosition().x()-(*jt)->localPosition().x() ); 
                 if (((*it)->geographicalId()==(*jt)->geographicalId())&&(delta<epsilon))noverlap++;
-//                const TrackingRecHit* kt = &(**jt);
-//                if ( (*it)->sharesInput(kt,TrackingRecHit::some) )noverlap++;
+               }else{
+                const TrackingRecHit* kt = &(**jt);
+                if ( (*it)->sharesInput(kt,TrackingRecHit::some) )noverlap++;
+               }
               }
             }
           }
@@ -307,10 +315,13 @@ namespace cms
             for (trackingRecHit_iterator jt = track2->recHitsBegin();  jt != track2->recHitsEnd(); jt++){
               jj++;
 	      if ((*jt)->isValid()){
+               if (!use_sharesInput){
                 float delta = fabs ( (*it)->localPosition().x()-(*jt)->localPosition().x() ); 
                 if (((*it)->geographicalId()==(*jt)->geographicalId())&&(delta<epsilon))noverlap++;
-//                const TrackingRecHit* kt = &(**jt);
-//                if ( (*it)->sharesInput(kt,TrackingRecHit::some) )noverlap++;
+               }else{
+                const TrackingRecHit* kt = &(**jt);
+                if ( (*it)->sharesInput(kt,TrackingRecHit::some) )noverlap++;
+               }
               }
             }
           }
