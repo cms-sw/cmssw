@@ -80,18 +80,6 @@ std::ostream& operator << (std::ostream& os, const L1GctJetEtCalibrationFunction
   return os;
 }
 
-// TEMP for properly calculating the oldORCA corrections, we need to know
-// which Wheel we are in (ie forward or backward)
-double L1GctJetEtCalibrationFunction::correctedEt(double et, unsigned eta, bool tauVeto, bool forwardWheel) const {
-  if (m_corrFunType==OLD_ORCA_STYLE_CORRECTION) {    
-    unsigned gctEta = (forwardWheel ? (eta + NUMBER_ETA_VALUES) : (NUMBER_ETA_VALUES - (eta+1))) ;
-    double result = static_cast<double>(orcaCalibFn( static_cast<float>(et), gctEta ));
-    // Don't apply a threshold cut, just return the output of the oldORCA function
-    return result;
-  } else {
-    return correctedEt(et, eta, tauVeto);
-  } 
-}
 
 double L1GctJetEtCalibrationFunction::correctedEt(double et, unsigned eta, bool tauVeto) const {
 
@@ -99,6 +87,11 @@ double L1GctJetEtCalibrationFunction::correctedEt(double et, unsigned eta, bool 
     return 0;
   } else {
     double result=0;
+    // TEMP
+    if (m_corrFunType==OLD_ORCA_STYLE_CORRECTION) {
+      unsigned gctEta = eta + NUMBER_ETA_VALUES;
+      result = static_cast<double>(orcaCalibFn( static_cast<float>(et), gctEta ));
+    } else {
     if (tauVeto) {
       assert(eta<m_jetCalibFunc.size());
       result=findCorrectedEt(et, m_jetCalibFunc.at(eta));
@@ -106,6 +99,7 @@ double L1GctJetEtCalibrationFunction::correctedEt(double et, unsigned eta, bool 
       assert(eta<m_tauCalibFunc.size());
       result=findCorrectedEt(et, m_tauCalibFunc.at(eta));
     }
+    } //end block for TEMP
     if (result>m_threshold) { return result; }
     else { return 0; }
   }
@@ -172,33 +166,6 @@ uint16_t L1GctJetEtCalibrationFunction::calibratedEt(const double Et) const
     return jetEtOut;
   }
 }
-
-//DEBUG - REMOVE FOR PRODUCTION
-// void L1GctJetEtCalibrationFunction::checkCalibrationAgainstOrca() const
-// {
-//   bool result=true;
-//   for ( unsigned eta=0; eta<NUMBER_ETA_VALUES; ++eta ) {
-//     for (uint16_t value=64; value<1024; ++value) {
-//       double E1 = correctedEt(value, eta, true);
-//       unsigned etapos = NUMBER_ETA_VALUES+eta; 
-//       unsigned etaneg = NUMBER_ETA_VALUES-eta-1; 
-//       double E2 = (double) orcaCalibFn( (float) value*m_outputEtScale.linearLsb(), etapos);
-//       double E3 = (double) orcaCalibFn( (float) value*m_outputEtScale.linearLsb(), etaneg);
-//       double diff12 = (E1-E2);
-//       double diff31 = (E3-E1);
-//       // Check the calibrated Et value for this eta lies between
-//       // the two values at positive and negative eta returned by
-//       // the old ORCA calibration function
-//       result &= (((fabs(diff12)<1) && (fabs(diff31)<1)) || ((E1 <= E2) && (E1 >= E3)) || ((E1 >= E2) && (E1 <= E3)));
-//     }
-//   }
-//   if (result) {
-//     std::cout << "Orca check passed\n";
-//   } else {
-//     std::cout << "Orca check failed\n";
-//   }
-//   std::cout << "REMOVE THIS CHECK FOR PRODUCTION VERSION" << std::endl;
-// }
 
 // This is the original calibration function
 float L1GctJetEtCalibrationFunction::orcaCalibFn(float et, unsigned eta) const {

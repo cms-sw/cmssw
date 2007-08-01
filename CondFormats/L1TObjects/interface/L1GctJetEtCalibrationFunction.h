@@ -65,8 +65,6 @@ public:
 
   /// set the type of correction function to use
   void setCorrectionFunctionType(const CorrectionFunctionType cft) { m_corrFunType = cft;
-                                                     // DEBUG - REMOVE FOR PRODUCTION
-  //                                                     if (cft==ORCA_STYLE_CORRECTION) { checkCalibrationAgainstOrca(); } 
                                                                    }
                                                                    
   /// Overload << operator
@@ -74,9 +72,6 @@ public:
   
   /// apply jet Et correction
   double correctedEt(double et, unsigned eta, bool tauVeto) const;
-  // TEMP for properly calculating the oldORCA corrections, we need to know
-  // which Wheel we are in (ie forward or backward)
-  double correctedEt(double et, unsigned eta, bool tauVeto, bool forwardWheel) const;
   
   /// Convert the corrected Et value to a linear Et for Ht summing
   uint16_t calibratedEt(const double Et) const;
@@ -102,7 +97,6 @@ private:
   /// Convert the corrected Et value to a non-linear jet rank for sorting
   uint16_t rank(const double Et) const;
 
-  //  void checkCalibrationAgainstOrca() const;
   float orcaCalibFn(float et, unsigned eta) const;
 
   // PARAMETERS FOR THE CONVERSION
