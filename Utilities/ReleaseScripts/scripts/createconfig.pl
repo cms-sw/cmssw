@@ -1,26 +1,25 @@
 #!/usr/bin/env perl
 use File::Basename;
 use lib dirname($0);
-use Getopt::Long;
 use SCRAMGenUtils;
 $|=1;
 
 my $curdir=`/bin/pwd`; chomp $curdir;
 my $scriptdir=dirname($0);
-my $dir=shift;
-
-if($dir eq ""){$dir=$curdir;}
-if($dir ne "INTERNAL_RUNNING_OF_SCRIPT")
+my $skiplocal=0;
+my $dir="";
+while(my $arg=shift)
 {
-  if(!-d $dir){die "No such directory: $dir\n";}
-  system("$0 INTERNAL_RUNNING_OF_SCRIPT $dir @ARGV | grep '^DATA:' | sed 's|^DATA:||'");
-  exit $?;
+  if($arg eq "--skiplocal"){$skiplocal=1;}
+  elsif($arg eq "--help"){&usage();exit 0;}
+  else{$dir=$arg;last;}
 }
-else{$dir=shift;}
+if($dir eq ""){$dir=$curdir;}
+if(!-d $dir){die "No such directory: $dir\n";}
 
 if($dir=~/^[^\/]/){$dir="${curdir}/${dir}";}
 $dir=&SCRAMGenUtils::fixPath($dir);
-my $arch=shift || "";
+my $arch="";
 my $scram_list_skip=5;
 my $flags="";
 my $tmprel="";
@@ -55,14 +54,22 @@ if($arch eq ""){$arch=`$SCRAM_CMD arch`; chomp $arch;}
 $SCRAM_CMD="$SCRAM_CMD -arch $arch";
 $SCRAMGenUtils::SCRAM_CMD=$SCRAM_CMD;
 
-print 'DATA:OWNHEADER=^(.+)\\/[^\\/]+\\/([^\\.]+)\\.(cc|CC|cpp|C|c|CPP|cxx|CXX)$:"$1\\/.+?\\/$2\\.(h|hh|hpp|H|HH|HPP)\\$"',"\n";
-print "DATA:BASE_DIR=${release}/${src}\n";
+if($skiplocal)
+{
+  print 'SKIP_INCLUDES=^(.+)/[^/]+$:"^$1/.+\\$"',"\n";
+  my $dep=&pkg_depth_default(lc($project));
+  my $exp="[^/]+";
+  for(my $i=1;$i<$dep;$i++){$exp.="/[^/]+";}
+  print 'SKIP_INCLUDES=^(',$exp,')/.+/[^/]+$:"^$1/.+\\$"',"\n";
+}
+print 'OWNHEADER=^(.+)/[^/]+/([^\\.]+)\\.(cc|CC|cpp|C|c|CPP|cxx|CXX)$:"$1/.+?/$2\\.(h|hh|hpp|H|HH|HPP)\\$"',"\n";
+print "BASE_DIR=${release}/${src}\n";
 $flags="-I${release}/${src}";
 
 my $cache={};
 if($releasetop ne $release)
 {
-  print "DATA:BASE_DIR=${releasetop}/${src}\n";
+  print "BASE_DIR=${releasetop}/${src}\n";
   $flags.=" -I${releasetop}/${src}";
   my $doscramb=1;
   if((-f "${release}/tmp/${arch}/Makefile") && (-f "${release}/.SCRAM/${arch}/ProjectCache.db"))
@@ -131,8 +138,8 @@ if(exists $cache->{tools}{SETUP}{cxxcompiler}{CXX}){$cxx=$cache->{tools}{SETUP}{
 else{$cxx=&SCRAMGenUtils::getBuildVariable($tmprel,"CXX") || $cxx;}
 if(-x $cxx){$cxx_ver=`$cxx --version | head -1 | awk '{print \$3}'`;chomp $cxx_ver;}
 
-print "DATA:COMPILER=$cxx\n";
-print "DATA:COMPILER_VERSION=$cxx_ver\n";
+print "COMPILER=$cxx\n";
+print "COMPILER_VERSION=$cxx_ver\n";
 
 &genConfig ($packdir,$cache);
 &updateOrderedTools($cache);
@@ -155,24 +162,25 @@ foreach my $inc (split /\s+/, &SCRAMGenUtils::getBuildVariable($tmprel,"CPPDEFIN
 {$flags="$flags ".postProcessFlag ("-D$inc");}
 $flags="$flags ".&postProcessFlag(&SCRAMGenUtils::getBuildVariable($tmprel,"CPPFLAGS"));
 $flags="$flags ".&postProcessFlag(&SCRAMGenUtils::getBuildVariable($tmprel,"CXXFLAGS"));
-print "DATA:COMPILER_FLAGS=$flags\n";
+print "COMPILER_FLAGS=$flags\n";
 my $tmpl_compile_support=&checkTemplateCompilationSupport ();
 my $def_compile_support=&checkDefineCompilationSupport ();
 if(($tmpl_compile_support==0) || ($def_compile_support==0)){&genSkip ($cache);}
-print "DATA:SKIP_INCLUDES=^(Ig|Vis).*?/interface/config\.h:classlib/sysapi/system\\.h\$\n";
-print "DATA:SKIP_INCLUDES=.+?:Utilities/Testing/interface/CppUnit_testdriver\\.icpp\$\n";
-print "DATA:SKIP_INCLUDES=.+?:FWCore/ParameterSet/test/ConfigTestMain\\.h\$\n";
-print "DATA:SKIP_INCLUDE_INDIRECT_ADD=.+?:(Ig|Vis).*?/interface/config\\.h\$\n";
-print "DATA:SKIP_AND_ADD_REMOVED_INCLUDES=.*?/classes\\.h\$\n";
-print "DATA:SKIP_AND_ADD_REMOVED_INCLUDES=.*?/([^/]*)LinkDef\\.h\$\n";
-print "DATA:SOURCE_EXT=$lexparseext\n";
+print 'SKIP_INCLUDES=^(Ig|Vis).*?/interface/config\.h$:"^classlib/sysapi/system\.h\$"',"\n";
+print 'SKIP_INCLUDES=.+:"^.+?\\.icc\$"',"\n";
+print 'SKIP_INCLUDES=.+:"^Utilities/Testing/interface/CppUnit_testdriver\.icpp\$"',"\n";
+print 'SKIP_INCLUDES=.+:"^FWCore/ParameterSet/test/ConfigTestMain\.h\$"',"\n";
+print 'SKIP_INCLUDE_INDIRECT_ADD=.+:"^(Ig|Vis).*?/interface/config\.h\$"',"\n";
+print 'SKIP_AND_ADD_REMOVED_INCLUDES=^.*?/classes\.h$',"\n";
+print 'SKIP_AND_ADD_REMOVED_INCLUDES=^.*?/([^/]*)LinkDef\.h$',"\n";
+print "SOURCE_EXT=$lexparseext\n";
 
 foreach my $d ("$curdir","$scriptdir")
 {
   if(-f "${d}/${project}_IncludeChecker.conf")
   {
-    print "DATA:#Extra Include Checker Configuration: ${d}/${project}_IncludeChecker.conf\n";
-    foreach my $l (`cat ${d}/${project}_IncludeChecker.conf`){print "DATA:$l";}
+    print "#Extra Include Checker Configuration: ${d}/${project}_IncludeChecker.conf\n";
+    system("cat ${d}/${project}_IncludeChecker.conf");
   }
 }
 &final_exit(0);
@@ -218,16 +226,16 @@ sub genSkip ()
     {
       
       if($f!~/.+?$headerext/i){next;}
-      if($f=~/.+?FWD$headerext/i){print "DATA:SKIP_FILES=^$f\$\n";next;}
+      if($f=~/.+?FWD$headerext/i){print "SKIP_FILES=^$f\$\n";next;}
       if(-f "${release}/${src}/${f}")
       {
         foreach my $line (`cat ${release}/${src}/${f}`)
         {
           chomp $line;
 	  if(($def_compile_support==0) && ($line=~/^\s*\#\s*define\s+.+?\\$/))
-	  {print "DATA:SKIP_FILES=^$f\$\n";last;}
+	  {print "SKIP_FILES=^$f\$\n";last;}
 	  if(($tmpl_compile_support==0) && ($line=~/^\s*template\s*<.+/))
-	  {print "DATA:SKIP_FILES=^$f\$\n";last;}
+	  {print "SKIP_FILES=^$f\$\n";last;}
         }
       }
     }
@@ -256,11 +264,11 @@ sub genConfig ()
   &getFlags($data->{prods});
   foreach my $prod (sort keys %{$data->{prods}})
   {
-    print "DATA:COMPILER_FLAGS=".$data->{prods}{$prod}{flags}."\n";
+    print "COMPILER_FLAGS=".$data->{prods}{$prod}{flags}."\n";
     foreach my $file (@{$data->{prods}{$prod}{files}})
     {
-      print "DATA:FILES=$file\n";
-      if($file=~/$lexparseext/){print "DATA:SKIP_AND_ADD_REMOVED_INCLUDES=^$file\$\n";}
+      print "FILES=$file\n";
+      if($file=~/$lexparseext/){print "SKIP_AND_ADD_REMOVED_INCLUDES=^$file\$\n";}
     }
   }
 }
@@ -393,8 +401,10 @@ sub run_func ()
   my $tool=shift || return "";
   if($tool eq "self"){$tool=$project;}
   $tool=lc($tool);
-  $func.="_${tool}";
-  if(exists &$func){return &$func(@_);}
+  my $funcx="${func}_${tool}";
+  if(exists &$funcx){return &$funcx(@_);}
+  $funcx="${func}_default";
+  if(exists &$funcx){return &$funcx($tool,@_);}
   return "";
 }
 #############################################
@@ -456,6 +466,22 @@ sub pkg_src_iguana ()
 {return "src";}
 sub pkg_src_cmssw ()
 {return "src";}
+
+########################################################################
+sub pkg_depth_cmssw ()
+{return 2;}
+sub pkg_depth_ignominy ()
+{return 2;}
+sub pkg_depth_iguana ()
+{return 2;}
+
+sub pkg_depth_default ()
+{
+  my $tool=shift;
+  if($tool=~/^(cmssw|iguana|ignominy)$/){return 2;}
+  if($tool=~/^(seal|pool|coral)$/){return 1;}
+  return 1;
+}
 ########################################################################
 
 sub checkTemplateCompilationSupport ()
@@ -473,4 +499,12 @@ sub checkTemplateCompilationSupport ()
 sub checkDefineCompilationSupport ()
 {
   return 0;
+}
+
+sub usage()
+{
+  print "Usage\n";
+  print "  $0 [--skiplocal] [--help] <directory> [<arch>]\n\n";
+  print "    --skiplocal    To skip the checking of local includes of packages i.e. includes of type A/B/*.h will not be removed from files A/B/*.\n";
+  print "    --help         To get this help message.\n";
 }
