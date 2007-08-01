@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 use Cwd;
 use File::Basename;
-use lib "/build/muzaffar/includechecker/Utilities/ReleaseScripts/scripts";
+use lib dirname($0);
 use SCRAMGenUtils;
 
 my $curdir=cwd();
@@ -24,9 +24,7 @@ foreach my $inc (@{$cache->{order}})
 {
   my $c=&readcachefile($inc);
   foreach my $i (keys %{$c->{ALL_INCLUDES_REMOVED}})
-  {
-    if(&wasremoved($inc,$i)){print "$inc => $i\n";}
-  }
+  {if(&wasremoved($inc,$i)){print "$inc => $i\n";}}
 }
 exit 0;
 
@@ -60,11 +58,11 @@ sub wasremoved ()
   my $file=shift;
   my $inc=shift;
   my $cfile="${rel}/tmp/${arch}/includechecker/includechecker/src/${file}.modified_by_incchk";
+  if(!-f $cfile){$cfile="${rel}/tmp/${arch}/includechecker/includechecker/src/${file}";}
   if(!-f $cfile){return 0;}
   foreach my $l (`cat $cfile`)
   {
     chomp $l;
-    if($l=~/^\/\/INCLUDECHECKER: Removed this line:\s+#\s*include\s*(<|")\s*$inc\s*(<|")/)
-    {return 1;}
+    if($l=~/^\s*\/\/INCLUDECHECKER: Removed this line:\s+#\s*include\s*(<|")\s*$inc\s*(>|")/){return 1;}
   }
 }
