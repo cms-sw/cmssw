@@ -11,6 +11,7 @@ class produceTrivialCalibrationLut
 
   void setPowerSeriesCorrectionType();
   void setOrcaStyleCorrectionType();
+  void setOldOrcaStyleCorrectionType();
 
   L1GctJetEtCalibrationLut* produce();
 

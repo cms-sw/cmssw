@@ -75,6 +75,11 @@ void produceTrivialCalibrationLut::setOrcaStyleCorrectionType()
   setOrcaStyleParams();
 }
 
+void produceTrivialCalibrationLut::setOldOrcaStyleCorrectionType()
+{
+  m_corrFunType = L1GctJetEtCalibrationFunction::OLD_ORCA_STYLE_CORRECTION;
+}
+
 L1GctJetEtCalibrationLut* produceTrivialCalibrationLut::produce()
 {
   L1CaloEtScale* jetScale = new L1CaloEtScale(m_jetEtScaleInputLsb, m_jetEtThresholds);
