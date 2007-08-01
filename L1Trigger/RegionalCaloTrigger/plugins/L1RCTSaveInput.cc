@@ -1,6 +1,7 @@
 #include <memory>
 #include <string>
 #include <iostream>
+#include <fstream>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -26,15 +27,19 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCT.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h" 
 
-L1RCTSaveInput::L1RCTSaveInput(const edm::ParameterSet& iConfig) :
-  fileName(iConfig.getUntrackedParameter<std::string>("rctTestInputFile")),
+L1RCTSaveInput::L1RCTSaveInput(const edm::ParameterSet& conf) :
+  fileName(conf.getUntrackedParameter<std::string>("rctTestInputFile")),
   rctLookupTables(new L1RCTLookupTables),
-  rct(new L1RCT(rctLookupTables))
+  rct(new L1RCT(rctLookupTables)),
+  useEcal(conf.getParameter<bool>("useEcal")),
+  useHcal(conf.getParameter<bool>("useHcal")),
+  ecalDigisLabel(conf.getParameter<edm::InputTag>("ecalDigisLabel")),
+  hcalDigisLabel(conf.getParameter<edm::InputTag>("hcalDigisLabel"))
 {
   ofs.open(fileName.c_str(), std::ios::app);
   if(!ofs)
     {
-      std::cerr << "Could not create " << fileName << endl;
+      std::cerr << "Could not create " << fileName << std::endl;
       exit(1);
     }
 }
@@ -46,8 +51,8 @@ L1RCTSaveInput::~L1RCTSaveInput()
 }
 
 void
-L1RCTSaveInput::analyze(const edm::Event& iEvent,
-			const edm::EventSetup& iSetup)
+L1RCTSaveInput::analyze(const edm::Event& event,
+			const edm::EventSetup& eventSetup)
 {
   edm::ESHandle<L1RCTParameters> rctParameters;
   eventSetup.get<L1RCTParametersRcd>().get(rctParameters);
@@ -69,5 +74,6 @@ L1RCTSaveInput::analyze(const edm::Event& iEvent,
   HcalTrigPrimDigiCollection hcalColl;
   if (ecal.isValid()) { ecalColl = *ecal; }
   if (hcal.isValid()) { hcalColl = *hcal; }
-  rct->digiInput(ecalColl, hcalColl, &ofs);
+  rct->digiInput(ecalColl, hcalColl);
+  rct->saveRCTInput(ofs);
 }

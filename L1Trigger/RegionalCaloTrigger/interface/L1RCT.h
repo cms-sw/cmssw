@@ -23,16 +23,12 @@ class L1RCT {
   
   L1RCT(const L1RCTLookupTables* rctLookupTables);
 
-  //Should organize the input into the crates and cards then pass on
-  //the output.  The data will come into the trigger in the form
-  //of two multilayered vectors of vectors.
-  //The first is of the actual barrel information.
-  //18 crates -> 7 RCs -> 64 unsigned shorts per RC
-  //so it should be a vector<vector<vector<unsigned short> > >
-  //The second is of the HF regions which is just of type
-  //vector<vector<unsigned short> >
-  void input(std::vector<std::vector<std::vector<unsigned short> > > barrel,
-	     std::vector<std::vector<unsigned short> > hf);
+  //Organize input for consumption by the cards
+  void input();
+
+  //For testing accept external input
+  void input(std::vector<std::vector<std::vector<unsigned short> > > barrelIn,
+	     std::vector<std::vector<unsigned short> > hfIn);
 
   //Should send commands to all crates to send commands to all RCs to
   //process the input data and then send it on to the EICs and then
@@ -42,13 +38,11 @@ class L1RCT {
   void fileInput(const char* filename);       // added "const" also in .cc
 
   void digiInput(EcalTrigPrimDigiCollection ecalCollection, 
-		 HcalTrigPrimDigiCollection hcalCollection,
-		 const ostream* os = 0);
+		 HcalTrigPrimDigiCollection hcalCollection);
+  
+  void randomInput();
 
-  void saveRCTInput(vector<vector<vector<unsigned short> > > barrel,
-		    const ostream* os);
-
-  void randomInput(const ostream* os = 0);
+  void saveRCTInput(std::ostream& os);
 
   void print();
   void printCrate(int i){
@@ -112,6 +106,16 @@ class L1RCT {
   //While 9-17 are eta 0 -> 5
   //Crate i and crate i+9 are next to each other  
   std::vector<L1RCTCrate> crates;
+
+  //Data for processing is organized into the crates and cards
+  //in two multilayered vectors of vectors.
+  //The first is of the actual barrel information.
+  //18 crates -> 7 RCs -> 64 unsigned shorts per RC
+  //so it should be a vector<vector<vector<unsigned short> > >
+  //The second is of the HF regions which is just of type
+  //vector<vector<unsigned short> >
+  std::vector<std::vector<std::vector<unsigned short> > > barrel;
+  std::vector<std::vector<unsigned short> > hf;
 
 };
 

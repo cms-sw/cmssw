@@ -7,6 +7,7 @@ using std::vector;
 #include <string>
 
 #include <iostream>
+using std::ostream;
 using std::cout;
 using std::cerr;
 using std::endl;
@@ -55,15 +56,25 @@ void L1RCT::makeCrates()
 L1RCT::L1RCT(const L1RCTLookupTables* rctLookupTables) : 
   rctLookupTables_(rctLookupTables),
   empty(),
-  neighborMap()
+  neighborMap(),
+  barrel(18,vector<vector<unsigned short> >(7,vector<unsigned short>(64))),
+  hf(18,vector<unsigned short>(8))
 {
   makeCrates();
 }
 
-void L1RCT::input(vector<vector<vector<unsigned short> > > barrel,
-		  vector<vector<unsigned short> > hf){
+void L1RCT::input()
+{
   for(int i = 0; i<18; i++){
     crates.at(i).input(barrel.at(i),hf.at(i));
+  }
+}
+
+void L1RCT::input(vector<vector<vector<unsigned short> > > barrelIn,
+		  vector<vector<unsigned short> > hfIn)
+{
+  for(int i = 0; i<18; i++){
+    crates.at(i).input(barrelIn.at(i),hfIn.at(i));
   }
 }
 
@@ -72,8 +83,6 @@ void L1RCT::input(vector<vector<vector<unsigned short> > > barrel,
 //event.  At the moment you cannot put a ton of data and have it be
 //read as separate events.
 void L1RCT::fileInput(const char* filename){            // added "const" also in .h
-  vector<vector<vector<unsigned short> > > barrel(18,vector<vector<unsigned short> >(7,vector<unsigned short>(64)));
-  vector<vector<unsigned short> > hf(18,vector<unsigned short>(8));
   unsigned short x;
   std::ifstream instream(filename);
   if(instream){
@@ -99,18 +108,14 @@ void L1RCT::fileInput(const char* filename){            // added "const" also in
       }
     }
   }
-  input(barrel,hf);
+  input();
 }
 
 
 // takes hcal and ecal digi input, including HF
 void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection,
-		      HcalTrigPrimDigiCollection hcalCollection,
-		      const ostream* os)
+		      HcalTrigPrimDigiCollection hcalCollection)
 {
-  vector<vector<vector<unsigned short> > > barrel(18,vector<vector<unsigned short> >(7,vector<unsigned short>(64)));
-  vector<vector<unsigned short> > hf(18,vector<unsigned short>(8));
-
   // fills input vectors with 0's in case ecal or hcal collection not used
   for (int i = 0; i < 18; i++)
     {
@@ -199,9 +204,7 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection,
     }
   }
   
-  input(barrel,hf);
-
-  if(os != 0) saveRCTInput(barrel, os);
+  input();
 
   return;
 
@@ -209,11 +212,8 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection,
 
 //As the name implies, it will randomly generate input for the 
 //regional calotrigger.
-void L1RCT::randomInput(const ostream* os)
+void L1RCT::randomInput()
 {
-  vector<vector<vector<unsigned short> > > barrel(18,vector<vector<unsigned short> >(7,vector<unsigned short>(64)));
-  vector<vector<unsigned short> > hf(18,vector<unsigned short>(8));
-  
   for(int i = 0; i<18;i++){
     for(int j = 0; j<7;j++){
       for(int k = 0; k<64; k++){
@@ -224,13 +224,8 @@ void L1RCT::randomInput(const ostream* os)
       hf.at(i).at(j) = rand()%255;  // changed from 1023 (10 bits)
     }
   }
-  
-  input(barrel,hf);
-
-  if(os != 0) saveRCTInput(barrel, os);
-
+  input();
   return;
-
 }
 
 
@@ -399,15 +394,14 @@ vector<L1CaloRegion> L1RCT::getRegions(int crate){
   return regionCollection;
 }
 
-// Create file for hardware playback when requested
-void L1RCT::saveRCTInput(vector<vector<vector<unsigned short> > > barrel,
-			 const ostream* os)
+// Dump first 64 events for hardware playback when requested
+void L1RCT::saveRCTInput(ostream& os)
 {
   // Mike and Kira -- this is your playpen
   static int event = 0;
   if(event == 0)
     {
-      *os
+      os
 	<< "Crate = 0-17" << std::endl
 	<< "Card = 0-7 within the crate" << std::endl
 	<< "Tower = 0-32 covers 4 x 8 covered by the card" << std::endl
@@ -434,8 +428,8 @@ void L1RCT::saveRCTInput(vector<vector<vector<unsigned short> > > barrel,
 		  unsigned short ecal = barrel[iCrate][iCard][iTower] / 2;
 		  unsigned short hcal = barrel[iCrate][iCard][iTower+32] / 2;
 		  unsigned short fgbit = barrel[iCrate][iCard][iTower] & 1;
-		  unsigned long lutOutput = lut->lookup(ecal, hcal, fgbit, iCrate, iCard, iTower);
-		  *os
+		  unsigned long lutOutput = rctLookupTables_->lookup(ecal, hcal, fgbit, iCrate, iCard, iTower);
+		  os
 		    << std::hex 
 		    << event << "\t"
 		    << iCrate << "\t"

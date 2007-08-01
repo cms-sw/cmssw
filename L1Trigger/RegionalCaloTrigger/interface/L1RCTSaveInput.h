@@ -14,18 +14,27 @@
 //
 // Original Author:  Sridhara Dasu
 //         Created:  Tue Jul 31 17:10:13 CEST 2007
-// $Id$
+// $Id: L1RCTSaveInput.h,v 1.1 2007/07/31 20:23:29 dasu Exp $
 //
 //
 
 #include <memory>
 #include <iostream>
+#include <fstream>
+
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+class L1RCTLookupTables;
+class L1RCT;
 
 class L1RCTSaveInput : public edm::EDAnalyzer {
 public:
@@ -36,5 +45,9 @@ private:
   std::string fileName;
   L1RCTLookupTables* rctLookupTables;
   L1RCT* rct;
+  bool useEcal;
+  bool useHcal;
+  edm::InputTag ecalDigisLabel;
+  edm::InputTag hcalDigisLabel;
   std::ofstream ofs;
 };
