@@ -20,11 +20,12 @@
 
 
 #include <vector>
+#include <map>
 
 
 /** \class EcalElectronicsMapping
   *  
-  * $Id: EcalElectronicsMapping.h,v 1.2 2007/04/11 10:36:45 eperez Exp $
+  * $Id: EcalElectronicsMapping.h,v 1.3 2007/05/23 14:28:16 eperez Exp $
   * \author P.Meridiani (INFN Roma1),  E. Perez (CERN)  
   */
 
@@ -108,6 +109,9 @@ class EcalElectronicsMapping {
   int GetFED(double eta, double phi) ;
   int DCCBoundary(int FED);
 
+  // methods for retrieving the Laser Monitoring readout number
+
+  int getLMNumber(const DetId& id) const;
 
 
  // Geometry of SM in EB :
@@ -165,6 +169,12 @@ class EcalElectronicsMapping {
   static const int TCCID_PHI0_EEP_OUT = EcalTriggerElectronicsId::TCCID_PHI0_EEP_OUT ;
 
   static const int kTCCinPhi = 18;      // Number of TCC "sectors" in phi
+
+ // LaserMonitoring readout numbers :
+  static const int MIN_LM_EEM = 73;	// corresponds to MIN_DCCID_EEM
+  static const int MIN_LM_EBM = 1;	// corresponds to MIN_DCCID_EBM
+  static const int MIN_LM_EBP = 37;	// corresponds to MIN_DCCID_EBP
+  static const int MIN_LM_EEP = 83;	// corresponds to MIN_DCCID_EEP
 
 
  private:
@@ -251,6 +261,13 @@ class EcalElectronicsMapping {
   //Needed only in the EE (contains only first quadrant object) 
   EcalElectronicsMap m_items;
 
+
+  // Maps between DCC and LaserMonitoring readout numbers (take care that EB DCCs and two EE DCCs
+  // actually correspond to two LMs. The map contain only the first one).
+  // The maps are filled in the constructor of EcalElectronicsMapping.
+
+  std::map<int, int> LaserMonitoringMap_EB;
+  std::map<int, int> LaserMonitoringMap_EE;
 
 };
 
