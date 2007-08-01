@@ -19,7 +19,6 @@
 
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -90,6 +89,68 @@ float RPCSynchronizer::getReadOutTime(const RPCDetId& rpcDetId)
   return it->second;
 }
 
+int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
+{
+
+  int bx = -999;
+  LocalPoint simHitPos = simhit->localPosition();
+  float tof = simhit->timeOfFlight();
+  float rr_el = RandGaussQ::shoot(0.,resEle);
+
+  RPCDetId SimDetId(simhit->detUnitId());
+  const RPCRoll* SimRoll = 0;
+
+  for(TrackingGeometry::DetContainer::const_iterator it = theGeometry->dets().begin(); it != theGeometry->dets().end(); it++){
+    
+    if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
+      
+      RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
+      RPCDetId detId=ch->id();
+      
+      std::vector< const RPCRoll*> rollsRaf = (ch->rolls());
+      for(std::vector<const RPCRoll*>::iterator r = rollsRaf.begin();
+	  r != rollsRaf.end(); ++r){
+	
+	if((*r)->id().region() == 0){
+
+	  if((*r)->id() == SimDetId) {
+	    SimRoll = &(*(*r));
+	  
+	    const BoundPlane & RPCSurface = (*r)->surface(); 
+	    GlobalPoint CenterPointRollGlobal = RPCSurface.toGlobal(LocalPoint(0,0,0));
+	    break;
+	  }	  
+	}
+      }
+    }
+  }
+
+  if(SimRoll != 0){
+
+    const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&(SimRoll->topology()));
+    float distanceFromEdge = top_->stripLength() - simHitPos.y();
+
+    float prop_time =  distanceFromEdge/(0.66*3e+10);
+    double rr_tim1 = RandGaussQ::shoot(0.,resRPC);
+    double total_time = tof + prop_time + timOff + rr_tim1 + rr_el;
+
+    // Bunch crossing assignment
+
+    double time_differ = total_time - ( this->getReadOutTime(RPCDetId(simhit->detUnitId())) + ( top_->stripLength()/(2*0.66*3e+10) ) + timOff);
+
+    for(int n = -5; n <= 5; ++n){
+      if(-12.5 < (time_differ-n*25) && (time_differ-n*25) < 12.5) {
+
+	//	std::cout<<"Time Differ: "<<time_differ<<"  "<<"Bx: "<<n<<std::endl;
+	bx = n;
+	break;
+      }
+    }
+  }
+
+  return bx;
+}
+
 int RPCSynchronizer::getDigiBx(const PSimHit* simhit, int centralstrip, int strip)
 {
 
@@ -97,7 +158,7 @@ int RPCSynchronizer::getDigiBx(const PSimHit* simhit, int centralstrip, int stri
 
   float csdt_tot = 0.;
   if(diffstrip > 0){
-    for(int n = 0; n < diffstrip; ++n){
+    for(unsigned int n = 0; n < diffstrip; ++n){
       float rr_dt = RandFlat::shoot();
       if (rr_dt <= 1.e-10) rr_dt = 1.e-10 ;
       float dif_time = -(dtimCs)*log(rr_dt);
@@ -157,10 +218,10 @@ int RPCSynchronizer::getDigiBx(const PSimHit* simhit, int centralstrip, int stri
       float inf_time = -lbGate/2 + n*lbGate;
       float sup_time = lbGate/2 + n*lbGate;
 
-      std::cout<<"Time Differ: "<<time_differ<<"  "<<"INFTIME: "<<inf_time<<"  "<<"SUPTIME "<<sup_time<<"  "<<"Bx: "<<n<<std::endl;
+//       std::cout<<"Time Differ: "<<time_differ<<"  "<<"INFTIME: "<<inf_time<<"  "<<"SUPTIME "<<sup_time<<"  "<<"Bx: "<<n<<std::endl;
       if(inf_time < time_differ && time_differ < sup_time) {
-	if(n != 0)  std::cout<<"BXXXXXXX"<<" "<<"Time Differ: "<<time_differ<<"  "<<"INFTIME: "<<inf_time<<"  "<<"SUPTIME "<<sup_time<<"  "<<"Bx: "<<n<<std::endl;
-	if(time_differ < 0)  std::cout<<"TIMENEGATIVE"<<" "<<"Time Differ: "<<time_differ<<"  "<<"INFTIME: "<<inf_time<<"  "<<"SUPTIME "<<sup_time<<"  "<<"Bx: "<<n<<std::endl;
+// 	if(n != 0)  std::cout<<"BXXXXXXX"<<" "<<"Time Differ: "<<time_differ<<"  "<<"INFTIME: "<<inf_time<<"  "<<"SUPTIME "<<sup_time<<"  "<<"Bx: "<<n<<std::endl;
+// 	if(time_differ < 0)  std::cout<<"TIMENEGATIVE"<<" "<<"Time Differ: "<<time_differ<<"  "<<"INFTIME: "<<inf_time<<"  "<<"SUPTIME "<<sup_time<<"  "<<"Bx: "<<n<<std::endl;
 
 	bx = n;
 	break;

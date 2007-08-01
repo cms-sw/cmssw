@@ -31,7 +31,6 @@ RPCSimParam::RPCSimParam(const edm::ParameterSet& config) : RPCSim(config){
     std::cout <<"Signal propagation time   = "<<sspeed<<" x c"<<std::endl;
     std::cout <<"Link Board Gate Width     = "<<lbGate<<" ns"<<std::endl;
   }
-
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable()) {
     throw cms::Exception("Configuration")
@@ -44,7 +43,6 @@ RPCSimParam::RPCSimParam(const edm::ParameterSet& config) : RPCSim(config){
 
   rndEngine = &(rng->getEngine());
   flatDistribution = new CLHEP::RandFlat(rndEngine);
-
 }
 
 
@@ -108,7 +106,7 @@ RPCSimParam::simulate(const RPCRoll* roll,
 
       for (std::vector<int>::iterator i=cls.begin(); i!=cls.end();i++){
 	// Check the timing of the adjacent strip
-	std::pair<int, int> digi(*i,_rpcSync->getDigiBx(&(*_hit), centralStrip, *i));
+	std::pair<int, int> digi(*i,_rpcSync->getSimHitBx(&(*_hit)));
 	//	std::cout<<"STRIP: "<<*i<<"  "<<"BX: "<<bx<<std::endl;
 	strips.insert(digi);
       }

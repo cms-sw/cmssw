@@ -228,7 +228,7 @@ RPCSimAverage::simulate(const RPCRoll* roll,
 
       for (std::vector<int>::iterator i=cls.begin(); i!=cls.end();i++){
 	// Check the timing of the adjacent strip
-	std::pair<int, int> digi(*i,_rpcSync->getDigiBx(&(*_hit), centralStrip, *i));
+	std::pair<int, int> digi(*i,_rpcSync->getSimHitBx(&(*_hit)));
 	//	std::cout<<"STRIP: "<<*i<<"  "<<"BX: "<<bx<<std::endl;
 	strips.insert(digi);
       }
