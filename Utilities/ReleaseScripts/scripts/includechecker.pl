@@ -21,11 +21,10 @@ $config_cache->{OWNHEADER}[0]='^(.*?)\\.(cc|CC|cpp|C|c|CPP|cxx|CXX)$:"${1}\\.(h|
 $config_cache->{FWDHEADER}{'^.*?(\\/|)[^\\/]*[Ff][Ww][Dd].h$'}=1;
 $config_cache->{FWDHEADER}{'^iosfwd$'}=1;
 $config_cache->{FWDHEADER}{'^bits\/stringfwd.h$'}=1;
-$config_cache->{SKIP_INCLUDE_INDIRECT_ADD}=[];
-$config_cache->{SKIP_INCLUDES}=[];
 $config_cache->{HEADER_EXT}{"\\.(h||hh|hpp|H|HH|HPP)\$"}=1;
 $config_cache->{SOURCE_EXT}{"\\.(cc|CC|cpp|C|c|CPP|cxx|CXX)\$"}=1;
-push @{$config_cache->{SKIP_INCLUDES}},".+?:.+?\\.icc";
+$config_cache->{SKIP_INCLUDE_INDIRECT_ADD}=[];
+$config_cache->{SKIP_INCLUDES}=[];
 
 if(&GetOptions(
                "--config=s",\$config,
@@ -87,7 +86,7 @@ print "TMP directory:$tmp_dir\n";
 &init ($config);
 chdir($tmp_dir);
 if($filefilter eq ""){$filefilter=".+";}
-print "MSG: Skipping the checking of system headers:$system_header_skip\n";
+print "MSG: Skipping system headers check:$system_header_skip\n";
 
 foreach my $f (sort(keys %{$config_cache->{FILES}}))
 {&check_file($f);}
@@ -183,7 +182,7 @@ sub check_includes ()
       {
         foreach my $inc (@{$config_cache->{FILES}{$inc_file}{ALL_INCLUDES_ORDERED}})
         {
-	  if(&is_skipped_inc_add("$origfile:$inc")){next;}
+	  if(&is_skipped_inc_add($origfile,$inc)){next;}
 	  my $l=$config_cache->{FILES}{$inc_file}{ALL_INCLUDES}{$inc};
 	  if(!exists $config_cache->{FILES}{$origfile}{ALL_INCLUDES}{$inc})
 	  {
@@ -201,7 +200,7 @@ sub check_includes ()
       {
         foreach my $inc (@{$config_cache->{FILES}{$inc_file}{ALL_INCLUDES_REMOVED_ORDERED}})
 	{
-	  if(&is_skipped_inc_add("$origfile:$inc")){next;}
+	  if(&is_skipped_inc_add($origfile,$inc)){next;}
 	  my $l=$config_cache->{FILES}{$inc_file}{ALL_INCLUDES_REMOVED}{$inc};
 	  if(!exists $config_cache->{FILES}{$origfile}{ALL_INCLUDES_REMOVED}{$inc})
 	  {
@@ -213,7 +212,7 @@ sub check_includes ()
       }
       foreach my $inc (@{$config_cache->{FILES}{$inc_file}{$otype}})
       {
-	if(&is_skipped_inc_add("$origfile:$inc")){next;}
+	if(&is_skipped_inc_add($origfile,$inc,)){next;}
 	my $l=$config_cache->{FILES}{$inc_file}{$inc_type}{$inc};
 	if(exists $config_cache->{FILES}{$inc_file}{ALL_INCLUDES_REMOVED}{$inc})
 	{$config_cache->{FILES}{$origfile}{INCLUDE_REMOVED_INDIRECT}{$inc}=1;}
@@ -384,15 +383,11 @@ sub check_includes ()
     my $inc_file=$cache->{includes}[$i];
     my $inc_line=$cache->{includes_line}[$i];
     
-    my $skip_inc="$origfile:$inc_file";
-    my $sinc_exp="";
-    foreach my $sinc (@{$config_cache->{SKIP_INCLUDES}})
-    {if($skip_inc=~/$sinc/){$skip_inc=""; $sinc_exp=$sinc;last;}}
-    if ($skip_inc eq "")
-    {if($detail){print "  Skipping checking of \"$inc_file\" in \"$origfile\" due to \"$sinc_exp\" SKIP_INCLUDES flag in the config file\n";} next;}
     if ($inc_file eq $own_header)
     {if($detail){print "  Skipping checking of \"$inc_file\" (Assumption: .cc always needs its own .h)\n";} next;}
-
+    if(&skip_include($origfile,$inc_file))
+    {if($detail){print "  Skipping checking of \"$inc_file\" in \"$origfile\" due to SKIP_INCLUDES flag in the config file\n";} next;}
+    
     my $force_inc_remove=0;
     my $exists_in_own_header=0;
     my $sys_flags="";
@@ -955,8 +950,13 @@ sub read_file ()
   for(my $i=0;$i<$total_lines;$i++)
   {
     my $line=$cache->{lines}[$i];
-    my $num=$cache->{line_numbers}[$i];
-    if ($cache->{isheader} && !$first_ifndef && ($line=~/^\s*#\s*ifndef\s+/)){$first_ifndef=1; $cache->{incsafe}=3; next;}
+    if(($i==0) && ($line=~/^\s*#\s*ifndef\s+([^\s]+)\s*$/))
+    {
+      my $def=$1;
+      my $nline=$cache->{lines}[$i+1];
+      if($nline=~/^\s*#\s*define\s+$def\s*/){$i++;$first_ifndef=1;$cache->{incsafe}=3;next;}
+    }
+    if (!$first_ifndef && $cache->{isheader} && ($line=~/^\s*#\s*ifndef\s+/)){$first_ifndef=1; $cache->{incsafe}=3; next;}
     if($line=~/^\s*#\s*if(n|\s+|)def(ined|\s+|)/)
     {$i=&SCRAMGenUtils::skipIfDirectiveCXX ($cache->{lines}, $i+1, $total_lines);next;}
     
@@ -967,6 +967,7 @@ sub read_file ()
     {
       my $inc_file=$2;
       my $comment=$3;
+      my $num=$cache->{line_numbers}[$i];
       if($inc_file!~/^\./)
       {
         my $inc_filex=&SCRAMGenUtils::fixPath($inc_file);
@@ -1111,6 +1112,8 @@ sub read_config ()
 {
   my $file=shift;
   my $flag_index=scalar(@{$config_cache->{COMPILER_FLAGS}})-1;
+  my $skipcount=0;
+  my $skipincaddcount=0;
   foreach my $line (`cat $file`)
   {
     chomp $line;
@@ -1172,12 +1175,20 @@ sub read_config ()
     elsif($line=~/^\s*SKIP_INCLUDES\s*=\s*(.+)$/)
     {
       $line=$1;
-      foreach my $exp (split /\s+/,$line){push @{$config_cache->{SKIP_INCLUDES}},$exp;}
+      foreach my $exp (split /\s+/,$line)
+      {
+        my ($d1,$d2)=split /:/,$exp;
+	if($d1 && $d2){$config_cache->{SKIP_INCLUDES}[$skipcount++]{$d1}=$d2;}
+      }
     }
     elsif($line=~/^\s*SKIP_INCLUDE_INDIRECT_ADD\s*=\s*(.+)$/)
     {
       $line=$1;
-      foreach my $exp (split /\s+/,$line){push @{$config_cache->{SKIP_INCLUDE_INDIRECT_ADD}},$exp;}
+      foreach my $exp (split /\s+/,$line)
+      {
+        my ($d1,$d2)=split /:/,$exp;
+	if($d1 && $d2){$config_cache->{SKIP_INCLUDE_INDIRECT_ADD}[$skipincaddcount++]{$d1}=$d2;}
+      }
     }
     elsif($line=~/^\s*FILES\s*=\s*(.+)$/)
     {
@@ -1241,13 +1252,31 @@ sub find_inc_rel_path
   return $odirs;
 }
 
-sub is_skipped_inc_add ()
+sub check_skip ()
 {
-  my $data=shift;
-  foreach my $reg (@{$config_cache->{SKIP_INCLUDE_INDIRECT_ADD}})
-  {if($data=~/$reg/){return 1;}}
+  my $file=shift || return 0;
+  my $inc=shift || return 0;
+  my $key=shift || return 0;
+  foreach my $exp (@{$config_cache->{$key}})
+  {
+    foreach my $fexp (keys %$exp)
+    {
+      my $v=$exp->{$fexp};
+      if($file=~/$fexp/)
+      {
+        my $x=eval $v;
+        if($inc=~/$x/){return 1;}
+      }
+    }
+  }
   return 0;
 }
+
+sub skip_include ()
+{return &check_skip(shift,shift,"SKIP_INCLUDES");}
+
+sub is_skipped_inc_add ()
+{return &check_skip(shift,shift,"SKIP_INCLUDE_INDIRECT_ADD");}
 
 sub is_skipped()
 {
