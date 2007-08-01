@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct 16 23:19:38 EDT 2006
-// $Id: L1ExtraParticleMapProd.cc,v 1.24 2007/07/04 16:23:23 wsun Exp $
+// $Id: L1ExtraParticleMapProd.cc,v 1.25 2007/07/14 19:03:32 wsun Exp $
 //
 //
 
@@ -808,6 +808,10 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 
    L1JetParticleVectorRef inputForJetRefs ;
    addToVectorRefs( forJetHandle, inputForJetRefs ) ;
+
+   L1JetParticleVectorRef inputCenJetTauJetRefs ;
+   addToVectorRefs( cenJetHandle, inputCenJetTauJetRefs ) ;
+   addToVectorRefs( tauJetHandle, inputCenJetTauJetRefs ) ;
 
    L1MuonParticleVectorRef inputMuonRefsSingle ;
    L1MuonParticleVectorRef inputMuonRefsDouble ;
@@ -1769,16 +1773,33 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
          objectTypes.push_back( L1ParticleMap::kEM ) ;
          objectTypes.push_back( L1ParticleMap::kJet ) ;
 
-         evaluateDoubleObjectPlusForwardRapidityGapTrigger(
-            inputIsoEmRefs,
-            inputJetRefs,
-            doubleThresholds_[ itrig ].first,
-            doubleThresholds_[ itrig ].second,
-            singleThresholds_[ itrig ],
-            decision,
-            outputEmRefsTmp,
-            outputJetRefsTmp,
-            combosTmp ) ;
+         evaluateForwardRapidityGap(inputForJetRefs,
+				    singleThresholds_[ itrig ],
+				    decision);
+
+         if(decision){
+	   decision = false;
+	   evaluateDoubleDifferentCaloObjectTrigger(
+						    inputIsoEmRefs,
+						    inputCenJetTauJetRefs,
+						    doubleThresholds_[ itrig ].first,
+						    doubleThresholds_[ itrig ].second,
+						    decision,
+						    outputEmRefsTmp,
+						    outputJetRefsTmp,
+						    combosTmp );
+	 }
+
+//          evaluateDoubleObjectPlusForwardRapidityGapTrigger(
+//             inputIsoEmRefs,
+//             inputJetRefs,
+//             doubleThresholds_[ itrig ].first,
+//             doubleThresholds_[ itrig ].second,
+//             singleThresholds_[ itrig ],
+//             decision,
+//             outputEmRefsTmp,
+//             outputJetRefsTmp,
+//             combosTmp ) ;
       }
       else if( itrig == L1ParticleMap::kMinBias_HTT10 )
       {
@@ -2556,87 +2577,87 @@ L1ExtraParticleMapProd::evaluateForwardRapidityGap(
    }
 }
 
-template< class TCollection1, class TCollection2 >
-void
-L1ExtraParticleMapProd::evaluateDoubleObjectPlusForwardRapidityGapTrigger(
-   const std::vector< edm::Ref< TCollection1 > >& inputRefs1, // input
-   const std::vector< edm::Ref< TCollection2 > >& inputRefs2, // input
-   const double& etThreshold1,                                // input
-   const double& etThreshold2,                                // input
-   const double& etThreshold3,                                // input
-   bool& decision,                                            // output
-   std::vector< edm::Ref< TCollection1 > >& outputRefs1,      // output
-   std::vector< edm::Ref< TCollection2 > >& outputRefs2,      // output
-   l1extra::L1ParticleMap::L1IndexComboVector& combos )       // output
-{
+// template< class TCollection1, class TCollection2 >
+// void
+// L1ExtraParticleMapProd::evaluateDoubleObjectPlusForwardRapidityGapTrigger(
+//    const std::vector< edm::Ref< TCollection1 > >& inputRefs1, // input
+//    const std::vector< edm::Ref< TCollection2 > >& inputRefs2, // input
+//    const double& etThreshold1,                                // input
+//    const double& etThreshold2,                                // input
+//    const double& etThreshold3,                                // input
+//    bool& decision,                                            // output
+//    std::vector< edm::Ref< TCollection1 > >& outputRefs1,      // output
+//    std::vector< edm::Ref< TCollection2 > >& outputRefs2,      // output
+//    l1extra::L1ParticleMap::L1IndexComboVector& combos )       // output
+// {
    
-   for( size_t i = 0 ; i < inputRefs1.size() ; ++i )
-   {
-      decision = false;
-      const edm::Ref< TCollection1 >& refi = inputRefs1[ i ] ;
-      if( refi.get()->et() >= etThreshold1 )
-      {
-         for( size_t j = 0 ; j < inputRefs2.size() ; ++j )
-         {
-            const edm::Ref< TCollection2 >& refj = inputRefs2[ j ] ;
+//    for( size_t i = 0 ; i < inputRefs1.size() ; ++i )
+//    {
+//       decision = false;
+//       const edm::Ref< TCollection1 >& refi = inputRefs1[ i ] ;
+//       if( refi.get()->et() >= etThreshold1 )
+//       {
+//          for( size_t j = 0 ; j < inputRefs2.size() ; ++j )
+//          {
+//             const edm::Ref< TCollection2 >& refj = inputRefs2[ j ] ;
 
-            if( refj.get()->et() >= etThreshold2 )
-            {
+//             if( refj.get()->et() >= etThreshold2 )
+//             {
 
-               // first conditions are ok
-               decision = true ;
-               // veto if 1 jets (with e_t(jet)>threshold2)
-	       // in each forward region, i.e. no rapidity gap
-               evaluateForwardRapidityGap( inputRefs2,
-					   etThreshold3,
-					   decision ) ;
+//                // first conditions are ok
+//                decision = true ;
+//                // veto if 1 jets (with e_t(jet)>threshold2)
+// 	       // in each forward region, i.e. no rapidity gap
+//                evaluateForwardRapidityGap( inputRefs2,
+// 					   etThreshold3,
+// 					   decision ) ;
 
-               if( decision )
-               {
-                  // If the two objects are already in their respective lists,
-                  // find their indices.
-                  int iInList = kDefault ;
-                  for( size_t iout = 0 ; iout < outputRefs1.size() ; ++iout )
-                  {
-                     if( refi == outputRefs1[ iout ] )
-                     {
-                        iInList = iout ;
-                     }
-                  }
-                  int jInList = kDefault ;
-                  for( size_t jout = 0 ; jout < outputRefs2.size() ; ++jout )
-                  {
-                     if( refj == outputRefs2[ jout ] )
-                     {
-                        jInList = jout ;
-                     }
-                  }
+//                if( decision )
+//                {
+//                   // If the two objects are already in their respective lists,
+//                   // find their indices.
+//                   int iInList = kDefault ;
+//                   for( size_t iout = 0 ; iout < outputRefs1.size() ; ++iout )
+//                   {
+//                      if( refi == outputRefs1[ iout ] )
+//                      {
+//                         iInList = iout ;
+//                      }
+//                   }
+//                   int jInList = kDefault ;
+//                   for( size_t jout = 0 ; jout < outputRefs2.size() ; ++jout )
+//                   {
+//                      if( refj == outputRefs2[ jout ] )
+//                      {
+//                         jInList = jout ;
+//                      }
+//                   }
 
-                  // If either object is not in the list, add it, and
-                  // record its index.
-                  if( iInList == kDefault )
-                  {
-                     iInList = outputRefs1.size() ;
-                     outputRefs1.push_back( refi ) ;
-                  }
+//                   // If either object is not in the list, add it, and
+//                   // record its index.
+//                   if( iInList == kDefault )
+//                   {
+//                      iInList = outputRefs1.size() ;
+//                      outputRefs1.push_back( refi ) ;
+//                   }
 
-                  if( jInList == kDefault )
-                  {
-                     jInList = outputRefs2.size() ;
-                     outputRefs2.push_back( refj ) ;
-                  }
+//                   if( jInList == kDefault )
+//                   {
+//                      jInList = outputRefs2.size() ;
+//                      outputRefs2.push_back( refj ) ;
+//                   }
 
-                  // Record this object combination.
-                  l1extra::L1ParticleMap::L1IndexCombo combo ;
-                  combo.push_back( iInList ) ;
-                  combo.push_back( jInList ) ;
-                  combos.push_back( combo ) ;
-               } 
-            }
-         }
-      }
-   }
-}
+//                   // Record this object combination.
+//                   l1extra::L1ParticleMap::L1IndexCombo combo ;
+//                   combo.push_back( iInList ) ;
+//                   combo.push_back( jInList ) ;
+//                   combos.push_back( combo ) ;
+//                } 
+//             }
+//          }
+//       }
+//    }
+// }
 
 
 //define this as a plug-in
