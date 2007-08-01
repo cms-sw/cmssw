@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.17 2007/05/29 17:35:00 meridian Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.18 2007/07/31 19:05:13 torimoto Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -579,7 +579,7 @@ EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatios( const EcalLaserAPDPN
   EcalLaserAPDPNRatios::EcalLaserTimeStamp TimeStamp;
   for(int i=1; i<=92; i++){
     TimeStamp.t1 = 1;
-    TimeStamp.t2 = 0xFFFFFFFF; // as long as uint32
+    TimeStamp.t2 = edm::Timestamp::endOfTime().value();
     ical->setTime(i, TimeStamp);
   }
   

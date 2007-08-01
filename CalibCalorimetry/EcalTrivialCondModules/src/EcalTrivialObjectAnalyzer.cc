@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialObjectAnalyzer.cc,v 1.9 2007/04/05 14:39:33 meridian Exp $
+// $Id: EcalTrivialObjectAnalyzer.cc,v 1.10 2007/07/31 19:05:13 torimoto Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -269,7 +269,7 @@ using namespace std;
        
 	 //		 <<e.id().run() << " " << e.id().event() << " " 
        std::cout << std::setprecision(6)
-		   << ltimestamp.t1 << " " << ltimestamp.t2 << " : " ;
+		   << ltimestamp.t1.value() << " " << ltimestamp.t2.value() << " : " ;
      } else {
        std::cout << "No laser timestamp found for this xtal! something wrong with EcalLaserAPDPNRatios in your DB? "
 		 << std::endl;
