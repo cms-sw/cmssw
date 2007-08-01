@@ -130,18 +130,19 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
     const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&(SimRoll->topology()));
     float distanceFromEdge = top_->stripLength() - simHitPos.y();
 
-    float prop_time =  distanceFromEdge/(0.66*3e+10);
+    float prop_time =  distanceFromEdge/(sspeed*3e+10);
     double rr_tim1 = RandGaussQ::shoot(0.,resRPC);
     double total_time = tof + prop_time + timOff + rr_tim1 + rr_el;
 
     // Bunch crossing assignment
 
-    double time_differ = total_time - ( this->getReadOutTime(RPCDetId(simhit->detUnitId())) + ( top_->stripLength()/(2*0.66*3e+10) ) + timOff);
+    double time_differ = total_time - ( this->getReadOutTime(RPCDetId(simhit->detUnitId())) + ( top_->stripLength()/(2*sspeed*3e+10) ) + timOff);
 
     for(int n = -5; n <= 5; ++n){
-      if(-12.5 < (time_differ-n*25) && (time_differ-n*25) < 12.5) {
 
-	//	std::cout<<"Time Differ: "<<time_differ<<"  "<<"Bx: "<<n<<std::endl;
+      float inf_time = -lbGate/2 + n*lbGate;
+      float sup_time = lbGate/2 + n*lbGate;
+      if(inf_time < time_differ && time_differ < sup_time) {
 	bx = n;
 	break;
       }
@@ -205,13 +206,13 @@ int RPCSynchronizer::getDigiBx(const PSimHit* simhit, int centralstrip, int stri
     const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&(SimRoll->topology()));
     float distanceFromEdge = top_->stripLength() - simHitPos.y();
 
-    float prop_time =  distanceFromEdge/(sspeed*3e+10);   //(0.66*3e+10);
+    float prop_time =  distanceFromEdge/(sspeed*3e+10);
     double rr_tim1 = RandGaussQ::shoot(0.,resRPC);
     double total_time = tof + prop_time + timOff + rr_tim1 + rr_el + csdt_tot;
 
     // Bunch crossing assignment
 
-    double time_differ = total_time - ( this->getReadOutTime(RPCDetId(simhit->detUnitId())) + ( top_->stripLength()/(2*0.66*3e+10) ) + timOff);
+    double time_differ = total_time - ( this->getReadOutTime(RPCDetId(simhit->detUnitId())) + ( top_->stripLength()/(2*sspeed*3e+10) ) + timOff);
 
     for(int n = -5; n <= 5; n++){
 
