@@ -4,8 +4,8 @@
 /*
  * \file EETestPulseClient.h
  *
- * $Date: 2007/04/02 16:15:35 $
- * $Revision: 1.1 $
+ * $Date: 2007/05/12 09:39:05 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -145,6 +145,9 @@ MonitorElement* mea01_[18];
 MonitorElement* mea02_[18];
 MonitorElement* mea03_[18];
 
+MonitorElement* mer04_[18];
+MonitorElement* mer05_[18];
+
 CollateMonitorElement* me_i01_[18];
 CollateMonitorElement* me_i02_[18];
 CollateMonitorElement* me_i03_[18];
@@ -165,7 +168,9 @@ float threshold_on_AmplitudeErrorsNumber_;
 
 float amplitudeThresholdPnG01_;
 float amplitudeThresholdPnG16_;
-float pedestalThresholdPn_;
+float pedPnExpectedMean_[2];
+float pedPnDiscrepancyMean_[2];
+float pedPnRMSThreshold_[2];
 
 };
 

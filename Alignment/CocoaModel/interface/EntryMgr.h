@@ -41,10 +41,6 @@ class EntryMgr {
   ALIint numberOfEntries() {
     return theEntryData.size();
   }
-  std::vector<EntryData*> getEntryData() const {
-    return theEntryData; }
-
-  void clearEntryData() { theEntryData.clear(); }
 
 private:
   EntryData* findEntry( const std::vector<ALIstring>& wl );

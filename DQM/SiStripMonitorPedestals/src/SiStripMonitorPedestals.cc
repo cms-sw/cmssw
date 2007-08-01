@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai and Suchandra Dutta
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorPedestals.cc,v 1.20 2007/05/01 21:57:18 dutta Exp $
+// $Id: SiStripMonitorPedestals.cc,v 1.21 2007/05/15 19:22:17 dutta Exp $
 //
 //
 
@@ -22,21 +22,22 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
-//#include "CalibFormats/SiStripObjects/interface/SiStripStructure.h" // these two will go away
-//#include "CalibTracker/Records/interface/SiStripStructureRcd.h"     // these two will go away
-
+#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
-#include "DQM/SiStripMonitorPedestals/interface/SiStripMonitorPedestals.h"
 
 #include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
+#include "CalibTracker/SiStripAPVAnalysis/interface/ApvAnalysisFactory.h"
 
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-// data formats
+
+#include "DQM/SiStripMonitorPedestals/interface/SiStripMonitorPedestals.h"
 
 // std
 #include <cstdlib>
@@ -398,16 +399,16 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
 
       }    
   }
-  if (firstEvent)
-    firstEvent=false;  
-  usleep(500000);
+  if (firstEvent) firstEvent=false;  
 }
     
 
 
 void SiStripMonitorPedestals::endJob(void){
-
-  //  dbe_->showDirStructure();
-  //  dbe_->save(outPutFileName);
+  bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
+  if (outputMEsInRootFile) {    
+    dbe_->showDirStructure();
+    dbe_->save(outPutFileName);
+  }
 }
 

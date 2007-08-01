@@ -1,16 +1,27 @@
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "CalibMuon/CSCCalibration/interface/CSCAFEBAnalyzer.h"
-#include "CalibMuon/CSCCalibration/interface/CSCAFEBdacAnalyzer.h"
-#include "CalibMuon/CSCCalibration/interface/CSCCompThreshAnalyzer.h"
-#include "CalibMuon/CSCCalibration/interface/CSCCrossTalkAnalyzer.h"
-#include "CalibMuon/CSCCalibration/interface/CSCGainAnalyzer.h"
-#include "CalibMuon/CSCCalibration/interface/CSCNoiseMatrixAnalyzer.h"
+#include "FWCore/Framework/interface/SourceFactory.h"
+#include "CalibMuon/CSCCalibration/interface/CSCFakeGainsConditions.h"
+#include "CalibMuon/CSCCalibration/interface/CSCFakeCrosstalkConditions.h"
+#include "CalibMuon/CSCCalibration/interface/CSCFakePedestalsConditions.h"
+#include "CalibMuon/CSCCalibration/interface/CSCFakeNoiseMatrixConditions.h"
+#include "CalibMuon/CSCCalibration/interface/WriteGainsToDB.h"
+#include "CalibMuon/CSCCalibration/interface/WritePedestalsToDB.h"
+#include "CalibMuon/CSCCalibration/interface/WriteNoiseMatrixToDB.h"
+#include "CalibMuon/CSCCalibration/interface/WriteCrosstalkToDB.h"
+#include "CalibMuon/CSCCalibration/interface/CSCCrosstalkConditions.h"
+#include "CalibMuon/CSCCalibration/interface/CSCGainsConditions.h"
+#include "CalibMuon/CSCCalibration/interface/CSCNoiseMatrixConditions.h"
 
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(CSCAFEBAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(CSCAFEBdacAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(CSCCompThreshAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(CSCCrossTalkAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(CSCGainAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(CSCNoiseMatrixAnalyzer);
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCFakeGainsConditions);
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCFakeCrosstalkConditions);
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCFakePedestalsConditions);
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCFakeNoiseMatrixConditions);
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCCrosstalkConditions);
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCGainsConditions);
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCNoiseMatrixConditions);
+DEFINE_ANOTHER_FWK_MODULE(WriteGainsToDB);
+DEFINE_ANOTHER_FWK_MODULE(WritePedestalsToDB);
+DEFINE_ANOTHER_FWK_MODULE(WriteNoiseMatrixToDB);
+DEFINE_ANOTHER_FWK_MODULE(WriteCrosstalkToDB);

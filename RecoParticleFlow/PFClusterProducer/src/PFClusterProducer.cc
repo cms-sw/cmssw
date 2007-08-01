@@ -48,8 +48,6 @@ using namespace edm;
 
 PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
 {
-  
-
 
   processEcal_ = 
     iConfig.getUntrackedParameter<bool>("process_Ecal",true);
@@ -67,7 +65,11 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
     iConfig.getUntrackedParameter<bool>("clustering_Hcal_CaloTowers",true);
   clusteringPS_ = 
     iConfig.getUntrackedParameter<bool>("clustering_PS",true);
+
     
+  verbose_ = 
+    iConfig.getUntrackedParameter<bool>("verbose",false);
+
 
 
   // parameters for ecal clustering
@@ -310,9 +312,11 @@ void PFClusterProducer::produce(edm::Event& iEvent,
       // do clustering
       clusterAlgoECAL_.doClustering( rechitsHandle );
       
-      LogInfo("PFClusterProducer")
-	<<" ECAL clusters --------------------------------- "<<endl
-	<<clusterAlgoECAL_<<endl;
+      if( verbose_ ) {
+	LogInfo("PFClusterProducer")
+	  <<" ECAL clusters --------------------------------- "<<endl
+	  <<clusterAlgoECAL_<<endl;
+      }    
     
       // get clusters out of the clustering algorithm 
       // and put them in the event. There is no copy.
@@ -345,10 +349,12 @@ void PFClusterProducer::produce(edm::Event& iEvent,
       // do clustering
       clusterAlgoHCAL_.doClustering( rechitsHandle );
       
-      LogInfo("PFClusterProducer")
-	<<" HCAL clusters --------------------------------- "<<endl
-	<<clusterAlgoHCAL_<<endl;
-      
+      if(verbose_) {
+	LogInfo("PFClusterProducer")
+	  <<" HCAL clusters --------------------------------- "<<endl
+	  <<clusterAlgoHCAL_<<endl;
+      }      
+
       // get clusters out of the clustering algorithm 
       // and put them in the event. There is no copy.
       auto_ptr< vector<reco::PFCluster> > 
@@ -379,10 +385,12 @@ void PFClusterProducer::produce(edm::Event& iEvent,
   
       clusterAlgoPS_.doClustering( rechitsHandle );
 
-      LogInfo("PFClusterProducer")
-	<<" Preshower clusters --------------------------------- "<<endl
-	<<clusterAlgoPS_<<endl;
-	   
+      if(verbose_) {
+	LogInfo("PFClusterProducer")
+	  <<" Preshower clusters --------------------------------- "<<endl
+	  <<clusterAlgoPS_<<endl;   
+      }
+
       // get clusters out of the clustering algorithm 
       // and put them in the event. There is no copy.
       auto_ptr< vector<reco::PFCluster> > 
@@ -676,7 +684,8 @@ void PFClusterProducer::createHcalRecHits(vector<reco::PFRecHit>& rechits,
     HcalTopology hcalTopology;
     
     // HCAL rechits 
-    vector<edm::Handle<HBHERecHitCollection> > hcalHandles;  
+    //    vector<edm::Handle<HBHERecHitCollection> > hcalHandles;  
+    edm::Handle<HBHERecHitCollection>  hcalHandle;  
     try {
 
       // retry this:
@@ -684,64 +693,70 @@ void PFClusterProducer::createHcalRecHits(vector<reco::PFRecHit>& rechits,
       // 			hcalRecHitsHBHEProductInstanceName_,
       // 			hcalHandles);
       // instead of this:
-      iEvent.getManyByType(hcalHandles);      
-    
-      for(unsigned ih=0; ih<hcalHandles.size(); ih++) {
-	const edm::Handle<HBHERecHitCollection>& handle = hcalHandles[ih];
+      iEvent.getByLabel(hcalRecHitsHBHEModuleLabel_, 
+			hcalRecHitsHBHEProductInstanceName_, 
+			hcalHandle );
+
+
+//       for(unsigned ih=0; ih<hcalHandles.size(); ih++) {
+// 	const edm::Handle<HBHERecHitCollection>& handle = hcalHandles[ih];
       
-	for(unsigned irechit=0; irechit<handle->size(); irechit++) {
-	  const HBHERecHit& hit = (*handle)[irechit];
+      const edm::Handle<HBHERecHitCollection>& handle = hcalHandle;
+      for(unsigned irechit=0; irechit<handle->size(); irechit++) {
+	const HBHERecHit& hit = (*handle)[irechit];
 	
-	  double energy = hit.energy();
+	double energy = hit.energy();
 	
-	  reco::PFRecHit* pfrh = 0;
+	reco::PFRecHit* pfrh = 0;
 	  
-	  const HcalDetId& detid = hit.detid();
-	  switch( detid.subdet() ) {
-	  case HcalBarrel:
-	    if(energy > clusterAlgoHCAL_.threshBarrel() ){
-	      pfrh = createHcalRecHit( detid, 
-				       energy, 
-				       PFLayer::HCAL_BARREL1, 
-				       hcalBarrelGeometry );
-	    }
-	    break;
-	  case HcalEndcap:
-	    if(energy > clusterAlgoHCAL_.threshEndcap() ){
-	      pfrh = createHcalRecHit( detid, 
-				       energy, 
-				       PFLayer::HCAL_ENDCAP, 
-				       hcalEndcapGeometry );
-	    }
-	    break;
-	  default:
-	    LogError("PFClusterProducer")
-	      <<"HCAL rechit: unknown layer : "<<detid.subdet()<<endl;
-	    continue;
-	  } 
-
-	  if(pfrh) { 
-	    rechits.push_back( *pfrh );
-	    delete pfrh;
-	    idSortedRecHits.insert( make_pair(detid.rawId(), 
-					      rechits.size()-1 ) ); 
+	const HcalDetId& detid = hit.detid();
+	switch( detid.subdet() ) {
+	case HcalBarrel:
+	  if(energy > clusterAlgoHCAL_.threshBarrel() ){
+	    pfrh = createHcalRecHit( detid, 
+				     energy, 
+				     PFLayer::HCAL_BARREL1, 
+				     hcalBarrelGeometry );
 	  }
-	}
-  
+	  break;
+	case HcalEndcap:
+	  if(energy > clusterAlgoHCAL_.threshEndcap() ){
+	    pfrh = createHcalRecHit( detid, 
+				     energy, 
+				     PFLayer::HCAL_ENDCAP, 
+				     hcalEndcapGeometry );
+	  }
+	  break;
+	default:
+	  LogError("PFClusterProducer")
+	    <<"HCAL rechit: unknown layer : "<<detid.subdet()<<endl;
+	  continue;
+	} 
 
-	// do navigation:
-	for(unsigned i=0; i<rechits.size(); i++ ) {
-	  
-	  findRecHitNeighbours( rechits[i], idSortedRecHits, 
-				hcalTopology, 
-				*hcalBarrelGeometry, 
-				hcalTopology,
-				*hcalEndcapGeometry);
+	if(pfrh) { 
+	  rechits.push_back( *pfrh );
+	  delete pfrh;
+	  idSortedRecHits.insert( make_pair(detid.rawId(), 
+					    rechits.size()-1 ) ); 
 	}
-      }      
+      }
+  
+      
+      // do navigation:
+      for(unsigned i=0; i<rechits.size(); i++ ) {
+	
+	findRecHitNeighbours( rechits[i], idSortedRecHits, 
+			      hcalTopology, 
+			      *hcalBarrelGeometry, 
+			      hcalTopology,
+			      *hcalEndcapGeometry);
+      }
+      // }      
     } catch (...) {
       LogError("PFClusterProducer")
-	<<"could not get handles on HBHERecHits!"<< endl;
+	<<"could not get handles on HBHERecHits! "
+	<<hcalRecHitsHBHEModuleLabel_<<"/"
+	<<hcalRecHitsHBHEProductInstanceName_<< endl;
       return;
     }
   }

@@ -75,6 +75,8 @@ PFSimParticleProducer::PFSimParticleProducer(const edm::ParameterSet& iConfig) :
     = iConfig.getUntrackedParameter<string>
     ("SimModuleLabel","g4SimHits");
 
+  verbose_ = 
+    iConfig.getUntrackedParameter<bool>("verbose",false);
 
 
   // register products
@@ -116,8 +118,8 @@ PFSimParticleProducer::beginJob(const edm::EventSetup & es)
 {
   
   // init Particle data table (from Pythia)
-//   edm::ESHandle < HepPDT::ParticleDataTable > pdt;
-  edm::ESHandle < DefaultConfig::ParticleDataTable > pdt;
+  edm::ESHandle < HepPDT::ParticleDataTable > pdt;
+  //  edm::ESHandle < DefaultConfig::ParticleDataTable > pdt;
   es.getData(pdt);
   if ( !ParticleTable::instance() ) ParticleTable::instance(&(*pdt));
   mySimEvent->initializePdt(&(*pdt));
@@ -174,14 +176,14 @@ void PFSimParticleProducer::produce(Event& iEvent,
       //     }
 
       mySimEvent->fill( *simTracks, *simVertices );
-      mySimEvent->print();
-      //     cout<<"ntracks   = "<<mySimEvent->nTracks()<<endl;
-      //     cout<<"ngenparts = "<<mySimEvent->nGenParts()<<endl;
+      
+      if(verbose_) 
+	mySimEvent->print();
 
-      const std::vector<FSimTrack>& fsimTracks = *(mySimEvent->tracks() );
-      for(unsigned i=0; i<fsimTracks.size(); i++) {
+      // const std::vector<FSimTrack>& fsimTracks = *(mySimEvent->tracks() );
+      for(unsigned i=0; i<mySimEvent->nTracks(); i++) {
     
-	const FSimTrack& fst = fsimTracks[i];
+	const FSimTrack& fst = mySimEvent->track(i);
 
 	int motherId = -1;
 	if( ! fst.noMother() ) 

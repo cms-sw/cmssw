@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/10/19 14:42:16 $
- *  $Revision: 1.17 $
+ *  $Date: 2007/03/07 13:20:54 $
+ *  $Revision: 1.18 $
  *  \author N. Amapane - CERN
  */
 
@@ -23,7 +23,7 @@
 
 using namespace std;
 
-MuRingForwardLayer::MuRingForwardLayer(vector<const ForwardDetRing*>& rings) :
+MuRingForwardLayer::MuRingForwardLayer(const vector<const ForwardDetRing*>& rings) :
   theRings(rings),
   theComponents(theRings.begin(),theRings.end()),
   theBinFinder(0),

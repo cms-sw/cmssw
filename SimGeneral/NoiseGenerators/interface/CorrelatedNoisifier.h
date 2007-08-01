@@ -215,7 +215,7 @@ public:
 
   void computeDecomposition();
 
-  void checkOffDiagonal(bool & isDiagonal_);
+  void checkOffDiagonal(bool & isDiagonal_) const;
 
   // for test purpose
   const noiseMath::SparseMatrix<double> & covmatrix() {

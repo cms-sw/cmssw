@@ -1,13 +1,18 @@
 /** \file
  *
- *  $Date: 2006/08/28 14:29:04 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/07/03 10:08:58 $
+ *  $Revision: 1.13 $
  */
 
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <map>
 
@@ -46,6 +51,38 @@ GlobalVector MuonTransientTrackingRecHit::globalDirection() const
 GlobalError MuonTransientTrackingRecHit::globalDirectionError() const
 {
   return ErrorFrameTransformer().transform( localDirectionError(), (det()->surface()));
+}
+
+
+AlgebraicSymMatrix MuonTransientTrackingRecHit::parametersError() const {
+  
+  AlgebraicSymMatrix err = GenericTransientTrackingRecHit::parametersError();
+ 
+  if (det()->alignmentPositionError() != 0) {
+
+    LocalError lape = ErrorFrameTransformer().transform(det()->alignmentPositionError()->globalError(), det()->surface());
+
+    // Just for speed up the code, the "else" branch can handle also the case of dim = 1.
+    if(err.num_row() == 1) err[0][0] += lape.xx();
+    else{
+      AlgebraicSymMatrix lapeMatrix(5,0);
+      lapeMatrix[3][3] = lape.xx();
+      lapeMatrix[3][4] = lape.xy();
+      lapeMatrix[4][4] = lape.yy();
+      
+      AlgebraicSymMatrix lapeMatrixProj = lapeMatrix.similarity(projectionMatrix());
+      
+      if(err.num_row() != lapeMatrixProj.num_row())
+	throw cms::Exception("MuonTransientTrackingRecHit::parametersError") 
+	  <<"Discrepancy between alignment error matrix and error matrix: APE " 
+	  << lapeMatrixProj.num_row()
+	  << ", error matrix " << err.num_row() 
+	  << std::endl;
+      
+      err += lapeMatrixProj;
+    }
+  }
+  return err;
 }
 
 double MuonTransientTrackingRecHit::chi2() const 

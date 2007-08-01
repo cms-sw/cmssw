@@ -130,6 +130,11 @@ void CSCDigitizer::setRandomEngine(CLHEP::HepRandomEngine& engine)
 const CSCLayer * CSCDigitizer::findLayer(int detId) const {
   assert(theCSCGeometry != 0);
   const GeomDetUnit* detUnit = theCSCGeometry->idToDetUnit(CSCDetId(detId));
+  if(detUnit == 0)
+  {
+    throw cms::Exception("CSCDigiProducer") << "Invalid DetUnit: " << CSCDetId(detId)
+      << "\nPerhaps your signal or pileup dataset are not compatible with the current release?";
+  }  
   return dynamic_cast<const CSCLayer *>(detUnit);
 }
 

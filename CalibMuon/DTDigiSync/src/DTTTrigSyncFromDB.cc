@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/09/13 09:42:07 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/02/19 11:45:21 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -36,8 +36,10 @@ DTTTrigSyncFromDB::DTTTrigSyncFromDB(const ParameterSet& config){
   doT0Correction = config.getParameter<bool>("doT0Correction");
   // Switch on/off the TOF correction for particles from IP
   doTOFCorrection = config.getParameter<bool>("doTOFCorrection");
+  theTOFCorrType = config.getParameter<int>("tofCorrType");
   // Switch on/off the correction for the signal propagation along the wire
   doWirePropCorrection = config.getParameter<bool>("doWirePropCorrection");
+  theWirePropCorrType = config.getParameter<int>("wirePropCorrType");
 }
 
 
@@ -47,28 +49,25 @@ DTTTrigSyncFromDB::~DTTTrigSyncFromDB(){}
 
 
 void DTTTrigSyncFromDB::setES(const EventSetup& setup) {
- 
   if(doT0Correction)
     {
       // Get the map of t0 from pulses from the Setup
       ESHandle<DTT0> t0Handle;
       setup.get<DTT0Rcd>().get(t0Handle);
       tZeroMap = &*t0Handle;
+      if(debug) {
+	cout << "[DTTTrigSyncFromDB] t0 version: " << tZeroMap->version()<<endl;
+	  }
     }
 
   // Get the map of ttrig from the Setup
   ESHandle<DTTtrig> ttrigHandle;
   setup.get<DTTtrigRcd>().get(ttrigHandle);
   tTrigMap = &*ttrigHandle;
-  
-
-  if(debug) {
-    cout << "[DTTTrigSyncFromDB] t0 version: " << tZeroMap->version()
-	 << ", ttrig version: " << tTrigMap->version() << endl;
+    if(debug) {
+      cout << "[DTTTrigSyncFromDB] ttrig version: " << tTrigMap->version() << endl;
   }
 }
-
-
 
 
 double DTTTrigSyncFromDB::offset(const DTLayer* layer,
@@ -83,33 +82,76 @@ double DTTTrigSyncFromDB::offset(const DTLayer* layer,
   //   static const float f2i_convCorr = (25./64.); // ns //FIXME: check how the conversion is performed
 
   tTrig = offset(wireId);
+
   // Compute the time spent in signal propagation along wire.
-  // The ttrig computed from the timebox accounts on average for the signal propagation time
-  // from the center of the wire to the frontend. Here we just have to correct for
-  // the distance of the hit from the wire center.
-  // NOTE: the FE is always at y>0
+   // NOTE: the FE is always at y>0
   wirePropCorr = 0;
   if(doWirePropCorrection) {
-    float wireCoord = layer->toLocal(globPos).y();
-    wirePropCorr = -wireCoord/theVPropWire;
-    // FIXME: What if hits used for the time box are not distributed uniformly along the wire?
+    switch(theWirePropCorrType){
+      // The ttrig computed from the timebox accounts on average for the signal propagation time
+      // from the center of the wire to the frontend. Here we just have to correct for
+      // the distance of the hit from the wire center.
+    case 0: {
+      float wireCoord = layer->toLocal(globPos).y();
+      wirePropCorr = -wireCoord/theVPropWire;
+      break;
+      // FIXME: What if hits used for the time box are not distributed uniformly along the wire?
+    }
+    //On simulated data you need to subtract the total propagation time 
+    case 1: {
+      float halfL     = layer->specificTopology().cellLenght()/2;
+      float wireCoord = layer->toLocal(globPos).y();
+      float propgL    = halfL - wireCoord;
+      wirePropCorr = propgL/theVPropWire;
+      break;
+    }
+    default: {
+    throw
+      cms::Exception("[DTTTrigSyncFromDB]") << " Invalid parameter: wirePropCorrType = "
+					     << theWirePropCorrType 
+					     << std::endl;
+    break;
+    }
+    }
   }
 
   // Compute TOF correction:
-  // Also in this case the TOF correction is already accounted on average in the ttrig
-  // Depending on the granularity used for the ttrig computation we just have to correct for the
-  // TOF from the center of the chamber, SL, layer or wire to the hit position.
-  // At the moment only SL granularity is considered
   tofCorr = 0.;
   // TOF Correction can be switched off with appropriate parameter
   if(doTOFCorrection) {
-    // Correction for TOF from the center of the SL to hit position
-    static const float cSpeed = 29.9792458; // cm/ns
-    const DTSuperLayer *sl = layer->superLayer();
     float flightToHit = globPos.mag();
-    double flightToSL = sl->surface().position().mag();
-    tofCorr = (flightToSL-flightToHit)/cSpeed;
+    static const float cSpeed = 29.9792458; // cm/ns
+    switch(theTOFCorrType) {
+    case 0: {
+      // The ttrig computed from the real data accounts on average for the TOF correction 
+      // Depending on the granularity used for the ttrig computation we just have to correct for the
+      // TOF from the center of the chamber, SL, layer or wire to the hit position.
+      // At the moment only SL granularity is considered
+      // Correction for TOF from the center of the SL to hit position
+      const DTSuperLayer *sl = layer->superLayer();
+      double flightToSL = sl->surface().position().mag();
+      tofCorr = (flightToSL-flightToHit)/cSpeed;
+      break;
+    }
+    case 1: {
+      // On simulated data you need to consider only the TOF from 3D center of the wire to hit position 
+      // (because the TOF from the IP to the wire has been already subtracted in the digitization: 
+      // SimMuon/DTDigitizer/DTDigiSyncTOFCorr.cc corrType=2)
+      float flightToWire =
+	layer->toGlobal(LocalPoint(layer->specificTopology().wirePosition(wireId.wire()), 0., 0.)).mag();
+      tofCorr = (flightToWire-flightToHit)/cSpeed;
+      break;
+    }
+    default: {
+      throw
+	cms::Exception("[DTTTrigSyncFromDB]") << " Invalid parameter: tofCorrType = "
+					      << theTOFCorrType 
+					      << std::endl;
+      break;
+    }
+    }
   }
+
 
   if(debug) {
     cout << "[DTTTrigSyncFromDB] Channel: " << wireId << endl
@@ -122,7 +164,7 @@ double DTTTrigSyncFromDB::offset(const DTLayer* layer,
 	 << endl;
   }
   //The global offset is the sum of various contributions
-  return tTrig + wirePropCorr - tofCorr;
+    return tTrig + wirePropCorr - tofCorr;
 }
 
 double DTTTrigSyncFromDB::offset(const DTWireId& wireId) {
@@ -144,8 +186,7 @@ double DTTTrigSyncFromDB::offset(const DTWireId& wireId) {
 		    ttrigMean,
 		    ttrigSigma,
 		    DTTimeUnits::ns);
-
-  return t0 + ttrigMean + kFactor * ttrigSigma;
+ return t0 + ttrigMean + kFactor * ttrigSigma;
 }
 
 

@@ -14,6 +14,7 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 using namespace edm;
 using namespace std;
@@ -113,7 +114,7 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        }
     }
   }
-  } catch (std::exception& e) { // can't find it!
+  } catch (cms::Exception& e) { // can't find it!
     if (!allowMissingInputs_) throw e;
   }
 
@@ -142,7 +143,7 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        }
     }
   }
-  } catch (std::exception& e) { // can't find it!
+  } catch (cms::Exception& e) { // can't find it!
     if (!allowMissingInputs_) throw e;
   }
 
@@ -236,7 +237,7 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          } //jet collection
          if(iejet == 0) resultjet->clear(); 
        } 
-	catch (std::exception& e) { // can't find it!
+	catch (cms::Exception& e) { // can't find it!
             if (!allowMissingInputs_) throw e;
        }
      } // Jet collection
@@ -290,7 +291,7 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
        }
 
-    } catch (std::exception& e) { // can't find it!
+    } catch (cms::Exception& e) { // can't find it!
     if (!allowMissingInputs_) { 
          cout<<" No ECAL input "<<endl;
          throw e;
@@ -327,7 +328,7 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 
 	 
         }
-  } catch (std::exception& e) { // can't find it!
+  } catch (cms::Exception& e) { // can't find it!
     if (!allowMissingInputs_) throw e;
   }
 //   cout<<" HBHE is done "<<endl; 
@@ -356,7 +357,7 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 
 	 
         }
-  } catch (std::exception& e) { // can't find it!
+  } catch (cms::Exception& e) { // can't find it!
     if (!allowMissingInputs_) throw e;
   }
  //  cout<<" HO is done "<<endl; 
@@ -386,7 +387,7 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
          if( dr < 1.4 )  miniHFRecHitCollection->push_back(*hfItr);
       }
-    } catch (std::exception& e) { // can't find it!
+    } catch (cms::Exception& e) { // can't find it!
     if (!allowMissingInputs_) throw e;
     }
  //  cout<<" Size of mini HF collection "<<miniHFRecHitCollection->size()<<endl;
@@ -425,7 +426,7 @@ try{
       } 
    }
        }
-        catch (std::exception& e) { // can't find it!
+        catch (cms::Exception& e) { // can't find it!
             if (!allowMissingInputs_) throw e;
        }
    

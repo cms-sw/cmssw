@@ -27,7 +27,6 @@
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
-#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -98,7 +97,6 @@ public:
   std::string assEndcapTrTSInstanceName_;
 
   edm::ESHandle<MagneticField>                theMagField;
-  edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
   edm::ESHandle<CaloGeometry>                 theCaloGeom;
   edm::ESHandle<TrackerGeometry>              trackerHandle_;
 

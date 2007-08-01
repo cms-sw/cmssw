@@ -256,10 +256,10 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
     
     //get simtrack info
     edm::Handle<SimTrackContainer> theSimTracks;
-    event.getByType<SimTrackContainer>(theSimTracks);
+    event.getByLabel("famosSimHits",theSimTracks);
 
     edm::Handle<SimVertexContainer> theSimVtx;
-    event.getByType(theSimVtx);
+    event.getByLabel("famosSimHits",theSimVtx);
 
     // print size of vertex collection
     std::cout<<" AS: vertex.size() = "<< theSimVtx->size() << std::endl;

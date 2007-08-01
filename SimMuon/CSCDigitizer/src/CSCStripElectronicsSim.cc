@@ -1,14 +1,12 @@
 #include "Utilities/Timing/interface/TimingReport.h" 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimMuon/CSCDigitizer/src/CSCStripElectronicsSim.h"
-#include "SimMuon/CSCDigitizer/src/CSCDetectorHit.h"
 #include "SimMuon/CSCDigitizer/src/CSCAnalogSignal.h"
 #include "SimMuon/CSCDigitizer/src/CSCCrosstalkGenerator.h"
 #include "SimMuon/CSCDigitizer/src/CSCStripConditions.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
-#include "Geometry/CSCGeometry/interface/CSCChamber.h"
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 #include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
 #include "CLHEP/Units/PhysicalConstants.h"
@@ -89,7 +87,9 @@ float CSCStripElectronicsSim::calculateAmpResponse(float t) const
 CSCAnalogSignal CSCStripElectronicsSim::makeNoiseSignal(int element) {
   std::vector<float> noiseBins(nScaBins_);
   CSCAnalogSignal tmpSignal(element, sca_time_bin_size, noiseBins);
-  theStripConditions->noisify(layerId(), tmpSignal);
+  if(doNoise_) {
+    theStripConditions->noisify(layerId(), tmpSignal);
+  }
   tmpSignal *= theSpecs->chargePerCount();
   // now rebin it
   std::vector<float> binValues(theNumberOfSamples);
@@ -370,7 +370,7 @@ void CSCStripElectronicsSim::addCrosstalk(const CSCAnalogSignal & signal,
 {
   float capacitiveCrosstalk, resistiveCrosstalk;
   bool leftRight = (otherStrip > thisStrip);
-  theStripConditions->crosstalk(layerId(), otherStrip, 
+  theStripConditions->crosstalk(layerId(), thisStrip, 
                                 theLayerGeometry->length(), leftRight,
                                 capacitiveCrosstalk, resistiveCrosstalk);
   theCrosstalkGenerator->setParameters(capacitiveCrosstalk, 0., resistiveCrosstalk);
@@ -379,7 +379,7 @@ void CSCStripElectronicsSim::addCrosstalk(const CSCAnalogSignal & signal,
 
   // Now subtract the crosstalk signal from the original signal
   crosstalkSignal *= -1.;
-  find(readoutElement(thisStrip)).superimpose(crosstalkSignal);
+  find(thisStrip).superimpose(crosstalkSignal);
 
 }
 

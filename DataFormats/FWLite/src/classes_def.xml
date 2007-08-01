@@ -1,3 +1,4 @@
 <lcgdict>
   <class name="fwlite::Event"/>
+  <class name="fwlite::ChainEvent"/>
 </lcgdict>

@@ -3,6 +3,7 @@
 #include "RecoEgamma/Examples/interface/SimpleConvertedPhotonAnalyzer.h"
 #include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruthFinder.h"
 #include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruth.h"
+#include "RecoEgamma/EgammaMCTools/interface/ElectronMCTruth.h"
 // 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"

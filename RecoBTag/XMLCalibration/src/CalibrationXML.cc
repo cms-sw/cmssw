@@ -27,8 +27,8 @@ CalibrationXML::CalibrationXML() : errHandler(0), parser(0)
 CalibrationXML::~CalibrationXML()
 {
 //TODO: delete!!!!	
-	delete errHandler;
-	delete parser;
+if(errHandler) delete errHandler;
+if(parser) delete parser;
 
 	XMLPlatformUtils::Terminate();
 }

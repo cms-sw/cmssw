@@ -18,6 +18,6 @@ VertexState::VertexState(const GlobalPoint & pos,
 	const GlobalWeight & posWeight,	const double & weightInMix) :
   Base ( new BSVS (pos, posWeight, weightInMix)) {}
 
-VertexState::VertexState(const AlgebraicVector3 & weightTimesPosition,
+VertexState::VertexState(const AlgebraicVector & weightTimesPosition,
 	const GlobalWeight & posWeight,	const double & weightInMix) :
   Base ( new BSVS (weightTimesPosition, posWeight, weightInMix)) {}

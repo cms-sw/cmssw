@@ -1,7 +1,7 @@
 #include "RecoParticleFlow/PFBlockProducer/interface/PFBlockProducer.h"
 
-#include "RecoParticleFlow/PFAlgo/interface/PFBlock.h"
-#include "RecoParticleFlow/PFAlgo/interface/PFBlockElement.h"
+// #include "RecoParticleFlow/PFAlgo/interface/PFBlock.h"
+// #include "RecoParticleFlow/PFAlgo/interface/PFBlockElement.h"
 
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
@@ -18,6 +18,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
@@ -49,6 +50,12 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
   pfClusterPSInstanceName_ 
     = iConfig.getUntrackedParameter<string>
     ("PFClusterPSInstanceName","PS");  
+
+
+  verbose_ = 
+    iConfig.getUntrackedParameter<bool>("verbose",false);
+
+
 
   produces<reco::PFBlockCollection>();
   
@@ -118,6 +125,7 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
 
 //   energyResolution_ = new PFEnergyResolution();
 
+
 }
 
 
@@ -125,7 +133,9 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
 PFBlockProducer::~PFBlockProducer() { }
 
 
-void PFBlockProducer::beginJob(const edm::EventSetup & es){ }
+
+
+void PFBlockProducer::beginJob(const edm::EventSetup & es) { }
 
 
 void PFBlockProducer::produce(Event& iEvent, 
@@ -186,6 +196,7 @@ void PFBlockProducer::produce(Event& iEvent,
     
 
 
+
   //     Handle< reco::PFClusterCollection > clustersPS;
   //     try{      
   //       LogDebug("PFBlockProducer")<<"get PS clusters"<<endl;
@@ -204,16 +215,16 @@ void PFBlockProducer::produce(Event& iEvent,
 			 clustersECAL,
 			 clustersHCAL );
   pfBlockAlgo_.findBlocks();
-      
-  ostringstream  str;
-  str<<pfBlockAlgo_<<endl;
-  LogInfo("PFBlockProducer") << str.str()<<endl;
-
+   
+  if(verbose_) {
+    ostringstream  str;
+    str<<pfBlockAlgo_<<endl;
+    LogInfo("PFBlockProducer") << str.str()<<endl;
+  }    
+  
   auto_ptr< reco::PFBlockCollection > 
     pOutputBlockCollection( pfBlockAlgo_.transferBlocks() ); 
 
-  //  reco::PFBlock block( (*pOutputBlockCollection)[0] );
-    
 
   iEvent.put(pOutputBlockCollection);
 

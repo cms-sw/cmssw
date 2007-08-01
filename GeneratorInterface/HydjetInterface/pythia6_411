@@ -1,8 +1,0 @@
-# -*- toolbox -*-
-< doc type=BuildSystem::ToolDoc version=1.0>
-< Tool name=pythia6_411 version=1.0>
-< lib name=pythia6>
-< lib name=pythia6_dummy>
-< lib name=pythia6_pdfdummy>
-< use name=f77compiler>
-< /Tool>

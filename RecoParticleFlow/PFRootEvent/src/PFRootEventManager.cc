@@ -1,8 +1,10 @@
 
-#include "FWCore/Framework/interface/OrphanHandle.h"
-// #include "DataFormats/Common/interface/OrphanHandle.h"
-#include "DataFormats/Common/interface/ProductID.h"
-// #include "DataFormats/Provenance/interface/ProductID.h"
+
+// #include "FWCore/Framework/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
+// #include "DataFormats/Common/interface/ProductID.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
+
 
 
 #include "DataFormats/Math/interface/Point3D.h"
@@ -28,7 +30,7 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
 
-#include "FWCore/FWLite/src/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 
 #include <TFile.h>
 #include <TTree.h>
@@ -73,6 +75,7 @@ PFRootEventManager::PFRootEventManager(const char* file)
   clustersPS_(new reco::PFClusterCollection),
   pfBlocks_(new reco::PFBlockCollection),
   pfCandidates_(new reco::PFCandidateCollection),
+  outFile_(0),
   maxERecHitEcal_(-1),
   maxERecHitHcal_(-1) {
   
@@ -111,6 +114,7 @@ PFRootEventManager::PFRootEventManager(const char* file)
 void PFRootEventManager::reset() { 
   maxERecHitEcal_ = -1;
   maxERecHitHcal_ = -1;  
+
 //   rechitsECAL_.clear();
 //   rechitsHCAL_.clear();
 //   rechitsPS_.clear();
@@ -170,23 +174,24 @@ void PFRootEventManager::readOptions(const char* file,
   
   
   // output root file   ------------------------------------------
-
-  outFile_ = 0;
-  string outfilename;
-  options_->GetOpt("root","outfile", outfilename);
-  if(!outfilename.empty() ) {
-    outFile_ = TFile::Open(outfilename.c_str(), "recreate");
-
-    bool doOutTree = false;
-    options_->GetOpt("root","outtree", doOutTree);
-    if(doOutTree) {
-      outFile_->cd();
-      // cout<<"do tree"<<endl;
-      outEvent_ = new EventColin();
-      outTree_ = new TTree("Eff","");
-      outTree_->Branch("event","EventColin", &outEvent_,32000,2);
+  
+  if(!outFile_) {
+    string outfilename;
+    options_->GetOpt("root","outfile", outfilename);
+    if(!outfilename.empty() ) {
+      outFile_ = TFile::Open(outfilename.c_str(), "recreate");
+      
+      bool doOutTree = false;
+      options_->GetOpt("root","outtree", doOutTree);
+      if(doOutTree) {
+	outFile_->cd();
+	// cout<<"do tree"<<endl;
+	outEvent_ = new EventColin();
+	outTree_ = new TTree("Eff","");
+	outTree_->Branch("event","EventColin", &outEvent_,32000,2);
+      }
+      // cout<<"don't do tree"<<endl;
     }
-    // cout<<"don't do tree"<<endl;
   }
 
 
@@ -598,6 +603,18 @@ void PFRootEventManager::connect( const char* infilename ) {
 
   options_->GetOpt("root","file", inFileName_);
   
+
+
+  try {
+    AutoLibraryLoader::enable();
+  }
+  catch(string& err) {
+    cout<<err<<endl;
+  }
+
+
+
+
   file_ = TFile::Open(inFileName_.c_str() );
 
 
@@ -609,7 +626,7 @@ void PFRootEventManager::connect( const char* infilename ) {
     cout<<"rootfile "<<inFileName_
 	<<" opened"<<endl;
 
-  AutoLibraryLoader::enable();
+  
 
   tree_ = (TTree*) file_->Get("Events");  
   if(!tree_) {
@@ -618,8 +635,10 @@ void PFRootEventManager::connect( const char* infilename ) {
 	<<inFileName_<<endl;
     return; 
   }
+
   tree_->GetEntry();
-    
+   
+  
   // hits branches ----------------------------------------------
 
   string rechitsECALbranchname;
@@ -657,6 +676,7 @@ void PFRootEventManager::connect( const char* infilename ) {
   clustersHCALBranch_ = 0;
   clustersPSBranch_ = 0;
 
+
   if( !clusteringIsOn_ ) {
     string clustersECALbranchname;
     options_->GetOpt("root","clusters_ECAL_branch", clustersECALbranchname);
@@ -667,6 +687,7 @@ void PFRootEventManager::connect( const char* infilename ) {
 	   <<clustersECALbranchname<<endl;
     }
   
+
     string clustersHCALbranchname;
     options_->GetOpt("root","clusters_HCAL_branch", clustersHCALbranchname);
     
@@ -685,6 +706,7 @@ void PFRootEventManager::connect( const char* infilename ) {
 	  <<clustersPSbranchname<<endl;
     }
   }
+
   // other branches ----------------------------------------------
   
   
@@ -778,7 +800,8 @@ PFRootEventManager::~PFRootEventManager() {
   }
 
   if(outEvent_) delete outEvent_;
-  if(outTree_)  delete outTree_;
+
+
 
   for( unsigned i=0; i<displayView_.size(); i++) {
     if(displayView_[i]) delete displayView_[i];
@@ -809,6 +832,8 @@ void PFRootEventManager::write() {
 bool PFRootEventManager::processEntry(int entry) {
 
   reset();
+
+  iEvent_ = entry;
  
   if( outEvent_ ) outEvent_->setNumber(entry);
 
@@ -852,14 +877,19 @@ bool PFRootEventManager::processEntry(int entry) {
   }
 
   particleFlow();
+
+  double deltaEt=0;
   if( goodevent && doJets_) 
-    makeJets(); 
+    deltaEt = makeJets(); 
   
   if(outTree_) outTree_->Fill();
   
-  return true;
+ 
+  if( deltaEt>30 )
+    return true;
   //  if(trueParticles_.size() != 1 ) return false;
-
+  else 
+    return false;
 
 }
 
@@ -908,7 +938,6 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   bool goodevent = true;
   if(trueParticlesBranch_ ) {
     // this is a filter to select single particle events.
-    // usually not active
     if(filterNParticles_ && 
        trueParticles_.size() != filterNParticles_ ) {
       cout << "PFRootEventManager : event discarded Nparticles="
@@ -919,6 +948,9 @@ bool PFRootEventManager::readFromSimulation(int entry) {
       cout << "PFRootEventManager : leptonic tau discarded " << endl; 
       goodevent =  false;
     }
+    if(goodevent)
+      fillOutEventWithSimParticles( trueParticles_ );
+
   }
   if(rechitsECALBranch_) {
     PreprocessRecHits( rechitsECAL_ , findRecHitNeighbours_);
@@ -957,9 +989,13 @@ bool PFRootEventManager::isHadronicTau() const {
 	const reco::PFSimParticle& daughter 
 	  = trueParticles_[ptcdaughters[dapt]];
 	
-	unsigned pdgdaugter = daughter.pdgCode();
-	
-	if (pdgdaugter == 11 || pdgdaugter == 13) { 
+
+	int pdgdaugther = daughter.pdgCode();
+	int abspdgdaughter = abs(pdgdaugther);
+
+
+	if (abspdgdaughter == 11 || 
+	    abspdgdaughter == 13) { 
 	  return false; 
 	}//electron or muons?
       }//loop daughter
@@ -1063,6 +1099,7 @@ void PFRootEventManager::clustering() {
 }
 
 
+
 void 
 PFRootEventManager::fillOutEventWithClusters(const reco::PFClusterCollection& 
 					     clusters) {
@@ -1080,6 +1117,31 @@ PFRootEventManager::fillOutEventWithClusters(const reco::PFClusterCollection&
   }   
 
 }
+
+
+
+void 
+PFRootEventManager::fillOutEventWithSimParticles(const reco::PFSimParticleCollection& trueParticles ) {
+
+  if(!outEvent_) return;
+  
+  for ( unsigned i=0;  i < trueParticles_.size(); i++) {
+    
+    const reco::PFSimParticle& ptc = trueParticles_[i];
+    const reco::PFTrajectoryPoint& tpatecal 
+      = ptc.trajectoryPoint(1);
+    
+    // cout<<tpatecal<<endl;
+    
+    EventColin::Particle outptc;
+    outptc.eta = tpatecal.positionXYZ().Eta();
+    outptc.phi = tpatecal.positionXYZ().Phi();    
+    outptc.e = tpatecal.momentum().E();
+    
+    outEvent_->addParticle(outptc);
+  }   
+}
+
 
 
 void PFRootEventManager::particleFlow() {
@@ -1118,7 +1180,7 @@ void PFRootEventManager::particleFlow() {
   if( debug_) cout<<"PFRootEventManager::particleFlow stop"<<endl;
 }
 
-void PFRootEventManager::makeJets() {
+double PFRootEventManager::makeJets() {
   //std::cout << "building jets from MC particles," 
   //    << "PF particles and caloTowers" << std::endl;
   
@@ -1344,7 +1406,15 @@ void PFRootEventManager::makeJets() {
 
   //fill histos
   h_deltaETvisible_MCEHT_->Fill(JetEHTETmax - partTOTMC.Et());
-  h_deltaETvisible_MCPF_ ->Fill(JetPFETmax - partTOTMC.Et());
+
+  double deltaEt = JetPFETmax - partTOTMC.Et();
+  h_deltaETvisible_MCPF_ ->Fill(deltaEt);
+
+  if (verbosity_ == VERBOSE ) {
+    cout << "makeJets E_T(PF) - E_T(true) = " << deltaEt << endl;
+  }
+
+  return deltaEt;
 }//Makejets
 
 
@@ -2287,95 +2357,150 @@ void PFRootEventManager::getMap(string& map) {
   }
 }
 
-void  PFRootEventManager::print() const {
+void  PFRootEventManager::print(ostream& out) const {
+
+  if(!out) return;
 
   if( printRecHits_ ) {
-    cout<<"ECAL RecHits =============================================="<<endl;
+    out<<"ECAL RecHits =============================================="<<endl;
     for(unsigned i=0; i<rechitsECAL_.size(); i++) {
       string seedstatus = "    ";
       if(clusterAlgoECAL_.isSeed(i) ) 
 	seedstatus = "SEED";
-      printRecHit(rechitsECAL_[i], seedstatus.c_str() );
+      printRecHit(rechitsECAL_[i], seedstatus.c_str(), out );
     }
-    cout<<endl;
-    cout<<"HCAL RecHits =============================================="<<endl;
+    out<<endl;
+    out<<"HCAL RecHits =============================================="<<endl;
     for(unsigned i=0; i<rechitsHCAL_.size(); i++) {
       string seedstatus = "    ";
       if(clusterAlgoHCAL_.isSeed(i) ) 
 	seedstatus = "SEED";
-      printRecHit(rechitsHCAL_[i]);
+      printRecHit(rechitsHCAL_[i], seedstatus.c_str(), out);
     }
-    cout<<endl;
-    cout<<"PS RecHits ================================================"<<endl;
+    out<<endl;
+    out<<"PS RecHits ================================================"<<endl;
     for(unsigned i=0; i<rechitsPS_.size(); i++) {
       string seedstatus = "    ";
       if(clusterAlgoPS_.isSeed(i) ) 
 	seedstatus = "SEED";
-      printRecHit(rechitsPS_[i]);
+      printRecHit(rechitsPS_[i], seedstatus.c_str(), out);
     }
-    cout<<endl;
+    out<<endl;
   }
   if( printClusters_ ) {
-    cout<<"ECAL Clusters ============================================="<<endl;
+    out<<"ECAL Clusters ============================================="<<endl;
     for(unsigned i=0; i<clustersECAL_->size(); i++) {
-      printCluster((*clustersECAL_)[i]);
+      printCluster((*clustersECAL_)[i], out);
     }    
-    cout<<endl;
-    cout<<"HCAL Clusters ============================================="<<endl;
+    out<<endl;
+    out<<"HCAL Clusters ============================================="<<endl;
     for(unsigned i=0; i<clustersHCAL_->size(); i++) {
-      printCluster((*clustersHCAL_)[i]);
+      printCluster((*clustersHCAL_)[i], out);
     }    
-    cout<<endl;
-    cout<<"PS Clusters   ============================================="<<endl;
+    out<<endl;
+    out<<"PS Clusters   ============================================="<<endl;
     for(unsigned i=0; i<clustersPS_->size(); i++) {
-      printCluster((*clustersPS_)[i]);
+      printCluster((*clustersPS_)[i], out);
     }    
-    cout<<endl;
+    out<<endl;
   }
   if( printPFBlocks_ ) {
-    cout<<"Particle Flow Blocks ======================================"<<endl;
+    out<<"Particle Flow Blocks ======================================"<<endl;
     for(unsigned i=0; i<pfBlocks_->size(); i++) {
-      cout<<(*pfBlocks_)[i]<<endl;
+      out<<(*pfBlocks_)[i]<<endl;
     }    
-    cout<<endl;
+    out<<endl;
   }
   if(printPFCandidates_) {
-    cout<<"Particle Flow Candidates =================================="<<endl;
-    cout<<pfAlgo_<<endl;
+    out<<"Particle Flow Candidates =================================="<<endl;
+    out<<pfAlgo_<<endl;
     for(unsigned i=0; i<pfCandidates_->size(); i++) {
-      cout<<(*pfCandidates_)[i]<<endl;
+      out<<(*pfCandidates_)[i]<<endl;
     }    
-    cout<<endl;
+    out<<endl;
   }
   if( printTrueParticles_ ) {
-    cout<<"True Particles  ==========================================="<<endl;
+    out<<"True Particles  ==========================================="<<endl;
     for(unsigned i=0; i<trueParticles_.size(); i++) {
        if( trackInsideGCut( &(trueParticles_[i]) ) )
-	 cout<<"\t"<<trueParticles_[i]<<endl;
+	 out<<"\t"<<trueParticles_[i]<<endl;
      }    
  
   }
-  
-
 }
 
+
+void  PFRootEventManager::printDisplay(  const char* sdirectory ) const {
+
+
+  string directory = sdirectory;
+  if( directory.empty() ) {   
+    directory = "Event_";
+  }
+  char num[10];
+  sprintf(num,"%d", iEvent_);
+  directory += num;
+
+  string mkdir = "mkdir "; mkdir += directory;
+  int code = system( mkdir.c_str() );
+
+  if( code ) {
+    cerr<<"cannot create directory "<<directory<<endl;
+    return;
+  }
+  
+  cout<<"Event display printed in directory "<<directory<<endl;
+
+  directory += "/";
+
+  for(unsigned iView=0; iView<displayView_.size(); iView++) {
+    if( !displayView_[iView] ) continue;
+    
+    string name = directory;
+    name += displayView_[iView]->GetName();
+
+    cout<<displayView_[iView]->GetName()<<endl;
+
+    string eps = name; eps += ".eps";
+    displayView_[iView]->SaveAs( eps.c_str() );
+    
+    string png = name; png += ".png";
+    displayView_[iView]->SaveAs( png.c_str() );
+  }
+
+  string txt = directory;
+  txt += "event.txt";
+  ofstream out( txt.c_str() );
+  if( !out ) 
+    cerr<<"cannot open "<<txt<<endl;
+  print( out );
+}
+
+
+
 void  PFRootEventManager::printRecHit(const reco::PFRecHit& rh, 
-				      const char* seedstatus) const {
+				      const char* seedstatus,
+				      ostream& out) const {
+
+  if(!out) return;
   
   double eta = rh.positionREP().Eta();
   double phi = rh.positionREP().Phi();
 
   if(insideGCut(eta, phi)) 
-    cout<<seedstatus<<" "<<rh<<endl;;
+    out<<seedstatus<<" "<<rh<<endl;;
 }
 
-void  PFRootEventManager::printCluster(const reco::PFCluster& cluster ) const {
+void  PFRootEventManager::printCluster(const reco::PFCluster& cluster,
+				      ostream& out ) const {
   
+  if(!out) return;
+
   double eta = cluster.positionREP().Eta();
   double phi = cluster.positionREP().Phi();
 
   if(insideGCut(eta, phi)) 
-    cout<<cluster<<endl;
+    out<<cluster<<endl;
 }
 
 

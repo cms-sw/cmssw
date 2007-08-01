@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.39 2007/04/30 12:57:20 rahatlou Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.40 2007/05/09 14:09:26 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
@@ -92,7 +92,6 @@ PixelMatchElectronAlgo::~PixelMatchElectronAlgo() {
 void PixelMatchElectronAlgo::setupES(const edm::EventSetup& es, const edm::ParameterSet &conf) {
 
   //services
-  es.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
   es.get<IdealMagneticFieldRecord>().get(theMagField);
   es.get<TrackerDigiGeometryRecord>().get(trackerHandle_);
 

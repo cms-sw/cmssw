@@ -1,6 +1,8 @@
 #ifndef Streamer_InputSource_h
 #define Streamer_InputSource_h
 
+#include "boost/shared_ptr.hpp"
+
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -18,7 +20,7 @@ namespace edm {
       return deserializer_.deserializeRegistry(initView);
     }
 
-    std::auto_ptr<EventPrincipal> deserializeEvent(EventMsgView const& eventView, ProductRegistry const& preg) {
+    std::auto_ptr<EventPrincipal> deserializeEvent(EventMsgView const& eventView, boost::shared_ptr<ProductRegistry const> preg) {
       return deserializer_.deserializeEvent(eventView, preg);
     }
 

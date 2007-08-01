@@ -491,13 +491,14 @@ outputModuleGuess = _guessTypeFromClassName(r"[a-zA-Z]\w*OutputModule",cms.Outpu
 producerGuess = _guessTypeFromClassName(r"[a-zA-Z]\w*Prod(?:ucer)?",cms.EDProducer)
 analyzerGuess = _guessTypeFromClassName(r"[a-zA-Z]\w*Analyzer",cms.EDAnalyzer)
 
-def _labelOptional(alabel,type):
+def _labelOptional(alabel,type,appendToLabel=''):
     def useTypeIfNoLabel(s,loc,toks):
         if len(toks[0])==2:
             alabel = toks[0][0]
             del toks[0][0]
         else:
             alabel = toks[0][0].type_()
+        alabel +=appendToLabel
         return (alabel,toks[0][0])
     #NOTE: must use letterstart instead of label else get exception when no label
     return pp.Group(pp.Suppress(pp.Keyword(alabel))+pp.Optional(letterstart)+_equalTo
@@ -507,7 +508,9 @@ def _labelOptional(alabel,type):
 
 es_module = _labelOptional("es_module",cms.ESProducer)
 es_source = _labelOptional("es_source",cms.ESSource)
-es_prefer = _labelOptional("es_prefer",cms.ESPrefer)
+#need to distinguish the es_prefer labels from the items they are actually choosing
+_es_prefer_label_extension = '@prefer'
+es_prefer = _labelOptional("es_prefer",cms.ESPrefer,_es_prefer_label_extension)
 
 plugin = source|looper|service|outputModuleGuess|producerGuess|analyzerGuess|module|es_module|es_source|es_prefer
 plugin.ignore(pp.cppStyleComment)
@@ -673,6 +676,8 @@ class _ReplaceNode(object):
         return self.setter.value
     value = property(fget = getValue,
                      doc='returns the value of the replace command (for testing)')
+    def rootLabel(self):
+        return self.path[0]
     def do(self,process):
         if hasattr(self.setter, 'setProcess'):
             self.setter.setProcess(process)
@@ -890,24 +895,36 @@ def _finalizeProcessFragment(values,usingLabels):
         #pset replaces must be done first since PSets can be used in a 'using'
         # statement so we want their changes to be reflected
         class DictAdapter(object):
-            def __init__(self,d):
+            def __init__(self,d, addSource=False):
+                #copy 'd' since we need to be able to lookup a 'source' by
+                # it's type to do replace but we do NOT want to add it by its
+                # type to the final Process
                 self.__dict__['d'] = d
-            def __getattr__(self,name):
-                return self.d[name]
+                if addSource and self.d.has_key('source'):
+                    self.d[d['source'].type_()]=d['source']
             def __setattr__(self,name,value):
                 self.d[name]=value
-        adapted = DictAdapter(d)
+            def __getattr__(self,name):
+                #print 'asked for '+name
+                return self.d[name]
+        adapted = DictAdapter(dict(d),True)
+        #what order do we process replace and using directives?
+        # running a test on the C++ cfg parser it appears replace
+        # always happens before using
         for replace in replaces:
-            if replace.path[0] in usingLabels:
-                #print 'found '+replace.path[0]
+            if isinstance(getattr(adapted,replace.rootLabel()),cms.PSet):
                 replace.do(adapted)
         _findAndHandleProcessUsingBlock(values)
         for replace in replaces:
-            replace.do(adapted)
+            if not isinstance(getattr(adapted,replace.rootLabel()),cms.PSet):
+                replace.do(adapted)
     except Exception, e:
         raise RuntimeError("the configuration contains the error \n"+str(e))    
     #FIX: now need to create Sequences, Paths, EndPaths from the available
     # information
+    #now we don't want 'source' to be added to 'd' but we do not want
+    # copies either
+    adapted = DictAdapter(d)
     pa = _ProcessAdapter(sequences,DictAdapter(dct))
     for label,obj in sequences.iteritems():
         if label not in dct:
@@ -926,6 +943,7 @@ def _makeProcess(s,loc,toks):
     #print toks
     label = toks[0][0]
     p=cms.Process(label)
+
     values = list(iter(toks[0][1]))
     try:
         values = _validateLabelledList(values)
@@ -938,6 +956,7 @@ def _makeProcess(s,loc,toks):
     sequences={}
     series=[] #order matters for a series
     replaces=[]
+    prefers = {}
     schedule = None
 
 
@@ -961,31 +980,56 @@ def _makeProcess(s,loc,toks):
                     del d[label]
                 else:
                     raise RuntimeError("multiple 'schedule's are present, only one is allowed")
+            elif isinstance(item,cms.ESPrefer):
+                prefers[label[0:-7]]=item
+                del d[label]
         #pset replaces must be done first since PSets can be used in a 'using'
         # statement so we want their changes to be reflected
-        global _allUsingLabels
         class DictAdapter(object):
             def __init__(self,d):
-                self.d = d
+                #copy 'd' since we need to be able to lookup a 'source' by
+                # it's type to do replace but we do NOT want to add it by its
+                # type to the final Process
+                self.d = d.copy()
+                if self.d.has_key('source'):
+                    self.d[d['source'].type_()]=d['source']
             def __getattr__(self,name):
+                #print 'asked for '+name
                 return self.d[name]
         adapted = DictAdapter(d)
+        #what order do we process replace and using directives?
+        # running a test on the C++ cfg parser it appears replace
+        # always happens before using
         for replace in replaces:
-            if replace.path[0] in _allUsingLabels:
-                #print 'found '+replace.path[0]
+            if isinstance(getattr(adapted,replace.rootLabel()),cms.PSet):
                 replace.do(adapted)
         _findAndHandleProcessUsingBlock(values)
+        for replace in replaces:
+            if not isinstance(getattr(adapted,replace.rootLabel()),cms.PSet):
+                replace.do(adapted)
+        #NEED to call this a second time so replace statements applying to modules
+        # where the replace statements contain using statements will have the
+        # using statements replaced by their actual values
+        _findAndHandleProcessUsingBlock(values)
 
+
+        # adding modules to the process involves cloning.
+        # but for the usings we only know the original object
+        # so we do have to keep a lookuptable
+        # FIXME  <- !!
+        global _lookuptable
+        _lookuptable = {}
         
         for label,obj in d.iteritems():
+            setattr(p,label,obj)
+            if not isinstance(obj,list): _lookuptable[obj] = label
+        for label,obj in prefers.iteritems():
             setattr(p,label,obj)
         pa = _ProcessAdapter(sequences,p)
         for label,obj in sequences.iteritems():
             setattr(pa,label,obj.make(pa))
         for label,obj in series:
             setattr(p,label,obj.make(p))
-        for replace in replaces:
-            replace.do(p)
         if schedule is not None:
             pathlist = []
             for label in schedule.labels:
@@ -1028,13 +1072,33 @@ class _ConfigReturn(object):
 
 def parseCfgFile(fileName):
     """Read a .cfg file and create a Process object"""
-    return process.parseFile(_fileFactory(fileName))[0]
+    #NOTE: should check for file first in local directory
+    # and then using FileInPath
+
+    global _allUsingLabels
+    _allUsingLabels = set()
+    import os.path
+    if os.path.exists(fileName):
+        f=open(fileName)
+    else:
+        f=_fileFactory(fileName)
+    return process.parseFile(f)[0]
+
+
 def parseCffFile(fileName):
     """Read a .cff file and return a dictionary"""
     t=onlyFragment.parseFile(_fileFactory(fileName))
     global _allUsingLabels
+    #_allUsingLabels = set() # do I need to reset here?
     d=_finalizeProcessFragment(t,_allUsingLabels)
     return _ConfigReturn(d)
+
+def processFromString(configString):
+    """Reads a string containing the equivalent content of a .cfg file and
+    creates a Process object"""
+    global _allUsingLabels
+    _allUsingLabels = set()
+    return process.parseString(configString)[0]
 
 def importConfig(fileName):
     """Use the file extension to decide how to parse the file"""
@@ -1372,6 +1436,8 @@ PSet blah = {
                 _fileFactory = oldFactory
 
         def testProcess(self):
+            global _allUsingLabels
+            _allUsingLabels = set()
             t=process.parseString(
 """
 process RECO = {
@@ -1394,6 +1460,7 @@ process RECO = {
             try:
                 _fileFactory = TestFactory('Sub/Pack/data/foo.cfi',
                                            'module foo = FooProd {}')
+                _allUsingLabels = set()
                 t=process.parseString(
 """
 process RECO = {
@@ -1407,6 +1474,7 @@ process RECO = {
             finally:
                 _fileFactory = oldFactory
 
+            _allUsingLabels = set()
             t=process.parseString(
 """
 process RECO = {
@@ -1434,9 +1502,291 @@ process RECO = {
 """
             self.assertRaises(pp.ParseFatalException,process.parseString,(s),**dict())
             try:
+                _allUsingLabels = set()
                 t=process.parseString(s)
             except pp.ParseFatalException, e:
                 print e
+
+            _allUsingLabels = set()
+            t=process.parseString("""
+process RECO = {
+   block outputStuff = {
+      vstring outputCommands = {"drop *"}
+   }
+   block toKeep = {
+      vstring outputCommands = {"keep blah_*_*_*"}
+   }
+   replace outputStuff.outputCommands += toKeep.outputCommands
+}
+""")
+            self.assertEqual(t[0].outputStuff.outputCommands,["drop *","keep blah_*_*_*"])
+
+            _allUsingLabels = set()
+            t=process.parseString("""
+process RECO = {
+   block outputStuff = {
+      vstring outputCommands = {"drop *"}
+   }
+   block toKeep1 = {
+      vstring outputCommands = {"keep blah1_*_*_*"}
+   }
+   block toKeep2 = {
+      vstring outputCommands = {"keep blah2_*_*_*"}
+   }
+   block toKeep3 = {
+      vstring outputCommands = {"keep blah3_*_*_*"}
+   }
+   replace outputStuff.outputCommands += toKeep1.outputCommands
+   replace outputStuff.outputCommands += toKeep2.outputCommands
+   replace outputStuff.outputCommands += toKeep3.outputCommands
+}
+""")
+            self.assertEqual(t[0].outputStuff.outputCommands,["drop *",
+                                                              "keep blah1_*_*_*",
+                                                              "keep blah2_*_*_*",
+                                                              "keep blah3_*_*_*"])
+
+            _allUsingLabels = set()
+            t=process.parseString("""
+process RECO = {
+   block outputStuff = {
+      vstring outputCommands = {"drop *"}
+   }
+   block toKeep1 = {
+      vstring outputCommands = {"keep blah1_*_*_*"}
+   }
+   block toKeep2 = {
+      vstring outputCommands = {"keep blah2_*_*_*"}
+   }
+   block toKeep3 = {
+      vstring outputCommands = {"keep blah3_*_*_*"}
+   }
+   replace outputStuff.outputCommands += toKeep1.outputCommands
+   replace outputStuff.outputCommands += toKeep2.outputCommands
+   replace outputStuff.outputCommands += toKeep3.outputCommands
+
+    module out = PoolOutputModule {
+        using outputStuff
+    }
+}
+""")
+            self.assertEqual(t[0].out.outputCommands,["drop *",
+                                                              "keep blah1_*_*_*",
+                                                              "keep blah2_*_*_*",
+                                                              "keep blah3_*_*_*"])
+
+            t=process.parseString("""
+process RECO = {
+   block FEVTEventContent = {
+      vstring outputCommands = {"drop *"}
+   }
+   block FEVTSIMEventContent = {
+      vstring outputCommands = {"drop *"}
+   }
+   block toKeep1 = {
+      vstring outputCommands = {"keep blah1_*_*_*"}
+   }
+   block toKeep2 = {
+      vstring outputCommands = {"keep blah2_*_*_*"}
+   }
+   block toKeep3 = {
+      vstring outputCommands = {"keep blah3_*_*_*"}
+   }
+   
+   block toKeepSim1 = {
+      vstring outputCommands = {"keep blahs1_*_*_*"}
+   }
+   block toKeepSim2 = {
+      vstring outputCommands = {"keep blahs2_*_*_*"}
+   }
+   block toKeepSim3 = {
+      vstring outputCommands = {"keep blahs3_*_*_*"}
+   }
+   
+   replace FEVTEventContent.outputCommands += toKeep1.outputCommands
+   replace FEVTEventContent.outputCommands += toKeep2.outputCommands
+   replace FEVTEventContent.outputCommands += toKeep3.outputCommands
+
+   replace FEVTSIMEventContent.outputCommands += FEVTEventContent.outputCommands
+
+   replace FEVTSIMEventContent.outputCommands += toKeepSim1.outputCommands
+   replace FEVTSIMEventContent.outputCommands += toKeepSim2.outputCommands
+   replace FEVTSIMEventContent.outputCommands += toKeepSim3.outputCommands
+
+}
+""")
+            self.assertEqual(t[0].FEVTEventContent.outputCommands,["drop *",
+                                                              "keep blah1_*_*_*",
+                                                              "keep blah2_*_*_*",
+                                                              "keep blah3_*_*_*"])
+
+            self.assertEqual(t[0].FEVTSIMEventContent.outputCommands,["drop *",
+                                                                      "drop *",
+                                                            "keep blah1_*_*_*",
+                                                              "keep blah2_*_*_*",
+                                                              "keep blah3_*_*_*",
+                                                            "keep blahs1_*_*_*",
+                                                              "keep blahs2_*_*_*",
+                                                              "keep blahs3_*_*_*"])
+
+            t=process.parseString("""
+process RECO = {
+   block FEVTEventContent = {
+      vstring outputCommands = {"drop *"}
+   }
+   block FEVTSIMEventContent = {
+      vstring outputCommands = {"drop *"}
+   }
+   block toKeep1 = {
+      vstring outputCommands = {"keep blah1_*_*_*"}
+   }
+   block toKeep2 = {
+      vstring outputCommands = {"keep blah2_*_*_*"}
+   }
+   block toKeep3 = {
+      vstring outputCommands = {"keep blah3_*_*_*"}
+   }
+   
+   block toKeepSim1 = {
+      vstring outputCommands = {"keep blahs1_*_*_*"}
+   }
+   block toKeepSim2 = {
+      vstring outputCommands = {"keep blahs2_*_*_*"}
+   }
+   block toKeepSim3 = {
+      vstring outputCommands = {"keep blahs3_*_*_*"}
+   }
+   
+   replace FEVTEventContent.outputCommands += toKeep1.outputCommands
+   replace FEVTEventContent.outputCommands += toKeep2.outputCommands
+   replace FEVTEventContent.outputCommands += toKeep3.outputCommands
+
+   replace FEVTSIMEventContent.outputCommands += FEVTEventContent.outputCommands
+
+   replace FEVTSIMEventContent.outputCommands += toKeepSim1.outputCommands
+   replace FEVTSIMEventContent.outputCommands += toKeepSim2.outputCommands
+   replace FEVTSIMEventContent.outputCommands += toKeepSim3.outputCommands
+
+   module out = PoolOutputModule {
+      using FEVTSIMEventContent
+   }
+}
+""")
+            self.assertEqual(t[0].FEVTEventContent.outputCommands,["drop *",
+                                                              "keep blah1_*_*_*",
+                                                              "keep blah2_*_*_*",
+                                                              "keep blah3_*_*_*"])
+
+            self.assertEqual(t[0].FEVTSIMEventContent.outputCommands,["drop *",
+                                                                      "drop *",
+                                                            "keep blah1_*_*_*",
+                                                              "keep blah2_*_*_*",
+                                                              "keep blah3_*_*_*",
+                                                            "keep blahs1_*_*_*",
+                                                              "keep blahs2_*_*_*",
+                                                              "keep blahs3_*_*_*"])
+            self.assertEqual(t[0].out.outputCommands,
+                             t[0].FEVTSIMEventContent.outputCommands)
+
+
+#NOTE: standard cfg parser can't do the following
+            _allUsingLabels = set()
+            s="""
+process RECO = {
+   block outputStuff = {
+      vstring outputCommands = {"drop *"}
+   }
+   block aTest = {
+      vstring outputCommands = {"keep blah_*_*_*"}
+   }    
+   block toKeep = {
+      using aTest
+   }
+   replace outputStuff.outputCommands += toKeep.outputCommands
+}
+"""
+            self.assertRaises(pp.ParseFatalException,process.parseString,(s),**dict())
+            #self.assertEqual(t[0].outputStuff.outputCommands,["drop *","keep blah_*_*_*"])
+            
+            _allUsingLabels = set()
+            t=process.parseString("""
+process RECO = {
+   block outputStuff = {
+      vstring outputCommands = {"drop *"}
+   }
+   block toKeep = {
+      vstring outputCommands = {"keep blah_*_*_*"}
+   }
+   
+   block final = {
+        using outputStuff
+    }
+   replace outputStuff.outputCommands += toKeep.outputCommands
+}
+""")
+            self.assertEqual(t[0].outputStuff.outputCommands,["drop *","keep blah_*_*_*"])
+            self.assertEqual(t[0].final.outputCommands,["drop *","keep blah_*_*_*"])
+
+            _allUsingLabels = set()
+            t=process.parseString("""
+process TEST = {
+    service = MessageLogger {
+        untracked vstring destinations = {"dummy"}
+        untracked PSet default = {
+               untracked int32 limit = -1
+        }
+        untracked PSet dummy = {}
+    }
+    replace MessageLogger.default.limit = 10
+    replace MessageLogger.destinations += {"goofy"}
+    replace MessageLogger.dummy = { untracked string threshold = "WARNING" }
+}""")
+            self.assertEqual(t[0].MessageLogger.default.limit.value(),10)
+            self.assertEqual(t[0].MessageLogger.destinations,["dummy","goofy"])
+            self.assertEqual(t[0].MessageLogger.dummy.threshold.value(),"WARNING")
+
+            _allUsingLabels = set()
+            t=process.parseString("""
+process TEST = {
+  PSet first = {
+    int32 foo = 1
+    int32 fii = 2
+  }
+  
+  module second = AModule {
+    using first
+  }
+  
+  replace first.foo = 2
+  
+  replace second.fii = 3
+}
+""")
+            self.assertEqual(t[0].first.foo.value(), 2)
+            self.assertEqual(t[0].first.fii.value(),2)
+            self.assertEqual(t[0].second.foo.value(),2)
+            self.assertEqual(t[0].second.fii.value(),3)
+            
+            _allUsingLabels = set()
+            t=process.parseString("""
+process TEST = {
+    es_module = UnnamedProd {
+        int32 foo = 10
+    }
+    
+    es_module me = NamedProd {
+        int32 fii = 5
+    }
+    
+    replace UnnamedProd.foo = 1
+    
+    replace me.fii = 10
+}
+""")
+            self.assertEqual(t[0].UnnamedProd.foo.value(),1)
+            self.assertEqual(t[0].me.fii.value(),10)
+            
+            _allUsingLabels = set()
             t=process.parseString("""
 process RECO = {
    block outputStuff = {
@@ -1463,7 +1813,10 @@ process RECO = {
             self.assertEqual(t[0].source.fileNames,["file:bar.root"])
             self.assertEqual(t[0].out.fileName.value(),"blih.root")
             self.assertEqual(t[0].source.foos,[1,2,3])
+            self.assertEqual(t[0].outputStuff.outputCommands,["drop *","keep blah_*_*_*"])
             self.assertEqual(t[0].out.outputCommands,["drop *","keep blah_*_*_*"])
+
+            _allUsingLabels = set()
             t=process.parseString("""
 process RECO = {
     module foo = FooProd {using b}
@@ -1495,6 +1848,8 @@ process RECO = {
 """
             self.assertRaises(pp.ParseFatalException,process.parseString,(s),**dict())
             #this was failing because of order in which the using was applied
+
+            _allUsingLabels = set()
             t=process.parseString("""
 process USER = 
 {
@@ -1571,7 +1926,10 @@ process USER =
             self.assertEqual(t[0].m2.x.value(),2)
             self.assertEqual(t[0].J.j.value(),1)
             self.assertEqual(t[0].I.j.value(),1)
-            #print t[0].dumpConfig()
+            #make sure dump succeeds
+            t[0].dumpConfig()
+
+            _allUsingLabels = set()
             t=process.parseString("""
 process USER = 
 {
@@ -1583,6 +1941,78 @@ process USER =
             self.assertEqual(t[0].b.c.i.value(),1)
             self.assertEqual(t[0].d[0].i.value(),1)
             self.assertEqual(t[0].b.c.e[0].i.value(), 1)
+            #make sure dump succeeds
+            t[0].dumpConfig()
+
+            _allUsingLabels = set()
+            t=process.parseString("""
+process USER = 
+{
+    block a = {int32 i = 1}
+    PSet b = { PSet c = {}
+               VPSet g = {} }
+    replace b.c = {using a
+       VPSet e={{using a} } }
+    VPSet d = {{using a}, {}}
+}""")
+            self.assertEqual(t[0].b.c.i.value(),1)
+            self.assertEqual(t[0].d[0].i.value(),1)
+            self.assertEqual(t[0].b.c.e[0].i.value(), 1)
+            #make sure dump succeeds
+            t[0].dumpConfig()
+
+            _allUsingLabels = set()
+            t=process.parseString("""
+process USER = 
+{
+    block a = {int32 i = 1}
+    PSet b = { PSet c = {} }
+    replace b.c = { PSet d = { using a }
+       VPSet e={{using a} } }
+}""")
+            self.assertEqual(t[0].b.c.d.i.value(),1)
+            self.assertEqual(t[0].b.c.e[0].i.value(), 1)
+            #make sure dump succeeds
+            t[0].dumpConfig()
+
+            t=process.parseString("""
+process USER = 
+{
+    block a = {int32 i = 1}
+    module b = BWorker { PSet c = {} }
+    replace b.c = { PSet d = { using a }
+       VPSet e={{using a} } }
+}""")
+            self.assertEqual(t[0].b.c.d.i.value(),1)
+            self.assertEqual(t[0].b.c.e[0].i.value(), 1)
+            #make sure dump succeeds
+            t[0].dumpConfig()
+
+            _allUsingLabels = set()
+            t=process.parseString(
+"""
+process RECO = {
+   es_prefer label = FooESProd {
+   }
+   es_module label = FooESProd {
+   }
+}""")
+            self.assertEqual(t[0].label.type_(),"FooESProd")
+            print t[0].dumpConfig()
+
+            _allUsingLabels = set()
+            t=process.parseString(
+"""
+process RECO = {
+   es_prefer = FooESProd {
+   }
+   es_module = FooESProd {
+   }
+}""")
+            self.assertEqual(t[0].FooESProd.type_(),"FooESProd")
+            print t[0].dumpConfig()
+
+            
         def testPath(self):
             p = cms.Process('Test')
             p.out = cms.OutputModule('PoolOutputModule')
@@ -1809,7 +2239,11 @@ process USER =
             self.assertEqual(t[0][1].value,'a.c')
             t[0][1].do(process)
             self.assertEqual(list(process.a.b),[2,1])
-            
+
+            process.a = cms.EDProducer('FooProd', b=cms.InputTag("bar:"))
+            t = replace.parseString('replace a.b = foobar:')
+            t[0][1].do(process)
+            self.assertEqual(process.a.b.configValue('',''),'foobar::')                        
     unittest.main()
 #try:
     #onlyParameters.setDebug()

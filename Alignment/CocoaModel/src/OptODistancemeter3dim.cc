@@ -16,7 +16,6 @@
 #include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
 #endif
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeTubs.h"
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -79,14 +78,3 @@ void OptODistancemeter3dim::fillIguana()
   IgCocoaFileMgr::getInstance().addSolid( *this, "CYLINDER", spar, col, CLHEP::Hep3Vector(), rm);
 }
 #endif
-
-
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void OptODistancemeter3dim::constructSolidShape()
-{
-  ALIdouble go;
-  GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
-  gomgr->getGlobalOptionValue("VisScale", go );
-
-  theSolidShape = new CocoaSolidShapeTubs( "Tubs", go*0.*cm/m, go*2.*cm/m, go*5.*cm/m ); //COCOA internal units are meters
-}

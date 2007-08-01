@@ -39,15 +39,29 @@ class SiTrivialZeroSuppress : public SiZeroSuppress{
   
  private:
   float noiseInAdc;
-  short theFEDalgorithm;
-  float theFEDlowThresh;
-  float theFEDhighThresh;
   edm::ParameterSet conf_;
+  short theFEDalgorithm;
   short theNumFEDalgos;
 
+  float theFEDlowThresh;
+  float theFEDhighThresh;
+  float thePrevFEDlowThresh;
+  float thePrevFEDhighThresh;
+  float theNextFEDlowThresh;
+  float theNextFEDhighThresh;
+
+  float theNeighFEDlowThresh;
+  float theNeighFEDhighThresh;
+
+  float thePrev2FEDlowThresh;
+  float theNext2FEDlowThresh;
+
+
+  int adcMaxNeigh;
   int algoConf;
   double lowthreshConf;
   double highthreshConf;
+
 };
  
 #endif

@@ -60,11 +60,18 @@ FSimEvent::nGenParts() const {
 }
 
 void 
-FSimEvent::load(edm::SimTrackContainer & c) const
+FSimEvent::load(edm::SimTrackContainer & c, edm::SimTrackContainer & m) const
 {
   for (unsigned int i=0; i<nTracks(); ++i) {
     //    SimTrack t = SimTrack(ip,p,iv,ig);
-    c.push_back(embdTrack(i));
+    const SimTrack& t = embdTrack(i);
+    // Save all tracks
+    c.push_back(t);
+    // Save also some muons for later parameterization
+    if ( abs(t.type()) == 13 && 
+	 t.momentum().perp2() > 1.0 &&
+	 fabs(t.momentum().eta()) < 3.0 &&
+	 track(i).noEndVertex() ) m.push_back(t);
   }
 }
 

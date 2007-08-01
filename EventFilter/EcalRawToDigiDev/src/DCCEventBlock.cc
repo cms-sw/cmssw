@@ -64,7 +64,7 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
     std::ostringstream output;
     output<<"EcalRawToDigi@SUB=DCCEventBlock:unpack"
       <<"\n Expected FED id is "<<expFedId<<" while current FED id is "<<fedId_
-      <<"\n => Skipping this event...";
+      <<"\n => Skipping this event..."<<std::endl;
     //TODO : add this to a error event collection
 
     throw ECALUnpackerException(output.str());
@@ -75,7 +75,7 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
     std::ostringstream output;
     output<<"EcalRawToDigi@SUB=DCCEventBlock:unpack"
       <<"\n Event "<<l1_<<" is empty for dcc "<<fedId_
-      <<"\n => Skipping this event...";
+      <<"\n => Skipping this event..."<<std::endl;
     //TODO : add this to a dcc empty event collection 	 
     throw ECALUnpackerException(output.str());
   } 
@@ -86,7 +86,7 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
     output<<"EcalRawToDigi@SUB=DCCEventBlock:unpack"
       <<"\n Event "<<l1_<<", dcc "<< fedId_
       <<"\n Event size is "<<eventSize_<<" bytes while the minimum is "<<HEADERSIZE<<" bytes"
-      <<"\n => Skipping this event..."; 
+      <<"\n => Skipping this event..."<<std::endl; 
     //TODO : add this to a dcc size error collection  
     throw ECALUnpackerException(output.str()); 
   }
@@ -104,7 +104,7 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
     output<<"EcalRawToDigi@SUB=DCCEventBlock:unpack"
       <<"\n Event "<<l1_<<", dcc "<< fedId_
       <<"\n Event size is "<<eventSize_<<" bytes while "<<(blockLength_*8)<<" are set in the event header "
-      <<"\n => Skipping this event ...";
+      <<"\n => Skipping this event ..."<<std::endl;
     //TODO : add this to a dcc size error collection 
 	 
    throw ECALUnpackerException(output.str());
@@ -173,7 +173,7 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
     output<<"EcalRawToDigi@SUB=DCCEventBlock:unpack"
      <<"\n Event "<<l1_<<", dcc "<< fedId_
      <<"\n Event has an unsupported trigger type "<<triggerType_
-     <<"\n => Skipping this event "; 
+     <<"\n => Skipping this event "<<std::endl; 
      //TODO : add this to a dcc trigger type error collection 
      throw ECALUnpackerException(output.str());
   }  
@@ -192,7 +192,6 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
         }
       
       }else if (feUnpacking_ && chStatus != CH_TIMEOUT && chStatus != CH_DISABLED && chStatus != CH_SUPPRESS && i<=68){
-	// if tzs_ data are not really suppresses, even though zs flags are calculated
         if(tzs_){ zs_ = false;}
 	towerBlock_->unpack(&data_,&dwToEnd_,zs_,i);
       }		 
@@ -215,33 +214,8 @@ void DCCEventBlock::addHeaderToCollection(){
   
   
   EcalDCCHeaderBlock theDCCheader;
-
-  // container for fed_id (601-645 for ECAL) 
-  theDCCheader.setFedId(fedId_);
   
-  
-  // this needs to be migrated to the ECAL mapping package
-
-  // dccId is number internal to ECAL running 1.. 54.
-  // convention is that dccId = (fed_id - 600)
-  int dccId = mapper_->getActiveSM();
-
-  // deriving ism starting from dccId
-  int ism(0);
-  if        (9< dccId && dccId < 28){
-    ism  = dccId-9+18;}
-
-  else if (27 < dccId && dccId< 46){
-    ism  = dccId-9-18;}
-
-  else
-    {ism = -999;}
-  
-  theDCCheader.setId(ism);
-  
-
-
-
+  theDCCheader.setId(fedId_); 
   theDCCheader.setRunNumber(runNumber_);  
   theDCCheader.setBasicTriggerType(triggerType_);
   theDCCheader.setLV1(l1_);
@@ -293,7 +267,7 @@ void DCCEventBlock::display(std::ostream& o){
     o<<"\n FEStatus#"<<i<<" "<<(*it);   	
   }
 
-  o<<"\n";  
+  o<<std::endl;  
 } 
     
 

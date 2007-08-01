@@ -10,6 +10,7 @@
  *
  * Fills in a map \< channel number, generated noise \>
  */
+
 #ifndef GaussianTailNoiseGenerator_h
 #define GaussianTailNoiseGenerator_h _ 1
 

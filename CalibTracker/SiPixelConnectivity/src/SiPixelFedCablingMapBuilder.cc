@@ -79,7 +79,7 @@ SiPixelFedCablingMap * SiPixelFedCablingMapBuilder::produce( const edm::EventSet
       name = new PixelBarrelName(geomid);
     } else {
       name = new PixelEndcapName(geomid);
-      cout << " NAME: "<<name->name()<<myprint(pxUnit)<<endl;
+//      cout << " NAME: "<<name->name()<<myprint(pxUnit)<<endl;
     } 
     units.push_back( std::make_pair( name, geomid.rawId() ) );
   }
@@ -167,17 +167,15 @@ std::string SiPixelFedCablingMapBuilder::myprint(const PixelGeomDetUnit * pxUnit
   GlobalPoint global;
 
   local = LocalPoint(0,0,0); global = (*pxUnit).toGlobal(local);
-  // phi measured from Y axis
-  float phi = 180*atan2(global.x(),global.y())/M_PI;  if (phi > 180.) phi = phi-360;
+  float phi = 180*atan2(global.x(),global.y())/M_PI; if (phi > 180.) phi = 360-phi;
   float r = global.perp();
   float z = global.z();
-  str <<"    POSITION: "<<" r="<<r<<" phi="<<phi<<" z="<<z;
-  str <<"   (rows,coll:"<<tpl.nrows()<<","<<tpl.ncolumns()<<")";
-  str <<endl; 
-  local = LocalPoint(0,0,0); str <<local<<"global: "<<(*pxUnit).toGlobal(local) <<endl;
-  local = LocalPoint(1,0,0); str <<local<<"global: "<<(*pxUnit).toGlobal(local) <<endl;
-  local = LocalPoint(0,1,0); str <<local<<"global: "<<(*pxUnit).toGlobal(local) <<endl;
-  local = LocalPoint(0,0,1); str <<local<<"global: "<<(*pxUnit).toGlobal(local) <<endl;
+  str <<"    GEOMETRY: "<<" r="<<r<<" phi="<<phi<<" z="<<z;
+  str <<"   top:"<<tpl.nrows()<<","<<tpl.ncolumns();
+      
+//      local = LocalPoint(1,0,0); cout <<local<<"global: "<<(*pxUnit).toGlobal(local) <<endl;
+//      local = LocalPoint(0,1,0); cout <<local<<"global: "<<(*pxUnit).toGlobal(local) <<endl;
+//      local = LocalPoint(0,0,1); cout <<local<<"global: "<<(*pxUnit).toGlobal(local) <<endl;
       
   return str.str();
 }

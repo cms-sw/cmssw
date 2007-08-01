@@ -1,20 +1,26 @@
-TCanvas *c1 = new TCanvas("c1", "c1",10,25,900,400);
-
 TH1D ratioEff(TH1D* hn, TH1D* hd);
 
 // ch is Chamber name
 void PlotEff(const char* ch = "") {
+  gROOT->LoadMacro("macros.C");     // Load service macros
+  TStyle * style = getStyle("tdr");
+//  style->SetTitleYOffset(1.6);
+  style->cd();                      // Apply style 
+
   if (ch == "" ) {
     cout << "Usage: PlotEff(\"ChamberName\") " << endl;
     cout << "Ex: PlotEff(\"Wh1_Sec10_St1\") " << endl;
     return;
   }
+  TCanvas *c1 = new TCanvas("c1", "c1",10,25,900,400);
+
+  c1->Update();
   c1->Divide(3);
   gStyle->SetOptFit(0);
   gStyle->SetOptStat(0);
   gStyle->SetPalette(1);
-  //TFile* file = TFile::Open("DTEffAnalyzer.root");
-  TFile* file = TFile::Open("DTEffAnalyzer_4398_118kev.root");
+  TFile* file = TFile::Open("DTEffAnalyzer.root");
+  //TFile* file = TFile::Open("DTEffAnalyzer_4398_118kev.root");
   //TFile* file = TFile::Open("DTEffAnalyzer_4398_100kev.root");
 
   TString nameDen("hEffGoodSegVsPosDen_");
@@ -79,10 +85,14 @@ void PlotEff(const char* ch = "") {
   c1->cd(1);
   TGraphAsymmErrors* hx = new TGraphAsymmErrors();
   hx->BayesDivide(proxN,proxD);
-  hx->SetTitle("Efficiency along X");
+  hx->SetTitle("Efficiency along X:x (cm):#epsilon");
+  (hx->GetXaxis())->SetTitle("x (cm)");
+  (hx->GetYaxis())->SetTitle("#epsilon");
   hx->SetMarkerColor(4);
-  hx->SetMarkerStyle(21);
+  hx->SetMarkerStyle(22);
   hx->SetMarkerSize(.8);
+  hx->SetMinimum(0.8);
+  hx->SetMaximum(1.05);
   hx->Draw("ALP");
   leg->AddEntry(hx,"Full chamber","P");
 
@@ -100,8 +110,12 @@ void PlotEff(const char* ch = "") {
   TGraphAsymmErrors* hy = new TGraphAsymmErrors();
   hy->BayesDivide(proyN,proyD);
   hy->SetTitle("Efficiency along y");
+  (hy->GetXaxis())->SetTitle("y (cm)");
+  (hy->GetYaxis())->SetTitle("#epsilon");
   hy->SetMarkerColor(4);
-  hy->SetMarkerStyle(21);
+  hy->SetMarkerStyle(22);
+  hy->SetMinimum(0.80);
+  hy->SetMaximum(1.05);
   hy->Draw("ALP");
   TGraphAsymmErrors* hyc = new TGraphAsymmErrors();
   hyc->BayesDivide(proyNc,proyDc);
@@ -115,8 +129,12 @@ void PlotEff(const char* ch = "") {
   c1->cd(3);
   // TH2F* h2n = (TH2F*)(file->Get(nameNum));
   // TH2F h2=(*h2n)/(*h2d);
-  //h2.SetMinimum(0.5);
+  // h2.SetMinimum(0.5);
   h2.SetTitle("Efficiency vs (x,y)");
+  (h2.GetXaxis())->SetTitle("x (cm)");
+  (h2.GetXaxis())->SetRange(firstBinX-2,lastBinX+2);
+  (h2.GetYaxis())->SetTitle("y (cm)");
+  (h2.GetYaxis())->SetRange(firstBinY-2,lastBinY+2);
   h2.DrawCopy("zcol");
   TString f("hSegEff");
   c1->Print(f+ch+".eps");

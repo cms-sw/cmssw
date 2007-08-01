@@ -4,7 +4,6 @@ from Mixins import _TypedParameterizable
 from SequenceTypes import _Sequenceable
 
 from ExceptionHandling import *
-
 class Service(_ConfigureComponent,_TypedParameterizable,_Unlabelable):
     def __init__(self,type_,*arg,**kargs):
         super(Service,self).__init__(type_,*arg,**kargs)
@@ -28,6 +27,7 @@ class ESProducer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelab
         if name == '':
             name=self.type_()
         proc._placeESProducer(name,self)
+
 
 
 class ESPrefer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable):
@@ -93,6 +93,7 @@ class Looper(_ConfigureComponent,_TypedParameterizable):
         super(Looper,self).__init__(type_,*arg,**kargs)
     def _placeImpl(self,name,proc):
         proc._placeLooper(name,self)
+
 
 
 if __name__ == "__main__":

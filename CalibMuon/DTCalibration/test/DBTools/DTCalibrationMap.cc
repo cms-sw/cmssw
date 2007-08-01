@@ -2,10 +2,10 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/16 12:22:38 $
+ *  $Date: 2006/07/03 15:06:12 $
  *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
-#include "CalibMuon/DTCalibration/src/DTCalibrationMap.cc"
+#include "CalibMuon/DTCalibration/plugins/DTCalibrationMap.cc"
 

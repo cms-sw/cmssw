@@ -1,7 +1,7 @@
 /// Algorithm to convert transient protojets into persistent jets
 /// Author: F.Ratnikov, UMd
 /// Mar. 8, 2006
-/// $Id: JetMaker.cc,v 1.25 2007/05/19 04:26:36 fedor Exp $
+/// $Id: JetMaker.cc,v 1.26 2007/05/24 18:05:44 fedor Exp $
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -51,8 +51,6 @@ namespace {
 	  //Array of energy in HCAL Towers:
 	  eHCal_i.push_back(tower->hadEnergy()); 
 	  eInHad += tower->hadEnergy();
-	  
-	  eInHO += tower->outerEnergy();
 	  
 	  //  figure out contributions
 	  switch (JetMaker::hcalSubdetector (tower->id().ieta())) {

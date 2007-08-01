@@ -37,11 +37,10 @@ EcalSelectiveReadoutSuppressor::EcalSelectiveReadoutSuppressor(const edm::Parame
   
   adcToGeV = params.getParameter<double>("eeDccAdcToGeV");
   thrUnit[ENDCAP] = adcToGeV/4.; //unit=1/4th ADC count
-  
-  initTowerThresholds(params.getParameter<double>("srpLowTowerThreshold"), 
-		      params.getParameter<double>("srpHighTowerThreshold"),
-		      params.getParameter<int>("deltaEta"),
-		      params.getParameter<int>("deltaPhi") );
+  ecalSelectiveReadout
+    = auto_ptr<EcalSelectiveReadout>(new EcalSelectiveReadout
+				     (params.getParameter<int>("deltaEta"),
+				      params.getParameter<int>("deltaPhi")));
   initCellThresholds(params.getParameter<double>("srpBarrelLowInterestChannelZS"),
 		     params.getParameter<double>("srpEndcapLowInterestChannelZS"),
 		     params.getParameter<double>("srpBarrelHighInterestChannelZS"),
@@ -70,16 +69,6 @@ void EcalSelectiveReadoutSuppressor::setGeometry(const CaloGeometry * caloGeomet
 #ifndef ECALSELECTIVEREADOUT_NOGEOM
    ecalSelectiveReadout->setGeometry(caloGeometry);
 #endif
-}
-
-
-void EcalSelectiveReadoutSuppressor::initTowerThresholds(double lowTowerThreshold,
-							 double highTowerThreshold,
-							 int deltaEta, int deltaPhi){
-  std::vector<double> srpThr(2);
-  srpThr[0]= lowTowerThreshold;
-  srpThr[1]= highTowerThreshold;
-  ecalSelectiveReadout = new EcalSelectiveReadout(srpThr,deltaEta,deltaPhi);
 }
 
 
@@ -139,20 +128,8 @@ int EcalSelectiveReadoutSuppressor::thr2Srf(int thr, int zsFlag) const{
   return zsFlag;
 }
 
-/*
-double EcalSelectiveReadoutSuppressor::threshold(const EBDetId & detId) const {  
-  int interestLevel = ecalSelectiveReadout->getCrystalInterest(detId);
-   return interestLevel!=EcalSelectiveReadout::UNKNOWN?zsThreshold[0][interestLevel]:-numeric_limits<double>::max();
- }
-*/
-/*
-  double EcalSelectiveReadoutSuppressor::threshold(const EEDetId & detId) const {
-    int interestLevel = ecalSelectiveReadout->getCrystalInterest(detId);
-    return interestLevel!=EcalSelectiveReadout::UNKNOWN?zsThreshold[1][interestLevel]:-numeric_limits<double>::max();
-    }
-  */
-
-int EcalSelectiveReadoutSuppressor::internalThreshold(double thresholdInGeV, int iSubDet) const{
+int EcalSelectiveReadoutSuppressor::internalThreshold(double thresholdInGeV,
+						      int iSubDet) const{
   double thr_ = thresholdInGeV / thrUnit[iSubDet];
   //treating over- and underflows, threshold is coded on 11+1 signed bits
   //an underflow threshold is considered here as if NoRO DCC switch is on
@@ -184,13 +161,15 @@ bool EcalSelectiveReadoutSuppressor::accept(const T& frame,
   const int gain12 = 0x01; 
   const int lastFIRSample = firstFIRSample + nFIRTaps - 1;
   //LogDebug("DccFir") << "DCC FIR operation: ";
-  for(int i=firstFIRSample-1; i<lastFIRSample; ++i){
-    if(i>=0 && i < frame.size()){
-      const EcalMGPASample& sample = frame[i];
+  int iWeight = 0;
+  for(int iSample=firstFIRSample-1;
+      iSample<lastFIRSample; ++iSample, ++iWeight){
+    if(iSample>=0 && iSample < frame.size()){
+      const EcalMGPASample& sample = frame[iSample];
       if(sample.gainId()!=gain12) gain12saturated = true;
-      //LogTrace("DccFir") << (i>=firstFIRSample?"+":"") << sample.adc()
-      // 			  << "*(" << w[i] << ")";
-      acc+=sample.adc()*w[i];
+      //LogTrace("DccFir") << (iSample>=firstFIRSample?"+":"") << sample.adc()
+      //		 << "*(" << w[iWeight] << ")";
+      acc+=sample.adc()*w[iWeight];
     } else{
       edm::LogWarning("DccFir") << __FILE__ << ":" << __LINE__ <<
 	": Not enough samples in data frame or 'ecalDccZs1stSample' module "
@@ -259,7 +238,8 @@ EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
   // do barrel first
   for(EBDigiCollection::const_iterator digiItr = barrelDigis.begin();
       digiItr != barrelDigis.end(); ++digiItr){
-    int interestLevel = ecalSelectiveReadout->getCrystalInterest(digiItr->id());
+    int interestLevel
+      = ecalSelectiveReadout->getCrystalInterest(digiItr->id());
     if(accept(*digiItr, zsThreshold[BARREL][interestLevel])){
       selectedBarrelDigis.push_back(*digiItr);
     } 
@@ -346,7 +326,8 @@ void EcalSelectiveReadoutSuppressor::setTtFlags(const EcalTrigPrimDigiCollection
     }
 
     unsigned int iPhi0 = trigPrim->id().iphi() - 1;
-    ttFlags[iEta0][iPhi0] = (EcalSelectiveReadout::ttFlag_t) trigPrim->ttFlag(); 
+    ttFlags[iEta0][iPhi0] =
+      (EcalSelectiveReadout::ttFlag_t) trigPrim->ttFlag();
   }
 }
 
@@ -519,11 +500,11 @@ void EcalSelectiveReadoutSuppressor::printTTFlags(ostream& os, int iEvent,
   
   if(withHeader){
     os << "# TCC flag map\n#\n"
-      "# +-->Phi            " << tccFlagMarker[1] << ": 000 (low interest)\n"
-      "# |                  " << tccFlagMarker[2] << ": 001 (mid interest)\n"
-      "# |                  " << tccFlagMarker[3] << ": 010 (not valid)\n"
-      "# V Eta              " << tccFlagMarker[4] << ": 011 (high interest)\n"
-      "#                    " << tccFlagMarker[5] << ": 1xx forced readout (Hw error)\n";
+      "# +-->Phi            " << tccFlagMarker[1+0] << ": 000 (low interest)\n"
+      "# |                  " << tccFlagMarker[1+1] << ": 001 (mid interest)\n"
+      "# |                  " << tccFlagMarker[1+2] << ": 010 (not valid)\n"
+      "# V Eta              " << tccFlagMarker[1+3] << ": 011 (high interest)\n"
+      "#                    " << tccFlagMarker[1+4] << ": 1xx forced readout (Hw error)\n";
   }
 
   if(iEvent>=0){

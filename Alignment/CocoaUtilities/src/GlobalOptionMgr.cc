@@ -31,7 +31,7 @@ void GlobalOptionMgr::setDefaultGlobalOptions()
   theGlobalOptions[ ALIstring("report_verbose") ] = 3; 
   theGlobalOptions[ ALIstring("debug_verbose") ] = 0;  
   //  theGlobalOptions[ ALIstring("sparse") ] = 0;  
-  theGlobalOptions[ ALIstring("saveMatrices") ] = 1;  
+  theGlobalOptions[ ALIstring("save_matrices") ] = 1;  
   //  theGlobalOptions[ ALIstring("external_meas") ] = 0;  
   theGlobalOptions[ ALIstring("calcul_type") ] = 0;  
   theGlobalOptions[ ALIstring("length_value_dimension") ] = 0;  
@@ -42,14 +42,13 @@ void GlobalOptionMgr::setDefaultGlobalOptions()
   theGlobalOptions[ ALIstring("output_length_error_dimension") ] = 0;  
   theGlobalOptions[ ALIstring("output_angle_value_dimension") ] = 0;  
   theGlobalOptions[ ALIstring("output_angle_error_dimension") ] = 0;  
-  theGlobalOptions[ ALIstring("checkExtraEntries") ] = 0;  
+  theGlobalOptions[ ALIstring("check_extra_entries") ] = 0;  
   theGlobalOptions[ ALIstring("cms_link") ] = 0;  
   theGlobalOptions[ ALIstring("cms_link_halfplanes") ] = 0;  
   theGlobalOptions[ ALIstring("cms_link_method") ] = 0;  
   theGlobalOptions[ ALIstring("range_studies") ] = 0;  
   theGlobalOptions[ ALIstring("histograms") ] = 0;  
-  theGlobalOptions[ ALIstring("onlyDeriv") ] = 0; 
-  theGlobalOptions[ ALIstring("onlyFirstPropagation") ] = 0;
+  theGlobalOptions[ ALIstring("onlyDeriv") ] = 0;  
 
   theGlobalOptions[ ALIstring("VisWriteVRML") ] = 0;  
   theGlobalOptions[ ALIstring("VisWriteIguana") ] = 0;  
@@ -61,12 +60,11 @@ void GlobalOptionMgr::setDefaultGlobalOptions()
   theGlobalOptions[ ALIstring("VisScale") ] = 1.;
   theGlobalOptions[ ALIstring("tiltmeter_meas_value_dimension") ] = 0; 
   theGlobalOptions[ ALIstring("distancemeter_meas_value_dimension") ] = 0; 
-  theGlobalOptions[ ALIstring("dumpDateInFittedEntries") ] = 0;
+  theGlobalOptions[ ALIstring("DumpDateInFittedEntries") ] = 0;
   theGlobalOptions[ ALIstring("measurementErrorFromFile") ] = 0;
 
-  theGlobalOptions[ ALIstring("maxNoFitIterations") ] = 50;
-  theGlobalOptions[ ALIstring("fitQualityCut") ] = 0.1;
-  theGlobalOptions[ ALIstring("relativeFitQualityCut") ] = 1.E-6;
+  theGlobalOptions[ ALIstring("MaxNoFitIterations") ] = 50;
+  theGlobalOptions[ ALIstring("FitQualityCut") ] = 0.1;
 
   //dimension factor to multiply the values in the files that give you the deviatin when traversing an ALMY. Files have numbers in microns, so it has to be 1 if 'length_value_dimension 2', 0.001 if 'length_value_dimension 1' (the same for angles)
   theGlobalOptions[ ALIstring("deviffValDimf") ] = 1.;
@@ -76,12 +74,10 @@ void GlobalOptionMgr::setDefaultGlobalOptions()
   theGlobalOptions[ ALIstring("reportOutReadValue") ] = 1;
   theGlobalOptions[ ALIstring("reportOutReadSigma") ] = 1;
   theGlobalOptions[ ALIstring("reportOutReadQuality") ] = 1;
-  theGlobalOptions[ ALIstring("maxDeviDerivative") ] = 1.E-6;
+  theGlobalOptions[ ALIstring("MaxDeviDerivative") ] = 1.E-6;
 
   theGlobalOptions[ ALIstring("stopAfter1stIteration") ] = 0;
   theGlobalOptions[ ALIstring("calParamInyfMatrix") ] = 0;
-  theGlobalOptions[ ALIstring("writeXML") ] = 0;
-
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

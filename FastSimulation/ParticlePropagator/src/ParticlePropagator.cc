@@ -133,7 +133,7 @@ ParticlePropagator::propagateToBoundSurface(const TrackerLayer& layer) {
   BoundDisk* disk = layer.disk();
   //  bool disk = layer.forward();
   //  double innerradius=-999;
-  double innerradius = disk ? disk->innerRadius() : -999. ;
+  double innerradius = disk ? layer.diskInnerRadius() : -999. ;
 
   //  if( disk ) {
     //    const Surface& surface = layer.surface();
@@ -173,7 +173,7 @@ ParticlePropagator::setPropagationConditions(const TrackerLayer& layer,
     //    const BoundDisk & myDisk = dynamic_cast<const BoundDisk&>(surface);
     // ParticlePropagator works in mm, whereas the detector geometry is in cm
     BaseParticlePropagator::setPropagationConditions(
-                                  layer.disk()->outerRadius(),
+                                  layer.diskOuterRadius(),
 				  fabs(layer.disk()->position().z()),
 				  firstLoop);       
 

@@ -60,7 +60,12 @@ void ThirdHitCorrection::correctRPhiRange( Range & range) const
 void ThirdHitCorrection::correctRZRange( Range & range) const
 { 
   if (theUseMultipleScattering) {
-    float extra = theBarrel ? theMultScattCorrRPhi/theSinTheta : theMultScattCorrRPhi/theCosTheta;
+    float extra = 0.;
+    if (theBarrel) {
+      if (theSinTheta > 1.e-5) extra =  theMultScattCorrRPhi/theSinTheta; 
+    } else {
+      if (theCosTheta > 1.e-5) extra =  theMultScattCorrRPhi/theCosTheta;
+    }
     range.first -= extra;
     range.second += extra;
   } 

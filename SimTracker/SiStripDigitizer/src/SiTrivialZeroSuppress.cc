@@ -64,23 +64,58 @@ SiZeroSuppress::DigitalMapType SiTrivialZeroSuppress::trkFEDclusterizer(const Di
     //Set values for strips just outside APV or module to infinity.
     //This is to avoid losing strips at the edges, 
     //which otherwise would pass cuts if strips were next to each other.
-    int adcPrev = -99999;
-    int adcNext = -99999;
-    if ( ((strip)%128) == 127) adcNext = 99999;
-    if ( ((strip)%128) == 0)   adcPrev = 99999;
+    int adcPrev  = -9999;
+    int adcNext  = -9999;
+    int adcPrev2 = -9999;
+    int adcNext2 = -9999;
+
+    theNextFEDlowThresh  = theFEDlowThresh;
+    theNext2FEDlowThresh = theFEDlowThresh;
+    thePrevFEDlowThresh  = theFEDlowThresh;
+    thePrev2FEDlowThresh = theFEDlowThresh;
+    theNeighFEDlowThresh = theFEDlowThresh;
+    
+    theNextFEDhighThresh  = theFEDhighThresh;
+    thePrevFEDhighThresh  = theFEDhighThresh;
+    theNeighFEDhighThresh = theFEDhighThresh;
+  
+
+    if ( ((strip)%128) == 127){
+      adcNext = 0;
+      theNextFEDlowThresh  = 9999;
+      theNextFEDhighThresh = 9999;
+    }
+    if ( ((strip)%128) == 0){
+      adcPrev = 0;
+      thePrevFEDlowThresh  = 9999;
+      thePrevFEDhighThresh = 9999; 
+    }
     //Otherwise if strip was found then find it's ADC count.
     if ( iPrev  != in.end() ) adcPrev  = iPrev->second;
     if ( iNext  != in.end() ) adcNext  = iNext->second;
-    int adcMaxNeigh = std::max(adcPrev, adcNext);
-     
+
+    if ( adcNext <= adcPrev){
+      adcMaxNeigh = adcPrev;
+      theNeighFEDlowThresh  = thePrevFEDlowThresh;
+      theNeighFEDhighThresh = thePrevFEDhighThresh;
+    } else {
+      adcMaxNeigh = adcNext;
+      theNeighFEDlowThresh  = theNextFEDlowThresh;
+      theNeighFEDhighThresh = theNextFEDhighThresh;
+    }
+    
     //Find adc values for next neighbouring strips
     iPrev2 = in.find(strip - 2); 
     iNext2 = in.find(strip + 2);
     //See above 
-    int adcPrev2 = -99999;
-    int adcNext2 = -99999;
-    if ( ((strip)%128) == 126) adcNext2 = 99999;
-    if ( ((strip)%128) == 1)   adcPrev2 = 99999; 
+    if ( ((strip)%128) == 126){ 
+      adcNext2 = 0;
+      theNext2FEDlowThresh  = 9999;
+    }
+    if ( ((strip)%128) == 1){
+      adcPrev2 = 0; 
+      thePrev2FEDlowThresh  = 99999;
+    }
     if ( iPrev2 != in.end() ) adcPrev2 = iPrev2->second; 
     if ( iNext2 != in.end() ) adcNext2 = iNext2->second; 
  
@@ -91,38 +126,66 @@ SiZeroSuppress::DigitalMapType SiTrivialZeroSuppress::trkFEDclusterizer(const Di
     // Decide if this strip should be accepted.
     bool accept = false;
     switch (theFEDalgorithm) {
- 
-    case 1: 
+      
+    case 1:
       accept = (adc >= theFEDlowThresh);
       break;
-
     case 2:
-      accept = (adc >= theFEDhighThresh || (adc >= theFEDlowThresh && 
-					    adcMaxNeigh >= theFEDlowThresh));
+      accept = (adc >= theFEDhighThresh || (adc >= theFEDlowThresh &&
+					    adcMaxNeigh >= theNeighFEDlowThresh));
       break;
-      
     case 3:
-      accept = (adc >= theFEDhighThresh || (adc >= theFEDlowThresh && 
-					    adcMaxNeigh >= theFEDhighThresh));
+      accept = (adc >= theFEDhighThresh || (adc >= theFEDlowThresh &&
+					    adcMaxNeigh >= theNeighFEDhighThresh));
       break;
-
     case 4:
-      accept = ((adc >= theFEDhighThresh) ||           //Test for adc>highThresh (same as algorithm 2)
-                ((adc >= theFEDlowThresh) &&           //Test for adc>lowThresh, with neighbour adc>lowThresh (same as algorithm 2)
-		 (adcMaxNeigh >= theFEDlowThresh)) || 
-		((adc < theFEDlowThresh) &&            //Test for adc<lowThresh
-		 (((adcPrev  >= theFEDhighThresh) &&   //with both neighbours>highThresh
-		   (adcNext  >= theFEDhighThresh)) ||    
-		  ((adcPrev  >= theFEDhighThresh) &&   //OR with previous neighbour>highThresh and
-		   (adcNext  >= theFEDlowThresh)  &&   //both the next neighbours>lowThresh
-		   (adcNext2 >= theFEDlowThresh))  ||    
-		  ((adcNext  >= theFEDhighThresh) &&   //OR with next neighbour>highThresh and
-		   (adcPrev  >= theFEDlowThresh)  &&   //both the previous neighbours>lowThresh
-		   (adcPrev2 >= theFEDlowThresh))  ||
-		  ((adcNext  >= theFEDlowThresh)  &&   //OR with both next neighbours>lowThresh and
-		   (adcNext2 >= theFEDlowThresh)  &&   //both the previous neighbours>lowThresh
-		   (adcPrev  >= theFEDlowThresh)  && 
-		   (adcPrev2 >= theFEDlowThresh)))));
+      accept = (
+		(adc >= theFEDhighThresh)            //Test for adc>highThresh (same as algorithm 2)
+		||
+		(
+		 (adc >= theFEDlowThresh)            //Test for adc>lowThresh, with neighbour adc>lowThresh (same as algorithm 2)
+		 &&
+		 (adcMaxNeigh >= theNeighFEDlowThresh)
+		 ) 
+		||
+		(
+		 (adc < theFEDlowThresh)        //Test for adc<lowThresh
+		 &&     
+		 (
+		  (
+		   (adcPrev  >= thePrevFEDhighThresh)    //with both neighbours>highThresh
+		   &&
+		   (adcNext  >= theNextFEDhighThresh)
+		   ) 
+		  ||
+		  (
+		   (adcPrev  >= thePrevFEDhighThresh)    //OR with previous neighbour>highThresh and
+		   &&
+		   (adcNext  >= theNextFEDlowThresh)     //both the next neighbours>lowThresh
+		   &&
+		   (adcNext2 >= theNext2FEDlowThresh)
+		   )  
+		  ||
+		  (
+		   (adcNext  >= theNextFEDhighThresh)    //OR with next neighbour>highThresh and
+		   &&
+		   (adcPrev  >= thePrevFEDlowThresh)     //both the previous neighbours>lowThresh
+		   &&
+		   (adcPrev2 >= thePrev2FEDlowThresh)
+		   )  
+		  ||
+		  (
+		   (adcNext  >= theNextFEDlowThresh)     //OR with both next neighbours>lowThresh and
+		   &&
+		   (adcNext2 >= theNext2FEDlowThresh)   //both the previous neighbours>lowThresh
+		   &&
+		   (adcPrev  >= thePrevFEDlowThresh)  
+		   &&
+		   (adcPrev2 >= thePrev2FEDlowThresh)
+		   )
+		  )
+		 )
+		);
       break;
     }
 

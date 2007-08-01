@@ -75,6 +75,12 @@ DTEffAnalyzer::DTEffAnalyzer(const ParameterSet& pset) {
   LCT_RPC = pset.getParameter<bool>("LCT_RPC");
   LCT_DT = pset.getParameter<bool>("LCT_DT");
   LCT_CSC = pset.getParameter<bool>("LCT_CSC");
+}
+
+void DTEffAnalyzer::beginJob(const EventSetup& eventSetup) {
+  if(debug) cout << "beginOfJob" << endl;
+  // Get the DT Geometry
+  eventSetup.get<MuonGeometryRecord>().get(dtGeom);
 
   // Create the root file
   theFile = new TFile(theRootFileName.c_str(), "RECREATE");
@@ -83,28 +89,29 @@ DTEffAnalyzer::DTEffAnalyzer(const ParameterSet& pset) {
   new TH1F("hTrigBits","All trigger bits",10,0.,10.);
 
   for (int w=-2; w<=2; ++w) {
-    if (!mc && w<1) continue; // only wheel +1 and +2
+    //if (!mc && w<1) continue; // only wheel +1 and +2
     stringstream nameWheel;
     nameWheel << "_Wh"<< w ;
     //cout << "Wheel " << nameWheel.str() << endl;
     for (int sec=1; sec<=14; ++sec) { // section 1 to 14
-      if (!mc && !(sec==10 || sec ==11 || sec ==14)) continue; // only 10,11 and 14
+//      if (!mc && !(sec==10 || sec ==11 || sec ==14)) continue; // only 10,11 and 14
       stringstream nameSector;
       nameSector << nameWheel.str() << "_Sec" << sec;
       //cout << "Sec " << nameSector.str() << endl;
       for (int st=1; st<=4; ++st) { // station 1 to 4
-        if (mc ||
-            ((w==1 && (sec == 10 || 
-                       (st == 4 && sec == 14))) 
-             ||
-             (w==2 && (sec == 10 || 
-                       sec == 11 || 
-                       (st == 4 && sec == 14))))
-           ) {
+        // if (mc ||
+        //     ((w==1 && (sec == 10 || 
+        //                (st == 4 && sec == 14))) 
+        //      ||
+        //      (w==2 && (sec == 10 || 
+        //                sec == 11 || 
+        //                (st == 4 && sec == 14))))
+        //    ) {
 
           stringstream nameChamber;
           nameChamber << nameSector.str() << "_St" << st;
 
+          //cout << nameChamber << endl;
           createTH1F("hDistSegFromExtrap",
                      "Distance segments from extrap position ",nameChamber.str(), 200,0.,200.);
           createTH1F("hNaiveEffSeg","Naive eff ",nameChamber.str(), 10,0.,10.);
@@ -119,10 +126,12 @@ DTEffAnalyzer::DTEffAnalyzer(const ParameterSet& pset) {
           createTH2F("hEffGoodCloseSegVsPosNum",
                      "Eff vs local position (good aand close segs) ", nameChamber.str(),
                      25,-250.,250., 25,-250.,250.);
-        }
+        // }
       }
     }
   }
+  // cout << "List of created histograms " << endl;
+  // theFile->ls();
 }
 
 /* Destructor */ 
@@ -134,7 +143,7 @@ DTEffAnalyzer::~DTEffAnalyzer() {
 
 /* Operations */ 
 void DTEffAnalyzer::analyze(const Event & event,
-                         const EventSetup& eventSetup) {
+                            const EventSetup& eventSetup) {
   if (debug) cout << endl<<"--- [DTEffAnalyzer] Event analysed #Run: " <<
     event.id().run() << " #Event: " << event.id().event() << endl;
 
@@ -175,14 +184,19 @@ bool DTEffAnalyzer::selectEvent() const {
 
 void DTEffAnalyzer::effSegments(const Event & event,
                                 const EventSetup& eventSetup){
-  // // Get the DT Geometry
-  // ESHandle<DTGeometry> dtGeom;
-  eventSetup.get<MuonGeometryRecord>().get(dtGeom);
+  // // // Get the DT Geometry
+  // // ESHandle<DTGeometry> dtGeom;
+  // eventSetup.get<MuonGeometryRecord>().get(dtGeom);
 
   // Get the 4D rechit collection from the event -------------------
   // Handle<DTRecSegment4DCollection> segs;
   event.getByLabel(theRecHits4DLabel, segs);
-  if (debug) cout << "4d " << segs->size() << endl;
+  if (debug) {
+    cout << "4d " << segs->size() << endl;
+    for (DTRecSegment4DCollection::const_iterator seg=segs->begin() ;
+         seg!=segs->end() ; ++seg ) 
+      cout << *seg << endl;
+  }
 
   // // Get the 2D rechit collection from the event -------------------
   // edm::Handle<DTRecSegment2DCollection> segs2d;
@@ -200,29 +214,38 @@ void DTEffAnalyzer::effSegments(const Event & event,
   // trivial pattern recognition: get 3 segments in 3 different station of a
   // given wheel, sector
 
-  // Wheel +1  sector 10
-  int wheel = +1;
-  int sector = 10;
-  evaluateEff(DTChamberId(wheel, 1, sector),2,3 ); // get efficiency for MB1 using MB2 and MB3
-  evaluateEff(DTChamberId(wheel, 2, sector),1,3 ); // get efficiency for MB2 using MB1 and MB3
-  //evaluateEff(DTChamberId(wheel, 3, sector),2,4 ); // get efficiency for MB3 using MB2 and MB4
-  evaluateEff(DTChamberId(wheel, 3, sector),1,2 ); // get efficiency for MB3 using MB2 and MB4
-  evaluateEff(DTChamberId(wheel, 4, sector),2,3 ); // get efficiency for MB4 using MB2 and MB3
+  for (int wheel = -2; wheel <=2; ++wheel) {
+    for (int sector = 1; sector <=12; ++sector) {
+      evaluateEff(DTChamberId(wheel, 1, sector),2,3 ); // get efficiency for MB1 using MB2 and MB3
+      evaluateEff(DTChamberId(wheel, 2, sector),1,3 ); // get efficiency for MB2 using MB1 and MB3
+      evaluateEff(DTChamberId(wheel, 3, sector),2,4 ); // get efficiency for MB3 using MB2 and MB4
+      evaluateEff(DTChamberId(wheel, 4, sector),2,3 ); // get efficiency for MB4 using MB2 and MB3
 
-  wheel = +2;
-  sector = 10;
-  evaluateEff(DTChamberId(wheel, 1, sector),2,3 ); // get efficiency for MB1 using MB2 and MB3
-  evaluateEff(DTChamberId(wheel, 2, sector),1,3 ); // get efficiency for MB2 using MB1 and MB3
-  //evaluateEff(DTChamberId(wheel, 3, sector),2,4 ); // get efficiency for MB3 using MB2 and MB4
-  evaluateEff(DTChamberId(wheel, 3, sector),1,2 ); // get efficiency for MB3 using MB2 and MB4
-  evaluateEff(DTChamberId(wheel, 4, sector),2,3 ); // get efficiency for MB4 using MB2 and MB3
+    }
+  }
+  // // Wheel +1  sector 10
+  // int wheel = +1;
+  // int sector = 10;
+  // evaluateEff(DTChamberId(wheel, 1, sector),2,3 ); // get efficiency for MB1 using MB2 and MB3
+  // evaluateEff(DTChamberId(wheel, 2, sector),1,3 ); // get efficiency for MB2 using MB1 and MB3
+  // //evaluateEff(DTChamberId(wheel, 3, sector),2,4 ); // get efficiency for MB3 using MB2 and MB4
+  // evaluateEff(DTChamberId(wheel, 3, sector),1,2 ); // get efficiency for MB3 using MB2 and MB4
+  // evaluateEff(DTChamberId(wheel, 4, sector),2,3 ); // get efficiency for MB4 using MB2 and MB3
 
-  wheel = +2;
-  sector = 11;
-  evaluateEff(DTChamberId(wheel, 1, sector),2,3 ); // get efficiency for MB1 using MB2 and MB3
-  evaluateEff(DTChamberId(wheel, 2, sector),1,3 ); // get efficiency for MB2 using MB1 and MB3
-  evaluateEff(DTChamberId(wheel, 3, sector),2,4 ); // get efficiency for MB3 using MB2 and MB4
-  evaluateEff(DTChamberId(wheel, 4, sector),2,3 ); // get efficiency for MB4 using MB2 and MB3
+  // wheel = +2;
+  // sector = 10;
+  // evaluateEff(DTChamberId(wheel, 1, sector),2,3 ); // get efficiency for MB1 using MB2 and MB3
+  // evaluateEff(DTChamberId(wheel, 2, sector),1,3 ); // get efficiency for MB2 using MB1 and MB3
+  // //evaluateEff(DTChamberId(wheel, 3, sector),2,4 ); // get efficiency for MB3 using MB2 and MB4
+  // evaluateEff(DTChamberId(wheel, 3, sector),1,2 ); // get efficiency for MB3 using MB2 and MB4
+  // evaluateEff(DTChamberId(wheel, 4, sector),2,3 ); // get efficiency for MB4 using MB2 and MB3
+
+  // wheel = +2;
+  // sector = 11;
+  // evaluateEff(DTChamberId(wheel, 1, sector),2,3 ); // get efficiency for MB1 using MB2 and MB3
+  // evaluateEff(DTChamberId(wheel, 2, sector),1,3 ); // get efficiency for MB2 using MB1 and MB3
+  // evaluateEff(DTChamberId(wheel, 3, sector),2,4 ); // get efficiency for MB3 using MB2 and MB4
+  // evaluateEff(DTChamberId(wheel, 4, sector),2,3 ); // get efficiency for MB4 using MB2 and MB3
 }
 
 void DTEffAnalyzer::evaluateEff(const DTChamberId& MidId, int bottom, int top) const {
@@ -243,6 +266,7 @@ void DTEffAnalyzer::evaluateEff(const DTChamberId& MidId, int bottom, int top) c
 
   // something more sophisticate check quality of segments
   const DTRecSegment4D& bestBotSeg= getBestSegment(segsBot);
+  //cout << "BestBotSeg " << bestBotSeg << endl;
 
   DTRecSegment4D* pBestTopSeg=0;
   if (nSegsTop>0) pBestTopSeg=
@@ -273,15 +297,19 @@ void DTEffAnalyzer::evaluateEff(const DTChamberId& MidId, int bottom, int top) c
 
   DTRecSegment4DCollection::range segsMid= segs->get(MidId);
   int nSegsMid=segsMid.second-segsMid.first;
+  //cout << "nSegsMid " << nSegsMid << endl;
 
   // very trivial efficiency, just count segments
+  // cout << "MidId " << MidId << endl;
+  // cout << "histo " << hName("hNaiveEffSeg",MidId) << endl; 
+  // cout << histo(hName("hNaiveEffSeg",MidId)) << endl;
   histo(hName("hNaiveEffSeg",MidId))->Fill(0);
   if (nSegsMid>0) histo(hName("hNaiveEffSeg",MidId))->Fill(1);
 
   // get position at Mid by interpolating the position (not direction) of best
   // segment in Bot and Top to Mid surface
   LocalPoint posAtMid = interpolate(bestBotSeg, bestTopSeg, MidId);
-  //cout << "PosAtMid " << posAtMid << endl;
+  // cout << "PosAtMid " << posAtMid << endl;
 
   // is best segment good enough?
   //cout << "about to good " << endl;
@@ -289,7 +317,7 @@ void DTEffAnalyzer::evaluateEff(const DTChamberId& MidId, int bottom, int top) c
     histo2d(hName("hEffSegVsPosDen",MidId))->Fill(posAtMid.x(),posAtMid.y());
     //check if interpolation fall inside middle chamber
     if ((dtGeom->chamber(MidId))->surface().bounds().inside(posAtMid)) {
-      //cout << "IsInside" << endl;
+      // cout << "IsInside" << endl;
 
       //cout << "good" << endl;
       histo2d(hName("hEffGoodSegVsPosDen",MidId))->Fill(posAtMid.x(),posAtMid.y());
@@ -305,7 +333,7 @@ void DTEffAnalyzer::evaluateEff(const DTChamberId& MidId, int bottom, int top) c
           // check if middle segments is also close enough
           double dist;
           // cout << "bestBotSeg " << bestBotSeg.hasPhi() << " " <<
-          //   bestBotSeg.hasZed() << " " << bestBotSeg << endl;
+          //    bestBotSeg.hasZed() << " " << bestBotSeg << endl;
           // cout << "bestTopSeg " << bestTopSeg.hasPhi() << " " <<
           //   bestTopSeg.hasZed() << " " << bestTopSeg << endl;
           // cout << "midSegPos " << midSegPos << endl;
@@ -321,7 +349,7 @@ void DTEffAnalyzer::evaluateEff(const DTChamberId& MidId, int bottom, int top) c
           } else {
             dist = fabs((midSegPos-posAtMid).y());
           }
-          //cout << "dist " << dist << " theMinCloseDist " << theMinCloseDist<< endl;
+          // cout << "dist " << dist << " theMinCloseDist " << theMinCloseDist<< endl;
           if (dist < theMinCloseDist ) {
             histo2d(hName("hEffGoodCloseSegVsPosNum",MidId))->Fill(posAtMid.x(),posAtMid.y());
           }
@@ -331,7 +359,7 @@ void DTEffAnalyzer::evaluateEff(const DTChamberId& MidId, int bottom, int top) c
       }
     }
   }
-  //else cout << "Outside " << endl;
+  // else cout << "Outside " << endl;
 }
 
 // as usual max number of hits and min chi2
@@ -419,21 +447,23 @@ LocalPoint DTEffAnalyzer::interpolate(const DTRecSegment4D& seg1,
   // cout << "pos3 " << pos3 << endl;
   // direction
   LocalVector dir = (pos3-pos1).unit(); // z points inward!
-  //cout << "dir " << dir << endl;
+  // cout << "dir " << dir << endl;
   LocalPoint pos2 = pos1+dir*pos1.z()/(-dir.z());
-  //cout << "pos2 " << pos2 << endl;
+  // cout << "pos2 " << pos2 << endl;
 
 
   return pos2;
 }
 
 TH1F* DTEffAnalyzer::histo(const string& name) const{
-  if (TH1F* h =  dynamic_cast<TH1F*>(theFile->Get(name.c_str())) ) return h;
+  if (!theFile->Get(name.c_str())) throw cms::Exception("DTEffAnalyzer") << " TH1F not existing " << name;
+  if (TH1F* h =  dynamic_cast<TH1F*>(theFile->Get(name.c_str()))) return h;
   else throw cms::Exception("DTEffAnalyzer") << " Not a TH1F " << name;
 }
 
 TH2F* DTEffAnalyzer::histo2d(const string& name) const{
-  if (TH2F* h =  dynamic_cast<TH2F*>(theFile->Get(name.c_str())) ) return h;
+  if (!theFile->Get(name.c_str())) throw cms::Exception("DTEffAnalyzer") << " TH1F not existing " << name;
+  if (TH2F* h =  dynamic_cast<TH2F*>(theFile->Get(name.c_str()))) return h;
   else throw  cms::Exception("DTEffAnalyzer") << " Not a TH2F " << name;
 }
 

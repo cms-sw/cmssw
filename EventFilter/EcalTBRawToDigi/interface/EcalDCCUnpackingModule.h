@@ -4,8 +4,8 @@
 /** \class EcalUnpackingModule
  * 
  *
- *  $Date: 2006/07/21 12:37:11 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/04/12 08:36:46 $
+ *  $Revision: 1.9 $
  * \author N. Marinelli 
  * \author G. Della Ricca
  */
@@ -49,7 +49,5 @@ class MatacqDataFormatter;
     MatacqDataFormatter* matacqFormatter_;
 
   };
-
-DEFINE_FWK_MODULE(EcalDCCUnpackingModule);
 
 #endif

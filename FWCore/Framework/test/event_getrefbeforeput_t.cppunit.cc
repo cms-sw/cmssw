@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: event_getrefbeforeput_t.cppunit.cc,v 1.10 2007/03/27 23:13:09 wmtan Exp $
+$Id: event_getrefbeforeput_t.cppunit.cc,v 1.11 2007/05/08 03:18:39 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <cassert>
@@ -51,12 +51,13 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testEventGetRefBeforePut);
 
 void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
 
-  edm::ProductRegistry preg;
-  preg.setProductIDs();
+  edm::ProductRegistry *preg = new edm::ProductRegistry;
+  preg->setProductIDs();
   edm::EventID col(1L, 1L);
   edm::Timestamp fakeTime;
   edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
-  edm::EventPrincipal ep(col, fakeTime, preg, 1, pc);
+  boost::shared_ptr<edm::ProductRegistry const> pregc(preg);
+  edm::EventPrincipal ep(col, fakeTime, pregc, 1, pc);
   try {
      edm::ModuleDescription modDesc;
      modDesc.moduleName_ = "Blah";
@@ -100,13 +101,14 @@ void testEventGetRefBeforePut::getRefTest() {
   product.moduleDescriptionID_ = modDesc.id();
   product.init();
 
-  edm::ProductRegistry preg;
-  preg.addProduct(product);
-  preg.setProductIDs();
+  edm::ProductRegistry *preg = new edm::ProductRegistry;
+  preg->addProduct(product);
+  preg->setProductIDs();
   edm::EventID col(1L, 1L);
   edm::Timestamp fakeTime;
   edm::ProcessConfiguration pc(processName, edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
-  edm::EventPrincipal ep(col, fakeTime, preg, 1, pc);
+  boost::shared_ptr<edm::ProductRegistry const> pregc(preg);
+  edm::EventPrincipal ep(col, fakeTime, pregc, 1, pc);
 
   edm::RefProd<edmtest::IntProduct> refToProd;
   try {

@@ -1,5 +1,0 @@
-# -*- toolbox -*-
-< doc type=BuildSystem::ToolDoc version=1.0>
-< Tool name=pythia version=pythia6_411>
-< use name=pythia6_411>
-< /Tool>

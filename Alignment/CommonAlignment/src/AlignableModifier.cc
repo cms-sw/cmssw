@@ -263,12 +263,12 @@ void AlignableModifier::moveAlignable( Alignable* alignable, bool random, bool g
 	  message << "random ";
 	  if (gaussian)
 		{
-		  randomNumbers = this->gaussianRandomVector( sigmaX, sigmaY, sigmaZ );
+		  randomNumbers = this->gaussianRandomVector_( sigmaX, sigmaY, sigmaZ );
 		  message << "gaussian ";
 		}
 	  else 
 		{
-		  randomNumbers = this->flatRandomVector( sigmaX, sigmaY, sigmaZ );
+		  randomNumbers = this->flatRandomVector_( sigmaX, sigmaY, sigmaZ );
 		  message << "flat ";
 		}
 	  moveV = GlobalVector( randomNumbers[0], randomNumbers[1], randomNumbers[2] );
@@ -303,12 +303,12 @@ void AlignableModifier::moveAlignableLocal( Alignable* alignable, bool random, b
 	  message << "random ";
 	  if (gaussian)
 		{
-		  randomNumbers = this->gaussianRandomVector( sigmaX, sigmaY, sigmaZ );
+		  randomNumbers = this->gaussianRandomVector_( sigmaX, sigmaY, sigmaZ );
 		  message << "gaussian ";
 		}
 	  else 
 		{
-		  randomNumbers = this->flatRandomVector( sigmaX, sigmaY, sigmaZ );
+		  randomNumbers = this->flatRandomVector_( sigmaX, sigmaY, sigmaZ );
 		  message << "flat ";
 		}
 	  moveV = LocalVector( randomNumbers[0], randomNumbers[1], randomNumbers[2] );
@@ -344,12 +344,12 @@ void AlignableModifier::rotateAlignable( Alignable* alignable, bool random, bool
 	  message << "random ";
 	  if (gaussian)
 		{
-		  randomNumbers = this->gaussianRandomVector( sigmaPhiX, sigmaPhiY, sigmaPhiZ );
+		  randomNumbers = this->gaussianRandomVector_( sigmaPhiX, sigmaPhiY, sigmaPhiZ );
 		  message << "gaussian ";
 		}
 	  else 
 		{
-		  randomNumbers = flatRandomVector( sigmaPhiX, sigmaPhiY, sigmaPhiZ );
+		  randomNumbers = flatRandomVector_( sigmaPhiX, sigmaPhiY, sigmaPhiZ );
 		  message << "flat ";
 		}
 	  rotV = GlobalVector( randomNumbers[0], randomNumbers[1], randomNumbers[2] );
@@ -387,12 +387,12 @@ AlignableModifier::rotateAlignableLocal( Alignable* alignable, bool random, bool
       message << "random ";
       if (gaussian)
 		{
-		  randomNumbers = this->gaussianRandomVector( sigmaPhiX, sigmaPhiY, sigmaPhiZ );
+		  randomNumbers = this->gaussianRandomVector_( sigmaPhiX, sigmaPhiY, sigmaPhiZ );
 		  message << "gaussian ";
 		}
       else 
 		{
-		  randomNumbers = flatRandomVector( sigmaPhiX, sigmaPhiY, sigmaPhiZ );
+		  randomNumbers = flatRandomVector_( sigmaPhiX, sigmaPhiY, sigmaPhiZ );
 		  message << "flat ";
 		}
 	  rotV = LocalVector( randomNumbers[0], randomNumbers[1], randomNumbers[2] );
@@ -414,7 +414,7 @@ AlignableModifier::rotateAlignableLocal( Alignable* alignable, bool random, bool
 
 //__________________________________________________________________________________________________
 const std::vector<float> 
-AlignableModifier::gaussianRandomVector( float sigmaX, float sigmaY, float sigmaZ ) const
+AlignableModifier::gaussianRandomVector_( float sigmaX, float sigmaY, float sigmaZ ) const
 {
 
   // Get absolute value if negative arguments
@@ -451,7 +451,7 @@ AlignableModifier::gaussianRandomVector( float sigmaX, float sigmaY, float sigma
 
 //__________________________________________________________________________________________________
 const  std::vector<float> 
-AlignableModifier::flatRandomVector( float sigmaX,float sigmaY, float sigmaZ ) const
+AlignableModifier::flatRandomVector_( float sigmaX,float sigmaY, float sigmaZ ) const
 {
 
   // Get absolute value if negative arguments

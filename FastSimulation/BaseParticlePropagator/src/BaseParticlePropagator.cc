@@ -402,7 +402,7 @@ BaseParticlePropagator::propagateToEcalEntrance(bool first) {
 
   // We are not in the ECAL acceptance
   // eta = 3.0 -> cos^2(theta) = 0.99013
-  if ( cos2ThetaV() > 0.99013 ) success = 0;
+  if ( cos2ThetaV() > 0.99014 ) success = 0;
 
   return done;
 }
@@ -422,8 +422,8 @@ BaseParticlePropagator::propagateToHcalEntrance(bool first) {
   propDir = 1;
 
   // We are not in the HCAL acceptance
-  // eta = 3.0 -> cos^2(theta) = 0.99013
-  if ( done && cos2ThetaV() > 0.99013 ) success = 0;
+  // eta = 3.0 -> cos^2(theta) = 0.99014
+  if ( done && cos2ThetaV() > 0.99014 ) success = 0;
 
   return done;
 }
@@ -441,10 +441,10 @@ BaseParticlePropagator::propagateToVFcalEntrance(bool first) {
   propDir = 1;
 
   // We are not in the VFCAL acceptance
-  // eta = 3.0 -> cos^2(theta) = 0.99013
-  // eta = 5.0 -> cos^2(theta) = 0.998184
+  // eta = 3.0 -> cos^2(theta) = 0.99014
+  // eta = 5.0 -> cos^2(theta) = 0.9998184
   double c2teta = cos2ThetaV();
-  if ( done && ( c2teta < 0.99013 || c2teta > 0.998184 ) ) success = 0;
+  if ( done && ( c2teta < 0.99014 || c2teta > 0.9998184 ) ) success = 0;
 
   return done;
 }

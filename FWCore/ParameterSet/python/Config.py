@@ -16,7 +16,6 @@ from SequenceTypes import _ModuleSequenceType  #extend needs it
 import DictTypes
 
 from ExceptionHandling import *
-
 def findProcess(module):
     """Look inside the module and find the Processes it contains"""
     class Temp(object):
@@ -84,7 +83,7 @@ class Process(object):
         self._placeLooper('looper',lpr)
     looper = property(looper_,setLooper_,doc='the main looper or None if not set')
     def analyzers_(self):
-        """returns a dict of the filters which have been added to the Process"""
+        """returns a dict of the analyzers which have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__analyzers)
     analyzers = property(analyzers_,doc="dictionary containing the analyzers for the process")
     def outputModules_(self):
@@ -147,7 +146,11 @@ class Process(object):
         #clone the item
         newValue =value.copy()
 
-        self.__dict__[name]=newValue
+        #NOTE: for now, ESPrefer's are assigned the same label as the item to which they 'choose'
+        # however, only one of them can take the attribute name and it by rights should go to
+        # the module and not the ESPrefer
+        if not isinstance(value,ESPrefer):
+            self.__dict__[name]=newValue
         if isinstance(newValue,_Labelable):
             newValue.setLabel(name)
             self._cloneToObjectDict[id(value)] = newValue
@@ -328,6 +331,36 @@ class Process(object):
 #                                  indent)
         config += "}\n"
         return config
+    def insertOneInto(self, parameterSet, label, item):
+        vitems = [item]
+        parameterSet.addVString(True, label, vitems)
+        if not item == None:
+            item.insertInto(parameterSet, label)
+    def insertManyInto(self, parameterSet, label, itemDict):
+        parameterSet.addVString(True, label, itemDict.keys())
+        print "keys",itemDict.keys()
+        for name,value in itemDict.iteritems():
+          print "value",value,type(value)
+          value.insertInto(parameterSet, name)
+    def makePSet(self):
+        print self.dumpConfig()
+        parameterSet = libFWCoreParameterSet.ParameterSet()
+        all_modules = self.__producers
+        all_modules.update(self.filters_())
+        all_modules.update(self.analyzers_())
+        all_modules.update(self.outputModules_())
+        #self.insertInto(parameterSet, "@all_modules", all_modules)
+        self.insertManyInto(parameterSet, "@all_modules", self.producers_())
+        self.insertOneInto(parameterSet, "@all_sources", self.source_())
+        self.insertOneInto(parameterSet, "@all_loopers",   self.looper_())
+        self.insertManyInto(parameterSet, "@all_esmodules", self.es_producers_())
+        self.insertManyInto(parameterSet, "@all_essources", self.es_sources_())
+        self.insertManyInto(parameterSet, "@all_esprefers", self.es_prefers_())
+        self.insertManyInto(parameterSet, "@trigger_paths", self.paths_())
+        self.insertManyInto(parameterSet, "@end_paths", self.endpaths_())
+        self.insertOneInto(parameterSet, "@paths", self.schedule_())
+        return parameterSet
+
 
 class FileInPath(_SimpleParameterTypeBase):
     def __init__(self,value):
@@ -343,6 +376,8 @@ class FileInPath(_SimpleParameterTypeBase):
     @staticmethod
     def _valueFromString(value):
         return FileInPath(value)
+    def insertInto(self, parameterSet, myname):
+      parameterSet.addFileInPath( self.isTracked(), myname, libFWCoreParameterSet.FileInPath(self.value()) ) 
 
 
 class Looper(_ConfigureComponent,_TypedParameterizable):
@@ -356,6 +391,11 @@ def include(fileName):
     from FWCore.ParameterSet.parseConfig import importConfig
     return importConfig(fileName)
 
+def processFromString(processString):
+    """Reads a string containing the equivalent content of a .cfg file and
+    creates a Process object"""
+    from FWCore.ParameterSet.parseConfig import processFromString
+    return processFromString(processString)
 
 if __name__=="__main__":
     import unittest
@@ -556,5 +596,13 @@ if __name__=="__main__":
             self.assertEqual(deps['c'],set(['a']))
             #deps= path.moduleDependencies()
             #print deps['a']
+        def testProcessFromString(self):
+            process = processFromString(
+"""process Test = {
+   source = PoolSource {}
+   module out = OutputModule {}
+   endpath o = {out}
+}""")
+            self.assertEqual(process.source.type_(),"PoolSource")
                                
     unittest.main()

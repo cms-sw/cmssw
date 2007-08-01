@@ -4,6 +4,7 @@
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
 #include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
+#include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
@@ -126,7 +127,7 @@ CSCDriftSim::getWireHit(const Local3DPoint & pos, const CSCLayer * layer,
   static const double f_collected = 0.82;
 
   // Avalanche charge, with fluctuation ('avalancheCharge()' is the fluctuation generator!)
-  double charge = avalancheCharge() * f_att * f_collected * specs->gasGain() * e_SI * 1.e15;
+  double charge = avalancheCharge() * f_att * f_collected * gasGain(layer->id()) * e_SI * 1.e15;
 
   float t = simHit.tof() + driftTime;
   LogTrace("CSCDriftSim") << "CSCDriftSim: tof = " << simHit.tof() << 
@@ -169,3 +170,16 @@ double CSCDriftSim::avalancheCharge() {
   return returnVal;  
 }
 
+
+double CSCDriftSim::gasGain(const CSCDetId & detId) const
+{
+  double result = 3.0e05;
+  // if ME1/1, add some extra gas gain to compensate
+  // for a smaller gas gap
+  int ring = detId.ring();
+  if(detId.station() == 1 && (ring == 1 || ring == 4))
+  {
+    result *= 1.5;
+  }
+  return result;
+}

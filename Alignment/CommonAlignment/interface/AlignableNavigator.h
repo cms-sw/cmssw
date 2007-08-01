@@ -1,7 +1,3 @@
-//   $Revision: 1.12.2.2 $
-//   $Date: 2007/05/11 14:07:30 $
-//   (last update by $Author: flucke $)
-
 #ifndef Alignment_CommonAlignment_AlignableNavigator_h
 #define Alignment_CommonAlignment_AlignableNavigator_h
 
@@ -19,21 +15,24 @@ class GeomDet;
 
 /// A class to navigate from a DetId to the corresponding AlignableDetOrUnitPtr.
 /// A map is created at construction time from all
-/// sub-structures of the constructor's argument(s) that are AlignableDet or AlignableDetUnit.
+/// sub-structures of the constructor's argument(s).
 
 class AlignableNavigator 
 {
 
 public:
   
-  /// Constructor from one or two Alignables
-  explicit AlignableNavigator(Alignable* tracker, Alignable* muon = 0);
+  /// Constructor from Alignable
+  explicit AlignableNavigator( Alignable* alignable );
+
+  /// Constructor from two Alignables
+  AlignableNavigator( Alignable* tracker, Alignable* muon );
 
   /// Constructor from list of Alignbable
   explicit AlignableNavigator( std::vector<Alignable*> alignables );
 
   typedef std::map<DetId, AlignableDetOrUnitPtr> MapType;
-  typedef MapType::value_type PairType;
+  typedef std::pair<DetId, AlignableDetOrUnitPtr> PairType;
 
   /// Returns AlignableDetOrUnitPtr corresponding to given DetId
   AlignableDetOrUnitPtr alignableFromDetId( const DetId& detid );
@@ -75,10 +74,8 @@ public:
   bool detAndSubdetInMap( const DetId& detid ) const;
 
 private:
-  /// Add recursively DetId-AlignableDetOrUnitPtr pairs to map.
-  /// Returns number of Alignables with DetId!=0 which are (illegaly) neither AlignableDet
-  /// nor AlignableDetUnit and are thus not added to the map.
-  unsigned int recursiveGetId(Alignable* alignable);
+
+  void recursiveGetId( Alignable* alignable );
 
   MapType                          theMap;
   std::vector<std::pair<int,int> > theDetAndSubdet;

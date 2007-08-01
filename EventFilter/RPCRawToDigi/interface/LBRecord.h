@@ -33,9 +33,6 @@ public:
   // set LB
   LBRecord(const RPCLinkBoardData & lbData);
 
-  // set LB from raw
-  LBRecord(RecordType lbData);
-
   // specialize given recort to this type
   LBRecord(const DataRecord & rec) : DataRecord(rec) {}
 

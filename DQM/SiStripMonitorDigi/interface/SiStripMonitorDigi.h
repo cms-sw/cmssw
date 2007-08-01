@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorDigi.h,v 1.3 2006/06/27 07:52:33 dkcira Exp $
+// $Id: SiStripMonitorDigi.h,v 1.4 2007/05/08 21:37:27 dkcira Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -29,13 +29,16 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
             MonitorElement* NumberOfDigis;
             MonitorElement* ADCsHottestStrip;
             MonitorElement* ADCsCoolestStrip;
+            MonitorElement* DigiADCs;
+            MonitorElement* StripOccupancy;
       };
   private:
+      void FillStripOccupancy(MonitorElement*,  std::vector<uint16_t> &);
       void ResetME(MonitorElement* h1);
    private:
        DaqMonitorBEInterface* dbe_;
        edm::ParameterSet conf_;
        std::map<uint32_t, ModMEs> DigiMEs; // uint32_t me_type: 1=#digis/module; 2=adcs of hottest strip/module; 3= adcs of coolest strips/module.
-       bool show_mechanical_structure_view, show_readout_view, show_control_view, select_all_detectors, reset_each_run;
+       bool show_mechanical_structure_view, show_readout_view, show_control_view, select_all_detectors, calculate_strip_occupancy, reset_each_run;
 };
 #endif

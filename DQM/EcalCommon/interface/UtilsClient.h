@@ -1,11 +1,11 @@
-// $Id: $
+// $Id: UtilsClient.h,v 1.1 2007/04/30 09:24:01 benigno Exp $
 
 /*!
   \file UtilsClient.h
   \brief Ecal Monitor Utils for Client
   \author B. Gobbo 
-  \version $Revision: $
-  \date $Date: $
+  \version $Revision: 1.1 $
+  \date $Date: 2007/04/30 09:24:01 $
 */
 
 #ifndef UtilsClient_H
@@ -13,12 +13,10 @@
 
 #include <vector>
 #include <string>
+
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/MonitorElementT.h"
-#include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "TROOT.h"
+
 #include "TH1.h"
 
 /*! \class UtilsClient

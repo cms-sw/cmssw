@@ -52,46 +52,46 @@ public:
   /** Method returning the constant term of the Taylor expansion
    *  of the measurement equation
    */
-  virtual AlgebraicVector5 constantTerm() const = 0;
+  virtual AlgebraicVector constantTerm() const = 0;
 
   /** Method returning the Position Jacobian from the Taylor expansion
    *  (Matrix A)
    */
-  virtual AlgebraicMatrix53 positionJacobian() const = 0;
+  virtual AlgebraicMatrix positionJacobian() const = 0;
 
   /** Method returning the Momentum Jacobian from the Taylor expansion
    *  (Matrix B)
    */
-  virtual AlgebraicMatrix53 momentumJacobian() const = 0;
+  virtual AlgebraicMatrix momentumJacobian() const = 0;
 
   /** Method returning the parameters of the Taylor expansion
    */
-  virtual AlgebraicVector5 parametersFromExpansion() const = 0;
+  virtual AlgebraicVector parametersFromExpansion() const = 0;
 
   /** Method returning the parameters of the track state at the
    *  linearization point.
    */
-  virtual AlgebraicVector5 predictedStateParameters() const = 0;
+  virtual AlgebraicVector predictedStateParameters() const = 0;
 
   /** Method returning the momentum part of the parameters of the track state
    *  at the linearization point.
    */
-  virtual AlgebraicVector3 predictedStateMomentumParameters() const = 0;
+  virtual AlgebraicVector predictedStateMomentumParameters() const = 0;
 
   /** Method returning the weight matrix of the track state at the
    *  linearization point.
    */
-  virtual AlgebraicSymMatrix55 predictedStateWeight() const = 0;
+  virtual AlgebraicSymMatrix predictedStateWeight() const = 0;
 
   /** Method returning the momentum covariance matrix of the track state at the
    *  transverse impact point.
    */
-  virtual AlgebraicSymMatrix33 predictedStateMomentumError() const = 0;
+  virtual AlgebraicSymMatrix predictedStateMomentumError() const = 0;
 
   /** Method returning the covariance matrix of the track state at the
    *  linearization point.
    */
-  virtual AlgebraicSymMatrix55 predictedStateError() const = 0;
+  virtual AlgebraicSymMatrix predictedStateError() const = 0;
 
   virtual bool hasError() const = 0;
 
@@ -108,13 +108,13 @@ public:
    */
   virtual RefCountedRefittedTrackState createRefittedTrackState(
   	const GlobalPoint & vertexPosition,
-	const AlgebraicVector3 & vectorParameters,
-	const AlgebraicSymMatrix66 & covarianceMatrix) const = 0;
+	const AlgebraicVector & vectorParameters,
+	const AlgebraicSymMatrix & covarianceMatrix) const = 0;
 
   /** Method returning the parameters of the Taylor expansion evaluated with the 
    *  refitted state.
    */
-  virtual AlgebraicVector5 refittedParamFromEquation(
+  virtual AlgebraicVector refittedParamFromEquation(
 	const RefCountedRefittedTrackState & theRefittedState) const;
 
   virtual double weightInMixture() const = 0;

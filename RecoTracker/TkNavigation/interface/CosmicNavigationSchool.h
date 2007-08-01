@@ -83,7 +83,6 @@ private:
   void linkBarrelLayers( SymmetricLayerFinder& symFinder);
   void linkToAllRegularBarrelLayer(BDLC&);
   void establishInverseRelations();
-  void linkNextBarrelLayer( ForwardDetLayer* fl, BDLC& reachableBL); 
 };
 
 #endif // CosmicNavigationSchool_H

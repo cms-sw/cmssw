@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2007/03/10 16:14:43 $
- * $Revision: 1.18 $
+ * $Date: 2007/04/24 13:50:13 $
+ * $Revision: 1.19 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -330,6 +330,8 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg,
       LocalPoint hitPos(hit->localPosition().x(),+segPosAtLayer.y(),0.);
       
       GlobalPoint glbpos= theGeom->layer( hit->wireId().layerId() )->toGlobal(hitPos);
+
+      newHit1D.setPosition(hitPos);
 
       ok = theAlgo->compute(layer,
 			    (*hit),

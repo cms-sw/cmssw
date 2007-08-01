@@ -54,9 +54,12 @@ class DTEffAnalyzer : public edm::EDAnalyzer {
     ~DTEffAnalyzer() ;
 
 /* Operations */ 
+
     void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+    void beginJob(const edm::EventSetup&);
 
   private:
+
     TH1F* histo(const std::string& name) const;
     TH2F* histo2d(const std::string& name) const;
 

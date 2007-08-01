@@ -5,8 +5,8 @@
 //
 // Package:     MessageLogger
 // Class  :     <none>
-// Functions:   LogError, LogWarning, LogInfo,     LogDebug
-//                                  , LogVerbatim, LogTrace
+// Functions:   LogSystem,   LogError,   LogWarning, LogInfo,     LogDebug
+//              LogAbsolute, LogProblem, LogPrint,   LogVerbatim, LogTrace
 //
 
 //
@@ -14,7 +14,7 @@
 //         Created:  Fri Nov 11 16:38:19 CST 2005
 //     Major Split:  Tue Feb 14 11:00:00 CST 2006
 //		     See MessageService/interface/MessageLogger.h
-// $Id: MessageLogger.h,v 1.19 2006/10/31 21:04:04 fischler Exp $
+// $Id: MessageLogger.h,v 1.20 2007/02/13 22:39:48 marafino Exp $
 //
 // =================================================
 // Change log
@@ -25,6 +25,8 @@
 // 2 mf 6/6/06	    Added LogVerbatim and LogTrace
 //
 // 3 mf 10/30/06    Added LogSystem and LogPrint
+//
+// 4 mf 6/1/07      Added LogAbsolute and LogProblem
 //
 // =================================================
 
@@ -182,6 +184,52 @@ onlyLowestDirectory(const std::string & file) {
   if (lastSlash == file.size()-1)     return file;
   return file.substr(lastSlash+1, file.size()-lastSlash-1);
 }
+
+class LogProblem					// change log 4
+{
+public:
+  explicit LogProblem( std::string const & id ) 
+    : ap( new MessageSender(ELerror,id,true) )
+  { }
+
+  template< class T >
+    LogProblem & 
+    operator<< (T const & t)  { (*ap) << t; return *this; }
+  LogProblem & 
+  operator<< ( std::ostream&(*f)(std::ostream&))  
+    				      { (*ap) << f; return *this; }
+  LogProblem & 
+  operator<< ( std::ios_base&(*f)(std::ios_base&) )  
+    				      { (*ap) << f; return *this; }     
+
+private:
+  std::auto_ptr<MessageSender> ap; 
+
+};  // LogProblem
+
+class LogAbsolute					// change log 4
+{
+public:
+  explicit LogAbsolute( std::string const & id ) 
+    : ap( new MessageSender(ELsevere,id,true) )
+  { }
+
+  template< class T >
+    LogAbsolute & 
+    operator<< (T const & t)  { (*ap) << t; return *this; }
+  LogAbsolute & 
+  operator<< ( std::ostream&(*f)(std::ostream&))  
+    				      { (*ap) << f; return *this; }
+  LogAbsolute & 
+  operator<< ( std::ios_base&(*f)(std::ios_base&) )  
+    				      { (*ap) << f; return *this; }     
+
+private:
+  std::auto_ptr<MessageSender> ap; 
+
+};  // LogAbsolute
+
+
 
 void LogStatistics(); 
 

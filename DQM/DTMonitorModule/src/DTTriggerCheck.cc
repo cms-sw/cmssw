@@ -46,8 +46,7 @@ void DTTriggerCheck::endJob(){
     cout<<"[DTTriggerCheck] endjob called!"<<endl;
   
   // Write the histos
-  if (parameters.getUntrackedParameter<bool>("writeHisto", true)) 
-    theDbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTTriggerCheck.root"));
+  if (parameters.getUntrackedParameter<bool>("writeHisto", true)) theDbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTTriggerCheck.root"));
   
   theDbe->rmdir("DT/DTTriggerTask");
 }

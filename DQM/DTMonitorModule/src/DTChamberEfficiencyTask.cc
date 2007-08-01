@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/04/25 15:00:38 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/04/20 15:15:37 $
+ *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -165,6 +165,11 @@ void DTChamberEfficiencyTask::analyze(const edm::Event& event, const edm::EventS
       for (int station=1; station<=4; station++) {
 
 	DTChamberId MidId(wheel, station, sector);
+	
+ 	if(histosPerCh.find(MidId) == histosPerCh.end()){
+	  bookHistos(MidId);
+	}
+	vector<MonitorElement *> histos =  histosPerCh[MidId];  
 
 	// get efficiency for MB1 using MB2 and MB3	
 	if( station == 1 ) {
@@ -199,10 +204,6 @@ void DTChamberEfficiencyTask::analyze(const edm::Event& event, const edm::EventS
 	int nSegsBot=segsBot.second-segsBot.first;
 	// check if any segments is there
 	if (nSegsBot==0) continue;
-	if(histosPerCh.find(MidId) == histosPerCh.end()){
-	  bookHistos(MidId);
-	}
-	vector<MonitorElement *> histos =  histosPerCh[MidId];  
 
 	// Get segments in the top chambers (if any)
 	DTRecSegment4DCollection::range segsTop= segs->get(TopId);

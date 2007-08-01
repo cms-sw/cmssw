@@ -82,18 +82,17 @@ const uint16_t& FedChannelConnection::i2cAddr( const uint16_t& apv ) const {
 // -----------------------------------------------------------------------------
 //
 uint16_t FedChannelConnection::lldChannel() const {
-  if      ( apv0_ == 32 || apv1_ == 33 ) { return 1; }
-  else if ( apv0_ == 34 || apv1_ == 35 ) { return 2; }
-  else if ( apv0_ == 36 || apv1_ == 37 ) { return 3; }
-  else if ( apv0_ != sistrip::invalid_ ||
-	    apv1_ != sistrip::invalid_ ) {
+  if      ( apv0_ == 32 || apv1_ == 33 ) { return 0; }
+  else if ( apv0_ == 34 || apv1_ == 35 ) { return 1; }
+  else if ( apv0_ == 36 || apv1_ == 37 ) { return 2; }
+  else {
     edm::LogWarning(mlCabling_)
       << "[FedChannelConnection::" << __func__ << "]"
       << " Unexpected APV I2C addresses!" 
       << " Apv0: " << apv0_
       << " Apv1: " << apv1_;
   }
-  return 0; //@@ sistrip::invalid_
+  return 0;
 }
 
 // -----------------------------------------------------------------------------

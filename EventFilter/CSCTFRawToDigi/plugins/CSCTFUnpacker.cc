@@ -36,29 +36,11 @@
 CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet& pset):edm::EDProducer(),mapping(0),monitor(0){
 	LogDebug("CSCTFUnpacker|ctor")<<"Started ...";
 
-	// Initialize slot<->sector assignment
-	slot2sector = pset.getUntrackedParameter< std::vector<int> >("slot2sector",std::vector<int>(0));
-	if( slot2sector.size() != 22 ){
-		if( slot2sector.size() ) edm::LogError("CSCTFUnpacker")<<"Wrong 'untracked vint32 slot2sector' size."
-			<<" SectorProcessor boards reside in some of 22 slots and assigned to 12 sectors. Using defaults";
-		// Use default assignment
-		LogDebug("CSCTFUnpacker|ctor")<<"Creating default slot<->sector assignment";
-		slot2sector.resize(22);
-		slot2sector[0] = 0; slot2sector[1] = 0; slot2sector[2] = 0;
-		slot2sector[3] = 0; slot2sector[4] = 0; slot2sector[5] = 0;
-		slot2sector[6] = 1; slot2sector[7] = 2; slot2sector[8] = 3;
-		slot2sector[9] = 4; slot2sector[10]= 5; slot2sector[11]= 6;
-		slot2sector[12]= 0; slot2sector[13]= 0;
-		slot2sector[14]= 0; slot2sector[15]= 0;
-		slot2sector[16]= 7; slot2sector[17]= 8; slot2sector[18]= 9;
-		slot2sector[19]=10; slot2sector[20]=11; slot2sector[21]=12;
-	} else {
-		LogDebug("CSCTFUnpacker|ctor")<<"Reassigning slot<->sector map according to 'untracked vint32 slot2sector'";
-		for(int slot=0; slot<22; slot++)
-			if( slot2sector[slot]<0 || slot2sector[slot]>12 )
-				throw cms::Exception("Invalid configuration")<<"CSCTFUnpacker: sector index is set out of range (slot2sector["<<slot<<"]="<<slot2sector[slot]<<", should be [0-12])";
+	for(int sp=0; sp<22; sp++){
+		std::ostringstream name;
+		name<<"slot"<<sp<<std::ends;
+		slot2sector[sp] = pset.getUntrackedParameter<int>(name.str().c_str(),0);
 	}
-	slot2sector.resize(32); // just for safety (in case of bad data)
 
 	if( pset.getUntrackedParameter<bool>("runDQM", false) )
 		monitor = edm::Service<CSCTFMonitorInterface>().operator->();
@@ -78,7 +60,7 @@ CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet& pset):edm::EDProducer(),ma
 						if( station==1 ){
 							mapping->addRecord(endcap,station,sector,1,csc,endcap,station,sector,1,csc);
 							mapping->addRecord(endcap,station,sector,2,csc,endcap,station,sector,2,csc);
-						} else
+						} else 
 							mapping->addRecord(endcap,station,sector,0,csc,endcap,station,sector,0,csc);
 					}
 	}
@@ -137,13 +119,13 @@ void CSCTFUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 							status.link_status[lct[0].spInput()] |=
 								(1<<lct[0].receiver_status_frame1())|
 								(1<<lct[0].receiver_status_frame2())|
-								((lct[0].aligment_fifo()?1:0)<<4);
+								((lct[0].aligment_fifo()?1:0)<<4); 
 							status.mpc_link_id |= (lct[0].link()<<2)|lct[0].mpc();
 
 							int station = ( FPGA ? FPGA : 1 );
 							int endcap=0, sector=0;
 							if( slot2sector[sp->header().slot()] ){
-								endcap = slot2sector[sp->header().slot()]/7 + 1;
+								endcap = slot2sector[sp->header().slot()]/7;
 								sector = slot2sector[sp->header().slot()]%7;
 							} else {
 								endcap = (sp->header().endcap()?1:2);
@@ -162,8 +144,8 @@ void CSCTFUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 // LogDebug("CSCUnpacker|produce") << "Unpacked digi: "<< aFB.frontDigiData(FPGA,MPClink);
 
 							} catch(cms::Exception &e) {
-								edm::LogInfo("CSCTFUnpacker|produce") << e.what() << "Not adding digi to collection in event "
-								      <<sp->header().L1A()<<" (endcap="<<endcap<<",station="<<station<<",sector="<<sector<<",subsector="<<subsector<<",cscid="<<cscid<<",spSlot="<<sp->header().slot()<<")";
+								edm::LogInfo("CSCTFUnpacker|produce") << e.what() << "Not adding digi to collection in event"
+												      << sp->header().L1A();
 							}
 
 						}
@@ -210,7 +192,7 @@ void CSCTFUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 													     lct->tbin(),lct->link() ));
 							} catch(cms::Exception &e) {
 								edm::LogInfo("CSCTFUnpacker|produce") << e.what() << "Not adding digi to collection in event"
-								      <<sp->header().L1A()<<" (endcap="<<track.first.m_endcap<<",station="<<station<<",sector="<<track.first.m_sector<<",subsector="<<subsector<<",cscid="<<lct->csc()<<",spSlot="<<sp->header().slot()<<")";
+												      << sp->header().L1A();
 							}
 						}
 						trackProduct->push_back( track );
@@ -222,7 +204,7 @@ void CSCTFUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 			edm::LogError("CSCTFUnpacker|produce")<<" problem of unpacking TF event: 0x"<<std::hex<<unpacking_status<<std::dec<<" code";
 		}
 
-		statusProduct->first  = unpacking_status;
+		statusProduct->first  = unpacking_status; 
 
 	} //end of fed cycle
 	e.put(LCTProduct,"MuonCSCTFCorrelatedLCTDigi"); // put processed lcts into the event.

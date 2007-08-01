@@ -56,15 +56,12 @@ int main( int argc, char** argv )
   if(ALIUtils::debug >= 0) std::cout << "TIME:ENDED_READING  : " << now << " " << difftime(now, ALIUtils::time_now())/1.E6  << "   " << ALIUtils::debug << std::endl;
   ALIUtils::set_time_now(now); 
 
-  ALIdouble go;
-  GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
-  gomgr->getGlobalOptionValue("writeXML", go );
+  ALIstring xmlfname = Model::SDFName();
+  //substract ".txt"
+  if( xmlfname.find(".txt") != -1 ) xmlfname = xmlfname.substr(0,xmlfname.find(".txt"));
+  xmlfname += ALIstring(".xml");
+  CocoaToDDLMgr::getInstance()->writeDDDFile( xmlfname );
 
-  if( ALIint(go) == 1 ){
-    ALIstring xmlfname = Model::SDFName();
-    xmlfname += ALIstring(".xml");
-    CocoaToDDLMgr::getInstance()->writeDDDFile( xmlfname );
-  }
 
   Fit::getInstance();
 

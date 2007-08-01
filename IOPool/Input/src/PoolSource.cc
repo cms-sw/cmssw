@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.48 2007/05/08 16:24:15 wmtan Exp $
+$Id: PoolSource.cc,v 1.49 2007/05/11 18:26:06 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
 #include "RootFile.h"
@@ -99,13 +99,13 @@ namespace edm {
   }
 
   void PoolSource::updateProductRegistry() const {
-    if (rootFile_->productRegistry().nextID() > productRegistry().nextID()) {
-      productRegistry().setNextID(rootFile_->productRegistry().nextID());
+    if (rootFile_->productRegistry()->nextID() > productRegistry()->nextID()) {
+      productRegistryUpdate().setNextID(rootFile_->productRegistry()->nextID());
     }
-    ProductRegistry::ProductList const& prodList = rootFile_->productRegistry().productList();
+    ProductRegistry::ProductList const& prodList = rootFile_->productRegistry()->productList();
     for (ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
 	it != itEnd; ++it) {
-      productRegistry().copyProduct(it->second);
+      productRegistryUpdate().copyProduct(it->second);
     }
   }
 
@@ -120,20 +120,18 @@ namespace edm {
       }
     }
 
-    // save the product registry from the current file, temporarily
-    boost::shared_ptr<ProductRegistry> pReg(rootFile_->productRegistrySharedPtr());
-
     rootFile_->close();
 
     init(*fileIter_);
 
-    ProductRegistry * preg = (primary() ? &productRegistry() : pReg.get());
-
-    // make sure the new product registry is compatible with the main one
-    std::string mergeInfo = preg->merge(rootFile_->productRegistry(), fileIter_->fileName(), matchMode_);
-    if (!mergeInfo.empty()) {
-      throw cms::Exception("MismatchedInput","PoolSource::next()")
-        << mergeInfo;
+    if (primary()) {
+      // make sure the new product registry is compatible with the main one
+      std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
+							    fileIter_->fileName(),
+							    matchMode_);
+      if (!mergeInfo.empty()) {
+        throw cms::Exception("MismatchedInput","PoolSource::next()") << mergeInfo;
+      }
     }
     return next();
   }
@@ -149,20 +147,18 @@ namespace edm {
     }
     --fileIter_;
 
-    // save the product registry from the current file, temporarily
-    boost::shared_ptr<ProductRegistry> pReg(rootFile_->productRegistrySharedPtr());
-
     rootFile_->close();
 
     init(*fileIter_);
 
-    ProductRegistry * preg = (primary() ? &productRegistry() : pReg.get());
-
-    // make sure the new product registry is compatible to the main one
-    std::string mergeInfo = preg->merge(rootFile_->productRegistry(), fileIter_->fileName(), matchMode_);
-    if (!mergeInfo.empty()) {
-      throw cms::Exception("MismatchedInput","PoolSource::previous()")
-        << mergeInfo;
+    if (primary()) {
+      // make sure the new product registry is compatible to the main one
+      std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
+							    fileIter_->fileName(),
+							    matchMode_);
+      if (!mergeInfo.empty()) {
+        throw cms::Exception("MismatchedInput","PoolSource::previous()") << mergeInfo;
+      }
     }
     rootFile_->eventTree().setEntryNumber(rootFile_->eventTree().entries());
     return previous();

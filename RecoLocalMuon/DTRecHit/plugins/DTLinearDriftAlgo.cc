@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/28 13:48:46 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/04/19 11:08:17 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -168,12 +168,21 @@ bool DTLinearDriftAlgo::compute(const DTLayer* layer,
     switch(newHit1D.lrSide()) {
 	
     case DTEnums::Left:
-      newHit1D.setPositionAndError(leftPoint, error);
-      break;
+        {
+          // Keep the original y position of newHit1D: for step==3, it's the
+          // position along the wire. Needed for rotation alignment
+          LocalPoint leftPoint3D(leftPoint.x(), newHit1D.localPosition().y(), leftPoint.z());
+          newHit1D.setPositionAndError(leftPoint3D, error);
+          break;
+        }
 	
     case DTEnums::Right:
-      newHit1D.setPositionAndError(rightPoint, error);
-      break;
+        {
+          // as above: 3d position
+          LocalPoint rightPoint3D(rightPoint.x(), newHit1D.localPosition().y(), rightPoint.z());
+          newHit1D.setPositionAndError(rightPoint3D, error);
+          break;
+        }
 	
     default:
       throw cms::Exception("InvalidDTCellSide") << "[DTLinearDriftAlgo] Compute at Step "

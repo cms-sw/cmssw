@@ -7,10 +7,6 @@
 # include <boost/shared_ptr.hpp>
 # include <string>
 # include <map>
-# include <boost/thread/recursive_mutex.hpp>
-# include <boost/thread/mutex.hpp>
-
-
 
 //<<<<<< PUBLIC DEFINES                                                 >>>>>>
 //<<<<<< PUBLIC CONSTANTS                                               >>>>>>
@@ -22,18 +18,14 @@
 class StorageAccount
 {
 public:
-
   struct Counter
   {
-    inline Counter() : attempts(0),successes(0), amount(0), 
-	time_tot(0), time_min(10E10), time_max(0){}
     seal::ULongLong	attempts;
     seal::ULongLong	successes;
     double		amount;
-    double              time_tot;
-    double              time_min;
-    double		time_max;
-    std::string         idTag;
+    double		timeTotal;
+    double              timeMin;
+    double		timeMax;
   };
   
   class Stamp
@@ -46,7 +38,6 @@ public:
     Counter		&m_counter;
     double		m_start;
   };
-  friend class Stamp;
 
   typedef std::map<std::string, Counter> OperationStats;
   typedef std::map<std::string, boost::shared_ptr<OperationStats> > StorageStats;
@@ -55,22 +46,6 @@ public:
   static std::string		summaryText (bool banner=false);
   static Counter &		counter (const std::string &storageClass,
 					 const std::string &operation);
-  
-  struct LastOp
-  {
-    std::string     idTag;
-    double	    startTime;
-    double	    elapsed;
-  };
-  
-  
-  static  LastOp & lastOp();
-  static  void setCurrentOp(const Counter * currOp, double stime);
-  
-private:
-  static boost::mutex s_mutex;
-  static StorageStats	s_stats;
-
 };
 
 //<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>

@@ -8,7 +8,7 @@ use name=DataFormats/EcalRecHit>
 <use name=clhep>
 
 <export>
-  <lib name=RecoTBCaloEcalTBAnalysisCoreTools>
+  <lib name=RecoEcalEgammaCoreTools>
   <use name=DataFormats/EcalRecHit>
   <use name=DataFormats/EgammaReco>
   <use name=DataFormats/Math>

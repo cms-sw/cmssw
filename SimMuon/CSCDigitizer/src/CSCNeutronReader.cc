@@ -1,4 +1,5 @@
 #include "SimMuon/CSCDigitizer/src/CSCNeutronReader.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 
