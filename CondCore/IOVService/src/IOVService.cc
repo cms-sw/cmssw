@@ -3,7 +3,8 @@
 #include "IOVServiceImpl.h"
 #include "IOVIteratorImpl.h"
 #include "IOVEditorImpl.h"
-cond::IOVService::IOVService( cond::PoolStorageManager& pooldb,cond::TimeType timetype ):
+cond::IOVService::IOVService( cond::PoolTransaction& pooldb,
+			      cond::TimeType timetype ):
   m_pooldb(pooldb),
   m_impl(new cond::IOVServiceImpl(pooldb,timetype)){
 }
@@ -57,7 +58,7 @@ cond::IOVService::globalTill() const{
   return m_impl->globalTill();
 }
 std::string 
-cond::IOVService::exportIOVWithPayload( cond::PoolStorageManager& destDB,
+cond::IOVService::exportIOVWithPayload( cond::PoolTransaction& destDB,
 					const std::string& iovToken,
 					const std::string& payloadObjectName ){
   return m_impl->exportIOVWithPayload( destDB,
@@ -65,7 +66,7 @@ cond::IOVService::exportIOVWithPayload( cond::PoolStorageManager& destDB,
 				payloadObjectName); 
 }
 std::string
-cond::IOVService::exportIOVRangeWithPayload( cond::PoolStorageManager& destDB,
+cond::IOVService::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
 					     const std::string& iovToken,
 					     cond::Time_t since,
 					     cond::Time_t till,

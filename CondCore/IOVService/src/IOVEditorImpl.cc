@@ -1,11 +1,12 @@
-#include "CondCore/DBCommon/interface/PoolStorageManager.h"
+#include "CondCore/DBCommon/interface/PoolTransaction.h"
+#include "CondCore/DBCommon/interface/TypedRef.h"
 #include "CondCore/IOVService/interface/IOVNames.h"
 #include "IOVEditorImpl.h"
 #include "IOV.h"
 #include "POOLCore/Token.h"
 #include "DataSvc/RefBase.h"
 #include "StorageSvc/DbReflex.h"
-cond::IOVEditorImpl::IOVEditorImpl( cond::PoolStorageManager& pooldb,
+cond::IOVEditorImpl::IOVEditorImpl( cond::PoolTransaction& pooldb,
 				    const std::string& token,
 				    cond::Time_t globalSince, 
 				    cond::Time_t globalTill
@@ -13,9 +14,9 @@ cond::IOVEditorImpl::IOVEditorImpl( cond::PoolStorageManager& pooldb,
 }
 void cond::IOVEditorImpl::init(){
   if(!m_token.empty()){
-    m_iov=cond::Ref<cond::IOV>(m_pooldb, m_token); 
+    m_iov=cond::TypedRef<cond::IOV>(m_pooldb, m_token); 
   }else{
-    m_iov=cond::Ref<cond::IOV>(m_pooldb,new cond::IOV);
+    m_iov=cond::TypedRef<cond::IOV>(m_pooldb,new cond::IOV);
   }
   *m_iov;
   m_isActive=true;
@@ -79,7 +80,7 @@ void cond::IOVEditorImpl::deleteEntries(bool withPayload){
       tokenStr=payloadIt->second;
       pool::Token token;
       const pool::Guid& classID=token.fromString(tokenStr).classID();
-      pool::RefBase ref(&m_pooldb.DataSvc(),tokenStr,pool::DbReflex::forGuid(classID).TypeInfo());
+      pool::RefBase ref(&m_pooldb.poolDataSvc(),tokenStr,pool::DbReflex::forGuid(classID).TypeInfo());
       ref.markDelete();
       ref.reset();
     }
@@ -88,7 +89,7 @@ void cond::IOVEditorImpl::deleteEntries(bool withPayload){
 }
 void cond::IOVEditorImpl::import( const std::string& sourceIOVtoken ){
   if( !m_token.empty() ) throw cond::Exception("cond::IOVEditorImpl::import IOV index already exists, cannot import");
-  m_iov=cond::Ref<cond::IOV>(m_pooldb,sourceIOVtoken);
+  m_iov=cond::TypedRef<cond::IOV>(m_pooldb,sourceIOVtoken);
   m_iov.markWrite(cond::IOVNames::container());
   m_token=m_iov.token();
 }
