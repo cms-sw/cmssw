@@ -74,9 +74,20 @@ public:
   
   /// apply jet Et correction
   double correctedEt(double et, unsigned eta, bool tauVeto) const;
+  // TEMP for properly calculating the oldORCA corrections, we need to know
+  // which Wheel we are in (ie forward or backward)
+  double correctedEt(double et, unsigned eta, bool tauVeto, bool forwardWheel) const;
   
   /// Convert the corrected Et value to a linear Et for Ht summing
   uint16_t calibratedEt(const double Et) const;
+
+  /// Access method for Ht scale
+  /// (LSB for integer->physical conversion, in GeV units)
+  double getHtScaleLSB() const { return m_htScaleLSB; }
+
+  /// Access method for jet threshold
+  /// (in GeV units)
+  double getThreshold() const { return m_threshold; }
 
 
 private:

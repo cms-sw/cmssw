@@ -80,6 +80,18 @@ std::ostream& operator << (std::ostream& os, const L1GctJetEtCalibrationFunction
   return os;
 }
 
+// TEMP for properly calculating the oldORCA corrections, we need to know
+// which Wheel we are in (ie forward or backward)
+double L1GctJetEtCalibrationFunction::correctedEt(double et, unsigned eta, bool tauVeto, bool forwardWheel) const {
+  if (m_corrFunType==OLD_ORCA_STYLE_CORRECTION) {    
+    unsigned gctEta = (forwardWheel ? (eta + NUMBER_ETA_VALUES) : (NUMBER_ETA_VALUES - (eta+1))) ;
+    double result = static_cast<double>(orcaCalibFn( static_cast<float>(et), gctEta ));
+    // Don't apply a threshold cut, just return the output of the oldORCA function
+    return result;
+  } else {
+    return correctedEt(et, eta, tauVeto);
+  } 
+}
 
 double L1GctJetEtCalibrationFunction::correctedEt(double et, unsigned eta, bool tauVeto) const {
 
@@ -87,11 +99,6 @@ double L1GctJetEtCalibrationFunction::correctedEt(double et, unsigned eta, bool 
     return 0;
   } else {
     double result=0;
-    // TEMP
-    if (m_corrFunType==OLD_ORCA_STYLE_CORRECTION) {
-      unsigned gctEta = eta + NUMBER_ETA_VALUES;
-      result = static_cast<double>(orcaCalibFn( static_cast<float>(et), gctEta ));
-    } else {
     if (tauVeto) {
       assert(eta<m_jetCalibFunc.size());
       result=findCorrectedEt(et, m_jetCalibFunc.at(eta));
@@ -99,7 +106,6 @@ double L1GctJetEtCalibrationFunction::correctedEt(double et, unsigned eta, bool 
       assert(eta<m_tauCalibFunc.size());
       result=findCorrectedEt(et, m_tauCalibFunc.at(eta));
     }
-    } //end block for TEMP
     if (result>m_threshold) { return result; }
     else { return 0; }
   }
