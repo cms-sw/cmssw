@@ -270,17 +270,17 @@ namespace {
   struct Pointer {
     template<typename H> 
     const TrackingRecHit* operator()(H const& h) const { return &h;}
-  }
+  };
 
   template <typename C, typename A, typename B>
   typename C::Range copyRange(C const & c, 	
 			      std::vector<const TrackingRecHit*> hits, 
 			      std::pair<A,B> const & p) {
-    typename C::Range range = v.equal_range(p.first,p.second);
+    typename C::Range range = c.equal_range(p.first,p.second);
     for(typename C::const_iterator id=range.first; id!=range.second; id++){
       size_t cs = hits.size();
       hits.resize(cs+range.second-range.first);
-      std::transform((*id).begin(), (*id).end(),hits.begin()+cs),Pointer);
+      std::transform((*id).begin(), (*id).end(),hits.begin()+cs,Pointer());
     }
 
   }
