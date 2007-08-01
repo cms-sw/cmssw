@@ -70,7 +70,7 @@
   <class name="edm::Wrapper<reco::PFIsolatedTauTagInfoCollection>"/>
 
   <class name="reco::SoftLeptonProperties"/>
-  <class name="std::pair<reco::TrackRef, reco::SoftLeptonProperties>"/>
+  <class name="std::pair<reco::RefToBase<reco::Track>, reco::SoftLeptonProperties>"/>
   <class name="reco::SoftLeptonTagInfo::LeptonMap"/>
 
   <class name="reco::SoftLeptonTagInfo"/>
