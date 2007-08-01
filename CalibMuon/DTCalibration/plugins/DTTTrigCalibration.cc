@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/07/02 11:13:03 $
- *  $Revision: 1.24 $
+ *  $Date: 2007/07/11 12:21:00 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 #include "CalibMuon/DTCalibration/plugins/DTTTrigCalibration.h"
@@ -55,7 +55,7 @@ DTTTrigCalibration::DTTTrigCalibration(const edm::ParameterSet& pset) {
   // The TDC time-window (ns)
   maxTDCCounts = 5000 * pset.getUntrackedParameter<int>("tdcRescale", 1);
   //The maximum number of digis per layer
-  maxDigiPerLayer = pset.getUntrackedParameter<int>("maxDigiPerLayer", 2);
+  maxDigiPerLayer = pset.getUntrackedParameter<int>("maxDigiPerLayer", 10);
 
   // The root file which will contain the histos
   string rootFileName = pset.getUntrackedParameter<string>("rootFileName");
@@ -269,7 +269,6 @@ void DTTTrigCalibration::endJob() {
       // Write the object to DB
       DTCalibDBUtils::writeToDB(tTrigRecord, tTrig);
     }  
-
 
 }
 
