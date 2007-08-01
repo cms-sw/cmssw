@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/12 00:53:39 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/06/18 15:29:12 $
+ *  $Revision: 1.3 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -151,11 +151,6 @@ DTHitQualityUtils::findMuSimSegment(const map<DTWireId, const PSimHit*>& mapWire
     abort();
   }
 
-  //Check that outermost and innermost SimHit are not the same
-  if(outSimHit == inSimHit) {
-    cout << "[DTHitQualityUtils]***Warning: outermost and innermost SimHit are the same!" << endl;
-    abort();
-      }
   return make_pair(inSimHit, outSimHit);
 }
 

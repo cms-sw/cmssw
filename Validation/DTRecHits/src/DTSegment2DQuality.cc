@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/06/18 15:29:13 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/06/18 15:56:08 $
+ *  $Revision: 1.4 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -135,8 +135,8 @@ void DTSegment2DQuality::analyze(const Event & event, const EventSetup& eventSet
   for (slId = segment2Ds->id_begin();
        slId != segment2Ds->id_end();
        ++slId){
-    
-    //------------------------- simHits ---------------------------//
+
+      //------------------------- simHits ---------------------------//
     //Get simHits of each superlayer
     PSimHitContainer simHits =  simHitsPerSl[(*slId)];
        
@@ -154,6 +154,11 @@ void DTSegment2DQuality::analyze(const Event & event, const EventSetup& eventSet
   
     //Find outer and inner mu SimHit to build a segment
     pair<const PSimHit*, const PSimHit*> inAndOutSimHit = DTHitQualityUtils::findMuSimSegment(muSimHitPerWire); 
+    //Check that outermost and innermost SimHit are not the same
+    if(inAndOutSimHit.first ==inAndOutSimHit.second ) {
+      cout << "[DTHitQualityUtils]***Warning: outermost and innermost SimHit are the same!" << endl;
+      continue;
+    }
 
     //Find direction and position of the sim Segment in SL RF
     pair<LocalVector, LocalPoint> dirAndPosSimSegm = DTHitQualityUtils::findMuSimSegmentDirAndPos(inAndOutSimHit,
