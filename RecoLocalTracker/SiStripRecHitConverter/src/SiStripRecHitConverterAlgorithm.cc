@@ -181,13 +181,15 @@ void SiStripRecHitConverterAlgorithm::match(SiStripMatchedRecHit2DCollection & o
       
       const GluedGeomDet* gluedDet = (const GluedGeomDet*)tracker.idToDet(specDetId.glued());
       
-      // perform the matchin looping over the hit on the stereo dets  (FIXME: get rid of OwnVector)
-      edm::OwnVector<SiStripMatchedRecHit2D> collectorMatchedSingleHit=matcher.match(&(*iter),partnerDetset.begin(),partnerDetset.end(),gluedDet,trackdirection);
+
+      size_t cs = collectorMatched.size();
+      // perform the matchin looping over the hit on the stereo det
+      matcher.match(&(*iter),partnerDetset.begin(),partnerDetset.end(),
+		    collectorMatched, gluedDet,trackdirection);
+
       
-      if (collectorMatchedSingleHit.size() > 0) { //if a matched is found add the hit to the temporary collection
+      if (collectorMatched.size() > cs) { //if a matched is found add the hit to the temporary collection
 	nmatch++;
-	for (edm::OwnVector<SiStripMatchedRecHit2D>::iterator itt = collectorMatchedSingleHit.begin();  itt != collectorMatchedSingleHit.end() ; itt++)
-	  collectorMatched.push_back(*itt);
       }
       else{
 	nunmatch++;

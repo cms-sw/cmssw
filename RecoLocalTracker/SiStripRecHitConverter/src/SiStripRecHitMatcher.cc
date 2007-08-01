@@ -7,13 +7,17 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
-  SiStripRecHitMatcher::SiStripRecHitMatcher(const edm::ParameterSet& conf){   
-    scale_=conf.getParameter<double>("NSigmaInside");  
-  }
+#include<boost/bind.hpp>
 
-  SiStripRecHitMatcher::SiStripRecHitMatcher(const double theScale){   
-    scale_=theScale;  
-  }
+
+
+SiStripRecHitMatcher::SiStripRecHitMatcher(const edm::ParameterSet& conf){   
+  scale_=conf.getParameter<double>("NSigmaInside");  
+}
+
+SiStripRecHitMatcher::SiStripRecHitMatcher(const double theScale){   
+  scale_=theScale;  
+}
 
 
 //match a single hit
@@ -95,10 +99,56 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
        p++) collector.push_back(*p);
 }
 
-  void
+void
 SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
 			     SimpleHitIterator begin, SimpleHitIterator end,
 			     std::vector<SiStripMatchedRecHit2D*> & collector, 
+			     const GluedGeomDet* gluedDet,
+			     LocalVector trackdirection) const {
+  Collector result(std::bind(&std::vector<SiStripMatchedRecHit2D*>::push_back,boost::ref(collector),
+			     std::bind(&SiStripMatchedRecHit2D::clone,_1)));
+  match(monoRH,begin,end,result,gluedDet,trackdirection);
+}
+
+
+// this is the one used by the RecHitConverter
+void
+SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
+			     RecHitIterator begin, RecHitIterator end,
+			     CollectorMatched & collector,
+			     const GluedGeomDet* gluedDet,
+			     LocalVector trackdirection) const {
+  
+  // is this really needed now????
+  SimpleHitCollection stereoHits;
+  stereoHits.reserve(end-begin);
+  for (RecHitIterator i=begin; i != end; ++i) 
+    stereoHits.push_back( &(*i)); // convert to simple pointer
+  
+  return match( monoRH,
+		stereoHits.begin(), stereoHits.end(),
+		collector,
+		gluedDet,trackdirection);
+}
+
+void
+SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
+			     SimpleHitIterator begin, SimpleHitIterator end,
+			     CollectorMatched & collector,
+			     const GluedGeomDet* gluedDet,
+			     LocalVector trackdirection) const {
+
+  Collector result(std::bind(&CollectorMatched::push_back,boost::ref(collector),_1));
+  match(monoRH,begin,end,result,gluedDet,trackdirection);
+  
+}
+
+
+// the "real implementation"
+void
+SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
+			     SimpleHitIterator begin, SimpleHitIterator end,
+			     Collector & collector, 
 			     const GluedGeomDet* gluedDet,
 			     LocalVector trackdirection) const {
   // stripdet = mono
@@ -236,8 +286,8 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
       //...and add it to the Rechit collection 
 
       const SiStripRecHit2D* secondHit = *seconditer;
-      collector.push_back(new SiStripMatchedRecHit2D(position, error,gluedDet->geographicalId() ,
-							     monoRH,secondHit));
+      collector(SiStripMatchedRecHit2D(position, error,gluedDet->geographicalId() ,
+				       monoRH,secondHit));
     }
   }
 }
