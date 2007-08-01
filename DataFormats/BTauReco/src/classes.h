@@ -87,7 +87,7 @@ namespace {
     edm::Wrapper<reco::PFIsolatedTauTagInfoCollection>                  pfit_wc;
 
     reco::SoftLeptonProperties                                          slp;
-    std::pair<reco::RefToBase<reco::Track>, reco::SoftLeptonProperties> slp_p;
+    std::pair<edm::RefToBase<reco::Track>, reco::SoftLeptonProperties>  slp_p;
     reco::SoftLeptonTagInfo::LeptonMap                                  slp_m;
 
     reco::SoftLeptonTagInfo                                             sl;
