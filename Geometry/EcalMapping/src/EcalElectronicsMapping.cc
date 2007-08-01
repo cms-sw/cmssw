@@ -33,7 +33,39 @@ using namespace boost::multi_index;
 	//
 	// ------------------------------------------------------------------------
 
+
 EcalElectronicsMapping::EcalElectronicsMapping() {
+
+	// Fill the map (Barrel) for the Laser Monitoring readout numbers :
+	// Each DCC actually corresponds to 2 LMs,  ilm and ilm + 1
+
+	int ilm = MIN_LM_EBM;
+	for (int dcc=MIN_DCCID_EBM; dcc <= MAX_DCCID_EBM; dcc++) {
+		LaserMonitoringMap_EB[dcc] = ilm;
+		ilm += 2;
+	}
+	ilm = MIN_LM_EBP;
+	for (int dcc=MIN_DCCID_EBP; dcc <= MAX_DCCID_EBP; dcc++) {
+		LaserMonitoringMap_EB[dcc] = ilm;
+		ilm += 2;
+	}
+
+	// Fill the map (EndCap) for the Laser Monitoring readout numbers :
+	// Each DCC corresponds to onr LM, but DCC 8 (LM 80 and 81) and DCC 53 (LM 90 and 91)
+
+	ilm = MIN_LM_EEM;
+	for (int dcc=MIN_DCCID_EEM; dcc <= MAX_DCCID_EEM; dcc++) {
+		LaserMonitoringMap_EE[dcc] = ilm;
+		ilm += 1;
+		if (dcc == 8) ilm += 1;
+	}
+	ilm = MIN_LM_EEP;
+	for (int dcc=MIN_DCCID_EEP; dcc <= MAX_DCCID_EEP; dcc++) {
+		LaserMonitoringMap_EE[dcc] = ilm;
+		ilm += 1;
+		if (dcc == 53) ilm += 1;
+	}
+	
 }
 
 
@@ -1023,6 +1055,50 @@ int EcalElectronicsMapping::GetFED(double eta, double phi)  {
 	int DCC = iphi + DCC_Phi0;
 	// std::cout << "  eta phi " << eta << " " << " " << phi << " is in FED " << DCC << std::endl;
 	return DCC;
+}
+
+
+int EcalElectronicsMapping::getLMNumber(const DetId& id) const {
+
+// Laser Monitoring readout number.
+
+  EcalSubdetector subdet = EcalSubdetector(id.subdetId());
+
+  if (subdet == EcalBarrel) {
+	const EBDetId ebdetid = EBDetId(id);
+	int dccid = DCCid(ebdetid);
+	std::map<int, int>::const_iterator it = LaserMonitoringMap_EB.find(dccid);
+	if (it != LaserMonitoringMap_EB.end() ) {
+		int ilm = it -> second;
+    		int iETA = ebdetid.ietaSM();
+    		int iPHI = ebdetid.iphiSM();
+		if (iPHI > 10 && iETA>5) {ilm ++; } ;
+		return ilm;
+	} 
+  	else throw cms::Exception("InvalidDCCId") << "Wrong DCCId (EB) in EcalElectronicsMapping::getLMNumber.";
+  }
+
+  else if (subdet == EcalEndcap) {
+	EcalElectronicsId elid = getElectronicsId(id);
+	int dccid = elid.dccId();
+	EEDetId eedetid = EEDetId(id);
+	std::map<int, int>::const_iterator it = LaserMonitoringMap_EE.find(dccid);
+	if (it != LaserMonitoringMap_EB.end() ) {
+		int ilm = it -> second;
+		if (dccid == 8) {
+			int ix = eedetid.ix();
+			if (ix > 50) ilm += 1;
+		}
+		if (dccid == 53) {
+			int ix = eedetid.ix();
+			if (ix > 50) ilm += 1;
+		}
+		return ilm;
+	}
+	else throw cms::Exception("InvalidDCCId") << "Wrong DCCId (EE) in EcalElectronicsMapping::getLMNumber.";
+  }
+
+  return -1;
 }
 
 
