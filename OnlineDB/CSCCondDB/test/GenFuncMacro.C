@@ -19,37 +19,29 @@ void makeDirectory(TString directory_name){
  }	 
 }
 
+
 void PrintAsGif(TCanvas *CanvasPointer, TString canvName){  
   if( (gROOT->IsBatch() ) == 1 ){
-  TString CanvName = canvName + ".eps"; 
-  CanvasPointer->Print(CanvName);       
-  
-  TString pstoString = "pstopnm -ppm -xborder 0 -yborder 0 -xsize 1050 -ysize 625 -portrait "+ CanvName; 
-  TString togifString = "ppmtogif " + CanvName+ "001.ppm > " + canvName + ".gif"; 
-  TString rmString1 = "rm " + CanvName+ "001.ppm"; 
-  TString rmString2 = "rm " + CanvName; 
-  
-  gSystem->Exec(pstoString); 
-  gSystem->Exec(togifString); 
-  gSystem->Exec(rmString1); 
-  gSystem->Exec(rmString2); 
-  }
+
+    /*
+    TString CanvName = canvName + ".gif"; 
+    CanvasPointer->Print(CanvName);     
+    */
+        
+    TString CanvName = canvName + ".eps"; 
+    CanvasPointer->Print(CanvName);       
+    
+    TString pstoString = "pstopnm -ppm -xborder 0 -yborder 0 -xsize 1050 -ysize 625 -portrait "+ CanvName; 
+    TString togifString = "ppmtogif " + CanvName+ "001.ppm > " + canvName + ".gif"; 
+    TString rmString1 = "rm " + CanvName+ "001.ppm"; 
+    TString rmString2 = "rm " + CanvName; 
+    
+    gSystem->Exec(pstoString); 
+    gSystem->Exec(togifString); 
+    gSystem->Exec(rmString1); 
+    gSystem->Exec(rmString2);     
+    
+  } 
 }
 
-//this creates an array which can then be accessed
-//proper usage: 
-//  int idArray[9];
-//  GetChamberIDs(idArray);
-//  std::cout << "id for chamber 0: " << idArray[0] << std::endl;
-// void GetChamberIDs(int IDArray[9], TTree *TreeName){
-//   TCanvas *IDcanv = new TCanvas ("idGraph", "idGraph");
-//   IDcanv->cd();
-//   TH1F *idDummy = new TH1F("idDummy", "idDummy", 10, 220000000, 221000000);
-//   idDummy->Draw();
-// for (int chamber=0; chamber<9; ++chamber){
-//   TString idCut = Form ("cham==%d", chamber);
-//   TreeName->Project("idDummy", "id", idCut);
-//   Int_t idNum = idDummy->GetMean();
-//   IDArray[chamber]=idNum;
-// }
-// }
+
