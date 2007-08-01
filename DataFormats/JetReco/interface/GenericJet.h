@@ -11,7 +11,7 @@
  * \author Fedor Ratnikov, UMd
  *
  * \version   Mar 23, 2007 by F.R.
- * \version   $Id: GenericJet.h,v 1.3 2007/05/03 21:13:18 fedor Exp $
+ * \version   $Id: GenericJet.h,v 1.4 2007/07/31 02:19:01 fedor Exp $
  ************************************************************/
 #include <string>
 #include "DataFormats/Candidate/interface/CompositeRefBaseCandidate.h"
@@ -34,4 +34,5 @@ namespace reco {
 
   };
 }
+#include "DataFormats/JetReco/interface/GenericJetCollection.h" // temporary fix before include_checcker runs globally
 #endif
