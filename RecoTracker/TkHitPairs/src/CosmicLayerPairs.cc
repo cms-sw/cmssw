@@ -9,6 +9,9 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include <vector>
+#include <boost/iterator/indirect_iterator.hpp>
+#include <algorithm>
 
 
 std::vector<SeedLayerPairs::LayerPair> CosmicLayerPairs::operator()() 
@@ -268,7 +271,7 @@ namespace {
   typename C::Range copyRange(C const & c, 	
 			      std::vector<const TrackingRecHit*> hits, 
 			      std::pair<A,B> const & p) {
-    C::Range range = v.equal_range(p.first,p.second);
+    typename C::Range range = v.equal_range(p.first,p.second);
     for(typename C::const_iterator id=range.first; id!=range.second; id++){
       size_t cs = hits.size();
       theHits.resize(cs+range.second-range.first);
@@ -326,7 +329,7 @@ std::vector<const TrackingRecHit*> CosmicLayerPairs::selectTIBHit(const SiStripM
         std::vector<const TrackingRecHit*> theChoosedHits;
         TrackerLayerIdAccessor acc;
         //std::cout << "in selectTIBHit" << std::endl;
-        CopyRange(collmatch,theChoosedHits,acc.stripTIBLayer(layer));
+        copyRange(collmatch,theChoosedHits,acc.stripTIBLayer(layer));
         return theChoosedHits;
 
 }
@@ -336,6 +339,6 @@ std::vector<const TrackingRecHit*> CosmicLayerPairs::selectTOBHit(const SiStripM
         std::vector<const TrackingRecHit*> theChoosedHits;
         TrackerLayerIdAccessor acc;
         //std::cout << "in selectTOBHit" << std::endl;
-        CopyRange(collmatch,theChoosedHits,acc.stripTOBLayer(layer));
+        copyRange(collmatch,theChoosedHits,acc.stripTOBLayer(layer));
         return theChoosedHits;
 }
