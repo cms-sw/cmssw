@@ -8,8 +8,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: stevew $
-// $Date: 2007/07/21 23:32:01 $
-// $Revision: 1.3 $
+// $Date: 2007/07/28 19:56:25 $
+// $Revision: 1.1 $
 //
 
 #include <memory>
@@ -25,9 +25,8 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 
-#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"

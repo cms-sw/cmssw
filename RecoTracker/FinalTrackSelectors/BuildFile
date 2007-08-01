@@ -11,18 +11,16 @@
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
-<use name=Foundation/PluginManager>
-<use name=Geometry/CommonDetAlgo>
+<use name=FWCore/PluginManager>
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/CommonTopologies>
 <use name=Geometry/Records>
-<use name=Geometry/Surface>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=MagneticField/Engine>
 <use name=MagneticField/Records>
 <use name=TrackingTools/PatternTools>
 <use name=clhep>
-<flags SEALPLUGIN=1>
+<flags EDM_PLUGIN=1>
 <export>
   <use name=DataFormats/Common>
   <use name=DataFormats/DetId>
@@ -33,6 +31,5 @@
   <use name=MagneticField/Engine>
   <use name=clhep>
   <lib name=RecoTrackerFinalTrackSelectors>
-  <use name=Geometry/Surface>
 </export>
 
