@@ -1,6 +1,6 @@
 #ifndef Common_OwnVector_h
 #define Common_OwnVector_h
-// $Id: OwnVector.h,v 1.30 2007/07/09 07:28:49 llista Exp $
+// $Id: OwnVector.h,v 1.31 2007/07/31 09:13:10 llista Exp $
 
 #include <algorithm>
 #include <functional>
@@ -379,14 +379,18 @@ namespace edm {
 
   template<typename T, typename P>
   typename OwnVector<T, P>::iterator OwnVector<T, P>::erase(iterator pos) {
-    data_.erase(pos.i);
     touch();
+    delete * pos.i;
+    return iterator(data_.erase(pos.i));
   }
 
   template<typename T, typename P>
   typename OwnVector<T, P>::iterator OwnVector<T, P>::erase(iterator first, iterator last) {
-    data_.erase(first.i, last.i);
     touch();
+    typename base::iterator b = first.i, e = last.i;
+    for( typename base::iterator i = b; i != e; ++ i )
+      delete * i;    
+    return iterator(data_.erase(b, e));
   }
 
   template<typename T, typename P> template<typename S>
