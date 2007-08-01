@@ -16,8 +16,6 @@ from SequenceTypes import _ModuleSequenceType  #extend needs it
 import DictTypes
 
 from ExceptionHandling import *
-import libFWCoreParameterSet
-
 def findProcess(module):
     """Look inside the module and find the Processes it contains"""
     class Temp(object):
@@ -148,7 +146,11 @@ class Process(object):
         #clone the item
         newValue =value.copy()
 
-        self.__dict__[name]=newValue
+        #NOTE: for now, ESPrefer's are assigned the same label as the item to which they 'choose'
+        # however, only one of them can take the attribute name and it by rights should go to
+        # the module and not the ESPrefer
+        if not isinstance(value,ESPrefer):
+            self.__dict__[name]=newValue
         if isinstance(newValue,_Labelable):
             newValue.setLabel(name)
             self._cloneToObjectDict[id(value)] = newValue
