@@ -10,7 +10,7 @@
  *
  * \version $Revision: 1.3 $
  *
- * $Id: MuonSelector.h,v 1.3 2007/05/21 17:56:07 jfernan2 Exp $
+ * $Id: MuonSelector.h,v 1.3 2007/05/21 16:08:44 jfernan2 Exp $
  *
  */
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -67,9 +67,10 @@ namespace helper {
 	Track & trk= selTracks_->back();
 
 	selTracksExtras_->push_back( TrackExtra( trk.outerPosition(), trk.outerMomentum(), trk.outerOk(),
-						trk.innerPosition(), trk.innerMomentum(), trk.innerOk(),
-						trk.outerStateCovariance(), trk.outerDetId(),
-						trk.innerStateCovariance(), trk.innerDetId() ) );
+						 trk.innerPosition(), trk.innerMomentum(), trk.innerOk(),
+						 trk.outerStateCovariance(), trk.outerDetId(),
+						 trk.innerStateCovariance(), trk.innerDetId(),
+						 trk.seedDirection() ) );
 
 	TrackExtra & tx = selTracksExtras_->back();
 
