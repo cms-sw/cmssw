@@ -192,7 +192,7 @@ EcalLaserDbAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
 	  laserTimeIter = laserTimeMap.find(ebdetid.ism());
 	  if( laserTimeIter != laserTimeMap.end() ) {
 	    timestamp = laserTimeIter->second;
-	    std::cout << " TIME pair " << ieta << " " << iphi << " " << timestamp.t1 << " , " << timestamp.t2 << std::endl;
+	    std::cout << " TIME pair " << ieta << " " << iphi << " " << timestamp.t1.value() << " , " << timestamp.t2.value() << std::endl;
 	  } else {
 	    std::cout << " ERROR!  you screwed up!" << std::endl;
 	  }
@@ -219,6 +219,7 @@ EcalLaserDbAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
  	}
        catch (...)
 	 {
+	   std::cout << "Error" << std::endl;
 	 }
      }
    }

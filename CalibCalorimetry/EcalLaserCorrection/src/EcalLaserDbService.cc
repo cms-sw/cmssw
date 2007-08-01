@@ -129,8 +129,8 @@ float EcalLaserDbService::getLaserCorrection (DetId const & xid, edm::Timestamp 
   
   // interpolation
 
-  if (apdpnref!=0&&(timestamp.t2-timestamp.t1)!=0) {
-    float interpolatedLaserResponse = apdpnpair.p1/apdpnref + (iTime.value()-timestamp.t1)*(apdpnpair.p2-apdpnpair.p1)/apdpnref/(timestamp.t2-timestamp.t1);
+  if (apdpnref!=0&&(timestamp.t2.value()-timestamp.t1.value())!=0) {
+    float interpolatedLaserResponse = apdpnpair.p1/apdpnref + (iTime.value()-timestamp.t1.value())*(apdpnpair.p2-apdpnpair.p1)/apdpnref/(timestamp.t2.value()-timestamp.t1.value());
     //    std::cout << " interpolatedLaserResponse = " << interpolatedLaserResponse << std::endl; 
 
     if (interpolatedLaserResponse<=0) {
