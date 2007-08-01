@@ -1,48 +1,77 @@
 #include "CalibTracker/SiPixelGainCalibration/interface/PixelROCGainCalibPixel.h"
 #include <iostream>
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "CalibTracker/SiPixelGainCalibration/interface/PixelROCGainCalibElement.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
-PixelROCGainCalibPixel::PixelROCGainCalibPixel(){
+double PixelROCGainCalibPixel::getpoint(uint32_t icalpoint, uint32_t ntimes){
+  //  std::cout << "getting point " << icalpoint << ", value " << adcvalues[icalpoint] << std::endl;
+  double res=0.;
+  res+=adcvalues[icalpoint];
+  if(ntimes>1){
+    double denom=ntimes;
+    res/=denom;
+  }
+  return res;
+}
+PixelROCGainCalibPixel::PixelROCGainCalibPixel(uint32_t npoints):adcvalues(npoints,0){
+}
 
-  calibPoints = new TObjArray(10);
- }
+PixelROCGainCalibPixel::~PixelROCGainCalibPixel(){
+  adcvalues.clear();
+}
 
 //******************
-void PixelROCGainCalibPixel::init(unsigned int nvcal)
+bool PixelROCGainCalibPixel::isfilled(){
+  for(uint32_t i=0; i< adcvalues.size(); i++){
+    if(adcvalues[i]>0)
+      return true;
+  }
+  return false;
+}
+//******************
+void PixelROCGainCalibPixel::init(uint32_t nvcal)
 {
-  for(unsigned int i=0; i<nvcal; i++){
-    PixelROCGainCalibElement *ele = new PixelROCGainCalibElement();
-    calibPoints->Add(ele);
-  }
+   adcvalues.resize(nvcal,0);  
 }
 
 //******************
-void PixelROCGainCalibPixel::addPoint(unsigned int icalpoint, unsigned int adcval, unsigned int vcalval){
-  if(icalpoint<calibPoints->GetEntries() && icalpoint>=0){
-    PixelROCGainCalibElement* ele = (PixelROCGainCalibElement*)calibPoints->At(icalpoint);
-    //    std::cout << "value now: " << ele->getValue() << " at icalpoint " << icalpoint << " " << ele->getVCalValue() << std::endl;
-    if(ele->getVCalValue()==0)
-      ele->setVCalValue(vcalval);
-    ele->addValue(adcval);
-    //    std::cout << "value now: " << ele->getValue() << " at icalpoint " << icalpoint << " " << ele->getVCalValue() << std::endl;
+void PixelROCGainCalibPixel::addPoint(uint32_t icalpoint, uint32_t adcval){
+  if(icalpoint>adcvalues.size()){
+    //    edm::LogInfo("ERROR")
+    std::cout <<"ERROR: point "<< icalpoint << " > size  " << adcvalues.size() << std::endl;
+    return;
   }
+  //  std::cout << icalpoint << " " << adcvalues[icalpoint] << " + " << adcval << " = ";
+  uint32_t newval = adcvalues[icalpoint];
+  newval+=adcval;
+  adcvalues[icalpoint] = newval;
+
+//   std::cout << adcvalues[icalpoint] << ", size ";
+//   std::cout << adcvalues.size();
+//   std::cout <<" other points: ";
+//   for(int ip=0; ip<adcvalues.size();ip++)
+//     if(ip!=icalpoint)
+//       std::cout << adcvalues[ip] << " ";
+//   std::cout << std::endl;
+  
+  
 }
 //******************
 
-TH1F* PixelROCGainCalibPixel::createHistogram(TString thename, TString thetitle, int nbins, float lowval, float highval){
-  TH1F* result = new TH1F(thename,thetitle,nbins,lowval,highval);
-  result->GetXaxis()->SetTitle("VCAL values");
-  result->GetYaxis()->SetTitle("ADC counts");
-  for(int i=0; i<=calibPoints->GetEntries();++i){
-    PixelROCGainCalibElement * ele = (PixelROCGainCalibElement*) calibPoints->At(i);
-    if(!ele)
-      continue;
+TGraph* PixelROCGainCalibPixel::createGraph(TString thename, TString thetitle, const int ntimes,std::vector<uint32_t> vcalvalues){
+  TGraph *result = new TGraph(vcalvalues.size());
+  for(uint32_t i=0;i<vcalvalues.size() && ntimes>0;++i){
+    edm::LogInfo("DEBUG") <<adcvalues[i] << " " << ntimes << " " << i << std::endl;
+    float val = adcvalues[i];
+    val/=(float)ntimes;
     
-    if( ele->getVCalValue()>0 && ele->getVCalValue()<=256 && ele->getValue()>0 && ele->getValue()<=256){
-      //      std::cout << "filling histogram with : " << ele->getVCalValue() << " " << ele->getValue() << std::endl;
-      result->Fill(ele->getVCalValue(),ele->getValue());
-    }
+    result->SetPoint(i,vcalvalues[i],val);
   }
+  result->GetHistogram()->GetXaxis()->SetTitle("VCAL values");
+  result->GetHistogram()->GetYaxis()->SetTitle("ADC counts");
+  result->SetName(thename);
+  result->GetHistogram()->SetTitle(thetitle);
   return result;
 }
 
