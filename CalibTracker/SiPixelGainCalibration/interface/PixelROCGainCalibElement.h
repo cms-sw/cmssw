@@ -17,13 +17,11 @@ class PixelROCGainCalibElement : public TObject
  private :
 
   float  fResponse;//
-  float  fTotVal;
-  unsigned int fntimes;//
   unsigned int fvcalval;//
 
  public :
 
-  PixelROCGainCalibElement():fResponse(0.),fTotVal(0.),fntimes(0),fvcalval(0){;}
+  PixelROCGainCalibElement():fResponse(0.),fvcalval(0){;}
 
     virtual ~PixelROCGainCalibElement(){;}
 
@@ -38,11 +36,11 @@ class PixelROCGainCalibElement : public TObject
 
  //-- Setter/Getter
   
-  void addValue(const unsigned int & in ) { fResponse+=in ; ++fntimes; fTotVal=fResponse/(float)fntimes;}
-  float getValue() const { return fTotVal;}
+  void addValue( unsigned int  in ) {fResponse+=in ;}
+  //  { std::cout << "addvalue: " << fResponse << " " << in << ", new "; fResponse+=in ; ++fntimes; std::cout << fResponse << " " << fntimes << std::endl;}
+  float getValue() { return fResponse;}
   void setVCalValue(const unsigned int & in) { fvcalval = in; }
   unsigned int getVCalValue() const {return fvcalval;}
-  unsigned int  getNtimes() const { return fntimes;}
 
 
 };

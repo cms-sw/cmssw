@@ -9,39 +9,29 @@
 #define PixelROCGainCalibPixel_H
 
 #include "TObject.h"
-#include "TObjArray.h"
-#include "TH1F.h"
-#include "CalibTracker/SiPixelGainCalibration/interface/PixelROCGainCalibElement.h"
+#include <vector>
+#include "TGraph.h"
+//#include "CalibTracker/SiPixelGainCalibration/interface/PixelROCGainCalibElement.h"
 
-class PixelROCGainCalibPixel : public TObject
+class PixelROCGainCalibPixel
 {
  private :
  
-  TObjArray *calibPoints;//("PixelROCGainCalibElement",20);//contains PixelROCGainElements
-
+  std::vector<uint32_t> adcvalues;
+ 
  public :
 
-  PixelROCGainCalibPixel();
+  PixelROCGainCalibPixel(uint32_t npoints=60); 
 
-  virtual ~PixelROCGainCalibPixel(){calibPoints->Delete();}
-
- //- Accessible methods
-  //- Object Status
-
- 
-  void Clear(Option_t* = "") {;}
-  void Reset(Option_t* = "") {;}
-
-  void Print(Option_t* = "") const {;}
+  virtual ~PixelROCGainCalibPixel();
 
  //-- Setter/Getter
 
-  TObjArray  *getCalibPoints() const { return calibPoints;}
-
-  void addPoint(unsigned int icalpoint, unsigned int adcval, unsigned int vcalval);
-  void setVCalPoint(unsigned int icalpoint, unsigned int adcVcalval);
-  TH1F *createHistogram(TString thename, TString thetitle, int nbins, float lowval, float highval);
-  void init(unsigned int nvcal);
+  void addPoint(uint32_t icalpoint, uint32_t adcval);
+  TGraph *createGraph(TString thename, TString thetitle, const int ntimes,std::vector<uint32_t> vcalvalues);
+  void init(uint32_t nvcal);
+  double getpoint(uint32_t icalpoint, uint32_t ntimes);
+  bool isfilled();
 
 };
 

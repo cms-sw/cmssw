@@ -10,50 +10,69 @@
 
 #include "TH1F.h"
 #include "TH2F.h"
-#include "TObjArray.h"
+#include <vector>
 #include "TF1.h"
 #include "TObject.h"
 #include <iostream>
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileDirectory.h"
+
 #include <map>
 #include "CalibTracker/SiPixelGainCalibration/interface/PixelROCGainCalibPixel.h"
 
 class PixelROCGainCalib{
  public:
-  PixelROCGainCalib();
-  ~PixelROCGainCalib() {;}
-
-  void init(unsigned int linkid, unsigned int rocid,unsigned int nvcal,unsigned int vcalRangeMin, unsigned vcalRangeMax, unsigned vcalRangeStep,unsigned int ncols, unsigned int nrows);
-
-  TH1F *gethisto(unsigned int row, unsigned int col);
-  //  TH1F * addHistoFileService(TFileDirectory dir,unsigned int row, unsigned int col);
-  void fill(unsigned int row,unsigned int col,unsigned int vcal,unsigned int adc);
-  void fit(unsigned int row,unsigned int col, TF1* function);
-  bool isvalid(unsigned int row,unsigned int col) {return pixelUsed_[row][col];}
-  TString getTitle(){return thisROCTitle_;}
-  unsigned int getDetID() {return detid_;}
-  void setDetID(unsigned int val){detid_=val;}
-  //void setVCalRange(unsigned int vcalRangeMin, unsigned vcalRangeMax, unsigned vcalRangeStep){ vcalrangemin_=vcalRangeMin;vcalrangemax_=vcalRangeMax; vcalrangestep_=vcalRangeStep;}
+  PixelROCGainCalib(uint32_t maxrow, uint32_t maxcol, uint32_t nvcol);
+  ~PixelROCGainCalib();
   
+  void printsummary(uint32_t row, uint32_t col);
+
+  void init(std::string name, uint32_t detid,uint32_t nvcal,uint32_t vcalRangeMin, uint32_t vcalRangeMax, unsigned vcalRangeStep,uint32_t ncols, uint32_t nrows, uint32_t ntriggers, edm::Service<TFileService>  therootfileservice);
+
+  //  TGraph *getgraph(uint32_t row, uint32_t col);
+  TH1F *gethisto(uint32_t row, uint32_t col){edm::Service<TFileService> afileservice; return gethisto(row,col,afileservice);}
+  TH1F *gethisto(uint32_t row, uint32_t col, edm::Service<TFileService> therootfileservice);
+  
+  void fill(uint32_t row,uint32_t col,uint32_t ipoint,uint32_t adc,bool verbose=false);
+  void fillVcal(uint32_t row,uint32_t col,uint32_t vcal,uint32_t adc,bool verbose=false);
+  std::string getTitle(){return thisROCTitle_;}
+  uint32_t getDetID() {return detid_;}
+
+  bool isvalid(uint32_t row, uint32_t col);
+  bool isfilled(uint32_t row, uint32_t col);
+
+  uint32_t getVcalBin(uint32_t vcalval){ return (vcalval - vcalrangemin_)/vcalrangestep_ ;}
+  uint32_t getBinVcal(uint32_t ibin) {return vcalrangemin_ +(vcalrangestep_*ibin);}
+  uint32_t getNcols() {return ncolslimit_;}
+  uint32_t getNrows() {return nrowslimit_;}
+  uint32_t getNentries() {return nentries_;}
  private:
-  PixelROCGainCalibPixel thePixels_[80][52];// [rows][colums]
-  bool pixelUsed_[80][52];// [rows][columns]
-  unsigned int vcalrangestep_; 
-  unsigned int vcalrangemin_;
-  unsigned int vcalrangemax_;
-  unsigned int nrowsmax_;
-  unsigned int nrowslimit_;
-  unsigned int ncolsmax_;
-  unsigned int ncolslimit_;
-  unsigned int linkid_;
-  unsigned int rocid_;
-  unsigned int nvcal_;
-  unsigned int detid_;
-  bool checkRowCols(unsigned int row, unsigned int col);
-  TString createTitle(unsigned int row, unsigned int col);
-  TString thisROCTitle_;
-  
-  std::map < unsigned int , unsigned int > vcalmap_;// keeps track of all used vcals
-}; 
+  std::string createTitle(uint32_t row, uint32_t col);
 
+  // class members:
+  //  std::vector< std::vector < TH1F* > > thePixels_;  
+  std::vector < std::vector < PixelROCGainCalibPixel > > thePixels_;
+  std::vector<uint32_t> points;
+  
+  uint32_t nentries_;
+  uint32_t vcalrangestep_;
+  uint32_t vcalrangemin_;
+  uint32_t vcalrangemax_;
+  uint32_t nvcal_;
+  uint32_t ncolslimit_;
+  uint32_t nrowslimit_;
+  std::string thisROCTitle_;
+  uint32_t detid_;
+  uint32_t ntriggers_;
+  
+};
+
+inline bool PixelROCGainCalib::isvalid(uint32_t row, uint32_t column){
+  
+  assert(ncolslimit_>column);
+  assert(nrowslimit_>row);
+}
 
 #endif

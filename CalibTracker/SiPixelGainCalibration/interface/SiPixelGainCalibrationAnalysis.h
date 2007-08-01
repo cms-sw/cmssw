@@ -15,7 +15,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon May  7 14:22:37 CEST 2007
-// $Id: SiPixelGainCalibrationAnalysis.h,v 1.2 2007/06/11 15:30:42 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.h,v 1.3 2007/06/26 14:03:33 fblekman Exp $
 //
 //
 
@@ -41,7 +41,6 @@
 
 #include "CalibFormats/SiPixelObjects/interface/PixelCalib.h"
 #include "CalibTracker/SiPixelGainCalibration/interface/PixelROCGainCalib.h"
-#include "CalibTracker/SiPixelGainCalibration/interface/PixelSLinkDataHit.h"
 
 #include "CondTools/SiPixel/interface/SiPixelGainCalibrationService.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -63,8 +62,6 @@ class SiPixelGainCalibrationAnalysis : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
-      // defined as inline below
-      unsigned long long get_next_block(const unsigned char * dataptr,unsigned int i);
 
       // ----------member data ---------------------------
       // internal class for storing parameters
@@ -75,87 +72,63 @@ class SiPixelGainCalibrationAnalysis : public edm::EDAnalyzer {
       };
       class TempPixelContainer {
       public:
-	unsigned int fed_channel;
-	unsigned int roc_id;
-	unsigned int dcol_id;
-	int maxrow;
-	int maxcol;
-	unsigned int pix_id;
-	unsigned int adc;
-	unsigned int row;
-	unsigned int col;
-	unsigned int vcal;
-      };
-      PixelCalib *calib_; // keeps track of the calibration constants
-      PixelSLinkDataHit *hitworker_; // does unpacking of raw data locally
-      unsigned int datasize_;//worker that keeps track of raw data
-      unsigned int datacounter_;
 
-      unsigned int eventno_counter_;
-      unsigned int maxNfedIds_;
+	uint32_t roc_id;
+	uint32_t dcol_id;
+	uint32_t maxrow;
+	uint32_t maxcol;
+	uint32_t nvcal;
+	uint32_t pix_id;
+	uint32_t adc;
+	uint32_t row;
+	uint32_t col;
+	uint32_t vcal;
+	uint32_t ntriggers;
+	uint32_t vcal_first;
+	uint32_t vcal_last;
+	uint32_t vcal_step;
+      };
+      PixelCalib calib_; // keeps track of the calibration constants
+
+      std::string recordName_;
+      uint32_t eventno_counter_;
       std::string src_;
       std::string instance_;
+      uint32_t maxNfedIds_;
       std::string inputconfigfile_;
-      TF1 *fitfunction;
-      TF1 *fancyfitfunction;
       void fill(const TempPixelContainer & aPixel);
       void init(const TempPixelContainer & aPixel);
       // maximum numbers of columns/rows/rocs/channels
-      unsigned int nrowsmax_;
-      unsigned int ncolsmax_;
-      unsigned int nrocsmax_;
-      unsigned int nchannelsmax_;
-      unsigned int vcal_fitmin_;
-      unsigned int vcal_fitmax_;
-      unsigned int vcal_fitmax_fixed_;
+      uint32_t nrowsmax_;
+      uint32_t ncolsmax_;
+      uint32_t nrocsmax_;
+      uint32_t nchannelsmax_;
+      uint32_t vcal_fitmin_;
+      uint32_t vcal_fitmax_;
+      uint32_t vcal_fitmax_fixed_;
       double chisq_threshold_;
+      double maximum_ped_; 
       double maximum_gain_;
-      double maximum_ped_;
 
-      unsigned int getROCnumberfromDetIDandRowCol(unsigned int detID, unsigned int row, unsigned int col);
+      uint32_t getROCnumberfromDetIDandRowCol(uint32_t detID, uint32_t row, uint32_t col);
 
       // and the containers
-      //  bool rocgainused_[40*24];// [channel][roc]
-      PixelROCGainCalib calib_containers_[40*24];// [channel][roc]
+      std::vector <PixelROCGainCalib> calib_containers_;//960 = maximum number of det IDs for pixel detector
       // tracking geometry
       edm::ESHandle<TrackerGeometry> geom_;
       
-      std::map < unsigned int , unsigned int > detIDmap_;// keeps track of all used detector IDs
-      
-      unsigned int detIDmap_size;
-      unsigned int getindexfromdetid(unsigned int detid);
+      std::map < uint32_t , uint32_t > detIDmap_;// keeps track of all used detector IDs
+      int32_t detIDmap_size;
+
       edm::ParameterSet conf_;
       bool appendMode_;
+      bool useonlyonepixel_;
+      bool test_;
       SiPixelGainCalibration* SiPixelGainCalibration_; // database worker class
       SiPixelGainCalibrationService SiPixelGainCalibrationService_; // additional database worker classes
-      std::string recordName_;
-      //
-/*       double thefancyfitfunction(double *x, double *par);// 0: pedestal; 1:plateau; 2:halfwaypoint; 3:gain */
+      edm::Service < TFileService >  therootfileservice_; // for saving into root files
+     
+      std::string fitfuncrootformula_;
 };
 
-inline unsigned int SiPixelGainCalibrationAnalysis::getindexfromdetid(unsigned int detid){
-  if(detIDmap_[detid]==0){// entry does not exist
-    detIDmap_[detid]=detIDmap_size;
-    detIDmap_size++;
-   
-  }
-  return detIDmap_[detid];
-}
-inline unsigned long long SiPixelGainCalibrationAnalysis::get_next_block(const unsigned char * dataptr,unsigned int i){
-  return ((const unsigned long long*)dataptr)[i];
-}
-
-// fancy fit function
-/* inline Double_t SiPixelGainCalibrationAnalysis::thefancyfitfunction(Double_t *x, Double_t *par){// 0: pedestal; 1:plateau; 2:halfwaypoint; 3:gain */
-/*   Double_t ped = par[0]; */
-/*   Double_t plateau = par[1]; */
-/*   Double_t halfwaypoint = par[2]; */
-/*   Double_t gain = par[3]; */
-  
-/*   Double_t res = ped; */
-/*   Double_t turnon = 1+TMath::Erf((x[0]-halfwaypoint)/(gain*sqrt(x[0]))); */
-/*   turnon*=0.5*plateau; */
-  
-/*   return res+turnon; */
-/* } */
 #endif
