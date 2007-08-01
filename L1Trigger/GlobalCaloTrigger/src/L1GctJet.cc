@@ -108,6 +108,11 @@ uint16_t L1GctJet::lutValue(const L1GctJetEtCalibrationLut* lut) const
   if (!m_tauVeto) {
     addrBits |= 1 << (L1GctJetEtCalibrationLut::JET_ENERGY_BITWIDTH+4);
   }
+  // TEMP? Tell the lut which Wheel we are in
+  if (m_id.ieta()<11) {
+    addrBits |= 1 << (L1GctJetEtCalibrationLut::JET_ENERGY_BITWIDTH+5);
+  }
+  // TEMP
   uint16_t address = static_cast<uint16_t>(addrBits);
   return lut->lutValue(address);
 }

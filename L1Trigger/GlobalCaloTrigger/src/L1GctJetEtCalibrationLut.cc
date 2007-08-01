@@ -36,10 +36,15 @@ uint16_t L1GctJetEtCalibrationLut::value (const uint16_t lutAddress) const
   static const uint16_t etaMask    = static_cast<uint16_t>((1 << nEtaBits) - 1);
   static const uint16_t tauBitMask = static_cast<uint16_t>( 1 << (JET_ENERGY_BITWIDTH + nEtaBits));
   uint16_t jetEt = lutAddress & maxEtMask;
+  double uncoEt = static_cast<double>(jetEt) * m_outputEtScale->linearLsb();
   unsigned eta = static_cast<unsigned>((lutAddress >> JET_ENERGY_BITWIDTH) & etaMask);
   bool tauVeto = ((lutAddress & tauBitMask)==0);
   
-  double corrEt = m_lutFunction->correctedEt(jetEt, eta, tauVeto);
+  //double corrEt = m_lutFunction->correctedEt(uncoEt, eta, tauVeto);
+  // TEMP?? Tell the calibrationFunction which Wheel we are in
+  static const uint16_t WheelBitMask = static_cast<uint16_t>( 1 << (NData-1) );
+  double corrEt = m_lutFunction->correctedEt(uncoEt, eta, tauVeto, ((lutAddress & WheelBitMask) == 0));
+  // TEMP
   return m_lutFunction->calibratedEt(corrEt) | (m_outputEtScale->rank(corrEt) << JET_ENERGY_BITWIDTH);
 
 }

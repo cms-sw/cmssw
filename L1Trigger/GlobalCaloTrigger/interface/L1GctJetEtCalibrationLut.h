@@ -1,7 +1,7 @@
 #ifndef L1GCTJETETCALIBRATIONLUT_H_
 #define L1GCTJETETCALIBRATIONLUT_H_
 
-#define JET_ET_CAL_LUT_ADD_BITS 15
+#define JET_ET_CAL_LUT_ADD_BITS 16
 #define JET_ET_CAL_LUT_DAT_BITS 16
 
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctLut.h"
