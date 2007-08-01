@@ -10,10 +10,12 @@ my $curdir=cwd();
 my $scriptdir=dirname($0);
 my $package=shift || die "Usage: $0 <Subsystem/Package|clean>";
 my $xincargs="";
+my $ccargs="";
 while(my $arg=shift)
 {
   if($arg=~/\s/){$arg="\"$arg\"";}
-  $xincargs.=" $arg";
+  if($arg eq "--skiplocal"){$ccargs.=" $arg";}
+  else{$xincargs.=" $arg";}
 }
 
 my $localtop = &SCRAMGenUtils::scramReleaseTop($curdir);
@@ -70,8 +72,9 @@ sub processPack ($package)
   if(-f "${tmpdir}/cache/config_cache"){system("rm -f ${tmpdir}/cache/config_cache");}
   if(!-f $configfile)
   {
-    print ">> Running \"${scriptdir}/createconfig.pl ${localtop}/${src}/${package}\"\n";
-    system("${scriptdir}/createconfig.pl ${localtop}/${src}/${package} > ${configfile}.tmp && mv ${configfile}.tmp $configfile");
+    print ">> Running \"${scriptdir}/createconfig.pl $ccargs ${localtop}/${src}/${package}\"\n";
+    system("${scriptdir}/createconfig.pl $ccargs ${localtop}/${src}/${package} > ${configfile}.tmp && mv ${configfile}.tmp $configfile");
+    if(-f "extra_includechecker.conf"){system("cat extra_includechecker.conf >> $configfile");}
   }
   print ">> Running \"includechecker.pl --config $configfile --tmpdir $tmpdir --keep --detail --recursive $xincargs\"\n";
   system("${scriptdir}/includechecker.pl --config $configfile --tmpdir $tmpdir --keep --detail --recursive $xincargs 2>&1 > ${tmpdir}/log/${uniqpack}");
