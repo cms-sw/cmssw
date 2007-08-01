@@ -5,8 +5,10 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
-#include "DataFormats/Common/interface/RangeMap.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
+
+#include <boost/iterator/indirect_iterator.hpp>
+#include <algorithm>
 
 class LayerWithHits
 {
@@ -14,9 +16,16 @@ class LayerWithHits
   LayerWithHits(const DetLayer *dl,std::vector<const TrackingRecHit*> theInputHits):
     theDetLayer(dl),theHits(theInputHits){}
   
-  LayerWithHits( const DetLayer *dl,const SiPixelRecHitCollection::range range);
-  LayerWithHits( const DetLayer *dl,const SiStripRecHit2DCollection::range range);
-  LayerWithHits( const DetLayer *dl,const SiStripMatchedRecHit2DCollection::range range);
+  template<typename C> 
+  LayerWithHits( const DetLayer *dl, typename C::Range range) {
+    theDetLayer = dl;
+    for(typename C::const_iterator id=range.first; id!=range.second; id++){
+      size_t cs = theHits.size();
+      teHits.resize(cs+range.second-range.first);
+      std::copy((*id).begin(), (*id).end(),
+		boost::make_indirect_iterator(theHits.begin()+cs));
+    }
+  }
 
   //destructor
   ~LayerWithHits(){}
