@@ -4,8 +4,6 @@ from Mixins import _TypedParameterizable
 from SequenceTypes import _Sequenceable
 
 from ExceptionHandling import *
-import libFWCoreParameterSet
-
 class Service(_ConfigureComponent,_TypedParameterizable,_Unlabelable):
     def __init__(self,type_,*arg,**kargs):
         super(Service,self).__init__(type_,*arg,**kargs)

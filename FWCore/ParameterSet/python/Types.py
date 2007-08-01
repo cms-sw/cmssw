@@ -5,8 +5,6 @@ from ExceptionHandling import format_typename, format_outerframe
 import codecs
 _string_escape_encoder = codecs.getencoder('string_escape')
 
-import libFWCoreParameterSet
-
 class _Untracked(object):
     """Class type for 'untracked' to allow nice syntax"""
     __name__ = "untracked"

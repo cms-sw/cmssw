@@ -1,4 +1,3 @@
-import libFWCoreParameterSet
 
 class _ConfigureComponent(object):
     """Denotes a class that can be used by the Processes class"""
