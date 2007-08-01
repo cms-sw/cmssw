@@ -11,7 +11,6 @@
 // This for RECO tau collection
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
-#include "DataFormats/BTauReco/interface/JetTagFwd.h"
 
 // This to convert to candidates
 #include "PhysicsTools/CandAlgos/interface/ShallowCloneProducer.h"
