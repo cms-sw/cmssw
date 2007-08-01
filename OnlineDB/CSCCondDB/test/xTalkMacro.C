@@ -34,7 +34,6 @@ gStyle->SetFrameBorderMode(0);
 gStyle->SetStatH(0.2);
 gStyle->SetStatW(0.3);
 
-
 //see GenFuncMacro.C
 directoryCheck();
 
@@ -56,7 +55,7 @@ std::cout << "number of chambers is: " << nCham << std::endl;
    std::cout << "no chambers, quitting." << std::endl;
    gROOT->ProcessLine(".q");
  }
-
+ /*
 //check that file has the right number of events. if not, don't process it!!!
 TCanvas *canv_pulseCheck = new TCanvas("EventCheckCanv","EventCheckCanv",1100,700); ; 
 TH2F *pulseCheck = (TH2F*)myFile->Get("pulse01"); 
@@ -68,8 +67,9 @@ int NEvents = (NPulses/9);
 std::cout << "number of events is: " << NEvents << std::endl;
  if (NEvents != 320) {
    std::cout << "wrong number of events! file " << myFileName << " is not being processed." << std::endl; 
-   gROOT->ProcessLine(".q");
+   gROOT->ProcessLine(".q"); 
  }
+ */
 
 //this is one big section of linux directory processing
 //if this is edited, be careful! it's easy to mess up. 
@@ -112,17 +112,17 @@ gStyle->SetOptStat(1);
 pedNoiseFlagGraph(myFileName, myFilePath); 
 //create CrossTalk pulse graphs
 
-gSystem->cd("/afs/cern.ch/user/c/csccalib/scratch0/CMSSW_1_1_1/src/OnlineDB/CSCCondDB/test");
+gSystem->cd("/afs/cern.ch/user/c/csccalib/scratch0/CMSSW_1_5_1/src/OnlineDB/CSCCondDB/test");
 std::cout << "now in : " << gSystem->pwd() << std::endl;
 
-PeakGraphs(myFileName, myFilePath, nCham);
+//PeakGraphs(myFileName, myFilePath, nCham);
 
 myFile->Close();
 myFilePath = Form("/tmp/csccalib/%s", myFileName); 
 std::cout << "just before PulseGraphs" << std::endl;
 std::cout << " fileName: " << myFileName << std::endl;
 std::cout << " filePath: " << myFilePath << std::endl;
-PulseGraphs(myFileName, myFilePath, nCham); 
+PulseGraphs(myFileName, myFilePath); 
 gROOT->ProcessLine(".q"); 
 } 
 
@@ -133,16 +133,16 @@ gROOT->ProcessLine(".q");
 void GetChamberIDs(int IDArray[9]){
   TCanvas *IDcanv = new TCanvas ("idGraph", "idGraph");
   IDcanv->cd();
-  TH1F *idDummy = new TH1F("idDummy", "idDummy", 10, 220000000, 221000000);
+  TH1F *idDummy = new TH1F("idDummy", "idDummy", 480, 111000, 250000);
   idDummy->Draw();
-for (int chamber=0; chamber<9; ++chamber){
-  TString idCut = Form ("cham==%d", chamber);
-  Calibration->Project("idDummy", "id", idCut);
-  Int_t idNum = idDummy->GetMean();
-  IDArray[chamber]=idNum;
+  for (int chamber=0; chamber<9; ++chamber){
+    TString idCut = Form ("cham==%d", chamber);
+    Calibration->Project("idDummy", "id", idCut);
+    Int_t idNum = idDummy->GetMean();
+    IDArray[chamber]=idNum;
+  }
+  idDummy->Draw();
 }
-}
-
 
 void pedRMSGraphs(int nDDU, int nCham, int nLayer, TString myFileName, TString myFilePath){
 
@@ -1035,7 +1035,7 @@ void pedNoiseFlagGraph(TString myFileName, TString myFilePath){
   gStyle->SetOptStat(1); 
 }
 
-void PulseGraphs(TString myFileName, TString myFilePath, int nCham){  
+void PulseGraphs(TString myFileName, TString myFilePath){  
   TFile *myfile = TFile::Open(myFilePath);
   std::cout << "begginng of PulseGraphs, now in : " << gSystem->pwd() << std::endl;
   std::cout << "opening file: " << myFilePath << std::endl; 
@@ -1046,8 +1046,20 @@ void PulseGraphs(TString myFileName, TString myFilePath, int nCham){
   makeDirectory("PulseGraphs"); 
 
   TCanvas *canv_pulse; 
-  TH2F *pulse; 
-
+  TH2F *gPulse; 
+  TString cname="Pulse_Graph_all_chambers";
+  TString ctitle="Pulse Graph over all Chambers";
+  canv_pulse =  new TCanvas(cname,ctitle,1100,700);
+  gPulse = (TH2F*)myfile->Get("pulse"); 
+  gPulse->GetXaxis()->SetLabelSize(0.07);
+  gPulse->GetYaxis()->SetLabelSize(0.07);
+  gPulse->GetXaxis()->SetTitleSize(0.07);
+  gPulse->GetXaxis()->SetTitleOffset(0.7);
+  gPulse->GetXaxis()->SetTitle("Time (ns)");
+  gPulse->GetYaxis()->SetTitle("ADC Count");
+  canv_pulse->cd();
+  gPulse->Draw();   
+  /*
   int idArray[9];
   GetChamberIDs(idArray);
    for (int cham_num=0; cham_num<nCham; ++cham_num){
@@ -1089,15 +1101,15 @@ void PulseGraphs(TString myFileName, TString myFilePath, int nCham){
        pulse->GetYaxis()->SetTitle("ADC Count");
        pulse->Draw();   
      }//for CFEB 
-     gSystem->cd("PulseGraphs");  
-     TString PulseGraphCanvName = canv_pulse->GetName();
-     
-     PrintAsGif(canv_pulse,PulseGraphCanvName);
-   }//for cham   
-gSystem->cd("/afs/cern.ch/user/c/csccalib/scratch0/CMSSW_1_1_1/src/OnlineDB/CSCCondDB/test");
-//gSystem->cd("../../../../");  
-directoryCheck();   
-myfile->Close(); 
+}//for cham    
+  */ 
+  gSystem->cd("PulseGraphs");   
+  TString PulseGraphCanvName = canv_pulse->GetName();
+  PrintAsGif(canv_pulse,PulseGraphCanvName);
+  
+  gSystem->cd("/afs/cern.ch/user/c/csccalib/scratch0/CMSSW_1_5_1/src/OnlineDB/CSCCondDB/test");
+  directoryCheck();   
+  myfile->Close(); 
 }//PulseGraphs() 
 
 void PeakGraphs(TString myFileName, TString myFilePath, int nCham){ 
@@ -1261,6 +1273,6 @@ PeakGraphCanvArray.Add(canv_peak);
 
 PrintAsGif(canv_peak, PeakGraphCanvName); 
 }//for chamber
-gSystem->cd("/afs/cern.ch/user/c/csccalib/scratch0/CMSSW_1_1_1/src/OnlineDB/CSCCondDB/test");
+gSystem->cd("/afs/cern.ch/user/c/csccalib/scratch0/CMSSW_1_5_1/src/OnlineDB/CSCCondDB/test");
 directoryCheck(); 
 }//PeakGraphs 

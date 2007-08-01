@@ -84,7 +84,7 @@ gROOT->ProcessLine(".q");
 void GetChamberIDs(int IDArray[9]){
 TCanvas *IDcanv = new TCanvas ("idGraph", "idGraph");
 IDcanv->cd();
-TH1F *idDummy = new TH1F("idDummy", "idDummy", 10, 220000000, 221000000);
+TH1F *idDummy = new TH1F("idDummy", "idDummy", 480, 111000, 250000);
 idDummy->Draw();
 for (int chamber=0; chamber<9; ++chamber){
   TString idCut = Form ("cham==%d", chamber);
