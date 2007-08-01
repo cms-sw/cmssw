@@ -1,7 +1,8 @@
 #!/bin/bash
 
-nsls /castor/cern.ch/cms/emuslice/2006/ > Runs.txt 
-grep -e Saturation_ Runs.txt > AllSaturationRuns.txt 
+#nsls /castor/cern.ch/cms/emuslice/2006/ > Runs.txt 
+ls /tmp/csccalib > Runs.txt
+grep -e Saturation Runs.txt > AllSaturationRuns.txt 
 grep -e "RUI" AllSaturationRuns.txt > GoodSaturationRuns.txt
 grep -e "RUI" AllSaturationRuns.txt > GoodSaturationRunsDummy.txt
 
@@ -26,18 +27,19 @@ do
    MINSIZE=1
    if [ $FILESIZE -gt $MINSIZE ]; then
        #loop over all runs in tempFile.txt
-       cat tempFile.txt | while read line
-       do
+#       cat tempFile.txt | while read line
+#       do
 	 #rfcp each file in tempFile.txt
-	 echo "copying $line from castor";
+	 #echo "copying $line from castor";
 	 #rfcp "/castor/cern.ch/cms/emuslice/2006/$line" "/tmp/csccalib/$line";
-	 echo "copied $line from castor";
-       done
+	 #echo "copied $line from castor";
+ #      done
        #Create a .cfg file, based on tempFile.txt. it will output CSCsaturation.cfg, which
        #will put all files from tempFile.txt in the .cfg for input to cmsRun. 
        #this will also rewrite GoodSaturationRunsDummy.txt to exclude the runs found in tempFile.txt,
        #which exlcudes multiple processing
        echo "creating config with perl";
+       perl ConfigChanges.pl "/tmp/csccalib/$line";
        perl CreateConfigSaturation.pl; 
        echo "perl done, starting job";
        #run the cms job

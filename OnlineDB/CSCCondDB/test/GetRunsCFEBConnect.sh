@@ -35,6 +35,7 @@ do
   #copy to /tmp/cscclaib directory
   rfcp "/castor/cern.ch/cms/emuslice/2006/$line" "/tmp/csccalib/$line";
   #create a config file using the perl script
+  perl ConfigChanges.pl "/tmp/csccalib/$line";  
   perl CreateConfigConnectivity.pl "/tmp/csccalib/$line";
   #execute the the analyzer using the newly create config file. 
   # .root file will go into /tmp/csccalib

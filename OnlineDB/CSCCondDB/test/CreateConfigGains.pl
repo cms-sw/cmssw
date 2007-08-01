@@ -7,24 +7,40 @@ close(RUNFILE);
 
 foreach $run (@runs)  
 {
-$runName = substr($run,0,40);
+if( $run =~ "Gains" ){$runName = substr($run,0,40)}
+else {$runName = substr($run,0,39)};
+
 $runName = "/tmp/csccalib/" . $runName;
 $list = "$list" . "\"" . "$runName" . "\",";
+$RUI_DUMMY = substr($run,16);
+$RUI = substr($RUI_DUMMY,0, 5);
 }  
 
 #cut off the last comma from the run list. 
 
 $list = substr($list,0,-1);
 
-$gains = 
+#read in config updates from ConfigUpdate.txt
+open (UPDATES, "ConfigUpdate.txt");
+while (<UPDATES>) {
+    $DSOURCE_INPUT = $DSOURCE_INPUT . $_ ;
+}
+close(UPDATES);
 
+
+$gains = 
 "process TEST = {
         source = DaqSource{ string reader = \"CSCFileReader\" 
-                        untracked int32 maxEvents = -1
-                PSet pset = {untracked vstring fileNames ={$list}} 
+              	PSet pset = {untracked vstring $RUI ={$list}
+                untracked string dataType  = \"DAQ\"
+                untracked int32 input = -1
+                $DSOURCE_INPUT
+                untracked int32 firstEvent = 0
+}
         }
  
         module cscunpacker = CSCDCCUnpacker { 
+        InputTag InputObjects = source
         //untracked bool PrintEventNumber = false 
         untracked bool Debug = false 
         untracked int32 debugVerbosity = 0 

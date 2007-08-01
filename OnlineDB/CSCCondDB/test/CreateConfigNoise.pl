@@ -1,12 +1,25 @@
 #!/usr/local/bin/perl
 
+#read in config updates from ConfigUpdate.txt
+open (UPDATES, "ConfigUpdate.txt");
+while (<UPDATES>) {
+    $DSOURCE_INPUT = $DSOURCE_INPUT . $_ ;
+}
+close(UPDATES);
+
+$RUI_DUMMY = substr($ARGV[0],30);
+$RUI = substr($RUI_DUMMY,0, 5);
+
 $noise =  
 "process TEST = {
  	source = DaqSource{ string reader = \"CSCFileReader\"
-               	 	untracked int32 maxEvents = -1
-               	PSet pset = {untracked vstring fileNames ={\"$ARGV[0]\"}}
+               	PSet pset = {untracked vstring $RUI ={\"$ARGV[0]\"}
+                untracked string dataType  = \"DAQ\"
+                untracked int32 input = -1
+                $DSOURCE_INPUT
+                untracked int32 firstEvent = 0
 	}
-
+}
 	module cscunpacker = CSCDCCUnpacker {
         //untracked bool PrintEventNumber = false
 	untracked bool Debug = false
