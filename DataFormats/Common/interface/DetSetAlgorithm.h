@@ -40,9 +40,9 @@ namespace edmNew {
   // to write an easy iterator on objects in a range of DataSets selected by sel
   // is left as exercise to the reader 
   // here we provide this not optimal solution...
-  template <typename DSTV, typename A, typename B>
+  template <typename DSTV, typename A, typename B, typename T>
   void copyDetSetRange(DSTV const & dstv,    
-		       std::vector<typename DSTV::data_type const *> & v, 
+		       std::vector<T const *> & v, 
 		       std::pair<A,B> const & sel) {
     typename DSTV::Range range = dstv.equal_range(sel.first,sel.second);
     for(typename DSTV::const_iterator id=range.first; id!=range.second; id++){
