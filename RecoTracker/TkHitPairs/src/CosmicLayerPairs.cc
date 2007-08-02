@@ -10,8 +10,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include <vector>
-#include <boost/iterator/indirect_iterator.hpp>
-#include <algorithm>
+#include "DataFormats/Common/interface/DetSetAlgorithm.h"
 
 
 std::vector<SeedLayerPairs::LayerPair> CosmicLayerPairs::operator()() 
@@ -265,28 +264,6 @@ void CosmicLayerPairs::init(const SiStripRecHit2DCollection &collstereo,
         //std::cout << "wheel 8" << std::endl;
 }
 
-namespace {
-
-  struct Pointer {
-    template<typename H> 
-    const TrackingRecHit* operator()(H const& h) const { return &h;}
-  };
-
-  template <typename C, typename A, typename B>
-  typename C::Range copyRange(C const & c, 	
-			      std::vector<const TrackingRecHit*> hits, 
-			      std::pair<A,B> const & p) {
-    typename C::Range range = c.equal_range(p.first,p.second);
-    for(typename C::const_iterator id=range.first; id!=range.second; id++){
-      size_t cs = hits.size();
-      hits.resize(cs+range.second-range.first);
-      std::transform((*id).begin(), (*id).end(),hits.begin()+cs,Pointer());
-    }
-
-  }
-
-
-}
 
 std::vector<const TrackingRecHit*> CosmicLayerPairs::selectTECHit(const SiStripRecHit2DCollection &collrphi,
 								int side,
@@ -294,7 +271,7 @@ std::vector<const TrackingRecHit*> CosmicLayerPairs::selectTECHit(const SiStripR
 	std::vector<const TrackingRecHit*> theChoosedHits;
   	TrackerLayerIdAccessor acc;
 	//std::cout << "in selectTECHit" << std::endl;	
-	copyRange(collrphi, theChoosedHits, acc.stripTECDisk(side,disk));
+	edmNew::copyDetSetRange(collrphi, theChoosedHits, acc.stripTECDisk(side,disk));
 	return theChoosedHits;	
 }
 
@@ -303,7 +280,7 @@ std::vector<const TrackingRecHit*> CosmicLayerPairs::selectTIBHit(const SiStripR
 	std::vector<const TrackingRecHit*> theChoosedHits;
 	TrackerLayerIdAccessor acc; 
         //std::cout << "in selectTIBHit" << std::endl;
-        copyRange(collrphi, theChoosedHits, acc.stripTIBLayer(layer));
+        edmNew::copyDetSetRange(collrphi, theChoosedHits, acc.stripTIBLayer(layer));
         return theChoosedHits;
 
 }
@@ -313,7 +290,7 @@ std::vector<const TrackingRecHit*> CosmicLayerPairs::selectTOBHit(const SiStripR
 	std::vector<const TrackingRecHit*> theChoosedHits;
 	TrackerLayerIdAccessor acc;
         //std::cout << "in selectTOBHit" << std::endl;
-        copyRange(collrphi,theChoosedHits,acc.stripTOBLayer(layer));
+        edmNew::copyDetSetRange(collrphi,theChoosedHits,acc.stripTOBLayer(layer));
         return theChoosedHits;
 }
 
@@ -323,7 +300,7 @@ std::vector<const TrackingRecHit*> CosmicLayerPairs::selectTECHit(const SiStripM
         std::vector<const TrackingRecHit*> theChoosedHits;
         TrackerLayerIdAccessor acc;
         //std::cout << "in selectTECHit" << std::endl;
-        copyRange(collmatch,theChoosedHits,acc.stripTECDisk(side,disk));
+        edmNew::copyDetSetRange(collmatch,theChoosedHits,acc.stripTECDisk(side,disk));
         return theChoosedHits;
 
 }
@@ -333,7 +310,7 @@ std::vector<const TrackingRecHit*> CosmicLayerPairs::selectTIBHit(const SiStripM
         std::vector<const TrackingRecHit*> theChoosedHits;
         TrackerLayerIdAccessor acc;
         //std::cout << "in selectTIBHit" << std::endl;
-        copyRange(collmatch,theChoosedHits,acc.stripTIBLayer(layer));
+        edmNew::copyDetSetRange(collmatch,theChoosedHits,acc.stripTIBLayer(layer));
         return theChoosedHits;
 
 }
@@ -343,6 +320,6 @@ std::vector<const TrackingRecHit*> CosmicLayerPairs::selectTOBHit(const SiStripM
         std::vector<const TrackingRecHit*> theChoosedHits;
         TrackerLayerIdAccessor acc;
         //std::cout << "in selectTOBHit" << std::endl;
-        copyRange(collmatch,theChoosedHits,acc.stripTOBLayer(layer));
+        edmNew::copyDetSetRange(collmatch,theChoosedHits,acc.stripTOBLayer(layer));
         return theChoosedHits;
 }
