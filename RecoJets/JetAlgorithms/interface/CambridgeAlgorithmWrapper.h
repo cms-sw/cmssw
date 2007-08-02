@@ -1,10 +1,10 @@
-#ifndef JetAlgorithms_FastJetAlgorithmWrapper_h
-#define JetAlgorithms_FastJetAlgorithmWrapper_h
+#ifndef JetAlgorithms_CambridgeAlgorithmWrapper_h
+#define JetAlgorithms_CambridgeAlgorithmWrapper_h
 
-/** \class FastJetAlgorithmWrapper
+/** \class CambridgeAlgorithmWrapper
  *
- * FastJetAlgorithmWrapper is the Wrapper subclass which runs
- * the FastJetAlgorithm for jetfinding. 
+ * CambridgeAlgorithmWrapper is the Wrapper subclass which runs
+ * the CambridgeAlgorithm of FastJet for jetfinding. 
  * 
  * The FastJet package, written by Matteo Cacciari and Gavin Salam, 
  * provides a fast implementation of the longitudinally invariant kt 
@@ -16,7 +16,7 @@
  * and Dorian Kcira, Institut de Physique Nucleaire
  * Departement de Physique
  * Universite Catholique de Louvain
- * have written the FastJetAlgorithmWrapper class
+ * have written the CambridgeAlgorithmWrapper class
  * which uses the above mentioned package within the Framework
  * of CMSSW
  *
@@ -30,10 +30,10 @@
 
 #include "RecoJets/JetAlgorithms/interface/FastJetBaseWrapper.h"
 
-class FastJetAlgorithmWrapper : public FastJetBaseWrapper {
+class CambridgeAlgorithmWrapper : public FastJetBaseWrapper {
  public:
-  FastJetAlgorithmWrapper(const edm::ParameterSet& fConfig);
-  virtual ~FastJetAlgorithmWrapper();
+  CambridgeAlgorithmWrapper(const edm::ParameterSet& fConfig);
+  virtual ~CambridgeAlgorithmWrapper();
  protected:
   virtual void makeJetDefinition (const edm::ParameterSet& fConfig);
 };

@@ -1,7 +1,7 @@
 // File: SISConeJetProducer.cc
 // Description:  see SISConeJetProducer.h
 // Author:  Fedor Ratnikov, Maryland, June 30, 2007
-// $Id: SISConeJetProducer.cc,v 1.22 2007/05/19 04:20:10 fedor Exp $
+// $Id: SISConeJetProducer.cc,v 1.1 2007/06/30 17:24:07 fedor Exp $
 //
 //--------------------------------------------
 #include <memory>
@@ -24,14 +24,7 @@ namespace cms
 
   SISConeJetProducer::SISConeJetProducer(edm::ParameterSet const& conf):
     BaseJetProducer (conf),
-    alg_(
-	 conf.getParameter<double>("coneRadius"),
-	 conf.getParameter<double>("coneOverlapThreshold"),
-	 conf.getParameter<std::string>("splitMergeScale"),
-	 conf.getParameter<int>("maxPasses"),
-	 conf.getParameter<double>("protojetPtMin"),
-	 conf.getParameter<bool>("caching"),
-	 conf.getUntrackedParameter<int>("debugLevel",0))
+    alg_(conf)
   {}
 
 

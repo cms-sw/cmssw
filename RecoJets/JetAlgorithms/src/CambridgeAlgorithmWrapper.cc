@@ -1,4 +1,4 @@
-// File: FastJetAlgorithmWrapper.cc
+// File: CambridgeAlgorithmWrapper.cc
 // Description:  see FastJetProducer.h
 // Author:  Andreas Oehler, University Karlsruhe (TH)
 // Author:  Dorian Kcira, Institut de Physique Nucleaire,
@@ -13,15 +13,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "RecoJets/JetAlgorithms/interface/FastJetAlgorithmWrapper.h"
+#include "RecoJets/JetAlgorithms/interface/CambridgeAlgorithmWrapper.h"
 
-FastJetAlgorithmWrapper::FastJetAlgorithmWrapper(const edm::ParameterSet& fConfig)
+CambridgeAlgorithmWrapper::CambridgeAlgorithmWrapper(const edm::ParameterSet& fConfig)
   : FastJetBaseWrapper (fConfig)
 {}
 
-FastJetAlgorithmWrapper::~FastJetAlgorithmWrapper () {}
+CambridgeAlgorithmWrapper::~CambridgeAlgorithmWrapper () {}
 
-void FastJetAlgorithmWrapper::makeJetDefinition (const edm::ParameterSet& fConfig) {
+void CambridgeAlgorithmWrapper::makeJetDefinition (const edm::ParameterSet& fConfig) {
   //configuring algorithm 
   double rParam = fConfig.getParameter<double> ("FJ_ktRParam");
   //choosing search-strategy:
@@ -33,7 +33,7 @@ void FastJetAlgorithmWrapper::makeJetDefinition (const edm::ParameterSet& fConfi
   else if (strategy == "N2MinHeapTiled") fjStrategy = fastjet::N2MinHeapTiled;  // N2MinHeapTiles is best for 400<N<15000
   else if (strategy == "NlnN") fjStrategy = fastjet::NlnN;  // NlnN is best for N>15000
   else if (strategy == "NlnNCam") fjStrategy = fastjet::NlnNCam;  // NlnNCam is best for N>6000
-  else  edm::LogError("FastJetDefinition") << "FastJetAlgorithmWrapper-> Unknown strategy: " 
+  else  edm::LogError("FastJetDefinition") << "CambridgeAlgorithmWrapper-> Unknown strategy: " 
 					   << strategy
 					   << ". Known strategies: Best N2Plain N2Tiled N2MinHeapTiled NlnN" << std::endl;
   //additional strategies are possible, but not documented in the manual as they are experimental,
@@ -44,5 +44,5 @@ void FastJetAlgorithmWrapper::makeJetDefinition (const edm::ParameterSet& fConfi
   //different.
   
   delete mJetDefinition;
-  mJetDefinition = new fastjet::JetDefinition (fastjet::kt_algorithm, rParam, fjStrategy);
+  mJetDefinition = new fastjet::JetDefinition (fastjet::cambridge_algorithm, rParam, fjStrategy);
 }

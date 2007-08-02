@@ -19,7 +19,9 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
-
+#include "DataFormats/Common/interface/RefHolder.h"
+#include "DataFormats/Common/interface/Holder.h"
+ 	 
 using namespace reco;
 
 namespace {
@@ -79,9 +81,14 @@ namespace {
     edm::Wrapper<JetToTracksAssociation::Container>  j2t_c_w;
 
     // RefToBase Holders for Jets
-    edm::reftobase::Holder<reco::Jet, reco::CaloJetRef> rb_cj;
-    edm::reftobase::Holder<reco::Jet, reco::GenJetRef>  rb_gj;
-    edm::reftobase::Holder<reco::Jet, reco::PFJetRef>   rb_pfj;
+    edm::RefToBase<reco::Jet>  rtbj;
+    edm::reftobase::IndirectHolder<reco::Jet> ihj;
+    edm::reftobase::Holder<reco::Jet, reco::CaloJetRef> hcj;
+    edm::reftobase::Holder<reco::Jet, reco::GenJetRef> hgj;
+    edm::reftobase::Holder<reco::Jet, reco::PFJetRef> hpfj;
+    edm::reftobase::RefHolder<reco::CaloJetRef> rhcj;
+    edm::reftobase::RefHolder<reco::GenJetRef> rhgj;
+    edm::reftobase::RefHolder<reco::PFJetRef> rhpfj;
   }
 }
 #endif
