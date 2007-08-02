@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.76 2007/07/30 04:22:28 wmtan Exp $
+$Id: RootFile.cc,v 1.77 2007/07/31 23:58:56 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -230,9 +230,15 @@ namespace edm {
     }
     // We're not done ... so prepare the EventPrincipal
     std::auto_ptr<EventPrincipal> thisEvent(new EventPrincipal(
-                eventID(), eventAux_.time(), pReg,
-		lbp, processConfiguration_, eventAux_.isRealData(), eventAux_.experimentType(),
-		999, 0, eventAux_.processHistoryID_, eventTree().makeDelayedReader()));
+                eventID(),
+		eventAux_.time(), pReg,
+		lbp, processConfiguration_,
+		eventAux_.isRealData(),
+		eventAux_.experimentType(),
+		eventAux_.bunchCrossing(),
+                eventAux_.storeNumber(),
+		eventAux_.processHistoryID_,
+		eventTree().makeDelayedReader()));
 
     // Create a group in the event for each product
     eventTree().fillGroups(thisEvent->groupGetter());

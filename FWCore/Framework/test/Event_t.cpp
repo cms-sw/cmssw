@@ -3,7 +3,7 @@
 
 Test program for edm::Event.
 
-$Id: Event_t.cpp,v 1.19 2007/07/29 17:52:20 marafino Exp $
+$Id: Event_t.cpp,v 1.20 2007/08/02 21:12:09 marafino Exp $
 ----------------------------------------------------------------------*/
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
@@ -271,9 +271,6 @@ testEvent::~testEvent()
 void testEvent::setUp() 
 {
 
-  int invalidBunchXing = -1;
-  int invalidStoreNum = 0;
-
   // First build a fake process history, that says there
   // were previous processes named "EARLY" and "LATE".
   // This takes several lines of code but other than
@@ -344,8 +341,8 @@ void testEvent::setUp()
                                    currentModuleDescription_->processConfiguration(),
                                    true,
 				   EventAuxiliary::Any,
-				   invalidBunchXing,
-				   invalidStoreNum,
+				   EventPrincipal::invalidBunchXing,
+				   EventPrincipal::invalidStoreNumber,
                                    processHistoryID);
 
   currentEvent_ = new Event(*principal_, *currentModuleDescription_);

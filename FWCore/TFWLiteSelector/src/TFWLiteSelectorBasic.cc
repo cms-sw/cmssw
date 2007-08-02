@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 27 17:58:10 EDT 2006
-// $Id: TFWLiteSelectorBasic.cc,v 1.25 2007/07/29 17:55:08 marafino Exp $
+// $Id: TFWLiteSelectorBasic.cc,v 1.26 2007/08/02 21:10:08 marafino Exp $
 //
 
 // system include files
@@ -262,13 +262,15 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
       //     }
 
       try {
-	 int invalidBunchXing = -1;
-	 int invalidStoreNum = 0;
 	 m_->reader_->setEntry(iEntry);
 	 edm::ProcessConfiguration pc;
 	 boost::shared_ptr<edm::ProductRegistry const> reg(&m_->reg_);
-	 edm::EventPrincipal ep(aux.id(), aux.time(), reg, 1, pc, true, edm::EventAuxiliary::Any,
-                                invalidBunchXing, invalidStoreNum, aux.processHistoryID(), m_->reader_);
+	 edm::EventPrincipal ep(aux.id(), aux.time(), reg, 1, pc, true,
+				edm::EventAuxiliary::Any,
+                                edm::EventPrincipal::invalidBunchXing,
+				edm::EventPrincipal::invalidStoreNumber,
+			        aux.processHistoryID(),
+				m_->reader_);
          m_->processNames_ = ep.processHistory();
 
 	 using namespace edm;

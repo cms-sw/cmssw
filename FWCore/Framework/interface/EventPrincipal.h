@@ -10,7 +10,7 @@ such code sees the Event class, which is a proxy for EventPrincipal.
 The major internal component of the EventPrincipal
 is the DataBlock.
 
-$Id: EventPrincipal.h,v 1.62 2007/07/29 17:49:46 marafino Exp $
+$Id: EventPrincipal.h,v 1.63 2007/08/02 21:11:07 marafino Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -29,6 +29,8 @@ namespace edm {
     typedef Principal Base;
   public:
     typedef Base::SharedConstGroupPtr SharedConstGroupPtr;
+    static int const invalidBunchXing = EventAuxiliary::invalidBunchXing;
+    static int const invalidStoreNumber = EventAuxiliary::invalidStoreNumber;
     EventPrincipal(EventID const& id,
 	Timestamp const& time,
 	boost::shared_ptr<ProductRegistry const> reg,
@@ -36,8 +38,8 @@ namespace edm {
         ProcessConfiguration const& pc,
         bool isReal,
 	EventAuxiliary::ExperimentType const eType = EventAuxiliary::Any,
-	int bunchXing = -1,
-	int storeNo = 0,
+	int bunchXing = invalidBunchXing,
+	int storeNumber = invalidStoreNumber,
 	ProcessHistoryID const& hist = ProcessHistoryID(),
 	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
     EventPrincipal(EventID const& id,
@@ -47,8 +49,8 @@ namespace edm {
         ProcessConfiguration const& pc,
         bool isReal,
 	EventAuxiliary::ExperimentType const eType = EventAuxiliary::Any,
-	int bunchXing = -1,
-	int storeNo = 0,
+	int bunchXing = invalidBunchXing,
+	int storeNumber = invalidStoreNumber,
 	ProcessHistoryID const& hist = ProcessHistoryID(),
 	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
     ~EventPrincipal() {}

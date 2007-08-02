@@ -306,8 +306,8 @@ namespace edm {
                                                    processConfiguration(),
                                                    true,
 						   EventAuxiliary::Any,
-						   999,
-						   0,
+						   EventPrincipal::invalidBunchXing,
+						   EventPrincipal::invalidStoreNumber,
 						   processHistoryID_));
     // no process name list handling
 

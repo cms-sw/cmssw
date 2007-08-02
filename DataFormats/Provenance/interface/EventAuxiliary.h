@@ -24,6 +24,8 @@ namespace edm
       Raw = 6,
       Test = 7
     };
+    static int const invalidBunchXing = -1;
+    static int const invalidStoreNumber = 0;
     EventAuxiliary() :
 	processHistoryID_(),
 	id_(),
@@ -31,10 +33,11 @@ namespace edm
 	luminosityBlock_(),
 	isRealData_(false), 
 	experimentType_(Any),
-	bunchCrossing_(),
-        storeNumber_() {}
+	bunchCrossing_(invalidBunchXing),
+        storeNumber_(invalidStoreNumber) {}
     EventAuxiliary(EventID const& theId, Timestamp const& theTime, LuminosityBlockNumber_t lb,
-                     bool isReal, ExperimentType eType = Any, int bunchXing = 0, int storeNo = 0) :
+                   bool isReal, ExperimentType eType = Any,
+		   int bunchXing = invalidBunchXing, int storeNumber = invalidStoreNumber) :
 	processHistoryID_(),
 	id_(theId),
 	time_(theTime),
@@ -42,7 +45,7 @@ namespace edm
 	isRealData_(isReal),
         experimentType_(eType),
 	bunchCrossing_(bunchXing),
-	storeNumber_(storeNo) {}
+	storeNumber_(storeNumber) {}
     ~EventAuxiliary() {}
     void write(std::ostream& os) const;
     ProcessHistoryID& processHistoryID() const {return processHistoryID_;}

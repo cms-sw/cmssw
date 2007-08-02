@@ -14,11 +14,11 @@ namespace edm {
         bool isReal,
         EventAuxiliary::ExperimentType eType,
 	int bunchXing,
-	int storeNo,
+	int storeNumber,
 	ProcessHistoryID const& hist,
 	boost::shared_ptr<DelayedReader> rtrv) :
 	  Base(reg, pc, hist, rtrv),
-	  aux_(id, time, lbp->luminosityBlock(), isReal, eType, bunchXing, storeNo),
+	  aux_(id, time, lbp->luminosityBlock(), isReal, eType, bunchXing, storeNumber),
 	  luminosityBlockPrincipal_(lbp),
 	  unscheduledHandler_() {
 	  }
@@ -31,11 +31,11 @@ namespace edm {
         bool isReal,
         EventAuxiliary::ExperimentType eType,
 	int bunchXing,
-	int storeNo,
+	int storeNumber,
 	ProcessHistoryID const& hist,
 	boost::shared_ptr<DelayedReader> rtrv) :
 	  Base(reg, pc, hist, rtrv),
-	  aux_(id, time, lumi, isReal, eType, bunchXing, storeNo),
+	  aux_(id, time, lumi, isReal, eType, bunchXing, storeNumber),
 	  luminosityBlockPrincipal_(new LuminosityBlockPrincipal(lumi, time, time, reg, id.run(), pc)),
 	  unscheduledHandler_() { }
 
