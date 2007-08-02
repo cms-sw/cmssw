@@ -4,7 +4,7 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about
 it.
 
-$Id: cmsRun.cpp,v 1.37 2007/07/03 00:20:57 rpw Exp $
+$Id: cmsRun.cpp,v 1.38 2007/07/24 17:49:49 fischler Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -280,6 +280,18 @@ int main(int argc, char* argv[])
     jobRep->reportError(shortDesc, longDesc.str(), rc);
     edm::LogSystem(shortDesc) << longDesc.str() << "\n";
   }
+  catch(std::bad_alloc& bda) {
+    std::string shortDesc("std::bad_allocException");
+    std::ostringstream longDesc;
+    longDesc << "std::bad_alloc exception caught in "
+	     << kProgramName
+	     << "\n"
+	     << "The job has probably exhausted the virtual memory available to the process.\n";
+    rc = 8004;
+    jobRep->reportError(shortDesc, longDesc.str(), rc);
+    edm::LogSystem(shortDesc) << longDesc.str() << "\n";
+  }
+
   catch (std::exception& e) {
     std::string shortDesc("StdLibException");
     std::ostringstream longDesc;

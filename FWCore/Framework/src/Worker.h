@@ -6,7 +6,7 @@
 Worker: this is a basic scheduling unit - an abstract base class to
 something that is really a producer or filter.
 
-$Id: Worker.h,v 1.22 2007/06/05 04:02:32 wmtan Exp $
+$Id: Worker.h,v 1.23 2007/06/14 17:52:18 wmtan Exp $
 
 A worker will not actually call through to the module unless it is
 in a Ready state.  After a module is actually run, the state will not
@@ -247,6 +247,16 @@ namespace edm {
 	}
       }
     
+    catch(std::bad_alloc& bda) {
+	if (isEvent) ++timesExcept_;
+	state_ = Exception;
+	cached_exception_.reset(new cms::Exception("std::bad_alloc"));
+	*cached_exception_
+	  << "An std::bad_alloc exception occurred during a call to the module ";
+	exceptionContext(md_, ep, *cached_exception_) << "module.\n"
+	  << "The job has probably exhausted the virtual memory available to the process.\n";
+	throw *cached_exception_;
+    }
     catch(std::exception& e) {
 	if (isEvent) ++timesExcept_;
 	state_ = Exception;
