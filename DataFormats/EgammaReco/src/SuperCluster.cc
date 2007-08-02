@@ -1,17 +1,17 @@
-// $Id: SuperCluster.cc,v 1.8 2007/02/13 20:26:44 futyand Exp $
+// $Id: SuperCluster.cc,v 1.9 2007/07/31 15:20:04 ratnik Exp $
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 using namespace reco;
 
 SuperCluster::SuperCluster( double energy, const math::XYZPoint& position ) :
-  EcalCluster( energy, position ) {
+  EcalCluster( energy, position ), rawEnergy_(-1.) {
 }
 
 SuperCluster::SuperCluster( double energy, const math::XYZPoint& position,
                             const BasicClusterRef & seed,
                             const BasicClusterRefVector& clusters,
 			    double Epreshower) :
-  EcalCluster(energy,position)
+  EcalCluster(energy,position), rawEnergy_(-1.)
 {
 
   seed_ = seed;
@@ -36,14 +36,13 @@ SuperCluster::SuperCluster( double energy, const math::XYZPoint& position,
 
 double SuperCluster::rawEnergy() const
 {
-
-  double sumEnergy = 0.;
-  reco::basicCluster_iterator bcItr;
-  for(bcItr = clustersBegin(); bcItr != clustersEnd(); bcItr++)
-    {
-      sumEnergy += (*bcItr)->energy();
-    }
-
-  return sumEnergy;
-
+  if (rawEnergy_<0) {
+    rawEnergy_ = 0.;
+    reco::basicCluster_iterator bcItr;
+    for(bcItr = clustersBegin(); bcItr != clustersEnd(); bcItr++)
+      {
+	rawEnergy_ += (*bcItr)->energy();
+      }
+  }
+  return rawEnergy_;
 }
