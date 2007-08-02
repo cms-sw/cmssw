@@ -9,7 +9,7 @@
 </ConstantsSection>
 
 <SolidSection label="zdcSolids">
- <Box name="ZDCWorld" dx="14.4*cm" dy="64.00*cm" dz="1.5*m"/>
+ <Box name="ZDCWorld" dx="14.4*cm" dy="64.00*cm" dz="2.0*m"/>
  <Box name="ZDC" dx="8.0*cm" dy="64.0*cm" dz="90.0*cm"/>
  <Box name="ZDC_HadLayer" dx="4.8*cm" dy="6.25*cm" dz="8*mm"/>
  <Box name="ZDC_HadAbsorber" dx="4.8*cm" dy="6.25*cm" dz="7.5*mm"/>
@@ -59,8 +59,16 @@
  <PosPart copyNumber="1">
    <rParent name="zdc:ZDCWorld"/>
    <rChild name="zdc:ZDC"/>
-  <Translation x="0*fm" y="0*fm" z="50.0*cm" />
+  <Translation x="0*fm" y="0*fm" z="100.0*cm" />
  </PosPart>
+
+ <PosPart copyNumber="2">
+   <rParent name="zdc:ZDCWorld"/>
+   <rChild name="zdc:ZDC"/>
+   <rRotation name="zdcrotations:R0"/>
+  <Translation x="0*fm" y="0*fm" z="-100.0*cm" />
+ </PosPart>
+
  <PosPart copyNumber="1">
    <rParent name="zdc:ZDC"/>
    <rChild name="zdc:ZDC_HadLayer"/>
