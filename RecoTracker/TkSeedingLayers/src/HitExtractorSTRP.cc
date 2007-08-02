@@ -64,13 +64,9 @@ bool HitExtractorSTRP::ringRangeNodsTEC(const TrackingRecHit& hit) const {
     (!hasMatchedHits || (ring!=1 && ring!=2 && ring!=5));
 }
 
+#include "DataFormats/Common/interface/DetSetAlgorithm.h"
 
 namespace {
-
-  template <typename C, typename A, typename B>
-  typename C::Range rangeFromPair(C const & v, std::pair<A,B> const & p) {
-    return v.equal_range(p.first,p.second);
-  }
 
 
   bool True(const TrackingRecHit&) { return true;}
@@ -97,9 +93,7 @@ namespace {
 
   template <typename C, typename A, typename B>
   void foreachHit(C const & v, std::pair<A,B> const & p, Add & f) {
-    typename C::Range range = rangeFromPair(v,p);
-    for(typename C::const_iterator id=range.first; id!=range.second; id++)
-      std::for_each((*id).begin(), (*id).end(), boost::function<void(const TrackingRecHit&)>(boost::ref(f)));
+    edmNew::foreachDetSetObject(v,p,f);
   }
 
 

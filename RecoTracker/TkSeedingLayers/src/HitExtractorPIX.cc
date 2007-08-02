@@ -10,6 +10,9 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 
+#include "DataFormats/Common/interface/DetSetAlgorithm.h"
+
+
 using namespace ctfseeding;
 using namespace std;
 
@@ -18,10 +21,7 @@ HitExtractorPIX::HitExtractorPIX(
   : theSide(side), theIdLayer(idLayer), theHitProducer(hitProducer)
 { }
 
-template <typename A, typename B>
-SiPixelRecHitCollection::Range rangeFromPair(SiPixelRecHitCollection const & v, std::pair<A,B> const & p) {
-  return v.equal_range(p.first,p.second);
-}
+
 
 vector<SeedingHit> HitExtractorPIX::hits(const SeedingLayer & sl,const edm::Event& ev, const edm::EventSetup& es) const
 {
@@ -31,8 +31,8 @@ vector<SeedingHit> HitExtractorPIX::hits(const SeedingLayer & sl,const edm::Even
   ev.getByLabel( theHitProducer, pixelHits);
 
   const SiPixelRecHitCollection::Range range = (theSide==SeedingLayer::Barrel) ?
-    rangeFromPair(*pixelHits,accessor.pixelBarrelLayer(theIdLayer))
-    :  rangeFromPair(*pixelHits,accessor.pixelForwardDisk(theSide,theIdLayer));
+    edmNew::detsetRangeFromPair(*pixelHits,accessor.pixelBarrelLayer(theIdLayer))
+    :  edmNew::detsetRangeFromPair(*pixelHits,accessor.pixelForwardDisk(theSide,theIdLayer));
   for(SiPixelRecHitCollection::const_iterator id = range.first; id != range.second; id++)
     for(SiPixelRecHitCollection::DetSet::const_iterator it = (*id).begin(); it != (*id).end(); it++){
       result.push_back( SeedingHit(&(*it), sl, es) );
