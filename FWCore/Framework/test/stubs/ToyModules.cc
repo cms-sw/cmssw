@@ -509,7 +509,7 @@ namespace edmtest {
     product_type & v = *p;
     
     int n=0;
-    for (id_type id=1;id<size_;++id) {
+    for (id_type id=1;id<static_cast<id_type>(size_);++id) {
       ++n;
       detset item(v,id); // this will get DetID id
       item.resize(n);
