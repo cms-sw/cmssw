@@ -5,13 +5,14 @@
 #include <boost/ref.hpp>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
+#include <algoritm>
 
 //FIXME remove New when ready
 namespace edmNew {
 
   // adapt the RecHit accessors to DSTV
   template <typename DSTV, typename A, typename B>
-  DSTV::Range detsetRangeFromPair(DSVT const & v, std::pair<A,B> const & p) {
+  typename DSTV::Range detsetRangeFromPair(DSVT const & v, std::pair<A,B> const & p) {
     return v.equal_range(p.first,p.second);
   }
 
@@ -43,11 +44,11 @@ namespace edmNew {
   void copyDetSetRange(DSTV const & dstv,    
 		       std::vector<typename DSTV::data_type const *> v, 
 		       std::pair<A,B> const & sel) {
-    typename DSTV::Range range = dstv.equal_range(p.first,p.second);
+    typename DSTV::Range range = dstv.equal_range(sel.first,sel.second);
     for(typename DSTV::const_iterator id=range.first; id!=range.second; id++){
       size_t cs = v.size();
       v.resize(cs+range.second-range.first);
-      std::transform((*id).begin(), (*id).end(),v.begin()+cs,Pointer());
+      std::transform((*id).begin(), (*id).end(),v.begin()+cs,dstvdetails::Pointer());
     } 
   }
 }

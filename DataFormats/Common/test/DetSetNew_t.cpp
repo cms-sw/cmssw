@@ -4,6 +4,7 @@
 #define private public
 #include "DataFormats/Common/interface/DetSetNew.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/Common/interface/DetSetAlgorithm.h"
 #undef private
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -29,6 +30,7 @@ class TestDetSet: public CppUnit::TestFixture
   CPPUNIT_TEST(inserting);
   CPPUNIT_TEST(filling);
   CPPUNIT_TEST(iterator);
+  CPPUNIT_TEST(algorithm);
   CPPUNIT_TEST(onDemand);
 
   CPPUNIT_TEST_SUITE_END();
@@ -43,6 +45,7 @@ class TestDetSet: public CppUnit::TestFixture
   void inserting();
   void filling();
   void iterator();
+  void algorithm();
   void onDemand();
 
 public:
@@ -326,6 +329,69 @@ void TestDetSet::iterator() {
        CPPUNIT_ASSERT(err.categoryCode()==edm::errors::InvalidReference);
   }
 }
+
+namespace {
+
+  std::pair<unsigned int, cmp10> acc(unsigned int i){ 
+    return std::make_pair<i*10,cmp10()>;
+  }
+
+  struct VerifyAlgos {
+    VerifyAlgos(std::vector<DSTV::data_type const *> iv) : n(0), v(iv) {}
+
+    void operator()(DSTV::data_type const & d) const {
+      CPPUNIT_ASSERT(d==v[n]);
+      ++n;
+    }
+
+    mutable int n=0;
+    std::vector<DSTV::data_type const *> const & v;
+  };
+
+}
+
+
+
+
+void TestDetSet::algoritm() {
+  DSTV detsets(2);
+  for (unsigned int n=1;n<5;++n) {
+    unsigned int id=20+n;
+    FF ff(detsets,id);
+    ff.resize(n);
+    std::copy(sv.begin(),sv.begin()+n,ff.begin());
+  }
+  {
+    FF ff(detsets,31);
+    ff.resize(2);
+    std::copy(sv.begin(),sv.begin()+2,ff.begin());
+  }
+  {
+    FF ff(detsets,11);
+    ff.resize(2);
+    std::copy(sv.begin(),sv.begin()+2,ff.begin());
+  }
+  {
+    FF ff(detsets,34);
+    ff.resize(4);
+    std::copy(sv.begin(),sv.begin()+4,ff.begin());
+  }
+
+
+  DSTV::Range r = detsetRangeFromPair(detsets,acc(3));
+  CPPUNIT_ASSERT(r.second-r.first==2);
+  r =  edmNew::detsetRangeFromPair(detsets,acc(4));
+  CPPUNIT_ASSERT(r.second-r.first==0);
+
+  std::vector<DSTV::data_type const *> v;
+  edmNew::copyDetSetRange(detsets,v,acc(3));
+  VerifyAlgos va(v);
+  edmNew::foreachDetSetObject(detsets,acc(3), va);
+
+}
+
+
+
 #include <boost/assign/std/vector.hpp>
 // for operator =+
 using namespace boost::assign;
