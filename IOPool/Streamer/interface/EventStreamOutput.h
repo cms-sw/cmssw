@@ -122,7 +122,7 @@ namespace edm
   template <class Consumer>
   void EventStreamingModule<Consumer>::write(EventPrincipal const& e)
   {
-    // b contains the serialized data, the provanence information, and event
+    // b contains the serialized data, the provenance information, and event
     // header data - the collision ID and trigger bits, the object lifetime
     // is managed by the es_ object.
     es_.serialize(e);
