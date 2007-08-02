@@ -6,7 +6,7 @@
  *
  * \author Shahram Rahatlou, INFN
  *
- * \version $Id: EcalCluster.h,v 1.4 2006/04/21 15:29:38 rahatlou Exp $
+ * \version $Id: EcalCluster.h,v 1.5 2006/06/18 17:36:53 llista Exp $
  *
  */
 #include <vector>
@@ -31,7 +31,7 @@ namespace reco {
     double energy() const { return energy_; }
 
     /// cluster centroid position
-    math::XYZPoint position() const { return position_; }
+    const math::XYZPoint & position() const { return position_; }
 
     /// comparison >= operator
     bool operator >=(const EcalCluster& rhs) const { return (energy_>=rhs.energy_); }
