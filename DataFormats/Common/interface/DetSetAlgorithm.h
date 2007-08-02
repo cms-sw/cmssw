@@ -47,7 +47,7 @@ namespace edmNew {
     typename DSTV::Range range = dstv.equal_range(sel.first,sel.second);
     for(typename DSTV::const_iterator id=range.first; id!=range.second; id++){
       size_t cs = v.size();
-      v.resize(cs+range.second-range.first);
+      v.resize(cs+(*id).size());
       std::transform((*id).begin(), (*id).end(),v.begin()+cs,dstvdetails::Pointer());
     } 
   }

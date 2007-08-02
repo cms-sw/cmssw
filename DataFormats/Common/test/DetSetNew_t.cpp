@@ -337,7 +337,7 @@ namespace {
   }
 
   struct VerifyAlgos {
-    VerifyAlgos(std::vector<DSTV::data_type const *> iv) : n(0), v(iv) {}
+    VerifyAlgos(std::vector<DSTV::data_type const *> & iv) : n(0), v(iv) {}
 
     void operator()(DSTV::data_type const & d) const {
       CPPUNIT_ASSERT(d==*v[n]);
