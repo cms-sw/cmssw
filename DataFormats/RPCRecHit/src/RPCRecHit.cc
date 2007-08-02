@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/16 08:08:21 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/06/16 10:13:01 $
+ *  $Revision: 1.5 $
  *  \author M. Maggi -- INFN Bari
  */
 
@@ -10,18 +10,18 @@
 #include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
 
 
-RPCRecHit::RPCRecHit(const RPCDetId& rpcId, int bx) : 
+RPCRecHit::RPCRecHit(const RPCDetId& rpcId, int bx) :  RecHit2DLocalPos(rpcId),
   theRPCId(rpcId), theBx(bx),theFirstStrip(99),theClusterSize(99), theLocalPosition(), theLocalError() 
 {
 }
 
-RPCRecHit::RPCRecHit() : 
+RPCRecHit::RPCRecHit() :  RecHit2DLocalPos(rpcId),
   theRPCId(), theBx(99),theFirstStrip(99),theClusterSize(99), theLocalPosition(), theLocalError() 
 {
 }
 
 
-RPCRecHit::RPCRecHit(const RPCDetId& rpcId, int bx, const LocalPoint& pos) : 
+RPCRecHit::RPCRecHit(const RPCDetId& rpcId, int bx, const LocalPoint& pos) :  RecHit2DLocalPos(rpcId),
   theRPCId(rpcId), theBx(bx), theFirstStrip(99),theClusterSize(99), theLocalPosition(pos) 
 {
   float stripResolution = 3.0 ; //cm  this sould be taken from trimmed cluster size times strip size 
@@ -36,7 +36,7 @@ RPCRecHit::RPCRecHit(const RPCDetId& rpcId, int bx, const LocalPoint& pos) :
 RPCRecHit::RPCRecHit(const RPCDetId& rpcId,
 		     int bx,
 		     const LocalPoint& pos,
-		     const LocalError& err) :
+		     const LocalError& err) :  RecHit2DLocalPos(rpcId),
   theRPCId(rpcId), theBx(bx),theFirstStrip(99), theClusterSize(99), theLocalPosition(pos), theLocalError(err) 
 {
 }
@@ -48,7 +48,7 @@ RPCRecHit::RPCRecHit(const RPCDetId& rpcId,
 		     int firstStrip,
 		     int clustSize,
 		     const LocalPoint& pos,
-		     const LocalError& err) :
+		     const LocalError& err) :  RecHit2DLocalPos(rpcId),
   theRPCId(rpcId), theBx(bx),theFirstStrip(firstStrip), theClusterSize(clustSize), theLocalPosition(pos), theLocalError(err) 
 {
 }
@@ -66,14 +66,6 @@ RPCRecHit::~RPCRecHit()
 RPCRecHit * RPCRecHit::clone() const {
   return new RPCRecHit(*this);
 }
-
-
-
-// Return the detId of the Det (a RPCLayer).
-DetId RPCRecHit::geographicalId() const {
-  return theRPCId;
-}
-
 
 
 // Access to component RecHits.

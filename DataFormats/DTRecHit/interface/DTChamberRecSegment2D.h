@@ -11,8 +11,8 @@
  * A DTRecSegment4D has one of these objects, and so can access the full
  * information of the two projections.
  *
- * $Date: 2006/05/02 07:06:00 $
- * $Revision: 1.1 $
+ * $Date: 2006/06/29 17:18:27 $
+ * $Revision: 1.2 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -61,7 +61,7 @@ class DTChamberRecSegment2D : public DTRecSegment2D {
   // in DTSegmentCand, setPosition and setDirection can be used
   friend class DTSegmentCand; 
   friend class DTSegmentUpdator;
-  void setChamberId(DTChamberId chId){ theDetId = chId;}
+  void setChamberId(DTChamberId chId){ setId(chId);}
 
  protected:
 
