@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon May  7 14:22:37 CEST 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.2 2007/06/11 15:30:05 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.3 2007/08/01 20:33:05 fblekman Exp $
 //
 //
 
@@ -162,30 +162,35 @@ SiPixelGainCalibrationAnalysis::analyze(const edm::Event& iEvent, const edm::Eve
      myPixel.maxrow=maxrow;
      myPixel.maxcol=maxcol;
      myPixel.vcal=vcal;
-     if(test_)
-       myPixel.vcal = vcal+myPixel.vcal_step;
      myPixel.ntriggers=ntriggers;
      myPixel.nvcal= nvcal;
-     uint32_t ii=0;
-     edm::DetSet<PixelDigi>::const_iterator ipix;   
-     for(ipix = digiIter->data.begin(); ipix!=digiIter->end(); ipix++){
-     
-       myPixel.roc_id = 0;
-       myPixel.dcol_id = 0;
-       if(!test_){
+     if(test_){
+       if(eventno_counter_>nvcal)
+	 continue;
+       myPixel.vcal = myPixel.vcal_first+(myPixel.vcal_step*eventno_counter_);
+       myPixel.ntriggers=1;
+       for(uint32_t icol=0.4*myPixel.maxcol; icol< 0.6*myPixel.maxcol; icol++){
+	 for(uint32_t irow=0.4*myPixel.maxrow;irow<0.6*myPixel.maxrow; irow++){
+	   
+	   myPixel.adc=myPixel.vcal;
+	   myPixel.row=irow;
+	   myPixel.col=icol;
+	   fill(myPixel);
+	   irow++;
+	 }
+	 icol++;
+       }
+     }
+     else{// if no test
+       edm::DetSet<PixelDigi>::const_iterator ipix;   
+       for(ipix = digiIter->data.begin(); ipix!=digiIter->end(); ipix++){
+	 
+	 myPixel.roc_id = 0;
+	 myPixel.dcol_id = 0;
 	 myPixel.adc=ipix->adc();
 	 myPixel.row=ipix->row();
 	 myPixel.col=ipix->column();
 	 fill(myPixel);
-       }
-       else{
-	 if(ii<2){// for testing
-	   myPixel.adc=ipix->adc() ;
-	   myPixel.row=(maxrow*0.5)-ii;
-	   myPixel.col=(maxcol*0.5)-ii;
-	   fill(myPixel);
-	   ii++;
-	 }
        }
      }
    } 
@@ -254,8 +259,12 @@ SiPixelGainCalibrationAnalysis::endJob() {
   
   vcal_fitmin_ =  calib_.vcal_first();
   vcal_fitmax_ =  calib_.vcal_last();
+  if(vcal_fitmax_>vcal_fitmax_fixed_)
+    vcal_fitmax_=vcal_fitmax_fixed_;
+  TF1 *func = new TF1("func",fitfuncrootformula_.c_str(),vcal_fitmin_,vcal_fitmax_);
+  func->SetParameters(0,1);
   edm::LogInfo("SiPixelGainCalibrationAnalysis") << "fitting function in range : " << vcal_fitmin_ << " " << vcal_fitmax_ << std::endl;
-   //fancyfitfunction ( new TF1("fancyfitfunction","[0]+(([2]-[0])*0.5*(1+TMath::Erf((x-[3])/([1]*sqrt(x)))))",0,256) );
+   //fancyfitfunction ( new TF1("fancyfitfunction","[0]+(([2]-[0*0.5*(1+TMath::Erf((x-[3])/([1]*sqrt(x)))))",0,256) );
   // now do the big loop over everything...
 
   SiPixelGainCalibration_ = new SiPixelGainCalibration();// create database objects
@@ -293,16 +302,15 @@ SiPixelGainCalibrationAnalysis::endJob() {
 	else{
 	  edm::LogInfo("DEBUG") << "detector : " << detid << " row " << irow << " col " << icol << " is NOT empty!!!" << std::endl;
 	  TH1F *gr = (TH1F*)calib_containers_[itot].gethisto(irow,icol,therootfileservice_);
-	  if(gr->GetEntries()==0){
+	  if(gr->GetEntries()<gr->GetNbinsX()*.5){// if less than half of the bins are filled: who cares!
 	    calib_containers_[itot].printsummary(irow,icol);
 	    TString newname = gr->GetName();
 	    newname+=" NO FIT";
 	    gr->SetName(newname);
 	  }
 	  else{
-	    gr->Fit(fitfuncrootformula_.c_str(),"","",0,100);
-	    TF1 *func = gr->GetFunction(fitfuncrootformula_.c_str());
-	    if(func){
+	    gr->Fit(func,"RQ");
+	    if(func->GetChisquare()>0){
 	      CalParameters theParameters;
 	      theParameters.ped=func->GetParameter(0);
 	      theParameters.gain=func->GetParameter(1);
@@ -329,6 +337,7 @@ SiPixelGainCalibrationAnalysis::endJob() {
 
   
   // code copied more-or-less directly from CondTools/SiPixel/test/SiPixelCondObjBuilder.cc
+  std::cout << " NOW filling database, this can take a while..." << std::endl;
   edm::LogInfo(" --- writing to DB!");
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if(!mydbservice.isAvailable() ){
