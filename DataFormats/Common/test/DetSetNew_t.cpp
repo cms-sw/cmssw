@@ -333,7 +333,7 @@ void TestDetSet::iterator() {
 namespace {
 
   std::pair<unsigned int, cmp10> acc(unsigned int i){ 
-    return std::make_pair<i*10,cmp10()>;
+    return std::make_pair(i*10,cmp10());
   }
 
   struct VerifyAlgos {
@@ -344,7 +344,7 @@ namespace {
       ++n;
     }
 
-    mutable int n=0;
+    mutable int n;
     std::vector<DSTV::data_type const *> const & v;
   };
 
