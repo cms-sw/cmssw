@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/04/05 16:40:54 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/06/29 17:18:27 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -16,11 +16,13 @@ using namespace DTEnums;
 // Constructor from wireId and digi time only. 
 DTRecHit1D::DTRecHit1D(const DTWireId& wireId,
 		       DTEnums::DTCellSide lr,
-		       float digiTime) : theWireId(wireId),
-					 theLRSide(lr),
-					 theDigiTime(digiTime),
-					 theLocalPosition(),
-					 theLocalError() {}
+		       float digiTime) : 
+    RecHit1D(wireId.layerId()), // the detId of the Det (a DTLayer).
+    theWireId(wireId),
+    theLRSide(lr),
+    theDigiTime(digiTime),
+    theLocalPosition(),
+    theLocalError() {}
 
 
 // Default constructor
@@ -37,14 +39,16 @@ DTRecHit1D::DTRecHit1D() : theWireId(),
 DTRecHit1D::DTRecHit1D(const DTWireId& wireId,
 		       DTEnums::DTCellSide lr,
 		       float digiTime,
-		       const LocalPoint& pos) : theWireId(wireId),
-						theLRSide(lr),
-						theDigiTime(digiTime),
-						theLocalPosition(pos) {
-			 float cellResolution = 0.02 ; //cm  cell resolution = 200 um = 0.02 cm 
-			 theLocalError =
-			   LocalError(cellResolution*cellResolution, 0., 0.); //FIXME: is it really needed?
-		       }
+		       const LocalPoint& pos) : 
+    RecHit1D(wireId.layerId()), // the detId of the Det (a DTLayer).
+    theWireId(wireId),
+    theLRSide(lr),
+    theDigiTime(digiTime),
+    theLocalPosition(pos) {
+  float cellResolution = 0.02 ; //cm  cell resolution = 200 um = 0.02 cm 
+  theLocalError =
+    LocalError(cellResolution*cellResolution, 0., 0.); //FIXME: is it really needed?
+    }
 
 
 
@@ -53,11 +57,13 @@ DTRecHit1D::DTRecHit1D(const DTWireId& wireId,
 		       DTEnums::DTCellSide lr,
 		       float digiTime,
 		       const LocalPoint& pos,
-		       const LocalError& err) :theWireId(wireId),
-					       theLRSide(lr),
-					       theDigiTime(digiTime),
-					       theLocalPosition(pos),
-					       theLocalError(err) {}
+		       const LocalError& err) :
+  RecHit1D(wireId.layerId()),
+  theWireId(wireId),
+  theLRSide(lr),
+  theDigiTime(digiTime),
+  theLocalPosition(pos),
+  theLocalError(err) {}
 
 
 

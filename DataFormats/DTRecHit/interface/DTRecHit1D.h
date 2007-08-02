@@ -9,8 +9,8 @@
  *  DTRecHit1DPair). The coordiante measured is always the x (in Det frame)
  *
  *
- *  $Date: 2006/06/29 17:18:27 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/01/17 22:58:00 $
+ *  $Revision: 1.6 $
  *  \author S. Lacaprara, G. Cerminara
  */
 
@@ -68,10 +68,6 @@ class DTRecHit1D : public RecHit1D {
   virtual LocalError localPositionError() const {
     return theLocalError;
   }
-
-  /// Return the detId of the Det 
-  virtual DetId geographicalId() const;
-
 
   virtual  DTRecHit1D* clone() const;
 

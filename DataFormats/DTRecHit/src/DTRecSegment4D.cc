@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/11/22 10:02:32 $
- * $Revision: 1.10 $
+ * $Date: 2007/02/13 13:25:12 $
+ * $Revision: 1.11 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -21,11 +21,11 @@ DTRecSegment4D::DTRecSegment4D(const DTChamberRecSegment2D& phiSeg,
 			       const DTSLRecSegment2D& zedSeg,  
 			       const LocalPoint& posZInCh,
 			       const LocalVector& dirZInCh):
+  RecSegment(phiSeg.chamberId()), 
   theProjection(full),
   thePhiSeg(phiSeg),
   theZedSeg(zedSeg),
-  theDimension(4),
-  theDetId(phiSeg.chamberId())
+  theDimension(4)
 {
   // Check consistency of 2 sub-segments
   if(DTChamberId(phiSeg.geographicalId().rawId()) != DTChamberId(zedSeg.geographicalId().rawId()))
@@ -58,11 +58,11 @@ DTRecSegment4D::DTRecSegment4D(const DTChamberRecSegment2D& phiSeg,
 
 
 DTRecSegment4D::DTRecSegment4D(const DTChamberRecSegment2D& phiSeg) :
+  RecSegment(phiSeg.chamberId()), 
   theProjection(phi),
   thePhiSeg(phiSeg),
   theZedSeg(DTSLRecSegment2D()),
-  theDimension(2),
-  theDetId(phiSeg.chamberId())
+  theDimension(2)
 {
   thePosition=thePhiSeg.localPosition();
   
@@ -79,11 +79,11 @@ DTRecSegment4D::DTRecSegment4D(const DTChamberRecSegment2D& phiSeg) :
 DTRecSegment4D::DTRecSegment4D(const DTSLRecSegment2D& zedSeg,
 			       const LocalPoint& posZInCh,
 			       const LocalVector& dirZInCh) :
+  RecSegment(zedSeg.superLayerId().chamberId()),
   theProjection(Z),
   thePhiSeg(DTChamberRecSegment2D()),
   theZedSeg(zedSeg),
-  theDimension(2),
-  theDetId(zedSeg.superLayerId().chamberId())
+  theDimension(2)
 {
   
   LocalPoint posZAt0=posZInCh+
@@ -270,5 +270,5 @@ std::vector<TrackingRecHit*> DTRecSegment4D::recHits(){
 
 
 DTChamberId DTRecSegment4D::chamberId() const {
-  return DTChamberId(theDetId.rawId());
+  return DTChamberId(geographicalId());
 }

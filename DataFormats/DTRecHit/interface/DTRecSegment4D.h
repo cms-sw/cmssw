@@ -5,8 +5,8 @@
  *
  * 4-parameter RecHits for MuonBarrel DT (x,y, dx/dz, dy/dz)
  *
- * $Date: 2006/11/22 10:02:31 $
- * $Revision: 1.9 $
+ * $Date: 2007/02/13 13:25:11 $
+ * $Revision: 1.10 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -84,9 +84,6 @@ class DTRecSegment4D : public RecSegment {
   // Non-const access to component RecHits (if any)
   virtual std::vector<TrackingRecHit*> recHits() ;
 
-  /// The chamber DetId 
-  virtual DetId geographicalId() const { return theDetId; }
-
 
   //--- Extension of the interface
 
@@ -148,8 +145,6 @@ class DTRecSegment4D : public RecSegment {
   DTSLRecSegment2D theZedSeg;
 
   int theDimension; // the dimension of this rechit
-
-  DetId theDetId;   // Id of the det this seg belongs
 
 };
 

@@ -18,8 +18,8 @@
  * 2D means that this segment has information about position and direction in
  * one projection (r-phi or r-theta/zeta).
  *
- * $Date: 2007/01/04 06:49:52 $
- * $Revision: 1.10 $
+ * $Date: 2007/01/17 22:58:01 $
+ * $Revision: 1.11 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -90,9 +90,6 @@ class DTRecSegment2D : public RecSegment{
   /// return 2. The dimension of the matrix
   virtual int dimension() const { return 2;}
     
-  /// the id 
-  virtual DetId geographicalId() const { return theDetId; }
-
   /// local position in SL frame
   virtual LocalPoint localPosition() const {return thePosition; }
   
@@ -135,8 +132,6 @@ class DTRecSegment2D : public RecSegment{
   void update(std::vector<DTRecHit1D> & updatedRecHits);
   void setT0(const double& t0);
 
-  DetId theDetId;           // Id of the det this seg belongs
- 
   LocalPoint  thePosition;  // in SL frame
   LocalVector theDirection; // in SL frame
   
