@@ -50,10 +50,10 @@ void TracksCompare()
 
    canvas = new TCanvas("Tracks1","Tracks: efficiency & fakerate",1000,1000);
 
-   rh1->GetYaxis()->SetRangeUser(0.7,1.025);
-   sh1->GetYaxis()->SetRangeUser(0.7,1.025);
-   rc1->GetYaxis()->SetRangeUser(0.7,1.025);
-   sc1->GetYaxis()->SetRangeUser(0.7,1.025);
+   if (hit) rh1->GetYaxis()->SetRangeUser(0.7,1.025);
+   if (hit) sh1->GetYaxis()->SetRangeUser(0.7,1.025);
+   if (chi2)rc1->GetYaxis()->SetRangeUser(0.7,1.025);
+   if (chi2)sc1->GetYaxis()->SetRangeUser(0.7,1.025);
 
    if (hit&&chi2) plotHist22(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,myPV,te,"UU",-1);
    else if (hit)  plotHist12(canvas,sh1,rh1,sh2,rh2,myPV,te,"UU",-1);
@@ -74,15 +74,18 @@ void TracksCompare()
 
    canvas = new TCanvas("Tracks2","Tracks: chi2 & chi2 probability",1000,1000);
 
-   NormalizeHistograms(rh1,sh1);
-   NormalizeHistograms(rc1,sc1);
-   NormalizeHistograms(rh2,sh2);
-   NormalizeHistograms(rc2,sc2);
-
-   fixRangeY(rh1,sh1);
-   fixRangeY(rc1,sc1);
-   fixRangeY(rh2,sh2);
-   fixRangeY(rc2,sc2);
+   if (hit) { 
+     NormalizeHistograms(rh1,sh1);
+     NormalizeHistograms(rh2,sh2);
+     fixRangeY(rh1,sh1);
+     fixRangeY(rh2,sh2);
+   }
+   if (chi2) {
+     NormalizeHistograms(rc1,sc1);
+     NormalizeHistograms(rc2,sc2);
+     fixRangeY(rc1,sc1);
+     fixRangeY(rc2,sc2);
+   }
 
    if (hit&&chi2) plotHist22(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,myPV,te,"UUNORM",0.4,0.7);
    else if (hit)  plotHist12(canvas,sh1,rh1,sh2,rh2,myPV,te,"UUNORM",0.4,0.7);
@@ -100,17 +103,21 @@ void TracksCompare()
    sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/chi2mean",sh2);
    rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/chi2mean",rc2);
    sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/chi2mean",sc2);
+   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/losthits_eta",rh3);
+   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/losthits_eta",sh3);
+   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/losthits_eta",rc3);
+   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/losthits_eta",sc3);
 
    canvas = new TCanvas("Tracks3","Tracks: chi2 and #hits vs eta",1000,1000);
 
    //fixRangeY(rh1,sh1);
    //fixRangeY(rc1,sc1);
-   fixRangeY(rh2,sh2);
-   fixRangeY(rc2,sc2);
+   if (hit)  fixRangeY(rh2,sh2);
+   if (chi2) fixRangeY(rc2,sc2);
 
-   if (hit&&chi2) plotHist22(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,myPV,te, "UU",-1);
-   else if (hit)  plotHist12(canvas,sh1,rh1,sh2,rh2,myPV,te,"UU",-1);
-   else if (chi2) plotHist12(canvas,sc1,rc1,sc2,rc2,myPV,te,"UU",-1);
+   if (hit&&chi2) plotHist23(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,sh3,rh3,sc3,rc3,myPV,te, "UU",-1);
+   else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te,"UU",-1);
+   else if (chi2) plotHist13(canvas,sc1,rc1,sc2,rc2,sc3,rc3,myPV,te,"UU",-1);
  
    canvas->Print("ctf_hitseta_chi2mean.eps");
    canvas->Print("ctf_hitseta_chi2mean.gif");
@@ -131,12 +138,16 @@ void TracksCompare()
 
    canvas = new TCanvas("Tracks4","Tracks: pull of Pt, Qoverp and Phi",1000,1000);
 
-   NormalizeHistograms(rh1,sh1);
-   NormalizeHistograms(rc1,sc1);
-   NormalizeHistograms(rh2,sh2);
-   NormalizeHistograms(rc2,sc2);
-   NormalizeHistograms(rh3,sh3);
-   NormalizeHistograms(rc3,sc3);
+   if (hit) { 
+     NormalizeHistograms(rh1,sh1);
+     NormalizeHistograms(rh2,sh2);
+     NormalizeHistograms(rh3,sh3);
+   }
+   if (chi2) { 
+     NormalizeHistograms(rc1,sc1);
+     NormalizeHistograms(rc2,sc2);
+     NormalizeHistograms(rc3,sc3);
+   }
 
    if (hit&&chi2) plotHist23(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,sh3,rh3,sc3,rc3,myPV,te,"UUNORM",0.4,0.1,true);
    else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te,"UUNORM",0.4,0.1,true);
@@ -161,12 +172,16 @@ void TracksCompare()
 
    canvas = new TCanvas("Tracks5","Tracks: pull of D0, Z0, Theta",1000,1000);
 
-   NormalizeHistograms(rh1,sh1);
-   NormalizeHistograms(rc1,sc1);
-   NormalizeHistograms(rh2,sh2);
-   NormalizeHistograms(rc2,sc2);
-   NormalizeHistograms(rh3,sh3);
-   NormalizeHistograms(rc3,sc3);
+   if (hit) { 
+     NormalizeHistograms(rh1,sh1);
+     NormalizeHistograms(rh2,sh2);
+     NormalizeHistograms(rh3,sh3);
+   }
+   if (chi2) { 
+     NormalizeHistograms(rc1,sc1);
+     NormalizeHistograms(rc2,sc2);
+     NormalizeHistograms(rc3,sc3);
+   }
 
    if (hit&&chi2) plotHist23(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,sh3,rh3,sc3,rc3,myPV,te,"UUNORM",0.4,0.1,true);
    else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te,"UUNORM",0.4,0.1,true);
@@ -236,10 +251,10 @@ void TracksCompare()
 
    canvas = new TCanvas("Tracks8","Tracks: efficiency & fakerate",1000,1000);
 
-   rh1->GetYaxis()->SetRangeUser(0.7,1.025);
-   sh1->GetYaxis()->SetRangeUser(0.7,1.025);
-   rc1->GetYaxis()->SetRangeUser(0.7,1.025);
-   sc1->GetYaxis()->SetRangeUser(0.7,1.025);
+   if (hit) rh1->GetYaxis()->SetRangeUser(0.7,1.025);
+   if (hit) sh1->GetYaxis()->SetRangeUser(0.7,1.025);
+   if (chi2)rc1->GetYaxis()->SetRangeUser(0.7,1.025);
+   if (chi2)sc1->GetYaxis()->SetRangeUser(0.7,1.025);
 
    if (hit&&chi2) plotHist22(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,myPV,te,"UU",-1);
    else if (hit)  plotHist12(canvas,sh1,rh1,sh2,rh2,myPV,te,"UU",-1);
@@ -260,15 +275,18 @@ void TracksCompare()
 
    canvas = new TCanvas("Tracks9","Tracks: chi2 & chi2 probability",1000,1000);
 
-   NormalizeHistograms(rh1,sh1);
-   NormalizeHistograms(rc1,sc1);
-   NormalizeHistograms(rh2,sh2);
-   NormalizeHistograms(rc2,sc2);
-
-   fixRangeY(rh1,sh1);
-   fixRangeY(rc1,sc1);
-   fixRangeY(rh2,sh2);
-   fixRangeY(rc2,sc2);
+   if (hit) { 
+     NormalizeHistograms(rh1,sh1);
+     NormalizeHistograms(rh2,sh2);
+     fixRangeY(rh1,sh1);
+     fixRangeY(rh2,sh2);
+   }
+   if (chi2) {
+     NormalizeHistograms(rc1,sc1);
+     NormalizeHistograms(rc2,sc2);
+     fixRangeY(rc1,sc1);
+     fixRangeY(rc2,sc2);
+   }
 
    if (hit&&chi2) plotHist22(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,myPV,te,"UUNORM",0.4,0.7);
    else if (hit)  plotHist12(canvas,sh1,rh1,sh2,rh2,myPV,te,"UUNORM",0.4,0.7);
@@ -286,15 +304,19 @@ void TracksCompare()
    sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/chi2mean",sh2);
    rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/chi2mean",rc2);
    sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/chi2mean",sc2);
+   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/losthits_eta",rh3);
+   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/losthits_eta",sh3);
+   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/losthits_eta",rc3);
+   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/losthits_eta",sc3);
 
    canvas = new TCanvas("Tracks10","Tracks: chi2 and #hits vs eta",1000,1000);
 
-   fixRangeY(rh2,sh2);
-   fixRangeY(rc2,sc2);
+   if (hit) fixRangeY(rh2,sh2);
+   if (chi2) fixRangeY(rc2,sc2);
 
-   if (hit&&chi2) plotHist22(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,myPV,te,"UU",-1);
-   else if (hit)  plotHist12(canvas,sh1,rh1,sh2,rh2,myPV,te,"UU",-1);
-   else if (chi2) plotHist12(canvas,sc1,rc1,sc2,rc2,myPV,te,"UU",-1);
+   if (hit&&chi2) plotHist23(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,sh3,rh3,sc3,rc3,myPV,te, "UU",-1);
+   else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te,"UU",-1);
+   else if (chi2) plotHist13(canvas,sc1,rc1,sc2,rc2,sc3,rc3,myPV,te,"UU",-1);
  
    canvas->Print("rs_hitseta_chi2mean.eps");
    canvas->Print("rs_hitseta_chi2mean.gif");
@@ -315,13 +337,17 @@ void TracksCompare()
 
    canvas = new TCanvas("Tracks11","Tracks: pull of Pt, Qoverp and Phi",1000,1000);
 
-   NormalizeHistograms(rh1,sh1);
-   NormalizeHistograms(rc1,sc1);
-   NormalizeHistograms(rh2,sh2);
-   NormalizeHistograms(rc2,sc2);
-   NormalizeHistograms(rh3,sh3);
-   NormalizeHistograms(rc3,sc3);
-
+   if (hit) { 
+     NormalizeHistograms(rh1,sh1);
+     NormalizeHistograms(rh2,sh2);
+     NormalizeHistograms(rh3,sh3);
+   }
+   if (chi2) { 
+     NormalizeHistograms(rc1,sc1);
+     NormalizeHistograms(rc2,sc2);
+     NormalizeHistograms(rc3,sc3);
+   }
+   
    if (hit&&chi2) plotHist23(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,sh3,rh3,sc3,rc3,myPV,te,"UUNORM",0.4,0.1,true);
    else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te,"UUNORM",0.4,0.1,true);
    else if (chi2) plotHist13(canvas,sc1,rc1,sc2,rc2,sc3,rc3,myPV,te,"UUNORM",0.4,0.1,true);
@@ -345,12 +371,16 @@ void TracksCompare()
 
    canvas = new TCanvas("Tracks12","Tracks: pull of D0, Z0, Theta",1000,1000);
 
-   NormalizeHistograms(rh1,sh1);
-   NormalizeHistograms(rc1,sc1);
-   NormalizeHistograms(rh2,sh2);
-   NormalizeHistograms(rc2,sc2);
-   NormalizeHistograms(rh3,sh3);
-   NormalizeHistograms(rc3,sc3);
+   if (hit) { 
+     NormalizeHistograms(rh1,sh1);
+     NormalizeHistograms(rh2,sh2);
+     NormalizeHistograms(rh3,sh3);
+   }
+   if (chi2) { 
+     NormalizeHistograms(rc1,sc1);
+     NormalizeHistograms(rc2,sc2);
+     NormalizeHistograms(rc3,sc3);
+   }
 
    if (hit&&chi2) plotHist23(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,sh3,rh3,sc3,rc3,myPV,te,"UUNORM",0.4,0.1,true);
    else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te,"UUNORM",0.4,0.1,true);

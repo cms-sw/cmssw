@@ -4,8 +4,8 @@
 /** \class MultiTrackValidator
  *  Class that prodecs histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2007/06/29 14:28:10 $
- *  $Revision: 1.29 $
+ *  $Date: 2007/06/29 15:47:59 $
+ *  $Revision: 1.30 $
  *  \author cerati
  */
 
@@ -84,7 +84,7 @@ class MultiTrackValidator : public edm::EDAnalyzer {
   std::vector<MonitorElement*> h_ptSIM, h_etaSIM, h_tracksSIM, h_vertposSIM;
 
   //1D
-  std::vector<MonitorElement*> h_tracks, h_fakes, h_nchi2, h_nchi2_prob, h_hits, h_charge;
+  std::vector<MonitorElement*> h_tracks, h_fakes, h_nchi2, h_nchi2_prob, h_hits, h_losthits, h_charge;
   std::vector<MonitorElement*> h_effic, h_efficPt, h_fakerate, h_recoeta, h_assoceta, h_assoc2eta, h_simuleta;
   std::vector<MonitorElement*> h_recopT, h_assocpT, h_assoc2pT, h_simulpT;
   std::vector<MonitorElement*> h_pt, h_eta, h_pullTheta,h_pullPhi0,h_pullD0,h_pullDz,h_pullQoverp;

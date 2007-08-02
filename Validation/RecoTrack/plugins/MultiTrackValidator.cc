@@ -103,6 +103,7 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       h_fakes.push_back( dbe_->book1D("fakes","number of fake reco tracks",20,-0.5,19.5) );
       h_charge.push_back( dbe_->book1D("charge","charge",3,-1.5,1.5) );
       h_hits.push_back( dbe_->book1D("hits", "number of hits per track", 30, -0.5, 29.5 ) );
+      h_losthits.push_back( dbe_->book1D("losthits", "number of lost hits per track", 30, -0.5, 29.5 ) );
       h_nchi2.push_back( dbe_->book1D("chi2", "normalized #chi^{2}", 200, 0, 20 ) );
       h_nchi2_prob.push_back( dbe_->book1D("chi2_prob", "normalized #chi^{2} probability",100,0,1));
 
@@ -370,6 +371,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  h_nchi2[w]->Fill(track->normalizedChi2());
 	  h_nchi2_prob[w]->Fill(chisquared_prob(track->chi2(),track->ndof()));
 	  h_hits[w]->Fill(track->numberOfValidHits());
+	  h_losthits[w]->Fill(track->numberOfLostHits());
 	  chi2_vs_nhits[w]->Fill(track->numberOfValidHits(),track->normalizedChi2());
 	  h_charge[w]->Fill( track->charge() );
 	
