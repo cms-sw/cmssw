@@ -90,13 +90,6 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 {
   using namespace edm;
   using namespace std;
-}
-
-void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
-{
-  using namespace edm;
-  using namespace std;
-
 
   ////////////////////////////
   // Initialization section //
@@ -106,22 +99,6 @@ void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
   list<uint32_t> towerListEE ;
   list<uint32_t> stripListEE ;
   list<uint32_t>::iterator itList ;
-
-  // geometry
-  ESHandle<CaloGeometry> theGeometry;
-  ESHandle<CaloSubdetectorGeometry> theEndcapGeometry_handle, theBarrelGeometry_handle;
-  evtSetup.get<IdealGeometryRecord>().get( theGeometry );
-  evtSetup.get<IdealGeometryRecord>().get("EcalEndcap",theEndcapGeometry_handle);
-  evtSetup.get<IdealGeometryRecord>().get("EcalBarrel",theBarrelGeometry_handle);
-  evtSetup.get<IdealGeometryRecord>().get(eTTmap_);
-  theEndcapGeometry_ = &(*theEndcapGeometry_handle);
-  theBarrelGeometry_ = &(*theBarrelGeometry_handle);
-
-  // electronics mapping
-  ESHandle< EcalElectronicsMapping > ecalmapping;
-  evtSetup.get< EcalMappingRcd >().get(ecalmapping);
-  theMapping_ = ecalmapping.product();
-  
 
   // Pedestals
   ESHandle<EcalPedestals> pedHandle;
@@ -151,12 +128,12 @@ void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
   evtSetup.get<EcalTPParametersRcd>().get(pEcalTPParameters) ;
   const EcalTPParameters * ecaltpp = pEcalTPParameters.product() ;
 
+
   /////////////////////////////////////////
   // Compute linearization coeff section //
   /////////////////////////////////////////
 
   // loop on EB xtals
-  create_header(out_fileEB_, "EB") ; 
   (*diffFile_)<<endl<<"#############################################################"<<endl ;
   (*diffFile_)<<"Listing differences for linearization coefficients in EB...."<<endl ;
   (*diffFile_)<<endl<<"#############################################################"<<endl ;
@@ -196,12 +173,12 @@ void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
     }
   } //ebCells
 
+
   // loop on EE xtals
-  create_header(out_fileEE_, "EE") ; 
   (*diffFile_)<<endl<<"#############################################################"<<endl ;
   (*diffFile_)<<"Listing differences for linearization coefficients in EE...."<<endl ;
   (*diffFile_)<<endl<<"#############################################################"<<endl ;
-  vector<DetId> eeCells = theEndcapGeometry_->getValidDetIds(DetId::Ecal, EcalEndcap);
+  std::vector<DetId> eeCells = theEndcapGeometry_->getValidDetIds(DetId::Ecal, EcalEndcap);
   for (vector<DetId>::const_iterator it = eeCells.begin(); it != eeCells.end(); ++it) {
     EEDetId id(*it);
     double theta = theEndcapGeometry_->getGeometry(id)->getPosition().theta() ;
@@ -210,7 +187,6 @@ void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
     towerListEE.push_back(towid.rawId()) ;
     const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(id) ;
     stripListEE.push_back(elId.rawId() & 0xfffffff8) ;
-
     int tccNb = theMapping_->TCCid(towid) ;
     int towerInTCC = theMapping_->iTT(towid) ;
     int stripInTower = elId.pseudoStripId() ;
@@ -237,21 +213,6 @@ void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
       else (*out_fileEE_) << "unable to compute the parameters"<<std::endl ; 
     }
   } //eeCells
-
-
-
-
-  /////////////////////////////
-  // Compute sliding section //
-  /////////////////////////////
-
-  (*out_fileEB_) <<std::endl ;
-  (*out_fileEB_) <<"SLIDING 0"<<endl ;
-  (*out_fileEB_) << hex << "0x" <<sliding_<<std::endl ;
-
-  (*out_fileEE_) <<std::endl ;
-  (*out_fileEE_) <<"SLIDING 0"<<endl ;
-  (*out_fileEE_) << hex << "0x" <<sliding_<<std::endl ;
 
 
   /////////////////////////////
@@ -293,11 +254,9 @@ void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
 		<<" 0x"<<lowRatio<<" 0x"<<highRatio<<" 0x"<<lutFG
 		<<std::endl ;
 
-
   // endcap
   uint threshold, lut_strip, lut_tower ;
   computeFineGrainEEParameters(threshold, lut_strip, lut_tower) ; 
-
 
 
   /////////////////////////
@@ -321,7 +280,6 @@ void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
   (*out_fileEE_)<<endl ;
 
 
-
   //////////////////////////////////////////////////////////////////////
   // loop on strips and towers and associate them with default values //
   //////////////////////////////////////////////////////////////////////
@@ -333,7 +291,8 @@ void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
   (*out_fileEB_) <<std::endl ;
   for (itList = stripListEB.begin(); itList != stripListEB.end(); itList++ ) {
     (*out_fileEB_) <<"STRIP "<<dec<<(*itList)<<endl ;
-    (*out_fileEB_) <<" 0\n 0\n" ;
+    (*out_fileEB_) << hex << "0x" <<sliding_<<std::endl ;
+    (*out_fileEB_) <<" 0" << std::endl ;
   }
 
   towerListEB.sort() ;
@@ -352,7 +311,8 @@ void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
   (*out_fileEE_) <<std::endl ;
   for (itList = stripListEE.begin(); itList != stripListEE.end(); itList++ ) {
     (*out_fileEE_) <<"STRIP "<<dec<<(*itList)<<endl ;
-    (*out_fileEE_) <<" 0\n 0\n" ;
+    (*out_fileEE_) << hex << "0x" <<sliding_<<std::endl ;
+    (*out_fileEE_) <<" 0" << std::endl ;
     (*out_fileEE_)<<hex<<"0x"<<threshold<<" 0x"<<lut_strip<<std::endl ;  
   }
 
@@ -366,8 +326,30 @@ void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
     (*out_fileEE_)<<hex<<"0x"<<lut_tower<<std::endl ;
   }
 
+}
 
+void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
+{
+  using namespace edm;
+  using namespace std;
 
+  // geometry
+  ESHandle<CaloGeometry> theGeometry;
+  ESHandle<CaloSubdetectorGeometry> theEndcapGeometry_handle, theBarrelGeometry_handle;
+  evtSetup.get<IdealGeometryRecord>().get( theGeometry );
+  evtSetup.get<IdealGeometryRecord>().get("EcalEndcap",theEndcapGeometry_handle);
+  evtSetup.get<IdealGeometryRecord>().get("EcalBarrel",theBarrelGeometry_handle);
+  evtSetup.get<IdealGeometryRecord>().get(eTTmap_);
+  theEndcapGeometry_ = &(*theEndcapGeometry_handle);
+  theBarrelGeometry_ = &(*theBarrelGeometry_handle);
+
+  // electronics mapping
+  ESHandle< EcalElectronicsMapping > ecalmapping;
+  evtSetup.get< EcalMappingRcd >().get(ecalmapping);
+  theMapping_ = ecalmapping.product();  
+
+  create_header(out_fileEB_, "EB") ; 
+  create_header(out_fileEE_, "EE") ; 
 }
 
 
@@ -433,7 +415,7 @@ void EcalTPGParamBuilder::create_header(std::ofstream * out_file, std::string su
   (*out_file) <<"COMMENT           strip structure"<<std::endl ;
   (*out_file) <<"COMMENT"<<std::endl ;
   (*out_file) <<"COMMENT  sliding_window"<<std::endl ;
-  (*out_file) <<"COMMENT  weight[1-5]"<<std::endl ;
+  (*out_file) <<"COMMENT  weightGroupId"<<std::endl ;
   
   if (subdet=="EE") {
     (*out_file) <<"COMMENT  threshold_fg strip_lut_fg"<<std::endl ;
@@ -442,7 +424,7 @@ void EcalTPGParamBuilder::create_header(std::ofstream * out_file, std::string su
     (*out_file) <<"COMMENT ================================="<<std::endl ;
     (*out_file) <<"COMMENT           tower structure"<<std::endl ;
     (*out_file) <<"COMMENT"<<std::endl ;
-    (*out_file) <<"COMMENT  LUT[1-1024]"<<std::endl ;
+    (*out_file) <<"COMMENT  LUTGroupId"<<std::endl ;
     (*out_file) <<"COMMENT  tower_lut_fg"<<std::endl ;
   }
   if (subdet=="EB") {
@@ -451,12 +433,35 @@ void EcalTPGParamBuilder::create_header(std::ofstream * out_file, std::string su
     (*out_file) <<"COMMENT ================================="<<std::endl ;
     (*out_file) <<"COMMENT           tower structure"<<std::endl ;
     (*out_file) <<"COMMENT"<<std::endl ;
-    (*out_file) <<"COMMENT  LUT[1-1024]"<<std::endl ;
-    (*out_file) <<"COMMENT  el, eh, tl, th, lut_fg"<<std::endl ;
+    (*out_file) <<"COMMENT  LUTGroupId"<<std::endl ;
+    (*out_file) <<"COMMENT  FgGroupId"<<std::endl ;
   }
-  
   (*out_file) <<"COMMENT ================================="<<std::endl ;
-  (*out_file) <<std::endl ;
+  (*out_file) <<"COMMENT"<<std::endl ;
+
+  (*out_file) <<"COMMENT ================================="<<std::endl ;
+  (*out_file) <<"COMMENT           Weight structure"<<std::endl ;
+  (*out_file) <<"COMMENT"<<std::endl ;
+  (*out_file) <<"COMMENT  weightGroupId"<<std::endl ;
+  (*out_file) <<"COMMENT  w0, w1, w2, w3, w4"<<std::endl ;
+  (*out_file) <<"COMMENT ================================="<<std::endl ;
+  (*out_file) <<"COMMENT"<<std::endl ;
+  (*out_file) <<"COMMENT ================================="<<std::endl ;
+  (*out_file) <<"COMMENT           lut structure"<<std::endl ;
+  (*out_file) <<"COMMENT"<<std::endl ;
+  (*out_file) <<"COMMENT  LUTGroupId"<<std::endl ;
+  (*out_file) <<"COMMENT  LUT[1-1024]"<<std::endl ;
+  (*out_file) <<"COMMENT ================================="<<std::endl ;
+  (*out_file) <<"COMMENT"<<std::endl ;
+  if (subdet=="EB") {
+    (*out_file) <<"COMMENT ================================="<<std::endl ;
+    (*out_file) <<"COMMENT           fg structure"<<std::endl ;
+    (*out_file) <<"COMMENT"<<std::endl ;
+    (*out_file) <<"COMMENT  FgGroupId"<<std::endl ;
+    (*out_file) <<"COMMENT  el, eh, tl, th, lut_fg"<<std::endl ;
+    (*out_file) <<"COMMENT ================================="<<std::endl ;
+    (*out_file) <<"COMMENT"<<std::endl ;
+  }
   (*out_file) <<std::endl ;
 }
 
@@ -499,13 +504,12 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape)
     weight[sample] = lambda*shape(time)/max + gamma ;
   }
 
-  double ampl = 0. ;
-  for (uint sample = 0 ; sample<nSample_ ; sample++) {
-    double time = timeMax - ((double)sampleMax_-(double)sample)*25. ;
-    ampl += weight[sample]*shape(time) ;
-    std::cout<<sample<<" "<<weight[sample]<<" "<<shape(time)<<std::endl ;
-  }
-  std::cout<<max<<" "<<ampl<<std::endl ;
+//   double ampl = 0. ;
+//   for (uint sample = 0 ; sample<nSample_ ; sample++) {
+//     double time = timeMax - ((double)sampleMax_-(double)sample)*25. ;
+//     ampl += weight[sample]*shape(time) ;
+//   }
+//   std::cout<<max<<" "<<ampl<<std::endl ;
 
 
   int * iweight = new int[nSample_] ;
