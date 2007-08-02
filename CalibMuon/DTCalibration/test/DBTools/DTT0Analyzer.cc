@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/28 17:19:35 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/07/26 07:32:02 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -71,7 +71,8 @@ void DTT0Analyzer::endJob() {
       theFile->cd();
       TString name = getHistoName(layerId).c_str();
       hT0Histo = new TH1D(name+"_t0Mean",
-			  "T0 from pulses by Channel", nWires,0,nWires);
+			  "T0 from pulses by Channel", nWires,dtGeom->layer(layerId)->specificTopology().firstChannel(),
+			  dtGeom->layer(layerId)->specificTopology().firstChannel()+nWires);
       theMeanHistoMap[layerId] = hT0Histo;
      }
 
@@ -85,8 +86,8 @@ void DTT0Analyzer::endJob() {
      }
 
     //Fill the histos
-    hT0Histo->SetBinContent(wireId.wire(),t0mean);  
-    hSigmaT0Histo->SetBinContent(wireId.wire(),t0rms);  
+    hT0Histo->SetBinContent(hT0Histo->GetBin(wireId.wire()),t0mean);  
+    hSigmaT0Histo->SetBinContent(hSigmaT0Histo->GetBin(wireId.wire()),t0rms);  
   }
 
   //Write histos in a .root file
