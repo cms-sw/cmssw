@@ -1,5 +1,5 @@
-#ifndef JetProducers_FastJetProducer_h
-#define JetProducers_FastJetProducer_h
+#ifndef JetProducers_KtPilupSubtractionJetProducer_h
+#define JetProducers_KtPilupSubtractionJetProducer_h
 
 /** \class FastJetProducer
  *
@@ -27,25 +27,25 @@
  *
  ************************************************************/
 
-#include "BaseJetProducer.h"
-#include "RecoJets/JetAlgorithms/interface/FastJetAlgorithmWrapper.h"
+#include "BasePilupSubtractionJetProducer.h"
+#include "RecoJets/JetAlgorithms/interface/KtJetAlgorithmWrapper.h"
 
 namespace cms
 {
-  class FastJetProducer : public cms::BaseJetProducer
+  class KtPilupSubtractionJetProducer : public cms::BasePilupSubtractionJetProducer
   {
   public:
 
-    FastJetProducer(const edm::ParameterSet& ps);
+    KtPilupSubtractionJetProducer(const edm::ParameterSet& ps);
 
     /**Default destructor*/
-    virtual ~FastJetProducer() {}
+    virtual ~KtPilupSubtractionJetProducer() {}
     /** run algorithm itself */
     virtual bool runAlgorithm (const JetReco::InputCollection& fInput, JetReco::OutputCollection* fOutput);
 
   private:
     /** Reconstruction algorithm*/
-    FastJetAlgorithmWrapper alg_;
+    KtJetAlgorithmWrapper alg_;
   };
 }
 

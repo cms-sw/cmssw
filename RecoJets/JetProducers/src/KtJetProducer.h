@@ -1,10 +1,10 @@
-#ifndef JetProducers_FastPilupSubtractionJetProducer_h
-#define JetProducers_FastPilupSubtractionJetProducer_h
+#ifndef JetProducers_KtJetProducer_h
+#define JetProducers_KtJetProducer_h
 
-/** \class FastJetProducer
+/** \class KtJetProducer
  *
- * FastJetProducer is the EDProducer subclass which runs
- * the FastJetAlgorithm for jetfinding.
+ * KtJetProducer is the EDProducer subclass which runs
+ * the KtJetAlgorithm for jetfinding.
  * 
  * The FastJet package, written by Matteo Cacciari and Gavin Salam, 
  * provides a fast implementation of the longitudinally invariant kt 
@@ -27,25 +27,25 @@
  *
  ************************************************************/
 
-#include "BasePilupSubtractionJetProducer.h"
-#include "RecoJets/JetAlgorithms/interface/FastJetAlgorithmWrapper.h"
+#include "BaseJetProducer.h"
+#include "RecoJets/JetAlgorithms/interface/KtJetAlgorithmWrapper.h"
 
 namespace cms
 {
-  class FastPilupSubtractionJetProducer : public cms::BasePilupSubtractionJetProducer
+  class KtJetProducer : public cms::BaseJetProducer
   {
   public:
 
-    FastPilupSubtractionJetProducer(const edm::ParameterSet& ps);
+    KtJetProducer(const edm::ParameterSet& ps);
 
     /**Default destructor*/
-    virtual ~FastPilupSubtractionJetProducer() {}
+    virtual ~KtJetProducer() {}
     /** run algorithm itself */
     virtual bool runAlgorithm (const JetReco::InputCollection& fInput, JetReco::OutputCollection* fOutput);
 
   private:
     /** Reconstruction algorithm*/
-    FastJetAlgorithmWrapper alg_;
+    KtJetAlgorithmWrapper alg_;
   };
 }
 
