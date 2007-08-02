@@ -1,8 +1,8 @@
 /** \class BTaSkimLeptonJet
  *
  *
- * $Date: 2007/07/12 09:07:46 $
- * $Revision: 1.0 $
+ * $Date: 2007/07/25 00:00:16 $
+ * $Revision: 1.1 $
  *
  * \author Francisco Yumiceva, FERMILAB
  *
@@ -189,11 +189,11 @@ bool BTagSkimLeptonJet::filter( edm::Event& iEvent,
 void BTagSkimLeptonJet::endJob()
 {
   edm::LogVerbatim( "BTagSkimLeptonJet" ) 
-    << "===========================================================\n"
-	<< " Events read " << nEvents_
-    << " Events accepted " << nAccepted_
-    << "\n Efficiency " << (double)(nAccepted_)/(double)(nEvents_)
-	<< "\n==========================================================="
+    << "=============================================================================\n"
+	<< " Events read: " << nEvents_
+    << "\n Events accepted by (" << LeptonType_ << ") BTagSkimLeptonJet: " << nAccepted_
+    << "\n Efficiency: " << (double)(nAccepted_)/(double)(nEvents_)
+	<< "\n==========================================================================="
     << endl;
 }
 
