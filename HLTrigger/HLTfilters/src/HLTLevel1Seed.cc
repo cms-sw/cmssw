@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/04/04 07:44:03 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/07/12 08:50:56 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -65,12 +65,20 @@ HLTLevel1Seed::HLTLevel1Seed(const edm::ParameterSet& iConfig) :
 	       << " - Number requested: " << n 
 	       << " - andOr mode: " << andOr_;
   if (n>0) {
-    LogDebug("") << "  Level-1 triggers requestd: type, name and status:";
+    LogDebug("") << "  Level-1 triggers requestd: type, name and validity:";
     for (unsigned int i=0; i!=n; i++) {
+      bool validity ( (L1SeedsByType_[i]<l1extra::L1ParticleMap::kNumOfL1TriggerTypes) &&
+		      (L1SeedsByName_[i]!=invalid) ) ;
+
       LogTrace("") << " " << L1SeedsByType_[i]
 		   << " " << L1SeedsByName_[i]
-		   << " " <<( (L1SeedsByType_[i]<l1extra::L1ParticleMap::kNumOfL1TriggerTypes) &&
-			      (L1SeedsByName_[i]!=invalid) ) ;
+		   << " " << validity;
+
+      if (!validity) throw cms::Exception("Configuration")
+	<< " HLTLevel1Seed [instance: " << *moduleLabel()
+	<< " - path: " << *pathName()
+	<< "] configured with unknown L1T name "
+	<< i << " " << L1SeedsByName_[i] <<"\n";
     }
   }
 

@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/06/19 12:31:19 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/07/12 08:50:56 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -18,6 +18,7 @@
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cassert>
 
@@ -94,9 +95,17 @@ HLTHighLevel::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if (n>0) {
      LogDebug("") << "  HLT trigger paths requested: index, name and valididty:";
      for (unsigned int i=0; i!=n; i++) {
+       bool validity ( (HLTPathsByIndex_[i]<trh->size()) && (HLTPathsByName_[i]!=invalid) );
+
        LogTrace("") << " " << HLTPathsByIndex_[i]
 		    << " " << HLTPathsByName_[i]
-		    << " " << ( (HLTPathsByIndex_[i]<trh->size()) && (HLTPathsByName_[i]!=invalid) );
+		    << " " << validity;
+
+       if (!validity) throw cms::Exception("Configuration")
+	 << " HLTHighLevel [instance: " << *moduleLabel()
+	 << " - path: " << *pathName()
+	 << "] configured with unknown HLT path name "
+	 << i << " " << HLTPathsByName_[i] <<"\n";
      }
    }
 
