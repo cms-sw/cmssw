@@ -64,6 +64,10 @@ public:
    * that at least one of the inputs is in common. */
   virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const;
 
+protected:
+  // used by muon...
+  void setId(id_type iid) { m_id=iid;}
+
 private:
   
   id_type m_id;
