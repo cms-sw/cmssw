@@ -340,7 +340,8 @@ namespace {
     VerifyAlgos(std::vector<DSTV::data_type const *> iv) : n(0), v(iv) {}
 
     void operator()(DSTV::data_type const & d) const {
-      CPPUNIT_ASSERT(d==v[n]);
+      CPPUNIT_ASSERT(d==*v[n]);
+      CPPUNIT_ASSERT(&d==v[n]);
       ++n;
     }
 
@@ -353,7 +354,7 @@ namespace {
 
 
 
-void TestDetSet::algoritm() {
+void TestDetSet::algorithm() {
   DSTV detsets(2);
   for (unsigned int n=1;n<5;++n) {
     unsigned int id=20+n;

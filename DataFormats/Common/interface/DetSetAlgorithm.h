@@ -22,7 +22,7 @@ namespace edmNew {
   template <typename DSTV, typename A, typename B, typename F>
   void foreachDetSetObject(DSTV const & v, std::pair<A,B> const & sel, F & f) {
     typedef typename DSTV::data_type data_type;
-    typename DSTV::Range range = rangeFromPair(v,sel);
+    typename DSTV::Range range = detsetRangeFromPair(v,sel);
     for(typename DSTV::const_iterator id=range.first; id!=range.second; id++)
       std::for_each((*id).begin(), (*id).end(),
 		    boost::function<void(const data_type &)>(boost::ref(f)));
