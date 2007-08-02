@@ -7,14 +7,15 @@
  *  This class is an HLTFilter (-> EDFilter) implementing an HLT
  *  Prescaler module with associated book keeping.
  *
- *  $Date: 2006/08/14 14:52:51 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/08/14 15:26:42 $
+ *  $Revision: 1.12 $
  *
  *  \author Martin Grunewald
  *
  */
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "FWCore/PrescaleService/interface/PrescaleService.h"
 
 class HLTPrescaler : public HLTFilter {
 
@@ -26,11 +27,18 @@ class HLTPrescaler : public HLTFilter {
 
  private:
 
-  bool         b_;       // to put a filterobject into the event?
-  unsigned int n_;       // accept one in n_
-  unsigned int o_;       // offset in event number (usually 0)
-  unsigned int count_;   // local event counter
+  /// to put a filterobject into the event?
+  bool         b_;
+  /// accept one in n_
+  unsigned int n_;
+  /// offset in event number (usually 0)
+  unsigned int o_;
+  /// local event counter
+  unsigned int count_;
+
+  /// Prescaler service
+  edm::service::PrescaleService* ps_;
+
 };
 
 #endif
-
