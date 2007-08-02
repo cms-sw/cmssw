@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/05/02 07:06:01 $
- * $Revision: 1.1 $
+ * $Date: 2006/06/29 17:18:27 $
+ * $Revision: 1.2 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -24,5 +24,5 @@ DTChamberRecSegment2D* DTChamberRecSegment2D::clone() const {
 }
   
 DTChamberId DTChamberRecSegment2D::chamberId() const {
-  return DTChamberId(theDetId.rawId());
+  return DTChamberId(geographicalId());
 }

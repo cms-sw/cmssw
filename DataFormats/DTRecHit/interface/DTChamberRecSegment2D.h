@@ -11,8 +11,8 @@
  * A DTRecSegment4D has one of these objects, and so can access the full
  * information of the two projections.
  *
- * $Date: 2006/06/29 17:18:27 $
- * $Revision: 1.2 $
+ * $Date: 2007/08/02 05:43:05 $
+ * $Revision: 1.3 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -38,12 +38,12 @@ class DTChamberRecSegment2D : public DTRecSegment2D {
   DTChamberRecSegment2D() {}
 
   /// c'tor from hits
-  DTChamberRecSegment2D(const DTChamberId id, const std::vector<DTRecHit1D>& hits) ;
+  DTChamberRecSegment2D(DTChamberId id, const std::vector<DTRecHit1D>& hits) ;
   
   /// complete constructor
-  DTChamberRecSegment2D(const DTChamberId id, 
+  DTChamberRecSegment2D(DTChamberId id, 
 			LocalPoint &position, LocalVector &direction,
-			AlgebraicSymMatrix & covMatrix, double &chi2, 
+			AlgebraicSymMatrix & covMatrix, double chi2, 
 			std::vector<DTRecHit1D> &hits1D);
   
   /// Destructor
