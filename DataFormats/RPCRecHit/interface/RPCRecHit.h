@@ -5,8 +5,8 @@
  *
  *  RecHit for RPC 
  *
- *  $Date: 2006/06/16 10:13:02 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/03/30 06:08:33 $
+ *  $Revision: 1.7 $
  *  \author M. Maggi -- INFN Bari 
  */
 
@@ -61,9 +61,6 @@ class RPCRecHit : public RecHit2DLocalPos {
   virtual LocalError localPositionError() const {
     return theLocalError;
   }
-
-  /// Return the detId of the Det 
-  virtual DetId geographicalId() const;
 
 
   virtual RPCRecHit* clone() const;
