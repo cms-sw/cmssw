@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/06/16 10:13:01 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/08/02 05:46:56 $
+ *  $Revision: 1.6 $
  *  \author M. Maggi -- INFN Bari
  */
 
@@ -15,7 +15,7 @@ RPCRecHit::RPCRecHit(const RPCDetId& rpcId, int bx) :  RecHit2DLocalPos(rpcId),
 {
 }
 
-RPCRecHit::RPCRecHit() :  RecHit2DLocalPos(rpcId),
+RPCRecHit::RPCRecHit() :  RecHit2DLocalPos(),
   theRPCId(), theBx(99),theFirstStrip(99),theClusterSize(99), theLocalPosition(), theLocalError() 
 {
 }
