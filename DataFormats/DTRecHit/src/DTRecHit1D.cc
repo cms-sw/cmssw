@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/06/29 17:18:27 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/08/02 05:35:47 $
+ *  $Revision: 1.5 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -76,14 +76,6 @@ DTRecHit1D::~DTRecHit1D(){}
 DTRecHit1D * DTRecHit1D::clone() const {
   return new DTRecHit1D(*this);
 }
-
-
-
-// Return the detId of the Det (a DTLayer).
-DetId DTRecHit1D::geographicalId() const {
-  return theWireId.layerId();
-}
-
 
 
 // Access to component RecHits.

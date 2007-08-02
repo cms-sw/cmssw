@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/05/02 07:06:01 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/06/29 17:18:27 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 #include "DataFormats/DTRecHit/interface/DTSLRecSegment2D.h"
@@ -25,7 +25,7 @@ DTSLRecSegment2D* DTSLRecSegment2D::clone() const {
 
 /// The id of the superlayer on which reside the segment
 DTSuperLayerId DTSLRecSegment2D::superLayerId() const{
-  return DTSuperLayerId(theDetId.rawId());
+  return DTSuperLayerId(geographicalId());
 }
 
 /// The id of the chamber on which reside the segment

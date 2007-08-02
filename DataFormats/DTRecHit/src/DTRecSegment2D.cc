@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/08/11 12:10:18 $
- * $Revision: 1.7 $
+ * $Date: 2007/08/02 05:35:47 $
+ * $Revision: 1.8 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -46,13 +46,13 @@ AlgebraicSymMatrix DTRecSegment2D::parError( const LocalError& lp,
 }
 
 
-DTRecSegment2D::DTRecSegment2D(const DetId& id, const vector<DTRecHit1D>& hits) :
+DTRecSegment2D::DTRecSegment2D(DetId id, const vector<DTRecHit1D>& hits) :
   RecSegment(id), theChi2(0.0), theT0(0.), theHits(hits){
 }
 
-DTRecSegment2D::DTRecSegment2D(const DetId &id, 
+DTRecSegment2D::DTRecSegment2D(DetId id, 
 	       LocalPoint &position, LocalVector &direction,
-	       AlgebraicSymMatrix & covMatrix, double &chi2, 
+	       AlgebraicSymMatrix & covMatrix, double chi2, 
 	       std::vector<DTRecHit1D> &hits1D):
  RecSegment(id), thePosition(position),theDirection(direction),
   theCovMatrix(covMatrix),theChi2(chi2),theT0(0.),theHits(hits1D){}
