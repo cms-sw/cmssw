@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/07/26 07:32:02 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/08/02 16:11:09 $
+ *  $Revision: 1.3 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -71,7 +71,7 @@ void DTT0Analyzer::endJob() {
       theFile->cd();
       TString name = getHistoName(layerId).c_str();
       hT0Histo = new TH1D(name+"_t0Mean",
-			  "T0 from pulses by Channel", nWires,dtGeom->layer(layerId)->specificTopology().firstChannel(),
+			  "mean T0 from pulses by Channel", nWires,dtGeom->layer(layerId)->specificTopology().firstChannel(),
 			  dtGeom->layer(layerId)->specificTopology().firstChannel()+nWires);
       theMeanHistoMap[layerId] = hT0Histo;
      }
@@ -81,7 +81,8 @@ void DTT0Analyzer::endJob() {
       theFile->cd();
       TString name = getHistoName(layerId).c_str();
       hSigmaT0Histo = new TH1D(name+"_t0Sigma",
-			  "T0 from pulses by Channel", nWires,0,nWires);
+			  "sigma T0 from pulses by Channel", nWires,dtGeom->layer(layerId)->specificTopology().firstChannel(),
+			  dtGeom->layer(layerId)->specificTopology().firstChannel()+nWires);
       theSigmaHistoMap[layerId] = hSigmaT0Histo;
      }
 
