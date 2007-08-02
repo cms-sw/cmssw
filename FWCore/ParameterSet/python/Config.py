@@ -502,6 +502,11 @@ if __name__=="__main__":
             p.p2 = Path(p.s)
             p.dumpConfig()
             
+        def testSecSource(self):
+            p = Process('test')
+            p.a = SecSource("MySecSource")
+            self.assertEqual(p.dumpConfig(),"process test = {\n  secsource a = MySecSource { \n  }\n}\n")
+
         def testSequence(self):
             p = Process('test')
             p.a = EDAnalyzer("MyAnalyzer")
@@ -580,7 +585,7 @@ if __name__=="__main__":
             path = Path(p.a)
             path *= p.b
             path += p.c
-            print 'denpendencies'
+            print 'dependencies'
             deps= path.moduleDependencies()
             self.assertEqual(deps['a'],set())
             self.assertEqual(deps['b'],set(['a']))

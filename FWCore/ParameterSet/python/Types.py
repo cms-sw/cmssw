@@ -215,6 +215,8 @@ class SecSource(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelab
     @staticmethod
     def _isValid(value):
         return True
+    def configTypeName(self):
+            return "secsource"
     def configValue(self,indent='',deltaIndent=''):
         config = self.type_()+' { \n'
         for name in self.parameterNames_():
