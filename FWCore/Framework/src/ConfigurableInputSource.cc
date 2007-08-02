@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.cc,v 1.27 2007/07/30 04:18:12 wmtan Exp $
+$Id: ConfigurableInputSource.cc,v 1.28 2007/07/31 23:58:55 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -34,9 +34,9 @@ namespace edm {
     origLuminosityBlockNumber_t_(luminosityBlock_),
     newRun_(true),
     newLumi_(true),
+    eventAlreadySet_(false),
     isRealData_(realData),
-    eType_(EventAuxiliary::Any),
-    holder_(0)
+    eType_(EventAuxiliary::Any)
   { 
     setTimestamp(Timestamp(presentTime_));
     // We need to map this string to the EventAuxiliary::ExperimentType enumeration
@@ -78,23 +78,42 @@ namespace edm {
 
   std::auto_ptr<EventPrincipal>
   ConfigurableInputSource::readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
-    std::auto_ptr<EventPrincipal> result;
-    if (holder_.get() == 0) {
+    if (!eventAlreadySet_) {
+      EventID oldEventID = eventID_;
+      LuminosityBlockNumber_t oldLumi = luminosityBlock_;
+
       setRunAndEventInfo();
       if (eventID_ == EventID()) {
         noMoreInput();
-        return result; 
+        return std::auto_ptr<EventPrincipal>(0); 
       }
-      result = std::auto_ptr<EventPrincipal>(
-	  new EventPrincipal(eventID_, Timestamp(presentTime_),
-	  productRegistry(), lbp, processConfiguration(), isRealData_, eType_));
-      if (newRun_ || newLumi_) {
-	holder_ = result;
-	return result;
-      } 
-    } else {
-      result = holder_;
+      if (oldEventID.run() != eventID_.run()) {
+	//  New Run
+        eventAlreadySet_ = newRun_ = newLumi_ = true;
+        // reset these since this event is in the new run
+        numberEventsInThisRun_ = 1;
+        numberEventsInThisLumi_ = 1;
+        luminosityBlock_ = origLuminosityBlockNumber_t_;
+        return std::auto_ptr<EventPrincipal>(0); 
+      } else {
+        // Same Run
+        ++numberEventsInThisRun_;
+        if (oldLumi != luminosityBlock_) {
+          // New Lumi
+          eventAlreadySet_ = newLumi_ = true;
+          numberEventsInThisLumi_ = 1;
+          return std::auto_ptr<EventPrincipal>(0); 
+        } else {
+          // Same Lumi
+          ++numberEventsInThisLumi_;
+	}
+      }
     }
+    eventAlreadySet_ = false;
+    
+    std::auto_ptr<EventPrincipal> result(
+	new EventPrincipal(eventID_, Timestamp(presentTime_),
+	productRegistry(), lbp, processConfiguration(), isRealData_, eType_));
     Event e(*result, moduleDescription());
     if (!produce(e)) {
       noMoreInput();
@@ -153,25 +172,14 @@ namespace edm {
     //NOTE: numberEventsInRun < 0 means go forever in this run
     if (numberEventsInRun_ < 1 || numberEventsInThisRun_ < numberEventsInRun_) {
       // same run
-      ++numberEventsInThisRun_;
       eventID_ = eventID_.next();
-      if (numberEventsInLumi_ < 1 || numberEventsInThisLumi_ < numberEventsInLumi_) {
-	// same lumi
-        ++numberEventsInThisLumi_;
-      } else {
+      if (!(numberEventsInLumi_ < 1 || numberEventsInThisLumi_ < numberEventsInLumi_)) {
         // new lumi
-        numberEventsInThisLumi_ = 1;
         ++luminosityBlock_;
-	newLumi_ = true;
       }
     } else {
       // new run
       eventID_ = eventID_.nextRunFirstEvent();
-      luminosityBlock_ = origLuminosityBlockNumber_t_;
-      //reset these to one since this event is in the new run
-      numberEventsInThisRun_ = 1;
-      numberEventsInThisLumi_ = 1;
-      newRun_ = newLumi_ = true;
     }
     presentTime_ += timeBetweenEvents_;
     if (eventCreationDelay_ > 0) {usleep(eventCreationDelay_);}
