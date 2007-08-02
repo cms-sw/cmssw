@@ -32,7 +32,7 @@ problems:
   where does the pluginmanager initialize call go?
 
 
-$Id: EventProcessor.h,v 1.39 2007/07/13 20:08:18 chrjones Exp $
+$Id: EventProcessor.h,v 1.40 2007/07/13 20:23:39 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -81,7 +81,7 @@ namespace edm {
   class EventProcessor
   {
     // ------------ friend classes and functions ----------------
-    friend class edm::EDLooperHelper;
+    friend class EDLooperHelper;
 
   public:
 
@@ -92,8 +92,9 @@ namespace edm {
     //   3     signal received
     //   4     input complete
     //   5     call timed out
+    //   6     input count complete
     enum Status { epSuccess=0, epException=1, epOther=2, epSignal=3,
-		  epInputComplete=4,epTimedOut=5 };
+		  epInputComplete=4, epTimedOut=5, epCountComplete=6 };
 
     // Eventually, we might replace StatusCode with a class. This
     // class should have an automatic conversion to 'int'.
@@ -192,9 +193,15 @@ namespace edm {
     // given a non-negative number, processing continues until either (1)
     // this number of events has been processed, or (2) the input
     // sources are exhausted.
-    StatusCode run(int numberEventsToProcess);
+    // The 'repeatable' flag affects behavior if and when 'numberEventsToProcess'
+    // events have been processed.  If the flag is false, the current luminosity
+    // block and run will be ended normally.  Any subsequent calls will
+    // begin at the next run.  If the flag is true, the current luminosity
+    // block and run will not be ended, and a repeat call will begin at the next event.
 
-    // Process until the input source is exhausted.
+    StatusCode run(int numberEventsToProcess, bool repeatable = true);
+
+    // Invoke event processing.  Invokes run(maxEvents_, false );
     StatusCode run();
 
     // Process one event with the given EventID
@@ -301,11 +308,9 @@ namespace edm {
 		std::vector<std::string> const& defaultServices,
 		std::vector<std::string> const& forcedServices);
   
-    StatusCode processEvents(int & numberEventsToProcess,
-		     boost::shared_ptr<LuminosityBlockPrincipal> lbp);
-    StatusCode processLumis(int & numberEventsToProcess,
-		     boost::shared_ptr<RunPrincipal> rp);
-    StatusCode processRuns(int numberEventsToProcess,
+    StatusCode processEvents(int & numberEventsToProcess);
+    StatusCode processLumis(int & numberEventsToProcess, bool repeatable);
+    StatusCode processRuns(int numberEventsToProcess, bool repeatable,
 		     event_processor::Msg m);
     StatusCode doneAsync(event_processor::Msg m);
     EventHelperDescription runOnce(boost::shared_ptr<RunPrincipal>& rp,
@@ -333,7 +338,7 @@ namespace edm {
     // really needed, we should remove them.    
 
     DoPluginInit                                  plug_init_;
-    edm::ParameterSet			          maxEventsPset_;
+    ParameterSet			          maxEventsPset_;
     int                                           maxEventsInput_;
     boost::shared_ptr<ActivityRegistry>           actReg_;
     WorkerRegistry                                wreg_;
@@ -357,7 +362,9 @@ namespace edm {
     volatile bool                                 id_set_;
     volatile pthread_t                            event_loop_id_;
     int                                           my_sig_num_;
-    boost::shared_ptr<edm::EDLooper>              looper_;
+    boost::shared_ptr<RunPrincipal>               rp_;
+    boost::shared_ptr<LuminosityBlockPrincipal>   lbp_;
+    boost::shared_ptr<EDLooper>                   looper_;
 
     friend class event_processor::StateSentry;
   }; // class EventProcessor
@@ -368,7 +375,7 @@ namespace edm {
   inline
   EventProcessor::StatusCode
   EventProcessor::run() {
-    return run(maxEventsInput_);
+    return run(maxEventsInput_, false);
   }
 
   template <class T> T& EventProcessor::getSpecificInputSource()
