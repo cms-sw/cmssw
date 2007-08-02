@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/07/26 07:35:21 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/07/26 09:46:04 $
+ *  $Revision: 1.4 $
  *  \author S. Bolognesi - INFN Torino
  */
 #include "CalibMuon/DTCalibration/plugins/DTT0Calibration.h"
@@ -160,16 +160,6 @@ void DTT0Calibration::analyze(const edm::Event & event, const edm::EventSetup& e
 	       << "       time (TDC counts): " << (*digi).countsTDC()<< endl;
 	}   
 
-	if(abs(hT0SectorHisto->GetBinCenter(hT0SectorHisto->GetMaximumBin()) - t0) > 100){
-	  if(debug)
-	    cout<<"digi skipped because t0 per sector "<<hT0SectorHisto->GetBinCenter(hT0SectorHisto->GetMaximumBin())<<endl;
-	  continue;
-	}
-
-	nDigiPerWire[wireId] = nDigiPerWire[wireId] + 1;
-	theAbsoluteT0PerWire[wireId] = theAbsoluteT0PerWire[wireId] + t0;
-	theSigmaT0PerWire[wireId] = theSigmaT0PerWire[wireId] + (t0*t0);
-
 	//Fill the histos per wire for the chosen cells
 	vector<DTWireId>::iterator it = find(wireIdWithHistos.begin(),wireIdWithHistos.end(),wireId);
 	if (it!=wireIdWithHistos.end()){
@@ -178,9 +168,9 @@ void DTT0Calibration::analyze(const edm::Event & event, const edm::EventSetup& e
 	  //If it doesn't exist, book it
 	  if(hT0WireHisto == 0){
 	    theFile->cd(); 
-	    hT0WireHisto = new TH1I(getHistoName(wireId).c_str(),"T0 from pulses by wire (TDC counts, 1 TDC count = 0.781 ns)",200,
-				    hT0SectorHisto->GetBinCenter(hT0SectorHisto->GetMaximumBin())-100,
-				    hT0SectorHisto->GetBinCenter(hT0SectorHisto->GetMaximumBin())+100);
+	    hT0WireHisto = new TH1I(getHistoName(wireId).c_str(),"T0 from pulses by wire (TDC counts, 1 TDC count = 0.781 ns)",7000,0,7000);
+	    //hT0SectorHisto->GetBinCenter(hT0SectorHisto->GetMaximumBin())-100,
+	    //hT0SectorHisto->GetBinCenter(hT0SectorHisto->GetMaximumBin())+100);
 	    if(debug)
 	      cout << "  New T0 per wire Histo: " << hT0WireHisto->GetName() << endl;
 	    theHistoWireMap[wireId] = hT0WireHisto;
@@ -193,6 +183,18 @@ void DTT0Calibration::analyze(const edm::Event & event, const edm::EventSetup& e
 	    hT0WireHisto->Fill(t0);
 	  }
 	}
+
+	if(abs(hT0SectorHisto->GetBinCenter(hT0SectorHisto->GetMaximumBin()) - t0) > 100){
+	  if(debug)
+	    cout<<"digi skipped because t0 per sector "<<hT0SectorHisto->GetBinCenter(hT0SectorHisto->GetMaximumBin())<<endl;
+	  continue;
+	}
+
+	nDigiPerWire[wireId] = nDigiPerWire[wireId] + 1;
+	theAbsoluteT0PerWire[wireId] = theAbsoluteT0PerWire[wireId] + t0;
+	theSigmaT0PerWire[wireId] = theSigmaT0PerWire[wireId] + (t0*t0);
+
+
       }//end if(nevents>1000)
     }//end loop on digi
   }//end loop on layer
