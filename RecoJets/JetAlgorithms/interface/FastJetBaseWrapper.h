@@ -17,14 +17,10 @@ class FastJetBaseWrapper {
   virtual ~FastJetBaseWrapper();
   void run(const JetReco::InputCollection& fInput, JetReco::OutputCollection* fOutput);
  protected:
-  virtual void makeJetDefinition (const edm::ParameterSet& fConfig); // must be implemented in derived class
   fastjet::JetDefinition* mJetDefinition;
  private:
-  void makeActiveArea (const edm::ParameterSet& fConfig);
   fastjet::ActiveAreaSpec* mActiveArea;
-  double mPtMin;
-  double mDCut;
-  int mNJets;
+  double mJetPtMin;
 }; 
 
 #endif

@@ -5,7 +5,7 @@
  * Interface to external CDF MidpointCone algorithm
  * F.Ratnikov, UMd, June 19, 2007
  * Redesigned on Aug. 1, 2007 by F.R.
- * $Id: CMSIterativeConeAlgorithm.cc,v 1.8 2007/07/20 18:46:38 fedor Exp $
+ * $Id: CDFMidpointAlgorithmWrapper.h,v 1.4 2007/08/02 17:42:57 fedor Exp $
  **/
 
 #include "RecoJets/JetAlgorithms/interface/FastJetBaseWrapper.h"
@@ -18,8 +18,6 @@ class CDFMidpointAlgorithmWrapper : public FastJetBaseWrapper {
  public:
   CDFMidpointAlgorithmWrapper(const edm::ParameterSet& fConfig);
   virtual ~CDFMidpointAlgorithmWrapper();
- protected:
-  virtual void makeJetDefinition (const edm::ParameterSet& fConfig);
  private:
   fastjet::CDFMidPointPlugin* mPlugin;
 };

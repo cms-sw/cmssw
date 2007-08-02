@@ -24,8 +24,13 @@ FastJetBaseWrapper::FastJetBaseWrapper(const edm::ParameterSet& fConfig)
   : mJetDefinition (0), 
     mActiveArea (0)
 {
-  makeActiveArea (fConfig);
-  makeJetDefinition (fConfig);
+  mJetPtMin = fConfig.getParameter<double> ("JetPtMin");
+  if (fConfig.getParameter<std::string> ("UE_Subtraction") == "yes") {            // accept pilup subtraction parameters
+    double ghostEtaMax = fConfig.getParameter<double> ("Ghost_EtaMax");   //default Ghost_EtaMax should be 6
+    int activeAreaRepeats = fConfig.getParameter<int> ("Active_Area_Repeats");   //default Active_Area_Repeats 5
+    double ghostArea = fConfig.getParameter<double> ("GhostArea");   //default GhostArea 0.01
+    mActiveArea = new fastjet::ActiveAreaSpec (ghostEtaMax, activeAreaRepeats, ghostArea);
+  }
 }
 
 
@@ -61,18 +66,11 @@ void FastJetBaseWrapper::run(const JetReco::InputCollection& fInput, JetReco::Ou
      clusterSequence = new fastjet::ClusterSequenceWithArea (fjInputs, *mJetDefinition);
    }
    // retrieve jets for selected mode
-   std::vector<fastjet::PseudoJet> jets;
-   if (mNJets <= 0) {
-     if (mDCut >= 0.) jets = clusterSequence->exclusive_jets (mDCut);
-     else jets = clusterSequence->inclusive_jets (mPtMin);
-   }
-   else {
-     if (mDCut >= 0.) edm::LogError ("FastJetDefinition") << "FastJetBaseWrapper- `njets>0` and `dcut>=0.` are mutually inconsistent";
-     else jets = clusterSequence->exclusive_jets (mNJets);
-   }
+   std::vector<fastjet::PseudoJet> jets = clusterSequence->inclusive_jets (mJetPtMin);
 
    // get PU pt
    double median_Pt_Per_Area = clusterSequenceWithArea ? clusterSequenceWithArea->pt_per_unit_area() : 0.;
+
    // process found jets
    JetReco::InputCollection jetConstituents; // cache
    for (std::vector<fastjet::PseudoJet>::const_iterator jet=jets.begin(); jet!=jets.end();++jet) {
@@ -116,20 +114,4 @@ void FastJetBaseWrapper::run(const JetReco::InputCollection& fInput, JetReco::Ou
    else delete clusterSequence; // sigh... No plymorphism in fastjet
 }
 
-void FastJetBaseWrapper::makeJetDefinition (const edm::ParameterSet& fConfig) {
-  delete mJetDefinition;
-  mJetDefinition = 0;
-}
-
-void FastJetBaseWrapper::makeActiveArea (const edm::ParameterSet& fConfig) {
-  mDCut = fConfig.getParameter<double> ("dcut");   //default dcut should be <0 (off)
-  mNJets = fConfig.getParameter<int> ("njets");    //default njets should be <=0 (off)
-  delete mActiveArea; mActiveArea = 0; // reset
-  if (fConfig.getParameter<std::string> ("UE_Subtraction") == "yes") {            // accept pilup subtraction parameters
-    double ghostEtaMax = fConfig.getParameter<double> ("Ghost_EtaMax");   //default Ghost_EtaMax should be 6
-    int activeAreaRepeats = fConfig.getParameter<int> ("Active_Area_Repeats");   //default Active_Area_Repeats 5
-    double ghostArea = fConfig.getParameter<double> ("GhostArea");   //default GhostArea 0.01
-    mActiveArea = new fastjet::ActiveAreaSpec (ghostEtaMax, activeAreaRepeats, ghostArea);
-  }
-}
 

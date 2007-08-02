@@ -34,8 +34,6 @@ class CambridgeAlgorithmWrapper : public FastJetBaseWrapper {
  public:
   CambridgeAlgorithmWrapper(const edm::ParameterSet& fConfig);
   virtual ~CambridgeAlgorithmWrapper();
- protected:
-  virtual void makeJetDefinition (const edm::ParameterSet& fConfig);
 };
 
 #endif

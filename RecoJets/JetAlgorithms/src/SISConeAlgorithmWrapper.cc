@@ -3,7 +3,7 @@
  * Interface to Seedless Infrared Safe Cone algorithm (http://projects.hepforge.org/siscone)
  * F.Ratnikov, UMd, June 22, 2007
  * Redesigned on Aug. 1, 2007 by F.R.
- * $Id: CMSIterativeConeAlgorithm.cc,v 1.8 2007/07/20 18:46:38 fedor Exp $
+ * $Id: SISConeAlgorithmWrapper.cc,v 1.2 2007/08/02 17:42:58 fedor Exp $
  **/
 
 #include <string>
@@ -18,13 +18,7 @@
 SISConeAlgorithmWrapper::SISConeAlgorithmWrapper(const edm::ParameterSet& fConfig)
   : FastJetBaseWrapper (fConfig),
     mPlugin (0)
-{}
-
-SISConeAlgorithmWrapper::~SISConeAlgorithmWrapper () {
-  delete mPlugin;
-}
-
-void SISConeAlgorithmWrapper::makeJetDefinition (const edm::ParameterSet& fConfig) {
+{
   //configuring algorithm 
   std::string splitMergeScale (fConfig.getParameter<std::string>("splitMergeScale"));
   fastjet::SISConePlugin::SplitMergeScale scale = fastjet::SISConePlugin::SM_pttilde;
@@ -41,6 +35,10 @@ void SISConeAlgorithmWrapper::makeJetDefinition (const edm::ParameterSet& fConfi
 					fConfig.getParameter<double>("protojetPtMin"),
 					fConfig.getParameter<bool>("caching"),
 					scale);
-  delete mJetDefinition;
   mJetDefinition = new fastjet::JetDefinition (mPlugin);
 }
+
+SISConeAlgorithmWrapper::~SISConeAlgorithmWrapper () {
+  delete mPlugin;
+}
+

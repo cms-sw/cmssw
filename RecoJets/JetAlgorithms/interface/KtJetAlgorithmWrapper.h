@@ -1,9 +1,9 @@
-#ifndef JetAlgorithms_FastJetAlgorithmWrapper_h
-#define JetAlgorithms_FastJetAlgorithmWrapper_h
+#ifndef JetAlgorithms_KtJetAlgorithmWrapper_h
+#define JetAlgorithms_KtJetAlgorithmWrapper_h
 
-/** \class FastJetAlgorithmWrapper
+/** \class KtJetAlgorithmWrapper
  *
- * FastJetAlgorithmWrapper is the Wrapper subclass which runs
+ * KtJetAlgorithmWrapper is the Wrapper subclass which runs
  * the FastJetAlgorithm for jetfinding. 
  * 
  * The FastJet package, written by Matteo Cacciari and Gavin Salam, 
@@ -30,12 +30,11 @@
 
 #include "RecoJets/JetAlgorithms/interface/FastJetBaseWrapper.h"
 
-class FastJetAlgorithmWrapper : public FastJetBaseWrapper {
+class KtJetAlgorithmWrapper : public FastJetBaseWrapper {
  public:
-  FastJetAlgorithmWrapper(const edm::ParameterSet& fConfig);
-  virtual ~FastJetAlgorithmWrapper();
+  KtJetAlgorithmWrapper(const edm::ParameterSet& fConfig);
+  virtual ~KtJetAlgorithmWrapper();
  protected:
-  virtual void makeJetDefinition (const edm::ParameterSet& fConfig);
 };
 
 #endif

@@ -17,11 +17,7 @@
 
 CambridgeAlgorithmWrapper::CambridgeAlgorithmWrapper(const edm::ParameterSet& fConfig)
   : FastJetBaseWrapper (fConfig)
-{}
-
-CambridgeAlgorithmWrapper::~CambridgeAlgorithmWrapper () {}
-
-void CambridgeAlgorithmWrapper::makeJetDefinition (const edm::ParameterSet& fConfig) {
+{
   //configuring algorithm 
   double rParam = fConfig.getParameter<double> ("FJ_ktRParam");
   //choosing search-strategy:
@@ -43,6 +39,8 @@ void CambridgeAlgorithmWrapper::makeJetDefinition (const edm::ParameterSet& fCon
   //The above given numbers of N are for ktRaram=1.0, for other ktRParam the numbers would be 
   //different.
   
-  delete mJetDefinition;
   mJetDefinition = new fastjet::JetDefinition (fastjet::cambridge_algorithm, rParam, fjStrategy);
 }
+
+CambridgeAlgorithmWrapper::~CambridgeAlgorithmWrapper () {}
+
