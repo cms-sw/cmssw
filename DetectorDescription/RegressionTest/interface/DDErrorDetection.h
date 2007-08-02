@@ -10,13 +10,14 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
+
 //=================
 #include "DetectorDescription/Base/interface/Singleton.h"
-typedef DDI::Singleton<map<string,set<DDLogicalPart> > > lp_err;
-typedef DDI::Singleton<map<string,set<DDMaterial> > >    ma_err;
-typedef DDI::Singleton<map<string,set<DDSolid> > >       so_err;
-typedef DDI::Singleton<map<string,set<DDRotation> > >    ro_err;
-typedef DDI::Singleton<map<string,set<DDSpecifics> > >   sp_err;
+typedef DDI::Singleton<std::map<std::string,std::set<DDLogicalPart> > > lp_err;
+typedef DDI::Singleton<std::map<std::string,std::set<DDMaterial> > >    ma_err;
+typedef DDI::Singleton<std::map<std::string,std::set<DDSolid> > >       so_err;
+typedef DDI::Singleton<std::map<std::string,std::set<DDRotation> > >    ro_err;
+typedef DDI::Singleton<std::map<std::string,std::set<DDSpecifics> > >   sp_err;
 //==================
 //*********************************************************************************************************************************
 
@@ -27,9 +28,9 @@ typedef std::map<std::string, std::set<DDName> > ns_nm_type;
 
 
 
-template<class T> std::ostream & operator<<(std::ostream & o, const set<T> & v)
+template<class T> std::ostream & operator<<(std::ostream & o, const std::set<T> & v)
 {
-  typename set<T>::const_iterator it(v.begin()), ed(v.end());
+  typename std::set<T>::const_iterator it(v.begin()), ed(v.end());
   for(; it != ed; ++it) {
     o << it->ddname() << ' ';
   }
@@ -37,9 +38,9 @@ template<class T> std::ostream & operator<<(std::ostream & o, const set<T> & v)
 }
 
 /*
-ostream & operator<<(ostream & o, const set<DDLogicalPart> & v)
+ostream & operator<<(ostream & o, const std::set<DDLogicalPart> & v)
 {
-  set<DDLogicalPart>::const_iterator it(v.begin()), ed(v.end());
+  std::set<DDLogicalPart>::const_iterator it(v.begin()), ed(v.end());
   for(; it != ed; ++it) {
     o << it->ddname().name() << ' ';
   }
@@ -51,17 +52,17 @@ template<class T> std::ostream & operator<<(std::ostream & o, const std::map<std
   c_it it(m.begin()), ed(m.end());
   for (; it != ed; ++it) {
     o << it->first << ": " << it->second;
-    o << endl;
+    o << std::endl;
   }
   return o;
 }
 
 template<class T, class N> std::ostream & operator<<(std::ostream & o, const std::map<N, std::set<T> > & m) {
-  typedef typename std::map<N, set<T> >::const_iterator c_it;
+  typedef typename std::map<N, std::set<T> >::const_iterator c_it;
   c_it it(m.begin()), ed(m.end());
   for (; it != ed; ++it) {
     o << it->first.ddname() << ": " << it->second;
-    o << endl;
+    o << std::endl;
   }
   return o;
 }
@@ -75,7 +76,7 @@ bool findNameSpaces(T dummy, ns_type & m)
    for (; it != ed; ++it) {
      result = it->isDefined().second;
      if (!result) 
-       DDI::Singleton<map<string,set<T> > >::instance()[it->name().ns()].insert(*it);
+       DDI::Singleton<std::map<std::string,std::set<T> > >::instance()[it->name().ns()].insert(*it);
      m[it->name().ns()].insert(it->name().name());
    }
    return result;
@@ -91,16 +92,16 @@ bool findNameSpaces(T dummy, ns_nm_type & m)
    for (; it != ed; ++it) {
      result = it->isDefined().second;
      if (!result) 
-       DDI::Singleton<map<string,set<T> > >::instance()[it->name().ns()].insert(*it);
+       DDI::Singleton<std::map<std::string,std::set<T> > >::instance()[it->name().ns()].insert(*it);
      m[it->name().ns()].insert(it->name());
    }
    return result;
 }
 
 
-template <class C> const std::map<string, set<C> > & dd_error_scan(const C &)
+template <class C> const std::map<std::string, std::set<C> > & dd_error_scan(const C &)
 {
-    typedef std::map<std::string, set<C> > error_type;
+    typedef std::map<std::string, std::set<C> > error_type;
     static error_type result_;
     typename C::template iterator<C> it;
     typename C::template iterator<C> ed(C::end());
@@ -127,6 +128,7 @@ public:
   const std::map<DDMaterial, std::set<DDLogicalPart> > & ma_lp();
   const std::map<DDSolid, std::set<DDLogicalPart> > & so_lp();
   const std::map<DDSolid, std::set<DDSolid> > & so();
+
   void nix();
   
   const std::vector<std::pair<std::string,DDName> > &  ma();
