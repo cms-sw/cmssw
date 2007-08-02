@@ -1,10 +1,6 @@
 #include "IOVIteratorImpl.h"
 #include "IOV.h"
-//#include "CondCore/DBCommon/interface/PoolStorageManager.h"
-//#include "CondCore/DBCommon/interface/Ref.h"
-//#include "CondCore/DBCommon/interface/Time.h"
 #include <map>
-//#include <algorithm>
 cond::IOVIteratorImpl::IOVIteratorImpl( cond::PoolTransaction& pooldb,
 					const std::string token,
 					cond::Time_t globalSince, 

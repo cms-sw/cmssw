@@ -1,10 +1,10 @@
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/TypedRef.h"
+#include "CondCore/DBCommon/interface/GenericRef.h"
 #include "CondCore/IOVService/interface/IOVNames.h"
 #include "IOVEditorImpl.h"
 #include "IOV.h"
 #include "POOLCore/Token.h"
-#include "DataSvc/RefBase.h"
 #include "StorageSvc/DbReflex.h"
 cond::IOVEditorImpl::IOVEditorImpl( cond::PoolTransaction& pooldb,
 				    const std::string& token,
@@ -80,7 +80,7 @@ void cond::IOVEditorImpl::deleteEntries(bool withPayload){
       tokenStr=payloadIt->second;
       pool::Token token;
       const pool::Guid& classID=token.fromString(tokenStr).classID();
-      pool::RefBase ref(&m_pooldb.poolDataSvc(),tokenStr,pool::DbReflex::forGuid(classID).TypeInfo());
+      cond::GenericRef ref(m_pooldb,tokenStr,pool::DbReflex::forGuid(classID).TypeInfo());
       ref.markDelete();
       ref.reset();
     }

@@ -1,5 +1,4 @@
 #include "CondCore/IOVService/interface/IOVService.h"
-//#include "CondCore/DBCommon/interface/PoolStorageManager.h"
 #include "IOVServiceImpl.h"
 #include "IOVIteratorImpl.h"
 #include "IOVEditorImpl.h"
