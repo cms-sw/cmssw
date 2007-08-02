@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    WriteHcalGains
-// Class:      WriteHcalGains
+// Package:    WriteHcalPedestalWidths
+// Class:      WriteHcalPedestalWidths
 // 
-/**\class WriteHcalGains WriteHcalGains.cc CalibCalorimetry/CaloMiscalibTools/src/WriteHcalGains.cc
+/**\class WriteHcalPedestalWidths WriteHcalPedestalWidths.cc CalibCalorimetry/CaloMiscalibTools/src/WriteHcalPedestalWidths.cc
 
  Description: <one line class summary>
 
@@ -13,7 +13,7 @@
 //
 // Original Author:  Stephanie BEAUCERON
 //         Created:  Tue May 15 16:23:21 CEST 2007
-// $Id: WriteHcalGains.cc,v 1.1 2007/08/02 15:19:10 malgeri Exp $
+// $Id: WriteHcalPedestalWidths.cc,v 1.1 2007/08/02 15:19:10 malgeri Exp $
 //
 //
 
@@ -40,13 +40,13 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 // user include files
-#include "CondFormats/HcalObjects/interface/HcalGains.h"
-#include "CondFormats/DataRecord/interface/HcalGainsRcd.h"
+#include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
+#include "CondFormats/DataRecord/interface/HcalPedestalWidthsRcd.h"
 //For Checks
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //this one
-#include "CalibCalorimetry/CaloMiscalibTools/interface/WriteHcalGains.h"
+#include "CalibCalorimetry/CaloMiscalibTools/interface/WriteHcalPedestalWidths.h"
 
 //
 // static data member definitions
@@ -55,7 +55,7 @@
 //
 // constructors and destructor
 //
-WriteHcalGains::WriteHcalGains(const edm::ParameterSet& iConfig)
+WriteHcalPedestalWidths::WriteHcalPedestalWidths(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
   newTagRequest_ = iConfig.getParameter< std::string > ("NewTagRequest");
@@ -64,7 +64,7 @@ WriteHcalGains::WriteHcalGains(const edm::ParameterSet& iConfig)
 }
 
 
-WriteHcalGains::~WriteHcalGains()
+WriteHcalPedestalWidths::~WriteHcalPedestalWidths()
 {
  
    // do anything here that needs to be done at desctruction time
@@ -79,33 +79,33 @@ WriteHcalGains::~WriteHcalGains()
 
 // ------------ method called to for each event  ------------
 void
-WriteHcalGains::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+WriteHcalPedestalWidths::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 }
 
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-WriteHcalGains::beginJob(const edm::EventSetup& iSetup)
+WriteHcalPedestalWidths::beginJob(const edm::EventSetup& iSetup)
 {
    using namespace edm;
   // Intercalib constants
-   edm::ESHandle<HcalGains> pIcal;
-   iSetup.get<HcalGainsRcd>().get(pIcal);
+   edm::ESHandle<HcalPedestalWidths> pIcal;
+   iSetup.get<HcalPedestalWidthsRcd>().get(pIcal);
 
-   //   const HcalGains* Mcal = pIcal.product();
+   //   const HcalPedestalWidths* Mcal = pIcal.product();
 
-   HcalGains* Mcal = new HcalGains(*(pIcal.product()));
+   HcalPedestalWidths* Mcal = new HcalPedestalWidths(*(pIcal.product()));
    
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if( poolDbService.isAvailable() ){
     if ( poolDbService->isNewTagRequest(newTagRequest_) ){
       std::cout<<" Creating a  new one "<<std::endl;
-      poolDbService->createNewIOV<const HcalGains>( Mcal, poolDbService->endOfTime(),newTagRequest_);
+      poolDbService->createNewIOV<const HcalPedestalWidths>( Mcal, poolDbService->endOfTime(),newTagRequest_);
       std::cout<<"Done" << std::endl;
     }else{
       std::cout<<"Old One "<<std::endl;
-       poolDbService->appendSinceTime<const HcalGains>( Mcal, poolDbService->currentTime(),newTagRequest_);
+       poolDbService->appendSinceTime<const HcalPedestalWidths>( Mcal, poolDbService->currentTime(),newTagRequest_);
     }
   }  
 }
@@ -113,7 +113,7 @@ WriteHcalGains::beginJob(const edm::EventSetup& iSetup)
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 
-WriteHcalGains::endJob() {
+WriteHcalPedestalWidths::endJob() {
   std::cout << "Here is the end" << std::endl; 
 }
 
