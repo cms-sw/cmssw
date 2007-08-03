@@ -1,11 +1,11 @@
 //
-// $Id$
+// $Id: TtDilepEvtSolution.h,v 1.6 2007/07/20 07:05:14 lowette Exp $
 //
 
 #ifndef TopObjects_TtDilepEvtSolution_h
 #define TopObjects_TtDilepEvtSolution_h
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/Ref.h"
 

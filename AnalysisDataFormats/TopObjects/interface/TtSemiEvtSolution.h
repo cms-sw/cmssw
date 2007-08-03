@@ -1,11 +1,11 @@
 //
-// $Id: TtSemiEvtSolution.h,v 1.15 2007/07/20 07:03:14 lowette Exp $
+// $Id: TtSemiEvtSolution.h,v 1.16 2007/07/26 08:42:46 lowette Exp $
 //
 
 #ifndef TopObjects_TtSemiEvtSolution_h
 #define TopObjects_TtSemiEvtSolution_h
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/Ref.h"
 

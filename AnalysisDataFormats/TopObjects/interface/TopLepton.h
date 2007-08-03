@@ -1,5 +1,5 @@
 //
-// $Id: TopLepton.h,v 1.9 2007/07/28 09:53:33 delaer Exp $
+// $Id: TopLepton.h,v 1.10 2007/07/31 21:35:15 rwolf Exp $
 //
 
 #ifndef TopObjects_TopLepton_h
@@ -13,7 +13,7 @@
    store and retrieve the high-level likelihood ratio information.
 
   \author   Steven Lowette
-  \version  $Id: TopLepton.h,v 1.9 2007/07/28 09:53:33 delaer Exp $
+  \version  $Id: TopLepton.h,v 1.10 2007/07/31 21:35:15 rwolf Exp $
 */
 
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -105,7 +105,7 @@ template <class LeptonType>
 reco::GenParticleCandidate TopLepton<LeptonType>::getGenLepton() const {
   return (genLepton_.size() > 0 ?
     genLepton_.front() :
-    reco::GenParticleCandidate(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), 0, 0)
+	  reco::GenParticleCandidate(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), 0, 0, true)
   );
 }
 
