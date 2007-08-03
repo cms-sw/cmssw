@@ -81,6 +81,9 @@ private:
  
  std::string outputFile_;
 
+ int myEntries;
+ float eRLength[26];
+
  MonitorElement* menEBHits_;
 
  MonitorElement* menEBCrystals_;

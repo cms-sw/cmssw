@@ -63,6 +63,9 @@ EcalEndcapSimHitsValidation::EcalEndcapSimHitsValidation(const edm::ParameterSet
   meEEe9oe25_  = 0; 
   meEEe16oe25_ = 0;
 
+  myEntries = 0;
+  for ( int myStep = 0; myStep<26; myStep++) { eRLength[myStep] = 0.0; }
+
   Char_t histo[200];
  
   if ( dbe_ ) {
@@ -140,6 +143,10 @@ void EcalEndcapSimHitsValidation::beginJob(const edm::EventSetup& c){
 
 void EcalEndcapSimHitsValidation::endJob(){
 
+  for ( int myStep = 0; myStep<26; myStep++){
+    if (meEELongitudinalShower_) meEELongitudinalShower_->Fill(float(myStep), eRLength[myStep]/myEntries);
+  }
+
 }
 
 void EcalEndcapSimHitsValidation::analyze(const edm::Event& e, const edm::EventSetup& c){
@@ -155,6 +162,8 @@ void EcalEndcapSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
   std::vector<PCaloHit> theEECaloHits;
   theEECaloHits.insert(theEECaloHits.end(), EcalHitsEE->begin(), EcalHitsEE->end());
   
+  myEntries++;
+
   std::map<unsigned int, std::vector<PCaloHit>,std::less<unsigned int> > CaloHitMap;
   
   double EEetzp_ = 0.;
@@ -245,15 +254,11 @@ void EcalEndcapSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
     if (meEEe9oe25_  && ee25 > 0.1 ) meEEe9oe25_ ->Fill(ee9/ee25);
     
   }
-  
-  
+    
   if ( MyPEcalValidInfo->ee1x1() > 0. ) {
     std::vector<float>  EX0 = MyPEcalValidInfo->eX0();
-    for (int ii=0;ii< 26;ii++ ) {
-      if (meEELongitudinalShower_) meEELongitudinalShower_->Fill(float(ii), EX0[ii]);
-    }
+    for (int myStep=0; myStep< 26; myStep++ ) { eRLength[myStep] += EX0[myStep]; }
   }
-  
 }
 
 float EcalEndcapSimHitsValidation::energyInMatrixEE(int nCellInX, int nCellInY,

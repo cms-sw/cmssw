@@ -77,13 +77,13 @@ EcalSimHitsValidation::EcalSimHitsValidation(const edm::ParameterSet& ps):
     meGunPhi_ = dbe_->book1D(histo, histo, 360, 0., 360.);
 
     sprintf (histo, "EcalSimHitsValidation Barrel fraction of energy" ) ;
-    meEBEnergyFraction_ = dbe_->book1D(histo, histo, 50 , 0.8 , 1.0);
+    meEBEnergyFraction_ = dbe_->book1D(histo, histo, 100 , 0. , 1.1);
   
     sprintf (histo, "EcalSimHitsValidation Endcap fraction of energy" ) ;
-    meEEEnergyFraction_ = dbe_->book1D(histo, histo, 50 , 0.8 , 1.0);
+    meEEEnergyFraction_ = dbe_->book1D(histo, histo, 100 , 0. , 1.1);
   
     sprintf (histo, "EcalSimHitsValidation Preshower fraction of energy" ) ;
-    meESEnergyFraction_ = dbe_->book1D(histo, histo, 50 , 0. , 0.01);
+    meESEnergyFraction_ = dbe_->book1D(histo, histo, 60 , 0. , 0.001);
   }
  
 }
