@@ -1,13 +1,16 @@
 <lcgdict>
-  <class name="std::vector<std::vector<PSimHit> >"/>
-  <class name="std::vector<std::vector<PCaloHit> >"/>
-  <class name="std::map<std::string,std::vector<PCaloHit> >"/>
-  <class name="std::map<std::string,std::vector<PSimHit> >"/>
-  <class name="std::vector<std::vector<SimTrack> > "/>
-  <class name="std::vector<std::vector<SimVertex> > "/>
-  <class name="std::map<std::string,std::vector<std::vector<PCaloHit> > >"/>
-  <class name="std::map<std::string,std::vector<std::vector<PSimHit> > >"/>
-  <class name="CrossingFrame"/>
-  <class name="edm::Wrapper<CrossingFrame>"/>
+  <class name="std::vector<PSimHit> "/>
+  <class name="std::vector<int> "/>
+  <class name="std::vector<PCaloHit> "/>
+  <class name="std::vector<SimTrack> "/>
+  <class name="std::vector<SimVertex> "/>
+  <class name="CrossingFrame<PSimHit> "/>
+  <class name="CrossingFrame<PCaloHit> "/>
+  <class name="CrossingFrame<SimTrack> "/>
+  <class name="CrossingFrame<SimVertex> "/>
+  <class name="edm::Wrapper<CrossingFrame<PSimHit> >"/>
+  <class name="edm::Wrapper<CrossingFrame<PCaloHit> >"/>
+  <class name="edm::Wrapper<CrossingFrame<SimTrack> >"/>
+  <class name="edm::Wrapper<CrossingFrame<SimVertex> >"/>
 </lcgdict>
 
