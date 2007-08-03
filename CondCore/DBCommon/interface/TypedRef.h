@@ -56,7 +56,8 @@ namespace cond{
     TypedRef<T>& operator=(const TypedRef<T>&);
     private:
     pool::IDataSvc* m_datasvc;
-    pool::Placement* m_place;
+    std::string m_con;
+    //pool::Placement* m_place;
     // wrap pool Ref
     pool::Ref<T> m_data;
   };
@@ -65,14 +66,16 @@ namespace cond{
 
 // default constuctor
 template<typename T> 
-cond::TypedRef<T>::TypedRef():m_datasvc(0),m_place(0){  
+cond::TypedRef<T>::TypedRef():m_datasvc(0){  
 }
 template<typename T> 
 cond::TypedRef<T>::TypedRef(cond::PoolTransaction& pooldb, 
 			    pool::Ref<T> ref):
-  m_datasvc(&(pooldb.poolDataSvc())), m_data(ref){
+  m_datasvc(&(pooldb.poolDataSvc())),
+  m_con(pooldb.parentConnection().connectStr()), 
+  m_data(ref){
   //std::string con=pooldb.parentConnection().connectStr();
-  m_place =0;
+  //m_place =0;
   //m_place->setTechnology(pool::POOL_RDBMS_HOMOGENEOUS_StorageType.type());
   //m_place->setDatabase(con,pool::DatabaseSpecification::PFN);
 }
@@ -80,26 +83,29 @@ cond::TypedRef<T>::TypedRef(cond::PoolTransaction& pooldb,
 template<typename T> 
 cond::TypedRef<T>::TypedRef( cond::PoolTransaction& pooldb, 
 			  const std::string& token ):
-  m_datasvc(&(pooldb.poolDataSvc())),m_data(m_datasvc, token){
-  std::string con=pooldb.parentConnection().connectStr();
+  m_datasvc(&(pooldb.poolDataSvc())),
+  m_con(pooldb.parentConnection().connectStr()),
+  m_data(m_datasvc, token){
   //m_place=0;
-  m_place = new pool::Placement;
-  m_place->setTechnology(pool::POOL_RDBMS_HOMOGENEOUS_StorageType.type());
-  m_place->setDatabase(con,pool::DatabaseSpecification::PFN);
+  //m_place = new pool::Placement;
+  //m_place->setTechnology(pool::POOL_RDBMS_HOMOGENEOUS_StorageType.type());
+  //m_place->setDatabase(con,pool::DatabaseSpecification::PFN);
 }
 // construct from object pointer, take ownership of the object
 template<typename T> 
-cond::TypedRef<T>::TypedRef( cond::PoolTransaction& pooldb, T* obj ):m_datasvc(&(pooldb.poolDataSvc())),m_data(m_datasvc, obj){
-  std::string con=pooldb.parentConnection().connectStr();
-  m_place = new pool::Placement;
-  m_place->setTechnology(pool::POOL_RDBMS_HOMOGENEOUS_StorageType.type());
-  m_place->setDatabase(con,pool::DatabaseSpecification::PFN);
+cond::TypedRef<T>::TypedRef( cond::PoolTransaction& pooldb, T* obj ):
+  m_datasvc(&(pooldb.poolDataSvc())),
+  m_con(pooldb.parentConnection().connectStr()),
+  m_data(m_datasvc, obj){
+  //m_place = new pool::Placement;
+  //m_place->setTechnology(pool::POOL_RDBMS_HOMOGENEOUS_StorageType.type());
+  //m_place->setDatabase(con,pool::DatabaseSpecification::PFN);
 }
-// copy constructor???
+// copy constructor??? should copy metadata??
 template<typename T>
 cond::TypedRef<T>::TypedRef( const TypedRef<T>& aCopy){
   m_datasvc=aCopy.m_datasvc;
-  m_place=0;
+  m_con=aCopy.m_con;
   m_data=aCopy.m_data;
 }
 template<typename T> std::string 
@@ -119,9 +125,12 @@ cond::TypedRef<T>::containerName() const{
 // write
 template<typename T> void 
 cond::TypedRef<T>::markWrite( const std::string& containerName ){
+  pool::Placement place;
+  place.setTechnology(pool::POOL_RDBMS_HOMOGENEOUS_StorageType.type());
+  place.setDatabase(m_con,pool::DatabaseSpecification::PFN);
+  place.setContainerName(containerName);
   try{
-    m_place->setContainerName(containerName);
-    m_data.markWrite(*m_place);
+    m_data.markWrite(place);
   }catch( const pool::Exception& er){
     throw cond::RefException("markWrite",er.what());
   }
@@ -167,13 +176,12 @@ cond::TypedRef<T>::operator*() const{
 template<typename T> cond::TypedRef<T>& 
 cond::TypedRef<T>::operator=(const cond::TypedRef<T>& aRef){
   m_datasvc=aRef.m_datasvc;
-  m_place=0;
+  m_con=aRef.m_con;
   m_data=aRef.m_data;
   return *this;  
 }
 template<typename T>
 cond::TypedRef<T>::~TypedRef(){
-  if(m_place) delete m_place;
 }
 #endif
 // COND_TYPEDREF_H
