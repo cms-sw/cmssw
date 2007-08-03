@@ -17,6 +17,10 @@
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "MixingModule.h"
 
+const int  edm::MixingModule::lowTrackTof = -36; 
+const int  edm::MixingModule::highTrackTof = 36; 
+const int  edm::MixingModule::limHighLowTof = 36; 
+
 
 using namespace std;
 
@@ -25,21 +29,36 @@ namespace edm
 
   // Constructor 
   MixingModule::MixingModule(const edm::ParameterSet& ps) : BMixingModule(ps),
-			     label_(ps.getParameter<std::string>("Label"))
+							    label_(ps.getParameter<std::string>("Label"))
 
   {
-    // declare the product to produce
+    // get the subdetector names
+    this->getSubdetectorNames();
+
+    // create input selector
     if (label_.size()>0){
       sel_=new Selector( ModuleLabelSelector(label_));
-      produces<CrossingFrame> (label_);
     }
     else {
       sel_=new Selector( MatchAllSelector());
-      produces<CrossingFrame> ();
     }
+
+    // declare the product to produce
+    for (unsigned int ii=0;ii<simHitSubdetectors_.size();ii++) {
+      produces<CrossingFrame<PSimHit> > (simHitSubdetectors_[ii]);
+      cfSimHits_[simHitSubdetectors_[ii]]=new CrossingFrame<PSimHit>(minBunch(),maxBunch(),bunchSpace_,simHitSubdetectors_[ii]);
+    }
+    for (unsigned int ii=0;ii<caloSubdetectors_.size();ii++) {
+      produces<CrossingFrame<PCaloHit> > (caloSubdetectors_[ii]);
+      cfCaloHits_[caloSubdetectors_[ii]]=new CrossingFrame<PCaloHit>(minBunch(),maxBunch(),bunchSpace_,caloSubdetectors_[ii]);
+    }
+    produces<CrossingFrame<SimTrack> >();
+    cfTracks_=new CrossingFrame<SimTrack>(minBunch(),maxBunch(),bunchSpace_,std::string(" "));
+    produces<CrossingFrame<SimVertex> >();
+    cfVertices_=new CrossingFrame<SimVertex>(minBunch(),maxBunch(),bunchSpace_,std::string(" "));
   }
 
-  void MixingModule::beginJob(edm::EventSetup const&iSetup) {
+  void MixingModule::getSubdetectorNames() {
     // get subdetector names
     edm::Service<edm::ConstProductRegistry> reg;
     // Loop over provenance of products in registry.
@@ -55,7 +74,7 @@ namespace edm
       else if (!desc.friendlyClassName_.compare(0,7,"PSimHit") && desc.productInstanceName_.compare(0,11,"TrackerHits")) {
 	simHitSubdetectors_.push_back(desc.productInstanceName_);
 	nonTrackerPids_.push_back(desc.productInstanceName_);
-        LogInfo("Constructor") <<"Adding simhit container "<<desc.productInstanceName_ <<" for pileup treatment";
+        LogInfo("MixingModule") <<"Adding non tracker simhit container "<<desc.productInstanceName_ <<" for pileup treatment";
       }
       else if (!desc.friendlyClassName_.compare(0,7,"PSimHit") && !desc.productInstanceName_.compare(0,11,"TrackerHits")) {
 	simHitSubdetectors_.push_back(desc.productInstanceName_);
@@ -64,17 +83,25 @@ namespace edm
 	int iend=(desc.productInstanceName_).size();
 	if (slow>0) {
  	  trackerHighLowPids_.push_back(desc.productInstanceName_.substr(0,iend-6));
-	  LogInfo("MixingModule") <<"Adding container "<<desc.productInstanceName_.substr(0,iend-6) <<" for pileup treatment";
+	  LogInfo("MixingModule") <<"Adding tracker simhit container "<<desc.productInstanceName_.substr(0,iend-6) <<" for pileup treatment";
         }
       }
-      //      else
-      //        cout<<"Strange detector "<<desc.productInstanceName_ <<",productID "<<desc.productID_<<" for pileup treatment????????"<<endl;
     }
+  }
+  void MixingModule::beginJob(edm::EventSetup const&iSetup) {
   }
 
   void MixingModule::createnewEDProduct() {
-    simcf_=new CrossingFrame(minBunch(),maxBunch(),bunchSpace_,simHitSubdetectors_,caloSubdetectors_);
+    for (unsigned int ii=0;ii<simHitSubdetectors_.size();ii++) {
+      cfSimHits_[simHitSubdetectors_[ii]]=new CrossingFrame<PSimHit>(minBunch(),maxBunch(),bunchSpace_,simHitSubdetectors_[ii]);
+    }
+    for (unsigned int ii=0;ii<caloSubdetectors_.size();ii++) {
+      cfCaloHits_[caloSubdetectors_[ii]]=new CrossingFrame<PCaloHit>(minBunch(),maxBunch(),bunchSpace_,caloSubdetectors_[ii]);
+    }
+    cfTracks_=new CrossingFrame<SimTrack>(minBunch(),maxBunch(),bunchSpace_,std::string(" "));
+    cfVertices_=new CrossingFrame<SimVertex>(minBunch(),maxBunch(),bunchSpace_,std::string(" "));
   }
+ 
 
   // Virtual destructor needed.
   MixingModule::~MixingModule() { 
@@ -84,62 +111,59 @@ namespace edm
   void MixingModule::addSignals(const edm::Event &e) { 
     // fill in signal part of CrossingFrame
 
-    // first add eventID
-    simcf_->setEventID(e.id());
     LogDebug("MixingModule")<<"===============> adding signals for "<<e.id();
-    eventId_=0;
+    std::map<std::string,CrossingFrame<PSimHit> * >::iterator it;
 
     // SimHits
     std::vector<edm::Handle<std::vector<PSimHit> > > resultsim;
     e.getMany((*sel_),resultsim);
     int ss=resultsim.size();
-    if (ss>1) LogWarning("MixingModule") << " Found "<<ss<<" PSimHit collections in signal file, only first one  will be stored!!!!!!";
+
     for (int ii=0;ii<ss;ii++) {
       edm::BranchDescription desc = resultsim[ii].provenance()->product();
-      LogDebug("MixingModule") <<"For "<<desc.productInstanceName_<<" "<<resultsim[ii].product()->size()<<" Simhits added";
-      simcf_->addSignalSimHits(desc.productInstanceName_,resultsim[ii].product());
+      LogDebug("MixingModule") <<"For "<<desc.productInstanceName_<<", "<<resultsim[ii].product()->size()<<" signal Simhits to be added";
+      cfSimHits_[desc.productInstanceName_]->addSignals(resultsim[ii].product(),e.id());
+
     }
 
 
-    // calo hits for all subdetectors
+    std::map<std::string,CrossingFrame<PCaloHit> * >::iterator it2;
+
     std::vector<edm::Handle<std::vector<PCaloHit> > > resultcalo;
     e.getMany((*sel_),resultcalo);
     int sc=resultcalo.size();
-    if (sc>1) LogWarning("MixingModule") << " Found "<<sc<<" PCaloHit collections in signal file, only first one  will be stored!!!!!!";
+
     for (int ii=0;ii<sc;ii++) {
       edm::BranchDescription desc = resultcalo[ii].provenance()->product();
-      LogDebug("MixingModule") <<"For "<<desc.productInstanceName_<<" "<<resultcalo[ii].product()->size()<<" Calohits added";
-      simcf_->addSignalCaloHits(desc.productInstanceName_,resultcalo[ii].product());
+      LogDebug("MixingModule") <<"For "<<desc.productInstanceName_<<", "<<resultcalo[ii].product()->size()<<" signal Calohits to be added";
+      cfCaloHits_[desc.productInstanceName_]->addSignals(resultcalo[ii].product(),e.id());
     }
-  
 
-//     //tracks and vertices
+    //     //tracks and vertices
     std::vector<edm::Handle<std::vector<SimTrack> > > result_t;
     e.getMany((*sel_),result_t);
     int str=result_t.size();
-    if (str>1) LogWarning("MixingModule") << " Found "<<str<<" SimTrack collections in signal file, only first one  will be stored!!!!!!";
+    if (str>1) LogWarning("MixingModule") << " Found "<<str<<" SimVertex collections in signal file, only first one will be stored!!!!!!";
     for (int ii=0;ii<str;ii++) {
       edm::BranchDescription desc =result_t[ii].provenance()->product();
-      LogDebug("MixingModule") <<result_t[ii].product()->size()<<" Simtracks added";
-      if (result_t[ii].isValid()) simcf_->addSignalTracks(result_t[ii].product());
-      else  LogWarning("InvalidData") <<"Invalid simtracks in signal";
+      LogDebug("MixingModule") <<result_t[ii].product()->size()<<" adding signal Simtracks";
+      cfTracks_->addSignals(result_t[ii].product(),e.id());
     }
 
     std::vector<edm::Handle<std::vector<SimVertex> > > result_v;
     e.getMany((*sel_),result_v);
     int sv=result_v.size();
-    if (sv>1) LogWarning("MixingModule") << " Found "<<sv<<" SimTrack collections in signal file, only first one  will be stored!!!!!!";
+    if (sv>1) LogWarning("MixingModule") << " Found "<<sv<<" SimTrack collections in signal file, only first one will be stored!!!!!!";
     for (int ii=0;ii<sv;ii++) {
       edm::BranchDescription desc = result_v[ii].provenance()->product();
-      LogDebug("MixingModule") <<result_v[ii].product()->size()<<" Simvertices added";
-      if (result_v[ii].isValid()) simcf_->addSignalVertices(result_v[ii].product());
-      else  LogWarning("InvalidData") <<"Invalid simvertices in signal";
+      LogDebug("MixingModule") <<result_v[ii].product()->size()<<" adding signal Simvertices ";
+      cfVertices_->addSignals(result_v[ii].product(),e.id());
     }
   }
 
-  void MixingModule::addPileups(const int bcr, Event *e, unsigned int eventId) {
+  void MixingModule::addPileups(const int bcr, Event *e, unsigned int eventNr) {
   
-    LogDebug("MixingModule") <<"===============> adding pileups from event  "<<e->id()<<" for bunchcrossing "<<bcr;
+    LogDebug("MixingModule") <<"\n===============> adding pileups from event  "<<e->id()<<" for bunchcrossing "<<bcr;
 
     // SimHits
     // we have to treat tracker/non tracker  containers separately, prepare a global map
@@ -155,37 +179,43 @@ namespace edm
 
     // Non-tracker treatment
     for(std::vector <std::string>::iterator it = nonTrackerPids_.begin(); it != nonTrackerPids_.end(); ++it) {
-        const std::vector<PSimHit> * simhits = simproducts[(*it)];
-	if (simhits) {
-	  simcf_->addPileupSimHits(bcr,(*it),simhits,eventId,false);
-	  LogDebug("MixingModule") <<"For "<<(*it)<<", "<<simhits->size()<<" Simhits added";
+      const std::vector<PSimHit> * simhits = simproducts[(*it)];
+      if (eventNr==1) cfSimHits_[(*it)]->setBcrOffset();
+      if (simhits) {
+	if (simhits->size()) {
+	  cfSimHits_[(*it)]->addPileups(bcr,simhits,eventNr);
+	  LogDebug("MixingModule") <<"For "<<(*it)<<", "<<simhits->size()<<" pileup Simhits added";
 	}
+      }
     }
     // Tracker treatment
-    float tof = bcr*simcf_->getBunchSpace();
     for(std::vector <std::string >::iterator itstr = trackerHighLowPids_.begin(); itstr != trackerHighLowPids_.end(); ++itstr) {
-      std::string subdethigh=(*itstr)+"HighTof";
-      std::string subdetlow=(*itstr)+"LowTof";
+      const std::string subdethigh=(*itstr)+"HighTof";
+      const std::string subdetlow=(*itstr)+"LowTof";
+      if (eventNr==1) {
+	cfSimHits_[subdethigh]->setBcrOffset();
+	cfSimHits_[subdetlow]->setBcrOffset();
+      }
       // do not read branches if clearly outside of tof bounds (and verification is asked for, default)
       // add HighTof pileup to high and low signals
-      if ( !checktof_ || ((CrossingFrame::limHighLowTof +tof ) <= CrossingFrame::highTrackTof)) { 
+      float tof = bcr*cfSimHits_[subdethigh]->getBunchSpace();
+      if ( !checktof_ || ((limHighLowTof +tof ) <= highTrackTof)) { 
 
 	const std::vector<PSimHit> * simhitshigh = simproducts[subdethigh];
 	if (simhitshigh) {
-	  simcf_->addPileupSimHits(bcr,subdethigh,simhitshigh,eventId,checktof_);
-	  simcf_->addPileupSimHits(bcr,subdetlow,simhitshigh,eventId,checktof_);
-	  LogDebug("MixingModule") <<"For "<<subdethigh<<" and "<<subdetlow<<", "<<simhitshigh->size()<<" Simhits added";
+	  cfSimHits_[subdethigh]->addPileups(bcr,simhitshigh,eventNr,0,checktof_);
+	  cfSimHits_[subdetlow]->addPileups(bcr,simhitshigh,eventNr,0,checktof_);
+	  LogDebug("MixingModule") <<"For "<<subdethigh<<" + "<<subdetlow<<", "<<simhitshigh->size()<<" pup Hits added to high+low";
 	}
       }
 
       // add LowTof pileup to high and low signals
-      if (  !checktof_ || ((tof+CrossingFrame::limHighLowTof) >= CrossingFrame::lowTrackTof && tof <= CrossingFrame::highTrackTof)) {     
-	//	const std::vector<PSimHit> * simhitslow = simproducts[(*itstr).second.second];
+      if (  !checktof_ || ((tof+limHighLowTof) >= lowTrackTof && tof <= highTrackTof)) {     
 	const std::vector<PSimHit> * simhitslow = simproducts[subdetlow];
 	if (simhitslow) {
-	  simcf_->addPileupSimHits(bcr,subdethigh,simhitslow,eventId, checktof_);
-	  simcf_->addPileupSimHits(bcr,subdetlow,simhitslow,eventId, checktof_);
-	  LogDebug("MixingModule") <<"For "<<subdethigh<<" and "<<subdetlow<<", "<<simhitslow->size()<<" Simhits added";
+	  LogDebug("MixingModule") <<"For "<<subdethigh<<" + "<<subdetlow<<", "<<simhitslow->size()<<" pup Hits added to high+low";
+	  cfSimHits_[subdethigh]->addPileups(bcr,simhitslow,eventNr,0,checktof_);
+	  cfSimHits_[subdetlow]->addPileups(bcr,simhitslow,eventNr,0,checktof_);
 	}
       }
     }
@@ -196,39 +226,62 @@ namespace edm
     int sc=resultcalo.size();
     for (int ii=0;ii<sc;ii++) {
       edm::BranchDescription desc = resultcalo[ii].provenance()->product();
-      LogDebug("MixingModule") <<"For "<<desc.productInstanceName_<<" "<<resultcalo[ii].product()->size()<<" Calohits added";
-      simcf_->addPileupCaloHits(bcr,desc.productInstanceName_,resultcalo[ii].product(),eventId);
+      if (eventNr==1) cfCaloHits_[desc.productInstanceName_]->setBcrOffset();
+      if (resultcalo[ii].product()->size()) {
+	LogDebug("MixingModule") <<"For "<<desc.productInstanceName_<<" "<<resultcalo[ii].product()->size()<<" pileup Calohits added";
+	cfCaloHits_[desc.productInstanceName_]->addPileups(bcr,resultcalo[ii].product(),eventNr);
+      }
     }
  
-//     //tracks and vertices
+    //     //tracks and vertices
     std::vector<edm::Handle<std::vector<SimTrack> > > result_t;
     e->getMany((*sel_),result_t);
     int str=result_t.size();
     if (str>1) LogWarning("InvalidData") <<"Too many SimTrack containers, should be only one!";
+    if (eventNr==1) cfTracks_->setBcrOffset();
     for (int ii=0;ii<str;ii++) {
       edm::BranchDescription desc =result_t[ii].provenance()->product();
-      LogDebug("MixingModule") <<result_t[ii].product()->size()<<" Simtracks added";
-      if (result_t[ii].isValid()) simcf_->addPileupTracks(bcr,result_t[ii].product(),eventId,vertexoffset);
+      LogDebug("MixingModule") <<result_t[ii].product()->size()<<" pileup Simtracks added, eventNr "<<eventNr;
+      if (result_t[ii].isValid()) {
+	cfTracks_->addPileups(bcr,result_t[ii].product(),eventNr,vertexoffset);
+      }
       else  LogWarning("InvalidData") <<"Invalid simtracks in signal";
     }
-  
 
     std::vector<edm::Handle<std::vector<SimVertex> > > result_v;
     e->getMany((*sel_),result_v);
     int sv=result_v.size();
     if (sv>1) LogWarning("InvalidData") <<"Too many SimVertex containers, should be only one!";
+    if (eventNr==1) cfVertices_->setBcrOffset();
     for (int ii=0;ii<sv;ii++) {
       edm::BranchDescription desc = result_v[ii].provenance()->product();
-      LogDebug("MixingModule") <<result_v[ii].product()->size()<<" Simvertices added";
-      if (result_v[ii].isValid()) simcf_->addPileupVertices(bcr,result_v[ii].product(),eventId);
+      LogDebug("MixingModule") <<result_v[ii].product()->size()<<" pileup Simvertices added";
+      if (result_v[ii].isValid()) {
+	cfVertices_->addPileups(bcr,result_v[ii].product(),eventNr);
+      }
       else  LogWarning("InvalidData") <<"Invalid simvertices in signal";
       if (ii==1) vertexoffset+=result_v[ii].product()->size();
     }
-
   }
  
   void MixingModule::put(edm::Event &e) {
-    e.put(std::auto_ptr<CrossingFrame>(simcf_),label_);
+    std::map<std::string,CrossingFrame<PSimHit> * >::iterator it;
+    for (it=cfSimHits_.begin();it!=cfSimHits_.end();it++) {
+      std::auto_ptr<CrossingFrame<PSimHit> > pOut((*it).second);
+      e.put(pOut,(*it).first);
+    }
+    std::map<std::string,CrossingFrame<PCaloHit> * >::iterator it2;
+    for (it2=cfCaloHits_.begin();it2!=cfCaloHits_.end();it2++) {
+      std::auto_ptr<CrossingFrame<PCaloHit> > pOut((*it2).second);
+      e.put(pOut,(*it2).first);
+    }
+    if (cfTracks_) {
+      e.put(std::auto_ptr<CrossingFrame<SimTrack> >(cfTracks_));
+    }
+    if (cfVertices_) {
+      std::auto_ptr<CrossingFrame<SimVertex> > pOut(cfVertices_);
+      e.put(pOut);
+    }
   }
 
 } //edm

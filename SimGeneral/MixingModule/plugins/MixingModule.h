@@ -21,8 +21,14 @@
 #include "FWCore/Framework/interface/Selector.h"
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/Handle.h"
+
 #include <vector>
 #include <string>
 
@@ -41,21 +47,33 @@ namespace edm
 
       virtual void beginJob(edm::EventSetup const&iSetup);
 
+      // limits for tof to be considered for trackers
+        static const int lowTrackTof; //nsec
+        static const int highTrackTof;
+        static const int limHighLowTof;
+ 
     private:
-
       virtual void put(edm::Event &e) ;
       virtual void createnewEDProduct();
       virtual void addSignals(const edm::Event &e); 
       virtual void addPileups(const int bcr, edm::Event*,unsigned int EventId);
+      virtual void getSubdetectorNames();
 
-      // internally used information
+      // internally used information : subdetectors present in input
       std::vector<std::string> simHitSubdetectors_;
       std::vector<std::string> caloSubdetectors_;
+      // to distinguish simHitSubdetectors for tracker/non-tracker
+      // this is necessary to know which ones have to be checked for ToF
       std::vector<std::string> trackerHighLowPids_;
       std::vector<std::string> nonTrackerPids_;
-      CrossingFrame *simcf_;
 
-      unsigned int eventId_; //=0 for signal, from 1-n for pileup events
+      // in this map we put the CrossingFrame objects that were created per event
+      std::map<std::string,CrossingFrame<PSimHit> * > cfSimHits_;
+      std::map<std::string,CrossingFrame<PCaloHit> * > cfCaloHits_;
+      CrossingFrame<SimTrack> *cfTracks_;
+      CrossingFrame<SimVertex> *cfVertices_;
+
+      //      unsigned int eventId_; //=0 for signal, from 1-n for pileup events
 
       Selector * sel_;
       std::string label_;
