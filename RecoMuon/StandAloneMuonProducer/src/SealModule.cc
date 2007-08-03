@@ -2,8 +2,8 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "RecoMuon/StandAloneMuonProducer/src/StandAloneMuonProducer.h"
+#include "RecoZ/ZAnalyzer/src/ZAnalyzer.h"
 
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(StandAloneMuonProducer);
+DEFINE_ANOTHER_FWK_MODULE(ZAnalyzer);
 
