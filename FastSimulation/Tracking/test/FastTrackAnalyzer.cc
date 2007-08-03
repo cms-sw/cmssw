@@ -366,39 +366,6 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
     unsigned int iTotalSimHits = 0;
     unsigned int iCandRecHits = 0;
     
-    // count number of hits in track candidate
-    // stop with error if no candidate
-//     if(theTrackCandColl->size() != 1){
-//       std::cout<<"  AS: ERROR debugging: theTrackCandColl->size() != 1"<< std::endl;
-//       exit(1);
-//     }
-//     for(TrackCandidateCollection::const_iterator it = theTrackCandColl->begin(); it!= theTrackCandColl->end(); it++){
-//       TrackCandidate::RecHitContainer::const_iterator theItBegin =   it->recHits().first;
-//       TrackCandidate::RecHitContainer::const_iterator theItEnd =   it->recHits().second;
-//       for( TrackCandidate::RecHitContainer::const_iterator theIt = theItBegin; theIt!= theItEnd; theIt++){
-// 	iCandRecHits++;
-//       }
-//     }
-
-//     // print position of simhits for debugging
-//     std::cout<<" AS: global position of all simhits (x, y, z, r)"<< std::endl;
-//     //loop on all simhits to count them
-//     for (MixCollection<PSimHit>::iterator isim=allTrackerHits.begin(); isim!= allTrackerHits.end(); isim++) {
-//       unsigned int subdet   = DetId(isim->detUnitId()).subdetId();
-//       iTotalSimHits++;
-//       if(subdet==1 || subdet==2)iPixSimHits++;
-//       else if(subdet==3|| subdet==4 || subdet==5 || subdet == 6) iStripSimHits++;
-//       else {
-// 	std::cout<<" AS: ERROR simhit subdet inconsistent"<< std::endl;
-// 	exit(1);
-//       }
-
-//       const GeomDetUnit *  det = tracker.idToDetUnit( DetId(isim->detUnitId())  );
-//       GlobalPoint posGlobSim =     det->surface().toGlobal( isim->localPosition()  );
-      
-//       std::cout<< posGlobSim.x() << "  ,  " << posGlobSim.y() << "  ,  "<< posGlobSim.z() << "  ,  " << posGlobSim.perp() << std::endl;
-//     }
-
     
     //------------------------
     //loop on all rechits, match them to simhits and make plots
@@ -626,7 +593,7 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 		  }
 		}
 		
-	      }
+	      }// end loop on simhits
 
 
 	      if(matchedSimHits==0 && simHitStereoPatch){
@@ -648,35 +615,75 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 	}else{
 	  cout <<"\t\t Invalid Hit On "<<(*it)->geographicalId().rawId()<<endl;
 	} 
-      }
-      
-//       int nmax = 0;
-//       int idmax = -1;
-//       for(size_t j=0; j<SimTrackIds.size(); j++){
-// 	int n =0;
-// 	n = std::count(SimTrackIds.begin(), SimTrackIds.end(), SimTrackIds[j]);
-// 	if(n>nmax){
-// 	  nmax = n;
-// 	  idmax = SimTrackIds[i];
-// 	}
-//       }
-//       float totsim = nmax;
-//       float tothits = track->recHitsSize();//include pixel as well..
-//       float fraction = totsim/tothits ;
-      
-//       std::cout << "Track id # " << i << "\tmatched to Simtrack id= " << idmax  << "\t momentum = " << track->momentum() << std::endl;
-//       std::cout << "\tN(matches)= " << totsim <<  "\t# of rechits = " << track->recHitsSize() 
-// 		<< "\tfraction = " << fraction << std::endl;
+       }// end loop on rechits
+       
+       int nmax = 0;
+       int idmax = -1;
+       for(size_t j=0; j<SimTrackIds.size(); j++){
+	 int n =0;
+	 n = std::count(SimTrackIds.begin(), SimTrackIds.end(), SimTrackIds[j]);
+	 if(n>nmax){
+	  nmax = n;
+	  idmax = SimTrackIds[i];
+	 }
+       }
+       //       float totsim = nmax;
+       //       float tothits = track->recHitsSize();//include pixel as well..
+       //       float fraction = totsim/tothits ;
+       
+       //       std::cout << "Track id # " << i << "\tmatched to Simtrack id= " << idmax  << "\t momentum = " << track->momentum() << std::endl;
+       //       std::cout << "\tN(matches)= " << totsim <<  "\t# of rechits = " << track->recHitsSize() 
+       // 		<< "\tfraction = " << fraction << std::endl;
+       
+       
+       //      //now found the simtrack information
+       for(SimTrackContainer::const_iterator simTrack = theSimTracks->begin(); simTrack != theSimTracks->end(); simTrack++)
+	 { 
+	   if(simTrack->trackId() == idmax) {
+	     std::cout << "\t\tSim track mom = " << simTrack->momentum() << " charge = " <<  simTrack->charge() << std::endl;
+	     
+	     
+	     
+	     hMap["trk_Rec_chi2"]->Fill(track->chi2());
+	     hMap["trk_Rec_Normchi2"]->Fill(track->normalizedChi2());
+	     hMap["trk_Rec_ndof"]->Fill(track->ndof());
+	     
+	     hMap["trk_Rec_phi"]     ->Fill(  track->phi() );
+	     hMap["trk_Sim_phi"] 	  ->Fill( simTrack->momentum().phi()); 
+	     hMap["trk_Res_phi"] 	  ->Fill(  track->phi() -  simTrack->momentum().phi() );
+	     hMap["trk_Pull_phi"]	  ->Fill( ( track->phi() -  simTrack->momentum().phi()) / track->phiError()   );
+	     
+	     hMap["trk_Rec_eta"] 	  ->Fill(    track->eta() );                                                      
+	     hMap["trk_Sim_eta"] 	  ->Fill(   simTrack->momentum().eta());                                          
+	     hMap["trk_Res_eta"] 	  ->Fill(    track->eta() -  simTrack->momentum().eta() );                        
+	     hMap["trk_Pull_eta"]	  ->Fill(   ( track->eta() -  simTrack->momentum().eta()) / track->etaError()   );
+	     
+	     hMap["trk_Rec_pt"] 	  ->Fill( track->pt()  );
+	     hMap["trk_Sim_pt"] 	  ->Fill( simTrack->momentum().perp()  );
+	     hMap["trk_Res_pt"] 	  ->Fill( track->pt() -  simTrack->momentum().perp() );
+	     
+	     double simQoverp =  simTrack->charge() / simTrack->momentum().vect().mag();
+	     
+	     hMap["trk_Pull_qoverp"] ->Fill( (track->qoverp() -  simQoverp) / track->qoverpError()  );
+	     std::cout<<" qoverp = " << track->qoverp() << std::endl;
+	     std::cout<<" simqoverp = "<< simQoverp << std::endl;
+	     std::cout<<" qoverpPull = "<<  (track->qoverp() -  simQoverp) / track->qoverpError() << std::endl;
+	     
+	     hMap["trk_Rec_d0"] 	  ->Fill(   track->d0() );
+	     hMap["trk_Err_d0"]	  ->Fill(  track->d0Error()  );
+	     //	    hMap["trk_Pull_d0"]	  ->Fill(   );
+	     hMap["trk_Rec_dz"] 	  ->Fill(   track->dz() );
+	     hMap["trk_Err_dz"]	  ->Fill(  track->dzError()  );
+	     
+	     hMap["trk_Rec_charge"] ->Fill( track->charge() );
+	   }
+	   
+	   
+	 }
+    } // end loop on rectracks
+    
 
-      hMap["trk_Rec_eta"] 	  ->Fill(    track->eta() );         
-    }
- //      //now found the simtrack information
-    for(SimTrackContainer::const_iterator simTrack = theSimTracks->begin(); simTrack != theSimTracks->end(); simTrack++)
-      { 
-	hMap["trk_Sim_eta"] 	  ->Fill(   simTrack->momentum().eta());           
-	
-      }
-
+    
     for(TrackCandidateCollection::const_iterator it = theTrackCandColl->begin(); it!= theTrackCandColl->end(); it++){
       PTrajectoryStateOnDet state = it->trajectoryStateOnDet();
       //convert PTrajectoryStateOnDet to TrajectoryStateOnSurface
@@ -685,96 +692,11 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
       TrajectoryStateOnSurface theTSOS = transformer.transientState( state,
 								     &(theG->idToDet(detId)->surface()), 
 								     theMagField.product());
-
+      
       hMap["trk_Cnd_eta"]->Fill(   theTSOS.globalMomentum().eta() );
     }
-
-// 	  if(simTrack->trackId() == idmax) {
-// 	    std::cout << "\t\tSim track mom = " << simTrack->momentum() << " charge = " <<  simTrack->charge() << std::endl;
-
-	   
-
-// 	    hMap["trk_Rec_chi2"]->Fill(track->chi2());
-// 	    hMap["trk_Rec_Normchi2"]->Fill(track->normalizedChi2());
-// 	    hMap["trk_Rec_ndof"]->Fill(track->ndof());
-	    
-// 	    hMap["trk_Rec_phi"]     ->Fill(  track->phi() );
-// 	    hMap["trk_Sim_phi"] 	  ->Fill( simTrack->momentum().phi()); 
-// 	    hMap["trk_Res_phi"] 	  ->Fill(  track->phi() -  simTrack->momentum().phi() );
-// 	    hMap["trk_Pull_phi"]	  ->Fill( ( track->phi() -  simTrack->momentum().phi()) / track->phiError()   );
-	    
-// 	    hMap["trk_Rec_eta"] 	  ->Fill(    track->eta() );                                                      
-// 	    hMap["trk_Sim_eta"] 	  ->Fill(   simTrack->momentum().eta());                                          
-// 	    hMap["trk_Res_eta"] 	  ->Fill(    track->eta() -  simTrack->momentum().eta() );                        
-// 	    hMap["trk_Pull_eta"]	  ->Fill(   ( track->eta() -  simTrack->momentum().eta()) / track->etaError()   );
-	    
-// 	    hMap["trk_Rec_pt"] 	  ->Fill( track->pt()  );
-// 	    hMap["trk_Sim_pt"] 	  ->Fill( simTrack->momentum().perp()  );
-// 	    hMap["trk_Res_pt"] 	  ->Fill( track->pt() -  simTrack->momentum().perp() );
-	    
-// 	    double simQoverp =  simTrack->charge() / simTrack->momentum().vect().mag();
-	    
-// 	    hMap["trk_Pull_qoverp"] ->Fill( (track->qoverp() -  simQoverp) / track->qoverpError()  );
-// 	    std::cout<<" qoverp = " << track->qoverp() << std::endl;
-// 	    std::cout<<" simqoverp = "<< simQoverp << std::endl;
-// 	    std::cout<<" qoverpPull = "<<  (track->qoverp() -  simQoverp) / track->qoverpError() << std::endl;
-	    
-// 	    hMap["trk_Rec_d0"] 	  ->Fill(   track->d0() );
-// 	    hMap["trk_Err_d0"]	  ->Fill(  track->d0Error()  );
-// 	    //	    hMap["trk_Pull_d0"]	  ->Fill(   );
-// 	    hMap["trk_Rec_dz"] 	  ->Fill(   track->dz() );
-// 	    hMap["trk_Err_dz"]	  ->Fill(  track->dzError()  );
-	    
-// 	    hMap["trk_Rec_charge"] ->Fill( track->charge() );
-// 	  }
-// 	}
-//       i++;
-      
-//    }// end loop on rec tracks
-
-//     ///--------------------
-//     /// compare first sim track to first track candidate
-//     const TrackCandidate & trackCand = *theTrackCandColl->begin();
-//     PTrajectoryStateOnDet ptrajState = trackCand.trajectoryStateOnDet();
-//     TrajectoryStateTransform transformer;
-  
-//     DetId firstHitId(trackCand.recHits().first->geographicalId() );
-//     if(firstHitId.rawId() != ptrajState.detId()){
-//       std::cout<<"  AS:ERR: firstHitId.rawId() != ptrajState.detId() " << std::endl;
-//       exit(1);
-//     }
-//     cout<<" first hit id = "<< firstHitId.rawId() << std::endl;
     
-
-//     // trajectory state on first detector surface
-//     TrajectoryStateOnSurface  tsos = transformer.transientState(ptrajState, 
-// 								&( tracker.idToDetUnit(	 firstHitId )->surface()),
-// 								theMagField.product()) ;
-
-//     std::cout<<"\t  AS: simtrack compared to track candidate:"<< std::endl;
-//     std::cout<<" tsos.globalPosition().eta() = "<< tsos.globalPosition().eta() << std::endl;
-//     std::cout<<" tsos.globalPosition().phi() = "<< tsos.globalPosition().phi() << std::endl;
-//     std::cout<<" tsos.globalPosition().x() = "<< tsos.globalPosition().x() << std::endl;
-//     std::cout<<" tsos.globalPosition().y() = "<< tsos.globalPosition().y() << std::endl;
-//     std::cout<<" tsos.globalPosition().z() = "<< tsos.globalPosition().z() << std::endl<< std::endl;;
-//     std::cout<<" tsos.globalMomentum().eta() = "<< tsos.globalMomentum().eta() << std::endl;
-//     std::cout<<" tsos.globalMomentum().phi() = "<< tsos.globalMomentum().phi() << std::endl;
-//     std::cout<<" tsos.globalMomentum().x() = "<< tsos.globalMomentum().x() << std::endl;
-//     std::cout<<" tsos.globalMomentum().y() = "<< tsos.globalMomentum().y() << std::endl;
-//     std::cout<<" tsos.globalMomentum().z() = "<< tsos.globalMomentum().z() << std::endl<< std::endl;
-//     std::cout<<" theSimTracks->begin()->momentum().eta() = "<<    theSimTracks->begin()->momentum().eta() << std::endl;
-//     std::cout<<" theSimTracks->begin()->momentum().phi() = "<<    theSimTracks->begin()->momentum().phi() << std::endl;
-//     std::cout<<" theSimTracks->begin()->momentum().x() = "<<    theSimTracks->begin()->momentum().x() << std::endl;
-//     std::cout<<" theSimTracks->begin()->momentum().y() = "<<    theSimTracks->begin()->momentum().y() << std::endl;
-//     std::cout<<" theSimTracks->begin()->momentum().z() = "<<    theSimTracks->begin()->momentum().z() << std::endl;
-  
-//     std::cout<<" vertex:"<< std::endl;
-//     std::cout<<" x = "<< (*theSimVtx)[0].position().x() << std::endl;
-//     std::cout<<" y = "<< (*theSimVtx)[0].position().y() << std::endl;
-//     std::cout<<" z = "<< (*theSimVtx)[0].position().z() << std::endl;
-//     //---------------------
     
-
   }
 
 
