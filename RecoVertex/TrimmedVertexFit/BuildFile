@@ -1,0 +1,14 @@
+<use name=DataFormats/BeamSpot>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
+<use name=RecoVertex/TrimmedKalmanVertexFinder>
+<use name=RecoVertex/VertexPrimitives>
+<use name=RecoVertex/VertexTools>
+<export>
+  <use name=DataFormats/BeamSpot>
+  <use name=FWCore/ParameterSet>
+  <use name=RecoVertex/TrimmedKalmanVertexFinder>
+  <use name=RecoVertex/VertexPrimitives>
+  <lib name=RecoVertexTrimmedVertexFit>
+</export>
+
