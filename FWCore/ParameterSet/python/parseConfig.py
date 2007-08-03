@@ -2244,6 +2244,20 @@ process RECO = {
             t = replace.parseString('replace a.b = foobar:')
             t[0][1].do(process)
             self.assertEqual(process.a.b.configValue('',''),'foobar::')                        
+
+            process.a = cms.EDProducer('FooProd', b=cms.VInputTag((cms.InputTag("bar"))))
+            t = replace.parseString('replace a.b = {foobar:}')
+            t[0][1].do(process)
+            #self.assertEqual(process.a.b.configValue('',''),'{\nfoobar::\n}\n')                        
+            self.assertEqual(list(process.a.b),[cms.InputTag('foobar')])                        
+
+            process.a = cms.EDProducer('FooProd', b=cms.VInputTag((cms.InputTag("bar"))))
+            t = replace.parseString('replace a.b += {foobar:}')
+            t[0][1].do(process)
+            #self.assertEqual(process.a.b.configValue('',''),'{\nfoobar::\n}\n')                        
+            self.assertEqual(list(process.a.b),[cms.InputTag("bar"),cms.InputTag('foobar')])                        
+
+
     unittest.main()
 #try:
     #onlyParameters.setDebug()
