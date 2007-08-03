@@ -25,6 +25,10 @@ using namespace std;
 TH1F* hist_loops;
 TH1F* hist_energy_init;
 TH1F* hist_energy_end;
+TH1F* hist_density;
+TH2F* hist_density_vs_loops;
+TH1F* hist_pT_init;
+TH1F* hist_pT_end;
 //
 
 // logfile
@@ -51,6 +55,9 @@ public :
   Float_t         FinalE[5000];   //[Nsteps]
   Int_t           ParticleStepID[5000];   //[Nsteps]
   Int_t           ParticleStepInteraction[5000];   //[Nsteps]
+  Float_t         MaterialDensity[8000];   //[Nsteps]
+  Float_t         ParticleStepInitialPt[5000];   //[Nsteps]
+  Float_t         ParticleStepFinalPt[5000];   //[Nsteps]
   
   // List of branches
   TBranch        *b_ParticleEta;   //!
@@ -65,6 +72,9 @@ public :
   TBranch        *b_InitialE;   //!
   TBranch        *b_ParticleStepID;   //!
   TBranch        *b_ParticleStepInteraction;   //!
+  TBranch        *b_MaterialDensity;   //!
+  TBranch        *b_ParticleStepInitialPt;   //!
+  TBranch        *b_ParticleStepFinalPt;   //!
   
   Loopers(TString fileName);
   virtual ~Loopers();
@@ -169,6 +179,9 @@ void Loopers::Init(TTree *tree)
   fChain->SetBranchAddress("Particle Step Final Energy", FinalE, &b_FinalE);
   fChain->SetBranchAddress("Particle Step ID",             ParticleStepID,           &b_ParticleStepID);
   fChain->SetBranchAddress("Particle Step Interaction",    ParticleStepInteraction,  &b_ParticleStepInteraction);
+  fChain->SetBranchAddress("Material Density",   MaterialDensity,   &b_MaterialDensity);
+  fChain->SetBranchAddress("Particle Step Initial Pt",     ParticleStepInitialPt,    &b_ParticleStepInitialPt);
+  fChain->SetBranchAddress("Particle Step Final Pt",       ParticleStepFinalPt,      &b_ParticleStepFinalPt);
   Notify();
 }
 
@@ -208,6 +221,18 @@ void Loopers::Book(){
   hist_energy_end = new TH1F("hist_energy_end",
 			     "Energy at stopping point;Energy [MeV];Events/bin",
 			     100,0.0,1000.0);
+  hist_density = new TH1F("hist_density",
+			  "Average Density;#bar{#rho} [g/cm^{3}];Events/bin",
+			  50,0.0,0.5);
+  hist_density_vs_loops = new TH2F("hist_density_vs_loops",
+				   "Average Density vs Number of Loops;Loops [2#pi];#bar{#rho} [g/cm^{3}];Events/bin",
+				   40,0,10,50,0.0,0.5);
+  hist_pT_init = new TH1F("hist_pT_init",
+			  "Transverse Momentum at starting point;p_{T} [MeV/c];Events/bin",
+			  100,0.0,1000.0);
+  hist_pT_end = new TH1F("hist_pT_end",
+			 "Transverse Momentum at stopping point;p_{T} [MeV/c];Events/bin",
+			 100,0.0,1000.0);
 }
 
 void Loopers::MakePlots(TString suffix);
