@@ -44,8 +44,9 @@ void CSCComparatorDigiValidation::analyze(const edm::Event&e, const edm::EventSe
     std::vector<CSCComparatorDigi>::const_iterator last = (*j).second.second;
 
     CSCDetId detId((*j).first);
-    // TODO
-    int chamberType = 1;
+    const CSCLayer * layer = findLayer(detId.rawId());
+    int chamberType = layer->chamber()->specs()->chamberType();
+
 
     theNDigisPerLayerPlots[chamberType-1]->Fill(last-digiItr);
 
