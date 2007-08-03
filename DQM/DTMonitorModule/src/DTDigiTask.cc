@@ -279,21 +279,29 @@ void DTDigiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   string histoTag;
 
-  int tdcCount = 0;
-  DTDigiCollection::DigiRangeIterator dtLayerId_It;
+//   int tdcCount = 0;
+   DTDigiCollection::DigiRangeIterator dtLayerId_It;
+//   for (dtLayerId_It=dtdigis->begin(); dtLayerId_It!=dtdigis->end(); ++dtLayerId_It){
+//     tdcCount += (((*dtLayerId_It).second).second - ((*dtLayerId_It).second).first);
+//   }
+
+//   bool isSyncNoisy = false;
+//   if (tdcCount > maxTDCHits) isSyncNoisy = true;
+
+  int tdcCount;
+  bool isSyncNoisy;
+
+  //  cout << "----------------" << endl;
+
   for (dtLayerId_It=dtdigis->begin(); dtLayerId_It!=dtdigis->end(); ++dtLayerId_It){
-    for (DTDigiCollection::const_iterator digiIt = ((*dtLayerId_It).second).first;
-	 digiIt!=((*dtLayerId_It).second).second; ++digiIt){
-      tdcCount++;
-    }
-  }
 
-  bool isSyncNoisy = false;
-  if (tdcCount > maxTDCHits) isSyncNoisy = true;
+    tdcCount = 0;
+    isSyncNoisy = false;
+    tdcCount = (((*dtLayerId_It).second).second - ((*dtLayerId_It).second).first);
+    if (tdcCount > maxTDCHits) isSyncNoisy = true;
 
+    //    cout << "tdcCount = " << tdcCount << endl;
 
-
-  for (dtLayerId_It=dtdigis->begin(); dtLayerId_It!=dtdigis->end(); ++dtLayerId_It){
     for (DTDigiCollection::const_iterator digiIt = ((*dtLayerId_It).second).first;
 	 digiIt!=((*dtLayerId_It).second).second; ++digiIt){
 
@@ -359,53 +367,56 @@ void DTDigiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 									    (*firstDigiIt).countsTDC());
 	  }
 	}
+	if (!isSyncNoisy) {
 
-	// only when tTrig is not available 
-	if (!parameters.getUntrackedParameter<bool>("readDB", true)) {
-	  
-	  //Occupancies per chamber & layer
-	  histoTag = "OccupancyAllHits_perCh";
-	  if (digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end())
-	    bookHistos( dtChId, string("Occupancies"), histoTag );
-	  (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill((*digiIt).wire(),
-									  (layer_number+(superlayer_number-1)*4)-1);
-	  histoTag = "OccupancyAllHits_perL";
-	  if (digiHistos[histoTag].find(indexL) == digiHistos[histoTag].end())
-	    bookHistos( dtChId, string("Occupancies"), histoTag );
-	  (digiHistos.find(histoTag)->second).find(indexL)->second->Fill((*digiIt).wire());
-	}
-	
-	// after-Calibration jobs 
-	else {
-	  
-	  // Noise: Before tTrig
-	  if (tdcTime < inTimeHitsLowerBound ) {
+
+	  // only when tTrig is not available 
+	  if (!parameters.getUntrackedParameter<bool>("readDB", true)) {
 	    
-	    //Occupancies Noise per chamber & layer
-	    histoTag = "OccupancyNoise_perCh";
+	    //Occupancies per chamber & layer
+	    histoTag = "OccupancyAllHits_perCh";
 	    if (digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end())
 	      bookHistos( dtChId, string("Occupancies"), histoTag );
 	    (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill((*digiIt).wire(),
 									    (layer_number+(superlayer_number-1)*4)-1);
-	    histoTag = "OccupancyNoise_perL";
-	  if (digiHistos[histoTag].find(indexL) == digiHistos[histoTag].end())
-	    bookHistos( dtChId, string("Occupancies"), histoTag );
-	  (digiHistos.find(histoTag)->second).find(indexL)->second->Fill((*digiIt).wire());
+	    histoTag = "OccupancyAllHits_perL";
+	    if (digiHistos[histoTag].find(indexL) == digiHistos[histoTag].end())
+	      bookHistos( dtChId, string("Occupancies"), histoTag );
+	    (digiHistos.find(histoTag)->second).find(indexL)->second->Fill((*digiIt).wire());
 	  }
 	  
-	  // Physical hits: within the time window	
-	  else if (tdcTime > inTimeHitsLowerBound && tdcTime < inTimeHitsUpperBound) { 
+	  // after-Calibration jobs 
+	  else {
 	    
-	    //Occupancies Signal per chamber & layer
-	    histoTag = "OccupancyInTimeHits_perCh";
-	    if (digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()) 
-	      bookHistos( dtChId, string("Occupancies"), histoTag );
-	    (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill((*digiIt).wire(),
-									    (layer_number+(superlayer_number-1)*4)-1);
-	  histoTag = "OccupancyInTimeHits_perL";
-	  if (digiHistos[histoTag].find(indexL) == digiHistos[histoTag].end())
-	    bookHistos( dtChId, string("Occupancies"), histoTag );
-	  (digiHistos.find(histoTag)->second).find(indexL)->second->Fill((*digiIt).wire());
+	    // Noise: Before tTrig
+	    if (tdcTime < inTimeHitsLowerBound ) {
+	      
+	      //Occupancies Noise per chamber & layer
+	      histoTag = "OccupancyNoise_perCh";
+	      if (digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end())
+		bookHistos( dtChId, string("Occupancies"), histoTag );
+	      (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill((*digiIt).wire(),
+									      (layer_number+(superlayer_number-1)*4)-1);
+	      histoTag = "OccupancyNoise_perL";
+	      if (digiHistos[histoTag].find(indexL) == digiHistos[histoTag].end())
+		bookHistos( dtChId, string("Occupancies"), histoTag );
+	      (digiHistos.find(histoTag)->second).find(indexL)->second->Fill((*digiIt).wire());
+	    }
+	    
+	    // Physical hits: within the time window	
+	    else if (tdcTime > inTimeHitsLowerBound && tdcTime < inTimeHitsUpperBound) { 
+	      
+	      //Occupancies Signal per chamber & layer
+	      histoTag = "OccupancyInTimeHits_perCh";
+	      if (digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()) 
+		bookHistos( dtChId, string("Occupancies"), histoTag );
+	      (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill((*digiIt).wire(),
+									      (layer_number+(superlayer_number-1)*4)-1);
+	      histoTag = "OccupancyInTimeHits_perL";
+	      if (digiHistos[histoTag].find(indexL) == digiHistos[histoTag].end())
+		bookHistos( dtChId, string("Occupancies"), histoTag );
+	      (digiHistos.find(histoTag)->second).find(indexL)->second->Fill((*digiIt).wire());
+	    }
 	  }
 	}
 	histoTag = "DigiPerEvent";
@@ -414,7 +425,7 @@ void DTDigiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 	
     }
   }
-
+  
   //To plot the number of digi per event per wire
   std::map<int,int > DigiPerWirePerEvent;
   
