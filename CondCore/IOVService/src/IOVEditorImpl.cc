@@ -31,6 +31,7 @@ void cond::IOVEditorImpl::insert( cond::Time_t tillTime,
   m_iov->iov.insert(std::make_pair<cond::Time_t, std::string>(tillTime, payloadToken));
   if(m_token.empty()){
     m_iov.markWrite(cond::IOVNames::container());
+    
   }else{
     m_iov.markUpdate();
   }
