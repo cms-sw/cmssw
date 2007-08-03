@@ -1,4 +1,6 @@
 #include "RecoTauTag/RecoTau/interface/PFRecoTauAlgorithm.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+#include <Math/GenVector/VectorUtil.h>
 
 Tau PFRecoTauAlgorithm::tag(const PFIsolatedTauTagInfo& myTagInfo){
   //Takes the jet
