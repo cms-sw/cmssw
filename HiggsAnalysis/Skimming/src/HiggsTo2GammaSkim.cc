@@ -36,7 +36,8 @@ HiggsTo2GammaSkim::HiggsTo2GammaSkim(const edm::ParameterSet& pset) {
   debug              = pset.getParameter<bool>("DebugHiggsTo2GammaSkim");
 
   // Reconstructed objects
-  thePhotonLabel     = pset.getParameter<edm::InputTag>("PhotonCollectionLabel");
+  //thePhotonLabel     = pset.getParameter<edm::InputTag>("PhotonCollectionLabel");
+  thePhotonLabel     = pset.getParameter<std::string>("PhotonCollectionLabel");
 
   // Minimum Pt for photons for skimming
   photon1MinPt       = pset.getParameter<double>("photon1MinimumPt");
@@ -78,7 +79,8 @@ bool HiggsTo2GammaSkim::filter(edm::Event& event, const edm::EventSetup& setup )
     // Get the photon collection from the event
     edm::Handle<reco::PhotonCollection> photonHandle;
 
-    event.getByLabel(thePhotonLabel.label(),photonHandle);
+    //event.getByLabel(thePhotonLabel.label(),photonHandle);
+    event.getByLabel(thePhotonLabel, photonHandle);
     const reco::PhotonCollection* phoCollection = photonHandle.product();
 
     reco::PhotonCollection::const_iterator photons;
@@ -98,7 +100,7 @@ bool HiggsTo2GammaSkim::filter(edm::Event& event, const edm::EventSetup& setup )
   
   catch (...) {
     edm::LogError("HiggsTo2GammaSkim") << "Warning: cannot get collection with label " 
-					   << thePhotonLabel.label();
+					   << thePhotonLabel;
   }
 
   

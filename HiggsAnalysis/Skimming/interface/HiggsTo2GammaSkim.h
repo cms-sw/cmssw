@@ -49,7 +49,8 @@ class HiggsTo2GammaSkim : public edm::EDFilter {
   int nPhotonMin;
 
   // Reco samples
-  edm::InputTag thePhotonLabel;
+  //edm::InputTag thePhotonLabel;
+  std::string thePhotonLabel;
 };
 
 #endif
