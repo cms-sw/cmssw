@@ -304,10 +304,10 @@ void TracksCompare()
    sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/chi2mean",sh2);
    rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/chi2mean",rc2);
    sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/chi2mean",sc2);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/losthits_eta",rh3);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/losthits_eta",sh3);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/losthits_eta",rc3);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/losthits_eta",sc3);
+   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/losthits_eta",rh3);
+   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/losthits_eta",sh3);
+   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/losthits_eta",rc3);
+   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/losthits_eta",sc3);
 
    canvas = new TCanvas("Tracks10","Tracks: chi2 and #hits vs eta",1000,1000);
 

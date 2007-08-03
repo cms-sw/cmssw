@@ -48,10 +48,10 @@ void TracksCompareChain()
 
    canvas = new TCanvas("Tracks1","Tracks: efficiency & fakerate",1000,1000);
    
-   rh1->GetYaxis()->SetRangeUser(0.7,1.025);
-   sh1->GetYaxis()->SetRangeUser(0.7,1.025);
-   rc1->GetYaxis()->SetRangeUser(0.7,1.025);
-   sc1->GetYaxis()->SetRangeUser(0.7,1.025);
+   if (hit) rh1->GetYaxis()->SetRangeUser(0.7,1.025);
+   if (hit) sh1->GetYaxis()->SetRangeUser(0.7,1.025);
+   if (chi2)rc1->GetYaxis()->SetRangeUser(0.7,1.025);
+   if (chi2)sc1->GetYaxis()->SetRangeUser(0.7,1.025);
 
    if (hit&&chi2){
      char * option = "UU";
@@ -166,16 +166,19 @@ void TracksCompareChain()
 
    canvas = new TCanvas("Tracks2","Tracks: chi2 & chi2 probability",1000,1000);
 
-   NormalizeHistograms(rh1,sh1);
-   NormalizeHistograms(rc1,sc1);
-   NormalizeHistograms(rh2,sh2);
-   NormalizeHistograms(rc2,sc2);
-
-   fixRangeY(rh1,sh1);
-   fixRangeY(rc1,sc1);
-   fixRangeY(rh2,sh2);
-   fixRangeY(rc2,sc2);
-
+   if (hit){
+     NormalizeHistograms(rh1,sh1);
+     NormalizeHistograms(rh2,sh2);
+     fixRangeY(rh1,sh1);
+     fixRangeY(rh2,sh2);
+   }
+   if (chi2){
+     NormalizeHistograms(rc1,sc1);
+     NormalizeHistograms(rc2,sc2);
+     fixRangeY(rc1,sc1);
+     fixRangeY(rc2,sc2);
+   }
+   
    if (hit&&chi2){
      char * option = "UUNORM";
      double  startingY = 0.4;
@@ -286,13 +289,17 @@ void TracksCompareChain()
    sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/chi2mean",sh2);
    rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/chi2mean",rc2);
    sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/chi2mean",sc2);
+   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/losthits_eta",rh3);
+   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/losthits_eta",sh3);
+   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/losthits_eta",rc3);
+   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/losthits_eta",sc3);
 
    canvas = new TCanvas("Tracks3","Tracks: chi2 and #hits vs eta",1000,1000);
 
    //fixRangeY(rh1,sh1);
    //fixRangeY(rc1,sc1);
-   fixRangeY(rh2,sh2);
-   fixRangeY(rc2,sc2);
+   if (hit) fixRangeY(rh2,sh2);
+   if (chi2)fixRangeY(rc2,sc2);
 
 
    if (hit&&chi2){
@@ -301,7 +308,7 @@ void TracksCompareChain()
      double  startingX = .1;
      bool fit = false;
 
-     canvas->Divide(2,2);
+     canvas->Divide(2,3);
 
      canvas->cd(1);
      rh1->SetLineColor(2);
@@ -338,6 +345,24 @@ void TracksCompareChain()
      rc2->Draw();
      sc2->Draw("sames");
      myPV->PVCompute(rc2, sc2, te, option );
+
+     canvas->cd(5);
+     rh3->SetLineColor(2);
+     sh3->SetLineColor(4);
+     sh3->SetLineStyle(2);
+     setStats(rh3,sh3, startingY, startingX, fit);
+     rh3->Draw();
+     sh3->Draw("sames");
+     myPV->PVCompute(rh3, sh3, te, option );
+  
+     canvas->cd(6);
+     rc3->SetLineColor(2);
+     sc3->SetLineColor(4);
+     sc3->SetLineStyle(2);
+     setStats(rc3,sc3, startingY, startingX, fit);
+     rc3->Draw();
+     sc3->Draw("sames");
+     myPV->PVCompute(rc3, sc3, te, option );
      
    }else if (hit){  
      char * option = "UU";
@@ -345,7 +370,7 @@ void TracksCompareChain()
      double  startingX = .1;
      bool fit = false;
 
-     canvas->Divide(1,2);
+     canvas->Divide(1,3);
      
      canvas->cd(1);
      rh1->SetLineColor(2);
@@ -364,14 +389,23 @@ void TracksCompareChain()
      rh2->Draw();
      sh2->Draw("sames");
      myPV->PVCompute(rh2, sh2, te, option );  
-  
+
+     canvas->cd(3);
+     rh3->SetLineColor(2);
+     sh3->SetLineColor(4);
+     sh3->SetLineStyle(2);
+     setStats(rh3,sh3, startingY, startingX, fit);
+     rh3->Draw();
+     sh3->Draw("sames");
+     myPV->PVCompute(rh3, sh3, te, option );
+     
    }else if (chi2){ 
      char * option = "UU";
      double  startingY = -1;
      double  startingX = .1;
      bool fit = false;
 
-     canvas->Divide(1,2);
+     canvas->Divide(1,3);
      
      canvas->cd(1);
      rh1->SetLineColor(2);
@@ -391,8 +425,17 @@ void TracksCompareChain()
      sh2->Draw("sames");
      myPV->PVCompute(rh2, sh2, te, option );  
      
+     canvas->cd(3);
+     rh3->SetLineColor(2);
+     sh3->SetLineColor(4);
+     sh3->SetLineStyle(2);
+     setStats(rh3,sh3, startingY, startingX, fit);
+     rh3->Draw();
+     sh3->Draw("sames");
+     myPV->PVCompute(rh3, sh3, te, option );
+     
    }
-
+   
    canvas->Print("ctf_hitseta_chi2mean.eps");
    canvas->Print("ctf_hitseta_chi2mean.gif");
 
@@ -412,12 +455,16 @@ void TracksCompareChain()
 
    canvas = new TCanvas("Tracks4","Tracks: pull of Pt, Qoverp and Phi",1000,1000);
 
-   NormalizeHistograms(rh1,sh1);
-   NormalizeHistograms(rc1,sc1);
-   NormalizeHistograms(rh2,sh2);
-   NormalizeHistograms(rc2,sc2);
-   NormalizeHistograms(rh3,sh3);
-   NormalizeHistograms(rc3,sc3);
+   if (hit){
+     NormalizeHistograms(rh1,sh1);
+     NormalizeHistograms(rh2,sh2);
+     NormalizeHistograms(rh3,sh3);
+   }
+   if (chi2){
+     NormalizeHistograms(rc1,sc1);
+     NormalizeHistograms(rc2,sc2);
+     NormalizeHistograms(rc3,sc3);
+   }
 
    if (hit&&chi2){   
      char * option = "UUNORM";
@@ -569,12 +616,16 @@ void TracksCompareChain()
 
    canvas = new TCanvas("Tracks5","Tracks: pull of D0, Z0, Theta",1000,1000);
 
-   NormalizeHistograms(rh1,sh1);
-   NormalizeHistograms(rc1,sc1);
-   NormalizeHistograms(rh2,sh2);
-   NormalizeHistograms(rc2,sc2);
-   NormalizeHistograms(rh3,sh3);
-   NormalizeHistograms(rc3,sc3);
+   if (hit){
+     NormalizeHistograms(rh1,sh1);
+     NormalizeHistograms(rh2,sh2);
+     NormalizeHistograms(rh3,sh3);
+   }
+   if (chi2){
+     NormalizeHistograms(rc1,sc1);
+     NormalizeHistograms(rc2,sc2);
+     NormalizeHistograms(rc3,sc3);
+   }
 
    if (hit&&chi2){   
      char * option = "UUNORM";
@@ -992,10 +1043,10 @@ void TracksCompareChain()
 
    canvas = new TCanvas("Tracks8","Tracks: efficiency & fakerate",1000,1000);
 
-   rh1->GetYaxis()->SetRangeUser(0.7,1.025);
-   sh1->GetYaxis()->SetRangeUser(0.7,1.025);
-   rc1->GetYaxis()->SetRangeUser(0.7,1.025);
-   sc1->GetYaxis()->SetRangeUser(0.7,1.025);
+   if (hit) rh1->GetYaxis()->SetRangeUser(0.7,1.025);
+   if (hit) sh1->GetYaxis()->SetRangeUser(0.7,1.025);
+   if (chi2)rc1->GetYaxis()->SetRangeUser(0.7,1.025);
+   if (chi2)sc1->GetYaxis()->SetRangeUser(0.7,1.025);
 
    if (hit&&chi2){
      char * option = "UU";
@@ -1110,10 +1161,18 @@ void TracksCompareChain()
 
    canvas = new TCanvas("Tracks9","Tracks: chi2 & chi2 probability",1000,1000);
 
-   NormalizeHistograms(rh1,sh1);
-   NormalizeHistograms(rc1,sc1);
-   NormalizeHistograms(rh2,sh2);
-   NormalizeHistograms(rc2,sc2);
+   if (hit) { 
+     NormalizeHistograms(rh1,sh1);
+     NormalizeHistograms(rh2,sh2);
+     fixRangeY(rh1,sh1);
+     fixRangeY(rh2,sh2);
+   }
+   if (chi2) {
+     NormalizeHistograms(rc1,sc1);
+     NormalizeHistograms(rc2,sc2);
+     fixRangeY(rc1,sc1);
+     fixRangeY(rc2,sc2);
+   }
 
    fixRangeY(rh1,sh1);
    fixRangeY(rc1,sc1);
@@ -1230,11 +1289,15 @@ void TracksCompareChain()
    sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/chi2mean",sh2);
    rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/chi2mean",rc2);
    sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/chi2mean",sc2);
+   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/losthits_eta",rh3);
+   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/losthits_eta",sh3);
+   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/losthits_eta",rc3);
+   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/losthits_eta",sc3);
 
    canvas = new TCanvas("Tracks10","Tracks: chi2 and #hits vs eta",1000,1000);
 
-   fixRangeY(rh2,sh2);
-   fixRangeY(rc2,sc2);
+   if (hit) fixRangeY(rh2,sh2);
+   if (chi2) fixRangeY(rc2,sc2);
 
    if (hit&&chi2){
      char * option = "UU";
@@ -1242,7 +1305,7 @@ void TracksCompareChain()
      double  startingX = .1;
      bool fit = false;
      
-     canvas->Divide(2,2);
+     canvas->Divide(2,3);
      
      canvas->cd(1);
      rh1->SetLineColor(2);
@@ -1280,13 +1343,31 @@ void TracksCompareChain()
      sc2->Draw("sames");
      myPV->PVCompute(rc2, sc2, te, option );
      
+     canvas->cd(5);
+     rh3->SetLineColor(2);
+     sh3->SetLineColor(4);
+     sh3->SetLineStyle(2);
+     setStats(rh3,sh3, startingY, startingX, fit);
+     rh3->Draw();
+     sh3->Draw("sames");
+     myPV->PVCompute(rh3, sh3, te, option );
+  
+     canvas->cd(6);
+     rc3->SetLineColor(2);
+     sc3->SetLineColor(4);
+     sc3->SetLineStyle(2);
+     setStats(rc3,sc3, startingY, startingX, fit);
+     rc3->Draw();
+     sc3->Draw("sames");
+     myPV->PVCompute(rc3, sc3, te, option );
+     
    }else if (hit){  
      char * option = "UU";
      double  startingY = -1;
      double  startingX = .1;
      bool fit = false;
      
-     canvas->Divide(1,2);
+     canvas->Divide(1,3);
      
      canvas->cd(1);
      rh1->SetLineColor(2);
@@ -1305,6 +1386,15 @@ void TracksCompareChain()
      rh2->Draw();
      sh2->Draw("sames");
      myPV->PVCompute(rh2, sh2, te, option );  
+
+     canvas->cd(3);
+     rh3->SetLineColor(2);
+     sh3->SetLineColor(4);
+     sh3->SetLineStyle(2);
+     setStats(rh3,sh3, startingY, startingX, fit);
+     rh3->Draw();
+     sh3->Draw("sames");
+     myPV->PVCompute(rh3, sh3, te, option );     
      
    }else if (chi2){ 
      char * option = "UU";
@@ -1312,7 +1402,7 @@ void TracksCompareChain()
      double  startingX = .1;
      bool fit = false;
      
-     canvas->Divide(1,2);
+     canvas->Divide(1,3);
      
      canvas->cd(1);
      rh1->SetLineColor(2);
@@ -1331,7 +1421,16 @@ void TracksCompareChain()
      rh2->Draw();
      sh2->Draw("sames");
      myPV->PVCompute(rh2, sh2, te, option );  
-     
+
+     canvas->cd(3);
+     rh3->SetLineColor(2);
+     sh3->SetLineColor(4);
+     sh3->SetLineStyle(2);
+     setStats(rh3,sh3, startingY, startingX, fit);
+     rh3->Draw();
+     sh3->Draw("sames");
+     myPV->PVCompute(rh3, sh3, te, option );
+          
    }
 
    canvas->Print("rs_hitseta_chi2mean.eps");
@@ -1353,12 +1452,16 @@ void TracksCompareChain()
 
    canvas = new TCanvas("Tracks11","Tracks: pull of Pt, Qoverp and Phi",1000,1000);
 
-   NormalizeHistograms(rh1,sh1);
-   NormalizeHistograms(rc1,sc1);
-   NormalizeHistograms(rh2,sh2);
-   NormalizeHistograms(rc2,sc2);
-   NormalizeHistograms(rh3,sh3);
-   NormalizeHistograms(rc3,sc3);
+   if (hit) { 
+     NormalizeHistograms(rh1,sh1);
+     NormalizeHistograms(rh2,sh2);
+     NormalizeHistograms(rh3,sh3);
+   }
+   if (chi2) { 
+     NormalizeHistograms(rc1,sc1);
+     NormalizeHistograms(rc2,sc2);
+     NormalizeHistograms(rc3,sc3);
+   }
 
    if (hit&&chi2){   
      char * option = "UUNORM";
@@ -1510,12 +1613,16 @@ void TracksCompareChain()
 
    canvas = new TCanvas("Tracks12","Tracks: pull of D0, Z0, Theta",1000,1000);
 
-   NormalizeHistograms(rh1,sh1);
-   NormalizeHistograms(rc1,sc1);
-   NormalizeHistograms(rh2,sh2);
-   NormalizeHistograms(rc2,sc2);
-   NormalizeHistograms(rh3,sh3);
-   NormalizeHistograms(rc3,sc3);
+   if (hit) { 
+     NormalizeHistograms(rh1,sh1);
+     NormalizeHistograms(rh2,sh2);
+     NormalizeHistograms(rh3,sh3);
+   }
+   if (chi2) { 
+     NormalizeHistograms(rc1,sc1);
+     NormalizeHistograms(rc2,sc2);
+     NormalizeHistograms(rc3,sc3);
+   }
 
    if (hit&&chi2){   
      char * option = "UUNORM";
