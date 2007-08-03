@@ -33,7 +33,7 @@ CSCStripElectronicsSim::CSCStripElectronicsSim(const edm::ParameterSet & p)
   theComparatorClockJump(2),
   sca_time_bin_size(50.),
   sca_peak_bin(p.getParameter<int>("scaPeakBin")),
-  theComparatorTimeBinOffset(p.getParameter<int>("comparatorTimeBinOffset"))
+  theComparatorTimeBinOffset(p.getParameter<double>("comparatorTimeBinOffset"))
 {
 
   if(doCrosstalk_) {
