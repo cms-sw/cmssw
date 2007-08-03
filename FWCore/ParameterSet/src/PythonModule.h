@@ -1,5 +1,6 @@
 #include "FWCore/ParameterSet/interface/PythonParseTree.h"
 #include "FWCore/ParameterSet/interface/PythonParameterSet.h"
+#include "FWCore/ParameterSet/interface/PythonProcessDesc.h"
 #include <boost/python.hpp>
 
 using namespace boost::python;
@@ -67,9 +68,20 @@ BOOST_PYTHON_MODULE(libFWCoreParameterSet)
     .def("getVPSet", &PythonParameterSet::getVPSet)
     .def("addFileInPath", &PythonParameterSet::addParameter<edm::FileInPath>)
     .def("getFileInPath", &PythonParameterSet::getParameter<edm::FileInPath>)
+    .def("newInputTag", &PythonParameterSet::newInputTag)
+    .def("addNewFileInPath", &PythonParameterSet::addNewFileInPath)
+    .def("newPSet", &PythonParameterSet::newPSet)
     .def("dump", &PythonParameterSet::dump)
   ;
      
+
+  class_<PythonProcessDesc>("ProcessDesc", init<>())
+    .def(init<std::string>())
+    .def("addService", &PythonProcessDesc::addService)
+    .def("newPSet", &PythonProcessDesc::newPSet)
+    .def("dump", &PythonProcessDesc::dump)
+  ;
+
    register_exception_translator<edm::Exception>(PythonParseTree::exceptionTranslator);
 }
 
