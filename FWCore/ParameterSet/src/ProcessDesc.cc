@@ -3,28 +3,23 @@
    Implementation of calss ProcessDesc
 
    \author Stefano ARGIRO
-   \version $Id: ProcessDesc.cc,v 1.17 2007/06/25 21:23:12 rpw Exp $
+   \version $Id: ProcessDesc.cc,v 1.18 2007/07/23 23:42:35 wmtan Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.17 2007/06/25 21:23:12 rpw Exp $";
+static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.18 2007/07/23 23:42:35 wmtan Exp $";
 
 
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/ParameterSet/interface/ParseTree.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "FWCore/ParameterSet/interface/PSetNode.h"
 #include "FWCore/ParameterSet/src/ScheduleValidator.h"
 #include "FWCore/ParameterSet/interface/OperatorNode.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
-
-#include "FWCore/ParameterSet/interface/PSetNode.h"
-
-#include <map>
+#include "FWCore/ParameterSet/interface/Registry.h"
 #include <iostream>
-#include <algorithm>
-#include <iterator>
 
 namespace edm
 {
@@ -212,6 +207,47 @@ namespace edm
   ProcessDesc::getServicesPSets() const{
     return services_;
   }
+
+  
+  void ProcessDesc::addService(const ParameterSet & pset) 
+  {
+    services_->push_back(pset);
+   // Load into the Registry
+    pset::Registry* reg = pset::Registry::instance();
+    reg->insertMapped(pset);
+  }
+
+
+  void ProcessDesc::addService(const std::string & service)
+  {
+    ParameterSet newpset;
+    newpset.addParameter<std::string>("@service_type",service);
+    addService(newpset);
+  }
+
+  void ProcessDesc::addDefaultService(const std::string & service)
+  {
+    typedef std::vector<edm::ParameterSet>::iterator Iter;
+    for(Iter it = services_->begin(), itEnd = services_->end(); it != itEnd; ++it) {
+        std::string name = it->getParameter<std::string>("@service_type");
+
+        if (name == service) {
+
+          // If the service is already there move it to the end so
+          // it will be created before all the others already there
+          // This means we use the order from the default services list
+          // and the parameters from the configuration file
+          while (true) {
+            Iter iterNext = it + 1;
+            if (iterNext == itEnd) return;
+            iter_swap(it, iterNext);
+            ++it;
+          }
+        }
+    }
+    addService(service);
+  }
+
 
   ProcessDesc::Strs ProcessDesc::findSchedule(ProcessDesc::Strs & triggerPaths,
                                               ProcessDesc::Strs & endPaths) const

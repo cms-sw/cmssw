@@ -37,6 +37,11 @@ namespace edm
     /// OBSOLETE
     boost::shared_ptr<std::vector<ParameterSet> > getServicesPSets() const;
 
+    void addService(const ParameterSet & pset);
+    /// add a service as an empty pset
+    void addService(const std::string & service);
+    /// add a service if it's not already there
+    void addDefaultService(const std::string & service);
 
     //Path and sequence information
     typedef std::vector< WrapperNodePtr > PathContainer;
