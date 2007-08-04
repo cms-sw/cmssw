@@ -196,12 +196,12 @@ class InputTag(_ParameterTypeBase):
         parts = string.split(":")
         return InputTag(*parts)
     # convert to the wrapper class for C++ InputTags
-    def cppTag(self):
-        return libFWCoreParameterSet.InputTag(self.getModuleLabel(),
-                                              self.getProductInstanceLabel(),
-                                              self.getProcessName())
+    def cppTag(self, parameterSet):
+        return parameterSet.newInputTag(self.getModuleLabel(),
+                                        self.getProductInstanceLabel(),
+                                        self.getProcessName())
     def insertInto(self, parameterSet, myname):
-        parameterSet.addInputTag(self.isTracked(), myname, self.cppTag())
+        parameterSet.addInputTag(self.isTracked(), myname, self.cppTag(parameterSet))
 
 
 
@@ -260,7 +260,7 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
     def __str__(self):
         return object.__str__(self)
     def insertInto(self, parameterSet, myname):
-        newpset = libFWCoreParameterSet.ParameterSet()
+        newpset = parameterSet.newPSet()
         self.insertContentsInto(newpset)
         parameterSet.addPSet(True, myname, newpset)
 
@@ -404,7 +404,7 @@ class VInputTag(_ValidatingParameterListBase):
     @staticmethod
     def _valueFromString(value):
         return VInputTag(*_ValidatingParameterListBase._itemsFromStrings(value,InputTag._valueFromString))
-    def cppTags(self):
+    def cppTags(self, parameterSet):
         result = list()
         for i in self:
            # reconstruct an inputtag from the strings in the tupl
@@ -415,11 +415,11 @@ class VInputTag(_ValidatingParameterListBase):
               s2 = i[1]
            if len(i)>2:
               s3 = i[2]
-           it = InputTag(s1,s2,s3)
-           result.append(it.cppTag()) 
+           it = parameterSet.newInputTag(s1,s2,s3)
+           result.append(it) 
         return result 
     def insertInto(self, parameterSet, myname):
-        parameterSet.addVInputTag(self.isTracked(), myname, self.cppTags())
+        parameterSet.addVInputTag(self.isTracked(), myname, self.cppTags(parameterSet))
 
 
 

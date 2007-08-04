@@ -114,7 +114,7 @@ class _TypedParameterizable(_Parameterizable):
         config += indent+'}\n'
         return config
     def insertInto(self, parameterSet, myname):
-        newpset = libFWCoreParameterSet.ParameterSet()
+        newpset = parameterSet.newPSet()
         newpset.addString(True, "@module_label", myname)
         newpset.addString(True, "@module_type", self.type_())
         self.insertContentsInto(newpset)
