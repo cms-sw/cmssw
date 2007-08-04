@@ -180,7 +180,7 @@ namespace cms
 	const GeomDetUnit * genericDet = geom->idToDetUnit( detIdObject );
 	const PixelGeomDetUnit * pixDet = dynamic_cast<const PixelGeomDetUnit*>(genericDet);
 	assert(pixDet); 
-	SiPixelRecHitCollection::FastFiller recHitsOnDetUnit(output,detid);
+	edm::OwnVector<SiPixelRecHit> recHitsOnDetUnit;
 	
 	edm::DetSet<SiPixelCluster>::const_iterator clustIt = DSViter->data.begin();
 	for ( ; clustIt != DSViter->data.end(); clustIt++) 
@@ -195,9 +195,9 @@ namespace cms
 	    edm::Ref< edm::DetSetVector<SiPixelCluster>, SiPixelCluster > cluster =
 	      edm::makeRefTo( inputhandle, detid, clustIt);
 	    
-	    // Make a RecHit and add it to the DetSet
+	    // Make a RecHit and add it to the temporary OwnVector.
 	    // old : recHitsOnDetUnit.push_back( new SiPixelRecHit( lp, le, detIdObject, &*clustIt) );
-	    SiPixelRecHit hit( lp, le, detIdObject, cluster);
+	    SiPixelRecHit * hit =  new SiPixelRecHit( lp, le, detIdObject, cluster);
 
 #ifdef SIPIXELRECHIT_HAS_EXTRA_INFO
 	    // Copy the extra stuff; unfortunately, only the derivatives of PixelCPEBase
@@ -206,11 +206,11 @@ namespace cms
 	    // &&& This cast can be moved to the setupCPE, so that it's done once per job.
 	    PixelCPEBase * cpeBase = dynamic_cast< PixelCPEBase* >( cpe_ );
 	    if (cpeBase) {
-	      hit.setProbabilityX( cpeBase->probabilityX() );
-	      hit.setProbabilityY( cpeBase->probabilityY() );
-	      hit.setQBin( cpeBase->qBin() );
-	      hit.setCotAlphaFromCluster( cpeBase->cotAlphaFromCluster() );
-	      hit.setCotBetaFromCluster ( cpeBase->cotBetaFromCluster()  );
+	      hit->setProbabilityX( cpeBase->probabilityX() );
+	      hit->setProbabilityY( cpeBase->probabilityY() );
+	      hit->setQBin( cpeBase->qBin() );
+	      hit->setCotAlphaFromCluster( cpeBase->cotAlphaFromCluster() );
+	      hit->setCotBetaFromCluster ( cpeBase->cotBetaFromCluster()  );
 	    }
 #endif
 	    // 
@@ -221,6 +221,8 @@ namespace cms
 	
 	if ( recHitsOnDetUnit.size()>0 ) 
 	  {
+	    output.put(detIdObject, 
+		       recHitsOnDetUnit.begin(), recHitsOnDetUnit.end());
 	    if (theVerboseLevel > 2) 
 	      LogDebug("SiPixelRecHitConverter") << " Found " 
 						 << recHitsOnDetUnit.size() << " RecHits on " << detid;	
