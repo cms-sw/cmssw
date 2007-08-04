@@ -9,6 +9,11 @@ class Service(_ConfigureComponent,_TypedParameterizable,_Unlabelable):
         super(Service,self).__init__(type_,*arg,**kargs)
     def _placeImpl(self,name,proc):
         proc._placeService(self.type_(),self)
+    def insertInto(self, processDesc):
+        newpset = processDesc.newPSet()
+        newpset.addString(True, "@service_type", self.type_())
+        self.insertContentsInto(newpset)
+        processDesc.addService(newpset)
 
 
 class ESSource(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable):
