@@ -338,28 +338,27 @@ class Process(object):
             item.insertInto(parameterSet, label)
     def insertManyInto(self, parameterSet, label, itemDict):
         parameterSet.addVString(True, label, itemDict.keys())
-        print "keys",itemDict.keys()
         for name,value in itemDict.iteritems():
-          print "value",value,type(value)
           value.insertInto(parameterSet, name)
-    def makePSet(self):
-        print self.dumpConfig()
-        parameterSet = libFWCoreParameterSet.ParameterSet()
+    def insertServices(self, processDesc, itemDict):
+        for name,value in itemDict.iteritems():
+           value.insertInto(processDesc)
+    def fillProcessDesc(self, processDesc, processPSet):
         all_modules = self.__producers
         all_modules.update(self.filters_())
         all_modules.update(self.analyzers_())
         all_modules.update(self.outputModules_())
-        #self.insertInto(parameterSet, "@all_modules", all_modules)
-        self.insertManyInto(parameterSet, "@all_modules", self.producers_())
-        self.insertOneInto(parameterSet, "@all_sources", self.source_())
-        self.insertOneInto(parameterSet, "@all_loopers",   self.looper_())
-        self.insertManyInto(parameterSet, "@all_esmodules", self.es_producers_())
-        self.insertManyInto(parameterSet, "@all_essources", self.es_sources_())
-        self.insertManyInto(parameterSet, "@all_esprefers", self.es_prefers_())
-        self.insertManyInto(parameterSet, "@trigger_paths", self.paths_())
-        self.insertManyInto(parameterSet, "@end_paths", self.endpaths_())
-        self.insertOneInto(parameterSet, "@paths", self.schedule_())
-        return parameterSet
+        self.insertManyInto(processPSet, "@all_modules", self.producers_())
+        self.insertOneInto(processPSet, "@all_sources", self.source_())
+        self.insertOneInto(processPSet, "@all_loopers",   self.looper_())
+        self.insertManyInto(processPSet, "@all_esmodules", self.es_producers_())
+        self.insertManyInto(processPSet, "@all_essources", self.es_sources_())
+        self.insertManyInto(processPSet, "@all_esprefers", self.es_prefers_())
+        self.insertManyInto(processPSet, "@trigger_paths", self.paths_())
+        self.insertManyInto(processPSet, "@end_paths", self.endpaths_())
+        self.insertOneInto(processPSet, "@paths", self.schedule_())
+        self.insertServices(processDesc, self.services_())
+        return processDesc
 
 
 class FileInPath(_SimpleParameterTypeBase):
@@ -377,7 +376,7 @@ class FileInPath(_SimpleParameterTypeBase):
     def _valueFromString(value):
         return FileInPath(value)
     def insertInto(self, parameterSet, myname):
-      parameterSet.addFileInPath( self.isTracked(), myname, libFWCoreParameterSet.FileInPath(self.value()) ) 
+      parameterSet.addNewFileInPath( self.isTracked(), myname, self.value() ) 
 
 
 class Looper(_ConfigureComponent,_TypedParameterizable):
