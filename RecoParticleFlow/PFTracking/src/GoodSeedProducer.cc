@@ -23,7 +23,7 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/GeomPropagators/interface/StraightLinePropagator.h"
-
+#include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 #include <fstream>
 #include <string>
 
@@ -112,13 +112,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
   auto_ptr< reco::PFRecTrackCollection > 
     pOutputPFRecTrackCollection(new reco::PFRecTrackCollection);
 
-
-
-
-
-
-
-			      
+		      
   Handle<reco::PFClusterCollection> theECPfClustCollection;
   iEvent.getByLabel(pfCLusTagECLabel_,theECPfClustCollection);
   Handle<reco::PFClusterCollection> thePSPfClustCollection;
@@ -176,57 +170,64 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
 
     //CLUSTERS - TRACK matching
-      
-    int side=0;  
-    TSOS ecalTsos=
-      pfTransformer_->getStateOnSurface(PFGeometry::ECALInnerWall,
-					Tj[i].firstMeasurement().updatedState(),
-					propagator_.product(),side);  
     
+    float pfmass=  0.0005;
+    float pfoutenergy=sqrt((pfmass*pfmass)+Tk[i].outerMomentum().Mag2());
+    BaseParticlePropagator theOutParticle = 
+      BaseParticlePropagator( 
+			     RawParticle(XYZTLorentzVector(Tk[i].outerMomentum().x(),
+							   Tk[i].outerMomentum().y(),
+							   Tk[i].outerMomentum().z(),
+							   pfoutenergy),
+					 XYZTLorentzVector(Tk[i].outerPosition().x(),
+							   Tk[i].outerPosition().y(),
+							   Tk[i].outerPosition().z(),
+							   0.)),
+			     0.,0.,4.);
+    theOutParticle.setCharge(Tk[i].charge());
+
+    theOutParticle.propagateToEcalEntrance(false);
+    
+
     float toteta=1000;
     float totphi=1000;
     float dr=1000;
     float EE=0;
     float feta=0;
 
-    if(ecalTsos.isValid()){
-      float etarec=ecalTsos.globalPosition().eta();
-      float phirec=ecalTsos.globalPosition().phi();
-      for(vector<reco::PFCluster>::const_iterator aClus = basClus.begin();
-	  aClus != basClus.end(); aClus++) {
-	
-	
-	ReferenceCountingPointer<Surface> showerMaxWall=
-	  pfTransformer_->showerMaxSurface(aClus->energy(),true,ecalTsos,side);
-	
-	if (&(*showerMaxWall)!=0){
-	  TSOS maxShTsos= maxShPropagator_->propagate
-	    (*(ecalTsos.freeTrajectoryState()), *showerMaxWall);
-	  
-	  
-	  if (maxShTsos.isValid()){
-	    etarec=maxShTsos.globalPosition().eta();
-	    phirec=maxShTsos.globalPosition().phi();
-	  }
-	}
-	
-	float tmp_dr=sqrt(pow((aClus->positionXYZ().phi()-phirec),2)+
-			  pow((aClus->positionXYZ().eta()-etarec),2));
-	if (tmp_dr<dr) {
-	  dr=tmp_dr;
-	  toteta=aClus->positionXYZ().eta()-etarec;
-	  totphi=aClus->positionXYZ().phi()-phirec;
-	  EP=aClus->energy()/PTOB;
-	  EE=aClus->energy();
-	  feta= aClus->positionXYZ().eta();
-	}
-      }
-    }
+     if(theOutParticle.getSuccess()!=0){
+       bool isBelowPS=(fabs(theOutParticle.vertex().eta())>1.65) ? true :false;	
 
-    double ecaletares 
-      = resMapEtaECAL_->GetBinContent(resMapEtaECAL_->FindBin(feta,EE));
-    double ecalphires 
-      = resMapPhiECAL_->GetBinContent(resMapPhiECAL_->FindBin(feta,EE)); 
+       for(vector<reco::PFCluster>::const_iterator aClus = basClus.begin();
+	   aClus != basClus.end(); aClus++) {
+           double ecalShowerDepth
+             = reco::PFCluster::getDepthCorrection(aClus->energy(),
+                                             isBelowPS,
+                                             false);
+
+	 math::XYZPoint meanShower=math::XYZPoint(theOutParticle.vertex())+
+	   math::XYZTLorentzVector(theOutParticle.momentum()).Vect().Unit()*ecalShowerDepth;	
+	 
+	 float etarec=meanShower.eta();
+	 float phirec=meanShower.phi();
+	 
+	 float tmp_dr=sqrt(pow((aClus->positionXYZ().phi()-phirec),2)+
+			   pow((aClus->positionXYZ().eta()-etarec),2));
+	 if (tmp_dr<dr) {
+	   dr=tmp_dr;
+	   toteta=aClus->positionXYZ().eta()-etarec;
+	   totphi=aClus->positionXYZ().phi()-phirec;
+	   EP=aClus->energy()/PTOB;
+	   EE=aClus->energy();
+	   feta= aClus->positionXYZ().eta();
+	 }
+       }
+     }
+     
+     double ecaletares 
+       = resMapEtaECAL_->GetBinContent(resMapEtaECAL_->FindBin(feta,EE));
+     double ecalphires 
+       = resMapPhiECAL_->GetBinContent(resMapPhiECAL_->FindBin(feta,EE)); 
 
     float chieta=(toteta!=1000)? toteta/ecaletares : toteta;
     float chiphi=(totphi!=1000)? totphi/ecalphires : totphi;
@@ -366,7 +367,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  ") preidentified only for track properties";
       
     }
- 
+
     if (cc1){
       
       //NEW SEED with n hits
@@ -377,7 +378,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
       vector<TrajectoryMeasurement> tm=Tj[i].measurements();
 
-      for (uint ihit=tm.size()-1; ihit>=tm.size()-nHitsinSeed;ihit-- ){ 
+      for (int ihit=tm.size()-1; ihit>=int(tm.size()-nHitsinSeed);ihit-- ){ 
 	//for the first n measurement put the TM in the trajectory
 	// and save the corresponding hit
 	if ((*tm[ihit].recHit()).hit()->clone()->isValid()){

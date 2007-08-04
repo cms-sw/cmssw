@@ -6,14 +6,14 @@ using namespace std;
 using namespace reco;
 
 
-ostream& reco::operator<<(std::ostream& out, 
-		    const PFRecHitFraction& hit) {
+ostream& reco::operator<<( std::ostream& out, 
+			   const PFRecHitFraction& hit) {
 
   if(!out) return out;
 
 //   const reco::PFRecHit* rechit = hit.getRecHit();
 
-  out<<hit.fraction()<<"x["<<*(hit.recHitRef())<<"]";
+  out<<hit.fraction()<<"x["<< hit.recHitRef()->detId()<<"]";
 
   return out;
 }

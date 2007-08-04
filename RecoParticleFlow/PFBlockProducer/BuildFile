@@ -25,7 +25,7 @@
 <use name=TrackingTools/PatternTools>
 <use name=TrackingTools/Records>
 <use name=TrackingTools/TrajectoryState>
-<flags SEAL_PLUGIN_NAME="RecoParticleFlowPFBlockProducer">
+<flags EDM_PLUGIN=1>
 <export>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>

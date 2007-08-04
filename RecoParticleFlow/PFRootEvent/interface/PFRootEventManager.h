@@ -36,8 +36,8 @@
 #include "RecoParticleFlow/PFRootEvent/interface/PFJetAlgorithm.h"
 
 #include <TObject.h>
-#include "TEllipse.h"
-#include "TBox.h"
+#include <TEllipse.h>
+#include <TBox.h>
 
 #include <string>
 #include <map>
@@ -52,6 +52,7 @@ class TCanvas;
 class TH2F;
 class TH1F;
 class TGraph;
+
 class GPFRecHit;
 class GPFCluster;
 class GPFTrack;
@@ -66,6 +67,7 @@ class PFBlockElement;
 class EventColin;
 class PFEnergyCalibration;
 class PFEnergyResolution;
+
 
 /// \brief ROOT interface to particle flow package
 /*!
@@ -170,6 +172,16 @@ class PFRootEventManager {
   /// study the sim event to check if the tau decay is hadronic
   bool isHadronicTau() const;
 
+  /// study the sim event to check if the 
+  /// number of charged and neutral particles match the selection
+  bool chargedNeutralTau() const;
+
+  /// return the chargex3
+  /// \todo function stolen from famos. remove when it it possible to 
+  /// use the particle data table in FWLite
+  int chargeValue(const int& pdgId) const;
+  
+
   /// preprocess a rechit vector from a given rechit branch
   void PreprocessRecHits( reco::PFRecHitCollection& rechits, 
 			  bool findNeighbours);
@@ -191,6 +203,13 @@ class PFRootEventManager {
 
   /// fills OutEvent with sim particles
   void fillOutEventWithSimParticles(const reco::PFSimParticleCollection& ptcs);
+
+  /// fills outEvent with calo towers
+  void fillOutEventWithCaloTowers(const CaloTowerCollection& cts);
+
+  /// fills outEvent with blocks
+  void fillOutEventWithBlocks(const reco::PFBlockCollection& blocks);
+
 
   /// performs particle flow
   void particleFlow();
@@ -269,11 +288,11 @@ class PFRootEventManager {
   void updateDisplay();
 
   /// look for rechit with max energy in ecal or hcal.
-  /// 
-  /// \todo look for rechit with max transverse energy, look for other objects
   void lookForMaxRecHit(bool ecal);
-
-
+  
+  /// look for particle with index i in MC truth.
+  void lookForGenParticle(unsigned barcode);
+  
   /// finds max rechit energy in a given layer 
   double getMaxE(int layer) const;
 
@@ -308,18 +327,32 @@ class PFRootEventManager {
 		      std::ostream& out = std::cout) const;
 
   /// print the HepMC truth
-  void printMCTruth(const HepMC::GenEvent*) const;
+  void   printMCTruth(std::ostream& out = std::cout,
+		      int maxNLines = -1) const;
   
-/*   /// is inside cut G?  */
-/*   bool   insideGCut(double eta, double phi) const; */
   
   /// is PFTrack inside cut G ? yes if at least one trajectory point is inside.
-  bool trackInsideGCut( const reco::PFTrack* track ) const;
+  bool trackInsideGCut( const reco::PFTrack& track ) const;
   
+  /// rechit mask set to true for rechits inside TCutG
   void fillRecHitMask( vector<bool>& mask, 
 		       const reco::PFRecHitCollection& rechits ) const;
-		       
- 
+
+  /// cluster mask set to true for rechits inside TCutG
+  void fillClusterMask( vector<bool>& mask, 
+			const reco::PFClusterCollection& clusters ) const;
+
+  /// track mask set to true for rechits inside TCutG
+  void fillTrackMask( vector<bool>& mask, 
+		      const reco::PFRecTrackCollection& tracks ) const;
+
+  /// find the closest PFSimParticle to a point (eta,phi) in a given detector
+  const reco::PFSimParticle& 
+    closestParticle( reco::PFTrajectoryPoint::LayerType  layer, 
+		     double eta, double phi, 
+		     double& peta, double& pphi, double& pe) const;
+
+
   // data members -------------------------------------------------------
 
   /// current event
@@ -574,6 +607,8 @@ class PFRootEventManager {
   
   bool                     filterHadronicTaus_;
 
+  std::vector<int>         filterTaus_;
+
   //----------------- clustering parameters ---------------------
 
   /// clustering on/off. If on, rechits from tree are used to form 
@@ -602,6 +637,13 @@ class PFRootEventManager {
   /// debug printouts for jet algo on/off
   bool   jetsDebug_;
       
+
+  // MC Truth tools              ---------------------------------------
+
+  /// particle data table.
+  /// \todo this could be concrete, but reflex generate code to copy the table,
+  /// and the copy constructor is protected...
+/*   TDatabasePDG*   pdgTable_; */
 
 };
 #endif
