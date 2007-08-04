@@ -25,16 +25,12 @@ namespace edm
     //edm::ProcessDesc processDesc( finalConfigDoc);
 
     main = processDesc.getProcessPSet();
-    serviceparams = processDesc.getServicesPSets();
 
     // Load every ParameterSet into the Registry
     pset::Registry* reg = pset::Registry::instance();
 
     pset::loadAllNestedParameterSets(reg, *main);
 
-    typedef std::vector<ParameterSet>::const_iterator iter;
 
-    for (iter i=serviceparams->begin(), e=serviceparams->end(); i!=e; ++i)
-      reg->insertMapped(*i);
   }
 } // namespace edm
