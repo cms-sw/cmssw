@@ -6,7 +6,7 @@
  author: Victor Bazterra, UIC
          Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BTagValidator.cc,v 1.9 2007/06/24 20:13:45 yumiceva Exp $
+ version $Id: BTagValidator.cc,v 1.10 2007/08/04 09:00:34 elmer Exp $
 
 ________________________________________________________________**/
 
@@ -41,10 +41,10 @@ BTagValidator::BTagValidator(const edm::ParameterSet& iConfig) {
 	algorithm_ = iConfig.getParameter<std::string>( "algorithm" );
 	rootFile_ = iConfig.getParameter<std::string>( "rootfile" );
 	DQMFile_ = iConfig.getParameter<std::string>( "DQMFile" );
-//	TString tversion(edm::getReleaseVersion());
-//	tversion = tversion.Remove(0,1);
-//	tversion = tversion.Remove(tversion.Length()-1,tversion.Length());
-//	DQMFile_  = std::string(tversion)+"_"+DQMFile_;
+	TString tversion(edm::getReleaseVersion());
+	tversion = tversion.Remove(0,1);
+	tversion = tversion.Remove(tversion.Length()-1,tversion.Length());
+	DQMFile_  = std::string(tversion)+"_"+DQMFile_;
 	histogramList_ = iConfig.getParameter<vstring>( "histogramList" );
 	referenceFilename_ = iConfig.getParameter<std::string>( "referenceFilename" );
 	doCompare_ = iConfig.getParameter<bool>( "compareHistograms");
