@@ -9,8 +9,6 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include <vector>
-#include "DataFormats/Common/interface/DetSetAlgorithm.h"
 
 
 std::vector<SeedLayerPairs::LayerPair> CosmicLayerPairs::operator()() 
@@ -264,15 +262,18 @@ void CosmicLayerPairs::init(const SiStripRecHit2DCollection &collstereo,
         //std::cout << "wheel 8" << std::endl;
 }
 
-
 std::vector<const TrackingRecHit*> CosmicLayerPairs::selectTECHit(const SiStripRecHit2DCollection &collrphi,
 								int side,
 								int disk){
 	std::vector<const TrackingRecHit*> theChoosedHits;
   	TrackerLayerIdAccessor acc;
 	//std::cout << "in selectTECHit" << std::endl;	
-	edmNew::copyDetSetRange(collrphi, theChoosedHits, acc.stripTECDisk(side,disk));
-	return theChoosedHits;	
+	SiStripRecHit2DCollection::range range = collrphi.get(acc.stripTECDisk(side,disk));
+	for(SiStripRecHit2DCollection::const_iterator it = range.first; it != range.second; it++){
+		theChoosedHits.push_back( &(*it) );	
+	}
+	return theChoosedHits;
+	
 }
 
 std::vector<const TrackingRecHit*> CosmicLayerPairs::selectTIBHit(const SiStripRecHit2DCollection &collrphi,
@@ -280,7 +281,10 @@ std::vector<const TrackingRecHit*> CosmicLayerPairs::selectTIBHit(const SiStripR
 	std::vector<const TrackingRecHit*> theChoosedHits;
 	TrackerLayerIdAccessor acc; 
         //std::cout << "in selectTIBHit" << std::endl;
-        edmNew::copyDetSetRange(collrphi, theChoosedHits, acc.stripTIBLayer(layer));
+        SiStripRecHit2DCollection::range range = collrphi.get(acc.stripTIBLayer(layer));
+        for(SiStripRecHit2DCollection::const_iterator it = range.first; it != range.second; it++){
+                theChoosedHits.push_back( &(*it) );
+        }
         return theChoosedHits;
 
 }
@@ -290,7 +294,10 @@ std::vector<const TrackingRecHit*> CosmicLayerPairs::selectTOBHit(const SiStripR
 	std::vector<const TrackingRecHit*> theChoosedHits;
 	TrackerLayerIdAccessor acc;
         //std::cout << "in selectTOBHit" << std::endl;
-        edmNew::copyDetSetRange(collrphi,theChoosedHits,acc.stripTOBLayer(layer));
+        SiStripRecHit2DCollection::range range = collrphi.get(acc.stripTOBLayer(layer));
+	for(SiStripRecHit2DCollection::const_iterator it = range.first; it != range.second; it++){
+                theChoosedHits.push_back( &(*it) );
+        }
         return theChoosedHits;
 }
 
@@ -300,7 +307,10 @@ std::vector<const TrackingRecHit*> CosmicLayerPairs::selectTECHit(const SiStripM
         std::vector<const TrackingRecHit*> theChoosedHits;
         TrackerLayerIdAccessor acc;
         //std::cout << "in selectTECHit" << std::endl;
-        edmNew::copyDetSetRange(collmatch,theChoosedHits,acc.stripTECDisk(side,disk));
+        SiStripMatchedRecHit2DCollection::range range = collmatch.get(acc.stripTECDisk(side,disk));
+        for(SiStripMatchedRecHit2DCollection::const_iterator it = range.first; it != range.second; it++){
+                theChoosedHits.push_back( &(*it) );
+        }
         return theChoosedHits;
 
 }
@@ -310,7 +320,10 @@ std::vector<const TrackingRecHit*> CosmicLayerPairs::selectTIBHit(const SiStripM
         std::vector<const TrackingRecHit*> theChoosedHits;
         TrackerLayerIdAccessor acc;
         //std::cout << "in selectTIBHit" << std::endl;
-        edmNew::copyDetSetRange(collmatch,theChoosedHits,acc.stripTIBLayer(layer));
+        SiStripMatchedRecHit2DCollection::range range = collmatch.get(acc.stripTIBLayer(layer));
+        for(SiStripMatchedRecHit2DCollection::const_iterator it = range.first; it != range.second; it++){
+                theChoosedHits.push_back( &(*it) );
+        }
         return theChoosedHits;
 
 }
@@ -320,6 +333,9 @@ std::vector<const TrackingRecHit*> CosmicLayerPairs::selectTOBHit(const SiStripM
         std::vector<const TrackingRecHit*> theChoosedHits;
         TrackerLayerIdAccessor acc;
         //std::cout << "in selectTOBHit" << std::endl;
-        edmNew::copyDetSetRange(collmatch,theChoosedHits,acc.stripTOBLayer(layer));
+        SiStripMatchedRecHit2DCollection::range range = collmatch.get(acc.stripTOBLayer(layer));
+        for(SiStripMatchedRecHit2DCollection::const_iterator it = range.first; it != range.second; it++){
+                theChoosedHits.push_back( &(*it) );
+        }
         return theChoosedHits;
 }
