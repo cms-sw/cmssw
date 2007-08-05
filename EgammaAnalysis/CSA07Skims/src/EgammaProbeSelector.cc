@@ -2,9 +2,8 @@
 /** \class EgammaProbeSelector
  *
  *  
- *  This class is an EDFilter for heavy H+->taunu events
+ *  This class is an EDFilter for heavy W+jet and Z+jet events
  *
- *  \author Sami Lehti  -  HIP Helsinki
  *
  */
 

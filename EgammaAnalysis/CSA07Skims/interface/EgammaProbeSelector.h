@@ -5,11 +5,8 @@
  *
  *  
  *  Filter to select events passing 
- *  L1 single tau
- *  HLT tau+MET
- *  3 offline jets
+ *  offline jets and superclusters
  *
- *  \author Sami Lehti  -  HIP Helsinki
  *
  */
 
