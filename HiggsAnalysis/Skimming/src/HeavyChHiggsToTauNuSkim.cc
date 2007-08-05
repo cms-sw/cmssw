@@ -31,11 +31,11 @@ HeavyChHiggsToTauNuSkim::HeavyChHiggsToTauNuSkim(const edm::ParameterSet& iConfi
 
 	hltTauLabel	= iConfig.getParameter<InputTag>("HLTTauCollection");
 	jetLabel        = iConfig.getParameter<InputTag>("JetTagCollection");
-	minNumberOfjets = iConfig.getParameter<int>("minNumberOfJets",3);
-	jetEtMin        = iConfig.getParameter<double>("jetEtMin",20.);
-	jetEtaMin       = iConfig.getParameter<double>("jetEtaMin",-2.4);
-	jetEtaMax       = iConfig.getParameter<double>("jetEtaMax",2.4);
-	minDRFromTau    = iConfig.getParameter<double>("minDRFromTau",0.5);
+	minNumberOfjets = iConfig.getParameter<int>("minNumberOfJets");
+	jetEtMin        = iConfig.getParameter<double>("jetEtMin");
+	jetEtaMin       = iConfig.getParameter<double>("jetEtaMin");
+	jetEtaMax       = iConfig.getParameter<double>("jetEtaMax");
+	minDRFromTau    = iConfig.getParameter<double>("minDRFromTau");
 
         nEvents         = 0;
         nSelectedEvents = 0;

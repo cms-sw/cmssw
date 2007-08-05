@@ -3,8 +3,8 @@
  *  
  *  This class is an EDFilter for HWW events
  *
- *  $Date: 2007/08/03 01:42:39 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/08/05 22:04:26 $
+ *  $Revision: 1.5 $
  *
  *  \author Ezio Torassa  -  INFN Padova
  *
@@ -42,10 +42,10 @@ HiggsToWW2LeptonsSkim::HiggsToWW2LeptonsSkim(const edm::ParameterSet& iConfig) :
   theGLBMuonLabel   = iConfig.getParameter<edm::InputTag>("GlobalMuonCollectionLabel");
   thePixelGsfELabel = iConfig.getParameter<edm::InputTag>("ElectronCollectionLabel");
 
-  singleTrackPtMin_ = iConfig.getParameter<double>("SingleTrackPtMin",20.);
-  diTrackPtMin_     = iConfig.getParameter<double>("DiTrackPtMin",10.);
-  etaMin_           = iConfig.getParameter<double>("etaMin",-2.4);
-  etaMax_           = iConfig.getParameter<double>("etaMax",2.4);
+  singleTrackPtMin_ = iConfig.getParameter<double>("SingleTrackPtMin");
+  diTrackPtMin_     = iConfig.getParameter<double>("DiTrackPtMin");
+  etaMin_           = iConfig.getParameter<double>("etaMin");
+  etaMax_           = iConfig.getParameter<double>("etaMax");
 }
 
 
