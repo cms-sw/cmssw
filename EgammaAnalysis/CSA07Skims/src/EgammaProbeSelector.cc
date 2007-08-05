@@ -14,6 +14,7 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream> 
+#include <TMath.h>
 
 using namespace edm;
 using namespace std;
