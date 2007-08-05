@@ -1,6 +1,6 @@
 /** \class HLTRapGapFilter
  *
- * $Id: HLTRapGapFilter.cc,v 1.2 2007/07/17 20:39:32 apana Exp $
+ * $Id: HLTRapGapFilter.cc,v 1.3 2007/08/01 12:22:45 elmer Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -65,7 +65,7 @@ HLTRapGapFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     int countjets =0;
 
     for (reco::CaloJetCollection::const_iterator recocalojet = recocalojets->begin(); 
-	 recocalojet<=(recocalojets->begin()+1); recocalojet++) {
+	 recocalojet!=(recocalojets->end()); recocalojet++) {
       
       etjet = recocalojet->energy();
       etajet = recocalojet->eta();
@@ -83,7 +83,7 @@ HLTRapGapFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if(sumets<=caloThresh_){
       //std::cout << "Passed filter!" << std::endl;
       for (reco::CaloJetCollection::const_iterator recocalojet = recocalojets->begin(); 
-	   recocalojet<=(recocalojets->begin()+1); recocalojet++) {
+	   recocalojet!=(recocalojets->end()); recocalojet++) {
 	ref=edm::RefToBase<reco::Candidate>(reco::CaloJetRef(recocalojets,
 							     distance(recocalojets->begin(),recocalojet)));
 	filterproduct->putParticle(ref);
