@@ -3,8 +3,8 @@
  *  
  *  This class is an EDFilter for HWW events
  *
- *  $Date: 2007/07/27 23:15:51 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/08/03 01:42:39 $
+ *  $Revision: 1.4 $
  *
  *  \author Ezio Torassa  -  INFN Padova
  *
@@ -38,15 +38,14 @@ HiggsToWW2LeptonsSkim::HiggsToWW2LeptonsSkim(const edm::ParameterSet& iConfig) :
 {
 
   // Reconstructed objects
-  recTrackLabel      = iConfig.getParameter<edm::InputTag>("RecoTrackLabel");
-  theGLBMuonLabel    = iConfig.getParameter<edm::InputTag>("GlobalMuonCollectionLabel");
-  thePixelGsfELabel  = iConfig.getParameter<edm::InputTag>("ElectronCollectionLabel");
+  recTrackLabel     = iConfig.getParameter<edm::InputTag>("RecoTrackLabel");
+  theGLBMuonLabel   = iConfig.getParameter<edm::InputTag>("GlobalMuonCollectionLabel");
+  thePixelGsfELabel = iConfig.getParameter<edm::InputTag>("ElectronCollectionLabel");
 
-  //  trackLabel_ = iConfig.getParameter<InputTag>("TrackLabel");
-  singleTrackPtMin_ = iConfig.getUntrackedParameter<double>("SingleTrackPtMin",20.);
-  diTrackPtMin_ = iConfig.getUntrackedParameter<double>("DiTrackPtMin",10.);
-  etaMin_ = iConfig.getUntrackedParameter<double>("etaMin",-2.4);
-  etaMax_ = iConfig.getUntrackedParameter<double>("etaMax",2.4);
+  singleTrackPtMin_ = iConfig.getParameter<double>("SingleTrackPtMin",20.);
+  diTrackPtMin_     = iConfig.getParameter<double>("DiTrackPtMin",10.);
+  etaMin_           = iConfig.getParameter<double>("etaMin",-2.4);
+  etaMax_           = iConfig.getParameter<double>("etaMax",2.4);
 }
 
 
