@@ -2,15 +2,15 @@
 <export>
  <use name=FWCore/Framework>
  <use name=Framework/SealKernel>
+ <use name=FWCore/MessageLogger>
  <use name=SimG4Core/Physics>
- <use name=SimG4Core/QGSP>
  <lib name=SimG4CoreCustomPhysics>
 </export>
  
 <use name=FWCore/Framework>
 <use name=Framework/SealKernel>
+<use name=FWCore/MessageLogger>
 <use name=SimG4Core/Physics>
-<use name=SimG4Core/QGSP>
 <use name=geant4>
 <use name=clhep>
 <use name=boost>
