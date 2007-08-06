@@ -142,14 +142,6 @@ DDGeometryReturnType DDG4Builder::BuildGeometry() {
 	// G3 convention of defining rot-matrices ...
 	G4Transform3D trfrm  = transl * G4Rotate3D(hr.inverse());//.inverse();
 
-#ifdef G4V7
-	refFact->Place(trfrm, // transformation containing a possible reflection
-		       gra.nodeData(cit->first).name().name(),
-		       convertLV(gra.nodeData(cit->first)), 		// daugther
-		       g4LV, 				 		// mother
-		       false,                 		 		// 'ONLY'
-		       gra.edgeData(cit->second)->copyno_+offset+tag); 	// copy number
-#else
 	refFact->Place(trfrm, // transformation containing a possible reflection
 		       gra.nodeData(cit->first).name().name(),
 		       convertLV(gra.nodeData(cit->first)), 		// daugther
@@ -157,7 +149,6 @@ DDGeometryReturnType DDG4Builder::BuildGeometry() {
 		       false,                 		 		// 'ONLY'
 		       gra.edgeData(cit->second)->copyno_+offset+tag, 	// copy number
 		       check_);
-#endif
       } // iterate over children
     } // if (children)
   } // iterate over graph nodes  
