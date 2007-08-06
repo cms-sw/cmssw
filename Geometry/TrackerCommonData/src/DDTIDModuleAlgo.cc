@@ -81,7 +81,7 @@ void DDTIDModuleAlgo::initialize(const DDNumericArguments & nArgs,
 		      << " Overlap " << sideFrameOver << " Dummy "
 		      << dumyFrameName;
 
-  waferName         =vsArgs["WaferName"];
+  waferName         = vsArgs["WaferName"];
   waferMat          = sArgs["WaferMaterial"];
   sideWidthTop   = nArgs["SideWidthTop"];
   sideWidthBottom= nArgs["SideWidthBottom"];
@@ -92,7 +92,7 @@ void DDTIDModuleAlgo::initialize(const DDNumericArguments & nArgs,
   for (i = 0; i < detectorN; i++)
     LogDebug("TIDGeom") << "\twafrName[" << i << "] = " << waferName[i];
 
-  activeName        =vsArgs["ActiveName"];
+  activeName        = vsArgs["ActiveName"];
   activeMat         = sArgs["ActiveMaterial"];
   activeHeight      = nArgs["ActiveHeight"];
   activeThick       = vArgs["ActiveThick"];
@@ -104,6 +104,17 @@ void DDTIDModuleAlgo::initialize(const DDNumericArguments & nArgs,
     LogDebug("TIDGeom") << "\tactiveName[" << i << "] = " << activeName[i]
 			<< " of thickness " << activeThick[i];
 
+  backplaneName        = vsArgs["BackPlaneName"];
+  backplaneMat         = sArgs["BackPlaneMaterial"];
+  backplaneThick       = vArgs["BackPlaneThick"];
+  backplaneZ           = vArgs["BackPlaneZ"];
+  LogDebug("TIDGeom") << "DDTIDModuleAlgo debug: BackPlane Material " 
+		      << backplaneMat  ;
+  for (i = 0; i < detectorN; i++)
+    LogDebug("TIDGeom") << "\tbackplaneName[" << i << "] = " << backplaneName[i]
+			<< " of thickness " << backplaneThick[i]
+			<< " in active volume with Z " << backplaneZ[i];
+  
   hybridName        = sArgs["HybridName"];
   hybridMat         = sArgs["HybridMaterial"];
   hybridHeight      = nArgs["HybridHeight"];
@@ -114,7 +125,7 @@ void DDTIDModuleAlgo::initialize(const DDNumericArguments & nArgs,
 		      << hybridHeight << " Width " << hybridWidth 
 		      << " Thickness " << hybridThick;
 
-  pitchName         =vsArgs["PitchName"];
+  pitchName         = vsArgs["PitchName"];
   pitchMat          = sArgs["PitchMaterial"];
   pitchHeight       = nArgs["PitchHeight"];
   pitchThick        = nArgs["PitchThick"];
@@ -300,7 +311,27 @@ void DDTIDModuleAlgo::execute() {
       LogDebug("TIDGeom") << "DDTIDModuleAlgo test: " << active.name() 
 			  << " number 1 positioned in " << wafer.name() 
 			  << " at (0, 0, 0) with " << rot;
-
+      
+      // BackPlane
+      name    = DDName(DDSplit(backplaneName[k]).first,
+		       DDSplit(backplaneName[k]).second);
+      matname = DDName(DDSplit(backplaneMat).first, DDSplit(backplaneMat).second);
+      matter  = DDMaterial(matname);
+      dz      = 0.5 * backplaneThick[k];
+      solid = DDSolidFactory::trap(name, dz, 0,0, h1,bl2,bl1,0, h1,bl2,bl1,0);
+      LogDebug("TIDGeom") << "DDTIDModuleAlgo test:\t" << solid.name() 
+			  << " Trap made of " << matname << " of dimensions "
+			  << dz << ", 0, 0, " << h1 << ", " << bl2 << ", " 
+			  << bl1 << ", 0, " << h1 << ", " << bl2 << ", "
+			  << bl1 << ", 0";
+      DDLogicalPart backplane(solid.ddname(), matter, solid);
+      DDTranslation tran(0.0,0.0,backplaneZ[k]);
+      DDpos (backplane, active, 1, tran, DDRotation());
+      LogDebug("TIDGeom") << "DDTIDModuleAlgo test: " << backplane.name() 
+			  << " number 1 positioned in " << active.name() 
+			  << " at " << tran << " with no rotation";
+      
+      
       //Pitch Adapter
       name    = DDName(DDSplit(pitchName[k]).first,DDSplit(pitchName[k]).second);
       matname = DDName(DDSplit(pitchMat).first, DDSplit(pitchMat).second);
