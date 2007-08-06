@@ -103,18 +103,18 @@ void EcalTrigPrimFunctionalAlgo::updateESRecord(double ttfLowEB, double ttfHighE
   const_cast <EcalTPParameters *> (ecaltpp_)->changeThresholds(ttfLowEB, ttfHighEB, ttfLowEE, ttfHighEE);
 }
 //----------------------------------------------------------------------
-void EcalTrigPrimFunctionalAlgo::run(const edm::SortedCollection<EBDataFrame> * col,
-                                                        EcalTrigPrimDigiCollection & result,
-							EcalTrigPrimDigiCollection & resultTcp)
+void EcalTrigPrimFunctionalAlgo::run(EBDigiCollection const * col,
+				     EcalTrigPrimDigiCollection & result,
+				     EcalTrigPrimDigiCollection & resultTcp)
 {
   run_part1_EB(col);
   run_part2(col,towerMapEB_,result,resultTcp);
 }
 
 //----------------------------------------------------------------------
-void EcalTrigPrimFunctionalAlgo::run(const edm::SortedCollection<EEDataFrame> * col,
-                                                        EcalTrigPrimDigiCollection & result,
-							EcalTrigPrimDigiCollection & resultTcp)
+void EcalTrigPrimFunctionalAlgo::run(EEDigiCollection const * col,
+				     EcalTrigPrimDigiCollection & result,
+				     EcalTrigPrimDigiCollection & resultTcp)
 {
   run_part1_EE(col);
   run_part2(col,towerMapEE_,result,resultTcp);
@@ -155,33 +155,30 @@ int EcalTrigPrimFunctionalAlgo::findTccNr(const EcalTrigTowerDetId &id)
 } 
 //----------------------------------------------------------------------
 int  EcalTrigPrimFunctionalAlgo::findStripNr(const EBDetId &id){
-      int stripnr;
-      int n=((id.ic()-1)%100)/20; //20 corresponds to 4 * ecal_barrel_crystals_per_strip FIXME!!
-      if (id.ieta()<0) stripnr = n+1;
-      //      else stripnr =ecal_barrel_strips_per_trigger_tower - n; 
-      else stripnr =EcalTPParameters::nbMaxStrips_ - n; 
-      return stripnr;
+  int stripnr;
+  int n=((id.ic()-1)%100)/20; //20 corresponds to 4 * ecal_barrel_crystals_per_strip FIXME!!
+  if (id.ieta()<0) stripnr = n+1;
+  //      else stripnr =ecal_barrel_strips_per_trigger_tower - n; 
+  else stripnr =EcalTPParameters::nbMaxStrips_ - n; 
+  return stripnr;
 }
 //----------------------------------------------------------------------
 int  EcalTrigPrimFunctionalAlgo::findStripNr(const EEDetId &id){
-      int stripnr;
-      const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(id);
-      stripnr=elId.pseudoStripId();
-      return stripnr;
+  int stripnr;
+  const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(id);
+  stripnr=elId.pseudoStripId();
+  return stripnr;
 }
 //----------------------------------------------------------------------
 
-void EcalTrigPrimFunctionalAlgo::run_part1_EB(const edm::SortedCollection<EBDataFrame> * col){
+void EcalTrigPrimFunctionalAlgo::run_part1_EB(EBDigiCollection const * col){
   clean(towerMapEB_);
- // loop over dataframes and fill map 
+  // loop over dataframes and fill map 
   fillMap(col,towerMapEB_);
 }
 //----------------------------------------------------------------------
-void EcalTrigPrimFunctionalAlgo::run_part1_EE(const edm::SortedCollection<EEDataFrame> * col){
-
- clean(towerMapEE_);
-
- // loop over dataframes and fill map 
+void EcalTrigPrimFunctionalAlgo::run_part1_EE(EEDigiCollection const * col){
+  clean(towerMapEE_);
+  // loop over dataframes and fill map 
   fillMap(col,towerMapEE_);
-
 }
