@@ -249,7 +249,7 @@ EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
       digiItr != endcapDigis.end(); ++digiItr){
     int interestLevel = ecalSelectiveReadout->getCrystalInterest(EEDigiCollection::DetId(digiItr->id()));
     if(accept(*digiItr, zsThreshold[ENDCAP][interestLevel])){
-      selectedEndcapDigis.push_back((digiItr->id(), digiItr->begin()));
+      selectedEndcapDigis.push_back(digiItr->id(), digiItr->begin());
     }
   }
   
