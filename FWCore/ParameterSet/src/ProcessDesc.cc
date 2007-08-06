@@ -3,11 +3,11 @@
    Implementation of calss ProcessDesc
 
    \author Stefano ARGIRO
-   \version $Id: ProcessDesc.cc,v 1.19 2007/08/04 00:00:47 rpw Exp $
+   \version $Id: ProcessDesc.cc,v 1.20 2007/08/06 18:32:29 rpw Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.19 2007/08/04 00:00:47 rpw Exp $";
+static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.20 2007/08/06 18:32:29 rpw Exp $";
 
 
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
@@ -254,6 +254,29 @@ namespace edm
         }
     }
     addService(service);
+  }
+
+
+  void ProcessDesc::addServices(std::vector<std::string> const& defaultServices,
+                                std::vector<std::string> const& forcedServices)
+  {
+    // Add the forced and default services to services_.
+    // In services_, we want the default services first, then the forced
+    // services, then the services from the configuration.  It is efficient
+    // and convenient to add them in reverse order.  Then after we are done
+    // adding, we reverse the std::vector again to get the desired order.
+    std::reverse(services_->begin(), services_->end());
+    for(std::vector<std::string>::const_reverse_iterator j = forcedServices.rbegin(),
+                                            jEnd = forcedServices.rend();
+         j != jEnd; ++j) {
+      addService(*j);
+    }
+    for(std::vector<std::string>::const_reverse_iterator i = defaultServices.rbegin(),
+                                            iEnd = defaultServices.rend();
+         i != iEnd; ++i) {
+      addDefaultService(*i);
+    }
+    std::reverse(services_->begin(), services_->end());
   }
 
 

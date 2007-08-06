@@ -32,7 +32,6 @@ namespace edm
     std::string  getDependencies(const std::string& modulename);
 
     /// get the descriptions of the services
-    /// OBSOLETE
     boost::shared_ptr<std::vector<ParameterSet> > getServicesPSets() const;
 
     void addService(const ParameterSet & pset);
@@ -40,6 +39,10 @@ namespace edm
     void addService(const std::string & service);
     /// add a service if it's not already there
     void addDefaultService(const std::string & service);
+    /// add some defaults services, and some forced
+    void addServices(std::vector<std::string> const& defaultServices,
+                     std::vector<std::string> const& forcedServices);
+
 
     //Path and sequence information
     typedef std::vector< WrapperNodePtr > PathContainer;
