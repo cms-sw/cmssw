@@ -58,7 +58,7 @@ private:
   std::vector<std::string> backplaneName;     //Backplane     name
   std::string              backplaneMat;      //              material
   std::vector<double>      backplaneThick;    //              thickness
-  std::vector<double>      backplaneZ;        //              thickness
+  std::vector<double>      backplaneZ;        //              translation
   std::string              hybridName;        //Hybrid        name
   std::string              hybridMat;         //              material
   double                   hybridHeight;      //              height
