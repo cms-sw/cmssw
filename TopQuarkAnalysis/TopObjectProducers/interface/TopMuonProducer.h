@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck, Steven Lowette
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopMuonProducer.h,v 1.4 2007/06/07 05:49:16 lowette Exp $
+// $Id: TopMuonProducer.h,v 1.5 2007/06/23 07:28:03 lowette Exp $
 //
 
 #ifndef TopObjectProducers_TopMuonProducer_h
@@ -17,7 +17,7 @@
    calculation of a lepton likelihood ratio
 
   \author   Jan Heyninck, Steven Lowette
-  \version  $Id: TopMuonProducer.h,v 1.4 2007/06/07 05:49:16 lowette Exp $
+  \version  $Id: TopMuonProducer.h,v 1.5 2007/06/23 07:28:03 lowette Exp $
 */
 
 
@@ -59,8 +59,8 @@ class TopMuonProducer : public edm::EDProducer {
     // tools
     TopObjectResolutionCalc *    theResoCalc_;
     TopLeptonLRCalc *            theLeptonLRCalc_;
-    PtInverseComparator<TopMuon> pTMuonComparator_;
-
+    //    PtInverseComparator<TopMuon> pTMuonComparator_;
+    GreaterByPt<TopMuon> pTMuonComparator_;
 };
 
 

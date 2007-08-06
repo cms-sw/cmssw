@@ -2,13 +2,14 @@
 // Author:  Steven Lowette
 // Created: Thu Jun  7 05:49:16 2007 UTC
 //
-// $Id: TopObjectSelector.h,v 1.3 2007/06/23 07:31:51 lowette Exp $
+// $Id: TopObjectSelector.h,v 1.4 2007/07/28 09:56:28 delaer Exp $
 //
 
 #ifndef TopObjectProducer_TopObjectSelector_h
 #define TopObjectProducer_TopObjectSelector_h
 
 
+#include "PhysicsTools/UtilAlgos/interface/StringCutObjectSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
@@ -21,47 +22,33 @@
 #include <vector>
 
 
-typedef ObjectSelector<
-          SingleElementCollectionSelector<
+typedef SingleObjectSelector<
             std::vector<TopJetType>,
-            SingleObjectSelector<TopJetType>
-          >
+            StringCutObjectSelector<TopJetType>
         > CaloJetSelector;
-typedef ObjectSelector<
-          SingleElementCollectionSelector<
+typedef SingleObjectSelector<
             std::vector<TopElectron>,
-            SingleObjectSelector<TopElectron>
-          >
+            StringCutObjectSelector<TopElectron>
         > TopElectronSelector;
-typedef ObjectSelector<
-          SingleElementCollectionSelector<
+typedef SingleObjectSelector<
             std::vector<TopTau>,
-            SingleObjectSelector<TopTau>
-          >
+            StringCutObjectSelector<TopTau>
         > TopTauSelector;
-typedef ObjectSelector<
-          SingleElementCollectionSelector<
+typedef SingleObjectSelector<
             std::vector<TopMuon>,
-            SingleObjectSelector<TopMuon>
-          >
+            StringCutObjectSelector<TopMuon>
         > TopMuonSelector;
-typedef ObjectSelector<
-          SingleElementCollectionSelector<
+typedef SingleObjectSelector<
             std::vector<TopJet>,
-            SingleObjectSelector<TopJet>
-          >
+            StringCutObjectSelector<TopJet>
         > TopJetSelector;
-typedef ObjectSelector<
-          SingleElementCollectionSelector<
+typedef SingleObjectSelector<
             std::vector<TopMET>,
-            SingleObjectSelector<TopMET>
-          >
+            StringCutObjectSelector<TopMET>
         > TopMETSelector;
-typedef ObjectSelector<
-          SingleElementCollectionSelector<
+typedef SingleObjectSelector<
             std::vector<TopParticle>,
-            SingleObjectSelector<TopParticle>
-          >
+            StringCutObjectSelector<TopParticle>
         > TopParticleSelector;
 
 

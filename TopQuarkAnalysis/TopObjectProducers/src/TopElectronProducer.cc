@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck, Steven Lowette
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopElectronProducer.cc,v 1.11 2007/07/12 19:36:00 lowette Exp $
+// $Id: TopElectronProducer.cc,v 1.12 2007/07/31 21:59:17 rwolf Exp $
 //
 
 #include <vector>
@@ -138,7 +138,7 @@ TopElectronProducer::matchTruth(const reco::CandidateCollection& parts, const To
   reco::GenParticleCandidate gene;
   reco::CandidateCollection::const_iterator part = parts.begin();
   for( ; part!=parts.end(); ++part ){
-    if( (abs(part->pdgId())==11) && (status( *part )==1) && part->charge()==elec.charge() ){
+    if( (abs(part->pdgId())==11) && (part->status()==1) && part->charge()==elec.charge() ){
       float dr = DeltaR<reco::Candidate>()( *part, elec );
       if( minR==0 || dr<minR ){
 	minR = dr;

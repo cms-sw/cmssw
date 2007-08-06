@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck, Steven Lowette
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopMuonProducer.cc,v 1.6 2007/06/09 01:17:35 lowette Exp $
+// $Id: TopMuonProducer.cc,v 1.7 2007/06/23 07:28:04 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopMuonProducer.h"
@@ -77,7 +77,7 @@ void TopMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     // match to generated final state muons
     if (doGenMatch_) {
       // initialize best match as null
-      reco::GenParticleCandidate bestGenMuon(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), 0, 0);
+      reco::GenParticleCandidate bestGenMuon(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), 0, 0, true);
       float bestDR = 0;
       // find the closest generated muon
       for (reco::CandidateCollection::const_iterator itGenMuon = particles->begin(); itGenMuon != particles->end(); ++itGenMuon) {

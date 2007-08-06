@@ -1,5 +1,5 @@
 //
-// $Id: TopJetProducer.cc,v 1.13 2007/07/06 00:27:15 lowette Exp $
+// $Id: TopJetProducer.cc,v 1.14 2007/07/12 19:37:43 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopJetProducer.h"
@@ -65,8 +65,8 @@ TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig) {
   simpleJetTrackAssociator_ = reco::helper::SimpleJetTrackAssociator(trackAssociationPSet_);      
 
   // construct Jet Charge Computer
-  jetChargePSet_        = iConfig.getParameter<edm::ParameterSet>("jetCharge");
-  jetCharge_            = JetCharge(jetChargePSet_);
+  jetChargePSet_ = iConfig.getParameter<edm::ParameterSet>("jetCharge");
+  jetCharge_p    = new JetCharge(jetChargePSet_);
  
   // produces vector of jets
   produces<std::vector<TopJet> >();
@@ -76,6 +76,7 @@ TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig) {
 TopJetProducer::~TopJetProducer() {
   if (addResolutions_) delete theResoCalc_;
   if (getJetMCFlavour_) delete jetFlavId_;
+  delete jetCharge_p;
 }
 
 
@@ -106,7 +107,8 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
   // Get the vector of jet tags with b-tagging info
   std::vector<edm::Handle<std::vector<reco::JetTag> > > jetTags_testManyByType ;
-  iEvent.getManyByType(jetTags_testManyByType); 
+  iEvent.getManyByType(jetTags_testManyByType);
+
   // Define the handles for the specific algorithms
   edm::Handle<reco::SoftLeptonTagInfoCollection> jetsInfoHandle_sl;
   edm::Handle<reco::TrackProbabilityTagInfoCollection> jetsInfoHandleTP;
@@ -182,11 +184,11 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 	  if(  (moduleLabel == "softElectronJetTags    " && ignoreSoftElectronFromAOD_     == true ) ) continue;
 	
 	  for (size_t t = 0; t < jetTags->size(); t++) {
-	    // cout << "jet test " << ajet.getLCalJet().et() << "   " << (*jetTags)[t].jet().et()  << endl;
+	    //cout << "jet test " << ajet.getLCalJet().et() << "   " << (*jetTags)[t].jet().et()  << endl;
 	    //cout << "deltaR   " <<  DeltaR<reco::Candidate>()((*recjets)[j], (*jetTags)[t].jet()) << endl;
 
 	    // FIXME: is this 0.0001 matching fullproof?
-	    if (DeltaR<reco::Candidate>()((*recjets)[j], (*jetTags)[t].jet()) < 0.00001) {
+	    if (DeltaR<reco::Candidate>()((*recjets)[j], *(*jetTags)[t].jet()) < 0.00001) {
 	    
 	      //FIXME add combined tagger
 	      //********store discriminators*********
@@ -206,28 +208,31 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 	      
 	        std::pair<std::string, reco::JetTagRef> pairjettagref;
 	        pairjettagref.first = moduleLabel;
-	      
+		pairjettagref.second = reco::JetTagRef(jetTags, t);
+		ajet.addBJetTagRefPair(pairjettagref);
+		/*
 	        if(moduleTagInfoName == "TrackProbability"){
 		  //cout << "string module label " << moduleLabel << endl;
 		  iEvent.getByLabel(moduleLabel,jetsInfoHandleTP);  
 		  const  reco::TrackProbabilityTagInfoCollection & tagInfo_prob = *(jetsInfoHandleTP);
-		  pairjettagref.second = tagInfo_prob[t].getJetTag();
-		  ajet.addBJetTagRefPair(pairjettagref);
+		  //		  pairjettagref.second = tagInfo_prob[t].getJetTag();
+		  //		  ajet.addBJetTagRefPair(pairjettagref);
 	        }
 	        if(moduleTagInfoName == "TrackCounting"){
 		  //cout << "string module label " << moduleLabel << endl;
 		  iEvent.getByLabel(moduleLabel,jetsInfoHandleTC);  
 		  const  reco::TrackCountingTagInfoCollection & tagInfo_prob = *(jetsInfoHandleTC);
-		  pairjettagref.second = tagInfo_prob[t].getJetTag();
-		  ajet.addBJetTagRefPair(pairjettagref);
+		  //		  pairjettagref.second = tagInfo_prob[t].getJetTag();
+		  //		  ajet.addBJetTagRefPair(pairjettagref);
 	        }  
 	        if(moduleTagInfoName == "SoftLepton"){
 		  // cout << "string module label " << moduleLabel << endl;
 		  iEvent.getByLabel(moduleLabel,jetsInfoHandle_sl);  
 		  const  reco::SoftLeptonTagInfoCollection & tagInfo_prob = *(jetsInfoHandle_sl);
-		  pairjettagref.second = tagInfo_prob[t].getJetTag();
-		  ajet.addBJetTagRefPair(pairjettagref);
+		  //		  pairjettagref.second = tagInfo_prob[t].getJetTag();
+		  //		  ajet.addBJetTagRefPair(pairjettagref);
 	        }
+		*/
 	      }  
 	    }
 	  }
@@ -246,7 +251,7 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
     // PUT HERE EVERYTHING WHICH NEEDS TRACKS
     if (computeJetCharge_) {
-        ajet.jetCharge_ = static_cast<float>(jetCharge_.charge(ajet.p4(), ajet.associatedTracks_));
+        ajet.jetCharge_ = static_cast<float>(jetCharge_p->charge(ajet.p4(), ajet.associatedTracks_));
     }
 
     // drop jet track association if the user does not want it

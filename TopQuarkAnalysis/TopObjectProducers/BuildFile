@@ -1,13 +1,13 @@
 <use name=AnalysisDataFormats/TopObjects>
 <use name=TopQuarkAnalysis/TopObjectResolutions>
 <use name=TopQuarkAnalysis/TopLeptonSelection>
+<use name=DataFormats/BTauReco>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/Math>
 <use name=PhysicsTools/JetCharge>
 <use name=PhysicsTools/Parser>
 <use name=RecoBTag/MCTools>
-<flags SEAL_PLUGIN_NAME="TopQuarkAnalysisTopObjectProducers">
-
+<flags EDM_PLUGIN=1>
 <export>
   <lib name=TopQuarkAnalysisTopObjectProducers>
   <use name=AnalysisDataFormats/TopObjects>
@@ -15,6 +15,7 @@
   <use name=TopQuarkAnalysis/TopLeptonSelection>
   <use name=PhysicsTools/Parser>
   <use name=RecoBTag/MCTools>
+  <use name=DataFormats/BTauReco>
   <use name=DataFormats/TrackReco>
   <use name=DataFormats/Math>
 </export>

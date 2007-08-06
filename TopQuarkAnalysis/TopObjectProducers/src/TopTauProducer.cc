@@ -2,7 +2,7 @@
 // Author:  Christophe Delaere
 // Created: Thu Jul  26 11:08:00 CEST 2007
 //
-// $Id: $
+// $Id: TopTauProducer.cc,v 1.1 2007/07/28 09:56:27 delaer Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopTauProducer.h"
@@ -18,11 +18,11 @@
 #include <vector>
 #include <memory>
 
-// specialization of the PtInverseComparator: TopTau is not (yet) a candidate.
-template<>
-bool PtInverseComparator<TopTau>::operator()( const TopTau & t1, const TopTau & t2 ) const {
-  return t1.getJetTag()->jet().pt() > t2.getJetTag()->jet().pt();
-}
+// specialization of the PtInverseComparator: TopTau is not (yet) a candidate. ****IT IS NOW (16X)!!!!
+//template<>
+//bool GreaterByPt<TopTau>::operator()( const TopTau & t1, const TopTau & t2 ) const {
+//  return t1.jet()->pt() > t2.jet()->pt();
+//}
 
 //
 // constructors and destructor
@@ -86,21 +86,24 @@ void TopTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   std::vector<TopTau> * topTaus = new std::vector<TopTau>(); 
   for (std::vector<TopTauType>::const_iterator tau = taus->begin();
        tau != taus->end(); ++tau) {
-    // check the discriminant
-    bool disc = redoDiscriminant_ ? tau->discriminator(Rmatch_,Rsig_,Riso_,pT_LT_,pT_min_) : tau->discriminator();
+
+    // check the discriminant ******WILL NOT WORK WITH NEW TAU OBJECTS - SET TO TRUE FOR NOW
+    //bool disc = redoDiscriminant_ ? tau->discriminator(Rmatch_,Rsig_,Riso_,pT_LT_,pT_min_) : tau->discriminator();
+    bool disc = true;
+
     if(!disc) continue;
     // construct the TopTau
     TopTau aTau(*tau);
     // match to generated final state taus
     if (doGenMatch_) {
       // initialize best match as null
-      reco::GenParticleCandidate bestGenTau(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), 0, 0);
+      reco::GenParticleCandidate bestGenTau(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), 0, 0, true);
       float bestDR = 0;
       // find the closest generated tau. No charge cut is applied
       for (reco::CandidateCollection::const_iterator itGenTau = particles->begin(); itGenTau != particles->end(); ++itGenTau) {
         reco::GenParticleCandidate aGenTau = *(dynamic_cast<reco::GenParticleCandidate *>(const_cast<reco::Candidate *>(&*itGenTau)));
         if (abs(aGenTau.pdgId())==15 && aGenTau.status()==2) {
-	  float currDR = DeltaR<reco::Candidate>()(aGenTau, tau->getJetTag()->jet());
+	  float currDR = DeltaR<reco::Candidate>()(aGenTau, aTau);//*(tau->jet()));
           if (bestDR == 0 || currDR < bestDR) {
             bestGenTau = aGenTau;
             bestDR = currDR;
