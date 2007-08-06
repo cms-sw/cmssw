@@ -1,7 +1,6 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "FWCore/Services/src/SiteLocalConfigService.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <xercesc/dom/DOM.hpp>

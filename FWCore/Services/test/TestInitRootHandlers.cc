@@ -18,16 +18,13 @@
 // system include files
 #include <iostream>
 #include <iomanip>
-#include <map>
 #include <sstream>
 #include <algorithm>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -38,7 +35,6 @@
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include "boost/lexical_cast.hpp"
 
 #include "FWCore/Framework/interface/GenericHandle.h"
 //
