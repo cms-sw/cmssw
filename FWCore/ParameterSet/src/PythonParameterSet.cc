@@ -1,5 +1,4 @@
 #include "FWCore/ParameterSet/interface/PythonParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 PythonParameterSet::PythonParameterSet()

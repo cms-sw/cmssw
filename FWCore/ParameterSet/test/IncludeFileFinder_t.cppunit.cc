@@ -1,5 +1,5 @@
 /*
- * $Id: IncludeFileFinder_t.cppunit.cc,v 1.5 2007/05/15 18:59:38 rpw Exp $
+ * $Id: IncludeFileFinder_t.cppunit.cc,v 1.6 2007/05/24 20:24:21 rpw Exp $
  */
 
 #include <algorithm>
@@ -10,7 +10,6 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "FWCore/ParameterSet/interface/IncludeFileFinder.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"

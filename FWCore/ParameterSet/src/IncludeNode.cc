@@ -3,7 +3,6 @@
 #include "FWCore/ParameterSet/interface/Visitor.h"
 #include "FWCore/ParameterSet/interface/parse.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 // circular dependence here
 #include "FWCore/ParameterSet/interface/ModuleNode.h"
 
