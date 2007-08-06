@@ -83,6 +83,9 @@ private:
   double                   activeThick;    //              thickness
   std::string              activeRot;      //              Rotation matrix
   double                   activeZ;        //              z-positions
+  std::string              backplaneMat;   //              material
+  double                   backplaneThick; //              thickness
+  double                   backplaneZ;     //              translation (along active volume local z axis)
   std::string              hybridMat;      //Hybrid        material
   double                   hybridHeight;   //              height
   double                   hybridWidth;    //              width

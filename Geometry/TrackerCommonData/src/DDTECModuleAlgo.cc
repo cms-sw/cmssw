@@ -130,6 +130,13 @@ void DDTECModuleAlgo::initialize(const DDNumericArguments & nArgs,
 		      << " rotated by " << activeRot << " Thickness/Z"
 		      << activeThick << "/"	<< activeZ;
 
+  backplaneMat         = sArgs["BackPlaneMaterial"];
+  backplaneThick       = nArgs["BackPlaneThick"];
+  backplaneZ           = nArgs["BackPlaneZ"];
+  LogDebug("TECGeom") << "DDTECModuleAlgo debug: BackPlane Material " 
+		      << backplaneMat << " with thickness " << backplaneThick
+		      << " in active volume with translation (0,0," << backplaneZ << ")";
+  
   hybridMat      = sArgs["HybridMaterial"];
   hybridHeight   = nArgs["HybridHeight"];
   hybridWidth    = nArgs["HybridWidth"];
@@ -447,17 +454,34 @@ void DDTECModuleAlgo::execute() {
   dz      = 0.5 * activeThick;
   h1      = 0.5 * activeHeight;
   if (isRing6) { //switch bl1 <->bl2
-	tmp = bl2;	bl2 =bl1;	bl1 = tmp;
+    tmp = bl2;	bl2 =bl1;	bl1 = tmp;
   }
   solid = DDSolidFactory::trap(DDName(name,idNameSpace), dz, 0, 0, h1, bl2, 
-							   bl1, 0, h1, bl2, bl1, 0);
+			       bl1, 0, h1, bl2, bl1, 0);
   LogDebug("TECGeom") << "DDTECModuleAlgo test:\t" << solid.name() 
-					  << " Trap made of " << matname << " of dimensions "
-					  << dz << ", 0, 0, " << h1 << ", " << bl2 << ", "
-					  << bl1 << ", 0, " << h1 << ", " << bl2 << ", "
-					  << bl1 << ", 0";
+		      << " Trap made of " << matname << " of dimensions "
+		      << dz << ", 0, 0, " << h1 << ", " << bl2 << ", "
+		      << bl1 << ", 0, " << h1 << ", " << bl2 << ", "
+		      << bl1 << ", 0";
   DDLogicalPart active(solid.ddname(), matter, solid);
   doPos(active, wafer, 1, 0,0,0, activeRot);
+  
+  
+  // BackPlane
+  name    = idName + tag +"BackPlane";
+  matname = DDName(DDSplit(backplaneMat).first, DDSplit(backplaneMat).second);
+  matter  = DDMaterial(matname);
+  dz      = 0.5 * backplaneThick;
+  solid = DDSolidFactory::trap(DDName(name,idNameSpace), dz, 0, 0, h1, bl2, 
+			       bl1, 0, h1, bl2, bl1, 0);
+  LogDebug("TECGeom") << "DDTECModuleAlgo test:\t" << solid.name() 
+		      << " Trap made of " << matname << " of dimensions "
+		      << dz << ", 0, 0, " << h1 << ", " << bl2 << ", " 
+		      << bl1 << ", 0, " << h1 << ", " << bl2 << ", "
+		      << bl1 << ", 0";
+  DDLogicalPart backplane(solid.ddname(), matter, solid);
+  doPos(backplane, active, 1, 0,backplaneZ,0, "NULL");
+  
   
   //Pitch Adapter
   name    = idName + "PA";
