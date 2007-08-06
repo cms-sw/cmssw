@@ -1,9 +1,9 @@
 /** \class EcalWeightUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes
  *
-  *  $Id: EcalWeightUncalibRecHitProducer.cc,v 1.22 2007/04/05 15:41:21 meridian Exp $
-  *  $Date: 2007/04/05 15:41:21 $
-  *  $Revision: 1.22 $
+  *  $Id: EcalWeightUncalibRecHitProducer.cc,v 1.23 2007/08/06 14:27:18 innocent Exp $
+  *  $Date: 2007/08/06 14:27:18 $
+  *  $Revision: 1.23 $
   *  \author Shahram Rahatlou, University of Rome & INFN, Sept 2005
   *
   */
@@ -135,7 +135,7 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
      {
        EBuncalibRechits->reserve(EBdigis->size());
        for(EBDigiCollection::const_iterator itdg = EBdigis->begin(); itdg != EBdigis->end(); ++itdg) {
-	 unsigned int hashedIndex = itdg->id().hashedIndex();
+	 unsigned int hashedIndex = EBDetId(itdg->id()).hashedIndex();
 
 	 //     counter_++; // verbosity counter
 
@@ -219,7 +219,7 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
      {
        EEuncalibRechits->reserve(EEdigis->size());
        for(EEDigiCollection::const_iterator itdg = EEdigis->begin(); itdg != EEdigis->end(); ++itdg) {
-	 unsigned int hashedIndex = itdg->id().hashedIndex();
+	 unsigned int hashedIndex = EEDetId(itdg->id()).hashedIndex();
 	 //     counter_++; // verbosity counter
 
 	 // find pedestals for this channel
