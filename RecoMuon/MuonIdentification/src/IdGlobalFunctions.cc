@@ -5,11 +5,11 @@ unsigned int muonid::RequiredStationMask( const reco::Muon& muon,
 					  double maxChamberDistPull,
 					  reco::Muon::ArbitrationType arbitrationType )
 {
-   int theMask = 0;
+   unsigned int theMask = 0;
 
    for(int stationIdx = 1; stationIdx < 5; ++stationIdx)
       for(int detectorIdx = 1; detectorIdx < 3; ++detectorIdx)
-         if(muon.trackDist(stationIdx,detectorIdx,arbitrationType) < maxChamberDist ||
+         if(muon.trackDist(stationIdx,detectorIdx,arbitrationType) < maxChamberDist &&
                muon.trackDist(stationIdx,detectorIdx,arbitrationType)/muon.trackDistErr(stationIdx,detectorIdx,arbitrationType) < maxChamberDistPull)
             theMask += 1<<((stationIdx-1)+4*(detectorIdx-1));
 
@@ -79,15 +79,15 @@ bool muonid::isGoodMuon( const reco::Muon& muon,
       if(fabs(muon.pullX(4,1,arbitrationType,1)) > maxAbsPullX &&
 	 fabs(muon.dX(4,1,arbitrationType)) > maxAbsDx)
 	goodMuon = false;
-      if(theStationMask & 2) {
+      if(theStationMask & 1<<2) {
 	 if(fabs(muon.pullY(3,1,arbitrationType,1)) > maxAbsPullY &&
 	    fabs(muon.dY(3,1,arbitrationType)) > maxAbsDy)
 	   goodMuon = false;
-      } else if(theStationMask & 1) {
+      } else if(theStationMask & 1<<1) {
 	 if(fabs(muon.pullY(2,1,arbitrationType,1)) > maxAbsPullY &&
 	    fabs(muon.dY(2,1,arbitrationType)) > maxAbsDy)
 	   goodMuon = false;
-      } else if(theStationMask & 0) {
+      } else if(theStationMask & 1<<0) {
 	 if(fabs(muon.pullY(1,1,arbitrationType,1)) > maxAbsPullY &&
 	    fabs(muon.dY(1,1,arbitrationType)) > maxAbsDy)
 	   goodMuon = false;
@@ -101,10 +101,10 @@ bool muonid::isGoodMuon( const reco::Muon& muon, SelectionType type )
 {
   switch (type)
      {
-      case TMLastStationTight:
+      case TMLastStationLoose:
 	return isGoodMuon(muon,TMLastStation,2,3,3,9999,9999,-3,-3,reco::Muon::SegmentAndTrackArbitration);
 	break;
-      case TMLastStationLoose:
+      case TMLastStationTight:
 	return isGoodMuon(muon,TMLastStation,2,3,3,3,3,-3,-3,reco::Muon::SegmentAndTrackArbitration);
 	break;
       default:
