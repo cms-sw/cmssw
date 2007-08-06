@@ -1,6 +1,7 @@
 <use name=FWCore/Utilities>
 <use name=DataFormats/Common>
 <use name=DataFormats/MuonReco>
+<use name=DataFormats/TauReco>
 <use name=DataFormats/JetReco>
 <use name=DataFormats/METReco>
 <use name=DataFormats/EgammaCandidates>
@@ -11,6 +12,7 @@
 <export>
   <use name=DataFormats/Common>
   <use name=DataFormats/MuonReco>
+  <use name=DataFormats/TauReco>
   <use name=DataFormats/JetReco>
   <use name=DataFormats/METReco>
   <use name=DataFormats/EgammaCandidates>

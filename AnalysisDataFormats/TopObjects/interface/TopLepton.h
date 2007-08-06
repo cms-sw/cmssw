@@ -1,5 +1,5 @@
 //
-// $Id: TopLepton.h,v 1.10 2007/07/31 21:35:15 rwolf Exp $
+// $Id: TopLepton.h,v 1.11 2007/08/03 09:24:23 tsirig Exp $
 //
 
 #ifndef TopObjects_TopLepton_h
@@ -13,11 +13,12 @@
    store and retrieve the high-level likelihood ratio information.
 
   \author   Steven Lowette
-  \version  $Id: TopLepton.h,v 1.10 2007/07/31 21:35:15 rwolf Exp $
+  \version  $Id: TopLepton.h,v 1.11 2007/08/03 09:24:23 tsirig Exp $
 */
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/TauReco/interface/Tau.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopObject.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopParticle.h"
@@ -27,7 +28,8 @@ typedef reco::Muon TopMuonType;
 typedef reco::MuonCollection TopMuonTypeCollection;
 typedef reco::PixelMatchGsfElectron TopElectronType;
 typedef reco::PixelMatchGsfElectronCollection TopElectronTypeCollection;
-typedef reco::IsolatedTauTagInfo TopTauType;
+//typedef reco::IsolatedTauTagInfo TopTauType;
+typedef reco::Tau TopTauType;
 
 template <class LeptonType>
 class TopLepton : public TopObject<LeptonType> {
