@@ -238,18 +238,18 @@ EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
   for(EBDigiCollection::const_iterator digiItr = barrelDigis.begin();
       digiItr != barrelDigis.end(); ++digiItr){
     int interestLevel
-      = ecalSelectiveReadout->getCrystalInterest(digiItr->id());
+      = ecalSelectiveReadout->getCrystalInterest(EBDigiCollection::DetId(digiItr->id()));
     if(accept(*digiItr, zsThreshold[BARREL][interestLevel])){
-      selectedBarrelDigis.push_back(*digiItr);
+      selectedBarrelDigis.push_back(digiItr->id(), digiItr->begin());
     } 
   }
   
   // and endcaps
   for(EEDigiCollection::const_iterator digiItr = endcapDigis.begin();
       digiItr != endcapDigis.end(); ++digiItr){
-    int interestLevel = ecalSelectiveReadout->getCrystalInterest(digiItr->id());
+    int interestLevel = ecalSelectiveReadout->getCrystalInterest(EEDigiCollection::DetId(digiItr->id()));
     if(accept(*digiItr, zsThreshold[ENDCAP][interestLevel])){
-      selectedEndcapDigis.push_back(*digiItr);
+      selectedEndcapDigis.push_back((digiItr->id(), digiItr->begin()));
     }
   }
   
