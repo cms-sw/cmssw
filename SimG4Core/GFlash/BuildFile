@@ -2,8 +2,8 @@
 <export>
  <use name=SimG4Core/Physics>
  <use name=SimG4Core/G4gflash>
- <use name=SimG4Core/QGSP>
  <use name=FWCore/ParameterSet>
+ <use name=FWCore/MessageLogger>
  <use name=FWCore/Framework>
  <use name=Framework/SealKernel>
  <lib name=SimG4CoreGFlash>
@@ -11,8 +11,8 @@
 
 <use name=SimG4Core/Physics>
 <use name=SimG4Core/G4gflash>
-<use name=SimG4Core/QGSP>
 <use name=FWCore/ParameterSet>
+<use name=FWCore/MessageLogger>
 <use name=FWCore/Framework>
 <use name=Framework/SealKernel>
 

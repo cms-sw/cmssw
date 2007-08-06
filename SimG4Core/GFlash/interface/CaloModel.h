@@ -7,11 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimG4Core/Geometry/interface/G4LogicalVolumeToDDLogicalPartMap.h"
  
-#ifdef G4V7
-class GFlashHomoShowerParamterisation;
-#else
 class GFlashHomoShowerParameterisation;
-#endif
 class GFlashHitMaker;
 class GFlashParticleBounds;
 class GflashEMShowerModel;
@@ -27,11 +23,7 @@ public:
   ~CaloModel();
 private:
   void build();  
-#ifdef G4V7
-  GFlashHomoShowerParamterisation *theParametrisation;
-#else
   GFlashHomoShowerParameterisation *theParameterisation;
-#endif
   edm::ParameterSet m_pCaloModel;
   G4LogicalVolumeToDDLogicalPartMap map_;
   GFlashHitMaker *theHMaker;
