@@ -1,9 +1,9 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.cc,v 1.10 2007/07/31 17:29:33 ferriff Exp $
- *  $Date: 2007/07/31 17:29:33 $
- *  $Revision: 1.10 $
+ *  $Id: EcalRecHitProducer.cc,v 1.11 2007/07/31 17:38:32 ferriff Exp $
+ *  $Date: 2007/07/31 17:38:32 $
+ *  $Revision: 1.11 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -125,7 +125,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 	   it != EBuncalibRecHits->end(); ++it) {
 	 
 	 // find intercalib constant for this xtal
-	 EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalit=icalMap.find(it->id().rawId());
+	 EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalit=icalMap.find(it->id());
          EcalIntercalibConstants::EcalIntercalibConstant icalconst = 1;
 	 if( icalit!=icalMap.end() ){
 	   icalconst = icalit->second;
@@ -146,7 +146,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 	 if(it->amplitude()>0.) 
 	   {
 	     LogDebug("EcalRecHitDebug") << "processed UncalibRecHit with rawId: "
-					     << it->id().rawId() << "\n"
+					     << it->id() << "\n"
 					     << "uncalib rechit amplitude: " << it->amplitude()
 					     << " calib rechit energy: " << aHit.energy()
 	       ;
@@ -162,7 +162,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 	   it != EEuncalibRecHits->end(); ++it) {
 	 
 	 // find intercalib constant for this xtal
-	 EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalit=icalMap.find(it->id().rawId());
+	 EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalit=icalMap.find(it->id());
 	 EcalIntercalibConstants::EcalIntercalibConstant icalconst = 1;
 	 if( icalit!=icalMap.end() ){
 	   icalconst = icalit->second;
@@ -183,7 +183,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 	 if(it->amplitude()>0.) 
 	   {
 	     LogDebug("EcalRecHitDebug") << "processed UncalibRecHit with rawId: "
-					     << it->id().rawId() << "\n"
+					     << it->id() << "\n"
 					     << "uncalib rechit amplitude: " << it->amplitude()
 					     << " calib rechit energy: " << aHit.energy()
 	       ;

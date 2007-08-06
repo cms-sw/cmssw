@@ -162,7 +162,7 @@ EcalFixedAlphaBetaFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::
 
        // find pedestals for this channel
        LogDebug("EcalUncalibRecHitDebug") << "looking up pedestal for crystal: " << EBDetId(itdg->id()) ;
-       pedIter = pedMap.find(itdg->id().rawId());
+       pedIter = pedMap.find(itdg->id());
        if( pedIter != pedMap.end() ) {
 	 aped = pedIter->second;
        } else {
@@ -176,7 +176,7 @@ EcalFixedAlphaBetaFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::
        
        // find gain ratios
        LogDebug("EcalUncalibRecHitDebug") << "looking up gainRatios for crystal: " << EBDetId(itdg->id()) ;
-       gainIter = gainMap.find(itdg->id().rawId());
+       gainIter = gainMap.find(itdg->id());
        if( gainIter != gainMap.end() ) {
 	 aGain = gainIter->second;
        } else {
@@ -232,7 +232,7 @@ EcalFixedAlphaBetaFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::
 
        // find pedestals for this channel
        LogDebug("EcalUncalibRecHitDebug") << "looking up pedestal for crystal: " << EEDetId(itdg->id()) ;
-       pedIter = pedMap.find(itdg->id().rawId());
+       pedIter = pedMap.find(itdg->id());
        if( pedIter != pedMap.end() ) {
 	 aped = pedIter->second;
        } else {
@@ -246,7 +246,7 @@ EcalFixedAlphaBetaFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::
        
        // find gain ratios
        LogDebug("EcalUncalibRecHitDebug") << "looking up gainRatios for crystal: " << EEDetId(itdg->id()) ;
-       gainIter = gainMap.find(itdg->id().rawId());
+       gainIter = gainMap.find(itdg->id());
        if( gainIter != gainMap.end() ) {
 	 aGain = gainIter->second;
        } else {
