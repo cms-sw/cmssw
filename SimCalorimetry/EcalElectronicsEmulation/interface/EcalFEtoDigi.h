@@ -55,14 +55,15 @@ private:
   EcalTriggerPrimitiveSample create_TPSampleTcp(TCCinput);
   int SMidToTCCid(const int) const;
 
-  EcalTPParameters *ecaltpp_;
+  const EcalTPParameters *ecaltpp_;
   TCCInputData inputdata_[N_SM];
 
   std::string basename_;
   bool useIdentityLUT_;
   int sm_;
   bool singlefile;
-  int skipEvents_;
+
+  int fileEventOffset_;
   bool debug_;
   std::ofstream outfile;
 

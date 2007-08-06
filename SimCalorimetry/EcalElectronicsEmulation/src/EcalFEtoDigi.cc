@@ -2,11 +2,11 @@
 #include "SimCalorimetry/EcalElectronicsEmulation/interface/EcalFEtoDigi.h"
 
 EcalFEtoDigi::EcalFEtoDigi(const edm::ParameterSet& iConfig) {
-  basename_           = iConfig.getUntrackedParameter<std::string>("FlatBaseName");
-  sm_                 = iConfig.getUntrackedParameter<int>("SuperModuleId");
-  skipEvents_         = iConfig.getUntrackedParameter<int>("SkipEvents");
-  useIdentityLUT_     = iConfig.getUntrackedParameter<bool>("UseIdentityLUT");
-  debug_               = iConfig.getUntrackedParameter<bool>("debugPrintFlag");
+  basename_           = iConfig.getUntrackedParameter<std::string>("FlatBaseName","ecal_tcc_");
+  sm_                 = iConfig.getUntrackedParameter<int>("SuperModuleId",-1);
+  fileEventOffset_    = iConfig.getUntrackedParameter<int>("FileEventOffset",0);
+  useIdentityLUT_     = iConfig.getUntrackedParameter<bool>("UseIdentityLUT",false);
+  debug_              = iConfig.getUntrackedParameter<bool>("debugPrintFlag", false);
 
   singlefile = (sm_==-1)?false:true;
 
@@ -19,13 +19,13 @@ EcalFEtoDigi::EcalFEtoDigi(const edm::ParameterSet& iConfig) {
 void
 EcalFEtoDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  
+
   /// event counter
   static int current_bx = -1;
   current_bx++;
 
   /// re-read input (needed in case of event-by-event input production)
-  readInput();
+  //readInput();
 
   if(debug_)
     std::cout << "[EcalFEtoDigi::produce] producing event " << current_bx << std::endl;
@@ -34,6 +34,10 @@ EcalFEtoDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     e_tpdigis (new EcalTrigPrimDigiCollection);
   std::auto_ptr<EcalTrigPrimDigiCollection>  
     e_tpdigisTcp (new EcalTrigPrimDigiCollection);
+
+  edm::ESHandle<EcalTPParameters> theEcalTPParameters_handle;
+  iSetup.get<EcalTPParametersRcd>().get(theEcalTPParameters_handle);
+  ecaltpp_ = theEcalTPParameters_handle.product();
 
   std::vector<TCCinput>::const_iterator it;
 
@@ -44,7 +48,7 @@ EcalFEtoDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     for(it = inputdata_[i].begin(); it != inputdata_[i].end(); it++) {
 
-      if(!(*it).is_current(current_bx+skipEvents_)) 
+      if(!(*it).is_current(current_bx+fileEventOffset_)) 
 	continue;
       else
       	if(debug_ && (*it).input!=0 )
@@ -172,7 +176,7 @@ EcalFEtoDigi::readInput() {
       if(f.eof()) break;
       tt=0; bx=-1; val=0x0; dummy=0;
       f >> tt >> bx >> std::hex >> val >> std::dec >> dummy;
-      if(bx==-1 || bx < skipEvents_ ) continue;
+      if(bx==-1 || bx < fileEventOffset_ ) continue;
       if( !n_bx || (bx!=(inputdata_[i].back()).bunchCrossing) )
 	n_bx++;
       TCCinput ttdata(tt,bx,val);
@@ -303,11 +307,7 @@ EcalFEtoDigi::beginJob(const edm::EventSetup& setup){
   if(debug_)
     outfile.open("inputcopy.txt");
 
-  edm::ESHandle<EcalTPParameters> theEcalTPParameters_handle;
-  setup.get<EcalTPParametersRcd>().get(theEcalTPParameters_handle);
-  ecaltpp_=const_cast <EcalTPParameters *> (theEcalTPParameters_handle.product());
-
-  //readInput();
+  readInput();
   
 }  
 
