@@ -1,0 +1,9 @@
+<export>
+ <use name=SimG4Core/Physics>
+ <lib name=SimG4CorePhysicsLists>
+</export>
+
+<use name=SimG4Core/Physics>
+<use name=geant4>
+<use name=clhep>
+<use name=boost>

@@ -1,0 +1,16 @@
+<library file="*.cc" name=SimG4CorePhysicsListsPlugins>
+ <use name=SimG4Core/PhysicsLists>
+ <use name=FWCore/ParameterSet>
+ <use name=FWCore/MessageLogger>
+ <use name=FWCore/PluginManager>
+ <use name=SimG4Core/Physics>
+ <Flags EDM_PLUGIN=1>
+</library>
+
+<use name=FWCore/ParameterSet>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/PluginManager>
+<use name=SimG4Core/Physics>
+<use name=geant4>
+<use name=clhep>
+<use name=boost>
