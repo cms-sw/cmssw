@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.22 2007/03/29 18:16:51 wmtan Exp $
+// $Id: PoolOutputModule.h,v 1.23 2007/04/09 19:12:31 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -19,7 +19,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OutputModule.h"
-#include "FWCore/Catalog/interface/FileCatalog.h"
+#include "FWCore/Catalog/interface/OutputFileCatalog.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
 #include "IOPool/Common/interface/PoolDatabase.h"
@@ -32,7 +32,6 @@ namespace pool {
 class TTree;
 
 namespace edm {
-  class OutputFileCatalog;
   class ParameterSet;
 
   class PoolOutputModule : public OutputModule {
