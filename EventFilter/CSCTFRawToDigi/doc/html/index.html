@@ -56,17 +56,21 @@ Every Sector Processor board (SP) of the CSC Track-Finder crate is connected to
 1 of 12 sectors. The firmware on every board should be configured so, that board
 reports which sector it is connected to. Unfortunately this is not a routine
 configuration procedure on <a href="http://cms-emu-slicetest.web.cern.ch/cms-emu-slicetest/">CSC SliceTest</a>,
-and our data lack this information. Fortunately every board reports
+and most of our data, taken earlier than August of 2007, lack this information.
+Nevertheless this can be fixed off-line with help of
+<!--But fortunately there is only one sector in cosmic ray data every board reports
 its slot ID in the Track-Finder crate. Based on the slot ID we can assign
-every board to the particular sector off-line. It can be done with integral
-array-parameter <i>slot2sector</i>. It has 22 entries (same as number of slots
-in CSC Track-Finder crate) which can be set to either 0 or sector number (1&#151;12).
+every board to the particular sector off-line. It can be done with-->
+integral array-parameter <i>slot2sector</i>. In general it has 22 entries (same as
+number of slots in CSC Track-Finder crate) which can be set to either 0 or sector number (1&#151;12).
 0 instructs module to use original sector number from data, while numbers from
-1 to 12 override it with corresponding value. If you work with the <a href="http://cms-emu-slicetest.web.cern.ch/cms-emu-slicetest/">CSC SliceTest</a>,
+1 to 12 override it with corresponding value.
+If you work with the <a href="http://cms-emu-slicetest.web.cern.ch/cms-emu-slicetest/">CSC SliceTest</a>,
 data you probably need default settings of
 <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/EventFilter/CSCTFRawToDigi/data/csctfunpacker.cfi?rev=1.4&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup">
-data/csctfunpacker.cfi</a> while for raw data obtained in simulation (see below)
-you need to set all values to 0. See
+data/csctfunpacker.cfi</a> or you may want to change the first value of <i>slot2sector</i>
+array which assigns data from any "unconfigured" SP to sector number, which you set there.
+For raw data obtained in simulation (see below) you need to set all values to 0. See
 <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/EventFilter/CSCTFRawToDigi/test/writedigi.cfg?rev=1.1&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup">
 test/writedigi.cfg</a> for example.
 <br>
