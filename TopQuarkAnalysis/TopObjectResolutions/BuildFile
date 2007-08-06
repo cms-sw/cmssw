@@ -3,12 +3,12 @@
 <use name=FWCore/MessageLogger>
 <use name=AnalysisDataFormats/TopObjects>
 <use name=root>
-<flags SEAL_PLUGIN_NAME="TopQuarkAnalysisTopObjectResolutions">
+
 <export>
+  <lib name=TopQuarkAnalysisTopObjectResolutions>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
   <use name=FWCore/MessageLogger>
   <use name=AnalysisDataFormats/TopObjects>
   <use name=root>
-  <lib name=TopQuarkAnalysisTopObjectResolutions>
 </export>
