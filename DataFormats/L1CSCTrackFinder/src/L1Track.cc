@@ -18,6 +18,7 @@ namespace csc {
     me4_id = 0;
     mb1_id = 0;
     m_output_link = 0;
+    m_winner = false;
   }
 
   L1Track::L1Track(const csc::L1Track& rhs) : L1MuRegionalCand(rhs.type_idx(),rhs.phi_packed(),rhs.eta_packed(),
@@ -38,6 +39,7 @@ namespace csc {
     me4_id = rhs.me4_id;
     mb1_id = rhs.mb1_id;
     m_output_link = rhs.m_output_link;
+    m_winner = rhs.m_winner;
   }
 
   L1Track::~L1Track()
@@ -71,7 +73,8 @@ namespace csc {
 	me4_id = rhs.me4_id;
 	mb1_id = rhs.mb1_id;
 	m_output_link = rhs.m_output_link;
-      }
+    m_winner = rhs.m_winner;
+	  }
     return *this;
   }
 
@@ -152,6 +155,7 @@ namespace csc {
 		  << " charge: "   << " " << charge_packed()
 		  << " side: "   << " " << endcap()
 		  << " bx: "       << " " << BX()
+          << " Winner: "   << " " << winner()
 		  << std::endl;
       }
     else
@@ -164,6 +168,7 @@ namespace csc {
 		  << " charge: "   << " " << charge_packed()
 		  << " side: "   << " " << endcap()
 		  << " bx: "       << " " << BX()
+          << " Winner: "   << " " << winner()
 		  << std::endl;
       }
   }

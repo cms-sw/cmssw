@@ -57,6 +57,7 @@ namespace csc{
       void setPtLUTAddress(const unsigned& adr) { m_ptAddress = adr; }
 
       unsigned outputLink() const {return m_output_link;}
+      bool winner() const {return m_winner;}
 
       bool operator>(const csc::L1Track&) const;
       bool operator<(const csc::L1Track&) const;
@@ -89,6 +90,7 @@ namespace csc{
       unsigned m_rank;
       unsigned m_output_link;
       bool m_empty;
+      bool m_winner;
 
       void setStationIds(const unsigned& me1, const unsigned& me2,
 			 const unsigned& me3, const unsigned& me4,
