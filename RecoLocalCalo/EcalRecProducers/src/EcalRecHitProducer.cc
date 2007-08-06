@@ -1,9 +1,9 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.cc,v 1.11 2007/07/31 17:38:32 ferriff Exp $
- *  $Date: 2007/07/31 17:38:32 $
- *  $Revision: 1.11 $
+ *  $Id: EcalRecHitProducer.cc,v 1.12 2007/08/06 14:51:13 innocent Exp $
+ *  $Date: 2007/08/06 14:51:13 $
+ *  $Revision: 1.12 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -146,7 +146,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 	 if(it->amplitude()>0.) 
 	   {
 	     LogDebug("EcalRecHitDebug") << "processed UncalibRecHit with rawId: "
-					     << it->id() << "\n"
+					     << it->id().rawId() << "\n"
 					     << "uncalib rechit amplitude: " << it->amplitude()
 					     << " calib rechit energy: " << aHit.energy()
 	       ;
@@ -183,7 +183,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 	 if(it->amplitude()>0.) 
 	   {
 	     LogDebug("EcalRecHitDebug") << "processed UncalibRecHit with rawId: "
-					     << it->id() << "\n"
+					     << it->id().rawId() << "\n"
 					     << "uncalib rechit amplitude: " << it->amplitude()
 					     << " calib rechit energy: " << aHit.energy()
 	       ;
@@ -191,13 +191,12 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 #endif
        }
      }
-   // put the collection of recunstructed hits in the event
-#ifdef DEBUG   
-   LogDebug("EcalRecHitInfo") << "total # EB calibrated rechits: " << EBrechits->size()
+   // put the collection of recunstructed hits in the event   
+   LogInfo("EcalRecHitInfo") << "total # EB calibrated rechits: " << EBrechits->size()
      ;
-   LogDebug("EcalRecHitInfo") << "total # EE calibrated rechits: " << EErechits->size()
+   LogInfo("EcalRecHitInfo") << "total # EE calibrated rechits: " << EErechits->size()
      ;
-#endif
+
    evt.put( EBrechits, EBrechitCollection_ );
    evt.put( EErechits, EErechitCollection_ );
 } //produce()
