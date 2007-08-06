@@ -20,6 +20,8 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/Random.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <iostream>
 
 namespace {
@@ -169,6 +171,9 @@ void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
     }
     catch ( const SimG4Exception& simg4ex )
     {
+       
+       edm::LogInfo("SimG4CoreApplication") << " SimG4Exception caght !" << simg4ex.what() << std::endl ;
+       
        m_runManager->abortEvent() ;
        throw edm::Exception( edm::errors::EventCorruption ) ;
     }
