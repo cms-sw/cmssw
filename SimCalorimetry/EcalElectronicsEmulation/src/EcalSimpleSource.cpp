@@ -15,20 +15,19 @@ using namespace edm;
 
 bool EcalSimpleSource::produce(edm::Event& evt){
   if(formula_.get()!=0){
-    auto_ptr<EBDigiCollection> digis
-      = auto_ptr<EBDigiCollection>(new EBDigiCollection);
+    auto_ptr<EBDigiCollection> digis(new EBDigiCollection);
     
     digis->reserve(170*360);
     
-    const int nSamples = digis.stride();
+    const int nSamples = digis->stride();
     const int ievt = event();
     for(int iEta0=0; iEta0<170; ++iEta0){
       for(int iPhi0=0; iPhi0<360; ++iPhi0){
 	int iEta1 = cIndex2iEta(iEta0);
 	int iPhi = cIndex2iPhi(iPhi0);
 	if(verbose_) cout << "(" << iEta0 << "," << iPhi0 << "): ";
-	digis.push_back(EBDetId(iEta1,iPhi));
-	DataFrame dframe(digis.back());
+	digis->push_back(EBDetId(iEta1,iPhi));
+	DataFrame dframe(digis->back());
 	
 	for(int t = 0; t < nSamples; ++t){
 	  uint16_t encodedAdc = (uint16_t)formula_->Eval(iEta0, iPhi0, ievt-1, t);
