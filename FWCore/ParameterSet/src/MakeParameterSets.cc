@@ -3,6 +3,7 @@
 #include "FWCore/ParameterSet/interface/ParseTree.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ParameterSet/interface/parse.h"
+#include "FWCore/ParameterSet/src/pythonFileToConfigure.h"
 
 namespace edm
 {
@@ -40,8 +41,10 @@ namespace edm
   {
     if (fileName.size() > 3 && fileName.substr(fileName.size()-3) == ".py") 
     {
-      PythonProcessDesc pythonProcessDesc(fileName);
-      return pythonProcessDesc.processDesc();
+      //PythonProcessDesc pythonProcessDesc(fileName);
+      //return pythonProcessDesc.processDesc();
+      std::string configString(pythonFileToConfigure(fileName)); 
+      return boost::shared_ptr<ProcessDesc>(new ProcessDesc(configString));
     }
     else
     {
