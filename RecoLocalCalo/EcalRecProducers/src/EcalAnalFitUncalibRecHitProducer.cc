@@ -1,9 +1,9 @@
 /** \class EcalAnalFitUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes with the analytical fit method
  *
-  *  $Id: EcalAnalFitUncalibRecHitProducer.cc,v 1.12 2007/03/09 10:15:04 meridian Exp $
-  *  $Date: 2007/03/09 10:15:04 $
-  *  $Revision: 1.12 $
+  *  $Id: EcalAnalFitUncalibRecHitProducer.cc,v 1.13 2007/04/05 13:33:30 meridian Exp $
+  *  $Date: 2007/04/05 13:33:30 $
+  *  $Revision: 1.13 $
   *  \author Shahram Rahatlou, University of Rome & INFN, Sept 2005
   *
   */
@@ -121,7 +121,7 @@ EcalAnalFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup
 
 	 // find pedestals for this channel
 	 LogDebug("EcalUncalibRecHitDebug") << "looking up pedestal for crystal: " << EBDetId(itdg->id()) ;
-	 pedIter = pedMap.find(itdg->id().rawId());
+	 pedIter = pedMap.find(itdg->id());
 	 if( pedIter != pedMap.end() ) {
 	   aped = pedIter->second;
 	 } else {
@@ -136,7 +136,7 @@ EcalAnalFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup
 
 	 // find gain ratios
 	 LogDebug("EcalUncalibRecHitDebug") << "looking up gainRatios for crystal: " << EBDetId(itdg->id()) ;
-	 gainIter = gainMap.find(itdg->id().rawId());
+	 gainIter = gainMap.find(itdg->id());
 	 if( gainIter != gainMap.end() ) {
 	   aGain = gainIter->second;
 	 } else {
@@ -169,7 +169,7 @@ EcalAnalFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup
 
 	 // find pedestals for this channel
 	 LogDebug("EcalUncalibRecHitDebug") << "looking up pedestal for crystal: " << EEDetId(itdg->id()) ;
-	 pedIter = pedMap.find(itdg->id().rawId());
+	 pedIter = pedMap.find(itdg->id());
 	 if( pedIter != pedMap.end() ) {
 	   aped = pedIter->second;
 	 } else {
@@ -183,7 +183,7 @@ EcalAnalFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup
 
 	 // find gain ratios
 	 LogDebug("EcalUncalibRecHitDebug") << "looking up gainRatios for crystal: " << EEDetId(itdg->id()) ;
-	 gainIter = gainMap.find(itdg->id().rawId());
+	 gainIter = gainMap.find(itdg->id());
 	 if( gainIter != gainMap.end() ) {
 	   aGain = gainIter->second;
 	 } else {

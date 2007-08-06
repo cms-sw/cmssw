@@ -1,7 +1,7 @@
 /*
  * \file EcalLocalReco.cc
  *
- * $Id: EcalLocalRecoTask.cc,v 1.2 2006/06/06 16:36:25 meridian Exp $
+ * $Id: EcalLocalRecoTask.cc,v 1.3 2006/10/27 01:35:37 wmtan Exp $
  *
 */
 
@@ -272,7 +272,7 @@ void EcalLocalRecoTask::analyze(const Event& e, const EventSetup& c)
 	{
 	  for (int sample = 0 ; sample < myDigi->size () ; ++sample)
 	    {
-	      double analogSample=myDigi->sample(sample).adc() ;
+	      double analogSample=EcalMGPASample((*myDigi)[sample]).adc() ;
 	      if ( eMax < analogSample )
 		{
 		  eMax = analogSample;
