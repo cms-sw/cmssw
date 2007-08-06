@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.6 2007/07/25 11:41:15 meijer Exp $
+// $Id: MuonIdProducer.cc,v 1.7 2007/07/25 23:45:26 dmytro Exp $
 //
 //
 
@@ -157,7 +157,7 @@ reco::Muon* MuonIdProducer::nextMuon(edm::Event& iEvent, const edm::EventSetup& 
 	 if ( muonCollectionHandle_.isValid() ) {
 	    for( reco::MuonCollection::const_iterator muon = muonCollectionHandle_->begin();
 		 muon != muonCollectionHandle_->end(); ++muon )
-	      if ( muon->track().id() == aMuon->track().id() ) {
+	      if ( muon->track() == aMuon->track() ) {
 		 aMuon->setStandAlone(muon->standAloneMuon());
 		 aMuon->setCombined(muon->combinedMuon());
 		 break;
@@ -166,7 +166,7 @@ reco::Muon* MuonIdProducer::nextMuon(edm::Event& iEvent, const edm::EventSetup& 
 	    if ( linkCollectionHandle_.isValid() )
 	      for( reco::MuonTrackLinksCollection::const_iterator link = linkCollectionHandle_->begin();
 		   link != linkCollectionHandle_->end(); ++link )
-		if ( link->trackerTrack().id() == aMuon->track().id() ) {
+		if ( link->trackerTrack() == aMuon->track() ) {
 		   aMuon->setStandAlone(link->standAloneTrack());
 		   aMuon->setCombined(link->globalTrack());
 		   break;
