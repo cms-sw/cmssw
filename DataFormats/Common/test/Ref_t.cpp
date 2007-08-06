@@ -6,7 +6,6 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/FillView.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
