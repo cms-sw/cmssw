@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTest.cc
  * 
- * $Date: 2007/06/14 17:49:15 $
- * $Revision: 1.8 $
+ * $Date: 2007/06/19 10:20:52 $
+ * $Revision: 1.9 $
  * \author S. Bolognesi - CERN
  *
  */
@@ -39,7 +39,7 @@ DTDataIntegrityTest::DTDataIntegrityTest(const ParameterSet& ps){
 
 DTDataIntegrityTest::~DTDataIntegrityTest(){
 
-  edm::LogVerbatim ("dataIntegrity") << "DataIntegrityTest: analyzed " << nevents << " events";
+  edm::LogVerbatim ("dataIntegrity") << "DataIntegrityTest: analyzed " << nupdates << " updates";
 
 }
 
@@ -47,7 +47,8 @@ void DTDataIntegrityTest::beginJob(const edm::EventSetup& context){
 
   edm::LogVerbatim ("dataIntegrity") << "[DTtTrigCalibrationTest]: BeginJob";
 
-  nevents = 0;
+  nSTAEvents = 0;
+  nupdates = 0;
 }
 
 
@@ -63,7 +64,7 @@ void DTDataIntegrityTest::endJob(){
 
 void DTDataIntegrityTest::bookHistos(string histoType, int dduId){
   stringstream dduId_s; dduId_s << dduId;
-  dbe->setCurrentFolder("DT/Test/FED" + dduId_s.str());
+  dbe->setCurrentFolder("DT/Tests/DTDataIntegrity/FED" + dduId_s.str());
   string histoName;
 
   if(histoType == "TTSValues_Percent"){
@@ -89,7 +90,7 @@ void DTDataIntegrityTest::bookTimeHistos(string histoType, int dduId, int evNumb
   counter = 1;//assuming synchronized booking for all histo VS time
 
   if(histoType == "TTSVSTime"){
-    dbe->setCurrentFolder("DT/Test/FED" + dduId_s.str()+ "/TimeInfo/TTSVSTime");
+    dbe->setCurrentFolder("DT/Tests/DTDataIntegrity/FED" + dduId_s.str()+ "/TimeInfo/TTSVSTime");
     histoName = "FED" + dduId_s.str() + "_" + histoType + "_disconn_Ev" + evNumber_s.str();
     ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,evNumber,evNumber+nTimeBin));
     histoName = "FED" + dduId_s.str() + histoType + "_overflow_Ev" + evNumber_s.str();
@@ -106,17 +107,17 @@ void DTDataIntegrityTest::bookTimeHistos(string histoType, int dduId, int evNumb
     ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,evNumber,evNumber+nTimeBin));
   }
   else if(histoType == "ROSVSTime"){
-    dbe->setCurrentFolder("DT/Test/FED" + dduId_s.str()+ "/TimeInfo/ROSVSTime");
+    dbe->setCurrentFolder("DT/Tests/DTDataIntegrity/FED" + dduId_s.str()+ "/TimeInfo/ROSVSTime");
     histoName = "FED" + dduId_s.str() + "_" + histoType + "_Ev" + evNumber_s.str();
     (dduHistos[histoType])[dduId] = dbe->book1D(histoName,histoName,nTimeBin,evNumber,evNumber+nTimeBin);
   }
   else if(histoType == "EventLenghtVSTime"){
-    dbe->setCurrentFolder("DT/Test/FED" + dduId_s.str()+ "/TimeInfo/EvLenghtVSTime");
+    dbe->setCurrentFolder("DT/Tests/DTDataIntegrity/FED" + dduId_s.str()+ "/TimeInfo/EvLenghtVSTime");
     histoName = "FED" + dduId_s.str() + "_" + histoType + "_Ev" +  evNumber_s.str();
     (dduHistos[histoType])[dduId] = dbe->book1D(histoName,histoName,nTimeBin,evNumber,evNumber+nTimeBin);
   }
   else if(histoType == "FIFOVSTime"){
-    dbe->setCurrentFolder("DT/Test/FED" + dduId_s.str()+ "/TimeInfo/FIFOVSTime");
+    dbe->setCurrentFolder("DT/Tests/DTDataIntegrity/FED" + dduId_s.str()+ "/TimeInfo/FIFOVSTime");
     histoName = "FED" + dduId_s.str() + "_" + histoType + "_Input1_Ev" + evNumber_s.str();
     ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,evNumber,evNumber+nTimeBin));
     histoName = "FED" + dduId_s.str() + "_" + histoType + "_Input2_Ev" + evNumber_s.str();
@@ -137,19 +138,20 @@ void DTDataIntegrityTest::bookTimeHistos(string histoType, int dduId, int evNumb
 
 void DTDataIntegrityTest::analyze(const Event& e, const EventSetup& context){ 
 
-  // counts number of updats (online mode) or number of events (standalone mode)
-  nevents++;
-  // if running in standalone perform diagnostic only after a reasonalbe amount of events
+  nSTAEvents++;
+ // if running in standalone perform diagnostic only after a reasonalbe amount of events
   if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) && 
-       nevents%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;
-
+       nSTAEvents%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;
+  // counts number of updats (online mode) or number of test (standalone mode)
+  nupdates++;
+ 
   int evNumber = e.id().event();
   stringstream evNumber_s; evNumber_s << evNumber;
  
-  edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]: "<<nevents<<" updates";
+  edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]: "<<nupdates<<" updates";
   edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]: "<<evNumber<<" event number";
 
-  if(nevents%nTimeBin == 0){
+  if(nupdates%nTimeBin == 0){
     edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]: saving all histos";
     dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTDataIntegrityTest.root"));
    }
@@ -163,15 +165,16 @@ void DTDataIntegrityTest::analyze(const Event& e, const EventSetup& context){
  
     //Each nTimeBin onUpdate remove timing histos and book a new bunch of them
     stringstream dduId_s; dduId_s << dduId;
-    if(nevents%nTimeBin == 0 && doTimeHisto){
+    if(nupdates%nTimeBin == 1 && doTimeHisto){
       edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]: booking a new bunch of time histos";
-      dbe->rmdir("DT/FED" + dduId_s.str() + "/TimeInfo");
-      (dduVectorHistos.find("TTSVSTime")->second).find(dduId)->second.clear();
+      //if(nupdates>nTimeBin)
+      //dbe->rmdir("DT/Tests/DTDataIntegrity/FED" + dduId_s.str() + "/TimeInfo"); //FIXME: it doesn't work anymore
+      //    (dduVectorHistos.find("TTSVSTime")->second).find(dduId)->second.clear();
       bookTimeHistos("TTSVSTime",dduId, evNumber);
       bookTimeHistos("ROSVSTime",dduId, evNumber);
       bookTimeHistos("EventLenghtVSTime",dduId,evNumber);
       bookTimeHistos("FIFOVSTime",dduId,evNumber);
-  }
+    }
 
     string histoType;
     //1D histo: % of tts values 
@@ -290,7 +293,7 @@ void DTDataIntegrityTest::analyze(const Event& e, const EventSetup& context){
   }
 
   //Save MEs in a root file
-  if ((nevents%parameters.getUntrackedParameter<int>("saveResultsFrequency", 5)==0) && 
+  if ((nupdates%parameters.getUntrackedParameter<int>("saveResultsFrequency", 5)==0) && 
       (parameters.getUntrackedParameter<bool>("writeHisto", true)) ) 
     dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DataIntegrityTest.root"));  
 }

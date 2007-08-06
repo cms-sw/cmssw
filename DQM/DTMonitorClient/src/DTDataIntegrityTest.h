@@ -5,8 +5,8 @@
  * *
  *  DQM Client to check the data integrity
  *
- *  $Date: 2007/05/22 07:00:53 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/05/23 12:36:55 $
+ *  $Revision: 1.4 $
  *  \author S. Bolognesi - INFN TO
  *   
  */
@@ -48,7 +48,8 @@ protected:
 private:
 
   //Number of onUpdates
-  int nevents;
+  int nupdates;
+  int nSTAEvents;
   
   //If you want info VS time histos
   bool doTimeHisto;
