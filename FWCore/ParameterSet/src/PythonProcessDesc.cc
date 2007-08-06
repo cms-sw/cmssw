@@ -68,6 +68,7 @@ boost::shared_ptr<edm::ProcessDesc> PythonProcessDesc::processDesc() const
   {
     result->addService(serviceItr->pset());
   }
+  return result;
 }
  
 
