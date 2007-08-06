@@ -178,7 +178,7 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 						if( slot2sector[sp->header().slot()] ){
 							track.first.m_endcap = slot2sector[sp->header().slot()]/7 + 1;
 							track.first.m_sector = slot2sector[sp->header().slot()];
-							if( track.first.m_sector>6 ) track.first.m_sector -= 6;
+							if(  track.first.m_sector>6 ) track.first.m_sector -= 6;
 						} else {
 							track.first.m_endcap = (sp->header().endcap()?1:2);
 							track.first.m_sector =  sp->header().sector();
@@ -216,7 +216,7 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 													     lct->strip(),lct->pattern(),lct->l_r(),
 													     lct->tbin(),lct->link() ));
 							} catch(cms::Exception &e) {
-								edm::LogInfo("CSCTFUnpacker|produce") << e.what() << "Not adding digi to collection in event"
+								edm::LogInfo("CSCTFUnpacker|produce") << e.what() << "Not adding track digi to collection in event"
 								      <<sp->header().L1A()<<" (endcap="<<track.first.m_endcap<<",station="<<station<<",sector="<<track.first.m_sector<<",subsector="<<subsector<<",cscid="<<lct->csc()<<",spSlot="<<sp->header().slot()<<")";
 							}
 						}
