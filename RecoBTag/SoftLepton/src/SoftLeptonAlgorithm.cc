@@ -28,8 +28,8 @@ SoftLeptonAlgorithm::SoftLeptonAlgorithm( const edm::ParameterSet & iConfig ) :
     m_transientTrackBuilder( NULL ) 
 {
     m_refineJetAxis    = iConfig.getParameter<unsigned int>("refineJetAxis");
-    m_deltaRCut        = iConfig.getParameter<double>("deltaRCut");
-    m_chi2Cut          = iConfig.getParameter<double>("chi2Cut");
+    m_deltaRCut        = iConfig.getParameter<double>("leptonDeltaRCut");
+    m_chi2Cut          = iConfig.getParameter<double>("leptonChi2Cut");
 }
   
 
