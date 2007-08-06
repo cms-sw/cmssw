@@ -4,7 +4,7 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about
 it.
 
-$Id: cmsRun.cpp,v 1.38 2007/07/24 17:49:49 fischler Exp $
+$Id: cmsRun.cpp,v 1.39 2007/08/02 23:16:02 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -188,44 +188,23 @@ int main(int argc, char* argv[])
   }
 #endif
 
-  std::string configstring;
   std::string fileName(vm[kParameterSetOpt].as<std::string>());
-  if (fileName.size() > 3 && fileName.substr(fileName.size()-3) == ".py") {
-    try {
-      configstring = edm::pythonFileToConfigure(fileName);
-    } catch(cms::Exception& iException) {
-      std::string shortDesc("ConfigFileReadError");
-      std::ostringstream longDesc;
-      longDesc << "Python found a problem\n" << iException.what();
-      int exitCode = 7002;
-      jobRep->reportError(shortDesc, longDesc.str(), exitCode);
-      edm::LogSystem(shortDesc) << longDesc.str() << "\n";
-      return exitCode;
-    }
-  } else {
-    std::ifstream configFile(fileName.c_str());
-    if(!configFile) {
-      std::string shortDesc("ConfigFileReadError");
-      std::ostringstream longDesc;
-      longDesc << "Unable to open configuration file "
-        << vm[kParameterSetOpt].as<std::string>();
-      int exitCode = 7002;
-      jobRep->reportError(shortDesc, longDesc.str(), exitCode);
-      edm::LogSystem(shortDesc) << longDesc.str() << "\n";
-      return exitCode;
-    }
-    
-    
-    // Create the several parameter sets that will be used to configure
-    // the program.
-    std::string line;
-    
-    while(std::getline(configFile,line)) {
-      configstring += line; 
-      configstring += "\n"; 
-    }
+  boost::shared_ptr<edm::ProcessDesc> processDesc;
+  try {
+    processDesc = edm::readConfigFile(fileName);
+  }
+  catch(cms::Exception& iException) {
+    std::string shortDesc("ConfigFileReadError");
+    std::ostringstream longDesc;
+    longDesc << "Problem with configuration file " << fileName
+             <<  "\n" << iException.what();
+    int exitCode = 7002;
+    jobRep->reportError(shortDesc, longDesc.str(), exitCode);
+    edm::LogSystem(shortDesc) << longDesc.str() << "\n";
+    return exitCode;
   }
 
+  processDesc->addServices(defaultServices, forcedServices);
   //
   // Decide what mode of hardcoded MessageLogger defaults to use 
   // 
@@ -257,9 +236,8 @@ int main(int argc, char* argv[])
   try {
     std::auto_ptr<edm::EventProcessor> 
 	procP(new 
-	      edm::EventProcessor(configstring, jobReportToken, 
-			     edm::serviceregistry::kTokenOverrides,
-			     defaultServices, forcedServices));
+	      edm::EventProcessor(processDesc, jobReportToken, 
+			     edm::serviceregistry::kTokenOverrides));
     EventProcessorWithSentry procTmp(procP);
     proc = procTmp;
     proc->beginJob();
