@@ -5,7 +5,7 @@
 //----------------------------------------------------------------------
 // Declare functions used to create ParameterSets.
 //
-// $Id: MakeParameterSets.h,v 1.4 2006/04/26 22:00:38 rpw Exp $
+// $Id: MakeParameterSets.h,v 1.5 2007/07/03 00:19:42 rpw Exp $
 //
 //----------------------------------------------------------------------
 
@@ -15,6 +15,7 @@
 #include "boost/shared_ptr.hpp"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ProcessDesc.h"
 
 namespace edm
 {
@@ -39,6 +40,8 @@ namespace edm
 		    boost::shared_ptr<std::vector<ParameterSet> >& serviceparams);
 
 
+  boost::shared_ptr<edm::ProcessDesc> 
+  readConfigFile(const std::string & fileName);
 
 
 } // namespace edm

@@ -1,7 +1,8 @@
 #include "FWCore/ParameterSet/interface/MakeParameterSets.h"
-#include "FWCore/ParameterSet/interface/ProcessDesc.h"
+#include "FWCore/ParameterSet/interface/PythonProcessDesc.h"
 #include "FWCore/ParameterSet/interface/ParseTree.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/ParameterSet/interface/parse.h"
 
 namespace edm
 {
@@ -33,4 +34,20 @@ namespace edm
     serviceparams = processDesc.getServicesPSets();
 
   }
+
+  boost::shared_ptr<ProcessDesc>
+  readConfigFile(const std::string & fileName)
+  {
+    if (fileName.size() > 3 && fileName.substr(fileName.size()-3) == ".py") 
+    {
+      PythonProcessDesc pythonProcessDesc(fileName);
+      return pythonProcessDesc.processDesc();
+    }
+    else
+    {
+      std::string configString(edm::pset::read_whole_file(fileName));
+      return boost::shared_ptr<ProcessDesc>(new ProcessDesc(configString));
+    }
+  }
+
 } // namespace edm
