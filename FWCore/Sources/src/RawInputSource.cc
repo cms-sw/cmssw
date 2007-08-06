@@ -1,8 +1,9 @@
 /*----------------------------------------------------------------------
-$Id: RawInputSource.cc,v 1.12 2007/07/30 04:20:44 wmtan Exp $
+$Id: RawInputSource.cc,v 1.13 2007/07/31 23:58:56 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Sources/interface/RawInputSource.h"
+#include "DataFormats/Provenance/interface/Timestamp.h" 
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"

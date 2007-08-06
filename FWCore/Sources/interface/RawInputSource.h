@@ -2,13 +2,12 @@
 #define FWCore_Sources_RawInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: RawInputSource.h,v 1.4 2007/07/30 04:20:02 wmtan Exp $
+$Id: RawInputSource.h,v 1.5 2007/07/31 23:58:55 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
 #include "boost/shared_ptr.hpp"
 
-#include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
