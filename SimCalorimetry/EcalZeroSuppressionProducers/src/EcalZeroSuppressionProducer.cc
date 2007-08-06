@@ -72,19 +72,19 @@ void EcalZeroSuppressionProducer::produce(edm::Event& event, const edm::EventSet
         
         bool isAccepted = theBarrelZeroSuppressor_.accept(*digiItr, glbBarrelThreshold_);
         if (isAccepted) {
-          (*gzsBarrelDigis).push_back(*digiItr);
+          (*gzsBarrelDigis).push_back(digiItr->id(), digiItr->begin());
         }
         
       }
     edm::LogInfo("ZeroSuppressionInfo") << "EB Digis: " << gzsBarrelDigis->size();
 
 
-    std::vector<EBDataFrame> sortedDigisEB = sorter.sortedVector(*gzsBarrelDigis);
-    LogDebug("ZeroSuppressionDump") << "Top 10 EB digis";
-    for(int i = 0; i < std::min(10,(int) sortedDigisEB.size()); ++i) 
-      {
-        LogDebug("ZeroSuppressionDump") << sortedDigisEB[i];
-      }
+    //std::vector<EBDataFrame> sortedDigisEB = sorter.sortedVector(*gzsBarrelDigis);
+    //LogDebug("ZeroSuppressionDump") << "Top 10 EB digis";
+    //for(int i = 0; i < std::min(10,(int) sortedDigisEB.size()); ++i) 
+    //  {
+    //    LogDebug("ZeroSuppressionDump") << sortedDigisEB[i];
+    //  }
   }
   
   // Endcap zero suppression
@@ -97,18 +97,18 @@ void EcalZeroSuppressionProducer::produce(edm::Event& event, const edm::EventSet
         
         bool isAccepted = theEndcapZeroSuppressor_.accept(*digiItr, glbEndcapThreshold_);
         if (isAccepted) {
-          (*gzsEndcapDigis).push_back(*digiItr);
+          (*gzsEndcapDigis).push_back(digiItr->id(), digiItr->begin());
         }
         
       }
     edm::LogInfo("ZeroSuppressionInfo") << "EB Digis: " << gzsBarrelDigis->size();
     
-    std::vector<EEDataFrame> sortedDigisEE = sorter.sortedVector(*gzsEndcapDigis);
-    LogDebug("ZeroSuppressionDump")  << "Top 10 EE digis";
-    for(int i = 0; i < std::min(10,(int) sortedDigisEE.size()); ++i) 
-      {
-        LogDebug("ZeroSuppressionDump") << sortedDigisEE[i];
-      }
+    //    std::vector<EEDataFrame> sortedDigisEE = sorter.sortedVector(*gzsEndcapDigis);
+    //LogDebug("ZeroSuppressionDump")  << "Top 10 EE digis";
+    //for(int i = 0; i < std::min(10,(int) sortedDigisEE.size()); ++i) 
+    //  {
+    //    LogDebug("ZeroSuppressionDump") << sortedDigisEE[i];
+    //  }
   
   }
   // Step D: Put outputs into event
