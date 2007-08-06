@@ -149,8 +149,7 @@ int EcalSelectiveReadoutSuppressor::internalThreshold(double thresholdInGeV,
 
 //This implementation  assumes that int is coded on at least 28-bits,
 //which in pratice should be always true.
-template<class T>
-bool EcalSelectiveReadoutSuppressor::accept(const T& frame,
+bool EcalSelectiveReadoutSuppressor::accept(edm::DataFrame const & frame,
 					    int thr){
   //FIR filter weights:
   const vector<int>& w = getFIRWeigths();
@@ -165,7 +164,7 @@ bool EcalSelectiveReadoutSuppressor::accept(const T& frame,
   for(int iSample=firstFIRSample-1;
       iSample<lastFIRSample; ++iSample, ++iWeight){
     if(iSample>=0 && iSample < frame.size()){
-      const EcalMGPASample& sample = frame[iSample];
+      EcalMGPASample sample(frame[iSample]);
       if(sample.gainId()!=gain12) gain12saturated = true;
       //LogTrace("DccFir") << (iSample>=firstFIRSample?"+":"") << sample.adc()
       //		 << "*(" << w[iWeight] << ")";
@@ -369,7 +368,7 @@ EcalSelectiveReadoutSuppressor::setTtFlags(const edm::EventSetup& es,
 	
   for(EBDigiCollection::const_iterator it = ebDigis.begin();
       it != ebDigis.end(); ++it){
-    const EBDataFrame& frame = *it;
+    EBDataFrame frame(*it);
     const EcalTrigTowerDetId& ttId = theTriggerMap->towerOf(frame.id());
 //      edm:::LogDebug("TT") << __FILE__ << ":" << __LINE__ << ": " 
 //  	 <<  ((EBDetId&)frame.id()).ieta()
@@ -387,7 +386,7 @@ EcalSelectiveReadoutSuppressor::setTtFlags(const edm::EventSetup& es,
 
   for(EEDigiCollection::const_iterator it = eeDigis.begin();
       it != eeDigis.end(); ++it){
-    const EEDataFrame& frame = *it;
+    EEDataFrame frame(*it);
     const EcalTrigTowerDetId& ttId = theTriggerMap->towerOf(frame.id());
     const int iTTEta0 = iTTEta2cIndex(ttId.ieta());
     const int iTTPhi0 = iTTPhi2cIndex(ttId.iphi());

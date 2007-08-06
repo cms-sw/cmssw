@@ -83,13 +83,12 @@ public:
  private:
 
   /** Returns true if a digi passes the zero suppression.
-   * @param frame, data frame (aka digi). T must be an EEDataFrame
-   * or an EBDataFrame 
+   * @param frame, data frame (aka digi). 
    * @param thr zero suppression threshold in thrUnit.
    * @return true if passed ZS filter, false if failed
    */
-  template<class T>
-  bool accept(const T& frame, int thr);
+  
+  bool accept(const edm::DataFrame& frame, int thr);
   
   /// helpers for constructors  
   /** Initializes ZS threshold and SR classificion to SR ("action") flags
