@@ -408,48 +408,6 @@ namespace edm {
 
 
   // ---------------------------------------------------------------
-  // a bit of a hack to make sure that at least a minimal parameter
-  // set for the message logger is included in the services list
-
-  // Add a service to the services list
-  void adjustForService(std::vector<ParameterSet>& adjust,
-			std::string const& service)
-  {
-    FDEBUG(1) << "Adding default " << service << " Service\n";
-    ParameterSet newpset;
-    newpset.addParameter<std::string>("@service_type",service);
-    adjust.push_back(newpset);
-    // Record this new ParameterSet in the Registry!
-    pset::Registry::instance()->insertMapped(newpset);
-  }
-
-  // Add a service to the services list if it is not already there
-  void adjustForDefaultService(std::vector<ParameterSet>& adjust,
-			       std::string const& service)
-  {
-    typedef std::vector<edm::ParameterSet>::iterator Iter;
-    for(Iter it = adjust.begin(), itEnd = adjust.end(); it != itEnd; ++it) {
-	std::string name = it->getParameter<std::string>("@service_type");
-
-	if (name == service) {
- 
-          // If the service is already there move it to the end so
-          // it will be created before all the others already there
-          // This means we use the order from the default services list
-          // and the parameters from the configuration file
-          while (true) {
-            Iter iterNext = it + 1;
-            if (iterNext == itEnd) return;
-            iter_swap(it, iterNext);
-            ++it;
-          }
-        }
-    }
-    adjustForService(adjust, service);
-  }
-
-
-  // ---------------------------------------------------------------
   boost::shared_ptr<edm::EDLooper> 
   fillLooper(edm::eventsetup::EventSetupProvider& cp,
 			 ParameterSet const& params,
@@ -519,7 +477,9 @@ namespace edm {
     lbp_(),
     looper_()
   {
-    init(config, iToken, iLegacy, defaultServices, forcedServices);
+    boost::shared_ptr<edm::ProcessDesc> processDesc(new edm::ProcessDesc(config));
+    processDesc->addServices(defaultServices, forcedServices);
+    init(processDesc, iToken, iLegacy);
   }
 
   EventProcessor::EventProcessor(std::string const& config,
@@ -553,42 +513,59 @@ namespace edm {
     lbp_(),
     looper_()
   {
-    init(config, ServiceToken(), serviceregistry::kOverlapIsError, defaultServices, forcedServices);
+    boost::shared_ptr<edm::ProcessDesc> processDesc(new edm::ProcessDesc(config));
+    processDesc->addServices(defaultServices, forcedServices);
+    init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
   }
 
+  EventProcessor::EventProcessor(boost::shared_ptr<edm::ProcessDesc> & processDesc,
+                 ServiceToken const& token,
+                 serviceregistry::ServiceLegacy legacy) :
+    preProcessEventSignal(),
+    postProcessEventSignal(),
+    plug_init_(),
+    maxEventsPset_(),
+    maxEventsInput_(-1),
+    actReg_(new ActivityRegistry),
+    wreg_(actReg_),
+    preg_(),
+    serviceToken_(),
+    input_(),
+    schedule_(),
+    esp_(),
+    act_table_(),
+    state_(sInit),
+    event_loop_(),
+    state_lock_(),
+    stop_lock_(),
+    stopper_(),
+    stop_count_(-1),
+    last_rc_(epSuccess),
+    last_error_text_(),
+    id_set_(false),
+    event_loop_id_(),
+    my_sig_num_(getSigNum()),
+    rp_(),
+    lbp_(),
+    looper_()
+  {
+    init(processDesc, token, legacy);
+  }
+
+
   void
-  EventProcessor::init(std::string const& config,
+  EventProcessor::init(boost::shared_ptr<edm::ProcessDesc> & processDesc,
 			ServiceToken const& iToken, 
-			serviceregistry::ServiceLegacy iLegacy,
-		        std::vector<std::string> const& defaultServices,
-			std::vector<std::string> const& forcedServices) {
+			serviceregistry::ServiceLegacy iLegacy) {
     // TODO: Fix const-correctness. The ParameterSets that are
     // returned here should be const, so that we can be sure they are
     // not modified.
 
-    shared_ptr<ParameterSet> parameterSet;
-    shared_ptr<std::vector<ParameterSet> > pServiceSets;
-    makeParameterSets(config, parameterSet, pServiceSets);
+    shared_ptr<ParameterSet> parameterSet = processDesc->getProcessPSet();
+    shared_ptr<std::vector<ParameterSet> > pServiceSets = processDesc->getServicesPSets();
+    //makeParameterSets(config, parameterSet, pServiceSets);
     maxEventsPset_ = parameterSet->getUntrackedParameter<ParameterSet>("maxEvents", ParameterSet());
     maxEventsInput_ = maxEventsPset_.getUntrackedParameter<int>("input", -1);
-
-    // Add the forced and default services to pServiceSets.
-    // In pServiceSets, we want the default services first, then the forced
-    // services, then the services from the configuration.  It is efficient
-    // and convenient to add them in reverse order.  Then after we are done
-    // adding, we reverse the std::vector again to get the desired order.
-    std::reverse(pServiceSets->begin(), pServiceSets->end());
-    for(std::vector<std::string>::const_reverse_iterator j = forcedServices.rbegin(),
-                                            jEnd = forcedServices.rend();
-	 j != jEnd; ++j) {
-      adjustForService(*(pServiceSets.get()), *j);
-    }
-    for(std::vector<std::string>::const_reverse_iterator i = defaultServices.rbegin(),
-                                            iEnd = defaultServices.rend();
-	 i != iEnd; ++i) {
-      adjustForDefaultService(*(pServiceSets.get()), *i);
-    }
-    std::reverse(pServiceSets->begin(), pServiceSets->end());
 
     //create the services
     ServiceToken tempToken(ServiceRegistry::createSet(*pServiceSets, iToken, iLegacy));

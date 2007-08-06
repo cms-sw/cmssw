@@ -32,7 +32,7 @@ problems:
   where does the pluginmanager initialize call go?
 
 
-$Id: EventProcessor.h,v 1.40 2007/07/13 20:23:39 chrjones Exp $
+$Id: EventProcessor.h,v 1.41 2007/08/02 21:02:42 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -54,6 +54,7 @@ $Id: EventProcessor.h,v 1.40 2007/07/13 20:23:39 chrjones Exp $
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EventHelperDescription.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ProcessDesc.h"
 
 namespace edm {
 
@@ -132,6 +133,9 @@ namespace edm {
 			    std::vector<std::string>());
     
 
+    EventProcessor(boost::shared_ptr<edm::ProcessDesc> & processDesc,
+                   ServiceToken const& token,
+                   serviceregistry::ServiceLegacy legacy);
 
     ~EventProcessor();
 
@@ -302,11 +306,9 @@ namespace edm {
 
   private:
     // init() is used by only by constructors
-    void init(std::string const& config,
-		ServiceToken const& token,
-		serviceregistry::ServiceLegacy,
-		std::vector<std::string> const& defaultServices,
-		std::vector<std::string> const& forcedServices);
+    void init(boost::shared_ptr<edm::ProcessDesc> & processDesc,
+              ServiceToken const& token,
+              serviceregistry::ServiceLegacy);
   
     StatusCode processEvents(int & numberEventsToProcess);
     StatusCode processLumis(int & numberEventsToProcess, bool repeatable);
