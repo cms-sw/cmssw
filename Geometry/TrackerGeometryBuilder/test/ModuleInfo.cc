@@ -161,10 +161,10 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   unsigned int tid_r2_sterN = 0;
   unsigned int tid_r3_rphiN = 0;
   unsigned int tobN = 0;
-  unsigned int tob_R12_rphiN = 0;
-  unsigned int tob_R12_sterN = 0;
-  unsigned int tob_R34_rphiN = 0;
-  unsigned int tob_R56_rphiN = 0;
+  unsigned int tob_L12_rphiN = 0;
+  unsigned int tob_L12_sterN = 0;
+  unsigned int tob_L34_rphiN = 0;
+  unsigned int tob_L56_rphiN = 0;
   unsigned int tecN = 0;
   unsigned int tec_r1_rphiN = 0;
   unsigned int tec_r1_sterN = 0;
@@ -330,10 +330,10 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	weight_tob+=weight;
 	activeSurface_tob+=activeSurface;
 	std::string name = modules[i]->name().name();
-	if(name == "TOBActiveRphi0") tob_R12_rphiN++;
-	if(name == "TOBActiveSter0") tob_R12_sterN++;
-	if(name == "TOBActiveRphi2") tob_R34_rphiN++;
-	if(name == "TOBActiveRphi4") tob_R56_rphiN++;
+	if(name == "TOBActiveRphi0") tob_L12_rphiN++;
+	if(name == "TOBActiveSter0") tob_L12_sterN++;
+	if(name == "TOBActiveRphi2") tob_L34_rphiN++;
+	if(name == "TOBActiveRphi4") tob_L56_rphiN++;
 	TOBDetId module(rawid);
 	unsigned int              theLayer  = module.layer();
 	std::vector<unsigned int> theRod    = module.rod();
@@ -539,9 +539,9 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
     4 * tid_r3_rphiN                    ;
   unsigned int chan_tid = apv_tid*chan_per_apv;
   unsigned int apv_tob  = 
-    4 * ( tob_R12_rphiN + tob_R12_sterN ) + 
-    4 * tob_R34_rphiN                     + 
-    6 * tob_R56_rphiN                     ;
+    4 * ( tob_L12_rphiN + tob_L12_sterN ) + 
+    4 * tob_L34_rphiN                     + 
+    6 * tob_L56_rphiN                     ;
   unsigned int chan_tob = apv_tob*chan_per_apv;
   unsigned int apv_tec  = 
     6 * ( tec_r1_rphiN + tec_r1_sterN ) + 
@@ -607,10 +607,10 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   Output << "        APV25s   = " << apv_tid  << std::endl;
   Output << "        channels = " << chan_tid << std::endl;
   Output << " TOB    = " << tobN << std::endl;
-  Output << "   R12 rphi   = " << tob_R12_rphiN << std::endl;
-  Output << "   R12 stereo = " << tob_R12_sterN << std::endl;
-  Output << "   R34        = " << tob_R34_rphiN << std::endl;
-  Output << "   R56        = " << tob_R56_rphiN << std::endl;
+  Output << "   L12 rphi   = " << tob_L12_rphiN << std::endl;
+  Output << "   L12 stereo = " << tob_L12_sterN << std::endl;
+  Output << "   L34        = " << tob_L34_rphiN << std::endl;
+  Output << "   L56        = " << tob_L56_rphiN << std::endl;
   Output << "   Active Silicon Detectors"                    << std::endl;
   Output << "     Weight  = " << weight_tob        << " kg"  << std::endl;
   Output << "     Volume  = " << volume_tob        << " cm3" << std::endl;
