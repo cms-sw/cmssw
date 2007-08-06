@@ -3,11 +3,11 @@
    Implementation of calss ProcessDesc
 
    \author Stefano ARGIRO
-   \version $Id: ProcessDesc.cc,v 1.18 2007/07/23 23:42:35 wmtan Exp $
+   \version $Id: ProcessDesc.cc,v 1.19 2007/08/04 00:00:47 rpw Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.18 2007/07/23 23:42:35 wmtan Exp $";
+static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.19 2007/08/04 00:00:47 rpw Exp $";
 
 
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
@@ -23,6 +23,14 @@ static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.18 2007/07/23 23:42:35 wmta
 
 namespace edm
 {
+  ProcessDesc::ProcessDesc()
+  : validator_(0),
+    pathFragments_(),
+    pset_(new ParameterSet),
+    services_(new std::vector<ParameterSet>()),
+    bookkeeping_()
+  {
+  }
 
   ProcessDesc::~ProcessDesc()
   {

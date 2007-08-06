@@ -16,9 +16,7 @@ namespace edm
   {
 
   public:
-    /// This class was previously just a dumb structure,
-    /// so keep a default ctor in case we have to roll back
-    ProcessDesc() {}
+    ProcessDesc();
 
     /// construct from the configuration language string
     explicit ProcessDesc(const std::string& config);
