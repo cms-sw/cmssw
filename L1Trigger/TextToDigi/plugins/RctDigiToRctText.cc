@@ -29,7 +29,7 @@ RctDigiToRctText::RctDigiToRctText(const edm::ParameterSet& iConfig) :
   }
 
   /// open info|debug file
-  fdebug.open("debug.txt", std::ios::out);
+  fdebug.open("rctdigitorcttext_debug.txt", std::ios::out);
 
 }
 
@@ -58,6 +58,7 @@ RctDigiToRctText::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   /// debug flags and stream
   bool ldebug = false;
   bool debug_NOTEMPTY[18]={0};
+  for(int i=0; i<18; i++) debug_NOTEMPTY[i]=false;
   std::stringstream dstrm;
 
 
@@ -83,7 +84,7 @@ RctDigiToRctText::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if(crate>17 || id > 7)
       throw cms::Exception("RctDigiToRctTextElectronIndexOutBounds") 
 	<< "out of bounds indices  crate:" << crate << "id:" << id << endl;
-    if(data!=0) 
+    if(ldebug&&data!=0) 
       debug_NOTEMPTY[crate] = true;
     dstrm.str("");
     dstrm << "electron " 
@@ -143,7 +144,8 @@ RctDigiToRctText::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       if(ldebug) LogDebug("HFRegions") << dstrm.str();
     }
     
-    if(irgn->et()!=0) debug_NOTEMPTY[crate] = true; //debug
+
+    if(ldebug &&irgn->et()!=0) debug_NOTEMPTY[crate] = true; //debug
     if(debug_NOTEMPTY[crate]) {
       fdebug << "region"
 	     << " bx:"    << nevt 
