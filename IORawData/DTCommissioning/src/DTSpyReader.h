@@ -4,8 +4,8 @@
 /** \class DTSpyReader
  *  Read DT ROS8 raw data files
  *
- *  $Date: 2007/03/12 01:01:57 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/08/03 17:01:51 $
+ *  $Revision: 1.1 $
  *  \author M. Zanetti - INFN Padova
  */
 
@@ -55,7 +55,8 @@ class DTSpyReader : public DaqBaseReader {
   edm::RunNumber_t runNumber;
   edm::EventNumber_t eventNumber;
 
-  bool readFromDMA;
+  bool debug;
+  int dduID; 
 
   static const int dduWordLength = 8;
 

@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/06/25 08:07:52 $
- *  $Revision: 1.12 $
+ *  $Date: 2007/08/03 17:01:51 $
+ *  $Revision: 1.1 $
  *  \author M. Zanetti
  */
 
@@ -33,13 +33,20 @@ using namespace edm;
 DTSpyReader::DTSpyReader(const edm::ParameterSet& pset) : 
   runNumber(1), eventNumber(0) {
 
-  string connectionParameters = pset.getParameter<string>("fileName");
-
+  // instatiating Sandro's spy (My name is Bond, Sandro Bond)
   mySpy = new DTSpy(); 
 
   /// connecting to XDAQ note ("0.0.0.0" = localhost)
+  string connectionParameters = pset.getParameter<string>("connectionParameters");
   mySpy->Connect(connectionParameters.c_str(),10000);  
 
+  cout<<endl;
+  cout<<"DT Local DAQ online spy. Connected to IP "<<connectionParameters.c_str()
+      <<". Waiting for the data to be flushed"<<endl;
+  cout<<endl;
+
+  debug = pset.getUntrackedParameter<bool>("debug",false);
+  dduID = pset.getUntrackedParameter<int32_t>("dduID",770); // NOT needed
 }
 
 
@@ -60,24 +67,33 @@ bool DTSpyReader::fillRawData(EventID& eID, Timestamp& tstamp, FEDRawDataCollect
 
   FEDHeader * dduHeader;
 
-  vector<uint64_t> eventData;  uint64_t word = 0;  int wordCount = 0;
+  vector<uint64_t> eventData;  uint64_t word = 0;  
+  int wordCount = 0; int wordCountCheck = 0;
 
-  bool haederTag = false; bool dataTag = true;
+  bool headerTag = false; bool dataTag = true;
   
-  // getting the data word by word from the file
-  // do it until you get the DDU trailer
+  // Advance at long-word steps until the trailer is reached. 
+  // Skipped whatever else is in the buffer (e.g. another event..)
   while ( !isTrailer(word, dataTag, wordCount) ) {
     
+    // dma gets 4 32-bits words and create a 64 bit one
     word = dmaUnpack(rawDTData32, dataTag);
+
+    if (debug) cout<<"[DTSpyReader]: advancing in the buffer. Step "<<wordCount<<endl;
     
-    // get the DDU header
+    // look for the DDU header
     if (isHeader(word,dataTag)) {
-      haederTag=true;
-      dduHeader = new FEDHeader(reinterpret_cast<const unsigned char*>(&word));      
+      headerTag=true;
+      dduHeader = new FEDHeader(reinterpret_cast<const unsigned char*>(&word));
+      if (debug) cout<<"[DTSpyReader]:  I got the header"<<endl;
     }
 
+    // check whether the first word is a DDU header
+    if ( wordCountCheck > 0 && headerTag ) 
+      cout<<"[DTSpyReader]: WARNING: header still not found!!"<<endl;
+
     // from now on fill the eventData with the ROS data
-    if (haederTag) {
+    if (headerTag) {
       
       // swapping only the 32 bits words
       if (dataTag) swap(word);
@@ -87,8 +103,15 @@ bool DTSpyReader::fillRawData(EventID& eID, Timestamp& tstamp, FEDRawDataCollect
       eventData.push_back(word);
       wordCount++;
     }
+
+    // advancing by 4 32-bits words
+    rawDTData32 += 4;
+
+    // counting the total number of group of 128 bits (=4*32) in the buffer 
+    wordCountCheck++;
   }
  
+
   // Setting the Event ID
   eID = EventID( runNumber, eventNumber);
   
@@ -96,7 +119,8 @@ bool DTSpyReader::fillRawData(EventID& eID, Timestamp& tstamp, FEDRawDataCollect
   int eventDataSize = eventData.size()*dduWordLength;
   
   // Get the FED ID from the DDU 
-  FEDRawData& fedRawData = data->FEDData( dduHeader->sourceID() );
+  if (dduHeader) dduID = dduHeader->sourceID();
+  FEDRawData& fedRawData = data->FEDData( dduID );
   fedRawData.resize(eventDataSize);
   
   copy(reinterpret_cast<unsigned char*>(&eventData[0]),
@@ -118,8 +142,6 @@ void DTSpyReader::swap(uint64_t & word) {
 
 uint64_t DTSpyReader::dmaUnpack(uint32_t* dmaData, bool & isData) {
   
-  uint64_t dduWord = 0;
-
   uint32_t unpackedData[2];
   // adjust 4 32-bits words  into 2 32-bits words
   unpackedData[0] |= dmaData[3] & 0x3ffff;
@@ -131,7 +153,7 @@ uint64_t DTSpyReader::dmaUnpack(uint32_t* dmaData, bool & isData) {
   isData = ( dmaData[0] >> 10 ) & 0x01;
 
   // push_back to a 64 word
-  dduWord = (uint64_t(unpackedData[1]) << 32) | unpackedData[0];
+  uint64_t dduWord = ( uint64_t(unpackedData[1]) << 32 ) | unpackedData[0];
 
   return dduWord;
 }
