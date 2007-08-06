@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2007/04/17 22:46:40 $
- *  $Revision: 1.16 $
+ *  $Date: 2007/04/19 13:28:45 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -46,12 +46,12 @@ DaqSource::DaqSource(const edm::ParameterSet& pset,
   produces<FEDRawDataCollection>();
   
   // Instantiate the requested data source
-  string reader = pset.getParameter<string>("reader");
+  string reader = pset.getUntrackedParameter<string>("readerPluginName");
   
   try{
     reader_=
       DaqReaderPluginFactory::get()->create(reader,
-					    pset.getParameter<ParameterSet>("pset"));
+					    pset.getUntrackedParameter<ParameterSet>("readerPset"));
   }
   catch(edm::Exception &e){
     if(e.category() == "Configuration" && reader_ == 0)
