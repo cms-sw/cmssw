@@ -30,7 +30,7 @@ namespace edm
     pset::Registry* reg = pset::Registry::instance();
 
     pset::loadAllNestedParameterSets(reg, *main);
-
+    serviceparams = processDesc.getServicesPSets();
 
   }
 } // namespace edm
