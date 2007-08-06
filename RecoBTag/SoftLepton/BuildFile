@@ -26,17 +26,4 @@
 <use name=TrackingTools/TransientTrack>
 <use name=boost_regex>
 <use name=rootmath>
-<use name=rootcore>
-<export>
-  <use name=DataFormats/BTauReco>
-  <use name=DataFormats/Common>
-  <use name=DataFormats/GeometryVector>
-  <use name=DataFormats/JetReco>
-  <use name=DataFormats/Provenance>
-  <use name=DataFormats/TrackReco>
-  <use name=DataFormats/VertexReco>
-  <use name=FWCore/Framework>
-  <use name=FWCore/ParameterSet>
-  <use name=RecoBTau/JetTagComputer>
-  <lib name=RecoBTagSoftLepton>
-</export>
+<flags EDM_PLUGIN=1>
