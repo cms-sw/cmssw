@@ -46,8 +46,8 @@ private:
   G4NavigationHistory      fHistory;
 
   DaqMonitorBEInterface* dbe_;
-  std::vector<MonitorElement*> meStep, meCall, meStepCH, meStepNH;
-  std::vector<MonitorElement*> meStepE, meStepG, meStepMu, meStepNu;
+  std::vector<MonitorElement*> meStep, meCall, meStepCH, meStepNH, meStepC;
+  std::vector<MonitorElement*> meStepE, meStepG, meStepMu, meStepNu, meStepN;
 };
 
 #endif
