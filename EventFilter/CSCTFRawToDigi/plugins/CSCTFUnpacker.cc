@@ -146,7 +146,8 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 							int endcap=0, sector=0;
 							if( slot2sector[sp->header().slot()] ){
 								endcap = slot2sector[sp->header().slot()]/7 + 1;
-								sector = slot2sector[sp->header().slot()]%7;
+								sector = slot2sector[sp->header().slot()];
+								if( sector>6 ) sector -= 6;
 							} else {
 								endcap = (sp->header().endcap()?1:2);
 								sector =  sp->header().sector();
@@ -171,14 +172,16 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 						}
 
 					std::vector<CSCSP_SPblock> tracks = sp->record(tbin).tracks();
-					for(std::vector<CSCSP_SPblock>::const_iterator iter=tracks.begin(); iter!=tracks.end(); iter++){
+					unsigned int trkNumber=0;
+					for(std::vector<CSCSP_SPblock>::const_iterator iter=tracks.begin(); iter!=tracks.end(); iter++,trkNumber++){
 						L1CSCTrack track;
 						if( slot2sector[sp->header().slot()] ){
-							track.first.m_endcap = slot2sector[sp->header().slot()]/7;
-							track.first.m_sector = slot2sector[sp->header().slot()]%7;
+							track.first.m_endcap = slot2sector[sp->header().slot()]/7 + 1;
+							track.first.m_sector = slot2sector[sp->header().slot()];
+							if( track.first.m_sector>6 ) track.first.m_sector -= 6;
 						} else {
 							track.first.m_endcap = (sp->header().endcap()?1:2);
-							track.first.m_sector = sp->header().sector();
+							track.first.m_sector =  sp->header().sector();
 						}
 
 						track.first.m_lphi      = iter->phi();
@@ -200,7 +203,7 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 						}
 						track.first.setFineHaloPacked(iter->halo());
 
-						track.first.m_output_link |= iter->MS_id()<<4;
+						track.first.m_winner = iter->MS_id()&(1<<trkNumber);
 
 						std::vector<CSCSP_MEblock> lcts = iter->LCTs();
 
