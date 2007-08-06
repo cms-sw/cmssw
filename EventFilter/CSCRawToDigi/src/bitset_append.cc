@@ -40,7 +40,6 @@ namespace bitset_utilities {
   ///this method takes bitset obj and returns char * array 
   void bitsetToChar(const boost::dynamic_bitset<> & bs, unsigned char * result)
   {
-    std::cout<<"bitset to char size =" << std::dec<<bs.size() <<std::endl;
     for(unsigned i = 0; i < bs.size(); ++i)
       {
         result[i/8] =  (bs[i+7]<<7)+
