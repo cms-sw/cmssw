@@ -11,8 +11,6 @@
 #undef private
 
 #include "FWCore/ServiceRegistry/interface/ServicesManager.h"
-#include "FWCore/ServiceRegistry/interface/ServicePluginFactory.h"
-#include "FWCore/ServiceRegistry/interface/ServiceMakerBase.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include <cppunit/extensions/HelperMacros.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
