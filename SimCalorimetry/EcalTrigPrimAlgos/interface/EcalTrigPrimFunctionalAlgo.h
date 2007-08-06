@@ -59,8 +59,8 @@ class EcalTrigPrimFunctionalAlgo
 
   void run(const EBDigiCollection * col, EcalTrigPrimDigiCollection & result, EcalTrigPrimDigiCollection & resultTcp);
   void run(const EEDigiCollection * col, EcalTrigPrimDigiCollection & result, EcalTrigPrimDigiCollection & resultTcp);
-  void run_part1_EB(EBDigiCollection * col);
-  void run_part1_EE(EEDigiCollection * col);
+  void run_part1_EB(EBDigiCollection const * col);
+  void run_part1_EE(EEDigiCollection const * col);
   template <class Coll> 
   void run_part2(Coll const * col, 
 		 std::vector<std::vector<std::pair<int,std::vector<typename Coll::Digi> > > > &towerMap,
@@ -120,8 +120,8 @@ class EcalTrigPrimFunctionalAlgo
   int nrTowers_;   // nr of towers found by fillmap method
   // data structures kept during the whole run
   std::vector<std::vector<int> > striptp_;
-  std::vector<std::vector<std::pair<int,std::vector<const EBDataFrame> > > > towerMapEB_;
-  std::vector<std::vector<std::pair<int,std::vector<const EEDataFrame> > > > towerMapEE_;
+  std::vector<std::vector<std::pair<int,std::vector<EBDataFrame> > > > towerMapEB_;
+  std::vector<std::vector<std::pair<int,std::vector<EEDataFrame> > > > towerMapEE_;
   std::vector<std::pair<int,EcalTrigTowerDetId> > hitTowers_;
   std::vector<EcalTriggerPrimitiveSample> towtp_;
   std::vector<EcalTriggerPrimitiveSample> towtp2_;
@@ -228,8 +228,9 @@ void  EcalTrigPrimFunctionalAlgo::run_part2(Coll const * col,
   return;
 }
 
-
-template <class T> void EcalTrigPrimFunctionalAlgo::fillMap(const edm::SortedCollection<T> * col, std::vector<std::vector<std::pair<int,std::vector<const T*> > > > &towerMap)
+template <class Coll> 
+void EcalTrigPrimFunctionalAlgo::fillMap(Coll const * col, 
+					 std::vector<std::vector<std::pair<int,std::vector<typename Coll::Digi> > > > &towerMap)
 {
 
   typedef typename Coll::Digi Digi;
