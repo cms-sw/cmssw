@@ -65,13 +65,14 @@ class EcalFenixStrip {
   // process method is splitted in 2 parts:
   //   the first one is templated, the same except input
   //   the second part is slightly different for barrel/endcap
-  template <class T> void process(std::vector<const T *> &, int nrxtals, int stripnr,int townr,int smnr,std::vector<int> & out);
+  template <class T> 
+  void process(std::vector<T> &, int nrxtals, int stripnr,int townr,int smnr,std::vector<int> & out);
   void process_part2_barrel(int smnr, int stripnr,int townr);
 
   void process_part2_endcap(int smnr, int stripnr,int townr);
 
-  int getCrystalNumberInStrip(const EBDataFrame *frame,int crystalIndexinStrip); //2nd argument dummy forEB 
-  int getCrystalNumberInStrip(const EEDataFrame *frame,int crystalIndexinStrip); 
+  int getCrystalNumberInStrip(const EBDataFrame &frame, int crystalIndexinStrip); //2nd argument dummy forEB 
+  int getCrystalNumberInStrip(const EEDataFrame &frame, int crystalIndexinStrip); 
        
 
   // getters for the algorithms  ;
@@ -87,20 +88,21 @@ class EcalFenixStrip {
   EcalFenixStripFgvbEE *getFGVB()      const { return fgvbEE_;}
 
   // ========================= implementations ==============================================================
-  void process(std::vector<const EBDataFrame *> &samples, int nrXtals, int stripnr,int townr, int smnr,std::vector<int> &out){
+  void process(std::vector<EBDataFrame> &samples, int nrXtals, int stripnr,int townr, int smnr,std::vector<int> &out){
     process_part1(samples,nrXtals,smnr,stripnr,townr);//templated part
     process_part2_barrel(smnr,stripnr,townr);//part different for barrel/endcap
     out=format_out_;
   }
-  void  process(std::vector<const EEDataFrame *> &samples, int nrXtals, int stripnr,int townr, int &sectorNr, std::vector<int> & out){
+
+  void  process(std::vector<EEDataFrame> &samples, int nrXtals, int stripnr,int townr, int &sectorNr, std::vector<int> & out){
 
     process_part1(samples,nrXtals,sectorNr,stripnr,townr); //templated part
     process_part2_endcap(sectorNr,stripnr,townr);
     out=format_out_;
-    return;
   }
 
-  template <class T> void  process_part1(std::vector<const T *> & df,int nrXtals, int smnr, int stripnr, int townr)
+  template <class T> 
+  void  process_part1(std::vector<T> & df,int nrXtals, int smnr, int stripnr, int townr)
     {
   
       if(debug_)  std::cout<<"\n\nEcalFenixStrip input is a vector of size: "<<nrXtals<< std::endl;
@@ -110,19 +112,20 @@ class EcalFenixStrip {
 	if(debug_){
 	  std::cout<<std::endl;
 	  std::cout <<"cryst= "<<cryst<<" EBDataFrame/EEDataFrame is: "<<std::endl; 
-	  for ( int i = 0; i<df[cryst]->size();i++){
-	    std::cout <<" "<<std::dec<<(*df[cryst])[i].adc();
+	  for ( int i = 0; i<df[cryst].size();i++){
+	    std::cout <<" "<<std::dec<<(df[cryst])[i].adc();
 	  }
 	  std::cout<<std::endl;
 	}
 	// call linearizer
 	int crystalNumberInStrip=getCrystalNumberInStrip(df[cryst],cryst);
 	this->getLinearizer(cryst)->setParameters(smnr, townr, stripnr, crystalNumberInStrip) ; 
-	this->getLinearizer(cryst)->process(*(df[cryst]),lin_out_[cryst]);
+	this->getLinearizer(cryst)->process(df[cryst],lin_out_[cryst]);
       }
 
       if(debug_){
-	std::cout<< "output of linearizer is a vector of size: "<<std::dec<<lin_out_.size()<<" of which used "<<nrXtals<<std::endl; 
+	std::cout<< "output of linearizer is a vector of size: "
+		 <<std::dec<<lin_out_.size()<<" of which used "<<nrXtals<<std::endl; 
 	for (int ix=0;ix<nrXtals;ix++){
 	  std::cout<< "cryst: "<<ix<<"  value : "<<std::dec<<std::endl;
 	  std::cout<<" lin_out[ix].size()= "<<std::dec<<lin_out_[ix].size()<<std::endl;

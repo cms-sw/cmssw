@@ -33,7 +33,7 @@ EcalFenixTcp::EcalFenixTcp(const EcalTPParameters * ecaltpp,bool tcpFormat, bool
     delete fgvbEE_;
   }
 //-----------------------------------------------------------------------------------------  
-void EcalFenixTcp::process(std::vector <const EBDataFrame *> &bid,             //dummy argument for template call 
+void EcalFenixTcp::process(std::vector <EBDataFrame> &,             //dummy argument for template call 
 			   std::vector<std::vector<int> > & tpframetow, int nStr,
 			   std::vector< EcalTriggerPrimitiveSample> & tptow,
 			   std::vector< EcalTriggerPrimitiveSample> & tptow2,
@@ -46,7 +46,7 @@ void EcalFenixTcp::process(std::vector <const EBDataFrame *> &bid,             /
 }
  
 //-----------------------------------------------------------------------------------------  
-void EcalFenixTcp::process(std::vector <const EEDataFrame *> &bid,  //dummy argument for template call 
+void EcalFenixTcp::process(std::vector <EEDataFrame> &,  //dummy argument for template call 
 			   std::vector<std::vector<int> > & tpframetow, int nStr,
 			   std::vector< EcalTriggerPrimitiveSample> & tptow,
 			   std::vector< EcalTriggerPrimitiveSample> & tptow2,

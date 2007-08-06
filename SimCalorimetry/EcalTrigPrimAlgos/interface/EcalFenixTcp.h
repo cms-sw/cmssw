@@ -45,12 +45,12 @@ class EcalFenixTcp {
   EcalFenixTcp(const EcalTPParameters *,bool tcpFormat, bool debug, bool famos, int binOfMax, int maxNrSamples);
   virtual ~EcalFenixTcp() ;
 
-  void process(std::vector <const EBDataFrame *> &bid,             //dummy argument for template call 
+  void process(std::vector <EBDataFrame> &bid,             //dummy argument for template call 
 	       std::vector<std::vector<int> > & tpframetow, int nStr,
 	       std::vector< EcalTriggerPrimitiveSample> & tptow,
 	       std::vector< EcalTriggerPrimitiveSample> & tptow2,
 	       int SM, int towerInSM);
-  void process(std::vector <const EEDataFrame *> &bid,             //dummy argument for template call 
+  void process(std::vector <EEDataFrame> &bid,             //dummy argument for template call 
 	       std::vector<std::vector<int> > & tpframetow, int nStr,
 	       std::vector< EcalTriggerPrimitiveSample> & tptow,
 	       std::vector< EcalTriggerPrimitiveSample> & tptow2,
