@@ -1,7 +1,8 @@
 #include "SimG4Core/Generators/interface/Generator.h"
 #include "SimG4Core/Generators/interface/HepMCParticle.h"
 
-#include "FWCore/Utilities/interface/Exception.h"
+// #include "FWCore/Utilities/interface/Exception.h"
+#include "SimG4Core/Notification/interface/SimG4Exception.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -48,9 +49,15 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 {
 
   //protection against empty events
-  if ( *(evt_orig->vertices_begin()) == 0 ) 
-    throw cms::Exception("EventCorruption") << "Input GenEvent with no vertex \n" ;
+  //if ( *(evt_orig->vertices_begin()) == 0 ) 
+  //  throw cms::Exception("EventCorruption") << "Input GenEvent with no vertex \n" ;
 
+  if ( *(evt_orig->vertices_begin()) == 0 )
+  {
+     throw SimG4Exception( "SimG4CoreGenerator: Corrupted Event - GenEvent with no vertex" ) ;
+  }
+  
+  
   HepMC::GenEvent* evt = new HepMC::GenEvent(*evt_orig) ;
     
   //M. Vander Donckt : modified to take the generator event weight  
