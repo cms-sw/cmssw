@@ -12,8 +12,11 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Fri Jul 14 19:46:30 EDT 2006
-// $Id: L1ParticleMap.h,v 1.25 2007/07/14 19:03:25 wsun Exp $
+// $Id: L1ParticleMap.h,v 1.26 2007/07/31 15:20:14 ratnik Exp $
 // $Log: L1ParticleMap.h,v $
+// Revision 1.26  2007/07/31 15:20:14  ratnik
+// QA campaign: include cleanup based on CMSSW_1_7_X_2007-07-30-1600 includechecker results.
+//
 // Revision 1.25  2007/07/14 19:03:25  wsun
 // Added diffractive triggers from X. Rouby and S. Ovyn.
 //
@@ -95,11 +98,15 @@
 #include <string>
 
 // user include files
-#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h" 
-#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h" 
-#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h" 
+#include "DataFormats/L1Trigger/interface/L1EmParticle.h" 
+#include "DataFormats/L1Trigger/interface/L1JetParticle.h" 
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h" 
+/* #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"  */
+/* #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"  */
+/* #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"  */
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
-#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h" 
+/* #include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"  */
+#include "DataFormats/L1Trigger/interface/L1ParticleMapFwd.h" 
 
 // forward declarations
 
@@ -171,11 +178,14 @@ namespace l1extra {
 	    kHTT300,
 	    kHTT400,
 	    kHTT500,
+	    kETM10,
+	    kETM15,
 	    kETM20,
 	    kETM30,
 	    kETM40,
 	    kETM50,
 	    kETM60,
+	    kETT60,
 	    kDoubleMu3,
 	    kDoubleIsoEG8,
 	    kDoubleIsoEG10,
@@ -243,7 +253,7 @@ namespace l1extra {
 	    kDoubleTauJet40_ETM20,
 	    kQuadJet30,
             kExclusiveDoubleIsoEG6,
-            kExclusiveDoubleJet10,
+            kExclusiveDoubleJet50,
             kExclusiveJet20_Gap_Jet20,
             kIsoEG15_Jet20_ForJet10,
 	    kMinBias_HTT10,
