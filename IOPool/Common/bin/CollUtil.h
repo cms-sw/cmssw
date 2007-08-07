@@ -4,7 +4,6 @@
 #include <vector>
 #include <string>
 
-#include "TFile.h"
 #include "TTree.h"
 
 namespace edm {

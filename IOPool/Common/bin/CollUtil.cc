@@ -1,17 +1,16 @@
 #include "IOPool/Common/bin/CollUtil.h"
+#include "TFile.h" 
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 //#include "DataFormats/Common/interface/EDProduct.h"
 
 #include <iostream>
-#include <string>
 
 #include "TObject.h"
 #include "TKey.h"
 #include "TList.h"
 #include "TIterator.h"
-#include "TTree.h"
 #include "TBranch.h"
 
 namespace edm {
