@@ -57,7 +57,8 @@ void EcalTrigPrimProducer::beginJob(edm::EventSetup const& setup) {
     for (edm::ProductRegistry::ProductList::const_iterator it =  reg->productList().begin();
 	 it != reg->productList().end(); ++it) {
       edm::BranchDescription desc = it->second;
-      if (!desc.friendlyClassName().compare(0,18,"EBDataFramesSorted")  & desc.moduleLabel()==label_ ) {
+      if (desc.friendlyClassName().find("EBDigiCollection")==0  &&
+	  desc.moduleLabel()==label_ ) {
 	edm::ParameterSet result = getParameterSet(desc.psetID());
         binOfMaximum_=result.getParameter<int>("binOfMaximum");
 	break;
@@ -67,7 +68,7 @@ void EcalTrigPrimProducer::beginJob(edm::EventSetup const& setup) {
   catch(cms::Exception& e) {
     // segv in case product was found but not parameter..
     //FIXME: something wrong, binOfMaximum comes from somewhere else
-    edm::LogWarning("EcalTPG")<<"Could not find parameter binOfMaximum in  product registry for EBDataFramesSorted, had to set binOfMaximum by  Hand";
+    edm::LogWarning("EcalTPG")<<"Could not find parameter binOfMaximum in  product registry for EBDigiCollection, had to set binOfMaximum by  Hand";
     binOfMaximum_=6;
   }
 
