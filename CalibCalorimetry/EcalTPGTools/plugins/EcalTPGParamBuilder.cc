@@ -350,6 +350,18 @@ void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
 
   create_header(out_fileEB_, "EB") ; 
   create_header(out_fileEE_, "EE") ; 
+
+  (*out_fileEB_)<<"PHYSICS "<<std::endl ;
+  (*out_fileEB_)<<Et_sat_<<" "<<TTF_lowThreshold_EB_<<" "<<TTF_highThreshold_EB_<<std::endl ;
+  (*out_fileEB_)<<FG_lowThreshold_EB_<<" "<<FG_highThreshold_EB_<<" "
+		<<FG_lowRatio_EB_<<" "<<FG_highRatio_EB_<<std::endl ;
+  (*out_fileEB_) <<std::endl ;
+
+  (*out_fileEE_)<<"PHYSICS "<<std::endl ;
+  (*out_fileEE_)<<Et_sat_<<" "<<TTF_lowThreshold_EE_<<" "<<TTF_highThreshold_EE_<<std::endl ;
+  (*out_fileEE_)<<FG_Threshold_EE_<<" "<<-1<<" "
+		<<-1<<" "<<-1<<std::endl ;
+  (*out_fileEE_) <<std::endl ;
 }
 
 
@@ -400,7 +412,9 @@ void EcalTPGParamBuilder::create_header(std::ofstream * out_file, std::string su
   (*out_file) <<"COMMENT ================================="<<std::endl ;
   (*out_file) <<"COMMENT           physics structure"<<std::endl ;
   (*out_file) <<"COMMENT"<<std::endl ;
-  (*out_file) <<"COMMENT  xtalLSB (GeV), EtSaturation (GeV), ttf_threshold_Low (GeV), ttf_threshold_High (GeV)"<<std::endl ;
+  (*out_file) <<"COMMENT  EtSaturation (GeV), ttf_threshold_Low (GeV), ttf_threshold_High (GeV)"<<std::endl ;
+  if (subdet=="EB") (*out_file) <<"COMMENT  FG_lowThreshold (GeV), FG_highThreshold (GeV), FG_lowRatio, FG_highRatio"<<std::endl ;
+  else if (subdet=="EE") (*out_file) <<"COMMENT  FG_Threshold (GeV), dummy, dummy, dummy"<<std::endl ;
   (*out_file) <<"COMMENT ================================="<<std::endl ;
   (*out_file) <<"COMMENT"<<std::endl ;
   (*out_file) <<"COMMENT ================================="<<std::endl ;
