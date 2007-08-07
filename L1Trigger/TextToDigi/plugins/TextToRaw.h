@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: TextToRaw.h,v 1.7 2007/06/13 17:00:40 jbrooke Exp $
+// $Id: TextToRaw.h,v 1.2 2007/06/13 17:10:01 jbrooke Exp $
 //
 //
 
@@ -60,6 +60,10 @@ class TextToRaw : public edm::EDProducer {
   // array to store the data
   static const int EVT_MAX_SIZE=1024;
   char data_[EVT_MAX_SIZE];
+
+  int fileEventOffset_;
+  int nevt_;
+  void putEmptyDigi(edm::Event&);
 
 };
 
