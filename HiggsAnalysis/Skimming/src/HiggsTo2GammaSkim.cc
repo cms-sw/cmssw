@@ -37,11 +37,9 @@ HiggsTo2GammaSkim::HiggsTo2GammaSkim(const edm::ParameterSet& pset) {
 
   // Reconstructed objects
   thePhotonLabel     = pset.getParameter<edm::InputTag>("PhotonCollectionLabel");
-//  thePhotonLabel     = pset.getParameter<std::string>("PhotonCollectionLabel");
 
   // Minimum Pt for photons for skimming
   photon1MinPt       = pset.getParameter<double>("photon1MinimumPt");
-  photon2MinPt       = pset.getParameter<double>("photon2MinimumPt"); 
   nPhotonMin         = pset.getParameter<int>("nPhotonMinimum");
 
 
@@ -71,7 +69,6 @@ bool HiggsTo2GammaSkim::filter(edm::Event& event, const edm::EventSetup& setup )
 
   bool keepEvent    = false;
   int  nPhotons     = 0;
-  int  nHighPhotons = 0;  
 
   // Look at photons:
 
@@ -80,7 +77,6 @@ bool HiggsTo2GammaSkim::filter(edm::Event& event, const edm::EventSetup& setup )
     edm::Handle<reco::PhotonCollection> photonHandle;
 
     event.getByLabel(thePhotonLabel.label(),photonHandle);
-    // event.getByLabel(thePhotonLabel, photonHandle);
     const reco::PhotonCollection* phoCollection = photonHandle.product();
 
     reco::PhotonCollection::const_iterator photons;
@@ -93,20 +89,16 @@ bool HiggsTo2GammaSkim::filter(edm::Event& event, const edm::EventSetup& setup )
     for ( photons = phoCollection->begin(); photons != phoCollection->end(); ++photons ) {
       float et_p = photons->et(); 
       if ( et_p > photon1MinPt) nPhotons++;
-      if ( et_p > photon2MinPt) nHighPhotons++; 
-      if ( debug ) edm::LogInfo("HiggsTo2GammaSkim") << "Photon pt " << et_p << std::endl;
     }
   }
   
   catch (...) {
-    edm::LogError("HiggsTo2GammaSkim") << "Warning: cannot get collection with label " 
-					   << thePhotonLabel;
+    return false;
   }
 
   
   // Make decision:
-  if ( nPhotons >= nPhotonMin && nHighPhotons >= 1 ) keepEvent = true;
-  if ( debug ) edm::LogInfo("HiggsTo2GammaSkim") << "n photons " << nPhotons << std::endl;
+  if ( nPhotons >= nPhotonMin ) keepEvent = true;
 
   if (keepEvent) nSelectedEvents++;
 
