@@ -36,7 +36,7 @@ TtGenEventReco::produce(edm::Event& evt, const edm::EventSetup& setup)
   std::vector<const reco::Candidate*> initParts;
   CandidateCollection::const_iterator top=inits->begin();
   for( ; top!=inits->end(); ++top){
-    if( status( *top )==TopDecayID::status && abs( top->pdgId() )==TopDecayID::tID ){
+    if( top->status()==TopDecayID::status && abs( top->pdgId() )==TopDecayID::tID ){
        fillInitialPartons( &(*top), initParts );
       break;
     }

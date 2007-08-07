@@ -21,7 +21,8 @@ StGenEventReco::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // search top quarks
    vector<const reco::Candidate *> tvec;
    for( size_t p=0; (p<genParticles->size() && tvec.size()<1); p++) {
-     if(status((*genParticles)[p]) == 3 && abs((*genParticles)[p].pdgId()) == 6) tvec.push_back(&((*genParticles)[p]));
+     //if(status((*genParticles)[p]) == 3 && abs((*genParticles)[p].pdgId()) == 6) tvec.push_back(&((*genParticles)[p]));
+     if((*genParticles)[p].status() == 3 && abs((*genParticles)[p].pdgId()) == 6) tvec.push_back(&((*genParticles)[p]));
    }
    cout<<"found "<<tvec.size()<<" top quarks..."<<endl; 
    /*
@@ -35,8 +36,8 @@ StGenEventReco::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if(tvec.size() == 1){
      for( size_t t=0; t<tvec.size(); t++) {
        for( size_t d=0; d<tvec[t]->numberOfDaughters(); d++) {
-         if(status(*tvec[t]->daughter(d)) == 3 && abs(tvec[t]->daughter(d)->pdgId()) == 24) Wvec.push_back(tvec[t]->daughter(d));
-         if(status(*tvec[t]->daughter(d)) == 3 && abs(tvec[t]->daughter(d)->pdgId()) ==  5) bvec.push_back(tvec[t]->daughter(d));
+         if((*tvec[t]->daughter(d)).status() == 3 && abs(tvec[t]->daughter(d)->pdgId()) == 24) Wvec.push_back(tvec[t]->daughter(d));
+         if((*tvec[t]->daughter(d)).status() == 3 && abs(tvec[t]->daughter(d)->pdgId()) ==  5) bvec.push_back(tvec[t]->daughter(d));
        }
      }
    }
@@ -50,8 +51,8 @@ StGenEventReco::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      for( size_t w=0; w<tvec.size(); w++) {
        for( size_t d=0; d<Wvec[w]->numberOfDaughters(); d++) {
 	 //         if(status(*Wvec[w]->daughter(d)) == 3 && abs(Wvec[w]->daughter(d)->pdgId()) < 5) {qvec.push_back(Wvec[w]->daughter(d)); Whadr = w;};
-         if(status(*Wvec[w]->daughter(d)) == 3 && abs(Wvec[w]->daughter(d)->pdgId()) ==  11 || abs(Wvec[w]->daughter(d)->pdgId()) ==  13 || abs(Wvec[w]->daughter(d)->pdgId()) ==  15) lvec.push_back(Wvec[w]->daughter(d));
-         if(status(*Wvec[w]->daughter(d)) == 3 && abs(Wvec[w]->daughter(d)->pdgId()) ==  12 || abs(Wvec[w]->daughter(d)->pdgId()) ==  14 || abs(Wvec[w]->daughter(d)->pdgId()) ==  16) nvec.push_back(Wvec[w]->daughter(d));
+         if((*Wvec[w]->daughter(d)).status() == 3 && abs(Wvec[w]->daughter(d)->pdgId()) ==  11 || abs(Wvec[w]->daughter(d)->pdgId()) ==  13 || abs(Wvec[w]->daughter(d)->pdgId()) ==  15) lvec.push_back(Wvec[w]->daughter(d));
+         if((*Wvec[w]->daughter(d)).status() == 3 && abs(Wvec[w]->daughter(d)->pdgId()) ==  12 || abs(Wvec[w]->daughter(d)->pdgId()) ==  14 || abs(Wvec[w]->daughter(d)->pdgId()) ==  16) nvec.push_back(Wvec[w]->daughter(d));
        }
      }
    } 
@@ -62,7 +63,7 @@ StGenEventReco::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    vector<const reco::Candidate *> qvec;
    if (Wvec.size() ==1 && tvec.size() ==1) {
      for( size_t p=0; p<genParticles->size(); p++) {
-       if(status((*genParticles)[p]) == 3 && abs((*genParticles)[p].pdgId()) <4) {
+       if((*genParticles)[p].status() == 3 && abs((*genParticles)[p].pdgId()) <4) {
 	 // check that it's not a daughter of a W:
 	 bool veto=false;
 	 for( size_t d=0; d<Wvec[0]->numberOfDaughters(); d++) {
