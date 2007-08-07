@@ -5,6 +5,7 @@
 #include "FWCore/ParameterSet/interface/parse.h"
 #include "FWCore/ParameterSet/src/pythonFileToConfigure.h"
 
+#include <iostream>
 namespace edm
 {
 
@@ -19,19 +20,9 @@ namespace edm
 		    boost::shared_ptr<ParameterSet>& main,
 		    boost::shared_ptr<std::vector<ParameterSet> >& serviceparams)
   {
-    // Handle 'include' statements in a pre-processing step.
-    //std::string finalConfigDoc;
-    //edm::pset::ConfigurationPreprocessor preprocessor;
-    //preprocessor.process(configtext, finalConfigDoc);
     edm::ProcessDesc processDesc(configtext);
-    //edm::ProcessDesc processDesc( finalConfigDoc);
 
     main = processDesc.getProcessPSet();
-
-    // Load every ParameterSet into the Registry
-    pset::Registry* reg = pset::Registry::instance();
-
-    pset::loadAllNestedParameterSets(reg, *main);
     serviceparams = processDesc.getServicesPSets();
 
   }
@@ -41,10 +32,10 @@ namespace edm
   {
     if (fileName.size() > 3 && fileName.substr(fileName.size()-3) == ".py") 
     {
-      //PythonProcessDesc pythonProcessDesc(fileName);
-      //return pythonProcessDesc.processDesc();
-      std::string configString(pythonFileToConfigure(fileName)); 
-      return boost::shared_ptr<ProcessDesc>(new ProcessDesc(configString));
+      PythonProcessDesc pythonProcessDesc(fileName);
+      return pythonProcessDesc.processDesc();
+      //std::string configString(pythonFileToConfigure(fileName)); 
+      //return boost::shared_ptr<ProcessDesc>(new ProcessDesc(configString));
     }
     else
     {

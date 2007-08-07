@@ -3,11 +3,11 @@
    Implementation of calss ProcessDesc
 
    \author Stefano ARGIRO
-   \version $Id: ProcessDesc.cc,v 1.20 2007/08/06 18:32:29 rpw Exp $
+   \version $Id: ProcessDesc.cc,v 1.21 2007/08/06 22:18:06 rpw Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.20 2007/08/06 18:32:29 rpw Exp $";
+static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.21 2007/08/06 22:18:06 rpw Exp $";
 
 
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
@@ -30,6 +30,7 @@ namespace edm
     services_(new std::vector<ParameterSet>()),
     bookkeeping_()
   {
+  //TODO load the reigstry once the pset is filled
   }
 
   ProcessDesc::~ProcessDesc()
@@ -99,6 +100,11 @@ namespace edm
 		  std::ostream_iterator<std::string>(std::cerr,","));
 	std::cerr << "\n";
       }
+
+
+    // Load every ParameterSet into the Registry
+    pset::Registry* reg = pset::Registry::instance();
+    pset::loadAllNestedParameterSets(reg, *pset_);
 
     // It is very important that the @trigger_paths parameter set only
     // contain one parameter because the streamer input module needs to
