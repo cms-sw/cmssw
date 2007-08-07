@@ -1,13 +1,13 @@
 /** \file
  *  See header file for a description of this class.
  *
- *  $Date: 2006/04/12 17:52:40 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/07/26 07:22:36 $
+ *  $Revision: 1.5 $
  *  \author G. Cerminara - INFN Torino
  */
 
-#include <iostream>
 #include <DataFormats/MuonDetId/interface/DTChamberId.h>
+#include <DataFormats/MuonDetId/interface/MuonSubdetId.h> 
 #include <FWCore/Utilities/interface/Exception.h>
 
 using namespace std;

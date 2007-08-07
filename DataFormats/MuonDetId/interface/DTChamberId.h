@@ -4,12 +4,11 @@
 /** \class DTChamberId
  *  DetUnit identifier for DT chambers.
  *  
- *  $Date: 2006/07/31 21:22:16 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/07/26 07:20:15 $
+ *  $Revision: 1.8 $
  *  \author Stefano ARGIRO & G. Cerminara
  */
 
-#include <DataFormats/MuonDetId/interface/MuonSubdetId.h>
 #include <DataFormats/DetId/interface/DetId.h>
 
 #include <iosfwd>

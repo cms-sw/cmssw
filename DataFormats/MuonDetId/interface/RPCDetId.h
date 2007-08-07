@@ -5,13 +5,12 @@
  * 
  *  DetUnit identifier for RPCs
  *
- *  $Date: 2006/12/30 09:32:54 $
- *  \version $Id: RPCDetId.h,v 1.19 2006/12/30 09:32:54 mmaggi Exp $
- *  $Revision: 1.19 $
+ *  $Date: 2007/07/26 07:20:15 $
+ *  \version $Id: RPCDetId.h,v 1.20 2007/07/26 07:20:15 innocent Exp $
+ *  $Revision: 1.20 $
  *  \author Ilaria Segoni
  */
 
-#include <DataFormats/MuonDetId/interface/MuonSubdetId.h>
 #include <DataFormats/DetId/interface/DetId.h>
 #include <FWCore/Utilities/interface/Exception.h>
 
