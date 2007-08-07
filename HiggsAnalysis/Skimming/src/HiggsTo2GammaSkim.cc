@@ -92,10 +92,10 @@ bool HiggsTo2GammaSkim::filter(edm::Event& event, const edm::EventSetup& setup )
     }
   }
   
-  catch (...) {
-    return false;
+  catch (const edm::Exception& e) {
+    //wrong reason for exception
+    if ( e.categoryCode() != edm::errors::ProductNotFound ) throw;
   }
-
   
   // Make decision:
   if ( nPhotons >= nPhotonMin ) keepEvent = true;

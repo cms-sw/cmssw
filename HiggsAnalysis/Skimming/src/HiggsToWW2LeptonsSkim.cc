@@ -3,8 +3,8 @@
  *  
  *  This class is an EDFilter for HWW events
  *
- *  $Date: 2007/08/05 22:04:26 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/08/05 22:09:26 $
+ *  $Revision: 1.6 $
  *
  *  \author Ezio Torassa  -  INFN Padova
  *
@@ -62,7 +62,7 @@ void HiggsToWW2LeptonsSkim::endJob()
 	    << std::endl;
 }
 
-// ------------ method called to skim the data  ------------
+
 bool HiggsToWW2LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& iSetup)
 {
 
@@ -91,12 +91,11 @@ bool HiggsToWW2LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& iSe
         if ( muons->pt() > diTrackPtMin_ ) nTrackOver2ndCut++; 
       }
     }
-  }  
-  catch (...) {
-    edm::LogError("HiggsToWW2LeptonsSkim") << "Warning: cannot get collection with label "
-                                           << theGLBMuonLabel.label();
+  } 
+  catch (const edm::Exception& e) {
+    //wrong reason for exception
+    if ( e.categoryCode() != edm::errors::ProductNotFound ) throw;
   }
-
 
   // Now look at electrons:
 
@@ -118,11 +117,10 @@ bool HiggsToWW2LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& iSe
       }
     }
   }
-  catch (...) {
-    edm::LogError("HiggsToWW2LeptonsSkim") << "Warning: cannot get collection with label "
-                                           << thePixelGsfELabel.label();
+  catch (const edm::Exception& e) {
+    //wrong reason for exception
+    if ( e.categoryCode() != edm::errors::ProductNotFound ) throw;
   }
-
 
 
 /*

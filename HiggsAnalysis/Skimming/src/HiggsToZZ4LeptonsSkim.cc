@@ -89,9 +89,9 @@ bool HiggsToZZ4LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& set
     }  
   } 
   
-  catch (...) {
-    edm::LogError("HiggsToZZ4LeptonsSkim") << "Warning: cannot get collection with label " 
-			    		   << theGLBMuonLabel.label();
+  catch (const edm::Exception& e) {
+    //wrong reason for exception
+    if ( e.categoryCode() != edm::errors::ProductNotFound ) throw;    
   }
 
 
@@ -113,12 +113,11 @@ bool HiggsToZZ4LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& set
       if ( et_e > elecMinEt) nLeptons++; 
     }
   }
-  
-  catch (...) {
-    edm::LogError("HiggsToZZ4LeptonsSkim") << "Warning: cannot get collection with label " 
-					   << thePixelGsfELabel.label();
-  }
 
+  catch(const edm::Exception& e) {
+    //wrong reason for exception
+    if ( e.categoryCode() != edm::errors::ProductNotFound ) throw;    
+  }
   
   // Make decision:
   if ( nLeptons >= nLeptonMin) keepEvent = true;

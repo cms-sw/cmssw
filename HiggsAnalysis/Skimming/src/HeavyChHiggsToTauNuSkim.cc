@@ -54,61 +54,66 @@ HeavyChHiggsToTauNuSkim::~HeavyChHiggsToTauNuSkim(){
 
 bool HeavyChHiggsToTauNuSkim::filter(edm::Event& iEvent, const edm::EventSetup& iSetup ){
 
-	nEvents++;
+  nEvents++;
 
-	// HLT tau
+  Handle<IsolatedTauTagInfoCollection> tauTagL3Handle;
+  try {
+    iEvent.getByLabel(hltTauLabel, tauTagL3Handle);
+  }
+        
+  catch (const edm::Exception& e) {
+    //wrong reason for exception
+    if ( e.categoryCode() != edm::errors::ProductNotFound ) throw;
+  }
 
-	Handle<IsolatedTauTagInfoCollection> tauTagL3Handle;
-	try{
-//                iEvent.getByLabel("isolatedL3SingleTau", tauTagL3Handle);
-                iEvent.getByLabel(hltTauLabel, tauTagL3Handle);
-        }catch(...) {;}
+  Jet theTau;
+  double maxEt = 0;
+  if (tauTagL3Handle.isValid() ) {
+    const IsolatedTauTagInfoCollection & L3Taus = *(tauTagL3Handle.product());
+    IsolatedTauTagInfoCollection::const_iterator i;
+    for ( i = L3Taus.begin(); i != L3Taus.end(); i++ ) {
+      if (i->discriminator() == 0) continue;
+      Jet taujet = *(i->jet().get());
+      if (taujet.et() > maxEt) {
+        maxEt = taujet.et();
+        theTau = taujet;
+      }
+    }
+  }
+	
+  if (maxEt == 0) return false;
 
-	Jet theTau;
-	double maxEt = 0;
-	if(tauTagL3Handle.isValid()){
-		const IsolatedTauTagInfoCollection & L3Taus = *(tauTagL3Handle.product());
-		//cout << "L3 tau collection size " << L3Taus.size() << endl;
-		IsolatedTauTagInfoCollection::const_iterator i;
-		for(i = L3Taus.begin(); i != L3Taus.end(); i++){
-		  if(i->discriminator() == 0) continue;
-		  Jet taujet = *(i->jet().get());
-		  if(taujet.et() > maxEt) {
-			maxEt = taujet.et();
-			theTau = taujet;
-		  }
-		}
-	}
-	if(maxEt == 0) return false;
+  // jets
+	
+  Handle<JetTagCollection> jetTagHandle;	
+  try {
+    iEvent.getByLabel(jetLabel,jetTagHandle);
+  }
 
-	// jets
-
-	Handle<JetTagCollection> jetTagHandle;
-	try{
-	    iEvent.getByLabel(jetLabel,jetTagHandle);
-	}
-	catch (...) {}
-
-	bool accepted = false;
-	if(jetTagHandle.isValid()){
-		int nJets = 0;
-		const reco::JetTagCollection & jets = *(jetTagHandle.product());
-	        JetTagCollection::const_iterator iJet;
-		for(iJet = jets.begin(); iJet!= jets.end(); iJet++){
-	                Jet jet = *(iJet->jet().get());
-			if(jet.et()  > jetEtMin  && 
-			   jet.eta() > jetEtaMin &&
-	                   jet.eta() < jetEtaMax ) {
-				double DR = deltaR(theTau.eta(),jet.eta(),
-				                   theTau.phi(),jet.phi());
-				if(DR > minDRFromTau) nJets++;		
-			}
-		}
-
-		if(nJets >= minNumberOfjets) {
-			accepted = true;
-			nSelectedEvents++;
-		}
-	}
-	return accepted;
+  catch (const edm::Exception& e) {
+    //wrong reason for exception
+    if ( e.categoryCode() != edm::errors::ProductNotFound ) throw;
+  }
+	
+  bool accepted = false;
+	
+  if (jetTagHandle.isValid() ) {
+    int nJets = 0;
+    const reco::JetTagCollection & jets = *(jetTagHandle.product());
+    JetTagCollection::const_iterator iJet;
+    for (iJet = jets.begin(); iJet!= jets.end(); iJet++ ) {
+      Jet jet = *(iJet->jet().get());
+      if (jet.et()  > jetEtMin  &&
+          jet.eta() > jetEtaMin &&
+	  jet.eta() < jetEtaMax ) {
+        double DR = deltaR(theTau.eta(),jet.eta(),theTau.phi(),jet.phi());
+        if (DR > minDRFromTau) nJets++;		
+      }
+    }
+    if (nJets >= minNumberOfjets) {
+      accepted = true;
+      nSelectedEvents++;
+    }	
+  }
+  return accepted;
 }
