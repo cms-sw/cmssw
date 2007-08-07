@@ -262,7 +262,7 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
     def insertInto(self, parameterSet, myname):
         newpset = parameterSet.newPSet()
         self.insertContentsInto(newpset)
-        parameterSet.addPSet(True, myname, newpset)
+        parameterSet.addPSet(self.isTracked(), myname, newpset)
 
 
 class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
