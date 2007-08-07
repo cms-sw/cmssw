@@ -336,12 +336,14 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
 	      << " Electronics " << theElectronicsDil[theStepN]
 	      << " Other "       << theOtherDil[theStepN]
 	      << " Air "         << theAirDil[theStepN]
-	      << std::endl
-	      << "\tProcess Pre " << interactionPre->GetProcessName()
-	      << " type " << theStepProcess[theStepN] << " " << interactionPre->GetProcessTypeName(G4ProcessType(theStepProcess[theStepN]))
-	      << std::endl
-	      << "\tProcess Post " << interactionPost->GetProcessName()
-	      << " type " << interactionPost->GetProcessType() << " " << interactionPost->GetProcessTypeName(G4ProcessType(interactionPost->GetProcessType()))
+	      << std::endl;
+    if (interactionPre)
+      std::cout << "\tProcess Pre " << interactionPre->GetProcessName()
+		<< " type " << theStepProcess[theStepN] << " " << interactionPre->GetProcessTypeName(G4ProcessType(theStepProcess[theStepN]))
+		<< std::endl;
+    std::cout << "\tProcess Post " << interactionPost->GetProcessName()
+	      << " type " << interactionPost->GetProcessType() << " "
+	      << interactionPost->GetProcessTypeName(G4ProcessType(interactionPost->GetProcessType()))
 	      << std::endl;
     std::cout << "\tPre x = " << theInitialX[theStepN]
 	      << "\ty = "     << theInitialY[theStepN]
