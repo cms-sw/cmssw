@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    HSCP
-// Class:      HSCP
+// Package:    HSCPFilter
+// Class:      HSCPFilter
 // 
-/**\class HSCP HSCP.cc SUSYBSMAnalysis/HSCP/src/HSCP.cc
+/**\class HSCPFilter HSCPFilter.cc SUSYBSMAnalysis/HSCPFilter/src/HSCPFilter.cc
 
  Description: <one line class summary>
 
@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Tue Jun 26 11:37:21 CEST 2007
-// $Id$
+// $Id: HSCPFilter.cc,v 1.1 2007/06/27 13:35:36 arizzi Exp $
 //
 //
 
@@ -27,21 +27,21 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 
-#include "SUSYBSMAnalysis/HSCP/interface/HSCP.h"
+#include "SUSYBSMAnalysis/HSCP/interface/HSCPFilter.h"
 
 #include "DataFormats/TrackReco/interface/TrackDeDxEstimate.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 using namespace reco;
+using namespace std;
 
-
-HSCP::HSCP(const edm::ParameterSet& iConfig)
+HSCPFilter::HSCPFilter(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
 
 }
 
 
-HSCP::~HSCP()
+HSCPFilter::~HSCPFilter()
 {
  
    // do anything here that needs to be done at desctruction time
@@ -56,15 +56,16 @@ HSCP::~HSCP()
 
 // ------------ method called on each new Event  ------------
 bool
-HSCP::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HSCPFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
    Handle<TrackDeDxEstimateCollection> dedxH;
    iEvent.getByLabel("dedxTruncated40",dedxH);
    const TrackDeDxEstimateCollection & dedx = *dedxH.product();
-   for(szie_t i=0; i<dedx.size() ; i++)
+   for(size_t i=0; i<dedx.size() ; i++)
     {
-      if(dedx[i].first->pt() > 10 && dedx[i].second> 6. ) return true;
+      if(dedx[i].first->pt() > 10) cout << dedx[i].second << endl;
+      if(dedx[i].first->pt() > 10 && dedx[i].second> 4. ) return true;
     }
  
   return false;
@@ -72,14 +73,14 @@ HSCP::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-HSCP::beginJob(const edm::EventSetup&)
+HSCPFilter::beginJob(const edm::EventSetup&)
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-HSCP::endJob() {
+HSCPFilter::endJob() {
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(HSCP);
+DEFINE_FWK_MODULE(HSCPFilter);

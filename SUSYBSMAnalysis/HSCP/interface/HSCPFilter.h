@@ -1,5 +1,5 @@
-#ifndef SUSYBSMANALYSIS_HSCP_HSCP_H
-#define SUSYBSMANALYSIS_HSCP_HSCP_H
+#ifndef SUSYBSMANALYSIS_HSCPFilter_HSCPFilter_H
+#define SUSYBSMANALYSIS_HSCPFilter_HSCPFilter_H
 //
 // class declaration
 //
@@ -9,10 +9,10 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class HSCP : public edm::EDFilter {
+class HSCPFilter : public edm::EDFilter {
    public:
-      explicit HSCP(const edm::ParameterSet&);
-      ~HSCP();
+      explicit HSCPFilter(const edm::ParameterSet&);
+      ~HSCPFilter();
 
    private:
       virtual void beginJob(const edm::EventSetup&) ;
