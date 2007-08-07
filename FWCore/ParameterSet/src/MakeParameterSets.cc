@@ -1,9 +1,7 @@
 #include "FWCore/ParameterSet/interface/MakeParameterSets.h"
 #include "FWCore/ParameterSet/interface/PythonProcessDesc.h"
 #include "FWCore/ParameterSet/interface/ParseTree.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ParameterSet/interface/parse.h"
-#include "FWCore/ParameterSet/src/pythonFileToConfigure.h"
 
 #include <iostream>
 namespace edm
