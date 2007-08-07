@@ -661,7 +661,7 @@ void HcalLEDClient::resetAllME(){
     
     for(int ieta=-42; ieta<42; ieta++){
       if(ieta==0) continue;
-      for(int iphi=0; iphi<72; iphi++){
+      for(int iphi=0; iphi<73; iphi++){
 	for(int depth=1; depth<4; depth++){
 	  if(!isValidGeom(i, ieta, iphi,depth)) continue;
 	  sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Shape ieta=%d iphi=%d depth=%d",

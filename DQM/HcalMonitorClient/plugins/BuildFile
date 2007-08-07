@@ -1,4 +1,0 @@
-<use name=DQM/HcalMonitorClient>
- <library file=plugins.cc name=DQMHcalMonitorClientPlugins>
- <flags EDM_PLUGIN=1>
-</library>
