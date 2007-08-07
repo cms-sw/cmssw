@@ -113,9 +113,11 @@ class _TypedParameterizable(_Parameterizable):
             config+=indent+deltaIndent+param.configTypeName()+' '+name+' = '+param.configValue(indent+deltaIndent,deltaIndent)+'\n'
         config += indent+'}\n'
         return config
+    def nameInProcessDesc_(self, myname):
+        return myname;
     def insertInto(self, parameterSet, myname):
         newpset = parameterSet.newPSet()
-        newpset.addString(True, "@module_label", myname)
+        newpset.addString(True, "@module_label", self.nameInProcessDesc_(myname))
         newpset.addString(True, "@module_type", self.type_())
         self.insertContentsInto(newpset)
         parameterSet.addPSet(True, myname, newpset)

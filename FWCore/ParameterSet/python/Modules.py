@@ -23,6 +23,8 @@ class ESSource(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable
         if name == '':
             name=self.type_()
         proc._placeESSource(name,self)
+    def nameInProcessDesc_(self, myname):
+       return self.type_() + "@" + myname
 
 
 class ESProducer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable):
@@ -32,7 +34,8 @@ class ESProducer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelab
         if name == '':
             name=self.type_()
         proc._placeESProducer(name,self)
-
+    def nameInProcessDesc_(self, myname):
+       return self.type_() + "@" + myname
 
 
 class ESPrefer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable):
@@ -42,7 +45,8 @@ class ESPrefer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable
         if name == '':
             name=self.type_()
         proc._placeESPrefer(name,self)
-
+    def nameInProcessDesc_(self, myname):
+       return "esprefer_" + self.type_() + "@" + myname
 
 class _Module(_ConfigureComponent,_TypedParameterizable,_Labelable,_Sequenceable):
     """base class for classes which denote framework event based 'modules'"""
@@ -91,6 +95,8 @@ class Source(_ConfigureComponent,_TypedParameterizable):
         super(Source,self).__init__(type_,*arg,**kargs)
     def _placeImpl(self,name,proc):
         proc._placeSource(name,self)
+    def nameInProcessDesc_(self,myname):
+        return "@main_input"
 
 
 class Looper(_ConfigureComponent,_TypedParameterizable):
@@ -98,6 +104,8 @@ class Looper(_ConfigureComponent,_TypedParameterizable):
         super(Looper,self).__init__(type_,*arg,**kargs)
     def _placeImpl(self,name,proc):
         proc._placeLooper(name,self)
+    def nameInProcessDesc_(self, myname):
+        return "@main_looper"
 
 
 
