@@ -4,13 +4,25 @@
 #include <iosfwd>
 #include <boost/cstdint.hpp>
 
+namespace ecalMGPA {
+  typedef uint16_t sample_type;
+ 
+  /// get the ADC sample (12 bits)
+  inline int adc(sample_type sample) { return sample&0xFFF; }
+  /// get the gainId (2 bits)
+  inline int gainId(sample_type) { return (sample>>12)&0x3; }
+  inline sample_type pack(int adc, int gainId) {
+    return (adc&0xFFF) | ((gainId&0x3)<<12);
+  }
+}
+
+
 /** \class EcalMGPASample
  *  Simple container packer/unpacker for a single sample from teh MGPA electronics
  *
  *
- *  $Id: EcalMGPASample.h,v 1.4 2007/04/16 12:58:56 meridian Exp $
+ *  $Id: EcalMGPASample.h,v 1.5 2007/07/24 10:21:04 innocent Exp $
  */
-
 class EcalMGPASample {
  public:
   EcalMGPASample() { theSample=0; }
