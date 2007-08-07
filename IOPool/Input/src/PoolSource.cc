@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.57 2007/07/26 23:43:54 wmtan Exp $
+$Id: PoolSource.cc,v 1.58 2007/07/26 23:46:36 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
 #include "RootFile.h"
@@ -206,7 +206,9 @@ namespace edm {
 
   std::auto_ptr<EventPrincipal>
   PoolSource::read() {
-    if (!next()) {
+    if (next()) {
+      previous();
+    } else {
       if (!primary()) {
 	repeat();
       }
