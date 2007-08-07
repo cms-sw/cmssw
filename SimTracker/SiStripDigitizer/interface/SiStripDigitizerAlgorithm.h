@@ -98,6 +98,9 @@ class SiStripDigitizerAlgorithm
 		     unsigned int);
  
   CLHEP::HepRandomEngine& rndEngine;
+
+  DigitalVecType digis;
+  DigitalRawVecType rawdigis;
 };
 
 #endif

@@ -91,27 +91,28 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
   }
   
   SiPileUpSignals::HitToDigisMapType theLink = theSiPileUpSignals->dumpLink();  
-
+  
   numStrips = (det->specificTopology()).nstrips();
   strip = int(numStrips/2.);
   noiseRMS = noiseHandle->getNoise(strip,detNoiseRange);
 
   if(zeroSuppression){
-    DigitalVecType digis;
     if(noise) 
       theSiNoiseAdder->addNoise(theSignal,numStrips,noiseRMS*theElectronPerADC);
+    digis.clear();
     theSiZeroSuppress->suppress(theSiDigitalConverter->convert(theSignal, gainHandle, detID), digis, detID,noiseHandle,pedestalsHandle);
     push_link(digis, theLink, theSignal,detID);
     outdigi.data = digis;
   }
-
+  
   if(!zeroSuppression){
     if(noise){
       theSiNoiseAdder->createRaw(theSignal,numStrips,noiseRMS*theElectronPerADC);
     }else{
       edm::LogWarning("SiStripDigitizer")<<"You are running the digitizer without Noise generation and without applying Zero Suppression. ARE YOU SURE???";
     }
-    DigitalRawVecType rawdigis = theSiDigitalConverter->convertRaw(theSignal, gainHandle, detID);
+    rawdigis.clear();
+    rawdigis = theSiDigitalConverter->convertRaw(theSignal, gainHandle, detID);
     push_link_raw(rawdigis, theLink, theSignal,detID);
     outrawdigi.data = rawdigis;
   }
