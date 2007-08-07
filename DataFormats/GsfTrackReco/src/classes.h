@@ -10,6 +10,8 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackExtraFwd.h" 
 #include "DataFormats/Common/interface/AssociationMap.h"
+#include "DataFormats/Common/interface/RefHolder.h"
+#include "DataFormats/Common/interface/Holder.h"
 #include <vector>
 
 namespace {
@@ -28,5 +30,9 @@ namespace {
 
     edm::helpers::Key< edm::RefProd < std::vector < reco::GsfTrack > > > rpt11;
     edm::AssociationMap<edm::OneToValue< std::vector<reco::GsfTrack>, double, unsigned int > > am11;
+
+    // RefToBase<reco::Track>
+    edm::reftobase::Holder<reco::Track, reco::GsfTrackRef>  h_tk_gtkr;
+    edm::reftobase::RefHolder<reco::GsfTrackRef>            rf_gtkr;
   }
 }

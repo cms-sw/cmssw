@@ -22,4 +22,7 @@
     <field name="transientMap_" transient="true" /> 
   </class>
 
+  <class name="edm::reftobase::Holder<reco::Track, reco::GsfTrackRef>" />
+  <class name="edm::reftobase::RefHolder<reco::GsfTrackRef>" />
+
   </lcgdict>
