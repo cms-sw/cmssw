@@ -61,8 +61,12 @@ bool EgammaProbeSelector::filter(edm::Event& iEvent, const edm::EventSetup& iSet
   try{
     iEvent.getByLabel(jetLabel,jetHandle);
   }
-  catch (...) {}
-  
+  catch(const edm::Exception& e) {
+    if ( e.categoryCode() != edm::errors::ProductNotFound ) {
+	    edm::LogInfo("EgammaProbeSelector") << "cms::Exception caught!!!" << "\n" << e << "\n";
+	    throw;
+    }
+  }
   if(jetHandle.isValid()){
     const reco::CaloJetCollection & jets = *(jetHandle.product());
     CaloJetCollection::const_iterator ijet;
@@ -79,9 +83,12 @@ bool EgammaProbeSelector::filter(edm::Event& iEvent, const edm::EventSetup& iSet
   try{
     iEvent.getByLabel(scLabel,scHandle);
   }
-  
-  catch (...) {}
-
+  catch(const edm::Exception& e) {
+    if ( e.categoryCode() != edm::errors::ProductNotFound ) {
+	    edm::LogInfo("EgammaProbeSelector") << "cms::Exception caught!!!" << "\n" << e << "\n";
+	    throw;
+    }
+  }
   if(scHandle.isValid()){
     const reco::SuperClusterCollection & SCs = *(scHandle.product());
     
@@ -93,14 +100,18 @@ bool EgammaProbeSelector::filter(edm::Event& iEvent, const edm::EventSetup& iSet
       if(scEt  > scEtMin && _eta > scEtaMin && _eta < scEtaMax)	nSC++;		
     }
   }
-  
+
   // EE
   Handle<reco::SuperClusterCollection> scEEHandle;
   try{
     iEvent.getByLabel(scEELabel,scEEHandle);
   }
-  
-  catch (...) {}
+  catch(const edm::Exception& e) {
+    if ( e.categoryCode() != edm::errors::ProductNotFound ) {
+	    edm::LogInfo("EgammaProbeSelector") << "cms::Exception caught!!!" << "\n" << e << "\n";
+	    throw;
+    }
+  }
   if(scEEHandle.isValid()){
     const reco::SuperClusterCollection & SCs = *(scEEHandle.product());
     for(reco::SuperClusterCollection::const_iterator scIt = SCs.begin(); 
