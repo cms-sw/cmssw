@@ -5,7 +5,7 @@
  * default eta thresholds (lepton and jets) set to 3
  * At least two leptons and two jets present for each channel
  *
- * $Date: 2007/07/12 09:17:22 $
+ * $Date: 2007/08/07 10:50:13 $
  * $Revision: 1.1 $
  *
  * \author Michele Gallinaro and Nuno Almeida - LIP
@@ -254,5 +254,7 @@ void TopLeptonTauFilter::endJob()
     << endl;
 }
 
+#include "FWCore/Framework/interface/MakerMacros.h"
+
 //define this as a plug-in
-DEFINE_FWK_MODULE(TopDiLeptonFilter);
+DEFINE_FWK_MODULE(TopLeptonTauFilter);
