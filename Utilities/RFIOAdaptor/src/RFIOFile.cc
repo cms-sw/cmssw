@@ -8,6 +8,7 @@
 
 #include "SealBase/DebugAids.h"
 #include "SealBase/StringFormat.h"
+#include "SealBase/TimeInfo.h"
 #include <iostream>
 
 //<<<<<< PRIVATE DEFINES                                                >>>>>>
@@ -246,6 +247,14 @@ RFIOFile::retry_read (void *into, IOSize n, int max_retry /* =10 */) {
 IOSize
 RFIOFile::read (void *into, IOSize n)
 {
+  // Be aware that when enabled these LogDebug prints
+  // will take more time than the read itself unless the reads
+  // are proceeding slower than under optimal conditions.
+  LogDebug("RFIOFile")
+    << "Entering RFIOFile read()";
+
+  double start = seal::TimeInfo::realNsecs();
+
   serrno = 0;
   ssize_t s = retry_read (into, n);
   //    ssize_t s = rfio_read64 (m_fd, into, n);
@@ -253,6 +262,15 @@ RFIOFile::read (void *into, IOSize n)
     throw RFIOError ("rfio_read()", rfio_errno, serrno);
   
   m_currentPosition += s;
+
+  double end = seal::TimeInfo::realNsecs();
+
+  LogDebug("RFIOFile")
+    << "Exiting RFIOFile read()\n"
+    << "  elapsed time = " << end - start << " ns\n"
+    << "  bytes read = " << s << "\n"
+    << "  file position = " << m_currentPosition << "\n";
+
   return s;
 }
 
