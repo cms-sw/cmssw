@@ -44,7 +44,7 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
   includeErrors = config_.getUntrackedParameter<bool>("IncludeErrors",false);
   // Products
   produces< edm::DetSetVector<PixelDigi> >();
-  if(includeErrors) produces< std::map<int, std::vector<SiPixelRawDataError> > >();
+  if(includeErrors) produces< edm::DetSetVector<SiPixelRawDataError> >();
   // Timing
   if (timing) {
     theTimer = new R2DTimerObserver("**** MY TIMING REPORT ***");
@@ -89,7 +89,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 
 // create product (digis & errors)
   std::auto_ptr< edm::DetSetVector<PixelDigi> > collection( new edm::DetSetVector<PixelDigi> );
-  std::auto_ptr< std::map<int, std::vector<SiPixelRawDataError> > > errorcollection( new std::map<int, std::vector<SiPixelRawDataError> > );
+  std::auto_ptr< edm::DetSetVector<SiPixelRawDataError> > errorcollection( new edm::DetSetVector<SiPixelRawDataError> );
   static int ndigis = 0;
   static int nwords = 0;
 
@@ -123,7 +123,16 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
       detSet.data = it->second;
     } 
     //pack errors into collection
-    if(includeErrors) (*errorcollection)[fedId] = errors;
+    if(includeErrors) {
+      typedef PixelDataFormatter::Errors::iterator IE;
+      for (IE is = errors.begin(); is != errors.end(); is++) {
+	//      uint32_t errordetid = is->id;
+	uint32_t errordetid = is->first;
+	edm::DetSet<SiPixelRawDataError>& errorDetSet = errorcollection->find_or_insert(errordetid);
+	//      detSet.data = is->data;
+	errorDetSet.data = is->second;
+      } 
+    }
   }
 
   if (theTimer) {

@@ -53,8 +53,8 @@ public:
 //  typedef std::vector< edm::DetSet<PixelDigi> > Digis;
   typedef std::pair<DetDigis::const_iterator, DetDigis::const_iterator> Range;
   
-  typedef std::vector<SiPixelRawDataError> Errors;
-  //  typedef std::map<int, FEDErrors> Errors;
+  typedef std::vector<SiPixelRawDataError> DetErrors;
+  typedef std::map<uint32_t, DetErrors> Errors;
 
   PixelDataFormatter(const SiPixelFedCablingMap * map);
 
@@ -83,7 +83,8 @@ private:
                   std::vector<Word32> & words) const;
 
   int word2digi( const SiPixelFrameConverter* converter, 
-                    const Word32& word, 
+		    const bool includeError,
+		    const Word32& word, 
                     Digis & digis) const;
 
   std::string print(const PixelDigi & digi) const;
