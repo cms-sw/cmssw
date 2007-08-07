@@ -13,8 +13,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/07/08 20:32:39 $
-// $Revision: 1.11 $
+// $Date: 2007/07/10 03:05:52 $
+// $Revision: 1.12 $
 //
 
 #include <string>
@@ -34,6 +34,8 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
 
 class TrajectoryStateUpdator;
 class MeasurementEstimator;
@@ -70,7 +72,21 @@ class RoadSearchTrackCandidateMakerAlgorithm
 				     const SiStripRecHitMatcher* theHitMatcher,
                                      edm::OwnVector<TrackingRecHit>& theHits);
 
+  bool chooseStartingLayers( RoadSearchCloud::RecHitVector& recHits, int layer0,
+			     const std::multimap<int, const DetLayer*>& layer_map,
+			     std::set<const DetLayer*>& good_layers,
+			     std::vector<const DetLayer*>& middle_layers ,
+			     RoadSearchCloud::RecHitVector& recHits_middle);
 
+
+  FreeTrajectoryState initialTrajectory(const edm::EventSetup& es,
+					const TrackingRecHit* InnerHit, 
+					const TrackingRecHit* OuterHit);
+
+  std::vector<Trajectory> extrapolateTrajectories(std::vector<Trajectory>& inputTrajectories,
+						  RoadSearchCloud::RecHitVector& theLayerHits,
+						  const DetLayer* innerHitLayer,
+						  const DetLayer* outerHitLayer);
 
  private:
   edm::ParameterSet conf_;
@@ -81,18 +97,29 @@ class RoadSearchTrackCandidateMakerAlgorithm
   int MinChunkLength_;
   int nFoundMin_;
 
+
+
+
   std::string measurementTrackerName_;
   
   bool debug_;
   
   const MeasurementTracker*  theMeasurementTracker;
-  const TrackerGeometry* geom;
+  const TrackerGeometry* trackerGeom;
   const TransientTrackingRecHitBuilder* ttrhBuilder;
+  const MagneticField* magField;
   
   PropagatorWithMaterial* thePropagator;
   PropagatorWithMaterial* theRevPropagator;
   TrajectoryStateUpdator* theUpdator;
   MeasurementEstimator* theEstimator;
+  SiStripRecHitMatcher* theHitMatcher;
+
+    const DetLayer* layers[128];
+    bool lstereo[128];
+    int nhits_l[128];
+    int nlayers ;
+
 };
 
 #endif
