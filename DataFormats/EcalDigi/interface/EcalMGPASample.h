@@ -10,7 +10,7 @@ namespace ecalMGPA {
   /// get the ADC sample (12 bits)
   inline int adc(sample_type sample) { return sample&0xFFF; }
   /// get the gainId (2 bits)
-  inline int gainId(sample_type) { return (sample>>12)&0x3; }
+  inline int gainId(sample_type sample) { return (sample>>12)&0x3; }
   inline sample_type pack(int adc, int gainId) {
     return (adc&0xFFF) | ((gainId&0x3)<<12);
   }
@@ -21,7 +21,7 @@ namespace ecalMGPA {
  *  Simple container packer/unpacker for a single sample from teh MGPA electronics
  *
  *
- *  $Id: EcalMGPASample.h,v 1.5 2007/07/24 10:21:04 innocent Exp $
+ *  $Id: EcalMGPASample.h,v 1.6 2007/08/07 06:09:39 innocent Exp $
  */
 class EcalMGPASample {
  public:
