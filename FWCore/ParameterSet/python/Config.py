@@ -332,10 +332,12 @@ class Process(object):
         config += "}\n"
         return config
     def insertOneInto(self, parameterSet, label, item):
-        vitems = [item]
-        parameterSet.addVString(True, label, vitems)
+        vitems = []
         if not item == None:
-            item.insertInto(parameterSet, label)
+            newlabel = item.nameInProcessDesc_(label)
+            vitems = [newlabel]
+            item.insertInto(parameterSet, newlabel)
+        parameterSet.addVString(True, label, vitems)
     def insertManyInto(self, parameterSet, label, itemDict):
         parameterSet.addVString(True, label, itemDict.keys())
         for name,value in itemDict.iteritems():
@@ -343,21 +345,27 @@ class Process(object):
     def insertServices(self, processDesc, itemDict):
         for name,value in itemDict.iteritems():
            value.insertInto(processDesc)
+    def insertTriggerPaths(self, processDesc):
+        p = processDesc.newPSet()
+        self.insertManyInto(p, "@trigger_paths", self.paths_())
+        processDesc.addPSet(False, "@trigger_paths", p)
     def fillProcessDesc(self, processDesc, processPSet):
+        processPSet.addString(True, "@process_name", self.name_())
         all_modules = self.__producers
         all_modules.update(self.filters_())
         all_modules.update(self.analyzers_())
         all_modules.update(self.outputModules_())
         self.insertManyInto(processPSet, "@all_modules", self.producers_())
-        self.insertOneInto(processPSet, "@all_sources", self.source_())
-        self.insertOneInto(processPSet, "@all_loopers",   self.looper_())
+        self.insertOneInto(processPSet,  "@all_sources", self.source_())
+        self.insertOneInto(processPSet,  "@all_loopers",   self.looper_())
         self.insertManyInto(processPSet, "@all_esmodules", self.es_producers_())
         self.insertManyInto(processPSet, "@all_essources", self.es_sources_())
         self.insertManyInto(processPSet, "@all_esprefers", self.es_prefers_())
-        self.insertManyInto(processPSet, "@trigger_paths", self.paths_())
+        self.insertTriggerPaths(processPSet)
         self.insertManyInto(processPSet, "@end_paths", self.endpaths_())
-        self.insertOneInto(processPSet, "@paths", self.schedule_())
+        self.insertOneInto(processPSet,  "@paths", self.schedule_())
         self.insertServices(processDesc, self.services_())
+        print processDesc.dump()
         return processDesc
 
 
