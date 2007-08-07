@@ -26,7 +26,7 @@ class EcalTPGGroups
   const EcalTPGGroupsMap & getMap() const { return map_; }
   void  setValue(const uint32_t & rawId, const   uint32_t & ObjectId) ;
 
- private:
+ protected:
   EcalTPGGroupsMap map_ ;
 
 };
