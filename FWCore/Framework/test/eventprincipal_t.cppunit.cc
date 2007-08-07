@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: eventprincipal_t.cppunit.cc,v 1.42 2007/06/06 23:33:49 wmtan Exp $
+$Id: eventprincipal_t.cppunit.cc,v 1.43 2007/06/21 16:52:43 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <map>
@@ -31,8 +31,6 @@ $Id: eventprincipal_t.cppunit.cc,v 1.42 2007/06/06 23:33:49 wmtan Exp $
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
-#include "FWCore/Utilities/interface/PretendToUse.h"
-#include "FWCore/Utilities/interface/value_ptr.h"
 
 typedef edm::BasicHandle handle;
 

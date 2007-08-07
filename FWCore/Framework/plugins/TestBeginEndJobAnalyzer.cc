@@ -1,5 +1,4 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/src/AnalyzerWorker.h"
 #include "FWCore/Framework/test/stubs/TestBeginEndJobAnalyzer.h"
 
 //define this as a plug-in

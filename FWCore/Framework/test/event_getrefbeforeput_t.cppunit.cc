@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: event_getrefbeforeput_t.cppunit.cc,v 1.12 2007/06/06 23:33:49 wmtan Exp $
+$Id: event_getrefbeforeput_t.cppunit.cc,v 1.13 2007/06/21 16:52:43 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <cassert>
@@ -15,12 +15,9 @@ $Id: event_getrefbeforeput_t.cppunit.cc,v 1.12 2007/06/06 23:33:49 wmtan Exp $
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
-#include "DataFormats/Common/interface/BasicHandle.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
-#include "DataFormats/Common/interface/Wrapper.h"
 //#include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"

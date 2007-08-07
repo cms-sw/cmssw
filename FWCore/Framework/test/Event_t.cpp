@@ -3,7 +3,7 @@
 
 Test program for edm::Event.
 
-$Id: Event_t.cpp,v 1.20 2007/08/02 21:12:09 marafino Exp $
+$Id: Event_t.cpp,v 1.21 2007/08/02 23:14:18 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
@@ -29,7 +29,6 @@ $Id: Event_t.cpp,v 1.20 2007/08/02 21:12:09 marafino Exp $
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
-#include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"

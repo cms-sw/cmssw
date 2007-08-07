@@ -38,8 +38,6 @@
 #include "FWCore/Framework/src/InputSourceFactory.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/MakeParameterSets.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

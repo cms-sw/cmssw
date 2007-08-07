@@ -19,7 +19,6 @@
 
 // needed for type tests
 #include "FWCore/Framework/src/OutputWorker.h"
-#include "FWCore/Framework/src/FilterWorker.h"
 
 #include "boost/bind.hpp"
 
