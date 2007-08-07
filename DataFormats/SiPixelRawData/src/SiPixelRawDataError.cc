@@ -14,28 +14,20 @@
 
 SiPixelRawDataError::SiPixelRawDataError() {}
 
-SiPixelRawDataError::SiPixelRawDataError(const unsigned int errorWord32, const int errorType) : 
+SiPixelRawDataError::SiPixelRawDataError(const unsigned int errorWord32, const int errorType, int fedId) : 
   errorWord32_(errorWord32),
   errorType_(errorType),
-  detId_(0xffffffff)
+  fedId_(fedId)
   {
-    setMessage(errorType);
+    setMessage();
   }
 
-SiPixelRawDataError::SiPixelRawDataError(const unsigned int errorWord32, const int errorType, uint32_t detId) : 
-  errorWord32_(errorWord32),
-  errorType_(errorType),
-  detId_(detId)
-  {
-    setMessage(errorType);
-  }
-
-SiPixelRawDataError::SiPixelRawDataError(const long long errorWord64, const int errorType) : 
+SiPixelRawDataError::SiPixelRawDataError(const long long errorWord64, const int errorType, int fedId) : 
   errorWord64_(errorWord64),
   errorType_(errorType),
-  detId_(0xffffffff)
+  fedId_(fedId)
   {
-    setMessage(errorType);
+    setMessage();
   }
 
 //Destructor
@@ -54,15 +46,15 @@ void SiPixelRawDataError::setWord64(long long errorWord64) {
 
 void SiPixelRawDataError::setType(int errorType) {
 errorType_ = errorType; 
-setMessage(errorType);
+setMessage();
 } 
 
-void SiPixelRawDataError::setDetId(uint32_t detId) {
-detId_ = detId; 
+void SiPixelRawDataError::setFedId(int fedId) {
+fedId_ = fedId; 
 } 
 
-void SiPixelRawDataError::setMessage(int errorType) {
-  switch (errorType) {
+void SiPixelRawDataError::setMessage() {
+  switch (errorType_) {
     case(25) : {
      errorMessage_ = "Error: ROC=25";
      break;
@@ -116,5 +108,5 @@ void SiPixelRawDataError::setMessage(int errorType) {
      break;
    }
    default: errorMessage_ = "Error: Unknown error type";
- };
- } 
+  };
+} 
