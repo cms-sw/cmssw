@@ -12,8 +12,7 @@
 #include "PhysicsTools/UtilAlgos/interface/PtMinSelector.h"
 
 typedef ObjectCountFilter<
-          reco::PixelMatchGsfElectronCollection, 
-          PtMinSelector<reco::PixelMatchGsfElectron>
+          reco::PixelMatchGsfElectronCollection, PtMinSelector
         > PtMinPixelMatchGsfElectronCountFilter;
 
 DEFINE_FWK_MODULE( PtMinPixelMatchGsfElectronCountFilter );

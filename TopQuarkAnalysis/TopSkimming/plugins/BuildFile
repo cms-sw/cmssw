@@ -2,8 +2,8 @@
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
   <use name=DataFormats/Candidate>
-  <use name=DataFormats/RecoMuon>
-  <use name=DataFormats/EgammaCandidate>
+  <use name=DataFormats/MuonReco>
+  <use name=DataFormats/EgammaCandidates>
   <use name=DataFormats/HepMCCandidate>
 </library>
 
