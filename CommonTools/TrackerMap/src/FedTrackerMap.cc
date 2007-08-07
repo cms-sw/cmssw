@@ -48,13 +48,13 @@ void FedTrackerMap::drawApvPair(int nlay, int numfed_inlayer, bool print_total, 
   double boxinitx=0., boxinity=0.; 
   double dx=.9,dy=.9;
   int numfed_incolumn;
-  numfed_incolumn = 10;
+  numfed_incolumn = 5;
   if(nlay < 31) //endcap
-    numfed_incolumn=5;
-  if(numfed_inlayer>numfed_incolumn)boxinitx=boxinitx+25.;
-  boxinity=boxinity+((numfed_inlayer-1)%numfed_incolumn)*5.;
-  boxinity=boxinity+(int)(apvPair->getFedCh()/24);
-  boxinitx = boxinitx+(apvPair->getFedCh()%24);
+    numfed_incolumn=2;
+  if(numfed_inlayer>numfed_incolumn)boxinitx=boxinitx+13.;
+  boxinity=boxinity+((numfed_inlayer-1)%numfed_incolumn)*9.;
+  boxinity=boxinity+(int)(apvPair->getFedCh()/12);
+  boxinitx = boxinitx+(apvPair->getFedCh()%12);
   xp[0]=boxinitx;yp[0]=boxinity;
   xp[1]=boxinitx+dx;yp[1]=boxinity;
   xp[2]=boxinitx+dx;yp[2]=boxinity + dy;
