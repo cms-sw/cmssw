@@ -7,6 +7,15 @@
   <use name=DataFormats/HepMCCandidate>
 </library>
 
+<library file=TopLeptonTauFilter.cc>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=DataFormats/JetReco>
+  <use name=DataFormats/METReco>
+  <use name=DataFormats/MuonReco>
+  <use name=DataFormats/EgammaCandidates>
+</library>
+
 <library file=PtMinPixelMatchGsfElectronCountFilter.cc>
   <use name=PhysicsTools/UtilAlgos>
   <use name=DataFormats/EgammaCandidates>
