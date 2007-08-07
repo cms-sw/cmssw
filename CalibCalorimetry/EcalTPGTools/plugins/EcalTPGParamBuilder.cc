@@ -351,13 +351,16 @@ void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
   create_header(out_fileEB_, "EB") ; 
   create_header(out_fileEE_, "EE") ; 
 
-  (*out_fileEB_)<<"PHYSICS "<<std::endl ;
+  DetId eb(DetId::Ecal,EcalBarrel) ;
+  DetId ee(DetId::Ecal,EcalEndcap) ;
+
+  (*out_fileEB_)<<"PHYSICS "<<dec<<eb.rawId()<<std::endl ;
   (*out_fileEB_)<<Et_sat_<<" "<<TTF_lowThreshold_EB_<<" "<<TTF_highThreshold_EB_<<std::endl ;
   (*out_fileEB_)<<FG_lowThreshold_EB_<<" "<<FG_highThreshold_EB_<<" "
 		<<FG_lowRatio_EB_<<" "<<FG_highRatio_EB_<<std::endl ;
   (*out_fileEB_) <<std::endl ;
 
-  (*out_fileEE_)<<"PHYSICS "<<std::endl ;
+  (*out_fileEE_)<<"PHYSICS "<<dec<<ee.rawId()<<std::endl ;
   (*out_fileEE_)<<Et_sat_<<" "<<TTF_lowThreshold_EE_<<" "<<TTF_highThreshold_EE_<<std::endl ;
   (*out_fileEE_)<<FG_Threshold_EE_<<" "<<-1<<" "
 		<<-1<<" "<<-1<<std::endl ;
