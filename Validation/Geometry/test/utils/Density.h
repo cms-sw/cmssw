@@ -37,13 +37,13 @@ public :
   // Declaration of leave types
   Float_t         ParticleEta;
   Int_t           Nsteps;
-  Double_t        InitialX[8000];   //[Nsteps]
-  Double_t        InitialY[8000];   //[Nsteps]
-  Double_t        InitialZ[8000];   //[Nsteps]
-  Double_t        FinalX[8000];   //[Nsteps]
-  Double_t        FinalY[8000];   //[Nsteps]
-  Double_t        FinalZ[8000];   //[Nsteps]
-  Float_t         MaterialDensity[8000];   //[Nsteps]
+  Double_t        InitialX[10000];   //[Nsteps]
+  Double_t        InitialY[10000];   //[Nsteps]
+  Double_t        InitialZ[10000];   //[Nsteps]
+  Double_t        FinalX[10000];   //[Nsteps]
+  Double_t        FinalY[10000];   //[Nsteps]
+  Double_t        FinalZ[10000];   //[Nsteps]
+  Float_t         MaterialDensity[10000];   //[Nsteps]
   
   // List of branches
   TBranch        *b_ParticleEta;   //!

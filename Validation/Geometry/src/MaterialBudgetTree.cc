@@ -30,6 +30,7 @@ void MaterialBudgetTree::book()
   theTree->Branch( "Particle Eta",    &t_ParticleEta,    "Particle_Eta/F" );
   theTree->Branch( "Particle Phi",    &t_ParticlePhi,    "Particle_Phi/F" );
   theTree->Branch( "Particle Energy", &t_ParticleEnergy, "Particle_E/F"   );
+  theTree->Branch( "Particle Mass",   &t_ParticleMass,   "Particle_M/F"   );
   // rr
  
   if( theData->allStepsON() ) {
@@ -133,6 +134,7 @@ void MaterialBudgetTree::fillEndTrack()
   t_ParticleEta    = theData->getEta();
   t_ParticlePhi    = theData->getPhi();
   t_ParticleEnergy = theData->getEnergy();
+  t_ParticleMass   = theData->getMass();
   // rr
   
   // do this only if I really want to save all the steps

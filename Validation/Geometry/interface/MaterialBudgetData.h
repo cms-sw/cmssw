@@ -100,6 +100,8 @@ public:
     return thePt; }
   float getEnergy() const {
     return theEnergy; }
+  float getMass() const {
+    return theMass; }
   // rr
   
   int getNumberOfSteps() const {
@@ -285,6 +287,7 @@ public:
   float thePt;
   int   theID;
   float theEnergy;
+  float theMass;
   float theSupportFractionMB, theSensitiveFractionMB, theCablesFractionMB,
     theCoolingFractionMB, theElectronicsFractionMB, theOtherFractionMB, theAirFractionMB;
   float theSupportFractionIL, theSensitiveFractionIL, theCablesFractionIL,

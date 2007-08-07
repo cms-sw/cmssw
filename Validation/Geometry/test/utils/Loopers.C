@@ -101,21 +101,26 @@ void Loopers::Loop()
     if(Nsteps!=0) {
       // average density: Sum(x_i x rho_i) / Sum(x_i)
       double averageDensity = normDensSum / pathSum;
-      /*
-	cout << "################################"      << endl;
-	cout << "\t Sum(phi_i) = "  << phiSum           << endl;
-      	cout << "\t Loops = "       << phiLoops         << endl;
-	cout << "\t Energy Init = " << InitialE[0]      << endl;
-	cout << "\t Energy End = "  << FinalE[Nsteps-1] << endl;
-	cout << "\t pT Init = " << ParticleStepInitialPt[0] << endl;
-	cout << "\t pT End = "  << ParticleStepFinalPt[Nsteps-1] << endl;
-	cout << "\t Last particle = " << ParticleStepID[Nsteps-1] << endl;
-	cout << "\t Last step = "   << ParticleStepInteraction[Nsteps-1] << endl;
+      //
+      if(FinalE[Nsteps-1] > 300) {
+	cout << "################################"                          << endl;
+	cout << "Event " << jentry+1                                        << endl;
+	cout << "\t Steps = " << Nsteps                                     << endl;
+	cout << "\t Sum(phi_i) = "  << phiSum                               << endl;
+	cout << "\t Loops = "       << phiLoops                             << endl;
+	cout << "\t Energy Init = " << InitialE[0]                          << endl;
+	cout << "\t Energy End = "  << FinalE[Nsteps-1]                     << endl;
+	cout << "\t Particle Mass = " << particleMass                       << endl;
+	cout << "\t pT Init = " << ParticleStepInitialPt[0]                 << endl;
+	cout << "\t pT End = "  << ParticleStepFinalPt[Nsteps-1]            << endl;
+	cout << "\t Last particle = " << ParticleStepID[Nsteps-1]           << endl;
+	cout << "\t Last step = "   << ParticleStepInteraction[Nsteps-1]    << endl;
 	cout << "\t Sum(x_i) = "         << pathSum        << " mm"         << endl;
 	cout << "\t Sum(x_i x rho_i) = " << normDensSum    << " mm x g/cm3" << endl;
 	cout << "\t <rho> = "            << averageDensity << " g/cm3"      << endl;
-	cout << "################################"      << endl;
-      */
+	cout << "################################"                          << endl;
+      }
+      //
       hist_loops->Fill(phiLoops);
       hist_energy_init->Fill(InitialE[0]);
       hist_energy_end->Fill(FinalE[Nsteps-1]);

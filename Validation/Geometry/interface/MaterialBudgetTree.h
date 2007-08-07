@@ -30,7 +30,7 @@ private:
   TFile * theFile;
   TTree* theTree; 
 
-  static const int MAXSTEPS = 5000;
+  static const int MAXSTEPS = 10000;
   float t_MB;
   float t_IL;
   //  float t_Eta;
@@ -41,6 +41,7 @@ private:
   float t_ParticleEta;
   float t_ParticlePhi;
   float t_ParticleEnergy;
+  float t_ParticleMass;
   // rr
   int t_Nsteps;
   float t_DeltaMB[MAXSTEPS];

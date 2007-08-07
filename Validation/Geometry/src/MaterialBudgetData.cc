@@ -114,6 +114,7 @@ void MaterialBudgetData::dataStartTrack( const G4Track* aTrack )
   theID=0;
   thePt=0;
   theEnergy=0;
+  theMass=0;
   
   theSupportMB     = 0.;
   theSensitiveMB   = 0.;
@@ -155,6 +156,7 @@ void MaterialBudgetData::dataStartTrack( const G4Track* aTrack )
   //  thePhi = dir.phi()/deg; // better not to store in deg
   thePhi = dir.phi();
   theEnergy = aTrack->GetTotalEnergy();
+  theMass = aTrack->GetDefinition()->GetPDGMass();
   
 }
 
@@ -241,7 +243,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
   const G4VProcess*        interactionPost   = postPoint->GetProcessDefinedStep();
   
   G4Track* track = aStep->GetTrack();
-  if(theStepN==0) std::cout << " Simulated Particle " << theID
+  if(theStepN==0) std::cout << " Simulated Particle " << theID << "\tMass " << theMass
 			    << "\tPt = " << thePt  << " MeV/c" << "\tEta = " << theEta << "\tPhi = " << thePhi 
 			    << "\tEnergy = " << theEnergy << " MeV"
 		    //			    << std::endl

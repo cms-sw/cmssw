@@ -44,23 +44,25 @@ public :
   
   // Declaration of leave types
   Float_t         ParticleEta;
+  Float_t         ParticleMass;
   Int_t           Nsteps;
-  Double_t        InitialX[5000];   //[Nsteps]
-  Double_t        InitialY[5000];   //[Nsteps]
-  Double_t        InitialZ[5000];   //[Nsteps]
-  Double_t        FinalX[5000];   //[Nsteps]
-  Double_t        FinalY[5000];   //[Nsteps]
-  Double_t        FinalZ[5000];   //[Nsteps]
-  Float_t         InitialE[5000];   //[Nsteps]
-  Float_t         FinalE[5000];   //[Nsteps]
-  Int_t           ParticleStepID[5000];   //[Nsteps]
-  Int_t           ParticleStepInteraction[5000];   //[Nsteps]
-  Float_t         MaterialDensity[8000];   //[Nsteps]
-  Float_t         ParticleStepInitialPt[5000];   //[Nsteps]
-  Float_t         ParticleStepFinalPt[5000];   //[Nsteps]
+  Double_t        InitialX[10000];   //[Nsteps]
+  Double_t        InitialY[10000];   //[Nsteps]
+  Double_t        InitialZ[10000];   //[Nsteps]
+  Double_t        FinalX[10000];   //[Nsteps]
+  Double_t        FinalY[10000];   //[Nsteps]
+  Double_t        FinalZ[10000];   //[Nsteps]
+  Float_t         InitialE[10000];   //[Nsteps]
+  Float_t         FinalE[10000];   //[Nsteps]
+  Int_t           ParticleStepID[10000];   //[Nsteps]
+  Int_t           ParticleStepInteraction[10000];   //[Nsteps]
+  Float_t         MaterialDensity[10000];   //[Nsteps]
+  Float_t         ParticleStepInitialPt[10000];   //[Nsteps]
+  Float_t         ParticleStepFinalPt[10000];   //[Nsteps]
   
   // List of branches
   TBranch        *b_ParticleEta;   //!
+  TBranch        *b_ParticleMass;   //!
   TBranch        *b_Nsteps;   //!
   TBranch        *b_InitialX;   //!
   TBranch        *b_InitialY;   //!
@@ -167,21 +169,22 @@ void Loopers::Init(TTree *tree)
   fCurrent = -1;
   fChain->SetMakeClass(1);
   
-  fChain->SetBranchAddress("Particle Eta",    &ParticleEta, &b_ParticleEta);
+  fChain->SetBranchAddress("Particle Eta", &ParticleEta, &b_ParticleEta);
+  fChain->SetBranchAddress("Particle Mass", &ParticleMass, &b_ParticleMass);
   fChain->SetBranchAddress("Nsteps", &Nsteps, &b_Nsteps);
   fChain->SetBranchAddress("Initial X", InitialX, &b_InitialX);
   fChain->SetBranchAddress("Initial Y", InitialY, &b_InitialY);
   fChain->SetBranchAddress("Initial Z", InitialZ, &b_InitialZ);
-  fChain->SetBranchAddress("Final X",   FinalX,   &b_FinalX);
-  fChain->SetBranchAddress("Final Y",   FinalY,   &b_FinalY);
-  fChain->SetBranchAddress("Final Z",   FinalZ,   &b_FinalZ);
+  fChain->SetBranchAddress("Final X", FinalX, &b_FinalX);
+  fChain->SetBranchAddress("Final Y", FinalY, &b_FinalY);
+  fChain->SetBranchAddress("Final Z", FinalZ, &b_FinalZ);
   fChain->SetBranchAddress("Particle Step Initial Energy", InitialE, &b_InitialE);
   fChain->SetBranchAddress("Particle Step Final Energy", FinalE, &b_FinalE);
-  fChain->SetBranchAddress("Particle Step ID",             ParticleStepID,           &b_ParticleStepID);
-  fChain->SetBranchAddress("Particle Step Interaction",    ParticleStepInteraction,  &b_ParticleStepInteraction);
-  fChain->SetBranchAddress("Material Density",   MaterialDensity,   &b_MaterialDensity);
-  fChain->SetBranchAddress("Particle Step Initial Pt",     ParticleStepInitialPt,    &b_ParticleStepInitialPt);
-  fChain->SetBranchAddress("Particle Step Final Pt",       ParticleStepFinalPt,      &b_ParticleStepFinalPt);
+  fChain->SetBranchAddress("Particle Step ID", ParticleStepID, &b_ParticleStepID);
+  fChain->SetBranchAddress("Particle Step Interaction", ParticleStepInteraction, &b_ParticleStepInteraction);
+  fChain->SetBranchAddress("Material Density", MaterialDensity, &b_MaterialDensity);
+  fChain->SetBranchAddress("Particle Step Initial Pt", ParticleStepInitialPt, &b_ParticleStepInitialPt);
+  fChain->SetBranchAddress("Particle Step Final Pt", ParticleStepFinalPt, &b_ParticleStepFinalPt);
   Notify();
 }
 
@@ -214,7 +217,7 @@ Int_t Loopers::Cut(Long64_t entry)
 void Loopers::Book(){
   hist_loops = new TH1F("hist_loops",
 			"Number of Loops before stopping;Loops [2#pi];Events/bin",
-			40,0,10);
+			80,0,20);
   hist_energy_init = new TH1F("hist_energy_init",
 			      "Energy at starting point;Energy [MeV];Events/bin",
 			      100,0.0,1000.0);
@@ -223,10 +226,10 @@ void Loopers::Book(){
 			     100,0.0,1000.0);
   hist_density = new TH1F("hist_density",
 			  "Average Density;#bar{#rho} [g/cm^{3}];Events/bin",
-			  50,0.0,0.5);
+			  30,0.0,0.3);
   hist_density_vs_loops = new TH2F("hist_density_vs_loops",
 				   "Average Density vs Number of Loops;Loops [2#pi];#bar{#rho} [g/cm^{3}];Events/bin",
-				   40,0,10,50,0.0,0.5);
+				   80,0,20,30,0.0,0.3);
   hist_pT_init = new TH1F("hist_pT_init",
 			  "Transverse Momentum at starting point;p_{T} [MeV/c];Events/bin",
 			  100,0.0,1000.0);
