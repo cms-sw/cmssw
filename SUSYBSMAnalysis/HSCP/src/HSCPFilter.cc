@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Tue Jun 26 11:37:21 CEST 2007
-// $Id: HSCPFilter.cc,v 1.1 2007/06/27 13:35:36 arizzi Exp $
+// $Id: HSCPFilter.cc,v 1.1 2007/08/07 10:39:33 arizzi Exp $
 //
 //
 
@@ -26,18 +26,22 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SUSYBSMAnalysis/HSCP/interface/HSCPFilter.h"
 
 #include "DataFormats/TrackReco/interface/TrackDeDxEstimate.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/HitPattern.h"
+
 using namespace reco;
 using namespace std;
 
 HSCPFilter::HSCPFilter(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
-
+  m_dedxCut=iConfig.getParameter<double>("DeDxMin");
+  m_tkPtCut=iConfig.getParameter<double>("PtMin");
 }
 
 
@@ -64,8 +68,9 @@ HSCPFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    const TrackDeDxEstimateCollection & dedx = *dedxH.product();
    for(size_t i=0; i<dedx.size() ; i++)
     {
-      if(dedx[i].first->pt() > 10) cout << dedx[i].second << endl;
-      if(dedx[i].first->pt() > 10 && dedx[i].second> 4. ) return true;
+      if(dedx[i].first->normalizedChi2() < 5 && dedx[i].first->numberOfValidHits()>=8 &&  //quality cuts
+         dedx[i].first->pt() > m_tkPtCut && dedx[i].second> m_dedxCut ) //slow particle  cuts
+            return true;
     }
  
   return false;

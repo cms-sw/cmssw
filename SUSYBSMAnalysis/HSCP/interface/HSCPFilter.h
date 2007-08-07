@@ -19,6 +19,9 @@ class HSCPFilter : public edm::EDFilter {
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
+      float m_dedxCut;
+      float m_tkPtCut;
+     
       // ----------member data ---------------------------
 };
 
