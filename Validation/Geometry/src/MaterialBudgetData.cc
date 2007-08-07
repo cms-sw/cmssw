@@ -24,7 +24,7 @@ void MaterialBudgetData::SetAllStepsToTree()
 {
   allStepsToTree = true;
   MAXNUMBERSTEPS = 0;
-  MAXNUMBERSTEPS = 5000; //!!!WARNING: this number is also hardcoded when booking the tree
+  MAXNUMBERSTEPS = 10000; //!!!WARNING: this number is also hardcoded when booking the tree
   theDmb = new float[MAXNUMBERSTEPS];
   theDil = new float[MAXNUMBERSTEPS];
   // rr
