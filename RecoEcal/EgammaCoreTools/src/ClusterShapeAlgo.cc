@@ -11,7 +11,10 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "CLHEP/Geometry/Transform3D.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 ClusterShapeAlgo::ClusterShapeAlgo(const std::map<std::string,double> & passedParameterMap) : parameterMap_(passedParameterMap) {}
 
@@ -35,11 +38,15 @@ reco::ClusterShape ClusterShapeAlgo::Calculate(const reco::BasicCluster &passedC
   Calculate_Covariances(passedCluster,hits,geometry);
   Calculate_BarrelBasketEnergyFraction(passedCluster,hits, Eta, geometry);
   Calculate_BarrelBasketEnergyFraction(passedCluster,hits, Phi, geometry);
+  Calculate_EnergyDepTopology (passedCluster,hits,geometry,true) ;
+  Calculate_lat(passedCluster);
+  Calculate_ComplexZernikeMoments(passedCluster);
 
   return reco::ClusterShape(covEtaEta_, covEtaPhi_, covPhiPhi_, eMax_, eMaxId_,
 			    e2nd_, e2ndId_, e2x2_, e3x2_, e3x3_,e4x4_, e5x5_,
 			    e2x5Right_, e2x5Left_, e2x5Top_, e2x5Bottom_,
-			    e3x2Ratio_, energyBasketFractionEta_, energyBasketFractionPhi_);
+			    e3x2Ratio_, lat_, etaLat_, phiLat_, A20_, A42_,
+			    energyBasketFractionEta_, energyBasketFractionPhi_);
 }
 
 void ClusterShapeAlgo::Calculate_TopEnergy(const reco::BasicCluster &passedCluster,const EcalRecHitCollection *hits)
@@ -431,4 +438,239 @@ void ClusterShapeAlgo::Calculate_BarrelBasketEnergyFraction(const reco::BasicClu
     case Phi: energyBasketFractionPhi_ = energyFraction; break;
   }
 
+}
+
+void ClusterShapeAlgo::Calculate_lat(const reco::BasicCluster &passedCluster) {
+
+  double r,redmoment=0;
+  double phiRedmoment = 0 ;
+  double etaRedmoment = 0 ;
+  int n,n1,n2,tmp;
+  int clusterSize=energyDistribution_.size();
+  if (clusterSize<3) {
+    etaLat_ = 0.0 ; 
+    lat_ = 0.0;
+    return; 
+  }
+  
+  n1=0; n2=1;
+  if (energyDistribution_[1].deposited_energy > 
+      energyDistribution_[0].deposited_energy) 
+    {
+      tmp=n2; n2=n1; n1=tmp;
+    }
+  for (int i=2; i<clusterSize; i++) {
+    n=i;
+    if (energyDistribution_[i].deposited_energy > 
+        energyDistribution_[n1].deposited_energy) 
+      {
+        tmp = n2;
+        n2 = n1; n1 = i; n=tmp;
+      } else {
+        if (energyDistribution_[i].deposited_energy > 
+            energyDistribution_[n2].deposited_energy) 
+          {
+            tmp=n2; n2=i; n=tmp;
+          }
+      }
+
+    r = energyDistribution_[n].r;
+    redmoment += r*r* energyDistribution_[n].deposited_energy;
+    double rphi = r * cos (energyDistribution_[n].phi) ;
+    phiRedmoment += rphi * rphi * energyDistribution_[n].deposited_energy;
+    double reta = r * sin (energyDistribution_[n].phi) ;
+    etaRedmoment += reta * reta * energyDistribution_[n].deposited_energy;
+  } 
+  double e1 = energyDistribution_[n1].deposited_energy;
+  double e2 = energyDistribution_[n2].deposited_energy;
+  
+  lat_ = redmoment/(redmoment+2.19*2.19*(e1+e2));
+  phiLat_ = phiRedmoment/(phiRedmoment+2.19*2.19*(e1+e2));
+  etaLat_ = etaRedmoment/(etaRedmoment+2.19*2.19*(e1+e2));
+}
+
+void ClusterShapeAlgo::Calculate_ComplexZernikeMoments(const reco::BasicCluster &passedCluster) {
+  // Calculate only the moments which go into the default cluster shape
+  // (moments with m>=2 are the only sensitive to azimuthal shape)
+  A20_ = absZernikeMoment(passedCluster,2,0);
+  A42_ = absZernikeMoment(passedCluster,4,2);
+}
+
+double ClusterShapeAlgo::absZernikeMoment(const reco::BasicCluster &passedCluster,
+                                          int n, int m, double R0) {
+  // 1. Check if n,m are correctly
+  if ((m>n) || ((n-m)%2 != 0) || (n<0) || (m<0)) return -1;
+
+  // 2. Check if n,R0 are within validity Range :
+  // n>20 or R0<2.19cm  just makes no sense !
+  if ((n>20) || (R0<=2.19)) return -1;
+  if (n<=5) return fast_AbsZernikeMoment(passedCluster,n,m,R0);
+  else return calc_AbsZernikeMoment(passedCluster,n,m,R0);
+}
+
+double ClusterShapeAlgo::f00(double r) { return 1; }
+
+double ClusterShapeAlgo::f11(double r) { return r; }
+
+double ClusterShapeAlgo::f20(double r) { return 2.0*r*r-1.0; }
+
+double ClusterShapeAlgo::f22(double r) { return r*r; }
+
+double ClusterShapeAlgo::f31(double r) { return 3.0*r*r*r - 2.0*r; }
+
+double ClusterShapeAlgo::f33(double r) { return r*r*r; }
+
+double ClusterShapeAlgo::f40(double r) { return 6.0*r*r*r*r-6.0*r*r+1.0; }
+
+double ClusterShapeAlgo::f42(double r) { return 4.0*r*r*r*r-3.0*r*r; }
+
+double ClusterShapeAlgo::f44(double r) { return r*r*r*r; }
+
+double ClusterShapeAlgo::f51(double r) { return 10.0*pow(r,5)-12.0*pow(r,3)+3.0*r; }
+
+double ClusterShapeAlgo::f53(double r) { return 5.0*pow(r,5) - 4.0*pow(r,3); }
+
+double ClusterShapeAlgo::f55(double r) { return pow(r,5); }
+
+double ClusterShapeAlgo::fast_AbsZernikeMoment(const reco::BasicCluster &passedCluster,
+                                               int n, int m, double R0) {
+  double r,ph,e,Re=0,Im=0,result;
+  double TotalEnergy = passedCluster.energy();
+  int index = (n/2)*(n/2)+(n/2)+m;
+  int clusterSize=energyDistribution_.size();
+  if(clusterSize<3) return 0.0;
+
+  for (int i=0; i<clusterSize; i++)
+    { 
+      r = energyDistribution_[i].r / R0;
+      if (r<1) {
+        fcn_.clear();
+        Calculate_Polynomials(r);
+        ph = (energyDistribution_[i]).phi;
+        e = energyDistribution_[i].deposited_energy;
+        Re = Re + e/TotalEnergy * fcn_[index] * cos( (double) m * ph);
+        Im = Im - e/TotalEnergy * fcn_[index] * sin( (double) m * ph);
+      }
+    }
+  result = sqrt(Re*Re+Im*Im);
+
+  return result;
+}
+
+double ClusterShapeAlgo::calc_AbsZernikeMoment(const reco::BasicCluster &passedCluster,
+                                               int n, int m, double R0) {
+  double r,ph,e,Re=0,Im=0,f_nm,result;
+  double TotalEnergy = passedCluster.energy();
+  std::vector<DetId> clusterDetIds = passedCluster.getHitsByDetId();
+  int clusterSize=energyDistribution_.size();
+  if(clusterSize<3) return 0.0;
+
+  for (int i=0; i<clusterSize; i++)
+    { 
+      r = energyDistribution_[i].r / R0;
+      if (r<1) {
+        ph = (energyDistribution_[i]).phi;
+        e = energyDistribution_[i].deposited_energy;
+        f_nm=0;
+        for (int s=0; s<=(n-m)/2; s++) {
+          if (s%2==0)
+            { 
+              f_nm = f_nm + factorial(n-s)*pow(r,(double) (n-2*s))/(factorial(s)*factorial((n+m)/2-s)*factorial((n-m)/2-s));
+            }else {
+              f_nm = f_nm - factorial(n-s)*pow(r,(double) (n-2*s))/(factorial(s)*factorial((n+m)/2-s)*factorial((n-m)/2-s));
+            }
+        }
+        Re = Re + e/TotalEnergy * f_nm * cos( (double) m*ph);
+        Im = Im - e/TotalEnergy * f_nm * sin( (double) m*ph);
+      }
+    }
+  result = sqrt(Re*Re+Im*Im);
+
+  return result;
+}
+
+void ClusterShapeAlgo::Calculate_EnergyDepTopology (const reco::BasicCluster &passedCluster,
+						    const EcalRecHitCollection *hits,
+						    const CaloSubdetectorGeometry* geometry,
+						    bool logW) {
+  // resets the energy distribution
+  energyDistribution_.clear();
+
+  // init a map of the energy deposition centered on the
+  // cluster centroid. This is for momenta calculation only.
+  CLHEP::Hep3Vector clVect(passedCluster.position().x(),
+                           passedCluster.position().y(),
+                           passedCluster.position().z());
+  CLHEP::Hep3Vector clDir(clVect);
+  clDir*=1.0/clDir.mag();
+  // in the transverse plane, axis perpendicular to clusterDir
+  CLHEP::Hep3Vector theta_axis(clDir.y(),-clDir.x(),0.0);
+  theta_axis *= 1.0/theta_axis.mag();
+  Hep3Vector phi_axis = theta_axis.cross(clDir);
+
+  std::vector<DetId> clusterDetIds = passedCluster.getHitsByDetId();
+
+  EcalClusterEnergyDeposition clEdep;
+  EcalRecHit testEcalRecHit;
+  std::vector<DetId>::iterator posCurrent;
+  // loop over crystals
+  for(posCurrent=clusterDetIds.begin(); posCurrent!=clusterDetIds.end(); ++posCurrent) {
+    EcalRecHitCollection::const_iterator itt = hits->find(*posCurrent);
+    testEcalRecHit=*itt;
+
+    if((*posCurrent != DetId(0)) && (hits->find(*posCurrent) != hits->end())) {
+      clEdep.deposited_energy = testEcalRecHit.energy();
+
+      // if logarithmic weight is requested, apply cut on minimum energy of the recHit
+      if(logW) {
+        double w0_ = parameterMap_.find("W0")->second;
+
+        double weight = std::max(0.0, w0_ + log(fabs(clEdep.deposited_energy)/passedCluster.energy()) );
+        if(weight==0) {
+          LogDebug("ClusterShapeAlgo") << "Crystal has insufficient energy: E = " 
+                                       << clEdep.deposited_energy << " GeV; skipping... ";
+          continue;
+        }
+        else LogDebug("ClusterShapeAlgo") << "===> got crystal. Energy = " << clEdep.deposited_energy << " GeV. ";
+      }
+      DetId id_ = *posCurrent;
+      const CaloCellGeometry *this_cell = geometry->getGeometry(id_);
+      GlobalPoint cellPos = this_cell->getPosition();
+      CLHEP::Hep3Vector gblPos (cellPos.x(),cellPos.y(),cellPos.z()); //surface position?
+      // Evaluate the distance from the cluster centroid
+      CLHEP::Hep3Vector diff = gblPos - clVect;
+      // Important: for the moment calculation, only the "lateral distance" is important
+      // "lateral distance" r_i = distance of the digi position from the axis Origin-Cluster Center
+      // ---> subtract the projection on clDir
+      CLHEP::Hep3Vector DigiVect = diff - diff.dot(clDir)*clDir;
+      clEdep.r = DigiVect.mag();
+      LogDebug("ClusterShapeAlgo") << "E = " << clEdep.deposited_energy
+                                   << "\tdiff = " << diff.mag()
+                                   << "\tr = " << clEdep.r;
+      clEdep.phi = DigiVect.angle(theta_axis);
+      if(DigiVect.dot(phi_axis)<0) clEdep.phi = 2*M_PI - clEdep.phi;
+      energyDistribution_.push_back(clEdep);
+    }
+  } 
+}
+
+void ClusterShapeAlgo::Calculate_Polynomials(double rho) {
+  fcn_.push_back(f00(rho));
+  fcn_.push_back(f11(rho));
+  fcn_.push_back(f20(rho));
+  fcn_.push_back(f31(rho));
+  fcn_.push_back(f22(rho));
+  fcn_.push_back(f33(rho));
+  fcn_.push_back(f40(rho));
+  fcn_.push_back(f51(rho));
+  fcn_.push_back(f42(rho));
+  fcn_.push_back(f53(rho));
+  fcn_.push_back(f44(rho));
+  fcn_.push_back(f55(rho));
+}
+
+double ClusterShapeAlgo::factorial(int n) const {
+  double res=1.0;
+  for(int i=2; i<=n; i++) res*=(double) i;
+  return res;
 }
