@@ -41,12 +41,18 @@ public:
 
   /// Set Jet area as calculated by algorithm
   void setJetArea (float fArea);
+  /// Jet area as calculated by algorithm
+  float jetArea () const;
 
   ///  Set pileup energy contribution as calculated by algorithm
   void setPileup (float fEnergy);
+ ///  pileup energy contribution as calculated by algorithm
+  float pileup () const;
 
   ///  Set number of passes taken by algorithm
   void setNPasses (int fPasses);
+  ///  number of passes taken by algorithm
+  int nPasses () const;
 
 
   // The Jet four-vector as a true Lorentz vector

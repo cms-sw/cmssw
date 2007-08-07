@@ -1,7 +1,7 @@
 /// Algorithm to convert transient protojets into persistent jets
 /// Author: F.Ratnikov, UMd
 /// Mar. 8, 2006
-/// $Id: JetMaker.cc,v 1.26 2007/05/24 18:05:44 fedor Exp $
+/// $Id: JetMaker.cc,v 1.27 2007/07/25 22:09:40 fedor Exp $
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -101,12 +101,9 @@ namespace {
       fJetSpecific->mEnergyFractionHadronic = eInHad / towerEnergy;
       fJetSpecific->mEnergyFractionEm = eInEm / towerEnergy;
     }
-    else {
-      fJetSpecific->mEnergyFractionHadronic = -99; // unphysics
-      fJetSpecific->mEnergyFractionEm = -99;
-      std::cerr << "JetMaker::makeSpecific (CaloJet)-> ERROR: constituent tower energy is " << towerEnergy
-		<< ", Em/Had contributions are " << eInEm << '/' << eInHad << std::endl
-		<< ". THIS SHOULD NEVER HAPPEN - please inform ratnikov@fnal.gov. Thank you!" << std::endl;
+    else { // HO only jet
+      fJetSpecific->mEnergyFractionHadronic = 1.;
+      fJetSpecific->mEnergyFractionEm = 0.;
     }
     fJetSpecific->mTowersArea = jetArea;
     fJetSpecific->mMaxEInEmTowers = 0;
@@ -246,33 +243,53 @@ namespace {
 } // unnamed namespace
 
 BasicJet JetMaker::makeBasicJet (const ProtoJet& fProtojet) const {
-  return  BasicJet (fProtojet.p4(), reco::Particle::Point (0, 0, 0), fProtojet.getTowerList());
+  BasicJet result (fProtojet.p4(), reco::Particle::Point (0, 0, 0), fProtojet.getTowerList());
+  result.setJetArea (fProtojet.jetArea());
+  result.setPileup (fProtojet.pileup());
+  result.setNPasses (fProtojet.nPasses());
+  return  result;
 }
 
 
 CaloJet JetMaker::makeCaloJet (const ProtoJet& fProtojet, const CaloSubdetectorGeometry& fTowerGeometry) const {
   CaloJet::Specific specific;
   makeSpecific (fProtojet.getTowerList(), fTowerGeometry, &specific);
-  return CaloJet (fProtojet.p4(), specific, fProtojet.getTowerList());
+  CaloJet result (fProtojet.p4(), specific, fProtojet.getTowerList());
+  result.setJetArea (fProtojet.jetArea());
+  result.setPileup (fProtojet.pileup());
+  result.setNPasses (fProtojet.nPasses());
+  return  result;
 }
 
 PFJet JetMaker::makePFJet (const ProtoJet& fProtojet) const {
   PFJet::Specific specific;
   makeSpecific (fProtojet.getTowerList(), &specific);
-  return PFJet (fProtojet.p4(), specific, fProtojet.getTowerList());
+  PFJet result (fProtojet.p4(), specific, fProtojet.getTowerList());
+  result.setJetArea (fProtojet.jetArea());
+  result.setPileup (fProtojet.pileup());
+  result.setNPasses (fProtojet.nPasses());
+  return  result;
 }
 
 GenJet JetMaker::makeGenJet (const ProtoJet& fProtojet) const {
   GenJet::Specific specific;
   makeSpecific (fProtojet.getTowerList(), &specific);
-  return GenJet (fProtojet.p4(), specific, fProtojet.getTowerList());
+  GenJet result (fProtojet.p4(), specific, fProtojet.getTowerList());
+  result.setJetArea (fProtojet.jetArea());
+  result.setPileup (fProtojet.pileup());
+  result.setNPasses (fProtojet.nPasses());
+  return  result;
 }
 
 GenericJet JetMaker::makeGenericJet (const ProtoJet& fProtojet) const {
   // count constituents
   std::vector<CandidateBaseRef>  constituents;
   // fill nothing into consituents for now
-  return  GenericJet (fProtojet.p4(), reco::Particle::Point (0, 0, 0), constituents);
+  GenericJet result (fProtojet.p4(), reco::Particle::Point (0, 0, 0), constituents);
+//   result.setJetArea (fProtojet.jetArea());
+//   result.setPileup (fProtojet.pileup());
+//   result.setNPasses (fProtojet.nPasses());
+  return  result;
 }
 
 HcalSubdetector JetMaker::hcalSubdetector (int fEta) {

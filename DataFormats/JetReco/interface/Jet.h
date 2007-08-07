@@ -12,7 +12,7 @@
  *
  * \version   Original: April 22, 2005 by Fernando Varela Rodriguez.
  * \version   May 23, 2006 by F.R.
- * \version   $Id: Jet.h,v 1.15 2007/05/09 21:53:25 fedor Exp $
+ * \version   $Id: Jet.h,v 1.16 2007/05/30 22:06:42 fedor Exp $
  ************************************************************/
 #include <string>
 #include "DataFormats/Candidate/interface/CompositeRefCandidate.h"
@@ -33,7 +33,7 @@ namespace reco {
     };
 
     /// Default constructor
-    Jet () {}
+    Jet () : mJetArea (0), mPileupEnergy (0), mPassNumber (0) {}
     /// Initiator
     Jet (const LorentzVector& fP4, const Point& fVertex, const Constituents& fConstituents);
     /// Destructor
@@ -72,15 +72,44 @@ namespace reco {
     /// list of constituents
     Constituents getJetConstituents () const;
 
-    // quick list of constituents
+    /// quick list of constituents
     std::vector<const reco::Candidate*> getJetConstituentsQuick () const;
 
-  /// Print object
+    /// Print object
     virtual std::string print () const;
+    
+    /// set jet area
+    virtual void setJetArea (float fArea) {mJetArea = fArea;}
+    /// get jet area
+    virtual float jetArea () const {return mJetArea;}
+
+    ///  Set pileup energy contribution as calculated by algorithm
+    virtual void setPileup (float fEnergy) {mPileupEnergy = fEnergy;}
+    ///  pileup energy contribution as calculated by algorithm
+    virtual float pileup () const {return mPileupEnergy;}
+    
+    ///  Set number of passes taken by algorithm
+    virtual void setNPasses (int fPasses) {mPassNumber = fPasses;}
+    ///  number of passes taken by algorithm
+    virtual int nPasses () const {return mPassNumber;}
+    
+    /// temporary fix for cached valuse
+    double massUncached() const {return p4().M();}
+    double massSqrUncached() const {return p4().M2();}
+    double mtUncached() const {return p4().Mt();}
+    double mtSqrUncached() const {return p4().Mt2();}
+    double ptUncached() const {return p4().Pt();}
+    double phiUncached() const {return p4().Phi();}
+    double etaUncached() const {return p4().Eta();}
+    double rapidityUncached() const {return p4().Rapidity();}
+    double yUncached() const {return p4().Rapidity();}
 
   private:
     // disallow constituents modifications
     void addDaughter( const CandidateRef & fRef) {CompositeRefCandidate::addDaughter (fRef);}
+    float mJetArea;
+    float mPileupEnergy;
+    int mPassNumber;
   };
 }
 #endif

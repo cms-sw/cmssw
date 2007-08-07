@@ -76,8 +76,11 @@ ProtoJet::ProtoJet(const LorentzVector& fP4, const Constituents& fConstituents)
 {}
 
 void ProtoJet::setJetArea (float fArea) {mJetArea = fArea;}
+float ProtoJet::jetArea () const {return mJetArea;}
 void ProtoJet::setPileup (float fEnergy) {mPileupEnergy = fEnergy;}
+float ProtoJet::pileup () const {return mPileupEnergy;}
 void ProtoJet::setNPasses (int fPasses) {mPassNumber = fPasses;}
+int ProtoJet::nPasses () const {return mPassNumber;}
 
 const ProtoJet::Constituents& ProtoJet::getTowerList() {
   reorderTowers ();

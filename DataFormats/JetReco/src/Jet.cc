@@ -1,6 +1,6 @@
 // Jet.cc
 // Fedor Ratnikov, UMd
-// $Id: Jet.cc,v 1.10 2007/05/25 12:38:34 llista Exp $
+// $Id: Jet.cc,v 1.11 2007/05/30 22:06:43 fedor Exp $
 
 #include <sstream>
 #include "DataFormats/Math/interface/deltaR.h"
@@ -67,7 +67,10 @@ namespace {
 Jet::Jet (const LorentzVector& fP4, 
 	  const Point& fVertex, 
 	  const std::vector<reco::CandidateRef>& fConstituents)
-  :  CompositeRefCandidate (0, fP4, fVertex)
+  :  CompositeRefCandidate (0, fP4, fVertex),
+     mJetArea (0),
+     mPileupEnergy (0),
+     mPassNumber (0)
 {
   for (unsigned i = 0; i < fConstituents.size (); i++) {
     addDaughter (fConstituents [i]);
