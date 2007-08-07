@@ -44,7 +44,7 @@ PythonProcessDesc::PythonProcessDesc(const std::string & fileName)
                             Py_file_input,
                             main_namespace.ptr(),
                             main_namespace.ptr()));
-      std::string command("cms.findProcess(fileDict).fillProcessDesc(processDesc, processPSet)");
+      std::string command("cms.findProcess(fileDict).fillProcessDesc(libFWCoreParameterSet.processDesc, libFWCoreParameterSet.processPSet)");
       handle<>(PyRun_String(command.c_str(),
                             Py_eval_input,
                             main_namespace.ptr(),
