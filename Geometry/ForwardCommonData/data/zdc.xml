@@ -9,9 +9,9 @@
 <Constant name = "zdcHadXinitial"  value = "-47.57525*mm"/>
 <Constant name = "zdcHadXDelta"   value =  "0.8495*mm"/>
 <Constant name = "zdcEMZinitial"  value =  "-48.5*mm"/>
-<Constant name = "zdcEMdzDelta"   value =  "3.0*mm"/>
+<Constant name = "zdcEMZDelta"   value =  "3.0*mm"/>
 <Constant name = "zdcEMXinitial"  value =  "-47.56365*mm"/>
-<Constant name = "zdcEMdxDelta"   value =  "0.8727*mm"/>
+<Constant name = "zdcEMXDelta"   value =  "0.8727*mm"/>
 </ConstantsSection>
 
 <SolidSection label="zdcSolids">
@@ -1742,5 +1742,6 @@
   <rRotation name="zdcrotations:R1"/>
    <Translation x="[zdcEMXinitial]+109.0*[zdcEMXDelta]" y="0*fm" z="1000*mum" />
  </PosPart>
+
 </PosPartSection>
 </DDDefinition>
