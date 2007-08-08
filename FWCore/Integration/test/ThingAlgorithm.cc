@@ -1,6 +1,5 @@
 #include "FWCore/Integration/test/ThingAlgorithm.h"
 #include "DataFormats/TestObjects/interface/Thing.h"
-#include "DataFormats/TestObjects/interface/ThingCollection.h"
 
 namespace edmtest {
   void ThingAlgorithm::run(ThingCollection & thingCollection) {

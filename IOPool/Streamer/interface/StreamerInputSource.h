@@ -14,7 +14,6 @@
 #include "FWCore/Framework/interface/InputSource.h"
 
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
-#include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "TBuffer.h"
 #include <vector>

@@ -7,7 +7,6 @@
 
 #include "TROOT.h"
 #include "TSystem.h"
-#include "TUnixSystem.h"
 
 #include <iostream>
 #include <string>

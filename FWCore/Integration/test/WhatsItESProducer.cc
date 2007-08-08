@@ -13,14 +13,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 14:33:04 EDT 2005
-// $Id: WhatsItESProducer.cc,v 1.9 2006/10/21 16:44:13 wmtan Exp $
+// $Id: WhatsItESProducer.cc,v 1.10 2007/07/30 19:15:54 chrjones Exp $
 //
 //
 
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
