@@ -12,8 +12,11 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Fri Jul 14 19:46:30 EDT 2006
-// $Id: L1ParticleMap.h,v 1.26 2007/07/31 15:20:14 ratnik Exp $
+// $Id: L1ParticleMap.h,v 1.27 2007/08/07 01:18:15 wsun Exp $
 // $Log: L1ParticleMap.h,v $
+// Revision 1.27  2007/08/07 01:18:15  wsun
+// Added JetMET calibration triggers from Len.
+//
 // Revision 1.26  2007/07/31 15:20:14  ratnik
 // QA campaign: include cleanup based on CMSSW_1_7_X_2007-07-30-1600 includechecker results.
 //
@@ -252,10 +255,10 @@ namespace l1extra {
 	    kDoubleJet50_ETM20,
 	    kDoubleTauJet40_ETM20,
 	    kQuadJet30,
-            kExclusiveDoubleIsoEG6,
-            kExclusiveDoubleJet50,
-            kExclusiveJet20_Gap_Jet20,
-            kIsoEG15_Jet20_ForJet10,
+            kExclusiveDoubleIsoEG4,
+            kExclusiveDoubleJet60,
+            kExclusiveJet25_Gap_Jet25,
+            kIsoEG10_Jet20_ForJet10,
 	    kMinBias_HTT10,
 	    kZeroBias,
 	    kNumOfL1TriggerTypes
