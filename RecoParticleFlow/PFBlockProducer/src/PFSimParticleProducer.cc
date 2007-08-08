@@ -420,8 +420,8 @@ PFSimParticleProducer::processRecTracks(auto_ptr< reco::PFRecTrackCollection >&
       Trajectory*  theTraj  = (*itTrack).first;
       vector<TrajectoryMeasurement> measurements = theTraj->measurements();
 
-      //      reco::Track* theTrack = (*itTrack).second.first;
-      reco::Track* theTrack = (*itTrack).second;
+      reco::Track* theTrack = (*itTrack).second.first;
+      // reco::Track* theTrack = (*itTrack).second;
 
       reco::PFRecTrack track(theTrack->charge(), 
 			     reco::PFRecTrack::KF);
