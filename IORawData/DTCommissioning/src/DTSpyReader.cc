@@ -57,20 +57,13 @@ DTSpyReader::~DTSpyReader() {
 
 bool DTSpyReader::fillRawData(EventID& eID, Timestamp& tstamp, FEDRawDataCollection*& data){
   
-  cout<<endl;
-  
+  // ask for a new buffer
+  mySpy->getNextBuffer();
+
   // get the pointer to the beginning of the buffer
   char * rawDTData = mySpy->getEventPointer();
   
-  cout<<" Got buffer "<<mySpy->getBuffSize()<<endl;
-  cout<<" run =  "<<mySpy->getRunNo()<<endl;
-
-  cout<<" first char "<< rawDTData[0]<<endl;
-  cout<<" first char from spy "<< *(mySpy->getEventPointer())<<endl;
-
   uint32_t * rawDTData32 = reinterpret_cast<uint32_t*>(rawDTData);
-
-  cout<<" first int32's "<< rawDTData32[0]<<" "<<rawDTData32[1] <<" "<<rawDTData32[2] <<" "<<rawDTData32[3] <<endl;
 
   // instantiate the FEDRawDataCollection
   data = new FEDRawDataCollection();
@@ -115,7 +108,7 @@ bool DTSpyReader::fillRawData(EventID& eID, Timestamp& tstamp, FEDRawDataCollect
     }
 
     // advancing by 4 32-bits words
-    rawDTData32 += 4;
+    rawDTData32 += 16;
 
     // counting the total number of group of 128 bits (=4*32) in the buffer 
     wordCountCheck++; if (debug) cout<<"[DTSpyReader]: Step number "<<wordCountCheck<<endl;
@@ -131,7 +124,10 @@ bool DTSpyReader::fillRawData(EventID& eID, Timestamp& tstamp, FEDRawDataCollect
   int eventDataSize = eventData.size()*dduWordLength;
   
   // Get the FED ID from the DDU 
-  if (dduHeader) dduID = dduHeader->sourceID();
+  if (dduHeader) dduID = dduHeader->sourceID(); 
+  if (debug) cout<<"[DTSpyReader]: DDU ID = "<<dduID<<endl;
+  delete dduHeader;
+
   FEDRawData& fedRawData = data->FEDData( dduID );
   fedRawData.resize(eventDataSize);
   
@@ -166,6 +162,8 @@ uint64_t DTSpyReader::dmaUnpack(uint32_t* dmaData, bool & isData) {
 
   // push_back to a 64 word
   uint64_t dduWord = ( uint64_t(unpackedData[1]) << 32 ) | unpackedData[0];
+
+  if (debug) cout<<"[DTSpyReader]:  plain int32 word: "<<dduWord <<endl;
 
   return dduWord;
 }
