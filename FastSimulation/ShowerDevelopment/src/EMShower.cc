@@ -32,7 +32,7 @@ EMShower::EMShower(const RandomEngine* engine,
   // Get the Famos Histos pointer
   //  myHistos = Histos::instance();
   //  myGammaGenerator = GammaFunctionGenerator::instance();
-  
+  stepsCalculated=false;
   hasPreshower = myPresh!=NULL;
   theECAL = myParam->ecalProperties();
   theHCAL = myParam->hcalProperties();
@@ -49,7 +49,7 @@ EMShower::EMShower(const RandomEngine* engine,
   double meanDepth=0.;
   // Initialize the shower parameters for each particle
   for ( unsigned int i=0; i<nPart; ++i ) {
-    //    std::cout << (*thePart)[i] << std::endl;
+    std::cout << " AAA " << *(*thePart)[i] << std::endl;
     // The particle and the shower energy
     Etot.push_back(0.);
     E.push_back(((*thePart)[i])->e());
@@ -120,8 +120,8 @@ EMShower::EMShower(const RandomEngine* engine,
  // std::cout << " Total Energy " << totalEnergy << " Global max " << globalMaximum << std::endl;
 }
 
-void
-EMShower::compute() {
+void EMShower::prepareSteps(double & d1, double&d2)
+{
   //  TimeMe theT("EMShower::compute");
   
   // Determine the longitudinal intervals
@@ -129,13 +129,17 @@ EMShower::compute() {
   double dt;
   double radlen;
   int stps;
+  unsigned first_Ecal_step=0;
+  unsigned last_Ecal_step=0;
+  // The maximum is in principe 8 (with 5X0 steps in the ECAL)
+  steps.reserve(20);
   
-//  std::cout << " PS1 : " << theGrid->ps1TotalX0()
-//	    << " PS2 : " << theGrid->ps2TotalX0()
-//	    << " ECAL : " << theGrid->ecalTotalX0()
-//	    << " HCAL : " << theGrid->hcalTotalX0() 
-//	    << " Offset : " << theGrid->x0DepthOffset()
-//	    << std::endl;
+  std::cout << " PS1 : " << theGrid->ps1TotalX0()
+	    << " PS2 : " << theGrid->ps2TotalX0()
+	    << " ECAL : " << theGrid->ecalTotalX0()
+	    << " HCAL : " << theGrid->hcalTotalX0() 
+	    << " Offset : " << theGrid->x0DepthOffset()
+	    << std::endl;
   
   
   radlen = -theGrid->x0DepthOffset();
@@ -162,8 +166,10 @@ EMShower::compute() {
     if ( stps == 0 ) stps = 1;
     dt = radlen/(double)stps;
     Step step(2,dt);
+    first_Ecal_step=steps.size();
     for ( int ist=0; ist<stps; ++ist )
       steps.push_back(step);
+    last_Ecal_step=steps.size()-1;
     radlen = 0.;
   } 
  
@@ -179,11 +185,57 @@ EMShower::compute() {
        steps.push_back(step);
      }
  } 
- 
- 
- double t = 0.;
 
- bool status=false; 
+ nSteps=steps.size();
+ if(nSteps==0) return;
+ double ESliceTot=0.;
+ double MeanDepth=0.;
+ depositedEnergy.resize(nSteps);
+ meanDepth.resize(nSteps);
+ double t=0.;
+ std::cout << " nSteps  " <<nSteps << std::endl;
+ int offset=0;
+ for(unsigned iStep=0;iStep<nSteps;++iStep)
+   {
+     ESliceTot=0.;
+     MeanDepth=0.;
+     double realTotalEnergy=0;
+     dt=steps[iStep].second;
+     t+=dt;
+     for ( unsigned int i=0; i<nPart; ++i ) {
+       std::cout << " Before depositedEnergy push_back " << std::endl;
+       depositedEnergy[iStep].push_back(deposit(t,a[i],b[i],dt));     
+       ESliceTot +=depositedEnergy[iStep][i];
+       MeanDepth += deposit(t,a[i]+1.,b[i],dt)/b[i]*a[i];
+       realTotalEnergy+=depositedEnergy[iStep][i]*E[i];
+     }
+     MeanDepth/=ESliceTot;
+     meanDepth[iStep]=MeanDepth;
+     if(realTotalEnergy<0.001)
+       {
+	 offset-=1;
+	 std::cout << "realTotalEnergy (1) " << realTotalEnergy << std::endl;
+       }
+   }
+ std::cout << " Finished with the steps " << first_Ecal_step << " " << last_Ecal_step << " " << offset << std::endl;
+ d1=meanDepth[first_Ecal_step];
+ if(last_Ecal_step+offset>=0)
+   d2=meanDepth[last_Ecal_step+offset];
+ else
+   d2=d1;
+ std::cout << " d1 & d2 " << d1 << " " << d2 << std::endl;
+ stepsCalculated=true;
+}
+
+void
+EMShower::compute() {
+
+  double t = 0.;
+  double dt = 0.;
+  if(!stepsCalculated) prepareSteps(t,dt);
+  t=0.;
+  dt=0.;
+  bool status=false; 
 
   //  double E1 = 0.;  // Energy layer 1
   //  double E2 = 0.;  // Energy layer 2
@@ -192,16 +244,16 @@ EMShower::compute() {
   //  double E9 = 0.;  // Energy ECAL
   
   // Loop over all segments for the longitudinal development
-  for ( step_iterator step=steps.begin(); step<steps.end(); ++step ) {
+  for (unsigned iStep=0; iStep<nSteps; ++iStep ) {
     
     // The length of the shower in this segment
-    dt = step->second;
+    dt = steps[iStep].second;
 
     // The elapsed length
     t += dt;
 
     // In what detector are we ?
-    unsigned detector=step->first;
+    unsigned detector=steps[iStep].first;
     bool presh1 = detector==0;
     bool presh2 = detector==1;
     bool ecal = detector==2;
@@ -224,29 +276,25 @@ EMShower::compute() {
    // middle of the step
     double tt = t-0.5*dt; 
 
-    // Computes the average depth
-    std::vector<double> Edepo;
-    double ESliceTot=0.;
-    double MeanDepth=0.;
     double realTotalEnergy=0.;
     for ( unsigned int i=0; i<nPart; ++i ) {
-      Edepo.push_back(deposit(t,a[i],b[i],dt));
-      ESliceTot += Edepo[i];
-      realTotalEnergy += Edepo[i]*E[i];
-      //  Computes the barycenter of the energy deposit in the slice. It should be /Edepo[i] but it is also *Edepo[i]
-      MeanDepth += deposit(t,a[i]+1.,b[i],dt)/b[i]*a[i];
-      //      if (ecal)std::cout << " CHECK " << t-dt << " " << deposit(t,a[i]+1.,b[i],dt)/b[i]*a[i]/Edepo[i] << " " << t << " " << Edepo[i] << " " << a[i] << " " << b[i] << " " << theGrid->x0DepthOffset() << std::endl;
+      realTotalEnergy += depositedEnergy[iStep][i]*E[i];
     }
     // If the amount of energy is less than 1 MeV, do nothing
 
-    MeanDepth/=ESliceTot;
 //    std::cout << " Step " << tt << std::endl;
 //    std::cout << "ecal " << ecal << " hcal "  << hcal <<std::endl;
 
     // If the amount of energy is greater than 1 MeV, make a new grid
-    // otherwise put in the previous one. 
+    // otherwise put in the previous one.    
+
     bool usePreviousGrid=(realTotalEnergy<0.001);
-    if (ecal && !usePreviousGrid) status=theGrid->getPads(MeanDepth);
+    if(usePreviousGrid) std::cout << " Using previous grid " << realTotalEnergy << std::endl;
+    if (ecal && !usePreviousGrid) 
+      {
+	status=theGrid->getPads(meanDepth[iStep]);
+	std::cout << "  AAA Getting pads at depth " << meanDepth[iStep] << " with Energy " << realTotalEnergy<< std::endl;
+      }
     if (hcal) 
       {
 	status=theHcalHitMaker->setDepth(tt);
@@ -266,7 +314,7 @@ EMShower::compute() {
       //      double Edepo=deposit(t,a[i],b[i],dt);
 
      //  integration of the shower profile between t-dt and t
-      double dE = (!hcal)? Edepo[i]:1.-deposit(a[i],b[i],t-dt);
+      double dE = (!hcal)? depositedEnergy[iStep][i]:1.-deposit(a[i],b[i],t-dt);
 
       if(detailedShowerTail)
 	{
