@@ -70,9 +70,9 @@ void setup(void);
   void loadHistograms(TFile* infile);
   void dumpHistograms(vector<TH1F*> &hist1, vector<TH2F*> &hist2);
   
-  void qadcHTML(string htmlDir, string htmlName);
-  void timingHTML(string htmlDir, string htmlName);
-  void evtposHTML(string htmlDir, string htmlName);
+  void qadcHTML(int run, string htmlDir, string htmlName);
+  void timingHTML(int run, string htmlDir, string htmlName);
+  void evtposHTML(int run, string htmlDir, string htmlName);
  
   void errorOutput();
   void getErrors(map<string, vector<QReport*> > out1, map<string, vector<QReport*> > out2, map<string, vector<QReport*> > out3);

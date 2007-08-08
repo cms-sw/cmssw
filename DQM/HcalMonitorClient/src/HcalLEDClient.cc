@@ -680,11 +680,11 @@ void HcalLEDClient::resetAllME(){
   return;
 }
 
-void HcalLEDClient::htmlOutput(int run, string htmlDir, string htmlName){
+void HcalLEDClient::htmlOutput(int runNo, string htmlDir, string htmlName){
   
   cout << "Preparing HcalLEDClient html output ..." << endl;
   string client = "LEDMonitor";
-  htmlErrors(htmlDir,client,process_,mui_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
+  htmlErrors(runNo,htmlDir,client,process_,mui_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
 
   ofstream htmlFile;
   htmlFile.open((htmlDir + htmlName).c_str());
@@ -702,7 +702,7 @@ void HcalLEDClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<br>  " << endl;
   htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
   htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << run << "</span></h2>" << endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << runNo << "</span></h2>" << endl;
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">Hcal LEDs</span></h2> " << endl;
 
@@ -739,54 +739,54 @@ void HcalLEDClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   htmlFile << "<tr align=\"left\">" << endl;
   htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\"GEO_Plots\"><h3>Geometry Histograms</h3></td></tr>" << endl;
-  histoHTML2(mean_timeDep_[0],"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(rms_timeDep_[0],"iEta","iPhi", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,mean_timeDep_[0],"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,rms_timeDep_[0],"iEta","iPhi", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(mean_timeDep_[1],"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(rms_timeDep_[1],"iEta","iPhi", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,mean_timeDep_[1],"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,rms_timeDep_[1],"iEta","iPhi", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(mean_timeDep_[2],"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(rms_timeDep_[2],"iEta","iPhi", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,mean_timeDep_[2],"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,rms_timeDep_[2],"iEta","iPhi", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(mean_timeDep_[3],"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(rms_timeDep_[3],"iEta","iPhi", 100, htmlFile,htmlDir);
-  htmlFile << "</tr>" << endl;
-
-  htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(mean_energyDep_[0],"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(rms_energyDep_[0],"iEta","iPhi", 100, htmlFile,htmlDir);
-  htmlFile << "</tr>" << endl;
-  htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(mean_energyDep_[1],"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(rms_energyDep_[1],"iEta","iPhi", 100, htmlFile,htmlDir);
-  htmlFile << "</tr>" << endl;
-  htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(mean_energyDep_[2],"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(rms_energyDep_[2],"iEta","iPhi", 100, htmlFile,htmlDir);
-  htmlFile << "</tr>" << endl;
-  htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(mean_energyDep_[3],"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(rms_energyDep_[3],"iEta","iPhi", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,mean_timeDep_[3],"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,rms_timeDep_[3],"iEta","iPhi", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(mean_shapeDep_[0],"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(rms_shapeDep_[0],"iEta","iPhi", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,mean_energyDep_[0],"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,rms_energyDep_[0],"iEta","iPhi", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(mean_shapeDep_[1],"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(rms_shapeDep_[1],"iEta","iPhi", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,mean_energyDep_[1],"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,rms_energyDep_[1],"iEta","iPhi", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(mean_shapeDep_[2],"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(rms_shapeDep_[2],"iEta","iPhi", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,mean_energyDep_[2],"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,rms_energyDep_[2],"iEta","iPhi", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(mean_shapeDep_[3],"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(rms_shapeDep_[3],"iEta","iPhi", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,mean_energyDep_[3],"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,rms_energyDep_[3],"iEta","iPhi", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+
+  htmlFile << "<tr align=\"left\">" << endl;
+  histoHTML2(runNo,mean_shapeDep_[0],"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,rms_shapeDep_[0],"iEta","iPhi", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+  htmlFile << "<tr align=\"left\">" << endl;
+  histoHTML2(runNo,mean_shapeDep_[1],"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,rms_shapeDep_[1],"iEta","iPhi", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+  htmlFile << "<tr align=\"left\">" << endl;
+  histoHTML2(runNo,mean_shapeDep_[2],"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,rms_shapeDep_[2],"iEta","iPhi", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+  htmlFile << "<tr align=\"left\">" << endl;
+  histoHTML2(runNo,mean_shapeDep_[3],"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,rms_shapeDep_[3],"iEta","iPhi", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\"ELEC_Plots\"><h3>Electronics Histograms</h3></td></tr>" << endl;
@@ -794,18 +794,18 @@ void HcalLEDClient::htmlOutput(int run, string htmlDir, string htmlName){
       hIter!=rms_energyElec_.end();
       hIter++){
     htmlFile << "<tr align=\"left\">" << endl;
-    histoHTML2(rms_timeElec_[hIter->first],"HTR Channel","Spigot", 92, htmlFile,htmlDir);
-    histoHTML2(mean_timeElec_[hIter->first],"HTR Channel","Spigot", 100, htmlFile,htmlDir);
+    histoHTML2(runNo,rms_timeElec_[hIter->first],"HTR Channel","Spigot", 92, htmlFile,htmlDir);
+    histoHTML2(runNo,mean_timeElec_[hIter->first],"HTR Channel","Spigot", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
 
     htmlFile << "<tr align=\"left\">" << endl;
-    histoHTML2(rms_energyElec_[hIter->first],"HTR Channel","Spigot", 92, htmlFile,htmlDir);
-    histoHTML2(mean_energyElec_[hIter->first],"HTR Channel","Spigot", 100, htmlFile,htmlDir);
+    histoHTML2(runNo,rms_energyElec_[hIter->first],"HTR Channel","Spigot", 92, htmlFile,htmlDir);
+    histoHTML2(runNo,mean_energyElec_[hIter->first],"HTR Channel","Spigot", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
 
     htmlFile << "<tr align=\"left\">" << endl;
-    histoHTML2(rms_shapeElec_[hIter->first],"HTR Channel","Spigot", 92, htmlFile,htmlDir);
-    histoHTML2(mean_shapeElec_[hIter->first],"HTR Channel","Spigot", 100, htmlFile,htmlDir);
+    histoHTML2(runNo,rms_shapeElec_[hIter->first],"HTR Channel","Spigot", 92, htmlFile,htmlDir);
+    histoHTML2(runNo,mean_shapeElec_[hIter->first],"HTR Channel","Spigot", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
 
   }
@@ -822,32 +822,32 @@ void HcalLEDClient::htmlOutput(int run, string htmlDir, string htmlName){
      htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\""<<type<<"_Plots\"><h3>" << type << " Histograms</h3></td></tr>" << endl;
      
      htmlFile << "<tr align=\"left\">" << endl;
-     histoHTML2(err_map_geo_[i],"iEta","iPhi", 92, htmlFile,htmlDir);
-     histoHTML2(err_map_elec_[i],"VME Crate ID","HTR Slot", 100, htmlFile,htmlDir);
+     histoHTML2(runNo,err_map_geo_[i],"iEta","iPhi", 92, htmlFile,htmlDir);
+     histoHTML2(runNo,err_map_elec_[i],"VME Crate ID","HTR Slot", 100, htmlFile,htmlDir);
      htmlFile << "</tr>" << endl;
      
      htmlFile << "<tr align=\"left\">" << endl;
-     histoHTML(avg_shape_[i],"Average Pulse Shape","Events", 92, htmlFile,htmlDir);
-     histoHTML(avg_time_[i],"Average Pulse Time","Events", 100, htmlFile,htmlDir);
+     histoHTML(runNo,avg_shape_[i],"Average Pulse Shape","Events", 92, htmlFile,htmlDir);
+     histoHTML(runNo,avg_time_[i],"Average Pulse Time","Events", 100, htmlFile,htmlDir);
      htmlFile << "</tr>" << endl;
      
      htmlFile << "<tr align=\"left\">" << endl;
-     histoHTML(avg_energy_[i],"Average ADC Sum","Events", 92, htmlFile,htmlDir);
+     histoHTML(runNo,avg_energy_[i],"Average ADC Sum","Events", 92, htmlFile,htmlDir);
      htmlFile << "</tr>" << endl;
 
      htmlFile << "<tr align=\"left\">" << endl;
-     histoHTML(rms_shape_[i],"Shape RMS Value","Events", 92, htmlFile,htmlDir);
-     histoHTML(mean_shape_[i],"Shape Mean Value","Events", 100, htmlFile,htmlDir);
+     histoHTML(runNo,rms_shape_[i],"Shape RMS Value","Events", 92, htmlFile,htmlDir);
+     histoHTML(runNo,mean_shape_[i],"Shape Mean Value","Events", 100, htmlFile,htmlDir);
      htmlFile << "</tr>" << endl;
 
      htmlFile << "<tr align=\"left\">" << endl;
-     histoHTML(rms_time_[i],"Time RMS Value","Events", 92, htmlFile,htmlDir);
-     histoHTML(mean_time_[i],"Time Mean Value","Events", 100, htmlFile,htmlDir);
+     histoHTML(runNo,rms_time_[i],"Time RMS Value","Events", 92, htmlFile,htmlDir);
+     histoHTML(runNo,mean_time_[i],"Time Mean Value","Events", 100, htmlFile,htmlDir);
      htmlFile << "</tr>" << endl;
 
      htmlFile << "<tr align=\"left\">" << endl;
-     histoHTML(rms_energy_[i],"ADC Sum RMS Value","Events", 92, htmlFile,htmlDir);
-     histoHTML(mean_energy_[i],"ADC Sum Mean Value","Events", 100, htmlFile,htmlDir);
+     histoHTML(runNo,rms_energy_[i],"ADC Sum RMS Value","Events", 92, htmlFile,htmlDir);
+     histoHTML(runNo,mean_energy_[i],"ADC Sum Mean Value","Events", 100, htmlFile,htmlDir);
      htmlFile << "</tr>" << endl;
    }
 

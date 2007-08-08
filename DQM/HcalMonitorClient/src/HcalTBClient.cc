@@ -395,11 +395,11 @@ void HcalTBClient::resetAllME(){
   return;
 }
 
-void HcalTBClient::htmlOutput(int run, string htmlDir, string htmlName){
+void HcalTBClient::htmlOutput(int runNo, string htmlDir, string htmlName){
 
   cout << "Preparing HcalTBClient html output ..." << endl;
   string client = "TBMonitor";
-  htmlErrors(htmlDir,client,process_,mui_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
+  htmlErrors(runNo,htmlDir,client,process_,mui_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
 
   ofstream htmlFile;
   htmlFile.open((htmlDir + htmlName).c_str());
@@ -417,7 +417,7 @@ void HcalTBClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<br>  " << endl;
   htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
   htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << run << "</span></h2>" << endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << runNo << "</span></h2>" << endl;
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">Test Beam</span></h2> " << endl;
   htmlFile << "<h2>Events processed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
@@ -439,11 +439,11 @@ void HcalTBClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\"> " << endl;
   
-  this->evtposHTML(htmlDir, "TB_EvtPos.html");
+  this->evtposHTML(runNo,htmlDir, "TB_EvtPos.html");
   htmlFile << "<h3><a href=\"TB_EvtPos.html\">Event Position Monitor</a></h3>" << endl;
-  this->timingHTML(htmlDir, "TB_Time.html");
+  this->timingHTML(runNo,htmlDir, "TB_Time.html");
   htmlFile << "<h3><a href=\"TB_Time.html\">Timing Monitor</a></h3>" << endl;
-  this->qadcHTML(htmlDir, "TB_QADC.html");
+  this->qadcHTML(runNo,htmlDir, "TB_QADC.html");
   htmlFile << "<h3><a href=\"TB_QADC.html\">QADC Monitor</a></h3>" << endl;
   
   // html page footer
@@ -454,7 +454,7 @@ void HcalTBClient::htmlOutput(int run, string htmlDir, string htmlName){
   return;
 }
 
-void HcalTBClient::evtposHTML(string htmlDir, string htmlName){
+void HcalTBClient::evtposHTML(int runNo, string htmlDir, string htmlName){
   
   ofstream htmlFile;
   htmlFile.open((htmlDir + htmlName).c_str());
@@ -485,42 +485,42 @@ void HcalTBClient::evtposHTML(string htmlDir, string htmlName){
 
   htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>Wire Chamber Histograms</h3></td></tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(WC[0],"X","Y", 92, htmlFile,htmlDir);
-  histoHTML2(WC[1],"X","Y", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,WC[0],"X","Y", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,WC[1],"X","Y", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
-  histoHTML2(WC[2],"X","Y", 92, htmlFile,htmlDir);
-  histoHTML2(WC[3],"X","Y", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,WC[2],"X","Y", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,WC[3],"X","Y", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
-  histoHTML2(WC[4],"X","Y", 92, htmlFile,htmlDir);
-  histoHTML2(WC[5],"X","Y", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,WC[4],"X","Y", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,WC[5],"X","Y", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
-  histoHTML2(WC[6],"X","Y", 92, htmlFile,htmlDir);
-  histoHTML2(WC[7],"X","Y", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,WC[6],"X","Y", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,WC[7],"X","Y", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
   
-  histoHTML(WCX[0],"Hit Position","", 92, htmlFile,htmlDir);
-  histoHTML(WCY[0],"Hit Position","", 100, htmlFile,htmlDir);
+  histoHTML(runNo,WCX[0],"Hit Position","", 92, htmlFile,htmlDir);
+  histoHTML(runNo,WCY[0],"Hit Position","", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
-  histoHTML(WCX[1],"Hit Position","", 92, htmlFile,htmlDir);
-  histoHTML(WCY[1],"Hit Position","", 100, htmlFile,htmlDir);
+  histoHTML(runNo,WCX[1],"Hit Position","", 92, htmlFile,htmlDir);
+  histoHTML(runNo,WCY[1],"Hit Position","", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
-  histoHTML(WCX[2],"Hit Position","", 92, htmlFile,htmlDir);
-  histoHTML(WCY[2],"Hit Position","", 100, htmlFile,htmlDir);
+  histoHTML(runNo,WCX[2],"Hit Position","", 92, htmlFile,htmlDir);
+  histoHTML(runNo,WCY[2],"Hit Position","", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
-  histoHTML(WCX[3],"Hit Position","", 92, htmlFile,htmlDir);
-  histoHTML(WCY[3],"Hit Position","", 100, htmlFile,htmlDir);
+  histoHTML(runNo,WCX[3],"Hit Position","", 92, htmlFile,htmlDir);
+  histoHTML(runNo,WCY[3],"Hit Position","", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
-  histoHTML(WCX[4],"Hit Position","", 92, htmlFile,htmlDir);
-  histoHTML(WCY[4],"Hit Position","", 100, htmlFile,htmlDir);
+  histoHTML(runNo,WCX[4],"Hit Position","", 92, htmlFile,htmlDir);
+  histoHTML(runNo,WCY[4],"Hit Position","", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
-  histoHTML(WCX[5],"Hit Position","", 92, htmlFile,htmlDir);
-  histoHTML(WCY[5],"Hit Position","", 100, htmlFile,htmlDir);
+  histoHTML(runNo,WCX[5],"Hit Position","", 92, htmlFile,htmlDir);
+  histoHTML(runNo,WCY[5],"Hit Position","", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
-  histoHTML(WCX[6],"Hit Position","", 92, htmlFile,htmlDir);
-  histoHTML(WCY[6],"Hit Position","", 100, htmlFile,htmlDir);
+  histoHTML(runNo,WCX[6],"Hit Position","", 92, htmlFile,htmlDir);
+  histoHTML(runNo,WCY[6],"Hit Position","", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
-  histoHTML(WCX[7],"Hit Position","", 92, htmlFile,htmlDir);
-  histoHTML(WCY[7],"Hit Position","", 100, htmlFile,htmlDir);
+  histoHTML(runNo,WCX[7],"Hit Position","", 92, htmlFile,htmlDir);
+  histoHTML(runNo,WCY[7],"Hit Position","", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
 
@@ -533,7 +533,7 @@ void HcalTBClient::evtposHTML(string htmlDir, string htmlName){
 
 }
 
-void HcalTBClient::qadcHTML(string htmlDir, string htmlName){
+void HcalTBClient::qadcHTML(int runNo, string htmlDir, string htmlName){
   
   ofstream htmlFile;
   htmlFile.open((htmlDir + htmlName).c_str());
@@ -564,10 +564,10 @@ void HcalTBClient::qadcHTML(string htmlDir, string htmlName){
 
   htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>Cherenkov Histograms</h3></td></tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML(CHK[0],"ADC","Hits/ADC", 92, htmlFile,htmlDir);
-  histoHTML(CHK[1],"ADC","Hits/ADC", 100, htmlFile,htmlDir);
+  histoHTML(runNo,CHK[0],"ADC","Hits/ADC", 92, htmlFile,htmlDir);
+  histoHTML(runNo,CHK[1],"ADC","Hits/ADC", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
-  histoHTML(CHK[2],"ADC","Hits/ADC", 100, htmlFile,htmlDir);
+  histoHTML(runNo,CHK[2],"ADC","Hits/ADC", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   // html page footer
@@ -579,7 +579,7 @@ void HcalTBClient::qadcHTML(string htmlDir, string htmlName){
 
 }
 
-void HcalTBClient::timingHTML(string htmlDir, string htmlName){
+void HcalTBClient::timingHTML(int runNo, string htmlDir, string htmlName){
   
   ofstream htmlFile;
   htmlFile.open((htmlDir + htmlName).c_str());
@@ -616,44 +616,44 @@ void HcalTBClient::timingHTML(string htmlDir, string htmlName){
 
   htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\"Beam_Plots\"><h3>Timing Histograms</h3></td></tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML(TOFT_S[0],"ADC","Hits/ADC", 92, htmlFile,htmlDir);
-  histoHTML(TOFT_S[1],"ADC","Hits/ADC", 100, htmlFile,htmlDir);
+  histoHTML(runNo,TOFT_S[0],"ADC","Hits/ADC", 92, htmlFile,htmlDir);
+  histoHTML(runNo,TOFT_S[1],"ADC","Hits/ADC", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
-  histoHTML(TOFT_J[0],"ADC","Hits/ADC", 92, htmlFile,htmlDir);
-  histoHTML(TOFT_J[1],"ADC","Hits/ADC", 100, htmlFile,htmlDir);
+  histoHTML(runNo,TOFT_J[0],"ADC","Hits/ADC", 92, htmlFile,htmlDir);
+  histoHTML(runNo,TOFT_J[1],"ADC","Hits/ADC", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
-  histoHTML(TOFT_S[2],"Time","Hits/nS", 92, htmlFile,htmlDir);
-  histoHTML(TOFT_J[2],"Time","Hits/nS", 100, htmlFile,htmlDir);
+  histoHTML(runNo,TOFT_S[2],"Time","Hits/nS", 92, htmlFile,htmlDir);
+  histoHTML(runNo,TOFT_J[2],"Time","Hits/nS", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
-  histoHTML(TOF_DT[0],"ADC","Hits/ADC", 92, htmlFile,htmlDir);
-  histoHTML(TOF_DT[1],"ADC","Hits/ADC", 100, htmlFile,htmlDir);
+  histoHTML(runNo,TOF_DT[0],"ADC","Hits/ADC", 92, htmlFile,htmlDir);
+  histoHTML(runNo,TOF_DT[1],"ADC","Hits/ADC", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
-  histoHTML(TOF_DT[2],"ADC","Hits/ADC", 100, htmlFile,htmlDir);
-  //  histoHTML(DT[3],"ADC","Hits/ADC", 100, htmlFile,htmlDir);
+  histoHTML(runNo,TOF_DT[2],"ADC","Hits/ADC", 100, htmlFile,htmlDir);
+  //  histoHTML(runNo,DT[3],"ADC","Hits/ADC", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
-  histoHTML(TRIGT,"nS","Evts", 92, htmlFile,htmlDir);
-  histoHTML(L1AT,"nS","Evts", 100, htmlFile,htmlDir);
+  histoHTML(runNo,TRIGT,"nS","Evts", 92, htmlFile,htmlDir);
+  histoHTML(runNo,L1AT,"nS","Evts", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
-  histoHTML(BCT,"nS","Evts", 92, htmlFile,htmlDir);
-  histoHTML(PHASE,"nS","Evts", 100, htmlFile,htmlDir);
+  histoHTML(runNo,BCT,"nS","Evts", 92, htmlFile,htmlDir);
+  histoHTML(runNo,PHASE,"nS","Evts", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
  htmlFile << "<hr>" << endl;
   htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\"HB_Plots\"><h3>HO Histograms</h3></td></tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML(HTIME[0],"nS","Evts", 92, htmlFile,htmlDir);
-  histoHTML(HRES[0],"nS","Evts", 100, htmlFile,htmlDir);
+  histoHTML(runNo,HTIME[0],"nS","Evts", 92, htmlFile,htmlDir);
+  histoHTML(runNo,HRES[0],"nS","Evts", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
-  histoHTML2(HPHASE[0],"TB Phase","Hcal Time", 92, htmlFile,htmlDir);
-  histoHTML2(ERES[0],"Energy","Time", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,HPHASE[0],"TB Phase","Hcal Time", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,ERES[0],"Energy","Time", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
  htmlFile << "<hr>" << endl;
   htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\"HO_Plots\"><h3>HO Histograms</h3></td></tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML(HTIME[1],"nS","Evts", 92, htmlFile,htmlDir);
-  histoHTML(HRES[1],"nS","Evts", 100, htmlFile,htmlDir);
+  histoHTML(runNo,HTIME[1],"nS","Evts", 92, htmlFile,htmlDir);
+  histoHTML(runNo,HRES[1],"nS","Evts", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
-  histoHTML2(HPHASE[1],"TB Phase","Hcal Time", 92, htmlFile,htmlDir);
-  histoHTML2(ERES[1],"Energy","Time", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,HPHASE[1],"TB Phase","Hcal Time", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,ERES[1],"Energy","Time", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
 

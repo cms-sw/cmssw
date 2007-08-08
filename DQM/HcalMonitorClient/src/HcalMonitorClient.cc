@@ -780,7 +780,7 @@ void HcalMonitorClient::htmlOutput(void){
     if(trigger_->GetEntries()>0){
       htmlFile << "<hr>" << endl;
       htmlFile << "<h3><strong>Trigger Frequency</h3>" << endl;
-      histoHTML(trigger_,"Trigger Type","Evts", 100, htmlFile,htmlDir);  
+      histoHTML(run_,trigger_,"Trigger Type","Evts", 100, htmlFile,htmlDir);  
     }
   }
   htmlFile << "</ul>" << endl;

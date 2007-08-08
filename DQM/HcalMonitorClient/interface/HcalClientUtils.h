@@ -33,13 +33,13 @@ TH1F* getHisto(string name, string process, MonitorUserInterface* mui_, bool ver
 TH2F* getHisto2(const MonitorElement* me, bool verb=false, bool clone=false);
 TH1F* getHisto(const MonitorElement* me, bool verb=false, bool clone=false);
 
-string getIMG(TH1F* hist, int size, string htmlDir, const char* xlab, const char* ylab);
-string getIMG2(TH2F* hist, int size, string htmlDir, const char* xlab, const char* ylab, bool color=false);
+string getIMG(int runNo,TH1F* hist, int size, string htmlDir, const char* xlab, const char* ylab);
+string getIMG2(int runNo,TH2F* hist, int size, string htmlDir, const char* xlab, const char* ylab, bool color=false);
   
-void histoHTML(TH1F* hist, const char* xlab, const char* ylab, int width, ofstream& htmlFile, string htmlDir);
-void histoHTML2(TH2F* hist, const char* xlab, const char* ylab, int width, ofstream& htmlFile, string htmlDir, bool color=false);
+void histoHTML(int runNo,TH1F* hist, const char* xlab, const char* ylab, int width, ofstream& htmlFile, string htmlDir);
+void histoHTML2(int runNo,TH2F* hist, const char* xlab, const char* ylab, int width, ofstream& htmlFile, string htmlDir, bool color=false);
 
-void htmlErrors(string htmlDir, string client, string process, MonitorUserInterface* mui, map<string, vector<QReport*> > mapE, map<string, vector<QReport*> > mapW, map<string, vector<QReport*> > mapO);
+void htmlErrors(int runNo,string htmlDir, string client, string process, MonitorUserInterface* mui, map<string, vector<QReport*> > mapE, map<string, vector<QReport*> > mapW, map<string, vector<QReport*> > mapO);
 
 void createXRangeTest(MonitorUserInterface* mui, vector<string>& params);
 void createYRangeTest(MonitorUserInterface* mui, vector<string>& params);

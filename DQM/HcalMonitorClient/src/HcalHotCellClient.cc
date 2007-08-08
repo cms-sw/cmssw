@@ -344,11 +344,11 @@ void HcalHotCellClient::resetAllME(){
   return;
 }
 
-void HcalHotCellClient::htmlOutput(int run, string htmlDir, string htmlName){
+void HcalHotCellClient::htmlOutput(int runNo, string htmlDir, string htmlName){
 
   cout << "Preparing HcalHotCellClient html output ..." << endl;
   string client = "HotCellMonitor";
-  htmlErrors(htmlDir,client,process_,mui_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
+  htmlErrors(runNo,htmlDir,client,process_,mui_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
   
   ofstream htmlFile;
   htmlFile.open((htmlDir + htmlName).c_str());
@@ -366,7 +366,7 @@ void HcalHotCellClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<br>  " << endl;
   htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
   htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << run << "</span></h2>" << endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << runNo << "</span></h2>" << endl;
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">Hcal HotCells</span></h2> " << endl;
   htmlFile << "<h2>Events processed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
@@ -398,23 +398,23 @@ void HcalHotCellClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>Global Histograms</h3></td></tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;	
-  histoHTML2(gl_geo_[0],"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(gl_en_[0],"iEta","iPhi", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,gl_geo_[0],"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,gl_en_[0],"iEta","iPhi", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;	
-  histoHTML2(gl_geo_[1],"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(gl_en_[1],"iEta","iPhi", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,gl_geo_[1],"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,gl_en_[1],"iEta","iPhi", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;	
-  histoHTML2(gl_geo_[2],"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(gl_en_[2],"iEta","iPhi", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,gl_geo_[2],"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,gl_en_[2],"iEta","iPhi", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;	
-  histoHTML2(gl_geo_[3],"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(gl_en_[3],"iEta","iPhi", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,gl_geo_[3],"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,gl_en_[3],"iEta","iPhi", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   for(int i=0; i<4; i++){
@@ -429,18 +429,18 @@ void HcalHotCellClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\""<<type<<"_Plots\"><h3>" << type << " Histograms</h3></td></tr>" << endl;
 
     htmlFile << "<tr align=\"left\">" << endl;	
-    histoHTML2(occ_geo_[i][0],"iEta","iPhi", 92, htmlFile,htmlDir);
-    histoHTML2(occ_en_[i][0],"iEta","iPhi", 100, htmlFile,htmlDir);
+    histoHTML2(runNo,occ_geo_[i][0],"iEta","iPhi", 92, htmlFile,htmlDir);
+    histoHTML2(runNo,occ_en_[i][0],"iEta","iPhi", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
 
     htmlFile << "<tr align=\"left\">" << endl;	
-    histoHTML2(occ_geo_[i][1],"iEta","iPhi", 92, htmlFile,htmlDir);
-    histoHTML2(occ_en_[i][1],"iEta","iPhi", 100, htmlFile,htmlDir);
+    histoHTML2(runNo,occ_geo_[i][1],"iEta","iPhi", 92, htmlFile,htmlDir);
+    histoHTML2(runNo,occ_en_[i][1],"iEta","iPhi", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
 
     htmlFile << "<tr align=\"left\">" << endl;	
-    histoHTML(max_en_[i],"GeV","Evts", 92, htmlFile,htmlDir);
-    histoHTML(max_t_[i],"nS","Evts", 100, htmlFile,htmlDir);
+    histoHTML(runNo,max_en_[i],"GeV","Evts", 92, htmlFile,htmlDir);
+    histoHTML(runNo,max_t_[i],"nS","Evts", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
   }
   htmlFile << "</table>" << endl;

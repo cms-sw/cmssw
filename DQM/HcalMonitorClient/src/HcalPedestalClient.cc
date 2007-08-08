@@ -761,12 +761,12 @@ void HcalPedestalClient::resetAllME(){
   return;
 }
 
-void HcalPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
+void HcalPedestalClient::htmlOutput(int runNo, string htmlDir, string htmlName){
   
   cout << "Preparing HcalPedestalClient html output ..." << endl;
   string client = "PedestalMonitor";
   generateBadChanList(htmlDir);
-  htmlErrors(htmlDir,client,process_,mui_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
+  htmlErrors(runNo,htmlDir,client,process_,mui_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
 
   ofstream htmlFile;
   htmlFile.open((htmlDir + htmlName).c_str());
@@ -784,7 +784,7 @@ void HcalPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<br>  " << endl;
   htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
   htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << run << "</span></h2>" << endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << runNo << "</span></h2>" << endl;
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">Hcal Pedestals</span></h2> " << endl;
 
@@ -819,30 +819,30 @@ void HcalPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
   
   htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>Global Histograms</h3></td></tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(pedMapMeanD_[0],"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(pedMapRMSD_[0],"iEta","iPhi", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,pedMapMeanD_[0],"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,pedMapRMSD_[0],"iEta","iPhi", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(pedMapMeanD_[1],"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(pedMapRMSD_[1],"iEta","iPhi", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,pedMapMeanD_[1],"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,pedMapRMSD_[1],"iEta","iPhi", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(pedMapMeanD_[2],"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(pedMapRMSD_[2],"iEta","iPhi", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,pedMapMeanD_[2],"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,pedMapRMSD_[2],"iEta","iPhi", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(pedMapMeanD_[3],"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(pedMapRMSD_[3],"iEta","iPhi", 100, htmlFile,htmlDir);
-  htmlFile << "</tr>" << endl;
-
-  htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(pedMapMean_E[0],"Crate","Slot", 92, htmlFile,htmlDir);
-  histoHTML2(pedMapRMS_E[0],"Crate","Slot", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,pedMapMeanD_[3],"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,pedMapRMSD_[3],"iEta","iPhi", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(pedMapMean_E[1],"Channel","Fiber Index", 92, htmlFile,htmlDir);
-  histoHTML2(pedMapRMS_E[1],"Channel","Fiber Index", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,pedMapMean_E[0],"Crate","Slot", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,pedMapRMS_E[0],"Crate","Slot", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+
+  htmlFile << "<tr align=\"left\">" << endl;
+  histoHTML2(runNo,pedMapMean_E[1],"Channel","Fiber Index", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,pedMapRMS_E[1],"Channel","Fiber Index", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   for(int i=0; i<4; i++){
@@ -855,33 +855,33 @@ void HcalPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "<tr align=\"left\">" << endl;    
     htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\""<<type<<"_Plots\"><h3>" << type << " Histograms</h3></td></tr>" << endl;
     htmlFile << "<tr align=\"left\">" << endl;
-    histoHTML2(err_map_geo_[i],"iEta","iPhi", 92, htmlFile,htmlDir);
-    histoHTML2(err_map_elec_[i],"VME Crate ID","HTR Slot", 100, htmlFile,htmlDir);
+    histoHTML2(runNo,err_map_geo_[i],"iEta","iPhi", 92, htmlFile,htmlDir);
+    histoHTML2(runNo,err_map_elec_[i],"VME Crate ID","HTR Slot", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
 
     htmlFile << "<tr align=\"left\">" << endl;
-    histoHTML(ped_rms_[i],"Pedestal RMS (ADC)","Events", 92, htmlFile,htmlDir);
-    histoHTML(ped_mean_[i],"Pedestal Mean (ADC)","Events", 100, htmlFile,htmlDir);
+    histoHTML(runNo,ped_rms_[i],"Pedestal RMS (ADC)","Events", 92, htmlFile,htmlDir);
+    histoHTML(runNo,ped_mean_[i],"Pedestal Mean (ADC)","Events", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
 
     htmlFile << "<tr align=\"left\">" << endl;
-    histoHTML(sub_rms_[i],"Pedestal RMS (Nsigma)","Events", 92, htmlFile,htmlDir);
-    histoHTML(sub_mean_[i],"Pedestal Mean (ADC)","Events", 100, htmlFile,htmlDir);
+    histoHTML(runNo,sub_rms_[i],"Pedestal RMS (Nsigma)","Events", 92, htmlFile,htmlDir);
+    histoHTML(runNo,sub_mean_[i],"Pedestal Mean (ADC)","Events", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
     
     htmlFile << "<tr align=\"left\">" << endl;
-    histoHTML(capid_rms_[i],"Variance in CAPID RMS (ADC)","Events", 92, htmlFile,htmlDir);
+    histoHTML(runNo,capid_rms_[i],"Variance in CAPID RMS (ADC)","Events", 92, htmlFile,htmlDir);
 
-    histoHTML(capid_mean_[i],"Variance in CAPID Mean (ADC)","Events", 100, htmlFile,htmlDir);
+    histoHTML(runNo,capid_mean_[i],"Variance in CAPID Mean (ADC)","Events", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
 
     htmlFile << "<tr align=\"left\">" << endl;
-    histoHTML(qie_rms_[i],"Average QIE RMS (ADC)","Events", 92, htmlFile,htmlDir);
-    histoHTML(qie_mean_[i],"Average QIE Mean (ADC)","Events", 100, htmlFile,htmlDir);
+    histoHTML(runNo,qie_rms_[i],"Average QIE RMS (ADC)","Events", 92, htmlFile,htmlDir);
+    histoHTML(runNo,qie_mean_[i],"Average QIE Mean (ADC)","Events", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
     
     htmlFile << "<tr align=\"left\">" << endl;
-    histoHTML(all_peds_[i],"Pedestal Value (ADC)","Events",100, htmlFile,htmlDir);
+    histoHTML(runNo,all_peds_[i],"Pedestal Value (ADC)","Events",100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
   }
 

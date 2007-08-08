@@ -337,11 +337,11 @@ void HcalDataFormatClient::resetAllME(){
   return;
 }
 
-void HcalDataFormatClient::htmlOutput(int run, string htmlDir, string htmlName){
+void HcalDataFormatClient::htmlOutput(int runNo, string htmlDir, string htmlName){
 
   cout << "Preparing HcalDataFormatClient html output ..." << endl;
   string client = "DataFormatMonitor";
-  htmlErrors(htmlDir,client,process_,mui_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
+  htmlErrors(runNo,htmlDir,client,process_,mui_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
 
   ofstream htmlFile;
   htmlFile.open((htmlDir + htmlName).c_str());
@@ -359,7 +359,7 @@ void HcalDataFormatClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<br>  " << endl;
   htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
   htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << run << "</span></h2>" << endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << runNo << "</span></h2>" << endl;
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">Data Format</span></h2> " << endl;
   htmlFile << "<h2>Events processed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
@@ -390,17 +390,17 @@ void HcalDataFormatClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>Global Histograms</h3></td></tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML(fedErrMap_,"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML(runNo,fedErrMap_,"iEta","iPhi", 92, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
   
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML(spigotErrs_,"# Errs","Events", 92, htmlFile,htmlDir);
-  histoHTML(badDigis_,"# Bad Digis","Events", 100, htmlFile,htmlDir);
+  histoHTML(runNo,spigotErrs_,"# Errs","Events", 92, htmlFile,htmlDir);
+  histoHTML(runNo,badDigis_,"# Bad Digis","Events", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
   
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML(unmappedDigis_,"# Digis","Events", 92, htmlFile,htmlDir);
-  histoHTML(unmappedTPDs_,"# TP Digis","Events", 100, htmlFile,htmlDir);
+  histoHTML(runNo,unmappedDigis_,"# Digis","Events", 92, htmlFile,htmlDir);
+  histoHTML(runNo,unmappedTPDs_,"# TP Digis","Events", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   for(int i=0; i<4; i++){
@@ -413,11 +413,11 @@ void HcalDataFormatClient::htmlOutput(int run, string htmlDir, string htmlName){
     
     htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\""<<type<<"_Plots\"><h3>" << type << " Histograms</h3></td></tr>" << endl;
     htmlFile << "<tr align=\"left\">" << endl;  
-    histoHTML(dferr_[i],"Error Bit","Frequency", 92, htmlFile,htmlDir);
-    histoHTML2(crateErrMap_[i],"VME Crate ID","HTR Slot", 100, htmlFile,htmlDir);
+    histoHTML(runNo,dferr_[i],"Error Bit","Frequency", 92, htmlFile,htmlDir);
+    histoHTML2(runNo,crateErrMap_[i],"VME Crate ID","HTR Slot", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;    
     htmlFile << "<tr align=\"left\">" << endl;  
-    histoHTML2(spigotErrMap_[i],"Spigot","DCC Id", 100, htmlFile,htmlDir);
+    histoHTML2(runNo,spigotErrMap_[i],"Spigot","DCC Id", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
   }
   htmlFile << "</table>" << endl;

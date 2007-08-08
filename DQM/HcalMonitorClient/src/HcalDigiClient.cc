@@ -500,11 +500,11 @@ void HcalDigiClient::resetAllME(){
   return;
 }
 
-void HcalDigiClient::htmlOutput(int run, string htmlDir, string htmlName){
+void HcalDigiClient::htmlOutput(int runNo, string htmlDir, string htmlName){
 
   cout << "Preparing HcalDigiClient html output ..." << endl;
   string client = "DigiMonitor";
-  htmlErrors(htmlDir,client,process_,mui_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
+  htmlErrors(runNo,htmlDir,client,process_,mui_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
   
   ofstream htmlFile;
   htmlFile.open((htmlDir + htmlName).c_str());
@@ -522,7 +522,7 @@ void HcalDigiClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<br>  " << endl;
   htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
   htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << run << "</span></h2>" << endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << runNo << "</span></h2>" << endl;
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">Hcal Digis</span></h2> " << endl;
   htmlFile << "<h2>Events processed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
@@ -555,28 +555,28 @@ void HcalDigiClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>Global Histograms</h3></td></tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(gl_err_geo_,"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(gl_err_elec_[0],"VME Crate ID","HTR Slot", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,gl_err_geo_,"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,gl_err_elec_[0],"VME Crate ID","HTR Slot", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(gl_err_elec_[1],"Fiber Channel","Fiber", 92, htmlFile,htmlDir);
-  histoHTML2(gl_err_elec_[2],"Spigot","DCC Id", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,gl_err_elec_[1],"Fiber Channel","Fiber", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,gl_err_elec_[2],"Spigot","DCC Id", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(gl_occ_geo_[0],"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(gl_occ_geo_[1],"iEta","iPhi", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,gl_occ_geo_[0],"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,gl_occ_geo_[1],"iEta","iPhi", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(gl_occ_geo_[2],"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(gl_occ_geo_[3],"iEta","iPhi", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,gl_occ_geo_[2],"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,gl_occ_geo_[3],"iEta","iPhi", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML(gl_occ_eta_,"iEta","Events", 92, htmlFile,htmlDir);
-  histoHTML(gl_occ_phi_,"iPhi","Events", 100, htmlFile,htmlDir);
+  histoHTML(runNo,gl_occ_eta_,"iEta","Events", 92, htmlFile,htmlDir);
+  histoHTML(runNo,gl_occ_phi_,"iPhi","Events", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   for(int i=0; i<4; i++){
@@ -590,52 +590,52 @@ void HcalDigiClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\""<<type<<"_Plots\"><h3>" << type << " Histograms</h3></td></tr>" << endl;
 
     htmlFile << "<tr align=\"left\">" << endl;
-    histoHTML2(sub_err_geo_[i],"iEta","iPhi", 92, htmlFile,htmlDir);
-    histoHTML2(sub_err_elec_[i][0],"VME Crate ID","HTR Slot", 100, htmlFile,htmlDir);
+    histoHTML2(runNo,sub_err_geo_[i],"iEta","iPhi", 92, htmlFile,htmlDir);
+    histoHTML2(runNo,sub_err_elec_[i][0],"VME Crate ID","HTR Slot", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
     
     htmlFile << "<tr align=\"left\">" << endl;
-    histoHTML2(sub_err_elec_[i][1],"Fiber Channel","Fiber", 92, htmlFile,htmlDir);
-    histoHTML2(sub_err_elec_[i][2],"Spigot","DCC Id", 100, htmlFile,htmlDir);
+    histoHTML2(runNo,sub_err_elec_[i][1],"Fiber Channel","Fiber", 92, htmlFile,htmlDir);
+    histoHTML2(runNo,sub_err_elec_[i][2],"Spigot","DCC Id", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
 
     int count = 0;
     htmlFile << "<tr align=\"left\">" << endl;	
-    if(isValidGeom(i,0,0,1)){ histoHTML2(sub_occ_geo_[i][0],"iEta","iPhi", 92, htmlFile,htmlDir); count++; }
-    if(isValidGeom(i,0,0,2)) { histoHTML2(sub_occ_geo_[i][1],"iEta","iPhi", 100, htmlFile,htmlDir); count++;}
+    if(isValidGeom(i,0,0,1)){ histoHTML2(runNo,sub_occ_geo_[i][0],"iEta","iPhi", 92, htmlFile,htmlDir); count++; }
+    if(isValidGeom(i,0,0,2)) { histoHTML2(runNo,sub_occ_geo_[i][1],"iEta","iPhi", 100, htmlFile,htmlDir); count++;}
     if(count%2==0){
       htmlFile << "</tr>" << endl;      
       htmlFile << "<tr align=\"left\">" << endl;	
     }
-    if(isValidGeom(i,0,0,3)){histoHTML2(sub_occ_geo_[i][2],"iEta","iPhi", 92, htmlFile,htmlDir); count++;}
+    if(isValidGeom(i,0,0,3)){histoHTML2(runNo,sub_occ_geo_[i][2],"iEta","iPhi", 92, htmlFile,htmlDir); count++;}
     if(count%2==0){
       htmlFile << "</tr>" << endl;      
       htmlFile << "<tr align=\"left\">" << endl;	
     }
-    if(isValidGeom(i,0,0,4)){ histoHTML2(sub_occ_geo_[i][3],"iEta","iPhi", 100, htmlFile,htmlDir); count++;}
+    if(isValidGeom(i,0,0,4)){ histoHTML2(runNo,sub_occ_geo_[i][3],"iEta","iPhi", 100, htmlFile,htmlDir); count++;}
     htmlFile << "</tr>" << endl;
     
     htmlFile << "<tr align=\"left\">" << endl;
-    histoHTML(sub_occ_eta_[i],"iEta","Events", 92, htmlFile,htmlDir);
-    histoHTML(sub_occ_phi_[i],"iPhi","Events", 100, htmlFile,htmlDir);
+    histoHTML(runNo,sub_occ_eta_[i],"iEta","Events", 92, htmlFile,htmlDir);
+    histoHTML(runNo,sub_occ_phi_[i],"iPhi","Events", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
 
     htmlFile << "<tr align=\"left\">" << endl;	
-    histoHTML2(sub_occ_elec_[i][0],"VME Crate ID","HTR Slot", 92, htmlFile,htmlDir);
-    histoHTML2(sub_occ_elec_[i][1],"Fiber Channel","Fiber", 100, htmlFile,htmlDir);
+    histoHTML2(runNo,sub_occ_elec_[i][0],"VME Crate ID","HTR Slot", 92, htmlFile,htmlDir);
+    histoHTML2(runNo,sub_occ_elec_[i][1],"Fiber Channel","Fiber", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
 
     htmlFile << "<tr align=\"left\">" << endl;	
-    histoHTML2(sub_occ_elec_[i][2],"Spigot","DCC Id", 100, htmlFile,htmlDir);
+    histoHTML2(runNo,sub_occ_elec_[i][2],"Spigot","DCC Id", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
     
     htmlFile << "<tr align=\"left\">" << endl;	
-    histoHTML(qie_adc_[i],"QIE ADC Value","Events", 92, htmlFile,htmlDir);
-    histoHTML(qie_capid_[i],"QIE CAPID Value","Events", 100, htmlFile,htmlDir);
+    histoHTML(runNo,qie_adc_[i],"QIE ADC Value","Events", 92, htmlFile,htmlDir);
+    histoHTML(runNo,qie_capid_[i],"QIE CAPID Value","Events", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
     
     htmlFile << "<tr align=\"left\">" << endl;	
-    histoHTML(num_digi_[i],"Number of Digis","Events", 100, htmlFile,htmlDir);
+    histoHTML(runNo,num_digi_[i],"Number of Digis","Events", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
 	
   }

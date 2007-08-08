@@ -88,7 +88,7 @@ void parseString(string& title){
   return;
 }
 
-string getIMG2(TH2F* hist, int size, string htmlDir, const char* xlab, const char* ylab,bool color){
+string getIMG2(int runNo,TH2F* hist, int size, string htmlDir, const char* xlab, const char* ylab,bool color){
 
   if(hist==NULL) {
     printf("getIMG2:  This histo is NULL, %s, %s\n",xlab,ylab);
@@ -96,12 +96,17 @@ string getIMG2(TH2F* hist, int size, string htmlDir, const char* xlab, const cha
   }
 
   string title = hist->GetTitle();
+  char dest[512];
+  sprintf(dest,"%s - Run %d",hist->GetTitle(),runNo);
+  hist->SetTitle(dest);
+  hist->SetName(dest);
+
   int xwid = 900; int ywid =540;
   if(size==1){
     title = title+"_tmb";
     xwid = 600; ywid = 360;
   }
-  TCanvas* can = new TCanvas(title.c_str(), "tmp can2", xwid, ywid);
+  TCanvas* can = new TCanvas(dest,dest, xwid, ywid);
 
   parseString(title);
   string outName = title + ".png";
@@ -119,20 +124,25 @@ string getIMG2(TH2F* hist, int size, string htmlDir, const char* xlab, const cha
   return outName;
 }
 
-string getIMG(TH1F* hist, int size, string htmlDir, const char* xlab, const char* ylab){
+string getIMG(int runNo,TH1F* hist, int size, string htmlDir, const char* xlab, const char* ylab){
 
   if(hist==NULL) {
     printf("getIMG:  This histo is NULL, %s, %s\n",xlab,ylab);
     return "";
   }
-
+  
   string title = hist->GetTitle();
+  char dest[512];
+  sprintf(dest,"%s - Run %d",hist->GetTitle(),runNo);
+  hist->SetTitle(dest);
+  hist->SetName(dest);
+
   int xwid = 900; int ywid =540;
   if(size==1){
     title = title+"_tmb";
     xwid = 600; ywid = 360;
   }
-  TCanvas* can = new TCanvas(title.c_str(), "tmp can", xwid, ywid);
+  TCanvas* can = new TCanvas(dest,dest, xwid, ywid);
 
   parseString(title);
   string outName = title + ".png";
@@ -243,12 +253,12 @@ TH1F* getHisto(const MonitorElement* me, bool verb,bool clone){
 }
 
 
-void histoHTML(TH1F* hist, const char* xlab, const char* ylab, int width, ofstream& htmlFile, string htmlDir){
+void histoHTML(int runNo, TH1F* hist, const char* xlab, const char* ylab, int width, ofstream& htmlFile, string htmlDir){
   if(hist!=NULL){    
     string imgNameTMB = "";   
-    imgNameTMB = getIMG(hist,1,htmlDir,xlab,ylab); 
+    imgNameTMB = getIMG(runNo,hist,1,htmlDir,xlab,ylab); 
     string imgName = "";   
-    imgName = getIMG(hist,2,htmlDir,xlab,ylab);  
+    imgName = getIMG(runNo,hist,2,htmlDir,xlab,ylab);  
     if (imgName.size() != 0 )
       htmlFile << "<td><a href=\"" <<  imgName << "\"><img src=\"" <<  imgNameTMB << "\"></a></td>" << endl;
     else
@@ -258,12 +268,12 @@ void histoHTML(TH1F* hist, const char* xlab, const char* ylab, int width, ofstre
   return;
 }
 
-void histoHTML2(TH2F* hist, const char* xlab, const char* ylab, int width, ofstream& htmlFile, string htmlDir, bool color){
+void histoHTML2(int runNo, TH2F* hist, const char* xlab, const char* ylab, int width, ofstream& htmlFile, string htmlDir, bool color){
   if(hist!=NULL){
     string imgNameTMB = "";
-    imgNameTMB = getIMG2(hist,1,htmlDir,xlab,ylab,color);  
+    imgNameTMB = getIMG2(runNo,hist,1,htmlDir,xlab,ylab,color);  
     string imgName = "";
-    imgName = getIMG2(hist,2,htmlDir,xlab,ylab,color);  
+    imgName = getIMG2(runNo,hist,2,htmlDir,xlab,ylab,color);  
     if (imgName.size() != 0 )
       htmlFile << "<td><a href=\"" <<  imgName << "\"><img src=\"" <<  imgNameTMB << "\"></a></td>" << endl;
     else
@@ -384,7 +394,7 @@ void createH2CompTest(MonitorUserInterface* mui, vector<string>& params, TH2F* r
   return;
 }
 
-void htmlErrors(string htmlDir, string client, string process, MonitorUserInterface* mui, map<string, vector<QReport*> > mapE, map<string, vector<QReport*> > mapW, map<string, vector<QReport*> > mapO){
+void htmlErrors(int runNo, string htmlDir, string client, string process, MonitorUserInterface* mui, map<string, vector<QReport*> > mapE, map<string, vector<QReport*> > mapW, map<string, vector<QReport*> > mapO){
   if(!mui) return;
 
   map<string, vector<QReport*> >::iterator mapIter;
@@ -418,12 +428,12 @@ void htmlErrors(string htmlDir, string client, string process, MonitorUserInterf
     char* substr = strstr(meName.c_str(), client.c_str());
     if(me->getMeanError(2)==0){
       TH1F* obj1f = getHisto(substr, process.c_str(), mui);
-      string save = getIMG(obj1f,1,htmlDir,"X1a","Y1a");
+      string save = getIMG(runNo,obj1f,1,htmlDir,"X1a","Y1a");
       errorFile << "<img src=\"" <<  save << "\">" << endl;
     }
     else{
       TH2F* obj2f = getHisto2(substr, process.c_str(), mui);
-      string save = getIMG2(obj2f,1,htmlDir,"X2a","Y2a");
+      string save = getIMG2(runNo,obj2f,1,htmlDir,"X2a","Y2a");
       errorFile << "<img src=\"" <<  save << "\">" << endl;
     }
     errorFile << "<br>" << endl;
@@ -461,12 +471,12 @@ void htmlErrors(string htmlDir, string client, string process, MonitorUserInterf
     char* substr = strstr(meName.c_str(), client.c_str());
     if(me->getMeanError(2)==0){
       TH1F* obj1f = getHisto(substr, process.c_str(), mui);
-      string save = getIMG(obj1f,1,htmlDir,"X1b","Y1b");
+      string save = getIMG(runNo,obj1f,1,htmlDir,"X1b","Y1b");
       errorFile << "<img src=\"" <<  save << "\">" << endl;
     }
     else{
       TH2F* obj2f = getHisto2(substr, process.c_str(), mui);
-      string save = getIMG2(obj2f,1,htmlDir,"X2b","Y2b");
+      string save = getIMG2(runNo,obj2f,1,htmlDir,"X2b","Y2b");
       errorFile << "<img src=\"" <<  save << "\">" << endl;
     }
     errorFile << "<br>" << endl;
@@ -503,12 +513,12 @@ void htmlErrors(string htmlDir, string client, string process, MonitorUserInterf
     char* substr = strstr(meName.c_str(), client.c_str());
     if(me->getMeanError(2)==0){
       TH1F* obj1f = getHisto(substr, process.c_str(), mui);
-      string save = getIMG(obj1f,1,htmlDir,"X1c","Y1c");
+      string save = getIMG(runNo,obj1f,1,htmlDir,"X1c","Y1c");
       errorFile << "<img src=\"" <<  save << "\">" << endl;
     }
     else{
       TH2F* obj2f = getHisto2(substr, process.c_str(), mui);
-      string save = getIMG2(obj2f,1,htmlDir,"X2c","Y2c");
+      string save = getIMG2(runNo,obj2f,1,htmlDir,"X2c","Y2c");
       errorFile << "<img src=\"" <<  save << "\">" << endl;
     }
     errorFile << "<br>" << endl;

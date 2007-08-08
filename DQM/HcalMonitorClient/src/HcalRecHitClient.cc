@@ -336,11 +336,11 @@ void HcalRecHitClient::resetAllME(){
 }
 
 
-void HcalRecHitClient::htmlOutput(int run, string htmlDir, string htmlName){
+void HcalRecHitClient::htmlOutput(int runNo, string htmlDir, string htmlName){
 
   cout << "Preparing HcalRecHitClient html output ..." << endl;
   string client = "RecHitMonitor";
-  htmlErrors(htmlDir,client,process_,mui_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
+  htmlErrors(runNo,htmlDir,client,process_,mui_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
   
   ofstream htmlFile;
   htmlFile.open((htmlDir + htmlName).c_str());
@@ -358,7 +358,7 @@ void HcalRecHitClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<br>  " << endl;
   htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
   htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << run << "</span></h2>" << endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << runNo << "</span></h2>" << endl;
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">Hcal RecHits</span></h2> " << endl;
   htmlFile << "<h2>Events processed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
@@ -389,17 +389,17 @@ void HcalRecHitClient::htmlOutput(int run, string htmlDir, string htmlName){
   
   htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>Global Histograms</h3></td></tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(tot_occ_[0],"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(tot_occ_[1],"iEta","iPhi", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,tot_occ_[0],"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,tot_occ_[1],"iEta","iPhi", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(tot_occ_[2],"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(tot_occ_[3],"iEta","iPhi", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,tot_occ_[2],"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,tot_occ_[3],"iEta","iPhi", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML(tot_energy_,"Total Energy (GeV)","Events", 100, htmlFile,htmlDir);
+  histoHTML(runNo,tot_energy_,"Total Energy (GeV)","Events", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
 
@@ -414,13 +414,13 @@ void HcalRecHitClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\""<<type<<"_Plots\"><h3>" << type << " Histograms</h3></td></tr>" << endl;
     htmlFile << "<tr align=\"left\">" << endl;
-    histoHTML2(occ_[i],"iEta","iPhi", 92, htmlFile,htmlDir);
-    histoHTML(energyT_[i],"Total Energy (GeV)","Events", 100, htmlFile,htmlDir);
+    histoHTML2(runNo,occ_[i],"iEta","iPhi", 92, htmlFile,htmlDir);
+    histoHTML(runNo,energyT_[i],"Total Energy (GeV)","Events", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
 
     htmlFile << "<tr align=\"left\">" << endl;
-    histoHTML(energy_[i],"RecHit Energy (GeV)","Events", 92, htmlFile,htmlDir);
-    histoHTML(time_[i],"RecHit Time (nS)","Events", 100, htmlFile,htmlDir);
+    histoHTML(runNo,energy_[i],"RecHit Energy (GeV)","Events", 92, htmlFile,htmlDir);
+    histoHTML(runNo,time_[i],"RecHit Time (nS)","Events", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;	
   }
   htmlFile << "</table>" << endl;
