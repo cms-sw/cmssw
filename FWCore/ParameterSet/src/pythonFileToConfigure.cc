@@ -8,7 +8,7 @@
  */
 
 #include <boost/python.hpp>
-#include "FWCore/ParameterSet/src/pythonFileToConfigure.h"
+#include "FWCore/ParameterSet/interface/pythonFileToConfigure.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 
