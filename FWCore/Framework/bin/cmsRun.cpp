@@ -4,7 +4,7 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about
 it.
 
-$Id: cmsRun.cpp,v 1.40 2007/08/06 23:19:36 rpw Exp $
+$Id: cmsRun.cpp,v 1.41 2007/08/07 22:10:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -49,7 +49,37 @@ namespace {
       ep_(ep),
       callEndJob_(false) { }
     ~EventProcessorWithSentry() {
-      if (callEndJob_ && ep_.get()) ep_->endJob();
+      if (callEndJob_ && ep_.get()) {
+	try {
+	  ep_->endJob();
+	}
+	catch (cms::Exception& e) {
+	  std::string shortDesc("CMSException");
+	  std::ostringstream longDesc;
+	  longDesc << "cms::Exception caught in " 
+		   << kProgramName
+		   << "\n"
+		   << e.explainSelf();
+	  edm::LogSystem(shortDesc) << longDesc.str() << "\n";
+	}
+	catch (std::exception& e) {
+	  std::string shortDesc("StdLibException");
+	  std::ostringstream longDesc;
+	  longDesc << "Standard library exception caught in " 
+		   << kProgramName
+		   << "\n"
+		   << e.what();
+	  edm::LogSystem(shortDesc) << longDesc.str() << "\n";
+	}
+	catch (...) {
+	  std::string shortDesc("UnknownException");
+	  std::ostringstream longDesc;
+	  longDesc << "Unknown exception caught in "
+		   << kProgramName
+		   << "\n";
+	  edm::LogSystem(shortDesc) << longDesc.str() << "\n";
+        }
+      }
     }
     void on() {
       callEndJob_ = true;
@@ -66,7 +96,6 @@ namespace {
     bool callEndJob_;
   };
 }
-
 
 int main(int argc, char* argv[])
 {
