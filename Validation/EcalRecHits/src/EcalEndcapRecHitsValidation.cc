@@ -1,7 +1,7 @@
 /*
  * \file EcalEndcapRecHitsValidation.cc
  *
- * $Date: 2006/10/17 09:56:12 $
+ * $Date: 2006/10/26 08:33:11 $
  * \author C. Rovelli
  *
  */
@@ -190,46 +190,50 @@ void EcalEndcapRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 
 
       // Find the rechit corresponding digi
-      EEDigiCollection::const_iterator myDigi = EEDigi->find(EEid);
-      int sMax    = -1;
-      double eMax = 0.;
-      if (myDigi != EEDigi->end())
-	{
-	  for (int sample = 0; sample < myDigi->size(); ++sample)
-	    {
-	      double analogSample = myDigi->sample(sample).adc();
-	      if ( eMax < analogSample )
-		{
-		  eMax = analogSample;
-		  sMax = sample;
-		}
+      for (unsigned int digis=0; digis<EcalDigiEE->size(); ++digis) {	
+	
+	EEDataFrame eedf = (*EEDigi)[digis];
+	EEDetId eeid     = eedf.id () ;
+
+	int sMax    = -1;
+	double eMax = 0.;
+	if (eeid == EEid){
+	  int nrSamples = eedf.size();
+	  for (int sample = 0 ; sample < nrSamples; ++sample){
+	    EcalMGPASample thisSample = eedf[sample];
+	    double analogSample = thisSample.adc();
+	    if ( eMax < analogSample ){ 
+	      eMax = analogSample;
+	      sMax = sample;
 	    }
-	}
-      else
-	continue;
-      
-      // ratio uncalibratedRecHit amplitude + ped / max energy digi  
-      const EcalPedestals* myped = ecalPeds.product();
-      std::map<const unsigned int,EcalPedestals::Item>::const_iterator it=myped->m_pedestals.find(EEid.rawId());
-      if( it != myped->m_pedestals.end() )
-	{
-	  if (eMax > it->second.mean_x1 + 5 * it->second.rms_x1 ) //only real signal RecHit
-	    {
+	  }
+	
+	  // ratio uncalibratedRecHit amplitude + ped / max energy digi  
+	  const EcalPedestals* myped = ecalPeds.product();
+	  std::map<const unsigned int,EcalPedestals::Item>::const_iterator it=myped->m_pedestals.find(EEid.rawId());
+	  if( it != myped->m_pedestals.end() ){
+
+	    if (eMax > it->second.mean_x1 + 5 * it->second.rms_x1 ){ //only real signal RecHit
+	      
 	      if ( meEEUncalibRecHitMaxSampleRatio_ )
 		{ meEEUncalibRecHitMaxSampleRatio_->Fill( (uncalibRecHit->amplitude()+uncalibRecHit->pedestal())/eMax); }
-
+	      
 	      if ( meEEUncalibRecHitMaxSampleRatioGt60adc_ && (uncalibRecHit->amplitude() > 60) ) 
 		{ meEEUncalibRecHitMaxSampleRatioGt60adc_->Fill( (uncalibRecHit->amplitude()+uncalibRecHit->pedestal())/eMax); }
-
+	      
 	      LogDebug("EcalRecHitsTaskInfo") << "endcap, eMax = " << eMax << " Amplitude = " << uncalibRecHit->amplitude()+uncalibRecHit->pedestal();  
 	    }
+	    else
+	      continue;
+	  }
 	  else
 	    continue;
-	}
-      else
-	continue;
-
-
-    }  // loop over the UncalibratedRecHitCollection
+	} // right detid
+	
+	else
+	  continue;
+      } // loop over digis
+      
+    } // loop over the UncalibratedRecHitCollection
 
 }
