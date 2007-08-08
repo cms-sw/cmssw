@@ -6,12 +6,11 @@
 // Implementation:
 //     Cache and make prescale factors available online.
 //
-// Current revision: $Revision: 1.3 $
+// Current revision: $Revision: 1.4 $
 // On branch: $Name:  $
-// Latest change by $Author: wmtan $ on $Date: 2007/06/29 16:33:42 $ 
+// Latest change by $Author: youngman $ on $Date: 2007/07/27 07:43:06 $ 
 //
 
-#include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/PrescaleService/interface/PrescaleService.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
