@@ -1,5 +1,5 @@
 /*
- * $Id: HydjetSource.cc,v 1.5 2007/05/02 22:25:45 mballint Exp $
+ * $Id: HydjetSource.cc,v 1.6 2007/05/21 14:49:06 mironov Exp $
  *
  * Interface to the HYDJET generator, produces HepMC events
  *
@@ -301,6 +301,9 @@ bool HydjetSource::get_hydjet_particles(HepMC::GenEvent *evt)
 //______________________________________________________________
 bool HydjetSource::hyjhydro_init(const ParameterSet &pset)
 {
+  edm::Service<RandomNumberGenerator> rng;
+  uint32_t seed = rng->mySeed();
+  ludatr.mrlu[1]=seed;
   //initialize hydjet HYDRO part
 
   // hydjet mode

@@ -2,7 +2,7 @@
 #define GeneratorInterface_HydjetInterface_HydjetWrapper
 
 //
-// $Id:$
+// $Id: HydjetWrapper.h,v 1.2 2007/04/28 16:08:16 mballint Exp $
 //
 
 /*
@@ -101,5 +101,13 @@ extern "C" {
 }
 #define hyipar	hyipar_
 
+
+extern "C" {
+   extern struct {
+     int mrlu[6];
+     int rrlu[100];
+   } ludatr_;
+}
+#define ludatr ludatr_
 
 #endif
