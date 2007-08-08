@@ -120,7 +120,7 @@ EMShower::EMShower(const RandomEngine* engine,
  // std::cout << " Total Energy " << totalEnergy << " Global max " << globalMaximum << std::endl;
 }
 
-void EMShower::prepareSteps(double & d1, double&d2)
+void EMShower::prepareSteps()
 {
   //  TimeMe theT("EMShower::compute");
   
@@ -217,11 +217,11 @@ void EMShower::prepareSteps(double & d1, double&d2)
        }
    }
 
- d1=meanDepth[first_Ecal_step];
+ innerDepth=meanDepth[first_Ecal_step];
  if(last_Ecal_step+offset>=0)
-   d2=meanDepth[last_Ecal_step+offset];
+   outerDepth=meanDepth[last_Ecal_step+offset];
  else
-   d2=d1;
+   outerDepth=innerDepth;
 
  stepsCalculated=true;
 }
@@ -231,9 +231,11 @@ EMShower::compute() {
 
   double t = 0.;
   double dt = 0.;
-  if(!stepsCalculated) prepareSteps(t,dt);
-  t=0.;
-  dt=0.;
+  if(!stepsCalculated) prepareSteps();
+
+  // Prepare the grids in EcalHitMaker
+  // theGrid->setInnerAndOuterDepth(innerDepth,outerDepth);
+
   bool status=false; 
 
   //  double E1 = 0.;  // Energy layer 1
