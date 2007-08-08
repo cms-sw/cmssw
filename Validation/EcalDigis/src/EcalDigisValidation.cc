@@ -1,8 +1,8 @@
 /*
  * \file EcalDigisValidation.cc
  *
- * $Date: 2007/03/20 13:06:45 $
- * $Revision: 1.20 $
+ * $Date: 2007/05/28 17:08:56 $
+ * $Revision: 1.21 $
  * \author F. Cossutti
  *
 */
@@ -241,9 +241,9 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
       EBDetId ebid = EBDetId(hitItr->id()) ;
       
       LogDebug("HitInfo") 
-        << " CaloHit " << hitItr->getName() << "\n" 
-        << " DetID = "<<hitItr->id()<< " EBDetId = " << ebid.ieta() << " " << ebid.iphi() << "\n"	
-        << " Time = " << hitItr->time() << " Event id. = " << hitItr->eventId().rawId() << "\n"
+        << " CaloHit "  << hitItr->getName() << "\n" 
+        << " DetID = "  << hitItr->id()<< " EBDetId = " << ebid.ieta() << " " << ebid.iphi() << "\n"	
+        << " Time = "   << hitItr->time() << " Event id. = " << hitItr->eventId().rawId() << "\n"
         << " Track Id = " << hitItr->geantTrackId() << "\n"
         << " Energy = " << hitItr->energy();
 
@@ -263,53 +263,55 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
     ebADCCounts.reserve(EBDataFrame::MAXSAMPLES);
     ebADCGains.reserve(EBDataFrame::MAXSAMPLES);
     
-    for (std::vector<EBDataFrame>::const_iterator digis = barrelDigi->begin () ;
-         digis != barrelDigi->end () ;
-         ++digis)
-      {
-        
-        EBDetId ebid = digis->id () ;
-        
-        double Emax = 0. ;
-        int Pmax = 0 ;
-        double pedestalPreSample = 0.;
-        double pedestalPreSampleAnalog = 0.;
-        
-        for (int sample = 0 ; sample < digis->size () ; ++sample) {
-          ebAnalogSignal[sample] = 0.;
-          ebADCCounts[sample] = 0.;
-          ebADCGains[sample] = -1.;
-        }
-        
-        for (int sample = 0 ; sample < digis->size () ; ++sample)
-          {
-            ebADCCounts[sample] = (digis->sample (sample).adc ()) ;
-            ebADCGains[sample] = (digis->sample (sample).gainId ()) ;
-            ebAnalogSignal[sample] = (ebADCCounts[sample]*gainConv_[(int)ebADCGains[sample]]*barrelADCtoGeV_);
-            if (Emax < ebAnalogSignal[sample] ) {
-              Emax = ebAnalogSignal[sample] ;
-              Pmax = sample ;
-            }
-            if ( sample < 3 ) {
-              pedestalPreSample += ebADCCounts[sample] ;
-              pedestalPreSampleAnalog += ebADCCounts[sample]*gainConv_[(int)ebADCGains[sample]]*barrelADCtoGeV_ ;
-            }
-            LogDebug("DigiInfo") << "EB sample " << sample << " ADC counts = " << ebADCCounts[sample] << " Gain Id = " << ebADCGains[sample] << " Analog eq = " << ebAnalogSignal[sample];
-          }
-
-        pedestalPreSample /= 3. ; 
-        pedestalPreSampleAnalog /= 3. ; 
-        double Erec = Emax - pedestalPreSampleAnalog*gainConv_[(int)ebADCGains[Pmax]];
-        
-        if ( ebSimMap[ebid.rawId()] != 0. ) {
-          LogDebug("DigiInfo") << " Digi / Hit = " << Erec << " / " << ebSimMap[ebid.rawId()] << " gainConv " << gainConv_[(int)ebADCGains[Pmax]];
-          if ( meEBDigiSimRatio_ ) meEBDigiSimRatio_->Fill( Erec/ebSimMap[ebid.rawId()] ) ; 
-          if ( Erec > 10.*barrelADCtoGeV_  && meEBDigiSimRatiogt10ADC_  ) meEBDigiSimRatiogt10ADC_->Fill( Erec/ebSimMap[ebid.rawId()] );
-          if ( Erec > 100.*barrelADCtoGeV_  && meEBDigiSimRatiogt100ADC_  ) meEBDigiSimRatiogt100ADC_->Fill( Erec/ebSimMap[ebid.rawId()] );
-
-        }
-        
-      } 
+    for (unsigned int digis=0; digis<EcalDigiEB->size(); ++digis) {
+      
+      EBDataFrame ebdf=(*barrelDigi)[digis];
+      int nrSamples=ebdf.size();
+      
+      EBDetId ebid = ebdf.id () ;
+      
+      double Emax = 0. ;
+      int Pmax = 0 ;
+      double pedestalPreSample = 0.;
+      double pedestalPreSampleAnalog = 0.;
+      
+      for (int sample = 0 ; sample < nrSamples; ++sample) {
+	ebAnalogSignal[sample] = 0.;
+	ebADCCounts[sample] = 0.;
+	ebADCGains[sample] = -1.;
+      }
+      
+      for (int sample = 0 ; sample < nrSamples; ++sample) {
+	
+	EcalMGPASample mySample = ebdf[sample];
+	
+	ebADCCounts[sample] = (mySample.adc()) ;
+	ebADCGains[sample]  = (mySample.gainId()) ;
+	ebAnalogSignal[sample] = (ebADCCounts[sample]*gainConv_[(int)ebADCGains[sample]]*barrelADCtoGeV_);
+	if (Emax < ebAnalogSignal[sample] ) {
+	  Emax = ebAnalogSignal[sample] ;
+	  Pmax = sample ;
+	}
+	if ( sample < 3 ) {
+	  pedestalPreSample += ebADCCounts[sample] ;
+	  pedestalPreSampleAnalog += ebADCCounts[sample]*gainConv_[(int)ebADCGains[sample]]*barrelADCtoGeV_ ;
+	}
+	LogDebug("DigiInfo") << "EB sample " << sample << " ADC counts = " << ebADCCounts[sample] << " Gain Id = " << ebADCGains[sample] << " Analog eq = " << ebAnalogSignal[sample];
+      }
+      
+      pedestalPreSample /= 3. ; 
+      pedestalPreSampleAnalog /= 3. ; 
+      double Erec = Emax - pedestalPreSampleAnalog*gainConv_[(int)ebADCGains[Pmax]];
+      
+      if ( ebSimMap[ebid.rawId()] != 0. ) {
+	LogDebug("DigiInfo") << " Digi / Hit = " << Erec << " / " << ebSimMap[ebid.rawId()] << " gainConv " << gainConv_[(int)ebADCGains[Pmax]];
+	if ( meEBDigiSimRatio_ ) meEBDigiSimRatio_->Fill( Erec/ebSimMap[ebid.rawId()] ) ; 
+	if ( Erec > 10.*barrelADCtoGeV_  && meEBDigiSimRatiogt10ADC_  ) meEBDigiSimRatiogt10ADC_->Fill( Erec/ebSimMap[ebid.rawId()] );
+	if ( Erec > 100.*barrelADCtoGeV_  && meEBDigiSimRatiogt100ADC_  ) meEBDigiSimRatiogt100ADC_->Fill( Erec/ebSimMap[ebid.rawId()] );
+	
+      }
+      
+    } 
     
   }
   
@@ -354,51 +356,53 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
     eeADCCounts.reserve(EEDataFrame::MAXSAMPLES);
     eeADCGains.reserve(EEDataFrame::MAXSAMPLES);
     
-    for (std::vector<EEDataFrame>::const_iterator digis = endcapDigi->begin () ;
-         digis != endcapDigi->end () ;
-         ++digis)
-      {
-        
-        EEDetId eeid = digis->id () ;
-        
-        double Emax = 0. ;
-        int Pmax = 0 ;
-        double pedestalPreSample = 0.;
-        double pedestalPreSampleAnalog = 0.;
-        
-        for (int sample = 0 ; sample < digis->size () ; ++sample) {
-          eeAnalogSignal[sample] = 0.;
-          eeADCCounts[sample] = 0.;
-          eeADCGains[sample] = -1.;
-        }
-        
-        for (int sample = 0 ; sample < digis->size () ; ++sample)
-          {
-            eeADCCounts[sample] = (digis->sample (sample).adc ()) ;
-            eeADCGains[sample] = (digis->sample (sample).gainId ()) ;
-            eeAnalogSignal[sample] = (eeADCCounts[sample]*gainConv_[(int)eeADCGains[sample]]*endcapADCtoGeV_);
-            if (Emax < eeAnalogSignal[sample] ) {
-              Emax = eeAnalogSignal[sample] ;
-              Pmax = sample ;
-            }
-            if ( sample < 3 ) {
-              pedestalPreSample += eeADCCounts[sample] ;
-              pedestalPreSampleAnalog += eeADCCounts[sample]*gainConv_[(int)eeADCGains[sample]]*endcapADCtoGeV_ ;
-            }
-            LogDebug("DigiInfo") << "EE sample " << sample << " ADC counts = " << eeADCCounts[sample] << " Gain Id = " << eeADCGains[sample] << " Analog eq = " << eeAnalogSignal[sample];
-          }
-        pedestalPreSample /= 3. ; 
-        pedestalPreSampleAnalog /= 3. ; 
-        double Erec = Emax - pedestalPreSampleAnalog*gainConv_[(int)eeADCGains[Pmax]];
-        
-        if (eeSimMap[eeid.rawId()] != 0. ) {
-          LogDebug("DigiInfo") << " Digi / Hit = " << Erec << " / " << eeSimMap[eeid.rawId()] << " gainConv " << gainConv_[(int)eeADCGains[Pmax]];
-          if ( meEEDigiSimRatio_) meEEDigiSimRatio_->Fill( Erec/eeSimMap[eeid.rawId()] ) ; 
-          if ( Erec > 20.*endcapADCtoGeV_  && meEEDigiSimRatiogt20ADC_  ) meEEDigiSimRatiogt20ADC_->Fill( Erec/eeSimMap[eeid.rawId()] );
-          if ( Erec > 100.*endcapADCtoGeV_  && meEEDigiSimRatiogt100ADC_  ) meEEDigiSimRatiogt100ADC_->Fill( Erec/eeSimMap[eeid.rawId()] );
-        }
-        
-      } 
+    for (unsigned int digis=0; digis<EcalDigiEE->size(); ++digis) {
+      
+      EEDataFrame eedf=(*endcapDigi)[digis];
+      int nrSamples=eedf.size();
+      
+      EEDetId eeid = eedf.id () ;
+      
+      double Emax = 0. ;
+      int Pmax = 0 ;
+      double pedestalPreSample = 0.;
+      double pedestalPreSampleAnalog = 0.;
+      
+      for (int sample = 0 ; sample < nrSamples; ++sample) {
+	eeAnalogSignal[sample] = 0.;
+	eeADCCounts[sample] = 0.;
+	eeADCGains[sample] = -1.;
+      }
+      
+      for (int sample = 0 ; sample < nrSamples; ++sample) {
+
+	EcalMGPASample mySample = eedf[sample];
+	
+	eeADCCounts[sample] = (mySample.adc()) ;
+	eeADCGains[sample]  = (mySample.gainId()) ;
+	eeAnalogSignal[sample] = (eeADCCounts[sample]*gainConv_[(int)eeADCGains[sample]]*endcapADCtoGeV_);
+	if (Emax < eeAnalogSignal[sample] ) {
+	  Emax = eeAnalogSignal[sample] ;
+	  Pmax = sample ;
+	}
+	if ( sample < 3 ) {
+	  pedestalPreSample += eeADCCounts[sample] ;
+	  pedestalPreSampleAnalog += eeADCCounts[sample]*gainConv_[(int)eeADCGains[sample]]*endcapADCtoGeV_ ;
+	}
+	LogDebug("DigiInfo") << "EE sample " << sample << " ADC counts = " << eeADCCounts[sample] << " Gain Id = " << eeADCGains[sample] << " Analog eq = " << eeAnalogSignal[sample];
+      }
+      pedestalPreSample /= 3. ; 
+      pedestalPreSampleAnalog /= 3. ; 
+      double Erec = Emax - pedestalPreSampleAnalog*gainConv_[(int)eeADCGains[Pmax]];
+      
+      if (eeSimMap[eeid.rawId()] != 0. ) {
+	LogDebug("DigiInfo") << " Digi / Hit = " << Erec << " / " << eeSimMap[eeid.rawId()] << " gainConv " << gainConv_[(int)eeADCGains[Pmax]];
+	if ( meEEDigiSimRatio_) meEEDigiSimRatio_->Fill( Erec/eeSimMap[eeid.rawId()] ) ; 
+	if ( Erec > 20.*endcapADCtoGeV_  && meEEDigiSimRatiogt20ADC_  ) meEEDigiSimRatiogt20ADC_->Fill( Erec/eeSimMap[eeid.rawId()] );
+	if ( Erec > 100.*endcapADCtoGeV_  && meEEDigiSimRatiogt100ADC_  ) meEEDigiSimRatiogt100ADC_->Fill( Erec/eeSimMap[eeid.rawId()] );
+      }
+      
+    } 
     
   }
 
@@ -416,10 +420,10 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
       
       LogDebug("HitInfo") 
         << " CaloHit " << hitItr->getName() << "\n" 
-        << " DetID = "<<hitItr->id()<< "ESDetId: z side " << esid.zside() << "  plane " << esid.plane() << esid.six() << ',' << esid.siy() << ':' << esid.strip() << "\n"
-        << " Time = " << hitItr->time() << " Event id. = " << hitItr->eventId().rawId() << "\n"
+        << " DetID = " << hitItr->id()<< "ESDetId: z side " << esid.zside() << "  plane " << esid.plane() << esid.six() << ',' << esid.siy() << ':' << esid.strip() << "\n"
+        << " Time = "  << hitItr->time() << " Event id. = " << hitItr->eventId().rawId() << "\n"
         << " Track Id = " << hitItr->geantTrackId() << "\n"
-        << " Energy = " << hitItr->energy();
+        << " Energy = "   << hitItr->energy();
 
     }
     

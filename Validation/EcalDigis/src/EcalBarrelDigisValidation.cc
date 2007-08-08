@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelDigisValidation.cc
  *
- * $Date: 2006/10/26 08:30:32 $
- * $Revision: 1.13 $
+ * $Date: 2007/05/28 17:08:56 $
+ * $Revision: 1.14 $
  * \author F. Cossutti
  *
 */
@@ -163,17 +163,18 @@ void EcalBarrelDigisValidation::analyze(const Event& e, const EventSetup& c){
   ebADCGains.reserve(EBDataFrame::MAXSAMPLES);
 
   int nDigis = 0;
-
-  for (std::vector<EBDataFrame>::const_iterator digis = barrelDigi->begin () ;
-       digis != barrelDigi->end () ;
-       ++digis)
+  
+  for (unsigned int digis=0; digis<EcalDigiEB->size(); ++digis) 
     {
-    
-      EBDetId ebid = digis->id () ;
+      
+      EBDataFrame ebdf = (*barrelDigi)[digis];
+      int nrSamples = ebdf.size();
+      
+      EBDetId ebid = ebdf.id () ;
 
       nDigis++;
       if (meEBDigiOccupancy_) meEBDigiOccupancy_->Fill( ebid.iphi(), ebid.ieta() );
-
+      
       double Emax = 0. ;
       int Pmax = 0 ;
       double pedestalPreSample = 0.;
@@ -181,88 +182,90 @@ void EcalBarrelDigisValidation::analyze(const Event& e, const EventSetup& c){
       int countsAfterGainSwitch = -1;
       double higherGain = 1.;
       int higherGainSample = 0;
-
-      for (int sample = 0 ; sample < digis->size () ; ++sample) {
+      
+      for (int sample = 0 ; sample < nrSamples; ++sample) {
         ebAnalogSignal[sample] = 0.;
         ebADCCounts[sample] = 0.;
         ebADCGains[sample] = 0.;
       }
-
-      for (int sample = 0 ; sample < digis->size () ; ++sample)
+      
+      for (int sample = 0 ; sample < nrSamples; ++sample) 
         {
-          ebADCCounts[sample] = (digis->sample (sample).adc ()) ;
-          ebADCGains[sample]  = (digis->sample (sample).gainId ()) ;
+	  EcalMGPASample thisSample = ebdf[sample];
+	  
+          ebADCCounts[sample] = (thisSample.adc());
+          ebADCGains[sample]  = (thisSample.gainId());
           ebAnalogSignal[sample] = (ebADCCounts[sample]*gainConv_[(int)ebADCGains[sample]]*barrelADCtoGeV_);
-
+	  
           if (Emax < ebAnalogSignal[sample] ) {
             Emax = ebAnalogSignal[sample] ;
             Pmax = sample ;
           }
-
+	  
           if ( sample < 3 ) {
             pedestalPreSample += ebADCCounts[sample] ;
             pedestalPreSampleAnalog += ebADCCounts[sample]*gainConv_[(int)ebADCGains[sample]]*barrelADCtoGeV_ ;
           }
-
+	  
           if ( sample > 0 && ( ((ebADCGains[sample] > ebADCGains[sample-1]) && (ebADCGains[sample-1]!=0)) || (countsAfterGainSwitch<0 && ebADCGains[sample]==0)) ) {
             higherGain = ebADCGains[sample];
             higherGainSample = sample;
             countsAfterGainSwitch = 1;
           }
-
-          if ( (higherGain > 1 && (higherGainSample != sample) && (ebADCGains[sample] == higherGain)) || (higherGain==3 && (higherGainSample != sample) && (ebADCGains[sample]==0)) || (higherGain==0 && (higherGainSample != sample) && ((ebADCGains[sample] == 3) || (ebADCGains[sample]==0))) ) countsAfterGainSwitch++ ;
+	  
+          if ( (higherGain > 1 && (higherGainSample != sample) && (ebADCGains[sample] == higherGain)) || (higherGain==3 && (higherGainSample != sample) && (ebADCGains[sample]==0)) || (higherGain==0 && (higherGainSample != sample) && ((ebADCGains[sample] == 3) || (ebADCGains[sample]==0))) ) { countsAfterGainSwitch++ ; }
         }
+      
       pedestalPreSample /= 3. ; 
       pedestalPreSampleAnalog /= 3. ; 
-
+      
       LogDebug("DigiInfo") << "Barrel Digi for EBDetId = " << ebid.rawId() << " eta,phi " << ebid.ieta() << " " << ebid.iphi() ;
       for ( int i = 0; i < 10 ; i++ ) {
 	LogDebug("DigiInfo") << "sample " << i << " ADC = " << ebADCCounts[i] << " gain = " << ebADCGains[i] << " Analog = " << ebAnalogSignal[i];  
       }
       LogDebug("DigiInfo") << "Maximum energy = " << Emax << " in sample " << Pmax << " Pedestal from pre-sample = " << pedestalPreSampleAnalog;
       if ( countsAfterGainSwitch > 0 ) LogDebug("DigiInfo") << "Counts after switch " << countsAfterGainSwitch;
-
+      
       if ( countsAfterGainSwitch > 0 && countsAfterGainSwitch < 5 ) {
-        edm::LogWarning("DigiWarning") << "Wrong number of counts after gain switch before next switch! " << countsAfterGainSwitch ;
-        for ( int i = 0; i < 10 ; i++ ) {
-          edm::LogWarning("DigiWarning") << "sample " << i << " ADC = " << ebADCCounts[i] << " gain = " << ebADCGains[i] << " Analog = " << ebAnalogSignal[i];
-        }
- 
+	edm::LogWarning("DigiWarning") << "Wrong number of counts after gain switch before next switch! " << countsAfterGainSwitch ;
+	for ( int i = 0; i < 10 ; i++ ) {
+	  edm::LogWarning("DigiWarning") << "sample " << i << " ADC = " << ebADCCounts[i] << " gain = " << ebADCGains[i] << " Analog = " << ebAnalogSignal[i];
+	} 
       }
-        
+      
       for ( int i = 0 ; i < 10 ; i++ ) {
-        if (meEBDigiADCGlobal_ && (Emax-pedestalPreSampleAnalog*gainConv_[(int)ebADCGains[Pmax]]) > 100.*barrelADCtoGeV_) meEBDigiADCGlobal_->Fill( i , ebAnalogSignal[i] ) ;
-        if (meEBDigiADCAnalog_[i]) meEBDigiADCAnalog_[i]->Fill( ebAnalogSignal[i] ) ;
-
-        if ( ebADCGains[i] == 0) {
-          if (meEBDigiADCgS_[i]) meEBDigiADCgS_[i]->Fill( ebADCCounts[i] ) ;
-        }
-        else if ( ebADCGains[i] == 3 ) {
-          if (meEBDigiADCg1_[i]) meEBDigiADCg1_[i]->Fill( ebADCCounts[i] ) ;
-        }
-        else if ( ebADCGains[i] == 2 ) {
-          if (meEBDigiADCg6_[i]) meEBDigiADCg6_[i]->Fill( ebADCCounts[i] ) ;
-        }
-        else if ( ebADCGains[i] == 1 ) {
-          if (meEBDigiADCg12_[i]) meEBDigiADCg12_[i]->Fill( ebADCCounts[i] ) ;
-        }
-        if (meEBDigiGain_[i]) meEBDigiGain_[i]->Fill( ebADCGains[i] ) ;
+	if (meEBDigiADCGlobal_ && (Emax-pedestalPreSampleAnalog*gainConv_[(int)ebADCGains[Pmax]]) > 100.*barrelADCtoGeV_) meEBDigiADCGlobal_->Fill( i , ebAnalogSignal[i] ) ;
+	if (meEBDigiADCAnalog_[i]) meEBDigiADCAnalog_[i]->Fill( ebAnalogSignal[i] ) ;
+	
+	if ( ebADCGains[i] == 0) {
+	  if (meEBDigiADCgS_[i]) meEBDigiADCgS_[i]->Fill( ebADCCounts[i] ) ;
+	}
+	else if ( ebADCGains[i] == 3 ) {
+	  if (meEBDigiADCg1_[i]) meEBDigiADCg1_[i]->Fill( ebADCCounts[i] ) ;
+	}
+	else if ( ebADCGains[i] == 2 ) {
+	  if (meEBDigiADCg6_[i]) meEBDigiADCg6_[i]->Fill( ebADCCounts[i] ) ;
+	}
+	else if ( ebADCGains[i] == 1 ) {
+	  if (meEBDigiADCg12_[i]) meEBDigiADCg12_[i]->Fill( ebADCCounts[i] ) ;
+	}
+	if (meEBDigiGain_[i]) meEBDigiGain_[i]->Fill( ebADCGains[i] ) ;
       }
-
+      
       if (meEBPedestal_) meEBPedestal_->Fill ( pedestalPreSample ) ;
       if (meEBMaximumgt10ADC_ && (Emax-pedestalPreSampleAnalog*gainConv_[(int)ebADCGains[Pmax]]) > 10.*barrelADCtoGeV_) meEBMaximumgt10ADC_->Fill( Pmax ) ;
       if (meEBMaximumgt100ADC_ && (Emax-pedestalPreSampleAnalog*gainConv_[(int)ebADCGains[Pmax]]) > 100.*barrelADCtoGeV_) meEBMaximumgt100ADC_->Fill( Pmax ) ;
       if (meEBnADCafterSwitch_) meEBnADCafterSwitch_->Fill( countsAfterGainSwitch ) ;
-        
+      
     }
-
+  
   if ( meEBDigiMultiplicity_ ) meEBDigiMultiplicity_->Fill(nDigis);
-
+    
 }
 
 void  EcalBarrelDigisValidation::checkCalibrations(const edm::EventSetup & eventSetup) 
-{
-
+  {
+    
   // ADC -> GeV Scale
   edm::ESHandle<EcalADCToGeVConstant> pAgc;
   eventSetup.get<EcalADCToGeVConstantRcd>().get(pAgc);

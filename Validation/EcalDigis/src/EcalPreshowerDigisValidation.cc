@@ -1,8 +1,8 @@
 /*
  * \file EcalPreshowerDigisValidation.cc
  *
- * $Date: 2006/10/26 08:30:32 $
- * $Revision: 1.8 $
+ * $Date: 2007/05/28 17:08:56 $
+ * $Revision: 1.9 $
  * \author F. Cossutti
  *
 */
@@ -15,8 +15,8 @@ using namespace std;
 
 EcalPreshowerDigisValidation::EcalPreshowerDigisValidation(const ParameterSet& ps):
   ESdigiCollection_(ps.getParameter<edm::InputTag>("ESdigiCollection"))
-  {
- 
+{
+  
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
  
@@ -98,38 +98,38 @@ void EcalPreshowerDigisValidation::analyze(const Event& e, const EventSetup& c){
 
   int nDigis = 0;
 
-  for (std::vector<ESDataFrame>::const_iterator digis = preshowerDigi->begin () ;
-       digis != preshowerDigi->end () ;
-       ++digis)
-    {
-       
-      ESDetId esid = digis->id () ;
+  for (unsigned int digis=0; digis<EcalDigiES->size(); ++digis) {
 
-      nDigis++;
-
-      for (int sample = 0 ; sample < digis->size () ; ++sample) {
-        esADCCounts[sample] = 0.;
+    ESDataFrame esdf=(*preshowerDigi)[digis];
+    int nrSamples=esdf.size();
+    
+    ESDetId esid = esdf.id () ;
+    
+    nDigis++;
+    
+    for (int sample = 0 ; sample < nrSamples; ++sample) {
+      esADCCounts[sample] = 0.;
+    }
+    
+    for (int sample = 0 ; sample < nrSamples; ++sample) {
+      ESSample mySample = esdf[sample];
+      esADCCounts[sample] = (mySample.adc()) ;
+    }
+    if (verbose_) {
+      LogDebug("DigiInfo") << "Preshower Digi for ESDetId: z side " << esid.zside() << "  plane " << esid.plane() << esid.six() << ',' << esid.siy() << ':' << esid.strip();
+      for ( int i = 0; i < 3 ; i++ ) {
+	LogDebug("DigiInfo") << "sample " << i << " ADC = " << esADCCounts[i];
       }
-       
-      for (int sample = 0 ; sample < digis->size () ; ++sample)
-        {
-          esADCCounts[sample] = (digis->sample (sample).adc ()) ;
-        }
-      if (verbose_) {
-        LogDebug("DigiInfo") << "Preshower Digi for ESDetId: z side " << esid.zside() << "  plane " << esid.plane() << esid.six() << ',' << esid.siy() << ':' << esid.strip();
-        for ( int i = 0; i < 3 ; i++ ) {
-          LogDebug("DigiInfo") << "sample " << i << " ADC = " << esADCCounts[i];
-        }
-      }
-       
-      for ( int i = 0 ; i < 3 ; i++ ) {
-        if (meESDigiADC_[i]) meESDigiADC_[i]->Fill( esADCCounts[i] ) ;
-      }
-       
-    } 
-
+    }
+    
+    for ( int i = 0 ; i < 3 ; i++ ) {
+      if (meESDigiADC_[i]) meESDigiADC_[i]->Fill( esADCCounts[i] ) ;
+    }
+    
+  } 
+  
   if ( meESDigiMultiplicity_ ) meESDigiMultiplicity_->Fill(nDigis);
-
+  
 }
 
                                                                                                                                                              

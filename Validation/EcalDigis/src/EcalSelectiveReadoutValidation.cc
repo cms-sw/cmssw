@@ -1,8 +1,8 @@
 /*
  * \file EcalSelectiveReadoutValidation.cc
  *
- * $Date: 2007/05/21 13:21:52 $
- * $Revision: 1.2 $
+ * $Date: 2007/05/21 20:26:13 $
+ * $Revision: 1.3 $
  *
  */
 
@@ -301,9 +301,9 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event,
   CaloSubdetectorGeometry const& geometry = *geometry_p;
 
   //EE unsupressed digis:
-  for(EEDigiCollection::const_iterator it = eeNoZsDigis_->begin();
-      it != eeNoZsDigis_->end(); ++it){
-    const EEDataFrame& frame = *it;
+  for (unsigned int digis=0; digis<eeNoZsDigis_->size(); ++digis){
+
+    EEDataFrame frame = (*eeNoZsDigis_)[digis]; 
     int iX0 = iXY2cIndex(static_cast<const EEDetId&>(frame.id()).ix());
     int iY0 = iXY2cIndex(static_cast<const EEDetId&>(frame.id()).iy());
     int iZ0 = static_cast<const EEDetId&>(frame.id()).zside()>0?1:0;
@@ -616,17 +616,15 @@ void EcalSelectiveReadoutValidation::analyzeDataVolume(const Event& e,
   anaDigiInit();
 
   //Barrel
-  for(std::vector<EBDataFrame>::const_iterator it = ebDigis_->begin() ;
-      it != ebDigis_->end();
-      ++it){
-    anaDigi(*it, *ebSrFlags_);
+  for (unsigned int digis=0; digis<ebDigis_->size(); ++digis){
+    EBDataFrame ebdf = (*ebDigis_)[digis];
+    anaDigi(ebdf, *ebSrFlags_);
   }
 
   // Endcap
-  for(std::vector<EEDataFrame>::const_iterator it = eeDigis_->begin() ;
-      it != eeDigis_->end() ;
-	++it){
-    anaDigi(*it, *eeSrFlags_);
+  for (unsigned int digis=0; digis<eeDigis_->size(); ++digis){
+    EEDataFrame eedf = (*eeDigis_)[digis];
+    anaDigi(eedf, *eeSrFlags_);
   }
 
   //histos

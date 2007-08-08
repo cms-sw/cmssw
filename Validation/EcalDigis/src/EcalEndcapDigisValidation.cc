@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapDigisValidation.cc
  *
- * $Date: 2006/10/26 08:30:32 $
- * $Revision: 1.14 $
+ * $Date: 2007/05/28 17:08:56 $
+ * $Revision: 1.15 $
  * \author F. Cossutti
  *
 */
@@ -172,105 +172,107 @@ void EcalEndcapDigisValidation::analyze(const Event& e, const EventSetup& c){
   int nDigiszp = 0;
   int nDigiszm = 0;
 
-  for (std::vector<EEDataFrame>::const_iterator digis = endcapDigi->begin () ;
-       digis != endcapDigi->end () ;
-       ++digis)
-    {
+  for (unsigned int digis=0; digis<EcalDigiEE->size(); ++digis) {
     
-      EEDetId eeid = digis->id () ;
-
-      if (eeid.zside() > 0 ) {
-        if (meEEDigiOccupancyzp_) meEEDigiOccupancyzp_->Fill( eeid.ix(), eeid.iy() );
-        nDigiszp++;
-      }
-      else if (eeid.zside() < 0 ) {
-        if (meEEDigiOccupancyzm_) meEEDigiOccupancyzm_->Fill( eeid.ix(), eeid.iy() );
-        nDigiszm++;
+    EEDataFrame eedf=(*endcapDigi)[digis];
+    int nrSamples=eedf.size();
+    
+    EEDetId eeid = eedf.id () ;
+    
+    if (eeid.zside() > 0 ) {
+      if (meEEDigiOccupancyzp_) meEEDigiOccupancyzp_->Fill( eeid.ix(), eeid.iy() );
+      nDigiszp++;
+    }
+    else if (eeid.zside() < 0 ) {
+      if (meEEDigiOccupancyzm_) meEEDigiOccupancyzm_->Fill( eeid.ix(), eeid.iy() );
+      nDigiszm++;
+    }
+    
+    double Emax = 0. ;
+    int Pmax = 0 ;
+    double pedestalPreSample = 0.;
+    double pedestalPreSampleAnalog = 0.;
+    int countsAfterGainSwitch = -1;
+    double higherGain = 1.;
+    int higherGainSample = 0;
+    
+    for (int sample = 0 ; sample < nrSamples; ++sample) {
+      eeAnalogSignal[sample] = 0.;
+      eeADCCounts[sample] = 0.;
+      eeADCGains[sample] = 0.;
+    }
+    
+    for (int sample = 0 ; sample < nrSamples; ++sample) {
+      
+      EcalMGPASample mySample = eedf[sample];
+      
+      eeADCCounts[sample] = (mySample.adc());
+      eeADCGains[sample]  = (mySample.gainId()) ;
+      eeAnalogSignal[sample] = (eeADCCounts[sample]*gainConv_[(int)eeADCGains[sample]]*endcapADCtoGeV_);
+      
+      if (Emax < eeAnalogSignal[sample] ) {
+	Emax = eeAnalogSignal[sample] ;
+	Pmax = sample ;
       }
       
-      double Emax = 0. ;
-      int Pmax = 0 ;
-      double pedestalPreSample = 0.;
-      double pedestalPreSampleAnalog = 0.;
-      int countsAfterGainSwitch = -1;
-      double higherGain = 1.;
-      int higherGainSample = 0;
-
-      for (int sample = 0 ; sample < digis->size () ; ++sample) {
-        eeAnalogSignal[sample] = 0.;
-        eeADCCounts[sample] = 0.;
-        eeADCGains[sample] = 0.;
+      if ( sample < 3 ) {
+	pedestalPreSample += eeADCCounts[sample] ;
+	pedestalPreSampleAnalog += eeADCCounts[sample]*gainConv_[(int)eeADCGains[sample]]*endcapADCtoGeV_ ;
       }
 
-      for (int sample = 0 ; sample < digis->size () ; ++sample)
-        {
-          eeADCCounts[sample] = (digis->sample (sample).adc ()) ;
-          eeADCGains[sample] = (digis->sample (sample).gainId ()) ;
-          eeAnalogSignal[sample] = (eeADCCounts[sample]*gainConv_[(int)eeADCGains[sample]]*endcapADCtoGeV_);
-
-          if (Emax < eeAnalogSignal[sample] ) {
-            Emax = eeAnalogSignal[sample] ;
-            Pmax = sample ;
-          }
-
-          if ( sample < 3 ) {
-            pedestalPreSample += eeADCCounts[sample] ;
-            pedestalPreSampleAnalog += eeADCCounts[sample]*gainConv_[(int)eeADCGains[sample]]*endcapADCtoGeV_ ;
-          }
-
-	  if (sample > 0 && ( ((eeADCGains[sample] > eeADCGains[sample-1]) && (eeADCGains[sample-1]!=0)) || (countsAfterGainSwitch<0 && eeADCGains[sample]==0)) ){  
-            higherGain = eeADCGains[sample];
-            higherGainSample = sample;
-            countsAfterGainSwitch = 1;
-          }
-
-          if ( (higherGain > 1 && (higherGainSample != sample) && (eeADCGains[sample] == higherGain)) || (higherGain==3 && (higherGainSample != sample) && (eeADCGains[sample]==0)) || (higherGain==0 && (higherGainSample != sample) && ((eeADCGains[sample]==0) || (eeADCGains[sample]==3))) ) countsAfterGainSwitch++ ;
-	}
-      pedestalPreSample /= 3. ; 
-      pedestalPreSampleAnalog /= 3. ; 
-
-      LogDebug("DigiInfo") << "Endcap Digi for EEDetId = " << eeid.rawId() << " x,y " << eeid.ix() << " " << eeid.iy() ;
+      if (sample > 0 && ( ((eeADCGains[sample] > eeADCGains[sample-1]) && (eeADCGains[sample-1]!=0)) || (countsAfterGainSwitch<0 && eeADCGains[sample]==0)) ){  
+	higherGain = eeADCGains[sample];
+	higherGainSample = sample;
+	countsAfterGainSwitch = 1;
+      }
+      
+      if ( (higherGain > 1 && (higherGainSample != sample) && (eeADCGains[sample] == higherGain)) || (higherGain==3 && (higherGainSample != sample) && (eeADCGains[sample]==0)) || (higherGain==0 && (higherGainSample != sample) && ((eeADCGains[sample]==0) || (eeADCGains[sample]==3))) ) countsAfterGainSwitch++ ;
+    }
+    pedestalPreSample /= 3. ; 
+    pedestalPreSampleAnalog /= 3. ; 
+    
+    LogDebug("DigiInfo") << "Endcap Digi for EEDetId = " << eeid.rawId() << " x,y " << eeid.ix() << " " << eeid.iy() ;
+    for ( int i = 0; i < 10 ; i++ ) {
+      LogDebug("DigiInfo") << "sample " << i << " ADC = " << eeADCCounts[i] << " gain = " << eeADCGains[i] << " Analog = " << eeAnalogSignal[i] ;
+    }
+    LogDebug("DigiInfo") << "Maximum energy = " << Emax << " in sample " << Pmax << " Pedestal from pre-sample = " << pedestalPreSampleAnalog;  
+    if ( countsAfterGainSwitch > 0 ) LogDebug("DigiInfo") << "Counts after switch " << countsAfterGainSwitch; 
+    
+    if ( countsAfterGainSwitch > 0 && countsAfterGainSwitch < 5 ) {
+      edm::LogWarning("DigiWarning") << "Wrong number of counts after gain switch before next switch! " << countsAfterGainSwitch ;
       for ( int i = 0; i < 10 ; i++ ) {
-	LogDebug("DigiInfo") << "sample " << i << " ADC = " << eeADCCounts[i] << " gain = " << eeADCGains[i] << " Analog = " << eeAnalogSignal[i] ;
+	edm::LogWarning("DigiWarning") << "sample " << i << " ADC = " << eeADCCounts[i] << " gain = " << eeADCGains[i] << " Analog = " << eeAnalogSignal[i];
       }
-      LogDebug("DigiInfo") << "Maximum energy = " << Emax << " in sample " << Pmax << " Pedestal from pre-sample = " << pedestalPreSampleAnalog;  
-      if ( countsAfterGainSwitch > 0 ) LogDebug("DigiInfo") << "Counts after switch " << countsAfterGainSwitch; 
-
-      if ( countsAfterGainSwitch > 0 && countsAfterGainSwitch < 5 ) {
-        edm::LogWarning("DigiWarning") << "Wrong number of counts after gain switch before next switch! " << countsAfterGainSwitch ;
-        for ( int i = 0; i < 10 ; i++ ) {
-          edm::LogWarning("DigiWarning") << "sample " << i << " ADC = " << eeADCCounts[i] << " gain = " << eeADCGains[i] << " Analog = " << eeAnalogSignal[i];
-        }
+    }
+    
+    for ( int i = 0 ; i < 10 ; i++ ) {
+      if (meEEDigiADCGlobal_ && (Emax-pedestalPreSampleAnalog*gainConv_[(int)eeADCGains[Pmax]]) > 100.*endcapADCtoGeV_) meEEDigiADCGlobal_->Fill( i , eeAnalogSignal[i] ) ;
+      if (meEEDigiADCAnalog_[i]) meEEDigiADCAnalog_[i]->Fill( eeAnalogSignal[i] ) ;
+      if ( eeADCGains[i] == 0 ) {
+	if (meEEDigiADCgS_[i]) meEEDigiADCgS_[i]->Fill( eeADCCounts[i] ) ;
       }
-
-      for ( int i = 0 ; i < 10 ; i++ ) {
-        if (meEEDigiADCGlobal_ && (Emax-pedestalPreSampleAnalog*gainConv_[(int)eeADCGains[Pmax]]) > 100.*endcapADCtoGeV_) meEEDigiADCGlobal_->Fill( i , eeAnalogSignal[i] ) ;
-        if (meEEDigiADCAnalog_[i]) meEEDigiADCAnalog_[i]->Fill( eeAnalogSignal[i] ) ;
-        if ( eeADCGains[i] == 0 ) {
-          if (meEEDigiADCgS_[i]) meEEDigiADCgS_[i]->Fill( eeADCCounts[i] ) ;
-        }
-        else if ( eeADCGains[i] == 3 ) {
-          if (meEEDigiADCg1_[i]) meEEDigiADCg1_[i]->Fill( eeADCCounts[i] ) ;
-        }
-        else if ( eeADCGains[i] == 2 ) {
-          if (meEEDigiADCg6_[i]) meEEDigiADCg6_[i]->Fill( eeADCCounts[i] ) ;
-        }
-        else if ( eeADCGains[i] == 1 ) {
-          if (meEEDigiADCg12_[i]) meEEDigiADCg12_[i]->Fill( eeADCCounts[i] ) ;
-        }
-        if (meEEDigiGain_[i]) meEEDigiGain_[i]->Fill( eeADCGains[i] ) ;
+      else if ( eeADCGains[i] == 3 ) {
+	if (meEEDigiADCg1_[i]) meEEDigiADCg1_[i]->Fill( eeADCCounts[i] ) ;
       }
-
-      if (meEEPedestal_) meEEPedestal_->Fill ( pedestalPreSample ) ;
-      if (meEEMaximumgt20ADC_ && (Emax-pedestalPreSampleAnalog*gainConv_[(int)eeADCGains[Pmax]]) > 20.*endcapADCtoGeV_) meEEMaximumgt20ADC_->Fill( Pmax ) ;
-      if (meEEMaximumgt100ADC_ && (Emax-pedestalPreSampleAnalog*gainConv_[(int)eeADCGains[Pmax]]) > 100.*endcapADCtoGeV_) meEEMaximumgt100ADC_->Fill( Pmax ) ;
-      if (meEEnADCafterSwitch_) meEEnADCafterSwitch_->Fill(countsAfterGainSwitch);
-      
-    } 
-
+      else if ( eeADCGains[i] == 2 ) {
+	if (meEEDigiADCg6_[i]) meEEDigiADCg6_[i]->Fill( eeADCCounts[i] ) ;
+      }
+      else if ( eeADCGains[i] == 1 ) {
+	if (meEEDigiADCg12_[i]) meEEDigiADCg12_[i]->Fill( eeADCCounts[i] ) ;
+      }
+      if (meEEDigiGain_[i]) meEEDigiGain_[i]->Fill( eeADCGains[i] ) ;
+    }
+    
+    if (meEEPedestal_) meEEPedestal_->Fill ( pedestalPreSample ) ;
+    if (meEEMaximumgt20ADC_ && (Emax-pedestalPreSampleAnalog*gainConv_[(int)eeADCGains[Pmax]]) > 20.*endcapADCtoGeV_) meEEMaximumgt20ADC_->Fill( Pmax ) ;
+    if (meEEMaximumgt100ADC_ && (Emax-pedestalPreSampleAnalog*gainConv_[(int)eeADCGains[Pmax]]) > 100.*endcapADCtoGeV_) meEEMaximumgt100ADC_->Fill( Pmax ) ;
+    if (meEEnADCafterSwitch_) meEEnADCafterSwitch_->Fill(countsAfterGainSwitch);
+    
+  } 
+  
   if ( meEEDigiMultiplicityzp_ ) meEEDigiMultiplicityzp_->Fill(nDigiszp);
   if ( meEEDigiMultiplicityzm_ ) meEEDigiMultiplicityzm_->Fill(nDigiszm);
-
+  
 }
 
 void  EcalEndcapDigisValidation::checkCalibrations(const edm::EventSetup & eventSetup) 

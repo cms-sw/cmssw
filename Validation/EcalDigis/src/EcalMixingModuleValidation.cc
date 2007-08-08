@@ -1,8 +1,8 @@
 /*
  * \file EcalMixingModuleValidation.cc
  *
- * $Date: 2007/03/20 13:06:45 $
- * $Revision: 1.9 $
+ * $Date: 2007/05/28 17:08:56 $
+ * $Revision: 1.10 $
  * \author F. Cossutti
  *
 */
@@ -396,53 +396,55 @@ void EcalMixingModuleValidation::analyze(const Event& e, const EventSetup& c){
     ebADCCounts.reserve(EBDataFrame::MAXSAMPLES);
     ebADCGains.reserve(EBDataFrame::MAXSAMPLES);
     
-    for (std::vector<EBDataFrame>::const_iterator digis = barrelDigi->begin () ;
-         digis != barrelDigi->end () ;
-         ++digis)
-      {
-        
-        EBDetId ebid = digis->id () ;
-        
-        double Emax = 0. ;
-        int Pmax = 0 ;
-        
-        for (int sample = 0 ; sample < digis->size () ; ++sample) {
-          ebAnalogSignal[sample] = 0.;
-          ebADCCounts[sample] = 0.;
-          ebADCGains[sample] = -1.;
-        }
-        
-        for (int sample = 0 ; sample < digis->size () ; ++sample)
-          {
-            ebADCCounts[sample] = (digis->sample (sample).adc ()) ;
-            ebADCGains[sample] = (digis->sample (sample).gainId ()) ;
-            ebAnalogSignal[sample] = (ebADCCounts[sample]*gainConv_[(int)ebADCGains[sample]]*barrelADCtoGeV_);
-            if (Emax < ebAnalogSignal[sample] ) {
-              Emax = ebAnalogSignal[sample] ;
-              Pmax = sample ;
-            }
-            LogDebug("DigiInfo") << "EB sample " << sample << " ADC counts = " << ebADCCounts[sample] << " Gain Id = " << ebADCGains[sample] << " Analog eq = " << ebAnalogSignal[sample];
-          }
-        double pedestalPreSampleAnalog = 0.;
-        findPedestal( ebid, (int)ebADCGains[Pmax] , pedestalPreSampleAnalog);
-        pedestalPreSampleAnalog *= gainConv_[(int)ebADCGains[Pmax]]*barrelADCtoGeV_;
-        double Erec = Emax - pedestalPreSampleAnalog;
-        
-        if ( ebSignalSimMap[ebid.rawId()] != 0. ) {
-          LogDebug("DigiInfo") << " Digi / Signal Hit = " << Erec << " / " << ebSignalSimMap[ebid.rawId()] << " gainConv " << gainConv_[(int)ebADCGains[Pmax]];
-          if ( Erec > 100.*barrelADCtoGeV_  && meEBDigiMixRatiogt100ADC_  ) meEBDigiMixRatiogt100ADC_->Fill( Erec/ebSignalSimMap[ebid.rawId()] );
-          if ( ebSignalSimMap[ebid.rawId()] > ebSimThreshold  && meEBDigiMixRatioOriggt50pc_ ) meEBDigiMixRatioOriggt50pc_->Fill( Erec/ebSignalSimMap[ebid.rawId()] );
-          if ( ebSignalSimMap[ebid.rawId()] > ebSimThreshold  && meEBShape_ ) {
-            for ( int i = 0; i < 10 ; i++ ) {
-              pedestalPreSampleAnalog = 0.;
-              findPedestal( ebid, (int)ebADCGains[i] , pedestalPreSampleAnalog);
-              pedestalPreSampleAnalog *= gainConv_[(int)ebADCGains[i]]*barrelADCtoGeV_;
-              meEBShape_->Fill(i, ebAnalogSignal[i]-pedestalPreSampleAnalog );
-            }
-          }
-        }
-        
-      } 
+    for (unsigned int digis=0; digis<EcalDigiEB->size(); ++digis) {
+
+      EBDataFrame ebdf=(*barrelDigi)[digis];
+      int nrSamples=ebdf.size();
+      
+      EBDetId ebid = ebdf.id () ;
+      
+      double Emax = 0. ;
+      int Pmax = 0 ;
+      
+      for (int sample = 0 ; sample < nrSamples; ++sample) {
+	ebAnalogSignal[sample] = 0.;
+	ebADCCounts[sample] = 0.;
+	ebADCGains[sample] = -1.;
+      }
+      
+      for (int sample = 0 ; sample < nrSamples; ++sample) {
+
+	EcalMGPASample mySample = ebdf[sample];
+	
+	ebADCCounts[sample] = (mySample.adc()) ;
+	ebADCGains[sample]  = (mySample.gainId ()) ;
+	ebAnalogSignal[sample] = (ebADCCounts[sample]*gainConv_[(int)ebADCGains[sample]]*barrelADCtoGeV_);
+	if (Emax < ebAnalogSignal[sample] ) {
+	  Emax = ebAnalogSignal[sample] ;
+	  Pmax = sample ;
+	}
+	LogDebug("DigiInfo") << "EB sample " << sample << " ADC counts = " << ebADCCounts[sample] << " Gain Id = " << ebADCGains[sample] << " Analog eq = " << ebAnalogSignal[sample];
+      }
+      double pedestalPreSampleAnalog = 0.;
+      findPedestal( ebid, (int)ebADCGains[Pmax] , pedestalPreSampleAnalog);
+      pedestalPreSampleAnalog *= gainConv_[(int)ebADCGains[Pmax]]*barrelADCtoGeV_;
+      double Erec = Emax - pedestalPreSampleAnalog;
+      
+      if ( ebSignalSimMap[ebid.rawId()] != 0. ) {
+	LogDebug("DigiInfo") << " Digi / Signal Hit = " << Erec << " / " << ebSignalSimMap[ebid.rawId()] << " gainConv " << gainConv_[(int)ebADCGains[Pmax]];
+	if ( Erec > 100.*barrelADCtoGeV_  && meEBDigiMixRatiogt100ADC_  ) meEBDigiMixRatiogt100ADC_->Fill( Erec/ebSignalSimMap[ebid.rawId()] );
+	if ( ebSignalSimMap[ebid.rawId()] > ebSimThreshold  && meEBDigiMixRatioOriggt50pc_ ) meEBDigiMixRatioOriggt50pc_->Fill( Erec/ebSignalSimMap[ebid.rawId()] );
+	if ( ebSignalSimMap[ebid.rawId()] > ebSimThreshold  && meEBShape_ ) {
+	  for ( int i = 0; i < 10 ; i++ ) {
+	    pedestalPreSampleAnalog = 0.;
+	    findPedestal( ebid, (int)ebADCGains[i] , pedestalPreSampleAnalog);
+	    pedestalPreSampleAnalog *= gainConv_[(int)ebADCGains[i]]*barrelADCtoGeV_;
+	    meEBShape_->Fill(i, ebAnalogSignal[i]-pedestalPreSampleAnalog );
+	  }
+	}
+      }
+      
+    } 
     
     EcalSubdetector thisDet = EcalBarrel;
     computeSDBunchDigi(c, *barrelHits, ebSignalSimMap, thisDet, ebSimThreshold);
@@ -495,52 +497,54 @@ void EcalMixingModuleValidation::analyze(const Event& e, const EventSetup& c){
     eeADCCounts.reserve(EEDataFrame::MAXSAMPLES);
     eeADCGains.reserve(EEDataFrame::MAXSAMPLES);
     
-    for (std::vector<EEDataFrame>::const_iterator digis = endcapDigi->begin () ;
-         digis != endcapDigi->end () ;
-         ++digis)
-      {
-        
-        EEDetId eeid = digis->id () ;
-        
-        double Emax = 0. ;
-        int Pmax = 0 ;
-        
-        for (int sample = 0 ; sample < digis->size () ; ++sample) {
-          eeAnalogSignal[sample] = 0.;
-          eeADCCounts[sample] = 0.;
-          eeADCGains[sample] = -1.;
-        }
-        
-        for (int sample = 0 ; sample < digis->size () ; ++sample)
-          {
-            eeADCCounts[sample] = (digis->sample (sample).adc ()) ;
-            eeADCGains[sample] = (digis->sample (sample).gainId ()) ;
-            eeAnalogSignal[sample] = (eeADCCounts[sample]*gainConv_[(int)eeADCGains[sample]]*endcapADCtoGeV_);
-            if (Emax < eeAnalogSignal[sample] ) {
-              Emax = eeAnalogSignal[sample] ;
-              Pmax = sample ;
-            }
-            LogDebug("DigiInfo") << "EE sample " << sample << " ADC counts = " << eeADCCounts[sample] << " Gain Id = " << eeADCGains[sample] << " Analog eq = " << eeAnalogSignal[sample];
-          }
-        double pedestalPreSampleAnalog = 0.;
-        findPedestal( eeid, (int)eeADCGains[Pmax] , pedestalPreSampleAnalog);
-        pedestalPreSampleAnalog *= gainConv_[(int)eeADCGains[Pmax]]*endcapADCtoGeV_;
-        double Erec = Emax - pedestalPreSampleAnalog;
-        
-        if ( eeSignalSimMap[eeid.rawId()] != 0. ) {
-          LogDebug("DigiInfo") << " Digi / Signal Hit = " << Erec << " / " << eeSignalSimMap[eeid.rawId()] << " gainConv " << gainConv_[(int)eeADCGains[Pmax]];
-          if ( Erec > 100.*endcapADCtoGeV_  && meEEDigiMixRatiogt100ADC_  ) meEEDigiMixRatiogt100ADC_->Fill( Erec/eeSignalSimMap[eeid.rawId()] );
-          if ( eeSignalSimMap[eeid.rawId()] > eeSimThreshold  && meEEDigiMixRatioOriggt40pc_ ) meEEDigiMixRatioOriggt40pc_->Fill( Erec/eeSignalSimMap[eeid.rawId()] );
-          if ( eeSignalSimMap[eeid.rawId()] > eeSimThreshold  && meEBShape_ ) {
-            for ( int i = 0; i < 10 ; i++ ) {
-              pedestalPreSampleAnalog = 0.;
-              findPedestal( eeid, (int)eeADCGains[i] , pedestalPreSampleAnalog);
-              pedestalPreSampleAnalog *= gainConv_[(int)eeADCGains[i]]*endcapADCtoGeV_;
-              meEEShape_->Fill(i, eeAnalogSignal[i]-pedestalPreSampleAnalog );
-            }
-          }
-        }
+    for (unsigned int digis=0; digis<EcalDigiEE->size(); ++digis) {
+
+      EEDataFrame eedf=(*endcapDigi)[digis];
+      int nrSamples=eedf.size();
+      
+      EEDetId eeid = eedf.id () ;
+      
+      double Emax = 0. ;
+      int Pmax = 0 ;
+      
+      for (int sample = 0 ; sample < nrSamples; ++sample) {
+	eeAnalogSignal[sample] = 0.;
+	eeADCCounts[sample] = 0.;
+	eeADCGains[sample] = -1.;
       }
+      
+      for (int sample = 0 ; sample < nrSamples; ++sample) {
+	
+	EcalMGPASample mySample = eedf[sample];
+	
+	eeADCCounts[sample] = (mySample.adc()) ;
+	eeADCGains[sample]  = (mySample.gainId()) ;
+	eeAnalogSignal[sample] = (eeADCCounts[sample]*gainConv_[(int)eeADCGains[sample]]*endcapADCtoGeV_);
+	if (Emax < eeAnalogSignal[sample] ) {
+	  Emax = eeAnalogSignal[sample] ;
+	  Pmax = sample ;
+	}
+	LogDebug("DigiInfo") << "EE sample " << sample << " ADC counts = " << eeADCCounts[sample] << " Gain Id = " << eeADCGains[sample] << " Analog eq = " << eeAnalogSignal[sample];
+      }
+      double pedestalPreSampleAnalog = 0.;
+      findPedestal( eeid, (int)eeADCGains[Pmax] , pedestalPreSampleAnalog);
+      pedestalPreSampleAnalog *= gainConv_[(int)eeADCGains[Pmax]]*endcapADCtoGeV_;
+      double Erec = Emax - pedestalPreSampleAnalog;
+      
+      if ( eeSignalSimMap[eeid.rawId()] != 0. ) {
+	LogDebug("DigiInfo") << " Digi / Signal Hit = " << Erec << " / " << eeSignalSimMap[eeid.rawId()] << " gainConv " << gainConv_[(int)eeADCGains[Pmax]];
+	if ( Erec > 100.*endcapADCtoGeV_  && meEEDigiMixRatiogt100ADC_  ) meEEDigiMixRatiogt100ADC_->Fill( Erec/eeSignalSimMap[eeid.rawId()] );
+	if ( eeSignalSimMap[eeid.rawId()] > eeSimThreshold  && meEEDigiMixRatioOriggt40pc_ ) meEEDigiMixRatioOriggt40pc_->Fill( Erec/eeSignalSimMap[eeid.rawId()] );
+	if ( eeSignalSimMap[eeid.rawId()] > eeSimThreshold  && meEBShape_ ) {
+	  for ( int i = 0; i < 10 ; i++ ) {
+	    pedestalPreSampleAnalog = 0.;
+	    findPedestal( eeid, (int)eeADCGains[i] , pedestalPreSampleAnalog);
+	    pedestalPreSampleAnalog *= gainConv_[(int)eeADCGains[i]]*endcapADCtoGeV_;
+	    meEEShape_->Fill(i, eeAnalogSignal[i]-pedestalPreSampleAnalog );
+	  }
+          }
+      }
+    }
     
     EcalSubdetector thisDet = EcalEndcap;
     computeSDBunchDigi(c, *endcapHits, eeSignalSimMap, thisDet, eeSimThreshold);
@@ -582,38 +586,40 @@ void EcalMixingModuleValidation::analyze(const Event& e, const EventSetup& c){
       esADCCounts.reserve(ESDataFrame::MAXSAMPLES);
       esADCAnalogSignal.reserve(ESDataFrame::MAXSAMPLES);
 
-      for (std::vector<ESDataFrame>::const_iterator digis = preshowerDigi->begin () ;
-           digis != preshowerDigi->end () ;
-           ++digis)
-        {
-          
-          ESDetId esid = digis->id () ;
-          
-          for (int sample = 0 ; sample < digis->size () ; ++sample) {
-            esADCCounts[sample] = 0.;
-            esADCAnalogSignal[sample] = 0.;
-          }
-          
-          for (int sample = 0 ; sample < digis->size () ; ++sample)
-            {
-              esADCCounts[sample] = (digis->sample (sample).adc ()) ;
-              esADCAnalogSignal[sample] = (esADCCounts[sample]-esBaseline_)/esADCtokeV_;
-            }
-          LogDebug("DigiInfo") << "Preshower Digi for ESDetId: z side " << esid.zside() << "  plane " << esid.plane() << esid.six() << ',' << esid.siy() << ':' << esid.strip();
-          for ( int i = 0; i < 3 ; i++ ) {
-            LogDebug("DigiInfo") << "sample " << i << " ADC = " << esADCCounts[i] << " Analog eq = " << esADCAnalogSignal[i];
-          }
+      for (unsigned int digis=0; digis<EcalDigiES->size(); ++digis) {
 
-          if ( esSignalSimMap[esid.rawId()] > esThreshold_  && meESShape_ ) {
-            for ( int i = 0; i < 3 ; i++ ) {
-              meESShape_->Fill(i, esADCAnalogSignal[i] );
-            }
-          }
-          
-        } 
+	ESDataFrame esdf=(*preshowerDigi)[digis];
+	int nrSamples=esdf.size();
+	
+	ESDetId esid = esdf.id () ;
+	
+	for (int sample = 0 ; sample < nrSamples; ++sample) {
+	  esADCCounts[sample] = 0.;
+	  esADCAnalogSignal[sample] = 0.;
+	}
+	
+	for (int sample = 0 ; sample < nrSamples; ++sample) {
+
+	  ESSample mySample = esdf[sample];
+	  
+	  esADCCounts[sample] = (mySample.adc()) ;
+	  esADCAnalogSignal[sample] = (esADCCounts[sample]-esBaseline_)/esADCtokeV_;
+	}
+	LogDebug("DigiInfo") << "Preshower Digi for ESDetId: z side " << esid.zside() << "  plane " << esid.plane() << esid.six() << ',' << esid.siy() << ':' << esid.strip();
+	for ( int i = 0; i < 3 ; i++ ) {
+	  LogDebug("DigiInfo") << "sample " << i << " ADC = " << esADCCounts[i] << " Analog eq = " << esADCAnalogSignal[i];
+	}
+	
+	if ( esSignalSimMap[esid.rawId()] > esThreshold_  && meESShape_ ) {
+	  for ( int i = 0; i < 3 ; i++ ) {
+	    meESShape_->Fill(i, esADCAnalogSignal[i] );
+	  }
+	}
+	
+      } 
       
     }
-
+    
     EcalSubdetector thisDet = EcalPreshower;
     computeSDBunchDigi(c, *preshowerHits, esSignalSimMap, thisDet, esThreshold_);
     
@@ -621,9 +627,8 @@ void EcalMixingModuleValidation::analyze(const Event& e, const EventSetup& c){
   
 }                                                                                       
 
-void  EcalMixingModuleValidation::checkCalibrations(const edm::EventSetup & eventSetup) 
-{
-
+void  EcalMixingModuleValidation::checkCalibrations(const edm::EventSetup & eventSetup) {
+  
   // ADC -> GeV Scale
   edm::ESHandle<EcalADCToGeVConstant> pAgc;
   eventSetup.get<EcalADCToGeVConstantRcd>().get(pAgc);
