@@ -10,7 +10,7 @@ such code sees the Event class, which is a proxy for EventPrincipal.
 The major internal component of the EventPrincipal
 is the DataBlock.
 
-$Id: EventPrincipal.h,v 1.63 2007/08/02 21:11:07 marafino Exp $
+$Id: EventPrincipal.h,v 1.64 2007/08/02 23:14:10 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -35,17 +35,6 @@ namespace edm {
 	Timestamp const& time,
 	boost::shared_ptr<ProductRegistry const> reg,
         boost::shared_ptr<LuminosityBlockPrincipal> lbp,
-        ProcessConfiguration const& pc,
-        bool isReal,
-	EventAuxiliary::ExperimentType const eType = EventAuxiliary::Any,
-	int bunchXing = invalidBunchXing,
-	int storeNumber = invalidStoreNumber,
-	ProcessHistoryID const& hist = ProcessHistoryID(),
-	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
-    EventPrincipal(EventID const& id,
-	Timestamp const& time,
-	boost::shared_ptr<ProductRegistry const> reg,
-	LuminosityBlockNumber_t lumi,
         ProcessConfiguration const& pc,
         bool isReal,
 	EventAuxiliary::ExperimentType const eType = EventAuxiliary::Any,

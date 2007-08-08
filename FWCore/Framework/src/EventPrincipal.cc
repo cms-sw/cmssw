@@ -23,22 +23,6 @@ namespace edm {
 	  unscheduledHandler_() {
 	  }
 
-  EventPrincipal::EventPrincipal(EventID const& id,
-	Timestamp const& time,
-	boost::shared_ptr<ProductRegistry const> reg,
-	LuminosityBlockNumber_t lumi,
-	ProcessConfiguration const& pc,
-        bool isReal,
-        EventAuxiliary::ExperimentType eType,
-	int bunchXing,
-	int storeNumber,
-	ProcessHistoryID const& hist,
-	boost::shared_ptr<DelayedReader> rtrv) :
-	  Base(reg, pc, hist, rtrv),
-	  aux_(id, time, lumi, isReal, eType, bunchXing, storeNumber),
-	  luminosityBlockPrincipal_(new LuminosityBlockPrincipal(lumi, time, time, reg, id.run(), pc)),
-	  unscheduledHandler_() { }
-
   RunPrincipal const&
   EventPrincipal::runPrincipal() const {
     return luminosityBlockPrincipal().runPrincipal();
