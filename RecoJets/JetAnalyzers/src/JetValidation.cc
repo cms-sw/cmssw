@@ -8,6 +8,8 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <TROOT.h>
@@ -344,7 +346,7 @@ void JetValidation::analyze( const Event& evt, const EventSetup& es ) {
        }
     }
     dR.Fill(dRmin[jetInd]);
-    double dphi = deltaphi(p4cal[jetInd].phi(), p4gen[jetInd].phi());
+    double dphi = deltaPhi(p4cal[jetInd].phi(), p4gen[jetInd].phi());
     dPhi.Fill(dphi);
     double deta = p4cal[jetInd].eta() - p4gen[jetInd].eta();
     dEta.Fill(deta);
