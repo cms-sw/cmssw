@@ -49,7 +49,7 @@ EMShower::EMShower(const RandomEngine* engine,
   double meanDepth=0.;
   // Initialize the shower parameters for each particle
   for ( unsigned int i=0; i<nPart; ++i ) {
-    std::cout << " AAA " << *(*thePart)[i] << std::endl;
+    //    std::cout << " AAA " << *(*thePart)[i] << std::endl;
     // The particle and the shower energy
     Etot.push_back(0.);
     E.push_back(((*thePart)[i])->e());
@@ -134,12 +134,12 @@ void EMShower::prepareSteps(double & d1, double&d2)
   // The maximum is in principe 8 (with 5X0 steps in the ECAL)
   steps.reserve(20);
   
-  std::cout << " PS1 : " << theGrid->ps1TotalX0()
-	    << " PS2 : " << theGrid->ps2TotalX0()
-	    << " ECAL : " << theGrid->ecalTotalX0()
-	    << " HCAL : " << theGrid->hcalTotalX0() 
-	    << " Offset : " << theGrid->x0DepthOffset()
-	    << std::endl;
+//  std::cout << " PS1 : " << theGrid->ps1TotalX0()
+//	    << " PS2 : " << theGrid->ps2TotalX0()
+//	    << " ECAL : " << theGrid->ecalTotalX0()
+//	    << " HCAL : " << theGrid->hcalTotalX0() 
+//	    << " Offset : " << theGrid->x0DepthOffset()
+//	    << std::endl;
   
   
   radlen = -theGrid->x0DepthOffset();
@@ -193,7 +193,7 @@ void EMShower::prepareSteps(double & d1, double&d2)
  depositedEnergy.resize(nSteps);
  meanDepth.resize(nSteps);
  double t=0.;
- std::cout << " nSteps  " <<nSteps << std::endl;
+
  int offset=0;
  for(unsigned iStep=0;iStep<nSteps;++iStep)
    {
@@ -203,7 +203,7 @@ void EMShower::prepareSteps(double & d1, double&d2)
      dt=steps[iStep].second;
      t+=dt;
      for ( unsigned int i=0; i<nPart; ++i ) {
-       std::cout << " Before depositedEnergy push_back " << std::endl;
+
        depositedEnergy[iStep].push_back(deposit(t,a[i],b[i],dt));     
        ESliceTot +=depositedEnergy[iStep][i];
        MeanDepth += deposit(t,a[i]+1.,b[i],dt)/b[i]*a[i];
@@ -214,16 +214,15 @@ void EMShower::prepareSteps(double & d1, double&d2)
      if(realTotalEnergy<0.001)
        {
 	 offset-=1;
-	 std::cout << "realTotalEnergy (1) " << realTotalEnergy << std::endl;
        }
    }
- std::cout << " Finished with the steps " << first_Ecal_step << " " << last_Ecal_step << " " << offset << std::endl;
+
  d1=meanDepth[first_Ecal_step];
  if(last_Ecal_step+offset>=0)
    d2=meanDepth[last_Ecal_step+offset];
  else
    d2=d1;
- std::cout << " d1 & d2 " << d1 << " " << d2 << std::endl;
+
  stepsCalculated=true;
 }
 
@@ -289,11 +288,10 @@ EMShower::compute() {
     // otherwise put in the previous one.    
 
     bool usePreviousGrid=(realTotalEnergy<0.001);
-    if(usePreviousGrid) std::cout << " Using previous grid " << realTotalEnergy << std::endl;
+
     if (ecal && !usePreviousGrid) 
       {
 	status=theGrid->getPads(meanDepth[iStep]);
-	std::cout << "  AAA Getting pads at depth " << meanDepth[iStep] << " with Energy " << realTotalEnergy<< std::endl;
       }
     if (hcal) 
       {
