@@ -4,7 +4,6 @@
 //
 //   History: v1.0 
 //   Pedro Arce
-#include <map>
 #include <fstream>
 
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
