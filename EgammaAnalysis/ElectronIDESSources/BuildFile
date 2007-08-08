@@ -1,0 +1,20 @@
+<use name=FWCore/ParameterSet>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/Framework>
+<use name=FWCore/ServiceRegistry>
+<use name=CondFormats/DataRecord>
+<use name=EgammaAnalysis/ElectronIDAlgos>
+<use name=root>
+<use name=rootcore>
+<flags SEAL_PLUGIN_NAME="EgammaAnalysisElectronIDESSources">
+<export>
+  <lib name=EgammaAnalysisElectronIDESSources>
+  <use name=FWCore/ParameterSet>
+  <use name=FWCore/MessageLogger>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ServiceRegistry>
+  <use name=CondFormats/DataRecord>
+  <use name=EgammaAnalysis/ElectronIDAlgos>
+  <use name=root>
+  <use name=rootcore>
+</export>
