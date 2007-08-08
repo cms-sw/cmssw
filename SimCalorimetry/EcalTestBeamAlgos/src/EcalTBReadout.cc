@@ -106,6 +106,7 @@ void EcalTBReadout::findTTlist(const int & crysId, const EcalTrigTowerConstituen
 
 void EcalTBReadout::readOut(EBDigiCollection & input, EBDigiCollection & output, const EcalTrigTowerConstituentsMap& etmap) {
 
+  /*
   for(EBDigiCollection::const_iterator digiItr = input.begin();
       digiItr != input.end(); ++digiItr)
     {
@@ -116,7 +117,21 @@ void EcalTBReadout::readOut(EBDigiCollection & input, EBDigiCollection & output,
       }
     }
   edm::LogInfo("EcalDigi") << "Read EB Digis: " << output.size();
-  
+  */
+
+  for (unsigned int digis=0; digis<input.size(); ++digis){
+    
+    EBDataFrame ebdf = input[digis];
+    
+    EcalTrigTowerDetId thisTTdetId=etmap.towerOf(ebdf.id());
+    std::vector<EcalTrigTowerDetId>::iterator ttFound = find(theTTlist_.begin(), theTTlist_.end(), thisTTdetId);
+
+    if ((ttFound != theTTlist_.end()) || *(theTTlist_.end()) == thisTTdetId) {      
+      output.push_back(ebdf.id());
+      EBDataFrame ebdf2(output.back() );
+      std::copy( ebdf.frame().begin(), ebdf.frame().end(), ebdf2.frame().begin() );
+    }
+  }
 }
 
 void EcalTBReadout::performReadout(edm::Event& event, const EcalTrigTowerConstituentsMap & theTTmap, EBDigiCollection & input, EBDigiCollection & output) {

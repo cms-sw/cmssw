@@ -175,14 +175,16 @@ void EcalTBDigiProducer::produce(edm::Event& event, const edm::EventSetup& event
   else {
     barrelResult->swap(*barrelReadout);
   }
-
+  
+  /*
   std::vector<EBDataFrame> sortedDigisEB = sorter.sortedVector(*barrelReadout);
   LogDebug("EcalDigi") << "Top 10 EB digis";
   for(int i = 0; i < std::min(10,(int) sortedDigisEB.size()); ++i) 
     {
       LogDebug("EcalDigi") << sortedDigisEB[i];
     }
-  
+  */
+
   // Step D: Put outputs into event
   event.put(barrelReadout);
   event.put(TDCproduct);
