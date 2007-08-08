@@ -274,4 +274,10 @@ extern "C" {
     void qcd_2006(double&,double&,int&,double*,double*,double*,double*,double*);
 }
 
+//----------------- Added for forced decays functionality -------------
+#define hwmodk hwmodk_
+extern "C" {
+   void hwmodk(int&,double&,int&,int&,int&,int&,int&,int&);
+}
+
 #endif

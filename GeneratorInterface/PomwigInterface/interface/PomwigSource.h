@@ -43,6 +43,7 @@ namespace edm
     bool printCards_;
 
     int diffTopology;	
+    bool enableForcedDecays;
   };
 } 
 

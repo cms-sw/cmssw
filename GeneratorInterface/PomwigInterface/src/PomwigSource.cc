@@ -68,7 +68,9 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
   comenergy(pset.getUntrackedParameter<double>("comEnergy",14000.)),
   lhapdfSetPath_(pset.getUntrackedParameter<string>("lhapdfSetPath","")),
   printCards_(pset.getUntrackedParameter<bool>("printCards",true)),
-  diffTopology(pset.getParameter<int>("diffTopology"))
+  diffTopology(pset.getParameter<int>("diffTopology")),
+  enableForcedDecays(pset.getUntrackedParameter<bool>("enableForcedDecays",false))
+
 {
   cout << "----------------------------------------------" << endl;
   cout << "Initializing PomwigSource" << endl;
@@ -222,6 +224,66 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
 
   // HERWIG preparations ...
   hwuinc();
+  // Function for force QQ decay is hwmodk
+
+  /*
+  C-----------------------------------------------------------------------
+        SUBROUTINE HWMODK(IDKTMP,BRTMP,IMETMP,
+       & IATMP,IBTMP,ICTMP,IDTMP,IETMP)
+  C-----------------------------------------------------------------------
+  C     Takes the decay, IDKTMP -> I-(A+B+C+D+E)-TMP, and simply stores it
+  C     if internal pointers not set up (.NOT.DKPSET) else if pre-existing
+  C     mode updates branching ratio BRTMP and matrix element code IMETMP,
+  C     if -ve leaves as is. If a new mode adds to table and if consistent
+  C     adjusts pointers,  sets CMMOM (for two-body mode) and resets RSTAB
+  C     if necessary.  The branching ratios of any other IDKTMP decays are
+  C     scaled by (1.-BRTMP)/(1.-BR_OLD)
+  C-----------------------------------------------------------------------
+  */
+
+  // Initialization
+
+  if(enableForcedDecays){
+    // Get ParameterSet with settings for forcing decays
+    ParameterSet fdecays_pset = pset.getParameter<ParameterSet>("ForcedDecaysParameters") ; 
+    vector<int> defidktmp ;
+    defidktmp.push_back(0) ;
+    std::vector<int> idktmp = fdecays_pset.getUntrackedParameter< vector<int> >("Idktmp", defidktmp);
+    vector<double> defbrtmp ;
+    defbrtmp.push_back(0) ;
+    std::vector<double> brtmp = fdecays_pset.getUntrackedParameter< vector<double> >("Brtmp",defbrtmp);
+    vector<int> defimetmp ;
+    defimetmp.push_back(0) ;
+    std::vector<int> imetmp = fdecays_pset.getUntrackedParameter< vector<int> >("Imetmp",defimetmp);
+    vector<int> defiatmp ;
+    defiatmp.push_back(0) ;
+    std::vector<int> iatmp = fdecays_pset.getUntrackedParameter< vector<int> >("Iatmp",defiatmp);
+    vector<int> defibtmp ;
+    defibtmp.push_back(0) ;
+    std::vector<int> ibtmp = fdecays_pset.getUntrackedParameter< vector<int> >("Ibtmp",defibtmp);
+    vector<int> defictmp ;
+    defictmp.push_back(0) ;
+    std::vector<int> ictmp = fdecays_pset.getUntrackedParameter< vector<int> >("Ictmp",defictmp);
+    vector<int> defidtmp ;
+    defidtmp.push_back(0) ;
+    std::vector<int> idtmp = fdecays_pset.getUntrackedParameter< vector<int> >("Idtmp",defidtmp);
+    vector<int> defietmp ;
+    defietmp.push_back(0) ;
+    std::vector<int> ietmp = fdecays_pset.getUntrackedParameter< vector<int> >("Ietmp",defietmp);
+
+    for (unsigned int i = 0; i < idktmp.size(); i++){
+        int idktmp1 = idktmp[i];
+        double brtmp1 = brtmp[i];
+        int imetmp1 = imetmp[i];
+        int iatmp1 = iatmp[i];
+        int ibtmp1 = ibtmp[i];
+        int ictmp1 = ictmp[i];
+        int idtmp1 = idtmp[i];
+        int ietmp1 = ietmp[i];
+        // Call Herwig function HWMODK
+        hwmodk(idktmp1, brtmp1, imetmp1, iatmp1, ibtmp1, ictmp1, idtmp1, ietmp1);
+    }
+  }   
   hwusta("PI0     ",1);
 
   // Initialize H1 pomeron
