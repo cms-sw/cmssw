@@ -29,10 +29,6 @@ void RawToText::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   nevt_++;
   
-  typedef std::vector<unsigned char> Data;
-  typedef Data::iterator it;
-
-  
   // get raw data collection
   edm::Handle<FEDRawDataCollection> feds;
   iEvent.getByLabel(inputLabel_, feds);
@@ -52,11 +48,10 @@ void RawToText::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   const unsigned char * data = gctRcd.data();
   
-  int nEntryPerEvent = 72;
-  //unsigned sz = gctRcd.size();
+  int eventSize = gctRcd.size() / 4;
 
   unsigned long d = 0;
-  for(int i=0; i<nEntryPerEvent; i++) {
+  for(int i=0; i<eventSize; i++) {
     d = 0;
     //d  = data[i*4+0] + (data[i*4+1]<<8) + (data[i*4+2]<<16) + (data[i*4+3]<<24);
     for(int j=0; j<4; j++) {
@@ -64,8 +59,8 @@ void RawToText::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
     file_ << std::setw(8) << std::setfill('0') << std::hex  << d << std::endl;
   }
-  file_ << std::endl;
-  
+  file_ << std::flush << std::endl;
+
 }
 
 
