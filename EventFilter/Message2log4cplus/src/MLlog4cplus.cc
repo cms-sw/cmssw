@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Jim Kowalkowski
-// $Id: MLlog4cplus.cc,v 1.6 2007/06/22 10:32:22 meschi Exp $
+// $Id: MLlog4cplus.cc,v 1.7 2007/07/25 22:50:56 wmtan Exp $
 //
 
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
@@ -90,7 +90,3 @@ using namespace ML;
   {
     appl_ = app;
   }
-
-
-using ML::MLlog4cplus;
-DEFINE_FWK_SERVICE(MLlog4cplus);
