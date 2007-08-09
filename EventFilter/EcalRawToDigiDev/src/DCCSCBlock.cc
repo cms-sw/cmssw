@@ -3,6 +3,7 @@
 #include "EventFilter/EcalRawToDigiDev/interface/DCCEventBlock.h"
 #include "EventFilter/EcalRawToDigiDev/interface/DCCDataUnpacker.h"
 #include "EventFilter/EcalRawToDigiDev/interface/DCCEventBlock.h"
+#include "EventFilter/EcalRawToDigiDev/interface/ECALUnpackerException.h"
 #include <stdio.h>
 #include "EventFilter/EcalRawToDigiDev/interface/EcalElectronicsMapper.h"
 
@@ -199,7 +200,11 @@ void DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
 
       //Add frame to collection
 //	   if(!errorOnXtal){ (*digis_)->push_back(df);}
-       if(!errorOnXtal){ (*digis_)->push_back(*pDFId_);}
+       if(!errorOnXtal) {
+               (*digis_)->push_back(pDFId_->id());
+               EEDataFrame df( (*digis_)->back() );
+               std::copy( pDFId_->frame().begin(), pDFId_->frame().end(), df.frame().begin() );
+       }
   
 
    }// End on check of det id

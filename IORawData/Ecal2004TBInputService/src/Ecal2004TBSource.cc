@@ -324,7 +324,8 @@ bool Ecal2004TBSource::produce(edm::Event& e) {
 	      int SamplesNum = myRawCrystal->GetNSamples();
 	      if (SamplesNum != 0)
 		{	  
-		  EBDataFrame theFrame (EBDetId(1, smXtal,EBDetId::SMCRYSTALMODE));
+                  productEb->push_back( EBDetId(1, smXtal,EBDetId::SMCRYSTALMODE) );
+		  EBDataFrame theFrame( productEb->back() );
 		  theFrame.setSize(SamplesNum);
 		  
 		  for (int sample=0; sample<SamplesNum; sample++)   
@@ -335,7 +336,6 @@ bool Ecal2004TBSource::produce(edm::Event& e) {
 		      theFrame.setSample(sample, EcalMGPASample(adcValue,gain));		 
 		    }
 		  
-		  productEb->push_back(theFrame);
 		}
 	    }
 	} // loop over crystals in tower

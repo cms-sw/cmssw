@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2007/04/10 10:45:37 $
- *  $Revision: 1.12 $
+ *  $Date: 2007/04/28 22:53:46 $
+ *  $Revision: 1.13 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -350,7 +350,8 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	    int  ic        = cryIc(tower, strip,  ch) ;
 	    EBDetId  id(SMid, ic,1);                 
 	    
-	    EBDataFrame theFrame ( id );
+	    digicollection.push_back( id );
+	    EBDataFrame theFrame( digicollection.back() );
 	    vector<int> xtalDataSamples = (*itXtalBlock)->xtalDataSamples();   
 	    theFrame.setSize(xtalDataSamples.size());
       
@@ -464,7 +465,7 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 
 	    // here (already continued if gain==0 or if forbidden-gain-switch),
 	    // data frame needs go to the Event
-	    digicollection.push_back(theFrame);
+	    //digicollection.push_back(theFrame);
 
 	  }// end loop on crystals within a tower block
 	  
