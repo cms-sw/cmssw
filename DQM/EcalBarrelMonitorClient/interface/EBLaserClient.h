@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2007/06/07 09:08:38 $
- * $Revision: 1.57 $
+ * $Date: 2007/08/09 12:26:57 $
+ * $Revision: 1.58 $
  * \author G. Della Ricca
  *
 */
@@ -313,7 +313,6 @@ float amplitudeThresholdPnG16_;
 float pedPnExpectedMean_[2];
 float pedPnDiscrepancyMean_[2];
 float pedPnRMSThreshold_[2];
-
 
 MEContentsTH2FWithinRangeROOT* qtg01_[36];
 MEContentsTH2FWithinRangeROOT* qtg02_[36];
