@@ -16,7 +16,7 @@ namespace edm
   {
 
   public:
-    ProcessDesc();
+    explicit ProcessDesc(const ParameterSet & pset);
 
     /// construct from the configuration language string
     explicit ProcessDesc(const std::string& config);
@@ -43,6 +43,8 @@ namespace edm
     void addServices(std::vector<std::string> const& defaultServices,
                      std::vector<std::string> const& forcedServices);
 
+    void setRegistry() const;
+    void fillPaths();
 
     //Path and sequence information
     typedef std::vector< WrapperNodePtr > PathContainer;

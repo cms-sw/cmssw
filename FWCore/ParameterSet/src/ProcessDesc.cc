@@ -3,11 +3,11 @@
    Implementation of calss ProcessDesc
 
    \author Stefano ARGIRO
-   \version $Id: ProcessDesc.cc,v 1.22 2007/08/07 17:05:41 rpw Exp $
+   \version $Id: ProcessDesc.cc,v 1.23 2007/08/07 18:21:59 rpw Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.22 2007/08/07 17:05:41 rpw Exp $";
+static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.23 2007/08/07 18:21:59 rpw Exp $";
 
 
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
@@ -23,14 +23,16 @@ static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.22 2007/08/07 17:05:41 rpw 
 
 namespace edm
 {
-  ProcessDesc::ProcessDesc()
+
+  ProcessDesc::ProcessDesc(const ParameterSet & pset)
   : validator_(0),
     pathFragments_(),
-    pset_(new ParameterSet),
+    pset_(new ParameterSet(pset)),
     services_(new std::vector<ParameterSet>()),
     bookkeeping_()
   {
-  //TODO load the reigstry once the pset is filled
+    setRegistry();
+    std::cout << pset << std::endl;
   }
 
   ProcessDesc::~ProcessDesc()
@@ -56,51 +58,70 @@ namespace edm
     writeBookkeeping("@all_essources");
     writeBookkeeping("@all_esprefers");
 
+    fillPaths();
+ 
+    validator_= 
+      new ScheduleValidator(pathFragments_,*pset_); 
+    validator_->validate();
+
+    setRegistry();
+    std::cout << *pset_ << std::endl;
+
+  }
+
+  void ProcessDesc::setRegistry() const
+  {
+    // Load every ParameterSet into the Registry
+    pset::Registry* reg = pset::Registry::instance();
+    pset::loadAllNestedParameterSets(reg, *pset_);
+  }
+
+  void ProcessDesc::fillPaths()
+  {
     SeqMap sequences;
 
     // loop on path fragments
     Strs endpaths, triggerpaths;
-   
+
     for(ProcessDesc::PathContainer::iterator pathIt = pathFragments_.begin(),
-					     pathItEnd = pathFragments_.end();
-	pathIt != pathItEnd;
-	++pathIt) {
-     
+                                             pathItEnd = pathFragments_.end();
+        pathIt != pathItEnd;
+        ++pathIt) {
+
       if ((*pathIt)->type() == "sequence") {
-	sequences[(*pathIt)->name()]= (*pathIt);
+        sequences[(*pathIt)->name()]= (*pathIt);
       }
-     
+
       if ((*pathIt)->type() == "path") {
         //FIXME order-dependent
-	sequenceSubstitution((*pathIt)->wrapped(), sequences);
-	fillPath((*pathIt),triggerpaths);
+        sequenceSubstitution((*pathIt)->wrapped(), sequences);
+        fillPath((*pathIt),triggerpaths);
       }
 
 
       if ((*pathIt)->type() == "endpath") {
-	sequenceSubstitution((*pathIt)->wrapped(), sequences);
-	fillPath((*pathIt),endpaths);
+        sequenceSubstitution((*pathIt)->wrapped(), sequences);
+        fillPath((*pathIt),endpaths);
       }
-     
-     
+
+
     } // loop on path fragments
 
     Strs schedule(findSchedule(triggerpaths, endpaths));
 
     if(1 <= edm::debugit())
       {
-	std::cerr << "\nschedule=\n  ";
-	std::copy(schedule.begin(),schedule.end(),
-		  std::ostream_iterator<std::string>(std::cerr,","));
-	std::cerr << "\ntriggernames=\n  ";
-	std::copy(triggerpaths.begin(),triggerpaths.end(),
-		  std::ostream_iterator<std::string>(std::cerr,","));
-	std::cerr << "\nendpaths=\n  ";
-	std::copy(endpaths.begin(),endpaths.end(),
-		  std::ostream_iterator<std::string>(std::cerr,","));
-	std::cerr << "\n";
+        std::cerr << "\nschedule=\n  ";
+        std::copy(schedule.begin(),schedule.end(),
+                  std::ostream_iterator<std::string>(std::cerr,","));
+        std::cerr << "\ntriggernames=\n  ";
+        std::copy(triggerpaths.begin(),triggerpaths.end(),
+                  std::ostream_iterator<std::string>(std::cerr,","));
+        std::cerr << "\nendpaths=\n  ";
+        std::copy(endpaths.begin(),endpaths.end(),
+                  std::ostream_iterator<std::string>(std::cerr,","));
+        std::cerr << "\n";
       }
-
 
     // It is very important that the @trigger_paths parameter set only
     // contain one parameter because the streamer input module needs to
@@ -112,18 +133,10 @@ namespace edm
     pset_->addUntrackedParameter("@trigger_paths",paths_trig);
     pset_->addParameter("@end_paths", endpaths);
     pset_->addParameter("@paths",schedule);
-   
-    validator_= 
-      new ScheduleValidator(pathFragments_,*pset_); 
-    validator_->validate();
-
-    // Load every ParameterSet into the Registry
-    pset::Registry* reg = pset::Registry::instance();
-    pset::loadAllNestedParameterSets(reg, *pset_);
 
   }
 
-
+  
   void ProcessDesc::record(const std::string & index, const std::string & name) 
   {
     bookkeeping_[index].push_back(name);
