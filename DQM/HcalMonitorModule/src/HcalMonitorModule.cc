@@ -3,13 +3,15 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2007/06/15 14:56:57 $
- * $Revision: 1.34 $
+ * $Date: 2007/07/26 21:41:02 $
+ * $Revision: 1.35 $
  * \author W Fisher
  *
 */
 
 HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
+
+  printf("\n\n\n\n\n\nHcal Monitor Module\n\n\n\n");
 
   // verbosity switch
   m_verbose = ps.getUntrackedParameter<bool>("verbose", false);
@@ -321,3 +323,8 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   return;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include <DQM/HcalMonitorModule/src/HcalMonitorModule.h>
+
+DEFINE_FWK_MODULE(HcalMonitorModule);

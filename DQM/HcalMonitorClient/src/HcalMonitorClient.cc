@@ -916,3 +916,8 @@ void HcalMonitorClient::dumpHistograms(int& runNum, vector<TH1F*> &hist1d,vector
   */
   return;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include <DQM/HcalMonitorClient/interface/HcalMonitorClient.h>
+
+DEFINE_FWK_MODULE(HcalMonitorClient);

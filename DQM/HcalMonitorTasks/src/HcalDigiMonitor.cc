@@ -403,8 +403,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
     hbHists.DIGI_NUM->Fill(nhbdigi);
     heHists.DIGI_NUM->Fill(nhedigi);
     
-  } catch (...) {
-    
+  } catch (...) {    
     printf("HcalDigiMonitor::processEvent  No HBHE Digis.\n");
   }
   
