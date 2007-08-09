@@ -4,8 +4,8 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2007/03/26 17:35:04 $
- * $Revision: 1.5 $
+ * $Date: 2007/04/02 16:15:35 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -72,7 +72,7 @@ void cleanup(void);
 void htmlOutput(int run, string htmlDir, string htmlName);
 
 /// WriteDB
-bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism);
+bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov);
 
 /// Get Functions
 inline int getEvtPerJob() { return ievt_; }
@@ -82,6 +82,8 @@ inline int getEvtPerRun() { return jevt_; }
 inline void setFriends(vector<EEClient*> clients) { clients_ = clients; }
 
 private:
+
+void writeMap( std::ofstream& hf, std::string mapname );
 
 int ievt_;
 int jevt_;
@@ -105,7 +107,10 @@ MonitorUserInterface* mui_;
 MonitorElement* meIntegrity_;
 MonitorElement* mePedestalOnline_;
 
- void writeMap( std::ofstream& hf, std::string mapname );
+MEContentsTH2FWithinRangeROOT* qtg01_;
+MEContentsTH2FWithinRangeROOT* qtg02_;
+MEContentsTH2FWithinRangeROOT* qtg03_;
+
 };
 
 #endif

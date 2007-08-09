@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/07/27 09:58:09 $
- * $Revision: 1.58 $
+ * $Date: 2007/07/28 16:00:25 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1106,86 +1106,84 @@ void EcalEndcapMonitorClient::writeDb(void) {
   int taskl = 0x0;
   int tasko = 0x0;
 
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    cout << " SM=" << ism << endl;
-    for ( int j = 0; j<int(clients_.size()); ++j ) {
-      bool written; written = false;
-      for ( EECIMMap::iterator k = chb_.lower_bound(clients_[j]); k != chb_.upper_bound(clients_[j]); ++k ) {
-        if ( h_ && h_->GetBinContent((*k).second+1) != 0 && runtype_ != -1 && runtype_ == (*k).second && !written ) {
-          if ( clientNames_[j] == "Laser" && h_->GetBinContent(EcalDCCHeaderBlock::LASER_STD+1) == 0 ) continue;
-          if ( clientNames_[j] == "Led" && h_->GetBinContent(EcalDCCHeaderBlock::LED_STD+1) == 0 ) continue;
-          written = true;
-          taskl |= 0x1 << j;
-          if ( clients_[j]->writeDb(econn, &runiov_, &moniov_, ism) ) {
-            tasko |= 0x1 << j;
-          } else {
-            tasko |= 0x0 << j;
-          }
+  for ( int j = 0; j<int(clients_.size()); ++j ) {
+    bool written; written = false;
+    for ( EECIMMap::iterator k = chb_.lower_bound(clients_[j]); k != chb_.upper_bound(clients_[j]); ++k ) {
+      if ( h_ && h_->GetBinContent((*k).second+1) != 0 && runtype_ != -1 && runtype_ == (*k).second && !written ) {
+        if ( clientNames_[j] == "Laser" && h_->GetBinContent(EcalDCCHeaderBlock::LASER_STD+1) == 0 ) continue;
+        if ( clientNames_[j] == "Led" && h_->GetBinContent(EcalDCCHeaderBlock::LED_STD+1) == 0 ) continue;
+        written = true;
+        taskl |= 0x1 << j;
+        cout << endl;
+        cout << " Writing " << clientNames_[j] << " results to DB " << endl;
+        cout << endl;
+        if ( clients_[j]->writeDb(econn, &runiov_, &moniov_) ) {
+          tasko |= 0x1 << j;
+        } else {
+          tasko |= 0x0 << j;
         }
       }
-      if ( ((taskl >> j) & 0x1) ) {
-        cout << " Task output for " << clientNames_[j] << " = " << ((tasko >> j) & 0x1) << endl;
-      }
     }
+    if ( ((taskl >> j) & 0x1) ) {
+      cout << endl;
+      cout << " Task output for " << clientNames_[j] << " = " << ((tasko >> j) & 0x1) << endl;
+      cout << endl;
+    }
+  }
 
-    summaryClient_->writeDb(econn, &runiov_, &moniov_, ism);
+  summaryClient_->writeDb(econn, &runiov_, &moniov_);
 
-    EcalLogicID ecid;
-    MonRunDat md;
-    map<EcalLogicID, MonRunDat> dataset;
+  EcalLogicID ecid;
+  MonRunDat md;
+  map<EcalLogicID, MonRunDat> dataset;
 
-    MonRunOutcomeDef monRunOutcomeDef;
+  MonRunOutcomeDef monRunOutcomeDef;
 
-    monRunOutcomeDef.setShortDesc("success");
+  monRunOutcomeDef.setShortDesc("success");
 
-    float nevt = -1.;
+  float nevt = -1.;
 
-    if ( h_ ) nevt = h_->GetEntries();
+  if ( h_ ) nevt = h_->GetEntries();
 
-    md.setNumEvents(int(nevt));
-    md.setMonRunOutcomeDef(monRunOutcomeDef);
+  md.setNumEvents(int(nevt));
+  md.setMonRunOutcomeDef(monRunOutcomeDef);
 
-    if ( outputFile_.size() != 0 ) {
-      string fileName = outputFile_;
-      for ( unsigned int i = 0; i < fileName.size(); i++ ) {
-        if( fileName.substr(i, 9) == "RUNNUMBER" )  {
-          char tmp[10];
-          if ( run_ != -1 ) {
-            sprintf(tmp,"%09d", run_);
-          } else {
-            sprintf(tmp,"%09d", 0);
-          }
-          fileName.replace(i, 5, tmp);
+  if ( outputFile_.size() != 0 ) {
+    string fileName = outputFile_;
+    for ( unsigned int i = 0; i < fileName.size(); i++ ) {
+      if( fileName.substr(i, 9) == "RUNNUMBER" )  {
+        char tmp[10];
+        if ( run_ != -1 ) {
+          sprintf(tmp,"%09d", run_);
+        } else {
+          sprintf(tmp,"%09d", 0);
         }
-      }
-      md.setRootfileName(fileName);
-    }
-
-    md.setTaskList(taskl);
-    md.setTaskOutcome(tasko);
-
-    if ( econn ) {
-      try {
-        ecid = LogicID::getEcalLogicID("ECAL");
-        dataset[ecid] = md;
-      } catch (runtime_error &e) {
-        cerr << e.what() << endl;
+        fileName.replace(i, 5, tmp);
       }
     }
+    md.setRootfileName(fileName);
+  }
 
-    if ( econn ) {
-      try {
-        cout << "Inserting MonRunDat ... " << flush;
-        econn->insertDataSet(&dataset, &moniov_);
-        cout << "done." << endl;
-      } catch (runtime_error &e) {
-        cerr << e.what() << endl;
-      }
+  md.setTaskList(taskl);
+  md.setTaskOutcome(tasko);
+
+  if ( econn ) {
+    try {
+      ecid = LogicID::getEcalLogicID("ECAL");
+      dataset[ecid] = md;
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
     }
+  }
 
+  if ( econn ) {
+    try {
+      cout << "Inserting MonRunDat ... " << flush;
+      econn->insertDataSet(&dataset, &moniov_);
+      cout << "done." << endl;
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
   }
 
   if ( econn ) {

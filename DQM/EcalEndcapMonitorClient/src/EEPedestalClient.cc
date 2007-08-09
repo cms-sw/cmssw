@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2007/07/03 19:29:44 $
- * $Revision: 1.16 $
+ * $Date: 2007/07/19 12:02:14 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -127,6 +127,13 @@ EEPedestalClient::EEPedestalClient(const ParameterSet& ps){
     qth04_[ism-1] = 0;
     qth05_[ism-1] = 0;
 
+    qtg01_[ism-1] = 0;
+    qtg02_[ism-1] = 0;
+    qtg03_[ism-1] = 0;
+
+    qtg04_[ism-1] = 0;
+    qtg05_[ism-1] = 0;
+
   }
 
   expectedMean_[0] = 200.0;
@@ -215,6 +222,35 @@ void EEPedestalClient::beginJob(MonitorUserInterface* mui){
 
       qth04_[ism-1]->setErrorProb(1.00);
       qth05_[ism-1]->setErrorProb(1.00);
+
+      sprintf(qtname, "EEPT quality test %s G01", Numbers::sEE(ism).c_str());
+      qtg01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      sprintf(qtname, "EEPT quality test %s G06", Numbers::sEE(ism).c_str());
+      qtg02_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      sprintf(qtname, "EEPT quality test %s G12", Numbers::sEE(ism).c_str());
+      qtg03_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      qtg01_[ism-1]->setMeanRange(1., 6.);
+      qtg02_[ism-1]->setMeanRange(1., 6.);
+      qtg03_[ism-1]->setMeanRange(1., 6.);
+
+      qtg01_[ism-1]->setErrorProb(1.00);
+      qtg02_[ism-1]->setErrorProb(1.00);
+      qtg03_[ism-1]->setErrorProb(1.00);
+
+      sprintf(qtname, "EEPT quality test PNs %s G01", Numbers::sEE(ism).c_str());
+      qtg04_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      sprintf(qtname, "EEPT quality test PNs %s G16", Numbers::sEE(ism).c_str());
+      qtg05_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      qtg04_[ism-1]->setMeanRange(1., 6.);
+      qtg05_[ism-1]->setMeanRange(1., 6.);
+
+      qtg04_[ism-1]->setErrorProb(1.00);
+      qtg05_[ism-1]->setErrorProb(1.00);
 
     }
 
@@ -489,85 +525,95 @@ void EEPedestalClient::cleanup(void) {
 
 }
 
-bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism) {
+bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
 
   bool status = true;
 
-  UtilsClient::printBadChannels(qth01_[ism-1]);
-  UtilsClient::printBadChannels(qth02_[ism-1]);
-  UtilsClient::printBadChannels(qth03_[ism-1]);
-
-  UtilsClient::printBadChannels(qth04_[ism-1]);
-  UtilsClient::printBadChannels(qth05_[ism-1]);
-
   EcalLogicID ecid;
+
   MonPedestalsDat p;
   map<EcalLogicID, MonPedestalsDat> dataset1;
 
-  for ( int ie = 1; ie <= 85; ie++ ) {
-    for ( int ip = 1; ip <= 20; ip++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
-      bool update01;
-      bool update02;
-      bool update03;
+    int ism = superModules_[i]; 
 
-      float num01, num02, num03;
-      float mean01, mean02, mean03;
-      float rms01, rms02, rms03;
+    cout << " SM=" << ism << endl;
 
-      update01 = UtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
-      update02 = UtilsClient::getBinStats(h02_[ism-1], ie, ip, num02, mean02, rms02);
-      update03 = UtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
+    UtilsClient::printBadChannels(qth01_[ism-1]);
+    UtilsClient::printBadChannels(qth02_[ism-1]);
+    UtilsClient::printBadChannels(qth03_[ism-1]);
 
-      if ( update01 || update02 || update03 ) {
+//    UtilsClient::printBadChannels(qtg01_[ism-1]);
+//    UtilsClient::printBadChannels(qtg02_[ism-1]);
+//    UtilsClient::printBadChannels(qtg03_[ism-1]);
 
-        if ( ie == 1 && ip == 1 ) {
+    for ( int ie = 1; ie <= 85; ie++ ) {
+      for ( int ip = 1; ip <= 20; ip++ ) {
 
-          cout << "Preparing dataset for SM=" << ism << endl;
+        bool update01;
+        bool update02;
+        bool update03;
 
-          cout << "G01 (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << endl;
-          cout << "G06 (" << ie << "," << ip << ") " << num02  << " " << mean02 << " " << rms02  << endl;
-          cout << "G12 (" << ie << "," << ip << ") " << num03  << " " << mean03 << " " << rms03  << endl;
+        float num01, num02, num03;
+        float mean01, mean02, mean03;
+        float rms01, rms02, rms03;
 
-          cout << endl;
+        update01 = UtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
+        update02 = UtilsClient::getBinStats(h02_[ism-1], ie, ip, num02, mean02, rms02);
+        update03 = UtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
 
-        }
+        if ( update01 || update02 || update03 ) {
 
-        p.setPedMeanG1(mean01);
-        p.setPedRMSG1(rms01);
+          if ( ie == 1 && ip == 1 ) {
 
-        p.setPedMeanG6(mean02);
-        p.setPedRMSG6(rms02);
+            cout << "Preparing dataset for SM=" << ism << endl;
 
-        p.setPedMeanG12(mean03);
-        p.setPedRMSG12(rms03);
+            cout << "G01 (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << endl;
+            cout << "G06 (" << ie << "," << ip << ") " << num02  << " " << mean02 << " " << rms02  << endl;
+            cout << "G12 (" << ie << "," << ip << ") " << num03  << " " << mean03 << " " << rms03  << endl;
 
-        if ( meg01_[ism-1] && int(meg01_[ism-1]->getBinContent( ie, ip )) % 3 == 1. &&
-             meg02_[ism-1] && int(meg02_[ism-1]->getBinContent( ie, ip )) % 3 == 1. &&
-             meg03_[ism-1] && int(meg03_[ism-1]->getBinContent( ie, ip )) % 3 == 1. ) {
-          p.setTaskStatus(true);
-        } else {
-          p.setTaskStatus(false);
-        }
+            cout << endl;
 
-        status = status && UtilsClient::getBinQual(meg01_[ism-1], ie, ip) &&
-                           UtilsClient::getBinQual(meg02_[ism-1], ie, ip) &&
-                           UtilsClient::getBinQual(meg03_[ism-1], ie, ip);
-
-        int ic = (ip-1) + 20*(ie-1) + 1;
-
-        if ( econn ) {
-          try {
-            ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
-            dataset1[ecid] = p;
-          } catch (runtime_error &e) {
-            cerr << e.what() << endl;
           }
+
+          p.setPedMeanG1(mean01);
+          p.setPedRMSG1(rms01);
+
+          p.setPedMeanG6(mean02);
+          p.setPedRMSG6(rms02);
+
+          p.setPedMeanG12(mean03);
+          p.setPedRMSG12(rms03);
+
+          if ( meg01_[ism-1] && int(meg01_[ism-1]->getBinContent( ie, ip )) % 3 == 1. &&
+               meg02_[ism-1] && int(meg02_[ism-1]->getBinContent( ie, ip )) % 3 == 1. &&
+               meg03_[ism-1] && int(meg03_[ism-1]->getBinContent( ie, ip )) % 3 == 1. ) {
+            p.setTaskStatus(true);
+          } else {
+            p.setTaskStatus(false);
+          }
+
+          status = status && UtilsClient::getBinQual(meg01_[ism-1], ie, ip) &&
+                             UtilsClient::getBinQual(meg02_[ism-1], ie, ip) &&
+                             UtilsClient::getBinQual(meg03_[ism-1], ie, ip);
+
+          int ic = (ip-1) + 20*(ie-1) + 1;
+
+          if ( econn ) {
+            try {
+              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
+              dataset1[ecid] = p;
+            } catch (runtime_error &e) {
+              cerr << e.what() << endl;
+            }
+          }
+
         }
 
       }
-
     }
+
   }
 
   if ( econn ) {
@@ -580,57 +626,73 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
     }
   }
 
+  cout << endl;
+
   MonPNPedDat pn;
   map<EcalLogicID, MonPNPedDat> dataset2;
 
-  for ( int i = 1; i <= 10; i++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
-    bool update01;
-    bool update02;
+    int ism = superModules_[i];
 
-    float num01, num02;
-    float mean01, mean02;
-    float rms01, rms02;
+    cout << " SM=" << ism << endl;
 
-    update01 = UtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
-    update02 = UtilsClient::getBinStats(i02_[ism-1], 1, i, num02, mean02, rms02);
+    UtilsClient::printBadChannels(qth04_[ism-1]);
+    UtilsClient::printBadChannels(qth05_[ism-1]);
 
-    if ( update01 || update02 ) {
+//    UtilsClient::printBadChannels(qtg04_[ism-1]);
+//    UtilsClient::printBadChannels(qtg05_[ism-1]);
 
-      if ( i == 1 ) {
+    for ( int i = 1; i <= 10; i++ ) {
 
-        cout << "Preparing dataset for SM=" << ism << endl;
+      bool update01;
+      bool update02;
 
-        cout << "PNs (" << i << ") G01 " << num01  << " " << mean01 << " " << rms01  << endl;
-        cout << "PNs (" << i << ") G16 " << num01  << " " << mean01 << " " << rms01  << endl;
+      float num01, num02;
+      float mean01, mean02;
+      float rms01, rms02;
 
-        cout << endl;
+      update01 = UtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
+      update02 = UtilsClient::getBinStats(i02_[ism-1], 1, i, num02, mean02, rms02);
 
-      }
+      if ( update01 || update02 ) {
 
-      pn.setPedMeanG1(mean01);
-      pn.setPedRMSG1(rms01);
+        if ( i == 1 ) {
 
-      pn.setPedMeanG16(mean02);
-      pn.setPedRMSG16(rms02);
+          cout << "Preparing dataset for SM=" << ism << endl;
 
-      if ( meg04_[ism-1] && int(meg04_[ism-1]->getBinContent( i, 1 )) % 3 == 1. &&
-           meg05_[ism-1] && int(meg05_[ism-1]->getBinContent( i, 1 )) % 3 == 1. ) {
-        pn.setTaskStatus(true);
-      } else {
-        pn.setTaskStatus(false);
-      }
+          cout << "PNs (" << i << ") G01 " << num01  << " " << mean01 << " " << rms01  << endl;
+          cout << "PNs (" << i << ") G16 " << num01  << " " << mean01 << " " << rms01  << endl;
 
-      status = status && UtilsClient::getBinQual(meg04_[ism-1], i, 1) &&
-                         UtilsClient::getBinQual(meg05_[ism-1], i, 1);
+          cout << endl;
 
-      if ( econn ) {
-        try {
-          ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism), i-1);
-          dataset2[ecid] = pn;
-        } catch (runtime_error &e) {
-          cerr << e.what() << endl;
         }
+
+        pn.setPedMeanG1(mean01);
+        pn.setPedRMSG1(rms01);
+
+        pn.setPedMeanG16(mean02);
+        pn.setPedRMSG16(rms02);
+
+        if ( meg04_[ism-1] && int(meg04_[ism-1]->getBinContent( i, 1 )) % 3 == 1. &&
+             meg05_[ism-1] && int(meg05_[ism-1]->getBinContent( i, 1 )) % 3 == 1. ) {
+          pn.setTaskStatus(true);
+        } else {
+          pn.setTaskStatus(false);
+        }
+
+        status = status && UtilsClient::getBinQual(meg04_[ism-1], i, 1) &&
+                           UtilsClient::getBinQual(meg05_[ism-1], i, 1);
+
+        if ( econn ) {
+          try {
+            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism), i-1);
+            dataset2[ecid] = pn;
+          } catch (runtime_error &e) {
+            cerr << e.what() << endl;
+          }
+        }
+
       }
 
     }
@@ -796,6 +858,18 @@ void EEPedestalClient::subscribe(void){
         if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
       }
     }
+
+    sprintf(histo, "EcalEndcap/EEPedestalClient/EEPT pedestal quality G01 %s", Numbers::sEE(ism).c_str());
+    if ( qtg01_[ism-1] ) mui_->useQTest(histo, qtg01_[ism-1]->getName());
+    sprintf(histo, "EcalEndcap/EEPedestalClient/EEPT pedestal quality G06 %s", Numbers::sEE(ism).c_str());
+    if ( qtg02_[ism-1] ) mui_->useQTest(histo, qtg02_[ism-1]->getName());
+    sprintf(histo, "EcalEndcap/EEPedestalClient/EEPT pedestal quality G12 %s", Numbers::sEE(ism).c_str());
+    if ( qtg03_[ism-1] ) mui_->useQTest(histo, qtg03_[ism-1]->getName());
+
+    sprintf(histo, "EcalEndcap/EEPedestalClient/EEPT pedestal quality PNs G01 %s", Numbers::sEE(ism).c_str());
+    if ( qtg04_[ism-1] ) mui_->useQTest(histo, qtg04_[ism-1]->getName());
+    sprintf(histo, "EcalEndcap/EEPedestalClient/EEPT pedestal quality PNs G16 %s", Numbers::sEE(ism).c_str());
+    if ( qtg05_[ism-1] ) mui_->useQTest(histo, qtg05_[ism-1]->getName());
 
   }
 

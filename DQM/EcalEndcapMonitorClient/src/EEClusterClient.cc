@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2007/05/24 17:10:53 $
- * $Revision: 1.11 $
+ * $Date: 2007/05/25 14:08:27 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -106,29 +106,45 @@ void EEClusterClient::beginJob(MonitorUserInterface* mui){
 }
 
 void EEClusterClient::beginRun(void){
+
   if ( verbose_ ) cout << "EEClusterClient: beginRun" << endl;
+
   jevt_ = 0;
+
   this->setup();
+
   this->subscribe();
+
 }
 
 void EEClusterClient::endJob(void) {
+
   if ( verbose_ ) cout << "EEClusterClient: endJob, ievt = " << ievt_ << endl;
+
   this->unsubscribe();
+
   this->cleanup();
+
 }
 
 void EEClusterClient::endRun(void) {
+
   if ( verbose_ ) cout << "EEClusterClient: endRun, jevt = " << jevt_ << endl;
+
   this->unsubscribe();
+
   this->cleanup();
+
 }
 
 void EEClusterClient::setup(void) {
+
   mui_->setCurrentFolder( "EcalEndcap/EEClusterClient" );
+
 }
 
 void EEClusterClient::cleanup(void) {
+
   if ( cloneME_ ) {
     if ( allEEBasic_[0] ) delete allEEBasic_[0];
     if ( allEEBasic_[1] ) delete allEEBasic_[1];
@@ -157,6 +173,7 @@ void EEClusterClient::cleanup(void) {
     if ( numPolarEE_[1] ) delete numPolarEE_[1];
 
     if ( s_ ) delete s_;
+
   }
 
   allEEBasic_[0] = 0;
@@ -186,11 +203,15 @@ void EEClusterClient::cleanup(void) {
   numPolarEE_[1] = 0;
 
   s_ = 0;
+
 }
 
-bool EEClusterClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism) {
+bool EEClusterClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
+
   bool status = true;
+
   return status;
+
 }
 
 void EEClusterClient::subscribe(void){
@@ -467,10 +488,15 @@ void EEClusterClient::subscribeNew(void){
 }
 
 void EEClusterClient::unsubscribe(void){
+
   if ( verbose_ ) cout << "EEClusterClient: unsubscribe" << endl;
+
   if ( collateSources_ ) {
+
     if ( verbose_ ) cout << "EEClusterClient: uncollate" << endl;
+
     if ( mui_ ) {
+
       mui_->removeCollate(me_allEEBasic_[0]);
       mui_->removeCollate(me_allEEBasic_[1]);
       mui_->removeCollate(me_allEEBasic_[2]);
@@ -495,7 +521,9 @@ void EEClusterClient::unsubscribe(void){
       mui_->removeCollate(me_numPolarEE_[0]);
       mui_->removeCollate(me_numPolarEE_[1]);
       mui_->removeCollate(me_s_);
+
     }
+
   }
 
   Char_t histo[200];

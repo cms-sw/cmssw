@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2007/06/24 09:37:59 $
- * $Revision: 1.10 $
+ * $Date: 2007/07/27 16:41:57 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -90,6 +90,8 @@ EETimingClient::EETimingClient(const ParameterSet& ps){
 
     qth01_[ism-1] = 0;
 
+    qtg01_[ism-1] = 0;
+
   }
 
   expectedMean_ = 6.0;
@@ -129,6 +131,13 @@ void EETimingClient::beginJob(MonitorUserInterface* mui){
       qth01_[ism-1]->setMinimumEntries(10*1700);
 
       qth01_[ism-1]->setErrorProb(1.00);
+
+      sprintf(qtname, "EETMT quality test %s", Numbers::sEE(ism).c_str());
+      qtg01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      qtg01_[ism-1]->setMeanRange(1., 6.);
+
+      qtg01_[ism-1]->setErrorProb(1.00);
 
     }
 
@@ -258,11 +267,21 @@ void EETimingClient::cleanup(void) {
 
 }
 
-bool EETimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism) {
+bool EETimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
 
   bool status = true;
 
-  UtilsClient::printBadChannels(qth01_[ism-1]);
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    cout << " SM=" << ism << endl;
+
+    UtilsClient::printBadChannels(qth01_[ism-1]);
+
+//    UtilsClient::printBadChannels(qtg01_[ism-1]);
+
+  }
 
   return status;
 
@@ -316,6 +335,9 @@ void EETimingClient::subscribe(void){
         if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
       }
     }
+
+    sprintf(histo, "EcalEndcap/EETimingClient/EETMT timing quality %s", Numbers::sEE(ism).c_str());
+    if ( qtg01_[ism-1] ) mui_->useQTest(histo, qtg01_[ism-1]->getName());
 
   }
 

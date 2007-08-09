@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2007/07/03 19:29:44 $
- * $Revision: 1.14 $
+ * $Date: 2007/07/19 12:02:14 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -89,6 +89,8 @@ EEPedestalOnlineClient::EEPedestalOnlineClient(const ParameterSet& ps){
 
     qth03_[ism-1] = 0;
 
+    qtg03_[ism-1] = 0;
+
   }
 
   expectedMean_ = 200.0;
@@ -128,6 +130,13 @@ void EEPedestalOnlineClient::beginJob(MonitorUserInterface* mui){
       qth03_[ism-1]->setMinimumEntries(10*1700);
 
       qth03_[ism-1]->setErrorProb(1.00);
+
+      sprintf(qtname, "EEPOT quality test %s G12", Numbers::sEE(ism).c_str());
+      qtg03_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      qtg03_[ism-1]->setMeanRange(1., 6.);
+
+      qtg03_[ism-1]->setErrorProb(1.00);
 
     }
 
@@ -249,64 +258,75 @@ void EEPedestalOnlineClient::cleanup(void) {
 
 }
 
-bool EEPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism) {
+bool EEPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
 
   bool status = true;
 
-  UtilsClient::printBadChannels(qth03_[ism-1]);
-
   EcalLogicID ecid;
+
   MonPedestalsOnlineDat p;
   map<EcalLogicID, MonPedestalsOnlineDat> dataset;
 
-  float num03;
-  float mean03;
-  float rms03;
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
-  for ( int ie = 1; ie <= 85; ie++ ) {
-    for ( int ip = 1; ip <= 20; ip++ ) {
+    int ism = superModules_[i];
 
-      bool update03;
+    cout << " SM=" << ism << endl;
 
-      update03 = UtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
+    UtilsClient::printBadChannels(qth03_[ism-1]);
 
-      if ( update03 ) {
+//    UtilsClient::printBadChannels(qtg03_[ism-1]);
 
-        if ( ie == 1 && ip == 1 ) {
+    float num03;
+    float mean03;
+    float rms03;
 
-          cout << "Preparing dataset for SM=" << ism << endl;
+    for ( int ie = 1; ie <= 85; ie++ ) {
+      for ( int ip = 1; ip <= 20; ip++ ) {
 
-          cout << "G12 (" << ie << "," << ip << ") " << num03  << " " << mean03 << " " << rms03  << endl;
+        bool update03;
 
-          cout << endl;
+        update03 = UtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
 
-        }
+        if ( update03 ) {
 
-        p.setADCMeanG12(mean03);
-        p.setADCRMSG12(rms03);
+          if ( ie == 1 && ip == 1 ) {
 
-        if ( meg03_[ism-1] && int(meg03_[ism-1]->getBinContent( ie, ip )) % 3 == 1 ) {
-          p.setTaskStatus(true);
-        } else {
-          p.setTaskStatus(false);
-        }
+            cout << "Preparing dataset for SM=" << ism << endl;
 
-        status = status && UtilsClient::getBinQual(meg03_[ism-1], ie, ip);
+            cout << "G12 (" << ie << "," << ip << ") " << num03  << " " << mean03 << " " << rms03  << endl;
 
-        int ic = (ip-1) + 20*(ie-1) + 1;
+            cout << endl;
 
-        if ( econn ) {
-          try {
-            ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
-            dataset[ecid] = p;
-          } catch (runtime_error &e) {
-            cerr << e.what() << endl;
           }
+
+          p.setADCMeanG12(mean03);
+          p.setADCRMSG12(rms03);
+
+          if ( meg03_[ism-1] && int(meg03_[ism-1]->getBinContent( ie, ip )) % 3 == 1 ) {
+            p.setTaskStatus(true);
+          } else {
+            p.setTaskStatus(false);
+          }
+
+          status = status && UtilsClient::getBinQual(meg03_[ism-1], ie, ip);
+
+          int ic = (ip-1) + 20*(ie-1) + 1;
+
+          if ( econn ) {
+            try {
+              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
+              dataset[ecid] = p;
+            } catch (runtime_error &e) {
+              cerr << e.what() << endl;
+            }
+          }
+
         }
 
       }
-
     }
+
   }
 
   if ( econn ) {
@@ -371,6 +391,10 @@ void EEPedestalOnlineClient::subscribe(void){
         if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
       }
     }
+
+    sprintf(histo, "EcalEndcap/EEPedestalOnlineClient/EEPOT pedestal quality G12 %s", Numbers::sEE(ism).c_str());
+    if ( qtg03_[ism-1] ) mui_->useQTest(histo, qtg03_[ism-1]->getName());
+
 
   }
 

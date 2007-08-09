@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/05/25 14:08:27 $
- * $Revision: 1.16 $
+ * $Date: 2007/06/24 09:37:59 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */
@@ -75,6 +75,10 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps){
   meIntegrity_      = 0;
   mePedestalOnline_ = 0;
 
+  qtg01_ = 0;
+  qtg02_ = 0;
+  qtg03_ = 0;
+
 }
 
 EESummaryClient::~EESummaryClient(){
@@ -91,6 +95,25 @@ void EESummaryClient::beginJob(MonitorUserInterface* mui){
   jevt_ = 0;
 
   if ( enableQT_ ) {
+
+    Char_t qtname[200];
+
+    sprintf(qtname, "EEIT summary quality test");
+    qtg01_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+    sprintf(qtname, "EEOT summary quality test");
+    qtg02_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+    sprintf(qtname, "EEPOT summary quality test");
+    qtg03_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+    qtg01_->setMeanRange(1., 6.);
+    qtg02_->setMeanRange(1., 6.);
+    qtg03_->setMeanRange(1., 6.);
+
+    qtg01_->setErrorProb(1.00);
+    qtg02_->setErrorProb(1.00);
+    qtg03_->setErrorProb(1.00);
 
   }
 
@@ -158,9 +181,13 @@ void EESummaryClient::cleanup(void) {
 
 }
 
-bool EESummaryClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism) {
+bool EESummaryClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
 
   bool status = true;
+
+//  UtilsClient::printBadChannels(qtg01_);
+//  UtilsClient::printBadChannels(qtg02_);
+//  UtilsClient::printBadChannels(qtg03_);
 
   return status;
 
@@ -169,6 +196,15 @@ bool EESummaryClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRun
 void EESummaryClient::subscribe(void){
 
   if ( verbose_ ) cout << "EESummaryClient: subscribe" << endl;
+
+  Char_t histo[200];
+
+  sprintf(histo, "EcalEndcap/EESummaryClient/EEIT integrity quality summary");
+  if ( qtg01_ ) mui_->useQTest(histo, qtg01_->getName());
+  sprintf(histo, "EcalEndcap/EESummaryClient/EEOT occupancy summary");
+  if ( qtg02_ ) mui_->useQTest(histo, qtg02_->getName());
+  sprintf(histo, "EcalEndcap/EESummaryClient/EEPOT pedestal quality summary G12");
+  if ( qtg03_ ) mui_->useQTest(histo, qtg03_->getName());
 
 }
 
