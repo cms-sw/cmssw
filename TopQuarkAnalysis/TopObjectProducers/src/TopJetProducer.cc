@@ -1,5 +1,5 @@
 //
-// $Id: TopJetProducer.cc,v 1.15 2007/08/06 14:37:41 tsirig Exp $
+// $Id: TopJetProducer.cc,v 1.16 2007/08/08 09:56:06 tsirig Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopJetProducer.h"
@@ -39,6 +39,10 @@ TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig) {
   addResolutions_             	 = iConfig.getParameter<bool>          ("addResolutions");
   caliJetResoFile_               = iConfig.getParameter<std::string>   ("caliJetResoFile");
   storeBTagInfo_                 = iConfig.getParameter<bool>          ("storeBTagInfo");
+
+  tagModuleLabelsToIgnore_v      = iConfig.getParameter< std::vector<std::string> >("tagModuleLabelsToIgnore");
+  bTaggingTagInfoNames_v         = iConfig.getParameter< std::vector<std::string> >("bTagInfoNames");
+
   ignoreTrackCountingFromAOD_    = iConfig.getParameter<bool>          ("ignoreTrackCountingFromAOD");
   ignoreTrackProbabilityFromAOD_ = iConfig.getParameter<bool>          ("ignoreTrackProbabilityFromAOD");
   ignoreSoftMuonFromAOD_         = iConfig.getParameter<bool>          ("ignoreSoftMuonFromAOD");
@@ -193,11 +197,18 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 	      std::string moduleTagInfoName = (jetTags).provenance()->moduleName();	 
 	      std::string moduleLabel = (jetTags).provenance()->moduleLabel();
 	      //********ignore taggers from AOD*********
+	      bool tagShouldBeIgnored = false;
+	      for (unsigned int i = 0; i < tagModuleLabelsToIgnore_v.size(); ++i)
+		{
+		  if (moduleLabel == tagModuleLabelsToIgnore_v[i]) { tagShouldBeIgnored = true; }
+		}
+	      if (tagShouldBeIgnored) { continue; }
+	      /*
 	      if(  (moduleLabel == "trackCountingJetTags"    && ignoreTrackCountingFromAOD_    == true ) ) continue;
 	      if(  (moduleLabel == "trackProbabilityJetTags" && ignoreTrackProbabilityFromAOD_ == true ) ) continue;
 	      if(  (moduleLabel == "softMuonJetTags"         && ignoreSoftMuonFromAOD_         == true ) ) continue;
 	      if(  (moduleLabel == "softElectronJetTags    " && ignoreSoftElectronFromAOD_     == true ) ) continue;
-
+	      */
 	      for (size_t t = 0; t < jetTags->size(); t++) 
 		{
 		  edm::RefToBase<reco::Jet> jet_p = (*jetTags)[t].jet();
@@ -214,10 +225,16 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 			  pairDiscri.first = moduleLabel;
 			  pairDiscri.second = (*jetTags)[t].discriminator();
 			  //drop TauTag!!!
+			  for (unsigned int i = 0; i < bTaggingTagInfoNames_v.size(); ++i)
+			    {
+			      if (moduleTagInfoName == bTaggingTagInfoNames_v[i]) { ajet.addBDiscriminatorPair(pairDiscri); }
+			    }
+			  /*
 			  if(moduleTagInfoName == "TrackProbability" || moduleTagInfoName == "TrackCounting" || moduleTagInfoName == "SoftLepton" )
 			    {
 			      ajet.addBDiscriminatorPair(pairDiscri);
 			    }
+			  */
 			}
 		      //FIXME add combined tagger
 		      //********store jetTagRef*********

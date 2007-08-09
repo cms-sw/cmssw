@@ -1,5 +1,5 @@
 //
-// $Id: TopJetProducer.h,v 1.13 2007/07/06 00:27:16 lowette Exp $
+// $Id: TopJetProducer.h,v 1.14 2007/08/06 14:37:41 tsirig Exp $
 //
 
 #ifndef TopObjectProducers_TopJetProducer_h
@@ -13,7 +13,7 @@
    with possible adding of resolutions and more things to come
 
   \author   Jan Heyninck
-  \version  $Id: TopJetProducer.h,v 1.13 2007/07/06 00:27:16 lowette Exp $
+  \version  $Id: TopJetProducer.h,v 1.14 2007/08/06 14:37:41 tsirig Exp $
 */
 
 
@@ -65,6 +65,10 @@ class TopJetProducer : public edm::EDProducer {
     bool          addResolutions_;
     std::string   caliJetResoFile_;
     bool          storeBTagInfo_;
+
+    std::vector<std::string> tagModuleLabelsToIgnore_v;
+    std::vector<std::string> bTaggingTagInfoNames_v;
+
     bool          ignoreTrackCountingFromAOD_;
     bool          ignoreTrackProbabilityFromAOD_;
     bool          ignoreSoftMuonFromAOD_;      
