@@ -1,4 +1,4 @@
-#include "DQM/RCTMonitor/src/checkRCT.h"
+#include "DQM/RCTMonitor/plugins/checkRCT.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -7,6 +7,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/Particle.h"
 using namespace reco;
 
 #include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
@@ -147,15 +149,15 @@ void checkRCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   for(size_t i = 0; i < genParticles.size(); ++ i ) {
     const Candidate & p = genParticles[ i ];
     // Store information for selected trigger particle within acceptance
-    if((status(p) == 1) && 
-       (pdgId(p) == triggerParticleType) &&
+    if((p.status() == 1) && 
+       (p.pdgId() == triggerParticleType) &&
        (p.pt() > triggerParticlePtCut) && 
        (p.eta() > triggerParticleEtaLow) && 
        (p.eta() < triggerParticleEtaHigh))
       {
 	iPart++;
-	id = pdgId( p );
-	st = status( p );
+	id = p.pdgId();
+	st = p.status();
 	pt = p.pt();
 	eta = p.eta();
 	phi = p.phi();
