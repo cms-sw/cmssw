@@ -23,8 +23,14 @@ class ESSource(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable
         if name == '':
             name=self.type_()
         proc._placeESSource(name,self)
+    def moduleLabel_(self,myname):
+       result = myname
+       if self.type_() == myname:
+           result = ""
+       return result
     def nameInProcessDesc_(self, myname):
-       return self.type_() + "@" + myname
+       result = self.type_() + "@" + self.moduleLabel_(myname)
+       return result
 
 
 class ESProducer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable):
@@ -34,8 +40,14 @@ class ESProducer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelab
         if name == '':
             name=self.type_()
         proc._placeESProducer(name,self)
+    def moduleLabel_(self,myname):
+       result = myname
+       if self.type_() == myname:
+           result = ''
+       return result
     def nameInProcessDesc_(self, myname):
-       return self.type_() + "@" + myname
+       result = self.type_() + "@" + self.moduleLabel_(myname)
+       return result
 
 
 class ESPrefer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable):
@@ -95,6 +107,8 @@ class Source(_ConfigureComponent,_TypedParameterizable):
         super(Source,self).__init__(type_,*arg,**kargs)
     def _placeImpl(self,name,proc):
         proc._placeSource(name,self)
+    def moduleLabel_(self,myname):
+        return "@main_input"
     def nameInProcessDesc_(self,myname):
         return "@main_input"
 
@@ -104,6 +118,8 @@ class Looper(_ConfigureComponent,_TypedParameterizable):
         super(Looper,self).__init__(type_,*arg,**kargs)
     def _placeImpl(self,name,proc):
         proc._placeLooper(name,self)
+    def moduleLabel_(self,myname):
+        return "@main_looper"
     def nameInProcessDesc_(self, myname):
         return "@main_looper"
 

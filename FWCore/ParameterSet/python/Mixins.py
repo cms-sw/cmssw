@@ -115,12 +115,15 @@ class _TypedParameterizable(_Parameterizable):
         return config
     def nameInProcessDesc_(self, myname):
         return myname;
+    def moduleLabel_(self, myname):
+        return myname
     def insertInto(self, parameterSet, myname):
+        print "DEFAULT INSERTINTO " + myname
         newpset = parameterSet.newPSet()
-        newpset.addString(True, "@module_label", self.nameInProcessDesc_(myname))
+        newpset.addString(True, "@module_label", self.moduleLabel_(myname))
         newpset.addString(True, "@module_type", self.type_())
         self.insertContentsInto(newpset)
-        parameterSet.addPSet(True, myname, newpset)
+        parameterSet.addPSet(True, self.nameInProcessDesc_(myname), newpset)
 
 
 

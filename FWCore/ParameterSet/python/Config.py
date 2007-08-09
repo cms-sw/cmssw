@@ -339,9 +339,12 @@ class Process(object):
             item.insertInto(parameterSet, newlabel)
         parameterSet.addVString(True, label, vitems)
     def insertManyInto(self, parameterSet, label, itemDict):
-        parameterSet.addVString(True, label, itemDict.keys())
+        l = []
         for name,value in itemDict.iteritems():
+          newLabel = value.nameInProcessDesc_(name)
+          l.append(newLabel)
           value.insertInto(parameterSet, name)
+        parameterSet.addVString(True, label, l)
     def insertServices(self, processDesc, itemDict):
         for name,value in itemDict.iteritems():
            value.insertInto(processDesc)
@@ -365,7 +368,6 @@ class Process(object):
         self.insertManyInto(processPSet, "@end_paths", self.endpaths_())
         self.insertOneInto(processPSet,  "@paths", self.schedule_())
         self.insertServices(processDesc, self.services_())
-        print processDesc.dump()
         return processDesc
 
 
