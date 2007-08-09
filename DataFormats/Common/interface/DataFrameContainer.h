@@ -184,12 +184,12 @@ namespace edm {
   
   inline
   DataFrame::DataFrame(DataFrameContainer const & icont,
-		       size_t i) :
+		       size_type i) :
     m_id(icont.id(i)), m_data(icont.frame(i)), m_size(icont.stride()){}
 
   inline
   void DataFrame::set(DataFrameContainer const & icont,
-		      size_t i) {
+		      size_type i) {
     m_id=icont.id(i); 
     m_data=icont.frame(i);
     m_size=icont.stride();

@@ -14,6 +14,7 @@ namespace edm {
   class DataFrame {
   public: 
     
+    typedef unsigned int size_type; // for persistency
     typedef unsigned int id_type;
     typedef unsigned short data_type;
     typedef data_type * iterator;
@@ -23,22 +24,22 @@ namespace edm {
     inline
     DataFrame() : m_id(0), m_data(0), m_size(0){}
     inline
-    DataFrame(id_type i, data_type const * idata, int isize) :
+    DataFrame(id_type i, data_type const * idata, size_type isize) :
       m_id(i), m_data(idata), m_size(isize) {}
     
     inline
     DataFrame(DataFrameContainer const & icont,
-	      size_t i);
+	      size_type i);
     inline
     void set(DataFrameContainer const & icont,
-	     size_t i);
+	     size_type i);
     inline
-    data_type & operator[](size_t i) {
+    data_type & operator[](size_type i) {
       return data()[i];
     }
     
     inline
-    data_type operator[](size_t i) const {
+    data_type operator[](size_type i) const {
       return m_data[i];
     }
     
@@ -59,7 +60,7 @@ namespace edm {
     id_type id() const { return m_id;}
     
     inline
-    int size() const { return m_size; }
+    size_type size() const { return m_size; }
     
   private:
     data_type * data() {
@@ -68,7 +69,7 @@ namespace edm {
     
     id_type m_id;
     data_type const * m_data;
-    int m_size;
+    size_type m_size;
   };
 }
 
