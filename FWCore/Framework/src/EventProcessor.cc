@@ -215,6 +215,7 @@ namespace edm {
       { sInit,          mBeginJob,       sJobReady },
       { sJobReady,      mException,      sError },
       { sJobReady,      mSetRun,         sRunGiven },
+      { sJobReady,      mInputRewind,    sRunning },
       { sJobReady,      mSkip,           sRunning },
       { sJobReady,      mRunID,          sRunning },
       { sJobReady,      mRunCount,       sRunning },
@@ -719,12 +720,24 @@ namespace edm {
   void
   EventProcessor::rewind()
   {
+    beginJob(); //make sure this was called
     changeState(mStopAsync);
     changeState(mInputRewind);
-    ServiceRegistry::Operate operate(serviceToken_);
-    input_->repeat();
-    input_->rewind();
-    return;
+    {
+      StateSentry toerror(this);
+
+      //make the services available
+      ServiceRegistry::Operate operate(serviceToken_);
+      
+      {
+        CallPrePost holder(*actReg_);
+	input_->repeat();
+        input_->rewind();
+      }
+      changeState(mCountComplete);
+      toerror.succeeded();
+    }
+    changeState(mFinished);
   }
   
   EventHelperDescription
