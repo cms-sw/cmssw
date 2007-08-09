@@ -11,6 +11,7 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h" 
 #include "DataFormats/EgammaReco/interface/EcalCluster.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
+#include "DataFormats/EgammaReco/interface/HFEMClusterShape.h"
 #include "DataFormats/Math/interface/Point3D.h" 
 #include "DataFormats/EgammaReco/interface/EgammaTrigger.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
@@ -22,6 +23,7 @@
 #include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h" 
 #include "DataFormats/EgammaReco/interface/SeedSuperClusterAssociation.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
+#include "DataFormats/EgammaReco/interface/HFEMClusterShapeAssociation.h"
 
 namespace { 
   namespace {
@@ -52,6 +54,12 @@ namespace {
     edm::Ref<reco::ClusterShapeCollection> r5;
     edm::RefProd<reco::ClusterShapeCollection> rp5;
     edm::Wrapper<edm::RefVector<reco::ClusterShapeCollection> > wrv5;
+
+    reco::HFEMClusterShapeCollection v8;
+    edm::Wrapper<reco::HFEMClusterShapeCollection> w8;
+    edm::Ref<reco::HFEMClusterShapeCollection> r8;
+    edm::RefProd<reco::HFEMClusterShapeCollection> rp8;
+    edm::Wrapper<edm::RefVector<reco::HFEMClusterShapeCollection> > wrv8;
 
     reco::ClusterPi0DiscriminatorCollection v6;
     edm::Wrapper<reco::ClusterPi0DiscriminatorCollection> w6;
@@ -84,6 +92,13 @@ namespace {
     reco::BasicClusterShapeAssociationRef vr7;
     reco::BasicClusterShapeAssociationRefProd vrp7;
     edm::Wrapper<reco::BasicClusterShapeAssociationRefVector> wvrv7;
+
+    reco::HFEMClusterShapeAssociationCollection v9;
+    edm::Wrapper<reco::HFEMClusterShapeAssociationCollection> w9;
+    reco::HFEMClusterShapeAssociation va9;
+    reco::HFEMClusterShapeAssociationRef vr9;
+    reco::HFEMClusterShapeAssociationRefProd vrp9;
+    edm::Wrapper<reco::HFEMClusterShapeAssociationRefVector> wvrv9;
 
   }
 }

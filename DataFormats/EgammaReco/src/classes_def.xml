@@ -24,6 +24,14 @@
   <class name="edm::RefVector<std::vector<reco::ClusterShape>,reco::ClusterShape,edm::refhelper::FindUsingAdvance<std::vector<reco::ClusterShape>,reco::ClusterShape> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::ClusterShape>,reco::ClusterShape,edm::refhelper::FindUsingAdvance<std::vector<reco::ClusterShape>,reco::ClusterShape> > >"/>
 
+  <class name="reco::HFEMClusterShape"/>
+  <class name="std::vector<reco::HFEMClusterShape>"/>
+  <class name="edm::Wrapper<std::vector<reco::HFEMClusterShape> >"/>
+  <class name="edm::Ref<std::vector<reco::HFEMClusterShape>,reco::HFEMClusterShape,edm::refhelper::FindUsingAdvance<std::vector<reco::HFEMClusterShape>,reco::HFEMClusterShape> >"/>
+  <class name="edm::RefProd<std::vector<reco::HFEMClusterShape> >"/>
+  <class name="edm::RefVector<std::vector<reco::HFEMClusterShape>,reco::HFEMClusterShape,edm::refhelper::FindUsingAdvance<std::vector<reco::HFEMClusterShape>,reco::HFEMClusterShape> >"/>
+  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::HFEMClusterShape>,reco::HFEMClusterShape,edm::refhelper::FindUsingAdvance<std::vector<reco::HFEMClusterShape>,reco::HFEMClusterShape> > >"/>
+
   <class name="reco::ClusterPi0Discriminator"/>
   <class name="std::vector<reco::ClusterPi0Discriminator>"/>
   <class name="edm::Wrapper<std::vector<reco::ClusterPi0Discriminator> >"/>
@@ -61,7 +69,12 @@
    <class pattern="edm::RefProd<edm::AssociationMap<*>" />
    <class pattern="edm::RefVector<edm::AssociationMap<*>" />
    <class pattern="edm::Wrapper<edm::RefVector<edm::AssociationMap<*>" />
-   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::BasicCluster> >, edm::RefProd<std::vector<reco::ClusterShape> > >"/>   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<TrajectorySeed> >, edm::RefProd<std::vector<reco::SuperCluster> > >"/> 
+   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::BasicCluster> >, edm::RefProd<std::vector<reco::ClusterShape> > >"/>
+
+   <class name="edm::AssociationMap<edm::OneToOne<std::vector<reco::SuperCluster>, std::vector<reco::HFEMClusterShape>, unsigned int > >">
+     <field name="transientMap_" transient="true" />
+   </class>
+   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::SuperCluster> >, edm::RefProd<std::vector<reco::HFEMClusterShape> > >"/>
 
 
 </lcgdict>
