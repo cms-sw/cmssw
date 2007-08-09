@@ -33,10 +33,10 @@ namespace edm {
     }
     {
       std::transform(indices.begin(),indices.end(),indices.begin(),
-		     boost::bind(multiplies<int>,m_stride,_1));
+		     boost::bind(std::multiplies<int>,m_stride,_1));
       DataContainer tmp(m_data.size());
       size_type s = m_stride*sizeof(data_type);
-      for(int j=i=0; i!=m_data.size(); ++i, j+=m_stride)
+      for(int j=0, i=0; i!=m_data.size(); ++i, j+=m_stride)
 	::memcpy(&m_data[indices[i]],&tmp[j],s);
       tmp.swap(m_data);
     }

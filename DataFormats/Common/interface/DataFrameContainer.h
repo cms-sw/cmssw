@@ -151,7 +151,7 @@ namespace edm {
 
     size_type stride() const { return m_stride; }
     
-    bool empty() const { return m_ids().empty();}
+    bool empty() const { return m_ids.empty();}
 
     size_type size() const { return m_ids.size();}
     

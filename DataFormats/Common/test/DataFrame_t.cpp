@@ -7,6 +7,7 @@
 #undef private
 #include<vector>
 #include<algorithm>
+#include<cstdlib>
 
 class TestDataFrame: public CppUnit::TestFixture
 {
@@ -67,8 +68,11 @@ void TestDataFrame::filling() {
     CPPUNIT_ASSERT(df.size()==10); 
     CPPUNIT_ASSERT(df.id()==id); 
     
-    std::copy(sv.begin(),sv.end(),df.begin());
-
+    if (n%2==0)
+      std::copy(sv.begin(),sv.end(),df.begin());  
+    else
+      ::memcpy(&sv[0],&df[0], sizeof(edm::DataFrame::data_type)*frames.strides());
+    
     std::vector<edm::DataFrame::data_type> v2(10);
     std::copy(frames.m_data.begin()+(n-1)*10,frames.m_data.begin()+n*10,v2.begin());
     CPPUNIT_ASSERT(sv==v2);
