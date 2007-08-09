@@ -5,6 +5,7 @@
 <use name=FWCore/ServiceRegistry>
 <use name=Geometry/CSCGeometry>
 <use name=Geometry/Records>
+<use name=SimMuon/MCTruth>
 <use name=Validation/MuonCSCDigis>
 <export>
    <lib name=ValidationCSCRecHits>

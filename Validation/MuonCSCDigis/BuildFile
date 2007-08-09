@@ -9,6 +9,7 @@
 <use name=Geometry/Records>
 <use name=SimDataFormats/CrossingFrame>
 <use name=SimDataFormats/TrackingHit>
+<use name=SimMuon/MCTruth>
 <export>
   <use name=DQMServices/Core>
   <use name=FWCore/Framework>

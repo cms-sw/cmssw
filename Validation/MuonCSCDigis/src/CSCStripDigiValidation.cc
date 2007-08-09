@@ -88,6 +88,7 @@ void CSCStripDigiValidation::analyze(const edm::Event& e,
       }
     }
     int detId = (*j).first.rawId();
+/*
     edm::PSimHitContainer simHits = theSimHitMap->hits(detId);
 
     if(simHits.size() == 1)
@@ -96,6 +97,7 @@ void CSCStripDigiValidation::analyze(const edm::Event& e,
       int chamberType = layer->chamber()->specs()->chamberType();
       plotResolution(simHits[0], maxStrip, layer, chamberType);
     }
+*/
   } // loop over digis
 
   theNDigisPerEventPlot->Fill(nDigisPerEvent);

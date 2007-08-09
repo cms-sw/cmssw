@@ -9,7 +9,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "Validation/MuonCSCDigis/interface/PSimHitMap.h"
+#include "SimMuon/MCTruth/interface/PSimHitMap.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 
 
