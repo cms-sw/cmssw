@@ -3,6 +3,7 @@
 #include <boost/python.hpp>
 #include <sstream>
 
+#include <iostream>
 PythonProcessDesc::PythonProcessDesc()
 :  theProcessPSet(),
    theServices()
@@ -61,11 +62,11 @@ PythonProcessDesc::PythonProcessDesc(const std::string & fileName)
 
 boost::shared_ptr<edm::ProcessDesc> PythonProcessDesc::processDesc() const
 {
-  boost::shared_ptr<edm::ProcessDesc> result(new edm::ProcessDesc());
-  *(result->getProcessPSet().get()) = theProcessPSet.pset();
+  boost::shared_ptr<edm::ProcessDesc> result(new edm::ProcessDesc(theProcessPSet.pset()));
   for(std::vector<PythonParameterSet>::const_iterator serviceItr = theServices.begin();
       serviceItr != theServices.end(); ++serviceItr)
   {
+std::cout << "DOING ADDSERVICE " << std::endl;
     result->addService(serviceItr->pset());
   }
   return result;
