@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2007/07/21 10:13:26 $
- * $Revision: 1.18 $
+ * $Date: 2007/08/09 14:36:55 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -569,6 +569,8 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
               cout << sample03[i] << " " << flush;
             }
             cout << endl;
+
+            cout << endl; 
 
             shape.setSamples(sample01,  1);
             shape.setSamples(sample02,  6);
