@@ -88,7 +88,7 @@ bool  NuclearInteractionFinder::run(const Trajectory& traj) {
         std::vector<double> ncompatibleHits;
         bool NIfound = false;
 
-        // Loop on all the RecHits. 
+        // Loop on all the RecHits.
         while(!NIfound)
          {
            if(it_meas == measurements.end()) break;
@@ -112,9 +112,9 @@ bool  NuclearInteractionFinder::run(const Trajectory& traj) {
 
         if(NIfound) {
             LogDebug("NuclearSeedGenerator") << "NUCLEAR INTERACTION FOUND at index : " << nuclTester->nuclearIndex()  << "\n";
-            
 
-	    if(nuclTester->nHitsChecked() < 3) 
+
+	    if(nuclTester->nHitsChecked() < 3)
 		    LogDebug("NuclearSeedGenerator") << "PROBLEM in NuclearTester : nuclTester->nHitsChecked() = " <<  nuclTester->nHitsChecked() << "  < 3\n";
 
             // Get correct parametrization of the helix of the primary track at the interaction point (to be used by improveCurrentSeed)
@@ -156,10 +156,10 @@ NuclearInteractionFinder::findMeasurementsFromTSOS(const TSOS& currentState, Det
   using namespace std;
   int invalidHits = 0;
   vector<TM> result;
-  const DetLayer* lastLayer = theGeomSearchTracker->detLayer( detid ); 
+  const DetLayer* lastLayer = theGeomSearchTracker->detLayer( detid );
   vector<const DetLayer*> nl;
 
-  if(lastLayer) { 
+  if(lastLayer) {
           nl = lastLayer->nextLayers( *currentState.freeState(), alongMomentum);
   }
   else {
@@ -200,24 +200,26 @@ void NuclearInteractionFinder::fillSeeds( const std::pair<TrajectoryMeasurement,
             const TM& innerTM = tmPairs.first;
             const std::vector<TM>& outerTMs = tmPairs.second;
 
-            // Loop on all outer TM 
+            // Loop on all outer TM
             for(std::vector<TM>::const_iterator outtm = outerTMs.begin(); outtm!=outerTMs.end(); outtm++) {
                if((innerTM.recHit())->isValid() && (outtm->recHit())->isValid()) {
                      currentSeed->setMeasurements(innerTM.updatedState(), innerTM.recHit(), outtm->recHit());
                      allSeeds.push_back(*currentSeed);
                 }
                 else  LogDebug("NuclearSeedGenerator") << "The initial hits for seeding are invalid" << "\n";
-             } 
+             }
              return;
 }
 //----------------------------------------------------------------------
-void NuclearInteractionFinder::getPersistentSeeds( std::auto_ptr<TrajectorySeedCollection>& output ) {
+std::auto_ptr<TrajectorySeedCollection> NuclearInteractionFinder::getPersistentSeeds() {
+   std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
    for(std::vector<SeedFromNuclearInteraction>::const_iterator it_seed = allSeeds.begin(); it_seed != allSeeds.end(); it_seed++) {
        if(it_seed->isValid()) {
            output->push_back( it_seed->TrajSeed() );
        }
        else LogDebug("NuclearSeedGenerator") << "The seed is invalid" << "\n";
    }
+   return output;
 }
 //----------------------------------------------------------------------
 void NuclearInteractionFinder::improveSeeds() {
@@ -227,9 +229,9 @@ void NuclearInteractionFinder::improveSeeds() {
         for(std::vector<SeedFromNuclearInteraction>::const_iterator it_seed = allSeeds.begin(); it_seed != allSeeds.end(); it_seed++) {
 
 	      if( !it_seed->isValid() ) continue;
-	      
+
               // find compatible TM in an outer layer
-              std::vector<TM> thirdTMs = findMeasurementsFromTSOS( it_seed->updatedTSOS() , it_seed->outerHitDetId() ); 
+              std::vector<TM> thirdTMs = findMeasurementsFromTSOS( it_seed->updatedTSOS() , it_seed->outerHitDetId() );
 
               // loop on those new TMs
               for(std::vector<TM>::const_iterator tm = thirdTMs.begin(); tm!= thirdTMs.end(); tm++) {
@@ -243,4 +245,4 @@ void NuclearInteractionFinder::improveSeeds() {
        }
        allSeeds.clear();
        allSeeds = newSeedCollection;
-}     
+}

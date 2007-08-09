@@ -4,7 +4,7 @@
 //
 // Package:    NuclearSeedsEDProducer
 // Class:      NuclearSeedsEDProducer
-// 
+//
 /**\class NuclearSeedsEDProducer NuclearSeedsEDProducer.h RecoTracker/NuclearSeedGenerator/interface/NuclearSeedsEDProducer.h
 
  Description: <one line class summary>
@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincent ROBERFROID
 //         Created:  Wed Feb 28 12:05:36 CET 2007
-// $Id: NuclearSeedsEDProducer.h,v 1.1 2007/06/12 07:36:59 roberfro Exp $
+// $Id: NuclearSeedsEDProducer.h,v 1.2 2007/06/25 09:12:11 roberfro Exp $
 //
 //
 
@@ -37,6 +37,7 @@
 #include "RecoTracker/NuclearSeedGenerator/interface/NuclearInteractionFinder.h"
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "RecoTracker/NuclearSeedGenerator/interface/TrajectoryToSeedMap.h"
 
 namespace reco {class TransientTrack;}
 
@@ -47,6 +48,7 @@ class Trajectory;
  */
 
 class NuclearSeedsEDProducer : public edm::EDProducer {
+
    public:
       explicit NuclearSeedsEDProducer(const edm::ParameterSet&);
       ~NuclearSeedsEDProducer();
@@ -59,7 +61,7 @@ class NuclearSeedsEDProducer : public edm::EDProducer {
       // ----------member data ---------------------------
       edm::ParameterSet conf_;
       std::auto_ptr<NuclearInteractionFinder>     theNuclearInteractionFinder;
-     
+
       bool improveSeeds;
 };
 #endif

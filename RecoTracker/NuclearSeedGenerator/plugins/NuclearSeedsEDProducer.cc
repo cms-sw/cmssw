@@ -19,6 +19,7 @@ NuclearSeedsEDProducer::NuclearSeedsEDProducer(const edm::ParameterSet& iConfig)
 improveSeeds(iConfig.getParameter<bool>("improveSeeds"))
 {
    produces<TrajectorySeedCollection>();
+   produces<TrajectoryToSeedsMap>();
 }
 
 
@@ -39,17 +40,21 @@ NuclearSeedsEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
    edm::Handle<reco::TrackCollection> m_TrackCollection;
    iEvent.getByLabel( "TrackRefitter", m_TrackCollection );
-   edm::Handle<std::vector<Trajectory> > m_TrajectoryCollection;
+   edm::Handle< TrajectoryCollection > m_TrajectoryCollection;
    iEvent.getByLabel( "TrackRefitter", m_TrajectoryCollection );
 
    LogDebug("NuclearSeedGenerator") << "Number of trajectory in event :" << m_TrajectoryCollection->size() << "\n";
 
    std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
+   std::auto_ptr<TrajectoryToSeedsMap> outAssoc(new TrajectoryToSeedsMap);
 
-   // Update the measurement 
+   // Update the measurement
    theNuclearInteractionFinder->setEvent(iEvent);
 
-   for(std::vector<Trajectory>::const_iterator iTraj = m_TrajectoryCollection->begin(); iTraj != m_TrajectoryCollection->end(); iTraj++) {
+   std::vector<std::pair<int, int> > assocPair;
+   int i=0;
+
+   for(std::vector<Trajectory>::const_iterator iTraj = m_TrajectoryCollection->begin(); iTraj != m_TrajectoryCollection->end(); iTraj++,i++) {
 
          // run the finder
          theNuclearInteractionFinder->run( *iTraj );
@@ -58,14 +63,27 @@ NuclearSeedsEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
          if( improveSeeds == true ) theNuclearInteractionFinder->improveSeeds();
 
          // push back the new persistent seeds in output
-         theNuclearInteractionFinder->getPersistentSeeds( output );
+         std::auto_ptr<TrajectorySeedCollection> newSeeds(theNuclearInteractionFinder->getPersistentSeeds());
+         output->insert(output->end(), newSeeds->begin(), newSeeds->end());
+
+         // fill the id of the Trajectory and the if of the seed in assocPair
+         for(unsigned int j=0; j<newSeeds->size(); j++) {
+                  assocPair.push_back( std::make_pair( i, output->size()-newSeeds->size()+j ) );
+         }
+
    }
 
-   iEvent.put(output);
+   const edm::OrphanHandle<TrajectorySeedCollection> refprodTrajSeedColl = iEvent.put(output);
+
+   for(std::vector<std::pair<int, int> >::const_iterator iVecP = assocPair.begin(); iVecP != assocPair.end(); iVecP++) {
+        outAssoc->insert(edm::Ref<TrajectoryCollection>(m_TrajectoryCollection,iVecP->first), edm::Ref<TrajectorySeedCollection>(refprodTrajSeedColl, iVecP->second));
+   }
+   iEvent.put(outAssoc);
+
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 NuclearSeedsEDProducer::beginJob(const edm::EventSetup& es)
 {
    theNuclearInteractionFinder = std::auto_ptr<NuclearInteractionFinder>(new NuclearInteractionFinder(es, conf_));

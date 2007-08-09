@@ -4,9 +4,9 @@
 //----------------------------------------------------------------------------
 //! \class NuclearInteractionFinder
 //! \brief Class used to obtain vector of all compatible TMs associated to a trajectory to be used by the NuclearTester.
-//! 
 //!
-//! \description The method run gets all compatible TMs of all TMs associated of a trajectory. 
+//!
+//! \description The method run gets all compatible TMs of all TMs associated of a trajectory.
 //! Then it uses the NuclearTester class to decide whether the trajectory has interacted nuclearly or not.
 //! It finally returns a pair of the TM where the nuclear interaction occurs and all compatible TMs associated.
 //-----------------------------------------------------------------------------
@@ -76,7 +76,7 @@ public:
   void  setEvent(const edm::Event& event) const;
 
   /// Fill 'output' with persistent nuclear seeds
-  void  getPersistentSeeds( std::auto_ptr<TrajectorySeedCollection>& output );
+  std::auto_ptr<TrajectorySeedCollection>  getPersistentSeeds();
 
   /// Improve the seeds with a third RecHit
   void  improveSeeds();
