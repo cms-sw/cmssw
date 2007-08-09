@@ -9,9 +9,10 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcessRegistry.icc,v 1.2 2007/05/18 14:11:30 saout Exp $
+// $Id: ProcessRegistry.icc,v 1.3 2007/05/21 02:02:00 saout Exp $
 //
 
+#include <memory>
 #include <string>
 #include <map>
 
@@ -23,8 +24,8 @@ template<class Base_t, class CalibBase_t, class Parent_t>
 std::map<std::string, const ProcessRegistry<Base_t, CalibBase_t, Parent_t>*>
 	&ProcessRegistry<Base_t, CalibBase_t, Parent_t>::getRegistry()
 {
-	if (!registry)
-		registry = new std::map<std::string, const ProcessRegistry*>;
+	if (!registry.get())
+		registry = std::auto_ptr<RegistryMap>(new RegistryMap);
 	return *registry;
 }
 
@@ -32,9 +33,7 @@ template<class Base_t, class CalibBase_t, class Parent_t>
 Base_t *ProcessRegistry<Base_t, CalibBase_t, Parent_t>::create(
 		const char *name, const CalibBase_t *calib, Parent_t *parent)
 {
-	typename std::map<std::string, const ProcessRegistry<Base_t,
-				CalibBase_t, Parent_t>*>::iterator pos =
-		getRegistry().find(name);
+	typename RegistryMap::iterator pos = getRegistry().find(name);
 
 	if (pos == getRegistry().end())
 		return 0;
@@ -53,8 +52,8 @@ void ProcessRegistry<Base_t, CalibBase_t, Parent_t>::unregisterProcess(
 { getRegistry().erase(name); }
 
 template<class Base_t, class CalibBase_t, class Parent_t>
-std::map<std::string, const ProcessRegistry<Base_t, CalibBase_t, Parent_t>*>
-		*ProcessRegistry<Base_t, CalibBase_t, Parent_t>::registry = 0;
+std::auto_ptr<typename ProcessRegistry<Base_t, CalibBase_t, Parent_t>::RegistryMap>
+		ProcessRegistry<Base_t, CalibBase_t, Parent_t>::registry;
 
 } // namespace PhysicsTools
 

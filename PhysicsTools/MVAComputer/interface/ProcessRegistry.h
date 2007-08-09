@@ -9,9 +9,10 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcessRegistry.h,v 1.3 2007/05/25 16:37:58 saout Exp $
+// $Id: ProcessRegistry.h,v 1.4 2007/07/15 22:31:46 saout Exp $
 //
 
+#include <memory>
 #include <string>
 #include <map>
 
@@ -94,11 +95,13 @@ class ProcessRegistry {
 	                            const ProcessRegistry *process);
 	static void unregisterProcess(const char *name);
 
-	/// return map of all registered processes, allocate if necessary
-	static std::map<std::string, const ProcessRegistry*> &getRegistry();
+	typedef std::map<std::string, const ProcessRegistry*> RegistryMap;
 
-	/// pointer to the allocates registry map
-	static std::map<std::string, const ProcessRegistry*> *registry;
+	/// return map of all registered processes, allocate if necessary
+	static RegistryMap &getRegistry();
+
+	/// pointer to the allocated registry map
+	static std::auto_ptr<RegistryMap> registry;
 
 	const char *name;
 };
