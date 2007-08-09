@@ -2,7 +2,7 @@ void TracksCompareChain()
 {
 
  gROOT ->Reset();
- gROOT ->SetBatch();
+ // gROOT ->SetBatch();
  gROOT->SetStyle("Plain");
 
  char*  rfilename = "validationPlots.root";//new release is in red
@@ -15,6 +15,34 @@ void TracksCompareChain()
  TFile * rfile = new TFile(rfilename);
  TFile * sfile = new TFile(sfilename);
 
+ // create an iterator to loop through all objects(keys) in the  file
+ //get release name
+ TIter nextkey(rfile -> GetListOfKeys());
+ TObjString *newRel;
+ while (key = (TKey*)nextkey()) {
+   obj = key -> ReadObj();  //use ReadObj, not Read
+   
+   if (obj->InheritsFrom("TObjString") ) {  //instead of obj->IsA
+     newRel = (TObjString *) obj;
+     newRel->Print();
+   }
+ }
+ 
+ TIter nextkey(sfile -> GetListOfKeys());
+ TObjString *refRel;
+ while (key = (TKey*)nextkey()) {
+   obj = key -> ReadObj();  //use ReadObj, not Read
+   
+   if (obj->InheritsFrom("TObjString") ) {  //instead of obj->IsA
+     refRel = (TObjString *) obj;
+     refRel->Print();
+   }
+ }
+ TLatex thistext;
+ thistext.SetTextSize(0.02);
+ char relinfo[200];
+ sprintf(relinfo,"RED histograms = %s *** BLUE Histograms = %s", newRel->GetName(), refRel->GetName());
+ 
  gROOT->ProcessLine(".x HistoCompare_Tracks.C");
  HistoCompare_Tracks * myPV = new HistoCompare_Tracks();
 
@@ -47,7 +75,12 @@ void TracksCompareChain()
    sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/fakerate",sc2);
 
    canvas = new TCanvas("Tracks1","Tracks: efficiency & fakerate",1000,1000);
-   
+   TPaveLabel* title = new TPaveLabel(0.1,0.96,0.9,0.99,relinfo);
+   title->Draw();
+   TPad* graphPad = new TPad("Graphs","Graphs",0.01,0.05,0.95,0.95);
+   graphPad->Draw();
+   graphPad->cd();
+
    if (hit) rh1->GetYaxis()->SetRangeUser(0.7,1.025);
    if (hit) sh1->GetYaxis()->SetRangeUser(0.7,1.025);
    if (chi2)rc1->GetYaxis()->SetRangeUser(0.7,1.025);
@@ -59,9 +92,8 @@ void TracksCompareChain()
      double  startingX = .1;
      bool fit = false;
 
-     canvas->Divide(2,2);
-
-     canvas->cd(1);
+     graphPad->Divide(2,2);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(1);
@@ -70,7 +102,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rc1->SetLineColor(2);
      sc1->SetLineColor(4);
      sc1->SetLineStyle(2);
@@ -79,7 +111,7 @@ void TracksCompareChain()
      sc1->Draw("sames");
      myPV->PVCompute(rc1, sc1, te, option );
      
-     canvas->cd(3);
+     graphPad->cd(3);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -88,7 +120,7 @@ void TracksCompareChain()
      sh2->Draw("sames");
      myPV->PVCompute(rh2, sh2, te, option );
      
-     canvas->cd(4);
+     graphPad->cd(4);
      rc2->SetLineColor(2);
      sc2->SetLineColor(4);
      sc2->SetLineStyle(2);
@@ -97,15 +129,18 @@ void TracksCompareChain()
      sc2->Draw("sames");
      myPV->PVCompute(rc2, sc2, te, option );
      
+     //     canvas->cd(0);
+     //    thistext.DrawLatex(0.1, 0.01, mytext);
+     
    }else if (hit){  
      char * option = "UU";
      double  startingY = -1;
      double  startingX = .1;
      bool fit = false;
 
-     canvas->Divide(1,2);
+     graphPad->Divide(1,2);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(2);
@@ -114,7 +149,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -129,9 +164,9 @@ void TracksCompareChain()
      double  startingX = .1;
      bool fit = false;
 
-     canvas->Divide(1,2);
+     graphPad->Divide(1,2);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(2);
@@ -140,7 +175,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -165,6 +200,11 @@ void TracksCompareChain()
    sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/chi2_prob",sc2);
 
    canvas = new TCanvas("Tracks2","Tracks: chi2 & chi2 probability",1000,1000);
+   TPaveLabel* title = new TPaveLabel(0.1,0.96,0.9,0.99,relinfo);
+   title->Draw();
+   TPad* graphPad = new TPad("Graphs","Graphs",0.01,0.05,0.95,0.95);
+   graphPad->Draw();
+   graphPad->cd();
 
    if (hit){
      NormalizeHistograms(rh1,sh1);
@@ -185,9 +225,9 @@ void TracksCompareChain()
      double  startingX = 0.7;
      bool fit = false;
 
-     canvas->Divide(2,2);
+     graphPad->Divide(2,2);
 
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(1);
@@ -196,7 +236,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rc1->SetLineColor(2);
      sc1->SetLineColor(4);
      sc1->SetLineStyle(2);
@@ -205,7 +245,7 @@ void TracksCompareChain()
      sc1->Draw("sames");
      myPV->PVCompute(rc1, sc1, te, option );
      
-     canvas->cd(3);
+     graphPad->cd(3);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -214,7 +254,7 @@ void TracksCompareChain()
      sh2->Draw("sames");
      myPV->PVCompute(rh2, sh2, te, option );
      
-     canvas->cd(4);
+     graphPad->cd(4);
      rc2->SetLineColor(2);
      sc2->SetLineColor(4);
      sc2->SetLineStyle(2);
@@ -229,9 +269,9 @@ void TracksCompareChain()
      double  startingX = 0.7;
      bool fit = false;
 
-     canvas->Divide(1,2);
+     graphPad->Divide(1,2);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(2);
@@ -240,7 +280,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -255,9 +295,9 @@ void TracksCompareChain()
      double  startingX = 0.7;
      bool fit = false;
 
-     canvas->Divide(1,2);
+     graphPad->Divide(1,2);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(2);
@@ -266,7 +306,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -295,6 +335,11 @@ void TracksCompareChain()
    sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/losthits_eta",sc3);
 
    canvas = new TCanvas("Tracks3","Tracks: chi2 and #hits vs eta",1000,1000);
+   TPaveLabel* title = new TPaveLabel(0.1,0.96,0.9,0.99,relinfo);
+   title->Draw();
+   TPad* graphPad = new TPad("Graphs","Graphs",0.01,0.05,0.95,0.95);
+   graphPad->Draw();
+   graphPad->cd();
 
    //fixRangeY(rh1,sh1);
    //fixRangeY(rc1,sc1);
@@ -308,9 +353,9 @@ void TracksCompareChain()
      double  startingX = .1;
      bool fit = false;
 
-     canvas->Divide(2,3);
+     graphPad->Divide(2,3);
 
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(1);
@@ -319,7 +364,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rc1->SetLineColor(2);
      sc1->SetLineColor(4);
      sc1->SetLineStyle(2);
@@ -328,7 +373,7 @@ void TracksCompareChain()
      sc1->Draw("sames");
      myPV->PVCompute(rc1, sc1, te, option );
      
-     canvas->cd(3);
+     graphPad->cd(3);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -337,7 +382,7 @@ void TracksCompareChain()
      sh2->Draw("sames");
      myPV->PVCompute(rh2, sh2, te, option );
      
-     canvas->cd(4);
+     graphPad->cd(4);
      rc2->SetLineColor(2);
      sc2->SetLineColor(4);
      sc2->SetLineStyle(2);
@@ -346,7 +391,7 @@ void TracksCompareChain()
      sc2->Draw("sames");
      myPV->PVCompute(rc2, sc2, te, option );
 
-     canvas->cd(5);
+     graphPad->cd(5);
      rh3->SetLineColor(2);
      sh3->SetLineColor(4);
      sh3->SetLineStyle(2);
@@ -355,7 +400,7 @@ void TracksCompareChain()
      sh3->Draw("sames");
      myPV->PVCompute(rh3, sh3, te, option );
   
-     canvas->cd(6);
+     graphPad->cd(6);
      rc3->SetLineColor(2);
      sc3->SetLineColor(4);
      sc3->SetLineStyle(2);
@@ -370,9 +415,9 @@ void TracksCompareChain()
      double  startingX = .1;
      bool fit = false;
 
-     canvas->Divide(1,3);
+     graphPad->Divide(1,3);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(2);
@@ -381,7 +426,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -390,7 +435,7 @@ void TracksCompareChain()
      sh2->Draw("sames");
      myPV->PVCompute(rh2, sh2, te, option );  
 
-     canvas->cd(3);
+     graphPad->cd(3);
      rh3->SetLineColor(2);
      sh3->SetLineColor(4);
      sh3->SetLineStyle(2);
@@ -405,9 +450,9 @@ void TracksCompareChain()
      double  startingX = .1;
      bool fit = false;
 
-     canvas->Divide(1,3);
+     graphPad->Divide(1,3);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(2);
@@ -416,7 +461,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -425,7 +470,7 @@ void TracksCompareChain()
      sh2->Draw("sames");
      myPV->PVCompute(rh2, sh2, te, option );  
      
-     canvas->cd(3);
+     graphPad->cd(3);
      rh3->SetLineColor(2);
      sh3->SetLineColor(4);
      sh3->SetLineStyle(2);
@@ -454,6 +499,11 @@ void TracksCompareChain()
    sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullPhi0",sc3);
 
    canvas = new TCanvas("Tracks4","Tracks: pull of Pt, Qoverp and Phi",1000,1000);
+   TPaveLabel* title = new TPaveLabel(0.1,0.96,0.9,0.99,relinfo);
+   title->Draw();
+   TPad* graphPad = new TPad("Graphs","Graphs",0.01,0.05,0.95,0.95);
+   graphPad->Draw();
+   graphPad->cd();
 
    if (hit){
      NormalizeHistograms(rh1,sh1);
@@ -472,9 +522,9 @@ void TracksCompareChain()
      double  startingX = 0.1;
      bool fit = true;
 
-     canvas->Divide(2,3);
+     graphPad->Divide(2,3);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(2);
@@ -483,7 +533,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rc1->SetLineColor(2);
      sc1->SetLineColor(4);
      sc1->SetLineStyle(2);
@@ -492,7 +542,7 @@ void TracksCompareChain()
      sc1->Draw("sames");
      myPV->PVCompute(rc1, sc1, te, option );
      
-     canvas->cd(3);
+     graphPad->cd(3);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -501,7 +551,7 @@ void TracksCompareChain()
      sh2->Draw("sames");
      myPV->PVCompute(rh2, sh2, te, option );
      
-     canvas->cd(4);
+     graphPad->cd(4);
      rc2->SetLineColor(2);
      sc2->SetLineColor(4);
      sc2->SetLineStyle(2);
@@ -510,7 +560,7 @@ void TracksCompareChain()
      sc2->Draw("sames");
      myPV->PVCompute(rc2, sc2, te, option );
      
-     canvas->cd(5);
+     graphPad->cd(5);
      rh3->SetLineColor(2);
      sh3->SetLineColor(4);
      sh3->SetLineStyle(2);
@@ -519,7 +569,7 @@ void TracksCompareChain()
      sh3->Draw("sames");
      myPV->PVCompute(rh3, sh3, te, option );
      
-     canvas->cd(6);
+     graphPad->cd(6);
      rc3->SetLineColor(2);
      sc3->SetLineColor(4);
      sc3->SetLineStyle(2);
@@ -533,9 +583,9 @@ void TracksCompareChain()
      double  startingX = 0.1;
      bool fit = true;
 
-     canvas->Divide(1,3);
+     graphPad->Divide(1,3);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(2);
@@ -544,7 +594,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -553,7 +603,7 @@ void TracksCompareChain()
      sh2->Draw("sames");
      myPV->PVCompute(rh2, sh2, te, option );
      
-     canvas->cd(3);
+     graphPad->cd(3);
      rh3->SetLineColor(2);
      sh3->SetLineColor(4);
      sh3->SetLineStyle(2);
@@ -567,9 +617,9 @@ void TracksCompareChain()
      double  startingX = 0.1;
      bool fit = true;
      
-     canvas->Divide(1,3);
+     graphPad->Divide(1,3);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(2);
@@ -578,7 +628,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -587,7 +637,7 @@ void TracksCompareChain()
      sh2->Draw("sames");
      myPV->PVCompute(rh2, sh2, te, option );
      
-     canvas->cd(3);
+     graphPad->cd(3);
      rh3->SetLineColor(2);
      sh3->SetLineColor(4);
      sh3->SetLineStyle(2);
@@ -615,6 +665,11 @@ void TracksCompareChain()
    sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullTheta",sc3);
 
    canvas = new TCanvas("Tracks5","Tracks: pull of D0, Z0, Theta",1000,1000);
+   TPaveLabel* title = new TPaveLabel(0.1,0.96,0.9,0.99,relinfo);
+   title->Draw();
+   TPad* graphPad = new TPad("Graphs","Graphs",0.01,0.05,0.95,0.95);
+   graphPad->Draw();
+   graphPad->cd();
 
    if (hit){
      NormalizeHistograms(rh1,sh1);
@@ -633,9 +688,9 @@ void TracksCompareChain()
      double  startingX = 0.1;
      bool fit = true;
 
-     canvas->Divide(2,3);
+     graphPad->Divide(2,3);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(2);
@@ -644,7 +699,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rc1->SetLineColor(2);
      sc1->SetLineColor(4);
      sc1->SetLineStyle(2);
@@ -653,7 +708,7 @@ void TracksCompareChain()
      sc1->Draw("sames");
      myPV->PVCompute(rc1, sc1, te, option );
      
-     canvas->cd(3);
+     graphPad->cd(3);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -662,7 +717,7 @@ void TracksCompareChain()
      sh2->Draw("sames");
      myPV->PVCompute(rh2, sh2, te, option );
      
-     canvas->cd(4);
+     graphPad->cd(4);
      rc2->SetLineColor(2);
      sc2->SetLineColor(4);
      sc2->SetLineStyle(2);
@@ -671,7 +726,7 @@ void TracksCompareChain()
      sc2->Draw("sames");
      myPV->PVCompute(rc2, sc2, te, option );
      
-     canvas->cd(5);
+     graphPad->cd(5);
      rh3->SetLineColor(2);
      sh3->SetLineColor(4);
      sh3->SetLineStyle(2);
@@ -680,7 +735,7 @@ void TracksCompareChain()
      sh3->Draw("sames");
      myPV->PVCompute(rh3, sh3, te, option );
      
-     canvas->cd(6);
+     graphPad->cd(6);
      rc3->SetLineColor(2);
      sc3->SetLineColor(4);
      sc3->SetLineStyle(2);
@@ -694,9 +749,9 @@ void TracksCompareChain()
      double  startingX = 0.1;
      bool fit = true;
 
-     canvas->Divide(1,3);
+     graphPad->Divide(1,3);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(2);
@@ -705,7 +760,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -714,7 +769,7 @@ void TracksCompareChain()
      sh2->Draw("sames");
      myPV->PVCompute(rh2, sh2, te, option );
      
-     canvas->cd(3);
+     graphPad->cd(3);
      rh3->SetLineColor(2);
      sh3->SetLineColor(4);
      sh3->SetLineStyle(2);
@@ -728,9 +783,9 @@ void TracksCompareChain()
      double  startingX = 0.1;
      bool fit = true;
      
-     canvas->Divide(1,3);
+     graphPad->Divide(1,3);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(2);
@@ -739,7 +794,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -748,7 +803,7 @@ void TracksCompareChain()
      sh2->Draw("sames");
      myPV->PVCompute(rh2, sh2, te, option );
      
-     canvas->cd(3);
+     graphPad->cd(3);
      rh3->SetLineColor(2);
      sh3->SetLineColor(4);
      sh3->SetLineStyle(2);
@@ -772,6 +827,11 @@ void TracksCompareChain()
    sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/sigmaphi",sc2);
 
    canvas = new TCanvas("Tracks6","Tracks: Pt and Phi resolution",1000,1000);
+   TPaveLabel* title = new TPaveLabel(0.1,0.96,0.9,0.99,relinfo);
+   title->Draw();
+   TPad* graphPad = new TPad("Graphs","Graphs",0.01,0.05,0.95,0.95);
+   graphPad->Draw();
+   graphPad->cd();
 
    if (hit&&chi2){
      char * option = "UU";
@@ -779,9 +839,9 @@ void TracksCompareChain()
      double  startingX = .1;
      bool fit = false;
 
-     canvas->Divide(2,2);
+     graphPad->Divide(2,2);
 
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(1);
@@ -790,7 +850,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rc1->SetLineColor(2);
      sc1->SetLineColor(4);
      sc1->SetLineStyle(2);
@@ -799,7 +859,7 @@ void TracksCompareChain()
      sc1->Draw("sames");
      myPV->PVCompute(rc1, sc1, te, option );
      
-     canvas->cd(3);
+     graphPad->cd(3);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -808,7 +868,7 @@ void TracksCompareChain()
      sh2->Draw("sames");
      myPV->PVCompute(rh2, sh2, te, option );
      
-     canvas->cd(4);
+     graphPad->cd(4);
      rc2->SetLineColor(2);
      sc2->SetLineColor(4);
      sc2->SetLineStyle(2);
@@ -823,9 +883,9 @@ void TracksCompareChain()
      double  startingX = .1;
      bool fit = false;
 
-     canvas->Divide(1,2);
+     graphPad->Divide(1,2);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(2);
@@ -834,7 +894,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -849,9 +909,9 @@ void TracksCompareChain()
      double  startingX = .1;
      bool fit = false;
 
-     canvas->Divide(1,2);
+     graphPad->Divide(1,2);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(2);
@@ -860,7 +920,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -889,6 +949,11 @@ void TracksCompareChain()
    sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/sigmacotTheta",sc3);
 
    canvas = new TCanvas("Tracks7","Tracks: D0, Z0, Theta resolution",1000,1000);
+   TPaveLabel* title = new TPaveLabel(0.1,0.96,0.9,0.99,relinfo);
+   title->Draw();
+   TPad* graphPad = new TPad("Graphs","Graphs",0.01,0.05,0.95,0.95);
+   graphPad->Draw();
+   graphPad->cd();
 
    if (hit&&chi2){   
      char * option = "UU";
@@ -896,9 +961,9 @@ void TracksCompareChain()
      double  startingX = 0.1;
      bool fit = true;
 
-     canvas->Divide(2,3);
+     graphPad->Divide(2,3);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(2);
@@ -907,7 +972,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rc1->SetLineColor(2);
      sc1->SetLineColor(4);
      sc1->SetLineStyle(2);
@@ -916,7 +981,7 @@ void TracksCompareChain()
      sc1->Draw("sames");
      myPV->PVCompute(rc1, sc1, te, option );
      
-     canvas->cd(3);
+     graphPad->cd(3);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -925,7 +990,7 @@ void TracksCompareChain()
      sh2->Draw("sames");
      myPV->PVCompute(rh2, sh2, te, option );
      
-     canvas->cd(4);
+     graphPad->cd(4);
      rc2->SetLineColor(2);
      sc2->SetLineColor(4);
      sc2->SetLineStyle(2);
@@ -934,7 +999,7 @@ void TracksCompareChain()
      sc2->Draw("sames");
      myPV->PVCompute(rc2, sc2, te, option );
      
-     canvas->cd(5);
+     graphPad->cd(5);
      rh3->SetLineColor(2);
      sh3->SetLineColor(4);
      sh3->SetLineStyle(2);
@@ -943,7 +1008,7 @@ void TracksCompareChain()
      sh3->Draw("sames");
      myPV->PVCompute(rh3, sh3, te, option );
      
-     canvas->cd(6);
+     graphPad->cd(6);
      rc3->SetLineColor(2);
      sc3->SetLineColor(4);
      sc3->SetLineStyle(2);
@@ -957,9 +1022,9 @@ void TracksCompareChain()
      double  startingX = 0.1;
      bool fit = true;
 
-     canvas->Divide(1,3);
+     graphPad->Divide(1,3);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(2);
@@ -968,7 +1033,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -977,7 +1042,7 @@ void TracksCompareChain()
      sh2->Draw("sames");
      myPV->PVCompute(rh2, sh2, te, option );
      
-     canvas->cd(3);
+     graphPad->cd(3);
      rh3->SetLineColor(2);
      sh3->SetLineColor(4);
      sh3->SetLineStyle(2);
@@ -991,9 +1056,9 @@ void TracksCompareChain()
      double  startingX = 0.1;
      bool fit = true;
      
-     canvas->Divide(1,3);
+     graphPad->Divide(1,3);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(2);
@@ -1002,7 +1067,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -1011,7 +1076,7 @@ void TracksCompareChain()
      sh2->Draw("sames");
      myPV->PVCompute(rh2, sh2, te, option );
      
-     canvas->cd(3);
+     graphPad->cd(3);
      rh3->SetLineColor(2);
      sh3->SetLineColor(4);
      sh3->SetLineStyle(2);
@@ -1042,6 +1107,11 @@ void TracksCompareChain()
    sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/fakerate",sc2);
 
    canvas = new TCanvas("Tracks8","Tracks: efficiency & fakerate",1000,1000);
+   TPaveLabel* title = new TPaveLabel(0.1,0.96,0.9,0.99,relinfo);
+   title->Draw();
+   TPad* graphPad = new TPad("Graphs","Graphs",0.01,0.05,0.95,0.95);
+   graphPad->Draw();
+   graphPad->cd();
 
    if (hit) rh1->GetYaxis()->SetRangeUser(0.7,1.025);
    if (hit) sh1->GetYaxis()->SetRangeUser(0.7,1.025);
@@ -1054,9 +1124,9 @@ void TracksCompareChain()
      double  startingX = .1;
      bool fit = false;
 
-     canvas->Divide(2,2);
+     graphPad->Divide(2,2);
 
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(1);
@@ -1065,7 +1135,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rc1->SetLineColor(2);
      sc1->SetLineColor(4);
      sc1->SetLineStyle(2);
@@ -1074,7 +1144,7 @@ void TracksCompareChain()
      sc1->Draw("sames");
      myPV->PVCompute(rc1, sc1, te, option );
      
-     canvas->cd(3);
+     graphPad->cd(3);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -1083,7 +1153,7 @@ void TracksCompareChain()
      sh2->Draw("sames");
      myPV->PVCompute(rh2, sh2, te, option );
      
-     canvas->cd(4);
+     graphPad->cd(4);
      rc2->SetLineColor(2);
      sc2->SetLineColor(4);
      sc2->SetLineStyle(2);
@@ -1098,9 +1168,9 @@ void TracksCompareChain()
      double  startingX = .1;
      bool fit = false;
 
-     canvas->Divide(1,2);
+     graphPad->Divide(1,2);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(2);
@@ -1109,7 +1179,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -1124,9 +1194,9 @@ void TracksCompareChain()
      double  startingX = .1;
      bool fit = false;
 
-     canvas->Divide(1,2);
+     graphPad->Divide(1,2);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(2);
@@ -1135,7 +1205,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -1160,6 +1230,11 @@ void TracksCompareChain()
    sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/chi2_prob",sc2);
 
    canvas = new TCanvas("Tracks9","Tracks: chi2 & chi2 probability",1000,1000);
+   TPaveLabel* title = new TPaveLabel(0.1,0.96,0.9,0.99,relinfo);
+   title->Draw();
+   TPad* graphPad = new TPad("Graphs","Graphs",0.01,0.05,0.95,0.95);
+   graphPad->Draw();
+   graphPad->cd();
 
    if (hit) { 
      NormalizeHistograms(rh1,sh1);
@@ -1185,9 +1260,9 @@ void TracksCompareChain()
      double  startingX = 0.7;
      bool fit = false;
 
-     canvas->Divide(2,2);
+     graphPad->Divide(2,2);
 
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(1);
@@ -1196,7 +1271,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rc1->SetLineColor(2);
      sc1->SetLineColor(4);
      sc1->SetLineStyle(2);
@@ -1205,7 +1280,7 @@ void TracksCompareChain()
      sc1->Draw("sames");
      myPV->PVCompute(rc1, sc1, te, option );
      
-     canvas->cd(3);
+     graphPad->cd(3);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -1214,7 +1289,7 @@ void TracksCompareChain()
      sh2->Draw("sames");
      myPV->PVCompute(rh2, sh2, te, option );
      
-     canvas->cd(4);
+     graphPad->cd(4);
      rc2->SetLineColor(2);
      sc2->SetLineColor(4);
      sc2->SetLineStyle(2);
@@ -1229,9 +1304,9 @@ void TracksCompareChain()
      double  startingX = 0.7;
      bool fit = false;
 
-     canvas->Divide(1,2);
+     graphPad->Divide(1,2);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(2);
@@ -1240,7 +1315,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -1255,9 +1330,9 @@ void TracksCompareChain()
      double  startingX = 0.7;
      bool fit = false;
 
-     canvas->Divide(1,2);
+     graphPad->Divide(1,2);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(2);
@@ -1266,7 +1341,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -1295,6 +1370,11 @@ void TracksCompareChain()
    sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/losthits_eta",sc3);
 
    canvas = new TCanvas("Tracks10","Tracks: chi2 and #hits vs eta",1000,1000);
+   TPaveLabel* title = new TPaveLabel(0.1,0.96,0.9,0.99,relinfo);
+   title->Draw();
+   TPad* graphPad = new TPad("Graphs","Graphs",0.01,0.05,0.95,0.95);
+   graphPad->Draw();
+   graphPad->cd();
 
    if (hit) fixRangeY(rh2,sh2);
    if (chi2) fixRangeY(rc2,sc2);
@@ -1305,9 +1385,9 @@ void TracksCompareChain()
      double  startingX = .1;
      bool fit = false;
      
-     canvas->Divide(2,3);
+     graphPad->Divide(2,3);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(1);
@@ -1316,7 +1396,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rc1->SetLineColor(2);
      sc1->SetLineColor(4);
      sc1->SetLineStyle(2);
@@ -1325,7 +1405,7 @@ void TracksCompareChain()
      sc1->Draw("sames");
      myPV->PVCompute(rc1, sc1, te, option );
      
-     canvas->cd(3);
+     graphPad->cd(3);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -1334,7 +1414,7 @@ void TracksCompareChain()
      sh2->Draw("sames");
      myPV->PVCompute(rh2, sh2, te, option );
      
-     canvas->cd(4);
+     graphPad->cd(4);
      rc2->SetLineColor(2);
      sc2->SetLineColor(4);
      sc2->SetLineStyle(2);
@@ -1343,7 +1423,7 @@ void TracksCompareChain()
      sc2->Draw("sames");
      myPV->PVCompute(rc2, sc2, te, option );
      
-     canvas->cd(5);
+     graphPad->cd(5);
      rh3->SetLineColor(2);
      sh3->SetLineColor(4);
      sh3->SetLineStyle(2);
@@ -1352,7 +1432,7 @@ void TracksCompareChain()
      sh3->Draw("sames");
      myPV->PVCompute(rh3, sh3, te, option );
   
-     canvas->cd(6);
+     graphPad->cd(6);
      rc3->SetLineColor(2);
      sc3->SetLineColor(4);
      sc3->SetLineStyle(2);
@@ -1367,9 +1447,9 @@ void TracksCompareChain()
      double  startingX = .1;
      bool fit = false;
      
-     canvas->Divide(1,3);
+     graphPad->Divide(1,3);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(2);
@@ -1378,7 +1458,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -1387,7 +1467,7 @@ void TracksCompareChain()
      sh2->Draw("sames");
      myPV->PVCompute(rh2, sh2, te, option );  
 
-     canvas->cd(3);
+     graphPad->cd(3);
      rh3->SetLineColor(2);
      sh3->SetLineColor(4);
      sh3->SetLineStyle(2);
@@ -1402,9 +1482,9 @@ void TracksCompareChain()
      double  startingX = .1;
      bool fit = false;
      
-     canvas->Divide(1,3);
+     graphPad->Divide(1,3);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(2);
@@ -1413,7 +1493,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -1422,7 +1502,7 @@ void TracksCompareChain()
      sh2->Draw("sames");
      myPV->PVCompute(rh2, sh2, te, option );  
 
-     canvas->cd(3);
+     graphPad->cd(3);
      rh3->SetLineColor(2);
      sh3->SetLineColor(4);
      sh3->SetLineStyle(2);
@@ -1451,6 +1531,11 @@ void TracksCompareChain()
    sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullPhi0",sc3);
 
    canvas = new TCanvas("Tracks11","Tracks: pull of Pt, Qoverp and Phi",1000,1000);
+   TPaveLabel* title = new TPaveLabel(0.1,0.96,0.9,0.99,relinfo);
+   title->Draw();
+   TPad* graphPad = new TPad("Graphs","Graphs",0.01,0.05,0.95,0.95);
+   graphPad->Draw();
+   graphPad->cd();
 
    if (hit) { 
      NormalizeHistograms(rh1,sh1);
@@ -1469,9 +1554,9 @@ void TracksCompareChain()
      double  startingX = 0.1;
      bool fit = true;
 
-     canvas->Divide(2,3);
+     graphPad->Divide(2,3);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(2);
@@ -1480,7 +1565,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rc1->SetLineColor(2);
      sc1->SetLineColor(4);
      sc1->SetLineStyle(2);
@@ -1489,7 +1574,7 @@ void TracksCompareChain()
      sc1->Draw("sames");
      myPV->PVCompute(rc1, sc1, te, option );
      
-     canvas->cd(3);
+     graphPad->cd(3);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -1498,7 +1583,7 @@ void TracksCompareChain()
      sh2->Draw("sames");
      myPV->PVCompute(rh2, sh2, te, option );
      
-     canvas->cd(4);
+     graphPad->cd(4);
      rc2->SetLineColor(2);
      sc2->SetLineColor(4);
      sc2->SetLineStyle(2);
@@ -1507,7 +1592,7 @@ void TracksCompareChain()
      sc2->Draw("sames");
      myPV->PVCompute(rc2, sc2, te, option );
      
-     canvas->cd(5);
+     graphPad->cd(5);
      rh3->SetLineColor(2);
      sh3->SetLineColor(4);
      sh3->SetLineStyle(2);
@@ -1516,7 +1601,7 @@ void TracksCompareChain()
      sh3->Draw("sames");
      myPV->PVCompute(rh3, sh3, te, option );
      
-     canvas->cd(6);
+     graphPad->cd(6);
      rc3->SetLineColor(2);
      sc3->SetLineColor(4);
      sc3->SetLineStyle(2);
@@ -1530,9 +1615,9 @@ void TracksCompareChain()
      double  startingX = 0.1;
      bool fit = true;
 
-     canvas->Divide(1,3);
+     graphPad->Divide(1,3);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(2);
@@ -1541,7 +1626,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -1550,7 +1635,7 @@ void TracksCompareChain()
      sh2->Draw("sames");
      myPV->PVCompute(rh2, sh2, te, option );
      
-     canvas->cd(3);
+     graphPad->cd(3);
      rh3->SetLineColor(2);
      sh3->SetLineColor(4);
      sh3->SetLineStyle(2);
@@ -1564,9 +1649,9 @@ void TracksCompareChain()
      double  startingX = 0.1;
      bool fit = true;
      
-     canvas->Divide(1,3);
+     graphPad->Divide(1,3);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(2);
@@ -1575,7 +1660,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -1584,7 +1669,7 @@ void TracksCompareChain()
      sh2->Draw("sames");
      myPV->PVCompute(rh2, sh2, te, option );
      
-     canvas->cd(3);
+     graphPad->cd(3);
      rh3->SetLineColor(2);
      sh3->SetLineColor(4);
      sh3->SetLineStyle(2);
@@ -1612,6 +1697,11 @@ void TracksCompareChain()
    sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullTheta",sc3);
 
    canvas = new TCanvas("Tracks12","Tracks: pull of D0, Z0, Theta",1000,1000);
+   TPaveLabel* title = new TPaveLabel(0.1,0.96,0.9,0.99,relinfo);
+   title->Draw();
+   TPad* graphPad = new TPad("Graphs","Graphs",0.01,0.05,0.95,0.95);
+   graphPad->Draw();
+   graphPad->cd();
 
    if (hit) { 
      NormalizeHistograms(rh1,sh1);
@@ -1630,9 +1720,9 @@ void TracksCompareChain()
      double  startingX = 0.1;
      bool fit = true;
 
-     canvas->Divide(2,3);
+     graphPad->Divide(2,3);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(2);
@@ -1641,7 +1731,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rc1->SetLineColor(2);
      sc1->SetLineColor(4);
      sc1->SetLineStyle(2);
@@ -1650,7 +1740,7 @@ void TracksCompareChain()
      sc1->Draw("sames");
      myPV->PVCompute(rc1, sc1, te, option );
      
-     canvas->cd(3);
+     graphPad->cd(3);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -1659,7 +1749,7 @@ void TracksCompareChain()
      sh2->Draw("sames");
      myPV->PVCompute(rh2, sh2, te, option );
      
-     canvas->cd(4);
+     graphPad->cd(4);
      rc2->SetLineColor(2);
      sc2->SetLineColor(4);
      sc2->SetLineStyle(2);
@@ -1668,7 +1758,7 @@ void TracksCompareChain()
      sc2->Draw("sames");
      myPV->PVCompute(rc2, sc2, te, option );
      
-     canvas->cd(5);
+     graphPad->cd(5);
      rh3->SetLineColor(2);
      sh3->SetLineColor(4);
      sh3->SetLineStyle(2);
@@ -1677,7 +1767,7 @@ void TracksCompareChain()
      sh3->Draw("sames");
      myPV->PVCompute(rh3, sh3, te, option );
      
-     canvas->cd(6);
+     graphPad->cd(6);
      rc3->SetLineColor(2);
      sc3->SetLineColor(4);
      sc3->SetLineStyle(2);
@@ -1691,9 +1781,9 @@ void TracksCompareChain()
      double  startingX = 0.1;
      bool fit = true;
 
-     canvas->Divide(1,3);
+     graphPad->Divide(1,3);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(2);
@@ -1702,7 +1792,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -1711,7 +1801,7 @@ void TracksCompareChain()
      sh2->Draw("sames");
      myPV->PVCompute(rh2, sh2, te, option );
      
-     canvas->cd(3);
+     graphPad->cd(3);
      rh3->SetLineColor(2);
      sh3->SetLineColor(4);
      sh3->SetLineStyle(2);
@@ -1725,9 +1815,9 @@ void TracksCompareChain()
      double  startingX = 0.1;
      bool fit = true;
      
-     canvas->Divide(1,3);
+     graphPad->Divide(1,3);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(2);
@@ -1736,7 +1826,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -1745,7 +1835,7 @@ void TracksCompareChain()
      sh2->Draw("sames");
      myPV->PVCompute(rh2, sh2, te, option );
      
-     canvas->cd(3);
+     graphPad->cd(3);
      rh3->SetLineColor(2);
      sh3->SetLineColor(4);
      sh3->SetLineStyle(2);
@@ -1769,6 +1859,11 @@ void TracksCompareChain()
    sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/sigmaphi",sc2);
 
    canvas = new TCanvas("Tracks13","Tracks: Pt and Phi resolution",1000,1000);
+   TPaveLabel* title = new TPaveLabel(0.1,0.96,0.9,0.99,relinfo);
+   title->Draw();
+   TPad* graphPad = new TPad("Graphs","Graphs",0.01,0.05,0.95,0.95);
+   graphPad->Draw();
+   graphPad->cd();
 
    if (hit&&chi2){
      char * option = "UU";
@@ -1776,9 +1871,9 @@ void TracksCompareChain()
      double  startingX = .1;
      bool fit = false;
 
-     canvas->Divide(2,2);
+     graphPad->Divide(2,2);
 
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(1);
@@ -1787,7 +1882,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rc1->SetLineColor(2);
      sc1->SetLineColor(4);
      sc1->SetLineStyle(2);
@@ -1796,7 +1891,7 @@ void TracksCompareChain()
      sc1->Draw("sames");
      myPV->PVCompute(rc1, sc1, te, option );
      
-     canvas->cd(3);
+     graphPad->cd(3);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -1805,7 +1900,7 @@ void TracksCompareChain()
      sh2->Draw("sames");
      myPV->PVCompute(rh2, sh2, te, option );
      
-     canvas->cd(4);
+     graphPad->cd(4);
      rc2->SetLineColor(2);
      sc2->SetLineColor(4);
      sc2->SetLineStyle(2);
@@ -1820,9 +1915,9 @@ void TracksCompareChain()
      double  startingX = .1;
      bool fit = false;
 
-     canvas->Divide(1,2);
+     graphPad->Divide(1,2);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(2);
@@ -1831,7 +1926,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -1846,9 +1941,9 @@ void TracksCompareChain()
      double  startingX = .1;
      bool fit = false;
 
-     canvas->Divide(1,2);
+     graphPad->Divide(1,2);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(2);
@@ -1857,7 +1952,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -1886,6 +1981,11 @@ void TracksCompareChain()
    sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/sigmacotTheta",sc3);
 
    canvas = new TCanvas("Tracks14","Tracks: D0, Z0, Theta resolution",1000,1000);
+   TPaveLabel* title = new TPaveLabel(0.1,0.96,0.9,0.99,relinfo);
+   title->Draw();
+   TPad* graphPad = new TPad("Graphs","Graphs",0.01,0.05,0.95,0.95);
+   graphPad->Draw();
+   graphPad->cd();
 
    if (hit&&chi2){   
      char * option = "UU";
@@ -1893,9 +1993,9 @@ void TracksCompareChain()
      double  startingX = 0.1;
      bool fit = true;
 
-     canvas->Divide(2,3);
+     graphPad->Divide(2,3);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(2);
@@ -1904,7 +2004,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rc1->SetLineColor(2);
      sc1->SetLineColor(4);
      sc1->SetLineStyle(2);
@@ -1913,7 +2013,7 @@ void TracksCompareChain()
      sc1->Draw("sames");
      myPV->PVCompute(rc1, sc1, te, option );
      
-     canvas->cd(3);
+     graphPad->cd(3);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -1922,7 +2022,7 @@ void TracksCompareChain()
      sh2->Draw("sames");
      myPV->PVCompute(rh2, sh2, te, option );
      
-     canvas->cd(4);
+     graphPad->cd(4);
      rc2->SetLineColor(2);
      sc2->SetLineColor(4);
      sc2->SetLineStyle(2);
@@ -1931,7 +2031,7 @@ void TracksCompareChain()
      sc2->Draw("sames");
      myPV->PVCompute(rc2, sc2, te, option );
      
-     canvas->cd(5);
+     graphPad->cd(5);
      rh3->SetLineColor(2);
      sh3->SetLineColor(4);
      sh3->SetLineStyle(2);
@@ -1940,7 +2040,7 @@ void TracksCompareChain()
      sh3->Draw("sames");
      myPV->PVCompute(rh3, sh3, te, option );
      
-     canvas->cd(6);
+     graphPad->cd(6);
      rc3->SetLineColor(2);
      sc3->SetLineColor(4);
      sc3->SetLineStyle(2);
@@ -1954,9 +2054,9 @@ void TracksCompareChain()
      double  startingX = 0.1;
      bool fit = true;
 
-     canvas->Divide(1,3);
+     graphPad->Divide(1,3);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(2);
@@ -1965,7 +2065,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -1974,7 +2074,7 @@ void TracksCompareChain()
      sh2->Draw("sames");
      myPV->PVCompute(rh2, sh2, te, option );
      
-     canvas->cd(3);
+     graphPad->cd(3);
      rh3->SetLineColor(2);
      sh3->SetLineColor(4);
      sh3->SetLineStyle(2);
@@ -1988,9 +2088,9 @@ void TracksCompareChain()
      double  startingX = 0.1;
      bool fit = true;
      
-     canvas->Divide(1,3);
+     graphPad->Divide(1,3);
      
-     canvas->cd(1);
+     graphPad->cd(1);
      rh1->SetLineColor(2);
      sh1->SetLineColor(4);
      sh1->SetLineStyle(2);
@@ -1999,7 +2099,7 @@ void TracksCompareChain()
      sh1->Draw("sames");
      myPV->PVCompute(rh1, sh1, te, option );
      
-     canvas->cd(2);
+     graphPad->cd(2);
      rh2->SetLineColor(2);
      sh2->SetLineColor(4);
      sh2->SetLineStyle(2);
@@ -2008,7 +2108,7 @@ void TracksCompareChain()
      sh2->Draw("sames");
      myPV->PVCompute(rh2, sh2, te, option );
      
-     canvas->cd(3);
+     graphPad->cd(3);
      rh3->SetLineColor(2);
      sh3->SetLineColor(4);
      sh3->SetLineStyle(2);
