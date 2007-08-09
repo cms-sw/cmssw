@@ -16,7 +16,6 @@
 <use name=SimDataFormats/HepMCProduct>
 
 <export>
-<lib name=DQMRCTMonitor>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=Foundation/PluginManager>
