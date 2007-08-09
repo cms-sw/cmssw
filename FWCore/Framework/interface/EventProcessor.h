@@ -32,7 +32,7 @@ problems:
   where does the pluginmanager initialize call go?
 
 
-$Id: EventProcessor.h,v 1.41 2007/08/02 21:02:42 wmtan Exp $
+$Id: EventProcessor.h,v 1.42 2007/08/06 22:25:35 rpw Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -77,6 +77,8 @@ namespace edm {
 	       mAny, mDtor, mException, mInputRewind };
 
     class StateSentry;
+    class LuminosityBlockSentry;
+    class RunSentry;
   }
     
   class EventProcessor
@@ -319,6 +321,10 @@ namespace edm {
                                    boost::shared_ptr<LuminosityBlockPrincipal>& lbp);
     
     void rewind();
+    boost::shared_ptr<RunPrincipal> beginRun();
+    boost::shared_ptr<LuminosityBlockPrincipal> beginLuminosityBlock(boost::shared_ptr<RunPrincipal> rp);
+    void endLuminosityBlock(LuminosityBlockPrincipal *lbp);
+    void endRun(RunPrincipal *rp);
 
     StatusCode waitForAsyncCompletion(unsigned int timeout_seconds);
 
@@ -369,6 +375,8 @@ namespace edm {
     boost::shared_ptr<EDLooper>                   looper_;
 
     friend class event_processor::StateSentry;
+    friend class event_processor::LuminosityBlockSentry;
+    friend class event_processor::RunSentry;
   }; // class EventProcessor
 
   //--------------------------------------------------------------------
