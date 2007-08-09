@@ -32,7 +32,7 @@ problems:
   where does the pluginmanager initialize call go?
 
 
-$Id: EventProcessor.h,v 1.42 2007/08/06 22:25:35 rpw Exp $
+$Id: EventProcessor.h,v 1.43 2007/08/09 00:02:19 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -213,10 +213,12 @@ namespace edm {
     // Process one event with the given EventID
     StatusCode run(EventID const& id);
 
-    // Skip the specified number of events, and then process the next event.
+    // Skip the specified number of events.
     // If numberToSkip is negative, we will back up.
-    // For example, skip(-1) processes the previous event.
     StatusCode skip(int numberToSkip);
+ 
+    // Rewind to the first event
+    void rewind();
 
     InputSource& getInputSource();
 
@@ -320,9 +322,11 @@ namespace edm {
     EventHelperDescription runOnce(boost::shared_ptr<RunPrincipal>& rp,
                                    boost::shared_ptr<LuminosityBlockPrincipal>& lbp);
     
-    void rewind();
     boost::shared_ptr<RunPrincipal> beginRun();
     boost::shared_ptr<LuminosityBlockPrincipal> beginLuminosityBlock(boost::shared_ptr<RunPrincipal> rp);
+    std::auto_ptr<EventPrincipal> doOneEvent(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
+    std::auto_ptr<EventPrincipal> doOneEvent(EventID const& id);
+    void procOneEvent(EventPrincipal *pep);
     void endLuminosityBlock(LuminosityBlockPrincipal *lbp);
     void endRun(RunPrincipal *rp);
 
