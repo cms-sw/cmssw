@@ -78,7 +78,7 @@ void TestDataFrame::filling() {
     if (n%2==0)
       std::copy(sv1.begin(),sv1.end(),df.begin());  
     else
-      ::memcpy(&sv1[0],&df[0], sizeof(edm::DataFrame::data_type)*frames.stride());
+      ::memcpy(&df[0], &sv1[0], sizeof(edm::DataFrame::data_type)*frames.stride());
     
     std::vector<edm::DataFrame::data_type> v2(10);
     std::copy(frames.m_data.begin()+(n-1)*10,frames.m_data.begin()+n*10,v2.begin());

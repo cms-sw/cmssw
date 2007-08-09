@@ -37,7 +37,7 @@ namespace edm {
       DataContainer tmp(m_data.size());
       size_type s = m_stride*sizeof(data_type);
       for(size_type j=0, i=0; i!=indices.size(); ++i, j+=m_stride)
-	::memcpy(&m_data[indices[i]*m_stride],&tmp[j],s);
+	::memcpy(&tmp[j], &m_data[indices[i]*m_stride], s);
       tmp.swap(m_data);
     }
     
