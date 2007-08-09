@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2007/06/24 09:41:12 $
- * $Revision: 1.28 $
+ * $Date: 2007/07/27 16:41:50 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  *
 */
@@ -267,13 +267,23 @@ void EBTimingClient::cleanup(void) {
 
 }
 
-bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism) {
+bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
 
   bool status = true;
 
-  UtilsClient::printBadChannels(qth01_[ism-1]);
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
-//  UtilsClient::printBadChannels(qtg01_[ism-1]);
+    int ism = superModules_[i];
+
+    cout << " SM=" << ism << endl;
+
+    UtilsClient::printBadChannels(qth01_[ism-1]);
+
+//    UtilsClient::printBadChannels(qtg01_[ism-1]);
+
+    cout << endl;
+
+  }
 
   return status;
 

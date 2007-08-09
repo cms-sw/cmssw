@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2007/05/24 14:15:38 $
- * $Revision: 1.28 $
+ * $Date: 2007/05/25 14:08:27 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -198,7 +198,7 @@ void EBClusterClient::cleanup(void) {
 
 }
 
-bool EBClusterClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism) {
+bool EBClusterClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
 
   bool status = true;
 

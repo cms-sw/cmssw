@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/06/24 09:41:11 $
- * $Revision: 1.36 $
+ * $Date: 2007/07/18 09:37:55 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  *
 */
@@ -287,7 +287,7 @@ void EBSummaryClient::cleanup(void) {
 
 }
 
-bool EBSummaryClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism) {
+bool EBSummaryClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
 
   bool status = true;
 
