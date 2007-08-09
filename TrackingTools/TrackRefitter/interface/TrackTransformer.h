@@ -10,8 +10,8 @@
  *  pointers to the services, therefore EACH event the setServices(const edm::EventSetup&)
  *  method MUST be called in the code in which the TrackTransformer is used.
  *
- *  $Date: 2007/02/26 11:23:29 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/02/27 09:44:56 $
+ *  $Revision: 1.6 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -27,6 +27,7 @@ namespace reco {class TransientTrack;}
 
 class TrajectoryFitter;
 class TrajectorySmoother;
+class Propagator;
 class TransientTrackingRecHitBuilder;
 class Trajectory;
 
@@ -66,6 +67,10 @@ public:
  protected:
   
  private:
+  std::string thePropagatorName;
+  edm::ESHandle<Propagator> propagator() const {return thePropagator;}
+  edm::ESHandle<Propagator> thePropagator;
+  
   enum RefitDirection{insideOut,outsideIn,undetermined};
   
   unsigned long long theCacheId_TC;
@@ -73,6 +78,8 @@ public:
   unsigned long long theCacheId_MG;
   unsigned long long theCacheId_TRH;
   
+  bool theRPCInTheFit;
+
   RefitDirection theRefitDirection;
 
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;

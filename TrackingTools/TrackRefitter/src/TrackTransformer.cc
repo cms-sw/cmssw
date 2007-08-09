@@ -42,9 +42,12 @@ TrackTransformer::TrackTransformer(const ParameterSet& parameterSet){
   
   theFitterName = parameterSet.getParameter<string>("Fitter");  
   theSmootherName = parameterSet.getParameter<string>("Smoother");  
-  
+  thePropagatorName = parameterSet.getParameter<string>("Propagator");
+
   theTrackerRecHitBuilderName = parameterSet.getParameter<string>("TrackerRecHitBuilder");
   theMuonRecHitBuilderName = parameterSet.getParameter<string>("MuonRecHitBuilder");
+
+  theRPCInTheFit = parameterSet.getParameter<bool>("RefitRPCHits");
 
   theCacheId_TC = theCacheId_GTG = theCacheId_MG = theCacheId_TRH = 0;
 }
@@ -66,7 +69,7 @@ void TrackTransformer::setServices(const EventSetup& setup){
     setup.get<TrackingComponentsRecord>().get(theFitterName,theFitter);
     setup.get<TrackingComponentsRecord>().get(theSmootherName,theSmoother);
 
-    //    setup.get<TrackingComponentsRecord>().get(thePropagatorName,thePropagator);
+    setup.get<TrackingComponentsRecord>().get(thePropagatorName,thePropagator);
   }
 
   // Global Tracking Geometry
@@ -109,8 +112,13 @@ TrackTransformer::getTransientRecHits(const reco::TransientTrack& track) const {
     if((*hit)->isValid())
       if ( (*hit)->geographicalId().det() == DetId::Tracker )
 	result.push_back(theTrackerRecHitBuilder->build(&**hit));
-      else if ( (*hit)->geographicalId().det() == DetId::Muon )
+      else if ( (*hit)->geographicalId().det() == DetId::Muon ){
+	if( (*hit)->geographicalId().subdetId() == 3 && !theRPCInTheFit){
+	  LogDebug("Reco|TrackingTools|TrackTransformer") << "RPC Rec Hit discarged"; 
+	  continue;
+	}
 	result.push_back(theMuonRecHitBuilder->build(&**hit));
+      }
   
   return result;
 }
@@ -154,13 +162,18 @@ vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack) cons
 
   // Fill the starting state
   TrajectoryStateOnSurface firstTSOS;
-  if(theRefitDirection == insideOut)
+  unsigned int innerId;
+  if(theRefitDirection == insideOut){
+    innerId =   newTrack.innerDetId();
     firstTSOS = track.innermostMeasurementState();
-  else
+  }
+  else{
+    innerId   = newTrack.outerDetId();
     firstTSOS = track.outermostMeasurementState();
-  
+  }
+
   if(!firstTSOS.isValid()){
-    LogDebug(metname)<<"Propagation error!"<<endl;
+    LogWarning(metname)<<"Error wrong initial state!"<<endl;
     return vector<Trajectory>();
   }
 
@@ -176,6 +189,15 @@ vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack) cons
   // if(propDir == oppositeToMomentum && theRefitDirection == outsideIn) OK;
   
   TrajectorySeed seed(garbage1,garbage2,propDir);
+
+  if(recHitsForReFit.front()->geographicalId() != DetId(innerId)){
+    LogDebug(metname)<<"Propagation occured"<<endl;
+    firstTSOS = propagator()->propagate(firstTSOS, recHitsForReFit.front()->det()->surface());
+    if(!firstTSOS.isValid()){
+      LogDebug(metname)<<"Propagation error!"<<endl;
+      return vector<Trajectory>();
+    }
+  }
 
   vector<Trajectory> trajectories = theFitter->fit(seed,recHitsForReFit,firstTSOS);
   
@@ -195,3 +217,5 @@ vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack) cons
   
   return trajectoriesSM;
 }
+
+
