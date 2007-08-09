@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2007/07/27 16:41:56 $
- * $Revision: 1.4 $
+ * $Date: 2007/08/09 14:36:55 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -920,6 +920,15 @@ void EELedClient::subscribe(void){
         if ( qth21_[ism-1] ) mui_->useQTest(histo, qth21_[ism-1]->getName());
       }
     }
+
+    sprintf(histo, "EcalEndcap/EELaserTask/EELDT led quality %s", Numbers::sEE(ism).c_str());
+    if ( qtg01_[ism-1] ) mui_->useQTest(histo, qtg01_[ism-1]->getName());
+
+    sprintf(histo, "EcalEndcap/EELaserTask/EELDT led quality PNs %s G01", Numbers::sEE(ism).c_str());
+    if ( qtg05_[ism-1] ) mui_->useQTest(histo, qtg05_[ism-1]->getName());
+
+    sprintf(histo, "EcalEndcap/EELaserTask/EELDT led quality PNs %s G16", Numbers::sEE(ism).c_str());
+    if ( qtg09_[ism-1] ) mui_->useQTest(histo, qtg09_[ism-1]->getName());
 
   }
 
