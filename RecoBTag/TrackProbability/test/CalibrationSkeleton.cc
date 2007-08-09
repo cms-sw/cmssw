@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: CalibrationSkeleton.cc,v 1.3 2007/07/26 08:54:00 arizzi Exp $
+// $Id: CalibrationSkeleton.cc,v 1.4 2007/07/26 09:17:05 arizzi Exp $
 //
 //
 
@@ -83,8 +83,8 @@ using namespace reco;
 class CalibrationSkeleton : public edm::EDAnalyzer {
    public:
   explicit CalibrationSkeleton(const edm::ParameterSet&);
-  
-  virtual void beginJob()
+
+  virtual void beginJob(const edm::EventSetup&)
   {
     bool resetData=true;
     bool newBinning=false;
