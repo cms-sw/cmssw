@@ -77,6 +77,8 @@ namespace edm {
       m_ids.resize(isize);
       m_data.resize(isize*m_stride);
     }
+
+    void sort();
     
     // FIXME not sure what the best way to add one cell to cont
     void push_back(id_type iid, data_type const * idata) {
@@ -149,6 +151,8 @@ namespace edm {
 
     size_type stride() const { return m_stride; }
     
+    bool empty() const { return m_ids().empty();}
+
     size_type size() const { return m_ids.size();}
     
     data_type operator()(size_t cell, size_t frame) const {
