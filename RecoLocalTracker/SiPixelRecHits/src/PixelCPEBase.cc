@@ -5,6 +5,9 @@
 // G. Giurgiu (ggiurgiu@pha.jhu.edu), 12/01/06, implemented the function: 
 // computeAnglesFromDetPosition(const SiPixelCluster & cl, 
 //			        const GeomDetUnit    & det ) const
+//                                    09/09/07, replaced assert statements with throw cms::Exception 
+//                                              and fix an invalid pointer check in setTheDet function 
+
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
@@ -61,16 +64,20 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *
 void
 PixelCPEBase::setTheDet( const GeomDetUnit & det ) const 
 {
+  //--- This is a new det unit, so cache it
+  theDet = dynamic_cast<const PixelGeomDetUnit*>( &det );
+
+  if ( !theDet ) 
+    {
+      // &&& Fatal error!  TO DO: throw an exception!
+      
+      throw cms::Exception(" PixelCPEBase::setTheDet : ")
+            << " Wrong pointer to PixelGeomDetUnit object !!!";
+    }
+
   if ( theDet == &det )
     return;       // we have already seen this det unit
 
-  //--- This is a new det unit, so cache it
-  theDet = dynamic_cast<const PixelGeomDetUnit*>( &det );
-  if (! theDet) 
-    {
-      // &&& Fatal error!  TO DO: throw an exception!
-      assert(0);
-    }
   
   //--- theDet->type() returns a GeomDetType, which implements subDetector()
   thePart = theDet->type().subDetector();
@@ -83,10 +90,8 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det ) const
       // A forward!  A forward!
       break;
     default:
-      LogDebug("PixelCPEBase") 
-	<< "PixelCPEBase:: a non-pixel detector type in here?" ;
-      //  &&& Should throw an exception here!
-      assert(0);
+      throw cms::Exception("PixelCPEBase::setTheDet :")
+      	<< "PixelCPEBase: A non-pixel detector type in here?" ;
     }
        
   //--- The location in of this DetUnit in a cyllindrical coord system (R,Z)
@@ -159,11 +164,11 @@ computeAnglesFromDetPosition(const SiPixelCluster & cl,
 {
   //--- This is a new det unit, so cache it
   theDet = dynamic_cast<const PixelGeomDetUnit*>( &det );
-  if (! theDet) 
+  if ( ! theDet ) 
     {
-      // &&& Fatal error!  TO DO: throw an exception!
-      cout << "---------------------------------------------- Not a pixel detector !!!!!!!!!!!!!!" << endl;
-      assert(0);
+      throw cms::Exception("PixelCPEBase::computeAngleFromDetPosition")
+	<< " Wrong pointer to pixel detector !!!" << endl;
+    
     }
 
   // get cluster center of gravity (of charge)
