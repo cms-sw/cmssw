@@ -40,6 +40,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -65,6 +66,62 @@ namespace edm {
     private:
       EventProcessor* ep_;
       bool success_;
+    };
+
+    class LuminosityBlockSentry
+    {
+    public:
+      LuminosityBlockSentry(EventProcessor* ep):ep_(ep) { }
+      ~LuminosityBlockSentry() {
+	if (ep_->lbp_) {
+	  try {
+	    ep_->endLuminosityBlock(ep_->lbp_.get());  
+	    ep_->lbp_.reset();
+	  }
+          catch (cms::Exception& e) {
+            printCmsException(e);
+          }
+          catch (std::bad_alloc& e) {
+	    printBadAllocException();
+          }
+          catch (std::exception& e) {
+            printStdException(e);
+          }
+          catch (...) {
+            printUnknownException();
+          }
+        }
+      }
+    private:
+      EventProcessor* ep_;
+    };
+
+    class RunSentry
+    {
+    public:
+      RunSentry(EventProcessor* ep):ep_(ep) { }
+      ~RunSentry() {
+	if (ep_->rp_) {
+	  try {
+	    ep_->endRun(ep_->rp_.get());  
+	    ep_->rp_.reset();
+	  }
+          catch (cms::Exception& e) {
+            printCmsException(e);
+          }
+          catch (std::bad_alloc& e) {
+	    printBadAllocException();
+          }
+          catch (std::exception& e) {
+            printStdException(e);
+          }
+          catch (...) {
+            printUnknownException();
+          }
+        }
+      }
+    private:
+      EventProcessor* ep_;
     };
   }
 
@@ -816,6 +873,7 @@ namespace edm {
 
   EventProcessor::StatusCode
   EventProcessor::processLumis(int & numberEventsToProcess, bool repeatable) {
+    LuminosityBlockSentry lumiSentry(this);
     bool got_sig = false;
     StatusCode rc = epSuccess;
 
@@ -863,8 +921,9 @@ namespace edm {
   EventProcessor::StatusCode
   EventProcessor::processRuns(int numberEventsToProcess, bool repeatable, Msg m) {
     bk::beginRuns(); // routine only for breakpointing
-    changeState(m);
+    RunSentry runSentry(this);
     StateSentry toerror(this);
+    changeState(m);
 
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
@@ -1467,4 +1526,5 @@ namespace edm {
     }
     FDEBUG(2) << "asyncRun ending >>>>>>>>>>>>>>>>>>>>>>\n";
   }
+
 }
