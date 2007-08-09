@@ -13,28 +13,44 @@
 
 using namespace sistrip;
 
-SiStripRegionCabling::SiStripRegionCabling(const uint32_t EtaDivisions, const uint32_t PhiDivisions, const double EtaMax) :
+SiStripRegionCabling::SiStripRegionCabling(const uint32_t etadivisions, const uint32_t phidivisions, const double etamax) :
 
-  etadivisions_(EtaDivisions),
-  phidivisions_(PhiDivisions),
-  etamax_(EtaMax),
+  etadivisions_(static_cast<int>(etadivisions)),
+  phidivisions_(static_cast<int>(phidivisions)),
+  etamax_(etamax),
   regioncabling_()
 
-{;}
+{}
 
-const SiStripRegionCabling::PositionIndex SiStripRegionCabling::positionIndex(Position position) const {
-  uint32_t eta = (uint32_t)((position.first+etamax_)*etadivisions_/(2.*etamax_));
-  if (eta >= etadivisions_) eta = etadivisions_ - 1;
-  if (eta < 0) eta = 0;
-  return PositionIndex(eta,(uint32_t)((position.second+M_PI)*phidivisions_/(2.*M_PI)));
+const SiStripRegionCabling::PositionIndex SiStripRegionCabling::positionIndex(const Position position) const {
+  int eta = (etamax_) ? static_cast<int>((position.first+etamax_)*etadivisions_/(2.*etamax_)) : 0;
+  int phi = static_cast<int>((position.second+M_PI)*phidivisions_/(2.*M_PI));
+  if (eta > etadivisions_-1) eta = etadivisions_-1;
+  else if (eta < 0) eta = 0;
+  return PositionIndex(static_cast<uint32_t>(eta),static_cast<uint32_t>(phi));
 }
 
-const SiStripRegionCabling::Region SiStripRegionCabling::region(Position position) const {
+const SiStripRegionCabling::Region SiStripRegionCabling::region(const Position position) const {
   PositionIndex index = positionIndex(position); 
   return region(index);
 }
 
-const SiStripRegionCabling::SubDet SiStripRegionCabling::subdetFromDetId(uint32_t detid) {
+void SiStripRegionCabling::increment(PositionIndex& index, int deta, int dphi) const {
+  
+  int eta = static_cast<int>(index.first);
+  eta+=deta;
+  if (eta > etadivisions_-1) eta = etadivisions_-1;
+  else if (eta < 0) eta = 0;
+  index.first = static_cast<uint32_t>(eta);
+  
+  int phi = static_cast<int>(index.second);
+  phi+=dphi;
+  while (phi<0) phi+=phidivisions_;
+  while (phi>phidivisions_-1) phi-=phidivisions_;
+  index.second = static_cast<uint32_t>(phi);
+}
+
+const SiStripRegionCabling::SubDet SiStripRegionCabling::subdetFromDetId(const uint32_t detid) {
 
   SiStripDetId::SubDetector subdet = SiStripDetId(detid).subDetector();
   if (subdet == 3) return SiStripRegionCabling::TIB;
@@ -44,7 +60,7 @@ const SiStripRegionCabling::SubDet SiStripRegionCabling::subdetFromDetId(uint32_
   else return SiStripRegionCabling::UNKNOWN;
 }
 
-const SiStripRegionCabling::Layer SiStripRegionCabling::layerFromDetId(uint32_t detid) {
+const SiStripRegionCabling::Layer SiStripRegionCabling::layerFromDetId(const uint32_t detid) {
  
   if (subdet(detid) == SiStripRegionCabling::TIB) return TIBDetId(detid).layer();
   else if (subdet(detid) == SiStripRegionCabling::TOB) return TOBDetId(detid).layer(); 
