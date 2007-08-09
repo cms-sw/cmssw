@@ -292,9 +292,9 @@ void ProcTMVA::runTMVATrainer()
 			<< "Not going to run TMVA: "
 			   "No signal or background events!" << std::endl;
 
-	std::auto_ptr<TFile> file(std::auto_ptr<TFile>(TFile::Open(
+	std::auto_ptr<TFile> file(TFile::Open(
 		trainer->trainFileName(this, "root", "output").c_str(),
-		"RECREATE")));
+		"RECREATE"));
 	if (!file.get())
 		throw cms::Exception("ProcTMVA")
 			<< "Could not open TMVA ROOT file for writing."
