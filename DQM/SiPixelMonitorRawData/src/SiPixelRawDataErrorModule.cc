@@ -79,6 +79,20 @@ void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig) {
   hid = theHistogramId->setHistoId("errorType",id_);
   meErrorType_ = theDMBE->book1D(hid,"Type of errors",39,25.,39.);
   meErrorType_->setAxisTitle("Type of errors",1);
+  // Number of errors
+  hid = theHistogramId->setHistoId("NErrors",id_);
+  meNErrors_ = theDMBE->book1D(hid,"Number of errors",500,0.,500.);
+  meNErrors_->setAxisTitle("Number of errors",1);
+  // Type of FIFO full (errorType = 28).  FIFO 1 is 1-5 (where fullType = channel of FIFO 1), 
+  // fullType = 6 signifies FIFO 2 nearly full, 7 signifies trigger FIFO nearly full, 8 
+  // indicates an unexpected result
+  hid = theHistogramId->setHistoId("fullType",id_);
+  meFullType_ = theDMBE->book1D(hid,"Type of FIFO full",9,1.,9.);
+  meFullType_->setAxisTitle("FIFO type",1);
+  // For errorType = 29, channel with timeout error (6 indicates unexpected result)
+  hid = theHistogramId->setHistoId("chanNmbr",id_);
+  meChanNmbr_ = theDMBE->book1D(hid,"Timeout Channel",65,1.,65.);
+  meChanNmbr_->setAxisTitle("Channel number",1);
   // For error type 30, the type of problem encoded in the TBM error trailer
   // 1 = FSM errors, 2 = invalid # of ROCs, 3 = data stream too long, 4 = unexpected
   hid = theHistogramId->setHistoId("TBMType",id_);
@@ -88,6 +102,14 @@ void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig) {
   hid = theHistogramId->setHistoId("EvtNbr",id_);
   meEvtNbr_ = theDMBE->book1D(hid,"Event number for error type 31",256,0.,256.);
   meEvtNbr_->setAxisTitle("Event number",1);
+  // For errorType = 34, datastream size according to error word
+  hid = theHistogramId->setHistoId("evtSize",id_);
+  meEvtSize_ = theDMBE->book1D(hid,"Header Datastream Size",500,0.,500.);
+  meEvtSize_->setAxisTitle("Number of words",1);
+  // For errorType = 35, the bad channel number
+  hid = theHistogramId->setHistoId("linkId",id_);
+  meLinkId_ = theDMBE->book1D(hid,"Invalid Channel Number",65,1.,65.);
+  meLinkId_->setAxisTitle("Channel number",1);
   // For error type 36, the invalid ROC number
   hid = theHistogramId->setHistoId("ROCId",id_);
   meROCId_ = theDMBE->book1D(hid,"ROC number for error type 36",25,0.,25.);
@@ -104,41 +126,6 @@ void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig) {
   hid = theHistogramId->setHistoId("ROCNmbr",id_);
   meROCNmbr_ = theDMBE->book1D(hid,"ROC number for error type 38",25,0.,25.);
   meROCNmbr_->setAxisTitle("ROC number on DetUnit",1);
-  delete theHistogramId;
-}
-//
-// Book histograms for errors without detId
-//
-void SiPixelRawDataErrorModule::bookAlt(const edm::ParameterSet& iConfig) {
-
-  std::string hid;
-  // Get collection name and instantiate Histo Id builder
-  edm::InputTag src = iConfig.getParameter<edm::InputTag>( "src" );
-  SiPixelHistogramId* theHistogramId = new SiPixelHistogramId( src.label() );
-  // Get DQM interface
-  DaqMonitorBEInterface* theDMBE = edm::Service<DaqMonitorBEInterface>().operator->();
-  // Types of errors
-  hid = theHistogramId->setHistoId("errorType",id_);
-  meErrorType_ = theDMBE->book1D(hid,"Type of errors",39,25.,39.);
-  meErrorType_->setAxisTitle("Type of errors",1);
-  // Type of FIFO full (errorType = 28).  FIFO 1 is 1-5 (where fullType = channel of FIFO 1), 
-  // fullType = 6 signifies FIFO 2 nearly full, 7 signifies trigger FIFO nearly full, 8 
-  // indicates an unexpected result
-  hid = theHistogramId->setHistoId("fullType",id_);
-  meFullType_ = theDMBE->book1D(hid,"Type of FIFO full",9,1.,9.);
-  meFullType_->setAxisTitle("FIFO type",1);
-  // For errorType = 29, channel with timeout error (6 indicates unexpected result)
-  hid = theHistogramId->setHistoId("chanNmbr",id_);
-  meChanNmbr_ = theDMBE->book1D(hid,"Timeout Channel",65,1.,65.);
-  meChanNmbr_->setAxisTitle("Channel number",1);
-  // For errorType = 34, datastream size according to error word
-  hid = theHistogramId->setHistoId("evtSize",id_);
-  meEvtSize_ = theDMBE->book1D(hid,"Header Datastream Size",500,0.,500.);
-  meEvtSize_->setAxisTitle("Number of words",1);
-  // For errorType = 35, the bad channel number
-  hid = theHistogramId->setHistoId("linkId",id_);
-  meLinkId_ = theDMBE->book1D(hid,"Invalid Channel Number",65,1.,65.);
-  meLinkId_->setAxisTitle("Channel number",1);
 
   delete theHistogramId;
 }

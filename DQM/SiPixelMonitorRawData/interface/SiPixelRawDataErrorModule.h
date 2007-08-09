@@ -11,7 +11,7 @@
  Error monitoring elements for a Pixel sensor.
 
  Implementation:
- Contains three functions to monitor error information.  "book" creates histograms in physical detector units, "bookAlt" creates the histograms for detId = 0xffffffff, and "fill" fills the monitoring elements with input error information.  
+ Contains three functions to monitor error information.  "book" creates histograms in detector units and "fill" fills the monitoring elements with input error information.  
      
 */
 //
@@ -41,8 +41,6 @@ class SiPixelRawDataErrorModule {
 
   /// Book histograms
   void book(const edm::ParameterSet& iConfig);
-  /// Book histograms for errors with no detId
-  void bookAlt(const edm::ParameterSet& iConfig);
   /// Fill histograms
   void fill(const edm::DetSetVector<SiPixelRawDataError> & input);
   
@@ -51,18 +49,19 @@ class SiPixelRawDataErrorModule {
   uint32_t id_;
   int ncols_;
   int nrows_;
-  MonitorElement* meNErrors_;
+
   MonitorElement* meErrorType_;
+  MonitorElement* meNErrors_;
+  MonitorElement* meFullType_;
+  MonitorElement* meChanNmbr_;
   MonitorElement* meTBMType_;
   MonitorElement* meEvtNbr_;
+  MonitorElement* meEvtSize_;
+  MonitorElement* meLinkId_;
   MonitorElement* meROCId_;
   MonitorElement* meDCOLId_;
   MonitorElement* mePXId_;
   MonitorElement* meROCNmbr_;
-  MonitorElement* meFullType_;
-  MonitorElement* meChanNmbr_;
-  MonitorElement* meEvtSize_;
-  MonitorElement* meLinkId_;
 
   static const int LINK_bits,  ROC_bits,  DCOL_bits,  PXID_bits,  ADC_bits, TRLRBGN_bits, EVTLGT_bits, TRLREND_bits;
   static const int LINK_shift, ROC_shift, DCOL_shift, PXID_shift, ADC_shift, TRLRBGN_shift, EVTLGT_shift, TRLREND_shift;

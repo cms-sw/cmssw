@@ -169,9 +169,8 @@ void SiPixelRawDataErrorSource::bookMEs(){
     
     /// Create folder tree and book histograms 
     if(theSiPixelFolder.setModuleFolder((*struct_iter).first)){
-      if((*struct_iter).first != 0xffffffff) (*struct_iter).second->book( conf_ );
-      else (*struct_iter).second->bookAlt( conf_ );
-    } 
+      (*struct_iter).second->book( conf_ );
+    }
     else {
       throw cms::Exception("LogicError")
 	<< "[SiPixelRawDataErrorSource::bookMEs] Creation of DQM folder failed";
