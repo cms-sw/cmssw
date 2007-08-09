@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/04/30 13:49:00 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/04/30 19:47:45 $
+ *  $Revision: 1.8 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -271,10 +271,10 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
     return;
   }  
   EBdigis = EcalDigiEB.product();
-  if (EBdigis->size() == 0) isBarrel = false;
+  if ( EcalDigiEB->size() == 0) isBarrel = false;
 
   if (isBarrel) {
-
+    
     // loop over simhits
     const std::string barrelHitsName("EcalHitsEB");
     std::auto_ptr<MixCollection<PCaloHit> >
@@ -287,7 +287,7 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
 	   = barrelHits->begin();
 	 hitItr != barrelHits->end();
 	 ++hitItr) {
-
+      
       EBDetId ebid = EBDetId(hitItr->id());
 
       uint32_t crystid = ebid.rawId();
@@ -305,30 +305,40 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
     ebADCGains.reserve(EBDataFrame::MAXSAMPLES);
 
     int i = 0;
-    for (std::vector<EBDataFrame>::const_iterator digis =
-	   barrelDigi->begin();
-	 digis != barrelDigi->end();
-	 ++digis) {
+    for (unsigned int digis=0; digis<EcalDigiEB->size(); ++digis) 
+    {
+      //for (std::vector<EBDataFrame>::const_iterator digis =
+      //   barrelDigi->begin();
+      // digis != barrelDigi->end();
+      // ++digis) {
 
       ++i;
 
-      EBDetId ebid = digis->id();
+      EBDataFrame ebdf = (*barrelDigi)[digis];
+      int nrSamples = ebdf.size();
+      
+      EBDetId ebid = ebdf.id () ;
+      //EBDetId ebid = digis->id();
 
       double Emax = 0;
       int Pmax = 0;
       double pedestalPreSample = 0.;
       double pedestalPreSampleAnalog = 0.;
         
-      for (int sample = 0; sample < digis->size(); ++sample) {
+      for (int sample = 0 ; sample < nrSamples; ++sample) {
+      //for (int sample = 0; sample < digis->size(); ++sample) {
 	ebAnalogSignal[sample] = 0.;
 	ebADCCounts[sample] = 0.;
 	ebADCGains[sample] = -1.;
       }
   
       // calculate maximum energy and pedestal
-      for (int sample = 0; sample < digis->size(); ++sample) {
-	ebADCCounts[sample] = (digis->sample(sample).adc());
-	ebADCGains[sample] = (digis->sample(sample).gainId());
+      for (int sample = 0 ; sample < nrSamples; ++sample) {
+	//for (int sample = 0; sample < digis->size(); ++sample) {
+
+	EcalMGPASample thisSample = ebdf[sample];
+	ebADCCounts[sample] = (thisSample.adc());
+	ebADCGains[sample]  = (thisSample.gainId());
 	ebAnalogSignal[sample] = 
 	  (ebADCCounts[sample] * ECalgainConv_[(int)ebADCGains[sample]]
 	   * ECalbarrelADCtoGeV_);
@@ -350,7 +360,7 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
       // calculate pedestal subtracted digi energy in the crystal
       double Erec = Emax - pedestalPreSampleAnalog
 	* ECalgainConv_[(int)ebADCGains[Pmax]];
-
+      
       // gather necessary information
       EBCalAEE.push_back(Erec);
       EBCalSHE.push_back(ebSimMap[ebid.rawId()]);
@@ -376,7 +386,7 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
     return;
   }  
   EEdigis = EcalDigiEE.product();
-  if (EEdigis->size() == 0) isEndCap = false;
+  if (EcalDigiEE->size() == 0) isEndCap = false;
 
   if (isEndCap) {
 
@@ -410,30 +420,40 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
     eeADCGains.reserve(EEDataFrame::MAXSAMPLES);
 
     int i = 0;
-    for (std::vector<EEDataFrame>::const_iterator digis =
-	   endcapDigi->begin();
-	 digis != endcapDigi->end();
-	 ++digis) {
-
+    //for (std::vector<EEDataFrame>::const_iterator digis =
+    //   endcapDigi->begin();
+    // digis != endcapDigi->end();
+    // ++digis) {
+    for (unsigned int digis=0; digis<EcalDigiEE->size(); ++digis){ 
+    
       ++i;
 
-      EEDetId eeid = digis->id();
+      EEDataFrame eedf = (*endcapDigi)[digis];
+      int nrSamples = eedf.size();
+      
+      EEDetId eeid = eedf.id () ;
+      //EEDetId eeid = digis->id();
 
       double Emax = 0;
       int Pmax = 0;
       double pedestalPreSample = 0.;
       double pedestalPreSampleAnalog = 0.;
         
-      for (int sample = 0; sample < digis->size(); ++sample) {
+      for (int sample = 0 ; sample < nrSamples; ++sample) {
+      //for (int sample = 0; sample < digis->size(); ++sample) {
 	eeAnalogSignal[sample] = 0.;
 	eeADCCounts[sample] = 0.;
 	eeADCGains[sample] = -1.;
       }
   
       // calculate maximum enery and pedestal
-      for (int sample = 0; sample < digis->size(); ++sample) {
-	eeADCCounts[sample] = (digis->sample(sample).adc());
-	eeADCGains[sample] = (digis->sample(sample).gainId());
+      for (int sample = 0 ; sample < nrSamples; ++sample) {
+	//for (int sample = 0; sample < digis->size(); ++sample) {
+
+	EcalMGPASample thisSample = eedf[sample];
+
+	eeADCCounts[sample] = (thisSample.adc());
+	eeADCGains[sample]  = (thisSample.gainId());
 	eeAnalogSignal[sample] = 
 	  (eeADCCounts[sample] * ECalgainConv_[(int)eeADCGains[sample]]
 	   * ECalbarrelADCtoGeV_);
@@ -481,7 +501,7 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
     return;
   }  
   ESdigis = EcalDigiES.product();
-  if (ESdigis->size() == 0) isPreshower = false;
+  if (EcalDigiES->size() == 0) isPreshower = false;
 
   if (isPreshower) {
 
@@ -511,24 +531,34 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
     esADCCounts.reserve(ESDataFrame::MAXSAMPLES);
 
     int i = 0;
-    for (std::vector<ESDataFrame>::const_iterator digis =
-	   preshowerDigi->begin();
-	 digis != preshowerDigi->end();
-	 ++digis) {
+    for (unsigned int digis=0; digis<EcalDigiES->size(); ++digis) {
+    //for (std::vector<ESDataFrame>::const_iterator digis =
+    //   preshowerDigi->begin();
+    // digis != preshowerDigi->end();
+    // ++digis) {
 
       ++i;
 
-      ESDetId esid = digis->id();
+
+      ESDataFrame esdf = (*preshowerDigi)[digis];
+      int nrSamples = esdf.size();
+      
+      ESDetId esid = esdf.id () ;
+      // ESDetId esid = digis->id();
         
-      for (int sample = 0; sample < digis->size(); ++sample) {
+      for (int sample = 0 ; sample < nrSamples; ++sample) {
+      //for (int sample = 0; sample < digis->size(); ++sample) {
 	esADCCounts[sample] = 0.;
       }
   
       // gether ADC counts
-      for (int sample = 0; sample < digis->size(); ++sample) {
-	esADCCounts[sample] = (digis->sample(sample).adc());
-      }
+      for (int sample = 0 ; sample < nrSamples; ++sample) {
 
+	ESSample thisSample = esdf[sample];
+	//for (int sample = 0; sample < digis->size(); ++sample) {
+	esADCCounts[sample] = (thisSample.adc());
+      }
+      
       ESCalADC0.push_back(esADCCounts[0]);
       ESCalADC1.push_back(esADCCounts[1]);
       ESCalADC2.push_back(esADCCounts[2]);
