@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/07/27 16:41:49 $
- * $Revision: 1.170 $
+ * $Date: 2007/08/09 12:24:18 $
+ * $Revision: 1.171 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1160,6 +1160,11 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
     UtilsClient::printBadChannels(qth07_[ism-1]);
     UtilsClient::printBadChannels(qth04_[ism-1]);
     UtilsClient::printBadChannels(qth08_[ism-1]);
+
+//    UtilsClient::printBadChannels(qtg01_[ism-1]);
+//    UtilsClient::printBadChannels(qtg02_[ism-1]);
+//    UtilsClient::printBadChannels(qtg03_[ism-1]);
+//    UtilsClient::printBadChannels(qtg04_[ism-1]);
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
