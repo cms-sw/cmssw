@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/08/10 12:44:36 $
- * $Revision: 1.41 $
+ * $Date: 2007/08/10 17:18:57 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  *
 */
@@ -1334,33 +1334,33 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
 void EBSummaryClient::writeMap( std::ofstream& hf, std::string mapname ) {
 
- std::map<std::string, std::string> refhtml;
- refhtml["Integrity"] = "EBIntegrityClient.html";
- refhtml["Occupancy"] = "EBIntegrityClient.html";
- refhtml["PedestalOnline"] = "EBPedestalOnlineClient.html";
- refhtml["LaserL1"] = "EBLaserClient.html";
- refhtml["Pedestal"] = "EBPedestalClient.html";
- refhtml["TestPulse"] = "EBTestPulseClient.html";
+  std::map<std::string, std::string> refhtml;
+  refhtml["Integrity"] = "EBIntegrityClient.html";
+  refhtml["Occupancy"] = "EBIntegrityClient.html";
+  refhtml["PedestalOnline"] = "EBPedestalOnlineClient.html";
+  refhtml["LaserL1"] = "EBLaserClient.html";
+  refhtml["Pedestal"] = "EBPedestalClient.html";
+  refhtml["TestPulse"] = "EBTestPulseClient.html";
 
- const int A0 =  85;
- const int A1 = 759;
- const int B0 =  35;
- const int B1 = 334;
+  const int A0 =  85;
+  const int A1 = 759;
+  const int B0 =  35;
+  const int B1 = 334;
 
- hf << "<map name=\"" << mapname << "\">" << std::endl;
- for( unsigned int sm=0; sm<superModules_.size(); sm++ ) {
-  int i=(superModules_[sm]-1)/18;
-  int j=(superModules_[sm]-1)%18;
-  int x0 = A0 + (A1-A0)*j/18;
-  int x1 = A0 + (A1-A0)*(j+1)/18;
-  int y0 = B0 + (B1-B0)*(1-i)/2;
-  int y1 = B0 + (B1-B0)*((1-i)+1)/2;
-  hf << "<area title=\"" << Numbers::sEB((j+1)+18*i).c_str()
-     << "\" shape=\"rect\" href=\"" << refhtml[mapname] << "#"
+  hf << "<map name=\"" << mapname << "\">" << std::endl;
+  for( unsigned int sm=0; sm<superModules_.size(); sm++ ) {
+   int i=(superModules_[sm]-1)/18;
+   int j=(superModules_[sm]-1)%18;
+   int x0 = A0 + (A1-A0)*j/18;
+   int x1 = A0 + (A1-A0)*(j+1)/18;
+   int y0 = B0 + (B1-B0)*(1-i)/2;
+   int y1 = B0 + (B1-B0)*((1-i)+1)/2;
+   hf << "<area title=\"" << Numbers::sEB((j+1)+18*i).c_str()
+      << "\" shape=\"rect\" href=\"" << refhtml[mapname] << "#"
      << Numbers::sEB((j+1)+18*i).c_str() << "\" coords=\"";
-  hf << x0 << ", " << y0 << ", " << x1 << ", " << y1 << "\">" << std::endl;
- }
- hf << "</map>" << std::endl;
+   hf << x0 << ", " << y0 << ", " << x1 << ", " << y1 << "\">" << std::endl;
+  }
+  hf << "</map>" << std::endl;
 
 }
 
