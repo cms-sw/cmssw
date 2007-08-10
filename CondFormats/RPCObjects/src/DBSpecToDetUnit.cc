@@ -2,10 +2,12 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "CondFormats/RPCObjects/interface/ChamberLocationSpec.h"
 #include "CondFormats/RPCObjects/interface/FebLocationSpec.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <string>
 
 using namespace std;
+using namespace edm;
 
 uint32_t DBSpecToDetUnit::operator()(const ChamberLocationSpec & ch, 
    const FebLocationSpec & feb)
@@ -45,14 +47,20 @@ uint32_t DBSpecToDetUnit::operator()(const ChamberLocationSpec & ch,
  
   //SUBSECTOR
   int subsector = 1;
+
   if (barrel) {
     if (station==3 && ch.subsector=="+") subsector = 2;
     if (station==4 && 
          (   sector==1 || sector==2 || sector==3 
                        || sector==5 || sector==6   
           || sector==7 || sector==8 
-          || sector==10             || sector==12)
-          && (ch.subsector=="+"))          subsector = 2;
+          || sector==10)
+          && (ch.subsector=="+")) {
+         subsector = 2;
+    }
+
+    if (station==4 && sector==12 && (ch.subsector=="-")) subsector = 2;
+
     if (station==4 && sector==4) {
       if (ch.subsector=="--") subsector=1;
       if (ch.subsector=="-")  subsector=2;
