@@ -173,6 +173,9 @@ void TestHits::beginJob(const edm::EventSetup& iSetup)
 	hPullGP_Z_rs_stereo[title.str()] = new TH1F(title.str().c_str(),title.str().c_str(),1000,-50,50);
       }
     }
+  hTotChi2Increment = new TH1F("TotChi2Increment","TotChi2Increment",1000,0,100);
+  hChi2_vs_Process  = new TH2F("Chi2_vs_Process","Chi2_vs_Process",1000,0,100,17,-0.5,16.5);  
+  hChi2_vs_clsize  = new TH2F("Chi2_vs_clsize","Chi2_vs_clsize",1000,0,100,17,-0.5,16.5);
 }
 
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
@@ -271,6 +274,12 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       title.str("");
       title << "Chi2Increment_" << subdetId << "-" << layerId;
       hChi2Increment[title.str()]->Fill( chi2increment );
+      hTotChi2Increment->Fill( chi2increment );
+      hChi2_vs_Process->Fill( chi2increment, shit.processType() );
+      if (dynamic_cast<const SiPixelRecHit*>((*rhit)->hit()))	
+	hChi2_vs_clsize->Fill( chi2increment, ((const SiPixelRecHit*)(*rhit)->hit())->cluster()->size() );
+      if (dynamic_cast<const SiStripRecHit2D*>((*rhit)->hit()))	
+	hChi2_vs_clsize->Fill( chi2increment, ((const SiStripRecHit2D*)(*rhit)->hit())->cluster()->amplitudes().size() );
       
       LogTrace("TestHits") << "rs" << std::endl;
 
@@ -584,6 +593,10 @@ void TestHits::endJob() {
   TDirectory * gp_rsy_stereo = gp_rs->mkdir("STEREOY");
   TDirectory * gp_rsz_stereo = gp_rs->mkdir("STEREOZ");
 
+  chi2i->cd();
+  hTotChi2Increment->Write();
+  hChi2_vs_Process->Write();
+  hChi2_vs_clsize->Write();
   for (int i=0; i!=6; i++)
     for (int j=0; j!=9; j++){
       if (i==0 && j>2) break;

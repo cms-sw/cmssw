@@ -7,7 +7,7 @@
 // Package:    TestHits
 // Class:      TestHits
 // 
-/**\class TestHits TestHits.cc RecoTracker/TestHits/src/TestHits.cc
+/**\class TestHits TestHits.cc RecoTracker/DebugTools/src/TestHits.cc
 
  Description: <one line class summary>
 
@@ -17,7 +17,7 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Tue Feb 13 17:29:10 CET 2007
-// $Id: TestHits.h,v 1.1 2007/03/26 13:12:05 cerati Exp $
+// $Id: TestHits.h,v 1.2 2007/06/27 18:13:43 cerati Exp $
 //
 //
 #include <memory>
@@ -45,6 +45,7 @@
 #include <sstream>
 #include <TFile.h>
 #include <TH1F.h>
+#include <TH2F.h>
 
 class TestHits : public edm::EDAnalyzer {
 public:
@@ -58,14 +59,14 @@ private:
   template<unsigned int D> 
     double computeChi2Increment(MeasurementExtractor, TransientTrackingRecHit::ConstRecHitPointer);
   double computeChi2Increment(MeasurementExtractor me, TransientTrackingRecHit::ConstRecHitPointer hit) {
-        switch (hit->dimension()) {
-                case 1: return computeChi2Increment<1>(me,hit);
-                case 2: return computeChi2Increment<2>(me,hit);
-                case 3: return computeChi2Increment<3>(me,hit);
-                case 4: return computeChi2Increment<4>(me,hit);
-                case 5: return computeChi2Increment<5>(me,hit);
-        }
-        throw cms::Exception("CkfDebugger error: rechit of dimension not 1,2,3,4,5");
+    switch (hit->dimension()) {
+    case 1: return computeChi2Increment<1>(me,hit);
+    case 2: return computeChi2Increment<2>(me,hit);
+    case 3: return computeChi2Increment<3>(me,hit);
+    case 4: return computeChi2Increment<4>(me,hit);
+    case 5: return computeChi2Increment<5>(me,hit);
+    }
+    throw cms::Exception("CkfDebugger error: rechit of dimension not 1,2,3,4,5");
   }
 
   const edm::ParameterSet conf_;
@@ -99,6 +100,8 @@ private:
   std::map<std::string,TH1F*> hPullGP_Y_tr;
   std::map<std::string,TH1F*> hPullGP_Z_tr;
   std::map<std::string,TH1F*> hChi2Increment;
+  TH1F * hTotChi2Increment;
+  TH2F * hChi2_vs_Process, *hChi2_vs_clsize;
 
   std::map<std::string,TH1F*> hPullGP_X_ts_mono;
   std::map<std::string,TH1F*> hPullGP_Y_ts_mono;
