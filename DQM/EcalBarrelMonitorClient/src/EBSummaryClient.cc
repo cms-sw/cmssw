@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/08/10 11:37:39 $
- * $Revision: 1.40 $
+ * $Date: 2007/08/10 12:44:36 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  *
 */
@@ -1208,7 +1208,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<tr align=\"center\">" << endl;
 
   if ( imgNameMapI.size() != 0 )
-    htmlFile << "<td><img src=\"" << imgNameMapI << "\" usemap=""#Integrity"" border=0></td>" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapI << "\" usemap=\"#Integrity\" border=0></td>" << endl;
   else
     htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
@@ -1221,7 +1221,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<tr align=\"center\">" << endl;
 
   if ( imgNameMapO.size() != 0 )
-    htmlFile << "<td><img src=\"" << imgNameMapO << "\" usemap=""#Occupancy"" border=0></td>" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapO << "\" usemap=\"#Occupancy\" border=0></td>" << endl;
   else
     htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
@@ -1234,7 +1234,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<tr align=\"center\">" << endl;
 
   if ( imgNameMapPO.size() != 0 )
-    htmlFile << "<td><img src=\"" << imgNameMapPO << "\" usemap=""#PedestalOnline"" border=0></td>" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapPO << "\" usemap=\"#PedestalOnline\" border=0></td>" << endl;
   else
     htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
@@ -1247,7 +1247,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<tr align=\"center\">" << endl;
 
   if ( imgNameMapLL1.size() != 0 )
-    htmlFile << "<td><img src=\"" << imgNameMapLL1 << "\" usemap=""#LaserL1"" border=0></td>" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapLL1 << "\" usemap=\"#LaserL1\" border=0></td>" << endl;
 
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
@@ -1270,7 +1270,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<tr align=\"center\">" << endl;
 
   if ( imgNameMapP.size() != 0 )
-    htmlFile << "<td><img src=\"" << imgNameMapP << "\" usemap=""#Pedestal"" border=0></td>" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapP << "\" usemap=\"#Pedestal\" border=0></td>" << endl;
   
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
@@ -1292,7 +1292,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<tr align=\"center\">" << endl;
 
   if ( imgNameMapTP.size() != 0 )
-    htmlFile << "<td><img src=\"" << imgNameMapTP << "\" usemap=""#TestPulse"" border=0></td>" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapTP << "\" usemap=\"#TestPulse\" border=0></td>" << endl;
   
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
