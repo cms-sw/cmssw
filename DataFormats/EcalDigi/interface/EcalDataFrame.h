@@ -10,7 +10,7 @@
 
 /** \class EcalDataFrame
       
-$Id: EcalDataFrame.h,v 1.5 2007/07/24 10:57:51 innocent Exp $
+$Id: EcalDataFrame.h,v 1.6 2007/07/25 06:58:15 innocent Exp $
 */
 class EcalDataFrame {
  public:
@@ -22,11 +22,12 @@ class EcalDataFrame {
 
   DetId id() const { return m_data.id();}
     
-  int size() const { return  MAXSAMPLES;}
+  int size() const { return m_data.size();}
 
   EcalMGPASample operator[](int i) const { return m_data[i];}
   EcalMGPASample sample(int i) const { return m_data[i]; }
     
+  // FIXME (shall we throw??)
   void setSize(int){}
   // void setPresamples(int ps);
   void setSample(int i, EcalMGPASample sam) { m_data[i]=sam; }
