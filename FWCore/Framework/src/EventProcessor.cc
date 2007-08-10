@@ -238,7 +238,7 @@ namespace edm {
       { sRunning,       mCountComplete,  sStopping }, // sJobReady 
       { sRunning,       mInputExhausted, sStopping }, // sJobReady
 
-      { sStopping,      mInputRewind,    sJobReady },
+      { sStopping,      mInputRewind,    sRunning }, // The looper needs this
       { sStopping,      mException,      sError },
       { sStopping,      mFinished,       sJobReady },
       { sStopping,      mCountComplete,  sJobReady },
@@ -1101,9 +1101,9 @@ namespace edm {
     ServiceRegistry::Operate operate(serviceToken_);
 
     if(doOneEvent(id).get() == 0) {
-      changeState(mCountComplete);
-    } else {
       changeState(mInputExhausted);
+    } else {
+      changeState(mCountComplete);
       rc = epInputComplete;
     }
     toerror.succeeded();
