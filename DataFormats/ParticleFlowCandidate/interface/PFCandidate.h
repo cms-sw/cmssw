@@ -10,7 +10,6 @@
 
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 namespace reco {
   /**\class PFCandidate
