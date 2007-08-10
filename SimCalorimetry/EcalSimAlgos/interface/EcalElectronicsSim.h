@@ -7,8 +7,7 @@
 
 
 class EcalCoder;
-class EBDataFrame;
-class EEDataFrame;
+class EcalDataFrame;
 class EcalSimParameterMap;
 
 
@@ -25,10 +24,8 @@ class EcalElectronicsSim
   /// input signal is in pe.  Converted in GeV
   void amplify(CaloSamples & clf) const;
 
-  /// from CaloSamples to EBDataFrame
-  void analogToDigital(CaloSamples& clf, EBDataFrame& df) const;
-  /// from CaloSamples to EEDataFrame
-  void analogToDigital(CaloSamples& clf, EEDataFrame& df) const;
+  /// from CaloSamples to EcalDataFrame
+  void analogToDigital(CaloSamples& clf, EcalDataFrame& df) const;
   /// compute the event random constant term
   double constantTerm() const;
 

@@ -57,10 +57,8 @@ class EcalCoder
   virtual void digitalToAnalog(const EBDataFrame& df, CaloSamples& lf) const;
   /// from EEDataFrame to CaloSamples
   virtual void digitalToAnalog(const EEDataFrame& df, CaloSamples& lf) const;
-  /// from CaloSamples to EBDataFrame
-  virtual void analogToDigital(const CaloSamples& clf, EBDataFrame& df) const;
-  /// from CaloSamples to EEDataFrame
-  virtual void analogToDigital(const CaloSamples& clf, EEDataFrame& df) const;
+  /// from CaloSamples to EcalDataFrame
+  virtual void analogToDigital(const CaloSamples& clf, EcalDataFrame& df) const;
  
   ///  anything that needs to be done once per event
   void newEvent() {}
@@ -71,7 +69,7 @@ class EcalCoder
   double fullScaleEnergy (const DetId & ) const ;
 
   /// produce the pulse-shape
-  std::vector<EcalMGPASample> encode(const CaloSamples& timeframe) const;
+  void encode(const CaloSamples& caloSamples, EcalDataFrame& df) const;
 
   double decode(const EcalMGPASample & sample, const DetId & detId) const;
 
@@ -80,8 +78,8 @@ class EcalCoder
 
   /// look for the right pedestal according to the electronics gain
   void findPedestal(const DetId & detId, int gainId, 
-                    double & pedestal, double & width) const;
-
+		    double & pedestal, double & width) const;
+    
   double theGains[NGAINS+1];
    
   void findGains(const DetId & detId, double theGains[] ) const;

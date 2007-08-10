@@ -48,7 +48,7 @@ double EcalElectronicsSim::constantTerm() const
   return gaussQDistribution.fire();
 }
 
-void EcalElectronicsSim::analogToDigital(CaloSamples& clf, EBDataFrame& df) const 
+void EcalElectronicsSim::analogToDigital(CaloSamples& clf, EcalDataFrame& df) const 
 {
   //PG input signal is in pe.  Converted in GeV
   amplify(clf);
@@ -56,11 +56,5 @@ void EcalElectronicsSim::analogToDigital(CaloSamples& clf, EBDataFrame& df) cons
 }
 
 
-void EcalElectronicsSim::analogToDigital(CaloSamples& clf, EEDataFrame& df) const
-{
-  // input signal is in pe.  We want it in fC
-  amplify(clf);
-  theCoder->analogToDigital(clf, df);
-}
 
 
