@@ -156,7 +156,10 @@ void EcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
 	}
 
     }// end loop on fed
-  
+
+  // sort digis
+  productEb->sort();  
+
   // Step D: Put outputs into event 
   e.put(productPN);
   e.put(productEb,"ebDigis");
