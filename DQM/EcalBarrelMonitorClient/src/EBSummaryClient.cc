@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/08/10 17:42:03 $
- * $Revision: 1.46 $
+ * $Date: 2007/08/10 18:46:48 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  *
 */
@@ -843,7 +843,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   labelGridPN.SetMinimum(-18.01);
 
   string imgNameMapI, imgNameMapO, imgNameMapPO, imgNameMapLL1, imgNameMapLL1_PN, imgNameMapP, imgNameMapP_PN, imgNameMapTP, imgNameMapTP_PN, imgName, meName;
-  string imgNameMapSS;
+  string imgNameMapGS;
 
   TCanvas* cMap = new TCanvas("cMap", "Temp", int(360./170.*csize), csize);
   TCanvas* cMapPN = new TCanvas("cMapPN", "Temp", int(360./170.*csize), int(20./90.*360./170.*csize));
@@ -1166,7 +1166,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     gStyle->SetTitleX(saveTitleOffset);
   }
 
-  imgNameMapSS = "";
+  imgNameMapGS = "";
 
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( meGlobalSummary_ );
@@ -1180,8 +1180,8 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
         meName.replace(i, 1 ,"_" );
       }
     }
-    imgNameMapSS = meName + ".png";
-    imgName = htmlDir + imgNameMapSS;
+    imgNameMapGS = meName + ".png";
+    imgName = htmlDir + imgNameMapGS;
 
     cMap->cd();
     gStyle->SetOptStat(" ");
