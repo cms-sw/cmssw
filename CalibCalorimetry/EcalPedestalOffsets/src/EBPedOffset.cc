@@ -1,8 +1,8 @@
 /**
  * \file EBPedOffset.cc
  *
- * $Date: 2007/04/23 07:41:33 $
- * $Revision: 1.17 $
+ * $Date: 2007/06/13 07:00:09 $
+ * $Revision: 1.18 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  * Last updated: @DATE@ @AUTHOR@
  *
@@ -153,7 +153,8 @@ void EBPedOffset::analyze (Event const& event,
         itdigi != pDigis->end () ; 
         ++itdigi) 
     {    
-       int gainId = itdigi->sample (0).gainId () ;
+       EBDataFrame df( *itdigi );
+       int gainId = df.sample (0).gainId () ;
        int crystalId = EBDetId(itdigi->id ()).ic () ;
 //       int crystalId = itdigi->id().iphi () + 20 * (itdigi->id().ieta () -1) ;
        int smId = EBDetId(itdigi->id ()).ism () ;
@@ -165,7 +166,7 @@ void EBPedOffset::analyze (Event const& event,
             m_pedValues[smId]->insert (gainId,
                                        crystalId,
                                        DACvalues[smId],
-                                       itdigi->sample (iSample).adc ()) ;
+                                       df.sample (iSample).adc ()) ;
          } // loop over the samples
     } // loop over the digis
 

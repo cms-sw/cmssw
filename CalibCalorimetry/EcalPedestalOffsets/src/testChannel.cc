@@ -1,8 +1,8 @@
 /**
  * \file testChannel.cc
  *
- * $Date: 2007/04/22 09:46:41 $
- * $Revision: 1.5 $
+ * $Date: 2007/04/23 07:41:33 $
+ * $Revision: 1.6 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  *
 */
@@ -102,7 +102,8 @@ void testChannel::analyze (Event const& event,
         itdigi != pDigis->end () ; 
         ++itdigi) 
     {    
-       int gainId = itdigi->sample (0).gainId () ;
+       EBDataFrame df( *itdigi );
+       int gainId = df.sample (0).gainId () ;
        int crystalId = EBDetId(itdigi->id ()).ic () ;
        int smId = EBDetId(itdigi->id ()).ism () ;
 
@@ -114,13 +115,13 @@ void testChannel::analyze (Event const& event,
        // loop over the samples
        for (int iSample = 0; iSample < EBDataFrame::MAXSAMPLES ; ++iSample) 
          {
-            edm::LogInfo ("testChannel") << "\t`-->" << itdigi->sample (iSample).adc () ;
-            m_pedVSDAC.Fill (itdigi->sample (iSample).adc (),DACvalues[smId]) ;
+            edm::LogInfo ("testChannel") << "\t`-->" << df.sample (iSample).adc () ;
+            m_pedVSDAC.Fill (df.sample (iSample).adc (),DACvalues[smId]) ;
             if (crystalId == m_xtal)
               { 
-                if (gainId == 1) m_singlePedVSDAC_1.Fill (itdigi->sample (iSample).adc (),DACvalues[smId]) ;
-                if (gainId == 2) m_singlePedVSDAC_2.Fill (itdigi->sample (iSample).adc (),DACvalues[smId]) ;
-                if (gainId == 3) m_singlePedVSDAC_3.Fill (itdigi->sample (iSample).adc (),DACvalues[smId]) ;
+                if (gainId == 1) m_singlePedVSDAC_1.Fill (df.sample (iSample).adc (),DACvalues[smId]) ;
+                if (gainId == 2) m_singlePedVSDAC_2.Fill (df.sample (iSample).adc (),DACvalues[smId]) ;
+                if (gainId == 3) m_singlePedVSDAC_3.Fill (df.sample (iSample).adc (),DACvalues[smId]) ;
               }
          } // loop over the samples
     } // loop over the digis

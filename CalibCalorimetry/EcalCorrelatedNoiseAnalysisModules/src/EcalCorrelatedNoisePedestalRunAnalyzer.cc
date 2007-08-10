@@ -15,7 +15,7 @@
 //
 // Original Author:  Bernard Fabbro
 //         Created:  Fri Jun  2 10:27:01 CEST 2006
-// $Id$
+// $Id: EcalCorrelatedNoisePedestalRunAnalyzer.cc,v 1.1 2007/07/12 12:54:33 fabbro Exp $
 //
 //          Update:  08/06/2007  
 
@@ -444,21 +444,22 @@ EcalCorrelatedNoisePedestalRunAnalyzer::analyze(const edm::Event& iEvent, const 
       for (EBDigiCollection::const_iterator digiItr = digis->begin(); 
 	   digiItr != digis->end(); ++digiItr) 
 	{
-	  int iEta = digiItr->id().ieta();
-	  int iPhi = digiItr->id().iphi();
+	  int iEta = EBDetId( digiItr->id() ).ieta();
+	  int iPhi = EBDetId( digiItr->id() ).iphi();
 	  
 	  Int_t iSMCrys  = (iEta-1)*(MyEcal->fMaxTowPhiInSM*MyEcal->fMaxCrysPhiInTow) + iPhi;
 	  Int_t smTower  = fMyEBNumbering->GetSMTowFromSMCrys(iSMCrys);
 	  Int_t iTowEcha = fMyEBNumbering->GetTowEchaFromSMCrys(iSMCrys);
 	  
 	  Int_t nSample  = digiItr->size();
+          EBDataFrame df( *digiItr );
 
 	  if( nSample >= 0 || nSample < MyEcal->fMaxSampADC )
 	    {
 	      // Loop over the samples
 	      for (Int_t iSample = 0; iSample < nSample; ++iSample)
 		{
-		  Double_t adc = (Double_t)((*digiItr).sample(iSample).adc());
+		  Double_t adc = (Double_t)(df.sample(iSample).adc());
 		  
 		  if( iCurrentBurstNumber == 1 )
 		    {
