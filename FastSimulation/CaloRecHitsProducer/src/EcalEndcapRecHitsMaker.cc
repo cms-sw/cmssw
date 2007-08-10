@@ -78,12 +78,13 @@ void EcalEndcapRecHitsMaker::loadEcalEndcapRecHits(edm::Event &iEvent,EERecHitCo
       EEDetId myDetId(endcapRawId_[icell]);
       if(doDigis_)
 	{
-	   EEDataFrame myDataFrame(myDetId);
-	   myDataFrame.setSize(1);
+	   ecalDigis.push_back( myDetId );
+	   EEDataFrame myDataFrame( ecalDigis.back() );
+	   myDataFrame.setSize(1); // now useless - by construction fixed at 10 frame - FIXME
 	   //  The real work is in the following line
 	   geVtoGainAdc(theCalorimeterHits_[icell],gain,adc);
 	   myDataFrame.setSample(0,EcalMGPASample(adc,gain));
-	   ecalDigis.push_back(myDataFrame);
+	   //ecalDigis.push_back(myDataFrame);
 	}
 
       // It is safer to update the orignal array in case this methods is called several times
