@@ -125,6 +125,18 @@ protected:
 		    double h2, double bl2, double tl2, double alpha2, // trapezium face at z > 0 parameters
 		    bool frontSideIsPositiveZ);
 
+   public:
+
+      class ByFabsZ
+      {
+	 public:
+	    bool operator() ( const HepGeom::Point3D<float>& a, 
+			      const HepGeom::Point3D<float>& b  )
+	    {
+	       return fabs( a.z() ) < fabs( b.z() ) ;
+	    }
+      } ;
+
 };
 
 std::ostream& operator<<(std::ostream& s,const TruncatedPyramid& cell);

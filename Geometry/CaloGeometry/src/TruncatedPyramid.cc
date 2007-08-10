@@ -1,5 +1,5 @@
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
-//#include <algorithm>
+#include <algorithm>
 #include <iostream>
 //#include "assert.h"
 
@@ -264,6 +264,57 @@ TruncatedPyramid::hepTransform(const HepTransform3D &transformation)
 	temp = corners[5] ;
 	corners[5] = corners[6] ;
 	corners[6] = temp ;
+     }
+  }
+  else // this for endcaps... goal for now is to preserve old ording. B. Heltsley August 2007
+  {
+     std::vector< HepGeom::Point3D<float> > tsort;
+     tsort.resize(8);
+
+     // sort by fabs(z) so front of crystal comes first
+     std::sort( tlocal.begin(), tlocal.end(), ByFabsZ() ) ;
+
+     const HepGeom::Point3D<float>  ctrf ( 0.25*( tlocal[0] +
+						  tlocal[1] +
+						  tlocal[2] +
+						  tlocal[3]  ) ) ;
+
+     const HepGeom::Point3D<float>  ctrb ( 0.25*( tlocal[4] +
+						  tlocal[5] +
+						  tlocal[6] +
+						  tlocal[7]  ) ) ;
+
+     for( unsigned int m ( 0 ) ; m != 4; ++m )
+     {
+	const HepGeom::Point3D<float> trelf ( tlocal[m] - ctrf ) ;
+	tsort[ ( 0 > trelf.x() &&
+		 0 < trelf.y()    ? 0 :
+		 (  0 < trelf.x() &&
+		    0 < trelf.y()    ? 1 :
+		    (  0 > trelf.x() &&
+		       0 > trelf.y()    ? 3 : 2 ) ) ) ] = tlocal[m] ;
+	const HepGeom::Point3D<float> trelb ( tlocal[m+4] - ctrb ) ;
+	tsort[ 4 + ( 0 > trelb.x() &&
+		     0 < trelb.y()    ? 0 :
+		     (  0 < trelb.x() &&
+			0 < trelb.y()    ? 1 :
+			(  0 > trelb.x() &&
+			   0 > trelb.y()    ? 3 : 2 ) ) ) ] = tlocal[m+4] ;
+     }
+
+     const unsigned int off ( 0 < ctrf.x() && 0 < ctrf.y() ? 3 :
+			      ( 0 < ctrf.x() && 0 > ctrf.y() ? 0 :
+				( 0 > ctrf.x() && 0 < ctrf.y() ? 2 : 1 ) ) ) ;
+
+     const int kz ( 0 < ctrf.z() ? 1 : -1 ) ;
+
+     for( unsigned int i=0 ; i != 4 ; ++i )
+     {
+	const int ind ( ( kz*i + off )%4 ) ;
+	const HepGeom::Point3D<float> ts ( tsort[     ind] ) ;
+	corners[i  ]=GlobalPoint( ts.x(), ts.y(), ts.z() ) ;
+	const HepGeom::Point3D<float> tt ( tsort[ 4 + ind ] ) ;
+	corners[i+4]=GlobalPoint( tt.x(), tt.y(), tt.z() ) ;
      }
   }
 }
