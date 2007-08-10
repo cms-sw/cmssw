@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/08/10 11:33:41 $
- * $Revision: 1.39 $
+ * $Date: 2007/08/10 11:37:39 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  *
 */
@@ -314,9 +314,9 @@ void EBSummaryClient::subscribe(void){
   if ( qtg03_ ) mui_->useQTest(histo, qtg03_->getName());
   sprintf(histo, "EcalBarrel/EBSummaryClient/EBLT laser quality summary L1");
   if ( qtg04_ ) mui_->useQTest(histo, qtg04_->getName());
-  sprintf(histo, "EcalBarrel/EBSummaryClient/EBPT pedestal quality summary");
+  sprintf(histo, "EcalBarrel/EBSummaryClient/EBLT PN laser quality summary L1");
   if ( qtg04PN_ ) mui_->useQTest(histo, qtg04PN_->getName());
-  sprintf(histo, "EcalBarrel/EBSummaryClient/EBPT PN pedestal quality summary");
+  sprintf(histo, "EcalBarrel/EBSummaryClient/EBPT pedestal quality summary");
   if ( qtg05_ ) mui_->useQTest(histo, qtg05_->getName());
   sprintf(histo, "EcalBarrel/EBSummaryClient/EBPT PN pedestal quality summary");
   if ( qtg05PN_ ) mui_->useQTest(histo, qtg05PN_->getName());
