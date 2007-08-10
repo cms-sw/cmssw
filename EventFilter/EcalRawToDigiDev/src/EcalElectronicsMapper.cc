@@ -411,9 +411,10 @@ void EcalElectronicsMapper::fillMaps(){
 	      EcalElectronicsId eid(smId,feChannel,stripId,xtalId);
 	      EBDetId * detId = new EBDetId( (mappingBuilder_->getDetId(eid)).rawId());
 	      xtalDetIds_[smId-1][feChannel-1][stripId-1][xtalId-1] = detId;
-              EBDataFrame * df = new EBDataFrame(*detId);
-              df->setSize(numbXtalTSamples_);
-              xtalDFrames_[smId-1][feChannel-1][stripId-1][xtalId-1] = df;
+	      // remove this nonsense
+	      //     EBDataFrame * df = new EBDataFrame(*detId);
+              // df->setSize(numbXtalTSamples_);
+              // xtalDFrames_[smId-1][feChannel-1][stripId-1][xtalId-1] = df;
 
 			 
 	   } // close loop over xtals
@@ -476,9 +477,10 @@ void EcalElectronicsMapper::fillMaps(){
           EEDetId * detId = new EEDetId((*it).rawId());
           xtalDetIds_[smId-1][feChannel-1][stripId-1][xtalId-1] = detId;
           
-          EEDataFrame * df = new EEDataFrame(*detId);
-          df->setSize(numbXtalTSamples_);	  
-          xtalDFrames_[smId-1][feChannel-1][stripId-1][xtalId-1] = df;		
+	  // remove this other nonsense
+          //EEDataFrame * df = new EEDataFrame(*detId);
+          //df->setSize(numbXtalTSamples_);	  
+          //xtalDFrames_[smId-1][feChannel-1][stripId-1][xtalId-1] = df;		
 	 
 	}// close loop over tower constituents 	
 				 
