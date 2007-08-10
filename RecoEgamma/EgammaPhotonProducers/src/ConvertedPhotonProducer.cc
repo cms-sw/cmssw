@@ -37,7 +37,11 @@
 
 ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config) : 
   conf_(config), 
+  theTrackPairFinder_(0), 
+  theVertexFinder_(0), 
+  theLayerMeasurements_(0), 
   theNavigationSchool_(0), 
+  theEcalImpactPositionFinder_(0), 
   isInitialized(0)
 
 {
