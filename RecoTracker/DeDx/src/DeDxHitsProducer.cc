@@ -13,7 +13,7 @@
 //
 // Original Author:  andrea
 //         Created:  Thu May 31 14:09:02 CEST 2007
-// $Id: DeDxHitsProducer.cc,v 1.5 2007/06/26 10:22:58 arizzi Exp $
+// $Id: DeDxHitsProducer.cc,v 1.6 2007/06/26 13:33:36 arizzi Exp $
 //
 //
 
@@ -110,9 +110,9 @@ DeDxHitsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
    else
     {  
-      cout << "Simple matching not possible!" << endl;
+      cout << "Simple matching not possible! " << tracks.size() << " (original) vs " << refittedTracks.size() << " (refitted)" << endl;
       //new tracks should be less than old tracks, so loop on old and check compatibility
-      for(size_t j=0,i=0;j< tracks.size(); j++)
+      for(size_t j=0,i=0;j< tracks.size() && i < refittedTracks.size() ; j++)
         {
 	   if(compatibleTracks(tracks[j],refittedTracks[i]))
 	    {
@@ -247,7 +247,7 @@ double DeDxHitsProducer::distance(DetId id)
 
 bool DeDxHitsProducer::compatibleTracks(const Track & a,const Track & b)
 {
-  if(std::abs(a.pt()-b.pt())/(a.pt()+b.pt()) > 1e4) return false;
+  if(a.pt()+b.pt()!=0 && std::abs(a.pt()-b.pt())/(a.pt()+b.pt()) > 1e4) return false;
   
   return true;
 }
