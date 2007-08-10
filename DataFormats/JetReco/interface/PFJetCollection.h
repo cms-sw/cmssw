@@ -1,15 +1,12 @@
 // F.R.
-// $Id: PFJetfwd.h,v 1.1 2007/05/08 05:34:59 fedor Exp $
+// $Id: PFJetCollection.h,v 1.1 2007/07/31 18:55:23 fedor Exp $
 #ifndef JetReco_PFJetCollection_h
 #define JetReco_PFJetCollection_h
 
 #include <vector>
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
-#include "DataFormats/Common/interface/RefProd.h"
-
-#include "DataFormats/JetReco/interface/PFJet.h"
-
+#include "DataFormats/JetReco/interface/PFJet.h"//INCLUDECHECKER:SKIP
 namespace reco {
   class PFJet;
   /// collection of PFJet objects 

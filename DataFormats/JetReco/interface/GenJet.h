@@ -12,7 +12,7 @@
  * \author Fedor Ratnikov, UMd
  *
  * \version   Original March 31, 2006 by F.R.
- * \version   $Id: GenJet.h,v 1.11 2007/07/31 02:19:01 fedor Exp $
+ * \version   $Id: GenJet.h,v 1.12 2007/08/01 23:03:26 fedor Exp $
  ************************************************************/
 
 
@@ -89,5 +89,6 @@ private:
   Specific m_specific;
 };
 }
-#include "DataFormats/JetReco/interface/GenJetCollection.h" // temporary fix before include_checcker runs globally
+// temporary fix before include_checcker runs globally
+#include "DataFormats/JetReco/interface/GenJetCollection.h" //INCLUDECHECKER:SKIP
 #endif

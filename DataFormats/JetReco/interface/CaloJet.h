@@ -18,7 +18,7 @@
  *
  * \version   May 3, 2006, F.Ratnikov, include all different
  *            energy components separately
- * \version   $Id: CaloJet.h,v 1.25 2007/07/31 02:19:00 fedor Exp $
+ * \version   $Id: CaloJet.h,v 1.26 2007/08/01 23:03:25 fedor Exp $
  ************************************************************/
 
 
@@ -143,5 +143,6 @@ class CaloJet : public Jet {
   Specific m_specific;
 };
 }
-#include "DataFormats/JetReco/interface/CaloJetCollection.h" // temporary fix before include_checcker runs globally
+// temporary fix before include_checcker runs globally
+#include "DataFormats/JetReco/interface/CaloJetCollection.h" //INCLUDECHECKER:SKIP
 #endif

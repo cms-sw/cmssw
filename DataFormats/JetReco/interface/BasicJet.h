@@ -11,7 +11,7 @@
  *
  * \author Fedor Ratnikov, UMd
  *
- * \version   $Id: BasicJet.h,v 1.6 2007/07/31 02:19:00 fedor Exp $
+ * \version   $Id: BasicJet.h,v 1.7 2007/08/01 23:03:25 fedor Exp $
  ************************************************************/
 
 
@@ -40,5 +40,6 @@ class BasicJet : public Jet {
   virtual bool overlap( const Candidate & ) const;
 };
 }
-#include "DataFormats/JetReco/interface/BasicJetCollection.h" // temporary fix before include_checcker runs globally
+// temporary fix before include_checcker runs globally
+#include "DataFormats/JetReco/interface/BasicJetCollection.h" //INCLUDECHECKER:SKIP
 #endif
