@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/08/10 17:30:33 $
- * $Revision: 1.44 $
+ * $Date: 2007/08/10 17:33:51 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  *
 */
@@ -1359,7 +1359,7 @@ void EBSummaryClient::writeMap( std::ofstream& hf, std::string mapname ) {
        << "\" shape=\"rect\" href=\"" << refhtml[mapname]
        << "#" << Numbers::sEB((j+1)+18*i).c_str()
        << "\" coords=\"" << x0 << ", " << y0 << ", "
-                        << x1 << ", " << y1 << "\">"
+                         << x1 << ", " << y1 << "\">"
        << std::endl;
   }
   hf << "</map>" << std::endl;
