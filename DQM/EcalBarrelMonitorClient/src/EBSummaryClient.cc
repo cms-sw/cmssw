@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/07/18 09:37:55 $
- * $Revision: 1.37 $
+ * $Date: 2007/08/09 12:24:18 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  *
 */
@@ -363,6 +363,7 @@ void EBSummaryClient::analyze(void){
       meTestPulse_->setBinContent( ipx, iex, -1. );
 
       meGlobalSummary_->setBinContent( ipx, iex, -1. );
+
     }
   }
 
