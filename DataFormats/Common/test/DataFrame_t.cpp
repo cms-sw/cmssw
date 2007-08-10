@@ -61,7 +61,11 @@ void TestDataFrame::default_ctor() {
   CPPUNIT_ASSERT(df.m_data==&frames.m_data.front()+10); 
   df.set(frames,2);
   CPPUNIT_ASSERT(df.size()==10); 
-  CPPUNIT_ASSERT(df.m_data==&frames.m_data.front()+20); 
+  CPPUNIT_ASSERT(df.m_data==&frames.m_data.front()+20);
+  frames.pop_back();
+  CPPUNIT_ASSERT(frames.size()==2);
+  CPPUNIT_ASSERT(frames.m_data.size()==20);
+  
 }
 
 void TestDataFrame::filling() {

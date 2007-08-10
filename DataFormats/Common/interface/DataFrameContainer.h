@@ -110,6 +110,10 @@ namespace edm {
       return DataFrame(*this,size()-1);
     }
 
+    void pop_back() {
+      m_ids.resize(m_ids.size()-1);
+      m_data.resize(m_data.size()-m_stride);
+    }
 
     //---------------------------------------------------------
     
