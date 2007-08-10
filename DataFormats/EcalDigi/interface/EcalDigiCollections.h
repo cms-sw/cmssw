@@ -17,26 +17,31 @@
 
 class EcalDigiCollection : public edm::DataFrameContainer {
 public:
-  static const int MAXSAMPLES = 10;
-  explicit EcalDigiCollection(int isubdet=0)  : 
-    edm::DataFrameContainer(MAXSAMPLES,isubdet){}
+  typedef edm::DataFrameContainer::size_type size_type;
+  static const size_type MAXSAMPLES = 10;
+  explicit EcalDigiCollection(size_type istride=MAXSAMPLES, int isubdet=0)  : 
+    edm::DataFrameContainer(istride, isubdet){}
 };
 
 // make edm (and ecal client) happy
 class EBDigiCollection : public  EcalDigiCollection {
 public:
+  typedef edm::DataFrameContainer::size_type size_type;
   typedef EBDataFrame Digi;
   typedef Digi::key_type DetId;
 
-  EBDigiCollection() : EcalDigiCollection(EcalBarrel){}
+  EBDigiCollection(size_type istride=MAXSAMPLES) : 
+    EcalDigiCollection(istride, EcalBarrel){}
 };
 
 class EEDigiCollection : public  EcalDigiCollection {
 public:  
+  typedef edm::DataFrameContainer::size_type size_type;
   typedef EEDataFrame Digi;
   typedef Digi::key_type DetId;
 
-  EEDigiCollection() : EcalDigiCollection(EcalEndcap){}
+  EEDigiCollection(size_type istride=MAXSAMPLES) : 
+    EcalDigiCollection(istride, EcalEndcap){}
 };
 
 

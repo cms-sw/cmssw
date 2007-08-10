@@ -30,6 +30,10 @@ class TestEcalDigi: public CppUnit::TestFixture
   void default_ctor();
   void filling();
   void iterator();
+  
+  void fill(int stride);
+  //  void iter(int stride);
+
 
 public:
   std::vector<edm::DataFrame::data_type> sv;
@@ -67,34 +71,45 @@ void TestEcalDigi<DigiCollection>::default_ctor() {
   CPPUNIT_ASSERT(frames.subdetId()==DigiCollection::DetId::Subdet);
   // against static metod in ExDetID
   CPPUNIT_ASSERT(frames.subdetId()==DigiCollection::DetId::subdet());
+  DigiCollection smallframes(1);
+  CPPUNIT_ASSERT(smallframes.stride()==1);
+
 }
 
 template<typename DigiCollection>
 void TestEcalDigi<DigiCollection>::filling() {
+  fill(10);
+  fill(1);
+}  
+
+template<typename DigiCollection>
+void TestEcalDigi<DigiCollection>::fill(int stride) {
+  std::vector<edm::DataFrame::data_type> v1(stride);
+  std::copy(sv.begin(),sv.begin()+stride,v1.begin());
   
-  DigiCollection frames;
+  DigiCollection frames(stride);
   for (int n=1;n<5;++n) {
     typename DigiCollection::DetId id = DigiCollection::DetId::unhashIndex(n);
     frames.push_back(id);
     CPPUNIT_ASSERT(int(frames.size())==n);
     typename DigiCollection::Digi df(frames.back());
-    CPPUNIT_ASSERT(df.size()==10); 
+    CPPUNIT_ASSERT(df.size()==stride); 
     CPPUNIT_ASSERT(df.id()==id); 
     if (n%2==0) {
       // modern way of filling
-      std::copy(sv.begin(),sv.end(),df.frame().begin());
+      std::copy(sv.begin(),sv.begin()+stride,df.frame().begin());
       
-      std::vector<edm::DataFrame::data_type> v2(10);
-      std::copy(frames.m_data.begin()+(n-1)*10,frames.m_data.begin()+n*10,v2.begin());
-      CPPUNIT_ASSERT(sv==v2);
+      std::vector<edm::DataFrame::data_type> v2(stride);
+      std::copy(frames.m_data.begin()+(n-1)*stride,frames.m_data.begin()+n*stride,v2.begin());
+      CPPUNIT_ASSERT(v1==v2);
     } else {
       // classical way of filling
-      for (int i=0; i<10; i++)
+      for (int i=0; i<stride; i++)
 	df.setSample(i,sv[i]);
       
-      std::vector<edm::DataFrame::data_type> v2(10);
-      std::copy(frames.m_data.begin()+(n-1)*10,frames.m_data.begin()+n*10,v2.begin());
-      CPPUNIT_ASSERT(sv==v2);
+      std::vector<edm::DataFrame::data_type> v2(stride);
+      std::copy(frames.m_data.begin()+(n-1)*stride,frames.m_data.begin()+n*stride,v2.begin());
+      CPPUNIT_ASSERT(v1==v2);
     }
   }
   
