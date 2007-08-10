@@ -215,7 +215,7 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
 					math::XYZPoint(theOutParticle.vertex()),
 					math::XYZTLorentzVector(theOutParticle.momentum())));
    double ecalShowerDepth     
-     = PFCluster::getDepthCorrection(theOutParticle.momentum().mag(),
+     = PFCluster::getDepthCorrection(theOutParticle.momentum().E(),
 				     isBelowPS, 
 				     false);
 
