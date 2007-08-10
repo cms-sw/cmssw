@@ -1,10 +1,12 @@
 #ifndef SimG4Core_CheckSecondary_CheckSecondary_H
 #define SimG4Core_CheckSecondary_CheckSecondary_H
 
+#include "SimG4Core/CheckSecondary/interface/TreatSecondary.h"
 #include "SimG4Core/Watcher/interface/SimWatcher.h"
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Physics/interface/G4ProcessTypeEnumerator.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -42,13 +44,12 @@ private:
   void update(const EndOfEvent * evt);
 
 private:
-  int                                  verbosity, killAfter;
-  bool                                 suppressHeavy, saveToTree;
-  double                               pmaxIon, pmaxProton, pmaxNeutron;
+  TreatSecondary                       *treatSecondary;
   G4ProcessTypeEnumerator              *typeEnumerator;
-  int                                  count, track, step, nsecL, nHad;
+  bool                                 saveToTree;
+  int                                  nHad;
   std::vector<int>                     *nsec, *procids;
-  std::vector<double>                  *px, *py, *pz, *mass;
+  std::vector<double>                  *px, *py, *pz, *mass, *deltae;
   std::vector<std::string>             *procs;
   TFile                                *file;
   TTree                                *tree;

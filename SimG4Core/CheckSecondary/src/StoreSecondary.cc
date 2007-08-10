@@ -22,18 +22,19 @@
 StoreSecondary::StoreSecondary(const edm::ParameterSet &p) {
 
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("StoreSecondary");
-  verbosity         = m_p.getUntrackedParameter<int>("Verbosity",  0);
-  killAfter         = m_p.getUntrackedParameter<int>("KillAfter", -1);
+  treatSecondary    = new TreatSecondary (m_p);
 
   produces<std::vector<math::XYZTLorentzVector> >("SecondaryMomenta");
   produces<std::vector<int> >("SecondaryParticles");
   produces<std::vector<std::string> >("SecondaryProcesses");
 
-  edm::LogInfo("StoreSecondary") << "Instantiate StoreSecondary with Flag "
-				 << "for Killing track after "<< killAfter;
+  edm::LogInfo("CheckSecondary") << "Instantiate StoreSecondary to store "
+				 << "secondaries after 1st hadronic inelastic"
+				 << " interaction";
 } 
    
 StoreSecondary::~StoreSecondary() {
+  delete treatSecondary;
 }
 
 void StoreSecondary::produce(edm::Event& e, const edm::EventSetup&) {
@@ -50,22 +51,19 @@ void StoreSecondary::produce(edm::Event& e, const edm::EventSetup&) {
   *secProc = procs;
   e.put(secProc, "SecondaryProcesses");
 
-  if (verbosity > 0) {
-    std::cout << "StoreSecondary:: Event " << e.id() << " with "
-	      << nsecs.size() << " hadronic collisions with secondaries"
-	      << " produced in each step\n";
-    for (unsigned int i= 0; i < nsecs.size(); i++) 
-      std::cout << " " << nsecs[i] << " from " << procs[i];
-    std::cout << "\n and " << secondaries.size() << " secondaries produced "
-	      << "in the first interactions: \n";
-    for (unsigned int i= 0; i < secondaries.size(); i++) 
-      std::cout << "Secondary " << i << " " << secondaries[i] << "\n";
-  }
+  LogDebug("CheckSecondary") << "StoreSecondary:: Event " << e.id() << " with "
+			     << nsecs.size() << " hadronic collisions with "
+			     << "secondaries produced in each step";
+  for (unsigned int i= 0; i < nsecs.size(); i++) 
+    LogDebug("CheckSecondary") << " " << nsecs[i] << " from " << procs[i];
+  LogDebug("CheckSecondary") << " and " << secondaries.size() << " secondaries"
+			     << " produced in the first interactions:";
+  for (unsigned int i= 0; i < secondaries.size(); i++) 
+    LogDebug("CheckSecondary") << "Secondary " << i << " " << secondaries[i];
 }
 
 void StoreSecondary::update(const BeginOfEvent *) {
 
-  track = 0;
   nsecs.clear();
   procs.clear();
   secondaries.clear();
@@ -73,99 +71,34 @@ void StoreSecondary::update(const BeginOfEvent *) {
 
 void StoreSecondary::update(const BeginOfTrack * trk) {
 
-  track++;
   const G4Track * thTk = (*trk)();
+  treatSecondary->initTrack(thTk);
   if (nsecs.size() == 0 && thTk->GetParentID() <= 0) storeIt = true;
   else                                               storeIt = false;
-  if (verbosity > 0)
-    std::cout << "Track: " << track << "  " << thTk->GetTrackID() 
-	      << " Type: " << thTk->GetDefinition()->GetParticleName() 
-	      << " KE "    << thTk->GetKineticEnergy()/GeV 
-	      << " GeV p " << thTk->GetMomentum().mag()/GeV
-	      << " GeV daughter of particle " << thTk->GetParentID() 
-	      << " Store " << storeIt << "\n";
-  nsecL = 0;
   nHad  = 0;
 }
 
 void StoreSecondary::update(const G4Step * aStep) {
 
-  if (aStep != NULL) {
-    G4TrackVector* tkV  = const_cast<G4TrackVector*>(aStep->GetSecondary());
-    G4Track*       thTk = aStep->GetTrack();
-    const G4StepPoint* preStepPoint  = aStep->GetPreStepPoint();
-    const G4StepPoint* postStepPoint = aStep->GetPostStepPoint();
-    if (tkV != 0) {
-      int nsec = (*tkV).size();
-      const G4VProcess*  proc = 0;
-      if (postStepPoint) proc = postStepPoint->GetProcessDefinedStep();
-      G4ProcessType type  = fNotDefined;
-      std::string   name  = "Unknown";
-      if (proc) {
-	type = proc->GetProcessType();
-	name = proc->GetProcessName();
+  std::string name;
+  int         procID;
+  bool        hadrInt;
+  double      deltaE;
+  std::vector<math::XYZTLorentzVector> tracks = treatSecondary->tracks(aStep,
+								       name,
+								       procID,
+								       hadrInt,
+								       deltaE);
+  if (hadrInt) {
+    nHad++;
+    if (storeIt) {
+      int sec = (int)(tracks.size());
+      nsecs.push_back(sec);
+      procs.push_back(name);
+      if (nHad == 1) {
+	for (int i=0; i<sec; i++) 
+	  secondaries.push_back(tracks[i]);
       }
-      int           sec   = nsec - nsecL;
-      if (verbosity > 0) {
-	std::cout << sec << " secondaries in step " 
-		  << thTk->GetCurrentStepNumber() << " of track " 
-		  << thTk->GetTrackID() << " from " << name << " of type " 
-		  << type << "\n"; 
-      }
-
-      G4TrackStatus state = thTk->GetTrackStatus();
-      if (state == fAlive || state == fStopButAlive) sec++;
-
-      if (type == fHadronic || type == fPhotolepton_hadron || type == fDecay) {
-	nHad++;
-	if (verbosity > 0) std::cout << "Hadronic Interaction " << nHad
-				     << " of Type " << type << " with "
-				     << sec << " secondaries from process "
-				     << proc->GetProcessName() << "\n";
-	if (storeIt) {
-	  nsecs.push_back(sec);
-	  procs.push_back(name);
-	  if (nHad == 1) {
-	    math::XYZTLorentzVector secondary;
-	    if (state == fAlive || state == fStopButAlive) {
-	      G4ThreeVector pp = postStepPoint->GetMomentum();
-	      double        ee = postStepPoint->GetTotalEnergy();
-	      secondary = math::XYZTLorentzVector(pp.x(),pp.y(),pp.z(),ee);
-	      secondaries.push_back(secondary);
-	    }
-	    for (int i=nsecL; i<nsec; i++) {
-	      G4Track*      tk = (*tkV)[i];
-	      G4ThreeVector pp = tk->GetMomentum();
-	      double        ee = tk->GetTotalEnergy();
-	      secondary = math::XYZTLorentzVector(pp.x(),pp.y(),pp.z(),ee);
-	      secondaries.push_back(secondary);
-	    }
-	  }
-	}
-      }
-
-      if (killAfter >= 0 && nHad >= killAfter) {
-	for (int i=nsecL; i<nsec; i++) {
-	  G4Track* tk = (*tkV)[i];
-	  tk->SetTrackStatus(fStopAndKill);
-	  std::cout << "StoreSecondary::Kill Secondary " << i << " ID "
-		    << tk->GetDefinition() << " p "
-		    << tk->GetMomentum().mag()/MeV << " MeV/c\n";
-	}
-	thTk->SetTrackStatus(fStopAndKill);
-      }
-      nsecL = nsec;
     }
-
-    if (verbosity > 1)
-      std::cout << "Track: " << thTk->GetTrackID() << " Status "
-		<< thTk->GetTrackStatus() << " Particle " 
-		<< thTk->GetDefinition()->GetParticleName()<< " at "
-		<< preStepPoint->GetPosition() << " Step Number "
-		<< thTk->GetCurrentStepNumber() << " KE " 
-		<< thTk->GetKineticEnergy()/GeV << " GeV; Momentum " 
-		<< thTk->GetMomentum().mag()/GeV << " GeV/c; Step Length "
-		<< aStep->GetStepLength() << " Energy Deposit "
-		<< aStep->GetTotalEnergyDeposit()/MeV << " MeV\n";
   }
 }

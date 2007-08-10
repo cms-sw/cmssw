@@ -1,6 +1,7 @@
 #ifndef SimG4Core_CheckSecondary_StoreSecondary_H
 #define SimG4Core_CheckSecondary_StoreSecondary_H
 
+#include "SimG4Core/CheckSecondary/interface/TreatSecondary.h"
 #include "SimG4Core/Watcher/interface/SimProducer.h"
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -37,11 +38,12 @@ private:
 
 private:
   int                  verbosity, killAfter;
-  int                  track, nsecL, nHad;
+  int                  nHad;
   bool                 storeIt;
   std::vector<math::XYZTLorentzVector> secondaries;
   std::vector<int>                     nsecs;
   std::vector<std::string>             procs;
+  TreatSecondary*                      treatSecondary;
 };
 
 #endif
