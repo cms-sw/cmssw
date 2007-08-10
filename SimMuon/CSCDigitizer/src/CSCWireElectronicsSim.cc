@@ -50,6 +50,9 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
     LogTrace("CSCWireElectronicsSim") << "CSCWireElectronicsSim: dump of wire signal follows... " 
        <<  signal;
     int signalSize = signal.getSize();
+
+    int timeWord = 0; // and this will remain if too early or late (<bx-6 or >bx+9)
+
     // the way we handle noise in this chamber is by randomly varying
     // the threshold
     float threshold = theWireThreshold + theRandGaussQ->fire() * theWireNoise;
@@ -122,19 +125,20 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
       // Parameter theOffsetOfBxZero = 6 @@WARNING! This offset may be changed (hardware)!
 
       int nBitsToOffset = beamCrossingTag + theOffsetOfBxZero;
-      int timeWord = 0; // and this will remain if too early or late (<bx-6 or >bx+9)
       if ( (nBitsToOffset>= 0) && (nBitsToOffset<16) ) 
- 	 timeWord = (1 << nBitsToOffset ); // set appropriate bit
+ 	 timeWord |= (1 << nBitsToOffset ); // set appropriate bit
 
-      CSCWireDigi newDigi(wireGroup, timeWord);
-      LogTrace("CSCWireElectronicsSim") << newDigi;
-      digis.insertDigi(layerId(), newDigi);
-
-      // we code the channels so strips start at 1, wire groups at 101
-      addLinks(channelIndex(wireGroup));
       // skip over all the time bins used for this digi
       ibin = lastbin;
     } // loop over time bins in signal
+
+    if(timeWord != 0)
+    {
+      CSCWireDigi newDigi(wireGroup, timeWord);
+      LogTrace("CSCWireElectronicsSim") << newDigi;
+      digis.insertDigi(layerId(), newDigi);
+      addLinks(channelIndex(wireGroup));
+    }
   } // loop over wire signals   
 }
 
