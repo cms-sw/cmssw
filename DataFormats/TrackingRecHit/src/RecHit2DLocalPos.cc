@@ -1,6 +1,4 @@
 #include "DataFormats/TrackingRecHit/interface/RecHit2DLocalPos.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
-#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
 void RecHit2DLocalPos::initialize() const
 {

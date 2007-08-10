@@ -1,7 +1,10 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h" 
 #include "DataFormats/TrackingRecHit/interface/RecHit1D.h"
 #include "DataFormats/TrackingRecHit/interface/RecHit2DLocalPos.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h" 
 #include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h" 
 #include "DataFormats/TrackingRecHit/interface/RecSegment.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 

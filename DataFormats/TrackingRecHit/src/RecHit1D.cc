@@ -2,15 +2,14 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/01/24 14:09:25 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/01/17 23:07:06 $
+ *  $Revision: 1.2 $
  *  \author S. Lacaprara, G. Cerminara
  */
 
 #include "DataFormats/TrackingRecHit/interface/RecHit1D.h"
 
 // #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
-#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
 
 

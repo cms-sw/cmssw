@@ -5,7 +5,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 
 class TrackingRecHit {
 public:
