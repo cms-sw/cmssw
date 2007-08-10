@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.29 2007/06/28 23:11:22 wmtan Exp $
+$Id: RootFile.h,v 1.30 2007/07/26 23:43:54 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -76,7 +76,6 @@ namespace edm {
     RootTree runTree_;
     RootTreePtrArray treePointers_;
     boost::shared_ptr<ProductRegistry const> productRegistry_;
-    boost::shared_ptr<LuminosityBlockPrincipal> luminosityBlockPrincipal_;
   }; // class RootFile
 
 }

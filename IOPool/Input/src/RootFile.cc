@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.77 2007/07/31 23:58:56 wmtan Exp $
+$Id: RootFile.cc,v 1.78 2007/08/02 23:10:50 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -48,8 +48,7 @@ namespace edm {
       lumiTree_(filePtr_, InLumi),
       runTree_(filePtr_, InRun),
       treePointers_(),
-      productRegistry_(),
-      luminosityBlockPrincipal_() {
+      productRegistry_() {
     treePointers_[InEvent] = &eventTree_;
     treePointers_[InLumi]  = &lumiTree_;
     treePointers_[InRun]   = &runTree_;
