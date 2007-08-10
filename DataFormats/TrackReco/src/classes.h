@@ -68,6 +68,9 @@ namespace {
    edm::Wrapper<reco::TrackDeDxHitsCollection> dedxw1; 
    edm::Wrapper<reco::TrackDeDxEstimateCollection> dedxw2; 
 
+    // RefToBase Holders for Tracks
+    edm::RefToBase<reco::Track>  rtbt;
+    edm::reftobase::IndirectHolder<reco::Track> iht;
 //
 
   }
