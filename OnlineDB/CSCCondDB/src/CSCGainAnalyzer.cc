@@ -33,7 +33,7 @@
 
 CSCGainAnalyzer::CSCGainAnalyzer(edm::ParameterSet const& conf) {
   debug = conf.getUntrackedParameter<bool>("debug",false);
-  eventNumber=0,evt=0,Nddu=0,flagGain=-9,flagIntercept=-9;
+  eventNumber=0,evt=0,counterzero=0,Nddu=0,flagGain=-9,flagIntercept=-9;
   strip=0,misMatch=0,NChambers=0;
   i_chamber=0,i_layer=0,reportedChambers=0;
   length=1,gainSlope=-999.0,gainIntercept=-999.0;
@@ -92,7 +92,9 @@ void CSCGainAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup
   
   edm::Handle<FEDRawDataCollection> rawdata;
   e.getByType(rawdata);
-  
+  counterzero=counterzero+1;
+  evt=(counterzero+1)/2;
+
   for (int id=FEDNumbering::getCSCFEDIds().first;
        id<=FEDNumbering::getCSCFEDIds().second; ++id){ //for each of our DCCs    
     
@@ -104,14 +106,11 @@ void CSCGainAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup
       CSCDCCEventData dccData((short unsigned int *) fedData.data()); 
       
       const std::vector<CSCDDUEventData> & dduData = dccData.dduData(); 
-
+      
       for (unsigned int iDDU=0; iDDU<dduData.size(); ++iDDU) {  ///loop over DDUs
-	
+
 	///get a reference to chamber data
 	const std::vector<CSCEventData> & cscData = dduData[iDDU].cscData();
-	//exclude empty events with no DMB/CFEB data
-        if(dduData[iDDU].cscData().size()==0) continue;
-        if(dduData[iDDU].cscData().size() !=0) evt++;
 	
 	Nddu = dduData.size();
 	reportedChambers += dduData[iDDU].header().ncsc();
@@ -119,7 +118,7 @@ void CSCGainAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup
 	int repChambers = dduData[iDDU].header().ncsc();
 	std::cout << " Reported Chambers = " << repChambers <<"   "<<NChambers<< std::endl;
 	if (NChambers!=repChambers) { std::cout<< "misMatched size!!!" << std::endl; misMatch++;}
-	
+	float ped=0.0;
 	for (int i_chamber=0; i_chamber<NChambers; i_chamber++) {   
 	  
 	  for (int i_layer = 1; i_layer <=6; ++i_layer) {
@@ -138,14 +137,14 @@ void CSCGainAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup
 		strip = digis[i].getStrip();
 		adcMax[iDDU][i_chamber][i_layer-1][strip-1]=-99.0; 
 		for(unsigned int k=0; k<adc.size(); k++){
-		  float ped=(adc[0]+adc[1])/2.;
+		  ped=(adc[0]+adc[1])/2.;
 		  if(adc[k]-ped > adcMax[iDDU][i_chamber][i_layer-1][strip-1]) {
 		    adcMax[iDDU][i_chamber][i_layer-1][strip-1]=adc[k]-ped;
 		  }
 		}
 		adcMean_max[iDDU][i_chamber][i_layer-1][strip-1] += adcMax[iDDU][i_chamber][i_layer-1][strip-1]/PULSES_ga;  
 		
-		//Ever x event save
+		//Every 25 event save
 		if (evt%PULSES_ga == 0 && (strip-1)%16 == (evt-1)/NUMMODTEN_ga){
 		  int pulsesNr = int((evt-1)/PULSES_ga)%NUMBERPLOTTED_ga ;
 		  maxmodten[pulsesNr][i_chamber][i_layer-1][strip-1] = adcMean_max[iDDU][i_chamber][i_layer-1][strip-1];
@@ -155,7 +154,7 @@ void CSCGainAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup
 	  }//end layer loop
 	}//end chamber loop
 	
-	//ever 25 events reset
+	//every 25 events reset
 	if((evt-1)%PULSES_ga==0){
 	  for(int iii=0;iii<DDU_ga;iii++){
 	    for(int ii=0; ii<CHAMBERS_ga; ii++){
@@ -168,8 +167,7 @@ void CSCGainAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup
 	  }
 	}
       	eventNumber++;
-	edm::LogInfo ("CSCGainAnalyzer")  << "end of event number " << eventNumber;
-	edm::LogInfo ("CSCGainAnalyzer")  << "end of event non-zero number " << evt;
+	edm::LogInfo ("CSCGainAnalyzer")  << "end of event number " <<eventNumber<< " and non-zero event " << evt;
       }
     }
   }
@@ -210,7 +208,7 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
   stat(myname.c_str(), &attrib);          
   clock = localtime(&(attrib.st_mtime));  
   std::string myTime=asctime(clock);
-  std::ofstream myfile(myFileName,std::ios::out);
+  std::ofstream myGainsFile(myFileName,std::ios::out);
   
   //DB object and map
   CSCobject *cn = new CSCobject();
@@ -291,10 +289,7 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
 		for(int ii=0; ii<FITNUMBERS_ga; ii++){
 		  chi2  += (maxmodten[ii][cham][j][k]-(gainIntercept+(gainSlope*charge[ii])))*(maxmodten[ii][cham][j][k]-(gainIntercept+(gainSlope*charge[ii])))/(FITNUMBERS_ga*FITNUMBERS_ga);
 		}
-		
-		//std::cout <<"Chamber: "<<cham<<" Layer:   "<<j<<" Strip:   "<<k<<"  Slope:    "<<gainSlope <<"    Intercept:    "<<gainIntercept <<"        chi2 "<<chi2<<std::endl;
-		
-
+			      
 		if (gainSlope>5.0 && gainSlope<10.0) flagGain=1; // ok
 		if (gainSlope<5.0)                   flagGain=2; // warning fit fails
 		if (gainSlope>10.0)                  flagGain=3; // warning fit fails
@@ -304,7 +299,7 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
 		if (gainIntercept> 15.)                        flagIntercept = 3 ;  
 
 		//dump values to ASCII file
-		myfile <<layer_id<<"  "<<k<<"  "<<gainSlope<<"  "<<gainIntercept<<"  "<<chi2<<std::endl;
+		myGainsFile <<layer_id<<"  "<<k<<"  "<<gainSlope<<"  "<<gainIntercept<<"  "<<chi2<<std::endl;
 		calib_evt.slope     = gainSlope;
 		calib_evt.intercept = gainIntercept;
 		calib_evt.chi2      = chi2;
