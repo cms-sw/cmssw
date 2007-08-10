@@ -3,8 +3,8 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2007/05/01 20:30:56 $
- * $Revision: 1.14 $
+ * $Date: 2007/06/13 13:55:32 $
+ * $Revision: 1.15 $
  * \author N. Amapane - S. Argiro'
  * \author G. Franzoni
  *
@@ -191,10 +191,11 @@ class EcalDigiDumperModule: public edm::EDAnalyzer{
 		     << EBDetId((*digiItr).id()).iphi() << " j-eta: " 
 		     << EBDetId((*digiItr).id()).ieta();
 		
-		for ( int i=0; i< (*digiItr).size() ; ++i ) {
+		for ( unsigned int i=0; i< (*digiItr).size() ; ++i ) {
+                  EBDataFrame df( *digiItr );
 		  if (!(i%3)  )  std::cout << "\n\t";
 		  std::cout << "sId: " << (i+1) << " "
-		       <<  (*digiItr).sample(i) << "\t";
+		       <<  df.sample(i) << "\t";
 		}       
 		std::cout << " " << std::endl;
 
@@ -227,9 +228,10 @@ class EcalDigiDumperModule: public edm::EDAnalyzer{
 		      << EBDetId((*digiItr).id()).ieta() << " tower: "
 		      << tt ;
 
-	    for ( int i=0; i< (*digiItr).size() ; ++i ) {
+	    for ( unsigned int i=0; i< (*digiItr).size() ; ++i ) {
+              EBDataFrame df( *digiItr );
 	      if (!(i%3)  )  std::cout << "\n\t";
-	      std::cout << "sId: " << (i+1) << " " <<  (*digiItr).sample(i) << "\t";
+	      std::cout << "sId: " << (i+1) << " " <<  df.sample(i) << "\t";
 	    }       
 	    std::cout << " " << std::endl;
 	  } 

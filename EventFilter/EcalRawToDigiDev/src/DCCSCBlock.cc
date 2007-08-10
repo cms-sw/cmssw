@@ -124,7 +124,7 @@ void DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
     if(pDetId_){
 
       (*digis_)->push_back(*pDetId_);
-      EBDataFrame df( (*digis_)->back() );
+      EEDataFrame df( (*digis_)->back() );
       frameAdded=true;
   
 

@@ -43,7 +43,7 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
   // cout<<"\n DEBUG : unpacked xtal data for strip id "<<stripId<<" and xtal id "<<xtalId<<endl;
   // cout<<"\n DEBUG : expected strip id "<<expStripID<<" expected xtal id "<<expXtalID<<endl;
   
-  pDetId_ = (EBDetId*) mapper_->getDetIdPointer(towerId_,stripID,xtalID);
+  pDetId_ = (EBDetId*) mapper_->getDetIdPointer(towerId_,stripId,xtalId);
   if (!pDetId_) {
    edm::LogWarning("EcalRawToDigiDevChId")
       <<"\n For event "<<event_->l1A()<<",dcc "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
