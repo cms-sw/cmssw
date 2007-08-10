@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/08/09 12:24:18 $
- * $Revision: 1.38 $
+ * $Date: 2007/08/10 11:33:41 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  *
 */
@@ -624,6 +624,7 @@ void EBSummaryClient::analyze(void){
 	for( int j = 1; j <= 5; j++ ) { 
 
 	  if ( ebpc ) {
+
 	    me_04 = ebpc->meg04_[ism-1];
 	    me_05 = ebpc->meg05_[ism-1];
 	    
@@ -669,9 +670,11 @@ void EBSummaryClient::analyze(void){
 		mePedestalPN_->setBinContent( ipx, iex, xval );
 	      }
 	    }
+
 	  }
 
 	  if ( ebtpc ) {
+
 	    me_04 = ebtpc->meg04_[ism-1];
 	    me_05 = ebtpc->meg05_[ism-1];
 	    
@@ -720,6 +723,7 @@ void EBSummaryClient::analyze(void){
 	  }
 
 	  if ( eblc ) {
+
 	    me = eblc->meg09_[ism-1];
 
 	    if( me ) {
@@ -741,6 +745,7 @@ void EBSummaryClient::analyze(void){
 		meLaserL1PN_->setBinContent( ipx, iex, xval );
 	      }
 	    }
+
 	  }
 	  
 	}
