@@ -43,7 +43,12 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
   // cout<<"\n DEBUG : unpacked xtal data for strip id "<<stripId<<" and xtal id "<<xtalId<<endl;
   // cout<<"\n DEBUG : expected strip id "<<expStripID<<" expected xtal id "<<expXtalID<<endl;
   
-
+  pDetId_ = (EBDetId*) mapper_->getDetIdPointer(towerId_,stripID,xtalID);
+  if (!pDetId_) {
+   edm::LogWarning("EcalRawToDigiDevChId")
+      <<"\n For event "<<event_->l1A()<<",dcc "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
+      <<"\n no Det Id for strip  "<< stripId <<" and xtal "<<xtalId<<" was found";
+  }
 
   if( !zs_ && (expStripID != stripId || expXtalID != xtalId)){ 
     
@@ -52,18 +57,13 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
       <<"\n The expected strip is "<<expStripID<<" and "<<stripId<<" was found"
       <<"\n The expected xtal  is "<<expXtalID <<" and "<<xtalId<<" was found";	
 
-   
-   pDetId_ = (EBDetId*) mapper_->getDetIdPointer(towerId_,expStripID,expXtalID);
-
-   (*invalidChIds_)->push_back(*pDetId_);
+    (*invalidChIds_)->push_back(*pDetId_);
 
     stripId = expStripID;
     xtalId  = expXtalID;
     errorOnXtal = true;
     // one could return here, so to skip all the rest
-
   }
-
 
   else if(zs_){
 
@@ -72,11 +72,11 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
       edm::LogWarning("EcalRawToDigiDevChId")
         <<"\n For event "<<event_->l1A()<<",dcc "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
         <<"\n Invalid strip : "<<stripId<<" or xtal : "<<xtalId<<" ids";	
-
+      
       //Todo : add to error collection
       // one cannot really  say which channel has the problem...
       // in previous version all the 25 channels of the tower were assigned an integrity error
-
+      
       errorOnXtal = true;
       // one could return here, so to skip all the rest
       
@@ -95,8 +95,6 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
 
 	  // one cannot really  say which channel has the problem...
 	  // in previous version all the 25 channels of the tower were assigned an integrity error
-	  pDetId_ = (EBDetId*) mapper_->getDetIdPointer(towerId_,stripId,xtalId);
-
 	  (*invalidChIds_)->push_back(*pDetId_);
 	  
 	  errorOnXtal = true;
@@ -114,7 +112,6 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
 
 	// one cannot really  say which channel has the problem...
 	// in previous version all the 25 channels of the tower were assigned an integrity error
-	pDetId_ = (EBDetId*) mapper_->getDetIdPointer(towerId_,stripId,xtalId);
 	(*invalidChIds_)->push_back(*pDetId_);
 		
        errorOnXtal = true;
@@ -126,31 +123,36 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
     }
   }
  
- 
+  bool frameAdded=false;
   // if there is an error on xtal id ignore next error checks  
   // otherwise, assume channel_id is valid and proceed with making and checking the data frame
   if(!errorOnXtal){ 
 
-     pDFId_ = (EBDataFrame*) mapper_->getDFramePointer(towerId_,stripId,xtalId);	
      //     if(pDFId_){ //thisis not needed for the EB
-   
-      bool wrongGain(false);
+     (*digis_)->push_back(*pDetId_);
+     EBDataFrame df( (*digis_)->back() );
+     frameAdded=true;
+     bool wrongGain(false);
 	 
+     if ( nTSamples_!=df.size()) {
+       edm::LogWarning("EcalRawToDigiDevWrongSize")
+       <<"\n For event "<<event_->l1A()<<",dcc "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
+       <<"\n dataframe size " << df.size() << " inconsistent with #sample " << nTSamples_;
+     }
       //set samples in the frame
-      for(uint i =0; i< nTSamples_ ;i++){ 
-        xData_++;
-        uint data =  (*xData_) & TOWER_DIGI_MASK;
-        uint gain =  data>>12;
-        //xtalGain.push_back(gain);
-        xtalGains_[i]=gain;
-        if(gain == 0){ 
-	  wrongGain = true; 
-	  // one could continue here to skip part of the loop
-	  // as well as add the error to the collection and write the message 
+     for(uint i =0; i< nTSamples_ ;i++){ 
+       xData_++;
+       uint data =  (*xData_) & TOWER_DIGI_MASK;
+       uint gain =  data>>12;
+       //xtalGain.push_back(gain);
+       xtalGains_[i]=gain;
+       if(gain == 0){ 
+	 wrongGain = true; 
+	 // one could continue here to skip part of the loop
+	 // as well as add the error to the collection and write the message 
+       } 
  
-	} 
- 
-        pDFId_->setSample(i,data);
+       df.setSample(i,data);
       }
 	
     
@@ -159,7 +161,7 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
         <<"\n For event "<<event_->l1A()<<",dcc "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
         <<"\n Gain zero was found in strip "<<stripId<<" and xtal "<<xtalId;   
 
-        (*invalidGains_)->push_back(pDFId_->id());
+        (*invalidGains_)->push_back(*pDetId_);
         errorOnXtal = true;
       }
 	
@@ -192,7 +194,7 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
           <<"\n For event "<<event_->l1A()<<",dcc "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
           <<"\n A wrong gain transition switch was found in strip "<<stripId<<" and xtal "<<xtalId;    
 
-        (*invalidGainsSwitch_)->push_back(pDFId_->id());
+        (*invalidGainsSwitch_)->push_back(*pDetId_);
 
          errorOnXtal = true;
       } 
@@ -203,16 +205,14 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
           <<"\n For event "<<event_->l1A()<<",dcc "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
           <<"\n A wrong gain switch stay was found in strip "<<stripId<<" and xtal "<<xtalId;
       
-       (*invalidGainsSwitchStay_)->push_back(pDFId_->id());       
+       (*invalidGainsSwitchStay_)->push_back(*pDetId_);       
 
         errorOnXtal = true;  
       }
 
       //Add frame to collection only if all data format and gain rules are respected
-      if(!errorOnXtal) {
-              (*digis_)->push_back(pDFId_->id());
-              EBDataFrame df( (*digis_)->back() );
-              std::copy( pDFId_->frame().begin(), pDFId_->frame().end(), df.frame().begin() );
+      if(errorOnXtal&&frameAdded) {
+	(*digis_)->pop_back();
       }
 
   
