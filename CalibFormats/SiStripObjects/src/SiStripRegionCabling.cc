@@ -62,10 +62,11 @@ const SiStripRegionCabling::SubDet SiStripRegionCabling::subdetFromDetId(const u
 
 const SiStripRegionCabling::Layer SiStripRegionCabling::layerFromDetId(const uint32_t detid) {
  
-  if (subdet(detid) == SiStripRegionCabling::TIB) return TIBDetId(detid).layer();
-  else if (subdet(detid) == SiStripRegionCabling::TOB) return TOBDetId(detid).layer(); 
-  else if (subdet(detid) == SiStripRegionCabling::TEC) return TECDetId(detid).wheel();
-  else if (subdet(detid) == SiStripRegionCabling::TID) return TIDDetId(detid).wheel();
+  SiStripRegionCabling::SubDet subdet = subdetFromDetId(detid);
+  if (subdet == SiStripRegionCabling::TIB) return TIBDetId(detid).layer();
+  else if (subdet == SiStripRegionCabling::TOB) return TOBDetId(detid).layer(); 
+  else if (subdet == SiStripRegionCabling::TEC) return TECDetId(detid).wheel();
+  else if (subdet == SiStripRegionCabling::TID) return TIDDetId(detid).wheel();
   else return 0;
 }
 
