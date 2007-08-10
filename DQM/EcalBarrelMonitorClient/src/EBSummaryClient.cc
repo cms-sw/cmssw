@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/08/10 17:25:22 $
- * $Revision: 1.43 $
+ * $Date: 2007/08/10 17:30:33 $
+ * $Revision: 1.44 $
  * \author G. Della Ricca
  *
 */
@@ -1349,18 +1349,18 @@ void EBSummaryClient::writeMap( std::ofstream& hf, std::string mapname ) {
 
   hf << "<map name=\"" << mapname << "\">" << std::endl;
   for( unsigned int sm=0; sm<superModules_.size(); sm++ ) {
-   int i=(superModules_[sm]-1)/18;
-   int j=(superModules_[sm]-1)%18;
-   int x0 = A0 + (A1-A0)*j/18;
-   int x1 = A0 + (A1-A0)*(j+1)/18;
-   int y0 = B0 + (B1-B0)*(1-i)/2;
-   int y1 = B0 + (B1-B0)*((1-i)+1)/2;
-   hf << "<area title=\"" << Numbers::sEB((j+1)+18*i).c_str()
-      << "\" shape=\"rect\" href=\"" << refhtml[mapname]
-      << "#" << Numbers::sEB((j+1)+18*i).c_str()
-      << "\" coords=\"" << x0 << ", " << y0 << ", "
+    int i=(superModules_[sm]-1)/18;
+    int j=(superModules_[sm]-1)%18;
+    int x0 = A0 + (A1-A0)*j/18;
+    int x1 = A0 + (A1-A0)*(j+1)/18;
+    int y0 = B0 + (B1-B0)*(1-i)/2;
+    int y1 = B0 + (B1-B0)*((1-i)+1)/2;
+    hf << "<area title=\"" << Numbers::sEB((j+1)+18*i).c_str()
+       << "\" shape=\"rect\" href=\"" << refhtml[mapname]
+       << "#" << Numbers::sEB((j+1)+18*i).c_str()
+       << "\" coords=\"" << x0 << ", " << y0 << ", "
                         << x1 << ", " << y1 << "\">"
-      << std::endl;
+       << std::endl;
   }
   hf << "</map>" << std::endl;
 
