@@ -112,15 +112,15 @@ void TriggerWebInterface::printMeListXML(std::string source, xgi::Output * out)
 
   if (!(*mui_p)) 
     {
-      cout << "NO MUI!!!" << endl;
+      std::cout << "NO MUI!!!" << std::endl;
       return;
     }
   
   out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
   
-  *out << "<?xml version=\"1.0\" ?>" << endl;
+  *out << "<?xml version=\"1.0\" ?>" << std::endl;
    
-  *out << "<navigator>" << endl;
+  *out << "<navigator>" << std::endl;
   
   std::cout << "printMeListXML: written header" <<std::endl;
 
@@ -139,6 +139,13 @@ void TriggerWebInterface::printMeListXML(std::string source, xgi::Output * out)
        std::string dirName=it->substr(0 , dirCharNumber);
        dirName+= "/";
 
+       std::string::size_type homeLocation = it->find( "L1TMonitor", 0 );
+       std::string homeDir = it->substr(0 , homeLocation);
+       homeDir+= "L1TMonitor/";
+       homeDir+= source;
+       if(it->find( homeDir, 0 ) == std::string::npos) continue; // return only ME belonging to the source calling
+
+       std::cout << "homeDir = " << homeDir << std::endl;
 //       std::cout << "dirName = " << dirName << std::endl;
        
        int rank = 0;
@@ -166,15 +173,15 @@ void TriggerWebInterface::printMeListXML(std::string source, xgi::Output * out)
        
        std::cout << "sourceName = " << sourceName << std::endl;
        
-       if(source != sourceName && rank<4) continue; // return only ME belonging to the source calling
-                                          // this function
+//       if(source != sourceName && rank<4) continue; // return only ME belonging to the source calling
+                                                    // this function
 
 
        std::string reminingNames=meCollectionName;
        bool anotherME=true;
 
-       std::cout << "<directory name=\"" << sourceName << "\" rank=\"" << rank << "\">" << endl;
-      *out << "<directory name=\"" << sourceName << "\" rank=\"" << rank << "\">" << endl;
+       std::cout << "<directory name=\"" << sourceName << "\" rank=\"" << rank << "\">" << std::endl;
+      *out << "<directory name=\"" << sourceName << "\" rank=\"" << rank << "\">" << std::endl;
 
        while(anotherME){
        if(reminingNames.find(",") == std::string::npos) anotherME =false;
@@ -183,20 +190,20 @@ void TriggerWebInterface::printMeListXML(std::string source, xgi::Output * out)
 //       std::cout << "singleMeName = " << singleMeName << std::endl;
 ////               std::string fullpath=dirName + singleMeName;
 ////       contents.push_back(fullpath);
-       *out << "<subscribe>" << singleMeName << "</subscribe>" << endl;
-//       std::cout << "<subscribe>" << singleMeName << "</subscribe>" << endl;
+       *out << "<subscribe>" << singleMeName << "</subscribe>" << std::endl;
+//       std::cout << "<subscribe>" << singleMeName << "</subscribe>" << std::endl;
 
 //       std::cout << "ME name = " << singleMeName << std::endl;
                                                                                                              
        reminingNames=reminingNames.substr(singleMeNameCharNumber+1);
 //       std::cout << "reminingNames = " << reminingNames << std::endl;
        }
-       *out << "</directory>" << endl;
-       std::cout << "</directory>" << endl;
+       *out << "</directory>" << std::endl;
+       std::cout << "</directory>" << std::endl;
     }
                                                                                                              
 
-  *out << "</navigator>" << endl;
+  *out << "</navigator>" << std::endl;
 
 }
 
@@ -206,7 +213,7 @@ void TriggerWebInterface::computeDirRank(std::string dir, int & rank)
 {
        
        
-       if(dir.rfind("/") != string::npos) {
+       if(dir.rfind("/") != std::string::npos) {
        
        rank++;
        
@@ -395,7 +402,7 @@ void TriggerWebInterface::GoToTriggerMonitorWI(xgi::Input * in, xgi::Output * ou
     *out << cgicc::HTMLDoctype(cgicc::HTMLDoctype::eStrict) << std::endl;
     *out << cgicc::html().set("lang", "en").set("dir","ltr") << std::endl;
     *out << cgicc::title("Simple Web") << std::endl;
-    *out << cgicc::a("Visit the XDAQ Web site").set("href","http://xdaq.web.cern.ch") << endl;
+    *out << cgicc::a("Visit the XDAQ Web site").set("href","http://xdaq.web.cern.ch") << std::endl;
 }
 
 
