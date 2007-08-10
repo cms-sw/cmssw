@@ -41,21 +41,25 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
 
   // Loop over analog signals, run the fractional discriminator on each one,
   // and save the DIGI in the layer.
-  for(CSCSignalMap::iterator mapI = theSignalMap.begin(); 
-      mapI != theSignalMap.end(); ++mapI) {
-    int wireGroup            = (*mapI).first;
-    CSCAnalogSignal signal = (*mapI).second;
-    LogTrace("CSCWireElectronicsSim") << "CSCWireElectronicsSim: dump of wire signal follows... " <<  signal;
+  for(CSCSignalMap::iterator mapI = theSignalMap.begin(),
+      lastSignal = theSignalMap.end();
+      mapI != lastSignal; ++mapI) 
+  {
+    int wireGroup = (*mapI).first;
+    const CSCAnalogSignal & signal = (*mapI).second;
+    LogTrace("CSCWireElectronicsSim") << "CSCWireElectronicsSim: dump of wire signal follows... " 
+       <<  signal;
+    int signalSize = signal.getSize();
     // the way we handle noise in this chamber is by randomly varying
     // the threshold
     float threshold = theWireThreshold + theRandGaussQ->fire() * theWireNoise;
-    for(int ibin = 0; ibin < signal.getSize(); ++ibin)
+    for(int ibin = 0; ibin < signalSize; ++ibin)
       if(signal.getBinValue(ibin) > threshold) {
         // jackpot.  Now define this signal as everything up until
         // the signal goes below zero.
-        int lastbin = signal.getSize();
+        int lastbin = signalSize;
         int i;
-        for(i = ibin; i < signal.getSize(); ++i) {
+        for(i = ibin; i < signalSize; ++i) {
           if(signal.getBinValue(i) < 0.) {
             lastbin = i;
             break;
