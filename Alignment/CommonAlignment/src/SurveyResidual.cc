@@ -135,8 +135,7 @@ void SurveyResidual::findSisters(const Alignable* ali,
   {
     const Alignable* dau = comp[i];
 
-    if (dau != ali || bias)
-      theSisters.insert( theSisters.end(), dau->deepComponents().begin(), dau->deepComponents().end() );
+    if (dau != ali || bias) dau->deepComponents(theSisters);
 //     if (dau != ali || bias) theSisters.push_back(dau);
   }
 }
