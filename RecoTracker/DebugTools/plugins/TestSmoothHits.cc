@@ -561,7 +561,7 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	hPullGM_Z_ts_stereo[title.str()]->Fill( pullGMZ_ts_stereo );
       }    
       lastState = updatedState;
-#endif
+      //#endif
     }
   }
   delete hitAssociator;
