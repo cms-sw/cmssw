@@ -80,7 +80,7 @@ void EcalEndcapRecHitsMaker::loadEcalEndcapRecHits(edm::Event &iEvent,EERecHitCo
 	{
 	   ecalDigis.push_back( myDetId );
 	   EEDataFrame myDataFrame( ecalDigis.back() );
-	   myDataFrame.setSize(1); // now useless - by construction fixed at 10 frame - FIXME
+	   // myDataFrame.setSize(1); // now useless - by construction fixed at 1 frame - FIXME
 	   //  The real work is in the following line
 	   geVtoGainAdc(theCalorimeterHits_[icell],gain,adc);
 	   myDataFrame.setSample(0,EcalMGPASample(adc,gain));
