@@ -3,11 +3,11 @@
    Implementation of calss ProcessDesc
 
    \author Stefano ARGIRO
-   \version $Id: ProcessDesc.cc,v 1.23 2007/08/07 18:21:59 rpw Exp $
+   \version $Id: ProcessDesc.cc,v 1.24 2007/08/09 04:43:47 rpw Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.23 2007/08/07 18:21:59 rpw Exp $";
+static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.24 2007/08/09 04:43:47 rpw Exp $";
 
 
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
@@ -32,7 +32,7 @@ namespace edm
     bookkeeping_()
   {
     setRegistry();
-    std::cout << pset << std::endl;
+    // std::cout << pset << std::endl;
   }
 
   ProcessDesc::~ProcessDesc()
@@ -65,7 +65,7 @@ namespace edm
     validator_->validate();
 
     setRegistry();
-    std::cout << *pset_ << std::endl;
+    // std::cout << *pset_ << std::endl;
 
   }
 
