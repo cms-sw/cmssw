@@ -66,7 +66,6 @@ boost::shared_ptr<edm::ProcessDesc> PythonProcessDesc::processDesc() const
   for(std::vector<PythonParameterSet>::const_iterator serviceItr = theServices.begin();
       serviceItr != theServices.end(); ++serviceItr)
   {
-std::cout << "DOING ADDSERVICE " << std::endl;
     result->addService(serviceItr->pset());
   }
   return result;
