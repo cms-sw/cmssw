@@ -3,8 +3,8 @@
  *  
  *  See header file for documentation.
  *
- *  $Date: 2007/04/18 07:20:56 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/08/02 21:52:06 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -13,6 +13,7 @@
 #include "HLTrigger/HLTcore/interface/HLTPrescaler.h"
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -21,7 +22,8 @@ HLTPrescaler::HLTPrescaler(edm::ParameterSet const& ps) :
   n_(ps.getParameter<unsigned int>("prescaleFactor")),
   o_(ps.getParameter<unsigned int>("eventOffset")),
   count_(0), 
-  ps_(0)
+  ps_(0),
+  moduleLabel_(ps.getParameter<std::string>("@module_label"))
 {
   if (b_) produces<reco::HLTFilterObjectBase>();
   if (n_==0) n_=1; // accept all!
@@ -32,17 +34,17 @@ HLTPrescaler::HLTPrescaler(edm::ParameterSet const& ps) :
     if(edm::Service<edm::service::PrescaleService>().isAvailable()) {
       ps_ = edm::Service<edm::service::PrescaleService>().operator->();
     } else {
-      LogDebug("HLTPrescaler ") << "non available service edm::service::PrescaleService\n";
+      LogDebug("HLTPrescaler ") << "non available service edm::service::PrescaleService.";
     }
   }
   catch(...) {
-    LogDebug("HLTPrescaler ") << "exception getting service edm::service::PrescaleService\n";
+    LogDebug("HLTPrescaler ") << "exception getting service edm::service::PrescaleService.";
   }
 
   if (ps_==0) {
-    LogDebug("HLTPrescaler ") << "prescale service pointer == 0 - using config default\n";
+    LogDebug("HLTPrescaler ") << "prescale service pointer == 0 - using module config default.";
   } else {
-    LogDebug("HLTPrescaler ") << "prescale service pointer != 0 - using service\n";
+    LogDebug("HLTPrescaler ") << "prescale service pointer != 0 - using prescale service.";
   }
 
 }
@@ -51,21 +53,35 @@ HLTPrescaler::~HLTPrescaler()
 {
 }
 
-bool HLTPrescaler::filter(edm::Event & e, const edm::EventSetup & es)
+bool HLTPrescaler::beginLuminosityBlock(edm::LuminosityBlock & lb, edm::EventSetup const& es)
 {
   using namespace std;
   using namespace edm;
   using namespace reco;
 
-  // get prescaler from service 
+  LogDebug("HLTPrescaler") << "New LumiBlock: " <<lb.id().luminosityBlock();
   if (ps_) {
-    int newPrescale(ps_->getPrescale(0,*pathName()));
+    // get prescale value from service 
+//  int newPrescale(ps_->getPrescale(lb.id().luminosityBlock(),moduleLabel_));
+    int newPrescale(ps_->getPrescale(moduleLabel_));
+    LogDebug("HLTPrescaler") << "Returned value: " << newPrescale;
     if (newPrescale < 0 ) {
-      LogDebug("HLTPrescaler ") << "edm::service::PrescaleService for path " << *pathName() << " not found\n";
+      LogDebug("HLTPrescaler") << "PrescaleService: no info for module - using module value: " << n_ ;
     } else {
-      if (newPrescale>0) n_ = newPrescale;
+      n_=newPrescale;
+      if (n_==0) n_=1; // accept all!
+      count_ = o_;     // event offset
     }
   }
+
+  return true;
+}
+
+bool HLTPrescaler::filter(edm::Event & e, const edm::EventSetup & es)
+{
+  using namespace std;
+  using namespace edm;
+  using namespace reco;
 
   // prescaler decision
   ++count_;

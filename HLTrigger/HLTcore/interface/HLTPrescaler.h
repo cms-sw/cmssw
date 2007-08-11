@@ -7,8 +7,8 @@
  *  This class is an HLTFilter (-> EDFilter) implementing an HLT
  *  Prescaler module with associated book keeping.
  *
- *  $Date: 2006/08/14 15:26:42 $
- *  $Revision: 1.12 $
+ *  $Date: 2007/08/02 21:52:06 $
+ *  $Revision: 1.13 $
  *
  *  \author Martin Grunewald
  *
@@ -16,6 +16,7 @@
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "FWCore/PrescaleService/interface/PrescaleService.h"
+#include <string>
 
 class HLTPrescaler : public HLTFilter {
 
@@ -24,6 +25,7 @@ class HLTPrescaler : public HLTFilter {
   explicit HLTPrescaler(edm::ParameterSet const&);
   virtual ~HLTPrescaler();
   virtual bool filter(edm::Event& e, edm::EventSetup const& c);
+  virtual bool beginLuminosityBlock(edm::LuminosityBlock &, edm::EventSetup const&);
 
  private:
 
@@ -36,8 +38,10 @@ class HLTPrescaler : public HLTFilter {
   /// local event counter
   unsigned int count_;
 
-  /// Prescaler service
+  /// prescaler service
   edm::service::PrescaleService* ps_;
+  /// module label (temporary, to be replaced asap by method *moduleLabel())
+  std::string moduleLabel_;
 
 };
 
