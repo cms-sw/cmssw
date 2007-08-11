@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2007/05/25 14:08:27 $
- * $Revision: 1.29 $
+ * $Date: 2007/08/09 12:24:18 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -698,7 +698,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   labelGrid.SetMarkerSize(2);
   labelGrid.SetMinimum(-18.01);
 
-  TGaxis axis(-M_PI*(9+1.5)/9, -1.479, M_PI*(9-1.5)/9, -1.479, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 40306, "N");
+  TGaxis Xaxis(-M_PI*(9+1.5)/9, -1.479, M_PI*(9-1.5)/9, -1.479, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 40306, "N");
 
   string imgNameB[3], imgNameBMap[4], imgNameS[3], imgNameSMap[4];
   string imgNameBXproj[4], imgNameBYproj[4], imgNameSXproj[4], imgNameSYproj[4];
@@ -796,7 +796,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       cMap->SetGridy();
       objp->Draw("colz");
       labelGrid.Draw("text,same");
-      axis.Draw();
+      Xaxis.Draw();
       cMap->Update();
       objp->GetXaxis()->SetLabelColor(0);
       cMap->SaveAs(imgName.c_str());
@@ -856,7 +856,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridy();
     obj2f->Draw("colz");
     labelGrid.Draw("text,same");
-    axis.Draw();
+    Xaxis.Draw();
     cMap->Update();
     obj2f->GetXaxis()->SetLabelColor(0);
     cMap->SaveAs(imgName.c_str());
@@ -1042,7 +1042,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       cMap->SetGridy();
       objp->Draw("colz");
       labelGrid.Draw("text,same");
-      axis.Draw();
+      Xaxis.Draw();
       cMap->Update();
       objp->GetXaxis()->SetLabelColor(0);
       cMap->SaveAs(imgName.c_str());
@@ -1102,7 +1102,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridy();
     obj2f->Draw("colz");
     labelGrid.Draw("text,same");
-    axis.Draw();
+    Xaxis.Draw();
     cMap->Update();
     obj2f->GetXaxis()->SetLabelColor(0);
     cMap->SaveAs(imgName.c_str());
