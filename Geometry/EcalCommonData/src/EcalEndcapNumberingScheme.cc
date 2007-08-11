@@ -6,6 +6,7 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
 #include <iostream>
+#include <iomanip>
 
 EcalEndcapNumberingScheme::EcalEndcapNumberingScheme() : 
   EcalNumberingScheme() {
@@ -64,6 +65,8 @@ uint32_t EcalEndcapNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
 		       << " super crystal = " << module_number << " crystal = "
 		       << crystal_number << " packed index = 0x" << std::hex 
 		       << intindex << std::dec;
+
+
   return intindex;
    }
    else
@@ -71,7 +74,7 @@ uint32_t EcalEndcapNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
       // algorithmic geometry
 
       const int ic  ( baseNumber.getCopyNumber(0)%100 ) ; // crystal #, 0-44
-      const int icx ( ic/5 ) ;
+      const int icx ( ic/10 ) ;
       const int icy ( ic%5 ) ;
       const int is  ( baseNumber.getCopyNumber(3)%100 ) ; // supercrystal #, 0-99
       const int isx ( is/10 ) ;
@@ -80,12 +83,12 @@ uint32_t EcalEndcapNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
       const int iq  ( 3 - 2*baseNumber.getCopyNumber(4) ) ; // quadrant #, -1, +1
       const int id  ( 3 - 2*baseNumber.getCopyNumber(6) ) ; // dee      #, -1, +1
 
-      const int ix  ( 50 + id*(    5*isx + icx + 1 ) - ( id    - 1 )/2 ) ; // x: 1-100
+      const int iz  ( 3 - 2*baseNumber.getCopyNumber(8) ) ; // z: -1, +1
+
+      const int ix  ( 50 + id*iz*( 5*isx + icx + 1 ) - ( id*iz - 1 )/2 ) ; // x: 1-100
       const int iy  ( 50 + id*iq*( 5*isy + icy + 1 ) - ( id*iq - 1 )/2 ) ; // y: 1-100
 
-      const int iz  ( baseNumber.getCopyNumber(8)%2 ) ; // z: 1 or 0
-
-      const uint32_t idet ( ( iz*0x4000 ) + ( ix<<7 ) + iy ) ;
+      const uint32_t idet ( DetId( DetId::Ecal, EEDetId::Subdet ) | ( ( ( 0<iz ? 0x4000 : 0 ) ) + ( ix<<7 ) + iy ) ) ;
 
       //*************************** ERROR CHECKING **********************************
 
@@ -129,8 +132,8 @@ uint32_t EcalEndcapNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
 	 return 0 ;
       }
       
-      if( 0 != iz &&
-          1 != iz    )
+      if( -1 != iz &&
+           1 != iz    )
       {
 	 edm::LogWarning("EdalGeom") << "ECalEndcapNumberingScheme::getUnitID(): "
 				     << "****************** Bad z-end number = " << iz
@@ -147,7 +150,13 @@ uint32_t EcalEndcapNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
       }
 
       //*************************************************************************************
+/*
+      edm::LogWarning("EdalGeom") << "ECalEndcapNumberingScheme::getUnitID(): "
+				  <<std::dec<< ix << ", " << iy << ", " <<iq << ", " << id << ", " << iz << ", " << std::hex << idet              ;
 
+      edm::LogWarning("EdalGeom") << "ECalEndcapNumberingScheme::EEDetId: "
+				  << EEDetId(idet)              ;
+*/
       return idet ;
    }
 }
