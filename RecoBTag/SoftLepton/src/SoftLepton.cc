@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.28 2007/07/24 16:26:07 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.29 2007/07/29 03:18:16 fwyzard Exp $
 //
 
 
@@ -203,16 +203,10 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // output collections
   std::auto_ptr<reco::SoftLeptonTagInfoCollection> outputCollection(  new reco::SoftLeptonTagInfoCollection() );
-
-  #ifdef DEBUG
-  std::cerr << std::endl;
-  std::cerr << "Found " << jets.size() << " jets:" << std::endl;
-  #endif // DEBUG
   for (unsigned int i = 0; i < jets.size(); ++i) {
     reco::SoftLeptonTagInfo result = m_algo.tag( jets[i], tracks[i], leptons, vertex );
     outputCollection->push_back( result );
   }
-
   iEvent.put( outputCollection );
 }
 
