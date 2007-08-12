@@ -85,7 +85,12 @@
       
      <class name="edm::Wrapper<reco::TrackDeDxHitsCollection>"/>
      <class name="edm::Wrapper<reco::TrackDeDxEstimateCollection>"/>
+
+     <!-- RefToBase<reco::Track> -->
      <class name="edm::RefToBase<reco::Track>"/>
      <class name="edm::reftobase::IndirectHolder<reco::Track>"/>
+     <class name="edm::reftobase::BaseHolder<reco::Track>"/>
+     <class name="edm::reftobase::RefHolder<reco::TrackRef>"/>
+     <class name="edm::reftobase::Holder<reco::Track, reco::TrackRef>"/>
 
   </lcgdict>

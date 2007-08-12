@@ -56,22 +56,24 @@ namespace {
     reco::TrackDeDxHitsRef dedx8;
     reco::TrackDeDxHitsRefProd dedx9;
     reco::TrackDeDxHitsRefVector dedx10;
-   std::vector<std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,std::vector<reco::DeDxHit> > > dedx11;
-   std::vector<std::vector<reco::DeDxHit> > dedx12;
-   
-   reco::TrackDeDxEstimateCollection dedxe1;
-   reco::TrackDeDxEstimate dedxe2;
-   reco::TrackDeDxEstimateRef dedxe3;
-   reco::TrackDeDxEstimateRefProd dedxe4;
-   reco::TrackDeDxEstimateRefVector dedxe5;
-
-   edm::Wrapper<reco::TrackDeDxHitsCollection> dedxw1; 
-   edm::Wrapper<reco::TrackDeDxEstimateCollection> dedxw2; 
-
+    std::vector<std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,std::vector<reco::DeDxHit> > > dedx11;
+    std::vector<std::vector<reco::DeDxHit> > dedx12;
+    
+    reco::TrackDeDxEstimateCollection dedxe1;
+    reco::TrackDeDxEstimate dedxe2;
+    reco::TrackDeDxEstimateRef dedxe3;
+    reco::TrackDeDxEstimateRefProd dedxe4;
+    reco::TrackDeDxEstimateRefVector dedxe5;
+ 
+    edm::Wrapper<reco::TrackDeDxHitsCollection> dedxw1; 
+    edm::Wrapper<reco::TrackDeDxEstimateCollection> dedxw2; 
+ 
     // RefToBase Holders for Tracks
-    edm::RefToBase<reco::Track>  rtbt;
-    edm::reftobase::IndirectHolder<reco::Track> iht;
-//
+    edm::RefToBase<reco::Track>                         rtb_tk;
+    edm::reftobase::IndirectHolder<reco::Track>         ih_tk;
+    //edm::reftobase::BaseHolder<reco::Track>             bh_tk;
+    edm::reftobase::RefHolder<reco::TrackRef>           rf_tkr;
+    edm::reftobase::Holder<reco::Track, reco::TrackRef> h_tk_tkr;
 
   }
 }
