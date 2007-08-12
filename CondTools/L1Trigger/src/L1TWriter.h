@@ -2,15 +2,13 @@
 #define CondTools_L1Trigger_L1TWriter
 
 #include <string>
+#include <map>
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "CondCore/DBCommon/interface/DBSession.h"
-#include "CondCore/DBCommon/interface/RelationalStorageManager.h"
-#include "CondCore/DBCommon/interface/PoolStorageManager.h"
-#include "CondCore/MetaDataService/interface/MetaData.h"
+#include "CondTools/L1Trigger/src/DataWriter.h"
 
 namespace l1t
 {
@@ -37,27 +35,28 @@ class L1TWriter : public edm::EDAnalyzer {
        void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
    private:
-      /* Function that generates name for the tag that should be used to save real data
-       * (e.g. CSCTP parameters). Currently it is generated as a string that includes:
-       *  * Name of L1TriggerKey tag used
-       *  * Validity time start
+      L1TriggerKey createKey (const std::string & tag, const unsigned long long run) const;
+
+      /* Helper function that will write payload to database extracted from EventSetup
        */
-      std::string generateDataTagName (const unsigned long long sinceTime) const;
+      template<typename Record, typename Value>
+      void writePayload (const L1TriggerKey & key, const std::string & recordName, const edm::EventSetup & iSetup);
 
-      /* Loads IOV coresponding to provided tag from database. If this tag is not found,
-       * i.e. it is new tag, then empty string is returned
-       */
-      std::string getIOVToken (const std::string & tag) const;
+      std::string keyTag;
+      std::string keyValue;
+      int sinceRun;
 
-      // L1 Key Configuration data
-      std::string keyTagName;
-      std::string keyIOVToken;
+      // Used to make sura that sinceRun is not set when we are running
+      // this class for several runs
+      int executionNumber;
 
-      // sesion configuration data
-      cond::DBSession * session;
-      cond::RelationalStorageManager * coral;
-      cond::PoolStorageManager * pool;
-      cond::MetaData * metadata;
+      DataWriter writer;
+
+      // store list of records and associated items to extract from the EventSetup
+      // formats is as follows:
+      // RecordName -> list of items to extract from it
+      typedef std::map<std::string, std::set<std::string> > Items;
+      Items items;
 };
 
 }

@@ -3,6 +3,8 @@
 #include "CondTools/L1Trigger/src/L1TDBESSource.h"
 #include "CondTools/L1Trigger/src/L1TWriter.h"
 
-DEFINE_FWK_EVENTSETUP_SOURCE(l1t::L1TDBESSource);
-DEFINE_FWK_MODULE(l1t::L1TWriter);
+using namespace l1t;
+
+DEFINE_FWK_EVENTSETUP_SOURCE(L1TDBESSource);
+DEFINE_FWK_MODULE(L1TWriter);
 
