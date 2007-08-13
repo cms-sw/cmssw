@@ -5,8 +5,8 @@
  *
  *
  *
- * $Date: 2007/07/12 09:18:45 $
- * $Revision: 1.0 $
+ * $Date: 2007/07/25 00:00:15 $
+ * $Revision: 1.1 $
  *
  * \author Francisco Yumiceva, FERMILAB
  *
@@ -41,6 +41,15 @@ class BTagSkimLeptonJet : public edm::EDFilter {
 	
 	unsigned int nEvents_;
 	unsigned int nAccepted_;
+
+
+class PtSorter {
+public:
+  template <class T> bool operator() ( const T& a, const T& b ) {
+    return ( a.pt() > b.pt() );
+  }
+};
+
 };
 
 #endif

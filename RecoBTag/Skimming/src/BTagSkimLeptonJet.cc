@@ -1,8 +1,8 @@
 /** \class BTaSkimLeptonJet
  *
  *
- * $Date: 2007/07/25 00:00:16 $
- * $Revision: 1.1 $
+ * $Date: 2007/08/02 22:50:50 $
+ * $Revision: 1.2 $
  *
  * \author Francisco Yumiceva, FERMILAB
  *
@@ -29,35 +29,28 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-class PtSorter {
-public:
-  template <class T> bool operator() ( const T& a, const T& b ) {
-    return ( a.pt() > b.pt() );
-  }
-};
-
 
 BTagSkimLeptonJet::BTagSkimLeptonJet( const edm::ParameterSet& iConfig ) :
   nEvents_(0), nAccepted_(0)
 {
   CaloJetInput_ = iConfig.getParameter<InputTag>( "CaloJet" );
-  MinCaloJetPt_ = iConfig.getUntrackedParameter<double>( "MinimunCaloJetPt", 15. );
-  MaxCaloJetEta_ = iConfig.getUntrackedParameter<double>( "MaximunCaloJetEta", 2.5 );
+  MinCaloJetPt_ = iConfig.getParameter<double>( "MinimumCaloJetPt" );
+  MaxCaloJetEta_ = iConfig.getParameter<double>( "MaximumCaloJetEta" );
   
   LeptonType_ = iConfig.getParameter<std::string>("LeptonType");
   if ( LeptonType_ != "electron" && LeptonType_ != "muon" )
 	  edm::LogError( "BTagSkimLeptonJet" )
 		  << "unknown lepton type !!";
   LeptonInput_ = iConfig.getParameter<InputTag>( "Lepton" );
-  MinLeptonPt_ = iConfig.getUntrackedParameter<double>( "MinimunLeptonPt", 4. );
-  MaxLeptonEta_ = iConfig.getUntrackedParameter<double>( "MaximunLeptonEta", 2.2 );
-  //MinNLepton_ = iConfig.getUntrackedParameter<int>( "MinimunNLepton", 1 );
+  MinLeptonPt_ = iConfig.getParameter<double>( "MinimumLeptonPt" );
+  MaxLeptonEta_ = iConfig.getParameter<double>( "MaximumLeptonEta" );
+  //MinNLepton_ = iConfig.getParameter<int>( "MinimumNLepton" );
 
-  MaxDeltaR_ = iConfig.getUntrackedParameter<double>( "MaximumDeltaR", 0.4 );
+  MaxDeltaR_ = iConfig.getParameter<double>( "MaximumDeltaR" );
   
-  MinPtRel_ = iConfig.getUntrackedParameter<double>("MinimumPtRel", 0.5 );
+  MinPtRel_ = iConfig.getParameter<double>("MinimumPtRel" );
 
-  MinNLeptonJet_ = iConfig.getUntrackedParameter<int>( "MinimunNLeptonJet", 1 );
+  MinNLeptonJet_ = iConfig.getParameter<int>( "MinimumNLeptonJet" );
   if ( MinNLeptonJet_ < 1 ) 
     edm::LogError( "BTagSkimLeptonJet" ) 
 		<< "MinimunNCaloJet < 1 !!";
@@ -76,15 +69,15 @@ bool BTagSkimLeptonJet::filter( edm::Event& iEvent,
   nEvents_++;
 
   Handle<CaloJetCollection> CaloJetsHandle;
-  try {
+  //try {
     iEvent.getByLabel( CaloJetInput_, CaloJetsHandle );
-  } 
-  catch ( cms::Exception& ex ) {
-    edm::LogError( "BTagSkimLeptonJet" ) 
-      << "Unable to get CaloJet collection "
-      << CaloJetInput_.label();
-    return false;
-  }
+    //} 
+    //catch ( cms::Exception& ex ) {
+    //edm::LogError( "BTagSkimLeptonJet" ) 
+    //  << "Unable to get CaloJet collection "
+    //  << CaloJetInput_.label();
+    //return false;
+    //}
   if ( CaloJetsHandle->empty() ) return false;
   CaloJetCollection TheCaloJets = *CaloJetsHandle;
   std::stable_sort( TheCaloJets.begin(), TheCaloJets.end(), PtSorter() );
@@ -94,15 +87,15 @@ bool BTagSkimLeptonJet::filter( edm::Event& iEvent,
   Handle<MuonCollection> MuonHandle;
   MuonCollection TheMuons;
   if (LeptonType_ == "muon") {
-	  try{
+    //try{
 		  iEvent.getByLabel( LeptonInput_, MuonHandle );
-	  }
-	  catch ( cms::Exception& ex ) {
-		  edm::LogError( "BTagSkimLeptonJet" )
-			  << "Unable to get muon collection "
-			  << LeptonInput_.label();
-		  return false;
-	  }
+		  //  }
+		  //	  catch ( cms::Exception& ex ) {
+		  //edm::LogError( "BTagSkimLeptonJet" )
+		  //	  << "Unable to get muon collection "
+		  //	  << LeptonInput_.label();
+		  //return false;
+		  //}
 	  TheMuons = *MuonHandle;
 	  std::stable_sort( TheMuons.begin(), TheMuons.end(), PtSorter() );
   }
@@ -110,15 +103,15 @@ bool BTagSkimLeptonJet::filter( edm::Event& iEvent,
   Handle<PixelMatchGsfElectronCollection> ElectronHandle;
   PixelMatchGsfElectronCollection TheElectrons;
   if (LeptonType_ == "electron") {
-	  try{
+    //try{
 		  iEvent.getByLabel( LeptonInput_, ElectronHandle );
-	  }
-	  catch ( cms::Exception& ex ) {
-		  edm::LogError( "BTagSkimLeptonJet" )
-			  << "Unable to get electron collection "
-			  << LeptonInput_.label();
-		  return false;
-	  }
+		  //  }
+		  // catch ( cms::Exception& ex ) {
+		  // edm::LogError( "BTagSkimLeptonJet" )
+		  //		  << "Unable to get electron collection "
+		  //		  << LeptonInput_.label();
+		  // return false;
+		  // }
 	  TheElectrons = *ElectronHandle;
 	  std::stable_sort( TheElectrons.begin(), TheElectrons.end(), PtSorter() );
   }
