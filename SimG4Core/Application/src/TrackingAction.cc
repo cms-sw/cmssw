@@ -33,17 +33,25 @@ void TrackingAction::PostUserTrackingAction(const G4Track * aTrack)
     CurrentG4Track::postTracking(aTrack);
     if (eventAction_->trackContainer() != 0)
     {
-        TrackInformationExtractor extractor;
-        if (extractor(aTrack).storeTrack()) currentTrack_->save();
-        if (extractor(aTrack).isInHistory())
+
+      Hep3Vector pos = aTrack->GetStep()->GetPostStepPoint()->GetPosition();
+      HepLorentzVector mom = HepLorentzVector();
+      uint32_t id = aTrack->GetTrackID();
+
+      std::pair<Hep3Vector,HepLorentzVector> p = std::pair<Hep3Vector,HepLorentzVector>(pos,mom);
+      eventAction_->addTkCaloStateInfo(id,p);
+
+      TrackInformationExtractor extractor;
+      if (extractor(aTrack).storeTrack()) currentTrack_->save();
+      if (extractor(aTrack).isInHistory())
         {
-            currentTrack_->checkAtEnd(aTrack);  // check with end-of-track information
-            eventAction_->addTrack(currentTrack_, true);
+	  currentTrack_->checkAtEnd(aTrack);  // check with end-of-track information
+	  eventAction_->addTrack(currentTrack_, true);
         }
-        else
+      else
         {
-            eventAction_->addTrack(currentTrack_, false);
-	    delete currentTrack_;
+	  eventAction_->addTrack(currentTrack_, false);
+	  delete currentTrack_;
 	}
     }
     EndOfTrack et(aTrack);
