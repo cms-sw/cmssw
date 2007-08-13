@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2007/07/31 08:07:27 $
- * $Revision: 1.4 $
+ * $Date: 2007/08/13 18:02:36 $
+ * $Revision: 1.5 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -164,43 +164,26 @@ void SiStripAnalyser::saveAll() {
 //
 void SiStripAnalyser::defaultWebPage(xgi::Input *in, xgi::Output *out)
 {
-      std::string path;
-      std::string mname;
-      try 
-	{
-	  cgicc::Cgicc cgi(in);
-	  //	  if ( xgi::Utils::hasFormElement(cgi,"mybut") )
-	  cgicc::CgiEnvironment cgie(in);
-	  path = cgie.getPathInfo() + "?" + cgie.getQueryString();
-	}
-      catch (const std::exception & e) 
-	{
-	  // don't care if it did not work
-	}
       
-      if (!defaultPageCreated_) {
-	static const int BUF_SIZE = 256;
-	ifstream fin("loader.html", ios::in);
-	if (!fin) {
-	  cerr << "Input File: loader.html"<< " could not be opened!" << endl;
-	  return;
-	}
-	char buf[BUF_SIZE];
-	ostringstream html_dump;
-	while (fin.getline(buf, BUF_SIZE, '\n')) { // pops off the newline character 
-	  html_dump << buf << std::endl;
-	}
-	fin.close();
-	
-	*out << html_dump.str() << std::endl;
-        defaultPageCreated_ = true;
-      }
-   sistripWebInterface_->handleAnalyserRequest(in, out,nevents);
+  if (!defaultPageCreated_) {
+    static const int BUF_SIZE = 256;
+    ifstream fin("loader.html", ios::in);
+    if (!fin) {
+      cerr << "Input File: loader.html"<< " could not be opened!" << endl;
+      return;
+    }
+    char buf[BUF_SIZE];
+    ostringstream html_dump;
+    while (fin.getline(buf, BUF_SIZE, '\n')) { // pops off the newline character 
+      html_dump << buf << std::endl;
+    }
+    fin.close();
+    
+    *out << html_dump.str() << std::endl;
+    defaultPageCreated_ = true;
+  }
+  
+  // Handles all HTTP requests of the form
+  sistripWebInterface_->handleAnalyserRequest(in, out,nevents);
 
 }
-//
-// Handles all HTTP requests of the form ..../Request?RequestID=
-//
-//void SiStripAnalyser::handleWebRequest(xgi::Input *in, xgi::Output *out) {
-//  sistripWebInterface_->handleCustomRequest(in, out);
-//}
