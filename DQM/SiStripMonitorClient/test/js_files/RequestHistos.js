@@ -1,7 +1,6 @@
 function RequestHistoList() {
   var queryString;
   var url = getApplicationURL2();
-  url += "/Request?";
   if (document.getElementById("module_histos").checked) {
     queryString = "RequestID=SingleModuleHistoList";
     url += queryString; 
@@ -17,7 +16,6 @@ function RequestHistoList() {
 function RequestSummaryHistoList() {
   var queryString;
   var url = getApplicationURL2();
-  url += "/Request?";
   queryString = "RequestID=SummaryHistoList";
   var obj = document.getElementById("structure_name");
   var sname =  obj.options[obj.selectedIndex].value;
@@ -29,7 +27,6 @@ function RequestSummaryHistoList() {
 function RequestAlarmList() {
   var queryString;
   var url = getApplicationURL2();
-  url += "/Request?";
   queryString = "RequestID=AlarmList";
   var obj = document.getElementById("structure_for_alarm");
   var sname =  obj.options[obj.selectedIndex].value;

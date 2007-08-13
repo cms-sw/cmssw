@@ -22,9 +22,12 @@ class SiStripWebInterface : public WebInterface
  ~SiStripWebInterface();
 
   void handleCustomRequest(xgi::Input * in, xgi::Output * out ) throw (xgi::exception::Exception);
+  
   void createAll();
  
   void configureCustomRequest(xgi::Input * in, xgi::Output * out) throw (xgi::exception::Exception);
+    void handleAnalyserRequest(xgi::Input* in,xgi::Output* out, int niter);
+
   void performAction();
   void readConfiguration(int& freq_sum);
   void setupQTests();

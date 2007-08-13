@@ -163,6 +163,95 @@ void SiStripWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
     
   configureCustomRequest(in, out);
 }
+// 
+// -- Handles requests from WebElements submitting non-default requests 
+//
+void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out, int niter) {
+  // put the request information in a multimap...
+  //  std::multimap<std::string, std::string> requestMap_;
+  CgiReader reader(in);
+  reader.read_form(requestMap_);
+  std::string requestID = get_from_multimap(requestMap_, "RequestID");
+  // get the string that identifies the request:
+  cout << " requestID " << requestID << endl;
+  if (requestID == "IsReady") {
+    theActionFlag = NoAction;    
+    if (niter > 2) {
+      infoExtractor_->readLayoutNames(out);
+    } else {
+      returnReplyXml(out, "ReadyState", "wait");
+    }
+  }    
+  else if (requestID == "CheckQTResults") {
+    out->getHTTPResponseHeader().addHeader("Content-Type", "text/plain");
+    std::string infoType = get_from_multimap(requestMap_, "InfoType");
+    if (infoType == "Lite") *out <<  actionExecutor_->getQTestSummaryLite((*mui_p)) << endl;
+    else *out <<  actionExecutor_->getQTestSummary((*mui_p)) << endl;
+    theActionFlag = NoAction;
+  } 
+  else if (requestID == "OpenTkMap") {
+    std::string name = "TkMap";
+    std::string comment;
+    if (tkMapCreated) comment = "Successful";
+    else  comment = "Failed";
+    returnReplyXml(out, name, comment);
+    theActionFlag = NoAction;    
+  } 
+  else if (requestID == "SingleModuleHistoList") {
+    theActionFlag = NoAction;
+    
+    infoExtractor_->readModuleAndHistoList((*mui_p), out,
+                          actionExecutor_->getCollationFlag() );    
+  } 
+  else if (requestID == "GlobalHistoList") {
+    theActionFlag = NoAction;
+    
+    infoExtractor_->readGlobalHistoList((*mui_p), out,
+                          actionExecutor_->getCollationFlag() );    
+  } 
+  else if (requestID == "SummaryHistoList") {
+    theActionFlag = NoAction;
+    string sname = get_from_multimap(requestMap_, "StructureName");
+   infoExtractor_->readSummaryHistoTree((*mui_p), sname, out,
+                           actionExecutor_->getCollationFlag());    
+  } 
+  else if (requestID == "AlarmList") {
+    theActionFlag = NoAction;
+    string sname = get_from_multimap(requestMap_, "StructureName");
+    infoExtractor_->readAlarmTree((*mui_p), sname, out,
+                           actionExecutor_->getCollationFlag());    
+  } 
+  else if (requestID == "ReadQTestStatus") {
+    theActionFlag = NoAction;
+    string path = get_from_multimap(requestMap_, "Path");
+    infoExtractor_->readStatusMessage((*mui_p), path, out);
+  } 
+  else if (requestID == "PlotAsModule") {
+    theActionFlag = PlotSingleModuleHistos;    
+  }
+  else if (requestID == "PlotGlobalHisto") {
+    theActionFlag = PlotGlobalHistos;    
+  }
+  else if (requestID == "PlotHistogramFromPath") {
+   theActionFlag = PlotHistogramFromPath;
+  } 
+  else if (requestID == "PlotTkMapHistogram") {
+    theActionFlag = PlotTkMapHistogram;
+  }
+  else if (requestID == "PlotHistogramFromLayout") {
+    theActionFlag = PlotHistogramFromLayout;
+  } 
+  else if (requestID == "UpdatePlot") {
+    out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
+    out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
+    out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
+    out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
+    *out << infoExtractor_->getImage().str();
+    theActionFlag = NoAction;    
+  }
+    
+  performAction();
+}
 //
 // -- Scedule Custom Action
 //

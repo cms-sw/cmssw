@@ -43,7 +43,14 @@ function getApplicationURL2()
   url = url.substring(0, index);
 
   // add the cgi request
-  url += "urn:xdaq-application:lid=15";
+  var s0 = (url.lastIndexOf(":")+1);
+  var s1 = url.lastIndexOf("/");
+  var port_number = url.substring(s0, s1)
+  if (port_number = "40001") {
+    url += "urn:xdaq-application:lid=27/moduleWeb?module=SiStripAnalyser&";
+  } else if (port_number = "1972") {
+    url += "urn:xdaq-application:lid=15/Request?";
+  }
   return url;
 }
 

@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2007/07/16 20:19:21 $
- * $Revision: 1.3 $
+ * $Date: 2007/07/31 08:07:27 $
+ * $Revision: 1.4 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -72,8 +72,7 @@ SiStripAnalyser::SiStripAnalyser(const edm::ParameterSet& ps) :
 
   // instantiate web interface
   sistripWebInterface_ = new SiStripWebInterface("dummy", "dummy", &mui_);
-  //  xgi::bind(this, &SiStripAnalyser::handleWebRequest, "Request");
-  
+  defaultPageCreated_ = false;
 }
 //
 // -- Destructor
@@ -121,7 +120,6 @@ void SiStripAnalyser::beginJob(const edm::EventSetup& eSetup){
 void SiStripAnalyser::analyze(const edm::Event& e, const edm::EventSetup& eSetup){
   nevents++;
   runNumber_ = e.id().run();
-
   eSetup.get<SiStripFedCablingRcd>().get(fedCabling_);
  
   if (nevents <= 3) return;
@@ -170,74 +168,34 @@ void SiStripAnalyser::defaultWebPage(xgi::Input *in, xgi::Output *out)
       std::string mname;
       try 
 	{
-           cgicc::Cgicc cgi(in);
+	  cgicc::Cgicc cgi(in);
 	  //	  if ( xgi::Utils::hasFormElement(cgi,"mybut") )
 	  cgicc::CgiEnvironment cgie(in);
 	  path = cgie.getPathInfo() + "?" + cgie.getQueryString();
 	}
       catch (const std::exception & e) 
-    {
-      // don't care if it did not work
-    }
-
-      /*
-  *out << "<html>"                                                   << endl;
-  *out << "<head>"                                                   << endl;
-
-  *out << "<title>" << typeid(SiStripAnalyser).name()
-       << " MAIN</title>"                                             << endl;
-  *out << "<script type=\"text/javascript\" language=\"JavaScript\">" << endl;
-  *out << "alert(window.location.href);"                              << endl;
-  *out << "window.location=\"http://lxplus208.cern.ch:40001/temporary/Online.html\";"                << endl; 
-  *out << "</script>"                                                 << endl;
-  *out << "</head>"                                                  << endl;
-  *out << "</html>"                                                  << endl;
-  */
-
-    static const int BUF_SIZE = 256;
-    ifstream fin("loader.html", ios::in);
-    if (!fin) {
-      cerr << "Input File: loader.html"<< " could not be opened!" << endl;
-      return;
-    }
-    char buf[BUF_SIZE];
-    ostringstream html_dump;
-    while (fin.getline(buf, BUF_SIZE, '\n')) { // pops off the newline character 
-     html_dump << buf << std::endl;
-    }
-    fin.close();
-
-    *out << html_dump.str() << std::endl;
-
-   
-      /*  using std::endl;
-  *out << "<html>"                                                   << endl;
-  *out << "<head>"                                                   << endl;
-
-  *out << "<title>" << typeid(SiStripAnalyser).name()
-       << " MAIN</title>"                                            << endl;
-  *out << "</head>"                                                  << endl;
-  *out << "<body>"                                                   << endl;
-  *out << "SiStripClient" << " Default web page "                    << endl;
-  *out << "</body>"                                                  << endl;
-  *out << "</html>"                                                  << endl;
-
-  *out << cgicc::form().set("method","GET").set("action", "javascript:void%200") 
-       << std::endl;
-  *out << cgicc::input().set("type","submit").set("value","test").set("onclick", "javascript:alert('hello');return false;")
-       << std::endl;
-  *out << cgicc::form()						   
-       << std::endl;  
-  *out << "<p>Run: " << runNumber_ << " Total updates: " << nevents << std::endl;
-
-  *out << "<\br> "<< std::endl;
-  *out << cgicc::a().set("href", "temporary/Online.html") << "MyPage" << cgicc::a() << std::endl;
-
-
-  *out << "</body>"
-       << std::endl;
-  *out << "</html>" 
-  << std::endl;*/
+	{
+	  // don't care if it did not work
+	}
+      
+      if (!defaultPageCreated_) {
+	static const int BUF_SIZE = 256;
+	ifstream fin("loader.html", ios::in);
+	if (!fin) {
+	  cerr << "Input File: loader.html"<< " could not be opened!" << endl;
+	  return;
+	}
+	char buf[BUF_SIZE];
+	ostringstream html_dump;
+	while (fin.getline(buf, BUF_SIZE, '\n')) { // pops off the newline character 
+	  html_dump << buf << std::endl;
+	}
+	fin.close();
+	
+	*out << html_dump.str() << std::endl;
+        defaultPageCreated_ = true;
+      }
+   sistripWebInterface_->handleAnalyserRequest(in, out,nevents);
 
 }
 //

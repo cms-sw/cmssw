@@ -4,8 +4,8 @@
 /** \class SiStripAnalyser
  * *
  *  SiStrip SiStripAnalyser
- *  $Date: 2007/07/16 20:19:20 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/07/31 08:07:26 $
+ *  $Revision: 1.5 $
  *  \author  S. Dutta INFN-Pisa
  *   
  */
@@ -82,6 +82,7 @@ private:
   unsigned int runNumber_;
   edm::ESHandle< SiStripFedCabling > fedCabling_;
   TrackerMapCreator* trackerMapCreator_;
+  bool defaultPageCreated_;
 };
 
 
