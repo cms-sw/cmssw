@@ -13,7 +13,7 @@
 //
 // Original Author:  andrea
 //         Created:  Thu May 31 14:09:02 CEST 2007
-// $Id: DeDxHitsProducer.cc,v 1.7 2007/08/10 08:09:12 arizzi Exp $
+// $Id: DeDxHitsProducer.cc,v 1.8 2007/08/13 07:52:36 arizzi Exp $
 //
 //
 
@@ -37,6 +37,7 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace reco;
 using namespace std;
@@ -110,7 +111,7 @@ DeDxHitsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
    else
     {  
-//      cout << "Simple matching not possible! " << tracks.size() << " (original) vs " << refittedTracks.size() << " (refitted)" << endl;
+      LogDebug("DeDxHitsProducer") << "Simple matching not possible! " << tracks.size() << " (original) vs " << refittedTracks.size() << " (refitted)" ;
       //new tracks should be less than old tracks, so loop on old and check compatibility
       for(size_t j=0,i=0;j< tracks.size() && i < refittedTracks.size() ; j++)
         {
@@ -122,7 +123,7 @@ DeDxHitsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    else
 	    {
 	      //TODO: put a logdebug warning here!
-//	      cout << "Lost track found with pt = " << tracks[j].pt() <<  endl;
+              edm::LogWarning("DeDxHitsProducer") <<  "Lost track found with pt = " << tracks[j].pt() ;
 	    }
         }
     }
@@ -193,7 +194,7 @@ double DeDxHitsProducer::thickness(DetId id)
   bool isStrip = dynamic_cast<const StripGeomDetUnit*>(it)!=0;
   if (!isPixel && ! isStrip) {
   //FIXME throw exception
-//    cout << "\t\t this detID doesn't seem to belong to the Tracker" << endl;
+edm::LogWarning("DeDxHitsProducer") << "\t\t this detID doesn't seem to belong to the Tracker";
   detThickness = 1.;
   }else{
     detThickness = it->surface().bounds().thickness();
