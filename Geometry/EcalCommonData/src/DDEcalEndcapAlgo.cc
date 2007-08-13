@@ -70,7 +70,8 @@ DDEcalEndcapAlgo::DDEcalEndcapAlgo() :
    m_cryName    ( "" ),
    m_PFhalf     ( 0 ) ,
    m_PFfifth    ( 0 ) ,
-   m_PF45       ( 0 ) 
+   m_PF45       ( 0 ) ,
+   m_vecEESCLims ()
 {
    edm::LogInfo("EcalGeom") << "DDEcalEndcapAlgo info: Creating an instance" ;
 }
@@ -131,6 +132,8 @@ void DDEcalEndcapAlgo::initialize(const DDNumericArguments      & nArgs,
    m_PFhalf   = nArgs["EEPFHalf" ] ;
    m_PFfifth  = nArgs["EEPFFifth" ] ;
    m_PF45     = nArgs["EEPF45" ] ;
+
+   m_vecEESCLims = vArgs["EESCLims"];
    
 //   edm::LogInfo("EcalGeom") << "DDEcalEndcapAlgo info: end initialize" ;
 }
@@ -242,21 +245,24 @@ DDEcalEndcapAlgo::execute()
       for( int irow = int(colLimits[2*icol-2]);
 	   irow <= int(colLimits[2*icol-1]) ; ++irow )
       {
-         const unsigned int isctype ( EEGetSCType( icol, irow ) );
+	 if( vecEESCLims()[0] <= icol &&
+	     vecEESCLims()[1] >= icol &&
+	     vecEESCLims()[2] <= irow &&
+	     vecEESCLims()[3] >= irow    )
+	 {
+	    const unsigned int isctype ( EEGetSCType( icol, irow ) );
 
-         DDEcalEndcapTrap scrys( 1, eeSCEFront(), eeSCERear(), eeSCELength() ) ;
+	    DDEcalEndcapTrap scrys( 1, eeSCEFront(), eeSCERear(), eeSCELength() ) ;
 
-         scrys.moveto( scrFCtr( icol, irow ),
-		       scrRCtr( icol, irow ) );
+	    scrys.moveto( scrFCtr( icol, irow ),
+			  scrRCtr( icol, irow ) );
 
-         //  Calculate Z translation to bring SC into EE volume coordinates
-//         DDTranslation sc1 = scrys.cornerPos(1);
+	    //  Calculate Z translation to bring SC into EE volume coordinates
 
-	 scrys.translate( DDTranslation( 0., 0., -eezOff() ) ) ;
+	    scrys.translate( DDTranslation( 0., 0., -eezOff() ) ) ;
 
-         DDName rname ( envName( isctype ).name()
-			+ int_to_string( icol ) + "R" + int_to_string( irow ) ) ;
-//         DDTranslation sccentre = scrys.centrePos();
+	    DDName rname ( envName( isctype ).name()
+			   + int_to_string( icol ) + "R" + int_to_string( irow ) ) ;
 /*
          edm::LogInfo("EcalGeom") << "Quadrant, SC col/row " 
 				  << eeQuaName() << " " << icol << " / " << irow << std::endl
@@ -266,11 +272,12 @@ DDEcalEndcapAlgo::execute()
                                   << "   Rotation " << rname << " " << scrys.rotation() << std::endl
                                   << "   Position " << sccentre << std::endl;
 */
-         DDpos( envName( isctype ), 
-		eeQuaName(),
-		100*isctype + 10*(icol-1) + (irow-1),
-		scrys.centrePos(),
-		myrot( rname, scrys.rotation() ) ) ;
+	    DDpos( envName( isctype ), 
+		   eeQuaName(),
+		   100*isctype + 10*(icol-1) + (irow-1),
+		   scrys.centrePos(),
+		   myrot( rname, scrys.rotation() ) ) ;
+	 }
       }
    }
 }

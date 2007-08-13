@@ -129,6 +129,8 @@ class DDEcalEndcapAlgo : public DDAlgorithm {
       const DDTranslation& scrRCtr( unsigned int iRow,
 				    unsigned int iCol  ) const { return m_scrRCtr[iRow-1][iCol-1] ; }
 
+      const std::vector<double>& vecEESCLims() const { return m_vecEESCLims ; }
+
 protected:
 
 private:
@@ -186,6 +188,8 @@ private:
       double m_PFhalf ;
       double m_PFfifth ;
       double m_PF45 ;
+
+      std::vector<double> m_vecEESCLims;
 }; 
 
 #endif

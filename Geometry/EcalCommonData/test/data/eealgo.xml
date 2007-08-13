@@ -23,7 +23,7 @@
     <String  name="EEWallMat" value="materials:E_Epoxy"     />
 
 <!--  Endcap Quadrant -->
-    <String   name="EEQuaName" value="eefixed:EEFrontQuad"/>
+    <String   name="EEQuaName" value="eehier:EEFrontQuad"/>
     <String   name="EEQuaMat"  value="materials:Air"/>
 
 <!-- Endcap crystal: nominal size -->
@@ -71,6 +71,13 @@
    <Numeric name="EEPFHalf"  value="0.3"/>
    <Numeric name="EEPFFifth" value="1.55"/>
    <Numeric name="EEPF45"    value="0.65"/>
+
+<!-- Which SCs are in place? -->
+
+   <Vector name="EESCLims" type="numeric" nEntries="4">
+     [eehier:EESCLimsXlo],  [eehier:EESCLimsXhi],  [eehier:EESCLimsYlo],  [eehier:EESCLimsYhi] 
+   </Vector>
+
 
 <!-- Endcap supercrystal corner positions -->
 

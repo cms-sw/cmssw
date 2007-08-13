@@ -4,62 +4,6 @@
 
 <SolidSection label="eefixed.xml">
 
-<!-- Endcap, dee, quadrant, backplate volumes -->
-
- <Polycone name="ENCA" startPhi="0*deg" deltaPhi="360*deg" >
-  <ZSection z="[eecon:EEzFront]"   rMin="[eecon:ENCAEnvRFront]" rMax="[eecon:EErMax1]" />
-  <ZSection z="[eecon:EEzBack]"    rMin="[eecon:ENCAEnvRBack]"  rMax="[eecon:EErMax2]" />
-  <ZSection z="[eecon:EEzBack]"    rMin="[eecon:ENCAEnvRBack]"  rMax="[eecon:EBRMax]" />
-  <ZSection z="[eecon:EEzNeck]"    rMin="[eecon:ENCAEnvRNeck]"  rMax="[eecon:EBRMax]" />
-  <ZSection z="[eecon:EEzNeck]"    rMin="[eecon:ENCAEnvRNeck]"  rMax="[eecon:EErNeck]" />
-  <ZSection z="[eecon:ENCAEnvZES]" rMin="[eecon:ESConeO4]"      rMax="[eecon:EErNeck]" />
-  <ZSection z="[eecon:ENCAEnvZES]" rMin="[eecon:ESConeO5]"      rMax="[eecon:EErNeck]" />
-  <ZSection z="[eecon:EEFarZ]"     rMin="[eecon:ESConeO6]"      rMax="[eecon:EErNeck]" />
- </Polycone>
-
- <Polycone name="EEDee" startPhi="-90*deg" deltaPhi="180*deg" >
-  <ZSection z="[eecon:EEzFront]"   rMin="[eecon:ENCAEnvRFront]" rMax="[eecon:EErMax1]" />
-  <ZSection z="[eecon:EEzBack]"    rMin="[eecon:ENCAEnvRBack]"  rMax="[eecon:EErMax2]" />
-  <ZSection z="[eecon:EEzBack]"    rMin="[eecon:ENCAEnvRBack]"  rMax="[eecon:EBRMax]" />
-  <ZSection z="[eecon:EEzNeck]"    rMin="[eecon:ENCAEnvRNeck]"  rMax="[eecon:EBRMax]" />
-  <ZSection z="[eecon:EEzNeck]"    rMin="[eecon:ENCAEnvRNeck]"  rMax="[eecon:EErNeck]" />
-  <ZSection z="[eecon:ENCAEnvZES]" rMin="[eecon:ESConeO4]"      rMax="[eecon:EErNeck]" />
-  <ZSection z="[eecon:ENCAEnvZES]" rMin="[eecon:ESConeO5]"      rMax="[eecon:EErNeck]" />
-  <ZSection z="[eecon:EEFarZ]"     rMin="[eecon:ESConeO6]"      rMax="[eecon:EErNeck]" />
- </Polycone>
-
- <Polycone name="EEBackDee" startPhi="-90*deg" deltaPhi="180*deg" >
-  <ZSection z="[eecon:EEzBack]"    rMin="[eecon:ENCAEnvRBack]"  rMax="[eecon:EBRMax]" />
-  <ZSection z="[eecon:EEzNeck]"    rMin="[eecon:ENCAEnvRNeck]"  rMax="[eecon:EBRMax]" />
-  <ZSection z="[eecon:EEzNeck]"    rMin="[eecon:ENCAEnvRNeck]"  rMax="[eecon:EErNeck]" />
-  <ZSection z="[eecon:ENCAEnvZES]" rMin="[eecon:ESConeO4]"      rMax="[eecon:EErNeck]" />
-  <ZSection z="[eecon:ENCAEnvZES]" rMin="[eecon:ESConeO5]"      rMax="[eecon:EErNeck]" />
-  <ZSection z="[eecon:EEFarZ]"     rMin="[eecon:ESConeO6]"      rMax="[eecon:EErNeck]" />
- </Polycone>
-
- <Polycone name="EEBackQuad" startPhi="0*deg" deltaPhi="90*deg" >
-  <ZSection z="[eecon:EEzBack]"    rMin="[eecon:ENCAEnvRBack]"  rMax="[eecon:EBRMax]" />
-  <ZSection z="[eecon:EEzNeck]"    rMin="[eecon:ENCAEnvRNeck]"  rMax="[eecon:EBRMax]" />
-  <ZSection z="[eecon:EEzNeck]"    rMin="[eecon:ENCAEnvRNeck]"  rMax="[eecon:EErNeck]" />
-  <ZSection z="[eecon:ENCAEnvZES]" rMin="[eecon:ESConeO4]"      rMax="[eecon:EErNeck]" />
-  <ZSection z="[eecon:ENCAEnvZES]" rMin="[eecon:ESConeO5]"      rMax="[eecon:EErNeck]" />
-  <ZSection z="[eecon:EEFarZ]"     rMin="[eecon:ESConeO6]"      rMax="[eecon:EErNeck]" />
- </Polycone>
-
- <Cone name="EEFrontDee"  dz=   "[eecon:EEdz]" 
-                          rMin1="[eecon:EEfEnvScrIR1]" 
-                          rMax1="[eecon:EEfEnvScrOR1]" 
-                          rMin2="[eecon:EEiEnvScrIR5]" 
-                          rMax2="[eecon:EEfEnvScrOR4]" 
-                          startPhi="-90*deg" deltaPhi="180*deg" />
-
- <Cone name="EEFrontQuad" dz=   "[eecon:EEdz]" 
-                          rMin1="[eecon:EEfEnvScrIR1]" 
-                          rMax1="[eecon:EEfEnvScrOR1]" 
-                          rMin2="[eecon:EEiEnvScrIR5]" 
-                          rMax2="[eecon:EEfEnvScrOR4]" 
-                          startPhi="0*deg" deltaPhi="90*deg" />
-
  <Tubs name="EEBackPlate" rMin="[eecon:EEBackPlateIR]" rMax="[eecon:EEBackPlateOR]"
            dz="[eecon:EEBackPlateThick]/2."  startPhi="0*deg" deltaPhi="90*deg"/>
  <Tubs name="EEBPPV" rMin="[eecon:EEBackPlateIR]" rMax="[eecon:EEBackPlateOR]"
@@ -226,18 +170,6 @@
 
 <LogicalPartSection label="eefixed.xml">
 
- <LogicalPart name="ENCA" category="unspecified"> 
-      <rSolid name="ENCA"/> <rMaterial  name="materials:E_Air"/> </LogicalPart>
- <LogicalPart name="EEDee" category="unspecified">
-      <rSolid name="EEDee"/> <rMaterial  name="materials:E_Air"/> </LogicalPart>
- <LogicalPart name="EEFrontDee" category="unspecified">
-      <rSolid name="EEFrontDee"/> <rMaterial  name="materials:E_Air"/> </LogicalPart>
- <LogicalPart name="EEBackDee" category="unspecified">
-      <rSolid name="EEBackDee"/> <rMaterial  name="materials:E_Air"/> </LogicalPart>
- <LogicalPart name="EEFrontQuad" category="unspecified">
-      <rSolid name="EEFrontQuad"/> <rMaterial  name="materials:E_Air"/> </LogicalPart>
- <LogicalPart name="EEBackQuad" category="unspecified">
-      <rSolid name="EEBackQuad"/> <rMaterial  name="materials:E_Air"/> </LogicalPart>
  <LogicalPart name="EEBackPlate" category="unspecified">
       <rSolid name="EEBackPlate"/> <rMaterial  name="materials:Aluminium"/> </LogicalPart>
 
@@ -344,28 +276,12 @@
       <Translation x="0*mm" y="0*mm" z="[eecon:EEVFarZ] + [eecon:ESConeZ1]"/>
       <rRotation name="rotations:000D"/> </PosPart>
 
-<!-- Full endcap, dees, front and back quadrants -->
-
- <PosPart copyNumber="1"> <rParent name="eregalgo:EREG"/> <rChild name="eefixed:ENCA"/> </PosPart>
- <PosPart copyNumber="1"> <rParent name="eefixed:ENCA"/>  <rChild name="eefixed:EEDee"/> </PosPart>
- <PosPart copyNumber="2"> <rParent name="eefixed:ENCA"/>  <rChild name="eefixed:EEDee"/>
-     <rRotation name="rotations:R180"/> </PosPart>
- <PosPart copyNumber="1"> <rParent name="eefixed:EEDee"/> <rChild name="eefixed:EEFrontDee"/>
-      <Translation x="0*mm" y="0*mm" z="[eecon:EEzFront] + [eecon:EEdz]"/> </PosPart>
- <PosPart copyNumber="1"> <rParent name="eefixed:EEDee"/> <rChild name="eefixed:EEBackDee"/> </PosPart>
- <PosPart copyNumber="1"> <rParent name="eefixed:EEFrontDee"/> <rChild name="eefixed:EEFrontQuad"/> </PosPart>
- <PosPart copyNumber="2"> <rParent name="eefixed:EEFrontDee"/> <rChild name="eefixed:EEFrontQuad"/>
-      <rReflectionRotation name="eecon:ReflectionY"/> </PosPart>
- <PosPart copyNumber="1"> <rParent name="eefixed:EEBackDee"/>  <rChild name="eefixed:EEBackQuad"/> </PosPart>
- <PosPart copyNumber="1"> <rParent name="eefixed:EEBackDee"/>  <rChild name="eefixed:EEBackQuad"/>
-      <rReflectionRotation name="eecon:ReflectionY"/> </PosPart>
-
 <!-- Backplate and its cooling pipes -->
 
- <PosPart copyNumber="1"> <rParent name="eefixed:EEBackQuad"/> <rChild name="eefixed:EEBackPlate"/>
+ <PosPart copyNumber="1"> <rParent name="eehier:EEBackQuad"/> <rChild name="eefixed:EEBackPlate"/>
       <Translation x="0*mm" y="0*mm" z="[eecon:EEzBack] + [eecon:EEBackPlateThick]/2"/> </PosPart>
 
- <PosPart copyNumber="1"> <rParent name="eefixed:EEBackQuad"/> <rChild name="eefixed:EEBPPV"/>
+ <PosPart copyNumber="1"> <rParent name="eehier:EEBackQuad"/> <rChild name="eefixed:EEBPPV"/>
       <Translation x="0*mm" y="0*mm" z="[eecon:EEzBackBack] + [eecon:EEBPPOR]"/> </PosPart>
 
 
@@ -483,38 +399,38 @@
 
 <!-- Cables -->
 
- <PosPart copyNumber="1"> <rParent name="eefixed:EEBackQuad"/> <rChild name="eefixed:EECableF"/>
+ <PosPart copyNumber="1"> <rParent name="eehier:EEBackQuad"/> <rChild name="eefixed:EECableF"/>
       <Translation x="0*mm" y="0*mm" 
                    z="[eecon:EEzBackBack] + 2*[eecon:EEBPPOR] + [eecon:EECableFdz]"/> </PosPart>
 
- <PosPart copyNumber="1"> <rParent name="eefixed:EEBackQuad"/> <rChild name="eefixed:EECableR"/>
+ <PosPart copyNumber="1"> <rParent name="eehier:EEBackQuad"/> <rChild name="eefixed:EECableR"/>
       <Translation x="0*mm" y="0*mm" z="[eecon:EEzCoolQ] + [eecon:EECableRdz] + [eecon:EECBHt]/2"/> </PosPart>
 
 <!-- Rear, inner, front moderators -->
 
- <PosPart copyNumber="1"> <rParent name="eefixed:EEBackQuad"/>  <rChild name="eefixed:EEIMod"/>
+ <PosPart copyNumber="1"> <rParent name="eehier:EEBackQuad"/>  <rChild name="eefixed:EEIMod"/>
       <Translation x="0*mm" y="0*mm" z="[eecon:EEzMidIMod] "/> </PosPart>
- <PosPart copyNumber="1"> <rParent name="eefixed:EEBackQuad"/>  <rChild name="eefixed:EEFMod"/>
+ <PosPart copyNumber="1"> <rParent name="eehier:EEBackQuad"/>  <rChild name="eefixed:EEFMod"/>
       <Translation x="0*mm" y="0*mm" z="[eecon:EEzFMod] "/> </PosPart>
- <PosPart copyNumber="1"> <rParent name="eefixed:EEBackQuad"/> <rChild name="eefixed:EERMod"/>
+ <PosPart copyNumber="1"> <rParent name="eehier:EEBackQuad"/> <rChild name="eefixed:EERMod"/>
       <Translation x="0*mm" y="0*mm" z="[eecon:EEzBackIMod] - [eecon:EERModTh]/2."/> </PosPart>
- <PosPart copyNumber="1"> <rParent name="eefixed:EEBackQuad"/>  <rChild name="eefixed:EERMCP"/>
+ <PosPart copyNumber="1"> <rParent name="eehier:EEBackQuad"/>  <rChild name="eefixed:EERMCP"/>
       <Translation x="0*mm" y="0*mm" z="[eecon:EEzBackIMod]-[eecon:EERModTh]-[eecon:EERMCPTh]/2."/> </PosPart>
- <PosPart copyNumber="1"> <rParent name="eefixed:EEBackQuad"/>  <rChild name="eefixed:EESRing"/>   </PosPart>
+ <PosPart copyNumber="1"> <rParent name="eehier:EEBackQuad"/>  <rChild name="eefixed:EESRing"/>   </PosPart>
 
 <!-- Environmental screens -->
 
- <PosPart copyNumber="1"> <rParent name="eefixed:EEFrontQuad"/> <rChild name="eefixed:EEfEnvScr"/> </PosPart>
+ <PosPart copyNumber="1"> <rParent name="eehier:EEFrontQuad"/> <rChild name="eefixed:EEfEnvScr"/> </PosPart>
  <PosPart copyNumber="1"> <rParent name="eefixed:EEfEnvScr"/>   <rChild name="eefixed:EEgEnvScr"/> </PosPart>
- <PosPart copyNumber="1"> <rParent name="eefixed:EEFrontQuad"/> <rChild name="eefixed:EEiEnvScr"/> </PosPart>
+ <PosPart copyNumber="1"> <rParent name="eehier:EEFrontQuad"/> <rChild name="eefixed:EEiEnvScr"/> </PosPart>
 
 <!-- Horizontal and Vertical slats across inside of front environmental screen -->
 
- <PosPart copyNumber="1"> <rParent name="eefixed:EEFrontQuad"/> <rChild  name="eefixed:EEhSlat"/>
+ <PosPart copyNumber="1"> <rParent name="eehier:EEFrontQuad"/> <rChild  name="eefixed:EEhSlat"/>
       <Translation x="[eecon:EEiEnvScrOR1] + [eecon:EESlatLength]/2." 
                    y="[eecon:EEvSlatWidth]/4." 
                    z="[eecon:EEfEnvScrZ2] + [eecon:EEhSlatThick]/2."/> </PosPart>
- <PosPart copyNumber="1"> <rParent name="eefixed:EEFrontQuad"/> <rChild  name="eefixed:EEvSlat"/>
+ <PosPart copyNumber="1"> <rParent name="eehier:EEFrontQuad"/> <rChild  name="eefixed:EEvSlat"/>
       <Translation y="[eecon:EEiEnvScrOR1] + [eecon:EESlatLength]/2." 
                    x="[eecon:EEvSlatWidth]/4." 
                    z="[eecon:EEfEnvScrZ2] + [eecon:EEvSlatThick]/2."/> </PosPart>
@@ -529,43 +445,43 @@
  <PosPart copyNumber="1"> <rParent name="eefixed:EEfC740P"/> <rChild name="eefixed:EEfC740W"/> </PosPart>
  <PosPart copyNumber="1"> <rParent name="eefixed:EEfC420P"/> <rChild name="eefixed:EEfC420W"/> </PosPart>
 
- <PosPart copyNumber="1"> <rParent name="eefixed:EEFrontQuad"/> <rChild name="eefixed:EEfC100P"/>
+ <PosPart copyNumber="1"> <rParent name="eehier:EEFrontQuad"/> <rChild name="eefixed:EEfC100P"/>
       <Translation x="1250*mm" y="800*mm" z="[eecon:EEfCoolZOff]"/>
       <rRotation name="eecon:EEfCR100"/> </PosPart>
- <PosPart copyNumber="1"> <rParent name="eefixed:EEFrontQuad"/> <rChild name="eefixed:EEfC450P"/>
+ <PosPart copyNumber="1"> <rParent name="eehier:EEFrontQuad"/> <rChild name="eefixed:EEfC450P"/>
       <Translation x="1215*mm" y="540*mm" z="[eecon:EEfCoolZOff]"/>
       <rRotation name="eecon:EEfCRotX"/> </PosPart>
- <PosPart copyNumber="2"> <rParent name="eefixed:EEFrontQuad"/> <rChild name="eefixed:EEfC450P"/>
+ <PosPart copyNumber="2"> <rParent name="eehier:EEFrontQuad"/> <rChild name="eefixed:EEfC450P"/>
       <Translation x="1065*mm" y="540*mm" z="[eecon:EEfCoolZOff]"/>
       <rRotation name="eecon:EEfCRotX"/> </PosPart>
- <PosPart copyNumber="3"> <rParent name="eefixed:EEFrontQuad"/> <rChild name="eefixed:EEfC450P"/>
+ <PosPart copyNumber="3"> <rParent name="eehier:EEFrontQuad"/> <rChild name="eefixed:EEfC450P"/>
       <Translation x="915*mm" y="990*mm" z="[eecon:EEfCoolZOff]"/>
       <rRotation name="eecon:EEfCRotX"/> </PosPart>
- <PosPart copyNumber="4"> <rParent name="eefixed:EEFrontQuad"/> <rChild name="eefixed:EEfC450P"/>
+ <PosPart copyNumber="4"> <rParent name="eehier:EEFrontQuad"/> <rChild name="eefixed:EEfC450P"/>
       <Translation x="535*mm" y="765*mm" z="[eecon:EEfCoolZOff]"/>
       <rRotation name="eecon:EEfCRotY"/> </PosPart>
- <PosPart copyNumber="1"> <rParent name="eefixed:EEFrontQuad"/> <rChild name="eefixed:EEfC150P"/>
+ <PosPart copyNumber="1"> <rParent name="eehier:EEFrontQuad"/> <rChild name="eefixed:EEfC150P"/>
       <Translation x="1140*mm" y="305*mm" z="[eecon:EEfCoolZOff]"/>
       <rRotation name="eecon:EEfCRotY"/> </PosPart>
- <PosPart copyNumber="2"> <rParent name="eefixed:EEFrontQuad"/> <rChild name="eefixed:EEfC150P"/>
+ <PosPart copyNumber="2"> <rParent name="eehier:EEFrontQuad"/> <rChild name="eefixed:EEfC150P"/>
       <Translation x="990*mm" y="765*mm" z="[eecon:EEfCoolZOff]"/>
       <rRotation name="eecon:EEfCRotY"/> </PosPart>
- <PosPart copyNumber="3"> <rParent name="eefixed:EEFrontQuad"/> <rChild name="eefixed:EEfC150P"/>
+ <PosPart copyNumber="3"> <rParent name="eehier:EEFrontQuad"/> <rChild name="eefixed:EEfC150P"/>
       <Translation x="615*mm" y="1290*mm" z="[eecon:EEfCoolZOff]"/>
       <rRotation name="eecon:EEfCRotX"/> </PosPart>
- <PosPart copyNumber="1"> <rParent name="eefixed:EEFrontQuad"/> <rChild name="eefixed:EEfC300P"/>
+ <PosPart copyNumber="1"> <rParent name="eehier:EEFrontQuad"/> <rChild name="eefixed:EEfC300P"/>
       <Translation x="765*mm" y="1215*mm" z="[eecon:EEfCoolZOff]"/>
       <rRotation name="eecon:EEfCRotY"/> </PosPart>
- <PosPart copyNumber="2"> <rParent name="eefixed:EEFrontQuad"/> <rChild name="eefixed:EEfC300P"/>
+ <PosPart copyNumber="2"> <rParent name="eehier:EEFrontQuad"/> <rChild name="eefixed:EEfC300P"/>
       <Translation x="460*mm" y="1365*mm" z="[eecon:EEfCoolZOff]"/>
       <rRotation name="eecon:EEfCRotY"/> </PosPart>
- <PosPart copyNumber="1"> <rParent name="eefixed:EEFrontQuad"/> <rChild name="eefixed:EEfC600P"/>
+ <PosPart copyNumber="1"> <rParent name="eehier:EEFrontQuad"/> <rChild name="eefixed:EEfC600P"/>
       <Translation x="305*mm" y="1065*mm" z="[eecon:EEfCoolZOff]"/>
       <rRotation name="eecon:EEfCRotX"/> </PosPart>
- <PosPart copyNumber="1"> <rParent name="eefixed:EEFrontQuad"/> <rChild name="eefixed:EEfC740P"/>
+ <PosPart copyNumber="1"> <rParent name="eehier:EEFrontQuad"/> <rChild name="eefixed:EEfC740P"/>
       <Translation x="765*mm" y="395*mm" z="[eecon:EEfCoolZOff]"/>
       <rRotation name="eecon:EEfCRotX"/> </PosPart>
- <PosPart copyNumber="1"> <rParent name="eefixed:EEFrontQuad"/> <rChild name="eefixed:EEfC420P"/>
+ <PosPart copyNumber="1"> <rParent name="eehier:EEFrontQuad"/> <rChild name="eefixed:EEfC420P"/>
       <Translation x="1353*mm" y="862*mm" z="0*mm"/>
       <rRotation name="eecon:EEfCR420"/> </PosPart>
 
@@ -582,7 +498,7 @@
 
 <!-- Cooling Box Quadrant -->
 
- <PosPart copyNumber="1"> <rParent name="eefixed:EEBackQuad"/> <rChild name="eefixed:EECoolQ"/>
+ <PosPart copyNumber="1"> <rParent name="eehier:EEBackQuad"/> <rChild name="eefixed:EECoolQ"/>
       <Translation x="0*mm" y="0*mm" z="[eecon:EEzCoolQ]"/> </PosPart>
 
 <!-- Cooling box placement -->
