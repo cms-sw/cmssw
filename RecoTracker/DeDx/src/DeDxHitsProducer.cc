@@ -13,7 +13,7 @@
 //
 // Original Author:  andrea
 //         Created:  Thu May 31 14:09:02 CEST 2007
-// $Id: DeDxHitsProducer.cc,v 1.6 2007/06/26 13:33:36 arizzi Exp $
+// $Id: DeDxHitsProducer.cc,v 1.7 2007/08/10 08:09:12 arizzi Exp $
 //
 //
 
@@ -110,7 +110,7 @@ DeDxHitsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
    else
     {  
-      cout << "Simple matching not possible! " << tracks.size() << " (original) vs " << refittedTracks.size() << " (refitted)" << endl;
+//      cout << "Simple matching not possible! " << tracks.size() << " (original) vs " << refittedTracks.size() << " (refitted)" << endl;
       //new tracks should be less than old tracks, so loop on old and check compatibility
       for(size_t j=0,i=0;j< tracks.size() && i < refittedTracks.size() ; j++)
         {
@@ -122,7 +122,7 @@ DeDxHitsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    else
 	    {
 	      //TODO: put a logdebug warning here!
-	      cout << "Lost track found with pt = " << tracks[j].pt() <<  endl;
+//	      cout << "Lost track found with pt = " << tracks[j].pt() <<  endl;
 	    }
         }
     }
@@ -193,7 +193,8 @@ double DeDxHitsProducer::thickness(DetId id)
   bool isStrip = dynamic_cast<const StripGeomDetUnit*>(it)!=0;
   if (!isPixel && ! isStrip) {
   //FIXME throw exception
-    cout << "\t\t this detID doesn't seem to belong to the Tracker" << endl;
+//    cout << "\t\t this detID doesn't seem to belong to the Tracker" << endl;
+  detThickness = 1.;
   }else{
     detThickness = it->surface().bounds().thickness();
   }
