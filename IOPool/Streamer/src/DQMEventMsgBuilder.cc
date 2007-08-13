@@ -15,6 +15,7 @@ using namespace std;
  */
 DQMEventMsgBuilder::DQMEventMsgBuilder(void* buf, uint32 bufSize,
                             uint32 run, uint32 event,
+                            edm::Timestamp timeStamp,
                             uint32 lumiSection, uint32 updateNumber,
                             std::string const& releaseTag,
                             std::string const& topFolderName,
@@ -40,6 +41,9 @@ DQMEventMsgBuilder::DQMEventMsgBuilder(void* buf, uint32 bufSize,
   convert(protocolVersion, evtHdr->protocolVersion_);
   convert(run, evtHdr->runNumber_);
   convert(event, evtHdr->eventNumber_);
+
+  convert(timeStamp.value(), evtHdr->timeStamp_);
+
   convert(lumiSection, evtHdr->lumiSection_);
   convert(updateNumber, evtHdr->updateNumber_);
 

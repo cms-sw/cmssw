@@ -32,7 +32,7 @@ problems:
   where does the pluginmanager initialize call go?
 
 
-$Id: EventProcessor.h,v 1.32 2007/03/17 02:30:48 jbk Exp $
+$Id: EventProcessor.h,v 1.34 2007/03/22 22:26:11 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -146,7 +146,8 @@ namespace edm {
        */
     void endJob();
 
-
+    /**Member functions to support asynchronous interface
+     */
     char const* currentStateName() const;
     char const* stateName(event_processor::State s) const;
     char const* msgName(event_processor::Msg m) const;
@@ -176,8 +177,12 @@ namespace edm {
     // or timeout occurs (See StatusCode for return values)
     StatusCode waitTillDoneAsync(unsigned int timeout_seconds=0);
 
+    // Both of these calls move the EP to the ready to run state but only
+    // the first actually sets the run number, the other one just stores
+    // the run number set externally in order to later compare to the one 
+    // read from the input source for verification
     void setRunNumber(RunNumber_t runNumber);
-
+    void declareRunNumber(RunNumber_t runNumber);
     // -------------
 
     // Invoke event processing.  We will process a total of

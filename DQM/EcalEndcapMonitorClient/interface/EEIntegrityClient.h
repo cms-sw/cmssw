@@ -4,8 +4,8 @@
 /*
  * \file EEIntegrityClient.h
  *
- * $Date: 2007/03/26 17:35:04 $
- * $Revision: 1.47 $
+ * $Date: 2007/04/02 16:15:35 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -101,49 +101,49 @@ MonitorUserInterface* mui_;
 
 CollateMonitorElement* me_h00_;
 
-CollateMonitorElement* me_h01_[36];
-CollateMonitorElement* me_h02_[36];
-CollateMonitorElement* me_h03_[36];
-CollateMonitorElement* me_h04_[36];
-CollateMonitorElement* me_h05_[36];
-CollateMonitorElement* me_h06_[36];
-CollateMonitorElement* me_h07_[36];
-CollateMonitorElement* me_h08_[36];
-CollateMonitorElement* me_h09_[36];
-CollateMonitorElement* me_h10_[36];
+CollateMonitorElement* me_h01_[18];
+CollateMonitorElement* me_h02_[18];
+CollateMonitorElement* me_h03_[18];
+CollateMonitorElement* me_h04_[18];
+CollateMonitorElement* me_h05_[18];
+CollateMonitorElement* me_h06_[18];
+CollateMonitorElement* me_h07_[18];
+CollateMonitorElement* me_h08_[18];
+CollateMonitorElement* me_h09_[18];
+CollateMonitorElement* me_h10_[18];
 
 TH1F* h00_;
 
-TH2F* h01_[36];
-TH2F* h02_[36];
-TH2F* h03_[36];
-TH2F* h04_[36];
-TH2F* h05_[36];
-TH2F* h06_[36];
-TH2F* h07_[36];
-TH2F* h08_[36];
-TH2F* h09_[36];
-TH2F* h10_[36];
+TH2F* h01_[18];
+TH2F* h02_[18];
+TH2F* h03_[18];
+TH2F* h04_[18];
+TH2F* h05_[18];
+TH2F* h06_[18];
+TH2F* h07_[18];
+TH2F* h08_[18];
+TH2F* h09_[18];
+TH2F* h10_[18];
 
-MEContentsTH2FWithinRangeROOT* qth01_[36];
-MEContentsTH2FWithinRangeROOT* qth02_[36];
-MEContentsTH2FWithinRangeROOT* qth03_[36];
-MEContentsTH2FWithinRangeROOT* qth04_[36];
-MEContentsTH2FWithinRangeROOT* qth05_[36];
-MEContentsTH2FWithinRangeROOT* qth06_[36];
-MEContentsTH2FWithinRangeROOT* qth07_[36];
-MEContentsTH2FWithinRangeROOT* qth08_[36];
-MEContentsTH2FWithinRangeROOT* qth09_[36];
-MEContentsTH2FWithinRangeROOT* qth10_[36];
+MEContentsTH2FWithinRangeROOT* qth01_[18];
+MEContentsTH2FWithinRangeROOT* qth02_[18];
+MEContentsTH2FWithinRangeROOT* qth03_[18];
+MEContentsTH2FWithinRangeROOT* qth04_[18];
+MEContentsTH2FWithinRangeROOT* qth05_[18];
+MEContentsTH2FWithinRangeROOT* qth06_[18];
+MEContentsTH2FWithinRangeROOT* qth07_[18];
+MEContentsTH2FWithinRangeROOT* qth08_[18];
+MEContentsTH2FWithinRangeROOT* qth09_[18];
+MEContentsTH2FWithinRangeROOT* qth10_[18];
 
-MonitorElement* meg01_[36];
-MonitorElement* meg02_[36];
+MonitorElement* meg01_[18];
+MonitorElement* meg02_[18];
 
-CollateMonitorElement* me_h_[36];
-CollateMonitorElement* me_hmem_[36];
+CollateMonitorElement* me_h_[18];
+CollateMonitorElement* me_hmem_[18];
 
-TH2F* h_[36];
-TH2F* hmem_[36];
+TH2F* h_[18];
+TH2F* hmem_[18];
 
 // Quality criteria for data integrity
 

@@ -4,8 +4,8 @@
 /** \class DTUnpackingModule
  *  The unpacking module for DTs.
  *
- *  $Date: 2006/06/25 15:31:39 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/09/19 14:09:11 $
+ *  $Revision: 1.7 $
  * \author N. Amapane - S. Argiro' - M. Zanetti
  */
 
@@ -34,7 +34,12 @@ class DTUnpackingModule: public edm::EDProducer {
   int numOfEvents;
 
   int eventScanning;
-
+  
+  bool fedbyType_;
+  std::string fedColl_;
+  bool useStandardFEDid_;
+  int minFEDid_;
+  int maxFEDid_;
 };
 
 #endif

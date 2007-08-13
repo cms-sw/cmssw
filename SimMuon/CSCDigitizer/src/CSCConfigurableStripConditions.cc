@@ -4,7 +4,13 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 CSCConfigurableStripConditions::CSCConfigurableStripConditions(const edm::ParameterSet & p)
-: theAnalogNoise(  p.getParameter<double>("analogNoise") )
+: theGain( p.getParameter<double>("gain") ),
+  theME11Gain( p.getParameter<double>("me11gain") ),
+  theGainVariance( p.getParameter<double>("ampGainVariance") ),
+  thePedestal( p.getParameter<double>("pedestal") ),
+  thePedestalVariance( p.getParameter<double>("pedestalVariance") ),
+  theCapacitiveCrosstalk(0.0167),
+  theResistiveCrosstalk(0.02)
 {
   theNoisifiers.resize(9);
   makeNoisifier(1, p.getParameter<std::vector<double> >("me11") );
@@ -28,6 +34,19 @@ CSCConfigurableStripConditions::~CSCConfigurableStripConditions()
 }
 
 
+float CSCConfigurableStripConditions::gain(const CSCDetId & detId, int channel) const
+{
+  if(detId.station() == 1 && (detId.ring() == 1 || detId.ring() == 4) )
+  {
+    return theME11Gain;
+  }  
+  else
+  {
+    return theGain;
+  }
+}
+
+
 void CSCConfigurableStripConditions::fetchNoisifier(const CSCDetId & detId, int istrip)
 {
   //TODO get this moved toCSCDetId
@@ -38,7 +57,6 @@ void CSCConfigurableStripConditions::fetchNoisifier(const CSCDetId & detId, int 
 
 void CSCConfigurableStripConditions::makeNoisifier(int chamberType, const std::vector<double> & correlations)
 {
-std::cout << "Make noisifiera " << chamberType << std::endl;
 
   // format is 33, 34, 44, 35, 45, 55
   //           46, 56, 66, 57, 67, 77
@@ -65,9 +83,18 @@ std::cout << "Make noisifiera " << chamberType << std::endl;
 
   // since I don't know how to correlate the pedestal samples,
   // take as constant
-  matrix[0][0] = theAnalogNoise * theAnalogNoise;
-  matrix[1][1] = theAnalogNoise * theAnalogNoise;
-  matrix[2][2] = theAnalogNoise * theAnalogNoise;
+  matrix[0][0] = thePedestalVariance * thePedestalVariance;
+  matrix[1][1] = thePedestalVariance * thePedestalVariance;
+  matrix[2][2] = thePedestalVariance * thePedestalVariance;
   theNoisifiers[chamberType-1] = new CorrelatedNoisifier(matrix);
 
 }
+
+void CSCConfigurableStripConditions::crosstalk(const CSCDetId&detId, int channel,
+                 double stripLength, bool leftRight,
+                 float & capacitive, float & resistive) const
+{
+  capacitive = theCapacitiveCrosstalk * stripLength;
+  resistive = theResistiveCrosstalk;
+}
+

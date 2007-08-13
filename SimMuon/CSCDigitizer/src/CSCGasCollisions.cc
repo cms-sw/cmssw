@@ -141,7 +141,7 @@ void CSCGasCollisions::setParticleDataTable(const ParticleDataTable * pdt)
 }
 
 
-void CSCGasCollisions::simulate( const PSimHit& simHit,
+void CSCGasCollisions::simulate( const PSimHit& simHit, const CSCLayer * layer,
   std::vector<LocalPoint>& positions, std::vector<int>& electrons ) {
 
   const float epsilonL = 0.01;                     // Shortness of simhit 'length'
@@ -201,8 +201,13 @@ void CSCGasCollisions::simulate( const PSimHit& simHit,
   int n_try        = 0;  // no. of tries to generate steps
   double step      = -1.; // Sentinel for start
 
-  LocalPoint here( simHit.entryPoint() ); // local point where the hit 'starts'
+  //LocalPoint chamberLocalPoint( simHit.entryPoint() );
+  // translate to layer local coordinates
+  //GlobalPoint globalPoint( layer->chamber()->toGlobal(chamberLocalPoint) );
+  //LocalPoint layerLocalPoint( layer->toLocal(globalPoint) );
+  LocalPoint layerLocalPoint( simHit.entryPoint() );
 
+  //std::cout << "DEBUG " << chamberLocalPoint << " " << layerLocalPoint << std::endl;
   // step/primary collision loop
   while ( sum_steps < gapSize) {
     ++n_try;
@@ -240,8 +245,8 @@ void CSCGasCollisions::simulate( const PSimHit& simHit,
     // Generate ionization. 
     // eion is the minimum energy at which ionization can occur in the gas
     if ( eloss > eion  ) {
-      here += step * theCrossGap->unitVector(); // local point where the collision occurs
-      ionize( eloss, here );
+      layerLocalPoint += step * theCrossGap->unitVector(); // local point where the collision occurs
+      ionize( eloss, layerLocalPoint );
     }
     else {
       LogTrace(me) << "Energy available = " << eloss <<

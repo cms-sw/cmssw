@@ -29,7 +29,7 @@ echo done with all DB writes.
 echo start all DB reads.
 echo start DB read Ideal
 date
-cmsRun ../../testreadDBIdealOnly > trIdeal.out
+cmsRun ../../testreadDBIdealOnly.cfg > trIdeal.out
 echo done with read DB Ideal
 date
 
@@ -62,7 +62,7 @@ sed -i '{s/-0.0000/ 0.0000/g}' dumpGeoHistoryDBIdealRead
 cd ../xml
 
 date
-echo this will show if there are any inconsistencies when reading both Ideal and Magnet
+echo this will show if there are any inconsistencies when reading the Ideal Geometry
 diff dumpGeoHistoryXMLIdealRead ../db/dumpGeoHistoryDBIdealRead > diffgeomIdeal.out
 
 echo ALL DONE!

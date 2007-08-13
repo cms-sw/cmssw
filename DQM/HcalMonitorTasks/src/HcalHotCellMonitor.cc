@@ -93,8 +93,8 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfac
     meEVT_ = m_dbe->bookInt("HotCell Task Event Number");    
     meEVT_->Fill(ievt_);
 
-    meMAX_E_all =  m_dbe->book1D("HotCell Energy","HotCell Energy",100,0,400);
-    meMAX_T_all =  m_dbe->book1D("HotCell Time","HotCell Time",100,0,200);
+    meMAX_E_all =  m_dbe->book1D("HotCell Energy","HotCell Energy",200,0,1000);
+    meMAX_T_all =  m_dbe->book1D("HotCell Time","HotCell Time",200,-50,300);
     
     meOCC_MAP_L1= m_dbe->book2D("HotCell Depth 1 Occupancy Map","HotCell Depth 1 Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     meEN_MAP_L1= m_dbe->book2D("HotCell Depth 1 Energy Map","HotCell Depth 1 Energy Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
@@ -112,8 +112,8 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfac
     meEN_MAP_all  = m_dbe->book2D("HotCell Energy Map","HotCell Energy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     
     m_dbe->setCurrentFolder("HcalMonitor/HotCellMonitor/HB");
-    hbHists.meMAX_E =  m_dbe->book1D("HB HotCell Energy","HB HotCell Energy",100,0,400);
-    hbHists.meMAX_T =  m_dbe->book1D("HB HotCell Time","HB HotCell Time",100,-100,200);
+    hbHists.meMAX_E =  m_dbe->book1D("HB HotCell Energy","HB HotCell Energy",200,0,1000);
+    hbHists.meMAX_T =  m_dbe->book1D("HB HotCell Time","HB HotCell Time",200,-50,300);
     hbHists.meMAX_ID =  m_dbe->book1D("HB HotCell ID","HB HotCell ID",10000,1000,12000);
     
     hbHists.meOCC_MAP_GEO_Thr0  = m_dbe->book2D("HB HotCell Geo Occupancy Map, Threshold 0","HB HotCell Geo Occupancy Map, Threshold 0",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
@@ -124,8 +124,8 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfac
     hbHists.meEN_MAP_GEO_Max  = m_dbe->book2D("HB HotCell Geo Energy Map, Max Cell","HB HotCell Geo Energy Map, Max Cell",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 
     m_dbe->setCurrentFolder("HcalMonitor/HotCellMonitor/HE");
-    heHists.meMAX_E =  m_dbe->book1D("HE HotCell Energy","HE HotCell Energy",100,0,400);
-    heHists.meMAX_T =  m_dbe->book1D("HE HotCell Time","HE HotCell Time",100,-100,200);
+    heHists.meMAX_E =  m_dbe->book1D("HE HotCell Energy","HE HotCell Energy",200,0,1000);
+    heHists.meMAX_T =  m_dbe->book1D("HE HotCell Time","HE HotCell Time",200,-50,300);
     heHists.meMAX_ID =  m_dbe->book1D("HE HotCell ID","HE HotCell ID",4000,1000,5000);
     heHists.meOCC_MAP_GEO_Thr0  = m_dbe->book2D("HE HotCell Geo Occupancy Map, Threshold 0","HE HotCell Geo Occupancy Map, Threshold 0",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     heHists.meEN_MAP_GEO_Thr0  = m_dbe->book2D("HE HotCell Geo Energy Map, Threshold 0","HE HotCell Geo Energy Map, Threshold 0",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
@@ -135,8 +135,8 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfac
     heHists.meEN_MAP_GEO_Max  = m_dbe->book2D("HE HotCell Geo Energy Map, Max Cell","HE HotCell Geo Energy Map, Max Cell",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     
     m_dbe->setCurrentFolder("HcalMonitor/HotCellMonitor/HF");
-    hfHists.meMAX_E =  m_dbe->book1D("HF HotCell Energy","HF HotCell Energy",100,0,400);
-    hfHists.meMAX_T =  m_dbe->book1D("HF HotCell Time","HF HotCell Time",100,-100,200);
+    hfHists.meMAX_E =  m_dbe->book1D("HF HotCell Energy","HF HotCell Energy",200,0,1000);
+    hfHists.meMAX_T =  m_dbe->book1D("HF HotCell Time","HF HotCell Time",200,-50,300);
     hfHists.meMAX_ID =  m_dbe->book1D("HF HotCell ID","HF HotCell ID",10000,0,10000);
     hfHists.meOCC_MAP_GEO_Thr0  = m_dbe->book2D("HF HotCell Geo Occupancy Map, Threshold 0","HF HotCell Geo Occupancy Map, Threshold 0",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     hfHists.meEN_MAP_GEO_Thr0  = m_dbe->book2D("HF HotCell Geo Energy Map, Threshold 0","HF HotCell Geo Energy Map, Threshold 0",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
@@ -146,8 +146,8 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfac
     hfHists.meEN_MAP_GEO_Max  = m_dbe->book2D("HF HotCell Geo Energy Map, Max Cell","HF HotCell Geo Energy Map, Max Cell",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     
     m_dbe->setCurrentFolder("HcalMonitor/HotCellMonitor/HO");
-    hoHists.meMAX_E =  m_dbe->book1D("HO HotCell Energy","HO HotCell Energy",100,0,400);
-    hoHists.meMAX_T =  m_dbe->book1D("HO HotCell Time","HO HotCell Time",100,-100,200);
+    hoHists.meMAX_E =  m_dbe->book1D("HO HotCell Energy","HO HotCell Energy",200,0,1000);
+    hoHists.meMAX_T =  m_dbe->book1D("HO HotCell Time","HO HotCell Time",200,-50,300);
     hoHists.meMAX_ID =  m_dbe->book1D("HO HotCell ID","HO HotCell ID",1000,4000,5000);
     hoHists.meOCC_MAP_GEO_Thr0  = m_dbe->book2D("HO HotCell Geo Occupancy Map, Threshold 0","HO HotCell Geo Occupancy Map, Threshold 0",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     hoHists.meEN_MAP_GEO_Thr0  = m_dbe->book2D("HO HotCell Geo Energy Map, Threshold 0","HO HotCell Geo Energy Map, Threshold 0",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
@@ -192,7 +192,9 @@ void HcalHotCellMonitor::processEvent(const HBHERecHitCollection& hbHits, const 
 	  tS = _ib->time();
 	  etaS = _ib->id().ieta();
 	  phiS = _ib->id().iphi();
-	  idS = etaS+100*phiS+1000*_ib->id().depth();
+	  idS = 1000*etaS;
+	  if(idS<0) idS -= (10*phiS+depth);
+	  else idS += (10*phiS+depth);
 	  depth = _ib->id().depth();
 	}
       }
@@ -227,7 +229,9 @@ void HcalHotCellMonitor::processEvent(const HBHERecHitCollection& hbHits, const 
 	  tS = _ib->time();
 	  etaS = _ib->id().ieta();
 	  phiS = _ib->id().iphi();
-	  idS = etaS+100*phiS+1000*_ib->id().depth();
+	  idS = 1000*etaS;
+	  if(idS<0) idS -= (10*phiS+depth);
+	  else idS += (10*phiS+depth);
 	  depth = _ib->id().depth();
 	}
       }
@@ -264,7 +268,9 @@ void HcalHotCellMonitor::processEvent(const HBHERecHitCollection& hbHits, const 
 	  tS = _io->time();
 	  etaS = _io->id().ieta();
 	  phiS = _io->id().iphi();
-	  idS = etaS+100*phiS+1000*_io->id().depth();
+	  idS = 1000*etaS;
+	  if(idS<0) idS -= (10*phiS+depth);
+	  else idS += (10*phiS+depth);
 	  depth = _io->id().depth();
 	}
       }
@@ -300,7 +306,10 @@ void HcalHotCellMonitor::processEvent(const HBHERecHitCollection& hbHits, const 
 	  tS = _if->time();
 	  etaS = _if->id().ieta();
 	  phiS = _if->id().iphi();
-	  idS = etaS+100*phiS+1000*_if->id().depth();
+	  idS = 1000*etaS;
+	  if(idS<0) idS -= (10*phiS+depth);
+	  else idS += (10*phiS+depth);
+
 	  depth = _if->id().depth();
 	}
       }

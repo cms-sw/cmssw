@@ -22,7 +22,9 @@
 
 #include "EventFilter/StorageManager/interface/EvtMsgRingBuffer.h"
 #include "EventFilter/StorageManager/interface/EventServer.h"
+#include "EventFilter/StorageManager/interface/DQMEventServer.h"
 #include "EventFilter/StorageManager/interface/ServiceManager.h"
+#include "EventFilter/StorageManager/interface/DQMServiceManager.h"
 
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/thread.hpp"
@@ -46,7 +48,6 @@ namespace stor
     typedef std::vector<FragEntry> Fragments;
     typedef std::map<stor::FragKey, Fragments> Collection;
 
-    //FragmentCollector(const HLTInfo& h, Deleter d,
     FragmentCollector(HLTInfo& h, Deleter d,
                       const std::string& config_str="");
     FragmentCollector(std::auto_ptr<HLTInfo>, Deleter d,
@@ -76,42 +77,58 @@ namespace stor
     Deleter buffer_deleter_;
     Buffer event_area_;
     Collection fragment_area_;
-    // edm::EventInserter inserter_;
     boost::shared_ptr<boost::thread> me_;
     const edm::ProductRegistry* prods_; // change to shared_ptr ? 
     stor::HLTInfo* info_;  // cannot be const when using EP_Runner?
 
   public:
 
-    void set_outoption(bool stream_only)     { streamerOnly_ = stream_only; }
     void setNumberOfFileSystems(int disks)   { disks_        = disks; }
     void setFileCatalog(std::string catalog) { catalog_      = catalog; }
     void setSourceId(std::string sourceId)   { sourceId_     = sourceId; }
 
+    void setCollateDQM(bool collateDQM)      
+    { dqmServiceManager_->setCollateDQM(collateDQM); }
+
+    void setArchiveDQM(bool archiveDQM)
+    { dqmServiceManager_->setArchiveDQM(archiveDQM); }
+
+    void setPurgeTimeDQM(int purgeTimeDQM)   
+    { dqmServiceManager_->setPurgeTime(purgeTimeDQM);}
+
+    void setReadyTimeDQM(int readyTimeDQM)   
+    { dqmServiceManager_->setReadyTime(readyTimeDQM);}
+
+    void setFilePrefixDQM(std::string filePrefixDQM)
+    { dqmServiceManager_->setFilePrefix(filePrefixDQM);}
+
+    void setUseCompressionDQM(bool useCompressionDQM)
+    { dqmServiceManager_->setUseCompression(useCompressionDQM);}
+
+    void setCompressionLevelDQM(int compressionLevelDQM)
+    { dqmServiceManager_->setCompressionLevel(compressionLevelDQM);}
+
+    void setDQMEventServer(boost::shared_ptr<DQMEventServer>& es)
+    {
+      // The auto_ptr still owns the memory after this get()
+      if (dqmServiceManager_.get() != NULL) dqmServiceManager_->setDQMEventServer(es);
+      DQMeventServer_ = es;
+    }
+    boost::shared_ptr<DQMEventServer>& getDQMEventServer() { return DQMeventServer_; }
+
     std::list<std::string>& get_filelist() { return writer_->get_filelist();  }
     std::list<std::string>& get_currfiles() { return writer_->get_currfiles(); }
   private:
-    bool streamerOnly_;
     uint32 runNumber_;
     uint32 disks_;
     std::string catalog_;
     std::string sourceId_;
 
     std::auto_ptr<edm::ServiceManager> writer_;
+    std::auto_ptr<stor::DQMServiceManager> dqmServiceManager_;
 
-  public:
-    bool esbuf_isEmpty() { return evtsrv_area_.isEmpty(); }
-    bool esbuf_isFull() { return evtsrv_area_.isFull(); }
-    EventMsgView esbuf_pop_front() {return evtsrv_area_.pop_front();}
-    void esbuf_push_back(EventMsgView msg) { evtsrv_area_.push_back(msg); }
-
-    void set_esbuf_oneinN(int N) { oneinN_ = N; }
-
-  private:
-    stor::EvtMsgRingBuffer evtsrv_area_;
-    int oneinN_;  // place one in every oneinN_ events into the buffer
-    int count_4_oneinN_;
     boost::shared_ptr<EventServer> eventServer_;
+    boost::shared_ptr<DQMEventServer> DQMeventServer_;
   };
 }
 

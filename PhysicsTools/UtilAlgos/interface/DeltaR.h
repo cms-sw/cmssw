@@ -6,10 +6,10 @@
 namespace reco {
   namespace modules {
     
-    template<typename T>
-    struct ParameterAdapter<DeltaR<T> > {
-      static DeltaR<T> make( const edm::ParameterSet & cfg ) {
-	return DeltaR<T>();
+    template<typename T1, typename T2>
+    struct ParameterAdapter<DeltaR<T1, T2> > {
+      static DeltaR<T1, T2> make( const edm::ParameterSet & cfg ) {
+	return DeltaR<T1, T2>();
       }
     };
     

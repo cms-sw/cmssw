@@ -1,8 +1,8 @@
 /*
  * \file L1TDTTPG.cc
  *
- * $Date: 2007/02/21 22:10:31 $
- * $Revision: 1.3 $
+ * $Date: 2007/05/15 19:27:02 $
+ * $Revision: 1.5 $
  * \author J. Berryhill
  *
  */
@@ -136,125 +136,135 @@ void L1TDTTPG::analyze(const Event& e, const EventSetup& c)
   if(verbose_) cout << "L1TDTTPG: analyze...." << endl;
 
   edm::Handle<L1MuDTChambPhContainer > myL1MuDTChambPhContainer;  
+
+  try {
   e.getByLabel(dttpgSource_,myL1MuDTChambPhContainer);
+  }
+  catch (...) {
+    edm::LogInfo("L1TDTTPG") << "can't find L1MuDTChambPhContainer with label "
+			       << dttpgSource_.label() ;
+    return;
+  }
+  vector<L1MuDTChambPhDigi>* myPhContainer =  myL1MuDTChambPhContainer->getContainer();
+
   edm::Handle<L1MuDTChambThContainer > myL1MuDTChambThContainer;  
+  try {
   e.getByLabel(dttpgSource_,myL1MuDTChambThContainer);
+  }
+  catch (...) {
+    edm::LogInfo("L1TDTTPG") << "can't find L1MuDTChambThContainer with label "
+			       << dttpgSource_.label() ;
+    return;
+  }
+  vector<L1MuDTChambThDigi>* myThContainer =  myL1MuDTChambThContainer->getContainer();
+
   int ndttpgphtrack = 0;
   int ndttpgthtrack = 0; 
-  for (int iwheel = -2; iwheel <=2; iwheel++)
-    {
-      for (int istation = 1; istation <=4; istation++)
-	{
-	  for (int isector = 0; isector <=11; isector++)
-	    {
-	      for (int ibx = 0; ibx<=100; ibx++)
-		{
-             
-		  L1MuDTChambPhDigi* const myDigi = myL1MuDTChambPhContainer->chPhiSegm1(iwheel, istation, isector, ibx);
-                  if (myDigi)
-		    {
 
-		      ndttpgphtrack++;
-		      dttpgphwheel->Fill(myDigi->whNum());
-		      if (verbose_)
-			{
-		      cout << "DTTPG phi wheel number " << myDigi->whNum() << endl;
+  
+  for( vector<L1MuDTChambPhDigi>::const_iterator 
+       DTPhDigiItr =  myPhContainer->begin() ;
+       DTPhDigiItr != myPhContainer->end() ;
+       ++DTPhDigiItr ) 
+    {           
+     ndttpgphtrack++;
+     dttpgphwheel->Fill(DTPhDigiItr->whNum());
+     if (verbose_)
+       {
+	cout << "DTTPG phi wheel number " << DTPhDigiItr->whNum() << endl;
 			}
-                      dttpgphstation->Fill(myDigi->stNum());
-		      if (verbose_)
-			{   
- cout << "DTTPG phi station number " << myDigi->stNum() << endl;
+     dttpgphstation->Fill(DTPhDigiItr->stNum());
+     if (verbose_)
+       {   
+        cout << "DTTPG phi station number " << DTPhDigiItr->stNum() << endl;
 			}
-		      dttpgphsector->Fill(myDigi->scNum());
-		      if (verbose_)
-			{
-    cout << "DTTPG phi sector number " << myDigi->scNum() << endl;
+     dttpgphsector->Fill(DTPhDigiItr->scNum());
+     if (verbose_)
+       {
+        cout << "DTTPG phi sector number " << DTPhDigiItr->scNum() << endl;
 			}
-                      dttpgphbx->Fill(myDigi->bxNum());
-		      if (verbose_)
-			{
-    cout << "DTTPG phi bx number " << myDigi->bxNum() << endl;
+     dttpgphbx->Fill(DTPhDigiItr->bxNum());
+     if (verbose_)
+       {
+        cout << "DTTPG phi bx number " << DTPhDigiItr->bxNum() << endl;
 			}
-                    dttpgphphi->Fill(myDigi->phi());
-		      if (verbose_)
-			{
-    cout << "DTTPG phi phi " << myDigi->phi() << endl;
+     dttpgphphi->Fill(DTPhDigiItr->phi());
+     if (verbose_)
+       {
+        cout << "DTTPG phi phi " << DTPhDigiItr->phi() << endl;
 			}
-                    dttpgphphiB->Fill(myDigi->phiB());
-		      if (verbose_)
-			{
-    cout << "DTTPG phi phiB " << myDigi->phiB() << endl;
+     dttpgphphiB->Fill(DTPhDigiItr->phiB());
+     if (verbose_)
+       {
+        cout << "DTTPG phi phiB " << DTPhDigiItr->phiB() << endl;
 			}
-                    dttpgphquality->Fill(myDigi->code());
-		      if (verbose_)
-			{
-    cout << "DTTPG phi quality " << myDigi->code() << endl;
+     dttpgphquality->Fill(DTPhDigiItr->code());
+     if (verbose_)
+       {
+        cout << "DTTPG phi quality " << DTPhDigiItr->code() << endl;
 			}
-                    dttpgphts2tag->Fill(myDigi->Ts2Tag());
-		      if (verbose_)
-			{
-    cout << "DTTPG phi ts2tag " << myDigi->Ts2Tag() << endl;
+     dttpgphts2tag->Fill(DTPhDigiItr->Ts2Tag());
+     if (verbose_)
+       {
+        cout << "DTTPG phi ts2tag " << DTPhDigiItr->Ts2Tag() << endl;
 			}
-                    dttpgphbxcnt->Fill(myDigi->BxCnt());
-		      if (verbose_)
-			{
-    cout << "DTTPG phi bxcnt " << myDigi->BxCnt() << endl;
+     dttpgphbxcnt->Fill(DTPhDigiItr->BxCnt());
+     if (verbose_)
+       {
+        cout << "DTTPG phi bxcnt " << DTPhDigiItr->BxCnt() << endl;
 			}
-		    }
-
-		  L1MuDTChambThDigi* const mythDigi = myL1MuDTChambThContainer->chThetaSegm(iwheel, istation, isector, ibx);
-                  if (mythDigi)
-		    {
-		      ndttpgthtrack++;
-		      dttpgthwheel->Fill(mythDigi->whNum());
-		      if (verbose_)
-			{
-    cout << "DTTPG theta wheel number " << mythDigi->whNum() << endl;
-			}
-                      dttpgthstation->Fill(mythDigi->stNum());
-		      if (verbose_)
-			{   
-    cout << "DTTPG theta station number " << mythDigi->stNum() << endl;
-			}
-		      dttpgthsector->Fill(mythDigi->scNum());
-		      if (verbose_)
-			{
-    cout << "DTTPG theta sector number " << mythDigi->scNum() << endl;
-			}
-                      dttpgthbx->Fill(mythDigi->bxNum());
-		      if (verbose_)
-			{
-    cout << "DTTPG theta bx number " << mythDigi->bxNum() << endl;
-			}
-		      for (int j = 0; j < 7; j++)
-			{
-                    dttpgththeta->Fill(mythDigi->position(j));
-		      if (verbose_)
-			{
-    cout << "DTTPG theta position " << mythDigi->position(j) << endl;
-			}
-                    dttpgthquality->Fill(mythDigi->code(j));
-		      if (verbose_)
-			{
-    cout << "DTTPG theta quality " << mythDigi->code(j) << endl;
-			}
-			}
-		    }
-		    
-		}
-
-	    }
-	}
     }
-                    dttpgphntrack->Fill(ndttpgphtrack);
-		      if (verbose_)
-			{
-    cout << "DTTPG phi ntrack " << ndttpgphtrack << endl;
+
+  for( vector<L1MuDTChambThDigi>::const_iterator 
+       DTThDigiItr =  myThContainer->begin() ;
+       DTThDigiItr != myThContainer->end() ;
+       ++DTThDigiItr ) 
+    {           		
+     ndttpgthtrack++;
+     dttpgthwheel->Fill(DTThDigiItr->whNum());
+     if (verbose_)
+       {
+      cout << "DTTPG theta wheel number " << DTThDigiItr->whNum() << endl;
 			}
-                    dttpgthntrack->Fill(ndttpgthtrack);
-		      if (verbose_)
-			{
-    cout << "DTTPG theta ntrack " << ndttpgthtrack << endl;
+     dttpgthstation->Fill(DTThDigiItr->stNum());
+     if (verbose_)
+       {   
+      cout << "DTTPG theta station number " << DTThDigiItr->stNum() << endl;
+			}
+     dttpgthsector->Fill(DTThDigiItr->scNum());
+     if (verbose_)
+       {
+        cout << "DTTPG theta sector number " << DTThDigiItr->scNum() << endl;
+			}
+     dttpgthbx->Fill(DTThDigiItr->bxNum());
+     if (verbose_)
+       {
+        cout << "DTTPG theta bx number " << DTThDigiItr->bxNum() << endl;
+			}
+     for (int j = 0; j < 7; j++)
+       {
+        dttpgththeta->Fill(DTThDigiItr->position(j));
+	if (verbose_)
+	  {
+           cout << "DTTPG theta position " << DTThDigiItr->position(j) << endl;
+			}
+        dttpgthquality->Fill(DTThDigiItr->code(j));
+	if (verbose_)
+	  {
+           cout << "DTTPG theta quality " << DTThDigiItr->code(j) << endl;
+			}
+       }
+
+    }
+    dttpgphntrack->Fill(ndttpgphtrack);
+    if (verbose_)
+      {
+       cout << "DTTPG phi ntrack " << ndttpgphtrack << endl;
+			}
+    dttpgthntrack->Fill(ndttpgthtrack);
+    if (verbose_)
+      {
+       cout << "DTTPG theta ntrack " << ndttpgthtrack << endl;
 			}
 
 }

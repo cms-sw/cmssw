@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  *
- * $Date: 2007/03/13 10:14:25 $
- * $Revision: 1.69 $
+ * $Date: 2007/05/22 09:53:47 $
+ * $Revision: 1.76 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -28,8 +28,12 @@
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
 
+#include "DQM/EcalCommon/interface/EcalErrorMask.h"
+#include <DQM/EcalCommon/interface/UtilsClient.h>
+#include <DQM/EcalCommon/interface/LogicID.h>
+#include <DQM/EcalCommon/interface/Numbers.h>
+
 #include <DQM/EcalBarrelMonitorClient/interface/EBCosmicClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 
 using namespace cms;
 using namespace edm;
@@ -215,7 +219,7 @@ bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
         if ( econn ) {
           try {
-            ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
+            ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
             dataset[ecid] = o;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -230,7 +234,7 @@ bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
   if ( econn ) {
     try {
       cout << "Inserting MonOccupancyDat ... " << flush;
-      if ( dataset.size() != 0 ) econn->insertDataSet(&dataset, moniov);
+      if ( dataset.size() != 0 ) econn->insertDataArraySet(&dataset, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
@@ -251,11 +255,11 @@ void EBCosmicClient::subscribe(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Sel/EBCT energy sel SM%02d", ism);
+    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Sel/EBCT energy sel %s", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Cut/EBCT energy cut SM%02d", ism);
+    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Cut/EBCT energy cut %s", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Spectrum/EBCT energy spectrum SM%02d", ism);
+    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Spectrum/EBCT energy spectrum %s", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo);
 
   }
@@ -268,19 +272,19 @@ void EBCosmicClient::subscribe(void){
 
       int ism = superModules_[i];
 
-      sprintf(histo, "EBCT energy sel SM%02d", ism);
+      sprintf(histo, "EBCT energy sel %s", Numbers::sEB(ism).c_str());
       me_h01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBCosmicTask/Sel");
-      sprintf(histo, "*/EcalBarrel/EBCosmicTask/Sel/EBCT energy sel SM%02d", ism);
+      sprintf(histo, "*/EcalBarrel/EBCosmicTask/Sel/EBCT energy sel %s", Numbers::sEB(ism).c_str());
       mui_->add(me_h01_[ism-1], histo);
 
-      sprintf(histo, "EBCT energy cut SM%02d", ism);
+      sprintf(histo, "EBCT energy cut %s", Numbers::sEB(ism).c_str());
       me_h02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBCosmicTask/Cut");
-      sprintf(histo, "*/EcalBarrel/EBCosmicTask/Cut/EBCT energy cut SM%02d", ism);
+      sprintf(histo, "*/EcalBarrel/EBCosmicTask/Cut/EBCT energy cut %s", Numbers::sEB(ism).c_str());
       mui_->add(me_h02_[ism-1], histo);
 
-      sprintf(histo, "EBCT energy spectrum SM%02d", ism);
+      sprintf(histo, "EBCT energy spectrum %s", Numbers::sEB(ism).c_str());
       me_h03_[ism-1] = mui_->collate1D(histo, histo, "EcalBarrel/Sums/EBCosmicTask/Spectrum");
-      sprintf(histo, "*/EcalBarrel/EBCosmicTask/Spectrum/EBCT energy spectrum SM%02d", ism);
+      sprintf(histo, "*/EcalBarrel/EBCosmicTask/Spectrum/EBCT energy spectrum %s", Numbers::sEB(ism).c_str());
       mui_->add(me_h03_[ism-1], histo);
 
     }
@@ -297,11 +301,11 @@ void EBCosmicClient::subscribeNew(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Sel/EBCT energy sel SM%02d", ism);
+    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Sel/EBCT energy sel %s", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo);
-    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Cut/EBCT energy cut SM%02d", ism);
+    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Cut/EBCT energy cut %s", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo);
-    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Spectrum/EBCT energy spectrum SM%02d", ism);
+    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Spectrum/EBCT energy spectrum %s", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo);
 
   }
@@ -338,11 +342,11 @@ void EBCosmicClient::unsubscribe(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Sel/EBCT energy sel SM%02d", ism);
+    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Sel/EBCT energy sel %s", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Cut/EBCT energy cut SM%02d", ism);
+    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Cut/EBCT energy cut %s", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo);
-    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Spectrum/EBCT energy spectrum SM%02d", ism);
+    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Spectrum/EBCT energy spectrum %s", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo);
 
   }
@@ -380,30 +384,30 @@ void EBCosmicClient::analyze(void){
     int ism = superModules_[i];
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBCosmicTask/Sel/EBCT energy sel SM%02d", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBCosmicTask/Sel/EBCT energy sel %s", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBCosmicTask/Sel/EBCT energy sel SM%02d").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBCosmicTask/Sel/EBCT energy sel %s").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
-    h01_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
+    h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBCosmicTask/Cut/EBCT energy cut SM%02d", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBCosmicTask/Cut/EBCT energy cut %s", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBCosmicTask/Cut/EBCT energy cut SM%02d").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBCosmicTask/Cut/EBCT energy cut %s").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
-    h02_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
+    h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
     meh02_[ism-1] = me;
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBCosmicTask/Spectrum/EBCT energy spectrum SM%02d", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBCosmicTask/Spectrum/EBCT energy spectrum %s", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBCosmicTask/Spectrum/EBCT energy spectrum SM%02d").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBCosmicTask/Spectrum/EBCT energy spectrum %s").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
-    h03_[ism-1] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, h03_[ism-1] );
+    h03_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03_[ism-1] );
     meh03_[ism-1] = me;
 
   }
@@ -442,7 +446,8 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
 //  htmlFile << "<hr>" << endl;
   htmlFile << "<table border=1>" << std::endl;
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
-    htmlFile << "<td bgcolor=white><a href=""#" << superModules_[i] << ">"
+    htmlFile << "<td bgcolor=white><a href=""#"
+	     << Numbers::sEB(superModules_[i]).c_str() << ">"
 	     << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
   }
   htmlFile << std::endl << "</table>" << std::endl;
@@ -560,8 +565,9 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
-    htmlFile << "<h3><a name=""" << ism << """></a><strong>Supermodule&nbsp;&nbsp;"
-	     << ism << "</strong></h3>" << endl;
+    htmlFile << "<h3><a name="""
+	     << Numbers::sEB(ism).c_str() << """></a><strong>"
+	     << Numbers::sEB(ism).c_str() << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;

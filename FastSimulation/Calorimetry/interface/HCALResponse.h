@@ -13,10 +13,8 @@
 
 #include <map>
 
-#define maxHDeB 12
-#define maxHDetF 7
-#define maxHDetaB 30
-#define maxHDetaF 20
+#define maxHDet 7
+#define maxHDeta 50
 #define maxMUet 4
 #define maxMUeta 6   
 #define maxMUbin 40   
@@ -41,7 +39,7 @@ public:
   // parameters:  energy, eta, e/gamma = 0, hadron = 1, mu = 2
   response responseHCAL(double energy, double eta, int partype);
 
-  // legacy methods using simple furmulae
+  // legacy methods using simle furmulae
   double getHCALEnergyResponse   (double e, int hit);
   double getHCALEnergyResolution (double e, int hit);
   double getHFEnergyResolution   (double EGen);
@@ -50,8 +48,7 @@ private:
 
   // calculates interpolated-extrapolated reponse (mean and sigma, see below)
   // for hadrons and e/gamma (the latter in HF specifically)
-  void interHDB(double e, int ie, int ieta);
-  void interHDF(double e, int ie, int ieta);
+  void interHD(double e, int ie, int ieta);
   void interEM(double e, int ie, int ieta); 
   void interMU(double e, int ie, int ieta); 
 
@@ -75,14 +72,13 @@ private:
   double mean, sigma; 
 
   // Tabulated energy, et/pt and eta points
-  double eGridHDB[maxHDeB], etGridHDF[maxHDetF];    
+  double etGridHD[maxHDet];    
   double eGridEM[maxEMe];
   double eGridMU[maxMUet];
   double etaGridMU[maxMUeta];
 
-  // Tabulated response and mean for hadrons normalized to the et(F) or e(B) 
-  double meanHDB[maxHDeB][maxHDetaB], sigmaHDB[maxHDeB][maxHDetaB];  
-  double meanHDF[maxHDetF][maxHDetaF], sigmaHDF[maxHDetF][maxHDetaF];  
+  // Tabulated response and mean for hadrons normalized to the energy 
+  double meanHD[maxHDet][maxHDeta], sigmaHD[maxHDet][maxHDeta];  
 
   // muon histos 
   double responseMU[maxMUet][maxMUeta][maxMUbin]; 

@@ -30,6 +30,8 @@ namespace edm
     virtual void registerWithEventServer();
 
   private:  
+    std::auto_ptr<edm::EventPrincipal> getOneEvent();
+
     std::string sourceurl_;
     char eventurl_[256];
     char headerurl_[256];

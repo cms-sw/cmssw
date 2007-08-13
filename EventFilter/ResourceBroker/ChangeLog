@@ -1,3 +1,68 @@
+2007-05-30  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-07-01
+	* yet another bug fix which prevented a clean stop from time to
+	time. But I am getting there ...
+
+2007-05-24  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-07-00
+	* requires EventFilter/ShmBuffer V00-04-00
+	* add std::queue<uint> FUShmResourceTable::freeResourceIds_;
+	FUShmResourceTable::allocateResource draws an id from it, but
+	doesn't call FUResource::allocate(cell) yet; only upon receiving
+	the first data msg from the BU will allocate be called and thus
+	the shm lock be taken. Thus, the pending requests block maximally
+	one shm (write-raw) lock.
+	* this design fixes the halting/stopping problem, where no locks
+	were available to post the ZERO event upon RB shut-down.
+
+2007-05-22  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-14
+	* have I finally fixed the syncronization properly? We'll see ...
+
+2007-05-16  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-13
+	* protect FUResourceTable::nbPending_ by lock()/unlock() when
+	being incremented.
+
+2007-05-15  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-12
+	* possibly fixed the dead-lock problem: instead of locking both
+	the application- and monitor-infospace via
+	WebBUI::lockInfoSpaces() [dangerous!], only lock the
+	monitor-inofspace instead.
+
+2007-05-14  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-11
+	* add check that each fedid ins encountered only once per event
+	* remove useless semaphore from FUResourceBroker class
+
+2007-05-08  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-10
+	* bug fix: propagate doDumpEvents to FUResourceTable correctly.
+	* bug fix: R-bit in FED trailer is 0x4, not 0x2.
+
+2007-04-27  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-09
+	* fix stopping/halting
+	* remove counter nbProcessed (is aequivalent to nbDiscarded, the
+	FUEventProcessor knows the real number)
+
+2007-04-05  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-08
+	* fix 'nbShmClients()' calculation, which is now assuming that
+	each process attaches 3x: reader,output,dqm.
+	* If FUShmOutputModule and/or FUShmDQMOutputService are not
+	present, 'halt' will fail!
+	
 2007-04-02  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 	
 	* tag V00-06-07

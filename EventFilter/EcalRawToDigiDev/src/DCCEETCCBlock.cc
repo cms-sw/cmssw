@@ -49,8 +49,8 @@ void DCCEETCCBlock::checkTccIdAndNumbTTs(){
 	
 	
   bool tccFound(false);
-  vector<uint> * m = mapper_->getTccs();
-  vector<uint>::iterator it;
+  std::vector<uint> * m = mapper_->getTccs();
+  std::vector<uint>::iterator it;
   for(it= m->begin();it!=m->end();it++){
     if((*it) == tccId_){ 
       tccFound=true;
@@ -68,7 +68,7 @@ void DCCEETCCBlock::checkTccIdAndNumbTTs(){
         ostringstream output;
         output<<"EcalRawToDigi@SUB=DCCTCCBlock::unpack"
           <<"\n Unable to unpack TCC block for event "<<event_->l1A()<<" in dcc "<<mapper_->getActiveDCC()
-          <<"\n Number of TTs "<<nTTs_<<" while "<<xxx<<" are expected"<<endl;
+          <<"\n Number of TTs "<<nTTs_<<" while "<<xxx<<" are expected";
         //Note : add to error collection ?		 
          throw ECALUnpackerException(output.str());
        }
@@ -79,11 +79,11 @@ void DCCEETCCBlock::checkTccIdAndNumbTTs(){
    }
 	
   if(!tccFound){
-    ostringstream output;
+    std::ostringstream output;
      output<<"EcalRawToDigi@SUB=DCCEETCCBlock::unpack"
       <<"\n Error on event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in dcc <<"<<mapper_->getActiveDCC()
       <<"\n TCC id "<<tccId_<<" is not valid for this dcc "
-      <<"\n => Skipping the event..."<<endl;
+      <<"\n => Skipping the event...";
      //Note : add to error collection ?		 
      throw ECALUnpackerException(output.str());
   }

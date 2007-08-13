@@ -1,8 +1,8 @@
 /*
  * \file DTTestPulsesTask.cc
  * 
- * $Date: 2006/10/17 18:14:56 $
- * $Revision: 1.8 $
+ * $Date: 2007/03/13 18:59:53 $
+ * $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -47,6 +47,11 @@ DTTestPulsesTask::DTTestPulsesTask(const edm::ParameterSet& ps){
   outputFile = ps.getUntrackedParameter<string>("outputFile", "DTTestPulesSources.root");
 
   parameters = ps;
+
+
+  t0sPeakRange = make_pair( parameters.getUntrackedParameter<int>("t0sRangeLowerBound", -100), 
+			    parameters.getUntrackedParameter<int>("t0sRangeUpperBound", 100));
+
   
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
 
@@ -117,9 +122,6 @@ void DTTestPulsesTask::bookHistos(const DTLayerId& dtLayer, string folder, strin
     if ( parameters.getUntrackedParameter<bool>("readDB", false) ) {
       t0RangeMap->slRangeT0( dtLayer.superlayerId() , t0sPeakRange.first, t0sPeakRange.second);
     }
-    else 
-      t0sPeakRange = make_pair( parameters.getUntrackedParameter<int>("t0sRangeLowerBound", -100), 
-				parameters.getUntrackedParameter<int>("t0sRangeUpperBound", 100));
     
     
     cout<<"t0sRangeLowerBound "<<t0sPeakRange.first<<"; "
@@ -207,22 +209,27 @@ void DTTestPulsesTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       int layerIndex = ((*dtLayerId_It).first).rawId();
       int chIndex = ((*dtLayerId_It).first).chamberId().rawId();
 
-      // Occupancies
-      if (testPulsesOccupancies.find(layerIndex) != testPulsesOccupancies.end())
-	testPulsesOccupancies.find(layerIndex)->second->Fill((*digiIt).channel(),(*digiIt).countsTDC());
-      else {
-	bookHistos( (*dtLayerId_It).first , string("TPOccupancy"), string("TestPulses") );
-	testPulsesOccupancies.find(layerIndex)->second->Fill((*digiIt).channel(),(*digiIt).countsTDC());
+
+      if ((*digiIt).countsTDC() > t0sPeakRange.first &&
+	  (*digiIt).countsTDC() < t0sPeakRange.second ) {
+
+	// Occupancies
+	if (testPulsesOccupancies.find(layerIndex) != testPulsesOccupancies.end())
+	  testPulsesOccupancies.find(layerIndex)->second->Fill((*digiIt).wire());
+	else {
+	  bookHistos( (*dtLayerId_It).first , string("TPOccupancy"), string("TestPulses") );
+	  testPulsesOccupancies.find(layerIndex)->second->Fill((*digiIt).wire());
+	}
+
+	// Profiles
+	if (testPulsesProfiles.find(layerIndex) != testPulsesProfiles.end())
+	  testPulsesProfiles.find(layerIndex)->second->Fill((*digiIt).wire(),(*digiIt).countsTDC());
+	else {
+	  bookHistos( (*dtLayerId_It).first , string("TPProfile"), string("TestPulses2D") );
+	  testPulsesProfiles.find(layerIndex)->second->Fill((*digiIt).wire(),(*digiIt).countsTDC());
+	}
       }
 
-      // Profiles
-      if (testPulsesProfiles.find(layerIndex) != testPulsesProfiles.end())
-	testPulsesProfiles.find(layerIndex)->second->Fill((*digiIt).channel(),(*digiIt).countsTDC());
-      else {
-	bookHistos( (*dtLayerId_It).first , string("TPProfile"), string("TestPulses2D") );
-	testPulsesProfiles.find(layerIndex)->second->Fill((*digiIt).channel(),(*digiIt).countsTDC());
-      }
-	
       // Time Box
       if (testPulsesTimeBoxes.find(chIndex) != testPulsesTimeBoxes.end())
 	testPulsesTimeBoxes.find(chIndex)->second->Fill((*digiIt).countsTDC());

@@ -7,8 +7,9 @@
 
 bool CSCTMBHeader::debug = false;
 
-CSCTMBHeader::CSCTMBHeader() {
-  bzero(this, sizeInWords()*2);
+CSCTMBHeader::CSCTMBHeader() 
+{
+  bzero(this, 54);
   nHeaderFrames = 26;
   e0bline = 0x6E0B;
   b0cline = 0x6B0C;
@@ -16,16 +17,18 @@ CSCTMBHeader::CSCTMBHeader() {
   nCFEBs = 5;
 }
 
-void CSCTMBHeader::setEventInformation(const CSCDMBHeader & dmbHeader) {
+void CSCTMBHeader::setEventInformation(const CSCDMBHeader & dmbHeader) 
+{
   cscID = dmbHeader.dmbID();
   l1aNumber = dmbHeader.l1a();
   bxnCount = dmbHeader.bxn();
 }
 
 
-std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis() const {
+std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis() const 
+{
   std::vector<CSCCLCTDigi> result;
-
+  
   ///fill digis here
   /// for the zeroth clct:
   CSCCLCTDigi digi(clct0Valid(),clct0Quality(),clct0Shape(),clct0StripType(),clct0Bend(), 
@@ -42,16 +45,17 @@ std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis() const {
   return result;
 }
 
-std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader::CorrelatedLCTDigis() const {
+std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader::CorrelatedLCTDigis() const 
+{
   std::vector<CSCCorrelatedLCTDigi> result;
-
+  
   ///fill digis here
   /// for the zeroth MPC word:
   CSCCorrelatedLCTDigi digi(1, MPC_Muon0_valid(), MPC_Muon0_quality(), MPC_Muon0_wire(),
 			    MPC_Muon0_halfstrip_pat(), MPC_Muon0_clct_pattern(), 
 			    MPC_Muon0_bend(), MPC_Muon0_bx());
   result.push_back(digi);
-
+  
   /// for the first MPC word:
   digi = CSCCorrelatedLCTDigi(2, MPC_Muon1_valid(), MPC_Muon1_quality(), MPC_Muon1_wire(),
 			      MPC_Muon1_halfstrip_pat(), MPC_Muon1_clct_pattern(), 
@@ -67,7 +71,8 @@ std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader::CorrelatedLCTDigis() const {
 
 
 
-std::ostream & operator<<(std::ostream & os, const CSCTMBHeader & hdr) {
+std::ostream & operator<<(std::ostream & os, const CSCTMBHeader & hdr) 
+{
 
   os << "...............TMB Header.................." << std::endl;
   os << std::hex << "BOC LINE " << hdr.b0cline << " EOB " << hdr.e0bline << std::endl;

@@ -2,12 +2,12 @@
 
 HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
   // DQM ROOT output
-  outputFile_ = conf.getUntrackedParameter<string>("outputFile", "myfile.root");
+  outputFile_ = conf.getUntrackedParameter<std::string>("outputFile", "myfile.root");
 
     if ( outputFile_.size() != 0 ) {
-    LogInfo("OutputInfo") << " Hcal RecHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
+    edm::LogInfo("OutputInfo") << " Hcal RecHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
   } else {
-    LogInfo("OutputInfo") << " Hcal RecHit Task histograms will NOT be saved";
+    edm::LogInfo("OutputInfo") << " Hcal RecHit Task histograms will NOT be saved";
   }
   
   dbe_ = 0;
@@ -18,10 +18,10 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
   meTime = 0;
   Char_t histo[20];
 
-  hcalselector_ = conf.getUntrackedParameter<string>("hcalselector", "all");
+  hcalselector_ = conf.getUntrackedParameter<std::string>("hcalselector", "all");
 
   if ( dbe_ ) {
-    cout << " dbe_->setCurrentFolder" << endl; 
+    std::cout << " dbe_->setCurrentFolder" << std::endl; 
     dbe_->setCurrentFolder("HcalRecHitTask");
  
     // ************** BARREL   **********************************
@@ -330,16 +330,16 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
 
 HcalRecHitsValidation::~HcalRecHitsValidation() {
    
-  cout << " outputFile_.size() =  " << outputFile_.size() << endl;
-  cout << " dbe_ = " << dbe_ << endl;
+  std::cout << " outputFile_.size() =  " << outputFile_.size() << std::endl;
+  std::cout << " dbe_ = " << dbe_ << std::endl;
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
   
 }
 
 void HcalRecHitsValidation::endJob() {
   
-  cout << " outputFile_.size() =  " << outputFile_.size() << endl;
-  cout << " dbe_ = " << dbe_ << endl; 
+  std::cout << " outputFile_.size() =  " << outputFile_.size() << std::endl;
+  std::cout << " dbe_ = " << dbe_ << std::endl; 
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
   
 }
@@ -775,7 +775,7 @@ void HcalRecHitsValidation::analyze(edm::Event const& e, edm::EventSetup const& 
       meEnergyHcalVsEcal -> Fill(eEcalCone,eHcalCone);
     }
 }
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_SEAL_MODULE();

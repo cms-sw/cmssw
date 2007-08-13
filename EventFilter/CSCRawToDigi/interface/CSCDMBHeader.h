@@ -4,6 +4,7 @@
 #include <cassert>
 #include <iosfwd>
 #include <string.h> // bzero
+#include "DataFormats/CSCDigi/interface/CSCDMBStatusDigi.h"
 
 class CSCDMBHeader  {
 public:
@@ -11,6 +12,11 @@ public:
   CSCDMBHeader();
   
   CSCDMBHeader(unsigned short * buf);
+
+  CSCDMBHeader(const CSCDMBStatusDigi & digi)
+    {
+      memcpy(this, digi.header(), sizeInWords()*2);
+    }
 
   bool cfebAvailable(unsigned icfeb);
 
@@ -38,6 +44,9 @@ public:
   bool check() const;
 
   unsigned short * data() {return (unsigned short *) this;}
+  unsigned short * data() const {return (unsigned short *) this;}
+
+
   //ostream & operator<<(ostream &, const CSCDMBHeader &);
 
  private:

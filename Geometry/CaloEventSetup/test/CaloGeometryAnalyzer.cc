@@ -31,6 +31,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
+#include "Geometry/CaloGeometry/interface/PreshowerStrip.h"
 #include "Geometry/EcalPreshowerAlgo/interface/EcalPreshowerGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -55,6 +56,7 @@ class CaloGeometryAnalyzer : public edm::EDAnalyzer {
       // ----------member data ---------------------------
   void build(const CaloGeometry& cg, DetId::Detector det, int subdetn, const char* name);
   int pass_;
+  //  bool fullEcalDump_;
 };
 
 //
@@ -72,6 +74,7 @@ CaloGeometryAnalyzer::CaloGeometryAnalyzer( const edm::ParameterSet& iConfig )
 {
    //now do what ever initialization is needed
   pass_=0;
+  //  fullEcalDump_=iConfig.getUntrackedParameter<bool>("fullEcalDump",false);
 }
 
 
@@ -106,20 +109,36 @@ void CaloGeometryAnalyzer::build(const CaloGeometry& cg, DetId::Detector det, in
 	  {
 	    f << "  // " << EBDetId(*i) << std::endl;
 	    
-	    f << "  // Checking getClosestCell for position " << dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(5.) << std::endl;
-	    f << "  // Return position is " << EBDetId(geom->getClosestCell(dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(5.))) << std::endl;
+	    f << "  // Checking getClosestCell for position " << dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(0.) << std::endl;
+	    EBDetId closestCell = EBDetId(geom->getClosestCell(dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(0.))) ;
+	    f << "  // Return position is " << closestCell << std::endl;
+	    assert (closestCell == EBDetId(*i) );
 	  }
 	if (subdetn == EcalEndcap)
 	  {
 	    f << "  // " << EEDetId(*i) << std::endl;
-	    f << "  // Checking getClosestCell for position " << dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(5.) << std::endl;
-	    f << "  // Return position is " << EEDetId(geom->getClosestCell(dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(5.))) << std::endl;
+	    f << "  // Checking getClosestCell for position " << dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(0.) << std::endl;
+	    EEDetId closestCell= EEDetId(geom->getClosestCell(dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(0.)));
+	    f << "  // Return position is " << closestCell << std::endl;
+	    assert (closestCell == EEDetId(*i) );
 	  }
 	if (subdetn == EcalPreshower) 
 	  {
 	    f << "  // " << ESDetId(*i) << std::endl;
-	    f << "  // Checking getClosestCell for position " << cell->getPosition() << std::endl;
-	    f << "  // Return position is " << ESDetId((dynamic_cast<const EcalPreshowerGeometry*>(geom))->getClosestCellInPlane(cell->getPosition(),ESDetId(*i).plane())) << std::endl;
+	    f << "  // Checking getClosestCell for position " << cell->getPosition() << " in plane " << ESDetId(*i).plane() << std::endl;
+	    ESDetId closestCell=ESDetId((dynamic_cast<const EcalPreshowerGeometry*>(geom))->getClosestCellInPlane(cell->getPosition(),ESDetId(*i).plane()));
+	    f << "  // Return position is " << closestCell << std::endl;
+	    //sanity checks
+            int o_zside = ESDetId(*i).zside();
+            int o_plane = ESDetId(*i).plane();
+            int o_six   = ESDetId(*i).six();
+            int o_siy   = ESDetId(*i).siy();
+            int o_strip = ESDetId(*i).strip();
+
+            assert ((o_six <= 20 && cell->getPosition().x() < 0.) || (o_six > 20 && cell->getPosition().x() > 0.));
+            assert ((o_siy <= 20 && cell->getPosition().y() < 0.) || (o_siy > 20 && cell->getPosition().y() > 0.));
+            assert ((o_zside < 0 && cell->getPosition().z() < 0.) || (o_zside > 0 && cell->getPosition().z() > 0.));
+	    assert (closestCell == ESDetId(*i) );
 	  }
       }
     else if (det == DetId::Hcal)

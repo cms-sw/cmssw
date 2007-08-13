@@ -1,8 +1,8 @@
 /*
  * \file L1TCSCTPG.cc
  *
- * $Date: 2007/02/20 21:42:10 $
- * $Revision: 1.2 $
+ * $Date: 2007/02/22 19:43:53 $
+ * $Revision: 1.3 $
  * \author J. Berryhill
  *
  */
@@ -118,7 +118,17 @@ void L1TCSCTPG::analyze(const Event& e, const EventSetup& c)
 
 
   Handle<CSCCorrelatedLCTDigiCollection> pCSCTPGcorrlcts;
+
+  try {
   e.getByLabel(csctpgSource_,pCSCTPGcorrlcts);
+  }
+  catch (...) {
+    edm::LogInfo("L1CSCTPG") << "can't find CSCCorrelatedLCTDigiCollection with label "
+			       << csctpgSource_.label() ;
+    return;
+  }
+  
+
   for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator cscItr1 = pCSCTPGcorrlcts->begin();
        cscItr1 != pCSCTPGcorrlcts->end();
        cscItr1++)

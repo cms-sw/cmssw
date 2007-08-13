@@ -4,8 +4,8 @@
 /*
  * \file EELaserTask.h
  *
- * $Date: 2007/03/20 12:37:26 $
- * $Revision: 1.24 $
+ * $Date: 2007/04/05 14:54:03 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -46,62 +46,66 @@ private:
 
 int ievt_;
 
+DaqMonitorBEInterface* dbe_;
+
+bool enableCleanup_;
+
 edm::InputTag EcalRawDataCollection_;
 edm::InputTag EBDigiCollection_;
 edm::InputTag EcalPnDiodeDigiCollection_;
 edm::InputTag EcalUncalibratedRecHitCollection_;
 
-MonitorElement* meShapeMapL1A_[36];
-MonitorElement* meAmplMapL1A_[36];
-MonitorElement* meTimeMapL1A_[36];
-MonitorElement* meAmplPNMapL1A_[36];
-MonitorElement* meShapeMapL1B_[36];
-MonitorElement* meAmplMapL1B_[36];
-MonitorElement* meTimeMapL1B_[36];
-MonitorElement* meAmplPNMapL1B_[36];
-MonitorElement* mePnAmplMapG01L1_[36];
-MonitorElement* mePnPedMapG01L1_[36];
-MonitorElement* mePnAmplMapG16L1_[36];
-MonitorElement* mePnPedMapG16L1_[36];
+MonitorElement* meShapeMapL1A_[18];
+MonitorElement* meAmplMapL1A_[18];
+MonitorElement* meTimeMapL1A_[18];
+MonitorElement* meAmplPNMapL1A_[18];
+MonitorElement* meShapeMapL1B_[18];
+MonitorElement* meAmplMapL1B_[18];
+MonitorElement* meTimeMapL1B_[18];
+MonitorElement* meAmplPNMapL1B_[18];
+MonitorElement* mePnAmplMapG01L1_[18];
+MonitorElement* mePnPedMapG01L1_[18];
+MonitorElement* mePnAmplMapG16L1_[18];
+MonitorElement* mePnPedMapG16L1_[18];
 
-MonitorElement* meShapeMapL2A_[36];
-MonitorElement* meAmplMapL2A_[36];
-MonitorElement* meTimeMapL2A_[36];
-MonitorElement* meAmplPNMapL2A_[36];
-MonitorElement* meShapeMapL2B_[36];
-MonitorElement* meAmplMapL2B_[36];
-MonitorElement* meTimeMapL2B_[36];
-MonitorElement* meAmplPNMapL2B_[36];
-MonitorElement* mePnAmplMapG01L2_[36];
-MonitorElement* mePnPedMapG01L2_[36];
-MonitorElement* mePnAmplMapG16L2_[36];
-MonitorElement* mePnPedMapG16L2_[36];
+MonitorElement* meShapeMapL2A_[18];
+MonitorElement* meAmplMapL2A_[18];
+MonitorElement* meTimeMapL2A_[18];
+MonitorElement* meAmplPNMapL2A_[18];
+MonitorElement* meShapeMapL2B_[18];
+MonitorElement* meAmplMapL2B_[18];
+MonitorElement* meTimeMapL2B_[18];
+MonitorElement* meAmplPNMapL2B_[18];
+MonitorElement* mePnAmplMapG01L2_[18];
+MonitorElement* mePnPedMapG01L2_[18];
+MonitorElement* mePnAmplMapG16L2_[18];
+MonitorElement* mePnPedMapG16L2_[18];
 
-MonitorElement* meShapeMapL3A_[36];
-MonitorElement* meAmplMapL3A_[36];
-MonitorElement* meTimeMapL3A_[36];
-MonitorElement* meAmplPNMapL3A_[36];
-MonitorElement* meShapeMapL3B_[36];
-MonitorElement* meAmplMapL3B_[36];
-MonitorElement* meTimeMapL3B_[36];
-MonitorElement* meAmplPNMapL3B_[36];
-MonitorElement* mePnAmplMapG01L3_[36];
-MonitorElement* mePnPedMapG01L3_[36];
-MonitorElement* mePnAmplMapG16L3_[36];
-MonitorElement* mePnPedMapG16L3_[36];
+MonitorElement* meShapeMapL3A_[18];
+MonitorElement* meAmplMapL3A_[18];
+MonitorElement* meTimeMapL3A_[18];
+MonitorElement* meAmplPNMapL3A_[18];
+MonitorElement* meShapeMapL3B_[18];
+MonitorElement* meAmplMapL3B_[18];
+MonitorElement* meTimeMapL3B_[18];
+MonitorElement* meAmplPNMapL3B_[18];
+MonitorElement* mePnAmplMapG01L3_[18];
+MonitorElement* mePnPedMapG01L3_[18];
+MonitorElement* mePnAmplMapG16L3_[18];
+MonitorElement* mePnPedMapG16L3_[18];
 
-MonitorElement* meShapeMapL4A_[36];
-MonitorElement* meAmplMapL4A_[36];
-MonitorElement* meTimeMapL4A_[36];
-MonitorElement* meAmplPNMapL4A_[36];
-MonitorElement* meShapeMapL4B_[36];
-MonitorElement* meAmplMapL4B_[36];
-MonitorElement* meTimeMapL4B_[36];
-MonitorElement* meAmplPNMapL4B_[36];
-MonitorElement* mePnAmplMapG01L4_[36];
-MonitorElement* mePnPedMapG01L4_[36];
-MonitorElement* mePnAmplMapG16L4_[36];
-MonitorElement* mePnPedMapG16L4_[36];
+MonitorElement* meShapeMapL4A_[18];
+MonitorElement* meAmplMapL4A_[18];
+MonitorElement* meTimeMapL4A_[18];
+MonitorElement* meAmplPNMapL4A_[18];
+MonitorElement* meShapeMapL4B_[18];
+MonitorElement* meAmplMapL4B_[18];
+MonitorElement* meTimeMapL4B_[18];
+MonitorElement* meAmplPNMapL4B_[18];
+MonitorElement* mePnAmplMapG01L4_[18];
+MonitorElement* mePnPedMapG01L4_[18];
+MonitorElement* mePnAmplMapG16L4_[18];
+MonitorElement* mePnPedMapG16L4_[18];
 
 bool init_;
 

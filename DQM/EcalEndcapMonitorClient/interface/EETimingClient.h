@@ -4,8 +4,8 @@
 /*
  * \file EETimingClient.h
  *
- * $Date: 2007/03/26 17:35:04 $
- * $Revision: 1.5 $
+ * $Date: 2007/04/02 16:15:35 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -98,21 +98,21 @@ vector<int> superModules_;
 
 MonitorUserInterface* mui_;
 
-CollateMonitorElement* me_h01_[36];
+CollateMonitorElement* me_h01_[18];
 
-MEContentsProf2DWithinRangeROOT* qth01_[36];
+MEContentsProf2DWithinRangeROOT* qth01_[18];
 
-MonitorElement* meh01_[36];
+MonitorElement* meh01_[18];
 
-TProfile2D* h01_[36];
+TProfile2D* h01_[18];
 
-MonitorElement* meg01_[36];
+MonitorElement* meg01_[18];
 
-MonitorElement* mea01_[36];
+MonitorElement* mea01_[18];
 
-MonitorElement* mep01_[36];
+MonitorElement* mep01_[18];
 
-MonitorElement* mer01_[36];
+MonitorElement* mer01_[18];
 
 // Quality check on crystals, one per each gain
 

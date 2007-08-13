@@ -32,13 +32,7 @@ extern"C" {
   void setherwpdf_(void);
   // function to chatch 'STOP' in original HWWARN:
   void cmsending_(int*);
-
-  extern struct {
-    double eventisok;
-  } eventstat_;
 }
-
-#define eventstat eventstat_
 
 #define setpdfpath setpdfpath_
 #define mysetpdfpath mysetpdfpath_
@@ -49,14 +43,6 @@ extern"C" {
 using namespace edm;
 using namespace std;
 
-static const unsigned long kNanoSecPerSec = 1000000000;
-static const unsigned long kAveEventPerSec = 200;
-
-// herwig common block conversion
-HepMC::IO_HERWIG conv;
-
-bool skk = true;
-
 MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription const& desc ) :
   GeneratedInputSource(pset, desc), evt(0), 
   doHardEvents_(pset.getUntrackedParameter<bool>("doHardEvents",true)),
@@ -66,12 +52,13 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",0)),
   comenergy(pset.getUntrackedParameter<double>("comEnergy",14000.)),
   processNumber_(pset.getUntrackedParameter<int>("processNumber",0)),
-  numEvents_(pset.getUntrackedParameter<int>("maxEvents",100)),
+  numEvents_(pset.getUntrackedParameter<int>("numHardEvents",desc.maxEvents_)),
   stringFileName_(pset.getUntrackedParameter<string>("stringFileName",std::string("stringInput"))),
   lhapdfSetPath_(pset.getUntrackedParameter<string>("lhapdfSetPath",std::string(""))),
   useJimmy_(pset.getUntrackedParameter<bool>("useJimmy",true)),
   doMPInteraction_(pset.getUntrackedParameter<bool>("doMPInteraction",true)),
-  printCards_(pset.getUntrackedParameter<bool>("printCards",true))
+  printCards_(pset.getUntrackedParameter<bool>("printCards",true)),
+  eventCounter_(0)
 {
  
   cout << "----------------------------------------------" << endl;
@@ -88,6 +75,11 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
                          2: + print table of particle codes and properties
 			 3: + tables of Sudakov form factors  
   */
+
+  if(numEvents_<1)
+    throw edm::Exception(edm::errors::Configuration,"MCatNLOError") 
+      <<" Number of input events not set: Either use maxEvents input > 0 or numHardEvents > maxEvents output."; 
+
   fstbases.basesoutput = mcatnloVerbosity_;
   cout << "   MC@NLO verbosity level         = " << fstbases.basesoutput << endl;
   cout << "   Herwig verbosity level         = " << herwigVerbosity_ << endl;
@@ -99,6 +91,17 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
       cout << "   JIMMY trying to generate multiple interactions." << endl;
   }
 
+  // setting up lhapdf path name from environment varaible (***)
+  char* lhaPdfs = NULL;
+  std::cout<<"   Trying to find LHAPATH in environment ...";
+  lhaPdfs = getenv("LHAPATH");
+  if(lhaPdfs != NULL) {
+    std::cout<<" done."<<std::endl;
+    lhapdfSetPath_=std::string(lhaPdfs);
+  }
+  else
+    std::cout<<" failed."<<std::endl;
+  
   // set some MC@NLO parameters ...
   params.mmmaxevt = numEvents_;
   params.mmiproc=processNumber_;
@@ -266,7 +269,8 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
     hwbmch.PART2[i]  = ' ';}
   
   // seting maximum events
-  hwproc.MAXEV = pset.getUntrackedParameter<int>("maxEvents",0);
+  hwevnt.MAXER = numEvents_/10;
+  if(hwevnt.MAXER<100) hwevnt.MAXER=100;
   if(useJimmy_ && doMPInteraction_) jmparm.MSFLAG = 1;
 
   // initialize other common block ...
@@ -583,22 +587,23 @@ void MCatNLOSource::processUnknown(bool positive)
       <<" Unsupported process "<<processNumber_<<". Use Herwig6Interface for positively valued process ID.";
   else
     throw edm::Exception(edm::errors::Configuration,"MCatNLOError")
-      <<" Unsupported process "<<processNumber_<<". Check MCatNLO manuel for allowed process ID.";
+      <<" Unsupported process "<<processNumber_<<". Check MCatNLO manual for allowed process ID.";
 }
 
 
 bool MCatNLOSource::produce(Event & e) {
   
-  // here event is fine ...
-  eventstat.eventisok = 0.0;
-  
+  // check if we run out of hard-events. If yes, throw exception...
+  eventCounter_++;
+  if(eventCounter_>numEvents_)
+    throw edm::Exception(edm::errors::Configuration,"MCatNLOError") <<" No more hard events left. Either increase numHardEvents or use maxEvents { untracked int32 input = N }.";
+
   hwuine();
   hwepro();
   hwbgen();
   
-  if(useJimmy_ && doMPInteraction_) {
-    double eventok = 0.0;
-    eventok = hwmsct_dummy(&eventok);
+  if(useJimmy_ && doMPInteraction_ && hwevnt.IERROR != 0) {
+    double eventok = hwmsct_dummy(&eventok);
     if(eventok > 0.5) {
       return true;
     }
@@ -612,12 +617,12 @@ bool MCatNLOSource::produce(Event & e) {
   hwmevt();
   hwufne();
 
-  if(eventstat.eventisok > 0.5) {
+  if(hwevnt.IERROR != 0)
     return true;
-  }
   
-  // HERWIG produced event correctly
-
+  // herwig common block conversion
+  HepMC::IO_HERWIG conv;
+  
   HepMC::GenEvent* evt = new HepMC::GenEvent();
   bool ok = conv.fill_next_event( evt );
   if(!ok) throw edm::Exception(edm::errors::EventCorruption,"HerwigError")
@@ -1402,7 +1407,7 @@ bool MCatNLOSource::hwgive(const std::string& ParameterString) {
 #define hwaend hwaend_
 
 extern "C" {
-  void hwaend(){/*dummy*/};
+  void hwaend(){/*dummy*/}
 }
 //-------------------------------------------------------------------------------
 
@@ -1712,7 +1717,7 @@ void MCatNLOSource::createStringFile(const std::string& fileName)
 
 extern "C" {
   void cmsending_(int* ecode) {
-    cout<<"   ERROR: Herwig stoped run after recieving error code "<<*ecode<<"."<<endl;
+    //cout<<"   ERROR: Herwig stoped run after recieving error code "<<*ecode<<"."<<endl;
     throw edm::Exception(edm::errors::LogicError,"Herwig6Error") <<" Herwig stoped run with error code "<<*ecode<<".";
   }
 }

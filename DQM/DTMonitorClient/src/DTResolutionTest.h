@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/03/27 16:11:45 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/04/12 07:34:15 $
+ *  $Revision: 1.4 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -52,9 +52,6 @@ protected:
   /// BeginJob
   void beginJob(const edm::EventSetup& c);
 
-  /// BeginRun
-  void beginRun(const edm::EventSetup& c);
-
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
@@ -70,7 +67,6 @@ protected:
 
 private:
 
-  bool debug;
   int nevents;
 
   DaqMonitorBEInterface* dbe;
@@ -81,6 +77,10 @@ private:
   // histograms: < detRawID, Histogram >
   std::map< std::string , MonitorElement* > MeanHistos;
   std::map< std::string , MonitorElement* > SigmaHistos;
+  std::map< std::string , MonitorElement* > MeanHistosSetRange;
+  std::map< std::string , MonitorElement* > SigmaHistosSetRange;
+  std::map< std::string , MonitorElement* > MeanHistosSetRange2D;
+  std::map< std::string , MonitorElement* > SigmaHistosSetRange2D;
 
 };
 

@@ -77,6 +77,7 @@ C-----------------------------------------------------------------------
 * B.C. Pomwig
 
       DOUBLE PRECISION XPQ(-6:6),BCQ
+      DOUBLE PRECISION F2(2),FL(2),C2(2),CL(2)
       INTEGER ifit,iloop
       PARAMETER(ifit=0)
       CHARACTER*20 PARMA(20)
@@ -413,7 +414,7 @@ C Initialise xpq
             DIST(13)=XPQ(0)
 
             GOTO 999
-         ELSEIF (NSTRU.EQ.10) THEN
+         ELSEIF (NSTRU.EQ.10.OR.NSTRU.EQ.13.OR.NSTRU.EQ.15) THEN
 C     Reggeon 
             parma(1)='NPTYPE'
             parma(2)='NGROUP'
@@ -443,29 +444,52 @@ C     Reggeon
             
           ELSEIF (NSTRU.EQ.11) THEN
 C     User defined pomeron structure
-            
-            CALL pomstr(X,BCQ,XPQ)
-
-            DIST(1)=XPQ(1)
-            DIST(2)=XPQ(2)
-            DIST(3)=XPQ(3)
-            DIST(4)=0
-            DIST(5)=0
-            DIST(6)=0
-            DIST(7)=XPQ(-1)
-            DIST(8)=XPQ(-2)
-            DIST(9)=XPQ(-3)
-            DIST(10)=0
-            DIST(11)=0
-            DIST(12)=0
-            DIST(13)=XPQ(0)
-           
-            GOTO 999
-            ELSE
-               write(*,*) 'POMWIG : NSTRU is not set'
-               STOP
-         ENDIF
-      ENDIF
+             BCQ=QSCA*QSCA
+             CALL pomstr(X,BCQ,XPQ)
+             
+             DIST(1)=XPQ(1)
+             DIST(2)=XPQ(2)
+             DIST(3)=XPQ(3)
+             DIST(4)=0
+             DIST(5)=0
+             DIST(6)=0
+             DIST(7)=XPQ(-1)
+             DIST(8)=XPQ(-2)
+             DIST(9)=XPQ(-3)
+             DIST(10)=0
+             DIST(11)=0
+             DIST(12)=0
+             DIST(13)=XPQ(0)
+             
+             GOTO 999
+C B.C. 11/02/2007
+          ELSEIF (NSTRU.EQ.12.OR.NSTRU.EQ.14) THEN
+             BCQ=QSCA*QSCA
+C     Initialise xpq
+             DO ILOOP=-6,6
+                XPQ(ILOOP)=0.D0
+             ENDDO                    
+             call qcd_2006(X,BCQ,ifit,XPQ,F2,FL,C2,CL)
+             DIST(1)=XPQ(1)
+             DIST(2)=XPQ(2)
+             DIST(3)=XPQ(3)
+             DIST(4)=0
+             DIST(5)=0
+             DIST(6)=0
+             DIST(7)=XPQ(-1)
+             DIST(8)=XPQ(-2)
+             DIST(9)=XPQ(-3)
+             DIST(10)=0
+             DIST(11)=0
+             DIST(12)=0
+             DIST(13)=XPQ(0)
+             
+             GOTO 999
+          ELSE
+             write(*,*) "HWSFUN : NSTRU outside POWMIG range"
+             STOP
+          ENDIF
+       ENDIF
 * B. C. Pomwig End of mod.
       IF (IDHAD.EQ.59.OR.IDHAD.EQ.71) THEN
         IF (MPDF.GE.0) THEN

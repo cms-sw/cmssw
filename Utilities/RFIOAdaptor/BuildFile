@@ -6,4 +6,5 @@
 </export>
 
 <use name=Foundation/SealBase>
+<use name=FWCore/MessageLogger>
 <use name=castor>

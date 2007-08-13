@@ -10,7 +10,7 @@
   file in DQMServices/Daemon/test, but modified to include another top level
   folder, to remove the 1 sec wait, and to do the fitting without printout.
 
-  $Id: SMDQMSourceExample.cc,v 1.2 2007/04/02 19:51:57 hcheung Exp $
+  $Id: SMDQMSourceExample.cc,v 1.3 2007/04/02 21:58:35 hcheung Exp $
 
 */
 
@@ -71,17 +71,6 @@ private:
   DaqMonitorBEInterface * dbe;
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 SMDQMSourceExample::SMDQMSourceExample( const edm::ParameterSet& iConfig )
   : counter(0)
 {
@@ -92,7 +81,7 @@ SMDQMSourceExample::SMDQMSourceExample( const edm::ParameterSet& iConfig )
   edm::Service<MonitorDaemon> daemon;
   daemon.operator->();
 
-  const int NBINS = 5000; XMIN = 0; XMAX = 50;
+  const int NBINS = 500; XMIN = 0; XMAX = 50;
 
   // book some histograms here
 
@@ -164,6 +153,8 @@ SMDQMSourceExample::~SMDQMSourceExample()
 void SMDQMSourceExample::endJob(void)
 {
   dbe->save("test.root");  
+  dbe->rmdir("C1");
+  dbe->rmdir("D1");
 }
 
 
@@ -211,8 +202,6 @@ void SMDQMSourceExample::analyze(const edm::Event& iEvent,
       h2->Fill(x,y);
       h9->Fill(x,y);
     }
-  //      (*(*i1))++;
-  //usleep(1000000);
 
   ++counter;
 }

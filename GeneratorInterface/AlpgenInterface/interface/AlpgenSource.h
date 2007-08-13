@@ -14,12 +14,13 @@
 
 #define PYCOMP pycomp_
 
-#include "FWCore/Framework/interface/GeneratedInputSource.h"
+#include "FWCore/Framework/interface/ExternalInputSource.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <map>
 #include <string>
+#include <iostream>
+#include <fstream>
 #include "HepMC/GenEvent.h"
-
 
 namespace CLHEP
 {
@@ -29,7 +30,7 @@ namespace CLHEP
 
 namespace edm
 {
-  class AlpgenSource : public GeneratedInputSource {
+  class AlpgenSource : public ExternalInputSource {
   public:
 
     /// Constructor
@@ -43,12 +44,16 @@ namespace edm
     /// Interface to the PYGIVE/TXGIVE pythia routine, with add'l protections
     bool call_pygive(const std::string& iParm );
     bool call_txgive(const std::string& iParm );
+    int Nev_; // number of events in the input file
+
+    // .unw file with infos for AlpgenInfoProduct
+    std::ifstream* unwfile;
 
   private:
     
     virtual bool produce(Event & e);
-    void clear();
-    
+    void beginRun(Run& r);
+    void clear();    
     HepMC::GenEvent  *evt;
     
     /// Pythia PYLIST Verbosity flag
@@ -58,7 +63,8 @@ namespace edm
     /// Events to print if verbosity
     unsigned int maxEventsToPrint_;    
     
- 
+    std::string fileName_;
+    
     // for single particle generation in pythia
     int    particleID;
     bool   doubleParticle;

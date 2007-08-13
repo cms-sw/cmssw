@@ -1,12 +1,14 @@
 /*
  *  Original Author: Fabian Stoeckli 
  *  26/09/06
- *  Modified for Pomwig interface
- *  02/2007
+ *  Modified for Pomwig
+ *  03/2007 Antonio.Vilela.Pereira@cern.ch
  */
 
 #include "GeneratorInterface/PomwigInterface/interface/PomwigSource.h"
+
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -20,11 +22,11 @@
 using namespace edm;
 using namespace std;
 
-#include "HerwigWrapper6_4.h"
-#include "IO_HERWIG.h"
-#include "HEPEVT_Wrapper.h"
+#include "HepMC/HerwigWrapper6_4.h"
+#include "HepMC/IO_HERWIG.h"
+#include "HepMC/HEPEVT_Wrapper.h"
 
-// INCLUDE JIMMY,HERWIG,LHAPDF COMMON BLOCKS AND FUNTIONS
+// INCLUDE JIMMY,HERWIG,LHAPDF,POMWIG COMMON BLOCKS AND FUNTIONS
 #include "herwig.h"
 
 
@@ -35,7 +37,14 @@ extern"C" {
   void setherwpdf_(void);
   // function to chatch 'STOP' in original HWWARN
   void cmsending_(int*);
+
+  // struct to check wheter HERWIG killed an event
+  extern struct {
+    double eventisok;
+  } eventstat_;
 }
+
+#define eventstat eventstat_
 
 #define setpdfpath setpdfpath_
 #define mysetpdfpath mysetpdfpath_
@@ -43,9 +52,6 @@ extern"C" {
 #define setherwpdf setherwpdf_
 #define cmsending cmsending_
 
-
-// -----------------  HepMC converter -----------------------------------------
-HepMC::IO_HERWIG conv;
 
 // -----------------  used for defaults --------------------------------------
   static const unsigned long kNanoSecPerSec = 1000000000;
@@ -60,9 +66,9 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
   herwigLhapdfVerbosity_ (pset.getUntrackedParameter<int>("herwigLhapdfVerbosity",0)),
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",0)),
   comenergy(pset.getUntrackedParameter<double>("comEnergy",14000.)),
-  diffTopology(pset.getUntrackedParameter<int>("diffTopology",0)),
   lhapdfSetPath_(pset.getUntrackedParameter<string>("lhapdfSetPath","")),
-  printCards_(pset.getUntrackedParameter<bool>("printCards",true))
+  printCards_(pset.getUntrackedParameter<bool>("printCards",true)),
+  diffTopology(pset.getParameter<int>("diffTopology"))
 {
   cout << "----------------------------------------------" << endl;
   cout << "Initializing PomwigSource" << endl;
@@ -82,14 +88,21 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
   cout << "   LHAPDF verbosity level         = " << herwigLhapdfVerbosity_ << endl;
   cout << "   HepMC verbosity                = " << herwigHepMCVerbosity_ << endl;
   cout << "   Number of events to be printed = " << maxEventsToPrint_ << endl;
-
-  //Doesn't make sense for POMWIG
-  /*if(useJimmy_) {
-    cout << "   HERWIG will be using JIMMY for UE/MI." << endl;
-    if(doMPInteraction_) 
-      cout << "   JIMMY trying to generate multiple interactions." << endl;
-  }*/
   
+  // setting up lhapdf path name from environment varaible (***)
+  char* lhaPdfs = NULL;
+  std::cout<<"   Trying to find LHAPATH in environment ...";
+  lhaPdfs = getenv("LHAPATH");
+  if(lhaPdfs != NULL) {
+    std::cout<<" done."<<std::endl;
+    lhapdfSetPath_=std::string(lhaPdfs);
+    std::cout<<"   Using "<< lhapdfSetPath_ << std::endl;	
+  }
+  else{
+    std::cout<<" failed."<<std::endl;
+    std::cout<<"   Using "<< lhapdfSetPath_ << std::endl;
+  }	
+
   // Call hwudat to set up HERWIG block data
   hwudat();
   
@@ -103,53 +116,41 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
                 hwbmch.PART1[1]  = '-';
                 hwbmch.PART2[0]  = 'E';
                 hwbmch.PART2[1]  = '-';
-                //hwpram.MODPDF[0] = -1;
-                //hwpram.MODPDF[1] = -1;
                 break;
         case 1: //SD survive PART1
                 hwbmch.PART1[0]  = 'E';
                 hwbmch.PART1[1]  = '-';
                 hwbmch.PART2[0]  = 'P';
                 hwbmch.PART2[1]  = ' ';
-                //hwpram.MODPDF[0] = -1;
-		//hwpram.MODPDF[1] = 20060;
                 break;
         case 2: //SD survive PART2
                 hwbmch.PART1[0]  = 'P';
                 hwbmch.PART1[1]  = ' ';
                 hwbmch.PART2[0]  = 'E';
                 hwbmch.PART2[1]  = '-';
-		//hwpram.MODPDF[0] = 20060;
-                //hwpram.MODPDF[1] = -1;
                 break;
         case 3: //Non diffractive
                 hwbmch.PART1[0]  = 'P';
                 hwbmch.PART1[1]  = ' ';
                 hwbmch.PART2[0]  = 'P';
                 hwbmch.PART2[1]  = ' ';
-		//hwpram.MODPDF[0] = 20060;
-		//hwpram.MODPDF[1] = 20060;
                 break;
         default:
-                throw edm::Exception(edm::errors::Configuration,"HerwigError")
-          <<" Invalid Diff. Topology. Must be DPE(diffTopology = 0), SD particle 1 (diffTopology = 1), SD particle 2 (diffTop
-ology = 2) and Non diffractive (diffTopology = 3)";
+                throw edm::Exception(edm::errors::Configuration,"PomwigError")
+          <<" Invalid Diff. Topology. Must be DPE(diffTopology = 0), SD particle 1 (diffTopology = 1), SD particle 2 (diffTopology = 2) and Non diffractive (diffTopology = 3)";
                 break;
   }
   for(int i=2;i<8;++i){
     hwbmch.PART1[i]  = ' ';
     hwbmch.PART2[i]  = ' ';}
-
   hwproc.MAXEV = pset.getUntrackedParameter<int>("maxEvents",10);
-  hwevnt.MAXER = hwproc.MAXEV/10;
+  hwevnt.MAXER = pset.getUntrackedParameter<int>("maxErrors",hwproc.MAXEV/10);
+  //hwproc.MAXEV = pset.getUntrackedParameter<int>("maxEvents",10);
+  //hwevnt.MAXER = hwproc.MAXEV/10;
   if(hwevnt.MAXER<10) hwevnt.MAXER = 10;
-  //Not using JIMMY
-  //if(useJimmy_) jmparm.MSFLAG = 1;
 
   // initialize other common blocks ...
   hwigin();
-  //Not using JIMMY
-  //if(useJimmy_) jimmin();
   
   // set some 'non-herwig' defaults
   hwevnt.MAXPR =  maxEventsToPrint_;           // no printing out of events
@@ -220,17 +221,60 @@ ology = 2) and Non diffractive (diffTopology = 3)";
   hwuinc();
   hwusta("PI0     ",1);
 
-  // Initialize H1 pomeron structure function
-  /*int ifit = 5;
-  double xp = 0.1;
-  double Q2 = 75.0;
-  double xpq[13];
-  qcd_1994(xp,Q2,xpq,ifit);*/
-  hwabeg();
+  // Initialize H1 pomeron
+  if(diffTopology != 3){
+        int nstru = hwpram.NSTRU;
+        int ifit = pset.getParameter<int>("h1fit");
+        if(nstru == 9){
+                if((ifit <= 0)||(ifit >= 7)){
+                        throw edm::Exception(edm::errors::Configuration,"PomwigError")
+                        <<" Attempted to set non existant H1 1997 fit index. Has to be 1...6";
+                }
+                cout << "   H1 1997 pdf's" << endl;
+                cout << "   IFIT = "<< ifit << endl;
+                double xp = 0.1;
+                double Q2 = 75.0;
+                double xpq[13];
+                qcd_1994(xp,Q2,xpq,ifit);
+        } else if(nstru == 12){
+                /*if(ifit != 1){
+                        throw edm::Exception(edm::errors::Configuration,"PomwigError")
+                        <<" Attempted to set non existant H1 2006 A fit index. Only IFIT=1";
+                }*/
+                ifit = 1;
+                cout << "   H1 2006 A pdf's" << endl;
+                cout << "   IFIT = "<< ifit <<endl;
+                double xp = 0.1;
+                double Q2 = 75.0;
+                double xpq[13];
+                double f2[2];
+                double fl[2];
+                double c2[2];
+                double cl[2];
+                qcd_2006(xp,Q2,ifit,xpq,f2,fl,c2,cl);
+        } else if(nstru == 14){
+                /*if(ifit != 2){
+                        throw edm::Exception(edm::errors::Configuration,"PomwigError")
+                        <<" Attempted to set non existant H1 2006 B fit index. Only IFIT=2";
+                }*/
+                ifit = 2;
+                cout << "   H1 2006 B pdf's" << endl;
+                cout << "   IFIT = "<< ifit <<endl;
+                double xp = 0.1;
+                double Q2 = 75.0;
+                double xpq[13];
+                double f2[2];
+                double fl[2];
+                double c2[2];
+                double cl[2];
+                qcd_2006(xp,Q2,ifit,xpq,f2,fl,c2,cl);
+        } else{
+                throw edm::Exception(edm::errors::Configuration,"PomwigError")
+                <<" Only running Pomeron H1 1997 (NSTRU=9), H1 2006 fit A (NSTRU=12) and H1 2006 fit B (NSTRU=14)";
+        }
+  }
 
   hweini();
-  //Not using JIMMY
-  //if(useJimmy_) jminit();
 
   cout << endl; // Stetically add for the output
   produces<HepMCProduct>();
@@ -251,24 +295,17 @@ PomwigSource::~PomwigSource(){
 void PomwigSource::clear() {
   // teminate elementary process
   hwefin();
-  //Not using JIMMY
-  //if(useJimmy_) jmefin();
 }
 
 
 bool PomwigSource::produce(Event & e) {
-  
-  auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
-  
+
+  eventstat.eventisok = 0.0;
+
+  // call herwig routines to create HEPEVT
   hwuine();
   hwepro();
-  hwbgen();   
-  //Not using JIMMY 
-  /*if(useJimmy_ && doMPInteraction_) {
-    double eventok = 0.0;
-    eventok = hwmsct_dummy(1.1);
-    if(eventok > 0.5) return true;
-  }*/
+  hwbgen();  
   
   hwdhob();
   hwcfor();
@@ -277,11 +314,21 @@ bool PomwigSource::produce(Event & e) {
   hwdhvy();
   hwmevt();
   hwufne();
+  
+  // if event was killed by HERWIG; skip 
+  if(eventstat.eventisok > 0.5) return true;
 
-  HepMC::GenEvent* evt = new HepMC::GenEvent();
+  // -----------------  HepMC converter --------------------
+  HepMC::IO_HERWIG conv;
+
+  // HEPEVT is ok, create new HepMC event
+  evt = new HepMC::GenEvent();
   bool ok = conv.fill_next_event( evt );
+  // if conversion failed; throw excpetion and stop processing
   if(!ok) throw cms::Exception("HerwigError")
     <<" Conversion problems in event nr."<<numberEventsInRun() - remainingEvents() - 1<<".";  
+
+  // set process id and event number
   evt->set_signal_process_id(hwproc.IPROC);  
   evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
   
@@ -290,8 +337,14 @@ bool PomwigSource::produce(Event & e) {
 	 << "----------------------" << endl;
     evt->print();
   }
-  if(evt)  bare_product->addHepMCData(evt );
-  e.put(bare_product);
+  
+  // dummy if: event MUST be there
+  if(evt)  {
+    auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
+    bare_product->addHepMCData(evt );
+    e.put(bare_product);
+  }
+  
   return true;
 }
 
@@ -1024,12 +1077,6 @@ bool PomwigSource::hwgive(const std::string& ParameterString) {
     hw6300.IOPSTP = atoi(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); 
   else if(!strncmp(ParameterString.c_str(),"IOPSH",5))
     hw6300.IOPSH = atoi(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); 
-  else if(!strncmp(ParameterString.c_str(),"JMUEO",5))
-    jmparm.JMUEO = atoi(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); 
-  else if(!strncmp(ParameterString.c_str(),"PTJIM",5))
-    jmparm.PTJIM = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); 
-  else if(!strncmp(ParameterString.c_str(),"JMRAD(73)",9))
-    jmparm.JMRAD[72] = atoi(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); 
 
   else accepted = 0;
 
@@ -1042,7 +1089,7 @@ bool PomwigSource::hwgive(const std::string& ParameterString) {
 #define hwaend hwaend_
 
 extern "C" {
-  void hwaend(){/*dummy*/};
+  void hwaend(){/*dummy*/}
 }
 //-------------------------------------------------------------------------------
 

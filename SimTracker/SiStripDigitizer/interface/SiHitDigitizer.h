@@ -23,7 +23,7 @@ class SiHitDigitizer{
  public:
 
   typedef std::map< int, float, std::less<int> > hit_map_type;
-  SiHitDigitizer(const edm::ParameterSet& conf, const StripGeomDetUnit *det,const ParticleDataTable * pdt);
+  SiHitDigitizer(const edm::ParameterSet& conf, const StripGeomDetUnit *det);
 
   ~SiHitDigitizer();
 
@@ -40,6 +40,8 @@ class SiHitDigitizer{
     theSiInduceChargeOnStrips = cd;
   }
   
+  void setParticleDataTable(const ParticleDataTable * pdt);
+
   hit_map_type processHit(const PSimHit&, const StripGeomDetUnit&, GlobalVector);
   
  private:
@@ -61,7 +63,6 @@ class SiHitDigitizer{
   LocalVector DriftDirection(const StripGeomDetUnit*,GlobalVector);
   typedef GloballyPositioned<double>      Frame;
   float tanLorentzAnglePerTesla;   //Lorentz angle tangent per Tesla
-  const ParticleDataTable * pdt_;
 };
 
 #endif

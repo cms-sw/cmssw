@@ -105,7 +105,7 @@ HcalTriggerPrimitiveSample CaloTPGTranscoderULUT::hcalCompress(const HcalTrigTow
     throw cms::Exception("Invalid Data") << "No LUT available for " << itower;
   } 
   if (sample>=lut->size()) {
-    // throw cms::Exception("Out of Range") << "LUT has " << lut->size() << " entries for " << itower << " but " << sample << " was requested.";
+    throw cms::Exception("Out of Range") << "LUT has " << lut->size() << " entries for " << itower << " but " << sample << " was requested.";
     sample=lut->size()-1;
   }
   //  std::cout << id << ":" << sample << "-->" << (*lut)[sample] << std::endl;
