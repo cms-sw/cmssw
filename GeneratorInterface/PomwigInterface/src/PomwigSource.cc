@@ -281,6 +281,11 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
         int idtmp1 = idtmp[i];
         int ietmp1 = ietmp[i];
         // Call Herwig function HWMODK
+	std::cout << "   Forcing decay " << idktmp1 << "->" << iatmp1 << "+" 
+						       << ibtmp1 << "+" 
+						       << ictmp1 << "+"
+						       << idtmp1 << "+"
+						       << ietmp1 << "  with BR " << brtmp1 << std::endl;
         hwmodk(idktmp1, brtmp1, imetmp1, iatmp1, ibtmp1, ictmp1, idtmp1, ietmp1);
     }
   }   
