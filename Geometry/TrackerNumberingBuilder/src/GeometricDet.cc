@@ -2,9 +2,11 @@
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "Geometry/TrackerNumberingBuilder/interface/TrackerShapeToBounds.h"
+
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDExpandedNode.h"
 
 #include <boost/bind.hpp>
 
@@ -38,8 +40,30 @@ namespace {
     return 0;
   }
 
+  template<typename DDView>
+  std::string  getString(const std::string & s,  DDView const & ev) {
+    DDValue val(s);
+    std::vector<const DDsvalues_type *> result;
+    ev.specificsV(result);
+    std::vector<const DDsvalues_type *>::iterator it = result.begin();
+    bool foundIt = false;
+    for (; it != result.end(); ++it)
+    {
+	foundIt = DDfetch(*it,val);
+	if (foundIt) break;
 
-
+    }    
+    if (foundIt)
+    { 
+	const std::vector<std::string> & temp = val.strings(); 
+	if (temp.size() != 1)
+	{
+	  throw cms::Exception("Configuration") << "I need 1 "<< s << " tags";
+	}
+	return temp[0]; 
+    }
+    return "NotFound";
+  }
 }
 
 
@@ -51,11 +75,13 @@ GeometricDet::~GeometricDet(){
   deleteComponents();
 }
 
+// for use outside CMSSW framework only since it asks for a default DDCompactView...
 GeometricDet::GeometricDet(nav_type navtype, GeometricEnumType type) : _ddd(navtype), _type(type){ 
   //
   // I need to find the params by myself :(
   //
-  DDCompactView cpv;
+  _fromDD = true;
+  DDCompactView cpv; // bad, bad, bad!
   DDExpandedView ev(cpv);
   ev.goTo(_ddd);
   _params = ((ev.logicalPart()).solid()).parameters();
@@ -74,6 +100,12 @@ GeometricDet::GeometricDet(nav_type navtype, GeometricEnumType type) : _ddd(navt
   _material = ((ev.logicalPart()).material()).name();
   _radLength = getDouble("TrackerRadLength",ev);
   _xi = getDouble("TrackerXi",ev);
+  _pixROCRows = getDouble("PixelROCRows",ev);
+  _pixROCCols = getDouble("PixelROCCols",ev);
+  _pixROCx = getDouble("PixelROC_X",ev);
+  _pixROCy = getDouble("PixelROC_Y",ev);
+  _stereo =  getString("TrackerStereoDetectors",ev)=="true";
+  _siliconAPVNum = getDouble("SiliconAPVNumber",ev);
 
 }
 
@@ -81,6 +113,7 @@ GeometricDet::GeometricDet(DDExpandedView* fv, GeometricEnumType type) : _type(t
   //
   // Set by hand the _ddd
   //
+  _fromDD = true;
   _ddd = fv->navPos();
   _params = ((fv->logicalPart()).solid()).parameters();  
   _trans = fv->translation();
@@ -98,6 +131,12 @@ GeometricDet::GeometricDet(DDExpandedView* fv, GeometricEnumType type) : _type(t
   _material = ((fv->logicalPart()).material()).name();
   _radLength = getDouble("TrackerRadLength",*fv);
   _xi = getDouble("TrackerXi",*fv);
+  _pixROCRows = getDouble("PixelROCRows",*fv);
+  _pixROCCols = getDouble("PixelROCCols",*fv);
+  _pixROCx = getDouble("PixelROC_X",*fv);
+  _pixROCy = getDouble("PixelROC_Y",*fv);
+  _stereo =  getString("TrackerStereoDetectors",*fv)=="true";
+  _siliconAPVNum = getDouble("SiliconAPVNumber",*fv);
 
 }
 
@@ -105,6 +144,7 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type) : _type(t
   //
   // Set by hand the _ddd
   //
+  _fromDD = true;
   _ddd = fv->navPos();
   _params = ((fv->logicalPart()).solid()).parameters();
   _trans = fv->translation();
@@ -122,6 +162,46 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type) : _type(t
   _material = ((fv->logicalPart()).material()).name();
   _radLength = getDouble("TrackerRadLength",*fv);
   _xi = getDouble("TrackerXi",*fv);
+  _pixROCRows = getDouble("PixelROCRows",*fv);
+  _pixROCCols = getDouble("PixelROCCols",*fv);
+  _pixROCx = getDouble("PixelROC_X",*fv);
+  _pixROCy = getDouble("PixelROC_Y",*fv);
+  _stereo =  getString("TrackerStereoDetectors",*fv)=="true";
+  _siliconAPVNum = getDouble("SiliconAPVNumber",*fv);
+
+}
+
+GeometricDet::GeometricDet ( const PGeometricDet::Item& onePGD, GeometricEnumType type) : _type(type) {
+  // PGeometricDet is persistent version... make it... then come back here and make the
+  // constructor.
+  _fromDD = false;
+  _ddd = std::vector<int>(); // basically empty nav_type!
+  _params = (onePGD._params);
+  _trans = DDTranslation(onePGD._x, onePGD._y, onePGD._z);
+  _phi = onePGD._phi;//_trans.Phi();
+  _rho = onePGD._rho;//_trans.Rho();
+  _rot = DDRotationMatrix(onePGD._a11, onePGD._a12, onePGD._a13, 
+			  onePGD._a21, onePGD._a22, onePGD._a23,
+			  onePGD._a31, onePGD._a32, onePGD._a33);
+  _shape = DDSolidShape(onePGD._shape);
+  //  std::cout << "name = " << onePGD._name;
+  _ddname = DDName(onePGD._name, "fromdb");
+  //  std::cout << "DDName = " << _ddname << std::endl;
+  _parents = DDGeoHistory(); // will remain empty... hate wasting the space but want all methods to work.
+  _volume = onePGD._volume;
+  _density = onePGD._density;
+  _weight = onePGD._weight;
+  _copy = onePGD._copy;
+  _material = onePGD._material;
+  _radLength = onePGD._radLength;
+  _xi = onePGD._xi;
+  _pixROCRows = onePGD._pixROCRows;
+  _pixROCCols = onePGD._pixROCCols;
+  _pixROCx = onePGD._pixROCx;
+  _pixROCy = onePGD._pixROCy;
+  _stereo =  onePGD._stereo;
+  _siliconAPVNum = onePGD._siliconAPVNum;
+  _geographicalID = DetId(onePGD._geographicalID);
 
 }
 

@@ -24,6 +24,7 @@ void CmsTrackerDebugNavigator::iterate(const GeometricDet*in, int level){
     for(unsigned int i=0; (int)i<=level; i++) spaces+="  ";
     edm::LogInfo("CmsTrackerDebugNavigator") << level << spaces
 					     << "### VOLUME " << (in)->components()[k]->name().name()
+					     << " of type " << (in)->components()[k]->type()
 					     << " copy number " << (in)->components()[k]->copyno()
 					     << " positioned in " << (in)->name().name()
 					     << " global position of centre " << (in)->components()[k]->translation()

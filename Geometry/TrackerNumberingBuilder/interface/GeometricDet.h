@@ -9,6 +9,7 @@
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
+#include "CondFormats/IdealGeometryObjects/interface/PGeometricDet.h"
 #include <vector>
 #include "FWCore/ParameterSet/interface/types.h"
 
@@ -34,15 +35,15 @@ class GeometricDet {
   //
   typedef enum GDEnumType {unknown=100, Tracker=0, PixelBarrel=1, PixelEndCap=2,
 			  TIB=3, TID=4, TOB=5, TEC=6,
-			  layer=8, wheel=9, strng=10, rod=11,petal=12,ring=13,
-			  ladder=14, mergedDet=15, DetUnit=16,disk=17, panel=18 } GeometricEnumType;
+			  layer=8, wheel=9, strng=10, rod=11, petal=12, ring=13,
+			  ladder=14, mergedDet=15, DetUnit=16, disk=17, panel=18 } GeometricEnumType;
   /**
    * Constructors to be used when looping over DDD
    */
   GeometricDet(nav_type navtype, GeometricEnumType dd);
-
   GeometricDet(DDExpandedView* ev, GeometricEnumType dd);
   GeometricDet(DDFilteredView* fv, GeometricEnumType dd);
+  GeometricDet(const PGeometricDet::Item& onePGD, GeometricEnumType dd);
   
   /*
   GeometricDet(const GeometricDet &);
@@ -109,6 +110,7 @@ class GeometricDet {
 
   //rr
   /** parents() retuns the geometrical history
+   * mec: only works if this is built from DD and not from reco DB.
    */
   std::vector< DDExpandedNode > const &  parents() const {return _parents;}
   //rr  
@@ -140,7 +142,25 @@ class GeometricDet {
   std::string const &  material() const {return _material;}
   double radLength() const {return _radLength;}
   double xi() const {return _xi;}
-  
+  /**
+   * The following four pix* methods only return meaningful results for pixels.
+   */
+  double pixROCRows() const {return _pixROCRows;}
+  double pixROCCols() const {return _pixROCCols;}
+  double pixROCx() const {return _pixROCx;}
+  double pixROCy() const {return _pixROCy;}
+
+  /**
+   * The following two are only meaningful for the silicon tracker.
+   */  
+  bool stereo() const {return _stereo;}
+  double siliconAPVNum() const {return _siliconAPVNum;}
+
+  /**
+   * what it says... used the DD in memory model to build the geometry... or not.
+   */
+  bool wasBuiltFromDD() const {return _fromDD;}
+
  private:
 
   GeometricDetContainer _container;
@@ -164,6 +184,13 @@ class GeometricDet {
   std::string _material;
   double _radLength;
   double _xi;
+  double _pixROCRows;
+  double _pixROCCols;
+  double _pixROCx;
+  double _pixROCy;
+  bool _stereo;
+  double _siliconAPVNum;
+  bool _fromDD;
 
 };
 

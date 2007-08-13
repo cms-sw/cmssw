@@ -105,7 +105,7 @@ static const double tolerance_angle = 0.001; // 0.001 rad
 ModuleNumbering::ModuleNumbering( const edm::ParameterSet& iConfig )
 {
   //now do what ever initialization is needed
-  
+
 }
 
 
