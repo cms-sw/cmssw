@@ -48,8 +48,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/07/08 20:27:09 $
-// $Revision: 1.45 $
+// $Date: 2007/07/19 21:55:58 $
+// $Revision: 1.46 $
 //
 
 #include <vector>
@@ -291,6 +291,12 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<RoadSearchSeedCollection> in
 	unsigned int minNumberOfUsedLayersPerCloud = static_cast<unsigned int>(totalLayers * minFractionOfUsedLayersPerCloud + 0.5);
 	unsigned int maxNumberOfMissedLayersPerCloud = static_cast<unsigned int>(totalLayers * maxFractionOfMissedLayersPerCloud + 0.5);
 	unsigned int maxNumberOfConsecutiveMissedLayersPerCloud = static_cast<unsigned int>(totalLayers * maxFractionOfConsecutiveMissedLayersPerCloud + 0.5);
+
+	// switch off consecutive layer cuts between 0.9 and 1.5
+	if (std::abs(outer_eta) > 0.9 && std::abs(outer_eta) < 1.5) {
+	  maxNumberOfConsecutiveMissedLayersPerCloud = 999;
+	  maxNumberOfMissedLayersPerCloud = 999;
+	}
           
 	for ( Roads::RoadSet::const_iterator roadSetVector = roadSet->begin();
 	      roadSetVector != roadSet->end();
@@ -350,8 +356,12 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<RoadSearchSeedCollection> in
 	      // re-caluclate minNumberOfUsedLayersPerCloud, maxNumberOfMissedLayersPerCloud and maxNumberOfConsecutiveMissedLayersPerCloud 
 	      // by rounding to integer minFractionOfUsedLayersPerCloud. maxFractionOfMissedLayersPerCloud and maxFractionOfConsecutiveMissedLayersPerCloud
 	      minNumberOfUsedLayersPerCloud = static_cast<unsigned int>(totalLayers * minFractionOfUsedLayersPerCloud + 0.5);
-	      maxNumberOfMissedLayersPerCloud = static_cast<unsigned int>(totalLayers * maxFractionOfMissedLayersPerCloud + 0.5);
-	      maxNumberOfConsecutiveMissedLayersPerCloud = static_cast<unsigned int>(totalLayers * maxFractionOfConsecutiveMissedLayersPerCloud + 0.5);
+	      if ( maxNumberOfMissedLayersPerCloud != 999 ) {
+		maxNumberOfMissedLayersPerCloud = static_cast<unsigned int>(totalLayers * maxFractionOfMissedLayersPerCloud + 0.5);
+	      }
+	      if ( maxNumberOfConsecutiveMissedLayersPerCloud != 999 ) {
+		maxNumberOfConsecutiveMissedLayersPerCloud = static_cast<unsigned int>(totalLayers * maxFractionOfConsecutiveMissedLayersPerCloud + 0.5);
+	      }
 
 	      ++usedLayers;
 	      consecutiveMissedLayers = 0;
@@ -374,43 +384,52 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<RoadSearchSeedCollection> in
 
 	    // break condition, hole larger than maxNumberOfConsecutiveMissedLayersPerCloud
 	    if ( consecutiveMissedLayers > maxNumberOfConsecutiveMissedLayersPerCloud ) {
-	      LogDebug("RoadSearch") << "BREAK: More than " << maxNumberOfConsecutiveMissedLayersPerCloud << " missed consecutive layers!";
+// 	      edm::LogInfo("RoadSearch") << "BREAK: More than " << maxNumberOfConsecutiveMissedLayersPerCloud << " missed consecutive layers!";
 	      break;
 	    }
 
 	    // break condition, already  missed too many layers
 	    if ( missedLayers > maxNumberOfMissedLayersPerCloud ) {
-	      LogDebug("RoadSearch") << "BREAK: More than " << maxNumberOfMissedLayersPerCloud << " missed layers!";
+// 	      edm::LogInfo("RoadSearch") << "BREAK: More than " << maxNumberOfMissedLayersPerCloud << " missed layers!";
 	      break;
 	    }
 
 	    // break condition, cannot satisfy minimal number of used layers
 	    if ( totalLayers-missedLayers < minNumberOfUsedLayersPerCloud ) {
-	      LogDebug("RoadSearch") << "BREAK: Cannot satisfy at least " << minNumberOfUsedLayersPerCloud << " used layers!";
+// 	      edm::LogInfo("RoadSearch") << "BREAK: Cannot satisfy at least " << minNumberOfUsedLayersPerCloud << " used layers!";
 	      break;
 	    }
 	  }	  
             
 	}
 
-	if ( consecutiveMissedLayers <= maxNumberOfConsecutiveMissedLayersPerCloud && 
-	     usedLayers >= minNumberOfUsedLayersPerCloud &&
-	     missedLayers <= maxNumberOfMissedLayersPerCloud ) {
+	if ( consecutiveMissedLayers <= maxNumberOfConsecutiveMissedLayersPerCloud ) {
+	  if ( usedLayers >= minNumberOfUsedLayersPerCloud ) {
+	    if ( missedLayers <= maxNumberOfMissedLayersPerCloud ) {
             
-	  CloudArray[phibin][etabin].push_back(cloud);
-            
-	  if ( roadType == Roads::RPhi ){ 
-	    output_ << "This r-phi seed yields a cloud with " <<cloud.size() <<" hits\n";
-	  } else {
-	    output_ << "This z-phi seed yields a cloud with "<<cloud.size() <<" hits\n";
+	      CloudArray[phibin][etabin].push_back(cloud);
+	      
+	      if ( roadType == Roads::RPhi ){ 
+		output_ << "This r-phi seed yields a cloud with " <<cloud.size() <<" hits\n";
+	      } else {
+		output_ << "This z-phi seed yields a cloud with "<<cloud.size() <<" hits\n";
+	      }
+	    } else {
+// 	      edm::LogInfo("RoadSearch") << "Missed layers: " << missedLayers << " More than " << maxNumberOfMissedLayersPerCloud << " missed layers!";
+	      if ( roadType == Roads::RPhi ){ 
+		output_ << "This r-phi seed yields no clouds\n";
+	      } else {
+		output_ << "This z-phi seed yields no clouds\n";
+	      }
+	    }
 	  }
-	} else {
-	  if ( roadType == Roads::RPhi ){ 
-	    output_ << "This r-phi seed yields no clouds\n";
-	  } else {
-	    output_ << "This z-phi seed yields no clouds\n";
-	  }
+// 	  else {
+// 	    edm::LogInfo("RoadSearch") << "Used layers: " << usedLayers << " Cannot satisfy at least " << minNumberOfUsedLayersPerCloud << " used layers!";
+// 	  }
 	}
+// 	else {
+// 	  edm::LogInfo("RoadSearch") << "Consecutive missed layers: " << consecutiveMissedLayers << " more than " << maxNumberOfConsecutiveMissedLayersPerCloud << " missed consecutive layers!";
+// 	}
       }
     }
   }
