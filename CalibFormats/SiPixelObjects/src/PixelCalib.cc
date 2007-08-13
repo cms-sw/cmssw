@@ -66,7 +66,7 @@ PixelCalib::PixelCalib(std::string filename):
     in >> tmp;
 
     std::vector <unsigned int> cols;
-    while (tmp!="Vcal:"){
+    while (tmp!="Vcal:" && tmp!="VcalHigh:" && tmp!="VcalLow:"){
 	if (tmp=="|") {
 	    cols_.push_back(cols);
             cols.clear();
