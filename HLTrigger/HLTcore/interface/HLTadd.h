@@ -28,7 +28,6 @@ std::pair<int,int> pmid() const {
   return pm;
 }
 
-/*
 const std::string* pathName() const {
   edm::CurrentProcessingContext const* cpc(currentContext());
   if (cpc!=0) {
@@ -46,4 +45,3 @@ const std::string* moduleLabel() const {
     return 0;
   }
 }
-*/
