@@ -38,7 +38,7 @@ public:
 
   /// The GomeDet* can be zero for InvalidTransientRecHits and for TConstraintRecHit2Ds
   const GeomDet * det() const {return geom_;}
-  const Surface * surface() const {return &(geom_->surface());}
+  virtual const Surface * surface() const {return &(geom_->surface());}
 
   /// CAUTION: the GeomDetUnit* is zero for composite hits 
   /// (matched hits in the tracker, segments in the muon).
