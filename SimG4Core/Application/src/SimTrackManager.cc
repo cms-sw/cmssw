@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Nov 25 17:44:19 EST 2005
-// $Id: SimTrackManager.cc,v 1.12 2007/06/08 09:33:11 fambrogl Exp $
+// $Id: SimTrackManager.cc,v 1.13 2007/07/12 16:23:58 sunanda Exp $
 //
 
 // system include files
@@ -90,7 +90,6 @@ void SimTrackManager::saveTrackAndItsBranch(TrackWithHistory * trkWHist)
     if (trkH == 0)
     {
         edm::LogError("SimG4CoreApplication") << " SimTrackManager::saveTrackAndItsBranch got 0 pointer ";
-	//cout << " SimTrackManager::saveTrackAndItsBranch got 0 pointer " << endl;
         abort();
     }
     trkH->save();
@@ -151,20 +150,8 @@ void SimTrackManager::storeTracks(G4SimEvent* simEvent)
     
     LogDebug("SimTrackManager")  << " AFTER CLEANING, I GET " << (*m_trksForThisEvent).size()
 	      << " tracks to be saved persistently";
-    
-    LogDebug("SimTrackManager")  << "SimTrackManager::storeTracks -  Tracks still alive " 
-	      << (*m_trksForThisEvent).size();
-    
     for (unsigned int it = 0;  it < (*m_trksForThisEvent).size(); it++)
-      LogDebug("SimTrackManager")  << " 3 - Track in position " << it
-		<< " G4 track number " << (*m_trksForThisEvent)[it]->trackID()
-		<< " mother " << (*m_trksForThisEvent)[it]->parentID()
-		<< " status " << (*m_trksForThisEvent)[it]->saved();
-    
-    LogDebug("SimTrackManager")   << "SimTrackManager::storeTracks -  TRACKS to be saved starting with "
-	       << (*m_trksForThisEvent).size();
-    for (unsigned int it = 0;  it < (*m_trksForThisEvent).size(); it++)
-      LogDebug("SimTrackManager")   << " 2 - Track in position " << it
+      LogDebug("SimTrackManager")   << " Track in position " << it
 		 << " G4 track number " << (*m_trksForThisEvent)[it]->trackID()
 		 << " mother " << (*m_trksForThisEvent)[it]->parentID()
 		 << " Status " << (*m_trksForThisEvent)[it]->saved();
