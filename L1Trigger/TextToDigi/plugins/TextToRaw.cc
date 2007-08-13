@@ -26,8 +26,8 @@ using std::ios;
 const int TextToRaw::EVT_MAX_SIZE;
 
 TextToRaw::TextToRaw(const edm::ParameterSet& iConfig) :
-  filename_(iConfig.getUntrackedParameter<string>("filename", "slinkOutput.txt")),
   fedId_(iConfig.getUntrackedParameter<int>("fedId", 745)),
+  filename_(iConfig.getUntrackedParameter<string>("filename", "slinkOutput.txt")),
   fileEventOffset_(iConfig.getUntrackedParameter<int>("FileEventOffset", 0)),
   nevt_(0)
 {
@@ -74,18 +74,20 @@ TextToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //skip first fileEventOffset input crossings 
     for(int i=0; i<abs(fileEventOffset_); i++) {
       int iline=0;
-      while (getline(file_, line) && !line.empty())
+      while (getline(file_, line) && !line.empty()) {
 	iline++;
-      //assert(iline==72);       
-      if(iline!=72)       
-	throw cms::Exception("TextToRaw")
-	  << "TextToRaw::produce() : " << iline << " :" 
-	  << " data:" << line << std::endl;
+	if(iline>=EVT_MAX_SIZE)       
+	  throw cms::Exception("TextToRawEventSizeOverflow")
+	    << "TextToRaw::produce() : "
+	    << " read too many lines (" << iline << ": " << line << ")" 
+	    << ", maximum event size is " << EVT_MAX_SIZE
+	    << std::endl;
+      }
     }
   }
   
   nevt_++;
-
+  
    // read file
    string line;
    int i=0; // count 32-bit words
