@@ -14,18 +14,18 @@ class TrackerGeometry;
 class TrackerGeomBuilderFromGeometricDet {
 public:
 
-  TrackerGeometry* build(const DDCompactView* fv, const GeometricDet* gd);
+  TrackerGeometry* build(const GeometricDet* gd);
 
 private:
 
-  void buildPixel(std::vector<const GeometricDet*> const &,DDExpandedView*,
+  void buildPixel(std::vector<const GeometricDet*> const &,
 		  TrackerGeometry*,GeomDetType::SubDetector& det, const std::string& part);
-  void buildSilicon(std::vector<const GeometricDet*> const &,DDExpandedView*,
+  void buildSilicon(std::vector<const GeometricDet*> const &,
 		    TrackerGeometry*,GeomDetType::SubDetector& det, const std::string& part);
   void buildGeomDet(TrackerGeometry*);
 
-  std::string getString(std::string const &, DDExpandedView*) const;
-  double getDouble(std::string const &, DDExpandedView*) const;
+/*   std::string getString(std::string const &, DDExpandedView*) const; */
+/*   double getDouble(std::string const &, DDExpandedView*) const; */
 
   PlaneBuilderFromGeometricDet::ResultType
   buildPlaneWithMaterial(const GeometricDet* gd) const;

@@ -25,8 +25,12 @@ TrackerDigiGeometryESModule::TrackerDigiGeometryESModule(const edm::ParameterSet
 {
 
     applyAlignment_ = p.getUntrackedParameter<bool>("applyAlignment", false);
-
-    setWhatProduced(this, dependsOn( &TrackerDigiGeometryESModule::geometryCallback_ ) );
+    fromDDD_ = p.getParameter<bool>("fromDDD");
+    if ( fromDDD_ ) {
+      setWhatProduced(this, dependsOn( &TrackerDigiGeometryESModule::ddGeometryCallback_ ) );
+    } else {
+      setWhatProduced(this, dependsOn( &TrackerDigiGeometryESModule::gdGeometryCallback_ ) );
+    }
 }
 
 //__________________________________________________________________
@@ -55,7 +59,7 @@ TrackerDigiGeometryESModule::produce(const TrackerDigiGeometryRecord & iRecord){
 
 
 //__________________________________________________________________
-void TrackerDigiGeometryESModule::geometryCallback_( const IdealGeometryRecord& record )
+void TrackerDigiGeometryESModule::ddGeometryCallback_( const IdealGeometryRecord& record )
 {
 
   //
@@ -66,7 +70,24 @@ void TrackerDigiGeometryESModule::geometryCallback_( const IdealGeometryRecord& 
   record.get( cpv );
   record.get( gD );
   TrackerGeomBuilderFromGeometricDet builder;
-  _tracker  = boost::shared_ptr<TrackerGeometry>(builder.build(&(*cpv),&(*gD)));
+  _tracker  = boost::shared_ptr<TrackerGeometry>(builder.build(&(*gD)));
+
+}
+
+void TrackerDigiGeometryESModule::gdGeometryCallback_( const PGeometricDetRcd& record )
+{
+
+  //
+  // Called whenever the reco-geometric-det-stored-from-DDD geometry changes
+  //
+  // MEC: blindly copying above example... why they get the compact view without using it is beyond me.
+  // MEC: TRY taking out the request for pgd after I get this working.
+  edm::ESHandle<PGeometricDet> pgd;
+  edm::ESHandle<GeometricDet> gd;
+  record.get( pgd );
+  record.get( gd );
+  TrackerGeomBuilderFromGeometricDet builder;
+  _tracker  = boost::shared_ptr<TrackerGeometry>(builder.build(&(*gd)));
 
 }
 
