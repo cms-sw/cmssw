@@ -47,3 +47,8 @@ coral::ISchema&
 cond::CoralTransaction::nominalSchema(){
   return  m_coralHandle->nominalSchema();
 }
+coral::ISessionProxy& 
+cond::CoralTransaction::coralSessionProxy(){
+  if(!m_coralHandle) throw cond::Exception("cond::CoralTransaction::coralSessionProxy: null coral handle");
+  return  *m_coralHandle;
+}

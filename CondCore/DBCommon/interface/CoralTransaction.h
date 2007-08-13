@@ -21,6 +21,7 @@ namespace cond{
     virtual bool isReadOnly() const;
     virtual IConnectionProxy& parentConnection();
     coral::ISchema& nominalSchema();
+    coral::ISessionProxy& coralSessionProxy();
     void resetCoralHandle(coral::ISessionProxy* coralHandle) const;
   private:
     CoralConnectionProxy* m_parentConnection;
