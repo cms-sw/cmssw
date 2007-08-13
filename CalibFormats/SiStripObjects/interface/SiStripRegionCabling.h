@@ -167,8 +167,8 @@ inline const SiStripRegionCabling::Position SiStripRegionCabling::position(const
 }
 
 inline const SiStripRegionCabling::Position SiStripRegionCabling::position(const PositionIndex index) const {
-  return Position(regionDimensions().first*index.first + regionDimensions().first/2.,
-		  regionDimensions().second*index.second + regionDimensions().second/2.);
+  return Position(regionDimensions().first*(index.first+.5) - etamax_,
+		  regionDimensions().second*(index.second+.5)- M_PI);
 }
 
 inline const SiStripRegionCabling::PositionIndex SiStripRegionCabling::positionIndex(const Region region) const {
@@ -215,9 +215,13 @@ void SiStripRegionCabling::updateSiStripRefGetter(edm::SiStripRefGetter<T>& refg
   uint32_t deta = static_cast<uint32_t>(deltaeta/regionDimensions().first);
   uint32_t dphi = static_cast<uint32_t>(deltaphi/regionDimensions().second);
   increment(index,-deta,-dphi);
-  for (uint32_t ieta = 0; ieta < 2*deta + 1; ieta++,increment(index,1,0)) {
-    for (uint32_t iphi = 0; iphi < 2*dphi + 1; iphi++,increment(index,0,1)) {
-      updateSiStripRefGetter<T>(refgetter,lazygetter,elementIndex(index,subdet,layer));
+
+  PositionIndex loopingindex;
+  for (uint32_t ieta = 0; ieta < 2*deta + 1; ieta++) {
+    for (uint32_t iphi = 0; iphi < 2*dphi + 1; iphi++) {
+      loopingindex = index;
+      increment(loopingindex,ieta,iphi);
+      updateSiStripRefGetter<T>(refgetter,lazygetter,elementIndex(loopingindex,subdet,layer));
     }
   }
 }
