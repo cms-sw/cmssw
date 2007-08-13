@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1Region.cc,v 1.5 2007/06/17 13:53:32 chinhan Exp $
+// $Id: FastL1Region.cc,v 1.6 2007/06/17 14:31:35 chinhan Exp $
 //
 
 // No BitInfos for release versions
@@ -317,10 +317,11 @@ FastL1Region::FillTower(const CaloTower& t, int& tid)
     HThres = HEthres;
   }
 
-  double emet = TPEnergyRound(emet,Config.TowerEMLSB,EThres);
-  double hadet = TPEnergyRound(hadet,Config.TowerHadLSB,HThres);
-  double eme = TPEnergyRound(eme,Config.TowerEMLSB,EThres);
-  double hade = TPEnergyRound(hade,Config.TowerHadLSB,HThres);
+  double upperThres = 1024.;
+  double emet = RCTEnergyTrunc(emet,Config.TowerEMLSB,upperThres);
+  double hadet = RCTEnergyTrunc(hadet,Config.TowerHadLSB,upperThres);
+  double eme = RCTEnergyTrunc(eme,Config.TowerEMLSB,upperThres);
+  double hade = RCTEnergyTrunc(hade,Config.TowerHadLSB,upperThres);
 
   if ( emet<EThres) emet = 0.;
   if ( hadet<HThres) hadet = 0.;
@@ -372,10 +373,11 @@ FastL1Region::FillTower_Scaled(const CaloTower& t, int& tid)
   double eme = emScale * t.emEnergy();
   double hade = hadScale * t.hadEnergy();
 
-  emet = TPEnergyRound(emet,Config.TowerEMLSB,EThres);
-  hadet = TPEnergyRound(hadet,Config.TowerHadLSB,HThres);
-  eme = TPEnergyRound(eme,Config.TowerEMLSB,EThres);
-  hade = TPEnergyRound(hade,Config.TowerHadLSB,HThres);
+  double upperThres = 1024.;
+  emet = RCTEnergyTrunc(emet,Config.TowerEMLSB,upperThres);
+  hadet = RCTEnergyTrunc(hadet,Config.TowerHadLSB,upperThres);
+  eme = RCTEnergyTrunc(eme,Config.TowerEMLSB,upperThres);
+  hade = RCTEnergyTrunc(hade,Config.TowerHadLSB,upperThres);
 
   if ( emet<EThres) emet = 0.;
   if ( hadet<HThres) hadet = 0.;
@@ -889,11 +891,65 @@ corrEmEt(double et, double eta) {
 
 // Rounding the Et info for simulating the regional Et resolution
 double 
-TPEnergyRound(double et, double Resol, double thres) {
-  double ret = (int)(et / Resol) * Resol;
-  //if (et>=thres) ret += Resol;
-  //else ret = 0.;
+RCTEnergyTrunc(double et, double LSB, double thres) {
 
+  if (et>=thres) return thres;
+
+  double ret = (int)(et / LSB) * LSB + LSB;
+  //double ret = (int)(et / LSB) * LSB;
+
+
+  return ret;
+}
+
+
+double 
+GCTEnergyTrunc(double et, double LSB, bool doEM) {
+
+  double L1CaloEmEtScaleLSB = LSB;
+  double L1CaloRegionEtScaleLSB = LSB;
+
+
+  double L1CaloEmThresholds[64] = { 
+    0.,     1.,     2.,     3.,     4.,     5.,     6.,     7.,     8.,     9., 
+    10.,    11.,    12.,    13.,    14.,    15.,    16.,    17.,    18.,    19., 
+    20.,    21.,    22.,    23.,    24.,    25.,    26.,    27.,    28.,    29., 
+    30.,    31.,    32.,    33.,    34.,    35.,    36.,    37.,    38.,    39., 
+    40.,    41.,    42.,    43.,    44.,    45.,    46.,    47.,    48.,    49.,
+    50.,    51.,    52.,    53.,    54.,    55.,    56.,    57.,    58.,    59., 
+    60.,    61.,    62.,    63.
+  };
+ 
+  double L1CaloJetThresholds[64] = {       
+    0.,     10.,    12.,    14.,    15.,    18.,    20.,    22.,    24.,    25.,
+    28.,    30.,    32.,    35.,    37.,    40.,    45.,    50.,    55.,    60.,    
+    65.,    70.,    75.,    80.,    85.,    90.,    100.,   110.,   120.,   125.,   
+    130.,   140.,   150.,   160.,   170.,   175.,   180.,   190.,   200.,   215.,   
+    225.,   235.,   250.,   275.,   300.,   325.,   350.,   375.,   400.,   425.,   
+    450.,   475.,   500.,   525.,   550.,   575.,   600.,   625.,   650.,   675.,   
+    700.,   725.,   750.,   775.
+  };
+  
+
+
+  double L1CaloThresholds[64];
+  if (doEM) {
+    for (int i=0;i<64;i++)
+      L1CaloThresholds[i] = L1CaloEmThresholds[i];
+  } else {
+    for (int i=0;i<64;i++)
+      L1CaloThresholds[i] = L1CaloJetThresholds[i];
+  }
+
+
+  double ret = 0.;
+  for (int i=63;i>0;i--) {
+    if (et>=(L1CaloThresholds[i])) {
+      if (i==63) ret = L1CaloThresholds[63]+L1CaloThresholds[63]-L1CaloThresholds[62];
+      else ret = L1CaloThresholds[i+1];
+      break;
+    }
+  }
   return ret;
 }
 

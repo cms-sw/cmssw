@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.cc,v 1.7 2007/06/17 14:31:35 chinhan Exp $
+// $Id: FastL1GlobalAlgo.cc,v 1.8 2007/08/08 15:49:33 chinhan Exp $
 //
 
 // No BitInfos for release versions
@@ -167,15 +167,16 @@ FastL1GlobalAlgo::addJet(int iRgn, bool taubit) {
   std::pair<double, double> p = m_RMap->getRegionCenterEtaPhi(iRgn);
 
   //double e     = m_Regions.at(iRgn).GetJetE();
-  double et     = TPEnergyRound(m_Regions.at(iRgn).GetJetEt(),m_L1Config.JetLSB,
-				m_L1Config.JetSeedEtThreshold);
+  //double et = GCTEnergyTrunc(m_Regions.at(iRgn).GetJetEt(), m_L1Config.JetLSB, false);
+  double et = m_Regions.at(iRgn).GetJetEt();
 
   double eta   = p.first;
   double phi   = p.second;
 
   if (m_L1Config.DoJetCorr) {
-    et = TPEnergyRound(corrJetEt(et,eta),m_L1Config.JetLSB,
-		       m_L1Config.JetSeedEtThreshold);
+    et = GCTEnergyTrunc(corrJetEt(et,eta), m_L1Config.JetLSB, false);
+  } else {
+    et = GCTEnergyTrunc(et, m_L1Config.JetLSB, false);
   }
 
   double theta = 2.*atan(exp(-eta));
@@ -192,7 +193,7 @@ FastL1GlobalAlgo::addJet(int iRgn, bool taubit) {
   reco::Particle::LorentzVector rp4(ex,ey,ez,e); 
   l1extra::L1JetParticle tjet(rp4);
   
-  if (et>=10.) {
+  if (et>=5.) {
     if ((taubit || et>m_L1Config.noTauVetoLevel) && (std::abs(eta)<3.0) ) {
       m_TauJets.push_back(tjet);
       // sort by et 
@@ -335,7 +336,8 @@ FastL1GlobalAlgo::FillMET(edm::Event const& e) {
 	  had_e   += candidate->hadEnergy();
 	}
 
-	sum_et += et;
+	//sum_et += et;
+	sum_et += RCTEnergyTrunc(et,0.5,2048);
 	sum_ex += et*cos(phi);
 	sum_ey += et*sin(phi); 
 	//sum_ex += e*sin(theta)*cos(phi);
@@ -377,7 +379,9 @@ FastL1GlobalAlgo::FillMET() {
     
     double et = m_Regions[i].SumEt();
     //double e = m_Regions[i].SumE();
-    sum_et += et;
+
+    //sum_et += et;
+    sum_et += RCTEnergyTrunc(et,0.5,2048);
     sum_ex += et*cos(phi);
     sum_ey += et*sin(phi); 
     //sum_ex += e*sin(theta)*cos(phi);
@@ -507,6 +511,15 @@ FastL1GlobalAlgo::isTauJet(int cRgn) {
 
   // west border:
   if ((cRgn%22)==17) { 
+    //std::cerr << "West border check: " << std::endl
+    //      << nwid << " " << nid << " "  << neid << " " << std::endl
+    //      << wid << " " << cRgn << " "  << eid << " " << std::endl
+    //      << swid << " " << sid << " "  << seid << " " << std::endl;    
+    std::cerr << "West border check: " << std::endl
+          << m_Regions[nwid].GetTauBit() << " " << m_Regions[nid].GetTauBit() << " "  << m_Regions[neid].GetTauBit() << " " << std::endl
+          << m_Regions[wid].GetTauBit() << " " << m_Regions[cRgn].GetTauBit() << " "  << m_Regions[eid].GetTauBit() << " " << std::endl
+          << m_Regions[swid].GetTauBit() << " " << m_Regions[sid].GetTauBit() << " "  << m_Regions[seid].GetTauBit() << " " << std::endl;    
+
     if (
 	m_Regions[nid].GetTauBit()  ||
 	m_Regions[neid].GetTauBit() ||
@@ -520,6 +533,15 @@ FastL1GlobalAlgo::isTauJet(int cRgn) {
   }
   // east border:
   if ((cRgn%22)==4) { 
+    //std::cerr << "East border check2: " << std::endl
+    //      << nwid << " " << nid << " "  << neid << " " << std::endl
+    //      << wid << " " << cRgn << " "  << eid << " " << std::endl
+    //      << swid << " " << sid << " "  << seid << " " << std::endl;    
+    std::cerr << "East border check: " << std::endl
+          << m_Regions[nwid].GetTauBit() << " " << m_Regions[nid].GetTauBit() << " "  << m_Regions[neid].GetTauBit() << " " << std::endl
+          << m_Regions[wid].GetTauBit() << " " << m_Regions[cRgn].GetTauBit() << " "  << m_Regions[eid].GetTauBit() << " " << std::endl
+          << m_Regions[swid].GetTauBit() << " " << m_Regions[sid].GetTauBit() << " "  << m_Regions[seid].GetTauBit() << " " << std::endl;    
+
      if (
 	m_Regions[nid].GetTauBit()  ||
 	m_Regions[nwid].GetTauBit() ||
@@ -739,13 +761,13 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   // at this point candidate is at least non-iso Egamma
   //double eme = (hitE+maxE);
   //double eme = (hitE+maxE);
-  //double emet = (hitEt+maxEt);
-  double emet = TPEnergyRound((hitEt+maxEt),m_L1Config.EMLSB,
-			      m_L1Config.EMSeedEnThreshold); 
+  double emet = (hitEt+maxEt);
 
   if (m_L1Config.DoEMCorr) {
-    emet = TPEnergyRound(corrEmEt(emet,cenEta),m_L1Config.EMLSB,
-			 m_L1Config.EMSeedEnThreshold); 
+    //emet = GCTEnergyTrunc(corrEmEt(emet,cenEta),m_L1Config.EMLSB, true);
+    emet = GCTEnergyTrunc(emet,m_L1Config.EMLSB, true);
+  } else {
+    emet = GCTEnergyTrunc(emet,m_L1Config.EMLSB, true);
   }
 
   if ((emet)<emEtThres) return 0;
