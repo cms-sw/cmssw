@@ -205,10 +205,9 @@ double HCalSD::getEnergyDeposit(G4Step* aStep) {
 	if ((pdg == 2212) && (pp < pmaxProton))     weight = 0;
 	if ((pdg == 2112) && (pp < pmaxNeutron))    weight = 0;
 	if (weight == 0) {
-	  LogDebug("HcalSim") << "Kill Track " << theTrack->GetTrackID()
+	  LogDebug("HcalSim") << "Ignore Track " << theTrack->GetTrackID()
 			      << " Type " << theTrack->GetDefinition()->GetParticleName()
 			      << " Momentum " << pp << " MeV/c";
-	  //	  std::cout << "ECalSD:: Kill Track " << theTrack->GetTrackID() << " Type " << theTrack->GetDefinition()->GetParticleName() << " Momentum " << pp << " MeV/c\n";
 	}
       }
     }
