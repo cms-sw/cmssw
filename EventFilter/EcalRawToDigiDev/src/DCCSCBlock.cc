@@ -3,7 +3,6 @@
 #include "EventFilter/EcalRawToDigiDev/interface/DCCEventBlock.h"
 #include "EventFilter/EcalRawToDigiDev/interface/DCCDataUnpacker.h"
 #include "EventFilter/EcalRawToDigiDev/interface/DCCEventBlock.h"
-#include "EventFilter/EcalRawToDigiDev/interface/ECALUnpackerException.h"
 #include <stdio.h>
 #include "EventFilter/EcalRawToDigiDev/interface/EcalElectronicsMapper.h"
 
@@ -116,17 +115,17 @@ void DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
     }
   }
  
-  bool frameAdded=false;
-   // if there is an error on xtal id ignore next error checks  
+ 
+  // if there is an error on xtal id ignore next error checks  
   if(!errorOnXtal){ 
 
-    pDetId_ = (EEDetId*) mapper_->getDetIdPointer(towerId_,stripId,xtalId);
-    if(pDetId_){
+   // pDetId_ = (EEDetId*) mapper_->getDetIdPointer(towerId_,stripId,xtalId);
+   // if(pDetId_){
+   //   EEDataFrame df(*pDetId_);
+   //   df.setSize(nTSamples_); 
 
-      (*digis_)->push_back(*pDetId_);
-      EEDataFrame df( (*digis_)->back() );
-      frameAdded=true;
-  
+    pDFId_ = (EEDataFrame*) mapper_->getDFramePointer(towerId_,stripId,xtalId);
+    if(pDFId_){
 
       bool wrongGain(false);
 	 
@@ -138,7 +137,8 @@ void DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
         xtalGains_[i]=gain;
         if(gain == 0){ wrongGain = true; } 
  
-        df.setSample(i,data);
+        //df.setSample(i,data);
+        pDFId_->setSample(i,data);
       }
 	
     
@@ -197,11 +197,9 @@ void DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
         errorOnXtal = true;  
       }
 
-     //Add frame to collection only if all data format and gain rules are respected
-      if(errorOnXtal&&frameAdded) {
-	(*digis_)->pop_back();
-      }
-
+      //Add frame to collection
+//	   if(!errorOnXtal){ (*digis_)->push_back(df);}
+       if(!errorOnXtal){ (*digis_)->push_back(*pDFId_);}
   
 
    }// End on check of det id

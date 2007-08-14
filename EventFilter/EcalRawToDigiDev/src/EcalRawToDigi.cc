@@ -203,12 +203,12 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
   // Step B: encapsulate vectors in actual collections and set unpacker pointers
 
   // create the collection of Ecal Digis
-  std::auto_ptr<EBDigiCollection> productDigisEB(new EBDigiCollection(numbXtalTSamples_));
+  std::auto_ptr<EBDigiCollection> productDigisEB(new EBDigiCollection);
   productDigisEB->reserve(1700);
   theUnpacker_->setEBDigisCollection(&productDigisEB);
   
   // create the collection of Ecal Digis
-  std::auto_ptr<EEDigiCollection> productDigisEE(new EEDigiCollection(numbXtalTSamples_));
+  std::auto_ptr<EEDigiCollection> productDigisEE(new EEDigiCollection);
   theUnpacker_->setEEDigisCollection(&productDigisEE);
   
   // create the collection for headers
@@ -313,10 +313,6 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
   //  RUNNING_TIME_ += TIME_END-TIME_START; //NUNO
   // }
 
-
-  // finally sort digi collections
-  productDigisEB->sort();
-  productDigisEE->sort();
 
   // Add collections to the event 
   
