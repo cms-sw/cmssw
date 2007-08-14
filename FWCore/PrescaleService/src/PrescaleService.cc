@@ -6,9 +6,9 @@
 // Implementation:
 //     Cache and make prescale factors available online.
 //
-// Current revision: $Revision: 1.4 $
+// Current revision: $Revision: 1.5 $
 // On branch: $Name:  $
-// Latest change by $Author: youngman $ on $Date: 2007/07/27 07:43:06 $ 
+// Latest change by $Author: wmtan $ on $Date: 2007/08/08 18:29:13 $ 
 //
 
 
@@ -35,7 +35,19 @@ namespace edm {
       lsold = 0;
       nops = 0; 
 
-      LogDebug("PrescaleService") << "PrescaleService::PrescaleService";
+      //
+      const std::vector<std::string> InitialConfig(iPS.getParameter< std::vector<std::string> >("InitialConfig"));
+      for (unsigned int I=0; I!=InitialConfig.size(); ++I) {
+	const int i(putPrescale(InitialConfig[I]));
+	if (i-1!=I) LogDebug("PrescaleService")
+	  << "Invalid config string " << I << ": '"
+	  << InitialConfig[I] << "' - Ignored!";
+      }
+      //
+
+      LogDebug("PrescaleService") << "PrescaleService::PrescaleService: "
+				  << prescalers.size() << " of "
+				  << InitialConfig.size() << " initialised!";
 
       iReg.watchPostBeginJob(this,&PrescaleService::postBeginJob);
       iReg.watchPostEndJob(this,&PrescaleService::postEndJob);
@@ -155,10 +167,10 @@ namespace edm {
       string a, b;
       istringstream iss(prescalers[i]);
       iss >> n;
-      while (!(iss.rdstate() & istringstream::goodbit)) {
+      while (iss.rdstate() == 0) {
 	iss >> a >> b >> m; 
 //	cout << "getPrescale " << n << "==" << ls << " a " << a << " b " << b << " m " << m << endl;
-	if (module == b) {
+	if ( (b=="*") || (b==module) ) { // allow wildcard after an explicit module list
             if (lsg == ls && lsc < n) {
 		bang++;
 		return -1;
