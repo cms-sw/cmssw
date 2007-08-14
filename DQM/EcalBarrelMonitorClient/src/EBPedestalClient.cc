@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/06/24 09:41:11 $
- * $Revision: 1.148 $
+ * $Date: 2007/08/09 12:24:18 $
+ * $Revision: 1.149 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -602,7 +602,7 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
+              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
               dataset1[ecid] = p;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
@@ -686,7 +686,7 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
         if ( econn ) {
           try {
-            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism), i-1);
+            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalBarrel), i-1);
             dataset2[ecid] = pn;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -1219,7 +1219,7 @@ void EBPedestalClient::analyze(void){
 
             int ic = (ip-1) + 20*(ie-1) + 1;
 
-            if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == ic ) {
+            if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg01_[ism-1] ) {
                   float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
@@ -1305,7 +1305,7 @@ void EBPedestalClient::analyze(void){
 
           EcalLogicID ecid = m->first;
 
-          if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == i-1 ) {
+          if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == i-1 ) {
             if ( (m->second).getErrorBits() & bits01 ) {
               if ( meg04_[ism-1] ) {
                 float val = int(meg04_[ism-1]->getBinContent(i, 1)) % 3;
@@ -1382,9 +1382,25 @@ void EBPedestalClient::analyze(void){
         float z3val02;
         float z3val03;
 
+        float x5val01;
+        float x5val02;
+        float x5val03;
+
+        float y5val01;
+        float y5val02;
+        float y5val03;
+
+        float z5val01;
+        float z5val02;
+        float z5val03;
+
         if ( mes01_[ism-1] ) mes01_[ism-1]->setBinContent(ie, ip, -999.);
         if ( mes02_[ism-1] ) mes02_[ism-1]->setBinContent(ie, ip, -999.);
         if ( mes03_[ism-1] ) mes03_[ism-1]->setBinContent(ie, ip, -999.);
+
+        if ( met01_[ism-1] ) met01_[ism-1]->setBinContent(ie, ip, -999.);
+        if ( met02_[ism-1] ) met02_[ism-1]->setBinContent(ie, ip, -999.);
+        if ( met03_[ism-1] ) met03_[ism-1]->setBinContent(ie, ip, -999.);
 
         if ( ie >= 2 && ie <= 84 && ip >= 2 && ip <= 19 ) {
 
@@ -1440,22 +1456,6 @@ void EBPedestalClient::analyze(void){
           if ( mes03_[ism-1] ) mes03_[ism-1]->setBinContent(ie, ip, z3val03);
 
         }
-
-        float x5val01;
-        float x5val02;
-        float x5val03;
-
-        float y5val01;
-        float y5val02;
-        float y5val03;
-
-        float z5val01;
-        float z5val02;
-        float z5val03;
-
-        if ( met01_[ism-1] ) met01_[ism-1]->setBinContent(ie, ip, -999.);
-        if ( met02_[ism-1] ) met02_[ism-1]->setBinContent(ie, ip, -999.);
-        if ( met03_[ism-1] ) met03_[ism-1]->setBinContent(ie, ip, -999.);
 
         if ( ie >= 3 && ie <= 83 && ip >= 3 && ip <= 18 ) {
 
@@ -1588,11 +1588,11 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   string imgNameQual[3], imgNameMean[3], imgNameRMS[3], imgName3Sum[3], imgName5Sum[3], imgNameMEPnQual[2], imgNameMEPnPed[2],imgNameMEPnPedRms[2], imgName, meName;
 
-  TCanvas* cQual = new TCanvas("cQual", "Temp", 2*csize, csize);
+  TCanvas* cQual = new TCanvas("cQual", "Temp", 3*csize, csize);
   TCanvas* cMean = new TCanvas("cMean", "Temp", csize, csize);
   TCanvas* cRMS = new TCanvas("cRMS", "Temp", csize, csize);
-  TCanvas* c3Sum = new TCanvas("c3Sum", "Temp", 2*csize, csize);
-  TCanvas* c5Sum = new TCanvas("c5Sum", "Temp", 2*csize, csize);
+  TCanvas* c3Sum = new TCanvas("c3Sum", "Temp", 3*csize, csize);
+  TCanvas* c5Sum = new TCanvas("c5Sum", "Temp", 3*csize, csize);
   TCanvas* cPed = new TCanvas("cPed", "Temp", csize, csize);
 
   TH2F* obj2f;

@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2007/08/09 12:24:19 $
- * $Revision: 1.31 $
+ * $Date: 2007/08/09 15:59:39 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  *
 */
@@ -492,7 +492,7 @@ void EBTimingClient::analyze(void){
 
             int ic = (ip-1) + 20*(ie-1) + 1;
 
-            if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == ic ) {
+            if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg01_[ism-1] ) {
                   float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
@@ -578,7 +578,7 @@ void EBTimingClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   string imgNameQual, imgNameTim, imgNameMean, imgNameRMS, imgName, meName;
 
-  TCanvas* cQual = new TCanvas("cQual", "Temp", 0, 0, 2*csize, csize);
+  TCanvas* cQual = new TCanvas("cQual", "Temp", 0, 0, 3*csize, csize);
   TCanvas* cTim = new TCanvas("cTim", "Temp", 0, 0, csize, csize);
   TCanvas* cMean = new TCanvas("cMean", "Temp", 0, 0, csize, csize);
   TCanvas* cRMS = new TCanvas("cRMS", "Temp", 0, 0, csize, csize);

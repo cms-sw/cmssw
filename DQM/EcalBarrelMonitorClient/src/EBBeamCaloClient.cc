@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2007/06/24 09:41:11 $
- * $Revision: 1.49 $
+ * $Date: 2007/08/09 12:24:18 $
+ * $Revision: 1.50 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -324,7 +324,7 @@ bool EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
+              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
               dataset[ecid] = o;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;

@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2007/05/21 11:43:19 $
- * $Revision: 1.48 $
+ * $Date: 2007/06/13 18:01:30 $
+ * $Revision: 1.49 $
  * \author A. Ghezzi
  *
  */
@@ -29,7 +29,7 @@
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBCollections.h"
 
 #include <DQM/EcalCommon/interface/UtilsClient.h>
-//#include <DQM/EcalCommon/interface/Numbers.h>
+#include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBBeamCaloTask.h>
 
@@ -340,6 +340,9 @@ void EBBeamCaloTask::endJob(void){
 }
 
 void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
+
+  Numbers::initGeometry(c);
+
   bool enable = false;
   map<int, EcalDCCHeaderBlock> dccMap;
 

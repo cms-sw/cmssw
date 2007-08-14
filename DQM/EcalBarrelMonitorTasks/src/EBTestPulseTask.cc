@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2007/06/13 18:01:30 $
- * $Revision: 1.74 $
+ * $Date: 2007/07/21 00:29:07 $
+ * $Revision: 1.75 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -209,6 +209,8 @@ void EBTestPulseTask::endJob(void){
 }
 
 void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
+
+  Numbers::initGeometry(c);
 
   bool enable = false;
   map<int, EcalDCCHeaderBlock> dccMap;

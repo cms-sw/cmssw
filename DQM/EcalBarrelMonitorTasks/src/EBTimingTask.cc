@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2007/05/21 11:47:45 $
- * $Revision: 1.17 $
+ * $Date: 2007/07/27 16:33:08 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  *
 */
@@ -112,6 +112,8 @@ void EBTimingTask::endJob(void){
 }
 
 void EBTimingTask::analyze(const Event& e, const EventSetup& c){
+
+  Numbers::initGeometry(c);
 
   if ( ! init_ ) this->setup();
 

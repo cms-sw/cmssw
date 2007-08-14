@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/07/29 07:18:19 $
- * $Revision: 1.45 $
+ * $Date: 2007/08/09 12:24:19 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -684,7 +684,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   string imgName[3], meName[3], imgMeName[3];
 
-  TCanvas* cMe1 = new TCanvas("cMe1", "Temp", 2*csize, csize);
+  TCanvas* cMe1 = new TCanvas("cMe1", "Temp", 3*csize, csize);
   //  TCanvas* cMe2 = new TCanvas("cMe2", "Temp", int(1.2*csize), int(0.4*csize));
   //  TCanvas* cMe3 = new TCanvas("cMe3", "Temp", int(0.4*csize), int(0.4*csize));
   TCanvas* cMe2 = new TCanvas("cMe2", "Temp", int(1.8*csize), int(0.9*csize));

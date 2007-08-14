@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  *
- * $Date: 2007/05/22 13:57:54 $
- * $Revision: 1.77 $
+ * $Date: 2007/08/09 12:24:18 $
+ * $Revision: 1.78 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -226,7 +226,7 @@ bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
+              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
               dataset[ecid] = o;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
@@ -481,7 +481,7 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   string imgNameME[3], imgName, meName;
 
-  TCanvas* cMe = new TCanvas("cMe", "Temp", 2*csize, csize);
+  TCanvas* cMe = new TCanvas("cMe", "Temp", 3*csize, csize);
   TCanvas* cAmp = new TCanvas("cAmp", "Temp", csize, csize);
 
   TProfile2D* objp;

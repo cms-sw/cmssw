@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2007/07/19 11:48:50 $
- * $Revision: 1.38 $
+ * $Date: 2007/07/25 07:02:46 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  *
 */
@@ -264,6 +264,8 @@ void EBTriggerTowerTask::endJob(void){
 
 
 void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
+
+  Numbers::initGeometry(c);
 
   if ( ! init_ ) this->setup();
 

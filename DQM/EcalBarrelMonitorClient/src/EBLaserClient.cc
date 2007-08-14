@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/08/14 14:42:40 $
- * $Revision: 1.174 $
+ * $Date: 2007/08/14 14:51:41 $
+ * $Revision: 1.175 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1238,7 +1238,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
+              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
               dataset1_bl[ecid] = apd_bl;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
@@ -1277,7 +1277,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
+              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
               dataset1_ir[ecid] = apd_ir;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
@@ -1316,7 +1316,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
+              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
               dataset1_gr[ecid] = apd_gr;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
@@ -1355,7 +1355,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
+              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
               dataset1_rd[ecid] = apd_rd;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
@@ -1505,7 +1505,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( econn ) {
           try {
-            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism), i-1);
+            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalBarrel), i-1);
             dataset2_bl[ecid] = pn_bl;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -1551,7 +1551,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( econn ) {
           try {
-            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism), i-1);
+            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalBarrel), i-1);
             dataset2_ir[ecid] = pn_ir;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -1597,7 +1597,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( econn ) {
           try {
-            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism), i-1);
+            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalBarrel), i-1);
             dataset2_gr[ecid] = pn_gr;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -1643,7 +1643,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( econn ) {
           try {
-            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism), i-1);
+            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalBarrel), i-1);
             dataset2_rd[ecid] = pn_rd;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -3620,7 +3620,7 @@ void EBLaserClient::analyze(void){
 
             int ic = (ip-1) + 20*(ie-1) + 1;
 
-            if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == ic ) {
+            if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg01_[ism-1] ) {
                   float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
@@ -3844,7 +3844,7 @@ void EBLaserClient::analyze(void){
 
           EcalLogicID ecid = m->first;
 
-          if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == i-1 ) {
+          if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == i-1 ) {
             if ( (m->second).getErrorBits() & (bits01|bits02) ) {
               if ( meg05_[ism-1] ) {
                 float val = int(meg05_[ism-1]->getBinContent(i, 1)) % 3;
@@ -4058,7 +4058,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   string imgNameQual[8], imgNameAmp[8], imgNameTim[8], imgNameTimav[8], imgNameTimrms[8], imgNameShape[8], imgNameAmpoPN[8], imgNameMEPnQualG01[8], imgNameMEPnG01[8], imgNameMEPnPedG01[8], imgNameMEPnRmsPedG01[8], imgNameMEPnQualG16[8], imgNameMEPnG16[8], imgNameMEPnPedG16[8], imgNameMEPnRmsPedG16[8], imgName, meName;
 
-  TCanvas* cQual   = new TCanvas("cQual", "Temp", 2*csize, csize);
+  TCanvas* cQual   = new TCanvas("cQual", "Temp", 3*csize, csize);
   TCanvas* cAmp    = new TCanvas("cAmp", "Temp", csize, csize);
   TCanvas* cTim    = new TCanvas("cTim", "Temp", csize, csize);
   TCanvas* cTimav  = new TCanvas("cTimav", "Temp", csize, csize);

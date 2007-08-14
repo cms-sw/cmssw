@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/08/10 09:56:44 $
- * $Revision: 1.304 $
+ * $Date: 2007/08/10 12:02:08 $
+ * $Revision: 1.305 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1763,6 +1763,8 @@ void EcalBarrelMonitorClient::analyze(void){
 }
 
 void EcalBarrelMonitorClient::analyze(const Event &e, const EventSetup &c) {
+
+  Numbers::initGeometry(c);
 
   run_ = e.id().run();
 

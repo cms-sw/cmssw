@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/07/21 00:28:23 $
- * $Revision: 1.149 $
+ * $Date: 2007/08/09 12:24:19 $
+ * $Revision: 1.150 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -582,7 +582,7 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
+              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
               dataset1[ecid] = adc;
               if ( ie == 1 && ip == 1 ) dataset2[ecid] = shape;
             } catch (runtime_error &e) {
@@ -680,7 +680,7 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( econn ) {
           try {
-            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism), i-1);
+            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalBarrel), i-1);
             dataset3[ecid] = pn;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -1267,7 +1267,7 @@ void EBTestPulseClient::analyze(void){
 
             int ic = (ip-1) + 20*(ie-1) + 1;
 
-            if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == ic ) {
+            if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg01_[ism-1] ) {
                   float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
@@ -1356,7 +1356,7 @@ void EBTestPulseClient::analyze(void){
 
           EcalLogicID ecid = m->first;
 
-          if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == i-1 ) {
+          if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == i-1 ) {
             if ( (m->second).getErrorBits() & (bits01|bits04) ) {
               if ( meg04_[ism-1] ) {
                 float val = int(meg04_[ism-1]->getBinContent(i, 1)) % 3;
@@ -1504,7 +1504,7 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   string imgNameQual[3], imgNameAmp[3], imgNameShape[3], imgNameMEPnQual[2], imgNameMEPn[2], imgNameMEPnPed[2], imgNameMEPnPedRms[2], imgName, meName;
 
-  TCanvas* cQual = new TCanvas("cQual", "Temp", 2*csize, csize);
+  TCanvas* cQual = new TCanvas("cQual", "Temp", 3*csize, csize);
   TCanvas* cAmp = new TCanvas("cAmp", "Temp", csize, csize);
   TCanvas* cShape = new TCanvas("cShape", "Temp", csize, csize);
   TCanvas* cPed = new TCanvas("cPed", "Temp", csize, csize);

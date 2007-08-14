@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2007/06/12 18:18:06 $
- * $Revision: 1.61 $
+ * $Date: 2007/06/13 18:01:30 $
+ * $Revision: 1.62 $
  * \author G. Della Ricca
  *
 */
@@ -212,6 +212,8 @@ void EBPedestalTask::endJob(void){
 }
 
 void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
+
+  Numbers::initGeometry(c);
 
   bool enable = false;
   map<int, EcalDCCHeaderBlock> dccMap;

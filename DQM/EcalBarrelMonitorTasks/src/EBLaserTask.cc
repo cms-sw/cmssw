@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2007/06/13 18:01:30 $
- * $Revision: 1.83 $
+ * $Date: 2007/07/27 16:33:08 $
+ * $Revision: 1.85 $
  * \author G. Della Ricca
  *
 */
@@ -514,6 +514,8 @@ void EBLaserTask::endJob(void){
 }
 
 void EBLaserTask::analyze(const Event& e, const EventSetup& c){
+
+  Numbers::initGeometry(c);
 
   bool enable = false;
   map<int, EcalDCCHeaderBlock> dccMap;

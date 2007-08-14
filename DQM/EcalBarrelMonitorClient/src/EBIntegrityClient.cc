@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/07/19 12:00:29 $
- * $Revision: 1.152 $
+ * $Date: 2007/08/09 12:24:18 $
+ * $Revision: 1.153 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -489,7 +489,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
+              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
               dataset1[ecid] = c1;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
@@ -574,7 +574,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism), itt);
+              ecid = LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism, EcalBarrel), itt);
               dataset2[ecid] = c2;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
@@ -651,7 +651,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EB_mem_channel", Numbers::iSM(ism), ic);
+              ecid = LogicID::getEcalLogicID("EB_mem_channel", Numbers::iSM(ism, EcalBarrel), ic);
               dataset3[ecid] = c3;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
@@ -735,7 +735,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( econn ) {
           try {
-            ecid = LogicID::getEcalLogicID("EB_mem_TT", Numbers::iSM(ism), itt);
+            ecid = LogicID::getEcalLogicID("EB_mem_TT", Numbers::iSM(ism, EcalBarrel), itt);
             dataset4[ecid] = c4;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -1337,7 +1337,7 @@ void EBIntegrityClient::analyze(void){
 
             int ic = (ip-1) + 20*(ie-1) + 1;
 
-            if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == ic ) {
+            if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg01_[ism-1] ) {
                   float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
@@ -1359,7 +1359,7 @@ void EBIntegrityClient::analyze(void){
             int ipt = 1 + ((ip-1)/5);
             int itt = (ipt-1) + 4*(iet-1) + 1;
 
-            if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == itt ) {
+            if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == itt ) {
               if ( (m->second).getErrorBits() & bits02 ) {
                 if ( meg01_[ism-1] ) {
                   float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
@@ -1466,7 +1466,7 @@ void EBIntegrityClient::analyze(void){
 
             int ic = EBIntegrityClient::chNum[ (ie-1)%5 ][ (ip-1) ] + (ie-1)/5 * 25;
 
-            if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == ic ) {
+            if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg02_[ism-1] ) {
                   float val = int(meg02_[ism-1]->getBinContent(ie, ip)) % 3;
@@ -1486,7 +1486,7 @@ void EBIntegrityClient::analyze(void){
             int iet = 1 + ((ie-1)/5);
             int itt = 68 + iet;
 
-            if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == itt ) {
+            if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == itt ) {
               if ( (m->second).getErrorBits() & bits02 ) {
                 if ( meg02_[ism-1] ) {
                   float val = int(meg02_[ism-1]->getBinContent(ie, ip)) % 3;
@@ -1599,10 +1599,10 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   string imgNameDCC, imgNameOcc, imgNameQual,imgNameOccMem, imgNameQualMem, imgNameME[10], imgName, meName;
 
-  TCanvas* cDCC = new TCanvas("cDCC", "Temp", 2*csize, csize);
-  TCanvas* cOcc = new TCanvas("cOcc", "Temp", 2*csize, csize);
-  TCanvas* cQual = new TCanvas("cQual", "Temp", 2*csize, csize);
-  TCanvas* cMe = new TCanvas("cMe", "Temp", 2*csize, csize);
+  TCanvas* cDCC = new TCanvas("cDCC", "Temp", 3*csize, csize);
+  TCanvas* cOcc = new TCanvas("cOcc", "Temp", 3*csize, csize);
+  TCanvas* cQual = new TCanvas("cQual", "Temp", 3*csize, csize);
+  TCanvas* cMe = new TCanvas("cMe", "Temp", 3*csize, csize);
   TCanvas* cMeMem = new TCanvas("cMeMem", "Temp", 2*csize, csize);
 
   TH1F* obj1f;

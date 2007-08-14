@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2007/06/13 18:01:30 $
- * $Revision: 1.73 $
+ * $Date: 2007/08/14 07:28:02 $
+ * $Revision: 1.74 $
  * \author G. Della Ricca
  *
 */
@@ -140,6 +140,8 @@ void EBCosmicTask::endJob(void){
 }
 
 void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
+
+  Numbers::initGeometry(c);
 
   bool enable = false;
   map<int, EcalDCCHeaderBlock> dccMap;

@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2007/06/24 09:41:11 $
- * $Revision: 1.92 $
+ * $Date: 2007/08/09 12:24:18 $
+ * $Revision: 1.93 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -315,7 +315,7 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
+              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
               dataset[ecid] = p;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
@@ -539,7 +539,7 @@ void EBPedestalOnlineClient::analyze(void){
 
             int ic = (ip-1) + 20*(ie-1) + 1;
 
-            if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == ic ) {
+            if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits03 ) {
                 if ( meg03_[ism-1] ) {
                   float val = int(meg03_[ism-1]->getBinContent(ie, ip)) % 3;
@@ -625,7 +625,7 @@ void EBPedestalOnlineClient::htmlOutput(int run, string htmlDir, string htmlName
 
   string imgNameQual, imgNameMean, imgNameRMS, imgName, meName;
 
-  TCanvas* cQual = new TCanvas("cQual", "Temp", 2*csize, csize);
+  TCanvas* cQual = new TCanvas("cQual", "Temp", 3*csize, csize);
   TCanvas* cMean = new TCanvas("cMean", "Temp", csize, csize);
   TCanvas* cRMS = new TCanvas("cRMS", "Temp", csize, csize);
 
