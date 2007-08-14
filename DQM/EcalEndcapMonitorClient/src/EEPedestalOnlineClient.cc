@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2007/08/09 14:36:55 $
- * $Revision: 1.16 $
+ * $Date: 2007/08/14 17:44:45 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -292,6 +292,11 @@ bool EEPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
+
+        int jx = ix + Numbers::ix0EE(ism);
+        int jy = iy + Numbers::iy0EE(ism);
+
+        if ( ! Numbers::validEE(ism, 101 - jx, jy) ) continue;
 
         bool update03;
 

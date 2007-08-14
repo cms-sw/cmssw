@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2007/08/09 15:07:10 $
- * $Revision: 1.6 $
+ * $Date: 2007/08/14 17:44:45 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -593,6 +593,11 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
+
+        int jx = ix + Numbers::ix0EE(ism);
+        int jy = iy + Numbers::iy0EE(ism);
+
+        if ( ! Numbers::validEE(ism, 101 - jx, jy) ) continue;
 
         bool update01;
         bool update02;
