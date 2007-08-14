@@ -3,9 +3,9 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 //#include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/IOVService/interface/IOVService.h"
-#include "CondCore/DBCommon/interface/PoolStorageManager.h"
-//#include "CondCore/DBCommon/interface/RelationalStorageManager.h"
-#include "CondCore/DBCommon/interface/Ref.h"
+#include "CondCore/DBCommon/interface/PoolTransaction.h"
+#include "CondCore/DBCommon/interface/CoralTransaction.h"
+#include "CondCore/DBCommon/interface/TypedRef.h"
 #include "CondCore/DBCommon/interface/Time.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "serviceCallbackRecord.h"
@@ -19,6 +19,13 @@ namespace edm{
 namespace cond{
   namespace service {
     class serviceCallbackToken;
+    /** transaction and data consistency
+	for create new tag, 
+	start write metadata transaction only if the first pool commit 
+	successful;
+	for append,start readonly metadata transaction. start pool transaction only if metadata transaction successful.
+	
+    */
     class PoolDBOutputService{
     public:
       PoolDBOutputService( const edm::ParameterSet & iConfig, 
@@ -54,14 +61,33 @@ namespace cond{
 	  this->initDB();
 	}
 	if(!myrecord.m_isNewTag) throw cond::Exception("not a new tag");
-	if ( !m_inTransaction ){
-	  m_pooldb->startTransaction(false);    
-	  m_inTransaction=true;
+	cond::PoolTransaction& pooldb=m_connection->poolTransaction(false);
+	std::string iovToken;
+	try{
+	  pooldb.start();
+	  cond::TypedRef<T> myPayload(pooldb,firstPayloadObj);
+	  myPayload.markWrite(EventSetupRecordName);
+	  std::string payloadToken=myPayload.token();
+	  iovToken=this->insertIOV(pooldb,myrecord,payloadToken,firstTillTime,EventSetupRecordName);
+	  pooldb.commit();
+	}catch(...){
+	  pooldb.rollback();
+	  throw cond::Exception("createNewIOV: error in commit in pool");
 	}
-	cond::Ref<T> myPayload(*m_pooldb,firstPayloadObj);
-	myPayload.markWrite(EventSetupRecordName);
-	std::string payloadToken=myPayload.token();
-	std::string iovToken=this->insertIOV(myrecord,payloadToken,firstTillTime,EventSetupRecordName);
+	cond::CoralTransaction& coraldb=m_connection->coralTransaction(false);
+	try{
+	  cond::MetaData metadata(coraldb);
+	  coraldb.start();
+	  metadata.addMapping(myrecord.m_tag,iovToken);
+	  coraldb.commit();
+	}catch(...){
+	  //I hope it'll never happen!
+	  coraldb.rollback();
+	  //delete new payload; 
+	  pooldb.start();
+	  //this->resetPreviousPoolStatus(payloadToken,iovToken);
+	  pooldb.commit();
+	}
 	m_newtags.push_back( std::make_pair<std::string,std::string>(myrecord.m_tag,iovToken) );
 	myrecord.m_isNewTag=false;
       }
@@ -75,14 +101,17 @@ namespace cond{
 			     ){
 	cond::service::serviceCallbackRecord& myrecord=this->lookUpRecord(EventSetupRecordName);
 	if (!m_dbstarted) this->initDB();
-	if ( !m_inTransaction ){
-	  m_pooldb->startTransaction(false);    
-	  m_inTransaction=true;
+	cond::PoolTransaction& pooldb=m_connection->poolTransaction(false);
+	try{
+	  pooldb.start();
+	  cond::TypedRef<T> myPayload(pooldb,payloadObj);
+	  myPayload.markWrite(EventSetupRecordName);
+	  std::string payloadToken=myPayload.token();
+	  pooldb.commit();
+	  std::string iovToken=this->insertIOV(myrecord,payloadToken,tillTime,EventSetupRecordName);
+	}catch(...){
+	  pooldb.rollback();
 	}
-	cond::Ref<T> myPayload(*m_pooldb,payloadObj);
-	myPayload.markWrite(EventSetupRecordName);
-	std::string payloadToken=myPayload.token();
-	std::string iovToken=this->insertIOV(myrecord,payloadToken,tillTime,EventSetupRecordName);
       }
       void appendTillTime( const std::string& payloadToken, 
 			   cond::Time_t tillTime,
@@ -95,14 +124,17 @@ namespace cond{
 			      const std::string& EventSetupRecordName ){
 	cond::service::serviceCallbackRecord& myrecord=this->lookUpRecord(EventSetupRecordName);
 	if (!m_dbstarted) this->initDB();
-	if ( !m_inTransaction ){
-	  m_pooldb->startTransaction(false);    
-	  m_inTransaction=true;
+	cond::PoolTransaction& pooldb=m_connection->poolTransaction(false);
+	try{
+	  pooldb.start();
+	  cond::TypedRef<T> myPayload(pooldb,payloadObj);
+	  myPayload.markWrite(EventSetupRecordName);
+	  std::string payloadToken=myPayload.token();
+	  this->appendIOV(pooldb,myrecord,payloadToken,sinceTime);
+	  pooldb.commit();
+	}catch(...){
+	  pooldb.rollback();
 	}
-	cond::Ref<T> myPayload(*m_pooldb,payloadObj);
-	myPayload.markWrite(EventSetupRecordName);
-	std::string payloadToken=myPayload.token();
-	this->appendIOV(myrecord,payloadToken,sinceTime);
       }
       //
       // Append the payload and its valid sinceTime into the database
@@ -142,13 +174,11 @@ namespace cond{
     private:
       cond::Time_t m_currentTime;
       cond::DBSession* m_session;
-      cond::IOVService* m_iovservice;
-      cond::PoolStorageManager* m_pooldb;
-      cond::RelationalStorageManager* m_coraldb;
+      cond::Connection* m_connection;
       std::map<size_t, cond::service::serviceCallbackRecord> m_callbacks;
-      bool m_dbstarted;
-      bool m_inTransaction;
       std::vector< std::pair<std::string,std::string> > m_newtags;
+      bool m_dbstarted;
+      cond::IOVService* m_iovservice;
       //edm::ParameterSet m_connectionPset;
     };//PoolDBOutputService
   }//ns service
