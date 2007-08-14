@@ -53,7 +53,7 @@ public:
   unsigned m_latency;
 
   int m_minBX, m_maxBX;
-  unsigned m_etawin[6];
+  unsigned m_etawin[6], m_etamin[8], m_etamax[8];
 
   CSCTriggerContainer<csc::L1Track> l1_tracks; // fully defined L1Tracks
   CSCTriggerContainer<csctf::TrackStub> dt_stubs; // Track Stubs to be sent to the DTTF

@@ -32,6 +32,31 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
       m_etawin[i] = *iter;
       ++i;
     }
+
+//KK
+  m_etamin[0] = 11*2;
+  m_etamin[1] = 11*2;
+  m_etamin[2] = 7*2;
+  m_etamin[3] = 7*2;
+  m_etamin[4] = 7*2;
+  m_etamin[5] = 5*2;
+  m_etamin[6] = 5*2;
+  m_etamin[7] = 5*2;
+  std::vector<unsigned> etamins = pset.getUntrackedParameter<std::vector<unsigned> >("EtaMin",std::vector<unsigned>(0));
+  for(iter=etamins.begin(),i=0; iter!=etamins.end(); iter++,i++) m_etamin[i] = *iter;
+
+  m_etamax[0] = 127;
+  m_etamax[1] = 127;
+  m_etamax[2] = 127;
+  m_etamax[3] = 127;
+  m_etamax[4] = 127;
+  m_etamax[5] = 12*2;
+  m_etamax[6] = 12*2;
+  m_etamax[7] = 12*2;
+  std::vector<unsigned> etamaxs = pset.getUntrackedParameter<std::vector<unsigned> >("EtaMax",std::vector<unsigned>(0));
+  for(iter=etamaxs.begin(),i=0; iter!=etamaxs.end(); iter++,i++) m_etamax[i] = *iter;
+//KK end
+
   try {
     edm::ParameterSet srLUTset = pset.getParameter<edm::ParameterSet>("SRLUT");
     for(i = 1; i <= 4; ++i)
@@ -161,6 +186,10 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
   core_->loadData(processedStubs, m_endcap, m_sector, m_minBX, m_maxBX);
 
   if( core_->run(m_endcap, m_sector, m_latency, m_etawin[0],
+		 m_etamin[0], m_etamin[1], m_etamin[2], m_etamin[3],
+		 m_etamin[4], m_etamin[5], m_etamin[6], m_etamin[7],
+		 m_etamax[0], m_etamax[1], m_etamax[2], m_etamax[3],
+		 m_etamax[4], m_etamax[5], m_etamax[6], m_etamax[7],
 		 m_etawin[1], m_etawin[2], m_etawin[3],
 		 m_etawin[4], m_etawin[5], m_bxa_on,
 		 m_extend_length, m_minBX, m_maxBX) )

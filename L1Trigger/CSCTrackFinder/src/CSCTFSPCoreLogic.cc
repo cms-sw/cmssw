@@ -234,6 +234,10 @@ void CSCTFSPCoreLogic::loadData(const CSCTriggerContainer<csctf::TrackStub>& the
 // Here we should assume the loadData() has been called...
 // But in reality you don't need to.
 bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const unsigned& latency, 
+			   const unsigned& etamin1, const unsigned& etamin2, const unsigned& etamin3, const unsigned& etamin4,
+			   const unsigned& etamin5, const unsigned& etamin6, const unsigned& etamin7, const unsigned& etamin8,
+			   const unsigned& etamax1, const unsigned& etamax2, const unsigned& etamax3, const unsigned& etamax4,
+			   const unsigned& etamax5, const unsigned& etamax6, const unsigned& etamax7, const unsigned& etamax8,
 			   const unsigned& etawin1, const unsigned& etawin2, const unsigned& etawin3, 
 			   const unsigned& etawin4, const unsigned& etawin5, const unsigned& etawin6,
 			   const unsigned& bxa_on, const unsigned& extend, const int& minBX, 
@@ -290,8 +294,8 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 	 io->me1idL, io->me2idL, io->me3idL, io->me4idL, io->mb1idL, io->mb2idL,
 	 
 	 // Adjustable registers in SP core
-	 11*2, 11*2, 7*2, 7*2, 7*2, 5*2,  5*2,  5*2,  // etamin
-	 127,  127,  127, 127, 127, 12*2, 12*2, 12*2, // etamax
+	 etamin1, etamin2, etamin3, etamin4, etamin5, etamin6, etamin7, etamin8, // etamin (was: 11*2, 11*2, 7*2, 7*2, 7*2, 5*2,  5*2,  5*2)
+	 etamax1, etamax2, etamax3, etamax4, etamax5, etamax6, etamax7, etamax8, // etamax (was: 127,  127,  127, 127, 127, 12*2, 12*2, 12*2)
 	 //DEA: beam test settings:
 	 //10,  10,  10, 10, 10, 10,              // etawindow
 	 //10, 0, 0, 0,                           // eta offsets - NOTE bug in first offset for June04 beam test

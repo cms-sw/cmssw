@@ -60,6 +60,10 @@ class CSCTFSPCoreLogic
 		const int& minBX, const int& maxBX);
 
   bool run(const unsigned& endcap, const unsigned& sector, const unsigned& latency, 
+	   const unsigned& etamin1, const unsigned& etamin2, const unsigned& etamin3, const unsigned& etamin4,
+	   const unsigned& etamin5, const unsigned& etamin6, const unsigned& etamin7, const unsigned& etamin8,
+	   const unsigned& etamax1, const unsigned& etamax2, const unsigned& etamax3, const unsigned& etamax4,
+	   const unsigned& etamax5, const unsigned& etamax6, const unsigned& etamax7, const unsigned& etamax8,
 	   const unsigned& etawin1, const unsigned& etawin2, const unsigned& etawin3, 
 	   const unsigned& etawin4, const unsigned& etawin5, const unsigned& etawin6,
 	   const unsigned& bxa_on, const unsigned& extend, const int& minBX, 
