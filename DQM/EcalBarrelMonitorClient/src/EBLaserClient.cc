@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/08/09 14:10:01 $
- * $Revision: 1.172 $
+ * $Date: 2007/08/14 14:41:12 $
+ * $Revision: 1.173 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -3360,7 +3360,6 @@ void EBLaserClient::analyze(void){
             }
 
           } else {
-
 
             if ( meaopn05_[ism-1] ) {
               if ( mean02 > 0. ) {
