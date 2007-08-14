@@ -10,7 +10,7 @@
 //     Cache and make prescale factors available online.
 //
 // Current revision: $Revision: 1.3 $
-// On branch: $Name:  $
+// On branch: $Name: CMSSW_1_6_0_pre4 $
 // Latest change by $Author: wmtan $ at $Date: 2007/06/14 21:03:39 $
 //
 
@@ -18,8 +18,11 @@
 
 #include "FWCore/Framework/interface/EventProcessor.h"
 #include "FWCore/Framework/interface/TriggerReport.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 
 #include "boost/thread/mutex.hpp"
+
 
 #include <string>
 #include <vector>
@@ -60,6 +63,7 @@ namespace edm {
       unsigned int lsc;          // cached LS# associated with lsg
       unsigned int bang;         // error count of spoilt events
       unsigned int nops;         // count of empty prescaler vector
+      unsigned int bcfg;         // getConfig exception count
 
     public:
 
@@ -80,6 +84,7 @@ namespace edm {
       int putPrescale(std::string s);
       int sizePrescale();
       void putHandle(edm::EventProcessor *proc_);
+      void getConfig(edm::ParameterSet params);
 
       std::string getStatus();
       std::string getLs();
@@ -91,4 +96,3 @@ namespace edm {
 }
 
 #endif
-

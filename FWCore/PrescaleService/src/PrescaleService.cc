@@ -34,6 +34,7 @@ namespace edm {
       fu_ = 0;
       lsold = 0;
       nops = 0; 
+      bcfg = 0;
 
       //
       const std::vector<std::string> InitialConfig(iPS.getParameter< std::vector<std::string> >("InitialConfig"));
@@ -84,8 +85,8 @@ namespace edm {
     void PrescaleService::postEventProcessing(const edm::Event& e, const edm::EventSetup& c)
     {
       if (fu_ != 0) {
-	//        if ((count_ != 0)&&(e.luminosityBlock() != lsold)) {
-        if ((count_ != 0)&&(count_/100 != lsold)) {  //test//
+        if ((count_ != 0)&&(e.luminosityBlock() != lsold)) {
+//        if ((count_ != 0)&&(count_/100 != lsold)) {  //test//
 	  ostringstream oss;
 	  string ARRAY_LEN = "_";
 	  string SEPARATOR = " ";
@@ -107,8 +108,8 @@ namespace edm {
           boost::mutex::scoped_lock scoped_lock(mutex);
 	  triggers.push_back(oss.str());
 	}
-	//	lsold = e.luminosityBlock();
-	lsold = count_/100;          //test//
+	lsold = e.luminosityBlock();
+//	lsold = count_/100;          //test//
       }
 
 //        edm::Timestamp t = e.time();
@@ -167,7 +168,7 @@ namespace edm {
       string a, b;
       istringstream iss(prescalers[i]);
       iss >> n;
-      while (iss.rdstate() == 0) {
+      while ( iss.rdstate()==0 ) {
 	iss >> a >> b >> m; 
 //	cout << "getPrescale " << n << "==" << ls << " a " << a << " b " << b << " m " << m << endl;
 	if ( (b=="*") || (b==module) ) { // allow wildcard after an explicit module list
@@ -241,7 +242,63 @@ namespace edm {
       return prescalers.size();
     }
 
+    void PrescaleService::getConfig(edm::ParameterSet params)
+    {
+      ostringstream oss;
+      unsigned int nss = 0;
+      string SEPARATOR = " ";
+      oss << "0";
 
+      try {
+
+	//        cout << "!!! PrescaleService::getConfig list @all_modules" << endl;
+        vector<string> pModules = params.getParameter<std::vector<std::string> >("@all_modules");
+        for(unsigned int i=0; i<pModules.size(); i++) {
+	  //          cout << "  index " << i << ", pModules " << pModules[i] << endl;
+        }
+
+	//        cout << "!!! PrescaleService::getConfig list @path" << endl;
+        vector<string> pPaths = params.getParameter<std::vector<std::string> >("@paths");
+        for(unsigned int i=0; i<pPaths.size(); i++) {
+	  //          cout << "  index " << i << ", pPaths " << pPaths[i] << endl;
+        }
+
+	//        cout << "!!! PrescaleService::getConfig link modules to paths" << endl;
+        for(unsigned int i=0; i<pModules.size(); i++) {
+	  edm::ParameterSet aa = params.getParameter<edm::ParameterSet>(pModules[i]);
+          string moduleLabel = aa.getParameter<string>("@module_label");
+          string moduleType = aa.getParameter<string>("@module_type");
+	  //          cout << "!!! label : " << moduleLabel << " type : "  << moduleType << endl;
+          if(moduleType == "HLTPrescaler") {
+	    unsigned int ps = aa.getParameter<unsigned int>("prescaleFactor");
+	    //	    cout << "!!! label : " << moduleLabel << " type : "  << moduleType << " ps : " << ps << endl;
+            for(unsigned int j=0; j<pPaths.size(); j++) {
+              vector<string> pPM = params.getParameter<std::vector<std::string> >(pPaths[j]);
+              for(unsigned int k=0; k<pPM.size(); k++) {
+                if(moduleLabel == pPM[k]) {
+		  //                  cout << "!!! path " << pPaths[j] << " module " << moduleLabel << " ps " << ps << endl;
+                  oss << SEPARATOR << pPaths[j] << SEPARATOR << moduleLabel << SEPARATOR << ps;
+                  nss++;
+                  break;
+                }
+              }
+            }
+          }
+        }
+        if (nss != 0) {
+	  //	  cout << "!!! PrescaleService::getConfig putPrescale:" << oss.str() << ":" << endl;
+	  putPrescale(oss.str());
+	  //          cout << "!!! PrescaleService::getConfig getStatus: " << getStatus() << endl;
+        }
+
+
+      }
+      catch (edm::Exception &e) {
+        bcfg++;
+	//        cout << "!!! PrescaleService::getConfig caught " << (string)e.what() << endl;
+      }
+
+    }
 
     void PrescaleService::putHandle(edm::EventProcessor *proc_)
     {
