@@ -15,7 +15,7 @@
 //
 // Original Author:  Lorenzo Agostino
 //         Created:  Thu Jun 28 11:32:01 CEST 2007
-// $Id$
+// $Id: L1TMuonClient.h,v 1.1 2007/08/14 15:44:20 lorenzo Exp $
 //
 //
 
@@ -33,7 +33,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
-#include "DQM/L1TClient/interface/L1TBaseClient.h"
+#include "DQM/L1TMonitorClient/interface/L1TBaseClient.h"
 
 //#include "DQMServices/Core/interface/MonitorUserInterface.h"
 //
