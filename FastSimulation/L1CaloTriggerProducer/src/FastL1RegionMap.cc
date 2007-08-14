@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1RegionMap.cc,v 1.3 2007/04/18 18:54:51 chinhan Exp $
+// $Id: FastL1RegionMap.cc,v 1.4 2007/04/23 15:48:30 chinhan Exp $
 //
 
 
@@ -226,12 +226,14 @@ FastL1RegionMap::getRegionCenterEtaPhi(int iRgn)
   double phi = 999.;  
 
   // phi
-  if (ep.second <= 9) 
-    phi = ep.second * 0.349066 + 0.174533; // 20 degrees
-  //phi = ep.second * 0.3490658504 + 0.1745329252; // 20 degrees
-  else 
-    phi = (18-ep.second)  * (-0.349066)  + 0.174533; // -20 degrees
-
+  if (ep.second <= 9) {
+    //phi = ep.second * 0.349066 + 0.174533; // 10 degrees
+    phi = ep.second * 0.349066;
+    //phi = ep.second * 0.3490658504 + 0.1745329252; // 10 degrees
+  } else {
+    //phi = (18-ep.second)  * (-0.349066)  + 0.174533; // -10 degrees
+    phi = (18-ep.second)  * (-0.349066);
+  }
   // eta
   if (ep.first >= 11 && ep.first <= 15 )
     eta = (ep.first-11)*0.348 + 0.174;
