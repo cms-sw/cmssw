@@ -31,8 +31,6 @@ private:
 
 private:
   int                                  verbosity, minSec, killAfter;
-  bool                                 suppressHeavy;
-  double                               pmaxIon, pmaxProton, pmaxNeutron;
   double                               minDeltaE, eTrack;
   G4ProcessTypeEnumerator              *typeEnumerator;
   int                                  step, nHad, nsecL;

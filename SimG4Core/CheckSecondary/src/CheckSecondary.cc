@@ -117,8 +117,14 @@ void CheckSecondary::update(const BeginOfEvent * evt) {
 
 void CheckSecondary::update(const BeginOfTrack * trk) {
 
-  treatSecondary->initTrack((*trk)());
+  const G4Track * thTk = (*trk)();
+  treatSecondary->initTrack(thTk);
+  if (thTk->GetParentID() <= 0) storeIt = true;
+  else                          storeIt = false;
   nHad  = 0;
+  LogDebug("CheckSecondary") << "CheckSecondary:: Track " << thTk->GetTrackID()
+			     << " Parent " << thTk->GetParentID() << " Flag "
+			     << storeIt;
 }
 
 void CheckSecondary::update(const G4Step * aStep) {
@@ -132,9 +138,16 @@ void CheckSecondary::update(const G4Step * aStep) {
 								       procID,
 								       hadrInt,
 								       deltaE);
-  if (hadrInt) {
+  if (storeIt && hadrInt) {
+    double pInit = (aStep->GetPreStepPoint()->GetMomentum()).mag();
+    double pEnd  = (aStep->GetPostStepPoint()->GetMomentum()).mag();
     nHad++;
     int  sec = (int)(tracks.size());
+    LogDebug("CheckSecondary") << "CheckSecondary:: Hadronic Interaction "
+			       << nHad << " of type " << name << " ID "
+			       << procID << " with " << sec << " secondaries "
+			       << " and Momentum (MeV/c) at start " << pInit
+			       << " and at end " << pEnd;
     (*nsec).push_back(sec);
     (*procs).push_back(name);
     (*procids).push_back(procID);
@@ -166,7 +179,7 @@ void CheckSecondary::update(const EndOfEvent * evt) {
   for (unsigned int i= 0; i < (*mass).size(); i++) 
     LogDebug("CheckSecondary") << "Secondary " << i << " (" << (*px)[i] << ", "
 			       << (*py)[i] << ", " << (*pz)[i] << ", " 
-			       << (*mass)[i];
+			       << (*mass)[i] << ")";
 
   if (saveToTree) tree->Fill();
 }

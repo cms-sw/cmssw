@@ -46,7 +46,7 @@ private:
 private:
   TreatSecondary                       *treatSecondary;
   G4ProcessTypeEnumerator              *typeEnumerator;
-  bool                                 saveToTree;
+  bool                                 saveToTree, storeIt;
   int                                  nHad;
   std::vector<int>                     *nsec, *procids;
   std::vector<double>                  *px, *py, *pz, *mass, *deltae;
