@@ -3,6 +3,9 @@
 
 <ConstantsSection  label="eecon.xml" eval="true">
 
+<Constant name="EEIRECAL"    value="200*mm"/>
+<Constant name="EEIREREG"    value="250*mm"/>
+
 <Constant name="EEInnerAngle"    value="5.9*deg"/>
 <Constant name="EETanInnerAngle" value="tan([EEInnerAngle])"/>
 <Constant name="EECosInnerAngle" value="cos([EEInnerAngle])"/>
@@ -76,17 +79,22 @@
 
 <Constant name="ECALEnvZES"     value="[EEVFarZC] - [ESConeZ6] + [ESConeZ2]"/>
 
+<Constant name="ECALEnvRFar"    value="[ESConeI6] - [EETanInnerAngle]*([EEVFarZC] - [EEFarZC])"/>
+
 <Constant name="ECALEnvRNeck"   value="[ESConeI6] - [EETanInnerAngle]*([EEVFarZC] - [EEzNeckC])"/>
 
-<Constant name="EREGEnvRBack"   value="[ESConeI6] - [EETanInnerAngle]*([EEVFarZ] - [EEzBack])"/>
+<Constant name="EREGEnvRBack"   value="[ESConeI6] - [EETanInnerAngle]*([EEVFarZ] - [EEzBack]) -5*mm"/>
 
 <Constant name="ENCAEnvZES"     value="[EEVFarZ]  - [ESConeZ6] + [ESConeZ5]"/>
 
-<Constant name="ENCAEnvRNeck"   value="[ESConeO4] - [EETanInnerAngle]*([ENCAEnvZES] - [EEzNeck])"/>
+<Constant name="ENCAEnvRNeck"   value="[ESConeO4] -
+[EETanInnerAngle]*([ENCAEnvZES] - [EEzNeck]) + 0.5*mm"/>
 
-<Constant name="ENCAEnvRFront"  value="[ESConeO4] - [EETanInnerAngle]*([ENCAEnvZES] - [EEzFront])"/>
+<Constant name="ENCAEnvRFront"  value="[ESConeO4] -
+[EETanInnerAngle]*([ENCAEnvZES] - [EEzFront]) +0.5*mm"/>
 
-<Constant name="ENCAEnvRBack"   value="[ESConeO4] - [EETanInnerAngle]*([ENCAEnvZES] - [EEzBack])"/>
+<Constant name="ENCAEnvRBack"   value="[ESConeO4] -
+[EETanInnerAngle]*([ENCAEnvZES] - [EEzBack]) + 0.5*mm"/>
 
 <!-- Inner Moderator -->
 
