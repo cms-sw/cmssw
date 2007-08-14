@@ -19,7 +19,7 @@ DCCEventBlock::DCCEventBlock( DCCDataUnpacker * u , EcalElectronicsMapper * m , 
   // Build a Mem Unpacker Block
   memBlock_   = new DCCMemBlock(u,m,this);
  
-  // setup ch status 
+  // setup and initialized ch status vectors
   for( int feChannel=1;  feChannel <= 70;  feChannel++) { feChStatus_.push_back(0);}
   for( int tccChannel=1; tccChannel <= 4 ; tccChannel++){ tccChStatus_.push_back(0);}
   
@@ -28,10 +28,10 @@ DCCEventBlock::DCCEventBlock( DCCDataUnpacker * u , EcalElectronicsMapper * m , 
 
 
 void DCCEventBlock::enableSyncChecks(){
-   towerBlock_->enableSyncChecks();
-   tccBlock_->enableSyncChecks();
-   memBlock_->enableSyncChecks();
-   srpBlock_->enableSyncChecks();
+   towerBlock_   ->enableSyncChecks();
+   tccBlock_       ->enableSyncChecks();
+   memBlock_     ->enableSyncChecks();
+   srpBlock_       ->enableSyncChecks();
 }
 
 
@@ -40,10 +40,10 @@ void DCCEventBlock::updateCollectors(){
 
   dccHeaders_  = unpacker_->dccHeadersCollection();
 
-  memBlock_->updateCollectors(); 
-  tccBlock_->updateCollectors();
-  srpBlock_->updateCollectors();
-  towerBlock_->updateCollectors();
+  memBlock_    ->updateCollectors(); 
+  tccBlock_       ->updateCollectors();
+  srpBlock_       ->updateCollectors();
+  towerBlock_   ->updateCollectors();
   
 }
 
@@ -53,11 +53,11 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   eventSize_ = numbBytes;	
   data_      = buffer;
   
-  // First Header Word
-  fedId_       = ((*data_)>>H_FEDID_B) & H_FEDID_MASK;
-  bx_          = ((*data_)>>H_BX_B   ) & H_BX_MASK;                        
-  l1_          = ((*data_)>>H_L1_B   ) & H_L1_MASK;                          
-  triggerType_ = ((*data_)>>H_TTYPE_B) & H_TTYPE_MASK; 
+  // First Header Word of fed block
+  fedId_             = ((*data_)>>H_FEDID_B)   & H_FEDID_MASK;
+  bx_                  = ((*data_)>>H_BX_B   )     & H_BX_MASK;
+  l1_                   = ((*data_)>>H_L1_B   )       & H_L1_MASK;
+  triggerType_  = ((*data_)>>H_TTYPE_B)  & H_TTYPE_MASK;
   
   // Check if fed id is the same as expected...
   if( fedId_ != expFedId  ){ 
@@ -66,60 +66,60 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
     <<"\n For event "<<l1_
     <<"\n Expected FED id is "<<expFedId<<" while current FED id is "<<fedId_
     <<"\n => Skipping this event...";
-
-    //TODO : add this to an error event collection
-
-	return;
+  
+  //TODO : add this to an error event collection
+  
+  return;
   } 
   
   // Check if this event is an empty event 
   if( eventSize_ == EMPTYEVENTSIZE ){ 
-  
+    
     edm::LogWarning("EcalRawToDigiDev")
       <<"\n Event "<<l1_<<" is empty for dcc "<<fedId_
       <<"\n => Skipping this event...";
     
-	//TODO : add this to a dcc empty event collection 	 
+    //TODO : add this to a dcc empty event collection 	 
     
-	return;
-	
+    return;
+    
   } 
-
+  
   //Check if event size allows at least building the header
   else if( eventSize_ < HEADERSIZE ){    
     
-	edm::LogWarning("EcalRawToDigiDev")
+    edm::LogWarning("EcalRawToDigiDev")
       <<"\n Event "<<l1_<<" in dcc "<< fedId_
       <<"\n Event size is "<<eventSize_<<" bytes while the minimum is "<<HEADERSIZE<<" bytes"
       <<"\n => Skipping this event..."; 
-
+    
     //TODO : add this to a dcc size error collection  
-
-	return;
-  
+    
+    return;
+    
   }
   
-  //Second Header Word
+  //Second Header Word of fed block
   data_++;
 	 
-  blockLength_  =  (*data_ )              & H_EVLENGTH_MASK;
-  dccErrors_    =  ((*data_)>>H_ERRORS_B) & H_ERRORS_MASK  ;
-  runNumber_    =  ((*data_)>>H_RNUMB_B ) & H_RNUMB_MASK   ;
-   
+  blockLength_   =  (*data_ )                                 & H_EVLENGTH_MASK;
+  dccErrors_       =  ((*data_)>>H_ERRORS_B)    & H_ERRORS_MASK;
+  runNumber_     =   ((*data_)>>H_RNUMB_B )    & H_RNUMB_MASK;
+  
   
   if( eventSize_ != blockLength_*8 ){
-  
+    
     edm::LogWarning("EcalRawToDigiDev")
       <<"\n Event "<<l1_<<" in dcc "<< fedId_
       <<"\n Event size is "<<eventSize_<<" bytes while "<<(blockLength_*8)<<" are set in the event header "
       <<"\n => Skipping this event ...";
     //TODO : add this to a dcc size error collection 
-	return;
-	 
+    return;
+    
   }  
   
   
-  //Third Header Word
+  //Third Header Word  of fed block
   data_++;
 
   // bits 0.. 31 of the 3rd DCC header word
@@ -130,15 +130,16 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
 
   //Forth Header Word
   data_++;
-  sr_           = ((*data_)>>H_SR_B)  & B_MASK;
-  zs_           = ((*data_)>>H_ZS_B)  & B_MASK;
-  tzs_          = ((*data_)>>H_TZS_B) & B_MASK;
-  srChStatus_   = ((*data_)>>H_SRCHSTATUS_B) & H_CHSTATUS_MASK;
+  sr_                   = ((*data_)>>H_SR_B)                            & B_MASK;
+  zs_                  = ((*data_)>>H_ZS_B)                            & B_MASK;
+  tzs_                 = ((*data_)>>H_TZS_B)                         & B_MASK;
+  srChStatus_   = ((*data_)>>H_SRCHSTATUS_B)       & H_CHSTATUS_MASK;
   
-  tccChStatus_[0] = ((*data_)>>H_TCC1CHSTATUS_B) & H_CHSTATUS_MASK; 
-  tccChStatus_[1] = ((*data_)>>H_TCC2CHSTATUS_B) & H_CHSTATUS_MASK;
-  tccChStatus_[2] = ((*data_)>>H_TCC3CHSTATUS_B) & H_CHSTATUS_MASK;
-  tccChStatus_[3] = ((*data_)>>H_TCC4CHSTATUS_B) & H_CHSTATUS_MASK;
+  // getting TCC channel status bits
+  tccChStatus_[0] = ((*data_)>>H_TCC1CHSTATUS_B)   & H_CHSTATUS_MASK; 
+  tccChStatus_[1] = ((*data_)>>H_TCC2CHSTATUS_B)   & H_CHSTATUS_MASK;
+  tccChStatus_[2] = ((*data_)>>H_TCC3CHSTATUS_B)   & H_CHSTATUS_MASK;
+  tccChStatus_[3] = ((*data_)>>H_TCC4CHSTATUS_B)   & H_CHSTATUS_MASK;
     
   // FE  channel Status data
   int channel(0);
@@ -241,6 +242,7 @@ void DCCEventBlock::addHeaderToCollection(){
   // convention is that dccId = (fed_id - 600)
   int dccId = mapper_->getActiveSM();
 
+
   // deriving ism starting from dccId
   int ism(0);
   if        (9< dccId && dccId < 28){
@@ -252,6 +254,7 @@ void DCCEventBlock::addHeaderToCollection(){
   else
     {ism = -999;}
   
+
   theDCCheader.setId(ism);
   
 
@@ -280,20 +283,20 @@ void DCCEventBlock::addHeaderToCollection(){
 
 void DCCEventBlock::display(std::ostream& o){
   o<<"\n Unpacked Info for DCC Event Class"
-  <<"\n DW1 ============================="
-  <<"\n Fed Id "<<fedId_
-  <<"\n Bx "<<bx_
-  <<"\n L1 "<<l1_
-  <<"\n Trigger Type "<<triggerType_
-  <<"\n DW2 ============================="	
-  <<"\n Length "<<blockLength_
-  <<"\n Dcc errors "<<dccErrors_
-  <<"\n Run number "<<runNumber_
-  <<"\n DW3 ============================="
-  <<"\n SR "<<sr_
-  <<"\n ZS "<<zs_
-  <<"\n TZS "<<tzs_
-  <<"\n SRStatus "<<srChStatus_;
+   <<"\n DW1 ============================="
+   <<"\n Fed Id "<<fedId_
+   <<"\n Bx "<<bx_
+   <<"\n L1 "<<l1_
+   <<"\n Trigger Type "<<triggerType_
+   <<"\n DW2 ============================="	
+   <<"\n Length "<<blockLength_
+   <<"\n Dcc errors "<<dccErrors_
+   <<"\n Run number "<<runNumber_
+   <<"\n DW3 ============================="
+   <<"\n SR "<<sr_
+   <<"\n ZS "<<zs_
+   <<"\n TZS "<<tzs_
+   <<"\n SRStatus "<<srChStatus_;
 	
   std::vector<short>::iterator it;
   int i(0),k(0);
