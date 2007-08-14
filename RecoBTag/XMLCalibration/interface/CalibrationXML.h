@@ -31,7 +31,7 @@ public:
         void closeFile() 
         {
           if(errHandler) delete errHandler;
-          if(parser) delete parser;
+          if(parser) {  delete parser; XMLPlatformUtils::Terminate(); } 
           errHandler=0;
           parser=0;
         } 	

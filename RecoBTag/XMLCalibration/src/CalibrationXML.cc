@@ -28,15 +28,16 @@ CalibrationXML::~CalibrationXML()
 {
 //TODO: delete!!!!	
 if(errHandler) delete errHandler;
-if(parser) delete parser;
-
-	XMLPlatformUtils::Terminate();
+if(parser)  { 
+              delete parser;
+              XMLPlatformUtils::Terminate();
+            }
 }
 
 void CalibrationXML::openFile(const std::string & xmlFileName) 
 {
 if(errHandler) delete errHandler;
-if(parser) delete parser;
+if(parser) { delete parser; XMLPlatformUtils::Terminate(); }
 
  m_xmlFileName = xmlFileName;
 // cout << "Opening.." << endl;
