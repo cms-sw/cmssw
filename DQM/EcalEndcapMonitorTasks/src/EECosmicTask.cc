@@ -1,8 +1,8 @@
 /*
  * \file EECosmicTask.cc
  *
- * $Date: 2007/05/24 13:26:12 $
- * $Revision: 1.9 $
+ * $Date: 2007/06/13 18:01:29 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -82,19 +82,19 @@ void EECosmicTask::setup(void){
 
     dbe_->setCurrentFolder("EcalEndcap/EECosmicTask/Cut");
     for (int i = 0; i < 18 ; i++) {
-      sprintf(histo, "EECT energy cut SM%02d", i+1);
+      sprintf(histo, "EECT energy cut %s", Numbers::sEE(i+1).c_str());
       meCutMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EECosmicTask/Sel");
     for (int i = 0; i < 18 ; i++) {
-      sprintf(histo, "EECT energy sel SM%02d", i+1);
+      sprintf(histo, "EECT energy sel %s", Numbers::sEE(i+1).c_str());
       meSelMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EECosmicTask/Spectrum");
     for (int i = 0; i < 18 ; i++) {
-      sprintf(histo, "EECT energy spectrum SM%02d", i+1);
+      sprintf(histo, "EECT energy spectrum %s", Numbers::sEE(i+1).c_str());
       meSpectrumMap_[i] = dbe_->book1D(histo, histo, 100, 0., 1.5);
     }
 
