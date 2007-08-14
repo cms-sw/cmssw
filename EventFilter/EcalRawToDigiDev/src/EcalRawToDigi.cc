@@ -149,11 +149,9 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
   if(!readResult){
     edm::LogError("EcalRawToDigiDev")<<"\n unable to read file : "
       <<conf.getUntrackedParameter<std::string>("DCCMapFile","");
-     //throw cms::exception();
   }
   
   // Build a new ECAL DCC data unpacker
-  //edm::LogDebug("EcalRawToDigiDev") << "@SUB=DCCDataUnpacker"; 
   theUnpacker_ = new DCCDataUnpacker(myMap_,headerUnpacking_,srpUnpacking_,tccUnpacking_,feUnpacking_,memUnpacking_,syncCheck_);
    
 }
@@ -197,8 +195,8 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
   // Step A: Get Inputs    
 
   edm::Handle<FEDRawDataCollection> rawdata;  
-  //  unpractical to do now due to difference collecation labels in sources - to be uniformized
   e.getByLabel(dataLabel_,rawdata);
+
 
   // Step B: encapsulate vectors in actual collections and set unpacker pointers
 
@@ -276,8 +274,9 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
   std::auto_ptr<EcalElectronicsIdCollection> productInvalidMemGains(new EcalElectronicsIdCollection);
   theUnpacker_->setInvalidMemGainsCollection(& productInvalidMemGains);
  
-//  double TIME_START = clock(); 
+  //  double TIME_START = clock(); 
   
+
   // Step C: unpack all requested FEDs    
   for (std::vector<int>::const_iterator i=fedUnpackList_.begin(); i!=fedUnpackList_.end(); i++) {
 
@@ -308,6 +307,7 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
  
     
   }
+
   //if(nevts_>1){   //NUNO
   //  double TIME_END = clock(); //NUNO
   //  RUNNING_TIME_ += TIME_END-TIME_START; //NUNO
