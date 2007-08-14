@@ -16,13 +16,8 @@
 #include "CondFormats/L1TObjects/interface/L1CSCTPParameters.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerKey.h"
 
-#include "CondCore/DBCommon/interface/DBSession.h"
-#include "CondCore/DBCommon/interface/RelationalStorageManager.h"
-#include "CondCore/DBCommon/interface/PoolStorageManager.h"
-
-#include "CondCore/MetaDataService/interface/MetaData.h"
-
 #include "CondTools/L1Trigger/src/Interval.h"
+#include "CondTools/L1Trigger/src/DataReader.h"
 
 
 // -*- C++ -*-
@@ -40,7 +35,7 @@
 //
 // Original Author:  Giedrius Bacevicius
 //         Created:  Thu Jul 19 13:14:44 CEST 2007
-// $Id$
+// $Id: L1TDBESSource.h,v 1.1 2007/08/09 14:53:59 giedrius Exp $
 namespace l1t
 {
 /* Class that will load data from PoolDB and stores it into EventSetup.
@@ -74,21 +69,11 @@ protected:
                          edm::ValidityInterval&);
 
     /* Loads all IOV stored in DB for provided tag */
-    void loadIovMap ();
+    std::string keyTag;
+    DataReader reader;
 
-    // DB Source that is used to get objects from
-    cond::DBSession * session;
-    cond::RelationalStorageManager * coral;
-    cond::PoolStorageManager * pool;
-    cond::MetaData * metadata;
-    std::string tagToken;
-
-    /* All intervals stored in DB are loaded at runtime and stored in IntervalManager.
-     * Later this class is used from setIntervalFor to find required interval
-     */
-    typedef l1t::Interval<unsigned long long, std::string> IntervalData;
-    typedef l1t::IntervalManager<unsigned long long, std::string> IntervalManager;
-    IntervalManager intervals;
+    typedef std::map<std::string, std::set<std::string> > Items;
+    Items items;
 };
 
 }   // ns

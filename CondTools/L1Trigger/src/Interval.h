@@ -24,7 +24,7 @@ namespace l1t
          */
         Interval (const TimeType& start, const TimeType& end)
             : m_start (start), m_end (end), isInvalid (false)
-        { assert (m_start < m_end); }
+        { assert (m_start <= m_end); }
 
         /* Constructs the class with given start and end times, as well as given payload.
          */

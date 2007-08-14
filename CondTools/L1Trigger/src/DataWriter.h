@@ -15,6 +15,7 @@
 
 // L1T includes
 #include "CondFormats/L1TObjects/interface/L1TriggerKey.h"
+#include "CondTools/L1Trigger/src/DataManager.h"
 
 #include <string>
 #include <map>
@@ -26,11 +27,12 @@ namespace l1t
  * Class provides managament of all connection and catalogs. As well as managing
  * key and payload relationships.
  */
-class DataWriter
+class DataWriter : public DataManager
 {
     public:
-        explicit DataWriter (const std::string & connect, const std::string & catalog);
-        ~DataWriter ();
+        explicit DataWriter (const std::string & connect, const std::string & catalog)
+            : DataManager (connect, catalog) {};
+        virtual ~DataWriter () {};
 
         /* Data writting functions */
 
@@ -46,12 +48,6 @@ class DataWriter
     protected:
         void addMappings (const std::string tag, const std::string iovToken);
         std::string findTokenForTag (const std::string & tag);
-
-        // Database connection management
-        cond::DBSession * session;
-        cond::RelationalStorageManager * coral;
-        cond::PoolStorageManager * pool;
-        cond::MetaData * metadata;
 
         // map to speed up detection if we already have mapping from given tag to token
         typedef std::map<std::string, std::string> TagToToken;

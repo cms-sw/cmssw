@@ -13,7 +13,7 @@
 //
 // Original Author:  Giedrius Bacevicius
 //         Created:  Wed Jul 11 13:52:35 CEST 2007
-// $Id: L1TWriter.cc,v 1.1 2007/08/09 14:53:59 giedrius Exp $
+// $Id: L1TWriter.cc,v 1.2 2007/08/12 15:46:09 giedrius Exp $
 //
 //
 
@@ -66,7 +66,7 @@ L1TWriter::L1TWriter(const edm::ParameterSet& iConfig)
     if (std::find (params.begin (), params.end (), std::string ("sinceRun")) != params.end ())
         sinceRun = iConfig.getParameter<int> ("sinceRun");
 
-    // Check if we have field toGet and analyze it
+    // Load records that we have to save
     if (std::find (params.begin (), params.end (), std::string ("toSave")) != params.end ())
     {
         typedef std::vector<edm::ParameterSet> ToSave;
