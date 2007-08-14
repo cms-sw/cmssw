@@ -38,14 +38,14 @@ class EgammaProbeSelector : public edm::EDFilter {
    private:
 	bool 		debug;
 
-	std::string	jetLabel;
+	InputTag	jetLabel;
         int 		minNumberOfjets;
         double 		jetEtMin;
         double 		jetEtaMin;
         double 		jetEtaMax;
 
-	std::string	scLabel;
-        std::string     scEELabel;
+	InputTag	scLabel;
+        InputTag        scEELabel;
         int 		minNumberOfSuperClusters;
         double 		scEtMin;
         double 		scEtaMin;

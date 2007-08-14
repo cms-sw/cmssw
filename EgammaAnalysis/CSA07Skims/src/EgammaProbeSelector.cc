@@ -23,7 +23,7 @@ using namespace reco;
 
 EgammaProbeSelector::EgammaProbeSelector(const edm::ParameterSet& iConfig) {
   
-  jetLabel        = iConfig.getParameter<std::string>("JetCollection");
+  jetLabel        = iConfig.getParameter<InputTag>("JetCollection");
   minNumberOfjets = iConfig.getParameter<int>("MinNumberOfJets");
   jetEtMin        = iConfig.getParameter<double>("JetEtMin");
   jetEtaMin       = iConfig.getParameter<double>("JetEtaMin");
@@ -32,8 +32,8 @@ EgammaProbeSelector::EgammaProbeSelector(const edm::ParameterSet& iConfig) {
   nEvents         = 0;
   nSelectedEvents = 0;
   
-  scLabel          = iConfig.getParameter<std::string>("SuperClusterBarrelCollection");
-  scEELabel        = iConfig.getParameter<std::string>("SuperClusterEndCapCollection");
+  scLabel          = iConfig.getParameter<InputTag>("SuperClusterBarrelCollection");
+  scEELabel        = iConfig.getParameter<InputTag>("SuperClusterEndCapCollection");
   minNumberOfSuperClusters = iConfig.getParameter<int>("MinNumberOfSuperClusters");
   scEtMin          = iConfig.getParameter<double>("ScEtMin");
   scEtaMin         = iConfig.getParameter<double>("ScEtaMin");
