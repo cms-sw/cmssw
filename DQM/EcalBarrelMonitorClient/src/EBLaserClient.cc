@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/08/14 14:41:12 $
- * $Revision: 1.173 $
+ * $Date: 2007/08/14 14:42:40 $
+ * $Revision: 1.174 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -3485,13 +3485,12 @@ void EBLaserClient::analyze(void){
               } else {
                 met05_[ism-1]->setEntries(1.+met05_[ism-1]->getEntries());
               }
+            }
 
             if ( metav05_[ism-1] )
               metav05_[ism-1] ->Fill(mean09);
             if ( metrms05_[ism-1] )
               metrms05_[ism-1]->Fill(rms09);
-
-            }
 
           }
 
@@ -3508,13 +3507,12 @@ void EBLaserClient::analyze(void){
               } else {
                 met02_[ism-1]->setEntries(1.+met02_[ism-1]->getEntries());
               }
+            }
 
             if ( metav02_[ism-1] )
               metav02_[ism-1] ->Fill(mean10);
             if ( metrms02_[ism-1] )
               metrms02_[ism-1]->Fill(rms10);
-
-            }
 
           } else {
 
@@ -3525,13 +3523,12 @@ void EBLaserClient::analyze(void){
               } else {
                 met06_[ism-1]->setEntries(1.+met06_[ism-1]->getEntries());
               }
+            }
 
             if ( metav06_[ism-1] )
               metav06_[ism-1] ->Fill(mean10);
             if ( metrms06_[ism-1] )
               metrms06_[ism-1]->Fill(rms10);
-
-            }
 
           }
 
@@ -3548,13 +3545,12 @@ void EBLaserClient::analyze(void){
               } else {
                 met03_[ism-1]->setEntries(1.+met03_[ism-1]->getEntries());
               }
+            }
 
             if ( metav03_[ism-1] )
               metav03_[ism-1] ->Fill(mean11);
             if ( metrms03_[ism-1] )
               metrms03_[ism-1]->Fill(rms11);
-
-            }
 
           } else {
 
@@ -3565,13 +3561,12 @@ void EBLaserClient::analyze(void){
               } else {
                 met07_[ism-1]->setEntries(1.+met07_[ism-1]->getEntries());
               }
+            }
 
             if ( metav07_[ism-1] )
               metav07_[ism-1] ->Fill(mean11);
             if ( metrms07_[ism-1] )
               metrms07_[ism-1]->Fill(rms11);
-
-            }
 
           }
 
@@ -3588,13 +3583,12 @@ void EBLaserClient::analyze(void){
               } else {
                 met04_[ism-1]->setEntries(1.+met04_[ism-1]->getEntries());
               }
+            }
 
             if ( metav04_[ism-1] )
               metav04_[ism-1] ->Fill(mean12);
             if ( metrms04_[ism-1] )
               metrms04_[ism-1]->Fill(rms12);
-
-            }
 
           } else {
 
@@ -3605,13 +3599,12 @@ void EBLaserClient::analyze(void){
               } else {
                 met08_[ism-1]->setEntries(1.+met08_[ism-1]->getEntries());
               }
+            }
 
             if ( metav08_[ism-1] )
               metav08_[ism-1] ->Fill(mean12);
             if ( metrms08_[ism-1] )
               metrms08_[ism-1]->Fill(rms12);
-
-            }
 
           }
 
