@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/08/09 12:24:18 $
- * $Revision: 1.171 $
+ * $Date: 2007/08/09 14:10:01 $
+ * $Revision: 1.172 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -3317,8 +3317,14 @@ void EBLaserClient::analyze(void){
               val = 0.;
             if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( ie, ip, val );
 
-            if ( mea04_[ism-1] ) mea04_[ism-1]->setBinContent( ip+20*(ie-1), mean07 );
-            if ( mea04_[ism-1] ) mea04_[ism-1]->setBinError( ip+20*(ie-1), rms07 );
+            if ( mea04_[ism-1] ) {
+              if ( mean07 > 0. ) {
+                mea04_[ism-1]->setBinContent( ip+20*(ie-1), mean07 );
+                mea04_[ism-1]->setBinError( ip+20*(ie-1), rms07 );
+              } else {
+                mea04_[ism-1]->setEntries( 1.+mea04_[ism-1]->getEntries() );
+              }
+            }
 
           } else {
 
