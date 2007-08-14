@@ -48,8 +48,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/07/19 21:55:58 $
-// $Revision: 1.46 $
+// $Date: 2007/08/13 14:41:53 $
+// $Revision: 1.47 $
 //
 
 #include <vector>
@@ -116,6 +116,8 @@ RoadSearchCloudMakerAlgorithm::RoadSearchCloudMakerAlgorithm(const edm::Paramete
   minFractionOfUsedLayersPerCloud = conf_.getParameter<double>("MinimalFractionOfUsedLayersPerCloud");
   maxFractionOfMissedLayersPerCloud = conf_.getParameter<double>("MaximalFractionOfMissedLayersPerCloud");
   maxFractionOfConsecutiveMissedLayersPerCloud = conf_.getParameter<double>("MaximalFractionOfConsecutiveMissedLayersPerCloud");
+  increaseMaxNumberOfConsecutiveMissedLayersPerCloud = conf_.getParameter<unsigned int>("IncreaseMaxNumberOfConsecutiveMissedLayersPerCloud");
+  increaseMaxNumberOfMissedLayersPerCloud = conf_.getParameter<unsigned int>("IncreaseMaxNumberOfMissedLayersPerCloud");
   
   doCleaning_ = conf.getParameter<bool>("DoCloudCleaning");
   mergingFraction_ = conf.getParameter<double>("MergingFraction");
@@ -292,10 +294,10 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<RoadSearchSeedCollection> in
 	unsigned int maxNumberOfMissedLayersPerCloud = static_cast<unsigned int>(totalLayers * maxFractionOfMissedLayersPerCloud + 0.5);
 	unsigned int maxNumberOfConsecutiveMissedLayersPerCloud = static_cast<unsigned int>(totalLayers * maxFractionOfConsecutiveMissedLayersPerCloud + 0.5);
 
-	// switch off consecutive layer cuts between 0.9 and 1.5
+	// increase consecutive layer cuts between 0.9 and 1.5
 	if (std::abs(outer_eta) > 0.9 && std::abs(outer_eta) < 1.5) {
-	  maxNumberOfConsecutiveMissedLayersPerCloud = 999;
-	  maxNumberOfMissedLayersPerCloud = 999;
+	  maxNumberOfConsecutiveMissedLayersPerCloud += increaseMaxNumberOfConsecutiveMissedLayersPerCloud;
+	  maxNumberOfMissedLayersPerCloud += increaseMaxNumberOfMissedLayersPerCloud;
 	}
           
 	for ( Roads::RoadSet::const_iterator roadSetVector = roadSet->begin();
@@ -356,11 +358,13 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<RoadSearchSeedCollection> in
 	      // re-caluclate minNumberOfUsedLayersPerCloud, maxNumberOfMissedLayersPerCloud and maxNumberOfConsecutiveMissedLayersPerCloud 
 	      // by rounding to integer minFractionOfUsedLayersPerCloud. maxFractionOfMissedLayersPerCloud and maxFractionOfConsecutiveMissedLayersPerCloud
 	      minNumberOfUsedLayersPerCloud = static_cast<unsigned int>(totalLayers * minFractionOfUsedLayersPerCloud + 0.5);
-	      if ( maxNumberOfMissedLayersPerCloud != 999 ) {
-		maxNumberOfMissedLayersPerCloud = static_cast<unsigned int>(totalLayers * maxFractionOfMissedLayersPerCloud + 0.5);
-	      }
-	      if ( maxNumberOfConsecutiveMissedLayersPerCloud != 999 ) {
-		maxNumberOfConsecutiveMissedLayersPerCloud = static_cast<unsigned int>(totalLayers * maxFractionOfConsecutiveMissedLayersPerCloud + 0.5);
+	      maxNumberOfMissedLayersPerCloud = static_cast<unsigned int>(totalLayers * maxFractionOfMissedLayersPerCloud + 0.5);
+	      maxNumberOfConsecutiveMissedLayersPerCloud = static_cast<unsigned int>(totalLayers * maxFractionOfConsecutiveMissedLayersPerCloud + 0.5);
+
+	      // increase consecutive layer cuts between 0.9 and 1.5
+	      if (std::abs(outer_eta) > 0.9 && std::abs(outer_eta) < 1.5) {
+		maxNumberOfConsecutiveMissedLayersPerCloud += increaseMaxNumberOfConsecutiveMissedLayersPerCloud;
+		maxNumberOfMissedLayersPerCloud += increaseMaxNumberOfMissedLayersPerCloud;
 	      }
 
 	      ++usedLayers;

@@ -51,8 +51,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/07/08 20:27:08 $
-// $Revision: 1.24 $
+// $Date: 2007/07/19 21:55:58 $
+// $Revision: 1.25 $
 //
 
 #include <string>
@@ -152,6 +152,8 @@ class RoadSearchCloudMakerAlgorithm
   double       minFractionOfUsedLayersPerCloud;
   double       maxFractionOfMissedLayersPerCloud;
   double       maxFractionOfConsecutiveMissedLayersPerCloud;
+  unsigned int increaseMaxNumberOfConsecutiveMissedLayersPerCloud;
+  unsigned int increaseMaxNumberOfMissedLayersPerCloud;
 
   bool doCleaning_;
   double mergingFraction_;
