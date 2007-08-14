@@ -5,23 +5,14 @@
 
 #include <math.h>
 
-//extern "C"   float freq_(const float& x);   
-//extern "C"   float gausin_(const float& x);
-
+#include <gsl/gsl_sf_erf.h>
+#include <gsl/gsl_sf_result.h>
 
 GaussianTailNoiseGenerator::GaussianTailNoiseGenerator(CLHEP::HepRandomEngine& eng ) :
-  gaussDistribution_(0),poissonDistribution_(0),flatDistribution_(0),rndEngine(eng) {
-  
-  gaussDistribution_ = new CLHEP::RandGauss(rndEngine);
-  poissonDistribution_ = new CLHEP::RandPoisson(rndEngine);
-  flatDistribution_ = new CLHEP::RandFlat(rndEngine); 
- 
-}
-
-GaussianTailNoiseGenerator::~GaussianTailNoiseGenerator() {
-  delete gaussDistribution_;
-  delete poissonDistribution_;
-  delete flatDistribution_;
+  gaussDistribution_(eng),
+  poissonDistribution_(eng),
+  flatDistribution_(eng)
+{
 }
 
 void GaussianTailNoiseGenerator::generate(int NumberOfchannels, 
@@ -37,13 +28,13 @@ void GaussianTailNoiseGenerator::generate(int NumberOfchannels,
 
   float probabilityLeft = result.val;  
   float meanNumberOfNoisyChannels = probabilityLeft * NumberOfchannels;
-   int numberOfNoisyChannels = poissonDistribution_->fire(meanNumberOfNoisyChannels);
+  int numberOfNoisyChannels = poissonDistribution_.fire(meanNumberOfNoisyChannels);
 
   float lowLimit = threshold * noiseRMS;
   for (int i = 0; i < numberOfNoisyChannels; i++) {
 
     // Find a random channel number    
-    int theChannelNumber = (int)flatDistribution_->fire(NumberOfchannels);
+    int theChannelNumber = (int)flatDistribution_.fire(NumberOfchannels);
 
     // Find random noise value
     double noise = generate_gaussian_tail(lowLimit, noiseRMS);
@@ -67,14 +58,14 @@ void GaussianTailNoiseGenerator::generate(int NumberOfchannels,
   
   double probabilityLeft = result.val;  
   double meanNumberOfNoisyChannels = probabilityLeft * NumberOfchannels;
-  int numberOfNoisyChannels = poissonDistribution_->fire(meanNumberOfNoisyChannels);
+  int numberOfNoisyChannels = poissonDistribution_.fire(meanNumberOfNoisyChannels);
 
   theVector.reserve(numberOfNoisyChannels);
   float lowLimit = threshold * noiseRMS;
   for (int i = 0; i < numberOfNoisyChannels; i++) {
 
     // Find a random channel number    
-    int theChannelNumber = (int)flatDistribution_->fire(NumberOfchannels);
+    int theChannelNumber = (int)flatDistribution_.fire(NumberOfchannels);
     
     // Find random noise value
     double noise = generate_gaussian_tail(lowLimit, noiseRMS);
@@ -90,7 +81,7 @@ void GaussianTailNoiseGenerator::generateRaw(int NumberOfchannels,
   theVector.reserve(NumberOfchannels);
   for (int i = 0; i < NumberOfchannels; i++) {
     // Find random noise value
-    float noise = gaussDistribution_->fire(0.,noiseRMS);
+    float noise = gaussDistribution_.fire(0.,noiseRMS);
     // Fill in the vector
     theVector.push_back(std::pair<int, float>(i,noise));
   }
@@ -112,7 +103,7 @@ GaussianTailNoiseGenerator::generate_gaussian_tail(const double a, const double 
     double x;
     
     do{
-      x = gaussDistribution_->fire(0.,1.0);
+      x = gaussDistribution_.fire(0.,1.0);
     }
     while (x < s);
     return x * sigma;
@@ -128,9 +119,9 @@ GaussianTailNoiseGenerator::generate_gaussian_tail(const double a, const double 
     double u, v, x;
     
     do{
-      u = flatDistribution_->fire();
+      u = flatDistribution_.fire();
       do{
-	v = flatDistribution_->fire();
+	v = flatDistribution_.fire();
       }while (v == 0.0);
       x = sqrt(s * s - 2 * log(v));
     }

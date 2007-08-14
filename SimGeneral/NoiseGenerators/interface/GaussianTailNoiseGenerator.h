@@ -13,29 +13,31 @@
 #ifndef GaussianTailNoiseGenerator_h
 #define GaussianTailNoiseGenerator_h
 
-#include <gsl/gsl_sf_erf.h>
-#include <gsl/gsl_sf_result.h>
 #include <vector>
 #include <map>
 
 namespace CLHEP {
-  class RandGauss;
-  class RandPoisson;
-  class RandFlat;
   class HepRandomEngine;
 }
+
+#include "CLHEP/Random/RandPoisson.h"
+#include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Random/RandFlat.h"
+
 
 class GaussianTailNoiseGenerator {
 
 public:
 
   GaussianTailNoiseGenerator( CLHEP::HepRandomEngine& eng);
-  ~GaussianTailNoiseGenerator();
+
+  // Compiler-generated destructor, copy c'tor, and assignment are all
+  // correct.
 
   void generate(int NumberOfchannels, 
 		float threshold,
 		float noiseRMS, 
-		std::map<int,float, std::less<int> >& theMap );
+		std::map<int,float>& theMap );
 
   void generate(int NumberOfchannels, 
 		float threshold,
@@ -49,10 +51,9 @@ public:
   double generate_gaussian_tail(const double,const double);
 
 private:
-  CLHEP::RandGauss *gaussDistribution_;
-  CLHEP::RandPoisson *poissonDistribution_;
-  CLHEP::RandFlat *flatDistribution_;
-  CLHEP::HepRandomEngine& rndEngine;
+  CLHEP::RandGauss        gaussDistribution_;
+  CLHEP::RandPoisson      poissonDistribution_;
+  CLHEP::RandFlat         flatDistribution_;
 };
 
 #endif
