@@ -5,12 +5,14 @@
 /*
  *\ Class DCCDataUnpacker
  *
- * This class takes care of unpacking ECAL's raw data info
+ * This class takes care of unpacking ECAL's raw data info.
+ * A gateway for all blocks unpackers and committing collections to the Event
+ * 
  *
  * \file DCCDataUnpacker.h
  *
- * $Date: 2007/07/24 11:39:35 $
- * $Revision: 1.5 $
+ * $Date: 2007/08/14 15:05:12 $
+ * $Revision: 1.6 $
  * \author N. Almeida
  * \author G. Franzoni
  *
