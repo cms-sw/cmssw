@@ -12,6 +12,14 @@
 #include <algorithm>
 #include <iostream>
 #include <map>
+
+TrackerGeometry::TrackerGeometry(GeometricDet const* gd=0) :  theTrackerDet(gd){}
+
+GeometricDet const * TrackerGeometry::trackerDet() const {
+  return  theTrackerDet;
+}
+
+
 void TrackerGeometry::addType(GeomDetType* p) {
   theDetTypes.push_back(p);  // add to vector
 }

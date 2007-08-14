@@ -10,7 +10,9 @@
 class TrackerGeometry : public TrackingGeometry {
 public:
 
-  
+  TrackerGeometry();
+  TrackerGeometry(GeometricDet const* gd);  
+
   virtual const DetTypeContainer&  detTypes()         const;
   virtual const DetUnitContainer&  detUnits()         const;
   virtual const DetContainer&      dets()             const;
@@ -26,6 +28,11 @@ public:
   void addDet(GeomDet* p);
   void addDetId(DetId p);
 
+
+
+
+  GeometricDet const * trackerDet() const; 
+
   const DetContainer& detsPXB() const;
   const DetContainer& detsPXF() const;
   const DetContainer& detsTIB() const;
@@ -34,6 +41,8 @@ public:
   const DetContainer& detsTEC() const;
 
 private:
+
+  GeometricDet const * theTrackerDet; 
 
   /// Aligner has access to map
   friend class GeometryAligner;

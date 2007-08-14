@@ -24,15 +24,10 @@ TrackerRecoGeometryESProducer::~TrackerRecoGeometryESProducer() {}
 
 boost::shared_ptr<GeometricSearchTracker> 
 TrackerRecoGeometryESProducer::produce(const TrackerRecoGeometryRecord & iRecord){ 
-  //
-  // get the DDCompactView first
-  //
-  edm::ESHandle<GeometricDet> gD;
   edm::ESHandle<TrackerGeometry> tG;
-  iRecord.getRecord<IdealGeometryRecord>().get( gD );
   iRecord.getRecord<TrackerDigiGeometryRecord>().get(tG );
   GeometricSearchTrackerBuilder builder;
-  _tracker  = boost::shared_ptr<GeometricSearchTracker>(builder.build( &(*gD), &(*tG) ));
+  _tracker  = boost::shared_ptr<GeometricSearchTracker>(builder.build( tG->trackerDet(), &(*tG) ));
   return _tracker;
 }
 

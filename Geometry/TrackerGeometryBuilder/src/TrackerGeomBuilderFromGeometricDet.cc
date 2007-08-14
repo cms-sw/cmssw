@@ -35,7 +35,7 @@ using std::string;
 
 TrackerGeometry* TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd){
 
-  TrackerGeometry* tracker = new TrackerGeometry();
+  TrackerGeometry* tracker = new TrackerGeometry(gd);
   std::vector<const GeometricDet*> comp;
   gd->deepComponents(comp);
 
