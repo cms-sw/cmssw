@@ -436,6 +436,8 @@ class VPSet(_ValidatingParameterListBase,_ConfigureComponent,_Labelable):
         return copy.copy(self)
     def _place(self,name,proc):
         proc._placeVPSet(name,self)
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addVPSet(self.isTracked(), myname, self.value())
 
 
 
