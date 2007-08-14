@@ -100,6 +100,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , monSleepSec_(1)
   , wlMonitoring_(0)
   , asMonitoring_(0)
+  , reasonForFailedState_()
 {
   // bind relevant callbacks to finite state machine
   fsm_.initialize<evf::FUEventProcessor>(this);
@@ -160,17 +161,17 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   oss2<<"urn:xdaq-monitorable-"<<class_.toString()<<"-"<<instance_.toString();
   string monInfoSpaceName=oss2.str();
   toolbox::net::URN urn = this->createQualifiedInfoSpace(monInfoSpaceName);
-  mispace = xdata::getInfoSpaceFactory()->get(urn.toString());
+  monitorInfoSpace_ = xdata::getInfoSpaceFactory()->get(urn.toString());
   
-  mispace->fireItemAvailable("url",                      &url_);
-  mispace->fireItemAvailable("class",                    &class_);
-  mispace->fireItemAvailable("instance",                 &instance_);
-  mispace->fireItemAvailable("runNumber",                &runNumber_);
-  mispace->fireItemAvailable("stateName",                 fsm_.stateName()); 
-  mispace->fireItemAvailable("epMacroState",             &epMState_);
-  mispace->fireItemAvailable("epMicroState",             &epmState_);
-  mispace->fireItemAvailable("nbProcessed",              &nbProcessed_);
-  mispace->fireItemAvailable("nbAccepted",               &nbAccepted_);
+  monitorInfoSpace_->fireItemAvailable("url",                      &url_);
+  monitorInfoSpace_->fireItemAvailable("class",                    &class_);
+  monitorInfoSpace_->fireItemAvailable("instance",                 &instance_);
+  monitorInfoSpace_->fireItemAvailable("runNumber",                &runNumber_);
+  monitorInfoSpace_->fireItemAvailable("stateName",                 fsm_.stateName()); 
+  monitorInfoSpace_->fireItemAvailable("epMacroState",             &epMState_);
+  monitorInfoSpace_->fireItemAvailable("epMicroState",             &epmState_);
+  monitorInfoSpace_->fireItemAvailable("nbProcessed",              &nbProcessed_);
+  monitorInfoSpace_->fireItemAvailable("nbAccepted",               &nbAccepted_);
   
   
   // bind prescale related soap callbacks
@@ -185,6 +186,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   xgi::bind(this, &FUEventProcessor::microState    , "microState");
 
   // instantiate the plugin manager, not referenced here after!
+
   edm::AssertHandler ah;
 
   try{
@@ -252,10 +254,10 @@ xoap::MessageReference FUEventProcessor::getPsReport(xoap::MessageReference msg)
   
   //Get the trigger report.
   edm::TriggerReport tr; 
-  mispace->lock();
+  monitorInfoSpace_->lock();
   if(evtProcessor_)
     evtProcessor_->getTriggerReport(tr);
-  mispace->unlock();  
+  monitorInfoSpace_->unlock();  
   // xdata::String ReportAsString = triggerReportToString(tr);
   string s = triggerReportToString(tr);
   
@@ -446,13 +448,16 @@ bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
   try {
     LOG4CPLUS_INFO(getApplicationLogger(),"Start configuring ...");
     initEventProcessor();
-    LOG4CPLUS_INFO(getApplicationLogger(),"Finished configuring!");
-    startMonitoringWorkLoop();
-    fsm_.fireEvent("ConfigureDone",this);
+    if(epInitialized_)
+      {
+	startMonitoringWorkLoop();
+	fsm_.fireEvent("ConfigureDone",this);
+	LOG4CPLUS_INFO(getApplicationLogger(),"Finished configuring!");
+      }
   }
   catch (xcept::Exception &e) {
-    string msg = "configuring FAILED: " + (string)e.what();
-    fsm_.fireFailed(msg,this);
+    reasonForFailedState_ = "configuring FAILED: " + (string)e.what();
+    fsm_.fireFailed(reasonForFailedState_,this);
   }
 
   return false;
@@ -476,22 +481,26 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
       sc = evtProcessor_->statusAsync();
     }
     catch(cms::Exception &e) {
-      fsm_.fireFailed(e.explainSelf(),this);
+      reasonForFailedState_ = e.explainSelf();
+      fsm_.fireFailed(reasonForFailedState_,this);
       return false;
     }    
     catch(std::exception &e) {
-      fsm_.fireFailed(e.what(),this);
+      reasonForFailedState_  = e.what();
+      fsm_.fireFailed(reasonForFailedState_,this);
       return false;
     }
     catch(...) {
-      fsm_.fireFailed("Unknown Exception",this);
+      reasonForFailedState_ = "Unknown Exception";
+      fsm_.fireFailed(reasonForFailedState_,this);
       return false;
     }
     
     if(sc != 0) {
       ostringstream oss;
       oss<<"EventProcessor::runAsync returned status code " << sc;
-      fsm_.fireFailed(oss.str(),this);
+      reasonForFailedState_ = oss.str();
+      fsm_.fireFailed(reasonForFailedState_,this);
       return false;
     }
     
@@ -500,8 +509,8 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
     fsm_.fireEvent("EnableDone",this);
   }
   catch (xcept::Exception &e) {
-    string msg = "enabling FAILED: " + (string)e.what();
-    fsm_.fireFailed(msg,this);
+    reasonForFailedState_ = "enabling FAILED: " + (string)e.what();
+    fsm_.fireFailed(reasonForFailedState_,this);
   }
   
   return false;
@@ -520,13 +529,15 @@ bool FUEventProcessor::stopping(toolbox::task::WorkLoop* wl)
     else
       {
 	epMState_ = evtProcessor_->currentStateName();
-	fsm_.fireFailed("EventProcessor stop timed out",this);
+	reasonForFailedState_ = "EventProcessor stop timed out";
+	fsm_.fireFailed(reasonForFailedState_,this);
+
       }
     if(hasShMem_) detachDqmFromShm();
   }
   catch (xcept::Exception &e) {
-    string msg = "stopping FAILED: " + (string)e.what();
-    fsm_.fireFailed(msg,this);
+    reasonForFailedState_ = "stopping FAILED: " + (string)e.what();
+    fsm_.fireFailed(reasonForFailedState_,this);
   }
   
   return false;
@@ -545,21 +556,22 @@ bool FUEventProcessor::halting(toolbox::task::WorkLoop* wl)
 	detachDqmFromShm();
 	if(st == edm::event_processor::sJobReady || st == edm::event_processor::sDone)
 	  evtProcessor_->endJob();
-	mispace->lock(); //protect monitoring workloop from using ep pointer while it is being deleted
+	monitorInfoSpace_->lock(); //protect monitoring workloop from using ep pointer while it is being deleted
 	delete evtProcessor_;
 	evtProcessor_ = 0;
-	mispace->unlock();
+	monitorInfoSpace_->unlock();
 	epInitialized_ = false;
 	LOG4CPLUS_INFO(getApplicationLogger(),"Finished halting!");
   
 	fsm_.fireEvent("HaltDone",this);
       }
     else
-      fsm_.fireFailed("EventProcessor stop timed out",this);
+      reasonForFailedState_ = "EventProcessor stop timed out";
+      fsm_.fireFailed(reasonForFailedState_,this);
   }
   catch (xcept::Exception &e) {
-    string msg = "halting FAILED: " + (string)e.what();
-    fsm_.fireFailed(msg,this);
+    reasonForFailedState_ = "halting FAILED: " + (string)e.what();
+    fsm_.fireFailed(reasonForFailedState_,this);
   }
   
   return false;
@@ -604,7 +616,9 @@ void FUEventProcessor::initEventProcessor()
     makeParameterSets(configuration_, params, pServiceSets);
   }
   catch(cms::Exception &e){
-    fsm_.fireFailed(e.explainSelf(),this);
+    reasonForFailedState_ = e.explainSelf();
+    fsm_.fireFailed(reasonForFailedState_,this);
+    return;
   }  
   // add default set of services
   if(!servicesDone_) {
@@ -631,6 +645,8 @@ void FUEventProcessor::initEventProcessor()
 
   
   edm::ServiceRegistry::Operate operate(serviceToken_);
+
+  /* this part is obsolete
   try{
     edm::Service<MonitorDaemon>()->rmt(dqmCollectorAddr_,
 				       dqmCollectorPort_,
@@ -642,7 +658,8 @@ void FUEventProcessor::initEventProcessor()
     LOG4CPLUS_DEBUG(getApplicationLogger(),
 		   "exception when trying to get service MonitorDaemon");
   }
-  
+  */
+
   //test rerouting of fwk logging to log4cplus
   edm::LogInfo("FUEventProcessor")<<"started MessageLogger Service.";
   edm::LogInfo("FUEventProcessor")<<"Using config string \n"<<configuration_;
@@ -655,14 +672,14 @@ void FUEventProcessor::initEventProcessor()
     defaultServices.push_back("InitRootHandlers");
     defaultServices.push_back("JobReportService");
     
-    mispace->lock();
+    monitorInfoSpace_->lock();
     if (0!=evtProcessor_) delete evtProcessor_;
     
     evtProcessor_ = new edm::EventProcessor(configuration_,
 					    serviceToken_,
 					    edm::serviceregistry::kTokenOverrides,
 					    defaultServices);
-    mispace->unlock();
+    monitorInfoSpace_->unlock();
     //    evtProcessor_->setRunNumber(runNumber_.value_);
 
     if(!outPut_)
@@ -709,11 +726,13 @@ void FUEventProcessor::initEventProcessor()
     }
   }
   catch(cms::Exception &e) {
-    fsm_.fireFailed(e.explainSelf(),this);
+    reasonForFailedState_ = e.explainSelf();
+    fsm_.fireFailed(reasonForFailedState_,this);
     return;
   }    
   catch(std::exception &e) {
-    fsm_.fireFailed(e.what(),this);
+    reasonForFailedState_ = e.what();
+    fsm_.fireFailed(reasonForFailedState_,this);
     return;
   }
   catch(...) {
@@ -1047,7 +1066,23 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   *out << "<table>"                                                  << endl;
   *out << "<tr valign=\"top\">"                                      << endl;
   *out << "  <td>"                                                   << endl;
-  *out << "<div id=\"T1\" style=\"border:2px solid blue;height:80;width:150\">microState</div><br /> " << endl;
+  *out << "<table>"                                                  << endl;
+  *out << "  <td><tr>"                                               << endl;
+  *out << "<div id=\"T1\" style=\"border:2px solid "                 << endl;
+  if(fsm_.stateName()->value_ == "Failed")
+    {
+      *out << "red;height:80;width:150\">microState</div><br /> "   << endl;
+      *out << "</tr><tr>"					     << endl;
+      *out << "<textarea rows=" << 5 << " cols=20 scroll=yes>"      << endl;
+      *out << reasonForFailedState_                                  << endl;
+      *out << "</textarea>"                                          << endl;
+    }
+  else
+    {
+      *out << "blue;height:80;width:150\">microState</div><br /> "   << endl;
+    }
+  *out << "  </tr></td>"                                             << endl;
+  *out << "</table>"                                                 << endl;
   *out << "  </td>"                                                  << endl;
 
   *out << "  <td>"                                                   << endl;
@@ -1067,6 +1102,7 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   *out << "Value" << endl;
   *out << "</th>" << endl;
   *out << "</tr>" << endl;
+  /* obsolete 
   *out << "<tr>" << endl;
   *out << "<td >" << endl;
   *out << "Plugin Path" << endl;
@@ -1075,6 +1111,7 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   *out << getenv("SEAL_PLUGINS") << endl;
   *out << "</td>" << endl;
   *out << "</tr>"                                            << endl;
+  */
   *out << "<tr>" << endl;
   *out << "<td >" << endl;
   *out << "Run Number" << endl;
@@ -1467,7 +1504,7 @@ bool FUEventProcessor::monitoring(toolbox::task::WorkLoop* wl)
   edm::ServiceRegistry::Operate operate(serviceToken_);
   MicroStateService *mss = 0;
 
-  mispace->lock();
+  monitorInfoSpace_->lock();
   if(evtProcessor_)
     epMState_ = evtProcessor_->currentStateName();
   else
@@ -1490,7 +1527,7 @@ bool FUEventProcessor::monitoring(toolbox::task::WorkLoop* wl)
       nbProcessed_ = evtProcessor_->totalEvents();
       nbAccepted_  = evtProcessor_->totalEventsPassed(); 
     }
-  mispace->unlock();
+  monitorInfoSpace_->unlock();
   ::sleep(monSleepSec_.value_);
   
   return true;
