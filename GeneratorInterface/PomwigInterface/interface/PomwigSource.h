@@ -3,7 +3,7 @@
 
 /** \class PomwigSource
  *
- * Generates Pomwig HepMC events
+ * Generates Pomwig (Herwig) HepMC events
  *
  ***************************************/
 
@@ -15,6 +15,8 @@
 #include <string>
 #include "HepMC/GenEvent.h"
 
+class Run;
+
 namespace edm
 {
   class PomwigSource : public GeneratedInputSource {
@@ -24,6 +26,7 @@ namespace edm
     PomwigSource(const ParameterSet &, const InputSourceDescription &);
     virtual ~PomwigSource();
 
+    void endRun( Run& r);
 
   private:
 
@@ -40,10 +43,19 @@ namespace edm
     int maxEventsToPrint_;
     double comenergy;
     std::string lhapdfSetPath_;
+    bool useJimmy_;
+    bool doMPInteraction_;
     bool printCards_;
+    int numTrials_;
 
-    int diffTopology;	
+    double extCrossSect;
+    double intCrossSect;
+    double extFilterEff;
+
+    double survivalProbability;
+    int diffTopology;			
     bool enableForcedDecays;
+
   };
 } 
 

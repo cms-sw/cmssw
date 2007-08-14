@@ -4,13 +4,13 @@
 //
 // Original Author:  Fabian Stoeckli
 //         Created:  Mon Mar 12 17:34:14 CET 2007
+//         (Herwig6Interface)
+//
+// Modified for PomwigInterface: Antonio.Vilela.Pereira@cern.ch
+//
 // $Id: Herwig6Filter.h,v 1.1 2007/03/15 10:19:11 fabstoec Exp $
 //
 //
-
-// Filter to remove empty events produced with MC@NLO/HERWIG
-
-// Modified for POMWIG
 
 // system include files
 #include <memory>

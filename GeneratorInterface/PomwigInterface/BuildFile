@@ -5,7 +5,8 @@
 <use name=hepmc>
 <use name=herwig>
 <use name=lhapdf>
-<flags SEAL_PLUGIN_NAME="GeneratorInterfacePomwigInterface">
+<use name=jimmy>
+<flags EDM_PLUGIN=1>
 <export>
  <lib name=GeneratorInterfacePomwigInterface>
  <use name=boost>
@@ -15,6 +16,7 @@
  <use name=hepmc> 
  <use name=herwig>
  <use name=lhapdf>
+ <use name=jimmy>
 </export>
 
  <lib name=g2c></lib>

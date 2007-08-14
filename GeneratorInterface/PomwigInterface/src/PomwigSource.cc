@@ -1,8 +1,8 @@
 /*
  *  Original Author: Fabian Stoeckli 
  *  26/09/06
- *  Modified for Pomwig
- *  03/2007 Antonio.Vilela.Pereira@cern.ch
+ * 
+ *  Modified for PomwigInterface: Antonio.Vilela.Pereira@cern.ch
  */
 
 #include "GeneratorInterface/PomwigInterface/interface/PomwigSource.h"
@@ -14,6 +14,9 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/JamesRandom.h"
 #include "CLHEP/Random/RandFlat.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
+#include "FWCore/Framework/interface/Run.h"
 
 #include <iostream>
 #include "time.h"
@@ -37,25 +40,13 @@ extern"C" {
   void setherwpdf_(void);
   // function to chatch 'STOP' in original HWWARN
   void cmsending_(int*);
-
-  // struct to check wheter HERWIG killed an event
-  extern struct {
-    double eventisok;
-  } eventstat_;
 }
-
-#define eventstat eventstat_
 
 #define setpdfpath setpdfpath_
 #define mysetpdfpath mysetpdfpath_
 #define setlhaparm setlhaparm_
 #define setherwpdf setherwpdf_
 #define cmsending cmsending_
-
-
-// -----------------  used for defaults --------------------------------------
-  static const unsigned long kNanoSecPerSec = 1000000000;
-  static const unsigned long kAveEventPerSec = 200;
 
 // -----------------  Source Code -----------------------------------------
 PomwigSource::PomwigSource( const ParameterSet & pset, 
@@ -67,14 +58,24 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",0)),
   comenergy(pset.getUntrackedParameter<double>("comEnergy",14000.)),
   lhapdfSetPath_(pset.getUntrackedParameter<string>("lhapdfSetPath","")),
-  printCards_(pset.getUntrackedParameter<bool>("printCards",true)),
+  printCards_(pset.getUntrackedParameter<bool>("printCards",false)),
+  extCrossSect(pset.getUntrackedParameter<double>("crossSection", -1.)),
+  extFilterEff(pset.getUntrackedParameter<double>("filterEfficiency", -1.)),
+  survivalProbability(pset.getUntrackedParameter<double>("survivalProbability", 0.05)),
   diffTopology(pset.getParameter<int>("diffTopology")),
   enableForcedDecays(pset.getUntrackedParameter<bool>("enableForcedDecays",false))
-
 {
-  cout << "----------------------------------------------" << endl;
-  cout << "Initializing PomwigSource" << endl;
-  cout << "----------------------------------------------" << endl;
+  useJimmy_ = false;
+  numTrials_ = 100;
+  doMPInteraction_ = false;
+
+  std::ostringstream header_str;
+
+  header_str << "----------------------------------------------\n";
+  header_str << "Initializing PomwigSource\n";
+  header_str << "----------------------------------------------\n";
+
+  
   /* herwigVerbosity Level IPRINT
      valid argumets are: 0: print title only
                          1: + print selected input parameters
@@ -86,24 +87,32 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
 			 2=all 
   */
 
-  cout << "   Herwig verbosity level         = " << herwigVerbosity_ << endl;
-  cout << "   LHAPDF verbosity level         = " << herwigLhapdfVerbosity_ << endl;
-  cout << "   HepMC verbosity                = " << herwigHepMCVerbosity_ << endl;
-  cout << "   Number of events to be printed = " << maxEventsToPrint_ << endl;
-  
+  header_str << "   Herwig verbosity level         = " << herwigVerbosity_ << "\n";
+  header_str << "   LHAPDF verbosity level         = " << herwigLhapdfVerbosity_ << "\n";
+  header_str << "   HepMC verbosity                = " << herwigHepMCVerbosity_ << "\n";
+  header_str << "   Number of events to be printed = " << maxEventsToPrint_ << "\n";
+
+
+  if(useJimmy_) {
+    header_str << "   HERWIG will be using JIMMY for UE/MI." << "\n";
+    if(doMPInteraction_) 
+      header_str << "   JIMMY trying to generate multiple interactions." << "\n";
+  }
+
   // setting up lhapdf path name from environment varaible (***)
   char* lhaPdfs = NULL;
-  std::cout<<"   Trying to find LHAPATH in environment ...";
+  header_str<<"   Trying to find LHAPATH in environment ...";
   lhaPdfs = getenv("LHAPATH");
   if(lhaPdfs != NULL) {
-    std::cout<<" done."<<std::endl;
+    header_str<<" done.\n";
     lhapdfSetPath_=std::string(lhaPdfs);
-    std::cout<<"   Using "<< lhapdfSetPath_ << std::endl;	
+    header_str<<"   Using "<< lhapdfSetPath_ << "\n";	
   }
   else{
-    std::cout<<" failed."<<std::endl;
-    std::cout<<"   Using "<< lhapdfSetPath_ << std::endl;
-  }	
+    header_str<<" failed.\n";
+    header_str<<"   Using "<< lhapdfSetPath_ << "\n";
+  }
+
 
   // Call hwudat to set up HERWIG block data
   hwudat();
@@ -145,18 +154,21 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
   for(int i=2;i<8;++i){
     hwbmch.PART1[i]  = ' ';
     hwbmch.PART2[i]  = ' ';}
-  int numEvents = desc.maxEvents_;
-  //hwproc.MAXEV = pset.getUntrackedParameter<int>("maxEvents",10);
+
+  int numEvents = maxEvents();  
+  if(useJimmy_) jmparm.MSFLAG = 1;
 
   // initialize other common blocks ...
   hwigin();
- 
+
   double fracErrors_ = pset.getUntrackedParameter<double>("fracErrors",0.1);
   int maxerrors = int(fracErrors_*numEvents);
   hwevnt.MAXER = maxerrors;
   if(hwevnt.MAXER<100) hwevnt.MAXER = 100;
-  std::cout<<"   MAXER set to "<< hwevnt.MAXER << std::endl;
+  header_str << "   MAXER set to " << hwevnt.MAXER << "\n";
 
+  if(useJimmy_) jimmin();
+  
   // set some 'non-herwig' defaults
   hwevnt.MAXPR =  maxEventsToPrint_;           // no printing out of events
   hwpram.IPRINT = herwigVerbosity_;            // HERWIG print out mode
@@ -176,9 +188,9 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
     vector<string> pars = 
       herwig_params.getParameter<vector<string> >(mySet);
     
-    cout << "----------------------------------------------" << endl;
-    cout << "Read HERWIG parameter set " << mySet << endl;
-    cout << "----------------------------------------------" << endl;
+    header_str << "----------------------------------------------" << "\n";
+    header_str << "Read HERWIG parameter set " << mySet << "\n";
+    header_str << "----------------------------------------------" << "\n";
     
     // Loop over all parameters and stop in case of mistake
     for( vector<string>::const_iterator  
@@ -195,22 +207,22 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
 	  <<" herwig did not accept the following \""<<*itPar<<"\"";
       }
       else if(printCards_)
-	cout << "   " << *itPar << endl;
+	header_str << "   " << *itPar << "\n";
     }
   }
 
   // setting up herwgi RNG seeds NRN(.)
-  cout << "----------------------------------------------" << endl;
-  cout << "Setting Herwig random number generator seeds" << endl;
-  cout << "----------------------------------------------" << endl;
+  header_str << "----------------------------------------------" << "\n";
+  header_str << "Setting Herwig random number generator seeds" << "\n";
+  header_str << "----------------------------------------------" << "\n";
   edm::Service<RandomNumberGenerator> rng;
   int wwseed = rng->mySeed();
   bool rngok = setRngSeeds(wwseed);
   if(!rngok)
     throw edm::Exception(edm::errors::Configuration,"HerwigError")
       <<" Impossible error in setting 'NRN(.)'.";
-  cout << "   NRN(1) = "<<hwevnt.NRN[0]<<endl;
-  cout << "   NRN(2) = "<<hwevnt.NRN[1]<<endl;
+  header_str << "   NRN(1) = "<<hwevnt.NRN[0]<<"\n";
+  header_str << "   NRN(2) = "<<hwevnt.NRN[1]<<"\n";
 
   // set the LHAPDF grid directory and path
   setherwpdf();
@@ -224,6 +236,7 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
 
   // HERWIG preparations ...
   hwuinc();
+
   // Function for force QQ decay is hwmodk
 
   /*
@@ -244,6 +257,9 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
   // Initialization
 
   if(enableForcedDecays){
+    header_str << "\n----------------------------------------------" << "\n";
+    header_str << "HWMODK will be called to force decays" << "\n";
+    header_str << "----------------------------------------------" << "\n";
     // Get ParameterSet with settings for forcing decays
     ParameterSet fdecays_pset = pset.getParameter<ParameterSet>("ForcedDecaysParameters") ; 
     vector<int> defidktmp ;
@@ -281,17 +297,18 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
         int idtmp1 = idtmp[i];
         int ietmp1 = ietmp[i];
         // Call Herwig function HWMODK
-	std::cout << "   Forcing decay " << idktmp1 << "->" << iatmp1 << "+" 
-						       << ibtmp1 << "+" 
-						       << ictmp1 << "+"
-						       << idtmp1 << "+"
-						       << ietmp1 << "  with BR " << brtmp1 << std::endl;
+	header_str << "   Forcing decay " << idktmp1 << "->" << iatmp1 << "+" 
+						       	     << ibtmp1 << "+" 
+						             << ictmp1 << "+"
+						             << idtmp1 << "+"
+						             << ietmp1 << "  with BR " << brtmp1 << "\n";
         hwmodk(idktmp1, brtmp1, imetmp1, iatmp1, ibtmp1, ictmp1, idtmp1, ietmp1);
     }
   }   
+
   hwusta("PI0     ",1);
 
-  // Initialize H1 pomeron
+  // Initialize H1 pomeron/reggeon
   if(diffTopology != 3){
         int nstru = hwpram.NSTRU;
         int ifit = pset.getParameter<int>("h1fit");
@@ -300,19 +317,47 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
                         throw edm::Exception(edm::errors::Configuration,"PomwigError")
                         <<" Attempted to set non existant H1 1997 fit index. Has to be 1...6";
                 }
-                cout << "   H1 1997 pdf's" << endl;
+                cout << "   H1 1997 pomeron pdf's" << endl;
                 cout << "   IFIT = "<< ifit << endl;
                 double xp = 0.1;
                 double Q2 = 75.0;
                 double xpq[13];
                 qcd_1994(xp,Q2,xpq,ifit);
+	} else if(nstru == 10){
+                if((ifit <= 0)||(ifit >= 7)){
+                        throw edm::Exception(edm::errors::Configuration,"PomwigError")
+                        <<" Attempted to set non existant H1 1997 fit index. Has to be 1...6";
+                }
+                cout << "   H1 1997 reggeon pdf's" << endl;
+                cout << "   IFIT = "<< ifit << endl;
+                double xp = 0.1;
+                double Q2 = 75.0;
+                double xpq[13];
+                qcd_1994(xp,Q2,xpq,ifit);
+
         } else if(nstru == 12){
                 /*if(ifit != 1){
                         throw edm::Exception(edm::errors::Configuration,"PomwigError")
                         <<" Attempted to set non existant H1 2006 A fit index. Only IFIT=1";
                 }*/
                 ifit = 1;
-                cout << "   H1 2006 A pdf's" << endl;
+                cout << "   H1 2006 A pomeron pdf's" << endl;
+                cout << "   IFIT = "<< ifit <<endl;
+                double xp = 0.1;
+                double Q2 = 75.0;
+                double xpq[13];
+                double f2[2];
+                double fl[2];
+                double c2[2];
+                double cl[2];
+                qcd_2006(xp,Q2,ifit,xpq,f2,fl,c2,cl);
+	} else if(nstru == 13){
+                /*if(ifit != 1){
+                        throw edm::Exception(edm::errors::Configuration,"PomwigError")
+                        <<" Attempted to set non existant H1 2006 A fit index. Only IFIT=1";
+                }*/
+                ifit = 1;
+                cout << "   H1 2006 A reggeon pdf's" << endl;
                 cout << "   IFIT = "<< ifit <<endl;
                 double xp = 0.1;
                 double Q2 = 75.0;
@@ -328,7 +373,23 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
                         <<" Attempted to set non existant H1 2006 B fit index. Only IFIT=2";
                 }*/
                 ifit = 2;
-                cout << "   H1 2006 B pdf's" << endl;
+                cout << "   H1 2006 B pomeron pdf's" << endl;
+                cout << "   IFIT = "<< ifit <<endl;
+                double xp = 0.1;
+                double Q2 = 75.0;
+                double xpq[13];
+                double f2[2];
+                double fl[2];
+                double c2[2];
+                double cl[2];
+                qcd_2006(xp,Q2,ifit,xpq,f2,fl,c2,cl);
+	} else if(nstru == 15){
+                /*if(ifit != 2){
+                        throw edm::Exception(edm::errors::Configuration,"PomwigError")
+                        <<" Attempted to set non existant H1 2006 B fit index. Only IFIT=2";
+                }*/
+                ifit = 2;
+                cout << "   H1 2006 B reggeon pdf's" << endl;
                 cout << "   IFIT = "<< ifit <<endl;
                 double xp = 0.1;
                 double Q2 = 75.0;
@@ -340,42 +401,70 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
                 qcd_2006(xp,Q2,ifit,xpq,f2,fl,c2,cl);
         } else{
                 throw edm::Exception(edm::errors::Configuration,"PomwigError")
-                <<" Only running Pomeron H1 1997 (NSTRU=9), H1 2006 fit A (NSTRU=12) and H1 2006 fit B (NSTRU=14)";
+                <<" Only running Pomeron H1 1997 (NSTRU=9), H1 2006 fit A (NSTRU=12) and H1 2006 fit B (NSTRU=14) or Reggeon H1 1997 (NSTRU=10), H1 2006 fit A (NSTRU=13) and H1 2006 fit B (NSTRU=15)";
         }
   }
 
   hweini();
+  if(useJimmy_) jminit();
 
-  cout << endl; // Stetically add for the output
   produces<HepMCProduct>();
+  produces<GenInfoProduct, edm::InRun>();
 
-  cout << "----------------------------------------------" << endl;
-  cout << "Starting event generation" << endl;
-  cout << "----------------------------------------------" << endl;
+  header_str << "\n----------------------------------------------" << "\n";
+  header_str << "Starting event generation" << "\n";
+  header_str << "----------------------------------------------" << "\n";
+
+  edm::LogInfo("")<<header_str.str(); 
+
+
 }
 
 
 PomwigSource::~PomwigSource(){
-  cout << "----------------------------------------------" << endl;
-  cout << "Event generation done" << endl;
-  cout << "----------------------------------------------" << endl;
+
+  std::ostringstream footer_str;
+
+  footer_str << "----------------------------------------------" << "\n";
+  footer_str << "Event generation done" << "\n";
+  footer_str << "----------------------------------------------" << "\n";
+
+  LogInfo("") << footer_str.str();
+
   clear();
 }
 
 void PomwigSource::clear() {
   // teminate elementary process
   hwefin();
+  if(useJimmy_) jmefin();
 }
 
 
 bool PomwigSource::produce(Event & e) {
 
-  eventstat.eventisok = 0.0;
+  int counter = 0;
+  double mpiok = 1.0;
 
-  // call herwig routines to create HEPEVT
-  hwuine();
-  hwepro();
-  hwbgen();  
+  while(mpiok > 0.5 && counter < numTrials_) {
+
+    // call herwig routines to create HEPEVT
+    hwuine();
+    hwepro();
+    hwbgen();  
+
+    // call jimmy ... only if event is not killed yet by HERWIG
+    if(useJimmy_ && doMPInteraction_ && hwevnt.IERROR==0)
+      mpiok = hwmsct_dummy(1.1);
+    else mpiok = 0.0;
+    counter++;
+  }
+  
+  // event after numTrials MP is not ok -> skip event
+  if(mpiok > 0.5) {
+    LogWarning("") <<"   JIMMY could not produce MI in "<<numTrials_<<" trials.\n"<<"   Event will be skipped to prevent from deadlock.\n";
+    return true;
+  }  
   
   hwdhob();
   hwcfor();
@@ -386,7 +475,9 @@ bool PomwigSource::produce(Event & e) {
   hwufne();
   
   // if event was killed by HERWIG; skip 
-  if(eventstat.eventisok > 0.5) return true;
+  if(hwevnt.IERROR!=0) return true;
+
+  intCrossSect = 1000.0*survivalProbability*hwevnt.AVWGT;
 
   // -----------------  HepMC converter --------------------
   HepMC::IO_HERWIG conv;
@@ -403,8 +494,7 @@ bool PomwigSource::produce(Event & e) {
   evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
   
   if (herwigHepMCVerbosity_) {
-    cout << "Event process = " << evt->signal_process_id() <<endl
-	 << "----------------------" << endl;
+    LogWarning("") << "Event process = " << evt->signal_process_id() << "\n----------------------\n";
     evt->print();
   }
   
@@ -432,7 +522,7 @@ bool PomwigSource::hwgive(const std::string& ParameterString) {
     }
   }
   else if(!strncmp(ParameterString.c_str(),"AUTPDF(",7)){
-    cout<<"   WARNING: AUTPDF parameter *not* suported. HERWIG will use LHAPDF."<<endl;
+    LogWarning("") <<"   WARNING: AUTPDF parameter *not* suported. HERWIG will use LHAPDF."<<"\n";
   }
   else if(!strncmp(ParameterString.c_str(),"TAUDEC",6)){
     int tostart=0;
@@ -450,7 +540,7 @@ bool PomwigSource::hwgive(const std::string& ParameterString) {
     }
   }
   else if(!strncmp(ParameterString.c_str(),"BDECAY",6)){
-    cout<<"   WARNING: BDECAY parameter *not* suported. HERWIG will use default b decay."<<endl;
+    LogWarning("")<<"   WARNING: BDECAY parameter *not* suported. HERWIG will use default b decay."<<"\n";
   }
   else if(!strncmp(ParameterString.c_str(),"QCDLAM",6))
     hwpram.QCDLAM = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]);
@@ -1147,6 +1237,12 @@ bool PomwigSource::hwgive(const std::string& ParameterString) {
     hw6300.IOPSTP = atoi(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); 
   else if(!strncmp(ParameterString.c_str(),"IOPSH",5))
     hw6300.IOPSH = atoi(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); 
+  else if(!strncmp(ParameterString.c_str(),"JMUEO",5))
+    jmparm.JMUEO = atoi(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); 
+  else if(!strncmp(ParameterString.c_str(),"PTJIM",5))
+    jmparm.PTJIM = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); 
+  else if(!strncmp(ParameterString.c_str(),"JMRAD(73)",9))
+    jmparm.JMRAD[72] = atoi(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); 
 
   else accepted = 0;
 
@@ -1192,9 +1288,24 @@ bool PomwigSource::setRngSeeds(int mseed)
   return true;
 }
 
+void PomwigSource::endRun(Run & r) {
+ 
+ auto_ptr<GenInfoProduct> giprod (new GenInfoProduct());
+ giprod->set_cross_section(intCrossSect);
+ cout<<"cross section = "<<intCrossSect<<std::endl;
+ giprod->set_external_cross_section(extCrossSect);
+ giprod->set_filter_efficiency(extFilterEff);
+ r.put(giprod);
+
+}
+
+
+
+
+
 extern "C" {
   void cmsending_(int* ecode) {
-    cout<<"   ERROR: Herwig stoped run after recieving error code "<<*ecode<<"."<<endl;
+    LogError("")<<"   ERROR: Herwig stoped run after recieving error code "<<*ecode<<".\n";
     throw cms::Exception("HerwigError") <<" Herwig stoped run with error code "<<*ecode<<".";
   }
 }
