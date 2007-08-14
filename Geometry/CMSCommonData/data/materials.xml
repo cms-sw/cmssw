@@ -115,6 +115,8 @@
 
   <ElementaryMaterial name="Sulfur" density="2.07*g/cm3" symbol=" " atomicWeight="32.066*g/mole" atomicNumber="16"/>
 
+  <ElementaryMaterial name="Tantalum" density="16.65*g/cm3" symbol=" " atomicWeight="180.9479*g/mole" atomicNumber="73"/>
+
   <ElementaryMaterial name="Technetium" density="11.48*g/cm3" symbol=" " atomicWeight="98*g/mole" atomicNumber="43"/>
 
   <ElementaryMaterial name="Tellurium" density="6.23*g/cm3" symbol=" " atomicWeight="127.6*g/mole" atomicNumber="52"/>
