@@ -13,7 +13,7 @@
 #include <iostream>
 #include <map>
 
-TrackerGeometry::TrackerGeometry(GeometricDet const* gd=0) :  theTrackerDet(gd){}
+TrackerGeometry::TrackerGeometry(GeometricDet const* gd) :  theTrackerDet(gd){}
 
 GeometricDet const * TrackerGeometry::trackerDet() const {
   return  theTrackerDet;

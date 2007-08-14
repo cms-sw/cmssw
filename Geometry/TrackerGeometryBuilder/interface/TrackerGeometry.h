@@ -2,16 +2,17 @@
 #define Geometry_TrackerGeometryBuilder_TrackerGeometry_H
 
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+
+class GeometricDet;
+
 /**
  * A specific Tracker Builder which builds a Tracker from a list of DetUnits. 
  * Pattern recognition is used to discover layers, rings etc.
  */
-
 class TrackerGeometry : public TrackingGeometry {
 public:
 
-  TrackerGeometry();
-  TrackerGeometry(GeometricDet const* gd);  
+  explicit TrackerGeometry(GeometricDet const* gd=0);  
 
   virtual const DetTypeContainer&  detTypes()         const;
   virtual const DetUnitContainer&  detUnits()         const;
