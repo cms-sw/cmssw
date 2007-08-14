@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.cc,v 1.8 2007/08/08 15:49:33 chinhan Exp $
+// $Id: FastL1GlobalAlgo.cc,v 1.9 2007/08/13 22:29:00 chinhan Exp $
 //
 
 // No BitInfos for release versions
@@ -511,14 +511,14 @@ FastL1GlobalAlgo::isTauJet(int cRgn) {
 
   // west border:
   if ((cRgn%22)==17) { 
-    //std::cerr << "West border check: " << std::endl
+    //std::cout << "West border check: " << std::endl
     //      << nwid << " " << nid << " "  << neid << " " << std::endl
     //      << wid << " " << cRgn << " "  << eid << " " << std::endl
     //      << swid << " " << sid << " "  << seid << " " << std::endl;    
-    std::cerr << "West border check: " << std::endl
-          << m_Regions[nwid].GetTauBit() << " " << m_Regions[nid].GetTauBit() << " "  << m_Regions[neid].GetTauBit() << " " << std::endl
-          << m_Regions[wid].GetTauBit() << " " << m_Regions[cRgn].GetTauBit() << " "  << m_Regions[eid].GetTauBit() << " " << std::endl
-          << m_Regions[swid].GetTauBit() << " " << m_Regions[sid].GetTauBit() << " "  << m_Regions[seid].GetTauBit() << " " << std::endl;    
+    //std::cout << "West border check: " << std::endl
+    //      << m_Regions[nwid].GetTauBit() << " " << m_Regions[nid].GetTauBit() << " "  << m_Regions[neid].GetTauBit() << " " << std::endl
+    //      << m_Regions[wid].GetTauBit() << " " << m_Regions[cRgn].GetTauBit() << " "  << m_Regions[eid].GetTauBit() << " " << std::endl
+    //      << m_Regions[swid].GetTauBit() << " " << m_Regions[sid].GetTauBit() << " "  << m_Regions[seid].GetTauBit() << " " << std::endl;    
 
     if (
 	m_Regions[nid].GetTauBit()  ||
@@ -533,14 +533,14 @@ FastL1GlobalAlgo::isTauJet(int cRgn) {
   }
   // east border:
   if ((cRgn%22)==4) { 
-    //std::cerr << "East border check2: " << std::endl
+    //std::cout << "East border check2: " << std::endl
     //      << nwid << " " << nid << " "  << neid << " " << std::endl
     //      << wid << " " << cRgn << " "  << eid << " " << std::endl
     //      << swid << " " << sid << " "  << seid << " " << std::endl;    
-    std::cerr << "East border check: " << std::endl
-          << m_Regions[nwid].GetTauBit() << " " << m_Regions[nid].GetTauBit() << " "  << m_Regions[neid].GetTauBit() << " " << std::endl
-          << m_Regions[wid].GetTauBit() << " " << m_Regions[cRgn].GetTauBit() << " "  << m_Regions[eid].GetTauBit() << " " << std::endl
-          << m_Regions[swid].GetTauBit() << " " << m_Regions[sid].GetTauBit() << " "  << m_Regions[seid].GetTauBit() << " " << std::endl;    
+    //std::cout << "East border check: " << std::endl
+    //      << m_Regions[nwid].GetTauBit() << " " << m_Regions[nid].GetTauBit() << " "  << m_Regions[neid].GetTauBit() << " " << std::endl
+    //      << m_Regions[wid].GetTauBit() << " " << m_Regions[cRgn].GetTauBit() << " "  << m_Regions[eid].GetTauBit() << " " << std::endl
+    //      << m_Regions[swid].GetTauBit() << " " << m_Regions[sid].GetTauBit() << " "  << m_Regions[seid].GetTauBit() << " " << std::endl;    
 
      if (
 	m_Regions[nid].GetTauBit()  ||
