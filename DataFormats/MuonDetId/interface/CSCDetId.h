@@ -10,7 +10,7 @@
  * of the Muon Endcap CSC detector system.
  *
  * The STATIC member functions can be used to translate back and
- * forth between a MuEndLayer 'rawId' and the %set of subdetector labels.
+ * forth between a layer/chamber 'rawId' and the %set of subdetector labels.
  *
  * \warning EVERY LABEL COUNTS FROM ONE NOT ZERO.
  *
@@ -36,7 +36,6 @@ public:
   /// id is Muon and the SubDet part is CSC, otherwise an exception is thrown.
   CSCDetId(uint32_t id);
   CSCDetId(DetId id);
-
 
   /// Construct from fully qualified identifier.
   /// Input values are required to be within legal ranges, otherwise an
@@ -96,6 +95,13 @@ public:
    int endcap() const {
      return (  (id_>>START_ENDCAP) & MASK_ENDCAP ); }
 
+   /**
+    * What is the sign of global z?
+    *
+    */
+   short int zendcap() const {
+     return ( endcap()!=1 ? -1 : +1 );
+   }
 
   // static methods
   // Used when we need information about subdetector labels.
@@ -114,14 +120,11 @@ public:
    * starting from the component ids.
    *
    */
-
-  // Tim dislikes the necessity of this ugly code - magic numbers included
-  // Thanks a lot, CMSSW
-
    static int rawIdMaker( int iendcap, int istation, int iring, 
                int ichamber, int ilayer ) {
-     return ((DetId::Muon&0xF)<<28)|((MuonSubdetId::CSC&0x7)<<25)|
-               init(iendcap, istation, iring, ichamber, ilayer) ; }
+     return ( (DetId::Muon&0xF)<<(DetId::kDetOffset) ) |            // set Muon flag
+            ( (MuonSubdetId::CSC&0x7)<<(DetId::kSubdetOffset) ) |   // set CSC flag
+               init(iendcap, istation, iring, ichamber, ilayer) ; } // set CSC id
 
    /**
     * Return Layer label for supplied CSCDetId index.
@@ -233,11 +236,17 @@ private:
 
   /**
    *
-   * Methods for changing ME1/1 CSCDetId. 
-   * Internally the chambers are ordered (Station/Ring) as: ME1/a (1/1), ME1/b (1/2), ME1/2 (1/3), ME1/3 (1/4).
+   * Methods for reordering CSCDetId for ME1 detectors.
+   *
+   * Internally the chambers are ordered (Station/Ring) as: ME1/a (1/1), ME1/b (1/2), ME1/2 (1/3), ME1/3 (1/4)
+   * i.e. they are labelled within the DetId as if ME1a, ME1b, ME12, ME13 are rings 1, 2, 3, 4.
+   * The offline software always considers rings 1, 2, 3, 4 as ME1b, ME12, ME13, MEa so that at
+   * least ME12 and ME13 have ring numbers which match in hardware and software!
    *
    */
   static int intToDetId(int iring) {
+    // change iring = 1, 2, 3, 4 input to 2, 3, 4, 1 for use inside the DetId
+    // i.e. ME1b, ME12, ME13, ME1a externally become stored internally in order ME1a, ME1b, ME12, ME13
     int i = (iring+1)%4;
     if (i == 0)
       i = 4;
@@ -245,6 +254,8 @@ private:
   }
 
   static int detIdToInt(int iring) {
+    // reverse intToDetId: change 1, 2, 3, 4 inside the DetId to 4, 1, 2, 3 for external use
+    // i.e. output ring # 1, 2, 3, 4 in ME1 means ME1b, ME12, ME13, ME1a as usual in the offline software.
     int i = (iring-1);
     if (i == 0)
       i = 4;
