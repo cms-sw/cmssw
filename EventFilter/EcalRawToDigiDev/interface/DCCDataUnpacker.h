@@ -7,12 +7,12 @@
  *
  * This class takes care of unpacking ECAL's raw data info.
  * A gateway for all blocks unpackers and committing collections to the Event
- * 
+ * DCCEBEventBlock and DCCEEEventBlock are used here
  *
  * \file DCCDataUnpacker.h
  *
- * $Date: 2007/08/14 15:05:12 $
- * $Revision: 1.6 $
+ * $Date: 2007/08/14 15:07:37 $
+ * $Revision: 1.7 $
  * \author N. Almeida
  * \author G. Franzoni
  *
