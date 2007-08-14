@@ -81,7 +81,7 @@ zData  NtupleHelper::Loop(int maxEvents)
           hsigma->Fill(sigmaD);
 
 		  // for reco ntuples:
-		  if (pt>20 && nStripHit>=9 && nPixelHit>=3 && TMath::Abs(d0)<0.06 &&
+		  if (pt>10 && nStripHit>=9 && nPixelHit>=3 && TMath::Abs(d0)<0.06 &&
 		    (chi2/ndof)<5 && TMath::Prob(chi2, (int)ndof)>0.02 && TMath::Abs(eta)<2.2 ) {
 			  zvector.push_back(data(z0,sigmaz0,d0,sigmaD,phi,pt,1.));
 			  }

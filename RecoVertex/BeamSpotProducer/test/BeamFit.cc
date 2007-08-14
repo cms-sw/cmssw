@@ -80,7 +80,7 @@ Double_t allddis(Double_t z,Double_t d, Double_t sigmad,
   // This is a simple function to parameterize the beam parameters
   // This is parametrized by a simple normalized gaussian distribution. 
   //---------------------------------------------------------------------------  
-	Double_t sig = sqrt( parms[Par_Sigbeam]*parms[Par_Sigbeam] + sigmad*sigmad  ); //2.5 factor for full simu data
+	Double_t sig = sqrt( parms[Par_Sigbeam]*parms[Par_Sigbeam] + 10*sigmad*sigmad  ); //9 //2.5 factor for full simu data
 	Double_t dprime = d - (parms[Par_x0] + z*parms[Par_dxdz])*sin(phi0) +
 		(parms[Par_y0] + z*parms[Par_dydz])*cos(phi0);
    Double_t result = (exp(-(dprime*dprime)/(2.0*sig*sig)))/(sig*sqrt2pi);
@@ -128,6 +128,8 @@ void dfcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *params, Int_t iflag
   f = 0.0;
   for ( zDataConstIter iter = zdata.begin(); iter != zdata.end(); ++iter) 
     {
+		//if(iter->weight2 == 0) continue;
+		
       f = log(allddis(iter->Z,iter->D,iter->SigD,iter->Phi,params))+f;
     }
   f= -2.0*f;
@@ -217,6 +219,52 @@ void fit(TMatrixD &x, TMatrixDSym &V)
 	std::cout << "y slope           :" << x(3,0)    << " +- " << sqrt(V(3,3)) << " cm \n";
 }
 
+//Double_t cutOnD(const TMatrixD& x, Double_t dcut)
+//{
+//  TMatrixD g(1,4);
+//  Double_t weightsum = 0;
+//  for(zDataConstIter i = zdata.begin() ; i != zdata.end() ; ++i) {
+//    g(0,0) = - sin(i->Phi);
+//    g(0,1) =   cos(i->Phi);
+//    g(0,2) = i->Z * g(0,0);
+//    g(0,3) = i->Z * g(0,1);
+//    TMatrixD dcor = g * x;
+//    //std::cout << dcor.GetNrows() << " , " << dcor.GetNcols() << "\n";
+//    if(std::abs(i->D -  dcor(0,0)) > dcut) {
+//      i->weight2 = 0; 
+//    } else {
+//      i->weight2 = 1;
+//      weightsum += 1;
+//    }
+//  }
+//  return weightsum;
+//} 
+
+Double_t cutOnChi2(const TMatrixD& x, Double_t chi2cut)
+{
+	double sigmabeam2 = 0.002 * 0.002;
+  TMatrixD g(1,4);
+  Double_t weightsum = 0;
+  for(zDataIter i = zdata.begin() ; i != zdata.end() ; ++i) {
+    g(0,0) = sin(i->Phi);
+    g(0,1) = - cos(i->Phi);
+    g(0,2) = i->Z * g(0,0);
+    g(0,3) = i->Z * g(0,1);
+    TMatrixD dcor = g * x;
+    //std::cout << dcor.GetNrows() << " , " << dcor.GetNcols() << "\n";
+    Double_t chi2 = (i->D -  dcor(0,0))* (i->D -  dcor(0,0)) / 
+      (sigmabeam2 +  (i->SigD)*(i->SigD));
+    if(chi2 > chi2cut) {
+      i->weight2 = 0; 
+    } else {
+      i->weight2 = 1;
+      weightsum += 1;
+    }
+  }
+  //std::cout << weightsum << "\n";
+  return weightsum;
+}
+
 int main(int argc, char **argv)
 {
  
@@ -253,6 +301,8 @@ int main(int argc, char **argv)
  std::cout << " ntuple booked" << std::endl;
  zdata=t->Loop(cut_on_events);
  std::cout << " finished loop over events" << std::endl;
+
+   
  //t->hsd->Draw();
 
  // fit z with simple chi2 fit
@@ -303,6 +353,21 @@ int main(int argc, char **argv)
  TMatrixDSym Verr(4);
  fit(xmat,Verr);
 
+ Double_t dcut = 4.0;
+ Double_t chi2cut = 20;
+ //while( cutOnD(x,dcut) > 0.5 * zdata.size() ) {
+ // below is a very artificial cut requesting that 50 % of the sample survive
+ // we hould investigate if there are better criteria than that.
+ //
+ int nite = 0;
+ while( cutOnChi2(xmat,chi2cut) > 0.5 * zdata.size() ) {
+	 fit(xmat,Verr); 
+	 dcut /= 1.5;
+	 chi2cut /= 1.5;
+	 nite++;
+ }
+ std::cout << " number of iterations: " << nite << std::endl;
+ 
  std::cout << "======== End of d0-phi Fit ========\n" << std::endl;
 
  //__________________ LH Fit for beam __________
