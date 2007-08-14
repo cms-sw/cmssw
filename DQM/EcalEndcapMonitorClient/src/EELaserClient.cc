@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2007/07/27 16:41:56 $
- * $Revision: 1.21 $
+ * $Date: 2007/08/09 14:36:55 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -14,6 +14,8 @@
 #include <iomanip>
 
 #include "TStyle.h"
+#include "TGraph.h"
+#include "TLine.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -587,16 +589,16 @@ void EELaserClient::setup(void) {
 
     if ( meg01_[ism-1] ) dbe->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EELT laser quality L1 %s", Numbers::sEE(ism).c_str());
-    meg01_[ism-1] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg01_[ism-1] = dbe->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
     if ( meg02_[ism-1] ) dbe->removeElement( meg02_[ism-1]->getName() );
     sprintf(histo, "EELT laser quality L2 %s", Numbers::sEE(ism).c_str());
-    meg02_[ism-1] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg02_[ism-1] = dbe->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
     if ( meg03_[ism-1] ) dbe->removeElement( meg03_[ism-1]->getName() );
     sprintf(histo, "EELT laser quality L3 %s", Numbers::sEE(ism).c_str());
-    meg03_[ism-1] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg03_[ism-1] = dbe->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
     if ( meg04_[ism-1] ) dbe->removeElement( meg04_[ism-1]->getName() );
     sprintf(histo, "EELT laser quality L4 %s", Numbers::sEE(ism).c_str());
-    meg04_[ism-1] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg04_[ism-1] = dbe->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
 
     if ( meg05_[ism-1] ) dbe->removeElement( meg05_[ism-1]->getName() );
     sprintf(histo, "EELT laser quality L1 PNs %s G01", Numbers::sEE(ism).c_str());
@@ -793,13 +795,23 @@ void EELaserClient::setup(void) {
     UtilsClient::resetHisto( meg11_[ism-1] );
     UtilsClient::resetHisto( meg12_[ism-1] );
 
-    for ( int ie = 1; ie <= 85; ie++ ) {
-      for ( int ip = 1; ip <= 20; ip++ ) {
+    for ( int ix = 1; ix <= 50; ix++ ) {
+      for ( int iy = 1; iy <= 50; iy++ ) {
 
-        meg01_[ism-1]->setBinContent( ie, ip, 2. );
-        meg02_[ism-1]->setBinContent( ie, ip, 2. );
-        meg03_[ism-1]->setBinContent( ie, ip, 2. );
-        meg04_[ism-1]->setBinContent( ie, ip, 2. );
+        meg01_[ism-1]->setBinContent( ix, iy, -1. );
+        meg02_[ism-1]->setBinContent( ix, iy, -1. );
+        meg03_[ism-1]->setBinContent( ix, iy, -1. );
+        meg04_[ism-1]->setBinContent( ix, iy, -1. );
+
+        int jx = ix + Numbers::ix0EE(ism);
+        int jy = iy + Numbers::iy0EE(ism);
+
+        if ( Numbers::validEE(ism, 101 - jx, jy) ) {
+          meg01_[ism-1]->setBinContent( ix, iy, 2. );
+          meg02_[ism-1]->setBinContent( ix, iy, 2. );
+          meg03_[ism-1]->setBinContent( ix, iy, 2. );
+          meg04_[ism-1]->setBinContent( ix, iy, 2. );
+        }
 
       }
     }
@@ -1171,8 +1183,8 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 //    UtilsClient::printBadChannels(qtg03_[ism-1]);
 //    UtilsClient::printBadChannels(qtg04_[ism-1]);
 
-    for ( int ie = 1; ie <= 85; ie++ ) {
-      for ( int ip = 1; ip <= 20; ip++ ) {
+    for ( int ix = 1; ix <= 50; ix++ ) {
+      for ( int iy = 1; iy <= 50; iy++ ) {
 
         bool update01;
         bool update02;
@@ -1187,39 +1199,39 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         float mean01, mean02, mean03, mean04, mean05, mean06, mean07, mean08;
         float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
 
-        update01 = UtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
-        update02 = UtilsClient::getBinStats(h02_[ism-1], ie, ip, num02, mean02, rms02);
-        update03 = UtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
-        update04 = UtilsClient::getBinStats(h04_[ism-1], ie, ip, num04, mean04, rms04);
-        update05 = UtilsClient::getBinStats(h05_[ism-1], ie, ip, num05, mean05, rms05);
-        update06 = UtilsClient::getBinStats(h06_[ism-1], ie, ip, num06, mean06, rms06);
-        update07 = UtilsClient::getBinStats(h07_[ism-1], ie, ip, num07, mean07, rms07);
-        update08 = UtilsClient::getBinStats(h08_[ism-1], ie, ip, num08, mean08, rms08);
+        update01 = UtilsClient::getBinStats(h01_[ism-1], ix, iy, num01, mean01, rms01);
+        update02 = UtilsClient::getBinStats(h02_[ism-1], ix, iy, num02, mean02, rms02);
+        update03 = UtilsClient::getBinStats(h03_[ism-1], ix, iy, num03, mean03, rms03);
+        update04 = UtilsClient::getBinStats(h04_[ism-1], ix, iy, num04, mean04, rms04);
+        update05 = UtilsClient::getBinStats(h05_[ism-1], ix, iy, num05, mean05, rms05);
+        update06 = UtilsClient::getBinStats(h06_[ism-1], ix, iy, num06, mean06, rms06);
+        update07 = UtilsClient::getBinStats(h07_[ism-1], ix, iy, num07, mean07, rms07);
+        update08 = UtilsClient::getBinStats(h08_[ism-1], ix, iy, num08, mean08, rms08);
 
         if ( ! update01 )
-          update01 = UtilsClient::getBinStats(h13_[ism-1], ie, ip, num01, mean01, rms01);
+          update01 = UtilsClient::getBinStats(h13_[ism-1], ix, iy, num01, mean01, rms01);
         if ( ! update02 )
-          update02 = UtilsClient::getBinStats(h14_[ism-1], ie, ip, num02, mean02, rms02);
+          update02 = UtilsClient::getBinStats(h14_[ism-1], ix, iy, num02, mean02, rms02);
         if ( ! update03 )
-          update03 = UtilsClient::getBinStats(h15_[ism-1], ie, ip, num03, mean03, rms03);
+          update03 = UtilsClient::getBinStats(h15_[ism-1], ix, iy, num03, mean03, rms03);
         if ( ! update04 )
-          update04 = UtilsClient::getBinStats(h16_[ism-1], ie, ip, num04, mean04, rms04);
+          update04 = UtilsClient::getBinStats(h16_[ism-1], ix, iy, num04, mean04, rms04);
         if ( ! update05 )
-          update05 = UtilsClient::getBinStats(h17_[ism-1], ie, ip, num05, mean05, rms05);
+          update05 = UtilsClient::getBinStats(h17_[ism-1], ix, iy, num05, mean05, rms05);
         if ( ! update06 )
-          update06 = UtilsClient::getBinStats(h18_[ism-1], ie, ip, num06, mean06, rms06);
+          update06 = UtilsClient::getBinStats(h18_[ism-1], ix, iy, num06, mean06, rms06);
         if ( ! update07 )
-          update07 = UtilsClient::getBinStats(h19_[ism-1], ie, ip, num07, mean07, rms07);
+          update07 = UtilsClient::getBinStats(h19_[ism-1], ix, iy, num07, mean07, rms07);
         if ( ! update08 )
-          update08 = UtilsClient::getBinStats(h20_[ism-1], ie, ip, num08, mean08, rms08);
+          update08 = UtilsClient::getBinStats(h20_[ism-1], ix, iy, num08, mean08, rms08);
 
         if ( update01 || update02 ) {
 
-          if ( ie == 1 && ip == 1 ) {
+          if ( ix == 1 && iy == 1 ) {
 
             cout << "Preparing dataset for SM=" << ism << endl;
 
-            cout << "L1 (" << ie << "," << ip << ") " << num01 << " " << mean01 << " " << rms01 << endl;
+            cout << "L1 (" << ix << "," << iy << ") " << num01 << " " << mean01 << " " << rms01 << endl;
 
             cout << endl;
 
@@ -1231,19 +1243,21 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           apd_bl.setAPDOverPNMean(mean02);
           apd_bl.setAPDOverPNRMS(rms02);
 
-          if ( meg01_[ism-1] && int(meg01_[ism-1]->getBinContent( ie, ip )) % 3 == 1. ) {
+          if ( meg01_[ism-1] && int(meg01_[ism-1]->getBinContent( ix, iy )) % 3 == 1. ) {
             apd_bl.setTaskStatus(true);
           } else {
             apd_bl.setTaskStatus(false);
           }
 
-          status = status && UtilsClient::getBinQual(meg01_[ism-1], ie, ip);
+          status = status && UtilsClient::getBinQual(meg01_[ism-1], ix, iy);
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEE(ism, ix, iy);
+
+          if ( ic == -1 ) continue;
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
+              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
               dataset1_bl[ecid] = apd_bl;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
@@ -1254,11 +1268,11 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( update03 || update04 ) {
 
-          if ( ie == 1 && ip == 1 ) {
+          if ( ix == 1 && iy == 1 ) {
 
             cout << "Preparing dataset for SM=" << ism << endl;
 
-            cout << "L2 (" << ie << "," << ip << ") " << num03 << " " << mean03 << " " << rms03 << endl;
+            cout << "L2 (" << ix << "," << iy << ") " << num03 << " " << mean03 << " " << rms03 << endl;
 
             cout << endl;
 
@@ -1270,19 +1284,21 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           apd_ir.setAPDOverPNMean(mean04);
           apd_ir.setAPDOverPNRMS(rms04);
 
-          if ( meg02_[ism-1] && int(meg02_[ism-1]->getBinContent( ie, ip )) % 3 == 1. ) {
+          if ( meg02_[ism-1] && int(meg02_[ism-1]->getBinContent( ix, iy )) % 3 == 1. ) {
             apd_ir.setTaskStatus(true);
           } else {
             apd_ir.setTaskStatus(false);
           }
 
-          status = status && UtilsClient::getBinQual(meg02_[ism-1], ie, ip);
+          status = status && UtilsClient::getBinQual(meg02_[ism-1], ix, iy);
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEE(ism, ix, iy);
+
+          if ( ic == -1 ) continue;
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
+              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
               dataset1_ir[ecid] = apd_ir;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
@@ -1293,11 +1309,11 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( update05 || update06 ) {
 
-          if ( ie == 1 && ip == 1 ) {
+          if ( ix == 1 && iy == 1 ) {
 
             cout << "Preparing dataset for SM=" << ism << endl;
 
-            cout << "L3 (" << ie << "," << ip << ") " << num05 << " " << mean05 << " " << rms05 << endl;
+            cout << "L3 (" << ix << "," << iy << ") " << num05 << " " << mean05 << " " << rms05 << endl;
 
             cout << endl;
 
@@ -1309,19 +1325,21 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           apd_gr.setAPDOverPNMean(mean06);
           apd_gr.setAPDOverPNRMS(rms06);
 
-          if ( meg03_[ism-1] && int(meg03_[ism-1]->getBinContent( ie, ip )) % 3 == 1. ) {
+          if ( meg03_[ism-1] && int(meg03_[ism-1]->getBinContent( ix, iy )) % 3 == 1. ) {
             apd_gr.setTaskStatus(true);
           } else {
             apd_gr.setTaskStatus(false);
           }
 
-          status = status && UtilsClient::getBinQual(meg03_[ism-1], ie, ip);
+          status = status && UtilsClient::getBinQual(meg03_[ism-1], ix, iy);
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEE(ism, ix, iy);
+
+          if ( ic == -1 ) continue;
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
+              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
               dataset1_gr[ecid] = apd_gr;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
@@ -1332,11 +1350,11 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( update07 || update08 ) {
 
-          if ( ie == 1 && ip == 1 ) {
+          if ( ix == 1 && iy == 1 ) {
 
             cout << "Preparing dataset for SM=" << ism << endl;
 
-            cout << "L4 (" << ie << "," << ip << ") " << num07 << " " << mean07 << " " << rms07 << endl;
+            cout << "L4 (" << ix << "," << iy << ") " << num07 << " " << mean07 << " " << rms07 << endl;
 
             cout << endl;
 
@@ -1348,19 +1366,21 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           apd_rd.setAPDOverPNMean(mean08);
           apd_rd.setAPDOverPNRMS(rms08);
 
-          if ( meg04_[ism-1] && int(meg04_[ism-1]->getBinContent( ie, ip )) % 3 == 1. ) {
+          if ( meg04_[ism-1] && int(meg04_[ism-1]->getBinContent( ix, iy )) % 3 == 1. ) {
             apd_rd.setTaskStatus(true);
           } else {
             apd_rd.setTaskStatus(false);
           }
 
-          status = status && UtilsClient::getBinQual(meg04_[ism-1], ie, ip);
+          status = status && UtilsClient::getBinQual(meg04_[ism-1], ix, iy);
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEE(ism, ix, iy);
+
+          if ( ic == -1 ) continue;
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
+              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
               dataset1_rd[ecid] = apd_rd;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
@@ -1510,7 +1530,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( econn ) {
           try {
-            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism), i-1);
+            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalEndcap), i-1);
             dataset2_bl[ecid] = pn_bl;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -1556,7 +1576,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( econn ) {
           try {
-            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism), i-1);
+            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalEndcap), i-1);
             dataset2_ir[ecid] = pn_ir;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -1602,7 +1622,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( econn ) {
           try {
-            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism), i-1);
+            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalEndcap), i-1);
             dataset2_gr[ecid] = pn_gr;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -1648,7 +1668,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( econn ) {
           try {
-            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism), i-1);
+            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalEndcap), i-1);
             dataset2_rd[ecid] = pn_rd;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -2199,31 +2219,31 @@ void EELaserClient::subscribe(void){
       }
     }
 
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L1 %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L1 %s", Numbers::sEE(ism).c_str());
     if ( qtg01_[ism-1] ) mui_->useQTest(histo, qtg01_[ism-1]->getName());
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L2 %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L2 %s", Numbers::sEE(ism).c_str());
     if ( qtg02_[ism-1] ) mui_->useQTest(histo, qtg02_[ism-1]->getName());
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L3 %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L3 %s", Numbers::sEE(ism).c_str());
     if ( qtg03_[ism-1] ) mui_->useQTest(histo, qtg03_[ism-1]->getName());
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L4 %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L4 %s", Numbers::sEE(ism).c_str());
     if ( qtg04_[ism-1] ) mui_->useQTest(histo, qtg04_[ism-1]->getName());
 
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L1 PNs %s G01", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L1 PNs %s G01", Numbers::sEE(ism).c_str());
     if ( qtg05_[ism-1] ) mui_->useQTest(histo, qtg05_[ism-1]->getName());
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L2 PNs %s G01", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L2 PNs %s G01", Numbers::sEE(ism).c_str());
     if ( qtg06_[ism-1] ) mui_->useQTest(histo, qtg06_[ism-1]->getName());
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L3 PNs %s G01", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L3 PNs %s G01", Numbers::sEE(ism).c_str());
     if ( qtg07_[ism-1] ) mui_->useQTest(histo, qtg07_[ism-1]->getName());
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L4 PNs %s G01", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L4 PNs %s G01", Numbers::sEE(ism).c_str());
     if ( qtg08_[ism-1] ) mui_->useQTest(histo, qtg08_[ism-1]->getName());
 
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L1 PNs %s G16", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L1 PNs %s G16", Numbers::sEE(ism).c_str());
     if ( qtg09_[ism-1] ) mui_->useQTest(histo, qtg09_[ism-1]->getName());
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L2 PNs %s G16", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L2 PNs %s G16", Numbers::sEE(ism).c_str());
     if ( qtg10_[ism-1] ) mui_->useQTest(histo, qtg10_[ism-1]->getName());
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L3 PNs %s G16", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L3 PNs %s G16", Numbers::sEE(ism).c_str());
     if ( qtg11_[ism-1] ) mui_->useQTest(histo, qtg11_[ism-1]->getName());
-    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L4 PNs %s G16", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EcalEndcap/EELaserTask/EELT laser quality L4 PNs %s G16", Numbers::sEE(ism).c_str());
     if ( qtg12_[ism-1] ) mui_->useQTest(histo, qtg12_[ism-1]->getName());
 
   }
@@ -3046,8 +3066,8 @@ void EELaserClient::analyze(void){
     nCryL1A = nCryL2A = nCryL3A = nCryL4A = 0;
     nCryL1B = nCryL2B = nCryL3B = nCryL4B = 0;
 
-    for ( int ie = 1; ie <= 85; ie++ ) {
-      for ( int ip = 1; ip <= 20; ip++ ) {
+    for ( int ix = 1; ix <= 50; ix++ ) {
+      for ( int iy = 1; iy <= 50; iy++ ) {
 
         bool update01;
         bool update02;
@@ -3062,14 +3082,14 @@ void EELaserClient::analyze(void){
         float mean01, mean02, mean03, mean04, mean05, mean06, mean07, mean08;
         float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
 
-        update01 = UtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
-        update02 = UtilsClient::getBinStats(h03_[ism-1], ie, ip, num02, mean02, rms02);
-        update03 = UtilsClient::getBinStats(h05_[ism-1], ie, ip, num03, mean03, rms03);
-        update04 = UtilsClient::getBinStats(h07_[ism-1], ie, ip, num04, mean04, rms04);
-        update05 = UtilsClient::getBinStats(h13_[ism-1], ie, ip, num05, mean05, rms05);
-        update06 = UtilsClient::getBinStats(h15_[ism-1], ie, ip, num06, mean06, rms06);
-        update07 = UtilsClient::getBinStats(h17_[ism-1], ie, ip, num07, mean07, rms07);
-        update08 = UtilsClient::getBinStats(h19_[ism-1], ie, ip, num08, mean08, rms08);
+        update01 = UtilsClient::getBinStats(h01_[ism-1], ix, iy, num01, mean01, rms01);
+        update02 = UtilsClient::getBinStats(h03_[ism-1], ix, iy, num02, mean02, rms02);
+        update03 = UtilsClient::getBinStats(h05_[ism-1], ix, iy, num03, mean03, rms03);
+        update04 = UtilsClient::getBinStats(h07_[ism-1], ix, iy, num04, mean04, rms04);
+        update05 = UtilsClient::getBinStats(h13_[ism-1], ix, iy, num05, mean05, rms05);
+        update06 = UtilsClient::getBinStats(h15_[ism-1], ix, iy, num06, mean06, rms06);
+        update07 = UtilsClient::getBinStats(h17_[ism-1], ix, iy, num07, mean07, rms07);
+        update08 = UtilsClient::getBinStats(h19_[ism-1], ix, iy, num08, mean08, rms08);
 
         if ( update01 ) {
           meanAmplL1A += mean01;
@@ -3123,13 +3143,23 @@ void EELaserClient::analyze(void){
     if ( nCryL3B > 0 ) meanAmplL3B /= float (nCryL3B);
     if ( nCryL4B > 0 ) meanAmplL4B /= float (nCryL4B);
 
-    for ( int ie = 1; ie <= 85; ie++ ) {
-      for ( int ip = 1; ip <= 20; ip++ ) {
+    for ( int ix = 1; ix <= 50; ix++ ) {
+      for ( int iy = 1; iy <= 50; iy++ ) {
 
-        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, 2.);
-        if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, 2.);
-        if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, 2.);
-        if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( ie, ip, 2.);
+        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, -1.);
+        if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, -1.);
+        if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ix, iy, -1.);
+        if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( ix, iy, -1.);
+
+        int jx = ix + Numbers::ix0EE(ism);
+        int jy = iy + Numbers::iy0EE(ism); 
+
+        if ( Numbers::validEE(ism, 101 - jx, jy) ) {
+          if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, 2.);
+          if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, 2.);
+          if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ix, iy, 2.);
+          if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( ix, iy, 2.);
+        }
 
         bool update01;
         bool update02;
@@ -3151,63 +3181,67 @@ void EELaserClient::analyze(void){
         float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
         float rms09, rms10, rms11, rms12;
 
-        update01 = UtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
-        update02 = UtilsClient::getBinStats(h02_[ism-1], ie, ip, num02, mean02, rms02);
-        update03 = UtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
-        update04 = UtilsClient::getBinStats(h04_[ism-1], ie, ip, num04, mean04, rms04);
-        update05 = UtilsClient::getBinStats(h05_[ism-1], ie, ip, num05, mean05, rms05);
-        update06 = UtilsClient::getBinStats(h06_[ism-1], ie, ip, num06, mean06, rms06);
-        update07 = UtilsClient::getBinStats(h07_[ism-1], ie, ip, num07, mean07, rms07);
-        update08 = UtilsClient::getBinStats(h08_[ism-1], ie, ip, num08, mean08, rms08);
-        update09 = UtilsClient::getBinStats(h09_[ism-1], ie, ip, num09, mean09, rms09);
-        update10 = UtilsClient::getBinStats(h10_[ism-1], ie, ip, num10, mean10, rms10);
-        update11 = UtilsClient::getBinStats(h11_[ism-1], ie, ip, num11, mean11, rms11);
-        update12 = UtilsClient::getBinStats(h12_[ism-1], ie, ip, num12, mean12, rms12);
+        update01 = UtilsClient::getBinStats(h01_[ism-1], ix, iy, num01, mean01, rms01);
+        update02 = UtilsClient::getBinStats(h02_[ism-1], ix, iy, num02, mean02, rms02);
+        update03 = UtilsClient::getBinStats(h03_[ism-1], ix, iy, num03, mean03, rms03);
+        update04 = UtilsClient::getBinStats(h04_[ism-1], ix, iy, num04, mean04, rms04);
+        update05 = UtilsClient::getBinStats(h05_[ism-1], ix, iy, num05, mean05, rms05);
+        update06 = UtilsClient::getBinStats(h06_[ism-1], ix, iy, num06, mean06, rms06);
+        update07 = UtilsClient::getBinStats(h07_[ism-1], ix, iy, num07, mean07, rms07);
+        update08 = UtilsClient::getBinStats(h08_[ism-1], ix, iy, num08, mean08, rms08);
+        update09 = UtilsClient::getBinStats(h09_[ism-1], ix, iy, num09, mean09, rms09);
+        update10 = UtilsClient::getBinStats(h10_[ism-1], ix, iy, num10, mean10, rms10);
+        update11 = UtilsClient::getBinStats(h11_[ism-1], ix, iy, num11, mean11, rms11);
+        update12 = UtilsClient::getBinStats(h12_[ism-1], ix, iy, num12, mean12, rms12);
 	
          // other SM half
 	
         if ( ! update01 )
-          update01 = UtilsClient::getBinStats(h13_[ism-1], ie, ip, num01, mean01, rms01);
+          update01 = UtilsClient::getBinStats(h13_[ism-1], ix, iy, num01, mean01, rms01);
         if ( ! update02 )
-          update02 = UtilsClient::getBinStats(h14_[ism-1], ie, ip, num02, mean02, rms02);
+          update02 = UtilsClient::getBinStats(h14_[ism-1], ix, iy, num02, mean02, rms02);
         if ( ! update03 )
-          update03 = UtilsClient::getBinStats(h15_[ism-1], ie, ip, num03, mean03, rms03);
+          update03 = UtilsClient::getBinStats(h15_[ism-1], ix, iy, num03, mean03, rms03);
         if ( ! update04 )
-          update04 = UtilsClient::getBinStats(h16_[ism-1], ie, ip, num04, mean04, rms04);
+          update04 = UtilsClient::getBinStats(h16_[ism-1], ix, iy, num04, mean04, rms04);
         if ( ! update05 )
-          update05 = UtilsClient::getBinStats(h17_[ism-1], ie, ip, num05, mean05, rms05);
+          update05 = UtilsClient::getBinStats(h17_[ism-1], ix, iy, num05, mean05, rms05);
         if ( ! update06 )
-          update06 = UtilsClient::getBinStats(h18_[ism-1], ie, ip, num06, mean06, rms06);
+          update06 = UtilsClient::getBinStats(h18_[ism-1], ix, iy, num06, mean06, rms06);
         if ( ! update07 )
-          update07 = UtilsClient::getBinStats(h19_[ism-1], ie, ip, num07, mean07, rms07);
+          update07 = UtilsClient::getBinStats(h19_[ism-1], ix, iy, num07, mean07, rms07);
         if ( ! update08 )
-          update08 = UtilsClient::getBinStats(h20_[ism-1], ie, ip, num08, mean08, rms08);
+          update08 = UtilsClient::getBinStats(h20_[ism-1], ix, iy, num08, mean08, rms08);
         if ( ! update09 )
-          update09 = UtilsClient::getBinStats(h21_[ism-1], ie, ip, num09, mean09, rms09);
+          update09 = UtilsClient::getBinStats(h21_[ism-1], ix, iy, num09, mean09, rms09);
         if ( ! update10 )
-          update10 = UtilsClient::getBinStats(h22_[ism-1], ie, ip, num10, mean10, rms10);
+          update10 = UtilsClient::getBinStats(h22_[ism-1], ix, iy, num10, mean10, rms10);
         if ( ! update11 )
-          update11 = UtilsClient::getBinStats(h23_[ism-1], ie, ip, num11, mean11, rms11);
+          update11 = UtilsClient::getBinStats(h23_[ism-1], ix, iy, num11, mean11, rms11);
         if ( ! update12 )
-          update12 = UtilsClient::getBinStats(h24_[ism-1], ie, ip, num12, mean12, rms12);
+          update12 = UtilsClient::getBinStats(h24_[ism-1], ix, iy, num12, mean12, rms12);
 
         if ( update01 ) {
 
           float val;
 
-          if ( ie < 6 || ip > 10 ) {
+          if ( ix < 6 || iy > 10 ) {
 
             val = 1.;
             if ( fabs(mean01 - meanAmplL1A) > fabs(percentVariation_ * meanAmplL1A) )
               val = 0.;
-            if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, val );
+            if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, val );
 
-            if ( mea01_[ism-1] ) {
-              if ( mean01 > 0. ) {
-                mea01_[ism-1]->setBinContent( ip+20*(ie-1), mean01 );
-                mea01_[ism-1]->setBinError( ip+20*(ie-1), rms01 );
-              } else {
-                mea01_[ism-1]->setEntries( 1.+mea01_[ism-1]->getEntries() );
+            int ic = Numbers::icEE(ism, ix, iy);
+
+            if ( ic != -1 ) {
+              if ( mea01_[ism-1] ) {
+                if ( mean01 > 0. ) {
+                  mea01_[ism-1]->setBinContent( ic, mean01 );
+                  mea01_[ism-1]->setBinError( ic, rms01 );
+                } else {
+                  mea01_[ism-1]->setEntries( 1.+mea01_[ism-1]->getEntries() );
+                }
               }
             }
 
@@ -3216,14 +3250,18 @@ void EELaserClient::analyze(void){
             val = 1.;
             if ( fabs(mean01 - meanAmplL1B) > fabs(percentVariation_ * meanAmplL1B) )
               val = 0.;
-            if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, val );
+            if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, val );
 
-            if ( mea05_[ism-1] ) {
-              if ( mean01 > 0. ) {
-                mea05_[ism-1]->setBinContent( ip+20*(ie-1), mean01 );
-                mea05_[ism-1]->setBinError( ip+20*(ie-1), rms01 );
-              } else {
-                mea05_[ism-1]->setEntries( 1.+mea05_[ism-1]->getEntries() );
+            int ic = Numbers::icEE(ism, ix, iy);
+
+            if ( ic != -1 ) {
+              if ( mea05_[ism-1] ) {
+                if ( mean01 > 0. ) {
+                  mea05_[ism-1]->setBinContent( ic, mean01 );
+                  mea05_[ism-1]->setBinError( ic, rms01 );
+                } else {
+                  mea05_[ism-1]->setEntries( 1.+mea05_[ism-1]->getEntries() );
+                }
               }
             }
 
@@ -3235,19 +3273,23 @@ void EELaserClient::analyze(void){
 
           float val;
 
-          if ( ie < 6 || ip > 10 ) {
+          if ( ix < 6 || iy > 10 ) {
 
             val = 1.;
             if ( fabs(mean03 - meanAmplL2A) > fabs(percentVariation_ * meanAmplL2A) )
               val = 0.;
-            if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, val);
+            if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, val);
 
-            if ( mea02_[ism-1] ) {
-              if ( mean03 > 0. ) {
-                mea02_[ism-1]->setBinContent( ip+20*(ie-1), mean03 );
-                mea02_[ism-1]->setBinError( ip+20*(ie-1), rms03 );
-              } else {
-                mea02_[ism-1]->setEntries( 1.+mea02_[ism-1]->getEntries() );
+            int ic = Numbers::icEE(ism, ix, iy);
+
+            if ( ic != -1 ) {
+              if ( mea02_[ism-1] ) {
+                if ( mean03 > 0. ) {
+                  mea02_[ism-1]->setBinContent( ic, mean03 );
+                  mea02_[ism-1]->setBinError( ic, rms03 );
+                } else {
+                  mea02_[ism-1]->setEntries( 1.+mea02_[ism-1]->getEntries() );
+                }
               }
             }
 
@@ -3256,14 +3298,18 @@ void EELaserClient::analyze(void){
             val = 1.;
             if ( fabs(mean03 - meanAmplL2B) > fabs(percentVariation_ * meanAmplL2B) )
               val = 0.;
-            if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, val);
+            if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, val);
 
-            if ( mea06_[ism-1] ) {
-              if ( mean03 > 0. ) {
-                mea06_[ism-1]->setBinContent( ip+20*(ie-1), mean03 );
-                mea06_[ism-1]->setBinError( ip+20*(ie-1), rms03 );
-              } else {
-                mea06_[ism-1]->setEntries( 1.+mea06_[ism-1]->getEntries() );
+            int ic = Numbers::icEE(ism, ix, iy);
+
+            if ( ic != -1 ) {
+              if ( mea06_[ism-1] ) {
+                if ( mean03 > 0. ) {
+                  mea06_[ism-1]->setBinContent( ic, mean03 );
+                  mea06_[ism-1]->setBinError( ic, rms03 );
+                } else {
+                  mea06_[ism-1]->setEntries( 1.+mea06_[ism-1]->getEntries() );
+                }
               }
             }
 
@@ -3275,19 +3321,23 @@ void EELaserClient::analyze(void){
 
           float val;
 
-          if ( ie < 6 || ip > 10 ) {
+          if ( ix < 6 || iy > 10 ) {
 
             val = 1.;
             if ( fabs(mean05 - meanAmplL3A) > fabs(percentVariation_ * meanAmplL3A) )
               val = 0.;
-            if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, val );
+            if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ix, iy, val );
 
-            if ( mea03_[ism-1] ) {
-              if ( mean05 > 0. ) {
-                mea03_[ism-1]->setBinContent( ip+20*(ie-1), mean05 );
-                mea03_[ism-1]->setBinError( ip+20*(ie-1), rms05 );
-              } else {
-                mea03_[ism-1]->setEntries( 1.+mea03_[ism-1]->getEntries() );
+            int ic = Numbers::icEE(ism, ix, iy);
+
+            if ( ic != -1 ) {
+              if ( mea03_[ism-1] ) {
+                if ( mean05 > 0. ) {
+                  mea03_[ism-1]->setBinContent( ic, mean05 );
+                  mea03_[ism-1]->setBinError( ic, rms05 );
+                } else {
+                  mea03_[ism-1]->setEntries( 1.+mea03_[ism-1]->getEntries() );
+                }
               }
             }
 
@@ -3296,14 +3346,18 @@ void EELaserClient::analyze(void){
             val = 1.;
             if ( fabs(mean05 - meanAmplL3B) > fabs(percentVariation_ * meanAmplL3B) )
               val = 0.;
-            if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, val );
+            if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ix, iy, val );
 
-            if ( mea07_[ism-1] ) {
-              if ( mean05 > 0. ) {
-                mea07_[ism-1]->setBinContent( ip+20*(ie-1), mean05 );
-                mea07_[ism-1]->setBinError( ip+20*(ie-1), rms05 );
-              } else {
-                mea07_[ism-1]->setEntries( 1.+mea07_[ism-1]->getEntries() );
+            int ic = Numbers::icEE(ism, ix, iy);
+
+            if ( ic != -1 ) {
+              if ( mea07_[ism-1] ) {
+                if ( mean05 > 0. ) {
+                  mea07_[ism-1]->setBinContent( ic, mean05 );
+                  mea07_[ism-1]->setBinError( ic, rms05 );
+                } else {
+                  mea07_[ism-1]->setEntries( 1.+mea07_[ism-1]->getEntries() );
+                }
               }
             }
 
@@ -3315,29 +3369,43 @@ void EELaserClient::analyze(void){
 
           float val;
 
-          if ( ie < 6 || ip > 10 ) {
+          if ( ix < 6 || iy > 10 ) {
 
             val = 1.;
             if ( fabs(mean07 - meanAmplL4A) > fabs(percentVariation_ * meanAmplL4A) )
               val = 0.;
-            if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( ie, ip, val );
+            if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( ix, iy, val );
 
-            if ( mea04_[ism-1] ) mea04_[ism-1]->setBinContent( ip+20*(ie-1), mean07 );
-            if ( mea04_[ism-1] ) mea04_[ism-1]->setBinError( ip+20*(ie-1), rms07 );
+            int ic = Numbers::icEE(ism, ix, iy);
+
+            if ( ic != -1 ) {
+              if ( mea04_[ism-1] ) {
+                if ( mean07 > 0. ) {
+                  mea04_[ism-1]->setBinContent( ic, mean07 );
+                  mea04_[ism-1]->setBinError( ic, rms07 );
+                } else {
+                  mea04_[ism-1]->setEntries( 1.+mea04_[ism-1]->getEntries() );
+                }
+              }
+            }
 
           } else {
 
             val = 1.;
             if ( fabs(mean07 - meanAmplL4B) > fabs(percentVariation_ * meanAmplL4B) )
               val = 0.;
-            if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( ie, ip, val );
+            if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( ix, iy, val );
 
-            if ( mea08_[ism-1] ) {
-              if ( mean07 > 0. ) {
-                mea08_[ism-1]->setBinContent( ip+20*(ie-1), mean07 );
-                mea08_[ism-1]->setBinError( ip+20*(ie-1), rms07 );
-              } else {
-                mea08_[ism-1]->setEntries( 1.+mea08_[ism-1]->getEntries() );
+            int ic = Numbers::icEE(ism, ix, iy);
+
+            if ( ic != -1 ) {
+              if ( mea08_[ism-1] ) {
+                if ( mean07 > 0. ) {
+                  mea08_[ism-1]->setBinContent( ic, mean07 );
+                  mea08_[ism-1]->setBinError( ic, rms07 );
+                } else {
+                  mea08_[ism-1]->setEntries( 1.+mea08_[ism-1]->getEntries() );
+                }
               }
             }
 
@@ -3347,26 +3415,33 @@ void EELaserClient::analyze(void){
 
         if ( update02 ) {
 
-          if ( ie < 6 || ip > 10 ) {
+          if ( ix < 6 || iy > 10 ) {
 
-            if ( meaopn01_[ism-1] ) {
-              if ( mean02 > 0. ) {
-                meaopn01_[ism-1]->setBinContent( ip+20*(ie-1), mean02 );
-                meaopn01_[ism-1]->setBinError( ip+20*(ie-1), rms02 );
-              } else {
-                meaopn01_[ism-1]->setEntries( 1.+meaopn01_[ism-1]->getEntries() );
+            int ic = Numbers::icEE(ism, ix, iy);
+
+            if ( ic != -1 ) {
+              if ( meaopn01_[ism-1] ) {
+                if ( mean02 > 0. ) {
+                  meaopn01_[ism-1]->setBinContent( ic, mean02 );
+                  meaopn01_[ism-1]->setBinError( ic, rms02 );
+                } else {
+                  meaopn01_[ism-1]->setEntries( 1.+meaopn01_[ism-1]->getEntries() );
+                }
               }
             }
 
           } else {
 
+            int ic = Numbers::icEE(ism, ix, iy);
 
-            if ( meaopn05_[ism-1] ) {
-              if ( mean02 > 0. ) {
-                meaopn05_[ism-1]->setBinContent( ip+20*(ie-1), mean02 );
-                meaopn05_[ism-1]->setBinError( ip+20*(ie-1), rms02 );
-              } else {
-                meaopn05_[ism-1]->setEntries( 1.+meaopn05_[ism-1]->getEntries() );
+            if ( ic != -1 ) {
+              if ( meaopn05_[ism-1] ) {
+                if ( mean02 > 0. ) {
+                  meaopn05_[ism-1]->setBinContent( ic, mean02 );
+                  meaopn05_[ism-1]->setBinError( ic, rms02 );
+                } else {
+                  meaopn05_[ism-1]->setEntries( 1.+meaopn05_[ism-1]->getEntries() );
+                }
               }
             }
 
@@ -3376,25 +3451,33 @@ void EELaserClient::analyze(void){
 
         if ( update04 ) {
 
-          if ( ie < 6 || ip > 10 ) {
+          if ( ix < 6 || iy > 10 ) {
 
-            if ( meaopn02_[ism-1] ) {
-              if ( mean04 > 0. ) {
-                meaopn02_[ism-1]->setBinContent( ip+20*(ie-1), mean04 );
-                meaopn02_[ism-1]->setBinError( ip+20*(ie-1), rms04 );
-              } else {
-                meaopn02_[ism-1]->setEntries( 1.+meaopn02_[ism-1]->getEntries() );
+            int ic = Numbers::icEE(ism, ix, iy);
+
+            if ( ic != -1 ) {
+              if ( meaopn02_[ism-1] ) {
+                if ( mean04 > 0. ) {
+                  meaopn02_[ism-1]->setBinContent( ic, mean04 );
+                  meaopn02_[ism-1]->setBinError( ic, rms04 );
+                } else {
+                  meaopn02_[ism-1]->setEntries( 1.+meaopn02_[ism-1]->getEntries() );
+                }
               }
             }
 
           } else {
 
-            if ( meaopn06_[ism-1] ) {
-              if ( mean04 > 0. ) {
-                meaopn06_[ism-1]->setBinContent( ip+20*(ie-1), mean04 );
-                meaopn06_[ism-1]->setBinError( ip+20*(ie-1), rms04 );
-              } else {
-                meaopn06_[ism-1]->setEntries( 1.+meaopn06_[ism-1]->getEntries() );
+            int ic = Numbers::icEE(ism, ix, iy);
+
+            if ( ic != -1 ) {
+              if ( meaopn06_[ism-1] ) {
+                if ( mean04 > 0. ) {
+                  meaopn06_[ism-1]->setBinContent( ic, mean04 );
+                  meaopn06_[ism-1]->setBinError( ic, rms04 );
+                } else {
+                  meaopn06_[ism-1]->setEntries( 1.+meaopn06_[ism-1]->getEntries() );
+                }
               }
             }
 
@@ -3404,25 +3487,33 @@ void EELaserClient::analyze(void){
 
         if ( update06 ) {
 
-          if ( ie < 6 || ip > 10 ) {
+          if ( ix < 6 || iy > 10 ) {
 
-            if ( meaopn03_[ism-1] ) {
-              if ( mean06 > 0. ) {
-                meaopn03_[ism-1]->setBinContent( ip+20*(ie-1), mean06 );
-                meaopn03_[ism-1]->setBinError( ip+20*(ie-1), rms06 );
-              } else {
-                meaopn03_[ism-1]->setEntries( 1.+meaopn03_[ism-1]->getEntries() );
+            int ic = Numbers::icEE(ism, ix, iy);
+
+            if ( ic != -1 ) {
+              if ( meaopn03_[ism-1] ) {
+                if ( mean06 > 0. ) {
+                  meaopn03_[ism-1]->setBinContent( ic, mean06 );
+                  meaopn03_[ism-1]->setBinError( ic, rms06 );
+                } else {
+                  meaopn03_[ism-1]->setEntries( 1.+meaopn03_[ism-1]->getEntries() );
+                }
               }
             }
 
           } else {
 
-            if ( meaopn07_[ism-1] ) {
-              if ( mean06 > 0. ) {
-                meaopn07_[ism-1]->setBinContent( ip+20*(ie-1), mean06 );
-                meaopn07_[ism-1]->setBinError( ip+20*(ie-1), rms06 );
-              } else {
-                meaopn07_[ism-1]->setEntries( 1.+meaopn07_[ism-1]->getEntries() );
+            int ic = Numbers::icEE(ism, ix, iy);
+
+            if ( ic != -1 ) {
+              if ( meaopn07_[ism-1] ) {
+                if ( mean06 > 0. ) {
+                  meaopn07_[ism-1]->setBinContent( ic, mean06 );
+                  meaopn07_[ism-1]->setBinError( ic, rms06 );
+                } else {
+                  meaopn07_[ism-1]->setEntries( 1.+meaopn07_[ism-1]->getEntries() );
+                }
               }
             }
 
@@ -3432,25 +3523,33 @@ void EELaserClient::analyze(void){
 
         if ( update08 ) {
 
-          if ( ie < 6 || ip > 10 ) {
+          if ( ix < 6 || iy > 10 ) {
 
-            if ( meaopn04_[ism-1] ) {
-              if ( mean08 > 0. ) {
-                meaopn04_[ism-1]->setBinContent( ip+20*(ie-1), mean08 );
-                meaopn04_[ism-1]->setBinError( ip+20*(ie-1), rms08 );
-              } else {
-                meaopn04_[ism-1]->setEntries( 1.+meaopn04_[ism-1]->getEntries() );
+            int ic = Numbers::icEE(ism, ix, iy);
+
+            if ( ic != -1 ) {
+              if ( meaopn04_[ism-1] ) {
+                if ( mean08 > 0. ) {
+                  meaopn04_[ism-1]->setBinContent( ic, mean08 );
+                  meaopn04_[ism-1]->setBinError( ic, rms08 );
+                } else {
+                  meaopn04_[ism-1]->setEntries( 1.+meaopn04_[ism-1]->getEntries() );
+                }
               }
             }
 
           } else {
 
-            if ( meaopn08_[ism-1] ) {
-              if ( mean08 > 0. ) {
-                meaopn08_[ism-1]->setBinContent( ip+20*(ie-1), mean08 );
-                meaopn08_[ism-1]->setBinError( ip+20*(ie-1), rms08 );
-              } else {
-                meaopn08_[ism-1]->setEntries( 1.+meaopn08_[ism-1]->getEntries() );
+            int ic = Numbers::icEE(ism, ix, iy);
+
+            if ( ic != -1 ) {
+              if ( meaopn08_[ism-1] ) {
+                if ( mean08 > 0. ) {
+                  meaopn08_[ism-1]->setBinContent( ic, mean08 );
+                  meaopn08_[ism-1]->setBinError( ic, rms08 );
+                } else {
+                  meaopn08_[ism-1]->setEntries( 1.+meaopn08_[ism-1]->getEntries() );
+                }
               }
             }
 
@@ -3460,37 +3559,44 @@ void EELaserClient::analyze(void){
 
         if ( update09 ) {
 
-          if ( ie < 6 || ip > 10 ) {
+          if ( ix < 6 || iy > 10 ) {
 
-            if ( met01_[ism-1] ) {
-              if ( mean09 > 0. ) {
-                met01_[ism-1]->setBinContent( ip+20*(ie-1), mean09 );
-                met01_[ism-1]->setBinError( ip+20*(ie-1), rms09 );
-              } else {
-                met01_[ism-1]->setEntries(1.+met01_[ism-1]->getEntries());
+            int ic = Numbers::icEE(ism, ix, iy);
+
+            if ( ic != -1 ) {
+              if ( met01_[ism-1] ) {
+                if ( mean09 > 0. ) {
+                  met01_[ism-1]->setBinContent( ic, mean09 );
+                  met01_[ism-1]->setBinError( ic, rms09 );
+                } else {
+                  met01_[ism-1]->setEntries(1.+met01_[ism-1]->getEntries());
+                }
               }
-            }
 
-            if ( metav01_[ism-1] )
-              metav01_[ism-1] ->Fill(mean09);
-            if ( metrms01_[ism-1] )
-              metrms01_[ism-1]->Fill(rms09);
+              if ( metav01_[ism-1] )
+                metav01_[ism-1] ->Fill(mean09);
+              if ( metrms01_[ism-1] )
+                metrms01_[ism-1]->Fill(rms09);
+            }
 
           } else {
 
-            if ( met05_[ism-1] ) {
-              if ( mean09 > 0. ) {
-                met05_[ism-1]->setBinContent( ip+20*(ie-1), mean09 );
-                met05_[ism-1]->setBinError( ip+20*(ie-1), rms09 );
-              } else {
-                met05_[ism-1]->setEntries(1.+met05_[ism-1]->getEntries());
+            int ic = Numbers::icEE(ism, ix, iy);
+
+            if ( ic != -1 ) {
+              if ( met05_[ism-1] ) {
+                if ( mean09 > 0. ) {
+                  met05_[ism-1]->setBinContent( ic, mean09 );
+                  met05_[ism-1]->setBinError( ic, rms09 );
+                } else {
+                  met05_[ism-1]->setEntries(1.+met05_[ism-1]->getEntries());
+                }
               }
 
-            if ( metav05_[ism-1] )
-              metav05_[ism-1] ->Fill(mean09);
-            if ( metrms05_[ism-1] )
-              metrms05_[ism-1]->Fill(rms09);
-
+              if ( metav05_[ism-1] )
+                metav05_[ism-1] ->Fill(mean09);
+              if ( metrms05_[ism-1] )
+                metrms05_[ism-1]->Fill(rms09);
             }
 
           }
@@ -3499,38 +3605,44 @@ void EELaserClient::analyze(void){
 
         if ( update10 ) {
 
-          if ( ie < 6 || ip > 10 ) {
+          if ( ix < 6 || iy > 10 ) {
 
-            if ( met02_[ism-1] ) {
-              if ( mean10 > 0. ) {
-                met02_[ism-1]->setBinContent( ip+20*(ie-1), mean10 );
-                met02_[ism-1]->setBinError( ip+20*(ie-1), rms10 );
-              } else {
-                met02_[ism-1]->setEntries(1.+met02_[ism-1]->getEntries());
+            int ic = Numbers::icEE(ism, ix, iy);
+
+            if ( ic != -1 ) {
+              if ( met02_[ism-1] ) {
+                if ( mean10 > 0. ) {
+                  met02_[ism-1]->setBinContent( ic, mean10 );
+                  met02_[ism-1]->setBinError( ic, rms10 );
+                } else {
+                  met02_[ism-1]->setEntries(1.+met02_[ism-1]->getEntries());
+                }
               }
 
-            if ( metav02_[ism-1] )
-              metav02_[ism-1] ->Fill(mean10);
-            if ( metrms02_[ism-1] )
-              metrms02_[ism-1]->Fill(rms10);
-
+              if ( metav02_[ism-1] )
+                metav02_[ism-1] ->Fill(mean10);
+              if ( metrms02_[ism-1] )
+                metrms02_[ism-1]->Fill(rms10);
             }
 
           } else {
 
-            if ( met06_[ism-1] ) {
-              if ( mean10 > 0. ) {
-                met06_[ism-1]->setBinContent( ip+20*(ie-1), mean10 );
-                met06_[ism-1]->setBinError( ip+20*(ie-1), rms10 );
-              } else {
-                met06_[ism-1]->setEntries(1.+met06_[ism-1]->getEntries());
+            int ic = Numbers::icEE(ism, ix, iy);
+
+            if ( ic != -1 ) {
+              if ( met06_[ism-1] ) {
+                if ( mean10 > 0. ) {
+                  met06_[ism-1]->setBinContent( ic, mean10 );
+                  met06_[ism-1]->setBinError( ic, rms10 );
+                } else {
+                  met06_[ism-1]->setEntries(1.+met06_[ism-1]->getEntries());
+                }
               }
 
-            if ( metav06_[ism-1] )
-              metav06_[ism-1] ->Fill(mean10);
-            if ( metrms06_[ism-1] )
-              metrms06_[ism-1]->Fill(rms10);
-
+              if ( metav06_[ism-1] )
+                metav06_[ism-1] ->Fill(mean10);
+              if ( metrms06_[ism-1] )
+                metrms06_[ism-1]->Fill(rms10);
             }
 
           }
@@ -3539,38 +3651,44 @@ void EELaserClient::analyze(void){
 
         if ( update11 ) {
 
-          if ( ie < 6 || ip > 10 ) {
+          if ( ix < 6 || iy > 10 ) {
 
-            if ( met03_[ism-1] ) {
-              if ( mean11 > 0. ) {
-                met03_[ism-1]->setBinContent( ip+20*(ie-1), mean11 );
-                met03_[ism-1]->setBinError( ip+20*(ie-1), rms11 );
-              } else {
-                met03_[ism-1]->setEntries(1.+met03_[ism-1]->getEntries());
+            int ic = Numbers::icEE(ism, ix, iy);
+
+            if ( ic != -1 ) {
+              if ( met03_[ism-1] ) {
+                if ( mean11 > 0. ) {
+                  met03_[ism-1]->setBinContent( ic, mean11 );
+                  met03_[ism-1]->setBinError( ic, rms11 );
+                } else {
+                  met03_[ism-1]->setEntries(1.+met03_[ism-1]->getEntries());
+                }
               }
 
-            if ( metav03_[ism-1] )
-              metav03_[ism-1] ->Fill(mean11);
-            if ( metrms03_[ism-1] )
-              metrms03_[ism-1]->Fill(rms11);
-
+              if ( metav03_[ism-1] )
+                metav03_[ism-1] ->Fill(mean11);
+              if ( metrms03_[ism-1] )
+                metrms03_[ism-1]->Fill(rms11);
             }
 
           } else {
 
-            if ( met07_[ism-1] ) {
-              if ( mean11 > 0. ) {
-                met07_[ism-1]->setBinContent( ip+20*(ie-1), mean11 );
-                met07_[ism-1]->setBinError( ip+20*(ie-1), rms11 );
-              } else {
-                met07_[ism-1]->setEntries(1.+met07_[ism-1]->getEntries());
+            int ic = Numbers::icEE(ism, ix, iy);
+
+            if ( ic != -1 ) {
+              if ( met07_[ism-1] ) {
+                if ( mean11 > 0. ) {
+                  met07_[ism-1]->setBinContent( ic, mean11 );
+                  met07_[ism-1]->setBinError( ic, rms11 );
+                } else {
+                  met07_[ism-1]->setEntries(1.+met07_[ism-1]->getEntries());
+                }
               }
 
-            if ( metav07_[ism-1] )
-              metav07_[ism-1] ->Fill(mean11);
-            if ( metrms07_[ism-1] )
-              metrms07_[ism-1]->Fill(rms11);
-
+              if ( metav07_[ism-1] )
+                metav07_[ism-1] ->Fill(mean11);
+              if ( metrms07_[ism-1] )
+                metrms07_[ism-1]->Fill(rms11);
             }
 
           }
@@ -3579,38 +3697,44 @@ void EELaserClient::analyze(void){
 
         if ( update12 ) {
 
-          if ( ie < 6 || ip > 10 ) {
+          if ( ix < 6 || iy > 10 ) {
 
-            if ( met04_[ism-1] ) {
-              if ( mean12 > 0. ) {
-                met04_[ism-1]->setBinContent( ip+20*(ie-1), mean12 );
-                met04_[ism-1]->setBinError( ip+20*(ie-1), rms12 );
-              } else {
-                met04_[ism-1]->setEntries(1.+met04_[ism-1]->getEntries());
+            int ic = Numbers::icEE(ism, ix, iy);
+
+            if ( ic != -1 ) {
+              if ( met04_[ism-1] ) {
+                if ( mean12 > 0. ) {
+                  met04_[ism-1]->setBinContent( ic, mean12 );
+                  met04_[ism-1]->setBinError( ic, rms12 );
+                } else {
+                  met04_[ism-1]->setEntries(1.+met04_[ism-1]->getEntries());
+                }
               }
 
-            if ( metav04_[ism-1] )
-              metav04_[ism-1] ->Fill(mean12);
-            if ( metrms04_[ism-1] )
-              metrms04_[ism-1]->Fill(rms12);
-
+              if ( metav04_[ism-1] )
+                metav04_[ism-1] ->Fill(mean12);
+              if ( metrms04_[ism-1] )
+                metrms04_[ism-1]->Fill(rms12);
             }
 
           } else {
 
-            if ( met08_[ism-1] ) {
-              if ( mean12 > 0. ) {
-                met08_[ism-1]->setBinContent( ip+20*(ie-1), mean12 );
-                met08_[ism-1]->setBinError( ip+20*(ie-1), rms12 );
-              } else {
-                met08_[ism-1]->setEntries(1.+met08_[ism-1]->getEntries());
+            int ic = Numbers::icEE(ism, ix, iy);
+
+            if ( ic != -1 ) {
+              if ( met08_[ism-1] ) {
+                if ( mean12 > 0. ) {
+                  met08_[ism-1]->setBinContent( ic, mean12 );
+                  met08_[ism-1]->setBinError( ic, rms12 );
+                } else {
+                  met08_[ism-1]->setEntries(1.+met08_[ism-1]->getEntries());
+                }
               }
 
-            if ( metav08_[ism-1] )
-              metav08_[ism-1] ->Fill(mean12);
-            if ( metrms08_[ism-1] )
-              metrms08_[ism-1]->Fill(rms12);
-
+              if ( metav08_[ism-1] )
+                metav08_[ism-1] ->Fill(mean12);
+              if ( metrms08_[ism-1] )
+                metrms08_[ism-1]->Fill(rms12);
             }
 
           }
@@ -3625,25 +3749,27 @@ void EELaserClient::analyze(void){
 
             EcalLogicID ecid = m->first;
 
-            int ic = (ip-1) + 20*(ie-1) + 1;
+            int ic = Numbers::icEE(ism, ix, iy);
 
-            if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == ic ) {
+            if ( ic == -1 ) continue;
+
+            if ( ecid.getID1() == Numbers::iSM(ism, EcalEndcap) && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg01_[ism-1] ) {
-                  float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
-                  meg01_[ism-1]->setBinContent( ie, ip, val+3 );
+                  float val = int(meg01_[ism-1]->getBinContent(ix, iy)) % 3;
+                  meg01_[ism-1]->setBinContent( ix, iy, val+3 );
                 }
                 if ( meg02_[ism-1] ) {
-                  float val = int(meg02_[ism-1]->getBinContent(ie, ip)) % 3;
-                  meg02_[ism-1]->setBinContent( ie, ip, val+3 );
+                  float val = int(meg02_[ism-1]->getBinContent(ix, iy)) % 3;
+                  meg02_[ism-1]->setBinContent( ix, iy, val+3 );
                 }
                 if ( meg03_[ism-1] ) {
-                  float val = int(meg03_[ism-1]->getBinContent(ie, ip)) % 3;
-                  meg03_[ism-1]->setBinContent( ie, ip, val+3 );
+                  float val = int(meg03_[ism-1]->getBinContent(ix, iy)) % 3;
+                  meg03_[ism-1]->setBinContent( ix, iy, val+3 );
                 }
                 if ( meg04_[ism-1] ) {
-                  float val = int(meg04_[ism-1]->getBinContent(ie, ip)) % 3;
-                  meg04_[ism-1]->setBinContent( ie, ip, val+3 );
+                  float val = int(meg04_[ism-1]->getBinContent(ix, iy)) % 3;
+                  meg04_[ism-1]->setBinContent( ix, iy, val+3 );
                 }
               }
             }
@@ -3861,7 +3987,7 @@ void EELaserClient::analyze(void){
 
           EcalLogicID ecid = m->first;
 
-          if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == i-1 ) {
+          if ( ecid.getID1() == Numbers::iSM(ism, EcalEndcap) && ecid.getID2() == i-1 ) {
             if ( (m->second).getErrorBits() & (bits01|bits02) ) {
               if ( meg05_[ism-1] ) {
                 float val = int(meg05_[ism-1]->getBinContent(i, 1)) % 3;
@@ -4028,8 +4154,8 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<table style=\"width: 255px; height: 35px;\" border=\"1\">" << endl;
   htmlFile << "<tbody>" << endl;
   htmlFile << "<tr>" << endl;
-  htmlFile << "<td style=\"text-align: center;\">A=L-shaped half</td>" << endl;
-  htmlFile << "<td style=\"vertical-align: top; text-align: center;\">B=notL-shaped half<br>" << endl;
+  htmlFile << "<td style=\"text-align: center;\">A=first half</td>" << endl;
+  htmlFile << "<td style=\"vertical-align: top; text-align: center;\">B=second half<br>" << endl;
   htmlFile << "</td>" << endl;
   htmlFile << "</tr>" << endl;
   htmlFile << "</tbody>" << endl;
@@ -4055,15 +4181,6 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   int pCol3[6] = { 301, 302, 303, 304, 305, 306 };
 
-  TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
-  for ( int i = 0; i < 68; i++ ) {
-    int a = 2 + ( i/4 ) * 5;
-    int b = 2 + ( i%4 ) * 5;
-    dummy.Fill( a, b, i+1 );
-  }
-  dummy.SetMarkerSize(2);
-  dummy.SetMinimum(0.1);
-
   TH2C dummy1( "dummy1", "dummy1 for sm mem", 10, 0, 10, 5, 0, 5 );
   for ( short i=0; i<2; i++ ) {
     int a = 2 + i*5;
@@ -4075,7 +4192,8 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
   
   string imgNameQual[8], imgNameAmp[8], imgNameTim[8], imgNameTimav[8], imgNameTimrms[8], imgNameShape[8], imgNameAmpoPN[8], imgNameMEPnQualG01[8], imgNameMEPnG01[8], imgNameMEPnPedG01[8], imgNameMEPnRmsPedG01[8], imgNameMEPnQualG16[8], imgNameMEPnG16[8], imgNameMEPnPedG16[8], imgNameMEPnRmsPedG16[8], imgName, meName;
 
-  TCanvas* cQual   = new TCanvas("cQual", "Temp", 2*csize, csize);
+  TCanvas* cQual   = new TCanvas("cQual", "Temp", 2*csize, 2*csize);
+  TCanvas* cQualPN = new TCanvas("cQualPN", "Temp", 2*csize, csize);
   TCanvas* cAmp    = new TCanvas("cAmp", "Temp", csize, csize);
   TCanvas* cTim    = new TCanvas("cTim", "Temp", csize, csize);
   TCanvas* cTimav  = new TCanvas("cTimav", "Temp", csize, csize);
@@ -4145,14 +4263,21 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         cQual->cd();
         gStyle->SetOptStat(" ");
         gStyle->SetPalette(6, pCol3);
-        obj2f->GetXaxis()->SetNdivisions(17);
-        obj2f->GetYaxis()->SetNdivisions(4);
         cQual->SetGridx();
         cQual->SetGridy();
+        obj2f->GetXaxis()->SetLabelSize(0.02);
+        obj2f->GetYaxis()->SetLabelSize(0.02);
         obj2f->SetMinimum(-0.00000001);
         obj2f->SetMaximum(6.0);
         obj2f->Draw("col");
-        dummy.Draw("text,same");
+        cQual->SetBit(TGraph::kClipFrame);
+        TLine l;
+        l.SetLineWidth(1);
+        for ( int i=0; i<201; i=i+1){
+          if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
+            l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
+          }
+        }
         cQual->Update();
         cQual->SaveAs(imgName.c_str());
 
@@ -4565,19 +4690,19 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         imgNameMEPnQualG01[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameMEPnQualG01[iCanvas-1];
 
-        cQual->cd();
+        cQualPN->cd();
         gStyle->SetOptStat(" ");
         gStyle->SetPalette(6, pCol3);
         obj2f->GetXaxis()->SetNdivisions(10);
         obj2f->GetYaxis()->SetNdivisions(5);
-        cQual->SetGridx();
-        cQual->SetGridy(0);
+        cQualPN->SetGridx();
+        cQualPN->SetGridy(0);
         obj2f->SetMinimum(-0.00000001);
         obj2f->SetMaximum(6.0);
         obj2f->Draw("col");
         dummy1.Draw("text,same");
-        cQual->Update();
-        cQual->SaveAs(imgName.c_str());
+        cQualPN->Update();
+        cQualPN->SaveAs(imgName.c_str());
 
       }
 
@@ -4619,19 +4744,19 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         imgNameMEPnQualG16[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameMEPnQualG16[iCanvas-1];
 
-        cQual->cd();
+        cQualPN->cd();
         gStyle->SetOptStat(" ");
         gStyle->SetPalette(6, pCol3);
         obj2f->GetXaxis()->SetNdivisions(10);
         obj2f->GetYaxis()->SetNdivisions(5);
-        cQual->SetGridx();
-        cQual->SetGridy(0);
+        cQualPN->SetGridx();
+        cQualPN->SetGridy(0);
         obj2f->SetMinimum(-0.00000001);
         obj2f->SetMaximum(6.0);
         obj2f->Draw("col");
         dummy1.Draw("text,same");
-        cQual->Update();
-        cQual->SaveAs(imgName.c_str());
+        cQualPN->Update();
+        cQualPN->SaveAs(imgName.c_str());
 
       }
 
@@ -5255,6 +5380,7 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
   }
 
   delete cQual;
+  delete cQualPN;
   delete cAmp;
   delete cTim;
   delete cTimav;

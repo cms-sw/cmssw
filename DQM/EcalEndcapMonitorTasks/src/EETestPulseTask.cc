@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseTask.cc
  *
- * $Date: 2007/06/13 18:01:30 $
- * $Revision: 1.13 $
+ * $Date: 2007/07/21 10:13:26 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
 */
@@ -20,8 +20,8 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDigi/interface/EBDataFrame.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -36,8 +36,6 @@ using namespace std;
 
 EETestPulseTask::EETestPulseTask(const ParameterSet& ps){
 
-  Numbers::maxSM = 18;
-
   init_ = false;
 
   // get hold of back-end interface
@@ -46,7 +44,7 @@ EETestPulseTask::EETestPulseTask(const ParameterSet& ps){
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
 
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
-  EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
+  EEDigiCollection_ = ps.getParameter<edm::InputTag>("EEDigiCollection");
   EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");
   EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
 
@@ -95,7 +93,7 @@ void EETestPulseTask::setup(void){
       meShapeMapG01_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(meShapeMapG01_[i], i+1);
       sprintf(histo, "EETPT amplitude %s G01", Numbers::sEE(i+1).c_str());
-      meAmplMapG01_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
+      meAmplMapG01_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
       dbe_->tag(meAmplMapG01_[i], i+1);
     }
 
@@ -105,7 +103,7 @@ void EETestPulseTask::setup(void){
       meShapeMapG06_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(meShapeMapG06_[i], i+1);
       sprintf(histo, "EETPT amplitude %s G06", Numbers::sEE(i+1).c_str());
-      meAmplMapG06_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
+      meAmplMapG06_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
       dbe_->tag(meAmplMapG06_[i], i+1);
     }
 
@@ -115,7 +113,7 @@ void EETestPulseTask::setup(void){
       meShapeMapG12_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(meShapeMapG12_[i], i+1);
       sprintf(histo, "EETPT amplitude %s G12", Numbers::sEE(i+1).c_str());
-      meAmplMapG12_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
+      meAmplMapG12_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
       dbe_->tag(meAmplMapG12_[i], i+1);
    }
 
@@ -210,6 +208,8 @@ void EETestPulseTask::endJob(void){
 
 void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
+  Numbers::initGeometry(c);
+
   bool enable = false;
   map<int, EcalDCCHeaderBlock> dccMap;
 
@@ -222,7 +222,7 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
       EcalDCCHeaderBlock dcch = (*dcchItr);
 
-      int ism = Numbers::iSM( dcch ); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( dcch );
 
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find( ism );
       if ( i != dccMap.end() ) continue;
@@ -248,23 +248,22 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
   try {
 
-    Handle<EBDigiCollection> digis;
-    e.getByLabel(EBDigiCollection_, digis);
+    Handle<EEDigiCollection> digis;
+    e.getByLabel(EEDigiCollection_, digis);
 
-    int nebd = digis->size();
-    LogDebug("EETestPulseTask") << "event " << ievt_ << " digi collection size " << nebd;
+    int need = digis->size();
+    LogDebug("EETestPulseTask") << "event " << ievt_ << " digi collection size " << need;
 
-    for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
+    for ( EEDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
-      EBDataFrame dataframe = (*digiItr);
-      EBDetId id = dataframe.id();
+      EEDataFrame dataframe = (*digiItr);
+      EEDetId id = dataframe.id();
 
-      int ic = id.ic();
-      int ie = (ic-1)/20 + 1;
-      int ip = (ic-1)%20 + 1;
+      int ix = 101 - id.ix();
+      int iy = id.iy();
 
-      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
-
+      int ism = Numbers::iSM( id );
+  
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
       if ( i == dccMap.end() ) continue;
 
@@ -272,7 +271,9 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
                dccMap[ism].getRunType() != EcalDCCHeaderBlock::TESTPULSE_GAP ) ) continue;
 
       LogDebug("EETestPulseTask") << " det id = " << id;
-      LogDebug("EETestPulseTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      LogDebug("EETestPulseTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
+
+      int ic = Numbers::icEE(ism, ix, iy);
 
       for (int i = 0; i < 10; i++) {
 
@@ -301,7 +302,7 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
   } catch ( exception& ex) {
 
-    LogWarning("EETestPulseTask") << EBDigiCollection_ << " not available";
+    LogWarning("EETestPulseTask") << EEDigiCollection_ << " not available";
 
   }
 
@@ -316,16 +317,15 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
     for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
       EcalUncalibratedRecHit hit = (*hitItr);
-      EBDetId id = hit.id();
+      EEDetId id = hit.id();
 
-      int ic = id.ic();
-      int ie = (ic-1)/20 + 1;
-      int ip = (ic-1)%20 + 1;
+      int ix = 101 - id.ix();
+      int iy = id.iy();
 
-      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
-
-      float xie = ie - 0.5;
-      float xip = ip - 0.5;
+      int ism = Numbers::iSM( id );
+  
+      float xix = ix - 0.5;
+      float xiy = iy - 0.5;
 
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
       if ( i == dccMap.end() ) continue;
@@ -334,7 +334,7 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
                dccMap[ism].getRunType() != EcalDCCHeaderBlock::TESTPULSE_GAP ) ) continue;
 
       LogDebug("EETestPulseTask") << " det id = " << id;
-      LogDebug("EETestPulseTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      LogDebug("EETestPulseTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
 
       MonitorElement* meAmplMap = 0;
 
@@ -351,9 +351,9 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
       LogDebug("EETestPulseTask") << " hit amplitude " << xval;
 
-      if ( meAmplMap ) meAmplMap->Fill(xie, xip, xval);
+      if ( meAmplMap ) meAmplMap->Fill(xix, xiy, xval);
 
-      LogDebug("EETestPulseTask") << "Crystal " << ie << " " << ip << " Amplitude = " << xval;
+      LogDebug("EETestPulseTask") << "Crystal " << ix << " " << iy << " Amplitude = " << xval;
 
     }
 
@@ -376,7 +376,7 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
       EcalPnDiodeDigi pn = (*pnItr);
       EcalPnDiodeDetId id = pn.id();
 
-      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( id );
 
       int num = id.iPnId();
 

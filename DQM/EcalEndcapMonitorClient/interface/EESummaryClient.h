@@ -4,8 +4,8 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2007/04/02 16:15:35 $
- * $Revision: 1.1 $
+ * $Date: 2007/08/09 14:36:54 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -104,12 +104,31 @@ vector<EEClient*> clients_;
 
 MonitorUserInterface* mui_;
 
-MonitorElement* meIntegrity_;
-MonitorElement* mePedestalOnline_;
+MonitorElement* meIntegrity_[2];
+MonitorElement* meOccupancy_[2];
+MonitorElement* mePedestalOnline_[2];
+MonitorElement* meLaserL1_[2];
+MonitorElement* meLaserL1PN_[2];
+MonitorElement* meLed_[2];
+MonitorElement* meLedPN_[2];
+MonitorElement* mePedestal_[2];
+MonitorElement* mePedestalPN_[2];
+MonitorElement* meTestPulse_[2];
+MonitorElement* meTestPulsePN_[2];
+MonitorElement* meGlobalSummary_[2];
 
-MEContentsTH2FWithinRangeROOT* qtg01_;
-MEContentsTH2FWithinRangeROOT* qtg02_;
-MEContentsTH2FWithinRangeROOT* qtg03_;
+MEContentsTH2FWithinRangeROOT* qtg01_[2];
+MEContentsTH2FWithinRangeROOT* qtg02_[2];
+MEContentsTH2FWithinRangeROOT* qtg03_[2];
+MEContentsTH2FWithinRangeROOT* qtg04_[2];
+MEContentsTH2FWithinRangeROOT* qtg04PN_[2];
+MEContentsTH2FWithinRangeROOT* qtg05_[2];
+MEContentsTH2FWithinRangeROOT* qtg05PN_[2];
+MEContentsTH2FWithinRangeROOT* qtg06_[2];
+MEContentsTH2FWithinRangeROOT* qtg06PN_[2];
+MEContentsTH2FWithinRangeROOT* qtg07_[2];
+MEContentsTH2FWithinRangeROOT* qtg07PN_[2];
+MEContentsTH2FWithinRangeROOT* qtg08_[2];
 
 };
 

@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2007/07/19 12:02:44 $
- * $Revision: 1.15 $
+ * $Date: 2007/08/09 14:36:55 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -15,6 +15,8 @@
 #include <iomanip>
 
 #include "TStyle.h"
+#include "TGraph.h"
+#include "TLine.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -272,7 +274,7 @@ void EEIntegrityClient::setup(void) {
 
     if ( meg01_[ism-1] ) dbe->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EEIT data integrity quality %s", Numbers::sEE(ism).c_str());
-    meg01_[ism-1] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg01_[ism-1] = dbe->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
 
     if ( meg02_[ism-1] ) dbe->removeElement( meg02_[ism-1]->getName() );
     sprintf(histo, "EEIT data integrity quality MEM %s", Numbers::sEE(ism).c_str());
@@ -287,14 +289,20 @@ void EEIntegrityClient::setup(void) {
     UtilsClient::resetHisto( meg01_[ism-1] );
     UtilsClient::resetHisto( meg02_[ism-1] );
 
-    for ( int ie = 1; ie <= 85; ie++ ) {
-      for ( int ip = 1; ip <= 20; ip++ ) {
+    for ( int ix = 1; ix <= 50; ix++ ) {
+      for ( int iy = 1; iy <= 50; iy++ ) {
 
-        meg01_[ism-1]->setBinContent( ie, ip, 2. );
+        meg01_[ism-1]->setBinContent( ix, iy, -1. );
+
+        int jx = ix + Numbers::ix0EE(ism);
+        int jy = iy + Numbers::iy0EE(ism);
+
+        if ( Numbers::validEE(ism, 101 - jx, jy) ) {
+          meg01_[ism-1]->setBinContent( ix, iy, 2. );
+        }
 
       }
     }
-
 
     for ( int ie = 1; ie <= 10; ie++ ) {
       for ( int ip = 1; ip <= 5; ip++ ) {
@@ -418,8 +426,8 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
     float num01, num02, num03, num04;
 
-    for ( int ie = 1; ie <= 85; ie++ ) {
-      for ( int ip = 1; ip <= 20; ip++ ) {
+    for ( int ix = 1; ix <= 50; ix++ ) {
+      for ( int iy = 1; iy <= 50; iy++ ) {
 
         num01 = num02 = num03 = num04 = 0.;
 
@@ -427,35 +435,35 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         float numTot = -1.;
 
-        if ( h_[ism-1] ) numTot = h_[ism-1]->GetBinContent(ie, ip);
+        if ( h_[ism-1] ) numTot = h_[ism-1]->GetBinContent(ix, iy);
 
         if ( h01_[ism-1] ) {
-          num01  = h01_[ism-1]->GetBinContent(ie, ip);
+          num01  = h01_[ism-1]->GetBinContent(ix, iy);
           if ( num01 > 0 ) update1 = true;
         }
 
         if ( h02_[ism-1] ) {
-          num02  = h02_[ism-1]->GetBinContent(ie, ip);
+          num02  = h02_[ism-1]->GetBinContent(ix, iy);
           if ( num02 > 0 ) update1 = true;
         }
 
         if ( h03_[ism-1] ) {
-          num03  = h03_[ism-1]->GetBinContent(ie, ip);
+          num03  = h03_[ism-1]->GetBinContent(ix, iy);
           if ( num03 > 0 ) update1 = true;
         }
 
         if ( h04_[ism-1] ) {
-          num04  = h04_[ism-1]->GetBinContent(ie, ip);
+          num04  = h04_[ism-1]->GetBinContent(ix, iy);
           if ( num04 > 0 ) update1 = true;
         }
 
         if ( update0 || update1 ) {
 
-          if ( ie == 1 && ip == 1 ) {
+          if ( ix == 1 && iy == 1 ) {
 
             cout << "Preparing dataset for SM=" << ism << endl;
 
-            cout << "(" << ie << "," << ip << ") " << num00 << " " << num01 << " " << num02 << " " << num03 << " " << num04 << endl;
+            cout << "(" << ix << "," << iy << ") " << num00 << " " << num01 << " " << num02 << " " << num03 << " " << num04 << endl;
 
             cout << endl;
 
@@ -485,11 +493,13 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           }
           c1.setTaskStatus(val);
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEE(ism, ix, iy);
+
+          if ( ic == -1 ) continue;
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
+              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
               dataset1[ecid] = c1;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
@@ -505,8 +515,8 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
     float num05, num06;
 
-    for ( int iet = 1; iet <= 17; iet++ ) {
-      for ( int ipt = 1; ipt <= 4; ipt++ ) {
+    for ( int ixt = 1; ixt <= 10; ixt++ ) {
+      for ( int iyt = 1; iyt <= 10; iyt++ ) {
 
         num05 = num06 = 0.;
 
@@ -516,30 +526,30 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( h_[ism-1] ) {
           numTot = 0.;
-          for ( int ie = 1 + 5*(iet-1); ie <= 5*iet; ie++ ) {
-            for ( int ip = 1 + 5*(ipt-1); ip <= 5*ipt; ip++ ) {
-              numTot += h_[ism-1]->GetBinContent(ie, ip);
+          for ( int ix = 1 + 5*(ixt-1); ix <= 5*ixt; ix++ ) {
+            for ( int iy = 1 + 5*(iyt-1); iy <= 5*iyt; iy++ ) {
+              numTot += h_[ism-1]->GetBinContent(ix, iy);
             }
           }
         }
 
         if ( h05_[ism-1] ) {
-          num05  = h05_[ism-1]->GetBinContent(iet, ipt);
+          num05  = h05_[ism-1]->GetBinContent(ixt, iyt);
           if ( num05 > 0 ) update1 = true;
         }
 
         if ( h06_[ism-1] ) {
-          num06  = h06_[ism-1]->GetBinContent(iet, ipt);
+          num06  = h06_[ism-1]->GetBinContent(ixt, iyt);
           if ( num06 > 0 ) update1 = true;
         }
 
         if ( update0 || update1 ) {
 
-          if ( iet == 1 && ipt == 1 ) {
+          if ( ixt == 1 && iyt == 1 ) {
 
             cout << "Preparing dataset for SM=" << ism << endl;
 
-            cout << "(" << iet << "," << ipt << ") " << num00 << " " << num05 << " " << num06 << endl;
+            cout << "(" << ixt << "," << iyt << ") " << num00 << " " << num05 << " " << num06 << endl;
 
             cout << endl;
 
@@ -570,11 +580,11 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           }
           c2.setTaskStatus(val);
 
-          int itt = (ipt-1) + 4*(iet-1) + 1;
+          int itt = (iyt-1) + 4*(ixt-1) + 1;
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism), itt);
+              ecid = LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism, EcalEndcap), itt);
               dataset2[ecid] = c2;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
@@ -590,8 +600,8 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
     float num07, num08;
 
-    for ( int ie = 1; ie <= 10; ie++ ) {
-      for ( int ip = 1; ip <= 5; ip++ ) {
+    for ( int ix = 1; ix <= 10; ix++ ) {
+      for ( int iy = 1; iy <= 5; iy++ ) {
 
         num07 = num08 = 0.;
 
@@ -599,25 +609,25 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         float numTot = -1.;
 
-        if ( hmem_[ism-1] ) numTot = hmem_[ism-1]->GetBinContent(ie, ip);
+        if ( hmem_[ism-1] ) numTot = hmem_[ism-1]->GetBinContent(ix, iy);
 
         if ( h07_[ism-1] ) {
-          num07  = h07_[ism-1]->GetBinContent(ie, ip);
+          num07  = h07_[ism-1]->GetBinContent(ix, iy);
           if ( num07 > 0 ) update1 = true;
         }
 
         if ( h08_[ism-1] ) {
-          num08  = h08_[ism-1]->GetBinContent(ie, ip);
+          num08  = h08_[ism-1]->GetBinContent(ix, iy);
           if ( num08 > 0 ) update1 = true;
         }
 
         if ( update0 || update1 ) {
 
-          if ( ie == 1 && ip == 1 ) {
+          if ( ix == 1 && iy == 1 ) {
 
             cout << "Preparing dataset for mem of SM=" << ism << endl;
 
-            cout << "(" << ie << "," << ip << ") " << num07 << " " << num08 << endl;
+            cout << "(" << ix << "," << iy << ") " << num07 << " " << num08 << endl;
 
             cout << endl;
 
@@ -647,11 +657,11 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           }
           c3. setTaskStatus(val);
 
-          int ic = EEIntegrityClient::chNum[ (ie-1)%5 ][ (ip-1) ] + (ie-1)/5 * 25;
+          int ic = EEIntegrityClient::chNum[ (ix-1)%5 ][ (iy-1) ] + (ix-1)/5 * 25;
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EB_mem_channel", Numbers::iSM(ism), ic);
+              ecid = LogicID::getEcalLogicID("EB_mem_channel", Numbers::iSM(ism, EcalEndcap), ic);
               dataset3[ecid] = c3;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
@@ -667,7 +677,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
     float num09, num10;
 
-    for ( int iet = 1; iet <= 2; iet++ ) {
+    for ( int ixt = 1; ixt <= 2; ixt++ ) {
 
       num09 = num10 = 0.;
 
@@ -677,30 +687,30 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
       if ( hmem_[ism-1] ) {
         numTot = 0.;
-        for ( int ie = 1 + 5*(iet-1); ie <= 5*iet; ie++ ) {
-          for ( int ip = 1 ; ip <= 5; ip++ ) {
-            numTot += hmem_[ism-1]->GetBinContent(ie, ip);
+        for ( int ix = 1 + 5*(ixt-1); ix <= 5*ixt; ix++ ) {
+          for ( int iy = 1 ; iy <= 5; iy++ ) {
+            numTot += hmem_[ism-1]->GetBinContent(ix, iy);
           }
         }
       }
 
       if ( h09_[ism-1] ) {
-        num09  = h09_[ism-1]->GetBinContent(iet, 1);
+        num09  = h09_[ism-1]->GetBinContent(ixt, 1);
         if ( num09 > 0 ) update1 = true;
       }
 
       if ( h10_[ism-1] ) {
-        num10  = h10_[ism-1]->GetBinContent(iet, 1);
+        num10  = h10_[ism-1]->GetBinContent(ixt, 1);
         if ( num10 > 0 ) update1 = true;
       }
 
       if ( update0 || update1 ) {
 
-        if ( iet == 1 ) {
+        if ( ixt == 1 ) {
 
           cout << "Preparing dataset for SM=" << ism << endl;
 
-          cout << "(" << iet <<  ") " << num09 << " " << num10 << endl;
+          cout << "(" << ixt <<  ") " << num09 << " " << num10 << endl;
 
           cout << endl;
 
@@ -731,11 +741,11 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
         }
         c4.setTaskStatus(val);
 
-        int itt = 68 + iet;
+        int itt = 68 + ixt;
 
         if ( econn ) {
           try {
-            ecid = LogicID::getEcalLogicID("EB_mem_TT", Numbers::iSM(ism), itt);
+            ecid = LogicID::getEcalLogicID("EB_mem_TT", Numbers::iSM(ism, EcalEndcap), itt);
             dataset4[ecid] = c4;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -1249,42 +1259,42 @@ void EEIntegrityClient::analyze(void){
 
     float num01, num02, num03, num04, num05, num06;
 
-    for ( int ie = 1; ie <= 85; ie++ ) {
-      for ( int ip = 1; ip <= 20; ip++ ) {
+    for ( int ix = 1; ix <= 50; ix++ ) {
+      for ( int iy = 1; iy <= 50; iy++ ) {
 
         num01 = num02 = num03 = num04 = num05 = num06 = 0.;
 
-        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, 2. );
+        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, -1. );
 
         bool update1 = false;
         bool update2 = false;
 
         float numTot = -1.;
 
-        if ( h_[ism-1] ) numTot = h_[ism-1]->GetBinContent(ie, ip);
+        if ( h_[ism-1] ) numTot = h_[ism-1]->GetBinContent(ix, iy);
 
         if ( h01_[ism-1] ) {
-          num01  = h01_[ism-1]->GetBinContent(ie, ip);
+          num01  = h01_[ism-1]->GetBinContent(ix, iy);
           update1 = true;
         }
 
         if ( h02_[ism-1] ) {
-          num02  = h02_[ism-1]->GetBinContent(ie, ip);
+          num02  = h02_[ism-1]->GetBinContent(ix, iy);
           update1 = true;
         }
 
         if ( h03_[ism-1] ) {
-          num03  = h03_[ism-1]->GetBinContent(ie, ip);
+          num03  = h03_[ism-1]->GetBinContent(ix, iy);
           update1 = true;
         }
 
         if ( h04_[ism-1] ) {
-          num04  = h04_[ism-1]->GetBinContent(ie, ip);
+          num04  = h04_[ism-1]->GetBinContent(ix, iy);
           update1 = true;
         }
 
-        int iet = 1 + ((ie-1)/5);
-        int ipt = 1 + ((ip-1)/5);
+        int iet = 1 + ((ix-1)/5);
+        int ipt = 1 + ((iy-1)/5);
 
         if ( h05_[ism-1] ) {
           num05  = h05_[ism-1]->GetBinContent(iet, ipt);
@@ -1322,8 +1332,13 @@ void EEIntegrityClient::analyze(void){
               val = 0.;
           }
 
+          int jx = ix + Numbers::ix0EE(ism);
+          int jy = iy + Numbers::iy0EE(ism);
+
           // filling the summary for SM channels
-          if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, val );
+          if ( Numbers::validEE(ism, 101 - jx, jy) ) {
+            if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, val );
+          }
 
         }
 
@@ -1335,13 +1350,15 @@ void EEIntegrityClient::analyze(void){
 
             EcalLogicID ecid = m->first;
 
-            int ic = (ip-1) + 20*(ie-1) + 1;
+            int ic = Numbers::icEE(ism, ix, iy);
 
-            if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == ic ) {
+            if ( ic == -1 ) continue;
+
+            if ( ecid.getID1() == Numbers::iSM(ism, EcalEndcap) && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg01_[ism-1] ) {
-                  float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
-                  meg01_[ism-1]->setBinContent( ie, ip, val+3 );
+                  float val = int(meg01_[ism-1]->getBinContent(ix, iy)) % 3;
+                  meg01_[ism-1]->setBinContent( ix, iy, val+3 );
                 }
               }
             }
@@ -1355,15 +1372,15 @@ void EEIntegrityClient::analyze(void){
 
             EcalLogicID ecid = m->first;
 
-            int iet = 1 + ((ie-1)/5);
-            int ipt = 1 + ((ip-1)/5);
+            int iet = 1 + ((ix-1)/5);
+            int ipt = 1 + ((iy-1)/5);
             int itt = (ipt-1) + 4*(iet-1) + 1;
 
-            if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == itt ) {
+            if ( ecid.getID1() == Numbers::iSM(ism, EcalEndcap) && ecid.getID2() == itt ) {
               if ( (m->second).getErrorBits() & bits02 ) {
                 if ( meg01_[ism-1] ) {
-                  float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
-                  meg01_[ism-1]->setBinContent( ie, ip, val+3 );
+                  float val = int(meg01_[ism-1]->getBinContent(ix, iy)) % 3;
+                  meg01_[ism-1]->setBinContent( ix, iy, val+3 );
                 }
               }
             }
@@ -1466,7 +1483,7 @@ void EEIntegrityClient::analyze(void){
 
             int ic = EEIntegrityClient::chNum[ (ie-1)%5 ][ (ip-1) ] + (ie-1)/5 * 25;
 
-            if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == ic ) {
+            if ( ecid.getID1() == Numbers::iSM(ism, EcalEndcap) && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg02_[ism-1] ) {
                   float val = int(meg02_[ism-1]->getBinContent(ie, ip)) % 3;
@@ -1486,7 +1503,7 @@ void EEIntegrityClient::analyze(void){
             int iet = 1 + ((ie-1)/5);
             int itt = 68 + iet;
 
-            if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == itt ) {
+            if ( ecid.getID1() == Numbers::iSM(ism, EcalEndcap) && ecid.getID2() == itt ) {
               if ( (m->second).getErrorBits() & bits02 ) {
                 if ( meg02_[ism-1] ) {
                   float val = int(meg02_[ism-1]->getBinContent(ie, ip)) % 3;
@@ -1561,24 +1578,6 @@ void EEIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
   int pCol4[10];
   for ( int i = 0; i < 10; i++ ) pCol4[i] = 401+i;
 
-  TH2C dummy1( "dummy1", "dummy1 for sm", 85, 0, 85, 20, 0, 20 );
-  for ( short i=0; i<68; i++ ) {
-    int a = 2 + ( i/4 ) * 5;
-    int b = 2 + ( i%4 ) * 5;
-    dummy1.Fill( a, b, i+1 );
-  }
-  dummy1.SetMarkerSize(2);
-  dummy1.SetMinimum(0.1);
-
-  TH2C dummy2( "dummy2", "dummy2 for sm", 17, 0, 17, 4, 0, 4 );
-  for ( short i=0; i<68; i++ ) {
-    int a = ( i/4 );
-    int b = ( i%4 );
-    dummy2.Fill( a, b, i+1 );
-  }
-  dummy2.SetMarkerSize(2);
-  dummy2.SetMinimum(0.1);
-
   TH2C dummy3( "dummy3", "dummy3 for sm mem", 10, 0, 10, 5, 0, 5 );
   for ( short i=0; i<2; i++ ) {
     int a = 2 + i*5;
@@ -1600,9 +1599,9 @@ void EEIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
   string imgNameDCC, imgNameOcc, imgNameQual,imgNameOccMem, imgNameQualMem, imgNameME[10], imgName, meName;
 
   TCanvas* cDCC = new TCanvas("cDCC", "Temp", 2*csize, csize);
-  TCanvas* cOcc = new TCanvas("cOcc", "Temp", 2*csize, csize);
-  TCanvas* cQual = new TCanvas("cQual", "Temp", 2*csize, csize);
-  TCanvas* cMe = new TCanvas("cMe", "Temp", 2*csize, csize);
+  TCanvas* cOcc = new TCanvas("cOcc", "Temp", 2*csize, 2*csize);
+  TCanvas* cQual = new TCanvas("cQual", "Temp", 2*csize, 2*csize);
+  TCanvas* cMe = new TCanvas("cMe", "Temp", 2*csize, 2*csize);
   TCanvas* cMeMem = new TCanvas("cMeMem", "Temp", 2*csize, csize);
 
   TH1F* obj1f;
@@ -1676,14 +1675,21 @@ void EEIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
       cQual->cd();
       gStyle->SetOptStat(" ");
       gStyle->SetPalette(6, pCol3);
-      obj2f->GetXaxis()->SetNdivisions(17);
-      obj2f->GetYaxis()->SetNdivisions(4);
       cQual->SetGridx();
       cQual->SetGridy();
       obj2f->SetMinimum(-0.00000001);
       obj2f->SetMaximum(6.0);
+      obj2f->GetXaxis()->SetLabelSize(0.02);
+      obj2f->GetYaxis()->SetLabelSize(0.02);
       obj2f->Draw("col");
-      dummy1.Draw("text,same");
+      cQual->SetBit(TGraph::kClipFrame);
+      TLine l;
+      l.SetLineWidth(1);
+      for ( int i=0; i<201; i=i+1){
+        if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
+          l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
+        }
+      }
       cQual->Update();
       cQual->SaveAs(imgName.c_str());
 
@@ -1711,13 +1717,21 @@ void EEIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
       cOcc->cd();
       gStyle->SetOptStat(" ");
       gStyle->SetPalette(10, pCol4);
-      obj2f->GetXaxis()->SetNdivisions(17);
-      obj2f->GetYaxis()->SetNdivisions(4);
       cOcc->SetGridx();
       cOcc->SetGridy();
+      obj2f->GetXaxis()->SetLabelSize(0.02);
+      obj2f->GetYaxis()->SetLabelSize(0.02);
+      obj2f->GetZaxis()->SetLabelSize(0.02);
       obj2f->SetMinimum(0.0);
       obj2f->Draw("colz");
-      dummy1.Draw("text,same");
+      cOcc->SetBit(TGraph::kClipFrame);
+      TLine l;
+      l.SetLineWidth(1);
+      for ( int i=0; i<201; i=i+1){
+        if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
+          l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
+        }
+      }
       cOcc->Update();
       cOcc->SaveAs(imgName.c_str());
 
@@ -1768,16 +1782,31 @@ void EEIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
         cMe->cd();
         gStyle->SetOptStat(" ");
         gStyle->SetPalette(10, pCol4);
-        obj2f->GetXaxis()->SetNdivisions(17);
-        obj2f->GetYaxis()->SetNdivisions(4);
         cMe->SetGridx();
         cMe->SetGridy();
+        obj2f->GetXaxis()->SetLabelSize(0.02);
+        obj2f->GetYaxis()->SetLabelSize(0.02);
+        obj2f->GetZaxis()->SetLabelSize(0.02);
         obj2f->SetMinimum(0.0);
         obj2f->Draw("colz");
-        if ( iCanvas < 5 )
-          dummy1.Draw("text,same");
-        else
-          dummy2.Draw("text,same");
+        cMe->SetBit(TGraph::kClipFrame);
+        if ( iCanvas > 4 ) {
+          TLine l;
+          l.SetLineWidth(1);
+          for ( int i=0; i<201; i=i+1){
+            if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
+              l.DrawLine(Numbers::ixSectorsEE[i]/5, Numbers::iySectorsEE[i]/5, Numbers::ixSectorsEE[i+1]/5, Numbers::iySectorsEE[i+1]/5);
+            }
+          }
+        } else {
+          TLine l;
+          l.SetLineWidth(1);
+          for ( int i=0; i<201; i=i+1){
+            if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
+              l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
+            }
+          }
+        }
         cMe->Update();
         cMe->SaveAs(imgName.c_str());
 
@@ -1845,6 +1874,9 @@ void EEIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj2f->GetYaxis()->SetNdivisions(5);
       cMeMem->SetGridx();
       cMeMem->SetGridy(0);
+      obj2f->GetXaxis()->SetLabelSize(0.02);
+      obj2f->GetYaxis()->SetLabelSize(0.02);
+      obj2f->GetZaxis()->SetLabelSize(0.02);
       obj2f->SetMinimum(0.0);
       obj2f->Draw("colz");
       dummy3.Draw("text,same");

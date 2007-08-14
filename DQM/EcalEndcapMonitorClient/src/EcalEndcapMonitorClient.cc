@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/07/28 16:00:25 $
- * $Revision: 1.59 $
+ * $Date: 2007/08/09 14:36:55 $
+ * $Revision: 1.60 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -87,8 +87,6 @@ EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps) : Modul
 }
 
 void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
-
-  Numbers::maxSM = 18;
 
   cout << endl;
   cout << " *** Ecal Endcap Generic Monitor Client ***" << endl;
@@ -1793,6 +1791,8 @@ void EcalEndcapMonitorClient::analyze(void){
 
 void EcalEndcapMonitorClient::analyze(const Event &e, const EventSetup &c) {
 
+  Numbers::initGeometry(c);
+
   run_ = e.id().run();
 
   evt_ = e.id().event();
@@ -1865,6 +1865,18 @@ void EcalEndcapMonitorClient::htmlOutput( bool current ){
     htmlName = "EESummaryClient.html";
     summaryClient_->htmlOutput(run_, htmlDir, htmlName);
     htmlFile << "<li><a href=\"" << htmlName << "\">Data " << "Summary" << "</a></li>" << endl;
+    htmlFile << "<br>" << endl;
+
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
+
+    htmlFile << "<td><img src=\"EE_global_summary_EE_-.png\" border=0></td>" << endl;
+    htmlFile << "<td><img src=\"EE_global_summary_EE_+.png\" border=0></td>" << endl;
+
+    htmlFile << "</tr>" << endl;
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
 
   }
 

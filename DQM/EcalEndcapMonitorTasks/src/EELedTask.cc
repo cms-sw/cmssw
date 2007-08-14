@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2007/07/03 15:37:10 $
- * $Revision: 1.2 $
+ * $Date: 2007/07/27 16:37:50 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -20,8 +20,8 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDigi/interface/EBDataFrame.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -36,8 +36,6 @@ using namespace std;
 
 EELedTask::EELedTask(const ParameterSet& ps){
 
-  Numbers::maxSM = 18;
-
   init_ = false;
 
   // get hold of back-end interface
@@ -46,7 +44,7 @@ EELedTask::EELedTask(const ParameterSet& ps){
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
 
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
-  EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
+  EEDigiCollection_ = ps.getParameter<edm::InputTag>("EEDigiCollection");
   EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");
   EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
 
@@ -96,26 +94,26 @@ void EELedTask::setup(void){
       meShapeMapA_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(meShapeMapA_[i], i+1);
       sprintf(histo, "EELDT amplitude %s A", Numbers::sEE(i+1).c_str());
-      meAmplMapA_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
+      meAmplMapA_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
       dbe_->tag(meAmplMapA_[i], i+1);
       sprintf(histo, "EELDT timing %s A", Numbers::sEE(i+1).c_str());
-      meTimeMapA_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
+      meTimeMapA_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 250, 0., 10., "s");
       dbe_->tag(meTimeMapA_[i], i+1);
       sprintf(histo, "EELDT amplitude over PN %s A", Numbers::sEE(i+1).c_str());
-      meAmplPNMapA_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
+      meAmplPNMapA_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
       dbe_->tag(meAmplPNMapA_[i], i+1);
 
       sprintf(histo, "EELDT shape %s B", Numbers::sEE(i+1).c_str());
       meShapeMapB_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(meShapeMapB_[i], i+1);
       sprintf(histo, "EELDT amplitude %s B", Numbers::sEE(i+1).c_str());
-      meAmplMapB_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
+      meAmplMapB_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
       dbe_->tag(meAmplMapB_[i], i+1);
       sprintf(histo, "EELDT timing %s B", Numbers::sEE(i+1).c_str());
-      meTimeMapB_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
+      meTimeMapB_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 250, 0., 10., "s");
       dbe_->tag(meTimeMapB_[i], i+1);
       sprintf(histo, "EELDT amplitude over PN %s B", Numbers::sEE(i+1).c_str());
-      meAmplPNMapB_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
+      meAmplPNMapB_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
       dbe_->tag(meAmplPNMapB_[i], i+1);
     }
 
@@ -202,6 +200,8 @@ void EELedTask::endJob(void){
 
 void EELedTask::analyze(const Event& e, const EventSetup& c){
 
+  Numbers::initGeometry(c);
+
   bool enable = false;
   map<int, EcalDCCHeaderBlock> dccMap;
 
@@ -214,7 +214,7 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
       EcalDCCHeaderBlock dcch = (*dcchItr);
 
-      int ism = Numbers::iSM( dcch ); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( dcch );
 
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find( ism );
       if ( i != dccMap.end() ) continue;
@@ -240,23 +240,22 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
   try {
 
-    Handle<EBDigiCollection> digis;
-    e.getByLabel(EBDigiCollection_, digis);
+    Handle<EEDigiCollection> digis;
+    e.getByLabel(EEDigiCollection_, digis);
 
-    int nebd = digis->size();
-    LogDebug("EELedTask") << "event " << ievt_ << " digi collection size " << nebd;
+    int need = digis->size();
+    LogDebug("EELedTask") << "event " << ievt_ << " digi collection size " << need;
 
-    for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
+    for ( EEDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
-      EBDataFrame dataframe = (*digiItr);
-      EBDetId id = dataframe.id();
+      EEDataFrame dataframe = (*digiItr);
+      EEDetId id = dataframe.id();
 
-      int ic = id.ic();
-      int ie = (ic-1)/20 + 1;
-      int ip = (ic-1)%20 + 1;
-
-      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
-
+      int ix = 101 - id.ix();
+      int iy = id.iy();
+  
+      int ism = Numbers::iSM( id );
+  
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
       if ( i == dccMap.end() ) continue;
 
@@ -264,7 +263,9 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
                dccMap[ism].getRunType() == EcalDCCHeaderBlock::LED_GAP ) ) continue;
 
       LogDebug("EELedTask") << " det id = " << id;
-      LogDebug("EELedTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      LogDebug("EELedTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
+
+      int ic = Numbers::icEE(ism, ix, iy);
 
       for (int i = 0; i < 10; i++) {
 
@@ -278,7 +279,7 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
         if ( sample.gainId() == 2 ) gain = 1./ 6.;
         if ( sample.gainId() == 3 ) gain = 1./ 1.;
 
-        if ( ie < 6 || ip > 10 ) {
+        if ( ix < 6 || iy > 10 ) {
 
           meShapeMap = meShapeMapA_[ism-1];
 
@@ -299,7 +300,7 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
   } catch ( exception& ex) {
 
-    LogWarning("EELedTask") << EBDigiCollection_ << " not available";
+    LogWarning("EELedTask") << EEDigiCollection_ << " not available";
 
   }
 
@@ -324,7 +325,7 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
       EcalPnDiodeDigi pn = (*pnItr);
       EcalPnDiodeDetId id = pn.id();
 
-      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( id );
 
       int num = id.iPnId();
 
@@ -411,16 +412,15 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
     for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
       EcalUncalibratedRecHit hit = (*hitItr);
-      EBDetId id = hit.id();
+      EEDetId id = hit.id();
 
-      int ic = id.ic();
-      int ie = (ic-1)/20 + 1;
-      int ip = (ic-1)%20 + 1;
+      int ix = 101 - id.ix();
+      int iy = id.iy();
 
-      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( id );
 
-      float xie = ie - 0.5;
-      float xip = ip - 0.5;
+      float xix = ix - 0.5;
+      float xiy = iy - 0.5;
 
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
       if ( i == dccMap.end() ) continue;
@@ -429,13 +429,13 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
                dccMap[ism].getRunType() == EcalDCCHeaderBlock::LED_GAP ) ) continue;
 
       LogDebug("EELedTask") << " det id = " << id;
-      LogDebug("EELedTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      LogDebug("EELedTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
 
       MonitorElement* meAmplMap = 0;
       MonitorElement* meTimeMap = 0;
       MonitorElement* meAmplPNMap = 0;
 
-      if ( ie < 6 || ip > 10 ) {
+      if ( ix < 6 || iy > 10 ) {
 
         meAmplMap = meAmplMapA_[ism-1];
         meTimeMap = meTimeMapA_[ism-1];
@@ -460,13 +460,13 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
       LogDebug("EELedTask") << " hit jitter " << yval;
       LogDebug("EELedTask") << " hit pedestal " << zval;
 
-      if ( meAmplMap ) meAmplMap->Fill(xie, xip, xval);
+      if ( meAmplMap ) meAmplMap->Fill(xix, xiy, xval);
 
-      if ( meTimeMap ) meTimeMap->Fill(xie, xip, yval);
+      if ( meTimeMap ) meTimeMap->Fill(xix, xiy, yval);
 
       float wval = 0.;
 
-      if ( ie < 6 || ip > 10 ) {
+      if ( ix < 6 || iy > 10 ) {
 
         if ( adcA[ism-1] != 0. ) wval = xval / adcA[ism-1];
 
@@ -478,7 +478,7 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
       LogDebug("EELedTask") << " hit amplitude over PN " << wval;
 
-      if ( meAmplPNMap ) meAmplPNMap->Fill(xie, xip, wval);
+      if ( meAmplPNMap ) meAmplPNMap->Fill(xix, xiy, wval);
 
     }
 

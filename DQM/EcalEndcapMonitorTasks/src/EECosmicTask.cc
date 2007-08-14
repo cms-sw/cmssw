@@ -1,8 +1,8 @@
 /*
  * \file EECosmicTask.cc
  *
- * $Date: 2007/06/13 18:01:29 $
- * $Revision: 1.10 $
+ * $Date: 2007/08/14 13:08:11 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -20,8 +20,8 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDigi/interface/EBDataFrame.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -35,8 +35,6 @@ using namespace edm;
 using namespace std;
 
 EECosmicTask::EECosmicTask(const ParameterSet& ps){
-
-  Numbers::maxSM = 18;
 
   init_ = false;
 
@@ -83,13 +81,13 @@ void EECosmicTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EECosmicTask/Cut");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EECT energy cut %s", Numbers::sEE(i+1).c_str());
-      meCutMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      meCutMap_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EECosmicTask/Sel");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EECT energy sel %s", Numbers::sEE(i+1).c_str());
-      meSelMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      meSelMap_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EECosmicTask/Spectrum");
@@ -143,6 +141,8 @@ void EECosmicTask::endJob(void){
 
 void EECosmicTask::analyze(const Event& e, const EventSetup& c){
 
+  Numbers::initGeometry(c);
+
   bool enable = false;
   map<int, EcalDCCHeaderBlock> dccMap;
 
@@ -155,7 +155,7 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
 
       EcalDCCHeaderBlock dcch = (*dcchItr);
 
-      int ism = Numbers::iSM( dcch ); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( dcch );
 
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find( ism );
       if ( i != dccMap.end() ) continue;
@@ -188,22 +188,21 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
     Handle<EcalRecHitCollection> hits;
     e.getByLabel(EcalRecHitCollection_, hits);
 
-    int nebh = hits->size();
-    LogDebug("EECosmicTask") << "event " << ievt_ << " hits collection size " << nebh;
+    int neeh = hits->size();
+    LogDebug("EECosmicTask") << "event " << ievt_ << " hits collection size " << neeh;
 
     for ( EcalRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
       EcalRecHit hit = (*hitItr);
-      EBDetId id = hit.id();
+      EEDetId id = hit.id();
 
-      int ic = id.ic();
-      int ie = (ic-1)/20 + 1;
-      int ip = (ic-1)%20 + 1;
+      int ix = 101 - id.ix();
+      int iy = id.iy();
 
-      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( id );
 
-      float xie = ie - 0.5;
-      float xip = ip - 0.5;
+      float xix = ix - 0.5;
+      float xiy = iy - 0.5;
 
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
       if ( i == dccMap.end() ) continue;
@@ -213,10 +212,10 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
                dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
                dccMap[ism].getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
                dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) ) enable = true;
+               dccMap[ism].getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) ) continue;
 
       LogDebug("EECosmicTask") << " det id = " << id;
-      LogDebug("EECosmicTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      LogDebug("EECosmicTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
 
       float xval = hit.energy();
       if ( xval <= 0. ) xval = 0.0;
@@ -227,11 +226,11 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
       const float highThreshold = 0.12500;
 
       if ( xval >= lowThreshold ) {
-        if ( meCutMap_[ism-1] ) meCutMap_[ism-1]->Fill(xie, xip, xval);
+        if ( meCutMap_[ism-1] ) meCutMap_[ism-1]->Fill(xix, xiy, xval);
       }
 
       if ( xval >= highThreshold ) {
-        if ( meSelMap_[ism-1] ) meSelMap_[ism-1]->Fill(xie, xip, xval);
+        if ( meSelMap_[ism-1] ) meSelMap_[ism-1]->Fill(xix, xiy, xval);
       }
 
       if ( meSpectrumMap_[ism-1] ) meSpectrumMap_[ism-1]->Fill(xval);

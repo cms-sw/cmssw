@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2007/07/19 12:02:13 $
- * $Revision: 1.11 $
+ * $Date: 2007/08/09 14:36:55 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -14,6 +14,8 @@
 #include <iomanip>
 
 #include "TStyle.h"
+#include "TGraph.h"
+#include "TLine.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -177,8 +179,8 @@ bool EECosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
     float mean01, mean02;
     float rms01, rms02;
 
-    for ( int ie = 1; ie <= 85; ie++ ) {
-      for ( int ip = 1; ip <= 20; ip++ ) {
+    for ( int ix = 1; ix <= 50; ix++ ) {
+      for ( int iy = 1; iy <= 50; iy++ ) {
 
         num01  = num02  = -1.;
         mean01 = mean02 = -1.;
@@ -187,31 +189,31 @@ bool EECosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
         bool update_channel = false;
 
         if ( h01_[ism-1] && h01_[ism-1]->GetEntries() >= n_min_tot ) {
-          num01 = h01_[ism-1]->GetBinEntries(h01_[ism-1]->GetBin(ie, ip));
+          num01 = h01_[ism-1]->GetBinEntries(h01_[ism-1]->GetBin(ix, iy));
           if ( num01 >= n_min_bin ) {
-            mean01 = h01_[ism-1]->GetBinContent(ie, ip);
-            rms01  = h01_[ism-1]->GetBinError(ie, ip);
+            mean01 = h01_[ism-1]->GetBinContent(ix, iy);
+            rms01  = h01_[ism-1]->GetBinError(ix, iy);
             update_channel = true;
           }
         }
 
         if ( h02_[ism-1] && h02_[ism-1]->GetEntries() >= n_min_tot ) {
-          num02 = h02_[ism-1]->GetBinEntries(h02_[ism-1]->GetBin(ie, ip));
+          num02 = h02_[ism-1]->GetBinEntries(h02_[ism-1]->GetBin(ix, iy));
           if ( num02 >= n_min_bin ) {
-            mean02 = h02_[ism-1]->GetBinContent(ie, ip);
-            rms02  = h02_[ism-1]->GetBinError(ie, ip);
+            mean02 = h02_[ism-1]->GetBinContent(ix, iy);
+            rms02  = h02_[ism-1]->GetBinError(ix, iy);
             update_channel = true;
           }
         }
 
         if ( update_channel ) {
 
-          if ( ie == 1 && ip == 1 ) {
+          if ( ix == 1 && iy == 1 ) {
 
             cout << "Preparing dataset for SM=" << ism << endl;
 
-            cout << "Sel (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << endl;
-            cout << "Cut (" << ie << "," << ip << ") " << num02  << " " << mean02 << " " << rms02  << endl;
+            cout << "Sel (" << ix << "," << iy << ") " << num01  << " " << mean01 << " " << rms01  << endl;
+            cout << "Cut (" << ix << "," << iy << ") " << num02  << " " << mean02 << " " << rms02  << endl;
 
             cout << endl;
 
@@ -222,11 +224,13 @@ bool EECosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
           o.setAvgEnergy(mean01);
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEE(ism, ix, iy);
+
+          if ( ic == -1 ) continue;
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
+              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
               dataset[ecid] = o;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
@@ -470,18 +474,9 @@ void EECosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
   int pCol4[10];
   for ( int i = 0; i < 10; i++ ) pCol4[i] = 401+i;
 
-  TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
-  for ( int i = 0; i < 68; i++ ) {
-    int a = 2 + ( i/4 ) * 5;
-    int b = 2 + ( i%4 ) * 5;
-    dummy.Fill( a, b, i+1 );
-  }
-  dummy.SetMarkerSize(2);
-  dummy.SetMinimum(0.1);
-
   string imgNameME[3], imgName, meName;
 
-  TCanvas* cMe = new TCanvas("cMe", "Temp", 2*csize, csize);
+  TCanvas* cMe = new TCanvas("cMe", "Temp", 2*csize, 2*csize);
   TCanvas* cAmp = new TCanvas("cAmp", "Temp", csize, csize);
 
   TProfile2D* objp;
@@ -526,12 +521,19 @@ void EECosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
         cMe->cd();
         gStyle->SetOptStat(" ");
         gStyle->SetPalette(10, pCol4);
-        objp->GetXaxis()->SetNdivisions(17);
-        objp->GetYaxis()->SetNdivisions(4);
         cMe->SetGridx();
         cMe->SetGridy();
+        objp->GetXaxis()->SetLabelSize(0.02);
+        objp->GetYaxis()->SetLabelSize(0.02);
         objp->Draw("colz");
-        dummy.Draw("text,same");
+        cMe->SetBit(TGraph::kClipFrame);
+        TLine l;
+        l.SetLineWidth(1);
+        for ( int i=0; i<201; i=i+1){
+          if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
+            l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
+          }
+        }
         cMe->Update();
         cMe->SaveAs(imgName.c_str());
 

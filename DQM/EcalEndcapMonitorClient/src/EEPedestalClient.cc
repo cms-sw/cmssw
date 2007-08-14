@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2007/07/19 12:02:14 $
- * $Revision: 1.17 $
+ * $Date: 2007/08/09 14:36:55 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -14,6 +14,8 @@
 #include <iomanip>
 
 #include "TStyle.h"
+#include "TGraph.h"
+#include "TLine.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -303,13 +305,13 @@ void EEPedestalClient::setup(void) {
 
     if ( meg01_[ism-1] ) dbe->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal quality G01 %s", Numbers::sEE(ism).c_str());
-    meg01_[ism-1] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg01_[ism-1] = dbe->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
     if ( meg02_[ism-1] ) dbe->removeElement( meg02_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal quality G06 %s", Numbers::sEE(ism).c_str());
-    meg02_[ism-1] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg02_[ism-1] = dbe->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
     if ( meg03_[ism-1] ) dbe->removeElement( meg03_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal quality G12 %s", Numbers::sEE(ism).c_str());
-    meg03_[ism-1] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg03_[ism-1] = dbe->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
 
     if ( meg04_[ism-1] ) dbe->removeElement( meg04_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal quality PNs G01 %s", Numbers::sEE(ism).c_str());
@@ -347,23 +349,23 @@ void EEPedestalClient::setup(void) {
     
     if ( mes01_[ism-1] ) dbe->removeElement( mes01_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal 3sum G01 %s", Numbers::sEE(ism).c_str());
-    mes01_[ism-1] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    mes01_[ism-1] = dbe->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
     if ( mes02_[ism-1] ) dbe->removeElement( mes02_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal 3sum G06 %s", Numbers::sEE(ism).c_str());
-    mes02_[ism-1] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    mes02_[ism-1] = dbe->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
     if ( mes03_[ism-1] ) dbe->removeElement( mes03_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal 3sum G12 %s", Numbers::sEE(ism).c_str());
-    mes03_[ism-1] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    mes03_[ism-1] = dbe->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
 
     if ( met01_[ism-1] ) dbe->removeElement( met01_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal 5sum G01 %s", Numbers::sEE(ism).c_str());
-    met01_[ism-1] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    met01_[ism-1] = dbe->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
     if ( met02_[ism-1] ) dbe->removeElement( met02_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal 5sum G06 %s", Numbers::sEE(ism).c_str());
-    met02_[ism-1] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    met02_[ism-1] = dbe->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
     if ( met03_[ism-1] ) dbe->removeElement( met03_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal 5sum G12 %s", Numbers::sEE(ism).c_str());
-    met03_[ism-1] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    met03_[ism-1] = dbe->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
 
   }
 
@@ -375,12 +377,21 @@ void EEPedestalClient::setup(void) {
     UtilsClient::resetHisto( meg02_[ism-1] );
     UtilsClient::resetHisto( meg03_[ism-1] );
 
-    for ( int ie = 1; ie <= 85; ie++ ) {
-      for ( int ip = 1; ip <= 20; ip++ ) {
+    for ( int ix = 1; ix <= 50; ix++ ) {
+      for ( int iy = 1; iy <= 50; iy++ ) {
 
-        meg01_[ism-1]->setBinContent( ie, ip, 2. );
-        meg02_[ism-1]->setBinContent( ie, ip, 2. );
-        meg03_[ism-1]->setBinContent( ie, ip, 2. );
+        meg01_[ism-1]->setBinContent( ix, iy, -1. );
+        meg02_[ism-1]->setBinContent( ix, iy, -1. );
+        meg03_[ism-1]->setBinContent( ix, iy, -1. );
+
+        int jx = ix + Numbers::ix0EE(ism);
+        int jy = iy + Numbers::iy0EE(ism);
+
+        if ( Numbers::validEE(ism, 101 - jx, jy) ) {
+          meg01_[ism-1]->setBinContent( ix, iy, 2. );
+          meg02_[ism-1]->setBinContent( ix, iy, 2. );
+          meg03_[ism-1]->setBinContent( ix, iy, 2. );
+        }
 
       }
     }
@@ -411,16 +422,16 @@ void EEPedestalClient::setup(void) {
     UtilsClient::resetHisto( met02_[ism-1] );
     UtilsClient::resetHisto( met03_[ism-1] );
 
-    for ( int ie = 1; ie <= 85; ie++ ) {
-      for ( int ip = 1; ip <= 20; ip++ ) {
+    for ( int ix = 1; ix <= 50; ix++ ) {
+      for ( int iy = 1; iy <= 50; iy++ ) {
 
-        mes01_[ism-1]->setBinContent( ie, ip, -999. );
-        mes02_[ism-1]->setBinContent( ie, ip, -999. );
-        mes03_[ism-1]->setBinContent( ie, ip, -999. );
+        mes01_[ism-1]->setBinContent( ix, iy, -999. );
+        mes02_[ism-1]->setBinContent( ix, iy, -999. );
+        mes03_[ism-1]->setBinContent( ix, iy, -999. );
 
-        met01_[ism-1]->setBinContent( ie, ip, -999. );
-        met02_[ism-1]->setBinContent( ie, ip, -999. );
-        met03_[ism-1]->setBinContent( ie, ip, -999. );
+        met01_[ism-1]->setBinContent( ix, iy, -999. );
+        met02_[ism-1]->setBinContent( ix, iy, -999. );
+        met03_[ism-1]->setBinContent( ix, iy, -999. );
 
       }
     }
@@ -548,8 +559,8 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 //    UtilsClient::printBadChannels(qtg02_[ism-1]);
 //    UtilsClient::printBadChannels(qtg03_[ism-1]);
 
-    for ( int ie = 1; ie <= 85; ie++ ) {
-      for ( int ip = 1; ip <= 20; ip++ ) {
+    for ( int ix = 1; ix <= 50; ix++ ) {
+      for ( int iy = 1; iy <= 50; iy++ ) {
 
         bool update01;
         bool update02;
@@ -559,19 +570,19 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
         float mean01, mean02, mean03;
         float rms01, rms02, rms03;
 
-        update01 = UtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
-        update02 = UtilsClient::getBinStats(h02_[ism-1], ie, ip, num02, mean02, rms02);
-        update03 = UtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
+        update01 = UtilsClient::getBinStats(h01_[ism-1], ix, iy, num01, mean01, rms01);
+        update02 = UtilsClient::getBinStats(h02_[ism-1], ix, iy, num02, mean02, rms02);
+        update03 = UtilsClient::getBinStats(h03_[ism-1], ix, iy, num03, mean03, rms03);
 
         if ( update01 || update02 || update03 ) {
 
-          if ( ie == 1 && ip == 1 ) {
+          if ( ix == 1 && iy == 1 ) {
 
             cout << "Preparing dataset for SM=" << ism << endl;
 
-            cout << "G01 (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << endl;
-            cout << "G06 (" << ie << "," << ip << ") " << num02  << " " << mean02 << " " << rms02  << endl;
-            cout << "G12 (" << ie << "," << ip << ") " << num03  << " " << mean03 << " " << rms03  << endl;
+            cout << "G01 (" << ix << "," << iy << ") " << num01  << " " << mean01 << " " << rms01  << endl;
+            cout << "G06 (" << ix << "," << iy << ") " << num02  << " " << mean02 << " " << rms02  << endl;
+            cout << "G12 (" << ix << "," << iy << ") " << num03  << " " << mean03 << " " << rms03  << endl;
 
             cout << endl;
 
@@ -586,23 +597,25 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
           p.setPedMeanG12(mean03);
           p.setPedRMSG12(rms03);
 
-          if ( meg01_[ism-1] && int(meg01_[ism-1]->getBinContent( ie, ip )) % 3 == 1. &&
-               meg02_[ism-1] && int(meg02_[ism-1]->getBinContent( ie, ip )) % 3 == 1. &&
-               meg03_[ism-1] && int(meg03_[ism-1]->getBinContent( ie, ip )) % 3 == 1. ) {
+          if ( meg01_[ism-1] && int(meg01_[ism-1]->getBinContent( ix, iy )) % 3 == 1. &&
+               meg02_[ism-1] && int(meg02_[ism-1]->getBinContent( ix, iy )) % 3 == 1. &&
+               meg03_[ism-1] && int(meg03_[ism-1]->getBinContent( ix, iy )) % 3 == 1. ) {
             p.setTaskStatus(true);
           } else {
             p.setTaskStatus(false);
           }
 
-          status = status && UtilsClient::getBinQual(meg01_[ism-1], ie, ip) &&
-                             UtilsClient::getBinQual(meg02_[ism-1], ie, ip) &&
-                             UtilsClient::getBinQual(meg03_[ism-1], ie, ip);
+          status = status && UtilsClient::getBinQual(meg01_[ism-1], ix, iy) &&
+                             UtilsClient::getBinQual(meg02_[ism-1], ix, iy) &&
+                             UtilsClient::getBinQual(meg03_[ism-1], ix, iy);
 
-          int ic = (ip-1) + 20*(ie-1) + 1;
+          int ic = Numbers::icEE(ism, ix, iy);
+
+          if ( ic == -1 ) continue;
 
           if ( econn ) {
             try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
+              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
               dataset1[ecid] = p;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
@@ -686,7 +699,7 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
         if ( econn ) {
           try {
-            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism), i-1);
+            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalEndcap), i-1);
             dataset2[ecid] = pn;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -1142,12 +1155,21 @@ void EEPedestalClient::analyze(void){
     UtilsClient::resetHisto( met02_[ism-1] );
     UtilsClient::resetHisto( met03_[ism-1] );
 
-    for ( int ie = 1; ie <= 85; ie++ ) {
-      for ( int ip = 1; ip <= 20; ip++ ) {
+    for ( int ix = 1; ix <= 50; ix++ ) {
+      for ( int iy = 1; iy <= 50; iy++ ) {
 
-        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent(ie, ip, 2.);
-        if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent(ie, ip, 2.);
-        if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(ie, ip, 2.);
+        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent(ix, iy, -1.);
+        if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent(ix, iy, -1.);
+        if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(ix, iy, -1.);
+
+        int jx = ix + Numbers::ix0EE(ism);
+        int jy = iy + Numbers::iy0EE(ism);
+
+        if ( Numbers::validEE(ism, 101 - jx, jy) ) {
+          if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent(ix, iy, 2.);
+          if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent(ix, iy, 2.);
+          if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(ix, iy, 2.);
+        }
 
         bool update01;
         bool update02;
@@ -1157,9 +1179,9 @@ void EEPedestalClient::analyze(void){
         float mean01, mean02, mean03;
         float rms01, rms02, rms03;
 
-        update01 = UtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
-        update02 = UtilsClient::getBinStats(h02_[ism-1], ie, ip, num02, mean02, rms02);
-        update03 = UtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
+        update01 = UtilsClient::getBinStats(h01_[ism-1], ix, iy, num01, mean01, rms01);
+        update02 = UtilsClient::getBinStats(h02_[ism-1], ix, iy, num02, mean02, rms02);
+        update03 = UtilsClient::getBinStats(h03_[ism-1], ix, iy, num03, mean03, rms03);
 
         if ( update01 ) {
 
@@ -1170,7 +1192,7 @@ void EEPedestalClient::analyze(void){
             val = 0.;
           if ( rms01 > RMSThreshold_[0] )
             val = 0.;
-          if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent(ie, ip, val);
+          if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent(ix, iy, val);
 
           if ( mep01_[ism-1] ) mep01_[ism-1]->Fill(mean01);
           if ( mer01_[ism-1] ) mer01_[ism-1]->Fill(rms01);
@@ -1186,7 +1208,7 @@ void EEPedestalClient::analyze(void){
             val = 0.;
           if ( rms02 > RMSThreshold_[1] )
             val = 0.;
-          if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent(ie, ip, val);
+          if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent(ix, iy, val);
 
           if ( mep02_[ism-1] ) mep02_[ism-1]->Fill(mean02);
           if ( mer02_[ism-1] ) mer02_[ism-1]->Fill(rms02);
@@ -1202,7 +1224,7 @@ void EEPedestalClient::analyze(void){
             val = 0.;
           if ( rms03 > RMSThreshold_[2] )
             val = 0.;
-          if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(ie, ip, val);
+          if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(ix, iy, val);
 
           if ( mep03_[ism-1] ) mep03_[ism-1]->Fill(mean03);
           if ( mer03_[ism-1] ) mer03_[ism-1]->Fill(rms03);
@@ -1217,25 +1239,27 @@ void EEPedestalClient::analyze(void){
 
             EcalLogicID ecid = m->first;
 
-            int ic = (ip-1) + 20*(ie-1) + 1;
+            int ic = Numbers::icEE(ism, ix, iy);
 
-            if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == ic ) {
+            if ( ic == -1 ) continue;
+
+            if ( ecid.getID1() == Numbers::iSM(ism, EcalEndcap) && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg01_[ism-1] ) {
-                  float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
-                  meg01_[ism-1]->setBinContent( ie, ip, val+3 );
+                  float val = int(meg01_[ism-1]->getBinContent(ix, iy)) % 3;
+                  meg01_[ism-1]->setBinContent( ix, iy, val+3 );
                 }
               }
               if ( (m->second).getErrorBits() & bits02 ) {
                 if ( meg02_[ism-1] ) {
-                  float val = int(meg02_[ism-1]->getBinContent(ie, ip)) % 3;
-                  meg02_[ism-1]->setBinContent( ie, ip, val+3 );
+                  float val = int(meg02_[ism-1]->getBinContent(ix, iy)) % 3;
+                  meg02_[ism-1]->setBinContent( ix, iy, val+3 );
                 }
               }
               if ( (m->second).getErrorBits() & bits03 ) {
                 if ( meg03_[ism-1] ) {
-                  float val = int(meg03_[ism-1]->getBinContent(ie, ip)) % 3;
-                  meg03_[ism-1]->setBinContent( ie, ip, val+3 );
+                  float val = int(meg03_[ism-1]->getBinContent(ix, iy)) % 3;
+                  meg03_[ism-1]->setBinContent( ix, iy, val+3 );
                 }
               }
             }
@@ -1305,7 +1329,7 @@ void EEPedestalClient::analyze(void){
 
           EcalLogicID ecid = m->first;
 
-          if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == i-1 ) {
+          if ( ecid.getID1() == Numbers::iSM(ism, EcalEndcap) && ecid.getID2() == i-1 ) {
             if ( (m->second).getErrorBits() & bits01 ) {
               if ( meg04_[ism-1] ) {
                 float val = int(meg04_[ism-1]->getBinContent(i, 1)) % 3;
@@ -1367,8 +1391,8 @@ void EEPedestalClient::analyze(void){
 //      }
 //    }
 
-    for ( int ie = 1; ie <= 85; ie++ ) {
-      for ( int ip = 1; ip <= 20; ip++ ) {
+    for ( int ix = 1; ix <= 50; ix++ ) {
+      for ( int iy = 1; iy <= 50; iy++ ) {
 
         float x3val01;
         float x3val02;
@@ -1382,65 +1406,6 @@ void EEPedestalClient::analyze(void){
         float z3val02;
         float z3val03;
 
-        if ( mes01_[ism-1] ) mes01_[ism-1]->setBinContent(ie, ip, -999.);
-        if ( mes02_[ism-1] ) mes02_[ism-1]->setBinContent(ie, ip, -999.);
-        if ( mes03_[ism-1] ) mes03_[ism-1]->setBinContent(ie, ip, -999.);
-
-        if ( ie >= 2 && ie <= 84 && ip >= 2 && ip <= 19 ) {
-
-          x3val01 = 0.;
-          x3val02 = 0.;
-          x3val03 = 0.;
-          for ( int i = -1; i <= +1; i++ ) {
-            for ( int j = -1; j <= +1; j++ ) {
-
-              if ( h01_[ism-1] ) x3val01 = x3val01 + h01_[ism-1]->GetBinError(ie+i, ip+j) *
-                                                     h01_[ism-1]->GetBinError(ie+i, ip+j);
-
-              if ( h02_[ism-1] ) x3val02 = x3val02 + h02_[ism-1]->GetBinError(ie+i, ip+j) *
-                                                     h02_[ism-1]->GetBinError(ie+i, ip+j);
-
-              if ( h03_[ism-1] ) x3val03 = x3val03 + h03_[ism-1]->GetBinError(ie+i, ip+j) *
-                                                     h03_[ism-1]->GetBinError(ie+i, ip+j);
-
-            }
-          }
-          x3val01 = x3val01 / (9.*9.);
-          x3val02 = x3val02 / (9.*9.);
-          x3val03 = x3val03 / (9.*9.);
-
-          y3val01 = 0.;
-          if ( j01_[ism-1] ) y3val01 = j01_[ism-1]->GetBinError(ie, ip) *
-                                       j01_[ism-1]->GetBinError(ie, ip);
-
-          y3val02 = 0.;
-          if ( j02_[ism-1] ) y3val02 = j02_[ism-1]->GetBinError(ie, ip) *
-                                       j02_[ism-1]->GetBinError(ie, ip);
-
-          y3val03 = 0.;
-          if ( j03_[ism-1] ) y3val03 = j03_[ism-1]->GetBinError(ie, ip) *
-                                       j03_[ism-1]->GetBinError(ie, ip);
-
-          z3val01 = -999.;
-          if ( x3val01 != 0 && y3val01 != 0 ) z3val01 = sqrt(fabs(x3val01 - y3val01));
-          if ( (x3val01 - y3val01) < 0 ) z3val01 = -z3val01;
-
-          if ( mes01_[ism-1] ) mes01_[ism-1]->setBinContent(ie, ip, z3val01);
-
-          z3val02 = -999.;
-          if ( x3val02 != 0 && y3val02 != 0 ) z3val02 = sqrt(fabs(x3val02 - y3val02));
-          if ( (x3val02 - y3val02) < 0 ) z3val02 = -z3val02;
-
-          if ( mes02_[ism-1] ) mes02_[ism-1]->setBinContent(ie, ip, z3val02);
-
-          z3val03 = -999.;
-          if ( x3val03 != 0 && y3val03 != 0 ) z3val03 = sqrt(fabs(x3val03 - y3val03));
-          if ( (x3val03 - y3val03) < 0 ) z3val03 = -z3val03;
-
-          if ( mes03_[ism-1] ) mes03_[ism-1]->setBinContent(ie, ip, z3val03);
-
-        }
-
         float x5val01;
         float x5val02;
         float x5val03;
@@ -1453,11 +1418,75 @@ void EEPedestalClient::analyze(void){
         float z5val02;
         float z5val03;
 
-        if ( met01_[ism-1] ) met01_[ism-1]->setBinContent(ie, ip, -999.);
-        if ( met02_[ism-1] ) met02_[ism-1]->setBinContent(ie, ip, -999.);
-        if ( met03_[ism-1] ) met03_[ism-1]->setBinContent(ie, ip, -999.);
+        if ( mes01_[ism-1] ) mes01_[ism-1]->setBinContent(ix, iy, -999.);
+        if ( mes02_[ism-1] ) mes02_[ism-1]->setBinContent(ix, iy, -999.);
+        if ( mes03_[ism-1] ) mes03_[ism-1]->setBinContent(ix, iy, -999.);
 
-        if ( ie >= 3 && ie <= 83 && ip >= 3 && ip <= 18 ) {
+        if ( met01_[ism-1] ) met01_[ism-1]->setBinContent(ix, iy, -999.);
+        if ( met02_[ism-1] ) met02_[ism-1]->setBinContent(ix, iy, -999.);
+        if ( met03_[ism-1] ) met03_[ism-1]->setBinContent(ix, iy, -999.);
+
+        int jx = ix + Numbers::ix0EE(ism);
+        int jy = iy + Numbers::iy0EE(ism);
+
+        if ( ! Numbers::validEE(ism, 101 - jx, jy) ) continue;
+
+        if ( ix >= 2 && ix <= 49 && iy >= 2 && iy <= 49 ) {
+
+          x3val01 = 0.;
+          x3val02 = 0.;
+          x3val03 = 0.;
+          for ( int i = -1; i <= +1; i++ ) {
+            for ( int j = -1; j <= +1; j++ ) {
+
+              if ( h01_[ism-1] ) x3val01 = x3val01 + h01_[ism-1]->GetBinError(ix+i, iy+j) *
+                                                     h01_[ism-1]->GetBinError(ix+i, iy+j);
+
+              if ( h02_[ism-1] ) x3val02 = x3val02 + h02_[ism-1]->GetBinError(ix+i, iy+j) *
+                                                     h02_[ism-1]->GetBinError(ix+i, iy+j);
+
+              if ( h03_[ism-1] ) x3val03 = x3val03 + h03_[ism-1]->GetBinError(ix+i, iy+j) *
+                                                     h03_[ism-1]->GetBinError(ix+i, iy+j);
+
+            }
+          }
+          x3val01 = x3val01 / (9.*9.);
+          x3val02 = x3val02 / (9.*9.);
+          x3val03 = x3val03 / (9.*9.);
+
+          y3val01 = 0.;
+          if ( j01_[ism-1] ) y3val01 = j01_[ism-1]->GetBinError(ix, iy) *
+                                       j01_[ism-1]->GetBinError(ix, iy);
+
+          y3val02 = 0.;
+          if ( j02_[ism-1] ) y3val02 = j02_[ism-1]->GetBinError(ix, iy) *
+                                       j02_[ism-1]->GetBinError(ix, iy);
+
+          y3val03 = 0.;
+          if ( j03_[ism-1] ) y3val03 = j03_[ism-1]->GetBinError(ix, iy) *
+                                       j03_[ism-1]->GetBinError(ix, iy);
+
+          z3val01 = -999.;
+          if ( x3val01 != 0 && y3val01 != 0 ) z3val01 = sqrt(fabs(x3val01 - y3val01));
+          if ( (x3val01 - y3val01) < 0 ) z3val01 = -z3val01;
+
+          if ( mes01_[ism-1] ) mes01_[ism-1]->setBinContent(ix, iy, z3val01);
+
+          z3val02 = -999.;
+          if ( x3val02 != 0 && y3val02 != 0 ) z3val02 = sqrt(fabs(x3val02 - y3val02));
+          if ( (x3val02 - y3val02) < 0 ) z3val02 = -z3val02;
+
+          if ( mes02_[ism-1] ) mes02_[ism-1]->setBinContent(ix, iy, z3val02);
+
+          z3val03 = -999.;
+          if ( x3val03 != 0 && y3val03 != 0 ) z3val03 = sqrt(fabs(x3val03 - y3val03));
+          if ( (x3val03 - y3val03) < 0 ) z3val03 = -z3val03;
+
+          if ( mes03_[ism-1] ) mes03_[ism-1]->setBinContent(ix, iy, z3val03);
+
+        }
+
+        if ( ix >= 3 && ix <= 48 && iy >= 3 && iy <= 48 ) {
 
           x5val01 = 0.;
           x5val02 = 0.;
@@ -1465,14 +1494,14 @@ void EEPedestalClient::analyze(void){
           for ( int i = -2; i <= +2; i++ ) {
             for ( int j = -2; j <= +2; j++ ) {
 
-              if ( h01_[ism-1] ) x5val01 = x5val01 + h01_[ism-1]->GetBinError(ie+i, ip+j) *
-                                                     h01_[ism-1]->GetBinError(ie+i, ip+j);
+              if ( h01_[ism-1] ) x5val01 = x5val01 + h01_[ism-1]->GetBinError(ix+i, iy+j) *
+                                                     h01_[ism-1]->GetBinError(ix+i, iy+j);
 
-              if ( h02_[ism-1] ) x5val02 = x5val02 + h02_[ism-1]->GetBinError(ie+i, ip+j) *
-                                                     h02_[ism-1]->GetBinError(ie+i, ip+j);
+              if ( h02_[ism-1] ) x5val02 = x5val02 + h02_[ism-1]->GetBinError(ix+i, iy+j) *
+                                                     h02_[ism-1]->GetBinError(ix+i, iy+j);
 
-              if ( h03_[ism-1] ) x5val03 = x5val03 + h03_[ism-1]->GetBinError(ie+i, ip+j) *
-                                                     h03_[ism-1]->GetBinError(ie+i, ip+j);
+              if ( h03_[ism-1] ) x5val03 = x5val03 + h03_[ism-1]->GetBinError(ix+i, iy+j) *
+                                                     h03_[ism-1]->GetBinError(ix+i, iy+j);
 
             }
           }
@@ -1481,34 +1510,34 @@ void EEPedestalClient::analyze(void){
           x5val03 = x5val03 / (25.*25.);
 
           y5val01 = 0.;
-          if ( k01_[ism-1] ) y5val01 = k01_[ism-1]->GetBinError(ie, ip) *
-                                       k01_[ism-1]->GetBinError(ie, ip);
+          if ( k01_[ism-1] ) y5val01 = k01_[ism-1]->GetBinError(ix, iy) *
+                                       k01_[ism-1]->GetBinError(ix, iy);
 
           y5val02 = 0.;
-          if ( k02_[ism-1] ) y5val02 = k02_[ism-1]->GetBinError(ie, ip) *
-                                       k02_[ism-1]->GetBinError(ie, ip);
+          if ( k02_[ism-1] ) y5val02 = k02_[ism-1]->GetBinError(ix, iy) *
+                                       k02_[ism-1]->GetBinError(ix, iy);
 
           y5val03 = 0.;
-          if ( k03_[ism-1] ) y5val03 = k03_[ism-1]->GetBinError(ie, ip) *
-                                       k03_[ism-1]->GetBinError(ie, ip);
+          if ( k03_[ism-1] ) y5val03 = k03_[ism-1]->GetBinError(ix, iy) *
+                                       k03_[ism-1]->GetBinError(ix, iy);
 
           z5val01 = -999.;
           if ( x5val01 != 0 && y5val01 != 0 ) z5val01 = sqrt(fabs(x5val01 - y5val01));
           if ( (x5val01 - y5val01) < 0 ) z5val01 = -z5val01;
 
-          if ( met01_[ism-1] ) met01_[ism-1]->setBinContent(ie, ip, z5val01);
+          if ( met01_[ism-1] ) met01_[ism-1]->setBinContent(ix, iy, z5val01);
 
           z5val02 = -999.;
           if ( x5val02 != 0 && y5val02 != 0 ) z5val02 = sqrt(fabs(x5val02 - y5val02));
           if ( (x5val02 - y5val02) < 0 ) z5val02 = -z5val02;
 
-          if ( met02_[ism-1] ) met02_[ism-1]->setBinContent(ie, ip, z5val02);
+          if ( met02_[ism-1] ) met02_[ism-1]->setBinContent(ix, iy, z5val02);
 
           z5val03 = -999.;
           if ( x5val03 != 0 && y5val03 != 0 ) z5val03 = sqrt(fabs(x5val03 - y5val03));
           if ( (x5val03 - y5val03) < 0 ) z5val03 = -z5val03;
 
-          if ( met03_[ism-1] ) met03_[ism-1]->setBinContent(ie, ip, z5val03);
+          if ( met03_[ism-1] ) met03_[ism-1]->setBinContent(ix, iy, z5val03);
 
         }
 
@@ -1568,15 +1597,6 @@ void EEPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
   int pCol4[10];
   for ( int i = 0; i < 10; i++ ) pCol4[i] = 401+i;
 
-  TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
-  for ( int i = 0; i < 68; i++ ) {
-    int a = 2 + ( i/4 ) * 5;
-    int b = 2 + ( i%4 ) * 5;
-    dummy.Fill( a, b, i+1 );
-  }
-  dummy.SetMarkerSize(2);
-  dummy.SetMinimum(0.1);
-
   TH2C dummy1( "dummy1", "dummy1 for sm mem", 10, 0, 10, 5, 0, 5 );
   for ( short i=0; i<2; i++ ) {
     int a = 2 + i*5;
@@ -1588,11 +1608,12 @@ void EEPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   string imgNameQual[3], imgNameMean[3], imgNameRMS[3], imgName3Sum[3], imgName5Sum[3], imgNameMEPnQual[2], imgNameMEPnPed[2],imgNameMEPnPedRms[2], imgName, meName;
   
-  TCanvas* cQual = new TCanvas("cQual", "Temp", 2*csize, csize);
+  TCanvas* cQual = new TCanvas("cQual", "Temp", 2*csize, 2*csize);
+  TCanvas* cQualPN = new TCanvas("cQualPN", "Temp", 2*csize, csize);
   TCanvas* cMean = new TCanvas("cMean", "Temp", csize, csize);
   TCanvas* cRMS = new TCanvas("cRMS", "Temp", csize, csize);
-  TCanvas* c3Sum = new TCanvas("c3Sum", "Temp", 2*csize, csize);
-  TCanvas* c5Sum = new TCanvas("c5Sum", "Temp", 2*csize, csize);
+  TCanvas* c3Sum = new TCanvas("c3Sum", "Temp", 2*csize, 2*csize);
+  TCanvas* c5Sum = new TCanvas("c5Sum", "Temp", 2*csize, 2*csize);
   TCanvas* cPed = new TCanvas("cPed", "Temp", csize, csize);
 
   TH2F* obj2f;
@@ -1643,14 +1664,21 @@ void EEPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
         cQual->cd();
         gStyle->SetOptStat(" ");
         gStyle->SetPalette(6, pCol3);
-        obj2f->GetXaxis()->SetNdivisions(17);
-        obj2f->GetYaxis()->SetNdivisions(4);
         cQual->SetGridx();
         cQual->SetGridy();
+        obj2f->GetXaxis()->SetLabelSize(0.02);
+        obj2f->GetYaxis()->SetLabelSize(0.02);
         obj2f->SetMinimum(-0.00000001);
         obj2f->SetMaximum(6.0);
         obj2f->Draw("col");
-        dummy.Draw("text,same");
+        cQual->SetBit(TGraph::kClipFrame);
+        TLine l;
+        l.SetLineWidth(1);
+        for ( int i=0; i<201; i=i+1){
+          if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
+            l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
+          }
+        }
         cQual->Update();
         cQual->SaveAs(imgName.c_str());
 
@@ -1782,14 +1810,22 @@ void EEPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
         c3Sum->cd();
         gStyle->SetOptStat(" ");
         gStyle->SetPalette(10, pCol4);
-        obj2f->GetXaxis()->SetNdivisions(17);
-        obj2f->GetYaxis()->SetNdivisions(4);
         c3Sum->SetGridx();
         c3Sum->SetGridy();
+        obj2f->GetXaxis()->SetLabelSize(0.02);
+        obj2f->GetYaxis()->SetLabelSize(0.02);
+        obj2f->GetZaxis()->SetLabelSize(0.02);
         obj2f->SetMinimum(-0.5);
         obj2f->SetMaximum(+0.5);
         obj2f->Draw("colz");
-        dummy.Draw("text,same");
+        c3Sum->SetBit(TGraph::kClipFrame);
+        TLine l;
+        l.SetLineWidth(1);
+        for ( int i=0; i<201; i=i+1){
+          if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
+            l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
+          }
+        }
         c3Sum->Update();
         c3Sum->SaveAs(imgName.c_str());
 
@@ -1829,14 +1865,22 @@ void EEPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
         c5Sum->cd();
         gStyle->SetOptStat(" ");
         gStyle->SetPalette(10, pCol4);
-        obj2f->GetXaxis()->SetNdivisions(17);
-        obj2f->GetYaxis()->SetNdivisions(4);
         c5Sum->SetGridx();
         c5Sum->SetGridy();
+        obj2f->GetXaxis()->SetLabelSize(0.02);
+        obj2f->GetYaxis()->SetLabelSize(0.02);
+        obj2f->GetZaxis()->SetLabelSize(0.02);
         obj2f->SetMinimum(-0.5);
         obj2f->SetMaximum(+0.5);
         obj2f->Draw("colz");
-        dummy.Draw("text,same");
+        c5Sum->SetBit(TGraph::kClipFrame);
+        TLine l;
+        l.SetLineWidth(1);
+        for ( int i=0; i<201; i=i+1){
+          if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
+            l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
+          }
+        }
         c5Sum->Update();
         c5Sum->SaveAs(imgName.c_str());
 
@@ -1876,19 +1920,19 @@ void EEPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
         imgNameMEPnQual[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameMEPnQual[iCanvas-1];
 
-        cQual->cd();
+        cQualPN->cd();
         gStyle->SetOptStat(" ");
         gStyle->SetPalette(6, pCol3);
         obj2f->GetXaxis()->SetNdivisions(10);
         obj2f->GetYaxis()->SetNdivisions(5);
-        cQual->SetGridx();
-        cQual->SetGridy(0);
+        cQualPN->SetGridx();
+        cQualPN->SetGridy(0);
         obj2f->SetMinimum(-0.00000001);
         obj2f->SetMaximum(6.0);
         obj2f->Draw("col");
         dummy1.Draw("text,same");
-        cQual->Update();
-        cQual->SaveAs(imgName.c_str());
+        cQualPN->Update();
+        cQualPN->SaveAs(imgName.c_str());
 
       }
 
@@ -2109,6 +2153,7 @@ void EEPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
    }
   
   delete cQual;
+  delete cQualPN;
   delete cMean;
   delete cRMS;
   delete c3Sum;

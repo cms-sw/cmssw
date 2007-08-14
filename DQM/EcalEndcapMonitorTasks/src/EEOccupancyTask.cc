@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2007/05/24 12:21:42 $
- * $Revision: 1.9 $
+ * $Date: 2007/05/24 13:26:12 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -21,8 +21,8 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDigi/interface/EBDataFrame.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -37,8 +37,6 @@ using namespace std;
 
 EEOccupancyTask::EEOccupancyTask(const ParameterSet& ps){
 
-  Numbers::maxSM = 18;
-
   init_ = false;
 
   // get hold of back-end interface
@@ -46,7 +44,7 @@ EEOccupancyTask::EEOccupancyTask(const ParameterSet& ps){
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
 
-  EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
+  EEDigiCollection_ = ps.getParameter<edm::InputTag>("EEDigiCollection");
   EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");
 
   for (int i = 0; i < 18; i++) {
@@ -82,7 +80,7 @@ void EEOccupancyTask::setup(void){
 
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEOT occupancy %s", Numbers::sEE(i+1).c_str());
-      meOccupancy_[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      meOccupancy_[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
       dbe_->tag(meOccupancy_[i], i+1);
     }
     for (int i = 0; i < 18; i++) {
@@ -125,48 +123,49 @@ void EEOccupancyTask::endJob(void) {
 
 void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
+  Numbers::initGeometry(c);
+
   if ( ! init_ ) this->setup();
 
   ievt_++;
 
   try {
 
-    Handle<EBDigiCollection> digis;
-    e.getByLabel(EBDigiCollection_, digis);
+    Handle<EEDigiCollection> digis;
+    e.getByLabel(EEDigiCollection_, digis);
 
-    int nebd = digis->size();
-    LogDebug("EEOccupancyTask") << "event " << ievt_ << " digi collection size " << nebd;
+    int need = digis->size();
+    LogDebug("EEOccupancyTask") << "event " << ievt_ << " digi collection size " << need;
 
-    for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
+    for ( EEDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
-      EBDataFrame dataframe = (*digiItr);
-      EBDetId id = dataframe.id();
+      EEDataFrame dataframe = (*digiItr);
+      EEDetId id = dataframe.id();
 
-      int ic = id.ic();
-      int ie = (ic-1)/20 + 1;
-      int ip = (ic-1)%20 + 1;
+      int ix = 101 - id.ix();
+      int iy = id.iy();
 
-      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
-
-      float xie = ie - 0.5;
-      float xip = ip - 0.5;
+      int ism = Numbers::iSM( id );
+  
+      float xix = ix - 0.5;
+      float xiy = iy - 0.5;
 
       LogDebug("EEOccupancyTask") << " det id = " << id;
-      LogDebug("EEOccupancyTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      LogDebug("EEOccupancyTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
 
-      if ( xie <= 0. || xie >= 85. || xip <= 0. || xip >= 20. ) {
+      if ( xix <= 0. || xix >= 100. || xiy <= 0. || xiy >= 100. ) {
         LogWarning("EEOccupancyTask") << " det id = " << id;
-        LogWarning("EEOccupancyTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
-        LogWarning("EEOccupancyTask") << " xie, xip " << xie << " " << xip;
+        LogWarning("EEOccupancyTask") << " sm, ix, iw " << ism << " " << ix << " " << iy;
+        LogWarning("EEOccupancyTask") << " xix, xiy " << xix << " " << xiy;
       }
 
-      if ( meOccupancy_[ism-1] ) meOccupancy_[ism-1]->Fill(xie, xip);
+      if ( meOccupancy_[ism-1] ) meOccupancy_[ism-1]->Fill(xix, xiy);
 
     }
 
   } catch ( exception& ex) {
 
-    LogWarning("EEOccupancyTask") << EBDigiCollection_ << " not available";
+    LogWarning("EEOccupancyTask") << EEDigiCollection_ << " not available";
 
   }
 
@@ -180,8 +179,13 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalPnDiodeDigiCollection::const_iterator pnItr = PNs->begin(); pnItr != PNs->end(); ++pnItr ) {
 
-      int   ism   = Numbers::iSM( (*pnItr).id() ); if ( ism > 18 ) continue;
+      EcalPnDiodeDigi pn = (*pnItr);
+      EcalPnDiodeDetId id = pn.id();
+
+      int   ism   = Numbers::iSM( id );
+
       float PnId  = (*pnItr).id().iPnId();
+
       PnId        = PnId - 0.5;
       float st    = 0.0;
 
