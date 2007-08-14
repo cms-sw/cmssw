@@ -68,7 +68,7 @@ namespace cond{
 	  cond::TypedRef<T> myPayload(pooldb,firstPayloadObj);
 	  myPayload.markWrite(EventSetupRecordName);
 	  std::string payloadToken=myPayload.token();
-	  iovToken=this->insertIOV(pooldb,myrecord,payloadToken,firstTillTime,EventSetupRecordName);
+	  iovToken=this->insertIOV(myrecord,payloadToken,firstTillTime,EventSetupRecordName);
 	  pooldb.commit();
 	}catch(...){
 	  pooldb.rollback();
@@ -130,7 +130,7 @@ namespace cond{
 	  cond::TypedRef<T> myPayload(pooldb,payloadObj);
 	  myPayload.markWrite(EventSetupRecordName);
 	  std::string payloadToken=myPayload.token();
-	  this->appendIOV(pooldb,myrecord,payloadToken,sinceTime);
+	  this->appendIOV(myrecord,payloadToken,sinceTime);
 	  pooldb.commit();
 	}catch(...){
 	  pooldb.rollback();
