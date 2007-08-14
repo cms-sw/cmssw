@@ -9,13 +9,14 @@
 // Implementation:
 //     Cache and make prescale factors available online.
 //
-// Current revision: $Revision: 1.3 $
-// On branch: $Name: CMSSW_1_6_0_pre4 $
-// Latest change by $Author: wmtan $ at $Date: 2007/06/14 21:03:39 $
+// Current revision: $Revision: 1.5 $
+// On branch: $Name: V00-03-01 $
+// Latest change by $Author: gruen $ at $Date: 2007/08/14 19:20:28 $
 //
 
 #include "DataFormats/Provenance/interface/EventID.h"
 
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
 #include "FWCore/Framework/interface/TriggerReport.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

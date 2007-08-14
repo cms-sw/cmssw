@@ -6,9 +6,9 @@
 // Implementation:
 //     Cache and make prescale factors available online.
 //
-// Current revision: $Revision: 1.5 $
-// On branch: $Name:  $
-// Latest change by $Author: wmtan $ on $Date: 2007/08/08 18:29:13 $ 
+// Current revision: $Revision: 1.7 $
+// On branch: $Name: V00-03-01 $
+// Latest change by $Author: gruen $ on $Date: 2007/08/14 19:20:29 $ 
 //
 
 
