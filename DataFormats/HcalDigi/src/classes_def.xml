@@ -33,4 +33,6 @@
    <class name="edm::Wrapper<edm::SortedCollection<HcalHistogramDigi,edm::StrictWeakOrdering<HcalHistogramDigi> > >"/>
    <class name="edm::Wrapper<edm::SortedCollection<ZDCDataFrame,edm::StrictWeakOrdering<ZDCDataFrame> > >"/>
    <class name="edm::Wrapper<HcalUnpackerReport>"/>
+   <class name="HcalLaserDigi"/>
+   <class name="edm::Wrapper<HcalLaserDigi>"/>
 </lcgdict>
