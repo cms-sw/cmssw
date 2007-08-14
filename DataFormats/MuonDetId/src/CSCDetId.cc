@@ -2,8 +2,6 @@
 #include <FWCore/Utilities/interface/Exception.h>
 #include <iostream>
 
-//using namespace std;
-
 CSCDetId::CSCDetId():DetId(DetId::Muon, MuonSubdetId::CSC){}
 
 
@@ -15,6 +13,7 @@ CSCDetId::CSCDetId(uint32_t id):DetId(id) {
 					 << " is not a valid CSC id";  
   }
 }
+
 CSCDetId::CSCDetId(DetId id):DetId(id) {
   if (det()!=DetId::Muon || subdetId()!=MuonSubdetId::CSC) {
     throw cms::Exception("InvalidDetId") << "CSCDetId ctor:"
@@ -23,7 +22,6 @@ CSCDetId::CSCDetId(DetId id):DetId(id) {
 					 << " is not a valid CSC id";  
   }
 }
-
 
 CSCDetId::CSCDetId( int iendcap, int istation, int iring, int ichamber, 
 		    int ilayer ) : 
@@ -46,17 +44,6 @@ CSCDetId::CSCDetId( int iendcap, int istation, int iring, int ichamber,
   id_ |= init(iendcap, istation, iring, ichamber, ilayer);
 }
 
-std::ostream& operator<<( std::ostream& os, const CSCDetId& id )
-{
-  // Note that there is no endl to end the output
-
-   os << " E:" << id.endcap()
-      << " S:" << id.station()
-      << " R:" << id.ring()
-      << " C:" << id.chamber()
-      << " L:" << id.layer();
-   return os;
-}  
 
 int CSCDetId::triggerSector() const
 {
@@ -111,4 +98,16 @@ int CSCDetId::triggerCscId() const
   return result;
 }
 
+
+std::ostream& operator<<( std::ostream& os, const CSCDetId& id )
+{
+  // Note that there is no endl to end the output
+
+   os << " E:" << id.endcap()
+      << " S:" << id.station()
+      << " R:" << id.ring()
+      << " C:" << id.chamber()
+      << " L:" << id.layer();
+   return os;
+}  
 
