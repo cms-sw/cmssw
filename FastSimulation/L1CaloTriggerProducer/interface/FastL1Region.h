@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1Region.h,v 1.7 2007/06/17 13:53:31 chinhan Exp $
+// $Id: FastL1Region.h,v 1.8 2007/06/17 14:31:34 chinhan Exp $
 //
 
 // user include files
@@ -222,6 +222,9 @@ double
 corrEmEt(double et, double eta);
 
 double 
-TPEnergyRound(double et, double Resol = 1., double thres = 1.);
+RCTEnergyTrunc(double et, double Resol = 1., double thres = 1024.);
+
+double 
+GCTEnergyTrunc(double et, double LSB = 1., bool doEM=false);
 
 #endif
