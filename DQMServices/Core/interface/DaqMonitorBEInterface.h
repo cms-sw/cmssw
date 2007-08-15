@@ -116,8 +116,11 @@ class DaqMonitorBEInterface: public StringUtil
   /// open/read root file <filename>, and copy MonitorElements;
   /// if flag=true, overwrite identical MonitorElements (default: false);
   /// if directory != "", read only selected directory
-    virtual void open(std::string filename, bool overwrite = false,
-		      std::string directory="") = 0;
+  /// if prepend !="", prepend string to the path
+  virtual void open(std::string filename, bool overwrite = false,
+		    std::string directory="", std::string prepend="") = 0;
+  virtual void readReferenceME(std::string filename) = 0 ;
+  virtual std::string getFileReleaseVersion(std::string filename) = 0 ;
   /// cycle through all monitoring objects, draw one at time
   virtual void drawAll(void) = 0;
   /// get list of subdirectories of current directory
@@ -190,7 +193,9 @@ class DaqMonitorBEInterface: public StringUtil
 						      unsigned int tag) 
     const = 0;
 
- protected:
+// un-protected to enable full use of this service class, A.Meyer 070814
+
+// protected:
   
   // ------------------- Private "getters" ------------------------------
   
