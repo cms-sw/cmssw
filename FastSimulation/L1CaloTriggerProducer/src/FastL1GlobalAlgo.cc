@@ -193,6 +193,11 @@ FastL1GlobalAlgo::addJet(int iRgn, bool taubit) {
   reco::Particle::LorentzVector rp4(ex,ey,ez,e); 
   l1extra::L1JetParticle tjet(rp4);
   
+  //if (et>0.) {
+  //  std::cout << "region et, eta, phi: "<< et << " "<< eta << " "<< phi << " " << std::endl;
+  //  std::cout << "reg lv et, eta, phi: "<< tjet.et()<<" "<< tjet.eta()<<" "<< tjet.phi()<<" " << std::endl;
+  //}
+
   if (et>=5.) {
     if ((taubit || et>m_L1Config.noTauVetoLevel) && (std::abs(eta)<3.0) ) {
       m_TauJets.push_back(tjet);
@@ -337,7 +342,7 @@ FastL1GlobalAlgo::FillMET(edm::Event const& e) {
 	}
 
 	//sum_et += et;
-	sum_et += RCTEnergyTrunc(et,0.5,2048);
+	sum_et += RCTEnergyTrunc(et,1.0,1024);
 	sum_ex += et*cos(phi);
 	sum_ey += et*sin(phi); 
 	//sum_ex += e*sin(theta)*cos(phi);
@@ -381,7 +386,7 @@ FastL1GlobalAlgo::FillMET() {
     //double e = m_Regions[i].SumE();
 
     //sum_et += et;
-    sum_et += RCTEnergyTrunc(et,0.5,2048);
+    sum_et += RCTEnergyTrunc(et,1.0,1024);
     sum_ex += et*cos(phi);
     sum_ey += et*sin(phi); 
     //sum_ex += e*sin(theta)*cos(phi);
@@ -510,7 +515,7 @@ FastL1GlobalAlgo::isTauJet(int cRgn) {
   //Use 3x2 window at eta borders!
 
   // west border:
-  if ((cRgn%22)==17) { 
+  if ((cRgn%22)==4) { 
     //std::cout << "West border check: " << std::endl
     //      << nwid << " " << nid << " "  << neid << " " << std::endl
     //      << wid << " " << cRgn << " "  << eid << " " << std::endl
@@ -532,7 +537,7 @@ FastL1GlobalAlgo::isTauJet(int cRgn) {
     else return true;
   }
   // east border:
-  if ((cRgn%22)==4) { 
+  if ((cRgn%22)==17) { 
     //std::cout << "East border check2: " << std::endl
     //      << nwid << " " << nid << " "  << neid << " " << std::endl
     //      << wid << " " << cRgn << " "  << eid << " " << std::endl
@@ -764,8 +769,8 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   double emet = (hitEt+maxEt);
 
   if (m_L1Config.DoEMCorr) {
-    //emet = GCTEnergyTrunc(corrEmEt(emet,cenEta),m_L1Config.EMLSB, true);
-    emet = GCTEnergyTrunc(emet,m_L1Config.EMLSB, true);
+    emet = GCTEnergyTrunc(corrEmEt(emet,cenEta),m_L1Config.EMLSB, true);
+    //emet = GCTEnergyTrunc(emet,m_L1Config.EMLSB, true);
   } else {
     emet = GCTEnergyTrunc(emet,m_L1Config.EMLSB, true);
   }
@@ -781,12 +786,18 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   double eme = emex/sin(emtheta)/cos(cenPhi);
   double emez = eme*cos(emtheta);
 
+
   reco::Particle::LorentzVector rp4(emex,emey,emez,eme);
   //reco::Particle::Point rp3(0.,0.,0.);
   //reco::Particle::Charge q(0);
   //*ph = reco::Photon(q,rp4,rp3);
   *ph = l1extra::L1EmParticle(rp4);
  
+  //if (emet>0.) {
+  //  std::cout << "em region et, eta, phi: "<< emet<<" "<< cenEta<<" "<< cenPhi<<" " << std::endl;
+  //  std::cout << "em lv et, eta, phi: "<< ph->et()<<" "<< ph->eta()<<" "<< ph->phi()<<" " << std::endl;
+  //}
+
   // check isolation FG bits
   if (noFGbit || soFGbit || weFGbit || eaFGbit || 
       nwFGbit || neFGbit || swFGbit || seFGbit ||
@@ -829,6 +840,95 @@ FastL1GlobalAlgo::isMaxEtRgn_Window33(int crgn) {
   int swid = m_Regions.at(crgn).GetSWId();
   int sid = m_Regions.at(crgn).GetSouthId();
   int seid = m_Regions.at(crgn).GetSEId();
+
+
+  //Use 3x2 window at eta borders!
+  // east border:
+  if ((crgn%22)==17) { 
+    
+    if (nwid==999 || nid==999 || swid==999 || sid==999 || wid==999 ) { 
+      return false;
+    }
+
+    double cenet = m_Regions.at(crgn).SumEt();
+    double nwet =  m_Regions[nwid].SumEt();
+    double noet = m_Regions[nid].SumEt();
+    double weet = m_Regions[wid].SumEt();
+    double swet = m_Regions[swid].SumEt();
+    double soet = m_Regions[sid].SumEt();
+    
+    if ( cenet > nwet &&  cenet > noet &&
+	 cenet > weet &&  cenet > soet &&
+	 cenet > swet ) 
+      {
+
+	double cene = m_Regions.at(crgn).SumE();
+	double nwe =  m_Regions[nwid].SumE();
+	double noe = m_Regions[nid].SumE();
+	double wee = m_Regions[wid].SumE();
+	double swe = m_Regions[swid].SumE();
+	double soe = m_Regions[sid].SumE();
+	
+	// if region is central: jet energy is sum of 3x3 region
+      // surrounding the central region
+	double jE = cene + nwe + noe + wee + swe + soe;
+	double jEt = cenet + nwet + noet + weet + swet + soet;
+	
+
+	m_Regions.at(crgn).SetJetE(jE);
+	m_Regions.at(crgn).SetJetEt(jEt);
+	
+	m_Regions.at(crgn).SetJetE3x3(cene);
+	m_Regions.at(crgn).SetJetEt3x3(cenet);
+	
+	return true;
+      } else { return false; }
+    
+  }
+
+
+  // west border:
+  if ((crgn%22)==4) { 
+    
+    if (neid==999 || nid==999 || seid==999 || sid==999 || eid==999 ) { 
+      return false;
+    }
+
+    double cenet = m_Regions.at(crgn).SumEt();
+    double neet =  m_Regions[neid].SumEt();
+    double noet = m_Regions[nid].SumEt();
+    double eaet = m_Regions[eid].SumEt();
+    double seet = m_Regions[seid].SumEt();
+    double soet = m_Regions[sid].SumEt();
+    
+    if ( cenet > neet &&  cenet > noet &&
+	 cenet > eaet &&  cenet > soet &&
+	 cenet > seet ) 
+      {
+
+	double cene = m_Regions.at(crgn).SumE();
+	double nee =  m_Regions[neid].SumE();
+	double noe = m_Regions[nid].SumE();
+	double eae = m_Regions[eid].SumE();
+	double see = m_Regions[seid].SumE();
+	double soe = m_Regions[sid].SumE();
+	
+	// if region is central: jet energy is sum of 3x3 region
+      // surrounding the central region
+	double jE = cene + nee + noe + eae + see + soe;
+	double jEt = cenet + neet + noet + eaet + seet + soet;
+	
+	m_Regions.at(crgn).SetJetE(jE);
+	m_Regions.at(crgn).SetJetEt(jEt);
+	
+	m_Regions.at(crgn).SetJetE3x3(cene);
+	m_Regions.at(crgn).SetJetEt3x3(cenet);
+	
+	return true;
+      } else { return false; }
+    
+  }
+
 
   if (nwid==999 || neid==999 || nid==999 || swid==999 || seid==999 || sid==999 || wid==999 || 
       eid==999 ) { 

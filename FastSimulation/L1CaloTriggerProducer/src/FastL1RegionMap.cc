@@ -227,16 +227,16 @@ FastL1RegionMap::getRegionCenterEtaPhi(int iRgn)
 
   // phi
   if (ep.second <= 9) {
-    //phi = ep.second * 0.349066 + 0.174533; // 10 degrees
-    phi = ep.second * 0.349066;
+    //phi = ep.second * 0.349065 + 0.1745329; // 10 degrees
+    phi = ep.second * 0.349065 ;
     //phi = ep.second * 0.3490658504 + 0.1745329252; // 10 degrees
   } else {
-    //phi = (18-ep.second)  * (-0.349066)  + 0.174533; // -10 degrees
-    phi = (18-ep.second)  * (-0.349066);
+    //phi = (18-ep.second)  * (-0.349065)  + 0.1745329; // -10 degrees
+    phi = (18-ep.second)  * (-0.349065);
   }
   // eta
   if (ep.first >= 11 && ep.first <= 15 )
-    eta = (ep.first-11)*0.348 + 0.174;
+    eta = (ep.first-11)*0.349 + 0.1745;
     //eta = (ep.first-11)*0.3490658504 + 0.1745329252;
   if (ep.first == 16 )
     eta = 1.956;
@@ -266,6 +266,9 @@ FastL1RegionMap::getRegionCenterEtaPhi(int iRgn)
   if (ep.first == 0 )
     eta = -4.75;
 
+  //std::cout << "eta, phi ID: "<< ep.first << ", " << ep.second << std::endl;
+  //std::cout << "eta, phi: "<< eta << ", " << phi << std::endl;
+ 
 
   return std::pair<double, double>(eta, phi);
 }
