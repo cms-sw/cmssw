@@ -1,5 +1,3 @@
-
-
 #ifndef _ECALRAWTODIGIDEV_H_ 
 #define _ECALRAWTODIGIDEV_H_ 
 
@@ -11,8 +9,8 @@
  *
  * \file EcalRawToDigi.h
  *
- * $Date: 2007/07/24 11:39:35 $
- * $Revision: 1.8 $
+ * $Date: 2007/08/14 15:12:26 $
+ * $Revision: 1.9 $
  * \author N. Almeida
  * \author G. Franzoni
  *

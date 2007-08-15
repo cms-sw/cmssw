@@ -1,4 +1,3 @@
-
 #ifndef _EcalElectronicsMapper_HH_
 #define _EcalElectronicsMapper_HH_ 
 
@@ -10,8 +9,8 @@
  
  * \file EcalElectronicsMapper.h
  *
- * $Date: 2007/04/10 17:33:48 $
- * $Revision: 1.5 $
+ * $Date: 2007/06/12 15:54:41 $
+ * $Revision: 1.6 $
  * \author N. Almeida
  * \author G. Franzoni
  *

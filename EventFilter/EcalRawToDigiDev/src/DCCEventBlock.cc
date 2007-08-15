@@ -1,4 +1,3 @@
-
 #include "EventFilter/EcalRawToDigiDev/interface/DCCEventBlock.h"
 #include "EventFilter/EcalRawToDigiDev/interface/DCCDataUnpacker.h"
 #include "EventFilter/EcalRawToDigiDev/interface/EcalDCCHeaderRuntypeDecoder.h"
@@ -101,7 +100,7 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   
   //Second Header Word of fed block
   data_++;
-	 
+  
   blockLength_   =  (*data_ )                                 & H_EVLENGTH_MASK;
   dccErrors_       =  ((*data_)>>H_ERRORS_B)    & H_ERRORS_MASK;
   runNumber_     =   ((*data_)>>H_RNUMB_B )    & H_RNUMB_MASK;
@@ -117,7 +116,6 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
     return;
     
   }  
-  
   
   //Third Header Word  of fed block
   data_++;
@@ -163,13 +161,14 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   dwToEnd_ = blockLength_ - HEADERLENGTH ;
    
   int STATUS = unpackTCCBlocks();
- 
-  if(  STATUS != STOP_EVENT_UNPACKING && feUnpacking_ || srpUnpacking_ ){
 
+  // gio: this is where one bails out - first check after TCC
+  if(  STATUS != STOP_EVENT_UNPACKING && feUnpacking_ || srpUnpacking_ ){
+    
     //NMGA note : SR comes before TCC blocks 
     // Emmanuelle please change this in the digi to raw
   
- 
+    // gio: this is where one bails out
     // Unpack SRP block
     if(srChStatus_ != CH_TIMEOUT &&  srChStatus_ != CH_DISABLED){
       STATUS = srpBlock_->unpack(&data_,&dwToEnd_);
@@ -179,30 +178,32 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   // See number of FE channels that we need according to the trigger type //
   // TODO : WHEN IN LOCAL MODE WE SHOULD CHECK RUN TYPE			
   uint numbChannels(0);
-
+  
   if(       triggerType_ == PHYSICTRIGGER      ){ numbChannels = 68; }
   else if ( triggerType_ == CALIBRATIONTRIGGER ){ numbChannels = 70; }
-  else { 
-     edm::LogWarning("EcalRawToDigiDev")
-     <<"\n Event "<<l1_<<" in dcc "<< fedId_
-     <<"\n Event has an unsupported trigger type "<<triggerType_
-     <<"\n => Skipping this event "; 
-     
-	 //TODO : add this to a dcc trigger type error collection 
-     
-	 return;
-	 
-  }  
+  else {
+    edm::LogWarning("EcalRawToDigiDev")
+      <<"\n Event "<<l1_<<" in dcc "<< fedId_
+      <<"\n Event has an unsupported trigger type "<<triggerType_
+      <<"\n => Skipping this event "; 
+    //TODO : add this to a dcc trigger type error collection 
+    return;
+  }
+  
+
   
   if( feUnpacking_ || memUnpacking_ ){ 	     					
     it = feChStatus_.begin();
-    for( uint i=1; i<= numbChannels && STATUS!=STOP_EVENT_UNPACKING; i++, it++ ){			
-
-      short  chStatus(*it);
     
+    // looping over FE channels, i.e. tower blocks
+    for( uint i=1; i<= numbChannels && STATUS!=STOP_EVENT_UNPACKING; i++, it++ ){			
+      // gio: this is where one bails out
+      
+      short  chStatus(*it);
+      
       // Unpack Tower and Xtal Blocks
       if(sr_ && chStatus != CH_TIMEOUT && chStatus != CH_DISABLED && chStatus != CH_SUPPRESS && i<=68){
-      
+	
         if (feUnpacking_ && srpBlock_->srFlag(i) != SRP_NREAD ){
           STATUS = towerBlock_->unpack(&data_,&dwToEnd_,true,i);
         }
@@ -217,10 +218,11 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
       if(memUnpacking_&& i>68 && chStatus != CH_TIMEOUT && chStatus != CH_DISABLED){
         STATUS = memBlock_->unpack(&data_,&dwToEnd_,i);
       }
-		       				
-    }// closing loop of channels
+
+    }
+    // closing loop over FE/TTblock channels
   
-  }// check if we need to perform unpacking of fe or monitoring events
+  }// check if we need to perform unpacking of FE or mem data
 
 } 
 

@@ -1,4 +1,3 @@
-
 #include "EventFilter/EcalRawToDigiDev/interface/DCCTowerBlock.h"
 #include "EventFilter/EcalRawToDigiDev/interface/DCCEventBlock.h"
 #include "EventFilter/EcalRawToDigiDev/interface/DCCDataUnpacker.h"

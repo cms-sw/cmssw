@@ -1,4 +1,3 @@
-
 #include "EventFilter/EcalRawToDigiDev/interface/EcalRawToDigi.h"
 #include "EventFilter/EcalRawToDigiDev/interface/EcalElectronicsMapper.h"
 #include "EventFilter/EcalRawToDigiDev/interface/DCCDataUnpacker.h"

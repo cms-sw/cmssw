@@ -1,4 +1,3 @@
-
 #ifndef DCCEETCCBLOCK_HH
 #define DCCEETCCBLOCK_HH
 
@@ -9,8 +8,8 @@
  *
  * \file DCCEETCCBlock.h
  *
- * $Date: 2007/04/10 17:33:48 $
- * $Revision: 1.4 $
+ * $Date: 2007/07/24 11:39:35 $
+ * $Revision: 1.5 $
  *
  * \author N. Almeida
  *

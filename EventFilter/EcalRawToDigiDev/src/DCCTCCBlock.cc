@@ -1,4 +1,3 @@
-
 #include "EventFilter/EcalRawToDigiDev/interface/DCCTCCBlock.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "EventFilter/EcalRawToDigiDev/interface/EcalElectronicsMapper.h"

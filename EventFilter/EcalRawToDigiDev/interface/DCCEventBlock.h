@@ -1,5 +1,3 @@
-
-
 #ifndef DCCEVENTBLOCK_HH
 #define DCCEVENTBLOCK_HH
 
@@ -12,8 +10,8 @@
  *
  * \file DCCEventBlock.h
  *
- * $Date: 2007/06/12 23:30:54 $
- * $Revision: 1.5 $
+ * $Date: 2007/07/24 11:39:35 $
+ * $Revision: 1.6 $
  *
  * \author N. Almeida
  * \author G. Franzoni
