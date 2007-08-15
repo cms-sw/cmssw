@@ -322,7 +322,6 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
     edm::walkTrie(pr,*trie.getInitialNode());
     std::cout << std::endl; 
   }
-  }
   catch(edm::VinException const & e) {
     std::cout << "in walking " << e.what() << std::endl;
   }
