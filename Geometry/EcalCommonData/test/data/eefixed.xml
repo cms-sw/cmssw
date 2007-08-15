@@ -388,7 +388,7 @@
       <Translation x="7*[eecon:EEBPPLC]+2*[eecon:EEBPPOR]" y="5.5*[eecon:EEBPPLC]+2*[eecon:EEBPPOR]" z="0*mm"/>
       <rRotation name="eecon:EEfCRotX"/> </PosPart>
  <PosPart copyNumber="19"> <rParent name="eefixed:EEBPPV"/> <rChild name="eefixed:EEBPPCP"/>
-      <Translation x="5.5*[eecon:EEBPPLC]"  y="8.5*[eecon:EEBPPLC]+2*[eecon:EEBPPOR]" z="0*mm"/>
+      <Translation x="5.5*[eecon:EEBPPLC]+2*[eecon:EEBPPOR]" y="8.5*[eecon:EEBPPLC]+2*[eecon:EEBPPOR]" z="0*mm"/>
       <rRotation name="eecon:EEfCRotY"/> </PosPart>
  <PosPart copyNumber="20"> <rParent name="eefixed:EEBPPV"/> <rChild name="eefixed:EEBPPCP"/>
       <Translation x="2*[eecon:EEBPPLC]"  y="1.5*[eecon:EEBPPLC]" z="0*mm"/>

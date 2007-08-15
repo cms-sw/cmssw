@@ -21,9 +21,9 @@
   <ZSection z="[eecon:EEzBack]"    rMin="[eecon:ENCAEnvRBack]"  rMax="[eecon:EBRMax]" />
   <ZSection z="[eecon:EEzNeck]"    rMin="[eecon:ENCAEnvRNeck]"  rMax="[eecon:EBRMax]" />
   <ZSection z="[eecon:EEzNeck]"    rMin="[eecon:ENCAEnvRNeck]"  rMax="[eecon:EErNeck]" />
-  <ZSection z="[eecon:ENCAEnvZES]" rMin="[eecon:ESConeO4]+0.5*mm"      rMax="[eecon:EErNeck]" />
-  <ZSection z="[eecon:ENCAEnvZES]" rMin="[eecon:ESConeO5]+0.5*mm"      rMax="[eecon:EErNeck]" />
-  <ZSection z="[eecon:EEFarZ]"     rMin="[eecon:ESConeO6]+0.5*mm"      rMax="[eecon:EErNeck]" />
+  <ZSection z="[eecon:ENCAEnvZES]" rMin="[eecon:ESConeO4Plus]"      rMax="[eecon:EErNeck]" />
+  <ZSection z="[eecon:ENCAEnvZES]" rMin="[eecon:ESConeO5Plus]"      rMax="[eecon:EErNeck]" />
+  <ZSection z="[eecon:EEFarZ]"     rMin="[eecon:ESConeO6Plus]"      rMax="[eecon:EErNeck]" />
  </Polycone>
 
  <Polycone name="EEDee" startPhi="-90*deg" deltaPhi="180*deg" >
@@ -32,40 +32,40 @@
   <ZSection z="[eecon:EEzBack]"    rMin="[eecon:ENCAEnvRBack]"  rMax="[eecon:EBRMax]" />
   <ZSection z="[eecon:EEzNeck]"    rMin="[eecon:ENCAEnvRNeck]"  rMax="[eecon:EBRMax]" />
   <ZSection z="[eecon:EEzNeck]"    rMin="[eecon:ENCAEnvRNeck]"  rMax="[eecon:EErNeck]" />
-  <ZSection z="[eecon:ENCAEnvZES]" rMin="[eecon:ESConeO4]"      rMax="[eecon:EErNeck]" />
-  <ZSection z="[eecon:ENCAEnvZES]" rMin="[eecon:ESConeO5]"      rMax="[eecon:EErNeck]" />
-  <ZSection z="[eecon:EEFarZ]"     rMin="[eecon:ESConeO6]"      rMax="[eecon:EErNeck]" />
+  <ZSection z="[eecon:ENCAEnvZES]" rMin="[eecon:ESConeO4Plus]"  rMax="[eecon:EErNeck]" />
+  <ZSection z="[eecon:ENCAEnvZES]" rMin="[eecon:ESConeO5Plus]"  rMax="[eecon:EErNeck]" />
+  <ZSection z="[eecon:EEFarZ]"     rMin="[eecon:ESConeO6Plus]"  rMax="[eecon:EErNeck]" />
  </Polycone>
 
  <Polycone name="EEBackDee" startPhi="-90*deg" deltaPhi="180*deg" >
   <ZSection z="[eecon:EEzBack]"    rMin="[eecon:ENCAEnvRBack]"  rMax="[eecon:EBRMax]" />
   <ZSection z="[eecon:EEzNeck]"    rMin="[eecon:ENCAEnvRNeck]"  rMax="[eecon:EBRMax]" />
   <ZSection z="[eecon:EEzNeck]"    rMin="[eecon:ENCAEnvRNeck]"  rMax="[eecon:EErNeck]" />
-  <ZSection z="[eecon:ENCAEnvZES]" rMin="[eecon:ESConeO4]"      rMax="[eecon:EErNeck]" />
-  <ZSection z="[eecon:ENCAEnvZES]" rMin="[eecon:ESConeO5]"      rMax="[eecon:EErNeck]" />
-  <ZSection z="[eecon:EEFarZ]"     rMin="[eecon:ESConeO6]"      rMax="[eecon:EErNeck]" />
+  <ZSection z="[eecon:ENCAEnvZES]" rMin="[eecon:ESConeO4Plus]"  rMax="[eecon:EErNeck]" />
+  <ZSection z="[eecon:ENCAEnvZES]" rMin="[eecon:ESConeO5Plus]"  rMax="[eecon:EErNeck]" />
+  <ZSection z="[eecon:EEFarZ]"     rMin="[eecon:ESConeO6Plus]"  rMax="[eecon:EErNeck]" />
  </Polycone>
 
  <Polycone name="EEBackQuad" startPhi="0*deg" deltaPhi="90*deg" >
   <ZSection z="[eecon:EEzBack]"    rMin="[eecon:ENCAEnvRBack]"  rMax="[eecon:EBRMax]" />
   <ZSection z="[eecon:EEzNeck]"    rMin="[eecon:ENCAEnvRNeck]"  rMax="[eecon:EBRMax]" />
   <ZSection z="[eecon:EEzNeck]"    rMin="[eecon:ENCAEnvRNeck]"  rMax="[eecon:EErNeck]" />
-  <ZSection z="[eecon:ENCAEnvZES]" rMin="[eecon:ESConeO4]"      rMax="[eecon:EErNeck]" />
-  <ZSection z="[eecon:ENCAEnvZES]" rMin="[eecon:ESConeO5]"      rMax="[eecon:EErNeck]" />
-  <ZSection z="[eecon:EEFarZ]"     rMin="[eecon:ESConeO6]"      rMax="[eecon:EErNeck]" />
+  <ZSection z="[eecon:ENCAEnvZES]" rMin="[eecon:ESConeO4Plus]"  rMax="[eecon:EErNeck]" />
+  <ZSection z="[eecon:ENCAEnvZES]" rMin="[eecon:ESConeO5Plus]"  rMax="[eecon:EErNeck]" />
+  <ZSection z="[eecon:EEFarZ]"     rMin="[eecon:ESConeO6Plus]"  rMax="[eecon:EErNeck]" />
  </Polycone>
 
  <Cone name="EEFrontDee"  dz=   "[eecon:EEdz]" 
-                          rMin1="[eecon:EEfEnvScrIR1]" 
+                          rMin1="[eecon:EEDeeFrontIR]" 
                           rMax1="[eecon:EEfEnvScrOR1]" 
-                          rMin2="[eecon:EEiEnvScrIR5]" 
+                          rMin2="[eecon:EEiEnvScrIR5] - 0.4*mm" 
                           rMax2="[eecon:EEfEnvScrOR4]" 
                           startPhi="-90*deg" deltaPhi="180*deg" />
 
  <Cone name="EEFrontQuad" dz=   "[eecon:EEdz]" 
-                          rMin1="[eecon:EEfEnvScrIR1]" 
+                          rMin1="[eecon:EEDeeFrontIR]" 
                           rMax1="[eecon:EEfEnvScrOR1]" 
-                          rMin2="[eecon:EEiEnvScrIR5]" 
+                          rMin2="[eecon:EEiEnvScrIR5] - 0.4*mm" 
                           rMax2="[eecon:EEfEnvScrOR4]" 
                           startPhi="0*deg" deltaPhi="90*deg" />
 

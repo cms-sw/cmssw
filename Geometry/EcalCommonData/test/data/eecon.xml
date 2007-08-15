@@ -66,12 +66,19 @@
 <Constant name="ESConeI2"   value=" 260.0*mm"/>
 <Constant name="ESConeI1"   value=" 260.0*mm"/>
 
-<Constant name="ESConeO6"   value=" 450.0*mm"/>
-<Constant name="ESConeO5"   value=" 450.0*mm"/>
+<Constant name="ESConeO6"   value=" 436.0*mm"/>
+<Constant name="ESConeO5"   value=" 436.0*mm"/>
 <Constant name="ESConeO4"   value=" 374.0*mm"/>
 <Constant name="ESConeO3"   value=" 287.0*mm"/>
 <Constant name="ESConeO2"   value=" 306.0*mm"/>
 <Constant name="ESConeO1"   value=" 306.0*mm"/>
+
+<Constant name="ESPlus"         value=" 0.1*mm"/>
+<Constant name="ESConeO6Plus"   value="[ESConeO6] + [ESPlus]"/>
+<Constant name="ESConeO5Plus"   value="[ESConeO5] + [ESPlus]"/>
+<Constant name="ESConeO4Plus"   value="[ESConeO4] + [ESPlus]"/>
+
+
 
 <!-- Global size specifications -->
 
@@ -162,7 +169,7 @@
 
 <!-- Support Ring -->
 
-<Constant name="EESRingZ1"   value="[EEzBackBack] +   2.0*mm"/>
+<Constant name="EESRingZ1"   value="[EEzBackBack] +  2*[EEBPPOR]"/>
 <Constant name="EESRingZ2"   value="[EESRingZ1]   +  18.0*mm"/>
 <Constant name="EESRingZ3"   value="[EESRingZ2]             "/>
 <Constant name="EESRingZ4"   value="[EEzNeck]     -  40.0*mm"/>
@@ -175,7 +182,7 @@
 
 <Constant name="EESRingOR1"  value="[EEBackPlateOR]"/>
 <Constant name="EESRingOR2"  value="[EESRingOR1]"/>
-<Constant name="EESRingOR3"  value="[EESRingOR1] + 10*mm"/>
+<Constant name="EESRingOR3"  value="[EESRingIR] + 10*mm"/>
 <Constant name="EESRingOR4"  value="[EESRingOR3]"/>
 <Constant name="EESRingOR5"  value="[EBRMax]"/>
 <Constant name="EESRingOR6"  value="[EESRingOR5]"/>
@@ -244,6 +251,10 @@
 <Constant name="EEiEnvScrOR3" value="[EEiEnvScrOR2]                "/>
 <Constant name="EEiEnvScrOR4" value="[EEiEnvScrIR4] + [EEiEnvScrTh]"/>
 <Constant name="EEiEnvScrOR5" value="[EEiEnvScrIR4] + [EEiEnvScrRT]"/>
+
+<Constant name="EEDeeFrontIR" value="[EEiEnvScrIR5] - 0.3*mm -
+                                     ( [EEiEnvScrZ5] - [EEiEnvScrZ1] - [EEfEnvScrTh] )*[EETanInnerAngle] "/>
+
 
 <!-- Slats for Support of Front Environmental Screen -->
 

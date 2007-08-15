@@ -38,8 +38,8 @@
 
 <!-- Endcap supercrystal: size of C-fibre alveolar -->
    <Numeric name="EESCALength" value="276.20*mm"/>
-   <Numeric name="EESCARear"   value="154.66*mm"/>
-   <Numeric name="EESCAFront"  value="145.98*mm"/>  <!-- Taper = 1.80deg -->
+   <Numeric name="EESCARear"   value="154.66*mm - 0.01*mm"/>
+   <Numeric name="EESCAFront"  value="145.98*mm - 0.01*mm"/>  <!-- Taper = 1.80deg -->
    <Numeric name="EESCAWall"   value="0.200*mm"/> <!-- SC wall thickness -->
 
 <!-- Endcap supercrystal: size of rear housing -->
