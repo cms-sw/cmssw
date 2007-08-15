@@ -324,7 +324,8 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	*/
       }
     default:
-      std::cerr << " WARNING no Silicon Strip detector, I got a " << rawid << std::endl;
+      std::cerr << " WARNING no Silicon Strip detector, I got a " 
+		<< rawid << " " << subdetid << std::endl;
     }
   }
   }
