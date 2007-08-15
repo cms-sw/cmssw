@@ -27,8 +27,8 @@
 //                Based on code by Nick Wisniewski (nw@its.caltech.edu)
 //                and a framework by Darin Acosta (acosta@phys.ufl.edu).
 //
-//   $Date: 2007/02/19 15:02:37 $
-//   $Revision: 1.7 $
+//   $Date: 2007/04/18 16:08:55 $
+//   $Revision: 1.8 $
 //
 //   Modifications: Numerous later improvements by Jason Mumford and
 //                  Slava Valuev (see cvs in ORCA).
@@ -37,7 +37,7 @@
 //-----------------------------------------------------------------------------
 
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h>
-#include <Utilities/Timing/interface/TimingReport.h>
+//#include <Utilities/Timing/interface/TimingReport.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 CSCMotherboard::CSCMotherboard() :
