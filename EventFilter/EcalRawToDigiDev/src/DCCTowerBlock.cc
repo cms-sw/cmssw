@@ -17,12 +17,12 @@ void DCCTowerBlock::updateCollectors(){
   DCCFEBlock::updateCollectors();
   
   // needs to be update for eb/ee
-  digis_                  = unpacker_->ebDigisCollection();
+  digis_                                = unpacker_->ebDigisCollection();
    
-  invalidGains_           = unpacker_->invalidGainsCollection();
-  invalidGainsSwitch_     = unpacker_->invalidGainsSwitchCollection();
+  invalidGains_                    = unpacker_->invalidGainsCollection();
+  invalidGainsSwitch_         = unpacker_->invalidGainsSwitchCollection();
   invalidGainsSwitchStay_ = unpacker_->invalidGainsSwitchStayCollection();
-  invalidChIds_           = unpacker_->invalidChIdsCollection();
+  invalidChIds_                   = unpacker_->invalidChIdsCollection();
  
 
 }
@@ -36,13 +36,9 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
   uint16_t * xData_= reinterpret_cast<uint16_t *>(data_);
 
   // Get xtal data ids
-  uint stripId = (*xData_) & TOWER_STRIPID_MASK;
-  uint xtalId  =((*xData_)>>TOWER_XTALID_B ) & TOWER_XTALID_MASK;
+  uint stripId  = (*xData_)                                          & TOWER_STRIPID_MASK;
+  uint xtalId   = ((*xData_)>>TOWER_XTALID_B )  & TOWER_XTALID_MASK;
   
-  // cout<<"\n DEBUG : unpacked xtal data for strip id "<<stripId<<" and xtal id "<<xtalId<<endl;
-  // cout<<"\n DEBUG : expected strip id "<<expStripID<<" expected xtal id "<<expXtalID<<endl;
-  
-
 
   if( !zs_ && (expStripID != stripId || expXtalID != xtalId)){ 
     
