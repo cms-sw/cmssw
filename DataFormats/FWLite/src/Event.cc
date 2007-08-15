@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:07:03 EDT 2007
-// $Id: Event.cc,v 1.6 2007/06/28 23:32:47 wmtan Exp $
+// $Id: Event.cc,v 1.7 2007/08/09 20:46:05 chrjones Exp $
 //
 
 // system include files
@@ -222,6 +222,10 @@ Event::getByLabel(const std::type_info& iInfo,
                   const char* iProcessLabel,
                   void* oData) const 
 {
+  if(atEnd()) {
+    throw cms::Exception("OffEnd")<<"You have requested to get data after having gone passed the last event";
+  }
+  
   //std::cout <<iInfo.name()<<" '"<<iModuleLabel<<"' '"<< (( 0!=iProductInstanceLabel)?iProductInstanceLabel:"")<<"' '"
   //<<((0!=iProcessLabel)?iProcessLabel:"")<<"'"<<std::endl;
   void** pOData = reinterpret_cast<void**>(oData);
