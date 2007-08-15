@@ -173,7 +173,7 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	char theDisk   = module.disk();
 	char theBlade  = module.blade();
 	char theModule = module.module();
-	char key[] = { 2, 
+	char key[] = { 2, char(module.side()),
 				thePanel , theDisk, 
 				theBlade, theModule};
 	trie.addEntry(key,5, modules[i]);
@@ -217,10 +217,10 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	side = (module.side() == 1 ) ? "-" : "+";
 	part = (theModule[0] == 1 ) ? "back" : "front";
 	char key[] = { 3, 
-				theDisk , theRing,
-				char(module.side()),
-				char(theModule[0]), 
-				char(theModule[1])};
+		       theDisk , theRing,
+		       char(module.side()),
+		       char(theModule[0]), 
+		       char(theModule[1])};
 	trie.addEntry(key,6, modules[i]);
 	
 	break;
