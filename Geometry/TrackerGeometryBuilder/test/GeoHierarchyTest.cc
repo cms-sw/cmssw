@@ -199,8 +199,10 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 		       char(theString[0]),
 		       char(theString[1]), 
 		       char(theString[2]), 
-		       theModule};
-	trie.addEntry(key,6, modules[i]);
+		       theModule,
+		       char(module.stereo())
+	};
+	trie.addEntry(key,7, modules[i]);
 	
 	
 	
@@ -219,12 +221,13 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	std::string part;
 	side = (module.side() == 1 ) ? "-" : "+";
 	part = (theModule[0] == 1 ) ? "back" : "front";
-	char key[] = { 3, 
+	char key[] = { 4, 
 		       char(module.side()),
-		       theDisk , theRing,
+		       theDisk , 
+		       theRing,
 		       char(theModule[0]), 
-		       char(theModule[1]),
-		       char(module.stereo())};
+		       char(theModule[1])
+	};
 	trie.addEntry(key,6, modules[i]);
 	
 	break;
