@@ -325,7 +325,7 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
     unsigned int rawid = modules[last]->geographicalID().rawId();
     int subdetid = modules[last]->geographicalID().subdetId();
     std::cout << rawid << " " << subdetid
-	      <<< " " << modules[last].name(),name() << std::endl;
+	      << " " << modules[last]->name().name() << std::endl;
   }
     
   try {
