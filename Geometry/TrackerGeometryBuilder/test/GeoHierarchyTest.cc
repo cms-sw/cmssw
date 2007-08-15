@@ -138,7 +138,7 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   iSetup.get<TrackerDigiGeometryRecord> ().get (pDD);
   //
   GeometricDet const * rDD = pDD->trackerDet();
-  
+  try {
   std::vector<const GeometricDet*> modules; (*rDD).deepComponents(modules);
   for(unsigned int i=0; i<modules.size();i++){
     unsigned int rawid = modules[i]->geographicalID().rawId();
@@ -312,12 +312,21 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
     default:
       std::cerr << " WARNING no Silicon Strip detector, I got a " << rawid << std::endl;
     }
+  }
+  catch(edm::VinException const & e) {
+    std::cout << "in filling " << e.what() << std::endl;
+  }
     
-    
+  try {
     Print pr;
     edm::walkTrie(pr,*trie.getInitialNode());
-    std::cout << std::endl;
-    
+    std::cout << std::endl; 
+  }
+  }
+  catch(edm::VinException const & e) {
+    std::cout << "in walking " << e.what() << std::endl;
+  }
+
     
   }
   
