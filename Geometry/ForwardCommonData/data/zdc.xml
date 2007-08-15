@@ -4,11 +4,11 @@
 <ConstantsSection label="zdc">
 <Constant name = "zdcHadThetaDeg" value = "45.0" />
 <Constant name = "zdcHadTheta" value = "([zdcHadThetaDeg]*acos(-1)/180.)*rad" />
-<Constant name = "zdcHadZinitial" value =  "(-29.2+ 6.25*cos([zdcHadTheta]))*cm"/>
-<Constant name = "zdcHadZDelta"   value =  "2.26275*cm"/>
+<Constant name = "zdcHadZinitial" value =  "(-29.0+ 6.25*cos([zdcHadTheta]))*cm"/>
+<Constant name = "zdcHadZDelta"   value =  "2.32*cm"/>
 <Constant name = "zdcHadXinitial"  value = "-47.57525*mm"/>
 <Constant name = "zdcHadXDelta"   value =  "0.8495*mm"/>
-<Constant name = "zdcEMZinitial"  value =  "-48.5*mm"/>
+<Constant name = "zdcEMZinitial"  value =  "-49.85*cm"/>
 <Constant name = "zdcEMZDelta"   value =  "3.0*mm"/>
 <Constant name = "zdcEMXinitial"  value =  "-47.56365*mm"/>
 <Constant name = "zdcEMXDelta"   value =  "0.8727*mm"/>
