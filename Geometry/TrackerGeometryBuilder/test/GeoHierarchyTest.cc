@@ -226,9 +226,10 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 		       theDisk , 
 		       theRing,
 		       char(theModule[0]), 
-		       char(theModule[1])
+		       char(theModule[1]),
+		       char(module.stereo())
 	};
-	trie.addEntry(key,6, modules[i]);
+	trie.addEntry(key,7, modules[i]);
 	
 	break;
       }
@@ -275,8 +276,9 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 		       char(thePetal[0]), 
 		       char(thePetal[1]),
 		       theRing,
-		       theModule};
-	trie.addEntry(key,7, modules[i]);
+		       theModule,
+		       char(module.stereo())};
+	trie.addEntry(key,8, modules[i]);
 	
 	/*
 	unsigned int out_disk = module.wheel();
