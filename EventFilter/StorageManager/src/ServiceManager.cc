@@ -1,4 +1,4 @@
-// $Id: ServiceManager.cc,v 1.1 2007/02/05 11:19:57 klute Exp $
+// $Id: ServiceManager.cc,v 1.2 2007/06/15 18:44:59 wdd Exp $
 
 #include <EventFilter/StorageManager/interface/ServiceManager.h>
 #include <FWCore/Utilities/interface/Exception.h>
@@ -134,6 +134,7 @@ void ServiceManager::collectStreamerPSets(const std::string& config)
      } catch (cms::Exception & e) {
        std::cerr << "cms::Exception: " << e.explainSelf() << std::endl;
        std::cerr << "std::Exception: " << e.what() << std::endl;
+       throw cms::Exception("collectStreamerPSets") << e.explainSelf() << std::endl;
      }
 }
 
