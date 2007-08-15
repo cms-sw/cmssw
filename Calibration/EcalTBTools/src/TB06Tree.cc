@@ -1,4 +1,6 @@
 #include "Calibration/EcalTBTools/interface/TB06Tree.h"
+#include "TFile.h" 
+#include "TTree.h" 
 #include "Calibration/EcalTBTools/interface/TB06Reco.h"
 
 #include <iostream>
