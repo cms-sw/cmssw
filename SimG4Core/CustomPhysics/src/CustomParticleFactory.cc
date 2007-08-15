@@ -93,27 +93,13 @@ void CustomParticleFactory::addCustomParticle(int pdgCode, double mass, const st
   int isospin = 0;
   int isospinZ = 0;
   int gParity = 0;
-  int lepton = 0;
-  int baryon = 1;
+  int lepton = 0;  //FIXME:
+  int baryon = 1;  //FIXME: 
   bool stable = true;
   double lifetime = -1;
  
   G4DecayTable *decaytable = NULL;
-  ////Find SM particle partner and copy its quantum numbers
-  int pdgIdPartner = pdgCode%100;
   G4ParticleTable* theParticleTable = G4ParticleTable::GetParticleTable();
-  G4ParticleDefinition *aParticle = theParticleTable->FindParticle(pdgIdPartner);
-   if(aParticle) {
-    charge = aParticle->GetPDGCharge();
-    spin = aParticle->GetPDGiSpin() - 1;
-    parity = aParticle->GetPDGiParity();
-    conjugation = aParticle->GetPDGiConjugation();
-    isospin = aParticle->GetPDGiIsospin();
-    isospinZ = aParticle->GetPDGiIsospin3(); 
-    gParity = aParticle->GetPDGiGParity();
-    lepton = 1;
-  }
-  /////////////// 
 
   CustomParticle *particle  = new CustomParticle(name, massGeV, width, charge, spin, 
 						 parity, conjugation, isospin, isospinZ,
