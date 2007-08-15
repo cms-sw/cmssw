@@ -63,7 +63,7 @@ struct Print {
     if (!n.getValue()) return; 
     for (size_t i=0; i<label.size();++i)
       std::cout << int(label[i]) <<'/';
-    std::cout << " " << n.getValue()->name.name() << std::endl;
+    std::cout << " " << n.getValue()->name().name() << std::endl;
   }
   
 };
@@ -137,7 +137,7 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   edm::ESHandle<TrackerGeometry> pDD;
   iSetup.get<TrackerDigiGeometryRecord> ().get (pDD);
   //
-  GeometricDet * rDD = pDD->trackerDet();
+  GeometricDet const * rDD = pDD->trackerDet();
   
   std::vector<const GeometricDet*> modules; (*rDD).deepComponents(modules);
   for(unsigned int i=0; i<modules.size();i++){
@@ -150,10 +150,10 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
       {
 	std::string name = modules[i]->name().name();
 	PXBDetId module(rawid);
-	unsigned char theLayer  = module.layer();
-	unsigned char theLadder = module.ladder();
-	unsigned char theModule = module.module();
-	unsigned char key[] = { 1, theLayer , theLadder, theModule};
+	char theLayer  = module.layer();
+	char theLadder = module.ladder();
+	char theModule = module.module();
+	char key[] = { 1, theLayer , theLadder, theModule};
 	trie.addEntry(key,4, modules[i]);
 	
 	
@@ -165,11 +165,11 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
       {
 	std::string name = modules[i]->name().name();
 	PXFDetId module(rawid);
-	unsigned char thePanel  = module.panel();
-	unsigned char theDisk   = module.disk();
-	unsigned char theBlade  = module.blade();
-	unsigned char theModule = module.module();
-	unsigned char key[] = { 2, 
+	char thePanel  = module.panel();
+	char theDisk   = module.disk();
+	char theBlade  = module.blade();
+	char theModule = module.module();
+	char key[] = { 2, 
 				thePanel , theDisk, 
 				theBlade, theModule};
 	trie.addEntry(key,5, modules[i]);
@@ -182,16 +182,16 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
       {
 	std::string name = modules[i]->name().name();
 	TIBDetId module(rawid);
-	unsigned char              theLayer  = module.layer();
+	char              theLayer  = module.layer();
 	std::vector<unsigned int> theString = module.string();
-	unsigned char             theModule = module.module();
+	char             theModule = module.module();
 	std::string side;
 	std::string part;
 	side = (theString[0] == 1 ) ? "-" : "+";
 	part = (theString[1] == 1 ) ? "int" : "ext";
-	unsigned char key[] = { 3, theLayer , 
-				unsigned char(theString[0]), 
-				unsigned char(theString[1]), 
+	char key[] = { 3, theLayer , 
+				char(theString[0]), 
+				char(theString[1]), 
 				theModule};
 	trie.addEntry(key,5, modules[i]);
 	
@@ -212,11 +212,11 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	std::string part;
 	side = (module.side() == 1 ) ? "-" : "+";
 	part = (theModule[0] == 1 ) ? "back" : "front";
-	unsigned char key[] = { 3, 
+	char key[] = { 3, 
 				theDisk , theRing,
-				unsigned char(module.size()),
-				unsigned char(theModule[0]), 
-				unsigned char(theModule[1])};
+				char(module.size()),
+				char(theModule[0]), 
+				char(theModule[1])};
 	trie.addEntry(key,6, modules[i]);
 	
 	break;
@@ -233,9 +233,9 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	std::string side;
 	std::string part;
 	side = (theRod[0] == 1 ) ? "-" : "+";
-	unsigned char key[] = { 5, theLayer , 
-				unsigned char(theRod[0]), 
-				unsigned char(theRod[1]), 
+	char key[] = { 5, theLayer , 
+				char(theRod[0]), 
+				char(theRod[1]), 
 				theModule};
 	trie.addEntry(key,5, modules[i]);
 	
@@ -257,11 +257,11 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	petal = (thePetal[0] == 1 ) ? "back" : "front";
 	int out_side  = (module.side() == 1 ) ? -1 : 1;
 	
-	unsigned char key[] = { 6, 
+	char key[] = { 6, 
 				theWeel,
-				unsigned char(module.side()),
-				unsigned char(thePetal[0]), 
-				unsigned char(thePetal[1]),
+				char(module.side()),
+				char(thePetal[0]), 
+				char(thePetal[1]),
 				theRing,
 				theModule};
 	trie.addEntry(key,7, modules[i]);
