@@ -8,7 +8,7 @@
  *
  * \author Slava Valuev
  * Created: Thu Apr 12 11:26:54 CEST 2007
- * $Id$
+ * $Id: L1CSCTriggerPrimitivesConfigProducer.h,v 1.1 2007/04/17 13:30:12 slava Exp $
  *
  */
 
@@ -19,7 +19,6 @@
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 class L1CSCTPParameters;
 class L1CSCTPParametersRcd;
