@@ -8,8 +8,7 @@
  * Camelia Mironov
  *
  */
-
-                                                                               
+                                                       
 // PYQUEN routine declaration
 
 extern "C" {
@@ -24,5 +23,16 @@ extern "C" {
 }
 #define plfpar plfpar_
 
+
+extern "C" {
+  extern struct{
+    float T0u;
+    float tau0u;
+    int   nfu;
+    int   ienglu;
+    int   ianglu;
+  }pyqpar_;
+}
+#define pyqpar pyqpar_
 
 #endif  // PYQUEN_WRAPPER_H
