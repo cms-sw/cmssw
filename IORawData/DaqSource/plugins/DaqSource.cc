@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2007/08/14 20:07:00 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/08/14 21:11:46 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -41,6 +41,7 @@ namespace edm {
     , remainingEvents_(maxEvents())
     , runNumber_(RunNumber_t())
     , luminosityBlockNumber_(LuminosityBlockNumber_t())
+    , noMoreEvents_(false)
     , lbp_()
     , ep_() {
     produces<FEDRawDataCollection>();
@@ -76,7 +77,7 @@ namespace edm {
   
   //______________________________________________________________________________
   std::auto_ptr<EventPrincipal> DaqSource::readOneEvent(boost::shared_ptr<RunPrincipal> rp) {
-    if(reader_==0) {
+    if(reader_ == 0) {
       throw cms::Exception("LogicError")
         << "DaqSource is used without a reader. Check your configuration !";
     }
@@ -92,6 +93,7 @@ namespace edm {
     if(!reader_->fillRawData(eventId, tstamp, fedCollection)) {
       // fillRawData() failed, clean up the fedCollection in case it was allocated!
       if (0 != fedCollection) delete fedCollection;
+      noMoreEvents_ = true;
       return std::auto_ptr<EventPrincipal>(0);
     }
     setTimestamp(tstamp);
@@ -115,7 +117,7 @@ namespace edm {
     // make a brand new event
     ep_ = std::auto_ptr<EventPrincipal>(
 	new EventPrincipal(eventId, timestamp(),
-	productRegistry(), lbp_, processConfiguration(), true, EventAuxiliary::Data));
+	productRegistry(), lbp_, processConfiguration(), true));
     
     // have fedCollection managed by a std::auto_ptr<>
     std::auto_ptr<FEDRawDataCollection> bare_product(fedCollection);
@@ -129,12 +131,10 @@ namespace edm {
 
   void
   DaqSource::setRun(RunNumber_t r) {
-    // Do nothing if the run is not changed.
-    if (r != runNumber_) {
-      runNumber_ = r;
-      lbp_.reset();
-      ep_.reset();
-    }
+    runNumber_ = r;
+    noMoreEvents_ = false;
+    lbp_.reset();
+    ep_.reset();
   }
 
   void
@@ -147,6 +147,10 @@ namespace edm {
 
   boost::shared_ptr<RunPrincipal>
   DaqSource::readRun_() {
+    if (noMoreEvents_) {
+      noMoreEvents_ = false;
+      return boost::shared_ptr<RunPrincipal>();
+    }
     return boost::shared_ptr<RunPrincipal>(
 	new RunPrincipal(runNumber_,
 			 timestamp(),
@@ -157,13 +161,17 @@ namespace edm {
 
   boost::shared_ptr<LuminosityBlockPrincipal>
   DaqSource::readLuminosityBlock_(boost::shared_ptr<RunPrincipal> rp) {
+    if (noMoreEvents_) {
+      lbp_.reset();
+      return boost::shared_ptr<LuminosityBlockPrincipal>();
+    }
     if (ep_.get() == 0) ep_ = readOneEvent(rp);
     return ep_->luminosityBlockPrincipalSharedPtr();
   }
 
   std::auto_ptr<EventPrincipal>
   DaqSource::readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
-    if (remainingEvents_ == 0) {
+    if (remainingEvents_ == 0 || noMoreEvents_) {
       return std::auto_ptr<EventPrincipal>(0); 
     }
     if (ep_.get() == 0) ep_ = readOneEvent(lbp->runPrincipalSharedPtr());

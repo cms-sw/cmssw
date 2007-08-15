@@ -5,8 +5,8 @@
  *  An input service for raw data. 
  *  The actual source can be the real DAQ, a file, a random generator, etc.
  *
- *  $Date: 2007/05/02 12:57:34 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/08/14 19:19:15 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -53,6 +53,7 @@ namespace edm {
     int remainingEvents_;
     RunNumber_t runNumber_;
     LuminosityBlockNumber_t luminosityBlockNumber_;
+    bool noMoreEvents_;
     boost::shared_ptr<LuminosityBlockPrincipal> lbp_;
     std::auto_ptr<EventPrincipal> ep_;
   };
