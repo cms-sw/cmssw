@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2007/08/14 20:27:37 $
- * $Revision: 1.22 $
+ * $Date: 2007/08/15 07:08:42 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1302,11 +1302,16 @@ void EETestPulseClient::analyze(void){
           map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
           for (m = mask1.begin(); m != mask1.end(); m++) {
 
-            EcalLogicID ecid = m->first;
+            int jx = ix + Numbers::ix0EE(ism);
+            int jy = iy + Numbers::iy0EE(ism);
+ 
+            if ( ! Numbers::validEE(ism, 101 - jx, jy) ) continue;
 
             int ic = Numbers::icEE(ism, ix, iy);
 
             if ( ic == -1 ) continue;
+
+            EcalLogicID ecid = m->first;
 
             if ( ecid.getID1() == Numbers::iSM(ism, EcalEndcap) && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits01 ) {

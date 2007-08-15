@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2007/08/14 17:44:45 $
- * $Revision: 1.17 $
+ * $Date: 2007/08/14 20:27:37 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -559,11 +559,16 @@ void EEPedestalOnlineClient::analyze(void){
           map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
           for (m = mask.begin(); m != mask.end(); m++) {
 
-            EcalLogicID ecid = m->first;
+            int jx = ix + Numbers::ix0EE(ism);
+            int jy = iy + Numbers::iy0EE(ism);
+ 
+            if ( ! Numbers::validEE(ism, 101 - jx, jy) ) continue;
 
             int ic = Numbers::icEE(ism, ix, iy);
 
             if ( ic == -1 ) continue;
+
+            EcalLogicID ecid = m->first;
 
             if ( ecid.getID1() == Numbers::iSM(ism, EcalEndcap) && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits03 ) {

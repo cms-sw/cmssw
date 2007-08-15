@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2007/08/09 14:36:55 $
- * $Revision: 1.13 $
+ * $Date: 2007/08/14 17:44:45 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
 */
@@ -504,6 +504,11 @@ void EETimingClient::analyze(void){
           for (m = mask.begin(); m != mask.end(); m++) {
 
             EcalLogicID ecid = m->first;
+
+            int jx = ix + Numbers::ix0EE(ism);
+            int jy = iy + Numbers::iy0EE(ism);
+ 
+            if ( ! Numbers::validEE(ism, 101 - jx, jy) ) continue;
 
             int ic = Numbers::icEE(ism, ix, iy);
 
