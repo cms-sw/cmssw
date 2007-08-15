@@ -13,7 +13,6 @@
 #include <TROOT.h>
 #include <TFile.h>
 #include <TTree.h>
-#include <TSystem.h>
 #include <TStyle.h>
 #include <TObjArray.h>
 #include <TBranch.h>

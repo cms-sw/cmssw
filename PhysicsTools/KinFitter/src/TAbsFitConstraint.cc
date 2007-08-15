@@ -13,7 +13,6 @@
 using namespace std;
 
 #include "PhysicsTools/KinFitter/interface/TAbsFitConstraint.h"
-#include "TNamed.h"
 
 #include <iostream>
 #include "TClass.h"

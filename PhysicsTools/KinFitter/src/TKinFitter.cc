@@ -16,7 +16,6 @@ using namespace std;
 #include <iostream>
 #include <iomanip>
 #include "PhysicsTools/KinFitter/interface/TKinFitter.h"
-#include "TMatrixD.h"
 #include "PhysicsTools/KinFitter/interface/TAbsFitParticle.h"
 #include "PhysicsTools/KinFitter/interface/TAbsFitConstraint.h"
 

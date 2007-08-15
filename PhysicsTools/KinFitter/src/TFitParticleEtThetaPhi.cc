@@ -19,7 +19,6 @@ using namespace std;
 
 #include <iostream>
 #include "PhysicsTools/KinFitter/interface/TFitParticleEtThetaPhi.h"
-#include "TLorentzVector.h"
 #include "TMath.h"
 
 ClassImp(TFitParticleEtThetaPhi)

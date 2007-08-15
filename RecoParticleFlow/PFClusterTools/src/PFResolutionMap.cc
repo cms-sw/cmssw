@@ -1,5 +1,4 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFResolutionMap.h"
-#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <algorithm>

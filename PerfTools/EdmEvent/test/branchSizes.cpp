@@ -4,7 +4,6 @@
  *
  */
 
-#include <boost/shared_ptr.hpp>
 #include <boost/program_options.hpp>
 #include <string>
 #include <iostream>
@@ -20,7 +19,6 @@
 #include <TBranch.h>
 #include <TH1.h>
 #include <TCanvas.h>
-#include <Riostream.h>
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 #include <utility>
 using namespace std;

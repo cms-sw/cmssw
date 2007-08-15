@@ -2,6 +2,8 @@
 
 #include "PhysicsTools/KinFitter/interface/TKinFitter.h"
 #include "PhysicsTools/KinFitter/interface/TSLToyGen.h"
+#include "TMatrixD.h" 
+#include "TH1.h" 
 #include "PhysicsTools/KinFitter/interface/TFitConstraintEp.h"
 #include "PhysicsTools/KinFitter/interface/TFitConstraintMGaus.h"
 #include "PhysicsTools/KinFitter/interface/TFitConstraintM.h"

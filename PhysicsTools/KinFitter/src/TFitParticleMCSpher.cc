@@ -21,7 +21,6 @@ using namespace std;
 
 #include <iostream>
 #include "PhysicsTools/KinFitter/interface/TFitParticleMCSpher.h"
-#include "TLorentzVector.h"
 #include "TMath.h"
 
 ClassImp(TFitParticleMCSpher)

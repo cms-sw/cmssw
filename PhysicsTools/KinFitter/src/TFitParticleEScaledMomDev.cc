@@ -27,7 +27,6 @@ using namespace std;
 
 #include <iostream>
 #include "PhysicsTools/KinFitter/interface/TFitParticleEScaledMomDev.h"
-#include "TLorentzVector.h"
 #include "TMath.h"
 
 ClassImp(TFitParticleEScaledMomDev)

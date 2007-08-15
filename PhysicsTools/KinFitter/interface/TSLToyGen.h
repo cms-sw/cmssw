@@ -6,10 +6,8 @@ using namespace std;
 
 
 #include <vector>
-#include "TMatrixD.h"
 #include "TObject.h"
 #include "TObjArray.h"
-#include "TH1.h"
 #include "PhysicsTools/KinFitter/interface/TKinFitter.h"
 #include "TVector3.h"
 

@@ -6,7 +6,6 @@
 #include "PerfTools/EdmEvent/interface/EdmEventSize.h"
 
 
-#include <boost/shared_ptr.hpp>
 #include <boost/program_options.hpp>
 #include <string>
 #include <iostream>

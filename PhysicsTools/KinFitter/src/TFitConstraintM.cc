@@ -14,7 +14,6 @@ using namespace std;
 
 #include <iostream>
 #include "PhysicsTools/KinFitter/interface/TFitConstraintM.h"
-#include "PhysicsTools/KinFitter/interface/TAbsFitConstraint.h"
 #include "TLorentzVector.h"
 #include "TClass.h"
 

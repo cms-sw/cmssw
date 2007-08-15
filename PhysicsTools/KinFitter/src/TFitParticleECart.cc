@@ -19,8 +19,6 @@ using namespace std;
 
 #include <iostream>
 #include "PhysicsTools/KinFitter/interface/TFitParticleECart.h"
-#include "TLorentzVector.h"
-#include "TMath.h"
 
 ClassImp(TFitParticleECart)
 

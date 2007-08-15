@@ -1,20 +1,16 @@
 
 using namespace std;
 
-#include <vector>
 #include <iostream>
-#include "TCanvas.h"
 #include "PhysicsTools/KinFitter/interface/TSLToyGen.h"
+#include "TMatrixD.h" 
 #include "PhysicsTools/KinFitter/interface/TFitConstraintM.h"
 #include "PhysicsTools/KinFitter/interface/TFitConstraintEp.h"
 //#include "PhysicsTools/KinFitter/interface/TFitConstraintE.h"
 #include "PhysicsTools/KinFitter/interface/TAbsFitParticle.h"
-#include "PhysicsTools/KinFitter/interface/TKinFitter.h"
 #include "TH1.h"
 #include "TMath.h"
-#include "TObjArray.h"
 #include "TRandom.h"
-#include "TROOT.h"
 #include "TString.h"
 
 ClassImp(TSLToyGen)
