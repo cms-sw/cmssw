@@ -40,7 +40,7 @@ namespace {
   }
 
   struct CandidateRefGreaterByEt {
-    bool operator() (const reco::CandidateRef& first, const reco::CandidateRef& second) {
+    bool operator() (const reco::CandidateBaseRef& first, const reco::CandidateBaseRef& second) {
       NumericSafeGreaterByEt<reco::Candidate> comparator;
       return comparator (*first, *second);
     }
@@ -87,7 +87,7 @@ const ProtoJet::Constituents& ProtoJet::getTowerList() {
   return mConstituents;
 }
   
-const ProtoJet::Constituents ProtoJet::getTowerList() const {
+ProtoJet::Constituents ProtoJet::getTowerList() const {
   if (mOrdered) return mConstituents;
 
   Constituents result = mConstituents;
@@ -95,6 +95,22 @@ const ProtoJet::Constituents ProtoJet::getTowerList() const {
   std::sort (result.begin(), result.end(), comparator);
   return result;
 }
+
+JetReco::JetConstituents ProtoJet::getJetTowerList() const {
+  const ProtoJet::Constituents* towers = &mConstituents;
+  ProtoJet::Constituents orderedTowers;
+  if (!mOrdered) {
+    orderedTowers = getTowerList ();
+    towers = &orderedTowers;
+  }
+  JetReco::JetConstituents result;
+  ProtoJet::Constituents::const_iterator tower = towers->begin();
+  for (; tower != towers->end(); tower++) {
+    result.push_back (*tower);
+  }
+  return result;
+}
+
 
 void ProtoJet::putTowers(const Constituents& towers) {
   mConstituents = towers; 

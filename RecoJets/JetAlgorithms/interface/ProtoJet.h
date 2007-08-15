@@ -15,6 +15,7 @@
 *
  ************************************************************/
 
+#include "RecoJets/JetAlgorithms/interface/JetRecoTypes.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
@@ -23,8 +24,8 @@
 
 class ProtoJet {
 public:
-  typedef reco::CandidateRef Constituent;
-  typedef std::vector <Constituent> Constituents;
+  typedef reco::CandidateBaseRef Constituent;
+  typedef std::vector <reco::CandidateBaseRef> Constituents;
 
   typedef math::XYZTLorentzVector LorentzVector;
   /** Default Constructor */
@@ -92,7 +93,10 @@ public:
   
   /** Returns the list of tower in a particular protojet */
   const Constituents& getTowerList();
-  const Constituents getTowerList() const;
+  Constituents getTowerList() const;
+
+  /** Returns the list of tower in a particular protojet in reco::Jet format*/
+  JetReco::JetConstituents getJetTowerList() const;
   
   /** Sets the list of towers in a protojet */
   void putTowers(const Constituents& towers);
@@ -113,11 +117,11 @@ private:
   LorentzVector mP4;
   /** Jet constituents */
   Constituents mConstituents;
+  bool mOrdered;
   /// Parameters returning from algorithms 
   float mJetArea;
   float mPileupEnergy;
   int mPassNumber;
-  bool mOrdered;
 };
 
 #endif

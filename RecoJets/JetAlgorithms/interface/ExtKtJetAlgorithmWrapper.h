@@ -19,23 +19,16 @@
  *
  ************************************************************/
 
-#include "RecoJets/JetAlgorithms/interface/ProtoJet.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include <vector>
-#include <string>
+#include "RecoJets/JetAlgorithms/interface/JetRecoTypes.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 class ExtKtJetAlgorithmWrapper
 {
-  typedef reco::CandidateRef FJCand;
-  typedef const reco::CandidateRef constFJCand;
  public:
   ExtKtJetAlgorithmWrapper();
   ExtKtJetAlgorithmWrapper(const edm::ParameterSet& ps);
   ~ExtKtJetAlgorithmWrapper(){};
-  void run (const std::vector <FJCand>& fInput, std::vector<ProtoJet>* fOutput) const;
+  void run (const JetReco::InputCollection& fInput, JetReco::OutputCollection* fOutput) const;
  private:
   int theMode;
   double thePtMin;

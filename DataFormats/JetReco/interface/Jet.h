@@ -12,15 +12,15 @@
  *
  * \version   Original: April 22, 2005 by Fernando Varela Rodriguez.
  * \version   May 23, 2006 by F.R.
- * \version   $Id: Jet.h,v 1.16 2007/05/30 22:06:42 fedor Exp $
+ * \version   $Id: Jet.h,v 1.17 2007/08/07 20:17:58 fedor Exp $
  ************************************************************/
 #include <string>
-#include "DataFormats/Candidate/interface/CompositeRefCandidate.h"
+#include "DataFormats/Candidate/interface/CompositeRefBaseCandidate.h"
 
 namespace reco {
-  class Jet : public CompositeRefCandidate {
+  class Jet : public CompositeRefBaseCandidate {
   public:
-    typedef std::vector<reco::CandidateRef> Constituents;
+    typedef reco::CandidateBaseRefVector Constituents;
 
     /// record to store eta-phi first and second moments
     class EtaPhiMoments {
@@ -106,7 +106,7 @@ namespace reco {
 
   private:
     // disallow constituents modifications
-    void addDaughter( const CandidateRef & fRef) {CompositeRefCandidate::addDaughter (fRef);}
+    void addDaughter( const CandidateBaseRef & fRef) {CompositeRefBaseCandidate::addDaughter (fRef);}
     float mJetArea;
     float mPileupEnergy;
     int mPassNumber;

@@ -7,7 +7,7 @@
  * It handles generic manipulations of input and output collections
  *
  * \author Fedor Ratnikov (UMd) Aug. 22, 2006
- * $Id: BasePilupSubtractionJetProducer.h,v 1.7 2007/06/01 07:37:41 kodolova Exp $
+ * $Id: BasePilupSubtractionJetProducer.h,v 1.1 2007/06/30 17:24:06 fedor Exp $
  *
  ************************************************************/
 
@@ -54,8 +54,8 @@ namespace cms
     /** run algorithm itself */
     virtual bool runAlgorithm (const  JetReco::InputCollection& fInput,  JetReco::OutputCollection* fOutput) = 0;
     
-    void calculate_pedestal(JetReco::InputCollection&);
-    reco::CandidateCollection subtract_pedestal(JetReco::InputCollection&);
+    void calculate_pedestal(const JetReco::InputCollection&);
+    reco::CandidateCollection subtract_pedestal(const JetReco::InputCollection&);
 
   private:
     edm::InputTag mSrc;

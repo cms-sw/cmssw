@@ -1,7 +1,7 @@
 /// Algorithm to convert transient protojets into persistent jets
 /// Author: F.Ratnikov, UMd
 /// Mar. 8, 2006
-/// $Id: JetMaker.cc,v 1.27 2007/07/25 22:09:40 fedor Exp $
+/// $Id: JetMaker.cc,v 1.28 2007/08/07 20:18:02 fedor Exp $
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -243,7 +243,7 @@ namespace {
 } // unnamed namespace
 
 BasicJet JetMaker::makeBasicJet (const ProtoJet& fProtojet) const {
-  BasicJet result (fProtojet.p4(), reco::Particle::Point (0, 0, 0), fProtojet.getTowerList());
+  BasicJet result (fProtojet.p4(), reco::Particle::Point (0, 0, 0), fProtojet.getJetTowerList());
   result.setJetArea (fProtojet.jetArea());
   result.setPileup (fProtojet.pileup());
   result.setNPasses (fProtojet.nPasses());
@@ -254,7 +254,7 @@ BasicJet JetMaker::makeBasicJet (const ProtoJet& fProtojet) const {
 CaloJet JetMaker::makeCaloJet (const ProtoJet& fProtojet, const CaloSubdetectorGeometry& fTowerGeometry) const {
   CaloJet::Specific specific;
   makeSpecific (fProtojet.getTowerList(), fTowerGeometry, &specific);
-  CaloJet result (fProtojet.p4(), specific, fProtojet.getTowerList());
+  CaloJet result (fProtojet.p4(), specific, fProtojet.getJetTowerList());
   result.setJetArea (fProtojet.jetArea());
   result.setPileup (fProtojet.pileup());
   result.setNPasses (fProtojet.nPasses());
@@ -264,7 +264,7 @@ CaloJet JetMaker::makeCaloJet (const ProtoJet& fProtojet, const CaloSubdetectorG
 PFJet JetMaker::makePFJet (const ProtoJet& fProtojet) const {
   PFJet::Specific specific;
   makeSpecific (fProtojet.getTowerList(), &specific);
-  PFJet result (fProtojet.p4(), specific, fProtojet.getTowerList());
+  PFJet result (fProtojet.p4(), specific, fProtojet.getJetTowerList());
   result.setJetArea (fProtojet.jetArea());
   result.setPileup (fProtojet.pileup());
   result.setNPasses (fProtojet.nPasses());
@@ -274,7 +274,7 @@ PFJet JetMaker::makePFJet (const ProtoJet& fProtojet) const {
 GenJet JetMaker::makeGenJet (const ProtoJet& fProtojet) const {
   GenJet::Specific specific;
   makeSpecific (fProtojet.getTowerList(), &specific);
-  GenJet result (fProtojet.p4(), specific, fProtojet.getTowerList());
+  GenJet result (fProtojet.p4(), specific, fProtojet.getJetTowerList());
   result.setJetArea (fProtojet.jetArea());
   result.setPileup (fProtojet.pileup());
   result.setNPasses (fProtojet.nPasses());
