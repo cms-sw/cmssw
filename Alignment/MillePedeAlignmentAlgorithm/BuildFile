@@ -9,6 +9,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 #<use name=DataFormats/TrackReco>
+<use name=DataFormats/TrackerRecHit2D>
 <use name=Geometry/CommonDetUnit>
 <use name=root>
 <use name=clhep>
