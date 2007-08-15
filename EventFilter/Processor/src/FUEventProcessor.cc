@@ -566,8 +566,10 @@ bool FUEventProcessor::halting(toolbox::task::WorkLoop* wl)
 	fsm_.fireEvent("HaltDone",this);
       }
     else
-      reasonForFailedState_ = "EventProcessor stop timed out";
-      fsm_.fireFailed(reasonForFailedState_,this);
+      {
+	reasonForFailedState_ = "EventProcessor stop timed out";
+	fsm_.fireFailed(reasonForFailedState_,this);
+      }
   }
   catch (xcept::Exception &e) {
     reasonForFailedState_ = "halting FAILED: " + (string)e.what();
