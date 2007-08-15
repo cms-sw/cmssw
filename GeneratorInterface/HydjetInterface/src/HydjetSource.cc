@@ -1,5 +1,5 @@
 /*
- * $Id: HydjetSource.cc,v 1.6 2007/05/21 14:49:06 mironov Exp $
+ * $Id: HydjetSource.cc,v 1.7 2007/08/08 14:46:55 loizides Exp $
  *
  * Interface to the HYDJET generator, produces HepMC events
  *
@@ -41,22 +41,23 @@ HydjetSource::HydjetSource(const ParameterSet &pset, InputSourceDescription cons
     bmin_(pset.getParameter<double>("bMin")),
     cflag_(pset.getParameter<int>("cFlag")),
     comenergy(pset.getParameter<double>("comEnergy")),
+    fracsoftmult_(pset.getParameter<double>("fracSoftMultiplicity")),
+    hadfreeztemp_(pset.getParameter<double>("hadronFreezoutTemperature")),
     hymode_(pset.getParameter<string>("hydjetMode")),
     maxEventsToPrint_(pset.getUntrackedParameter<int>("maxEventsToPrint", 1)),
+    maxlongy_(pset.getParameter<double>("maxLongitudinalRapidity")),
+    maxtrany_(pset.getParameter<double>("maxTransverseRapidity")),
     nhard_(0),
     nmultiplicity_(pset.getParameter<int>("nMultiplicity")),
     nsoft_(0),
+    nquarkflavor_(pset.getParameter<int>("numQuarkFlavor")),
     ptmin_(pset.getParameter<double>("ptMin")),
-    pythiaPylistVerbosity_(pset.getUntrackedParameter<int>("pythiaPylistVerbosity", 0))
+    pythiaPylistVerbosity_(pset.getUntrackedParameter<int>("pythiaPylistVerbosity", 0)),
+    qgpt0_(pset.getParameter<double>("qgpInitialTemperature")),
+    qgptau0_(pset.getParameter<double>("qgpProperTimeFormation")),
+    signn_(pset.getParameter<double>("sigmaInelNN"))
 {
   // Default constructor
-
-  // the input impact parameter (bxx_) is in [fm]; transform in [fm/RA] for hydjet usage
-  const float ra = nuclear_radius();
-  LogDebug("RAScaling")<<"Nuclear radius(RA) =  "<<ra;
-  bmin_     /= ra;
-  bmax_     /= ra;
-  bfixed_   /= ra;
 
   // PYLIST Verbosity Level
   // Valid PYLIST arguments are: 1, 2, 3, 5, 7, 11, 12, 13
@@ -66,6 +67,12 @@ HydjetSource::HydjetSource(const ParameterSet &pset, InputSourceDescription cons
   //Max number of events printed on verbosity level 
   maxEventsToPrint_ = pset.getUntrackedParameter<int>("maxEventsToPrint",0);
   LogDebug("Events2Print") << "Number of events to be printed = " << maxEventsToPrint_;
+  // the input impact parameter (bxx_) is in [fm]; transform in [fm/RA] for hydjet usage
+  const float ra = nuclear_radius();
+  LogInfo("RAScaling")<<"Nuclear radius(RA) =  "<<ra;
+  bmin_     /= ra;
+  bmax_     /= ra;
+  bfixed_   /= ra;
 
   //initialize pythia
   hyjpythia_init(pset);
@@ -110,7 +117,7 @@ void HydjetSource::add_heavy_ion_rec(HepMC::GenEvent *evt)
     hyfpar.bgen * nuclear_radius(),     // impact_parameter in [fm]
     0,                                  // event_plane_angle
     0,                                  // eccentricity
-    hyipar.sigin                        // sigma_inel_NN
+    hyjpar.sigin                        // sigma_inel_NN
   );
 
   evt->set_heavy_ion(hi);
@@ -194,44 +201,6 @@ bool HydjetSource::build_vertices(int i, vector<HepMC::GenParticle*>& luj_entrie
 }
 
 
-//_____________________________________________________________________
-bool HydjetSource::call_hyjgive(const std::string& param ) 
-{
-  // Set Hydjet parameters
-
-  string::size_type loc = param.find('=', 0);
-  if(loc == string::npos) {
-    throw edm::Exception(edm::errors::Configuration, "HydjetError")
-          << " no '=' in parameter string '" << param << "'.";
-  }
-
-  string tag = param.substr(0, loc);
-  string val = param.substr(loc+1);
-
-  bool accepted = true;
-
-  if(tag == "nhsel") {
-      hyjpar.nhsel = boost::lexical_cast<int>(val);
-      edm::LogInfo("HYDJETnhsel") << "nhsel = " << hyjpar.nhsel;
-  } else if(tag == "ptmin") {
-      hyjpar.ptmin = boost::lexical_cast<float>(val);
-      edm::LogInfo("HYDJETptmin") << "ptmin = " << hyjpar.ptmin;
-  } else if(tag == "fpart") {
-      hyflow.fpart = boost::lexical_cast<float>(val);
-      edm::LogInfo("HYDJETfpart") << "fpart = " << hyflow.fpart;
-  } else if(tag == "ylfl") {
-      hyflow.ylfl  = boost::lexical_cast<float>(val);
-      edm::LogInfo("HYDJETylfl") << "ylfl = " << hyflow.ylfl;
-  } else if(tag == "ytfl") {
-      hyflow.ytfl  = boost::lexical_cast<float>(val);
-      edm::LogInfo("HYDJETytfl") << "ytfl = " << hyflow.ytfl;
-  } else
-      accepted = false;
-
-  return accepted;
-}
-
-
 //______________________________________________________________________
 bool HydjetSource::call_pygive(const std::string& iParm ) 
 {
@@ -301,48 +270,52 @@ bool HydjetSource::get_hydjet_particles(HepMC::GenEvent *evt)
 //______________________________________________________________
 bool HydjetSource::hyjhydro_init(const ParameterSet &pset)
 {
-  edm::Service<RandomNumberGenerator> rng;
-  uint32_t seed = rng->mySeed();
-  ludatr.mrlu[1]=seed;
   //initialize hydjet HYDRO part
 
-  // hydjet mode
+  edm::Service<RandomNumberGenerator> rng;
+  uint32_t seed = rng->mySeed();
+  ludatr.mrlu[0]=seed;
+
+  // hydjet running mode mode
   // kHydroOnly --- nhsel=0 jet production off (pure HYDRO event), nhsel=0
   // kHydroJets --- nhsle=1 jet production on, jet quenching off (HYDRO+njet*PYTHIA events)
   // kHydroQJet --- nhsel=2 jet production & jet quenching on (HYDRO+njet*PYQUEN events)
   // kJetsOnly  --- nhsel=3 jet production on, jet quenching off, HYDRO off (njet*PYTHIA events)
   // kQJetsOnly --- nhsel=4 jet production & jet quenching on, HYDRO off (njet*PYQUEN events)
 
-  // Read HYDJET parameters 
-  ParameterSet hydjet_params = pset.getParameter<ParameterSet>("HydjetParameters") ;
-    
-  // Read the HYDJET parameters from the set
-  vector<string> pars_hyj = hydjet_params.getParameter<vector<string> >("hydjet");
-    
-  // Loop over all parameters and stop in case of mistake
-  for( vector<string>::const_iterator  itPar = pars_hyj.begin();
-       itPar != pars_hyj.end(); ++itPar ) {     
+  if(hymode_ == "kHydroOnly") hyjpar.nhsel=0;
+  else if ( hymode_ == "kHydroJets") hyjpar.nhsel=1;
+  else if ( hymode_ == "kHydroQJets") hyjpar.nhsel=2;
+  else if ( hymode_ == "kJetsOnly") hyjpar.nhsel=3;
+  else if ( hymode_ == "kQJetsOnly") hyjpar.nhsel=4;
+  else  hyjpar.nhsel=2;
 
-    if( ! call_hyjgive(*itPar) ) {
-      throw edm::Exception(edm::errors::Configuration,"HYDJET Error") 
-        <<" HYDJET did not accept the following \""<<*itPar<<"\"";
-    }
-  }
+  // fraction of soft hydro induced multiplicity 
+  hyflow.fpart =  fracsoftmult_; 
 
-  if(hymode_ == "kHydroOnly")       
-    call_hyjgive("nhsel=0");
-  else if ( hymode_ == "kHydroJets")
-    call_hyjgive("nhsel=1");
-  else if ( hymode_ == "kHydroQJets")
-    call_hyjgive("nhsel=2");
-  else if ( hymode_ == "kJetsOnly")
-    call_hyjgive("nhsel=3");
-  else if ( hymode_ == "kQJetsOnly")
-    call_hyjgive("nhsel=4");
-  else call_hyjgive("nhsel=2");
+  // hadron freez-out temperature
+  hyflow.Tf   = hadfreeztemp_;
+
+  // maximum longitudinal collective rapidity
+  hyflow.ylfl = maxlongy_;
+  
+  // maximum transverse collective rapidity
+  hyflow.ytfl = maxtrany_;  
 
   // minimum pT hard
   hyjpar.ptmin = ptmin_;
+
+  // set inelastic nucleon-nucleon cross section
+  hyjpar.sigin  = signn_;
+
+  // number of active quark flavors in qgp
+  pyqpar.nfu    = nquarkflavor_;
+
+  // initial temperature of QGP
+  pyqpar.T0u    = qgpt0_;
+
+  // proper time of QGP formation
+  pyqpar.tau0u  = qgptau0_;
 
   return true;
 }
@@ -398,20 +371,18 @@ bool HydjetSource::hyjpythia_init(const ParameterSet &pset)
 bool HydjetSource::produce(Event & e)
 {
   // generate single event
-
- 
-  
   nsoft_    = 0;
   nhard_    = 0;
 
-  LogDebug("HYDJETabeamtarget") << "abeamtarget_ =  " << abeamtarget_;
-  edm::LogInfo("HYDJETcflag") << "cflag_ = " << cflag_;
-  edm::LogInfo("HYDJETbmin") << "bmin_ = " << bmin_;
-  edm::LogInfo("HYDJETbmax") << "bmax_ = " << bmax_;
-  edm::LogInfo("HYDJETbfixed") << "bfixed_ = " << bfixed_;
-  edm::LogInfo("HYDJETmultiplicity") << "nmultiplicity_ = " << nmultiplicity_;
-  edm::LogInfo("HYDJETmode") << "hydjet mode_ = " << hyjpar.nhsel;
-  LogDebug("HYDJETinAction") << "##### Calling HYDRO(abeamtarget_,cflag_,bmin_,bmax_,bfixed_,nmultiplicity_) ####" << endl;
+  edm::LogInfo("HYDJETmode") << "##### HYDJET  nhsel = " << hyjpar.nhsel;
+  edm::LogInfo("HYDJETfpart") << "##### HYDJET fpart = " << hyflow.fpart;
+  edm::LogInfo("HYDJETtf") << "##### HYDJET hadron freez-out temp, Tf = " << hyflow.Tf;
+  edm::LogInfo("HYDJETmode") << "##### HYDJET  ptmin = " << hyjpar.ptmin;
+
+  edm::LogInfo("HYDJETinTemp") << "##### HYDJET: QGP init temperature, T0 ="<<pyqpar.T0u;
+  edm::LogInfo("HYDJETinTau") << "##### HYDJET: QGP formation time,tau0 ="<<pyqpar.tau0u;
+
+  LogDebug("HYDJETinAction") << "##### Calling HYDRO("<<abeamtarget_<<","<<cflag_<<","<<bmin_<<","<<bmax_<<","<<bfixed_<<","<<nmultiplicity_<<") ####";
 
   HYDRO(abeamtarget_,cflag_,bmin_,bmax_,bfixed_,nmultiplicity_);
 
@@ -437,7 +408,7 @@ bool HydjetSource::produce(Event & e)
     if (event() <= maxEventsToPrint_ && pythiaPylistVerbosity_)     
       call_pylist(pythiaPylistVerbosity_);      
     }
-  
+
   return true;
 }
 

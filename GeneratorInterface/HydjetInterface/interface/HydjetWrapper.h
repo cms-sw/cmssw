@@ -2,7 +2,7 @@
 #define GeneratorInterface_HydjetInterface_HydjetWrapper
 
 //
-// $Id: HydjetWrapper.h,v 1.2 2007/04/28 16:08:16 mballint Exp $
+// $Id: HydjetWrapper.h,v 1.3 2007/08/08 14:46:54 loizides Exp $
 //
 
 /*
@@ -36,6 +36,7 @@ extern "C" {
   extern struct {
     float ytfl;
     float ylfl;
+    float Tf;
     float fpart;
   } hyflow_;
 }
@@ -70,7 +71,9 @@ extern "C" {
   extern struct{
     int nhsel;
     float ptmin;
-    float njet;
+    float sigin;
+    int njet;
+    float sigjet;
   }hyjpar_;
 }
 #define hyjpar hyjpar_
@@ -91,12 +94,16 @@ extern "C" {
 
 extern "C" {
   extern struct {
-    float	bminh;
-	 float	bmaxh;
-	 float	AW;
-	 float	RA;
-	 float	sigin;
-	 float	np;
+    float bminh;
+    float bmaxh;
+    float AW;
+    float RA;
+    int   np;
+    int   npar0;
+    int   nbco0;
+    int   init;
+    float apb;
+    float rpb;
   } hyipar_;
 }
 #define hyipar	hyipar_
@@ -109,5 +116,16 @@ extern "C" {
    } ludatr_;
 }
 #define ludatr ludatr_
+
+extern "C" {
+  extern struct{
+    float T0u;
+    float tau0u;
+    int   nfu;
+    int   ienglu;
+    int   ianglu;
+  }pyqpar_;
+}
+#define pyqpar pyqpar_
 
 #endif
