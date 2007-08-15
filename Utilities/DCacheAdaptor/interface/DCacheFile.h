@@ -5,7 +5,6 @@
 
 # include "SealBase/Storage.h"
 # include "SealBase/FileAcl.h"
-# include "SealBase/IOChannel.h"
 # include "SealBase/IOFlags.h"
 
 //<<<<<< PUBLIC DEFINES                                                 >>>>>>
