@@ -11,6 +11,10 @@
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 #include "DQMServices/Core/interface/MonitorElementBaseT.h"
+#include "DQMServices/ClientConfig/interface/SubscriptionHandle.h"
+#include "DQMServices/ClientConfig/interface/QTestHandle.h"
+#include <DQMServices/UI/interface/MonitorUIRoot.h>
+#include "DQMServices/CoreROOT/interface/MonitorElementRootT.h"
 #include <iostream>
 #include <stdio.h>
 #include <string>
@@ -31,17 +35,27 @@ L1TCaloClient::L1TCaloClient(const edm::ParameterSet& iConfig): L1TBaseClient()
 
   saveOutput = iConfig.getUntrackedParameter<bool>("saveOutput", false);
   outputFile = iConfig.getUntrackedParameter<string>("outputFile", "L1TMonitor.root");
-  MeanCriterionName = iConfig.getUntrackedParameter<string>("meanTestName","meanInRange");
+  occCriterionName = iConfig.getUntrackedParameter<string>("occTestName","occInRange");
+  stdalone = iConfig.getUntrackedParameter<bool>("Standalone",false);
   
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
   dbe->showDirStructure();
   dbe->setVerbose(1);
   dbe->setCurrentFolder("L1TMonitor/Qtests");
   
-//  bookHisto("L1TECALTPG","EcalTpOccEtaPhi");
-//  bookHisto("L1THCALTPG","HcalTpOccEtaPhi");
-//  bookHisto("L1TRCT","RctIsoEmOccEtaPhi");
-//  bookHisto("L1TGCT","L1ExtraIsoEmOccEtaPhi");
+  if(stdalone){ 
+  getMESubscriptionListFromFile = iConfig.getUntrackedParameter<bool>("getMESubscriptionListFromFile", true);
+  getQualityTestsFromFile = iConfig.getUntrackedParameter<bool>("getQualityTestsFromFile", true);
+
+  subscriber=new SubscriptionHandle;
+  qtHandler=new QTestHandle;
+
+  if (getMESubscriptionListFromFile)
+  subscriber->getMEList("MESubscriptionList.xml"); 
+  if (getQualityTestsFromFile)
+  qtHandler->configureTests("QualityTests.xml",mui_);
+
+  }
 
   LogInfo( "TriggerDQM");
 }
@@ -52,7 +66,6 @@ L1TCaloClient::~L1TCaloClient()
 {
  
  LogInfo("TriggerDQM")<<"[TriggerDQM]: ending... ";
-//  if ( saveOutput ) dbe->save(outputFile);
 
 
 }
@@ -73,10 +86,19 @@ const CaloSubdetectorGeometry barrelGeometry = gHandle->getSubdetectorGeometry(D
 */
 
   nevents++;
-  if (nevents%10 == 0)    LogInfo("TriggerDQM")<<"[TriggerDQM]: event analyzed "<<nevents;
+  if (!stdalone || (nevents%10 == 0))    LogInfo("TriggerDQM")<<"[TriggerDQM]: event analyzed "<<nevents;
+
+  if (!stdalone || (nevents%50 == 0)){
+  
+
+  if(stdalone) mui_->doMonitoring();
 
 // ME -> Histogram	  
 
+
+// ----------------- QT examples example
+
+  this->getReport("Collector/GlobalDQM/L1TMonitor/RCT/RctIsoEmOccEtaPhi", dbe, occCriterionName);
 
           MonitorElement * occupancy =	dbe->get("Collector/GlobalDQM/L1TMonitor/RCT/RctIsoEmOccEtaPhi");
 	  
@@ -84,127 +106,72 @@ const CaloSubdetectorGeometry barrelGeometry = gHandle->getSubdetectorGeometry(D
 	  
 	  MonitorElementT<TNamed>* occup_temp = dynamic_cast<MonitorElementT<TNamed>*>(occupancy);
            
-	   if (occup_temp) {
+       if (occup_temp) {
 	      
-	      LogInfo("TriggerDQM") << "**** 1"; 
-	      TH2F * occupancyHisto = dynamic_cast<TH2F*> (occup_temp->operator->());
-               
-	       if (occupancyHisto) {
-	      LogInfo("TriggerDQM") << "**** 2"; 
-	  
-	         int lastBinX=(*occupancyHisto).GetNbinsX();
+        TH2F * occupancyHisto = dynamic_cast<TH2F*> (occup_temp->operator->());
+ 
+         if (occupancyHisto) {
 
-	      LogInfo("TriggerDQM") << "**** lastBinX = " << lastBinX; 
-		 
-	         int lastBinY=(*occupancyHisto).GetNbinsY();
-	    
-	      LogInfo("TriggerDQM") << "**** lastBinY = " << lastBinY; 
+           int lastBinX=(*occupancyHisto).GetNbinsX();
 
-	         TH1D* prox=occupancyHisto->ProjectionX(); // X projection
-	  
-	         TH1D* proy=occupancyHisto->ProjectionY(); // Y projection
+ 
+           int lastBinY=(*occupancyHisto).GetNbinsY();
+
+           TH1D* prox=occupancyHisto->ProjectionX(); // X projection
+
+           TH1D* proy=occupancyHisto->ProjectionY(); // Y projection
        
 ////////////////  X occupancy profile (eta)
 
-	   
-	   for(int xBin=1; xBin<=lastBinX; xBin++) {
+	       for(int xBin=1; xBin<=lastBinX; xBin++) {
 	
-	     if(prox->GetBinContent(xBin)!=0){
+	         if(prox->GetBinContent(xBin)!=0){
 	
-	       float xOccupContent = prox->GetBinContent(xBin);
-
- 	       LogInfo("TriggerDQM") << "****  xOccupContent= " << xOccupContent; 
+	           float xOccupContent = prox->GetBinContent(xBin);
 	
-	       MEprox->setBinContent(xBin, xOccupContent);
+	           MEprox->setBinContent(xBin, xOccupContent);
 	
-	     }
+	         }
 	
-	   }
-       
-
-  	      LogInfo("TriggerDQM") << "**** 3"; 
+	       }
+ 
 
 ////////////////  Y occupancy profile (phi?)
 
-	    for(int yBin=1; yBin<=lastBinY; yBin++) {
+	       for(int yBin=1; yBin<=lastBinY; yBin++) {
 	
-	      if(proy->GetBinContent(yBin)!=0){
+	         if(proy->GetBinContent(yBin)!=0){
 	
-	       float yOccupContent = proy->GetBinContent(yBin);
-
- 	       LogInfo("TriggerDQM") << "****  yOccupContent= " << yOccupContent; 
+	         float yOccupContent = proy->GetBinContent(yBin);
 	
-	       MEproy->setBinContent(yBin, yOccupContent);
+	         MEproy->setBinContent(yBin, yOccupContent);
 	
-	      }
+	         }
 	 
-	    }
+	       }
        
-	      LogInfo("TriggerDQM") << "**** 4"; 
+             }
 
-////////////////// For each fixed eta creata phi profile
-
-	    for(int xBin=1; xBin<=lastBinX; xBin++) {
-
-	      float energySumInPhi = 0;
-	
-	      for(int yBin=1; yBin<=lastBinY; yBin++) {
-	    	    
-		    float xyBinEnergy = occupancyHisto->GetBinContent(xBin,yBin);
-	    	    
-		    energySumInPhi += xyBinEnergy;
-	    	  }
-	
-	      
-	      for(int yBin=1; yBin<=lastBinY; yBin++) {
-	    	
-//		if(prox->GetBinContent(xBin)!=0 && proy->GetBinContent(yBin)!=0){
-		    	
-		    float xyBinEnergy = occupancyHisto->GetBinContent(xBin,yBin);
-	    	
-	            LogInfo("TriggerDQM") << "****  energySumInPhi= " << energySumInPhi << "   xyBinEnergy= " << xyBinEnergy; 
-		    
-		    xyBinEnergy =  xyBinEnergy / energySumInPhi;
-		    
-	            LogInfo("TriggerDQM") << "**** New xyBinEnergy = " << xyBinEnergy << " xBin =" << xBin; 
-		    
-		    MEphiProfileFixedEta[xBin]->setBinContent(yBin, xyBinEnergy);
-		    
-//              }	
-	      }
-	      
-
-	      LogInfo("TriggerDQM") << "**** 5"; 
-
-	      const QReport * theMeanQReport = MEphiProfileFixedEta[xBin]->getQReport(MeanCriterionName);
-               
-	      LogInfo("TriggerDQM") << "MeanCriterionName = " << MeanCriterionName; 
-	      LogInfo("TriggerDQM") << "theMeanQReport = " << theMeanQReport; 
-
-	       if(theMeanQReport) {
-
-	      LogInfo("TriggerDQM") << "**** 6"; 
-               
-	       vector<dqm::me_util::Channel> badChannels = theMeanQReport->getBadChannels();
-                for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin();
-        	  channel != badChannels.end(); channel++) {
-                  LogInfo("tTrigCalibration") << " Bad mean channels: " << (*channel).getBin() << "  Contents : "<< (*channel).getContents();
-                  LogInfo("tTrigCalibration") << theMeanQReport->getMessage() << " ------- " << theMeanQReport->getStatus();
-              
-	          MEDeadChannelReport[xBin]->setBinContent((*channel).getBin(),(*channel).getContents());
-	         
-		  LogInfo("TriggerDQM") << "**** 7"; 
-	          
-               }
-
-              }
-
-	}
+	   }
        
-      }
-   }
-   
-  if ( saveOutput && nevents%10 == 0) dbe->save(outputFile);
+         }
+    
+	    if(stdalone){
+	     mui_->runQTests();
+             qtHandler->checkGolbalQTStatus(mui_);
+            }
+  
+ 	    if ( saveOutput && nevents%5 == 0) {
+ 
+// 	       for (int it=0;  it < meanfit.size(); it++) {
+
+// 	    	MeanFitME->setBinContent(it,meanfit[it]);
+ 
+// 	       }
+ 
+ 	      dbe->save(outputFile);
+// 	      meanfit.clear();
+ 	    }
 
 }
 
@@ -221,20 +188,6 @@ void L1TCaloClient::beginJob(const edm::EventSetup&)
 
   MEproy = dbe->book1D("RctIsoEmOccEtaPhi_proy", "isoEmOccProY", 22, 0, 22);
   
-  for(int xBin=0; xBin<30; xBin++) {
-
-      sprintf(hname,"PhiProfileEta_%d",xBin);
-
-      MEphiProfileFixedEta.push_back(dbe->book1D(hname,hname,22,0.,22.));
-  }
-
-  for(int xBin=0; xBin<30; xBin++) {
-
-      sprintf(hname,"DeadChannelReport_%d",xBin);
-
-      MEDeadChannelReport.push_back(dbe->book1D(hname,hname,22,0.,22.));
-  }
-
 
 }
 
@@ -242,7 +195,6 @@ void L1TCaloClient::beginJob(const edm::EventSetup&)
 void L1TCaloClient::endJob() {
 
    LogInfo("TriggerDQM")<<"[TriggerDQM]: endJob";
-//  if ( saveOutput ) dbe->save(outputFile);
 
 }
 

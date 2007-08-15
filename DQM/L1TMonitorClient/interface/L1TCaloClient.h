@@ -33,12 +33,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
-#include "DQM/L1TMonitorClient/interface/L1TBaseClient.h"
+#include "DQM/L1TClient/interface/L1TBaseClient.h"
 
 //#include "DQMServices/Core/interface/MonitorUserInterface.h"
 //
 // class decleration
-//
+class SubscriptionHandle;
+class QTestHandle;//
 
 class L1TCaloClient : public edm::EDAnalyzer, public L1TBaseClient {
    public:
@@ -56,14 +57,19 @@ class L1TCaloClient : public edm::EDAnalyzer, public L1TBaseClient {
 
       DaqMonitorBEInterface *dbe;
       std::string outputFile;
-      string MeanCriterionName;
+      string occCriterionName;
       bool saveOutput;
+      bool stdalone;
       char hname[30];
 
       MonitorElement *MEprox;
       MonitorElement *MEproy;
       vector<MonitorElement *>  MEphiProfileFixedEta;
       vector<MonitorElement *>  MEDeadChannelReport;
+      bool getMESubscriptionListFromFile;
+      bool getQualityTestsFromFile;
+      SubscriptionHandle *subscriber;
+      QTestHandle * qtHandler;
        
 };
 
