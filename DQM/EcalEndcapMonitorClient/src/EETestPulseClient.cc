@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2007/08/14 17:44:45 $
- * $Revision: 1.21 $
+ * $Date: 2007/08/14 20:27:37 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -534,7 +534,7 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
                              UtilsClient::getBinQual(meg02_[ism-1], ix, iy) &&
                              UtilsClient::getBinQual(meg03_[ism-1], ix, iy);
 
-          if ( ix = 1 && iy == 1 ) {
+          if ( ix == 1 && iy == 1 ) {
 
             vector<float> sample01, sample02, sample03;
 
