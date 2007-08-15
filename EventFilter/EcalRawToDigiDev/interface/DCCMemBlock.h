@@ -8,8 +8,8 @@
  *
  * \file DCCTCCBlock.h
  *
- * $Date: 2007/05/11 14:04:28 $
- * $Revision: 1.5 $
+ * $Date: 2007/07/24 11:39:35 $
+ * $Revision: 1.6 $
  *
  * \author N. Almeida
  * \author G. Franzoni
@@ -51,6 +51,7 @@ class DCCMemBlock : public DCCDataBlockPrototype {
 	 
     void unpackMemTowerData();
     void fillPnDiodeDigisCollection();
+    int    getIsmForMem(int sm);
     std::vector<short> pn_;
 
     uint expTowerID_;

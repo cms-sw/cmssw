@@ -63,10 +63,10 @@ int DCCMemBlock::unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID){
   //Point to begin of block
   data_++;
   
-  towerId_           = ( *data_ ) & TOWER_ID_MASK;
+  towerId_               = ( *data_ ) & TOWER_ID_MASK;
   nTSamples_         = ( *data_>>TOWER_NSAMP_B  ) & TOWER_NSAMP_MASK; 
-  bx_                = ( *data_>>TOWER_BX_B     ) & TOWER_BX_MASK;
-  l1_                = ( *data_>>TOWER_L1_B     ) & TOWER_L1_MASK;
+  bx_                       = ( *data_>>TOWER_BX_B     ) & TOWER_BX_MASK;
+  l1_                        = ( *data_>>TOWER_L1_B     ) & TOWER_L1_MASK;
   blockLength_       = ( *data_>>TOWER_LENGTH_B ) & TOWER_LENGTH_MASK;
   
   //debugging
@@ -76,13 +76,12 @@ int DCCMemBlock::unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID){
   if ( unfilteredTowerBlockLength_ != blockLength_ ){    
    
     // chosing channel 1 as representative of a dummy...
-    //  EcalElectronicsId id(mapper_->getActiveSM(), expTowerID_,1, 1);
-     // (*invalidMemBlockSizes_)->push_back(id);
-    //    temporarily commented in the absence of EcalElectronicsId: static const int MAX_TOWERID = 68 -> 70;
+    EcalElectronicsId id( getIsmForMem( mapper_->getActiveSM() ) , expTowerID_,1, 1);
+    (*invalidMemBlockSizes_)->push_back(id);
  
    edm::LogWarning("EcalRawToDigiDevMemBlock")
-      <<"\nFor event "<<event_->l1A()<<", dcc "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
-      <<"\nExpected block size is "<<(unfilteredTowerBlockLength_*8)<<" bytes while "<<(blockLength_*8)<<" was found";
+      <<"\nFor event "<<event_->l1A()<<", dcc "<<mapper_->getActiveDCC()<<" and tower block "<<towerId_
+      <<"\nExpected mem block size is "<<(unfilteredTowerBlockLength_*8)<<" bytes while "<<(blockLength_*8)<<" was found";
     
     return STOP_EVENT_UNPACKING;
     
@@ -126,14 +125,12 @@ int DCCMemBlock::unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID){
   if( expTowerID_ != towerId_){
     
     // chosing channel 1 as representative as a dummy...
-    // EcalElectronicsId id( mapper_->getActiveSM(), expTowerID_, 1,1);
-    
-    // (*invalidMemTtIds_)->push_back(id);
-    //    temporarily commented in the absence of EcalElectronicsId: static const int MAX_TOWERID = 68 -> 70;
+    EcalElectronicsId id( getIsmForMem( mapper_->getActiveSM() ) , expTowerID_, 1,1);
+    (*invalidMemTtIds_)->push_back(id);
     
     edm::LogWarning("EcalRawToDigiDevMemTowerId")
-      <<"\nFor event "<<event_->l1A()<<" and dcc "<<mapper_->getActiveDCC()
-      <<"\nExpected trigger tower is "<<expTowerID_<<" while "<<towerId_<<" was found ";
+      <<"\nFor event "<<event_->l1A()<<" and dcc "<<mapper_->getActiveDCC() << " and sm: "  << mapper_->getActiveSM()
+      <<"\nExpected mem tower block is "<<expTowerID_<<" while "<<towerId_<<" was found ";
     
     towerId_=expTowerID_;
     
@@ -190,22 +187,22 @@ void DCCMemBlock::unpackMemTowerData(){
       if(expStripId != stripId || expXtalId != xtalId){ 
 
         // chosing channel and strip as EcalElectronicsId
-        // EcalElectronicsId id(mapper_->getActiveSM(), towerId_, expStripId, expXtalId);
-        // temporarily commented in the absence of EcalElectronicsId: static const int MAX_TOWERID = 68 -> 70;
+        EcalElectronicsId id( getIsmForMem( mapper_->getActiveSM() ) , towerId_, expStripId, expXtalId);
+       (*invalidMemChIds_)->push_back(id);
 
         edm::LogWarning("EcalRawToDigiDevMemChId")
-          <<"\nFor event "<<event_->l1A()<<",dcc "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
+          <<"\nFor event "<<event_->l1A()<<",dcc "<<mapper_->getActiveDCC()<<" and tower mem block "<<towerId_
           <<"\nThe expected strip is "<<expStripId<<" and "<<stripId<<" was found"
           <<"\nThe expected xtal  is "<<expXtalId <<" and "<<xtalId<<" was found";
 
         stripId = expStripId;
-   	    xtalId  = expXtalId;
+        xtalId  = expXtalId;
 		 
-       // (*invalidMemChIds_)->push_back(id);
-       // temporarily commented in the absence of EcalElectronicsId: static const int MAX_TOWERID = 68 -> 70;
-	    errorOnDecoding = true; 
+
+
+         errorOnDecoding = true; 
 	
-	    //Note : move to the next ...   
+       //Note : move to the next ...   
 		 
      }
 	 
@@ -246,12 +243,11 @@ void DCCMemBlock::unpackMemTowerData(){
 			
         if( gain >= 2 ){
 		  
-         // EcalElectronicsId id(mapper_->getActiveDCC(), towerId_, stripId,xtalId);
-         //  (*invalidMemGains_)->push_back(id);
-         // temporarily commented in the absence of EcalElectronicsId: static const int MAX_TOWERID = 68 -> 70;	  
+          EcalElectronicsId id( getIsmForMem( mapper_->getActiveSM() ) , towerId_, stripId,xtalId);
+          (*invalidMemGains_)->push_back(id);
 
 	      edm::LogWarning("EcalRawToDigiDevMemGain")
-	       <<"\nFor event "<<event_->l1A()<<",dcc "<<mapper_->getActiveDCC()<<" ,tower "<<towerId_
+	       <<"\nFor event "<<event_->l1A()<<",dcc "<<mapper_->getActiveDCC()<<" , mem tower block "<<towerId_
 	       <<"\nIn strip "<<stripId<<" xtal "<<xtalId<<" the gain is "<<gain<<" in sample "<<(i+1);
 
           errorOnDecoding=true;
@@ -268,9 +264,21 @@ void DCCMemBlock::unpackMemTowerData(){
 
 }
 
-void DCCMemBlock::fillPnDiodeDigisCollection(){
-	
+int  DCCMemBlock::getIsmForMem(int activeSM_){
 
+    if        (9< activeSM_ && activeSM_ < 28){
+      return activeSM_-9+18;}
+    
+    else if (27 < activeSM_ && activeSM_< 46){
+      return activeSM_-9-18;}
+    
+    else
+      {return -999;}
+
+}
+
+void DCCMemBlock::fillPnDiodeDigisCollection(){
+ 
   //todo change pnId max
   for (int pnId=1; pnId<=5; pnId++){
     bool errorOnPn(false);
@@ -282,23 +290,12 @@ void DCCMemBlock::fillPnDiodeDigisCollection(){
     // This means we all have 5 pns per tower 
 
 
-    // temporary solution before sending creation of PnDigi's in mapper as done with crystals
+    // solution before sending creation of PnDigi's in mapper as done with crystals
     //     mapper_->getActiveSM()  : this is the 'dccid', number ranging internally in ECAL from 1 to 54
     //     mapper_->getActiveDCC() : this is the FED_id
-    int ism;
-    int dccId = mapper_->getActiveSM();
-    
-    if        (9< dccId && dccId < 28){
-      ism  = dccId-9+18;}
-    
-    else if (27 < dccId && dccId< 46){
-      ism  = dccId-9-18;}
-    
-    else
-      {ism = -999;}
-    
-    
-    //    EcalPnDiodeDetId PnId(EcalBarrel, mapper_->getActiveSM(), realPnId );
+
+    int ism = getIsmForMem( mapper_->getActiveSM() );
+
     // using ism insead of DCCId, to locate pn in the same place as the crystals that receive same laser pulses
     EcalPnDiodeDetId PnId(EcalBarrel, ism , realPnId );
     
@@ -332,7 +329,7 @@ void DCCMemBlock::display(std::ostream& o){
 
   o<<"\n Unpacked Info for DCC MEM Block"
   <<"\n DW1 ============================="
-  <<"\n Tower Id "<<towerId_
+  <<"\n Mem Tower Block Id "<<towerId_
   <<"\n Numb Samp "<<nTSamples_
   <<"\n Bx "<<bx_
   <<"\n L1 "<<l1_
