@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2007/08/14 17:44:45 $
- * $Revision: 1.14 $
+ * $Date: 2007/08/15 09:04:23 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
 */
@@ -221,7 +221,7 @@ void EETimingClient::setup(void) {
         int jx = ix + Numbers::ix0EE(ism);
         int jy = iy + Numbers::iy0EE(ism);
 
-        if ( Numbers::validEE(ism, jx, jy) ) {
+        if ( Numbers::validEE(ism, 101 - jx, jy) ) {
           meg01_[ism-1]->setBinContent( ix, iy, 2. );
         }
 
@@ -461,7 +461,7 @@ void EETimingClient::analyze(void){
         int jx = ix + Numbers::ix0EE(ism);
         int jy = iy + Numbers::iy0EE(ism);
 
-        if ( Numbers::validEE(ism, jx, jy) ) {
+        if ( Numbers::validEE(ism, 101 - jx, jy) ) {
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, 2. );
         }
 
