@@ -157,15 +157,8 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
 }
 
 void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
- 
- /*
-  Todo : implement regional unpacking, 
-  needs to fill the fedUnpackList_ from event if the associated collection is there...
- */
-
 
   //double TIME_START = clock();
-
   //nevts_++; //NUNO
 
 
@@ -289,90 +282,87 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
     // get fed raw data and SM id
     const FEDRawData & fedData = rawdata->FEDData(*i);
     int length = fedData.size();
-    edm::LogInfo("EcalRawToDigiDev") << "raw data lenght: " << length ;
 
+    edm::LogInfo("EcalRawToDigiDev") << "raw data lenght: " << length ;
     //if data size is not null interpret data
     if ( length >= EMPTYEVENTSIZE ){
-        
+      
       if(myMap_->setActiveDCC(*i)){
-        int smId = myMap_->getActiveSM();
-		   
-        //for debug purposes
-    	edm::LogInfo("EcalRawToDigiDev") << "Getting FED = " << *i <<"(SM = "<<smId<<")"<<" data size is: " << length;
-	    
-        uint64_t * pData = (uint64_t *)(fedData.data());
-        theUnpacker_->unpack( pData, static_cast<uint>(length),smId,*i);
-	  }
-    }
- 
-    
-  }
 
+	int smId = myMap_->getActiveSM();
+	edm::LogInfo("EcalRawToDigiDev") << "Getting FED = " << *i <<"(SM = "<<smId<<")"<<" data size is: " << length;
+
+	uint64_t * pData = (uint64_t *)(fedData.data());
+	theUnpacker_->unpack( pData, static_cast<uint>(length),smId,*i);
+      }
+    }
+    
+  }// loop on FEDs
+  
   //if(nevts_>1){   //NUNO
   //  double TIME_END = clock(); //NUNO
   //  RUNNING_TIME_ += TIME_END-TIME_START; //NUNO
   // }
-
-
+  
+  
   // Add collections to the event 
   
   if(put_){
-
+    
     if( headerUnpacking_){ 
       e.put(productDccHeaders); 
     }
- 
-   if(feUnpacking_){
-     e.put(productDigisEB,"ebDigis");
-     e.put(productDigisEE,"eeDigis");
-     e.put(productInvalidGains,"EcalIntegrityGainErrors");
-     e.put(productInvalidGainsSwitch, "EcalIntegrityGainSwitchErrors");
-     e.put(productInvalidGainsSwitchStay, "EcalIntegrityGainSwitchStayErrors");
-     e.put(productInvalidChIds, "EcalIntegrityChIdErrors");
-     e.put(productPnDiodeDigis);
-   }
-   if(memUnpacking_){
-     e.put(productInvalidMemTtIds,"EcalIntegrityMemTtIdErrors");
-     e.put(productInvalidMemBlockSizes,"EcalIntegrityMemBlockSizeErrors");
-     e.put(productInvalidMemChIds,"EcalIntegrityMemChIdErrors");
-     e.put(productInvalidMemGains,"EcalIntegrityMemGainErrors");
-   }
-   if(srpUnpacking_){
-     e.put(productEBSrFlags);
-     e.put(productEESrFlags);
-   }
-   if(tccUnpacking_){
-     e.put(productEBTps,"EBTT"); //note change the name
-     e.put(productEETps,"EETT"); //note change the name
-     e.put(productInvalidTTIds,"EcalIntegrityTTIdErrors");
-     e.put(productInvalidBlockLengths,"EcalIntegrityBlockSizeErrors");
-   }
- }
-
+    
+    if(feUnpacking_){
+      e.put(productDigisEB,"ebDigis");
+      e.put(productDigisEE,"eeDigis");
+      e.put(productInvalidGains,"EcalIntegrityGainErrors");
+      e.put(productInvalidGainsSwitch, "EcalIntegrityGainSwitchErrors");
+      e.put(productInvalidGainsSwitchStay, "EcalIntegrityGainSwitchStayErrors");
+      e.put(productInvalidChIds, "EcalIntegrityChIdErrors");
+      e.put(productPnDiodeDigis);
+    }
+    if(memUnpacking_){
+      e.put(productInvalidMemTtIds,"EcalIntegrityMemTtIdErrors");
+      e.put(productInvalidMemBlockSizes,"EcalIntegrityMemBlockSizeErrors");
+      e.put(productInvalidMemChIds,"EcalIntegrityMemChIdErrors");
+      e.put(productInvalidMemGains,"EcalIntegrityMemGainErrors");
+    }
+    if(srpUnpacking_){
+      e.put(productEBSrFlags);
+      e.put(productEESrFlags);
+    }
+    if(tccUnpacking_){
+      e.put(productEBTps,"EBTT"); //note change the name
+      e.put(productEETps,"EETT"); //note change the name
+      e.put(productInvalidTTIds,"EcalIntegrityTTIdErrors");
+      e.put(productInvalidBlockLengths,"EcalIntegrityBlockSizeErrors");
+    }
+  }
+  
 //if(nevts_>1){   //NUNO
 //  double TIME_END = clock(); //NUNO 
 //  RUNNING_TIME_ += TIME_END-TIME_START; //NUNO
 //}
   
 }
-  
-EcalRawToDigiDev::~EcalRawToDigiDev() { 
 
+EcalRawToDigiDev::~EcalRawToDigiDev() { 
+  
   //cout << "EcalDCCUnpackingModule  " << "N events        " << (nevts_-1)<<endl;
   //cout << "EcalDCCUnpackingModule  " << " --- SETUP time " << endl;
   //cout << "EcalDCCUnpackingModule  " << "Time (sys)      " << SETUP_TIME_ << endl;
   //cout << "EcalDCCUnpackingModule  " << "Time in sec.    " << SETUP_TIME_/ CLOCKS_PER_SEC  << endl;
   //cout << "EcalDCCUnpackingModule  " << " --- Per event  " << endl;
-
+  
   //RUNNING_TIME_ = RUNNING_TIME_ / (nevts_-1);
-
+  
   //cout << "EcalDCCUnpackingModule  "<< "Time (sys)      " << RUNNING_TIME_  << endl;
   //cout << "EcalDCCUnpackingModule  "<< "Time in sec.    " << RUNNING_TIME_ / CLOCKS_PER_SEC  << endl;
-
-
-
+  
+  
+  
   if(myMap_      ) delete myMap_;
   if(theUnpacker_) delete theUnpacker_;
-
-}  
-
+  
+}
