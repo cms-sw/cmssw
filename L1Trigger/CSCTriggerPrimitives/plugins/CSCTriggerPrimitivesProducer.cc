@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2007/04/18 16:08:55 $
-//   $Revision: 1.7 $
+//   $Date: 2007/04/19 10:25:03 $
+//   $Revision: 1.1 $
 //
 //   Modifications:
 //
@@ -58,7 +58,6 @@ CSCTriggerPrimitivesProducer::~CSCTriggerPrimitivesProducer() {
 }
 
 void CSCTriggerPrimitivesProducer::beginJob(const edm::EventSetup& setup) {
-  LogDebug("L1CSCTrigger") << "beginJob";
 }
 
 void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
@@ -75,8 +74,9 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
   setup.get<MuonGeometryRecord>().get(h);
   CSCTriggerGeometry::setGeometry(h);
 
-  // Get config. parameters using EventSetup mechanism.  Should be moved
-  // to beginJob().
+  // Get config. parameters using EventSetup mechanism.  This must be done
+  // in produce() and not in beginJob() (see mail from Jim Brooke sent to
+  // hn-cms-L1TrigEmulator on July 30, 2007).
   static bool begin_job = true;
   if (begin_job) {
     // Do not use for now.
