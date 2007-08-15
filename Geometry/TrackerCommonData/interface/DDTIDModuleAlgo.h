@@ -53,7 +53,7 @@ private:
   std::vector<std::string> activeName;        //Sensitive     name
   std::string              activeMat;         //              material
   double                   activeHeight;      //              height
-  std::vector<double>      waferThick;        //              thickness of the wafer (active = wafer - backplane)
+  std::vector<double>      waferThick;        //              wafer thickness (active = wafer - backplane)
   std::string              activeRot;         //              Rotation matrix
   std::vector<double>      backplaneThick;    //              thickness
   std::string              hybridName;        //Hybrid        name

@@ -90,7 +90,7 @@ void DDTIDModuleAlgo::initialize(const DDNumericArguments & nArgs,
 		      << waferMat  << " Side Width Top " << sideWidthTop
 		      << " Side Width Bottom " << sideWidthBottom;
   for (i = 0; i < detectorN; i++)
-    LogDebug("TIDGeom") << "\twafrName[" << i << "] = " << waferName[i];
+    LogDebug("TIDGeom") << "\twaferName[" << i << "] = " << waferName[i];
 
   activeName        = vsArgs["ActiveName"];
   activeMat         = sArgs["ActiveMaterial"];
@@ -102,7 +102,7 @@ void DDTIDModuleAlgo::initialize(const DDNumericArguments & nArgs,
 		      << activeMat << " Height " << activeHeight 
 		      << " rotated by " << activeRot;
   for (i = 0; i < detectorN; i++)
-    LogDebug("TIDGeom") << " translated by (0,0," << 0.5*backplaneThick[i] << ")"
+    LogDebug("TIDGeom") << " translated by (0," << -0.5*backplaneThick[i] << ",0)"
 			<< "\tactiveName[" << i << "] = " << activeName[i]
 			<< " of thickness " << waferThick[i]-backplaneThick[i];
   
