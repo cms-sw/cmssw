@@ -2,7 +2,7 @@
 #define Common_RefHolderBase_h
 /* \class edm::reftobase::Base
  *
- * $Id: RefHolderBase.h,v 1.2 2007/07/12 12:08:57 llista Exp $
+ * $Id: RefHolderBase.h,v 1.3 2007/07/23 11:08:55 llista Exp $
  *
  */
 #include "Reflex/Type.h"
