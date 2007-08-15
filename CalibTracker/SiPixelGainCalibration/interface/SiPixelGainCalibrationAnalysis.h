@@ -15,7 +15,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon May  7 14:22:37 CEST 2007
-// $Id: SiPixelGainCalibrationAnalysis.h,v 1.3 2007/06/26 14:03:33 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.h,v 1.4 2007/08/01 20:31:51 fblekman Exp $
 //
 //
 
@@ -41,12 +41,13 @@
 
 #include "CalibFormats/SiPixelObjects/interface/PixelCalib.h"
 #include "CalibTracker/SiPixelGainCalibration/interface/PixelROCGainCalib.h"
+#include "CalibTracker/SiPixelGainCalibration/interface/PixelROCGainCalibPixel.h"
 
 #include "CondTools/SiPixel/interface/SiPixelGainCalibrationService.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
-
+#include "TF1.h"
 //
 // class decleration
 //
@@ -61,69 +62,48 @@ class SiPixelGainCalibrationAnalysis : public edm::EDAnalyzer {
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
-
+      bool doFits();
 
       // ----------member data ---------------------------
       // internal class for storing parameters
-      class CalParameters {
-      public:
-	float ped;
-	float gain;
-      };
-      class TempPixelContainer {
-      public:
 
-	uint32_t roc_id;
-	uint32_t dcol_id;
-	uint32_t maxrow;
-	uint32_t maxcol;
-	uint32_t nvcal;
-	uint32_t pix_id;
-	uint32_t adc;
-	uint32_t row;
-	uint32_t col;
-	uint32_t vcal;
-	uint32_t ntriggers;
-	uint32_t vcal_first;
-	uint32_t vcal_last;
-	uint32_t vcal_step;
-      };
       PixelCalib calib_; // keeps track of the calibration constants
 
       std::string recordName_;
       uint32_t eventno_counter_;
       std::string src_;
       std::string instance_;
-      uint32_t maxNfedIds_;
+      
       std::string inputconfigfile_;
-      void fill(const TempPixelContainer & aPixel);
-      void init(const TempPixelContainer & aPixel);
-      // maximum numbers of columns/rows/rocs/channels
-      uint32_t nrowsmax_;
-      uint32_t ncolsmax_;
-      uint32_t nrocsmax_;
-      uint32_t nchannelsmax_;
+      
       uint32_t vcal_fitmin_;
       uint32_t vcal_fitmax_;
       uint32_t vcal_fitmax_fixed_;
-      double chisq_threshold_;
       double maximum_ped_; 
       double maximum_gain_;
-
-      uint32_t getROCnumberfromDetIDandRowCol(uint32_t detID, uint32_t row, uint32_t col);
+      double minimum_ped_; 
+      double minimum_gain_;
+      bool new_configuration_;
+      bool save_histos_;
 
       // and the containers
-      std::vector <PixelROCGainCalib> calib_containers_;//960 = maximum number of det IDs for pixel detector
+      
       // tracking geometry
       edm::ESHandle<TrackerGeometry> geom_;
       
+      std::map < uint32_t, TH1F*> summaries1D_pedestal_;
+      std::map < uint32_t, TH1F*> summaries1D_gain_;
+      std::map < uint32_t, TH2F*> summaries_pedestal_;
+      std::map < uint32_t, TH2F*> summaries_gain_;
       std::map < uint32_t , uint32_t > detIDmap_;// keeps track of all used detector IDs
-      int32_t detIDmap_size;
-
+      std::map < uint32_t, std::vector < std::pair<uint32_t, uint32_t> > > colrowpairs_;
+      std::map < uint32_t, std::vector < PixelROCGainCalibPixel > > calibPixels_;
+      
       edm::ParameterSet conf_;
       bool appendMode_;
       bool useonlyonepixel_;
       bool test_;
+      TF1 *func;
       SiPixelGainCalibration* SiPixelGainCalibration_; // database worker class
       SiPixelGainCalibrationService SiPixelGainCalibrationService_; // additional database worker classes
       edm::Service < TFileService >  therootfileservice_; // for saving into root files
