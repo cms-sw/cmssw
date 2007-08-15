@@ -55,18 +55,10 @@ bool EgammaProbeSelector::filter(edm::Event& iEvent, const edm::EventSetup& iSet
   int nJets = 0;  
   nEvents++;
   
-  // Collect Reconstructed Jets.
-  // Make sure that they are JES corrected.
+  // Get reconstructed Jets, check their Et and eta, and count their number
   Handle<CaloJetCollection> jetHandle;
-  try{
-    iEvent.getByLabel(jetLabel,jetHandle);
-  }
-  catch(const edm::Exception& e) {
-    if ( e.categoryCode() != edm::errors::ProductNotFound ) {
-	    edm::LogInfo("EgammaProbeSelector") << "cms::Exception caught!!!" << "\n" << e << "\n";
-	    throw;
-    }
-  }
+  iEvent.getByLabel(jetLabel,jetHandle);
+  
   if(jetHandle.isValid()){
     const reco::CaloJetCollection & jets = *(jetHandle.product());
     CaloJetCollection::const_iterator ijet;
@@ -79,16 +71,10 @@ bool EgammaProbeSelector::filter(edm::Event& iEvent, const edm::EventSetup& iSet
   }
   
   // Get Super Clusters, check their Et and eta, and count their number
+  // EB
   Handle<reco::SuperClusterCollection> scHandle;
-  try{
-    iEvent.getByLabel(scLabel,scHandle);
-  }
-  catch(const edm::Exception& e) {
-    if ( e.categoryCode() != edm::errors::ProductNotFound ) {
-	    edm::LogInfo("EgammaProbeSelector") << "cms::Exception caught!!!" << "\n" << e << "\n";
-	    throw;
-    }
-  }
+  iEvent.getByLabel(scLabel,scHandle);
+  
   if(scHandle.isValid()){
     const reco::SuperClusterCollection & SCs = *(scHandle.product());
     
@@ -103,15 +89,8 @@ bool EgammaProbeSelector::filter(edm::Event& iEvent, const edm::EventSetup& iSet
 
   // EE
   Handle<reco::SuperClusterCollection> scEEHandle;
-  try{
-    iEvent.getByLabel(scEELabel,scEEHandle);
-  }
-  catch(const edm::Exception& e) {
-    if ( e.categoryCode() != edm::errors::ProductNotFound ) {
-	    edm::LogInfo("EgammaProbeSelector") << "cms::Exception caught!!!" << "\n" << e << "\n";
-	    throw;
-    }
-  }
+  iEvent.getByLabel(scEELabel,scEEHandle);
+  
   if(scEEHandle.isValid()){
     const reco::SuperClusterCollection & SCs = *(scEEHandle.product());
     for(reco::SuperClusterCollection::const_iterator scIt = SCs.begin(); 
@@ -129,7 +108,6 @@ bool EgammaProbeSelector::filter(edm::Event& iEvent, const edm::EventSetup& iSet
     accepted = true;
     nSelectedEvents++;
   }
-  
   
   return accepted;
 }
