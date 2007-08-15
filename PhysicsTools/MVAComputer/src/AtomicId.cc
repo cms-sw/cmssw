@@ -1,7 +1,7 @@
+#include <algorithm>
 #include <cstdlib>
 #include <cstddef>
 #include <cstring>
-#include <memory>
 #include <set>
 
 #include "PhysicsTools/MVAComputer/interface/AtomicId.h"
@@ -14,41 +14,48 @@ namespace { // anonymous
 
 	class IdCache {
 	    public:
-		IdCache();
 		~IdCache();
 
 		inline const char *findOrInsert(const char *string) throw();
 
 	    private:
-		std::multiset<const char *, StringLess>	idSet;
-		static std::allocator<char>		stringAllocator;
+		typedef std::multiset<const char *, StringLess> IdSet;
+
+		static IdSet			*idSet;
+		static std::allocator<char>	stringAllocator;
 	};
 } // anonymous namespace
 
-IdCache::IdCache()
-{
-}
+IdCache::IdSet *IdCache::idSet = 0;
 
 IdCache::~IdCache()
 {
+	IdCache::IdSet *idSet = 0;
+	std::swap(idSet, this->idSet);
+	if (!idSet)
+		return;
+
 	for(std::multiset<const char*, StringLess>::iterator iter =
-	    idSet.begin(); iter != idSet.end(); iter++)
+	    idSet->begin(); iter != idSet->end(); iter++)
 		stringAllocator.deallocate(const_cast<char*>(*iter),
 		                           std::strlen(*iter));
+	delete idSet;
 }
 
 const char *IdCache::findOrInsert(const char *string) throw()
 {
-	std::multiset<const char*, StringLess>::iterator pos =
-						idSet.lower_bound(string);
-	if (pos != idSet.end() && std::strcmp(*pos, string) == 0)
+	if (!idSet)
+		idSet = new IdSet;
+
+	IdSet::iterator pos = idSet->lower_bound(string);
+	if (pos != idSet->end() && std::strcmp(*pos, string) == 0)
 		return *pos;
 
 	std::size_t size = std::strlen(string) + 1;
 	char *unique = stringAllocator.allocate(size);
 	std::memcpy(unique, string, size);
 
-	idSet.insert(pos, unique);
+	idSet->insert(pos, unique);
 
 	return unique;
 }
