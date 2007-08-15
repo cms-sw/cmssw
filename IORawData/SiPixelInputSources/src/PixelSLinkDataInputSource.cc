@@ -94,8 +94,8 @@ bool PixelSLinkDataInputSource::produce(edm::Event& event) {
     m_file.read((char*)&data,8);
     buffer.push_back(data);
   }while((data >> 60) != 0xa);
-  
-  FEDRawData * rawData = new FEDRawData(8*buffer.size());
+  std::auto_ptr<FEDRawData> rawData(new FEDRawData(8*buffer.size()));
+  //  FEDRawData * rawData = new FEDRawData(8*buffer.size());
   unsigned char* dataptr=rawData->data();
 
   for (unsigned int i=0;i<buffer.size();i++){
