@@ -61,7 +61,6 @@ TrackerDigiGeometryESModule::produce(const TrackerDigiGeometryRecord & iRecord){
 //__________________________________________________________________
 void TrackerDigiGeometryESModule::ddGeometryCallback_( const IdealGeometryRecord& record )
 {
-
   //
   // Called whenever the ideal geometry changes
   //
