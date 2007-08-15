@@ -138,9 +138,13 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   iSetup.get<TrackerDigiGeometryRecord> ().get (pDD);
   //
   GeometricDet const * rDD = pDD->trackerDet();
-  try {
+  int last=0;
   std::vector<const GeometricDet*> modules; (*rDD).deepComponents(modules);
+  std::cout << "In Tracker Geom there are " << modules.size() 
+	    << "modules" << std::endl; 
+  try {
   for(unsigned int i=0; i<modules.size();i++){
+    last = i;
     unsigned int rawid = modules[i]->geographicalID().rawId();
     int subdetid = modules[i]->geographicalID().subdetId();
     switch (subdetid) {
@@ -316,6 +320,10 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   }
   catch(edm::VinException const & e) {
     std::cout << "in filling " << e.what() << std::endl;
+    unsigned int rawid = modules[last]->geographicalID().rawId();
+    int subdetid = modules[last]->geographicalID().subdetId();
+    std::cout << rawid << " " << subdetid
+	      <<< " " << modules[last].name(),name() << std::endl;
   }
     
   try {
