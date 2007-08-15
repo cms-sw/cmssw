@@ -115,6 +115,8 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   LOG4CPLUS_INFO(getApplicationLogger(),sourceId_ <<" constructor");
   LOG4CPLUS_INFO(getApplicationLogger(),"plugin path:"<<getenv("SEAL_PLUGINS"));
   
+  getApplicationDescriptor()->setAttribute("icon", "/rubuilder/fu/images/fu64x64.gif");
+
   ostringstream ns;  ns << "EP" << instance_.toString();
 
   dqmCollectorAddr_       = "localhost";
@@ -1025,7 +1027,7 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   *out << "  <td align=\"left\">"                                    << endl;
   *out << "    <img"                                                 << endl;
   *out << "     align=\"middle\""                                    << endl;
-  *out << "     src=\"/daq/evb/examples/fu/images/fu64x64.gif\""     << endl;
+  *out << "     src=\"/rubuilder/fu/images/fu64x64.gif\""            << endl;
   *out << "     alt=\"main\""                                        << endl;
   *out << "     width=\"64\""                                        << endl;
   *out << "     height=\"64\""                                       << endl;
@@ -1040,7 +1042,7 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   *out << "    <a href=\"/urn:xdaq-application:lid=3\">"             << endl;
   *out << "      <img"                                               << endl;
   *out << "       align=\"middle\""                                  << endl;
-  *out << "       src=\"/daq/xdaq/hyperdaq/images/HyperDAQ.jpg\""    << endl;
+  *out << "       src=\"/hyperdaq/images/HyperDAQ.jpg\""             << endl;
   *out << "       alt=\"HyperDAQ\""                                  << endl;
   *out << "       width=\"32\""                                      << endl;
   *out << "       height=\"32\""                                     << endl;
@@ -1054,7 +1056,7 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
        << "/debug\">"                                                << endl;
   *out << "      <img"                                               << endl;
   *out << "       align=\"middle\""                                  << endl;
-  *out << "       src=\"/daq/evb/bu/images/debug32x32.gif\""         << endl;
+  *out << "       src=\"/rubuilder/fu/images/debug32x32.gif\""       << endl;
   *out << "       alt=\"debug\""                                     << endl;
   *out << "       width=\"32\""                                      << endl;
   *out << "       height=\"32\""                                     << endl;
@@ -1073,9 +1075,10 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   *out << "<div id=\"T1\" style=\"border:2px solid "                 << endl;
   if(fsm_.stateName()->value_ == "Failed")
     {
-      *out << "red;height:80;width:150\">microState</div><br /> "   << endl;
+      *out << "red;height:80;width:150\">microState</div><br /> "    << endl;
       *out << "</tr><tr>"					     << endl;
-      *out << "<textarea rows=" << 5 << " cols=20 scroll=yes>"      << endl;
+      *out << "<textarea rows=" << 5 << " cols=20 scroll=yes";
+      *out << " readonly title=\"Reason For Failed\">"		     << endl;
       *out << reasonForFailedState_                                  << endl;
       *out << "</textarea>"                                          << endl;
     }
@@ -1238,6 +1241,7 @@ void FUEventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out,const string
 	   " bgcolor=\"red\"> disabled" );
   *out << "    </td>"							<< endl;
   *out << "  </tr>"							<< endl;
+  /* obsolete
   *out << "  <tr>"							<< endl;
   *out << "    <td >Global Input Prescale</td>"				<< endl;
   *out << "    <td> N/A this version</td>"				<< endl;
@@ -1246,7 +1250,7 @@ void FUEventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out,const string
   *out << "    <td >Global Output Prescale</td>"			<< endl;
   *out << "    <td>N/A this version</td>"				<< endl;
   *out << "  </tr>"							<< endl;
-  
+  */
   *out << "</table>"							<< endl;
 
   *out << "<td>" << endl;
