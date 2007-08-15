@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2007/07/27 16:37:50 $
- * $Revision: 1.11 $
+ * $Date: 2007/08/14 17:44:47 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -132,7 +132,7 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
       EcalUncalibratedRecHit hit = (*hitItr);
       EEDetId id = hit.id();
 
-      int ix = id.ix();
+      int ix = 101 - id.ix();
       int iy = id.iy();
 
       int ism = Numbers::iSM( id );
