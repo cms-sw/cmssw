@@ -4,8 +4,8 @@
  *  class to build trajectories of cosmic muons and beam-halo muons
  *
  *
- *  $Date: 2007/03/08 20:14:36 $
- *  $Revision: 1.25 $
+ *  $Date: 2007/03/26 18:43:34 $
+ *  $Revision: 1.26 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -211,11 +211,14 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
       }
   } 
 
-  if (!theTraj->isValid() || TotalChamberUsedBack < 2 || (DTChamberUsedBack+CSCChamberUsedBack) == 0) 
-  return trajL;
+  if (!theTraj->isValid() || TotalChamberUsedBack < 2 || (DTChamberUsedBack+CSCChamberUsedBack) == 0) {
+    delete theTraj;
+    return trajL;
+  }
 
   if ( !lastTsos.isValid() ) {
-     return trajL;
+    delete theTraj;
+    return trajL;
   }
 
   delete theTraj;
@@ -358,7 +361,9 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
 
      if (beamhaloFlag) estimateDirection(*myTraj);
 
+     for ( vector<Trajectory*>::iterator t = trajL.begin(); t != trajL.end(); ++t ) delete *t;
      trajL.clear();
+
      vector<Trajectory> smoothed = theSmoother->trajectories(*myTraj);
      if ( !smoothed.empty() )  {
        LogTrace(metname) <<" Smoothed successfully.";
@@ -763,16 +768,16 @@ void CosmicMuonTrajectoryBuilder::estimateDirection(Trajectory& traj) const {
 
   if ( fabs(firstTSOS.globalMomentum().eta()) > fabs(lastTSOS.globalMomentum().eta()) ) {
 
-     vector<Trajectory> refitted = theSmoother->trajectories(traj.seed(),hits,firstTSOS);
-     traj = refitted.front();
+    vector<Trajectory> refitted = theSmoother->trajectories(traj.seed(),hits,firstTSOS);
+    if ( !refitted.empty() ) traj = refitted.front();
 
-   } else {
-     std::reverse(hits.begin(), hits.end());
-     utilities()->reverseDirection(lastTSOS,&*theService->magneticField());
-     vector<Trajectory> refittedback = theSmoother->trajectories(traj.seed(),hits,lastTSOS);
-     traj = refittedback.front();
+  } else {
+    std::reverse(hits.begin(), hits.end());
+    utilities()->reverseDirection(lastTSOS,&*theService->magneticField());
+    vector<Trajectory> refittedback = theSmoother->trajectories(traj.seed(),hits,lastTSOS);
+    if ( !refittedback.empty() ) traj = refittedback.front();
 
-   }
+  }
 
 
 // print(hits);
