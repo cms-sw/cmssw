@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2007/08/15 01:48:01 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/08/15 05:06:46 $
+ *  $Revision: 1.7 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -98,9 +98,9 @@ namespace edm {
     }
     setTimestamp(tstamp);
     eventId = EventID(runNumber_, eventId.event());
-    LuminosityBlockNumber_t newLsid = eventId.event()/lumiSegmentSizeInEvents_ + 1;
-    if(fakeLSid_ && luminosityBlockNumber_ != newLsid) {
-      this->setLumi(newLsid);
+    if(fakeLSid_ && luminosityBlockNumber_ != (eventId.event()/lumiSegmentSizeInEvents_ + 1)) {
+	luminosityBlockNumber_ = eventId.event()/lumiSegmentSizeInEvents_ + 1;
+	lbp_.reset();
     }
     
     // If there is no luminosity block principal, make one.
@@ -117,7 +117,9 @@ namespace edm {
     // make a brand new event
     ep_ = std::auto_ptr<EventPrincipal>(
 	new EventPrincipal(eventId, timestamp(),
-	productRegistry(), lbp_, processConfiguration(), true, EventAuxiliary::Data));
+	productRegistry(), lbp_, processConfiguration(), true));
+	// TO DO: In 1_7_X, 'EventAuxiliary::Data' needs to be added
+	// as the last argument to the EventPrincipal ctor. Not urgent.
     
     // have fedCollection managed by a std::auto_ptr<>
     std::auto_ptr<FEDRawDataCollection> bare_product(fedCollection);
@@ -125,6 +127,7 @@ namespace edm {
     std::auto_ptr<Event> e(new Event(*ep_, moduleDescription()));
     // put the fed collection into the transient event store
     e->put(bare_product);
+    // The commit is needed to complete the "put" transaction.
     e->commit_();
     return ep_;
   }
@@ -135,14 +138,6 @@ namespace edm {
     noMoreEvents_ = false;
     lbp_.reset();
     ep_.reset();
-  }
-
-  void
-  DaqSource::setLumi(LuminosityBlockNumber_t lb) {
-    if (lb != luminosityBlockNumber_) {
-      luminosityBlockNumber_ = lb;
-      lbp_.reset();
-    }
   }
 
   boost::shared_ptr<RunPrincipal>
@@ -189,9 +184,16 @@ namespace edm {
     return ep_;
   }
 
+  void
+  DaqSource::setLumi(LuminosityBlockNumber_t) {
+      throw cms::Exception("LogicError","DaqSource::setLumi(LuminosityBlockNumber_t lumiNumber)")
+        << "The luminosity block number cannot be set externally for DaqSource.\n"
+        << "Contact a Framework developer.\n";
+  }
+
   std::auto_ptr<EventPrincipal>
   DaqSource::readIt(EventID const&) {
-      throw cms::Exception("LogicError","DaqSource::readEvent_(EventID const& eventID)")
+      throw cms::Exception("LogicError","DaqSource::readIt(EventID const& eventID)")
         << "Random access read cannot be used for DaqSource.\n"
         << "Contact a Framework developer.\n";
   }
