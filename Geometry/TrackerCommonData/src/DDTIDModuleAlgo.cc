@@ -95,7 +95,7 @@ void DDTIDModuleAlgo::initialize(const DDNumericArguments & nArgs,
   activeName        = vsArgs["ActiveName"];
   activeMat         = sArgs["ActiveMaterial"];
   activeHeight      = nArgs["ActiveHeight"];
-  activeThick       = vArgs["ActiveThick"];
+  waferThick        = vArgs["WaferThick"];
   activeRot         = sArgs["ActiveRotation"];
   backplaneThick    = vArgs["BackPlaneThick"];
   LogDebug("TIDGeom") << "DDTIDModuleAlgo debug: Active Material " 
@@ -104,7 +104,7 @@ void DDTIDModuleAlgo::initialize(const DDNumericArguments & nArgs,
   for (i = 0; i < detectorN; i++)
     LogDebug("TIDGeom") << " translated by (0,0," << 0.5*backplaneThick[i] << ")"
 			<< "\tactiveName[" << i << "] = " << activeName[i]
-			<< " of thickness " << activeThick[i]-backplaneThick[i];
+			<< " of thickness " << waferThick[i]-backplaneThick[i];
   
   hybridName        = sArgs["HybridName"];
   hybridMat         = sArgs["HybridMaterial"];
@@ -260,7 +260,7 @@ void DDTIDModuleAlgo::execute() {
 	bl1     = 0.5 * dlBottom;
 	bl2     = 0.5 * dlTop;
       }
-      h1      = 0.5 * activeThick[k];
+      h1      = 0.5 * waferThick[k];
       dz      = 0.5 * fullHeight;
       solid = DDSolidFactory::trap(name, dz, 0,0, h1,bl1,bl1,0, h1,bl2,bl2,0);
       LogDebug("TIDGeom") << "DDTIDModuleAlgo test:\t" << solid.name() 
@@ -283,7 +283,7 @@ void DDTIDModuleAlgo::execute() {
 	bl1    -= sideWidthBottom;
 	bl2    -= sideWidthTop;
       }
-      dz      = 0.5 * (activeThick[k] - backplaneThick[k]); // inactive backplane
+      dz      = 0.5 * (waferThick[k] - backplaneThick[k]); // inactive backplane
       h1      = 0.5 * activeHeight;
       solid = DDSolidFactory::trap(name, dz, 0,0, h1,bl2,bl1,0, h1,bl2,bl1,0);
       LogDebug("TIDGeom") << "DDTIDModuleAlgo test:\t" << solid.name() 
