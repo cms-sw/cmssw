@@ -33,7 +33,6 @@
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include "RecoJets/JetAlgorithms/interface/ProtoJet.h"
 #include "RecoJets/JetAlgorithms/interface/JetAlgoHelper.h"
 #include "RecoJets/JetAlgorithms/interface/CMSMidpointAlgorithm.h"
 
@@ -325,7 +324,7 @@ void CMSMidpointAlgorithm::splitAndMerge(const InputCollection& fInput,
 	   << ", y="<< icone->y()
 	   << ", phi="<< icone->phi()  
 	   << ", ntow="<< numTowers << endl;
-      ProtoJet::Constituents protojetTowers = icone->getTowerList(); 
+      vector<InputItem> protojetTowers = icone->getTowerList(); 
       for(int j = 0; j < numTowers; ++j){
 	cout << "[CMSMidpointAlgorithm] Tower " << j << ": ET=" << protojetTowers[j]->et() 
 	     << ", eta="<< protojetTowers[j]->eta()
@@ -377,7 +376,7 @@ void CMSMidpointAlgorithm::splitAndMerge(const InputCollection& fInput,
 	//int numTowers1=0;
 	
 	//Loop over towers in higher Pt cone
-	for(ProtoJet::Constituents::const_iterator towerIter1 = stableCone1->getTowerList().begin();
+	for(vector<InputItem>::const_iterator towerIter1 = stableCone1->getTowerList().begin();
 	    towerIter1 != stableCone1->getTowerList().end();
 	    ++towerIter1){
 	  //cout << "1st cone tower " << numTowers1 << endl;
@@ -387,7 +386,7 @@ void CMSMidpointAlgorithm::splitAndMerge(const InputCollection& fInput,
 	  //int numTowers2=0;
 	  
 	  // Loop over towers in lower Pt cone
-	  for(ProtoJet::Constituents::const_iterator towerIter2 = stableCone2->getTowerList().begin();
+	  for(vector<InputItem>::const_iterator towerIter2 = stableCone2->getTowerList().begin();
 	      towerIter2 != stableCone2->getTowerList().end();
 	      ++towerIter2) {
 	    //cout << "2st cone tower " << numTowers2 << endl;
@@ -419,10 +418,10 @@ void CMSMidpointAlgorithm::splitAndMerge(const InputCollection& fInput,
 	    
 	    // Merge the two cones.
 	    // Get a copy of the list of towers in higher Pt proto-jet 
-	    ProtoJet::Constituents stableCone1Towers = stableCone1->getTowerList(); 
+	    vector<InputItem> stableCone1Towers = stableCone1->getTowerList(); 
 	    
 	    //Loop over the list of towers lower Pt jet
-	    for(ProtoJet::Constituents::const_iterator towerIter2 = stableCone2->getTowerList().begin();
+	    for(vector<InputItem>::const_iterator towerIter2 = stableCone2->getTowerList().begin();
 		towerIter2 != stableCone2->getTowerList().end();
 		++towerIter2){
 	      bool isInOverlap = false;
@@ -489,14 +488,15 @@ void CMSMidpointAlgorithm::splitAndMerge(const InputCollection& fInput,
 	    // Remove towers in the overlap region from the cones to which they have the larger distance.
 	    
 	    // Remove towers from proto-jet 1.
-	    vector<InputItem> towerList1 (stableCone1->getTowerList().begin(), stableCone1->getTowerList().end()); 
-
+	    vector<InputItem> towerList1 = stableCone1->getTowerList(); 
+	    
 	    // Loop over towers in remove list
 	    for(vector<InputItem>::iterator towerIter = removeFromCone1.begin();
 		towerIter != removeFromCone1.end();
 		++towerIter) {
 	      // Loop over towers in protojet
 	      for(vector<InputItem>::iterator towerIter1 = towerList1.begin(); towerIter1 != towerList1.end(); ++towerIter1) {
+		
 		// Check if they are equal
 		if(sameTower(*towerIter, *towerIter1)) {
 		  // Remove the tower
@@ -515,7 +515,7 @@ void CMSMidpointAlgorithm::splitAndMerge(const InputCollection& fInput,
 	    //Put the new reduced list of towers into proto-jet 1.
 	    stableCone1->putTowers(towerList1); 
 	    // Remove towers from cone 2.
-	    vector<InputItem> towerList2 (stableCone2->getTowerList().begin(), stableCone2->getTowerList().end()); 
+	    vector<InputItem> towerList2 = stableCone2->getTowerList(); 
 	    
 	    // Loop over towers in remove list
 	    for(vector<InputItem>::iterator towerIter = removeFromCone2.begin();

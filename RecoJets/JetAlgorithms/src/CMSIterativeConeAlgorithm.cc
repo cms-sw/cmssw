@@ -7,7 +7,6 @@
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include "RecoJets/JetAlgorithms/interface/ProtoJet.h"
 #include "RecoJets/JetAlgorithms/interface/JetAlgoHelper.h"
 using namespace std;
 using namespace reco;
@@ -70,7 +69,7 @@ void CMSIterativeConeAlgorithm::run(const InputCollection& fInput, OutputCollect
     }
 
     //make a final jet and remove the jet constituents from the input list 
-    InputCollection jetConstituents;     
+    vector<InputItem> jetConstituents;     
     list< list<InputItem>::iterator>::const_iterator inp;
     for(inp=cone.begin();inp!=cone.end();inp++)  {
       jetConstituents.push_back(**inp);

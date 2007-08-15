@@ -243,7 +243,7 @@ namespace {
 } // unnamed namespace
 
 BasicJet JetMaker::makeBasicJet (const ProtoJet& fProtojet) const {
-  BasicJet result (fProtojet.p4(), reco::Particle::Point (0, 0, 0), fProtojet.getJetTowerList());
+  BasicJet result (fProtojet.p4(), reco::Particle::Point (0, 0, 0), fProtojet.getTowerList());
   result.setJetArea (fProtojet.jetArea());
   result.setPileup (fProtojet.pileup());
   result.setNPasses (fProtojet.nPasses());
@@ -254,7 +254,7 @@ BasicJet JetMaker::makeBasicJet (const ProtoJet& fProtojet) const {
 CaloJet JetMaker::makeCaloJet (const ProtoJet& fProtojet, const CaloSubdetectorGeometry& fTowerGeometry) const {
   CaloJet::Specific specific;
   makeSpecific (fProtojet.getTowerList(), fTowerGeometry, &specific);
-  CaloJet result (fProtojet.p4(), specific, fProtojet.getJetTowerList());
+  CaloJet result (fProtojet.p4(), specific, fProtojet.getTowerList());
   result.setJetArea (fProtojet.jetArea());
   result.setPileup (fProtojet.pileup());
   result.setNPasses (fProtojet.nPasses());
@@ -264,7 +264,7 @@ CaloJet JetMaker::makeCaloJet (const ProtoJet& fProtojet, const CaloSubdetectorG
 PFJet JetMaker::makePFJet (const ProtoJet& fProtojet) const {
   PFJet::Specific specific;
   makeSpecific (fProtojet.getTowerList(), &specific);
-  PFJet result (fProtojet.p4(), specific, fProtojet.getJetTowerList());
+  PFJet result (fProtojet.p4(), specific, fProtojet.getTowerList());
   result.setJetArea (fProtojet.jetArea());
   result.setPileup (fProtojet.pileup());
   result.setNPasses (fProtojet.nPasses());
@@ -274,7 +274,7 @@ PFJet JetMaker::makePFJet (const ProtoJet& fProtojet) const {
 GenJet JetMaker::makeGenJet (const ProtoJet& fProtojet) const {
   GenJet::Specific specific;
   makeSpecific (fProtojet.getTowerList(), &specific);
-  GenJet result (fProtojet.p4(), specific, fProtojet.getJetTowerList());
+  GenJet result (fProtojet.p4(), specific, fProtojet.getTowerList());
   result.setJetArea (fProtojet.jetArea());
   result.setPileup (fProtojet.pileup());
   result.setNPasses (fProtojet.nPasses());

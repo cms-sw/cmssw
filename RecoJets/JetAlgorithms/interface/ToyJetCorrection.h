@@ -8,7 +8,7 @@
     $Id: ToyJetCorrection.h,v 1.3 2007/04/18 22:04:31 fedor Exp $
  */
 
-#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetfwd.h"
 
 class ToyJetCorrection {
  public:

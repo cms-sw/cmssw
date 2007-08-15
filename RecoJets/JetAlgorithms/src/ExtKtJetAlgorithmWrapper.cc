@@ -4,12 +4,11 @@
 //--------------------------------------------
 
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "RecoJets/JetAlgorithms/interface/ProtoJet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RecoJets/JetAlgorithms/interface/ExtKtJetAlgorithmWrapper.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //KtJet.org
 #include "KtJet/KtEvent.h"
@@ -53,14 +52,14 @@ ExtKtJetAlgorithmWrapper::ExtKtJetAlgorithmWrapper(const edm::ParameterSet& ps)
   else LogWarning("ExtKtJetDefinition")<<"[ExtKtJetWrapper] Wrong Configuration! - will not produce KtJets!";
 }
 
-void ExtKtJetAlgorithmWrapper::run(const JetReco::InputCollection& fInput, 
-				   JetReco::OutputCollection* fOutput) const {
+void ExtKtJetAlgorithmWrapper::run(const std::vector <FJCand>& fInput, 
+				  std::vector<ProtoJet>* fOutput) const {
   if (theMode==-1) return;
    int index_=0;
    vector<KtJet::KtLorentzVector> theInput;
    //map<KtJet::KtLorentzVector,const std::vector<FJCand>> theMap;
-   map<const unsigned int,JetReco::InputItem> theIDMap;
-   for (JetReco::InputCollection::const_iterator inputCand=fInput.begin();
+   map<const unsigned int,FJCand> theIDMap;
+   for (std::vector<FJCand>::const_iterator inputCand=fInput.begin();
 	inputCand!=fInput.end();inputCand++){
       double px=(*inputCand)->px();
       double py=(*inputCand)->py();
@@ -90,7 +89,7 @@ void ExtKtJetAlgorithmWrapper::run(const JetReco::InputCollection& fInput,
    // run the jet clustering with the above jet definition
    
   //make CMSSW-Objects:
-   JetReco::InputCollection jetConst;
+   std::vector<FJCand> jetConst;
    for (std::vector<KtJet::KtLorentzVector>::const_iterator itJet=theJets->begin();
 	itJet!=theJets->end();itJet++){
      const std::vector<const KtJet::KtLorentzVector*>  jet_constituents = (*itJet).getConstituents();

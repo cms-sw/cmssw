@@ -66,8 +66,8 @@ namespace {
 
 Jet::Jet (const LorentzVector& fP4, 
 	  const Point& fVertex, 
-	  const Constituents& fConstituents)
-  :  CompositeRefBaseCandidate (0, fP4, fVertex),
+	  const std::vector<reco::CandidateRef>& fConstituents)
+  :  CompositeRefCandidate (0, fP4, fVertex),
      mJetArea (0),
      mPileupEnergy (0),
      mPassNumber (0)
@@ -234,8 +234,8 @@ float Jet::physicsEtaDetailed (float fZVertex) const {
 
 Jet::Constituents Jet::getJetConstituents () const {
   Jet::Constituents result;
-  for (unsigned i = 0; i < numberOfDaughters(); i++) {
-    result.push_back (daughterRef (i));
+  for (unsigned i = 0; i < CompositeRefCandidate::numberOfDaughters(); i++) {
+    result.push_back (CompositeRefCandidate::daughterRef (i));
   }
   return result;
 }
@@ -243,8 +243,14 @@ Jet::Constituents Jet::getJetConstituents () const {
 std::vector<const Candidate*> Jet::getJetConstituentsQuick () const {
   std::vector<const Candidate*> result;
   int nDaughters = numberOfDaughters();
-  for (int i = 0; i < nDaughters; ++i) { 
-    result.push_back (daughter (i));
+  if (nDaughters > 0) {
+    CandidateRef ref = daughterRef (0);
+    if (ref.isNonnull ()) {
+      const CandidateCollection* container = ref.product();
+      for (int i = 0; i < nDaughters; ++i) { 
+	result.push_back (&((*container)[daughterRef (i).key()]));
+      }
+    }
   }
   return result;
 }
@@ -256,7 +262,7 @@ std::string Jet::print () const {
        << "    # of constituents: " << nConstituents () << std::endl;
   out << "    Constituents:" << std::endl;
   for (unsigned index = 0; index < numberOfDaughters(); index++) {
-    CandidateBaseRef constituent = daughterRef (index); // deref
+    CandidateRef constituent = daughterRef (index); // deref
     if (constituent.isNonnull()) {
       out << "      #" << index << " p/pt/eta/phi: " 
 	  << constituent->p() << '/' << constituent->pt() << '/' << constituent->eta() << '/' << constituent->phi() 

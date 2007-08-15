@@ -54,8 +54,8 @@ namespace cms
     /** run algorithm itself */
     virtual bool runAlgorithm (const  JetReco::InputCollection& fInput,  JetReco::OutputCollection* fOutput) = 0;
     
-    void calculate_pedestal(const JetReco::InputCollection&);
-    reco::CandidateCollection subtract_pedestal(const JetReco::InputCollection&);
+    void calculate_pedestal(JetReco::InputCollection&);
+    reco::CandidateCollection subtract_pedestal(JetReco::InputCollection&);
 
   private:
     edm::InputTag mSrc;
