@@ -313,6 +313,7 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
       std::cerr << " WARNING no Silicon Strip detector, I got a " << rawid << std::endl;
     }
   }
+  }
   catch(edm::VinException const & e) {
     std::cout << "in filling " << e.what() << std::endl;
   }
@@ -325,11 +326,9 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   catch(edm::VinException const & e) {
     std::cout << "in walking " << e.what() << std::endl;
   }
-
     
-  }
-  
 }
+
 
   //define this as a plug-in
 DEFINE_FWK_MODULE(GeoHierarchy);
