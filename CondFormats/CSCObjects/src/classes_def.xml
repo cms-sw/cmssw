@@ -7,6 +7,10 @@
  <class name="CSCGains::Item"/>
  <class name="std::vector<CSCGains::Item>"/>
 
+ <class name="CSCDBGains"/>
+ <class name="CSCDBGains::Item"/>
+ <class name="std::vector<CSCDBGains::Item>"/>
+
  <class name="CSCNoiseMatrix" id="E885ACBB-5EA8-DA11-A44A-001320A4DDB1"/>
  <class name="CSCNoiseMatrix::Item"/>
  <class name="std::vector<CSCNoiseMatrix::Item>"/>
