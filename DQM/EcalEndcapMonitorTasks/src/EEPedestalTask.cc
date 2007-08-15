@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalTask.cc
  *
- * $Date: 2007/06/13 18:01:30 $
- * $Revision: 1.13 $
+ * $Date: 2007/08/14 17:44:47 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
 */
@@ -312,15 +312,15 @@ void EEPedestalTask::analyze(const Event& e, const EventSetup& c){
 
         if ( mePedMap ) mePedMap->Fill(xix, xiy, xval);
 
-        if ( sample.gainId() == 1 ) xmap12[ism-1][ix-1][iy-1] = xmap12[ism-1][ix-1][iy-1] + xval;
-        if ( sample.gainId() == 2 ) xmap06[ism-1][ix-1][iy-1] = xmap06[ism-1][ix-1][iy-1] + xval;
-        if ( sample.gainId() == 3 ) xmap01[ism-1][ix-1][iy-1] = xmap01[ism-1][ix-1][iy-1] + xval;
+        if ( sample.gainId() == 1 ) xmap12[ism-1][ix-1-Numbers::ix0EE(ism)][iy-1-Numbers::iy0EE(ism)] = xmap12[ism-1][ix-1-Numbers::ix0EE(ism)][iy-1-Numbers::iy0EE(ism)] + xval;
+        if ( sample.gainId() == 2 ) xmap06[ism-1][ix-1-Numbers::ix0EE(ism)][iy-1-Numbers::iy0EE(ism)] = xmap06[ism-1][ix-1-Numbers::ix0EE(ism)][iy-1-Numbers::iy0EE(ism)] + xval;
+        if ( sample.gainId() == 3 ) xmap01[ism-1][ix-1-Numbers::ix0EE(ism)][iy-1-Numbers::iy0EE(ism)] = xmap01[ism-1][ix-1-Numbers::ix0EE(ism)][iy-1-Numbers::iy0EE(ism)] + xval;
 
       }
 
-      xmap12[ism-1][ix-1][iy-1]=xmap12[ism-1][ix-1][iy-1]/10.;
-      xmap06[ism-1][ix-1][iy-1]=xmap06[ism-1][ix-1][iy-1]/10.;
-      xmap01[ism-1][ix-1][iy-1]=xmap01[ism-1][ix-1][iy-1]/10.;
+      xmap12[ism-1][ix-1-Numbers::ix0EE(ism)][iy-1-Numbers::iy0EE(ism)]=xmap12[ism-1][ix-1-Numbers::ix0EE(ism)][iy-1-Numbers::iy0EE(ism)]/10.;
+      xmap06[ism-1][ix-1-Numbers::ix0EE(ism)][iy-1-Numbers::iy0EE(ism)]=xmap06[ism-1][ix-1-Numbers::ix0EE(ism)][iy-1-Numbers::iy0EE(ism)]/10.;
+      xmap01[ism-1][ix-1-Numbers::ix0EE(ism)][iy-1-Numbers::iy0EE(ism)]=xmap01[ism-1][ix-1-Numbers::ix0EE(ism)][iy-1-Numbers::iy0EE(ism)]/10.;
 
     }
 
@@ -359,9 +359,9 @@ void EEPedestalTask::analyze(const Event& e, const EventSetup& c){
             x3val01 = x3val01 / 9.;
             x3val06 = x3val06 / 9.;
             x3val12 = x3val12 / 9.;
-            if ( mePed3SumMapG01_[ism-1] && x3val01 != 0. ) mePed3SumMapG01_[ism-1]->Fill(xix, xiy, x3val01);
-            if ( mePed3SumMapG06_[ism-1] && x3val06 != 0. ) mePed3SumMapG06_[ism-1]->Fill(xix, xiy, x3val06);
-            if ( mePed3SumMapG12_[ism-1] && x3val12 != 0. ) mePed3SumMapG12_[ism-1]->Fill(xix, xiy, x3val12);
+            if ( mePed3SumMapG01_[ism-1] && x3val01 != 0. ) mePed3SumMapG01_[ism-1]->Fill(xix+Numbers::ix0EE(ism), xiy+Numbers::iy0EE(ism), x3val01);
+            if ( mePed3SumMapG06_[ism-1] && x3val06 != 0. ) mePed3SumMapG06_[ism-1]->Fill(xix+Numbers::ix0EE(ism), xiy+Numbers::iy0EE(ism), x3val06);
+            if ( mePed3SumMapG12_[ism-1] && x3val12 != 0. ) mePed3SumMapG12_[ism-1]->Fill(xix+Numbers::ix0EE(ism), xiy+Numbers::iy0EE(ism), x3val12);
 
           }
 
@@ -386,9 +386,9 @@ void EEPedestalTask::analyze(const Event& e, const EventSetup& c){
             x5val01 = x5val01 / 25.;
             x5val06 = x5val06 / 25.;
             x5val12 = x5val12 / 25.;
-            if ( mePed5SumMapG01_[ism-1] && x5val01 != 0. ) mePed5SumMapG01_[ism-1]->Fill(xix, xiy, x5val01);
-            if ( mePed5SumMapG06_[ism-1] && x5val06 != 0. ) mePed5SumMapG06_[ism-1]->Fill(xix, xiy, x5val06);
-            if ( mePed5SumMapG12_[ism-1] && x5val12 != 0. ) mePed5SumMapG12_[ism-1]->Fill(xix, xiy, x5val12);
+            if ( mePed5SumMapG01_[ism-1] && x5val01 != 0. ) mePed5SumMapG01_[ism-1]->Fill(xix+Numbers::ix0EE(ism), xiy+Numbers::iy0EE(ism), x5val01);
+            if ( mePed5SumMapG06_[ism-1] && x5val06 != 0. ) mePed5SumMapG06_[ism-1]->Fill(xix+Numbers::ix0EE(ism), xiy+Numbers::iy0EE(ism), x5val06);
+            if ( mePed5SumMapG12_[ism-1] && x5val12 != 0. ) mePed5SumMapG12_[ism-1]->Fill(xix+Numbers::ix0EE(ism), xiy+Numbers::iy0EE(ism), x5val12);
 
           }
 
