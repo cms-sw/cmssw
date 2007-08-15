@@ -174,9 +174,9 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	char theBlade  = module.blade();
 	char theModule = module.module();
 	char key[] = { 2, char(module.side()),
-				thePanel , theDisk, 
-				theBlade, theModule};
-	trie.addEntry(key,5, modules[i]);
+		       thePanel , theDisk, 
+		       theBlade, theModule};
+	trie.addEntry(key,6, modules[i]);
 	
 	break;
       }
