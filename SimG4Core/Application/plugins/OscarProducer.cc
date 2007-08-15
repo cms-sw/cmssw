@@ -52,8 +52,8 @@ OscarProducer::OscarProducer(edm::ParameterSet const & p)
     StaticRandomEngineSetUnset random;
     m_engine = random.getEngine();
     
-    produces<edm::SimTrackContainer>();
-    produces<edm::SimVertexContainer>();
+    produces<edm::SimTrackContainer>().setBranchAlias("SimTracks");
+    produces<edm::SimVertexContainer>().setBranchAlias("SimVertices");
     produces<edm::PSimHitContainer>("TrackerHitsPixelBarrelLowTof");
     produces<edm::PSimHitContainer>("TrackerHitsPixelBarrelHighTof");
     produces<edm::PSimHitContainer>("TrackerHitsTIBLowTof");
