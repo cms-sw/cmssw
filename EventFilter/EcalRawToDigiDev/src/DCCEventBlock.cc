@@ -201,17 +201,25 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
       
       short  chStatus(*it);
       
-      // Unpack Tower and Xtal Blocks
-      if(sr_ && chStatus != CH_TIMEOUT && chStatus != CH_DISABLED && chStatus != CH_SUPPRESS && i<=68){
+
+      // Unpack Tower (Xtal Block) in case of SR
+      if(feUnpacking_ && sr_
+	 && chStatus != CH_TIMEOUT && chStatus != CH_DISABLED && chStatus != CH_SUPPRESS
+	 && i<=68){
 	
-        if (feUnpacking_ && srpBlock_->srFlag(i) != SRP_NREAD ){
-          STATUS = towerBlock_->unpack(&data_,&dwToEnd_,true,i);
+        if ( srpBlock_->srFlag(i) != SRP_NREAD ){
+	  STATUS = towerBlock_->unpack(&data_,&dwToEnd_,true,i);
         }
+      }
       
-      }else if (feUnpacking_ && chStatus != CH_TIMEOUT && chStatus != CH_DISABLED && chStatus != CH_SUPPRESS && i<=68){
-	    // if tzs_ data are not really suppressed, even though zs flags are calculated
-        if(tzs_){ zs_ = false;}
-        STATUS = towerBlock_->unpack(&data_,&dwToEnd_,zs_,i);
+      
+      else if (feUnpacking_ 
+	       && chStatus != CH_TIMEOUT && chStatus != CH_DISABLED && chStatus != CH_SUPPRESS
+	       && i<=68){
+	
+	// if tzs_ data are not really suppressed, even though zs flags are calculated
+	if(tzs_){ zs_ = false;}
+	STATUS = towerBlock_->unpack(&data_,&dwToEnd_,zs_,i);
       }		 
   
       // Unpack Mem blocks
