@@ -194,7 +194,7 @@ CSCGainsDBConditions::CSCGainsDBConditions(const edm::ParameterSet& iConfig)
 }
 
 
-CSCdbGains::~CSCdbGains()
+CSCGainsDBConditions::~CSCGainsDBConditions()
 {
  
    // do anything here that needs to be done at desctruction time
