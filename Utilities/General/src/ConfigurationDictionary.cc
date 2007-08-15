@@ -2,7 +2,6 @@
 #include "Utilities/General/interface/ConfigurationDictionary.h"
 
 #include "Utilities/General/interface/GenUtilVerbosity.h"
-#include<string>
 
 using std::string;
 

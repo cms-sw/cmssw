@@ -5,7 +5,6 @@
 #include <iostream>
 
 #include "DataFormats/GeometryVector/interface/Phi.h"
-#include "DataFormats/GeometryVector/interface/Pi.h"
 
 using namespace std;
 

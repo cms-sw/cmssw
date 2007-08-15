@@ -1,5 +1,4 @@
 #include "Utilities/General/interface/stringTools.h"
-#include<string>
 
 using std::string;
 
