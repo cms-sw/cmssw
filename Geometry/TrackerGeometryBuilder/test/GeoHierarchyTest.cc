@@ -173,7 +173,8 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	char theDisk   = module.disk();
 	char theBlade  = module.blade();
 	char theModule = module.module();
-	char key[] = { 2, char(module.side()),
+	char key[] = { 2,
+		       char(module.side()),
 		       thePanel , theDisk, 
 		       theBlade, theModule};
 	trie.addEntry(key,6, modules[i]);
@@ -196,8 +197,9 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	char key[] = { 3, theLayer , 
 		       char(theString[0]), 
 		       char(theString[1]), 
+		       char(theString[2]), 
 		       theModule};
-	trie.addEntry(key,5, modules[i]);
+	trie.addEntry(key,6, modules[i]);
 	
 	
 	
@@ -217,8 +219,8 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	side = (module.side() == 1 ) ? "-" : "+";
 	part = (theModule[0] == 1 ) ? "back" : "front";
 	char key[] = { 3, 
-		       theDisk , theRing,
 		       char(module.side()),
+		       theDisk , theRing,
 		       char(theModule[0]), 
 		       char(theModule[1])};
 	trie.addEntry(key,6, modules[i]);
@@ -262,12 +264,12 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	// int out_side  = (module.side() == 1 ) ? -1 : 1;
 	
 	char key[] = { 6, 
-				theWheel,
-				char(module.side()),
-				char(thePetal[0]), 
-				char(thePetal[1]),
-				theRing,
-				theModule};
+		       char(module.side()),
+		       theWheel,
+		       char(thePetal[0]), 
+		       char(thePetal[1]),
+		       theRing,
+		       theModule};
 	trie.addEntry(key,7, modules[i]);
 	
 	/*
