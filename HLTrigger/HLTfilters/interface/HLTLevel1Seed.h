@@ -7,8 +7,8 @@
  *  This class is an HLTFilter (-> EDFilter) implementing filtering on
  *  Level-1 bits and extraction of seed objects.
  *
- *  $Date: 2007/03/26 11:31:42 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/07/12 08:50:55 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -42,6 +42,9 @@ class HLTLevel1Seed : public HLTFilter {
 
     /// false=and-mode (all requested triggers), true=or-mode (at least one)
     bool andOr_;
+
+    /// module label
+    std::string moduleLabel_;
 
     /*
     // user provides: true: L1 Names (vstring), or false: L1 Types (vuint32)

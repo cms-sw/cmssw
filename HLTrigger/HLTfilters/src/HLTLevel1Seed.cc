@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/07/12 08:50:56 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/08/02 23:30:46 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
@@ -29,15 +29,14 @@ HLTLevel1Seed::HLTLevel1Seed(const edm::ParameterSet& iConfig) :
   l1CollectionsTag_ (iConfig.getParameter<edm::InputTag> ("L1ExtraCollections")),
   l1ParticleMapTag_ (iConfig.getParameter<edm::InputTag> ("L1ExtraParticleMap")),
   l1GTReadoutRecTag_(iConfig.getParameter<edm::InputTag> ("L1GTReadoutRecord")),
-  andOr_   (iConfig.getParameter<bool> ("andOr" ))
-
+  andOr_   (iConfig.getParameter<bool> ("andOr" )),
+  moduleLabel_(iConfig.getParameter<std::string> ("@module_label")),
+  L1SeedsByName_(iConfig.getParameter<std::vector<std::string > >("L1Seeds")),
+  L1SeedsByType_()
 {
-  const std::string invalid("@@invalid@@");
- 
   unsigned int n(0);
 
   // get names from module parameters, then derive slot numbers
-  L1SeedsByName_= iConfig.getParameter<std::vector<std::string > >("L1Seeds");
   n=L1SeedsByName_.size();
   L1SeedsByType_.resize(n);
   for (unsigned int i=0; i!=n; i++) {
@@ -67,18 +66,16 @@ HLTLevel1Seed::HLTLevel1Seed(const edm::ParameterSet& iConfig) :
   if (n>0) {
     LogDebug("") << "  Level-1 triggers requestd: type, name and validity:";
     for (unsigned int i=0; i!=n; i++) {
-      bool validity ( (L1SeedsByType_[i]<l1extra::L1ParticleMap::kNumOfL1TriggerTypes) &&
-		      (L1SeedsByName_[i]!=invalid) ) ;
-
+      bool validity (L1SeedsByType_[i]<l1extra::L1ParticleMap::kNumOfL1TriggerTypes);
       LogTrace("") << " " << L1SeedsByType_[i]
 		   << " " << L1SeedsByName_[i]
 		   << " " << validity;
 
       if (!validity) throw cms::Exception("Configuration")
-	<< " HLTLevel1Seed [instance: " << *moduleLabel()
-	<< " - path: " << *pathName()
-	<< "] configured with unknown L1T name "
-	<< i << " " << L1SeedsByName_[i] <<"\n";
+	<< " HLTLevel1Seed instance " << moduleLabel_
+	<< " configured with unknown L1T name "
+	<< i << " " << L1SeedsByName_[i]
+	<<". Fix spelling or remove it.\n";
     }
   }
 
