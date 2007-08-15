@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.21 $
- *  $Date: 2007/07/12 17:32:39 $
+ *  $Revision: 1.16.2.7 $
+ *  $Date: 2007/08/15 08:38:19 $
  *  (last update by $Author: flucke $)
  */
 
@@ -40,6 +40,8 @@
 
 #include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
 #include <Geometry/CommonDetUnit/interface/GeomDetType.h>
+
+#include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 
 #include <fstream>
 #include <vector>
@@ -362,11 +364,19 @@ void MillePedeAlignmentAlgorithm::callMille
 bool MillePedeAlignmentAlgorithm::is2D(const ConstRecHitPointer &recHit) const
 {
   // FIXME: Check whether this is a reliable and recommended way to find out...
-  // e.g. problem: What about glued detectors where only one module is hit? (changed in 13X?)
-  // probably downcast the hit to a concrete class (matched?)
-  return (recHit->dimension() >=2 && // some muon stuff really has RecHit1D
-	  (!recHit->detUnit() // stereo strips (FIXME: endcap trouble due to non-parallel strips)
-	   || recHit->detUnit()->type().isTrackerPixel()));
+
+  if (recHit->dimension() < 2) {
+    return false; // some muon stuff really has RecHit1D
+  } else if (recHit->detUnit()) { // detunit in strip is 1D, in pixel 2D 
+    return recHit->detUnit()->type().isTrackerPixel();
+  } else { // stereo strips  (FIXME: endcap trouble due to non-parallel strips (wedge sensors)?)
+    if (dynamic_cast<const ProjectedSiStripRecHit2D*>(recHit->hit())) { // check persistent hit
+      // projected: 1D measurement on 'glued' module
+      return false; // (FIXME: if it's the stereo module, x and measurement not parallel...)
+    } else {
+      return true;
+    }
+  }
 }
 
 //__________________________________________________________________________________________________
@@ -390,10 +400,10 @@ bool MillePedeAlignmentAlgorithm::readFromPede()
   out << ".";
 
   if (okRead && allEmpty && numMatch) {
-    edm::LogInfo("Alignment") << "@SUB=readFromPede" << out.str();
+    edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::readFromPede" << out.str();
     return true;
   } else {
-    edm::LogError("Alignment") << "@SUB=readFromPede" << out.str();
+    edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::readFromPede" << out.str();
     return false;
   }
 }
