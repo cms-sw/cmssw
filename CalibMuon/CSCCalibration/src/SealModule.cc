@@ -13,7 +13,7 @@
 #include "CalibMuon/CSCCalibration/interface/WriteCrosstalkToDB.h"
 #include "CalibMuon/CSCCalibration/interface/CSCCrosstalkConditions.h"
 #include "CalibMuon/CSCCalibration/interface/CSCGainsConditions.h"
-//#include "CalibMuon/CSCCalibration/interface/CSCdbGains.h"
+#include "CalibMuon/CSCCalibration/interface/CSCGainsDBConditions.h"
 #include "CalibMuon/CSCCalibration/interface/CSCNoiseMatrixConditions.h"
 
 DEFINE_SEAL_MODULE();
@@ -24,7 +24,7 @@ DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCFakePedestalsConditions);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCFakeNoiseMatrixConditions);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCCrosstalkConditions);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCGainsConditions);
-//DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCdbGains);
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCGainsDBConditions);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCNoiseMatrixConditions);
 DEFINE_ANOTHER_FWK_MODULE(WriteGainsToDB);
 DEFINE_ANOTHER_FWK_MODULE(WriteDBGains);
