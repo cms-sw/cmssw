@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2007/08/14 21:11:46 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/08/15 01:48:01 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -117,7 +117,7 @@ namespace edm {
     // make a brand new event
     ep_ = std::auto_ptr<EventPrincipal>(
 	new EventPrincipal(eventId, timestamp(),
-	productRegistry(), lbp_, processConfiguration(), true));
+	productRegistry(), lbp_, processConfiguration(), true, EventAuxiliary::Data));
     
     // have fedCollection managed by a std::auto_ptr<>
     std::auto_ptr<FEDRawDataCollection> bare_product(fedCollection);
