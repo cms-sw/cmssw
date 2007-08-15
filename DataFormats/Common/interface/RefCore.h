@@ -5,7 +5,7 @@
   
 RefCore: The component of edm::Ref containing the product ID and product getter.
 
-$Id: RefCore.h,v 1.15 2007/07/25 15:33:00 llista Exp $
+$Id: RefCore.h,v 1.16 2007/07/27 14:50:57 llista Exp $
 
 ----------------------------------------------------------------------*/
 #include "DataFormats/Provenance/interface/ProductID.h"
@@ -82,8 +82,6 @@ namespace edm {
     std::swap( prodPtr_, other.prodPtr_ );
     std::swap( prodGetter_, other.prodGetter_ );
   }
-
-  void wrongReType(std::string const& found, std::string const& requested);
 
   void checkProduct(RefCore const& productToBeInserted, RefCore & commonProduct);
 
