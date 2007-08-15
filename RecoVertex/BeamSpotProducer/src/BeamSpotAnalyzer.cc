@@ -6,7 +6,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotAnalyzer.cc,v 1.3 2007/03/29 18:30:39 yumiceva Exp $
+ version $Id: BeamSpotAnalyzer.cc,v 1.4 2007/03/30 18:46:57 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -88,6 +88,8 @@ BeamSpotAnalyzer::BeamSpotAnalyzer(const edm::ParameterSet& iConfig)
    
   write2DB_ = iConfig.getParameter<edm::ParameterSet>("BSAnalyzerParameters").getParameter<bool>("WriteToDB");
   runallfitters_ = iConfig.getParameter<edm::ParameterSet>("BSAnalyzerParameters").getParameter<bool>("RunAllFitters");
+  inputBeamWidth_ = iConfig.getParameter<edm::ParameterSet>("BSAnalyzerParameters").getUntrackedParameter<double>("InputBeamWidth",-1.);
+  
   ftotal_tracks = 0;
   ftotalevents = 0;
   
@@ -272,7 +274,12 @@ BeamSpotAnalyzer::endJob() {
 		pBSObjects->SetSigmaZ(beam_default.sigmaZ());
 		pBSObjects->Setdxdz(beam_default.dxdz());
 		pBSObjects->Setdydz(beam_default.dydz());
-		pBSObjects->SetBeamWidth(15.0e-4);
+		if (inputBeamWidth_ > 0 ) {
+			std::cout << " beam width value forced to be " << inputBeamWidth_ << std::endl;
+			pBSObjects->SetBeamWidth(inputBeamWidth_);
+		} else {
+			pBSObjects->SetBeamWidth(15.0e-4);
+		}
 		
 		for (int i = 0; i<7; ++i) {
 		  for (int j=0; j<7; ++j) {
