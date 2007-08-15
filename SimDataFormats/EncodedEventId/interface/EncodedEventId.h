@@ -2,6 +2,7 @@
 #define SimDataFormats_EncodedEventId_H 1
 
 #include <TMath.h>
+#include <boost/cstdint.hpp> //INCLUDECHECKER:SKIP
 #include <ostream>
 
 /** \class EncodedEventId
