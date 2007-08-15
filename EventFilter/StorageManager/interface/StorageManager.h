@@ -10,7 +10,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: StorageManager.h,v 1.15 2007/06/11 12:24:55 badgett Exp $
+   $Id: StorageManager.h,v 1.16 2007/06/28 20:37:41 hcheung Exp $
 */
 
 #include <string>
@@ -117,7 +117,9 @@ namespace stor {
 
     void parseFileEntry(std::string in, std::string &out, unsigned int &nev, unsigned int &sz);
 	
+    // *** state machine related
     evf::StateMachine fsm_;
+    std::string       reasonForFailedState_;
 
     edm::AssertHandler *ah_;
     edm::service::MessageServicePresence theMessageServicePresence;
