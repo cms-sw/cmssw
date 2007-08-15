@@ -80,12 +80,10 @@ private:
   std::string              waferRot;       //              rotation matrix
   std::string              activeMat;      //Sensitive     material
   double                   activeHeight;   //              height
-  double                   activeThick;    //              thickness
+  double                   waferThick;     //              wafer thickness (active = wafer - backplane)
   std::string              activeRot;      //              Rotation matrix
   double                   activeZ;        //              z-positions
-  std::string              backplaneMat;   //              material
   double                   backplaneThick; //              thickness
-  double                   backplaneZ;     //              translation (along active volume local z axis)
   std::string              hybridMat;      //Hybrid        material
   double                   hybridHeight;   //              height
   double                   hybridWidth;    //              width
