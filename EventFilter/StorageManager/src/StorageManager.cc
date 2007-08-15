@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.23 2007/07/19 08:45:33 klute Exp $
+// $Id: StorageManager.cc,v 1.24 2007/07/30 04:50:43 wmtan Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -78,6 +78,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   throw (xdaq::exception::Exception) :
   xdaq::Application(s),
   fsm_(this), 
+  reasonForFailedState_(),
   ah_(0), 
   pushMode_(false), 
   collateDQM_(false),
@@ -751,6 +752,7 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
     *out << "    <b>"                                                  << endl;
     *out << getApplicationDescriptor()->getClassName() << " instance "
          << getApplicationDescriptor()->getInstance()                  << endl;
+    *out << "      " << fsm_.stateName()->toString()                   << endl;
     *out << "    </b>"                                                 << endl;
     *out << "  </td>"                                                  << endl;
     *out << "  <td width=\"32\">"                                      << endl;
@@ -779,6 +781,17 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
     *out << "    </a>"                                                 << endl;
     *out << "  </td>"                                                  << endl;
     *out << "</tr>"                                                    << endl;
+    if(fsm_.stateName()->value_ == "Failed")
+    {
+      *out << "<tr>"					     << endl;
+      *out << " <td>"					     << endl;
+      *out << "<textarea rows=" << 5 << " cols=60 scroll=yes";
+      *out << " readonly title=\"Reason For Failed\">"		     << endl;
+      *out << reasonForFailedState_                                  << endl;
+      *out << "</textarea>"                                          << endl;
+      *out << " </td>"					     << endl;
+      *out << "</tr>"					     << endl;
+    }
     *out << "</table>"                                                 << endl;
 
   *out << "<hr/>"                                                    << endl;
@@ -1007,6 +1020,7 @@ void StorageManager::fusenderWebPage(xgi::Input *in, xgi::Output *out)
     *out << "    <b>"                                                  << endl;
     *out << getApplicationDescriptor()->getClassName() << " instance "
          << getApplicationDescriptor()->getInstance()                  << endl;
+    *out << "      " << fsm_.stateName()->toString()                   << endl;
     *out << "    </b>"                                                 << endl;
     *out << "  </td>"                                                  << endl;
     *out << "  <td width=\"32\">"                                      << endl;
@@ -1035,6 +1049,17 @@ void StorageManager::fusenderWebPage(xgi::Input *in, xgi::Output *out)
     *out << "    </a>"                                                 << endl;
     *out << "  </td>"                                                  << endl;
     *out << "</tr>"                                                    << endl;
+    if(fsm_.stateName()->value_ == "Failed")
+    {
+      *out << "<tr>"					     << endl;
+      *out << " <td>"					     << endl;
+      *out << "<textarea rows=" << 5 << " cols=60 scroll=yes";
+      *out << " readonly title=\"Reason For Failed\">"		     << endl;
+      *out << reasonForFailedState_                                  << endl;
+      *out << "</textarea>"                                          << endl;
+      *out << " </td>"					     << endl;
+      *out << "</tr>"					     << endl;
+    }
     *out << "</table>"                                                 << endl;
 
   *out << "<hr/>"                                                    << endl;
@@ -1297,6 +1322,7 @@ void StorageManager::streamerOutputWebPage(xgi::Input *in, xgi::Output *out)
     *out << "    <b>"                                                  << endl;
     *out << getApplicationDescriptor()->getClassName() << " instance "
          << getApplicationDescriptor()->getInstance()                  << endl;
+    *out << "      " << fsm_.stateName()->toString()                   << endl;
     *out << "    </b>"                                                 << endl;
     *out << "  </td>"                                                  << endl;
     *out << "  <td width=\"32\">"                                      << endl;
@@ -1325,6 +1351,17 @@ void StorageManager::streamerOutputWebPage(xgi::Input *in, xgi::Output *out)
     *out << "    </a>"                                                 << endl;
     *out << "  </td>"                                                  << endl;
     *out << "</tr>"                                                    << endl;
+    if(fsm_.stateName()->value_ == "Failed")
+    {
+      *out << "<tr>"					     << endl;
+      *out << " <td>"					     << endl;
+      *out << "<textarea rows=" << 5 << " cols=60 scroll=yes";
+      *out << " readonly title=\"Reason For Failed\">"		     << endl;
+      *out << reasonForFailedState_                                  << endl;
+      *out << "</textarea>"                                          << endl;
+      *out << " </td>"					     << endl;
+      *out << "</tr>"					     << endl;
+    }
     *out << "</table>"                                                 << endl;
 
     *out << "<hr/>"                                                    << endl;
@@ -1930,8 +1967,10 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
     }
     catch(cms::Exception& e)
     {
-	XCEPT_RAISE (toolbox::fsm::exception::Exception, 
-		     e.explainSelf());
+      reasonForFailedState_ = e.explainSelf();
+      fsm_.fireFailed(reasonForFailedState_,this);
+      return false;
+      //XCEPT_RAISE (toolbox::fsm::exception::Exception, e.explainSelf());
     }
     
     // give the JobController a configuration string and
@@ -1990,20 +2029,26 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
       jc_->setDQMEventServer(DQMeventServer);
     }
     catch(cms::Exception& e)
-      {
-	XCEPT_RAISE (toolbox::fsm::exception::Exception, 
-		     e.explainSelf());
-      }
+    {
+      reasonForFailedState_ = e.explainSelf();
+      fsm_.fireFailed(reasonForFailedState_,this);
+      //XCEPT_RAISE (toolbox::fsm::exception::Exception, e.explainSelf());
+      return false;
+    }
     catch(std::exception& e)
-      {
-	XCEPT_RAISE (toolbox::fsm::exception::Exception, 
-		     e.what());
-      }
+    {
+      reasonForFailedState_  = e.what();
+      fsm_.fireFailed(reasonForFailedState_,this);
+      //XCEPT_RAISE (toolbox::fsm::exception::Exception, e.what());
+      return false;
+    }
     catch(...)
-      {
-	XCEPT_RAISE (toolbox::fsm::exception::Exception, 
-		     "Unknown Exception");
-      }
+    {
+      reasonForFailedState_  = "Unknown Exception while configuring";
+      fsm_.fireFailed(reasonForFailedState_,this);
+      //XCEPT_RAISE (toolbox::fsm::exception::Exception, "Unknown Exception");
+      return false;
+    }
     
     
     LOG4CPLUS_INFO(getApplicationLogger(),"Finished configuring!");
@@ -2011,8 +2056,9 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
     fsm_.fireEvent("ConfigureDone",this);
   }
   catch (xcept::Exception &e) {
-    string msg = "configuring FAILED: " + (string)e.what();
-    fsm_.fireFailed(msg,this);
+    reasonForFailedState_ = "configuring FAILED: " + (string)e.what();
+    fsm_.fireFailed(reasonForFailedState_,this);
+    return false;
   }
 
   return false;
@@ -2036,8 +2082,15 @@ bool StorageManager::enabling(toolbox::task::WorkLoop* wl)
     fsm_.fireEvent("EnableDone",this);
   }
   catch (xcept::Exception &e) {
-    string msg = "enabling FAILED: " + (string)e.what();
-    fsm_.fireFailed(msg,this);
+    reasonForFailedState_ = "enabling FAILED: " + (string)e.what();
+    fsm_.fireFailed(reasonForFailedState_,this);
+    return false;
+  }
+  catch(...)
+  {
+    reasonForFailedState_  = "Unknown Exception while enabling";
+    fsm_.fireFailed(reasonForFailedState_,this);
+    return false;
   }
   
   return false;
@@ -2056,8 +2109,15 @@ bool StorageManager::stopping(toolbox::task::WorkLoop* wl)
     fsm_.fireEvent("StopDone",this);
   }
   catch (xcept::Exception &e) {
-    string msg = "stopping FAILED: " + (string)e.what();
-    fsm_.fireFailed(msg,this);
+    reasonForFailedState_ = "stopping FAILED: " + (string)e.what();
+    fsm_.fireFailed(reasonForFailedState_,this);
+    return false;
+  }
+  catch(...)
+  {
+    reasonForFailedState_  = "Unknown Exception while stopping";
+    fsm_.fireFailed(reasonForFailedState_,this);
+    return false;
   }
   
   return false;
@@ -2076,8 +2136,15 @@ bool StorageManager::halting(toolbox::task::WorkLoop* wl)
     fsm_.fireEvent("HaltDone",this);
   }
   catch (xcept::Exception &e) {
-    string msg = "halting FAILED: " + (string)e.what();
-    fsm_.fireFailed(msg,this);
+    reasonForFailedState_ = "halting FAILED: " + (string)e.what();
+    fsm_.fireFailed(reasonForFailedState_,this);
+    return false;
+  }
+  catch(...)
+  {
+    reasonForFailedState_  = "Unknown Exception while halting";
+    fsm_.fireFailed(reasonForFailedState_,this);
+    return false;
   }
   
   return false;
