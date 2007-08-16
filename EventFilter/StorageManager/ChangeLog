@@ -1,3 +1,9 @@
+2007-08-16  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-06-00
+        * changes to enter a failed state on problem with an action and
+          reporting the state and reason for failure in application web page
+
 2007-06-30  Harry Cheung <cheung@fnal.gov>
 
 	* tag V03-04-08
