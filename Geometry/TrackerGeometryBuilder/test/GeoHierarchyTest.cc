@@ -53,9 +53,9 @@
 #include<iostream>
 
 
-
+template<typename Det>
 struct Print {
-  typedef edm::TrieNode<const GeometricDet *> const node;
+  typedef edm::TrieNode<const Det *> const node;
   void operator()(node & n, std::string const & label) const {
     if (!n.value()) return; 
     for (size_t i=0; i<label.size();++i)
@@ -110,45 +110,25 @@ GeoHierarchy::~GeoHierarchy()
 // member functions
 //
 
-// ------------ method called to produce the data  ------------
-void
-GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
-{
-  edm::LogInfo("GeoHierarchy") << "begins";
-  
-  // build a trie of const GeometricDet
-  typedef GeometricDet const * GDetP;
-  edm::Trie<GDetP>	trie(0);
-  
-  typedef edm::TrieNode<GDetP> Node;
-  typedef Node const * node_pointer; // sigh....
-  typedef edm::TrieNodeIter<GDetP> node_iterator;
-  
-  
-  
-  //first instance tracking geometry
-  edm::ESHandle<TrackerGeometry> pDD;
-  iSetup.get<TrackerDigiGeometryRecord> ().get (pDD);
-  //
-  GeometricDet const * rDD = pDD->trackerDet();
-  int last=0;
-  std::vector<const GeometricDet*> modules; (*rDD).deepComponents(modules);
-  std::cout << "In Tracker Geom there are " << modules.size() 
-	    << "modules" << std::endl; 
+template<typename Det, typename Iter>
+void constructAndDumpTrie(Iter b, Iter e) {
+  edm::Trie<const Det *> trie(0);
+  std::cout << "In Tracker Geom there are " << e-b 
+	    << " modules" << std::endl; 
+  Iter last=b;
   try {
-    for(unsigned int i=0; i<modules.size();i++){
-      last = i;
-      unsigned int rawid = modules[i]->geographicalID().rawId();
-      trie.insert(trackerHierarchy(rawid), modules[i]);
+    for(b; b!=e;++b){
+      last = b;
+      unsigned int rawid = (*b)->geographicalID().rawId();
+      trie.insert(trackerHierarchy(rawid), *b);
       
     }
   }
   catch(edm::Exception const & e) {
     std::cout << "in filling " << e.what() << std::endl;
-    unsigned int rawid = modules[last]->geographicalID().rawId();
-    int subdetid = modules[last]->geographicalID().subdetId();
-    std::cout << rawid << " " << subdetid
-	      << " " << modules[last]->name().name() << std::endl;
+    unsigned int rawid = (*last)->geographicalID().rawId();
+    int subdetid = (*last)->geographicalID().subdetId();
+    std::cout << rawid << " " << subdetid << std::endl;
   }
   
   try {
@@ -161,6 +141,28 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   }
     
 }
+
+// ------------ method called to produce the data  ------------
+void
+GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
+{
+  edm::LogInfo("GeoHierarchy") << "begins";
+    
+  //first instance tracking geometry
+  edm::ESHandle<TrackerGeometry> pDD;
+  iSetup.get<TrackerDigiGeometryRecord> ().get (pDD);
+  //
+  GeometricDet const * rDD = pDD->trackerDet();
+  int last=0;
+  std::vector<const GeometricDet*> modules; 
+  (*rDD).deepComponents(modules);
+  
+  std::cout << "\nGeometricDet Hierarchy\n" << std::endl;
+  constructAndDumpTrie<GeometricDet>(modules.begin(),modules.end());
+
+  std::cout << "\nGDet Hierarchy\n" << std::endl;
+  constructAndDumpTrie<GeometricDet>(pDD->dets().begin(),pDD->dets().end());
+
 
 
   //define this as a plug-in
