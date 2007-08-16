@@ -88,9 +88,13 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         deps = dict()
         self._findDependencies(deps,set())
         return deps
+    def nameInProcessDesc_(self, myname):
+        return myname
     def insertInto(self, parameterSet, myname):
-        pass
-
+        # represented just as a list of names in the ParameterSet
+        l = []
+        self._seq.fillNamesList(l)
+        parameterSet.addVString(True, myname, l)
 
 class _SequenceOpAids(_Sequenceable):
     """Used in the expression tree for a sequence as a stand in for the ',' operator"""
@@ -107,6 +111,9 @@ class _SequenceOpAids(_Sequenceable):
         self.__right._findDependencies(knownDeps,presentDeps)
     def _clonesequence(self, lookuptable):
         return type(self)(self.__left._clonesequence(lookuptable),self.__right._clonesequence(lookuptable))
+    def fillNamesList(self, l):
+        self.__left.fillNamesList(l)
+        self.__right.fillNamesList(l)
 
 
 class _SequenceNegation(_Sequenceable):
@@ -119,6 +126,8 @@ class _SequenceNegation(_Sequenceable):
         return '!%s' %self.__operand.dumpSequenceConfig()
     def _findDependencies(self,knownDeps, presentDeps):
         self.__operand._findDependencies(knownDeps, presentDeps)
+    def fillNamesList(self, l):
+        l.append(self.__str__())
 
 
 class _SequenceOpFollows(_Sequenceable):
@@ -140,6 +149,10 @@ class _SequenceOpFollows(_Sequenceable):
         presentDeps.update(oldDepsR)
     def _clonesequence(self, lookuptable):
         return type(self)(self.__left._clonesequence(lookuptable),self.__right._clonesequence(lookuptable))
+    def fillNamesList(self, l):
+        self.__left.fillNamesList(l)
+        self.__right.fillNamesList(l)
+
 
 
 class Path(_ModuleSequenceType):
