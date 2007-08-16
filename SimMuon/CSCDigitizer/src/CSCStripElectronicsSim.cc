@@ -184,7 +184,9 @@ CSCStripElectronicsSim::runComparator() {
          }
          if(strip != 0) {
 
-           int timeBin = (int)((comparatorTime-theTimingOffset)/theBunchSpacing + theComparatorTimeBinOffset);
+//           int timeBin = (int)((comparatorTime-theTimingOffset)/theBunchSpacing + theComparatorTimeBinOffset);
+           int timeBin = (int)((comparatorTime-theTimingOffset)/theBunchSpacing) + theComparatorTimeBinOffset;
+
       // Comparator digi as of Nov-2006 adapted to real data: time word has 16 bits with set bit
       // flagging appropriate bunch crossing, and bx 0 corresponding to 9th bit i.e.
 
