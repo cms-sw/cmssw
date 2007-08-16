@@ -7,8 +7,8 @@
  *      within cylinders
  *
  *
- *  $Date: 2007/03/27 20:53:51 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/08/16 20:00:23 $
+ *  $Revision: 1.7 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -95,7 +95,10 @@ vector<Trajectory> CosmicMuonSmoother::fit(const Trajectory& t) const {
   LogTrace(category_)<< "fit begin (trajectory) ";
 
   TrajectoryStateOnSurface firstTsos = initialState(t); 
-  if ( !firstTsos.isValid() ) return vector<Trajectory>();
+  if ( !firstTsos.isValid() ) {
+    LogTrace(category_)<< "Error: firstTsos invalid. ";
+    return vector<Trajectory>();
+  }
 
   LogTrace(category_)<< "firstTsos: "<<firstTsos;
 
@@ -354,6 +357,22 @@ TrajectoryStateOnSurface CosmicMuonSmoother::initialState(const Trajectory& t) c
      } 
      if (result.globalMomentum().y()> 1.0 ) //top tsos should pointing down
        theUtilities->reverseDirection(result,&*theService->magneticField());
+  } else {
+     if ( t.firstMeasurement().updatedState().globalPosition().z() * t.lastMeasurement().updatedState().globalPosition().z() >0 ) { //same side
+       if ( fabs(t.firstMeasurement().updatedState().globalPosition().z()) > fabs(t.lastMeasurement().updatedState().globalPosition().z()) ) {
+         result = t.firstMeasurement().updatedState();
+       } else {
+         result = t.lastMeasurement().updatedState();
+       }
+     } else { //different sides
+
+       if ( fabs(t.firstMeasurement().updatedState().globalPosition().eta()) > fabs(t.lastMeasurement().updatedState().globalPosition().eta()) ) {
+         result = t.firstMeasurement().updatedState();
+       } else {
+         result = t.lastMeasurement().updatedState();
+       }
+     }
+
   }
 
   return result;
