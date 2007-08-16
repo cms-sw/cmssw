@@ -22,7 +22,6 @@ void CSCFakeDBGains::prefillDBGains()
   mean=6.8, min=-10.0, minchi=1.0, M=1000;
 
   unsigned int channelCount = 1;
-  unsigned int maxChannel = 2177729;
 
  //endcap=1 to 2,station=1 to 4, ring=1 to 4,chamber=1 to 36,layer=1 to 6 
   for(int iendcap=detId.minEndcapId(); iendcap<=detId.maxEndcapId(); iendcap++){
@@ -55,15 +54,13 @@ void CSCFakeDBGains::prefillDBGains()
 	    
 	    std::vector<CSCDBGains::Item> itemvector;
 	    itemvector.resize(max_istrip);
-	    //	    id_layer   = 100000*iendcap + 10000*istation + 1000*iring + 10*ichamber + ilayer;
-	    //	    layerId = theIndexer->layerIndex(iendcap, istation, iring, ichamber, ilayer);
 	    
 	    for(int istrip=0;istrip<max_istrip;istrip++){
 	      itemvector[istrip].gain_slope=((double)rand()/((double)(RAND_MAX)+(double)(1)))+mean;
 	      itemvector[istrip].gain_intercept=((double)rand()/((double)(RAND_MAX)+(double)(1)))+min;
 	      itemvector[istrip].gain_chi2=((double)rand()/((double)(RAND_MAX)+(double)(1)))+minchi;
 	    }
-	    std::copy( itemvector.begin(), itemvector.end(), cndbgains->gains.end() );
+	    std::copy(itemvector.begin(), itemvector.end(), std::back_inserter(cndbgains->gains));
             channelCount += max_istrip;
 	  }
 	}

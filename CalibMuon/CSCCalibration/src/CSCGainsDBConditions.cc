@@ -17,9 +17,7 @@ void CSCGainsDBConditions::prefillDBGains()
   seed = 10000;	
   srand(seed);
   mean=6.8, min=-10.0, minchi=1.0, M=1000;
-  unsigned int channelCount = 1;
-  unsigned int maxChannel = 2177729;
-  /*
+  
   std::ifstream olddata; 
   olddata.open("old_gains.dat",std::ios::in); 
   if(!olddata) {
@@ -55,8 +53,7 @@ void CSCGainsDBConditions::prefillDBGains()
     new_nrlines++;
   }
   newdata.close();
-  */
-
+  
   //endcap=1 to 2,station=1 to 4, ring=1 to 4,chamber=1 to 36,layer=1 to 6 
   for(int iendcap=detId.minEndcapId(); iendcap<=detId.maxEndcapId(); iendcap++){
     for(int istation=detId.minStationId() ; istation<=detId.maxStationId(); istation++){
@@ -69,7 +66,7 @@ void CSCGainsDBConditions::prefillDBGains()
       if(istation==4)    max_ring=1;
       
       for(int iring=detId.minRingId(); iring<=max_ring; iring++){
-	max_istrip=80;
+	max_istrip=80;	    
 	max_cham=detId.maxChamberId();  
 	if(istation==1 && iring==1)    max_cham=36;
 	if(istation==1 && iring==2)    max_cham=36;
@@ -84,19 +81,15 @@ void CSCGainsDBConditions::prefillDBGains()
 	  for(int ilayer=detId.minLayerId(); ilayer<=detId.maxLayerId(); ilayer++){
 	    //station 1 ring 3 has 64 strips per layer instead of 80 
 	    if(istation==1 && iring==3)   max_istrip=64;
-	    
 	    std::vector<CSCDBGains::Item> itemvector;
 	    itemvector.resize(max_istrip);
 	    id_layer = 100000*iendcap + 10000*istation + 1000*iring + 10*ichamber + ilayer;
-	    
 	    for(int istrip=0;istrip<max_istrip;istrip++){
 	      itemvector[istrip].gain_slope=((double)rand()/((double)(RAND_MAX)+(double)(1)))+mean;
 	      itemvector[istrip].gain_intercept=((double)rand()/((double)(RAND_MAX)+(double)(1)))+min;
 	      itemvector[istrip].gain_chi2=((double)rand()/((double)(RAND_MAX)+(double)(1)))+minchi;
 	    }
-	    std::copy( itemvector.begin(), itemvector.end(), cndbgains->gains.end() );
-            channelCount += max_istrip;
-	    
+	    std::copy(itemvector.begin(), itemvector.end(), std::back_inserter(cndbgains->gains));
 	  }
 	}
       }
@@ -104,7 +97,7 @@ void CSCGainsDBConditions::prefillDBGains()
   }
 
 
-  /*
+  
   //overwrite fakes with old values from DB
   int istrip = 0;
   std::vector<CSCDBGains::Item> itemvector;
@@ -115,9 +108,9 @@ void CSCGainsDBConditions::prefillDBGains()
     itemvector[istrip].gain_slope=old_slope[mystrip];
     itemvector[istrip].gain_intercept=old_intercept[mystrip]; 
     itemvector[istrip].gain_chi2=old_chi2[mystrip];
-    cndbgains->gains[old_cham_id[mystrip]]=itemvector;
     istrip++;
   }  
+  std::copy(itemvector.begin(), itemvector.end(), std::back_inserter(cndbgains->gains));
   
   
   itemvector.resize(64);
@@ -127,9 +120,9 @@ void CSCGainsDBConditions::prefillDBGains()
       itemvector[istrip].gain_slope=old_slope[mystrip];
       itemvector[istrip].gain_intercept=old_intercept[mystrip]; 
       itemvector[istrip].gain_chi2=old_chi2[mystrip];
-      cndbgains->gains[old_cham_id[mystrip]]=itemvector;
       istrip++;
     }
+    std::copy(itemvector.begin(), itemvector.end(), std::back_inserter(cndbgains->gains));
   } 
   
   itemvector.resize(64);
@@ -139,9 +132,9 @@ void CSCGainsDBConditions::prefillDBGains()
       itemvector[istrip].gain_slope=old_slope[mystrip];
       itemvector[istrip].gain_intercept=old_intercept[mystrip]; 
       itemvector[istrip].gain_chi2=old_chi2[mystrip];
-      cndbgains->gains[old_cham_id[mystrip]]=itemvector;
       istrip++;
     }
+    std::copy(itemvector.begin(), itemvector.end(), std::back_inserter(cndbgains->gains));
   }   
   
   //overwrite old values with ones from new runs
@@ -151,9 +144,9 @@ void CSCGainsDBConditions::prefillDBGains()
     itemvector[istrip].gain_slope=new_slope[mystrip];
     itemvector[istrip].gain_intercept=new_intercept[mystrip]; 
     itemvector[istrip].gain_chi2=new_chi2[mystrip];
-    cndbgains->gains[new_cham_id[mystrip]]=itemvector;
     istrip++;
   }
+  std::copy(itemvector.begin(), itemvector.end(), std::back_inserter(cndbgains->gains));
     
   itemvector.resize(64);
   for(unsigned int mystrip=0; mystrip<new_nrlines-1; mystrip++){
@@ -162,9 +155,9 @@ void CSCGainsDBConditions::prefillDBGains()
       itemvector[istrip].gain_slope=new_slope[mystrip];
       itemvector[istrip].gain_intercept=new_intercept[mystrip]; 
       itemvector[istrip].gain_chi2=new_chi2[mystrip];
-      cndbgains->gains[new_cham_id[mystrip]]=itemvector;
       istrip++;
     }
+    std::copy(itemvector.begin(), itemvector.end(), std::back_inserter(cndbgains->gains));
   } 
   
   itemvector.resize(64);
@@ -174,11 +167,10 @@ void CSCGainsDBConditions::prefillDBGains()
       itemvector[istrip].gain_slope=new_slope[mystrip];
       itemvector[istrip].gain_intercept=new_intercept[mystrip]; 
       itemvector[istrip].gain_chi2=new_chi2[mystrip];
-      cndbgains->gains[new_cham_id[mystrip]]=itemvector;
       istrip++;
     }
-  }
-  */ 
+    std::copy(itemvector.begin(), itemvector.end(), std::back_inserter(cndbgains->gains));
+  }  
 }
   
 
@@ -211,9 +203,8 @@ CSCGainsDBConditions::~CSCGainsDBConditions()
 CSCGainsDBConditions::ReturnType
 CSCGainsDBConditions::produceDBGains(const CSCDBGainsRcd& iRecord)
 {
-  // Added by Zhen, need a new object so to not be deleted at exit
+  //need a new object so to not be deleted at exit
   CSCDBGains* mydata=new CSCDBGains( *cndbgains );
-  
   return mydata;
   
 }
