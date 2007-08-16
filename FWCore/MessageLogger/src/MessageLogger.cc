@@ -25,4 +25,8 @@ void HaltMessageLogging() {
   edm::MessageLoggerQ::MLqSHT ( ); // Shut the logger up
 }
 
+void FlushMessageLog() {
+  edm::MessageLoggerQ::MLqFLS ( ); // Flush the message log queue
+}
+
 }  // namespace edm

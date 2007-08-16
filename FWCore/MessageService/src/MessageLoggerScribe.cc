@@ -132,6 +132,12 @@
 //	 that command.  This allows supression of the generator info in case of a
 //	 completely .cfg-less cmsRun command.  
 //
+//  26 - 8/7/07 mf - in run()
+//	 A command FLUSH_LOG_Q to consume the entire queue, processing each 
+//	 message.  Actually, the key is that on the other side, it is used in
+//       a synchronous manner (like CONFIGURE) so as soon as one gets up to 
+//	 the flush command, the queue has in fact been flushed!  
+//
 // ----------------------------------------------------------------------
 
 #include "FWCore/MessageService/interface/ELadministrator.h"
@@ -344,6 +350,15 @@ void
       case MessageLoggerQ::SHUT_UP:  {
         assert( operand == 0 );
         active = false;
+        break;
+      }
+      case MessageLoggerQ::FLUSH_LOG_Q:  {			// changelog 26
+	ConfigurationHandshake * h_p = 
+	  	static_cast<ConfigurationHandshake *>(operand);
+	job_pset_p = h_p->p;
+        boost::mutex::scoped_lock sl(h_p->m);   // get lock
+	h_p->c.notify_all();  // Signal to MessageLoggerQ that we are done
+	// finally, release the scoped lock by letting it go out of scope 
         break;
       }
     }  // switch

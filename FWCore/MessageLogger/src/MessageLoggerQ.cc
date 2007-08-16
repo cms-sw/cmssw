@@ -23,6 +23,8 @@
 //	Addition of SHT command, to be used when no .cfg file was given
 // 4 - 7/25/07 mf
 //	Change of each mommand function to start with MLq, e.g. MLqLOG
+// 5 - 8/7/07 mf
+//	Addition of FLS command, to be used by FlushMessageLog
 
 using namespace edm;
 
@@ -189,3 +191,32 @@ void
   std::memcpy(&operand, slot_p+sizeof(OpCode), sizeof(void *));
   b.commit(buf_size);
 }  // MessageLoggerQ::consume()
+
+void
+  MessageLoggerQ::MLqFLS(  )			// Change Log 5
+{
+  // The ConfigurationHandshake, developed for synchronous CFG, contains a
+  // place to convey exception information.  FLS does not need this, nor does
+  // it need the parameter set, but we are reusing ConfigurationHandshake 
+  // rather than reinventing the mechanism.
+  Place_for_passing_exception_ptr epp = new Pointer_to_new_exception_on_heap(0);
+  ParameterSet * p = 0;
+  ConfigurationHandshake h(p,epp);
+  SingleConsumerQ::ProducerBuffer b(buf);
+  char * slot_p = static_cast<char *>(b.buffer());
+
+  OpCode o(FLUSH_LOG_Q);
+  void * v(static_cast<void *>(&h));
+
+  std::memcpy(slot_p+0             , &o, sizeof(OpCode));
+  std::memcpy(slot_p+sizeof(OpCode), &v, sizeof(void *));
+  {
+    boost::mutex::scoped_lock sl(h.m);       // get lock
+    b.commit(buf_size);
+    // wait for result to appear (in epp)
+    h.c.wait(sl); // c.wait(sl) unlocks the scoped lock and sleeps till notified
+    // ... and once the MessageLoggerScribe does h.c.notify_all() ... 
+    // finally, release the scoped lock by letting it go out of scope 
+  }
+}  // MessageLoggerQ::FLS()
+

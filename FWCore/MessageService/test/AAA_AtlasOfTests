@@ -1,0 +1,28 @@
+Atlas of MessageLogger tests
+
+u1	Gives different thresholds to multiple destinations, and assigns
+	limit=0 to annoying message categories preEventProcessing and FwkJob.
+	Incidnetally tests noTimeStamps.  Also generates a job report file
+	(u1_job_report.mxml).   
+	---------- UnitTestClient_A
+
+u2	Tests handling of a message generated pre-configuration, by using the
+	special generate_preconfiguration_message parameter in the cfg file.
+	---------- UnitTestClient_A
+
+u3	Generates a plain-vanilla statistics destination (not matching any 
+	output destination).
+	---------- UnitTestClient_A
+
+u4	Generates a pair of statistics destinations but assigns a different 
+	file name for one of them (other than the pset name) anda threshold for
+	the other.
+	---------- UnitTestClient_A
+	
+<This Atlas is not yet complete; will add to it.>
+	
+u22	Tests effect of LogFlush by cfg-configurable choices of how many 
+	messages to use to clog the queue and whether or not FlushMessageLog
+	is invoked.  Under normal testing, it will invoke FlushMessageLog in
+	a situation where its absence would result in different output.
+	---------- UnitTestClient_P
