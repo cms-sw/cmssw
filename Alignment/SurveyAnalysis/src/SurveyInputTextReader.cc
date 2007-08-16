@@ -6,6 +6,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/SurveyAnalysis/interface/SurveyInputTextReader.h"
 
 //__________________________________________________________________________________________________
@@ -41,7 +42,8 @@ void SurveyInputTextReader::readFile( const std::string& textFileName )
 			std::string endofline;
 			getline(myfile,endofline);
 			m_alignObjId = alignObjId.nameToType(structure);
-			if (m_alignObjId == 0) std::cout << "=============> invalid Object ID" << std::endl;
+			if (m_alignObjId == 0) 
+                          edm::LogWarning("SurveyInputTextReader") << "=============> invalid Object ID" << std::endl;
 		}
 		else{
 			myfile >> m_detId;

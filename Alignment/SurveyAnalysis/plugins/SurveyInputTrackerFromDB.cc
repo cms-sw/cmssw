@@ -14,25 +14,22 @@ SurveyInputTrackerFromDB::SurveyInputTrackerFromDB(const edm::ParameterSet& cfg)
 
 void SurveyInputTrackerFromDB::beginJob(const edm::EventSetup& setup)
 {
-	std::cout << "***************ENTERING BEGIN JOB******************" << std::endl;
-	
-  edm::ESHandle<DDCompactView> view;
+
+//  std::cout << "***************ENTERING BEGIN JOB******************" << std::endl;
+
   edm::ESHandle<GeometricDet>  geom;
-
-  setup.get<IdealGeometryRecord>().get(view);
   setup.get<IdealGeometryRecord>().get(geom);
-
   TrackerGeometry* tracker =
     TrackerGeomBuilderFromGeometricDet().build(&*geom);
 	
-	//Get map from textreader
-	SurveyInputTextReader dataReader;
+  //Get map from textreader
+  SurveyInputTextReader dataReader;
   dataReader.readFile( textFileName );
-	uIdMap = dataReader.UniqueIdMap();
+  uIdMap = dataReader.UniqueIdMap();
 
-	addComponent( new AlignableTracker(&*geom, tracker) );
+  addComponent( new AlignableTracker(&*geom, tracker) );
   addSurveyInfo( detector() );
-	std::cout << "*************END BEGIN JOB***************" << std::endl;
+//  std::cout << "*************END BEGIN JOB***************" << std::endl;
 }
 
 void SurveyInputTrackerFromDB::addSurveyInfo(Alignable* ali)
