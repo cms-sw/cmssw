@@ -30,16 +30,12 @@
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 
 
 
@@ -55,7 +51,7 @@
 
 template<typename Det>
 struct Print {
-  typedef edm::TrieNode<const Det *> const node;
+  typedef edm::TrieNode<Det> const node;
   void operator()(node & n, std::string const & label) const {
     if (!n.value()) return; 
     for (size_t i=0; i<label.size();++i)
@@ -110,9 +106,10 @@ GeoHierarchy::~GeoHierarchy()
 // member functions
 //
 
-template<typename Det, typename Iter>
+template<typename Iter>
 void constructAndDumpTrie(Iter b, Iter e) {
-  edm::Trie<const Det *> trie(0);
+  typedef typename std::iterator_traits<Iter>::value_type Det;
+  edm::Trie<Det> trie(0);
   std::cout << "In Tracker Geom there are " << e-b 
 	    << " modules" << std::endl; 
   Iter last=b;
@@ -120,8 +117,7 @@ void constructAndDumpTrie(Iter b, Iter e) {
     for(b; b!=e;++b){
       last = b;
       unsigned int rawid = (*b)->geographicalID().rawId();
-      trie.insert(trackerHierarchy(rawid), *b);
-      
+      trie.insert(trackerHierarchy(rawid), *b); 
     }
   }
   catch(edm::Exception const & e) {
@@ -132,14 +128,14 @@ void constructAndDumpTrie(Iter b, Iter e) {
   }
   
   try {
-    Print pr;
+    Print<Det> pr;
     edm::walkTrie(pr,*trie.initialNode());
     std::cout << std::endl; 
   }
   catch(edm::Exception const & e) {
     std::cout << "in walking " << e.what() << std::endl;
   }
-    
+  
 }
 
 // ------------ method called to produce the data  ------------
