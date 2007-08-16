@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/01/22 18:24:45 $
- *  $Revision: 1.13 $
+ *  $Date: 2007/03/06 14:30:40 $
+ *  $Revision: 1.14 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -102,8 +102,8 @@ int DTReadOutMapping::readOutToGeometry( int      dduId,
                                         slId,
                                      layerId,
                                       cellId );
-
-  wireId = DTWireId( wheelId, stationId, sectorId, slId, layerId, cellId );
+  if ( !status ) wireId = DTWireId( wheelId, stationId, sectorId,
+                                       slId,   layerId,   cellId );
   return status;
 
 }
