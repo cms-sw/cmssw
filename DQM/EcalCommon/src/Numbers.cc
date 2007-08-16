@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.11 2007/05/25 04:54:32 dellaric Exp $
+// $Id: Numbers.cc,v 1.12 2007/08/14 17:42:23 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.11 $
-  \date $Date: 2007/05/25 04:54:32 $
+  \version $Revision: 1.12 $
+  \date $Date: 2007/08/14 17:42:23 $
 */
 
 #include <sstream>
@@ -238,8 +238,8 @@ int Numbers::iSM( const EcalPnDiodeDetId& id ) {
 
 int Numbers::iSM( const EcalDCCHeaderBlock& id ) {
   if ( id.id() >=  1 && id.id() <=  9 ) return( Numbers::iSM( id.id(), EcalEndcap ) );
-  if ( id.id() >= 10 && id.id() <= 45 ) return( Numbers::iSM( id.id(), EcalBarrel ) );
-  if ( id.id() >= 46 && id.id() <= 54 ) return( Numbers::iSM( id.id(), EcalEndcap ) );
+  if ( id.id() >= 10 && id.id() <= 45 ) return( Numbers::iSM( id.id()-9, EcalBarrel ) );
+  if ( id.id() >= 46 && id.id() <= 54 ) return( Numbers::iSM( id.id()-45+9, EcalEndcap ) );
   return( -999 );
 }
 
