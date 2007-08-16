@@ -191,11 +191,10 @@ class EcalDigiDumperModule: public edm::EDAnalyzer{
 		     << EBDetId((*digiItr).id()).iphi() << " j-eta: " 
 		     << EBDetId((*digiItr).id()).ieta();
 		
-		for ( unsigned int i=0; i< (*digiItr).size() ; ++i ) {
-                  EBDataFrame df( *digiItr );
+		for ( int i=0; i< (*digiItr).size() ; ++i ) {
 		  if (!(i%3)  )  std::cout << "\n\t";
 		  std::cout << "sId: " << (i+1) << " "
-		       <<  df.sample(i) << "\t";
+		       <<  (*digiItr).sample(i) << "\t";
 		}       
 		std::cout << " " << std::endl;
 
@@ -228,10 +227,9 @@ class EcalDigiDumperModule: public edm::EDAnalyzer{
 		      << EBDetId((*digiItr).id()).ieta() << " tower: "
 		      << tt ;
 
-	    for ( unsigned int i=0; i< (*digiItr).size() ; ++i ) {
-              EBDataFrame df( *digiItr );
+	    for ( int i=0; i< (*digiItr).size() ; ++i ) {
 	      if (!(i%3)  )  std::cout << "\n\t";
-	      std::cout << "sId: " << (i+1) << " " <<  df.sample(i) << "\t";
+	      std::cout << "sId: " << (i+1) << " " <<  (*digiItr).sample(i) << "\t";
 	    }       
 	    std::cout << " " << std::endl;
 	  } 

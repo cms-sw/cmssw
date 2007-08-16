@@ -194,9 +194,8 @@ void EcalGraphDumperModule::analyze( const edm::Event & e, const  edm::EventSetu
       if (icIter == listAllChannels.end()) { continue; }
 	    
 
-      for ( unsigned int i=0; i< (*digiItr).size() ; ++i ) {
-        EBDataFrame df( *digiItr );
-	ordinate[i] = df.sample(i).adc();
+      for ( int i=0; i< (*digiItr).size() ; ++i ) {
+	ordinate[i] = (*digiItr).sample(i).adc();
       }
 	    
       TGraph oneGraph(10, abscissa,ordinate);

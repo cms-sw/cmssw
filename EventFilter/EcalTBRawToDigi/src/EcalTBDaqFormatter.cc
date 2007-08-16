@@ -454,12 +454,9 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	    int  sm = 1;
 	    EBDetId  id(sm, ic,1);                 
 	    
-	    // here data frame go into the Event
-            // removed later on (with a pop_back()) if gain==0 or if forbidden-gain-switch
-	    digicollection.push_back( id );
-	    EBDataFrame theFrame ( digicollection.back() );
+	    EBDataFrame theFrame ( id );
 	    std::vector<int> xtalDataSamples = (*itXtalBlock)->xtalDataSamples();   
-	    //theFrame.setSize(xtalDataSamples.size()); // if needed, to be changed when constructing digicollection
+	    theFrame.setSize(xtalDataSamples.size());
       
       
 
@@ -490,7 +487,6 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	      gaincollection.push_back(id);
 	      
 	      // there has been a gain==0, dataframe not to go to the Event
-              digicollection.pop_back();
 	      continue; //	      expCryInTower already incremented
 	    }
 
@@ -563,12 +559,14 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	     
 
 	      // there has been a forbidden gain transition,  dataframe not to go to the Event
-              digicollection.pop_back();
 	      continue; //	      expCryInTower already incremented
 
 	    }// END of:   'if there is a forbidden gain transition'
 
 
+	    // here (already continued if gain==0 or if forbidden-gain-switch),
+	    // data frame needs go to the Event
+	    digicollection.push_back(theFrame);
 	    
 	  }// end loop on crystals within a tower block
 	  
