@@ -28,8 +28,8 @@ std::ostream& operator<<(std::ostream& os, const GctBlockHeader& h) {
 /// setup class static to lookup block length
 pair<unsigned, unsigned> a[] = {
   pair<unsigned, unsigned>(0x00,0),
-  pair<unsigned, unsigned>(0x58,0),
-  pair<unsigned, unsigned>(0x59,0),
+  pair<unsigned, unsigned>(0x58,6),
+  pair<unsigned, unsigned>(0x59,12),
   pair<unsigned, unsigned>(0x5f,1),
   pair<unsigned, unsigned>(0x68,4),
   pair<unsigned, unsigned>(0x69,16),
