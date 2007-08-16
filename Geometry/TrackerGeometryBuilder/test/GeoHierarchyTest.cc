@@ -63,7 +63,7 @@ struct Print {
     if (!n.getValue()) return; 
     for (size_t i=0; i<label.size();++i)
       std::cout << int(label[i]) <<'/';
-    std::cout << " " << n.getValue()->name().name() << std::endl;
+    std::cout << " " << n.value()->name().name() << std::endl;
   }
   
 };
@@ -158,7 +158,7 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	char theLadder = module.ladder();
 	char theModule = module.module();
 	char key[] = { 1, theLayer , theLadder, theModule};
-	trie.addEntry(key,4, modules[i]);
+	trie.insert(key,4, modules[i]);
 	
 	
 	break;
@@ -177,7 +177,7 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 		       char(module.side()),
 		       thePanel , theDisk, 
 		       theBlade, theModule};
-	trie.addEntry(key,6, modules[i]);
+	trie.insert(key,6, modules[i]);
 	
 	break;
       }
@@ -202,7 +202,7 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 		       theModule,
 		       char(module:glued() ? module.stereo()+1 : 0)
 	};
-	trie.addEntry(key,7, modules[i]);
+	trie.insert(key, module:glued() ? 7 : 6, modules[i]);
 	
 	
 	
@@ -229,7 +229,7 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 		       char(theModule[1]),
 		       char(module:glued() ? module.stereo()+1 : 0)
 	};
-	trie.addEntry(key,7, modules[i]);
+	trie.insert(key,module:glued() ? 7 : 6, modules[i]);
 	
 	break;
       }
@@ -250,7 +250,7 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 		       char(theRod[1]), 
 		       theModule,
 		       char(module:glued() ? module.stereo()+1 : 0)};
-	trie.addEntry(key,6, modules[i]);
+	trie.insert(key, module:glued() ?  6 : 5, modules[i]);
 	
 	break;
       }
@@ -278,7 +278,7 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 		       theRing,
 		       theModule,
 		       char(module:glued() ? module.stereo()+1 : 0)};
-	trie.addEntry(key,8, modules[i]);
+	trie.insert(key, module:glued() ? 8 : 7);
   
 	break;
       }
@@ -288,7 +288,7 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
     }
   }
   }
-  catch(edm::VinException const & e) {
+  catch(edm::Exception const & e) {
     std::cout << "in filling " << e.what() << std::endl;
     unsigned int rawid = modules[last]->geographicalID().rawId();
     int subdetid = modules[last]->geographicalID().subdetId();
@@ -298,10 +298,10 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
     
   try {
     Print pr;
-    edm::walkTrie(pr,*trie.getInitialNode());
+    edm::walkTrie(pr,*trie.initialNode());
     std::cout << std::endl; 
   }
-  catch(edm::VinException const & e) {
+  catch(edm::Exception const & e) {
     std::cout << "in walking " << e.what() << std::endl;
   }
     
