@@ -167,7 +167,7 @@ CSCStripElectronicsSim::runComparator() {
              leftStrip = comparatorReading(find(readoutElement(iComparator*2)), time); 
            }
            // if this strip is higher than either of its neighbors, make a comparator digi
-           if(leftStrip < height1) {
+           if(leftStrip < height1 && height1 > theComparatorThreshold) {
              output = (leftStrip < height2);
              strip = iComparator*2 + 1;
            }
@@ -177,7 +177,7 @@ CSCStripElectronicsSim::runComparator() {
            if(iComparator*2+3 <= nElements) {
              rightStrip = comparatorReading(find(readoutElement(iComparator*2+3)), time);
            }
-           if(rightStrip < height2) {
+           if(rightStrip < height2 && height2 > theComparatorThreshold) {
              output = (height1 < rightStrip);
              strip = iComparator*2 + 2;
            }
