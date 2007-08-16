@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/05/17 12:36:43 $
- * $Revision: 1.11 $
+ * $Date: 2006/07/03 17:21:22 $
+ * $Revision: 1.12 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -58,6 +58,7 @@ DTRecSegment2DProducer::DTRecSegment2DProducer(const edm::ParameterSet& pset) {
 DTRecSegment2DProducer::~DTRecSegment2DProducer() {
   if(debug)
     cout << "[DTRecSegment2DProducer] Destructor called" << endl;
+  delete theAlgo;
 }
 
 /* Operations */ 

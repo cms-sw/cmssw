@@ -1,8 +1,8 @@
 
 /** \file CSCSegmentBuilder.cc
  *
- * $Date: 2006/09/26 09:00:39 $
- * $Revision: 1.10 $
+ * $Date: 2006/11/15 16:52:48 $
+ * $Revision: 1.11 $
  * \author M. Sani
  *
  *
@@ -55,7 +55,14 @@ CSCSegmentBuilder::CSCSegmentBuilder(const edm::ParameterSet& ps) : geom_(0) {
                 create(algoName, segAlgoPSet[algoToType[j]-1]);
 }
 
-CSCSegmentBuilder::~CSCSegmentBuilder() {}
+CSCSegmentBuilder::~CSCSegmentBuilder() {
+  //
+  // loop on algomap and delete them
+  //
+  for (std::map<std::string, CSCSegmentAlgorithm*>::iterator it = algoMap.begin();it != algoMap.end(); it++){
+    delete ((*it).second);
+  }
+}
 
 void CSCSegmentBuilder::build(const CSCRecHit2DCollection* recHits, CSCSegmentCollection& oc) {
   	

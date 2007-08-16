@@ -1,8 +1,8 @@
 /** \class DTRecSegment4DProducer
  *  Builds the segments in the DT chambers.
  *
- *  $Date: 2006/05/17 12:36:43 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/07/03 17:21:22 $
+ *  $Revision: 1.8 $
  * \author Riccardo Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -52,6 +52,7 @@ DTRecSegment4DProducer::DTRecSegment4DProducer(const ParameterSet& pset){
 DTRecSegment4DProducer::~DTRecSegment4DProducer(){
   if(debug)
     cout << "[DTRecSegment4DProducer] Destructor called" << endl;
+  delete the4DAlgo;
 }
 
 void DTRecSegment4DProducer::produce(Event& event, const EventSetup& setup){

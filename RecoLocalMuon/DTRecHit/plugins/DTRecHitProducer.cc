@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/05/16 15:18:42 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/04/19 11:08:17 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara
  */
 
@@ -52,7 +52,7 @@ DTRecHitProducer::DTRecHitProducer(const ParameterSet& config){
 DTRecHitProducer::~DTRecHitProducer(){
   if(debug)
     cout << "[DTRecHitProducer] Destructor called" << endl;
-
+  delete theAlgo;
 }
 
 
