@@ -270,7 +270,7 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 		       theRing,
 		       theModule,
 		       char(module.glued() ? module.stereo()+1 : 0)};
-	trie.insert(key, module.glued() ? 8 : 7, module[i]);
+	trie.insert(key, module.glued() ? 8 : 7, modules[i]);
   
 	break;
       }
