@@ -77,6 +77,8 @@ RoadSearchTrackCandidateMakerAlgorithm::RoadSearchTrackCandidateMakerAlgorithm(c
   
   theEstimator = new Chi2MeasurementEstimator(theChi2Cut);
   theUpdator = new KFUpdator();
+  theTransformer = new TrajectoryStateTransform;
+  theTrajectoryCleaner = new TrajectoryCleanerBySharedHits;
   
   NoFieldCosmic_  = conf_.getParameter<bool>("StraightLineNoBeamSpotCloud");
   MinChunkLength_ = conf_.getParameter<int>("MinimumChunkLength");
@@ -85,12 +87,14 @@ RoadSearchTrackCandidateMakerAlgorithm::RoadSearchTrackCandidateMakerAlgorithm(c
   measurementTrackerName_ = conf_.getParameter<std::string>("MeasurementTrackerName");
   
   debug_ = false;
-  
+
 }
 
 RoadSearchTrackCandidateMakerAlgorithm::~RoadSearchTrackCandidateMakerAlgorithm() {
   delete theEstimator;
   delete theUpdator;
+  delete theTransformer;
+  delete theTrajectoryCleaner;
   // delete theMeasurementTracker;
 
 }
@@ -119,8 +123,6 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
   es.get<CkfComponentsRecord>().get(measurementTrackerName_, measurementTrackerHandle);
   theMeasurementTracker = measurementTrackerHandle.product();
   
-  // Create the trajectory cleaner 
-  TrajectoryCleanerBySharedHits theTrajectoryCleaner;
   std::vector<Trajectory> FinalTrajectories;
   
   
@@ -139,16 +141,15 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
   
   thePropagator = new PropagatorWithMaterial(alongMomentum,.1057,&(*magField)); 
   theRevPropagator = new PropagatorWithMaterial(oppositeToMomentum,.1057,&(*magField)); 
-  AnalyticalPropagator prop(magField,anyDirection);
-  TrajectoryStateTransform transformer;
-  
+  theAnalyticalPropagator = new AnalyticalPropagator(magField,anyDirection);
+
   KFTrajectorySmoother theSmoother(*theRevPropagator, *theUpdator, *theEstimator);
   
   // get hit matcher
   theHitMatcher = new SiStripRecHitMatcher(3.0);
 
-  //debug_ = false;
-  //if (input->size()>=0) debug_ = true;
+  debug_ = false;
+  //if (input->size()>0) debug_ = true;
 
   LogDebug("RoadSearch") << "Clean Clouds input size: " << input->size();
   if (debug_) std::cout << std::endl << std::endl
@@ -171,6 +172,8 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
       std::sort(recHits.begin(),recHits.end(),SortHitPointersByY(*tracker));
     }
 
+    const int nlost_max = 2;
+	    
     // make a list of layers in cloud and mark stereo layers
     
     const int max_layers = 128;
@@ -180,9 +183,10 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
     int nhits_l[max_layers];
     int nlayers = 0;
     */
+
     nlayers = 0;
 
-    std::map<const DetLayer*, int> cloud_layer_reference; // for debugging
+    //std::map<const DetLayer*, int> cloud_layer_reference; // for debugging
     std::multimap<const DetLayer*, const TrackingRecHit* > cloud_layer_map;
     std::multimap<const DetLayer*, const TrackingRecHit* >::const_iterator hiter;
     for (RoadSearchCloud::RecHitVector::const_iterator ih=recHits.begin(); ih!=recHits.end(); ++ih) {
@@ -197,13 +201,13 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
           layers[nlayers] = hitLayer;
           lstereo[nlayers] = false;
           nhits_l[nlayers] = 0;
-          cloud_layer_reference.insert(std::make_pair(layers[nlayers], nlayers));
+          //cloud_layer_reference.insert(std::make_pair(layers[nlayers], nlayers));
           ilayer = nlayers;
           ++nlayers;
         }
         else{
-          std::map<const DetLayer*, int>::const_iterator ilyr = cloud_layer_reference.find(hitLayer);
-          ilayer = ilyr->second;
+	  //std::map<const DetLayer*, int>::const_iterator ilyr = cloud_layer_reference.find(hitLayer);
+          //ilayer = ilyr->second;
         }
       }
       else {
@@ -212,45 +216,77 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
       ++nhits_l[ilayer];
       if ((*ih)->localPositionError().yy()<1.) lstereo[ilayer] = true;      
       cloud_layer_map.insert(std::make_pair(hitLayer, *ih));
-      GlobalPoint gp = trackerGeom->idToDet((*ih)->geographicalId())->surface().toGlobal((*ih)->localPosition());
-      if (debug_) std::cout << "Hit "<< ih-recHits.begin()
-			    << " r/z = "
-			    << gp.perp() << " " << gp.z()
-			    <<" in layer " << hitLayer << " layer number " << ilayer
-			    << " with " << nhits_l[ilayer] << "  hits " << std::endl;
+      if (debug_) {
+	GlobalPoint gp = trackerGeom->idToDet((*ih)->geographicalId())->surface().toGlobal((*ih)->localPosition());
+	std::cout << "Hit "<< ih-recHits.begin()
+		  << " r/z = " << gp.perp() << " " << gp.z()
+		  <<" in layer " << hitLayer << " layer number " << ilayer
+		  << " with " << nhits_l[ilayer] << "  hits " << std::endl;
+      }
     }
     if (debug_) std::cout<<"CLOUD LAYER MAP SIZE IS " << cloud_layer_map.size() << std::endl;
+    LogDebug("RoadSearch")<<"Cloud #"<<i_c<<" has "<<recHits.size()<<" hits in "<<cloud_layer_map.size()<<" layers ";
     
-    LogDebug("RoadSearch")<<"Cloud #"<<i_c<<" has "<<recHits.size()<<" hits in "<<nlayers<<" layers ";
-    if (debug_) std::cout <<"Cloud "<<i_c<<" has "<<recHits.size()<<" hits in " << nlayers << " layers ";
+    
+    // collect hits in cloud by layer
+    std::vector<std::pair<const DetLayer*, RoadSearchCloud::RecHitVector > > RecHitsByLayer;
+    std::map<const DetLayer*, int> cloud_layer_reference; // for debugging
+    for(RoadSearchCloud::RecHitVector::const_iterator ihit = recHits.begin();
+	ihit != recHits.end(); ihit++) {
+      // only use useful layers
+      const DetLayer* thisLayer =
+	theMeasurementTracker->geometricSearchTracker()->detLayer((*ihit)->geographicalId());
+
+      cloud_layer_reference.insert(std::make_pair( thisLayer, RecHitsByLayer.size()));
+      if (!RecHitsByLayer.empty() && RecHitsByLayer.back().first == thisLayer) { // Old Layer
+	RecHitsByLayer.back().second.push_back(*ihit);
+      }
+      else { // New Layer
+	RoadSearchCloud::RecHitVector rhc;
+	rhc.push_back(*ihit);
+	RecHitsByLayer.push_back(std::make_pair(thisLayer, rhc));
+
+      }
+      if (debug_){
+	GlobalPoint gp = trackerGeom->idToDet((*ihit)->geographicalId())->surface().toGlobal((*ihit)->localPosition());
+	std::cout << "Hit "<< ihit-recHits.begin()
+		  << " r/z = "
+		  << gp.perp() << " " << gp.z()
+		  <<" in layer " << thisLayer << " layer number " << RecHitsByLayer.size()
+		  << " with " << RecHitsByLayer.back().second.size() << "  hits " << std::endl;
+      }
+    }
+
+    LogDebug("RoadSearch")<<"Cloud #"<<i_c<<" has "<<recHits.size()<<" hits in "<<RecHitsByLayer.size()<<" layers ";
+    if (debug_) std::cout <<"Cloud "<<i_c<<" has "<<recHits.size()<<" hits in " <<RecHitsByLayer.size() << " layers ";
     ++i_c;
-    
+
+    if (debug_){
+      std::cout<<"\n*** Test of New Data Structure:" << std::endl;
+      for (std::vector<std::pair<const DetLayer*, RoadSearchCloud::RecHitVector > >::iterator ilhv = RecHitsByLayer.begin();
+	   ilhv != RecHitsByLayer.end(); ++ilhv) {
+	std::cout<<"\t Layer " << ilhv-RecHitsByLayer.begin() << " has " << ilhv->second.size() << " hits " << std::endl;
+      }
+    }
+
     // try to start from all layers until the chunk is too short
     //
     
-    // already probed layers
-    std::set<const DetLayer*> prev_layers;
-    
-    //const int min_chunk_length = 7;    
-    for (int ilayer0 = 0; ilayer0 <= nlayers-MinChunkLength_; ++ilayer0) {
-      
+    for (std::vector<std::pair<const DetLayer*, RoadSearchCloud::RecHitVector > >::iterator ilyr0 = RecHitsByLayer.begin();
+	 ilyr0 != RecHitsByLayer.end(); ++ilyr0) {
+
+      uint ilayer0 = (uint)(ilyr0-RecHitsByLayer.begin());
+      if (ilayer0 > RecHitsByLayer.size()-MinChunkLength_) continue;      
+
       std::vector<Trajectory> ChunkTrajectories;
       std::vector<Trajectory> CleanChunks;
+      bool all_chunk_layers_used = false;
       
       if (debug_) std::cout  << "*** START NEW CHUNK --> layer range (" << ilayer0 << "-" << nlayers-1 << ")";
-      
-      // skip hits from previous layer
-      if (ilayer0>0) prev_layers.insert(layers[ilayer0-1]);
-      
+
       // collect hits from the starting layer
-      RoadSearchCloud::RecHitVector recHits_start;
-      for (RoadSearchCloud::RecHitVector::const_iterator ih = recHits.begin();
-           ih != recHits.end(); ++ih) {
-        if (theMeasurementTracker->geometricSearchTracker()->detLayer((*ih)->geographicalId()) == layers[ilayer0]) {
-          recHits_start.push_back(*ih);
-        }
-      }
-      
+      RoadSearchCloud::RecHitVector recHits_start = ilyr0->second;
+
       //
       // Step 1: find small tracks (chunks) made of hits
       // in layers with low occupancy
@@ -280,7 +316,8 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
       std::set<const DetLayer*> the_good_layers;
       std::vector<const DetLayer*> the_middle_layers;
       RoadSearchCloud::RecHitVector the_recHits_middle;
-      bool StartLayers = chooseStartingLayers(recHits,ilayer0,layer_map,the_good_layers,the_middle_layers,the_recHits_middle);
+
+      bool StartLayers = chooseStartingLayers(RecHitsByLayer,ilayer0,layer_map,the_good_layers,the_middle_layers,the_recHits_middle);
       if (debug_) {
 	std::cout << " From new code... With " << the_good_layers.size() << " useful layers: ";
 	for (std::set<const DetLayer*>::iterator igl = the_good_layers.begin();
@@ -302,37 +339,43 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
       std::set<const DetLayer*> good_layers = the_good_layers;
       int ngoodlayers = good_layers.size();
 
-      //std::cout<<"Found " << recHits_inner.size() << " inner hits and " << recHits_outer.size() << " outer hits" << std::endl;
+      if (debug_)
+	std::cout<<"Found " << recHits_inner.size() << " inner hits and " << recHits_outer.size() << " outer hits" << std::endl;
 
       // collect hits in useful layers
       std::vector<std::pair<const DetLayer*, RoadSearchCloud::RecHitVector > > goodHits;
-      for(RoadSearchCloud::RecHitVector::const_iterator ihit = recHits.begin();
-          ihit != recHits.end(); ihit++) {
-        // only use useful layers
-        const DetLayer* thisLayer =
-	  theMeasurementTracker->geometricSearchTracker()->detLayer((*ihit)->geographicalId());
-        if (thisLayer == layers[ilayer0] ||
-            (good_layers.find(thisLayer) != good_layers.end() &&
-             prev_layers.find(thisLayer) == prev_layers.end())) {
-          if (!goodHits.empty() && goodHits.back().first == thisLayer) {
-            goodHits.back().second.push_back(*ihit);
-          } else {
-            RoadSearchCloud::RecHitVector rhc;
-            rhc.push_back(*ihit);
-            goodHits.push_back(std::make_pair(thisLayer, rhc));
-          }
-        }
+      // mark layers that will be skipped in first pass
+      std::set<const DetLayer*> skipped_layers;
+      std::map<int, const DetLayer*> skipped_layer_detmap;
+
+      
+      goodHits.push_back(*ilyr0); // save hits from starting layer
+      // save hits from other good layers
+      for (std::vector<std::pair<const DetLayer*, RoadSearchCloud::RecHitVector > >::iterator ilyr = ilyr0+1;
+	 ilyr != RecHitsByLayer.end(); ++ilyr) {
+        if (good_layers.find(ilyr->first) != good_layers.end()){
+	  goodHits.push_back(*ilyr);
+	}
+	else {
+          skipped_layers.insert(ilyr->first);
+          std::map<const DetLayer*, int>::iterator ilr = layer_reference.find(ilyr->first);
+          if (ilr != layer_reference.end())
+            skipped_layer_detmap.insert(std::make_pair(ilr->second,ilyr->first));
+          else
+            if (debug_) std::cout<<"Couldn't find thisLayer to insert into map..."<<std::endl;
+	}
       }
-      
-      
+
       // try various hit combinations
       for (RoadSearchCloud::RecHitVector::const_iterator innerHit = recHits_inner.begin();
            innerHit != recHits_inner.end(); ++innerHit) {
+
+	const DetLayer* innerHitLayer =
+	  theMeasurementTracker->geometricSearchTracker()->detLayer((*innerHit)->geographicalId());
+
         for (RoadSearchCloud::RecHitVector::iterator outerHit = recHits_outer.begin();
              outerHit != recHits_outer.end(); ++outerHit) {
           
-	  const DetLayer* innerHitLayer =
-	    theMeasurementTracker->geometricSearchTracker()->detLayer((*innerHit)->geographicalId());
 	  const DetLayer* outerHitLayer =
 	    theMeasurementTracker->geometricSearchTracker()->detLayer((*outerHit)->geographicalId());
 
@@ -342,67 +385,24 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 	      std::cout << "Try trajectory with Inner Hit on Layer " << ilayer0 << " and  " ;
 	      std::cout << "Outer Hit on Layer " << ilro->second << std::endl;
 	    }
-	    else{
-	      std::cout << "Try trajectory with Inner Hit on Layer " << ilayer0 
-			<< " but Outer Hit Layer not found!!! " << std::endl;
-	    }
 	  }
 
 	  FreeTrajectoryState fts = initialTrajectory(es,*innerHit,*outerHit);
-	  if (!fts.hasError()){
-	    //std::cout<<"FreeTrajectoryState error invalid!!!" << std::endl;
-	    continue;
-	  }
+	  if (!fts.hasError()) continue;
 
-          std::vector<Trajectory> rawTrajectories;
-          
-          // Need to put the first hit on the trajectory
-	  const GeomDet* innerDet = trackerGeom->idToDet((*innerHit)->geographicalId());
-          const TrajectoryStateOnSurface innerState = 
-            thePropagator->propagate(fts,innerDet->surface());
-          if ( !innerState.isValid()) {
-            if (debug_) std::cout<<"*******DISASTER ********* seed doesn't make it to first hit!!!!!" << std::endl;
-            continue;
-          }
-          TransientTrackingRecHit::RecHitPointer intrhit = ttrhBuilder->build(*innerHit);
-	  // if this first hit is a matched hit, it should be updated for the trajectory
-	  const SiStripMatchedRecHit2D *origHit = dynamic_cast<const SiStripMatchedRecHit2D *>(*innerHit);
-	  if (origHit !=0){
-	    const GluedGeomDet *gdet = dynamic_cast<const GluedGeomDet*>(innerDet);
-	    const SiStripMatchedRecHit2D *corrHit = theHitMatcher->match(origHit,gdet,innerState.localDirection());
-	    if (corrHit!=0){
-	      intrhit = ttrhBuilder->build(&(*corrHit));
-	      delete corrHit;
-	    }
-	  }
+	  Trajectory seedTraj = createSeedTrajectory(fts,*innerHit,innerHitLayer);
 
-          MeasurementEstimator::HitReturnType est = theEstimator->estimate(innerState, *intrhit);
-          if (!est.first) continue;	    
-          TrajectoryStateOnSurface innerUpdated= theUpdator->update( innerState,*intrhit);                         
-          TrajectoryMeasurement tm = TrajectoryMeasurement(innerState, innerUpdated, &(*intrhit),est.second,innerHitLayer);
-          
-          PTrajectoryStateOnDet* pFirstStateTwo = TrajectoryStateTransform().persistentState(innerUpdated,
-                                                                                             intrhit->geographicalId().rawId());
-          edm::OwnVector<TrackingRecHit> newHitsTwo;
-          newHitsTwo.push_back(intrhit->hit()->clone());
-          
-          TrajectorySeed tmpseedTwo = TrajectorySeed(*pFirstStateTwo, 
-                                                     newHitsTwo,
-                                                     alongMomentum);
-          delete pFirstStateTwo;
-          
-          Trajectory seedTraj(tmpseedTwo, alongMomentum);
-          
-          seedTraj.push(tm,est.second);
-          
-          
+          std::vector<Trajectory> rawTrajectories;          
           rawTrajectories.push_back(seedTraj);
+
+	  int ntested = 0;
           // now loop on hits
-          for (std::vector<std::pair<const DetLayer*, RoadSearchCloud::RecHitVector > >::iterator ilhv = goodHits.begin();
+          std::vector<std::pair<const DetLayer*, RoadSearchCloud::RecHitVector > >::iterator ilyr_start = (goodHits.begin()+1);
+          for (std::vector<std::pair<const DetLayer*, RoadSearchCloud::RecHitVector > >::iterator ilhv = ilyr_start;
                ilhv != goodHits.end(); ++ilhv) {
             RoadSearchCloud::RecHitVector& hits = ilhv->second;
             //std::vector<Trajectory> newTrajectories;
-            
+	    ++ntested;
             if (debug_){
               std::map<const DetLayer*, int>::iterator ilr = cloud_layer_reference.find(ilhv->first);
               if (ilr != cloud_layer_reference.end())
@@ -411,26 +411,52 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 			  << " which has  " << hits.size() << " hits " << std::endl;
             }
             
-            std::vector<Trajectory> newTrajectories = extrapolateTrajectories(rawTrajectories,hits,
-										 innerHitLayer, outerHitLayer);
-
-            if (newTrajectories.empty()) {
-              if (debug_) std::cout<<" Could not add the hit in this layer " << std::endl;
-              // layer missed
-              continue;
-            }
+	    std::vector<Trajectory>newTrajectories;
+	    for (std::vector<Trajectory>::const_iterator it = rawTrajectories.begin();
+		     it != rawTrajectories.end(); it++) {
+	      if (debug_) std::cout << "extrapolating Trajectory #" << it-rawTrajectories.begin() << std::endl;
+	      std::vector<Trajectory> theTrajectories = extrapolateTrajectory(*it,hits,
+									      innerHitLayer, *outerHit, outerHitLayer);
+	      if (theTrajectories.empty()) {
+		if (debug_) std::cout<<" Could not add the hit in this layer " << std::endl;
+		if (debug_){
+		  std::cout << " --> trajectory " << it-rawTrajectories.begin() 
+			    << " has "<<it->recHits().size()<<" hits after "
+			    << (ilhv-ilyr_start+1) << " tested (ntested=" <<ntested<<") "
+			    << " --> misses="<< (ilhv-ilyr_start+1)-(it->recHits().size()-1)
+			    << " but there are " << (goodHits.end() - ilhv)
+			    <<" more layers in first pass and "<< skipped_layers.size() <<" skipped layers " <<std::endl;
+		  
+		  
+		}
+		// layer missed
+		if ((ilhv-ilyr_start+1)-(it->recHits().size()-1) <= nlost_max){
+		  newTrajectories.push_back(*it);
+		}
+	      }
+	      else{ // added hits in this layers
+		for (std::vector<Trajectory>::const_iterator it = theTrajectories.begin();
+		     it != theTrajectories.end(); it++) {
+		  newTrajectories.push_back(*it);
+		}
+	      }
+            } // end loop over rawTrajectories
             rawTrajectories = newTrajectories;
+	    if (newTrajectories.empty()) break;
 	  }
-          if (rawTrajectories.size()==0) if (debug_) std::cout<<" --> yields ZERO raw trajectories!" << std::endl;
+          if (rawTrajectories.size()==0){
+	    continue;
+	    if (debug_) std::cout<<" --> yields ZERO raw trajectories!" << std::endl;
+	  }
 	  if (debug_){
 	    for (std::vector<Trajectory>::const_iterator it = rawTrajectories.begin();
 		 it != rawTrajectories.end(); it++) {
-	      std::cout << " --> yields trajectory has "<<it->recHits().size()<<" hits with chi2="
+	      std::cout << " --> yields trajectory with "<<it->recHits().size()<<" hits with chi2="
 			<<it->chiSquared()<<" and is valid? "<<it->isValid() <<std::endl;
 	    }
 	  }
           std::vector<Trajectory> rawCleaned;
-          theTrajectoryCleaner.clean(rawTrajectories);
+          theTrajectoryCleaner->clean(rawTrajectories);
           for (std::vector<Trajectory>::const_iterator itr = rawTrajectories.begin();
                itr != rawTrajectories.end(); ++itr) {
             // see how many layers have been found
@@ -444,9 +470,11 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
               used_layers.insert(theMeasurementTracker->geometricSearchTracker()->detLayer(rh->geographicalId()));
             }
 
+	    if (debug_) std::cout<<"Used " << used_layers.size() << " layers out of " << ngoodlayers
+				 << " good layers, so " << ngoodlayers - used_layers.size() << " missed "
+				 << std::endl;
             if ((int)used_layers.size() < nFoundMin_) continue;
             int nlostlayers = ngoodlayers - used_layers.size();
-            const int nlost_max = 2;
             if (nlostlayers > nlost_max) continue;
             
             rawCleaned.push_back(*itr);
@@ -455,15 +483,15 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
           if (!rawCleaned.empty()) {
             ChunkTrajectories.insert(ChunkTrajectories.end(), rawCleaned.begin(), rawCleaned.end());
           }
-	}
-      }
+	} // END LOOP OVER OUTER HITS
+      } // END LOOP OVER INNER HITS
       // At this point we have made all the trajectories from the low occupancy layers
       // We clean these trajectories first, and then try to add hits from the skipped layers
       
       //    }
       if (debug_) std::cout << "Clean the " << ChunkTrajectories.size()<<" trajectories for this chunk" << std::endl;
       // clean the intermediate result
-      theTrajectoryCleaner.clean(ChunkTrajectories);
+      theTrajectoryCleaner->clean(ChunkTrajectories);
       for (std::vector<Trajectory>::const_iterator it = ChunkTrajectories.begin();
            it != ChunkTrajectories.end(); it++) {
         if (it->isValid())  CleanChunks.push_back(*it);
@@ -479,30 +507,12 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
       
       std::vector<Trajectory> extendedChunks;
       
-      
+
       // see if there are layers that we skipped
-      std::set<const DetLayer*> skipped_layers;
-      std::map<int, const DetLayer*> skipped_layer_detmap;
-      
-      for (RoadSearchCloud::RecHitVector::const_iterator ih = recHits.begin();
-           ih != recHits.end(); ++ih) {
-        const DetLayer* thisLayer =
-	  theMeasurementTracker->geometricSearchTracker()->detLayer((*ih)->geographicalId());
-        if (thisLayer != layers[ilayer0] &&
-            good_layers.find(thisLayer) == good_layers.end() &&
-            prev_layers.find(thisLayer) == prev_layers.end()) {
-          skipped_layers.insert(thisLayer);
-          std::map<const DetLayer*, int>::iterator ilr = layer_reference.find(thisLayer);
-          if (ilr != layer_reference.end())
-            skipped_layer_detmap.insert(std::make_pair(ilr->second,thisLayer));
-          else
-            if (debug_) std::cout<<"Couldn't find thisLayer to insert into map..."<<std::endl;
-        }
-      }
-      
+
       if (debug_){
         if (skipped_layers.empty()) {
-          std::cout << "all layers have been used" << std::endl;
+          std::cout << "all layers were used in first pass" << std::endl;
         } else {
           std::cout << "There are " << skipped_layer_detmap.size() << " skipped layers:";
           for (std::map<int, const DetLayer*>::const_iterator imap = skipped_layer_detmap.begin();
@@ -517,44 +527,22 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
            i != CleanChunks.end(); i++) {
         if (!(*i).isValid()) continue;
         if (debug_) std::cout<< "Now process CleanChunk trajectory " << i-CleanChunks.begin() << std::endl;
+	bool all_layers_used = false;
         if (skipped_layers.empty() && i->measurements().size() >= theNumHitCut) {
+	  if (debug_) std::cout<<"The trajectory has " << i->measurements().size() 
+			       << " hits from a cloud of " << RecHitsByLayer.size() 
+			       << " layers and a chunk of " << (RecHitsByLayer.size() - ilayer0) << " layers " << std::endl;
           extendedChunks.insert(extendedChunks.end(), *i);
+	  if (i->measurements().size() >= (RecHitsByLayer.size() - ilayer0)){
+	    all_layers_used = true;
+	    break;
+	  }
         } 
         else {
           
           Trajectory temptraj = *i;
           Trajectory::DataContainer tmv = (*i).measurements();
-          if (tmv.size()+skipped_layer_detmap.size() < theNumHitCut) continue;
-          
-          std::map<const DetLayer*, int> used_layer_detmap;
-          for (Trajectory::DataContainer::const_iterator ih=tmv.begin();
-               ih!=tmv.end();++ih){
-            const DetLayer* Layer =
-	      theMeasurementTracker->geometricSearchTracker()->detLayer(ih->recHit()->geographicalId());      
-            std::map<const DetLayer*, int>::iterator ilr = cloud_layer_reference.find(Layer);
-            if (ilr != cloud_layer_reference.end()){
-              used_layer_detmap.insert(std::make_pair(Layer,ilr->second));
-              if (debug_) std::cout << "Add DetLayer " << Layer << " to used_layer_detmap for layer "
-				    << ilr->second << std::endl;
-            }
-            else
-              if (debug_) std::cout<<"Couldn't find thisLayer to insert into map..."<<std::endl;
-          }
-          
-          
-          for(std::set<const DetLayer*>::const_iterator lyiter = good_layers.begin();
-              lyiter!= good_layers.end();++lyiter){
-            const DetLayer* thisLayer = *lyiter;
-            std::map<const DetLayer*, int>::iterator ilr = used_layer_detmap.find(thisLayer);
-            if (ilr == used_layer_detmap.end()){
-              //Add this layer to the skipped layers
-              std::map<const DetLayer*, int>::iterator il = cloud_layer_reference.find(thisLayer);
-              skipped_layer_detmap.insert(std::make_pair(il->second,thisLayer));
-              if (debug_) {
-                std::cout << "Can't find a hit on layer Hit #"<< il->second << std::endl;
-              }
-            }
-          }
+          if (tmv.size()+skipped_layer_detmap.size() < theNumHitCut) continue;          
 
 	  // Debug dump of hits
 	  if (debug_){
@@ -574,8 +562,9 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
           
           // Loop over the layers in the cloud
           
+	  std::set<const DetLayer*> final_layers;
           Trajectory::DataContainer::const_iterator im = tmv.begin();
-          std::map<int, const DetLayer*>::const_iterator imap = skipped_layer_detmap.begin();
+          Trajectory::DataContainer::const_iterator im2 = tmv.begin();
           
           TrajectoryMeasurement firstMeasurement = i->firstMeasurement();
           const DetLayer* firstDetLayer = 
@@ -609,69 +598,41 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
           const GeomDet* det = trackerGeom->idToDet(rh->geographicalId());
           TrajectoryStateOnSurface invalidState(new BasicSingleTrajectoryState(det->surface()));
           newTrajectory.push(TrajectoryMeasurement(invalidState, NewFirstTsos, rh, 0, firstDetLayer));
-          
-          
-          std::map<const DetLayer*, int>::iterator ilr = cloud_layer_reference.find(firstDetLayer);
-          int firstlyr = 0;
-          if (ilr != cloud_layer_reference.end() ){
-            if (debug_) std::cout << "   First hit is on layer  " << ilr->second << std::endl;
-            firstlyr = ilr->second;
-            ++im;
-          }
-          
-          for (int ilayer = firstlyr+1; ilayer < nlayers; ++ilayer) {
-            if (debug_) std::cout<<"   Layer " << ilayer ;
-            
+	  final_layers.insert(firstDetLayer);
+
+
+	  if (firstDetLayer != ilyr0->first){
+	    if (debug_) std::cout<<"!!! ERROR !!! firstDetLayer ("<<firstDetLayer<<") != ilyr0 ( " <<ilyr0->first <<")"<< std::endl;
+	  }          
+	  ++im;
+
+	  if (debug_){
+	    std::map<const DetLayer*, int>::iterator ilr = cloud_layer_reference.find(firstDetLayer);
+	    if (ilr != cloud_layer_reference.end() ){
+	      std::cout << "   First hit is on layer  " << ilr->second << std::endl;
+	    }
+	  }
+	  for (std::vector<std::pair<const DetLayer*, RoadSearchCloud::RecHitVector > >::iterator ilyr = ilyr0+1;
+	       ilyr != RecHitsByLayer.end(); ++ilyr) {
+
             TrajectoryStateOnSurface predTsos;
             TrajectoryStateOnSurface currTsos;
             TrajectoryMeasurement tm;
-            
-            if (layers[ilayer] == imap->second) {
-              if (debug_) std::cout<<" is one of the skipped layers " << std::endl;
-              
-              //collect hits in the skipped layer
-              edm::OwnVector<TrackingRecHit> skipped_hits;
-              std::set<const GeomDet*> dets;
-              for (RoadSearchCloud::RecHitVector::const_iterator ih = recHits.begin();
-                   ih != recHits.end(); ++ih) {
-                if (theMeasurementTracker->geometricSearchTracker()->detLayer((*ih)->geographicalId())
-                    == imap->second) {
-                  skipped_hits.push_back((*ih)->clone());
-                  dets.insert(trackerGeom->idToDet((*ih)->geographicalId()));
-                }
-              }
-              
-              std::map<const DetLayer*, int>::iterator ilr = layer_reference.find(imap->second);
-              if (ilr != layer_reference.end()) 
-                if (debug_)
-                  std::cout<<"   ---> probing missing hits (nh="<< skipped_hits.size() << ", nd=" << dets.size() 
-			   << ")  in layer " << ilr->second <<std::endl;
-              
-              const TrajectoryStateOnSurface theTSOS = newTrajectory.lastMeasurement().updatedState();
-              std::vector<TrajectoryMeasurement> theGoodHits = FindBestHits(theTSOS,dets,theHitMatcher,skipped_hits);
-              if (!theGoodHits.empty()){
-                if (debug_) std::cout<<"Found " << theGoodHits.size() << " good hits to add" << std::endl;
-                for (std::vector<TrajectoryMeasurement>::const_iterator im=theGoodHits.begin();im!=theGoodHits.end();++im){
-                  newTrajectory.push(*im,im->estimate());
-                }
-              }
-              
-              ++imap;
-            }
-            else {
-              TransientTrackingRecHit::ConstRecHitPointer rh = im->recHit();
-              if (rh->isValid() && 
-                  theMeasurementTracker->geometricSearchTracker()->detLayer(rh->geographicalId()) == layers[ilayer]) {
-                if (debug_) std::cout<<" has a good hit " << std::endl;
+
+	    if(debug_)
+	      std::cout<<"Trajectory has " << newTrajectory.measurements().size() << " with " << (RecHitsByLayer.end()-ilyr)
+		       << " remaining layers " << std::endl;
+
+	    if (im != tmv.end()) im2 = im;
+	    TransientTrackingRecHit::ConstRecHitPointer rh = im2->recHit(); // Current 
+	    if (rh->isValid() && 
+		theMeasurementTracker->geometricSearchTracker()->detLayer(rh->geographicalId()) == ilyr->first) {
+	      
+		if (debug_) std::cout<<"   Layer " << ilyr-RecHitsByLayer.begin() <<" has a good hit " << std::endl;
                 ++im;
                 
                 const GeomDet* det = trackerGeom->idToDet(rh->geographicalId());
-                
-                if (debug_)
-		  if (newTrajectory.measurements().empty())
-		    std::cout<<"How the heck does this have no measurements!!!" <<std::endl;
-                
-                
+
                 currTsos = newTrajectory.measurements().back().updatedState();
                 predTsos = thePropagator->propagate(currTsos, det->surface());
                 if (!predTsos.isValid()) continue;
@@ -681,36 +642,72 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
                   continue;
                 }
                 currTsos = theUpdator->update(predTsos, *rh);
-                tm = TrajectoryMeasurement(predTsos, currTsos, &(*rh),est.second,layers[ilayer]);
+                tm = TrajectoryMeasurement(predTsos, currTsos, &(*rh),est.second,ilyr->first);
                 newTrajectory.push(tm,est.second);
-                
-              }
-              else {
-                if (debug_) std::cout<<" has no hit" << std::endl;
-              }
+		final_layers.insert(ilyr->first);                
             }	    
-          }
+            else{
+              if (debug_) std::cout<<"   Layer " << ilyr-RecHitsByLayer.begin() <<" is one of the skipped layers " << std::endl;
+              
+              //collect hits in the skipped layer
+              edm::OwnVector<TrackingRecHit> skipped_hits;
+              std::set<const GeomDet*> dets;
+              for (RoadSearchCloud::RecHitVector::const_iterator ih = ilyr->second.begin();
+                   ih != ilyr->second.end(); ++ih) {
+		skipped_hits.push_back((*ih)->clone());
+		dets.insert(trackerGeom->idToDet((*ih)->geographicalId()));
+              }
+              
+	      if(debug_){
+		std::cout<<"   ---> probing missing hits (nh="<< skipped_hits.size() << ", nd=" << dets.size() 
+			 << ")  in layer " <<  ilyr-RecHitsByLayer.begin() <<std::endl;
+              }
+
+              const TrajectoryStateOnSurface theTSOS = newTrajectory.lastMeasurement().updatedState();
+              std::vector<TrajectoryMeasurement> theGoodHits = FindBestHits(theTSOS,dets,theHitMatcher,skipped_hits);
+              if (!theGoodHits.empty()){
+		final_layers.insert(ilyr->first);
+                if (debug_) std::cout<<"Found " << theGoodHits.size() << " good hits to add" << std::endl;
+                for (std::vector<TrajectoryMeasurement>::const_iterator im=theGoodHits.begin();im!=theGoodHits.end();++im){
+                  newTrajectory.push(*im,im->estimate());
+                }
+              }
+            }
+          } // END 2nd PASS LOOP OVER LAYERS IN CLOUD
           
           if (debug_) std::cout<<"Finished loop over layers in cloud.  Trajectory now has " <<newTrajectory.measurements().size()
 			       << " hits. " << std::endl;
+	  if (debug_) std::cout<<"The trajectory has " << newTrajectory.measurements().size() <<" hits on " << final_layers.size()
+			       << " layers from a cloud of " << RecHitsByLayer.size() 
+			       << " layers and a chunk of " << (RecHitsByLayer.size() - ilayer0) << " layers " << std::endl;
           if (newTrajectory.measurements().size() >= theNumHitCut)
-            extendedChunks.insert(extendedChunks.end(), newTrajectory);
-        }
-      }
-      if (debug_) std::cout<< "Extended chunks: " << extendedChunks.size() << std::endl;
-      if (debug_) std::cout<< "Now Clean the extended chunks " <<std::endl;
-      theTrajectoryCleaner.clean(extendedChunks);
+	    extendedChunks.insert(extendedChunks.end(), newTrajectory);
+	  if (final_layers.size() >= (RecHitsByLayer.size() - ilayer0)){
+	    if (debug_) std::cout<<"All layers of the chunk have been used..." << std::endl;
+	    all_layers_used = true;
+	  }
+        }  // END ELSE TO RECOVER SKIPPED LAYERS
+	if (all_layers_used) {
+	  if (debug_) std::cout << "All layers were used, so break....." << std::endl;
+	  all_chunk_layers_used = true;
+	  break;
+	}
+	if (debug_) std::cout<<"Going to next clean chunk....." << std::endl;
+      } // END LOOP OVER CLEAN CHUNKS
+      if (debug_) std::cout<< "Now Clean the " << extendedChunks.size() << " extended chunks " <<std::endl;
+      if (extendedChunks.size() > 1) theTrajectoryCleaner->clean(extendedChunks);
       for (std::vector<Trajectory>::const_iterator it = extendedChunks.begin();
            it != extendedChunks.end(); it++) {
         if (it->isValid()) CloudTrajectories.push_back(*it);
       }
+      if (all_chunk_layers_used) break;
     }
     
     // ********************* END NEW ADDITION
     
     if (debug_) std::cout<< "Finished with the cloud, so clean the " 
 			 << CloudTrajectories.size() << " cloud trajectories "<<std::endl ;
-    theTrajectoryCleaner.clean(CloudTrajectories);
+    theTrajectoryCleaner->clean(CloudTrajectories);
     for (std::vector<Trajectory>::const_iterator it = CloudTrajectories.begin();
          it != CloudTrajectories.end(); it++) {
       if (it->isValid()) FinalTrajectories.push_back(*it);
@@ -720,45 +717,14 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
     
   } // End loop over Cloud Collection
 
+
   if (debug_) std::cout<< " Finished loop over all clouds " <<std::endl;
 
-  theTrajectoryCleaner.clean(FinalTrajectories);
-  for (std::vector<Trajectory>::const_iterator it = FinalTrajectories.begin();
-       it != FinalTrajectories.end(); it++) {
-    if (debug_) std::cout<< " Trajectory has "<<it->recHits().size()<<" hits with chi2="
-			 <<it->chiSquared()<<" and is valid? "<<it->isValid()<<std::endl;
-    if (it->isValid()){
-    
-      edm::OwnVector<TrackingRecHit> goodHits;
-      TransientTrackingRecHit::ConstRecHitContainer ttHits = it->recHits();		
-      for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator rhit=ttHits.begin(); 
-	   rhit!=ttHits.end(); ++rhit){
-	goodHits.push_back((*rhit)->hit()->clone());
-      }
-    
-      if (debug_) std::cout<<" Trajectory has " << goodHits.size() << " good hits "<<std::endl;
-      TrajectoryStateOnSurface firstState;
-    
-      // check if Trajectory from seed is on first hit of the cloud, if not, propagate
-      // exclude if first state on first hit is not valid
-    
-      DetId FirstHitId = (*(it->recHits().begin()))->geographicalId();
-      if (debug_) std::cout<< " FirstHitId is null ? "<< FirstHitId.null()<<std::endl;
-    
-      // propagate back to first hit    
-      TrajectoryMeasurement firstMeasurement = it->measurements()[0];
-      const GeomDet* det = trackerGeom->idToDet(FirstHitId);
-      firstState = prop.propagate(firstMeasurement.updatedState(), det->surface());	  
-      if (firstState.isValid() == false) continue;    
-      PTrajectoryStateOnDet *state = transformer.persistentState(firstState,FirstHitId.rawId());
-      output.push_back(TrackCandidate(goodHits,it->seed(),*state));
-      delete state;
-
-    }
-  }
+  output = PrepareTrackCandidates(FinalTrajectories);
 
   delete thePropagator;
   delete theRevPropagator; 
+  delete theAnalyticalPropagator;
   delete theHitMatcher;
   if (debug_) std::cout<< "Found " << output.size() << " track candidates."<<std::endl;
 
@@ -982,10 +948,6 @@ RoadSearchTrackCandidateMakerAlgorithm::FindBestHits(const TrajectoryStateOnSurf
 	       << " with estimate " << theBestTM.estimate()<<std::endl ;
     
     
-    if (dtmmap.size()==0) {
-      std::cout << "ERROR: Unexpected size from DTMMAP = " << dtmmap.size() << std::endl;
-      return theBestHits;
-    }
     if (dtmmap.size()==1){  // only one hit so we can just return that one
       for (std::map<const GeomDet*, TrajectoryMeasurement>::iterator idtm = dtmmap.begin();
            idtm != dtmmap.end(); ++idtm) {
@@ -993,7 +955,6 @@ RoadSearchTrackCandidateMakerAlgorithm::FindBestHits(const TrajectoryStateOnSurf
         if (debug_) std::cout<<" Measurement on layer "
 			     << theMeasurementTracker->geometricSearchTracker()->detLayer(itm.recHit()->geographicalId())
 			     << " with estimate " << itm.estimate()<<std::endl ;
-        //theBestHits.push_back(itm.recHit()->hit()->clone());
         theBestHits.push_back(itm);
       }
     }
@@ -1017,18 +978,6 @@ RoadSearchTrackCandidateMakerAlgorithm::FindBestHits(const TrajectoryStateOnSurf
       std::sort( OverlapHits.begin(),OverlapHits.end(),SortHitTrajectoryPairsByGlobalPosition());
       if (debug_) std::cout<<"Sorted OverlapHits has size " <<OverlapHits.size() << std::endl;
       
-      for (std::vector<std::pair<TransientTrackingRecHit::ConstRecHitPointer,TrajectoryMeasurement*> >::iterator irh =OverlapHits.begin();
-           irh!=OverlapHits.end();++irh){
-        if (debug_) std::cout << "Hit " << irh-OverlapHits.begin()
-			      << " on det " << irh->first->det() 
-			      << " detLayer " 
-			      << theMeasurementTracker->geometricSearchTracker()->detLayer(irh->first->geographicalId())
-			      << ", r/phi/z = "
-			      << irh->first->globalPosition().perp() << " "
-			      << irh->first->globalPosition().phi() << " "
-			      << irh->first->globalPosition().z()
-			      << std::endl;
-      }
       float workingBestChi2 = 1000000.0;
       std::vector<TrajectoryMeasurement> workingBestHits;
       
@@ -1113,7 +1062,7 @@ RoadSearchTrackCandidateMakerAlgorithm::FindBestHits(const TrajectoryStateOnSurf
       
     }
     else {
-      std::cout << "ERROR: Unexpected size from DTMMAP = " << dtmmap.size() << std::endl;
+      if (debug_)std::cout << "ERROR: Unexpected size from DTMMAP = " << dtmmap.size() << std::endl;
       theBestHits.push_back(theBestTM);
     }
   }
@@ -1122,7 +1071,9 @@ RoadSearchTrackCandidateMakerAlgorithm::FindBestHits(const TrajectoryStateOnSurf
 }
 
 
-bool RoadSearchTrackCandidateMakerAlgorithm::chooseStartingLayers( RoadSearchCloud::RecHitVector& recHits, int ilayer0,
+//bool RoadSearchTrackCandidateMakerAlgorithm::chooseStartingLayers( RoadSearchCloud::RecHitVector& recHits, int ilayer0,
+bool RoadSearchTrackCandidateMakerAlgorithm::chooseStartingLayers( std::vector<std::pair<const DetLayer*, RoadSearchCloud::RecHitVector > >& recHitsByLayer,
+								   int ilayer0,
 								   const std::multimap<int, const DetLayer*>& layer_map,
 								   std::set<const DetLayer*>& good_layers,
 								   std::vector<const DetLayer*>& middle_layers ,
@@ -1149,12 +1100,6 @@ bool RoadSearchTrackCandidateMakerAlgorithm::chooseStartingLayers( RoadSearchClo
         good_layers.insert(ilm1->second);
       }
       
-      RoadSearchCloud::RecHitVector::const_iterator irh = recHits.begin();
-      while(theMeasurementTracker->geometricSearchTracker()->detLayer((*irh)->geographicalId())
-	    !=layers[ilayer0]){
-	++irh;
-      }
-
       // choose intermediate layers
       for (int ilayer = ilayer0+1; ilayer<nlayers; ++ilayer) {
         // only use useful layers
@@ -1167,12 +1112,19 @@ bool RoadSearchTrackCandidateMakerAlgorithm::chooseStartingLayers( RoadSearchClo
       
       for (std::vector<const DetLayer*>::iterator ml = middle_layers.begin();
 	   ml!=middle_layers.end();++ml){
-        for (RoadSearchCloud::RecHitVector::const_iterator ih = recHits.begin();
-             ih != recHits.end(); ++ih) {
-          if (theMeasurementTracker->geometricSearchTracker()->detLayer((*ih)->geographicalId()) == *ml) {
-            recHits_middle.push_back(*ih);
-          }
-        }
+	int middle_layers_found = 0;
+	for (std::vector<std::pair<const DetLayer*, RoadSearchCloud::RecHitVector > >::iterator ilyr = recHitsByLayer.begin();
+	     ilyr != recHitsByLayer.end(); ++ilyr) {
+	  if (ilyr->first == *ml){
+	    for (RoadSearchCloud::RecHitVector::const_iterator ih = ilyr->second.begin();
+		 ih != ilyr->second.end(); ++ih) {
+	      recHits_middle.push_back(*ih);
+	    }
+	    ++middle_layers_found;
+	  }
+	  if (middle_layers_found == middle_layers.size()) continue;
+	}
+
       }
       return (recHits_middle.size()>0);
 }
@@ -1194,6 +1146,7 @@ FreeTrajectoryState RoadSearchTrackCandidateMakerAlgorithm::initialTrajectory(co
           if (outer.perp() - inner.perp() < dRmin) return fts;
           //GlobalPoint vertexPos(0,0,0);
           const double dr2 = 0.0015*0.0015;
+          //const double dr2 = 0.2*0.2;
           const double dz2 = 5.3*5.3;
 
 	  // linear z extrapolation of two hits have to be inside tracker ( |z| < 275 cm)
@@ -1255,18 +1208,71 @@ FreeTrajectoryState RoadSearchTrackCandidateMakerAlgorithm::initialTrajectory(co
 	  return fts;
 }
 
-std::vector<Trajectory> RoadSearchTrackCandidateMakerAlgorithm::extrapolateTrajectories(std::vector<Trajectory>& theTrajectories,
-											RoadSearchCloud::RecHitVector& theLayerHits,
-											const DetLayer* innerHitLayer,
-											const DetLayer* outerHitLayer)
+
+
+Trajectory RoadSearchTrackCandidateMakerAlgorithm::createSeedTrajectory(FreeTrajectoryState& fts,
+									const TrackingRecHit* theInnerHit,
+									const DetLayer* theInnerHitLayer)
+
+{
+  Trajectory theSeedTrajectory;
+
+  // Need to put the first hit on the trajectory
+  const GeomDet* innerDet = trackerGeom->idToDet((theInnerHit)->geographicalId());
+  const TrajectoryStateOnSurface innerState = 
+    thePropagator->propagate(fts,innerDet->surface());
+  if ( !innerState.isValid()) {
+    if (debug_) std::cout<<"*******DISASTER ********* seed doesn't make it to first hit!!!!!" << std::endl;
+    return theSeedTrajectory;
+  }
+  TransientTrackingRecHit::RecHitPointer intrhit = ttrhBuilder->build(theInnerHit);
+  // if this first hit is a matched hit, it should be updated for the trajectory
+  const SiStripMatchedRecHit2D *origHit = dynamic_cast<const SiStripMatchedRecHit2D *>(theInnerHit);
+  if (origHit !=0){
+    const GluedGeomDet *gdet = dynamic_cast<const GluedGeomDet*>(innerDet);
+    const SiStripMatchedRecHit2D *corrHit = theHitMatcher->match(origHit,gdet,innerState.localDirection());
+    if (corrHit!=0){
+      intrhit = ttrhBuilder->build(&(*corrHit));
+      delete corrHit;
+    }
+  }
+  
+  MeasurementEstimator::HitReturnType est = theEstimator->estimate(innerState, *intrhit);
+  if (!est.first) return theSeedTrajectory;	    
+  TrajectoryStateOnSurface innerUpdated= theUpdator->update( innerState,*intrhit);                         
+  TrajectoryMeasurement tm = TrajectoryMeasurement(innerState, innerUpdated, &(*intrhit),est.second,theInnerHitLayer);
+  
+  PTrajectoryStateOnDet* pFirstStateTwo = theTransformer->persistentState(innerUpdated,
+									  intrhit->geographicalId().rawId());
+  edm::OwnVector<TrackingRecHit> newHitsTwo;
+  newHitsTwo.push_back(intrhit->hit()->clone());
+  
+  TrajectorySeed tmpseedTwo = TrajectorySeed(*pFirstStateTwo, 
+					     newHitsTwo,
+					     alongMomentum);
+  delete pFirstStateTwo;
+  
+  //Trajectory seedTraj(tmpseedTwo, alongMomentum);
+  theSeedTrajectory = Trajectory(tmpseedTwo, alongMomentum);
+  
+  theSeedTrajectory.push(tm,est.second);
+  
+  return theSeedTrajectory;
+}
+
+
+
+std::vector<Trajectory> RoadSearchTrackCandidateMakerAlgorithm::extrapolateTrajectory(const Trajectory& theTrajectory,
+										      RoadSearchCloud::RecHitVector& theLayerHits,
+										      const DetLayer* innerHitLayer,
+										      const TrackingRecHit* outerHit,
+										      const DetLayer* outerHitLayer)
 {
   std::vector<Trajectory> newTrajectories;
 
-            for (std::vector<Trajectory>::const_iterator itr = theTrajectories.begin();
-                 itr != theTrajectories.end(); ++itr) {
               for(RoadSearchCloud::RecHitVector::const_iterator ihit = theLayerHits.begin();
                   ihit != theLayerHits.end(); ihit++) {
-		Trajectory traj = *itr;
+		Trajectory traj = theTrajectory;
                 const DetLayer* thisLayer =
 		  theMeasurementTracker->geometricSearchTracker()->detLayer((*ihit)->geographicalId());
                 if (thisLayer == innerHitLayer){
@@ -1275,9 +1281,11 @@ std::vector<Trajectory> RoadSearchTrackCandidateMakerAlgorithm::extrapolateTraje
                   //  if (debug_) std::cout<<"On inner hit layer, but have wrong hit?!?!?" << std::endl;
                   continue;
 		}
-                //if (thisLayer == outerHitLayer && !(ihit == outerHit)){
-                //  continue;
-                //	}
+                if (thisLayer == outerHitLayer){
+		  LocalPoint p1 = (*ihit)->localPosition();
+		  LocalPoint p2 = outerHit->localPosition();
+		  if (p1.x()!=p2.x() || p1.y()!=p2.y()) continue;
+		}
                 // extrapolate
                 
                 TransientTrackingRecHit::RecHitPointer rhit = ttrhBuilder->build(*ihit);
@@ -1302,7 +1310,7 @@ std::vector<Trajectory> RoadSearchTrackCandidateMakerAlgorithm::extrapolateTraje
                 
                 if (traj.measurements().empty()) {
                   //predTsos = thePropagator->propagate(fts, det->surface());
-		  std::cout<<"BIG ERROR!!! How did we make it to here with no trajectory measurements?!?!?"<<std::endl;
+		  if (debug_) std::cout<<"BIG ERROR!!! How did we make it to here with no trajectory measurements?!?!?"<<std::endl;
                 } else {
                   currTsos = traj.measurements().back().updatedState();
                   predTsos = thePropagator->propagate(currTsos, det->surface());
@@ -1312,8 +1320,7 @@ std::vector<Trajectory> RoadSearchTrackCandidateMakerAlgorithm::extrapolateTraje
                 }
                 TrajectoryMeasurement tm;
                 if (debug_){
-                  std::cout<< "trajectory " << itr-theTrajectories.begin() 
-			   << " at r/z=" <<  det->surface().position().perp() 
+                  std::cout<< "trajectory at r/z=" <<  det->surface().position().perp() 
 			   << "  " <<  det->surface().position().z() 
 			   << ", hit " << ihit-theLayerHits.begin()
 			   << " local prediction " << predTsos.localPosition().x() 
@@ -1345,8 +1352,45 @@ std::vector<Trajectory> RoadSearchTrackCandidateMakerAlgorithm::extrapolateTraje
 
 
 	      }
-	    }
 
 	    return newTrajectories;
 }
 
+
+TrackCandidateCollection RoadSearchTrackCandidateMakerAlgorithm::PrepareTrackCandidates(std::vector<Trajectory>& theTrajectories)
+{
+  TrackCandidateCollection theCollection;
+
+  theTrajectoryCleaner->clean(theTrajectories);
+  for (std::vector<Trajectory>::const_iterator it = theTrajectories.begin();
+       it != theTrajectories.end(); it++) {
+    if (debug_) std::cout<< " Trajectory has "<<it->recHits().size()<<" hits with chi2="
+			 <<it->chiSquared()<<" and is valid? "<<it->isValid()<<std::endl;
+    if (it->isValid()){
+    
+      edm::OwnVector<TrackingRecHit> goodHits;
+      TransientTrackingRecHit::ConstRecHitContainer ttHits = it->recHits();		
+      for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator rhit=ttHits.begin(); 
+	   rhit!=ttHits.end(); ++rhit){
+	goodHits.push_back((*rhit)->hit()->clone());
+      }
+      TrajectoryStateOnSurface firstState;
+    
+      // check if Trajectory from seed is on first hit of the cloud, if not, propagate
+      // exclude if first state on first hit is not valid
+      DetId FirstHitId = (*(it->recHits().begin()))->geographicalId();
+    
+      // propagate back to first hit    
+      TrajectoryMeasurement firstMeasurement = it->measurements()[0];
+      const GeomDet* det = trackerGeom->idToDet(FirstHitId);
+      firstState = theAnalyticalPropagator->propagate(firstMeasurement.updatedState(), det->surface());	  
+      if (firstState.isValid() == false) continue;    
+      PTrajectoryStateOnDet *state = theTransformer->persistentState(firstState,FirstHitId.rawId());
+      theCollection.push_back(TrackCandidate(goodHits,it->seed(),*state));
+      delete state;
+
+    }
+  }
+
+  return theCollection;
+}
