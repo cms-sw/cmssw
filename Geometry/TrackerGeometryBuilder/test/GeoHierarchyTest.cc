@@ -26,19 +26,13 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
-
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "DataFormats/GeometrySurface/interface/BoundSurface.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerDebugNavigator.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
@@ -46,7 +40,9 @@
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerStringToEnum.h"
+
+
+
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "DataFormats/Common/interface/Trie.h"
@@ -274,7 +270,7 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 		       theRing,
 		       theModule,
 		       char(module.glued() ? module.stereo()+1 : 0)};
-	trie.insert(key, module.glued() ? 8 : 7);
+	trie.insert(key, module.glued() ? 8 : 7, module[i]);
   
 	break;
       }
