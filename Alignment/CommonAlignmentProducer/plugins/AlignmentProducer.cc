@@ -1,8 +1,8 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.10 $
-///  last update: $Date: 2007/07/09 14:33:14 $
+///  Revision   : $Revision: 1.11 $
+///  last update: $Date: 2007/07/17 21:25:22 $
 ///  by         : $Author: pivarski $
 
 #include "Alignment/CommonAlignmentProducer/plugins/AlignmentProducer.h"
@@ -553,8 +553,7 @@ void AlignmentProducer::createGeometries_( const edm::EventSetup& iSetup )
    if (doTracker_) {
       iSetup.get<IdealGeometryRecord>().get( theGeometricDet );
       TrackerGeomBuilderFromGeometricDet trackerBuilder;
-      theTracker = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*cpv),
-									    &(*theGeometricDet)) );
+      theTracker = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*theGeometricDet)) );
    }
 
    if (doMuon_) {

@@ -63,7 +63,7 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
   iRecord.getRecord<IdealGeometryRecord>().get( cpv );
   iRecord.getRecord<IdealGeometryRecord>().get( gD );
   TrackerGeomBuilderFromGeometricDet trackerBuilder;
-  theTracker  = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*cpv),&(*gD)) );
+  theTracker  = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*gD)) );
   
   // Create the alignable hierarchy
   AlignableTracker* theAlignableTracker = new AlignableTracker( &(*gD), &(*theTracker) );

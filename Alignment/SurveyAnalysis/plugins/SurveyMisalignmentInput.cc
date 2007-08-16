@@ -29,7 +29,7 @@ void SurveyMisalignmentInput::beginJob(const edm::EventSetup& setup)
   setup.get<IdealGeometryRecord>().get(geom);
 
 	TrackerGeometry* tracker =
-    TrackerGeomBuilderFromGeometricDet().build(&*view, &*geom);
+    TrackerGeomBuilderFromGeometricDet().build(&*geom);
 	addComponent( new AlignableTracker(&*geom, tracker) );
 
 	edm::LogInfo("TrackerAlignment") << "Starting!";

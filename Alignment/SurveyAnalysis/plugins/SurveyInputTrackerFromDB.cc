@@ -23,7 +23,7 @@ void SurveyInputTrackerFromDB::beginJob(const edm::EventSetup& setup)
   setup.get<IdealGeometryRecord>().get(geom);
 
   TrackerGeometry* tracker =
-    TrackerGeomBuilderFromGeometricDet().build(&*view, &*geom);
+    TrackerGeomBuilderFromGeometricDet().build(&*geom);
 	
 	//Get map from textreader
 	SurveyInputTextReader dataReader;
