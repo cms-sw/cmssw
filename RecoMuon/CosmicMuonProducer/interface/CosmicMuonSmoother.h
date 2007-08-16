@@ -3,8 +3,8 @@
 
 /** \file CosmicMuonSmoother
  *
- *  $Date: 2007/03/02 13:19:37 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/08 20:14:03 $
+ *  $Revision: 1.2 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -70,6 +70,10 @@ private:
   std::vector<Trajectory> smooth(const std::vector<Trajectory>& ) const;
   std::vector<Trajectory> smooth(const Trajectory&) const;
 
+  TrajectoryStateOnSurface initialState(const Trajectory&) const;
+
+  void sortHitsAlongMom(ConstRecHitContainer& hits, const TrajectoryStateOnSurface&) const;
+
   KFUpdator* theUpdator;
   Chi2MeasurementEstimator* theEstimator;
   CosmicMuonUtilities* theUtilities; 
@@ -77,6 +81,8 @@ private:
   const MuonServiceProxy* theService;
 
   std::string thePropagatorName;
+
+  std::string category_;
   
 };
 #endif

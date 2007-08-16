@@ -7,15 +7,14 @@
  *      within cylinders
  *
  *
- *  $Date: 2007/03/27 20:49:45 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/03/27 20:53:51 $
+ *  $Revision: 1.6 $
  *  \author Chang Liu  -  Purdue University
  */
 
 #include "RecoMuon/CosmicMuonProducer/interface/CosmicMuonSmoother.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateWithArbitraryError.h"
@@ -38,6 +37,8 @@ CosmicMuonSmoother::CosmicMuonSmoother(const ParameterSet& par, const MuonServic
   theUtilities   = new CosmicMuonUtilities; 
   theEstimator   = new Chi2MeasurementEstimator(200.0);
   thePropagatorName = par.getParameter<string>("Propagator");
+
+  category_ = "Muon|RecoMuon|CosmicMuon|CosmicMuonSmoother";
 
 }
 
@@ -69,10 +70,14 @@ vector<Trajectory> CosmicMuonSmoother::trajectories(const TrajectorySeed& seed,
 	                                           const ConstRecHitContainer& hits, 
 	                                           const TrajectoryStateOnSurface& firstPredTsos) const {
 
-  if ( hits.empty() ) return vector<Trajectory>();
+  if ( hits.empty() ||!firstPredTsos.isValid() ) return vector<Trajectory>();
+
+  LogTrace(category_)<< "trajectory begin (seed hits tsos)";
 
   TrajectoryStateOnSurface firstTsos = firstPredTsos;
-  firstTsos.rescaleError(10.);
+  firstTsos.rescaleError(20.);
+
+  LogTrace(category_)<< "first TSOS: "<<firstTsos;
 
   vector<Trajectory> fitted = fit(seed, hits, firstTsos);
 
@@ -87,24 +92,17 @@ vector<Trajectory> CosmicMuonSmoother::fit(const Trajectory& t) const {
 
   if ( t.empty() ) return vector<Trajectory>();
 
-  TrajectoryMeasurement firstTM = t.firstMeasurement();
-  TrajectoryMeasurement lastTM = t.lastMeasurement();
+  LogTrace(category_)<< "fit begin (trajectory) ";
 
-  TrajectoryStateOnSurface firstTsos = TrajectoryStateWithArbitraryError()(firstTM.updatedState());
+  TrajectoryStateOnSurface firstTsos = initialState(t); 
+  if ( !firstTsos.isValid() ) return vector<Trajectory>();
 
-  TrajectoryStateOnSurface lastTsos = TrajectoryStateWithArbitraryError()(lastTM.updatedState());
-
-  if (firstTsos.globalPosition().y() < firstTsos.globalPosition().y())
-        firstTsos = lastTsos;
-
-  if (firstTsos.globalMomentum().y()> 1.0 && firstTsos.globalMomentum().eta()< 4.0 ) 
-     theUtilities->reverseDirection(firstTsos,&*theService->magneticField());
+  LogTrace(category_)<< "firstTsos: "<<firstTsos;
 
   ConstRecHitContainer hits = t.recHits();
+  LogTrace(category_)<< "hits: "<<hits.size();
 
-  // sort RecHits AlongMomentum
-  if (hits.front()->globalPosition().y() < hits.back()->globalPosition().y())
-      std::reverse(hits.begin(),hits.end());
+  sortHitsAlongMom(hits, firstTsos);
 
   return fit(t.seed(), t.recHits(), firstTsos);
 
@@ -118,14 +116,20 @@ vector<Trajectory> CosmicMuonSmoother::fit(const TrajectorySeed& seed,
 			                  const ConstRecHitContainer& hits, 
 				          const TrajectoryStateOnSurface& firstPredTsos) const {
 
-  if ( hits.empty() ) return vector<Trajectory>();
+  LogTrace(category_)<< "fit begin (seed, hit, tsos).";
 
+  if ( hits.empty() ) {
+    LogTrace(category_)<< "Error: empty hits container.";
+    return vector<Trajectory>();
+  }
 
   Trajectory myTraj(seed, alongMomentum);
 
   TrajectoryStateOnSurface predTsos(firstPredTsos);
-  if ( !predTsos.isValid() ) return vector<Trajectory>();
-
+  if ( !predTsos.isValid() ) {
+    LogTrace(category_)<< "Error: firstTsos invalid.";
+    return vector<Trajectory>();
+  }
   TrajectoryStateOnSurface currTsos;
 
   if ( hits.front()->isValid() ) {
@@ -146,18 +150,16 @@ vector<Trajectory> CosmicMuonSmoother::fit(const TrajectorySeed& seed,
   for ( ConstRecHitContainer::const_iterator ihit = hits.begin() + 1; 
         ihit != hits.end(); ++ihit ) {
 
-    if ((**ihit).isValid() == false && (**ihit).det() == 0) continue;
-
+    if ((**ihit).isValid() == false && (**ihit).det() == 0) {
+      LogTrace(category_)<< "Error: invalid hit.";
+      continue;
+    }
     predTsos = propagator()->propagate(currTsos, (**ihit).det()->surface());
 
     if ( !predTsos.isValid() ) {
-
        predTsos = theUtilities->stepPropagate(currTsos, (*ihit), *propagator());
-
     }
-
     if ( !predTsos.isValid() ) {
-
       //return vector<Trajectory>();
     } else if ( (**ihit).isValid() ) {
       // update
@@ -205,18 +207,27 @@ vector<Trajectory> CosmicMuonSmoother::smooth(const vector<Trajectory>& tc) cons
 //
 vector<Trajectory> CosmicMuonSmoother::smooth(const Trajectory& t) const {
 
-  if ( t.empty() ) return vector<Trajectory>();
+  if ( t.empty() ) {
+    LogTrace(category_)<< "Error: smooth: empty trajectory.";
+    return vector<Trajectory>();
+  }
 
   Trajectory myTraj(t.seed(), oppositeToMomentum);
 
   vector<TrajectoryMeasurement> avtm = t.measurements();
 
-  if ( avtm.size() < 2 ) return vector<Trajectory>();
+  if ( avtm.size() < 2 ) {
+    LogTrace(category_)<< "Error: smooth: too little TM. ";
+    return vector<Trajectory>();
+  }
 
   TrajectoryStateOnSurface predTsos = avtm.back().forwardPredictedState();
  // predTsos.rescaleError(theErrorRescaling);
 
-  if ( !predTsos.isValid() ) return vector<Trajectory>();
+  if ( !predTsos.isValid() ) {
+    LogTrace(category_)<< "Error: smooth: first TSOS from back invalid. ";
+    return vector<Trajectory>();
+  }
 
   TrajectoryStateOnSurface currTsos;
 
@@ -257,11 +268,17 @@ vector<Trajectory> CosmicMuonSmoother::smooth(const Trajectory& t) const {
       //update
       currTsos = theUpdator->update(predTsos, (*(*itm).recHit()));
       TrajectoryStateOnSurface combTsos = combiner(predTsos, (*itm).forwardPredictedState());
-      if ( !combTsos.isValid() ) return vector<Trajectory>();
+      if ( !combTsos.isValid() ) {
+         LogTrace(category_)<< "Error: smooth: combining pred TSOS failed. ";
+         return vector<Trajectory>();
+      }
 
       TrajectoryStateOnSurface smooTsos = combiner((*itm).updatedState(), predTsos);
 
-      if ( !smooTsos.isValid() ) return vector<Trajectory>();
+      if ( !smooTsos.isValid() ) {
+         LogTrace(category_)<< "Error: smooth: combining smooth TSOS failed. ";
+         return vector<Trajectory>();
+      }
 
       myTraj.push(TrajectoryMeasurement((*itm).forwardPredictedState(),
 		     predTsos,
@@ -274,7 +291,10 @@ vector<Trajectory> CosmicMuonSmoother::smooth(const Trajectory& t) const {
       currTsos = predTsos;
       TrajectoryStateOnSurface combTsos = combiner(predTsos, (*itm).forwardPredictedState());
       
-      if ( !combTsos.isValid() ) return vector<Trajectory>();
+      if ( !combTsos.isValid() ) {
+         LogTrace(category_)<< "Error: smooth: combining TSOS failed. ";
+         return vector<Trajectory>();
+      }
 
       myTraj.push(TrajectoryMeasurement((*itm).forwardPredictedState(),
 		     predTsos,
@@ -287,26 +307,68 @@ vector<Trajectory> CosmicMuonSmoother::smooth(const Trajectory& t) const {
   // last smoothed TrajectoryMeasurement is last filtered
   predTsos = propagator()->propagate(currTsos, avtm.front().recHit()->det()->surface());
   
-  if ( !predTsos.isValid() ) return vector<Trajectory>();
-
-  if ( avtm.front().recHit()->isValid() ) {
-    //update
-    currTsos = theUpdator->update(predTsos, (*avtm.front().recHit()));
-    myTraj.push(TrajectoryMeasurement(avtm.front().forwardPredictedState(),
+  if ( !predTsos.isValid() ){
+    LogTrace(category_)<< "Error: last predict TSOS failed, use original one. ";
+ //    return vector<Trajectory>();
+      myTraj.push(TrajectoryMeasurement(avtm.front().forwardPredictedState(),
+                   avtm.front().recHit()));
+  } else  {
+    if ( avtm.front().recHit()->isValid() ) {
+      //update
+      currTsos = theUpdator->update(predTsos, (*avtm.front().recHit()));
+      if (currTsos.isValid())
+      myTraj.push(TrajectoryMeasurement(avtm.front().forwardPredictedState(),
 		   predTsos,
 		   currTsos,
 		   avtm.front().recHit(),
 		   theEstimator->estimate(predTsos, (*avtm.front().recHit())).second//,
 		   /*avtm.front().layer()*/),
 	        avtm.front().estimate());
-  } else {
-    myTraj.push(TrajectoryMeasurement(avtm.front().forwardPredictedState(),
-		   avtm.front().recHit()//,
-		   /*avtm.front().layer()*/));
+    }
   }
+  LogTrace(category_)<< "myTraj foundHits. "<<myTraj.foundHits();
 
-  if (myTraj.foundHits() > 3)
+  if (myTraj.foundHits() >= 3)
     return vector<Trajectory>(1, myTraj);
-  else return vector<Trajectory>();
+  else {
+     LogTrace(category_)<< "Error: smooth: No enough hits in trajctory. ";
+     return vector<Trajectory>();
+  } 
 
 }
+
+TrajectoryStateOnSurface CosmicMuonSmoother::initialState(const Trajectory& t) const {
+  if ( t.empty() ) return TrajectoryStateOnSurface();
+
+  if ( !t.firstMeasurement().updatedState().isValid() || !t.lastMeasurement().updatedState().isValid() )  return TrajectoryStateOnSurface();
+
+  TrajectoryStateOnSurface result;
+
+  bool beamhaloFlag = ( t.firstMeasurement().updatedState().globalMomentum().eta() > 4.0 || t.lastMeasurement().updatedState().globalMomentum().eta() > 4.0 ); 
+
+  if ( !beamhaloFlag ) { //initialState is the top one
+     if (t.firstMeasurement().updatedState().globalPosition().y() > t.lastMeasurement().updatedState().globalPosition().y()) {
+     result = t.firstMeasurement().updatedState();
+     } else {
+       result = t.lastMeasurement().updatedState();
+     } 
+     if (result.globalMomentum().y()> 1.0 ) //top tsos should pointing down
+       theUtilities->reverseDirection(result,&*theService->magneticField());
+  }
+
+  return result;
+
+}
+
+void CosmicMuonSmoother::sortHitsAlongMom(ConstRecHitContainer& hits, const TrajectoryStateOnSurface& tsos) const {
+
+    if (hits.size() < 2) return;
+    float dis1 = (hits.front()->globalPosition() - tsos.globalPosition()).mag();
+    float dis2 = (hits.back()->globalPosition() - tsos.globalPosition()).mag();
+
+    if ( dis1 > dis2 )
+      std::reverse(hits.begin(),hits.end());
+
+    return;
+}
+
