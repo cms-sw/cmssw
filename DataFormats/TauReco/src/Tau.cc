@@ -3,7 +3,12 @@
 using namespace reco;
 
 Tau::Tau() {
- TrackRefVector tmp;
+  alternatLorentzVect_.SetPx(NAN);
+  alternatLorentzVect_.SetPy(NAN);
+  alternatLorentzVect_.SetPz(NAN);
+  alternatLorentzVect_.SetE(NAN);
+    
+  TrackRefVector tmp;
   TrackRef leadTk;
   leadTrack_ = leadTk;
   signalTracks_ =tmp ;
