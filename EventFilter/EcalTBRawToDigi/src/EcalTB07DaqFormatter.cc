@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2007/07/20 19:18:20 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/08/16 22:55:13 $
+ *  $Revision: 1.7 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -127,7 +127,7 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
     // getting the fields of the DCC header
     EcalDCCHeaderBlock theDCCheader;
 
-    theDCCheader.setId(1);                                                      // tb unpacker: forced to 1 to get first geom slot in EB
+    theDCCheader.setId(46);                                                      // tb EE unpacker: forced to 46 to match EE region used at h2
     int fedId = (*itEventBlock)->getDataField("FED/DCC ID");
     theDCCheader.setFedId( fedId );                                             // fed id as found in raw data (0... 35 at tb )
 
