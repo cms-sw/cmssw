@@ -21,6 +21,10 @@
   <class name="DTStatusFlagId" id="D29C0DA7-E3E4-DA11-B3BF-000E0C5CE283"/>
   <class name="DTStatusFlagData" id="DE44FE7A-0509-DB11-947C-000E0C5CE283"/>
   <class name="DTStatusFlagCompare" id="C47A057B-0509-DB11-81E8-000E0C5CE283"/>
+  <class name="DTDeadFlag" id="BAE2BE38-1A4B-DC11-82DE-000E0C5CE282"/>
+  <class name="DTDeadFlagId" id="2A899460-1A4B-DC11-A3A9-000E0C5CE282"/>
+  <class name="DTDeadFlagData" id="BEE2F160-1A4B-DC11-B0DB-000E0C5CE282"/>
+  <class name="DTDeadFlagCompare" id="D4B49561-1A4B-DC11-83DE-000E0C5CE282"/>
   <class name="DTPerformance" id="684587E2-C306-DB11-9361-000E0C5CE283"/>
   <class name="DTPerformanceId" id="B0D31E0B-C406-DB11-B446-000E0C5CE283"/>
   <class name="DTPerformanceData" id="9E02CF0B-C406-DB11-A68B-000E0C5CE283"/>
