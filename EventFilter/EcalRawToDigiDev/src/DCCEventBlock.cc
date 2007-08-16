@@ -64,7 +64,7 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   edm::LogWarning("EcalRawToDigiDev")
     <<"\n For event "<<l1_
     <<"\n Expected FED id is "<<expFedId<<" while current FED id is "<<fedId_
-    <<"\n => Skipping this event...";
+    <<"\n => Skipping to next fed block...";
   
   //TODO : add this to an error event collection
   
@@ -76,7 +76,7 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
     
     edm::LogWarning("EcalRawToDigiDev")
       <<"\n Event "<<l1_<<" is empty for dcc "<<fedId_
-      <<"\n => Skipping this event...";
+      <<"\n => Skipping to next fed block...";
     
     //TODO : add this to a dcc empty event collection 	 
     
@@ -90,7 +90,7 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
     edm::LogWarning("EcalRawToDigiDev")
       <<"\n Event "<<l1_<<" in dcc "<< fedId_
       <<"\n Event size is "<<eventSize_<<" bytes while the minimum is "<<HEADERSIZE<<" bytes"
-      <<"\n => Skipping this event..."; 
+      <<"\n => Skipping to next fed block..."; 
     
     //TODO : add this to a dcc size error collection  
     
@@ -111,7 +111,7 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
     edm::LogWarning("EcalRawToDigiDev")
       <<"\n Event "<<l1_<<" in dcc "<< fedId_
       <<"\n Event size is "<<eventSize_<<" bytes while "<<(blockLength_*8)<<" are set in the event header "
-      <<"\n => Skipping this event ...";
+      <<"\n => Skipping to next fed block..."; 
     //TODO : add this to a dcc size error collection 
     return;
     
@@ -162,13 +162,11 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
    
   int STATUS = unpackTCCBlocks();
 
-  // gio: this is where one bails out - first check after TCC
   if(  STATUS != STOP_EVENT_UNPACKING && feUnpacking_ || srpUnpacking_ ){
     
     //NMGA note : SR comes before TCC blocks 
     // Emmanuelle please change this in the digi to raw
   
-    // gio: this is where one bails out
     // Unpack SRP block
     if(srChStatus_ != CH_TIMEOUT &&  srChStatus_ != CH_DISABLED){
       STATUS = srpBlock_->unpack(&data_,&dwToEnd_);
@@ -185,7 +183,7 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
     edm::LogWarning("EcalRawToDigiDev")
       <<"\n Event "<<l1_<<" in dcc "<< fedId_
       <<"\n Event has an unsupported trigger type "<<triggerType_
-      <<"\n => Skipping this event "; 
+      <<"\n => Skipping to next fed block..."; 
     //TODO : add this to a dcc trigger type error collection 
     return;
   }
@@ -197,12 +195,13 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
     
     // looping over FE channels, i.e. tower blocks
     for( uint i=1; i<= numbChannels && STATUS!=STOP_EVENT_UNPACKING; i++, it++ ){			
-      // gio: this is where one bails out
-      
+      //for( uint i=1; i<= numbChannels; i++, it++ ){			
+
       short  chStatus(*it);
       
 
-      // Unpack Tower (Xtal Block) in case of SR
+
+      // Unpack Tower (Xtal Block) in case of SR (data are 0 suppressed)
       if(feUnpacking_ && sr_
 	 && chStatus != CH_TIMEOUT && chStatus != CH_DISABLED && chStatus != CH_SUPPRESS
 	 && i<=68){
@@ -211,8 +210,10 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
 	  STATUS = towerBlock_->unpack(&data_,&dwToEnd_,true,i);
         }
       }
+
+
       
-      
+      // Unpack Tower (Xtal Block) for no SR (possibly 0 suppression flags)
       else if (feUnpacking_ 
 	       && chStatus != CH_TIMEOUT && chStatus != CH_DISABLED && chStatus != CH_SUPPRESS
 	       && i<=68){
@@ -222,17 +223,21 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
 	STATUS = towerBlock_->unpack(&data_,&dwToEnd_,zs_,i);
       }		 
   
+
+
       // Unpack Mem blocks
-      if(memUnpacking_&& i>68 && chStatus != CH_TIMEOUT && chStatus != CH_DISABLED){
+      if(memUnpacking_
+	 && i>68 && chStatus != CH_TIMEOUT && chStatus != CH_DISABLED){
+
         STATUS = memBlock_->unpack(&data_,&dwToEnd_,i);
       }
-
+      
     }
     // closing loop over FE/TTblock channels
-  
+    
   }// check if we need to perform unpacking of FE or mem data
-
-} 
+  
+}
 
 
 
@@ -251,21 +256,8 @@ void DCCEventBlock::addHeaderToCollection(){
   // dccId is number internal to ECAL running 1.. 54.
   // convention is that dccId = (fed_id - 600)
   int dccId = mapper_->getActiveSM();
-
-
-  // deriving ism starting from dccId
-  int ism(0);
-  if        (9< dccId && dccId < 28){
-    ism  = dccId-9+18;}
-
-  else if (27 < dccId && dccId< 46){
-    ism  = dccId-9-18;}
-
-  else
-    {ism = -999;}
-  
-
-  theDCCheader.setId(ism);
+  // DCCHeaders follow  the same convenction
+  theDCCheader.setId(dccId);
   
 
   theDCCheader.setRunNumber(runNumber_);  
