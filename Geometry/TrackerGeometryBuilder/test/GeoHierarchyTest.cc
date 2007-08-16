@@ -149,15 +149,14 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   iSetup.get<TrackerDigiGeometryRecord> ().get (pDD);
   //
   GeometricDet const * rDD = pDD->trackerDet();
-  int last=0;
   std::vector<const GeometricDet*> modules; 
   (*rDD).deepComponents(modules);
   
   std::cout << "\nGeometricDet Hierarchy\n" << std::endl;
-  constructAndDumpTrie<GeometricDet>(modules.begin(),modules.end());
+  constructAndDumpTrie(modules.begin(),modules.end());
 
   std::cout << "\nGDet Hierarchy\n" << std::endl;
-  constructAndDumpTrie<GeometricDet>(pDD->dets().begin(),pDD->dets().end());
+  constructAndDumpTrie(pDD->dets().begin(),pDD->dets().end());
 
 
 
