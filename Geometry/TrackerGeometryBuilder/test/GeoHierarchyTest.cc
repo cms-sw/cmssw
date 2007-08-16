@@ -56,7 +56,7 @@ struct Print {
     if (!n.value()) return; 
     for (size_t i=0; i<label.size();++i)
       std::cout << int(label[i]) <<'/';
-    std::cout << " " << n.value()->name().name() << std::endl;
+    std::cout << " " << n.value()->geographicalId() << std::endl;
   }
   
 };
