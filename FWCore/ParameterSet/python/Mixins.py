@@ -118,7 +118,6 @@ class _TypedParameterizable(_Parameterizable):
     def moduleLabel_(self, myname):
         return myname
     def insertInto(self, parameterSet, myname):
-        print "DEFAULT INSERTINTO " + myname
         newpset = parameterSet.newPSet()
         newpset.addString(True, "@module_label", self.moduleLabel_(myname))
         newpset.addString(True, "@module_type", self.type_())
@@ -153,6 +152,8 @@ class _Labelable(object):
             myDeps=set(presentDeps)
             knownDeps[self.label()]=myDeps
         presentDeps.add(self.label())
+    def fillNamesList(self, l):
+        l.append(self.label())
 
 
 class _Unlabelable(object):
