@@ -60,7 +60,7 @@
 struct Print {
   typedef edm::TrieNode<const GeometricDet *> const node;
   void operator()(node & n, std::string const & label) const {
-    if (!n.getValue()) return; 
+    if (!n.value()) return; 
     for (size_t i=0; i<label.size();++i)
       std::cout << int(label[i]) <<'/';
     std::cout << " " << n.value()->name().name() << std::endl;
@@ -87,10 +87,6 @@ private:
 // constants, enums and typedefs
 //
 
-//
-// static data member definitions
-//
-  static const double density_units = 6.24151e+18;
 
 //
 // constructors and destructor
@@ -200,9 +196,9 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 		       char(theString[1]), 
 		       char(theString[2]), 
 		       theModule,
-		       char(module:glued() ? module.stereo()+1 : 0)
+		       char(module.glued() ? module.stereo()+1 : 0)
 	};
-	trie.insert(key, module:glued() ? 7 : 6, modules[i]);
+	trie.insert(key, module.glued() ? 7 : 6, modules[i]);
 	
 	
 	
@@ -227,9 +223,9 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 		       theRing,
 		       char(theModule[0]), 
 		       char(theModule[1]),
-		       char(module:glued() ? module.stereo()+1 : 0)
+		       char(module.glued() ? module.stereo()+1 : 0)
 	};
-	trie.insert(key,module:glued() ? 7 : 6, modules[i]);
+	trie.insert(key,module.glued() ? 7 : 6, modules[i]);
 	
 	break;
       }
@@ -249,8 +245,8 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 		       char(theRod[0]), 
 		       char(theRod[1]), 
 		       theModule,
-		       char(module:glued() ? module.stereo()+1 : 0)};
-	trie.insert(key, module:glued() ?  6 : 5, modules[i]);
+		       char(module.glued() ? module.stereo()+1 : 0)};
+	trie.insert(key, module.glued() ?  6 : 5, modules[i]);
 	
 	break;
       }
@@ -277,8 +273,8 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 		       char(thePetal[1]),
 		       theRing,
 		       theModule,
-		       char(module:glued() ? module.stereo()+1 : 0)};
-	trie.insert(key, module:glued() ? 8 : 7);
+		       char(module.glued() ? module.stereo()+1 : 0)};
+	trie.insert(key, module.glued() ? 8 : 7);
   
 	break;
       }
