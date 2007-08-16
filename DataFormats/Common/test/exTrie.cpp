@@ -63,10 +63,15 @@ int main(int argc, char **argv)
   std::cout << std::endl;
 
   node_iterator e;
+  std::cout << "\n ab iteration" << std::endl;
   for (node_iterator p(trie.node("ab",2)); p!=e; p++)
     std::cout << "ab" << p.label() << " = " << p->value() << std::endl;
+ 
+  std::cout << "\n ab iteration: string" << std::endl;
+  for (node_iterator p(trie.node("ab")); p!=e; p++)
+    std::cout << "ab" << p.label() << " = " << p->value() << std::endl;
 
-  std::cout << std::endl;
+  std::cout << "\ntop iteration"<< std::endl;
   for (node_iterator p(trie.initialNode()); p!=e; p++)
     std::cout << p.label() << " = " << p->value() << std::endl;
   std::cout << std::endl;

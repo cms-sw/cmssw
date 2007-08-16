@@ -140,10 +140,14 @@ void constructAndDumpTrie(Iter b, Iter e) {
     unsigned int layerId[] = {1,3,5,21,22,41,42,61,62};
     int layerSize[9];
     for (int i=0;i<9;i++) {
-      std::ostringstring s; s<<layerId[i];
-      node_iterator e;
-      node_iterator p(trie.node(s.str()));
+      std::string s;
+      if (layerId[i]>9) s+=char(layerId[i]/10); 
+      s+=char(layerId[i]%10);
+      node_iterator e;	
+      node_iterator p(trie.node(s));
       layerSize[i] = std::distance(p,e);
+      // layerSize[i]=0;
+      // for (;p!=e;++p) ++layerSize[i];
     }
 
     edm::LogInfo("TkDetLayers") 
@@ -161,10 +165,6 @@ void constructAndDumpTrie(Iter b, Iter e) {
       //      << "n barreLayers:  " << this->barrelLayers().size() << "\n"
       //<< "n negforwardLayers: " << this->negForwardLayers().size() << "\n"
       //<< "n posForwardLayers: " << this->posForwardLayers().size() ;
-  }
-
-
-
   }
   catch(edm::Exception const & e) {
     std::cout << "in walking " << e.what() << std::endl;
