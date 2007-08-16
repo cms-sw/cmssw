@@ -1,5 +1,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "HLTrigger/HLTfilters/interface/HLTBool.h"
 #include "HLTrigger/HLTfilters/interface/HLTFiltCand.h"
 #include "HLTrigger/HLTfilters/interface/HLTLevel1Seed.h"
 #include "HLTrigger/HLTfilters/interface/HLTLevel1GTSeed.h"
@@ -57,6 +58,7 @@ typedef HLTGlobalSums<reco::CaloMET>  HLTGlobalSumMET  ;
 typedef HLTGlobalSums<reco::MET>      HLTGlobalSumHT   ;
 
 
+DEFINE_FWK_MODULE(HLTBool);
 DEFINE_FWK_MODULE(HLTFiltCand);
 DEFINE_FWK_MODULE(HLTLevel1Seed);
 DEFINE_FWK_MODULE(HLTLevel1GTSeed);
