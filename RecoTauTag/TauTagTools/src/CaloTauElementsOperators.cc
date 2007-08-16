@@ -74,7 +74,7 @@ const TrackRefVector CaloTauElementsOperators::tracksInAnnulus(const math::XYZVe
 }
 
 const TrackRef CaloTauElementsOperators::leadTk(string matchingConeMetric,double matchingConeSize,double ptTrackMin)const{
-  return leadTk((*TauRef_).momentum(),matchingConeMetric,matchingConeSize,ptTrackMin);
+  return leadTk(Tau_.momentum(),matchingConeMetric,matchingConeSize,ptTrackMin);
 }
 
 const TrackRef CaloTauElementsOperators::leadTk(const math::XYZVector& jetAxis,string matchingConeMetric,double matchingConeSize,double ptTrackMin)const{
@@ -91,6 +91,10 @@ const TrackRef CaloTauElementsOperators::leadTk(const math::XYZVector& jetAxis,s
   return leadingTrack;
 }
 // ***
+double CaloTauElementsOperators::discriminator(unsigned int isolationAnnulus_Tracksmaxn)const{
+  if ((uint)IsolTracks_.size()>isolationAnnulus_Tracksmaxn)return 0.;
+  else return 1.;
+}
 double CaloTauElementsOperators::discriminator(const math::XYZVector& jetAxis, 
 					       string matchingConeMetric,double matchingConeSize,double ptLeadingTrackMin,double ptOtherTracksMin,
 					       string signalConeMetric,double signalConeSize,string isolationConeMetric,double isolationConeSize, 
@@ -105,6 +109,6 @@ double CaloTauElementsOperators::discriminator(const math::XYZVector& jetAxis,
 double CaloTauElementsOperators::discriminator(string matchingConeMetric,double matchingConeSize,double ptLeadingTrackMin,double ptOtherTracksMin, 
 					       string signalConeMetric,double signalConeSize,string isolationConeMetric,double isolationConeSize, 
 					       unsigned int isolationAnnulus_Tracksmaxn)const{
-  return discriminator((*TauRef_).momentum(),matchingConeMetric,matchingConeSize,ptLeadingTrackMin,ptOtherTracksMin,signalConeMetric,signalConeSize,isolationConeMetric,isolationConeSize,isolationAnnulus_Tracksmaxn);
+  return discriminator(Tau_.momentum(),matchingConeMetric,matchingConeSize,ptLeadingTrackMin,ptOtherTracksMin,signalConeMetric,signalConeSize,isolationConeMetric,isolationConeSize,isolationAnnulus_Tracksmaxn);
 }
 
