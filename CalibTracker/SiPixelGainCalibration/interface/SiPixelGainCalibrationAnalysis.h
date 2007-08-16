@@ -15,7 +15,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon May  7 14:22:37 CEST 2007
-// $Id: SiPixelGainCalibrationAnalysis.h,v 1.4 2007/08/01 20:31:51 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.h,v 1.5 2007/08/15 12:24:07 fblekman Exp $
 //
 //
 
@@ -85,12 +85,13 @@ class SiPixelGainCalibrationAnalysis : public edm::EDAnalyzer {
       double minimum_gain_;
       bool new_configuration_;
       bool save_histos_;
-
+      uint32_t usethisdetid_;
+      bool only_one_detid_;
       // and the containers
       
       // tracking geometry
       edm::ESHandle<TrackerGeometry> geom_;
-      
+      std::map < uint32_t, TString> detnames_;
       std::map < uint32_t, TH1F*> summaries1D_pedestal_;
       std::map < uint32_t, TH1F*> summaries1D_gain_;
       std::map < uint32_t, TH2F*> summaries_pedestal_;
@@ -104,7 +105,7 @@ class SiPixelGainCalibrationAnalysis : public edm::EDAnalyzer {
       bool useonlyonepixel_;
       bool test_;
       TF1 *func;
-      SiPixelGainCalibration* SiPixelGainCalibration_; // database worker class
+      SiPixelGainCalibration * SiPixelGainCalibration_;
       SiPixelGainCalibrationService SiPixelGainCalibrationService_; // additional database worker classes
       edm::Service < TFileService >  therootfileservice_; // for saving into root files
      
