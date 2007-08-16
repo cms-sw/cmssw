@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalTask.cc
  *
- * $Date: 2007/08/14 17:44:47 $
- * $Revision: 1.14 $
+ * $Date: 2007/08/15 12:23:42 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
 */
@@ -227,7 +227,7 @@ void EEPedestalTask::analyze(const Event& e, const EventSetup& c){
 
       EcalDCCHeaderBlock dcch = (*dcchItr);
 
-      int ism = Numbers::iSM( dcch );
+      int ism = Numbers::iSM( dcch, EcalEndcap );
 
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find( ism );
       if ( i != dccMap.end() ) continue;

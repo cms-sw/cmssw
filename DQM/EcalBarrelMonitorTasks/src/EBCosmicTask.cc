@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2007/08/14 07:28:02 $
- * $Revision: 1.74 $
+ * $Date: 2007/08/14 17:43:06 $
+ * $Revision: 1.75 $
  * \author G. Della Ricca
  *
 */
@@ -155,7 +155,7 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
 
       EcalDCCHeaderBlock dcch = (*dcchItr);
 
-      int ism = Numbers::iSM( dcch );
+      int ism = Numbers::iSM( dcch, EcalBarrel );
 
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find( ism );
       if ( i != dccMap.end() ) continue;

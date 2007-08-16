@@ -1,8 +1,8 @@
 /*
  * \file EECosmicTask.cc
  *
- * $Date: 2007/08/14 13:08:11 $
- * $Revision: 1.11 $
+ * $Date: 2007/08/14 17:44:47 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -155,7 +155,7 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
 
       EcalDCCHeaderBlock dcch = (*dcchItr);
 
-      int ism = Numbers::iSM( dcch );
+      int ism = Numbers::iSM( dcch, EcalEndcap );
 
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find( ism );
       if ( i != dccMap.end() ) continue;

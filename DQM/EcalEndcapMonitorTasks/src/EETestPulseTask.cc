@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseTask.cc
  *
- * $Date: 2007/07/21 10:13:26 $
- * $Revision: 1.14 $
+ * $Date: 2007/08/14 17:44:47 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
 */
@@ -222,7 +222,7 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
       EcalDCCHeaderBlock dcch = (*dcchItr);
 
-      int ism = Numbers::iSM( dcch );
+      int ism = Numbers::iSM( dcch, EcalEndcap );
 
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find( ism );
       if ( i != dccMap.end() ) continue;

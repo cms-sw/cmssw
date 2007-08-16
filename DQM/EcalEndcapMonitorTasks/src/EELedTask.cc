@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2007/07/27 16:37:50 $
- * $Revision: 1.4 $
+ * $Date: 2007/08/14 17:44:47 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */
@@ -214,7 +214,7 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
       EcalDCCHeaderBlock dcch = (*dcchItr);
 
-      int ism = Numbers::iSM( dcch );
+      int ism = Numbers::iSM( dcch, EcalEndcap );
 
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find( ism );
       if ( i != dccMap.end() ) continue;

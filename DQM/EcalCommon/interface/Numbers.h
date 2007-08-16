@@ -1,11 +1,11 @@
-// $Id: Numbers.h,v 1.7 2007/05/24 13:04:42 benigno Exp $
+// $Id: Numbers.h,v 1.8 2007/08/14 17:42:22 dellaric Exp $
 
 /*!
   \file Numbers.h
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.7 $
-  \date $Date: 2007/05/24 13:04:42 $
+  \version $Revision: 1.8 $
+  \date $Date: 2007/08/14 17:42:22 $
 */
 
 #ifndef Numbers_H
@@ -54,7 +54,7 @@ class Numbers {
 
   static int         iSM( const EcalPnDiodeDetId&   id );
 
-  static int         iSM( const EcalDCCHeaderBlock& id );
+  static int         iSM( const EcalDCCHeaderBlock& id, const int subdet );
 
   static int ix0EE( const int ism );
 
