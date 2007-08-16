@@ -152,7 +152,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 
       /// Take a reference to this FED's data
       const FEDRawData& fedData = rawdata->FEDData(id);
-      unsigned short int length =  fedData.size();
+      unsigned long length =  fedData.size();
 
       if (length)
 	{ ///if fed has data then unpack it
