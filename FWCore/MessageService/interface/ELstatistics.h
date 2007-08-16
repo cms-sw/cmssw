@@ -20,6 +20,8 @@
 //  4/4/01 mf   Removed moduleOfInterest and moduleToExclude, in favor
 //              of using base class method.
 // 1/17/06 mf	summary() for use in MessageLogger
+// 8/16/07 mf	noteGroupedCategory(cat) to support grouping of modules in 
+//		specified categories.  Also, a static vector of such categories.
 //
 // ----------------------------------------------------------------------
 
@@ -29,6 +31,7 @@
 #include "FWCore/MessageLogger/interface/ELmap.h"
 #include "FWCore/MessageLogger/interface/ELstring.h"
 
+#include <vector>
 
 namespace edm {       
 namespace service {       
@@ -93,6 +96,8 @@ protected:
 
   virtual std::map<ELextendedID,StatsCount> statisticsMap() const;
 
+  static void noteGroupedCategory(std::string const & cat);  // 8/16/07 mf 
+
   // summarization( const ELstring & sumLines, const ELstring & sumLines )
   // from base class
 
@@ -106,6 +111,8 @@ protected:
 
   bool           printAtTermination;
 
+  static std::vector<std::string> groupedCategories;
+  
 };  // ELstatistics
 
 

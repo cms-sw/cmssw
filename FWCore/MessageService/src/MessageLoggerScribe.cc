@@ -138,6 +138,10 @@
 //       a synchronous manner (like CONFIGURE) so as soon as one gets up to 
 //	 the flush command, the queue has in fact been flushed!  
 //
+//  27 - 8/16/07 mf - in run()
+//	 A command GROUP_STATS to add a category to a list which ELstatistics 
+//	 will use to avoid separate per-module statistics for that category.
+//
 // ----------------------------------------------------------------------
 
 #include "FWCore/MessageService/interface/ELadministrator.h"
@@ -359,6 +363,14 @@ void
         boost::mutex::scoped_lock sl(h_p->m);   // get lock
 	h_p->c.notify_all();  // Signal to MessageLoggerQ that we are done
 	// finally, release the scoped lock by letting it go out of scope 
+        break;
+      }
+      case MessageLoggerQ::GROUP_STATS:  {			// change log 27
+        std::string* cat_p =
+		static_cast<std::string*>(operand);
+	// TODO - insert work here - call something to put *cat_p on the 
+	// list held by ELstatistics
+	delete cat_p;  // dispose of the message text
         break;
       }
     }  // switch

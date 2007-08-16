@@ -25,6 +25,8 @@
 //	Change of each mommand function to start with MLq, e.g. MLqLOG
 // 5 - 8/7/07 mf
 //	Addition of FLS command, to be used by FlushMessageLog
+// 6 - 8/16/07 mf
+//	Addition of GRP command, to be used by GroupLogStatistics
 
 using namespace edm;
 
@@ -219,4 +221,18 @@ void
     // finally, release the scoped lock by letting it go out of scope 
   }
 }  // MessageLoggerQ::FLS()
+
+void
+  MessageLoggerQ::MLqGRP( std::string * cat_p )  	// Change Log 6
+{
+  SingleConsumerQ::ProducerBuffer b(buf);
+  char * slot_p = static_cast<char *>(b.buffer());
+
+  OpCode o(GROUP_STATS);
+  void * v(static_cast<void *>(cat_p));
+
+  std::memcpy(slot_p+0             , &o, sizeof(OpCode));
+  std::memcpy(slot_p+sizeof(OpCode), &v, sizeof(void *));
+  b.commit(buf_size);
+}  // MessageLoggerQ::GRP()
 

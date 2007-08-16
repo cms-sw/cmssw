@@ -18,6 +18,8 @@
 //                      initializers to correspond to order of member
 //                      declarations
 //   1/17/06    mf	summary() for use in MessageLogger
+//   8/16/07    mf	Changes to implement grouping of modules in specified 
+//			categories
 //
 //  ---------------------------------------------------------------------
 
@@ -391,7 +393,11 @@ std::map<ELextendedID , StatsCount> ELstatistics::statisticsMap() const {
   return std::map<ELextendedID , StatsCount> ( stats );
 }
 
+std::vector<std::string> ELstatistics::groupedCategories; // 8/16/07 mf 
 
-
+void ELstatistics::noteGroupedCategory(std::string const & cat) {
+  groupedCategories.push_back(cat);
+}
+  
 } // end of namespace service  
 } // end of namespace edm  

@@ -29,4 +29,10 @@ void FlushMessageLog() {
   edm::MessageLoggerQ::MLqFLS ( ); // Flush the message log queue
 }
 
+void GroupLogStatistics(std::string const & category) {
+  std::string * cat_p = new std::string(category);
+  edm::MessageLoggerQ::MLqGRP (cat_p); // Indicate a group summary category
+  // Note that the scribe will be responsible for deleting cat_p
+}
+
 }  // namespace edm

@@ -30,6 +30,7 @@ public:
   , JOBMODE        // MOD
   , SHUT_UP        // SHT
   , FLUSH_LOG_Q    // FLS
+  , GROUP_STATS    // GRP
   };  // OpCode
 
   // ---  birth via a surrogate:
@@ -45,6 +46,7 @@ public:
   static  void  MLqMOD( std::string * jm );
   static  void  MLqSHT();
   static  void  MLqFLS();
+  static  void  MLqGRP(std::string * cat_p);
 
   // ---  obtain a message from the queue:
   static  void  consume( OpCode & opcode, void * & operand );

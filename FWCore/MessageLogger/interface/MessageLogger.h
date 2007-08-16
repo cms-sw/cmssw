@@ -14,7 +14,7 @@
 //         Created:  Fri Nov 11 16:38:19 CST 2005
 //     Major Split:  Tue Feb 14 11:00:00 CST 2006
 //		     See MessageService/interface/MessageLogger.h
-// $Id: MessageLogger.h,v 1.23 2007/07/25 18:33:48 fischler Exp $
+// $Id: MessageLogger.h,v 1.24 2007/08/16 19:36:04 fischler Exp $
 //
 // =================================================
 // Change log
@@ -31,6 +31,8 @@
 // 5 mf 7/24/07     Added HaltMessageLogging
 //
 // 6 mf 8/7/07      Added FlushMessageLog
+//
+// 7 mf 8/7/07      Added GroupLogStatistics(category)
 //
 // =================================================
 
@@ -235,7 +237,6 @@ private:
 };  // LogAbsolute
 
 
-
 void LogStatistics(); 
 
 class LogDebug_
@@ -300,7 +301,7 @@ public:
   bool isWarningEnabled();
   void HaltMessageLogging();
   void FlushMessageLog();
-
+  void GroupLogStatistics(std::string const & category);
 
 }  // namespace edm
 
