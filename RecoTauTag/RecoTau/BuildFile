@@ -7,7 +7,10 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/PluginManager>
+<use name=TrackingTools/Records>
+<use name=TrackingTools/TransientTrack>
 <use name=RecoTauTag/TauTagTools>
+<use name=RecoBTag/BTagTools>
 <flags EDM_PLUGIN=1>
 <export>
   <use name=SimDataFormats/Vertex>

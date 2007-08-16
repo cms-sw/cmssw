@@ -5,127 +5,121 @@ void DiscriminationByIsolation::produce(Event& iEvent,const EventSetup& iEventSe
   iEvent.getByLabel(TauProducer_,theTauCollection);
   // fill the AssociationVector object
   auto_ptr<TauDiscriminatorByIsolation> theTauDiscriminatorByIsolation(new TauDiscriminatorByIsolation(TauRefProd(theTauCollection)));
+  //for (JetTagCollection::const_iterator iTau=theTauCollection.begin();iTau!=myJetTagCollection.end();++iTau) {
   for(size_t iTau=0;iTau<theTauCollection->size();++iTau) {
     TauRef theTauRef(theTauCollection,iTau);
-    math::XYZVector theTauRef_XYZVector=(*theTauRef).momentum();   
-    double theMatchingConeSize=computeConeSize(theTauRef,MatchingConeSizeTFormula_,MatchingConeVariableSize_min_,MatchingConeVariableSize_max_);
-    if (!(*theTauRef).getpfjetRef()){}else{
-      PFTauElementsOperators thePFTauElementsOperators(theTauRef); 
+    Tau theTau=*theTauRef;
+    math::XYZVector theTau_XYZVector=theTau.momentum();   
+    if (!theTau.getpfjetRef()){}else{
+      PFTauElementsOperators thePFTauElementsOperators(theTau);
       if (ApplyDiscriminationByTrackerIsolation_){  
-	double trackerdiscriminator;
-	double theTrackerSignalConeSize=computeConeSize(theTauRef,TrackerSignalConeSizeTFormula_,TrackerSignalConeVariableSize_min_,TrackerSignalConeVariableSize_max_);
-	double theTrackerIsolConeSize=computeConeSize(theTauRef,TrackerIsolConeSizeTFormula_,TrackerIsolConeVariableSize_min_,TrackerIsolConeVariableSize_max_);     	
-	if (ManipulateTracks_insteadofChargedHadrCands_){
-	  CaloTauElementsOperators theCaloTauElementsOperators(theTauRef); 
-	  trackerdiscriminator=theCaloTauElementsOperators.discriminator(theTauRef_XYZVector,MatchingConeMetric_,theMatchingConeSize,LeadTrack_minPt_,Track_minPt_,TrackerSignalConeMetric_,theTrackerSignalConeSize,TrackerIsolConeMetric_,theTrackerIsolConeSize,TrackerIsolAnnulus_Tracksmaxn_);
-	  if (trackerdiscriminator==0){
-	    theTauDiscriminatorByIsolation->setValue(iTau,0);
-	    continue;
-	  }
+	// optional selection by a tracker isolation : ask for 0 charged hadron PFCand / reco::Track in an isolation annulus around a leading PFCand / reco::Track axis
+	double theTrackerIsolationDiscriminator;
+	if (ReCompute_leadElementSignalIsolationElements_){
+	  TFormula theMatchingConeSizeTFormula=thePFTauElementsOperators.computeConeSizeTFormula(MatchingConeSizeFormula_,"Matching cone size");
+	  double theMatchingConeSize=thePFTauElementsOperators.computeConeSize(theMatchingConeSizeTFormula,MatchingConeVariableSize_min_,MatchingConeVariableSize_max_);
+	  TFormula theTrackerSignalConeSizeTFormula=thePFTauElementsOperators.computeConeSizeTFormula(TrackerSignalConeSizeFormula_,"Tracker signal cone size");
+	  double theTrackerSignalConeSize=thePFTauElementsOperators.computeConeSize(theTrackerSignalConeSizeTFormula,TrackerSignalConeVariableSize_min_,TrackerSignalConeVariableSize_max_);
+	  TFormula theTrackerIsolConeSizeTFormula=thePFTauElementsOperators.computeConeSizeTFormula(TrackerIsolConeSizeFormula_,"Tracker isolation cone size");
+	  double theTrackerIsolConeSize=thePFTauElementsOperators.computeConeSize(theTrackerIsolConeSizeTFormula,TrackerIsolConeVariableSize_min_,TrackerIsolConeVariableSize_max_);     		  	    
+	  if (ManipulateTracks_insteadofChargedHadrCands_){
+	    CaloTauElementsOperators theCaloTauElementsOperators(theTau); 
+	    theTrackerIsolationDiscriminator=theCaloTauElementsOperators.discriminator(theTau_XYZVector,MatchingConeMetric_,theMatchingConeSize,LeadTrack_minPt_,Track_minPt_,TrackerSignalConeMetric_,theTrackerSignalConeSize,TrackerIsolConeMetric_,theTrackerIsolConeSize,TrackerIsolAnnulus_Tracksmaxn_);
+	  }else
+	    theTrackerIsolationDiscriminator=thePFTauElementsOperators.discriminatorByIsolPFChargedHadrCandsN(theTau_XYZVector,MatchingConeMetric_,theMatchingConeSize,TrackerSignalConeMetric_,theTrackerSignalConeSize,TrackerIsolConeMetric_,theTrackerIsolConeSize,LeadCand_minPt_,ChargedHadrCand_minPt_,TrackerIsolAnnulus_Candsmaxn_);
 	}else{
-	  trackerdiscriminator=thePFTauElementsOperators.discriminatorByIsolPFChargedHadrCandsN(theTauRef_XYZVector,MatchingConeMetric_,theMatchingConeSize,TrackerSignalConeMetric_,theTrackerSignalConeSize,TrackerIsolConeMetric_,theTrackerIsolConeSize,LeadTrack_minPt_,Track_minPt_,TrackerIsolAnnulus_Tracksmaxn_);
+	  if (ManipulateTracks_insteadofChargedHadrCands_){
+	    CaloTauElementsOperators theCaloTauElementsOperators(theTau); 
+	    theTrackerIsolationDiscriminator=theCaloTauElementsOperators.discriminator(TrackerIsolAnnulus_Tracksmaxn_);
+	  } else theTrackerIsolationDiscriminator=thePFTauElementsOperators.discriminatorByIsolPFChargedHadrCandsN(TrackerIsolAnnulus_Candsmaxn_);
 	}
-	if (trackerdiscriminator==0){
+	if (theTrackerIsolationDiscriminator==0){
 	  theTauDiscriminatorByIsolation->setValue(iTau,0);
 	  continue;
 	}
       }
+      
       if (ApplyDiscriminationByECALIsolation_){
-	double theECALSignalConeSize=computeConeSize(theTauRef,ECALSignalConeSizeTFormula_,ECALSignalConeVariableSize_min_,ECALSignalConeVariableSize_max_);
-	double theECALIsolConeSize=computeConeSize(theTauRef,ECALIsolConeSizeTFormula_,ECALIsolConeVariableSize_min_,ECALIsolConeVariableSize_max_);     	
-	double ECALdiscriminator=thePFTauElementsOperators.discriminatorByIsolPFGammaCandsN(theTauRef_XYZVector,MatchingConeMetric_,theMatchingConeSize,ECALSignalConeMetric_,theECALSignalConeSize,ECALIsolConeMetric_,theECALIsolConeSize,UseOnlyChargedHadr_for_LeadCand_,LeadCand_minPt_,GammaCand_minPt_,ECALIsolAnnulus_Candsmaxn_);
-	if (ECALdiscriminator==0){
+	// optional selection by an ECAL isolation : ask for 0 gamma PFCand in an isolation annulus around a leading PFCand
+	double theECALIsolationDiscriminator;
+	if (ReCompute_leadElementSignalIsolationElements_){
+	  TFormula theMatchingConeSizeTFormula=thePFTauElementsOperators.computeConeSizeTFormula(MatchingConeSizeFormula_,"Matching cone size");
+	  double theMatchingConeSize=thePFTauElementsOperators.computeConeSize(theMatchingConeSizeTFormula,MatchingConeVariableSize_min_,MatchingConeVariableSize_max_);
+	  TFormula theECALSignalConeSizeTFormula=thePFTauElementsOperators.computeConeSizeTFormula(ECALSignalConeSizeFormula_,"ECAL signal cone size");
+	  double theECALSignalConeSize=thePFTauElementsOperators.computeConeSize(theECALSignalConeSizeTFormula,ECALSignalConeVariableSize_min_,ECALSignalConeVariableSize_max_);
+	  TFormula theECALIsolConeSizeTFormula=thePFTauElementsOperators.computeConeSizeTFormula(ECALIsolConeSizeFormula_,"ECAL isolation cone size");
+	  double theECALIsolConeSize=thePFTauElementsOperators.computeConeSize(theECALIsolConeSizeTFormula,ECALIsolConeVariableSize_min_,ECALIsolConeVariableSize_max_);     	
+	  theECALIsolationDiscriminator=thePFTauElementsOperators.discriminatorByIsolPFGammaCandsN(theTau_XYZVector,MatchingConeMetric_,theMatchingConeSize,ECALSignalConeMetric_,theECALSignalConeSize,ECALIsolConeMetric_,theECALIsolConeSize,UseOnlyChargedHadr_for_LeadCand_,LeadCand_minPt_,GammaCand_minPt_,ECALIsolAnnulus_Candsmaxn_);
+	}else theECALIsolationDiscriminator=thePFTauElementsOperators.discriminatorByIsolPFGammaCandsN(ECALIsolAnnulus_Candsmaxn_);
+	if (theECALIsolationDiscriminator==0){
 	  theTauDiscriminatorByIsolation->setValue(iTau,0);
 	  continue;
 	}
       }
-      if (ManipulateTracks_insteadofChargedHadrCands_){
-	CaloTauElementsOperators theCaloTauElementsOperators(theTauRef); 
-	if (!theCaloTauElementsOperators.leadTk(MatchingConeMetric_,theMatchingConeSize,LeadCand_minPt_)) theTauDiscriminatorByIsolation->setValue(iTau,0);
-	else theTauDiscriminatorByIsolation->setValue(iTau,1);
-      }else{
-	if (UseOnlyChargedHadr_for_LeadCand_){
-	  if (!thePFTauElementsOperators.leadPFChargedHadrCand(MatchingConeMetric_,theMatchingConeSize,LeadCand_minPt_)) theTauDiscriminatorByIsolation->setValue(iTau,0);
-	  else theTauDiscriminatorByIsolation->setValue(iTau,1);
+      
+      // not optional selection : ask for a leading (Pt>minPt) PFCand / reco::Track in a matching cone around the PFJet axis
+      double theleadElementDiscriminator=NAN;
+      if (ReCompute_leadElementSignalIsolationElements_){
+	TFormula theMatchingConeSizeTFormula=thePFTauElementsOperators.computeConeSizeTFormula(MatchingConeSizeFormula_,"Matching cone size");
+	double theMatchingConeSize=thePFTauElementsOperators.computeConeSize(theMatchingConeSizeTFormula,MatchingConeVariableSize_min_,MatchingConeVariableSize_max_);
+	if (ManipulateTracks_insteadofChargedHadrCands_){
+	  CaloTauElementsOperators theCaloTauElementsOperators(theTau); 
+	  if (!theCaloTauElementsOperators.leadTk(MatchingConeMetric_,theMatchingConeSize,LeadTrack_minPt_)) theleadElementDiscriminator=0;
 	}else{
-	  if (!thePFTauElementsOperators.leadPFCand(MatchingConeMetric_,theMatchingConeSize,LeadCand_minPt_)) theTauDiscriminatorByIsolation->setValue(iTau,0);
-	  else theTauDiscriminatorByIsolation->setValue(iTau,1);
+	  if (UseOnlyChargedHadr_for_LeadCand_){
+	    if (!thePFTauElementsOperators.leadPFChargedHadrCand(MatchingConeMetric_,theMatchingConeSize,LeadCand_minPt_)) theleadElementDiscriminator=0;
+	  }else{
+	    if (!thePFTauElementsOperators.leadPFCand(MatchingConeMetric_,theMatchingConeSize,LeadCand_minPt_)) theleadElementDiscriminator=0;
+	  }
+	}
+      }else{
+	if (ManipulateTracks_insteadofChargedHadrCands_){
+	  CaloTauElementsOperators theCaloTauElementsOperators(theTau); 
+	  if (!theTau.getleadTrack()) theleadElementDiscriminator=0;
+	}else{
+	  if (!theTau.getleadPFChargedHadrCand()) theleadElementDiscriminator=0;
 	}
       }
+      if (theleadElementDiscriminator==0) theTauDiscriminatorByIsolation->setValue(iTau,0);
+      else theTauDiscriminatorByIsolation->setValue(iTau,1);
+      continue;
     }
     
-    if (!(*theTauRef).getcalojetRef()){}else{
-      CaloTauElementsOperators theCaloTauElementsOperators(theTauRef); 
+    if (!theTau.getcalojetRef()){}else{
+      CaloTauElementsOperators theCaloTauElementsOperators(theTau); 	
       if (ApplyDiscriminationByTrackerIsolation_){  
-	double trackerdiscriminator;
-	double theTrackerSignalConeSize=computeConeSize(theTauRef,TrackerSignalConeSizeTFormula_,TrackerSignalConeVariableSize_min_,TrackerSignalConeVariableSize_max_);
-	double theTrackerIsolConeSize=computeConeSize(theTauRef,TrackerIsolConeSizeTFormula_,TrackerIsolConeVariableSize_min_,TrackerIsolConeVariableSize_max_);     	
-	trackerdiscriminator=theCaloTauElementsOperators.discriminator(theTauRef_XYZVector,MatchingConeMetric_,theMatchingConeSize,LeadTrack_minPt_,Track_minPt_,TrackerSignalConeMetric_,theTrackerSignalConeSize,TrackerIsolConeMetric_,theTrackerIsolConeSize,TrackerIsolAnnulus_Tracksmaxn_);
-	if (trackerdiscriminator==0){
+	// optional selection by a tracker isolation : ask for 0 reco::Track in an isolation annulus around a leading reco::Track axis
+	double theTrackerIsolationDiscriminator;
+	if (ReCompute_leadElementSignalIsolationElements_){
+	  TFormula theMatchingConeSizeTFormula=theCaloTauElementsOperators.computeConeSizeTFormula(MatchingConeSizeFormula_,"Matching cone size");
+	  double theMatchingConeSize=theCaloTauElementsOperators.computeConeSize(theMatchingConeSizeTFormula,MatchingConeVariableSize_min_,MatchingConeVariableSize_max_);
+	  TFormula theTrackerSignalConeSizeTFormula=theCaloTauElementsOperators.computeConeSizeTFormula(TrackerSignalConeSizeFormula_,"Tracker signal cone size");
+	  double theTrackerSignalConeSize=theCaloTauElementsOperators.computeConeSize(theTrackerSignalConeSizeTFormula,TrackerSignalConeVariableSize_min_,TrackerSignalConeVariableSize_max_);
+	  TFormula theTrackerIsolConeSizeTFormula=theCaloTauElementsOperators.computeConeSizeTFormula(TrackerIsolConeSizeFormula_,"Tracker isolation cone size");
+	  double theTrackerIsolConeSize=theCaloTauElementsOperators.computeConeSize(theTrackerIsolConeSizeTFormula,TrackerIsolConeVariableSize_min_,TrackerIsolConeVariableSize_max_);     	
+	  theTrackerIsolationDiscriminator=theCaloTauElementsOperators.discriminator(theTau_XYZVector,MatchingConeMetric_,theMatchingConeSize,LeadTrack_minPt_,Track_minPt_,TrackerSignalConeMetric_,theTrackerSignalConeSize,TrackerIsolConeMetric_,theTrackerIsolConeSize,TrackerIsolAnnulus_Tracksmaxn_);
+	}else{
+	  theTrackerIsolationDiscriminator=theCaloTauElementsOperators.discriminator(TrackerIsolAnnulus_Tracksmaxn_);
+	}
+	if (theTrackerIsolationDiscriminator==0){
 	  theTauDiscriminatorByIsolation->setValue(iTau,0);
 	  continue;
 	}
       }
-      if (!theCaloTauElementsOperators.leadTk(MatchingConeMetric_,theMatchingConeSize,LeadCand_minPt_)) theTauDiscriminatorByIsolation->setValue(iTau,0);
+      
+      // not optional selection : ask for a leading (Pt>minPt) reco::Track in a matching cone around the CaloJet axis
+      double theleadTkDiscriminator=NAN;
+      if (ReCompute_leadElementSignalIsolationElements_){
+	TFormula theMatchingConeSizeTFormula=theCaloTauElementsOperators.computeConeSizeTFormula(MatchingConeSizeFormula_,"Matching cone size");
+	double theMatchingConeSize=theCaloTauElementsOperators.computeConeSize(theMatchingConeSizeTFormula,MatchingConeVariableSize_min_,MatchingConeVariableSize_max_);
+	if (!theCaloTauElementsOperators.leadTk(MatchingConeMetric_,theMatchingConeSize,LeadTrack_minPt_)) theleadTkDiscriminator=0;
+      }else{
+	if (!theTau.getleadTrack()) theleadTkDiscriminator=0;
+      }
+      if (theleadTkDiscriminator==0) theTauDiscriminatorByIsolation->setValue(iTau,0);
       else theTauDiscriminatorByIsolation->setValue(iTau,1);
+      continue;
     }
   }
   iEvent.put(theTauDiscriminatorByIsolation);
 }
-double DiscriminationByIsolation::computeConeSize(const TauRef& theTau,const TFormula& ConeSizeTFormula,double ConeSizeMin,double ConeSizeMax){
-  double x=theTau->energy();
-  double y=theTau->et();
-  double ConeSize=ConeSizeTFormula.Eval(x,y);
-  if (ConeSize<ConeSizeMin)ConeSize=ConeSizeMin;
-  if (ConeSize>ConeSizeMax)ConeSize=ConeSizeMax;
-  return ConeSize;
-}
-TFormula DiscriminationByIsolation::computeConeSizeTFormula(const string& ConeSizeFormula,const char* errorMessage){
-//--- check functional form 
-//    given as configuration parameter for matching and signal cone sizes;
-//
-//    The size of a cone may depend on the energy "E" and/or transverse energy "ET" of the tau-jet candidate.
-//    Any functional form that is supported by ROOT's TFormula class can be used (e.g. "3.0/E", "0.25/sqrt(ET)")
-//
-//    replace "E"  by TFormula variable "x"
-//            "ET"                      "y"
-  string ConeSizeFormulaStr = ConeSizeFormula;
-  replaceSubStr(ConeSizeFormulaStr,"E","x");
-  replaceSubStr(ConeSizeFormulaStr,"ET","y");
-  TFormula ConeSizeTFormula;
-  ConeSizeTFormula.SetName("ConeSize");
-  ConeSizeTFormula.SetTitle(ConeSizeFormulaStr.data()); // the function definition is actually stored in the "Title" data-member of the TFormula object
-  int errorFlag = ConeSizeTFormula.Compile();
-  if (errorFlag!= 0) {
-    throw cms::Exception("") << "\n unsupported functional Form for " << errorMessage << " " << ConeSizeFormula << endl
-			     << "Please check that the Definition in \"" << ConeSizeTFormula.GetName() << "\" only contains the variables \"E\" or \"ET\""
-			     << " and Functions that are supported by ROOT's TFormular Class." << endl;
-  }else return ConeSizeTFormula;
-}
-void DiscriminationByIsolation::replaceSubStr(string& s,const string& oldSubStr,const string& newSubStr)
-{
-//--- protect replacement algorithm
-//    from case that oldSubStr and newSubStr are equal
-//    (nothing to be done anyway)
-  if ( oldSubStr == newSubStr ) return;
-
-//--- protect replacement algorithm
-//    from case that oldSubStr contains no characters
-//    (i.e. matches everything)
-  if ( oldSubStr.empty() ) return;
-
-  const string::size_type lengthOldSubStr = oldSubStr.size();
-  const string::size_type lengthNewSubStr = newSubStr.size();
-
-  string::size_type positionPreviousMatch = 0;
-  string::size_type positionNextMatch = 0;
-
-//--- consecutively replace all occurences of oldSubStr by newSubStr;
-//    keep iterating until no occurence of oldSubStr left
-  while ( (positionNextMatch = s.find(oldSubStr, positionPreviousMatch)) != string::npos ) {
-    s.replace(positionNextMatch, lengthOldSubStr, newSubStr);
-    positionPreviousMatch = positionNextMatch + lengthNewSubStr;
-  } 
-}
-
-

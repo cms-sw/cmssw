@@ -7,10 +7,7 @@
  */
 
 #include "DataFormats/BTauReco/interface/PFIsolatedTauTagInfo.h"
-#include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -18,12 +15,13 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "RecoTauTag/RecoTau/interface/PFRecoTauAlgorithm.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
+#include "RecoTauTag/RecoTau/interface/PFRecoTauAlgorithm.h"
 
 #include <memory>
 
@@ -35,8 +33,9 @@ class PFRecoTauProducer : public EDProducer {
  public:
   explicit PFRecoTauProducer(const ParameterSet& iConfig){
     PFTagInfo_  = iConfig.getParameter<InputTag>("PFTagInfo");
-    PFRecoTauAlgo_=new PFRecoTauAlgorithm(iConfig);
-    JetMinPt_  = iConfig.getParameter<double>("JetPtMin");
+    PVProducer_ = iConfig.getParameter<string>("PVProducer");
+    JetMinPt_   = iConfig.getParameter<double>("JetPtMin");
+    PFRecoTauAlgo_ = new PFRecoTauAlgorithm(iConfig);
     produces<TauCollection>();      
   }
   ~PFRecoTauProducer(){
@@ -45,6 +44,7 @@ class PFRecoTauProducer : public EDProducer {
   virtual void produce(Event&,const EventSetup&);
  private:
   InputTag PFTagInfo_;
+  string PVProducer_;
   double JetMinPt_;
   PFRecoTauAlgorithm* PFRecoTauAlgo_;
 };

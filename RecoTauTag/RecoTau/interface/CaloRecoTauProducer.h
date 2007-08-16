@@ -6,24 +6,22 @@
  * authors: Simone Gennai, Ludovic Houchu
  */
 
-#include "DataFormats/BTauReco/interface/CombinedTauTagInfo.h"
-#include "DataFormats/BTauReco/interface/JetTag.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "RecoTauTag/RecoTau/interface/CaloRecoTauAlgorithm.h"
+#include "DataFormats/BTauReco/interface/CombinedTauTagInfo.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+
+#include "RecoTauTag/RecoTau/interface/CaloRecoTauAlgorithm.h"
 
 #include <memory>
 
@@ -35,6 +33,7 @@ class CaloRecoTauProducer : public EDProducer {
  public:
   explicit CaloRecoTauProducer(const ParameterSet& iConfig){
     CaloTagInfo_  = iConfig.getParameter<InputTag>("CombinedTauTagInfo");
+    PVProducer_ = iConfig.getParameter<string>("PVProducer");
     JetMinPt_  = iConfig.getParameter<double>("JetPtMin");
     CaloRecoTauAlgo_=new CaloRecoTauAlgorithm(iConfig);
     produces<TauCollection>();      
@@ -45,6 +44,7 @@ class CaloRecoTauProducer : public EDProducer {
   virtual void produce(Event&,const EventSetup&);
  private:
   InputTag CaloTagInfo_;
+  string PVProducer_;
   double JetMinPt_;
   CaloRecoTauAlgorithm* CaloRecoTauAlgo_;
 };

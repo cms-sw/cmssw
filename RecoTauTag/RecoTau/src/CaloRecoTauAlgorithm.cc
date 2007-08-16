@@ -1,94 +1,98 @@
 #include "RecoTauTag/RecoTau/interface/CaloRecoTauAlgorithm.h"
-//#include "DataFormats/Math/interface/Point3D.h"
-//#include "DataFormats/Math/interface/LorentzVector.h"
-//#include <Math/GenVector/VectorUtil.h>
 
-Tau CaloRecoTauAlgorithm::tag(const CombinedTauTagInfo& myTagInfo){
-  //Takes the jet
-  const Jet & jet = * (myTagInfo.jet());
-  //Takes the LeadChargedHadron
-  float z_PV = 0;
-  TrackRef myLeadTk = (myTagInfo.isolatedtautaginfoRef())->leadingSignalTrack(MatchingConeSize_, LeadCand_minPt_);
-  if(myLeadTk.isNonnull()){
-    z_PV = myLeadTk->vz();
-    //    cout <<"Vertex "<<myLeadTk->vz()<<endl;
-    //    cout <<"Z_imp "<<myLeadTk->dz()<<endl;
-  }
+Tau CaloRecoTauAlgorithm::tag(const CombinedTauTagInfo& myTagInfo,const Vertex& myPV){
+  CaloJetRef myCaloJet=myTagInfo.isolatedtautaginfoRef()->jet().castTo<CaloJetRef>(); // catch a ref to the initial CaloJet  
+  Tau myTau(numeric_limits<int>::quiet_NaN(),myCaloJet->p4()); //create the Tau with the modified Lorentz-vector
   
-  math::XYZPoint  vtx = math::XYZPoint( 0, 0, z_PV );
-  math::XYZTLorentzVector myVec(myTagInfo.alternatrecJet_HepLV().getX(),myTagInfo.alternatrecJet_HepLV().getY(),myTagInfo.alternatrecJet_HepLV().getZ(),myTagInfo.alternatrecJet_HepLV().getT());
+  myTau.setcalojetRef(myCaloJet);
 
-  //create the Tau with the modified Lorentz-vector
-  Tau myTau(jet.charge(),myVec,vtx);
-
-  CaloJetRef theCaloJet=myTagInfo.isolatedtautaginfoRef()->jet().castTo<CaloJetRef>();
-  myTau.setcalojetRef(theCaloJet);
-
-  //Setting the mass
-  myTau.setInvariantMass(myTagInfo.alternatrecJet_HepLV().m());
+  math::XYZTLorentzVector myalternatLorentzVect(myTagInfo.alternatrecJet_HepLV().getX(),myTagInfo.alternatrecJet_HepLV().getY(),myTagInfo.alternatrecJet_HepLV().getZ(),myTagInfo.alternatrecJet_HepLV().getT());
+  myTau.setalternatLorentzVect(myalternatLorentzVect);
 
   //Setting the SelectedTracks
-  TrackRefVector mySelectedTracks = myTagInfo.selectedTks();
-  myTau.setSelectedTracks(mySelectedTracks);  
+  TrackRefVector myTks = myTagInfo.selectedTks();
+  myTau.setSelectedTracks(myTks);  
   
-  //Setting the LeadTrack
-  myTau.setleadTrack(myLeadTk);
-  if(myLeadTk.isNonnull()){
-    //Setting the SignalTracks
-    TrackRefVector signalTracks = myTagInfo.signalTks();
-    myTau.setSignalTracks(signalTracks);
-    
-    myTau.setCharge(myTagInfo.signalTks_qsum());
-    
-    //Setting the IsolationTracks
-    TrackRefVector isolationTracks = myTagInfo.isolTks();
-    /*
-      (myTagInfo.isolatedtautaginfoRef())->tracksInCone(myLeadTk->momentum(), TrackerIsolConeSize_,Tracks_minPt_ );
-      TrackRefVector isolationBandTracks;
-      for(int i=0;i<isolationTracks.size();i++){
-      const math::XYZVector trackMomentum = isolationTracks[i]->momentum();
-      const math::XYZVector myVector = myLeadTk->momentum();
-      float deltaR = ROOT::Math::VectorUtil::DeltaR(myVector, trackMomentum);
-      if(deltaR > TrackerSignalConeSize_)
-      isolationBandTracks.push_back(isolationTracks[i]);
-      }
-    */
-    myTau.setIsolationTracks(isolationTracks);
-    
-    //Setting sum of the pT of isolation Annulus charged hadrons
-    float ptSum =0;
-    for(unsigned int i=0;i<isolationTracks.size();i++) ptSum+=isolationTracks[i]->pt();
-    myTau.setSumPtIsolation(ptSum);
-    
-    //Setting sum of the E_T of isolation Annulus gamma candidates
-    myTau.setEMIsolation(myTagInfo.isolneutralEtsum());
-    
-    //setting the mass with only Signal objects:
-    myTau.setInvariantMass(myTagInfo.alternatrecJet_HepLV().m());
-    
-    //Setting the max HCalEnergy
-    
-    const CaloJet* cj = dynamic_cast<CaloJet*>(const_cast<Jet*>(&jet));
-    // access jet constituents
-    const std::vector<CaloTowerRef>  TauJetTowers = cj->getConstituents();
-    // access towers
-    double THmax = -10.; 
-    for(unsigned int iTower = 0; iTower < TauJetTowers.size(); iTower++) {
-      CaloTowerRef theTower = TauJetTowers[iTower];
-      // select max Et HCAL tower
-      if(theTower->hadEt()>=THmax) THmax=theTower->hadEt();
+  math::XYZTLorentzVector myTksInvariantMass(0.,0.,0.,0.);
+  if((int)(myTks.size())!=0){
+    for(int i=0;i<(int)myTks.size();i++){
+      math::XYZTLorentzVector mychargedpicand_fromTk_LorentzVect(myTks[i]->momentum().x(),myTks[i]->momentum().y(),myTks[i]->momentum().z(),sqrt(pow((double)myTks[i]->momentum().r(),2)+pow(chargedpi_mass,2)));
+      myTksInvariantMass+=mychargedpicand_fromTk_LorentzVect;
     }
-    
-    myTau.setMaximumHcalEnergy(THmax);
-    //Setting the EmEnergyFraction
-    
-    myTau.setEmEnergyFraction(myTagInfo.neutralE_o_TksEneutralE());
-    
-    //Setting the number of EcalClusters
-    myTau.setNumberOfEcalClusters(myTagInfo.neutralECALClus_number());
-    
-    //LeadTk TIP
-    myTau.setleadTracksignedSipt(myTagInfo.leadTk_signedipt_significance());
   }
+  myTau.setInvariantMass(myTksInvariantMass.mass());
+
+  CaloTauElementsOperators myCaloTauElementsOperators(myTau);
+  TFormula myMatchingConeSizeTFormula=myCaloTauElementsOperators.computeConeSizeTFormula(MatchingConeSizeFormula_,"Matching cone size");
+  double myMatchingConeSize=myCaloTauElementsOperators.computeConeSize(myMatchingConeSizeTFormula,MatchingConeVariableSize_min_,MatchingConeVariableSize_max_);
+  TrackRef myleadTk=myCaloTauElementsOperators.leadTk(MatchingConeMetric_,myMatchingConeSize,LeadTrack_minPt_);
+  double myTau_refInnerPosition_x=0.;
+  double myTau_refInnerPosition_y=0.;
+  double myTau_refInnerPosition_z=0.;
+  if(myleadTk.isNonnull()){
+    myTau.setleadTrack(myleadTk);
+    if(TransientTrackBuilder_!=0){ 
+      SignedTransverseImpactParameter myleadTk_signediptMeasure;
+      const TransientTrack myleadTransientTk=TransientTrackBuilder_->build(&(*myleadTk));
+      GlobalVector myCaloJetdir((*myCaloJet).px(),(*myCaloJet).py(),(*myCaloJet).pz());
+      myTau.setleadTracksignedSipt(myleadTk_signediptMeasure.apply(myleadTransientTk,myCaloJetdir,myPV).second.significance());
+    }
+    if((*myleadTk).innerOk()){
+      myTau_refInnerPosition_x=(*myleadTk).innerPosition().x(); 
+      myTau_refInnerPosition_y=(*myleadTk).innerPosition().y(); 
+      myTau_refInnerPosition_z=(*myleadTk).innerPosition().z(); 
+    }
+    TFormula myTrackerSignalConeSizeTFormula=myCaloTauElementsOperators.computeConeSizeTFormula(TrackerSignalConeSizeFormula_,"Tracker signal cone size");
+    double myTrackerSignalConeSize=myCaloTauElementsOperators.computeConeSize(myTrackerSignalConeSizeTFormula,TrackerSignalConeVariableSize_min_,TrackerSignalConeVariableSize_max_);
+    TFormula myTrackerIsolConeSizeTFormula=myCaloTauElementsOperators.computeConeSizeTFormula(TrackerIsolConeSizeFormula_,"Tracker isolation cone size");
+    double myTrackerIsolConeSize=myCaloTauElementsOperators.computeConeSize(myTrackerIsolConeSizeTFormula,TrackerIsolConeVariableSize_min_,TrackerIsolConeVariableSize_max_);     	
+    
+    TrackRefVector mySignalTks;
+    mySignalTks=myCaloTauElementsOperators.tracksInCone((*myleadTk).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,Track_minPt_);
+    myTau.setSignalTracks(mySignalTks);
+    
+    //Setting the mass with only Signal Tracks
+    math::XYZTLorentzVector mySignalTksInvariantMass(0.,0.,0.,0.);
+    if((int)(mySignalTks.size())!=0){
+      int mySignalTks_qsum=0;       
+      for(int i=0;i<(int)mySignalTks.size();i++){
+	mySignalTks_qsum+=mySignalTks[i]->charge();
+	math::XYZTLorentzVector mychargedpicand_fromTk_LorentzVect(mySignalTks[i]->momentum().x(),mySignalTks[i]->momentum().y(),mySignalTks[i]->momentum().z(),sqrt(pow((double)mySignalTks[i]->momentum().r(),2)+pow(chargedpi_mass,2)));
+	mySignalTksInvariantMass+=mychargedpicand_fromTk_LorentzVect;
+      }
+      myTau.setCharge(mySignalTks_qsum);    
+    }
+    myTau.setSignalElementsInvariantMass(mySignalTksInvariantMass.mass());
+    
+    TrackRefVector myIsolTks;
+    myIsolTks=myCaloTauElementsOperators.tracksInAnnulus((*myleadTk).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,TrackerIsolConeMetric_,myTrackerIsolConeSize,Track_minPt_);
+    myTau.setIsolationTracks(myIsolTks);
+    
+    float myIsolTks_Ptsum=0.;
+    for(int i=0;i<(int)myIsolTks.size();i++) myIsolTks_Ptsum+=myIsolTks[i]->pt();
+    //Setting sum of the pT of isolation Annulus Tracks
+    myTau.setSumPtIsolation(myIsolTks_Ptsum);
+    
+    //Setting sum of the ET of isolation Annulus neutral ECAL BasicClusters
+    myTau.setEMIsolation(myTagInfo.isolneutralEtsum());
+  }
+  myTau.setVertex(math::XYZPoint(myTau_refInnerPosition_x,myTau_refInnerPosition_y,myTau_refInnerPosition_z));
+    
+  //Setting the max HCalEnergy
+  // ***access jet constituents
+  const std::vector<CaloTowerRef> myCaloJet_ECALHCALTowers=(*myCaloJet).getConstituents();
+  double mymaxEtHCALtower_Et=NAN; 
+  for(unsigned int iTower=0;iTower<myCaloJet_ECALHCALTowers.size();iTower++){
+    // select max Et HCAL tower
+    if((*myCaloJet_ECALHCALTowers[iTower]).hadEt()>=mymaxEtHCALtower_Et) mymaxEtHCALtower_Et=(*myCaloJet_ECALHCALTowers[iTower]).hadEt();
+  }
+  myTau.setMaximumHcalEnergy(mymaxEtHCALtower_Et);
+
+  //Setting the EmEnergyFraction    
+  myTau.setEmEnergyFraction(myTagInfo.neutralE_o_TksEneutralE());
+  
+  //Setting the number of EcalClusters
+  myTau.setNumberOfEcalClusters(myTagInfo.neutralECALClus_number());
+  
   return myTau;  
 }
