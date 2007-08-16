@@ -2,8 +2,8 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2007/07/18 17:29:46 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/07/21 21:25:57 $
+ *  $Revision: 1.8 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -67,7 +67,7 @@ void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const TrackingRe
 
   LogTrace(category) << " compatible layers: "<<nls.size();
 
-  if ( nls.empty() ) return ;
+  if ( nls.empty() ) return;
 
 //// debug only ===========
 /*
@@ -134,7 +134,6 @@ for (std::vector<TkStripMeasurementDet*>::const_iterator isd = stripdets.begin()
 
 
   std::vector<TrajectoryMeasurement> alltm = findMeasurements(nls.front(), staState);
-  LogTrace(category) << " allmeas first: "<<alltm.size();
 
   err *= 10;
 
@@ -161,7 +160,7 @@ for (std::vector<TkStripMeasurementDet*>::const_iterator isd = stripdets.begin()
      if ( *inl == 0 ) break;
 
      std::vector<TrajectoryMeasurement> tmptm = findMeasurements(*inl, staState);
-     LogTrace(category) << " Number of measurements in used layer: "<<iUsedLayer<<" is" <<alltm.size();
+//     LogTrace(category) << " Number of measurements in used layer: "<<iUsedLayer<<" is" <<alltm.size();
      iUsedLayer++;
 
      if ( !tmptm.empty() ) { 
@@ -526,8 +525,9 @@ void TSGFromPropagation::findSecondMeasurements(std::vector<TrajectoryMeasuremen
              break;
             }
      }
-     if ( tmpsectm.empty() ) secondMeas.push_back(*itm);
-     else secondMeas.insert(secondMeas.end(),tmpsectm.begin(), tmpsectm.end()); 
+//     if ( tmpsectm.empty() ) secondMeas.push_back(*itm);
+//     else
+      if ( !tmpsectm.empty() ) secondMeas.insert(secondMeas.end(),tmpsectm.begin(), tmpsectm.end()); 
   } 
 
   tms.clear();
