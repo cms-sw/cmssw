@@ -12,7 +12,7 @@ std::string trackerHierarchy(unsigned int rawid) {
   DetId id(rawid);
   int subdetid = id.subdetId();
   switch (subdetid) {
-      
+    
     // PXB
   case 1:
     {
@@ -22,10 +22,10 @@ std::string trackerHierarchy(unsigned int rawid) {
       char theModule = module.module();
       char key[] = { 1, theLayer , theLadder, theModule};
       return std::string(key,4);
-      }
+    }
     
     // P1XF
-  case 2
+  case 2:
     {
       PXFDetId module(rawid);
       char thePanel  = module.panel();
@@ -91,7 +91,8 @@ std::string trackerHierarchy(unsigned int rawid) {
 		     char(theRod[0]), 
 		     char(theRod[1]), 
 		     theModule,
-		     char(module.glued() ? module.stereo()+1 : 0)};
+		     char(module.glued() ? module.stereo()+1 : 0)
+      };
       return std::string(key, module.glued() ?  6 : 5);
     }
     
@@ -114,12 +115,13 @@ std::string trackerHierarchy(unsigned int rawid) {
 		     char(thePetal[1]),
 		     theRing,
 		     theModule,
-		     char(module.glued() ? module.stereo()+1 : 0)};
+		     char(module.glued() ? module.stereo()+1 : 0)
+      };
       return std::string(key, module.glued() ? 8 : 7);
     }
-    default:
-      return std::string();
-    }
+  default:
+    return std::string();
+  }
 }
 
 

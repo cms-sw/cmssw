@@ -44,6 +44,7 @@
 
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/trackerHierarchy.h"
 
 #include "DataFormats/Common/interface/Trie.h"
 
@@ -135,150 +136,12 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   std::cout << "In Tracker Geom there are " << modules.size() 
 	    << "modules" << std::endl; 
   try {
-  for(unsigned int i=0; i<modules.size();i++){
-    last = i;
-    unsigned int rawid = modules[i]->geographicalID().rawId();
-    int subdetid = modules[i]->geographicalID().subdetId();
-    switch (subdetid) {
+    for(unsigned int i=0; i<modules.size();i++){
+      last = i;
+      unsigned int rawid = modules[i]->geographicalID().rawId();
+      trie.insert(trackerHierarchy(rawid), modules[i]);
       
-      // PXB
-    case 1:
-      {
-	std::string name = modules[i]->name().name();
-	PXBDetId module(rawid);
-	char theLayer  = module.layer();
-	char theLadder = module.ladder();
-	char theModule = module.module();
-	char key[] = { 1, theLayer , theLadder, theModule};
-	trie.insert(key,4, modules[i]);
-	
-	
-	break;
-      }
-      
-      // PXF
-    case 2:
-      {
-	std::string name = modules[i]->name().name();
-	PXFDetId module(rawid);
-	char thePanel  = module.panel();
-	char theDisk   = module.disk();
-	char theBlade  = module.blade();
-	char theModule = module.module();
-	char key[] = { 2,
-		       char(module.side()),
-		       thePanel , theDisk, 
-		       theBlade, theModule};
-	trie.insert(key,6, modules[i]);
-	
-	break;
-      }
-      
-      // TIB
-    case 3:
-      {
-	std::string name = modules[i]->name().name();
-	TIBDetId module(rawid);
-	char              theLayer  = module.layer();
-	std::vector<unsigned int> theString = module.string();
-	char             theModule = module.module();
-	std::string side;
-	std::string part;
-	side = (theString[0] == 1 ) ? "-" : "+";
-	part = (theString[1] == 1 ) ? "int" : "ext";
-	char key[] = { 3, 
-		       theLayer, 
-		       char(theString[0]),
-		       char(theString[1]), 
-		       char(theString[2]), 
-		       theModule,
-		       char(module.glued() ? module.stereo()+1 : 0)
-	};
-	trie.insert(key, module.glued() ? 7 : 6, modules[i]);
-	
-	
-	
-	break;
-      }
-      
-      // TID
-    case 4:
-      {
-	std::string name = modules[i]->name().name();
-	TIDDetId module(rawid);
-	unsigned int         theDisk   = module.wheel();
-	unsigned int         theRing   = module.ring();
-	std::vector<unsigned int> theModule = module.module();
-	std::string side;
-	std::string part;
-	side = (module.side() == 1 ) ? "-" : "+";
-	part = (theModule[0] == 1 ) ? "back" : "front";
-	char key[] = { 4, 
-		       char(module.side()),
-		       theDisk , 
-		       theRing,
-		       char(theModule[0]), 
-		       char(theModule[1]),
-		       char(module.glued() ? module.stereo()+1 : 0)
-	};
-	trie.insert(key,module.glued() ? 7 : 6, modules[i]);
-	
-	break;
-      }
-      
-      // TOB
-    case 5:
-      {
-	std::string name = modules[i]->name().name();
-	TOBDetId module(rawid);
-	unsigned int              theLayer  = module.layer();
-	std::vector<unsigned int> theRod    = module.rod();
-	unsigned int              theModule = module.module();
-	std::string side;
-	std::string part;
-	side = (theRod[0] == 1 ) ? "-" : "+";
-	char key[] = { 5, theLayer , 
-		       char(theRod[0]), 
-		       char(theRod[1]), 
-		       theModule,
-		       char(module.glued() ? module.stereo()+1 : 0)};
-	trie.insert(key, module.glued() ?  6 : 5, modules[i]);
-	
-	break;
-      }
-      
-      // TEC
-    case 6:
-      {
-	std::string name = modules[i]->name().name();
-	TECDetId module(rawid);
-	unsigned int              theWheel  = module.wheel();
-	unsigned int              theModule = module.module();
-	std::vector<unsigned int> thePetal  = module.petal();
-	unsigned int              theRing   = module.ring();
-	std::string side;
-	std::string petal;
-	side  = (module.side() == 1 ) ? "-" : "+";
-	petal = (thePetal[0] == 1 ) ? "back" : "front";
-	// int out_side  = (module.side() == 1 ) ? -1 : 1;
-	
-	char key[] = { 6, 
-		       char(module.side()),
-		       theWheel,
-		       char(thePetal[0]), 
-		       char(thePetal[1]),
-		       theRing,
-		       theModule,
-		       char(module.glued() ? module.stereo()+1 : 0)};
-	trie.insert(key, module.glued() ? 8 : 7, modules[i]);
-  
-	break;
-      }
-    default:
-      std::cerr << " WARNING no Silicon Strip detector, I got a " 
-		<< rawid << " " << subdetid << std::endl;
     }
-  }
   }
   catch(edm::Exception const & e) {
     std::cout << "in filling " << e.what() << std::endl;
@@ -287,7 +150,7 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
     std::cout << rawid << " " << subdetid
 	      << " " << modules[last]->name().name() << std::endl;
   }
-    
+  
   try {
     Print pr;
     edm::walkTrie(pr,*trie.initialNode());
