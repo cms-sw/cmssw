@@ -34,6 +34,7 @@ std::auto_ptr<L1MuCSCPtLut> CSCTFConfigProducer::produceL1MuCSCPtLutRcd(const L1
 	if( ptLUT_path.length() ){
 			readLUT(ptLUT_path, (unsigned short *)pt_lut->pt_lut, 1<<21); //CSCBitWidths::kPtAddressWidth
 	} else {
+		throw cms::Exception("Inconsistent configuration")<<"CSCTFConfigProducer is unable to generate LUTs on the fly.\nSpecify full LUT file names or just avoid using CSCTFConfigProducer by uncommenting SRLUT and PTLUT parameter sets in L1Trigger/CSCTrackFinder configuration."<<std::endl;
 		// Generating
 		//pt_lut->pt_lut[] = 0;
 	}
@@ -47,12 +48,14 @@ std::auto_ptr<L1MuCSCDTLut> CSCTFConfigProducer::produceL1MuCSCDTLutRcd(const L1
 	if( dt1LUT_path.length() ){
 			readLUT(dt1LUT_path, (unsigned short *)dt_lut->dt_lut[0], 1<<19);
 	} else {
+		throw cms::Exception("Inconsistent configuration")<<"CSCTFConfigProducer is unable to generate LUTs on the fly.\nSpecify full LUT file names or just avoid using CSCTFConfigProducer by uncommenting SRLUT and PTLUT parameter sets in L1Trigger/CSCTrackFinder configuration."<<std::endl;
 		// Generating
 		//phi_lut->phi_lut[] = 0;
 	}
 	if( dt2LUT_path.length() ){
 			readLUT(dt2LUT_path, (unsigned short *)dt_lut->dt_lut[1], 1<<19);
 	} else {
+		throw cms::Exception("Inconsistent configuration")<<"CSCTFConfigProducer is unable to generate LUTs on the fly.\nSpecify full LUT file names or just avoid using CSCTFConfigProducer by uncommenting SRLUT and PTLUT parameter sets in L1Trigger/CSCTrackFinder configuration."<<std::endl;
 		// Generating
 		//phi_lut->phi_lut[] = 0;
 	}
@@ -65,6 +68,7 @@ std::auto_ptr<L1MuCSCLocalPhiLut> CSCTFConfigProducer::produceL1MuCSCLocalPhiLut
 	if( localPhiLUT_path.length() ){
 			readLUT(localPhiLUT_path, (unsigned short *)phi_lut->phi_lut, 1<<19);
 	} else {
+		throw cms::Exception("Inconsistent configuration")<<"CSCTFConfigProducer is unable to generate LUTs on the fly.\nSpecify full LUT file names or just avoid using CSCTFConfigProducer by uncommenting SRLUT and PTLUT parameter sets in L1Trigger/CSCTrackFinder configuration."<<std::endl;
 		// Generating
 		//phi_lut->phi_lut[] = 0;
 	}
@@ -85,6 +89,10 @@ std::auto_ptr<L1MuCSCGlobalLuts>  CSCTFConfigProducer::produceL1MuCSCGlobalLutsR
 	if( globalEta3LUT_path.length() ) readLUT(globalEta3LUT_path, (unsigned short *)luts->global_eta_lut[2], 1<<19);
 	if( globalEta4LUT_path.length() ) readLUT(globalEta4LUT_path, (unsigned short *)luts->global_eta_lut[3], 1<<19);
 	if( globalEta5LUT_path.length() ) readLUT(globalEta5LUT_path, (unsigned short *)luts->global_eta_lut[4], 1<<19);
+
+	if( !globalPhi1LUT_path.length() || !globalPhi2LUT_path.length() || !globalPhi3LUT_path.length() || !globalPhi4LUT_path.length() || !globalPhi5LUT_path.length() ||
+		!globalEta1LUT_path.length() || !globalEta2LUT_path.length() || !globalEta3LUT_path.length() || !globalEta4LUT_path.length() || !globalEta5LUT_path.length() )
+		throw cms::Exception("Inconsistent configuration")<<"CSCTFConfigProducer is unable to generate LUTs on the fly.\nSpecify full LUT file names or just avoid using CSCTFConfigProducer by uncommenting SRLUT and PTLUT parameter sets in L1Trigger/CSCTrackFinder configuration."<<std::endl;
 
 	return luts;
 }
