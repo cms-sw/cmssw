@@ -498,7 +498,7 @@ void edm::TrieNode<T>::clear()
 
 namespace edm {
   namespace detailsTrie  {
-    inline void errorInsert(std::string & key) {
+    inline void errorInsert(std::string const & key) {
       throw edm::Exception(edm::errors::InvalidReference)
 	<< "Trie::insert called with a key already in collection;\n"
 	<< "key value: " << key;
