@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Thu Jun 14 18:06:29 CEST 2007
-// $Id: SiPixelIsAliveCalibration.cc,v 1.3 2007/06/27 15:28:01 fblekman Exp $
+// $Id: SiPixelIsAliveCalibration.cc,v 1.4 2007/08/16 14:46:37 fblekman Exp $
 //
 //
 
@@ -174,7 +174,6 @@ void SiPixelIsAliveCalibration::fill(unsigned int detid, unsigned int adc, unsig
 }
 TString SiPixelIsAliveCalibration::makeHistName(unsigned int detid){
   DetId detId(detid);
-  uint32_t detsubId = detId.subdetId();
  
   TString result = "";
 
@@ -213,35 +212,8 @@ void SiPixelIsAliveCalibration::init(unsigned int detid){
 
   if(detid==0)
     return;
-  if(detId.subdetId()==1){
-    PXBDetId pdetId = PXBDetId(detid);
-    labelofhist << "BPIX, ";
-    labelofhist << "layer ";
-    labelofhist << pdetId.layer();
-    labelofhist << ", ladder";
-    labelofhist << pdetId.ladder();
-    labelofhist << "" ;
-						
-  }
-  else if(detId.subdetId()==2){
-    PXFDetId pdetId = PXFDetId(detid);
-    labelofhist << "FPIX, ";
-    labelofhist<< "disk ";
-    labelofhist<<pdetId.disk();
-    labelofhist<<", blade ";
-    labelofhist<<pdetId.blade();
-    labelofhist<<", module ";
-    labelofhist<<pdetId.module();
-    labelofhist<<", side ";
-    labelofhist<<pdetId.side();
-    labelofhist<<", panel ";
-    labelofhist<< pdetId.panel();
 
-  }
-  else if(detId.det()==1){
-    labelofhist<<"unknown det id ";
-  }
-  else return;
+  labelofhist << nameofhist;
   
   std::cout << nameofhist << " " << labelofhist.str() << std::endl;
 
