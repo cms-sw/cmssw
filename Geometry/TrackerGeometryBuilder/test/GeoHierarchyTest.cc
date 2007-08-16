@@ -200,7 +200,7 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 		       char(theString[1]), 
 		       char(theString[2]), 
 		       theModule,
-		       char(module.stereo())
+		       char(module:glued() ? module.stereo()+1 : 0)
 	};
 	trie.addEntry(key,7, modules[i]);
 	
@@ -227,7 +227,7 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 		       theRing,
 		       char(theModule[0]), 
 		       char(theModule[1]),
-		       char(module.stereo())
+		       char(module:glued() ? module.stereo()+1 : 0)
 	};
 	trie.addEntry(key,7, modules[i]);
 	
@@ -249,7 +249,7 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 		       char(theRod[0]), 
 		       char(theRod[1]), 
 		       theModule,
-		       char(module.stereo())};
+		       char(module:glued() ? module.stereo()+1 : 0)};
 	trie.addEntry(key,6, modules[i]);
 	
 	break;
@@ -277,51 +277,9 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 		       char(thePetal[1]),
 		       theRing,
 		       theModule,
-		       char(module.stereo())};
+		       char(module:glued() ? module.stereo()+1 : 0)};
 	trie.addEntry(key,8, modules[i]);
-	
-	/*
-	unsigned int out_disk = module.wheel();
-	unsigned int out_sector = thePetal[1];
-	int out_petal = (thePetal[0] == 1 ) ? 1 : -1;
-	// swap sector numbers for TEC-
-	if (out_side == -1) {
-	  // fine for back petals, substract 1 for front petals
-	  if (out_petal == -1) {
-	    out_sector = (out_sector+6) % 8 + 1;
-	  }
-	}
-	unsigned int out_ring = module.ring();
-	int out_sensor = 0;
-	if(name == "TECModule0RphiActive")   out_sensor = -1;
-	if(name == "TECModule0StereoActive") out_sensor =  1;
-	if(name == "TECModule1RphiActive")   out_sensor = -1;
-	if(name == "TECModule1StereoActive") out_sensor =  1;
-	if(name == "TECModule2RphiActive")   out_sensor = -1;
-	if(name == "TECModule3RphiActive")   out_sensor = -1;
-	if(name == "TECModule4RphiActive")   out_sensor = -1;
-	if(name == "TECModule4StereoActive") out_sensor =  1;
-	if(name == "TECModule5RphiActive")   out_sensor = -1;
-	if(name == "TECModule6RphiActive")   out_sensor = -1;
-	unsigned int out_module;
-	if (out_ring == 1 || out_ring == 2 || out_ring == 5) {
-	  // rings with stereo modules
-	  // create number odd by default
-	  out_module = 2*(module.module()-1)+1;
-	  if (out_sensor == 1) {
-	    // in even rings, stereo modules are the even ones
-	    if (out_ring == 2)
-	      out_module += 1;
-	  }
-	  else
-	    // in odd rings, stereo modules are the odd ones
-	    if (out_ring != 2)
-	      out_module += 1;
-	}
-	else {
-	  out_module = module.module();
-	}
-	*/
+  
 	break;
       }
     default:
