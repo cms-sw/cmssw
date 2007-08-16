@@ -5,8 +5,8 @@
  * default eta thresholds (lepton and jets) set to 3
  * At least two leptons and two jets present for each channel
  *
- * $Date: 2007/08/07 11:05:25 $
- * $Revision: 1.2 $
+ * $Date: 2007/08/09 19:28:24 $
+ * $Revision: 1.3 $
  *
  * \author Michele Gallinaro and Nuno Almeida - LIP
  *
@@ -51,27 +51,26 @@ public:
 TopLeptonTauFilter::TopLeptonTauFilter( const edm::ParameterSet& iConfig ) :
   nEvents_(0), nAccepted_(0)
 {
-  
-  ElecFilter_ = iConfig.getUntrackedParameter<bool>( "ElecFilter" );
-  MuonFilter_ = iConfig.getUntrackedParameter<bool>( "MuonFilter" );
-  TauFilter_  = iConfig.getUntrackedParameter<bool>( "TauFilter" );
-  JetFilter_  = iConfig.getUntrackedParameter<bool>( "JetFilter" );
+
+  ElecFilter_ = iConfig.getParameter<bool>( "ElecFilter" );
+  MuonFilter_ = iConfig.getParameter<bool>( "MuonFilter" );
+  TauFilter_  = iConfig.getParameter<bool>( "TauFilter" );
+  JetFilter_  = iConfig.getParameter<bool>( "JetFilter" );
    
   Elecsrc_    = iConfig.getParameter<InputTag>( "Elecsrc" );
   Muonsrc_    = iConfig.getParameter<InputTag>( "Muonsrc" );
   Tausrc_     = iConfig.getParameter<InputTag>( "Tausrc" );
   CaloJetsrc_ = iConfig.getParameter<InputTag>( "CaloJetsrc" );
   
-  NminMuon_      = iConfig.getUntrackedParameter<int>( "NminMuon", 1 );
-  NminTau_      = iConfig.getUntrackedParameter<int>( "NminTau", 1 );
-  NminElec_     = iConfig.getUntrackedParameter<int>( "NminElec", 1 );
-  NminCaloJet_  = iConfig.getUntrackedParameter<int>( "NminCaloJet", 2 );
+  NminMuon_     = iConfig.getParameter<int>( "NminMuon" );
+  NminTau_      = iConfig.getParameter<int>( "NminTau" );
+  NminElec_     = iConfig.getParameter<int>( "NminElec" );
+  NminCaloJet_  = iConfig.getParameter<int>( "NminCaloJet" );
   
-  ElecPtmin_    = iConfig.getUntrackedParameter<double>( "ElecPtmin", 15. );
-  MuonPtmin_    = iConfig.getUntrackedParameter<double>( "MuonPtmin", 15. );
-  TauPtmin_     = iConfig.getUntrackedParameter<double>( "TauLeadTkPtmin", 15. );
-  CaloJetPtmin_ = iConfig.getUntrackedParameter<double>( "CaloJetPtmin", 15. );
-  
+  ElecPtmin_    = iConfig.getParameter<double>( "ElecPtmin" );
+  MuonPtmin_    = iConfig.getParameter<double>( "MuonPtmin" );
+  TauPtmin_     = iConfig.getParameter<double>( "TauLeadTkPtmin" );
+  CaloJetPtmin_ = iConfig.getParameter<double>( "CaloJetPtmin" );
   
 }
 
@@ -89,10 +88,10 @@ bool TopLeptonTauFilter::filter( edm::Event& iEvent,
   bool filterResult(true);
   nEvents_++;
 
-  if(ElecFilter_){filterResult=electronFilter(iEvent,iSetup);}
-  if(MuonFilter_){filterResult &= muonFilter(iEvent,iSetup);}
-  if(TauFilter_) {filterResult &= tauFilter(iEvent,iSetup); }
-  if(JetFilter_) {filterResult &= jetFilter(iEvent,iSetup); }
+  if(ElecFilter_){ filterResult = electronFilter(iEvent,iSetup); }
+  if(MuonFilter_){ filterResult = muonFilter(iEvent,iSetup); }
+  if(TauFilter_) { filterResult = tauFilter(iEvent,iSetup); }
+  if(JetFilter_) { filterResult = jetFilter(iEvent,iSetup); }
   
   if (filterResult) nAccepted_++;
   
@@ -105,17 +104,8 @@ bool TopLeptonTauFilter::electronFilter( edm::Event& iEvent, const edm::EventSet
 
   // dealing with electrons
   Handle<PixelMatchGsfElectronCollection> ElecHandle;
-  try {
-    iEvent.getByLabel( Elecsrc_, ElecHandle );
-  }
-  catch ( cms::Exception& ex ) {
-    edm::LogError( "TopLeptonTauFilter" ) 
-      << "Unable to get Elec collection "
-      << Elecsrc_.label();
-    return false;
-  }
+  iEvent.getByLabel( Elecsrc_, ElecHandle );
   if ( ElecHandle->empty() && NminElec_!=0 ) return false;
-  
   PixelMatchGsfElectronCollection TheElecs = *ElecHandle;
   std::stable_sort( TheElecs.begin(), TheElecs.end(), PtSorter() );
   
@@ -136,16 +126,8 @@ bool TopLeptonTauFilter::electronFilter( edm::Event& iEvent, const edm::EventSet
 bool TopLeptonTauFilter::muonFilter( edm::Event& iEvent, const edm::EventSetup
 & iSetup ){
 
-Handle<MuonCollection> MuonHandle;
-  try {
-    iEvent.getByLabel( Muonsrc_, MuonHandle );
-  }
-  catch ( cms::Exception& ex ) {
-    edm::LogError( "TopLeptonTauFilter" ) 
-      << "Unable to get Muon collection "
-      << Muonsrc_.label();
-    return false;
-  }
+  Handle<MuonCollection> MuonHandle;
+  iEvent.getByLabel( Muonsrc_, MuonHandle );
   if ( MuonHandle->empty() && NminMuon_!=0 ) return false;
   MuonCollection TheMuons = *MuonHandle;
   std::stable_sort( TheMuons.begin(), TheMuons.end(), PtSorter() );
@@ -174,23 +156,14 @@ bool TopLeptonTauFilter::tauFilter( edm::Event& iEvent, const edm::EventSetup
 & iSetup ){
 
   Handle<TauCollection> TauHandle;
-  try {
   iEvent.getByLabel(Tausrc_,TauHandle);
-  }
-  catch ( cms::Exception& ex ) {
-    edm::LogError( "TopLeptonTauFilter" ) 
-      << "Unable to get Tau collection "
-      << Tausrc_.label();
-    return false;
-  }
   const TauCollection& myTauCollection=*(TauHandle.product());
-  
   if ( myTauCollection.empty() && NminTau_!=0 ) return false;
   
   int nTau = 0;
   for(TauCollection::const_iterator it =myTauCollection.begin();it !=myTauCollection.end();it++)
     {
-      TrackRef theLeadTk = it->getleadTrack();
+      TrackRef theLeadTk = it->getLeadingTrack();
       if(!theLeadTk) {}
       else{
         double leadTkPt  = (*theLeadTk).pt();
@@ -212,18 +185,9 @@ bool TopLeptonTauFilter::tauFilter( edm::Event& iEvent, const edm::EventSetup
 
 bool TopLeptonTauFilter::jetFilter( edm::Event& iEvent, const edm::EventSetup
 & iSetup ){
- Handle<CaloJetCollection> CaloJetsHandle;
 
-  try {
-    iEvent.getByLabel( CaloJetsrc_, CaloJetsHandle );
-  } 
-  catch ( cms::Exception& ex ) {
-    edm::LogError( "TopLeptonTauFilter" ) 
-      << "Unable to get CaloJet collection "
-      << CaloJetsrc_.label();
-    return false;
-  }
-
+  Handle<CaloJetCollection> CaloJetsHandle;
+  iEvent.getByLabel( CaloJetsrc_, CaloJetsHandle );
   if ( CaloJetsHandle->empty() && NminCaloJet_!=0 ) return false;
 
   int nJet = 0;
@@ -246,12 +210,14 @@ bool TopLeptonTauFilter::jetFilter( edm::Event& iEvent, const edm::EventSetup
 
 void TopLeptonTauFilter::endJob()
 {
-//  edm::LogVerbatim( "TopLeptonTauFilter" ) 
 
-   cout << "\n Events read " << nEvents_
+//  edm::LogVerbatim( "TopLeptonTauFilter" ) 
+   edm::LogInfo( "TopLeptonTauFilter" )
+    << "\n Events read " << nEvents_
     << " Events accepted " << nAccepted_
     << "\nEfficiency " << (double)(nAccepted_)/(double)(nEvents_) 
     << endl;
+
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
