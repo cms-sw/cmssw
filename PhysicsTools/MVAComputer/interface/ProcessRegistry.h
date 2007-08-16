@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcessRegistry.h,v 1.5 2007/08/09 09:15:31 saout Exp $
+// $Id: ProcessRegistry.h,v 1.6 2007/08/13 12:43:41 saout Exp $
 //
 
 #include <string>
@@ -97,14 +97,7 @@ class ProcessRegistry {
 	typedef std::map<std::string, const ProcessRegistry*> RegistryMap;
 
 	/// return map of all registered processes, allocate if necessary
-	static RegistryMap &getRegistry();
-
-	static struct Holder {
-		~Holder() { delete registry; registry = 0; }
-	} holder;
-
-	/// pointer to the allocated registry map
-	static RegistryMap *registry;
+	static RegistryMap *getRegistry();
 
 	const char *name;
 };

@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcessRegistry.icc,v 1.4 2007/08/09 09:15:32 saout Exp $
+// $Id: ProcessRegistry.icc,v 1.5 2007/08/13 12:43:41 saout Exp $
 //
 
 #include <string>
@@ -21,20 +21,25 @@ namespace PhysicsTools {
 
 template<class Base_t, class CalibBase_t, class Parent_t>
 std::map<std::string, const ProcessRegistry<Base_t, CalibBase_t, Parent_t>*>
-	&ProcessRegistry<Base_t, CalibBase_t, Parent_t>::getRegistry()
+	*ProcessRegistry<Base_t, CalibBase_t, Parent_t>::getRegistry()
 {
-	if (!registry)
-		registry = new RegistryMap;
-	return *registry;
+	static struct Sentinel {
+		Sentinel() : instance(new RegistryMap) {}
+		~Sentinel() { delete instance; instance = 0; }
+
+		RegistryMap	*instance;
+	} sentinel;
+
+	return sentinel.instance;
 }
 
 template<class Base_t, class CalibBase_t, class Parent_t>
 Base_t *ProcessRegistry<Base_t, CalibBase_t, Parent_t>::create(
 		const char *name, const CalibBase_t *calib, Parent_t *parent)
 {
-	typename RegistryMap::iterator pos = getRegistry().find(name);
+	typename RegistryMap::iterator pos = getRegistry()->find(name);
 
-	if (pos == getRegistry().end())
+	if (pos == getRegistry()->end())
 		return 0;
 
 	return pos->second->instance(name, calib, parent);
@@ -43,20 +48,12 @@ Base_t *ProcessRegistry<Base_t, CalibBase_t, Parent_t>::create(
 template<class Base_t, class CalibBase_t, class Parent_t>
 void ProcessRegistry<Base_t, CalibBase_t, Parent_t>::registerProcess(
 			const char *name, const ProcessRegistry *process)
-{ getRegistry()[name] = process; }
+{ (*getRegistry())[name] = process; }
 
 template<class Base_t, class CalibBase_t, class Parent_t>
 void ProcessRegistry<Base_t, CalibBase_t, Parent_t>::unregisterProcess(
 							const char *name)
-{ if (registry) registry->erase(name); }
-
-template<class Base_t, class CalibBase_t, class Parent_t>
-typename ProcessRegistry<Base_t, CalibBase_t, Parent_t>::Holder
-		ProcessRegistry<Base_t, CalibBase_t, Parent_t>::holder;
-
-template<class Base_t, class CalibBase_t, class Parent_t>
-typename ProcessRegistry<Base_t, CalibBase_t, Parent_t>::RegistryMap*
-		ProcessRegistry<Base_t, CalibBase_t, Parent_t>::registry = 0;
+{ RegistryMap *map = getRegistry(); if (map) map->erase(name); }
 
 } // namespace PhysicsTools
 
