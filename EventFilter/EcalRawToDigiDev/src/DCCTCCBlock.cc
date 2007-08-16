@@ -14,7 +14,7 @@ int DCCTCCBlock::unpack(uint64_t ** data, uint * dwToEnd){
   data_       = *data;
   
   if( (*dwToEnd_)<blockLength_ ){
-    edm::LogWarning("EcalRawToDigi@SUB=DCCTCCBlock:unpack")
+    edm::LogWarning("EcalRawToDigiDevTCC")
       <<"EcalRawToDigi@SUB=DCCTCCBlock:unpack"
       <<"\n Unable to unpack TCC block for event "<<event_->l1A()<<" in dcc "<<mapper_->getActiveDCC()
       <<"\n Only "<<((*dwToEnd_)*8)<<" bytes are available until the end of event while "<<(blockLength_*8)<<" are needed!"
@@ -46,14 +46,15 @@ int DCCTCCBlock::unpack(uint64_t ** data, uint * dwToEnd){
       uint dccBx = (event_->bx())  & TCC_BX_MASK;
       uint dccL1 = (event_->l1A()) & TCC_L1_MASK;    
       if( dccBx != bx_ || dccL1 != l1_ ){
-        edm::LogWarning("EcalRawToDigi@SUB=DCCTCCBlock::unpack")
-          <<"\n Synchronization error for TCC block in event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in dcc <<"<<mapper_->getActiveDCC()
-          <<"\n TCC local l1A is  "<<l1_<<" and local bx is "<<bx_
-          <<"\n TCC block skiped ...";
-		
-		//Note : add to error collection ?	
-		updateEventPointers();
-		return SKIP_BLOCK_UNPACKING;
+        edm::LogWarning("EcalRawToDigiDevTCC")
+	  <<"\n Synchronization error for TCC block in event "<<event_->l1A()
+	  <<" with bx "<<event_->bx()<<" in dcc <<"<<mapper_->getActiveDCC()
+	  <<"\n TCC local l1A is  "<<l1_<<" and local bx is "<<bx_
+	  <<"\n TCC block skiped ...";
+	
+	//Note : add to error collection ?	
+	updateEventPointers();
+	return SKIP_BLOCK_UNPACKING;
         
       }
     }
@@ -63,7 +64,7 @@ int DCCTCCBlock::unpack(uint64_t ** data, uint * dwToEnd){
     uint expTriggerTSamples(mapper_->numbTriggerTSamples());
     
     if( nTSamples_ != expTriggerTSamples ){
-      edm::LogWarning("EcalRawToDigi@SUB=DCCTCCBlock::unpack")
+      edm::LogWarning("EcalRawToDigiDevTCC")
         <<"\n Unable to unpack TCC block for event "<<event_->l1A()<<" in dcc "<<mapper_->getActiveDCC()
         <<"\n Number of time samples is "<<nTSamples_<<" while "<<expTriggerTSamples<<" is expected"
         <<"\n TCC block skiped..."<<endl;

@@ -77,7 +77,7 @@ bool DCCEETCCBlock::checkTccIdAndNumbTTs(){
    }
 	
   if(!tccFound){
-    edm::LogWarning("EcalRawToDigi@SUB=DCCTCCBlock::unpack") 
+    edm::LogWarning("EcalRawToDigiDevTCC") 
       <<"\n Error on event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in dcc <<"<<mapper_->getActiveDCC()
       <<"\n TCC id "<<tccId_<<" is not valid for this dcc "
       <<"\n => Skipping the event...";
