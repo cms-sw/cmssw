@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Thu Jun 14 18:06:29 CEST 2007
-// $Id: SiPixelIsAliveCalibration.cc,v 1.1 2007/06/26 14:07:48 fblekman Exp $
+// $Id: SiPixelIsAliveCalibration.cc,v 1.3 2007/06/27 15:28:01 fblekman Exp $
 //
 //
 
@@ -40,6 +40,8 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h" 
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 
 
 #include "PhysicsTools/UtilAlgos/interface/TFileDirectory.h"
@@ -172,17 +174,24 @@ void SiPixelIsAliveCalibration::fill(unsigned int detid, unsigned int adc, unsig
 }
 TString SiPixelIsAliveCalibration::makeHistName(unsigned int detid){
   DetId detId(detid);
+  uint32_t detsubId = detId.subdetId();
+ 
   TString result = "";
+
   std::ostringstream nameofhist;  
   if(detid==0)
     return result;
 
   if(detId.subdetId()==1){
-    nameofhist << "BPIX_";
+    PixelBarrelName nameworker(detid);
+    nameofhist << nameworker.name();
+    nameofhist << " ";
     nameofhist << detid;
   }
   else if(detId.subdetId()==2){
-    nameofhist << "FPIX_";
+    PixelEndcapName nameworker(detid);
+    nameofhist << nameworker.name();
+    nameofhist << " ";
     nameofhist << detid;
   }
   else{
