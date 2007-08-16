@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchGsfElectronAnalyzer.h,v 1.1 2007/07/05 10:34:45 charlot Exp $
+// $Id: PixelMatchGsfElectronAnalyzer.h,v 1.2 2007/07/05 11:40:05 charlot Exp $
 //
 //
   
@@ -215,6 +215,7 @@ class PixelMatchGsfElectronAnalyzer : public edm::EDAnalyzer
   TH1F *histSclEoEtrueShowering1234_barrel;
   TH1F *histSclEoEtrueShowering1234_endcaps;
 
+  std::string outputFile_; 
   std::string electronProducer_;
   std::string electronLabel_;
   edm::InputTag barrelClusterShapeAssocProducer_;

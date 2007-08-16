@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchGsfElectronAnalyzer.cc,v 1.3 2007/07/26 07:44:09 charlot Exp $
+// $Id: PixelMatchGsfElectronAnalyzer.cc,v 1.4 2007/08/16 14:26:52 futyand Exp $
 //
 //
 
@@ -47,7 +47,8 @@ using namespace reco;
 PixelMatchGsfElectronAnalyzer::PixelMatchGsfElectronAnalyzer(const edm::ParameterSet& conf)
 {
 
-  histfile_ = new TFile("gsfElectronHistos.root","RECREATE");
+  outputFile_ = conf.getParameter<std::string>("outputFile");
+  histfile_ = new TFile(outputFile_.c_str(),"RECREATE");
   electronProducer_=conf.getParameter<std::string>("ElectronProducer");
   electronLabel_=conf.getParameter<std::string>("ElectronLabel");
   barrelClusterShapeAssocProducer_ = conf.getParameter<edm::InputTag>("barrelClusterShapeAssociation");
@@ -65,9 +66,6 @@ PixelMatchGsfElectronAnalyzer::~PixelMatchGsfElectronAnalyzer()
 }
 
 void PixelMatchGsfElectronAnalyzer::beginJob(edm::EventSetup const&iSetup){
-
-
-  histfile_ = new TFile("gsfElectronHistos.root","RECREATE");
 
   // mc truth  
 
