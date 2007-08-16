@@ -512,7 +512,7 @@ edm::Trie<T>::Trie(const T &empty) :
 {
   // initialize nodes by paquets of 10000
   _factory = new TrieFactory<T>(10000);
-  _initialNode = _factory->getNewNode(_empty);
+  _initialNode = _factory->newNode(_empty);
 }
 
 template <typename T>
@@ -583,7 +583,7 @@ void edm::Trie<T>::insert(const char *str, unsigned strLen, const T &value)
   
   // Set the value on the last node
   if (node && node->value() != _empty)
-    detailsTrie::errorInsert(std::string(str,strlen));
+    detailsTrie::errorInsert(std::string(str,strLen));
   node->setValue(value);
 }
 

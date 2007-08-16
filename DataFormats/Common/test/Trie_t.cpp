@@ -94,7 +94,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(TestedmTrie);
 		  CPPUNIT_ASSERT_EQUAL(std::string("2eme"), s);
 		}
 	  }
-    catch (const edm::VinException &e)
+    catch (const edm::Exception &e)
       {
 	std::cerr << e.what() << std::endl;
 	CPPUNIT_ASSERT(false);
@@ -109,9 +109,9 @@ CPPUNIT_TEST_SUITE_REGISTRATION(TestedmTrie);
 		nbTrie.insert("un", 2, 1);
 		nbTrie.insert("deux", 4, 2);
 		nbTrie.insert("test", 4, 3);
-		nbTrie.insert("tat" 4);
-		nbTrie.insert("taa" 4);
-		nbTrie.insert("tbp" 5);
+		nbTrie.insert("tat", 4);
+		nbTrie.insert("taa", 4);
+		nbTrie.insert("tbp", 5);
 		nbTrie.insert("tlp", 3, 6);
 
 		unsigned res = 0;
