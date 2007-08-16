@@ -6,8 +6,8 @@
  *  find out compatible DetLayers with a given FTS 
  *  by checking eta region
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2007/05/11 15:02:11 $
+ *  $Revision: 1.1 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -24,7 +24,7 @@ class DirectTrackerNavigation{
   public:
 
     /* Constructor */ 
-    DirectTrackerNavigation(const edm::ESHandle<GeometricSearchTracker>&);
+    DirectTrackerNavigation(const edm::ESHandle<GeometricSearchTracker>&, bool outOnly = true);
 
     DirectTrackerNavigation* clone() const {
       return new DirectTrackerNavigation(*this);
@@ -72,6 +72,8 @@ class DirectTrackerNavigation{
     float epsilon_;
 
     edm::ESHandle<GeometricSearchTracker> theGeometricSearchTracker;
+
+    bool theOutLayerOnlyFlag;
 
 };
 #endif

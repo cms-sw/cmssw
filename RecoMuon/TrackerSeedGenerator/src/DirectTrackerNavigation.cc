@@ -2,8 +2,8 @@
 
 /** \file DirectTrackerNavigation
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2007/05/11 15:04:46 $
+ *  $Revision: 1.1 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -18,7 +18,7 @@
 
 using namespace std;
 
-DirectTrackerNavigation::DirectTrackerNavigation(const edm::ESHandle<GeometricSearchTracker>& tkLayout) : theGeometricSearchTracker(tkLayout) {
+DirectTrackerNavigation::DirectTrackerNavigation(const edm::ESHandle<GeometricSearchTracker>& tkLayout, bool outOnly) : theGeometricSearchTracker(tkLayout), theOutLayerOnlyFlag(outOnly) {
    epsilon_ = 0.07; 
 
 }
@@ -36,15 +36,17 @@ DirectTrackerNavigation::compatibleLayers( const FreeTrajectoryState& fts,
 
   if (inOut) { 
 
-      inOutPx(fts,output);
+      if ( !theOutLayerOnlyFlag ) {
+         inOutPx(fts,output);
 
-      if ( fts.position().eta() > 1.55) inOutFPx(fts,output);
-      else if ( fts.position().eta() < -1.55) inOutBPx(fts,output);
+         if ( fts.position().eta() > 1.55) inOutFPx(fts,output);
+         else if ( fts.position().eta() < -1.55) inOutBPx(fts,output);
 
-      if ( fabs(fts.position().eta()) < 1.67) inOutTIB(fts,output); 
+         if ( fabs(fts.position().eta()) < 1.67) inOutTIB(fts,output); 
 
-      if ( fts.position().eta() > 1.17 ) inOutFTID(fts,output);
-      else if ( fts.position().eta() < -1.17 ) inOutBTID(fts,output);
+         if ( fts.position().eta() > 1.17 ) inOutFTID(fts,output);
+         else if ( fts.position().eta() < -1.17 ) inOutBTID(fts,output);
+      }
 
       if ( fabs(fts.position().eta()) < 1.35) inOutTOB(fts,output);
 
