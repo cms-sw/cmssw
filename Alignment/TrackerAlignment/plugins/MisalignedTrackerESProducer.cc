@@ -58,9 +58,7 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
   edm::LogInfo("MisalignedTracker") << "Producer called";
 
   // Create the tracker geometry from ideal geometry
-  edm::ESHandle<DDCompactView> cpv;
   edm::ESHandle<GeometricDet> gD;
-  iRecord.getRecord<IdealGeometryRecord>().get( cpv );
   iRecord.getRecord<IdealGeometryRecord>().get( gD );
   TrackerGeomBuilderFromGeometricDet trackerBuilder;
   theTracker  = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*gD)) );
