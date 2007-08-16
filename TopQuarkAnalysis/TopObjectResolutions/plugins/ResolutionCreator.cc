@@ -40,6 +40,11 @@ ResolutionCreator::ResolutionCreator(const edm::ParameterSet& iConfig)
     resObsMaxAbs.push_back( 0.004);  resObsMaxAbs.push_back(1.1);  resObsMaxAbs.push_back( 0.004);  resObsMaxAbs.push_back( 0.003);  resObsMaxAbs.push_back( 8);  resObsMaxAbs.push_back( 0.004);
     resObsMinRel.push_back(-0.0001); resObsMinRel.push_back(0.00);  resObsMinRel.push_back( -0.004); resObsMinRel.push_back(-0.004); resObsMinRel.push_back( -0.4); resObsMinRel.push_back( -0.01);
     resObsMaxRel.push_back( 0.0001); resObsMaxRel.push_back( 0.05); resObsMaxRel.push_back(  0.004); resObsMaxRel.push_back( 0.004); resObsMaxRel.push_back(  0.4); resObsMaxRel.push_back(  0.01);
+  } else if(objectType_ == "tau"){ 
+    resObsMinAbs.push_back(-0.04);  resObsMinAbs.push_back(0.);  resObsMinAbs.push_back(-0.1);  resObsMinAbs.push_back(-0.1);  resObsMinAbs.push_back(-80);  resObsMinAbs.push_back(-0.1);   
+    resObsMaxAbs.push_back( 0.1);  resObsMaxAbs.push_back(10);  resObsMaxAbs.push_back( 0.1);  resObsMaxAbs.push_back( 0.1);  resObsMaxAbs.push_back( 50);  resObsMaxAbs.push_back( 0.1);
+    resObsMinRel.push_back(-0.005); resObsMinRel.push_back(-0.002);  resObsMinRel.push_back(-0.1); resObsMinRel.push_back(-0.4); resObsMinRel.push_back( -1.); resObsMinRel.push_back( -1.);
+    resObsMaxRel.push_back( 0.001); resObsMaxRel.push_back( 1.); resObsMaxRel.push_back(  0.1); resObsMaxRel.push_back( 0.4); resObsMaxRel.push_back( 1.); resObsMaxRel.push_back(  1.);
   } else if(objectType_ == "lJets" || objectType_ == "bJets"){
     resObsMinAbs.push_back(-0.04);  resObsMinAbs.push_back(0.);   resObsMinAbs.push_back(-0.4); resObsMinAbs.push_back(-0.6); resObsMinAbs.push_back( -80); resObsMinAbs.push_back(-0.6);   
     resObsMaxAbs.push_back( 0.04);  resObsMaxAbs.push_back(5);   resObsMaxAbs.push_back( 0.4); resObsMaxAbs.push_back( 0.6); resObsMaxAbs.push_back( 80);  resObsMaxAbs.push_back( 0.6);
@@ -134,7 +139,10 @@ ResolutionCreator::~ResolutionCreator()
 	  }
           fResEtEtaBin[ro][etab][etb][aor] -> SetRange(hResEtEtaBin[ro][etab][etb][aor]->GetBinCenter(maxbin-8),
 	  					       hResEtEtaBin[ro][etab][etb][aor]->GetBinCenter(maxbin+8));
-          hResEtEtaBin[ro][etab][etb][aor] -> Fit(fResEtEtaBin[ro][etab][etb][aor]->GetName(),"Q");
+	  fResEtEtaBin[ro][etab][etb][aor] -> SetParameters(hResEtEtaBin[ro][etab][etb][aor] -> GetMaximum(),
+	                                                    hResEtEtaBin[ro][etab][etb][aor] -> GetMean(),
+							    hResEtEtaBin[ro][etab][etb][aor] -> GetRMS());
+          hResEtEtaBin[ro][etab][etb][aor] -> Fit(fResEtEtaBin[ro][etab][etb][aor]->GetName(),"QL");
           //fResEtEtaBin[ro][etab][etb][aor] -> SetRange(fResEtEtaBin[ro][etab][etb][aor]->GetParameter(1)-1.5*fResEtEtaBin[ro][etab][etb][aor]->GetParameter(2),
 	  //                                            fResEtEtaBin[ro][etab][etb][aor]->GetParameter(1)+1.5*fResEtEtaBin[ro][etab][etb][aor]->GetParameter(2));
           //hResEtEtaBin[ro][etab][etb][aor] -> Fit(fResEtEtaBin[ro][etab][etb][aor]->GetName(),"RQ");
@@ -234,6 +242,23 @@ void ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup&
          p4gen.push_back(new reco::Particle(genEvt->particles()[5]));
          p4rec.push_back(new reco::Particle((metType)((*mets)[0])));
        }
+     }
+   } else if(objectType_ == "tau"){
+     edm::Handle<std::vector<TopTau> > taus; 
+     iEvent.getByType(taus);
+     for(std::vector<TopTau>::const_iterator tau = taus->begin(); tau != taus->end(); ++tau) {
+       // find the tau (if any) that matches a MC tau from W
+       reco::GenParticleCandidate genLepton = tau->getGenLepton();
+       if( abs(genLepton.pdgId())==15 && genLepton.status()==2 &&
+           genLepton.numberOfMothers()>0 &&
+           abs(genLepton.mother(0)->pdgId())==15 &&
+           genLepton.mother(0)->numberOfMothers()>0 &&
+           abs(genLepton.mother(0)->mother(0)->pdgId())==24 &&
+	   ROOT::Math::VectorUtil::DeltaR(genLepton.p4(), tau->p4()) < minDR_  ) {
+       }
+       p4gen.push_back(new reco::Particle(genLepton));
+       p4rec.push_back(new reco::Particle(*tau));
+	   
      }
    }
    // Fill the object's value
