@@ -302,7 +302,7 @@ edm::TrieFactory<T>::~TrieFactory()
 }
 
 template <typename T>
-edm::TrieNode<T>* edm::TrieFactory<T>::getNewNode(const T &value)
+edm::TrieNode<T>* edm::TrieFactory<T>::newNode(const T &value)
 {
   if (_nbUsedInLastNodes == _paquetSize)
     {
@@ -616,7 +616,7 @@ const T& edm::Trie<T>::find(const char *str, unsigned strLen) const
 
 template <typename T>
 edm::TrieNode<T> const * 
-edm::Trie<T>::node(std::string const & str) {
+edm::Trie<T>::node(std::string const & str) const {
     return node(str.c_str(),str.size());
   }
 
