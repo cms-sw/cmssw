@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchGsfElectronAnalyzer.cc,v 1.2 2007/07/05 11:40:05 charlot Exp $
+// $Id: PixelMatchGsfElectronAnalyzer.cc,v 1.3 2007/07/26 07:44:09 charlot Exp $
 //
 //
 
@@ -366,14 +366,15 @@ PixelMatchGsfElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
     // select electrons
     if ( (*mcIter)->pdg_id() == 11 || (*mcIter)->pdg_id() == -11 ){       
 
-      // single primary electrons or electrons from Zs
+      // single primary electrons or electrons from Zs or Ws
       HepMC::GenParticle* mother = 0;
       if ( (*mcIter)->production_vertex() )  {
        if ( (*mcIter)->production_vertex()->particles_begin(HepMC::parents) != 
            (*mcIter)->production_vertex()->particles_end(HepMC::parents))  
             mother = *((*mcIter)->production_vertex()->particles_begin(HepMC::parents));
       } 
-      if ( ((mother == 0) || ((mother != 0) && (mother->pdg_id() == 23)))) {       
+      if ( ((mother == 0) || ((mother != 0) && (mother->pdg_id() == 23))
+	                  || ((mother != 0) && (fabs(mother->pdg_id()) == 24)))) {       
    
       genPc=(*mcIter);
       pAssSim = genPc->momentum();
