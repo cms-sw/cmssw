@@ -1,7 +1,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/08/15 12:00:00 $
+ *  $Date: 2007/08/16 10:53:27 $
  *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
@@ -46,8 +46,10 @@ DTDeadFlagId::DTDeadFlagId() :
 
 
 DTDeadFlagData::DTDeadFlagData() :
-   deadFlag( false ),
-   nohvFlag( false ) {
+   dead_HV( false ),
+   dead_TP( false ),
+   dead_RO( false ),
+   discCat( false ) {
 }
 
 
@@ -93,11 +95,15 @@ int DTDeadFlag::cellStatus( int   wheelId,
                             int      slId,
                             int   layerId,
                             int    cellId,
-                            bool& deadFlag,
-                            bool& nohvFlag ) const {
+                            bool& dead_HV,
+                            bool& dead_TP,
+                            bool& dead_RO,
+                            bool& discCat ) const {
 
-  deadFlag = false;
-  nohvFlag = false;
+  dead_HV = false;
+  dead_TP = false;
+  dead_RO = false;
+  discCat = false;
 
   DTDeadFlagId key;
   key.  wheelId =   wheelId;
@@ -112,8 +118,10 @@ int DTDeadFlag::cellStatus( int   wheelId,
 
   if ( iter != cellData.end() ) {
     const DTDeadFlagData& data = iter->second;
-    deadFlag = data. deadFlag;
-    nohvFlag = data. nohvFlag;
+    dead_HV = data.dead_HV;
+    dead_TP = data.dead_TP;
+    dead_RO = data.dead_RO;
+    discCat = data.discCat;
     return 0;
   }
   return 1;
@@ -122,15 +130,17 @@ int DTDeadFlag::cellStatus( int   wheelId,
 
 
 int DTDeadFlag::cellStatus( const DTWireId& id,
-                            bool&  deadFlag,
-                            bool&  nohvFlag ) const {
+                            bool& dead_HV,
+                            bool& dead_TP,
+                            bool& dead_RO,
+                            bool& discCat ) const {
   return cellStatus( id.wheel(),
                      id.station(),
                      id.sector(),
                      id.superLayer(),
                      id.layer(),
                      id.wire(),
-                     deadFlag, nohvFlag );
+                     dead_HV, dead_TP, dead_RO, discCat );
 }
 
 
@@ -157,8 +167,10 @@ int DTDeadFlag::setCellStatus( int   wheelId,
                                int      slId,
                                int   layerId,
                                int    cellId,
-                               bool deadFlag,
-                               bool nohvFlag ) {
+                               bool dead_HV,
+                               bool dead_TP,
+                               bool dead_RO,
+                               bool discCat ) {
 
   DTDeadFlagId key;
   key.  wheelId =   wheelId;
@@ -173,14 +185,18 @@ int DTDeadFlag::setCellStatus( int   wheelId,
            DTDeadFlagCompare>::iterator iter = cellData.find( key );
   if ( iter != cellData.end() ) {
     DTDeadFlagData& data = iter->second;
-    data.deadFlag = deadFlag;
-    data.nohvFlag = nohvFlag;
+    data.dead_HV = dead_HV;
+    data.dead_TP = dead_TP;
+    data.dead_RO = dead_RO;
+    data.discCat = discCat;
     return -1;
   }
   else {
     DTDeadFlagData data;
-    data.deadFlag = deadFlag;
-    data.nohvFlag = nohvFlag;
+    data.dead_HV = dead_HV;
+    data.dead_TP = dead_TP;
+    data.dead_RO = dead_RO;
+    data.discCat = discCat;
     cellData.insert( std::pair<const DTDeadFlagId,
                                      DTDeadFlagData>( key, data ) );
     return 0;
@@ -192,101 +208,189 @@ int DTDeadFlag::setCellStatus( int   wheelId,
 
 
 int DTDeadFlag::setCellStatus( const DTWireId& id,
-                               bool deadFlag,
-                               bool nohvFlag  ) {
+                               bool dead_HV,
+                               bool dead_TP,
+                               bool dead_RO,
+                               bool discCat ) {
   return setCellStatus( id.wheel(),
                         id.station(),
                         id.sector(),
                         id.superLayer(),
                         id.layer(),
                         id.wire(),
-                        deadFlag, nohvFlag );
+                        dead_HV, dead_TP, dead_RO, discCat );
 }
 
 
-int DTDeadFlag::setCellDead( int   wheelId,
-                             int stationId,
-                             int  sectorId,
-                             int      slId,
-                             int   layerId,
-                             int    cellId,
-                             bool flag ) {
+int DTDeadFlag::setCellDead_HV( int   wheelId,
+                                int stationId,
+                                int  sectorId,
+                                int      slId,
+                                int   layerId,
+                                int    cellId,
+                                bool flag ) {
 
-  bool  deadFlag;
-  bool  nohvFlag;
+  bool dead_HV;
+  bool dead_TP;
+  bool dead_RO;
+  bool discCat;
   int status = cellStatus(   wheelId,
                            stationId,
                             sectorId,
                                 slId,
                              layerId,
                               cellId,
-                            deadFlag,
-                            nohvFlag );
+                             dead_HV, dead_TP, dead_RO, discCat );
   setCellStatus(   wheelId,
                  stationId,
                   sectorId,
                       slId,
                    layerId,
                     cellId,
-                      flag,
-                  nohvFlag );
+                      flag, dead_TP, dead_RO, discCat );
   return status;
 
 }
 
 
-int DTDeadFlag::setCellDead( const DTWireId& id,
-                             bool flag ) {
-  return setCellDead( id.wheel(),
-                      id.station(),
-                      id.sector(),
-                      id.superLayer(),
-                      id.layer(),
-                      id.wire(),
-                      flag );
+int DTDeadFlag::setCellDead_HV( const DTWireId& id,
+                                bool flag ) {
+  return setCellDead_HV( id.wheel(),
+                         id.station(),
+                         id.sector(),
+                         id.superLayer(),
+                         id.layer(),
+                         id.wire(),
+                         flag );
 }
 
 
-int DTDeadFlag::setCellNoHV( int   wheelId,
-                             int stationId,
-                             int  sectorId,
-                             int      slId,
-                             int   layerId,
-                             int    cellId,
-                             bool flag ) {
+int DTDeadFlag::setCellDead_TP( int   wheelId,
+                                int stationId,
+                                int  sectorId,
+                                int      slId,
+                                int   layerId,
+                                int    cellId,
+                                bool flag ) {
 
-  bool  deadFlag;
-  bool  nohvFlag;
+  bool dead_HV;
+  bool dead_TP;
+  bool dead_RO;
+  bool discCat;
   int status = cellStatus(   wheelId,
                            stationId,
                             sectorId,
                                 slId,
                              layerId,
                               cellId,
-                            deadFlag,
-                            nohvFlag );
+                             dead_HV, dead_TP, dead_RO, discCat );
   setCellStatus(   wheelId,
                  stationId,
                   sectorId,
                       slId,
                    layerId,
                     cellId,
-                  deadFlag,
-                      flag );
+                   dead_HV, flag, dead_RO, discCat );
   return status;
 
 }
 
 
-int DTDeadFlag::setCellNoHV( const DTWireId& id,
-                               bool flag ) {
-  return setCellNoHV( id.wheel(),
-                      id.station(),
-                      id.sector(),
-                      id.superLayer(),
-                      id.layer(),
-                      id.wire(),
-                      flag );
+int DTDeadFlag::setCellDead_TP( const DTWireId& id,
+                                bool flag ) {
+  return setCellDead_TP( id.wheel(),
+                         id.station(),
+                         id.sector(),
+                         id.superLayer(),
+                         id.layer(),
+                         id.wire(),
+                         flag );
+}
+
+
+int DTDeadFlag::setCellDead_RO( int   wheelId,
+                                int stationId,
+                                int  sectorId,
+                                int      slId,
+                                int   layerId,
+                                int    cellId,
+                                bool flag ) {
+
+  bool dead_HV;
+  bool dead_TP;
+  bool dead_RO;
+  bool discCat;
+  int status = cellStatus(   wheelId,
+                           stationId,
+                            sectorId,
+                                slId,
+                             layerId,
+                              cellId,
+                             dead_HV, dead_TP, dead_RO, discCat );
+  setCellStatus(   wheelId,
+                 stationId,
+                  sectorId,
+                      slId,
+                   layerId,
+                    cellId,
+                   dead_HV, dead_TP, flag, discCat );
+  return status;
+
+}
+
+
+int DTDeadFlag::setCellDead_RO( const DTWireId& id,
+                                bool flag ) {
+  return setCellDead_RO( id.wheel(),
+                         id.station(),
+                         id.sector(),
+                         id.superLayer(),
+                         id.layer(),
+                         id.wire(),
+                         flag );
+}
+
+
+int DTDeadFlag::setCellDiscCat( int   wheelId,
+                                int stationId,
+                                int  sectorId,
+                                int      slId,
+                                int   layerId,
+                                int    cellId,
+                                bool flag ) {
+
+  bool dead_HV;
+  bool dead_TP;
+  bool dead_RO;
+  bool discCat;
+  int status = cellStatus(   wheelId,
+                           stationId,
+                            sectorId,
+                                slId,
+                             layerId,
+                              cellId,
+                             dead_HV, dead_TP, dead_RO, discCat );
+  setCellStatus(   wheelId,
+                 stationId,
+                  sectorId,
+                      slId,
+                   layerId,
+                    cellId,
+                   dead_HV, dead_TP, dead_RO, flag );
+  return status;
+
+}
+
+
+int DTDeadFlag::setCellDiscCat( const DTWireId& id,
+                                bool flag ) {
+  return setCellDiscCat( id.wheel(),
+                         id.station(),
+                         id.sector(),
+                         id.superLayer(),
+                         id.layer(),
+                         id.wire(),
+                         flag );
 }
 
 

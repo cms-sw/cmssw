@@ -5,7 +5,7 @@
  *  Description:
  *       Class to hold drift tubes life and HV status
  *
- *  $Date: 2007/08/15 12:00:00 $
+ *  $Date: 2007/08/16 10:53:13 $
  *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
@@ -55,8 +55,10 @@ class DTDeadFlagData {
   DTDeadFlagData();
   ~DTDeadFlagData();
 
-  bool deadFlag;
-  bool nohvFlag;
+  bool dead_HV;
+  bool dead_TP;
+  bool dead_RO;
+  bool discCat;
 
 };
 
@@ -90,11 +92,15 @@ class DTDeadFlag {
                   int      slId,
                   int   layerId,
                   int    cellId,
-                  bool& deadFlag,
-                  bool& nohvFlag ) const;
+                  bool& dead_HV,
+                  bool& dead_TP,
+                  bool& dead_RO,
+                  bool& discCat ) const;
   int cellStatus( const DTWireId& id,
-                  bool& deadFlag,
-                  bool& nohvFlag ) const;
+                  bool& dead_HV,
+                  bool& dead_TP,
+                  bool& dead_RO,
+                  bool& discCat ) const;
 
   /// access version
   const
@@ -110,31 +116,55 @@ class DTDeadFlag {
                      int      slId,
                      int   layerId,
                      int    cellId,
-                     bool deadFlag,
-                     bool nohvFlag );
+                     bool dead_HV,
+                     bool dead_TP,
+                     bool dead_RO,
+                     bool discCat );
   int setCellStatus( const DTWireId& id,
-                     bool deadFlag,
-                     bool nohvFlag );
+                     bool dead_HV,
+                     bool dead_TP,
+                     bool dead_RO,
+                     bool discCat );
 
-  int setCellDead( int   wheelId,
-                   int stationId,
-                   int  sectorId,
-                   int      slId,
-                   int   layerId,
-                   int    cellId,
-                   bool flag );
-  int setCellDead( const DTWireId& id,
-                   bool flag );
+  int setCellDead_HV( int   wheelId,
+                      int stationId,
+                      int  sectorId,
+                      int      slId,
+                      int   layerId,
+                      int    cellId,
+                      bool flag );
+  int setCellDead_HV( const DTWireId& id,
+                      bool flag );
 
-  int setCellNoHV( int   wheelId,
-                   int stationId,
-                   int  sectorId,
-                   int      slId,
-                   int   layerId,
-                   int    cellId,
-                   bool flag );
-  int setCellNoHV( const DTWireId& id,
-                   bool flag );
+  int setCellDead_TP( int   wheelId,
+                      int stationId,
+                      int  sectorId,
+                      int      slId,
+                      int   layerId,
+                      int    cellId,
+                      bool flag );
+  int setCellDead_TP( const DTWireId& id,
+                      bool flag );
+
+  int setCellDead_RO( int   wheelId,
+                      int stationId,
+                      int  sectorId,
+                      int      slId,
+                      int   layerId,
+                      int    cellId,
+                      bool flag );
+  int setCellDead_RO( const DTWireId& id,
+                      bool flag );
+
+  int setCellDiscCat( int   wheelId,
+                      int stationId,
+                      int  sectorId,
+                      int      slId,
+                      int   layerId,
+                      int    cellId,
+                      bool flag );
+  int setCellDiscCat( const DTWireId& id,
+                      bool flag );
 
   /// Access methods to data
   typedef std::map<DTDeadFlagId,

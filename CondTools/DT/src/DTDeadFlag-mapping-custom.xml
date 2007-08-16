@@ -13,8 +13,10 @@
         <Primitive column="CELL"       name="cellId"    />
       </Object>
       <Object table="DT_STATUSCELL" id_columns="DATA_ID IOV_VALUE_ID" name="mapped_type">
-        <Primitive column="DEAD_FLAG"  name="deadFlag"  />
-        <Primitive column="NOHV_FLAG"  name="nohvFlag"  />
+        <Primitive column="DEAD_HV_FLAG"  name="dead_HV"  />
+        <Primitive column="DEAD_TP_FLAG"  name="dead_TP"  />
+        <Primitive column="DEAD_RO_FLAG"  name="dead_RO"  />
+        <Primitive column="DISCCAT_FLAG"  name="discCat"  />
       </Object>
     </Container>
   </Class>

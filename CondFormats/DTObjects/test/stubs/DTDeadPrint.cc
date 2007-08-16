@@ -54,8 +54,10 @@ namespace edmtest {
                 << id.     slId << " "
                 << id.  layerId << " "
                 << id.   cellId << " -> "
-                << st.deadFlag  << " "
-                << st.nohvFlag  << std::endl;
+                << st.dead_HV  << " "
+                << st.dead_TP  << " "
+                << st.dead_RO  << " "
+                << st.discCat  << std::endl;
     }
   }
   DEFINE_FWK_MODULE(DTDeadPrint);

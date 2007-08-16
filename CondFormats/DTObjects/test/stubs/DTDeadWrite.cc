@@ -53,23 +53,44 @@ namespace edmtest {
       return;
     }
 
-    DTDeadFlag* dlist = new DTDeadFlag( "list1" );
+    DTDeadFlag* dlist = new DTDeadFlag( "deadList" );
+
+    fill_dead_HV( "dead_HV_list.txt", dlist );
+    fill_dead_TP( "dead_TP_list.txt", dlist );
+    fill_dead_RO( "dead_RO_list.txt", dlist );
+    fill_discCat( "discCat_list.txt", dlist );
+
+    if( dbservice->isNewTagRequest("DTDeadFlagRcd") ){
+      dbservice->createNewIOV<DTDeadFlag>(
+                 dlist,dbservice->endOfTime(),"DTDeadFlagRcd");
+    }
+    else{
+      std::cout << "already present tag" << std::endl;
+      int currentRun = 10;
+//      dbservice->appendTillTime<DTDeadFlag>(
+      dbservice->appendSinceTime<DTDeadFlag>(
+                 dlist,currentRun,"DTDeadFlagRcd");
+//      dbservice->appendSinceTime<DTDeadFlag>(
+//                 dlist,dbservice->currentTime(),"DTDeadFlagRcd");
+    }
+  }
+
+  void DTDeadWrite::fill_dead_HV( const char* file, DTDeadFlag* deadList ) {
     int status = 0;
-    std::ifstream ifile( "deadList.txt" );
-    std::cout << " file open" << std::endl;
     int whe;
     int sta;
     int sec;
     int qua;
     int lay;
     int cel;
+    std::ifstream ifile( file );
     while ( ifile >> whe
                   >> sta
                   >> sec
                   >> qua
                   >> lay
                   >> cel ) {
-      status = dlist->setCellDead( whe, sta, sec, qua, lay, cel, true );
+      status = deadList->setCellDead_HV( whe, sta, sec, qua, lay, cel, true );
       std::cout << whe << " "
                 << sta << " "
                 << sec << " "
@@ -78,18 +99,86 @@ namespace edmtest {
                 << cel << "  -> ";                
       std::cout << "insert status: " << status << std::endl;
     }
-    if( dbservice->isNewTagRequest("DTDeadFlagRcd") ){
-      dbservice->createNewIOV<DTDeadFlag>(
-                 dlist,dbservice->endOfTime(),"DTDeadFlagRcd");
-    }
-    else{
-      std::cout << "already present tag" << std::endl;
-//      dbservice->appendTillTime<DTDeadFlag>(
-      dbservice->appendSinceTime<DTDeadFlag>(
-                 dlist,10,"DTDeadFlagRcd");
-//      dbservice->appendSinceTime<DTDeadFlag>(
-//                 dlist,dbservice->currentTime(),"DTDeadFlagRcd");
-    }
+    return;
   }
+  void DTDeadWrite::fill_dead_TP( const char* file, DTDeadFlag* deadList ) {
+    int status = 0;
+    int whe;
+    int sta;
+    int sec;
+    int qua;
+    int lay;
+    int cel;
+    std::ifstream ifile( file );
+    while ( ifile >> whe
+                  >> sta
+                  >> sec
+                  >> qua
+                  >> lay
+                  >> cel ) {
+      status = deadList->setCellDead_TP( whe, sta, sec, qua, lay, cel, true );
+      std::cout << whe << " "
+                << sta << " "
+                << sec << " "
+                << qua << " "
+                << lay << " "
+                << cel << "  -> ";                
+      std::cout << "insert status: " << status << std::endl;
+    }
+    return;
+  }
+  void DTDeadWrite::fill_dead_RO( const char* file, DTDeadFlag* deadList ) {
+    int status = 0;
+    int whe;
+    int sta;
+    int sec;
+    int qua;
+    int lay;
+    int cel;
+    std::ifstream ifile( file );
+    while ( ifile >> whe
+                  >> sta
+                  >> sec
+                  >> qua
+                  >> lay
+                  >> cel ) {
+      status = deadList->setCellDead_RO( whe, sta, sec, qua, lay, cel, true );
+      std::cout << whe << " "
+                << sta << " "
+                << sec << " "
+                << qua << " "
+                << lay << " "
+                << cel << "  -> ";                
+      std::cout << "insert status: " << status << std::endl;
+    }
+    return;
+  }
+  void DTDeadWrite::fill_discCat( const char* file, DTDeadFlag* deadList ) {
+    int status = 0;
+    int whe;
+    int sta;
+    int sec;
+    int qua;
+    int lay;
+    int cel;
+    std::ifstream ifile( file );
+    while ( ifile >> whe
+                  >> sta
+                  >> sec
+                  >> qua
+                  >> lay
+                  >> cel ) {
+      status = deadList->setCellDiscCat( whe, sta, sec, qua, lay, cel, true );
+      std::cout << whe << " "
+                << sta << " "
+                << sec << " "
+                << qua << " "
+                << lay << " "
+                << cel << "  -> ";                
+      std::cout << "insert status: " << status << std::endl;
+    }
+    return;
+  }
+
   DEFINE_FWK_MODULE(DTDeadWrite);
 }
