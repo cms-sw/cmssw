@@ -119,6 +119,7 @@ class GeometricDet {
    *geometricalID() returns the ID associated to the GeometricDet.
    */
   DetId geographicalID() const  { return _geographicalID; }
+  DetId geographicalId() const  { return _geographicalID; }
 
   /**
    *positionBounds() returns the position in cm. 

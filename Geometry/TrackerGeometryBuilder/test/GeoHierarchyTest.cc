@@ -114,16 +114,16 @@ void constructAndDumpTrie(Iter b, Iter e) {
 	    << " modules" << std::endl; 
   Iter last=b;
   try {
-    for(b; b!=e;++b){
+    for(;b!=e; ++b) {
       last = b;
-      unsigned int rawid = (*b)->geographicalID().rawId();
+      unsigned int rawid = (*b)->geographicalId().rawId();
       trie.insert(trackerHierarchy(rawid), *b); 
     }
   }
   catch(edm::Exception const & e) {
     std::cout << "in filling " << e.what() << std::endl;
-    unsigned int rawid = (*last)->geographicalID().rawId();
-    int subdetid = (*last)->geographicalID().subdetId();
+    unsigned int rawid = (*last)->geographicalId().rawId();
+    int subdetid = (*last)->geographicalId().subdetId();
     std::cout << rawid << " " << subdetid << std::endl;
   }
   
@@ -143,7 +143,7 @@ void
 GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
   edm::LogInfo("GeoHierarchy") << "begins";
-    
+  
   //first instance tracking geometry
   edm::ESHandle<TrackerGeometry> pDD;
   iSetup.get<TrackerDigiGeometryRecord> ().get (pDD);
@@ -154,12 +154,12 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   
   std::cout << "\nGeometricDet Hierarchy\n" << std::endl;
   constructAndDumpTrie(modules.begin(),modules.end());
-
+  
   std::cout << "\nGDet Hierarchy\n" << std::endl;
   constructAndDumpTrie(pDD->dets().begin(),pDD->dets().end());
-
-
-
-  //define this as a plug-in
-DEFINE_FWK_MODULE(GeoHierarchy);
   
+}
+
+//define this as a plug-in
+DEFINE_FWK_MODULE(GeoHierarchy);
+
