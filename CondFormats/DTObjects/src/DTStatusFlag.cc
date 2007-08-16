@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/08/22 12:46:52 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/01/22 18:24:45 $
+ *  $Revision: 1.6 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -107,6 +107,7 @@ int DTStatusFlag::cellStatus( int   wheelId,
   noiseFlag = false;
      feMask = false;
     tdcMask = false;
+   trigMask = false;
    deadFlag = false;
    nohvFlag = false;
 
@@ -126,6 +127,7 @@ int DTStatusFlag::cellStatus( int   wheelId,
     noiseFlag = data.noiseFlag;
        feMask = data.   feMask;
       tdcMask = data.  tdcMask;
+     trigMask = data. trigMask;
      deadFlag = data. deadFlag;
      nohvFlag = data. nohvFlag;
     return 0;
