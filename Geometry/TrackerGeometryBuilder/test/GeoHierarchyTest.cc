@@ -47,7 +47,7 @@
 
 #include<string>
 #include<iostream>
-
+#include<sstream>
 
 template<typename Det>
 struct Print {
@@ -110,6 +110,10 @@ template<typename Iter>
 void constructAndDumpTrie(Iter b, Iter e) {
   typedef typename std::iterator_traits<Iter>::value_type Det;
   edm::Trie<Det> trie(0);
+  typedef edm::TrieNode<Det> Node;
+  typedef Node const * node_pointer; // sigh....
+  typedef edm::TrieNodeIter<Det> node_iterator;
+
   std::cout << "In Tracker Geom there are " << e-b 
 	    << " modules" << std::endl; 
   Iter last=b;
@@ -131,6 +135,36 @@ void constructAndDumpTrie(Iter b, Iter e) {
     Print<Det> pr;
     edm::walkTrie(pr,*trie.initialNode());
     std::cout << std::endl; 
+
+
+    unsigned int layerId[] = {1,3,5,21,22,41,42,61,62};
+    int layerSize[9];
+    for (int i=0;i<9;i++) {
+      std::ostringstring s; s<<layerId[i];
+      node_iterator e;
+      node_iterator p(trie.node(s.str()));
+      layerSize[i] = std::distance(p,e);
+    }
+
+    edm::LogInfo("TkDetLayers") 
+      << "------ Geometry constructed with: ------" << "\n"
+      << "n pxlBarLayers: " <<  layerSize[0] << "\n"
+      << "n tibLayers:    " << layerSize[1] << "\n"
+      << "n tobLayers:    " << layerSize[2] << "\n"
+      << "n negPxlFwdLayers: " << layerSize[3] << "\n"
+      << "n posPxlFwdLayers: " << layerSize[4] << "\n"
+      << "n negTidLayers: " << layerSize[5] << "\n"
+      << "n posTidLayers: " << layerSize[6] << "\n"
+      << "n negTecLayers: " << layerSize[7] << "\n"
+      << "n posTecLayers: " << layerSize[8] << "\n";
+      
+      //      << "n barreLayers:  " << this->barrelLayers().size() << "\n"
+      //<< "n negforwardLayers: " << this->negForwardLayers().size() << "\n"
+      //<< "n posForwardLayers: " << this->posForwardLayers().size() ;
+  }
+
+
+
   }
   catch(edm::Exception const & e) {
     std::cout << "in walking " << e.what() << std::endl;
@@ -158,6 +192,10 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   std::cout << "\nGDet Hierarchy\n" << std::endl;
   constructAndDumpTrie(pDD->dets().begin(),pDD->dets().end());
   
+
+
+
+
 }
 
 //define this as a plug-in
