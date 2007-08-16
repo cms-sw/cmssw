@@ -4,8 +4,8 @@
  *  class to build trajectories of cosmic muons and beam-halo muons
  *
  *
- *  $Date: 2007/03/26 18:43:34 $
- *  $Revision: 1.26 $
+ *  $Date: 2007/08/15 16:41:10 $
+ *  $Revision: 1.27 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -86,7 +86,7 @@ CosmicMuonTrajectoryBuilder::CosmicMuonTrajectoryBuilder(const edm::ParameterSet
 
 CosmicMuonTrajectoryBuilder::~CosmicMuonTrajectoryBuilder() {
 
-  const std::string metname = "Muon|RecoMuon|CosmicMuonTrajectoryBuilder";
+  const std::string metname = "Muon|RecoMuon|CosmicMuon|CosmicMuonTrajectoryBuilder";
 
   LogTrace(metname)<< "CosmicMuonTrajectoryBuilder dtor called";
   if (theUpdator) delete theUpdator;
@@ -107,7 +107,7 @@ void CosmicMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
 MuonTrajectoryBuilder::TrajectoryContainer 
 CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
 
-  const std::string metname = "Muon|RecoMuon|CosmicMuonTrajectoryBuilder";
+  const std::string metname = "Muon|RecoMuon|CosmicMuon|CosmicMuonTrajectoryBuilder";
   vector<Trajectory*> trajL;
   TrajectoryStateTransform tsTransform;
   MuonPatternRecoDumper debug;
@@ -411,7 +411,7 @@ void CosmicMuonTrajectoryBuilder::explore(Trajectory& traj, MuonRecHitContainer&
   //if inside-out, reverse traj
   //if outside-out, reverse unused rechits 
 
-  const std::string metname = "Muon|RecoMuon|CosmicMuonTrajectoryBuilder";
+  const std::string metname = "Muon|RecoMuon|CosmicMuon|CosmicMuonTrajectoryBuilder";
 
   bool trajInsideOut = (traj.firstMeasurement().recHit()->globalPosition().perp()
       < traj.lastMeasurement().recHit()->globalPosition().perp()); 
@@ -447,7 +447,7 @@ void CosmicMuonTrajectoryBuilder::build(const TrajectoryStateOnSurface& ts,
                                         const NavigationDirection& startingDir,
                                         Trajectory& traj) {
 
-  const std::string metname = "Muon|RecoMuon|CosmicMuonTrajectoryBuilder";
+  const std::string metname = "Muon|RecoMuon|CosmicMuon|CosmicMuonTrajectoryBuilder";
 
   if ( !ts.isValid() ) return;
 
@@ -529,7 +529,7 @@ void CosmicMuonTrajectoryBuilder::buildSecondHalf(Trajectory& traj) {
   // the method builds trajectory in second hemisphere with pattern
   // recognition starting from an intermediate state
 
-  const std::string metname = "Muon|RecoMuon|CosmicMuonTrajectoryBuilder";
+  const std::string metname = "Muon|RecoMuon|CosmicMuon|CosmicMuonTrajectoryBuilder";
 
   bool trajInsideOut = (traj.firstMeasurement().recHit()->globalPosition().perp()
       < traj.lastMeasurement().recHit()->globalPosition().perp()); 
@@ -549,7 +549,7 @@ void CosmicMuonTrajectoryBuilder::buildSecondHalf(Trajectory& traj) {
 
 TrajectoryStateOnSurface CosmicMuonTrajectoryBuilder::intermediateState(const TrajectoryStateOnSurface& tsos) const {
 
-  const std::string metname = "Muon|RecoMuon|CosmicMuonTrajectoryBuilder";
+  const std::string metname = "Muon|RecoMuon|CosmicMuon|CosmicMuonTrajectoryBuilder";
 
   PerpendicularBoundPlaneBuilder planeBuilder;
   GlobalPoint pos(0.0, 0.0, 0.0);
@@ -659,7 +659,7 @@ void CosmicMuonTrajectoryBuilder::updateTrajectory(Trajectory& traj, const MuonR
 
   // assuming traj and hits are correctly ordered
 
-    const std::string metname = "Muon|RecoMuon|CosmicMuonTrajectoryBuilder";
+    const std::string metname = "Muon|RecoMuon|CosmicMuon|CosmicMuonTrajectoryBuilder";
     TrajectoryStateOnSurface lastTsos = traj.lastMeasurement().updatedState();
 
     if ( !lastTsos.isValid() ) return;
@@ -743,7 +743,7 @@ double CosmicMuonTrajectoryBuilder::computeNDOF(const Trajectory& trajectory) co
 //
 void CosmicMuonTrajectoryBuilder::estimateDirection(Trajectory& traj) const {
 
-  const std::string metname = "Muon|RecoMuon|CosmicMuonTrajectoryBuilder";
+  const std::string metname = "Muon|RecoMuon|CosmicMuon|CosmicMuonTrajectoryBuilder";
 
   TransientTrackingRecHit::ConstRecHitContainer hits = traj.recHits();
 
