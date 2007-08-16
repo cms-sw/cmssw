@@ -3,7 +3,6 @@
 <Mapping version="DTSTATUSFLAG-1.0" >
   <Class table="DTSTATUSFLAG" id_columns="IOV_VALUE_ID" name="DTSTATUSFLAG" >
     <Primitive column="DATA_VERSION" name="dataVersion" />
-    <Primitive column="NS_PER_COUNT" name="nsPerCount"  />
     <Container table="DT_STATUSCELL" id_columns="IOV_VALUE_ID" name="cellData" position_column="DATA_ID" >
       <Object table="DT_STATUSCELL" id_columns="DATA_ID IOV_VALUE_ID" name="key_type" >
         <Primitive column="WHEEL"      name="wheelId"   />
