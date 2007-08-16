@@ -16,7 +16,7 @@ double PixelROCGainCalibPixel::getpoint(uint32_t icalpoint, uint32_t ntimes){
   }
   return res;
 }
-PixelROCGainCalibPixel::PixelROCGainCalibPixel(uint32_t npoints):adcvalues(npoints,0){
+PixelROCGainCalibPixel::PixelROCGainCalibPixel(uint32_t npoints):adcvalues(npoints,0),nentries(npoints,0){
 }
 
 PixelROCGainCalibPixel::~PixelROCGainCalibPixel(){
