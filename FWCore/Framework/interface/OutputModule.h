@@ -6,7 +6,7 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.43 2007/07/23 23:42:33 wmtan Exp $
+$Id: OutputModule.h,v 1.44 2007/07/30 22:40:57 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -54,6 +54,9 @@ namespace edm {
     void selectProducts();
     int eventCount() const {return eventCount_;}
     std::string const& processName() const {return process_name_;}
+    SelectionsArray const& descVec() const {return descVec_;}
+    SelectionsArray const& droppedVec() const {return droppedVec_;}
+    boost::array<bool, EndBranchType> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
 
   protected:
     //const Trig& getTriggerResults(Event const& ep) const;
@@ -72,7 +75,7 @@ namespace edm {
   private:
 
     unsigned int nextID_;
-    // TODO: Make these data members private, and give OutputModule
+    // TODO: Give OutputModule
     // an interface (protected?) that supplies client code with the
     // needed functionality *without* giving away implementation
     // details ... don't just return a reference to descVec_, because
@@ -90,12 +93,10 @@ namespace edm {
     // the branches we are NOT to write.
     // 
     // We do not own the BranchDescriptions to which we point.
-  protected:
     SelectionsArray descVec_;
     SelectionsArray droppedVec_;
     boost::array<bool, EndBranchType> hasNewlyDroppedBranch_;
 
-  private:
     virtual void write(EventPrincipal const& e) = 0;
     //bool wantEvent(Event const& e);
     virtual void beginJob(EventSetup const&){}

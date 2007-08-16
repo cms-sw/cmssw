@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.77 2007/06/29 16:36:43 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.78 2007/08/06 19:53:08 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/ClassFiller.h"
@@ -87,12 +87,12 @@ namespace edm {
   }
 
   void PoolOutputModule::write(EventPrincipal const& e) {
-      if (hasNewlyDroppedBranch_[InEvent]) e.addToProcessHistory();
+      if (hasNewlyDroppedBranch()[InEvent]) e.addToProcessHistory();
       poolFile_->writeOne(e);
   }
 
   void PoolOutputModule::endLuminosityBlock(LuminosityBlockPrincipal const& lb) {
-      if (hasNewlyDroppedBranch_[InLumi]) lb.addToProcessHistory();
+      if (hasNewlyDroppedBranch()[InLumi]) lb.addToProcessHistory();
       poolFile_->writeLuminosityBlock(lb);
       Service<JobReport> reportSvc;
       reportSvc->reportLumiSection(lb.id().run(), lb.id().luminosityBlock());
@@ -106,7 +106,7 @@ namespace edm {
   }
 
   void PoolOutputModule::endRun(RunPrincipal const& r) {
-      if (hasNewlyDroppedBranch_[InRun]) r.addToProcessHistory();
+      if (hasNewlyDroppedBranch()[InRun]) r.addToProcessHistory();
       if (poolFile_->writeRun(r)) {
 	poolFile_->endFile();
 	poolFile_.reset();
@@ -170,12 +170,12 @@ namespace edm {
       std::string metaDataTreeName = BranchTypeToMetaDataTreeName(branchType);
       OutputItemList & outputItemList = outputItemList_[branchType];
       std::vector<std::string> & branchNames = branchNames_[branchType];
-      Selections const& descVec = om_->descVec_[branchType];
-      Selections const& droppedVec = om_->droppedVec_[branchType];
+      Selections const& descVector = om_->descVec()[branchType];
+      Selections const& droppedVector = om_->droppedVec()[branchType];
       
       makePlacement(productTreeName, BranchTypeToAuxiliaryBranchName(branchType),
 		    auxiliaryPlacement_[branchType]);
-      for (Selections::const_iterator it = descVec.begin(), itEnd = descVec.end(); it != itEnd; ++it) {
+      for (Selections::const_iterator it = descVector.begin(), itEnd = descVector.end(); it != itEnd; ++it) {
         pool::Placement provenancePlacement;
         pool::Placement productPlacement;
         makePlacement(metaDataTreeName, (*it)->branchName(), provenancePlacement);
@@ -183,7 +183,7 @@ namespace edm {
         outputItemList.push_back(OutputItem(*it, true, provenancePlacement, productPlacement));
         branchNames.push_back((*it)->branchName());
       }
-      for (Selections::const_iterator it = droppedVec.begin(), itEnd = droppedVec.end(); it != itEnd; ++it) {
+      for (Selections::const_iterator it = droppedVector.begin(), itEnd = droppedVector.end(); it != itEnd; ++it) {
         pool::Placement provenancePlacement;
         makePlacement(metaDataTreeName, (*it)->branchName(), provenancePlacement);
         outputItemList.push_back(OutputItem(*it, false, provenancePlacement));
@@ -408,17 +408,17 @@ namespace edm {
     TTree *tEvent = dynamic_cast<TTree *>(f.Get(BranchTypeToProductTreeName(InEvent).c_str()));
     if (tEvent) {
       tEvent->BuildIndex("id_.run_", "id_.event_");
-      setBranchAliases(tEvent, om_->descVec_[InEvent]);
+      setBranchAliases(tEvent, om_->descVec()[InEvent]);
     }
     TTree *tLumi = dynamic_cast<TTree *>(f.Get(BranchTypeToProductTreeName(InLumi).c_str()));
     if (tLumi) {
       tLumi->BuildIndex("id_.run_", "id_.luminosityBlock_");
-      setBranchAliases(tLumi, om_->descVec_[InLumi]);
+      setBranchAliases(tLumi, om_->descVec()[InLumi]);
     }
     TTree *tRun = dynamic_cast<TTree *>(f.Get(BranchTypeToProductTreeName(InRun).c_str()));
     if (tRun) {
       tRun->BuildIndex("id_.run_");
-      setBranchAliases(tRun, om_->descVec_[InRun]);
+      setBranchAliases(tRun, om_->descVec()[InRun]);
     }
     f.Purge();
     f.Close();
