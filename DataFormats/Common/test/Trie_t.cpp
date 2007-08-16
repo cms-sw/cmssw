@@ -63,34 +63,34 @@ CPPUNIT_TEST_SUITE_REGISTRATION(TestedmTrie);
       {
 
 		edm::Trie<std::string> strTrie(std::string(""));
-		strTrie.addEntry("Premiere Chaine", 15, std::string("1er"));
-		strTrie.addEntry("Deuxieme Chaine", 15, std::string("2eme"));
+		strTrie.insert("Premiere Chaine", 15, std::string("1er"));
+		strTrie.insert("Deuxieme Chaine", std::string("2eme"));
 		{
-		  const std::string &s = strTrie.getEntry("unknown", 7);
+		  const std::string &s = strTrie.find("unknown", 7);
 		  CPPUNIT_ASSERT_EQUAL(std::string(""), s);
 		}
 		{
-		  const std::string &s = strTrie.getEntry("test", 4);
+		  const std::string &s = strTrie.find("test");
 		  CPPUNIT_ASSERT_EQUAL(std::string(""), s);
 		}
 		{
-		  const std::string &s = strTrie.getEntry("Premiere Chaine", 15);
+		  const std::string &s = strTrie.find("Premiere Chaine", 15);
 		  CPPUNIT_ASSERT_EQUAL(std::string("1er"), s);
 		}
 		{
-		  const std::string &s = strTrie.getEntry("Premiere Chaine", 14);
+		  const std::string &s = strTrie.find("Premiere Chaine", 14);
 		  CPPUNIT_ASSERT_EQUAL(std::string(""), s);
 		}
 		{
-		  const std::string &s = strTrie.getEntry("premiere Chaine", 15);
+		  const std::string &s = strTrie.find("premiere Chaine", 15);
 		  CPPUNIT_ASSERT_EQUAL(std::string(""), s);
 		}
 		{
-		  const std::string &s = strTrie.getEntry("Premiere Chaine ", 16);
+		  const std::string &s = strTrie.find("Premiere Chaine ", 16);
 		  CPPUNIT_ASSERT_EQUAL(std::string(""), s);
 		}
 		{
-		  const std::string &s = strTrie.getEntry("Deuxieme Chaine", 15);
+		  const std::string &s = strTrie.find("Deuxieme Chaine");
 		  CPPUNIT_ASSERT_EQUAL(std::string("2eme"), s);
 		}
 	  }
@@ -106,35 +106,35 @@ CPPUNIT_TEST_SUITE_REGISTRATION(TestedmTrie);
 	try
 	  {
 		edm::Trie<unsigned> nbTrie(0);
-		nbTrie.addEntry("un", 2, 1);
-		nbTrie.addEntry("deux", 4, 2);
-		nbTrie.addEntry("test", 4, 3);
-		nbTrie.addEntry("tat", 3, 4);
-		nbTrie.addEntry("taa", 3, 4);
-		nbTrie.addEntry("tbp", 3, 5);
-		nbTrie.addEntry("tlp", 3, 6);
+		nbTrie.insert("un", 2, 1);
+		nbTrie.insert("deux", 4, 2);
+		nbTrie.insert("test", 4, 3);
+		nbTrie.insert("tat" 4);
+		nbTrie.insert("taa" 4);
+		nbTrie.insert("tbp" 5);
+		nbTrie.insert("tlp", 3, 6);
 
 		unsigned res = 0;
 
-		res = nbTrie.getEntry("un", 2);
+		res = nbTrie.find("un", 2);
 		CPPUNIT_ASSERT_EQUAL((unsigned)1, res);
 
-		res = nbTrie.getEntry("Un", 2);
+		res = nbTrie.find("Un", 2);
 		CPPUNIT_ASSERT_EQUAL((unsigned)0, res);
 		
-		res = nbTrie.getEntry("UN", 2);
+		res = nbTrie.find("UN", 2);
 		CPPUNIT_ASSERT_EQUAL((unsigned)0, res);
 
-		res = nbTrie.getEntry("", 0);
+		res = nbTrie.find("", 0);
 		CPPUNIT_ASSERT_EQUAL((unsigned)0, res);
 		
-		res = nbTrie.getEntry("deux", 4);
+		res = nbTrie.find("deux");
 		CPPUNIT_ASSERT_EQUAL((unsigned)2, res);
 		
-		res = nbTrie.getEntry(" deux ", 6);
+		res = nbTrie.find(" deux ", 6);
 		CPPUNIT_ASSERT_EQUAL((unsigned)0, res);
 	  }
-    catch (const edm::VinException &e)
+    catch (const edm::Exception &e)
       {
 	std::cerr << e.what() << std::endl;
 	CPPUNIT_ASSERT(false);
@@ -147,95 +147,95 @@ CPPUNIT_TEST_SUITE_REGISTRATION(TestedmTrie);
       {
 		//Test if trie is well sorted
 		edm::Trie<unsigned> test(0);
-		test.addEntry("acd", 3, 1);
-		test.addEntry("ade", 3, 2);
-		test.addEntry("abc", 3, 3);
-		test.addEntry("ace", 3, 4);
-		test.addEntry("adc", 3, 5);
-		test.addEntry("abe", 3, 6);
-		test.addEntry("acc", 3, 7);
-		test.addEntry("add", 3, 8);
-		test.addEntry("abd", 3, 9);
-		const edm::TrieNode<unsigned> *first = test.getInitialNode(), *last = 0x0;
-		CPPUNIT_ASSERT_EQUAL((unsigned)0, first->getValue());
-		CPPUNIT_ASSERT_EQUAL((void*)0x0, (void*)first->getBrother());
-		CPPUNIT_ASSERT_EQUAL((unsigned char)'a', first->getSubNodeLabel());
+		test.insert("acd", 3, 1);
+		test.insert("ade", 3, 2);
+		test.insert("abc", 3, 3);
+		test.insert("ace", 3, 4);
+		test.insert("adc", 3, 5);
+		test.insert("abe", 3, 6);
+		test.insert("acc", 3, 7);
+		test.insert("add", 3, 8);
+		test.insert("abd", 3, 9);
+		const edm::TrieNode<unsigned> *first = test.initialNode(), *last = 0x0;
+		CPPUNIT_ASSERT_EQUAL((unsigned)0, first->value());
+		CPPUNIT_ASSERT_EQUAL((void*)0x0, (void*)first->brother());
+		CPPUNIT_ASSERT_EQUAL((unsigned char)'a', first->subNodeLabel());
 		// Get one first sub node
-		first = first->getSubNode(); //a*
-		CPPUNIT_ASSERT_EQUAL((unsigned)0, first->getValue());
+		first = first->subNode(); //a*
+		CPPUNIT_ASSERT_EQUAL((unsigned)0, first->value());
 		CPPUNIT_ASSERT(first != 0x0);
 
 		// There is no other letter than a
-		CPPUNIT_ASSERT_EQUAL((void*)0x0, (void*)first->getBrother());
+		CPPUNIT_ASSERT_EQUAL((void*)0x0, (void*)first->brother());
 
 		// Get first sub node of 'a'
-		CPPUNIT_ASSERT(first->getSubNode() != 0x0);
-		CPPUNIT_ASSERT_EQUAL((unsigned char)'b', first->getSubNodeLabel());
-		first = first->getSubNode(); //ab*
-		CPPUNIT_ASSERT_EQUAL((unsigned)0, first->getValue());
-		CPPUNIT_ASSERT(first->getSubNode() != 0x0);
-		CPPUNIT_ASSERT_EQUAL((unsigned char)'c', first->getSubNodeLabel());
-		last = first->getSubNode(); //abc
-		CPPUNIT_ASSERT_EQUAL((unsigned)3, last->getValue());
-		CPPUNIT_ASSERT_EQUAL((void*)0x0, (void*)last->getSubNode());
-		CPPUNIT_ASSERT(last->getBrother() != 0x0);
-		CPPUNIT_ASSERT_EQUAL((unsigned char)'d', last->getBrotherLabel());
-		last = last->getBrother(); // abd
-		CPPUNIT_ASSERT_EQUAL((unsigned)9, last->getValue());
-		CPPUNIT_ASSERT_EQUAL((void*)0x0, (void*)last->getSubNode());
-		CPPUNIT_ASSERT(last->getBrother() != 0x0);
-		CPPUNIT_ASSERT_EQUAL((unsigned char)'e', last->getBrotherLabel());
-		last = last->getBrother(); // abe
-		CPPUNIT_ASSERT_EQUAL((unsigned)6, last->getValue());
-		CPPUNIT_ASSERT_EQUAL((void*)0x0, (void*)last->getSubNode());
-		CPPUNIT_ASSERT_EQUAL((void*)0x0, (void*)last->getBrother());
+		CPPUNIT_ASSERT(first->subNode() != 0x0);
+		CPPUNIT_ASSERT_EQUAL((unsigned char)'b', first->subNodeLabel());
+		first = first->subNode(); //ab*
+		CPPUNIT_ASSERT_EQUAL((unsigned)0, first->value());
+		CPPUNIT_ASSERT(first->subNode() != 0x0);
+		CPPUNIT_ASSERT_EQUAL((unsigned char)'c', first->subNodeLabel());
+		last = first->subNode(); //abc
+		CPPUNIT_ASSERT_EQUAL((unsigned)3, last->value());
+		CPPUNIT_ASSERT_EQUAL((void*)0x0, (void*)last->subNode());
+		CPPUNIT_ASSERT(last->brother() != 0x0);
+		CPPUNIT_ASSERT_EQUAL((unsigned char)'d', last->brotherLabel());
+		last = last->brother(); // abd
+		CPPUNIT_ASSERT_EQUAL((unsigned)9, last->value());
+		CPPUNIT_ASSERT_EQUAL((void*)0x0, (void*)last->subNode());
+		CPPUNIT_ASSERT(last->brother() != 0x0);
+		CPPUNIT_ASSERT_EQUAL((unsigned char)'e', last->brotherLabel());
+		last = last->brother(); // abe
+		CPPUNIT_ASSERT_EQUAL((unsigned)6, last->value());
+		CPPUNIT_ASSERT_EQUAL((void*)0x0, (void*)last->subNode());
+		CPPUNIT_ASSERT_EQUAL((void*)0x0, (void*)last->brother());
 
-		CPPUNIT_ASSERT(first->getBrother() != 0x0);
-		CPPUNIT_ASSERT_EQUAL((unsigned char)'c', first->getBrotherLabel());
-		first = first->getBrother(); //ac*
-		CPPUNIT_ASSERT_EQUAL((unsigned)0, first->getValue());
+		CPPUNIT_ASSERT(first->brother() != 0x0);
+		CPPUNIT_ASSERT_EQUAL((unsigned char)'c', first->brotherLabel());
+		first = first->brother(); //ac*
+		CPPUNIT_ASSERT_EQUAL((unsigned)0, first->value());
 
-		CPPUNIT_ASSERT(first->getSubNode() != 0x0);
-		CPPUNIT_ASSERT_EQUAL((unsigned char)'c', first->getSubNodeLabel());
-		last = first->getSubNode(); //acc
-		CPPUNIT_ASSERT_EQUAL((unsigned)7, last->getValue());
-		CPPUNIT_ASSERT_EQUAL((void*)0x0, (void*)last->getSubNode());
-		CPPUNIT_ASSERT(last->getBrother() != 0x0);
-		CPPUNIT_ASSERT_EQUAL((unsigned char)'d', last->getBrotherLabel());
-		last = last->getBrother(); // acd
-		CPPUNIT_ASSERT_EQUAL((unsigned)1, last->getValue());
-		CPPUNIT_ASSERT_EQUAL((void*)0x0, (void*)last->getSubNode());
-		CPPUNIT_ASSERT(last->getBrother() != 0x0);
-		CPPUNIT_ASSERT_EQUAL((unsigned char)'e', last->getBrotherLabel());
-		last = last->getBrother(); // ace
-		CPPUNIT_ASSERT_EQUAL((unsigned)4, last->getValue());
-		CPPUNIT_ASSERT_EQUAL((void*)0x0, (void*)last->getSubNode());
-		CPPUNIT_ASSERT_EQUAL((void*)0x0, (void*)last->getBrother());
+		CPPUNIT_ASSERT(first->subNode() != 0x0);
+		CPPUNIT_ASSERT_EQUAL((unsigned char)'c', first->subNodeLabel());
+		last = first->subNode(); //acc
+		CPPUNIT_ASSERT_EQUAL((unsigned)7, last->value());
+		CPPUNIT_ASSERT_EQUAL((void*)0x0, (void*)last->subNode());
+		CPPUNIT_ASSERT(last->brother() != 0x0);
+		CPPUNIT_ASSERT_EQUAL((unsigned char)'d', last->brotherLabel());
+		last = last->brother(); // acd
+		CPPUNIT_ASSERT_EQUAL((unsigned)1, last->value());
+		CPPUNIT_ASSERT_EQUAL((void*)0x0, (void*)last->subNode());
+		CPPUNIT_ASSERT(last->brother() != 0x0);
+		CPPUNIT_ASSERT_EQUAL((unsigned char)'e', last->brotherLabel());
+		last = last->brother(); // ace
+		CPPUNIT_ASSERT_EQUAL((unsigned)4, last->value());
+		CPPUNIT_ASSERT_EQUAL((void*)0x0, (void*)last->subNode());
+		CPPUNIT_ASSERT_EQUAL((void*)0x0, (void*)last->brother());
 
-		CPPUNIT_ASSERT(first->getBrother() != 0x0);
-		CPPUNIT_ASSERT_EQUAL((unsigned char)'d', first->getBrotherLabel());
-		first = first->getBrother(); //ad*
-		CPPUNIT_ASSERT_EQUAL((unsigned)0, first->getValue());
+		CPPUNIT_ASSERT(first->brother() != 0x0);
+		CPPUNIT_ASSERT_EQUAL((unsigned char)'d', first->brotherLabel());
+		first = first->brother(); //ad*
+		CPPUNIT_ASSERT_EQUAL((unsigned)0, first->value());
 
-		CPPUNIT_ASSERT(first->getSubNode() != 0x0);
-		CPPUNIT_ASSERT_EQUAL((unsigned char)'c', first->getSubNodeLabel());
-		last = first->getSubNode(); //adc
-		CPPUNIT_ASSERT_EQUAL((unsigned)5, last->getValue());
-		CPPUNIT_ASSERT_EQUAL((void*)0x0, (void*)last->getSubNode());
-		CPPUNIT_ASSERT(last->getBrother() != 0x0);
-		CPPUNIT_ASSERT_EQUAL((unsigned char)'d', last->getBrotherLabel());
-		last = last->getBrother(); // add
-		CPPUNIT_ASSERT_EQUAL((unsigned)8, last->getValue());
-		CPPUNIT_ASSERT_EQUAL((void*)0x0, (void*)last->getSubNode());
-		CPPUNIT_ASSERT(last->getBrother() != 0x0);
-		CPPUNIT_ASSERT_EQUAL((unsigned char)'e', last->getBrotherLabel());
-		last = last->getBrother(); // ade
-		CPPUNIT_ASSERT_EQUAL((unsigned)2, last->getValue());
-		CPPUNIT_ASSERT_EQUAL((void*)0x0, (void*)last->getSubNode());
-		CPPUNIT_ASSERT_EQUAL((void*)0x0, (void*)last->getBrother());
-		CPPUNIT_ASSERT_EQUAL((void*)0x0, (void*)first->getBrother());
+		CPPUNIT_ASSERT(first->subNode() != 0x0);
+		CPPUNIT_ASSERT_EQUAL((unsigned char)'c', first->subNodeLabel());
+		last = first->subNode(); //adc
+		CPPUNIT_ASSERT_EQUAL((unsigned)5, last->value());
+		CPPUNIT_ASSERT_EQUAL((void*)0x0, (void*)last->subNode());
+		CPPUNIT_ASSERT(last->brother() != 0x0);
+		CPPUNIT_ASSERT_EQUAL((unsigned char)'d', last->brotherLabel());
+		last = last->brother(); // add
+		CPPUNIT_ASSERT_EQUAL((unsigned)8, last->value());
+		CPPUNIT_ASSERT_EQUAL((void*)0x0, (void*)last->subNode());
+		CPPUNIT_ASSERT(last->brother() != 0x0);
+		CPPUNIT_ASSERT_EQUAL((unsigned char)'e', last->brotherLabel());
+		last = last->brother(); // ade
+		CPPUNIT_ASSERT_EQUAL((unsigned)2, last->value());
+		CPPUNIT_ASSERT_EQUAL((void*)0x0, (void*)last->subNode());
+		CPPUNIT_ASSERT_EQUAL((void*)0x0, (void*)last->brother());
+		CPPUNIT_ASSERT_EQUAL((void*)0x0, (void*)first->brother());
       }
-    catch (const edm::VinException &e)
+    catch (const edm::Exception &e)
       {
 	std::cerr << e.what() << std::endl;
 	CPPUNIT_ASSERT(false);

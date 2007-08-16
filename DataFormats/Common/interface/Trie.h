@@ -25,6 +25,7 @@
 
 
 #include <list>
+#include <string>
 
 namespace edm
 {
@@ -52,7 +53,7 @@ namespace edm
       TrieFactory& operator=(const TrieFactory &e);
 
     public:
-      TrieNode<T>* getNewNode(const T &value);
+      TrieNode<T>* newNode(const T &value);
       void clear();
 
     private:
@@ -88,22 +89,22 @@ namespace edm
     /// set value associed to node
     void setValue(const T &val);
     /// get value associed to node
-    const T& getValue() const;
+    const T& value() const;
 
     /// get brother (return 0x0 this node has no brother)
-    const TrieNode<T>* getBrother() const;
-    TrieNode<T>* getBrother();
+    const TrieNode<T>* brother() const;
+    TrieNode<T>* brother();
     /// get brother label
-    unsigned char getBrotherLabel() const;
+    unsigned char brotherLabel() const;
 
     // get first sub Node
-    const TrieNode<T>* getSubNode() const;
-    TrieNode<T>* getSubNode();
-    unsigned char getSubNodeLabel() const;
+    const TrieNode<T>* subNode() const;
+    TrieNode<T>* subNode();
+    unsigned char subNodeLabel() const;
 
     // Looking for a sub node
-    const TrieNode<T>* getSubNodeByLabel(unsigned char chr) const;
-    TrieNode<T>* getSubNodeByLabel(unsigned char chr);
+    const TrieNode<T>* subNodeByLabel(unsigned char chr) const;
+    TrieNode<T>* subNodeByLabel(unsigned char chr);
 
     // add an edge
     void addSubNode(unsigned char chr, TrieNode<T> *node);
@@ -114,7 +115,7 @@ namespace edm
     /// clear content of TrieNode
     void clear();
 
-  protected:
+  private:
     template <typename Node>
     Node _sequentialSearch(Node first, unsigned char label,
 			   unsigned char val) const;
@@ -181,22 +182,26 @@ namespace edm
     public:
       /// add an entry in the Trie, if entry already exist an exception
       /// is throw
-      void addEntry(const char *str, unsigned strLen, const T &value);
+      void insert(std::string const & str, const T &value);
+      void insert(const char *str, unsigned strLen, const T &value);
       /// associates a value to a string, if string is already in Trie,
       /// value is overwriten
+      void setEntry(std::string const & str, const T &value);
       void setEntry(const char *str, unsigned strLen, const T &value);
       /// get an entry in the Trie
-      const T& getEntry(const char *str, unsigned strLen) const;
+      const T& find(std::string const & str) const;
+      const T& find(const char *str, unsigned strLen) const;
       /// get node matching a string
-      const TrieNode<T>* getNode(const char *str, unsigned strLen) const;
+      const TrieNode<T>* node(std::string const & str) const;
+      const TrieNode<T>* node(const char *str, unsigned strLen) const;
       ///  get initial TrieNode
-      const TrieNode<T>* getInitialNode() const;
+      const TrieNode<T>* initialNode() const;
       /// display content of trie in output stream
       void display(std::ostream &os);
       /// clear the content of trie
       void clear();
 
-    protected:
+    private:
       TrieNode<T>* _addEntry(const char *str, unsigned strLen);
 
     private:
@@ -233,8 +238,8 @@ namespace edm{
     {}
     
     explicit TrieNodeIter(node_base* p)
-      : m_node(p ? p->getSubNode() : 0), 
-	m_label(p ? p->getSubNodeLabel() : 0)
+      : m_node(p ? p->subNode() : 0), 
+	m_label(p ? p->subNodeLabel() : 0)
     {}
     
     unsigned char label() const { return m_label;}
@@ -242,8 +247,8 @@ namespace edm{
     friend class boost::iterator_core_access;
     
     void increment() {
-      m_label = m_node->getBrotherLabel();
-      m_node = m_node->getBrother(); 
+      m_label = m_node->brotherLabel();
+      m_node = m_node->brother(); 
     }
     
     bool equal(self const& other) const
@@ -345,19 +350,19 @@ void edm::TrieNode<T>::setValue(const T &val)
 }
 
 template <typename T>
-const T& edm::TrieNode<T>::getValue() const
+const T& edm::TrieNode<T>::value() const
 {
   return _value;
 }
 
 template <typename T>
-const edm::TrieNode<T>* edm::TrieNode<T>::getBrother() const
+const edm::TrieNode<T>* edm::TrieNode<T>::brother() const
 {
   return _brother;
 }
 
 template <typename T>
-edm::TrieNode<T>* edm::TrieNode<T>::getBrother()
+edm::TrieNode<T>* edm::TrieNode<T>::brother()
 {
   return _brother;
 }
@@ -389,38 +394,38 @@ void edm::TrieNode<T>::_addBrother(unsigned char chr, TrieNode<T> *brother)
 }
 
 template <typename T>
-unsigned char edm::TrieNode<T>::getBrotherLabel() const
+unsigned char edm::TrieNode<T>::brotherLabel() const
 {
   return _brotherLabel;
 }
 
 template <typename T>
-const edm::TrieNode<T>* edm::TrieNode<T>::getSubNode() const
+const edm::TrieNode<T>* edm::TrieNode<T>::subNode() const
 {
   return _firstSubNode;
 }
 
 template <typename T>
-edm::TrieNode<T>* edm::TrieNode<T>::getSubNode()
+edm::TrieNode<T>* edm::TrieNode<T>::subNode()
 {
   return _firstSubNode;
 }
 
 template <typename T>
-unsigned char edm::TrieNode<T>::getSubNodeLabel() const
+unsigned char edm::TrieNode<T>::subNodeLabel() const
 {
   return _firstSubNodeLabel;
 }
 
 template <typename T>
-const edm::TrieNode<T>* edm::TrieNode<T>::getSubNodeByLabel(unsigned char chr) const
+const edm::TrieNode<T>* edm::TrieNode<T>::subNodeByLabel(unsigned char chr) const
 {
   const TrieNode<T> *first = _firstSubNode;
   return _sequentialSearch(first, _firstSubNodeLabel, chr);
 }
 
 template <typename T>
-edm::TrieNode<T>* edm::TrieNode<T>::getSubNodeByLabel(unsigned char chr)
+edm::TrieNode<T>* edm::TrieNode<T>::subNodeByLabel(unsigned char chr)
 {
   return _sequentialSearch(_firstSubNode, _firstSubNodeLabel, chr);
 }
@@ -488,13 +493,17 @@ void edm::TrieNode<T>::clear()
 #include <string>
 #include <cassert>
 
+#include "FWCore/Utilities/interface/EDMException.h"
+
 
 namespace edm {
-  struct VinException {
-    explicit VinException(const char * mess) : m_mess(mess){}
-    char const * what() const { return m_mess.c_str();}
-    std::string m_mess;
-  };
+  namespace detailsTrie  {
+    inline void errorInsert(std::string & key) {
+      throw edm::Exception(edm::errors::InvalidReference)
+	<< "Trie::insert called with a key already in collection;\n"
+	<< "key value: " << key;
+    }
+  }
 }
 
 template <typename T>
@@ -509,10 +518,14 @@ edm::Trie<T>::Trie(const T &empty) :
 template <typename T>
 edm::Trie<T>::~Trie()
 {
-  if (_factory)
-    delete _factory;
+  delete _factory;
 }
 
+template <typename T>
+void edm::Trie<T>::setEntry(std::string const & str, const T &value)
+{
+  setEntry(str.c_str(),str.size(),value);
+}
 template <typename T>
 void edm::Trie<T>::setEntry(const char *str, unsigned strLen, const T &value)
 {
@@ -532,7 +545,7 @@ edm::TrieNode<T>* edm::Trie<T>::_addEntry(const char *str, unsigned strLen)
     {
       found = false;
       previous = node;
-      node = node->getSubNodeByLabel(str[pos]);
+      node = node->subNodeByLabel(str[pos]);
       if (node)
 	{
 	  found = true;
@@ -546,7 +559,7 @@ edm::TrieNode<T>* edm::Trie<T>::_addEntry(const char *str, unsigned strLen)
       node = previous;
       for (unsigned i = pos; i < strLen; ++i)
 	{
-	  TrieNode<T> *newNode = _factory->getNewNode(_empty);
+	  TrieNode<T> *newNode = _factory->newNode(_empty);
 	  node->addSubNode(str[pos], newNode);
 	  node = newNode;
 	  ++pos;
@@ -556,28 +569,40 @@ edm::TrieNode<T>* edm::Trie<T>::_addEntry(const char *str, unsigned strLen)
   return node;
 }
 
+
 template <typename T>
-void edm::Trie<T>::addEntry(const char *str, unsigned strLen, const T &value)
+void edm::Trie<T>::insert(std::string const & str, const T &value)
+{
+  insert(str.c_str(),str.size(),value);
+}
+
+template <typename T>
+void edm::Trie<T>::insert(const char *str, unsigned strLen, const T &value)
 {
   TrieNode<T>	*node = _addEntry(str, strLen);
-
+  
   // Set the value on the last node
-  if (node && node->getValue() != _empty)
-    throw edm::VinException("The word is already in automaton");
+  if (node && node->value() != _empty)
+    detailsTrie::errorInsert(std::string(str,strlen));
   node->setValue(value);
 }
 
 template <typename T>
-const T& edm::Trie<T>::getEntry(const char *str, unsigned strLen) const
+const T& edm::Trie<T>::find(std::string const & str) const {
+  return find(str.c_str(),str.size());
+}
+
+template <typename T>
+const T& edm::Trie<T>::find(const char *str, unsigned strLen) const
 {
   unsigned		pos = 0;
   bool			found = true;
   const TrieNode<T>	*node = _initialNode;
-	
+  
   while (found && pos < strLen)
     {
       found = false;
-      node = node->getSubNodeByLabel(str[pos]);
+      node = node->subNodeByLabel(str[pos]);
       if (node)
 	{
 	  found = true;
@@ -585,14 +610,19 @@ const T& edm::Trie<T>::getEntry(const char *str, unsigned strLen) const
 	}
     }
   if (node && pos == strLen) // The word is complet in the automaton
-    return node->getValue();
+    return node->value();
   return _empty;
 }
 
+template <typename T>
+edm::TrieNode<T> const * 
+edm::Trie<T>::node(std::string const & str) {
+    return node(str.c_str(),str.size());
+  }
 
 template <typename T>
 edm::TrieNode<T> const * 
-edm::Trie<T>::getNode(const char *str, unsigned strLen) const {
+edm::Trie<T>::node(const char *str, unsigned strLen) const {
   unsigned		pos = 0;
   bool			found = true;
   const TrieNode<T>	*node = _initialNode;
@@ -600,7 +630,7 @@ edm::Trie<T>::getNode(const char *str, unsigned strLen) const {
   while (found && pos < strLen)
     {
       found = false;
-      node = node->getSubNodeByLabel(str[pos]);
+      node = node->subNodeByLabel(str[pos]);
       if (node)
 	{
 	  found = true;
@@ -612,7 +642,7 @@ edm::Trie<T>::getNode(const char *str, unsigned strLen) const {
 
 
 template <typename T>
-const edm::TrieNode<T>* edm::Trie<T>::getInitialNode() const
+const edm::TrieNode<T>* edm::Trie<T>::initialNode() const
 {
   return _initialNode;
 }
@@ -621,7 +651,7 @@ template <typename T>
 void edm::Trie<T>::clear()
 {
   _factory->clear();
-  _initialNode = _factory->getNewNode(_empty);
+  _initialNode = _factory->newNode(_empty);
 }
 
 template <typename T>
@@ -632,4 +662,3 @@ void edm::Trie<T>::display(std::ostream &os)
 }
 
 #endif	 //  DataFormat_Common_Trie_H_
-
