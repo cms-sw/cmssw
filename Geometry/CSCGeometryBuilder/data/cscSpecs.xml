@@ -79,17 +79,11 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
 <!--# 31 - chamber frame thickness (mm) -->
-<!-- make things consistent with current mf.xml values by using an incorrect frame thickness -->
-<!--Parameter name="upar" value="8.0"/-->
-<Parameter name="upar" value="2.0"/>
+<Parameter name="upar" value="8.0"/>
 <!--# 32 - gas gap thickness (mm) -->
-<!-- make things consistent with current mf.xml values by using an incorrect gap thickness -->
-<!--Parameter name="upar" value="7.0"/-->
-<Parameter name="upar" value="5.6"/>
+<Parameter name="upar" value="7.0"/>
 <!--# 33 - panel thickness (mm) -->
-<!-- make things consistent with current mf.xml values by using an incorrect panel thickness -->
-<!--Parameter name="upar" value="15.0"/-->
-<Parameter name="upar" value="20.0"/>
+<Parameter name="upar" value="15.0"/>
 <!--# 34 - zlocal offset between AF and average AGV centre (mm) -->
 <Parameter name="upar" value="0.0"/>
 
@@ -161,17 +155,11 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
 <!--# 31 - chamber frame thickness (mm) -->
-<!-- make things consistent with current mf.xml values by using an incorrect frame thickness -->
-<!--Parameter name="upar" value="8.0"/-->
-<Parameter name="upar" value="2.0"/>
+<Parameter name="upar" value="8.0"/>
 <!--# 32 - gas gap thickness (mm) -->
-<!-- make things consistent with current mf.xml values by using an incorrect gap thickness -->
-<!--Parameter name="upar" value="7.0"/-->
-<Parameter name="upar" value="5.6"/>
+<Parameter name="upar" value="7.0"/>
 <!--# 33 - panel thickness (mm) -->
-<!-- make things consistent with current mf.xml values by using an incorrect panel thickness -->
-<!--Parameter name="upar" value="15.0"/-->
-<Parameter name="upar" value="20.0"/>
+<Parameter name="upar" value="15.0"/>
 <!--# 34 - zlocal offset between AF and average AGV centre (mm) -->
 <Parameter name="upar" value="0.0"/>
 
