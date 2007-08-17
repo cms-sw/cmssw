@@ -4,8 +4,8 @@
  * Slava Valuev  May 26, 2004.
  * Porting from ORCA by S. Valuev in September 2006.
  *
- * $Date: 2006/11/30 03:30:50 $
- * $Revision: 1.4 $
+ * $Date: 2006/12/21 13:38:12 $
+ * $Revision: 1.5 $
  *
  */
 
@@ -146,7 +146,7 @@ vector<CSCAnodeLayerInfo> CSCAnodeLCTAnalyzer::lctDigis(
     for (int i_wire = 0; i_wire < CSCAnodeLCTProcessor::NUM_PATTERN_WIRES;
 	 i_wire++) {
       if ((CSCAnodeLCTProcessor::pattern_envelope[0][i_wire] == i_layer) &&
-	  (CSCAnodeLCTProcessor::pattern_mask[alct_pattern][i_wire] == 1)) {
+	  (CSCAnodeLCTProcessor::pattern_mask_default[alct_pattern][i_wire] == 1)) {
 	int wire = alct_keywire +
 	  CSCAnodeLCTProcessor::pattern_envelope[1+MESelection][i_wire];
 	if (wire >= 0 && wire < CSCConstants::MAX_NUM_WIRES) {
