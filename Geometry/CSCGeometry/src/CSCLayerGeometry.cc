@@ -1,5 +1,6 @@
 // This is CSCLayerGeometry.cc
 
+#include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 #include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>
 #include <Geometry/CSCGeometry/interface/CSCChamberSpecs.h>
 #include <Geometry/CSCGeometry/interface/CSCWireGeometry.h>
@@ -20,7 +21,7 @@
 #include <iostream>
 #include <cmath>
 
-CSCLayerGeometry::CSCLayerGeometry( int iChamberType,
+CSCLayerGeometry::CSCLayerGeometry( const CSCGeometry* geom, int iChamberType,
          const TrapezoidalPlaneBounds& bounds,
          int nstrips, float stripOffset, float stripPhiPitch,
 	 float whereStripsMeet, float extentOfStripPlane, float yCentreOfStripPlane,
@@ -38,7 +39,7 @@ CSCLayerGeometry::CSCLayerGeometry( int iChamberType,
   hBottomEdge = bounds.widthAtHalfLength() - hTopEdge; // t+b=2w
 
   // Ganged strips in ME1A?
-  bool gangedME1A = ( iChamberType == 1 && CSCChamberSpecs::gangedStrips() );
+  bool gangedME1A = ( iChamberType == 1 && geom->gangedStrips() );
 
   CSCStripTopology* aStripTopology = 
         new CSCUngangedStripTopology(nstrips, stripPhiPitch,
@@ -52,7 +53,7 @@ CSCLayerGeometry::CSCLayerGeometry( int iChamberType,
     theStripTopology = aStripTopology;
   }
 
-  if ( ! CSCChamberSpecs::realWireGeometry() ) {
+  if ( ! geom->realWireGeometry() ) {
     // Approximate ORCA_8_8_0 and earlier calculated geometry...
     float wangler = wireAngleInDegrees*degree; // convert angle to radians
     float wireCos = cos(wangler);
