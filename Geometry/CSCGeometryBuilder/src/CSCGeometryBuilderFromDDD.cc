@@ -32,7 +32,7 @@ CSCGeometryBuilderFromDDD::CSCGeometryBuilderFromDDD() : myName("CSCGeometryBuil
 CSCGeometryBuilderFromDDD::~CSCGeometryBuilderFromDDD(){}
 
 
-CSCGeometry* CSCGeometryBuilderFromDDD::build(const DDCompactView* cview, const MuonDDDConstants& muonConstants){
+void CSCGeometryBuilderFromDDD::build(boost::shared_ptr<CSCGeometry> geom, const DDCompactView* cview, const MuonDDDConstants& muonConstants){
 
   try {
     std::string attribute = "MuStructure";      // could come from outside
@@ -54,7 +54,7 @@ CSCGeometry* CSCGeometryBuilderFromDDD::build(const DDCompactView* cview, const 
 
     bool doSubDets = fview.firstChild();
     doSubDets      = fview.firstChild(); // and again?!
-    return buildEndcaps( &fview, muonConstants ); 
+    return buildEndcaps( geom, &fview, muonConstants ); 
   }
 
   catch (const DDException & e ) {
@@ -75,11 +75,12 @@ CSCGeometry* CSCGeometryBuilderFromDDD::build(const DDCompactView* cview, const 
 
 }
 
-CSCGeometry* CSCGeometryBuilderFromDDD::buildEndcaps( DDFilteredView* fv, const MuonDDDConstants& muonConstants ){
+void CSCGeometryBuilderFromDDD::buildEndcaps( boost::shared_ptr<CSCGeometry> theGeometry, 
+   DDFilteredView* fv, const MuonDDDConstants& muonConstants ){
 
   bool doAll(true);
 
-  CSCGeometry* theGeometry = new CSCGeometry;
+  //@@ DEAD  CSCGeometry* theGeometry = new CSCGeometry;
 
   // Here we're reading the cscSpecs.xml file
 
@@ -231,6 +232,9 @@ CSCGeometry* CSCGeometryBuilderFromDDD::buildEndcaps( DDFilteredView* fv, const 
       int jring    = detid.ring();
       int jchamber = detid.chamber();
 
+      // Are we going to apply centre-to-intersection offsets, even if values exist in the specs file?
+      if ( !theGeometry->centreTIOffsets() ) fupar[30] = 0.;  // reset to zero if flagged 'off'
+
       if ( jstation==1 && jring==1 ) {
 	// set up params for ME1a and ME1b and call buildChamber *for each*
 	// Both get the full ME11 dimensions
@@ -257,11 +261,11 @@ CSCGeometry* CSCGeometryBuilderFromDDD::buildEndcaps( DDFilteredView* fv, const 
     doAll = fv->next();
   }
 
-  return theGeometry;  
+  //@@ DEAD  return theGeometry;  
 }
 
 void CSCGeometryBuilderFromDDD::buildChamber (  
-	CSCGeometry* theGeometry,         // the geometry container
+	boost::shared_ptr<CSCGeometry> theGeometry,   // the geometry container
 	CSCDetId chamberId,               // the DetId for this chamber
         const std::vector<float>& fpar,   // volume parameters hB, hT. hD, hH
 	const std::vector<float>& fupar,  // user parameters
@@ -302,10 +306,10 @@ void CSCGeometryBuilderFromDDD::buildChamber (
   }
   else { // this chamber not yet built/stored
   
-    LogTrace(myName) << myName <<": CSCChamberSpecs::build requested for ME" << jstat << jring ;
+    LogTrace(myName) << myName <<": buildSpecs requested for ME" << jstat << jring ;
     int chamberType = CSCChamberSpecs::whatChamberType( jstat, jring );
-    CSCChamberSpecs* aSpecs = CSCChamberSpecs::lookUp( chamberType );
-    if ( aSpecs == 0 ) aSpecs = CSCChamberSpecs::build( chamberType, fpar, fupar, wg );
+    CSCChamberSpecs* aSpecs = theGeometry->findSpecs( chamberType );
+    if ( aSpecs == 0 ) aSpecs = theGeometry->buildSpecs( chamberType, fpar, fupar, wg );
 
    // Build a Transformation out of GEANT gtran and grmat...
    // These are used to transform a point in the local reference frame
