@@ -23,7 +23,7 @@ class CSCChamber : public GeomDet {
 
 public:
 
-  CSCChamber( const BoundPlane::BoundPlanePointer bp, CSCDetId id, CSCChamberSpecs* specs ) :
+  CSCChamber( const BoundPlane::BoundPlanePointer bp, CSCDetId id, const CSCChamberSpecs* specs ) :
   GeomDet( bp ), theId( id ), theChamberSpecs( specs ), 
     theComponents(6,(const CSCLayer*)0) {}
 
@@ -66,7 +66,7 @@ public:
 private:
 
   CSCDetId theId;
-  CSCChamberSpecs* theChamberSpecs;
+  const CSCChamberSpecs* theChamberSpecs;
   std::vector< const CSCLayer* > theComponents; // the 6 CSCLayers comprising a CSCChamber; are owned by this class
 };
 

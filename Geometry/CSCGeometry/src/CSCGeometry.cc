@@ -22,8 +22,8 @@ CSCGeometry::~CSCGeometry(){
        ich!=theChambers.end(); ++ich) delete (*ich);
 
   // delete specs
-  for ( std::map<int, CSCChamberSpecs*, std::less<int> >::const_iterator it =
-	   specsMap.begin(); it!=specsMap.end(); ++it) {
+  for ( CSCSpecsContainer::const_iterator it =
+	   specsContainer.begin(); it!=specsContainer.end(); ++it) {
     delete (*it).second; // they are never shared per chamber type so should be no possible double deletion.
   }
 
@@ -166,27 +166,21 @@ void CSCGeometry::queryModelling() const {
   edm::LogInfo("CSC") << "CSCGeometry: strip plane centre-to-intersection ideal " << cti << " corrections " << "\n";
 }
 
-CSCChamberSpecs* CSCGeometry::findSpecs( int iChamberType ) {
-  CSCChamberSpecs* aSpecs = 0;
-  std::map<int, CSCChamberSpecs*, std::less<int> >::const_iterator it =
-    specsMap.find( iChamberType );
-  if (  it != specsMap.end() )       // Requisite Specs already exists
-    {
-      aSpecs = (*it).second;
-    }
+const CSCChamberSpecs* CSCGeometry::findSpecs( int iChamberType ) {
+  const CSCChamberSpecs* aSpecs = 0;
+  CSCSpecsContainer::const_iterator it = specsContainer.find( iChamberType );
+  if (  it != specsContainer.end() )  aSpecs = (*it).second;
   return aSpecs;
 } 
 
-CSCChamberSpecs* CSCGeometry::buildSpecs( int iChamberType,
+const CSCChamberSpecs* CSCGeometry::buildSpecs( int iChamberType,
 					 const std::vector<float>& fpar,
 					 const std::vector<float>& fupar,
 					 const CSCWireGroupPackage& wg ) {
 
   // Note arg list order is hbot, htop, apothem, hthickness
   TrapezoidalPlaneBounds bounds( fpar[0], fpar[1], fpar[3], fpar[2] );
-
-  CSCChamberSpecs* aSpecs = new CSCChamberSpecs( this, iChamberType, bounds, fupar, wg );
-  specsMap[ iChamberType ] = aSpecs;
-
+  const CSCChamberSpecs* aSpecs = new CSCChamberSpecs( this, iChamberType, bounds, fupar, wg );
+  specsContainer[ iChamberType ] = aSpecs;
   return aSpecs;
 }
