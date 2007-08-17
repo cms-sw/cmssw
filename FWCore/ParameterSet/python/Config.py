@@ -350,7 +350,11 @@ class Process(object):
            value.insertInto(processDesc)
     def insertTriggerPaths(self, processDesc):
         p = processDesc.newPSet()
-        self.insertManyInto(p, "@trigger_paths", self.paths_())
+        l = []
+        for name,value in self.paths_().iteritems():
+          l.append(name)
+          value.insertInto(processDesc, name)
+        p.addVString(True, "@trigger_paths", l)
         processDesc.addPSet(False, "@trigger_paths", p)
     def fillProcessDesc(self, processDesc, processPSet):
         processPSet.addString(True, "@process_name", self.name_())
@@ -388,12 +392,6 @@ class FileInPath(_SimpleParameterTypeBase):
     def insertInto(self, parameterSet, myname):
       parameterSet.addNewFileInPath( self.isTracked(), myname, self.value() ) 
 
-
-class Looper(_ConfigureComponent,_TypedParameterizable):
-    def __init__(self,type_,*arg,**kargs):
-        super(Looper,self).__init__(type_,*arg,**kargs)
-    def _placeImpl(self,name,proc):
-        proc._placeLooper(name,self)
 
 def include(fileName):
     """Parse a configuration file language file and return a 'module like' object"""
