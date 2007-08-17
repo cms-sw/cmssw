@@ -5,10 +5,10 @@ from Alignment.CommonAlignmentMonitor.muonGeometry import Disk, Chamber, Layer, 
 def dummyName(): return "dummy%d" % random.randint(0, 100000)
 
 try:
-  os.stat("histograms.root")
-  tfile = ROOT.TFile("histograms.root")
+  os.stat("AlignmentMonitorMuonHIP.root")
+  tfile = ROOT.TFile("AlignmentMonitorMuonHIP.root")
 except:
-  print "Warning: could not open \"histograms.root\".  Set muonHIP.tfile to the correct file."
+  print "Warning: could not open \"AlignmentMonitorMuonHIP.root\".  Set muonHIP.tfile to the correct file."
   tfile = None
 
 viewer3d = None
