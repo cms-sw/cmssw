@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May 23 11:03:31 EDT 2006
-// $Id: BareRootProductGetter.cc,v 1.15 2007/06/04 18:07:00 chrjones Exp $
+// $Id: BareRootProductGetter.cc,v 1.16 2007/06/29 16:32:43 wmtan Exp $
 //
 
 // system include files
@@ -134,7 +134,23 @@ BareRootProductGetter::getIt(edm::ProductID const& iID) const  {
   if(buffer->eventEntry_ != eventEntry_) {
     //NOTE: Need to reset address because user could have set the address themselves
     //std::cout <<"new event"<<std::endl;
-    void* address = &(buffer->address_);
+    
+    //ROOT WORKAROUND: Create new objects so any internal data cache will get cleared
+    void* address = buffer->class_->New();
+    
+    static TClass* edproductTClass = TClass::GetClass( typeid(edm::EDProduct)); 
+    edm::EDProduct* prod = reinterpret_cast<edm::EDProduct*>( buffer->class_->DynamicCast(edproductTClass,address,true));
+    if(0 == prod) {
+      cms::Exception("FailedConversion")
+      <<"failed to convert a '"<<buffer->class_->GetName()
+      <<"' to a edm::EDProduct."
+      <<"Please contact developers since something is very wrong.";
+    }
+    buffer->address_ = address;
+    buffer->product_ = boost::shared_ptr<edm::EDProduct const>(prod);
+    //END WORKAROUND
+    
+    address = &(buffer->address_);
     buffer->branch_->SetAddress( address );
 
     buffer->branch_->GetEntry( eventEntry_ );
@@ -249,7 +265,7 @@ BareRootProductGetter::createNewBuffer(const edm::ProductID& iID) const
 
   //connect the instance to the branch
   //void* address  = wrapperObj.Address();
-  Buffer b(prod, branch,address);
+  Buffer b(prod, branch,address,rootClassType);
   idToBuffers_[iID]=b;
   
   //As of 5.13 ROOT expects the memory address held by the pointer passed to
