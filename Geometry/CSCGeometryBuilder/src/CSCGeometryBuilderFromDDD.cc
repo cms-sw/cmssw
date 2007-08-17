@@ -308,7 +308,7 @@ void CSCGeometryBuilderFromDDD::buildChamber (
   
     LogTrace(myName) << myName <<": buildSpecs requested for ME" << jstat << jring ;
     int chamberType = CSCChamberSpecs::whatChamberType( jstat, jring );
-    CSCChamberSpecs* aSpecs = theGeometry->findSpecs( chamberType );
+    const CSCChamberSpecs* aSpecs = theGeometry->findSpecs( chamberType );
     if ( aSpecs == 0 ) aSpecs = theGeometry->buildSpecs( chamberType, fpar, fupar, wg );
 
    // Build a Transformation out of GEANT gtran and grmat...
