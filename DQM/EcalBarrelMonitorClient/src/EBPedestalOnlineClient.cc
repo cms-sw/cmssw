@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2007/08/09 12:24:18 $
- * $Revision: 1.93 $
+ * $Date: 2007/08/14 17:43:05 $
+ * $Revision: 1.94 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -19,7 +19,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 #include "DQMServices/Core/interface/QTestStatus.h"
 #include "DQMServices/QualityTests/interface/QCriterionRoot.h"
@@ -106,6 +105,7 @@ EBPedestalOnlineClient::~EBPedestalOnlineClient(){
 void EBPedestalOnlineClient::beginJob(MonitorUserInterface* mui){
 
   mui_ = mui;
+  dbe_ = mui->getBEInterface();
 
   if ( verbose_ ) cout << "EBPedestalOnlineClient: beginJob" << endl;
 
@@ -121,7 +121,7 @@ void EBPedestalOnlineClient::beginJob(MonitorUserInterface* mui){
       int ism = superModules_[i];
 
       sprintf(qtname, "EBPOT quality %s G12", Numbers::sEB(ism).c_str());
-      qth03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+      qth03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
       qth03_[ism-1]->setMeanRange(expectedMean_ - discrepancyMean_, expectedMean_ + discrepancyMean_);
 
@@ -132,7 +132,7 @@ void EBPedestalOnlineClient::beginJob(MonitorUserInterface* mui){
       qth03_[ism-1]->setErrorProb(1.00);
 
       sprintf(qtname, "EBPOT quality test %s G12", Numbers::sEB(ism).c_str());
-      qtg03_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+      qtg03_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
       qtg03_[ism-1]->setMeanRange(1., 6.);
 
@@ -180,24 +180,23 @@ void EBPedestalOnlineClient::setup(void) {
 
   Char_t histo[200];
 
-  mui_->setCurrentFolder( "EcalBarrel/EBPedestalOnlineClient" );
-  DaqMonitorBEInterface* dbe = mui_->getBEInterface();
+  dbe_->setCurrentFolder( "EcalBarrel/EBPedestalOnlineClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( meg03_[ism-1] ) dbe->removeElement( meg03_[ism-1]->getName() );
+    if ( meg03_[ism-1] ) dbe_->removeElement( meg03_[ism-1]->getName() );
     sprintf(histo, "EBPOT pedestal quality G12 %s", Numbers::sEB(ism).c_str());
-    meg03_[ism-1] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg03_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
-    if ( mep03_[ism-1] ) dbe->removeElement( mep03_[ism-1]->getName() );
+    if ( mep03_[ism-1] ) dbe_->removeElement( mep03_[ism-1]->getName() );
     sprintf(histo, "EBPOT pedestal mean G12 %s", Numbers::sEB(ism).c_str());
-    mep03_[ism-1] = dbe->book1D(histo, histo, 100, 150., 250.);
+    mep03_[ism-1] = dbe_->book1D(histo, histo, 100, 150., 250.);
 
-    if ( mer03_[ism-1] ) dbe->removeElement( mer03_[ism-1]->getName() );
+    if ( mer03_[ism-1] ) dbe_->removeElement( mer03_[ism-1]->getName() );
     sprintf(histo, "EBPOT pedestal rms G12 %s", Numbers::sEB(ism).c_str());
-    mer03_[ism-1] = dbe->book1D(histo, histo, 100, 0.,  10.);
+    mer03_[ism-1] = dbe_->book1D(histo, histo, 100, 0.,  10.);
 
   }
 
@@ -238,20 +237,19 @@ void EBPedestalOnlineClient::cleanup(void) {
 
   }
 
-  mui_->setCurrentFolder( "EcalBarrel/EBPedestalOnlineClient" );
-  DaqMonitorBEInterface* dbe = mui_->getBEInterface();
+  dbe_->setCurrentFolder( "EcalBarrel/EBPedestalOnlineClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( meg03_[ism-1] ) dbe->removeElement( meg03_[ism-1]->getName() );
+    if ( meg03_[ism-1] ) dbe_->removeElement( meg03_[ism-1]->getName() );
     meg03_[ism-1] = 0;
 
-    if ( mep03_[ism-1] ) dbe->removeElement( mep03_[ism-1]->getName() );
+    if ( mep03_[ism-1] ) dbe_->removeElement( mep03_[ism-1]->getName() );
     mep03_[ism-1] = 0;
 
-    if ( mer03_[ism-1] ) dbe->removeElement( mer03_[ism-1]->getName() );
+    if ( mer03_[ism-1] ) dbe_->removeElement( mer03_[ism-1]->getName() );
     mer03_[ism-1] = 0;
 
   }
@@ -455,7 +453,7 @@ void EBPedestalOnlineClient::softReset(void){
 
     int ism = superModules_[i];
 
-    if ( meh03_[ism-1] ) mui_->softReset(meh03_[ism-1]);
+    if ( meh03_[ism-1] ) dbe_->softReset(meh03_[ism-1]);
 
   }
 
@@ -492,7 +490,7 @@ void EBPedestalOnlineClient::analyze(void){
     } else {
       sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal %s G12").c_str(), Numbers::sEB(ism).c_str());
     }
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
     meh03_[ism-1] = me;
 

@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2007/07/04 12:35:00 $
- * $Revision: 1.18 $
+ * $Date: 2007/08/09 14:36:54 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -21,6 +21,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
@@ -184,6 +185,7 @@ vector<string> clientNames_;
 EESummaryClient* summaryClient_;
 
 MonitorUserInterface* mui_;
+DaqMonitorBEInterface* dbe_;
  
 bool enableStateMachine_;
  

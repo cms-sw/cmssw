@@ -4,8 +4,8 @@
 /*
  * \file EBTriggerTowerClient.h
  *
- * $Date: 2007/07/19 11:48:50 $
- * $Revision: 1.14 $
+ * $Date: 2007/08/09 12:26:58 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -25,6 +25,7 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
 
 #include "DQM/EcalBarrelMonitorClient/interface/EBClient.h"
@@ -107,6 +108,7 @@ string prefixME_;
 vector<int> superModules_;
 
 MonitorUserInterface* mui_;
+DaqMonitorBEInterface* dbe_;
 
 CollateMonitorElement* me_h01_[36];
 CollateMonitorElement* me_i01_[36];
@@ -118,7 +120,6 @@ CollateMonitorElement* me_h02_[36];
 CollateMonitorElement* me_i02_[36];
 CollateMonitorElement* me_j02_[36];
 
-
 MonitorElement* meh01_[36];
 MonitorElement* mei01_[36];
 MonitorElement* mej01_[36];
@@ -128,7 +129,6 @@ MonitorElement* men01_[36];
 MonitorElement* meh02_[36];
 MonitorElement* mei02_[36];
 MonitorElement* mej02_[36];
-
 
 TH3F* h01_[36];
 TH3F* i01_[36];

@@ -4,8 +4,8 @@
 /*
  * \file EBTimingClient.h
  *
- * $Date: 2007/04/29 18:13:43 $
- * $Revision: 1.6 $
+ * $Date: 2007/08/09 12:26:58 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -24,6 +24,7 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
 
 #include "DQM/EcalBarrelMonitorClient/interface/EBClient.h"
@@ -97,6 +98,7 @@ string prefixME_;
 vector<int> superModules_;
 
 MonitorUserInterface* mui_;
+DaqMonitorBEInterface* dbe_;
 
 CollateMonitorElement* me_h01_[36];
 

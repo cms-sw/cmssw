@@ -4,8 +4,8 @@
 /*
  * \file EEBeamCaloClient.h
  *
- * $Date: 2007/04/02 16:15:35 $
- * $Revision: 1.1 $
+ * $Date: 2007/08/09 14:36:54 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -23,8 +23,10 @@
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
+
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
 
 #include "DQM/EcalEndcapMonitorClient/interface/EEClient.h"
@@ -100,6 +102,7 @@ string prefixME_;
 vector<int> superModules_;
 
 MonitorUserInterface* mui_;
+DaqMonitorBEInterface* dbe_;
 
 //specific task me
 vector<int> checkedSteps_;

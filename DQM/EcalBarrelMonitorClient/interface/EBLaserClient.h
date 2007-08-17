@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2007/08/09 12:26:57 $
- * $Revision: 1.58 $
+ * $Date: 2007/08/09 14:00:13 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  *
 */
@@ -24,6 +24,7 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
 
 #include "DQM/EcalBarrelMonitorClient/interface/EBClient.h"
@@ -97,6 +98,7 @@ string prefixME_;
 vector<int> superModules_;
 
 MonitorUserInterface* mui_;
+DaqMonitorBEInterface* dbe_;
 
 CollateMonitorElement* me_h01_[36];
 CollateMonitorElement* me_h02_[36];

@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloClient.cc
  *
- * $Date: 2007/07/19 12:02:02 $
- * $Revision: 1.10 $
+ * $Date: 2007/08/09 14:36:55 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -114,6 +114,7 @@ EEBeamCaloClient::~EEBeamCaloClient(){
 void EEBeamCaloClient::beginJob(MonitorUserInterface* mui){
 
   mui_ = mui;
+  dbe_ = mui->getBEInterface();
 
   if ( verbose_ ) cout << "EEBeamCaloClient: beginJob" << endl;
 
@@ -162,11 +163,11 @@ void EEBeamCaloClient::setup(void) {
 
   Char_t histo[200];
 
-  mui_->setCurrentFolder( "EcalEndcap/EEBeamCaloClient" );
-  DaqMonitorBEInterface* dbe = mui_->getBEInterface();
-  if ( meEEBCaloRedGreen_ ) dbe->removeElement( meEEBCaloRedGreen_->getName() );
+  dbe_->setCurrentFolder( "EcalEndcap/EEBeamCaloClient" );
+
+  if ( meEEBCaloRedGreen_ ) dbe_->removeElement( meEEBCaloRedGreen_->getName() );
   sprintf(histo, "EEBCT quality");
-  meEEBCaloRedGreen_ = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+  meEEBCaloRedGreen_ = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
   UtilsClient::resetHisto( meEEBCaloRedGreen_ );
 
@@ -178,15 +179,15 @@ void EEBeamCaloClient::setup(void) {
     }
   }
 
-  if ( meEEBCaloRedGreenReadCry_ ) dbe->removeElement( meEEBCaloRedGreenReadCry_->getName() );
+  if ( meEEBCaloRedGreenReadCry_ ) dbe_->removeElement( meEEBCaloRedGreenReadCry_->getName() );
   sprintf(histo, "EEBCT quality read crystal errors");
-  meEEBCaloRedGreenReadCry_ = dbe->book2D(histo, histo, 1, 0., 1., 1, 0., 1.);
+  meEEBCaloRedGreenReadCry_ = dbe_->book2D(histo, histo, 1, 0., 1., 1, 0., 1.);
   UtilsClient::resetHisto( meEEBCaloRedGreenReadCry_ );
   meEEBCaloRedGreenReadCry_ ->setBinContent( 1, 1, 2. );
 
-  if( meEEBCaloRedGreenSteps_ )  dbe->removeElement( meEEBCaloRedGreenSteps_->getName() );
+  if( meEEBCaloRedGreenSteps_ )  dbe_->removeElement( meEEBCaloRedGreenSteps_->getName() );
   sprintf(histo, "EEBCT quality entries or read crystals errors");
-  meEEBCaloRedGreenSteps_ = dbe->book2D(histo, histo, 86, 1., 87., 1, 0., 1.);
+  meEEBCaloRedGreenSteps_ = dbe_->book2D(histo, histo, 86, 1., 87., 1, 0., 1.);
   UtilsClient::resetHisto( meEEBCaloRedGreenSteps_ );
   for( int bin=1; bin <87; bin++){ meEEBCaloRedGreenSteps_->setBinContent( bin, 1, 2. );}
 
@@ -243,13 +244,13 @@ void EEBeamCaloClient::cleanup(void) {
   hbDesync_ = 0;
   pBCriInBeamEvents_ =0;
 
-  mui_->setCurrentFolder( "EcalEndcap/EEBeamCaloClient" );
-  DaqMonitorBEInterface* dbe = mui_->getBEInterface();
-  if ( meEEBCaloRedGreen_) dbe->removeElement( meEEBCaloRedGreen_->getName() );
+  dbe_->setCurrentFolder( "EcalEndcap/EEBeamCaloClient" );
+
+  if ( meEEBCaloRedGreen_) dbe_->removeElement( meEEBCaloRedGreen_->getName() );
   meEEBCaloRedGreen_ = 0;
-  if ( meEEBCaloRedGreenReadCry_) dbe->removeElement( meEEBCaloRedGreenReadCry_->getName() );
+  if ( meEEBCaloRedGreenReadCry_) dbe_->removeElement( meEEBCaloRedGreenReadCry_->getName() );
   meEEBCaloRedGreenReadCry_ = 0;
-  if( meEEBCaloRedGreenSteps_ ) dbe->removeElement (  meEEBCaloRedGreenSteps_->getName() );
+  if( meEEBCaloRedGreenSteps_ ) dbe_->removeElement (  meEEBCaloRedGreenSteps_->getName() );
   meEEBCaloRedGreenSteps_ = 0;
 }
 
@@ -595,94 +596,94 @@ void EEBeamCaloClient::analyze(void){
   // MonitorElement* meCD;
   if ( collateSources_ ) {;}
   else{ sprintf(histo, (prefixME_+"EcalEndcap/EEBeamCaloTask/EEBCT crystals done").c_str() ); }
-  //meCD = mui_->get(histo);
-  me = mui_->get(histo);
+  //meCD = dbe_->get(histo);
+  me = dbe_->get(histo);
   hBcryDone_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBcryDone_ );
 
   //MonitorElement* meCryInBeam;
   if ( collateSources_ ) {;}
   else { sprintf(histo, (prefixME_+"EcalEndcap/EEBeamCaloTask/EEBCT crystal on beam").c_str() ); }
-  //meCryInBeam = mui_->get(histo);
-  me = mui_->get(histo);
+  //meCryInBeam = dbe_->get(histo);
+  me = dbe_->get(histo);
   hBCryOnBeam_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hBCryOnBeam_);
 
   //MonitorElement* allNeededCry;
   if ( collateSources_ ) {;}
   else {sprintf(histo, (prefixME_+"EcalEndcap/EEBeamCaloTask/EEBCT all needed crystals readout").c_str() ); }
-  //allNeededCry= mui_->get(histo);
-  me = mui_->get(histo);
+  //allNeededCry= dbe_->get(histo);
+  me = dbe_->get(histo);
   hBAllNeededCry_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBAllNeededCry_);
 
   if ( collateSources_ ) {;}
   else {sprintf(histo, (prefixME_+"EcalEndcap/EEBeamCaloTask/EEBCT readout crystals number").c_str() ); }
-  //allNeededCry= mui_->get(histo);
-  me = mui_->get(histo);
+  //allNeededCry= dbe_->get(histo);
+  me = dbe_->get(histo);
   hBNumReadCry_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBNumReadCry_);
 
   //MonitorElement* RecEne3x3;
   if ( collateSources_ ) {;}
   else { sprintf(histo, (prefixME_+"EcalEndcap/EEBeamCaloTask/EEBCT rec Ene sum 3x3").c_str() ); }
-  //RecEne3x3= mui_->get(histo);
-  me = mui_->get(histo);
+  //RecEne3x3= dbe_->get(histo);
+  me = dbe_->get(histo);
   hBE3x3_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBE3x3_);
 
   //MonitorElement* ErrRedCry;
   if ( collateSources_ ) {;}
   else { sprintf(histo, (prefixME_+"EcalEndcap/EEBeamCaloTask/EEBCT readout crystals errors").c_str() ); }
-  //ErrRedCry = mui_->get(histo);
-  me = mui_->get(histo);
+  //ErrRedCry = dbe_->get(histo);
+  me = dbe_->get(histo);
   hBReadCryErrors_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBReadCryErrors_);
 
   //  MonitorElement* RecEne1;
   if ( collateSources_ ) {;}
   else { sprintf(histo, (prefixME_+"EcalEndcap/EEBeamCaloTask/EEBCT rec energy cry 5").c_str() ); }
-  //RecEne1= mui_->get(histo);
-  me = mui_->get(histo);
+  //RecEne1= dbe_->get(histo);
+  me = dbe_->get(histo);
   hBEne1_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBEne1_);
 
   if ( collateSources_ ) {;}
   else { sprintf(histo, (prefixME_+"EcalEndcap/EEBeamCaloTask/EEBCT crystal with maximum rec energy").c_str() ); }
-  me = mui_->get(histo);
+  me = dbe_->get(histo);
   hBMaxEneCry_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hBMaxEneCry_);
 
   if ( collateSources_ ) {;}
   else { sprintf(histo, (prefixME_+"EcalEndcap/EEBeamCaloTask/EEBCT average rec energy in the 3x3 array").c_str() ); }
-  me = mui_->get(histo);
+  me = dbe_->get(histo);
   hBE3x3vsCry_ = UtilsClient::getHisto<TProfile*>( me, cloneME_, hBE3x3vsCry_);
 
   if ( collateSources_ ) {;}
   else {  sprintf(histo, (prefixME_+"EcalEndcap/EEBeamCaloTask/EEBCT average rec energy in the single crystal").c_str() ); }
-  me = mui_->get(histo);
+  me = dbe_->get(histo);
   hBE1vsCry_ = UtilsClient::getHisto<TProfile*>( me, cloneME_, hBE1vsCry_);
 
   if ( collateSources_ ) {;}
   else {  sprintf(histo, (prefixME_+"EcalEndcap/EEBeamCaloTask/EEBCT number of entries").c_str() ); }
-  me = mui_->get(histo);
+  me = dbe_->get(histo);
   hBEntriesvsCry_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBEntriesvsCry_);
 
   if ( collateSources_ ) {;}
   else { sprintf(histo, (prefixME_+"EcalEndcap/EEBeamCaloTask/EEBCT energy deposition in the 3x3").c_str() ); }
-  me = mui_->get(histo);
+  me = dbe_->get(histo);
   hBBeamCentered_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hBBeamCentered_);
 
   if ( collateSources_ ) {;}
   else { sprintf(histo, (prefixME_+"EcalEndcap/EEBeamCaloTask/EEBCT table is moving").c_str() ); }
-  me = mui_->get(histo);
+  me = dbe_->get(histo);
   hbTBmoving_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hbTBmoving_);
 
   if ( collateSources_ ) {;}
   else {sprintf(histo, (prefixME_+"EcalEndcap/EEBeamCaloTask/EEBCT crystal in beam vs event").c_str() );}
-  me = mui_->get(histo);
+  me = dbe_->get(histo);
   pBCriInBeamEvents_ =  UtilsClient::getHisto<TProfile*>( me, cloneME_, pBCriInBeamEvents_);
 
   if ( collateSources_ ) {;}
   else {sprintf(histo, (prefixME_+"EcalEndcap/EEBeamCaloTask/EEBCT E1 in the max cry").c_str() );}
-  me = mui_->get(histo);
+  me = dbe_->get(histo);
   hbE1MaxCry_ =  UtilsClient::getHisto<TH1F*>( me, cloneME_, hbE1MaxCry_);
 
   if ( collateSources_ ) {;}
   else {sprintf(histo, (prefixME_+"EcalEndcap/EEBeamCaloTask/EEBCT Desynchronization vs step").c_str() );}
-  me = mui_->get(histo);
+  me = dbe_->get(histo);
   hbDesync_ =  UtilsClient::getHisto<TH1F*>( me, cloneME_, hbDesync_);
 
   if ( collateSources_ ){;}
@@ -691,12 +692,12 @@ void EEBeamCaloClient::analyze(void){
     for(int ind = 0; ind < cryInArray_; ind ++){
       sprintf(me_name,"EcalEndcap/EEBeamCaloTask/EEBCT pulse profile in G12 cry %01d", ind+1);
       sprintf(histo, (prefixME_ + me_name).c_str() );
-      me = mui_->get(histo);
+      me = dbe_->get(histo);
       hBpulse_[ind] = UtilsClient::getHisto<TProfile*>( me, cloneME_, hBpulse_[ind]);
 
       sprintf(me_name,"EcalEndcap/EEBeamCaloTask/EEBCT found gains cry %01d", ind+1);
       sprintf(histo, (prefixME_ + me_name).c_str() );
-      me = mui_->get(histo);
+      me = dbe_->get(histo);
       hBGains_[ind] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBGains_[ind]);
     }
   }

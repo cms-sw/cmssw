@@ -4,8 +4,8 @@
 /*
  * \file EETimingClient.h
  *
- * $Date: 2007/05/12 09:39:05 $
- * $Revision: 1.2 $
+ * $Date: 2007/08/09 14:36:54 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -24,6 +24,7 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
 
 #include "DQM/EcalEndcapMonitorClient/interface/EEClient.h"
@@ -97,6 +98,7 @@ string prefixME_;
 vector<int> superModules_;
 
 MonitorUserInterface* mui_;
+DaqMonitorBEInterface* dbe_;
 
 CollateMonitorElement* me_h01_[18];
 

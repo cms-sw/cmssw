@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2007/08/14 20:27:36 $
- * $Revision: 1.8 $
+ * $Date: 2007/08/15 09:04:23 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -192,22 +192,22 @@ void EELedClient::beginJob(MonitorUserInterface* mui){
       int ism = superModules_[i];
 
       sprintf(qtname, "EELDT led quality %s A", Numbers::sEE(ism).c_str());
-      qth01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+      qth01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
       sprintf(qtname, "EELDT led quality %s B", Numbers::sEE(ism).c_str());
-      qth05_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+      qth05_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
       sprintf(qtname, "EELDT led amplitude quality PNs %s G01", Numbers::sEE(ism).c_str());
-      qth09_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+      qth09_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
       sprintf(qtname, "EELDT led pedestal quality PNs %s G01", Numbers::sEE(ism).c_str());
-      qth13_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+      qth13_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
       sprintf(qtname, "EELDT led amplitude quality PNs %s G16", Numbers::sEE(ism).c_str());
-      qth17_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+      qth17_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
       sprintf(qtname, "EELDT led pedestal quality PNs %s G16", Numbers::sEE(ism).c_str());
-      qth21_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+      qth21_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
       qth01_[ism-1]->setMeanRange(100.0, 4096.0*12.);
 
@@ -260,17 +260,17 @@ void EELedClient::beginJob(MonitorUserInterface* mui){
       qth21_[ism-1]->setErrorProb(1.00);
 
       sprintf(qtname, "EELDT quality test %s", Numbers::sEE(ism).c_str());
-      qtg01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+      qtg01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
       qtg01_[ism-1]->setMeanRange(1., 6.);
 
       qtg01_[ism-1]->setErrorProb(1.00);
 
       sprintf(qtname, "EELDT quality test PNs %s G01", Numbers::sEE(ism).c_str());
-      qtg05_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+      qtg05_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
       sprintf(qtname, "EELDT quality test PNs %s G16", Numbers::sEE(ism).c_str());
-      qtg09_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+      qtg09_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
       qtg05_[ism-1]->setMeanRange(1., 6.);
 
@@ -322,73 +322,71 @@ void EELedClient::setup(void) {
 
   Char_t histo[200];
 
-  mui_->setCurrentFolder( "EcalEndcap/EELedClient" );
-
-  DaqMonitorBEInterface* dbe = mui_->getBEInterface();
+  dbe_->setCurrentFolder( "EcalEndcap/EELedClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( meg01_[ism-1] ) dbe->removeElement( meg01_[ism-1]->getName() );
+    if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EELDT led quality %s", Numbers::sEE(ism).c_str());
-    meg01_[ism-1] = dbe->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    meg01_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
 
-    if ( meg05_[ism-1] ) dbe->removeElement( meg05_[ism-1]->getName() );
+    if ( meg05_[ism-1] ) dbe_->removeElement( meg05_[ism-1]->getName() );
     sprintf(histo, "EELDT led quality PNs %s G01", Numbers::sEE(ism).c_str());
-    meg05_[ism-1] = dbe->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg05_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
 
-    if ( meg09_[ism-1] ) dbe->removeElement( meg09_[ism-1]->getName() );
+    if ( meg09_[ism-1] ) dbe_->removeElement( meg09_[ism-1]->getName() );
     sprintf(histo, "EELDT led quality PNs %s G16", Numbers::sEE(ism).c_str());
-    meg09_[ism-1] = dbe->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg09_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
 
-    if ( mea01_[ism-1] ) dbe->removeElement( mea01_[ism-1]->getName() );;
+    if ( mea01_[ism-1] ) dbe_->removeElement( mea01_[ism-1]->getName() );;
     sprintf(histo, "EELDT amplitude A %s", Numbers::sEE(ism).c_str());
-    mea01_[ism-1] = dbe->book1D(histo, histo, 1700, 0., 1700.);
+    mea01_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
 
-    if ( mea05_[ism-1] ) dbe->removeElement( mea05_[ism-1]->getName() );;
+    if ( mea05_[ism-1] ) dbe_->removeElement( mea05_[ism-1]->getName() );;
     sprintf(histo, "EELDT amplitude B %s", Numbers::sEE(ism).c_str());
-    mea05_[ism-1] = dbe->book1D(histo, histo, 1700, 0., 1700.);
+    mea05_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
 
-    if ( met01_[ism-1] ) dbe->removeElement( met01_[ism-1]->getName() );
+    if ( met01_[ism-1] ) dbe_->removeElement( met01_[ism-1]->getName() );
     sprintf(histo, "EELDT timing A %s", Numbers::sEE(ism).c_str());
-    met01_[ism-1] = dbe->book1D(histo, histo, 1700, 0., 1700.);
+    met01_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
 
-    if ( met05_[ism-1] ) dbe->removeElement( met05_[ism-1]->getName() );
+    if ( met05_[ism-1] ) dbe_->removeElement( met05_[ism-1]->getName() );
     sprintf(histo, "EELDT timing B %s", Numbers::sEE(ism).c_str());
-    met05_[ism-1] = dbe->book1D(histo, histo, 1700, 0., 1700.);
+    met05_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
 
-    if ( metav01_[ism-1] ) dbe->removeElement( metav01_[ism-1]->getName() );
+    if ( metav01_[ism-1] ) dbe_->removeElement( metav01_[ism-1]->getName() );
     sprintf(histo, "EELDT timing mean A %s", Numbers::sEE(ism).c_str());
-    metav01_[ism-1] = dbe->book1D(histo, histo, 100, 0., 10.);
+    metav01_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
 
-    if ( metav05_[ism-1] ) dbe->removeElement( metav05_[ism-1]->getName() );
+    if ( metav05_[ism-1] ) dbe_->removeElement( metav05_[ism-1]->getName() );
     sprintf(histo, "EELDT timing mean B %s", Numbers::sEE(ism).c_str());
-    metav05_[ism-1] = dbe->book1D(histo, histo, 100, 0., 10.);
+    metav05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
 
-    if ( metrms01_[ism-1] ) dbe->removeElement( metrms01_[ism-1]->getName() );
+    if ( metrms01_[ism-1] ) dbe_->removeElement( metrms01_[ism-1]->getName() );
     sprintf(histo, "EELDT timing rms A %s", Numbers::sEE(ism).c_str());
-    metrms01_[ism-1] = dbe->book1D(histo, histo, 100, 0., 0.5);
+    metrms01_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
 
-    if ( metrms05_[ism-1] ) dbe->removeElement( metrms05_[ism-1]->getName() );
+    if ( metrms05_[ism-1] ) dbe_->removeElement( metrms05_[ism-1]->getName() );
     sprintf(histo, "EELDT timing rms B %s", Numbers::sEE(ism).c_str());
-    metrms05_[ism-1] = dbe->book1D(histo, histo, 100, 0., 0.5);
+    metrms05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
 
-    if ( meaopn01_[ism-1] ) dbe->removeElement( meaopn01_[ism-1]->getName() );
+    if ( meaopn01_[ism-1] ) dbe_->removeElement( meaopn01_[ism-1]->getName() );
     sprintf(histo, "EELDT amplitude over PN A %s", Numbers::sEE(ism).c_str());
-    meaopn01_[ism-1] = dbe->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn01_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
 
-    if ( meaopn05_[ism-1] ) dbe->removeElement( meaopn05_[ism-1]->getName() );
+    if ( meaopn05_[ism-1] ) dbe_->removeElement( meaopn05_[ism-1]->getName() );
     sprintf(histo, "EELDT amplitude over PN B %s", Numbers::sEE(ism).c_str());
-    meaopn05_[ism-1] = dbe->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn05_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
 
-    if ( mepnprms01_[ism-1] ) dbe->removeElement( mepnprms01_[ism-1]->getName() );
+    if ( mepnprms01_[ism-1] ) dbe_->removeElement( mepnprms01_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G01", Numbers::sEE(ism).c_str());
-    mepnprms01_[ism-1] = dbe->book1D(histo, histo, 100, 0., 10.);
+    mepnprms01_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
 
-    if ( mepnprms05_[ism-1] ) dbe->removeElement( mepnprms05_[ism-1]->getName() );
+    if ( mepnprms05_[ism-1] ) dbe_->removeElement( mepnprms05_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G16", Numbers::sEE(ism).c_str());
-    mepnprms05_[ism-1] = dbe->book1D(histo, histo, 100, 0., 10.);
+    mepnprms05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
 
   }
 
@@ -511,52 +509,51 @@ void EELedClient::cleanup(void) {
 
     int ism = superModules_[i];
 
-    mui_->setCurrentFolder( "EcalEndcap/EELedClient" );
-    DaqMonitorBEInterface* dbe = mui_->getBEInterface();
+    dbe_->setCurrentFolder( "EcalEndcap/EELedClient" );
 
-    if ( meg01_[ism-1] ) dbe->removeElement( meg01_[ism-1]->getName() );
+    if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
     meg01_[ism-1] = 0;
 
-    if ( meg05_[ism-1] ) dbe->removeElement( meg05_[ism-1]->getName() );
+    if ( meg05_[ism-1] ) dbe_->removeElement( meg05_[ism-1]->getName() );
     meg05_[ism-1] = 0;
 
-    if ( meg09_[ism-1] ) dbe->removeElement( meg09_[ism-1]->getName() );
+    if ( meg09_[ism-1] ) dbe_->removeElement( meg09_[ism-1]->getName() );
     meg09_[ism-1] = 0;
 
-    if ( mea01_[ism-1] ) dbe->removeElement( mea01_[ism-1]->getName() );
+    if ( mea01_[ism-1] ) dbe_->removeElement( mea01_[ism-1]->getName() );
     mea01_[ism-1] = 0;
 
-    if ( mea05_[ism-1] ) dbe->removeElement( mea05_[ism-1]->getName() );
+    if ( mea05_[ism-1] ) dbe_->removeElement( mea05_[ism-1]->getName() );
     mea05_[ism-1] = 0;
 
-    if ( met01_[ism-1] ) dbe->removeElement( met01_[ism-1]->getName() );
+    if ( met01_[ism-1] ) dbe_->removeElement( met01_[ism-1]->getName() );
     met01_[ism-1] = 0;
 
-    if ( met05_[ism-1] ) dbe->removeElement( met05_[ism-1]->getName() );
+    if ( met05_[ism-1] ) dbe_->removeElement( met05_[ism-1]->getName() );
     met05_[ism-1] = 0;
 
-    if ( metav01_[ism-1] ) dbe->removeElement( metav01_[ism-1]->getName() );
+    if ( metav01_[ism-1] ) dbe_->removeElement( metav01_[ism-1]->getName() );
     metav01_[ism-1] = 0;
 
-    if ( metav05_[ism-1] ) dbe->removeElement( metav05_[ism-1]->getName() );
+    if ( metav05_[ism-1] ) dbe_->removeElement( metav05_[ism-1]->getName() );
     metav05_[ism-1] = 0;
 
-    if ( metrms01_[ism-1] ) dbe->removeElement( metrms01_[ism-1]->getName() );
+    if ( metrms01_[ism-1] ) dbe_->removeElement( metrms01_[ism-1]->getName() );
     metrms01_[ism-1] = 0;
 
-    if ( metrms05_[ism-1] ) dbe->removeElement( metrms05_[ism-1]->getName() );
+    if ( metrms05_[ism-1] ) dbe_->removeElement( metrms05_[ism-1]->getName() );
     metrms05_[ism-1] = 0;
 
-    if ( meaopn01_[ism-1] ) dbe->removeElement( meaopn01_[ism-1]->getName() );
+    if ( meaopn01_[ism-1] ) dbe_->removeElement( meaopn01_[ism-1]->getName() );
     meaopn01_[ism-1] = 0;
 
-    if ( meaopn05_[ism-1] ) dbe->removeElement( meaopn05_[ism-1]->getName() );
+    if ( meaopn05_[ism-1] ) dbe_->removeElement( meaopn05_[ism-1]->getName() );
     meaopn05_[ism-1] = 0;
 
-    if ( mepnprms01_[ism-1] ) dbe->removeElement( mepnprms01_[ism-1]->getName() );
+    if ( mepnprms01_[ism-1] ) dbe_->removeElement( mepnprms01_[ism-1]->getName() );
     mepnprms01_[ism-1] = 0;
 
-    if ( mepnprms05_[ism-1] ) dbe->removeElement( mepnprms05_[ism-1]->getName() );
+    if ( mepnprms05_[ism-1] ) dbe_->removeElement( mepnprms05_[ism-1]->getName() );
     mepnprms05_[ism-1] = 0;
 
   }
@@ -1129,7 +1126,7 @@ void EELedClient::analyze(void){
     } else {
       sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELDT amplitude %s A").c_str(), Numbers::sEE(ism).c_str());
     }
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
 
     if ( collateSources_ ) {
@@ -1137,7 +1134,7 @@ void EELedClient::analyze(void){
     } else {
       sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELDT amplitude over PN %s A").c_str(), Numbers::sEE(ism).c_str());
     }
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
 
     if ( collateSources_ ) {
@@ -1145,7 +1142,7 @@ void EELedClient::analyze(void){
     } else {
       sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELDT timing %s A").c_str(), Numbers::sEE(ism).c_str());
     }
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     h09_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h09_[ism-1] );
 
     if ( collateSources_ ) {
@@ -1153,7 +1150,7 @@ void EELedClient::analyze(void){
     } else {
       sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELDT amplitude %s B").c_str(), Numbers::sEE(ism).c_str());
     }
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     h13_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h13_[ism-1] );
 
     if ( collateSources_ ) {
@@ -1161,7 +1158,7 @@ void EELedClient::analyze(void){
     } else {
       sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELDT amplitude over PN %s B").c_str(), Numbers::sEE(ism).c_str());
     }
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     h14_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h14_[ism-1] );
 
     if ( collateSources_ ) {
@@ -1169,7 +1166,7 @@ void EELedClient::analyze(void){
     } else {
       sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELDT timing %s B").c_str(), Numbers::sEE(ism).c_str());
     }
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     h21_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h21_[ism-1] );
 
     if ( collateSources_ ) {
@@ -1177,7 +1174,7 @@ void EELedClient::analyze(void){
     } else {
       sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELDT shape %s A").c_str(), Numbers::sEE(ism).c_str());
     }
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     hs01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs01_[ism-1] );
 
     if ( collateSources_ ) {
@@ -1185,7 +1182,7 @@ void EELedClient::analyze(void){
     } else {
       sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELDT shape %s B").c_str(), Numbers::sEE(ism).c_str());
     }
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     hs05_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs05_[ism-1] );
 
     if ( collateSources_ ) {
@@ -1193,7 +1190,7 @@ void EELedClient::analyze(void){
     } else {
       sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01").c_str(), Numbers::sEE(ism).c_str());
     }
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     i01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i01_[ism-1] );
 
     if ( collateSources_ ) {
@@ -1201,7 +1198,7 @@ void EELedClient::analyze(void){
     } else {
       sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01").c_str(), Numbers::sEE(ism).c_str());
     }
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     i05_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i05_[ism-1] );
 
     if ( collateSources_ ) {
@@ -1209,7 +1206,7 @@ void EELedClient::analyze(void){
     } else {
       sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16").c_str(), Numbers::sEE(ism).c_str());
     }
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     i09_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i09_[ism-1] );
 
     if ( collateSources_ ) {
@@ -1217,7 +1214,7 @@ void EELedClient::analyze(void){
     } else {
       sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16").c_str(), Numbers::sEE(ism).c_str());
     }
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     i13_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i13_[ism-1] );
 
     UtilsClient::resetHisto( meg01_[ism-1] );

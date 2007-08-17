@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2007/07/18 09:37:55 $
- * $Revision: 1.11 $
+ * $Date: 2007/08/09 12:26:58 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -25,6 +25,7 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
 
 #include "DQM/EcalBarrelMonitorClient/interface/EBClient.h"
@@ -103,6 +104,7 @@ vector<int> superModules_;
 vector<EBClient*> clients_;
 
 MonitorUserInterface* mui_;
+DaqMonitorBEInterface* dbe_;
 
 MonitorElement* meIntegrity_;
 MonitorElement* meOccupancy_;

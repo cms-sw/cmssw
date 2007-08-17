@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2007/08/09 14:36:55 $
- * $Revision: 1.8 $
+ * $Date: 2007/08/14 17:44:45 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -352,14 +352,14 @@ void EETriggerTowerClient::softReset(void){
 
     int ism = superModules_[i];
 
-    if ( meh01_[ism-1] ) mui_->softReset(meh01_[ism-1]);
-    if ( mei01_[ism-1] ) mui_->softReset(mei01_[ism-1]);
-    if ( mej01_[ism-1] ) mui_->softReset(mej01_[ism-1]);
+    if ( meh01_[ism-1] ) dbe_->softReset(meh01_[ism-1]);
+    if ( mei01_[ism-1] ) dbe_->softReset(mei01_[ism-1]);
+    if ( mej01_[ism-1] ) dbe_->softReset(mej01_[ism-1]);
 
     for (int j = 0; j < 68 ; j++) {
 
-      if ( mek01_[ism-1][j] ) mui_->softReset(mek01_[ism-1][j]);
-      if ( mek02_[ism-1][j] ) mui_->softReset(mek02_[ism-1][j]);
+      if ( mek01_[ism-1][j] ) dbe_->softReset(mek01_[ism-1][j]);
+      if ( mek02_[ism-1][j] ) dbe_->softReset(mek02_[ism-1][j]);
 
     }
 
@@ -388,7 +388,7 @@ void EETriggerTowerClient::analyze(void){
     } else {
       sprintf(histo, (prefixME_+"EcalEndcap/EETriggerTowerTask/EETTT Et map SM%02d").c_str(), ism);
     }
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
@@ -397,7 +397,7 @@ void EETriggerTowerClient::analyze(void){
     } else {
       sprintf(histo, (prefixME_+"EcalEndcap/EETriggerTowerTask/EETTT FineGrainVeto SM%02d").c_str(), ism);
     }
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     i01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, i01_[ism-1] );
     mei01_[ism-1] = me;
 
@@ -406,7 +406,7 @@ void EETriggerTowerClient::analyze(void){
     } else {
       sprintf(histo, (prefixME_+"EcalEndcap/EETriggerTowerTask/EETTT Flags SM%02d").c_str(), ism);
     }
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     j01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, j01_[ism-1] );
     mej01_[ism-1] = me;
 
@@ -417,7 +417,7 @@ void EETriggerTowerClient::analyze(void){
       } else {
         sprintf(histo, (prefixME_+"EcalEndcap/EETriggerTowerTask/EnergyMaps/EETTT Et T SM%02d TT%02d").c_str(), ism, j+1);
       }
-      me = mui_->get(histo);
+      me = dbe_->get(histo);
       k01_[ism-1][j] = UtilsClient::getHisto<TH1F*>( me, cloneME_, k01_[ism-1][j] );
       mek01_[ism-1][j] = me;
 
@@ -426,7 +426,7 @@ void EETriggerTowerClient::analyze(void){
       } else {
         sprintf(histo, (prefixME_+"EcalEndcap/EETriggerTowerTask/EnergyMaps/EETTT Et R SM%02d TT%02d").c_str(), ism, j+1);
       }
-      me = mui_->get(histo);
+      me = dbe_->get(histo);
       k02_[ism-1][j] = UtilsClient::getHisto<TH1F*>( me, cloneME_, k02_[ism-1][j] );
       mek02_[ism-1][j] = me;
 

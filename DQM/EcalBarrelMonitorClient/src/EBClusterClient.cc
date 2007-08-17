@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2007/08/11 18:34:49 $
- * $Revision: 1.31 $
+ * $Date: 2007/08/12 07:12:00 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -20,7 +20,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 #include "DQMServices/Core/interface/QTestStatus.h"
 #include "DQMServices/QualityTests/interface/QCriterionRoot.h"
@@ -94,6 +93,7 @@ EBClusterClient::~EBClusterClient(){
 void EBClusterClient::beginJob(MonitorUserInterface* mui){
 
   mui_ = mui;
+  dbe_ = mui->getBEInterface();
 
   if ( verbose_ ) cout << "EBClusterClient: beginJob" << endl;
 
@@ -141,7 +141,7 @@ void EBClusterClient::endRun(void) {
 
 void EBClusterClient::setup(void) {
 
-  mui_->setCurrentFolder( "EcalBarrel/EBClusterClient" );
+  dbe_->setCurrentFolder( "EcalBarrel/EBClusterClient" );
 
 }
 
@@ -507,7 +507,7 @@ void EBClusterClient::analyze(void){
   } else {
     sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC energy").c_str());
   }
-  me = mui_->get(histo);
+  me = dbe_->get(histo);
   h01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h01_[0] );
 
   if ( collateSources_ ) {
@@ -515,7 +515,7 @@ void EBClusterClient::analyze(void){
   } else {
     sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC number").c_str());
   }
-  me = mui_->get(histo);
+  me = dbe_->get(histo);
   h01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h01_[1] );
 
   if ( collateSources_ ) {
@@ -523,7 +523,7 @@ void EBClusterClient::analyze(void){
   } else {
     sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC crystals").c_str());
   }
-  me = mui_->get(histo);
+  me = dbe_->get(histo);
   h01_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h01_[2] );
 
   if ( collateSources_ ) {
@@ -531,7 +531,7 @@ void EBClusterClient::analyze(void){
   } else {
     sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC energy map").c_str());
   }
-  me = mui_->get(histo);
+  me = dbe_->get(histo);
   h02_[0] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[0] );
 
   if ( collateSources_ ) {
@@ -539,7 +539,7 @@ void EBClusterClient::analyze(void){
   } else {
     sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC ET map").c_str());
   }
-  me = mui_->get(histo);
+  me = dbe_->get(histo);
   h02_[1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[1] );
 
   if ( collateSources_ ) {
@@ -547,7 +547,7 @@ void EBClusterClient::analyze(void){
   } else {
     sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC number map").c_str());
   }
-  me = mui_->get(histo);
+  me = dbe_->get(histo);
   h03_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, h03_ );
 
   if ( collateSources_ ) {
@@ -555,7 +555,7 @@ void EBClusterClient::analyze(void){
   } else {
     sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC size map").c_str());
   }
-  me = mui_->get(histo);
+  me = dbe_->get(histo);
   h04_ = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_ );
 
   if ( collateSources_ ) {
@@ -563,7 +563,7 @@ void EBClusterClient::analyze(void){
   } else {
     sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island SC energy").c_str());
   }
-  me = mui_->get(histo);
+  me = dbe_->get(histo);
   i01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[0] );
 
   if ( collateSources_ ) {
@@ -571,7 +571,7 @@ void EBClusterClient::analyze(void){
   } else {
     sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island SC number").c_str());
   }
-  me = mui_->get(histo);
+  me = dbe_->get(histo);
   i01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[1] );
 
   if ( collateSources_ ) {
@@ -579,7 +579,7 @@ void EBClusterClient::analyze(void){
   } else {
     sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island SC size").c_str());
   }
-  me = mui_->get(histo);
+  me = dbe_->get(histo);
   i01_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[2] );
 
   if ( collateSources_ ) {
@@ -587,7 +587,7 @@ void EBClusterClient::analyze(void){
   } else {
     sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island SC energy map").c_str());
   }
-  me = mui_->get(histo);
+  me = dbe_->get(histo);
   i02_[0] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[0] );
 
   if ( collateSources_ ) {
@@ -595,7 +595,7 @@ void EBClusterClient::analyze(void){
   } else {
     sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island SC ET map").c_str());
   }
-  me = mui_->get(histo);
+  me = dbe_->get(histo);
   i02_[1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[1] );
 
   if ( collateSources_ ) {
@@ -603,7 +603,7 @@ void EBClusterClient::analyze(void){
   } else {
     sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island SC number map").c_str());
   }
-  me = mui_->get(histo);
+  me = dbe_->get(histo);
   i03_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, i03_ );
 
   if ( collateSources_ ) {
@@ -611,7 +611,7 @@ void EBClusterClient::analyze(void){
   } else {
     sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island SC size map").c_str());
   }
-  me = mui_->get(histo);
+  me = dbe_->get(histo);
   i04_ = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i04_ );
 
   if ( collateSources_ ) {
@@ -619,7 +619,7 @@ void EBClusterClient::analyze(void){
   } else {
     sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT hybrid S1toE").c_str());
   }
-  me = mui_->get(histo);
+  me = dbe_->get(histo);
   s01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, s01_[0] );
 
   if ( collateSources_ ) {
@@ -627,7 +627,7 @@ void EBClusterClient::analyze(void){
   } else {
     sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT dicluster invariant mass").c_str());
   }
-  me = mui_->get(histo);
+  me = dbe_->get(histo);
   s01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, s01_[1] );
 
 }

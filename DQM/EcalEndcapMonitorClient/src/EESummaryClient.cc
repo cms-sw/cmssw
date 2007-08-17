@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/08/09 14:36:55 $
- * $Revision: 1.18 $
+ * $Date: 2007/08/14 17:44:45 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  *
 */
@@ -145,76 +145,76 @@ void EESummaryClient::beginJob(MonitorUserInterface* mui){
     Char_t qtname[200];
 
     sprintf(qtname, "EEIT EE - summary quality test");
-    qtg01_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+    qtg01_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     sprintf(qtname, "EEIT EE + summary quality test");
-    qtg01_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+    qtg01_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     sprintf(qtname, "EEOT EE - summary quality test");
-    qtg02_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+    qtg02_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     sprintf(qtname, "EEOT EE + summary quality test");
-    qtg02_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+    qtg02_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     sprintf(qtname, "EEPOT EE - summary quality test");
-    qtg03_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+    qtg03_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     sprintf(qtname, "EEPOT EE + summary quality test");
-    qtg03_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+    qtg03_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     sprintf(qtname, "EELT EE - summary quality test L1");
-    qtg04_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+    qtg04_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     sprintf(qtname, "EELT EE - PN summary quality test L1");
-    qtg04PN_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+    qtg04PN_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     sprintf(qtname, "EELT EE + summary quality test L1");
-    qtg04_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+    qtg04_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     sprintf(qtname, "EELT EE + PN summary quality test L1");
-    qtg04PN_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+    qtg04PN_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     sprintf(qtname, "EELDT EE - summary quality test");
-    qtg05_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+    qtg05_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     sprintf(qtname, "EELDT EE - PN summary quality test");
-    qtg05PN_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+    qtg05PN_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     sprintf(qtname, "EELDT EE + summary quality test");
-    qtg05_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+    qtg05_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     sprintf(qtname, "EELDT EE + PN summary quality test");
-    qtg05PN_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+    qtg05PN_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     sprintf(qtname, "EEPT EE - summary quality test");
-    qtg06_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+    qtg06_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     sprintf(qtname, "EEPT EE - PN summary quality test");
-    qtg06PN_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+    qtg06PN_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     sprintf(qtname, "EEPT EE + summary quality test");
-    qtg06_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+    qtg06_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     sprintf(qtname, "EEPT EE + PN summary quality test");
-    qtg06PN_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+    qtg06PN_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     sprintf(qtname, "EETPT EE - summary quality test");
-    qtg07_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+    qtg07_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     sprintf(qtname, "EETPT EE - PN summary quality test");
-    qtg07PN_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+    qtg07PN_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     sprintf(qtname, "EETPT EE + summary quality test");
-    qtg07_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+    qtg07_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     sprintf(qtname, "EETPT EE + PN summary quality test");
-    qtg07PN_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+    qtg07PN_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     sprintf(qtname, "EE global summary quality test EE -");
-    qtg08_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+    qtg08_[0] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     sprintf(qtname, "EE global summary quality test EE +");
-    qtg08_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+    qtg08_[1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     qtg01_[0]->setMeanRange(1., 6.);
     qtg01_[1]->setMeanRange(1., 6.);
@@ -306,182 +306,180 @@ void EESummaryClient::setup(void) {
 
   Char_t histo[200];
 
-  mui_->setCurrentFolder( "EcalEndcap/EESummaryClient" );
-  DaqMonitorBEInterface* dbe = mui_->getBEInterface();
+  dbe_->setCurrentFolder( "EcalEndcap/EESummaryClient" );
 
-  if ( meIntegrity_[0] ) dbe->removeElement( meIntegrity_[0]->getName() );
+  if ( meIntegrity_[0] ) dbe_->removeElement( meIntegrity_[0]->getName() );
   sprintf(histo, "EEIT EE - integrity quality summary");
-  meIntegrity_[0] = dbe->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meIntegrity_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
 
-  if ( meIntegrity_[1] ) dbe->removeElement( meIntegrity_[0]->getName() );
+  if ( meIntegrity_[1] ) dbe_->removeElement( meIntegrity_[0]->getName() );
   sprintf(histo, "EEIT EE + integrity quality summary");
-  meIntegrity_[1] = dbe->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meIntegrity_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
 
-  if ( meOccupancy_[0] ) dbe->removeElement( meOccupancy_[0]->getName() );
+  if ( meOccupancy_[0] ) dbe_->removeElement( meOccupancy_[0]->getName() );
   sprintf(histo, "EEOT EE - occupancy summary");
-  meOccupancy_[0] = dbe->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meOccupancy_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
 
-  if ( meOccupancy_[1] ) dbe->removeElement( meOccupancy_[1]->getName() );
+  if ( meOccupancy_[1] ) dbe_->removeElement( meOccupancy_[1]->getName() );
   sprintf(histo, "EEOT EE + occupancy summary");
-  meOccupancy_[1] = dbe->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meOccupancy_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
 
-  if ( mePedestalOnline_[0] ) dbe->removeElement( mePedestalOnline_[0]->getName() );
+  if ( mePedestalOnline_[0] ) dbe_->removeElement( mePedestalOnline_[0]->getName() );
   sprintf(histo, "EEPOT EE - pedestal quality summary G12");
-  mePedestalOnline_[0] = dbe->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  mePedestalOnline_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
 
-  if ( mePedestalOnline_[1] ) dbe->removeElement( mePedestalOnline_[1]->getName() );
+  if ( mePedestalOnline_[1] ) dbe_->removeElement( mePedestalOnline_[1]->getName() );
   sprintf(histo, "EEPOT EE + pedestal quality summary G12");
-  mePedestalOnline_[1] = dbe->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  mePedestalOnline_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
 
-  if ( meLaserL1_[0] ) dbe->removeElement( meLaserL1_[0]->getName() );
+  if ( meLaserL1_[0] ) dbe_->removeElement( meLaserL1_[0]->getName() );
   sprintf(histo, "EELT EE - laser quality summary L1");
-  meLaserL1_[0] = dbe->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meLaserL1_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
 
-  if ( meLaserL1PN_[0] ) dbe->removeElement( meLaserL1PN_[0]->getName() );
+  if ( meLaserL1PN_[0] ) dbe_->removeElement( meLaserL1PN_[0]->getName() );
   sprintf(histo, "EELT EE - PN laser quality summary L1");
-  meLaserL1PN_[0] = dbe->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meLaserL1PN_[0] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
 
-  if ( meLaserL1_[1] ) dbe->removeElement( meLaserL1_[1]->getName() );
+  if ( meLaserL1_[1] ) dbe_->removeElement( meLaserL1_[1]->getName() );
   sprintf(histo, "EELT EE + laser quality summary L1");
-  meLaserL1_[1] = dbe->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meLaserL1_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   
-  if ( meLaserL1PN_[1] ) dbe->removeElement( meLaserL1PN_[1]->getName() );
+  if ( meLaserL1PN_[1] ) dbe_->removeElement( meLaserL1PN_[1]->getName() );
   sprintf(histo, "EELT EE + PN laser quality summary L1");
-  meLaserL1PN_[1] = dbe->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meLaserL1PN_[1] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
 
-  if ( meLed_[0] ) dbe->removeElement( meLed_[0]->getName() );
+  if ( meLed_[0] ) dbe_->removeElement( meLed_[0]->getName() );
   sprintf(histo, "EELDT EE - led quality summary");
-  meLed_[0] = dbe->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meLed_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   
-  if ( meLedPN_[0] ) dbe->removeElement( meLedPN_[0]->getName() );
+  if ( meLedPN_[0] ) dbe_->removeElement( meLedPN_[0]->getName() );
   sprintf(histo, "EELDT EE - PN led quality summary");
-  meLedPN_[0] = dbe->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meLedPN_[0] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
   
-  if ( meLed_[1] ) dbe->removeElement( meLed_[1]->getName() );
+  if ( meLed_[1] ) dbe_->removeElement( meLed_[1]->getName() );
   sprintf(histo, "EELDT EE + led quality summary");
-  meLed_[1] = dbe->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meLed_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   
-  if ( meLedPN_[1] ) dbe->removeElement( meLedPN_[1]->getName() );
+  if ( meLedPN_[1] ) dbe_->removeElement( meLedPN_[1]->getName() );
   sprintf(histo, "EELDT EE + PN led quality summary");
-  meLedPN_[1] = dbe->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meLedPN_[1] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
 
-  if( mePedestal_[0] ) dbe->removeElement( mePedestal_[0]->getName() );
+  if( mePedestal_[0] ) dbe_->removeElement( mePedestal_[0]->getName() );
   sprintf(histo, "EEPT EE - pedestal quality summary");
-  mePedestal_[0] = dbe->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  mePedestal_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   
-  if( mePedestalPN_[0] ) dbe->removeElement( mePedestalPN_[0]->getName() );
+  if( mePedestalPN_[0] ) dbe_->removeElement( mePedestalPN_[0]->getName() );
   sprintf(histo, "EEPT EE - PN pedestal quality summary");
-  mePedestalPN_[0] = dbe->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
+  mePedestalPN_[0] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
 
-  if( mePedestal_[1] ) dbe->removeElement( mePedestal_[1]->getName() );
+  if( mePedestal_[1] ) dbe_->removeElement( mePedestal_[1]->getName() );
   sprintf(histo, "EEPT EE + pedestal quality summary");
-  mePedestal_[1] = dbe->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  mePedestal_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   
-  if( mePedestalPN_[1] ) dbe->removeElement( mePedestalPN_[1]->getName() );
+  if( mePedestalPN_[1] ) dbe_->removeElement( mePedestalPN_[1]->getName() );
   sprintf(histo, "EEPT EE + PN pedestal quality summary");
-  mePedestalPN_[1] = dbe->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
+  mePedestalPN_[1] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
 
-  if( meTestPulse_[0] ) dbe->removeElement( meTestPulse_[0]->getName() );
+  if( meTestPulse_[0] ) dbe_->removeElement( meTestPulse_[0]->getName() );
   sprintf(histo, "EETPT EE - test pulse quality summary");
-  meTestPulse_[0] = dbe->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meTestPulse_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
 
-  if( meTestPulsePN_[0] ) dbe->removeElement( meTestPulsePN_[0]->getName() );
+  if( meTestPulsePN_[0] ) dbe_->removeElement( meTestPulsePN_[0]->getName() );
   sprintf(histo, "EETPT EE - PN test pulse quality summary");
-  meTestPulsePN_[0] = dbe->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meTestPulsePN_[0] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
 
-  if( meTestPulse_[1] ) dbe->removeElement( meTestPulse_[1]->getName() );
+  if( meTestPulse_[1] ) dbe_->removeElement( meTestPulse_[1]->getName() );
   sprintf(histo, "EETPT EE + test pulse quality summary");
-  meTestPulse_[1] = dbe->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meTestPulse_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
 
-  if( meTestPulsePN_[1] ) dbe->removeElement( meTestPulsePN_[1]->getName() );
+  if( meTestPulsePN_[1] ) dbe_->removeElement( meTestPulsePN_[1]->getName() );
   sprintf(histo, "EETPT EE + PN test pulse quality summary");
-  meTestPulsePN_[1] = dbe->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meTestPulsePN_[1] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
 
-  if( meGlobalSummary_[0] ) dbe->removeElement( meGlobalSummary_[0]->getName() );
+  if( meGlobalSummary_[0] ) dbe_->removeElement( meGlobalSummary_[0]->getName() );
   sprintf(histo, "EE global summary EE -");
-  meGlobalSummary_[0] = dbe->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meGlobalSummary_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
 
-  if( meGlobalSummary_[1] ) dbe->removeElement( meGlobalSummary_[1]->getName() );
+  if( meGlobalSummary_[1] ) dbe_->removeElement( meGlobalSummary_[1]->getName() );
   sprintf(histo, "EE global summary EE +");
-  meGlobalSummary_[1] = dbe->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meGlobalSummary_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
 
 }
 
 void EESummaryClient::cleanup(void) {
 
-  mui_->setCurrentFolder( "EcalEndcap/EESummaryClient" );
-  DaqMonitorBEInterface* dbe = mui_->getBEInterface();
+  dbe_->setCurrentFolder( "EcalEndcap/EESummaryClient" );
 
-  if ( meIntegrity_[0] ) dbe->removeElement( meIntegrity_[0]->getName() );
+  if ( meIntegrity_[0] ) dbe_->removeElement( meIntegrity_[0]->getName() );
   meIntegrity_[0] = 0;
 
-  if ( meIntegrity_[1] ) dbe->removeElement( meIntegrity_[1]->getName() );
+  if ( meIntegrity_[1] ) dbe_->removeElement( meIntegrity_[1]->getName() );
   meIntegrity_[1] = 0;
 
-  if ( meOccupancy_[0] ) dbe->removeElement( meOccupancy_[0]->getName() );
+  if ( meOccupancy_[0] ) dbe_->removeElement( meOccupancy_[0]->getName() );
   meOccupancy_[0] = 0;
 
-  if ( meOccupancy_[1] ) dbe->removeElement( meOccupancy_[1]->getName() );
+  if ( meOccupancy_[1] ) dbe_->removeElement( meOccupancy_[1]->getName() );
   meOccupancy_[1] = 0;
 
-  if ( mePedestalOnline_[0] ) dbe->removeElement( mePedestalOnline_[0]->getName() );
+  if ( mePedestalOnline_[0] ) dbe_->removeElement( mePedestalOnline_[0]->getName() );
   mePedestalOnline_[0] = 0;
 
-  if ( mePedestalOnline_[1] ) dbe->removeElement( mePedestalOnline_[1]->getName() );
+  if ( mePedestalOnline_[1] ) dbe_->removeElement( mePedestalOnline_[1]->getName() );
   mePedestalOnline_[1] = 0;
 
-  if ( meLaserL1_[0] ) dbe->removeElement( meLaserL1_[0]->getName() );
+  if ( meLaserL1_[0] ) dbe_->removeElement( meLaserL1_[0]->getName() );
   meLaserL1_[0] = 0;
 
-  if ( meLaserL1_[1] ) dbe->removeElement( meLaserL1_[1]->getName() );
+  if ( meLaserL1_[1] ) dbe_->removeElement( meLaserL1_[1]->getName() );
   meLaserL1_[1] = 0;
 
-  if ( meLaserL1PN_[0] ) dbe->removeElement( meLaserL1PN_[0]->getName() );
+  if ( meLaserL1PN_[0] ) dbe_->removeElement( meLaserL1PN_[0]->getName() );
   meLaserL1PN_[0] = 0;
 
-  if ( meLaserL1PN_[1] ) dbe->removeElement( meLaserL1PN_[1]->getName() );
+  if ( meLaserL1PN_[1] ) dbe_->removeElement( meLaserL1PN_[1]->getName() );
   meLaserL1PN_[1] = 0;
 
-  if ( meLed_[0] ) dbe->removeElement( meLed_[0]->getName() );
+  if ( meLed_[0] ) dbe_->removeElement( meLed_[0]->getName() );
   meLed_[0] = 0;
  
-  if ( meLed_[1] ) dbe->removeElement( meLed_[1]->getName() );
+  if ( meLed_[1] ) dbe_->removeElement( meLed_[1]->getName() );
   meLed_[1] = 0;
  
-  if ( meLedPN_[0] ) dbe->removeElement( meLedPN_[0]->getName() );
+  if ( meLedPN_[0] ) dbe_->removeElement( meLedPN_[0]->getName() );
   meLedPN_[0] = 0;
 
-  if ( meLedPN_[1] ) dbe->removeElement( meLedPN_[1]->getName() );
+  if ( meLedPN_[1] ) dbe_->removeElement( meLedPN_[1]->getName() );
   meLedPN_[1] = 0;
 
-  if ( mePedestal_[0] ) dbe->removeElement( mePedestal_[0]->getName() );
+  if ( mePedestal_[0] ) dbe_->removeElement( mePedestal_[0]->getName() );
   mePedestal_[0] = 0;
 
-  if ( mePedestal_[1] ) dbe->removeElement( mePedestal_[1]->getName() );
+  if ( mePedestal_[1] ) dbe_->removeElement( mePedestal_[1]->getName() );
   mePedestal_[1] = 0;
 
-  if ( mePedestalPN_[0] ) dbe->removeElement( mePedestalPN_[0]->getName() );
+  if ( mePedestalPN_[0] ) dbe_->removeElement( mePedestalPN_[0]->getName() );
   mePedestalPN_[0] = 0;
 
-  if ( mePedestalPN_[1] ) dbe->removeElement( mePedestalPN_[1]->getName() );
+  if ( mePedestalPN_[1] ) dbe_->removeElement( mePedestalPN_[1]->getName() );
   mePedestalPN_[1] = 0;
 
-  if ( meTestPulse_[0] ) dbe->removeElement( meTestPulse_[0]->getName() );
+  if ( meTestPulse_[0] ) dbe_->removeElement( meTestPulse_[0]->getName() );
   meTestPulse_[0] = 0;
 
-  if ( meTestPulse_[1] ) dbe->removeElement( meTestPulse_[1]->getName() );
+  if ( meTestPulse_[1] ) dbe_->removeElement( meTestPulse_[1]->getName() );
   meTestPulse_[1] = 0;
 
-  if ( meTestPulsePN_[0] ) dbe->removeElement( meTestPulsePN_[0]->getName() );
+  if ( meTestPulsePN_[0] ) dbe_->removeElement( meTestPulsePN_[0]->getName() );
   meTestPulsePN_[0] = 0;
 
-  if ( meTestPulsePN_[1] ) dbe->removeElement( meTestPulsePN_[1]->getName() );
+  if ( meTestPulsePN_[1] ) dbe_->removeElement( meTestPulsePN_[1]->getName() );
   meTestPulsePN_[1] = 0;
 
-  if ( meGlobalSummary_[0] ) dbe->removeElement( meGlobalSummary_[0]->getName() );
+  if ( meGlobalSummary_[0] ) dbe_->removeElement( meGlobalSummary_[0]->getName() );
   meGlobalSummary_[0] = 0;
 
-  if ( meGlobalSummary_[1] ) dbe->removeElement( meGlobalSummary_[1]->getName() );
+  if ( meGlobalSummary_[1] ) dbe_->removeElement( meGlobalSummary_[1]->getName() );
   meGlobalSummary_[1] = 0;
 
 }

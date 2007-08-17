@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2007/08/09 15:59:39 $
- * $Revision: 1.32 $
+ * $Date: 2007/08/14 17:43:05 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  *
 */
@@ -18,7 +18,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 #include "DQMServices/Core/interface/QTestStatus.h"
 #include "DQMServices/QualityTests/interface/QCriterionRoot.h"
@@ -107,6 +106,7 @@ EBTimingClient::~EBTimingClient(){
 void EBTimingClient::beginJob(MonitorUserInterface* mui){
 
   mui_ = mui;
+  dbe_ = mui->getBEInterface();
 
   if ( verbose_ ) cout << "EBTimingClient: beginJob" << endl;
 
@@ -122,7 +122,7 @@ void EBTimingClient::beginJob(MonitorUserInterface* mui){
       int ism = superModules_[i];
 
       sprintf(qtname, "EBTMT quality %s", Numbers::sEB(ism).c_str());
-      qth01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+      qth01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
       qth01_[ism-1]->setMeanRange(expectedMean_ - discrepancyMean_, expectedMean_ + discrepancyMean_);
 
@@ -133,7 +133,7 @@ void EBTimingClient::beginJob(MonitorUserInterface* mui){
       qth01_[ism-1]->setErrorProb(1.00);
 
       sprintf(qtname, "EBTMT quality test %s", Numbers::sEB(ism).c_str());
-      qtg01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+      qtg01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
       qtg01_[ism-1]->setMeanRange(1., 6.);
 
@@ -181,28 +181,27 @@ void EBTimingClient::setup(void) {
 
   Char_t histo[200];
 
-  mui_->setCurrentFolder( "EcalBarrel/EBTimingClient" );
-  DaqMonitorBEInterface* dbe = mui_->getBEInterface();
+  dbe_->setCurrentFolder( "EcalBarrel/EBTimingClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( meg01_[ism-1] ) dbe->removeElement( meg01_[ism-1]->getName() );
+    if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EBTMT timing quality %s", Numbers::sEB(ism).c_str());
-    meg01_[ism-1] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg01_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
-    if ( mea01_[ism-1] ) dbe->removeElement( mea01_[ism-1]->getName() );
+    if ( mea01_[ism-1] ) dbe_->removeElement( mea01_[ism-1]->getName() );
     sprintf(histo, "EBTMT timing %s", Numbers::sEB(ism).c_str());
-    mea01_[ism-1] = dbe->book1D(histo, histo, 1700, 0., 1700.);
+    mea01_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
 
-    if ( mep01_[ism-1] ) dbe->removeElement( mep01_[ism-1]->getName() );
+    if ( mep01_[ism-1] ) dbe_->removeElement( mep01_[ism-1]->getName() );
     sprintf(histo, "EBTMT timing mean %s", Numbers::sEB(ism).c_str());
-    mep01_[ism-1] = dbe->book1D(histo, histo, 100, 0.0, 10.0);
+    mep01_[ism-1] = dbe_->book1D(histo, histo, 100, 0.0, 10.0);
 
-    if ( mer01_[ism-1] ) dbe->removeElement( mer01_[ism-1]->getName() );
+    if ( mer01_[ism-1] ) dbe_->removeElement( mer01_[ism-1]->getName() );
     sprintf(histo, "EBTMT timing rms %s", Numbers::sEB(ism).c_str());
-    mer01_[ism-1] = dbe->book1D(histo, histo, 100, 0.0,  2.5);
+    mer01_[ism-1] = dbe_->book1D(histo, histo, 100, 0.0,  2.5);
 
   }
 
@@ -244,23 +243,22 @@ void EBTimingClient::cleanup(void) {
 
   }
 
-  mui_->setCurrentFolder( "EcalBarrel/EBTimingClient" );
-  DaqMonitorBEInterface* dbe = mui_->getBEInterface();
+  dbe_->setCurrentFolder( "EcalBarrel/EBTimingClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( meg01_[ism-1] ) dbe->removeElement( meg01_[ism-1]->getName() );
+    if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
     meg01_[ism-1] = 0;
 
-    if ( mea01_[ism-1] ) dbe->removeElement( mea01_[ism-1]->getName() );
+    if ( mea01_[ism-1] ) dbe_->removeElement( mea01_[ism-1]->getName() );
     mea01_[ism-1] = 0;
 
-    if ( mep01_[ism-1] ) dbe->removeElement( mep01_[ism-1]->getName() );
+    if ( mep01_[ism-1] ) dbe_->removeElement( mep01_[ism-1]->getName() );
     mep01_[ism-1] = 0;
 
-    if ( mer01_[ism-1] ) dbe->removeElement( mer01_[ism-1]->getName() );
+    if ( mer01_[ism-1] ) dbe_->removeElement( mer01_[ism-1]->getName() );
     mer01_[ism-1] = 0;
 
   }
@@ -399,7 +397,7 @@ void EBTimingClient::softReset(void){
 
     int ism = superModules_[i];
 
-    if ( meh01_[ism-1] ) mui_->softReset(meh01_[ism-1]);
+    if ( meh01_[ism-1] ) dbe_->softReset(meh01_[ism-1]);
 
   }
 
@@ -436,7 +434,7 @@ void EBTimingClient::analyze(void){
     } else {
       sprintf(histo, (prefixME_+"EcalBarrel/EBTimingTask/EBTMT timing %s").c_str(), Numbers::sEB(ism).c_str());
     }
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 

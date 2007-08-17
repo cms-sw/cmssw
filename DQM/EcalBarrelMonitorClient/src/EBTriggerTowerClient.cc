@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/08/09 12:24:19 $
- * $Revision: 1.46 $
+ * $Date: 2007/08/14 17:43:05 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -19,10 +19,8 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 #include "DQMServices/Core/interface/QTestStatus.h"
 #include "DQMServices/QualityTests/interface/QCriterionRoot.h"
@@ -117,6 +115,7 @@ EBTriggerTowerClient::~EBTriggerTowerClient(){
 void EBTriggerTowerClient::beginJob(MonitorUserInterface* mui){
 
   mui_ = mui;
+  dbe_ = mui->getBEInterface();
 
   if ( verbose_ ) cout << "EBTriggerTowerClient: beginJob" << endl;
 
@@ -471,20 +470,20 @@ void EBTriggerTowerClient::softReset(void){
 
     int ism = superModules_[i];
 
-    if ( meh01_[ism-1] ) mui_->softReset(meh01_[ism-1]);
-    if ( mei01_[ism-1] ) mui_->softReset(mei01_[ism-1]);
-    if ( mej01_[ism-1] ) mui_->softReset(mej01_[ism-1]);
-    if ( mel01_[ism-1] ) mui_->softReset(mel01_[ism-1]);
-    if ( mem01_[ism-1] ) mui_->softReset(mem01_[ism-1]);
-    if ( men01_[ism-1] ) mui_->softReset(men01_[ism-1]);
-    if ( meh02_[ism-1] ) mui_->softReset(meh02_[ism-1]);
-    if ( mei02_[ism-1] ) mui_->softReset(mei02_[ism-1]);
-    if ( mej02_[ism-1] ) mui_->softReset(mej02_[ism-1]);
+    if ( meh01_[ism-1] ) dbe_->softReset(meh01_[ism-1]);
+    if ( mei01_[ism-1] ) dbe_->softReset(mei01_[ism-1]);
+    if ( mej01_[ism-1] ) dbe_->softReset(mej01_[ism-1]);
+    if ( mel01_[ism-1] ) dbe_->softReset(mel01_[ism-1]);
+    if ( mem01_[ism-1] ) dbe_->softReset(mem01_[ism-1]);
+    if ( men01_[ism-1] ) dbe_->softReset(men01_[ism-1]);
+    if ( meh02_[ism-1] ) dbe_->softReset(meh02_[ism-1]);
+    if ( mei02_[ism-1] ) dbe_->softReset(mei02_[ism-1]);
+    if ( mej02_[ism-1] ) dbe_->softReset(mej02_[ism-1]);
 
 //     for (int j = 0; j < 68 ; j++) {
 
-//       if ( mek01_[ism-1][j] ) mui_->softReset(mek01_[ism-1][j]);
-//       if ( mek02_[ism-1][j] ) mui_->softReset(mek02_[ism-1][j]);
+//       if ( mek01_[ism-1][j] ) dbe_->softReset(mek01_[ism-1][j]);
+//       if ( mek02_[ism-1][j] ) dbe_->softReset(mek02_[ism-1][j]);
 
 //     }
 
@@ -524,7 +523,7 @@ void EBTriggerTowerClient::analyze(const char* nameext,
     } else {
       sprintf(histo, (prefixME_+"EcalBarrel/%s/EBTTT Et map %s %s").c_str(), folder, nameext, Numbers::sEB(ism).c_str());
     }
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     if(!emulated) {
       h01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, h01_[ism-1] );
       if(h01_[ism-1]) h01_[ism-1]->SetEntries(1.+h01_[ism-1]->GetEntries());
@@ -541,7 +540,7 @@ void EBTriggerTowerClient::analyze(const char* nameext,
     } else {
       sprintf(histo, (prefixME_+"EcalBarrel/%s/EBTTT FineGrainVeto %s %s").c_str(), folder, nameext, Numbers::sEB(ism).c_str());
     }
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     if(!emulated) {
       i01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, i01_[ism-1] );
       if(i01_[ism-1])  i01_[ism-1]->SetEntries(1.+i01_[ism-1]->GetEntries());
@@ -558,7 +557,7 @@ void EBTriggerTowerClient::analyze(const char* nameext,
     } else {
       sprintf(histo, (prefixME_+"EcalBarrel/%s/EBTTT Flags %s %s").c_str(), folder, nameext, Numbers::sEB(ism).c_str());
     }
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     if(!emulated) {
       j01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, j01_[ism-1] );
       if(j01_[ism-1])  j01_[ism-1]->SetEntries(1.+j01_[ism-1]->GetEntries());
@@ -576,7 +575,7 @@ void EBTriggerTowerClient::analyze(const char* nameext,
       } else {
 	sprintf(histo, (prefixME_+"EcalBarrel/%s/EBTTT EmulError %s %s").c_str(), folder, nameext, Numbers::sEB(ism).c_str());
       }
-      me = mui_->get(histo);
+      me = dbe_->get(histo);
       l01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, l01_[ism-1] );
       if(l01_[ism-1])  l01_[ism-1]->SetEntries(1.+l01_[ism-1]->GetEntries());
       mel01_[ism-1] = me;
@@ -586,7 +585,7 @@ void EBTriggerTowerClient::analyze(const char* nameext,
       } else {
 	sprintf(histo, (prefixME_+"EcalBarrel/%s/EBTTT EmulFlagError %s %s").c_str(), folder, nameext, Numbers::sEB(ism).c_str());
       }
-      me = mui_->get(histo);
+      me = dbe_->get(histo);
       m01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, m01_[ism-1] );
       if(m01_[ism-1])  m01_[ism-1]->SetEntries(1.+m01_[ism-1]->GetEntries());
       mem01_[ism-1] = me;
@@ -596,7 +595,7 @@ void EBTriggerTowerClient::analyze(const char* nameext,
       } else {
 	sprintf(histo, (prefixME_+"EcalBarrel/%s/EBTTT EmulFineGrainVetoError %s %s").c_str(), folder, nameext, Numbers::sEB(ism).c_str());
       }
-      me = mui_->get(histo);
+      me = dbe_->get(histo);
       n01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, n01_[ism-1] );
       if(n01_[ism-1])  n01_[ism-1]->SetEntries(1.+n01_[ism-1]->GetEntries());
       men01_[ism-1] = me;
@@ -610,7 +609,7 @@ void EBTriggerTowerClient::analyze(const char* nameext,
 //       } else {
 //         sprintf(histo, (prefixME_+"EcalBarrel/EBTriggerTowerTask/EnergyMaps/EBTTT Et T %s TT%02d").c_str(), ism, j+1);
 //       }
-//       me = mui_->get(histo);
+//       me = dbe_->get(histo);
 //       k01_[ism-1][j] = UtilsClient::getHisto<TH1F*>( me, cloneME_, k01_[ism-1][j] );
 //       mek01_[ism-1][j] = me;
 
@@ -619,7 +618,7 @@ void EBTriggerTowerClient::analyze(const char* nameext,
 //       } else {
 //         sprintf(histo, (prefixME_+"EcalBarrel/EBTriggerTowerTask/EnergyMaps/EBTTT Et R %s TT%02d").c_str(), ism, j+1);
 //       }
-//       me = mui_->get(histo);
+//       me = dbe_->get(histo);
 //       k02_[ism-1][j] = UtilsClient::getHisto<TH1F*>( me, cloneME_, k02_[ism-1][j] );
 //       mek02_[ism-1][j] = me;
 

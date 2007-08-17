@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2007/08/15 09:04:23 $
- * $Revision: 1.15 $
+ * $Date: 2007/08/15 10:49:56 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
 */
@@ -123,7 +123,7 @@ void EETimingClient::beginJob(MonitorUserInterface* mui){
       int ism = superModules_[i];
 
       sprintf(qtname, "EETMT quality %s", Numbers::sEE(ism).c_str());
-      qth01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+      qth01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
       qth01_[ism-1]->setMeanRange(expectedMean_ - discrepancyMean_, expectedMean_ + discrepancyMean_);
 
@@ -134,7 +134,7 @@ void EETimingClient::beginJob(MonitorUserInterface* mui){
       qth01_[ism-1]->setErrorProb(1.00);
 
       sprintf(qtname, "EETMT quality test %s", Numbers::sEE(ism).c_str());
-      qtg01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+      qtg01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
       qtg01_[ism-1]->setMeanRange(1., 6.);
 
@@ -182,28 +182,27 @@ void EETimingClient::setup(void) {
 
   Char_t histo[200];
 
-  mui_->setCurrentFolder( "EcalEndcap/EETimingClient" );
-  DaqMonitorBEInterface* dbe = mui_->getBEInterface();
+  dbe_->setCurrentFolder( "EcalEndcap/EETimingClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( meg01_[ism-1] ) dbe->removeElement( meg01_[ism-1]->getName() );
+    if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EETMT timing quality %s", Numbers::sEE(ism).c_str());
-    meg01_[ism-1] = dbe->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    meg01_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
 
-    if ( mea01_[ism-1] ) dbe->removeElement( mea01_[ism-1]->getName() );
+    if ( mea01_[ism-1] ) dbe_->removeElement( mea01_[ism-1]->getName() );
     sprintf(histo, "EETMT timing %s", Numbers::sEE(ism).c_str());
-    mea01_[ism-1] = dbe->book1D(histo, histo, 1700, 0., 1700.);
+    mea01_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
 
-    if ( mep01_[ism-1] ) dbe->removeElement( mep01_[ism-1]->getName() );
+    if ( mep01_[ism-1] ) dbe_->removeElement( mep01_[ism-1]->getName() );
     sprintf(histo, "EETMT timing mean %s", Numbers::sEE(ism).c_str());
-    mep01_[ism-1] = dbe->book1D(histo, histo, 100, 0.0, 10.0);
+    mep01_[ism-1] = dbe_->book1D(histo, histo, 100, 0.0, 10.0);
 
-    if ( mer01_[ism-1] ) dbe->removeElement( mer01_[ism-1]->getName() );
+    if ( mer01_[ism-1] ) dbe_->removeElement( mer01_[ism-1]->getName() );
     sprintf(histo, "EETMT timing rms %s", Numbers::sEE(ism).c_str());
-    mer01_[ism-1] = dbe->book1D(histo, histo, 100, 0.0,  2.5);
+    mer01_[ism-1] = dbe_->book1D(histo, histo, 100, 0.0,  2.5);
 
   }
 
@@ -252,23 +251,22 @@ void EETimingClient::cleanup(void) {
 
   }
 
-  mui_->setCurrentFolder( "EcalEndcap/EETimingClient" );
-  DaqMonitorBEInterface* dbe = mui_->getBEInterface();
+  dbe_->setCurrentFolder( "EcalEndcap/EETimingClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( meg01_[ism-1] ) dbe->removeElement( meg01_[ism-1]->getName() );
+    if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
     meg01_[ism-1] = 0;
 
-    if ( mea01_[ism-1] ) dbe->removeElement( mea01_[ism-1]->getName() );
+    if ( mea01_[ism-1] ) dbe_->removeElement( mea01_[ism-1]->getName() );
     mea01_[ism-1] = 0;
 
-    if ( mep01_[ism-1] ) dbe->removeElement( mep01_[ism-1]->getName() );
+    if ( mep01_[ism-1] ) dbe_->removeElement( mep01_[ism-1]->getName() );
     mep01_[ism-1] = 0;
 
-    if ( mer01_[ism-1] ) dbe->removeElement( mer01_[ism-1]->getName() );
+    if ( mer01_[ism-1] ) dbe_->removeElement( mer01_[ism-1]->getName() );
     mer01_[ism-1] = 0;
 
   }
@@ -407,7 +405,7 @@ void EETimingClient::softReset(void){
 
     int ism = superModules_[i];
 
-    if ( meh01_[ism-1] ) mui_->softReset(meh01_[ism-1]);
+    if ( meh01_[ism-1] ) dbe_->softReset(meh01_[ism-1]);
 
   }
 
@@ -444,7 +442,7 @@ void EETimingClient::analyze(void){
     } else {
       sprintf(histo, (prefixME_+"EcalEndcap/EETimingTask/EETMT timing %s").c_str(), Numbers::sEE(ism).c_str());
     }
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 

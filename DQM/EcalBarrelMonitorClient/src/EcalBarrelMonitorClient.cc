@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/08/10 12:02:08 $
- * $Revision: 1.305 $
+ * $Date: 2007/08/14 17:43:05 $
+ * $Revision: 1.306 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -21,7 +21,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -76,8 +75,6 @@ using namespace edm;
 using namespace std;
 
 EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) : ModuleWeb("EcalBarrelMonitorClient"){
-
-  mui_ = 0;
 
   this->initialize(ps);
 
@@ -618,7 +615,7 @@ void EcalBarrelMonitorClient::beginJob(const EventSetup &c) {
   last_time_html_ = current_time_;
 
   // get hold of back-end interface
-  DaqMonitorBEInterface* dbe = Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
 
   // start DQM user interface instance
   // will attempt to reconnect upon connection problems (w/ a 5-sec delay)
@@ -637,15 +634,15 @@ void EcalBarrelMonitorClient::beginJob(const EventSetup &c) {
   }
 
   if ( verbose_ ) {
-    mui_->setVerbose(1);
+    dbe_->setVerbose(1);
   } else {
-    mui_->setVerbose(0);
+    dbe_->setVerbose(0);
   }
 
   if ( ! enableMonitorDaemon_ ) {
     if ( inputFile_.size() != 0 ) {
-      if ( dbe ) {
-        dbe->open(inputFile_);
+      if ( dbe_ ) {
+        dbe_->open(inputFile_);
       }
     }
   }
@@ -781,7 +778,7 @@ void EcalBarrelMonitorClient::endRun(void) {
         fileName.replace(i, 9, tmp);
       }
     }
-    mui_->save(fileName);
+    dbe_->save(fileName);
   }
 
   if ( subrun_ != -1 ) {
@@ -1350,7 +1347,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
   // run QTs on MEs updated during last cycle (offline mode)
   if ( ! enableStateMachine_ ) {
-    if ( enableQT_ ) mui_->runQTests();
+    if ( enableQT_ ) dbe_->runQTests();
   }
 
   // update MEs (online mode)
@@ -1368,7 +1365,7 @@ void EcalBarrelMonitorClient::analyze(void){
   if ( updates != last_update_ || updates == -1 || forced_update_ ) {
 
     sprintf(histo, (prefixME_+"EcalBarrel/EcalInfo/STATUS").c_str());
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     if ( me ) {
       s = me->valueString();
       status_ = "unknown";
@@ -1389,7 +1386,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
     int ecal_run = -1;
     sprintf(histo, (prefixME_+"EcalBarrel/EcalInfo/RUN").c_str());
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     if ( me ) {
       s = me->valueString();
       sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ecal_run);
@@ -1398,7 +1395,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
     int ecal_evt = -1;
     sprintf(histo, (prefixME_+"EcalBarrel/EcalInfo/EVT").c_str());
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     if ( me ) {
       s = me->valueString();
       sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ecal_evt);
@@ -1410,11 +1407,11 @@ void EcalBarrelMonitorClient::analyze(void){
     } else {
       sprintf(histo, (prefixME_+"EcalBarrel/EcalInfo/EVTTYPE").c_str());
     }
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     h_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, h_ );
 
     sprintf(histo, (prefixME_+"EcalBarrel/EcalInfo/RUNTYPE").c_str());
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     if ( me ) {
       s = me->valueString();
       runtype_ = atoi(s.substr(2,s.size()-2).c_str());
@@ -1498,7 +1495,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
           // run QTs on local MEs, updated in analyze()
           if ( ! enableStateMachine_ ) {
-            if ( enableQT_ ) mui_->runQTests();
+            if ( enableQT_ ) dbe_->runQTests();
           }
 
           // update MEs [again, just to silence a warning]
@@ -1515,7 +1512,7 @@ void EcalBarrelMonitorClient::analyze(void){
         if ( enableQT_ ) {
 
           cout << endl;
-          switch ( mui_->getSystemStatus() ) {
+          switch ( dbe_->getStatus() ) {
             case dqm::qstatus::ERROR:
               cout << " Error(s)";
               break;
@@ -1703,7 +1700,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
       if ( begin_run_ && ! end_run_ ) {
 
-        me = mui_->get("Collector/FU0_is_done");
+        me = dbe_->get("Collector/FU0_is_done");
         if ( me ) {
 
           cout << endl;
@@ -1729,7 +1726,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
       if ( begin_run_ && ! end_run_ ) {
 
-        me = mui_->get("Collector/FU0_is_dead");
+        me = dbe_->get("Collector/FU0_is_dead");
         if ( me ) {
 
           cout << endl;

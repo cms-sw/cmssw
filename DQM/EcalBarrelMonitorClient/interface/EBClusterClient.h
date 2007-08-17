@@ -4,8 +4,8 @@
 /*
  * \file EBClusterClient.h
  *
- * $Date: 2007/03/26 17:35:04 $
- * $Revision: 1.10 $
+ * $Date: 2007/08/09 12:26:52 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -26,6 +26,7 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
 
 #include "DQM/EcalBarrelMonitorClient/interface/EBClient.h"
@@ -99,6 +100,7 @@ string prefixME_;
 vector<int> superModules_;
 
 MonitorUserInterface* mui_;
+DaqMonitorBEInterface* dbe_;
 
 CollateMonitorElement* me_h01_[3];
 CollateMonitorElement* me_h02_[2];

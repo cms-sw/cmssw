@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2007/08/14 17:44:45 $
- * $Revision: 1.13 $
+ * $Date: 2007/08/14 20:27:36 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -377,9 +377,9 @@ void EECosmicClient::softReset(void){
 
     int ism = superModules_[i];
 
-    if ( meh01_[ism-1] ) mui_->softReset(meh01_[ism-1]);
-    if ( meh02_[ism-1] ) mui_->softReset(meh02_[ism-1]);
-    if ( meh03_[ism-1] ) mui_->softReset(meh03_[ism-1]);
+    if ( meh01_[ism-1] ) dbe_->softReset(meh01_[ism-1]);
+    if ( meh02_[ism-1] ) dbe_->softReset(meh02_[ism-1]);
+    if ( meh03_[ism-1] ) dbe_->softReset(meh03_[ism-1]);
 
   }
 
@@ -406,7 +406,7 @@ void EECosmicClient::analyze(void){
     } else {
       sprintf(histo, (prefixME_+"EcalEndcap/EECosmicTask/Sel/EECT energy sel %s").c_str(), Numbers::sEE(ism).c_str());
     }
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
@@ -415,7 +415,7 @@ void EECosmicClient::analyze(void){
     } else {
       sprintf(histo, (prefixME_+"EcalEndcap/EECosmicTask/Cut/EECT energy cut %s").c_str(), Numbers::sEE(ism).c_str());
     }
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
     meh02_[ism-1] = me;
 
@@ -424,7 +424,7 @@ void EECosmicClient::analyze(void){
     } else {
       sprintf(histo, (prefixME_+"EcalEndcap/EECosmicTask/Spectrum/EECT energy spectrum %s").c_str(), Numbers::sEE(ism).c_str());
     }
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03_[ism-1] );
     meh03_[ism-1] = me;
 

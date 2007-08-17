@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  *
- * $Date: 2007/08/09 12:24:18 $
- * $Revision: 1.78 $
+ * $Date: 2007/08/14 17:43:05 $
+ * $Revision: 1.79 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -19,7 +19,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/QTestStatus.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 #include "DQMServices/QualityTests/interface/QCriterionRoot.h"
@@ -87,6 +86,7 @@ EBCosmicClient::~EBCosmicClient(){
 void EBCosmicClient::beginJob(MonitorUserInterface* mui){
 
   mui_ = mui;
+  dbe_ = mui->getBEInterface();
 
   if ( verbose_ ) cout << "EBCosmicClient: beginJob" << endl;
 
@@ -368,9 +368,9 @@ void EBCosmicClient::softReset(void){
 
     int ism = superModules_[i];
 
-    if ( meh01_[ism-1] ) mui_->softReset(meh01_[ism-1]);
-    if ( meh02_[ism-1] ) mui_->softReset(meh02_[ism-1]);
-    if ( meh03_[ism-1] ) mui_->softReset(meh03_[ism-1]);
+    if ( meh01_[ism-1] ) dbe_->softReset(meh01_[ism-1]);
+    if ( meh02_[ism-1] ) dbe_->softReset(meh02_[ism-1]);
+    if ( meh03_[ism-1] ) dbe_->softReset(meh03_[ism-1]);
 
   }
 
@@ -397,7 +397,7 @@ void EBCosmicClient::analyze(void){
     } else {
       sprintf(histo, (prefixME_+"EcalBarrel/EBCosmicTask/Sel/EBCT energy sel %s").c_str(), Numbers::sEB(ism).c_str());
     }
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
@@ -406,7 +406,7 @@ void EBCosmicClient::analyze(void){
     } else {
       sprintf(histo, (prefixME_+"EcalBarrel/EBCosmicTask/Cut/EBCT energy cut %s").c_str(), Numbers::sEB(ism).c_str());
     }
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
     meh02_[ism-1] = me;
 
@@ -415,7 +415,7 @@ void EBCosmicClient::analyze(void){
     } else {
       sprintf(histo, (prefixME_+"EcalBarrel/EBCosmicTask/Spectrum/EBCT energy spectrum %s").c_str(), Numbers::sEB(ism).c_str());
     }
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03_[ism-1] );
     meh03_[ism-1] = me;
 

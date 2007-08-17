@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2007/08/14 20:27:37 $
- * $Revision: 1.18 $
+ * $Date: 2007/08/15 09:04:23 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -123,7 +123,7 @@ void EEPedestalOnlineClient::beginJob(MonitorUserInterface* mui){
       int ism = superModules_[i];
 
       sprintf(qtname, "EEPOT quality %s G12", Numbers::sEE(ism).c_str());
-      qth03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
+      qth03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (dbe_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
       qth03_[ism-1]->setMeanRange(expectedMean_ - discrepancyMean_, expectedMean_ + discrepancyMean_);
 
@@ -134,7 +134,7 @@ void EEPedestalOnlineClient::beginJob(MonitorUserInterface* mui){
       qth03_[ism-1]->setErrorProb(1.00);
 
       sprintf(qtname, "EEPOT quality test %s G12", Numbers::sEE(ism).c_str());
-      qtg03_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+      qtg03_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
       qtg03_[ism-1]->setMeanRange(1., 6.);
 
@@ -182,24 +182,23 @@ void EEPedestalOnlineClient::setup(void) {
 
   Char_t histo[200];
 
-  mui_->setCurrentFolder( "EcalEndcap/EEPedestalOnlineClient" );
-  DaqMonitorBEInterface* dbe = mui_->getBEInterface();
+  dbe_->setCurrentFolder( "EcalEndcap/EEPedestalOnlineClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( meg03_[ism-1] ) dbe->removeElement( meg03_[ism-1]->getName() );
+    if ( meg03_[ism-1] ) dbe_->removeElement( meg03_[ism-1]->getName() );
     sprintf(histo, "EEPOT pedestal quality G12 %s", Numbers::sEE(ism).c_str());
-    meg03_[ism-1] = dbe->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    meg03_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
 
-    if ( mep03_[ism-1] ) dbe->removeElement( mep03_[ism-1]->getName() );
+    if ( mep03_[ism-1] ) dbe_->removeElement( mep03_[ism-1]->getName() );
     sprintf(histo, "EEPOT pedestal mean G12 %s", Numbers::sEE(ism).c_str());
-    mep03_[ism-1] = dbe->book1D(histo, histo, 100, 150., 250.);
+    mep03_[ism-1] = dbe_->book1D(histo, histo, 100, 150., 250.);
 
-    if ( mer03_[ism-1] ) dbe->removeElement( mer03_[ism-1]->getName() );
+    if ( mer03_[ism-1] ) dbe_->removeElement( mer03_[ism-1]->getName() );
     sprintf(histo, "EEPOT pedestal rms G12 %s", Numbers::sEE(ism).c_str());
-    mer03_[ism-1] = dbe->book1D(histo, histo, 100, 0.,  10.);
+    mer03_[ism-1] = dbe_->book1D(histo, histo, 100, 0.,  10.);
 
   }
 
@@ -247,20 +246,19 @@ void EEPedestalOnlineClient::cleanup(void) {
 
   }
 
-  mui_->setCurrentFolder( "EcalEndcap/EEPedestalOnlineClient" );
-  DaqMonitorBEInterface* dbe = mui_->getBEInterface();
+  dbe_->setCurrentFolder( "EcalEndcap/EEPedestalOnlineClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( meg03_[ism-1] ) dbe->removeElement( meg03_[ism-1]->getName() );
+    if ( meg03_[ism-1] ) dbe_->removeElement( meg03_[ism-1]->getName() );
     meg03_[ism-1] = 0;
 
-    if ( mep03_[ism-1] ) dbe->removeElement( mep03_[ism-1]->getName() );
+    if ( mep03_[ism-1] ) dbe_->removeElement( mep03_[ism-1]->getName() );
     mep03_[ism-1] = 0;
 
-    if ( mer03_[ism-1] ) dbe->removeElement( mer03_[ism-1]->getName() );
+    if ( mer03_[ism-1] ) dbe_->removeElement( mer03_[ism-1]->getName() );
     mer03_[ism-1] = 0;
 
   }
@@ -472,7 +470,7 @@ void EEPedestalOnlineClient::softReset(void){
 
     int ism = superModules_[i];
 
-    if ( meh03_[ism-1] ) mui_->softReset(meh03_[ism-1]);
+    if ( meh03_[ism-1] ) dbe_->softReset(meh03_[ism-1]);
 
   }
 
@@ -509,7 +507,7 @@ void EEPedestalOnlineClient::analyze(void){
     } else {
       sprintf(histo, (prefixME_+"EcalEndcap/EEPedestalOnlineTask/Gain12/EEPOT pedestal %s G12").c_str(), Numbers::sEE(ism).c_str());
     }
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
     meh03_[ism-1] = me;
 

@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/08/09 14:36:55 $
- * $Revision: 1.60 $
+ * $Date: 2007/08/14 17:44:45 $
+ * $Revision: 1.61 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -663,15 +663,15 @@ void EcalEndcapMonitorClient::beginJob(const EventSetup &c) {
   }
 
   if ( verbose_ ) {
-    mui_->setVerbose(1);
+    dbe_->setVerbose(1);
   } else {
-    mui_->setVerbose(0);
+    dbe_->setVerbose(0);
   }
 
   if ( ! enableMonitorDaemon_ ) {
     if ( inputFile_.size() != 0 ) {
       if ( dbe ) {
-        dbe->open(inputFile_);
+        dbe_->open(inputFile_);
       }
     }
   }
@@ -807,7 +807,7 @@ void EcalEndcapMonitorClient::endRun(void) {
         fileName.replace(i, 9, tmp);
       }
     }
-    mui_->save(fileName);
+    dbe_->save(fileName);
   }
 
   if ( subrun_ != -1 ) {
@@ -1377,7 +1377,7 @@ void EcalEndcapMonitorClient::analyze(void){
 
   // run QTs on MEs updated during last cycle (offline mode)
   if ( ! enableStateMachine_ ) {
-    if ( enableQT_ ) mui_->runQTests();
+    if ( enableQT_ ) dbe_->runQTests();
   }
 
   // update MEs (online mode)
@@ -1395,7 +1395,7 @@ void EcalEndcapMonitorClient::analyze(void){
   if ( updates != last_update_ || updates == -1 || forced_update_ ) {
 
     sprintf(histo, (prefixME_+"EcalEndcap/EcalInfo/STATUS").c_str());
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     if ( me ) {
       s = me->valueString();
       status_ = "unknown";
@@ -1416,7 +1416,7 @@ void EcalEndcapMonitorClient::analyze(void){
 
     int ecal_run = -1;
     sprintf(histo, (prefixME_+"EcalEndcap/EcalInfo/RUN").c_str());
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     if ( me ) {
       s = me->valueString();
       sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ecal_run);
@@ -1425,7 +1425,7 @@ void EcalEndcapMonitorClient::analyze(void){
 
     int ecal_evt = -1;
     sprintf(histo, (prefixME_+"EcalEndcap/EcalInfo/EVT").c_str());
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     if ( me ) {
       s = me->valueString();
       sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ecal_evt);
@@ -1437,11 +1437,11 @@ void EcalEndcapMonitorClient::analyze(void){
     } else {
       sprintf(histo, (prefixME_+"EcalEndcap/EcalInfo/EVTTYPE").c_str());
     }
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     h_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, h_ );
 
     sprintf(histo, (prefixME_+"EcalEndcap/EcalInfo/RUNTYPE").c_str());
-    me = mui_->get(histo);
+    me = dbe_->get(histo);
     if ( me ) {
       s = me->valueString();
       runtype_ = atoi(s.substr(2,s.size()-2).c_str());
@@ -1525,7 +1525,7 @@ void EcalEndcapMonitorClient::analyze(void){
 
           // run QTs on local MEs, updated in analyze()
           if ( ! enableStateMachine_ ) {
-            if ( enableQT_ ) mui_->runQTests();
+            if ( enableQT_ ) dbe_->runQTests();
           }
 
           // update MEs [again, just to silence a warning]
@@ -1542,7 +1542,7 @@ void EcalEndcapMonitorClient::analyze(void){
         if ( enableQT_ ) {
 
           cout << endl;
-          switch ( mui_->getSystemStatus() ) {
+          switch ( dbe_->getStatus() ) {
             case dqm::qstatus::ERROR:
               cout << " Error(s)";
               break;
@@ -1730,7 +1730,7 @@ void EcalEndcapMonitorClient::analyze(void){
 
       if ( begin_run_ && ! end_run_ ) {
 
-        me = mui_->get("Collector/FU0_is_done");
+        me = dbe_->get("Collector/FU0_is_done");
         if ( me ) {
 
           cout << endl;
@@ -1756,7 +1756,7 @@ void EcalEndcapMonitorClient::analyze(void){
 
       if ( begin_run_ && ! end_run_ ) {
 
-        me = mui_->get("Collector/FU0_is_dead");
+        me = dbe_->get("Collector/FU0_is_dead");
         if ( me ) {
 
           cout << endl;

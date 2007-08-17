@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/08/10 18:46:48 $
- * $Revision: 1.47 $
+ * $Date: 2007/08/10 20:43:11 $
+ * $Revision: 1.48 $
  * \author G. Della Ricca
  *
 */
@@ -18,7 +18,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 #include "DQMServices/Core/interface/QTestStatus.h"
 #include "DQMServices/QualityTests/interface/QCriterionRoot.h"
@@ -103,6 +102,7 @@ EBSummaryClient::~EBSummaryClient(){
 void EBSummaryClient::beginJob(MonitorUserInterface* mui){
 
   mui_ = mui;
+  dbe_ = mui->getBEInterface();
 
   if ( verbose_ ) cout << "EBSummaryClient: beginJob" << endl;
 
@@ -114,34 +114,34 @@ void EBSummaryClient::beginJob(MonitorUserInterface* mui){
     Char_t qtname[200];
 
     sprintf(qtname, "EBIT summary quality test");
-    qtg01_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+    qtg01_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     sprintf(qtname, "EBOT summary quality test");
-    qtg02_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+    qtg02_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     sprintf(qtname, "EBPOT summary quality test");
-    qtg03_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+    qtg03_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     sprintf(qtname, "EBLT summary quality test L1");
-    qtg04_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+    qtg04_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     sprintf(qtname, "EBLT PN summary quality test L1");
-    qtg04PN_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+    qtg04PN_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     sprintf(qtname, "EBPT summary quality test");
-    qtg05_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+    qtg05_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     sprintf(qtname, "EBPT PN summary quality test");
-    qtg05PN_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+    qtg05PN_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     sprintf(qtname, "EBTPT summary quality test");
-    qtg06_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+    qtg06_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     sprintf(qtname, "EBTPT PN summary quality test");
-    qtg06PN_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+    qtg06PN_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     sprintf(qtname, "EB global summary quality test");
-    qtg07_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+    qtg07_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
     qtg01_->setMeanRange(1., 6.);
     qtg02_->setMeanRange(1., 6.);
@@ -205,84 +205,82 @@ void EBSummaryClient::setup(void) {
 
   Char_t histo[200];
 
-  mui_->setCurrentFolder( "EcalBarrel/EBSummaryClient" );
-  DaqMonitorBEInterface* dbe = mui_->getBEInterface();
+  dbe_->setCurrentFolder( "EcalBarrel/EBSummaryClient" );
 
-  if ( meIntegrity_ ) dbe->removeElement( meIntegrity_->getName() );
+  if ( meIntegrity_ ) dbe_->removeElement( meIntegrity_->getName() );
   sprintf(histo, "EBIT integrity quality summary");
-  meIntegrity_ = dbe->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meIntegrity_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
 
-  if ( meOccupancy_ ) dbe->removeElement( meOccupancy_->getName() );
+  if ( meOccupancy_ ) dbe_->removeElement( meOccupancy_->getName() );
   sprintf(histo, "EBOT occupancy summary");
-  meOccupancy_ = dbe->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meOccupancy_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
 
-  if ( mePedestalOnline_ ) dbe->removeElement( mePedestalOnline_->getName() );
+  if ( mePedestalOnline_ ) dbe_->removeElement( mePedestalOnline_->getName() );
   sprintf(histo, "EBPOT pedestal quality summary G12");
-  mePedestalOnline_ = dbe->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  mePedestalOnline_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
 
-  if ( meLaserL1_ ) dbe->removeElement( meLaserL1_->getName() );
+  if ( meLaserL1_ ) dbe_->removeElement( meLaserL1_->getName() );
   sprintf(histo, "EBLT laser quality summary L1");
-  meLaserL1_ = dbe->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meLaserL1_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
 
-  if ( meLaserL1PN_ ) dbe->removeElement( meLaserL1PN_->getName() );
+  if ( meLaserL1PN_ ) dbe_->removeElement( meLaserL1PN_->getName() );
   sprintf(histo, "EBLT PN laser quality summary L1");
-  meLaserL1PN_ = dbe->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meLaserL1PN_ = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
 
-  if( mePedestal_ ) dbe->removeElement( mePedestal_->getName() );
+  if( mePedestal_ ) dbe_->removeElement( mePedestal_->getName() );
   sprintf(histo, "EBPT pedestal quality summary");
-  mePedestal_ = dbe->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  mePedestal_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
 
-  if( mePedestalPN_ ) dbe->removeElement( mePedestalPN_->getName() );
+  if( mePedestalPN_ ) dbe_->removeElement( mePedestalPN_->getName() );
   sprintf(histo, "EBPT PN pedestal quality summary");
-  mePedestalPN_ = dbe->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
+  mePedestalPN_ = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
 
-  if( meTestPulse_ ) dbe->removeElement( meTestPulse_->getName() );
+  if( meTestPulse_ ) dbe_->removeElement( meTestPulse_->getName() );
   sprintf(histo, "EBTPT test pulse quality summary");
-  meTestPulse_ = dbe->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meTestPulse_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
 
-  if( meTestPulsePN_ ) dbe->removeElement( meTestPulsePN_->getName() );
+  if( meTestPulsePN_ ) dbe_->removeElement( meTestPulsePN_->getName() );
   sprintf(histo, "EBTPT PN test pulse quality summary");
-  meTestPulsePN_ = dbe->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meTestPulsePN_ = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
 
-  if( meGlobalSummary_ ) dbe->removeElement( meGlobalSummary_->getName() );
+  if( meGlobalSummary_ ) dbe_->removeElement( meGlobalSummary_->getName() );
   sprintf(histo, "EB global summary");
-  meGlobalSummary_ = dbe->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meGlobalSummary_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
 
 }
 
 void EBSummaryClient::cleanup(void) {
 
-  mui_->setCurrentFolder( "EcalBarrel/EBSummaryClient" );
-  DaqMonitorBEInterface* dbe = mui_->getBEInterface();
+  dbe_->setCurrentFolder( "EcalBarrel/EBSummaryClient" );
 
-  if ( meIntegrity_ ) dbe->removeElement( meIntegrity_->getName() );
+  if ( meIntegrity_ ) dbe_->removeElement( meIntegrity_->getName() );
   meIntegrity_ = 0;
 
-  if ( meOccupancy_ ) dbe->removeElement( meOccupancy_->getName() );
+  if ( meOccupancy_ ) dbe_->removeElement( meOccupancy_->getName() );
   meOccupancy_ = 0;
 
-  if ( mePedestalOnline_ ) dbe->removeElement( mePedestalOnline_->getName() );
+  if ( mePedestalOnline_ ) dbe_->removeElement( mePedestalOnline_->getName() );
   mePedestalOnline_ = 0;
 
-  if ( meLaserL1_ ) dbe->removeElement( meLaserL1_->getName() );
+  if ( meLaserL1_ ) dbe_->removeElement( meLaserL1_->getName() );
   meLaserL1_ = 0;
 
-  if ( meLaserL1PN_ ) dbe->removeElement( meLaserL1PN_->getName() );
+  if ( meLaserL1PN_ ) dbe_->removeElement( meLaserL1PN_->getName() );
   meLaserL1PN_ = 0;
 
-  if ( mePedestal_ ) dbe->removeElement( mePedestal_->getName() );
+  if ( mePedestal_ ) dbe_->removeElement( mePedestal_->getName() );
   mePedestal_ = 0;
 
-  if ( mePedestalPN_ ) dbe->removeElement( mePedestalPN_->getName() );
+  if ( mePedestalPN_ ) dbe_->removeElement( mePedestalPN_->getName() );
   mePedestalPN_ = 0;
 
-  if ( meTestPulse_ ) dbe->removeElement( meTestPulse_->getName() );
+  if ( meTestPulse_ ) dbe_->removeElement( meTestPulse_->getName() );
   meTestPulse_ = 0;
 
-  if ( meTestPulsePN_ ) dbe->removeElement( meTestPulsePN_->getName() );
+  if ( meTestPulsePN_ ) dbe_->removeElement( meTestPulsePN_->getName() );
   meTestPulsePN_ = 0;
 
-  if ( meGlobalSummary_ ) dbe->removeElement( meGlobalSummary_->getName() );
+  if ( meGlobalSummary_ ) dbe_->removeElement( meGlobalSummary_->getName() );
   meGlobalSummary_ = 0;
 
 }
