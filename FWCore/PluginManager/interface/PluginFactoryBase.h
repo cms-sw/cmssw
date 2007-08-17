@@ -17,7 +17,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 12:24:44 EDT 2007
-// $Id: PluginFactoryBase.h,v 1.2 2007/04/12 12:51:12 wmtan Exp $
+// $Id: PluginFactoryBase.h,v 1.3 2007/04/27 12:09:42 chrjones Exp $
 //
 
 // system include files
@@ -74,7 +74,7 @@ class PluginFactoryBase
           itFound = iPlugins.find(iName);
           if(itFound == iPlugins.end()) {
             throw cms::Exception("PluginCacheError")<<"The plugin '"<<iName<<"' should have been in loadable\n '"
-            <<lib<<"'\n but was not there.  This means the plugin cache is incorrect.  Please run 'EdmPlugRefresh "<<lib<<"'";
+            <<lib<<"'\n but was not there.  This means the plugin cache is incorrect.  Please run 'EdmPluginRefresh "<<lib<<"'";
           }
         } else {
           //should check to see if this is from the proper loadable if it
