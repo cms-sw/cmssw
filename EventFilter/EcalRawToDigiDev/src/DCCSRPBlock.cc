@@ -32,7 +32,7 @@ int DCCSRPBlock::unpack(uint64_t ** data, uint * dwToEnd, uint numbFlags ){
     
 	edm::LogWarning("EcalRawToDigiDevSRP")
       <<"\n Event "<<l1_
-      <<"\n Unable to unpack SRP block for event "<<event_->l1A()<<" in dcc <<"<<mapper_->getActiveDCC()
+      <<"\n Unable to unpack SRP block for event "<<event_->l1A()<<" in fed <<"<<mapper_->getActiveDCC()
       <<"\n Only "<<((*dwToEnd_)*8)<<" bytes are available while "<<(blockLength_*8)<<" are needed!";
     
 	//Note : add to error collection 
@@ -63,7 +63,7 @@ int DCCSRPBlock::unpack(uint64_t ** data, uint * dwToEnd, uint numbFlags ){
     if( dccBx != bx_ || dccL1 != l1_ ){
       edm::LogWarning("EcalRawToDigiDevSRP")
         <<"EcalRawToDigi@SUB=DCCSRPBlock::unpack"
-        <<"\nSynchronization error for SRP block in event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in dcc <<"<<mapper_->getActiveDCC()
+        <<"\nSynchronization error for SRP block in event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in fed <<"<<mapper_->getActiveDCC()
         <<"\n SRP local l1A is  "<<l1_<<" and local bx is "<<bx_;
        //Note : add to error collection ?		 
        // SRP flags are required to check FE , better using synchronized data...

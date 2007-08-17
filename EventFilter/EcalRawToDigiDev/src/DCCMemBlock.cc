@@ -49,7 +49,7 @@ int DCCMemBlock::unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID){
  
   if( (*dwToEnd_)<1){
     edm::LogWarning("EcalRawToDigiDevMemBlock")
-      <<"\nUnable to unpack MEM block for event "<<event_->l1A()<<" in dcc <<"<<mapper_->getActiveDCC()
+      <<"\nUnable to unpack MEM block for event "<<event_->l1A()<<" in fed <<"<<mapper_->getActiveDCC()
       <<"\nThe end of event was reached !";
     return STOP_EVENT_UNPACKING;
   }
@@ -79,7 +79,7 @@ int DCCMemBlock::unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID){
     (*invalidMemBlockSizes_)->push_back(id);
  
    edm::LogWarning("EcalRawToDigiDevMemBlock")
-      <<"\nFor event "<<event_->l1A()<<", dcc "<<mapper_->getActiveDCC()<<" and tower block "<<towerId_
+      <<"\nFor event "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower block "<<towerId_
       <<"\nExpected mem block size is "<<(unfilteredTowerBlockLength_*8)<<" bytes while "<<(blockLength_*8)<<" was found";
     
     return STOP_EVENT_UNPACKING;
@@ -89,7 +89,7 @@ int DCCMemBlock::unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID){
   // Block Length Check (2)
   if((*dwToEnd_)<blockLength_){
     edm::LogWarning("EcalRawToDigiDevMemBlock")
-      <<"\nUnable to unpack MEM block for event "<<event_->l1A()<<" in dcc <<"<<mapper_->getActiveDCC()
+      <<"\nUnable to unpack MEM block for event "<<event_->l1A()<<" in fed <<"<<mapper_->getActiveDCC()
       <<"\n Only "<<((*dwToEnd_)*8)<<" bytes are available while "<<(blockLength_*8)<<" are needed!";
     //Note : add to error collection 
     //could this be the same collection as previous case, i.e. invalidMemBlockSizes_  ?
@@ -103,7 +103,7 @@ int DCCMemBlock::unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID){
     if( dccBx != bx_ || dccL1 != l1_ ){
       edm::LogWarning("EcalRawToDigiDevMemBlock")
         <<"\nSynchronization error for Mem block in event "<<event_->l1A()<<" with bx "<<event_->bx()
-	<<" in dcc <<"<<mapper_->getActiveDCC()<<"\nMem local l1A is  "<<l1_<<" Mem local bx is "<<bx_;
+	<<" in fed <<"<<mapper_->getActiveDCC()<<"\nMem local l1A is  "<<l1_<<" Mem local bx is "<<bx_;
       //Note : add to error collection ?
       // need of a new collection
       return STOP_EVENT_UNPACKING;
@@ -113,7 +113,7 @@ int DCCMemBlock::unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID){
   // Number Of Samples Check
   if( nTSamples_ != expXtalTSamples_ ){
     edm::LogWarning("EcalRawToDigiDevMemBlock")
-      <<"\nUnable to unpack MEM block for event "<<event_->l1A()<<" in dcc <<"<<mapper_->getActiveDCC()
+      <<"\nUnable to unpack MEM block for event "<<event_->l1A()<<" in fed <<"<<mapper_->getActiveDCC()
       <<"\nNumber of time samples "<<nTSamples_<<" is not the same as expected ("<<expXtalTSamples_<<")";
     //Note : add to error collection ?		 
     return STOP_EVENT_UNPACKING;
@@ -128,7 +128,7 @@ int DCCMemBlock::unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID){
     (*invalidMemTtIds_)->push_back(id);
     
     edm::LogWarning("EcalRawToDigiDevMemTowerId")
-      <<"\nFor event "<<event_->l1A()<<" and dcc "<<mapper_->getActiveDCC() << " and sm: "  << mapper_->getActiveSM()
+      <<"\nFor event "<<event_->l1A()<<" and fed "<<mapper_->getActiveDCC() << " and sm: "  << mapper_->getActiveSM()
       <<"\nExpected mem tower block is "<<expTowerID_<<" while "<<towerId_<<" was found ";
     
     towerId_=expTowerID_;
@@ -190,7 +190,7 @@ void DCCMemBlock::unpackMemTowerData(){
        (*invalidMemChIds_)->push_back(id);
 
         edm::LogWarning("EcalRawToDigiDevMemChId")
-          <<"\nFor event "<<event_->l1A()<<",dcc "<<mapper_->getActiveDCC()<<" and tower mem block "<<towerId_
+          <<"\nFor event "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower mem block "<<towerId_
           <<"\nThe expected strip is "<<expStripId<<" and "<<stripId<<" was found"
           <<"\nThe expected xtal  is "<<expXtalId <<" and "<<xtalId<<" was found";
 
@@ -246,7 +246,7 @@ void DCCMemBlock::unpackMemTowerData(){
           (*invalidMemGains_)->push_back(id);
 
 	      edm::LogWarning("EcalRawToDigiDevMemGain")
-	       <<"\nFor event "<<event_->l1A()<<",dcc "<<mapper_->getActiveDCC()<<" , mem tower block "<<towerId_
+	       <<"\nFor event "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" , mem tower block "<<towerId_
 	       <<"\nIn strip "<<stripId<<" xtal "<<xtalId<<" the gain is "<<gain<<" in sample "<<(i+1);
 
           errorOnDecoding=true;

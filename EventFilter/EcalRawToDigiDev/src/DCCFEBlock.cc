@@ -37,7 +37,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
  
   if( (*dwToEnd_)<1){
    edm::LogWarning("EcalRawToDigiDevTowerSize")
-      <<"\n Unable to unpack Tower block for event "<<event_->l1A()<<" in dcc <<"<<mapper_->getActiveDCC()
+      <<"\n Unable to unpack Tower block for event "<<event_->l1A()<<" in fed <<"<<mapper_->getActiveDCC()
       <<"\n The end of event was reached !";
     //TODO : add this to a dcc event size collection error?
     return STOP_EVENT_UNPACKING;
@@ -65,13 +65,17 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
   if( expTowerID_ != towerId_){
     
     edm::LogWarning("EcalRawToDigiDevTowerId")
-      <<"\n For event "<<event_->l1A()<<" and dcc "<<mapper_->getActiveDCC()
+      <<"\n For event "<<event_->l1A()<<" and fed "<<mapper_->getActiveDCC()
       <<"\n Expected trigger tower is "<<expTowerID_<<" while "<<towerId_<<" was found "
       <<"\n => Skipping to next tower block...";
     EcalTrigTowerDetId * tp = mapper_->getTTDetIdPointer(mapper_->getActiveSM()+TCCID_SMID_SHIFT_EB,expTowerID_);
     // this needs understanding and fix
     (*invalidTTIds_)->push_back(*tp);
     
+    edm::LogWarning("EcalRawToDigiDevTowerId") << "gio tower ieta(): " << (*tp).ieta()
+					       << " iphi(): " << (*tp).iphi()
+					       << " iDCC(): " << (*tp).iDCC();
+
     updateEventPointers();
     return SKIP_BLOCK_UNPACKING;     
   }
@@ -86,7 +90,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
     if( dccBx != bx_ || dccL1 != l1_ ){
       edm::LogWarning("EcalRawToDigiDevNumTowerBlocks")
 	<<"\n Synchronization error for Tower Block "<<towerId_<<" in event "<<event_->l1A()
-	<<" with bx "<<event_->bx()<<" in dcc "<<mapper_->getActiveDCC()
+	<<" with bx "<<event_->bx()<<" in fed "<<mapper_->getActiveDCC()
        <<"\n TCC local l1A is  "<<l1_<<" and local bx is "<<bx_
       <<"\n => Skipping to next tower block...";
       //Note : add to error collection ?		 
@@ -102,7 +106,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
 
     edm::LogWarning("EcalRawToDigiDevNumTowerBlocks")
       <<"EcalRawToDigi@SUB=DCCFEBlock::unpack"
-      <<"\n Unable to unpack Tower Block "<<towerId_<<" for event "<<event_->l1A()<<" in dcc <<"<<mapper_->getActiveDCC()
+      <<"\n Unable to unpack Tower Block "<<towerId_<<" for event "<<event_->l1A()<<" in fed <<"<<mapper_->getActiveDCC()
       <<"\n Number of time samples "<<nTSamples_<<" is not the same as expected ("<<expXtalTSamples_<<")"
       <<"\n => Skipping to next tower block...";
     //Note : add to error collection ?		 
@@ -117,7 +121,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
   if((*dwToEnd_)<blockLength_){
     
     edm::LogWarning("EcalRawToDigiDevNumTowerBlocks")
-      <<"\n Unable to unpack Tower Block "<<towerId_<<" for event "<<event_->l1A()<<" in dcc <<"<<mapper_->getActiveDCC()
+      <<"\n Unable to unpack Tower Block "<<towerId_<<" for event "<<event_->l1A()<<" in fed <<"<<mapper_->getActiveDCC()
       <<"\n Only "<<((*dwToEnd_)*8)<<" bytes are available while "<<blockSize_<<" are needed!"
       <<"\n => Skipping to next fed block...";
     //TODO : add to error collections
@@ -130,7 +134,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
     if ( unfilteredDataBlockLength_ != blockLength_ ){
       
       edm::LogWarning("EcalRawToDigiDevNumTowerBlocks")
-        <<"\n For event "<<event_->l1A()<<", dcc "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
+        <<"\n For event "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
         <<"\n Expected block size is "<<(unfilteredDataBlockLength_*8)<<" bytes while "<<(blockLength_*8)<<" was found"
         <<"\n => Skipping to next fed block...";
       
@@ -145,7 +149,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
   }else if( blockLength_ > unfilteredDataBlockLength_ || (blockLength_-1) < numbDWInXtalBlock_ ){
     
     edm::LogWarning("EcalRawToDigiDevNumTowerBlocks")
-      <<"\n For event "<<event_->l1A()<<" and dcc "<<mapper_->getActiveDCC()
+      <<"\n For event "<<event_->l1A()<<" and fed "<<mapper_->getActiveDCC()
       <<"\n The tower "<<towerId_<<" has a wrong number of bytes : "<<(blockLength_*8)	   
       <<"\n => Skipping to next fed block...";
     

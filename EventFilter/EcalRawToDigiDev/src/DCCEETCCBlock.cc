@@ -65,7 +65,7 @@ bool DCCEETCCBlock::checkTccIdAndNumbTTs(){
 	 if( nTTs_ != xxx ){
         ostringstream output;
         output<<"EcalRawToDigi@SUB=DCCTCCBlock::unpack"
-          <<"\n Unable to unpack TCC block for event "<<event_->l1A()<<" in dcc "<<mapper_->getActiveDCC()
+          <<"\n Unable to unpack TCC block for event "<<event_->l1A()<<" in fed "<<mapper_->getActiveDCC()
           <<"\n Number of TTs "<<nTTs_<<" while "<<xxx<<" are expected";
         //Note : add to error collection ?		 
          throw ECALUnpackerException(output.str());
@@ -78,7 +78,7 @@ bool DCCEETCCBlock::checkTccIdAndNumbTTs(){
 	
   if(!tccFound){
     edm::LogWarning("EcalRawToDigiDevTCC") 
-      <<"\n Error on event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in dcc <<"<<mapper_->getActiveDCC()
+      <<"\n Error on event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in fed <<"<<mapper_->getActiveDCC()
       <<"\n TCC id "<<tccId_<<" is not valid for this dcc "
       <<"\n => Skipping to next fed block...";
      //todo : add to error collection   

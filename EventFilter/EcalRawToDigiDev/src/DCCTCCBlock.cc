@@ -16,7 +16,7 @@ int DCCTCCBlock::unpack(uint64_t ** data, uint * dwToEnd){
   if( (*dwToEnd_)<blockLength_ ){
     edm::LogWarning("EcalRawToDigiDevTCC")
       <<"EcalRawToDigi@SUB=DCCTCCBlock:unpack"
-      <<"\n Unable to unpack TCC block for event "<<event_->l1A()<<" in dcc "<<mapper_->getActiveDCC()
+      <<"\n Unable to unpack TCC block for event "<<event_->l1A()<<" in fed "<<mapper_->getActiveDCC()
       <<"\n Only "<<((*dwToEnd_)*8)<<" bytes are available until the end of event while "<<(blockLength_*8)<<" are needed!"
       <<"\n => Skipping to next fed block...";
     
@@ -48,7 +48,7 @@ int DCCTCCBlock::unpack(uint64_t ** data, uint * dwToEnd){
       if( dccBx != bx_ || dccL1 != l1_ ){
         edm::LogWarning("EcalRawToDigiDevTCC")
 	  <<"\n Synchronization error for TCC block in event "<<event_->l1A()
-	  <<" with bx "<<event_->bx()<<" in dcc <<"<<mapper_->getActiveDCC()
+	  <<" with bx "<<event_->bx()<<" in fed <<"<<mapper_->getActiveDCC()
 	  <<"\n TCC local l1A is  "<<l1_<<" and local bx is "<<bx_
 	  <<"\n TCC block skiped ...";
 	
@@ -65,7 +65,7 @@ int DCCTCCBlock::unpack(uint64_t ** data, uint * dwToEnd){
     
     if( nTSamples_ != expTriggerTSamples ){
       edm::LogWarning("EcalRawToDigiDevTCC")
-        <<"\n Unable to unpack TCC block for event "<<event_->l1A()<<" in dcc "<<mapper_->getActiveDCC()
+        <<"\n Unable to unpack TCC block for event "<<event_->l1A()<<" in fed "<<mapper_->getActiveDCC()
         <<"\n Number of time samples is "<<nTSamples_<<" while "<<expTriggerTSamples<<" is expected"
         <<"\n TCC block skiped..."<<endl;
 		
