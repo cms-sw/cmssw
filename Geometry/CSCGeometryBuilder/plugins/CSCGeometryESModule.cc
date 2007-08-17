@@ -1,6 +1,5 @@
 #include "CSCGeometryESModule.h"
 #include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h"
-#include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
@@ -36,33 +35,29 @@ CSCGeometryESModule::CSCGeometryESModule(const edm::ParameterSet & p){
   // the calculated geometry values used up to and including ORCA_8_8_1.
   // (This was the default in ORCA.)
 
-  bool useRealWireGeometry =   p.getParameter<bool>("useRealWireGeometry");
+  useRealWireGeometry =   p.getParameter<bool>("useRealWireGeometry");
 
   // Suppress strips altogether in ME1a region of ME11?
 
-  bool useOnlyWiresInME1a =    p.getParameter<bool>("useOnlyWiresInME1a");
+  useOnlyWiresInME1a =    p.getParameter<bool>("useOnlyWiresInME1a");
 
   // Allow strips in ME1a region of ME11 but gang them?
   // Default is now to treat ME1a with ganged strips (e.g. in clusterizer)
 
-  bool useGangedStripsInME1a = p.getParameter<bool>("useGangedStripsInME1a");
+  useGangedStripsInME1a = p.getParameter<bool>("useGangedStripsInME1a");
 
   if ( useGangedStripsInME1a ) useOnlyWiresInME1a = false; // override possible inconsistentcy
 
   // Use the backed-out offsets that correct the CTI
-  bool useCentreTIOffsets = p.getParameter<bool>("useCentreTIOffsets"); 
+  useCentreTIOffsets = p.getParameter<bool>("useCentreTIOffsets"); 
+
+  // Debug printout etc. in CSCGeometry etc.
+
+  debugV = p.getUntrackedParameter<bool>("debugV", false);
 
   // Switch to apply the alignment corrections
-  //  applyAlignment_ = p.getParameter<bool>("applyAlignment");
 
-   applyAlignment_ = p.getUntrackedParameter<bool>("applyAlignment", false);
-
-  // Feed these value to where I need them
-
-  CSCChamberSpecs::setUseRealWireGeometry( useRealWireGeometry );
-  CSCChamberSpecs::setOnlyWiresInME1a( useOnlyWiresInME1a );
-  CSCChamberSpecs::setGangedStripsInME1a( useGangedStripsInME1a );
-  CSCChamberSpecs::setUseCentreTIOffsets( useCentreTIOffsets );
+  applyAlignment_ = p.getUntrackedParameter<bool>("applyAlignment", false);
 
 }
 
@@ -70,41 +65,44 @@ CSCGeometryESModule::CSCGeometryESModule(const edm::ParameterSet & p){
 CSCGeometryESModule::~CSCGeometryESModule(){}
 
 
-boost::shared_ptr<CSCGeometry>
-CSCGeometryESModule::produce(const MuonGeometryRecord & record) {
+boost::shared_ptr<CSCGeometry> CSCGeometryESModule::produce(const MuonGeometryRecord& record) {
 
-  //
   // Called whenever the alignments or alignment errors change
-  //                                            
+
   if ( applyAlignment_ ) {
     edm::ESHandle<Alignments> alignments;
     record.getRecord<CSCAlignmentRcd>().get( alignments );
     edm::ESHandle<AlignmentErrors> alignmentErrors;
     record.getRecord<CSCAlignmentErrorRcd>().get( alignmentErrors );
     GeometryAligner aligner;
-    aligner.applyAlignments<CSCGeometry>( &(*_cscGeometry),
+    aligner.applyAlignments<CSCGeometry>( &(*cscGeometry),
                                          &(*alignments), &(*alignmentErrors) );
   }
 
-  return _cscGeometry;
-
+  return cscGeometry;
 }
 
 
-//______________________________________________________________________________
 void CSCGeometryESModule::geometryCallback_( const MuonNumberingRecord& record )
 {
-
-  //
   // Called whenever the muon numbering (or ideal geometry) changes
-  //
+
+  cscGeometry = boost::shared_ptr<CSCGeometry>( new CSCGeometry );
+
+  cscGeometry->setUseRealWireGeometry( useRealWireGeometry );
+  cscGeometry->setOnlyWiresInME1a( useOnlyWiresInME1a );
+  cscGeometry->setGangedStripsInME1a( useGangedStripsInME1a );
+  cscGeometry->setUseCentreTIOffsets( useCentreTIOffsets );
+  cscGeometry->setDebugV( debugV );
+  if ( debugV ) cscGeometry->queryModelling();
+
   edm::ESHandle<DDCompactView> cpv;
   edm::ESHandle<MuonDDDConstants> mdc;
   record.getRecord<IdealGeometryRecord>().get(cpv);
   record.get( mdc );
-   CSCGeometryBuilderFromDDD builder;
-  _cscGeometry = boost::shared_ptr<CSCGeometry>(builder.build(&(*cpv), *mdc));
-
+  CSCGeometryBuilderFromDDD builder;
+  //  cscGeometry = boost::shared_ptr<CSCGeometry>( builder.build( &(*cpv), *mdc ) );
+  builder.build( cscGeometry, &(*cpv), *mdc );
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(CSCGeometryESModule);
