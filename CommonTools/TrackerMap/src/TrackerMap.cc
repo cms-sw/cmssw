@@ -242,6 +242,8 @@ void TrackerMap::print(bool print_total, float minval, float maxval){
   *svgfile << "</svg:g></svg:svg>"<<endl;
   *svgfile << " <svg:text id=\"Title\" class=\"normalText\"  x=\"100\" y=\"0\">"<<title<<"</svg:text>"<<endl;
   *svgfile << "</svg:svg>"<<endl;
+  *svgfile << "<br />"<<endl;
+  *svgfile << "<em>Please fon't click in yellow areas: for same reason, doing so freezes Firefox </em>"<<endl;
   *svgfile << "</body></html>"<<endl;
 
 }
