@@ -3,9 +3,9 @@
 /** \class SoftElectronProducer
  *
  *
- *  $Id: SoftElectronProducer.h,v 1.6 2007/04/04 09:14:29 fwyzard Exp $
- *  $Date: 2007/04/04 09:14:29 $
- *  $Revision: 1.6 $
+ *  $Id: SoftElectronProducer.h,v 1.1 2007/08/17 23:10:10 fwyzard Exp $
+ *  $Date: 2007/08/17 23:10:10 $
+ *  $Revision: 1.1 $
  *
  *  \author P. Demin - UCL, Louvain-la-Neuve - Belgium
  *
