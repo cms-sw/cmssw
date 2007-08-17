@@ -143,18 +143,20 @@ void
         double cphiDeg = gCentre.phi().degrees();
 
 	// I want to display in range 0 to 360
-        if ( cphiDeg < 0. ) {
+
+        // Handle some occasional ugly precision problems around zero
+        if ( fabs(cphiDeg) < 1.e-06 ) { 
+          cphiDeg = 0.;
+	}
+        else if ( cphiDeg < 0. ) {
           cphiDeg += 360.;
 	}
-
-	// Clean up occasional bizarreness
-        if ( cphiDeg >= 360. ) {
-	  // std::cout << "WARNING: resetting phi= " << cphiDeg << " to zero." << std::endl;
+        else if ( cphiDeg >= 360. ) {
+	  std::cout << "WARNING: resetting phi= " << cphiDeg << " to zero." << std::endl;
           cphiDeg = 0.;
 	}
 
-        // Handle some occasional ugly precision problems around zero
-        if ( fabs(cphiDeg) < 1.e-06 ) cphiDeg = 0.;
+
 	//        int iphiDeg = static_cast<int>( cphiDeg );
 	//	std::cout << "phi(0,0,0) = " << iphiDeg << " degrees" << std::endl;
 
@@ -177,11 +179,12 @@ void
 
 	// Clean up some stupid floating decimal aesthetics
         cstrip1 = cstrip1 * radToDeg;
-        if ( cstrip1 < 0. ) cstrip1 = cstrip1 + 360.;
         if ( fabs( cstrip1 ) < 1.e-06 ) cstrip1 = 0.;
+        else if ( cstrip1 < 0. ) cstrip1 += 360.;
+
         cstripN = cstripN * radToDeg;
-        if ( cstripN < 0. ) cstripN = cstrip1 + 360.;
         if ( fabs( cstripN ) < 1.e-06 ) cstripN = 0.;
+        else if ( cstripN < 0. ) cstripN += 360.;
 
         if ( fabs( stripoff ) < 1.e-06 ) stripoff = 0.;
 
