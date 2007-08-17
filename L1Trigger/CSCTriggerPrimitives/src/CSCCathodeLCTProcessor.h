@@ -23,8 +23,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2007/02/19 14:59:46 $
- * $Revision: 1.11 $
+ * $Date: 2007/04/18 16:08:55 $
+ * $Revision: 1.12 $
  *
  */
 
@@ -41,7 +41,8 @@ class CSCCathodeLCTProcessor
   /** Normal constructor. */
   CSCCathodeLCTProcessor(unsigned endcap, unsigned station, unsigned sector,
 			 unsigned subsector, unsigned chamber,
-			 const edm::ParameterSet& conf);
+			 const edm::ParameterSet& conf,
+			 const edm::ParameterSet& comm);
 
   /** Default constructor. Used for testing. */
   CSCCathodeLCTProcessor();
@@ -128,6 +129,9 @@ class CSCCathodeLCTProcessor
 
   std::vector<int> theHalfStripHits[CSCConstants::NUM_LAYERS];
   std::vector<int> theDiStripHits[CSCConstants::NUM_LAYERS];
+
+  /** Flag for MTCC data. */
+  bool isMTCC; 
 
   /** Configuration parameters. */
   unsigned int bx_width, drift_delay, hs_thresh, ds_thresh, nph_pattern;

@@ -31,8 +31,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2006/06/14 09:27:19 $
- * $Revision: 1.3 $
+ * $Date: 2007/04/18 16:08:55 $
+ * $Revision: 1.4 $
  *
  */
 
@@ -91,6 +91,9 @@ class CSCMotherboard
   const unsigned theSector;
   const unsigned theSubsector;
   const unsigned theTrigChamber;
+
+  /** Flag for MTCC data. */
+  bool isMTCC; 
 
   /** Container for first correlated LCT. */
   CSCCorrelatedLCTDigi firstLCT;

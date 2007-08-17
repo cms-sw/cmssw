@@ -20,8 +20,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2007/06/12 13:18:12 $
-//   $Revision: 1.16 $
+//   $Date: 2007/06/13 14:45:02 $
+//   $Revision: 1.17 $
 //
 //   Modifications: 
 //
@@ -70,8 +70,7 @@ const int CSCAnodeLCTProcessor::pattern_envelope[CSCConstants::NUM_ALCT_PATTERNS
 
 // These mask the pattern envelope to give the desired accelerator pattern
 // and collision patterns A and B.
-#ifndef TB
-const int CSCAnodeLCTProcessor::pattern_mask[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES] = {
+const int CSCAnodeLCTProcessor::pattern_mask_default[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES] = {
   // Accelerator pattern
   {0,  0,  1,
        0,  1,
@@ -96,10 +95,10 @@ const int CSCAnodeLCTProcessor::pattern_mask[CSCConstants::NUM_ALCT_PATTERNS][NU
            0,  1,  1,
            0,  0,  1}
 };
-#else
-// Both collision patterns used at the test beam are "completely open"
-// by default.
-const int CSCAnodeLCTProcessor::pattern_mask[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES] = {
+
+// Both collision patterns used at the test beam and MTCC were "completely
+// open".
+const int CSCAnodeLCTProcessor::pattern_mask_MTCC[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES] = {
   // Accelerator pattern
   {0,  0,  1,
        0,  1,
@@ -124,7 +123,6 @@ const int CSCAnodeLCTProcessor::pattern_mask[CSCConstants::NUM_ALCT_PATTERNS][NU
            1,  1,  1,
            1,  1,  1}
 };
-#endif
 
 //----------------
 // Constructors --
@@ -133,7 +131,8 @@ const int CSCAnodeLCTProcessor::pattern_mask[CSCConstants::NUM_ALCT_PATTERNS][NU
 CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap, unsigned station,
 					   unsigned sector, unsigned subsector,
 					   unsigned chamber,
-					   const edm::ParameterSet& conf) : 
+					   const edm::ParameterSet& conf,
+					   const edm::ParameterSet& comm) : 
 		     theEndcap(endcap), theStation(station), theSector(sector),
                      theSubsector(subsector), theTrigChamber(chamber) {
   static bool config_dumped = false;
@@ -152,6 +151,9 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap, unsigned station,
   // Verbosity level, set to 0 (no print) by default.
   infoV        = conf.getUntrackedParameter<int>("verbosity", 0);
 
+  // Other parameters.
+  isMTCC       = comm.getParameter<bool>("isMTCC");
+
   // Check and print configuration parameters.
   checkConfigParameters();
   if (infoV > 0 && !config_dumped) {
@@ -161,6 +163,18 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap, unsigned station,
 
   numWireGroups = 0;
   MESelection   = (theStation < 3) ? 0 : 1;
+
+  // Load appropriate pattern mask.
+  for (int i_patt = 0; i_patt < CSCConstants::NUM_ALCT_PATTERNS; i_patt++) {
+    for (int i_wire = 0; i_wire < NUM_PATTERN_WIRES; i_wire++) {
+      if (isMTCC) {
+	pattern_mask[i_patt][i_wire] = pattern_mask_MTCC[i_patt][i_wire];
+      }
+      else {
+	pattern_mask[i_patt][i_wire] = pattern_mask_default[i_patt][i_wire];
+      }
+    }
+  }
 }
 
 CSCAnodeLCTProcessor::CSCAnodeLCTProcessor() :
@@ -788,12 +802,12 @@ void CSCAnodeLCTProcessor::lctSearch() {
     }
   }
 
-#ifdef TB
-  // Firmware "feature" in 2003 and 2004 test beam data and in MTCC.
-  // Has been fixed in the DAQ-2006 format, which has not been used yet.
-  if (secondALCT.isValid() && secondALCT.getBX() > bestALCT.getBX())
-    secondALCT.clear();
-#endif
+  if (isMTCC) {
+    // Firmware "feature" in 2003 and 2004 test beam data and in MTCC.
+    // Has been fixed in the DAQ-2006 format, which has not been used yet.
+    if (secondALCT.isValid() && secondALCT.getBX() > bestALCT.getBX())
+      secondALCT.clear();
+  }
 
   if (bestALCT.isValid()) {
     bestALCT.setTrknmb(1);
@@ -851,16 +865,16 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::bestTrackSelector(
     }
 
     // Skip ALCTs found too late relative to L1Accept.
-#ifndef TB
-    int late_tbins = l1a_window + early_tbins;
-    if (plct->getBX() >= late_tbins) {
-      if (infoV > 1) LogDebug("CSCAnodeLCTProcessor")
-	<< " Do not report ALCT on keywire " << plct->getKeyWG()
-	<< ": found at bx " << plct->getBX() << ", whereas the latest "
-	<< "allowed bx is " << late_tbins;
+    if (!isMTCC) {
+      int late_tbins = l1a_window + early_tbins;
+      if (plct->getBX() >= late_tbins) {
+	if (infoV > 1) LogDebug("CSCAnodeLCTProcessor")
+	  << " Do not report ALCT on keywire " << plct->getKeyWG()
+	  << ": found at bx " << plct->getBX() << ", whereas the latest "
+	  << "allowed bx is " << late_tbins;
       continue;
+      }
     }
-#endif
 
     // Select two collision and two accelerator ALCTs with the highest
     // best quality.  The search for best ALCTs is done in parallel

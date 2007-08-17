@@ -22,8 +22,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2007/06/12 13:15:47 $
-//   $Revision: 1.19 $
+//   $Date: 2007/06/13 14:45:02 $
+//   $Revision: 1.20 $
 //
 //   Modifications: 
 //
@@ -139,7 +139,8 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
 					       unsigned sector,
 					       unsigned subsector,
 					       unsigned chamber,
-					       const edm::ParameterSet& conf) :
+					       const edm::ParameterSet& conf,
+					       const edm::ParameterSet& comm) :
 		     theEndcap(endcap), theStation(station), theSector(sector),
                      theSubsector(subsector), theTrigChamber(chamber) {
   static bool config_dumped = false;
@@ -159,6 +160,9 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
 
   // Verbosity level, set to 0 (no print) by default.
   infoV        = conf.getUntrackedParameter<int>("verbosity", 0);
+
+  // Other parameters.
+  isMTCC       = comm.getParameter<bool>("isMTCC");
 
   // Check and print configuration parameters.
   checkConfigParameters();
@@ -521,32 +525,38 @@ void CSCCathodeLCTProcessor::run(int triad[CSCConstants::NUM_LAYERS][CSCConstant
   // Now to do the real work of the CathodeProcessor: make a vector of the
   // possible halfstrip LCT candidates and a vector of the distrip LCT 
   // candidates.  Subtract 1 to account for staggering.
-#ifdef TB
-  std::vector<CSCCLCTDigi> LCTlist = findLCTs(halfstrip,distrip);
-#else
-  std::vector<CSCCLCTDigi> halfStripLCTs = findLCTs(halfstrip,1,2*numStrips+1);
-  std::vector<CSCCLCTDigi> diStripLCTs   = findLCTs(distrip,  0,numStrips/2+1);
   std::vector<CSCCLCTDigi> LCTlist;
 
-  for (unsigned int i = 0; i < halfStripLCTs.size(); i++) // put all
-    LCTlist.push_back(halfStripLCTs[i]); // the candidates into a single vector
-  for (unsigned int i = 0; i < diStripLCTs.size(); i++)   // and sort them:
-    LCTlist.push_back(diStripLCTs[i]);   // 6/6H, 5/6H, 6/6D, 4/6H, 5/6D, 4/6D
-#endif
-  // LCT sorting
+  if (isMTCC) {
+    LCTlist = findLCTs(halfstrip, distrip);
+  }
+  else {
+    std::vector<CSCCLCTDigi> halfStripLCTs =
+      findLCTs(halfstrip, 1, 2*numStrips+1);
+    std::vector<CSCCLCTDigi> diStripLCTs   =
+      findLCTs(distrip,   0, numStrips/2+1);
+    // Put all the candidates into a single vector and sort them.
+    for (unsigned int i = 0; i < halfStripLCTs.size(); i++)
+      LCTlist.push_back(halfStripLCTs[i]);
+    for (unsigned int i = 0; i < diStripLCTs.size(); i++)
+      LCTlist.push_back(diStripLCTs[i]);
+  }
+
+  // LCT sorting: 6/6H, 5/6H, 6/6D, 4/6H, 5/6D, 4/6D by default.
   if (LCTlist.size() > 1)
     sort(LCTlist.begin(), LCTlist.end(), std::greater<CSCCLCTDigi>());
 
   if (LCTlist.size() > 0) bestCLCT   = LCTlist[0]; // take the best two 
   if (LCTlist.size() > 1) secondCLCT = LCTlist[1]; // candidates
-#ifndef TB
-  // Irrelevant for test beam implementation.
-  if (bestCLCT == secondCLCT) { // if the second one is the same as the first
-    secondCLCT.clear();         // (i.e. found the same track both half and
-    if (LCTlist.size() > 2) secondCLCT = LCTlist[2]; // distrip), take the 
-                                                     // next one.
+
+  if (!isMTCC) {
+    // Irrelevant for test beam and MTCC implementation.
+    if (bestCLCT == secondCLCT) { // if the second one is the same as the first
+      secondCLCT.clear();         // (i.e. found the same track both half and
+      if (LCTlist.size() > 2) secondCLCT = LCTlist[2]; // distrip), take the 
+                                                       // next one.
+    }
   }
-#endif
 
   // Get the list of RecDigis included in each CLCT. Also look for their
   // closest SimHits.
@@ -1027,31 +1037,35 @@ std::vector <CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const int halfstrip[C
 	<< "\n ..... waiting drift delay ..... ";
     }
 
-    // FOR MTCC RUNS ONLY.
-#ifdef MTCC
-    // Empirically-found trick allowing to dramatically improve agreement
-    // with MTCC-II data.  Needs to be better understood.
-    // The trick is to ignore hits in a few first time bins when latching
-    // hits for priority encode envelopes.  For MTCC-II, we need to ignore
-    // hits in time bins 0-3 inclusively.
-    int max_bx = 4;
-    for (int ilayer = 0; ilayer < CSCConstants::NUM_LAYERS; ilayer++) {
-      for (int istrip = 0; istrip < CSCConstants::NUM_HALF_STRIPS; istrip++) {
-	for (int bx = 0; bx < max_bx; bx++) {
-	  if (((h_pulse[ilayer][istrip] >> bx) & 1) == 1) {
-	    h_pulse[ilayer][istrip] = 0;
+    if (isMTCC) {
+      // Empirically-found trick allowing to dramatically improve agreement
+      // with MTCC-II data.
+      // The trick is to ignore hits in a few first time bins when latching
+      // hits for priority encode envelopes.  For MTCC-II, we need to ignore
+      // hits in time bins 0-3 inclusively.
+      //
+      // Firmware configuration has been fixed for most of 2007 runs, so
+      // this trick should NOT be used when emulating 2007 trigger.
+      //#ifdef MTCC
+      int max_bx = 4;
+      for (int ilayer = 0; ilayer < CSCConstants::NUM_LAYERS; ilayer++) {
+	for (int istrip = 0; istrip < CSCConstants::NUM_HALF_STRIPS; istrip++) {
+	  for (int bx = 0; bx < max_bx; bx++) {
+	    if (((h_pulse[ilayer][istrip] >> bx) & 1) == 1) {
+	      h_pulse[ilayer][istrip] = 0;
+	    }
+	  }
+	}
+	for (int istrip = 0; istrip < CSCConstants::NUM_DI_STRIPS; istrip++) {
+	  for (int bx = 0; bx < max_bx; bx++) {
+	    if (((d_pulse[ilayer][istrip] >> bx) & 1) == 1) {
+	      d_pulse[ilayer][istrip] = 0;
+	    }
 	  }
 	}
       }
-      for (int istrip = 0; istrip < CSCConstants::NUM_DI_STRIPS; istrip++) {
-	for (int bx = 0; bx < max_bx; bx++) {
-	  if (((d_pulse[ilayer][istrip] >> bx) & 1) == 1) {
-	    d_pulse[ilayer][istrip] = 0;
-	  }
-	}
-      }
+      //#endif
     }
-#endif
 
     // TMB latches LCTs drift_delay clocks after pretrigger.
     int latch_bx = first_bx + drift_delay;

@@ -27,8 +27,8 @@
 //                Based on code by Nick Wisniewski (nw@its.caltech.edu)
 //                and a framework by Darin Acosta (acosta@phys.ufl.edu).
 //
-//   $Date: 2007/04/18 16:08:55 $
-//   $Revision: 1.8 $
+//   $Date: 2007/08/15 12:51:19 $
+//   $Revision: 1.9 $
 //
 //   Modifications: Numerous later improvements by Jason Mumford and
 //                  Slava Valuev (see cvs in ORCA).
@@ -56,17 +56,33 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
                    theEndcap(endcap), theStation(station), theSector(sector),
                    theSubsector(subsector), theTrigChamber(chamber) {
   // Normal constructor.  -JM
-  // Pass ALCT and CLCT parameters on to their processors.
-  edm::ParameterSet alctParams =
-    conf.getParameter<edm::ParameterSet>("alctParam");
-  edm::ParameterSet clctParams =
-    conf.getParameter<edm::ParameterSet>("clctParam");
-  alct = new CSCAnodeLCTProcessor(endcap, station, sector, subsector,
-				  chamber, alctParams);
-  clct = new CSCCathodeLCTProcessor(endcap, station, sector, subsector,
-				    chamber, clctParams);
+  // Pass ALCT, CLCT, and common parameters on to ALCT and CLCT processors.
 
-  // Motherboard parameters
+  // Some congiguration parameters and some details of the emulator
+  // algorithms depend on whether we want to emulate the trigger logic
+  // used in TB/MTCC or its future, hoped-for modification (the latter
+  // is used in MC studies).
+  edm::ParameterSet commonParams =
+    conf.getParameter<edm::ParameterSet>("commonParam");
+  isMTCC = commonParams.getParameter<bool>("isMTCC");
+
+  // Choose the appropriate set of configuration parameters depending on
+  // isMTCC flag.
+  edm::ParameterSet alctParams, clctParams;
+  if (!isMTCC) {
+    alctParams = conf.getParameter<edm::ParameterSet>("alctParamDef");
+    clctParams = conf.getParameter<edm::ParameterSet>("clctParamDef");
+  }
+  else {
+    alctParams = conf.getParameter<edm::ParameterSet>("alctParamMTCC2");
+    clctParams = conf.getParameter<edm::ParameterSet>("clctParamMTCC2");
+  }
+  alct = new CSCAnodeLCTProcessor(endcap, station, sector, subsector,
+				  chamber, alctParams, commonParams);
+  clct = new CSCCathodeLCTProcessor(endcap, station, sector, subsector,
+				    chamber, clctParams, commonParams);
+
+  // Motherboard parameters: common for all configurations.
   edm::ParameterSet tmbParams  =
     conf.getParameter<edm::ParameterSet>("tmbParam");
   infoV = tmbParams.getUntrackedParameter<int>("verbosity", 0);
@@ -177,10 +193,10 @@ void CSCMotherboard::correlateLCTs(CSCALCTDigi bestALCT,
   if (cathodeBestValid && !cathodeSecondValid) secondCLCT = bestCLCT;
   if (!cathodeBestValid && cathodeSecondValid) bestCLCT   = secondCLCT;
 
-  // TB only, or always????
-#ifdef TB
-  if (bestCLCT.isValid() == false && secondCLCT.isValid() == false) return;
-#endif
+  // TB/MTCC only, or always????
+  if (isMTCC && (bestCLCT.isValid() == false && secondCLCT.isValid() == false))
+    return;
+
   firstLCT = constructLCTs(bestALCT, bestCLCT);
   firstLCT.setTrknmb(1);
 

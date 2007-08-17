@@ -13,8 +13,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2007/02/19 14:59:46 $
- * $Revision: 1.8 $
+ * $Date: 2007/04/18 16:08:55 $
+ * $Revision: 1.9 $
  *
  */
 
@@ -31,7 +31,8 @@ class CSCAnodeLCTProcessor
   /** Normal constructor. */
   CSCAnodeLCTProcessor(unsigned endcap, unsigned station, unsigned sector,
 		       unsigned subsector, unsigned chamber,
-		       const edm::ParameterSet& conf);
+		       const edm::ParameterSet& conf,
+		       const edm::ParameterSet& comm);
 
   /** Default constructor. Used for testing. */
   CSCAnodeLCTProcessor();
@@ -71,7 +72,8 @@ class CSCAnodeLCTProcessor
   /** Pre-defined patterns. */
   enum {NUM_PATTERN_WIRES = 14};
   static const int pattern_envelope[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES];
-  static const int pattern_mask[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES];
+  static const int pattern_mask_default[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES];
+  static const int pattern_mask_MTCC[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES];
 
  private:
   /** Verbosity level: 0: no print (default).
@@ -97,10 +99,16 @@ class CSCAnodeLCTProcessor
 
   std::vector<int> theWireHits[CSCConstants::NUM_LAYERS];
 
+  /** Flag for MTCC data. */
+  bool isMTCC; 
+
   /** Configuration parameters. */
   unsigned int fifo_tbins, fifo_pretrig, bx_width, drift_delay;
   unsigned int nph_thresh, nph_pattern;
   unsigned int trig_mode, alct_amode, l1a_window;
+
+  /** Chosen pattern mask. */
+  int pattern_mask[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES];
 
   /** Set default values for configuration parameters. */
   void setDefaultConfigParameters();
