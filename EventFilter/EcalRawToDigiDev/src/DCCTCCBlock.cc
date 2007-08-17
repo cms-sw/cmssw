@@ -18,11 +18,11 @@ int DCCTCCBlock::unpack(uint64_t ** data, uint * dwToEnd){
       <<"EcalRawToDigi@SUB=DCCTCCBlock:unpack"
       <<"\n Unable to unpack TCC block for event "<<event_->l1A()<<" in dcc "<<mapper_->getActiveDCC()
       <<"\n Only "<<((*dwToEnd_)*8)<<" bytes are available until the end of event while "<<(blockLength_*8)<<" are needed!"
-      <<"\n => Skipping this event...";
-      
-	  //todo : add this to error colection
-     
-	  return STOP_EVENT_UNPACKING;
+      <<"\n => Skipping to next fed block...";
+    
+    //todo : add this to error colection
+    
+    return STOP_EVENT_UNPACKING;
   }
   
   if(unpackInternalData_){ 

@@ -80,7 +80,7 @@ bool DCCEETCCBlock::checkTccIdAndNumbTTs(){
     edm::LogWarning("EcalRawToDigiDevTCC") 
       <<"\n Error on event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in dcc <<"<<mapper_->getActiveDCC()
       <<"\n TCC id "<<tccId_<<" is not valid for this dcc "
-      <<"\n => Skipping the event...";
+      <<"\n => Skipping to next fed block...";
      //todo : add to error collection   
   }
 
