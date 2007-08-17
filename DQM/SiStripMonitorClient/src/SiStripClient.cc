@@ -77,7 +77,7 @@ void SiStripClient::onUpdate() const
 
   // put here the code that needs to be executed on every update:
   std::vector<std::string> uplist;
-  mui_->getUpdatedContents(uplist);
+  mui_->getBEInterface()->getUpdatedContents(uplist);
 
   // Collation of Monitor Element
   /*  if (nUpdate == 10) {
@@ -106,7 +106,7 @@ void SiStripClient::onUpdate() const
       //      seal::Callback action(seal::CreateCallback(webInterface_p, 
       //						 &SiStripWebInterface::performAction));
       //    mui_->addCallback(action); 
-      trackerMapCreator_->create(mui_);      
+      trackerMapCreator_->create(mui_->getBEInterface());      
       
     }
     // Create predefined plots 

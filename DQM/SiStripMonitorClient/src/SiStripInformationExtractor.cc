@@ -19,6 +19,9 @@
 #include "TAxis.h"
 #include "TStyle.h"
 #include "TPaveLabel.h"
+#include "TH1F.h"
+#include "TH2F.h"
+#include "TProfile.h"
 #include <iostream>
 using namespace std;
 
@@ -64,13 +67,13 @@ void SiStripInformationExtractor::readConfiguration() {
 //
 // --  Fill Histo and Module List
 // 
-void SiStripInformationExtractor::fillModuleAndHistoList(MonitorUserInterface * mui, vector<string>& modules, vector<string>& histos) {
-  string currDir = mui->pwd();
+void SiStripInformationExtractor::fillModuleAndHistoList(DaqMonitorBEInterface * bei, vector<string>& modules, vector<string>& histos) {
+  string currDir = bei->pwd();
   if (currDir.find("module_") != string::npos)  {
     string mId = currDir.substr(currDir.find("module_")+7, 9);
     modules.push_back(mId);
     if (histos.size() == 0) {
-      vector<string> contents = mui->getMEs();    
+      vector<string> contents = bei->getMEs();    
       for (vector<string>::const_iterator it = contents.begin();
 	   it != contents.end(); it++) {
 	string hname = (*it).substr(0, (*it).find("__det__"));
@@ -78,28 +81,28 @@ void SiStripInformationExtractor::fillModuleAndHistoList(MonitorUserInterface * 
       }    
     }
   } else {  
-    vector<string> subdirs = mui->getSubdirs();
+    vector<string> subdirs = bei->getSubdirs();
     for (vector<string>::const_iterator it = subdirs.begin();
 	 it != subdirs.end(); it++) {
-      mui->cd(*it);
-      fillModuleAndHistoList(mui, modules, histos);
-      mui->goUp();
+      bei->cd(*it);
+      fillModuleAndHistoList(bei, modules, histos);
+      bei->goUp();
     }
   }
 }
 //
 // --  Fill Summary Histo List
 // 
-void SiStripInformationExtractor::printSummaryHistoList(MonitorUserInterface * mui, ostringstream& str_val){
+void SiStripInformationExtractor::printSummaryHistoList(DaqMonitorBEInterface * bei, ostringstream& str_val){
   static string indent_str = "";
 
-  string currDir = mui->pwd();
+  string currDir = bei->pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
   if (dname.find("module_") ==0) return;
   str_val << "<li><a href=\"#\" id=\"" 
           << currDir << "\">" << dname << "</a>" << endl;
-  vector<string> meVec = mui->getMEs(); 
-  vector<string> subDirVec = mui->getSubdirs();
+  vector<string> meVec = bei->getMEs(); 
+  vector<string> subDirVec = bei->getSubdirs();
   if ( meVec.size()== 0  && subDirVec.size() == 0 ) {
     str_val << "</li> "<< endl;    
     return;
@@ -116,14 +119,14 @@ void SiStripInformationExtractor::printSummaryHistoList(MonitorUserInterface * m
   string mtag ="Modules: ";  
   for (vector<string>::const_iterator ic = subDirVec.begin();
        ic != subDirVec.end(); ic++) {
-    mui->cd(*ic);
+    bei->cd(*ic);
     string titl = (*ic);
     if (titl.find("module_") == 0)  {
       titl = titl.substr(titl.find("module_")+7);
       mtag += titl + " ";
     }
-    printSummaryHistoList(mui, str_val);
-    mui->goUp();
+    printSummaryHistoList(bei, str_val);
+    bei->goUp();
   }
   if (mtag.size() > 10) {
     str_val << "<li class=\"note.gif\"><a href=\"#\">" << mtag << "</a></li>" << endl;
@@ -134,18 +137,18 @@ void SiStripInformationExtractor::printSummaryHistoList(MonitorUserInterface * m
 //
 // --  Fill Alarm List
 // 
-void SiStripInformationExtractor::printAlarmList(MonitorUserInterface * mui, ostringstream& str_val){
+void SiStripInformationExtractor::printAlarmList(DaqMonitorBEInterface * bei, ostringstream& str_val){
   static string indent_str = "";
 
-  string currDir = mui->pwd();
+  string currDir = bei->pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
   string image_name;
-  selectImage(image_name,mui->getStatus(currDir));
+  selectImage(image_name,bei->getStatus(currDir));
   str_val << "<li><a href=\"#\" id=\"" 
           << currDir << "\">" << dname << "</a> <img src=\"" 
           << image_name << "\">" << endl;
-  vector<string> subDirVec = mui->getSubdirs();
-  vector<string> meVec = mui->getMEs(); 
+  vector<string> subDirVec = bei->getSubdirs();
+  vector<string> meVec = bei->getMEs(); 
   if (subDirVec.size() == 0 && meVec.size() == 0) {
     str_val << "</li> "<< endl;    
     return;
@@ -156,7 +159,7 @@ void SiStripInformationExtractor::printAlarmList(MonitorUserInterface * mui, ost
       for (vector<string>::const_iterator it = meVec.begin();
 	   it != meVec.end(); it++) {
         string full_path = currDir + "/" + (*it);
-	MonitorElement * me = mui->get(full_path);
+	MonitorElement * me = bei->get(full_path);
 	if (!me) continue;
         dqm::qtests::QR_map my_map = me->getQReports();
         if (my_map.size() > 0) {
@@ -171,9 +174,9 @@ void SiStripInformationExtractor::printAlarmList(MonitorUserInterface * mui, ost
   }
   for (vector<string>::const_iterator ic = subDirVec.begin();
        ic != subDirVec.end(); ic++) {
-    mui->cd(*ic);
-    printAlarmList(mui, str_val);
-    mui->goUp();
+    bei->cd(*ic);
+    printAlarmList(bei, str_val);
+    bei->goUp();
   }
   str_val << "</ul> "<< endl;  
   str_val << "</li> "<< endl;  
@@ -181,31 +184,31 @@ void SiStripInformationExtractor::printAlarmList(MonitorUserInterface * mui, ost
 //
 // --  Fill Histo and Module List
 // 
-void SiStripInformationExtractor::fillGlobalHistoList(MonitorUserInterface * mui, vector<string>& histos) {
-  string currDir = mui->pwd();
+void SiStripInformationExtractor::fillGlobalHistoList(DaqMonitorBEInterface * bei, vector<string>& histos) {
+  string currDir = bei->pwd();
   if (currDir.find("GlobalParameters") != string::npos)  {
-    vector<string> contents = mui->getMEs();    
+    vector<string> contents = bei->getMEs();    
     for (vector<string>::const_iterator it = contents.begin();
 	 it != contents.end(); it++) {
       histos.push_back((*it));
     }
     return;
   } else {  
-    vector<string> subdirs = mui->getSubdirs();
+    vector<string> subdirs = bei->getSubdirs();
     for (vector<string>::const_iterator it = subdirs.begin();
 	 it != subdirs.end(); it++) {
-      mui->cd(*it);
-      fillGlobalHistoList(mui,histos);
-      mui->goUp();
+      bei->cd(*it);
+      fillGlobalHistoList(bei,histos);
+      bei->goUp();
     }
   }
 }
 //
 // --  Get Selected Monitor Elements
 // 
-void SiStripInformationExtractor::selectSingleModuleHistos(MonitorUserInterface * mui, string mid, vector<string>& names, vector<MonitorElement*>& mes) {
+void SiStripInformationExtractor::selectSingleModuleHistos(DaqMonitorBEInterface * bei, string mid, vector<string>& names, vector<MonitorElement*>& mes) {
   mes.clear();
-  DaqMonitorBEInterface * bei = mui->getBEInterface();  
+  //  DaqMonitorBEInterface * bei = bei->getBEInterface();  
   unsigned int tag = atoi(mid.c_str());
   vector<MonitorElement*> all_mes = bei->get(tag);
   if (all_mes.size() == 0) return; 
@@ -225,36 +228,36 @@ void SiStripInformationExtractor::selectSingleModuleHistos(MonitorUserInterface 
 //
 // --  Get Selected Monitor Elements
 // 
-void SiStripInformationExtractor::selectGlobalHistos(MonitorUserInterface * mui, vector<string>& names, vector<MonitorElement*>& mes) {
-  string currDir = mui->pwd();
+void SiStripInformationExtractor::selectGlobalHistos(DaqMonitorBEInterface * bei, vector<string>& names, vector<MonitorElement*>& mes) {
+  string currDir = bei->pwd();
   if (currDir.find("GlobalParameters") != string::npos)  {
-    vector<string> contents = mui->getMEs();    
+    vector<string> contents = bei->getMEs();    
     for (vector<string>::const_iterator it = contents.begin();
 	 it != contents.end(); it++) {
       for (vector<string>::const_iterator ih = names.begin();
 	   ih != names.end(); ih++) {
 	if ((*it) == (*ih)) {
 	  string full_path = currDir + "/" + (*it);
-	  MonitorElement * me = mui->get(full_path.c_str());
+	  MonitorElement * me = bei->get(full_path.c_str());
 	  if (me) mes.push_back(me);
         }
       }
     }
     return;
   } else {  
-    vector<string> subdirs = mui->getSubdirs();
+    vector<string> subdirs = bei->getSubdirs();
     for (vector<string>::const_iterator it = subdirs.begin();
 	 it != subdirs.end(); it++) {
-      mui->cd(*it);
-      selectGlobalHistos(mui,names, mes);
-      mui->goUp();
+      bei->cd(*it);
+      selectGlobalHistos(bei,names, mes);
+      bei->goUp();
     }
   }
 }
 //
 // --  Plot Selected Monitor Elements
 // 
-void SiStripInformationExtractor::plotSingleModuleHistos(MonitorUserInterface* mui, multimap<string, string>& req_map) {
+void SiStripInformationExtractor::plotSingleModuleHistos(DaqMonitorBEInterface* bei, multimap<string, string>& req_map) {
 
   vector<string> item_list;  
 
@@ -269,9 +272,9 @@ void SiStripInformationExtractor::plotSingleModuleHistos(MonitorUserInterface* m
   getItemList(req_map,"histo", item_list);
   vector<MonitorElement*> me_list;
 
-  mui->cd();
-  selectSingleModuleHistos(mui, mod_id, item_list, me_list);
-  mui->cd();
+  bei->cd();
+  selectSingleModuleHistos(bei, mod_id, item_list, me_list);
+  bei->cd();
 
   if (me_list.size() == 0) {
     setCanvasMessage("Wrong Module Id!!");  
@@ -285,7 +288,7 @@ void SiStripInformationExtractor::plotSingleModuleHistos(MonitorUserInterface* m
 //
 // --  Plot Selected Monitor Elements
 // 
-void SiStripInformationExtractor::plotGlobalHistos(MonitorUserInterface* mui, multimap<string, string>& req_map) {
+void SiStripInformationExtractor::plotGlobalHistos(DaqMonitorBEInterface* bei, multimap<string, string>& req_map) {
  
   vector<string> item_list;  
 
@@ -293,9 +296,9 @@ void SiStripInformationExtractor::plotGlobalHistos(MonitorUserInterface* mui, mu
   getItemList(req_map,"histo", item_list);
   vector<MonitorElement*> me_list;
 
-  mui->cd();
-  selectGlobalHistos(mui, item_list, me_list);
-  mui->cd();
+  bei->cd();
+  selectGlobalHistos(bei, item_list, me_list);
+  bei->cd();
 
   plotHistos(req_map,me_list,false);
   fillImageBuffer();
@@ -305,7 +308,7 @@ void SiStripInformationExtractor::plotGlobalHistos(MonitorUserInterface* mui, mu
 //
 // -- plot a Histogram
 //
-void SiStripInformationExtractor::plotHistosFromPath(MonitorUserInterface * mui, std::multimap<std::string, std::string>& req_map){
+void SiStripInformationExtractor::plotHistosFromPath(DaqMonitorBEInterface * bei, std::multimap<std::string, std::string>& req_map){
   vector<string> item_list;  
   getItemList(req_map,"Path", item_list);
   
@@ -320,7 +323,7 @@ void SiStripInformationExtractor::plotHistosFromPath(MonitorUserInterface * mui,
     string path_name = (*it);
     if (path_name.size() == 0) continue;
     
-    MonitorElement* me = mui->get(path_name);
+    MonitorElement* me = bei->get(path_name);
 
     if (me) me_list.push_back(me);
   }
@@ -335,10 +338,10 @@ void SiStripInformationExtractor::plotHistosFromPath(MonitorUserInterface * mui,
 //
 // plot Histograms from Layout
 //
-void SiStripInformationExtractor::plotHistosFromLayout(MonitorUserInterface * mui){
+void SiStripInformationExtractor::plotHistosFromLayout(DaqMonitorBEInterface * bei){
   if (layoutMap.size() == 0) return;
   if (!readReference_) {
-    DaqMonitorBEInterface * bei = mui->getBEInterface();
+    //    DaqMonitorBEInterface * bei = bei->getBEInterface();
     bei->open("Reference.root", false);
     readReference_ = true;
   }
@@ -357,7 +360,7 @@ void SiStripInformationExtractor::plotHistosFromLayout(MonitorUserInterface * mu
 	 im != it->second.end(); im++) {  
       string path_name = (*im);
       if (path_name.size() == 0) continue;
-      MonitorElement* me = mui->get(path_name);
+      MonitorElement* me = bei->get(path_name);
       ival++;
       canvas_->cd(ival);
       if (!me) setCanvasMessage("Plot not ready yet!!");
@@ -376,7 +379,7 @@ void SiStripInformationExtractor::plotHistosFromLayout(MonitorUserInterface * mu
           string hname = hist1->GetTitle();
  
           tTitle.DrawTextNDC(0.1, 0.92, hname.c_str());
-	  MonitorElement* me_ref = mui->get(ref_path);
+	  MonitorElement* me_ref = bei->get(ref_path);
 	  if (me_ref) {
 	    TH1* hist1_ref = ExtractTObject<TH1>().extract(me_ref);
 	    if (hist1_ref) {
@@ -398,7 +401,7 @@ void SiStripInformationExtractor::plotHistosFromLayout(MonitorUserInterface * mu
 //
 // -- Plot Tracker Map MEs
 //
-void SiStripInformationExtractor::plotTrackerMapHistos(MonitorUserInterface* mui, std::multimap<std::string, std::string>& req_map) {
+void SiStripInformationExtractor::plotTrackerMapHistos(DaqMonitorBEInterface* bei, std::multimap<std::string, std::string>& req_map) {
 
   vector<string> me_names;
   string tkmap_name;
@@ -411,7 +414,7 @@ void SiStripInformationExtractor::plotTrackerMapHistos(MonitorUserInterface* mui
        it != me_names.end(); it++) {
     req_map.insert(pair<string,string>("histo",(*it)));  
   }   
-  plotSingleModuleHistos(mui, req_map);
+  plotSingleModuleHistos(bei, req_map);
 }
 
 //
@@ -573,11 +576,11 @@ void SiStripInformationExtractor::readLayoutNames(xgi::Output * out){
 //
 // read the Module And HistoList
 //
-void SiStripInformationExtractor::readModuleAndHistoList(MonitorUserInterface* mui, xgi::Output * out, bool coll_flag) {
+void SiStripInformationExtractor::readModuleAndHistoList(DaqMonitorBEInterface* bei, xgi::Output * out, bool coll_flag) {
    std::vector<std::string> hnames;
    std::vector<std::string> mod_names;
-   if (coll_flag)  mui->cd("Collector/Collated");
-   fillModuleAndHistoList(mui, mod_names, hnames);
+   if (coll_flag)  bei->cd("Collector/Collated");
+   fillModuleAndHistoList(bei, mod_names, hnames);
    out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
   *out << "<?xml version=\"1.0\" ?>" << std::endl;
   *out << "<ModuleAndHistoList>" << endl;
@@ -596,16 +599,16 @@ void SiStripInformationExtractor::readModuleAndHistoList(MonitorUserInterface* m
    }
    *out << "</HistoList>" << endl;
    *out << "</ModuleAndHistoList>" << endl;
-   if (coll_flag)  mui->cd();
+   if (coll_flag)  bei->cd();
 }
 //
 // read the Module And HistoList
 //
-void SiStripInformationExtractor::readGlobalHistoList(MonitorUserInterface* mui, xgi::Output * out, bool coll_flag) {
-   if (coll_flag)  mui->cd("Collector/Collated");
+void SiStripInformationExtractor::readGlobalHistoList(DaqMonitorBEInterface* bei, xgi::Output * out, bool coll_flag) {
+   if (coll_flag)  bei->cd("Collector/Collated");
    std::vector<std::string> hnames;
 
-   fillGlobalHistoList(mui, hnames);
+   fillGlobalHistoList(bei, hnames);
    
    out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
    *out << "<?xml version=\"1.0\" ?>" << std::endl;
@@ -615,41 +618,41 @@ void SiStripInformationExtractor::readGlobalHistoList(MonitorUserInterface* mui,
      *out << "<GHisto>" << *it << "</GHisto>" << endl;      
    }
    *out << "</GlobalHistoList>" << endl;
-   if (coll_flag)  mui->cd();
+   if (coll_flag)  bei->cd();
 }
 //
 // read the Structure And SummaryHistogram List
 //
-void SiStripInformationExtractor::readSummaryHistoTree(MonitorUserInterface* mui, string& str_name, xgi::Output * out, bool coll_flag) {
+void SiStripInformationExtractor::readSummaryHistoTree(DaqMonitorBEInterface* bei, string& str_name, xgi::Output * out, bool coll_flag) {
  
   ostringstream sumtree;
-  if (goToDir(mui, str_name, coll_flag)) {
+  if (goToDir(bei, str_name, coll_flag)) {
     sumtree << "<ul id=\"dhtmlgoodies_tree\" class=\"dhtmlgoodies_tree\">" << endl;
-    printSummaryHistoList(mui,sumtree);
+    printSummaryHistoList(bei,sumtree);
     sumtree <<"</ul>" << endl;   
   } else {
     sumtree << "Desired Directory does not exist";
   }
   out->getHTTPResponseHeader().addHeader("Content-Type", "text/plain");
   *out << sumtree.str();
-   mui->cd();
+   bei->cd();
 }
 //
 // read the Structure And Alarm Tree
 //
-void SiStripInformationExtractor::readAlarmTree(MonitorUserInterface* mui, 
+void SiStripInformationExtractor::readAlarmTree(DaqMonitorBEInterface* bei, 
                   string& str_name, xgi::Output * out, bool coll_flag){
   ostringstream alarmtree;
-  if (goToDir(mui, str_name, coll_flag)) {
+  if (goToDir(bei, str_name, coll_flag)) {
     alarmtree << "<ul id=\"dhtmlgoodies_tree\" class=\"dhtmlgoodies_tree\">" << endl;
-    printAlarmList(mui,alarmtree);
+    printAlarmList(bei,alarmtree);
     alarmtree <<"</ul>" << endl; 
   } else {
     alarmtree << "Desired Directory does not exist";
   }
   out->getHTTPResponseHeader().addHeader("Content-Type", "text/plain");
   *out << alarmtree.str();
-   mui->cd();
+   bei->cd();
 }
 //
 // Get elements from multi map
@@ -721,22 +724,22 @@ const ostringstream&  SiStripInformationExtractor::getImage() const {
 //
 // go to a specific directory after scanning
 //
-bool SiStripInformationExtractor::goToDir(MonitorUserInterface* mui, string& sname, bool flg){ 
-  mui->cd();
-  mui->cd("Collector");
-  cout << mui->pwd() << endl;
+bool SiStripInformationExtractor::goToDir(DaqMonitorBEInterface* bei, string& sname, bool flg){ 
+  bei->cd();
+  bei->cd("Collector");
+  cout << bei->pwd() << endl;
   vector<string> subdirs;
-  subdirs = mui->getSubdirs();
+  subdirs = bei->getSubdirs();
   if (subdirs.size() == 0) return false;
   
-  if (flg) mui->cd("Collated");
-  else mui->cd(subdirs[0]);
-  cout << mui->pwd() << endl;
+  if (flg) bei->cd("Collated");
+  else bei->cd(subdirs[0]);
+  cout << bei->pwd() << endl;
   subdirs.clear();
-  subdirs = mui->getSubdirs();
+  subdirs = bei->getSubdirs();
   if (subdirs.size() == 0) return false;
-  mui->cd(sname);
-  string dirName = mui->pwd();
+  bei->cd(sname);
+  string dirName = bei->pwd();
   if (dirName.find(sname) != string::npos) return true;
   else return false;  
 }
@@ -766,8 +769,8 @@ void SiStripInformationExtractor::selectImage(string& name, dqm::qtests::QR_map&
 //
 // -- Get Warning/Error Messages
 //
-void SiStripInformationExtractor::readStatusMessage(MonitorUserInterface* mui, string& path,xgi::Output * out) {
-  MonitorElement* me = mui->get(path);
+void SiStripInformationExtractor::readStatusMessage(DaqMonitorBEInterface* bei, string& path,xgi::Output * out) {
+  MonitorElement* me = bei->get(path);
   string hpath;
   ostringstream test_status;
   if (!me) {

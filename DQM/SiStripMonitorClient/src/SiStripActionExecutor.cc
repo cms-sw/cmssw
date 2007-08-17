@@ -2,9 +2,15 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripSummaryCreator.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/MonitorUserInterface.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+
+#include "TH1F.h"
+#include "TH2F.h"
+#include "TProfile.h"
 
 #include <iostream>
 using namespace std;
@@ -51,29 +57,29 @@ bool SiStripActionExecutor::readConfiguration(int& sum_freq) {
 //
 // -- Create and Fill Tracker Map
 //
-//void SiStripActionExecutor::createTkMap(MonitorUserInterface* mui) {
-//  mui->cd();
-//  if (collationDone) mui->cd("Collector/Collated/SiStrip");
+//void SiStripActionExecutor::createTkMap(DaqMonitorBEInterface* bei) {
+//  bei->cd();
+//  if (collationDone) bei->cd("Collector/Collated/SiStrip");
 //
-//  tkMapCreator_->create(mui);
+//  tkMapCreator_->create(bei);
 //  
-//  mui->cd();  
+//  bei->cd();  
 //}
 // -- Create and Fill Summary Monitor Elements
 //
-void SiStripActionExecutor::createSummary(MonitorUserInterface* mui) {
-  mui->cd();
+void SiStripActionExecutor::createSummary(DaqMonitorBEInterface* bei) {
+  bei->cd();
   if (collationDone) {
     cout << " Creating Summary with Collated Monitor Elements " << endl;
-    mui->cd("Collector/Collated/SiStrip");
-    summaryCreator_->createSummary(mui);
-    mui->cd();
-  } else summaryCreator_->createSummary(mui);
+    bei->cd("Collector/Collated/SiStrip");
+    summaryCreator_->createSummary(bei);
+    bei->cd();
+  } else summaryCreator_->createSummary(bei);
 }
 //
 // -- Setup Quality Tests 
 //
-void SiStripActionExecutor::setupQTests(MonitorUserInterface * mui) {
+void SiStripActionExecutor::setupQTests(MonitorUserInterface* mui) {
   mui->cd();
   if (collationDone) mui->cd("Collector/Collated/SiStrip");
   string localPath = string("DQM/SiStripMonitorClient/test/sistrip_qualitytest_config.xml");
@@ -91,11 +97,11 @@ void SiStripActionExecutor::setupQTests(MonitorUserInterface * mui) {
 //
 //
 //
-void SiStripActionExecutor::createCollation(MonitorUserInterface * mui){
-  string currDir = mui->pwd();
+void SiStripActionExecutor::createCollation(MonitorUserInterface* mui){
+  string currDir = mui->getBEInterface()->pwd();
   map<string, vector<string> > collation_map;
   vector<string> contentVec;
-  mui->getContents(contentVec);
+  mui->getBEInterface()->getContents(contentVec);
 
   for (vector<string>::iterator it = contentVec.begin();
       it != contentVec.end(); it++) {
@@ -108,7 +114,7 @@ void SiStripActionExecutor::createCollation(MonitorUserInterface * mui){
       
       string me_path = dir_path + (*ic);
       string path = dir_path.substr(dir_path.find("SiStrip"),dir_path.size());
-      MonitorElement* me = mui->get( me_path );
+      MonitorElement* me =  mui->getBEInterface()->get( me_path );
       TProfile* prof = ExtractTObject<TProfile>().extract( me );
       TH1F* hist1 = ExtractTObject<TH1F>().extract( me );
       TH2F* hist2 = ExtractTObject<TH2F>().extract( me );
@@ -139,11 +145,11 @@ void SiStripActionExecutor::createCollation(MonitorUserInterface * mui){
 //
 // -- Save Monitor Elements in a file
 //      
-void SiStripActionExecutor::saveMEs(MonitorUserInterface* mui, string fname){
+void SiStripActionExecutor::saveMEs(DaqMonitorBEInterface* bei, string fname){
   if (collationDone) {
-    mui->save(fname,"Collector/Collated");
+    bei->save(fname,"Collector/Collated");
   } else {
-     mui->save(fname,mui->pwd(),90);
+     bei->save(fname,bei->pwd(),90);
   }
 }
 //

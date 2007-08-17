@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2007/08/13 18:02:36 $
- * $Revision: 1.5 $
+ * $Date: 2007/08/13 19:27:23 $
+ * $Revision: 1.6 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -134,8 +134,8 @@ void SiStripAnalyser::analyze(const edm::Event& e, const edm::EventSetup& eSetup
   // -- Create TrackerMap  according to the frequency
   if (tkMapFrequency_ != -1 && nevents%tkMapFrequency_ == 1) {
     cout << " Creating Tracker Map " << endl;
-    //    trackerMapCreator_->create(mui_);
-    trackerMapCreator_->create(fedCabling_, mui_);
+    //    trackerMapCreator_->create(dbe);
+    trackerMapCreator_->create(fedCabling_, dbe);
   }
   // Create predefined plots
   if (nevents%10  == 1) {

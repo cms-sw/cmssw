@@ -2,6 +2,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripConfigParser.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/QTestStatus.h"
 #include <iostream>
 #include "TText.h"
@@ -44,12 +45,12 @@ bool TrackerMapCreator::readConfiguration() {
 //
 // -- Browse through monitorable and get values need for TrackerMap
 //
-void TrackerMapCreator::create(MonitorUserInterface* mui) {
+void TrackerMapCreator::create(DaqMonitorBEInterface* bei) {
   if (meNames_.size() == 0) return;
   if (!trackerMap_) trackerMap_ = new TrackerMap(tkMapName_);
 
   vector<string> tempVec, contentVec;
-  mui->getContents(tempVec);
+  bei->getContents(tempVec);
   for (vector<string>::iterator it = tempVec.begin();
        it != tempVec.end(); it++) {
     if ((*it).find("module_") != string::npos) contentVec.push_back(*it);
@@ -58,7 +59,7 @@ void TrackerMapCreator::create(MonitorUserInterface* mui) {
   tempVec.clear();
   int ibin = 0;
   string gname = "GobalFlag";
-  MonitorElement* tkmap_gme = getTkMapMe(mui,gname,ndet); 
+  MonitorElement* tkmap_gme = getTkMapMe(bei,gname,ndet); 
   for (vector<string>::iterator it = contentVec.begin();
        it != contentVec.end(); it++) {
     ibin++;
@@ -78,12 +79,12 @@ void TrackerMapCreator::create(MonitorUserInterface* mui) {
 	   im != meNames_.end(); im++) {
         string me_name = (*im);
 	if ((*ic).find(me_name) == string::npos) continue;
-        MonitorElement * me = mui->get((*ic));
+        MonitorElement * me = bei->get((*ic));
         if (!me) continue;
         istat =  SiStripUtility::getStatus(me); 
         local_mes.insert(pair<MonitorElement*, int>(me, istat));
 	if (istat > gstat) gstat = istat;
-        MonitorElement* tkmap_me = getTkMapMe(mui,me_name,ndet);
+        MonitorElement* tkmap_me = getTkMapMe(bei,me_name,ndet);
 	if (tkmap_me){
           tkmap_me->Fill(ibin, istat);
 	  tkmap_me->setBinLabel(ibin, det_id.c_str());
@@ -104,7 +105,7 @@ void TrackerMapCreator::create(MonitorUserInterface* mui) {
 //
 // -- Create Fed Tracker Map
 //
-void TrackerMapCreator::createFedTkMap(const edm::ESHandle<SiStripFedCabling> fedcabling, MonitorUserInterface* mui) {
+void TrackerMapCreator::createFedTkMap(const edm::ESHandle<SiStripFedCabling> fedcabling, DaqMonitorBEInterface* bei) {
 
   if (meNames_.size() == 0) return;
   if (! fedTrackerMap_ )   fedTrackerMap_ = new FedTrackerMap(fedcabling);
@@ -117,7 +118,7 @@ void TrackerMapCreator::createFedTkMap(const edm::ESHandle<SiStripFedCabling> fe
       
       uint32_t detId = iconn->detId();
       if (detId == 0) continue;
-      vector<MonitorElement*> all_mes = mui->getBEInterface()->get(detId);
+      vector<MonitorElement*> all_mes = bei->get(detId);
       map<MonitorElement*,int> local_mes;
       for (vector<MonitorElement *>::const_iterator it = all_mes.begin();
 	   it!= all_mes.end(); it++) {
@@ -181,7 +182,7 @@ int TrackerMapCreator::getMENames(vector<string>& me_names) {
 //
 // -- Create Geometric and Fed Tracker Map
 //
-void TrackerMapCreator::create(const edm::ESHandle<SiStripFedCabling> fedcabling, MonitorUserInterface* mui) {
+void TrackerMapCreator::create(const edm::ESHandle<SiStripFedCabling> fedcabling, DaqMonitorBEInterface* bei) {
 
   if (meNames_.size() == 0) return;
   if (!trackerMap_)     trackerMap_    = new TrackerMap(tkMapName_);
@@ -200,7 +201,7 @@ void TrackerMapCreator::create(const edm::ESHandle<SiStripFedCabling> fedcabling
       if (detId_save != detId) {
         detId_save = detId;
         local_mes.clear();
-        vector<MonitorElement*> all_mes = mui->getBEInterface()->get(detId);
+        vector<MonitorElement*> all_mes = bei->get(detId);
 	for (vector<MonitorElement *>::const_iterator it = all_mes.begin();
 	     it!= all_mes.end(); it++) {
 	  if (!(*it)) continue;
@@ -255,15 +256,14 @@ void TrackerMapCreator::paintTkMap(int det_id, map<MonitorElement*, int>& me_map
 //
 // -- get Tracker Map ME 
 //
-MonitorElement* TrackerMapCreator::getTkMapMe(MonitorUserInterface* mui, 
+MonitorElement* TrackerMapCreator::getTkMapMe(DaqMonitorBEInterface* bei, 
                     string& me_name, int ndet) {
   string new_name = "TrackerMap_for_" + me_name;
   string path = "Collector/" + new_name;
   MonitorElement*  tkmap_me =0;
-  tkmap_me = mui->get(path);
+  tkmap_me = bei->get(path);
   if (!tkmap_me) {
-    string save_dir = mui->pwd();   
-    DaqMonitorBEInterface * bei = mui->getBEInterface();
+    string save_dir = bei->pwd();   
     bei->setCurrentFolder("Collector");
     tkmap_me = bei->book1D(new_name, new_name, ndet, 0.5, ndet+0.5);
     bei->setCurrentFolder(save_dir);

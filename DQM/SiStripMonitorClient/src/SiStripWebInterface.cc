@@ -63,6 +63,7 @@ SiStripWebInterface::~SiStripWebInterface() {
 void SiStripWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
   throw (xgi::exception::Exception)
 {
+  DaqMonitorBEInterface* bei = (*mui_p)->getBEInterface();
   // put the request information in a multimap...
   //  std::multimap<std::string, std::string> requestMap_;
    CgiReader reader(in);
@@ -84,8 +85,8 @@ void SiStripWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
   else if (requestID == "CheckQTResults") {
     out->getHTTPResponseHeader().addHeader("Content-Type", "text/plain");
     std::string infoType = get_from_multimap(requestMap_, "InfoType");
-    if (infoType == "Lite") *out <<  actionExecutor_->getQTestSummaryLite((*mui_p)) << endl;
-    else *out <<  actionExecutor_->getQTestSummary((*mui_p)) << endl;
+    if (infoType == "Lite") *out <<  actionExecutor_->getQTestSummaryLite(bei) << endl;
+    else *out <<  actionExecutor_->getQTestSummary(bei) << endl;
     theActionFlag = NoAction;
   } 
   else if (requestID == "CreateSummary") {
@@ -111,31 +112,31 @@ void SiStripWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
   else if (requestID == "SingleModuleHistoList") {
     theActionFlag = NoAction;
     
-    infoExtractor_->readModuleAndHistoList((*mui_p), out,
+    infoExtractor_->readModuleAndHistoList(bei, out,
                           actionExecutor_->getCollationFlag() );    
   } 
   else if (requestID == "GlobalHistoList") {
     theActionFlag = NoAction;
     
-    infoExtractor_->readGlobalHistoList((*mui_p), out,
+    infoExtractor_->readGlobalHistoList(bei, out,
                           actionExecutor_->getCollationFlag() );    
   } 
   else if (requestID == "SummaryHistoList") {
     theActionFlag = NoAction;
     string sname = get_from_multimap(requestMap_, "StructureName");
-   infoExtractor_->readSummaryHistoTree((*mui_p), sname, out,
+   infoExtractor_->readSummaryHistoTree(bei, sname, out,
                            actionExecutor_->getCollationFlag());    
   } 
   else if (requestID == "AlarmList") {
     theActionFlag = NoAction;
     string sname = get_from_multimap(requestMap_, "StructureName");
-    infoExtractor_->readAlarmTree((*mui_p), sname, out,
+    infoExtractor_->readAlarmTree(bei, sname, out,
                            actionExecutor_->getCollationFlag());    
   } 
   else if (requestID == "ReadQTestStatus") {
     theActionFlag = NoAction;
     string path = get_from_multimap(requestMap_, "Path");
-    infoExtractor_->readStatusMessage((*mui_p), path, out);
+    infoExtractor_->readStatusMessage(bei, path, out);
   } 
   else if (requestID == "PlotAsModule") {
     theActionFlag = PlotSingleModuleHistos;    
@@ -167,6 +168,7 @@ void SiStripWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
 // -- Handles requests from WebElements submitting non-default requests 
 //
 void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out, int niter) {
+  DaqMonitorBEInterface* bei = (*mui_p)->getBEInterface();
   // put the request information in a multimap...
   //  std::multimap<std::string, std::string> requestMap_;
   CgiReader reader(in);
@@ -185,8 +187,8 @@ void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out,
   else if (requestID == "CheckQTResults") {
     out->getHTTPResponseHeader().addHeader("Content-Type", "text/plain");
     std::string infoType = get_from_multimap(requestMap_, "InfoType");
-    if (infoType == "Lite") *out <<  actionExecutor_->getQTestSummaryLite((*mui_p)) << endl;
-    else *out <<  actionExecutor_->getQTestSummary((*mui_p)) << endl;
+    if (infoType == "Lite") *out <<  actionExecutor_->getQTestSummaryLite(bei) << endl;
+    else *out <<  actionExecutor_->getQTestSummary(bei) << endl;
     theActionFlag = NoAction;
   } 
   else if (requestID == "OpenTkMap") {
@@ -200,31 +202,31 @@ void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out,
   else if (requestID == "SingleModuleHistoList") {
     theActionFlag = NoAction;
     
-    infoExtractor_->readModuleAndHistoList((*mui_p), out,
+    infoExtractor_->readModuleAndHistoList(bei, out,
                           actionExecutor_->getCollationFlag() );    
   } 
   else if (requestID == "GlobalHistoList") {
     theActionFlag = NoAction;
     
-    infoExtractor_->readGlobalHistoList((*mui_p), out,
+    infoExtractor_->readGlobalHistoList(bei, out,
                           actionExecutor_->getCollationFlag() );    
   } 
   else if (requestID == "SummaryHistoList") {
     theActionFlag = NoAction;
     string sname = get_from_multimap(requestMap_, "StructureName");
-   infoExtractor_->readSummaryHistoTree((*mui_p), sname, out,
+   infoExtractor_->readSummaryHistoTree(bei, sname, out,
                            actionExecutor_->getCollationFlag());    
   } 
   else if (requestID == "AlarmList") {
     theActionFlag = NoAction;
     string sname = get_from_multimap(requestMap_, "StructureName");
-    infoExtractor_->readAlarmTree((*mui_p), sname, out,
+    infoExtractor_->readAlarmTree(bei, sname, out,
                            actionExecutor_->getCollationFlag());    
   } 
   else if (requestID == "ReadQTestStatus") {
     theActionFlag = NoAction;
     string path = get_from_multimap(requestMap_, "Path");
-    infoExtractor_->readStatusMessage((*mui_p), path, out);
+    infoExtractor_->readStatusMessage(bei, path, out);
   } 
   else if (requestID == "PlotAsModule") {
     theActionFlag = PlotSingleModuleHistos;    
@@ -280,6 +282,7 @@ void SiStripWebInterface::readConfiguration(int& sum_freq){
 // -- Perform action
 //
 void SiStripWebInterface::performAction() {
+  DaqMonitorBEInterface* bei = (*mui_p)->getBEInterface();
   switch (theActionFlag) {
   case SiStripWebInterface::SubscribeAll :
     {
@@ -301,23 +304,23 @@ void SiStripWebInterface::performAction() {
   //    }
   case SiStripWebInterface::Summary :
     {
-      actionExecutor_->createSummary((*mui_p));
+      actionExecutor_->createSummary(bei);
       break;
     }
   case SiStripWebInterface::SaveData :
     {
       cout << " Saving Monitoring Elements " << endl;
-      actionExecutor_->saveMEs((*mui_p), fileName_);
+      actionExecutor_->saveMEs(bei, fileName_);
       break;
     }
   case SiStripWebInterface::PlotSingleModuleHistos :
     {
-      infoExtractor_->plotSingleModuleHistos((*mui_p), requestMap_);
+      infoExtractor_->plotSingleModuleHistos(bei, requestMap_);
       break;
     }
   case SiStripWebInterface::PlotGlobalHistos :
     {
-      infoExtractor_->plotGlobalHistos((*mui_p), requestMap_);
+      infoExtractor_->plotGlobalHistos(bei, requestMap_);
       break;
     }
   case SiStripWebInterface::PlotTkMapHistogram :
@@ -329,18 +332,18 @@ void SiStripWebInterface::performAction() {
 	    it != mes.end(); it++) {
 	requestMap_.insert(pair<string,string>("histo",(*it)));  
       }
-      infoExtractor_->plotSingleModuleHistos((*mui_p), requestMap_);*/ 
-      infoExtractor_->plotSingleModuleHistos((*mui_p), requestMap_);
+      infoExtractor_->plotSingleModuleHistos(bei, requestMap_);*/ 
+      infoExtractor_->plotSingleModuleHistos(bei, requestMap_);
       break;
     }
   case SiStripWebInterface::PlotHistogramFromPath :
     {
-      infoExtractor_->plotHistosFromPath((*mui_p), requestMap_);
+      infoExtractor_->plotHistosFromPath(bei, requestMap_);
       break;
     }
   case SiStripWebInterface::PlotHistogramFromLayout :
     {
-      infoExtractor_->plotHistosFromLayout((*mui_p));
+      infoExtractor_->plotHistosFromLayout(bei);
       break;
     }
   case SiStripWebInterface::NoAction :
@@ -362,7 +365,7 @@ void SiStripWebInterface::returnReplyXml(xgi::Output * out, const std::string& n
 }
 //bool SiStripWebInterface::createTkMap() {
 //  if (theActionFlag == SiStripWebInterface::CreateTkMap) {
-//    actionExecutor_->createTkMap((*mui_p));
+//    actionExecutor_->createTkMap(bei);
 //    return true;
 //  } else {
 //    return false;

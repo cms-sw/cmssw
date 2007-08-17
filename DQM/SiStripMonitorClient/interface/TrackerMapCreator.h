@@ -9,6 +9,7 @@
 #include <vector>
 #include <string>
 
+class DaqMonitorBEInterface;
 class SiStripDetCabling;
 class SiStripFedCabling;
 
@@ -20,15 +21,15 @@ class TrackerMapCreator {
  ~TrackerMapCreator();
   bool readConfiguration();
 
-  void create(MonitorUserInterface* mui);
-  void create(const edm::ESHandle<SiStripFedCabling> fedcabling, MonitorUserInterface* mui);
-  void createFedTkMap(const edm::ESHandle<SiStripFedCabling> fedcabling, MonitorUserInterface* mui);
+  void create(DaqMonitorBEInterface* bei);
+  void create(const edm::ESHandle<SiStripFedCabling> fedcabling, DaqMonitorBEInterface* bei);
+  void createFedTkMap(const edm::ESHandle<SiStripFedCabling> fedcabling, DaqMonitorBEInterface* bei);
   int getFrequency() { return tkMapFrequency_;}
   int getMENames(std::vector< std::string>& me_names);
 
 
  private:
-  MonitorElement* getTkMapMe(MonitorUserInterface* mui, std::string& me_name, int ndet);
+  MonitorElement* getTkMapMe(DaqMonitorBEInterface* bei, std::string& me_name, int ndet);
 
   void paintTkMap(int det_id, std::map<MonitorElement*, int>& me_map);
   void paintFedTkMap(int fed_id, int fed_ch, std::map<MonitorElement*, int>& me_map);
