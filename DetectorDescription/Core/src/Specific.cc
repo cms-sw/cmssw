@@ -1,10 +1,8 @@
 #include "DetectorDescription/Core/src/Specific.h"
 #include "DetectorDescription/Base/interface/DDException.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
-
-//Timing
-#include "SealUtil/SealTimer.h"
 
 // Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -46,7 +44,6 @@ Specific::Specific(const std::vector<DDPartSelection> & selections,
 
 void Specific::createPartSelections(const std::string & selString)
 {
-   static seal::SealTimer tscps_("Specifics::createPartSelections(...)", false);
 
    std::vector<DDPartSelRegExpLevel> regv;
    std::vector<DDPartSelection> temp;

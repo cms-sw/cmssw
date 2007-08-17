@@ -29,7 +29,7 @@
 #include <xercesc/sax/SAXException.hpp>
 
 // Seal timer
-#include "SealUtil/SealTimer.h"
+//#include "SealUtil/SealTimer.h"
 
 
 #include <iostream>
@@ -55,7 +55,7 @@ void DDLSAX2ExpressionHandler::startElement(const XMLCh* const uri
                                    , const XMLCh* const qname
                                    , const Attributes& attrs)
 {
-  static seal::SealTimer tdseh("DetectorDescription/Parser/interface/DDLSAX2ExpressionHandler::startElement(..)", false);
+  //  static seal::SealTimer tdseh("DetectorDescription/Parser/interface/DDLSAX2ExpressionHandler::startElement(..)", false);
   
   ++elementCount_;
   attrCount_ += attrs.getLength();

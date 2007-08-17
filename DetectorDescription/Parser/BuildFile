@@ -7,14 +7,12 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
 <use name=FWCore/PluginManager>
-<use name=Foundation/SealUtil>
 <use name=boost>
 <use name=clhep>
 <use name=xerces-c>
 <export>
   <use name=DetectorDescription/Base>
   <use name=DetectorDescription/Core>
-  <use name=Foundation/SealUtil>
   <use name=boost>
   <use name=clhep>
   <use name=xerces-c>

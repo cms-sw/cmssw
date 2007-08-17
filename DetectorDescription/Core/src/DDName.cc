@@ -3,14 +3,9 @@
 #include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "DetectorDescription/Base/interface/Singleton.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
 
 #include <sstream>
-
-//Timing
-
-#include "SealUtil/SealTimer.h"
-
-
 
 std::ostream & operator<<(std::ostream & os, const DDName & n)
 { 
@@ -128,8 +123,6 @@ bool DDName::exists(const std::string & name, const std::string & ns)
 
 
 DDName::Registry::iterator DDName::registerName(const std::pair<std::string,std::string> & nm) {
-    static seal::SealTimer rddnamern("DDName::registerName(...)", false);
-
     Registry& reg_ = DDI::Singleton<Registry>::instance();
     IdToName & idToName = DDI::Singleton<IdToName>::instance();  
     Registry::size_type sz = reg_.size();

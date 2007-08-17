@@ -1,11 +1,7 @@
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Base/interface/DDException.h"
-
-#ifndef DDD_NO_TIMING
- #include "SealUtil/SealTimer.h"
- 
-#endif
+#include "DetectorDescription/Base/interface/DDdebug.h"
 
 // Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -54,8 +50,6 @@ namespace {
   {
     DDsvalues_type::const_iterator it = find(sv,crit.nameVal_.id());
     if (it == sv.end()) return false;
-    //static TimerProxy timer2_("sfd_compare(..) - compare switch");
-    static seal::SealTimer tsfdcsw("sfd_compare(..) - compare switch", false);
     switch (crit.comp_) {
     case DDSpecificsFilter::equals: case DDSpecificsFilter::matches:
       return (crit.nameVal_.doubles() == it->second.doubles() );
@@ -283,8 +277,6 @@ void DDSpecificsFilter::setCriteria(const DDValue & nameVal, // name & value of 
 
 bool DDSpecificsFilter::accept(const DDExpandedView & node) const
 {
-  // static TimerProxy timer_("DDSpecificsFilter::accept(..)");
-  static seal::SealTimer tsfa("DDSpecificsFilter::accept(..)", false);
   return accept_impl(node);
 } 
 

@@ -31,9 +31,6 @@
 #include <xercesc/sax/SAXParseException.hpp>
 #include <xercesc/sax/SAXException.hpp>
 
-// Seal
-#include "SealUtil/TimingReport.h"
-
 #include <iostream>
 #include <vector>
 #include <string>
@@ -41,7 +38,7 @@
 // ---------------------------------------------------------------------------
 //  DDLSAX2Handler: Constructors and Destructor
 // ---------------------------------------------------------------------------
-DDLSAX2FileHandler::DDLSAX2FileHandler() : t_()
+DDLSAX2FileHandler::DDLSAX2FileHandler()
 {
   createDDConstants();
   std::string* sp = new std::string("*** root ***");
@@ -51,9 +48,7 @@ DDLSAX2FileHandler::DDLSAX2FileHandler() : t_()
 }
 
 DDLSAX2FileHandler::~DDLSAX2FileHandler()
-{
-  t_.dump();
-}
+{ }
 
 // ---------------------------------------------------------------------------
 //  DDLSAX2Handler: Implementation of the SAX DocumentHandler interface
@@ -63,9 +58,7 @@ void DDLSAX2FileHandler::startElement(const XMLCh* const uri
 				      , const XMLCh* const qname
 				      , const Attributes& attrs)
 {
-  // static seal::SealTimer tdds2fhse("DDLSAX2FileHandler::startElement(..)");
-  t_.item(std::string("DDLSAX2FileHandler::startElement(...)")).accumulate();
-  t_.item(std::string("DDLSAX2FileHandler::startElement(...)")).chrono().start();
+
   DCOUT_V('P', "DDLSAX2FileHandler::startElement started");
   
   std::map<std::string, std::string*>::const_iterator namePtr = namesMap_.find(std::string(StrX(qname).localForm()));
@@ -100,7 +93,6 @@ void DDLSAX2FileHandler::startElement(const XMLCh* const uri
   myElement->loadAttributes(myElementName, attrNames, attrValues, nmspace);
   //  initialize text
   myElement->loadText(std::string()); 
-  t_.item(std::string("DDLSAX2FileHandler::startElement(...)")).chrono().stop();
   DCOUT_V('P', "DDLSAX2FileHandler::startElement completed");
 }
 

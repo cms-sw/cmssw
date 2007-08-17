@@ -10,13 +10,8 @@
 // Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
 #include <string>
 #include <map>
-
-//Timing
-
-#include "SealUtil/SealTimer.h"
 
 namespace boost { namespace spirit {} } using namespace boost::spirit;
 
@@ -271,7 +266,6 @@ DDPartSelectionLevel::DDPartSelectionLevel(const DDLogicalPart & lp, int c, ddse
 
 void DDTokenize2(const std::string & sel, std::vector<DDPartSelRegExpLevel> & path)
 {
-  static seal::SealTimer ddtoken2("DDTokenize2(...)", false);
   static SpecParParser parser;
   DDI::Singleton<DDSelLevelCollector>::instance().path(&path);
   //Singleton<DDSelLevelCollector>::instance().reset();
@@ -288,7 +282,6 @@ void DDTokenize2(const std::string & sel, std::vector<DDPartSelRegExpLevel> & pa
 // FIXME: After parsing, reprocess all undefined SpecPars ...
 void DDTokenize(const std::string & sel, std::vector<DDPartSelRegExpLevel> &  path)
 {
-   static seal::SealTimer ddtoken2("DDTokenize(...)", false);
 
 try{
   static bool isInit(false);

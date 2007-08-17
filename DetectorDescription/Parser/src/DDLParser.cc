@@ -46,7 +46,8 @@
 #include <iostream>
 #include <map>
 
-#include "SealUtil/SealTimer.h"
+// // Seal
+// #include "SealUtil/SealTimer.h"
 
 using namespace std;
 using namespace xercesc_2_7;
@@ -66,7 +67,6 @@ DDLParser::~DDLParser()
 DDLParser::DDLParser( )  : nFiles_(0) //, handler_(0) (seal::Context* )
 { 
   // Initialize the XML4C2 system
-  static seal::SealTimer tddlparser("DDLParser:Construct", false);
 
   // in cleaning up try-catch blocks 2007-06-26 I decided to remove
   // this because of CMSSW rules. but keep the commented way I used to
@@ -175,7 +175,6 @@ bool DDLParser::parseOneFile(const std::string& fullname) //, const std::string&
   if (!foundFile)
     {
       int fIndex = foundFile;
-      seal::SealTimer tddlfname("DDLParser:"+filename, false);
       pair <std::string, std::string> pss;
       pss.first = filename;
       pss.second = absoluteFileName; //url+filename;
@@ -210,12 +209,11 @@ bool DDLParser::parseOneFile(const std::string& fullname) //, const std::string&
 
 //       try
 //         {
-//           seal::SealTimer t("DDLParser2:"+filename, false);
 
-          SAX2Parser_->setContentHandler(fileHandler_);
-
-          parseFile ( fIndex );
-          parsed_[fIndex] = true;
+      SAX2Parser_->setContentHandler(fileHandler_);
+      
+      parseFile ( fIndex );
+      parsed_[fIndex] = true;
 
 //         }
 //       catch (const XMLException& toCatch) {
@@ -273,7 +271,6 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
     }
   else
     {
-//       seal::SealTimer t("DDLParser:NoValidation");
 //       SAX2Parser_->setFeature(StrX("http://xml.org/sax/features/validation"), false);   // optional
 //       SAX2Parser_->setFeature(StrX("http://xml.org/sax/features/namespaces"), false);   // optional
 //       SAX2Parser_->setFeature(StrX("http://apache.org/xml/features/validation/dynamic"), false);
@@ -297,8 +294,6 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
 	fullFileName.push_back( tf );
       }
     }
-
-//     seal::SealTimer * t = new seal::SealTimer("DDLParser1", false);
 
     for (std::vector<std::string>::const_iterator fnit = fullFileName.begin(); 
 	 fnit != fullFileName.end();
@@ -331,6 +326,7 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
       SAX2Parser_->setContentHandler(expHandler_);
       for (size_t i = 0; i < fileNames_.size(); ++i)
 	{
+// 	  seal::SealTimer t("DDLParser: parsing expressions of file " +fileNames_[i].first);
 	  if (!parsed_[i])
 	    {
 	      parseFile(i);
@@ -356,7 +352,6 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
   // PASS 2:
 
   DCOUT('P', "DDLParser::parse(): PASS2: Just before setting Xerces content and error handlers... ");
-//   t = new seal::SealTimer("DDLParser2", false);
 
   // in cleaning up try-catch blocks 2007-06-26 I decided to remove
   // this because of CMSSW rules. but keep the commented way I used to
@@ -376,6 +371,7 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
       // Process files again.
       for (size_t i = 0; i < fileNames_.size(); ++i)
 	{
+// 	  seal::SealTimer t("DDLParser: parsing all elements of file " +fileNames_[i].first);
 	  parseFile(i);
 	  parsed_[i] = true;
 	  pair<std::string, std::string> namePair = fileNames_[i];
@@ -407,7 +403,6 @@ void DDLParser::parseFile(const int& numtoproc)
   if (!parsed_[numtoproc])
     {
       const std::string & fname = fileNames_[numtoproc].second;
-      seal::SealTimer t("DDLParser:"+fname.substr(fname.rfind('/')+1), false);
 
   // in cleaning up try-catch blocks 2007-06-26 I decided to remove
   // this because of CMSSW rules. but keep the commented way I used to

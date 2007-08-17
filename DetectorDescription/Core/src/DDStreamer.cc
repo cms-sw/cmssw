@@ -16,9 +16,6 @@
 #include "DetectorDescription/Core/interface/DDPartSelection.h"
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
-
-#include "SealUtil/SealTimer.h"
-
 // Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -136,8 +133,6 @@ void DDStreamer::read()
 
 void DDStreamer::write(std::ostream & os)
 {
-  static seal::SealTimer tdstreamwrite("DDStreamer::write(...)", false);
-
   o_=&os;
   std::streamsize prec(os.precision());
   try {
@@ -168,7 +163,6 @@ void DDStreamer::write(std::ostream & os)
 
 void DDStreamer::read(std::istream & is)
 {
-  static seal::SealTimer tddstrread("DDStreamer::read(...)", false);
 
   i_=&is;
   try {

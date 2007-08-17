@@ -1,13 +1,9 @@
-
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDComparator.h"
 //#include "DetectorDescription/Core/interface/DDMaterial.h"
 //#include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDPosData.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
-
-#include "SealUtil/SealTimer.h"
-
 
 /** 
    After construction the instance corresponds to the root of the geometrical tree.
@@ -322,9 +318,6 @@ std::vector< const DDsvalues_type *>  DDExpandedView::specifics() const
 
 void  DDExpandedView::specificsV(std::vector<const DDsvalues_type * > & result) const
 {
-  //  static TimerProxy timer_("DDExpandedView::specifics()");
-  static seal::SealTimer tevsv("DDExpandedView::specifics()", false);
-  
   unsigned int i(0);
   //edm::LogInfo("DDExpandedView")  << " in ::specifics " << std::endl;
   const std::vector<std::pair<DDPartSelection*, DDsvalues_type*> > & specs = logicalPart().attachedSpecifics();
@@ -358,8 +351,6 @@ DDsvalues_type DDExpandedView::mergedSpecifics() const {
 
 void DDExpandedView::mergedSpecificsV(DDsvalues_type & merged) const
 {
-  //  static TimerProxy timer_("DDExpandedView::mergedSpecifics()");
-  static seal::SealTimer tevmsv("DDExpandedView::mergedSpecifics()",false);
 
   merged.clear();
   const std::vector<std::pair<DDPartSelection*, DDsvalues_type*> > & specs = logicalPart().attachedSpecifics();

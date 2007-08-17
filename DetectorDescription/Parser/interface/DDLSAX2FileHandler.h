@@ -13,8 +13,6 @@
 // Xerces dependencies
 #include <xercesc/sax2/Attributes.hpp>
 
-// Seal 
-#include "SealUtil/TimingReport.h"
 #include <string>
 #include <vector>
 #include <map>
@@ -79,7 +77,6 @@ class DDLSAX2FileHandler : public DDLSAX2Handler
     //  std::vector < std::string > names_;
     std::map < std::string, std::string* > namesMap_;
     std::vector < std::string* > names_;
-    seal::TimingReport t_;
 };
 
 #endif

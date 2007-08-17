@@ -1,11 +1,7 @@
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "LogicalPart.h"
-
 #include "DetectorDescription/Base/interface/DDdebug.h"
-
-//Timing
-#include "SealUtil/SealTimer.h"
 
 // Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -321,8 +317,6 @@ namespace {
 
 std::pair<bool,std::string> DDIsValid(const std::string & ns, const std::string & nm, std::vector<DDLogicalPart> & result, bool doRegex)
 {
-  //   static TimerProxy timer_("DDIsValid(...)");
-   static seal::SealTimer tdisval("DDIsValid(...)", false);
   //return std::make_pair(true,"");      
   if (!doRegex) {
     DDName ddnm(nm,ns);

@@ -7,10 +7,6 @@
 #include <vector>
 #include <utility>
 
-//Timing
-
-#include "SealUtil/SealTimer.h"
-
 // Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -35,8 +31,6 @@ DDSpecifics::DDSpecifics(const DDName & name,
 			 bool doRegex)
  : DDBase<DDName,Specific*>()
 {
-   static seal::SealTimer tddspecs("DDSpecifics::DDSpecifics(...)", false);
-
    try {
      prep_ = StoreT::instance().create(name, new Specific(partSelections,svalues,doRegex));   
      typedef std::vector<std::pair<DDLogicalPart,std::pair<DDPartSelection*,DDsvalues_type*> > > strange_type;

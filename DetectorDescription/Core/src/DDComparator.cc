@@ -2,9 +2,7 @@
 //#include "DetectorDescription/Core/interface/DDPartSelection.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 //#include "DetectorDescription/Base/interface/DDException.h"
-//#include "DetectorDescription/Base/interface/DDdebug.h"
-
-#include "SealUtil/SealTimer.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
 
 #include<map>
 #include<iostream>
@@ -64,8 +62,6 @@ bool DDCompareEqual::operator() (const DDGeoHistory &, const DDPartSelection &)
 
 bool DDCompareEqual::operator() () 
 {
-  //  static TimerProxy timer_("DDCompareEqual::operator()");
-  static seal::SealTimer tceop("DDCompareEqual::operator()", false);
 
   // don't compare, if history or partsel is empty! (see ctor) 
   bool result(absResult_);
