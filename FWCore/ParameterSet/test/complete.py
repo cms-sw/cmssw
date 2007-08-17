@@ -5,7 +5,7 @@
 # language and the Python representation of the configuration
 # description that is used by the Data Management tools.
 #
-# $Id: complete.py,v 1.1 2007/08/14 00:47:19 rpw Exp $
+# $Id: complete.py,v 1.2 2007/08/17 02:21:10 rpw Exp $
 #
 #------------------------------------------------------------
 
@@ -143,5 +143,15 @@ process.add_(s2)
 process.looper = cms.Looper("ALooper",
   nLoops = cms.uint32(10)
 )
+
+process.mix = cms.EDProducer("MixingModule",
+    input = cms.SecSource("PoolSource",
+      fileNames = cms.untracked.vstring("file:pileup.root")
+    ),
+    mixtyp = cms.string("fixed"),
+    average_number = cms.double(14.3),
+    min_bunch = cms.int32(-5),
+    max_bunch = cms.int32(3)
+  )
 
 
