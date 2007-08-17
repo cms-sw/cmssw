@@ -62,6 +62,8 @@ namespace edm {
 #error The file FWCore/Utilities/interface/RealTime.h needs to be set up for your CPU type.
 
 #endif
+ }
+}
 
 namespace edm {
 
