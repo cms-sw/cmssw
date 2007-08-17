@@ -37,6 +37,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
+#include "FWCore/Utilities/interface/HRRealTime.h"
 
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -47,7 +48,6 @@
 
 #include<string>
 #include<iostream>
-#include<sstream>
 
 template<typename Det>
 struct Print {

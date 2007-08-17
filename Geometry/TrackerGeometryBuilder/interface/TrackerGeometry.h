@@ -11,7 +11,6 @@ class GeometricDet;
 
 // FIXME here just to allow prototyping...
 namespace trackerTrie {
-  typedef TrackingGeometry::DetUnitContainer::const_iterator Iter;
   typedef GeomDet const* PDet;
   typedef edm::Trie<PDet> DetTrie;
   typedef edm::TrieNode<PDet> Node;

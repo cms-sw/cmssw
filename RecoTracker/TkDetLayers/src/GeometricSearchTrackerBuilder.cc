@@ -7,6 +7,11 @@
 #include "RecoTracker/TkDetLayers/interface/TIDLayerBuilder.h"
 #include "RecoTracker/TkDetLayers/interface/TECLayerBuilder.h"
 
+#include "Geometry/TrackerGeometryBuilder/interface/trackerHierarchy.h"
+
+#include "DataFormats/Common/interface/Trie.h"
+#include <boost/function.hpp>
+#include <boost/bind.hpp>
 
 using namespace std;
 
@@ -32,6 +37,61 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
   vector<ForwardDetLayer*> thePosTECLayers;
   
 
+
+  //-- future code
+  // create a Trie
+  DetTrie trie(0);
+
+  {
+    const DetUnitContainer&  modules = theGeomDetGeometry->detUnits(); 
+    typedef TrackingGeometry::DetUnitContainer::const_iterator Iter;
+    Iter b=modules.begin();
+    Iter e=modules.end();
+    Iter last;
+    try {
+      for(;b!=e; ++b) {
+	last = b;
+	unsigned int rawid = (*b)->geographicalId().rawId();
+	trie.insert(trackerHierarchy(rawid), *b); 
+      }
+    }
+    catch(edm::Exception const & e) {
+      std::cout << "in filling " << e.what() << std::endl;
+      unsigned int rawid = (*last)->geographicalId().rawId();
+      int subdetid = (*last)->geographicalId().subdetId();
+      std::cout << rawid << " " << subdetid << std::endl;
+    }  
+  }
+
+  // layers "ids"
+  unsigned int layerId[] = {1,3,5,21,22,41,42,61,62};
+  boost::function<void(trackerTrie::Node const &)> fun[9]; 
+  /*
+	thePxlBarLayers.push_back( aPixelBarrelLayerBuilder.build(*p) );
+	theTIBLayers.push_back( aTIBLayerBuilder.build(*p) );
+	theTOBLayers.push_back( aTOBLayerBuilder.build(*p) );
+	theNegPxlFwdLayers.push_back( aPixelForwardLayerBuilder.build(*p) );
+	thePosPxlFwdLayers.push_back( aPixelForwardLayerBuilder.build(*p) );
+	theNegTIDLayers.push_back( aTIDLayerBuilder.build(*p) );
+	thePosTIDLayers.push_back( aTIDLayerBuilder.build(*p) );
+	theNegTECLayers.push_back( aTECLayerBuilder.build(*p) );
+	thePosTECLayers.push_back( aTECLayerBuilder.build(*p) );
+  */
+   
+
+  for (int i=0;i<9;i++) {
+    std::string s;
+    if (layerId[i]>9) s+=char(layerId[i]/10); 
+    s+=char(layerId[i]%10);
+    node_iterator e;	
+    node_iterator p(trie.node(s));
+    for (;p!=e;++p) {
+      //    fun[i](*p);
+    }
+  }    
+
+
+  // current code
   vector<const GeometricDet*> theGeometricDetLayers = theGeometricTracker->components();
   for(vector<const GeometricDet*>::const_iterator it=theGeometricDetLayers.begin();
       it!=theGeometricDetLayers.end(); it++){
@@ -98,7 +158,7 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
 
 
   }
-
+  
 
   return new GeometricSearchTracker(thePxlBarLayers,theTIBLayers,theTOBLayers,
 				    theNegPxlFwdLayers,theNegTIDLayers,theNegTECLayers,
