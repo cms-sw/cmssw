@@ -234,6 +234,13 @@ class SecSource(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelab
         proc._placePSet(name,self)
     def __str__(self):
         return object.__str__(self)
+    def insertInto(self, parameterSet, myname):
+        newpset = parameterSet.newPSet()
+        newpset.addString(True, "@module_label", myname)
+        newpset.addString(True, "@module_type", self.type_())
+        self.insertContentsInto(newpset)
+        parameterSet.addPSet(True, myname, newpset)
+
 
 class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
     def __init__(self,*arg,**args):
