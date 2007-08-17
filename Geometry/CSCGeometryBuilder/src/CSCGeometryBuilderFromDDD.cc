@@ -80,8 +80,6 @@ void CSCGeometryBuilderFromDDD::buildEndcaps( boost::shared_ptr<CSCGeometry> the
 
   bool doAll(true);
 
-  //@@ DEAD  CSCGeometry* theGeometry = new CSCGeometry;
-
   // Here we're reading the cscSpecs.xml file
 
   int noOfAnonParams = 0;
@@ -134,7 +132,15 @@ void CSCGeometryBuilderFromDDD::buildEndcaps( boost::shared_ptr<CSCGeometry> the
     }
 
     std::vector<float> fpar;
-    std::vector<double> dpar = fv->logicalPart().solid().parameters();
+    std::vector<double> dpar;
+    if ( fv->logicalPart().solid().shape() == ddsubtraction ) {
+      const DDSubtraction& first = fv->logicalPart().solid();
+      const DDSubtraction& second = first.solidA();
+      const DDSolid& third = second.solidA();
+      dpar = third.parameters();
+    } else {
+      dpar = fv->logicalPart().solid().parameters();
+    }
     
     LogTrace(myName) << myName  << ": noOfAnonParams=" << noOfAnonParams;
 
