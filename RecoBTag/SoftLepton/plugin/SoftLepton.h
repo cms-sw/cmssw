@@ -6,7 +6,7 @@
 // Package:    SoftLepton
 // Class:      SoftLepton
 // 
-/**\class SoftLepton SoftLepton.h RecoBTag/SoftLepton/interface/SoftLepton.h
+/**\class SoftLepton SoftLepton.h RecoBTag/SoftLepton/plugin/SoftLepton.h
 
  Description: CMSSW EDProducer wrapper for sot lepton b tagging.
 
@@ -16,7 +16,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.h,v 1.9 2007/05/29 21:37:30 fwyzard Exp $
+// $Id: SoftLepton.h,v 1.10 2007/07/24 16:26:06 fwyzard Exp $
 //
 
 // system include files
@@ -28,7 +28,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "RecoBTag/SoftLepton/interface/SoftLeptonAlgorithm.h"
+#include "SoftLeptonAlgorithm.h"
 
 class edm::EventSetup;
 class edm::Event;

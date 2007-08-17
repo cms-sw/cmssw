@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.29 2007/07/29 03:18:16 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.30 2007/08/11 23:43:06 fwyzard Exp $
 //
 
 
@@ -29,7 +29,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
-#include "../interface/findProductIDByLabel.h"
+#include "findProductIDByLabel.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -46,7 +46,7 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexSorter.h"
 #include "RecoBTag/BTagTools/interface/SignedImpactParameter3D.h"
-#include "RecoBTag/SoftLepton/interface/SoftLepton.h"
+#include "SoftLepton.h"
 
 using namespace std;
 using namespace edm;

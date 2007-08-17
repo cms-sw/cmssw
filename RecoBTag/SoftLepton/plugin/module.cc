@@ -1,8 +1,8 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "RecoBTag/SoftLepton/interface/SoftLepton.h"
-#include "RecoBTag/SoftLepton/interface/SoftElectronProducer.h"
+#include "SoftLepton.h"
+#include "SoftElectronProducer.h"
 
 #include "RecoBTau/JetTagComputer/interface/JetTagComputerESProducer.h"
 #include "RecoBTag/SoftLepton/interface/ElectronTagger.h"

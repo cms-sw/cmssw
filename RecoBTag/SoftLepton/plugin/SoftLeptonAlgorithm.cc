@@ -16,7 +16,7 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "RecoBTag/BTagTools/interface/SignedTransverseImpactParameter.h"
 #include "RecoBTag/BTagTools/interface/SignedImpactParameter3D.h"
-#include "RecoBTag/SoftLepton/interface/SoftLeptonAlgorithm.h"
+#include "SoftLeptonAlgorithm.h"
 
 // ROOT::Math vectors (aka math::XYZVector)
 #include "DataFormats/Math/interface/Vector3D.h"

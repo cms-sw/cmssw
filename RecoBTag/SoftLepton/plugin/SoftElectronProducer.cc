@@ -26,9 +26,8 @@
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 
-#include "RecoBTag/SoftLepton/interface/SoftElectronProducer.h"
-
 #include "ElectronIdMLP.h"
+#include "SoftElectronProducer.h"
 
 //------------------------------------------------------------------------------
 

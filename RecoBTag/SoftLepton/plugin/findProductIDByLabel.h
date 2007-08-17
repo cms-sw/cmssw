@@ -13,7 +13,7 @@
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "../interface/InputTagSelector.h"
+#include "InputTagSelector.h"
 
 namespace edm {
 
