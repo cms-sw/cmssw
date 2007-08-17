@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  Tue 8 12:31:25 CEST 2007
-// $Id: SiPixelFakeGainESSource.h,v 1.3 2007/06/13 14:05:24 gbruno Exp $
+// $Id: SiPixelFakeGainESSource.h,v 1.1 2007/08/08 16:22:28 chiochia Exp $
 //
 //
 
@@ -43,7 +43,7 @@ class SiPixelFakeGainESSource : public edm::ESProducer, public edm::EventSetupRe
   
   //      typedef edm::ESProducts<> ReturnType;
   
-  boost::shared_ptr<SiPixelGainCalibration>  produce(const SiPixelGainCalibrationRcd &);
+  virtual std::auto_ptr<SiPixelGainCalibration>  produce(const SiPixelGainCalibrationRcd &);
   
  protected:
   
