@@ -24,6 +24,8 @@ class CSCWireGroupPackage;
 class CSCGeometry : public TrackingGeometry {
 
   typedef std::map<DetId, GeomDet*> CSCDetMap;
+  // The buffer for specs need not really be a map. Could do it with a vector!
+  typedef std::map<int, const CSCChamberSpecs*, std::less<int> > CSCSpecsContainer;
   typedef std::vector<CSCChamber*> ChamberContainer;
   typedef std::vector<CSCLayer*> LayerContainer;
 
@@ -81,14 +83,14 @@ class CSCGeometry : public TrackingGeometry {
    * Return the CSCChamberSpecs* for given chamber type
    * if it exists, or 0 if it has not been created.
    */
-  CSCChamberSpecs* findSpecs( int iChamberType );
+  const CSCChamberSpecs* findSpecs( int iChamberType );
 
   /**
    * Build CSCChamberSpecs for given chamber type.
    *
    * @@ a good candidate to be replaced by a factory?
    */
-  CSCChamberSpecs* buildSpecs( int iChamberType,
+  const CSCChamberSpecs* buildSpecs( int iChamberType,
 				 const std::vector<float>& fpar,
 				 const std::vector<float>& fupar,
 				 const CSCWireGroupPackage& wg );
@@ -170,7 +172,7 @@ class CSCGeometry : public TrackingGeometry {
   bool useCentreTIOffsets;
 
   // Store pointers to Specs objects as we build them.
-  std::map<int, CSCChamberSpecs*, std::less<int> > specsMap;
+  CSCSpecsContainer specsContainer;
 
 };
 
