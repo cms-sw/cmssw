@@ -17,6 +17,7 @@
 #include <DataFormats/GeometryVector/interface/LocalPoint.h>
 #include <DataFormats/GeometrySurface/interface/LocalError.h>
 
+class CSCGeometry;
 class CSCWireGroupPackage;
 
 class CSCLayerGeometry : public TrapezoidalPlaneBounds { 
@@ -25,6 +26,7 @@ public:
 
  /**
    * Ctor from basic trapezoidal Chamber parameters.
+   * \param geom The pointer to the actual CSCGeometry we're building.
    * \param iChamberType The index 1-9 for station/ring combination.
    * \param TrapezoidalPlaneBounds describing geometry of face.
    * \param nstrips No. of strips in cathode plane of a Layer.
@@ -37,7 +39,7 @@ public:
    * \param wireAngleInDegrees angle of wires w.r.t local x axis.
    * \param yOfFirstWire local y coordinate of first (lowest) wire in wire plane - nearest narrow edge.
    */
-  CSCLayerGeometry( int iChamberType,
+  CSCLayerGeometry( const CSCGeometry* geom, int iChamberType,
              const TrapezoidalPlaneBounds& bounds,
              int nstrips, float stripOffset, float stripPhiPitch, 
 	     float whereStripsMeet, float extentOfStripPlane, float yCentreOfStripPlane,
