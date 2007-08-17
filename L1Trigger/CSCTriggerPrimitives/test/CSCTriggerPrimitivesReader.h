@@ -8,8 +8,8 @@
  *
  * \author Slava Valuev, UCLA.
  *
- * $Date: 2006/10/13 13:37:01 $
- * $Revision: 1.7 $
+ * $Date: 2006/12/21 13:53:08 $
+ * $Revision: 1.8 $
  *
  */
 
@@ -59,8 +59,17 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   // Cache geometry for current event
   const CSCGeometry* geom_;
 
-  // Module labels
-  std::string   lctProducer_;
+  // Define which LCTs are present in the input file.  This will determine the
+  // workflow of the Reader.
+  bool dataLctsIn_;
+  bool emulLctsIn_;
+
+  // Flag to indicate MTCC data (used only when dataLctsIn_ = true).
+  bool isMTCCData_;
+
+  // Producer's labels
+  std::string   lctProducerData_;
+  std::string   lctProducerEmul_;
   edm::InputTag wireDigiProducer_;
   edm::InputTag compDigiProducer_;
 
@@ -118,7 +127,12 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   int    getCSCType(const CSCDetId& id);
   double getHsPerRad(const int idh);
 
-  void compare(const edm::Event& ev);
+  void compare(const CSCALCTDigiCollection* alcts_data,
+	       const CSCALCTDigiCollection* alcts_emul,
+	       const CSCCLCTDigiCollection* clcts_data,
+	       const CSCCLCTDigiCollection* clcts_emul,
+	       const CSCCorrelatedLCTDigiCollection* lcts_data,
+	       const CSCCorrelatedLCTDigiCollection* lcts_emul);
   void bookCompHistos();
   void compareALCTs(const CSCALCTDigiCollection* alcts_data,
 		    const CSCALCTDigiCollection* alcts_emul);

@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2007/05/23 10:59:46 $
-//   $Revision: 1.13 $
+//   $Date: 2007/06/12 13:21:41 $
+//   $Revision: 1.14 $
 //
 //   Modifications:
 //
@@ -88,10 +88,16 @@ bool CSCTriggerPrimitivesReader::bookedEfficHistos  = false;
 CSCTriggerPrimitivesReader::CSCTriggerPrimitivesReader(const edm::ParameterSet& conf) : eventsAnalyzed(0) {
 
   // Various input parameters.
-  lctProducer_ = conf.getUntrackedParameter<string>("CSCTriggerPrimitivesProducer", "");
+  dataLctsIn_ = conf.getParameter<bool>("dataLctsIn");
+  emulLctsIn_ = conf.getParameter<bool>("emulLctsIn");
+  isMTCCData_ = conf.getParameter<bool>("isMTCCData");
+  lctProducerData_ = conf.getUntrackedParameter<string>("CSCLCTProducerData",
+							"cscunpacker");
+  lctProducerEmul_ = conf.getUntrackedParameter<string>("CSCLCTProducerEmul",
+							"l1CscTpgEmulDigis");
   wireDigiProducer_ = conf.getParameter<edm::InputTag>("CSCWireDigiProducer");
   compDigiProducer_ = conf.getParameter<edm::InputTag>("CSCComparatorDigiProducer");
-  debug        = conf.getUntrackedParameter<bool>("debug", false);
+  debug = conf.getUntrackedParameter<bool>("debug", false);
   //rootFileName = conf.getUntrackedParameter<string>("rootFileName");
 
   // Create the root file.
@@ -126,35 +132,54 @@ void CSCTriggerPrimitivesReader::analyze(const edm::Event& ev,
   geom_ = &*cscGeom;
 
   // Get the collections of ALCTs, CLCTs, and correlated LCTs from event.
-  edm::Handle<CSCALCTDigiCollection> alcts;
-  edm::Handle<CSCCLCTDigiCollection> clcts;
-  edm::Handle<CSCCorrelatedLCTDigiCollection> lcts_tmb;
-  edm::Handle<CSCCorrelatedLCTDigiCollection> lcts_mpc;
-  if (lctProducer_ == "cscunpacker") {
-    // Data
-    ev.getByLabel(lctProducer_, "MuonCSCALCTDigi", alcts);
-    ev.getByLabel(lctProducer_, "MuonCSCCLCTDigi", clcts);
-    ev.getByLabel(lctProducer_, "MuonCSCCorrelatedLCTDigi", lcts_tmb);
-  }
-  else {
-    // Emulator
-    ev.getByLabel(lctProducer_,              alcts);
-    ev.getByLabel(lctProducer_,              clcts);
-    ev.getByLabel(lctProducer_,              lcts_tmb);
-    ev.getByLabel(lctProducer_, "MPCSORTED", lcts_mpc);
+  edm::Handle<CSCALCTDigiCollection> alcts_data;
+  edm::Handle<CSCCLCTDigiCollection> clcts_data;
+  edm::Handle<CSCCorrelatedLCTDigiCollection> lcts_tmb_data;
+  edm::Handle<CSCALCTDigiCollection> alcts_emul;
+  edm::Handle<CSCCLCTDigiCollection> clcts_emul;
+  edm::Handle<CSCCorrelatedLCTDigiCollection> lcts_tmb_emul;
+  edm::Handle<CSCCorrelatedLCTDigiCollection> lcts_mpc_emul;
+
+  // Data
+  if (dataLctsIn_) {
+    ev.getByLabel(lctProducerData_, "MuonCSCALCTDigi", alcts_data);
+    ev.getByLabel(lctProducerData_, "MuonCSCCLCTDigi", clcts_data);
+    ev.getByLabel(lctProducerData_, "MuonCSCCorrelatedLCTDigi", lcts_tmb_data);
   }
 
-  // Fill histograms with reconstructed or emulated quantities.
-  fillALCTHistos(alcts.product());
-  fillCLCTHistos(clcts.product());
-  fillLCTTMBHistos(lcts_tmb.product());
-  if (lctProducer_ != "cscunpacker") fillLCTMPCHistos(lcts_mpc.product());
+  // Emulator
+  if (emulLctsIn_) {
+    ev.getByLabel(lctProducerEmul_,              alcts_emul);
+    ev.getByLabel(lctProducerEmul_,              clcts_emul);
+    ev.getByLabel(lctProducerEmul_,              lcts_tmb_emul);
+    ev.getByLabel(lctProducerEmul_, "MPCSORTED", lcts_mpc_emul);
+  }
+
+  // Fill histograms with reconstructed or emulated quantities.  If both are
+  // present, plot LCTs in data.
+  if (dataLctsIn_) {
+    fillALCTHistos(alcts_data.product());
+    fillCLCTHistos(clcts_data.product());
+    fillLCTTMBHistos(lcts_tmb_data.product());
+  }
+  else if (emulLctsIn_) {
+    fillALCTHistos(alcts_emul.product());
+    fillCLCTHistos(clcts_emul.product());
+    fillLCTTMBHistos(lcts_tmb_emul.product());
+    fillLCTMPCHistos(lcts_mpc_emul.product());
+  }
 
   // Compare LCTs in the data with the ones produced by the emulator.
-  //compare(ev);
+  if (dataLctsIn_ && emulLctsIn_) {
+    compare(alcts_data.product(),    alcts_emul.product(),
+	    clcts_data.product(),    clcts_emul.product(),
+	    lcts_tmb_data.product(), lcts_tmb_emul.product());
+  }
 
   // Fill MC-based resolution/efficiency histograms, if needed.
-  MCStudies(ev, alcts.product(), clcts.product());
+  if (emulLctsIn_) {
+    MCStudies(ev, alcts_emul.product(), clcts_emul.product());
+  }
 }
 
 void CSCTriggerPrimitivesReader::endJob() {
@@ -742,42 +767,30 @@ void CSCTriggerPrimitivesReader::fillLCTMPCHistos(const CSCCorrelatedLCTDigiColl
   numLCTMPC += nValidLCTs;
 }
 
-void CSCTriggerPrimitivesReader::compare(const edm::Event& ev) {
+void CSCTriggerPrimitivesReader::compare(
+			 const CSCALCTDigiCollection* alcts_data,
+			 const CSCALCTDigiCollection* alcts_emul,
+			 const CSCCLCTDigiCollection* clcts_data,
+			 const CSCCLCTDigiCollection* clcts_emul,
+			 const CSCCorrelatedLCTDigiCollection* lcts_data,
+			 const CSCCorrelatedLCTDigiCollection* lcts_emul) {
 
   // Book histos when called for the first time.
   if (!bookedCompHistos) bookCompHistos();
 
-  // Get the collections of ALCTs, CLCTs, and correlated LCTs from event.
-  edm::Handle<CSCALCTDigiCollection> alcts_data;
-  edm::Handle<CSCCLCTDigiCollection> clcts_data;
-  edm::Handle<CSCCorrelatedLCTDigiCollection> lcts_data;
-  edm::Handle<CSCALCTDigiCollection> alcts_emul;
-  edm::Handle<CSCCLCTDigiCollection> clcts_emul;
-  edm::Handle<CSCCorrelatedLCTDigiCollection> lcts_emul;
-
-  // Data
-  ev.getByLabel("cscunpacker", "MuonCSCALCTDigi", alcts_data);
-  ev.getByLabel("cscunpacker", "MuonCSCCLCTDigi", clcts_data);
-  ev.getByLabel("cscunpacker", "MuonCSCCorrelatedLCTDigi", lcts_data);
-
-  // Emulator
-  ev.getByLabel("lctproducer", alcts_emul);
-  ev.getByLabel("lctproducer", clcts_emul);
-  ev.getByLabel("lctproducer",  lcts_emul);
-
   // Comparisons
-  compareALCTs(alcts_data.product(), alcts_emul.product());
-  compareCLCTs(clcts_data.product(), clcts_emul.product());
-  compareLCTs(lcts_data.product(), lcts_emul.product(),
-	      alcts_data.product(), clcts_data.product());
+  compareALCTs(alcts_data, alcts_emul);
+  compareCLCTs(clcts_data, clcts_emul);
+  compareLCTs(lcts_data,  lcts_emul, alcts_data, clcts_data);
 }
 
 void CSCTriggerPrimitivesReader::compareALCTs(
                                  const CSCALCTDigiCollection* alcts_data,
 				 const CSCALCTDigiCollection* alcts_emul) {
+
   // (Empirical) offset between 12-bit fullBX and Tbin0 of raw anode hits.
-  //const int tbin_anode_offset = 10; // why not 6??? MTCC-II
-  const int tbin_anode_offset = 4; // 2007, starting with run 539
+  int tbin_anode_offset = 4; // 2007, starting with run 539.
+  if (isMTCCData_) tbin_anode_offset = 10; // MTCC-II. Why not 6???
 
   // Loop over all chambers in search for ALCTs.
   CSCALCTDigiCollection::const_iterator digiIt;
@@ -1011,7 +1024,8 @@ void CSCTriggerPrimitivesReader::compareCLCTs(
 		    data_bend      == emul_bend      &&
 		    data_keystrip  == emul_keystrip  &&
 		    data_cfeb      == emul_cfeb      &&
-		    data_bx        == emul_corr_bx) {
+		    // BX comparison cannot be performed for MTCC data.
+		    (isMTCCData_ || (data_bx == emul_corr_bx))) {
 		  if (ndata == nemul) hClctCompMatchCsc[csctype]->Fill(cham);
 		  if (debug) LogDebug("CSCTriggerPrimitivesReader")
 		    << "       Identical CLCTs #" << data_trknmb;
