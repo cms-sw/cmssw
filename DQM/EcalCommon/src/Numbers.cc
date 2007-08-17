@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.15 2007/08/16 14:27:01 dellaric Exp $
+// $Id: Numbers.cc,v 1.16 2007/08/16 14:31:03 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.15 $
-  \date $Date: 2007/08/16 14:27:01 $
+  \version $Revision: 1.16 $
+  \date $Date: 2007/08/16 14:31:03 $
 */
 
 #include <sstream>
@@ -238,12 +238,14 @@ int Numbers::iSM( const EcalPnDiodeDetId& id ) {
 
 int Numbers::iSM( const EcalDCCHeaderBlock& id, const int subdet ) {
 
-  // special case for testbeam/cosmic data
-  if ( id.id() == 1 && subdet == EcalBarrel ) return( Numbers::iSM( id.id(), EcalBarrel ) );
+  // EE-
+  if ( id.id() >=  1 && id.id() <=  9 ) return( id.id() );
 
-  if ( id.id() >=  1 && id.id() <=  9 ) return( Numbers::iSM( id.id(),          EcalEndcap ) );
-  if ( id.id() >= 10 && id.id() <= 45 ) return( Numbers::iSM( id.id() -  9,     EcalBarrel ) );
-  if ( id.id() >= 46 && id.id() <= 54 ) return( Numbers::iSM( id.id() - 45 + 9, EcalEndcap ) );
+  // EB-/EB+
+  if ( id.id() >= 10 && id.id() <= 45 ) return( id.id() - 9 );
+
+  // EE+
+  if ( id.id() >= 46 && id.id() <= 54 ) return( id.id() - 45 + 9 );
 
   return( -999 );
 
