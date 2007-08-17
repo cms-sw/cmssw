@@ -1,4 +1,4 @@
-// $Id: HLTPerformanceInfo.cc,v 1.6 2007/03/27 01:05:07 bdahmes Exp $
+// $Id: HLTPerformanceInfo.cc,v 1.7 2007/04/04 00:36:08 bdahmes Exp $
 #include <functional>
 #include <algorithm>
 #include <numeric>
@@ -54,6 +54,16 @@ double HLTPerformanceInfo::Path::time() const
   return t;
 }
 
+double HLTPerformanceInfo::Path::cputime() const
+{
+  double t = 0;
+  // we only want to add those up to the last one run.
+  HLTPerformanceInfo::Path::const_iterator iter ;
+  for (iter=this->begin(); iter!=this->end(); iter++) 
+      if (iter->indexInPath(*this) <= int(this->status().index())) t += iter->cputime(); 
+
+  return t;
+}
 
 void HLTPerformanceInfo::addModuleToPath(const char *mod, Path *p ) 
 {
@@ -66,7 +76,7 @@ void HLTPerformanceInfo::addModuleToPath(const char *mod, Path *p )
   else {
     // if we can't find the module, it probably just wasn't run. 
     // so no worries.
-    Module newMod(mod, 0); // time = 0 since it wasn't run
+    Module newMod(mod, 0, 0); // time (wall and cpu) = 0 since it wasn't run
     modules_.push_back(newMod);
     p->addModuleRef(modules_.size()-1); // last guy on the stack
   }
@@ -113,6 +123,15 @@ double HLTPerformanceInfo::totalTime() const
   return t;
 }
 
+double HLTPerformanceInfo::totalCPUTime() const
+{
+  double t = 0;
+  t = std::accumulate(beginModules(), endModules(), 0.,
+		      BinaryOpMemFun<HLTPerformanceInfo::Module, double,
+		      std::plus<double> >(&HLTPerformanceInfo::Module::cputime));
+  return t;
+}
+
 HLTPerformanceInfo::Modules::const_iterator 
 HLTPerformanceInfo::findModule(const char* moduleInstanceName) 
 {
@@ -152,6 +171,18 @@ double HLTPerformanceInfo::Path::lastModuleTime() const
   return -2; // no modules on the path
 }
 
+double HLTPerformanceInfo::Path::lastModuleCPUTime() const
+{
+  double prev_time = -1;
+  for ( HLTPerformanceInfo::Path::const_iterator j = this->begin();
+	j != this->end(); ++j ) {
+    if ( j->status().wasrun() && !(j->status().accept()) )
+      return prev_time;
+    prev_time = j->cputime();
+  }
+  return -2; // no modules on the path
+}
+
 double HLTPerformanceInfo::longestModuleTime() const
 {
   double t = -1;
@@ -166,6 +197,20 @@ double HLTPerformanceInfo::longestModuleTime() const
   return t;
 }
 
+double HLTPerformanceInfo::longestModuleCPUTime() const
+{
+  double t = -1;
+  // not sure why this does not work - I guess cuz max isn't a functor?
+//   t = std::accumulate(beginModules(), endModules(), -99, 
+// 		      BinaryOpMemFun<HLTPerformanceInfo::Module, double,
+// 		      &std::max >(&HLTPerformanceInfo::Module::time));
+  for ( Modules::const_iterator i = beginModules();
+        i != endModules(); ++i ) {
+    t = std::max(i->cputime(),t);
+  }
+  return t;
+}
+
 const char* HLTPerformanceInfo::longestModuleTimeName() const
 {
   double t = -1;
@@ -175,6 +220,20 @@ const char* HLTPerformanceInfo::longestModuleTimeName() const
     if ( i->time() > t ) {
       slowpoke = i->name();
       t = i->time();
+    }
+  }
+  return slowpoke.c_str();
+}
+
+const char* HLTPerformanceInfo::longestModuleCPUTimeName() const
+{
+  double t = -1;
+  std::string slowpoke("unknown");
+  for ( Modules::const_iterator i = beginModules();
+        i != endModules(); ++i ) {
+    if ( i->cputime() > t ) {
+      slowpoke = i->name();
+      t = i->cputime();
     }
   }
   return slowpoke.c_str();
