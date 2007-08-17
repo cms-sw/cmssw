@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2007/08/14 20:27:36 $
- * $Revision: 1.14 $
+ * $Date: 2007/08/17 09:05:12 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -21,7 +21,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/QTestStatus.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 #include "DQMServices/QualityTests/interface/QCriterionRoot.h"
@@ -89,6 +88,7 @@ EECosmicClient::~EECosmicClient(){
 void EECosmicClient::beginJob(MonitorUserInterface* mui){
 
   mui_ = mui;
+  dbe_ = mui->getBEInterface();
 
   if ( verbose_ ) cout << "EECosmicClient: beginJob" << endl;
 

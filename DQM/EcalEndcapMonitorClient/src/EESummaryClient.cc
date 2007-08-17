@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/08/14 17:44:45 $
- * $Revision: 1.19 $
+ * $Date: 2007/08/17 09:05:12 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  *
 */
@@ -20,7 +20,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 #include "DQMServices/Core/interface/QTestStatus.h"
 #include "DQMServices/QualityTests/interface/QCriterionRoot.h"
@@ -134,6 +133,7 @@ EESummaryClient::~EESummaryClient(){
 void EESummaryClient::beginJob(MonitorUserInterface* mui){
 
   mui_ = mui;
+  dbe_ = mui->getBEInterface();
 
   if ( verbose_ ) cout << "EESummaryClient: beginJob" << endl;
 
