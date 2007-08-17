@@ -1,17 +1,32 @@
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
+#include "Geometry/CSCGeometry/interface/CSCChamber.h"
+#include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
+#include "Geometry/CSCGeometry/src/CSCWireGroupPackage.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 
+#include <string>
 
-CSCGeometry::CSCGeometry(){}
-
+CSCGeometry::CSCGeometry():  debugV(false), gangedstripsME1a(true), 
+   onlywiresME1a(false), useRealWireGeometry(true), useCentreTIOffsets(false) {
+   if ( debugV ) queryModelling();
+}
 
 CSCGeometry::~CSCGeometry(){
-  // delete all the chambers (which will delete the SL which will delete the
-  // layers)
+
+  // delete all the chambers (which will delete the layers)
   for (ChamberContainer::const_iterator ich=theChambers.begin();
        ich!=theChambers.end(); ++ich) delete (*ich);
+
+  // delete specs
+  for ( std::map<int, CSCChamberSpecs*, std::less<int> >::const_iterator it =
+	   specsMap.begin(); it!=specsMap.end(); ++it) {
+    delete (*it).second; // they are never shared per chamber type so should be no possible double deletion.
+  }
+
 }  
 
 
@@ -110,4 +125,68 @@ const CSCChamber* CSCGeometry::chamber(CSCDetId id) const {
 
 const CSCLayer* CSCGeometry::layer(CSCDetId id) const {
   return dynamic_cast<const CSCLayer*>(idToDetUnit(id));
+}
+
+void CSCGeometry::queryModelling() const {
+  // Dump user-selected overall modelling parameters.
+  // Only requires calling once per job.
+
+  LogTrace("CSCGeometry|CSC")  << "CSCGeometry::queryModelling entered...";
+
+  std::string gs = " ";
+  if ( gangedstripsME1a )
+    gs = "GANGED";
+  else
+    gs = "UNGANGED";
+
+  edm::LogInfo("CSC") << "CSCGeometry: in ME1a use " << gs << " strips" << "\n";
+
+  std::string wo = " ";
+  if ( onlywiresME1a )
+    wo = "WIRES ONLY";
+  else
+    wo = "WIRES & STRIPS";
+
+  edm::LogInfo("CSC") << "CSCGeometry: in ME1a use  " << wo << "\n";
+
+  std::string wg = " ";
+  if ( useRealWireGeometry )
+    wg = "REAL";
+  else
+    wg = "PSEUDO";
+
+  edm::LogInfo("CSC") << "CSCGeometry: wires are modelled using " << wg << " wire geometry " << "\n";
+
+  std::string cti = " ";
+  if ( useCentreTIOffsets )
+    cti = "WITH";
+  else
+    cti = "WITHOUT";
+
+  edm::LogInfo("CSC") << "CSCGeometry: strip plane centre-to-intersection ideal " << cti << " corrections " << "\n";
+}
+
+CSCChamberSpecs* CSCGeometry::findSpecs( int iChamberType ) {
+  CSCChamberSpecs* aSpecs = 0;
+  std::map<int, CSCChamberSpecs*, std::less<int> >::const_iterator it =
+    specsMap.find( iChamberType );
+  if (  it != specsMap.end() )       // Requisite Specs already exists
+    {
+      aSpecs = (*it).second;
+    }
+  return aSpecs;
+} 
+
+CSCChamberSpecs* CSCGeometry::buildSpecs( int iChamberType,
+					 const std::vector<float>& fpar,
+					 const std::vector<float>& fupar,
+					 const CSCWireGroupPackage& wg ) {
+
+  // Note arg list order is hbot, htop, apothem, hthickness
+  TrapezoidalPlaneBounds bounds( fpar[0], fpar[1], fpar[3], fpar[2] );
+
+  CSCChamberSpecs* aSpecs = new CSCChamberSpecs( this, iChamberType, bounds, fupar, wg );
+  specsMap[ iChamberType ] = aSpecs;
+
+  return aSpecs;
 }

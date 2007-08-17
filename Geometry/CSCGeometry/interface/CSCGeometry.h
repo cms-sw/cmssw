@@ -18,7 +18,8 @@
 class GeomDetType;
 class GeomDetUnit;
 class CSCChamber;
-
+class CSCChamberSpecs;
+class CSCWireGroupPackage;
 
 class CSCGeometry : public TrackingGeometry {
 
@@ -27,6 +28,9 @@ class CSCGeometry : public TrackingGeometry {
   typedef std::vector<CSCLayer*> LayerContainer;
 
  public:
+
+  friend class CSCGeometryBuilderFromDDD;
+  friend class GeometryAligner;
 
   /// Default constructor
   CSCGeometry();
@@ -71,12 +75,58 @@ class CSCGeometry : public TrackingGeometry {
   /// Return a vector of all layers
   const LayerContainer& layers() const;
 
+
+
+  /**
+   * Return the CSCChamberSpecs* for given chamber type
+   * if it exists, or 0 if it has not been created.
+   */
+  CSCChamberSpecs* findSpecs( int iChamberType );
+
+  /**
+   * Build CSCChamberSpecs for given chamber type.
+   *
+   * @@ a good candidate to be replaced by a factory?
+   */
+  CSCChamberSpecs* buildSpecs( int iChamberType,
+				 const std::vector<float>& fpar,
+				 const std::vector<float>& fupar,
+				 const CSCWireGroupPackage& wg );
+
+  void setGangedStripsInME1a(bool gs) { gangedstripsME1a = gs; }
+  void setOnlyWiresInME1a(bool ow) { onlywiresME1a = ow; }
+  void setUseRealWireGeometry(bool wg) { useRealWireGeometry = wg; }
+  void setUseCentreTIOffsets(bool cti) { useCentreTIOffsets = cti; }
+  void setDebugV(bool dbgv) { debugV = dbgv; }
+
+  /**
+   * Ganged strips in ME1a
+   */
+  bool gangedStrips() const { return gangedstripsME1a; }
+
+  /**
+   * Wires only in ME1a
+   */
+  bool wiresOnly() const { return onlywiresME1a; }
+
+  /**
+   * Wire geometry modelled as real hardware (complex
+   * groupings of wires and dead regions) or as a pseudo
+   * geometry with just one wire grouping per chamber type
+   * (as was done in ORCA versions up to and including ORCA_8_8_1.)
+   */
+  bool realWireGeometry() const { return useRealWireGeometry; }
+
+  /**
+   * Use the backed-out offsets for theCentreToIntersection in
+   * CSCLayerGeometry
+   */
+  bool centreTIOffsets() const { return useCentreTIOffsets; }
+
+  /// Dump parameters for overall strip and wire modelling
+  void queryModelling() const;
+
  private:
-
-  friend class CSCGeometryBuilderFromDDD;
-
-  friend class GeometryAligner;
-
 
   /// Add a chamber with given DetId.
   void addChamber(CSCChamber* ch);
@@ -109,6 +159,19 @@ class CSCGeometry : public TrackingGeometry {
 
   // These are reduntant copies, to satisfy the interface.
   LayerContainer    theLayers;
+
+  // Parameters controlling modelling of geometry 
+
+  bool debugV; // for debug printout etc.
+
+  bool gangedstripsME1a;
+  bool onlywiresME1a;
+  bool useRealWireGeometry;
+  bool useCentreTIOffsets;
+
+  // Store pointers to Specs objects as we build them.
+  std::map<int, CSCChamberSpecs*, std::less<int> > specsMap;
+
 };
 
 #endif
