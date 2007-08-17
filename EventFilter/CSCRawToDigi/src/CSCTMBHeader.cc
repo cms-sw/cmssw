@@ -28,19 +28,38 @@ void CSCTMBHeader::setEventInformation(const CSCDMBHeader & dmbHeader)
 std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis() const 
 {
   std::vector<CSCCLCTDigi> result;
+
+  //std::cout<<"in the CLCTDigis now rev code is " << std::dec << FirmRevCode() <<std::endl;
   
   ///fill digis here
   /// for the zeroth clct:
-  CSCCLCTDigi digi(clct0Valid(),clct0Quality(),clct0Shape(),clct0StripType(),clct0Bend(), 
+  int shape=0;
+  int type=0;
+  
+  if ( FirmRevCode() < 3769 ) { //3769 is may 25 2007 - date of firmware with halfstrip only patterns 
+    shape = clct0Shape();
+    type  = clct0StripType();
+  }else {//new firmware only halfstrip pattern => stripType==1 and shape is 4 bits 
+    shape = (clct0StripType()<<3)+clct0Shape();
+    type = 1;
+  }
+  CSCCLCTDigi digi0(clct0Valid(),clct0Quality(),shape,type,clct0Bend(),
 		   clct0Key(),clct0CFEB(), clct0BXN(), 1);
-  digi.setFullBX(BXNPreTrigger());
-  result.push_back(digi);
+  digi0.setFullBX(BXNPreTrigger());
+  result.push_back(digi0);
 
   /// for the first clct:
-  digi = CSCCLCTDigi(clct1Valid(),clct1Quality(),clct1Shape(),clct1StripType(),clct1Bend(), 
+  if ( FirmRevCode() < 3769 ) { 
+    shape = clct1Shape();
+    type  = clct1StripType();
+  } else {
+    shape = (clct1StripType()<<3)+clct1Shape();
+    type = 1;
+  }
+  CSCCLCTDigi digi1(clct1Valid(),clct1Quality(),shape,type,clct1Bend(),
 		   clct1Key(),clct1CFEB(), clct1BXN(), 2);
-  digi.setFullBX(BXNPreTrigger());
-  result.push_back(digi);
+  digi1.setFullBX(BXNPreTrigger());
+  result.push_back(digi1);
   
   return result;
 }
