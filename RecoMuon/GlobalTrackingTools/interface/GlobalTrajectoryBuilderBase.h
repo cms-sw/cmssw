@@ -4,8 +4,8 @@
 /** \class GlobalTrajectoryBuilderBase
  *  class to build muon trajectory
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2007/08/16 21:33:10 $
+ *  $Revision: 1.1 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -122,6 +122,7 @@ class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
 
   protected:
     std::string theCategory;
+    float thePtCut;
 
   private:
 
@@ -133,7 +134,6 @@ class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
     edm::ESHandle<TrajectoryFitter> theKFFitter;
   
     int   theMuonHitsOption;
-    float thePtCut;
     float theProbCut;
     int   theHitThreshold;
     float theDTChi2Cut;

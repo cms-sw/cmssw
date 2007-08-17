@@ -13,8 +13,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2007/08/16 21:36:23 $
+ *  $Revision: 1.1 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -108,6 +108,7 @@ GlobalTrajectoryBuilderBase::GlobalTrajectoryBuilderBase(const edm::ParameterSet
   theRegionBuilder = new MuonTrackingRegionBuilder(regionBuilderPSet,theService);
   
   theMuonHitsOption = par.getParameter<int>("MuonHitsOption");
+  thePtCut = par.getParameter<double>("PtCut");
   theProbCut = par.getParameter<double>("Chi2ProbabilityCut");
   theHitThreshold = par.getParameter<int>("HitThreshold");
   theDTChi2Cut  = par.getParameter<double>("Chi2CutDT");
