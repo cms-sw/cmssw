@@ -64,23 +64,36 @@ void DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
     stripId = expStripID;
     xtalId  = expXtalID;
     errorOnXtal = true;
-  
+
+    // return here, so to skip all following checks
+    data_ += numbDWInXtalBlock_;
+    return;
   }
+
+
+  // check id in case of 0suppressed data
   else if(zs_){
-    // Check for valid Ids	 
+
+    // Check for valid Ids 1) values out of range
     if(stripId == 0 || stripId > 5 || xtalId == 0 || xtalId > 5){
       edm::LogWarning("EcalRawToDigiDevChId")
         <<"\n For event "<<event_->l1A()<<",dcc "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
         <<"\n Invalid strip : "<<stripId<<" or xtal : "<<xtalId<<" ids";	
+
       //Todo : add to error collection
       errorOnXtal = true;
+
+      // return here, so to skip all the rest
+      //Point to begin of next xtal Block
+      data_ += numbDWInXtalBlock_;
+      return;
 		
     }else{
 	 
 	 
-      // check if strip and xtal id increases
+      // Check for zs valid Ids 2) if channel-in-strip has increased wrt previous xtal
       if ( stripId >= lastStripId_ ){
-        if( stripId == lastStripId_ && xtalId < lastXtalId_ ){ 
+        if( stripId == lastStripId_ && xtalId <= lastXtalId_ ){ 
 		  
           edm::LogWarning("EcalRawToDigiDevChId")
             <<"\n For event "<<event_->l1A()<<",dcc "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
@@ -93,8 +106,16 @@ void DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
            (*invalidChIds_)->push_back(*pDetId_);
 */		  
 	   errorOnXtal = true;
-       }
+	   
+	   // return here, so to skip all the rest
+	   //Point to begin of next xtal Block
+	   data_ += numbDWInXtalBlock_;
+	   return;
+        }
+	
       }
+
+      // Check for zs valid Ids 3) if strip has increased wrt previous xtal
       else if( stripId < lastStripId_){
       
         edm::LogWarning("EcalRawToDigiDevChId")
@@ -112,10 +133,11 @@ void DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
       lastStripId_  = stripId;
       lastXtalId_   = xtalId;
     }
-  }
+  }// end if(zs_)
  
  
   // if there is an error on xtal id ignore next error checks  
+  // otherwise, assume channel_id is valid and proceed with making and checking the data frame
   if(!errorOnXtal){ 
 
    // pDetId_ = (EEDetId*) mapper_->getDetIdPointer(towerId_,stripId,xtalId);
@@ -134,7 +156,7 @@ void DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
         uint data =  (*xData_) & TOWER_DIGI_MASK;
         uint gain =  data>>12;
         xtalGains_[i]=gain;
-        if(gain == 0){ wrongGain = true; } 
+        if(gain == 0){	  wrongGain = true; } 
  
         //df.setSample(i,data);
         pDFId_->setSample(i,data);
@@ -149,6 +171,14 @@ void DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
         (*invalidGains_)->push_back(*pDetId_); 
 */
         errorOnXtal = true;
+	
+	//return here, so to skip all the rest
+	//make special collection for gain0 data frames (saturation)
+	//Point to begin of next xtal Block
+	data_ += numbDWInXtalBlock_;
+	
+	return;
+
       }
 	
    
