@@ -5,8 +5,8 @@
  * default eta thresholds (lepton and jets) set to 3
  * At least two leptons and two jets present for each channel
  *
- * $Date: 2007/08/09 19:28:24 $
- * $Revision: 1.3 $
+ * $Date: 2007/08/16 08:50:35 $
+ * $Revision: 1.4 $
  *
  * \author Michele Gallinaro and Nuno Almeida - LIP
  *
@@ -163,7 +163,7 @@ bool TopLeptonTauFilter::tauFilter( edm::Event& iEvent, const edm::EventSetup
   int nTau = 0;
   for(TauCollection::const_iterator it =myTauCollection.begin();it !=myTauCollection.end();it++)
     {
-      TrackRef theLeadTk = it->getLeadingTrack();
+      TrackRef theLeadTk = it->getleadTrack();
       if(!theLeadTk) {}
       else{
         double leadTkPt  = (*theLeadTk).pt();
