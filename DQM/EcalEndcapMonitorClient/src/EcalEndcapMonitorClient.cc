@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/08/14 17:44:45 $
- * $Revision: 1.61 $
+ * $Date: 2007/08/17 09:05:12 $
+ * $Revision: 1.62 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -20,10 +20,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -79,8 +76,6 @@ using namespace edm;
 using namespace std;
 
 EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps) : ModuleWeb("EcalEndcapMonitorClient"){
-
-  mui_ = 0;
 
   this->initialize(ps);
 
@@ -644,7 +639,7 @@ void EcalEndcapMonitorClient::beginJob(const EventSetup &c) {
   last_time_html_ = current_time_;
 
   // get hold of back-end interface
-  DaqMonitorBEInterface* dbe = Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
 
   // start DQM user interface instance
   // will attempt to reconnect upon connection problems (w/ a 5-sec delay)
@@ -670,7 +665,7 @@ void EcalEndcapMonitorClient::beginJob(const EventSetup &c) {
 
   if ( ! enableMonitorDaemon_ ) {
     if ( inputFile_.size() != 0 ) {
-      if ( dbe ) {
+      if ( dbe_ ) {
         dbe_->open(inputFile_);
       }
     }
