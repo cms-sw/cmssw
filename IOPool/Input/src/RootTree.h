@@ -5,7 +5,7 @@
 
 RootTree.h // used by ROOT input sources
 
-$Id: RootTree.h,v 1.12 2007/05/10 22:46:56 wmtan Exp $
+$Id: RootTree.h,v 1.13 2007/06/14 22:02:15 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -49,7 +49,7 @@ namespace edm {
     void setEntryNumber(EntryNumber theEntryNumber) {entryNumber_ = theEntryNumber;}
     void resetEntryNumber() {entryNumber_ = origEntryNumber_;}
     void setOrigEntryNumber() {origEntryNumber_ = entryNumber_;}
-    std::vector<std::string> & branchNames() {return branchNames_;}
+    std::vector<std::string> const& branchNames() const {return branchNames_;}
     void fillGroups(Principal& item);
     boost::shared_ptr<DelayedReader> makeDelayedReader() const;
     //TBranch *auxBranch() {return auxBranch_;}
