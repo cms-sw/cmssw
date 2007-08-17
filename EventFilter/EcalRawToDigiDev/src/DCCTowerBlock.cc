@@ -79,7 +79,7 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
 	  
 
       errorOnXtal = true;
-    
+
       // return here, so to skip all the rest
       //Point to begin of next xtal Block
       data_ += numbDWInXtalBlock_;
@@ -163,9 +163,9 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
         xtalGains_[i]=gain;
         if(gain == 0){ 
 	    wrongGain = true; 
-	   // one could continue here to skip part of the loop
+	   // continue here to skip part of the loop
 	   // as well as add the error to the collection and write the message 
- 
+
 	} 
  
         pDFId_->setSample(i,data);
@@ -184,7 +184,7 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
 	//make special collection for gain0 data frames (saturation)
 	//Point to begin of next xtal Block
 	data_ += numbDWInXtalBlock_;
-
+	
 	return;
 
       }
