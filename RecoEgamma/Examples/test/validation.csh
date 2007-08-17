@@ -40,7 +40,14 @@ endif
 
 #==============END BASIC CONFIGURATION==================
 
-#The list of histograms to be compared for each TYPE can be configured here:
+#The list of histograms to be compared for each TYPE can be configured below:
+
+setenv OUTDIR $OUTPATH/${NEWRELEASE}_$SAMPLE
+if (! -d $OUTDIR) then
+  cd $OUTPATH
+  mkdir $OUTDIR
+endif
+cd $OUTDIR
 
 if ( $TYPE == PixelMatchGsfElectron ) then
 
@@ -124,14 +131,6 @@ EOF
 endif
 
 #=================END CONFIGURATION=====================
-
-
-setenv OUTDIR $OUTPATH/${NEWRELEASE}_$SAMPLE
-if (! -d $OUTDIR) then
-  cd $OUTPATH
-  mkdir $OUTDIR
-endif
-cd $OUTDIR
 
 if (-e validation.C) rm validation.C
 touch validation.C
