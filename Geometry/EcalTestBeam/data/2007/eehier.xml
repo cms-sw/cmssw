@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">     
+
+<ConstantsSection  label="eehier.xml" eval="true">
+
+<Constant name="EESCLimsXlo"    value="5"/>
+<Constant name="EESCLimsXhi"    value="9"/>
+<Constant name="EESCLimsYlo"    value="1"/>
+<Constant name="EESCLimsYhi"    value="5"/>
+
+</ConstantsSection>
+
+
+<SolidSection label="eehier.xml">
+
+<!-- Endcap, dee, quadrant, backplate volumes -->
+
+ <Polycone name="ENCA" startPhi="-90*deg" deltaPhi="180*deg" >
+  <ZSection z="[eecon:EEzFront]"   rMin="[eecon:ENCAEnvRFront]" rMax="[eecon:EErMax1]" />
+  <ZSection z="[eecon:EEzBack]"    rMin="[eecon:ENCAEnvRBack]"  rMax="[eecon:EErMax2]" />
+  <ZSection z="[eecon:EEzBack]"    rMin="[eecon:ENCAEnvRBack]"  rMax="[eecon:EBRMax]" />
+  <ZSection z="[eecon:EEzNeck]"    rMin="[eecon:ENCAEnvRNeck]"  rMax="[eecon:EBRMax]" />
+  <ZSection z="[eecon:EEzNeck]"    rMin="[eecon:ENCAEnvRNeck]"  rMax="[eecon:EErNeck]" />
+  <ZSection z="[eecon:ENCAEnvZES]" rMin="[eecon:ESConeO4Plus]"      rMax="[eecon:EErNeck]" />
+  <ZSection z="[eecon:ENCAEnvZES]" rMin="[eecon:ESConeO5Plus]"      rMax="[eecon:EErNeck]" />
+  <ZSection z="[eecon:EEFarZ]"     rMin="[eecon:ESConeO6Plus]"      rMax="[eecon:EErNeck]" />
+ </Polycone>
+
+
+ <Cone name="EEFrontDee"  dz=   "[eecon:EEdz]" 
+                          rMin1="[eecon:EEDeeFrontIR]" 
+                          rMax1="[eecon:EEfEnvScrOR1]" 
+                          rMin2="[eecon:EEiEnvScrIR5] - 0.4*mm" 
+                          rMax2="[eecon:EEfEnvScrOR4]" 
+                          startPhi="-90*deg" deltaPhi="180*deg" />
+
+ <Cone name="EEFrontQuad" dz=   "[eecon:EEdz]" 
+                          rMin1="[eecon:EEDeeFrontIR]" 
+                          rMax1="[eecon:EEfEnvScrOR1]" 
+                          rMin2="[eecon:EEiEnvScrIR5] - 0.4*mm" 
+                          rMax2="[eecon:EEfEnvScrOR4]" 
+                          startPhi="0*deg" deltaPhi="90*deg" />
+
+
+</SolidSection>
+
+<LogicalPartSection label="eehier.xml">
+
+ <LogicalPart name="ENCA" category="unspecified"> 
+      <rSolid name="ENCA"/> <rMaterial  name="materials:E_Air"/> </LogicalPart>
+ <LogicalPart name="EEDee" category="unspecified">
+      <rSolid name="ENCA"/> <rMaterial  name="materials:E_Air"/> </LogicalPart>
+ <LogicalPart name="EEFrontDee" category="unspecified">
+      <rSolid name="EEFrontDee"/> <rMaterial  name="materials:E_Air"/> </LogicalPart>
+ <LogicalPart name="EEFrontQuad" category="unspecified">
+      <rSolid name="EEFrontQuad"/> <rMaterial  name="materials:E_Air"/> </LogicalPart>
+
+
+</LogicalPartSection>
+
+<PosPartSection label="eehier.xml">
+
+
+<!-- Full endcap, dees, front and back quadrants -->
+
+ <PosPart copyNumber="1"> <rParent name="eregalgo:EREG"/> <rChild name="eehier:ENCA"/> </PosPart>
+ <PosPart copyNumber="1"> <rParent name="eehier:ENCA"/>  <rChild name="eehier:EEDee"/> </PosPart>
+ <PosPart copyNumber="1"> <rParent name="eehier:EEDee"/> <rChild name="eehier:EEFrontDee"/>
+      <Translation x="0*mm" y="0*mm" z="[eecon:EEzFront] + [eecon:EEdz]"/> </PosPart>
+ <PosPart copyNumber="1"> <rParent name="eehier:EEFrontDee"/> <rChild name="eehier:EEFrontQuad"/> </PosPart>
+
+
+</PosPartSection>
+</DDDefinition>

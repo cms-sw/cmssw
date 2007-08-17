@@ -171,7 +171,7 @@ void DDTBH4Algo::execute()
      const DDLogicalPart wLog ( wName, ddmat(vecWinMat()[i]), wTubeSolid ) ;
 
      const double off ( 0<vecWinZBeg()[i] ? vecWinZBeg()[i] :
-			fabs(vecWinZBeg()[i]) - vecWinThick()[i]/2. ) ;
+			fabs(vecWinZBeg()[i]) - vecWinThick()[i] ) ;
      
      DDpos( wLog,
 	    parent().name(), 
@@ -242,7 +242,7 @@ void DDTBH4Algo::execute()
   {
      const double xoff ( planeWidth/2. -
 			 (1+  j)*fibCladThick() -
-			 (1+2*j)*fibSide()/2.         ) ;
+			 (1+  j)*fibSide()         ) ;
      const double zoff ( -planeThick/2 + fibCladThick() + fibSide()/2. ) ;
      DDpos( fLog,
 	    pName, 
@@ -261,7 +261,7 @@ void DDTBH4Algo::execute()
      DDpos( pLog,
 	    parent().name(), 
 	    1+i, 
-	    DDTranslation(   vecFibXOff()[i],
+	    DDTranslation(   vecFibXOff()[i] - 0.5*fibSide(),
 			     vecFibYOff()[i],
 			     vecFibZPiv()[i] - halfZbl + blZPiv() - blZBeg() ),
 	    myrot( pName.name()+"Rot" + int_to_string(i),
