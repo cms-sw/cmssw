@@ -4,8 +4,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : November 2006
- *  $Revision: 1.2 $
- *  $Date: 2006/11/30 10:34:05 $
+ *  $Revision: 1.3 $
+ *  $Date: 2007/03/16 17:03:01 $
  *  (last update by $Author: flucke $)
  */
 
@@ -28,7 +28,7 @@ bool MillePedeVariables::setAllDefault(unsigned int nParam)
 
   myIsValid[nParam] = true;
   myDiffBefore[nParam] = -999999.;
-  myGlobalCor[nParam] = -1.;
+  myGlobalCor[nParam] = -.2; // -1. seems to occur also in pede output
   myPreSigma[nParam] = -11.; // -1 means fixed in pede
   myParameter[nParam] = -999999.;
   mySigma[nParam] = -1.;
