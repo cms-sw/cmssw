@@ -5,6 +5,21 @@
 
 class GeometricDet;
 
+#include "Geometry/TrackerGeometryBuilder/interface/trackerHierarchy.h"
+
+#include "DataFormats/Common/interface/Trie.h"
+
+// FIXME here just to allow prototyping...
+namespace trackerTrie {
+  typedef TrackingGeometry::DetUnitContainer::const_iterator Iter;
+  typedef GeomDet const* PDet;
+  typedef edm::Trie<PDet> DetTrie;
+  typedef edm::TrieNode<PDet> Node;
+  typedef Node const * node_pointer; // sigh....
+  typedef edm::TrieNodeIter<PDet> node_iterator;
+}
+
+
 /**
  * A specific Tracker Builder which builds a Tracker from a list of DetUnits. 
  * Pattern recognition is used to discover layers, rings etc.
