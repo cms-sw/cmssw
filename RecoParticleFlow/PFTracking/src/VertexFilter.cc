@@ -12,12 +12,22 @@
 //
 
 
-
+class LeadTrack{
+ public:
+  LeadTrack(){};
+  bool operator()( reco::Track tk1,
+		   reco::Track tk2){
+    if((tk1.pt()>3)&&(tk2.pt()<3.)) return true;
+    if((tk1.pt()<3)&&(tk2.pt()>3.)) return false;
+    if((tk1.found()>6)&&(tk2.found()<6)) return true;
+    if((tk1.found()<6)&&(tk2.found()>6)) return false;
+    return tk1.normalizedChi2()<tk2.normalizedChi2();
+  };
+};
 
 VertexFilter::VertexFilter(const edm::ParameterSet& iConfig):
   conf_(iConfig)
 {
-  dist = conf_.getParameter<double>("DistFromVertex");
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
   produces<reco::TrackExtraCollection>();
@@ -47,116 +57,108 @@ VertexFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
   using namespace reco;
   using namespace std;
-
+  
   auto_ptr<TrackCollection> selTracks(new TrackCollection);
   auto_ptr<TrackingRecHitCollection> selHits(new TrackingRecHitCollection);
   auto_ptr<TrackExtraCollection> selTrackExtras(new TrackExtraCollection);
   auto_ptr<vector<Trajectory> > outputTJ(new vector<Trajectory> );
   auto_ptr<TrajTrackAssociationCollection> trajTrackMap( new TrajTrackAssociationCollection() );
-
+  
   Ref<TrackExtraCollection>::key_type idx = 0;
   Ref<TrackCollection>::key_type iTkRef = 0;
-
+  
   TrackExtraRefProd rTrackExtras = iEvent.getRefBeforePut<TrackExtraCollection>();
   TrackingRecHitRefProd rHits = iEvent.getRefBeforePut<TrackingRecHitCollection>();
+
+
+
   Handle<std::vector<Trajectory> > TrajectoryCollection;
   Handle<TrajTrackAssociationCollection> assoMap;
+  Handle<VertexCollection> vtxCollection;
+  
 
   InputTag tkTag             = conf_.getParameter<InputTag>("recTracks");
-
-
-  bool  UseVtx = conf_.getParameter<bool>("VertexCut");
-
-  Handle<TrackCollection> tkCollection;
-
+  InputTag vtxTag            = conf_.getParameter<InputTag>("recVertices");
   
-  iEvent.getByLabel( tkTag             , tkCollection);
+  int minhits = conf_.getParameter<int>("MinHits");
+  float distz = conf_.getParameter<double>("DistZFromVertex");
+  float distrho = conf_.getParameter<double>("DistRhoFromVertex");
+  float chi_cut = conf_.getParameter<double>("ChiCut");
 
+  Handle<TrackCollection> tkCollection;  
+  iEvent.getByLabel( tkTag, tkCollection);
   TrackCollection  tC = *(tkCollection.product());
+  TrackCollection::const_iterator itxc;
+  stable_sort(tC.begin(),tC.end(),LeadTrack());
+
+
+
 
   iEvent.getByLabel(tkTag,TrajectoryCollection);
   iEvent.getByLabel(tkTag,assoMap);
-  // TrackCollection::iterator itc;
-  if (UseVtx){
-    //vertex collection
-    InputTag vtxTag            = conf_.getParameter<InputTag>("recVertices");
-    Handle<VertexCollection> vtxCollection;
-    iEvent.getByLabel( vtxTag            , vtxCollection);
-    const VertexCollection  vxC = *(vtxCollection.product());
-    VertexCollection::const_iterator ivxc;
 
-    for(TrajTrackAssociationCollection::const_iterator it = assoMap->begin();
-	it != assoMap->end(); ++it){
-      const Ref<vector<Trajectory> > traj = it->key;
-      const reco::TrackRef itc = it->val;
-      
-      math::XYZPoint gp1=(*itc).vertex();
-      bool hasAVertex=false;
-      
-      for (ivxc= vxC.begin();ivxc!=vxC.end();ivxc++){
-	math::XYZPoint gp2=(*ivxc).position();
-	if ((gp1-gp2).Mag2()<dist) hasAVertex=true;
-      }
-      
-      if (hasAVertex){
-	Track track =(*itc);
-	selTracks->push_back( track );
-	outputTJ->push_back(*traj);
-	
-	
-	iTkRef++;
-	TrackExtraRef teref=TrackExtraRef ( rTrackExtras, idx ++ );
-	track.setExtra( teref );
-	
-	TrackExtra & tx =const_cast<TrackExtra &>((*(*itc).extra()));
 
-	
-	selTrackExtras->push_back(tx);
-	trackingRecHit_iterator irhit=(*itc).recHitsBegin();
-	size_t i = 0;
-	for (; irhit!=(*itc).recHitsEnd(); irhit++){
-	  TrackingRecHit *hit=(*(*irhit)).clone();
-	  track.setHitPattern( * hit, i ++ );
-	selHits->push_back(hit );
-	}
-      }
+
+  VertexCollection::const_iterator ivxc;
+  iEvent.getByLabel( vtxTag            , vtxCollection);
+  const VertexCollection  vxC = *(vtxCollection.product()); 
+
+
+  
+  for(TrajTrackAssociationCollection::const_iterator it = assoMap->begin();
+      it != assoMap->end(); ++it){
+    const Ref<vector<Trajectory> > traj = it->key;
+    const reco::TrackRef itc = it->val;
+    math::XYZPoint gp1=(*itc).vertex();
+    bool hasAVertex=false;
+ 
+    for (ivxc= vxC.begin();ivxc!=vxC.end();ivxc++){
+      math::XYZPoint  gp2=(*ivxc).position();
+      math::XYZVector dgp=gp2-gp1;
+      if ((dgp.Rho()<distrho)       && 
+	  (fabs(dgp.Z())<distz)     &&
+	  ((*itc).found()>=minhits) &&
+	  ((*itc).chi2()<chi_cut)) hasAVertex=true;
     }
-  }else {
-    int minhits = conf_.getParameter<int>("MinHits");
-    for(TrajTrackAssociationCollection::const_iterator it = assoMap->begin();
-	it != assoMap->end(); ++it){
-      const Ref<vector<Trajectory> > traj = it->key;
-      const reco::TrackRef itc = it->val;
-      Track track =(*itc);
-      if (track.numberOfValidHits()>=minhits){
+   
 
-	selTracks->push_back( track );
-	outputTJ->push_back(*traj);
+
+    if((vxC.size()==0)&&(tC.size()>0)){
+      math::XYZPoint  gp2=(*tC.begin()).vertex();
+      math::XYZVector dgp=gp2-gp1;
+      if ((dgp.Rho()<distrho)       && 
+	  (fabs(dgp.Z())<distz)     &&
+	  ((*itc).found()>=minhits) &&
+	  ((*itc).chi2()<chi_cut)) hasAVertex=true;
+      
+    }
+    
+    if (hasAVertex){
+      Track track =(*itc);
+      selTracks->push_back( track );
+      outputTJ->push_back(*traj);
+      
+      
+      iTkRef++;
+      TrackExtraRef teref=TrackExtraRef ( rTrackExtras, idx ++ );
+      track.setExtra( teref );
 	
-	
-	iTkRef++;
-	TrackExtraRef teref=TrackExtraRef ( rTrackExtras, idx ++ );
-	track.setExtra( teref );
-	
-	TrackExtra & tx =const_cast<TrackExtra &>((*(*itc).extra()));
-	
-	
-	selTrackExtras->push_back(tx);
-	trackingRecHit_iterator irhit=(*itc).recHitsBegin();
-	size_t i = 0;
-	for (; irhit!=(*itc).recHitsEnd(); irhit++){
+      TrackExtra & tx =const_cast<TrackExtra &>((*(*itc).extra()));
+      
+      
+      selTrackExtras->push_back(tx);
+      trackingRecHit_iterator irhit=(*itc).recHitsBegin();
+      size_t i = 0;
+      for (; irhit!=(*itc).recHitsEnd(); irhit++){
 	  TrackingRecHit *hit=(*(*irhit)).clone();
 	  track.setHitPattern( * hit, i ++ );
 	  selHits->push_back(hit );
-	}
       }
     }
   }
-
-//   for (int i=0; i<10;i++){
-//     trajTrackMap->insert(edm::Ref<std::vector<Trajectory> > (outputTJ, i),
-// 			 edm::Ref<reco::TrackCollection>    (selTracks, i)); 
-//   }
+  
+  
+  
   iEvent.put(selTracks);
   iEvent.put(selTrackExtras);    
   iEvent.put(selHits);
