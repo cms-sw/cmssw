@@ -5,8 +5,8 @@
  *
  *  Digi for CSC ALCT info available in DDU
  *  
- *  $Date: 2007/05/23 18:02:50 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/07/23 12:08:19 $
+ *  $Revision: 1.4 $
  *
  */
 
@@ -30,7 +30,7 @@ public:
 
 private:
 
-  uint16_t header_[8];
+  uint16_t header_[116]; ///maximum header size is 116 words
   uint16_t trailer_[4];
 };
 
