@@ -1,22 +1,8 @@
-#include "Utilities/Configuration/interface/Architecture.h"
-#include "TrackerReco/TkHitAssociation/interface/TkHitAssociator.h"
-
-#include "Tracker/HICPattern/interface/HICMuonUpdator.h"
-
-#include "CommonDet/BasicDet/interface/RecHit.h"
-#include "CommonDet/BasicDet/interface/SimHit.h"
-#include "CommonDet/BasicDet/interface/SimDet.h"
-#include "CommonDet/BasicDet/interface/DetUnit.h"
-#include "CommonDet/BasicDet/interface/Det.h"
-#include "CommonDet/BasicDet/interface/DetType.h"
-
-#include "CommonDet/DetGeometry/interface/BoundPlane.h"
-#include "ClassReuse/GeomVector/interface/GlobalPoint.h"
-#include "ClassReuse/GeomVector/interface/GlobalVector.h"
-
-#include "CLHEP/Vector/ThreeVector.h"
-#include <CLHEP/Vector/LorentzVector.h>
-#include <CLHEP/Geometry/Point3D.h>
+#include "RecoHIMuon/HiMuTracking/interface/HICMuonUpdator.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include <cmath>
 #include <stdlib.h>
@@ -29,31 +15,29 @@
 //#define UPDATOR_ENDCAP_DEBUG
 //#define CORRECT_DEBUG
 //#define LINEFIT_DEBUG
+
+using namespace std;
+
 TrajectoryStateOnSurface HICMuonUpdator::update(const Trajectory& mt,
                                                 const TrajectoryStateOnSurface& nTsos,
-		                                const RecHit& nRecHit, 
+		                                const TrajectoryMeasurement& ntm, 
 					        const DetLayer* layer,
 					        double& chirz, double& chirf) const {
-// take FTS from nTSOS. Extract momentum and errors
-//
-//  cout<<" HICMuonUpdator::update::begin "<<endl;
 
   TrajectoryStateOnSurface badtsos; 
 
 // trajectory type
-  int tType=0;
-  vector<TrajectoryMeasurement> MTM=mt.data();
-
-#ifdef UPDATOR_BARREL_DEBUG_TRUE
-  bool itrust=true;
-#endif 
+  
+  vector<TrajectoryMeasurement> MTM=mt.measurements();
  
   vector<double> phihit,rhit,zhit,dphihit,drhit,dzhit,dzhitl,ehitphi,dehitphi,ehitstrip;
 
   double rvert=0.;
   double ezvert=0.014;
   
-  RecHit pRecHit=(MTM.back()).recHit();
+  const TransientTrackingRecHit::ConstRecHitPointer pRecHit=(MTM.back()).recHit();
+  const TransientTrackingRecHit::ConstRecHitPointer nRecHit=ntm.recHit();
+  
   double acharge=(MTM.back()).updatedState().freeTrajectoryState()->parameters().charge();
   GlobalVector pold=(MTM.back()).updatedState().freeTrajectoryState()->parameters().momentum();
   double theta=pold.theta();
@@ -61,52 +45,42 @@ TrajectoryStateOnSurface HICMuonUpdator::update(const Trajectory& mt,
   for(vector<TrajectoryMeasurement>::const_iterator ihit=MTM.begin();ihit!=MTM.end();ihit++){
   
     FreeTrajectoryState* ftshit = (*ihit).updatedState().freeTrajectoryState();
-    phihit.push_back((*ihit).recHit().globalPosition().phi());
-    rhit.push_back((*ihit).recHit().globalPosition().perp());
-    zhit.push_back((*ihit).recHit().globalPosition().z());
-    
-
-#ifdef UPDATOR_BARREL_DEBUG  
-    if(itrust) {
-    cout<< " MuUpdator::r, z= "<<(*ihit).recHit().globalPosition().perp()<<" "<<(*ihit).recHit().globalPosition().z()<<endl;
-    cout<<" GlobalPosition ="<<(*ihit).recHit().globalPosition()<<" theta="<<theta<<" tan(theta)="<<tan(theta)<<endl;
-    cout<<" Global Position error="<<(*ihit).recHit().globalPositionError().phierr((*ihit).recHit().globalPosition())
-    <<" "<<(*ihit).recHit().globalPositionError().rerr((*ihit).recHit().globalPosition())<<
-    " "<<(*ihit).recHit().globalPositionError().czz()<<endl;
-    cout<<"Cartezian error= "<<(*ihit).recHit().globalPositionError().cxx()<<
-                          " "<<(*ihit).recHit().globalPositionError().cyy()<<
-			  " "<<(*ihit).recHit().globalPositionError().czz()<<endl;
-    }			  
-#endif 
-    double phierror=sqrt((*ihit).recHit().globalPositionError().phierr((*ihit).recHit().globalPosition()));
+    phihit.push_back((*ihit).recHit()->globalPosition().phi());
+    rhit.push_back((*ihit).recHit()->globalPosition().perp());
+    zhit.push_back((*ihit).recHit()->globalPosition().z());
+    GlobalPoint realhit = (*ihit).recHit()->globalPosition();
+     
+    double phierror=sqrt((*ihit).recHit()->globalPositionError().phierr(realhit));
     
     if(abs(phierror)<0.0000001) {
-#ifdef UPDATOR_BARREL_DEBUG 
-    if(itrust) {   
-    cout<<"Phierror rhit problem, correction has made="<<phierror<<endl;
-    }
-#endif
-    phierror=0.00008;
+        phierror=0.00008;
     }       
     ehitphi.push_back(phierror);
     
-    if((*ihit).layer()->part()==barrel){
-    ehitstrip.push_back(sqrt((*ihit).recHit().globalPositionError().czz()));
+
+
+
+    if((*ihit).layer()->location()==GeomDetEnumerators::barrel){
+    ehitstrip.push_back(sqrt((*ihit).recHit()->globalPositionError().czz()));
     } else{    
-    ehitstrip.push_back(sqrt((*ihit).recHit().globalPositionError().rerr((*ihit).recHit().globalPosition()))/tan(theta)); 
+    ehitstrip.push_back(sqrt((*ihit).recHit()->globalPositionError().rerr(realhit)/tan(theta))); 
     }   
 
   }
   
-  phihit.push_back(nRecHit.globalPosition().phi());
-  rhit.push_back(nRecHit.globalPosition().perp());
-  zhit.push_back(nRecHit.globalPosition().z()); 
-  ehitphi.push_back(sqrt(nRecHit.globalPositionError().phierr(nRecHit.globalPosition())));
+  phihit.push_back(nRecHit->globalPosition().phi());
+  rhit.push_back(nRecHit->globalPosition().perp());
+  zhit.push_back(nRecHit->globalPosition().z()); 
+  ehitphi.push_back(sqrt(nRecHit->globalPositionError().phierr(nRecHit->globalPosition())));
 
-  if(nRecHit.det().detUnits()[0]->type().part()==barrel){
-    ehitstrip.push_back(sqrt(nRecHit.globalPositionError().czz())); 
+
+
+
+
+  if(ntm.layer()->location()==GeomDetEnumerators::barrel){
+    ehitstrip.push_back(sqrt(nRecHit->globalPositionError().czz())); 
   } else {
-    ehitstrip.push_back(sqrt(nRecHit.globalPositionError().rerr(nRecHit.globalPosition()))/tan(theta));
+    ehitstrip.push_back(sqrt(nRecHit->globalPositionError().rerr(nRecHit->globalPosition()))/tan(theta));
   }
   
 // add vertex 
@@ -161,60 +135,20 @@ TrajectoryStateOnSurface HICMuonUpdator::update(const Trajectory& mt,
 //
 //=================fit in rf and rz planes separately
 //
-if ( (*(MTM.begin())).layer()->part()==barrel){
+int tType = 1;
+if ( (*(MTM.begin())).layer()->location()==GeomDetEnumerators::barrel){
   TrajectoryStateOnSurface tsos=updateBarrel(rhit, zhit, dphihit, drhit, ehitstrip, dehitphi, pRecHit, nRecHit, 
                                                                  nTsos, chirz, chirf, tType);
 	
 	if(!tsos.isValid()) {
-#ifdef UPDATOR_BARREL_DEBUG_TRUE
-         if(itrust){
-	 cout<<"****** MuUpdator::updateBarrel is failed "<<endl;
-         }
-#endif	
 	 return badtsos;
 	}							
-
-#ifdef UPDATOR_BARREL_DEBUG_TRUE
-  if(itrust){  
-  cout<<"MuUpdator::pz differ="<<tsos.freeTrajectoryState()->parameters().momentum().z()
-      <<" Pzold="<<pold.z()<<" phinew= "<<tsos.freeTrajectoryState()->parameters().position().phi()
-      <<" Phimeas= "<<nRecHit.globalPosition().phi()
-      <<" znew= "<<tsos.freeTrajectoryState()->parameters().position().z()
-      <<" zmeas= "<<nRecHit.globalPosition().z()  
-      <<" Ptold="<<pold.perp()<<" Ptnew="<<tsos.freeTrajectoryState()->parameters().momentum().perp()
-      <<endl;
-   }
-#endif
-
-	
-#ifdef UPDATOR_BARREL_DEBUG_TRUE
-        if(itrust) {
-        cout<<" MuUpdator::dfi,dz "<<nRecHit.globalPosition().phi()-
-        tsos.freeTrajectoryState()->parameters().position().phi()<<" "
-          <<nRecHit.globalPosition().z()-tsos.freeTrajectoryState()->parameters().position().z()<<" "<<endl;	   
-        cout<<" UpdateBarrel:Chirz,chirf "<<chirz<<" "<<chirf<<endl;
-	}
-#endif	
-//     if(diffEst ==0) return badtsos;
-    
-          
+              
    return tsos;
 
 } else{
   TrajectoryStateOnSurface tsos=updateEndcap(rhit, zhit, dphihit, dzhit, ehitstrip, dehitphi, pRecHit, nRecHit, 
                                                         nTsos, chirz, chirf, tType);
-#ifdef UPDATOR_BARREL_DEBUG_TRUE 
-   if(itrust) { 
-  cout<<"pz differ="<<tsos.freeTrajectoryState()->parameters().momentum().z()<<
-  " Pzold="<<pold.z()<<" phinew= "<<tsos.freeTrajectoryState()->parameters().position().phi()
-  << " Phimeas= "<<nRecHit.globalPosition().phi()<<" Ptold="<<
-  pold.perp()<<" Ptnew="<<tsos.freeTrajectoryState()->parameters().momentum().perp()<<endl;
-   cout<<" UpdateEndcap:Chirz,chirf "<<chirz<<" "<<chirf<<endl; 
-  }
-#endif	
-//   cout<<" updateEndcap "<<endl;
-
-         
    return tsos;
 
 }   
@@ -361,11 +295,11 @@ return fit=true;
 
 
 double
-        HICMuonUpdator::findPhiInVertex(const FreeTrajectoryState& fts, const double& rc, const Det* det) const{
+        HICMuonUpdator::findPhiInVertex(const FreeTrajectoryState& fts, const double& rc, const GeomDetEnumerators::Location location) const{
      double acharge=fts.parameters().charge();
      double phiclus=fts.parameters().position().phi();
      double psi;
-   if(det->detUnits()[0]->type().part()==barrel){
+   if(location==GeomDetEnumerators::barrel){
      double xrclus=fts.parameters().position().perp();
      double xdouble=xrclus/(2.*rc);
      psi= phiclus+acharge*asin(xdouble);
@@ -392,7 +326,8 @@ double
 TrajectoryStateOnSurface HICMuonUpdator::updateBarrel(vector<double>& rhit, vector<double>& zhit, 
                                                  vector<double>& dphihit, vector<double>& drhit, 
 	                                         vector<double>& ehitstrip, vector<double>& dehitphi,
-						 const RecHit& pRecHit, const RecHit& nRecHit, 
+						 const TransientTrackingRecHit::ConstRecHitPointer& pRecHit, 
+						 const TransientTrackingRecHit::ConstRecHitPointer& nRecHit, 
 						 const TrajectoryStateOnSurface& nTsos,
 						 double& chirz, double& chirf, int& tType) const{
 
@@ -442,7 +377,7 @@ TrajectoryStateOnSurface HICMuonUpdator::updateBarrel(vector<double>& rhit, vect
   
 // Updating trajectory
   ptnew=0.006/ch1;
-  GlobalPoint xrhit = nRecHit.globalPosition();
+  GlobalPoint xrhit = nRecHit->globalPosition();
   double aCharge = nTsos.freeTrajectoryState()->parameters().charge();
   double phiclus=xrhit.phi();
   double xrclus=xrhit.perp();
@@ -453,7 +388,7 @@ TrajectoryStateOnSurface HICMuonUpdator::updateBarrel(vector<double>& rhit, vect
   double pznew=ptnew/co1;
   double znew=(xrclus-co2)/co1;
   double delphinew=abs(0.006*drhit.back()/ptnew);
-  double phinew=pRecHit.globalPosition().phi()+aCharge*delphinew;
+  double phinew=pRecHit->globalPosition().phi()+aCharge*delphinew;
   GlobalVector pnew(ptnew*cos(psi),ptnew*sin(psi),pznew);
   GlobalPoint xnew(xrclus*cos(phinew),xrclus*sin(phinew),znew);
   AlgebraicSymMatrix m(5,0);        
@@ -467,7 +402,7 @@ TrajectoryStateOnSurface HICMuonUpdator::updateBarrel(vector<double>& rhit, vect
 #endif  
        
   TrajectoryStateOnSurface tsos(
-                           GlobalTrajectoryParameters(xnew, pnew, aCharge),
+                           GlobalTrajectoryParameters(xnew, pnew, aCharge, field),
                            CurvilinearTrajectoryError(m), nTsos.surface());
 			   
 //  cout<<" Update barrel end  "<<xnew<<endl;
@@ -477,7 +412,8 @@ TrajectoryStateOnSurface HICMuonUpdator::updateBarrel(vector<double>& rhit, vect
 TrajectoryStateOnSurface HICMuonUpdator::updateEndcap(vector<double>& rhit, vector<double>& zhit, 
                                                  vector<double>& dphihit, vector<double>& drhit, 
 	                                         vector<double>& ehitstrip, vector<double>& dehitphi,
-						 const RecHit& pRecHit, const RecHit& nRecHit, 
+						 const TransientTrackingRecHit::ConstRecHitPointer& pRecHit, 
+						 const TransientTrackingRecHit::ConstRecHitPointer& nRecHit, 
 						 const TrajectoryStateOnSurface& nTsos,
 						 double& chirz, double& chirf, int& tType) const{
 
@@ -528,7 +464,7 @@ TrajectoryStateOnSurface HICMuonUpdator::updateEndcap(vector<double>& rhit, vect
 // Updating trajectory
   double pznew=0.006/ch1;
 //  cout<<" point 1 "<<endl;
-  GlobalPoint xrhit = nRecHit.globalPosition();
+  GlobalPoint xrhit = nRecHit->globalPosition();
 //  cout<<" point 2 "<<endl;
   double aCharge = nTsos.freeTrajectoryState()->charge();
 //  cout<<" point 3 "<<endl;
@@ -544,7 +480,7 @@ TrajectoryStateOnSurface HICMuonUpdator::updateEndcap(vector<double>& rhit, vect
 //  cout<<" point 8 "<<endl;
   double delphinew=abs(0.006*drhit.back()/pznew);
 //  cout<<" point 9 "<<endl;
-  double phinew=pRecHit.globalPosition().phi()+aCharge*delphinew;
+  double phinew=pRecHit->globalPosition().phi()+aCharge*delphinew;
 //  cout<<" point 10 "<<endl;
   GlobalVector pnew(ptnew*cos(psi),ptnew*sin(psi),pznew);
 //  cout<<" point 11 "<<endl;
@@ -562,7 +498,7 @@ TrajectoryStateOnSurface HICMuonUpdator::updateEndcap(vector<double>& rhit, vect
   m(5,5)=theZWin;
        
   TrajectoryStateOnSurface tsos(
-                           GlobalTrajectoryParameters(xnew, pnew, aCharge),
+                           GlobalTrajectoryParameters(xnew, pnew, aCharge, field),
                            CurvilinearTrajectoryError(m), nTsos.surface());
 			   
 //  cout<< "Update endcap end "<<endl;			   

@@ -1,56 +1,52 @@
 #ifndef _TRACKER_HICMUUPDATOR_H_
 #define _TRACKER_HICMUUPDATOR_H_
-#include "Utilities/Configuration/interface/Architecture.h"
+#include "TrackingTools/DetLayers/interface/DetLayer.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
-#include "CommonDet/PatternPrimitives/interface/TrajectoryStateOnSurface.h"
-#include "CommonDet/BasicDet/interface/SimHit.h"
-#include "CommonDet/BasicDet/interface/SimDet.h"
-#include "CommonDet/BasicDet/interface/DetUnit.h"
-#include "CommonDet/BasicDet/interface/DetType.h"
-#include "CommonDet/BasicDet/interface/RecHit.h"
-#include "Tracker/HICPattern/interface/HICConst.h"
-#include "CommonDet/DetLayout/interface/DetLayer.h"
-#include "CommonReco/PatternTools/interface/Trajectory.h"
-
-#include <CLHEP/Geometry/Point3D.h>
+#include "RecoHIMuon/HiMuSeed/interface/HICConst.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include <vector>
 
 class HICMuonUpdator{
 
 public:
-  HICMuonUpdator(double&la1,double&la2){HICConst hc; zvert=hc.zvert;
-                                        thePhiWin=la1; theZWin=la2;};
+  HICMuonUpdator(double&la1,double&la2, const MagneticField * mf){HICConst hc; zvert=hc.zvert;
+                                        thePhiWin=la1; theZWin=la2; field = mf;};
   virtual ~HICMuonUpdator(){}
   TrajectoryStateOnSurface update(const Trajectory& mt,
                                   const TrajectoryStateOnSurface&, 
-                                  const RecHit&, 
+                                  const TrajectoryMeasurement&, 
 				  const DetLayer*, 
 				  double&, double&) const;
       
 
-  TrajectoryStateOnSurface updateBarrel(vector<double>& rhit, vector<double>& zhit, 
-                                        vector<double>& dphihit, vector<double>& drhit, 
-	                                vector<double>& ehitstrip, vector<double>& dehitphi,
-                                        const RecHit& pRecHit, const RecHit& nRecHit, 
+  TrajectoryStateOnSurface updateBarrel(std::vector<double>& rhit, std::vector<double>& zhit, 
+                                        std::vector<double>& dphihit, std::vector<double>& drhit, 
+	                                std::vector<double>& ehitstrip, std::vector<double>& dehitphi,
+                                        const TransientTrackingRecHit::ConstRecHitPointer& pRecHit, const TransientTrackingRecHit::ConstRecHitPointer& nRecHit, 
 			                const TrajectoryStateOnSurface& nTsos, double&, double&, int&) const;
 						 
-  TrajectoryStateOnSurface updateEndcap(vector<double>& rhit, vector<double>& zhit, 
-                                        vector<double>& dphihit, vector<double>& drhit, 
-	                                vector<double>& ehitstrip, vector<double>& dehitphi,
-                                        const RecHit& pRecHit, const RecHit& nRecHit, 
+  TrajectoryStateOnSurface updateEndcap(std::vector<double>& rhit, std::vector<double>& zhit, 
+                                        std::vector<double>& dphihit, std::vector<double>& drhit, 
+	                                std::vector<double>& ehitstrip, std::vector<double>& dehitphi,
+                                        const TransientTrackingRecHit::ConstRecHitPointer& pRecHit, const TransientTrackingRecHit::ConstRecHitPointer& nRecHit, 
 			                const TrajectoryStateOnSurface& nTsos, double&, double&, int& ) const;
 
 private:
 
-  double findPhiInVertex(const FreeTrajectoryState& fts, const double& rc, const Det* det) const;
+  double findPhiInVertex(const FreeTrajectoryState& fts, const double& rc, const GeomDetEnumerators::Location) const;
 
-  bool linefit1(const vector <double>& x, const vector <double>& y, const vector <double>& err,
+  bool linefit1(const std::vector <double>& x, const std::vector <double>& y, const std::vector <double>& err,
                 double& a, double& chi ) const;
-  bool linefit2(const vector <double>& x, const vector <double>& y, const vector <double>& err,
+  bool linefit2(const std::vector <double>& x, const std::vector <double>& y, const std::vector <double>& err,
                 double& a, double& b, double& chi ) const;
   double zvert;
   double          thePhiWin;
-  double          theZWin;		
+  double          theZWin;
+  const MagneticField * field;		
 };
 
 #endif
