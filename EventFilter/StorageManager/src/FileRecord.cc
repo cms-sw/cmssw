@@ -1,4 +1,4 @@
-// $Id:$
+// $Id: FileRecord.cc,v 1.3 2007/06/11 12:23:11 klute Exp $
 
 #include <EventFilter/StorageManager/interface/FileRecord.h>
 #include <EventFilter/StorageManager/interface/Configurator.h>
@@ -276,6 +276,8 @@ void FileRecord::checkDirectory(string path)
     {
       edm::LogError("StorageManager") << "Directory " << path
 				      << " does not exist. Error=" << errno ;
+      throw cms::Exception("FileRecord","checkDirectory")
+            << "Directory " << path << " does not exist. Error=" << errno << std::endl;
     }
 }
 

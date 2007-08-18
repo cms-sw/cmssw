@@ -10,7 +10,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: StorageManager.h,v 1.16 2007/06/28 20:37:41 hcheung Exp $
+   $Id: StorageManager.h,v 1.17 2007/08/15 23:11:29 hcheung Exp $
 */
 
 #include <string>
@@ -96,6 +96,8 @@ namespace stor {
     void stopAction();
     void haltAction();
 
+    bool checkDirectoryOK(std::string dir);
+
     void defaultWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
     void css(xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception)
@@ -130,6 +132,12 @@ namespace stor {
 
     xdata::Boolean pushmode2proxy_;
     xdata::Integer nLogicalDisk_;
+    xdata::String  fileName_;
+    xdata::String  filePath_;
+    xdata::String  mailboxPath_;
+    xdata::String  setupLabel_;
+    xdata::Double  highWaterMark_;
+    xdata::Double  lumiSectionTimeOut_;
     xdata::String  fileCatalog_;
 
     xdata::String  closeFileScript_;

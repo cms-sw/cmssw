@@ -1,10 +1,10 @@
-// $Id: StorageManager.cc,v 1.24 2007/07/30 04:50:43 wmtan Exp $
+// $Id: StorageManager.cc,v 1.25 2007/08/15 23:13:54 hcheung Exp $
 
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <vector>
-#include <sys/statfs.h>
+#include <sys/stat.h>
 
 #include "EventFilter/StorageManager/interface/StorageManager.h"
 #include "EventFilter/StorageManager/interface/ConsumerPipe.h"
@@ -50,6 +50,11 @@
 #include "xoap/domutils.h"
 
 #include "xdata/InfoSpaceFactory.h"
+
+namespace stor {
+extern bool getSMFC_exceptionStatus();
+extern std::string getSMFC_reason4Exception();
+}
 
 using namespace edm;
 using namespace std;
@@ -168,11 +173,23 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   notifyTier0Script_  = smParameter_ -> notifyTier0Script();
   insertFileScript_   = smParameter_ -> insertFileScript();  
   fileCatalog_        = smParameter_ -> fileCatalog(); 
+  fileName_           = smParameter_ -> fileName();
+  filePath_           = smParameter_ -> filePath();
+  mailboxPath_        = smParameter_ -> mailboxPath();
+  setupLabel_         = smParameter_ -> setupLabel();
+  highWaterMark_      = smParameter_ -> highWaterMark();
+  lumiSectionTimeOut_ = smParameter_ -> lumiSectionTimeOut();
 
   ispace->fireItemAvailable("closeFileScript",    &closeFileScript_);
   ispace->fireItemAvailable("notifyTier0Script",  &notifyTier0Script_);
   ispace->fireItemAvailable("insertFileScript",   &insertFileScript_);
   ispace->fireItemAvailable("fileCatalog",        &fileCatalog_);
+  ispace->fireItemAvailable("fileName",           &fileName_);
+  ispace->fireItemAvailable("filePath",           &filePath_);
+  ispace->fireItemAvailable("mailboxPath",        &mailboxPath_);
+  ispace->fireItemAvailable("setupLabel",         &setupLabel_);
+  ispace->fireItemAvailable("highWaterMark",      &highWaterMark_);
+  ispace->fireItemAvailable("lumiSectionTimeOut", &lumiSectionTimeOut_);
 
   // added for Event Server
   ser_prods_size_ = 0;
@@ -724,6 +741,17 @@ void StorageManager::addMeasurement(unsigned long size)
       maxBandwidth_ = instantBandwidth_;
     if (instantBandwidth_ < minBandwidth_)
       minBandwidth_ = instantBandwidth_;
+  }
+
+  // TODO fixme: Find a better place to put this testing of the Fragment Collector thread status!
+  // leave this for now until we have the transition available and have clean up code
+  if(stor::getSMFC_exceptionStatus()) {
+    // there was a fatal exception in the Fragmentation Collector and
+    // we want to go to a fail state
+    //reasonForFailedState_  = stor::getSMFC_reason4Exception();
+    //fsm_.fireFailed(reasonForFailedState_,this);
+    edm::LogError("StorageManager") << "Fatal problem in FragmentCollector thread detected! \n"
+       << stor::getSMFC_reason4Exception();
   }
 }
 
@@ -1868,6 +1896,12 @@ void StorageManager::setupFlashList()
   is->fireItemAvailable("compressionLevelDQM",  &compressionLevelDQM_);
   is->fireItemAvailable("nLogicalDisk",         &nLogicalDisk_);
   is->fireItemAvailable("fileCatalog",          &fileCatalog_);
+  is->fireItemAvailable("fileName",             &fileName_);
+  is->fireItemAvailable("filePath",             &filePath_);
+  is->fireItemAvailable("mailboxPath",          &mailboxPath_);
+  is->fireItemAvailable("setupLabel",           &setupLabel_);
+  is->fireItemAvailable("highWaterMark",        &highWaterMark_);
+  is->fireItemAvailable("lumiSectionTimeOut",   &lumiSectionTimeOut_);
   is->fireItemAvailable("maxESEventRate",       &maxESEventRate_);
   is->fireItemAvailable("activeConsumerTimeout",&activeConsumerTimeout_);
   is->fireItemAvailable("idleConsumerTimeout",  &idleConsumerTimeout_);
@@ -1910,6 +1944,12 @@ void StorageManager::setupFlashList()
   is->addItemRetrieveListener("compressionLevelDQM",  this);
   is->addItemRetrieveListener("nLogicalDisk",         this);
   is->addItemRetrieveListener("fileCatalog",          this);
+  is->addItemRetrieveListener("fileName",             this);
+  is->addItemRetrieveListener("filePath",             this);
+  is->addItemRetrieveListener("mailboxPath",          this);
+  is->addItemRetrieveListener("setupLabel",           this);
+  is->addItemRetrieveListener("highWaterMark",        this);
+  is->addItemRetrieveListener("lumiSectionTimeOut",   this);
   is->addItemRetrieveListener("maxESEventRate",       this);
   is->addItemRetrieveListener("activeConsumerTimeout",this);
   is->addItemRetrieveListener("idleConsumerTimeout",  this);
@@ -1990,7 +2030,13 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
     smParameter_ -> setNotifyTier0Script(notifyTier0Script_.toString());
     smParameter_ -> setInsertFileScript(insertFileScript_.toString());
     smParameter_ -> setFileCatalog(fileCatalog_.toString());
-    
+    smParameter_ -> setfileName(fileName_.toString());
+    smParameter_ -> setfilePath(filePath_.toString());
+    smParameter_ -> setmailboxPath(mailboxPath_.toString());
+    smParameter_ -> setsetupLabel(setupLabel_.toString());
+    smParameter_ -> sethighWaterMark(highWaterMark_.value_);
+    smParameter_ -> setlumiSectionTimeOut(lumiSectionTimeOut_.value_);
+
     if (maxESEventRate_ < 0.0)
       maxESEventRate_ = 0.0;
     if (DQMmaxESEventRate_ < 0.0)
@@ -2200,6 +2246,18 @@ void StorageManager::haltAction()
   {
     boost::mutex::scoped_lock sl(halt_lock_);
     jc_.reset();
+  }
+}
+
+bool checkDirectoryOK(std::string path)
+{
+  struct stat buf;
+
+  int retVal = stat(path.c_str(), &buf);
+  if(retVal !=0 )
+  {
+    edm::LogError("StorageManager") << "Directory " << path
+                                    << " does not exist. Error=" << errno ;
   }
 }
 
