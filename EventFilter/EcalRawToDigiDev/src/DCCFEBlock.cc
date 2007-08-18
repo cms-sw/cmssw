@@ -69,12 +69,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
       <<"\n Expected trigger tower is "<<expTowerID_<<" while "<<towerId_<<" was found "
       <<"\n => Skipping to next tower block...";
     EcalTrigTowerDetId * tp = mapper_->getTTDetIdPointer(mapper_->getActiveSM()+TCCID_SMID_SHIFT_EB,expTowerID_);
-    // this needs understanding and fix
     (*invalidTTIds_)->push_back(*tp);
-    
-    edm::LogWarning("EcalRawToDigiDevTowerId") << "gio tower ieta(): " << (*tp).ieta()
-					       << " iphi(): " << (*tp).iphi()
-					       << " iDCC(): " << (*tp).iDCC();
 
     updateEventPointers();
     return SKIP_BLOCK_UNPACKING;     
