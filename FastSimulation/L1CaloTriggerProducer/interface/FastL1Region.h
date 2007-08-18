@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1Region.h,v 1.8 2007/06/17 14:31:34 chinhan Exp $
+// $Id: FastL1Region.h,v 1.9 2007/08/14 15:17:24 chinhan Exp $
 //
 
 // user include files
@@ -89,6 +89,9 @@ struct FastL1Config {
 
   std::vector<edm::InputTag> EmInputs;
   edm::InputTag TowerInput;
+
+  edm::InputTag EcalTPInput;
+  edm::InputTag HcalTPInput;
 };
 
 //
@@ -161,6 +164,10 @@ class FastL1Region {
 
   // public - has to bechanged!!!
   //FastL1BitInfo BitInfo;
+
+  void SetFGBit(int twrid,bool FGBIT);
+  void SetHCFGBit(int twrid,bool FGBIT);
+  void SetHOEBit(int twrid,bool FGBIT);
 
  private:
   void SetTauBit(edm::Event const& e);

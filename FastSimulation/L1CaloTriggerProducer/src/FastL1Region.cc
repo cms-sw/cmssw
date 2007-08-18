@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1Region.cc,v 1.6 2007/06/17 14:31:35 chinhan Exp $
+// $Id: FastL1Region.cc,v 1.7 2007/08/13 22:28:43 chinhan Exp $
 //
 
 // No BitInfos for release versions
@@ -430,6 +430,22 @@ FastL1Region::SetMIPBit()
       return;
     }
   }
+}
+
+void 
+FastL1Region::SetFGBit(int twrid,bool FGBIT)
+{
+  fgBit[twrid] = FGBIT;
+}
+void 
+FastL1Region::SetHCFGBit(int twrid,bool FGBIT)
+{
+  ;
+}
+void 
+FastL1Region::SetHOEBit(int twrid,bool FGBIT)
+{
+  hOeBit[twrid] = FGBIT;
 }
 
 void 

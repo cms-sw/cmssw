@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.h,v 1.4 2007/06/17 13:53:31 chinhan Exp $
+// $Id: FastL1GlobalAlgo.h,v 1.5 2007/06/17 14:31:34 chinhan Exp $
 //
 
 // system include files
@@ -46,15 +46,15 @@
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
 #include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
 
-#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1ParticleMapFwd.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
 #include "FastSimulation/L1CaloTriggerProducer/interface/FastL1Region.h"
 // No BitInfos for release versions
 //#include "DataFormats/FastL1/interface/FastL1BitInfo.h"
+
+#include "Geometry/CaloTopology/interface/CaloTowerConstituentsMap.h"
+#include "DataFormats/Math/interface/Vector3D.h"
 
 //
 // constants, enums and typedefs
@@ -82,12 +82,18 @@ class FastL1GlobalAlgo {
       l1extra::L1EmParticleCollection getisoEgammas() const { return m_isoEgammas; }
       //FastL1BitInfoCollection getBitInfos() { return m_BitInfos; }
 
+      //void FillBitInfos();
+      void InitL1Regions();
+
+     // ------------ Methods using Towers and RecHits ------------
       void FillMET(); // old version
       void FillMET(edm::Event const& e);
       void FillL1Regions(edm::Event const& e, const edm::EventSetup& c);
       void FillJets(const edm::EventSetup& e) { findJets(); };
       void FillEgammas(edm::Event const&);
-      //void FillBitInfos();
+ 
+      // ------------ Methods using Trigger Primitives------------
+      void FillL1RegionsTP(edm::Event const& e, const edm::EventSetup& c);
 
  private:
       bool isMaxEtRgn_Window33(int rgnid);

@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.cc,v 1.9 2007/08/13 22:29:00 chinhan Exp $
+// $Id: FastL1GlobalAlgo.cc,v 1.11 2007/08/15 13:42:16 chinhan Exp $
 //
 
 // No BitInfos for release versions
@@ -67,6 +67,9 @@ FastL1GlobalAlgo::FastL1GlobalAlgo(const edm::ParameterSet& iConfig)
   
   m_L1Config.EmInputs = iConfig.getParameter <std::vector<edm::InputTag> >("EmInputs");
   m_L1Config.TowerInput = iConfig.getParameter<edm::InputTag>("TowerInput");
+
+  m_L1Config.EcalTPInput = iConfig.getParameter<edm::InputTag>("EcalTPInput");
+  m_L1Config.HcalTPInput = iConfig.getParameter<edm::InputTag>("HcalTPInput");
 
 }
 
@@ -405,9 +408,8 @@ FastL1GlobalAlgo::FillMET() {
   
 }
 
-// ------------ Fill L1 Regions ------------
 void 
-FastL1GlobalAlgo::FillL1Regions(edm::Event const& e, const edm::EventSetup& iConfig) 
+FastL1GlobalAlgo::InitL1Regions() 
 {
   m_Regions.clear();
   m_Regions = std::vector<FastL1Region>(396); // ieta: 1-22, iphi: 1-18
@@ -415,15 +417,138 @@ FastL1GlobalAlgo::FillL1Regions(edm::Event const& e, const edm::EventSetup& iCon
   // init regions
   for (int i=0; i<396; i++) {
     m_Regions[i].SetParameters(m_L1Config);
-
+    
     std::pair<int, int> p = m_RMap->getRegionEtaPhiIndex(i);
     m_Regions[i].SetEtaPhiIndex(p.first,p.second,i);
     CaloTowerCollection c(16);
     for (int twrid=0; twrid<16; twrid++) {
       m_Regions[i].FillTowerZero(c[twrid],twrid);
-      //std::cout << "+++++++++++++++++++++++++++++" << std::endl;
     }
+  }  
+}
+
+// ------------ Fill L1 Regions on Trigger Primitives------------
+void 
+FastL1GlobalAlgo::FillL1RegionsTP(edm::Event const& e, const edm::EventSetup& s) 
+{
+  edm::ESHandle<CaloTowerConstituentsMap> cttopo;
+  s.get<IdealGeometryRecord>().get(cttopo);
+  const CaloTowerConstituentsMap* theTowerConstituentsMap = cttopo.product();
+
+  InitL1Regions();
+
+  edm::Handle<EcalTrigPrimDigiCollection> ETPinput;
+  e.getByLabel(m_L1Config.EcalTPInput,ETPinput);
+
+  edm::Handle<HcalTrigPrimDigiCollection> HTPinput;
+  e.getByLabel(m_L1Config.HcalTPInput,HTPinput);
+
+  //CaloTowerCollection towers;
+  int hEtV[396][16];
+  int hFGV[396][16];
+  for (HcalTrigPrimDigiCollection::const_iterator hTP=HTPinput->begin(); 
+       hTP!=HTPinput->end(); hTP++) {
+    
+    //if (hTP!=HTPinput->end()) {
+    HcalTrigTowerDetId htwrid   = hTP->id();
+    //DetId htwrid   = (DetId)hTP->id();
+    //std::cout<<"******* AAAAAAAAAAA"<<std::endl;
+    //CaloTowerDetId hTPtowerDetId = theTowerConstituentsMap->towerOf((DetId)htwrid);
+    //std::cout<<"******* BBBBBBBBB"<<std::endl;
+    
+    int rgnid = 999;
+    int twrid = 999;
+    rgnid  = m_RMap->getRegionIndex(htwrid.ieta(),htwrid.iphi());
+    twrid = m_RMap->getRegionTowerIndex(htwrid.ieta(),htwrid.iphi());
+
+
+    //std::cout<<"+++ "<<hTP->SOI_compressedEt()<<" "<<hTP->SOI_fineGrain()<<" "
+    //     <<rgnid<<" "<<twrid<<std::endl;
+
+
+    hEtV[rgnid][twrid] = hTP->SOI_compressedEt();
+    hFGV[rgnid][twrid] = hTP->SOI_fineGrain();
+    
   }
+  
+  for (EcalTrigPrimDigiCollection::const_iterator eTP=ETPinput->begin(); 
+       eTP!=ETPinput->end(); eTP++) {
+    //EcalTrigTowerDetId etwrid   = eTP->id();
+    DetId etwrid   = (DetId)eTP->id();
+    //CaloTowerDetId eTPtowerDetId = theTowerConstituentsMap->towerOf(eTP->id());
+    //CaloTowerDetId eTPtowerDetId = CaloTowerDetId(eTP->id());
+    CaloTowerDetId eTPtowerDetId = CaloTowerDetId(eTP->id().zside()*eTP->id().ietaAbs(),
+						  eTP->id().ieta());
+
+    //for (HcalTrigPrimDigiCollection::const_iterator hTP=HTPinput->begin(); 
+    // hTP!=HTPinput->end(); hTP++) {
+
+    //HcalTrigTowerDetId hid = HcalTrigTowerDetId((DetId)eTP->id());
+    //HcalTrigPrimDigiCollection::const_iterator hTP=HTPinput->find(hid);
+    
+    int rgnid = 999;
+    int twrid = 999;
+   
+    /* 
+    std::pair<int, int> pep = m_RMap->getRegionEtaPhiIndex(eTPtowerDetId);
+    if (std::abs(pep.first)<=22) {
+      rgnid = pep.second*22 + pep.first;
+      twrid = m_RMap->getRegionTowerIndex(eTPtowerDetId);
+    } 
+    */
+    rgnid  = m_RMap->getRegionIndex(eTP->id().ieta(),eTP->id().iphi());
+    twrid = m_RMap->getRegionTowerIndex(eTP->id().ieta(),eTP->id().iphi());
+    
+    //std::cout<<"--- "<<eTP->compressedEt()<<" "<<eTP->fineGrain()<<" "
+    //     <<rgnid<<" "<<twrid<<std::endl;
+
+    //if (htwrid == etwrid) {
+    double LSB=0.5;
+    double emEt = eTP->compressedEt()*LSB;
+    double hadEt = hEtV[rgnid][twrid]*LSB;
+    
+    double et = emEt + hadEt;
+    std::pair<double, double> etaphi 
+      = m_RMap->getRegionCenterEtaPhi(rgnid);
+    double eta = etaphi.first;
+    double phi = etaphi.second;
+    
+    math::RhoEtaPhiVector lvec(et,eta,phi);
+    
+    //std::cout<<"*** "<<eTP->id()<<" "<<eTPtowerDetId<<" "<<lvec<<" "<<lvec.eta()<<" "<<lvec.phi()<<" "
+    //     <<emEt<<" "<<hadEt<<std::endl;
+ 
+    CaloTower t = CaloTower(eTPtowerDetId, lvec, 
+    		    emEt, hadEt, 
+    		    0., 0, 0);
+    
+    //std::cout<<"@@@ "<<t.emEt()<<" "<<t.hadEt()<<" "
+    //     <<t.id()<<" "<<rgnid<<" "<<twrid<<std::endl;
+    
+    if (rgnid<396 && twrid<16) {
+      m_Regions[rgnid].FillTower_Scaled(t,twrid);
+      
+      m_Regions[rgnid].SetFGBit(twrid,eTP->fineGrain());
+      m_Regions[rgnid].SetHOEBit(twrid,hFGV[rgnid][twrid]);
+      //m_Regions[rgnid].SetHCFBit(twrid,false);
+      
+      m_Regions[rgnid].SetRegionBits(e);
+    }
+    
+    //}
+    //}
+  }
+
+
+  
+
+}
+
+// ------------ Fill L1 Regions on Towers and RecHits------------
+void 
+FastL1GlobalAlgo::FillL1Regions(edm::Event const& e, const edm::EventSetup& iConfig) 
+{
+  InitL1Regions();
 
   // ascii visualisation of mapping
   //m_RMap->display();

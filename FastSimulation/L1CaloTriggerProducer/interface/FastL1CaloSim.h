@@ -15,12 +15,13 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1CaloSim.h,v 1.2 2007/06/17 13:53:31 chinhan Exp $
+// $Id: FastL1CaloSim.h,v 1.3 2007/06/17 14:31:34 chinhan Exp $
 //
 //
 
 // system include files
 #include <memory>
+#include <string>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -48,6 +49,8 @@ class FastL1CaloSim : public edm::EDProducer {
       FastL1GlobalAlgo* m_L1GlobalAlgo;
 
       bool m_DoBitInfo;
+      std::string m_AlgorithmSource;
+
 };
 
 #endif

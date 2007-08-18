@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1CaloSim.cc,v 1.5 2007/06/17 14:31:35 chinhan Exp $
+// $Id: FastL1CaloSim.cc,v 1.6 2007/07/27 19:35:18 chinhan Exp $
 //
 //
 
@@ -43,6 +43,7 @@ FastL1CaloSim::FastL1CaloSim(const edm::ParameterSet& iConfig)
   produces<l1extra::L1EmParticleCollection>("Isolated");
   produces<l1extra::L1MuonParticleCollection>(); // muon is dummy for L1extraParticleMap!
 
+  m_AlgorithmSource = iConfig.getParameter<std::string>("AlgorithmSource");
 
   // No BitInfos for release versions
   /*
@@ -72,15 +73,19 @@ FastL1CaloSim::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   //edm::LogInfo("FastL1CaloSim::produce()");
 
-  m_L1GlobalAlgo->FillL1Regions(iEvent, iSetup);
+  if (m_AlgorithmSource == "RecHits") {
+    m_L1GlobalAlgo->FillL1Regions(iEvent, iSetup);
+  } else if (m_AlgorithmSource == "TrigPrims") {
+    m_L1GlobalAlgo->FillL1RegionsTP(iEvent,iSetup);
+  } else {
+    std::cerr<<"AlgorithmSource not valid: "<<m_AlgorithmSource<<std::endl;
+    return;
+  }
   //m_L1GlobalAlgo->FillMET(iEvent); // using CaloTowers
-
-  //Test HF!!!
   m_L1GlobalAlgo->FillMET();     // using Regions
-
   m_L1GlobalAlgo->FillJets(iSetup);
   m_L1GlobalAlgo->FillEgammas(iEvent);
-
+  
   /*
   if (m_DoBitInfo)
     m_L1GlobalAlgo->FillBitInfos();
