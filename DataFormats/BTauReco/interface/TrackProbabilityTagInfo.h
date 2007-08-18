@@ -127,10 +127,10 @@ int factorial(int n) const
   virtual TrackProbabilityTagInfo* clone() const { return new TrackProbabilityTagInfo( * this ); }
   
   private:
-   std::vector<double> m_probability2d;  //create a smarter container instead of 
-   std::vector<double> m_probability3d;  //create a smarter container instead of 
-   std::vector<int> m_trackOrder2d;       // this  pair of vectors. 
-   std::vector<int> m_trackOrder3d;       // this  pair of vectors. 
+   std::vector<double> m_probability2d;     //
+   std::vector<double> m_probability3d;     // create a smarter container instead of 
+   std::vector<int> m_trackOrder2d;         // this pair of vectors. 
+   std::vector<int> m_trackOrder3d;         //
  };
 
 //typedef edm::ExtCollection< TrackProbabilityTagInfo,JetTagCollection> TrackProbabilityExtCollection;

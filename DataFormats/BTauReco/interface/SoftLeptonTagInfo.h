@@ -2,7 +2,7 @@
 #define DataFormats_BTauReco_SoftLeptonTagInfo_h
 
 #include "DataFormats/BTauReco/interface/RefMacros.h"
-#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include "DataFormats/BTauReco/interface/JetTagInfo.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
 

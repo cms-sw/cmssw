@@ -7,7 +7,7 @@
 //
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include <vector>

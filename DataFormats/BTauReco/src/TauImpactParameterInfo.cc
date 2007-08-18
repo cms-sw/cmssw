@@ -1,5 +1,5 @@
 #include "DataFormats/BTauReco/interface/TauImpactParameterInfo.h"
-#include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
+#include "DataFormats/TrackReco/interface/Track.h" 
 
 using namespace edm;
 using namespace reco;

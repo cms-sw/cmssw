@@ -1,4 +1,5 @@
 #include "DataFormats/BTauReco/interface/PFIsolatedTauTagInfo.h"
+#include "DataFormats/JetReco/interface/PFJet.h" 
 #include "DataFormats/TrackReco/interface/Track.h" 
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h" 
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"

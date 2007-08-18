@@ -1,9 +1,18 @@
 #include <utility>
 #include <vector>
 
+#include "Rtypes.h" 
+#include "Math/Cartesian3D.h" 
+#include "Math/CylindricalEta3D.h" 
+#include "Math/Polar3D.h" 
+#include "Math/PxPyPzE4D.h" 
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
+#include "DataFormats/Common/interface/RefProd.h" 
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 #include "DataFormats/BTauReco/interface/JetCrystalsAssociation.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
