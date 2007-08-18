@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2007/08/14 17:43:06 $
- * $Revision: 1.40 $
+ * $Date: 2007/08/18 19:40:50 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  *
  */
@@ -418,18 +418,17 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       EcalTrigTowerDetId id = (*idItr);
 
-      int iet = abs (id.ieta());
+      int iet = abs(id.ieta());
       int ipt = id.iphi();
 
       // phi_tower: change the range from global to SM-local
       // phi==0 is in the middle of a SM
-      ipt += 2;
-      if (ipt > 72) ipt  -= 72;
-      ipt = ( (ipt-1) % 4) +1;
+      ipt = ipt + 2;
+      if ( ipt > 72 ) ipt = ipt - 72;
+      ipt = (ipt-1)%4 + 1;
 
       // phi_tower: SM-local phi runs opposite to global in EB+
-      if ( id.zside() >0)
-	{ ipt = 5 - ipt;      }
+      if ( id.zside() ) ipt = 5 - ipt;
 
       int ismt = Numbers::iSM( id );
 
@@ -455,18 +454,17 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       EcalTrigTowerDetId id = (*idItr);
 
-      int iet = abs (id.ieta());
+      int iet = abs(id.ieta());
       int ipt = id.iphi();
 
       // phi_tower: change the range from global to SM-local
       // phi==0 is in the middle of a SM
-      ipt += 2;
-      if (ipt > 72) ipt  -= 72;
-      ipt = ( (ipt-1) % 4) +1;
+      ipt = ipt + 2;
+      if ( ipt > 72 ) ipt  = ipt - 72;
+      ipt = (ipt-1)%4 + 1;
 
       // phi_tower: SM-local phi runs opposite to global in EB+
-      if ( id.zside() >0)
-	{ ipt = 5 - ipt;      }
+      if ( id.zside() >0) ipt = 5 - ipt;
 
       int ismt = Numbers::iSM( id );
 
