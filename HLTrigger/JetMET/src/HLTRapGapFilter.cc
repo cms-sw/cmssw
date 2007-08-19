@@ -1,6 +1,6 @@
 /** \class HLTRapGapFilter
  *
- * $Id: HLTRapGapFilter.cc,v 1.3 2007/08/01 12:22:45 elmer Exp $
+ * $Id: HLTRapGapFilter.cc,v 1.4 2007/08/05 22:57:19 apana Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -96,7 +96,7 @@ HLTRapGapFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   
   // filter decision
-  bool accept(n>=0);
+  bool accept(n>0);
   
   // put filter object into the Event
   iEvent.put(filterproduct);
