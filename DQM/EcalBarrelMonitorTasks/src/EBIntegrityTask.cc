@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2007/08/18 21:58:10 $
- * $Revision: 1.42 $
+ * $Date: 2007/08/18 22:21:41 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  *
  */
@@ -464,7 +464,7 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
       ipt = (ipt-1)%4 + 1;
 
       // phi_tower: SM-local phi runs opposite to global in EB+
-      if ( id.zside() >0 ) ipt = 5 - ipt;
+      if ( id.zside() > 0 ) ipt = 5 - ipt;
 
       int ismt = Numbers::iSM( id );
 
