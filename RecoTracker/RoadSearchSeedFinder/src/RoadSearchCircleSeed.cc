@@ -5,14 +5,12 @@
 // Description:     circle from three global points in 2D 
 //                  all data members restricted to 2 dimensions
 //
-//                  following http://home.att.net/~srschmitt/circle3pts.html
-//
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Mon Jan 22 21:42:35 UTC 2007
 //
 // $Author: gutsche $
-// $Date: 2007/02/05 19:26:14 $
-// $Revision: 1.1 $
+// $Date: 2007/06/13 14:26:48 $
+// $Revision: 1.3 $
 //
 
 #include <cmath>
@@ -25,21 +23,23 @@
 RoadSearchCircleSeed::RoadSearchCircleSeed(const TrackingRecHit *hit1,
 					   const TrackingRecHit *hit2,
 					   const TrackingRecHit *hit3,
-					   GlobalPoint point1,
-					   GlobalPoint point2,
-					   GlobalPoint point3) { 
+					   GlobalPoint &point1,
+					   GlobalPoint &point2,
+					   GlobalPoint &point3) { 
 
+  hits_.reserve(3);
   hits_.push_back(hit1);
   hits_.push_back(hit2);
   hits_.push_back(hit3);
 
+  points_.reserve(3);
   points_.push_back(point1);
   points_.push_back(point2);
   points_.push_back(point3);
 
   FastCircle kreis(point1,
-		    point2,
-		    point3);
+		   point2,
+		   point3);
 
   if ( !kreis.isValid() ) {
     // line
@@ -58,16 +58,17 @@ RoadSearchCircleSeed::RoadSearchCircleSeed(const TrackingRecHit *hit1,
 
 RoadSearchCircleSeed::RoadSearchCircleSeed(const TrackingRecHit *hit1,
 					   const TrackingRecHit *hit2,
-					   GlobalPoint point1,
-					   GlobalPoint point2) { 
+					   GlobalPoint &point1,
+					   GlobalPoint &point2) { 
   //
   // straight line constructor
   //
 
-
+  hits_.reserve(2);
   hits_.push_back(hit1);
   hits_.push_back(hit2);
 
+  points_.reserve(2);
   points_.push_back(point1);
   points_.push_back(point2);
 
@@ -81,7 +82,7 @@ RoadSearchCircleSeed::RoadSearchCircleSeed(const TrackingRecHit *hit1,
 RoadSearchCircleSeed::~RoadSearchCircleSeed() {
 }
 
-double RoadSearchCircleSeed::calculateImpactParameter(GlobalPoint center,
+double RoadSearchCircleSeed::calculateImpactParameter(GlobalPoint &center,
 						      double radius) {
   //
   // calculate impact parameter to (0,0,0) from center and radius of circle
