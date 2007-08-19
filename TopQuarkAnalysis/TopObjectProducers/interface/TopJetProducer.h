@@ -1,5 +1,5 @@
 //
-// $Id: TopJetProducer.h,v 1.14 2007/08/06 14:37:41 tsirig Exp $
+// $Id: TopJetProducer.h,v 1.15 2007/08/09 09:16:50 tsirig Exp $
 //
 
 #ifndef TopObjectProducers_TopJetProducer_h
@@ -13,7 +13,7 @@
    with possible adding of resolutions and more things to come
 
   \author   Jan Heyninck
-  \version  $Id: TopJetProducer.h,v 1.14 2007/08/06 14:37:41 tsirig Exp $
+  \version  $Id: TopJetProducer.h,v 1.15 2007/08/09 09:16:50 tsirig Exp $
 */
 
 
@@ -58,44 +58,42 @@ class TopJetProducer : public edm::EDProducer {
     edm::InputTag recJetsLabel_;
     edm::InputTag caliJetsLabel_;
     // TEMP Jet cleaning from electrons
+    bool          doJetCleaning_;
     edm::InputTag topElectronsLabel_;
     edm::InputTag topMuonsLabel_;
-    bool          doJetCleaning_;
+    float LEPJETDR_;
+    float ELEISOCUT_;
+    float MUISOCUT_;
     // TEMP End
+    bool          getJetMCFlavour_;
+    bool          doGenPartonMatch_;
+    edm::InputTag genPartonSrc_;
+    bool          doGenJetMatch_;
+    edm::InputTag genJetSrc_;
+    bool          doPartonJetMatch_;
+    edm::InputTag partonJetSrc_;
     bool          addResolutions_;
     std::string   caliJetResoFile_;
     bool          storeBTagInfo_;
-
-    std::vector<std::string> tagModuleLabelsToIgnore_v;
-    std::vector<std::string> bTaggingTagInfoNames_v;
-
     bool          ignoreTrackCountingFromAOD_;
     bool          ignoreTrackProbabilityFromAOD_;
     bool          ignoreSoftMuonFromAOD_;      
     bool          ignoreSoftElectronFromAOD_; 
     bool          keepDiscriminators_; 
     bool          keepJetTagRefs_;
-    bool          getJetMCFlavour_;
-
     bool          storeAssociatedTracks_;
     edm::ParameterSet trackAssociationPSet_;
-
     bool          computeJetCharge_;
     edm::ParameterSet jetChargePSet_;
 
-    // TEMP Jet cleaning from electrons
-    float LEPJETDR_;
-    float ELEISOCUT_;
-    float MUISOCUT_;
-    // TEMP End
+    std::vector<std::string> tagModuleLabelsToIgnore_;
+    std::vector<std::string> bTaggingTagInfoNames_;
 
     // tools
     TopObjectResolutionCalc *   theResoCalc_;
     JetFlavourIdentifier *      jetFlavId_;
-    //EtInverseComparator<TopJet> eTComparator_;
-    GreaterByEt<TopJet> eTComparator_;
-    //    JetCharge                   jetCharge_;
-    JetCharge * jetCharge_p;
+    GreaterByEt<TopJet>         eTComparator_;
+    JetCharge *                 jetCharge_;
     reco::helper::SimpleJetTrackAssociator    simpleJetTrackAssociator_;
 
 };
