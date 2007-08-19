@@ -219,7 +219,10 @@ namespace edm
 #include <boost/iterator/iterator_facade.hpp>
 
 #include<string>
-#include<iostream>
+#include<ostream>
+
+
+// iterators and visitors
 
 namespace edm{
 
@@ -263,6 +266,7 @@ namespace edm{
   };
   
   
+  /// visit each node of the trie
   template<typename V, typename T>
   void walkTrie(V & v,  TrieNode<T> const  & n, std::string const & label="") {
     typedef TrieNode<T> const node_base;
@@ -273,9 +277,26 @@ namespace edm{
       walkTrie(v,*p,label+(char)p.label());
     }
   }
-  
-} 
+   
 
+
+  /// visits only leaf nodes 
+  template<typename V, typename T>
+  bool iterateTrieLeaves(V & v,  TrieNode<T> const  & n, std::string const & label="") {
+    typedef TrieNode<T> const node_base;
+    typedef TrieNodeIter<T> node_iterator;
+    node_iterator e;
+    node_iterator p(&n);
+    if (p==e) return true;
+    for (; p!=e; ++p) {
+      if (iterateTrieLeaves(v,*p,label+(char)p.label()) )
+	v(*p,label+(char)p.label());
+    }
+    return false;
+  }
+
+
+}
 
 //
 //----------------------------------------------------------------

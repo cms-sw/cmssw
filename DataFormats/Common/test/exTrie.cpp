@@ -76,8 +76,14 @@ int main(int argc, char **argv)
     std::cout << p.label() << " = " << p->value() << std::endl;
   std::cout << std::endl;
 	
+  std::cout << "\nfull walk"<< std::endl;
   Print pr;
   edm::walkTrie(pr,*trie.initialNode());
   std::cout << std::endl;
+
+  std::cout << "\nleaves iteration"<< std::endl;
+  edm::iterateTrieLeaves(pr,*trie.initialNode());
+  std::cout << std::endl;
+
 
 }
