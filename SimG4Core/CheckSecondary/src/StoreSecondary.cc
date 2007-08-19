@@ -80,15 +80,17 @@ void StoreSecondary::update(const BeginOfTrack * trk) {
 
 void StoreSecondary::update(const G4Step * aStep) {
 
-  std::string name;
-  int         procID;
-  bool        hadrInt;
-  double      deltaE;
+  std::string      name;
+  int              procID;
+  bool             hadrInt;
+  double           deltaE;
+  std::vector<int> charge;
   std::vector<math::XYZTLorentzVector> tracks = treatSecondary->tracks(aStep,
 								       name,
 								       procID,
 								       hadrInt,
-								       deltaE);
+								       deltaE,
+								       charge);
   if (hadrInt) {
     nHad++;
     if (storeIt) {

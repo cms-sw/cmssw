@@ -51,7 +51,8 @@ std::vector<math::XYZTLorentzVector> TreatSecondary::tracks(const G4Step*aStep,
 							    std::string & name,
 							    int & procid,
                                                             bool & hadrInt,
-							    double & deltaE) {
+							    double & deltaE,
+							    std::vector<int> & charges) {
 
   step++;
   procid  = -1;
@@ -59,6 +60,7 @@ std::vector<math::XYZTLorentzVector> TreatSecondary::tracks(const G4Step*aStep,
   hadrInt = false;
   deltaE  = 0;
   std::vector<math::XYZTLorentzVector> secondaries;
+  charges.clear();
 
   if (aStep != NULL) {
     G4TrackVector* tkV  = const_cast<G4TrackVector*>(aStep->GetSecondary());
@@ -108,6 +110,8 @@ std::vector<math::XYZTLorentzVector> TreatSecondary::tracks(const G4Step*aStep,
 	  double        ee    = postStepPoint->GetTotalEnergy();
 	  secondary = math::XYZTLorentzVector(pp.x(),pp.y(),pp.z(),ee);
 	  secondaries.push_back(secondary);
+	  int           charge = (int)(postStepPoint->GetCharge());
+	  charges.push_back(charge);
 	}
 	for (int i=nsecL; i<nsc; i++) {
 	  G4Track*      tk = (*tkV)[i];
@@ -115,6 +119,8 @@ std::vector<math::XYZTLorentzVector> TreatSecondary::tracks(const G4Step*aStep,
 	  double        ee = tk->GetTotalEnergy();
 	  secondary = math::XYZTLorentzVector(pp.x(),pp.y(),pp.z(),ee);
 	  secondaries.push_back(secondary);
+	  int           charge = (int)(tk->GetDefinition()->GetPDGCharge());
+	  charges.push_back(charge);
 	}
       }
       
