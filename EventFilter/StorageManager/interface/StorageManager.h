@@ -10,7 +10,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: StorageManager.h,v 1.17 2007/08/15 23:11:29 hcheung Exp $
+   $Id: StorageManager.h,v 1.18 2007/08/18 06:04:56 hcheung Exp $
 */
 
 #include <string>
@@ -96,7 +96,7 @@ namespace stor {
     void stopAction();
     void haltAction();
 
-    bool checkDirectoryOK(std::string dir);
+    void checkDirectoryOK(std::string dir);
 
     void defaultWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);

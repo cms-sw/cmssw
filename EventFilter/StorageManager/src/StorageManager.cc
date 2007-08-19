@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.25 2007/08/15 23:13:54 hcheung Exp $
+// $Id: StorageManager.cc,v 1.26 2007/08/18 06:04:57 hcheung Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -2037,6 +2037,22 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
     smParameter_ -> sethighWaterMark(highWaterMark_.value_);
     smParameter_ -> setlumiSectionTimeOut(lumiSectionTimeOut_.value_);
 
+    // check output locations and scripts before we continue
+    try {
+      checkDirectoryOK(filePath_.toString());
+      checkDirectoryOK(mailboxPath_.toString());
+      checkDirectoryOK(closeFileScript_.toString());
+      checkDirectoryOK(notifyTier0Script_.toString());
+      checkDirectoryOK(insertFileScript_.toString());
+    }
+    catch(cms::Exception& e)
+    {
+      reasonForFailedState_ = e.explainSelf();
+      fsm_.fireFailed(reasonForFailedState_,this);
+      //XCEPT_RAISE (toolbox::fsm::exception::Exception, e.explainSelf());
+      return false;
+    }
+
     if (maxESEventRate_ < 0.0)
       maxESEventRate_ = 0.0;
     if (DQMmaxESEventRate_ < 0.0)
@@ -2249,15 +2265,17 @@ void StorageManager::haltAction()
   }
 }
 
-bool checkDirectoryOK(std::string path)
+void StorageManager::checkDirectoryOK(std::string path)
 {
   struct stat buf;
 
   int retVal = stat(path.c_str(), &buf);
   if(retVal !=0 )
   {
-    edm::LogError("StorageManager") << "Directory " << path
+    edm::LogError("StorageManager") << "Directory or file " << path
                                     << " does not exist. Error=" << errno ;
+    throw cms::Exception("StorageManager","checkDirectoryOK")
+            << "Directory or file " << path << " does not exist. Error=" << errno << std::endl;
   }
 }
 

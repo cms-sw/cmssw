@@ -1,3 +1,10 @@
+2007-08-19  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-07-01
+        * Check that output base path, mailbox path, and perl script files 
+          actually exist during configure action, go into fail state if
+          any of these do not exist.
+
 2007-08-18  Harry Cheung <cheung@fnal.gov>
 
 	* tag V03-07-00
