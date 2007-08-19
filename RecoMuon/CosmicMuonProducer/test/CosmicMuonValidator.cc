@@ -4,8 +4,8 @@
  *
  *  the validator assumes single muon events
  *
- *  $Date: 2006/12/31 19:44:10 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/01/09 17:24:54 $
+ *  $Revision: 1.2 $
  *  \author Chang Liu   -  Purdue University <Chang.Liu@cern.ch>
  */
 
@@ -54,6 +54,10 @@
 #include <TFrame.h>
 #include <TMath.h>
 #include <TF1.h>
+#include <TPostScript.h>
+#include <TPad.h>
+#include <TText.h>
+#include <TLatex.h>
 
 using namespace std;
 using namespace edm;
@@ -86,6 +90,8 @@ class CosmicMuonValidator : public edm::EDAnalyzer {
       TFile *thefile;
 
       MuonServiceProxy* theService;
+
+      int theDrawOption;
 
       int nEvent;
       int successR;
@@ -122,6 +128,7 @@ CosmicMuonValidator::CosmicMuonValidator(const edm::ParameterSet& iConfig)
   trackLabel_ = iConfig.getParameter<edm::InputTag>("TrackLabel");
   simTrackLabel_ = iConfig.getParameter<edm::InputTag>("SimTrackLabel");
   fileName_ = iConfig.getParameter<string>("OutputFile");
+  theDrawOption = iConfig.getUntrackedParameter<int>("DrawOption", 1); 
 
   // service parameters
   edm::ParameterSet serviceParameters = iConfig.getParameter<ParameterSet>("ServiceParameters");
@@ -133,7 +140,6 @@ CosmicMuonValidator::CosmicMuonValidator(const edm::ParameterSet& iConfig)
   nNoSignal = 0;
   
   thefile = new TFile(fileName_.c_str(),"recreate");
-  thefile->cd();
 }
 
 
@@ -156,8 +162,8 @@ void CosmicMuonValidator::analyze(const edm::Event& iEvent, const edm::EventSetu
    iEvent.getByLabel(trackLabel_,muons);
    cout << "cosmic Muon: " <<muons->size() <<endl;
 
-   if (muons->empty()) return;
-   successR++;
+ //  if (muons->empty()) return;
+   if ( !muons->empty())  successR++;
    
    float ptsim = 0; 
    float simC = 0; 
@@ -188,6 +194,8 @@ void CosmicMuonValidator::analyze(const edm::Event& iEvent, const edm::EventSetu
    iEvent.getByLabel("cscSegments", cscSegments);
 
    int nSeg = dtSegments->size() + cscSegments->size();
+   cout<<"cscSegments: "<<cscSegments->size()<<endl;
+
    htotalSeg->Fill(nSeg);
 
    int n4D = 0;
@@ -222,6 +230,7 @@ void CosmicMuonValidator::analyze(const edm::Event& iEvent, const edm::EventSetu
    htotal4D->Fill(n4D);
    if ( n4D < 2 ) nNoSignal++;
 
+   if (muons->empty())  return;
    reco::Track muon = bestTrack(*muons);;
 
    cout << "cosmic Muon Track: " 
@@ -323,6 +332,7 @@ void CosmicMuonValidator::beginJob(const edm::EventSetup&)
   myStyle->SetOptTitle(0);
   myStyle->SetOptStat(1000010);
 
+  thefile->cd();
   h_res = new TH1F("h_res","resolution of P_{T}",50,-5.0,5.0);
 
   h_theta = new TH1F("h_theta","theta angle ",50,-0.1,0.1);
@@ -360,6 +370,8 @@ void CosmicMuonValidator::endJob() {
   std::cout << "writing information into file: " << thefile->GetName() << std::endl;
   std::cout << "++++++++++++++++++++++++++++++++++++++++" << std::endl;
 
+  thefile->cd();
+
   myStyle->SetCanvasBorderMode(0);
   myStyle->SetPadBorderMode(1);
   myStyle->SetOptTitle(0);
@@ -376,186 +388,67 @@ void CosmicMuonValidator::endJob() {
   myStyle->SetStatH(0.05);
   gROOT->SetStyle("myStyle");
 
-  TCanvas* c2 = new TCanvas("innerTSOSXY","XY",10,10,800,600);
-  c2->SetFillColor(0);
-  c2->SetGrid(1);
-  c2->SetRightMargin(0.03);
-  c2->SetTopMargin(0.02);
-  c2->cd();
   h_innerPosXY->SetXTitle("X");
   h_innerPosXY->SetYTitle("Y");
   h_innerPosXY->SetMarkerColor(2);
   h_innerPosXY->SetMarkerStyle(24);
-  h_innerPosXY->Draw("SCAT");
-  c2->Update();
-  c2->Write();
 
-  TCanvas* c2a = new TCanvas("outerTSOSXY","Outer XY",10,10,800,600);
-  c2a->SetFillColor(0);
-  c2a->SetGrid(1);
-  c2a->SetRightMargin(0.03);
-  c2a->SetTopMargin(0.02);
-  c2a->cd();
   h_outerPosXY->SetXTitle("X");
   h_outerPosXY->SetYTitle("Y");
   h_outerPosXY->SetMarkerColor(2);
   h_outerPosXY->SetMarkerStyle(24);
-  h_outerPosXY->Draw("SCAT");
-  c2a->Update();
-  c2a->Write();
 
-
-  TCanvas* c3 = new TCanvas("innerEtaPhi","Inner #eta #phi",10,10,800,600);
-  c3->SetFillColor(0);
-  c3->SetGrid(1);
-  c3->SetRightMargin(0.03);
-  c3->SetTopMargin(0.02);
-  c3->cd();
   h_innerPosEP->SetXTitle("#eta");
   h_innerPosEP->SetYTitle("#phi");
   h_innerPosEP->SetMarkerColor(2);
   h_innerPosEP->SetMarkerStyle(24);
-  h_innerPosEP->Draw("SCAT");
-  c3->Update();
-  c3->Write();
 
-  TCanvas* c3a = new TCanvas("outerEtaPhi","Outer #eta #phi",10,10,800,600);
-  c3a->SetFillColor(0);
-  c3a->SetGrid(1);
-  c3a->SetRightMargin(0.03);
-  c3a->SetTopMargin(0.02);
-  c3a->cd();
   h_outerPosEP->SetXTitle("#eta");
   h_outerPosEP->SetYTitle("#phi");
   h_outerPosEP->SetMarkerColor(2);
   h_outerPosEP->SetMarkerStyle(24);
-  h_outerPosEP->Draw("SCAT");
-  c3a->Update();
-  c3a->Write();
 
-
-  TCanvas* cRes1 = new TCanvas("TrackPtRes","Resolution of P_{T} wrt SimTrack",10,10,800,600);
-  cRes1->SetFillColor(0);
-  cRes1->SetGrid(1);
-  cRes1->SetRightMargin(0.03);
-  cRes1->SetTopMargin(0.02);
-  cRes1->cd();
   h_res->SetXTitle("(q^{reco}/P^{reco}_{T}-q^{simTrack}/P^{simTrack}_{T})/(q^{simTrack}/P^{simTrack}_{T})");;
   h_res->SetLineWidth(2);
   h_res->SetLineColor(2);
   h_res->SetLineStyle(1);
-  h_res->DrawCopy("HE");
-  cRes1->Update();
-  cRes1->Write();
 
-  TCanvas* cRes2 = new TCanvas("TrackTheta","Resolution of Theta wrt SimTrack",10,10,800,600);
-  cRes2->SetFillColor(0);
-  cRes2->SetGrid(1);
-  cRes2->SetRightMargin(0.03);
-  cRes2->SetTopMargin(0.02);
-  cRes2->cd();
   h_theta->SetXTitle("#theta^{reco}-#theta^{simTrack}");;
   h_theta->SetLineWidth(2);
   h_theta->SetLineColor(2);
   h_theta->SetLineStyle(1);
-  h_theta->DrawCopy("HE");
-  cRes2->Update();
-  cRes2->Write();
 
-  TCanvas* cRes3 = new TCanvas("TrackPhi","Resolution of phi wrt SimTrack",10,10,800,600);
-  cRes3->SetFillColor(0);
-  cRes3->SetGrid(1);
-  cRes3->SetRightMargin(0.03);
-  cRes3->SetTopMargin(0.02);
-  cRes3->cd();
   h_phi->SetXTitle("#phi^{reco}-#phi^{simTrack}");;
   h_phi->SetLineWidth(2);
   h_phi->SetLineColor(2);
   h_phi->SetLineStyle(1);
-  h_phi->DrawCopy("HE");
-  cRes3->Update();
-  cRes3->Write();
 
-  TCanvas* cRes4 = new TCanvas("inTsosPtDiff","Resolution of P_{T} at SimHit",10,10,800,600);
-  cRes4->SetFillColor(0);
-  cRes4->SetGrid(1);
-  cRes4->SetRightMargin(0.03);
-  cRes4->SetTopMargin(0.02);
-  cRes4->cd();
+
   h_pt_rec_sim->SetXTitle("P^{simHit}_{T}-P^{reco}_{T}");;
   h_pt_rec_sim->SetLineWidth(2);
   h_pt_rec_sim->SetLineColor(2);
   h_pt_rec_sim->SetLineStyle(1);
-  h_pt_rec_sim->DrawCopy("HE");
-  cRes4->Update();
-  cRes4->Write();
 
-  TCanvas* cRes5 = new TCanvas("inTsosPhi","Resolution of Phi at SimHit",10,10,800,600);
-  cRes5->SetFillColor(0);
-  cRes5->SetGrid(1);
-  cRes5->SetRightMargin(0.03);
-  cRes5->SetTopMargin(0.02);
-  cRes5->cd();
   h_phi_rec_sim->SetXTitle("#phi^{simHit}-#phi^{reco}");
   h_phi_rec_sim->SetLineWidth(2);
   h_phi_rec_sim->SetLineColor(2);
   h_phi_rec_sim->SetLineStyle(1);
-  h_phi_rec_sim->DrawCopy("HE");
-  cRes5->Update();
-  cRes5->Write();
 
-  TCanvas* cRes6 = new TCanvas("inTsosTheta","Resolution of #theta at SimHit",10,10,800,600);
-  cRes6->SetFillColor(0);
-  cRes6->SetGrid(1);
-  cRes6->SetRightMargin(0.03);
-  cRes6->SetTopMargin(0.02);
-  cRes6->cd();
   h_theta_rec_sim->SetXTitle("#theta^{simHit}-#theta^{reco}");
   h_theta_rec_sim->SetLineWidth(2);
   h_theta_rec_sim->SetLineColor(2);
   h_theta_rec_sim->SetLineStyle(1);
-  h_theta_rec_sim->DrawCopy("HE");
-  cRes6->Update();
-  cRes6->Write();
 
-  TCanvas* cRes7 = new TCanvas("inTsosPtRes","Resolution of P_{T} at SimHit",10,10,800,600);
-  cRes7->SetFillColor(0);
-  cRes7->SetGrid(1);
-  cRes7->SetRightMargin(0.03);
-  cRes7->SetTopMargin(0.02);
-  cRes7->cd();
   h_Pres_inv_sim->SetXTitle("(q^{reco}/P^{reco}_{T}-q^{simHit}/P^{simHit}_{T})/(q^{simHit}/P^{simHit}_{T})");;
   h_Pres_inv_sim->SetLineWidth(2);
   h_Pres_inv_sim->SetLineColor(2);
   h_Pres_inv_sim->SetLineStyle(1);
-  h_Pres_inv_sim->DrawCopy("HE");
-  TF1* g2 = new TF1("g2","gaus",-0.5,0.5);
-  g2->SetLineColor(4);
-  h_Pres_inv_sim->Fit("g2","R");
 
-  cRes7->Update();
-  cRes7->Write();
-
-  TCanvas* c7 = new TCanvas("nHits","Number of RecHits in Track",10,10,800,600);
-  c7->SetFillColor(0);
-  c7->SetGrid(1);
-  c7->SetRightMargin(0.03);
-  c7->SetTopMargin(0.02);
-  c7->cd();
   hnhit->SetXTitle("N_{RecHits}");;
   hnhit->SetLineWidth(2);
   hnhit->SetLineColor(2);
   hnhit->SetLineStyle(1);
-  hnhit->DrawCopy("HE");
-  c7->Update();
-  c7->Write();
 
-  TCanvas* cRes8 = new TCanvas("PtDis","Distribution of P_{T} at SimHit",10,10,800,600);
-  cRes8->SetFillColor(0);
-  cRes8->SetGrid(1);
-  cRes8->SetRightMargin(0.03);
-  cRes8->SetTopMargin(0.02);
-  cRes8->cd();
   h_pt_sim->SetXTitle("P_{t}");;
   h_pt_sim->SetLineWidth(2);
   h_pt_sim->SetLineColor(4);
@@ -563,26 +456,6 @@ void CosmicMuonValidator::endJob() {
   h_pt_rec->SetLineColor(2);
   h_pt_sim->SetLineStyle(1);
   h_pt_rec->SetLineStyle(2);
-
-  h_pt_sim->DrawCopy("HE");
-  h_pt_rec->DrawCopy("HEsame");
-  TLegend* legend8 = new TLegend(0.7,0.6,0.9,0.8);
-  legend8->SetTextAlign(32);
-  legend8->SetTextColor(1);
-  legend8->SetTextSize(0.04);
-  legend8->AddEntry("h_pt_sim","By Sim","l");
-  legend8->AddEntry("h_pt_rec","By Cos","l");
-  legend8->Draw();
-  cRes8->Update();
-  cRes8->Write();
-
-  TCanvas* csegs = new TCanvas("csegs","Total & 4D Segments",10,10,800,600);
-
-  csegs->SetFillColor(0);
-  csegs->SetGrid(1);
-  csegs->SetRightMargin(0.03);
-  csegs->SetTopMargin(0.02);
-  csegs->cd();
 
   htotal4D->SetXTitle("No. of Segments");
   htotal4D->SetLineWidth(2);
@@ -594,22 +467,318 @@ void CosmicMuonValidator::endJob() {
   htotal4D->SetLineStyle(1);
   htotalSeg->SetLineStyle(2);
 
-  htotal4D->DrawCopy("HE");
-  htotalSeg->DrawCopy("HEsame");
+  int theDrawOption = 1;
 
-  TLegend* legendseg = new TLegend(0.6,0.2,0.9,0.4);
-  legendseg->SetTextAlign(32);
-  legendseg->SetTextColor(1);
-  legendseg->SetTextSize(0.04);
-  legendseg->AddEntry("htotal4D","4D Segments","l");
-  legendseg->AddEntry("htotalSeg","total Segments","l");
-  legendseg->Draw();
+  if ( theDrawOption == 0 ) {
+    TCanvas* c2 = new TCanvas("innerTSOSXY","XY",10,10,800,600);
+    c2->SetFillColor(0);
+    c2->SetGrid(1);
+    c2->SetRightMargin(0.03);
+    c2->SetTopMargin(0.02);
+    c2->cd();
+    h_innerPosXY->Draw("SCAT");
+    c2->Update();
+    c2->Write();
 
-  csegs->Update();
-  csegs->Write();
+    TCanvas* c2a = new TCanvas("outerTSOSXY","Outer XY",10,10,800,600);
+    c2a->SetFillColor(0);
+    c2a->SetGrid(1);
+    c2a->SetRightMargin(0.03);
+    c2a->SetTopMargin(0.02);
+    c2a->cd();
+    h_outerPosXY->Draw("SCAT");
+    c2a->Update();
+    c2a->Write();
 
-  thefile->Write();
-  thefile->Close();
+
+    TCanvas* c3 = new TCanvas("innerEtaPhi","Inner #eta #phi",10,10,800,600);
+    c3->SetFillColor(0);
+    c3->SetGrid(1);
+    c3->SetRightMargin(0.03);
+    c3->SetTopMargin(0.02);
+    c3->cd();
+    h_innerPosEP->Draw("SCAT");
+    c3->Update();
+    c3->Write();
+
+    TCanvas* c3a = new TCanvas("outerEtaPhi","Outer #eta #phi",10,10,800,600);
+    c3a->SetFillColor(0);
+    c3a->SetGrid(1);
+    c3a->SetRightMargin(0.03);
+    c3a->SetTopMargin(0.02);
+    c3a->cd();
+    h_outerPosEP->Draw("SCAT");
+    c3a->Update();
+    c3a->Write();
+
+
+    TCanvas* cRes1 = new TCanvas("TrackPtRes","Resolution of P_{T} wrt SimTrack",10,10,800,600);
+    cRes1->SetFillColor(0);
+    cRes1->SetGrid(1);
+    cRes1->SetRightMargin(0.03);
+    cRes1->SetTopMargin(0.02);
+    cRes1->cd();
+    h_res->DrawCopy("HE");
+    cRes1->Update();
+    cRes1->Write();
+
+    TCanvas* cRes2 = new TCanvas("TrackTheta","Resolution of Theta wrt SimTrack",10,10,800,600);
+    cRes2->SetFillColor(0);
+    cRes2->SetGrid(1);
+    cRes2->SetRightMargin(0.03);
+    cRes2->SetTopMargin(0.02);
+    cRes2->cd();
+    h_theta->DrawCopy("HE");
+    cRes2->Update();
+    cRes2->Write();
+
+    TCanvas* cRes3 = new TCanvas("TrackPhi","Resolution of phi wrt SimTrack",10,10,800,600);
+    cRes3->SetFillColor(0);
+    cRes3->SetGrid(1);
+    cRes3->SetRightMargin(0.03);
+    cRes3->SetTopMargin(0.02);
+    cRes3->cd();
+    h_phi->DrawCopy("HE");
+    cRes3->Update();
+    cRes3->Write();
+
+    TCanvas* cRes4 = new TCanvas("inTsosPtDiff","Resolution of P_{T} at SimHit",10,10,800,600);
+    cRes4->SetFillColor(0);
+    cRes4->SetGrid(1);
+    cRes4->SetRightMargin(0.03);
+    cRes4->SetTopMargin(0.02);
+    cRes4->cd();
+    h_pt_rec_sim->DrawCopy("HE");
+    cRes4->Update();
+    cRes4->Write();
+
+    TCanvas* cRes5 = new TCanvas("inTsosPhi","Resolution of Phi at SimHit",10,10,800,600);
+    cRes5->SetFillColor(0);
+    cRes5->SetGrid(1);
+    cRes5->SetRightMargin(0.03);
+    cRes5->SetTopMargin(0.02);
+    cRes5->cd();
+    h_phi_rec_sim->DrawCopy("HE");
+    cRes5->Update();
+    cRes5->Write();
+
+    TCanvas* cRes6 = new TCanvas("inTsosTheta","Resolution of #theta at SimHit",10,10,800,600);
+    cRes6->SetFillColor(0);
+    cRes6->SetGrid(1);
+    cRes6->SetRightMargin(0.03);
+    cRes6->SetTopMargin(0.02);
+    cRes6->cd();
+    h_theta_rec_sim->DrawCopy("HE");
+    cRes6->Update();
+    cRes6->Write();
+
+    TCanvas* cRes7 = new TCanvas("inTsosPtRes","Resolution of P_{T} at SimHit",10,10,800,600);
+    cRes7->SetFillColor(0);
+    cRes7->SetGrid(1);
+    cRes7->SetRightMargin(0.03);
+    cRes7->SetTopMargin(0.02);
+    cRes7->cd();
+    h_Pres_inv_sim->DrawCopy("HE");
+    TF1* g2 = new TF1("g2","gaus",-0.5,0.5);
+    g2->SetLineColor(4);
+    h_Pres_inv_sim->Fit("g2","R");
+
+    cRes7->Update();
+    cRes7->Write();
+
+    TCanvas* c7 = new TCanvas("nHits","Number of RecHits in Track",10,10,800,600);
+    c7->SetFillColor(0);
+    c7->SetGrid(1);
+    c7->SetRightMargin(0.03);
+    c7->SetTopMargin(0.02);
+    c7->cd();
+    hnhit->DrawCopy("HE");
+    c7->Update();
+    c7->Write();
+
+    TCanvas* cRes8 = new TCanvas("PtDis","Distribution of P_{T} at SimHit",10,10,800,600);
+    cRes8->SetFillColor(0);
+    cRes8->SetGrid(1);
+    cRes8->SetRightMargin(0.03);
+    cRes8->SetTopMargin(0.02);
+    cRes8->cd();
+
+    h_pt_sim->DrawCopy("HE");
+    h_pt_rec->DrawCopy("HEsame");
+    TLegend* legend8 = new TLegend(0.7,0.6,0.9,0.8);
+    legend8->SetTextAlign(32);
+    legend8->SetTextColor(1);
+    legend8->SetTextSize(0.04);
+    legend8->AddEntry("h_pt_sim","By Sim","l");
+    legend8->AddEntry("h_pt_rec","By Cos","l");
+    legend8->Draw();
+    cRes8->Update();
+    cRes8->Write();
+
+    TCanvas* csegs = new TCanvas("csegs","Total & 4D Segments",10,10,800,600);
+
+    csegs->SetFillColor(0);
+    csegs->SetGrid(1);
+    csegs->SetRightMargin(0.03);
+    csegs->SetTopMargin(0.02);
+    csegs->cd();
+
+    htotal4D->DrawCopy("HE");
+    htotalSeg->DrawCopy("HEsame");
+
+    TLegend* legendseg = new TLegend(0.6,0.2,0.9,0.4);
+    legendseg->SetTextAlign(32);
+    legendseg->SetTextColor(1);
+    legendseg->SetTextSize(0.04);
+    legendseg->AddEntry("htotal4D","4D Segments","l");
+    legendseg->AddEntry("htotalSeg","total Segments","l");
+    legendseg->Draw();
+
+    csegs->Update();
+    csegs->Write();
+
+    thefile->Write();
+    thefile->Close();
+
+  } else {
+
+    TCanvas *cpdf = new TCanvas("cpdf", "", 0, 1, 500, 700);
+    cpdf->SetTicks();
+
+    TPostScript* pdf = new TPostScript("cosmicValidation.ps", 111);
+
+    const int NUM_PAGES = 7;
+    TPad *pad[NUM_PAGES];
+    for (int i_page=0; i_page<NUM_PAGES; i_page++)
+      pad[i_page] = new TPad("","", .05, .05, .95, .93);
+
+    ostringstream page_print;
+    int page = 0;
+
+    TLatex ttl;
+
+    pdf->NewPage();
+    cpdf->Clear();
+    cpdf->cd(0);
+    ttl.DrawLatex(.4, .95, "inner and outer state (x,y) ");
+    page_print.str(""); page_print << page + 1;
+    ttl.DrawLatex(.9, .02, page_print.str().c_str());
+    pad[page]->Draw();
+    pad[page]->Divide(1, 2);
+    pad[page]->cd(1);
+    h_innerPosXY->Draw("SCAT");
+    pad[page]->cd(2); 
+    h_outerPosXY->Draw("SCAT");
+
+    page++;
+    cpdf->Update();
+
+    pdf->NewPage();
+    cpdf->Clear();
+    cpdf->cd(0);
+    ttl.DrawLatex(.4, .95, "inner and outer state (eta, phi) ");
+    page_print.str(""); page_print << page + 1;
+    ttl.DrawLatex(.9, .02, page_print.str().c_str());
+    pad[page]->Draw();
+    pad[page]->Divide(1, 2);
+    pad[page]->cd(1);
+    h_innerPosEP->Draw("SCAT");
+    pad[page]->cd(2);
+    h_outerPosEP->Draw("SCAT");
+
+    page++;
+    cpdf->Update();
+
+    pdf->NewPage();
+    cpdf->Clear();
+    cpdf->cd(0);
+
+    ttl.DrawLatex(.4, .95, "resolution wrt simTrack (pt, theta, phi) ");
+    page_print.str(""); page_print << page + 1;
+    ttl.DrawLatex(.9, .02, page_print.str().c_str());
+
+    pad[page]->Draw();
+    pad[page]->Divide(1, 3);
+    pad[page]->cd(1);
+    h_res->Draw("HE");
+
+    pad[page]->cd(2);
+    h_res->Draw("HE");
+
+    pad[page]->cd(3);
+    h_phi->Draw("HE");
+
+
+    page++;
+    cpdf->Update();
+
+    pdf->NewPage();
+    cpdf->Clear();
+    cpdf->cd(0);
+
+    ttl.DrawLatex(.4, .95, "resolution wrt simHit at innermost (pt, theta, phi) ");
+    page_print.str(""); page_print << page + 1;
+    ttl.DrawLatex(.9, .02, page_print.str().c_str());
+    pad[page]->Draw();
+    pad[page]->Divide(1, 3);
+    pad[page]->cd(1);
+    h_Pres_inv_sim->Draw("HE");
+    pad[page]->cd(2);
+    h_theta_rec_sim->Draw("HE");
+    pad[page]->cd(3);
+    h_phi_rec_sim->Draw("HE");
+
+    page++;
+    cpdf->Update();
+
+    pdf->NewPage();
+    cpdf->Clear();
+    cpdf->cd(0);
+
+    ttl.DrawLatex(.4, .95, "number of hits ");
+    page_print.str(""); page_print << page + 1;
+    ttl.DrawLatex(.9, .02, page_print.str().c_str());
+    pad[page]->Draw();
+    pad[page]->cd();
+    hnhit->Draw("HE");
+
+    page++;
+    cpdf->Update();
+
+    pdf->NewPage();
+    cpdf->Clear();
+    cpdf->cd(0);
+
+    ttl.DrawLatex(.4, .95, "pt distribution ");
+    page_print.str(""); page_print << page + 1;
+    ttl.DrawLatex(.9, .02, page_print.str().c_str());
+    pad[page]->Draw();
+    pad[page]->Divide(1, 2);
+    pad[page]->cd(1);
+    h_pt_rec->Draw("HE");
+    pad[page]->cd(2);
+    h_pt_sim->Draw("HE");
+
+    page++;
+    cpdf->Update();
+
+    pdf->NewPage();
+    cpdf->Clear();
+    cpdf->cd(0);
+
+    ttl.DrawLatex(.4, .95, "Number of hits ");
+    page_print.str(""); page_print << page + 1;
+    ttl.DrawLatex(.9, .02, page_print.str().c_str());
+    pad[page]->Draw();
+    pad[page]->Divide(1, 2);
+    pad[page]->cd(1);
+    htotal4D->Draw("HE");
+    pad[page]->cd(2);
+    htotalSeg->Draw("HE");
+
+    pdf->Close(); 
+  }
+
 }
 
 reco::Track 
