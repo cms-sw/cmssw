@@ -26,7 +26,8 @@ class DataManager
 
     protected:
         // Database connection management
-        cond::DBSession * session;
+        cond::DBSession * poolSession;
+        cond::DBSession * coralSession;
         cond::RelationalStorageManager * coral;
         cond::PoolStorageManager * pool;
         cond::MetaData * metadata;

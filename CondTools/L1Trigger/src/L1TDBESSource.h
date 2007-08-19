@@ -4,10 +4,9 @@
 #include <memory>
 #include <map>
 
-#include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/ESProducts.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "FWCore/Framework/interface/DataProxyProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 
@@ -35,7 +34,7 @@
 //
 // Original Author:  Giedrius Bacevicius
 //         Created:  Thu Jul 19 13:14:44 CEST 2007
-// $Id: L1TDBESSource.h,v 1.1 2007/08/09 14:53:59 giedrius Exp $
+// $Id: L1TDBESSource.h,v 1.2 2007/08/14 12:10:24 giedrius Exp $
 namespace l1t
 {
 /* Class that will load data from PoolDB and stores it into EventSetup.
@@ -46,19 +45,13 @@ namespace l1t
  *      L1TriggerKey. IOV does not matter
  *   3. Save loaded objects into EventSetup.
  */
-class L1TDBESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder
+class L1TDBESSource : public edm::eventsetup::DataProxyProvider, public edm::EventSetupRecordIntervalFinder
 {
 public:
     /* Constructors and destructors */
     L1TDBESSource(const edm::ParameterSet&);
     ~L1TDBESSource();
 
-    // I can't put all results in a single method, becaus that would mean that
-    // this data should go into same Record. We whant to have a seperate record
-    // for each product
-    /* These two methods will do the actual data loading from DB */
-    std::auto_ptr<L1TriggerKey> produceKey(const L1TriggerKeyRcd&);
-    std::auto_ptr<L1CSCTPParameters> produceCSC(const L1CSCTPParametersRcd&);
 protected:
     /* Returns IOV interval which includes provided IOVSyncValue. This interval
      * is equal to IOV of L1TriggerKey that is valid at the given time. There should
@@ -68,10 +61,22 @@ protected:
                          const edm::IOVSyncValue &,
                          edm::ValidityInterval&);
 
+    /* Methods that are required to register and provide proxies for the key record and all others */
+    virtual void registerProxies(const edm::eventsetup::EventSetupRecordKey& recordKey, KeyedProxies& proxyList);
+    void registerKey (const edm::eventsetup::EventSetupRecordKey& recordKey, KeyedProxies& proxyList);
+    void registerPayload (const edm::eventsetup::EventSetupRecordKey& recordKey, KeyedProxies& proxyList);
+
+    /* Does nothing very interesting, just resets all proxies */
+    virtual void newInterval(const edm::eventsetup::EventSetupRecordKey& recordKey, const edm::ValidityInterval& interval);
+
+    /* Informs framework, that we can produce record with provided name */
+    void registerRecord (const std::string & record);
+
     /* Loads all IOV stored in DB for provided tag */
     std::string keyTag;
     DataReader reader;
 
+    /* List of items that we are suposed to load. This is a list of record->types (may be several) */
     typedef std::map<std::string, std::set<std::string> > Items;
     Items items;
 };

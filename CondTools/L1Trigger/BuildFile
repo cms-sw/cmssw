@@ -4,6 +4,7 @@
 <use name=CondCore/DBOutputService>
 <use name=CondCore/DBCommon>
 <use name=CondCore/MetaDataService>
+<use name=CondCore/PluginSystem>
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/L1TObjects>
 
@@ -15,6 +16,7 @@
    <use name=FWCore/ParameterSet>
    <use name=CondCore/DBCommon>
    <use name=CondCore/MetaDataService>
+   <use name=CondCore/PluginSystem>
    <use name=CondFormats/DataRecord>
    <use name=CondFormats/L1TObjects>
 </export>
