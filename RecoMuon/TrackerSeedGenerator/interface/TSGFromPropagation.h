@@ -5,8 +5,8 @@
  *  Tracker Seed Generator by propagating and updating a standAlone muon
  *  to the first 2 (or 1) rechits it meets in tracker system 
  *
- *  $Date: 2007/07/18 17:29:44 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/07/21 21:26:18 $
+ *  $Revision: 1.6 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -21,7 +21,7 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoMuon/TrackingTools/interface/MuonUpdatorAtVertex.h"
-#include "RecoMuon/TrackerSeedGenerator/interface/DirectTrackerNavigation.h"
+#include "RecoMuon/GlobalTrackingTools/interface/DirectTrackerNavigation.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 
 class TSGFromPropagation : public TrackerSeedGenerator {
