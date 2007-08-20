@@ -3,7 +3,7 @@
 
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
-// $Id: CaloJetTester.h,v 1.1 2006/09/07 22:56:10 fedor Exp $
+// $Id: CaloJetTester.h,v 1.2 2007/02/21 01:53:40 fedor Exp $
 
 #include <string>
 
@@ -25,6 +25,7 @@ public:
  private:
 
   edm::InputTag mInputCollection;
+  edm::InputTag mInputGenCollection;
   std::string mOutputFile;
 
   // Generic Jet Parameters
@@ -55,6 +56,21 @@ public:
   MonitorElement* mEnergyFractionHadronic;
   MonitorElement* mEnergyFractionEm;
   MonitorElement* mN90;
+
+  // CaloJet<->GenJet matching
+  MonitorElement* mAllGenJetsPt;
+  MonitorElement* mMatchedGenJetsPt;
+  MonitorElement* mGenJetMatchEnergyFraction;
+  MonitorElement* mReverseMatchEnergyFraction;
+  MonitorElement* mDeltaEta;
+  MonitorElement* mDeltaPhi;
+  MonitorElement* mEScale;
+  MonitorElement* mDeltaE;
+
+  // Matching parameters
+  double mMatchGenPtThreshold;
+  double mGenEnergyFractionThreshold;
+  double mReverseEnergyFractionThreshold;
 };
 
 #endif

@@ -1,6 +1,6 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
-// $Id: CaloJetTester.cc,v 1.2 2007/02/21 01:53:41 fedor Exp $
+// $Id: CaloJetTester.cc,v 1.3 2007/03/07 18:43:44 fedor Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -11,10 +11,12 @@
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
 
+#include "RecoJets/JetAlgorithms/interface/JetMatchingTools.h"
 
-#include "Validation/RecoJets/interface/CaloJetTester.h"
+#include "CaloJetTester.h"
 
 using namespace edm;
 using namespace reco;
@@ -22,15 +24,22 @@ using namespace std;
 
 CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
   : mInputCollection (iConfig.getParameter<edm::InputTag>( "src" )),
-    mOutputFile (iConfig.getUntrackedParameter<string>("outputFile", ""))
+    mInputGenCollection (iConfig.getParameter<edm::InputTag>( "srcGen" )),
+    mOutputFile (iConfig.getUntrackedParameter<string>("outputFile", "")),
+    mMatchGenPtThreshold (iConfig.getParameter<double>("genPtThreshold")),
+    mGenEnergyFractionThreshold (iConfig.getParameter<double>("genEnergyFractionThreshold")),
+    mReverseEnergyFractionThreshold (iConfig.getParameter<double>("reverseEnergyFractionThreshold"))
 {
-    mEta = mPhi = mE = mP = mPt = mMass = mConstituents
-      = mEtaFirst = mPhiFirst = mEFirst = mPtFirst 
-      = mMaxEInEmTowers = mMaxEInHadTowers 
-      = mHadEnergyInHO = mHadEnergyInHB = mHadEnergyInHF = mHadEnergyInHE 
-      = mEmEnergyInEB = mEmEnergyInEE = mEmEnergyInHF 
-      = mEnergyFractionHadronic = mEnergyFractionEm 
-      = mN90 = 0;
+  mEta = mPhi = mE = mP = mPt = mMass = mConstituents
+    = mEtaFirst = mPhiFirst = mEFirst = mPtFirst 
+    = mMaxEInEmTowers = mMaxEInHadTowers 
+    = mHadEnergyInHO = mHadEnergyInHB = mHadEnergyInHF = mHadEnergyInHE 
+    = mEmEnergyInEB = mEmEnergyInEE = mEmEnergyInHF 
+    = mEnergyFractionHadronic = mEnergyFractionEm 
+    = mN90
+    = mAllGenJetsPt = mMatchedGenJetsPt = mGenJetMatchEnergyFraction 
+    = mReverseMatchEnergyFraction = mDeltaEta = mDeltaPhi = mEScale = mDeltaE
+    = 0;
   
   DaqMonitorBEInterface* dbe = &*edm::Service<DaqMonitorBEInterface>();
   if (dbe) {
@@ -60,6 +69,15 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     mEnergyFractionHadronic = dbe->book1D("EnergyFractionHadronic", "EnergyFractionHadronic", 120, -0.1, 1.1); 
     mEnergyFractionEm = dbe->book1D("EnergyFractionEm", "EnergyFractionEm", 120, -0.1, 1.1); 
     mN90 = dbe->book1D("N90", "N90", 50, 0, 50); 
+    //
+    mAllGenJetsPt = dbe->book1D("GenJetLOGpT", "GenJet LOG(pT_gen)", 16, 1, 5);
+    mMatchedGenJetsPt = dbe->book1D("MatchedGenJetLOGpT", "MatchedGenJet LOG(pT_gen)", 16, 1, 5);
+    mGenJetMatchEnergyFraction  = dbe->book2D("GenJetMatchEnergyFraction", "GenJetMatchEnergyFraction vs LOG(pT_gen)", 16, 1, 5, 101, 0, 1.01);
+    mReverseMatchEnergyFraction  = dbe->book2D("ReverseMatchEnergyFraction", "ReverseMatchEnergyFraction vs LOG(pT_gen)", 16, 1, 5, 101, 0, 1.01);
+    mDeltaEta = dbe->book2D("DeltaEta", "DeltaEta vs LOG(pT_gen)", 16, 1, 5, 100, -1, 1);
+    mDeltaPhi = dbe->book2D("DeltaPhi", "DeltaPhi vs LOG(pT_gen)", 16, 1, 5, 100, -1, 1);
+    mEScale = dbe->book2D("EScale", "EnergyScale vs LOG(pT_gen)", 16, 1, 5, 100, 0, 2);
+    mDeltaE = dbe->book2D("DeltaERel", "DeltaE/Egen vs LOG(pT_gen)", 16, 1, 5, 2000, -200, 200);
   }
 
   if (mOutputFile.empty ()) {
@@ -84,10 +102,11 @@ void CaloJetTester::endJob() {
 
 void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
 {
-  Handle<CaloJetCollection> collection;
-  mEvent.getByLabel(mInputCollection, collection);
-  CaloJetCollection::const_iterator jet = collection->begin ();
-  for (; jet != collection->end (); jet++) {
+  Handle<CaloJetCollection> caloJets;
+  mEvent.getByLabel(mInputCollection, caloJets);
+  CaloJetCollection::const_iterator jet = caloJets->begin ();
+  int jetIndex = 0;
+  for (; jet != caloJets->end (); jet++, jetIndex++) {
     if (mEta) mEta->Fill (jet->eta());
     if (mPhi) mPhi->Fill (jet->phi());
     if (mE) mE->Fill (jet->energy());
@@ -95,7 +114,7 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
     if (mPt) mPt->Fill (jet->pt());
     if (mMass) mMass->Fill (jet->mass());
     if (mConstituents) mConstituents->Fill (jet->nConstituents());
-    if (jet == collection->begin ()) { // first jet
+    if (jet == caloJets->begin ()) { // first jet
       if (mEtaFirst) mEtaFirst->Fill (jet->eta());
       if (mPhiFirst) mPhiFirst->Fill (jet->phi());
       if (mEFirst) mEFirst->Fill (jet->energy());
@@ -113,5 +132,55 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
     if (mEnergyFractionHadronic) mEnergyFractionHadronic->Fill (jet->energyFractionHadronic());
     if (mEnergyFractionEm) mEnergyFractionEm->Fill (jet->emEnergyFraction());
     if (mN90) mN90->Fill (jet->n90());
+  }
+
+  // now match CaloJets to GenJets
+  JetMatchingTools jetMatching (mEvent);
+  if (!(mInputGenCollection.label().empty())) {
+    Handle<GenJetCollection> genJets;
+    mEvent.getByLabel(mInputGenCollection, genJets);
+
+    std::vector <std::vector <const reco::GenParticleCandidate*> > genJetConstituents (genJets->size());
+    for (unsigned iGenJet = 0; iGenJet < genJets->size(); ++iGenJet) {
+      genJetConstituents [iGenJet] = jetMatching.getGenParticles ((*genJets) [iGenJet]);
+    }
+
+    std::vector <std::vector <const reco::GenParticleCandidate*> > caloJetConstituents (caloJets->size());
+    for (unsigned iCaloJet = 0; iCaloJet < caloJets->size(); ++iCaloJet) {
+      caloJetConstituents [iCaloJet] = jetMatching.getGenParticles ((*caloJets) [iCaloJet]);
+    }
+
+    for (unsigned iGenJet = 0; iGenJet < genJets->size(); ++iGenJet) {
+      if ((*genJets) [iGenJet].pt() > mMatchGenPtThreshold) {
+	double logPtGen = log ((*genJets) [iGenJet].pt());
+	mAllGenJetsPt->Fill (logPtGen);
+	unsigned iCaloJetBest = 0;
+	double energyFractionBest = 0.;
+	for (unsigned iCaloJet = 0; iCaloJet < caloJets->size(); ++iCaloJet) {
+	  double energyFraction = jetMatching.overlapEnergyFraction (genJetConstituents [iGenJet], 
+								     caloJetConstituents [iCaloJet]);
+	  if (energyFraction > energyFractionBest) {
+	    iCaloJetBest = iCaloJet;
+	    energyFractionBest = energyFraction;
+	  }
+	}
+	mGenJetMatchEnergyFraction->Fill (energyFractionBest);
+	if (energyFractionBest > mGenEnergyFractionThreshold) { // good enough
+	  double reverseEnergyFraction = jetMatching.overlapEnergyFraction (caloJetConstituents [iCaloJetBest], 
+									    genJetConstituents [iGenJet]);
+	  mReverseMatchEnergyFraction->Fill (reverseEnergyFraction);
+	  if (reverseEnergyFraction > mReverseEnergyFractionThreshold) { // good enough
+	    // Matched!
+	    const CaloJet& caloJet = (*caloJets) [iCaloJetBest];
+	    const GenJet& genJet = (*genJets) [iGenJet];
+	    mMatchedGenJetsPt->Fill (logPtGen);
+	    mDeltaEta->Fill (logPtGen, caloJet.eta()-genJet.eta());
+	    mDeltaPhi->Fill (logPtGen, caloJet.phi()-genJet.phi());
+	    mEScale->Fill (logPtGen, caloJet.energy()/genJet.energy());
+	    mDeltaE->Fill (logPtGen, caloJet.energy()-genJet.energy());
+	  }
+	}
+      }
+    }
   }
 }
