@@ -31,7 +31,7 @@
 #include "FWCore/MessageLogger/interface/ELmap.h"
 #include "FWCore/MessageLogger/interface/ELstring.h"
 
-#include <vector>
+#include <set>
 
 namespace edm {       
 namespace service {       
@@ -80,6 +80,12 @@ public:
   // output( const ELstring & item, const ELseverityLevel & sev )
   // from base class
 
+  // ----- Methods invoked by the MessageLoggerScribe, bypassing destControl
+  //
+public:
+  static void noteGroupedCategory(std::string const & cat);  // 8/16/07 mf 
+
+
   // -----  Methods invoked through the ELdestControl handle:
   //
 protected:
@@ -96,8 +102,6 @@ protected:
 
   virtual std::map<ELextendedID,StatsCount> statisticsMap() const;
 
-  static void noteGroupedCategory(std::string const & cat);  // 8/16/07 mf 
-
   // summarization( const ELstring & sumLines, const ELstring & sumLines )
   // from base class
 
@@ -111,8 +115,9 @@ protected:
 
   bool           printAtTermination;
 
-  static std::vector<std::string> groupedCategories;
-  
+  static std::set<std::string> groupedCategories;		// 8/16/07 mf 
+  static ELstring formSummary(ELmap_stats & stats);		// 8/16/07 mf 
+    
 };  // ELstatistics
 
 

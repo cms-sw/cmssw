@@ -368,8 +368,7 @@ void
       case MessageLoggerQ::GROUP_STATS:  {			// change log 27
         std::string* cat_p =
 		static_cast<std::string*>(operand);
-	// TODO - insert work here - call something to put *cat_p on the 
-	// list held by ELstatistics
+	ELstatistics::noteGroupedCategory(*cat_p);
 	delete cat_p;  // dispose of the message text
         break;
       }
