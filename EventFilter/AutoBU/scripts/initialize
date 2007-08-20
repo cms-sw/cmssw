@@ -443,7 +443,7 @@ sub makeCfgFu
     $result = $result . "  // source\n";
     $result = $result . "  source = DaqSource\n";
     $result = $result . "  {\n";
-    $result = $result . "    string          reader    = \"FUShmReader\"\n";
+    $result = $result . "    untracked string      readerPluginName =  \"FUShmReader\"\n";
     $result = $result . "  }\n\n";
     $result = $result . "  // paths\n";
     $result = $result . "  path p1 = { m1, a1 }\n";
