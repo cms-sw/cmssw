@@ -7,20 +7,22 @@
 TtDecayChannelSelector::TtDecayChannelSelector(const edm::ParameterSet& cfg):
   invert_ ( cfg.getParameter<bool>("invert" ) )
 {
-  Decay chn1 = cfg.getParameter<Decay>("channel_1");
-  Decay chn2 = cfg.getParameter<Decay>("channel_2");
-
-  parseDecayInput(chn1, chn2);
+  chn1_ = cfg.getParameter<Decay>("channel_1"); 
+  chn2_ = cfg.getParameter<Decay>("channel_2"); 
+  tauDecay_  = cfg.getParameter<Decay>("tauDecays");
+  
+  parseDecayInput(chn1_, chn2_);
+  parseTauDecayInput(tauDecay_);
 
   channel_=0;
   //determine decay channel
-  if( count(chn1.begin(), chn1.end(), 1) > 0 ){ ++channel_; }
-  if( count(chn2.begin(), chn2.end(), 1) > 0 ){ ++channel_; }
+  if( count(chn1_.begin(), chn1_.end(), 1) > 0 ){ ++channel_; }
+  if( count(chn2_.begin(), chn2_.end(), 1) > 0 ){ ++channel_; }
 
   summed_=0;
   //fill vector of allowed leptons
-  Decay::const_iterator idx1=chn1.begin(),idx2=chn2.begin();
-  for( ; idx1!=chn1.end(), idx2!=chn2.end(); ++idx1, ++idx2){
+  Decay::const_iterator idx1=chn1_.begin(),idx2=chn2_.begin(); 
+  for( ; idx1!=chn1_.end(), idx2!=chn2_.end(); ++idx1, ++idx2){
     summed_+=(*idx1)+(*idx2);
     decay_.push_back( (*idx1)+(*idx2) );
   }
@@ -34,6 +36,7 @@ TtDecayChannelSelector::operator()(const reco::CandidateCollection& parts) const
 {
   int iTop=0,iBeauty=0,iElec=0,iMuon=0,iTau=0;
   reco::CandidateCollection::const_iterator top=parts.begin();
+  int iLep=0;
   for(; top!=parts.end(); ++top){
     if( top->status()==3 && abs((*top).pdgId())==6 ){
       ++iTop;
@@ -46,78 +49,44 @@ TtDecayChannelSelector::operator()(const reco::CandidateCollection& parts) const
 	  for(; wd!=(*td).end(); ++wd){
 	    if( abs((*wd).pdgId())==11 ){++iElec;}
 	    if( abs((*wd).pdgId())==13 ){++iMuon;}
-	    if( abs((*wd).pdgId())==15 ){++iTau; }
+	    if( abs((*wd).pdgId())==15 ){ if(checkTauDecay(*wd)) ++iTau; else ++iLep; }
 	  }
 	}
       }
     }
   }
-  int iLep=iElec+iMuon+iTau;
-
+  iLep+=iElec+iMuon+iTau;
   bool accept=false;
   if( (iTop==2) && (iBeauty==2) ){
     if( channel_==iLep ){
       if( channel_==0 ){
+        // no lepton: accept without restriction 
+	// (we already know the number of leptons is right)
 	accept=true;
       }
       if( channel_==1 ){
-	if( summed_==channel_ ){
-	  // exactly one lepton channel is selected
-	  if( (iElec==decay_[Elec] && 
-	       iMuon==decay_[Muon] && 
-	       iTau ==decay_[Tau ]) ){
-	    accept=true;
-	  }
-	}
-	else{
-	  // more than one lepton channel is selected
-	  // split in two cases: two & three channels
-	  if( ((decay_[Elec]>0 && decay_[Muon]>0) && ((iElec+iMuon)==channel_)) ||
-	      ((decay_[Muon]>0 && decay_[Tau ]>0) && ((iMuon+iTau )==channel_)) ||
-	      ((decay_[Tau ]>0 && decay_[Elec]>0) && ((iTau +iElec)==channel_)) ){
-	    accept=true;
-	  }
-	  if( ((decay_[Elec]>0 && 
-		decay_[Muon]>0 && 
-		decay_[Tau ]>0)&& ((iElec+iMuon+iTau)==channel_)) ){
-	    accept=true;
-	  }
-	}
+        // one lepton: check that that one is allowed
+        accept = (iElec&&decay_[Elec]) || (iMuon&&decay_[Muon]) || (iTau&&decay_[Tau]);
       }
       if( channel_==2 ){
 	if( summed_==channel_ ){
-	  // one or two separate lepton channels are 
-	  // selected; covers two cases: same flavor 
-	  // (e.g.ee) and separate flavor (e.g.emu)
-	  if( (decay_[Elec]>1 && iElec==channel_) || 
-	      (decay_[Muon]>1 && iMuon==channel_) || 
-	      (decay_[Tau ]>1 && iTau ==channel_) ){
-	    accept=true;
-	  }
-	  if( ((decay_[Elec]>0 && decay_[Muon]>0) && (iElec==1 && iMuon==1)) ||
-	      ((decay_[Muon]>0 && decay_[Tau ]>0) && (iMuon==1 && iTau ==1)) ||
-	      ((decay_[Tau ]>0 && decay_[Elec]>0) && (iTau ==1 && iElec==1)) ){
-	    accept=true;
-	  }
+	  // no redundancy
+	  accept = (decay_[Elec]==iElec) && (decay_[Muon]==iMuon) && (decay_[Tau]==iTau);
 	}
 	else{
-	  // more than two lepton channel or two lepton 
-	  // channel is selected where >1 lepton is re-
-	  // quired definitely to be present
-	  if( ((decay_[Elec]>0 && decay_[Muon]>0) && ((iElec+iMuon)==channel_) ) ||
-	      ((decay_[Muon]>0 && decay_[Tau ]>0) && ((iMuon+iTau )==channel_) ) ||
-	      ((decay_[Tau ]>0 && decay_[Elec]>0) && ((iTau +iElec)==channel_) ) ){
-	    accept=true;
-	  }
-	  if( ((decay_[Elec]>0 && 
-		decay_[Muon]>0 && 
-		decay_[Tau ]>0)&& ((iElec+iMuon+iTau)==channel_)) ){
-	    accept=true;
-	  }
-	  if( (decay_[Elec]==1 && iElec==channel_) ||
-	      (decay_[Muon]==1 && iMuon==channel_) ||
-	      (decay_[Tau ]==1 && iTau ==channel_) ){
-	    accept=false;
+	  // that first test is to quickly reject event with wrong tau decay
+	  if(iElec+iMuon+iTau!=2) 
+	    accept = false;
+	  else {
+	    if((iElec==2)||(iMuon==2)||(iTau==2)) {
+	      // same lepton twice: check that this is allowed.
+	      accept = (decay_[Elec]==iElec)||(decay_[Muon]==iMuon)||(decay_[Tau]==iTau);
+	    } else {
+	      // two different leptons: look if there is a possible combination
+	      accept = ( ((iElec&&chn1_[Elec])&&((iMuon&&chn2_[Muon])||(iTau &&chn2_[Tau ]))) ||
+	                 ((iMuon&&chn1_[Muon])&&((iElec&&chn2_[Elec])||(iTau &&chn2_[Tau ]))) ||
+			 ((iTau &&chn1_[Tau ])&&((iElec&&chn2_[Elec])||(iMuon&&chn2_[Muon])))   );
+	    }
 	  }
 	}
       }
@@ -127,13 +96,42 @@ TtDecayChannelSelector::operator()(const reco::CandidateCollection& parts) const
   else{
     edm::LogWarning ( "NoVtbDecay" ) << "Decay is not via Vtb";
   }
-//   if(accept){
-//     std::cout << "iElec  : " << iElec   << "\n"
-// 	      << "iMuon  : " << iMuon   << "\n"
-// 	      << "iTau   : " << iTau    << "\n"
-// 	      << std::endl;
-//   }  
   return accept;
+}
+
+unsigned int 
+TtDecayChannelSelector::countChargedParticles(const reco::Candidate& part) const
+{
+  // if stable, return 1 or 0
+  if(part.status()==1) return (part.charge()!=0);
+  // if unstable, call recursively on daughters
+  int nch =0;
+  for(reco::Candidate::const_iterator daughter=part.begin();daughter!=part.end(); ++daughter){
+    nch += countChargedParticles(*daughter);
+  }
+  return nch;
+}
+
+
+bool
+TtDecayChannelSelector::checkTauDecay(const reco::Candidate& tau) const
+{
+  bool leptonic = false;
+  unsigned int nch = 0;
+  // loop on tau decays, check for an electron or muon and count charged particles
+  for(reco::Candidate::const_iterator daughter=tau.begin();daughter!=tau.end(); ++daughter){
+    // if the tau daughter is a tau, it means the particle has still to be propagated.
+    // In that case, return the result of the same method on that daughter.
+    if(daughter->pdgId()==tau.pdgId()) return checkTauDecay(*daughter);
+    // check for leptons
+    leptonic |= (abs(daughter->pdgId())==11 || abs(daughter->pdgId())==13);
+    // count charged particles
+    nch += countChargedParticles(*daughter);
+  }
+  
+  return ( (tauDecay_[Leptonic] && leptonic)            ||
+           (tauDecay_[OneProng] && !leptonic && nch==1) ||
+           (tauDecay_[ThreeProng] && !leptonic && nch>1)    );
 }
 
 void
@@ -166,13 +164,36 @@ TtDecayChannelSelector::parseDecayInput(Decay& chn1, Decay& chn2) const
     }
   }
 
+  return;
+}
+
+void
+TtDecayChannelSelector::parseTauDecayInput(Decay& chn) const
+{
+  //---------------------------------------------
+  //check for correct size of the input vector
+  //---------------------------------------------
+  if( chn.size()!=3 ){
+    throw edm::Exception( edm::errors::Configuration, 
+			  "'tauDecays' must contain 3 values" );
+  }
+
+  //---------------------------------------------
+  //check for correct entries in input vectors
+  //---------------------------------------------
+  for(Decay::const_iterator idx=chn.begin() ; idx!=chn.end(); ++idx){
+    if( !(0<=(*idx) && (*idx)<=1) ){
+      throw edm::Exception( edm::errors::Configuration, 
+			    "'tauDecays' may only contain values 0 or 1" );
+    }
+  }
+
   //---------------------------------------------
   //check for unambigous decay channel selection
   //---------------------------------------------
-  if( (count(chn1.begin(), chn1.end(), 1) == 0) &&
-      (count(chn2.begin(), chn2.end(), 1)  > 0) ){
+  if((count(chn.begin(), chn.end(), 1) == 0) && decay_[2]) {
     throw edm::Exception( edm::errors::Configuration, 
-			  "found dilepton channel being selected w/o first lepton" );
+			  "No tau decay allowed while tau channels are allowed." );
   }
   return;
 }
