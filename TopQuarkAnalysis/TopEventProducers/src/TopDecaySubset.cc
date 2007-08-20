@@ -80,7 +80,7 @@ void TopDecaySubset::fillOutput(const reco::CandidateCollection& src, reco::Cand
 	}
 	if( td->status()==TopDecayID::status && abs( td->pdgId() )==TopDecayID::WID ){ //is W boson
 	  GenParticleCandidate* cand = new GenParticleCandidate( td->threeCharge(), fourVector( *td ), 
-								 td->vertex(), td->pdgId(), td->status(), false );
+								 td->vertex(), td->pdgId(), td->status(), true );
 	  auto_ptr<Candidate> ptr( cand );
 	  sel.push_back( ptr );
 	  topDaughs.push_back( ++idx ); //push index of top daughter
