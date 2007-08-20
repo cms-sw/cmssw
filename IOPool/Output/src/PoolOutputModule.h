@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.23 2007/04/09 19:12:31 wmtan Exp $
+// $Id: PoolOutputModule.h,v 1.24 2007/08/06 19:53:08 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -16,27 +16,20 @@
 #include <string>
 #include <iosfwd>
 #include "boost/array.hpp"
+#include "boost/shared_ptr.hpp"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Catalog/interface/OutputFileCatalog.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
-#include "IOPool/Common/interface/PoolDataSvc.h"
-#include "IOPool/Common/interface/PoolDatabase.h"
-#include "PersistencySvc/Placement.h"
-
-namespace pool {
-  class IDataSvc;
-}
-
-class TTree;
+#include "IOPool/Output/src/RootOutputFile.h"
 
 namespace edm {
   class ParameterSet;
 
   class PoolOutputModule : public OutputModule {
   public:
-    class PoolFile;
+    friend class RootOutputFile;
     explicit PoolOutputModule(ParameterSet const& ps);
     virtual ~PoolOutputModule();
     std::string const& fileName() const {return catalog_.fileName();}
@@ -44,10 +37,6 @@ namespace edm {
     int const& compressionLevel() const {return compressionLevel_;}
     int const& basketSize() const {return basketSize_;}
     int const& splitLevel() const {return splitLevel_;}
-
-  private:
-    pool::IDataSvc *context() const {return dataSvc_.context();}
-    PoolDataSvc const& dataSvc() const {return dataSvc_;}
 
   private:
     virtual void beginJob(EventSetup const&);
@@ -58,7 +47,6 @@ namespace edm {
     virtual void endRun(RunPrincipal const& r);
 
     mutable OutputFileCatalog catalog_;
-    mutable PoolDataSvc dataSvc_;
     unsigned int commitInterval_;
     unsigned int maxFileSize_;
     int compressionLevel_;
@@ -66,64 +54,7 @@ namespace edm {
     int splitLevel_;
     std::string const moduleLabel_;
     int fileCount_;
-    boost::shared_ptr<PoolFile> poolFile_;
-  };
-
-  class PoolOutputModule::PoolFile {
-  public:
-    explicit PoolFile(PoolOutputModule * om);
-    ~PoolFile() {}
-    void writeOne(EventPrincipal const& e);
-    void endFile();
-    void writeLuminosityBlock(LuminosityBlockPrincipal const& lb);
-    bool writeRun(RunPrincipal const& r);
-
-  private:
-    void makePlacement(std::string const& treeName, std::string const& branchName,
-       pool::Placement& placement);
-    pool::IDataSvc *context() const {return om_->context();}
-    void startTransaction() const;
-    void commitTransaction() const;
-    void commitAndFlushTransaction() const;
-    void rootPostProcess() const;
-    void setBranchAliases(TTree *tree, Selections const& branches) const;
-
-  private:
-    struct OutputItem {
-      OutputItem() : branchDescription_(0), selected_(false), provenancePlacement_(), productPlacement_() {}
-      OutputItem(BranchDescription const* bd, bool sel, pool::Placement const& plProv,
-		pool::Placement const& plEvent = pool::Placement()) :
-		branchDescription_(bd), selected_(sel),
-		provenancePlacement_(plProv), productPlacement_(plEvent) {}
-      ~OutputItem() {}
-      BranchDescription const* branchDescription_;
-      bool selected_;
-      pool::Placement provenancePlacement_;
-      pool::Placement productPlacement_;
-    };
-    typedef std::vector<OutputItem> OutputItemList;
-    typedef boost::array<OutputItemList, EndBranchType> OutputItemListArray;
-    typedef boost::array<std::vector<std::string>, EndBranchType> BranchNamesArray;
-
-    void fillBranches(OutputItemList const& items, Principal const& dataBlock) const;
-
-    OutputItemListArray outputItemList_;
-    BranchNamesArray branchNames_;
-    std::string file_;
-    std::string lfn_;
-    JobReport::Token reportToken_;
-    unsigned int eventCount_;
-    unsigned int fileSizeCheckEvent_;
-    boost::array<pool::Placement, EndBranchType> auxiliaryPlacement_;
-    pool::Placement productDescriptionPlacement_;
-    pool::Placement parameterSetPlacement_;
-    pool::Placement moduleDescriptionPlacement_;
-    pool::Placement processHistoryPlacement_;
-    pool::Placement fileFormatVersionPlacement_;
-    PoolOutputModule const* om_;
-    mutable std::list<BranchEntryDescription> provenances_;
-    mutable bool newFileAtEndOfRun_;
-    mutable PoolDatabase database_;
+    boost::shared_ptr<RootOutputFile> rootFile_;
   };
 }
 
