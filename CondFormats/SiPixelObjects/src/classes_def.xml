@@ -1,5 +1,8 @@
 <lcgdict>
-
+  
+  <class name="PixelCPEParmErrors"/>                                          
+  <class name="PixelCPEParmErrors::pixelCPEParmErrorsEntry"/>                  
+  <class name="std::vector<PixelCPEParmErrors::pixelCPEParmErrorsEntry>"/> 
 
   <class name="SiPixelGainCalibration"/>
   <class name="SiPixelGainCalibration::DetRegistry"/>
