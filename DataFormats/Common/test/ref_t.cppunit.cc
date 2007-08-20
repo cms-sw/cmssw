@@ -196,6 +196,8 @@ void testRef::getTest() {
    ref0.ref().refCore().setProductGetter(&tester);
    ref0.ref().refCore().setProductPtr(0);
    ref0.ref().item().setPtr(0);
+   CPPUNIT_ASSERT( !ref0.hasProductCache());
+   CPPUNIT_ASSERT( !ref0.hasCache());
 
    Ref<IntCollection> ref1(handle, 1);
    ref1.ref().refCore().setProductGetter(&tester);
@@ -205,6 +207,8 @@ void testRef::getTest() {
    Ref<IntCollection> ref2(pid, 1, &tester);
 
    CPPUNIT_ASSERT(0 == ref0->value_);
+   CPPUNIT_ASSERT(ref0.hasProductCache());
+   CPPUNIT_ASSERT(ref0.hasCache());
    CPPUNIT_ASSERT(1 == ref1->value_);
    CPPUNIT_ASSERT(1 == ref2->value_);
    CPPUNIT_ASSERT(1 == (*ref1).value_);
