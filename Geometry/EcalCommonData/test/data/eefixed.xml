@@ -166,6 +166,10 @@
  <Box name="EETankSS"  dy="0.5*17.*mm" dz="0.5*28.*mm" dx="0.5*90.*mm"/>
  <Box name="EETankWa"  dy="0.5*11.*mm" dz="0.5*22.*mm" dx="0.5*84.*mm"/>
 
+ <Box name="EESpacer"  dx="[eecon:EESpaWidth]/2." dy="[eecon:EESpaWidth]/2."     dz="[eecon:EESpaDepth]/2."/>
+ <Box name="EESpAir"   dx="[eecon:EESpAirWidth]/2." dy="[eecon:EESpAirWidth]/2." dz="[eecon:EESpAirDepth]/2."/>
+ <Box name="EEHV"      dx="[eecon:EESpAirWidth]/2." dy="[eecon:EESpAirWidth]/2." dz="[eecon:EESpHVDepth]/2."/>
+
 </SolidSection>
 
 <LogicalPartSection label="eefixed.xml">
@@ -265,6 +269,13 @@
       <rSolid name="EETankWa"/> <rMaterial  name="materials:E_Water"/> </LogicalPart>
  <LogicalPart name="EECoolQ" category="unspecified">
       <rSolid name="EECoolQ"/> <rMaterial  name="materials:E_Air"/> </LogicalPart>
+
+ <LogicalPart name="EESpacer" category="unspecified">
+      <rSolid name="EESpacer"/> <rMaterial  name="materials:Aluminium"/> </LogicalPart>
+ <LogicalPart name="EESpAir" category="unspecified">
+      <rSolid name="EESpAir"/> <rMaterial  name="materials:E_Air"/> </LogicalPart>
+ <LogicalPart name="EEHV" category="unspecified">
+      <rSolid name="EEHV"/> <rMaterial  name="materials:E_G10"/> </LogicalPart>
 
 </LogicalPartSection>
 
@@ -689,6 +700,15 @@
       <Translation x="([eecon:EECBX16] + [eecon:EECBX18])/2"
                    y="([eecon:EECBY18] + [eecon:EECBY19])/2" z="-[eecon:EECBzPip]"/>
       <rRotation name="eecon:EEfCRotX"/> </PosPart>
+
+
+ <PosPart copyNumber="1"> <rParent name="eefixed:EESpAir"/> <rChild name="eefixed:EEHV"/>  </PosPart>
+ <PosPart copyNumber="1"> <rParent name="eefixed:EESpacer"/> <rChild name="eefixed:EESpAir"/> 
+      <Translation x="0*mm" y="0*mm" z="[eecon:EESpAirZOff]"/> </PosPart>
+ <PosPart copyNumber="1"> <rParent name="eregalgo:EESCEnv1"/> <rChild name="eefixed:EESpacer"/>
+      <Translation x="[eecon:EESpaXYOff]" y="[eecon:EESpaXYOff]" 
+                   z="-[eecon:EESpaDepth]/2. + [eecon:SCEnvLength]/2."/> </PosPart>
+
 
 </PosPartSection>
 </DDDefinition>

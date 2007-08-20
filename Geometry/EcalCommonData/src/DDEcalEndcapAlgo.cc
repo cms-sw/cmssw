@@ -71,7 +71,9 @@ DDEcalEndcapAlgo::DDEcalEndcapAlgo() :
    m_PFhalf     ( 0 ) ,
    m_PFfifth    ( 0 ) ,
    m_PF45       ( 0 ) ,
-   m_vecEESCLims ()
+   m_vecEESCLims (),
+   m_iLength    ( 0 ) ,
+   m_iXYOff     ( 0 ) 
 {
    edm::LogInfo("EcalGeom") << "DDEcalEndcapAlgo info: Creating an instance" ;
 }
@@ -134,6 +136,11 @@ void DDEcalEndcapAlgo::initialize(const DDNumericArguments      & nArgs,
    m_PF45     = nArgs["EEPF45" ] ;
 
    m_vecEESCLims = vArgs["EESCLims"];
+
+   m_iLength = nArgs["EEiLength" ] ;
+
+   m_iXYOff  = nArgs["EEiXYOff" ] ;
+
    
 //   edm::LogInfo("EcalGeom") << "DDEcalEndcapAlgo info: end initialize" ;
 }
@@ -333,12 +340,13 @@ DDEcalEndcapAlgo::EECreateSC( const unsigned int iSCType   )
 			      aRear,
 			      zerod             	) );
 
-   const double dwall  ( eeSCAWall()    ) ;
-   const double iFront ( aFront - dwall ) ;
-   const double iRear  ( aRear  - dwall ) ;
+   const double dwall   ( eeSCAWall()    ) ;
+   const double iFront  ( aFront - dwall ) ;
+   const double iRear   ( iFront ) ; //aRear  - dwall ) ;
+   const double iLen    ( iLength() ) ; //0.075*eeSCALength() ) ;
    const DDSolid eeSCInt ( DDSolidFactory::trap(
 			      ( 1==iSCType ? intName( iSCType ) : addTmp( intName( iSCType ) ) ),
-			      0.5*eeSCALength(),
+			      iLen/2.,
 			      atan((eeSCARear()-eeSCAFront())/(sqrt(2.)*eeSCALength())),
 			      ffived,
 			      iFront,
@@ -352,6 +360,8 @@ DDEcalEndcapAlgo::EECreateSC( const unsigned int iSCType   )
 
    const double dz  ( -0.5*( eeSCELength() - eeSCALength() ) ) ;
    const double dxy (  0.5* dz * (eeSCERear() - eeSCEFront())/eeSCELength() ) ;
+   const double zIOff (  -( eeSCALength() - iLen )/2. ) ;
+   const double xyIOff ( iXYOff() ) ;
 
    if( 1 == iSCType ) // standard SC in this block
    {
@@ -393,11 +403,16 @@ DDEcalEndcapAlgo::EECreateSC( const unsigned int iSCType   )
 							cutBoxName(), 
 							cutTra - extra,
 							cutRot ) ) ;
+
+      const double mySign ( iSCType < 4 ? +1. : -1. ) ;
       
+      const DDTranslation extraI ( xyIOff + mySign*2*mm, 
+				   xyIOff + mySign*2*mm, zIOff ) ;
+
       DDSolid eeCutInt   ( DDSolidFactory::subtraction( intName( iSCType ),
 							addTmp( intName( iSCType ) ),
 							cutBoxName(), 
-							cutTra - extra,
+							cutTra - extraI,
 							cutRot ) ) ;
       
       eeSCELog = DDLogicalPart( envName( iSCType ), eeMat()    , eeCutEnv ) ;
@@ -405,29 +420,13 @@ DDEcalEndcapAlgo::EECreateSC( const unsigned int iSCType   )
       eeSCILog = DDLogicalPart( intName( iSCType ), eeMat()    , eeCutInt   ) ;
    }
 
-   DDpos( eeSCALog, envName( iSCType ), iSCType*100 + 1, DDTranslation( dxy, dxy, dz ), noRot );
-   DDpos( eeSCILog, alvName( iSCType ), iSCType*100 + 1, DDTranslation( 0., 0., 0.)   , noRot );
+
+   DDpos( eeSCALog, envName( iSCType ), iSCType*100 + 1, DDTranslation( dxy,    dxy,    dz   ), noRot );
+   DDpos( eeSCILog, alvName( iSCType ), iSCType*100 + 1, DDTranslation( xyIOff, xyIOff, zIOff), noRot );
 
    DDTranslation croffset( 0., 0., 0.) ;
-   EEPositionCRs( intName( iSCType ), croffset, iSCType ) ;
+   EEPositionCRs( alvName( iSCType ), croffset, iSCType ) ;
 
-      //  Endcap supercrystal rear housing
-/*
-   const DDName  eeSCHName ( "EESCHous" + int_to_string( iSCType ) ) ;
-   const DDSolid eeSCHous ( DDSolidFactory::box( eeSCHName,
-						 0.5*eeSCHSide(),
-						 0.5*eeSCHSide(),
-						 0.5*eeSCHLength() ) );
-*/
-      //  Endcap supercrystal interface plate
-      //      const DDName eeSCIName ("EESSIFP"+int_to_string(iSCType));
-      //      const DDSolid eeSCInter (DDSolidFactory::box(
-      //                                    eeSCIName,
-      //                                    0.5*eeSCISide(),0.5*eeSCISide(),0.5*eeSCILength()
-      //                                                  )
-      //                              );
-
-      //   }
 }
 
 unsigned int 

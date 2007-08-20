@@ -32,7 +32,7 @@
    <Numeric name="EECrysFront"  value="28.618*mm"/>  <!-- Taper = 0.36deg -->
 
 <!-- Endcap supercrystal: size of tapered envelope -->
-   <Numeric name="EESCELength" value="346.60*mm"/>
+   <Numeric name="EESCELength" value="[eecon:SCEnvLength]"/>
    <Numeric name="EESCERear"   value="156.87*mm"/>
    <Numeric name="EESCEFront"  value="145.98*mm"/>  <!-- Taper = 1.80deg -->
 
@@ -41,6 +41,9 @@
    <Numeric name="EESCARear"   value="154.66*mm - 0.01*mm"/>
    <Numeric name="EESCAFront"  value="145.98*mm - 0.01*mm"/>  <!-- Taper = 1.80deg -->
    <Numeric name="EESCAWall"   value="0.200*mm"/> <!-- SC wall thickness -->
+
+   <Numeric name="EEiLength" value="20*mm"/>
+   <Numeric name="EEiXYOff"  value="-2.2*mm"/>
 
 <!-- Endcap supercrystal: size of rear housing -->
    <Numeric name="EESCHLength" value="60.20*mm"/>

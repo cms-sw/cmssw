@@ -131,6 +131,9 @@ class DDEcalEndcapAlgo : public DDAlgorithm {
 
       const std::vector<double>& vecEESCLims() const { return m_vecEESCLims ; }
 
+      double                     iLength()      const { return m_iLength ; }
+      double                     iXYOff()       const { return m_iXYOff ; }
+
 protected:
 
 private:
@@ -190,6 +193,11 @@ private:
       double m_PF45 ;
 
       std::vector<double> m_vecEESCLims;
+
+      double m_iLength ;
+
+      double m_iXYOff ;
+
 }; 
 
 #endif
