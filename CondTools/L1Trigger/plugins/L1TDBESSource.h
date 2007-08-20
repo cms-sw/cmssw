@@ -34,7 +34,7 @@
 //
 // Original Author:  Giedrius Bacevicius
 //         Created:  Thu Jul 19 13:14:44 CEST 2007
-// $Id: L1TDBESSource.h,v 1.2 2007/08/14 12:10:24 giedrius Exp $
+// $Id: L1TDBESSource.h,v 1.3 2007/08/19 16:36:56 giedrius Exp $
 namespace l1t
 {
 /* Class that will load data from PoolDB and stores it into EventSetup.

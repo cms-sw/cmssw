@@ -13,7 +13,7 @@
 //
 // Original Author:  Giedrius Bacevicius
 //         Created:  Wed Jul 11 13:52:35 CEST 2007
-// $Id: L1TWriter.cc,v 1.2 2007/08/12 15:46:09 giedrius Exp $
+// $Id: L1TWriter.cc,v 1.3 2007/08/14 12:10:24 giedrius Exp $
 //
 //
 
@@ -44,7 +44,7 @@
 #include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
 #include "CondFormats/DataRecord/interface/L1CSCTPParametersRcd.h"
 
-#include "CondTools/L1Trigger/src/L1TWriter.h"
+#include "CondTools/L1Trigger/plugins/L1TWriter.h"
 
 namespace l1t
 {
@@ -131,10 +131,19 @@ void L1TWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (!keyTag.empty ())
         writer.writeKey (new L1TriggerKey (newKey), keyTag, run);
 
-    // Write payload if required
-    // TODO: dummy check, this should be moved to more elegant logic
-    if (items ["L1CSCTPParametersRcd"].find ("L1CSCTPParameters") != items ["L1CSCTPParametersRcd"].end ())
-        writePayload<L1CSCTPParametersRcd, L1CSCTPParameters> (newKey, "L1CSCTPParametersRcd", iSetup);
+    // save all items that where asked for
+    std::cerr << "L1TWriter::analyze: starting to write records" << std::endl;
+    for (Items::const_iterator rIt = items.begin (); rIt != items.end (); rIt ++)
+    {
+        std::string record = rIt->first;
+        std::set<std::string> types = rIt->second;
+
+        for (std::set<std::string>::const_iterator tIt = types.begin (); tIt != types.end (); tIt++)
+        {
+            std::cerr << "L1TWriter::analyze: writting " << record << " and " << *tIt << std::endl;
+            writer.writePayload (newKey, iSetup, record, *tIt);
+        }
+    }
 }
 
 template<typename Record, typename Value>

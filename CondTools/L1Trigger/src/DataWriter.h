@@ -3,6 +3,7 @@
 
 // Framework
 #include "FWCore/Framework/interface/IOVSyncValue.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/RelationalStorageManager.h"
@@ -13,9 +14,11 @@
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
 
+
 // L1T includes
 #include "CondFormats/L1TObjects/interface/L1TriggerKey.h"
 #include "CondTools/L1Trigger/src/DataManager.h"
+#include "CondTools/L1Trigger/src/WriterProxy.h"
 
 #include <string>
 #include <map>
@@ -40,6 +43,10 @@ class DataWriter : public DataManager
          */
         template<typename T>
         void writePayload (const L1TriggerKey & key, T * payload, const std::string & recordName);
+
+        void writePayload (const L1TriggerKey & key, const edm::EventSetup & setup,
+                const std::string & record, const std::string & type);
+
         /* Writes given key to DB and starts its IOV from provided run number.
          * From here pointer ownership is managed by POOL
          */

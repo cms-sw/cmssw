@@ -2,6 +2,7 @@
 
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
 #include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
+#include "CondCore/PluginSystem/interface/ProxyFactory.h"
 
 #include <utility>
 
@@ -82,5 +83,45 @@ void DataWriter::addMappings (const std::string tag, const std::string iovToken)
     coral->commit ();
     coral->disconnect ();
 }
+
+static std::string buildName( const std::string& iRecordName, const std::string& iTypeName )
+{
+    return iRecordName+"@"+iTypeName+"@Writer";
+}
+
+void DataWriter::writePayload (const L1TriggerKey & key, const edm::EventSetup & setup,
+        const std::string & record, const std::string & type)
+{
+    WriterFactory * factory = WriterFactory::get();
+    const std::string name = buildName(record, type);
+    WriterProxy * writer = factory->create(name, std::string ("ha"), std::string ("ha"));
+    assert (writer != 0);
+
+    pool->connect ();
+    pool->startTransaction (false);
+
+    std::string payloadToken = writer->save(setup, *pool);
+    std::cerr << "DataWriter::writePayload: got token from write: " << payloadToken << std::endl;
+    assert (!payloadToken.empty ());
+    delete writer;
+
+    // we know that this is new IOV token so we can skip test. Execption at this moment
+    // is also ok, becaus it is not knwo what to do if we try to reuse token
+    // However, exceptions will be rised from addMappings method
+    cond::IOVService iov (*pool);
+    cond::IOVEditor * editor = iov.newIOVEditor ();
+    editor->insert (edm::IOVSyncValue::endOfTime ().eventID ().run (), payloadToken);
+    std::string token = editor->token ();
+    std::cerr << "DataWriter::writePayload: got token from IOV: " << token << std::endl;
+    delete editor;
+
+    pool->commit ();
+    pool->disconnect ();
+
+    // Assign payload token with IOV value
+    std::cerr << "DataWriter::writePayload: mapping with tag: " << key.getKey () << std::endl;
+    addMappings (key.getKey (), token);
+}
+
 
 } // ns
