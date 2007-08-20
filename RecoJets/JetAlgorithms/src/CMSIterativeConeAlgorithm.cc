@@ -1,5 +1,5 @@
 // Original author: A. Ulyanov
-// $Id: CMSIterativeConeAlgorithm.cc,v 1.8 2007/07/20 18:46:38 fedor Exp $
+// $Id: CMSIterativeConeAlgorithm.cc,v 1.9 2007/08/15 17:43:14 fedor Exp $
 
 #include "RecoJets/JetAlgorithms/interface/CMSIterativeConeAlgorithm.h"
 
@@ -7,6 +7,7 @@
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "RecoJets/JetAlgorithms/interface/ProtoJet.h"
 #include "RecoJets/JetAlgorithms/interface/JetAlgoHelper.h"
 using namespace std;
 using namespace reco;
@@ -69,7 +70,7 @@ void CMSIterativeConeAlgorithm::run(const InputCollection& fInput, OutputCollect
     }
 
     //make a final jet and remove the jet constituents from the input list 
-    vector<InputItem> jetConstituents;     
+    InputCollection jetConstituents;     
     list< list<InputItem>::iterator>::const_iterator inp;
     for(inp=cone.begin();inp!=cone.end();inp++)  {
       jetConstituents.push_back(**inp);

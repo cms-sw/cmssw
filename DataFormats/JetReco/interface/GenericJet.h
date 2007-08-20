@@ -34,6 +34,5 @@ namespace reco {
 
   };
 }
-// temporary fix before include_checcker runs globally
-#include "DataFormats/JetReco/interface/GenericJetCollection.h"//INCLUDECHECKER:SKIP
+#include "DataFormats/JetReco/interface/GenericJetCollection.h" // temporary fix before include_checcker runs globally
 #endif

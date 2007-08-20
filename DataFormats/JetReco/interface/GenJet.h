@@ -89,6 +89,5 @@ private:
   Specific m_specific;
 };
 }
-// temporary fix before include_checcker runs globally
-#include "DataFormats/JetReco/interface/GenJetCollection.h" //INCLUDECHECKER:SKIP
+#include "DataFormats/JetReco/interface/GenJetCollection.h" // temporary fix before include_checcker runs globally
 #endif

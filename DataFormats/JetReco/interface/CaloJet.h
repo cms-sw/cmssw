@@ -143,6 +143,5 @@ class CaloJet : public Jet {
   Specific m_specific;
 };
 }
-// temporary fix before include_checcker runs globally
-#include "DataFormats/JetReco/interface/CaloJetCollection.h" //INCLUDECHECKER:SKIP
+#include "DataFormats/JetReco/interface/CaloJetCollection.h" // temporary fix before include_checcker runs globally
 #endif

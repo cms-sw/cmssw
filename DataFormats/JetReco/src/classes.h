@@ -8,23 +8,13 @@
 /* #include "Math/PxPyPzE4D.h"  */
 /* #include <boost/cstdint.hpp>  */
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
-#include "DataFormats/Common/interface/RefProd.h" 
-#include "DataFormats/JetReco/interface/BasicJet.h" 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h" 
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
-#include "DataFormats/JetReco/interface/GenJet.h" 
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
-#include "DataFormats/JetReco/interface/PFJet.h" 
 #include "DataFormats/JetReco/interface/GenericJetCollection.h"
-#include "DataFormats/JetReco/interface/GenericJet.h" 
 #include "DataFormats/TrackReco/interface/TrackFwd.h" 
-#include "Rtypes.h" 
-#include "Math/Cartesian3D.h" 
-#include "Math/Polar3D.h" 
-#include "Math/CylindricalEta3D.h" 
 #include "DataFormats/JetReco/interface/JetTrackMatch.h"
 #include "DataFormats/JetReco/interface/JetToFloatAssociation.h"
-#include "Math/PxPyPzE4D.h" 
 #include "DataFormats/JetReco/interface/JetToTracksAssociation.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 

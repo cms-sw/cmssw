@@ -6,7 +6,10 @@
 #include <vector>
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
-#include "DataFormats/JetReco/interface/PFJet.h"//INCLUDECHECKER:SKIP
+#include "DataFormats/Common/interface/RefProd.h"
+
+#include "DataFormats/JetReco/interface/PFJet.h"
+
 namespace reco {
   class PFJet;
   /// collection of PFJet objects 

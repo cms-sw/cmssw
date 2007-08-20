@@ -6,7 +6,9 @@
 #include <vector>
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
-#include "DataFormats/JetReco/interface/GenericJet.h"//INCLUDECHECKER:SKIP
+#include "DataFormats/Common/interface/RefProd.h"
+
+#include "DataFormats/JetReco/interface/GenericJet.h"
 
 namespace reco {
   class GenericJet;

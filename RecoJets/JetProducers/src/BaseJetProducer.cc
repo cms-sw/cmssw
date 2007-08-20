@@ -1,6 +1,6 @@
 // File: BaseJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BaseJetProducer.cc,v 1.24 2007/07/31 18:59:37 fedor Exp $
+// $Id: BaseJetProducer.cc,v 1.25 2007/08/15 17:43:16 fedor Exp $
 //--------------------------------------------
 #include <memory>
 
@@ -60,34 +60,6 @@ namespace {
     }
   }
 
-  class FakeHandle {
-  public:
-    FakeHandle (const CandidateCollection* fCollection, edm::ProductID fId) : mCollection (fCollection), mId (fId) {}
-    edm::ProductID id () const {return mId;} 
-    const CandidateCollection* product () const {return mCollection;}
-  private:
-    const CandidateCollection* mCollection;
-    edm::ProductID mId;
-  };
-
-  template <class HandleC>
-  void fillInputs (const HandleC& fData, JetReco::InputCollection* fInput, double fEtCut, double fECut) {
-    for (unsigned i = 0; i < fData.product ()->size (); i++) {
-      // if clone, trace back till the original
-      CandidateRef constituent (fData, i);
-      while (constituent.isNonnull() && constituent->hasMasterClone ()) {
-	CandidateBaseRef baseRef = constituent->masterClone ();
-	constituent = baseRef.castTo<CandidateRef>();
-      }
-      if (constituent.isNull()) {
-	edm::LogWarning("Missing MasterClone") << "Constituent is ignored..." << std::endl;
-      }
-      else if ((fEtCut <= 0 || constituent->et() > fEtCut) &&
-	  (fECut <= 0 || constituent->energy() > fECut)) {
-	fInput->push_back (constituent);
-      }
-    }
-  }
 }
 
 namespace cms
@@ -122,38 +94,21 @@ namespace cms
   {
     const CaloSubdetectorGeometry* towerGeometry = 0; // cache geometry
     // get input
-    InputCollection input;
-    CandidateCollection inputCache;
-    if (makeGenericJet (mJetType)) {
-      edm::Handle<edm::View <Candidate> > genericInputs; 
-      e.getByLabel( mSrc, genericInputs ); 
-      for (unsigned i = 0; i < genericInputs->size (); ++i) {
-	const Candidate* ref = &((*genericInputs)[i]);
-	Candidate* c = new LeafCandidate (ref->charge (), ref->p4 (), ref->vertex ());
-	inputCache.push_back (c);
-      }
-      FakeHandle handle (&inputCache, genericInputs.id ());
-      fillInputs (handle, &input, mEtInputCut, mEInputCut);
-    }
-    else { // CandidateCollection
-      edm::Handle<CandidateCollection> concreteInputs;
-      e.getByLabel( mSrc, concreteInputs );
-      fillInputs (concreteInputs, &input, mEtInputCut, mEInputCut);
-    }
+    edm::Handle<edm::View <Candidate> > inputHandle; 
+    e.getByLabel( mSrc, inputHandle);
+    const JetReco::InputCollection input (inputHandle->refVector().begin(), inputHandle->refVector().end());
 
     if (mVerbose) {
       std::cout << "BaseJetProducer::produce-> INPUT COLLECTION selected from" << mSrc 
 		<< " with ET > " << mEtInputCut << " and/or E > " << mEInputCut << std::endl;
-      int index = 0;
-      for (InputCollection::const_iterator constituent = input.begin();
-       constituent != input.end(); ++constituent, ++index) {
+      for (unsigned index = 0; index < input.size(); ++index) {
 	std::cout << "  Input " << index << ", px/py/pz/pt/e: "
-		  << (*constituent)->px() << '/' << (*constituent)->py() << '/' << (*constituent)->pz() << '/' 
-		  << (*constituent)->pt() << '/' << (*constituent)->energy()
+		  << input[index]->px() << '/' << input[index]->py() << '/' << input[index]->pz() << '/' 
+		  << input[index]->pt() << '/' << input[index]->energy()
  		  << std::endl;
       }
     }
-
+    
     // run algorithm
     vector <ProtoJet> output;
     if (input.empty ()) {

@@ -5,10 +5,10 @@
       Template algorithm to correct jet
     \author F.Ratnikov (UMd)
     Mar 2, 2006
-    $Id: ToyJetCorrection.h,v 1.3 2007/04/18 22:04:31 fedor Exp $
+    $Id: ToyJetCorrection.h,v 1.4 2007/08/15 17:43:14 fedor Exp $
  */
 
-#include "DataFormats/JetReco/interface/CaloJetfwd.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
 
 class ToyJetCorrection {
  public:

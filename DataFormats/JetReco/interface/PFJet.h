@@ -109,6 +109,5 @@ class PFJet : public Jet {
   Specific m_specific;
 };
 }
-// temporary fix before include_checcker runs globally
-#include "DataFormats/JetReco/interface/PFJetCollection.h" //INCLUDECHECKER:SKIP
+#include "DataFormats/JetReco/interface/PFJetCollection.h" // temporary fix before include_checcker runs globally
 #endif

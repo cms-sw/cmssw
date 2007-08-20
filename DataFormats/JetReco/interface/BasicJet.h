@@ -40,6 +40,5 @@ class BasicJet : public Jet {
   virtual bool overlap( const Candidate & ) const;
 };
 }
-// temporary fix before include_checcker runs globally
-#include "DataFormats/JetReco/interface/BasicJetCollection.h" //INCLUDECHECKER:SKIP
+#include "DataFormats/JetReco/interface/BasicJetCollection.h" // temporary fix before include_checcker runs globally
 #endif

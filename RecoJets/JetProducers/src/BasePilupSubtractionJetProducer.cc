@@ -1,6 +1,6 @@
 // File: BasePilupSubtractionJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BasePilupSubtractionJetProducer.cc,v 1.12 2007/07/31 18:59:37 fedor Exp $
+// $Id: BasePilupSubtractionJetProducer.cc,v 1.13 2007/08/15 17:43:16 fedor Exp $
 //--------------------------------------------
 #include <memory>
 #include "DataFormats/Common/interface/EDProduct.h"
@@ -56,31 +56,6 @@ namespace {
   bool makeGenericJet (const string& fTag) {
     return !makeCaloJet (fTag) && !makeGenJet (fTag) && !makeBasicJet (fTag);
   }
-
-  class FakeCandidate : public RecoCandidate {
-  public:
-     FakeCandidate( Charge q , const LorentzVector& p4, const Point& vtx) : RecoCandidate( q, p4, vtx ) {}
-  private:
-    virtual bool overlap( const Candidate & ) const {return false;}
-  };
-
-  class FakeHandle {
-  public:
-    FakeHandle (const CandidateCollection* fCollection, edm::ProductID fId) : mCollection (fCollection), mId (fId) {}
-    edm::ProductID id () const {return mId;}
-    const CandidateCollection* product () const {return mCollection;}
-  private:
-    const CandidateCollection* mCollection;
-    edm::ProductID mId;
-  };
-
- template <class HandleC>
-  void fillInputs (const HandleC& fData, JetReco::InputCollection* fInput) {
-    for (unsigned i = 0; i < fData.product ()->size (); i++) {
-        fInput->push_back (InputItem (fData, i));
-    }
-  }
-
 }
 
 namespace cms
@@ -178,41 +153,30 @@ namespace cms
     }
 //==============================================================================
     // get input
-    InputCollection inputs; 
-    edm::Handle<CandidateCollection> concreteInputs;
-    e.getByLabel( mSrc, concreteInputs );
-    fillInputs (concreteInputs, &inputs);
-
+    edm::Handle<edm::View <Candidate> > inputHandle; 
+    e.getByLabel( mSrc, inputHandle);
+    JetReco::InputCollection input (inputHandle->refVector().begin(), inputHandle->refVector().end());
 //
 // Create the initial vector for Candidates
 //  
 //    std::cout<<"============================================= Before calculate pedestal "<<std::endl;  
 
-    calculate_pedestal(inputs); 
+    calculate_pedestal(input); 
     std::vector<ProtoJet> output;
 
 //    std::cout<<"============================================= After calculate pedestal "<<std::endl;
 
-    CandidateCollection inputTMPN = subtract_pedestal(inputs);
+    CandidateCollection inputTMPN = subtract_pedestal(input);
 
 //    std::cout<<"============================================= After pedestal subtraction "<<inputTMPN.size()<<std::endl;
 
-// create input for runAlgorithm
-   JetReco::InputCollection fInput;
-   FakeHandle handle (&inputTMPN, concreteInputs.id ());
-
-//   std::cout<<" After FakeHandle "<<std::endl;
-
-   fillInputs (handle, &fInput);
-//   std::cout<<" After fill inputs "<<std::endl; 
 
     // run algorithm
    vector <ProtoJet> firstoutput;
 
 //   std::cout<<" We are here at Point 0 "<<std::endl;   
 
-//   runAlgorithm (inputs, &firstoutput);
-   runAlgorithm (fInput, &firstoutput);
+   runAlgorithm (input, &firstoutput);
 
 //   std::cout<<" We are here at Point 1 with firstoutput size (Njets) "<<firstoutput.size()<<std::endl; 
 //
@@ -264,7 +228,7 @@ namespace cms
 
 //          std::cout<<" Number of towers in input collection "<<inputs.size()<<std::endl;
 
-         for (InputCollection::const_iterator it = inputs.begin(); it != inputs.end(); it++ ) {
+         for (InputCollection::const_iterator it = input.begin(); it != input.end(); it++ ) {
 
               double eta1 = (**it).eta();
               double phi1 = (**it).phi();
@@ -276,12 +240,12 @@ namespace cms
 
 	      if( dr < radiusPU) {
                 newtowers.push_back(*it);
-                jettowers.push_back(*it); 
-                int ieta1 = ieta(&(**it));
-                int iphi1 = iphi(&(**it));
-          
-//       std::cout<<" Take Et of tower inputs, (dr < 0.5), (**it).et()= "<<(**it).et()<<" eta= "<<(**it).eta()
-//                <<" phi= "<<(**it).phi()<<" ieta1= "<<ieta1<<" iphi1= "<<iphi1<<std::endl;
+                jettowers.push_back(*it);
+ 
+		//                int ieta1 = ieta(&(**it));
+		//                int iphi1 = iphi(&(**it));
+		//       std::cout<<" Take Et of tower inputs, (dr < 0.5), (**it).et()= "<<(**it).et()<<" eta= "<<(**it).eta()
+		//                <<" phi= "<<(**it).phi()<<" ieta1= "<<ieta1<<" iphi1= "<<iphi1<<std::endl;
 
 	      } //dr < 0.5
                 
@@ -295,28 +259,29 @@ namespace cms
 
 
 //========> PRINT  Tower after Subtraction
-        for (InputCollection::const_iterator itt = fInput.begin(); itt !=  fInput.end(); itt++ ) {
-        
-              double eta_pu1 = (**itt).eta();
-              double phi_pu1 = (**itt).phi();
-
-              double dphi = fabs(phi_pu1-phi2);
-              double deta = eta_pu1-eta2;
-               if (dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
-              double dr = sqrt(dphi*dphi+deta*deta);
-
-              if( dr < radiusPU) {        
-                int ieta_pu1 = ieta(&(**itt));
-                int iphi_pu1 = iphi(&(**itt));
-
-//       std::cout<<" Take Et of tower after Subtraction, (**itt).et()= "<<(**itt).et()
-//                <<" eta= "<<(**itt).eta()<<" phi= "<<(**itt).phi()
-//                <<" ieta_pu1= "<<ieta_pu1<<" iphi_pu1= "<<iphi_pu1<<std::endl;
-
-              } //dr < 0.5
-
-           } //  input collection after Subtraction
-
+	if (0) { // bypass
+	  for (InputCollection::const_iterator itt = input.begin(); itt !=  input.end(); itt++ ) {
+	    
+	    double eta_pu1 = (**itt).eta();
+	    double phi_pu1 = (**itt).phi();
+	    
+	    double dphi = fabs(phi_pu1-phi2);
+	    double deta = eta_pu1-eta2;
+	    if (dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
+	    double dr = sqrt(dphi*dphi+deta*deta);
+	    
+	    if( dr < radiusPU) {        
+	      int ieta_pu1 = ieta(&(**itt));
+	      int iphi_pu1 = iphi(&(**itt));
+	      
+	      std::cout<<" Take Et of tower after Subtraction, (**itt).et()= "<<(**itt).et()
+		       <<" eta= "<<(**itt).eta()<<" phi= "<<(**itt).phi()
+		       <<" ieta_pu1= "<<ieta_pu1<<" iphi_pu1= "<<iphi_pu1<<std::endl;
+	      
+	    } //dr < 0.5
+	    
+	  } //  input collection after Subtraction
+	}
 
 //=====================>
 
@@ -327,12 +292,12 @@ namespace cms
 //
 // Create a new collections from the towers not included in jets 
 //
-        InputCollection input;   
-        for(InputCollection::const_iterator it = inputs.begin(); it != inputs.end(); it++ ) {
+        InputCollection orphanInput;   
+        for(InputCollection::const_iterator it = input.begin(); it != input.end(); it++ ) {
           InputCollection::const_iterator itjet = find(jettowers.begin(),jettowers.end(),*it);
-          if( itjet == jettowers.end() ) input.push_back(*it); 
+          if( itjet == jettowers.end() ) orphanInput.push_back(*it); 
         }
-//       std::cout<<" We are at Point 3, Number of tower not included in jets= "<<input.size()<<std::endl;
+//       std::cout<<" We are at Point 3, Number of tower not included in jets= "<<orphanInput.size()<<std::endl;
 
 /*
 //======================> PRINT NEW InputCollection without jets
@@ -352,7 +317,7 @@ namespace cms
 //
 // Recalculate pedestal
 //
-    calculate_pedestal(input);
+    calculate_pedestal(orphanInput);
 
 //    std::cout<<" We are at Point 4, After Recalculation of pedestal"<<std::endl;
 //    
@@ -453,7 +418,7 @@ namespace cms
     }
   }
   
-void BasePilupSubtractionJetProducer::calculate_pedestal(JetReco::InputCollection& inputs)
+void BasePilupSubtractionJetProducer::calculate_pedestal(const JetReco::InputCollection& fInputs)
 {
 //   std::cout<<"========== Start BasePilupSubtractionJetProducer::calculate_pedestal"<<std::endl;
 //   std::cout<<" ietamax="<<ietamax<<" ietamin="<<ietamin<<std::endl;
@@ -475,9 +440,8 @@ void BasePilupSubtractionJetProducer::calculate_pedestal(JetReco::InputCollectio
     }
 
 //=>
-    int iphi0 = -100;
     
-    for (JetReco::InputCollection::const_iterator input_object = inputs.begin ();  input_object != inputs.end (); input_object++) {
+    for (JetReco::InputCollection::const_iterator input_object = fInputs.begin ();  input_object != fInputs.end (); input_object++) {
        
        ieta0 = ieta(&(**input_object));
 
@@ -546,7 +510,7 @@ void BasePilupSubtractionJetProducer::calculate_pedestal(JetReco::InputCollectio
 
 }
 
-CandidateCollection BasePilupSubtractionJetProducer::subtract_pedestal(JetReco::InputCollection& inputs)
+CandidateCollection BasePilupSubtractionJetProducer::subtract_pedestal(const JetReco::InputCollection& fInputs)
 {
 //
 // Subtract mean and sigma and prepare collection for jet finder
@@ -558,7 +522,7 @@ CandidateCollection BasePilupSubtractionJetProducer::subtract_pedestal(JetReco::
     JetReco::InputCollection inputTMP;
     int it = -100;
     
-    for (JetReco::InputCollection::const_iterator input_object = inputs.begin (); input_object != inputs.end (); input_object++) {
+    for (JetReco::InputCollection::const_iterator input_object = fInputs.begin (); input_object != fInputs.end (); input_object++) {
          
        it = ieta(&(**input_object));
        double etnew = (**input_object).et() - (*emean.find(it)).second - (*esigma.find(it)).second;
@@ -594,7 +558,7 @@ CandidateCollection BasePilupSubtractionJetProducer::subtract_pedestal(JetReco::
        inputCache.push_back (mycand);          
     }
 
-//    std::cout<<" OLD size "<<inputs.size()<<" NEW size "<<inputCache.size()<<std::endl;
+//    std::cout<<" OLD size "<<fInputs.size()<<" NEW size "<<inputCache.size()<<std::endl;
 
 /*
 //===> Print NEW tower energy after background Subtraction

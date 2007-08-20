@@ -4,6 +4,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "RecoJets/JetAlgorithms/interface/ProtoJet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RecoJets/JetAlgorithms/interface/FastJetBaseWrapper.h"
@@ -45,8 +46,10 @@ void FastJetBaseWrapper::run(const JetReco::InputCollection& fInput, JetReco::Ou
   
   // convert inputs
   std::vector<fastjet::PseudoJet> fjInputs;
-  for (unsigned index = 0; index < fInput.size(); ++index) {
-    const reco::CandidateRef* input = &(fInput[index]);
+  
+  JetReco::InputCollection::const_iterator input = fInput.begin();
+  unsigned index = 0;
+  for (; input != fInput.end(); ++input, ++index) {
     fjInputs.push_back (fastjet::PseudoJet ((*input)->px(),(*input)->py(),(*input)->pz(),(*input)->energy()));
     fjInputs.back().set_user_index(index);
   }
@@ -98,7 +101,7 @@ void FastJetBaseWrapper::run(const JetReco::InputCollection& fInput, JetReco::Ou
      math::XYZTLorentzVector p4(px,py,pz,E);
      // constituents
      std::vector<fastjet::PseudoJet> fastjet_constituents = clusterSequence->constituents(*jet);
-     jetConstituents.reserve (fastjet_constituents.size());
+     // reserve is not defined     jetConstituents.reserve (fastjet_constituents.size());
      jetConstituents.clear();
      for (std::vector<fastjet::PseudoJet>::const_iterator itConst=fastjet_constituents.begin();
 	  itConst!=fastjet_constituents.end();itConst++){
