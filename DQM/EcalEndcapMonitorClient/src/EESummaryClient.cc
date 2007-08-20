@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/08/17 09:05:12 $
- * $Revision: 1.20 $
+ * $Date: 2007/08/17 18:25:28 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  *
 */
@@ -616,7 +616,17 @@ void EESummaryClient::analyze(void){
     EETestPulseClient* eetpc = dynamic_cast<EETestPulseClient*>(clients_[i]);
 
     MonitorElement* me;
+    MonitorElement *me_01, *me_02, *me_03;
+//    MonitorElement *me_04, *me_05;
     TH2F* h2;
+
+    std::map<float,float> priority;
+    priority.insert( make_pair(0,3) );
+    priority.insert( make_pair(1,1) );
+    priority.insert( make_pair(2,2) );
+    priority.insert( make_pair(3,2) );
+    priority.insert( make_pair(4,3) );
+    priority.insert( make_pair(5,1) );
 
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -686,17 +696,149 @@ void EESummaryClient::analyze(void){
 
           if ( eelc ) {
 
+            me = eelc->meg01_[ism-1];
+
+            if ( me ) {
+
+              float xval = me->getBinContent( ix, iy );
+
+              if ( Numbers::validEE(ism, 101 - jx, jy) ) {
+                if ( ism <= 9 ) {
+                  if ( me->getEntries() != 0 ) {
+                    meLaserL1_[0]->setBinContent( jx, jx, xval );
+                  }
+                } else {
+                  if ( me->getEntries() != 0 ) {
+                    meLaserL1_[1]->setBinContent( jx, jx, xval );
+                  }
+                }
+              }
+
+            }
+
           }
 
           if ( eeldc ) {
+
+            me = eeldc->meg01_[ism-1];
+
+            if ( me ) {
+
+              float xval = me->getBinContent( ix, iy );
+
+              if ( Numbers::validEE(ism, 101 - jx, jy) ) {
+                if ( ism <= 9 ) {
+                  if ( me->getEntries() != 0 ) {
+                    meLed_[0]->setBinContent( jx, jx, xval );
+                  }
+                } else {
+                  if ( me->getEntries() != 0 ) {
+                    meLed_[1]->setBinContent( jx, jx, xval );
+                  }
+                }
+              }
+
+            }
 
           }
 
           if ( eepc ) {
 
+            me_01 = eepc->meg01_[ism-1];
+            me_02 = eepc->meg02_[ism-1];
+            me_03 = eepc->meg03_[ism-1];
+
+            if (me_01 && me_02 && me_03 ) {
+              float xval=2;
+              float val_01=me_01->getBinContent(ix,iy);
+              float val_02=me_02->getBinContent(ix,iy);
+              float val_03=me_03->getBinContent(ix,iy);
+
+              std::vector<float> maskedVal, unmaskedVal;
+              (val_01>2) ? maskedVal.push_back(val_01) : unmaskedVal.push_back(val_01);
+              (val_02>2) ? maskedVal.push_back(val_02) : unmaskedVal.push_back(val_02);
+              (val_03>2) ? maskedVal.push_back(val_03) : unmaskedVal.push_back(val_03);
+
+              float brightColor=-1, darkColor=-1;
+              float maxPriority=-1;
+              std::vector<float>::const_iterator Val;
+              for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
+                if(priority[*Val]>maxPriority) brightColor=*Val;
+              }
+              maxPriority=-1;
+              for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
+                if(priority[*Val]>maxPriority) darkColor=*Val;
+              }
+              if(unmaskedVal.size()==3)  xval = brightColor;
+              else if(maskedVal.size()==3)  xval = darkColor;
+              else {
+                if(brightColor==1 && darkColor==5) xval = 5;
+                else xval = brightColor;
+              }
+
+              if ( Numbers::validEE(ism, 101 - jx, jy) ) {
+                if ( ism <= 9 ) {
+                  if ( me_01->getEntries() != 0 && me_02->getEntries() != 0 && me_03->getEntries() != 0 ) {
+                    mePedestal_[0]->setBinContent( jx, jx, xval );
+                  }
+                } else {
+                  if ( me_01->getEntries() != 0 && me_02->getEntries() != 0 && me_03->getEntries() != 0 ) {
+                    mePedestal_[1]->setBinContent( jx, jx, xval );
+                  }
+                }
+              }
+
+            }
+
           }
 
           if ( eetpc ) {
+
+            me_01 = eetpc->meg01_[ism-1];
+            me_02 = eetpc->meg02_[ism-1];
+            me_03 = eetpc->meg03_[ism-1];
+
+            if (me_01 && me_02 && me_03 ) {
+              float xval=2;
+              float val_01=me_01->getBinContent(ix,iy);
+              float val_02=me_02->getBinContent(ix,iy);
+              float val_03=me_03->getBinContent(ix,iy);
+
+              std::vector<float> maskedVal, unmaskedVal;
+              (val_01>2) ? maskedVal.push_back(val_01) : unmaskedVal.push_back(val_01);
+              (val_02>2) ? maskedVal.push_back(val_02) : unmaskedVal.push_back(val_02);
+              (val_03>2) ? maskedVal.push_back(val_03) : unmaskedVal.push_back(val_03);
+
+              float brightColor=-1, darkColor=-1;
+              float maxPriority=-1;
+              std::vector<float>::const_iterator Val;
+              for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
+                if(priority[*Val]>maxPriority) brightColor=*Val;
+              }
+              maxPriority=-1;
+              for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
+                if(priority[*Val]>maxPriority) darkColor=*Val;
+              }
+              if(unmaskedVal.size()==3) xval = brightColor;
+              else if(maskedVal.size()==3) xval = darkColor;
+              else {
+                if(brightColor==1 && darkColor==5) xval = 5;
+                else xval = brightColor;
+              }
+
+              if ( Numbers::validEE(ism, 101 - jx, jy) ) {
+                if ( ism <= 9 ) {
+                  if ( me_01->getEntries() != 0 && me_02->getEntries() != 0 && me_03->getEntries() != 0 ) {
+                    meTestPulse_[0]->setBinContent( jx, jx, xval );
+                  }
+                } else {
+                  if ( me_01->getEntries() != 0 && me_02->getEntries() != 0 && me_03->getEntries() != 0 ) {
+                    meTestPulse_[1]->setBinContent( jx, jx, xval );
+                  }
+                }
+              }
+
+            }
 
           }
 
