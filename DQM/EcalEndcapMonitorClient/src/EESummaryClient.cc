@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/08/17 18:25:28 $
- * $Revision: 1.21 $
+ * $Date: 2007/08/20 21:23:28 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  *
 */
@@ -705,11 +705,11 @@ void EESummaryClient::analyze(void){
               if ( Numbers::validEE(ism, 101 - jx, jy) ) {
                 if ( ism <= 9 ) {
                   if ( me->getEntries() != 0 ) {
-                    meLaserL1_[0]->setBinContent( jx, jx, xval );
+                    meLaserL1_[0]->setBinContent( jx, jy, xval );
                   }
                 } else {
                   if ( me->getEntries() != 0 ) {
-                    meLaserL1_[1]->setBinContent( jx, jx, xval );
+                    meLaserL1_[1]->setBinContent( jx, jy, xval );
                   }
                 }
               }
@@ -729,11 +729,11 @@ void EESummaryClient::analyze(void){
               if ( Numbers::validEE(ism, 101 - jx, jy) ) {
                 if ( ism <= 9 ) {
                   if ( me->getEntries() != 0 ) {
-                    meLed_[0]->setBinContent( jx, jx, xval );
+                    meLed_[0]->setBinContent( jx, jy, xval );
                   }
                 } else {
                   if ( me->getEntries() != 0 ) {
-                    meLed_[1]->setBinContent( jx, jx, xval );
+                    meLed_[1]->setBinContent( jx, jy, xval );
                   }
                 }
               }
@@ -779,11 +779,11 @@ void EESummaryClient::analyze(void){
               if ( Numbers::validEE(ism, 101 - jx, jy) ) {
                 if ( ism <= 9 ) {
                   if ( me_01->getEntries() != 0 && me_02->getEntries() != 0 && me_03->getEntries() != 0 ) {
-                    mePedestal_[0]->setBinContent( jx, jx, xval );
+                    mePedestal_[0]->setBinContent( jx, jy, xval );
                   }
                 } else {
                   if ( me_01->getEntries() != 0 && me_02->getEntries() != 0 && me_03->getEntries() != 0 ) {
-                    mePedestal_[1]->setBinContent( jx, jx, xval );
+                    mePedestal_[1]->setBinContent( jx, jy, xval );
                   }
                 }
               }
@@ -829,11 +829,11 @@ void EESummaryClient::analyze(void){
               if ( Numbers::validEE(ism, 101 - jx, jy) ) {
                 if ( ism <= 9 ) {
                   if ( me_01->getEntries() != 0 && me_02->getEntries() != 0 && me_03->getEntries() != 0 ) {
-                    meTestPulse_[0]->setBinContent( jx, jx, xval );
+                    meTestPulse_[0]->setBinContent( jx, jy, xval );
                   }
                 } else {
                   if ( me_01->getEntries() != 0 && me_02->getEntries() != 0 && me_03->getEntries() != 0 ) {
-                    meTestPulse_[1]->setBinContent( jx, jx, xval );
+                    meTestPulse_[1]->setBinContent( jx, jy, xval );
                   }
                 }
               }
@@ -1231,32 +1231,344 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   }
 
-//
-
   imgNameMapLL1[0] = "";
+
+  obj2f = 0;
+  obj2f = UtilsClient::getHisto<TH2F*>( meLaserL1_[0] );
+
+  if ( obj2f ) {
+
+    meName = obj2f->GetName();
+
+    for ( unsigned int i = 0; i < meName.size(); i++ ) {
+      if ( meName.substr(i, 1) == " " )  {
+        meName.replace(i, 1 ,"_" );
+      }
+    }
+    imgNameMapLL1[0] = meName + ".png";
+    imgName = htmlDir + imgNameMapLL1[0];
+
+    cMap->cd();
+    gStyle->SetOptStat(" ");
+    gStyle->SetPalette(6, pCol3);
+    cMap->SetGridx();
+    cMap->SetGridy();
+    obj2f->SetMinimum(-0.00000001);
+    obj2f->SetMaximum(6.0);
+    obj2f->SetTitleSize(0.5);
+    obj2f->Draw("col");
+    labelGrid1.Draw("text,same");
+    cMap->SetBit(TGraph::kClipFrame);
+    TLine l;
+    l.SetLineWidth(1);
+    for ( int i=0; i<201; i=i+1){
+      if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
+        l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
+      }
+    }
+    cMap->Update();
+    cMap->SaveAs(imgName.c_str());
+
+  }
+
   imgNameMapLL1[1] = "";
 
+  obj2f = 0;
+  obj2f = UtilsClient::getHisto<TH2F*>( meLaserL1_[1] );
+
+  if ( obj2f ) {
+
+    meName = obj2f->GetName();
+
+    for ( unsigned int i = 0; i < meName.size(); i++ ) {
+      if ( meName.substr(i, 1) == " " )  {
+        meName.replace(i, 1 ,"_" );
+      }
+    }
+    imgNameMapLL1[1] = meName + ".png";
+    imgName = htmlDir + imgNameMapLL1[1];
+
+    cMap->cd();
+    gStyle->SetOptStat(" ");
+    gStyle->SetPalette(6, pCol3);
+    cMap->SetGridx();
+    cMap->SetGridy();
+    obj2f->SetMinimum(-0.00000001);
+    obj2f->SetMaximum(6.0);
+    obj2f->SetTitleSize(0.5);
+    obj2f->Draw("col");
+    labelGrid2.Draw("text,same");
+    cMap->SetBit(TGraph::kClipFrame);
+    TLine l;
+    l.SetLineWidth(1);
+    for ( int i=0; i<201; i=i+1){
+      if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
+        l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
+      }
+    }
+    cMap->Update();
+    cMap->SaveAs(imgName.c_str());
+  
+  }
+
+//
   imgNameMapLL1_PN[0] = "";
   imgNameMapLL1_PN[1] = "";
+//
 
   imgNameMapLD[0] = "";
+
+  obj2f = 0;
+  obj2f = UtilsClient::getHisto<TH2F*>( meLed_[0] );
+
+  if ( obj2f ) {
+
+    meName = obj2f->GetName();
+
+    for ( unsigned int i = 0; i < meName.size(); i++ ) {
+      if ( meName.substr(i, 1) == " " )  {
+        meName.replace(i, 1 ,"_" );
+      }
+    }
+    imgNameMapLD[0] = meName + ".png";
+    imgName = htmlDir + imgNameMapLD[0];
+
+    cMap->cd();
+    gStyle->SetOptStat(" ");
+    gStyle->SetPalette(6, pCol3);
+    cMap->SetGridx();
+    cMap->SetGridy();
+    obj2f->SetMinimum(-0.00000001);
+    obj2f->SetMaximum(6.0);
+    obj2f->SetTitleSize(0.5);
+    obj2f->Draw("col");
+    labelGrid1.Draw("text,same");
+    cMap->SetBit(TGraph::kClipFrame);
+    TLine l;
+    l.SetLineWidth(1);
+    for ( int i=0; i<201; i=i+1){
+      if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
+        l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
+      }
+    }
+    cMap->Update();
+    cMap->SaveAs(imgName.c_str());
+
+  }
+
   imgNameMapLD[1] = "";
 
+  obj2f = 0;
+  obj2f = UtilsClient::getHisto<TH2F*>( meLed_[1] );
+  
+  if ( obj2f ) {
+  
+    meName = obj2f->GetName();
+  
+    for ( unsigned int i = 0; i < meName.size(); i++ ) {
+      if ( meName.substr(i, 1) == " " )  {
+        meName.replace(i, 1 ,"_" );
+      }
+    }
+    imgNameMapLD[1] = meName + ".png";
+    imgName = htmlDir + imgNameMapLD[1];
+
+    cMap->cd();
+    gStyle->SetOptStat(" ");
+    gStyle->SetPalette(6, pCol3);
+    cMap->SetGridx();
+    cMap->SetGridy();
+    obj2f->SetMinimum(-0.00000001);
+    obj2f->SetMaximum(6.0);
+    obj2f->SetTitleSize(0.5);
+    obj2f->Draw("col");
+    labelGrid2.Draw("text,same");
+    cMap->SetBit(TGraph::kClipFrame);
+    TLine l;
+    l.SetLineWidth(1);
+    for ( int i=0; i<201; i=i+1){
+      if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
+        l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
+      }
+    }
+    cMap->Update();
+    cMap->SaveAs(imgName.c_str());
+
+  }
+
+//
   imgNameMapLD_PN[0] = "";
   imgNameMapLD_PN[1] = "";
+//
 
   imgNameMapP[0] = "";
+
+  obj2f = 0;
+  obj2f = UtilsClient::getHisto<TH2F*>( mePedestal_[0] );
+
+  if ( obj2f ) {
+
+    meName = obj2f->GetName();
+
+    for ( unsigned int i = 0; i < meName.size(); i++ ) {
+      if ( meName.substr(i, 1) == " " )  {
+        meName.replace(i, 1 ,"_" );
+      }
+    }
+    imgNameMapP[0] = meName + ".png";
+    imgName = htmlDir + imgNameMapP[0];
+
+    cMap->cd();
+    gStyle->SetOptStat(" ");
+    gStyle->SetPalette(6, pCol3);
+    cMap->SetGridx();
+    cMap->SetGridy();
+    obj2f->SetMinimum(-0.00000001);
+    obj2f->SetMaximum(6.0);
+    obj2f->SetTitleSize(0.5);
+    obj2f->Draw("col");
+    labelGrid1.Draw("text,same");
+    cMap->SetBit(TGraph::kClipFrame);
+    TLine l;
+    l.SetLineWidth(1);
+    for ( int i=0; i<201; i=i+1){
+      if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
+        l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
+      }
+    }
+    cMap->Update();
+    cMap->SaveAs(imgName.c_str());
+
+  }
+
   imgNameMapP[1] = "";
 
+  obj2f = 0;
+  obj2f = UtilsClient::getHisto<TH2F*>( mePedestal_[1] );
+  
+  if ( obj2f ) {
+  
+    meName = obj2f->GetName();
+  
+    for ( unsigned int i = 0; i < meName.size(); i++ ) {
+      if ( meName.substr(i, 1) == " " )  {
+        meName.replace(i, 1 ,"_" );
+      }
+    }
+    imgNameMapP[1] = meName + ".png";
+    imgName = htmlDir + imgNameMapP[1];
+
+    cMap->cd();
+    gStyle->SetOptStat(" ");
+    gStyle->SetPalette(6, pCol3);
+    cMap->SetGridx();
+    cMap->SetGridy();
+    obj2f->SetMinimum(-0.00000001);
+    obj2f->SetMaximum(6.0);
+    obj2f->SetTitleSize(0.5);
+    obj2f->Draw("col");
+    labelGrid2.Draw("text,same");
+    cMap->SetBit(TGraph::kClipFrame);
+    TLine l;
+    l.SetLineWidth(1);
+    for ( int i=0; i<201; i=i+1){
+      if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
+        l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
+      }
+    }
+    cMap->Update();
+    cMap->SaveAs(imgName.c_str());
+
+  }
+
+//
   imgNameMapP_PN[0] = "";
   imgNameMapP_PN[1] = "";
+//
 
   imgNameMapTP[0] = "";
+
+  obj2f = 0;
+  obj2f = UtilsClient::getHisto<TH2F*>( meTestPulse_[0] );
+
+  if ( obj2f ) {
+
+    meName = obj2f->GetName();
+
+    for ( unsigned int i = 0; i < meName.size(); i++ ) {
+      if ( meName.substr(i, 1) == " " )  {
+        meName.replace(i, 1 ,"_" );
+      }
+    }
+    imgNameMapTP[0] = meName + ".png";
+    imgName = htmlDir + imgNameMapTP[0];
+
+    cMap->cd();
+    gStyle->SetOptStat(" ");
+    gStyle->SetPalette(6, pCol3);
+    cMap->SetGridx();
+    cMap->SetGridy();
+    obj2f->SetMinimum(-0.00000001);
+    obj2f->SetMaximum(6.0);
+    obj2f->SetTitleSize(0.5);
+    obj2f->Draw("col");
+    labelGrid1.Draw("text,same");
+    cMap->SetBit(TGraph::kClipFrame);
+    TLine l;
+    l.SetLineWidth(1);
+    for ( int i=0; i<201; i=i+1){
+      if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
+        l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
+      }
+    }
+    cMap->Update();
+    cMap->SaveAs(imgName.c_str());
+
+  }
+
   imgNameMapTP[1] = "";
 
+  obj2f = 0;
+  obj2f = UtilsClient::getHisto<TH2F*>( meTestPulse_[1] );
+  
+  if ( obj2f ) {
+  
+    meName = obj2f->GetName();
+  
+    for ( unsigned int i = 0; i < meName.size(); i++ ) {
+      if ( meName.substr(i, 1) == " " )  {
+        meName.replace(i, 1 ,"_" );
+      }
+    }
+    imgNameMapTP[1] = meName + ".png";
+    imgName = htmlDir + imgNameMapTP[1];
+
+    cMap->cd();
+    gStyle->SetOptStat(" ");
+    gStyle->SetPalette(6, pCol3);
+    cMap->SetGridx();
+    cMap->SetGridy();
+    obj2f->SetMinimum(-0.00000001);
+    obj2f->SetMaximum(6.0);
+    obj2f->SetTitleSize(0.5);
+    obj2f->Draw("col");
+    labelGrid2.Draw("text,same");
+    cMap->SetBit(TGraph::kClipFrame);
+    TLine l;
+    l.SetLineWidth(1);
+    for ( int i=0; i<201; i=i+1){
+      if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
+        l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
+      }
+    }
+    cMap->Update();
+    cMap->SaveAs(imgName.c_str());
+
+  }
+
+//
   imgNameMapTP_PN[0] = "";
   imgNameMapTP_PN[1] = "";
-
 //
 
   imgNameMapGS[0] = "";
@@ -1388,6 +1700,78 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   if ( imgNameMapPO[1].size() != 0 )
     htmlFile << "<td><img src=\"" << imgNameMapPO[1] << "\" usemap=\"#PedestalOnline_1\" border=0></td>" << endl;
+  else
+    htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
+
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+
+  if ( imgNameMapLL1[0].size() != 0 )
+    htmlFile << "<td><img src=\"" << imgNameMapLL1[0] << "\" usemap=\"#LaserL1_0\" border=0></td>" << endl;
+  else
+    htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+  if ( imgNameMapLL1[1].size() != 0 )
+    htmlFile << "<td><img src=\"" << imgNameMapLL1[1] << "\" usemap=\"#LaserL1_1\" border=0></td>" << endl;
+  else
+    htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
+
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+
+  if ( imgNameMapLD[0].size() != 0 )
+    htmlFile << "<td><img src=\"" << imgNameMapLD[0] << "\" usemap=\"#Led_0\" border=0></td>" << endl;
+  else
+    htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+  if ( imgNameMapLD[1].size() != 0 )
+    htmlFile << "<td><img src=\"" << imgNameMapLD[1] << "\" usemap=\"#Led_1\" border=0></td>" << endl;
+  else
+    htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
+
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+
+  if ( imgNameMapP[0].size() != 0 )
+    htmlFile << "<td><img src=\"" << imgNameMapP[0] << "\" usemap=\"#Pedestal_0\" border=0></td>" << endl;
+  else
+    htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+  if ( imgNameMapP[1].size() != 0 )
+    htmlFile << "<td><img src=\"" << imgNameMapP[1] << "\" usemap=\"#Pedestal_1\" border=0></td>" << endl;
+  else
+    htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
+
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+
+  if ( imgNameMapTP[0].size() != 0 )
+    htmlFile << "<td><img src=\"" << imgNameMapTP[0] << "\" usemap=\"#TestPulse_0\" border=0></td>" << endl;
+  else
+    htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+  if ( imgNameMapTP[1].size() != 0 )
+    htmlFile << "<td><img src=\"" << imgNameMapTP[1] << "\" usemap=\"#TestPulse_1\" border=0></td>" << endl;
   else
     htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
