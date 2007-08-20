@@ -170,35 +170,6 @@ namespace edm {
     
   }
 
-  void printUuids( TTree *uuidTree) {
-    char uuidCA[1024];
-      uuidTree->SetBranchAddress("db_string",uuidCA);
-      uuidTree->GetEntry(0);
-
-      // Then pick out relevent piece of this string
-      // 9A440868-8058-DB11-85E3-00304885AB94 from
-      // [NAME=FID][VALUE=9A440868-8058-DB11-85E3-00304885AB94]
-
-      std::string uuidStr(uuidCA);
-      std::string::size_type start=uuidStr.find("VALUE=");
-      if ( start == std::string::npos ) {
-	std::cout << "Seemingly invalid db_string entry in ##Params tree?\n";
-	std::cout << uuidStr << std::endl;
-      }
-      else{
-	std::string::size_type stop=uuidStr.find("]",start);
-	if ( stop == std::string::npos ) {
-	  std::cout << "Seemingly invalid db_string entry in ##Params tree?\n";
-	  std::cout << uuidStr << std::endl;
-	}
-	else{
-	  //Everything is Ok - just proceed...
-	  std::string result=uuidStr.substr(start+6,stop-start-6);
-	  std::cout << "UUID: " << result << std::endl;
-	}
-      }    
-  }
-
   void printEventLists( std::string remainingEvents, int numevents, TFile *tfl, bool entryoption) {
     bool keepgoing=true;
     while ( keepgoing ) {
