@@ -25,7 +25,7 @@
 
 /** \class EcalElectronicsMapping
   *  
-  * $Id: EcalElectronicsMapping.h,v 1.3 2007/05/23 14:28:16 eperez Exp $
+  * $Id: EcalElectronicsMapping.h,v 1.4 2007/08/01 15:52:59 eperez Exp $
   * \author P.Meridiani (INFN Roma1),  E. Perez (CERN)  
   */
 
@@ -175,6 +175,7 @@ class EcalElectronicsMapping {
   static const int MIN_LM_EBM = 1;	// corresponds to MIN_DCCID_EBM
   static const int MIN_LM_EBP = 37;	// corresponds to MIN_DCCID_EBP
   static const int MIN_LM_EEP = 83;	// corresponds to MIN_DCCID_EEP
+  static const int MAX_LM = 	92;	// Total number of LaserModules
 
 
  private:
