@@ -5,10 +5,11 @@
   
 RefItem: Index and pointer to a referenced item.
 
-$Id: RefItem.h,v 1.9 2007/05/15 17:10:24 wmtan Exp $
+$Id: RefItem.h,v 1.10 2007/06/14 04:56:29 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include "DataFormats/Common/interface/traits.h"
+#include "DataFormats/Common/interface/ConstPtrCache.h"
 
 namespace edm {
   
@@ -17,15 +18,15 @@ namespace edm {
   public:
     typedef KEY key_type;
 
-    RefItem() : index_(key_traits<key_type>::value), ptr_(0) {}
+    RefItem() : index_(key_traits<key_type>::value), cache_(0) {}
 
-    RefItem(key_type inx, void const* p) : index_(inx), ptr_(p) {}
+    RefItem(key_type inx, void const* p) : index_(inx), cache_(p) {}
 
     ~RefItem() {}
 
     key_type key() const {return index_;}
-    void const *ptr() const {return ptr_;}
-    void const *setPtr(void const* p) const {return(ptr_ = p);}
+    void const *ptr() const {return cache_.ptr_;}
+    void const *setPtr(void const* p) const {return(cache_.ptr_ = p);}
 
     bool isValid() const { return index_!=edm::key_traits<key_type>::value; }
     bool isNonnull() const { return isValid(); }
@@ -33,7 +34,7 @@ namespace edm {
        
 private:
     key_type index_;
-    mutable void const *ptr_; // transient
+    mutable ConstPtrCache cache_; //Type handles the transient
   };
 
   template<typename KEY>
