@@ -10,9 +10,6 @@ TtDecayChannelSelector::TtDecayChannelSelector(const edm::ParameterSet& cfg):
   chn1_ = cfg.getParameter<Decay>("channel_1"); 
   chn2_ = cfg.getParameter<Decay>("channel_2"); 
   tauDecay_  = cfg.getParameter<Decay>("tauDecays");
-  
-  parseDecayInput(chn1_, chn2_);
-  parseTauDecayInput(tauDecay_);
 
   channel_=0;
   //determine decay channel
@@ -26,6 +23,10 @@ TtDecayChannelSelector::TtDecayChannelSelector(const edm::ParameterSet& cfg):
     summed_+=(*idx1)+(*idx2);
     decay_.push_back( (*idx1)+(*idx2) );
   }
+
+  parseDecayInput(chn1_, chn2_);
+  parseTauDecayInput(tauDecay_);
+
 }
 
 TtDecayChannelSelector::~TtDecayChannelSelector()
