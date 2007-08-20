@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolutionMaker.cc,v 1.19 2007/07/26 16:20:25 heyninck Exp $
+// $Id: TtSemiEvtSolutionMaker.cc,v 1.20 2007/08/20 20:34:53 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiEvtSolutionMaker.h"
@@ -227,7 +227,7 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
         }
       }
       for(size_t s=0; s<evtsols->size(); s++) {
-        (*evtsols)[s].setLRBestJetComb(s);
+        (*evtsols)[s].setLRBestJetComb(bestSol);
       }
     }
 
