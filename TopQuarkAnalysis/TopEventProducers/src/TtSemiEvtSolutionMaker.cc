@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolutionMaker.cc,v 1.18 2007/07/26 14:00:18 heyninck Exp $
+// $Id: TtSemiEvtSolutionMaker.cc,v 1.19 2007/07/26 16:20:25 heyninck Exp $
 //
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiEvtSolutionMaker.h"
@@ -139,6 +139,7 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
                 
                 // if asked for, calculate with these observable values the LRvalue and 
                 // (depending on the configuration) probability this event is signal
+                // FIXME: DO WE NEED TO DO THIS FOR EACH SOLUTION??? (S.L.20/8/07)
                 if(addLRSignalSel_) (*myLRSignalSelCalc)(asol);
                 
                 // these lines calculate the observables to be used in the TtSemiJetCombination LR
@@ -159,11 +160,7 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
         } 
       }
     }
-    
-    // add TtSemiSimpleBestJetComb to solutions
-    int simpleBestJetComb = (*mySimpleBestJetComb)(*evtsols);
-    for(size_t s=0; s<evtsols->size(); s++) (*evtsols)[s].setSimpleCorrJetComb(simpleBestJetComb);
-   
+
     // if asked for, match the event solutions to the gen Event
     if(matchToGenEvt_){
       int bestSolution = -999; 
@@ -210,11 +207,30 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
         }
       }
       for(size_t s=0; s<evtsols->size(); s++) {
-        (*evtsols)[s].setMCCorrJetComb(bestSolution);
+        (*evtsols)[s].setMCBestJetComb(bestSolution);
         (*evtsols)[s].setMCChangeWQ(bestSolutionChangeWQ);     
       }
     }
-  
+
+    // add TtSemiSimpleBestJetComb to solutions
+    int simpleBestJetComb = (*mySimpleBestJetComb)(*evtsols);
+    for(size_t s=0; s<evtsols->size(); s++) (*evtsols)[s].setSimpleBestJetComb(simpleBestJetComb);
+
+    // choose the best jet combination according to LR value
+    if (addLRJetComb_ && evtsols->size()>0) {
+      float bestLRVal = 1000000;
+      int bestSol = (*evtsols)[0].getLRBestJetComb(); // duplicate the default
+      for(size_t s=0; s<evtsols->size(); s++) {
+        if ((*evtsols)[s].getLRJetCombLRval() < bestLRVal) {
+          bestLRVal = (*evtsols)[s].getLRJetCombLRval();
+          bestSol = s;
+        }
+      }
+      for(size_t s=0; s<evtsols->size(); s++) {
+        (*evtsols)[s].setLRBestJetComb(s);
+      }
+    }
+
     //store the vector of solutions to the event     
     std::auto_ptr<std::vector<TtSemiEvtSolution> > pOut(evtsols);
     iEvent.put(pOut);

@@ -144,7 +144,7 @@ void doEventloop(){
 	      double logLR =  myLRhelper -> calcLRval(obsVals);
 	      if(logLR>maxLogLRVal) { maxLogLRVal = logLR; maxLogLRSol = s; };
 	    }
-	    if(sols[maxLogLRSol].getMCBestSumAngles()<SumAlphaCut && sols[maxLogLRSol].getMCCorrJetComb()==maxLogLRSol) {
+	    if(sols[maxLogLRSol].getMCBestSumAngles()<SumAlphaCut && sols[maxLogLRSol].getMCBestJetComb()==maxLogLRSol) {
 	      myLRhelper -> fillLRSignalHist(maxLogLRVal);
 	      //cout << "mxLR " << maxLogLRVal << endl;
 	    }
