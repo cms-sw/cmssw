@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2007/08/16 23:11:36 $
- *  $Revision: 1.56 $
+ *  $Date: 2007/08/17 13:58:21 $
+ *  $Revision: 1.57 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -159,7 +159,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 		int phiTT = (i) % kTowersInPhi +1;
 
 		// follow HB convention in iphi
-		phiTT=3-phiTT;
+		phiTT=3-phiTT; 
 		if(phiTT<=0)phiTT=phiTT+72;
 
 		EcalTriggerPrimitiveSample theSample(TpSamples[i].first, TpSamples[i].second, TpFlags[i]);
@@ -272,7 +272,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
       int phiTT = (_ExpectedTowers[_expTowersIndex]-1) % kTowersInPhi +1;
 
       // follow HB convention in iphi
-      phiTT=3-phiTT;
+      phiTT=3-phiTT; 
       if(phiTT<=0)phiTT=phiTT+72;
 
       EcalTrigTowerDetId idtt(1, EcalBarrel, etaTT, phiTT, 0);
@@ -461,9 +461,12 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	    int  sm = 1;
 	    EBDetId  id(sm, ic,1);                 
 	    
-	    EBDataFrame theFrame ( id );
+	    // here data frame go into the Event
+            // removed later on (with a pop_back()) if gain==0 or if forbidden-gain-switch
+	    digicollection.push_back( id );
+	    EBDataFrame theFrame ( digicollection.back() );
 	    std::vector<int> xtalDataSamples = (*itXtalBlock)->xtalDataSamples();   
-	    theFrame.setSize(xtalDataSamples.size());
+	    //theFrame.setSize(xtalDataSamples.size()); // if needed, to be changed when constructing digicollection
       
       
 
@@ -494,6 +497,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	      gaincollection.push_back(id);
 	      
 	      // there has been a gain==0, dataframe not to go to the Event
+              digicollection.pop_back();
 	      continue; //	      expCryInTower already incremented
 	    }
 
@@ -566,14 +570,12 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	     
 
 	      // there has been a forbidden gain transition,  dataframe not to go to the Event
+              digicollection.pop_back();
 	      continue; //	      expCryInTower already incremented
 
 	    }// END of:   'if there is a forbidden gain transition'
 
 
-	    // here (already continued if gain==0 or if forbidden-gain-switch),
-	    // data frame needs go to the Event
-	    digicollection.push_back(theFrame);
 	    
 	  }// end loop on crystals within a tower block
 	  

@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2007/08/16 23:11:36 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/08/17 13:58:21 $
+ *  $Revision: 1.9 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -520,12 +520,16 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	    if ( tbName_ == "h4" ) iz = -1;
 	    EEDetId  eeId(ix, iy, iz);
 	        
-	    EBDataFrame theFrame ( id );
-	    EEDataFrame eeFrame (eeId );
+	    // here data frame go into the Event
+            // removed later on (with a pop_back()) if gain==0 or if forbidden-gain-switch
+	    digicollection.push_back( id );
+	    eeDigiCollection.push_back( eeId );
+	    EBDataFrame theFrame ( digicollection.back() );
+	    EEDataFrame eeFrame ( eeDigiCollection.back() );
 
 	    std::vector<int> xtalDataSamples = (*itXtalBlock)->xtalDataSamples();   
-	    theFrame.setSize(xtalDataSamples.size());
-	    eeFrame. setSize(xtalDataSamples.size());
+	    //theFrame.setSize(xtalDataSamples.size()); // if needed, to be changed when constructing digicollection
+	    //eeFrame. setSize(xtalDataSamples.size()); // if needed, to be changed when constructing eeDigicollection
       
 
 	    // gain cannot be 0, checking for that
@@ -556,6 +560,8 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	      gaincollection.push_back(id);
 	      
 	      // there has been a gain==0, dataframe not to go to the Event
+              digicollection.pop_back();
+              eeDigiCollection.pop_back();
 	      continue; //	      expCryInTower already incremented
 	    }
 
@@ -628,15 +634,13 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	     
 
 	      // there has been a forbidden gain transition,  dataframe not to go to the Event
+              digicollection.pop_back();
+              eeDigiCollection.pop_back();
 	      continue; //	      expCryInTower already incremented
 
 	    }// END of:   'if there is a forbidden gain transition'
 
 
-	    // here (already continued if gain==0 or if forbidden-gain-switch),
-	    // data frame needs go to the Event
-	    digicollection.push_back(theFrame);
-	    eeDigiCollection.push_back(eeFrame);
 	  }// end loop on crystals within a tower block
 	  
 	  
