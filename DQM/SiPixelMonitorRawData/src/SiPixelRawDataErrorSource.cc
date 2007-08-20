@@ -41,6 +41,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 //
 #include <boost/cstdint.hpp>
 #include <string>
@@ -97,13 +98,19 @@ SiPixelRawDataErrorSource::analyze(const edm::Event& iEvent, const edm::EventSet
   iEvent.getByLabel( src_, input );
 
   std::map<uint32_t,SiPixelRawDataErrorModule*>::iterator struct_iter;
+  std::map<uint32_t,SiPixelRawDataErrorModule*>::iterator struct_iter2;
+
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
     
     (*struct_iter).second->fill(*input);
     
   }
 
-  
+  for (struct_iter2 = theFEDStructure.begin() ; struct_iter2 != theFEDStructure.end() ; struct_iter2++) {
+    
+    (*struct_iter2).second->fillFED(*input);
+    
+  }
 
   // slow down...
   usleep(100000);
@@ -147,11 +154,16 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup& iSetup){
       }
     }
   }
-
-  LogDebug ("PixelDQM") << " ---> Adding Module for Additional Errors" << endl;
-  uint32_t id = 0xffffffff;
-  SiPixelRawDataErrorModule* theModule = new SiPixelRawDataErrorModule(id);
-  thePixelStructure.insert(pair<uint32_t,SiPixelRawDataErrorModule*> (id,theModule));
+  LogDebug ("PixelDQM") << " ---> Adding Module for Additional Errors " << endl;
+  FEDNumbering fednum;
+  pair<int,int> fedIds = fednum.getSiPixelFEDIds();
+  fedIds.first = 0;
+  fedIds.second = 39;
+  for (int fedId = fedIds.first; fedId <= fedIds.second; fedId++) {
+    uint32_t id = static_cast<uint32_t> (fedId);
+    SiPixelRawDataErrorModule* theModule = new SiPixelRawDataErrorModule(id);
+    theFEDStructure.insert(pair<uint32_t,SiPixelRawDataErrorModule*> (id,theModule));
+  }
   
   LogInfo ("PixelDQM") << " *** Pixel Structure Size " << thePixelStructure.size() << endl;
 }
@@ -161,15 +173,27 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup& iSetup){
 void SiPixelRawDataErrorSource::bookMEs(){
   
   std::map<uint32_t,SiPixelRawDataErrorModule*>::iterator struct_iter;
+  std::map<uint32_t,SiPixelRawDataErrorModule*>::iterator struct_iter2;
   theDMBE->setVerbose(0);
   
   SiPixelFolderOrganizer theSiPixelFolder;
   
   for(struct_iter = thePixelStructure.begin(); struct_iter != thePixelStructure.end(); struct_iter++){
-    
     /// Create folder tree and book histograms 
-    if(theSiPixelFolder.setModuleFolder((*struct_iter).first)){
+    if(theSiPixelFolder.setModuleFolder((*struct_iter).first)) {
       (*struct_iter).second->book( conf_ );
+    }
+    else {
+      throw cms::Exception("LogicError")
+	<< "[SiPixelRawDataErrorSource::bookMEs] Creation of DQM folder failed";
+    }
+
+  }
+
+  for(struct_iter2 = theFEDStructure.begin(); struct_iter2 != theFEDStructure.end(); struct_iter2++){
+    /// Create folder tree for errors without detId and book histograms 
+    if(theSiPixelFolder.setFedFolder((*struct_iter2).first)) {
+      (*struct_iter2).second->bookFED( conf_ );
     }
     else {
       throw cms::Exception("LogicError")

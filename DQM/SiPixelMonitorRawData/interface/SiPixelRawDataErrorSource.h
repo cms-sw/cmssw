@@ -70,6 +70,7 @@
        int eventNo;
        DaqMonitorBEInterface* theDMBE;
        std::map<uint32_t,SiPixelRawDataErrorModule*> thePixelStructure;
+       std::map<uint32_t,SiPixelRawDataErrorModule*> theFEDStructure;
  };
 
 #endif
