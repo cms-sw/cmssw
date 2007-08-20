@@ -261,6 +261,10 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
                                 "ALCT check failed! not storing ALCT digis ";
                             }
                         }
+		      else
+			{
+			 if (debug) edm::LogInfo ("CSCDCCUnpacker") << "nALCT==0 !!!";
+			}
 
 		      /// fill alct digi
 		      if (goodALCT) 
@@ -291,8 +295,6 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 			    }
 			  alctProduct->put(std::make_pair(alctDigis.begin(), alctDigis.end()),layer);
 			}
-		      else  edm::LogError ("CSCDCCUnpacker") << 
-			      "ALCT check failed! not storing ALCT digi ";
 		    
 		  
 		      ///check TMB data integrity
@@ -310,6 +312,11 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 				"one of TMB checks failed! not storing TMB digis ";
 			    }
 			}
+		      else
+                        {
+			  if (debug) edm::LogInfo ("CSCDCCUnpacker") << "nCLCT==0 !!!";
+                        }
+		      
 		      ///fill correlatedlct and clct digi
 		      if (goodTMB) 
 			{ 
@@ -356,7 +363,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 				}
 			    } 
 			  else edm::LogError("CSCDCCUnpacker") <<" TMBData check size failed!";
-			} 
+			}
 		    
 		  
 		      /// fill CFEBStatusDigi
