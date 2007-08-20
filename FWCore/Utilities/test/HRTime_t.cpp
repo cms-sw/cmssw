@@ -3,7 +3,6 @@
 
 // #include <boost/mpl/assert.hpp>
 // #include <boost/type_traits/is_same.hpp>
-#include <boost/type_traits/function_traits.hpp>
 
 // #include <boost/function_types/result_type.hpp>
 
