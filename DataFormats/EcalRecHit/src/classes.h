@@ -1,5 +1,4 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
-#include <boost/cstdint.hpp> 
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/Common/interface/RefProd.h" 
