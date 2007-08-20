@@ -22,27 +22,11 @@ class DDTECCoolAlgo : public DDAlgorithm {
   void execute();
 
 private:
-
   std::string              idNameSpace;    //Namespace of this and ALL parts
   int                      startCopyNo;    //Start copy number
-  std::vector<std::string> petalName;      //Name of the petals
-  std::vector<double>      petalRmax;      //Petal         R extent
-  std::vector<double>      petalWidth;     //              width
-  std::vector<std::string> coolName;       //Name of cooling pieces
-  std::vector<double>      coolR;          //Cooling piece radii 
-  std::vector<int>         coolInsert;     //              positioning
-  double                   startAngle;     //Ring          Start angle
-  double                   incrAngle;      //              increment
-  double                   rmin;           //Detector      Rmin
-  double                   fullHeight;     //              Height 
-  double                   dlTop;          //Width at top of wafer
-  double                   dlBottom;       //Width at bottom of wafer
-  double                   dlHybrid;       //Width at the hybrid end
-  double                   frameWidth;     //Frame         width
-  double                   frameOver;      //              overlap (on sides)
-  double                   topFrameHeight; //Top frame     height
-  double                   hybridHeight;   //Hybrid        height
-  double                   hybridWidth;    //              width
+  double                   rPosition;      // Position of the Inserts in R
+  std::vector<double>      phiPosition;    // Position of the Inserts in Phi
+  std::vector<std::string> coolInsert;       //Name of cooling pieces
 };
 
 #endif

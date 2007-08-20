@@ -25,9 +25,10 @@ private:
 
   std::string              idNameSpace;    //Namespace of this and ALL parts
   std::string              childName;      //Child name
-  double                   rmin;           //ICC piece Minimum R
-  double                   rmax;           //          Maximum R
+  double                   rpos;           //r Position
   double                   zpos;           //Z position of the OptoHybrid
+  double                   optoHeight;     // Height of the OptoHybrid
+  double                   optoWidth;     // Width of the OptoHybrid
   int                      startCopyNo;    //Start copy number
   std::vector<double>      angles;         //Angular position of Hybrid
 };

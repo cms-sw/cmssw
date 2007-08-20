@@ -36,14 +36,16 @@ void DDTECOptoHybAlgo::initialize(const DDNumericArguments & nArgs,
   LogDebug("TECGeom") << "DDTECOptoHybAlgo debug: Parent " << parentName 
 		      << " Child " << childName << " NameSpace " <<idNameSpace;
 
-  rmin           = nArgs["Rmin"];
-  rmax           = nArgs["Rmax"];
+  optoHeight     = nArgs["OptoHeight"];
+  optoWidth      = nArgs["OptoWidth"];
+  rpos           = nArgs["Rpos"];
   zpos           = nArgs["Zpos"];
   startCopyNo    = int (nArgs["StartCopyNo"]);
   angles         = vArgs["Angles"];
 
-  LogDebug("TECGeom") << "DDTECOptoHybAlgo debug: Rmin " << rmin 
-		      << " Rmax " << rmax << " Zpos " << zpos 
+  LogDebug("TECGeom") << "DDTECOptoHybAlgo debug: Height of the Hybrid "
+		      << optoHeight << " and Width " << optoWidth
+		      <<"Rpos " << rpos << " Zpos " << zpos 
 		      << " StartCopyNo " << startCopyNo << " Number " 
 		      << angles.size();
 
@@ -59,10 +61,13 @@ void DDTECOptoHybAlgo::execute() {
   DDName mother = parent().name();
   DDName child  = DDName(DDSplit(childName).first, DDSplit(childName).second);
 
+  // given r positions are for the lower left corner
+  rpos += optoHeight/2;
   int    copyNo = startCopyNo;
-  double rpos   = 0.5*(rmin+rmax);
   for (int i = 0; i < (int)(angles.size()); i++) {
-    double phix = angles[i];
+    double phix = -angles.at(i);
+    // given phi positions are for the lower left corner
+    phix += asin(optoWidth/2/rpos);
     double xpos = rpos * cos(phix);
     double ypos = rpos * sin(phix);
     DDTranslation tran(xpos, ypos, zpos);

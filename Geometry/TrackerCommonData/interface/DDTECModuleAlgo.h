@@ -32,7 +32,8 @@ private:
 			  std::string rotName);                     
   //variables:
   double                   noOverlapShift;
-  bool                     isStereo;
+  int                      ringNo;
+  bool                     isStereo; 
   bool                     isRing6;
   double                   rPos;           //Position in R relativ to the center of the TEC ( this is the coord-sys of Tubs)
   double                   posCorrectionPhi; // the Phi position of the stereo Modules has to be corrected
@@ -84,6 +85,9 @@ private:
   std::string              activeRot;      //              Rotation matrix
   double                   activeZ;        //              z-positions
   double                   backplaneThick; //              thickness
+  double                   inactiveDy;     //InactiveStrip  Hight of ( rings > 3)
+  double                   inactivePos;    //               y-Position 
+  std::string              inactiveMat;    //               material
   std::string              hybridMat;      //Hybrid        material
   double                   hybridHeight;   //              height
   double                   hybridWidth;    //              width

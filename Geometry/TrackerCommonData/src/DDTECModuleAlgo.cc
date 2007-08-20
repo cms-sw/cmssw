@@ -38,7 +38,7 @@ void DDTECModuleAlgo::initialize(const DDNumericArguments & nArgs,
   LogDebug("TECGeom") << "DDTECModuleAlgo debug: Parent " << parentName 
 		      << " NameSpace " << idNameSpace << " General Material "
 		      << genMat;
-
+  ringNo = (int)nArgs["RingNo"];
   moduleThick    = nArgs["ModuleThick"];
   detTilt        = nArgs["DetTilt"];
   fullHeight     = nArgs["FullHeight"];
@@ -48,7 +48,7 @@ void DDTECModuleAlgo::initialize(const DDNumericArguments & nArgs,
   rPos           = nArgs["RPos"];
   standardRot    = sArgs["StandardRotation"];
 
-  isRing6 = dlHybrid < dlTop;
+  isRing6 = (ringNo == 6);
 
   LogDebug("TECGeom") << "DDTECModuleAlgo debug: ModuleThick " << moduleThick
 		      << " Detector Tilt " << detTilt/deg << " Height "
@@ -179,15 +179,22 @@ void DDTECModuleAlgo::initialize(const DDNumericArguments & nArgs,
 			<< " SiReenforcement"<<i<<"'s Height: " <<    siReenforceHeight[i]
 			<< " SiReenforcement"<<i<<"'s y Position: " <<siReenforceYPos[i];
   }
+  inactiveDy  = 0;
+  inactivePos = 0;
+  if(ringNo > 3){
+    inactiveDy = nArgs["InactiveDy"];
+    inactivePos = nArgs["InactivePos"];
+    inactiveMat = sArgs["InactiveMaterial"];
+  }
 
   noOverlapShift = nArgs["NoOverlapShift"];
   //Everything that is normal/stereo specific comes here
   isStereo = (int)nArgs["isStereo"] == 1;
   if(!isStereo){
-    LogDebug("TECGeom") << "This is a normal module!"; 
+    LogDebug("TECGeom") << "This is a normal module, in ring "<<ringNo<<"!"; 
   }
   else{
-    LogDebug("TECGeom") << "This is a stereo module!"; 
+    LogDebug("TECGeom") << "This is a stereo module, in ring "<<ringNo<<"!"; 
     posCorrectionPhi= nArgs["PosCorrectionPhi"];
     topFrame2LHeight = nArgs["TopFrame2LHeight"];
     topFrame2RHeight = nArgs["TopFrame2RHeight"];
@@ -312,7 +319,7 @@ void DDTECModuleAlgo::execute() {
   DDLogicalPart sideFrameLeft(solid.ddname(), matter, solid);
   //translate
   xpos = - 0.5*topFrameBotWidth +bl1+ tan(fabs(thet)) * dz;
-  ypos = sideFrameZ;// + noOverlapShift;
+  ypos = sideFrameZ;
   zpos = 0.5 * (-waferPosition + fullHeight) -dz + pitchHeight + hybridHeight - topFrameHeight;
   //flip ring 6
   if (isRing6){
@@ -323,7 +330,6 @@ void DDTECModuleAlgo::execute() {
   if(isStereo) {
     xpos = -xpos;
     zpos += -topFrame2LHeight-tan(detTilt)*(fabs(xpos)-0.5*topFrame2Width)- noOverlapShift;
-    //   ypos -= 2* noOverlapShift;
   }
   //position
   doPos(sideFrameLeft,xpos,ypos,zpos,waferRot);
@@ -393,9 +399,7 @@ void DDTECModuleAlgo::execute() {
       zpos *= -1;
     }
     if(isStereo){ 
-      // xpos += sin(detTilt)* siFrSuppBoxYPos[i];
       zpos = 0.5* (-waferPosition +fullHeight)-topFrame2RHeight-sin(detTilt)*(sideFrameRWidth+bl1)-siFrSuppBoxYPos[i];
-      // xpos = -xpos;
     }
     //position it;
     doPos(siFrSuppBox,xpos,ypos,zpos,waferRot);
@@ -462,7 +466,34 @@ void DDTECModuleAlgo::execute() {
 		      << bl1 << ", 0";
   DDLogicalPart active(solid.ddname(), matter, solid);
   doPos(active, wafer, 1, -0.5 * backplaneThick,0,0, activeRot); // from the definition of the wafer local axes and doPos() routine
-  
+  //inactive part in rings > 3
+  if(ringNo > 3){
+    inactivePos -= fullHeight-activeHeight; //inactivePos is measured from the beginning of the _wafer_
+    name    = idName + tag +"Inactive";
+    matname = DDName(DDSplit(inactiveMat).first, DDSplit(inactiveMat).second);
+    matter  = DDMaterial(matname);
+    bl1     = 0.5*dlBottom-sideWidthBottom
+              + ((0.5*dlTop-sideWidthTop-0.5*dlBottom+sideWidthBottom)/activeHeight)
+                *(activeHeight-inactivePos-inactiveDy);
+    bl2    =  0.5*dlBottom-sideWidthBottom
+	      + ((0.5*dlTop-sideWidthTop-0.5*dlBottom+sideWidthBottom)/activeHeight)
+                *(activeHeight-inactivePos+inactiveDy);
+    dz      = 0.5 * (waferThick-backplaneThick); // inactive backplane
+    h1      = inactiveDy;
+    if (isRing6) { //switch bl1 <->bl2
+      tmp = bl2;	bl2 =bl1;	bl1 = tmp;
+    }
+    solid = DDSolidFactory::trap(DDName(name,idNameSpace), dz, 0, 0, h1, bl2, 
+				 bl1, 0, h1, bl2, bl1, 0);
+    LogDebug("TECGeom") << "DDTECModuleAlgo test:\t" << solid.name() 
+			<< " Trap made of " << matname << " of dimensions "
+			<< dz << ", 0, 0, " << h1 << ", " << bl2 << ", "
+			<< bl1 << ", 0, " << h1 << ", " << bl2 << ", "
+			<< bl1 << ", 0";  
+    DDLogicalPart inactive(solid.ddname(), matter, solid);
+    ypos = inactivePos - 0.5*activeHeight;
+    doPos(inactive,active, 1, ypos,0,0, "NULL"); // from the definition of the wafer local axes and doPos() routine
+  }
   //Pitch Adapter
   name    = idName + "PA";
   matname = DDName(DDSplit(pitchMat).first, DDSplit(pitchMat).second);
@@ -495,11 +526,7 @@ void DDTECModuleAlgo::execute() {
   ypos = pitchZ;
   zpos = 0.5 * (-waferPosition + fullHeight + pitchHeight);
   if (isRing6) zpos *= -1;
-  if(isStereo){
-    //ypos += 2*noOverlapShift;
-    xpos    = 0.5 * fullHeight * sin(detTilt);
-    //    zpos    -= 0.5*(  topFrame2LHeight+ topFrame2RHeight); 
-  }
+  if(isStereo)    xpos    = 0.5 * fullHeight * sin(detTilt);
   
   DDLogicalPart pa(solid.ddname(), matter, solid);
   if(isStereo)doPos(pa, xpos, ypos,zpos, pitchRot);
@@ -584,13 +611,11 @@ void DDTECModuleAlgo::execute() {
     //translate
     xpos =0 ;
     ypos =  sideFrameZ;
-    //(sideFrameZ)*(0.5- noOverlapShift/fabs(sideFrameZ) +(siReenforceThick/sideFrameThick)); //via * so I do not have to worry about the sign of sideFrameZ
     zpos = 0.5 * (-waferPosition + fullHeight- siReenforceHeight[i]) + pitchHeight + hybridHeight - topFrameHeight -siReenforceYPos[i];
 	
     if (isRing6)  zpos *= -1;
     if(isStereo){ 
 	  xpos = (-siReenforceYPos[i]+0.5*fullHeight)*sin(detTilt);
-	  // zpos = 0.5 * (waferPosition + fullHeight) - topFrameHeight-0.5*(topFrame2RHeight+topFrame2LHeight)-siReenforceYPos[i]- 0.5 * siReenforceHeight[i]- noOverlapShift;
 	  thet = detTilt;
 	  if(topFrame2RHeight > topFrame2LHeight) thet *= -1;
 	    zpos -= topFrame2RHeight + sin(thet)*(sideFrameRWidth + 0.5*dlTop);
