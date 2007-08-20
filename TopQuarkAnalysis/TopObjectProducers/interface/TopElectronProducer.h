@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck, Steven Lowette
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopElectronProducer.h,v 1.9 2007/07/31 21:57:30 rwolf Exp $
+// $Id: TopElectronProducer.h,v 1.10 2007/08/06 14:37:41 tsirig Exp $
 //
 
 #ifndef TopObjectProducers_TopElectronProducer_h
@@ -21,6 +21,7 @@
 #include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 
+
 class TopObjectResolutionCalc;
 class TopLeptonTrackerIsolationPt;
 class TopLeptonCaloIsolationEnergy;
@@ -31,16 +32,17 @@ class TopElectronProducer : public edm::EDProducer {
   
  public:
   
-  explicit TopElectronProducer(const edm::ParameterSet&);
+  explicit TopElectronProducer(const edm::ParameterSet & cfg);
   ~TopElectronProducer();  
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup & setup);
   
  private:
   
-  void removeGhosts(std::vector<TopElectron>*);
-  reco::GenParticleCandidate matchTruth(const reco::CandidateCollection&, const TopElectronType&);
-  double electronID(edm::Handle<TopElectronTypeCollection>&, 
-		    edm::Handle<reco::ElectronIDAssociationCollection>&, int);
+  reco::GenParticleCandidate findTruth(const reco::CandidateCollection & parts, const TopElectronType & elec);
+  void matchTruth(const reco::CandidateCollection & particles, TopElectronTypeCollection & electrons);
+  double electronID(edm::Handle<TopElectronTypeCollection> & elecs, 
+		    edm::Handle<reco::ElectronIDAssociationCollection> & elecIDs, int idx);
+  void removeGhosts(std::vector<TopElectron> * elecs);
   
  private:
 
@@ -48,14 +50,15 @@ class TopElectronProducer : public edm::EDProducer {
   bool useElecID_, useTrkIso_, useCalIso_, useResolution_;
   bool useLikelihood_, useGenMatching_, useGhostRemoval_;
   std::string resolutionInput_, likelihoodInput_;
+  double minRecoOnGenEt_, maxRecoOnGenEt_, maxDeltaR_;
 
   TopObjectResolutionCalc *resolution_;
   TopLeptonTrackerIsolationPt  *trkIsolation_;
   TopLeptonCaloIsolationEnergy *calIsolation_;
   TopLeptonLRCalc *likelihood_;
-  
+  std::vector<std::pair<const reco::Candidate *, TopElectronType*> > pairGenRecoElectronsVector_;
   GreaterByPt<TopElectron> ptComparator_;
-  //PtInverseComparator<TopElectron> ptComparator_;
+
 };
 
 #endif
