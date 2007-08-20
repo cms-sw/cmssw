@@ -3,7 +3,6 @@
 
 #include "DataFormats/Common/interface/DataFrame.h"
 
-#include <boost/iterator_adaptors.hpp>
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/iterator/counting_iterator.hpp>
 

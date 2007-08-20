@@ -16,6 +16,7 @@
 #include "DataFormats/Common/interface/FillView.h"
 #include "DataFormats/Common/interface/DataFrame.h"
 #include "DataFormats/Common/interface/DataFrameContainer.h"
+#include <boost/iterator_adaptors.hpp> 
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/ConstPtrCache.h"
 #include "DataFormats/Common/interface/BoolCache.h"
