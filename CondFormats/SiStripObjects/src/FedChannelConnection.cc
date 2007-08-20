@@ -124,10 +124,10 @@ uint16_t FedChannelConnection::apvPairNumber() const {
 	<< " number of APV pairs (" 
 	<< nApvPairs_ << ") found for this module!";
     }
-  } else {
-    edm::LogWarning(mlCabling_) 
-      << "[FedChannelConnection::" << __func__ << "]"
-      << " Unexpected number of APV pairs: " << nApvPairs_;
+  } else { //@@ commented out due to complaints from hlt guys when running hlt code
+//     edm::LogWarning(mlCabling_) 
+//       << "[FedChannelConnection::" << __func__ << "]"
+//       << " Unexpected number of APV pairs: " << nApvPairs_;
   }
   return 0;
 }
