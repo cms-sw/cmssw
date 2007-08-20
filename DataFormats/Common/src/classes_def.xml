@@ -5,20 +5,16 @@
    <field name="prodGetter_" transient="true"/>
    <field name="prodPtr_" transient="true"/>
  </class>
- <class name="edm::RefItem<unsigned int>">
+ <class name="edm::RefItem<unsigned int>" />
+ <class name="edm::RefItem<int>" />
+ <class name="edm::RefItem<unsigned long>" />
+ <class name="edm::RefItem<std::pair<unsigned int,unsigned int> >" />
+ <class name="edm::RefItem<std::pair<unsigned int,unsigned long> >" />
+ <class name="edm::ConstPtrCache">
    <field name="ptr_" transient="true"/>
  </class>
- <class name="edm::RefItem<int>">
-   <field name="ptr_" transient="true"/>
- </class>
- <class name="edm::RefItem<unsigned long>">
-   <field name="ptr_" transient="true"/>
- </class>
- <class name="edm::RefItem<std::pair<unsigned int,unsigned int> >">
-   <field name="ptr_" transient="true"/>
- </class>
- <class name="edm::RefItem<std::pair<unsigned int,unsigned long> >">
-   <field name="ptr_" transient="true"/>
+ <class name="edm::BoolCache">
+   <field name="isCached_" transient="true"/>
  </class>
  <class name="std::vector<edm::RefItem<int> >"/>
  <class name="std::vector<edm::RefItem<std::pair<unsigned int,unsigned int> > >"/>

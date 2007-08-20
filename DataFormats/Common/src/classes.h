@@ -17,6 +17,8 @@
 #include "DataFormats/Common/interface/DataFrame.h"
 #include "DataFormats/Common/interface/DataFrameContainer.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/Common/interface/ConstPtrCache.h"
+#include "DataFormats/Common/interface/BoolCache.h"
 
 #include <map>
 #include <vector>
