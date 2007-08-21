@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.17 2007/08/17 07:02:11 dellaric Exp $
+// $Id: Numbers.cc,v 1.18 2007/08/21 06:31:54 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.17 $
-  \date $Date: 2007/08/17 07:02:11 $
+  \version $Revision: 1.18 $
+  \date $Date: 2007/08/21 06:31:54 $
 */
 
 #include <sstream>
@@ -104,15 +104,15 @@ int Numbers::iEE( const int ism ) throw( std::runtime_error ) {
   if( ism ==  7 ) iee = -4;
   if( ism ==  8 ) iee = -5;
   if( ism ==  9 ) iee = -6;
-  if( ism == 10 ) iee = +3;
-  if( ism == 11 ) iee = +2;
-  if( ism == 12 ) iee = +1;
-  if( ism == 13 ) iee = +9;
-  if( ism == 14 ) iee = +8;
-  if( ism == 15 ) iee = +7;
-  if( ism == 16 ) iee = +6;
+  if( ism == 10 ) iee = +7;
+  if( ism == 11 ) iee = +8;
+  if( ism == 12 ) iee = +9;
+  if( ism == 13 ) iee = +1;
+  if( ism == 14 ) iee = +2;
+  if( ism == 15 ) iee = +3;
+  if( ism == 16 ) iee = +4;
   if( ism == 17 ) iee = +5;
-  if( ism == 18 ) iee = +4;
+  if( ism == 18 ) iee = +6;
 
   return( iee );
 
