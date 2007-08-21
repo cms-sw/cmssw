@@ -155,7 +155,7 @@ template<typename T> T*
 cond::TypedRef<T>::ptr() const{
   T* result=0;
   try{
-    result=m_data.ptr();
+    result=m_data.ptr();    
   }catch(const pool::Exception& er){
     throw cond::RefException("ptr",er.what());
   }

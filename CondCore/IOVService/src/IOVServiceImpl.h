@@ -37,7 +37,7 @@ namespace cond{
 					   cond::Time_t till,
 					   const std::string& payloadObjectName );
   private:
-    cond::PoolTransaction& m_pooldb;
+    cond::PoolTransaction* m_pooldb;
     cond::TimeType m_timetype;
     std::map< std::string,cond::TypedRef<cond::IOV> > m_iovcache;
     cond::Time_t m_beginOftime;

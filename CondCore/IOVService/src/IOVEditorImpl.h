@@ -27,7 +27,7 @@ namespace cond{
     }
   private:
     void init();
-    cond::PoolTransaction& m_pooldb;
+    cond::PoolTransaction* m_pooldb;
     std::string m_token;
     cond::Time_t m_globalSince;
     cond::Time_t m_globalTill;

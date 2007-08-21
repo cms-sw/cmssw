@@ -56,7 +56,7 @@ namespace cond{
 					   cond::Time_t till,
 					   const std::string& payloadObjectName );
   private:
-    cond::PoolTransaction& m_pooldb;
+    cond::PoolTransaction* m_pooldb;
     cond::IOVServiceImpl* m_impl;
   };
 }//ns cond
