@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/08/20 21:56:02 $
- * $Revision: 1.23 $
+ * $Date: 2007/08/21 11:31:47 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  *
 */
@@ -1084,6 +1084,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridx();
     cMap->SetGridy();
     obj2f->SetMinimum(0.0);
+    obj2f->SetTitleSize(0.5);
     obj2f->Draw("colz");
     labelGrid1.Draw("text,same");
     cMap->SetBit(TGraph::kClipFrame);
@@ -1122,6 +1123,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridx();
     cMap->SetGridy();
     obj2f->SetMinimum(0.0);
+    obj2f->SetTitleSize(0.5);
     obj2f->Draw("colz");
     labelGrid2.Draw("text,same");
     cMap->SetBit(TGraph::kClipFrame);
