@@ -11,7 +11,7 @@ public:
   /**
    *  \class GeometricAnnealing.
    *  A very simple class that returns the association probabilty of a (any)
-   *  chi2 value, given a cutoff, a temperature, and (optionally used) an
+   *  chi2 value, given a cutoff (as a "sigma"), a temperature, and (optionally used) an
    *  annealing ratio ( geometric annealing ).
    */
 
@@ -30,12 +30,6 @@ public:
    *  Returns phi(chi2) / ( phi(cutoff^2) + phi(chi2) ),
    */
   double weight ( double chi2 ) const;
-
-  /**
-   *  Returns phi(chi2) / ( phi(cutoff^2) + sum_i { phi(chi2s[i]) } )
-   */
-  // double weight ( double chi2, const vector < double > & chi2s ) const;
-
 
   double cutoff() const;
   double currentTemp() const;
@@ -56,7 +50,7 @@ public:
 private:
   double theT0;
   double theT;
-  double theCutoff;
+  double theChi2cut;
   double theRatio;
 
 };

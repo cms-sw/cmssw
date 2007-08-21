@@ -5,7 +5,7 @@
 
 GeometricAnnealing::GeometricAnnealing (
      const double cutoff, const double T, const double ratio ) :
-  theT0(T), theT(T), theCutoff(cutoff), theRatio( ratio )
+  theT0(T), theT(T), theChi2cut(cutoff*cutoff), theRatio( ratio )
 {}
 
 void GeometricAnnealing::anneal()
@@ -16,8 +16,13 @@ void GeometricAnnealing::anneal()
 double GeometricAnnealing::weight ( double chi2 ) const
 {
   double mphi = phi ( chi2 );
-  if ( mphi < std::numeric_limits<double>::epsilon() ) return 0.;
-  return 1. / ( 1. + phi ( theCutoff * theCutoff ) / mphi );
+  long double newtmp = mphi / ( mphi + phi ( theChi2cut ) );
+  if ( !finite(newtmp ) )
+  {
+    if ( chi2 < theChi2cut ) newtmp=1.;
+    else newtmp=0.;
+  }
+  return newtmp;
 }
 
 void GeometricAnnealing::resetAnnealing()
@@ -32,7 +37,8 @@ inline double GeometricAnnealing::phi( double chi2 ) const
 
 double GeometricAnnealing::cutoff() const
 {
-  return theCutoff;
+  // std::cout << "[GeometricAnnealing] cutoff called!" << std::endl;
+  return sqrt(theChi2cut);
 }
 
 double GeometricAnnealing::currentTemp() const
@@ -52,6 +58,6 @@ bool GeometricAnnealing::isAnnealed() const
 
 void GeometricAnnealing::debug() const
 {
-  std::cout << "[GeometricAnnealing] sigma_cut=" << theCutoff << ", Tini="
+  std::cout << "[GeometricAnnealing] chi2_cut=" << theChi2cut << ", Tini="
        << theT0 << ", ratio=" << theRatio << std::endl;
 }
