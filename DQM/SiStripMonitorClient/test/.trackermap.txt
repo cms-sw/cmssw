@@ -17,6 +17,7 @@ xmlns:xlink="http://www.w3.org/1999/xlink"
      
      //colorRegion();
   }
+  function showData1(evt) {}
   function showData(evt) {
         var xlinkns = "http://www.w3.org/1999/xlink"; 
 	var myPoly = evt.currentTarget;
@@ -445,7 +446,8 @@ function pausecomp(millis)
       .dragRect {fill:darkcyan;stroke:none;opacity:0.4;}
   ]]></style>
 </head>
-<body onload="init()" onresize="myMapApp.resetFactors();">
+<body onload="init()" onresize="myMapApp.resetFactors();" style=" background-color:lightyellow; ">
+<div id="controlbuttons">
 <button onclick="zoomIt('in');">Zoom in</button>
 <button onclick="zoomIt('out');">Zoom out</button>
 <button onclick="zoomIt('full');">Home</button>
@@ -462,6 +464,7 @@ function pausecomp(millis)
 <button onclick="zoomIt('PIXB');">PIXB</button>
 <button onclick="zoomIt('FPIX+z');">FPIX+z</button>
 <button onclick="zoomIt('FPIX-z');">FPIX-z</button>
+</div>
 <br />
 <svg:svg width="100%" height="100%" viewBox="0 0 1400 700"  >
 <svg:defs>
@@ -484,22 +487,14 @@ function pausecomp(millis)
     <svg:line x1="-2" y1="-6" x2="5" y2="-6" style="stroke:darkcyan;stroke-width:2;"/>
   </svg:symbol>
 </svg:defs>
+<svg:rect fill="white" stroke="none" x="0" y="0" width="100%" height="100%" onclick="showData1(evt);"/>
 <svg:svg id="referenceMap" x="0" y="510" viewBox="0 0 3000 1600" width="180"
-height="100" pointer-events="none">
+height="100" >
         <svg:use xlink:href="#tracker" />
 </svg:svg>
 <svg:rect id="dragRectForRefMap" class="dragRect" x="0" y="510" width="180"
-height="100" onmousedown="myRefMapDragger.drag(evt)"
-onmousemove="myRefMapDragger.drag(evt)"
-onmouseup="myRefMapDragger.drag(evt);myMainMap.newViewBox('dragRectForRefMap','referenceMap')"
-/>
+height="100" />
   <svg:g id="navigatorElements" class="normalText">       	  
-  <!--
-	<text x="220" y="530">Zoom</text>	
-	<svg:use  id="zoomOut" x="230" y="560" xlink:href="#magnifyerZoomOut" onclick="zoomIt('out');"  onmouseover="magnify(evt,1.2,'out');" onmouseout="magnify(evt,1,'out');" />
-	<svg:use  id="zoomIn" x="270" y="560" xlink:href="#magnifyerZoomIn" onclick="zoomIt('in');"  onmouseover="magnify(evt,1.2,'in');" onmouseout="magnify(evt,1,'in');"/>
-	<svg:use  id="zoomFull" x="310" y="560" xlink:href="#magnifyerFull" onclick="zoomIt('full');"  onmouseover="magnify(evt,1.2,'full');" onmouseout="magnify(evt,1,'full');"/>
-	-->
         <svg:text id="TrackerText" x="350" y="530"> - </svg:text>
         <svg:text id="TrackerText1" x="350" y="565"> - </svg:text>
         <svg:text id="TrackerMessage" x="350" y="600"> - </svg:text>

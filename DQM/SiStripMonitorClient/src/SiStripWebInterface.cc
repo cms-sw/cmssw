@@ -295,13 +295,6 @@ void SiStripWebInterface::performAction() {
       actionExecutor_->createCollation((*mui_p));
       break;
     }
-  //  case SiStripWebInterface::CreateTkMap :
-  //    {
-  //     if (createTkMap()) {
-  //       tkMapCreated = true;
-  //     }
-  //      break;
-  //    }
   case SiStripWebInterface::Summary :
     {
       actionExecutor_->createSummary(bei);
@@ -325,15 +318,7 @@ void SiStripWebInterface::performAction() {
     }
   case SiStripWebInterface::PlotTkMapHistogram :
     {
-      /*      vector<string> mes;  // commenting out
-      int nval = actionExecutor_->getTkMapMENames(mes);
-      if (nval == 0) break;
-      for  (vector<string>::iterator it = mes.begin();
-	    it != mes.end(); it++) {
-	requestMap_.insert(pair<string,string>("histo",(*it)));  
-      }
-      infoExtractor_->plotSingleModuleHistos(bei, requestMap_);*/ 
-      infoExtractor_->plotSingleModuleHistos(bei, requestMap_);
+      infoExtractor_->plotTrackerMapHistos(bei, requestMap_);
       break;
     }
   case SiStripWebInterface::PlotHistogramFromPath :

@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2007/08/13 19:27:23 $
- * $Revision: 1.6 $
+ * $Date: 2007/08/17 17:03:51 $
+ * $Revision: 1.7 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -136,6 +136,8 @@ void SiStripAnalyser::analyze(const edm::Event& e, const edm::EventSetup& eSetup
     cout << " Creating Tracker Map " << endl;
     //    trackerMapCreator_->create(dbe);
     trackerMapCreator_->create(fedCabling_, dbe);
+    sistripWebInterface_->setTkMapFlag(true);
+
   }
   // Create predefined plots
   if (nevents%10  == 1) {

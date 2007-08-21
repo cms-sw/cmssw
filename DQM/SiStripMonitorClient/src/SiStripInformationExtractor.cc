@@ -62,6 +62,14 @@ void SiStripInformationExtractor::readConfiguration() {
   } else  edm::LogInfo("SiStripInformationExtractor") << 
           " Problem in reading Layout " << "\n" ;
   if (layoutParser_) delete layoutParser_;
+  int width  = 500;
+  int height = 500;
+
+  canvas_->SetFixedAspectRatio(kTRUE);
+  canvas_->SetCanvasSize(width, height);
+  canvas_->Update();
+  canvas_->Clear();
+
   createDummiesFromLayout();
 }
 //
@@ -345,10 +353,16 @@ void SiStripInformationExtractor::plotHistosFromLayout(DaqMonitorBEInterface * b
     bei->open("Reference.root", false);
     readReference_ = true;
   }
+  int width  = 500;
+  int height = 500;
+
+  canvas_->SetFixedAspectRatio(kTRUE);
+  canvas_->SetCanvasSize(width, height);
+  canvas_->Update();
+  canvas_->Clear();
+
   gStyle->SetOptStat("emruo");
   gStyle->SetStatFontSize(0.05);
-  canvas_->SetWindowSize(600,600);
-  canvas_->Clear();
   for (map<std::string, std::vector< std::string > >::iterator it = layoutMap.begin() ; it != layoutMap.end(); it++) {
     string fname  = it->first + ".png";
     int ncol, nrow;
@@ -407,9 +421,9 @@ void SiStripInformationExtractor::plotTrackerMapHistos(DaqMonitorBEInterface* be
   string tkmap_name;
   SiStripConfigParser config_parser;
   string localPath = string("DQM/SiStripMonitorClient/test/sistrip_monitorelement_config.xml");
+  config_parser.getDocument(edm::FileInPath(localPath).fullPath());
   if (!config_parser.getMENamesForTrackerMap(tkmap_name, me_names));
   if (me_names.size() == 0) return;
-
   for (vector<string>::iterator it = me_names.begin();
        it != me_names.end(); it++) {
     req_map.insert(pair<string,string>("histo",(*it)));  
@@ -422,8 +436,6 @@ void SiStripInformationExtractor::plotTrackerMapHistos(DaqMonitorBEInterface* be
 //
 void SiStripInformationExtractor::createDummiesFromLayout(){
   if (layoutMap.size() == 0) return;
-  canvas_->SetWindowSize(600,600);
-  canvas_->Clear();
   for (map<std::string, std::vector< std::string > >::iterator it = layoutMap.begin() ; it != layoutMap.end(); it++) {
     string fname  = it->first + ".png";
     setCanvasMessage("Plot not ready yet!!");
@@ -438,8 +450,8 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
   			   vector<MonitorElement*> me_list, bool sflag){
   int nhist = me_list.size();
   if (nhist == 0) return;
-  int width = 900;
-  int height = 900;
+  int width = 500;
+  int height = 500;
   canvas_->Clear();
   int ncol = 1, nrow = 1;
  
@@ -464,8 +476,10 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
 
   string dopt;
   if (hasItem(req_map,"drawopt")) dopt = getItemValue(req_map, "drawopt");
+  canvas_->SetFixedAspectRatio(kTRUE);
+  canvas_->SetCanvasSize(width, height);
+  canvas_->Update();
 
-  canvas_->SetWindowSize(width,height);
   canvas_->Divide(ncol, nrow);
   gStyle->SetOptTitle(0);
   gStyle->SetOptStat("emruo");
@@ -694,7 +708,7 @@ string SiStripInformationExtractor::getItemValue(multimap<string,string>& req_ma
 //
 void SiStripInformationExtractor::fillImageBuffer() {
 
-  canvas_->SetFixedAspectRatio(kTRUE);
+//  canvas_->SetFixedAspectRatio(kTRUE);
   //  canvas_->SetCanvasSize(520, 440);
   // Now extract the image
   // 114 - stands for "no write on Close"
@@ -856,10 +870,12 @@ void SiStripInformationExtractor::setDrawingOption(TH1* hist, float xlow, float 
   TAxis* ya = hist->GetYaxis();
 
   xa->SetTitleOffset(0.7);
-  xa->SetTitleSize(0.06);
-  ya->SetTitleOffset(0.7);
-  ya->SetTitleSize(0.06);
+  xa->SetTitleSize(0.05);
   xa->SetLabelSize(0.04);
+
+  ya->SetTitleOffset(0.7);
+  ya->SetTitleSize(0.05);
+  ya->SetLabelSize(0.04);
 
   if (xlow != -1 &&  xhigh != -1.0) {
     xa->SetRangeUser(xlow, xhigh);

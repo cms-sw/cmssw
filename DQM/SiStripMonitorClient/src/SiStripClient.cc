@@ -107,7 +107,7 @@ void SiStripClient::onUpdate() const
       //						 &SiStripWebInterface::performAction));
       //    mui_->addCallback(action); 
       trackerMapCreator_->create(mui_->getBEInterface());      
-      
+      webInterface_p->setTkMapFlag(true);
     }
     // Create predefined plots 
     if (nUpdate%10  == 1) {
