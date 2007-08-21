@@ -1,5 +1,6 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "boost/intrusive_ptr.hpp" 
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h" 
 #include "FWCore/Utilities/interface/Exception.h"
 
 void Trajectory::pop() {

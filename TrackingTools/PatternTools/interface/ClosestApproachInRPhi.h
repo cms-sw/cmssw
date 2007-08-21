@@ -2,7 +2,7 @@
 #define _ClosestApproachInRPhi_H_
 
 #include "TrackingTools/PatternTools/interface/ClosestApproachOnHelices.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
 
 using namespace std;
 

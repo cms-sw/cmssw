@@ -1,7 +1,6 @@
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistanceLineLine.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 
 bool TwoTrackMinimumDistanceLineLine::calculate(

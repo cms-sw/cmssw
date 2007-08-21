@@ -2,6 +2,7 @@
 #define _TRACKER_TRAJECTORYMEASUREMENT_H_
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "boost/intrusive_ptr.hpp" 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 class DetLayer;

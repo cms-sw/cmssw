@@ -5,8 +5,6 @@
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "DataFormats/Common/interface/OwnVector.h"
 
 #include <vector>
 #include <algorithm>

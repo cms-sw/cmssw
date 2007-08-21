@@ -1,7 +1,5 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
 #include "TrackingTools/AnalyticalJacobians/interface/AnalyticalCurvilinearJacobian.h"
-#include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
 
 TrajectoryStateClosestToBeamLine
