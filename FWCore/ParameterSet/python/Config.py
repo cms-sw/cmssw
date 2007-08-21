@@ -335,11 +335,11 @@ class Process(object):
         indent = '    '
         returnValue = ''
         for name,item in items:
-            returnValue +=name+' = '+item.dumpPython('',indent)
+            returnValue +='process.'+name+' = '+item.dumpPython('',indent)+'\n'
         return returnValue
     def dumpPython(self):
         """return a string containing the equivalent process defined using the configuration language"""
-        result = "process = cms.Process("+self.__name+")\n"
+        result = "process = cms.Process(\""+self.__name+"\")\n\n"
         indent = "    "
         if self.source_():
             result += "process.source = "+self.source_().dumpPython('', indent)
@@ -390,11 +390,11 @@ class Process(object):
         processDesc.addPSet(False, "@trigger_paths", p)
     def fillProcessDesc(self, processDesc, processPSet):
         processPSet.addString(True, "@process_name", self.name_())
-        all_modules = self.__producers
+        all_modules = self.producers_().copy()
         all_modules.update(self.filters_())
         all_modules.update(self.analyzers_())
         all_modules.update(self.outputModules_())
-        self.insertManyInto(processPSet, "@all_modules", self.producers_())
+        self.insertManyInto(processPSet, "@all_modules", all_modules)
         self.insertOneInto(processPSet,  "@all_sources", self.source_())
         self.insertOneInto(processPSet,  "@all_loopers",   self.looper_())
         self.insertManyInto(processPSet, "@all_esmodules", self.es_producers_())
