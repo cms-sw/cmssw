@@ -1,5 +1,5 @@
-#ifndef RecoMuon_GlobalTrackingTools_ MuonErrorMatrixAnalyzer_H
-#define RecoMuon_GlobalTrackingTools_ MuonErrorMatrixAnalyzer_H
+#ifndef RecoMuon_GlobalTrackingTools_MuonErrorMatrixAnalyzer_H
+#define RecoMuon_GlobalTrackingTools_MuonErrorMatrixAnalyzer_H
 
 // -*- C++ -*-
 //
@@ -16,7 +16,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Fri May  4 15:15:44 CDT 2007
-// $Id$
+// $Id: MuonErrorMatrixAnalyzer.h,v 1.1 2007/08/21 23:24:23 vlimant Exp $
 //
 //
 
