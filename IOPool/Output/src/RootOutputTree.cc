@@ -1,6 +1,15 @@
 #include "RootOutputTree.h"
+#include "TFile.h"
 
 namespace edm {
+
+  TTree *
+  RootOutputTree::makeTree(TFile * filePtr, std::string const& name, int splitLevel) {
+    TTree *tree = new TTree(name.c_str(), "", splitLevel);
+    tree->SetDirectory(filePtr);
+    return tree;
+  }
+
   void
   RootOutputTree::addBranch(BranchDescription const& prod, bool selected, BranchEntryDescription const*& pProv, void const*& pProd) {
       prod.init();

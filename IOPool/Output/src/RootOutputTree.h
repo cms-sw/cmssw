@@ -5,7 +5,7 @@
 
 RootOutputTree.h // used by ROOT input sources
 
-$Id: RootOutputTree.h,v 1.13 2007/06/14 22:02:15 wmtan Exp $
+$Id: RootOutputTree.h,v 1.1 2007/08/20 23:45:05 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -31,16 +31,18 @@ namespace edm {
   class RootOutputTree {
   public:
     template <typename T>
-    RootOutputTree(BranchType const& branchType, T const*& pAux, int bufSize, int splitLevel) :
-      tree_(new TTree(BranchTypeToProductTreeName(branchType).c_str(), "", splitLevel)),
-      metaTree_(new TTree(BranchTypeToMetaDataTreeName(branchType).c_str(), "", 0)),
+    RootOutputTree(TFile * filePtr, BranchType const& branchType, T const*& pAux, int bufSize, int splitLevel) :
+      tree_(makeTree(filePtr, BranchTypeToProductTreeName(branchType), splitLevel)),
+      metaTree_(makeTree(filePtr, BranchTypeToMetaDataTreeName(branchType), 0)),
       auxBranch_(tree_->Branch(BranchTypeToAuxiliaryBranchName(branchType).c_str(), &pAux, bufSize, 0)),
       basketSize_(bufSize),
       splitLevel_(splitLevel),
-      branchNames_()
-    {}
+      branchNames_() {
+    }
     ~RootOutputTree() {}
     
+    static TTree * makeTree(TFile * filePtr, std::string const& name, int splitLevel);
+
     bool isValid() const;
     void addBranch(BranchDescription const& prod, bool selected, BranchEntryDescription const*& pProv, void const*& pProd);
     std::vector<std::string> const& branchNames() const {return branchNames_;}

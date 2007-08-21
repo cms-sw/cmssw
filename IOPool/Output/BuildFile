@@ -10,6 +10,7 @@
 <use name=IOPool/Common>
 <use name=boost>
 <use name=rootcore>
+<use name=root>
 <export>
  <lib name=IOPoolOutput>
 </export>

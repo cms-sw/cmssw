@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.1 2007/08/20 23:45:05 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.2 2007/08/21 00:03:17 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h" 
@@ -48,9 +48,9 @@ namespace edm {
       pEventAux_(&eventAux_),
       pLumiAux_(&lumiAux_),
       pRunAux_(&runAux_),
-      eventTree_(InEvent, pEventAux_, om_->basketSize(), om_->splitLevel()),
-      lumiTree_(InLumi, pLumiAux_, om_->basketSize(), om_->splitLevel()),
-      runTree_(InRun, pRunAux_, om_->basketSize(), om_->splitLevel()),
+      eventTree_(filePtr_.get(), InEvent, pEventAux_, om_->basketSize(), om_->splitLevel()),
+      lumiTree_(filePtr_.get(), InLumi, pLumiAux_, om_->basketSize(), om_->splitLevel()),
+      runTree_(filePtr_.get(), InRun, pRunAux_, om_->basketSize(), om_->splitLevel()),
       treePointers_(),
       provenances_(),
       newFileAtEndOfRun_(false) {
@@ -79,6 +79,7 @@ namespace edm {
     }
 
     metaDataTree_ = new TTree(poolNames::metaDataTreeName().c_str(), "", 0);  // Don't split metadata tree.
+    metaDataTree_->SetDirectory(filePtr_.get());
 
     pool::FileCatalog::FileID fid = om_->catalog_.registerFile(file_, logicalFile_);
 
@@ -206,6 +207,7 @@ namespace edm {
   }
 
   void RootOutputFile::endFile() {
+    filePtr_->cd();
     FileFormatVersion fileFormatVersion(edm::getFileFormatVersion());
     FileFormatVersion * pFileFmtVsn = &fileFormatVersion;
     metaDataTree_->Branch(poolNames::fileFormatVersionBranchName().c_str(), &pFileFmtVsn, om_->basketSize(), 0);
@@ -263,9 +265,9 @@ namespace edm {
     pLumiAux_ = &lumiAux_;
     pRunAux_ = &runAux_;
 
-    tEvent->BuildIndex("id_.run_", "id_.event_");
-    tLumi->BuildIndex("id_.run_", "id_.luminosityBlock_");
-    tRun->BuildIndex("id_.run_");
+    tEvent->BuildIndex("EventAuxiliary.id_.run_", "EventAuxiliary.id_.event_");
+    tLumi->BuildIndex("LuminosityBlockAuxiliary.id_.run_", "LuminosityBlockAuxiliary.id_.luminosityBlock_");
+    tRun->BuildIndex("RunAuxiliary.id_.run_");
   }
   
   void
