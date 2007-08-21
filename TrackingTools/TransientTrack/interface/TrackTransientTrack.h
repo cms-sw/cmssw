@@ -6,7 +6,9 @@
    */
 
 #include "TrackingTools/TransientTrack/interface/BasicTransientTrack.h"
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 
 namespace reco {

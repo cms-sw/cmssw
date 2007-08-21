@@ -4,9 +4,6 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "DataFormats/Common/interface/EDProduct.h"
-#include "DataFormats/Common/interface/Handle.h"
 
   /**
    * Helper class to build TransientTrack from the persistent Track.

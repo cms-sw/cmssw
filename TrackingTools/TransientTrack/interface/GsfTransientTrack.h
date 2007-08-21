@@ -7,6 +7,8 @@
 
 
 #include "TrackingTools/TransientTrack/interface/BasicTransientTrack.h"
+#include "DataFormats/TrackReco/interface/Track.h" 
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"

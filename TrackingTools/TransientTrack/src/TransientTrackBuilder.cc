@@ -1,4 +1,5 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "DataFormats/Common/interface/Handle.h" 
 #include "TrackingTools/TransientTrack/interface/GsfTransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackFromFTS.h"
 
