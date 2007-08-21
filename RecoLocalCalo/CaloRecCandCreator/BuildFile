@@ -1,4 +1,4 @@
-<flags SEAL_PLUGIN_NAME="RecoLocalCaloCaloRecCandCreator">
+<flags EDM_PLUGIN=1>
 <use name=RecoLocalCalo/HcalRecAlgos>
 <use name=FWCore/Framework>
 <use name=DataFormats/Common>

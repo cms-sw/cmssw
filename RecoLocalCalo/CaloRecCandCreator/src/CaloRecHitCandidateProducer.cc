@@ -94,7 +94,8 @@ CaloRecHitCandidateProducer::CaloRecHitCandidateProducer ( const edm::ParameterS
 
 void CaloRecHitCandidateProducer::produce( edm::Event & fEvent, const edm::EventSetup & fSetup) {
   // get geometry
-  const IdealGeometryRecord& record = fSetup.template get<IdealGeometryRecord>();
+  //  const IdealGeometryRecord& record = fSetup.template get<IdealGeometryRecord>();
+  const IdealGeometryRecord& record = fSetup.get<IdealGeometryRecord>();
   ESHandle<CaloGeometry> geometry;
   record.get (geometry);
   ESHandle<HcalTopology> topology;
