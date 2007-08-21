@@ -371,6 +371,16 @@
    <ReflectionRotation name="ReflectionY"  phiY="270.*deg"  thetaY="90.*deg" 
                                            phiX= " 0.*deg"  thetaX="90.*deg" 
                                            phiZ=  "0.*deg"  thetaZ= "0.*deg" />
+                          
+   <Rotation name="EEOScrR5A" phiX=  "0.*deg"  thetaX=" 90.*deg" 
+                              phiY=" 90.*deg"  thetaY="110.*deg" 
+                              phiZ= "90.*deg"  thetaZ=" 20.*deg" />
+
+   <Rotation name="EEOScrR5B" phiX=  "0.*deg"  thetaX="110.*deg" 
+                              phiY=" 90.*deg"  thetaY=" 90.*deg" 
+                              phiZ= " 0.*deg"  thetaZ=" 20.*deg" />
+
+
 </RotationSection>
 
 

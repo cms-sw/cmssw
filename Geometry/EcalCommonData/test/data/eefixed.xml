@@ -166,9 +166,36 @@
  <Box name="EETankSS"  dy="0.5*17.*mm" dz="0.5*28.*mm" dx="0.5*90.*mm"/>
  <Box name="EETankWa"  dy="0.5*11.*mm" dz="0.5*22.*mm" dx="0.5*84.*mm"/>
 
+<!-- Just behind SuperCrystal: lump together positional spacer, housing, HV, interface plate, etc. -->
+
  <Box name="EESpacer"  dx="[eecon:EESpaWidth]/2." dy="[eecon:EESpaWidth]/2."     dz="[eecon:EESpaDepth]/2."/>
  <Box name="EESpAir"   dx="[eecon:EESpAirWidth]/2." dy="[eecon:EESpAirWidth]/2." dz="[eecon:EESpAirDepth]/2."/>
  <Box name="EEHV"      dx="[eecon:EESpAirWidth]/2." dy="[eecon:EESpAirWidth]/2." dz="[eecon:EESpHVDepth]/2."/>
+
+<!-- Cooling pipes in outer environmental screen -->
+
+ <Torus name="EEOCool1" innerRadius="0*mm" outerRadius="7*mm"
+                        torusRadius="1571.6*mm" startPhi="2.5*deg" deltaPhi="85*deg" />
+ <Torus name="EEOCool2" innerRadius="0*mm" outerRadius="7*mm"
+                        torusRadius="1605.8*mm" startPhi="5.5*deg" deltaPhi="82*deg" />
+ <Torus name="EEOCool3" innerRadius="0*mm" outerRadius="7*mm"
+                        torusRadius="1640.0*mm" startPhi="5.5*deg" deltaPhi="82*deg" />
+ <Torus name="EEOCool4" innerRadius="0*mm" outerRadius="7*mm"
+                        torusRadius="1674.2*mm" startPhi="2.5*deg" deltaPhi="85*deg" />
+ <Tubs  name="EEOCool5" rMin="0*mm" rMax="7*mm" dz=" 50*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs  name="EEOCool6" rMin="0*mm" rMax="7*mm" dz="150*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+
+ <Torus name="EEOCool1W" innerRadius="0*mm" outerRadius="6*mm"
+                        torusRadius="1571.6*mm" startPhi="2.5*deg" deltaPhi="85*deg" />
+ <Torus name="EEOCool2W" innerRadius="0*mm" outerRadius="6*mm"
+                        torusRadius="1605.8*mm" startPhi="5.5*deg" deltaPhi="82*deg" />
+ <Torus name="EEOCool3W" innerRadius="0*mm" outerRadius="6*mm"
+                        torusRadius="1640.0*mm" startPhi="5.5*deg" deltaPhi="82*deg" />
+ <Torus name="EEOCool4W" innerRadius="0*mm" outerRadius="6*mm"
+                        torusRadius="1674.2*mm" startPhi="2.5*deg" deltaPhi="85*deg" />
+ <Tubs  name="EEOCool5W" rMin="0*mm" rMax="6*mm" dz=" 50*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs  name="EEOCool6W" rMin="0*mm" rMax="6*mm" dz="150*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+
 
 </SolidSection>
 
@@ -276,6 +303,32 @@
       <rSolid name="EESpAir"/> <rMaterial  name="materials:E_Air"/> </LogicalPart>
  <LogicalPart name="EEHV" category="unspecified">
       <rSolid name="EEHV"/> <rMaterial  name="materials:E_G10"/> </LogicalPart>
+
+ <LogicalPart name="EEOCool1" category="unspecified">
+      <rSolid name="EEOCool1"/> <rMaterial  name="materials:StainlessSteel"/> </LogicalPart>
+ <LogicalPart name="EEOCool2" category="unspecified">
+      <rSolid name="EEOCool2"/> <rMaterial  name="materials:StainlessSteel"/> </LogicalPart>
+ <LogicalPart name="EEOCool3" category="unspecified">
+      <rSolid name="EEOCool3"/> <rMaterial  name="materials:StainlessSteel"/> </LogicalPart>
+ <LogicalPart name="EEOCool4" category="unspecified">
+      <rSolid name="EEOCool4"/> <rMaterial  name="materials:StainlessSteel"/> </LogicalPart>
+ <LogicalPart name="EEOCool5" category="unspecified">
+      <rSolid name="EEOCool5"/> <rMaterial  name="materials:StainlessSteel"/> </LogicalPart>
+ <LogicalPart name="EEOCool6" category="unspecified">
+      <rSolid name="EEOCool6"/> <rMaterial  name="materials:StainlessSteel"/> </LogicalPart>
+
+ <LogicalPart name="EEOCool1W" category="unspecified">
+      <rSolid name="EEOCool1W"/> <rMaterial  name="materials:E_Water"/> </LogicalPart>
+ <LogicalPart name="EEOCool2W" category="unspecified">
+      <rSolid name="EEOCool2W"/> <rMaterial  name="materials:E_Water"/> </LogicalPart>
+ <LogicalPart name="EEOCool3W" category="unspecified">
+      <rSolid name="EEOCool3W"/> <rMaterial  name="materials:E_Water"/> </LogicalPart>
+ <LogicalPart name="EEOCool4W" category="unspecified">
+      <rSolid name="EEOCool4W"/> <rMaterial  name="materials:E_Water"/> </LogicalPart>
+ <LogicalPart name="EEOCool5W" category="unspecified">
+      <rSolid name="EEOCool5W"/> <rMaterial  name="materials:E_Water"/> </LogicalPart>
+ <LogicalPart name="EEOCool6W" category="unspecified">
+      <rSolid name="EEOCool6W"/> <rMaterial  name="materials:E_Water"/> </LogicalPart>
 
 </LogicalPartSection>
 
@@ -709,6 +762,38 @@
       <Translation x="[eecon:EESpaXYOff]" y="[eecon:EESpaXYOff]" 
                    z="-[eecon:EESpaDepth]/2. + [eecon:SCEnvLength]/2."/> </PosPart>
 
+
+ <PosPart copyNumber="1"> <rParent name="eefixed:EEOCool1"/> <rChild name="eefixed:EEOCool1W"/> </PosPart>
+ <PosPart copyNumber="1"> <rParent name="eefixed:EEOCool2"/> <rChild name="eefixed:EEOCool2W"/> </PosPart>
+ <PosPart copyNumber="1"> <rParent name="eefixed:EEOCool3"/> <rChild name="eefixed:EEOCool3W"/> </PosPart>
+ <PosPart copyNumber="1"> <rParent name="eefixed:EEOCool4"/> <rChild name="eefixed:EEOCool4W"/> </PosPart>
+ <PosPart copyNumber="1"> <rParent name="eefixed:EEOCool5"/> <rChild name="eefixed:EEOCool5W"/> </PosPart>
+ <PosPart copyNumber="1"> <rParent name="eefixed:EEOCool6"/> <rChild name="eefixed:EEOCool6W"/> </PosPart>
+
+ <PosPart copyNumber="1"> <rParent name="eefixed:EEgEnvScr"/> <rChild name="eefixed:EEOCool1"/> 
+      <Translation x="0*mm" y="0*mm" z="-157*mm"/> </PosPart>
+ <PosPart copyNumber="1"> <rParent name="eefixed:EEgEnvScr"/> <rChild name="eefixed:EEOCool2"/> 
+      <Translation x="0*mm" y="0*mm" z="-63*mm"/> </PosPart>
+ <PosPart copyNumber="1"> <rParent name="eefixed:EEgEnvScr"/> <rChild name="eefixed:EEOCool3"/> 
+      <Translation x="0*mm" y="0*mm" z=" 32*mm"/> </PosPart>
+ <PosPart copyNumber="1"> <rParent name="eefixed:EEgEnvScr"/> <rChild name="eefixed:EEOCool4"/> 
+      <Translation x="0*mm" y="0*mm" z="124*mm"/> </PosPart>
+ <PosPart copyNumber="1"> <rParent name="eefixed:EEgEnvScr"/> <rChild name="eefixed:EEOCool5"/>
+      <Translation x="1583.7*sin(2*deg)*mm"
+                   y="1583.7*cos(2*deg)*mm" z="-118*mm"/>
+      <rRotation name="eecon:EEOScrR5A"/> </PosPart>
+ <PosPart copyNumber="2"> <rParent name="eefixed:EEgEnvScr"/> <rChild name="eefixed:EEOCool5"/>
+      <Translation x="1652.1*sin(2*deg)*mm"
+                   y="1652.1*cos(2*deg)*mm" z="70*mm"/>
+      <rRotation name="eecon:EEOScrR5A"/> </PosPart>
+ <PosPart copyNumber="3"> <rParent name="eefixed:EEgEnvScr"/> <rChild name="eefixed:EEOCool5"/>
+      <Translation y="1618*sin(5*deg)*mm"
+                   x="1618*cos(5*deg)*mm" z="-24*mm"/>
+      <rRotation name="eecon:EEOScrR5B"/> </PosPart>
+ <PosPart copyNumber="1"> <rParent name="eefixed:EEgEnvScr"/> <rChild name="eefixed:EEOCool6"/>
+      <Translation y="1618*sin(2*deg)*mm"
+                   x="1618*cos(2*deg)*mm" z="-24*mm"/>
+      <rRotation name="eecon:EEOScrR5B"/> </PosPart>
 
 </PosPartSection>
 </DDDefinition>
