@@ -2,9 +2,16 @@
 #define TrackerRecHit2D_CLASSES_H
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
+#include "DataFormats/CLHEP/interface/Migration.h" 
+#include <boost/cstdint.hpp> 
+#include "DataFormats/GeometryVector/interface/LocalPoint.h" 
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h" 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/Common/interface/RefProd.h" 
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h" 
+#include "DataFormats/Common/interface/DetSetVector.h" 
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"

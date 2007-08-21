@@ -2,9 +2,6 @@
 #define SiTrackerGSRecHit2D_H
 
 #include "DataFormats/TrackerRecHit2D/interface/BaseSiTrackerRecHit2DLocalPos.h"
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-#include "DataFormats/Common/interface/RefVector.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
 
 class SiTrackerGSRecHit2D : public BaseSiTrackerRecHit2DLocalPos{
   

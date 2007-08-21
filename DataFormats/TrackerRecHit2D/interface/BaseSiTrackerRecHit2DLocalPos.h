@@ -2,7 +2,6 @@
 #define BaseSiTrackerRecHit2DLocalPos_H
 
 #include "DataFormats/TrackingRecHit/interface/RecHit2DLocalPos.h"
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
