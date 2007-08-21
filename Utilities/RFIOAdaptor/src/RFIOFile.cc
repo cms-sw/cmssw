@@ -1,5 +1,5 @@
 
-// $Id$
+// $Id: RFIOFile.cc,v 1.16 2007/08/21 18:26:28 wdd Exp $
 
 #include "Utilities/RFIOAdaptor/interface/RFIOFile.h"
 #include "Utilities/RFIOAdaptor/interface/RFIO.h"
@@ -171,6 +171,8 @@ RFIOFile::close (void)
     if (m_fd == IOFD_INVALID) {
       edm::LogError("RFIOFileError")
         << "RFIOFile::close() called but the file is not open";
+      m_close = false;
+      return;
     }
     serrno = 0;
 
