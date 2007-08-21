@@ -64,6 +64,7 @@ class SiPixelRawDataErrorModule {
   MonitorElement* meEvtSize_;
   MonitorElement* meLinkId_;
   MonitorElement* meROCId_;
+  MonitorElement* meInvROC_;
   MonitorElement* meDCOLId_;
   MonitorElement* mePXId_;
   MonitorElement* meROCNmbr_;

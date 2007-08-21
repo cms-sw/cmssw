@@ -87,42 +87,42 @@ void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig) {
   DaqMonitorBEInterface* theDMBE = edm::Service<DaqMonitorBEInterface>().operator->();
   // Types of errors
   hid = theHistogramId->setHistoId("errorType",id_);
-  meErrorType_ = theDMBE->book1D(hid,"Type of errors",14,25.,39.);
+  meErrorType_ = theDMBE->book1D(hid,"Type of errors",14,24.5,38.5);
   meErrorType_->setAxisTitle("Type of errors",1);
   // Number of errors
   hid = theHistogramId->setHistoId("NErrors",id_);
-  meNErrors_ = theDMBE->book1D(hid,"Number of errors",500,0.,500.);
+  meNErrors_ = theDMBE->book1D(hid,"Number of errors",500,-0.5,499.5);
   meNErrors_->setAxisTitle("Number of errors",1);
   // For error type 30, the type of problem encoded in the TBM trailer
   // 0 = stack full, 1 = Pre-cal issued, 2 = clear trigger counter, 3 = sync trigger, 
   // 4 = sync trigger error, 5 = reset ROC, 6 = reset TBM, 7 = no token bit pass
   hid = theHistogramId->setHistoId("TBMMessage",id_);
-  meTBMMessage_ = theDMBE->book1D(hid,"TBM trailer message",8,0.,8.);
+  meTBMMessage_ = theDMBE->book1D(hid,"TBM trailer message",8,-0.5,7.5);
   meTBMMessage_->setAxisTitle("TBM message",1);
-  // For error type 30, the type of problem encoded in the FSM bits
-  // 1 = FSM errors, 2 = invalid # of ROCs, 3 = data stream too long, 0 = unexpected
+  // For error type 30, the type of problem encoded in the FSM bits, 0 = none
+  // 1 = FSM errors, 2 = invalid # of ROCs, 3 = data stream too long, 4 = multiple
   hid = theHistogramId->setHistoId("TBMType",id_);
-  meTBMType_ = theDMBE->book1D(hid,"State Machine message",4,0.,4.);
+  meTBMType_ = theDMBE->book1D(hid,"State Machine message",5,-0.5,4.5);
   meTBMType_->setAxisTitle("FSM Type",1);
   // For error type 31, the event number of the TBM header with the error
   hid = theHistogramId->setHistoId("EvtNbr",id_);
-  meEvtNbr_ = theDMBE->book1D(hid,"Event number for error type 31",256,0.,256.);
+  meEvtNbr_ = theDMBE->book1D(hid,"Event number for error type 31",256,-0.5,255.5);
   meEvtNbr_->setAxisTitle("Event number",1);
   // For error type 36, the invalid ROC number
   hid = theHistogramId->setHistoId("ROCId",id_);
-  meROCId_ = theDMBE->book1D(hid,"ROC number for error type 36",25,0.,25.);
+  meROCId_ = theDMBE->book1D(hid,"ROC number for error type 36",25,-0.5,24.5);
   meROCId_->setAxisTitle("ROC Id",1);
   // For error type 37, the invalid dcol values
   hid = theHistogramId->setHistoId("DCOLId",id_);
-  meDCOLId_ = theDMBE->book1D(hid,"DCOL address for error type 37",32,0.,32.);
+  meDCOLId_ = theDMBE->book1D(hid,"DCOL address for error type 37",32,-0.5,31.5);
   meDCOLId_->setAxisTitle("DCOL address",1);
   // For error type 37, the invalid ROC values
   hid = theHistogramId->setHistoId("PXId",id_);
-  mePXId_ = theDMBE->book1D(hid,"Pixel address for error type 37",256,0.,256.);
+  mePXId_ = theDMBE->book1D(hid,"Pixel address for error type 37",256,-0.5,255.5);
   mePXId_->setAxisTitle("Pixel address",1);
   // For error type 38, the ROC that is being read out of order
   hid = theHistogramId->setHistoId("ROCNmbr",id_);
-  meROCNmbr_ = theDMBE->book1D(hid,"ROC number for error type 38",25,0.,25.);
+  meROCNmbr_ = theDMBE->book1D(hid,"ROC number for error type 38",25,-0.5,24.5);
   meROCNmbr_->setAxisTitle("ROC number on DetUnit",1);
 
   delete theHistogramId;
@@ -140,49 +140,50 @@ void SiPixelRawDataErrorModule::bookFED(const edm::ParameterSet& iConfig) {
   DaqMonitorBEInterface* theDMBE = edm::Service<DaqMonitorBEInterface>().operator->();
   // Types of errors
   hid = theHistogramId->setHistoId("errorType",id_);
-  meErrorType_ = theDMBE->book1D(hid,"Type of errors",14,25.,39.);
+  meErrorType_ = theDMBE->book1D(hid,"Type of errors",14,24.5,38.5);
   meErrorType_->setAxisTitle("Type of errors",1);
   // Number of errors
   hid = theHistogramId->setHistoId("NErrors",id_);
-  meNErrors_ = theDMBE->book1D(hid,"Number of errors",500,0.,500.);
+  meNErrors_ = theDMBE->book1D(hid,"Number of errors",500,-0.5,499.5);
   meNErrors_->setAxisTitle("Number of errors",1);
   // Type of FIFO full (errorType = 28).  FIFO 1 is 1-5 (where fullType = channel of FIFO 1), 
   // fullType = 6 signifies FIFO 2 nearly full, 7 signifies trigger FIFO nearly full, 8 
   // indicates an unexpected result
   hid = theHistogramId->setHistoId("fullType",id_);
-  meFullType_ = theDMBE->book1D(hid,"Type of FIFO full",7,1.,8.);
+  meFullType_ = theDMBE->book1D(hid,"Type of FIFO full",7,0.5,7.5);
   meFullType_->setAxisTitle("FIFO type",1);
   // For errorType = 29, channel with timeout error (0 indicates unexpected result)
   hid = theHistogramId->setHistoId("chanNmbr",id_);
-  meChanNmbr_ = theDMBE->book1D(hid,"Timeout Channel",37,0.,37.);
+  meChanNmbr_ = theDMBE->book1D(hid,"Timeout Channel",37,-0.5,36.5);
   meChanNmbr_->setAxisTitle("Channel number",1);
   // For error type 30, the type of problem encoded in the TBM trailer
   // 0 = stack full, 1 = Pre-cal issued, 2 = clear trigger counter, 3 = sync trigger, 
   // 4 = sync trigger error, 5 = reset ROC, 6 = reset TBM, 7 = no token bit pass
   hid = theHistogramId->setHistoId("TBMMessage",id_);
-  meTBMMessage_ = theDMBE->book1D(hid,"TBM trailer message",8,0.,8.);
+  meTBMMessage_ = theDMBE->book1D(hid,"TBM trailer message",8,-0.5,7.5);
   meTBMMessage_->setAxisTitle("TBM message",1);
-  // For error type 30, the type of problem encoded in the TBM error trailer
-  // 1 = FSM errors, 2 = invalid # of ROCs, 3 = data stream too long, 0 = unexpected
+  // For error type 30, the type of problem encoded in the TBM error trailer 0 = none
+  // 1 = data stream too long, 2 = FSM errors, 3 = invalid # of ROCs, 4 = multiple
   hid = theHistogramId->setHistoId("TBMType",id_);
-  meTBMType_ = theDMBE->book1D(hid,"Type of TBM trailer",4,0.,4.);
+  meTBMType_ = theDMBE->book1D(hid,"Type of TBM trailer",5,-0.5,4.5);
   meTBMType_->setAxisTitle("TBM Type",1);
   // For error type 31, the event number of the TBM header with the error
   hid = theHistogramId->setHistoId("EvtNbr",id_);
-  meEvtNbr_ = theDMBE->book1D(hid,"Event number for error type 31",256,0.,256.);
+  meEvtNbr_ = theDMBE->book1D(hid,"Event number for error type 31",256,-0.5,255.5);
   meEvtNbr_->setAxisTitle("Event number",1);
   // For errorType = 34, datastream size according to error word
   hid = theHistogramId->setHistoId("evtSize",id_);
-  meEvtSize_ = theDMBE->book1D(hid,"Trailer Datastream Size",500,0.,500.);
+  meEvtSize_ = theDMBE->book1D(hid,"Trailer Datastream Size",500,-0.5,499.5);
   meEvtSize_->setAxisTitle("Number of words",1);
   // For errorType = 35, the bad channel number
   hid = theHistogramId->setHistoId("linkId",id_);
-  meLinkId_ = theDMBE->book1D(hid,"Invalid Channel Number",64,1.,65.);
-  meLinkId_->setAxisTitle("Channel number",1);
-  // For error type 36, the invalid ROC number
-  hid = theHistogramId->setHistoId("ROCId",id_);
-  meROCId_ = theDMBE->book1D(hid,"ROC number for error type 36",25,0.,25.);
-  meROCId_->setAxisTitle("ROC Id",1);
+  meLinkId_ = theDMBE->book1D(hid,"Invalid Channel Number",35,0.5,35.5);
+  meLinkId_->setAxisTitle("FED Channel number",1);
+  // For error type 36, the invalid ROC number matched to FED Channel
+  hid = theHistogramId->setHistoId("Type36Hitmap",id_);
+  meInvROC_ = theDMBE->book2D(hid,"Invalid ROC by Channel Number",35,1.,36.,25,0.,25.);
+  meInvROC_->setAxisTitle("FED Channel Number",1);
+  meInvROC_->setAxisTitle("ROC Number",2);
   
   delete theHistogramId;
 }
@@ -235,6 +236,9 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
 	  int StateMach = (errorWord >> StateMach_shift) & StateMach_mask;
 	  int TBMType;
 	  switch(StateMach) {
+	  case(0) : {
+	    TBMType = 0;
+	    break; }
 	  case(1) : {
 	    TBMType = 1;
 	    break; }
@@ -244,7 +248,7 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
 	  case(8) : {
 	    TBMType = 3;
 	    break; }
-	    default : TBMType = 0;
+	    default : TBMType = 4;
 	  };
 	  (meTBMType_)->Fill((int)TBMType);
 	  break; }
@@ -272,7 +276,7 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
     }
     
     (meNErrors_)->Fill((float)numberOfErrors);
-    //std::cout<<"number of errors="<<numberOfErrors<<std::endl;meROCId_
+    //std::cout<<"number of errors="<<numberOfErrors<<std::endl;
     
   }
   
@@ -362,18 +366,21 @@ void SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataEr
 	    uint32_t StateMach_mask = ~(~uint32_t(0) << StateMach_bits);
 	    int StateMach = (errorWord >> StateMach_shift) & StateMach_mask;
 	    int TBMType;
-	    switch(StateMach) {
-	    case(1) : {
-	      TBMType = 1;
-	      break; }
-	    case(2) : case(4) : case(6) : {
-	      TBMType = 2;
-	      break; }
-	    case(8) : {
-	      TBMType = 3;
-	      break; }
-	    default : TBMType = 0;
-	    };
+	  switch(StateMach) {
+	  case(0) : {
+	    TBMType = 0;
+	    break; }
+	  case(1) : {
+	    TBMType = 1;
+	    break; }
+	  case(2) : case(4) : case(6) : {
+	    TBMType = 2;
+	    break; }
+	  case(8) : {
+	    TBMType = 3;
+	    break; }
+	    default : TBMType = 4;
+	  };
 	    (meTBMType_)->Fill((int)TBMType);
 	    break; }
 	  case(31) : {
@@ -386,7 +393,8 @@ void SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataEr
 	    break; }
 	  case(36) : {
 	    int ROCId = (errorWord >> ROC_shift) & ROC_mask;
-	    (meROCId_)->Fill((float)ROCId);
+	    int ChanId = (errorWord >> LINK_shift) & LINK_mask;
+	    (meInvROC_)->Fill((float)ChanId,(float)ROCId);
 	    break; }
 	  default : break;
 	  };
