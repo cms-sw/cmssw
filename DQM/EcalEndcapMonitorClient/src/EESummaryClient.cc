@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/08/21 11:31:47 $
- * $Revision: 1.24 $
+ * $Date: 2007/08/21 12:47:19 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  *
 */
@@ -1005,7 +1005,9 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
-    obj2f->SetTitleSize(0.5);
+    obj2f->SetTitleSize(0.4);
+    obj2f->GetXaxis()->SetLabelSize(0.03);
+    obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
     labelGrid1.Draw("text,same");
     cMap->SetBit(TGraph::kClipFrame);
@@ -1045,7 +1047,9 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
-    obj2f->SetTitleSize(0.5);
+    obj2f->SetTitleSize(0.4);
+    obj2f->GetXaxis()->SetLabelSize(0.03);
+    obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
     labelGrid2.Draw("text,same");
     cMap->SetBit(TGraph::kClipFrame);
@@ -1084,7 +1088,10 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridx();
     cMap->SetGridy();
     obj2f->SetMinimum(0.0);
-    obj2f->SetTitleSize(0.5);
+    obj2f->SetTitleSize(0.4);
+    obj2f->GetXaxis()->SetLabelSize(0.03);
+    obj2f->GetYaxis()->SetLabelSize(0.03);
+    obj2f->GetZaxis()->SetLabelSize(0.03);
     obj2f->Draw("colz");
     labelGrid1.Draw("text,same");
     cMap->SetBit(TGraph::kClipFrame);
@@ -1123,7 +1130,10 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridx();
     cMap->SetGridy();
     obj2f->SetMinimum(0.0);
-    obj2f->SetTitleSize(0.5);
+    obj2f->SetTitleSize(0.4);
+    obj2f->GetXaxis()->SetLabelSize(0.03);
+    obj2f->GetYaxis()->SetLabelSize(0.03);
+    obj2f->GetZaxis()->SetLabelSize(0.03);
     obj2f->Draw("colz");
     labelGrid2.Draw("text,same");
     cMap->SetBit(TGraph::kClipFrame);
@@ -1163,6 +1173,9 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
+    obj2f->SetTitleSize(0.4);
+    obj2f->GetXaxis()->SetLabelSize(0.03);
+    obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
     labelGrid1.Draw("text,same");
     cMap->SetBit(TGraph::kClipFrame);
@@ -1202,6 +1215,9 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
+    obj2f->SetTitleSize(0.4);
+    obj2f->GetXaxis()->SetLabelSize(0.03);
+    obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
     labelGrid2.Draw("text,same");
     cMap->SetBit(TGraph::kClipFrame);
@@ -1241,7 +1257,9 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
-    obj2f->SetTitleSize(0.5);
+    obj2f->SetTitleSize(0.4);
+    obj2f->GetXaxis()->SetLabelSize(0.03);
+    obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
     labelGrid1.Draw("text,same");
     cMap->SetBit(TGraph::kClipFrame);
@@ -1281,7 +1299,9 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
-    obj2f->SetTitleSize(0.5);
+    obj2f->SetTitleSize(0.4);
+    obj2f->GetXaxis()->SetLabelSize(0.03);
+    obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
     labelGrid2.Draw("text,same");
     cMap->SetBit(TGraph::kClipFrame);
@@ -1326,7 +1346,9 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
-    obj2f->SetTitleSize(0.5);
+    obj2f->SetTitleSize(0.4);
+    obj2f->GetXaxis()->SetLabelSize(0.03);
+    obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
     labelGrid1.Draw("text,same");
     cMap->SetBit(TGraph::kClipFrame);
@@ -1366,7 +1388,9 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
-    obj2f->SetTitleSize(0.5);
+    obj2f->SetTitleSize(0.4);
+    obj2f->GetXaxis()->SetLabelSize(0.03);
+    obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
     labelGrid2.Draw("text,same");
     cMap->SetBit(TGraph::kClipFrame);
@@ -1411,7 +1435,9 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
-    obj2f->SetTitleSize(0.5);
+    obj2f->SetTitleSize(0.4);
+    obj2f->GetXaxis()->SetLabelSize(0.03);
+    obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
     labelGrid1.Draw("text,same");
     cMap->SetBit(TGraph::kClipFrame);
@@ -1451,7 +1477,9 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
-    obj2f->SetTitleSize(0.5);
+    obj2f->SetTitleSize(0.4);
+    obj2f->GetXaxis()->SetLabelSize(0.03);
+    obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
     labelGrid2.Draw("text,same");
     cMap->SetBit(TGraph::kClipFrame);
@@ -1496,7 +1524,9 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
-    obj2f->SetTitleSize(0.5);
+    obj2f->SetTitleSize(0.4);
+    obj2f->GetXaxis()->SetLabelSize(0.03);
+    obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
     labelGrid1.Draw("text,same");
     cMap->SetBit(TGraph::kClipFrame);
@@ -1536,7 +1566,9 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
-    obj2f->SetTitleSize(0.5);
+    obj2f->SetTitleSize(0.4);
+    obj2f->GetXaxis()->SetLabelSize(0.03);
+    obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
     labelGrid2.Draw("text,same");
     cMap->SetBit(TGraph::kClipFrame);
@@ -1581,7 +1613,9 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
-    obj2f->SetTitleSize(0.5);
+    obj2f->SetTitleSize(0.4);
+    obj2f->GetXaxis()->SetLabelSize(0.03);
+    obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
     labelGrid1.Draw("text,same");
     cMap->SetBit(TGraph::kClipFrame);
@@ -1621,7 +1655,9 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
-    obj2f->SetTitleSize(0.5);
+    obj2f->SetTitleSize(0.4);
+    obj2f->GetXaxis()->SetLabelSize(0.03);
+    obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
     labelGrid2.Draw("text,same");
     cMap->SetBit(TGraph::kClipFrame);
