@@ -1,5 +1,4 @@
 #include "FWCore/MessageService/test/UnitTestClient_Q.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include <iostream>
