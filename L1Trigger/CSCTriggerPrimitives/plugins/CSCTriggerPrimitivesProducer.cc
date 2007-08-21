@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2007/04/19 10:25:03 $
-//   $Revision: 1.1 $
+//   $Date: 2007/08/15 12:54:45 $
+//   $Revision: 1.2 $
 //
 //   Modifications:
 //
@@ -79,10 +79,9 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
   // hn-cms-L1TrigEmulator on July 30, 2007).
   static bool begin_job = true;
   if (begin_job) {
-    // Do not use for now.
-    //edm::ESHandle<L1CSCTPParameters> conf;
-    //setup.get<L1CSCTPParametersRcd>().get(conf);
-    //lctBuilder_->setConfigParameters(conf.product());
+    edm::ESHandle<L1CSCTPParameters> conf;
+    setup.get<L1CSCTPParametersRcd>().get(conf);
+    lctBuilder_->setConfigParameters(conf.product());
     begin_job = false;
   }
 
