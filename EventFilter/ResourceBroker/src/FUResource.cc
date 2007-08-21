@@ -9,6 +9,7 @@
 
 #include "EventFilter/ResourceBroker/interface/FUResource.h"
 #include "EventFilter/Utilities/interface/Crc.h"
+#include "EventFilter/Utilities/interface/GlobalEventNumber.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 #include "interface/shared/frl_header.h"
@@ -41,8 +42,8 @@ using namespace evf;
 
 //______________________________________________________________________________
 bool FUResource::doFedIdCheck_ = true;
-unsigned int FUResource::gtpEvmId =  FEDNumbering::getTriggerGTPFEDIds().first;
-unsigned int FUResource::gtpDaqId =  FEDNumbering::getTriggerGTPFEDIds().second;
+unsigned int FUResource::gtpEvmId_ =  FEDNumbering::getTriggerGTPFEDIds().first;
+unsigned int FUResource::gtpDaqId_ =  FEDNumbering::getTriggerGTPFEDIds().second;
 
 ////////////////////////////////////////////////////////////////////////////////
 // construction/destruction
