@@ -152,7 +152,7 @@ class _Labelable(object):
     def dumpSequenceConfig(self):
         return str(self.__label)
     def dumpSequencePython(self):
-        return str(self.__label)
+        return "process."+str(self.__label)
     def _findDependencies(self,knownDeps,presentDeps):
         #print 'in labelled'
         myDeps=knownDeps.get(self.label(),None)
