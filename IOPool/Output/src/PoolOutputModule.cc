@@ -1,33 +1,18 @@
-// $Id: PoolOutputModule.cc,v 1.78 2007/08/06 19:53:08 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.80 2007/08/20 23:45:05 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
+#include "boost/array.hpp" 
+#include "FWCore/MessageLogger/interface/JobReport.h" 
+#include "IOPool/Output/src/RootOutputFile.h" 
 #include "IOPool/Common/interface/ClassFiller.h"
 #include "IOPool/Common/interface/RefStreamer.h"
-#include "IOPool/Common/interface/CustomStreamer.h"
 
-#include "DataFormats/Provenance/interface/FileFormatVersion.h"
-#include "FWCore/Utilities/interface/GetFileFormatVersion.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/Catalog/interface/FileCatalog.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
-#include "DataFormats/Provenance/interface/ParameterSetBlob.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
-#include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
-#include "DataFormats/Common/interface/BasicHandle.h"
-#include "DataFormats/Common/interface/Wrapper.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "TTree.h"
-#include "TFile.h"
-#include "Rtypes.h"
 
 #include <map>
 #include <vector>

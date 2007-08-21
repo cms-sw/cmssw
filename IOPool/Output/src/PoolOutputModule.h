@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.24 2007/08/06 19:53:08 wmtan Exp $
+// $Id: PoolOutputModule.h,v 1.25 2007/08/20 23:45:05 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -15,14 +15,11 @@
 #include <memory>
 #include <string>
 #include <iosfwd>
-#include "boost/array.hpp"
 #include "boost/shared_ptr.hpp"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Catalog/interface/OutputFileCatalog.h"
-#include "FWCore/MessageLogger/interface/JobReport.h"
-#include "IOPool/Output/src/RootOutputFile.h"
 
 namespace edm {
   class ParameterSet;

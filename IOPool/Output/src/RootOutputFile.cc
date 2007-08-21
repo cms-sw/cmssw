@@ -1,10 +1,8 @@
-// $Id: PoolOutputModule.cc,v 1.78 2007/08/06 19:53:08 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.1 2007/08/20 23:45:05 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
+#include "DataFormats/Provenance/interface/EventAuxiliary.h" 
 #include "IOPool/Output/src/RootOutputFile.h"
-#include "IOPool/Common/interface/ClassFiller.h"
-#include "IOPool/Common/interface/RefStreamer.h"
-#include "IOPool/Common/interface/CustomStreamer.h"
 
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
 #include "FWCore/Utilities/interface/GetFileFormatVersion.h"
@@ -31,7 +29,6 @@
 #include "Rtypes.h"
 
 #include <map>
-#include <vector>
 #include <iomanip>
 
 namespace edm {

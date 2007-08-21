@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.24 2007/08/06 19:53:08 wmtan Exp $
+// $Id: RootOutputFile.h,v 1.1 2007/08/20 23:45:05 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -22,7 +22,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
-#include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
