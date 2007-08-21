@@ -392,7 +392,7 @@ void HcalDataFormatClient::htmlOutput(int runNo, string htmlDir, string htmlName
   htmlFile << "<tr align=\"left\">" << endl;
   histoHTML(runNo,fedErrMap_,"iEta","iPhi", 92, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
-  
+
   htmlFile << "<tr align=\"left\">" << endl;
   histoHTML(runNo,spigotErrs_,"# Errs","Events", 92, htmlFile,htmlDir);
   histoHTML(runNo,badDigis_,"# Bad Digis","Events", 100, htmlFile,htmlDir);

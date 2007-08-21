@@ -109,7 +109,7 @@ string getIMG2(int runNo,TH2F* hist, int size, string htmlDir, const char* xlab,
   TCanvas* can = new TCanvas(dest,dest, xwid, ywid);
 
   parseString(title);
-  string outName = title + ".png";
+  string outName = title + ".gif";
   string saveName = htmlDir + outName;
   hist->SetXTitle(xlab);
   hist->SetYTitle(ylab);
@@ -145,11 +145,12 @@ string getIMG(int runNo,TH1F* hist, int size, string htmlDir, const char* xlab, 
   TCanvas* can = new TCanvas(dest,dest, xwid, ywid);
 
   parseString(title);
-  string outName = title + ".png";
+  string outName = title + ".gif";
   string saveName = htmlDir + outName;
   hist->SetXTitle(xlab);
   hist->SetYTitle(ylab);
   hist->Draw();
+
   can->SaveAs(saveName.c_str());  
   delete can;
  
@@ -254,6 +255,7 @@ TH1F* getHisto(const MonitorElement* me, bool verb,bool clone){
 
 
 void histoHTML(int runNo, TH1F* hist, const char* xlab, const char* ylab, int width, ofstream& htmlFile, string htmlDir){
+  
   if(hist!=NULL){    
     string imgNameTMB = "";   
     imgNameTMB = getIMG(runNo,hist,1,htmlDir,xlab,ylab); 
