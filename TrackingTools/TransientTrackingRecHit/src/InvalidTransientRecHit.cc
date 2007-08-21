@@ -1,7 +1,5 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/InvalidTransientRecHit.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
-#include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
-#include "FWCore/Utilities/interface/Exception.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h" 
 
 
 InvalidTransientRecHit::InvalidTransientRecHit( const GeomDet* geom, const DetLayer * layer, Type type ) :

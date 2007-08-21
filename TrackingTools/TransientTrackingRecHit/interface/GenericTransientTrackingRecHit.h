@@ -2,6 +2,7 @@
 #define GenericTransientTrackingRecHit_H
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h" 
 
 class GenericTransientTrackingRecHit: public TransientTrackingRecHit{
 public:

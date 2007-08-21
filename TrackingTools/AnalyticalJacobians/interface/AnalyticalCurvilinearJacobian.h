@@ -2,6 +2,8 @@
 #define AnalyticalCurvilinearJacobian_H
 
 #include "TrackingTools/AnalyticalJacobians/interface/CurvilinearJacobian.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h" 
+#include "DataFormats/GeometryVector/interface/GlobalVector.h" 
 
 /** \class AnalyticalCurvilinearJacobian 
  * Creating Jacobian of transformation within the curvilinear frame.

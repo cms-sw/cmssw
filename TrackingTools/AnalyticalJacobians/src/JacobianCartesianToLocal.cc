@@ -1,7 +1,6 @@
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianCartesianToLocal.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryParameters.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
 
 JacobianCartesianToLocal::JacobianCartesianToLocal(const Surface& surface, 
 			     const LocalTrajectoryParameters& localParameters) : theJacobian() {
