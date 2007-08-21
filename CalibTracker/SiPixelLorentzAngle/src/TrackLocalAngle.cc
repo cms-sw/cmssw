@@ -27,13 +27,14 @@
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-  
+ 
+typedef edm::OwnVector<TrackingRecHit> recHitContainer;
  
 using namespace std;
 TrackLocalAngle::TrackLocalAngle(edm::ParameterSet const& conf) : 
   conf_(conf)
 {
-	seed = new TrajectorySeed();
+	
 }
 
 void TrackLocalAngle::init(const edm::Event& e, const edm::EventSetup& es){
@@ -81,7 +82,7 @@ void TrackLocalAngle::init(const edm::Event& e, const edm::EventSetup& es){
 }
 
 // Virtual destructor needed.
-TrackLocalAngle::~TrackLocalAngle() {delete seed;  }  
+TrackLocalAngle::~TrackLocalAngle() {  }  
 
 std::vector<std::pair<SiPixelRecHit*,TrackLocalAngle::Trackhit> > TrackLocalAngle::findPixelParameters(const reco::Track& theT)
 {
@@ -90,9 +91,7 @@ std::vector<std::pair<SiPixelRecHit*,TrackLocalAngle::Trackhit> > TrackLocalAngl
 	std::vector<Trajectory> trajVec;
 	std::vector<std::pair<SiPixelRecHit*,Trackhit> >hitangleassociation;
 	Trajectory * theTraj; 
-	
 	trajVec = buildTrajectory(theT);
-	
 	LogDebug("TrackProducer") <<" FITTER FOUND "<< trajVec.size() << " TRAJECTORIES" <<"\n";
 
 	TrajectoryStateOnSurface innertsos;
@@ -100,13 +99,11 @@ std::vector<std::pair<SiPixelRecHit*,TrackLocalAngle::Trackhit> > TrackLocalAngl
 	if (trajVec.size() != 0){
 
 		theTraj = new Trajectory( trajVec.front() );
-	
 		if (theTraj->direction() == alongMomentum) {
 			innertsos = theTraj->firstMeasurement().updatedState();
 		} else { 
 			innertsos = theTraj->lastMeasurement().updatedState();
 		}
-	
 		LogDebug("TrackLocalAngle") <<"track done";
 		std::vector<TrajectoryMeasurement> TMeas=theTraj->measurements();
 
@@ -146,13 +143,13 @@ std::vector<Trajectory> TrackLocalAngle::buildTrajectory(const reco::Track& theT
 {
 	TransientTrackingRecHit::RecHitContainer tmp;
 	TransientTrackingRecHit::RecHitContainer hits;
-  
 	float ndof=0;
   
 	for (trackingRecHit_iterator i=theT.recHitsBegin(); i!=theT.recHitsEnd(); i++){
 		tmp.push_back(RHBuilder->build(&**i ));
 		if ((*i)->isValid()) ndof = ndof + ((*i)->dimension())*((*i)->weight());
-	}
+	}	
+
 	LogDebug("TrackLocalAngle") << "Transient rechit filled" << "\n";
   
 	ndof = ndof - 5;
@@ -178,7 +175,7 @@ std::vector<Trajectory> TrackLocalAngle::buildTrajectory(const reco::Track& theT
 			hits.push_back(*it);
 		}
 	} else hits=tmp;
-  
+
 	reco::TransientTrack theTT(theT, thePropagator->magneticField() );
   
 	TrajectoryStateOnSurface firstState=thePropagator->propagate(theTT.impactPointState(), hits.front()->det()->surface());
@@ -187,7 +184,8 @@ std::vector<Trajectory> TrackLocalAngle::buildTrajectory(const reco::Track& theT
 	TrajectoryStateOnSurface theTSOS( firstState.localParameters(), LocalTrajectoryError(C), firstState.surface(), thePropagator->magneticField()); 
   
 	LogDebug("TrackLocalAngle") << "Initial TSOS\n" << theTSOS << "\n";
-  
+	PTrajectoryStateOnDet ptsod;
+  	const TrajectorySeed seed = TrajectorySeed(PTrajectoryStateOnDet(),BasicTrajectorySeed::recHitContainer(), alongMomentum);
   //perform the fit: the result's size is 1 if it succeded, 0 if fails
-	return theFitter->fit(*seed, hits, theTSOS);
+	return theFitter->fit(seed, hits, theTSOS);
 }

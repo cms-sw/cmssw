@@ -76,7 +76,6 @@ class TrackLocalAngle
 		const TrackerGeometry * tracker;
 		const MagneticField * magfield;
 		TrajectoryStateTransform tsTransform;
-		const TrajectorySeed * seed;
 };
 
 

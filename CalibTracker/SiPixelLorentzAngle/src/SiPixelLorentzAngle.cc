@@ -65,9 +65,8 @@ SiPixelLorentzAngle::~SiPixelLorentzAngle() {  }
 
 void SiPixelLorentzAngle::beginJob(const edm::EventSetup& c)
 {
-  hFile_ = new TFile (filename_.c_str(), "RECREATE" );
+  	hFile_ = new TFile (filename_.c_str(), "RECREATE" );
 	int bufsize = 64000;
-	
 	// create tree structure
 	SiPixelLorentzAngleTree_ = new TTree("SiPixelLorentzAngleTree_","SiPixel LorentzAngle tree", bufsize);
 	SiPixelLorentzAngleTree_->Branch("run", &run_, "run/I", bufsize);
@@ -96,7 +95,7 @@ void SiPixelLorentzAngle::beginJob(const edm::EventSetup& c)
 	//book histograms
 	char name[128];
 	for(int i_module = 1; i_module<=8; i_module++){
-			for(int i_layer = 1; i_layer<=3; i_layer++){
+		for(int i_layer = 1; i_layer<=3; i_layer++){
 			sprintf(name, "h_drift_depth_adc_layer%i_module%i", i_layer, i_module); 
 			_h_drift_depth_adc_[i_module + (i_layer -1) * 8] = new TH2F(name,name,hist_drift_ , min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
 			sprintf(name, "h_drift_depth_adc2_layer%i_module%i", i_layer, i_module); 
@@ -110,13 +109,13 @@ void SiPixelLorentzAngle::beginJob(const edm::EventSetup& c)
 		}
 	}
 	
-  eventcounter_ = 0;
-  eventnumber_ = -1;
-  trackcounter_ = 0;
-  
-  edm::ESHandle<TrackerGeometry> estracker;
-  c.get<TrackerDigiGeometryRecord>().get(estracker);
-  tracker=&(* estracker);
+	eventcounter_ = 0;
+	eventnumber_ = -1;
+	trackcounter_ = 0;
+	
+	edm::ESHandle<TrackerGeometry> estracker;
+	c.get<TrackerDigiGeometryRecord>().get(estracker);
+	tracker=&(* estracker);
 }
 
 
@@ -130,7 +129,7 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
   
 	// restet values
 	module_=-1;
-  layer_=-1;
+	layer_=-1;
 	ladder_ = -1;
 	isflipped_ = -1;
 	pt_ = -999;
@@ -138,18 +137,17 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
 	phi_ = 999;
 	pixinfo_.npix = 0;
 
-  run_       = e.id().run();
-  event_     = e.id().event();
-  
-  if(event_ != eventnumber_){
-  	eventcounter_+=1;
-  	eventnumber_ = event_;
-  }
-  
-  using namespace edm;
-  // initialise the new reconstuction of the track (to get position and angles on the pixel)
-  anglefinder_->init(e,es);
+	run_       = e.id().run();
+	event_     = e.id().event();
 	
+	if(event_ != eventnumber_){
+		eventcounter_+=1;
+		eventnumber_ = event_;
+	}
+  
+	using namespace edm;
+	// initialise the new reconstuction of the track (to get position and angles on the pixel)
+	anglefinder_->init(e,es);
 	LogDebug("SiPixelLorentzAngle::analyze")<<"Getting tracks";
 	std::string src=conf_.getParameter<std::string>( "src" );
 	edm::Handle<reco::TrackCollection> trackCollection;
@@ -165,12 +163,10 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
 			phi_ = tciter->momentum().phi();
 			chi2_ = tciter->chi2();
 			ndof_ = tciter->ndof();
-			
 			// reconstuct the track again (to get position and angles on the pixel)
 			std::vector<std::pair<SiPixelRecHit*,TrackLocalAngle::Trackhit> > tmptrackhit=anglefinder_->findPixelParameters(*tciter);
 			std::vector<std::pair<SiPixelRecHit*,TrackLocalAngle::Trackhit> >::iterator tmpiter;
 			std::vector<PSimHit> matched;
-			
 			// iterate over track hits
 			for(tmpiter=tmptrackhit.begin();tmpiter!=tmptrackhit.end();tmpiter++){
 				DetId detIdObj((tmpiter->first)->geographicalId());
@@ -310,8 +306,8 @@ void SiPixelLorentzAngle::endJob()
 	fLorentzFit.close(); 
 	
 	
-  hFile_->Write();
-  hFile_->Close();
+	hFile_->Write();
+	hFile_->Close();
 }
 
 void SiPixelLorentzAngle::fillPix(const SiPixelCluster & LocPix, const RectangularPixelTopology * topol)
