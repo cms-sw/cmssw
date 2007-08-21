@@ -1,7 +1,6 @@
 #ifndef L1GCTEMCAND_H
 #define L1GCTEMCAND_H
 
-#include <boost/cstdint.hpp>
 #include <ostream>
 #include <string>
 

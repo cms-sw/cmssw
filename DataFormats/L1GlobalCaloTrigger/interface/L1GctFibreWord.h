@@ -1,7 +1,6 @@
 #ifndef L1GCTFIBREWORD_H
 #define L1GCTFIBREWORD_H
 
-#include <boost/cstdint.hpp>
 #include <ostream>
 #include <string>
 

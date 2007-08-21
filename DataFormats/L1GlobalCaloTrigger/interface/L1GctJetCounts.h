@@ -1,7 +1,6 @@
 #ifndef L1GCTJETCOUNTS_H
 #define L1GCTJETCOUNTS_H
 
-#include <boost/cstdint.hpp>
 #include <vector>
 #include <ostream>
 

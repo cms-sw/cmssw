@@ -1,7 +1,6 @@
 #ifndef L1GCTJETCAND_H
 #define L1GCTJETCAND_H
 
-#include <boost/cstdint.hpp>
 #include <ostream>
 #include <string>
 

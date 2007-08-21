@@ -1,11 +1,9 @@
 #ifndef L1GCTINTERNEMCAND_H
 #define L1GCTINTERNEMCAND_H
 
-#include <boost/cstdint.hpp>
 #include <ostream>
 #include <string>
 
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCand.h"
 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"
 

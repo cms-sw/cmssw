@@ -1,7 +1,6 @@
 #ifndef L1GCTETSUMS_H
 #define L1GCTETSUMS_H
 
-#include <boost/cstdint.hpp>
 #include <ostream>
 
 
