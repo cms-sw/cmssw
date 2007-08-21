@@ -6,6 +6,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
+<use name=root>
 <use name=boost>
 
 <export>
@@ -14,6 +15,7 @@
    <use name=DataFormats/MuonReco>
    <use name=TrackingTools/TrackAssociator>
    <use name=FWCore/Framework>
+   <use name=root>
    <use name=FWCore/ParameterSet>
 </export>
    

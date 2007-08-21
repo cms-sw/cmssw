@@ -5,10 +5,11 @@
 // 
 //
 // Original Author:  Jake Ribnik, Dmytro Kovalskyi
-// $Id: IdGlobalFunctions.h,v 1.1 2007/07/25 23:38:14 dmytro Exp $
+// $Id: IdGlobalFunctions.h,v 1.2 2007/07/26 00:26:35 dmytro Exp $
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "TMath.h"
 
 namespace muonid {
    enum AlgorithmType { TMLastStation };
@@ -32,6 +33,13 @@ namespace muonid {
 				     double maxChamberDist,
 				     double maxChamberDistPull,
 				     reco::Muon::ArbitrationType arbitrationType );
+
+   // ------------ method to calculate the calo compatibility for a track with matched muon info  ------------
+   float getCaloCompatibility(const reco::Muon& muon);
+
+   // ------------ method to calculate the segment compatibility for a track with matched muon info  ------------
+   float getSegmentCompatibility(const reco::Muon& muon);
+
 
 }
 #endif

@@ -4,14 +4,16 @@
    gStyle->SetOptStat(1111111);
    gSystem->Load("libRecoMuonMuonIdentification");
    
-   TFile f("/tmp/dmytro/muons.root");
+   TFile f("/uscms/home/ibloch/PREP_1_6_0_pre9_prepGlID/CMSSW_1_6_0_pre9/src/RecoMuon/MuonIdentification/test/single_mu_pt_10_negative.root");
    TTree* tree = (TTree*)f.Get("Events");
    TCanvas* c1 = new TCanvas("muons","muons",800,800);
-   c1->Divide(2,2);
+   c1->Divide(2,3);
    TH1F* h1 = new TH1F("h1","global muon",100,0,100);
    TH1F* h2 = new TH1F("h2","tracker muon",100,0,100);
    TH1F* h3 = new TH1F("h3","tracker muon + Loose ID",100,0,100);
    TH1F* h4 = new TH1F("h4","tracker muon + Tight ID",100,0,100);
+   TH1F* h5 = new TH1F("h5","calo compatibility",120,-0.1,1.1);
+   TH1F* h6 = new TH1F("h6","segment compatibility",120,-0.1,1.1);
    
    // create and connect muon collection branch 
    tree->SetBranchStatus("*",0);
@@ -37,6 +39,8 @@
 	 h2->Fill(trackerMuons[i].pt());
 	 if (muonid::isGoodMuon(trackerMuons[i],TMLastStationLoose)) h3->Fill(trackerMuons[i].pt());
 	 if (muonid::isGoodMuon(trackerMuons[i],TMLastStationTight)) h4->Fill(trackerMuons[i].pt());
+	 h5->Fill(muonid::getCaloCompatibility(trackerMuons[i]));
+	 h6->Fill(muonid::getSegmentCompatibility(trackerMuons[i]));
       }
    }
    
@@ -48,4 +52,8 @@
    h3->Draw();
    c1->cd(4);
    h4->Draw();
+   c1->cd(5);
+   h5->Draw();
+   c1->cd(6);
+   h6->Draw();
 }

@@ -16,6 +16,191 @@ unsigned int muonid::RequiredStationMask( const reco::Muon& muon,
    return theMask;
 }
 
+// ------------ method to calculate the calo compatibility for a track with matched muon info  ------------
+float muonid::getCaloCompatibility(const reco::Muon& muon) {
+  return muon.getCaloCompatibility();
+}
+
+// ------------ method to calculate the segment compatibility for a track with matched muon info  ------------
+float muonid::getSegmentCompatibility(const reco::Muon& muon) {
+  bool use_weight_regain_at_chamber_boundary = true;
+  bool use_match_dist_penalty = true;
+
+  int nr_of_stations_crossed = 0;
+  int nr_of_stations_with_segment = 0;
+  std::vector<int> stations_w_track(8);
+  std::vector<int> station_has_segmentmatch(8);
+  std::vector<int> station_was_crossed(8);
+  std::vector<float> stations_w_track_at_boundary(8);
+  std::vector<float> station_weight(8);
+  int position_in_stations = 0;
+  float full_weight = 0.;
+
+  for(int i = 1; i<=8; ++i) {
+    // ********************************************************;
+    // *** fill local info for this muon (do some counting) ***;
+    // ************** begin ***********************************;
+    if(i<=4) { // this is the section for the DTs
+      if( muon.trackDist(i,1) < 999999 ) { //current "raw" info that a track is close to a chamber
+	++nr_of_stations_crossed;
+	station_was_crossed[i-1] = 1;
+	if(muon.trackDist(i,1) > -10. ) stations_w_track_at_boundary[i-1] = muon.trackDist(i,1); 
+	else stations_w_track_at_boundary[i-1] = 0.;
+      }
+      if( muon.segmentX(i,1) < 999999 ) { //current "raw" info that a segment is matched to the current track
+	++nr_of_stations_with_segment;
+	station_has_segmentmatch[i-1] = 1;
+      }
+    }
+    else     { // this is the section for the CSCs
+      if( muon.trackDist(i-4,2) < 999999 ) { //current "raw" info that a track is close to a chamber
+	++nr_of_stations_crossed;
+	station_was_crossed[i-1] = 1;
+	if(muon.trackDist(i-4,2) > -10. ) stations_w_track_at_boundary[i-1] = muon.trackDist(i-4,2);
+	else stations_w_track_at_boundary[i-1] = 0.;
+      }
+      if( muon.segmentX(i-4,2) < 999999 ) { //current "raw" info that a segment is matched to the current track
+	++nr_of_stations_with_segment;
+	station_has_segmentmatch[i-1] = 1;
+      }
+    }
+    // rough estimation of chamber border efficiency (should be parametrized better, this is just a quick guess):
+    // TF1 * merf = new TF1("merf","-0.5*(TMath::Erf(x/6.)-1)",-100,100);
+    // use above value to "unpunish" missing segment if close to border, i.e. rather than not adding any weight, add
+    // the one from the function. Only for dist ~> -10 cm, else full punish!.
+
+    // ********************************************************;
+    // *** fill local info for this muon (do some counting) ***;
+    // ************** end *************************************;
+  }
+
+  // ********************************************************;
+  // *** calculate weights for each station *****************;
+  // ************** begin ***********************************;
+  //    const float slope = 0.5;
+  //    const float attenuate_weight_regain = 1.;
+  // if attenuate_weight_regain < 1., additional punishment if track is close to boundary and no segment
+  const float attenuate_weight_regain = 0.5; 
+
+  for(int i = 1; i<=8; ++i) { // loop over all possible stations
+
+    // first set all weights if a station has been crossed
+    // later penalize if a station did not have a matching segment
+
+    //old logic      if(station_has_segmentmatch[i-1] > 0 ) { // the track has an associated segment at the current station
+    if( station_was_crossed[i-1] > 0 ) { // the track crossed this chamber (or was nearby)
+      // - Apply a weight depending on the "depth" of the muon passage. 
+      // - The station_weight is later reduced for stations with badly matched segments. 
+      // - Even if there is no segment but the track passes close to a chamber boundary, the
+      //   weight is set non zero and can go up to 0.5 of the full weight if the track is quite
+      //   far from any station.
+      ++position_in_stations;
+
+      switch ( nr_of_stations_crossed ) { // define different weights depending on how many stations were crossed
+      case 1 : 
+	station_weight[i-1] =  1.;
+	break;
+      case 2 :
+	if     ( position_in_stations == 1 ) station_weight[i-1] =  0.33;
+	else                                 station_weight[i-1] =  0.67;
+	break;
+      case 3 : 
+	if     ( position_in_stations == 1 ) station_weight[i-1] =  0.23;
+	else if( position_in_stations == 2 ) station_weight[i-1] =  0.33;
+	else                                 station_weight[i-1] =  0.44;
+	break;
+      case 4 : 
+	if     ( position_in_stations == 1 ) station_weight[i-1] =  0.10;
+	else if( position_in_stations == 2 ) station_weight[i-1] =  0.20;
+	else if( position_in_stations == 3 ) station_weight[i-1] =  0.30;
+	else                                 station_weight[i-1] =  0.40;
+	break;
+	  
+      default : 
+// 	LogTrace("MuonIdentification")<<"            // Message: A muon candidate track has more than 4 stations with matching segments.";
+// 	LogTrace("MuonIdentification")<<"            // Did not expect this - please let me know: ibloch@fnal.gov";
+	// for all other cases
+	station_weight[i-1] = 1./nr_of_stations_crossed;
+      }
+
+      if( use_weight_regain_at_chamber_boundary ) { // reconstitute some weight if there is no match but the segment is close to a boundary:
+	if(station_has_segmentmatch[i-1] <= 0 && stations_w_track_at_boundary[i-1] != 0. ) {
+	  // if segment is not present but track in inefficient region, do not count as "missing match" but add some reduced weight. 
+	  // original "match weight" is currently reduced by at least attenuate_weight_regain, variing with an error function down to 0 if the track is 
+	  // inside the chamber.
+	  station_weight[i-1] = station_weight[i-1]*attenuate_weight_regain*0.5*(TMath::Erf(stations_w_track_at_boundary[i-1]/6.)+1.); // remark: the additional scale of 0.5 normalizes Err to run from 0 to 1 in y
+	}
+	else if(station_has_segmentmatch[i-1] <= 0 && stations_w_track_at_boundary[i-1] == 0.) { // no segment match and track well inside chamber
+	  // full penalization
+	  station_weight[i-1] = 0.;
+	}
+      }
+      else { // always fully penalize tracks with no matching segment, whether the segment is close to the boundary or not.
+	if(station_has_segmentmatch[i-1] <= 0) station_weight[i-1] = 0.;
+      }
+
+      if( station_has_segmentmatch[i-1] > 0 && 42 == 42 ) { // if track has matching segment, but the matching is not high quality, penalize
+	if(i<=4) { // we are in the DTs
+	  if( muon.dY(i,1) != 999999 ) { // have both X and Y match
+	    if(
+	       TMath::Sqrt(TMath::Power(muon.pullX(i,1),2.)+TMath::Power(muon.pullY(i,1),2.))> 1. ) {
+	      // reduce weight
+	      if(use_match_dist_penalty) {
+		station_weight[i-1] *= 1./TMath::Power(
+						       TMath::Sqrt(TMath::Power(muon.pullX(i,1),2.)+TMath::Power(muon.pullY(i,1),2.)),.25); 
+	      }
+	    }
+	  }
+	  else { // has no match in Y
+	    if( muon.pullX(i,1) > 1. ) { // has a match in X
+	      // reduce weight
+	      if(use_match_dist_penalty) {
+		station_weight[i-1] *= 1./TMath::Power(muon.pullX(i,1),.25);
+	      }
+	    }
+	  }
+	}
+	else { // We are in the CSCs
+	  if(
+	     TMath::Sqrt(TMath::Power(muon.pullX(i-4,2),2.)+TMath::Power(muon.pullY(i-4,2),2.)) > 1. ) {
+	    // reduce weight
+	    if(use_match_dist_penalty) {
+	      station_weight[i-1] *= 1./TMath::Power(
+						     TMath::Sqrt(TMath::Power(muon.pullX(i-4,2),2.)+TMath::Power(muon.pullY(i-4,2),2.)),.25);
+	    }
+	  }
+	}
+      }
+	
+      // Thoughts:
+      // - should penalize if the segment has only x OR y info
+      // - should also use the segment direction, as it now works!
+	
+    }
+    else { // track did not pass a chamber in this station - just reset weight
+      station_weight[i-1] = 0.;
+    }
+      
+    //increment final weight for muon:
+    full_weight += station_weight[i-1];
+  }
+
+  // if we don't expect any matches, we set the compatibility to
+  // 0.5 as the track is as compatible with a muon as it is with
+  // background - we should maybe rather set it to -0.5!
+  if( nr_of_stations_crossed == 0 ) {
+    //      full_weight = attenuate_weight_regain*0.5;
+    full_weight = 0.5;
+  }
+
+  // ********************************************************;
+  // *** calculate weights for each station *****************;
+  // ************** end *************************************;
+
+  return full_weight;
+
+}
+
 bool muonid::isGoodMuon( const reco::Muon& muon,
 			 AlgorithmType type,
 			 int minNumberOfMatches,
