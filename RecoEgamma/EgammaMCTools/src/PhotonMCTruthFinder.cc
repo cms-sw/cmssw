@@ -96,7 +96,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
     int vertexId = (*iSimTk).vertIndex();
     SimVertex vertex = theSimVertices[vertexId];
  
-    std::cout << " Particle type " <<  (*iSimTk).type() << " Sim Track ID " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  " vertex position " << vertex.position() << std::endl;  
+    std::cout << " Particle type " <<  (*iSimTk).type() << " Sim Track ID " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  " vertex position " << vertex.position() << " vertex index " << (*iSimTk).vertIndex() << std::endl;  
     if ( (*iSimTk).vertIndex() == iPV ) {
       npv++;
       if ( (*iSimTk).type() == 22) {
@@ -136,9 +136,9 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
    //////  Look into converted photons  
 
    int isAconversion=0;   
-   if(ievflav == PHOTON_FLAV || ievflav== PIZERO_FLAV ) {
+   if(ievflav == PHOTON_FLAV || ievflav== PIZERO_FLAV || ievtype == PYTHIA ) {
 
-     std::cout << " It's a primary PHOTON or PIZERO event with " << photonTracks.size() << " photons " << std::endl;
+     std::cout << " It's a primary PHOTON or PIZERO or PYTHIA event with " << photonTracks.size() << " photons " << std::endl;
         
 
      for (std::vector<SimTrack>::iterator iPhoTk = theSimTracks.begin(); iPhoTk != theSimTracks.end(); ++iPhoTk){
@@ -161,7 +161,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
 	
 
          std::cout << " Secondary from photons particle type " << (*iEleTk).type() << " trackId " <<  (*iEleTk).trackId() << " vertex ID " << vertexId << std::endl;
-         if ( vertex.parentIndex()  ) {
+         if ( vertex.parentIndex() != -1 ) {
 
 	   unsigned  motherGeantId = vertex.parentIndex(); 
 	   std::map<unsigned, unsigned >::iterator association = geantToIndex_.find( motherGeantId );
@@ -224,7 +224,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
 		 std::cout << " eLoss " << eLoss << std::endl;              
 		 
 		 
-		 if ( vertex1.parentIndex()  ) {
+		 if ( vertex1.parentIndex() != -1  ) {
 		   
 		   unsigned  motherGeantId = vertex1.parentIndex(); 
 		   std::map<unsigned, unsigned >::iterator association = geantToIndex_.find( motherGeantId );
