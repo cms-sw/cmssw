@@ -37,10 +37,10 @@ WebGUI::WebGUI(xdaq::Application* app,StateMachine* fsm)
   , monInfoSpace_(0)
   , parametersExported_(false)
   , countersAddedToParams_(false)
-  , largeAppIcon_("/daq/evb/examples/fu/images/fu64x64.gif")
-  , smallAppIcon_("/daq/evb/examples/fu/images/fu32x32.gif")
-  , smallDbgIcon_("/daq/evb/bu/images/debug32x32.gif")
-  , hyperDAQIcon_("/daq/xdaq/hyperdaq/images/HyperDAQ.jpg")
+  , largeAppIcon_("/rubuilder/fu/images/fu64x64.gif")
+  , smallAppIcon_("/rubuilder/fu/images/fu32x32.gif")
+  , smallDbgIcon_("/rubuilder/bu/images/debug32x32.gif")
+  , hyperDAQIcon_("/hyperdaq/images/HyperDAQ.jpg")
 {
   // initialize application information
   string       appClass=app_->getApplicationDescriptor()->getClassName();
@@ -58,7 +58,7 @@ WebGUI::WebGUI(xdaq::Application* app,StateMachine* fsm)
   
   appInfoSpace_=app_->getApplicationInfoSpace();
   monInfoSpace_=xdata::getInfoSpaceFactory()->get(urn.toString());
-  
+  app_->getApplicationDescriptor()->setAttribute("icon",largeAppIcon_);
 
   // bind xgi callbacks
   xgi::bind(this,&WebGUI::defaultWebPage,"defaultWebPage");
