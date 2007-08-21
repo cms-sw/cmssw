@@ -13,10 +13,8 @@
  *
  ************************************************************/
 
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/METReco/interface/SpecificGenMETData.h"
 #include "DataFormats/METReco/interface/MET.h"
-#include "DataFormats/METReco/interface/GenMETFwd.h"
 
 namespace reco
 {

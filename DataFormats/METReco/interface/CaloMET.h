@@ -13,11 +13,8 @@
  *
  ************************************************************/
 
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/METReco/interface/SpecificCaloMETData.h"
 #include "DataFormats/METReco/interface/MET.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-#include "DataFormats/METReco/interface/CaloMETFwd.h"
 #include "DataFormats/METReco/interface/CorrMETData.h"
 
 namespace reco
