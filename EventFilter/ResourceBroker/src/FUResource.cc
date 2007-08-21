@@ -41,7 +41,8 @@ using namespace evf;
 
 //______________________________________________________________________________
 bool FUResource::doFedIdCheck_ = true;
-
+unsigned int FUResource::gtpEvmId =  FEDNumbering::getTriggerGTPFEDIds().first;
+unsigned int FUResource::gtpDaqId =  FEDNumbering::getTriggerGTPFEDIds().second;
 
 ////////////////////////////////////////////////////////////////////////////////
 // construction/destruction
@@ -645,8 +646,13 @@ void FUResource::findFEDs() throw (evf::Exception)
 		      <<" fedid:"<<fedId);
       nbErrors_++;
     }
-    if (fedId<1024) fedSize_[fedId]=fedSize;
     
+    if (fedId<1024) fedSize_[fedId]=fedSize;
+
+    //if gtp daq block is available set cell event number to global partition-independent trigger number
+    //this is to be replaced later with partition-dependent event number from evm block
+    if(fedId == gtpDaqId_) shmCell_->setEvtNumber(evf::evtn::get(fedHeaderAddr, false));
+
     // crc check
     if (doCrcCheck_) {
       UInt_t conscheck=fedTrailer->conscheck;
