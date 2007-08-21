@@ -1,6 +1,4 @@
 
-#include <boost/cstdint.hpp>
-#include <ostream>
 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
 

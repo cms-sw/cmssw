@@ -1,7 +1,6 @@
 #ifndef L1CALOREGION_H
 #define L1CALOREGION_H
 
-#include <boost/cstdint.hpp>
 #include <ostream>
 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"

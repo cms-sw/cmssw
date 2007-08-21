@@ -1,7 +1,6 @@
 #ifndef L1CALOEMCAND_H
 #define L1CALOEMCAND_H
 
-#include <boost/cstdint.hpp>
 #include <ostream>
 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
