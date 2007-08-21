@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolutionMaker.cc,v 1.20 2007/08/20 20:34:53 lowette Exp $
+// $Id: TtSemiEvtSolutionMaker.cc,v 1.21 2007/08/20 20:57:19 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiEvtSolutionMaker.h"
@@ -136,22 +136,22 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
                 }
                 // these lines calculate the observables to be used in the TtSemiSignalSelection LR
                 (*myLRSignalSelObservables)(asol);
-                
+
                 // if asked for, calculate with these observable values the LRvalue and 
                 // (depending on the configuration) probability this event is signal
                 // FIXME: DO WE NEED TO DO THIS FOR EACH SOLUTION??? (S.L.20/8/07)
                 if(addLRSignalSel_) (*myLRSignalSelCalc)(asol);
-                
+
                 // these lines calculate the observables to be used in the TtSemiJetCombination LR
                 (*myLRJetCombObservables)(asol);
-                
+
                 // if asked for, calculate with these observable values the LRvalue and 
                 // (depending on the configuration) probability a jet combination is correct
                 if(addLRJetComb_) (*myLRJetCombCalc)(asol);
-                
+
                 //std::cout<<"SignalSelLRval = "<<asol.getLRSignalEvtLRval()<<"  JetCombProb = "<<asol.getLRSignalEvtProb()<<std::endl;
                 //std::cout<<"JetCombLRval = "<<asol.getLRJetCombLRval()<<"  JetCombProb = "<<asol.getLRJetCombProb()<<std::endl;
-                
+
                 // fill solution to vector
                 evtsols->push_back(asol);
               } 
@@ -167,7 +167,8 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
       int bestSolutionChangeWQ = -999;
       edm::Handle<TtGenEvent> genEvt;
       iEvent.getByLabel ("genEvt",genEvt); 
-      if(genEvt->numberOfBQuarks() == 2){ 	//in rare cases W->bc decay, resulting in a wrong filled genEvt leading to a segmentation fault
+      if (genEvt->numberOfBQuarks() == 2 &&   // FIXME: in rare cases W->bc decay, resulting in a wrong filled genEvt leading to a segmentation fault
+          genEvt->numberOfLeptons() == 1) {   // FIXME: temporary solution to avoid crash in JetPartonMatching for non semi-leptonic events
         vector<const reco::Candidate*> quarks;
         const reco::Candidate & genp  = *(genEvt->hadronicDecayQuark());
         const reco::Candidate & genq  = *(genEvt->hadronicDecayQuarkBar());
