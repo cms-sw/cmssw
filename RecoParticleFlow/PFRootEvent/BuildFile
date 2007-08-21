@@ -1,5 +1,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/FWLite>
+<use name=fastjet>
+<use name=ktjet>
 <use name=DataFormats/CaloTowers>
 <use name=DataFormats/ParticleFlowReco>
 <use name=DataFormats/EgammaReco>
@@ -9,20 +11,26 @@
 <use name=RecoParticleFlow/PFAlgo>
 <use name=DataFormats/TrackReco>
 <use name=SimDataFormats/HepMCProduct>
+<use name=DataFormats/JetReco>
+<use name=RecoJets/JetAlgorithms>
 <use name=root>
 <use name=rootcore>
 <use name=rootinteractive>
 <lib name=Gui>
 <export>
-  <lib name=RecoParticleFlowPFRootEvent>
-  <use name=FWCore/Framework>
-  <use name=DataFormats/CaloTowers>
-  <use name=DataFormats/ParticleFlowReco>
-  <use name=DataFormats/EgammaReco>
-  <use name=DataFormats/Math>
-  <use name=DataFormats/TrackReco>
-  <use name=RecoParticleFlow/PFClusterAlgo>
-  <use name=RecoParticleFlow/PFBlockAlgo> 
-  <use name=RecoParticleFlow/PFAlgo>
-  <lib name=Gui>
+<lib name=RecoParticleFlowPFRootEvent>
+<use name=FWCore/Framework>
+<use name=DataFormats/CaloTowers>
+<use name=fastjet>
+<use name=ktjet>
+<use name=DataFormats/ParticleFlowReco>
+<use name=DataFormats/EgammaReco>
+<use name=DataFormats/Math>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/JetReco>
+<use name=RecoJets/JetAlgorithms>
+<use name=RecoParticleFlow/PFClusterAlgo>
+<use name=RecoParticleFlow/PFBlockAlgo> 
+<use name=RecoParticleFlow/PFAlgo>
+<lib name=Gui>
 </export>

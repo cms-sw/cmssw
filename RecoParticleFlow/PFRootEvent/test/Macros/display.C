@@ -9,7 +9,8 @@ ROOT::Cintex::Cintex::Enable();
 
 // create a PFRootEventManager
 PFRootEventManager em("pfRootEvent.opt");
-
+// create a JetPFRootEventManager to make FWLiteJets
+//JetPFRootEventManager em("pfRootEvent.opt");
 // display first entry
 int i=0;
 em.display(i++);
