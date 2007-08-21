@@ -177,6 +177,8 @@ class InputTag(_ParameterTypeBase):
     processName = property(getProcessName,setProcessName,"process name for the product")
     def configValue(self,indent,deltaIndent):
         return self.__moduleLabel+':'+self.__productInstance+':'+self.__processName
+    def pythonValue(self):
+        return self.configValue('','')
     @staticmethod
     def _isValid(value):
         return True
@@ -300,7 +302,7 @@ class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
     def configValueForItem(self,item,indent,deltaIndent):
         return str(item)
     def dumpPython(self,indent,deltaIndent):
-        result = "("
+        result = "cms."+type(self).__name__+"("
         first = True
         for value in iter(self):
             if not first:
