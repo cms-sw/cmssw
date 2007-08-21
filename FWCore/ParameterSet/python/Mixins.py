@@ -42,6 +42,16 @@ class _Parameterizable(object):
     def __delattr__(self,name):
         super(_Parameterizable,self).__delattr__(name)
         self.__parameterNames.remove(name)
+    def dumpPython(self, indent, deltaIndent):
+        first = True
+        result = ''
+        for name in self.parameterNames_():
+            if not first:
+                result += ",\n"
+            param = self.__dict__[name]
+            result+=indent+deltaIndent+name+' = '+param.dumpPython(indent+deltaIndent,deltaIndent)
+            first = False
+        return result
     def insertContentsInto(self, parameterSet):
         for name in self.parameterNames_():
             param = getattr(self,name)
@@ -113,6 +123,8 @@ class _TypedParameterizable(_Parameterizable):
             config+=indent+deltaIndent+param.configTypeName()+' '+name+' = '+param.configValue(indent+deltaIndent,deltaIndent)+'\n'
         config += indent+'}\n'
         return config
+    def dumpPython(self, indent, deltaIndent):
+        return "cms."+str(type(self).__name__)+"(\""+self.type_()+"\",\n"+_Parameterizable.dumpPython(self,indent, deltaIndent)+"\n"+indent+")\n"
     def nameInProcessDesc_(self, myname):
         return myname;
     def moduleLabel_(self, myname):
@@ -138,6 +150,8 @@ class _Labelable(object):
         # we will see the label that has been assigned
         return str(self.__label)
     def dumpSequenceConfig(self):
+        return str(self.__label)
+    def dumpSequencePython(self):
         return str(self.__label)
     def _findDependencies(self,knownDeps,presentDeps):
         #print 'in labelled'
@@ -169,6 +183,12 @@ class _ParameterTypeBase(object):
         if self.isTracked():            
             return type(self).__name__
         return 'untracked '+type(self).__name__
+    def pythonTypeName(self):
+        if self.isTracked():
+            return 'cms.'+type(self).__name__
+        return 'cms.untracked.'+type(self).__name__
+    def dumpPython(self,indent,deltaIndent):
+        return self.pythonTypeName()+"("+self.pythonValue()+")"
     def isTracked(self):
         return self.__isTracked
     def setIsTracked(self,trackness):
@@ -190,8 +210,8 @@ class _SimpleParameterTypeBase(_ParameterTypeBase):
         self._value = value
     def configValue(self,indent,deltaIndent):
         return str(self._value)
-
-
+    def pythonValue(self):
+        return str(self._value)
 
 class _ValidatingListBase(list):
     """Base class for a list which enforces that its entries pass a 'validity' test"""

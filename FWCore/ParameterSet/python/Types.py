@@ -133,6 +133,8 @@ class string(_SimpleParameterTypeBase):
         return isinstance(value,type(''))
     def configValue(self,indent,deltaIndent):
         return self.formatValueForConfig(self.value())
+    def pythonValue(self):
+        return self.configValue('','')
     @staticmethod
     def formatValueForConfig(value):
         l = len(value)
@@ -259,6 +261,9 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
             config+=indent+deltaIndent+param.configTypeName()+' '+name+' = '+param.configValue(indent+deltaIndent,deltaIndent)+'\n'
         config += indent+'}\n'
         return config
+    def dumpPython(self,indent,deltaIndent):
+        result = "cms.PSet(\n"+_Parameterizable.dumpPython(self, indent,deltaIndent)+'\n'+indent+")"
+        return result
     def copy(self):
         import copy
         return copy.copy(self)
@@ -294,6 +299,16 @@ class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
         return config
     def configValueForItem(self,item,indent,deltaIndent):
         return str(item)
+    def dumpPython(self,indent,deltaIndent):
+        result = "("
+        first = True
+        for value in iter(self):
+            if not first:
+                result+=', '
+            result+=str(value)
+            first = False
+        result += ')'
+        return result
     @staticmethod
     def _itemsFromStrings(strings,converter):
         return (converter(x).value() for x in strings)
@@ -514,6 +529,7 @@ if __name__ == "__main__":
             p1 = PSet(anInt = int32(1), a = PSet(b = int32(1)))
             self.assertRaises(ValueError, PSet, "foo")
             self.assertRaises(TypeError, PSet, foo = "bar")
+            print p1.dumpPython('   ', '   ')
         def testSecSource(self):
             s1 = SecSource("PoolSource", fileNames = vstring("foo.root"))
             self.assertEqual(s1.type_(), "PoolSource")

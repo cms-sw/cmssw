@@ -64,6 +64,8 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         return str(self._seq)
     def dumpConfig(self,indent,deltaIndent):
         return '{'+self._seq.dumpSequenceConfig()+'}\n'
+    def dumpPython(self,indent,deltaIndent):
+        return '('+self._seq.dumpSequencePython()+')\n'
     def copy(self):
         returnValue =_ModuleSequenceType.__new__(type(self))
         returnValue.__init__(self._seq)
@@ -105,6 +107,8 @@ class _SequenceOpAids(_Sequenceable):
         return '('+str(self.__left)+'*'+str(self.__right) +')'
     def dumpSequenceConfig(self):
         return '('+self.__left.dumpSequenceConfig()+','+self.__right.dumpSequenceConfig()+')'
+    def dumpSequencePython(self):
+        return '('++self.__left.dumpSequencePython()+','+self.__right.dumpSequencePython()+')'
     def _findDependencies(self,knownDeps,presentDeps):
         #do left first and then right since right depends on left
         self.__left._findDependencies(knownDeps,presentDeps)
@@ -124,6 +128,8 @@ class _SequenceNegation(_Sequenceable):
         return '!%s' %self.__operand
     def dumpSequenceConfig(self):
         return '!%s' %self.__operand.dumpSequenceConfig()
+    def dumpSequencePython(self):
+        return '!%s' %self.__operand.dumpSequencePython()
     def _findDependencies(self,knownDeps, presentDeps):
         self.__operand._findDependencies(knownDeps, presentDeps)
     def fillNamesList(self, l):
@@ -139,6 +145,8 @@ class _SequenceOpFollows(_Sequenceable):
         return '('+str(self.__left)+'+'+str(self.__right) +')'
     def dumpSequenceConfig(self):
         return '('+self.__left.dumpSequenceConfig()+'&'+self.__right.dumpSequenceConfig()+')'
+    def dumpSequencePython(self):
+        return '('+self.__left.dumpSequencePython()+'&'+self.__right.dumpSequencePython()+')'
     def _findDependencies(self,knownDeps,presentDeps):
         oldDepsL = presentDeps.copy()
         oldDepsR = presentDeps.copy()

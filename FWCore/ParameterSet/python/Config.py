@@ -331,6 +331,38 @@ class Process(object):
 #                                  indent)
         config += "}\n"
         return config
+    def _dumpPythonList(self,items):
+        indent = '    '
+        returnValue = ''
+        for name,item in items:
+            returnValue +=name+' = '+item.dumpPython('',indent)
+        return returnValue
+    def dumpPython(self):
+        """return a string containing the equivalent process defined using the configuration language"""
+        result = "process = cms.Process("+self.__name+")\n"
+        indent = "    "
+        if self.source_():
+            result += "process.source = "+self.source_().dumpPython('', indent)
+        if self.looper_():
+            result += "process.looper = "+self.looper_().dumpPython('', indent)
+        result+=self._dumpPythonList(self.producers_().iteritems())
+        result+=self._dumpPythonList(self.filters_().iteritems())
+        result+=self._dumpPythonList(self.analyzers_().iteritems())
+        result+=self._dumpPythonList(self.outputModules_().iteritems())
+        result+=self._dumpPythonList(self.sequences_().iteritems())
+        result+=self._dumpPythonList(self.paths_().iteritems())
+        result+=self._dumpPythonList(self.endpaths_().iteritems())
+        result+=self._dumpPythonList(self.services_().iteritems())
+        result+=self._dumpPythonList(self.es_producers_().iteritems())
+        result+=self._dumpPythonList(self.es_sources_().iteritems())
+        result+=self._dumpPythonList(self.es_prefers_().iteritems())
+        result+=self._dumpPythonList(self.psets.iteritems())
+        result+=self._dumpPythonList(self.vpsets.iteritems())
+        if self.schedule:
+            pathNames = [p.label() for p in self.schedule]
+            result +=indent+'schedule = ('+','.join(pathNames)+')\n'
+        return result
+
     def insertOneInto(self, parameterSet, label, item):
         vitems = []
         if not item == None:
@@ -500,6 +532,7 @@ if __name__=="__main__":
             self.assertEqual(str(p.c),'a')
             self.assertEqual(str(p.d),'a')
             p.dumpConfig()
+            p.dumpPython()
 
         def testProcessDumpConfig(self):
             p = Process("test")
@@ -508,6 +541,7 @@ if __name__=="__main__":
             p.s = Sequence(p.a)
             p.p2 = Path(p.s)
             p.dumpConfig()
+            p.dumpPython()
             
         def testSecSource(self):
             p = Process('test')
