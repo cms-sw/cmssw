@@ -16,7 +16,7 @@ Usage:
 //
 // Original Author:  chiochia
 //         Created:  Thu Jan 26 23:49:46 CET 2006
-// $Id: SiPixelFolderOrganizer.h,v 1.3 2006/04/23 13:24:20 chiochia Exp $
+// $Id: SiPixelFolderOrganizer.h,v 1.1 2007/03/28 14:01:57 chiochia Exp $
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include <boost/cstdint.hpp>
 #include <string>
@@ -33,6 +33,9 @@ class SiPixelFolderOrganizer {
   
   /// Set folder name for a module or plaquette
   bool setModuleFolder(const uint32_t& rawdetid=0);
+
+  /// Set folder name for a FED (used in the case of errors without detId)
+  bool setFedFolder(const uint32_t FedId);
   
  private:
 

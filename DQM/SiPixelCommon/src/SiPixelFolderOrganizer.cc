@@ -26,7 +26,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t& rawdetid) {
    if(rawdetid == 0) {
      dbe_->setCurrentFolder(rootFolder);
      flag = true;
-   } 
+   }
    ///
    /// Pixel Barrel
    ///
@@ -82,5 +82,18 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t& rawdetid) {
      << "[SiPixelFolderOrganizer::setModuleFolder] Not a Pixel detector DetId ";
    
    return flag;
+
+}
+
+bool SiPixelFolderOrganizer::setFedFolder(const uint32_t FedId) {
+
+  std::string subDetectorFolder = "AdditionalPixelErrors";
+  char sFed[80];  sprintf(sFed,  "FED_%i",FedId);
+  std::ostringstream sfolder;
+  
+  sfolder << rootFolder << "/" << subDetectorFolder << "/" << sFed;
+  dbe_->setCurrentFolder(sfolder.str().c_str());
+  
+  return true;
 
 }
