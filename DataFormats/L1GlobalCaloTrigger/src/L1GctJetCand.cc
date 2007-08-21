@@ -2,7 +2,6 @@
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
 
-#include <ostream>
 
 using std::ostream;
 using std::string;
