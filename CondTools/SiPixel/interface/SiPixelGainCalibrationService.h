@@ -28,8 +28,8 @@ class SiPixelGainCalibrationService {
  private:
   edm::ParameterSet conf_;
   edm::ESHandle<SiPixelGainCalibration> ped;
-  bool UseCalibDataFromDB_;
-  float    PedestalValue_, GainValue_;
+  //bool UseCalibDataFromDB_;
+  //float    PedestalValue_, GainValue_;
   double   minGain_, maxGain_, minPed_, maxPed_;
   bool ESetupInit_;
 
