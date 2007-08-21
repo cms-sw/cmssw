@@ -22,9 +22,22 @@ L1CSCTriggerPrimitivesConfigProducer::L1CSCTriggerPrimitivesConfigProducer(const
   // data is being produced
   setWhatProduced(this);
 
+  // Decide on which of the two sets of parameters will be used.
+  // (Temporary substitute for the IOV.)
+  std::string alctParamSet, clctParamSet;
+  bool isMTCC = iConfig.getParameter<bool>("isMTCC");
+  if (isMTCC) {
+    alctParamSet = "alctParamMTCC2";
+    clctParamSet = "clctParamMTCC2";
+  }
+  else {
+    alctParamSet = "alctParam";
+    clctParamSet = "clctParam";
+  }
+
   // get ALCT parameters from the config file
   edm::ParameterSet alctParams =
-    iConfig.getParameter<edm::ParameterSet>("alctParam");
+    iConfig.getParameter<edm::ParameterSet>(alctParamSet);
   m_alct_fifo_tbins  = alctParams.getParameter<unsigned int>("alctFifoTbins");
   m_alct_fifo_pretrig= alctParams.getParameter<unsigned int>("alctFifoPretrig");
   m_alct_bx_width    = alctParams.getParameter<unsigned int>("alctBxWidth");
@@ -37,7 +50,7 @@ L1CSCTriggerPrimitivesConfigProducer::L1CSCTriggerPrimitivesConfigProducer(const
 
   // get CLCT parameters from the config file
   edm::ParameterSet clctParams =
-    iConfig.getParameter<edm::ParameterSet>("clctParam");
+    iConfig.getParameter<edm::ParameterSet>(clctParamSet);
   m_clct_fifo_tbins  = clctParams.getParameter<unsigned int>("clctFifoTbins");
   m_clct_fifo_pretrig= clctParams.getParameter<unsigned int>("clctFifoPretrig");
   m_clct_bx_width    = clctParams.getParameter<unsigned int>("clctBxWidth");
