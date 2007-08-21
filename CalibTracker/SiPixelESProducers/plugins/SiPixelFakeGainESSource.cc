@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  Fri Apr 27 12:31:25 CEST 2007
-// $Id: SiPixelFakeGainESSource.cc,v 1.1 2007/08/08 16:22:29 chiochia Exp $
+// $Id: SiPixelFakeGainESSource.cc,v 1.2 2007/08/17 16:49:59 chiochia Exp $
 //
 //
 
@@ -28,14 +28,15 @@
 //
 // constructors and destructor
 //
-SiPixelFakeGainESSource::SiPixelFakeGainESSource(const edm::ParameterSet& conf_){
- 
+SiPixelFakeGainESSource::SiPixelFakeGainESSource(const edm::ParameterSet& conf_) :
+  SiPixelGainCalibrationService_(conf_),
+  fp_(conf_.getParameter<edm::FileInPath>("file"))
+{
  edm::LogInfo("SiPixelFakeGainESSource::SiPixelFakeGainESSource");
   //the following line is needed to tell the framework what
   // data is being produced
   setWhatProduced(this);
   findingRecord<SiPixelGainCalibrationRcd>();
-  fp_ = conf_.getParameter<edm::FileInPath>("file");
 }
 
 SiPixelFakeGainESSource::~SiPixelFakeGainESSource()
@@ -67,19 +68,21 @@ std::auto_ptr<SiPixelGainCalibration> SiPixelFakeGainESSource::produce(const SiP
        for(int j=0; j<detUnitDimensions.second; j++) {
 	 nchannels++;
 	 float gain =  2.8;
-	 float ped  = 28.2;
-	 obj->setData( ped, gain, theSiPixelGainCalibration);	 
+	 float ped  = 28.2;	 
+	 float theEncodedGain  = SiPixelGainCalibrationService_.encodeGain(gain);
+	 float theEncodedPed   = SiPixelGainCalibrationService_.encodePed (ped);
+	 obj->setData( theEncodedPed , theEncodedGain , theSiPixelGainCalibration);	 
        }
      }
 
-     std::cout << "detid " << (*detit) << std::endl;
+     //std::cout << "detid " << (*detit) << std::endl;
 
      SiPixelGainCalibration::Range range(theSiPixelGainCalibration.begin(),theSiPixelGainCalibration.end());
      if( !obj->put(*detit,range,detUnitDimensions.first) )
        edm::LogError("SiPixelFakeGainESSource")<<"[SiPixelFakeGainESSource::produce] detid already exists"<<std::endl;
    }
 
-   std::cout << "Modules = " << nmodules << " Channels " << nchannels << std::endl;
+   //std::cout << "Modules = " << nmodules << " Channels " << nchannels << std::endl;
    
 
    // 

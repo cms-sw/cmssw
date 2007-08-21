@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  Tue 8 12:31:25 CEST 2007
-// $Id: SiPixelFakeGainESSource.h,v 1.1 2007/08/08 16:22:28 chiochia Exp $
+// $Id: SiPixelFakeGainESSource.h,v 1.2 2007/08/17 16:49:59 chiochia Exp $
 //
 //
 
@@ -30,7 +30,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibration.h"
 #include "CondFormats/DataRecord/interface/SiPixelGainCalibrationRcd.h"
-
+#include "CondTools/SiPixel/interface/SiPixelGainCalibrationService.h"
 //
 // class decleration
 //
@@ -55,6 +55,7 @@ class SiPixelFakeGainESSource : public edm::ESProducer, public edm::EventSetupRe
  private:
   
   edm::FileInPath fp_;
-  
+  SiPixelGainCalibrationService SiPixelGainCalibrationService_;
+
 };
 #endif
