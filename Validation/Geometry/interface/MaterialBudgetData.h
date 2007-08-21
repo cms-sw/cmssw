@@ -229,8 +229,11 @@ public:
   float getStepFinalGamma( int is) {
     return theStepFinalGamma[is];
   }
-  int getStepProcess( int is) {
-    return theStepProcess[is];
+  int getStepPreProcess( int is) {
+    return theStepPreProcess[is];
+  }
+  int getStepPostProcess( int is) {
+    return theStepPostProcess[is];
   }
   // rr
   int getStepVolumeID( int is ) {
@@ -345,7 +348,8 @@ public:
   float* theStepFinalPz;
   float* theStepFinalBeta;
   float* theStepFinalGamma;
-  int*   theStepProcess;
+  int*   theStepPreProcess;
+  int*   theStepPostProcess;
   // rr
   float theTrkLen;
   std::string thePVname;

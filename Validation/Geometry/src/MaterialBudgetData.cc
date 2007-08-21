@@ -89,7 +89,8 @@ void MaterialBudgetData::SetAllStepsToTree()
   theStepFinalPz        = new float[MAXNUMBERSTEPS];
   theStepFinalBeta      = new float[MAXNUMBERSTEPS];
   theStepFinalGamma     = new float[MAXNUMBERSTEPS];
-  theStepProcess        = new int[MAXNUMBERSTEPS];
+  theStepPreProcess     = new int[MAXNUMBERSTEPS];
+  theStepPostProcess    = new int[MAXNUMBERSTEPS];
   // rr
 }
 
@@ -314,9 +315,12 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
     theStepFinalPz[theStepN]        = postPoint->GetMomentum().z();
     theStepFinalBeta[theStepN]      = postPoint->GetBeta();
     theStepFinalGamma[theStepN]     = postPoint->GetGamma();
-    int procType = -99;
-    if (interactionPre) procType = interactionPre->GetProcessType();
-    theStepProcess[theStepN]        = procType;
+    int preProcType  = -99;
+    int postProcType = -99;
+    if (interactionPre) preProcType = interactionPre->GetProcessType();
+    theStepPreProcess[theStepN]     = preProcType;
+    if (interactionPost) postProcType = interactionPost->GetProcessType();
+    theStepPostProcess[theStepN]    = postProcType;
 #ifdef TREE_DEBUG
     std::cout << " step " << theStepN
 	      << "\tDelta MB = " << theDmb[theStepN]
@@ -341,12 +345,13 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
 	      << std::endl;
     if (interactionPre)
       std::cout << "\tProcess Pre " << interactionPre->GetProcessName()
-		<< " type " << theStepProcess[theStepN] << " " << interactionPre->GetProcessTypeName(G4ProcessType(theStepProcess[theStepN]))
+		<< " type " << theStepPreProcess[theStepN] << " " << interactionPre->GetProcessTypeName(G4ProcessType(theStepPreProcess[theStepN]))
 		<< std::endl;
-    std::cout << "\tProcess Post " << interactionPost->GetProcessName()
-	      << " type " << interactionPost->GetProcessType() << " "
-	      << interactionPost->GetProcessTypeName(G4ProcessType(interactionPost->GetProcessType()))
-	      << std::endl;
+    if (interactionPost)
+      std::cout << "\tProcess Post " << interactionPost->GetProcessName()
+		<< " type " << theStepPostProcess[theStepN] << " "
+		<< interactionPost->GetProcessTypeName(G4ProcessType(theStepPostProcess[theStepN]))
+		<< std::endl;
     std::cout << "\tPre x = " << theInitialX[theStepN]
 	      << "\ty = "     << theInitialY[theStepN]
 	      << "\tz = "     << theInitialZ[theStepN] 
