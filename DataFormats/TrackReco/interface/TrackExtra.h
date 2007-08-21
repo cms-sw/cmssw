@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: TrackExtra.h,v 1.20 2007/07/30 13:26:45 bellan Exp $
+ * \version $Id: TrackExtra.h,v 1.21 2007/08/04 10:29:47 mangano Exp $
  *
  */
 #include <Rtypes.h>
@@ -16,7 +16,6 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/TrackReco/interface/TrackExtraBase.h"
-#include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 namespace reco {

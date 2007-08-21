@@ -4,14 +4,14 @@
 /** \class TrackToTrackMap
  *  No description available.
  *
- *  $Date: 2007/03/13 09:51:58 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/15 11:12:40 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/OneToOne.h"
-#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h" 
 
 namespace reco {
   

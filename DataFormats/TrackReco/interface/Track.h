@@ -8,13 +8,13 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Track.h,v 1.34 2007/07/16 10:31:11 gpetrucc Exp $
+ * \version $Id: Track.h,v 1.38 2007/07/20 21:18:32 gpetrucc Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/TrackReco/interface/TrackExtraFwd.h" 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 namespace reco {
 

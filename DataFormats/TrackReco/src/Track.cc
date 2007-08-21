@@ -1,5 +1,4 @@
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackExtra.h"
 
 using namespace reco;
 
