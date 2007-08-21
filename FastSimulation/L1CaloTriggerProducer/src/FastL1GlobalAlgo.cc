@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.cc,v 1.11 2007/08/15 13:42:16 chinhan Exp $
+// $Id: FastL1GlobalAlgo.cc,v 1.12 2007/08/18 02:11:53 chinhan Exp $
 //
 
 // No BitInfos for release versions
@@ -88,25 +88,21 @@ FastL1GlobalAlgo::~FastL1GlobalAlgo()
 void
 FastL1GlobalAlgo::CaloTowersDump(edm::Event const& e) {
   /*
-  std::vector<edm::Handle<CaloTowerCollection> > prods;
+    std::vector<edm::Handle<CaloTowerCollection> > prods;
     
-  edm::LogInfo("FastL1GlobalAlgo::CaloTowersDump") << "Start!";
-  try {
+    edm::LogInfo("FastL1GlobalAlgo::CaloTowersDump") << "Start!";
     e.getManyByType(prods);
-
+    
     std::vector<edm::Handle<CaloTowerCollection> >::iterator i;
 
     for (i=prods.begin(); i!=prods.end(); i++) {
       const CaloTowerCollection& c=*(*i);
-	
+      
       for (CaloTowerCollection::const_iterator j=c.begin(); j!=c.end(); j++) {
 	edm::LogInfo("FastL1GlobalAlgo::CaloTowersDump") << *j;
+	}
       }
-    }
-  } catch (...) {
-    edm::LogInfo("FastL1GlobalAlgo::CaloTowersDump") << "No CaloTowers.";
-  }
-  edm::LogInfo("FastL1GlobalAlgo::CaloTowersDump") << "End!";
+   edm::LogInfo("FastL1GlobalAlgo::CaloTowersDump") << "End!";
   */
 
 
