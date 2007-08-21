@@ -2,16 +2,15 @@
 #define CondCore_DBOutputService_serviceCallbackRecord_h
 #include <string>
 namespace cond{
-  class IOVEditor;
   namespace service{
     struct serviceCallbackRecord{
-      serviceCallbackRecord():m_tag(""),m_isNewTag(false),m_containerName(""),m_iovEditor(0){}
+      serviceCallbackRecord():m_tag(""),m_isNewTag(false),m_containerName(""),m_iovtoken(""){}
       ~serviceCallbackRecord(){
       }
       std::string m_tag;
       bool m_isNewTag;
       std::string m_containerName;
-      IOVEditor* m_iovEditor;
+      std::string m_iovtoken;
     };
   }//ns serviceCallbackRecord
 }//ns cond

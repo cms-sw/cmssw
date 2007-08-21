@@ -34,6 +34,7 @@ void IOVPayloadAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& 
       item.m_variance=1.12*ichannel+irun;
       myped->m_pedestals.push_back(item);
     }
+    std::cout<<myped->m_pedestals[1].m_mean<<std::endl;
     if( mydbservice->isNewTagRequest(m_record) ){
       //create 
       cond::Time_t firstTillTime=mydbservice->endOfTime();
@@ -45,7 +46,6 @@ void IOVPayloadAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& 
 	mydbservice->appendSinceTime<Pedestals>(myped,mydbservice->currentTime(),m_record);
       }
     }
-    std::cout<<myped->m_pedestals[1].m_mean<<std::endl;
   }catch(const cond::Exception& er){
     std::cout<<er.what()<<std::endl;
   }catch(const std::exception& er){
