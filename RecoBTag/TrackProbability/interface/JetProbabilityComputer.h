@@ -1,7 +1,8 @@
-#include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BTauReco/interface/TrackProbabilityTagInfo.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 #include "Math/GenVector/VectorUtil.h"
+#include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 
 class JetProbabilityComputer : public JetTagComputer
 {
