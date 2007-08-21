@@ -23,4 +23,5 @@
 #include "CondFormats/L1TObjects/interface/DTConfigTrigUnit.h"
 #include "CondFormats/L1TObjects/interface/DTConfigSectColl.h"
 #include "CondFormats/L1TObjects/interface/DTConfigManager.h"
+#include "CondFormats/L1TObjects/interface/L1TriggerKey.h"
 #include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
