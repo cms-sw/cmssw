@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2007/08/17 09:05:12 $
- * $Revision: 1.20 $
+ * $Date: 2007/08/17 18:25:28 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -216,7 +216,9 @@ void EEPedestalOnlineClient::setup(void) {
         int jx = ix + Numbers::ix0EE(ism);
         int jy = iy + Numbers::iy0EE(ism);
 
-        if ( Numbers::validEE(ism, 101 - jx, jy) ) {
+        if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
+
+        if ( Numbers::validEE(ism, jx, jy) ) {
           meg03_[ism-1]->setBinContent( ix, iy, 2. );
         }
 
@@ -294,7 +296,9 @@ bool EEPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
         int jx = ix + Numbers::ix0EE(ism);
         int jy = iy + Numbers::iy0EE(ism);
 
-        if ( ! Numbers::validEE(ism, 101 - jx, jy) ) continue;
+        if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
+
+        if ( ! Numbers::validEE(ism, jx, jy) ) continue;
 
         bool update03;
 
@@ -523,7 +527,9 @@ void EEPedestalOnlineClient::analyze(void){
         int jx = ix + Numbers::ix0EE(ism);
         int jy = iy + Numbers::iy0EE(ism);
 
-        if ( Numbers::validEE(ism, 101 - jx, jy) ) {
+        if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
+
+        if ( Numbers::validEE(ism, jx, jy) ) {
           if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ix, iy, 2. );
         }
 
@@ -559,8 +565,10 @@ void EEPedestalOnlineClient::analyze(void){
 
             int jx = ix + Numbers::ix0EE(ism);
             int jy = iy + Numbers::iy0EE(ism);
+
+            if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
  
-            if ( ! Numbers::validEE(ism, 101 - jx, jy) ) continue;
+            if ( ! Numbers::validEE(ism, jx, jy) ) continue;
 
             int ic = Numbers::icEE(ism, ix, iy);
 

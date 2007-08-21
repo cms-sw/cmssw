@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2007/08/17 09:05:12 $
- * $Revision: 1.15 $
+ * $Date: 2007/08/17 18:25:28 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -185,7 +185,9 @@ bool EECosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
         int jx = ix + Numbers::ix0EE(ism);
         int jy = iy + Numbers::iy0EE(ism);
 
-        if ( ! Numbers::validEE(ism, 101 - jx, jy) ) continue;
+        if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
+
+        if ( ! Numbers::validEE(ism, jx, jy) ) continue;
 
         num01  = num02  = -1.;
         mean01 = mean02 = -1.;

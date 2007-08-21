@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2007/08/17 09:05:12 $
- * $Revision: 1.20 $
+ * $Date: 2007/08/17 18:25:28 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -296,7 +296,9 @@ void EEIntegrityClient::setup(void) {
         int jx = ix + Numbers::ix0EE(ism);
         int jy = iy + Numbers::iy0EE(ism);
 
-        if ( Numbers::validEE(ism, 101 - jx, jy) ) {
+        if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
+
+        if ( Numbers::validEE(ism, jx, jy) ) {
           meg01_[ism-1]->setBinContent( ix, iy, 2. );
         }
 
@@ -430,7 +432,9 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
         int jx = ix + Numbers::ix0EE(ism);
         int jy = iy + Numbers::iy0EE(ism);
 
-        if ( ! Numbers::validEE(ism, 101 - jx, jy) ) continue;
+        if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
+
+        if ( ! Numbers::validEE(ism, jx, jy) ) continue;
 
         num01 = num02 = num03 = num04 = 0.;
 
@@ -1338,8 +1342,10 @@ void EEIntegrityClient::analyze(void){
           int jx = ix + Numbers::ix0EE(ism);
           int jy = iy + Numbers::iy0EE(ism);
 
+          if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
+
           // filling the summary for SM channels
-          if ( Numbers::validEE(ism, 101 - jx, jy) ) {
+          if ( Numbers::validEE(ism, jx, jy) ) {
             if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, val );
           }
 
@@ -1353,8 +1359,10 @@ void EEIntegrityClient::analyze(void){
 
             int jx = ix + Numbers::ix0EE(ism);
             int jy = iy + Numbers::iy0EE(ism);
+
+            if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
  
-            if ( ! Numbers::validEE(ism, 101 - jx, jy) ) continue;
+            if ( ! Numbers::validEE(ism, jx, jy) ) continue;
 
             int ic = Numbers::icEE(ism, ix, iy);
 

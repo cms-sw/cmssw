@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalTask.cc
  *
- * $Date: 2007/08/15 12:23:42 $
- * $Revision: 1.15 $
+ * $Date: 2007/08/16 14:26:08 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
 */
@@ -280,10 +280,12 @@ void EEPedestalTask::analyze(const Event& e, const EventSetup& c){
       EEDataFrame dataframe = (*digiItr);
       EEDetId id = dataframe.id();
 
-      int ix = 101 - id.ix();
+      int ix = id.ix();
       int iy = id.iy();
 
       int ism = Numbers::iSM( id );
+
+      if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
 
       float xix = ix - 0.5;
       float xiy = iy - 0.5;
@@ -333,7 +335,9 @@ void EEPedestalTask::analyze(const Event& e, const EventSetup& c){
           int jx = ix + Numbers::ix0EE(ism);
           int jy = iy + Numbers::iy0EE(ism);
 
-          if ( ! Numbers::validEE(ism, 101 - jx, jy) ) continue;
+          if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
+
+          if ( ! Numbers::validEE(ism, jx, jy) ) continue;
 
           float xix = ix - 0.5;
           float xiy = iy - 0.5;

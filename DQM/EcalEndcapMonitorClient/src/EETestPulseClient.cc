@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2007/08/17 09:05:12 $
- * $Revision: 1.25 $
+ * $Date: 2007/08/17 18:25:28 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -356,7 +356,9 @@ void EETestPulseClient::setup(void) {
         int jx = ix + Numbers::ix0EE(ism);
         int jy = iy + Numbers::iy0EE(ism);
 
-        if ( Numbers::validEE(ism, 101 - jx, jy) ) {
+        if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
+
+        if ( Numbers::validEE(ism, jx, jy) ) {
           meg01_[ism-1]->setBinContent( ix, iy, 2. );
           meg02_[ism-1]->setBinContent( ix, iy, 2. );
           meg03_[ism-1]->setBinContent( ix, iy, 2. );
@@ -484,7 +486,9 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
         int jx = ix + Numbers::ix0EE(ism);
         int jy = iy + Numbers::iy0EE(ism);
 
-        if ( ! Numbers::validEE(ism, 101 - jx, jy) ) continue;
+        if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
+
+        if ( ! Numbers::validEE(ism, jx, jy) ) continue;
 
         bool update01;
         bool update02;
@@ -1192,7 +1196,9 @@ void EETestPulseClient::analyze(void){
         int jx = ix + Numbers::ix0EE(ism);
         int jy = iy + Numbers::iy0EE(ism);
 
-        if ( Numbers::validEE(ism, 101 - jx, jy) ) {
+        if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
+
+        if ( Numbers::validEE(ism, jx, jy) ) {
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, 2. );
           if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, 2. );
           if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ix, iy, 2. );
@@ -1302,8 +1308,10 @@ void EETestPulseClient::analyze(void){
 
             int jx = ix + Numbers::ix0EE(ism);
             int jy = iy + Numbers::iy0EE(ism);
+
+            if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
  
-            if ( ! Numbers::validEE(ism, 101 - jx, jy) ) continue;
+            if ( ! Numbers::validEE(ism, jx, jy) ) continue;
 
             int ic = Numbers::icEE(ism, ix, iy);
 

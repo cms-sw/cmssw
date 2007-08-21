@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.18 2007/08/21 06:31:54 dellaric Exp $
+// $Id: Numbers.cc,v 1.19 2007/08/21 07:49:06 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.18 $
-  \date $Date: 2007/08/21 06:31:54 $
+  \version $Revision: 1.19 $
+  \date $Date: 2007/08/21 07:49:06 $
 */
 
 #include <sstream>
@@ -264,15 +264,15 @@ int Numbers::ix0EE( const int ism ) {
 
   int ix = 0;
 
-  if ( ism == 1 || ism == 10 ) ix = -  5;
-  if ( ism == 2 || ism == 11 ) ix = +  0;
-  if ( ism == 3 || ism == 12 ) ix = + 10;
-  if ( ism == 4 || ism == 13 ) ix = + 40;
-  if ( ism == 5 || ism == 14 ) ix = + 50;
-  if ( ism == 6 || ism == 15 ) ix = + 55;
-  if ( ism == 7 || ism == 16 ) ix = + 50;
+  if ( ism == 1 || ism == 15 ) ix = -  5;
+  if ( ism == 2 || ism == 14 ) ix = +  0;
+  if ( ism == 3 || ism == 13 ) ix = + 10;
+  if ( ism == 4 || ism == 12 ) ix = + 40;
+  if ( ism == 5 || ism == 11 ) ix = + 50;
+  if ( ism == 6 || ism == 10 ) ix = + 55;
+  if ( ism == 7 || ism == 18 ) ix = + 50;
   if ( ism == 8 || ism == 17 ) ix = + 25;
-  if ( ism == 9 || ism == 18 ) ix = +  0;
+  if ( ism == 9 || ism == 16 ) ix = +  0;
 
   return ix;
 

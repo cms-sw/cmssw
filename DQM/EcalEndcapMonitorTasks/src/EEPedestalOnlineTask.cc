@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineTask.cc
  *
- * $Date: 2007/05/24 13:26:12 $
- * $Revision: 1.9 $
+ * $Date: 2007/08/14 17:44:47 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -134,10 +134,12 @@ void EEPedestalOnlineTask::analyze(const Event& e, const EventSetup& c){
       EEDataFrame dataframe = (*digiItr);
       EEDetId id = dataframe.id();
 
-      int ix = 101 - id.ix();
+      int ix = id.ix();
       int iy = id.iy();
 
       int ism = Numbers::iSM( id );
+
+      if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
 
       float xix = ix - 0.5;
       float xiy = iy - 0.5;
