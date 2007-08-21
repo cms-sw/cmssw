@@ -1,5 +1,6 @@
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
 #include "DataFormats/TrackReco/interface/Track.h" 
+#include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include <Math/GenVector/VectorUtil.h>
 
 using namespace edm;

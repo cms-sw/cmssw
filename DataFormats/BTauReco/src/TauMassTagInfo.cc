@@ -1,6 +1,7 @@
 #include "DataFormats/BTauReco/interface/TauMassTagInfo.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include "DataFormats/Common/interface/RefVector.h"
 
 using namespace edm;
