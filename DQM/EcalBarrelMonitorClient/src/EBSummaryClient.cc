@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/08/21 13:35:19 $
- * $Revision: 1.50 $
+ * $Date: 2007/08/21 13:55:34 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  *
 */
@@ -1022,8 +1022,8 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMapPN->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
-    obj2f->GetXaxis()->SetLabelSize(0.09);
-    obj2f->GetYaxis()->SetLabelSize(0.09);
+    obj2f->GetXaxis()->SetLabelSize(0.07);
+    obj2f->GetYaxis()->SetLabelSize(0.07);
     gStyle->SetTitleX(0.15);
     obj2f->Draw("col");
     labelGridPN.Draw("text,same");
@@ -1093,8 +1093,8 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMapPN->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
-    obj2f->GetXaxis()->SetLabelSize(0.09);
-    obj2f->GetYaxis()->SetLabelSize(0.09);
+    obj2f->GetXaxis()->SetLabelSize(0.07);
+    obj2f->GetYaxis()->SetLabelSize(0.07);
     gStyle->SetTitleX(0.15);
     obj2f->Draw("col");
     labelGridPN.Draw("text,same");
@@ -1165,8 +1165,8 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMapPN->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
-    obj2f->GetXaxis()->SetLabelSize(0.09);
-    obj2f->GetYaxis()->SetLabelSize(0.09);
+    obj2f->GetXaxis()->SetLabelSize(0.07);
+    obj2f->GetYaxis()->SetLabelSize(0.07);
     gStyle->SetTitleX(0.15);
     obj2f->Draw("col");
     labelGridPN.Draw("text,same");
