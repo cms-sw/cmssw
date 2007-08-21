@@ -1,4 +1,5 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
+#include "DataFormats/Common/interface/Ref.h" 
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 // #include "FWCore/Utilities/interface/Exception.h"
 

@@ -1,6 +1,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
+#include "Math/GenVector/PositionVector3D.h" 
+#include "DataFormats/Math/interface/Point3D.h" 
 // #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 
 using namespace reco;
 

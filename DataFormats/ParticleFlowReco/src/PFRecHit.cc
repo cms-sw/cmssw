@@ -1,5 +1,4 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 using namespace reco;
 using namespace std;

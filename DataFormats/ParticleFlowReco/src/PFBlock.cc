@@ -1,6 +1,5 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 
-#include <iostream>
 #include <iomanip>
 
 

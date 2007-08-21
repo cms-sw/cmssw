@@ -3,6 +3,7 @@
 
 #include "Math/GenVector/PositionVector3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
+#include "Rtypes.h" 
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
 

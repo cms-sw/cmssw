@@ -4,10 +4,22 @@
 #include <DataFormats/Common/interface/ClonePolicy.h>
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "Math/Cartesian3D.h" 
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
+#include "Math/Polar3D.h" 
+#include "Math/CylindricalEta3D.h" 
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
+#include "Math/GenVector/PositionVector3D.h" 
+#include "DataFormats/Math/interface/Point3D.h" 
+#include "Rtypes.h" 
+#include "DataFormats/Math/interface/Vector3D.h" 
+#include "Math/PxPyPzE4D.h" 
+#include "DataFormats/DetId/interface/DetId.h" 
+#include <boost/cstdint.hpp> 
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h" 
 /* #include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h" */
 /* #include "TrackingTools/TransientTrack/interface/GsfTransientTrack.h" */
 #include "DataFormats/ParticleFlowReco/interface/PFSimParticle.h"

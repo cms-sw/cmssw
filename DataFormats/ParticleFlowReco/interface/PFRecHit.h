@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "DataFormats/Math/interface/Point3D.h"
+#include "Rtypes.h" 
 #include "DataFormats/Math/interface/Vector3D.h"
 // #include "DataFormats/DetId/interface/DetId.h"
 #include "Math/GenVector/PositionVector3D.h"

@@ -2,7 +2,6 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
 
-#include <iostream>
 
 using namespace reco;
 

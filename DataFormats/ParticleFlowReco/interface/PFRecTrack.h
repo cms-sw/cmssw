@@ -2,7 +2,6 @@
 #define DataFormats_ParticleFlowReco_PFRecTrack_h
 
 #include "DataFormats/ParticleFlowReco/interface/PFTrack.h"
-#include "DataFormats/Common/interface/Ref.h"
 /* #include "DataFormats/Common/interface/RefToBase.h" */
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 

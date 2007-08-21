@@ -1,8 +1,6 @@
 #ifndef DataFormats_ParticleFlowReco_PFTrack_h
 #define DataFormats_ParticleFlowReco_PFTrack_h
 
-#include "Math/GenVector/PositionVector3D.h"
-#include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/ParticleFlowReco/interface/PFTrajectoryPoint.h"
 
 #include <iostream>

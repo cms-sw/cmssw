@@ -1,5 +1,4 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-#include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 
 using namespace std;
 using namespace reco;
