@@ -7,4 +7,5 @@
 
 <use name=Foundation/SealBase>
 <use name=FWCore/MessageLogger>
+<use name=FWCore/Utilities>
 <use name=castor>
