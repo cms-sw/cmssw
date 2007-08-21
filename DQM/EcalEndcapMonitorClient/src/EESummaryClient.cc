@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/08/21 12:47:19 $
- * $Revision: 1.25 $
+ * $Date: 2007/08/21 13:35:19 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  *
 */
@@ -975,7 +975,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   float saveHeigth = gStyle->GetTitleH();
   gStyle->SetTitleH(0.07);
   float saveFontSize = gStyle->GetTitleFontSize();
-  gStyle->SetTitleFontSize(15);
+  gStyle->SetTitleFontSize(14);
 
   TH2F* obj2f;
 
@@ -1005,7 +1005,6 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
-    obj2f->SetTitleSize(0.4);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
@@ -1047,7 +1046,6 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
-    obj2f->SetTitleSize(0.4);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
@@ -1088,7 +1086,6 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridx();
     cMap->SetGridy();
     obj2f->SetMinimum(0.0);
-    obj2f->SetTitleSize(0.4);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->GetZaxis()->SetLabelSize(0.03);
@@ -1130,7 +1127,6 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridx();
     cMap->SetGridy();
     obj2f->SetMinimum(0.0);
-    obj2f->SetTitleSize(0.4);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->GetZaxis()->SetLabelSize(0.03);
@@ -1173,7 +1169,6 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
-    obj2f->SetTitleSize(0.4);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
@@ -1215,7 +1210,6 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
-    obj2f->SetTitleSize(0.4);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
@@ -1257,7 +1251,6 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
-    obj2f->SetTitleSize(0.4);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
@@ -1299,7 +1292,6 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
-    obj2f->SetTitleSize(0.4);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
@@ -1346,7 +1338,6 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
-    obj2f->SetTitleSize(0.4);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
@@ -1388,7 +1379,6 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
-    obj2f->SetTitleSize(0.4);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
@@ -1435,7 +1425,6 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
-    obj2f->SetTitleSize(0.4);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
@@ -1477,7 +1466,6 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
-    obj2f->SetTitleSize(0.4);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
@@ -1524,7 +1512,6 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
-    obj2f->SetTitleSize(0.4);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
@@ -1566,7 +1553,6 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
-    obj2f->SetTitleSize(0.4);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
@@ -1613,7 +1599,6 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
-    obj2f->SetTitleSize(0.4);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
@@ -1655,7 +1640,6 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
-    obj2f->SetTitleSize(0.4);
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
