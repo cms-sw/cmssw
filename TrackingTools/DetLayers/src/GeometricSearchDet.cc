@@ -1,4 +1,5 @@
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h" 
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

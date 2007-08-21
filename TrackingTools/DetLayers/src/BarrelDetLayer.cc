@@ -1,8 +1,9 @@
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h" 
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h" 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
 #include "DataFormats/GeometrySurface/interface/BoundingBox.h"
-#include "Geometry/CommonDetUnit/interface/ModifiedSurfaceGenerator.h"
 
 using namespace std;
 

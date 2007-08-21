@@ -7,15 +7,13 @@
  *
  * \author Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
  *
- * \version $Id: BeamSpot.h,v 1.2 2007/01/22 04:48:40 yumiceva Exp $
+ * \version $Id: BeamSpot.h,v 1.3 2007/06/27 12:25:46 speer Exp $
  *
  */
 
 #include <Rtypes.h>
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/Math/interface/Point3D.h"
-#include "DataFormats/Math/interface/Vector3D.h"
-#include "DataFormats/Math/interface/Vector.h"
 #include <string>
 #include <sstream>
 

@@ -1,4 +1,5 @@
 #include "TrackingTools/DetLayers/interface/ForwardDetRingOneZ.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h" 
 #include "TrackingTools/DetLayers/interface/ForwardRingDiskBuilderFromDet.h"
 //#include "TrackingTools/GeomPropagators/interface/Propagator.h"
 

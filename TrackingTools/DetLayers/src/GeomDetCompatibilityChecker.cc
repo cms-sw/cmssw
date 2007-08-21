@@ -1,4 +1,5 @@
 #include "TrackingTools/DetLayers/interface/GeomDetCompatibilityChecker.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h" 
 
 using namespace std;
 

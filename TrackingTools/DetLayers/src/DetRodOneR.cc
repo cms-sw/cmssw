@@ -1,4 +1,5 @@
 #include "TrackingTools/DetLayers/interface/DetRodOneR.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h" 
 #include "TrackingTools/DetLayers/interface/RodPlaneBuilderFromDet.h"
 
 #include <Utilities/General/interface/precomputed_value_sort.h>

@@ -3,8 +3,6 @@
 
 #include "TrackingTools/TrajectoryState/interface/BasicTrajectoryState.h"
 #include "TrackingTools/TrajectoryState/interface/SurfaceSideDefinition.h"
-#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-#include "DataFormats/GeometrySurface/interface/Surface.h"
 
 #include <iosfwd>
 

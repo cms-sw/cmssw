@@ -3,7 +3,6 @@
 
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 

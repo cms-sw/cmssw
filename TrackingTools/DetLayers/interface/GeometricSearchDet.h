@@ -5,9 +5,9 @@
 #include "DataFormats/GeometrySurface/interface/BoundSurface.h"
 
 #include "TrackingTools/DetLayers/interface/DetGroup.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h" 
 #include "TrackingTools/DetLayers/interface/GeomDetCompatibilityChecker.h"
 
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
 #include <vector>

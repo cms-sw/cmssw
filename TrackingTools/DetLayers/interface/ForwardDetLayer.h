@@ -10,6 +10,7 @@
  */
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h" 
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 

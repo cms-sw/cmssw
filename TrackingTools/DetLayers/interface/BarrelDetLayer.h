@@ -9,12 +9,11 @@
  *  are implemented in this class,
  *  but some methods are left abstract.
  *
- *  $Date:  $
- *  $Revision: $
+ *  $Date: 2007/03/07 16:28:39 $
+ *  $Revision: 1.7 $
  */
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"

@@ -1,5 +1,4 @@
 #include "TrackingTools/DetLayers/interface/RodPlaneBuilderFromDet.h"
-#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "DataFormats/GeometrySurface/interface/BoundingBox.h"
 

@@ -7,14 +7,13 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpot.cc,v 1.2 2007/01/22 04:48:40 yumiceva Exp $
+ version $Id: BeamSpot.cc,v 1.3 2007/06/27 12:25:48 speer Exp $
 
  ________________________________________________________________**/
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/GeometrySurface/interface/TkRotation.h"
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 #include <iostream>
 

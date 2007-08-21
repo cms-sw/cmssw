@@ -1,5 +1,6 @@
 #include "TrackingTools/TrajectoryState/interface/PerigeeConversions.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
+#include "MagneticField/Engine/interface/MagneticField.h" 
 #include <cmath>
 
 PerigeeTrajectoryParameters PerigeeConversions::ftsToPerigeeParameters

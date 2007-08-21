@@ -11,14 +11,13 @@
  *  NavigationSchool and activated with a NavigationSetter before they 
  *  can be used.
  *
- *  $Date: 2007/03/07 16:28:39 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/07/14 08:25:16 $
+ *  $Revision: 1.10 $
  */
 
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/DetLayers/interface/NavigableLayer.h"
 #include "TrackingTools/DetLayers/interface/NavigationDirection.h"
 
