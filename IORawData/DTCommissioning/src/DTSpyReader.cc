@@ -61,14 +61,12 @@ bool DTSpyReader::fillRawData(EventID& eID, Timestamp& tstamp, FEDRawDataCollect
   mySpy->getNextBuffer();
 
   // get the pointer to the beginning of the buffer
-  char * rawDTData = mySpy->getEventPointer();
+  const char * rawDTData = mySpy->getEventPointer();
   
-  uint32_t * rawDTData32 = reinterpret_cast<uint32_t*>(rawDTData);
+  const uint32_t * rawDTData32 = reinterpret_cast<const uint32_t*>(rawDTData);
 
   // instantiate the FEDRawDataCollection
   data = new FEDRawDataCollection();
-
-  FEDHeader * dduHeader;
 
   vector<uint64_t> eventData;  uint64_t word = 0;  
   int wordCount = 0; int wordCountCheck = 0;
@@ -82,17 +80,11 @@ bool DTSpyReader::fillRawData(EventID& eID, Timestamp& tstamp, FEDRawDataCollect
     // dma gets 4 32-bits words and create a 64 bit one
     word = dmaUnpack(rawDTData32, dataTag);
 
-    if (debug) cout<<"[DTSpyReader]: advancing in the buffer. Step "<<wordCountCheck<<endl;
-    
     // look for the DDU header
-    if (isHeader(word,dataTag)) {
-      headerTag=true;
-      dduHeader = new FEDHeader(reinterpret_cast<const unsigned char*>(&word));
-      if (debug) cout<<"[DTSpyReader]:  I got the header"<<endl;
-    }
+    if (isHeader(word,dataTag))  headerTag=true;
 
     // check whether the first word is a DDU header
-    if ( wordCountCheck > 0 && !headerTag ) 
+    if ( wordCountCheck > 0 && !headerTag && debug) 
       cout<<"[DTSpyReader]: WARNING: header still not found!!"<<endl;
 
     // from now on fill the eventData with the ROS data
@@ -104,30 +96,25 @@ bool DTSpyReader::fillRawData(EventID& eID, Timestamp& tstamp, FEDRawDataCollect
       // Control the correct interpretation in DDUUnpacker
       
       eventData.push_back(word);
-      wordCount++; if (debug) cout<<"[DTSpyReader]: number of words put in the event "<<wordCount<<endl;
+      wordCount++; 
     }
 
     // advancing by 4 32-bits words
-    rawDTData32 += 16;
+    rawDTData32 += 4;
 
     // counting the total number of group of 128 bits (=4*32) in the buffer 
-    wordCountCheck++; if (debug) cout<<"[DTSpyReader]: Step number "<<wordCountCheck<<endl;
+    wordCountCheck++; 
   }
 
-  sleep(10);
-
   // Setting the Event ID
-  runNumber = mySpy->getRunNo();
+  runNumber = mySpy->getRunNo(); 
   eID = EventID( runNumber, eventNumber);
   
   // eventDataSize = (Number Of Words)* (Word Size)
-  int eventDataSize = eventData.size()*dduWordLength;
+  int eventDataSize = eventData.size()*dduWordLength; 
   
-  // Get the FED ID from the DDU 
-  if (dduHeader) dduID = dduHeader->sourceID(); 
-  if (debug) cout<<"[DTSpyReader]: DDU ID = "<<dduID<<endl;
-  delete dduHeader;
-
+  if (debug) cout<<" DDU ID = "<<dduID<<endl;
+ 
   FEDRawData& fedRawData = data->FEDData( dduID );
   fedRawData.resize(eventDataSize);
   
@@ -148,7 +135,7 @@ void DTSpyReader::swap(uint64_t & word) {
 }
 
 
-uint64_t DTSpyReader::dmaUnpack(uint32_t* dmaData, bool & isData) {
+uint64_t DTSpyReader::dmaUnpack(const uint32_t* dmaData, bool & isData) {
   
   uint32_t unpackedData[2];
   // adjust 4 32-bits words  into 2 32-bits words
@@ -160,10 +147,11 @@ uint64_t DTSpyReader::dmaUnpack(uint32_t* dmaData, bool & isData) {
 
   isData = ( dmaData[0] >> 10 ) & 0x01;
 
+  //printf ("Lower part: %x \n", unpackedData[0]);
+  //printf ("Upper part: %x \n", unpackedData[1]);
+
   // push_back to a 64 word
   uint64_t dduWord = ( uint64_t(unpackedData[1]) << 32 ) | unpackedData[0];
-
-  if (debug) cout<<"[DTSpyReader]:  plain int32 word: "<<dduWord <<endl;
 
   return dduWord;
 }
@@ -175,9 +163,9 @@ bool DTSpyReader::isHeader(uint64_t word, bool dataTag) {
   if ( candidate.check() ) {
     // if ( candidate.check() && !dataTag) {
     it_is = true;
-   eventNumber++;
+    dduID = candidate.sourceID();
+    eventNumber++;
   }
- 
   return it_is;
 }
 
@@ -188,11 +176,9 @@ bool DTSpyReader::isTrailer(uint64_t word, bool dataTag, int wordCount) {
   FEDTrailer candidate(reinterpret_cast<const unsigned char*>(&word));
   if ( candidate.check() ) {
     //  if ( candidate.check() && !dataTag) {
-    cout<<"[DTSpyReader] "<<wordCount<<" - "<<candidate.lenght()<<endl;
-    //if ( wordCount == candidate.lenght())
-    it_is = true;
+    if ( wordCount == candidate.lenght())
+      it_is = true;
   }
- 
   return it_is;
 }
 

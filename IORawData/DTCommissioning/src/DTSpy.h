@@ -15,21 +15,21 @@
 
 
 class DTSpy : public DTCtcp {
-  protected:
+protected:
    
-	char * spybuf;
+  char * spybuf;
 	 
-  public:
+public:
 	   
-	DTSpy();
-	DTSpy(char *hostaddr,int port);
-	~DTSpy();
+  DTSpy();
+  DTSpy(char *hostaddr,int port);
+  ~DTSpy();
 	
-	int getNextBuffer();
+  int getNextBuffer();
 
-    int getBuffSize();
-	int getRunNo();
-	char * getEventPointer();
+  int getBuffSize();
+  int getRunNo();
+  const char * getEventPointer();
 	
 };
 

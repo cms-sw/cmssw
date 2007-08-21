@@ -17,13 +17,13 @@
 
 DTSpy::DTSpy():DTCtcp(0)
 {
-   spybuf=(char *)malloc(DTSPY_MAX_MSG);
+  spybuf=(char *)malloc(DTSPY_MAX_MSG);
 }
 
 
 DTSpy::~DTSpy()
 {
-   free(spybuf);
+  free(spybuf);
 }
 
 
@@ -72,7 +72,7 @@ DTSpy::getRunNo()
     return *i2ohea;
 }
 
-char *
+const char *
 DTSpy::getEventPointer()
 {
   	return (spybuf+DTSPY_HEAD_SIZE);

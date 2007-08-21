@@ -4,8 +4,8 @@
 /** \class DTSpyReader
  *  Read DT ROS8 raw data files
  *
- *  $Date: 2007/08/03 17:01:51 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/08/06 10:30:07 $
+ *  $Revision: 1.2 $
  *  \author M. Zanetti - INFN Padova
  */
 
@@ -42,7 +42,7 @@ class DTSpyReader : public DaqBaseReader {
 
   /// pre-unpack the data if read via DMA
   //  std::pair<uint64_t,bool> dmaUnpack();
-  uint64_t dmaUnpack(uint32_t *dmaData ,bool & isData);
+  uint64_t dmaUnpack(const uint32_t *dmaData ,bool & isData);
 
   /// swapping the lsBits with the msBits
   void swap(uint64_t & word);
