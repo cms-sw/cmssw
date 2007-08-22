@@ -2,7 +2,7 @@
 #define CommonDet_Propagator_H
 
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
-
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include <utility>
 
 class FreeTrajectoryState;
