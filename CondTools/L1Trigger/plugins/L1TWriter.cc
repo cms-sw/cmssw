@@ -13,36 +13,27 @@
 //
 // Original Author:  Giedrius Bacevicius
 //         Created:  Wed Jul 11 13:52:35 CEST 2007
-// $Id: L1TWriter.cc,v 1.3 2007/08/14 12:10:24 giedrius Exp $
+// $Id: L1TWriter.cc,v 1.1 2007/08/20 16:25:17 giedrius Exp $
 //
 //
 
 
 // system include files
 #include <memory>
-#include <iostream>
 #include <sstream>
 #include <algorithm>
 
 // user include files
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-
-#include "CondCore/IOVService/interface/IOVService.h"
-#include "CondCore/IOVService/interface/IOVEditor.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CondFormats/L1TObjects/interface/L1TriggerKey.h"
-#include "CondFormats/L1TObjects/interface/L1CSCTPParameters.h"
 #include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
-#include "CondFormats/DataRecord/interface/L1CSCTPParametersRcd.h"
 
 #include "CondTools/L1Trigger/plugins/L1TWriter.h"
 
@@ -57,11 +48,9 @@ L1TWriter::L1TWriter(const edm::ParameterSet& iConfig)
     writer (iConfig.getParameter<std::string> ("connect"), iConfig.getParameter<std::string> ("catalog"))
 {
     std::vector<std::string> params = iConfig.getParameterNames ();
-    if (std::find (params.begin (), params.end (), std::string ("keyTag")) != params.end ())
-        keyTag = std::string (iConfig.getParameter<std::string> ("keyTag"));
 
-    if (std::find (params.begin (), params.end (), std::string ("keyValue")) != params.end ())
-        keyValue = std::string (iConfig.getParameter<std::string> ("keyValue"));
+    // key tag is required. There is no point to write data without key.
+    keyTag = std::string (iConfig.getParameter<std::string> ("keyTag"));
 
     if (std::find (params.begin (), params.end (), std::string ("sinceRun")) != params.end ())
         sinceRun = iConfig.getParameter<int> ("sinceRun");
@@ -89,34 +78,15 @@ L1TWriter::~L1TWriter()
 {
 }
 
-L1TriggerKey L1TWriter::createKey (const std::string & tag, const unsigned long long run) const
-{
-    if (!keyValue.empty ())
-        return L1TriggerKey (keyValue);
-    else
-        return L1TriggerKey::fromRun (tag, run);
-}
-
 // ------------ method called to for each event  ------------
 void L1TWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     // sanity check, to make sure we are not abusing system
-    if (executionNumber != 0)
-    {
+    if (executionNumber != 0 && sinceRun > 0)
         // we can't have sinceRun set when running this for second time
-        if (sinceRun > 0)
-            throw cond::Exception ("L1TWriter") << "We are executing this analyzer for the second time. "
-                << "However, sinceRun parameter is set. This means that I have to save twice the same "
+        throw cond::Exception ("L1TWriter") << "We are executing this analyzer for the second time. "
+            << "However, sinceRun parameter is set. This means that I have to save twice the same "
                 << "L1 key for the same run.";
-
-        // Check if we are not forcing to use keyValues
-        // TODO: should we use not infitive IOVs here?
-        if (!keyValue.empty ())
-            throw cond::Exception ("L1TWriter") << "We are executing this analyzer for the second time. "
-                << "However, keyValue parameter is set. This means that I have to save twice the same "
-                << "payload with infitivine IOV.";
-
-    }
 
     executionNumber ++;
     // if we are using sinceRun, do not try to run this method more then once
@@ -124,30 +94,27 @@ void L1TWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (sinceRun > 0)
         run = sinceRun;
 
-    // save key to DB
-    // here we need to insert current IOV into a list of previous ones
-    // This can be easaly done via PoolDBService, but due to limited interface i have to do it myself...
-    L1TriggerKey newKey = createKey (keyTag, run);
-    if (!keyTag.empty ())
-        writer.writeKey (new L1TriggerKey (newKey), keyTag, run);
+    L1TriggerKey newKey;
 
-    // save all items that where asked for
-    std::cerr << "L1TWriter::analyze: starting to write records" << std::endl;
     for (Items::const_iterator rIt = items.begin (); rIt != items.end (); rIt ++)
     {
         std::string record = rIt->first;
         std::set<std::string> types = rIt->second;
 
         for (std::set<std::string>::const_iterator tIt = types.begin (); tIt != types.end (); tIt++)
-        {
-            std::cerr << "L1TWriter::analyze: writting " << record << " and " << *tIt << std::endl;
             writer.writePayload (newKey, iSetup, record, *tIt);
-        }
     }
+
+    // save key to DB
+    // here we need to insert current IOV into a list of previous ones
+    // This can be easaly done via PoolDBService, but due to limited interface i have to do it myself...
+    if (!keyTag.empty ())
+        writer.writeKey (new L1TriggerKey (newKey), keyTag, run);
+
 }
 
 template<typename Record, typename Value>
-void L1TWriter::writePayload (const L1TriggerKey & key, const std::string & recordName, const edm::EventSetup & iSetup)
+void L1TWriter::writePayload (L1TriggerKey & key, const std::string & recordName, const edm::EventSetup & iSetup)
 {
     edm::ESHandle<Value> handle;
     iSetup.get<Record> ().get (handle);

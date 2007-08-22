@@ -1,13 +1,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 
-#include "CondCore/DBCommon/interface/SessionConfiguration.h"
-#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 #include "CondCore/DBCommon/interface/Exception.h"
-#include "CondCore/DBCommon/interface/Ref.h"
 
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVIterator.h"
@@ -95,7 +91,7 @@ void L1TDBESSource::setIntervalFor (const edm::eventsetup::EventSetupRecordKey& 
         return;
 
     if (a.name () == std::string ("L1TriggerKeyRcd"))
-        reader.updateToken (a.name (), "L1TriggerKey", keyTag, b.eventID ().run ());
+        reader.updateToken (keyTag, b.eventID ().run ());
     else
     {
         // update token for all types associated with given record.
@@ -105,7 +101,7 @@ void L1TDBESSource::setIntervalFor (const edm::eventsetup::EventSetupRecordKey& 
 
         std::set<std::string> toLoad = found->second;
         for (std::set<std::string>::const_iterator it = toLoad.begin (); it != toLoad.end (); it++)
-            reader.updateToken (a.name (), *it, key.getKey (), b.eventID ().run ());
+            reader.updateToken (a.name (), *it, key);
     }
 }
 

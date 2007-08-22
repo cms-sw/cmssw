@@ -1,6 +1,8 @@
 #ifndef CondTools_L1Trigger_DataManager_h
 #define CondTools_L1Trigger_DataManager_h
 
+#include "FWCore/Framework/interface/DataKeyTags.h"
+
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/RelationalStorageManager.h"
 #include "CondCore/DBCommon/interface/PoolStorageManager.h"
@@ -25,6 +27,10 @@ class DataManager
         virtual ~DataManager ();
 
     protected:
+        /* Returns type object for provided type name
+         */
+        edm::eventsetup::TypeTag findType (const std::string & type) const;
+
         // Database connection management
         cond::DBSession * poolSession;
         cond::DBSession * coralSession;

@@ -35,15 +35,12 @@ class L1TWriter : public edm::EDAnalyzer {
        void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
    private:
-      L1TriggerKey createKey (const std::string & tag, const unsigned long long run) const;
-
       /* Helper function that will write payload to database extracted from EventSetup
        */
       template<typename Record, typename Value>
-      void writePayload (const L1TriggerKey & key, const std::string & recordName, const edm::EventSetup & iSetup);
+      void writePayload (L1TriggerKey & key, const std::string & recordName, const edm::EventSetup & iSetup);
 
       std::string keyTag;
-      std::string keyValue;
       int sinceRun;
 
       // Used to make sura that sinceRun is not set when we are running

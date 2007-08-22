@@ -1,8 +1,9 @@
 #include "CondTools/L1Trigger/src/DataWriter.h"
 
-#include "CondCore/DBCommon/interface/SessionConfiguration.h"
-#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 #include "CondCore/PluginSystem/interface/ProxyFactory.h"
+
+#include "CondCore/IOVService/interface/IOVService.h"
+#include "CondCore/IOVService/interface/IOVEditor.h"
 
 #include <utility>
 
@@ -44,7 +45,6 @@ void DataWriter::writeKey (L1TriggerKey * key, const std::string & tag, const in
     std::string tagToken = findTokenForTag (tag);
     bool requireMapping = tagToken.empty ();
 
-    // work with pool db
     pool->connect ();
     pool->startTransaction (false);
 
@@ -89,7 +89,7 @@ static std::string buildName( const std::string& iRecordName, const std::string&
     return iRecordName+"@"+iTypeName+"@Writer";
 }
 
-void DataWriter::writePayload (const L1TriggerKey & key, const edm::EventSetup & setup,
+void DataWriter::writePayload (L1TriggerKey & key, const edm::EventSetup & setup,
         const std::string & record, const std::string & type)
 {
     WriterFactory * factory = WriterFactory::get();
@@ -100,27 +100,16 @@ void DataWriter::writePayload (const L1TriggerKey & key, const edm::EventSetup &
     pool->connect ();
     pool->startTransaction (false);
 
+    // update key to have new payload registered for record-type pair.
     std::string payloadToken = writer->save(setup, *pool);
-    std::cerr << "DataWriter::writePayload: got token from write: " << payloadToken << std::endl;
     assert (!payloadToken.empty ());
-    delete writer;
 
-    // we know that this is new IOV token so we can skip test. Execption at this moment
-    // is also ok, becaus it is not knwo what to do if we try to reuse token
-    // However, exceptions will be rised from addMappings method
-    cond::IOVService iov (*pool);
-    cond::IOVEditor * editor = iov.newIOVEditor ();
-    editor->insert (edm::IOVSyncValue::endOfTime ().eventID ().run (), payloadToken);
-    std::string token = editor->token ();
-    std::cerr << "DataWriter::writePayload: got token from IOV: " << token << std::endl;
-    delete editor;
+    key.add (record, type, payloadToken);
+
+    delete writer;
 
     pool->commit ();
     pool->disconnect ();
-
-    // Assign payload token with IOV value
-    std::cerr << "DataWriter::writePayload: mapping with tag: " << key.getKey () << std::endl;
-    addMappings (key.getKey (), token);
 }
 
 

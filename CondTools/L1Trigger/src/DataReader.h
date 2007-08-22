@@ -4,17 +4,14 @@
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/DataKey.h"
 
-#include "CondCore/PluginSystem/interface/DataProxy.h"
-
 #include "DataFormats/Provenance/interface/RunID.h"
+#include "CondFormats/L1TObjects/interface/L1TriggerKey.h"
 
 #include "CondTools/L1Trigger/src/DataManager.h"
 #include "CondTools/L1Trigger/src/Interval.h"
-#include "CondFormats/L1TObjects/interface/L1TriggerKey.h"
 
-#include "CondCore/IOVService/interface/IOVService.h"
-#include "CondCore/IOVService/interface/IOVIterator.h"
 #include "CondCore/DBCommon/interface/Ref.h"
+#include "CondCore/PluginSystem/interface/DataProxy.h"
 
 
 #include <string>
@@ -33,11 +30,20 @@ namespace l1t
  * 
  * In case user is running in DataProxyProvider mode and does not know all the types at compile time,
  * she or he should use methods that returns DataProxy. It is assumed that these proxies should be then passed
- * to framork, although this requirement is not enforced.
+ * to frameork, although this requirement is not enforced.
+ *
+ * For all payload read operations user has to provide a valid L1TriggerKey. It is expected that this key comes
+ * from readKey method, although, if user is able to guarante that key is valid it can use any other source.
+ *
+ * Validity of all data is controled by validity of L1TriggerKey.
  */
 class DataReader : public DataManager
 {
     public:
+        /* Constructors. This system will use pool db that is configured via provided parameters.
+         * connect - connection string to pool db, e.g. sqlite_file:test.db
+         * catalog - catalog that should be used for this connection. e.g. file:test.xml
+         */
         explicit DataReader (const std::string & connect, const std::string & catalog);
         virtual ~DataReader ();
 
@@ -49,13 +55,15 @@ class DataReader : public DataManager
          * valid
          */
         template<typename T>
-        T readPayload (const L1TriggerKey & key);
+        T readPayload (const L1TriggerKey & key, const std::string & record);
 
-        /* Returns proxy that should provided oobjects of given type for given object. This will not
+        /* Returns proxy that should provided objects of given type for given object. This will not
          * take any information about IOV moment. You can set this information via updateToken.
          * Also, one should note that when object is returned by this method it is not valid
-         * until updateTOken is called for this record and type.
-         * Such strange behavior requirements comes from the fact how DataProxyProvider works
+         * until updateToken is called for this record and type.
+         * 
+         * Such strange behavior requirements comes from the fact how DataProxyProvider works. This method
+         * is designed, but not limited, to be used by DataProxyProvider (e.g. L1TDBESSource)
          */
         std::pair<boost::shared_ptr<edm::eventsetup::DataProxy>, edm::eventsetup::DataKey>
         payload (const std::string & record, const std::string & type);
@@ -69,18 +77,25 @@ class DataReader : public DataManager
          * not found.
          */
         std::pair<edm::RunNumber_t, edm::RunNumber_t> interval (const std::string & tag, const edm::RunNumber_t & run);
+
         /* Returns pair that indictates that this interval is invalid.
          * At the moment it will return interval of (-1, -2), this is not always good
          * so one should thing about better approach
          */
         static std::pair<edm::RunNumber_t, edm::RunNumber_t> invalid ();
 
-        /* Instructs previusly returned proxy (from methods payload (...) and key (...)) to load data
+        /* Instructs previusly returned proxy (from method payload (...)) to load data
          * associated with given tag and IOV value. Thus, record and type parameters are used to identify
-         * which proxy to update and tag and run number what payloadToken to provide for them.
+         * which proxy to update. Correct record and type is selected from DB based on proovided key
          */
         void updateToken (const std::string & record, const std::string & type,
-            const std::string & tag, const edm::RunNumber_t run);
+            const L1TriggerKey & key);
+
+        /* Updates key proxy (returned by method key (...)) to start producing new key with given tag and
+         * run number. This will not effect objects loaded with method payload (...). So one has to call other version
+         * of updateToken to make sure than payload is returned correctly
+         */
+        void updateToken (const std::string & tag, const edm::RunNumber_t run);
 
     protected:
         /* Loads all IOV intervals that are valid in DB for given tag.
@@ -89,16 +104,12 @@ class DataReader : public DataManager
 
         /* Returns payload token for given tag and run number
          */
-        std::string payloadToken (const std::string & tag, const edm::RunNumber_t run = 1) const;
+        std::string payloadToken (const std::string & tag, const edm::RunNumber_t run) const;
 
-        /* Helper method that does teh actual work for method payload (...) and key (...)
+        /* Helper method that does the actual work for method payload (...) and key (...)
          */
         std::pair<boost::shared_ptr<edm::eventsetup::DataProxy>, edm::eventsetup::DataKey>
         createPayload (const std::string & record, const std::string & type);
-
-        /* Returns type object for provided type name
-         */
-        edm::eventsetup::TypeTag findType (const std::string & type) const;
 
         /* Stores a list of intervals associated with each tag.
          * Most of the time it should be tag, but this system supports any number of them
@@ -108,8 +119,7 @@ class DataReader : public DataManager
         /* I am using DataProxy. Its construtor takes a last parameteres as an iterator
          * to map of string of string. Technically it needs only the second string.
          * The problem that I have here is that I have to make sure that DataProxy that I am
-         * reuturning will die before map whos iterator it uses.
-         * Thus we have map here
+         * returning will die before map whos iterator it uses. Thus we have map here.
          */
         std::map<std::string, std::string> typeToToken;
 };
@@ -117,18 +127,22 @@ class DataReader : public DataManager
 /* Template functions implementation */
 
 template<typename T>
-T DataReader::readPayload (const L1TriggerKey & key)
+T DataReader::readPayload (const L1TriggerKey & key, const std::string & record)
 {
     pool->connect ();
     pool->startTransaction (false);
 
-    // so we have a key, let's use it to load data
-    // Yeh, I need to load data from DB, and I do not have a payload token...
-    cond::Ref<T> csc (*pool, payloadToken (key.getKey ()));
+    // Convert type to class name.
+    std::string typeName = 
+        edm::eventsetup::heterocontainer::HCTypeTagTemplate<T, edm::eventsetup::DataKey>::className ();
+    std::string token = key.get (record, typeName);
+    assert (!token.empty ());
+
+    cond::Ref<T> ref (*pool, token);
 
     pool->commit ();
     pool->disconnect ();
-    return T (*csc);
+    return T (*ref);
 }
 
 }

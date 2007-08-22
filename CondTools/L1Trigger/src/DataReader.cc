@@ -1,10 +1,12 @@
 #include "CondTools/L1Trigger/src/DataReader.h"
+
 #include "CondCore/PluginSystem/interface/DataProxy.h"
 #include "CondCore/PluginSystem/interface/ProxyFactory.h"
 
-#include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
+#include "CondCore/IOVService/interface/IOVService.h"
+#include "CondCore/IOVService/interface/IOVIterator.h"
 
-#include <iostream>
+#include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
 
 namespace l1t
 {
@@ -37,7 +39,7 @@ L1TriggerKey DataReader::readKey (const std::string & tag, const edm::RunNumber_
             << "for l1 tag \"" << tag << "\"";
 
     cond::Ref<L1TriggerKey> key (*pool, data.payload ());
-    L1TriggerKey ret (key->getKey ());
+    L1TriggerKey ret (*key); // clone key, so that it could be returned nicely
 
     pool->commit ();
 
@@ -53,7 +55,6 @@ IntervalManager<edm::RunNumber_t, std::string> DataReader::loadIntervals (const 
     coral->commit();
     coral->disconnect ();
 
-    // load the data from the db
     pool->startTransaction (false);
 
     intervals.clear ();
@@ -128,24 +129,22 @@ static std::string buildName( const std::string& iRecordName, const std::string&
   return iRecordName+"@"+iTypeName+"@Proxy";
 }
 
-edm::eventsetup::TypeTag DataReader::findType (const std::string & type) const
-{
-     static edm::eventsetup::TypeTag defaultType;
-     edm::eventsetup::TypeTag typeTag = edm::eventsetup::TypeTag::findType (type);
-
-     if (typeTag == defaultType)
-        throw cond::Exception ("DataReader::findType") << "Type " << type << " was not found";
-
-     return typeTag;
-}
-
 void DataReader::updateToken (const std::string & record, const std::string & type,
-        const std::string & tag, const edm::RunNumber_t run)
+    const L1TriggerKey & key)
 {
      std::stringstream ss;
      ss << record << "@" << type;
 
+     // find entry in the map and change its second argument - payload token
+     // DataProxy will make sure to take into account this change
      std::map <std::string, std::string>::iterator it = typeToToken.find (ss.str ());
+     if (it != typeToToken.end ())
+         it->second = key.get (record, type);
+}
+
+void DataReader::updateToken (const std::string & tag, const edm::RunNumber_t run)
+{
+     std::map <std::string, std::string>::iterator it = typeToToken.find ("L1TriggerKeyRcd@L1TriggerKey");
      if (it != typeToToken.end ())
          it->second = payloadToken (tag, run);
 }

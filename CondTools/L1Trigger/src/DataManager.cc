@@ -3,6 +3,8 @@
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
 #include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 
+#include "CondCore/DBCommon/interface/Exception.h"
+
 namespace l1t
 {
 
@@ -44,5 +46,17 @@ DataManager::~DataManager ()
     delete coralSession;
     delete poolSession;
 }
+
+edm::eventsetup::TypeTag DataManager::findType (const std::string & type) const
+{
+     static edm::eventsetup::TypeTag defaultType;
+     edm::eventsetup::TypeTag typeTag = edm::eventsetup::TypeTag::findType (type);
+
+     if (typeTag == defaultType)
+        throw cond::Exception ("DataReader::findType") << "Type " << type << " was not found";
+
+     return typeTag;
+}
+
 
 }

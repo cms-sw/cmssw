@@ -18,23 +18,9 @@
 #include "CondTools/L1Trigger/src/Interval.h"
 #include "CondTools/L1Trigger/src/DataReader.h"
 
-
-// -*- C++ -*-
-//
-// Package:    L1TDBESSource
-// Class:      L1TDBESSource
-// 
-/**\class L1TDBESSource L1TDBESSource.h CondTools/L1TDBESSource/src/L1TDBESSource.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
-*/
-//
 // Original Author:  Giedrius Bacevicius
 //         Created:  Thu Jul 19 13:14:44 CEST 2007
-// $Id: L1TDBESSource.h,v 1.3 2007/08/19 16:36:56 giedrius Exp $
+// $Id: L1TDBESSource.h,v 1.1 2007/08/20 16:25:17 giedrius Exp $
 namespace l1t
 {
 /* Class that will load data from PoolDB and stores it into EventSetup.

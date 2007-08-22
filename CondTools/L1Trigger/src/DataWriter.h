@@ -1,22 +1,17 @@
-#ifndef CONDTOOLS_L1TRIGER_DAtAWRITER_H
-#define CONDTOOLS_L1TRIGER_DAtAWRITER_H
+#ifndef CondTools_L1Trigger_DataWriter_h
+#define CondTools_L1Trigger_DataWriter_h
 
 // Framework
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/DataKey.h"
 
-#include "CondCore/DBCommon/interface/DBSession.h"
-#include "CondCore/DBCommon/interface/RelationalStorageManager.h"
-#include "CondCore/DBCommon/interface/PoolStorageManager.h"
 #include "CondCore/DBCommon/interface/Ref.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 
-#include "CondCore/IOVService/interface/IOVService.h"
-#include "CondCore/IOVService/interface/IOVEditor.h"
-
-
 // L1T includes
 #include "CondFormats/L1TObjects/interface/L1TriggerKey.h"
+
 #include "CondTools/L1Trigger/src/DataManager.h"
 #include "CondTools/L1Trigger/src/WriterProxy.h"
 
@@ -26,25 +21,45 @@
 namespace l1t
 {
 
-/* This is a helper class that will allow user to write data to database.
- * Class provides managament of all connection and catalogs. As well as managing
- * key and payload relationships.
+/* This class is used to write L1 Trigger configuration data to Pool DB. Later this data can be
+ * read from pool DB with class l1t::DataReader.
+ *
+ * L1TriggerKey is always writen to database by metod writeKey (...). Payload can be writen to database
+ * in two ways. If user knows data type that she or he is interested to write to database, should use
+ * templated version of writePayload. If that is not the case, then non-template version of write payload should
+ * be used. Both of these methods will write payload to database and updates passed L1TriggerKey to reflect this
+ * new change. This means that L1TriggerKey should be writen to database last, after all payload has been writen.
+ *
+ * Non-template version of writePayload was writen in such way that it could take data from EventSetup. Other options
+ * also can be implemented.
+ *
+ * In order to use non-template version of this class, user has to make sure to register datatypes that she or he is
+ * interested to write to the framework. This should be done with macro REGISTER_L1_WRITER(record, type) found in
+ * WriterProxy.h file. Also, one should take care to register these data types to CondDB framework with macro
+ * REGISTER_PLUGIN(record, type) from registration_macros.h found in PluginSystem.
+ *
+ * Validity interval of all data is controled via L1TriggerKey.
  */
 class DataWriter : public DataManager
 {
     public:
+        /* Constructors. This system will use pool db that is configured via provided parameters.
+         * connect - connection string to pool db, e.g. sqlite_file:test.db
+         * catalog - catalog that should be used for this connection. e.g. file:test.xml
+         */
         explicit DataWriter (const std::string & connect, const std::string & catalog)
             : DataManager (connect, catalog) {};
         virtual ~DataWriter () {};
 
         /* Data writting functions */
 
-        /* Writes payload to DB and assignes it to provided L1TKey.
+        /* Writes payload to DB and assignes it to provided L1TriggerKey. Key is updated
+         * to reflect changes.
          */
         template<typename T>
-        void writePayload (const L1TriggerKey & key, T * payload, const std::string & recordName);
+        void writePayload (L1TriggerKey & key, T * payload, const std::string & recordName);
 
-        void writePayload (const L1TriggerKey & key, const edm::EventSetup & setup,
+        void writePayload (L1TriggerKey & key, const edm::EventSetup & setup,
                 const std::string & record, const std::string & type);
 
         /* Writes given key to DB and starts its IOV from provided run number.
@@ -53,6 +68,7 @@ class DataWriter : public DataManager
         void writeKey (L1TriggerKey * key, const std::string & tag, const int sinceRun);
 
     protected:
+        /* Helper method that maps tag with iovToken */
         void addMappings (const std::string tag, const std::string iovToken);
         std::string findTokenForTag (const std::string & tag);
 
@@ -64,7 +80,7 @@ class DataWriter : public DataManager
 /* Part of the implementation: Template functions that can't go to cc failes */
 
 template<typename T>
-void DataWriter::writePayload (const L1TriggerKey & key, T * payload, const std::string & recordName)
+void DataWriter::writePayload (L1TriggerKey & key, T * payload, const std::string & recordName)
 {
     pool->connect ();
     pool->startTransaction (false);
@@ -72,20 +88,13 @@ void DataWriter::writePayload (const L1TriggerKey & key, T * payload, const std:
     cond::Ref<T> ref (*pool, payload);
     ref.markWrite (recordName);
 
-    // we know that this is new IOV token so we can skip test. Execption at this moment
-    // is also ok, becaus it is not knwo what to do if we try to reuse token
-    // However, exceptions will be rised from addMappings method
-    cond::IOVService iov (*pool);
-    cond::IOVEditor * editor = iov.newIOVEditor ();
-    editor->insert (edm::IOVSyncValue::endOfTime ().eventID ().run (), ref.token ());
-    std::string token = editor->token ();
-    delete editor;
+    std::string typeName = 
+        edm::eventsetup::heterocontainer::HCTypeTagTemplate<T, edm::eventsetup::DataKey>::className ();
+
+    key.add (recordName, typeName, ref.token ());
 
     pool->commit ();
     pool->disconnect ();
-
-    // Assign payload token with IOV value
-    addMappings (key.getKey (), token);
 }
 
 } // ns
