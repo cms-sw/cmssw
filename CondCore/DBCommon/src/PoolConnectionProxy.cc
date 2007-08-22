@@ -28,6 +28,8 @@ cond::PoolConnectionProxy::PoolConnectionProxy(const std::string& con,
 }
 cond::PoolConnectionProxy::~PoolConnectionProxy(){
   delete m_transaction;
+  delete m_datasvc;
+  m_datasvc=0;
 }
 cond::ITransaction&  
 cond::PoolConnectionProxy::transaction(){
@@ -73,8 +75,8 @@ cond::PoolConnectionProxy::disconnect(){
   m_datasvc->session().disconnectAll();
   m_catalog->commit();
   m_catalog->disconnect();
-  delete m_datasvc;
-  m_datasvc=0;
+  //delete m_datasvc;
+  //m_datasvc=0;
 }
 void 
 cond::PoolConnectionProxy::reactOnStartOfTransaction( const ITransaction* transactionSubject ){
