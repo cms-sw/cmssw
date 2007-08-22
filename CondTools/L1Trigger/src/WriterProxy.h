@@ -42,8 +42,6 @@ template<class Record, class Type>
 class WriterProxyT : public WriterProxy
 {
     public:
-        explicit WriterProxyT (std::string, std::string) {};
-
         /* This method requires that Record and Type supports copy constructor */
         virtual std::string save (const edm::EventSetup & setup, cond::PoolStorageManager & pool) const
         {
@@ -62,7 +60,7 @@ class WriterProxyT : public WriterProxy
         }
 };
 
-typedef edmplugin::PluginFactory<l1t::WriterProxy * (std::string, std::string)> WriterFactory;
+typedef edmplugin::PluginFactory<l1t::WriterProxy * ()> WriterFactory;
 
 // Defines new type, creates static instance of this class and register it for plugin
 #define REGISTER_L1_WRITER(record,type) \

@@ -94,7 +94,7 @@ void DataWriter::writePayload (L1TriggerKey & key, const edm::EventSetup & setup
 {
     WriterFactory * factory = WriterFactory::get();
     const std::string name = buildName(record, type);
-    WriterProxy * writer = factory->create(name, std::string ("ha"), std::string ("ha"));
+    WriterProxy * writer = factory->create(name);
     assert (writer != 0);
 
     pool->connect ();
