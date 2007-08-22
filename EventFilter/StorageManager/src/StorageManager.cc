@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.26 2007/08/18 06:04:57 hcheung Exp $
+// $Id: StorageManager.cc,v 1.27 2007/08/19 07:31:45 hcheung Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -772,7 +772,7 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
     *out << "  <td align=\"left\">"                                    << endl;
     *out << "    <img"                                                 << endl;
     *out << "     align=\"middle\""                                    << endl;
-    *out << "     src=\"/daq/evb/examples/fu/images/fu64x64.gif\""     << endl;
+    *out << "     src=\"/rubuilder/fu/images/fu64x64.gif\""     << endl;
     *out << "     alt=\"main\""                                        << endl;
     *out << "     width=\"64\""                                        << endl;
     *out << "     height=\"64\""                                       << endl;
@@ -787,7 +787,7 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
     *out << "    <a href=\"/urn:xdaq-application:lid=3\">"             << endl;
     *out << "      <img"                                               << endl;
     *out << "       align=\"middle\""                                  << endl;
-    *out << "       src=\"/daq/xdaq/hyperdaq/images/HyperDAQ.jpg\""    << endl;
+    *out << "       src=\"/hyperdaq/images/HyperDAQ.jpg\""    << endl;
     *out << "       alt=\"HyperDAQ\""                                  << endl;
     *out << "       width=\"32\""                                      << endl;
     *out << "       height=\"32\""                                      << endl;
@@ -801,7 +801,7 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
          << "/debug\">"                   << endl;
     *out << "      <img"                                               << endl;
     *out << "       align=\"middle\""                                  << endl;
-    *out << "       src=\"/daq/evb/bu/images/debug32x32.gif\""         << endl;
+    *out << "       src=\"/rubuilder/fu/images/debug32x32.gif\""         << endl;
     *out << "       alt=\"debug\""                                     << endl;
     *out << "       width=\"32\""                                      << endl;
     *out << "       height=\"32\""                                     << endl;
@@ -1040,7 +1040,7 @@ void StorageManager::fusenderWebPage(xgi::Input *in, xgi::Output *out)
     *out << "  <td align=\"left\">"                                    << endl;
     *out << "    <img"                                                 << endl;
     *out << "     align=\"middle\""                                    << endl;
-    *out << "     src=\"/daq/evb/examples/fu/images/fu64x64.gif\""     << endl;
+    *out << "     src=\"/rubuilder/fu/images/fu64x64.gif\""     << endl;
     *out << "     alt=\"main\""                                        << endl;
     *out << "     width=\"64\""                                        << endl;
     *out << "     height=\"64\""                                       << endl;
@@ -1055,7 +1055,7 @@ void StorageManager::fusenderWebPage(xgi::Input *in, xgi::Output *out)
     *out << "    <a href=\"/urn:xdaq-application:lid=3\">"             << endl;
     *out << "      <img"                                               << endl;
     *out << "       align=\"middle\""                                  << endl;
-    *out << "       src=\"/daq/xdaq/hyperdaq/images/HyperDAQ.jpg\""    << endl;
+    *out << "       src=\"/hyperdaq/images/HyperDAQ.jpg\""    << endl;
     *out << "       alt=\"HyperDAQ\""                                  << endl;
     *out << "       width=\"32\""                                      << endl;
     *out << "       height=\"32\""                                      << endl;
@@ -1069,7 +1069,7 @@ void StorageManager::fusenderWebPage(xgi::Input *in, xgi::Output *out)
          << "/debug\">"                   << endl;
     *out << "      <img"                                               << endl;
     *out << "       align=\"middle\""                                  << endl;
-    *out << "       src=\"/daq/evb/bu/images/debug32x32.gif\""         << endl;
+    *out << "       src=\"/rubuilder/fu/images/debug32x32.gif\""         << endl;
     *out << "       alt=\"debug\""                                     << endl;
     *out << "       width=\"32\""                                      << endl;
     *out << "       height=\"32\""                                     << endl;
@@ -1342,7 +1342,7 @@ void StorageManager::streamerOutputWebPage(xgi::Input *in, xgi::Output *out)
     *out << "  <td align=\"left\">"                                    << endl;
     *out << "    <img"                                                 << endl;
     *out << "     align=\"middle\""                                    << endl;
-    *out << "     src=\"/daq/evb/examples/fu/images/fu64x64.gif\""     << endl;
+    *out << "     src=\"/rubuilder/fu/images/fu64x64.gif\""     << endl;
     *out << "     alt=\"main\""                                        << endl;
     *out << "     width=\"64\""                                        << endl;
     *out << "     height=\"64\""                                       << endl;
@@ -1357,7 +1357,7 @@ void StorageManager::streamerOutputWebPage(xgi::Input *in, xgi::Output *out)
     *out << "    <a href=\"/urn:xdaq-application:lid=3\">"             << endl;
     *out << "      <img"                                               << endl;
     *out << "       align=\"middle\""                                  << endl;
-    *out << "       src=\"/daq/xdaq/hyperdaq/images/HyperDAQ.jpg\""    << endl;
+    *out << "       src=\"/hyperdaq/images/HyperDAQ.jpg\""    << endl;
     *out << "       alt=\"HyperDAQ\""                                  << endl;
     *out << "       width=\"32\""                                      << endl;
     *out << "       height=\"32\""                                      << endl;
@@ -1371,7 +1371,7 @@ void StorageManager::streamerOutputWebPage(xgi::Input *in, xgi::Output *out)
          << "/debug\">"                   << endl;
     *out << "      <img"                                               << endl;
     *out << "       align=\"middle\""                                  << endl;
-    *out << "       src=\"/daq/evb/bu/images/debug32x32.gif\""         << endl;
+    *out << "       src=\"/rubuilder/fu/images/debug32x32.gif\""       << endl;
     *out << "       alt=\"debug\""                                     << endl;
     *out << "       width=\"32\""                                      << endl;
     *out << "       height=\"32\""                                     << endl;
