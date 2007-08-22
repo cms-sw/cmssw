@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2007/08/15 12:54:45 $
-//   $Revision: 1.2 $
+//   $Date: 2007/08/21 10:17:07 $
+//   $Revision: 1.3 $
 //
 //   Modifications:
 //
@@ -75,15 +75,16 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
   CSCTriggerGeometry::setGeometry(h);
 
   // Get config. parameters using EventSetup mechanism.  This must be done
-  // in produce() and not in beginJob() (see mail from Jim Brooke sent to
-  // hn-cms-L1TrigEmulator on July 30, 2007).
-  static bool begin_job = true;
-  if (begin_job) {
-    edm::ESHandle<L1CSCTPParameters> conf;
-    setup.get<L1CSCTPParametersRcd>().get(conf);
-    lctBuilder_->setConfigParameters(conf.product());
-    begin_job = false;
+  // in produce() for every event and not in beginJob() (see mail from
+  // Jim Brooke sent to hn-cms-L1TrigEmulator on July 30, 2007).
+  edm::ESHandle<L1CSCTPParameters> conf;
+  setup.get<L1CSCTPParametersRcd>().get(conf);
+  if (conf.product() == 0) {
+    throw cms::Exception("CSCTriggerPrimitivesProducer")
+      << "+++ Failed to find a L1CSCTPParametersRcd in EventSetup! +++\n"
+      << "+++ Cannot continue without these parameters +++\n";
   }
+  lctBuilder_->setConfigParameters(conf.product());
 
   // Get the collections of comparator & wire digis from event.
   edm::Handle<CSCComparatorDigiCollection> compDigis;
