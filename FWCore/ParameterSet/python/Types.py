@@ -133,7 +133,7 @@ class string(_SimpleParameterTypeBase):
         return isinstance(value,type(''))
     def configValue(self,indent,deltaIndent):
         return self.formatValueForConfig(self.value())
-    def pythonValue(self):
+    def pythonValue(self,indent,deltaIndent):
         return self.configValue('','')
     @staticmethod
     def formatValueForConfig(value):
@@ -177,8 +177,8 @@ class InputTag(_ParameterTypeBase):
     processName = property(getProcessName,setProcessName,"process name for the product")
     def configValue(self,indent,deltaIndent):
         return self.__moduleLabel+':'+self.__productInstance+':'+self.__processName
-    def pythonValue(self):
-        return self.configValue('','')
+    def pythonValue(self,indent,deltaIndent):
+        return "\""+self.configValue(indent,deltaIndent)+"\""
     @staticmethod
     def _isValid(value):
         return True
@@ -209,42 +209,29 @@ class InputTag(_ParameterTypeBase):
 
 
 
-class SecSource(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
+class SecSource(_ParameterTypeBase,_TypedParameterizable,_ConfigureComponent,_Labelable):
     def __init__(self,type_,*arg,**args):
-        #need to call the inits separately
-        self.__dict__['_SecSource__type']=type_
         _ParameterTypeBase.__init__(self)
-        _Parameterizable.__init__(self,*arg,**args)
+        _TypedParameterizable.__init__(self,type_,*arg,**args)
     def value(self):
         return self
-    def type_(self):
-        return self.__type
     @staticmethod
     def _isValid(value):
         return True
     def configTypeName(self):
-            return "secsource"
+        return "secsource"
     def configValue(self,indent='',deltaIndent=''):
-        config = self.type_()+' { \n'
-        for name in self.parameterNames_():
-            param = getattr(self,name)
-            config+=indent+deltaIndent+param.configTypeName()+' '+name+' = '+param.configValue(indent+deltaIndent,deltaIndent)+'\n'
-        config += indent+'}\n'
-        return config
+       return self.dumpConfig(indent, deltaIndent)
+    def dumpPython(self, indent, deltaIndent):
+        return "cms.SecSource(\""+self.type_()+"\",\n"+_Parameterizable.dumpPython(self,indent, deltaIndent)+indent+")"
     def copy(self):
+        # TODO is the one in TypedParameterizable better?
         import copy
         return copy.copy(self)
     def _place(self,name,proc):
         proc._placePSet(name,self)
     def __str__(self):
         return object.__str__(self)
-    def insertInto(self, parameterSet, myname):
-        newpset = parameterSet.newPSet()
-        newpset.addString(True, "@module_label", myname)
-        newpset.addString(True, "@module_type", self.type_())
-        self.insertContentsInto(newpset)
-        parameterSet.addPSet(True, myname, newpset)
-
 
 class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
     def __init__(self,*arg,**args):
@@ -264,7 +251,7 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
         config += indent+'}\n'
         return config
     def dumpPython(self,indent,deltaIndent):
-        result = "cms.PSet(\n"+_Parameterizable.dumpPython(self, indent,deltaIndent)+'\n'+indent+")"
+        result = "cms.PSet(\n"+_Parameterizable.dumpPython(self, indent,deltaIndent)+indent+")"
         return result
     def copy(self):
         import copy
@@ -301,13 +288,15 @@ class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
         return config
     def configValueForItem(self,item,indent,deltaIndent):
         return str(item)
+    def pythonValueForItem(self,item,indent,deltaIndent):
+        return self.configValueForItem(item,indent,deltaIndent)
     def dumpPython(self,indent,deltaIndent):
         result = "cms."+type(self).__name__+"("
         first = True
         for value in iter(self):
             if not first:
                 result+=', '
-            result+=str(value)
+            result+=self.pythonValueForItem(value, indent,deltaIndent)
             first = False
         result += ')'
         return result
@@ -425,6 +414,8 @@ class VInputTag(_ValidatingParameterListBase):
         return InputTag._isValid(item)
     def configValueForItem(self,item,indent,deltaIndent):
         return InputTag.formatValueForConfig(item)
+    def pythonValueForItem(self,item,indent,deltaIndent):
+        return "\""+self.configValueForItem(item,indent,deltaIndent)+"\""
     @staticmethod
     def _valueFromString(value):
         return VInputTag(*_ValidatingParameterListBase._itemsFromStrings(value,InputTag._valueFromString))
@@ -455,6 +446,8 @@ class VPSet(_ValidatingParameterListBase,_ConfigureComponent,_Labelable):
         return PSet._isValid(item)
     def configValueForItem(self,item,indent,deltaIndent):
         return PSet.configValue(item,indent+deltaIndent,deltaIndent)
+    def pythonValueForItem(self,item,indent,deltaIndent):
+        return PSet.dumpPython(item,indent+deltaIndent,deltaIndent)
     def copy(self):
         import copy
         return copy.copy(self)
