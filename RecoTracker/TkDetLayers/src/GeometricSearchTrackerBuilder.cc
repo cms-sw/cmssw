@@ -9,6 +9,9 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/trackerHierarchy.h"
 
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+
+
 #include "DataFormats/Common/interface/Trie.h"
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
@@ -36,14 +39,14 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
   vector<ForwardDetLayer*> theNegTECLayers;
   vector<ForwardDetLayer*> thePosTECLayers;
   
-
+  using namespace trackerTrie;
 
   //-- future code
   // create a Trie
   DetTrie trie(0);
 
   {
-    const DetUnitContainer&  modules = theGeomDetGeometry->detUnits(); 
+    const TrackingGeometry::DetUnitContainer&  modules = theGeomDetGeometry->detUnits(); 
     typedef TrackingGeometry::DetUnitContainer::const_iterator Iter;
     Iter b=modules.begin();
     Iter e=modules.end();
