@@ -788,7 +788,7 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
 
   // crystals only in barrel/endcap part
   if ((crgn%22)<4 || (crgn%22)>17) return 0;
-  if (crgn>395 || crgn < 1 || ctwr > 15 || ctwr < 0) return 0;
+  if (crgn>395 || crgn < 0 || ctwr > 15 || ctwr < 0) return 0;
 
   CaloTowerCollection c = m_Regions.at(crgn).GetCaloTowers();
   double cenEt = c[ctwr].emEt();
