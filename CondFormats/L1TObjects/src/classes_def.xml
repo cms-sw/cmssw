@@ -35,5 +35,7 @@
   <class name="std::map<DTSectCollId,DTConfigSectColl>"/>
   <class name="DTConfigManager"/>
   <class name="L1TriggerKey"/>
+  <class name="std::map<std::string, std::string>"/>
+  <class name="std::map<std::string, std::string>::value_type"/>
   <class name="L1RCTParameters"/>
 </lcgdict>
