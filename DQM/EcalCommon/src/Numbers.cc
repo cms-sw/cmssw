@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.19 2007/08/21 07:49:06 dellaric Exp $
+// $Id: Numbers.cc,v 1.20 2007/08/21 11:31:46 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.19 $
-  \date $Date: 2007/08/21 07:49:06 $
+  \version $Revision: 1.20 $
+  \date $Date: 2007/08/21 11:31:46 $
 */
 
 #include <sstream>
@@ -302,18 +302,16 @@ int Numbers::iy0EE( const int ism ) {
 
 bool Numbers::validEE( const int ism, const int ix, const int iy ) {
 
-  EEDetId id0;
-
   int iz = 0;
 
   if ( ism >=  1 && ism <=  9 ) iz = -1;
   if ( ism >= 10 && ism <= 18 ) iz = +1;
 
-  if ( id0.validDetId(ix, iy, iz) ) {
+  if ( EEDetId::validDetId(ix, iy, iz) ) {
 
-    EEDetId id1(ix, iy, iz, EEDetId::XYMODE);
+    EEDetId id(ix, iy, iz, EEDetId::XYMODE);
 
-    if ( Numbers::iSM( id1 ) == ism ) return true;
+    if ( Numbers::iSM( id ) == ism ) return true;
 
   }
 
@@ -325,20 +323,18 @@ bool Numbers::validEE( const int ism, const int ix, const int iy ) {
 
 int Numbers::icEE( const int ism, const int ix, const int iy ) {
 
-  EEDetId id0;
-
   int iz = 0;
 
   if ( ism >=  1 && ism <=  9 ) iz = -1;
   if ( ism >= 10 && ism <= 18 ) iz = +1;
 
-  if ( id0.validDetId(ix, iy, iz) ) {
+  if ( EEDetId::validDetId(ix, iy, iz) ) {
 
-    EEDetId id1(ix, iy, iz, EEDetId::XYMODE);
+    EEDetId id(ix, iy, iz, EEDetId::XYMODE);
 
-    //if ( Numbers::iSM( id1 ) == ism ) return( id1.ic() );
+    //if ( Numbers::iSM( id1 ) == ism ) return( id.ic() );
 
-   // temporary fix, waiting for something better ....
+    // temporary fix, waiting for something better ....
 
     return( 5*(ix-1) + (iy-1) );
 
