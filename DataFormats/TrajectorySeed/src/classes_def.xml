@@ -1,6 +1,5 @@
 
 <lcgdict>
-  <class name="BasicTrajectorySeed" />
   <class name="TrajectorySeed" />
   <class name="std::vector<TrajectorySeed>" />
   <class name="edm::Wrapper<std::vector<TrajectorySeed> >" />
