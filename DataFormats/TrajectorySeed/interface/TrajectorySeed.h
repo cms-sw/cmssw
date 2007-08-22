@@ -58,5 +58,6 @@ class TrajectorySeed {
   PTrajectoryStateOnDet tsos_;
   PropagationDirection dir_;
 };
+typedef TrajectorySeed BasicTrajectorySeed;
 
 #endif
