@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1Region.cc,v 1.7 2007/08/13 22:28:43 chinhan Exp $
+// $Id: FastL1Region.cc,v 1.8 2007/08/18 02:12:01 chinhan Exp $
 //
 
 // No BitInfos for release versions
@@ -294,6 +294,7 @@ void
 FastL1Region::FillTowerZero(const CaloTower& t, int& tid) 
 {
   Towers[tid] = CaloTower(t);
+  //std::cout<<"--- "<<Towers[tid].emEt()<<" "<<Towers[tid].hadEt()<<std::endl;
 }
 
 void
@@ -335,8 +336,9 @@ FastL1Region::FillTower(const CaloTower& t, int& tid)
 
 //
 void
-FastL1Region::FillTower_Scaled(const CaloTower& t, int& tid) 
+FastL1Region::FillTower_Scaled(const CaloTower& t, int& tid, bool doRCTTrunc) 
 {
+
   double EThres = 0.;
   double HThres = 0.;
   double EBthres = Config.TowerEBThreshold;
@@ -373,19 +375,20 @@ FastL1Region::FillTower_Scaled(const CaloTower& t, int& tid)
   double eme = emScale * t.emEnergy();
   double hade = hadScale * t.hadEnergy();
 
-  double upperThres = 1024.;
-  emet = RCTEnergyTrunc(emet,Config.TowerEMLSB,upperThres);
-  hadet = RCTEnergyTrunc(hadet,Config.TowerHadLSB,upperThres);
-  eme = RCTEnergyTrunc(eme,Config.TowerEMLSB,upperThres);
-  hade = RCTEnergyTrunc(hade,Config.TowerHadLSB,upperThres);
-
+  if (doRCTTrunc) {
+    double upperThres = 1024.;
+    emet = RCTEnergyTrunc(emet,Config.TowerEMLSB,upperThres);
+    hadet = RCTEnergyTrunc(hadet,Config.TowerHadLSB,upperThres);
+    eme = RCTEnergyTrunc(eme,Config.TowerEMLSB,upperThres);
+    hade = RCTEnergyTrunc(hade,Config.TowerHadLSB,upperThres);
+  }
   if ( emet<EThres) emet = 0.;
   if ( hadet<HThres) hadet = 0.;
   //if ( eme<EThres) emet = 0.;
   //if ( hade<HThres) hadet = 0.;
  
   //Towers[tid] = CaloTower(t);
-  Towers[tid] = CaloTower(t.id(),t.momentum(),emet,hadet,t.outerEt(),0,0);
+  Towers[tid] = CaloTower(t.id(),t.momentum(),emet,hadet,0.,0,0);
   
 }
 
@@ -959,7 +962,7 @@ GCTEnergyTrunc(double et, double LSB, bool doEM) {
 
 
   double ret = 0.;
-  for (int i=63;i>0;i--) {
+  for (int i=63;i>=0;i--) {
     if (et>=(L1CaloThresholds[i])) {
       if (i==63) ret = L1CaloThresholds[63]+L1CaloThresholds[63]-L1CaloThresholds[62];
       else ret = L1CaloThresholds[i+1];

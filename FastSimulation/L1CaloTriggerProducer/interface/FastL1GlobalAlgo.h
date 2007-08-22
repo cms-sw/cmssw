@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.h,v 1.5 2007/06/17 14:31:34 chinhan Exp $
+// $Id: FastL1GlobalAlgo.h,v 1.6 2007/08/18 02:10:55 chinhan Exp $
 //
 
 // system include files
@@ -104,6 +104,7 @@ class FastL1GlobalAlgo {
       void checkMapping();
       bool greaterEt(const reco::Candidate& a, const reco::Candidate& b);
 
+      double hcaletValue(const int ieta,const int compET);
       // ----------member data ---------------------------
       // output data
       l1extra::L1EtMissParticle m_MET;
@@ -118,6 +119,7 @@ class FastL1GlobalAlgo {
       FastL1RegionMap* m_RMap;
 
       FastL1Config m_L1Config;
+      double m_hcaluncomp[32][256];
 };
 
 #endif

@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1Region.h,v 1.9 2007/08/14 15:17:24 chinhan Exp $
+// $Id: FastL1Region.h,v 1.10 2007/08/18 02:11:24 chinhan Exp $
 //
 
 // user include files
@@ -92,6 +92,8 @@ struct FastL1Config {
 
   edm::InputTag EcalTPInput;
   edm::InputTag HcalTPInput;
+
+  edm::FileInPath HcalLUT;
 };
 
 //
@@ -108,7 +110,7 @@ class FastL1Region {
   void SetParameters(FastL1Config);
   void FillTower(const CaloTower& t, int& tid); 
   void FillTowerZero(const CaloTower& t, int& tid); 
-  void FillTower_Scaled(const CaloTower& t, int& tid); 
+  void FillTower_Scaled(const CaloTower& t, int& tid, bool doRCTTrunc = true); 
   void FillEMCrystals(const edm::Event&, const edm::EventSetup&,FastL1RegionMap* m_RMap);
   void Dump();
   void SetEtaPhiIndex(int eta,int phi,int ind) 

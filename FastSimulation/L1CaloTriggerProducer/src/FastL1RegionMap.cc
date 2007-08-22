@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1RegionMap.cc,v 1.4 2007/04/23 15:48:30 chinhan Exp $
+// $Id: FastL1RegionMap.cc,v 1.6 2007/08/15 13:42:23 chinhan Exp $
 //
 
 
@@ -148,9 +148,8 @@ FastL1RegionMap::getRegionTowerIndex(std::pair<int, int> EtaPhi)
   // Right now: only barrel/encap part!!!
   int isub = 999; // 0-15 4x4 region matrix 
 
-  //if (abs(iTwrEta)<=28) {
-  // Test HF!!!
   if (abs(iTwrEta)<=41) {
+    //if (abs(iTwrEta)<=28) {
     if (iTwrEta > 0) {
       isub = 4*(3 - (iTwrPhi + 1) %4) + ((iTwrEta  - 1)  % 4) ;
     } else {
