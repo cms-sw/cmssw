@@ -67,6 +67,10 @@ namespace edm
 
 namespace edm
 {
+  template<typename T>
+  class TrieNodeIter;
+
+
   /**
    * @brief this class represent the node of a trie, it contains a
    * link to a sub node and a link to a brother (node which have the
@@ -76,6 +80,9 @@ namespace edm
   class TrieNode
   {
   public:
+
+    typedef TrieNodeIter<T> const_iterator;
+
     TrieNode();
     ~TrieNode();
 
@@ -96,6 +103,12 @@ namespace edm
     TrieNode<T>* brother();
     /// get brother label
     unsigned char brotherLabel() const;
+
+
+    /// initialize subnode iterator (std conforming)
+    TrieNodeIter<T> begin() const;
+    /// mark end of iteration (std conforming)
+    TrieNodeIter<T> end() const;
 
     // get first sub Node
     const TrieNode<T>* subNode() const;
@@ -362,6 +375,18 @@ edm::TrieNode<T>::~TrieNode()
 {
   // do not delete _brother and _firstSubNode because they are
   // allocated by factory (TrieFactory) and factory will delete them
+}
+
+
+template <typename T>   
+edm::TrieNodeIter<T> 
+edm::TrieNode<T>::begin() const {
+  return const_iterator(this;
+}
+template <typename T>   
+edm::TrieNodeIter<T> 
+edm::TrieNode<T>::end() const {
+  return const_iterator(0);
 }
 
 template <typename T>
