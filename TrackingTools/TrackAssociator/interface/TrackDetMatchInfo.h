@@ -10,7 +10,7 @@
 #include "TrackingTools/TrackAssociator/interface/MuonChamberMatch.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 class TrackDetMatchInfo {
  public:
    enum EnergyType { EcalRecHits, HcalRecHits, HORecHits, TowerTotal, TowerEcal, TowerHcal, TowerHO };
