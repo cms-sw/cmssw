@@ -83,7 +83,7 @@ void CSCDetIdAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
    std::cout << "iter " << dashedLine_ << std::endl;
 
    std::cout << "\n  #     id(dec)      id(oct)                        "
-     "lindex     lindex2       strip  sindex   strip  sindex   strip  sindex" << std::endl;
+     "lindex     lindex2      cindex       label       strip  sindex   strip  sindex   strip  sindex" << std::endl;
 
  // Construct an indexer object
    CSCIndexer* theIndexer = new CSCIndexer;
@@ -126,10 +126,11 @@ void CSCDetIdAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
            "   E" << ie << " S" << is << " R" << ir << " C" << std::setw( 2 ) << ic << std::setw( iw ) << " L" << il;
 
 	   unsigned lind = theIndexer->layerIndex( ie, is, ir, ic, il );
+	   unsigned cind = theIndexer->startChamberIndexInEndcap( is, ir ) + ic - 1; // want value 1-234 indep. of endcap
 	   unsigned lind2 = theIndexer->layerIndex( cscDetId );
 
 	   //	   std::cout << std::setw(12) << std::setw(12) << lind << std::setw(12) << lind2 << "     " << std::endl;
-	   std::cout << std::setw(12) << lind << std::setw(12) << lind2 << "     " ;
+	   std::cout << std::setw(12) << lind << std::setw(12) << lind2 << std::setw(12)<< cind << std::setw(12) <<  theIndexer->checkLabel(cind) << "     " ;
 
            // Index a few strips
            unsigned short nstrips = theIndexer->stripChannelsPerLayer(is,ir);
@@ -143,23 +144,31 @@ void CSCDetIdAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
 
 	   // Reset the values we changed
 	   std::cout << std::setprecision( ip ) << std::setw( iw );
+
+
+
+
 	
 	   // ASSERTS
 	   // =======
 
 	// Check layer indices are consistent  
-           assert ( lind2 == lind );
+	   //	   std::cout << "lind2 = " << lind2 << ", lind=" << lind << std::endl;
+        assert ( lind2 == lind );
 
 	// Build CSCDetId from this index and check it's same as original
-	   CSCDetId cscDetId2 = theIndexer->detIdFromLayer( lind );
-	   assert( cscDetId2 == cscDetId );
+	   CSCDetId cscDetId2 = theIndexer->detIdFromLayerIndex( lind );
+	   // std::cout << "cscDetId2 = E" << cscDetId2.endcap() << " S" << cscDetId2.station() << " R" << cscDetId2.ring() << " C" << cscDetId2.chamber() << " L" << cscDetId2.layer() << std::endl;
+	assert( cscDetId2 == cscDetId );
 
 	// Build CSCDetId from the strip-channel index for strip 'nstrips' and check it matches
-           CSCDetId cscDetId3 = theIndexer->detIdFromStrip( scn );
-           unsigned short iscn = theIndexer->stripChannel( scn );
-	   //   std::cout << "scn=" << scn << "  iscn=" << iscn << " checkStore=" << theIndexer->checkStore(scn) << std::endl;
-           assert( iscn == nstrips );
-           assert( cscDetId3 == cscDetId );
+           std::pair<CSCDetId, unsigned short int> p = theIndexer->detIdFromStripChannelIndex( scn );
+           CSCDetId cscDetId3 = p.first;
+           unsigned short iscn = p.second;
+	   // std::cout << "scn=" << scn << "  iscn=" << iscn << std::endl;
+	   // std::cout << "cscDetId3 = E" << cscDetId3.endcap() << " S" << cscDetId3.station() << " R" << cscDetId3.ring() << " C" << cscDetId3.chamber() << " L" << cscDetId3.layer() << std::endl;
+        assert( iscn == nstrips );
+	assert( cscDetId3 == cscDetId );
           
 	// Check idToDetUnit
 	   const GeomDetUnit * gdu = pDD->idToDetUnit(detId);
@@ -172,6 +181,9 @@ void CSCDetIdAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
        std::cout << "Something wrong ... could not dynamic_cast Det* to CSCLayer* " << std::endl;
     }
    }
+
+   delete theIndexer;
+
    std::cout << dashedLine_ << " end" << std::endl;
 }
 
