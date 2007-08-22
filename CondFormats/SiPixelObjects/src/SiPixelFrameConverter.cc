@@ -34,7 +34,7 @@ bool SiPixelFrameConverter::hasDetUnit(uint32_t rawId) const
 }
 
 
-int SiPixelFrameConverter::toDetector(const CablingIndex & cabling, DetectorIndex & detector) const
+int SiPixelFrameConverter::toDetector(const ElectronicIndex & cabling, DetectorIndex & detector) const
 {
   const PixelFEDLink * link = theFed.link( cabling.link);
   if (!link) {
@@ -43,6 +43,7 @@ int SiPixelFrameConverter::toDetector(const CablingIndex & cabling, DetectorInde
     edm::LogError("SiPixelFrameConverter") << stm.str();
     return 1;
   }
+
   const PixelROC * roc = link->roc(cabling.roc);
   if (!roc) {
     stringstream stm;
@@ -51,18 +52,19 @@ int SiPixelFrameConverter::toDetector(const CablingIndex & cabling, DetectorInde
     return 2;
   }
 
-  uint32_t detId = roc->rawId();
-  PixelROC::LocalPixel local = {cabling.dcol, cabling.pxid};
-  if (!roc->inside(local)) return 3;
-  PixelROC::GlobalPixel global = roc->toGlobal(local); 
+  LocalPixel::DcolPxid local = { cabling.dcol, cabling.pxid };
+  if (!local.valid()) return 3;
 
-  DetectorIndex detIdx = {detId,  global.row, global.col};
-  detector = detIdx;
+  GlobalPixel global = roc->toGlobal( LocalPixel(local) ); 
+  detector.rawId = roc->rawId();
+  detector.row   = global.row;
+  detector.col   = global.col;
+
   return 0;
 }
 
 
-int SiPixelFrameConverter::toCabling(CablingIndex & cabling, const DetectorIndex & detector) const
+int SiPixelFrameConverter::toCabling(ElectronicIndex & cabling, const DetectorIndex & detector) const
 {
   for (int idxLink = 1; idxLink <= theFed.numberOfLinks(); idxLink++) {
     const PixelFEDLink * link = theFed.link(idxLink);
@@ -72,10 +74,12 @@ int SiPixelFrameConverter::toCabling(CablingIndex & cabling, const DetectorIndex
     for(int idxRoc = 1; idxRoc <= numberOfRocs; idxRoc++) {
       const PixelROC * roc = link->roc(idxRoc);
       if (detector.rawId == roc->rawId() ) {
-        PixelROC::GlobalPixel global = {detector.row, detector.col};
-        PixelROC::LocalPixel local = roc->toLocal(global);
-        if(! roc->inside(local)) continue; 
-        CablingIndex cabIdx = {linkid, idxRoc, local.dcol, local.pxid};
+        GlobalPixel global = {detector.row, detector.col};
+//LogTrace("")<<"GLOBAL PIXEL: row=" << global.row <<" col="<< global.col;
+        LocalPixel local = roc->toLocal(global);
+// LogTrace("")<<"LOCAL PIXEL: dcol =" <<  local.dcol()<<" pxid="<<  local.pxid()<<" inside: " <<local.valid();
+        if(!local.valid()) continue; 
+        ElectronicIndex cabIdx = {linkid, idxRoc, local.dcol(), local.pxid()};
         cabling = cabIdx;
         return 0;
       }

@@ -21,6 +21,7 @@
 
 using namespace std;
 using namespace edm;
+using namespace sipixelobjects;
 
 const int PixelDataFormatter::LINK_bits = 6;
 const int PixelDataFormatter::ROC_bits  = 5;
@@ -368,8 +369,8 @@ int PixelDataFormatter::digi2word( const SiPixelFrameConverter* converter,
 // <<" detId: " << detId 
   <<print(digi);
 
-  SiPixelFrameConverter::DetectorIndex detector = {detId, digi.row(), digi.column()};
-  SiPixelFrameConverter::CablingIndex  cabling;
+  DetectorIndex detector = {detId, digi.row(), digi.column()};
+  ElectronicIndex  cabling;
   int status  = converter->toCabling(cabling, detector);
   if (status) return status;
 
@@ -397,14 +398,14 @@ int PixelDataFormatter::word2digi(const SiPixelFrameConverter* converter,
   static const Word32 PXID_mask = ~(~Word32(0) << PXID_bits);
   static const Word32 ADC_mask  = ~(~Word32(0) << ADC_bits);
 
-  SiPixelFrameConverter::CablingIndex cabling;
+  ElectronicIndex cabling;
   cabling.dcol = (word >> DCOL_shift) & DCOL_mask;
   cabling.pxid = (word >> PXID_shift) & PXID_mask;
   cabling.link = (word >> LINK_shift) & LINK_mask;  
   cabling.roc  = (word >> ROC_shift) & ROC_mask;
   int adc   = (word >> ADC_shift) & ADC_mask;
 
-  static SiPixelFrameConverter::CablingIndex lastcabl;
+  static ElectronicIndex lastcabl;
   static bool lastcablexists = false;
 
 
@@ -422,16 +423,16 @@ int PixelDataFormatter::word2digi(const SiPixelFrameConverter* converter,
     
   static bool debug = edm::MessageDrop::instance()->debugEnabled;
   if (debug) {
-    int rocCol, rocRow;
-    sipixelobjects::PixelROC::decodeRowCol(cabling.dcol,cabling.pxid, rocRow, rocCol);
+    LocalPixel::DcolPxid pixel = {cabling.dcol,cabling.pxid};
+    LocalPixel local(pixel);
     LogTrace("")<<"  link: "<<cabling.link<<", roc: "<<cabling.roc 
-                <<" rocRow: "<<rocRow<<", rocCol:"<<rocCol
+                <<" rocRow: "<<local.rocRow()<<", rocCol:"<<local.rocCol()
                 <<" (dcol: "<<cabling.dcol<<",pxid:"<<cabling.pxid<<"), adc:"<<adc;
   }
 
   if (!converter) return 0;
 
-  SiPixelFrameConverter::DetectorIndex detIdx;
+  DetectorIndex detIdx;
   int status = converter->toDetector(cabling, detIdx);
   if (status) return status; 
 
@@ -466,7 +467,7 @@ uint32_t PixelDataFormatter::errorDetId(const SiPixelFrameConverter* converter,
 {
   if (!converter) return dummyDetId;
 
-  SiPixelFrameConverter::CablingIndex cabling;
+  ElectronicIndex cabling;
 
   static const Word32 LINK_mask = ~(~Word32(0) << LINK_bits);
   static const Word32 ROC_mask  = ~(~Word32(0) << ROC_bits);
@@ -482,7 +483,7 @@ uint32_t PixelDataFormatter::errorDetId(const SiPixelFrameConverter* converter,
 	cabling.roc  = 1;
 	cabling.link = (word >> LINK_shift) & LINK_mask;  
 
-	SiPixelFrameConverter::DetectorIndex detIdx;
+	DetectorIndex detIdx;
 	int status = converter->toDetector(cabling, detIdx);
 	
 	return detIdx.rawId;
@@ -495,7 +496,7 @@ uint32_t PixelDataFormatter::errorDetId(const SiPixelFrameConverter* converter,
       cabling.roc  = (word >> ROC_shift) & ROC_mask;
       cabling.link = (word >> LINK_shift) & LINK_mask;
 
-      SiPixelFrameConverter::DetectorIndex detIdx;
+      DetectorIndex detIdx;
       int status = converter->toDetector(cabling, detIdx);
 
       return detIdx.rawId;

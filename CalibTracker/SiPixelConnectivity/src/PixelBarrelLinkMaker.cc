@@ -3,7 +3,6 @@
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
-#include "CondFormats/SiPixelObjects/interface/FrameConversion.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -97,8 +96,7 @@ PixelBarrelLinkMaker::Links PixelBarrelLinkMaker::links(
     int idRoc = 0;
     for (int id = (*it).rocIds.min(); id <= (*it).rocIds.max(); id++) {
       idRoc++;
-      FrameConversion frame(*(it->name), id);
-      rocs.push_back( PixelROC( it->unit, id, idRoc, frame) ); 
+      rocs.push_back( PixelROC( it->unit, id, idRoc) ); 
     }
     link.add(rocs);
     result.push_back(link); 

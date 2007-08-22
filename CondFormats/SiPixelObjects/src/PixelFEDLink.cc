@@ -22,7 +22,7 @@ void PixelFEDLink::addItem(const PixelROC & roc)
 bool PixelFEDLink::checkRocNumbering() const
 {
   bool result = true;
-  int idx_expected = 0;
+  unsigned int idx_expected = 0;
   typedef ROCs::const_iterator CIR;
   for (CIR it = theROCs.begin(); it != theROCs.end(); it++) {
     idx_expected++;

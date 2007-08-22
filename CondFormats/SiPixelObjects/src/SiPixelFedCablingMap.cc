@@ -42,7 +42,7 @@ std::vector<const PixelFEDCabling *> SiPixelFedCablingMap::fedList() const
 
 }
 
-void SiPixelFedCablingMap:: addItem(int fedId, int linkId, const PixelROC& roc)
+void SiPixelFedCablingMap:: addItem(unsigned int fedId, unsigned int linkId, const PixelROC& roc)
 {
   PixelFEDCabling & cabling = theFedCablings[fedId];
   if (cabling.id() != fedId) cabling=PixelFEDCabling(fedId);

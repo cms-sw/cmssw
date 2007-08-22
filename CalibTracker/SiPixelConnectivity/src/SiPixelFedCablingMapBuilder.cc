@@ -23,8 +23,6 @@
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
-#include "CondFormats/SiPixelObjects/interface/FrameConversion.h"
-
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
@@ -137,15 +135,7 @@ SiPixelFedCablingMap * SiPixelFedCablingMapBuilder::produce( const edm::EventSet
         detectorRocId.rocDetId = rocDetId;
         const PixelToFEDAssociate::CablingRocId * cablingRocId =  name2fed(detectorRocId);
         if (cablingRocId) {
-          FrameConversion frame(0,0,0,0);
-          if (name->isBarrel() ) {
-            const PixelBarrelName* nameBarrel = dynamic_cast<const PixelBarrelName* >(name);
-            frame = FrameConversion ( *nameBarrel, rocDetId);
-          } else {
-            const PixelEndcapName* nameEndcap = dynamic_cast<const PixelEndcapName* >(name);
-            frame = FrameConversion ( *nameEndcap, rocDetId);
-          }
-          sipixelobjects::PixelROC roc( iu->second, rocDetId, cablingRocId->rocLinkId, frame); 
+          sipixelobjects::PixelROC roc( iu->second, rocDetId, cablingRocId->rocLinkId ); 
           result->addItem(cablingRocId->fedId, cablingRocId->linkId, roc);
         }
       }

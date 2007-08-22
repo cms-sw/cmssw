@@ -10,42 +10,48 @@
 using namespace std;
 using namespace sipixelobjects;
 
-int PixelROC::theNRows = 80;
-int PixelROC::theNCols = 52;
 
-PixelROC::PixelROC(uint32_t du, int idDU, int idLk, const FrameConversion & frame)
-  : theDetUnit(du), 
-    theIdDU(idDU), theIdLk(idLk), 
-    theRowOffset( frame.row().offset()),     theRowSlopeSign( frame.row().slope()),
-    theColOffset( frame.collumn().offset()), theColSlopeSign( frame.collumn().slope())
+PixelROC::PixelROC(uint32_t du, int idDU, int idLk)
+  : theDetUnit(du), theIdDU(idDU), theIdLk(idLk), theFrameConverter(0)
 { }
 
-bool PixelROC::inside( const LocalPixel & lp) const
+GlobalPixel PixelROC::toGlobal(const LocalPixel & loc) const 
 {
-  return (     0 <= lp.dcol && lp.dcol < 26
-           &&  2 <= lp.pxid && lp.pxid < 162 );
+  GlobalPixel result;
+  if (!theFrameConverter) initFrameConversion();
+  result.col    = theFrameConverter->collumn().convert(loc.rocCol());
+  result.row    = theFrameConverter->row().convert(loc.rocRow());
+  return result;
 }
 
-PixelROC::LocalPixel PixelROC::toLocal( const GlobalPixel& glo) const
-{
-   FrameConversion conversion(theRowOffset,theRowSlopeSign,theColOffset,theColSlopeSign);
-   int rocRow = conversion.row().inverse(glo.row);
-   int rocCol = conversion.collumn().inverse(glo.col);
 
-  LocalPixel loc = {-1,-1};
-  if (0<= rocRow && rocRow < PixelROC::rows() && 0 <= rocCol && rocCol <PixelROC::cols()) {
-    loc.dcol = rocCol/2;
-    loc.pxid = 2*(theNRows-rocRow)+ (rocCol%2);
+LocalPixel PixelROC::toLocal( const GlobalPixel& glo) const
+{
+  if (!theFrameConverter) initFrameConversion();
+  int rocRow = theFrameConverter->row().inverse(glo.row);
+  int rocCol = theFrameConverter->collumn().inverse(glo.col);
+
+  LocalPixel::RocRowCol rocRowCol = {rocRow, rocCol};
+  return LocalPixel(rocRowCol);
+}
+
+void PixelROC::initFrameConversion() const
+{
+  if ( PixelModuleName::isBarrel(theDetUnit) ) {
+    PixelBarrelName barrelName(theDetUnit); 
+    theFrameConverter = new FrameConversion(barrelName, theIdDU);
+  } else {
+    PixelEndcapName endcapName(theDetUnit);
+    theFrameConverter = new FrameConversion(endcapName, theIdDU); 
   }
-  return loc;
 }
-
-
 
 string PixelROC::print(int depth) const
 {
+  if (!theFrameConverter) initFrameConversion();
+
   ostringstream out;
-  bool barrel = ( 1==((theDetUnit>>25)&0x7));
+  bool barrel = PixelModuleName::isBarrel(theDetUnit);
   DetId detId(theDetUnit);
   if (depth-- >=0 ) {
     out <<"======== PixelROC ";
@@ -55,7 +61,8 @@ string PixelROC::print(int depth) const
     out <<" ("<<theDetUnit<<")"
         <<" idInDU: "<<theIdDU
         <<" idInLk: "<<theIdLk
-        <<" frame: "<<theRowOffset<<","<<theRowSlopeSign<<","<<theColOffset<<","<<theColSlopeSign
+//        <<" frame: "<<theRowOffset<<","<<theRowSlopeSign<<","<<theColOffset<<","<<theColSlopeSign
+//        <<" frame: "<<*theFrameConverter
         <<endl;
   }
   return out.str();

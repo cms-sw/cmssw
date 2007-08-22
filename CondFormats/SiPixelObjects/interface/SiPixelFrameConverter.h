@@ -5,6 +5,10 @@
 class SiPixelFedCablingMap;
 namespace sipixelobjects { class PixelFEDCabling; }
 
+#include "CondFormats/SiPixelObjects/interface/ElectronicIndex.h"
+#include "CondFormats/SiPixelObjects/interface/DetectorIndex.h"
+
+
 #include <boost/cstdint.hpp>
 
 class SiPixelFrameConverter {
@@ -12,15 +16,13 @@ public:
 
   SiPixelFrameConverter(const SiPixelFedCablingMap * map, int fedId); 
 
-  struct CablingIndex { int link; int roc; int dcol; int pxid; };
-
-  struct DetectorIndex { uint32_t rawId; int row; int col; };
-
   bool hasDetUnit(uint32_t radId) const;
 
-  int toDetector(const CablingIndex & cabling, DetectorIndex & detector) const;
+  int toDetector(const sipixelobjects::ElectronicIndex & cabling, 
+                       sipixelobjects::DetectorIndex & detector) const;
 
-  int toCabling(CablingIndex & cabling, const DetectorIndex & detector) const;
+  int toCabling(       sipixelobjects::ElectronicIndex & cabling, 
+                 const sipixelobjects::DetectorIndex & detector) const;
 
 private:
 

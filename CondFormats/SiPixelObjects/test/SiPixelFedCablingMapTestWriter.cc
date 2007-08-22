@@ -82,7 +82,7 @@ void SiPixelFedCablingMapTestWriter::beginJob( const edm::EventSetup& iSetup ) {
    PixelROC r1;
    PixelROC r2;
 
-   PixelFEDLink link(0);
+   PixelFEDLink link(2);
    PixelFEDLink::ROCs rocs; rocs.push_back(r1); rocs.push_back(r2);
    link.add(rocs);
 

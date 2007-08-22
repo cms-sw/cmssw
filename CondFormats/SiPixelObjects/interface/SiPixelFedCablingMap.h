@@ -26,7 +26,8 @@ public:
 
   std::string print(int depth = 0) const;
 
-  void addItem(int fedId, int linkId, const sipixelobjects::PixelROC& roc);
+  void addItem(unsigned int fedId, unsigned int linkId, const sipixelobjects::PixelROC& roc);
+
 private:
   std::string theVersion; 
   std::map<int, PixelFEDCabling> theFedCablings;

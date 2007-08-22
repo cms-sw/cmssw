@@ -70,6 +70,9 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
 
   edm::ESHandle<SiPixelFedCablingMap> map;
   es.get<SiPixelFedCablingMapRcd>().get( map );
+
+  static bool debug = edm::MessageDrop::instance()->debugEnabled;
+  if (debug) cout << map->version() << endl;
   
   PixelDataFormatter formatter(map.product());
 
@@ -87,6 +90,10 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
     LogDebug("SiPixelDigiToRaw")<<"size of data in fedRawData: "<<fedRawData.size();
   }
   allWordCounter += formatter.nWords();
+  if (debug) cout << "Words/Digis this ev: "<<digiCounter<<"(fm:"<<formatter.nDigis()<<")/"
+        <<formatter.nWords()
+       <<"  all: "<< allDigiCounter <<"/"<<allWordCounter<<endl;
+
   
   ev.put( buffers );
   
