@@ -68,7 +68,9 @@ int main(int argc, char **argv)
     std::cout << "ab" << p.label() << " = " << p->value() << std::endl;
  
   std::cout << "\n ab iteration: string" << std::endl;
-  for (node_iterator p(trie.node("ab")); p!=e; p++)
+  pn = trie.node("ab");
+  e = pn->end();
+  for (Node::const_iterator p=pn->begin(); p!=e; p++)
     std::cout << "ab" << p.label() << " = " << p->value() << std::endl;
 
   std::cout << "\ntop iteration"<< std::endl;

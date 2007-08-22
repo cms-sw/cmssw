@@ -381,7 +381,7 @@ edm::TrieNode<T>::~TrieNode()
 template <typename T>   
 edm::TrieNodeIter<T> 
 edm::TrieNode<T>::begin() const {
-  return const_iterator(this;
+  return const_iterator(this);
 }
 template <typename T>   
 edm::TrieNodeIter<T> 
