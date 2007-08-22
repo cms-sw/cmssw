@@ -1,4 +1,9 @@
-2007-04-16  Emilio Meschi <emilio.meschi@cern.ch>
+2007-08-22  Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-13-05
+	* added board sense for DAQ GTFE block (fixes crash when running with fake data)
+
+2007-08-21  Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V00-13-04
 	* added functions to retrieve global event no. from GT blocks
