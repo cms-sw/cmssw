@@ -652,7 +652,8 @@ void FUResource::findFEDs() throw (evf::Exception)
 
     //if gtp daq block is available set cell event number to global partition-independent trigger number
     //this is to be replaced later with partition-dependent event number from evm block
-    if(fedId == gtpDaqId_) shmCell_->setEvtNumber(evf::evtn::get(fedHeaderAddr, false));
+    if(fedId == gtpDaqId_)
+      if(evf::evtn::daq_board_sense(fedHeaderAddr)) shmCell_->setEvtNumber(evf::evtn::get(fedHeaderAddr, false));
 
     // crc check
     if (doCrcCheck_) {
