@@ -12,8 +12,8 @@
 // L1T includes
 #include "CondFormats/L1TObjects/interface/L1TriggerKey.h"
 
-#include "CondTools/L1Trigger/src/DataManager.h"
-#include "CondTools/L1Trigger/src/WriterProxy.h"
+#include "CondTools/L1Trigger/interface/DataManager.h"
+#include "CondTools/L1Trigger/interface/WriterProxy.h"
 
 #include <string>
 #include <map>

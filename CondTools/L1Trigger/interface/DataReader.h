@@ -7,8 +7,8 @@
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerKey.h"
 
-#include "CondTools/L1Trigger/src/DataManager.h"
-#include "CondTools/L1Trigger/src/Interval.h"
+#include "CondTools/L1Trigger/interface/DataManager.h"
+#include "CondTools/L1Trigger/interface/Interval.h"
 
 #include "CondCore/DBCommon/interface/Ref.h"
 #include "CondCore/PluginSystem/interface/DataProxy.h"
