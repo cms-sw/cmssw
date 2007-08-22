@@ -6,10 +6,11 @@
 <Constant name="SCEnvLength"  value="346.60*mm"/>
 
 <Constant name="EESpaWidth"   value="154*mm"/>
-<Constant name="EESpaDepth"   value=" 70*mm"/>
+<Constant name="EESpaDepth"   value=" 68.5*mm"/>
 <Constant name="EESpAirWidth" value="102*mm"/>
 <Constant name="EESpAirDepth" value=" 40*mm"/>
-<Constant name="EESpHVDepth"  value="  2.1*mm"/>
+<Constant name="EESpHVDepth"  value=" 16.0*mm"/>
+<Constant name="EESpCaDepth"  value="  8.0*mm"/>
 <Constant name="EESpaXYOff"   value="  1.8*mm"/>
 <Constant name="EESpAirZOff"  value="  3.0*mm"/>
 

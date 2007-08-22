@@ -171,6 +171,7 @@
  <Box name="EESpacer"  dx="[eecon:EESpaWidth]/2." dy="[eecon:EESpaWidth]/2."     dz="[eecon:EESpaDepth]/2."/>
  <Box name="EESpAir"   dx="[eecon:EESpAirWidth]/2." dy="[eecon:EESpAirWidth]/2." dz="[eecon:EESpAirDepth]/2."/>
  <Box name="EEHV"      dx="[eecon:EESpAirWidth]/2." dy="[eecon:EESpAirWidth]/2." dz="[eecon:EESpHVDepth]/2."/>
+ <Box name="EEHVCa"    dx="[eecon:EESpAirWidth]/2." dy="[eecon:EESpAirWidth]/2." dz="[eecon:EESpCaDepth]/2."/>
 
 <!-- Cooling pipes in outer environmental screen -->
 
@@ -303,6 +304,8 @@
       <rSolid name="EESpAir"/> <rMaterial  name="materials:E_Air"/> </LogicalPart>
  <LogicalPart name="EEHV" category="unspecified">
       <rSolid name="EEHV"/> <rMaterial  name="materials:E_G10"/> </LogicalPart>
+ <LogicalPart name="EEHVCa" category="unspecified">
+      <rSolid name="EEHVCa"/> <rMaterial  name="materials:E_Cables"/> </LogicalPart>
 
  <LogicalPart name="EEOCool1" category="unspecified">
       <rSolid name="EEOCool1"/> <rMaterial  name="materials:StainlessSteel"/> </LogicalPart>
@@ -755,6 +758,7 @@
       <rRotation name="eecon:EEfCRotX"/> </PosPart>
 
 
+ <PosPart copyNumber="1"> <rParent name="eefixed:EEHV"/> <rChild name="eefixed:EEHVCa"/>  </PosPart>
  <PosPart copyNumber="1"> <rParent name="eefixed:EESpAir"/> <rChild name="eefixed:EEHV"/>  </PosPart>
  <PosPart copyNumber="1"> <rParent name="eefixed:EESpacer"/> <rChild name="eefixed:EESpAir"/> 
       <Translation x="0*mm" y="0*mm" z="[eecon:EESpAirZOff]"/> </PosPart>

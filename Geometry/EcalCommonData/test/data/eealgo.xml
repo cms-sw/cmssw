@@ -20,7 +20,7 @@
 <!-- More endcap materials -->
     <String  name="EECrysMat" value="materials:E_PbWO4"     />
     <String  name="EEBPMat"   value="materials:E_Aluminium" />
-    <String  name="EEWallMat" value="materials:E_Epoxy"     />
+    <String  name="EEWallMat" value="materials:EE_Aveolar"     />
 
 <!--  Endcap Quadrant -->
     <String   name="EEQuaName" value="eehier:EEFrontQuad"/>
@@ -42,7 +42,7 @@
    <Numeric name="EESCAFront"  value="145.98*mm - 0.01*mm"/>  <!-- Taper = 1.80deg -->
    <Numeric name="EESCAWall"   value="0.200*mm"/> <!-- SC wall thickness -->
 
-   <Numeric name="EEiLength" value="20*mm"/>
+   <Numeric name="EEiLength" value="9*mm"/>
    <Numeric name="EEiXYOff"  value="-2.2*mm"/>
 
 <!-- Endcap supercrystal: size of rear housing -->
