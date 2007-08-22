@@ -54,7 +54,8 @@ void CSCGeometryBuilderFromDDD::build(boost::shared_ptr<CSCGeometry> geom, const
 
     bool doSubDets = fview.firstChild();
     doSubDets      = fview.firstChild(); // and again?!
-    return buildEndcaps( geom, &fview, muonConstants ); 
+    buildEndcaps( geom, &fview, muonConstants ); 
+    return;
   }
 
   catch (const DDException & e ) {
