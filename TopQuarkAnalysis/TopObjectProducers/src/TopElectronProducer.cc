@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck, Steven Lowette
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopElectronProducer.cc,v 1.12.2.1 2007/08/13 10:50:03 jandrea Exp $
+// $Id: TopElectronProducer.cc,v 1.14 2007/08/20 15:36:08 lowette Exp $
 //
 
 #include <vector>
@@ -19,18 +19,18 @@
 
 
 TopElectronProducer::TopElectronProducer(const edm::ParameterSet & cfg):
-  src_   ( cfg.getParameter<edm::InputTag>( "src"    ) ),
-  gen_   ( cfg.getParameter<edm::InputTag>( "gen"    ) ),
-  elecID_( cfg.getParameter<edm::InputTag>( "elecID" ) ),
+  src_   ( cfg.getParameter<edm::InputTag>( "electronSource" ) ),
+  gen_   ( cfg.getParameter<edm::InputTag>( "genParticleSource" ) ),
+  elecID_( cfg.getParameter<edm::InputTag>( "electronIDSource" ) ),
   useElecID_       ( cfg.getParameter<bool>( "useElectronID"  ) ),
   useTrkIso_       ( cfg.getParameter<bool>( "useTrkIsolation") ),
   useCalIso_       ( cfg.getParameter<bool>( "useCalIsolation") ),
-  useResolution_   ( cfg.getParameter<bool>( "useResolutions" ) ),
-  useLikelihood_   ( cfg.getParameter<bool>( "useLikelihood"  ) ),
-  useGenMatching_  ( cfg.getParameter<bool>( "useGenMatching" ) ),
-  useGhostRemoval_ ( cfg.getParameter<bool>( "useGhostRemoval") ),
-  resolutionInput_( cfg.getParameter<std::string>( "resolutionInput" ) ),
-  likelihoodInput_( cfg.getParameter<std::string>( "likelihoodInput" ) ),
+  useResolution_   ( cfg.getParameter<bool>( "addResolutions" ) ),
+  useLikelihood_   ( cfg.getParameter<bool>( "addLRValues"  ) ),
+  useGenMatching_  ( cfg.getParameter<bool>( "doGenMatch" ) ),
+  useGhostRemoval_ ( cfg.getParameter<bool>( "removeDuplicates") ),
+  resolutionInput_( cfg.getParameter<std::string>( "electronResoFile" ) ),
+  likelihoodInput_( cfg.getParameter<std::string>( "electronLRFile" ) ),
   minRecoOnGenEt_ (cfg.getParameter<double>       ("minRecoOnGenEt") ),
   maxRecoOnGenEt_ (cfg.getParameter<double>       ("maxRecoOnGenEt") ),
   maxDeltaR_      (cfg.getParameter<double>       ("maxDeltaR") )
