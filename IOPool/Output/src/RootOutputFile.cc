@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.2 2007/08/21 00:03:17 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.3 2007/08/21 23:50:43 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h" 
@@ -48,9 +48,9 @@ namespace edm {
       pEventAux_(&eventAux_),
       pLumiAux_(&lumiAux_),
       pRunAux_(&runAux_),
-      eventTree_(filePtr_.get(), InEvent, pEventAux_, om_->basketSize(), om_->splitLevel()),
-      lumiTree_(filePtr_.get(), InLumi, pLumiAux_, om_->basketSize(), om_->splitLevel()),
-      runTree_(filePtr_.get(), InRun, pRunAux_, om_->basketSize(), om_->splitLevel()),
+      eventTree_(filePtr_, InEvent, pEventAux_, om_->basketSize(), om_->splitLevel()),
+      lumiTree_(filePtr_, InLumi, pLumiAux_, om_->basketSize(), om_->splitLevel()),
+      runTree_(filePtr_, InRun, pRunAux_, om_->basketSize(), om_->splitLevel()),
       treePointers_(),
       provenances_(),
       newFileAtEndOfRun_(false) {
@@ -78,8 +78,8 @@ namespace edm {
       }
     }
 
-    metaDataTree_ = new TTree(poolNames::metaDataTreeName().c_str(), "", 0);  // Don't split metadata tree.
-    metaDataTree_->SetDirectory(filePtr_.get());
+    // Don't split metadata tree.
+    metaDataTree_ = RootOutputTree::makeTree(filePtr_.get(), poolNames::metaDataTreeName(), 0);
 
     pool::FileCatalog::FileID fid = om_->catalog_.registerFile(file_, logicalFile_);
 
@@ -207,7 +207,6 @@ namespace edm {
   }
 
   void RootOutputFile::endFile() {
-    filePtr_->cd();
     FileFormatVersion fileFormatVersion(edm::getFileFormatVersion());
     FileFormatVersion * pFileFmtVsn = &fileFormatVersion;
     metaDataTree_->Branch(poolNames::fileFormatVersionBranchName().c_str(), &pFileFmtVsn, om_->basketSize(), 0);
@@ -234,11 +233,11 @@ namespace edm {
 
     metaDataTree_->Fill();
 
-    rootPostProcess();
-
-    metaDataTree_->Write();
+    RootOutputTree::writeTTree(metaDataTree_);
     for (int i = InEvent; i < EndBranchType; ++i) {
       BranchType branchType = static_cast<BranchType>(i);
+      buildIndex(treePointers_[branchType]->tree(), branchType);
+      setBranchAliases(treePointers_[branchType]->tree(), om_->descVec()[branchType]);
       treePointers_[branchType]->writeTree();
     }
 
@@ -250,14 +249,7 @@ namespace edm {
 
 
   void
-  RootOutputFile::rootPostProcess() {
-    TTree *tEvent = eventTree_.tree();
-    TTree *tLumi = lumiTree_.tree();
-    TTree *tRun = runTree_.tree();
-
-    setBranchAliases(tEvent, om_->descVec()[InEvent]);
-    setBranchAliases(tLumi, om_->descVec()[InLumi]);
-    setBranchAliases(tRun, om_->descVec()[InRun]);
+  RootOutputFile::buildIndex(TTree * tree, BranchType const& branchType) {
 
     // BuildIndex must read the auxiliary branch, so the
     // buffers need to be set to point to allocated memory.
@@ -265,9 +257,16 @@ namespace edm {
     pLumiAux_ = &lumiAux_;
     pRunAux_ = &runAux_;
 
-    tEvent->BuildIndex("EventAuxiliary.id_.run_", "EventAuxiliary.id_.event_");
-    tLumi->BuildIndex("LuminosityBlockAuxiliary.id_.run_", "LuminosityBlockAuxiliary.id_.luminosityBlock_");
-    tRun->BuildIndex("RunAuxiliary.id_.run_");
+    std::string const aux = BranchTypeToAuxiliaryBranchName(branchType);
+    std::string const majorID = aux + ".id_.run_";
+    std::string const minorID = (branchType == InEvent ? aux + ".id_.event_" :
+				(branchType == InLumi ? aux + ".id_.luminosityBlock_" : std::string()));
+    
+    if (minorID.empty()) {
+      tree->BuildIndex(majorID.c_str());
+    } else {
+      tree->BuildIndex(majorID.c_str(), minorID.c_str());
+    }
   }
   
   void

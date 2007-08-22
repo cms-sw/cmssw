@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: RootOutputFile.h,v 1.1 2007/08/20 23:45:05 wmtan Exp $
+// $Id: RootOutputFile.h,v 1.2 2007/08/21 00:03:17 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -46,7 +46,7 @@ namespace edm {
     bool writeRun(RunPrincipal const& r);
 
   private:
-    void rootPostProcess();
+    void buildIndex(TTree *tree, BranchType const& branchType);
     void setBranchAliases(TTree *tree, Selections const& branches) const;
 
   private:

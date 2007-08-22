@@ -11,6 +11,17 @@ namespace edm {
   }
 
   void
+  RootOutputTree::writeTTree(TTree *tree) {
+    tree->AutoSave();
+  }
+
+  void
+  RootOutputTree::writeTree() const {
+    writeTTree(tree_);
+    writeTTree(metaTree_);
+  }
+
+  void
   RootOutputTree::addBranch(BranchDescription const& prod, bool selected, BranchEntryDescription const*& pProv, void const*& pProd) {
       prod.init();
       metaTree_->Branch(prod.branchName().c_str(), &pProv, basketSize_, 0);

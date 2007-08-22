@@ -5,7 +5,7 @@
 
 RootOutputTree.h // used by ROOT input sources
 
-$Id: RootOutputTree.h,v 1.1 2007/08/20 23:45:05 wmtan Exp $
+$Id: RootOutputTree.h,v 1.2 2007/08/21 23:50:46 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -31,9 +31,14 @@ namespace edm {
   class RootOutputTree {
   public:
     template <typename T>
-    RootOutputTree(TFile * filePtr, BranchType const& branchType, T const*& pAux, int bufSize, int splitLevel) :
-      tree_(makeTree(filePtr, BranchTypeToProductTreeName(branchType), splitLevel)),
-      metaTree_(makeTree(filePtr, BranchTypeToMetaDataTreeName(branchType), 0)),
+    RootOutputTree(boost::shared_ptr<TFile> filePtr,
+		   BranchType const& branchType,
+		   T const*& pAux,
+		   int bufSize,
+		   int splitLevel) :
+      filePtr_(filePtr),
+      tree_(makeTree(filePtr.get(), BranchTypeToProductTreeName(branchType), splitLevel)),
+      metaTree_(makeTree(filePtr.get(), BranchTypeToMetaDataTreeName(branchType), 0)),
       auxBranch_(tree_->Branch(BranchTypeToAuxiliaryBranchName(branchType).c_str(), &pAux, bufSize, 0)),
       basketSize_(bufSize),
       splitLevel_(splitLevel),
@@ -43,17 +48,21 @@ namespace edm {
     
     static TTree * makeTree(TFile * filePtr, std::string const& name, int splitLevel);
 
+    static void writeTTree(TTree *tree);
+
     bool isValid() const;
+
     void addBranch(BranchDescription const& prod, bool selected, BranchEntryDescription const*& pProv, void const*& pProd);
+
     std::vector<std::string> const& branchNames() const {return branchNames_;}
+
     void fillTree() const {
       tree_->Fill();
       metaTree_->Fill();
     }
-    void writeTree() const {
-      tree_->Write(tree_->GetName(), TObject::kWriteDelete);
-      metaTree_->Write(metaTree_->GetName(), TObject::kWriteDelete);
-    }
+
+    void writeTree() const;
+
     TTree *const tree() const {
       return tree_;
     }
@@ -61,6 +70,7 @@ namespace edm {
 // We use bare pointers for pointers to some ROOT entities.
 // Root owns them and uses bare pointers internally.
 // Therefore,using smart pointers here will do no good.
+    boost::shared_ptr<TFile> filePtr_;
     TTree *const tree_;
     TTree *const metaTree_;
     TBranch *const auxBranch_;
