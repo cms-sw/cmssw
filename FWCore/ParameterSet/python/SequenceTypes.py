@@ -65,7 +65,7 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
     def dumpConfig(self,indent,deltaIndent):
         return '{'+self._seq.dumpSequenceConfig()+'}\n'
     def dumpPython(self,indent,deltaIndent):
-        return '('+self._seq.dumpSequencePython()+')\n'
+        return "cms."+type(self).__name__+'('+self._seq.dumpSequencePython()+')\n'
     def copy(self):
         returnValue =_ModuleSequenceType.__new__(type(self))
         returnValue.__init__(self._seq)
@@ -108,7 +108,7 @@ class _SequenceOpAids(_Sequenceable):
     def dumpSequenceConfig(self):
         return '('+self.__left.dumpSequenceConfig()+','+self.__right.dumpSequenceConfig()+')'
     def dumpSequencePython(self):
-        return '('++self.__left.dumpSequencePython()+','+self.__right.dumpSequencePython()+')'
+        return '('+self.__left.dumpSequencePython()+'*'+self.__right.dumpSequencePython()+')'
     def _findDependencies(self,knownDeps,presentDeps):
         #do left first and then right since right depends on left
         self.__left._findDependencies(knownDeps,presentDeps)
@@ -146,7 +146,7 @@ class _SequenceOpFollows(_Sequenceable):
     def dumpSequenceConfig(self):
         return '('+self.__left.dumpSequenceConfig()+'&'+self.__right.dumpSequenceConfig()+')'
     def dumpSequencePython(self):
-        return '('+self.__left.dumpSequencePython()+'&'+self.__right.dumpSequencePython()+')'
+        return '('+self.__left.dumpSequencePython()+'+'+self.__right.dumpSequencePython()+')'
     def _findDependencies(self,knownDeps,presentDeps):
         oldDepsL = presentDeps.copy()
         oldDepsR = presentDeps.copy()
