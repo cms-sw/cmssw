@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: TrackIPProducer.cc,v 1.6 2007/07/12 22:47:35 arizzi Exp $
+// $Id: TrackIPProducer.cc,v 1.7 2007/07/30 17:54:50 fwyzard Exp $
 //
 //
 
@@ -64,8 +64,8 @@ TrackIPProducer::TrackIPProducer(const edm::ParameterSet& iConfig) :
   m_calibrationCacheId3D= 0;
   m_calibrationCacheId2D= 0;
   
-  m_associator = m_config.getParameter<string>("jetTracks");
-  m_primaryVertexProducer = m_config.getParameter<string>("primaryVertex");
+  m_associator = m_config.getParameter<InputTag>("jetTracks");
+  m_primaryVertexProducer = m_config.getParameter<InputTag>("primaryVertex");
 
   m_computeProbabilities = m_config.getParameter<bool>("computeProbabilities"); //FIXME: use or remove
   

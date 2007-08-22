@@ -7,6 +7,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 class HistogramProbabilityEstimator;
 
@@ -21,9 +22,8 @@ class TrackIPProducer : public edm::EDProducer {
     void  checkEventSetup(const edm::EventSetup & iSetup);
 
     const edm::ParameterSet& m_config;
-    std::string m_associator;
-    std::string m_primaryVertexProducer;
-    std::string outputInstanceName_;
+    edm::InputTag m_associator;
+    edm::InputTag m_primaryVertexProducer;
     bool m_computeProbabilities;
     HistogramProbabilityEstimator * m_probabilityEstimator;
     unsigned long long  m_calibrationCacheId2D; 
