@@ -221,7 +221,7 @@ bool muonid::isGoodMuon( const reco::Muon& muon,
    // If there are no required stations, require there be at least two segments
    int numSegs = 0;
    for(int it = 0; it < 8; ++it)
-      numSegs += theStationMask & 1<<it;
+      if(theStationMask & 1<<it) ++numSegs;
 
    if(numSegs > 1) goodMuon = 1;
 
