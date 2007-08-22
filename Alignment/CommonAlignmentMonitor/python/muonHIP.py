@@ -145,7 +145,7 @@ class Convergence(Selection):
 
           if normalized:
             if eval("i.%serr" % self.hist) != 0.:
-              values.append(eval("i.%s/t.%s" % (self.hist, self.hist)))
+              values.append(eval("i.%s/i.%s" % (self.hist, self.hist)))
               th1.Fill(values[-1])
           else:
             values.append(eval("i.%s" % self.hist))
