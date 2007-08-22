@@ -51,6 +51,9 @@ class _Parameterizable(object):
             param = self.__dict__[name]
             result+=indent+deltaIndent+name+' = '+param.dumpPython(indent+deltaIndent,deltaIndent)
             first = False
+        # if it wasn't empty, carriage return the last one
+        if not first:
+            result += "\n"
         return result
     def insertContentsInto(self, parameterSet):
         for name in self.parameterNames_():
@@ -124,7 +127,7 @@ class _TypedParameterizable(_Parameterizable):
         config += indent+'}\n'
         return config
     def dumpPython(self, indent, deltaIndent):
-        return "cms."+str(type(self).__name__)+"(\""+self.type_()+"\",\n"+_Parameterizable.dumpPython(self,indent, deltaIndent)+"\n"+indent+")\n"
+        return "cms."+str(type(self).__name__)+"(\""+self.type_()+"\",\n"+_Parameterizable.dumpPython(self,indent, deltaIndent)+indent+")\n"
     def nameInProcessDesc_(self, myname):
         return myname;
     def moduleLabel_(self, myname):
@@ -188,7 +191,7 @@ class _ParameterTypeBase(object):
             return 'cms.'+type(self).__name__
         return 'cms.untracked.'+type(self).__name__
     def dumpPython(self,indent,deltaIndent):
-        return self.pythonTypeName()+"("+self.pythonValue()+")"
+        return self.pythonTypeName()+"("+self.pythonValue(indent,deltaIndent)+")"
     def isTracked(self):
         return self.__isTracked
     def setIsTracked(self,trackness):
@@ -210,7 +213,7 @@ class _SimpleParameterTypeBase(_ParameterTypeBase):
         self._value = value
     def configValue(self,indent,deltaIndent):
         return str(self._value)
-    def pythonValue(self):
+    def pythonValue(self,indent,deltaIndent):
         return str(self._value)
 
 class _ValidatingListBase(list):
