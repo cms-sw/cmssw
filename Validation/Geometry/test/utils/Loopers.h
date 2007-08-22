@@ -29,6 +29,10 @@ TH1F* hist_density;
 TH2F* hist_density_vs_loops;
 TH1F* hist_pT_init;
 TH1F* hist_pT_end;
+TH1F* hist_energyLossPerTurn;
+TH1F* hist_trackLength;
+TH1F* hist_trackLengthPerTurn;
+TH1F* hist_lastInteraction;
 //
 
 // logfile
@@ -55,7 +59,8 @@ public :
   Float_t         InitialE[10000];   //[Nsteps]
   Float_t         FinalE[10000];   //[Nsteps]
   Int_t           ParticleStepID[10000];   //[Nsteps]
-  Int_t           ParticleStepInteraction[10000];   //[Nsteps]
+  Int_t           ParticleStepPreInteraction[10000];   //[Nsteps]
+  Int_t           ParticleStepPostInteraction[10000];   //[Nsteps]
   Float_t         MaterialDensity[10000];   //[Nsteps]
   Float_t         ParticleStepInitialPt[10000];   //[Nsteps]
   Float_t         ParticleStepFinalPt[10000];   //[Nsteps]
@@ -73,7 +78,8 @@ public :
   TBranch        *b_FinalE;   //!
   TBranch        *b_InitialE;   //!
   TBranch        *b_ParticleStepID;   //!
-  TBranch        *b_ParticleStepInteraction;   //!
+  TBranch        *b_ParticleStepPreInteraction;   //!
+  TBranch        *b_ParticleStepPostInteraction;   //!
   TBranch        *b_MaterialDensity;   //!
   TBranch        *b_ParticleStepInitialPt;   //!
   TBranch        *b_ParticleStepFinalPt;   //!
@@ -112,6 +118,8 @@ Loopers::Loopers(TString fileName)
   cout << " Output Directory... " << endl;
   cout << theDirName << endl;
   cout << "***" << endl;
+  //
+  theLogFile.open("Loopers.log");
   //
   
   // open root files
@@ -181,7 +189,8 @@ void Loopers::Init(TTree *tree)
   fChain->SetBranchAddress("Particle Step Initial Energy", InitialE, &b_InitialE);
   fChain->SetBranchAddress("Particle Step Final Energy", FinalE, &b_FinalE);
   fChain->SetBranchAddress("Particle Step ID", ParticleStepID, &b_ParticleStepID);
-  fChain->SetBranchAddress("Particle Step Interaction", ParticleStepInteraction, &b_ParticleStepInteraction);
+  fChain->SetBranchAddress("Particle Step Pre Interaction", ParticleStepPreInteraction, &b_ParticleStepPreInteraction);
+  fChain->SetBranchAddress("Particle Step Post Interaction", ParticleStepPostInteraction, &b_ParticleStepPostInteraction);
   fChain->SetBranchAddress("Material Density", MaterialDensity, &b_MaterialDensity);
   fChain->SetBranchAddress("Particle Step Initial Pt", ParticleStepInitialPt, &b_ParticleStepInitialPt);
   fChain->SetBranchAddress("Particle Step Final Pt", ParticleStepFinalPt, &b_ParticleStepFinalPt);
@@ -216,7 +225,7 @@ Int_t Loopers::Cut(Long64_t entry)
 
 void Loopers::Book(){
   hist_loops = new TH1F("hist_loops",
-			"Number of Loops before stopping;Loops [2#pi];Events/bin",
+			"Number of Turns before stopping;Turns [2#pi];Events/bin",
 			80,0,20);
   hist_energy_init = new TH1F("hist_energy_init",
 			      "Energy at starting point;Energy [MeV];Events/bin",
@@ -228,7 +237,7 @@ void Loopers::Book(){
 			  "Average Density;#bar{#rho} [g/cm^{3}];Events/bin",
 			  30,0.0,0.3);
   hist_density_vs_loops = new TH2F("hist_density_vs_loops",
-				   "Average Density vs Number of Loops;Loops [2#pi];#bar{#rho} [g/cm^{3}];Events/bin",
+				   "Average Density vs Number of Turns;Turns [2#pi];#bar{#rho} [g/cm^{3}];Events/bin",
 				   80,0,20,30,0.0,0.3);
   hist_pT_init = new TH1F("hist_pT_init",
 			  "Transverse Momentum at starting point;p_{T} [MeV/c];Events/bin",
@@ -236,6 +245,18 @@ void Loopers::Book(){
   hist_pT_end = new TH1F("hist_pT_end",
 			 "Transverse Momentum at stopping point;p_{T} [MeV/c];Events/bin",
 			 100,0.0,1000.0);
+  hist_energyLossPerTurn = new TH1F("hist_energyLossPerTurn",
+				    "Energy Loss per Turn;Energy [MeV];Events/bin",
+				    50,0.0,500.0);
+  hist_trackLength = new TH1F("hist_trackLength",
+			      "Track Length;Length [mm];Events/bin",
+			      100,0.0,100000.0);
+  hist_trackLengthPerTurn = new TH1F("hist_trackLengthPerTurn",
+				     "Track Length per Turn;Track Length [mm];Events/bin",
+				     50,0.0,50000.0);
+  hist_lastInteraction = new TH1F("hist_lastInteraction",
+				  "Last Geant4 Process;Process Type;Events/bin",
+				  11,-0.5,10.5);
 }
 
 void Loopers::MakePlots(TString suffix);

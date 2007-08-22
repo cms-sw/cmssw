@@ -39,7 +39,7 @@ void Loopers::Loop()
   
   Long64_t nentries = fChain->GetEntriesFast();
   
-  cout << " Entries " << nentries << endl;
+  theLogFile << " Entries " << nentries << endl;
   
   Long64_t nbytes = 0, nb = 0;
   for (Long64_t jentry=0; jentry<nentries; jentry++) {
@@ -58,7 +58,8 @@ void Loopers::Loop()
     double normDensSum = 0.0; // rho_i x x_i
     
     // loop on steps
-    //    cout << " Steps " << Nsteps << endl;
+    //    theLogFile << " Steps " << Nsteps << endl;
+    theLogFile << "Event " << jentry+1 << " Steps = " << Nsteps << endl;
     for(Int_t iStep=0; iStep<Nsteps; iStep++) {
       // middle-point
       double xStep = (FinalX[iStep]+InitialX[iStep])/2;
@@ -83,53 +84,67 @@ void Loopers::Loop()
       pathSum     += x_i;
       normDensSum += (rho_i * x_i);
       /*
-	cout << "################################" << endl;
-	cout << "\t step " << iStep                << endl;
-	cout << "\t phi_i = " << phi_i             << endl;
-	cout << "\t DeltaPhi = " << deltaPhi       << endl;
-	cout << "\t PhiSum = " << phiSum           << endl;
-	cout << "\t x_i = "   << x_i   << " mm"    << endl;
-	cout << "\t rho_i = " << rho_i << " g/cm3" << endl;
-	cout << "################################" << endl;
+	theLogFile << "################################" << endl;
+	theLogFile << "\t step " << iStep                << endl;
+	theLogFile << "\t phi_i = " << phi_i             << endl;
+	theLogFile << "\t DeltaPhi = " << deltaPhi       << endl;
+	theLogFile << "\t PhiSum = " << phiSum           << endl;
+	theLogFile << "\t x_i = "   << x_i   << " mm"    << endl;
+	theLogFile << "\t rho_i = " << rho_i << " g/cm3" << endl;
+	theLogFile << "################################" << endl;
       */
       phi_last = phi_i;
     } // step loop
     
-    double phiLoops = phiSum/(2*pi);
-    phiLoops += (float)n_loops;
+    double phiTurns = phiSum/(2*pi);
+    phiTurns += (float)n_loops;
     
     if(Nsteps!=0) {
       // average density: Sum(x_i x rho_i) / Sum(x_i)
       double averageDensity = normDensSum / pathSum;
       //
-      if(FinalE[Nsteps-1] > 300) {
-	cout << "################################"                          << endl;
-	cout << "Event " << jentry+1                                        << endl;
-	cout << "\t Steps = " << Nsteps                                     << endl;
-	cout << "\t Sum(phi_i) = "  << phiSum                               << endl;
-	cout << "\t Loops = "       << phiLoops                             << endl;
-	cout << "\t Energy Init = " << InitialE[0]                          << endl;
-	cout << "\t Energy End = "  << FinalE[Nsteps-1]                     << endl;
-	cout << "\t Particle Mass = " << particleMass                       << endl;
-	cout << "\t pT Init = " << ParticleStepInitialPt[0]                 << endl;
-	cout << "\t pT End = "  << ParticleStepFinalPt[Nsteps-1]            << endl;
-	cout << "\t Last particle = " << ParticleStepID[Nsteps-1]           << endl;
-	cout << "\t Last step = "   << ParticleStepInteraction[Nsteps-1]    << endl;
-	cout << "\t Sum(x_i) = "         << pathSum        << " mm"         << endl;
-	cout << "\t Sum(x_i x rho_i) = " << normDensSum    << " mm x g/cm3" << endl;
-	cout << "\t <rho> = "            << averageDensity << " g/cm3"      << endl;
-	cout << "################################"                          << endl;
+      if(
+	 (
+	  ParticleStepFinalPt[Nsteps-1] > 10 // The particle must disappear with pT=0 GeV
+	  &&
+	  FinalZ[Nsteps-1] < 2500 // only if not at the end of the Tracker (along z)
+	  ) 
+	 ) { 
+	theLogFile << "################################"                                      << endl;
+	theLogFile << "Event " << jentry+1                                                    << endl;
+	theLogFile << "\t Steps = " << Nsteps                                                 << endl;
+	theLogFile << "\t Sum(phi_i) = "  << phiSum                                           << endl;
+	theLogFile << "\t Turns = "       << phiTurns                                         << endl;
+	theLogFile << "\t Energy Init = " << InitialE[0]                                      << endl;
+	theLogFile << "\t Energy End = "  << FinalE[Nsteps-1]                                 << endl;
+	theLogFile << "\t Final Z = "  << FinalZ[Nsteps-1]                                    << endl;
+	theLogFile << "\t Particle Mass = " << ParticleMass                                   << endl;
+	theLogFile << "\t pT Init = " << ParticleStepInitialPt[0]                             << endl;
+	theLogFile << "\t pT End = "  << ParticleStepFinalPt[Nsteps-1]                        << endl;
+	theLogFile << "\t Last particle = " << ParticleStepID[Nsteps-1]                       << endl;
+	theLogFile << "\t Final Pre Interaction  = " << ParticleStepPreInteraction[Nsteps-1]  << endl;
+	theLogFile << "\t Final Post Interaction = " << ParticleStepPostInteraction[Nsteps-1] << endl;
+	theLogFile << "\t Sum(x_i) = "         << pathSum        << " mm"                     << endl;
+	theLogFile << "\t Sum(x_i x rho_i) = " << normDensSum    << " mm x g/cm3"             << endl;
+	theLogFile << "\t <rho> = "            << averageDensity << " g/cm3"                  << endl;
+	theLogFile << "\t path length per turn = " << pathSum / phiTurns << " mm"             << endl;
+	theLogFile << "################################"                                      << endl;
       }
-      //
-      hist_loops->Fill(phiLoops);
+      // else { // The particle must disappear with pT=0 GeV
+      hist_loops->Fill(phiTurns);
       hist_energy_init->Fill(InitialE[0]);
       hist_energy_end->Fill(FinalE[Nsteps-1]);
       hist_density->Fill(averageDensity);
-      hist_density_vs_loops->Fill(phiLoops,averageDensity);
+      hist_density_vs_loops->Fill(phiTurns,averageDensity);
       hist_pT_init->Fill(ParticleStepInitialPt[0]);
       hist_pT_end->Fill(ParticleStepFinalPt[Nsteps-1]);
-      //
-    }
+      hist_energyLossPerTurn->Fill( (InitialE[0]-FinalE[Nsteps-1]) / phiTurns ); // Energy = Kinetics + Mass (Final Energy=Mass)
+      hist_trackLength->Fill(pathSum);
+      hist_trackLengthPerTurn->Fill(pathSum / phiTurns);
+      hist_lastInteraction->Fill(ParticleStepPostInteraction[Nsteps-1]);
+      //      } // sanity check final pT=0
+      
+    } // steps!=0
     
   } // event loop
   
@@ -160,10 +175,16 @@ void Loopers::MakePlots(TString suffix) {
   hist_loops->SetFillColor(kWhite);
   hist_loops->Draw();
   //  
+  // Print
+  theLogFile << endl << "--------"     << endl;
+  theLogFile << hist_loops->GetTitle() << endl;
+  theLogFile << "\t Mean = " << hist_loops->GetMean()  << endl;
+  theLogFile << "\t  RMS = " << hist_loops->GetRMS()   << endl;
+  //
   // Store
   can_Gigi.Update();
-  can_Gigi.SaveAs( Form("%s/Loopers_Loops_%s.eps",  theDirName.Data(), suffix.Data() ) );
-  can_Gigi.SaveAs( Form("%s/Loopers_Loops_%s.gif",  theDirName.Data(), suffix.Data() ) );
+  can_Gigi.SaveAs( Form("%s/Loopers_Turns_%s.eps",  theDirName.Data(), suffix.Data() ) );
+  can_Gigi.SaveAs( Form("%s/Loopers_Turns_%s.gif",  theDirName.Data(), suffix.Data() ) );
   // 
   
   // Draw
@@ -172,6 +193,12 @@ void Loopers::MakePlots(TString suffix) {
   hist_energy_init->SetFillColor(kWhite);
   hist_energy_init->Draw();
   //  
+  // Print
+  theLogFile << endl << "--------"     << endl;
+  theLogFile << hist_energy_init->GetTitle() << endl;
+  theLogFile << "\t Mean = " << hist_energy_init->GetMean()  << endl;
+  theLogFile << "\t  RMS = " << hist_energy_init->GetRMS()   << endl;
+  //
   // Store
   can_Gigi.Update();
   can_Gigi.SaveAs( Form("%s/Loopers_Energy_Init_%s.eps",  theDirName.Data(), suffix.Data() ) );
@@ -184,6 +211,12 @@ void Loopers::MakePlots(TString suffix) {
   hist_energy_end->SetFillColor(kWhite);
   hist_energy_end->Draw();
   //  
+  // Print
+  theLogFile << endl << "--------"     << endl;
+  theLogFile << hist_energy_end->GetTitle() << endl;
+  theLogFile << "\t Mean = " << hist_energy_end->GetMean()  << endl;
+  theLogFile << "\t  RMS = " << hist_energy_end->GetRMS()   << endl;
+  //
   // Store
   can_Gigi.Update();
   can_Gigi.SaveAs( Form("%s/Loopers_Energy_End_%s.eps",  theDirName.Data(), suffix.Data() ) );
@@ -196,6 +229,12 @@ void Loopers::MakePlots(TString suffix) {
   hist_density->SetFillColor(kWhite);
   hist_density->Draw();
   //  
+  // Print
+  theLogFile << endl << "--------"     << endl;
+  theLogFile << hist_density->GetTitle() << endl;
+  theLogFile << "\t Mean = " << hist_density->GetMean()  << endl;
+  theLogFile << "\t  RMS = " << hist_density->GetRMS()   << endl;
+  //
   // Store
   can_Gigi.Update();
   can_Gigi.SaveAs( Form("%s/Loopers_Density_%s.eps",  theDirName.Data(), suffix.Data() ) );
@@ -208,10 +247,16 @@ void Loopers::MakePlots(TString suffix) {
   hist_density_vs_loops->SetFillColor(kBlue);
   hist_density_vs_loops->Draw("BOX");
   //  
+  // Print
+  theLogFile << endl << "--------"     << endl;
+  theLogFile << hist_density_vs_loops->GetTitle() << endl;
+  theLogFile << "\t Mean = " << hist_density_vs_loops->GetMean()  << endl;
+  theLogFile << "\t  RMS = " << hist_density_vs_loops->GetRMS()   << endl;
+  //
   // Store
   can_Gigi.Update();
-  can_Gigi.SaveAs( Form("%s/Loopers_Density_vs_Loops_%s.eps",  theDirName.Data(), suffix.Data() ) );
-  can_Gigi.SaveAs( Form("%s/Loopers_Density_vs_Loops_%s.gif",  theDirName.Data(), suffix.Data() ) );
+  can_Gigi.SaveAs( Form("%s/Loopers_Density_vs_Turns_%s.eps",  theDirName.Data(), suffix.Data() ) );
+  can_Gigi.SaveAs( Form("%s/Loopers_Density_vs_Turns_%s.gif",  theDirName.Data(), suffix.Data() ) );
   // 
 
   // Draw
@@ -220,6 +265,12 @@ void Loopers::MakePlots(TString suffix) {
   hist_pT_init->SetFillColor(kWhite);
   hist_pT_init->Draw();
   //  
+  // Print
+  theLogFile << endl << "--------"     << endl;
+  theLogFile << hist_pT_init->GetTitle() << endl;
+  theLogFile << "\t Mean = " << hist_pT_init->GetMean()  << endl;
+  theLogFile << "\t  RMS = " << hist_pT_init->GetRMS()   << endl;
+  //
   // Store
   can_Gigi.Update();
   can_Gigi.SaveAs( Form("%s/Loopers_pT_Init_%s.eps",  theDirName.Data(), suffix.Data() ) );
@@ -232,11 +283,104 @@ void Loopers::MakePlots(TString suffix) {
   hist_pT_end->SetFillColor(kWhite);
   hist_pT_end->Draw();
   //  
+  // Print
+  theLogFile << endl << "--------"     << endl;
+  theLogFile << hist_pT_end->GetTitle() << endl;
+  theLogFile << "\t Mean = " << hist_pT_end->GetMean()  << endl;
+  theLogFile << "\t  RMS = " << hist_pT_end->GetRMS()   << endl;
+  //
   // Store
   can_Gigi.Update();
   can_Gigi.SaveAs( Form("%s/Loopers_pT_End_%s.eps",  theDirName.Data(), suffix.Data() ) );
   can_Gigi.SaveAs( Form("%s/Loopers_pT_End_%s.gif",  theDirName.Data(), suffix.Data() ) );
   // 
+
+  // Draw
+  can_Gigi.cd();
+  hist_energyLossPerTurn->SetLineColor(kBlue);
+  hist_energyLossPerTurn->SetFillColor(kWhite);
+  hist_energyLossPerTurn->Draw();
+  //  
+  // Print
+  theLogFile << endl << "--------"     << endl;
+  theLogFile << hist_energyLossPerTurn->GetTitle() << endl;
+  theLogFile << "\t Mean = " << hist_energyLossPerTurn->GetMean()  << endl;
+  theLogFile << "\t  RMS = " << hist_energyLossPerTurn->GetRMS()   << endl;
+  //
+  // Store
+  can_Gigi.Update();
+  can_Gigi.SaveAs( Form("%s/Loopers_EnergyLossPerTurn_%s.eps",  theDirName.Data(), suffix.Data() ) );
+  can_Gigi.SaveAs( Form("%s/Loopers_EnergyLossPerTurn_%s.gif",  theDirName.Data(), suffix.Data() ) );
+  // 
+  
+  // Draw
+  can_Gigi.cd();
+  hist_trackLength->SetLineColor(kBlue);
+  hist_trackLength->SetFillColor(kWhite);
+  hist_trackLength->Draw();
+  //  
+  // Print
+  theLogFile << endl << "--------"     << endl;
+  theLogFile << hist_trackLength->GetTitle() << endl;
+  theLogFile << "\t Mean = " << hist_trackLength->GetMean()  << endl;
+  theLogFile << "\t  RMS = " << hist_trackLength->GetRMS()   << endl;
+  //
+  // Store
+  can_Gigi.Update();
+  can_Gigi.SaveAs( Form("%s/Loopers_trackLength_%s.eps",  theDirName.Data(), suffix.Data() ) );
+  can_Gigi.SaveAs( Form("%s/Loopers_trackLength_%s.gif",  theDirName.Data(), suffix.Data() ) );
+  // 
+  
+  // Draw
+  can_Gigi.cd();
+  hist_trackLengthPerTurn->SetLineColor(kBlue);
+  hist_trackLengthPerTurn->SetFillColor(kWhite);
+  hist_trackLengthPerTurn->Draw();
+  //  
+  // Print
+  theLogFile << endl << "--------"     << endl;
+  theLogFile << hist_trackLengthPerTurn->GetTitle() << endl;
+  theLogFile << "\t Mean = " << hist_trackLengthPerTurn->GetMean()  << endl;
+  theLogFile << "\t  RMS = " << hist_trackLengthPerTurn->GetRMS()   << endl;
+  //
+  // Store
+  can_Gigi.Update();
+  can_Gigi.SaveAs( Form("%s/Loopers_trackLengthPerTurn_%s.eps",  theDirName.Data(), suffix.Data() ) );
+  can_Gigi.SaveAs( Form("%s/Loopers_trackLengthPerTurn_%s.gif",  theDirName.Data(), suffix.Data() ) );
+  // 
+  
+  // Prepare Axes Labels
+  hist_lastInteraction->GetXaxis()->SetBinLabel( 1,"Not Defined");
+  hist_lastInteraction->GetXaxis()->SetBinLabel( 2,"Transportation");
+  hist_lastInteraction->GetXaxis()->SetBinLabel( 3,"Electromagnetic");
+  hist_lastInteraction->GetXaxis()->SetBinLabel( 4,"Optical");
+  hist_lastInteraction->GetXaxis()->SetBinLabel( 5,"Hadronic");
+  hist_lastInteraction->GetXaxis()->SetBinLabel( 6,"Photolepton Hadron");
+  hist_lastInteraction->GetXaxis()->SetBinLabel( 7,"Decay");
+  hist_lastInteraction->GetXaxis()->SetBinLabel( 8,"General");
+  hist_lastInteraction->GetXaxis()->SetBinLabel( 9,"Parameterisation");
+  hist_lastInteraction->GetXaxis()->SetBinLabel(10,"User Defined");
+  hist_lastInteraction->GetXaxis()->SetBinLabel(11,"Other");
+  hist_lastInteraction->GetXaxis()->SetTitle("");
+  
+  // Draw
+  can_Gigi.cd();
+  hist_lastInteraction->SetLineColor(kBlue);
+  hist_lastInteraction->SetFillColor(kWhite);
+  hist_lastInteraction->Draw();
+  //  
+  // Print
+  theLogFile << endl << "--------"     << endl;
+  theLogFile << hist_lastInteraction->GetTitle() << endl;
+  theLogFile << "\t Mean = " << hist_lastInteraction->GetMean()  << endl;
+  theLogFile << "\t  RMS = " << hist_lastInteraction->GetRMS()   << endl;
+  //
+  // Store
+  can_Gigi.Update();
+  can_Gigi.SaveAs( Form("%s/Loopers_lastInteraction_%s.eps",  theDirName.Data(), suffix.Data() ) );
+  can_Gigi.SaveAs( Form("%s/Loopers_lastInteraction_%s.gif",  theDirName.Data(), suffix.Data() ) );
+  // 
+  
 }
 
 void Loopers::helpfulCommands() {
