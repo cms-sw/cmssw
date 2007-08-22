@@ -1,4 +1,6 @@
 <use name=RecoMuon/L3TrackFinder>
+<use name=TrackingTools/TransientTrackingRecHit>
+<use name=RecoTracker/Record>
 
 <library file="*.cc" name=RecoMuonL3TrackFinderPlugins>
         <flags EDM_PLUGIN=1>

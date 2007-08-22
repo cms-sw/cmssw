@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/07/19 23:54:24 $
- *  $Revision: 1.107 $
+ *  $Date: 2007/08/17 15:31:36 $
+ *  $Revision: 1.108 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -49,7 +49,6 @@
 #include "RecoMuon/GlobalTrackingTools/interface/GlobalMuonTrackMatcher.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "Utilities/Timing/interface/TimerStack.h"
 
 using namespace std;
 using namespace edm;
@@ -95,7 +94,10 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
     allTrackerTrajs = &*handleTrackerTrajs;  
    
     event.getByLabel(theTkTrackLabel,tkAssoMap);   
-    if ( theFirstEvent ) LogInfo(category) << "Tk Trajectories Found! ";
+    if ( theFirstEvent ) {
+      LogInfo(category) << "Tk Trajectories Found! ";
+      theFirstEvent = false;
+    }
   }
 
 }
@@ -106,49 +108,38 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
 MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(const TrackCand& staCandIn) {
 
   const std::string category = "Muon|RecoMuon|GlobalMuonTrajectoryBuilder|trajectories";
-
-  TimerStack timers;
-  string timerName = category + "::Total";
-  timers.push(timerName);
-
+  
   // cut on muons with low momenta
   if ( (staCandIn).second->pt() < thePtCut || (staCandIn).second->innerMomentum().Rho() < thePtCut || (staCandIn).second->innerMomentum().R() < 2.5 ) return CandidateContainer();
-
+  
   // convert the STA track into a Trajectory if Trajectory not already present
   TrackCand staCand(staCandIn);
-  LogInfo(category) << "Adding Traj to STA";
   addTraj(staCand);
 
-  timerName = category + "::makeTkCandCollection";
-  timers.push(timerName);
   vector<TrackCand> regionalTkTracks = makeTkCandCollection(staCand);
   LogInfo(category) << "Found " << regionalTkTracks.size() << " tracks within region of interest";  
+
   // match tracker tracks to muon track
-  timerName = category + "::trackMatcher";
-  timers.pop_and_push(timerName);
   vector<TrackCand> trackerTracks = trackMatcher()->match(staCand, regionalTkTracks);
   LogInfo(category) << "Found " << trackerTracks.size() << " matching tracker tracks within region of interest";
-  // build a combined tracker-muon MuonCandidate
-  timerName = category + "::build";
-  timers.pop_and_push(timerName);
   if ( trackerTracks.empty() ) return CandidateContainer();
 
-  LogInfo(category) << "turn tkMatchedTracks into MuonCandidates";
+  // build a combined tracker-muon MuonCandidate
   //
   // turn tkMatchedTracks into MuonCandidates
   //
+  LogInfo(category) << "turn tkMatchedTracks into MuonCandidates";
   CandidateContainer tkTrajs;
   for (vector<TrackCand>::const_iterator tkt = trackerTracks.begin(); tkt != trackerTracks.end(); tkt++) {
     if ((*tkt).first != 0 && (*tkt).first->isValid()) {
       MuonCandidate* muonCand = new MuonCandidate( 0 ,staCand.second,(*tkt).second, new Trajectory(*(*tkt).first));
       tkTrajs.push_back(muonCand);
-      LogInfo(category) << "tpush";
-
+      LogTrace(category) << "tpush";
     }
   }
 
   if ( tkTrajs.empty() )  {
-    LogInfo(category) << "tkTrajs empty";
+    LogTrace(category) << "tkTrajs empty";
     return CandidateContainer();
   }
 
@@ -158,12 +149,19 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
   // free memory
   if ( staCandIn.first == 0) delete staCand.first;
 
+  for( CandidateContainer::const_iterator it = tkTrajs.begin(); it != tkTrajs.end(); ++it) {
+    if ( (*it)->trajectory() ) delete (*it)->trajectory();
+    if ( (*it)->trackerTrajectory() ) delete (*it)->trackerTrajectory();
+    if ( *it ) delete (*it);
+  }
+  tkTrajs.clear();  
+
   if ( !theTkTrajsAvailableFlag ) {
     for ( vector<TrackCand>::const_iterator is = regionalTkTracks.begin(); is != regionalTkTracks.end(); ++is) {
       delete (*is).first;   
     }
   }
-  timers.clear_stack();
+
   return result;
   
 }
@@ -174,36 +172,29 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
 vector<GlobalMuonTrajectoryBuilder::TrackCand> GlobalMuonTrajectoryBuilder::makeTkCandCollection(const TrackCand& staCand) const {
 
   const std::string category = "Muon|RecoMuon|GlobalMuonTrajectoryBuilder|makeTkCandCollection";
-  TimerStack times;
-  string timerName = category;
-  times.push(timerName);
 
   vector<TrackCand> tkCandColl;
-    timerName = category + "::trackCollection";
-    times.push(timerName);
-    vector<TrackCand> tkTrackCands;
-
-    if ( theTkTrajsAvailableFlag ) {
-      for(TrajTrackAssociationCollection::const_iterator it = tkAssoMap->begin(); it != tkAssoMap->end(); ++it){	
-	const Ref<vector<Trajectory> > traj = it->key;
-	const reco::TrackRef tk = it->val;
-	TrackCand tkCand = TrackCand(0,tk);
-	if( traj->isValid() ) tkCand.first = &*traj ;
-	tkTrackCands.push_back(tkCand);
-      }
-    } else {
-      for ( unsigned int position = 0; position != allTrackerTracks->size(); ++position ) {
-	reco::TrackRef tkTrackRef(allTrackerTracks,position);
-	TrackCand tkCand = TrackCand(0,tkTrackRef);
-	tkTrackCands.push_back(tkCand); 
-      }
+  
+  vector<TrackCand> tkTrackCands;
+  
+  if ( theTkTrajsAvailableFlag ) {
+    for(TrajTrackAssociationCollection::const_iterator it = tkAssoMap->begin(); it != tkAssoMap->end(); ++it){	
+      const Ref<vector<Trajectory> > traj = it->key;
+      const reco::TrackRef tk = it->val;
+      TrackCand tkCand = TrackCand(0,tk);
+      if( traj->isValid() ) tkCand.first = &*traj ;
+      tkTrackCands.push_back(tkCand);
     }
-
-    timerName = category + "::chooseRegionalTrackerTracks";
-    times.push(timerName);
-    tkCandColl = chooseRegionalTrackerTracks(staCand,tkTrackCands);
- 
-  times.clear_stack();
+  } else {
+    for ( unsigned int position = 0; position != allTrackerTracks->size(); ++position ) {
+      reco::TrackRef tkTrackRef(allTrackerTracks,position);
+      TrackCand tkCand = TrackCand(0,tkTrackRef);
+      tkTrackCands.push_back(tkCand); 
+    }
+  }
+  
+  tkCandColl = chooseRegionalTrackerTracks(staCand,tkTrackCands);
+  
   return tkCandColl;
-
+  
 }

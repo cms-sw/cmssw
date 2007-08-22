@@ -13,8 +13,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/08/16 21:36:23 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/08/17 15:10:26 $
+ *  $Revision: 1.2 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -100,6 +100,8 @@ GlobalTrajectoryBuilderBase::GlobalTrajectoryBuilderBase(const edm::ParameterSet
   trackMatcherPSet.addParameter<string>("StateOnTrackerBoundOutPropagator",stateOnTrackerOutProp);
   theTrackMatcher = new GlobalMuonTrackMatcher(trackMatcherPSet,theService);
 
+  trackerPropagatorName = par.getParameter<string>("TrackerPropagator");
+
   theTrackTransformer = new TrackTransformer(par.getParameter<ParameterSet>("TrackTransformer"));
 
   ParameterSet regionBuilderPSet = par.getParameter<ParameterSet>("RegionBuilderParameters");
@@ -158,7 +160,7 @@ MuonCandidate::CandidateContainer GlobalTrajectoryBuilderBase::build(const Track
   //                 5 - new combined
   //
 
-  // tracker trajectory should be built before this point
+  // tracker trajectory should be built and refit before this point
 
   LogTrace(theCategory)<< "build begin. ";
 
@@ -168,7 +170,7 @@ MuonCandidate::CandidateContainer GlobalTrajectoryBuilderBase::build(const Track
   // add muon hits and refit/smooth trajectories
   //
   CandidateContainer refittedResult;
-
+  
   if ( theMuonHitsOption > 0 ) {
 
     vector<int> stationHits(4,0);
@@ -179,8 +181,9 @@ MuonCandidate::CandidateContainer GlobalTrajectoryBuilderBase::build(const Track
     // check and select muon measurements and
     // measure occupancy in muon stations
     //
-    checkMuonHits(*(staCand.second), muonRecHits1, muonRecHits2, stationHits);
 
+    checkMuonHits(*(staCand.second), muonRecHits1, muonRecHits2, stationHits);
+    
     for ( CandidateContainer::const_iterator it = tkTrajs.begin(); it != tkTrajs.end(); it++ ) {
 
       // cut on tracks with low momenta
@@ -192,19 +195,34 @@ MuonCandidate::CandidateContainer GlobalTrajectoryBuilderBase::build(const Track
       if( recHitDir == outToIn ) reverse(trackerRecHits.begin(),trackerRecHits.end());
 
       TrajectoryMeasurement innerTM = ( (*it)->trackerTrajectory()->direction() == alongMomentum ) ? (*it)->trackerTrajectory()->firstMeasurement() : (*it)->trackerTrajectory()->lastMeasurement();
-
+      
       TrajectoryStateOnSurface innerTsos = innerTM.updatedState();
-
+      
+      //for cases when Tk trajectory has not been smoothed
+      LogTrace(theCategory)<<"BackwardPredictedState "<<innerTM.backwardPredictedState().isValid();
+      if (  !innerTM.backwardPredictedState().isValid() ) {
+	TrajectoryMeasurement outerTM = ((*it)->trackerTrajectory()->direction() == alongMomentum) ? (*it)->trackerTrajectory()->lastMeasurement() : (*it)->trackerTrajectory()->firstMeasurement();
+	TrajectoryStateOnSurface outerTsos = outerTM.updatedState();
+	outerTsos.rescaleError(100.);
+	
+	TrajectoryStateOnSurface innerTsos2;
+	if(trackerRecHits.front()->geographicalId().det() == DetId::Tracker ) {
+	  innerTsos2 = theService->propagator(trackerPropagatorName)->propagate(outerTsos,trackerRecHits.front()->det()->surface());
+	}
+	
+	if ( innerTsos2.isValid() ) innerTsos = innerTsos2;
+      } 
+      
       if ( !innerTsos.isValid() ) {
-         LogTrace(theCategory) << "inner Trajectory State is invalid. ";
-         return CandidateContainer();
+	LogTrace(theCategory) << "inner Trajectory State is invalid. ";
+	continue;                  ;
       }
       innerTsos.rescaleError(100.);
-
+                  
       TC refitted1,refitted2,refitted3;
       vector<Trajectory*> refit(4);
       MuonCandidate* finalTrajectory = 0;
-
+      
       // tracker only track
       refit[0] = (*it)->trackerTrajectory();
       ConstRecHitContainer rechits(trackerRecHits);
@@ -235,7 +253,6 @@ MuonCandidate::CandidateContainer GlobalTrajectoryBuilderBase::build(const Track
         refittedResult.push_back(finalTrajectory);
       }
     }
-
   }
   else {
     LogTrace(theCategory)<<"theMuonHitsOption="<<theMuonHitsOption<<"\n"
@@ -251,7 +268,6 @@ MuonCandidate::CandidateContainer GlobalTrajectoryBuilderBase::build(const Track
     }
   }
 
-  //return refittedResult;
   // Choose the best global fit for this Standalone Muon based on the
   // track probability
 
@@ -262,14 +278,6 @@ MuonCandidate::CandidateContainer GlobalTrajectoryBuilderBase::build(const Track
 
   for(CandidateContainer::const_iterator iter=refittedResult.begin(); iter != refittedResult.end(); iter++) {
     double prob = trackProbability(*(*iter)->trajectory());
-    /*
-    LogInfo(category)
-      << "Track Chi2: " << (*iter)->trajectory()->chiSquared()
-      << " Chi2/DoF " << (*iter)->trajectory()->chiSquared() / (*iter)->trajectory()->foundHits()
-      << " Prob " << prob
-      << " Tracker pt " <<(*iter)->trackerTrack()->pt();
-    */
-
     if(prob < minProb) {
       minProb = prob;
       tmpCand = (*iter);
@@ -284,13 +292,6 @@ MuonCandidate::CandidateContainer GlobalTrajectoryBuilderBase::build(const Track
     if ( *it ) delete (*it);
   }
   refittedResult.clear();
-
-  for( CandidateContainer::const_iterator it = tkTrajs.begin(); it != tkTrajs.end(); ++it) {
-    if ( (*it)->trajectory() ) delete (*it)->trajectory();
-    if ( (*it)->trackerTrajectory() ) delete (*it)->trackerTrajectory();
-    if ( *it ) delete (*it);
-  }
-  tkTrajs.clear();  
 
   return selectedResult;
 
@@ -646,30 +647,30 @@ GlobalTrajectoryBuilderBase::selectMuonHits(const Trajectory& traj,
 // choose final trajectory
 //
 const Trajectory* GlobalTrajectoryBuilderBase::chooseTrajectory(const std::vector<Trajectory*>& t, int muonHitsOption) const {
-
+  
   Trajectory* result = 0;
-
+  
   if ( muonHitsOption == 0) {
-      if (t[0]) result = t[0];
-      return result;
+    if (t[0]) result = t[0];
+    return result;
   } else if ( muonHitsOption == 1) {
-      if (t[1]) result = t[1];
-      return result;
+    if (t[1]) result = t[1];
+    return result;
   } else if ( muonHitsOption == 2) {
-      if (t[2]) result = t[2];
-      return result;
+    if (t[2]) result = t[2];
+    return result;
   } else if ( muonHitsOption == 3) {
-      if (t[3]) result = t[3];
-      return result;
+    if (t[3]) result = t[3];
+    return result;
   } else if ( muonHitsOption == 4) {
- 
+    
     double prob0 = ( t[0] ) ? trackProbability(*t[0]) : 0.0;
     double prob1 = ( t[1] ) ? trackProbability(*t[1]) : 0.0;
     double prob2 = ( t[2] ) ? trackProbability(*t[2]) : 0.0;
     double prob3 = ( t[3] ) ? trackProbability(*t[3]) : 0.0; 
-
+    
     LogTrace(theCategory) << "Probabilities: " << prob0 << " " << prob1 << " " << prob2 << " " << prob3 << endl;
-
+    
     if ( t[1] ) result = t[1];
     if ( (t[1] == 0) && t[3] ) result = t[3];
   
@@ -782,15 +783,7 @@ void GlobalTrajectoryBuilderBase::printHits(const ConstRecHitContainer& hits) co
 //
 void GlobalTrajectoryBuilderBase::addTraj(TrackCand& candIn) const {
 
-  TimerStack times;
-  string timerName;
-
-  timerName = theCategory;
-  times.push(timerName);
   if( candIn.first == 0 ) {
-    timerName = theCategory + "::trackConvert";
-    times.push(timerName);
-
     LogTrace(theCategory) << "Making new trajectory from TrackRef " << (*candIn.second).pt();
 
     TC staTrajs = theTrackTransformer->transform(*(candIn.second));
@@ -799,7 +792,6 @@ void GlobalTrajectoryBuilderBase::addTraj(TrackCand& candIn) const {
     candIn = ( !staTrajs.empty() ) ? TrackCand(new Trajectory(staTrajs.front()),candIn.second) : TrackCand(0,candIn.second);    
 
   }
-  times.clear_stack(); 
 
 }
 

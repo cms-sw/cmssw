@@ -1,0 +1,30 @@
+<use name=FWCore/Framework>
+<use name=TrackingTools/GeomPropagators>
+<use name=TrackingTools/MaterialEffects>
+<use name=TrackingTools/KalmanUpdators>
+<use name=TrackingTools/TrackFitters>
+<use name=TrackingTools/TrajectoryCleaning>
+<use name=TrackingTools/PatternTools>
+<use name=TrackingTools/TransientTrackingRecHit>
+<use name=TrackingTools/TrackRefitter>
+<use name=RecoMuon/DetLayers>
+<use name=RecoMuon/Navigation>
+<use name=RecoMuon/TrackingTools>
+<use name=RecoMuon/MeasurementDet>
+<use name=RecoMuon/TrackerSeedGenerator>
+<use name=DataFormats/TrajectorySeed>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/MuonDetId>
+<use name=DataFormats/DetId>
+<use name=DataFormats/TrackingRecHit>
+<use name=RecoTracker/CkfPattern>
+<use name=RecoTracker/TkTrackingRegions>
+<use name=CommonTools/Statistics>
+<use name=Geometry/CommonDetUnit>
+<use name=RecoMuon/GlobalTrackingTools>
+
+<export>
+   <lib name=RecoMuonL3TrackFinder>
+</export>
+
+

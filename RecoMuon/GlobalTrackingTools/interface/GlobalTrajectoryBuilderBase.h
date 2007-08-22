@@ -4,8 +4,8 @@
 /** \class GlobalTrajectoryBuilderBase
  *  class to build muon trajectory
  *
- *  $Date: 2007/08/16 21:33:10 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/08/17 15:08:24 $
+ *  $Revision: 1.2 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -140,6 +140,7 @@ class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
     float theCSCChi2Cut;
     float theRPCChi2Cut;
     std::string theKFFitterName;
+    std::string trackerPropagatorName;
  
     const edm::Event* theEvent;
 
