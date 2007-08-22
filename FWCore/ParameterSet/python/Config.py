@@ -57,6 +57,24 @@ class Process(object):
         self.__dict__['_Process__psets']={}
         self.__dict__['_Process__vpsets']={}
         self.__dict__['_cloneToObjectDict'] = {}
+
+    def __setstate__(self, pkldict):
+        """
+        Unpickling hook.
+
+        Since cloneToObjectDict stores a hash of objects by their
+        id() it needs to be updated when unpickling to use the
+        new object id values instantiated during the unpickle.
+        
+        """
+        self.__dict__.update(pkldict)
+        tmpDict = {}
+        for value in self._cloneToObjectDict.values():
+            tmpDict[id(value)] = value
+        self.__dict__['_cloneToObjectDict'] = tmpDict
+        
+
+        
     def filters_(self):
         """returns a dict of the filters which have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__filters)
