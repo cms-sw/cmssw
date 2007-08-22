@@ -31,7 +31,7 @@
 
 CSCNoiseMatrixAnalyzer::CSCNoiseMatrixAnalyzer(edm::ParameterSet const& conf) {
   debug = conf.getUntrackedParameter<bool>("debug",false);
-  eventNumber=0,evt=0,NChambers=0,Nddu=0;
+  eventNumber=0,evt=0,NChambers=0,Nddu=0,counterzero=0;
   strip=0,misMatch=0;
   i_chamber=0,i_layer=0,reportedChambers=0;
   length=1,flagMatrix=-9;
@@ -73,11 +73,12 @@ void CSCNoiseMatrixAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&
   
   edm::Handle<FEDRawDataCollection> rawdata;
   e.getByType(rawdata);
+  counterzero=counterzero+1;
+  evt=(counterzero+1)/2;
 
   for (int id=FEDNumbering::getCSCFEDIds().first;
        id<=FEDNumbering::getCSCFEDIds().second; ++id){ //for each of our DCCs
     
-    evt++;      
     /// Take a reference to this FED's data
     const FEDRawData& fedData = rawdata->FEDData(id);
     if (fedData.size()){ ///unpack data 
@@ -91,6 +92,10 @@ void CSCNoiseMatrixAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&
 	
 	///get a reference to chamber data
 	const std::vector<CSCEventData> & cscData = dduData[iDDU].cscData();
+	//exclude empty events with no DMB/CFEB data
+	//	if(dduData[iDDU].cscData().size()==0) continue;
+	//	if(dduData[iDDU].cscData().size() !=0) evt++;   
+	
 	Nddu=dduData.size();
 	reportedChambers += dduData[iDDU].header().ncsc();
 	NChambers = cscData.size();
@@ -123,7 +128,7 @@ void CSCNoiseMatrixAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&
 	tmp=corrmat; 
 		
 	eventNumber++;
-	edm::LogInfo ("CSCNoiseMatrixAnalyzer")  << "end of event number " << eventNumber;
+	edm::LogInfo ("CSCNoiseMatrixAnalyzer")  << "end of event number " << eventNumber<<" and non-zero event "<<evt;
       }
     }
   }
@@ -146,21 +151,25 @@ CSCNoiseMatrixAnalyzer::~CSCNoiseMatrixAnalyzer(){
   }
   std::string::size_type runNameStart = name.find("\"",0);
   std::string::size_type runNameEnd   = name.find("raw",0);
-  std::string::size_type rootStart    = name.find("PulseDAC",0);
+  std::string::size_type rootStart    = name.find("SCAPed",0);
   int nameSize = runNameEnd+2-runNameStart;
   int myRootSize = rootStart-runNameStart+11;
   std::string myname= name.substr(runNameStart+1,nameSize);
   std::string myRootName= name.substr(runNameStart+1,myRootSize);
   std::string myRootEnd = ".root";
+  std::string myASCIIFileEnd = ".dat";
   std::string runFile= myRootName;
   std::string myRootFileName = runFile+myRootEnd;
+  std::string myASCIIFileName= runFile+myASCIIFileEnd;
   const char *myNewName=myRootFileName.c_str();
-  
+  const char *myFileName=myASCIIFileName.c_str();
+    
   struct tm* clock;			    
   struct stat attrib;			    
   stat(myname.c_str(), &attrib);          
   clock = localtime(&(attrib.st_mtime));  
   std::string myTime=asctime(clock);
+  std::ofstream myfile(myFileName,std::ios::out);
     
   //DB object and map
   CSCobject *cn = new CSCobject();
@@ -296,6 +305,20 @@ CSCNoiseMatrixAnalyzer::~CSCNoiseMatrixAnalyzer(){
 	  if (tmp[max]>3.0 && tmp[max]<100.0) flagMatrix = 1; // ok
 	  if (tmp[max]>50.0)                  flagMatrix = 2; // warning too high
 	  if (tmp[max]<-15.0)                 flagMatrix = 3; // warning too low
+	  /*
+	  if (isnan(tmp[0]))                  tmp[0]   = 1000.0;
+	  if (isnan(tmp[1]))                  tmp[1]   = 1000.0;
+	  if (isnan(tmp[2]))                  tmp[2]   = 1000.0;
+	  if (isnan(tmp[3]))                  tmp[3]   = 1000.0;
+	  if (isnan(tmp[4]))                  tmp[4]   = 1000.0;
+	  if (isnan(tmp[5]))                  tmp[5]   = 1000.0;
+	  if (isnan(tmp[6]))                  tmp[6]   = 1000.0;
+	  if (isnan(tmp[7]))                  tmp[7]   = 1000.0;
+	  if (isnan(tmp[8]))                  tmp[8]   = 1000.0;
+	  if (isnan(tmp[9]))                  tmp[9]   = 1000.0;
+	  if (isnan(tmp[10]))                 tmp[10]  = 1000.0;
+	  if (isnan(tmp[11]))                 tmp[11]  = 1000.0;
+	  */
 
 	  calib_evt.elem[0] = tmp[0];
 	  calib_evt.elem[1] = tmp[1];
@@ -316,7 +339,7 @@ CSCNoiseMatrixAnalyzer::~CSCNoiseMatrixAnalyzer(){
 	  
 	  calibtree.Fill();
 	  
-	  std::cout<<"Chamber "<<i<<" Layer "<<j<<" strip "<<k<<" Matrix elements "<<tmp[max]<<std::endl;
+	  //std::cout<<"Chamber "<<i<<" Layer "<<j<<" strip "<<k<<" Matrix elements "<<tmp[max]<<std::endl;
 	  
 	  cn->obj[layer_id][k].resize(12);
 	  cn->obj[layer_id][k][0] = tmp[0];
@@ -333,6 +356,8 @@ CSCNoiseMatrixAnalyzer::~CSCNoiseMatrixAnalyzer(){
 	  cn->obj[layer_id][k][11] = tmp[11];
 	  
 	}
+
+	myfile<<layer_id<<"  "<<k<<"  "<<tmp[0]<<"  "<<tmp[1]<<"  "<<tmp[3]<<"  "<<tmp[2]<<"  "<<tmp[4]<<"  "<<tmp[6]<<"  "<<tmp[5]<<"  "<<tmp[7]<<"  "<<tmp[9]<<"  "<<tmp[8]<<"  "<<tmp[10]<<"  "<<tmp[11]<<std::endl;
       }
     }
   }

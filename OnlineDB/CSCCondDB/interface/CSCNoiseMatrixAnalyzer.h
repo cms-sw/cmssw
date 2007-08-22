@@ -49,7 +49,7 @@ class CSCNoiseMatrixAnalyzer : public edm::EDAnalyzer {
  // variables persistent across events should be declared here.
  std::vector<int> adc;
  std::string chamber_id;
- int eventNumber,evt,strip,misMatch,NChambers,Nddu;
+ int eventNumber,evt,counterzero,strip,misMatch,NChambers,Nddu;
  int i_chamber,i_layer,reportedChambers,fff,ret_code,length,chamber_num,sector,record;
  int dmbID[CHAMBERS_ma],crateID[CHAMBERS_ma],size[CHAMBERS_ma];
  int lines,flagMatrix;
