@@ -119,7 +119,7 @@ class FastL1GlobalAlgo {
       FastL1RegionMap* m_RMap;
 
       FastL1Config m_L1Config;
-      double m_hcaluncomp[32][256];
+      double m_hcaluncomp[33][256];
 };
 
 #endif

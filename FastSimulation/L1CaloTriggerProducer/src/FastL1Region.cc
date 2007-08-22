@@ -386,7 +386,16 @@ FastL1Region::FillTower_Scaled(const CaloTower& t, int& tid, bool doRCTTrunc)
   if ( hadet<HThres) hadet = 0.;
   //if ( eme<EThres) emet = 0.;
   //if ( hade<HThres) hadet = 0.;
- 
+
+  /* 
+  if (t.emEt()>0. || t.hadEt()>0.) {
+    std::cout<<"+++ "
+	     <<t.emEt()<<" "<<t.hadEt()<<" "
+	     <<t.eta()<<" "<<t.phi()<<" "
+	     <<std::endl;
+  }
+  */
+
   //Towers[tid] = CaloTower(t);
   Towers[tid] = CaloTower(t.id(),t.momentum(),emet,hadet,0.,0,0);
   

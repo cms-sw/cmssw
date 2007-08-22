@@ -76,6 +76,22 @@ FastL1GlobalAlgo::FastL1GlobalAlgo(const edm::ParameterSet& iConfig)
   m_L1Config.EcalTPInput = iConfig.getParameter<edm::InputTag>("EcalTPInput");
   m_L1Config.HcalTPInput = iConfig.getParameter<edm::InputTag>("HcalTPInput");
 
+
+  //Load Hcal LUT file
+  std::ifstream userfile;
+  const std::string userfileName = m_L1Config.HcalLUT.fullPath();
+  userfile.open(userfileName.c_str());
+  static const int etabound = 32;
+  static const int tpgmax = 256;
+  for (int i=0; i<tpgmax; i++) { 
+    for(int j = 1; j <=etabound; j++) {
+      userfile >> m_hcaluncomp[j][i];
+      //std::cout<<"+++ "<<m_hcaluncomp[j][i]<<std::endl;
+    }
+  }
+  userfile.close();  
+  
+
 }
 
 FastL1GlobalAlgo::~FastL1GlobalAlgo()
@@ -449,21 +465,6 @@ FastL1GlobalAlgo::FillL1RegionsTP(edm::Event const& e, const edm::EventSetup& s)
   //const CaloTowerConstituentsMap* theTowerConstituentsMap = cttopo.product();
 
   InitL1Regions();
-
-
-  //Load Hcal LUT file
-  std::ifstream userfile;
-  //const std::string userfileName = m_L1Config.HcalLUT.fullPath();
-  const std::string userfileName = m_L1Config.HcalLUT.relativePath();
-  userfile.open(userfileName.c_str());
-  static const int etabound = 32;
-  static const int tpgmax = 256;
-  for (int i=0; i<tpgmax; i++) { 
-    for(int j = 1; j <=etabound; j++) {
-      userfile >> m_hcaluncomp[j][i];}
-  }
-  userfile.close();  
-  
 
   edm::Handle<EcalTrigPrimDigiCollection> ETPinput;
   e.getByLabel(m_L1Config.EcalTPInput,ETPinput);
