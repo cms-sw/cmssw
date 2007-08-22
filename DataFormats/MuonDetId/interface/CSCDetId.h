@@ -43,7 +43,7 @@ public:
   /// iendcap: 1=forward (+Z), 2=backward(-Z)
   CSCDetId( int iendcap, int istation, 
 	    int iring, int ichamber, 
-	    int ilayer );
+	    int ilayer = 0 );
 
   /** Copy ctor.
    */
