@@ -19,7 +19,7 @@
 
 #include <algorithm>
 #include <iostream>
-#include <cmath>
+#include <cmath> // for M_PI_2 via math.h, as long as appropriate compiler flag switched on to allow acces
 
 CSCLayerGeometry::CSCLayerGeometry( const CSCGeometry* geom, int iChamberType,
          const TrapezoidalPlaneBounds& bounds,
@@ -184,6 +184,54 @@ float CSCLayerGeometry::lengthOfWireGroup( int wireGroup ) const {
    std::vector<float> store = theWireTopology->wireValues( w );
    return store[2];
 }
+
+std::pair<LocalPoint, float> CSCLayerGeometry::possibleRecHitPosition( float s, int w1, int w2 ) const {
+	
+  LocalPoint sw1 = intersectionOfStripAndWire( s, w1 );
+  LocalPoint sw2 = intersectionOfStripAndWire( s, w2 );
+		
+  // Average the two points
+  LocalPoint midpt( (sw1.x()+sw2.x())/2., (sw1.y()+sw2.y())/2 );
+	
+  // Length of strip crossing this group of wires
+  float length = sqrt( (sw1.x()-sw2.x())*(sw1.x()-sw2.x()) + 
+                     (sw1.y()-sw2.y())*(sw1.y()-sw2.y()) );
+	
+  return std::pair<LocalPoint,float>( midpt, length );
+}
+
+LocalPoint CSCLayerGeometry::intersectionOfStripAndWire( float s, int w) const {
+	
+  std::pair<float, float> pw = theWireTopology->equationOfWire( static_cast<float>(w) );
+  std::pair<float, float> ps = theStripTopology->equationOfStrip( s );
+  LocalPoint sw = intersectionOfTwoLines( ps, pw );
+	
+  // If point falls outside wire plane, at extremes in local y, 
+  // replace its y by that of appropriate edge of wire plane
+  if ( !(theWireTopology->insideYOfWirePlane( sw.y() ) ) ) {
+     float y  = theWireTopology->restrictToYOfWirePlane( sw.y() );
+     LocalPoint sw2(sw.x(), y);
+     sw = sw2;
+  }
+	
+  return sw;
+}
+
+LocalPoint CSCLayerGeometry::intersectionOfTwoLines( std::pair<float, float> p1, std::pair<float, float> p2 ) const {
+
+  // Calculate the point of intersection of two straight lines (in 2-dim)
+  // input arguments are pair(m1,c1) and pair(m2,c2) where m=slope, c=intercept (y=mx+c)
+  // BEWARE! Do not call with m1 = m2 ! No trapping !
+
+  float m1 = p1.first;
+  float c1 = p1.second;
+  float m2 = p2.first;
+  float c2 = p2.second;
+  float x = (c2-c1)/(m1-m2);
+  float y = (m1*c2-m2*c1)/(m1-m2);
+  return LocalPoint( x, y );
+}
+
 
 LocalError CSCLayerGeometry::localError( int strip, float sigmaStrip, float sigmaWire ) const {
   // Input sigmas are expected to be in _distance units_

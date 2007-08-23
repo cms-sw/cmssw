@@ -3,6 +3,7 @@
 
 #include "Geometry/CSCGeometry/interface/OffsetRadialStripTopology.h"
 #include <iosfwd>
+#include <utility> // for std::pair
 
 /** \class CSCStripTopology
  * ABC interface for all endcap muon CSC radial strip topologies. <BR>
@@ -39,6 +40,13 @@ public:
   CSCStripTopology( int ns, float aw, float dh, float r, float aoff, float ymid );
 
   virtual ~CSCStripTopology();
+
+  /**
+   * Return slope and intercept of straight line representing (centre-line of) a strip in 2-dim local coordinates.
+   *
+   * The return value is a pair p with p.first = m, p.second = c, where y=mx+c.
+   */
+  std::pair<float, float> equationOfStrip( float strip ) const;
 
   virtual CSCStripTopology* clone() const = 0;
 

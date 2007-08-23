@@ -128,3 +128,34 @@ float CSCWireTopology::yResolution( int wireGroup ) const {
   return wireSpacing() * theWireGrouping->numberOfWiresPerGroup( wireGroup ) / sqrt(12.);
 }
 
+std::pair<float, float> CSCWireTopology::equationOfWire( float wire ) const {
+  return theWireGeometry->equationOfWire( wire );
+}
+
+float CSCWireTopology::restrictToYOfWirePlane( float y ) const {
+  // Reset y to lie within bounds of wire plane at top and bottom.
+  
+  std::pair<float, float> ylim = theWireGeometry->yLimitsOfWirePlane();
+
+  if ( y < ylim.first ) {
+    y = ylim.first;
+  }
+  else if ( y > ylim.second ) {
+    y = ylim.second;
+  }
+  return y;
+}
+
+bool CSCWireTopology::insideYOfWirePlane( float y ) const {
+  // Returns true if arg falls within y limits of wire plane; false otherwise.
+      
+  std::pair<float, float> ylim = theWireGeometry->yLimitsOfWirePlane();
+
+  if ( y < ylim.first ) {
+    return false;
+  }
+  else if ( y > ylim.second ) {
+    return false;
+  }
+  return true;
+}

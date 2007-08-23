@@ -167,4 +167,39 @@ std::vector<float> CSCWireGeometry::wireValues( float wire ) const {
   return buf;
 }
 
+//@@ COULD/SHOULD BE IMPLEMENTED IN Slanted & Nonslanted DERIVED CLASSES
+
+std::pair<float, float> CSCWireGeometry::equationOfWire( float wire ) const {
+  
+  const float fprec = 1.E-06;
+
+  // slope of wire
+  float wangle = wireAngle(); 
+  float mw = 0;
+  if ( fabs(wangle) > fprec ) mw = tan( wangle );
+
+  // intercept of wire
+  float cw = yOfWire( wire );
+
+  LogTrace("CSCWireGeometry|CSC") << "CSCWireGeometry: wire=" << wire <<
+    ", wire angle = " << wangle <<
+    ", intercept on y axis=" << cw;
+
+  return std::pair<float,float>(mw, cw);
+}
+
+//@@ COULD/SHOULD BE IMPLEMENTED IN Slanted & Nonslanted DERIVED CLASSES
+
+std::pair<float, float> CSCWireGeometry::yLimitsOfWirePlane() const{
+
+  const float fprec = 0.1; // wire angle is either 0 or 29 degrees = 0.506 rads
+  float ylow = yOfFirstWire(); // non-ME11 chambers
+  float wangle = wireAngle();  
+  if ( fabs(wangle) > fprec ) {
+    ylow += tan( wangle ) * narrowWidthOfPlane()/2.; // correction for ME11
+  }
+  float yhigh = ylow + lengthOfPlane(); // add extent of wire plane in y
+  
+  return std::pair<float, float>(ylow, yhigh);
+}
 

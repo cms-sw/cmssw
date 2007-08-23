@@ -17,6 +17,8 @@
 #include <DataFormats/GeometryVector/interface/LocalPoint.h>
 #include <DataFormats/GeometrySurface/interface/LocalError.h>
 
+#include <utility> // for std::pair
+
 class CSCGeometry;
 class CSCWireGroupPackage;
 
@@ -222,6 +224,36 @@ public:
    * Length of a wire group (center wire, across chamber face)
    */
   float lengthOfWireGroup( int wireGroup ) const;
+
+  /**
+   * Return estimate of the 2-dim point of intersection of a strip and a cluster of wires.
+   *
+   * Input arguments: a (float) strip number, and the wires which delimit a cluster of wires.
+   * The wires are expected to be real wire numbers, and not wire-group numbers.<br>
+   *
+   * Returned: pair, with members: <br>
+   * first: LocalPoint which is midway along "the" strip between the wire limits, <br>
+   * or the chamber edges, as appropriate. <bf>
+   * second: length of the strip between the wires (or edges as appropriate).
+   */
+  std::pair<LocalPoint, float> possibleRecHitPosition( float s, int w1, int w2 ) const;
+      
+  /**
+   * Return 2-dim point at which a strip and a wire intersects.
+   *
+   * Input arguments: a (float) strip number, and an (int) wire. <br>
+   * Output: LocalPoint which is at their intersection, or at extreme y
+   * of wire plane, as appropriate.
+   */
+  LocalPoint intersectionOfStripAndWire( float s, int w) const;
+	
+  /**
+   * Return the point of intersection of two straight lines (in 2-dim).
+   *
+   * Input arguments are pair(m1,c1) and pair(m2,c2) where m=slope, c=intercept (y=mx+c). <br>
+   * BEWARE! Do not call with m1 = m2 ! No trapping !
+   */
+  LocalPoint intersectionOfTwoLines( std::pair<float, float> p1, std::pair<float, float> p2 ) const;
 
   /**
    * Transform strip and wire errors to local x, y frame

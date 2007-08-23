@@ -13,6 +13,7 @@
 #include "Geometry/CSCGeometry/interface/CSCWireGeometry.h"
 #include "Geometry/CSCGeometry/src/CSCWireGrouping.h"
 #include "Geometry/CSCGeometry/src/CSCWireGroupPackage.h"
+#include <utility> // for std::pair
 
 class CSCWireTopology : public WireTopology {
 
@@ -179,6 +180,23 @@ class CSCWireTopology : public WireTopology {
   std::vector<float> wireValues( float wire ) const {
     return theWireGeometry->wireValues( wire ); }
 
+  /**
+   * Return slope and intercept of straight line representing a wire in 2-dim local coordinates.
+   *
+   * The return value is a pair p with p.first = m, p.second = c, where y=mx+c.
+   */
+  std::pair<float, float> equationOfWire( float wire ) const;
+  
+  /**
+   * Reset input y to lie within bounds of wire plane at top and bottom.
+   */
+  float restrictToYOfWirePlane( float y ) const;
+  
+  /** 
+   * Returns true if arg falls within y limits of wire plane; false otherwise.
+   */
+  bool insideYOfWirePlane( float y ) const;
+  
  private:
 
   CSCWireGrouping* theWireGrouping; // handles grouping of wires for read out
