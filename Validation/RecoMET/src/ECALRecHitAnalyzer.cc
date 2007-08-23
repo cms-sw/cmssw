@@ -6,18 +6,12 @@
 
 ECALRecHitAnalyzer::ECALRecHitAnalyzer(const edm::ParameterSet& iConfig)
 {
-  EnergyThreshold = iConfig.getParameter<double>("EnergyThreshold");
-  theEvent = iConfig.getParameter<int>("theEvent");
-  FirstEvent = iConfig.getParameter<int>("FirstEvent");
-  LastEvent = iConfig.getParameter<int>("LastEvent");
+  debug_             = iConfig.getParameter<bool>("Debug");
+
+ 
 }
 
 void ECALRecHitAnalyzer::endJob() {
-  // Normalize the occupancy histograms
-  hEEpZ_Occ_ix_iy->Scale(100.0/(CurrentEvent+1.0));
-  hEEmZ_Occ_ix_iy->Scale(100.0/(CurrentEvent+1.0));
-  hEB_Occ_ieta_iphi->Scale(100.0/(CurrentEvent+1.0));
-  
   //Write out the histogram files.
   m_DataFile->Write();
   m_GeomFile->Write();
@@ -240,10 +234,8 @@ void ECALRecHitAnalyzer::WriteECALRecHits(const edm::Event& iEvent, const edm::E
 		float Energy = theRecHit->energy();
 		float ieta = EcalID.ieta();
 		float iphi = EcalID.iphi();
-		if (CurrentEvent == theEvent)
-		  hEB_energy_ieta_iphi->Fill(ieta, iphi, Energy);
-		if (Energy>EnergyThreshold && CurrentEvent <= LastEvent && CurrentEvent >= FirstEvent ) 
-		  hEB_Occ_ieta_iphi->Fill(ieta, iphi);
+		hEB_energy_ieta_iphi->Fill(ieta, iphi, Energy);
+		hEB_Occ_ieta_iphi->Fill(ieta, iphi);
 		
 		DEBUG(" ECAL Barrel: ");
 		DEBUG("         RecHit " << j << ": EB, ieta=" << EcalID.ieta() <<  ", iphi=" << EcalID.iphi() <<  ", SM=" << EcalID.ism() << ", energy=" << theRecHit->energy());
@@ -265,17 +257,13 @@ void ECALRecHitAnalyzer::WriteECALRecHits(const edm::Event& iEvent, const edm::E
 		
 		 if (Crystal_zside == -1)
 		   {
-		     if (CurrentEvent == theEvent)
-		       hEEmZ_energy_ix_iy->Fill(ix, iy, Energy);
-		     if (Energy>EnergyThreshold && CurrentEvent <= LastEvent && CurrentEvent >= FirstEvent) 
-		       hEEmZ_Occ_ix_iy->Fill(ix, iy);
+		     hEEmZ_energy_ix_iy->Fill(ix, iy, Energy);
+		     hEEmZ_Occ_ix_iy->Fill(ix, iy);
 		   }
 		 if (Crystal_zside == 1)
 		   {
-		     if (CurrentEvent == theEvent)
-		       hEEpZ_energy_ix_iy->Fill(ix, iy, Energy);
-		     if (Energy>EnergyThreshold && CurrentEvent <= LastEvent && CurrentEvent >= FirstEvent) 
-		       hEEpZ_Occ_ix_iy->Fill(ix, iy);
+		     hEEpZ_energy_ix_iy->Fill(ix, iy, Energy);
+		     hEEpZ_Occ_ix_iy->Fill(ix, iy);
 		   }
 		 
 		   DEBUG(" ECAL Endcap: " );	    

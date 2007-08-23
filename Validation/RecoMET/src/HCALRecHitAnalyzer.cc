@@ -1,287 +1,688 @@
 #include "Validation/RecoMET/interface/HCALRecHitAnalyzer.h"
 // author: Bobby Scurlock, University of Florida
 // first version 12/7/2006
+// modified: Mike Schmitt
+// date: 03.05.2007
+// note: 1) code rewrite. 2.) changed to loop over all hcal detids;
+//       not only those within calotowers.
 
-#define DEBUG(X) { if (debug_) { cout << X << endl; } }
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+                                                                           
+//#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/Common/interface/Handle.h"
+//#include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+//#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
+#include "DataFormats/HcalRecHit/interface/HFRecHit.h"
+#include "DataFormats/HcalRecHit/interface/HORecHit.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+
+#include <memory>
+#include <vector>
+#include <utility>
+#include <ostream>
+#include <fstream>
+#include <string>
+#include <algorithm>
+#include <cmath>
+#include <TLorentzVector.h>
 
 
 HCALRecHitAnalyzer::HCALRecHitAnalyzer(const edm::ParameterSet& iConfig)
 {
-  EnergyThreshold = iConfig.getParameter<double>("EnergyThreshold");
-  theEvent = iConfig.getParameter<int>("theEvent");
-  FirstEvent = iConfig.getParameter<int>("FirstEvent");
-  LastEvent = iConfig.getParameter<int>("LastEvent");
+
+  // Retrieve Information from the Configuration File
+  geometryFile_      = iConfig.getUntrackedParameter<std::string>("GeometryFile");
+  outputFile_        = iConfig.getUntrackedParameter<std::string>("OutputFile");
+
+  hBHERecHitsLabel_  = iConfig.getParameter<std::string>("HBHERecHitsLabel");
+  hORecHitsLabel_    = iConfig.getParameter<std::string>("HORecHitsLabel");
+  hFRecHitsLabel_    = iConfig.getParameter<std::string>("HFRecHitsLabel");
+
+  debug_             = iConfig.getParameter<bool>("Debug");
+
+  if (outputFile_.size() > 0)
+    edm::LogInfo("OutputInfo") << " MET/HCALRecHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
+  else edm::LogInfo("OutputInfo") << " MET/HCALRecHit Task histograms will NOT be saved";
+
 }
 
-void HCALRecHitAnalyzer::endJob() {
-  // Normalize the occupancy histogram
-  hHCAL_L1_Occ_ieta_iphi->Scale(100.0/(CurrentEvent+1.0));
-  hHCAL_L2_Occ_ieta_iphi->Scale(100.0/(CurrentEvent+1.0));
-  hHCAL_L3_Occ_ieta_iphi->Scale(100.0/(CurrentEvent+1.0));
-  hHCAL_L4_Occ_ieta_iphi->Scale(100.0/(CurrentEvent+1.0));
-  
-  //Write out the histogram files.
-  m_DataFile->Write();
-  m_GeomFile->Write();
-} 
-
-void HCALRecHitAnalyzer::beginJob(const edm::EventSetup& iSetup){
-  CurrentEvent = -1;
-  // Make the output files
-  m_GeomFile=new TFile("CaloTower_geometry.root" ,"RECREATE");  
-  m_DataFile=new TFile("HCALRecHitAnalyzer_data.root" ,"RECREATE");  
-  // Book the Histograms
-  BookHistos();
-  // Fill the geometry histograms
-  FillGeometry(iSetup);
-}
-
-void HCALRecHitAnalyzer::BookHistos()
+void HCALRecHitAnalyzer::beginJob(const edm::EventSetup& iSetup)
 {
-  // Book Geometry Histograms
-  m_GeomFile->cd();
-  hCT_ieta_iphi_etaMap = new TH2F("hCT_ieta_iphi_etaMap","",83,-41,42, 73,0,73);
-  hCT_ieta_iphi_phiMap = new TH2F("hCT_ieta_iphi_phiMap","",83,-41,42, 73,0,73);
-  hCT_ieta_detaMap = new TH1F("hCT_ieta_detaMap","", 83, -41, 42);
-  hCT_ieta_dphiMap = new TH1F("hCT_ieta_dphiMap","", 83, -41, 42);
-  // Initialize bins for geometry to -999 because z = 0 is a valid entry 
-  for (int i=1; i<=83; i++)
-    {
-      hCT_ieta_detaMap->SetBinContent(i, -999);
-      hCT_ieta_dphiMap->SetBinContent(i, -999);
-      for (int j=1; j<=73; j++)
-	{
-	  hCT_ieta_iphi_etaMap->SetBinContent(i,j,-999);
-	  hCT_ieta_iphi_phiMap->SetBinContent(i,j,-999);
-	}
+  Nevents = 0;
+  // get ahold of back-end interface
+  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
+
+  if (dbe_) {
+
+    dbe_->setCurrentFolder("METTask/HCAL/geometry");
+    me["hHCAL_ieta_iphi_HBMap"] = dbe_->book2D("METTask_HCAL_ieta_iphi_HBMap","",83,-41,42,72,1,73); 
+    me["hHCAL_ieta_iphi_HEMap"] = dbe_->book2D("METTask_HCAL_ieta_iphi_HEMap","",83,-41,42,72,1,73); 
+    me["hHCAL_ieta_iphi_HFMap"] = dbe_->book2D("METTask_HCAL_ieta_iphi_HFMap","",83,-41,42,72,1,73); 
+    me["hHCAL_ieta_iphi_HOMap"] = dbe_->book2D("METTask_HCAL_ieta_iphi_HOMap","",83,-41,42,72,1,73); 
+    me["hHCAL_ieta_iphi_etaMap"] = dbe_->book2D("METTask_HCAL_ieta_iphi_etaMap","",83,-41,42,72,1,73);
+    me["hHCAL_ieta_iphi_phiMap"] = dbe_->book2D("METTask_HCAL_ieta_iphi_phiMap","",83,-41,42,72,1,73);
+    me["hHCAL_ieta_detaMap"] = dbe_->book1D("METTask_HCAL_ieta_detaMap","",83,-41,42);
+    me["hHCAL_ieta_dphiMap"] = dbe_->book1D("METTask_HCAL_ieta_dphiMap","",83,-41,42);  
+
+    // Initialize bins for geometry to -999 because z = 0 is a valid entry 
+    for (int i = 1; i <= 83; i++) {
+
+      me["hHCAL_ieta_detaMap"]->setBinContent(i,-999);
+      me["hHCAL_ieta_dphiMap"]->setBinContent(i,-999);
+
+      for (int j = 1; j <= 72; j++) {
+
+	me["hHCAL_ieta_iphi_HBMap"]->setBinContent(i,j,0);
+	me["hHCAL_ieta_iphi_HEMap"]->setBinContent(i,j,0);
+	me["hHCAL_ieta_iphi_HFMap"]->setBinContent(i,j,0);
+	me["hHCAL_ieta_iphi_HOMap"]->setBinContent(i,j,0);
+        me["hHCAL_ieta_iphi_etaMap"]->setBinContent(i,j,-999);
+        me["hHCAL_ieta_iphi_phiMap"]->setBinContent(i,j,-999);
+
+      }
+
     }
   
-  // Book Data Histograms
-  m_DataFile->cd();
-  hHCAL_L1_energy_ieta_iphi = new TH2F("hHCAL_L1_energy_ieta_iphi","",83,-41,42, 73,0,73);  
-  hHCAL_L2_energy_ieta_iphi = new TH2F("hHCAL_L2_energy_ieta_iphi","",83,-41,42, 73,0,73);  
-  hHCAL_L3_energy_ieta_iphi = new TH2F("hHCAL_L3_energy_ieta_iphi","",83,-41,42, 73,0,73);  
-  hHCAL_L4_energy_ieta_iphi = new TH2F("hHCAL_L4_energy_ieta_iphi","",83,-41,42, 73,0,73);  
-  hHCAL_L1_Occ_ieta_iphi = new TH2F("hHCAL_L1_Occ_ieta_iphi","",83,-41,42, 73,0,73);  
-  hHCAL_L2_Occ_ieta_iphi = new TH2F("hHCAL_L2_Occ_ieta_iphi","",83,-41,42, 73,0,73);  
-  hHCAL_L3_Occ_ieta_iphi = new TH2F("hHCAL_L3_Occ_ieta_iphi","",83,-41,42, 73,0,73);  
-  hHCAL_L4_Occ_ieta_iphi = new TH2F("hHCAL_L4_Occ_ieta_iphi","",83,-41,42, 73,0,73);  
+    dbe_->setCurrentFolder("METTask/HCAL/data");
+    //--Store number of events used
+    me["hHCAL_Nevents"]          = dbe_->book1D("METTask_HCAL_Nevents","",1,0,1);  
+    //--Data integrated over all events and stored by HCAL(ieta,iphi) 
+    me["hHCAL_D1_energy_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D1_energy_ieta_iphi","",83,-41,42,72,1,73);  
+    me["hHCAL_D2_energy_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D2_energy_ieta_iphi","",83,-41,42,72,1,73);  
+    me["hHCAL_D3_energy_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D3_energy_ieta_iphi","",83,-41,42,72,1,73);  
+    me["hHCAL_D4_energy_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D4_energy_ieta_iphi","",83,-41,42,72,1,73);  
+
+    me["hHCAL_D1_Occ_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D1_Occ_ieta_iphi","",83,-41,42,72,1,73);  
+    me["hHCAL_D2_Occ_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D2_Occ_ieta_iphi","",83,-41,42,72,1,73);  
+    me["hHCAL_D3_Occ_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D3_Occ_ieta_iphi","",83,-41,42,72,1,73);  
+    me["hHCAL_D4_Occ_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D4_Occ_ieta_iphi","",83,-41,42,72,1,73);  
+    //--Data over eta-rings
+    // CaloTower values
+    me["hHCAL_D1_energyvsieta"] = dbe_->book2D("METTask_HCAL_D1_energyvsieta","",83,-41,42,72,1,73);  
+    me["hHCAL_D2_energyvsieta"] = dbe_->book2D("METTask_HCAL_D2_energyvsieta","",83,-41,42,72,1,73);  
+    me["hHCAL_D3_energyvsieta"] = dbe_->book2D("METTask_HCAL_D3_energyvsieta","",83,-41,42,72,1,73);  
+    me["hHCAL_D4_energyvsieta"] = dbe_->book2D("METTask_HCAL_D4_energyvsieta","",83,-41,42,72,1,73);  
+
+    // Integrated over phi
+    me["hHCAL_D1_Occvsieta"] = dbe_->book2D("METTask_HCAL_D1_Occvsieta","",83,-41,42,73,0,73);
+    me["hHCAL_D2_Occvsieta"] = dbe_->book2D("METTask_HCAL_D2_Occvsieta","",83,-41,42,73,0,73);
+    me["hHCAL_D3_Occvsieta"] = dbe_->book2D("METTask_HCAL_D3_Occvsieta","",83,-41,42,73,0,73);
+    me["hHCAL_D4_Occvsieta"] = dbe_->book2D("METTask_HCAL_D4_Occvsieta","",83,-41,42,73,0,73);
+
+    me["hHCAL_D1_SETvsieta"] = dbe_->book2D("METTask_HCAL_D1_SETvsieta","",83,-41,42,20001,0,2001); 
+    me["hHCAL_D2_SETvsieta"] = dbe_->book2D("METTask_HCAL_D2_SETvsieta","",83,-41,42,20001,0,2001); 
+    me["hHCAL_D3_SETvsieta"] = dbe_->book2D("METTask_HCAL_D3_SETvsieta","",83,-41,42,20001,0,2001); 
+    me["hHCAL_D4_SETvsieta"] = dbe_->book2D("METTask_HCAL_D4_SETvsieta","",83,-41,42,20001,0,2001); 
+  
+    me["hHCAL_D1_METvsieta"] = dbe_->book2D("METTask_HCAL_D1_METvsieta","",83,-41,42,20001,0,2001); 
+    me["hHCAL_D2_METvsieta"] = dbe_->book2D("METTask_HCAL_D2_METvsieta","",83,-41,42,20001,0,2001); 
+    me["hHCAL_D3_METvsieta"] = dbe_->book2D("METTask_HCAL_D3_METvsieta","",83,-41,42,20001,0,2001); 
+    me["hHCAL_D4_METvsieta"] = dbe_->book2D("METTask_HCAL_D4_METvsieta","",83,-41,42,20001,0,2001); 
+
+    me["hHCAL_D1_METPhivsieta"]      = dbe_->book2D("METTask_HCAL_D1_METPhivsieta","",83,-41,42, 80, -4,4);  
+    me["hHCAL_D2_METPhivsieta"]      = dbe_->book2D("METTask_HCAL_D2_METPhivsieta","",83,-41,42, 80, -4,4);  
+    me["hHCAL_D3_METPhivsieta"]      = dbe_->book2D("METTask_HCAL_D3_METPhivsieta","",83,-41,42, 80, -4,4);  
+    me["hHCAL_D4_METPhivsieta"]      = dbe_->book2D("METTask_HCAL_D4_METPhivsieta","",83,-41,42, 80, -4,4);  
+
+    me["hHCAL_D1_MExvsieta"]         = dbe_->book2D("METTask_HCAL_D1_MExvsieta","",83,-41,42, 10001,-500,501);  
+    me["hHCAL_D2_MExvsieta"]         = dbe_->book2D("METTask_HCAL_D2_MExvsieta","",83,-41,42, 10001,-500,501);  
+    me["hHCAL_D3_MExvsieta"]         = dbe_->book2D("METTask_HCAL_D3_MExvsieta","",83,-41,42, 10001,-500,501);  
+    me["hHCAL_D4_MExvsieta"]         = dbe_->book2D("METTask_HCAL_D4_MExvsieta","",83,-41,42, 10001,-500,501);  
+  
+    me["hHCAL_D1_MEyvsieta"]         = dbe_->book2D("METTask_HCAL_D1_MEyvsieta","",83,-41,42, 10001,-500,501);  
+    me["hHCAL_D2_MEyvsieta"]         = dbe_->book2D("METTask_HCAL_D2_MEyvsieta","",83,-41,42, 10001,-500,501);  
+    me["hHCAL_D3_MEyvsieta"]         = dbe_->book2D("METTask_HCAL_D3_MEyvsieta","",83,-41,42, 10001,-500,501);  
+    me["hHCAL_D4_MEyvsieta"]         = dbe_->book2D("METTask_HCAL_D4_MEyvsieta","",83,-41,42, 10001,-500,501);  
+  }
+
+  // Inspect Setup for CaloTower Geometry
+  FillGeometry(iSetup);
 
 }
 
 void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
 {
-  // Fill geometry histograms
-  using namespace edm;
-  //int b=0;
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<IdealGeometryRecord>().get(pG);
-  const CaloGeometry cG = *pG;
-  const CaloSubdetectorGeometry* geom=cG.getSubdetectorGeometry(DetId::Calo, 1);
-  int n=0;
-  std::vector<DetId> ids=geom->getValidDetIds(DetId::Calo,1);
-  for (std::vector<DetId>::iterator i=ids.begin(); i!=ids.end(); i++) 
-    {
-      n++;
-      const CaloCellGeometry* cell=geom->getGeometry(*i);
-      CaloTowerDetId ctId(i->rawId());
-      //GlobalPoint p = cell->getPosition();
-      
-      int Tower_ieta = ctId.ieta();
-      int Tower_iphi = ctId.iphi();
-      double Tower_eta = cell->getPosition().eta();
-      double Tower_phi = cell->getPosition().phi();
-      
-      hCT_ieta_iphi_etaMap->SetBinContent(Tower_ieta+42, Tower_iphi+1, Tower_eta);
-      hCT_ieta_iphi_phiMap->SetBinContent(Tower_ieta+42, Tower_iphi+1, (Tower_phi*180.0/M_PI) );
 
-      DEBUG( "Tower " << n );
-      DEBUG( " ieta, iphi = " << Tower_ieta << ", " << Tower_iphi);
-      DEBUG( "  eta,  phi = " << cell->getPosition().eta() << ", " << cell->getPosition().phi());
-      DEBUG( " " );   
-    } // end loop over DetId's
+  // ==========================================================
+  // Retrieve!
+  // ==========================================================
 
-  
-  //-------Set the cell size for each (ieta, iphi) bin-------//
-  double currentLowEdge_eta = 0;
-  //double currentHighEdge_eta = 0;
-  for (int ieta=1; ieta<=41 ; ieta++)
-    {
-      int ieta_ = 42 + ieta;
-      double eta = hCT_ieta_iphi_etaMap->GetBinContent(ieta_, 2);
-      double phi = hCT_ieta_iphi_phiMap->GetBinContent(ieta_, 2);
-      double deta = 2.0*(eta-currentLowEdge_eta);
-      deta = ((float)((int)(1.0E3*deta + 0.5)))/1.0E3;
-      double dphi = 2.0*phi;
-      // BS: This is WRONG...need to correct overlap 
-      if (ieta==28) deta = 0.218;
-      if (ieta==29) deta= 0.096;      
-      currentLowEdge_eta += deta;
-      // BS: This is WRONG...need to correct overlap 
-      if (ieta==29) currentLowEdge_eta = 2.964;
-      hCT_ieta_detaMap->SetBinContent(ieta_, deta); // positive rings
-      hCT_ieta_dphiMap->SetBinContent(ieta_, dphi); // positive rings
-      hCT_ieta_detaMap->SetBinContent(42-ieta, deta); // negative rings
-      hCT_ieta_dphiMap->SetBinContent(42-ieta, dphi); // negative rings
+  const CaloSubdetectorGeometry* HBgeom;
+  const CaloSubdetectorGeometry* HEgeom;
+  const CaloSubdetectorGeometry* HOgeom;
+  const CaloSubdetectorGeometry* HFgeom;
 
-    } // end loop over ieta
+  try {
+
+    edm::ESHandle<CaloGeometry> pG;
+    iSetup.get<IdealGeometryRecord>().get(pG);
+    const CaloGeometry cG = *pG;
+
+    HBgeom = cG.getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
+    HEgeom = cG.getSubdetectorGeometry(DetId::Hcal,HcalEndcap);
+    HOgeom = cG.getSubdetectorGeometry(DetId::Hcal,HcalOuter);
+    HFgeom = cG.getSubdetectorGeometry(DetId::Hcal,HcalForward);
+
+  } catch (...) {
+
+    edm::LogInfo("OutputInfo") << "Failed to retrieve an Event Setup Handle, Aborting Task "
+         << "HCALRecHitAnalyzer::FillGeometry!\n"; return;
+
+  }
+
+  // ==========================================================
+  // Fill Histograms!
+  // ==========================================================
+
+  std::vector<DetId>::iterator i;
+
+  int HBmin_ieta = 99, HBmax_ieta = -99;
+  int HBmin_iphi = 99, HBmax_iphi = -99;
+
+  // Loop Over all Hcal Barrel DetId's
+  int nHBdetid = 0;
+  std::vector<DetId> HBids = HBgeom->getValidDetIds(DetId::Hcal,HcalBarrel);
+
+  for (i = HBids.begin(); i != HBids.end(); i++) {
+
+    nHBdetid++;
+
+    const CaloCellGeometry* cell = HBgeom->getGeometry(*i);
+    HcalDetId HcalID(i->rawId());
+    //GlobalPoint p = cell->getPosition();
+
+    int Calo_ieta = 42 + HcalID.ieta();
+    int Calo_iphi = HcalID.iphi();
+    double Calo_eta = cell->getPosition().eta();
+    double Calo_phi = cell->getPosition().phi();
+
+    if (me["hHCAL_ieta_iphi_etaMap"]->getBinContent(Calo_ieta,Calo_iphi) == -999) {
+
+      me["hHCAL_ieta_iphi_etaMap"]->setBinContent(Calo_ieta,Calo_iphi,Calo_eta);
+      me["hHCAL_ieta_iphi_phiMap"]->setBinContent(Calo_ieta,Calo_iphi,Calo_phi);
+
+    }
+
+    if (Calo_ieta > HBmax_ieta) HBmax_ieta = Calo_ieta;
+    if (Calo_ieta < HBmin_ieta) HBmin_ieta = Calo_ieta;
+    if (Calo_iphi > HBmax_iphi) HBmax_iphi = Calo_iphi;
+    if (Calo_iphi > HBmax_iphi) HBmin_iphi = Calo_iphi;
+
+  }
+
+  int HEmin_ieta = 99, HEmax_ieta = -99;
+  int HEmin_iphi = 99, HEmax_iphi = -99;
+
+  // Loop Over all Hcal Endcap DetId's
+  int nHEdetid = 0;
+  std::vector<DetId> HEids = HEgeom->getValidDetIds(DetId::Hcal,HcalEndcap);
+
+  for (i = HEids.begin(); i != HEids.end(); i++) {
+
+    nHEdetid++;
+
+    const CaloCellGeometry* cell = HEgeom->getGeometry(*i);
+    HcalDetId HcalID(i->rawId());
+    //GlobalPoint p = cell->getPosition();
+
+    int Calo_ieta = 42 + HcalID.ieta();
+    int Calo_iphi = HcalID.iphi();
+    double Calo_eta = cell->getPosition().eta();
+    double Calo_phi = cell->getPosition().phi();
+
+    // HCAL to HE eta, phi map comparison
+    if (me["hHCAL_ieta_iphi_etaMap"]->getBinContent(Calo_ieta,Calo_iphi) == -999) {
+      me["hHCAL_ieta_iphi_etaMap"]->setBinContent(Calo_ieta,Calo_iphi,Calo_eta);
+      me["hHCAL_ieta_iphi_phiMap"]->setBinContent(Calo_ieta,Calo_iphi,Calo_phi);
+    } 
+
+    if (Calo_ieta > HEmax_ieta) HEmax_ieta = Calo_ieta;
+    if (Calo_ieta < HEmin_ieta) HEmin_ieta = Calo_ieta;
+    if (Calo_iphi > HEmax_iphi) HEmax_iphi = Calo_iphi;
+    if (Calo_iphi > HEmax_iphi) HEmin_iphi = Calo_iphi;
+
+  }
+
+  int HFmin_ieta = 99, HFmax_ieta = -99;
+  int HFmin_iphi = 99, HFmax_iphi = -99;
+
+  // Loop Over all Hcal Forward DetId's
+  int nHFdetid = 0;
+  std::vector<DetId> HFids = HFgeom->getValidDetIds(DetId::Hcal,HcalForward);
+
+  for (i = HFids.begin(); i != HFids.end(); i++) {
+
+    nHFdetid++;
+
+    const CaloCellGeometry* cell = HFgeom->getGeometry(*i);
+    HcalDetId HcalID(i->rawId());
+    //GlobalPoint p = cell->getPosition();
+
+    int Calo_ieta = 42 + HcalID.ieta();
+    int Calo_iphi = HcalID.iphi();
+    double Calo_eta = cell->getPosition().eta();
+    double Calo_phi = cell->getPosition().phi();
+
+    // HCAL to HF eta, phi map comparison
+    if (me["hHCAL_ieta_iphi_etaMap"]->getBinContent(Calo_ieta,Calo_iphi) == -999) {
+      me["hHCAL_ieta_iphi_etaMap"]->setBinContent(Calo_ieta,Calo_iphi,Calo_eta);
+      me["hHCAL_ieta_iphi_phiMap"]->setBinContent(Calo_ieta,Calo_iphi,Calo_phi);
+    } 
+
+    if (Calo_ieta > HFmax_ieta) HFmax_ieta = Calo_ieta;
+    if (Calo_ieta < HFmin_ieta) HFmin_ieta = Calo_ieta;
+    if (Calo_iphi > HFmax_iphi) HFmax_iphi = Calo_iphi;
+    if (Calo_iphi > HFmax_iphi) HFmin_iphi = Calo_iphi;
+
+  }
+
+  int HOmin_ieta = 99, HOmax_ieta = -99;
+  int HOmin_iphi = 99, HOmax_iphi = -99;
+
+  // Loop Over all Hcal Outer DetId's
+  int nHOdetid = 0;
+  std::vector<DetId> HOids = HOgeom->getValidDetIds(DetId::Hcal,HcalOuter);
+
+  for (i = HOids.begin(); i != HOids.end(); i++) {
+
+    nHOdetid++;
+
+    const CaloCellGeometry* cell = HOgeom->getGeometry(*i);
+    HcalDetId HcalID(i->rawId());
+    //GlobalPoint p = cell->getPosition();
+
+    int Calo_ieta = 42 + HcalID.ieta();
+    int Calo_iphi = HcalID.iphi();
+    double Calo_eta = cell->getPosition().eta();
+    double Calo_phi = cell->getPosition().phi();
+
+    // HCAL to HO eta, phi map comparison
+    if (me["hHCAL_ieta_iphi_etaMap"]->getBinContent(Calo_ieta,Calo_iphi) == -999) {
+      me["hHCAL_ieta_iphi_etaMap"]->setBinContent(Calo_ieta,Calo_iphi,Calo_eta);
+      me["hHCAL_ieta_iphi_phiMap"]->setBinContent(Calo_ieta,Calo_iphi,Calo_phi);
+    } 
+
+    if (Calo_ieta > HOmax_ieta) HOmax_ieta = Calo_ieta;
+    if (Calo_ieta < HOmin_ieta) HOmin_ieta = Calo_ieta;
+    if (Calo_iphi > HOmax_iphi) HOmax_iphi = Calo_iphi;
+    if (Calo_iphi > HOmax_iphi) HOmin_iphi = Calo_iphi;
+
+  }
+
+  // Set the Cell Size for each (ieta, iphi) Bin
+  double currentLowEdge_eta = 0; //double currentHighEdge_eta = 0;
+  for (int ieta = 1; ieta < 42 ; ieta++) {
+    
+    int ieta_ = 42 + ieta;
+    double eta = me["hHCAL_ieta_iphi_etaMap"]->getBinContent(ieta_,1);
+    double phi = me["hHCAL_ieta_iphi_phiMap"]->getBinContent(ieta_,1);
+    double deta = 2.0*(eta-currentLowEdge_eta);
+    deta = ((float)((int)(1.0E3*deta + 0.5)))/1.0E3;
+    double dphi = 2.0*phi;
+
+    // BS: This is WRONG...need to correct overlap 
+    if (ieta == 28) deta = 0.218;
+    if (ieta == 29) deta= 0.096;      
+    currentLowEdge_eta += deta;
+
+    // BS: This is WRONG...need to correct overlap 
+    if (ieta == 29) currentLowEdge_eta = 2.964;
+
+    me["hHCAL_ieta_detaMap"]->setBinContent(ieta_,deta); // positive rings
+    me["hHCAL_ieta_dphiMap"]->setBinContent(ieta_,dphi); // positive rings
+    me["hHCAL_ieta_detaMap"]->setBinContent(42-ieta,deta); // negative rings
+    me["hHCAL_ieta_dphiMap"]->setBinContent(42-ieta,dphi); // negative rings
+
+  } // end loop over ieta
+
+  edm::LogInfo("OutputInfo") << "HB ieta range: " << HBmin_ieta << " " << HBmax_ieta;
+  edm::LogInfo("OutputInfo") << "HB iphi range: " << HBmin_iphi << " " << HBmax_iphi;
+  edm::LogInfo("OutputInfo") << "HE ieta range: " << HEmin_ieta << " " << HEmax_ieta;
+  edm::LogInfo("OutputInfo") << "HE iphi range: " << HEmin_iphi << " " << HEmax_iphi;
+  edm::LogInfo("OutputInfo") << "HF ieta range: " << HFmin_ieta << " " << HFmax_ieta;
+  edm::LogInfo("OutputInfo") << "HF iphi range: " << HFmin_iphi << " " << HFmax_iphi;
+  edm::LogInfo("OutputInfo") << "HO ieta range: " << HOmin_ieta << " " << HOmax_ieta;
+  edm::LogInfo("OutputInfo") << "HO iphi range: " << HOmin_iphi << " " << HOmax_iphi;
+
 }
-
-
 
 void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  CurrentEvent++;
-  DEBUG( "Event: " << CurrentEvent);  
-  WriteHCALRecHits(iEvent, iSetup);
-}
+    Nevents++;
+    me["hHCAL_Nevents"]->Fill(0);
+  // ==========================================================
+  // Retrieve!
+  // ==========================================================
+                                                                                                                                                             
+  const HBHERecHitCollection *HBHERecHits;
+  const HORecHitCollection *HORecHits;
+  const HFRecHitCollection *HFRecHits;
 
-void HCALRecHitAnalyzer::WriteHCALRecHits(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-  edm::Handle<HBHERecHitCollection> HBHERecHits;
-  edm::Handle<HORecHitCollection> HORecHits;
-  edm::Handle<HFRecHitCollection> HFRecHits;
-  iEvent.getByLabel( "hbhereco", HBHERecHits );
-  iEvent.getByLabel( "horeco", HORecHits );
-  iEvent.getByLabel( "hfreco", HFRecHits );
+  try {
 
-  edm::Handle<reco::CandidateCollection> to;
-  iEvent.getByLabel( "caloTowers", to );
-  const CandidateCollection *towers = (CandidateCollection *)to.product();
-  reco::CandidateCollection::const_iterator tower = towers->begin();
-  edm::Ref<CaloTowerCollection> towerRef = tower->get<CaloTowerRef>();
-  const CaloTowerCollection *towerCollection = towerRef.product();
-  CaloTowerCollection::const_iterator calotower = towerCollection->begin();
-  
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<IdealGeometryRecord>().get(pG);
-  const CaloGeometry cG = *pG;
-  //const CaloSubdetectorGeometry* EBgeom=cG.getSubdetectorGeometry(DetId::Ecal,1);
-  //const CaloSubdetectorGeometry* EEgeom=cG.getSubdetectorGeometry(DetId::Ecal,2);
-  // Loop over towers and get each tower's RecHit constituents
-  for( ; calotower != towerCollection->end(); calotower++ ) 
-    {
-      size_t numRecHits = calotower->constituentsSize();
-      for(size_t j = 0; j <numRecHits ; j++) {
-	DetId RecHitDetID=calotower->constituent(j);
-	DetId::Detector DetNum=RecHitDetID.det();
-	
-	if( DetNum == DetId::Hcal )
-	  {
-	    DEBUG( " RecHit " << j << ": Detector = " << DetNum << ": Hcal " );
-	    HcalDetId HcalID = RecHitDetID;
-	    HcalSubdetector HcalNum = HcalID.subdet();
-	    Int_t depth = HcalID.depth();
-	    Int_t ieta = HcalID.ieta();
-	    Int_t iphi = HcalID.iphi();
-	    
-	    if(  HcalNum == HcalBarrel ) // depths 1,2
-	      {
-		HBHERecHitCollection::const_iterator theRecHit=HBHERecHits->find(HcalID);
-		Float_t Energy = theRecHit->energy();
-		DEBUG("         RecHit: " << j << ": HB, ieta=" << HcalID.ieta() << ", iphi=" << HcalID.iphi()<<      
-		      ", depth=" << depth << ", energy=" << theRecHit->energy() << ", time=" <<\
-		      theRecHit->time());              
-		if (depth==1)
-		  {
-		    if (CurrentEvent == theEvent)
-		      hHCAL_L1_energy_ieta_iphi->Fill(ieta, iphi, Energy);
-		    if (Energy>EnergyThreshold && CurrentEvent <= LastEvent && CurrentEvent >= FirstEvent) 
-		      hHCAL_L1_Occ_ieta_iphi->Fill(ieta, iphi);
-		  }
-		if (depth==2)
-		  {
-		    if (CurrentEvent == theEvent)
-		      hHCAL_L2_energy_ieta_iphi->Fill(ieta, iphi, Energy);
-		    if (Energy>EnergyThreshold && CurrentEvent <= LastEvent && CurrentEvent >= FirstEvent) 
-		      hHCAL_L2_Occ_ieta_iphi->Fill(ieta, iphi);
-		  }
-		
-	    }
-	    else if(  HcalNum == HcalEndcap  ) // depths 1,2,3
-	      {
-		HBHERecHitCollection::const_iterator theRecHit=HBHERecHits->find(HcalID);	    
-		Float_t Energy = theRecHit->energy();
-		DEBUG( "         RecHit: " << j << ": HE, ieta=" << HcalID.ieta() << ", iphi=" << HcalID.iphi()<<      
-		  ", depth=" << depth << ", energy=" << theRecHit->energy() << ", time=" <<\
-		    theRecHit->time());     
-		  if (depth==1)
-		    {
-		      if (CurrentEvent == theEvent)
-			hHCAL_L1_energy_ieta_iphi->Fill(ieta, iphi, Energy);
-		      if (Energy>EnergyThreshold && CurrentEvent <= LastEvent && CurrentEvent >= FirstEvent) 
-			hHCAL_L1_Occ_ieta_iphi->Fill(ieta, iphi);
-		    }
-		  if (depth==2)
-		    {
-		      if (CurrentEvent == theEvent)
-			hHCAL_L2_energy_ieta_iphi->Fill(ieta, iphi, Energy);
-		      if (Energy>EnergyThreshold && CurrentEvent <= LastEvent && CurrentEvent >= FirstEvent) 
-			hHCAL_L2_Occ_ieta_iphi->Fill(ieta, iphi);
-		    }
-		  if (depth==3)
-		    {
-		      if (CurrentEvent == theEvent)
-			hHCAL_L3_energy_ieta_iphi->Fill(ieta, iphi, Energy);
-		      if (Energy>EnergyThreshold && CurrentEvent <= LastEvent && CurrentEvent >= FirstEvent) 
-			hHCAL_L3_Occ_ieta_iphi->Fill(ieta, iphi);
-		    }
-	      }
-	    else if(  HcalNum == HcalOuter  ) // depth 4 
-	      {
-		HORecHitCollection::const_iterator theRecHit=HORecHits->find(HcalID);	    
-		Float_t Energy = theRecHit->energy();
-		DEBUG("         RecHit: " << j << ": HO, ieta=" << HcalID.ieta() << ", iphi=" << HcalID.iphi()<<      
-		      ", depth=" << depth << ", energy=" << theRecHit->energy() << ", time=" <<\
-		      theRecHit->time() );
-		  if (depth==4)
-		    {
-		      if (CurrentEvent == theEvent)
-			hHCAL_L4_energy_ieta_iphi->Fill(ieta, iphi, Energy);
-		      if (Energy>EnergyThreshold && CurrentEvent <= LastEvent && CurrentEvent >= FirstEvent) 
-			hHCAL_L4_Occ_ieta_iphi->Fill(ieta, iphi);
-		    }	  
-	      }	     
-	    else if(  HcalNum == HcalForward  ) // depths 1,2
-	      {
-		HFRecHitCollection::const_iterator theRecHit=HFRecHits->find(HcalID);	
-		Float_t Energy = theRecHit->energy();
-		DEBUG( "         RecHit: " << j << ": HF, ieta=" << HcalID.ieta() << ", iphi=" << HcalID.iphi()<<      
-		  ", depth=" << depth << ", energy=" << theRecHit->energy() << ", time=" <<\
-		    theRecHit->time());     
-		if (depth==1)
-		  {
-		    if (CurrentEvent == theEvent)
-		      hHCAL_L1_energy_ieta_iphi->Fill(ieta, iphi, Energy);
-		    if (Energy>EnergyThreshold && CurrentEvent <= LastEvent && CurrentEvent >= FirstEvent) 
-		      hHCAL_L1_Occ_ieta_iphi->Fill(ieta, iphi);
-		  }
-		if (depth==2)
-		  {
-		    if (CurrentEvent == theEvent)
-		      hHCAL_L2_energy_ieta_iphi->Fill(ieta, iphi, Energy);
-		    if (Energy>EnergyThreshold && CurrentEvent <= LastEvent && CurrentEvent >= FirstEvent) 
-		      hHCAL_L2_Occ_ieta_iphi->Fill(ieta, iphi);
-		  }
-	      }	                 	      
-	  }
-	
+    edm::Handle<HBHERecHitCollection> HBHERecHitsHandle;
+    iEvent.getByLabel(hBHERecHitsLabel_,HBHERecHitsHandle);
+    HBHERecHits = HBHERecHitsHandle.product();
+                                                                                                                                                             
+    edm::Handle<HORecHitCollection> HORecHitsHandle;
+    iEvent.getByLabel(hORecHitsLabel_,HORecHitsHandle);
+    HORecHits = HORecHitsHandle.product();
+
+    edm::Handle<HFRecHitCollection> HFRecHitsHandle;
+    iEvent.getByLabel(hFRecHitsLabel_,HFRecHitsHandle);
+    HFRecHits = HFRecHitsHandle.product();
+                                                                                                                                                             
+  } catch (...) {
+                                                                                                                                                             
+    edm::LogInfo("OutputInfo") << "Failed to retrieve an Event Handle, Aborting Task "
+         << "HCALRecHitAnalyzer::analyze!\n"; return;
+
+  }
+
+  // ==========================================================
+  // Fill Histograms!
+  // ==========================================================
+                                                   
+  TLorentzVector vHBHEMET_EtaRing[83][3];
+  int HBHEActiveRing[83][3];
+  int HBHENActiveCells[83][3];
+  double HBHESET_EtaRing[83][3];
+
+  for (int i = 0; i < 83; i++) {
+    for (int j = 0; j < 4; j++) {
+
+      HBHEActiveRing[i][j] = 0;
+      HBHENActiveCells[i][j] = 0;
+      HBHESET_EtaRing[i][j] = 0; 
+
+    }
+  }
+
+   // Loop over HBHERecHit's
+  HBHERecHitCollection::const_iterator hbherechit;
+  int nHBrechit = 0, nHErechit = 0;
+
+  for (hbherechit = HBHERecHits->begin(); hbherechit != HBHERecHits->end(); hbherechit++) {
+    
+    HcalDetId det = hbherechit->id();
+    double Energy = hbherechit->energy();
+    Int_t depth = det.depth();
+    Int_t ieta = det.ieta();
+    Int_t iphi = det.iphi();
+    int EtaRing = 41 + ieta; // this counts from 0    
+    double eta = me["hHCAL_ieta_iphi_etaMap"]->getBinContent(EtaRing+1,iphi);
+    double phi = me["hHCAL_ieta_iphi_phiMap"]->getBinContent(EtaRing+1,iphi);
+    double theta = 2*TMath::ATan(-1*eta);
+    double ET = Energy*TMath::Sin(theta);
+    HcalSubdetector HcalNum = det.subdet();
+
+    HBHEActiveRing[EtaRing][depth-1] = 1;
+    HBHENActiveCells[EtaRing][depth-1]++;
+    HBHESET_EtaRing[EtaRing][depth-1]+=ET;
+    TLorentzVector v_;
+    v_.SetPtEtaPhiE(ET, 0, phi, ET);
+    vHBHEMET_EtaRing[EtaRing][depth-1]-=v_;
+
+    switch (depth) {
+    case 1:
+      me["hHCAL_D1_energy_ieta_iphi"]->Fill(ieta,iphi,Energy);
+      me["hHCAL_D1_energyvsieta"]->Fill(ieta,Energy);     
+      me["hHCAL_D1_Occ_ieta_iphi"]->Fill(ieta,iphi);
+      break;
+    case 2:
+      me["hHCAL_D2_energy_ieta_iphi"]->Fill(ieta,iphi,Energy);
+      me["hHCAL_D2_energyvsieta"]->Fill(ieta,Energy);
+      me["hHCAL_D2_Occ_ieta_iphi"]->Fill(ieta,iphi);
+      break;
+    case 3:
+      me["hHCAL_D3_energy_ieta_iphi"]->Fill(ieta,iphi,Energy);
+      me["hHCAL_D3_energyvsieta"]->Fill(ieta,Energy);
+      me["hHCAL_D3_Occ_ieta_iphi"]->Fill(ieta,iphi);
+      break;
+    } // end switch
+
+    if (HcalNum == HcalBarrel) {
+      nHBrechit++;
+    } else { // HcalEndcap
+      nHErechit++;
+    }
+  } // end loop over HBHERecHit's
+
+  // Fill eta-ring MET quantities
+  for (int iEtaRing=0; iEtaRing < 83; iEtaRing++) {
+    for (int jDepth=0; jDepth < 3; jDepth++) {
+
+      if (HBHEActiveRing[iEtaRing][jDepth]) {
+
+	switch (jDepth+1) {
+	case 1:
+
+	  me["hHCAL_D1_METPhivsieta"]->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Phi());
+	  me["hHCAL_D1_MExvsieta"]->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Px());
+	  me["hHCAL_D1_MEyvsieta"]->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Py());
+	  me["hHCAL_D1_METvsieta"]->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Pt());
+	  me["hHCAL_D1_SETvsieta"]->Fill(iEtaRing-41, HBHESET_EtaRing[iEtaRing][jDepth]);
+	  me["hHCAL_D1_Occvsieta"]->Fill(iEtaRing-41, HBHENActiveCells[iEtaRing][jDepth]);
+	  break;
+
+	case 2:
+
+	  me["hHCAL_D2_METPhivsieta"]->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Phi());
+	  me["hHCAL_D2_MExvsieta"]->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Px());
+	  me["hHCAL_D2_MEyvsieta"]->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Py());
+	  me["hHCAL_D2_METvsieta"]->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Pt());
+	  me["hHCAL_D2_SETvsieta"]->Fill(iEtaRing-41, HBHESET_EtaRing[iEtaRing][jDepth]);
+	  me["hHCAL_D2_Occvsieta"]->Fill(iEtaRing-41, HBHENActiveCells[iEtaRing][jDepth]);
+	  break;
+
+	case 3:
+
+	  me["hHCAL_D3_METPhivsieta"]->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Phi());
+	  me["hHCAL_D3_MExvsieta"]->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Px());
+	  me["hHCAL_D3_MEyvsieta"]->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Py());
+	  me["hHCAL_D3_METvsieta"]->Fill(iEtaRing-41, vHBHEMET_EtaRing[iEtaRing][jDepth].Pt());
+	  me["hHCAL_D3_SETvsieta"]->Fill(iEtaRing-41, HBHESET_EtaRing[iEtaRing][jDepth]);
+	  me["hHCAL_D3_Occvsieta"]->Fill(iEtaRing-41, HBHENActiveCells[iEtaRing][jDepth]);
+	  break;
+
+	}
       }
     }
+  }
+
+  TLorentzVector vHOMET_EtaRing[83];
+  int HOActiveRing[83];
+  int HONActiveCells[83];
+  double HOSET_EtaRing[83];
+
+  for (int i=0;i<83; i++) {
+
+    HOActiveRing[i] = 0;
+    HONActiveCells[i] = 0;
+    HOSET_EtaRing[i] = 0; 
+
+  }
+
+  // Loop over HORecHit's
+  HORecHitCollection::const_iterator horechit;
+  int nHOrechit = 0;
+
+  for (horechit = HORecHits->begin(); horechit != HORecHits->end(); horechit++) {
+                                                                                                                                                             
+    nHOrechit++;
+                                                                                                                                                             
+    HcalDetId det = horechit->id();
+    double Energy = horechit->energy();
+    Int_t depth = det.depth(); //always 4
+    Int_t ieta = det.ieta();
+    Int_t iphi = det.iphi();
+    int EtaRing = 41+ieta; // this counts from 0    
+    double eta = me["hHCAL_ieta_iphi_etaMap"]->getBinContent(EtaRing+1,iphi);
+    double phi = me["hHCAL_ieta_iphi_phiMap"]->getBinContent(EtaRing+1,iphi);
+    double theta = 2*TMath::ATan(-1*eta);
+    double ET = Energy*TMath::Sin(theta);
+
+    me["hHCAL_D4_energy_ieta_iphi"]->Fill(ieta,iphi,Energy);
+    me["hHCAL_D4_Occ_ieta_iphi"]->Fill(ieta,iphi);
+           
+    HOActiveRing[EtaRing] = 1;
+    HONActiveCells[EtaRing]++;
+    HOSET_EtaRing[EtaRing]+=ET;
+    TLorentzVector v_;
+    v_.SetPtEtaPhiE(ET, 0, phi, ET);
+    vHOMET_EtaRing[EtaRing]-=v_;
+                                                                                                                                                   
+  } // end loop over HORecHit's
+
+  // Fill eta-ring MET quantities
+  for (int iEtaRing=0; iEtaRing<83; iEtaRing++) {
+
+    if (HBHEActiveRing[iEtaRing]) {
+
+      me["hHCAL_D4_METPhivsieta"]->Fill(iEtaRing-41, vHOMET_EtaRing[iEtaRing].Phi());
+      me["hHCAL_D4_MExvsieta"]->Fill(iEtaRing-41, vHOMET_EtaRing[iEtaRing].Px());
+      me["hHCAL_D4_MEyvsieta"]->Fill(iEtaRing-41, vHOMET_EtaRing[iEtaRing].Py());
+      me["hHCAL_D4_METvsieta"]->Fill(iEtaRing-41, vHOMET_EtaRing[iEtaRing].Pt());
+      me["hHCAL_D4_SETvsieta"]->Fill(iEtaRing-41, HOSET_EtaRing[iEtaRing]);
+      me["hHCAL_D4_Occvsieta"]->Fill(iEtaRing-41, HONActiveCells[iEtaRing]);
+
+    }
+
+  }
+
+  TLorentzVector vHFMET_EtaRing[83][2];
+  int HFActiveRing[83][2];
+  int HFNActiveCells[83][2];
+  double HFSET_EtaRing[83][2];
+
+  for (int i=0;i<83; i++) {
+    for (int j=0;j<2; j++) {
+
+      HFActiveRing[i][j] = 0;
+      HFNActiveCells[i][j] = 0;
+      HFSET_EtaRing[i][j] = 0; 
+
+    }
+  }
+
+  // Loop over HFRecHit's
+  HFRecHitCollection::const_iterator hfrechit;
+  int nHFrechit = 0;
+
+  for (hfrechit = HFRecHits->begin(); hfrechit != HFRecHits->end(); hfrechit++) {
+                                                                                                                                                             
+    nHFrechit++;
+                                                                                                                                                             
+    HcalDetId det = hfrechit->id();
+    double Energy = hfrechit->energy();
+    Int_t depth = det.depth();
+    Int_t ieta = det.ieta();
+    Int_t iphi = det.iphi();
+    int EtaRing = 41+ieta; // this counts from 0    
+    double eta = me["hHCAL_ieta_iphi_etaMap"]->getBinContent(EtaRing+1,iphi);
+    double phi = me["hHCAL_ieta_iphi_phiMap"]->getBinContent(EtaRing+1,iphi);
+    double theta = 2*TMath::ATan(-1*eta);
+    double ET = Energy*TMath::Sin(theta);
+
+    HFActiveRing[EtaRing][depth-1] = 1;
+    HFNActiveCells[EtaRing][depth-1]++;
+    HFSET_EtaRing[EtaRing][depth-1]+=ET;
+    TLorentzVector v_;
+    v_.SetPtEtaPhiE(ET, 0, phi, ET);
+    vHFMET_EtaRing[EtaRing][depth-1]-=v_;                                                                                                                                        
+    
+    switch (depth - 1) {
+    case 1:
+      me["hHCAL_D1_energy_ieta_iphi"]->Fill(ieta,iphi,Energy);
+      me["hHCAL_D1_Occ_ieta_iphi"]->Fill(ieta,iphi);
+      break;
+    case 2:
+      me["hHCAL_D2_energy_ieta_iphi"]->Fill(ieta,iphi,Energy);
+      me["hHCAL_D2_Occ_ieta_iphi"]->Fill(ieta,iphi);
+      break;
+    }
+
+  } // end loop over HFRecHit's
+
+  // Fill eta-ring MET quantities
+  for (int iEtaRing=0; iEtaRing<83; iEtaRing++) {
+    for (int jDepth=0; jDepth<2; jDepth++) {
+
+      if (HBHEActiveRing[iEtaRing][jDepth]) {
+
+	switch (jDepth+1) {
+	case 1:
+
+	  me["hHCAL_D1_METPhivsieta"]->Fill(iEtaRing-41, vHFMET_EtaRing[iEtaRing][jDepth].Phi());
+	  me["hHCAL_D1_MExvsieta"]->Fill(iEtaRing-41, vHFMET_EtaRing[iEtaRing][jDepth].Px());
+	  me["hHCAL_D1_MEyvsieta"]->Fill(iEtaRing-41, vHFMET_EtaRing[iEtaRing][jDepth].Py());
+	  me["hHCAL_D1_METvsieta"]->Fill(iEtaRing-41, vHFMET_EtaRing[iEtaRing][jDepth].Pt());
+	  me["hHCAL_D1_SETvsieta"]->Fill(iEtaRing-41, HFSET_EtaRing[iEtaRing][jDepth]);
+	  me["hHCAL_D1_Occvsieta"]->Fill(iEtaRing-41, HFNActiveCells[iEtaRing][jDepth]);
+	  break;
+
+	case 2:
+
+	  me["hHCAL_D2_METPhivsieta"]->Fill(iEtaRing-41, vHFMET_EtaRing[iEtaRing][jDepth].Phi());
+	  me["hHCAL_D2_MExvsieta"]->Fill(iEtaRing-41, vHFMET_EtaRing[iEtaRing][jDepth].Px());
+	  me["hHCAL_D2_MEyvsieta"]->Fill(iEtaRing-41, vHFMET_EtaRing[iEtaRing][jDepth].Py());
+	  me["hHCAL_D2_METvsieta"]->Fill(iEtaRing-41, vHFMET_EtaRing[iEtaRing][jDepth].Pt());
+	  me["hHCAL_D2_SETvsieta"]->Fill(iEtaRing-41, HFSET_EtaRing[iEtaRing][jDepth]);
+	  me["hHCAL_D2_Occvsieta"]->Fill(iEtaRing-41, HFNActiveCells[iEtaRing][jDepth]);
+	  break;
+
+	}
+      }
+    }
+  }
+
 }
 
 
 void HCALRecHitAnalyzer::DumpGeometry()
 {
-  cout << "Tower Definitions: " << endl;
+/*
+  edm::LogInfo("OutputInfo") << "Tower Definitions: " << endl;
   for (int i=1; i<=hCT_ieta_iphi_etaMap->GetNbinsX(); i++)
     {
-      cout << "ieta Bin " << i << endl;
-      cout <<  "     dPhi   = " << hCT_ieta_dphiMap->GetBinContent(i, 1) << endl;
-      cout <<  "     dEta   = " << hCT_ieta_detaMap->GetBinContent(i, 1)  << endl;
-      cout <<  "      Eta   = " << hCT_ieta_iphi_etaMap->GetBinContent(i, 1)<< endl;
-      cout << endl;
+      edm::LogInfo("OutputInfo") << "ieta Bin " << i << endl;
+      edm::LogInfo("OutputInfo") <<  "     dPhi   = " << hCT_ieta_dphiMap->getBinContent(i, 1) << endl;
+      edm::LogInfo("OutputInfo") <<  "     dEta   = " << hCT_ieta_detaMap->getBinContent(i, 1)  << endl;
+      edm::LogInfo("OutputInfo") <<  "      Eta   = " << hCT_ieta_iphi_etaMap->getBinContent(i, 1)<< endl;
+      edm::LogInfo("OutputInfo") << endl;
     }
-  cout << endl;
+  edm::LogInfo("OutputInfo") << endl;
+*/
 }
 
+
+void HCALRecHitAnalyzer::endJob()
+{
+
+
+  // Store the DAQ Histograms
+  if (outputFile_.size() > 0 && dbe_)
+    dbe_->save(outputFile_);
+
+  // Dump Geometry Info to a File
+  if (dumpGeometry_); DumpGeometry();
+
+} 

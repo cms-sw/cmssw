@@ -117,15 +117,7 @@ public:
   TH2F *hEEmZ_Occ_ix_iy;
   TH2F *hEB_Occ_ieta_iphi;
 
-  
-
-
   int CurrentEvent;
-  float EnergyThreshold;
-  int theEvent;
-  int FirstEvent;
-  int LastEvent;
-
 };
 
 #endif
