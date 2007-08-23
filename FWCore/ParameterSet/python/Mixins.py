@@ -55,6 +55,8 @@ class _Parameterizable(object):
         if not first:
             result += "\n"
         return result
+    def __repr__(self):
+        return self.dumpPython('','    ')
     def insertContentsInto(self, parameterSet):
         for name in self.parameterNames_():
             param = getattr(self,name)
