@@ -1,5 +1,6 @@
 #include "RootOutputTree.h"
 #include "TFile.h"
+#include "FWCore/Utilities/interface/WrappedClassName.h"
 
 namespace edm {
 
@@ -29,8 +30,8 @@ namespace edm {
 	tree_->Branch(prod.branchName().c_str(),
 		       wrappedClassName(prod.className()).c_str(),
 		       &pProd,
-		       basketSize_,
-		       splitLevel_);
+		       prod.basketSize(),
+		       prod.splitLevel());
 	// we want the new branch name for the JobReport
 	branchNames_.push_back(prod.branchName());
       }

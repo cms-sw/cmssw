@@ -6,7 +6,7 @@
 BranchDescription: The full description of a Branch.
 This description also applies to every product instance on the branch.  
 
-$Id: BranchDescription.h,v 1.1 2007/03/04 04:48:08 wmtan Exp $
+$Id: BranchDescription.h,v 1.2 2007/05/10 22:46:54 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <iosfwd>
 #include <string>
@@ -29,7 +29,8 @@ $Id: BranchDescription.h,v 1.1 2007/03/04 04:48:08 wmtan Exp $
 
 namespace edm {
   struct BranchDescription {
-
+    static int const rootDefaultSplitLevel = 99;
+    static int const rootDefaultBasketSize = 32000;
     enum MatchMode { Strict = 0,
 		     Permissive };
 
@@ -75,6 +76,8 @@ namespace edm {
     bool const& present() const {return present_;}
     bool const& provenancePresent() const {return provenancePresent_;}
     bool const& transient() const {return transient_;}
+    int const& splitLevel() const {return splitLevel_;}
+    int const& basketSize() const {return basketSize_;}
 
     ModuleDescriptionID const& moduleDescriptionID() const {return moduleDescriptionID_;}
     std::set<ParameterSetID> const& psetIDs() const {return psetIDs_;}
@@ -150,6 +153,14 @@ namespace edm {
     // Is the class of the branch marked as transient
     // in the data dictionary
     mutable bool transient_;
+
+    // The split level of the branch, as marked
+    // in the data dictionary.
+    mutable int splitLevel_;
+
+    // The basket size of the branch, as marked
+    // in the data dictionary.
+    mutable int basketSize_;
   };
   
   inline
