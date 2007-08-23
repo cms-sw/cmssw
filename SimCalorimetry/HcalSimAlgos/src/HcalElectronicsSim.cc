@@ -4,6 +4,7 @@
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
+#include "DataFormats/HcalDigi/interface/ZDCDataFrame.h"
 #include "CLHEP/Random/RandFlat.h"
 
 
@@ -49,6 +50,10 @@ void HcalElectronicsSim::analogToDigital(CaloSamples & lf, HODataFrame & result)
 
 void HcalElectronicsSim::analogToDigital(CaloSamples & lf, HFDataFrame & result) {
   convert<HFDataFrame>(lf, result);
+}
+
+void HcalElectronicsSim::analogToDigital(CaloSamples & lf, ZDCDataFrame & result) {
+  convert<ZDCDataFrame>(lf, result);
 }
 
 

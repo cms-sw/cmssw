@@ -26,5 +26,14 @@ public:
   typedef HcalElectronicsSim ElectronicsSim;
 };
 
+
+class ZDCDigitizerTraits {
+public:
+  typedef ZDCDigiCollection DigiCollection;
+  typedef ZDCDataFrame Digi;
+  typedef HcalElectronicsSim ElectronicsSim;
+};
+
+
 #endif
 

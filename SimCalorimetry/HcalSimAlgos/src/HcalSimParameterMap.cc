@@ -2,27 +2,30 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-  
+#include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"  
 
 HcalSimParameterMap::HcalSimParameterMap() :
   theHBParameters(2000., 0.3305,
-                   117, 5, 
-                   10, 5, true, true,
-                   1, std::vector<double>(16, 117.)),
+		  117, 5, 
+		  10, 5, true, true,
+		  1, std::vector<double>(16, 117.)),
   theHEParameters(2000., 0.3305,
-                   178, 5,
-                   10, 5, true, true,
-                   16, std::vector<double>(16, 178.)),
+		  178, 5,
+		  10, 5, true, true,
+		  16, std::vector<double>(16, 178.)),
   theHOParameters( 4000., 0.3065, 
                    217., 5, 
                    10, 5, true, true,
                    1, std::vector<double>(16, 217.)),
   theHFParameters1(1., 5.917,
-                 2.84 , -4,
-                6, 4, false),
+		   2.84 , -4,
+		   6, 4, false),
   theHFParameters2(1., 4.354,
-                 2.09 , -4,
-                6, 4, false)
+		   2.09 , -4,
+		   6, 4, false),
+  theZDCParameters(1., 4.3333,
+		   2.09 , -4,
+		   6, 4, false)
 {
 }
 /*
@@ -37,12 +40,14 @@ HcalSimParameterMap::HcalSimParameterMap(const edm::ParameterSet & p)
   theHEParameters(  p.getParameter<edm::ParameterSet>("he") ),
   theHOParameters(  p.getParameter<edm::ParameterSet>("ho") ),
   theHFParameters1( p.getParameter<edm::ParameterSet>("hf1") ),
-  theHFParameters2( p.getParameter<edm::ParameterSet>("hf2") )
+  theHFParameters2( p.getParameter<edm::ParameterSet>("hf2") ),
+  theZDCParameters( p.getParameter<edm::ParameterSet>("zdc") )
 {
 }
 
-
 const CaloSimParameters & HcalSimParameterMap::simParameters(const DetId & detId) const {
+  if(detId.det()==DetId::Calo && detId.subdetId()==HcalZDCDetId::SubdetectorId)
+    return theZDCParameters;
   HcalDetId hcalDetId(detId);
   if(hcalDetId.subdet() == HcalBarrel) {
      return theHBParameters;
@@ -58,7 +63,6 @@ const CaloSimParameters & HcalSimParameterMap::simParameters(const DetId & detId
     }
   }
 }
-
 
 void HcalSimParameterMap::setDbService(const HcalDbService * dbService)
 {

@@ -3,6 +3,7 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -24,7 +25,7 @@ void HcalHitCorrection::fillChargeSums(MixCollection<PCaloHit> & hits)
     LogDebug("HcalHitCorrection") << "HcalHitCorrection::Hit tbin" << tbin;
     if(tbin >= 0 && tbin < 10) 
     {  
-      theChargeSumsForTimeBin[tbin][HcalDetId(hitItr->id())] += charge(*hitItr);
+      theChargeSumsForTimeBin[tbin][hitItr->id()] += charge(*hitItr);
     }
   }
 }
@@ -44,7 +45,6 @@ double HcalHitCorrection::charge(const PCaloHit & hit) const
   const CaloSimParameters & parameters = theParameterMap->simParameters(detId);
   double simHitToCharge = parameters.simHitToPhotoelectrons()
                         * parameters.photoelectronsToAnalog();
-
   return hit.energy() * simHitToCharge;
 }
 
@@ -52,8 +52,12 @@ double HcalHitCorrection::charge(const PCaloHit & hit) const
 double HcalHitCorrection::delay(const PCaloHit & hit) const 
 {
   // HO goes slow, HF shouldn't be used at all
+  //ZDC not used for the moment
+
+  DetId detId(hit.id());
+  if(detId.det()==DetId::Calo && detId.subdetId()==HcalZDCDetId::SubdetectorId) return 0;
   HcalDetId hcalDetId(hit.id());
-  if(hcalDetId.subdet() == HcalForward) return 0;
+  if(hcalDetId.subdet() == HcalForward) return 0;  
   HcalTimeSlew::BiasSetting biasSetting = (hcalDetId.subdet() == HcalOuter) ?
                                           HcalTimeSlew::Slow :
                                           HcalTimeSlew::Medium;
@@ -61,7 +65,7 @@ double HcalHitCorrection::delay(const PCaloHit & hit) const
   int tbin = timeBin(hit);
   if(tbin >= 0 && tbin < 10)
   {
-    ChargeSumsByChannel::const_iterator totalChargeItr = theChargeSumsForTimeBin[tbin].find(hcalDetId);
+    ChargeSumsByChannel::const_iterator totalChargeItr = theChargeSumsForTimeBin[tbin].find(detId);
     if(totalChargeItr == theChargeSumsForTimeBin[tbin].end())
     {
       throw cms::Exception("HcalHitCorrection") << "Cannot find HCAL charge sum for hit " << hit;
@@ -72,7 +76,6 @@ double HcalHitCorrection::delay(const PCaloHit & hit) const
 				  << "  totalcharge " << totalCharge 
 				  << " olddelay "  << HcalTimeSlew::delay(charge(hit), biasSetting) 
 				  << " newdelay " << delay;
-
   }
 
   return delay;
@@ -93,25 +96,27 @@ int HcalHitCorrection::timeBin(const PCaloHit & hit) const
 }
 
 
-double HcalHitCorrection::timeOfFlight(const HcalDetId & hcalDetId) const
+double HcalHitCorrection::timeOfFlight(const DetId & detId) const
 {
-  switch(hcalDetId.subdet())
-  {
-  case HcalBarrel:
-    return 8.4;
-    break;
-  case HcalEndcap:
-    return 13.;
-    break;
-  case HcalOuter:
-    return 18.7;
-    break;
-  case HcalForward:
-    return 37.;
-    break;
-  default:
-    throw cms::Exception("HcalHitCorrection") << "Bad Hcal subdetector " << hcalDetId.subdet();
-    break;
-  }
+  if(detId.det()==DetId::Calo && detId.subdetId()==HcalZDCDetId::SubdetectorId)
+    return 37.666; 
+  switch(detId.subdetId())
+    {
+    case HcalBarrel:
+      return 8.4;
+      break;
+    case HcalEndcap:
+      return 13.;
+      break;
+    case HcalOuter:
+      return 18.7;
+      break;
+    case HcalForward:
+      return 37.;
+      break;
+    default:
+      throw cms::Exception("HcalHitCorrection") << "Bad Hcal subdetector " << detId.subdetId();
+      break;
+    }
 }
 

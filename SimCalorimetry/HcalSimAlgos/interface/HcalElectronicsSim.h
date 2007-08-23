@@ -11,6 +11,7 @@
 class HBHEDataFrame;
 class HODataFrame;
 class HFDataFrame;
+class ZDCDataFrame;
 
 class HcalAmplifier;
 class HcalCoderFactory;
@@ -26,6 +27,7 @@ public:
   void analogToDigital(CaloSamples & linearFrame, HBHEDataFrame & result);
   void analogToDigital(CaloSamples & linearFrame, HODataFrame & result);
   void analogToDigital(CaloSamples & linearFrame, HFDataFrame & result);
+  void analogToDigital(CaloSamples & linearFrame, ZDCDataFrame & result);
 
   /// Things that need to be initialized every event
   void newEvent();

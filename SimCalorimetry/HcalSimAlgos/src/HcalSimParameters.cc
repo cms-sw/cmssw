@@ -1,5 +1,6 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameters.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/HcalObjects/interface/HcalGain.h"
@@ -20,9 +21,6 @@ HcalSimParameters::HcalSimParameters(double simHitToPhotoelectrons, double photo
 {
 }
 
-
-
-
 HcalSimParameters::HcalSimParameters(const edm::ParameterSet & p)
 :  CaloSimParameters(p),
    theDbService(0),
@@ -31,17 +29,16 @@ HcalSimParameters::HcalSimParameters(const edm::ParameterSet & p)
 {
 }
 
-
 double HcalSimParameters::simHitToPhotoelectrons(const DetId & detId) const 
 {
   // the gain is in units of GeV/fC.  We want a constant with pe/dGeV
-  // pe/dGeV = (GeV/dGeV) / (GeV/fC) / (fC/pe)
-  
+  // pe/dGeV = (GeV/dGeV) / (GeV/fC) / (fC/pe) 
   double result = CaloSimParameters::simHitToPhotoelectrons(detId);
-  if(HcalDetId(detId).subdet() != HcalForward)
-  { 
-    result = samplingFactor(detId) / fCtoGeV(detId) / photoelectronsToAnalog();
-  }
+  if(HcalGenericDetId(detId).genericSubdet() != HcalGenericDetId::HcalGenForward
+     || HcalGenericDetId(detId).genericSubdet() != HcalGenericDetId::HcalGenZDC)
+    { 
+      result = samplingFactor(detId) / fCtoGeV(detId) / photoelectronsToAnalog();
+    }
   return result;
 }
 
@@ -49,12 +46,12 @@ double HcalSimParameters::simHitToPhotoelectrons(const DetId & detId) const
 double HcalSimParameters::fCtoGeV(const DetId & detId) const
 {
   assert(theDbService != 0);
-  HcalDetId hcalDetId(detId);
-  const HcalGain* gains = theDbService->getGain  (hcalDetId);
-  const HcalGainWidth* gwidths = theDbService->getGainWidth  (hcalDetId);
+  HcalGenericDetId hcalGenDetId(detId);
+  const HcalGain* gains = theDbService->getGain(hcalGenDetId);
+  const HcalGainWidth* gwidths = theDbService->getGainWidth(hcalGenDetId);
   if (!gains || !gwidths )
   {
-    edm::LogError("HcalAmplifier") << "Could not fetch HCAL conditions for channel " << hcalDetId;
+    edm::LogError("HcalAmplifier") << "Could not fetch HCAL conditions for channel " << hcalGenDetId;
   }
   // only one gain will be recorded per channel, so just use capID 0 for now
   
