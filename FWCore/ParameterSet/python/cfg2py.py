@@ -1,11 +1,13 @@
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.parseConfig as cmsParse
 from sys import argv
 
 print "import FWCore.ParameterSet.Config as cms"
 
-f = open(argv[1])
-s = f.read()
+fileInPath = argv[1]
 
-process = cms.processFromString(s)
-print process.dumpPython()
+if fileInPath.endswith('cfg'):
+    print cmsParse.parseCfgFile(fileInPath).dumpPython()
+else:
+    print cmsParse.parseCffFile(fileInPath).dumpPython()
 
