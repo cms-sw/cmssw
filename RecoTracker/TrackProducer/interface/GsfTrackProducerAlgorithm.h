@@ -8,12 +8,13 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Thu Mar  9 17:29:31 CET 2006
-// $Id: GsfTrackProducerAlgorithm.h,v 1.2 2007/01/26 11:05:04 adamwo Exp $
+// $Id: GsfTrackProducerAlgorithm.h,v 1.3 2007/07/16 10:07:41 cerati Exp $
 //
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 // #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
