@@ -152,8 +152,6 @@ class string(_SimpleParameterTypeBase):
     def insertInto(self, parameterSet, myname):
         parameterSet.addString(self.isTracked(), myname, self.value())
 
-
-
 class InputTag(_ParameterTypeBase):
     def __init__(self,moduleLabel,productInstanceLabel='',processName=''):
         super(InputTag,self).__init__()
@@ -207,7 +205,22 @@ class InputTag(_ParameterTypeBase):
     def insertInto(self, parameterSet, myname):
         parameterSet.addInputTag(self.isTracked(), myname, self.cppTag(parameterSet))
 
-
+class FileInPath(_SimpleParameterTypeBase):
+    def __init__(self,value):
+        super(FileInPath,self).__init__(value)
+    @staticmethod
+    def _isValid(value):
+        return True
+    def configValue(self,indent,deltaIndent):
+        return string.formatValueForConfig(self.value())
+    @staticmethod
+    def formatValueForConfig(value):
+        return string.formatValueForConfig(value)
+    @staticmethod
+    def _valueFromString(value):
+        return FileInPath(value)
+    def insertInto(self, parameterSet, myname):
+      parameterSet.addNewFileInPath( self.isTracked(), myname, self.value() )
 
 class SecSource(_ParameterTypeBase,_TypedParameterizable,_ConfigureComponent,_Labelable):
     def __init__(self,type_,*arg,**args):
@@ -520,11 +533,20 @@ if __name__ == "__main__":
             p = untracked.PSet(b=int32(1))
             self.failIf(p.isTracked())
             self.assertEqual(p.b.value(),1)
+        def testInputTag(self):
+            it = InputTag._valueFromString("label::proc")
+            print it.pythonValue('','')
+            self.assertEqual(it.getModuleLabel(), "label")
+            self.assertEqual(it.getProductInstanceLabel(), "")
+            self.assertEqual(it.getProcessName(), "proc")
         def testPSet(self):
             p1 = PSet(anInt = int32(1), a = PSet(b = int32(1)))
             self.assertRaises(ValueError, PSet, "foo")
             self.assertRaises(TypeError, PSet, foo = "bar")
             print p1.dumpPython('   ', '   ')
+        def testFileInPath(self):
+            f = FileInPath("FWCore/ParameterSet/python/Types.py")
+            self.assertEqual(f.configValue('','   '), "'FWCore/ParameterSet/python/Types.py'")
         def testSecSource(self):
             s1 = SecSource("PoolSource", fileNames = vstring("foo.root"))
             self.assertEqual(s1.type_(), "PoolSource")
