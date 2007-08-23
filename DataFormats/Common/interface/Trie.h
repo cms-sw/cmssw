@@ -286,7 +286,7 @@ namespace edm{
     typedef TrieNodeIter<T> node_iterator;
     node_iterator e;
     for (node_iterator p(&n); p!=e; ++p) {
-      v(*p,label+(char)p.label());
+      v((*p).value(),label+(char)p.label());
       walkTrie(v,*p,label+(char)p.label());
     }
   }
@@ -303,7 +303,7 @@ namespace edm{
     if (p==e) return true;
     for (; p!=e; ++p) {
       if (iterateTrieLeaves(v,*p,label+(char)p.label()) )
-	v(*p,label+(char)p.label());
+	v((*p).value(),label+(char)p.label());
     }
     return false;
   }

@@ -10,9 +10,12 @@
 
 
 struct Print {
-  typedef edm::TrieNode<int> const node;
-  void operator()(node & n, std::string const & label) const {
-    std::cout << label << " " << n.value() << std::endl;
+  //  typedef edm::TrieNode<int> const node;
+  //void operator()(node & n, std::string const & label) const {
+  //  std::cout << label << " " << n.value() << std::endl;
+  // }
+  void operator()(int v, std::string const & label) const {
+    std::cout << label << " " << v << std::endl;
   }
   
 };
