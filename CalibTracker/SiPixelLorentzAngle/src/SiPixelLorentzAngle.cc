@@ -43,9 +43,9 @@ int lower_bin_;
 using namespace std;
 
 SiPixelLorentzAngle::SiPixelLorentzAngle(edm::ParameterSet const& conf) : 
-		conf_(conf), filename_(conf.getParameter<std::string>("fileName")), filenameFit_(conf.getParameter<std::string>("fileNameFit")),hist_depth_(conf.getParameter<int>("binsDepth")), hist_drift_(conf.getParameter<int>("binsDrift"))
+		conf_(conf), filename_(conf.getParameter<std::string>("fileName")), filenameFit_(conf.getParameter<std::string>("fileNameFit")),hist_depth_(conf.getParameter<int>("binsDepth")), hist_drift_(conf.getParameter<int>("binsDrift")), ptmin_(conf.getParameter<double>("ptMin")), simData_(conf.getParameter<bool>("simData"))
 {
-  anglefinder_=new  TrackLocalAngle(conf);
+  	anglefinder_=new  TrackLocalAngle(conf);
 	hist_x_ = 50;
 	hist_y_ = 100;
 	min_x_ = -500.;
@@ -125,8 +125,8 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
 	event_counter_++;
 	if(event_counter_ % 500 == 0) cout << "event number " << event_counter_ << endl;
 // 	cout << "event number " << event_counter_ << endl;
-	TrackerHitAssociator associate(e); 
-  
+	TrackerHitAssociator* associate;
+	if(simData_) associate = new TrackerHitAssociator(e); else associate = 0; 
 	// restet values
 	module_=-1;
 	layer_=-1;
@@ -159,6 +159,9 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
 		// iterate over tracks
 		for(tciter=tracks->begin();tciter!=tracks->end();tciter++){
 			pt_ = tciter->pt();
+// 			cout << "pt track: " << pt_ << endl;
+			if (pt_ < ptmin_) continue;
+// 			cout << "ok" << endl;
 			eta_ = tciter->momentum().eta();
 			phi_ = tciter->momentum().phi();
 			chi2_ = tciter->chi2();
@@ -207,35 +210,37 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
 					// fill entries in trackhit_:
 					trackhit_=tmpiter->second;	
 					
-					// fill entries in simhit_:
-					matched.clear();        
-					matched = associate.associateHit((*tmpiter->first));	
-					float dr_start=9999.;
-					for (std::vector<PSimHit>::iterator isim = matched.begin(); isim != matched.end(); ++isim){
-						DetId simdetIdObj((*isim).detUnitId());
-						if (simdetIdObj == detIdObj) {
-							float sim_x1 = (*isim).entryPoint().x(); // width (row index, in col direction)
-							float sim_y1 = (*isim).entryPoint().y(); // length (col index, in row direction)
-							float sim_x2 = (*isim).exitPoint().x();
-							float sim_y2 = (*isim).exitPoint().y();
-							float sim_xpos = 0.5*(sim_x1+sim_x2);
-							float sim_ypos = 0.5*(sim_y1+sim_y2);
-							float sim_px = (*isim).momentumAtEntry().x();
-							float sim_py = (*isim).momentumAtEntry().y();
-							float sim_pz = (*isim).momentumAtEntry().z();
-                
-							float dr = (sim_xpos-(rechit.localPosition().x()))*(sim_xpos-rechit.localPosition().x()) +
-									(sim_ypos-rechit.localPosition().y())*(sim_ypos-rechit.localPosition().y());
-							if(dr<dr_start) {
-								simhit_.x     = sim_xpos;
-								simhit_.y     = sim_ypos;
-								simhit_.alpha = atan2(sim_pz, sim_px);
-								simhit_.beta  = atan2(sim_pz, sim_py);
-								simhit_.gamma = atan2(sim_px, sim_py);
-								dr_start = dr;
+					// fill entries in simhit_:	
+					if(simData_){
+						matched.clear();        
+						matched = associate->associateHit((*tmpiter->first));	
+						float dr_start=9999.;
+						for (std::vector<PSimHit>::iterator isim = matched.begin(); isim != matched.end(); ++isim){
+							DetId simdetIdObj((*isim).detUnitId());
+							if (simdetIdObj == detIdObj) {
+								float sim_x1 = (*isim).entryPoint().x(); // width (row index, in col direction)
+								float sim_y1 = (*isim).entryPoint().y(); // length (col index, in row direction)
+								float sim_x2 = (*isim).exitPoint().x();
+								float sim_y2 = (*isim).exitPoint().y();
+								float sim_xpos = 0.5*(sim_x1+sim_x2);
+								float sim_ypos = 0.5*(sim_y1+sim_y2);
+								float sim_px = (*isim).momentumAtEntry().x();
+								float sim_py = (*isim).momentumAtEntry().y();
+								float sim_pz = (*isim).momentumAtEntry().z();
+					
+								float dr = (sim_xpos-(rechit.localPosition().x()))*(sim_xpos-rechit.localPosition().x()) +
+										(sim_ypos-rechit.localPosition().y())*(sim_ypos-rechit.localPosition().y());
+								if(dr<dr_start) {
+									simhit_.x     = sim_xpos;
+									simhit_.y     = sim_ypos;
+									simhit_.alpha = atan2(sim_pz, sim_px);
+									simhit_.beta  = atan2(sim_pz, sim_py);
+									simhit_.gamma = atan2(sim_px, sim_py);
+									dr_start = dr;
+								}
 							}
-						}
-					} // end of filling simhit_
+						} // end of filling simhit_
+					}
 					
 					// is one pixel in cluster a large pixel ? (hit will be excluded)
 					bool large_pix = false;
@@ -308,6 +313,7 @@ void SiPixelLorentzAngle::endJob()
 	
 	hFile_->Write();
 	hFile_->Close();
+	cout << "events: " << event_counter_ << endl;
 }
 
 void SiPixelLorentzAngle::fillPix(const SiPixelCluster & LocPix, const RectangularPixelTopology * topol)

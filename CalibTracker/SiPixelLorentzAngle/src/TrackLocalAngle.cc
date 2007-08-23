@@ -55,22 +55,21 @@ void TrackLocalAngle::init(const edm::Event& e, const edm::EventSetup& es){
 	//
 	// get the fitter
 	//
-	if(!(conf_.getParameter<bool>("MTCCtrack"))){
-		edm::ESHandle<TrajectoryFitter> fitter;
-		LogDebug("TrackLocalAngle") << "get the fitter from the ES" << "\n";
-		std::string fitterName = conf_.getParameter<std::string>("Fitter");   
-		es.get<TrackingComponentsRecord>().get(fitterName,fitter);
-		theFitter=&(*fitter);
+	edm::ESHandle<TrajectoryFitter> fitter;
+	LogDebug("TrackLocalAngle") << "get the fitter from the ES" << "\n";
+	std::string fitterName = conf_.getParameter<std::string>("Fitter");   
+	es.get<TrackingComponentsRecord>().get(fitterName,fitter);
+	theFitter=&(*fitter);
 
 	//
   	// get also the propagator
   	//
-    	edm::ESHandle<Propagator> propagator;
-    	LogDebug("TrackLocalAngle") << "get also the propagator" << "\n";
-    	std::string propagatorName = conf_.getParameter<std::string>("Propagator");   
-    	es.get<TrackingComponentsRecord>().get(propagatorName,propagator);
-    	thePropagator=&(*propagator);
-    }
+	edm::ESHandle<Propagator> propagator;
+	LogDebug("TrackLocalAngle") << "get also the propagator" << "\n";
+	std::string propagatorName = conf_.getParameter<std::string>("Propagator");   
+	es.get<TrackingComponentsRecord>().get(propagatorName,propagator);
+	thePropagator=&(*propagator);
+	
 	//
 	// get the builder
 	//
@@ -146,8 +145,12 @@ std::vector<Trajectory> TrackLocalAngle::buildTrajectory(const reco::Track& theT
 	float ndof=0;
   
 	for (trackingRecHit_iterator i=theT.recHitsBegin(); i!=theT.recHitsEnd(); i++){
+// 		cout << "detid: " << (**i).geographicalId().det() << endl;
+		if((**i).geographicalId().det() == DetId::Tracker) { 
 		tmp.push_back(RHBuilder->build(&**i ));
+// 		cout << "after builder" << endl;
 		if ((*i)->isValid()) ndof = ndof + ((*i)->dimension())*((*i)->weight());
+		}
 	}	
 
 	LogDebug("TrackLocalAngle") << "Transient rechit filled" << "\n";
@@ -182,7 +185,7 @@ std::vector<Trajectory> TrackLocalAngle::buildTrajectory(const reco::Track& theT
 	AlgebraicSymMatrix C(5,1);
 	C *= 100.;
 	TrajectoryStateOnSurface theTSOS( firstState.localParameters(), LocalTrajectoryError(C), firstState.surface(), thePropagator->magneticField()); 
-  
+//   PTrajectoryStateOnDet psod;
 	LogDebug("TrackLocalAngle") << "Initial TSOS\n" << theTSOS << "\n";
 	PTrajectoryStateOnDet ptsod;
   	const TrajectorySeed seed = TrajectorySeed(PTrajectoryStateOnDet(),BasicTrajectorySeed::recHitContainer(), alongMomentum);

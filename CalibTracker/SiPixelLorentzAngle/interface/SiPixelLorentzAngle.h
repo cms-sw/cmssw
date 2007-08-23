@@ -77,6 +77,8 @@ class SiPixelLorentzAngle : public edm::EDAnalyzer
 	double chi2_;
 	double ndof_;
   	int eventcounter_, eventnumber_, trackcounter_;
+	double ptmin_;
+	bool simData_;
 	
 	TrackLocalAngle::Trackhit trackhit_;
 	
