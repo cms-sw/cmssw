@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1CaloSim.cc,v 1.6 2007/07/27 19:35:18 chinhan Exp $
+// $Id: FastL1CaloSim.cc,v 1.7 2007/08/18 02:11:41 chinhan Exp $
 //
 //
 
@@ -75,8 +75,10 @@ FastL1CaloSim::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   if (m_AlgorithmSource == "RecHits") {
     m_L1GlobalAlgo->FillL1Regions(iEvent, iSetup);
+    m_L1GlobalAlgo->FillEgammas(iEvent);
   } else if (m_AlgorithmSource == "TrigPrims") {
     m_L1GlobalAlgo->FillL1RegionsTP(iEvent,iSetup);
+    m_L1GlobalAlgo->FillEgammasTP(iEvent);
   } else {
     std::cerr<<"AlgorithmSource not valid: "<<m_AlgorithmSource<<std::endl;
     return;
@@ -84,7 +86,6 @@ FastL1CaloSim::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //m_L1GlobalAlgo->FillMET(iEvent); // using CaloTowers
   m_L1GlobalAlgo->FillMET();     // using Regions
   m_L1GlobalAlgo->FillJets(iSetup);
-  m_L1GlobalAlgo->FillEgammas(iEvent);
   
   /*
   if (m_DoBitInfo)

@@ -94,6 +94,7 @@ class FastL1GlobalAlgo {
  
       // ------------ Methods using Trigger Primitives------------
       void FillL1RegionsTP(edm::Event const& e, const edm::EventSetup& c);
+      void FillEgammasTP(edm::Event const&);
 
  private:
       bool isMaxEtRgn_Window33(int rgnid);

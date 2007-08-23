@@ -971,17 +971,27 @@ GCTEnergyTrunc(double et, double LSB, bool doEM) {
 
 
   double ret = 0.;
-  for (int i=63;i>=0;i--) {
+  for (int i=63;i>0;i--) {
     if (et>=(L1CaloThresholds[i])) {
       if (i==63) {
-	ret = L1CaloThresholds[63]+L1CaloThresholds[63]-L1CaloThresholds[62];
+	ret = L1CaloThresholds[63];
       } else {
+	/*
 	double minL = std::abs(et - L1CaloThresholds[i]); 
 	double minU = std::abs(et - L1CaloThresholds[i+1]); 
 	if (minL<minU)
 	  ret = L1CaloThresholds[i];
 	else
 	  ret = L1CaloThresholds[i+1];
+	*/
+	/*
+	if (doEM) {
+	  ret = L1CaloThresholds[i];
+	} else {
+	  ret = L1CaloThresholds[i+1];
+	}
+	*/
+	ret = L1CaloThresholds[i];
       }
       break;
     }

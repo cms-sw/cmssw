@@ -248,7 +248,41 @@ FastL1GlobalAlgo::addJet(int iRgn, bool taubit) {
 }
 
 
-// ------------ Fill Egammas ------------
+// ------------ Fill Egammas for TP input------------
+void
+FastL1GlobalAlgo::FillEgammasTP(edm::Event const& e) {
+  m_Egammas.clear();
+  m_isoEgammas.clear();
+
+  for (int i=0; i<396; i++) { 
+    CaloTowerCollection towers = m_Regions[i].GetCaloTowers();
+
+    for (CaloTowerCollection::const_iterator cnd=towers.begin(); cnd!=towers.end(); cnd++) {
+      if (cnd->emEt()<0.1 && cnd->hadEt()<0.1) continue;
+
+      reco::Particle::LorentzVector rp4(0.,0.,0.,0.);
+      l1extra::L1EmParticle* ph = new l1extra::L1EmParticle(rp4);
+      CaloTowerDetId cid   = cnd->id();
+      //std::cout<<"+++ "<<cid<<std::endl;
+      
+      int emTag = isEMCand(cid,ph,e);
+      //std::cout<<"+++ "<<ph<<std::endl;
+      
+      // 1 = non-iso EM, 2 = iso EM
+      if (emTag==1) {
+	m_Egammas.push_back(*ph);
+      } else if (emTag==2) {
+	m_isoEgammas.push_back(*ph);
+      }
+      
+    }
+    std::sort(m_Egammas.begin(),m_Egammas.end(), myspace::greaterEt);
+    std::sort(m_isoEgammas.begin(),m_isoEgammas.end(), myspace::greaterEt);
+  }
+}
+
+
+// ------------ Fill Egammas for Tower input ------------
 void
 FastL1GlobalAlgo::FillEgammas(edm::Event const& e) {
   m_Egammas.clear();
@@ -476,6 +510,7 @@ FastL1GlobalAlgo::FillL1RegionsTP(edm::Event const& e, const edm::EventSetup& s)
   int hEtV[396][16] = {0};
   int hFGV[396][16] = {0};
   int hiEtaV[396][16] = {0};
+  int hiPhiV[396][16] = {0};
   for (HcalTrigPrimDigiCollection::const_iterator hTP=HTPinput->begin(); 
        hTP!=HTPinput->end(); hTP++) {
     
@@ -501,19 +536,18 @@ FastL1GlobalAlgo::FillL1RegionsTP(edm::Event const& e, const edm::EventSetup& s)
     hEtV[rgnid][twrid] = (int)hTP->SOI_compressedEt();
     hFGV[rgnid][twrid] = (int)hTP->SOI_fineGrain();
     hiEtaV[rgnid][twrid] = (int)htwrid.ieta();
+    hiPhiV[rgnid][twrid] = (int)htwrid.iphi();
     
   }
   
 
   int emEtV[396][16] = {0};
   int emFGV[396][16] = {0};
-  CaloTowerDetId eTPtowerDetId;
+  int emiEtaV[396][16] = {0};
+  int emiPhiV[396][16] = {0};
+  double emEtaV[396][16] = {0.};
   for (EcalTrigPrimDigiCollection::const_iterator eTP=ETPinput->begin(); 
        eTP!=ETPinput->end(); eTP++) {
-    if (eTP==ETPinput->begin()) 
-      eTPtowerDetId = CaloTowerDetId(eTP->id().zside()*eTP->id().ietaAbs(),
-				     eTP->id().ieta());
-
     int rgnid = 999;
     int twrid = 999;
    
@@ -529,7 +563,17 @@ FastL1GlobalAlgo::FillL1RegionsTP(edm::Event const& e, const edm::EventSetup& s)
     */
 
     emEtV[rgnid][twrid] = (int)eTP->compressedEt();
-    emFGV[rgnid][twrid] = (int)eTP->fineGrain();    
+    emFGV[rgnid][twrid] = (int)eTP->fineGrain();
+    emiEtaV[rgnid][twrid] = (int)eTP->id().ieta();
+    emiPhiV[rgnid][twrid] = (int)eTP->id().iphi();
+
+
+    edm::ESHandle<CaloGeometry> cGeom; 
+    s.get<IdealGeometryRecord>().get(cGeom);    
+    const GlobalPoint gP1 = cGeom->getPosition(eTP->id());
+    double eta = gP1.eta();  
+    //double phi = gP1.phi();    
+    emEtaV[rgnid][twrid] = eta;
   }
 
 
@@ -543,18 +587,28 @@ FastL1GlobalAlgo::FillL1RegionsTP(edm::Event const& e, const edm::EventSetup& s)
 	  = m_RMap->getRegionCenterEtaPhi(i);
 	double eta = etaphi.first;
 	double phi = etaphi.second;
-    
-	double emEt = ((double) emEtV[i][j]) * m_L1Config.EMLSB;
+   
+
+ 	double emEt = ((double) emEtV[i][j]) * m_L1Config.EMLSB;
 	//double hadEt = ((double )hEtV[i][j]) * m_L1Config.JetLSB * cos(2.*atan(exp(-hiEtaV[i][j])));
 	int iAbsTwrEta = std::abs(hiEtaV[i][j]);
 	double hadEt = ((double )hcaletValue(iAbsTwrEta, hEtV[i][j])) * m_L1Config.JetLSB;
    
+	if (m_L1Config.DoEMCorr) {
+	  emEt = corrEmEt(emEt,emEtaV[i][j]);
+	}
 
 	double et = emEt + hadEt;
 
 	math::RhoEtaPhiVector lvec(et,eta,phi);
-    
-	CaloTower t = CaloTower(eTPtowerDetId, lvec, 
+	
+	CaloTowerDetId towerDetId;  
+	if (emEtV[i][j]>0) 
+ 	  towerDetId = CaloTowerDetId(emiEtaV[i][j],emiPhiV[i][j]); 
+	else
+	  towerDetId = CaloTowerDetId(hiEtaV[i][j],hiPhiV[i][j]); 
+	  
+	CaloTower t = CaloTower(towerDetId, lvec, 
 				emEt, hadEt, 
 				0., 0, 0);
     
@@ -950,12 +1004,15 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   //double eme = (hitE+maxE);
   double emet = (hitEt+maxEt);
 
+  /*
   if (m_L1Config.DoEMCorr) {
     emet = GCTEnergyTrunc(corrEmEt(emet,cenEta),m_L1Config.EMLSB, true);
     //emet = GCTEnergyTrunc(emet,m_L1Config.EMLSB, true);
   } else {
     emet = GCTEnergyTrunc(emet,m_L1Config.EMLSB, true);
   }
+  */
+  emet = GCTEnergyTrunc(emet,m_L1Config.EMLSB, true);
 
   if ((emet)<emEtThres) return 0;
 
@@ -988,24 +1045,29 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
     return 1;
   
   // check isolation corners
-  double corThres = 0.4;
-  double emNoiseEt = m_L1Config.EMNoiseLevel;
+  //double corThres = 0.4;
+  //double quietThres = m_L1Config.EMNoiseLevel;
+  double quietThres = m_L1Config.QuietRegionThreshold;
   bool isoVeto1 = false,isoVeto2 = false,isoVeto3 = false,isoVeto4 = false;
-  if (swEt>emNoiseEt || weEt>emNoiseEt || nwEt>emNoiseEt || noEt>emNoiseEt || neEt>emNoiseEt ) 
-    if ((swEt + weEt + nwEt + noEt + neEt)/cenEt > corThres) 
-      isoVeto1 = true;
-  if (neEt>emNoiseEt || eaEt>emNoiseEt || seEt>emNoiseEt || soEt>emNoiseEt || swEt>emNoiseEt ) 
-    if ((neEt + eaEt + seEt + soEt + swEt)/cenEt > corThres) 
-      isoVeto2 = true;
-  if (nwEt>emNoiseEt || noEt>emNoiseEt || neEt>emNoiseEt || eaEt>emNoiseEt || seEt>emNoiseEt ) 
-    if ((nwEt + noEt + neEt + eaEt + seEt)/cenEt > corThres) 
-      isoVeto3 = true;
-  if (seEt>emNoiseEt || soEt>emNoiseEt || swEt>emNoiseEt || weEt>emNoiseEt || nwEt>emNoiseEt ) 
-    if ((seEt + soEt + swEt + weEt + nwEt)/cenEt > corThres) 
-      isoVeto4 = true;
+  if (swEt>quietThres || weEt>quietThres || nwEt>quietThres || noEt>quietThres || neEt>quietThres ) {
+    //if ((swEt + weEt + nwEt + noEt + neEt)/cenEt > corThres) 
+    isoVeto1 = true;
+  }
+  if (neEt>quietThres || eaEt>quietThres || seEt>quietThres || soEt>quietThres || swEt>quietThres ) {
+    //if ((neEt + eaEt + seEt + soEt + swEt)/cenEt > corThres) 
+    isoVeto2 = true;
+  }
+  if (nwEt>quietThres || noEt>quietThres || neEt>quietThres || eaEt>quietThres || seEt>quietThres ) {
+    //if ((nwEt + noEt + neEt + eaEt + seEt)/cenEt > corThres) 
+    isoVeto3 = true;
+  }
+  if (seEt>quietThres || soEt>quietThres || swEt>quietThres || weEt>quietThres || nwEt>quietThres ) {
+    //if ((seEt + soEt + swEt + weEt + nwEt)/cenEt > corThres) 
+    isoVeto4 = true;
+  }
   if (isoVeto1 && isoVeto2 && isoVeto3 && isoVeto4)
     return 1;
-
+  
   return 2;    
 }
 
