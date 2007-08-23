@@ -11,10 +11,12 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalShape.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HFShape.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/ZDCShape.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalElectronicsSim.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HBHEHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HFHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HOHitFilter.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/ZDCHitFilter.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalAmplifier.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalCoderFactory.h"
@@ -45,16 +47,20 @@ private:
   typedef CaloTDigitizer<HBHEDigitizerTraits> HBHEDigitizer;
   typedef CaloTDigitizer<HODigitizerTraits> HODigitizer;
   typedef CaloTDigitizer<HFDigitizerTraits> HFDigitizer;
-
+  typedef CaloTDigitizer<ZDCDigitizerTraits> ZDCDigitizer;
+ 
   HcalSimParameterMap * theParameterMap;
   CaloVShape * theHcalShape;
   CaloVShape * theHFShape;
+  CaloVShape * theZDCShape;
   CaloVShape * theHcalIntegratedShape;
   CaloVShape * theHFIntegratedShape;
+  CaloVShape * theZDCIntegratedShape;
 
   CaloHitResponse * theHBHEResponse;
   CaloHitResponse * theHOResponse;
   CaloHitResponse * theHFResponse;
+  CaloHitResponse * theZDCResponse;
 
   HcalAmplifier * theAmplifier;
   HcalCoderFactory * theCoderFactory;
@@ -63,15 +69,16 @@ private:
   HBHEHitFilter theHBHEHitFilter;
   HFHitFilter   theHFHitFilter;
   HOHitFilter   theHOHitFilter;
+  ZDCHitFilter  theZDCHitFilter;
 
   HcalHitCorrection * theHitCorrection;
 
   HBHEDigitizer * theHBHEDigitizer;
   HODigitizer* theHODigitizer;
   HFDigitizer* theHFDigitizer;
+  ZDCDigitizer* theZDCDigitizer;
 
-
-  std::vector<PCaloHit> theHBHEHits, theHOHits, theHFHits;
+  std::vector<PCaloHit> theHBHEHits, theHOHits, theHFHits, theZDCHits;
 
 };
 

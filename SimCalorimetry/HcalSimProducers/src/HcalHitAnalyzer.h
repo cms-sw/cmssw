@@ -10,6 +10,7 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HBHEHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HOHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HFHitFilter.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/ZDCHitFilter.h"
 #include <string>
 
 /** Compares HCAL RecHits to SimHit
@@ -32,9 +33,11 @@ private:
   HBHEHitFilter hbheFilter_;
   HOHitFilter hoFilter_;
   HFHitFilter hfFilter_;
+  ZDCHitFilter zdcFilter_;
   CaloHitAnalyzer hbheAnalyzer_;
   CaloHitAnalyzer hoAnalyzer_;
   CaloHitAnalyzer hfAnalyzer_;
+  CaloHitAnalyzer zdcAnalyzer_;
 };
 
 #endif

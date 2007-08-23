@@ -10,6 +10,7 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HBHEHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HOHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HFHitFilter.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/ZDCHitFilter.h"
 #include "SimCalorimetry/HcalSimProducers/src/HcalDigiStatistics.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include <string>
@@ -34,12 +35,15 @@ private:
   HBHEHitFilter hbheFilter_;
   HOHitFilter hoFilter_;
   HFHitFilter hfFilter_;
+  ZDCHitFilter zdcFilter_;
   CaloHitAnalyzer hbheHitAnalyzer_;
   CaloHitAnalyzer hoHitAnalyzer_;
   CaloHitAnalyzer hfHitAnalyzer_;
+  CaloHitAnalyzer zdcHitAnalyzer_;
   HcalDigiStatistics hbheDigiStatistics_;
   HcalDigiStatistics hoDigiStatistics_;
   HcalDigiStatistics hfDigiStatistics_;
+  HcalDigiStatistics zdcDigiStatistics_;
 };
 
 #endif

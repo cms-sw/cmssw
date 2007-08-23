@@ -14,19 +14,22 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 using namespace std;
-
 
 
 HcalDigiProducer::HcalDigiProducer(const edm::ParameterSet& ps) 
 : theParameterMap(new HcalSimParameterMap(ps)),
   theHcalShape(new HcalShape()),
   theHFShape(new HFShape()),
+  theZDCShape(new ZDCShape()),
   theHcalIntegratedShape(new CaloShapeIntegrator(theHcalShape)),
   theHFIntegratedShape(new CaloShapeIntegrator(theHFShape)),
+  theZDCIntegratedShape(new CaloShapeIntegrator(theZDCShape)),
   theHBHEResponse(new CaloHitResponse(theParameterMap, theHcalIntegratedShape)),
   theHOResponse(new CaloHitResponse(theParameterMap, theHcalIntegratedShape)),   
   theHFResponse(new CaloHitResponse(theParameterMap, theHFIntegratedShape)),
+  theZDCResponse(new CaloHitResponse(theParameterMap, theZDCIntegratedShape)),
   theAmplifier(0),
   theCoderFactory(0),
   theElectronicsSim(0),
@@ -34,19 +37,22 @@ HcalDigiProducer::HcalDigiProducer(const edm::ParameterSet& ps)
   theHBHEDigitizer(0),
   theHODigitizer(0),
   theHFDigitizer(0),
+  theZDCDigitizer(0),
   theHBHEHits(),
   theHOHits(),
-  theHFHits()
+  theHFHits(),
+  theZDCHits()
 {
   
   produces<HBHEDigiCollection>();
   produces<HODigiCollection>();
   produces<HFDigiCollection>();
-
+  produces<ZDCDigiCollection>();
 
   theHBHEResponse->setHitFilter(&theHBHEHitFilter);
   theHOResponse->setHitFilter(&theHOHitFilter);
   theHFResponse->setHitFilter(&theHFHitFilter);
+  theZDCResponse->setHitFilter(&theZDCHitFilter);
 
   bool doTimeSlew = ps.getParameter<bool>("doTimeSlew");
   if(doTimeSlew) {
@@ -54,6 +60,7 @@ HcalDigiProducer::HcalDigiProducer(const edm::ParameterSet& ps)
     theHitCorrection = new HcalHitCorrection(theParameterMap);
     theHBHEResponse->setHitCorrection(theHitCorrection);
     theHOResponse->setHitCorrection(theHitCorrection);
+    theZDCResponse->setHitCorrection(theHitCorrection);
   }
 
   bool doNoise = ps.getParameter<bool>("doNoise");
@@ -64,6 +71,7 @@ HcalDigiProducer::HcalDigiProducer(const edm::ParameterSet& ps)
   theHBHEDigitizer = new HBHEDigitizer(theHBHEResponse, theElectronicsSim, doNoise);
   theHODigitizer = new HODigitizer(theHOResponse, theElectronicsSim, doNoise);
   theHFDigitizer = new HFDigitizer(theHFResponse, theElectronicsSim, doNoise);
+  theZDCDigitizer = new ZDCDigitizer(theZDCResponse, theElectronicsSim, doNoise);
 
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable()) {
@@ -83,14 +91,18 @@ HcalDigiProducer::~HcalDigiProducer() {
   delete theHBHEDigitizer;
   delete theHODigitizer;
   delete theHFDigitizer;
+  delete theZDCDigitizer;
   delete theParameterMap;
   delete theHcalShape;
   delete theHFShape;
+  delete theZDCShape;
   delete theHcalIntegratedShape;
   delete theHFIntegratedShape;
+  delete theZDCIntegratedShape;
   delete theHBHEResponse;
   delete theHOResponse;
   delete theHFResponse;
+  delete theZDCResponse;
   delete theElectronicsSim;
   delete theAmplifier;
   delete theCoderFactory;
@@ -108,64 +120,76 @@ void HcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 
   // get the correct geometry
   checkGeometry(eventSetup);
-
+  
   theHBHEHits.clear();
   theHOHits.clear();
   theHFHits.clear();
+  theZDCHits.clear();
+
   // Step A: Get Inputs
   edm::Handle<CrossingFrame> cf;
   e.getByType(cf);
 
-  // test access to SimHits
+  // test access to SimHits for HcalHits and ZDC hits
   const std::string subdet("HcalHits");
+  const std::string subdetzdc("ZDCHITS");
   std::auto_ptr<MixCollection<PCaloHit> > col(new MixCollection<PCaloHit>(cf.product(), subdet));
+  std::auto_ptr<MixCollection<PCaloHit> > colzdc(new MixCollection<PCaloHit>(cf.product(), subdetzdc));
+
   //fillFakeHits();
 
   if(theHitCorrection != 0)
   {
     theHitCorrection->fillChargeSums(*col);
+    theHitCorrection->fillChargeSums(*colzdc);
   }
   // Step B: Create empty output
 
   std::auto_ptr<HBHEDigiCollection> hbheResult(new HBHEDigiCollection());
   std::auto_ptr<HODigiCollection> hoResult(new HODigiCollection());
   std::auto_ptr<HFDigiCollection> hfResult(new HFDigiCollection());
-
+  std::auto_ptr<ZDCDigiCollection> zdcResult(new ZDCDigiCollection());
 
   // Step C: Invoke the algorithm, passing in inputs and getting back outputs.
   theHBHEDigitizer->run(*col, *hbheResult);
   theHODigitizer->run(*col, *hoResult);
   theHFDigitizer->run(*col, *hfResult);
+  theZDCDigitizer->run(*colzdc, *zdcResult);
 
-//  edm::LogInfo("HcalDigiProducer") << "HCAL HBHE digis : " << hbheResult->size();
-//  edm::LogInfo("HcalDigiProducer") << "HCAL HO digis   : " << hoResult->size();
-//  edm::LogInfo("HcalDigiProducer") << "HCAL HF digis   : " << hfResult->size();
+  edm::LogInfo("HcalDigiProducer") << "HCAL HBHE digis : " << hbheResult->size();
+  edm::LogInfo("HcalDigiProducer") << "HCAL HO digis   : " << hoResult->size();
+  edm::LogInfo("HcalDigiProducer") << "HCAL HF digis   : " << hfResult->size();
+  edm::LogInfo("HcalDigiProducer") << "HCAL ZDC digis   : " << zdcResult->size();
 
   // Step D: Put outputs into event
   e.put(hbheResult);
   e.put(hoResult);
   e.put(hfResult);
-
+  e.put(zdcResult);
 }
 
 
-void HcalDigiProducer::sortHits(const edm::PCaloHitContainer & hits)
-{
+void HcalDigiProducer::sortHits(const edm::PCaloHitContainer & hits){
   for(edm::PCaloHitContainer::const_iterator hitItr = hits.begin();
-      hitItr != hits.end(); ++hitItr)
-  {
-    HcalSubdetector subdet = HcalDetId(hitItr->id()).subdet();
-    if(subdet == HcalBarrel || subdet == HcalEndcap) {
-      theHBHEHits.push_back(*hitItr);
+      hitItr != hits.end(); ++hitItr){
+    DetId detId = hitItr->id();
+    if(detId.det()==DetId::Calo && detId.subdetId()==HcalZDCDetId::SubdetectorId){
+      theZDCHits.push_back(*hitItr);
     }
-    else if(subdet == HcalForward) {
-      theHFHits.push_back(*hitItr);
-    }
-    else if(subdet == HcalOuter) {
-      theHOHits.push_back(*hitItr);
-    }
-    else {
-      edm::LogError("HcalDigiProducer") << "Bad HcalHit subdetector " << subdet;
+    else{
+      HcalSubdetector subdet = HcalDetId(hitItr->id()).subdet();
+      if(subdet == HcalBarrel || subdet == HcalEndcap) {
+	theHBHEHits.push_back(*hitItr);
+      }
+      else if(subdet == HcalForward) {
+	theHFHits.push_back(*hitItr);
+      }
+      else if(subdet == HcalOuter) {
+	  theHOHits.push_back(*hitItr);
+      }
+      else {
+	edm::LogError("HcalDigiProducer") << "Bad HcalHit subdetector " << subdet;
+      }
     }
   }
 }
@@ -186,11 +210,15 @@ void HcalDigiProducer::fillFakeHits() {
   HcalDetId forwardDetId2(HcalForward, 30, 1, 2);
   PCaloHit forwardHit2(forwardDetId2.rawId(), 48., 0., 0., 0);
 
+  HcalZDCDetId zdcDetId(HcalZDCDetId::Section(2),true,1);
+  PCaloHit zdcHit(zdcDetId.rawId(), 50.0, 0.);
+
   theHBHEHits.push_back(barrelHit);
   theHBHEHits.push_back(endcapHit);
   theHOHits.push_back(outerHit);
   theHFHits.push_back(forwardHit1);
   theHFHits.push_back(forwardHit2);
+  theZDCHits.push_back(zdcHit);
 }
 
 
@@ -198,23 +226,27 @@ void HcalDigiProducer::checkGeometry(const edm::EventSetup & eventSetup) {
   // TODO find a way to avoid doing this every event
   edm::ESHandle<CaloGeometry> geometry;
   eventSetup.get<IdealGeometryRecord>().get(geometry);
-
   theHBHEResponse->setGeometry(&*geometry);
   theHOResponse->setGeometry(&*geometry);
   theHFResponse->setGeometry(&*geometry);
+  theZDCResponse->setGeometry(&*geometry);
 
   vector<DetId> hbCells =  geometry->getValidDetIds(DetId::Hcal, HcalBarrel);
   vector<DetId> heCells =  geometry->getValidDetIds(DetId::Hcal, HcalEndcap);
   vector<DetId> hoCells =  geometry->getValidDetIds(DetId::Hcal, HcalOuter);
   vector<DetId> hfCells =  geometry->getValidDetIds(DetId::Hcal, HcalForward);
+  vector<DetId> zdcCells = geometry->getValidDetIds(DetId::Calo, HcalZDCDetId::SubdetectorId);
 
+  //std::cout<<"HcalDigiProducer::CheckGeometry number of cells: "<<zdcCells.size()<<std::endl;
   // combine HB & HE
+
   vector<DetId> hbheCells = hbCells;
   hbheCells.insert(hbheCells.end(), heCells.begin(), heCells.end());
 
   theHBHEDigitizer->setDetIds(hbheCells);
   theHODigitizer->setDetIds(hoCells);
   theHFDigitizer->setDetIds(hfCells);
+  theZDCDigitizer->setDetIds(zdcCells); 
 }
 
 
