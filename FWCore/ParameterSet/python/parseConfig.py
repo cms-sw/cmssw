@@ -58,6 +58,7 @@ class _IncludeFile(file):
         except KeyError:
             raise RuntimeError("The environment variable 'CMSSW_SEARCH_PATH' must be set for include to work")
         lpaths = paths.split(':')
+        lpaths.append('.')
         f = None
         for path in lpaths:
             path +='/'+filename
@@ -1080,6 +1081,15 @@ class _ConfigReturn(object):
     def __init__(self,d):
         for key,value in d.iteritems():
             setattr(self, key, value)
+    def dumpPython(self):
+         # make sure all the top-level Labelables are labelled
+         for key,value in self.__dict__.iteritems():
+             if isinstance(value, cms._Labelable):
+                 value.setLabel(key)
+         result = ''
+         for key,value in self.__dict__.iteritems():
+             result += "process."+key+" ="+value.dumpPython('','    ')
+         return result
 
 def parseCfgFile(fileName):
     """Read a .cfg file and create a Process object"""
