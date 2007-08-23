@@ -1,28 +1,34 @@
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/Time.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
-#include "CondCore/DBCommon/interface/PoolStorageManager.h"
-#include "CondCore/DBCommon/interface/RelationalStorageManager.h"
+#include "CondCore/DBCommon/interface/PoolTransaction.h"
+#include "CondCore/DBCommon/interface/CoralTransaction.h"
+#include "CondCore/DBCommon/interface/ConnectionHandler.h"
+#include "CondCore/DBCommon/interface/Connection.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/ConnectMode.h"
 #include "CondCore/DBCommon/interface/MessageLevel.h"
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
-#include "CondCore/DBCommon/interface/ConnectMode.h"
-#include "CondCore/DBCommon/interface/Ref.h"
+//#include "CondCore/DBCommon/interface/ConnectMode.h"
+#include "CondCore/DBCommon/interface/TypedRef.h"
 //#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/Calibration/interface/Pedestals.h"
 int main(){
   try{
     cond::DBSession* session=new cond::DBSession;
-    session->sessionConfiguration().setMessageLevel(cond::Error);
+    session->configuration().setMessageLevel(cond::Error);
+    static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
+    conHandler.registerConnection("mysqlite","sqlite_file:test.db","file:mycatalog.xml",0);
     session->open();
-    cond::PoolStorageManager pooldb("sqlite_file:test.db","file:mycatalog.xml",session);
-    pooldb.connect();
+    conHandler.connect(session);
+    cond::Connection* myconnection=conHandler.getConnection("mysqlite");
+    std::cout<<"myconnection "<<myconnection<<std::endl;
+    cond::PoolTransaction& pooldb=myconnection->poolTransaction(false);
     cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* ioveditor=iovmanager.newIOVEditor();
-    pooldb.startTransaction(false);
+    pooldb.start();
     for(unsigned int i=0; i<3; ++i){ //inserting 3 payloads
       Pedestals* myped=new Pedestals;
       for(int ichannel=1; ichannel<=5; ++ichannel){
@@ -31,7 +37,7 @@ int main(){
         item.m_variance=1.12*ichannel+i*2;
         myped->m_pedestals.push_back(item);
       }
-      cond::Ref<Pedestals> myref(pooldb,myped);
+      cond::TypedRef<Pedestals> myref(pooldb,myped);
       myref.markWrite("PedestalsRcd");
       std::string payloadToken=myref.token();
       ioveditor->insert(cond::Time_t(2+2*i),payloadToken);
@@ -44,7 +50,7 @@ int main(){
       item.m_variance=5.12*ichannel;
       myped->m_pedestals.push_back(item);
     }
-    cond::Ref<Pedestals> myref(pooldb,myped);
+    cond::TypedRef<Pedestals> myref(pooldb,myped);
     myref.markWrite("PedestalsRcd");
     std::string payloadToken=myref.token();
     ioveditor->insert(9999,payloadToken);
@@ -58,7 +64,7 @@ int main(){
     ///I write different pedestals in another record
     //
     cond::IOVEditor* anotherioveditor=iovmanager.newIOVEditor();
-    pooldb.startTransaction(false);
+    pooldb.start();
     for(unsigned int i=0; i<2; ++i){ //inserting 2 payloads to another Rcd
       Pedestals* myped=new Pedestals;
       for(int ichannel=1; ichannel<=3; ++ichannel){
@@ -67,24 +73,20 @@ int main(){
         item.m_variance=1.12*ichannel+i*2;
         myped->m_pedestals.push_back(item);
       }
-      cond::Ref<Pedestals> myref(pooldb,myped);
+      cond::TypedRef<Pedestals> myref(pooldb,myped);
       myref.markWrite("anotherPedestalsRcd");
       std::string payloadToken=myref.token();
       anotherioveditor->insert(cond::Time_t(2+2*i),payloadToken);
     }
     std::string anotheriovtoken=anotherioveditor->token();
     pooldb.commit();
-    pooldb.disconnect();
     delete anotherioveditor;
-    cond::RelationalStorageManager coraldb("sqlite_file:test.db",session);
+    cond::CoralTransaction& coraldb=myconnection->coralTransaction(false);
     cond::MetaData metadata(coraldb);
-    coraldb.connect(cond::ReadWriteCreate);
-    coraldb.startTransaction(false);
+    coraldb.start();
     metadata.addMapping("mytest",iovtoken);
     metadata.addMapping("anothermytest",anotheriovtoken);
     coraldb.commit();
-    coraldb.disconnect();
-    session->close();
     delete session;
     session=0;
   }catch(const cond::Exception& er){
