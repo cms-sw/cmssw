@@ -3,6 +3,7 @@
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"

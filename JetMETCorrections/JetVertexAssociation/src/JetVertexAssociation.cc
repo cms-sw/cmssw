@@ -15,7 +15,7 @@
 // Modified by Eduardo Luiggi
 //
 //         Created:  Tue Oct 31 10:52:41 CET 2006
-// $Id: JetVertexAssociation.cc,v 1.4 2007/04/12 19:00:34 nilina Exp $
+// $Id: JetVertexAssociation.cc,v 1.5 2007/05/03 22:47:48 wmtan Exp $
 //
 //
 
@@ -50,6 +50,8 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "JetMETCorrections/JetVertexAssociation/interface/JetVertexAssociation.h"
 #include "JetMETCorrections/JetVertexAssociation/interface/JetVertexMain.h"

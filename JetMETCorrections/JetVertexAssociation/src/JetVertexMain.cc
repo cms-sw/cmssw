@@ -2,6 +2,7 @@
 #include "JetMETCorrections/JetVertexAssociation/interface/JetVertexMain.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <cmath>
 #include <string>
