@@ -18,6 +18,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
+#include "CondFormats/SiPixelObjects/interface/ElectronicIndex.h"
+#include "CondFormats/SiPixelObjects/interface/DetectorIndex.h"
 
 #include <TFile.h>
 #include <TMath.h>
@@ -113,8 +115,8 @@ void SiPixelSCurveCalibrationAnalysis::endJob()
     {
       for(int k = 0; k != cols; ++k)
       { 
-        SiPixelFrameConverter::DetectorIndex detind = {siter->first, j, k};
-        SiPixelFrameConverter::CablingIndex cable;
+        sipixelobjects::DetectorIndex detind = {siter->first, j, k};
+        sipixelobjects::ElectronicIndex cable = {0, 0, 0, 0};
         int status = convert.toCabling(cable, detind);
         std::string meanname = "Mean" + makeRocName(j, k, holder, cable.roc);
         TH1F* tempmean = (TH1F*)meanhistos_->FindObject(meanname.c_str());
