@@ -46,7 +46,8 @@ class PoolDBESSource : public edm::eventsetup::DataProxyProvider,
   //std::string m_catalog; 
   //bool m_connected;
  private:
-  void tagToToken(const std::vector< std::pair < std::string, std::string> >& recordToTag);
+  void tagToToken(cond::Connection* connection,
+		  const std::vector< std::pair < std::string, std::string> >& recordToTag);
   //void initIOV();
 };
 #endif

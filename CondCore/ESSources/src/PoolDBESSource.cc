@@ -162,7 +162,6 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   
   edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>("DBParameters"); 
   cond::ConfigSessionFromParameterSet configConnection(*m_session,connectionPset);
-  //ConfigSessionFromParameterSet configConnection(*m_session,connectionPset);
   static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
   conHandler.registerConnection("inputdb",connect,catconnect,0);
   m_session->open();
@@ -203,7 +202,6 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
 	if (recordKey == EventSetupRecordKey()) {
 	  LogDebug ("")<< "The Record type named \""<<itName->first<<"\" could not be found.  We therefore assume it is not needed for this job";
 	} else {
-	  //std::cout<<"finding Record with key"<<std::endl;
 	  findingRecordWithKey(recordKey);
 	  //std::cout<<"using Record with key"<<std::endl;
 	  usingRecordWithKey(recordKey);
@@ -217,12 +215,16 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       std::string recordName = itToGet->getParameter<std::string>("record");
       std::string tagName = itToGet->getParameter<std::string>("tag");     
       //load proxy code now to force in the Record code
+      //std::cout<<"recordName "<<recordName<<std::endl;
+      //std::cout<<"tagName "<<tagName<<std::endl;
       std::multimap<std::string, std::string>::iterator itFound=m_recordToTypes.find(recordName);
       if(itFound == m_recordToTypes.end()){
 	throw cond::Exception("NoRecord")<<" The record \""<<recordName<<"\" is not known by the PoolDBESSource";
       }
       std::string typeName = itFound->second;
       std::string proxyName = buildName(recordName,typeName);
+      //std::cout<<"typeName "<<typeName<<std::endl;
+      //std::cout<<"proxyName "<<proxyName<<std::endl;
       m_proxyToToken.insert( make_pair(proxyName,"") );
       //fill in dummy tokens now, change in setIntervalFor
       pProxyToToken pos=m_proxyToToken.find(proxyName);
@@ -274,7 +276,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     m_iovservice=new cond::IOVService(*m_pooldb,cond::runnumber);
   }
   */
-  //this->tagToToken(m_connection,recordToTag);
+  this->tagToToken(m_connection,recordToTag);
 }
 PoolDBESSource::~PoolDBESSource()
 {
@@ -394,10 +396,11 @@ PoolDBESSource::newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordT
   invalidateProxies(iRecordType);
 }
 
-void PoolDBESSource::tagToToken( const std::vector< std::pair < std::string, std::string> >& recordToTag ){
+void PoolDBESSource::tagToToken( cond::Connection* connection,
+				 const std::vector< std::pair < std::string, std::string> >& recordToTag ){
   try{
     if( recordToTag.size()==0 ) return;
-    cond::CoralTransaction& coraldb=m_connection->coralTransaction(true);
+    cond::CoralTransaction& coraldb=connection->coralTransaction(true);
     cond::MetaData metadata(coraldb);
     coraldb.start();
     std::vector< std::pair<std::string, std::string> >::const_iterator it;
