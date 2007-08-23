@@ -155,7 +155,7 @@ class _Labelable(object):
     def dumpSequenceConfig(self):
         return str(self.__label)
     def dumpSequencePython(self):
-        return "process."+str(self.__label)
+        return "process."+str(self.label())
     def _findDependencies(self,knownDeps,presentDeps):
         #print 'in labelled'
         myDeps=knownDeps.get(self.label(),None)
@@ -214,7 +214,7 @@ class _SimpleParameterTypeBase(_ParameterTypeBase):
     def configValue(self,indent,deltaIndent):
         return str(self._value)
     def pythonValue(self,indent,deltaIndent):
-        return str(self._value)
+        return self.configValue(indent,deltaIndent)
 
 class _ValidatingListBase(list):
     """Base class for a list which enforces that its entries pass a 'validity' test"""
