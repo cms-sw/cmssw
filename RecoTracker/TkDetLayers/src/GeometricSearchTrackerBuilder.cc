@@ -45,6 +45,7 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
   // create a Trie
   DetTrie trie(0);
 
+  // to be moved elsewhere
   {
     const TrackingGeometry::DetUnitContainer&  modules = theGeomDetGeometry->detUnits(); 
     typedef TrackingGeometry::DetUnitContainer::const_iterator Iter;

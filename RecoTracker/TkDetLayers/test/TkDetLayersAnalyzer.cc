@@ -24,6 +24,38 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTrackerBuilder.h"
 
+
+// for trie
+#include "Geometry/TrackerGeometryBuilder/interface/trackerHierarchy.h"
+
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+
+
+#include "DataFormats/Common/interface/Trie.h"
+#include <boost/function.hpp>
+#include <boost/bind.hpp>
+
+
+// for the test
+#include "TrackingTools/DetLayers/interface/CylinderBuilderFromDet.h"
+
+namespace {
+
+  // Wrapper for trie call back
+  template< typename F> {
+    struct WrapTrieCB {
+      WrapTrieCB(F & fi) : f(fi) {}
+      template<typename P>
+      void operator(P p, std::string &) {
+	f(*p);
+      }
+
+      F & f;
+    };
+
+}
+
+
 using namespace edm;
 using namespace std;
 
@@ -113,6 +145,59 @@ TkDetLayersAnalyzer::analyze( const Event& iEvent, const EventSetup& iSetup )
   TOBLayer* testTOBLayer = myTOBBuilder.build(geometricDetTOBlayer,&(*pTrackerGeometry));
   edm::LogInfo("TkDetLayersAnalyzer") << "testTOBLayer: " << testTOBLayer;
   // ------------- END -------------------------
+
+
+  //
+  // -------------- example of using the Trie ---------------------------------
+  //  code from GeometricSearchTrackerBuilder
+  //
+  // create a Trie
+  DetTrie trie(0);
+
+  {
+    const TrackingGeometry::DetUnitContainer&  modules = theGeomDetGeometry->detUnits(); 
+    typedef TrackingGeometry::DetUnitContainer::const_iterator Iter;
+    Iter b=modules.begin();
+    Iter e=modules.end();
+    Iter last;
+    try {
+      for(;b!=e; ++b) {
+        last = b;
+        unsigned int rawid = (*b)->geographicalId().rawId();
+        trie.insert(trackerHierarchy(rawid), *b); 
+      }
+    }
+    catch(edm::Exception const & e) {
+      std::cout << "in filling " << e.what() << std::endl;
+      unsigned int rawid = (*last)->geographicalId().rawId();
+      int subdetid = (*last)->geographicalId().subdetId();
+      std::cout << rawid << " " << subdetid << std::endl;
+    }  
+  }
+
+  // layers "ids"
+  unsigned int layerId[] = {1,3,5,21,22,41,42,61,62};
+
+  // TOB is "2"
+  {
+    std::string s;
+    if (layerId[2]>9) s+=char(layerId[i]/10); 
+    s+=char(layerId[i]%10);
+    node_iterator e;
+    node_iterator tobl(trie.node(s));
+    for (;tobl!=e; tobl++) {
+    // for each  tob layer and compute cylinder geom (not the real ones though)
+      CylinderBuilderFromDet cylbld;
+      WrapTrieCB<CylinderBuilderFromDet> w(cylbld);
+      edm::iterateTrieLeaves(w,*tobl);
+      auto_ptr<BoundCylinder> cyl(cylbld.build());
+      std::cout << "cyl " << tobl.label() 
+		<< ": " << cyl->length()
+		<< ", " << cyl->width() 
+		<< ", " << cyl->thickness()
+		<< std::endl;
+    }
+  }
 
 
 
