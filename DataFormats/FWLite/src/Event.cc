@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:07:03 EDT 2007
-// $Id: Event.cc,v 1.8 2007/08/15 14:09:20 chrjones Exp $
+// $Id: Event.cc,v 1.9 2007/08/17 17:51:51 chrjones Exp $
 //
 
 // system include files
@@ -29,7 +29,7 @@
 
 #include "FWCore/FWLite/interface/setRefStreamer.h"
 
-#include "DataFormats/Common/interface/Wrapper.h"
+#include "FWCore/Utilities/interface/WrappedClassName.h"
 
 //used for backwards compatability
 #include "DataFormats/Provenance/interface/EventAux.h"

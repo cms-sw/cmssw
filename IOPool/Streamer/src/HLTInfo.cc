@@ -2,7 +2,7 @@
 #include "IOPool/Streamer/interface/BufferArea.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "IOPool/Streamer/interface/HLTInfo.h"
-#include "DataFormats/Common/interface/Wrapper.h"
+#include "FWCore/Utilities/interface/WrappedClassName.h"
 
 namespace 
 {

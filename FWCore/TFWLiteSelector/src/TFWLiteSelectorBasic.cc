@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 27 17:58:10 EDT 2006
-// $Id: TFWLiteSelectorBasic.cc,v 1.27 2007/08/02 23:11:08 wmtan Exp $
+// $Id: TFWLiteSelectorBasic.cc,v 1.28 2007/08/08 21:51:28 wmtan Exp $
 //
 
 // system include files
@@ -26,7 +26,7 @@
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Common/interface/EDProduct.h"
-#include "DataFormats/Common/interface/Wrapper.h"
+#include "FWCore/Utilities/interface/WrappedClassName.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"

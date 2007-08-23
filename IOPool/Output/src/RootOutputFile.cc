@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.3 2007/08/21 23:50:43 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.4 2007/08/22 17:56:11 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h" 
@@ -18,7 +18,7 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Common/interface/BasicHandle.h"
-#include "DataFormats/Common/interface/Wrapper.h"
+#include "FWCore/Utilities/interface/WrappedClassName.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
