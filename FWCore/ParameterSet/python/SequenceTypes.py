@@ -16,7 +16,7 @@ class _Sequenceable(object):
         try: 
             return lookuptable[id(self)]
         except:
-            raise KeyError
+            raise KeyError("no "+str(type(self))+" with id "+str(id(self))+" found")
 
 class _ModuleSequenceType(_ConfigureComponent, _Labelable):
     """Base class for classes which define a sequence of modules"""
