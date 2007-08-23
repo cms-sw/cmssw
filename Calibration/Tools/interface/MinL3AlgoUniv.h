@@ -8,8 +8,8 @@
  *    will be invented to identify Subdetector parts
  *  The bookkeeping of the cluster size and its elements has to be done by the user.
  *
- * $Date: 2007/08/22 $
- * $Revision: 1.0 $
+ * $Date: 2007/08/22 16:46:34 $
+ * $Revision: 1.1 $
  * \author R.Ofierzynski, CERN
  */
 
@@ -18,15 +18,14 @@
 #include <map>
 #include <math.h>
 
-using namespace std;
-
 template<class IDdet>
 class MinL3AlgoUniv
 {
 public:
-  typedef map<IDdet,float> IDmap;
+  typedef std::map<IDdet,float> IDmap;
   typedef typename IDmap::value_type IDmapvalue;
   typedef typename IDmap::iterator iter_IDmap;
+  typedef typename IDmap::const_iterator citer_IDmap;
 
   /// Default constructor
   /// kweight_ = event weight
@@ -40,13 +39,13 @@ public:
   /// returns the vector of calibration coefficients built from all iteration solutions
   /// >> also to be used also as recipe on how to use the calibration methods <<
   /// >> one-by-one with a re-selection of the events in between the iterations<<
-  IDmap iterate(const vector<vector<float> >& eventMatrix, const vector<vector<IDdet> >& idMatrix, const vector<float>& energyVector, const int& nIter, const bool& normalizeFlag = false);
+  IDmap iterate(const std::vector<std::vector<float> >& eventMatrix, const std::vector<std::vector<IDdet> >& idMatrix, const std::vector<float>& energyVector, const int& nIter, const bool& normalizeFlag = false);
 
   /// add event to the calculation of the calibration vector
-  void addEvent(const vector<float>& myCluster, const vector<IDdet>& idCluster, const float& energy);
+  void addEvent(const std::vector<float>& myCluster, const std::vector<IDdet>& idCluster, const float& energy);
 
   /// recalibrate before next iteration: give previous solution vector as argument
-  vector<float> recalibrateEvent(const vector<float>& myCluster, const vector<IDdet>& idCluster, const IDmap& newCalibration); 
+  std::vector<float> recalibrateEvent(const std::vector<float>& myCluster, const std::vector<IDdet>& idCluster, const IDmap& newCalibration); 
 
   /// get the solution at the end of the calibration as a map between
   /// DetIds and calibration constant
@@ -81,16 +80,16 @@ MinL3AlgoUniv<IDdet>::~MinL3AlgoUniv()
 
 
 template<class IDdet>
-typename MinL3AlgoUniv<IDdet>::IDmap MinL3AlgoUniv<IDdet>::iterate(const vector<vector<float> >& eventMatrix, const vector<vector<IDdet> >& idMatrix, const vector<float>& energyVector, const int& nIter, const bool& normalizeFlag)
+typename MinL3AlgoUniv<IDdet>::IDmap MinL3AlgoUniv<IDdet>::iterate(const std::vector<std::vector<float> >& eventMatrix, const std::vector<std::vector<IDdet> >& idMatrix, const std::vector<float>& energyVector, const int& nIter, const bool& normalizeFlag)
 {
   int Nevents = eventMatrix.size(); // Number of events to calibrate with
 
   IDmap totalSolution;
   IDmap iterSolution;
-  vector<vector<float> > myEventMatrix(eventMatrix);
-  vector<float> myEnergyVector(energyVector);
+  std::vector<std::vector<float> > myEventMatrix(eventMatrix);
+  std::vector<float> myEnergyVector(energyVector);
 
-  int i, j;
+  int i;
 
   // Iterate the correction
   for (int iter=1;iter<=nIter;iter++) 
@@ -105,7 +104,7 @@ typename MinL3AlgoUniv<IDdet>::IDmap MinL3AlgoUniv<IDdet>::iterate(const vector<
 	  for (i=0; i<Nevents; i++)
 	    {
 	      sumOverEnergy = 0.;
-	      for (j=0; j<myEventMatrix[i].size(); j++) {sumOverEnergy += myEventMatrix[i][j];}
+	      for (unsigned j=0; j<myEventMatrix[i].size(); j++) {sumOverEnergy += myEventMatrix[i][j];}
 	      sumOverEnergy /= myEnergyVector[i];
 	      scale += sumOverEnergy;
 	    }
@@ -129,7 +128,7 @@ typename MinL3AlgoUniv<IDdet>::IDmap MinL3AlgoUniv<IDdet>::iterate(const vector<
 	}
 
       // save solution into theCalibVector
-      for (iter_IDmap i = iterSolution.begin(); i < iterSolution.end(); i++)
+      for (iter_IDmap i = iterSolution.begin(); i != iterSolution.end(); i++)
 	{
 	  iter_IDmap itotal = totalSolution.find(i->first);
 	  if (itotal == totalSolution.end())
@@ -150,17 +149,16 @@ typename MinL3AlgoUniv<IDdet>::IDmap MinL3AlgoUniv<IDdet>::iterate(const vector<
 
 
 template<class IDdet>
-void MinL3AlgoUniv<IDdet>::addEvent(const vector<float>& myCluster, const vector<IDdet>& idCluster, const float& energy)
+void MinL3AlgoUniv<IDdet>::addEvent(const std::vector<float>& myCluster, const std::vector<IDdet>& idCluster, const float& energy)
 {
   countEvents++;
 
   float w, invsumXmatrix;
   float eventw;
-  int i;
   // Loop over the crystal matrix to find the sum
   float sumXmatrix=0.;
       
-  for (i=0; i<myCluster.size(); i++) { sumXmatrix += myCluster[i]; }
+  for (unsigned i=0; i<myCluster.size(); i++) { sumXmatrix += myCluster[i]; }
       
   // event weighting
   eventw = 1 - fabs(1 - sumXmatrix/energy);
@@ -170,7 +168,7 @@ void MinL3AlgoUniv<IDdet>::addEvent(const vector<float>& myCluster, const vector
     {
       invsumXmatrix = 1/sumXmatrix;
       // Loop over the crystal matrix (3x3,5x5,7x7) again and calculate the weights for each xtal
-      for (i=0; i<myCluster.size(); i++) 
+      for (unsigned i=0; i<myCluster.size(); i++) 
 	{		
 	  w = myCluster[i] * invsumXmatrix;
 
@@ -184,7 +182,7 @@ void MinL3AlgoUniv<IDdet>::addEvent(const vector<float>& myCluster, const vector
 	  else iEwsum->second += (w*eventw * energy * invsumXmatrix);
 	}
     }
-  //  else {cout << " Debug: dropping null event: " << countEvents << endl;}
+  //  else {std::cout << " Debug: dropping null event: " << countEvents << std::endl;}
 }
 
 
@@ -193,7 +191,7 @@ typename MinL3AlgoUniv<IDdet>::IDmap MinL3AlgoUniv<IDdet>::getSolution(const boo
 {
   IDmap solution;
 
-  for (iter_IDmap i = wsum.begin(); i < wsum.end(); i++)
+  for (iter_IDmap i = wsum.begin(); i != wsum.end(); i++)
     {
       iter_IDmap iEwsum = Ewsum.find(i->first);
       float myValue = 1;
@@ -217,14 +215,14 @@ void MinL3AlgoUniv<IDdet>::resetSolution()
 
 
 template<class IDdet>
-vector<float> MinL3AlgoUniv<IDdet>::recalibrateEvent(const vector<float>& myCluster, const vector<IDdet> &idCluster, const IDmap& newCalibration)
+std::vector<float> MinL3AlgoUniv<IDdet>::recalibrateEvent(const std::vector<float>& myCluster, const std::vector<IDdet> &idCluster, const IDmap& newCalibration)
 {
-  vector<float> newCluster(myCluster);
+  std::vector<float> newCluster(myCluster);
 
-  for (int i=0; i<myCluster.size(); i++) 
+  for (unsigned i=0; i<myCluster.size(); i++) 
     {
-      iter_IDmap icalib = newCalibration->find(idCluster[i]);
-      if (icalib != newCalibration->end())
+      citer_IDmap icalib = newCalibration.find(idCluster[i]);
+      if (icalib != newCalibration.end())
 	{
 	  newCluster[i] *= icalib->second;
 	}
