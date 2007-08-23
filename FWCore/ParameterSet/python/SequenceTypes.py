@@ -134,6 +134,8 @@ class _SequenceNegation(_Sequenceable):
         self.__operand._findDependencies(knownDeps, presentDeps)
     def fillNamesList(self, l):
         l.append(self.__str__())
+    def _clonesequence(self, lookuptable):
+        return type(self)(self.__operand._clonesequence(lookuptable))
 
 
 class _SequenceOpFollows(_Sequenceable):
