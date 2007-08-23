@@ -38,15 +38,17 @@
 
 // for the test
 #include "TrackingTools/DetLayers/interface/CylinderBuilderFromDet.h"
+#include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
+
 
 namespace {
 
   // Wrapper for trie call back
-  template< typename F> {
+  template< typename F>
     struct WrapTrieCB {
       WrapTrieCB(F & fi) : f(fi) {}
       template<typename P>
-      void operator(P p, std::string &) {
+      void operator()(P  p, std::string const&) {
 	f(*p);
       }
 
@@ -151,11 +153,13 @@ TkDetLayersAnalyzer::analyze( const Event& iEvent, const EventSetup& iSetup )
   // -------------- example of using the Trie ---------------------------------
   //  code from GeometricSearchTrackerBuilder
   //
+
+  using namespace trackerTrie;
   // create a Trie
   DetTrie trie(0);
 
   {
-    const TrackingGeometry::DetUnitContainer&  modules = theGeomDetGeometry->detUnits(); 
+    const TrackingGeometry::DetUnitContainer&  modules = pTrackerGeometry->detUnits(); 
     typedef TrackingGeometry::DetUnitContainer::const_iterator Iter;
     Iter b=modules.begin();
     Iter e=modules.end();
@@ -181,8 +185,8 @@ TkDetLayersAnalyzer::analyze( const Event& iEvent, const EventSetup& iSetup )
   // TOB is "2"
   {
     std::string s;
-    if (layerId[2]>9) s+=char(layerId[i]/10); 
-    s+=char(layerId[i]%10);
+    if (layerId[2]>9) s+=char(layerId[2]/10); 
+    s+=char(layerId[2]%10);
     node_iterator e;
     node_iterator tobl(trie.node(s));
     for (;tobl!=e; tobl++) {
@@ -191,10 +195,11 @@ TkDetLayersAnalyzer::analyze( const Event& iEvent, const EventSetup& iSetup )
       WrapTrieCB<CylinderBuilderFromDet> w(cylbld);
       edm::iterateTrieLeaves(w,*tobl);
       auto_ptr<BoundCylinder> cyl(cylbld.build());
+      SimpleCylinderBounds const & cylb = static_cast<SimpleCylinderBounds const&>(cyl->bounds());
       std::cout << "cyl " << tobl.label() 
-		<< ": " << cyl->length()
-		<< ", " << cyl->width() 
-		<< ", " << cyl->thickness()
+		<< ": " << cylb.length()
+		<< ", " << cylb.width() 
+		<< ", " << cylb.thickness()
 		<< std::endl;
     }
   }
