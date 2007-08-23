@@ -13,7 +13,7 @@
 //
 // Original Author:  Oct 12 08:23
 //         Created:  Wed Oct 12 12:16:04 CDT 2005
-// $Id: Type1MET.cc,v 1.10 2007/02/20 20:25:59 fedor Exp $
+// $Id: Type1MET.cc,v 1.11 2007/03/12 00:46:50 wmtan Exp $
 //
 //
 
@@ -32,6 +32,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "JetMETCorrections/Type1MET/interface/Type1METAlgo.h"
 #include "DataFormats/METReco/interface/METCollection.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
