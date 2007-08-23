@@ -1,10 +1,10 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "Alignment/TwoBodyDecay/interface/TwoBodyDecayEstimator.h"
 #include "Alignment/TwoBodyDecay/interface/TwoBodyDecayModel.h"
 #include "Alignment/TwoBodyDecay/interface/TwoBodyDecayDerivatives.h"
-
 //#include "DataFormats/CLHEP/interface/Migration.h"
 
 using namespace std;
