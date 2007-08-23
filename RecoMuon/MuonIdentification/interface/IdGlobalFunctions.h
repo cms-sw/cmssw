@@ -5,17 +5,26 @@
 // 
 //
 // Original Author:  Jake Ribnik, Dmytro Kovalskyi
-// $Id: IdGlobalFunctions.h,v 1.2 2007/07/26 00:26:35 dmytro Exp $
+// $Id: IdGlobalFunctions.h,v 1.3 2007/08/21 03:18:38 ibloch Exp $
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TMath.h"
 
 namespace muonid {
-   enum AlgorithmType { TMLastStation };
-   enum SelectionType { TMLastStationLoose, TMLastStationTight };
-   
+   enum AlgorithmType { TMLastStation, TM2DCompatibility };
+   enum SelectionType { 
+     TMLastStationLoose,          TMLastStationTight, 
+     TM2DCompatibilityLoose,      TM2DCompatibilityTight 
+   };
+  
+   // main GoodMuon wrapper call
    bool isGoodMuon( const reco::Muon& muon, SelectionType type = TMLastStationLoose );
+
+   // specialized GoodMuon functions called from main wrapper
+   bool isGoodMuon( const reco::Muon& muon, 
+		    AlgorithmType type,
+		    double minCompatibility);
    
    bool isGoodMuon( const reco::Muon& muon, 
 		    AlgorithmType type,
@@ -34,7 +43,7 @@ namespace muonid {
 				     double maxChamberDistPull,
 				     reco::Muon::ArbitrationType arbitrationType );
 
-   // ------------ method to calculate the calo compatibility for a track with matched muon info  ------------
+   // ------------ method to return the calo compatibility for a track with matched muon info  ------------
    float getCaloCompatibility(const reco::Muon& muon);
 
    // ------------ method to calculate the segment compatibility for a track with matched muon info  ------------

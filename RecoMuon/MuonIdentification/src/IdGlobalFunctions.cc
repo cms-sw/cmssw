@@ -201,6 +201,27 @@ float muonid::getSegmentCompatibility(const reco::Muon& muon) {
 
 }
 
+bool muonid::isGoodMuon( const reco::Muon& muon, 
+			 AlgorithmType type,
+			 double minCompatibility ) {
+  if (!muon.isMatchesValid()) return false;
+  bool goodMuon = false;
+  
+  switch( type ) {
+  case TM2DCompatibility:
+    // Simplistic first cut in the 2D segment- vs calo-compatibility plane. Will have to be refined!
+    if( ( getCaloCompatibility( muon )+getSegmentCompatibility( muon ) ) > minCompatibility ) goodMuon = true;
+    else goodMuon = false;
+    return goodMuon;
+    break;
+  default : 
+    // 	LogTrace("MuonIdentification")<<"            // Invalid Algorithm Type called!";
+    goodMuon = false;
+    return goodMuon;
+    break;
+  }
+}
+
 bool muonid::isGoodMuon( const reco::Muon& muon,
 			 AlgorithmType type,
 			 int minNumberOfMatches,
@@ -291,6 +312,14 @@ bool muonid::isGoodMuon( const reco::Muon& muon, SelectionType type )
 	break;
       case TMLastStationTight:
 	return isGoodMuon(muon,TMLastStation,2,3,3,3,3,-3,-3,reco::Muon::SegmentAndTrackArbitration);
+	break;
+	//compatibility loose
+      case TM2DCompatibilityLoose:
+	return isGoodMuon(muon,TM2DCompatibility,0.7);
+	break;
+	//compatibility tight
+      case TM2DCompatibilityTight:
+	return isGoodMuon(muon,TM2DCompatibility,1.1);
 	break;
       default:
 	return false;
