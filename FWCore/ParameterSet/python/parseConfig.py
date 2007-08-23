@@ -335,6 +335,12 @@ class _IncludeNode(cms._ParameterTypeBase):
     """
     def __init__(self,filename):
         self.filename = filename
+    def __repr__(self):
+        # strip out the ".py"
+        import os.path
+        fileRoot = os.path.splitext(self.filename)[0]
+        pythonFileRoot = fileRoot.replace('/','.')
+        return "import "+pythonFileRoot+"\nprocess.extend("+pythonFileRoot+")\n"
 
 def _makeInclude(s,loc,toks):
     return (toks[0][0],_IncludeNode(toks[0][0]))
@@ -613,6 +619,12 @@ class _ModuleSeries(object):
                                          +"' contains the error: "+str(e))
     def __str__(self):
         return str(self.topNode)
+    def __repr__(self):
+        # extra parentheses never killed anyone
+        return "cms."+self.factory().__name__+"("+str(self)+")"
+    def dumpPython(self, indent, deltaindent):
+        return repr(self)
+    
 
 class _Sequence(_ModuleSeries):
     def factory(self):
@@ -707,6 +719,10 @@ class _ReplaceNode(object):
             self._setValue(obj,path[0])
             return
         self._recurse(path[1:],getattr(obj,path[0]))
+    def __repr__(self):
+        # translate true/false to True/False
+        s = self.getValue()
+        return '.'.join(self.path)+" = "+repr(self.getValue())
 
 class _ReplaceSetter(object):
     """Used to 'set' an unknown type of value from a Replace node"""
@@ -1088,7 +1104,7 @@ class _ConfigReturn(object):
                  value.setLabel(key)
          result = ''
          for key,value in self.__dict__.iteritems():
-             result += "process."+key+" ="+value.dumpPython('','    ')
+             result += key+" = "+value.dumpPython('','    ')
          return result
 
 def parseCfgFile(fileName):
@@ -1113,6 +1129,20 @@ def parseCffFile(fileName):
     #_allUsingLabels = set() # do I need to reset here?
     d=_finalizeProcessFragment(t,_allUsingLabels)
     return _ConfigReturn(d)
+
+def dump(fileName):
+    """Read a .cff file and return a dictionary"""
+    t=onlyFragment.parseFile(_fileFactory(fileName))
+    result = ''
+    for key,value in t:
+        if isinstance(value,_IncludeNode) or isinstance(value,_ReplaceNode):
+            result += repr(value)+"\n"
+        else:
+            #result += "process."+str(key)+" ="+value.dumpPython('','    ')
+            result += key+" = "+value.dumpPython('','    ')+"\n"
+    return result
+
+
 
 def processFromString(configString):
     """Reads a string containing the equivalent content of a .cfg file and
