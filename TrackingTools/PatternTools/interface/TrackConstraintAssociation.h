@@ -4,7 +4,7 @@
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
-
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 typedef std::pair<double,double> MomentumConstraint;
 typedef std::pair<GlobalPoint,GlobalError> VertexConstraint;
 
