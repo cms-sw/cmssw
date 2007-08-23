@@ -26,7 +26,7 @@ class TrajectorySeed {
 
   TrajectorySeed(PTrajectoryStateOnDet const & ptsos, 
 		 recHitContainer const & rh, 
-		 PropagationDirection const & dir) : 
+		 PropagationDirection  dir) : 
     hits_(rh),  tsos_(ptsos), dir_(dir) {}
   
   void swap(PTrajectoryStateOnDet & ptsos, 
@@ -47,7 +47,7 @@ class TrajectorySeed {
     return std::make_pair(hits_.begin(), hits_.end());
   }
   unsigned int nHits() const {return hits_.size();}
-  PropagationDirection const & direction() const {return  dir_;}
+  PropagationDirection direction() const {return  dir_;}
   PTrajectoryStateOnDet const & startingState() const {return tsos_;}
 
   virtual TrajectorySeed * clone() const {return new TrajectorySeed( * this); }
@@ -58,6 +58,7 @@ class TrajectorySeed {
   PTrajectoryStateOnDet tsos_;
   PropagationDirection dir_;
 };
+
 typedef TrajectorySeed BasicTrajectorySeed;
 
 #endif
