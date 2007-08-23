@@ -6,13 +6,14 @@
 #include "CondCore/ESSources/interface/PoolDBESSource.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/Exception.h"
-#include "CondCore/DBCommon/interface/ConnectMode.h"
+#include "CondCore/DBCommon/interface/Connection.h"
 #include "CondCore/DBCommon/interface/Time.h"
-#include "CondCore/DBCommon/interface/RelationalStorageManager.h"
-#include "CondCore/DBCommon/interface/PoolStorageManager.h"
 #include "CondCore/DBCommon/interface/ConfigSessionFromParameterSet.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
-#include "CondCore/DBCommon/src/ServiceLoader.h"
+#include "CondCore/DBCommon/interface/DBCatalog.h"
+#include "CondCore/DBCommon/interface/PoolTransaction.h"
+#include "CondCore/DBCommon/interface/CoralTransaction.h"
+#include "CondCore/DBCommon/interface/ConnectionHandler.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "CondCore/PluginSystem/interface/ProxyFactory.h"
@@ -24,13 +25,13 @@
 #include "RelationalAccess/IWebCacheControl.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondCore/DBCommon/interface/DBCatalog.h"
 #include <exception>
-//#include <iostream>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FileCatalog/IFileCatalog.h"
 #include <sstream>
 #include <cstdlib>
+
+#include <iostream>
 namespace fs = boost::filesystem;
 //
 // static data member definitions
@@ -61,15 +62,12 @@ void
 fillRecordToTypeMap(std::multimap<std::string, std::string>& oToFill){
   //From the plugin manager get the list of our plugins
   // then from the plugin names, we can deduce the 'record to type' information
-  //std::cout<<"Entering fillRecordToTypeMap "<<std::endl;
-      
+  //std::cout<<"Entering fillRecordToTypeMap "<<std::endl;   
    edmplugin::PluginManager*db =  edmplugin::PluginManager::get();
-   
    typedef edmplugin::PluginManager::CategoryToInfos CatToInfos;
    
    const std::string mycat(cond::pluginCategory());
    CatToInfos::const_iterator itFound = db->categoryToInfos().find(mycat);
-   
    if(itFound == db->categoryToInfos().end()) {
       return;
    }
@@ -104,8 +102,7 @@ fillRecordToTypeMap(std::multimap<std::string, std::string>& oToFill){
 //
 PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   m_timetype(iConfig.getParameter<std::string>("timetype") ),
-  m_session( 0 ), 
-  m_connected( false )
+  m_session( 0 )
 {		
   //std::cout<<"PoolDBESSource::PoolDBESSource"<<std::endl;
   /*parameter set parsing and pool environment setting
@@ -118,16 +115,6 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   bool siteLocalConfig=iConfig.getUntrackedParameter<bool>("siteLocalConfig",false);
   if( catStr.empty() ){
     usingDefaultCatalog=true;
-    /*}else if( catStr.find(':')==std::string::npos ){
-    //if catalog string has no protocol,assuming local xml catalog with default name and search in FileInPath
-    std::cout<<"catStr 1 "<<catStr<<std::endl;
-    edm::FileInPath fip(catStr);
-    std::cout<<"catStr 2 "<<catStr<<std::endl;
-    std::string fullname=fip.fullPath();
-    std::cout<<"fullname "<<fullname<<std::endl;
-    catconnect=std::string("xmlcatalog_file://")+fullname;
-    std::cout<<"catconnect "<<catconnect<<std::endl;
-    */
   }else{
     catconnect=catStr;
   }
@@ -143,6 +130,8 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
 	catconnect=mycat.defaultOnlineCatalogName();
       }else if( logicalServiceName=="offline" ){
 	catconnect=mycat.defaultOfflineCatalogName();
+	//}else if( logicalServiceName=="integration" ){
+	//catconnect=mycat.defaultIntegrationCatalogName();
       }else if( logicalServiceName=="local" ){
 	//if catalog string empty, and service level is local assuming local xml catalog with default name and $CMSSW_DATA_PATH/data-CondCore-SQLiteData/1.0/data/localCondDBCatalog.xml
 	const char* datatop = getenv("CMSSW_DATA_PATH");
@@ -169,8 +158,16 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   }
   //std::cout<<"using connect "<<connect<<std::endl;
   //std::cout<<"using catalog "<<catconnect<<std::endl;
-  m_session=new cond::DBSession(true);
+  m_session=new cond::DBSession;
+  
   edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>("DBParameters"); 
+  cond::ConfigSessionFromParameterSet configConnection(*m_session,connectionPset);
+  //ConfigSessionFromParameterSet configConnection(*m_session,connectionPset);
+  static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
+  conHandler.registerConnection("inputdb",connect,catconnect,0);
+  m_session->open();
+  conHandler.connect(m_session);
+  m_connection=conHandler.getConnection("inputdb");
   using namespace edm;
   using namespace edm::eventsetup;  
   fillRecordToTypeMap(m_recordToTypes);
@@ -178,11 +175,11 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   std::vector< std::pair<std::string,std::string> > recordToTag;
   typedef std::vector< ParameterSet > Parameters;
   Parameters toGet = iConfig.getParameter<Parameters>("toGet");
-  if(0==toGet.size()){
+  if( 0==toGet.size() ){
     throw cond::Exception("Configuration") <<" The \"toGet\" parameter is empty, please specify what (Record, tag) pairs you wish to retrieve\n"
 					   <<" or use the record name \"all\" to have your tag be used to retrieve all known Records\n";
   }
-  if(1==toGet.size() && (toGet[0].getParameter<std::string>("record") =="all") ) {
+  if( 1==toGet.size() && (toGet[0].getParameter<std::string>("record") =="all") ) {
     //User wants us to read all known records
     // NOTE: In the future, we should only read all known Records for the data that is in the actual database
     //  Can this be done looking at the available IOVs?
@@ -193,8 +190,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       m_proxyToToken.insert( make_pair(buildName(itRec->first, itRec->second ),"") );
       //fill in dummy tokens now, change in setIntervalFor
       pProxyToToken pos=m_proxyToToken.find(buildName(itRec->first, itRec->second));
-      //boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create( buildName(itRec->first, itRec->second),m_svc,pos));
-      boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create( buildName(itRec->first, itRec->second),m_pooldb,pos));
+      boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create( buildName(itRec->first, itRec->second),m_connection,pos));
     }
     std::string tagName = toGet[0].getParameter<std::string>("tag");
     //NOTE: should delay setting what  records until all 
@@ -230,7 +226,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       m_proxyToToken.insert( make_pair(proxyName,"") );
       //fill in dummy tokens now, change in setIntervalFor
       pProxyToToken pos=m_proxyToToken.find(proxyName);
-      boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create(proxyName,m_pooldb,pos));
+      boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create(proxyName,m_connection,pos));
       eventsetup::EventSetupRecordKey recordKey(eventsetup::EventSetupRecordKey::TypeTag::findType( recordName ) );
       if( recordKey.type() == eventsetup::EventSetupRecordKey::TypeTag() ) {
 	//record not found
@@ -244,11 +240,10 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       }
     }
   }
-  cond::ConfigSessionFromParameterSet configConnection(*m_session,connectionPset);
   //std::string authpath("CORAL_AUTH_PATH=");
   //authpath+=m_session->sessionConfiguration().authName();
   //::putenv(const_cast<char*>(authpath.c_str()));
-  m_session->open();
+  //m_session->open();
   if( siteLocalConfig ){
     edm::Service<edm::SiteLocalConfig> localconfservice;
     if( !localconfservice.isAvailable() ){
@@ -262,35 +257,35 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     std::string logicalconnect=localconfservice->calibLogicalServer();
     //std::cout<<"logicalconnect "<<logicalconnect<<std::endl;
     //get handle to IConnectionService
-    seal::IHandle<coral::IConnectionService>
+    /*seal::IHandle<coral::IConnectionService>
       connSvc = m_session->serviceLoader().context()->query<coral::IConnectionService>( "CORAL/Services/ConnectionService" );
     //get handle to webCacheControl()
     connSvc->webCacheControl().refreshTable( logicalconnect,cond::IOVNames::iovTableName() );
     connSvc->webCacheControl().refreshTable( logicalconnect,cond::IOVNames::iovDataTableName() );
+    */
   }
-  //else{
-  //  mycatalog=iConfig.getUntrackedParameter<std::string>("catalog","");
-  //}
   m_con=connect;
   //std::cout<<"m_con here "<<m_con<<std::endl;
   //std::cout<<"about to use the real catalog "<<catconnect<<std::endl;
-  m_pooldb=new cond::PoolStorageManager(m_con,catconnect,m_session);
+  /*  m_pooldb=new cond::PoolStorageManager(m_con,catconnect,m_session);  
   if(m_timetype=="timestamp"){
     m_iovservice=new cond::IOVService(*m_pooldb,cond::timestamp);
   }else{
     m_iovservice=new cond::IOVService(*m_pooldb,cond::runnumber);
   }
-  this->tagToToken(recordToTag);
+  */
+  //this->tagToToken(m_connection,recordToTag);
 }
 PoolDBESSource::~PoolDBESSource()
 {
   // std::cout<<"PoolDBESSource::~PoolDBESSource"<<std::endl;
-  if(m_session->isActive()){
+  /* if(m_session->isActive()){
     m_pooldb->disconnect();
     m_session->close();
   }
   delete m_iovservice;
   delete m_pooldb;
+  */
   delete m_session;
 }
 //
@@ -326,14 +321,18 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   }
   //valid time check
   //check if current run exceeds iov upperbound
-  m_pooldb->startTransaction(true);
-  if( !m_iovservice->isValid(iovToken,abtime) ){
+  /*standalone    
+   */
+  cond::PoolTransaction& pooldb=m_connection->poolTransaction(true);
+  cond::IOVService iovservice(pooldb);  
+  pooldb.start();
+  if( !iovservice.isValid(iovToken,abtime) ){
     os<<abtime;
     throw cond::noDataForRequiredTimeException("PoolDBESSource::setIntervalFor",iKey.name(),os.str());
   }
-  std::pair<cond::Time_t, cond::Time_t> validity=m_iovservice->validity(iovToken,abtime);
-  payloadToken=m_iovservice->payloadToken(iovToken,abtime);
-  m_pooldb->commit();
+  std::pair<cond::Time_t, cond::Time_t> validity=iovservice.validity(iovToken,abtime);
+  payloadToken=iovservice.payloadToken(iovToken,abtime);
+  pooldb.commit();
   edm::IOVSyncValue start;
   if( m_timetype == "timestamp" ){
     start=edm::IOVSyncValue( edm::Timestamp(validity.first) );
@@ -378,16 +377,12 @@ PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRec
     eventsetup::TypeTag type = eventsetup::TypeTag::findType( itType->second );
     if( type != defaultType ) {
       pProxyToToken pos=m_proxyToToken.find(buildName(iRecordKey.name(), type.name()));
-      boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create( buildName(iRecordKey.name(), type.name() ), m_pooldb, pos));
+      boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create( buildName(iRecordKey.name(), type.name() ), m_connection, pos));
       if(0 != proxy.get()) {
 	eventsetup::DataKey key( type, "");
 	aProxyList.push_back(KeyedProxies::value_type(key,proxy));
       }
     }
-  }
-  if( !m_connected ){
-    m_pooldb->connect();
-    m_connected=true;
   }
 }
 
@@ -402,10 +397,9 @@ PoolDBESSource::newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordT
 void PoolDBESSource::tagToToken( const std::vector< std::pair < std::string, std::string> >& recordToTag ){
   try{
     if( recordToTag.size()==0 ) return;
-    cond::RelationalStorageManager coraldb(m_con,m_session);
+    cond::CoralTransaction& coraldb=m_connection->coralTransaction(true);
     cond::MetaData metadata(coraldb);
-    coraldb.connect(cond::ReadOnly);
-    coraldb.startTransaction(true);
+    coraldb.start();
     std::vector< std::pair<std::string, std::string> >::const_iterator it;
     for(it=recordToTag.begin(); it!=recordToTag.end(); ++it){
       std::string iovToken=metadata.getToken(it->second);
@@ -415,7 +409,6 @@ void PoolDBESSource::tagToToken( const std::vector< std::pair < std::string, std
       m_recordToIOV.insert(std::make_pair(it->first,iovToken));
     }
     coraldb.commit();
-    coraldb.disconnect();
   }catch(const cond::Exception&e ){
     throw e;
   }catch(const cms::Exception&e ){

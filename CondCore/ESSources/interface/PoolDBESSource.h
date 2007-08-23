@@ -12,10 +12,10 @@ namespace edm{
 }
 namespace cond{
   class DBSession;
-  class PoolStorageManager;
-  class IOVService;
+  class Connection;
 }
-class PoolDBESSource : public edm::eventsetup::DataProxyProvider,public edm::EventSetupRecordIntervalFinder{
+class PoolDBESSource : public edm::eventsetup::DataProxyProvider,
+		       public edm::EventSetupRecordIntervalFinder{
  public:
   PoolDBESSource( const edm::ParameterSet& );
   ~PoolDBESSource();
@@ -41,11 +41,10 @@ class PoolDBESSource : public edm::eventsetup::DataProxyProvider,public edm::Eve
   //std::vector< std::pair < std::string, std::string> > m_recordToTag;
   std::string m_timetype;
   cond::DBSession* m_session;
-  cond::IOVService* m_iovservice;
-  cond::PoolStorageManager* m_pooldb;
+  cond::Connection* m_connection;
   //bool m_tagTranslated;
   //std::string m_catalog; 
-  bool m_connected;
+  //bool m_connected;
  private:
   void tagToToken(const std::vector< std::pair < std::string, std::string> >& recordToTag);
   //void initIOV();
