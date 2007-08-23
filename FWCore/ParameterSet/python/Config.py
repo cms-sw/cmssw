@@ -424,25 +424,6 @@ class Process(object):
         self.insertServices(processDesc, self.services_())
         return processDesc
 
-
-class FileInPath(_SimpleParameterTypeBase):
-    def __init__(self,value):
-        super(FileInPath,self).__init__(value)
-    @staticmethod
-    def _isValid(value):
-        return True
-    def configValue(self,indent,deltaIndent):
-        return string.formatValueForConfig(self.value())
-    @staticmethod
-    def formatValueForConfig(value):
-        return string.formatValueForConfig(value)
-    @staticmethod
-    def _valueFromString(value):
-        return FileInPath(value)
-    def insertInto(self, parameterSet, myname):
-      parameterSet.addNewFileInPath( self.isTracked(), myname, self.value() ) 
-
-
 def include(fileName):
     """Parse a configuration file language file and return a 'module like' object"""
     from FWCore.ParameterSet.parseConfig import importConfig
