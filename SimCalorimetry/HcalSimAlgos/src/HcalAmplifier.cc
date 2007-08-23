@@ -26,22 +26,20 @@ void HcalAmplifier::setRandomEngine(CLHEP::HepRandomEngine & engine)
   theRandGaussQ = new CLHEP::RandGaussQ(engine);
 }
 
-
 void HcalAmplifier::amplify(CaloSamples & frame) const {
   const CaloSimParameters & parameters = theParameterMap->simParameters(frame.id());
   assert(theDbService != 0);
-  HcalDetId hcalDetId(frame.id());
-  const HcalPedestal* peds = theDbService->getPedestal  (hcalDetId);
-  const HcalPedestalWidth* pwidths = theDbService->getPedestalWidth  (hcalDetId);
+  HcalGenericDetId hcalGenDetId(frame.id());
+  const HcalPedestal* peds = theDbService->getPedestal(hcalGenDetId);
+  const HcalPedestalWidth* pwidths = theDbService->getPedestalWidth(hcalGenDetId);
   if (!peds || !pwidths )
   {
-    edm::LogError("HcalAmplifier") << "Could not fetch HCAL conditions for channel " << hcalDetId;
+    edm::LogError("HcalAmplifier") << "Could not fetch HCAL conditions for channel " << hcalGenDetId;
   }
 
   double gauss [32]; //big enough
   double noise [32]; //big enough
   double fCperPE = parameters.photoelectronsToAnalog();
-
 
   for (int i = 0; i < frame.size(); i++) gauss[i] = theRandGaussQ->fire(0., 1.);
   pwidths->makeNoise (frame.size(), gauss, noise);
