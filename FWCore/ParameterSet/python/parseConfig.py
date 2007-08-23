@@ -1521,6 +1521,28 @@ process RECO = {
             self.assertEqual(str(t[0].p),'((foo*bar)+fii)')
             self.assertEqual(str(t[0].s),'(foo*bar)')
             t[0].dumpConfig()
+
+            _allUsingLabels = set()
+            t=process.parseString(
+"""
+process RECO = {
+   source = PoolSource {
+     untracked vstring fileNames = {"file:foo.root"}
+   }
+   module out = PoolOutputModule {
+     untracked string fileName = "blah.root"
+   }
+   endpath e = {out}
+   module foo = FooProd {}
+   module bar = BarProd {}
+   module fii = FiiProd {}
+   path p = {!s&!fii}
+   sequence s = {foo,bar}
+}""")
+            self.assertEqual(str(t[0].p),'(~(foo*bar)+~fii)')
+            self.assertEqual(str(t[0].s),'(foo*bar)')
+            t[0].dumpConfig()
+            
             s="""
 process RECO = {
     module foo = FooProd {}
