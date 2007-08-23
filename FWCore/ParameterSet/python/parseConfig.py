@@ -523,19 +523,30 @@ plugin.ignore(pp.pythonStyleComment)
 # so instead, I reverse the order of the tokens and then do the parsing
 # and then build the parse tree from right to left
 pathexp = pp.Forward()
-worker = (letterstart ^ pp.Regex(r"![a-zA-Z][a-zA-Z0-9_\-]"))^pp.Group(pp.Suppress(')')+pathexp+pp.Suppress('('))
+_pathAtom = pp.Combine(pp.Optional("!")+letterstart)
+worker = (_pathAtom)^pp.Group(pp.Suppress(')')+pathexp+pp.Suppress('('))
 pathseq = pp.Forward()
 pathseq << pp.Group(worker + pp.ZeroOrMore(','+pathseq))
 pathexp << pp.Group(pathseq + pp.ZeroOrMore('&'+pathexp))
 
 class _LeafNode(object):
     def __init__(self,label):
+        self.__isNot = False
         self.__label = label
+        if self.__label[0]=='!':
+            self.__label=self.__label[1:]
+            self.__isNot = True
     def __str__(self):
-        return self.__label
+        v=''
+        if self.__isNot:
+            v='!'
+        return v+self.__label
     def make(self,process):
         #print getattr(process,self.__label).label()
-        return getattr(process,self.__label)
+        v = getattr(process,self.__label)
+        if self.__isNot:
+            v= ~v
+        return v
 class _AidsOp(object):
     def __init__(self,left,right):
         self.__left = left
@@ -591,14 +602,14 @@ class _ModuleSeries(object):
                                          self.forErrorMessage[1],
                                          self.type()+" '"
                                          +self.forErrorMessage[2][0][0]+
-                                         "' contains the error: no sequencable item with label "
+                                         "' contains the error: "
                                          +str(e))
         except Exception, e:
             raise pp.ParseFatalException(self.forErrorMessage[0],
                                          self.forErrorMessage[1],
                                          self.type()
                                          +" '"+self.forErrorMessage[2][0][0]
-                                         +"' contains the error "+str(e))
+                                         +"' contains the error: "+str(e))
     def __str__(self):
         return str(self.topNode)
 
@@ -625,7 +636,7 @@ class _MakeSeries(object):
     def __call__(self,s,loc,toks):
         return (toks[0][0],self.factory(toks[0][1],s,loc,toks))
 
-pathtoken = letterstart|pp.Regex(r"![a-zA-Z][a-zA-Z0-9_\-]")|'&'|','|'('|')'
+pathtoken = (pp.Combine(pp.Optional("!")+letterstart))|'&'|','|'('|')'
 pathbody = pp.Group(letterstart+_equalTo
                     +_scopeBegin
                     +pp.Group(pp.OneOrMore(pathtoken)).setParseAction(_parsePathInReverse)
@@ -2089,6 +2100,16 @@ process RECO = {
             self.assertEqual(str(t[0][1]),'(d,c)')
             pth = t[0][1].make(p)
             self.assertEqual(str(pth),'((a*b)*c)')
+#            print t[0][1]
+            t=path.parseString('path p = {a&!b}')
+            self.assertEqual(str(t[0][1]),'(a&!b)')
+            pth = t[0][1].make(p)
+            self.assertEqual(str(pth),'(a+~b)')
+#            print t[0][1]
+            t=path.parseString('path p = {!a&!b&!c}')
+            self.assertEqual(str(t[0][1]),'((!a&!b)&!c)')
+            pth = t[0][1].make(p)
+            self.assertEqual(str(pth),'((~a+~b)+~c)')
         def testReplace(self):
             process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.uint32(2))
