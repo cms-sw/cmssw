@@ -8,15 +8,15 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul 23 19:14:11 EDT 2005
-// $Id: ProxyFactory.cc,v 1.5 2007/01/16 18:35:02 xiezhen Exp $
+// $Id: ProxyFactory.cc,v 1.6 2007/04/12 21:18:01 chrjones Exp $
 //
 
 // system include files
 
 // user include files
 #include "CondCore/PluginSystem/interface/ProxyFactory.h"
-#include <map>
-#include <string>
+//#include <map>
+//#include <string>
 //#include <iostream>
 //
 // constants, enums and typedefs

@@ -1,12 +1,15 @@
 #ifndef CondCore_PluginSystem_DataProxy_H
 #define CondCore_PluginSystem_DataProxy_H
 //#include <iostream>
+#include <map>
+#include <string>
 // user include files
 #include "FWCore/Framework/interface/DataProxyTemplate.h"
 //#include "CondCore/DBCommon/interface/DBSession.h"
-#include "CondCore/DBCommon/interface/PoolStorageManager.h"
+#include "CondCore/DBCommon/interface/Connection.h"
+#include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
-#include "CondCore/DBCommon/interface/Ref.h"
+#include "CondCore/DBCommon/interface/TypedRef.h"
 
 template< class RecordT, class DataT >
   class DataProxy : public edm::eventsetup::DataProxyTemplate<RecordT, DataT>{
@@ -17,7 +20,7 @@ template< class RecordT, class DataT >
   edm::eventsetup::DataKey::makeTypeTag<DataT>(); 
   }
   */
-  DataProxy( cond::PoolStorageManager* pooldb, std::map<std::string,std::string>::iterator& pProxyToToken ): m_pooldb(pooldb), m_pProxyToToken(pProxyToToken) { 
+  DataProxy( cond::Connection* connection, std::map<std::string,std::string>::iterator& pProxyToToken ): m_connection(connection), m_pProxyToToken(pProxyToToken) { 
     //NOTE: We do this so that the type 'DataT' will get registered
     // when the plugin is dynamically loaded
     //std::cout<<"DataProxy constructor"<<std::endl;
@@ -34,12 +37,15 @@ template< class RecordT, class DataT >
   
   protected:
   virtual const DataT* make(const RecordT&, const edm::eventsetup::DataKey&) {
+    DataT* result=0;
     try{
       //std::cout<<"DataT make "<<std::endl;
-      m_pooldb->startTransaction(true);
-      m_data=cond::Ref<DataT>(*m_pooldb,m_pProxyToToken->second);
-      *m_data;
-      m_pooldb->commit();
+      cond::PoolTransaction& pooldb=m_connection->poolTransaction(true);
+      pooldb.start();
+      cond::TypedRef<DataT> data(pooldb,m_pProxyToToken->second);
+      *data;
+      result=data.ptr();
+      pooldb.commit();
     }catch( const cond::Exception& er ){
       throw er;
     }catch( const std::exception& er ){
@@ -47,8 +53,10 @@ template< class RecordT, class DataT >
     }catch( ... ){
       throw cond::Exception( "Unknown error" );
     }
-    //std::cout<<"returning ptr "<<m_data.ptr()<<std::endl;
-    return m_data.ptr();
+    if(!result){
+      throw cond::Exception("DataProxy::make: null result");
+    }
+    return result;
   }
   virtual void invalidateCache() {
     //m_data.clear();
@@ -58,9 +66,8 @@ template< class RecordT, class DataT >
   //DataProxy(); // stop default
   const DataProxy& operator=( const DataProxy& ); // stop default
   // ---------- member data --------------------------------
-  //pool::IDataSvc* m_svc;
-  cond::PoolStorageManager* m_pooldb;
+  cond::Connection* m_connection;
   std::map<std::string,std::string>::iterator m_pProxyToToken;
-  cond::Ref<DataT> m_data;
+  //cond::TypedRef<DataT> m_data;
 };
 #endif /* CONDCORE_PLUGINSYSTEM_DATAPROXY_H */
