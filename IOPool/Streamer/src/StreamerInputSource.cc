@@ -13,7 +13,8 @@
 #include "zlib.h"
 
 
-#include "DataFormats/Common/interface/Wrapper.h"
+#include "FWCore/Utilities/interface/WrappedClassName.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
@@ -156,8 +157,7 @@ namespace edm {
   StreamerInputSource::readRun_() {
     if (holder_.get() == 0) holder_ = read();
     if (holder_.get() == 0) {
-      rp_ = boost::shared_ptr<RunPrincipal>();
-      lbp_ = boost::shared_ptr<LuminosityBlockPrincipal>();
+      return boost::shared_ptr<RunPrincipal>();
     }
     return rp_;
   }
@@ -165,9 +165,8 @@ namespace edm {
   boost::shared_ptr<LuminosityBlockPrincipal>
   StreamerInputSource::readLuminosityBlock_(boost::shared_ptr<RunPrincipal> rp) {
     if (holder_.get() == 0) holder_ = read();
-    if (holder_.get() == 0 || rp->run() != holder_->runNumber()) {
-      rp_ = boost::shared_ptr<RunPrincipal>();
-      lbp_ = boost::shared_ptr<LuminosityBlockPrincipal>();
+    if (holder_.get() == 0 || rp->run() != rp_->run()) {
+      return boost::shared_ptr<LuminosityBlockPrincipal>();
     }
     return lbp_;
   }
@@ -175,13 +174,9 @@ namespace edm {
   std::auto_ptr<EventPrincipal>
   StreamerInputSource::readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
     if (holder_.get() == 0) holder_ = read();
-    if (holder_.get() == 0 || lbp->runNumber() != holder_->runNumber()) {
-      rp_ = boost::shared_ptr<RunPrincipal>();
-      lbp_ = boost::shared_ptr<LuminosityBlockPrincipal>();
-      return std::auto_ptr<EventPrincipal>(0);
-    }
-    if (lbp->luminosityBlock() != holder_->luminosityBlock()) {
-      lbp_ = boost::shared_ptr<LuminosityBlockPrincipal>();
+    if (holder_.get() == 0 ||
+	lbp->runNumber() != rp_->run() ||
+        lbp->luminosityBlock() != lbp_->luminosityBlock()) {
       return std::auto_ptr<EventPrincipal>(0);
     }
     return holder_;
@@ -278,15 +273,16 @@ namespace edm {
     }
 
     FDEBUG(5) << "Got event: " << sd->id_ << " " << sd->prods_.size() << std::endl;
-    if(lbp_.get() == 0) {
-      if (rp_.get() == 0) {
+    if(!rp_ || rp_->run() != sd->id_.run()) {
 	rp_ = boost::shared_ptr<RunPrincipal>(
           new RunPrincipal(sd->id_.run(),
 			   sd->time_,
 			   Timestamp::invalidTimestamp(),
 			   productRegistry(),
 			   processConfiguration()));
-      }
+        lbp_.reset();
+    }
+    if(!lbp_ || lbp_->luminosityBlock() != eventView.lumi()) {
       lbp_ = boost::shared_ptr<LuminosityBlockPrincipal>(
         new LuminosityBlockPrincipal(eventView.lumi(),
 				     sd->time_,
