@@ -325,11 +325,12 @@ c       urf=vradf*rrf/reff**2                  !square transverse profile
       common /hyjpar/ nhsel,ptmin,sigin,njet,sigjet    
       common /hyipar/ bminh,bmaxh,AW,RA,np,npar0,nbco0,init,Apb,Rpb 
       common /hyfpar/ bgen,nbcol,npart,npyt,nhyd 
+      common /hcmssw/ nsubs(1500) 
       save /pyjets/,/lujets/,/hyjets/,/pydat1/,/pydat2/,/pydat3/,
      +    /pysubs/,/hyjpar/,/hyipar/,/hyfpar/ 
       
 * reset array of partons in 'hyjets'
-      nl=0 
+      nl=0
       do i=1,150000
        do j=1,5
         pl(i,j)=0.
@@ -345,7 +346,7 @@ c       urf=vradf*rrf/reff**2                  !square transverse profile
 * generate 'njet' PYTHIA events and fill arrays for partons and hadrons 
       if(njet.ge.1) then 
 
-c     C.L.: commented out the following two lines... (see hyhard.f)
+c       C.L.: commented out the following two lines... (see hydjet.f)
 c       mdcy(pycomp(111),1)=0               ! no pi0 decay 
 c       mdcy(pycomp(310),1)=0               ! no K_S0 decay 
 
@@ -354,12 +355,19 @@ c       mdcy(pycomp(310),1)=0               ! no K_S0 decay
 c        mstj(41)=0                         ! vacuum showering off 
         call pyevnt                         ! generate hard scattering
 
+        if (ihard.GT.1500) THEN 
+           WRITE(*,*) "hyhard.f: Can not store subevent process id.",
+     &                "Array to small!"
+        ELSE
+           nsubs(ihard) = msti(1)
+        ENDIF
+
 * generate quenched jets with PYQUEN if nhsel=2 
         if(nhsel.eq.2.or.nhsel.eq.4) then 
 	 ifbp=0 
 	 Ap=dble(AW)
 	 bfixp=dble(RA*bgen) 
-	 call pyquen(Ap,ifbp,bfixp) 
+	 call pyquen(Ap,ifbp,bfixp,bfixp,bfixp) 
 	end if 
 
 	call pyexec                         ! hadronization done 
@@ -367,12 +375,17 @@ c        mstj(41)=0                         ! vacuum showering off
 c
         nohist=0                            ! have full history
 c
-
         nstring=8
         if(nohist.ne.0) then
          nstring=8
-         call pyedit(2)                      ! remove partons & leave hadrons 
+         call pyedit(2)                     ! remove partons & leave hadrons 
         end if
+
+c        write(*,*),ihard,' ',n,' ',nl,' ',nj
+
+#ifndef  __HIROOT_FORTRAN_ONLY__
+         ievoff=(ihard-1)*10000    ! event offset
+#endif
 
 * find string which we define to seperate partonic/hadronic world
          do i=1,n
@@ -385,12 +398,14 @@ c
 * test if all particles will fit into their array
  333     nu=nj+n-nstring
 	 if(nu.gt.150000-np) then
+          write(6,*) 'Warning, particle multiplicity too large!'
           goto 52
          end if
 
 * test if all partons will fit into their array
          nu=nl+nstring
 	 if(nu.gt.150000) then
+          write(6,*) 'Warning, parton multiplicity too large!'
           goto 52 
          end if
 
@@ -409,8 +424,14 @@ c
           end do
 	  do j=3,5
            kk=k(i,j) 
+#ifndef  __HIROOT_FORTRAN_ONLY__
+           kl(nlold+i,j)=kk+ievoff
+#else
            if(kk.gt.0) kl(nlold+i,j)=kk+nlold
+#endif
           end do
+c          write(*,*) i+nlold," ",kl(i+nlold,1)," ",kl(i+nlold,2)," ",
+c     &               kl(i+nlold,3)
          end do 
 
 * fill array of particles
@@ -419,19 +440,27 @@ c
          nj=nu
          do i=1,n-nstring
 	  do j=1,5
-           pj(njold+i,j)=p(i+nstring,j) 
+           pj(njold+i,j)=p(i+nstring,j)
           end do
 	  do j=1,5
-           vj(njold+i,j)=v(i+nstring,j) 
+           vj(njold+i,j)=v(i+nstring,j)
           end do
           do j=1,2
            kj(njold+i,j)=k(i+nstring,j)
           end do
 	  do j=3,5
            kk=k(i+nstring,j) 
+#ifndef  __HIROOT_FORTRAN_ONLY__
+           kj(njold+i,j)=kk+ievoff
+#else
            if(kk.gt.0) kj(njold+i,j)=kk+njold
+#endif
           end do
+c          write(*,*) i+njold," ",kj(i+njold,1)," ",kj(i+njold,2)," ",
+c     &               kj(i+njold,3)
          end do 
+
+c       write(*,*) ihard," ",nl," ",nj      
 
        end do 
 
