@@ -125,7 +125,7 @@ class _SequenceNegation(_Sequenceable):
     def __init__(self, operand):
         self.__operand = operand
     def __str__(self):
-        return '!%s' %self.__operand
+        return '~%s' %self.__operand
     def dumpSequenceConfig(self):
         return '!%s' %self.__operand.dumpSequenceConfig()
     def dumpSequencePython(self):
