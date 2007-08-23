@@ -51,12 +51,12 @@
 
 template<typename Det>
 struct Print {
-  typedef edm::TrieNode<Det> const node;
-  void operator()(node & n, std::string const & label) const {
-    if (!n.value()) return; 
+  // typedef edm::TrieNode<Det> const node;
+  void operator()(Det det, std::string const & label) const {
+    if (!det) return; 
     for (size_t i=0; i<label.size();++i)
       std::cout << int(label[i]) <<'/';
-    std::cout << " " << n.value()->geographicalId() << std::endl;
+    std::cout << " " << det->geographicalId() << std::endl;
   }
   
 };
