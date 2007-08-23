@@ -1,5 +1,7 @@
-#include "CondCore/DBCommon/interface/RelationalStorageManager.h"
-#include "CondCore/DBCommon/interface/PoolStorageManager.h"
+#include "CondCore/DBCommon/interface/CoralTransaction.h"
+#include "CondCore/DBCommon/interface/PoolTransaction.h"
+#include "CondCore/DBCommon/interface/Connection.h"
+#include "CondCore/DBCommon/interface/ConnectionHandler.h"
 #include "CondCore/DBCommon/interface/AuthenticationMethod.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
 #include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
@@ -73,38 +75,35 @@ int main( int argc, char** argv ){
     debug=true;
   }
   
-  cond::DBSession* session=new cond::DBSession(true);
-  session->sessionConfiguration().setAuthenticationMethod( cond::Env );
+  cond::DBSession* session=new cond::DBSession;
+  session->configuration().setAuthenticationMethod( cond::Env );
   if(debug){
-    session->sessionConfiguration().setMessageLevel( cond::Debug );
+    session->configuration().setMessageLevel( cond::Debug );
   }else{
-    session->sessionConfiguration().setMessageLevel( cond::Error );
+    session->configuration().setMessageLevel( cond::Error );
   }
-  session->connectionConfiguration().setConnectionRetrialTimeOut( 600 );
-  session->connectionConfiguration().enableConnectionSharing();
-  session->connectionConfiguration().enableReadOnlySessionOnUpdateConnections(); 
+  session->configuration().connectionConfiguration()->setConnectionRetrialTimeOut( 600 );
+  session->configuration().connectionConfiguration()->enableConnectionSharing();
+  session->configuration().connectionConfiguration()->enableReadOnlySessionOnUpdateConnections(); 
   std::string userenv(std::string("CORAL_AUTH_USER=")+user);
   std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
   ::putenv(const_cast<char*>(userenv.c_str()));
   ::putenv(const_cast<char*>(passenv.c_str()));
+  static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
+  conHandler.registerConnection("mydb",connect,catalog,0);
+  session->open();
   if( deleteAll ){
     try{
-      session->open();
-      cond::PoolStorageManager pooldb(connect,catalog,session);
+      cond::PoolTransaction& pooldb=conHandler.getConnection("mydb")->poolTransaction(false);
       cond::IOVService iovservice(pooldb);
-      pooldb.connect();
-      pooldb.startTransaction(false);
+      pooldb.start();
       iovservice.deleteAll(withPayload);
       pooldb.commit();
-      pooldb.disconnect();
-      cond::RelationalStorageManager coraldb(connect,session);
+      cond::CoralTransaction& coraldb=conHandler.getConnection("mydb")->coralTransaction(false);
       cond::MetaData metadata_svc(coraldb);
-      coraldb.connect(cond::ReadWrite);
-      coraldb.startTransaction(false);
+      coraldb.start();
       metadata_svc.deleteAllEntries();
       coraldb.commit();
-      coraldb.disconnect();
-      session->close();
       return 0;
     }catch(cond::Exception& er){
       std::cout<<er.what()<<std::endl;
@@ -115,33 +114,25 @@ int main( int argc, char** argv ){
     }
   }else{
     try{
-      session->open();
-      cond::RelationalStorageManager coraldb(connect,session);
+      cond::CoralTransaction& coraldb=conHandler.getConnection("mydb")->coralTransaction(true);
       cond::MetaData metadata_svc(coraldb);
-      coraldb.connect(cond::ReadOnly);
-      coraldb.startTransaction(true);
+      coraldb.start();
       std::string token=metadata_svc.getToken(tag);
       if( token.empty() ) {
 	std::cout<<"non-existing tag "<<tag<<std::endl;
 	return 11;
       }
-      coraldb.commit();
-      coraldb.disconnect();
-      cond::PoolStorageManager pooldb(connect,catalog,session);
+      coraldb.commit();      
+      cond::PoolTransaction& pooldb=conHandler.getConnection("mydb")->poolTransaction(false);
       cond::IOVService iovservice(pooldb);
       cond::IOVEditor* ioveditor=iovservice.newIOVEditor(token);
-      pooldb.connect();
-      pooldb.startTransaction(false);
+      pooldb.start();
       ioveditor->deleteEntries(withPayload);
       pooldb.commit();
-      pooldb.disconnect();
-      coraldb.connect(cond::ReadWrite);
-      coraldb.startTransaction(false);
+      coraldb.start();
       metadata_svc.deleteEntryByTag(tag);
       coraldb.commit();
-      coraldb.disconnect();
       delete ioveditor;
-      session->close();
     }catch(cond::Exception& er){
       std::cout<<er.what()<<std::endl;
     }catch(std::exception& er){

@@ -1,8 +1,10 @@
-#include "CondCore/DBCommon/interface/RelationalStorageManager.h"
-#include "CondCore/DBCommon/interface/PoolStorageManager.h"
+#include "CondCore/DBCommon/interface/ConnectionHandler.h"
+#include "CondCore/DBCommon/interface/CoralTransaction.h"
+#include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/AuthenticationMethod.h"
+#include "CondCore/DBCommon/interface/Connection.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
-#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
+//#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 #include "CondCore/DBCommon/interface/MessageLevel.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/Exception.h"
@@ -10,8 +12,6 @@
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVIterator.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
-#include "CondCore/MetaDataService/interface/MetaData.h"
-#include "CondCore/DBCommon/interface/ConnectMode.h"
 #include "SealBase/SharedLibrary.h"
 #include "SealBase/SharedLibraryError.h"
 #include <boost/program_options.hpp>
@@ -145,64 +145,55 @@ int main( int argc, char** argv ){
   }catch ( seal::SharedLibraryError *error) {
     throw std::runtime_error( error->explainSelf().c_str() );
   }
-  cond::DBSession* session=new cond::DBSession(true);
+  cond::DBSession* session=new cond::DBSession;
   if(!debug){
-    session->sessionConfiguration().setMessageLevel(cond::Error);
+    session->configuration().setMessageLevel(cond::Error);
   }else{
-    session->sessionConfiguration().setMessageLevel(cond::Debug);
+    session->configuration().setMessageLevel(cond::Debug);
   }
-  session->sessionConfiguration().setAuthenticationMethod(cond::XML);
-  session->sessionConfiguration().setBlobStreamer("");
+  session->configuration().setAuthenticationMethod(cond::XML);
+  session->configuration().setBlobStreamer("");
   std::string pathval("CORAL_AUTH_PATH=");
   pathval+=authPath;
   ::putenv(const_cast<char*>(pathval.c_str()));
-  session->open();
+   static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
+  conHandler.registerConnection("mysourcedb",sourceConnect,inputCatalog,0);
+  conHandler.registerConnection("mydestdb",destConnect,outputCatalog,0);
   try{
+    session->open();
     std::string sourceiovtoken;
     std::string destiovtoken;
-    cond::RelationalStorageManager* sourceCoralDB=new cond::RelationalStorageManager(sourceConnect,session);
-    sourceCoralDB->connect(cond::ReadOnly);
-    sourceCoralDB->startTransaction(true);
-    cond::MetaData* sourceMetadata=new cond::MetaData(*sourceCoralDB);
+    cond::CoralTransaction& sourceCoralDB=conHandler.getConnection("mysource")->coralTransaction(true);
+    sourceCoralDB.start();
+    cond::MetaData* sourceMetadata=new cond::MetaData(sourceCoralDB);
     if( !sourceMetadata->hasTag(tag) ){
       throw std::runtime_error(std::string("tag ")+tag+std::string(" not found") );
     }
     sourceiovtoken=sourceMetadata->getToken(tag);
-    sourceCoralDB->commit();
-    sourceCoralDB->disconnect();
+    sourceCoralDB.commit();
     if(debug){
       std::cout<<"source iov token "<<sourceiovtoken<<std::endl;
     }
     delete sourceMetadata;
-    delete sourceCoralDB;
-    cond::PoolStorageManager sourcedb(sourceConnect,inputCatalog,session);
-    sourcedb.connect();
+    cond::PoolTransaction& sourcedb=conHandler.getConnection("mysource")->poolTransaction(true);
+    cond::PoolTransaction& destdb=conHandler.getConnection("mydest")->poolTransaction(false);
     cond::IOVService iovmanager(sourcedb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
-    cond::PoolStorageManager destdb(destConnect,outputCatalog,session);
-    destdb.connect();
-    sourcedb.startTransaction(true);
-    destdb.startTransaction(false);
+    sourcedb.start();
+    destdb.start();
     destiovtoken=iovmanager.exportIOVWithPayload( destdb,
 						  sourceiovtoken,
 						  payloadName );
     sourcedb.commit();
     destdb.commit();
-    sourcedb.disconnect();
-    destdb.disconnect();
-    cond::RelationalStorageManager* destCoralDB=new cond::RelationalStorageManager(destConnect,session);
-    cond::MetaData* destMetadata=new cond::MetaData(*destCoralDB);
-    destCoralDB->connect(cond::ReadWriteCreate);
-    destCoralDB->startTransaction(false);
-    destMetadata->addMapping(tag,destiovtoken);
+    cond::CoralTransaction& destCoralDB=conHandler.getConnection("mydest")->coralTransaction(false);
+    cond::MetaData destMetadata(destCoralDB);
+    destCoralDB.start();
+    destMetadata.addMapping(tag,destiovtoken);
     if(debug){
       std::cout<<"source iov token "<<sourceiovtoken<<std::endl;
     }
-    destCoralDB->commit();
-    destCoralDB->disconnect();
-    delete destMetadata;
-    delete destCoralDB;
-    session->close();
+    destCoralDB.commit();
     delete editor;
     delete session;
   }catch(const cond::Exception& er){
