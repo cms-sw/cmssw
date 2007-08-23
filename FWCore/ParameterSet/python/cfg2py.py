@@ -9,5 +9,6 @@ fileInPath = argv[1]
 if fileInPath.endswith('cfg'):
     print cmsParse.parseCfgFile(fileInPath).dumpPython()
 else:
-    print cmsParse.parseCffFile(fileInPath).dumpPython()
+    #print cmsParse.parseCffFile(fileInPath).dumpPython()
+    print  cmsParse.dump(fileInPath)
 
