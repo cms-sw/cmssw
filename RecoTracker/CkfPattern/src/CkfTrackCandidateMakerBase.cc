@@ -227,8 +227,11 @@ namespace cms{
       edm::LogVerbatim("CkfPattern") << "number of finalTrajectories: " << unsmoothedResult.size();
       for (vector<Trajectory>::const_iterator it = unsmoothedResult.begin();
 	   it != unsmoothedResult.end(); it++) {
-	edm::LogVerbatim("CkfPattern") << "n valid and invalid hit, chi2 : " 
-	     << it->foundHits() << " , " << it->lostHits() <<" , " <<it->chiSquared();
+	edm::LogVerbatim("CkfPattern") << "candidate's n valid and invalid hit, chi2, pt : " 
+				       << it->foundHits() << " , " 
+				       << it->lostHits() <<" , " 
+				       <<it->chiSquared() << " , "
+				       <<it->lastMeasurement().predictedState().globalMomentum().perp();
       }
       edm::LogVerbatim("CkfPattern") << "=================================================";
           
