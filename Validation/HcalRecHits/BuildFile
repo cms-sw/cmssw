@@ -10,6 +10,9 @@
 <use name=DataFormats/HcalDetId>
 <use name=DataFormats/CaloRecHit>
 <use name=Geometry/CaloEventSetup>
+<use name=SimDataFormats/HepMCProduct>
+<use name=clhep>
+<use name=hepmc>
 
 <export>
   <lib name=ValidationHcalRecHits>
@@ -24,6 +27,9 @@
   <use name=DataFormats/CaloRecHit>
   <use name=DataFormats/Common>	 
   <use name=Geometry/CaloEventSetup>
+  <use name=SimDataFormats/HepMCProduct>
+  <use name=clhep>
+  <use name=hepmc>
 
 </export>
 

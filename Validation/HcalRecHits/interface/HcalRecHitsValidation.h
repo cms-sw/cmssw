@@ -31,7 +31,7 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 #include <vector>
 #include <utility>
@@ -45,80 +45,153 @@ class HcalRecHitsValidation : public edm::EDAnalyzer {
  public:
   HcalRecHitsValidation(edm::ParameterSet const& conf);
   ~HcalRecHitsValidation();
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+  virtual void analyze(edm::Event const& ev, edm::EventSetup const& c);
   virtual void beginJob(const edm::EventSetup&) ;
   virtual void endJob() ;
-
  private:
   
+  virtual void fillRecHitsTmp(int subdet_, edm::Event const& ev);
+  double dR(double eta1, double phi1, double eta2, double phi2);
+  double phi12(double phi1, double en1, double phi2, double en2);
+  double dPhiWsign(double phi1,double phi2);  
+
   DaqMonitorBEInterface* dbe_;
   
   std::string outputFile_;
   std::string hcalselector_;
-  std::string noiseflag;
-  // HE Monitor Elements
+  std::string ecalselector_;
+  std::string eventype_;
 
-  // number of rechits in event 
-  MonitorElement* meNumRecHits;
+  // choice of subdetector in config : noise/HB/HE/HO/HF/ALL (0/1/2/3/4/5)
+  int subdet_;
+  // single/multi-particle sample (1/2)
+  int etype_;
+
+  // In ALL the cases : 2D ieta-iphi maps 
+  // without and with cuts (a la "Scheme B") on energy
+  MonitorElement* map_ecal;
+
+  MonitorElement* map_depth1;
+  MonitorElement* map_depth2;
+  MonitorElement* map_depth3;
+  MonitorElement* map_depth4;
+
+  MonitorElement* map_depth1_cuts;
+  MonitorElement* map_depth2_cuts;
+  MonitorElement* map_depth3_cuts;
+  MonitorElement* map_depth4_cuts;
+
+  // also - energy in the cone around MC particle
+  MonitorElement* map_econe_depth1;
+  MonitorElement* map_econe_depth2;
+  MonitorElement* map_econe_depth3;
+  MonitorElement* map_econe_depth4;
+ 
+  // Single particles - deviation of cluster from MC truth
+  MonitorElement* meDeltaPhi;
+  MonitorElement* meDeltaEta;
+  MonitorElement* meDeltaPhiS;  // simcluster
+  MonitorElement* meDeltaEtaS;  // simculster
+
+  //----------- NOISE case
+  MonitorElement* e_hb;
+  MonitorElement* e_he;
+  MonitorElement* e_ho;
+  MonitorElement* e_hfl;
+  MonitorElement* e_hfs;
 
   // number of rechits above threshold 1GEV
-  MonitorElement* meNumRecHitsThresh;
+  MonitorElement* meNumRecHitsThreshHB;
+  MonitorElement* meNumRecHitsThreshHE;
+  MonitorElement* meNumRecHitsThreshHO;
 
   // number of rechits in the cone
-  MonitorElement* meNumRecHitsCone;
+  MonitorElement* meNumRecHitsConeHB;
+  MonitorElement* meNumRecHitsConeHE;
+  MonitorElement* meNumRecHitsConeHO;
+  MonitorElement* meNumRecHitsConeHF;
 
   // time?
-  MonitorElement* meTime;
+  MonitorElement* meTimeHB;
+  MonitorElement* meTimeHE;
+  MonitorElement* meTimeHO;
+  MonitorElement* meTimeHF;
 
   // energy of rechits
-  MonitorElement* meRecHitsEnergy;
+  MonitorElement* meRecHitsEnergyHB;
+  MonitorElement* meRecHitsEnergyHE;
+  MonitorElement* meRecHitsEnergyHO;
+  MonitorElement* meRecHitsEnergyHF;
+
+  MonitorElement* meTE_HB;
+  MonitorElement* meTE_HB1;
+  MonitorElement* meTE_HB2;
+  MonitorElement* meTEprofileHB;
+  MonitorElement* meTE_HE;
+  MonitorElement* meTE_HE1;
+  MonitorElement* meTE_HE2;
+  MonitorElement* meTEprofileHE;
+  MonitorElement* meTE_HO;
+  MonitorElement* meTEprofileHO;
+  MonitorElement* meTE_HF;
+  MonitorElement* meTE_HFL;
+  MonitorElement* meTE_HFS;
+  MonitorElement* meTEprofileHF;
 
 
-  MonitorElement* me2D;
-  
-  MonitorElement*  meSumRecHitsEnergy;
-  MonitorElement* meSumRecHitsEnergyCone;
-  MonitorElement* meEcalHcalEnergy;
+  MonitorElement* meSumRecHitsEnergyHB;
+  MonitorElement* meSumRecHitsEnergyHE;
+  MonitorElement* meSumRecHitsEnergyHO;
+  MonitorElement* meSumRecHitsEnergyHF;
+
+
+  MonitorElement* meSumRecHitsEnergyConeHB;
+  MonitorElement* meSumRecHitsEnergyConeHE;
+  MonitorElement* meSumRecHitsEnergyConeHO;
+  MonitorElement* meSumRecHitsEnergyConeHF;
+
+  MonitorElement* meEcalHcalEnergyHB;
+  MonitorElement* meEcalHcalEnergyHE;
+   
+  MonitorElement* meEcalHcalEnergyConeHB; 
+  MonitorElement* meEcalHcalEnergyConeHE; 
+  MonitorElement* meEcalHcalEnergyConeHO; 
+  MonitorElement* meEcalHcalEnergyConeHF; 
  
-  
-  MonitorElement* meEcalHcalEnergyCone; 
- 
-
-  // Histo for eta of each rechit 
-  MonitorElement* meEta;
-
-  // Histo for phi of each rechit 
-  MonitorElement* mePhi;
-
-
-  MonitorElement* me2Dprofile;
-
-  // Histo for 2D plot of eta and phi for each depth.
-  MonitorElement* meEtaPhiDepth0;
-  MonitorElement* meEtaPhiDepth1;
-  MonitorElement* meEtaPhiDepth2;
-  MonitorElement* meEtaPhiDepth3;
-  MonitorElement* meEtaPhiDepth4;
-
   // Histo (2D plot) for sum of RecHits vs SimHits (hcal only)
-  MonitorElement* meRecHitSimHit;
+  MonitorElement* meRecHitSimHitHB;
+  MonitorElement* meRecHitSimHitHE;
+  MonitorElement* meRecHitSimHitHO;
+  MonitorElement* meRecHitSimHitHF;
+  MonitorElement* meRecHitSimHitHFL;
+  MonitorElement* meRecHitSimHitHFS;
   // profile histo (2D plot) for sum of RecHits vs SimHits (hcal only)
-  MonitorElement* meRecHitSimHitProfile;
+  MonitorElement* meRecHitSimHitProfileHB;
+  MonitorElement* meRecHitSimHitProfileHE;
+  MonitorElement* meRecHitSimHitProfileHO;
+  MonitorElement* meRecHitSimHitProfileHF;
+  MonitorElement* meRecHitSimHitProfileHFL;
+  MonitorElement* meRecHitSimHitProfileHFS;
+
   // 2D plot of sum of RecHits in HCAL as function of ECAL's one
-  MonitorElement* meEnergyHcalVsEcal;
+  MonitorElement* meEnergyHcalVsEcalHB;
+  MonitorElement* meEnergyHcalVsEcalHE;
   
-  MonitorElement* meRecHitsEnergyNoise;
   // number of ECAL's rechits in cone 0.3 
-  MonitorElement* meNumEcalRecHitsCone;
-
-
-  MonitorElement* e_hb;
-  MonitorElement*e_he;
-  MonitorElement*e_ho;
-  MonitorElement*e_hfl;
-  MonitorElement*e_hfs;
+  MonitorElement* meNumEcalRecHitsConeHB;
+  MonitorElement* meNumEcalRecHitsConeHE;
 
   edm::ESHandle<CaloGeometry> geometry ;
+
+ // Filling vectors with essential RecHits data
+  std::vector<int>    csub;
+  std::vector<int>    cieta;
+  std::vector<int>    ciphi;
+  std::vector<int>    cdepth;
+  std::vector<double> cen;
+  std::vector<double> ceta;
+  std::vector<double> cphi;
+  std::vector<double> ctime;
 
 };
 
