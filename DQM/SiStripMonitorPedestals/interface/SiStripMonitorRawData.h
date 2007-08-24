@@ -16,7 +16,7 @@
 //
 // Original Author:  dutta
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorRawData.h,v 1.10 2007/03/23 14:31:28 dutta Exp $
+// $Id: SiStripMonitorRawData.h,v 1.1 2007/06/01 17:19:26 dutta Exp $
 //
 
 // system include files
@@ -25,6 +25,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

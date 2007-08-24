@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai and Suchandra Dutta
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorPedestals.cc,v 1.22 2007/06/01 17:19:26 dutta Exp $
+// $Id: SiStripMonitorPedestals.cc,v 1.23 2007/07/25 15:41:57 dutta Exp $
 //
 //
 
@@ -38,6 +38,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQM/SiStripMonitorPedestals/interface/SiStripMonitorPedestals.h"
+#include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
+#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 
 // std
 #include <cstdlib>
@@ -56,9 +60,7 @@ SiStripMonitorPedestals::SiStripMonitorPedestals(const edm::ParameterSet& iConfi
   nEvTot_(0),
   nIteration_(0),
   apvFactory_(0),
-  outPutFileName(iConfig.getParameter<std::string>("OutPutFileName")),
-  SiStripNoiseService_(iConfig),
-  SiStripPedestalsService_(iConfig)
+  outPutFileName(iConfig.getParameter<std::string>("OutPutFileName"))
 {
   theEventInitNumber_ =  pedsPSet_.getParameter<int>("NumberOfEventsForInit");
   theEventIterNumber_ = pedsPSet_.getParameter<int>("NumberOfEventsForIteration");
@@ -204,10 +206,13 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
 
   std::cout << "Run " << iEvent.id().run() << " Event " << iEvent.id().event() << std::endl;
 
+   //get gain correction ES handle
+  edm::ESHandle<SiStripPedestals> pedestalHandle;
+  edm::ESHandle<SiStripNoises> noiseHandle;
   
   if (firstEvent){
-    SiStripNoiseService_.setESObjects(iSetup);
-    SiStripPedestalsService_.setESObjects(iSetup);
+    iSetup.get<SiStripPedestalsRcd>().get(pedestalHandle);
+    iSetup.get<SiStripNoisesRcd>().get(noiseHandle);
   }
   iSetup.get<SiStripDetCablingRcd>().get( detcabling );
 
@@ -233,24 +238,31 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
       //edm::LogInfo("SiStripMonitorPedestals") 
       std::cout << "[SiStripMonitorPedestals::analyze] Get Ped/Noise/Bad Strips from CondDb for DetId " << detid << std::endl;
       int nStrip  = detcabling->nApvPairs(detid) * 256;
+      // Get range of pedestal and noise for the detid
+      SiStripNoises::Range noiseRange = noiseHandle->getRange(detid);
+      SiStripPedestals::Range pedRange = pedestalHandle->getRange(detid);
+
       for(int istrip=0;istrip<nStrip;++istrip){
 	try{
 	  //Fill Pedestals
-	  (local_modmes.PedsPerStripDB)->Fill(istrip+1,SiStripPedestalsService_.getPedestal(detid,istrip));
+          (local_modmes.PedsPerStripDB)->Fill(istrip+1,pedestalHandle->getPed(istrip,pedRange));
 	}
 	catch(cms::Exception& e){
 	  edm::LogError("SiStripMonitorPedestals") << "[SiStripMonitorPedestals::analyze]  cms::Exception accessing SiStripPedestalsService_.getPedestal("<<detid<<","<<istrip<<") :  "  << " " << e.what() ;
 	}
  	try{
 	   //Fill Noises
-	  (local_modmes.CMSubNoisePerStripDB)->Fill(istrip+1,SiStripNoiseService_.getNoise(detid,istrip));
+         (local_modmes.CMSubNoisePerStripDB)->Fill(istrip+1,noiseHandle->getNoise(istrip,noiseRange));
+
 	}
 	catch(cms::Exception& e){
 	  edm::LogError("SiStripMonitorPedestals") << "[SiStripMonitorPedestals::analyze]  cms::Exception accessing SiStripNoiseService_.getNoise("<<detid<<","<<istrip<<") :  "  << " " << e.what() ;
 	}
  	try{
 	    //Fill BadStripsNoise
-	  (local_modmes.CMSubNoisePerStripDB)->Fill(istrip+1,SiStripNoiseService_.getDisable(detid,istrip)?1.:0.);
+          (local_modmes.NoisyStripsDB)->Fill(istrip+1,noiseHandle->getDisable(istrip,noiseRange)?1.:0.);
+
+
 	}
 	catch(cms::Exception& e){
 	  edm::LogError("SiStripMonitorPedestals") << "[SiStripMonitorPedestals::analyze]  cms::Exception accessing SiStripNoiseService_.getDisable("<<detid<<","<<istrip<<") :  "  << " " << e.what() ;

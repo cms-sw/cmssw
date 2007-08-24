@@ -16,7 +16,7 @@
 //
 // Original Author:  gennai, dutta
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorPedestals.h,v 1.10 2007/03/23 14:31:28 dutta Exp $
+// $Id: SiStripMonitorPedestals.h,v 1.11 2007/06/01 17:19:26 dutta Exp $
 //
 
 // system include files
@@ -25,7 +25,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -41,10 +41,7 @@
 // cabling
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-//
-//SiStripPedestalsService
-#include "CommonTools/SiStripZeroSuppression/interface/SiStripPedestalsService.h"
-#include "CommonTools/SiStripZeroSuppression/interface/SiStripNoiseService.h"
+
 
 #include "boost/cstdint.hpp"
 #include <iomanip>
@@ -53,6 +50,7 @@
 class ApvAnalysisFactory;
 class MonitorElement;
 class DaqMonitorBEInterface;
+class SiStripDetCabling;
 
 class SiStripMonitorPedestals : public edm::EDAnalyzer {
    public:
@@ -106,9 +104,6 @@ class SiStripMonitorPedestals : public edm::EDAnalyzer {
        int theEventIterNumber_;
        int NumCMstripsInGroup_;
        std::string outPutFileName;
-
-       SiStripNoiseService SiStripNoiseService_;  
-       SiStripPedestalsService SiStripPedestalsService_;  
 };
 
 #endif
