@@ -29,19 +29,19 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
                 msg += "    %i) %s \n"  %(i, item._errorstr())
             msg += "Maybe you forgot to combine them via '*' or '+'."     
             raise TypeError(msg)
-        _checkIfSequenceable(arg[0])
+        self._checkIfSequenceable(arg[0])
         self._seq = arg[0]
     def _place(self,name,proc):
         self._placeImpl(name,proc)
     def __imul__(self,rhs):
-        _checkIfSequenceable(rhs)
+        self._checkIfSequenceable(rhs)
         self._seq = _SequenceOpAids(self._seq,rhs)
         return self
     def __iadd__(self,rhs):
-        _checkIfSequenceable(rhs)
+        self._checkIfSequenceable(rhs)
         self._seq = _SequenceOpFollows(self._seq,rhs)
         return self
-    def _checkIfSequenceable(v):
+    def _checkIfSequenceable(self,v):
         if not isinstance(v,_Sequenceable):
             typename = format_typename(self)
             msg = format_outerframe(2)
