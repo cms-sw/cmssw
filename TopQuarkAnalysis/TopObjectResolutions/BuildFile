@@ -3,7 +3,7 @@
 <use name=FWCore/MessageLogger>
 <use name=AnalysisDataFormats/TopObjects>
 <use name=root>
-
+<flags LDFLAGS="-lMLP">
 <export>
   <lib name=TopQuarkAnalysisTopObjectResolutions>
   <use name=FWCore/Framework>

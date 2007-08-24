@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck, Steven Lowette
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopMuonProducer.cc,v 1.7 2007/06/23 07:28:04 lowette Exp $
+// $Id: TopMuonProducer.cc,v 1.8 2007/08/06 14:37:41 tsirig Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopMuonProducer.h"
@@ -35,7 +35,7 @@ TopMuonProducer::TopMuonProducer(const edm::ParameterSet & iConfig) {
 
   // construct resolution calculator
   if (addResolutions_) {
-    theResoCalc_ = new TopObjectResolutionCalc(muonResoFile_);
+    theResoCalc_ = new TopObjectResolutionCalc(muonResoFile_,iConfig.getParameter<bool>("useNNresolution"));
   }
 
   // produces vector of muons

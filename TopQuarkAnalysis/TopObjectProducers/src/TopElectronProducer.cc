@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck, Steven Lowette
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopElectronProducer.cc,v 1.14 2007/08/20 15:36:08 lowette Exp $
+// $Id: TopElectronProducer.cc,v 1.15 2007/08/22 13:29:23 rwolf Exp $
 //
 
 #include <vector>
@@ -36,7 +36,7 @@ TopElectronProducer::TopElectronProducer(const edm::ParameterSet & cfg):
   maxDeltaR_      (cfg.getParameter<double>       ("maxDeltaR") )
 {
   if( useResolution_){
-    resolution_= new TopObjectResolutionCalc( resolutionInput_);
+    resolution_= new TopObjectResolutionCalc( resolutionInput_,cfg.getParameter<bool>("useNNresolution"));
   }
   produces<std::vector<TopElectron> >();
 }

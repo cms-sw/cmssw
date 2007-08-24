@@ -1,5 +1,5 @@
 //
-// $Id: TopJetProducer.cc,v 1.17 2007/08/09 09:16:28 tsirig Exp $
+// $Id: TopJetProducer.cc,v 1.18 2007/08/19 17:04:02 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopJetProducer.h"
@@ -67,7 +67,7 @@ TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig) {
   // construct the jet flavour identifier
   if (getJetMCFlavour_) jetFlavId_ = new JetFlavourIdentifier(iConfig.getParameter<edm::ParameterSet>("jetIdParameters"));
   // construct resolution calculator
-  if (addResolutions_) theResoCalc_ = new TopObjectResolutionCalc(caliJetResoFile_);
+  if (addResolutions_) theResoCalc_ = new TopObjectResolutionCalc(caliJetResoFile_,iConfig.getParameter<bool>("useNNresolution"));
 
   // construct Jet Track Associator
   trackAssociationPSet_     = iConfig.getParameter<edm::ParameterSet>("trackAssociation");

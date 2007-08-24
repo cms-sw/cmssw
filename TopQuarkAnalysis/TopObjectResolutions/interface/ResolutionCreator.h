@@ -25,6 +25,7 @@
 #include "TH1.h"
 #include "TF1.h"
 #include "TFile.h"
+#include "TTree.h"
 #include <vector>
 #include <fstream>
 #include <string>

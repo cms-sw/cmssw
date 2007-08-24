@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck, Steven Lowette
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopMETProducer.cc,v 1.4 2007/06/09 01:17:35 lowette Exp $
+// $Id: TopMETProducer.cc,v 1.5.2.1 2007/08/24 13:52:27 delaer Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopMETProducer.h"
@@ -32,7 +32,7 @@ TopMETProducer::TopMETProducer(const edm::ParameterSet & iConfig) {
   
   // construct resolution calculator
   if(addResolutions_){
-    metResoCalc_ = new TopObjectResolutionCalc(metResoFile_);
+    metResoCalc_ = new TopObjectResolutionCalc(metResoFile_,iConfig.getParameter<bool>("useNNresolution"));
   }
   
   // produces vector of mets
