@@ -3,7 +3,7 @@
   /**
    * Constructor for cscmap
    */
-  cscmap::cscmap () throw (SQLException)
+  cscmap::cscmap () throw (oracle::occi::SQLException)
   {
     std::string db_user;
     std::string db_pass;
@@ -18,28 +18,28 @@
   /**
    * Destructor for cscmap.
    */
-  cscmap::~cscmap () throw (SQLException)
+  cscmap::~cscmap () throw (oracle::occi::SQLException)
   {
     env->terminateConnection (con);
-    Environment::terminateEnvironment (env);
+    oracle::occi::Environment::terminateEnvironment (env);
   }  // end of ~cscmap ()
 
-  void cscmap::crate0_chamber (int crate0, int dmb, string *chamber_id,
+  void cscmap::crate0_chamber (int crate0, int dmb, std::string *chamber_id,
   int *chamber_num, int *sector, int *first_strip_index,
   int *strips_per_layer)
   {
     //int ch_ind;
-    Statement *stmt = con->createStatement();
+    oracle::occi::Statement *stmt = con->createStatement();
     stmt->setSQL("begin cscmap.chamber0(:1, :2, :3, :4, :5, :6, :7, :8); end;");
 
     stmt->setInt (1, crate0);
     stmt->setInt (2, dmb);
-    stmt->registerOutParam(3, OCCISTRING, 10);
-    stmt->registerOutParam (4, OCCIINT);
-    stmt->registerOutParam (5, OCCIINT);
-    stmt->registerOutParam (6, OCCIINT);
-    stmt->registerOutParam (7, OCCIINT);
-    stmt->registerOutParam (8, OCCIINT);
+    stmt->registerOutParam(3, oracle::occi::OCCISTRING, 10);
+    stmt->registerOutParam (4, oracle::occi::OCCIINT);
+    stmt->registerOutParam (5, oracle::occi::OCCIINT);
+    stmt->registerOutParam (6, oracle::occi::OCCIINT);
+    stmt->registerOutParam (7, oracle::occi::OCCIINT);
+    stmt->registerOutParam (8, oracle::occi::OCCIINT);
 
     stmt->execute(); //execute procedure
 
@@ -53,21 +53,21 @@
     con->terminateStatement (stmt);
   } //end of crate0_chamber
 
-  void cscmap::crate_chamber (int crate, int dmb, string *chamber_id,
+  void cscmap::crate_chamber (int crate, int dmb, std::string *chamber_id,
   int *chamber_num, int *sector, int *first_strip_index,
   int *strips_per_layer)
   {
-    Statement *stmt = con->createStatement();
+    oracle::occi::Statement *stmt = con->createStatement();
     stmt->setSQL("begin cscmap.chamber(:1, :2, :3, :4, :5, :6, :7, :8); end;");
 
     stmt->setInt (1, crate);
     stmt->setInt (2, dmb);
-    stmt->registerOutParam(3, OCCISTRING, 10);
-    stmt->registerOutParam (4, OCCIINT);
-    stmt->registerOutParam (5, OCCIINT);
-    stmt->registerOutParam (6, OCCIINT);
-    stmt->registerOutParam (7, OCCIINT);
-    stmt->registerOutParam (8, OCCIINT);
+    stmt->registerOutParam(3, oracle::occi::OCCISTRING, 10);
+    stmt->registerOutParam (4, oracle::occi::OCCIINT);
+    stmt->registerOutParam (5, oracle::occi::OCCIINT);
+    stmt->registerOutParam (6, oracle::occi::OCCIINT);
+    stmt->registerOutParam (7, oracle::occi::OCCIINT);
+    stmt->registerOutParam (8, oracle::occi::OCCIINT);
 
     stmt->execute(); //execute procedure
 
@@ -80,22 +80,22 @@
     con->terminateStatement (stmt);
   } //end of crate_chamber
 
-  void cscmap::chamber_crate (string chamber_id, int *crate, int *dmb,
+  void cscmap::chamber_crate (std::string chamber_id, int *crate, int *dmb,
 		      int *sector, int *chamber_num, int *crate0,
                       int *first_strip_index, int *strips_per_layer)
   {
-    Statement *stmt = con->createStatement();
+    oracle::occi::Statement *stmt = con->createStatement();
     stmt->setSQL("begin cscmap.crate0_proc(:1, :2, :3, :4, :5, :6, :7, :8, :9); end;");
 
     stmt->setString (1, chamber_id);
-    stmt->registerOutParam (2, OCCIINT);
-    stmt->registerOutParam (3, OCCIINT);
-    stmt->registerOutParam (4, OCCIINT);
-    stmt->registerOutParam (5, OCCIINT);
-    stmt->registerOutParam (6, OCCIINT);
-    stmt->registerOutParam (7, OCCIINT);
-    stmt->registerOutParam (8, OCCIINT);
-    stmt->registerOutParam (9, OCCIINT);
+    stmt->registerOutParam (2, oracle::occi::OCCIINT);
+    stmt->registerOutParam (3, oracle::occi::OCCIINT);
+    stmt->registerOutParam (4, oracle::occi::OCCIINT);
+    stmt->registerOutParam (5, oracle::occi::OCCIINT);
+    stmt->registerOutParam (6, oracle::occi::OCCIINT);
+    stmt->registerOutParam (7, oracle::occi::OCCIINT);
+    stmt->registerOutParam (8, oracle::occi::OCCIINT);
+    stmt->registerOutParam (9, oracle::occi::OCCIINT);
 
     stmt->execute(); //execute procedure
 
