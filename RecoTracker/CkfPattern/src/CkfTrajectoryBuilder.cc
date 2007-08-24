@@ -201,17 +201,17 @@ CkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed,  std::vector<
       result.push_back(TM( invalidState, updatedState, recHit, 0, hitLayer));
     }
     else {
-      //----------- just a test to make the Smoother to work -----------
       PTrajectoryStateOnDet pState( seed.startingState());
-      TSOS outerState = tsTransform.transientState( pState, &(hitGeomDet->surface()), 
-						    theForwardPropagator->magneticField());
+
+      TSOS outerState = tsTransform.transientState(pState,
+						   &((theMeasurementTracker->geomTracker()->idToDet(
+										     (hitRange.second - 1)->geographicalId()))->surface()),  
+						   theForwardPropagator->magneticField());
       TSOS innerState   = theBackwardPropagator->propagate(outerState,hitGeomDet->surface());
-      TSOS innerUpdated = theUpdator->update(innerState,*recHit);
-
-      result.push_back(TM( invalidState, innerUpdated, recHit, 0, hitLayer));
-      //-------------------------------------------------------------
-
-      //result.push_back(TM( invalidState, recHit, 0, hitLayer));
+      if(innerState.isValid()) {
+	TSOS innerUpdated = theUpdator->update(innerState,*recHit);
+	result.push_back(TM( invalidState, innerUpdated, recHit, 0, hitLayer));
+      }
     }
   }
 
