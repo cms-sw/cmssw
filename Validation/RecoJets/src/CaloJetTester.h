@@ -3,7 +3,7 @@
 
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
-// $Id: CaloJetTester.h,v 1.2 2007/02/21 01:53:40 fedor Exp $
+// $Id: CaloJetTester.h,v 1.1 2007/08/20 21:51:36 fedor Exp $
 
 #include <string>
 
@@ -60,12 +60,22 @@ public:
   // CaloJet<->GenJet matching
   MonitorElement* mAllGenJetsPt;
   MonitorElement* mMatchedGenJetsPt;
+  MonitorElement* mAllGenJetsEta;
+  MonitorElement* mMatchedGenJetsEta;
   MonitorElement* mGenJetMatchEnergyFraction;
   MonitorElement* mReverseMatchEnergyFraction;
-  MonitorElement* mDeltaEta;
-  MonitorElement* mDeltaPhi;
-  MonitorElement* mEScale;
-  MonitorElement* mDeltaE;
+  MonitorElement* mDeltaEta_B;
+  MonitorElement* mDeltaEta_E;
+  MonitorElement* mDeltaEta_F;
+  MonitorElement* mDeltaPhi_B;
+  MonitorElement* mDeltaPhi_E;
+  MonitorElement* mDeltaPhi_F;
+  MonitorElement* mEScale_B;
+  MonitorElement* mEScale_E;
+  MonitorElement* mEScale_F;
+  MonitorElement* mDeltaE_B;
+  MonitorElement* mDeltaE_E;
+  MonitorElement* mDeltaE_F;
 
   // Matching parameters
   double mMatchGenPtThreshold;
