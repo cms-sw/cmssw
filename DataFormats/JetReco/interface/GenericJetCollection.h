@@ -1,14 +1,13 @@
 // F.R.
-// $Id: GenericJetCollection.h,v 1.1 2007/07/31 18:55:23 fedor Exp $
+// $Id: GenericJetCollection.h,v 1.3 2007/08/20 17:53:30 fedor Exp $
 #ifndef JetReco_GenericJetCollection_h
 #define JetReco_GenericJetCollection_h
 
 #include <vector>
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
-#include "DataFormats/Common/interface/RefProd.h"
 
-#include "DataFormats/JetReco/interface/GenericJet.h"
+#include "DataFormats/JetReco/interface/GenericJet.h" //INCLUDECHECKER:SKIP
 
 namespace reco {
   class GenericJet;

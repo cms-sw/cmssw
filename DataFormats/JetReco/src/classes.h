@@ -1,12 +1,6 @@
 #ifndef JetObjects_classes_h
 #define JetObjects_classes_h
 
-/* #include "Rtypes.h"  */
-/* #include "Math/Cartesian3D.h"  */
-/* #include "Math/Polar3D.h"  */
-/* #include "Math/CylindricalEta3D.h"  */
-/* #include "Math/PxPyPzE4D.h"  */
-/* #include <boost/cstdint.hpp>  */
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h" 
 #include "DataFormats/JetReco/interface/GenJetCollection.h"

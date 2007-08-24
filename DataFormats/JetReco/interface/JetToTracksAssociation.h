@@ -7,13 +7,12 @@
  *
  * \author Fedor Ratnikov, July 27, 2007
  *
- * \version   $Id: JetToTracksAssociation.h,v 1.2 2007/07/31 02:58:27 fedor Exp $
+ * \version   $Id: JetToTracksAssociation.h,v 1.4 2007/08/20 17:53:30 fedor Exp $
  ************************************************************/
 
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefVector.h"
 
 namespace reco {

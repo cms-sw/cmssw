@@ -10,7 +10,7 @@
  * in addition to generic Jet parameters
  *
  * \author Fedor Ratnikov, UMd, Apr 24, 2007
-  * \version   $Id: PFJet.h,v 1.7 2007/08/01 23:03:26 fedor Exp $
+  * \version   $Id: PFJet.h,v 1.9 2007/08/20 17:53:30 fedor Exp $
  ************************************************************/
 
 
@@ -109,5 +109,6 @@ class PFJet : public Jet {
   Specific m_specific;
 };
 }
-#include "DataFormats/JetReco/interface/PFJetCollection.h" // temporary fix before include_checcker runs globally
+// temporary fix before include_checcker runs globally
+#include "DataFormats/JetReco/interface/PFJetCollection.h" //INCLUDECHECKER:SKIP 
 #endif
