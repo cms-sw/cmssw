@@ -168,7 +168,18 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
       if((**ihit).isValid())
 	LogTrace("TrackFitters")
 	  << "next Surface: "<<(**ihit).surface()->position()<< "\n";
-      return std::vector<Trajectory>();
+      
+      // this number could be made configurable
+      if(myTraj.foundHits() >= 3)
+	{
+	  LogDebug("TrackFitters") << " breaking trajectory" << "\n";
+	  break;      
+	}
+      else      
+	{        
+	  LogDebug("TrackFitters") << " killing trajectory" << "\n";	   
+	  return std::vector<Trajectory>();
+	}
     }
     if((**ihit).isValid()) {
       //update
