@@ -2,7 +2,6 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
 <use name=Geometry/CaloEventSetup>
-<use name=SimDataFormats/GlobalValidation>
 <use name=SimDataFormats/HepMCProduct>
 <use name=DataFormats/DetId>
 <use name=DataFormats/Common>
@@ -12,6 +11,7 @@
 <use name=Geometry/CSCGeometry>
 <use name=Geometry/DTGeometry>
 <use name=Geometry/RPCGeometry>
+<use name=DQMServices/CoreROOT>
 <use name=root>
 <use name=clhep>
 
@@ -23,7 +23,6 @@
  <use name=FWCore/ParameterSet>
  <use name=FWCore/MessageLogger>
  <use name=Geometry/CaloEventSetup>
- <use name=SimDataFormats/GlobalValidation>
  <use name=SimDataFormats/HepMCProduct>
  <use name=DataFormats/DetId>
  <use name=DataFormats/Common>
@@ -33,6 +32,7 @@
  <use name=Geometry/CSCGeometry>
  <use name=Geometry/DTGeometry>
  <use name=Geometry/RPCGeometry>
+ <use name=DQMServices/CoreROOT>
  <use name=root>
  <use name=clhep>
 </export>

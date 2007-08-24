@@ -1,38 +1,27 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Macro to compare histograms from the GlobalHitsProducer for validation
+// Macro to produce histograms from the GlobalHitsProducer
 //
-// root -b -q MakeValidation.C
+// root -b -q MakePlots.C
 ///////////////////////////////////////////////////////////////////////////////
 #include "TFile.h"
 #include "TTree.h"
 #include "TBranch.h"
 #include "TString.h"
 
-void MakeValidation(TString sfilename = "GlobalHitsHistograms.root",
-		    TString rfilename = "GlobalHitsHistograms-reference.root",
-		    TString filename = "GlobalHitsHistogramsCompare")
+void MakePlots(TString filename="GlobalHitsHistograms")
 {
   gROOT->Reset();
+  //http://root.cern.ch/root/html/src/TStyle.cxx.html#TStyle:SetOptStat
+  gStyle->SetOptStat("emruo");
 
-  // zoom in on x-axis of plots
-  bool zoomx = false;
+  TString srcname = filename+".root";
 
-  // create new histograms for comparison
-  //gROOT->LoadMacro("MakeHistograms.C");
-  //MakeHistograms();
+  // clear memory of file name
+  delete gROOT->GetListOfFiles()->FindObject(srcname);
 
-  // setup names
-  //TString sfilename = "GlobalHitsHistograms.root";
-  //TString rfilename = "GlobalHitsHistograms-reference.root";
-
-  // clear memory of file names
-  delete gROOT->GetListOfFiles()->FindObject(sfilename);
-  delete gROOT->GetListOfFiles()->FindObject(rfilename);
-
-  // open reference file
-  TFile *sfile = new TFile(sfilename);
-  TFile *rfile = new TFile(rfilename);
-
+  // open source file
+  TFile *srcfile = new TFile(srcname);
+  
   // create canvas
   Int_t cWidth = 928, cHeight = 1218;
   //TCanvas *myCanvas = new TCanvas("globalhits","globalhits",cWidth,cHeight);
@@ -40,7 +29,7 @@ void MakeValidation(TString sfilename = "GlobalHitsHistograms.root",
   //myCanvas->Size(21.59, 27.94);
 
   // open output ps file
-  //TString filename = "GlobalHitsHistogramsCompare";
+  //TString filename = "GlobalHitsHistograms";
   TString psfile = filename+".ps";
   TString psfileopen = filename+".ps[";
   TString psfileclose = filename+".ps]";
@@ -49,19 +38,10 @@ void MakeValidation(TString sfilename = "GlobalHitsHistograms.root",
   // create label
   TLatex *label = new TLatex();
   label->SetNDC();
-  label->SetTextSize(0.03);
-  label->SetTextAlign(22);
   TString labeltitle;
 
-  // ceate text
-  TText* te = new TText();
-  te->SetTextSize(0.075);
-
   // create attributes
-  Int_t rcolor = kBlue;
-  Int_t rtype = kDotted;
-  Int_t stype = kSolid;
-  Int_t scolor = kRed;
+  Int_t srccolor = kBlue;
   Int_t linewidth = 2;
 
   vector<Int_t> histnames;
@@ -174,9 +154,9 @@ void MakeValidation(TString sfilename = "GlobalHitsHistograms.root",
 
   //loop through histograms to prepare output
   for (Int_t i = 0; i < histnames.size(); ++i) {
-
+    
     vector<string> names;
-
+    
     // setup canvas depending on group of plots
     TCanvas *Canvas;
     if (i == 0) {
@@ -303,21 +283,19 @@ void MakeValidation(TString sfilename = "GlobalHitsHistograms.root",
     // loop through plots
     for (Int_t j = 0; j < names.size(); ++j) {
 
+      //TH1F *sh = (TH1F*)srcfile->Get(names[j].c_str());
       TH1F *sh;
-      TH1F *rh;
 
       // set axis info for the histograms
       if (i == 0) {
 	TString hpath = "DQMData/MCGeant/"+names[j];
-	sh = (TH1F*)sfile->Get(hpath);
-	rh = (TH1F*)rfile->Get(hpath);
+	sh = (TH1F*)srcfile->Get(hpath);
 	sh->GetXaxis()->SetTitle("Number of Raw Generated Particles");
 	sh->GetYaxis()->SetTitle("Count");
       }
       if (i == 1) {
 	TString hpath = "DQMData/MCGeant/"+names[j];
-	sh = (TH1F*)sfile->Get(hpath);
-	rh = (TH1F*)rfile->Get(hpath);
+	sh = (TH1F*)srcfile->Get(hpath);
 	if (j == 0 || j == 1) {
 	  sh->GetXaxis()->SetTitle("Number of Vertices");
 	  sh->GetYaxis()->SetTitle("Count");
@@ -337,8 +315,7 @@ void MakeValidation(TString sfilename = "GlobalHitsHistograms.root",
       }
       if (i == 2) {
 	TString hpath = "DQMData/MCGeant/"+names[j];
-	sh = (TH1F*)sfile->Get(hpath);
-	rh = (TH1F*)rfile->Get(hpath);
+	sh = (TH1F*)srcfile->Get(hpath);
 	if (j == 0 || j == 1) {
 	  sh->GetXaxis()->SetTitle("Number of Tracks");
 	  sh->GetYaxis()->SetTitle("Count");
@@ -355,13 +332,11 @@ void MakeValidation(TString sfilename = "GlobalHitsHistograms.root",
       if (i == 3 || i == 4 || i == 5) {
 	if (i == 3 || i == 4) {
 	  TString hpath = "DQMData/ECal/"+names[j];
-	  sh = (TH1F*)sfile->Get(hpath);
-	  rh = (TH1F*)rfile->Get(hpath);
+	  sh = (TH1F*)srcfile->Get(hpath);
 	}
 	if (i == 5) {
 	  TString hpath = "DQMData/HCal/"+names[j];
-	  sh = (TH1F*)sfile->Get(hpath);
-	  rh = (TH1F*)rfile->Get(hpath);
+	  sh = (TH1F*)srcfile->Get(hpath);
 	}
 	if (j == 0 || j == 1) {
 	  sh->GetXaxis()->SetTitle("Number of Hits");
@@ -386,8 +361,7 @@ void MakeValidation(TString sfilename = "GlobalHitsHistograms.root",
       }
       if (i == 6 || i == 7) {
 	TString hpath = "DQMData/Tracker/"+names[j];
-	sh = (TH1F*)sfile->Get(hpath);
-	rh = (TH1F*)rfile->Get(hpath);
+	sh = (TH1F*)srcfile->Get(hpath);
 	if (j == 0 || j == 1) {
 	  sh->GetXaxis()->SetTitle("Number of Hits");
 	  sh->GetYaxis()->SetTitle("Count");
@@ -415,8 +389,7 @@ void MakeValidation(TString sfilename = "GlobalHitsHistograms.root",
       }
       if (i == 8) {
 	TString hpath = "DQMData/Muon/"+names[j];
-	sh = (TH1F*)sfile->Get(hpath);
-	rh = (TH1F*)rfile->Get(hpath);
+	sh = (TH1F*)srcfile->Get(hpath);
 	if (j == 0 || j == 1) {
 	  sh->GetXaxis()->SetTitle("Number of Hits");
 	  sh->GetYaxis()->SetTitle("Count");
@@ -432,8 +405,7 @@ void MakeValidation(TString sfilename = "GlobalHitsHistograms.root",
       }
       if (i == 9) {
 	TString hpath = "DQMData/Muon/"+names[j];
-	sh = (TH1F*)sfile->Get(hpath);
-	rh = (TH1F*)rfile->Get(hpath);
+	sh = (TH1F*)srcfile->Get(hpath);
 	if (j == 0 || j == 1) {
 	  sh->GetXaxis()->SetTitle("Time of Flight of Hits (ns)");
 	  sh->GetYaxis()->SetTitle("Count");
@@ -445,8 +417,7 @@ void MakeValidation(TString sfilename = "GlobalHitsHistograms.root",
       }
       if (i == 10) {
 	TString hpath = "DQMData/Muon/"+names[j];
-	sh = (TH1F*)sfile->Get(hpath);
-	rh = (TH1F*)rfile->Get(hpath);
+	sh = (TH1F*)srcfile->Get(hpath);
 	if (j == 0 || j == 1) {
 	  sh->GetXaxis()->SetTitle("Time of Flight of Hits (ns)");
 	  sh->GetYaxis()->SetTitle("Count");
@@ -458,8 +429,7 @@ void MakeValidation(TString sfilename = "GlobalHitsHistograms.root",
       }
       if (i == 11) {
 	TString hpath = "DQMData/Muon/"+names[j];
-	sh = (TH1F*)sfile->Get(hpath);
-	rh = (TH1F*)rfile->Get(hpath);
+	sh = (TH1F*)srcfile->Get(hpath);
 	if (j == 0 || j == 1 || j == 3 || j == 4) {
 	  sh->GetXaxis()->SetTitle("Time of Flight of Hits (ns)");
 	  sh->GetYaxis()->SetTitle("Count");
@@ -473,67 +443,16 @@ void MakeValidation(TString sfilename = "GlobalHitsHistograms.root",
 	  sh->GetYaxis()->SetTitle("Count");
 	}
       }
-
-      // extract plot from both files
-      //TH1F *sh = (TH1F*)sfile->Get(names[j].c_str());
-      sh->SetLineColor(scolor);
-      sh->SetLineWidth(linewidth);
-      sh->SetLineStyle(stype);
-      Double_t smax = sh->GetMaximum();
-      //TH1F *rh = (TH1F*)rfile->Get(names[j].c_str());
-      rh->SetLineColor(rcolor);
-      rh->SetLineWidth(linewidth);
-      rh->SetLineStyle(rtype);
-      Double_t rmax = rh->GetMaximum();
-
-      // find the probability value for the two plots being from the same
-      // source
-      //double pv = rh->Chi2Test(sh,"OU");
-      double pv = rh->KolmogorovTest(sh);
-      std::strstream buf;
-      std::string value;
-      buf << "PV=" << pv <<std::endl;
-      buf >> value;
-
-      // set maximum of y axis
-      Double_t max = smax;
-      if (rmax > smax) max = rmax;
-      max *= 1.10;
-      rh->SetMaximum(max);
-
-      // zoom in on x axis
-      if (zoomx) {
-	Int_t nbins = rh->GetNbinsX();
-	Int_t rlbin, slbin;
-	Int_t rfbin = -1, sfbin = -1;
-	for (Int_t k = 1; k < nbins; ++k) {
-	  Int_t rbincont = rh->GetBinContent(k);
-	  if (rbincont != 0) {
-	    rlbin = k;
-	    if (rfbin == -1) rfbin = k;
-	  }
-	  Int_t sbincont = sh->GetBinContent(k);
-	  if (sbincont != 0) {
-	    slbin = k;
-	    if (sfbin == -1) sfbin = k;
-	  }
-	}
-	Int_t binmin = rfbin, binmax = rlbin+1;
-	if (sfbin < binmin) binmin = sfbin;
-	if (slbin > binmax) binmax = slbin+1;
-	rh->SetAxisRange(rh->GetBinLowEdge(binmin),rh->GetBinLowEdge(binmax));
-      }
+      sh->SetLineColor(srccolor);
+      sh->SetLineWidth(linewidth);    
 
       // make plots
       myCanvas->cd(j+1);
       //gPad->SetLogy();
       sh->Draw();
-      rh->Draw("sames");
 
-      te->DrawTextNDC(0.15,0.8, value.c_str());
-      std::cout << "[OVAL] " << rh->GetName() 
-		<< " PV = " << pv << std::endl;
-    }
+    } // end loop through plots
+
     myCanvas->Print(psfile);
 
   } // end loop through histnames
@@ -541,9 +460,7 @@ void MakeValidation(TString sfilename = "GlobalHitsHistograms.root",
   // close output ps file
   myCanvas->Print(psfileclose);
 
-  // close root files
-  rfile->Close();
-  sfile->Close();
+  srcfile->Close();
 
   //convert to pdf
   TString cmnd;
