@@ -32,7 +32,6 @@
 // forward declarations
 namespace edm {
    class ValidityInterval;
-   class ParameterSet;
    namespace eventsetup {
       class DataProxy;
       
@@ -69,11 +68,6 @@ class DataProxyProvider
          description_ = iDescription;
       }
       
-      /**This method is only to be called by the framework, it sets the string
-        which will be appended to the labels of all data products being produced
-      **/
-      void setAppendToDataLabel(const edm::ParameterSet&);
-      
       void resetProxies(const EventSetupRecordKey& iRecordType);
 
    protected:
@@ -100,7 +94,6 @@ class DataProxyProvider
       // ---------- member data --------------------------------
       RecordProxies recordProxies_;
       ComponentDescription description_;
-      std::string appendToDataLabel_;
 };
 
 template<class ProxyT>
