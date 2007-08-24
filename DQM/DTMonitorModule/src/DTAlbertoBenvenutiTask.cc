@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/06/19 10:20:52 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/08/24 08:54:40 $
+ *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -108,7 +108,7 @@ void DTAlbertoBenvenutiTask::endJob(){
     psFile.Range(20,26);
     int counter = 0;
     TCanvas c1("c1","",600,780);
-    c1.Divide(2,3);
+    c1.Divide(4,4);
     psFile.NewPage();
     
     cout<<"[DTAlbertoBenvenutiTask] filling the file: "<<fileName<<endl;
@@ -118,11 +118,11 @@ void DTAlbertoBenvenutiTask::endJob(){
       counter++;
       c1.cd(counter);
       (*tbHisto)->Draw();      
-       if(counter%6 == 0 && counter>=6){
+       if(counter%16 == 0 && counter>=16){
 	 c1.Update();
 	 psFile.NewPage();
 	 c1.Clear();
-	 c1.Divide(2,3);
+	 c1.Divide(4,4);
 	 counter=0;
        }
     } // loop over TB histos (divided per chamber)
