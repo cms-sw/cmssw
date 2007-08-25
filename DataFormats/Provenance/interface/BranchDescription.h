@@ -6,7 +6,7 @@
 BranchDescription: The full description of a Branch.
 This description also applies to every product instance on the branch.  
 
-$Id: BranchDescription.h,v 1.2 2007/05/10 22:46:54 wmtan Exp $
+$Id: BranchDescription.h,v 1.3 2007/08/23 23:32:52 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <iosfwd>
 #include <string>
@@ -30,7 +30,7 @@ $Id: BranchDescription.h,v 1.2 2007/05/10 22:46:54 wmtan Exp $
 namespace edm {
   struct BranchDescription {
     static int const rootDefaultSplitLevel = 99;
-    static int const rootDefaultBasketSize = 32000;
+    static int const rootDefaultBasketSize = 16384;
     enum MatchMode { Strict = 0,
 		     Permissive };
 
