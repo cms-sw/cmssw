@@ -15,7 +15,7 @@
 
   <class name="edm::RefProd<reco::HLTFilterObjectBase>" />
   <class name="edm::RefProd<reco::HLTFilterObject    >" />
-  <class name="edm::RefProd<reco::HLTFilterObjectWithRefs>" splitLevel="0"/>
+  <class name="edm::RefProd<reco::HLTFilterObjectWithRefs>" />
 
   <class name="edm::reftobase::Holder<reco::HLTFilterObjectBase, edm::RefProd<reco::HLTFilterObjectBase> >" />
   <class name="edm::reftobase::Holder<reco::HLTFilterObjectBase, edm::RefProd<reco::HLTFilterObject    > >" />
@@ -29,7 +29,7 @@
 
   <class name="edm::Wrapper<reco::HLTFilterObjectBase>" />
   <class name="edm::Wrapper<reco::HLTFilterObject>" />
-  <class name="edm::Wrapper<reco::HLTFilterObjectWithRefs>" />
+  <class name="edm::Wrapper<reco::HLTFilterObjectWithRefs>" splitLevel="0"/>
   <class name="edm::Wrapper<reco::HLTPathObject>" />
   <class name="edm::Wrapper<reco::HLTGlobalObject>" />
 
