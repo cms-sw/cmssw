@@ -6,7 +6,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotAnalyzer.cc,v 1.4 2007/03/30 18:46:57 yumiceva Exp $
+ version $Id: BeamSpotAnalyzer.cc,v 1.5 2007/08/15 21:51:14 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -380,4 +380,4 @@ BeamSpotAnalyzer::endJob() {
 }
 
 //define this as a plug-in
-//DEFINE_ANOTHER_FWK_MODULE(BeamSpotAnalyzer);
+DEFINE_ANOTHER_FWK_MODULE(BeamSpotAnalyzer);

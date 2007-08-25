@@ -1,7 +1,42 @@
 <use name=FWCore/Framework>
-<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
+<use name=FWCore/Utilities>
+<use name=FWCore/ServiceRegistry>
+<use name=FWCore/PluginManager>
+<use name=CondFormats/BeamSpotObjects>
+<use name=CondFormats/DataRecord>
+<use name=CondCore/DBOutputService>
+<use name=boost>
+<use name=rootrflx>
+
+<use name=root>
+<use name=rootminuit>
+
 <use name=RecoVertex/BeamSpotProducer>
-<library file="*.cc" name=BeamSpotProducerPlugins>
+<library file=BeamSpotProducer.cc name=BeamSpotProducer>
 	 <flags EDM_PLUGIN=1>
+</library>
+<library file=BeamSpotAnalyzer.cc name=BeamSpotAnalyzer>
+	 <use name=clhep>
+	 <flags EDM_PLUGIN=1>
+</library>
+<library file=BeamSpotFakeConditions.cc name=BeamSpotFakeConditions>
+	 <flags LDFLAGS="-lXMLIO">
+	 <flags CXXFLAGS="-fpermissive">
+	 <flags EDM_PLUGIN=1>
+</library>
+<library file=BeamSpotFromDB.cc name=BeamSpotFromDB>
+	 <flags EDM_PLUGIN=1>
+</library>
+
+<library file=BeamSpotFakeConditionsWriter.cc name=BeamSpotFakeConditionsWriter> 
+  <use name=FWCore/ParameterSet>
+  <use name=FWCore/ServiceRegistry>
+  <use name=FWCore/Utilities>
+  <use name=CondFormats/DataRecord>
+  <use name=CondFormats/BTauObjects>
+  <use name=rootcore> 
+  <flags LDFLAGS="-lXMLIO"> 
+  <flags CXXFLAGS="-fpermissive"> 
+  <flags EDM_PLUGIN=1>   
 </library>
