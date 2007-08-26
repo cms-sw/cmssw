@@ -12,6 +12,7 @@
 #include "GeneratorInterface/PyquenInterface/interface/PyquenWrapper.h"
 #include "GeneratorInterface/CommonInterface/interface/PythiaCMS.h"
 
+
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -31,12 +32,19 @@ HepMC::IO_HEPEVT hepevtio;
 PyquenSource :: PyquenSource(const ParameterSet & pset, InputSourceDescription const& desc):
 GeneratedInputSource(pset, desc), evt(0), 
 abeamtarget_(pset.getParameter<double>("aBeamTarget")),
+angularspecselector_(pset.getParameter<int>("angularSpectrumSelector")),
 bfixed_(pset.getParameter<double>("bFixed")),
 cflag_(pset.getParameter<int>("cFlag")),
 comenergy(pset.getParameter<double>("comEnergy")),
+doquench_(pset.getParameter<bool>("doQuench")),
+doradiativeenloss_(pset.getParameter<bool>("doRadiativeEnLoss")),
+docollisionalenloss_(pset.getParameter<bool>("doCollisionalEnLoss")),
 maxEventsToPrint_(pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
+nquarkflavor_(pset.getParameter<int>("numQuarkFlavor")),
 pythiaHepMCVerbosity_(pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
-pythiaPylistVerbosity_(pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0))
+pythiaPylistVerbosity_(pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0)),
+qgpt0_(pset.getParameter<double>("qgpInitialTemperature")),
+qgptau0_(pset.getParameter<double>("qgpProperTimeFormation"))
 {
   // Default constructor
 
@@ -55,6 +63,9 @@ pythiaPylistVerbosity_(pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0
 
   //initialize pythia
   pyqpythia_init(pset);
+
+  //initilize pyquen
+  pyquen_init(pset);
 
   // Call PYTHIA
   call_pyinit("CMS", "p", "p", comenergy);  
@@ -124,17 +135,26 @@ void PyquenSource::clear()
 bool PyquenSource::produce(Event & e)
 {
 
-  edm::LogInfo("PYQUENabeamtarget") << "abeamtarget_ =  " << abeamtarget_;
-  edm::LogInfo("PYQUENcflag") << "cflag_ = " << cflag_;
-  edm::LogInfo("PYQUENbfixed") << "bfixed_ = " << bfixed_;
-  edm::LogInfo("PYQUENinAction") << "##### Calling PYQUEN(abeamtarget_,cflag_,bfixed_) ####";
+  edm::LogInfo("PYQUENabeamtarget") << "##### PYQUEN: beam/target A =  " << abeamtarget_;
+  edm::LogInfo("PYQUENcflag") << "##### PYQUEN: centrality flag cflag_ = " << cflag_;
+  edm::LogInfo("PYQUENbfixed") << "##### PYQUEN: fixed impact parameter bFixed = " << bfixed_;
+  edm::LogInfo("PYQUENinNFlav") << "##### PYQUEN: No active quark flavor nf =" << pyqpar.nfu;
+  edm::LogInfo("PYQUENinTemp") << "##### PYQUEN: Initial temperature of QGP, T0 ="<<pyqpar.T0u;
+  edm::LogInfo("PYQUENinTau") << "##### PYQUEN: Proper formation time of QGP, tau0 ="<< pyqpar.tau0u;
 
   // Generate PYQUEN event
+
   // generate single partonic PYTHIA jet event
   call_pyevnt();
 
-  // call PYQUEN to apply parton rescattering and energy loss
-  PYQUEN(abeamtarget_,cflag_,bfixed_);
+  // call PYQUEN to apply parton rescattering and energy loss 
+  // if doQuench=FALSE, it is pure PYTHIA
+  if( doquench_ ){
+    PYQUEN(abeamtarget_,cflag_,bfixed_);
+    edm::LogInfo("PYQUENinAction") << "##### Calling PYQUEN("<<abeamtarget_<<","<<cflag_<<","<<bfixed_<<") ####";
+  } else {
+    edm::LogInfo("PYQUENinAction") << "##### Calling PYQUEN: QUENCHING OFF!! This is just PYTHIA !!!! ####";
+  }
 
   // call PYTHIA to finish the hadronization
   PYEXEC();
@@ -218,3 +238,38 @@ bool PyquenSource::pyqpythia_init(const ParameterSet & pset)
   return true;
 }
 
+
+//_________________________________________________________________
+bool PyquenSource::pyquen_init(const ParameterSet &pset)
+{
+  // PYQUEN initialization
+
+  // angular emitted gluon  spectrum selection 
+  pyqpar.ianglu = angularspecselector_;
+
+  // type of medium induced partonic energy loss
+  if( doradiativeenloss_ && docollisionalenloss_ ){
+    edm::LogInfo("PYQUENinEnLoss") << "##### PYQUEN: Radiative AND Collisional partonic energy loss ON ####";
+    pyqpar.ienglu = 0; 
+  } else if ( doradiativeenloss_ ) {
+    edm::LogInfo("PYQUENinRad") << "##### PYQUEN: Only RADIATIVE partonic energy loss ON ####";
+    pyqpar.ienglu = 1; 
+  } else if ( docollisionalenloss_ ) {
+    edm::LogInfo("PYQUENinColl") << "##### PYQUEN: Only COLLISIONAL partonic energy loss ON ####";
+    pyqpar.ienglu = 2; 
+  } else {
+    edm::LogInfo("PYQUENinEnLoss") << "##### PYQUEN: Radiative AND Collisional partonic energy loss ON ####";
+    pyqpar.ienglu = 0; 
+  }
+
+  // number of active quark flavors in qgp
+  pyqpar.nfu    = nquarkflavor_;
+
+  // initial temperature of QGP
+  pyqpar.T0u    = qgpt0_;
+
+  // proper time of QGP formation
+  pyqpar.tau0u  = qgptau0_;
+
+  return true;
+}
