@@ -106,7 +106,7 @@ void PyquenSource::add_heavy_ion_rec(HepMC::GenEvent *evt)
     -1                                  // sigma_inel_NN
   );
 
-  evt->set_heavy_ion(hi);
+  evt->set_heavy_ion(*hi);
 }
 
 
