@@ -1,5 +1,5 @@
 /*
- * $Id: HydjetSource.cc,v 1.7 2007/08/08 14:46:55 loizides Exp $
+ * $Id: HydjetSource.cc,v 1.8 2007/08/15 14:50:29 mironov Exp $
  *
  * Interface to the HYDJET generator, produces HepMC events
  *
@@ -120,7 +120,7 @@ void HydjetSource::add_heavy_ion_rec(HepMC::GenEvent *evt)
     hyjpar.sigin                        // sigma_inel_NN
   );
 
-  evt->set_heavy_ion(hi);
+  evt->set_heavy_ion(*hi);
 }
 
 
