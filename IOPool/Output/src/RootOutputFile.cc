@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.4 2007/08/22 17:56:11 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.5 2007/08/23 23:30:38 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h" 
@@ -250,6 +250,8 @@ namespace edm {
 
   void
   RootOutputFile::buildIndex(TTree * tree, BranchType const& branchType) {
+
+    if (tree->GetEntries() == 0) return;
 
     // BuildIndex must read the auxiliary branch, so the
     // buffers need to be set to point to allocated memory.
