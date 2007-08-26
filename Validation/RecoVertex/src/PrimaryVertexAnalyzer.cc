@@ -15,8 +15,8 @@
 #include <SimDataFormats/Track/interface/SimTrackContainer.h>
 
 //generator level + CLHEP
-#include "CLHEP/HepMC/GenEvent.h"
-#include "CLHEP/HepMC/GenVertex.h"
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenVertex.h"
 //#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"

@@ -13,7 +13,7 @@
 //
 // Original Author:  Wolfram Erdmann
 //         Created:  Fri Jun  2 10:54:05 CEST 2006
-// $Id: TrackParameterAnalyzer.h,v 1.6 2007/01/09 13:24:56 werdmann Exp $
+// $Id: TrackParameterAnalyzer.h,v 1.7 2007/01/10 13:11:54 werdmann Exp $
 //
 //
 
@@ -36,9 +36,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Hep MC stuff from CLHEP, add  <use name=clhep> to the buildfile
-#include "CLHEP/HepMC/GenEvent.h"
-#include "CLHEP/HepMC/GenVertex.h"
-#include "CLHEP/HepMC/GenParticle.h"
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenVertex.h"
+#include "HepMC/GenParticle.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include <CLHEP/Vector/LorentzVector.h>
 
