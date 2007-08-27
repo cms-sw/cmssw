@@ -16,7 +16,7 @@ namespace IPTools
  	         const GlobalVector & direction, const  reco::Vertex & vertex);
 
 
-	TrajectoryStateOnSurface transverseExtrapolate(const TrajectoryStateOnSurface & track,const GlobalPoint & vertexPosition, const MagneticField * field)
+ 	inline	TrajectoryStateOnSurface transverseExtrapolate(const TrajectoryStateOnSurface & track,const GlobalPoint & vertexPosition, const MagneticField * field)
 	{
  		 TransverseImpactPointExtrapolator extrapolator(field);
  		 return extrapolator.extrapolate(track, vertexPosition);
@@ -33,7 +33,7 @@ namespace IPTools
         std::pair<bool,Measurement1D> signedImpactParameter3D(const TrajectoryStateOnSurface & state,
                  const GlobalVector & direction, const  reco::Vertex & vertex);
         
-	std::pair<bool,Measurement1D> signedImpactParameter3D(const reco::TransientTrack & transientTrack,
+	inline std::pair<bool,Measurement1D> signedImpactParameter3D(const reco::TransientTrack & transientTrack,
                  const GlobalVector & direction, const  reco::Vertex & vertex)
         {
 	  // extrapolate to the point of closest approach to the jet axis
@@ -44,7 +44,7 @@ namespace IPTools
        std::pair<bool,Measurement1D> signedDecayLength3D(const TrajectoryStateOnSurface & state,
                  const GlobalVector & direction, const  reco::Vertex & vertex);
 
-       std::pair<bool,Measurement1D> signedDecayLength3D(const reco::TransientTrack & transientTrack,
+       inline std::pair<bool,Measurement1D> signedDecayLength3D(const reco::TransientTrack & transientTrack,
                  const GlobalVector & direction, const  reco::Vertex & vertex)
         {
           // extrapolate to the point of closest approach to the jet axis
