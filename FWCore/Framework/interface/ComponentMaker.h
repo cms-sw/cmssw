@@ -79,9 +79,16 @@ template <class T, class TComponent>
       void setDescriptionForFinder(EventSetupRecordIntervalFinder* iFinder, const ComponentDescription& iDesc) const {
         iFinder->setDescriptionForFinder(iDesc);
       }
+      void setPostConstruction(DataProxyProvider* iProv, const edm::ParameterSet& iPSet) const {
+        //The 'appendToDataLabel' parameter was added very late in the development cycle and since
+        // the ParameterSet is not sent to the base class we must set the value after construction
+        iProv->setAppendToDataLabel(iPSet);
+      }
       void setDescription(void*, const ComponentDescription&) const {
       }
       void setDescriptionForFinder(void*, const ComponentDescription&) const {
+      }
+      void setPostConstruction(void*, const edm::ParameterSet&) const {
       }
       // ---------- member data --------------------------------
 
@@ -108,6 +115,7 @@ ComponentMaker<T,TComponent>:: addTo(EventSetupProvider& iProvider,
       
    this->setDescription(component.get(),description);
    this->setDescriptionForFinder(component.get(),description);
+   this->setPostConstruction(component.get(),iConfiguration);
    T::addTo(iProvider, component);
    return component;
 }
