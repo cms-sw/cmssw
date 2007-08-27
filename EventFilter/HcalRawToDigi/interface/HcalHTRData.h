@@ -8,8 +8,8 @@
  *  Since this class requires external specification of the length of the data, it is implemented
  *  as an interpreter, rather than a cast-able header class.
  *
- *  $Date: 2007/06/09 21:16:14 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/06/15 15:58:28 $
+ *  $Revision: 1.7 $
  *  \author J. Mans - UMD
  */
 
@@ -133,6 +133,48 @@ class HcalHTRData {
   int getNTP() const;
   /** \brief Get the number of presamples in daq data */
   int getNPS() const;
+
+ /** \brief Get the BCN of the Fiber Orbit Messages */
+  inline unsigned int getFib1OrbMsgBCN() const {
+  return (m_formatVersion==-1)?(0):(m_rawConst[m_rawLength-12]&0xFFF);
+}
+  inline unsigned int getFib2OrbMsgBCN() const {
+  return (m_formatVersion==-1)?(0):(m_rawConst[m_rawLength-11]&0xFFF);
+}
+
+  inline unsigned int getFib3OrbMsgBCN() const {
+  return (m_formatVersion==-1)?(0):(m_rawConst[m_rawLength-10]&0xFFF);
+}
+
+  inline unsigned int getFib4OrbMsgBCN() const {
+  return (m_formatVersion==-1)?(0):(m_rawConst[m_rawLength-9]&0xFFF);
+}
+
+  inline unsigned int getFib5OrbMsgBCN() const {
+  return (m_formatVersion==-1)?(0):(m_rawConst[m_rawLength-8]&0xFFF);
+}
+
+  inline unsigned int getFib6OrbMsgBCN() const {
+  return (m_formatVersion==-1)?(0):(m_rawConst[m_rawLength-7]&0xFFF);
+}
+
+  inline unsigned int getFib7OrbMsgBCN() const {
+  return (m_formatVersion==-1)?(0):(m_rawConst[m_rawLength-6]&0xFFF);
+}
+
+  inline unsigned int getFib8OrbMsgBCN() const {
+  return (m_formatVersion==-1)?(0):(m_rawConst[m_rawLength-5]&0xFFF);
+}
+  /* unsigned int getFib1OrbMsgBCN() const;
+  unsigned int getFib2OrbMsgBCN() const;
+  unsigned int getFib3OrbMsgBCN() const;
+  unsigned int getFib4OrbMsgBCN() const;
+  unsigned int getFib5OrbMsgBCN() const;
+  unsigned int getFib6OrbMsgBCN() const;
+  unsigned int getFib7OrbMsgBCN() const;
+  unsigned int getFib8OrbMsgBCN() const;
+  */
+
   /** \brief Was there an error on the given fiber for this event (only
       in histogram mode!) */
   bool wasHistogramError(int ifiber) const;
