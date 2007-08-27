@@ -1,283 +1,73 @@
+
 <?xmsl version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmln:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
 
-<!-- this file defines the geometry of the Alignment Tubes in the CMS Tracker -->
+	<!-- this file defines the geometry of the Alignment Tubes in the CMS Tracker -->
+	<ConstantsSection label="AlignmentTubes.xml" eval="true">
+		<Constant name="zero"           value="0.0*fm"/>
+		<Constant name="NomexTubeRin2"  value="55.05*cm"/>
+		<Constant name="NomexTubeRout2" value="57.75*cm"/>
+		<Constant name="AlignPhi1"      value="22.500*deg"/>
+		<Constant name="AlignPhi2"      value="73.928*deg"/>
+		<Constant name="AlignPhi3"      value="106.071*deg"/>
+		<Constant name="AlignPhi4"      value="157.500*deg"/>
+		<Constant name="AlignPhi5"      value="208.929*deg"/>
+		<Constant name="AlignPhi6"      value="247.500*deg"/>
+		<Constant name="AlignPhi7"      value="298.929*deg"/>
+		<Constant name="AlignPhi8"      value="331.071*deg"/>
+		<Constant name="MirrorPlusPos1" value="180.0*mm"/>
+		<Constant name="MirrorPlusPos2" value="220.0*mm"/>
+		<Constant name="MirrorPlusPos3" value="380.0*mm"/>
+		<Constant name="MirrorPlusPos4" value="580.0*mm"/>
+		<Constant name="MirrorPlusPos5" value="620.0*mm"/>
+		<Constant name="MirrorPlusPos6" value="1040.0*mm"/>
+		<Constant name="MirrorMinusPos1"  value="-1.0*100.0*mm"/>
+		<Constant name="MirrorMinusPos2"  value="-1.0*140.0*mm"/>
+		<Constant name="MirrorMinusPos3"  value="-1.0*340.0*mm"/>
+		<Constant name="MirrorMinusPos4"  value="-1.0*500.0*mm"/>
+		<Constant name="MirrorMinusPos5"  value="-1.0*540.0*mm"/>
+		<Constant name="MirrorMinusPos6"  value="-1.0*860.0*mm"/>
+	</ConstantsSection>
+	<SolidSection label="AlignmentTubesNew.xml">
+		<!-- define the solids for the alignment tubes -->
+		<Tubs name="AlignmentTube" rMin="6.0*mm" rMax="8.0*mm" dz="1135*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name = "Mirror" dz = "0.5*0.6*mm" rMin = "0.0*fm" rMax = "6.0*mm" startPhi = "0*deg" deltaPhi = "360*deg" />
+	</SolidSection>
 
-<SolidSection label="AlignmentTubes.xml">
-  <!-- define the solids for the alignment tubes -->
-  <!-- this is for Alignment Tubes in +y direction -->
-  <Tubs name = "ATEV" dz = "1137.0*mm" rMin = "0.0*fm" rMax = "8.0*mm" startPhi = "0*deg" deltaPhi = "360*deg" />
-  <!-- this for Alingment Tubes in -y direction -->
-  <Tubs name = "AlignmentTube" dz = "0.5*1135.0*mm" rMin = "6.0*mm" rMax = "8.0*mm" startPhi = "0*deg" deltaPhi = "360*deg" />
-  <Tubs name = "Mirror" dz = "0.5*0.6*mm" rMin = "0.0*fm" rMax = "6.0*mm" startPhi = "0*deg" deltaPhi = "360*deg" />
-</SolidSection>
+	<LogicalPartSection label = "AlignmentTubes.xml">
+		<LogicalPart name="AlignmentTubeL" category="unspecified">
+			<rSolid name="AlignmentTubes:AlignmentTube"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name = "MirrorL" category = "unspecified">
+			<rSolid name = "AlignmentTubes:Mirror" />
+			<rMaterial name = "materials:Si O_2" />
+		</LogicalPart>
+	</LogicalPartSection>
 
-<LogicalPartSection label = "AlignmentTubes.xml">
-  <!-- define the properties of the Solids -->
-  <LogicalPart name = "ATEV" category = "unspecified">
-   <rSolid name = "ATEV" />
-   <rMaterial name = "materials:T_Air" />
-  </LogicalPart>
+	<PosPartSection label = "AlignmentTubes.xml">
+		<!-- position the logical parts -->
+  		<Algorithm name="track:DDTrackerPhiAlgo">
+			<rParent name="tob:TOB"/>
+			<String name="ChildName"    value="AlignmentTubes:AlignmentTubeL"/>
+			<Numeric name="Radius"      value="([NomexTubeRin2]+[NomexTubeRout2])/2"/>
+			<Numeric name="Tilt"        value="0*deg"/>
+			<Vector name="Phi" type="numeric" nEntries="8">
+				[AlignPhi1], [AlignPhi2], [AlignPhi3], [AlignPhi4],
+				[AlignPhi5], [AlignPhi6], [AlignPhi7], [AlignPhi8]
+			</Vector>
+			<Vector name="ZPos" type="numeric" nEntries="8">
+				[zero], [zero], [zero], [zero], [zero], [zero], [zero], [zero]
+			</Vector>
+		</Algorithm>
 
-  <LogicalPart name = "AlignmentTube" category = "unspecified">
-   <rSolid name = "AlignmentTube" />
-   <rMaterial name = "materials:TOB_CF_Str" />
-  </LogicalPart>
-
-  <LogicalPart name = "Mirror" category = "unspecified">
-   <rSolid name = "Mirror" />
-   <rMaterial name = "materials:Si O_2" />
-  </LogicalPart>
-</LogicalPartSection>
-
-<PosPartSection label = "AlignmentTubes.xml">
-  <!-- position the logical parts -->
-
-  <!-- position the first alignment tube -->
-  <AlgoPosPart algo="global:angular">
-   <rParent name = "tob:TOB" />
-   <rChild name = "AlignmentTubes:ATEV" />
-   <ParE name="n" value="1" />
-   <ParE name="radius" value="0*mm"/>
-   <ParE name="center" value="564*cos(22.5*deg)*mm"/>
-   <ParE name="center" value="564*sin(22.5*deg)*mm"/>
-   <ParE name="center" value="0*mm"/>
-
-    <!-- first rotation -->
-    <!-- first rotate the mirror about 0 degrees w.r.t. to the x-axis -->
-    <ParE name="rotateSolid" value="0*deg"/>
-    <!-- theta=0*deg -->
-    <ParE name="rotateSolid" value="0*deg"/> 
-    <!-- phi = 0*deg -->
-    <ParE name="rotateSolid" value="0*deg"/>
-    <!-- rotate by 0*deg around (theta,phi) -->
-
-    <!-- second rotation -->
-    <!-- rotate the tube, so it has the appropriate angle w.r.t. the z-axis -->
-    <ParE name="rotateSolid" value="0*deg"/>
-    <!-- theta=0*deg -->
-    <ParE name="rotateSolid" value="0*deg"/>
-    <!-- phi=0*deg -->
-    <ParE name="rotateSolid" value="(22.5-90)*deg"/>
-    <!-- rotate around (theta,phi); the angle is the position angle in phi -->
-  </AlgoPosPart>
-
-  <!-- position the second alignment tube -->
-  <AlgoPosPart algo="global:angular">
-   <rParent name = "tob:TOB" />
-   <rChild name = "AlignmentTubes:ATEV" />
-   <ParE name="n" value="1" />
-   <ParE name="radius" value="0*mm"/>
-   <ParE name="center" value="564*cos(73.92857*deg)*mm"/>
-   <ParE name="center" value="564*sin(73.92857*deg)*mm"/>
-   <ParE name="center" value="0*mm"/>
-
-    <!-- first rotation -->
-    <!-- first rotate the mirror about 0 degrees w.r.t. to the x-axis -->
-    <ParE name="rotateSolid" value="0*deg"/>
-    <!-- theta=0*deg -->
-    <ParE name="rotateSolid" value="0*deg"/> 
-    <!-- phi = 0*deg -->
-    <ParE name="rotateSolid" value="0*deg"/>
-    <!-- rotate by 0*deg around (theta,phi) -->
-
-    <!-- second rotation -->
-    <!-- rotate the tube, so it has the appropriate angle w.r.t. the z-axis -->
-    <ParE name="rotateSolid" value="0*deg"/>
-    <!-- theta=0*deg -->
-    <ParE name="rotateSolid" value="0*deg"/>
-    <!-- phi=0*deg -->
-    <ParE name="rotateSolid" value="(73.92857-90)*deg"/>
-    <!-- rotate around (theta,phi); the angle is the position angle in phi -->
-  </AlgoPosPart>
-
-  <!-- position the third alignment tube -->
-  <AlgoPosPart algo="global:angular">
-   <rParent name = "tob:TOB" />
-   <rChild name = "AlignmentTubes:ATEV" />
-   <ParE name="n" value="1" />
-   <ParE name="radius" value="0*mm"/>
-   <ParE name="center" value="564*cos(106.07143*deg)*mm"/>
-   <ParE name="center" value="564*sin(106.07143*deg)*mm"/>
-   <ParE name="center" value="0*mm"/>
-
-    <!-- first rotation -->
-    <!-- first rotate the mirror about 0 degrees w.r.t. to the x-axis -->
-    <ParE name="rotateSolid" value="0*deg"/>
-    <!-- theta=0*deg -->
-    <ParE name="rotateSolid" value="0*deg"/> 
-    <!-- phi = 0*deg -->
-    <ParE name="rotateSolid" value="0*deg"/>
-    <!-- rotate by 0*deg around (theta,phi) -->
-
-    <!-- second rotation -->
-    <!-- rotate the tube, so it has the appropriate angle w.r.t. the z-axis -->
-    <ParE name="rotateSolid" value="0*deg"/>
-    <!-- theta=0*deg -->
-    <ParE name="rotateSolid" value="0*deg"/>
-    <!-- phi=0*deg -->
-    <ParE name="rotateSolid" value="(106.07143-90)*deg"/>
-    <!-- rotate around (theta,phi); the angle is the position angle in phi -->
-  </AlgoPosPart>
-
-  <!-- position the fourth alignment tube -->
-  <AlgoPosPart algo="global:angular">
-   <rParent name = "tob:TOB" />
-   <rChild name = "AlignmentTubes:ATEV" />
-   <ParE name="n" value="1" />
-   <ParE name="radius" value="0*mm"/>
-   <ParE name="center" value="564*cos(157.5*deg)*mm"/>
-   <ParE name="center" value="564*sin(157.5*deg)*mm"/>
-   <ParE name="center" value="0*mm"/>
-
-    <!-- first rotation -->
-    <!-- first rotate the mirror about 0 degrees w.r.t. to the x-axis -->
-    <ParE name="rotateSolid" value="0*deg"/>
-    <!-- theta=0*deg -->
-    <ParE name="rotateSolid" value="0*deg"/> 
-    <!-- phi = 0*deg -->
-    <ParE name="rotateSolid" value="0*deg"/>
-    <!-- rotate by 0*deg around (theta,phi) -->
-
-    <!-- second rotation -->
-    <!-- rotate the tube, so it has the appropriate angle w.r.t. the z-axis -->
-    <ParE name="rotateSolid" value="0*deg"/>
-    <!-- theta=0*deg -->
-    <ParE name="rotateSolid" value="0*deg"/>
-    <!-- phi=0*deg -->
-    <ParE name="rotateSolid" value="(157.5-90)*deg"/>
-    <!-- rotate around (theta,phi); the angle is the position angle in phi -->
-  </AlgoPosPart>
-
-  <!-- position the fifth alignment tube -->
-  <AlgoPosPart algo="global:angular">
-   <rParent name = "tob:TOB" />
-   <rChild name = "AlignmentTubes:ATEV" />
-   <ParE name="n" value="1" />
-   <ParE name="radius" value="0*mm"/>
-   <ParE name="center" value="564*cos(208.92857*deg)*mm"/>
-   <ParE name="center" value="564*sin(208.92857*deg)*mm"/>
-   <ParE name="center" value="0*mm"/>
-
-    <!-- first rotation -->
-    <!-- first rotate the mirror about 0 degrees w.r.t. to the x-axis -->
-    <ParE name="rotateSolid" value="0*deg"/>
-    <!-- theta=0*deg -->
-    <ParE name="rotateSolid" value="0*deg"/> 
-    <!-- phi = 0*deg -->
-    <ParE name="rotateSolid" value="0*deg"/>
-    <!-- rotate by 0*deg around (theta,phi) -->
-
-    <!-- second rotation -->
-    <!-- rotate the tube, so it has the appropriate angle w.r.t. the z-axis -->
-    <ParE name="rotateSolid" value="0*deg"/>
-    <!-- theta=0*deg -->
-    <ParE name="rotateSolid" value="0*deg"/>
-    <!-- phi=0*deg -->
-    <ParE name="rotateSolid" value="(208.92857-90)*deg"/>
-    <!-- rotate around (theta,phi); the angle is the position angle in phi -->
-  </AlgoPosPart>
-
-  <!-- position the sixth alignment tube -->
-  <AlgoPosPart algo="global:angular">
-   <rParent name = "tob:TOB" />
-   <rChild name = "AlignmentTubes:ATEV" />
-   <ParE name="n" value="1" />
-   <ParE name="radius" value="0*mm"/>
-   <ParE name="center" value="564*cos(247.5*deg)*mm"/>
-   <ParE name="center" value="564*sin(247.5*deg)*mm"/>
-   <ParE name="center" value="0*mm"/>
-
-    <!-- first rotation -->
-    <!-- first rotate the mirror about 0 degrees w.r.t. to the x-axis -->
-    <ParE name="rotateSolid" value="0*deg"/>
-    <!-- theta=0*deg -->
-    <ParE name="rotateSolid" value="0*deg"/> 
-    <!-- phi = 0*deg -->
-    <ParE name="rotateSolid" value="0*deg"/>
-    <!-- rotate by 0*deg around (theta,phi) -->
-
-    <!-- second rotation -->
-    <!-- rotate the tube, so it has the appropriate angle w.r.t. the z-axis -->
-    <ParE name="rotateSolid" value="0*deg"/>
-    <!-- theta=0*deg -->
-    <ParE name="rotateSolid" value="0*deg"/>
-    <!-- phi=0*deg -->
-    <ParE name="rotateSolid" value="(247.5-90)*deg"/>
-    <!-- rotate around (theta,phi); the angle is the position angle in phi -->
-  </AlgoPosPart>
-
-  <!-- position the seventh alignment tube -->
-  <AlgoPosPart algo="global:angular">
-   <rParent name = "tob:TOB" />
-   <rChild name = "AlignmentTubes:ATEV" />
-   <ParE name="n" value="1" />
-   <ParE name="radius" value="0*mm"/>
-   <ParE name="center" value="564*cos(298.92857*deg)*mm"/>
-   <ParE name="center" value="564*sin(298.92857*deg)*mm"/>
-   <ParE name="center" value="0*mm"/>
-
-    <!-- first rotation -->
-    <!-- first rotate the mirror about 0 degrees w.r.t. to the x-axis -->
-    <ParE name="rotateSolid" value="0*deg"/>
-    <!-- theta=0*deg -->
-    <ParE name="rotateSolid" value="0*deg"/> 
-    <!-- phi = 0*deg -->
-    <ParE name="rotateSolid" value="0*deg"/>
-    <!-- rotate by 0*deg around (theta,phi) -->
-
-    <!-- second rotation -->
-    <!-- rotate the tube, so it has the appropriate angle w.r.t. the z-axis -->
-    <ParE name="rotateSolid" value="0*deg"/>
-    <!-- theta=0*deg -->
-    <ParE name="rotateSolid" value="0*deg"/>
-    <!-- phi=0*deg -->
-    <ParE name="rotateSolid" value="(298.92857-90)*deg"/>
-    <!-- rotate around (theta,phi); the angle is the position angle in phi -->
-  </AlgoPosPart>
-
-  <!-- position the eigth alignment tube -->
-  <AlgoPosPart algo="global:angular">
-   <rParent name = "tob:TOB" />
-   <rChild name = "AlignmentTubes:ATEV" />
-   <ParE name="n" value="1" />
-   <ParE name="radius" value="0*mm"/>
-   <ParE name="center" value="564*cos(331.07143*deg)*mm"/>
-   <ParE name="center" value="564*sin(331.07143*deg)*mm"/>
-   <ParE name="center" value="0*mm"/>
-
-    <!-- first rotation -->
-    <!-- first rotate the mirror about 0 degrees w.r.t. to the x-axis -->
-    <ParE name="rotateSolid" value="0*deg"/>
-    <!-- theta=0*deg -->
-    <ParE name="rotateSolid" value="0*deg"/> 
-    <!-- phi = 0*deg -->
-    <ParE name="rotateSolid" value="0*deg"/>
-    <!-- rotate by 0*deg around (theta,phi) -->
-
-    <!-- second rotation -->
-    <!-- rotate the tube, so it has the appropriate angle w.r.t. the z-axis -->
-    <ParE name="rotateSolid" value="0*deg"/>
-    <!-- theta=0*deg -->
-    <ParE name="rotateSolid" value="0*deg"/>
-    <!-- phi=0*deg -->
-    <ParE name="rotateSolid" value="(331.07143-90)*deg"/>
-    <!-- rotate around (theta,phi); the angle is the position angle in phi -->
-  </AlgoPosPart>
 
 <!-- start of the alignment tube (+z direction) -->
-  <!-- the Alignment Tube -->
-  <PosPart copyNumber = "9">
-   <rParent name = "AlignmentTubes:ATEV" />
-   <rChild name = "AlignmentTubes:AlignmentTube" />
-   <rRotation name = "rotations:000D"/>
-   <Translation x="0*fm" y="0*fm" z="(567.5 + 2.0)*mm" />
-  </PosPart>
 
   <!-- the first mirror (beam down) -->
-  <AlgoPosPart algo="global:angular"> <!-- start="1" incr="1" end="2"> -->
-   <rParent name="AlignmentTubes:ATEV"/>
-   <rChild name="AlignmentTubes:Mirror"/>
+  <AlgoPosPart algo="global:angular">
+   <rParent name="AlignmentTubes:AlignmentTubeL"/>
+   <rChild name="AlignmentTubes:MirrorL"/>
    <ParE name="n" value="1"/>
    <ParE name="rangeAngle" value="360*deg"/>
    <ParE name="radius" value="0*mm"/>
@@ -315,12 +105,12 @@
     <!-- phi=90*deg -->
     <ParE name="rotateSolid" value="90*deg"/>
     <!-- rotate by 90deg around (theta,phi) -->
-   </AlgoPosPart>
+  </AlgoPosPart>
 
   <!-- the second mirror (beam up) -->
-  <AlgoPosPart algo="global:angular" > <!-- start="1" incr="1" end="2"> -->
-   <rParent name="AlignmentTubes:ATEV"/>
-   <rChild name="AlignmentTubes:Mirror"/>
+  <AlgoPosPart algo="global:angular" >
+   <rParent name="AlignmentTubes:AlignmentTubeL"/>
+   <rChild name="AlignmentTubes:MirrorL"/>
    <ParE name="n" value="1"/>
    <ParE name="rangeAngle" value="360*deg"/>
    <ParE name="radius" value="0*mm"/>
@@ -335,7 +125,6 @@
     <!-- phi = 45*deg: beam up, phi = 135*deg: beam down -->
     <ParE name="rotateSolid" value="90*deg"/>
     <!-- rotate by 90*deg around (theta,phi) -->
-
     <!-- second rotation -->
     <!-- rotate the mirror, so it has the appropriate angle w.r.t. the z-axis -->
     <ParE name="rotateSolid" value="90*deg"/>
@@ -344,12 +133,12 @@
     <!-- phi=90*deg -->
     <ParE name="rotateSolid" value="90*deg"/>
     <!-- rotate by 90deg around (theta,phi) -->
-   </AlgoPosPart>
+  </AlgoPosPart>
 
   <!-- the third mirror (beam down) -->
-  <AlgoPosPart algo="global:angular" > <!-- start="1" incr="1" end="2"> -->
-   <rParent name="AlignmentTubes:ATEV"/>
-   <rChild name="AlignmentTubes:Mirror"/>
+  <AlgoPosPart algo="global:angular" >
+   <rParent name="AlignmentTubes:AlignmentTubeL"/>
+   <rChild name="AlignmentTubes:MirrorL"/>
    <ParE name="n" value="1"/>
    <ParE name="rangeAngle" value="360*deg"/>
    <ParE name="radius" value="0*mm"/>
@@ -376,9 +165,9 @@
    </AlgoPosPart>
 
   <!-- the fourth mirror (beam up) -->
-  <AlgoPosPart algo="global:angular" > <!-- start="1" incr="1" end="2"> -->
-   <rParent name="AlignmentTubes:ATEV"/>
-   <rChild name="AlignmentTubes:Mirror"/>
+  <AlgoPosPart algo="global:angular" >
+   <rParent name="AlignmentTubes:AlignmentTubeL"/>
+   <rChild name="AlignmentTubes:MirrorL"/>
    <ParE name="n" value="1"/>
    <ParE name="rangeAngle" value="360*deg"/>
    <ParE name="radius" value="0*mm"/>
@@ -405,9 +194,9 @@
    </AlgoPosPart>
 
   <!-- the fifth mirror (beam down) -->
-  <AlgoPosPart algo="global:angular" > <!-- start="1" incr="1" end="2"> -->
-   <rParent name="AlignmentTubes:ATEV"/>
-   <rChild name="AlignmentTubes:Mirror"/>
+  <AlgoPosPart algo="global:angular" >
+   <rParent name="AlignmentTubes:AlignmentTubeL"/>
+   <rChild name="AlignmentTubes:MirrorL"/>
    <ParE name="n" value="1"/>
    <ParE name="rangeAngle" value="360*deg"/>
    <ParE name="radius" value="0*mm"/>
@@ -434,9 +223,9 @@
    </AlgoPosPart>
 
   <!-- the sixth mirror (beam up) -->
-  <AlgoPosPart algo="global:angular" > <!-- start="1" incr="1" end="2"> -->
-   <rParent name="AlignmentTubes:ATEV"/>
-   <rChild name="AlignmentTubes:Mirror"/>
+  <AlgoPosPart algo="global:angular" >
+   <rParent name="AlignmentTubes:AlignmentTubeL"/>
+   <rChild name="AlignmentTubes:MirrorL"/>
    <ParE name="n" value="1"/>
    <ParE name="rangeAngle" value="360*deg"/>
    <ParE name="radius" value="0*mm"/>
@@ -464,18 +253,10 @@
 <!-- end of the alignment tube (+z direction) -->
 
 <!-- start of the alignment tube (-z direction) -->
-  <!-- the Alignment Tube -->
-  <PosPart copyNumber = "10">
-   <rParent name = "AlignmentTubes:ATEV" />
-   <rChild name = "AlignmentTubes:AlignmentTube" />
-   <rRotation name = "rotations:000D"/>
-   <Translation x="0*fm" y="0*fm" z="-1*(567.5 + 2.0)*mm" />
-  </PosPart>
-
   <!-- the first mirror (beam down) -->
-  <AlgoPosPart algo="global:angular" > <!-- start="1" incr="1" end="2"> -->
-   <rParent name="AlignmentTubes:ATEV"/>
-   <rChild name="AlignmentTubes:Mirror"/>
+  <AlgoPosPart algo="global:angular" >
+   <rParent name="AlignmentTubes:AlignmentTubeL"/>
+   <rChild name="AlignmentTubes:MirrorL"/>
    <ParE name="n" value="1"/>
    <ParE name="rangeAngle" value="360*deg"/>
    <ParE name="radius" value="0*mm"/>
@@ -516,9 +297,9 @@
    </AlgoPosPart>
 
   <!-- the second mirror (beam up) -->
-  <AlgoPosPart algo="global:angular" > <!-- start="1" incr="1" end="2"> -->
-   <rParent name="AlignmentTubes:ATEV"/>
-   <rChild name="AlignmentTubes:Mirror"/>
+  <AlgoPosPart algo="global:angular" >
+   <rParent name="AlignmentTubes:AlignmentTubeL"/>
+   <rChild name="AlignmentTubes:MirrorL"/>
    <ParE name="n" value="1"/>
    <ParE name="rangeAngle" value="360*deg"/>
    <ParE name="radius" value="0*mm"/>
@@ -545,9 +326,9 @@
    </AlgoPosPart>
 
   <!-- the third mirror (beam down) -->
-  <AlgoPosPart algo="global:angular" > <!-- start="1" incr="1" end="2"> -->
-   <rParent name="AlignmentTubes:ATEV"/>
-   <rChild name="AlignmentTubes:Mirror"/>
+  <AlgoPosPart algo="global:angular" >
+   <rParent name="AlignmentTubes:AlignmentTubeL"/>
+   <rChild name="AlignmentTubes:MirrorL"/>
    <ParE name="n" value="1"/>
    <ParE name="rangeAngle" value="360*deg"/>
    <ParE name="radius" value="0*mm"/>
@@ -574,9 +355,9 @@
    </AlgoPosPart>
 
   <!-- the fourth mirror (beam up) -->
-  <AlgoPosPart algo="global:angular" > <!-- start="1" incr="1" end="2"> -->
-   <rParent name="AlignmentTubes:ATEV"/>
-   <rChild name="AlignmentTubes:Mirror"/>
+  <AlgoPosPart algo="global:angular" >
+   <rParent name="AlignmentTubes:AlignmentTubeL"/>
+   <rChild name="AlignmentTubes:MirrorL"/>
    <ParE name="n" value="1"/>
    <ParE name="rangeAngle" value="360*deg"/>
    <ParE name="radius" value="0*mm"/>
@@ -603,9 +384,9 @@
    </AlgoPosPart>
 
   <!-- the fifth mirror (beam down) -->
-  <AlgoPosPart algo="global:angular" > <!-- start="1" incr="1" end="2"> -->
-   <rParent name="AlignmentTubes:ATEV"/>
-   <rChild name="AlignmentTubes:Mirror"/>
+  <AlgoPosPart algo="global:angular" >
+   <rParent name="AlignmentTubes:AlignmentTubeL"/>
+   <rChild name="AlignmentTubes:MirrorL"/>
    <ParE name="n" value="1"/>
    <ParE name="rangeAngle" value="360*deg"/>
    <ParE name="radius" value="0*mm"/>
@@ -632,9 +413,9 @@
    </AlgoPosPart>
 
   <!-- the sixth mirror (beam up) -->
-  <AlgoPosPart algo="global:angular" > <!-- start="1" incr="1" end="2"> -->
-   <rParent name="AlignmentTubes:ATEV"/>
-   <rChild name="AlignmentTubes:Mirror"/>
+  <AlgoPosPart algo="global:angular" >
+   <rParent name="AlignmentTubes:AlignmentTubeL"/>
+   <rChild name="AlignmentTubes:MirrorL"/>
    <ParE name="n" value="1"/>
    <ParE name="rangeAngle" value="360*deg"/>
    <ParE name="radius" value="0*mm"/>

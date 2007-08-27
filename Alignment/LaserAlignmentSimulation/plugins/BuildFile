@@ -42,6 +42,7 @@
 <library file=LaserOpticalPhysics.cc>
  <lib name=AlignmentLaserAlignmentSimulation>
  <use name=SimG4Core/Physics>
- <use name=SimG4Core/QGSP>
+ <use name=SimG4Core/CustomPhysics>
+ <use name=geant4>
 <flags EDM_PLUGIN=1>
 </library>

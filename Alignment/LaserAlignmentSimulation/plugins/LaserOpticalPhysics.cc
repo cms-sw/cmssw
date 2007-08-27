@@ -1,15 +1,15 @@
 /** \file LaserOpticalPhysics.cc
  *  Custom Physics to activate optical processes for the simulation of the Laser Alignment System
  *
- *  $Date: 2007/05/08 08:00:16 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/05/09 06:42:32 $
+ *  $Revision: 1.5 $
  *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignmentSimulation/plugins/LaserOpticalPhysics.h"
 #include "Alignment/LaserAlignmentSimulation/interface/LaserOpticalPhysicsList.h"
  
-#include "SimG4Core/QGSP/src/HadronPhysicsQGSP.hh"
+#include "HadronPhysicsQGSP.hh"
 
 #include "SimG4Core/Physics/interface/PhysicsListFactory.h" 
 
