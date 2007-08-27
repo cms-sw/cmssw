@@ -433,14 +433,15 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     double theta = 2*TMath::ATan(-1*eta);
     double ET = Energy*TMath::Sin(theta);
     HcalSubdetector HcalNum = det.subdet();
-
-    HBHEActiveRing[EtaRing][depth-1] = 1;
-    HBHENActiveCells[EtaRing][depth-1]++;
-    HBHESET_EtaRing[EtaRing][depth-1]+=ET;
     TLorentzVector v_;
-    v_.SetPtEtaPhiE(ET, 0, phi, ET);
-    vHBHEMET_EtaRing[EtaRing][depth-1]-=v_;
-
+    if (Energy>0) // zero suppress
+      {
+	HBHEActiveRing[EtaRing][depth-1] = 1;
+	HBHENActiveCells[EtaRing][depth-1]++;
+	HBHESET_EtaRing[EtaRing][depth-1]+=ET;
+	v_.SetPtEtaPhiE(ET, 0, phi, ET);
+	vHBHEMET_EtaRing[EtaRing][depth-1]-=v_;
+      }
     switch (depth) {
     case 1:
       me["hHCAL_D1_energy_ieta_iphi"]->Fill(ieta,iphi,Energy);
@@ -542,13 +543,16 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
     me["hHCAL_D4_energy_ieta_iphi"]->Fill(ieta,iphi,Energy);
     me["hHCAL_D4_Occ_ieta_iphi"]->Fill(ieta,iphi);
-           
-    HOActiveRing[EtaRing] = 1;
-    HONActiveCells[EtaRing]++;
-    HOSET_EtaRing[EtaRing]+=ET;
-    TLorentzVector v_;
-    v_.SetPtEtaPhiE(ET, 0, phi, ET);
-    vHOMET_EtaRing[EtaRing]-=v_;
+   
+    TLorentzVector v_; 
+    if (Energy>0) // zero suppress
+      {
+	HOActiveRing[EtaRing] = 1;
+	HONActiveCells[EtaRing]++;
+	HOSET_EtaRing[EtaRing]+=ET;
+	v_.SetPtEtaPhiE(ET, 0, phi, ET);
+	vHOMET_EtaRing[EtaRing]-=v_;
+      }
                                                                                                                                                    
   } // end loop over HORecHit's
 
@@ -602,13 +606,15 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     double theta = 2*TMath::ATan(-1*eta);
     double ET = Energy*TMath::Sin(theta);
 
-    HFActiveRing[EtaRing][depth-1] = 1;
-    HFNActiveCells[EtaRing][depth-1]++;
-    HFSET_EtaRing[EtaRing][depth-1]+=ET;
     TLorentzVector v_;
-    v_.SetPtEtaPhiE(ET, 0, phi, ET);
-    vHFMET_EtaRing[EtaRing][depth-1]-=v_;                                                                                                                                        
-    
+    if (Energy>0) // zero suppress
+      {
+	HFActiveRing[EtaRing][depth-1] = 1;
+	HFNActiveCells[EtaRing][depth-1]++;
+	HFSET_EtaRing[EtaRing][depth-1]+=ET;
+	v_.SetPtEtaPhiE(ET, 0, phi, ET);
+	vHFMET_EtaRing[EtaRing][depth-1]-=v_;                                                                         
+      }    
     switch (depth - 1) {
     case 1:
       me["hHCAL_D1_energy_ieta_iphi"]->Fill(ieta,iphi,Energy);
