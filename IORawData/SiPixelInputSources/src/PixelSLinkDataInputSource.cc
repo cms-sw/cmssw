@@ -82,7 +82,7 @@ bool PixelSLinkDataInputSource::produce(edm::Event& event) {
     edm::LogWarning("")<<"Had to read "<<count<<" words before finding header!"<<std::endl;
   }
 
-  if (m_fedid>0) {
+  if (m_fedid>-1) {
     data=(data&0xfffffffffff000ffLL)|((m_fedid&0xfff)<<8);
   }
 
