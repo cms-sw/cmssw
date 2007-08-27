@@ -10,6 +10,7 @@ namespace {
     ret.addParameter<double>("primcut",2.0);
     ret.addParameter<double>("seccut",6.0);
     ret.addParameter<double>("minweight",0.5);
+    ret.addParameter<double>("weightthreshold",0.001 );
     return ret;
   }
 }
