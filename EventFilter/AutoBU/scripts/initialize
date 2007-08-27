@@ -470,6 +470,11 @@ sub makeCfgFu
 	                "{ untracked string threshold = \"WARNING\" }\n";
     $result = $result . "  }\n\n";
 
+    $result = $result . "  service = PrescaleService {\n";
+    $result = $result . "    uint32 prescaleFactor = 1\n";
+    $result = $result . "    vstring InitialConfig = { \"1\", \"1\", \"1\" }\n";
+    $result = $result . "  }\n\n";
+
     $result = $result . "  service = FUShmDQMOutputService {\n";
     $result = $result . "    untracked int32 initialMessageBufferSize=1000000\n";
     $result = $result . "    double          lumiSectionsPerUpdate   =    1.0\n";
@@ -513,10 +518,10 @@ sub makeCfgFu
     
     $result = $result . "  module out = ShmStreamConsumer\n";
     $result = $result . "  {\n";
-    $result = $result . "    int32           max_event_size       = 7000000\n";
+    $result = $result . "    untracked int32 max_event_size       = 7000000\n";
     $result = $result . "    int32           max_queue_depth      =       5\n";
-    $result = $result . "    bool            use_compression      =    true\n";
-    $result = $result . "    int32           compression_level    =       1\n";
+    $result = $result . "    untracked bool  use_compression      =    true\n";
+    $result = $result . "    untracked int32 compression_level    =       1\n";
     $result = $result . "  }\n\n";
     
     $result = $result . "}\n";
@@ -540,33 +545,38 @@ sub makeCfgSm
     $result = $result . "  // modules\n\n";
     $result = $result . "  module out = EventStreamFileWriter\n";
     $result = $result . "  {\n";
-    $result = $result . "    string streamLabel        =                  \"A\"\n";
-    $result = $result . "    int32 max_event_size    = 7000000\n";
-    $result = $result . "    int32 max_queue_depth   =       5\n";
-    $result = $result . "    bool use_compression    =   false\n";
-    $result = $result . "    int32 compression_level =       1\n\n";
-    $result = $result . "    int32  maxSize            =            536870912\n";
+    $result = $result . "    string          streamLabel       =     \"A\"\n";
+    $result = $result . "    int32           maxSize           = 536870912\n";
     $result = $result . "    untracked PSet SelectEvents = { vstring SelectEvents={\"p1\"}}\n";
+
+    $result = $result . "    untracked int32 max_event_size    = 7000000\n";
+    $result = $result . "    untracked int32 max_queue_depth   =       5\n";
+    $result = $result . "    untracked bool  use_compression   =   false\n";
+    $result = $result . "    untracked int32 compression_level =       1\n\n";
     $result = $result . "  }\n\n";
+
     $result = $result . "  module out2 = EventStreamFileWriter\n";
     $result = $result . "  {\n";
-    $result = $result . "    string streamLabel        =                  \"B\"\n";
-    $result = $result . "    int32 max_event_size    = 7000000\n";
-    $result = $result . "    int32 max_queue_depth   =       5\n";
-    $result = $result . "    bool use_compression    =   false\n";
-    $result = $result . "    int32 compression_level =       1\n\n";
-    $result = $result . "    int32  maxSize            =           1073741824\n";
-    $result = $result . "    untracked PSet SelectEvents = { vstring SelectEvents={\"p2\"}}\n";
+    $result = $result . "    string streamLabel =      \"B\"\n";
+    $result = $result . "    int32  maxSize     = 1073741824\n";
+    $result = $result . "    untracked PSet SelectEvents  = { vstring SelectEvents={\"p2\"}}\n";
+
+    $result = $result . "    untracked int32 max_event_size    = 7000000\n";
+    $result = $result . "    untracked int32 max_queue_depth   =       5\n";
+    $result = $result . "    untracked bool use_compression    =   false\n";
+    $result = $result . "    untracked int32 compression_level =       1\n\n";
     $result = $result . "  }\n\n";
+
     $result = $result . "  module out3 = EventStreamFileWriter\n";
     $result = $result . "  {\n";
-    $result = $result . "    string streamLabel        =                  \"C\"\n";
-    $result = $result . "    int32 max_event_size    = 7000000\n";
-    $result = $result . "    int32 max_queue_depth   =       5\n";
-    $result = $result . "    bool use_compression    =   false\n";
-    $result = $result . "    int32 compression_level =       1\n\n";
-    $result = $result . "    int32  maxSize            =           1073741824\n";
+    $result = $result . "    string streamLabel        =      \"C\"\n";
+    $result = $result . "    int32  maxSize            = 1073741824\n";
     $result = $result . "    untracked PSet SelectEvents = { vstring SelectEvents={\"p3\"}}\n";
+
+    $result = $result . "    untracked int32 max_event_size    = 7000000\n";
+    $result = $result . "    untracked int32 max_queue_depth   =       5\n";
+    $result = $result . "    untracked bool use_compression    =   false\n";
+    $result = $result . "    untracked int32 compression_level =       1\n\n";
     $result = $result . "  }\n\n";
     $result = $result . "}\n";
 }

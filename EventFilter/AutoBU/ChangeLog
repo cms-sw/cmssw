@@ -1,3 +1,9 @@
+2007-08-27  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-05-05
+	* fix initialize script, make respective parameters in *.cfg files
+	untracked.
+	
 2007-08-21  Emilio Meschi  <emilio.meschi@cern.ch>
 		
 	* tag V00-05-03
