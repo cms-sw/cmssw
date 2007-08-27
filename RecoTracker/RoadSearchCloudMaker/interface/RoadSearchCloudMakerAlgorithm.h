@@ -51,8 +51,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/07/19 21:55:58 $
-// $Revision: 1.25 $
+// $Date: 2007/08/14 22:45:54 $
+// $Revision: 1.26 $
 //
 
 #include <string>
@@ -122,6 +122,8 @@ class RoadSearchCloudMakerAlgorithm
 
   void makecircle(double x1_cs, double y1_cs,double x2_cs, double y2_cs,
                                              double x3_cs, double y3_cs);
+
+  double CheckIntersection(LocalPoint& ip1, LocalPoint& op1, LocalPoint& ip2, LocalPoint& op2);
 
   RoadSearchCloudCollection Clean(RoadSearchCloudCollection *rawColl);
 

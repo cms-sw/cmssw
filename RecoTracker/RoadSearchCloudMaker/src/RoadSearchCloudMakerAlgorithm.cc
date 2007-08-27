@@ -48,8 +48,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/08/13 14:41:53 $
-// $Revision: 1.47 $
+// $Date: 2007/08/14 22:45:55 $
+// $Revision: 1.48 $
 //
 
 #include <vector>
@@ -204,7 +204,7 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<RoadSearchSeedCollection> in
       // get global positions of the hits, calculate before Road lookup to be used
       const TrackingRecHit* innerSeedRingHit = (*(seed->begin()));
       const TrackingRecHit* outerSeedRingHit = (*(seed->end() - 1));
-        
+
       GlobalPoint innerSeedHitGlobalPosition = tracker->idToDet(innerSeedRingHit->geographicalId())->surface().toGlobal(innerSeedRingHit->localPosition());
       GlobalPoint outerSeedHitGlobalPosition = tracker->idToDet(outerSeedRingHit->geographicalId())->surface().toGlobal(outerSeedRingHit->localPosition());
         
@@ -222,10 +222,9 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<RoadSearchSeedCollection> in
       
       int phibin = (int)(nphibin*(outer_phi/(2*Geom::pi())));
       int etabin = (int)(netabin*(outer_eta+3.0)/6.0);
-        
+      
       // calculate phi0 and k0 dependent on RoadType
       if ( roadType == Roads::RPhi ) {
-	
 	double dr = outerSeedHitGlobalPosition.perp() - innerSeedHitGlobalPosition.perp();
 	const double dr_min = 1; // cm
 	if ( dr < dr_min ) {
@@ -241,6 +240,7 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<RoadSearchSeedCollection> in
 	    double innery=innerSeedHitGlobalPosition.y();
 	    double outerx=outerSeedHitGlobalPosition.x();
 	    double outery=outerSeedHitGlobalPosition.y();
+
 	    if (NoFieldCosmic){
 	      phi0=atan2(outery-innery,outerx-innerx);
 	      double alpha=atan2(innery,innerx);
@@ -254,7 +254,6 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<RoadSearchSeedCollection> in
 	  }
 	}
       } else {
-          
 	double dz = outerSeedHitGlobalPosition.z() - innerSeedHitGlobalPosition.z();
 	const double dz_min = 1.e-6; // cm;
 	if ( std::abs(dz) < dz_min ) {
@@ -410,7 +409,7 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<RoadSearchSeedCollection> in
 	if ( consecutiveMissedLayers <= maxNumberOfConsecutiveMissedLayersPerCloud ) {
 	  if ( usedLayers >= minNumberOfUsedLayersPerCloud ) {
 	    if ( missedLayers <= maxNumberOfMissedLayersPerCloud ) {
-            
+
 	      CloudArray[phibin][etabin].push_back(cloud);
 	      
 	      if ( roadType == Roads::RPhi ){ 
@@ -454,7 +453,7 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<RoadSearchSeedCollection> in
       }
     }
   }
-  
+
   delete theHitMatcher;
   edm::LogInfo("RoadSearch") << "Found " << output.size() << " clouds."; 
   
@@ -534,50 +533,45 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 	    }
 	  } 
 	  else {
+
 	    LocalPoint hit = recHit->localPosition();
 	    const StripTopology *topology = dynamic_cast<const StripTopology*>(&(tracker->idToDetUnit(hitId)->topology()));
 	    double stripAngle = topology->stripAngle(topology->strip(hit));
 	    double stripLength = topology->localStripLength(hit);
-	    LocalPoint upperLocalBoundary(hit.x()-stripLength/2*std::sin(stripAngle),hit.y()+stripLength/2*std::cos(stripAngle),0);
-	    LocalPoint lowerLocalBoundary(hit.x()+stripLength/2*std::sin(stripAngle),hit.y()-stripLength/2*std::cos(stripAngle),0);
-	    double upperBoundaryRadius = tracker->idToDetUnit(hitId)->surface().toGlobal(upperLocalBoundary).perp(); 
-	    double lowerBoundaryRadius = tracker->idToDetUnit(hitId)->surface().toGlobal(lowerLocalBoundary).perp();
-	    double upperBoundaryPhi = phiFromExtrapolation(d0,phi0,k0,upperBoundaryRadius,roadType);
-	    double lowerBoundaryPhi = phiFromExtrapolation(d0,phi0,k0,lowerBoundaryRadius,roadType);
-	    double hitPhi = map_phi(tracker->idToDetUnit(hitId)->surface().toGlobal(hit).phi());
-              
-	    double midpointRadius = 0.5*(upperBoundaryRadius+lowerBoundaryRadius);
-	    double midpointPhi = phiFromExtrapolation(d0,phi0,k0,midpointRadius,roadType);
-	    float dx = midpointRadius*tan(hitPhi-midpointPhi);
-              
-	    float deltap, deltax, histr;
-	    histr = midpointRadius;
-	    deltax = dx;
-	    deltap = hitPhi-midpointPhi;
 
-	    if ( lowerBoundaryPhi <= upperBoundaryPhi ) {
+	    LocalPoint innerHitLocal(hit.x()+stripLength/2*std::sin(stripAngle),hit.y()-stripLength/2*std::cos(stripAngle),0);
+	    LocalPoint outerHitLocal(hit.x()-stripLength/2*std::sin(stripAngle),hit.y()+stripLength/2*std::cos(stripAngle),0);
+
+	    double innerRadius = tracker->idToDetUnit(hitId)->surface().toGlobal(innerHitLocal).perp(); 
+	    double outerRadius = tracker->idToDetUnit(hitId)->surface().toGlobal(outerHitLocal).perp();
+	    double innerExtrapolatedPhi = phiFromExtrapolation(d0,phi0,k0,innerRadius,roadType);
+	    double outerExtrapolatedPhi = phiFromExtrapolation(d0,phi0,k0,outerRadius,roadType);
+
+	    GlobalPoint innerHitGlobal =tracker->idToDetUnit(hitId)->surface().toGlobal(innerHitLocal); 
+	    GlobalPoint outerHitGlobal =tracker->idToDetUnit(hitId)->surface().toGlobal(outerHitLocal); 
+
+	    GlobalPoint innerRoadGlobal(GlobalPoint::Cylindrical(innerRadius,innerExtrapolatedPhi,
+								 tracker->idToDetUnit(hitId)->surface().toGlobal(hit).z()));
+	    GlobalPoint outerRoadGlobal(GlobalPoint::Cylindrical(outerRadius,outerExtrapolatedPhi,
+								 tracker->idToDetUnit(hitId)->surface().toGlobal(hit).z()));
+
+	    LocalPoint innerRoadLocal = tracker->idToDetUnit(hitId)->surface().toLocal(innerRoadGlobal);
+	    LocalPoint outerRoadLocal = tracker->idToDetUnit(hitId)->surface().toLocal(outerRoadGlobal);
+
+	    double dxinter = CheckIntersection(innerHitLocal, outerHitLocal, 
+					       innerRoadLocal, outerRoadLocal);
+
+	    if ( fabs(dxinter) < phiMax(roadType,phi0,k0)) {
 	      //
-	      //  This is where the disk (???) rphiRecHits end up for Roads::RPhi
+	      //  This is where the disk rphiRecHits end up for Roads::ZPhi
 	      //
-	      if ( ((lowerBoundaryPhi - phiMax(roadType,phi0,k0)) < hitPhi) &&
-		   ((upperBoundaryPhi + phiMax(roadType,phi0,k0)) > hitPhi) ) {
-		if ((usedRecHits < maxDetHitsInCloudPerDetId) && (cloud.size() < maxRecHitsInCloud_)) {
-		  cloud.addHit(recHit);
-		  ++usedRecHits;
-		}
-	      }
-	    } else {
-	      //
-	      //  some type of hit (see above) gets here
-	      //
-	      if ( ((upperBoundaryPhi - phiMax(roadType,phi0,k0)) < hitPhi) &&
-		   ((lowerBoundaryPhi + phiMax(roadType,phi0,k0)) > hitPhi) ) {
-		if ((usedRecHits < maxDetHitsInCloudPerDetId) && (cloud.size() < maxRecHitsInCloud_)) {
-		  cloud.addHit(recHit);
-		  ++usedRecHits;
-		}
+	      if ((usedRecHits < maxDetHitsInCloudPerDetId) && (cloud.size() < maxRecHitsInCloud_)) {
+		cloud.addHit(recHit);
+		++usedRecHits;
 	      }
 	    }
+	    //else
+	      //std::cout<< " ===>>> HIT FAILS !!! " << std::endl;
 	  }
 	} 
       } else {
@@ -610,7 +604,7 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 	    if ( std::abs(dx) < phiMax(roadType,phi0,k1)) {
 	      if ((usedRecHits < maxDetHitsInCloudPerDetId) && (cloud.size() < maxRecHitsInCloud_)) {
 		cloud.addHit(recHit);
-		++usedRecHits;
+		++usedRecHits;	    
 	      }
 	    }
 	    delete theCorrectedHit;
@@ -663,7 +657,6 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 	    double lowerBoundaryPhi = map_phi(tracker->idToDetUnit(hitId)->surface().toGlobal(lowerLocalBoundary).phi());
 	    double roadPhi =  phiFromExtrapolation(d0,phi0,k0,diskZ,roadType);
 
-	    
 	    float dp1 = lowerBoundaryPhi - roadPhi;
 	    float dx1 =  diskZ*tan(dp1);
 	    float dp2 = upperBoundaryPhi - roadPhi;
@@ -746,12 +739,11 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 	  }
 	} else {
             
-	  GlobalPoint ghit = tracker->idToDet(recHit->geographicalId())->surface().toGlobal(recHit->localPosition());
-            
-	  double  phi = phiFromExtrapolation(d0,phi0,k0,ghit.z(),roadType);
-            
+	  GlobalPoint ghit = tracker->idToDet(recHit->geographicalId())->surface().toGlobal(recHit->localPosition());            
+	  double  phi = phiFromExtrapolation(d0,phi0,k0,ghit.z(),roadType);            
 	  double hitphi = map_phi(ghit.phi());
-	  float dx = ghit.z()*tan(hitphi-phi);
+	  double dphi = map_phi2(hitphi-phi);
+	  float dx = ghit.z()*tan(dphi);
             
 	  if ( std::abs(dx) < 0.25 ) {
 	    cloud.addHit(recHit);
@@ -973,6 +965,44 @@ void RoadSearchCloudMakerAlgorithm::makecircle(double x1, double y1,
   d0h=-s3*(sqrt(xc*xc+yc*yc)-rc);
   phi0h=atan2(yc,xc)+s3*Geom::halfPi();
   omegah=-s3/rc;
+}
+
+double RoadSearchCloudMakerAlgorithm::CheckIntersection(LocalPoint& inner1, LocalPoint& outer1,
+							LocalPoint& inner2, LocalPoint& outer2){
+
+  double deltaX = -999.;
+  // just get the x coord of intersection of two line segments
+  // check if intersection lies inside segments
+  double det12 = inner1.x()*outer1.y() - inner1.y()*outer1.x();
+  double det34 = inner2.x()*outer2.y() - inner2.y()*outer2.x();
+
+  double xinter = (det12*(inner2.x()-outer2.x()) - det34*(inner1.x()-outer1.x()))/
+    ((inner1.x()-outer1.x())*(inner2.y()-outer2.y()) - 
+     (inner2.x()-outer2.x())*(inner1.y()-outer1.y()));
+
+  bool inter = true;
+  if (inner1.x() < outer1.x()){
+    if ((xinter<inner1.x()) || (xinter>outer1.x())) inter = false;
+  }
+  else{
+    if ((xinter>inner1.x()) || (xinter<outer1.x())) inter = false;
+  }
+
+  if (inner2.x() < outer2.x()){
+    if ((xinter<inner2.x()) || (xinter>outer2.x())) inter = false;
+  }
+  else{
+    if ((xinter>inner2.x()) || (xinter<outer2.x())) inter = false;
+  }
+
+  if (inter){
+    deltaX = 0;
+  }
+  else{
+    deltaX = min(fabs(xinter-inner1.x()),fabs(xinter-outer1.x()));
+  }
+  return deltaX;
+
 }
 
 RoadSearchCloudCollection RoadSearchCloudMakerAlgorithm::Clean(RoadSearchCloudCollection* inputCollection){
