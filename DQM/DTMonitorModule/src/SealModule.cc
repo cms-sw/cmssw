@@ -26,6 +26,10 @@ DEFINE_ANOTHER_FWK_MODULE(DTChamberEfficiencyTask);
 #include "DQM/DTMonitorModule/interface/DTTriggerCheck.h"
 DEFINE_ANOTHER_FWK_MODULE(DTTriggerCheck);
 
+#include "DQM/DTMonitorModule/src/DTAlbertoBenvenutiTask.h"
+DEFINE_ANOTHER_FWK_MODULE(DTAlbertoBenvenutiTask);
+
+
 #include <DQM/DTMonitorModule/interface/DTDataIntegrityTask.h>
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
