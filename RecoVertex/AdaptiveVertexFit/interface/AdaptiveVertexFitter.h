@@ -116,17 +116,17 @@ public:
    *   \param maxlpshift if the vertex moves further than this,
    *   then we re-linearize the tracks.
    *   \param maxstep that's the maximum of iterations that we allow for.
-   *   \param weightthreshhold that's the minimum track weight
+   *   \param weightthreshold that's the minimum track weight
    *   for a track to be considered "significant".
    *   If fewer than two tracks are significant, an exception is thrown.
    */
   void setParameters( double maxshift=0.0001, double maxlpshift=0.1, 
-                      unsigned maxstep=30, double weightthreshhold=.001 );
+                      unsigned maxstep=30, double weightthreshold=.001 );
 
   /**
    *  Sets parameters.
    *  The following parameters are expected:
-   *  maxshift,  maxlpshift,  maxstep,  weightthreshhold
+   *  maxshift,  maxlpshift,  maxstep,  weightthreshold
    */
   void setParameters ( const edm::ParameterSet & );
 

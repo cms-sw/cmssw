@@ -82,12 +82,12 @@ AdaptiveVertexFitter::~AdaptiveVertexFitter()
 }
 
 void AdaptiveVertexFitter::setParameters( double maxshift, double maxlpshift, 
-                                          unsigned maxstep, double weightthreshhold )
+                                          unsigned maxstep, double weightthreshold )
 {
   theMaxShift = maxshift;
   theMaxLPShift = maxlpshift;
   theMaxStep = maxstep;
-  theWeightThreshold=weightthreshhold;
+  theWeightThreshold=weightthreshold;
 }
 
 
@@ -97,7 +97,7 @@ void AdaptiveVertexFitter::setParameters ( const edm::ParameterSet & s )
     setParameters ( s.getParameter<double>("maxshift"),
                     s.getParameter<double>("maxlpshift"),
                     s.getParameter<int>("maxstep"),
-                    s.getParameter<double>("weightthreshhold") );
+                    s.getParameter<double>("weightthreshold") );
   } catch ( ... ) {
     edm::LogWarning("") << "setParameters failed!";
   };
