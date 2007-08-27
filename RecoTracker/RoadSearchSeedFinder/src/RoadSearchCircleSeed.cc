@@ -9,8 +9,8 @@
 // Created:         Mon Jan 22 21:42:35 UTC 2007
 //
 // $Author: gutsche $
-// $Date: 2007/06/13 14:26:48 $
-// $Revision: 1.3 $
+// $Date: 2007/08/19 16:51:37 $
+// $Revision: 1.4 $
 //
 
 #include <cmath>
@@ -92,6 +92,138 @@ double RoadSearchCircleSeed::calculateImpactParameter(GlobalPoint &center,
 			center.y() * center.y() );
 
   return std::abs(d-radius);
+}
+
+double RoadSearchCircleSeed::calculateEta(double theta) const {
+  //
+  // calculate eta from theta
+  //
+
+  return -1.*std::log(std::tan(theta/2.));
+}
+
+double RoadSearchCircleSeed::Theta() const {
+  //
+  // calculate the theta of the seed
+  // by taking the average theta of all
+  // the lines formed by combinations of
+  // hits in the seed
+  // 
+  // Note:  A faster implementation would
+  // calculate in the constructor, save, and
+  // return the member here.  This implementation
+  // minimizes the memory footprint.
+  //
+
+  // Form all the possible lines
+  std::vector<LineRZ> lines;
+  for (std::vector<GlobalPoint>::const_iterator point1 = points_.begin();
+       point1 != points_.end(); ++point1) {
+    for (std::vector<GlobalPoint>::const_iterator point2 = point1+1;
+	 point2 != points_.end(); ++point2) {
+      lines.push_back(LineRZ(*point1, *point2));
+    }
+  }
+  
+  double netTheta = 0.;
+  for (std::vector<LineRZ>::const_iterator line = lines.begin();
+       line != lines.end(); ++line){
+    netTheta += line->Theta();
+  }
+  return netTheta/(double)lines.size();
+}
+
+double RoadSearchCircleSeed::Phi0() const {
+  //
+  // calculate the angle in the x-y plane
+  // of the momentum vector at the point of
+  // closest approach to (0,0,0)
+  //
+  // Note:  A faster implementation would
+  // calculate in the constructor, save, and
+  // return the member here.  This implementation
+  // minimizes the memory footprint.
+  //
+
+  // Calculate phi as the average phi of all
+  // lines formed by combinations of hits if
+  // this is a straight line
+  if (type_ == straightLine) {
+    std::vector<LineXY> lines;
+    for (std::vector<GlobalPoint>::const_iterator point1 = points_.begin();
+	 point1 != points_.end(); ++point1) {
+      for (std::vector<GlobalPoint>::const_iterator point2 = point1+1;
+	   point2 != points_.end(); ++point2) {
+	lines.push_back(LineXY(*point1,*point2));
+      }
+    }
+    double netPhi = 0.;
+    for (std::vector<LineXY>::const_iterator line = lines.begin();
+	 line != lines.end(); ++line) {
+      netPhi += line->Phi();
+    }
+    return netPhi/(double)lines.size();
+  } // END calculation for linear seeds
+
+  // This calculation is not valid for seeds which do not exit
+  // the tracking detector (lines always exit)
+  else if (2.*Radius()+ImpactParameter()<110) {
+    return 100000.;
+  }
+
+  // circular seeds
+  else {
+    double phi = 100000.;
+    double centerPhi = center_.barePhi();
+
+    // Find the first hit in time, which determines the direction of
+    // the momentum vector (tangent to the circle at the point of
+    // closest approach, clockwise or counter-clockwise).
+    // The first hit in time is always the hit with the smallest
+    // value r as long as the track exits the tracking detector.
+    GlobalPoint firstPoint = points_[0];
+    for (unsigned int i=1; i<points_.size(); ++i) {
+      if (firstPoint.perp() > points_[i].perp()) {
+	firstPoint = points_[i];
+      }
+    }
+    
+    // Get the next hit, firstPoint is at the point of
+    // closest approach and cannot be used to
+    // determine the direction of the initial
+    // momentum vector
+    if (firstPoint.barePhi() == centerPhi) {
+      GlobalPoint nextHit = points_[0];
+      for (unsigned int i=1; i<points_.size(); ++i) {
+	if (nextHit.perp()  == firstPoint.perp() || 
+	    (firstPoint.perp()!= points_[i].perp() &&
+	     nextHit.perp() >  points_[i].perp())) {
+	  nextHit = points_[i];
+	}
+      }
+      firstPoint = nextHit;
+    }
+  
+    // Find the direction of the momentum vector
+    if (firstPoint.barePhi() > centerPhi) {
+      // The momentum vector is tangent to
+      // the track
+      phi = centerPhi + Geom::pi()/2.;
+      if (phi>Geom::pi()) {
+	phi -= 2.*Geom::pi();
+      }
+    }
+    // Other direction!
+    else if (firstPoint.barePhi() < centerPhi) {
+      // The momentum vector is tangent to
+      // the track
+      phi = centerPhi - Geom::pi()/2.;
+      if (phi<-1.*Geom::pi()) {
+	phi += 2.*Geom::pi();
+      }
+    }  
+    return phi;
+  } // END calculation for circular seeds
 }
 
 std::string RoadSearchCircleSeed::print() const {
@@ -286,3 +418,56 @@ bool RoadSearchCircleSeed::CompareDifferentHits(const RoadSearchCircleSeed *circ
 
 }
 
+//
+// constructor
+//
+LineRZ::LineRZ(GlobalPoint point1, GlobalPoint point2)
+{
+  theR_ = std::fabs(point1.perp()-point2.perp()); 
+  theZ_ = std::fabs(point1.z()-point2.z());
+  //If the line is pointing backwards in z
+  if ((point1.perp() >= point2.perp() &&
+       point1.z() < point2.z()) ||
+      (point2.perp() >= point1.perp() &&
+       point2.z() < point1.z()))
+  {
+    theZ_ = -1.*theZ_;
+  }
+}
+
+//
+// destructor
+//
+LineRZ::~LineRZ()
+{ }
+
+//
+// constructor
+//
+LineXY::LineXY(GlobalPoint point1, GlobalPoint point2)
+{
+  theX_ = std::fabs(point1.x()-point2.x()); 
+  theY_ = std::fabs(point1.y()-point2.y());
+  //If the line is pointing backwards in x
+  if ((point1.perp() >= point2.perp() &&
+       point1.x() < point2.x()) ||
+      (point2.perp() >= point1.perp() &&
+       point2.x() < point1.x()))
+  {
+    theX_ = -1.*theX_;
+  }
+  //If the line is pointing backwards in y
+  if ((point1.perp() >= point2.perp() &&
+       point1.y() < point2.y()) ||
+      (point2.perp() >= point1.perp() &&
+       point2.y() < point1.y()))
+  {
+    theY_ = -1.*theY_;
+  }
+}
+
+//
+// destructor
+//
+LineXY::~LineXY()
+{ }

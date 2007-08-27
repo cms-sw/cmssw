@@ -12,8 +12,8 @@
 // Created:         Mon Jan 22 21:42:35 UTC 2007
 //
 // $Author: gutsche $
-// $Date: 2007/06/29 23:49:57 $
-// $Revision: 1.4 $
+// $Date: 2007/08/19 16:51:36 $
+// $Revision: 1.5 $
 //
 
 #include <utility>
@@ -62,6 +62,7 @@ class RoadSearchCircleSeed
   inline GlobalPoint  Center()          const { return center_;}
   inline double       Radius()          const { return radius_;}
   inline double       ImpactParameter() const { return impactParameter_;}
+  inline double       Eta()             const { return calculateEta(Theta());}
   inline double       Type()            const { return type_; }
 
   inline void                   setSeed(const Roads::RoadSeed *input) { seed_ = input; }
@@ -87,6 +88,9 @@ class RoadSearchCircleSeed
   double determinant(double array[][3], unsigned int bins);
   double calculateImpactParameter(GlobalPoint &center,
 				  double radius);
+  double calculateEta(double theta) const;
+  double Theta       ()             const;
+  double Phi0        ()             const;
 
   std::string print() const;
 
@@ -104,6 +108,38 @@ class RoadSearchCircleSeed
   const Roads::RoadSeed *seed_;
   const Roads::RoadSet  *set_;
 
+};
+
+//
+// class declaration
+//
+
+class LineRZ {
+  public:
+    LineRZ(GlobalPoint point1, GlobalPoint point2);
+    ~LineRZ();
+
+    inline double Theta() const { return atan2(theR_,theZ_); }
+
+  private:
+    double theR_;
+    double theZ_;
+};
+
+//
+// class declaration
+//
+
+class LineXY {
+  public:
+    LineXY(GlobalPoint point1, GlobalPoint point2);
+    ~LineXY();
+
+    inline double Phi() const { return atan2(theY_,theX_); }
+
+  private:
+    double theX_;
+    double theY_;
 };
 
 std::ostream& operator<<(std::ostream& ost, const RoadSearchCircleSeed & seed);
