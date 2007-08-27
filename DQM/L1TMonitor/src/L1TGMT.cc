@@ -1,8 +1,8 @@
 /*
  * \file L1TGMT.cc
  *
- * $Date: 2007/07/25 15:05:21 $
- * $Revision: 1.5 $
+ * $Date: 2007/07/26 08:56:53 $
+ * $Revision: 1.6 $
  * \author J. Berryhill
  *
  */
@@ -81,19 +81,43 @@ void L1TGMT::beginJob(const EventSetup& c)
   {
     dbe->setCurrentFolder("L1TMonitor/L1TGMT");
     
-    gmtetavalue = dbe->book1D("GMT_eta_value", 
+    gmtetavalue[1] = dbe->book1D("GMT_eta_value", 
        "GMT eta value", 100, -2.5, 2.5 ) ;
-    gmtphivalue = dbe->book1D("GMT_phi_value", 
+    gmtetavalue[2] = dbe->book1D("GMT_eta_value_+1", 
+       "GMT eta value bx +1", 100, -2.5, 2.5 ) ;
+    gmtetavalue[0] = dbe->book1D("GMT_eta_value_-1", 
+       "GMT eta value bx -1", 100, -2.5, 2.5 ) ;
+    gmtphivalue[1] = dbe->book1D("GMT_phi_value", 
        "GMT phi value", 100, 0.0, 6.2832 ) ;
-    gmtptvalue = dbe->book1D("GMT_pt_value", 
+    gmtphivalue[2] = dbe->book1D("GMT_phi_value_+1", 
+       "GMT phi value bx +1", 100, 0.0, 6.2832 ) ;
+    gmtphivalue[0] = dbe->book1D("GMT_phi_value_-1", 
+       "GMT phi value bx -1", 100, 0.0, 6.2832 ) ;
+    gmtptvalue[1] = dbe->book1D("GMT_pt_value", 
        "GMT pt value", 160, -0.5, 159.5 ) ;
-    gmtquality = dbe->book1D("GMT_quality", 
+    gmtptvalue[2] = dbe->book1D("GMT_pt_value_+1", 
+       "GMT pt value bx +1", 160, -0.5, 159.5 ) ;
+    gmtptvalue[0] = dbe->book1D("GMT_pt_value_-1", 
+       "GMT pt value bx -1", 160, -0.5, 159.5 ) ;
+    gmtquality[1] = dbe->book1D("GMT_quality", 
        "GMT quality", 20, -0.5, 19.5 ) ;
-    gmtcharge = dbe->book1D("GMT_charge", 
+    gmtquality[2] = dbe->book1D("GMT_quality_+1", 
+       "GMT quality bx +1", 20, -0.5, 19.5 ) ;
+    gmtquality[0] = dbe->book1D("GMT_quality_-1", 
+       "GMT quality bx -1", 20, -0.5, 19.5 ) ;
+    gmtcharge[1] = dbe->book1D("GMT_charge", 
        "GMT charge", 2, -1.5, 1.5 ) ;
+    gmtcharge[2] = dbe->book1D("GMT_charge_+1", 
+       "GMT charge bx +1", 2, -1.5, 1.5 ) ;
+    gmtcharge[0] = dbe->book1D("GMT_charge_-1", 
+       "GMT charge bx -1", 2, -1.5, 1.5 ) ;
     gmtntrack = dbe->book1D("GMT_ntrack", 
        "GMT ntrack", 20, -0.5, 19.5 ) ;
-
+    gmtbx = dbe->book1D("GMT_bx", 
+       "GMT bx", 3, -1.5, 1.5 ) ;
+    gmtbxrr = dbe->book1D("GMT_bxrr", 
+       "GMT bxrr", 3, -1.5, 1.5 ) ;
+    
 
   }  
 }
@@ -142,6 +166,7 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
      cout << "Readout Record " << RRItr->getBxInEvent()
    	    << endl;
    }
+   gmtbxrr->Fill(RRItr->getBxInEvent());
 
    vector<L1MuGMTExtendedCand> GMTBrlCands = RRItr->getGMTBrlCands();
  
@@ -158,6 +183,7 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
          ++ECItr ) 
     {
 
+      int bxindex = ECItr->bx() + 1;
       ngmttrack++;
 
       if (verbose_)
@@ -166,35 +192,42 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
    	    << endl;
 	}
 
-      gmtetavalue->Fill(ECItr->etaValue());
+      if (verbose_)
+	{  
+     cout << "GMTCand bx " << ECItr->bx()
+   	    << endl;
+	}
+     gmtbx->Fill(ECItr->bx());
+
+      gmtetavalue[bxindex]->Fill(ECItr->etaValue());
       if (verbose_)
 	{     
      cout << "\tGMTCand eta value " << ECItr->etaValue()
    	    << endl;
 	}
 
-      gmtphivalue->Fill(ECItr->phiValue());
+      gmtphivalue[bxindex]->Fill(ECItr->phiValue());
       if (verbose_)
 	{     
      cout << "\tGMTCand phi value " << ECItr->phiValue()
    	    << endl;
 	}
 
-      gmtptvalue->Fill(ECItr->ptValue());
+      gmtptvalue[bxindex]->Fill(ECItr->ptValue());
       if (verbose_)
 	{     
      cout << "\tGMTCand pt value " << ECItr->ptValue()
    	    << endl;
 	}
 
-      gmtquality->Fill(ECItr->quality());
+      gmtquality[bxindex]->Fill(ECItr->quality());
       if (verbose_)
 	{     
      cout << "\tGMTCand quality " << ECItr->quality()
    	    << endl;
 	}
 
-      gmtcharge->Fill(ECItr->charge());
+      gmtcharge[bxindex]->Fill(ECItr->charge());
       if (verbose_)
 	{     
      cout << "\tGMTCand charge " << ECItr->charge()
@@ -218,7 +251,8 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
          ECItr != GMTFwdCands.end() ;
          ++ECItr ) 
     {
-
+      
+      int bxindex = ECItr->bx() + 1;
       ngmttrack++;
 
       if (verbose_)
@@ -227,35 +261,43 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
    	    << endl;
 	}
 
-      gmtetavalue->Fill(ECItr->etaValue());
+
+      if (verbose_)
+	{  
+     cout << "GMTCand bx " << ECItr->bx()
+   	    << endl;
+	}
+     gmtbx->Fill(ECItr->bx());
+
+      gmtetavalue[bxindex]->Fill(ECItr->etaValue());
       if (verbose_)
 	{     
      cout << "\tGMTCand eta value " << ECItr->etaValue()
    	    << endl;
 	}
 
-      gmtphivalue->Fill(ECItr->phiValue());
+      gmtphivalue[bxindex]->Fill(ECItr->phiValue());
       if (verbose_)
 	{     
      cout << "\tGMTCand phi value " << ECItr->phiValue()
    	    << endl;
 	}
 
-      gmtptvalue->Fill(ECItr->ptValue());
+      gmtptvalue[bxindex]->Fill(ECItr->ptValue());
       if (verbose_)
 	{     
      cout << "\tGMTCand pt value " << ECItr->ptValue()
    	    << endl;
 	}
 
-      gmtquality->Fill(ECItr->quality());
+      gmtquality[bxindex]->Fill(ECItr->quality());
       if (verbose_)
 	{     
      cout << "\tGMTCand quality " << ECItr->quality()
    	    << endl;
 	}
 
-      gmtcharge->Fill(ECItr->charge());
+      gmtcharge[bxindex]->Fill(ECItr->charge());
       if (verbose_)
 	{     
      cout << "\tGMTCand charge " << ECItr->charge()

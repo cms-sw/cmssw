@@ -4,8 +4,8 @@
 /*
  * \file L1TGMT.h
  *
- * $Date: 2007/02/19 19:24:08 $
- * $Revision: 1.1 $
+ * $Date: 2007/02/22 19:43:52 $
+ * $Revision: 1.2 $
  * \author J. Berryhill
  *
 */
@@ -65,12 +65,14 @@ private:
   // ----------member data ---------------------------
   DaqMonitorBEInterface * dbe;
 
-  MonitorElement* gmtetavalue;
-  MonitorElement* gmtphivalue;
-  MonitorElement* gmtptvalue;
-  MonitorElement* gmtquality;
-  MonitorElement* gmtcharge;
+  MonitorElement* gmtetavalue[3];
+  MonitorElement* gmtphivalue[3];
+  MonitorElement* gmtptvalue[3];
+  MonitorElement* gmtquality[3];
+  MonitorElement* gmtcharge[3];
   MonitorElement* gmtntrack;
+  MonitorElement* gmtbx;
+  MonitorElement* gmtbxrr;
 
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput

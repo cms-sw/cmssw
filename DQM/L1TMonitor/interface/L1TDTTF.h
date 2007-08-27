@@ -8,7 +8,6 @@
  * $Revision: 1.2 $
  * \author J. Berryhill
  *
- * $Log$
 */
 
 // system include files
@@ -30,6 +29,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 
 #include <iostream>
 #include <fstream>
@@ -63,23 +65,20 @@ private:
   // ----------member data ---------------------------
   DaqMonitorBEInterface * dbe;
 
-  MonitorElement* dttfetapacked;
-  MonitorElement* dttfphipacked;
-
-  MonitorElement* dttfetavalue;
-  MonitorElement* dttfphivalue;
-  MonitorElement* dttfptvalue;
-  MonitorElement* dttfptpacked;
-  MonitorElement* dttfquality;
-  MonitorElement* dttfchargevalue;
+  MonitorElement* dttfetavalue[3];
+  MonitorElement* dttfphivalue[3];
+  MonitorElement* dttfptvalue[3];
+  MonitorElement* dttfchargevalue[3];
+  MonitorElement* dttfquality[3];
   MonitorElement* dttfntrack;
+  MonitorElement* dttfbx;
 
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput
   bool verbose_;
   bool monitorDaemon_;
   ofstream logFile_;
-  edm::InputTag dttfSource_;
+  edm::InputTag dttfSource_ ;
 };
 
 #endif
