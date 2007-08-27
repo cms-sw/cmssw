@@ -363,8 +363,12 @@ bool WebGUI::isMonitorParam(CString_t& name)
 void WebGUI::updateParams()
 {
   UpdateVec_t::iterator it;
-  for (it=updateParams_.begin();it!=updateParams_.end();++it)
-    appInfoSpace()->fireItemValueRetrieve(it->first,it->second);
+  for (it=updateParams_.begin();it!=updateParams_.end();++it) {
+    string name = it->first;
+    appInfoSpace()->fireItemValueRetrieve(name,it->second);
+    if (isMonitorParam(name))
+      monInfoSpace()->fireItemValueRetrieve(name,it->second);
+  }
 }
 
 

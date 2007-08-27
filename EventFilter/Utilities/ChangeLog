@@ -1,3 +1,9 @@
+2007-08-27  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-13-06
+	* fix to WebGUI: monitored parameters were not properly updated
+	for xmas
+
 2007-08-22  Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V00-13-05
