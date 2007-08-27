@@ -19,9 +19,9 @@ TkNavigableSimElectronAssembler::assemble (TrackPtrContainer& allTracks) const
   //
   TrackList tracks(allTracks.begin(), allTracks.end());
   TrackList electronTracks(electronFilter(tracks));
-  std::cout << "TkNavigableSimElectronAssembler: found " 
-	    << electronTracks.size() 
- 	    << " electron segments" << std::endl;
+//  std::cout << "TkNavigableSimElectronAssembler: found " 
+//	    << electronTracks.size() 
+// 	    << " electron segments" << std::endl;
   if ( electronTracks.empty() ) return ElectronList();
   //
   // build assembled tracks
@@ -36,8 +36,8 @@ TkNavigableSimElectronAssembler::assemble (TrackPtrContainer& allTracks) const
     electronTracks.pop_front();
     trackSegments.clear();
     trackSegments.push_back(startSegment);
-    std::cout << "Starting assembly with segment at " << *startSegment 
-	      << std::endl;
+//    std::cout << "Starting assembly with segment at " << *startSegment 
+//              << std::endl;
 // 	 << " (p=" << startSegment->momentum().mag() 
 // 	 << ",r_vtx=";
 //     if ( startSegment->vertex() )  
@@ -47,14 +47,14 @@ TkNavigableSimElectronAssembler::assemble (TrackPtrContainer& allTracks) const
     // add segments before current segment
     //
     searchInwards(electronTracks, startSegment, trackSegments);
-    std::cout << "nb segments after inward search " << trackSegments.size()
-	      << std::endl;
+//    std::cout << "nb segments after inward search " << trackSegments.size()
+//	      << std::endl;
     //
     // add segments after current segment
     //
     searchOutwards(electronTracks, startSegment, trackSegments);
-    std::cout << "nb segments after outward search " << trackSegments.size()
-	      << std::endl;
+//    std::cout << "nb segments after outward search " << trackSegments.size()
+//	      << std::endl;
     //
     // store list of segments
     //
@@ -73,7 +73,7 @@ TkNavigableSimElectronAssembler::searchInwards (TrackList& electronTracks,
 
   TrackPtr currentSegment(startSegment);
   TrackPtr debug = findParent(*currentSegment);
-  std::cout << "searchInwards: parent " << debug << std::endl;
+//  std::cout << "searchInwards: parent " << debug << std::endl;
   while ( TrackPtr nextSegment = findParent(*currentSegment) ) {
     trackSegments.push_front(nextSegment);
     electronTracks.remove(nextSegment);
@@ -147,7 +147,7 @@ TkNavigableSimElectronAssembler::findChild (const TrackingParticle& track)
 
   TrackingVertexRefVector decayVertices = track.decayVertices();
   if ( decayVertices.empty() ) { 
-    std::cout << "Decay vertex is null " << std::endl;
+//    std::cout << "Decay vertex is null " << std::endl;
     return 0;
   }
   
@@ -182,8 +182,8 @@ TkNavigableSimElectronAssembler::checkVertex (const TrackingVertex* vertex) cons
     return result;
   }
   if ( abs( (**parents.begin()).pdgId()) != 11 ) {
-    std::cout << "Found parent track of type " 
-	      << (**parents.begin()).pdgId() << " at vertex" << std::endl;
+//    std::cout << "Found parent track of type " 
+//	      << (**parents.begin()).pdgId() << " at vertex" << std::endl;
     return result;
   }
   //
@@ -206,24 +206,24 @@ TkNavigableSimElectronAssembler::checkVertex (const TrackingVertex* vertex) cons
     else if ( (**it).pdgId() == 22 ) {
       nPhoton++;
       if ( nPhoton>1 ) {
-	std::cout << "Found several photons at vertex" << std::endl;
+//	std::cout << "Found several photons at vertex" << std::endl;
 	return result;
       }
     }
     else {
-      std::cout << std::endl << "Found track of type " 
-		<< (**parents.begin()).pdgId() << " at vertex" << std::endl;
+//      std::cout << std::endl << "Found track of type " 
+//		<< (**parents.begin()).pdgId() << " at vertex" << std::endl;
       return result;
     }
   }
-  std::cout << std::endl;
-  if ( child==0 ) {
-    std::cout << "No electron found at vertex" << std::endl;
-  }
-  else {
-    std::cout << "ElectronAssembler::electron child" << std::endl;
-    std::cout << *child << std::endl;
-  }
+//  std::cout << std::endl;
+//  if ( child==0 ) {
+//    std::cout << "No electron found at vertex" << std::endl;
+//  }
+//  else {
+//    std::cout << "ElectronAssembler::electron child" << std::endl;
+//    std::cout << *child << std::endl;
+//  }
 
   //
   result.first = const_cast<TrackPtr>(&(**parents.begin()));
@@ -284,8 +284,8 @@ TrackingParticleRef TkNavigableSimElectronAssembler::findInitialSegmentRef(
     }
   }
 
-  std::cout << "PASCAL:: Now make producer of electron tracks" << std::endl;
-  std::cout << "Question: do-able without crossing frame info ?? " << std::endl;
+//  std::cout << "PASCAL:: Now make producer of electron tracks" << std::endl;
+//  std::cout << "Question: do-able without crossing frame info ?? " << std::endl;
 
   return TrackingParticleRef();
 }

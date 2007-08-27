@@ -35,7 +35,7 @@ typedef TkNavigableSimElectronAssembler::VertexPtr VertexPtr;
 TrackingElectronProducer::TrackingElectronProducer(const edm::ParameterSet &conf) {
   produces<TrackingParticleCollection>("ElectronTrackTruth");
 
-  std::cout << " TrackingElectronProducer CTOR " << std::endl;
+//  std::cout << " TrackingElectronProducer CTOR " << std::endl;
 
 
   conf_ = conf;
@@ -49,23 +49,23 @@ void TrackingElectronProducer::produce(Event &event, const EventSetup &) {
 //  timers.push("TrackingTruth:Setup");
   // Get information out of event record
 
-  std::cout << " TrackingElectronProducer produce 1 " << std::endl;
+//  std::cout << " TrackingElectronProducer produce 1 " << std::endl;
 
   edm::Handle<TrackingParticleCollection>  TruthTrackContainer ;
   //  event.getByLabel("trackingtruthprod","TrackingTruthProducer", 
   //		   trackingParticleHandle);
   event.getByType(TruthTrackContainer );
-  std::cout << " TrackingElectronProducer produce 1.5 " << std::endl;
+//  std::cout << " TrackingElectronProducer produce 1.5 " << std::endl;
   
   const TrackingParticleCollection *etPC   = TruthTrackContainer.product();
-  std::cout << " TrackingElectronProducer produce 2 " << std::endl;
+//  std::cout << " TrackingElectronProducer produce 2 " << std::endl;
 
     // now dumping electrons only
   listElectrons(*etPC);
 
-  std::cout << " TrackingElectronProducer produce 3 " << std::endl;
+//  std::cout << " TrackingElectronProducer produce 3 " << std::endl;
   // now calling electron assembler and dumping assembled electrons 
-  cout << "TrackingElectronProducer::now assembling electrons..." << endl;
+//  cout << "TrackingElectronProducer::now assembling electrons..." << endl;
   TkNavigableSimElectronAssembler assembler;
   std::vector<TrackingParticle*> particles;
   for (TrackingParticleCollection::const_iterator t = etPC -> begin(); t != etPC -> end(); ++t) {
@@ -75,7 +75,7 @@ void TrackingElectronProducer::produce(Event &event, const EventSetup &) {
   TkNavigableSimElectronAssembler::ElectronList 
     electrons = assembler.assemble(particles);
 
-  std::cout << "Electron segments found, now linking them " << std::endl;
+//  std::cout << "Electron segments found, now linking them " << std::endl;
 
   //
   // now add electron tracks and vertices to event
@@ -84,7 +84,7 @@ void TrackingElectronProducer::produce(Event &event, const EventSetup &) {
   //
   std::auto_ptr<TrackingParticleCollection> trackingParticles(new TrackingParticleCollection);
 
-  std::cout << "now getting refprods " << std::endl;
+//  std::cout << "now getting refprods " << std::endl;
 
   edm::RefProd<TrackingParticleCollection> refTPC =
     event.getRefBeforePut<TrackingParticleCollection>("ElectronTrackTruth");
@@ -92,7 +92,7 @@ void TrackingElectronProducer::produce(Event &event, const EventSetup &) {
   //
   // create TrackingParticles
   //
-  cout << "now creating tracking particles" << endl;
+//  cout << "now creating tracking particles" << endl;
   // loop over electrons
   for ( TkNavigableSimElectronAssembler::ElectronList::const_iterator ie 
 	  = electrons.begin(); ie != electrons.end(); ie++ ) {
@@ -150,7 +150,7 @@ void TrackingElectronProducer::produce(Event &event, const EventSetup &) {
     //
     TrackingVertexRef parentV = (*(*ie).front()).parentVertex();
     if (parentV.isNonnull()) {
-      cout << "parent vertex is non null" << endl;
+//      cout << "parent vertex is non null" << endl;
       tkp.setParentVertex(parentV);
     }
 
@@ -167,9 +167,9 @@ void TrackingElectronProducer::produce(Event &event, const EventSetup &) {
     (*trackingParticles).push_back(tkp);
   }
 
-  cout << "Dumping assembled electrons..." << endl;
+//  cout << "Dumping assembled electrons..." << endl;
 
-  cout << "Storing electron tracks" << endl;
+//  cout << "Storing electron tracks" << endl;
   event.put(trackingParticles,"ElectronTrackTruth");
 
 } 
@@ -178,28 +178,28 @@ void TrackingElectronProducer::produce(Event &event, const EventSetup &) {
 void TrackingElectronProducer::listElectrons(
   const TrackingParticleCollection & tPC) const
 {
-  cout << "TrackingElectronProducer::printing electrons before assembly..." 
-       << endl;
+//  cout << "TrackingElectronProducer::printing electrons before assembly..." 
+//       << endl;
   for (TrackingParticleCollection::const_iterator it = tPC.begin();
        it != tPC.end(); it++) {
     if (abs((*it).pdgId()) == 11) {
-      cout << "Electron: sim tk " << (*it).g4Tracks().front().trackId() 
-	   << endl;
+//      cout << "Electron: sim tk " << (*it).g4Tracks().front().trackId() 
+//	   << endl;
       
       TrackingVertexRef parentV = (*it).parentVertex();
-      if (parentV.isNull()) {
-	cout << " No parent vertex" << endl;
-      } else {  
-	cout << " Parent  vtx position " << parentV -> position() << endl;
-      }  
+//      if (parentV.isNull()) {
+//	cout << " No parent vertex" << endl;
+//      } else {  
+//	cout << " Parent  vtx position " << parentV -> position() << endl;
+//      }  
       
       TrackingVertexRefVector decayVertices = (*it).decayVertices();
-      if ( decayVertices.empty() ) {
-	cout << " No decay vertex" << endl;
-      } else {  
-	cout << " Decay vtx position " 
-	     << decayVertices.at(0) -> position() << endl;
-      } 
+//      if ( decayVertices.empty() ) {
+//	cout << " No decay vertex" << endl;
+//      } else {  
+//	cout << " Decay vtx position " 
+//	     << decayVertices.at(0) -> position() << endl;
+//      } 
     }
   }
 }
