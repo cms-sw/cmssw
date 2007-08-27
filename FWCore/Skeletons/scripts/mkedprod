@@ -8,10 +8,12 @@
 # 
 #  output:  producername/
 #                         Buildfile
+#                         producername.cfg
 #                         interface/
 #                         src/producername.cc
 #                         doc/
 #                         test/
+#                         data/poducername.cfi
 #  required input:
 # 
 #  producername = name of the producer
@@ -24,10 +26,12 @@
 #  mkedprod MyProducer 
 #        --> write  MyProducer/
 #                               Buildfile
+#                               myproducer.cfg 
 #                               interface/
 #                               src/MyProducer.cc
 #                               doc/
 #                               test/
+#                               data/myproducer.cfi
 #  
 #   the script tries to read in
 #   a filename .tmpl in users HOME directory which contains the following lines
@@ -78,6 +82,11 @@ $skeletons{"$skel_dir/EDProducer/edproducer.cc"} =
     "$name/src/" . $name . '.cc';
 $skeletons{"$skel_dir/EDProducer/BuildFile.temp"} =
     "$name/BuildFile";
+$skeletons{"$skel_dir/EDProducer/ConfFile.cfg"} =
+    "$name/" . lc($name) . '.cfg';
+$skeletons{"$skel_dir/EDProducer/CfiFile.cfi"} =
+    "$name/data/" . lc($name) . '.cfi';
+
 
 if ( ! $do_list )
 {
@@ -177,10 +186,12 @@ mkedprod  h: execution:  mkedprod producername
 mkedprod  h:
 mkedprod  h: output:  producername/
 mkedprod  h:                       BuildFile
+mkedprod  h:                       producername.cfg
 mkedprod  h:                       interface/
 mkedprod  h:                       src/producername.cc
 mkedprod  h:                       doc/
 mkedprod  h:                       test/
+mkedprod  h:                       data/poducername.cfi
 mkedprod  h:
 mkedprod  h: required input:
 mkedprod  h:
@@ -194,10 +205,12 @@ mkedprod  h: example:
 mkedprod  h: mkedprod MyProducer
 mkedprod  h:       --> write  MyProducer/
 mkedprod  h:                              BuildFile
+mkedprod  h:                              myproducer.cfg 
 mkedprod  h:                              interface/
 mkedprod  h:                              src/MyProducer.cc
 mkedprod  h:                              doc/
 mkedprod  h:                              test/
+mkedprod  h:                              data/myproducer.cfi
 ENDHELP
 
     print "mkedprod  Q: Please enter producer name: ";
