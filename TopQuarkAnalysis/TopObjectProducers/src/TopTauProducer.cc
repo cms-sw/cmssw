@@ -2,7 +2,7 @@
 // Author:  Christophe Delaere
 // Created: Thu Jul  26 11:08:00 CEST 2007
 //
-// $Id: TopTauProducer.cc,v 1.3 2007/08/16 12:15:05 delaer Exp $
+// $Id: TopTauProducer.cc,v 1.4 2007/08/24 15:47:07 delaer Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopTauProducer.h"
@@ -29,6 +29,7 @@ TopTauProducer::TopTauProducer(const edm::ParameterSet & iConfig) {
   addResolutions_   = iConfig.getParameter<bool>         ("addResolutions");
   addLRValues_      = iConfig.getParameter<bool>         ("addLRValues");
   genPartSrc_       = iConfig.getParameter<edm::InputTag>("genParticleSource");
+  tracksTag_ = iConfig.getParameter<edm::InputTag>("tracks");
   tauResoFile_      = iConfig.getParameter<std::string>  ("tauResoFile");
   tauLRFile_        = iConfig.getParameter<std::string>  ("tauLRFile");
   redoDiscriminant_ = iConfig.getParameter<bool>         ("redoDiscriminant");
@@ -73,7 +74,7 @@ void TopTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
   // prepare LR calculation if required
   if (addLRValues_) {
-    theLeptonLRCalc_ = new TopLeptonLRCalc(iSetup, "", tauLRFile_);
+    theLeptonLRCalc_ = new TopLeptonLRCalc(iSetup, "", "", tauLRFile_, tracksTag_);
   }
 
   // loop over taus

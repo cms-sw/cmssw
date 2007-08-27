@@ -1,5 +1,5 @@
 //
-// $Id: TopJetProducer.cc,v 1.18 2007/08/19 17:04:02 lowette Exp $
+// $Id: TopJetProducer.cc,v 1.19 2007/08/24 15:47:07 delaer Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopJetProducer.h"
@@ -31,6 +31,7 @@ TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig) {
   // initialize the configurables
   recJetsLabel_                  = iConfig.getParameter<edm::InputTag> ("recJetInput");
   caliJetsLabel_                 = iConfig.getParameter<edm::InputTag> ("caliJetInput");
+  tracksTag_ = iConfig.getParameter<edm::InputTag>("tracks");
   // TEMP Jet cleaning from electrons
   topElectronsLabel_           = iConfig.getParameter<edm::InputTag> ("topElectronsInput");
   topMuonsLabel_               = iConfig.getParameter<edm::InputTag> ("topMuonsInput");
@@ -253,7 +254,7 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
           for (size_t t = 0; t < jetTags->size(); t++) {
             edm::RefToBase<reco::Jet> jet_p = (*jetTags)[t].jet();
-            if (jet_p.isNull()) continue;
+            if (jet_p.isNull()) { /*std::cout << "-----------> JetTag::jet() returned null reference" << std::endl; */continue; }
 
             // FIXME: is this 0.0001 matching fullproof?
             if (DeltaR<reco::Candidate>()( (*recjets)[j], *jet_p ) < 0.00001) {
@@ -329,7 +330,7 @@ std::vector<TopElectron> TopJetProducer::selectIsolated(const std::vector<TopEle
 							const edm::EventSetup &iSetup, const edm::Event &iEvent) {
   
 
-  TopLeptonTrackerIsolationPt tkIsoPtCalc(iSetup);
+  TopLeptonTrackerIsolationPt tkIsoPtCalc(iSetup, tracksTag_);
   std::vector<TopElectron> output;
   for (size_t ie=0; ie<electrons.size(); ie++) {
     
@@ -353,7 +354,7 @@ std::vector<TopMuon> TopJetProducer::selectIsolated(const std::vector<TopMuon> &
 							const edm::EventSetup &iSetup, const edm::Event &iEvent) {
   
 
-  TopLeptonTrackerIsolationPt tkIsoPtCalc(iSetup);
+  TopLeptonTrackerIsolationPt tkIsoPtCalc(iSetup, tracksTag_);
   std::vector<TopMuon> output;
   for (size_t iu=0; iu<muons.size(); iu++) {
     

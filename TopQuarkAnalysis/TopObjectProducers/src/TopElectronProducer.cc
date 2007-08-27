@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck, Steven Lowette
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopElectronProducer.cc,v 1.15 2007/08/22 13:29:23 rwolf Exp $
+// $Id: TopElectronProducer.cc,v 1.16 2007/08/24 15:47:07 delaer Exp $
 //
 
 #include <vector>
@@ -22,6 +22,7 @@ TopElectronProducer::TopElectronProducer(const edm::ParameterSet & cfg):
   src_   ( cfg.getParameter<edm::InputTag>( "electronSource" ) ),
   gen_   ( cfg.getParameter<edm::InputTag>( "genParticleSource" ) ),
   elecID_( cfg.getParameter<edm::InputTag>( "electronIDSource" ) ),
+  tracksTag_(cfg.getParameter<edm::InputTag>("tracks")),
   useElecID_       ( cfg.getParameter<bool>( "useElectronID"  ) ),
   useTrkIso_       ( cfg.getParameter<bool>( "useTrkIsolation") ),
   useCalIso_       ( cfg.getParameter<bool>( "useCalIsolation") ),
@@ -67,12 +68,12 @@ TopElectronProducer::produce(edm::Event& evt, const edm::EventSetup& setup)
   
   
   //prepare isolation calculation
-  if( useTrkIso_) trkIsolation_= new TopLeptonTrackerIsolationPt ( setup );
+  if( useTrkIso_) trkIsolation_= new TopLeptonTrackerIsolationPt ( setup, tracksTag_ );
   if( useCalIso_) calIsolation_= new TopLeptonCaloIsolationEnergy( setup );
   
   //prepare LR calculation
   if( useLikelihood_) 
-    likelihood_= new TopLeptonLRCalc( setup, likelihoodInput_, "" );
+    likelihood_= new TopLeptonLRCalc( setup, likelihoodInput_, "", "", tracksTag_ );
 
   std::vector<TopElectron>* selected = new std::vector<TopElectron>();
   TopElectronTypeCollection::const_iterator elec = elecs->begin();

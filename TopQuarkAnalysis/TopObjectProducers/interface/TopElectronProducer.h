@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck, Steven Lowette
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopElectronProducer.h,v 1.10 2007/08/06 14:37:41 tsirig Exp $
+// $Id: TopElectronProducer.h,v 1.11 2007/08/20 15:36:08 lowette Exp $
 //
 
 #ifndef TopObjectProducers_TopElectronProducer_h
@@ -46,7 +46,7 @@ class TopElectronProducer : public edm::EDProducer {
   
  private:
 
-  edm::InputTag src_, gen_, elecID_;
+  edm::InputTag src_, gen_, elecID_, tracksTag_;
   bool useElecID_, useTrkIso_, useCalIso_, useResolution_;
   bool useLikelihood_, useGenMatching_, useGhostRemoval_;
   std::string resolutionInput_, likelihoodInput_;

@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck, Steven Lowette
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopMuonProducer.cc,v 1.8 2007/08/06 14:37:41 tsirig Exp $
+// $Id: TopMuonProducer.cc,v 1.9 2007/08/24 15:47:07 delaer Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopMuonProducer.h"
@@ -30,6 +30,7 @@ TopMuonProducer::TopMuonProducer(const edm::ParameterSet & iConfig) {
   addResolutions_ = iConfig.getParameter<bool>         ("addResolutions");
   addLRValues_    = iConfig.getParameter<bool>         ("addLRValues");
   genPartSrc_     = iConfig.getParameter<edm::InputTag>("genParticleSource");
+  tracksTag_      = iConfig.getParameter<edm::InputTag>("tracks");
   muonResoFile_   = iConfig.getParameter<std::string>  ("muonResoFile");
   muonLRFile_     = iConfig.getParameter<std::string>  ("muonLRFile");
 
@@ -66,7 +67,7 @@ void TopMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 
   // prepare LR calculation if required
   if (addLRValues_) {
-    theLeptonLRCalc_ = new TopLeptonLRCalc(iSetup, "", muonLRFile_);
+    theLeptonLRCalc_ = new TopLeptonLRCalc(iSetup, "", muonLRFile_, "", tracksTag_);
   }
 
   // loop over muons
