@@ -81,13 +81,16 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 
   rct->processEvent();
 
+  // Stuff to create
+
   std::auto_ptr<L1CaloEmCollection> rctEmCands (new L1CaloEmCollection);
 
-  //fill these above?  like gct:
   for (int j = 0; j<18; j++){
+    L1CaloEmCollection isolatedEGObjects = rct->getIsolatedEGObjects(j);
+    L1CaloEmCollection nonisolatedEGObjects = rct->getNonisolatedEGObjects(j);
     for (int i = 0; i<4; i++) {
-      rctEmCands->push_back(rct->getIsolatedEGObjects(j).at(i));  // or something
-      rctEmCands->push_back(rct->getNonisolatedEGObjects(j).at(i));
+      rctEmCands->push_back(isolatedEGObjects.at(i));
+      rctEmCands->push_back(nonisolatedEGObjects.at(i));
     }
   }
   
