@@ -68,6 +68,7 @@ public:
       virtual TrackingRegion* clone() const = 0;
   
   virtual std::string name() const { return "TrackingRegion"; }
+  virtual std::string print() const = 0;
 };
 
 #endif

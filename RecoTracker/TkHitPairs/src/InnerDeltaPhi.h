@@ -4,13 +4,23 @@
 /** predict phi bending in layer for the tracks constratind by outer hit r-z */ 
 #include <fstream>
 #include "FWCore/Framework/interface/EventSetup.h"
-//#include "Utilities/Notification/interface/TimingReport.h"
+
+#include "DataFormats/GeometryVector/interface/Phi.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 
 class DetLayer;
 class MultipleScatteringParametrisation;
+template<class T> class PixelRecoRange;
+
+class TVector3;
 
 class InnerDeltaPhi {
 public:
+
+  InnerDeltaPhi( const DetLayer& layer,
+                 const TrackingRegion & region,
+                 const edm::EventSetup& iSetup,
+                 bool precise = true);
 
   InnerDeltaPhi( const DetLayer& layer, 
 		 float ptMin,  float rOrigin,
@@ -20,6 +30,8 @@ public:
    ~InnerDeltaPhi();
 
   float operator()( float rHit, float zHit, float errRPhi = 0.) const;
+  PixelRecoRange<float> operator()( float rHit, float phiHit, float zHit, float errRPhi);
+  float dphi(float rHit, float phiHit, float zHit, float errRPhi) const;
 
 private:
 
@@ -30,28 +42,35 @@ private:
   float theA;
   float theB;
   bool  theRDefined;
-  float theVtxZ;
+  float theVtxX, theVtxY, theVtxZ;
+  float theVtxR;
   float thePtMin;
   MultipleScatteringParametrisation * sigma;
   bool thePrecise;
 
-  void initBarrelLayer( const DetLayer& layer);
-  void initForwardLayer( const DetLayer& layer, 
-			 float zMinOrigin, float zMaxOrigin);
+  ///AK
+  Geom::Phi<float> phiIP;
+  ////
 
+  void initBarrelLayer( const DetLayer& layer);
+  void initForwardLayer( const DetLayer& layer, float zMinOrigin, float zMaxOrigin);
+
+  float innerRadius( float hitX, float hitY, float hitZ) const;
   float minRadius( float hitR, float hitZ) const {
     if (theRDefined) return theRLayer;
     else {
-      float invRmin = (hitZ-theB)/theA/hitR;
-      return ( invRmin> 0) ? std::max( 1./invRmin, (double)theRLayer) : theRLayer;
+      float invRmin = (hitZ-theB)/theA/(hitR-theVtxR);
+      return ( invRmin> 0) ? std::max( (1./invRmin+theVtxR), (double)theRLayer) : theRLayer;
     }
   }
 
-  // the timers are static because we want the same timer for all instances
- /*  static TimingReport::Item * theConstructTimer; */
-/*   static TimingReport::Item * theDeltaPhiTimer; */
-/*   static bool theTimingDone; */
-/*   void initTiming(); */
+  ////////////////////////////////
+  TVector3 findTrackCenter(float rHit, float yHit, int sign)const;
+
+  double findPhi(double x0, double y0, double r0, 
+		 double x1, double y1, double r1, double phiHit)const;
+  ////////////////////////////////
+
 
 };
 

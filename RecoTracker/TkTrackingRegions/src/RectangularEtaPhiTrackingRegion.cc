@@ -332,6 +332,7 @@ std::vector< SeedingHit> RectangularEtaPhiTrackingRegion::hits(
   }
 */
 
+//
   //
   // temporary solution 
   //
@@ -341,7 +342,17 @@ std::vector< SeedingHit> RectangularEtaPhiTrackingRegion::hits(
     const TrackingRecHit * hit = *ih;
     if ( est->hitCompatibility()(hit,es) ) result.push_back( *ih );
   }
+//
   
   delete est;
   return result;
 }
+
+std::string RectangularEtaPhiTrackingRegion::print() const {
+  std::ostringstream str;
+  str << TrackingRegionBase::print() 
+      <<" eta: "<<theEtaRange<<" phi:"<<thePhiMargin
+      << "precise: "<<thePrecise;
+  return str.str();
+}
+

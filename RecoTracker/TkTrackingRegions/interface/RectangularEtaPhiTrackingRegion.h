@@ -120,6 +120,7 @@ public:
   }
 
   virtual std::string name() const { return "RectangularEtaPhiTrackingRegion"; }
+  virtual std::string print() const;
 
 private:
 

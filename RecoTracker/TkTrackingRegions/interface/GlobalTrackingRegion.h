@@ -19,6 +19,12 @@ public:
    *  This class does not provide the pssibility to displace the origin
    *  in the transverse plane. 
    */
+  GlobalTrackingRegion ( float ptMin, const GlobalPoint & origin, 
+      float originRadius, float originHalfLength, bool precise=false)
+    :  TrackingRegionBase(GlobalVector( 0, 0, 0), origin,
+      Range( -1/ptMin, 1/ptMin), originRadius, originHalfLength),
+      thePrecise(precise) { }
+
   GlobalTrackingRegion ( float ptMin = 1., float originRadius = 0.2, 
       float originHalfLength = 15., float originZPos = 0.,
       bool precise = false)
@@ -41,6 +47,7 @@ public:
   }
 
   virtual std::string name() const { return "GlobalTrackingRegion"; }
+  virtual std::string print() const;
 
 private:
   bool  thePrecise;

@@ -1,5 +1,6 @@
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 #include <cmath>
+#include <sstream>
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitEtaCheck.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitRCheck.h"
@@ -11,9 +12,17 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoLineRZ.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+
+
 template <class T> T sqr( T t) {return t*t;}
 
 using namespace GeomDetEnumerators;
+
+std::string GlobalTrackingRegion::print() const {
+  std::ostringstream str;
+  str << TrackingRegionBase::print() << "precise: "<<thePrecise;
+  return str.str(); 
+}
 
 std::vector<ctfseeding::SeedingHit> GlobalTrackingRegion::hits(
       const edm::Event& ev,
@@ -23,35 +32,35 @@ std::vector<ctfseeding::SeedingHit> GlobalTrackingRegion::hits(
  return layer->hits(ev,es);
 }
 
-HitRZCompatibility* GlobalTrackingRegion::
-checkRZ(const DetLayer* layer, 
-	const TrackingRecHit* outerHit,
-	const edm::EventSetup& iSetup) const
+HitRZCompatibility* GlobalTrackingRegion::checkRZ(const DetLayer* layer, 
+	const TrackingRecHit* outerHit, const edm::EventSetup& iSetup) const
 {
-
 
   edm::ESHandle<TrackerGeometry> tracker;
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
-  //MP
+
   bool isBarrel = (layer->location() == barrel);
   bool isPixel = (layer->subDetector() == PixelBarrel || layer->subDetector() == PixelEndcap);
-
   
 
-    GlobalPoint ohit =  tracker->idToDet(outerHit->geographicalId())->surface().toGlobal(outerHit->localPosition());
+  GlobalPoint ohit =  tracker->idToDet(outerHit->geographicalId())->surface().toGlobal(outerHit->localPosition());
  
-  PixelRecoPointRZ outer(ohit.perp(), ohit.z());
-  PixelRecoPointRZ vtxR = (outer.z() > origin().z()+originZBound()) ?
+  PixelRecoPointRZ ohit_rz(ohit.perp(), ohit.z());
+
+  float outerred_r = sqrt( sqr(ohit.x()-origin().x())+sqr(ohit.y()-origin().y()) );
+  PixelRecoPointRZ outerred(outerred_r, ohit.z());
+
+  PixelRecoPointRZ vtxR = (outerred.z() > origin().z()+originZBound()) ?
       PixelRecoPointRZ(-originRBound(), origin().z()+originZBound())
     : PixelRecoPointRZ( originRBound(), origin().z()+originZBound());
-  PixelRecoPointRZ vtxL = (outer.z() < origin().z()-originZBound()) ?
+  PixelRecoPointRZ vtxL = (outerred.z() < origin().z()-originZBound()) ?
       PixelRecoPointRZ(-originRBound(), origin().z()-originZBound())
     : PixelRecoPointRZ( originRBound(), origin().z()-originZBound()); 
 
   if ((!thePrecise) &&(isPixel )) {
-    double VcotMin = PixelRecoLineRZ( vtxR, outer).cotLine();
-    double VcotMax = PixelRecoLineRZ( vtxL, outer).cotLine();
-    return new HitEtaCheck(isBarrel, outer, VcotMax, VcotMin);
+    double VcotMin = PixelRecoLineRZ( vtxR, outerred).cotLine();
+    double VcotMax = PixelRecoLineRZ( vtxL, outerred).cotLine();
+    return new HitEtaCheck(isBarrel, outerred, VcotMax, VcotMin);
   }
   
   float errZ = hitErrZ(layer);
@@ -60,28 +69,29 @@ checkRZ(const DetLayer* layer,
   PixelRecoPointRZ  outerL, outerR;
 
   if (layer->location() == barrel) {
-
-    outerL = PixelRecoPointRZ(outer.r(), outer.z()-errZ);
-    outerR = PixelRecoPointRZ(outer.r(), outer.z()+errZ);
-  } else if (outer.z() > 0) {
-
-    outerL = PixelRecoPointRZ(outer.r()+errR, outer.z());
-    outerR = PixelRecoPointRZ(outer.r()-errR, outer.z());
-  } else {
-    outerL = PixelRecoPointRZ(outer.r()-errR, outer.z());
-    outerR = PixelRecoPointRZ(outer.r()+errR, outer.z());
+    outerL = PixelRecoPointRZ(outerred.r(), outerred.z()-errZ);
+    outerR = PixelRecoPointRZ(outerred.r(), outerred.z()+errZ);
+  } 
+  else if (outerred.z() > 0) {
+    outerL = PixelRecoPointRZ(outerred.r()+errR, outerred.z());
+    outerR = PixelRecoPointRZ(outerred.r()-errR, outerred.z());
+  } 
+  else {
+    outerL = PixelRecoPointRZ(outerred.r()-errR, outerred.z());
+    outerR = PixelRecoPointRZ(outerred.r()+errR, outerred.z());
   }
   
-
   MultipleScatteringParametrisation iSigma(layer,iSetup);
   PixelRecoPointRZ vtxMean(0.,origin().z());
-  float innerScatt = 3 * iSigma( ptMin(), vtxMean, outer);
+  float innerScatt = 3 * iSigma( ptMin(), vtxMean, ohit_rz);
 
+  //
+  //
+  //
   PixelRecoLineRZ leftLine( vtxL, outerL);
   PixelRecoLineRZ rightLine( vtxR, outerR);
-
   HitRZConstraint rzConstraint(leftLine, rightLine);
-  float cotTheta = PixelRecoLineRZ(vtxMean,outer).cotLine();
+  float cotTheta = PixelRecoLineRZ(vtxMean,outerred).cotLine();
 
   if (isBarrel) {
     float sinTheta = 1/sqrt(1+sqr(cotTheta));
@@ -93,4 +103,3 @@ checkRZ(const DetLayer* layer,
     return new HitRCheck( rzConstraint, HitRCheck::Margin(corrR,corrR));
   }
 }
-

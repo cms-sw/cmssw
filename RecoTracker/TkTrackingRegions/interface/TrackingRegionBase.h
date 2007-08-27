@@ -10,6 +10,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include <sstream>
 class BarrelDetLayer;
 class ForwardDetLayer; 
 
@@ -110,6 +111,14 @@ public:
     static float err = 0.0051f;
     return err;
   }
+
+  virtual std::string print() const {
+    std::ostringstream str;
+    str << name() <<" dir:"<<theDirection<<" vtx:"<<theVertexPos 
+        <<" dr:"<<theVertexRBound<<" dz:"<<theVertexZBound<<" pt:"<<1./theInvPtRange.max();
+    return str.str();
+  }
+
 
 private:
   
