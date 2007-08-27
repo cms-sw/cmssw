@@ -3,9 +3,14 @@
 #include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
 #include "RecoVertex/VertexTools/interface/GeometricAnnealing.h"
 #include "RecoVertex/LinearizationPointFinders/interface/DefaultLinearizationPointFinder.h"
+// #include "RecoVertex/LinearizationPointFinders/interface/GenericLinearizationPointFinder.h"
+// #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
+// #include "RecoVertex/LinearizationPointFinders/interface/ZeroLinearizationPointFinder.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexUpdator.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexTrackCompatibilityEstimator.h"
 #include "RecoVertex/ConfigurableVertexReco/interface/ConfigurableAnnealing.h"
+#include "RecoVertex/VertexTools/interface/DummyVertexSmoother.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 
@@ -14,6 +19,7 @@ namespace {
   {
     edm::ParameterSet ret;
     ret.addParameter<string>("annealing", "geom" );
+    ret.addParameter<string>("smoother", "kalman" );
     ret.addParameter<double>("sigmacut",3.0);
     ret.addParameter<double>("Tini",256.0);
     ret.addParameter<double>("ratio",0.25);
@@ -21,7 +27,7 @@ namespace {
     ret.addParameter<double>("maxshift",0.0001);
     ret.addParameter<double>("maxlpshift",0.1);
     ret.addParameter<int>("maxstep",30);
-    ret.addParameter<double>("weightthreshhold",0.001);
+    ret.addParameter<double>("weightthreshold",0.001);
     return ret;
   }
 }
@@ -37,12 +43,26 @@ void ConfigurableAdaptiveFitter::configure(
   m.augment ( n );
   ConfigurableAnnealing ann ( m );
   DefaultLinearizationPointFinder linpt;
+  // ZeroLinearizationPointFinder linpt;
+  // KalmanVertexFitter kvf;
+  // GenericLinearizationPointFinder linpt ( kvf );
   KalmanVertexUpdator updator;
-  DummyVertexSmoother smoother;
+  string s=m.getParameter<string>("smoother");
+  VertexSmoother * smoother=0;
+  if ( s=="none" )
+  {
+    smoother = new DummyVertexSmoother ();
+  } else if ( s=="kalman" ) {
+    smoother = new KalmanVertexSmoother ();
+  } else {
+    edm::LogError("") << "no smoother \"" << s << "\" defined." << endl;
+    exit(0);
+  }
   KalmanVertexTrackCompatibilityEstimator estimator;
 
   if (theFitter) delete theFitter;
-  AdaptiveVertexFitter * fitter = new AdaptiveVertexFitter ( ann, linpt, updator, estimator, smoother );
+  AdaptiveVertexFitter * fitter = new AdaptiveVertexFitter ( ann, linpt, updator, estimator, *smoother );
+  delete smoother;
   fitter->setParameters ( m );
   theFitter=fitter;
 }
