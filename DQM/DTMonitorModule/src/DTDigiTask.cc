@@ -20,6 +20,7 @@
 #include <DataFormats/DTDigi/interface/DTDigi.h>
 #include <DataFormats/DTDigi/interface/DTDigiCollection.h>
 #include <DataFormats/MuonDetId/interface/DTLayerId.h>
+#include <DataFormats/MuonDetId/interface/DTChamberId.h>
 
 // Geometry
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -52,7 +53,7 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
     cout<<"[DTDigiTask]: Constructor"<<endl;
 
   outputFile = ps.getUntrackedParameter<string>("outputFile", "DTDigiSources.root");
-  maxTDCHits = ps.getUntrackedParameter<int>("maxTDCHits",1000);
+  maxTDCHits = ps.getUntrackedParameter<int>("maxTDCHitsPerChamber",30000);
 
   parameters = ps;
   
@@ -62,6 +63,9 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
   daemon.operator->();
 
   dbe->setVerbose(1);
+
+  syncNumTot = 0;
+  syncNum = 0;
 
 }
 
@@ -263,6 +267,7 @@ void DTDigiTask::bookHistos(const DTChamberId& dtCh, string folder, string histo
 void DTDigiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   
   nevents++;
+  //  cout << "events:  " << nevents << endl;
   if (nevents%1000 == 0 && debug) {}
   
   edm::Handle<DTDigiCollection> dtdigis;
@@ -279,28 +284,80 @@ void DTDigiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   string histoTag;
 
-//   int tdcCount = 0;
-   DTDigiCollection::DigiRangeIterator dtLayerId_It;
-//   for (dtLayerId_It=dtdigis->begin(); dtLayerId_It!=dtdigis->end(); ++dtLayerId_It){
-//     tdcCount += (((*dtLayerId_It).second).second - ((*dtLayerId_It).second).first);
-//   }
+  int tdcCount = 0;
 
-//   bool isSyncNoisy = false;
-//   if (tdcCount > maxTDCHits) isSyncNoisy = true;
+  bool doSync = true;
 
-  int tdcCount;
+  if (!(layerExist((*(dtdigis->begin())).first))) {
+
+    doSync = false;
+    cout << "Event " << nevents << " contains wrong layer ID " << endl;
+  }
+
+  if (doSync) {
+    DTChamberId chDone = ((*(dtdigis->begin())).first).superlayerId().chamberId();
+    
+    DTDigiCollection::DigiRangeIterator dtLayerId_It;
+    for (dtLayerId_It=dtdigis->begin(); dtLayerId_It!=dtdigis->end(); dtLayerId_It++){
+      DTChamberId chId = ((*dtLayerId_It).first).superlayerId().chamberId();
+      if (!(chId == chDone)) {
+	hitMap.insert(make_pair(chDone,tdcCount));
+	tdcCount = 0;
+	chDone = chId;
+
+      }
+      
+      
+      tdcCount += (((*dtLayerId_It).second).second - ((*dtLayerId_It).second).first);
+            
+    }
+    
+    hitMap.insert(make_pair(chDone,tdcCount));
+    
+    bool eventSync = false;
+    bool stat = false;
+    std::map<DTChamberId,int>::iterator iter;
+    for (iter = hitMap.begin(); iter != hitMap.end(); iter++) {
+      
+      stat = false;
+      if ((iter->second) > maxTDCHits) { 
+	stat = true;
+	eventSync = true;
+      }
+      hitMapCheck.insert(make_pair((iter->first),stat));
+
+    }
+    hitMap.clear();
+    
+    if (eventSync) {
+      cout << "Event " << nevents << " probably sync noisy: time box not filled! " << endl;
+      syncNumTot++;
+      syncNum++;
+    }
+    if (nevents%1000 == 0) {
+      cout << (syncNumTot*100./nevents) << "% sync noise events since the beginning " << endl;
+      cout << (syncNum*0.1) << "% sync noise events in the last 1000 events " << endl;
+      syncNum = 0;
+    }
+  }
+
   bool isSyncNoisy;
 
-  //  cout << "----------------" << endl;
-
+  DTDigiCollection::DigiRangeIterator dtLayerId_It;
   for (dtLayerId_It=dtdigis->begin(); dtLayerId_It!=dtdigis->end(); ++dtLayerId_It){
 
-    tdcCount = 0;
-    isSyncNoisy = false;
-    tdcCount = (((*dtLayerId_It).second).second - ((*dtLayerId_It).second).first);
-    if (tdcCount > maxTDCHits) isSyncNoisy = true;
 
-    //    cout << "tdcCount = " << tdcCount << endl;
+    isSyncNoisy = false;
+    if (doSync) {
+      DTChamberId chId = ((*dtLayerId_It).first).superlayerId().chamberId();
+      std::map<DTChamberId,bool>::iterator iterch;
+      
+      for (iterch = hitMapCheck.begin(); iterch != hitMapCheck.end(); iterch++) {
+	if ((iterch->first) == chId) isSyncNoisy = iterch->second;
+
+      }
+
+    }
 
     for (DTDigiCollection::const_iterator digiIt = ((*dtLayerId_It).second).first;
 	 digiIt!=((*dtLayerId_It).second).second; ++digiIt){
@@ -434,12 +491,12 @@ void DTDigiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   vector<DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
   // Loop over the SLs
   for (; ch_it != ch_end; ++ch_it) {
-    DTChamberId ch = (*ch_it)->id();
+    //    DTChamberId ch = (*ch_it)->id();
     vector<const DTSuperLayer*>::const_iterator sl_it = (*ch_it)->superLayers().begin(); 
     vector<const DTSuperLayer*>::const_iterator sl_end = (*ch_it)->superLayers().end();
     // Loop over the SLs
     for(; sl_it != sl_end; ++sl_it) {
-      DTSuperLayerId sl = (*sl_it)->id();
+      //      DTSuperLayerId sl = (*sl_it)->id();
       vector<const DTLayer*>::const_iterator l_it = (*sl_it)->layers().begin(); 
       vector<const DTLayer*>::const_iterator l_end = (*sl_it)->layers().end();
       // Loop over the Ls
@@ -465,6 +522,7 @@ void DTDigiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       } //Loop Ls
     } //Loop SLs
   } //Loop over chambers
+  hitMapCheck.clear();
 }
 
 
@@ -491,3 +549,19 @@ string DTDigiTask::triggerSource() {
 
 }
 
+bool DTDigiTask::layerExist(DTLayerId lId) {
+
+  bool res = true;
+  int sl = lId.superlayer();
+  int station = lId.station();
+  int sector = lId.sector();
+  int wheel = lId.wheel();
+
+  if ((sl < 1) || (sl > 3)) res = false;
+  if ((station < 1) || (station > 4)) res = false;
+  if ((sector < 1) || (sector > 14)) res = false;
+  if ((wheel < -2) || (wheel > 2)) res = false;
+
+  return res;
+
+}

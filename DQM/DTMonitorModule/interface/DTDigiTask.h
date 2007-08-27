@@ -34,6 +34,7 @@
 
 class DTGeometry;
 class DTSuperLayerId;
+class DTLayerId;
 class DTChamberId;
 class DTTtrig;
 class DTT0;
@@ -67,6 +68,8 @@ protected:
   /// get the L1A source
   std::string triggerSource();
 
+  bool layerExist(DTLayerId lId);
+
 private:
 
   bool debug;
@@ -79,6 +82,14 @@ private:
   /// tTrig from the DB
   float tTrig;
   float tTrigRMS;
+
+  //check for sync noise
+  //  bool newChamber;
+  //  DTChamberId chDone;
+  std::map<DTChamberId,int> hitMap;
+  std::map<DTChamberId,bool> hitMapCheck;
+  int syncNumTot;
+  int syncNum;
 
   edm::Handle<LTCDigiCollection> ltcdigis;
 
