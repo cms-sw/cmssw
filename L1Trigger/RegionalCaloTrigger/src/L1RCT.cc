@@ -7,6 +7,7 @@ using std::vector;
 #include <string>
 
 #include <iostream>
+using std::ostream;
 using std::cout;
 using std::cerr;
 using std::endl;
@@ -15,8 +16,9 @@ using std::endl;
 
 //#include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"
 
-#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
+#include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 
 //Main method to process a single event, hence the name.
 //First it sets up all the neighbors, sharing the pointers to the proper
@@ -46,55 +48,33 @@ void L1RCT::processEvent(){
 void L1RCT::makeCrates()
 {
   for(int i = 0; i<18; i++){
-    L1RCTCrate c(i);
+    L1RCTCrate c(i, rctLookupTables_);
     crates.push_back(c);
   }
 }
 
-L1RCT::L1RCT(std::string lutFile) : empty(),neighborMap(){
-  lut = new L1RCTLookupTables(lutFile);
-  makeCrates();
-}
-
-L1RCT::L1RCT(std::string lutFile, 
-	     std::string lutFile2,
-	     std::string rctTestInputFile,
-	     std::string rctTestOutputFile,
-	     bool patternTest) : 
+L1RCT::L1RCT(const L1RCTLookupTables* rctLookupTables) : 
+  rctLookupTables_(rctLookupTables),
   empty(),
   neighborMap(),
-  rctTestInputFile_(rctTestInputFile),
-  rctTestOutputFile_(rctTestOutputFile),
-  patternTest_(patternTest)
+  barrel(18,vector<vector<unsigned short> >(7,vector<unsigned short>(64))),
+  hf(18,vector<unsigned short>(8))
 {
-  lut = new L1RCTLookupTables(lutFile, lutFile2, patternTest_);
   makeCrates();
 }
 
-L1RCT::L1RCT(std::string lutFile, 
-	     edm::ESHandle<CaloTPGTranscoder> transcoder, 
-	     std::string rctTestInputFile, 
-	     std::string rctTestOutputFile) : 
-  empty(),
-  neighborMap(),
-  rctTestInputFile_(rctTestInputFile),
-  rctTestOutputFile_(rctTestOutputFile)  
+void L1RCT::input()
 {
-  transcoder_ = transcoder;
-  patternTest_ = false;
-  lut = new L1RCTLookupTables(lutFile, transcoder);
-  makeCrates();
-  patternTest_ = false;
-}
-
-void L1RCT::setGctEmScale(const L1CaloEtScale* scale){
-  gctEmScale = scale;
-}
-
-void L1RCT::input(vector<vector<vector<unsigned short> > > barrel,
-		  vector<vector<unsigned short> > hf){
   for(int i = 0; i<18; i++){
-    crates.at(i).input(barrel.at(i),hf.at(i),lut);
+    crates.at(i).input(barrel.at(i),hf.at(i));
+  }
+}
+
+void L1RCT::input(vector<vector<vector<unsigned short> > > barrelIn,
+		  vector<vector<unsigned short> > hfIn)
+{
+  for(int i = 0; i<18; i++){
+    crates.at(i).input(barrelIn.at(i),hfIn.at(i));
   }
 }
 
@@ -103,8 +83,6 @@ void L1RCT::input(vector<vector<vector<unsigned short> > > barrel,
 //event.  At the moment you cannot put a ton of data and have it be
 //read as separate events.
 void L1RCT::fileInput(const char* filename){            // added "const" also in .h
-  vector<vector<vector<unsigned short> > > barrel(18,vector<vector<unsigned short> >(7,vector<unsigned short>(64)));
-  vector<vector<unsigned short> > hf(18,vector<unsigned short>(8));
   unsigned short x;
   std::ifstream instream(filename);
   if(instream){
@@ -130,15 +108,14 @@ void L1RCT::fileInput(const char* filename){            // added "const" also in
       }
     }
   }
-  input(barrel,hf);
+  input();
 }
 
 
 // takes hcal and ecal digi input, including HF
-void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDigiCollection hcalCollection){
-  vector<vector<vector<unsigned short> > > barrel(18,vector<vector<unsigned short> >(7,vector<unsigned short>(64)));
-  vector<vector<unsigned short> > hf(18,vector<unsigned short>(8));
-
+void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection,
+		      HcalTrigPrimDigiCollection hcalCollection)
+{
   // fills input vectors with 0's in case ecal or hcal collection not used
   for (int i = 0; i < 18; i++)
     {
@@ -166,9 +143,9 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
 
     //map digis to crates, cards, and towers
     unsigned short crate = 999, card = 999, tower = 999;
-    crate = calcCrate(iphi, ieta);
-    card = calcCard(iphi, absIeta);
-    tower = calcTower(iphi, absIeta);
+    crate = rctLookupTables_->rctParameters()->calcCrate(iphi, ieta);
+    card = rctLookupTables_->rctParameters()->calcCard(iphi, absIeta);
+    tower = rctLookupTables_->rctParameters()->calcTower(iphi, absIeta);
 
     unsigned short energy = ecalCollection[i].compressedEt();
     unsigned short fineGrain = (unsigned short) ecalCollection[i].fineGrain();  // 0 or 1
@@ -202,11 +179,11 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
 
     //map digis to crates, cards, and towers
     unsigned short crate = 999, card = 999, tower = 999;
-    crate = calcCrate(iphi, ieta);
+    crate = rctLookupTables_->rctParameters()->calcCrate(iphi, ieta);
     if (absIeta < 29){
-      card = calcCard(iphi, absIeta);
+      card = rctLookupTables_->rctParameters()->calcCard(iphi, absIeta);
     }
-    tower = calcTower(iphi, absIeta);
+    tower = rctLookupTables_->rctParameters()->calcTower(iphi, absIeta);
 
     unsigned short energy = hcalCollection[i].SOI_compressedEt();     // access only sample of interest
     unsigned short fineGrain = (unsigned short) hcalCollection[i].SOI_fineGrain();
@@ -227,83 +204,16 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
     }
   }
   
-  input(barrel,hf);
-
-  saveRCTInput(barrel);
+  input();
 
   return;
 
-}
-
-// Create file for hardware playback when requested
-void L1RCT::saveRCTInput(vector<vector<vector<unsigned short> > > barrel)
-{
-  // Mike and Kira -- this is your playpen
-  if(strcmp(rctTestInputFile_.c_str(), "-NONE-") == 0) return;
-  static std::ofstream file_out(rctTestInputFile_.c_str(), std::ios::app);
-  if(!file_out)
-    {
-      std::cerr << "Could not create " << rctTestInputFile_ << endl;
-      exit(1);
-    }
-  static int event = 0;
-  if(event == 0)
-    {
-      file_out
-	<< "Crate = 0-17" << std::endl
-	<< "Card = 0-7 within the crate" << std::endl
-	<< "Tower = 0-32 covers 4 x 8 covered by the card" << std::endl
-	<< "EMAddr(0:8) = EMFGBit(0:0)+CompressedEMET(1:8)" << std::endl
-	<< "HDAddr(0:8) = HDFGBit(0:0)+CompressedHDET(1:8) - note: HDFGBit(0:0) is not part of the hardware LUT address" << std::endl
-	<< "LutOut(0:17)= LinearEMET(0:6)+HoEFGVetoBit(7:7)+LinearJetET(8:16)+ActivityBit(17:17)" << std::endl
-	<< "Event" << "\t"
-	<< "Crate" << "\t"
-	<< "Card" << "\t"
-	<< "Tower" << "\t"
-	<< "EMAddr" << "\t"
-	<< "HDAddr" << "\t"
-	<< "LUTOut"
-	<< std::endl;
-    }
-  if(event < 64)
-    {
-      for(unsigned short iCrate = 0; iCrate < 18; iCrate++)
-	{
-	  for(unsigned short iCard = 0; iCard < 7; iCard++)
-	    {
-	      for(unsigned short iTower = 0; iTower < 32; iTower++)
-		{
-		  unsigned short ecal = barrel[iCrate][iCard][iTower] / 2;
-		  unsigned short hcal = barrel[iCrate][iCard][iTower+32] / 2;
-		  unsigned short fgbit = barrel[iCrate][iCard][iTower] & 1;
-		  unsigned long lutOutput = lut->lookup(ecal, hcal, fgbit, iCrate, iCard, iTower);
-		  file_out
-		    << std::hex 
-		    << event << "\t"
-		    << iCrate << "\t"
-		    << iCard << "\t"
-		    << iTower << "\t"
-		    << barrel[iCrate][iCard][iTower] << "\t"
-		    << barrel[iCrate][iCard][iTower+32] << "\t"
-		    << lutOutput
-		    << std::dec 
-		    << std::endl;
-		  
-		}
-	    }
-	}
-    }
-  event++;
-  return;
 }
 
 //As the name implies, it will randomly generate input for the 
 //regional calotrigger.
-void L1RCT::randomInput(){
-  
-  vector<vector<vector<unsigned short> > > barrel(18,vector<vector<unsigned short> >(7,vector<unsigned short>(64)));
-  vector<vector<unsigned short> > hf(18,vector<unsigned short>(8));
-  
+void L1RCT::randomInput()
+{
   for(int i = 0; i<18;i++){
     for(int j = 0; j<7;j++){
       for(int k = 0; k<64; k++){
@@ -314,8 +224,7 @@ void L1RCT::randomInput(){
       hf.at(i).at(j) = rand()%255;  // changed from 1023 (10 bits)
     }
   }
-  
-  input(barrel,hf);
+  input();
   return;
 }
 
@@ -407,94 +316,6 @@ void L1RCT::print(){
   } 
 }
 
-// maps rct iphi, ieta of tower to crate
-unsigned short L1RCT::calcCrate(unsigned short rct_iphi, short ieta){
-  unsigned short crate = rct_iphi/8;
-  if(abs(ieta) > 28) crate = rct_iphi / 2;
-  if (ieta > 0){
-    crate = crate + 9;
-  }
-  return crate;
-}
-
-//map digi rct iphi, ieta to card
-unsigned short L1RCT::calcCard(unsigned short rct_iphi, unsigned short absIeta){
-  unsigned short card = 999;
-  // Note absIeta counts from 1-32 (not 0-31)
-  if (absIeta <= 24){
-    card =  ((absIeta-1)/8)*2 + (rct_iphi%8)/4;
-  }
-  // 25 <= absIeta <= 28 (card 6)
-  else if ((absIeta >= 25) && (absIeta <= 28)){
-    card = 6;
-  }
-  else{}
-  return card;
-}
-
-//map digi rct iphi, ieta to tower
-unsigned short L1RCT::calcTower(unsigned short rct_iphi, unsigned short absIeta){
-  unsigned short tower = 999;
-  unsigned short iphi = rct_iphi;
-  unsigned short regionPhi = (iphi % 8)/4;
-
-  // Note absIeta counts from 1-32 (not 0-31)
-  if (absIeta <= 24){
-    tower = ((absIeta-1)%8)*4 + (iphi%4) + 1;       // assume iphi between 0 and 71; makes towers from 1-32
-  }
-  // 25 <= absIeta <= 28 (card 6)
-  else if ((absIeta >= 25) && (absIeta <= 28)){
-    if (regionPhi == 0){
-      tower = (absIeta-25)*4 + (iphi%4) + 1;   // towers from 1-32, modified Aug. 1 Jessica Leonard
-    }
-    else {
-      tower = 29 + iphi % 4 + (25 - absIeta) * 4;
-    }
-  }
-  // absIeta >= 29 (HF regions)
-  else if ((absIeta >= 29) && (absIeta <= 32)){
-    regionPhi = iphi % 2;  // SPECIAL DEFINITION OF REGIONPHI FOR HF SINCE HF IPHI IS 0-17 Sept. 19 J. Leonard
-    // HF MAPPING, just regions now, don't need to worry about towers -- just calling it "tower" for convenience
-    tower = (regionPhi) * 4 + absIeta - 29;
-  }
-  return tower;
-}
-
-short L1RCT::calcIEta(unsigned short iCrate, unsigned short iCard, unsigned short iTower)
-{
-  unsigned short absIEta;
-  if(iCard < 6) 
-    absIEta = (iCard / 2) * 8 + ((iTower - 1) / 4) + 1;
-  else if(iCard == 6) {
-    if(iTower < 17)
-      absIEta = 25 + (iTower - 1) / 4;
-    else
-      absIEta = 28 - ((iTower - 17) / 4);
-  }
-  else
-    absIEta = 29 + iTower % 4;
-  short iEta;
-  if(iCrate < 9) iEta = -absIEta;
-  else iEta = absIEta;
-  return iEta;
-}
-
-unsigned short L1RCT::calcIPhi(unsigned short iCrate, unsigned short iCard, unsigned short iTower)
-{
-  short iPhi;
-  if(iCard < 6)
-    iPhi = (iCrate % 9) * 8 + (iCard % 2) * 4 + ((iTower - 1) % 4);
-  else if(iCard == 6){
-    if(iTower < 17)
-      iPhi = (iCrate % 9) * 8 + ((iTower - 1) % 4);
-    else
-      iPhi = (iCrate % 9) * 8 + ((iTower - 17) % 4) + 4;
-  }
-  else
-    iPhi = (iCrate % 9) * 2 + iTower / 4;
-  return iPhi;
-}
-
 // Returns the top four isolated electrons from given crate
 // in a vector of L1CaloEmCands
 L1CaloEmCollection L1RCT::getIsolatedEGObjects(unsigned crate){
@@ -503,8 +324,8 @@ L1CaloEmCollection L1RCT::getIsolatedEGObjects(unsigned crate){
   for (uint16_t i = 0; i < 4; i++){
     unsigned rgn = ((isoEmObjects.at(i)) & 1);
     unsigned crd = (((isoEmObjects.at(i))/2) & 7);
-    unsigned short energy = ((isoEmObjects.at(i))/16);
-    unsigned rank = gctEmScale->rank(energy);
+    unsigned energy = ((isoEmObjects.at(i))/16);
+    unsigned rank = rctLookupTables_->emRank(energy);
     L1CaloEmCand isoCand(rank, rgn, crd, crate, 1, i, 0);  // includes emcand index
     isoEmCands.push_back(isoCand);
   }
@@ -520,14 +341,13 @@ L1CaloEmCollection L1RCT::getNonisolatedEGObjects(unsigned crate){
   for (uint16_t i = 0; i < 4; i++){
     unsigned rgn = ((nonIsoEmObjects.at(i)) & 1);
     unsigned crd = (((nonIsoEmObjects.at(i))/2) & 7);
-    unsigned short energy = ((nonIsoEmObjects.at(i))/16);
-    unsigned rank = gctEmScale->rank(energy);
+    unsigned energy = ((nonIsoEmObjects.at(i))/16);
+    unsigned rank = rctLookupTables_->emRank(energy);
     L1CaloEmCand nonIsoCand(rank, rgn, crd, crate, 0, i, 0);  // includes emcand index
     nonIsoEmCands.push_back(nonIsoCand);
   }
   return nonIsoEmCands;
 }
-
 
 vector<L1CaloRegion> L1RCT::getRegions(unsigned crate){
   // barrel regions
@@ -544,10 +364,11 @@ vector<L1CaloRegion> L1RCT::getRegions(unsigned crate){
       bool quiet = quiets[card*2+rgn];
       bool overflow = overflows[card*2+rgn];
       unsigned barrelEnergy = barrelEnergies.at(card*2+rgn);
-      L1CaloRegion region(barrelEnergy, overflow, tau, mip, quiet, crate, card, rgn); // change if necessary
+      L1CaloRegion region(barrelEnergy, overflow, tau, mip, quiet, crate, card, rgn);
       regionCollection.push_back(region);
     }
   }
+
   // hf regions
   vector<unsigned short> hfEnergies = crates.at(crate).getHFRegions();
   // fine grain bits -- still have to work out digi input
@@ -559,4 +380,59 @@ vector<L1CaloRegion> L1RCT::getRegions(unsigned crate){
     regionCollection.push_back(hfRegion);
   }
   return regionCollection;
+}
+
+// Dump first 64 events for hardware playback when requested
+void L1RCT::saveRCTInput(ostream& os)
+{
+  // Mike and Kira -- this is your playpen
+  static int event = 0;
+  if(event == 0)
+    {
+      os
+	<< "Crate = 0-17" << std::endl
+	<< "Card = 0-7 within the crate" << std::endl
+	<< "Tower = 0-32 covers 4 x 8 covered by the card" << std::endl
+	<< "EMAddr(0:8) = EMFGBit(0:0)+CompressedEMET(1:8)" << std::endl
+	<< "HDAddr(0:8) = HDFGBit(0:0)+CompressedHDET(1:8) - note: HDFGBit(0:0) is not part of the hardware LUT address" << std::endl
+	<< "LutOut(0:17)= LinearEMET(0:6)+HoEFGVetoBit(7:7)+LinearJetET(8:16)+ActivityBit(17:17)" << std::endl
+	<< "Event" << "\t"
+	<< "Crate" << "\t"
+	<< "Card" << "\t"
+	<< "Tower" << "\t"
+	<< "EMAddr" << "\t"
+	<< "HDAddr" << "\t"
+	<< "LUTOut"
+	<< std::endl;
+    }
+  if(event < 64)
+    {
+      for(unsigned short iCrate = 0; iCrate < 18; iCrate++)
+	{
+	  for(unsigned short iCard = 0; iCard < 7; iCard++)
+	    {
+	      for(unsigned short iTower = 0; iTower < 32; iTower++)
+		{
+		  unsigned short ecal = barrel[iCrate][iCard][iTower] / 2;
+		  unsigned short hcal = barrel[iCrate][iCard][iTower+32] / 2;
+		  unsigned short fgbit = barrel[iCrate][iCard][iTower] & 1;
+		  unsigned long lutOutput = rctLookupTables_->lookup(ecal, hcal, fgbit, iCrate, iCard, iTower);
+		  os
+		    << std::hex 
+		    << event << "\t"
+		    << iCrate << "\t"
+		    << iCard << "\t"
+		    << iTower << "\t"
+		    << barrel[iCrate][iCard][iTower] << "\t"
+		    << barrel[iCrate][iCard][iTower+32] << "\t"
+		    << lutOutput
+		    << std::dec 
+		    << std::endl;
+		  
+		}
+	    }
+	}
+    }
+  event++;
+  return;
 }

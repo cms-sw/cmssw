@@ -1,11 +1,9 @@
 #ifndef L1RCT_h
 #define L1RCT_h
 
-//#include <math>
 #include <vector>
 #include <bitset>
 #include <iostream>
-//#include <fstream>
 #include <iomanip>
 #include <string>
 
@@ -17,36 +15,20 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
-
-class L1CaloEtScale;
 class L1RCTLookupTables;
 
 class L1RCT {
 
  public:
   
-  L1RCT(std::string lutFile);
-  L1RCT(std::string lutFile, std::string lutFile2, 
-	std::string rctTestInputFile,
-	std::string rctTestOutputFile,
-	bool patternTest);
-  L1RCT(std::string lutFile, edm::ESHandle<CaloTPGTranscoder> transcoder,
-	std::string rctTestInputFile, std::string rctTestOutputFile);
+  L1RCT(const L1RCTLookupTables* rctLookupTables);
 
-  void setGctEmScale(const L1CaloEtScale* scale);
+  //Organize input for consumption by the cards
+  void input();
 
-  //Should organize the input into the crates and cards then pass on
-  //the output.  The data will come into the trigger in the form
-  //of two multilayered vectors of vectors.
-  //The first is of the actual barrel information.
-  //18 crates -> 7 RCs -> 64 unsigned shorts per RC
-  //so it should be a vector<vector<vector<unsigned short> > >
-  //The second is of the HF regions which is just of type
-  //vector<vector<unsigned short> >
-  void input(std::vector<std::vector<std::vector<unsigned short> > > barrel,
-	     std::vector<std::vector<unsigned short> > hf);
+  //For testing accept external input
+  void input(std::vector<std::vector<std::vector<unsigned short> > > barrelIn,
+	     std::vector<std::vector<unsigned short> > hfIn);
 
   //Should send commands to all crates to send commands to all RCs to
   //process the input data and then send it on to the EICs and then
@@ -55,11 +37,12 @@ class L1RCT {
 
   void fileInput(const char* filename);       // added "const" also in .cc
 
-  void digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDigiCollection hcalCollection);
-
-  void saveRCTInput(std::vector<std::vector<std::vector<unsigned short> > > barrel);
-
+  void digiInput(EcalTrigPrimDigiCollection ecalCollection, 
+		 HcalTrigPrimDigiCollection hcalCollection);
+  
   void randomInput();
+
+  void saveRCTInput(std::ostream& os);
 
   void print();
   void printCrate(int i){
@@ -94,19 +77,11 @@ class L1RCT {
 
   std::vector<L1CaloRegion> getRegions(unsigned crate);
 
-  // Helper methods to convert from trigger tower (iphi, ieta) to RCT (crate, card, tower)
-  // Static methods that are globally accessible for now -- this should be designed better!
-  static unsigned short calcCrate(unsigned short rct_iphi, short ieta);
-  static unsigned short calcCard(unsigned short rct_iphi, unsigned short absIeta);
-  static unsigned short calcTower(unsigned short rct_iphi, unsigned short absIeta);
-  static short calcIEta(unsigned short iCrate, unsigned short iCard, unsigned short iTower); // negative eta is used
-  static unsigned short calcIPhi(unsigned short iCrate, unsigned short iCard, unsigned short iTower);
-  
-  L1RCTLookupTables* getLUT() {return lut;}
-
  private:
   
   L1RCT();  // Do not implement this
+
+  const L1RCTLookupTables* rctLookupTables_;
 
   //Helper methods called by constructor
   //Set all the neighbors properly.
@@ -132,16 +107,15 @@ class L1RCT {
   //Crate i and crate i+9 are next to each other  
   std::vector<L1RCTCrate> crates;
 
-  // scale for converting electron energy to GCT rank
-  const L1CaloEtScale* gctEmScale;
-
-  edm::ESHandle<CaloTPGTranscoder> transcoder_;
-  L1RCTLookupTables* lut;
-
-  std::string rctTestInputFile_;
-  std::string rctTestOutputFile_;
-
-  bool patternTest_;
+  //Data for processing is organized into the crates and cards
+  //in two multilayered vectors of vectors.
+  //The first is of the actual barrel information.
+  //18 crates -> 7 RCs -> 64 unsigned shorts per RC
+  //so it should be a vector<vector<vector<unsigned short> > >
+  //The second is of the HF regions which is just of type
+  //vector<vector<unsigned short> >
+  std::vector<std::vector<std::vector<unsigned short> > > barrel;
+  std::vector<std::vector<unsigned short> > hf;
 
 };
 
