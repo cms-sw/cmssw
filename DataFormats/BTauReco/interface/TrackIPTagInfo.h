@@ -53,7 +53,7 @@ class TrackIPTagInfo : public JTATagInfo
   const edm::RefVector<TrackCollection> & selectedTracks() const { return m_selectedTracks; }
   const std::vector<float> & probabilities(int ip) const {return (ip==0)?m_prob3d:m_prob2d; }
 
-  std::vector<size_t> sortedIndedx(SortCriteria mode)
+//  std::vector<size_t> sortedIndedx(SortCriteria mode)
 
   virtual TaggingVariableList taggingVariables(void) const; 
    
