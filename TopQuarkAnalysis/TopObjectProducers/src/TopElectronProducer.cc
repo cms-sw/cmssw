@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck, Steven Lowette
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopElectronProducer.cc,v 1.16 2007/08/24 15:47:07 delaer Exp $
+// $Id: TopElectronProducer.cc,v 1.17 2007/08/27 11:04:32 tsirig Exp $
 //
 
 #include <vector>
@@ -17,7 +17,6 @@
 #include "TopQuarkAnalysis/TopLeptonSelection/interface/TopLeptonCaloIsolationEnergy.h"
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopElectronProducer.h"
 
-
 TopElectronProducer::TopElectronProducer(const edm::ParameterSet & cfg):
   src_   ( cfg.getParameter<edm::InputTag>( "electronSource" ) ),
   gen_   ( cfg.getParameter<edm::InputTag>( "genParticleSource" ) ),
@@ -27,14 +26,15 @@ TopElectronProducer::TopElectronProducer(const edm::ParameterSet & cfg):
   useTrkIso_       ( cfg.getParameter<bool>( "useTrkIsolation") ),
   useCalIso_       ( cfg.getParameter<bool>( "useCalIsolation") ),
   useResolution_   ( cfg.getParameter<bool>( "addResolutions" ) ),
+  useNNReso_       ( cfg.getParameter<bool>( "useNNresolution") ),
   useLikelihood_   ( cfg.getParameter<bool>( "addLRValues"  ) ),
   useGenMatching_  ( cfg.getParameter<bool>( "doGenMatch" ) ),
   useGhostRemoval_ ( cfg.getParameter<bool>( "removeDuplicates") ),
   resolutionInput_( cfg.getParameter<std::string>( "electronResoFile" ) ),
   likelihoodInput_( cfg.getParameter<std::string>( "electronLRFile" ) ),
-  minRecoOnGenEt_ (cfg.getParameter<double>       ("minRecoOnGenEt") ),
-  maxRecoOnGenEt_ (cfg.getParameter<double>       ("maxRecoOnGenEt") ),
-  maxDeltaR_      (cfg.getParameter<double>       ("maxDeltaR") )
+  minRecoOnGenEt_ (cfg.getParameter<double>("minRecoOnGenEt") ),
+  maxRecoOnGenEt_ (cfg.getParameter<double>("maxRecoOnGenEt") ),
+  maxDeltaR_      (cfg.getParameter<double>("maxDeltaR") )
 {
   if( useResolution_){
     resolution_= new TopObjectResolutionCalc( resolutionInput_,cfg.getParameter<bool>("useNNresolution"));
@@ -65,7 +65,6 @@ TopElectronProducer::produce(edm::Event& evt, const edm::EventSetup& setup)
   if ( useGenMatching_) {
     matchTruth(*parts, electrons ) ;
   }
-  
   
   //prepare isolation calculation
   if( useTrkIso_) trkIsolation_= new TopLeptonTrackerIsolationPt ( setup, tracksTag_ );
@@ -128,13 +127,9 @@ TopElectronProducer::produce(edm::Event& evt, const edm::EventSetup& setup)
     delete likelihood_;
 }
 
-
-
-//get gen
 reco::GenParticleCandidate
 TopElectronProducer::findTruth(const reco::CandidateCollection& parts, const TopElectronType& elec)
 {
-
   reco::GenParticleCandidate theGenElectron(0, reco::Particle::LorentzVector(0,0,0,0), reco::Particle::Point(0,0,0), 0, 0, true);
   for(unsigned int i=0; i!= pairGenRecoElectronsVector_.size(); i++){
     std::pair<const reco::Candidate*, TopElectronType*> pairGenRecoElectrons;
@@ -148,8 +143,6 @@ TopElectronProducer::findTruth(const reco::CandidateCollection& parts, const Top
  return theGenElectron;
 }
 
-
-//FindGen
 void 
 TopElectronProducer::matchTruth(const reco::CandidateCollection& particles, TopElectronTypeCollection& electrons)
 {
@@ -185,9 +178,7 @@ TopElectronProducer::matchTruth(const reco::CandidateCollection& particles, TopE
       }
     }
   }
-  
 }
-
 
 double
 TopElectronProducer::electronID(edm::Handle<TopElectronTypeCollection>& elecs,
@@ -202,8 +193,6 @@ TopElectronProducer::electronID(edm::Handle<TopElectronTypeCollection>& elecs,
   const reco::ElectronIDRef& id = elecID->val;
   return id->cutBasedDecision();
 }
-
-
 
 void
 TopElectronProducer::removeGhosts(std::vector<TopElectron>* elecs) 

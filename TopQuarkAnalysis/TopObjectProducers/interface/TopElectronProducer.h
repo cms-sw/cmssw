@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck, Steven Lowette
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopElectronProducer.h,v 1.11 2007/08/20 15:36:08 lowette Exp $
+// $Id: TopElectronProducer.h,v 1.12 2007/08/27 11:04:31 tsirig Exp $
 //
 
 #ifndef TopObjectProducers_TopElectronProducer_h
@@ -21,12 +21,10 @@
 #include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 
-
 class TopObjectResolutionCalc;
 class TopLeptonTrackerIsolationPt;
 class TopLeptonCaloIsolationEnergy;
 class TopLeptonLRCalc;
-
 
 class TopElectronProducer : public edm::EDProducer {
   
@@ -45,20 +43,20 @@ class TopElectronProducer : public edm::EDProducer {
   void removeGhosts(std::vector<TopElectron> * elecs);
   
  private:
-
+  
   edm::InputTag src_, gen_, elecID_, tracksTag_;
-  bool useElecID_, useTrkIso_, useCalIso_, useResolution_;
+  bool useElecID_, useTrkIso_, useCalIso_;
+  bool useResolution_, useNNReso_;
   bool useLikelihood_, useGenMatching_, useGhostRemoval_;
   std::string resolutionInput_, likelihoodInput_;
   double minRecoOnGenEt_, maxRecoOnGenEt_, maxDeltaR_;
-
+  
   TopObjectResolutionCalc *resolution_;
   TopLeptonTrackerIsolationPt  *trkIsolation_;
   TopLeptonCaloIsolationEnergy *calIsolation_;
   TopLeptonLRCalc *likelihood_;
   std::vector<std::pair<const reco::Candidate *, TopElectronType*> > pairGenRecoElectronsVector_;
   GreaterByPt<TopElectron> ptComparator_;
-
 };
 
 #endif
