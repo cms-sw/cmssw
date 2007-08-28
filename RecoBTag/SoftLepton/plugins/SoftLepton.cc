@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.1 2007/08/17 23:17:34 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.2 2007/08/28 01:38:22 ratnik Exp $
 //
 
 
@@ -114,22 +114,20 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     throw edm::Exception(edm::errors::NotFound) << "Object " << m_jets << " of type among (\"reco::JetTracksAssociationCollection\", \"reco::CaloJetCollection\") not found";
   }
   
-  // input primary vetex (optional, can be "none")
+  // input primary vetex (optional, can be "nominal" or "beamspot")
   reco::Vertex vertex;
   Handle<reco::VertexCollection> h_primaryVertex;
   if (m_primaryVertex.label() == "nominal") {
     vertex = s_nominalBeamSpot;
   } else
-  if (m_primaryVertex.label() == "beamSpot") {
+  if (m_primaryVertex.label() == "beamspot") {
     edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
     iEvent.getByType(recoBeamSpotHandle);
     vertex = reco::Vertex(recoBeamSpotHandle->position(), recoBeamSpotHandle->covariance3D(), 1, 1, 0);
   } else {
     iEvent.getByLabel(m_primaryVertex, h_primaryVertex);
     if (h_primaryVertex->size()) {
-      PrimaryVertexSorter pvs;
-      // FIXME is this still needed in 1.5.x ?
-      vertex = pvs.sortedList(*(h_primaryVertex.product())).front();
+      vertex = h_primaryVertex->front();
     } else {
       // fall back to nominal beam spot
       vertex = s_nominalBeamSpot;
