@@ -1,3 +1,13 @@
+2007-08-28  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-13-07
+	* *now* the WebGUI should be working properly with xmas ...
+	* removed 'addItemRetrieveListener' method.
+	* the actionPerformed from xdata::ActionListener (the app
+	instantiating the WebGUI) should now recompute all
+	necessary parameters upon any 'ItemGroupRetrieveEvent'.
+	
+
 2007-08-27  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-13-06
