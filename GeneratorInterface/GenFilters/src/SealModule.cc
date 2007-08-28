@@ -26,7 +26,8 @@
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterGammaGamma.h"
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterZgamma.h"
 #include "GeneratorInterface/GenFilters/interface/BdecayFilter.h"
-
+#include "GeneratorInterface/GenFilters/interface/PythiaFilterGammaJetIsoPi0.h"
+#include "GeneratorInterface/GenFilters/interface/Zto2lFilter.h"
 
   DEFINE_SEAL_MODULE();
   DEFINE_ANOTHER_FWK_MODULE(PythiaFilter);
@@ -54,3 +55,5 @@
   DEFINE_ANOTHER_FWK_MODULE(PythiaFilterGammaGamma);
   DEFINE_ANOTHER_FWK_MODULE(PythiaFilterZgamma);
   DEFINE_ANOTHER_FWK_MODULE(BdecayFilter);
+  DEFINE_ANOTHER_FWK_MODULE(PythiaFilterGammaJetIsoPi0);
+  DEFINE_ANOTHER_FWK_MODULE(Zto2lFilter);
