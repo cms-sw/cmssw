@@ -1,11 +1,7 @@
-
 #include <iostream>
 #include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 #include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
-
-//Timing
-#include "SealUtil/SealTimer.h"
 
 ClhepEvaluator::ClhepEvaluator()
 { 
@@ -96,9 +92,6 @@ void ClhepEvaluator::set(const std::string & n, const std::string & v)
         
 double ClhepEvaluator::eval(const std::string & ns, const std::string & expr)
 {
-
-  //   static TimerProxy timer_("ClhepEvaluator::eval(...)");
-   static seal::SealTimer tEval("ClhepEvaluator::eval(...)", false);
 
    // eval does not store std::strings in the values_!
    // eval throws if it can't evaluate!

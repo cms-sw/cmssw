@@ -1,6 +1,4 @@
-<use name=DataFormats/CLHEP>
 <use name=DetectorDescription/Base>
-<use name=Foundation/SealUtil>
 <use name=clhep>
 <export>
   <use name=DetectorDescription/Base>
