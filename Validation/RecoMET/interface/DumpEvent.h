@@ -27,8 +27,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "DataFormats/METReco/interface/GenMET.h"
 #include "DataFormats/METReco/interface/GenMETCollection.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -49,8 +51,10 @@
 
 //--egamma Reco stuff--//
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
 #include <vector>
 #include <utility>
