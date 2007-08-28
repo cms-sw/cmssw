@@ -6,7 +6,7 @@
  *
  * \author N.Marinelli  University of Notre Dame, US
  *
- * \version $Id: ConvertedPhoton.h,v 1.8 2007/05/09 15:37:09 nancy Exp $
+ * \version $Id: ConvertedPhoton.h,v 1.9 2007/07/31 15:20:03 ratnik Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -59,7 +59,7 @@ namespace reco {
     /// returns the position of the conversion vertex
     const Point & convVertexPosition() const { return theConversionVertex_ ; }
     /// positions of the track extrapolation at the ECAL front face
-    std::vector<math::XYZPoint> ecalImpactPosition() const {return thePositionAtEcal_;} 
+    std::vector<math::XYZPoint> const & ecalImpactPosition()  {return thePositionAtEcal_;}
     /// set primary event vertex used to define photon direction
     void setVertex(const Point & vertex);
 
