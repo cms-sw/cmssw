@@ -1,3 +1,8 @@
+2007-08-28  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-07-05
+	* adjust to new XMAS-ready version of Utilties/WebGUI
+
 2007-08-21  Emilio Meschi  <emilio.meschi@cern.ch>
 	* tag V00-07-04
 	* FUResource.cc uses board_sense to avoid crash when running with fake data (inconsistent GTFE block)
