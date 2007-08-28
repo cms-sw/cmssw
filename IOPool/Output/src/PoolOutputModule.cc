@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.80 2007/08/20 23:45:05 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.81 2007/08/21 00:03:13 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "boost/array.hpp" 
@@ -22,7 +22,7 @@ namespace edm {
   PoolOutputModule::PoolOutputModule(ParameterSet const& pset) :
     OutputModule(pset),
     catalog_(pset),
-    commitInterval_(pset.getUntrackedParameter<unsigned int>("commitInterval", 100U)),
+    autoSaveInterval_(pset.getUntrackedParameter<unsigned int>("autoSaveInterval", 100U)),
     maxFileSize_(pset.getUntrackedParameter<int>("maxSize", 0x7f000000)),
     compressionLevel_(pset.getUntrackedParameter<int>("compressionLevel", 1)),
     basketSize_(pset.getUntrackedParameter<int>("basketSize", 16384)),

@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.25 2007/08/20 23:45:05 wmtan Exp $
+// $Id: PoolOutputModule.h,v 1.26 2007/08/21 00:03:17 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -44,7 +44,7 @@ namespace edm {
     virtual void endRun(RunPrincipal const& r);
 
     mutable OutputFileCatalog catalog_;
-    unsigned int commitInterval_;
+    unsigned int autoSaveInterval_;
     unsigned int maxFileSize_;
     int compressionLevel_;
     int basketSize_;
