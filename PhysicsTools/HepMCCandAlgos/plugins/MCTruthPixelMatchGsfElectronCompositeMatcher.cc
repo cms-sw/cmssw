@@ -5,6 +5,7 @@
  */
 #include "PhysicsTools/HepMCCandAlgos/interface/MCTruthCompositeMatcher.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 namespace reco {
