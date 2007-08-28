@@ -7,17 +7,6 @@
   </class>
   <class name="std::vector<reco::PFCluster>"/>
   <class name="edm::Wrapper<std::vector<reco::PFCluster> >"/>
-  <class name="edm::RefProd<std::vector<reco::PFCluster> >"/>
-
-  <class name="edm::AssociationMap<edm::OneToOne<std::vector<reco::PFCluster>, std::vector<reco::ClusterShape>, unsigned int > >">
-    <field name="transientMap_" transient="true" />
-  </class>
-  <class pattern="edm::KeyVal<*>" />
-  <class pattern="edm::Wrapper<edm::AssociationMap<*>" />
-  <class pattern="edm::Ref<edm::AssociationMap<*>" />
-  <class pattern="edm::RefProd<edm::AssociationMap<*>" />
-  <class pattern="edm::RefVector<edm::AssociationMap<*>" />
-  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::PFCluster> > , edm::RefProd<std::vector<reco::ClusterShape> > >"/> 
 
   <class name="reco::PFRecHitFraction"/>
   <class name="std::vector<reco::PFRecHitFraction>"/>

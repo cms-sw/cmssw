@@ -6,8 +6,8 @@
  * Prototype for ECAL data block unpacking
  * \file DCCDataBlockPrototype.h
  *
- * $Date: 2007/04/02 11:09:45 $
- * $Revision: 1.3 $
+ * $Date: 2007/04/10 17:33:48 $
+ * $Revision: 1.4 $
  * \author N. Almeida
  *
 */
@@ -22,7 +22,6 @@
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include "DCCRawDataDefinitions.h"
-#include "ECALUnpackerException.h"
 #include <stdint.h>
 
 class EcalElectronicsMapper;
@@ -37,7 +36,7 @@ class DCCDataBlockPrototype {
     */
     DCCDataBlockPrototype( DCCDataUnpacker *  unpacker, EcalElectronicsMapper * mapper, DCCEventBlock * event, bool unpack = true);    
   
-    virtual void unpack(uint64_t ** data, uint * dwToEnd){}
+    virtual int unpack(uint64_t ** data, uint * dwToEnd){ return BLOCK_UNPACKED;}
 
     virtual void updateCollectors(){};
 	

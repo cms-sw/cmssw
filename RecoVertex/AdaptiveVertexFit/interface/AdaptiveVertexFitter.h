@@ -5,8 +5,7 @@
 #include "RecoVertex/LinearizationPointFinders/interface/DefaultLinearizationPointFinder.h"
 #include "RecoVertex/VertexTools/interface/GeometricAnnealing.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexUpdator.h"
-// #include "RecoVertex/VertexTools/interface/DummyVertexSmoother.h"
-#include "RecoVertex/AdaptiveVertexFit/interface/KalmanVertexSmoother.h"
+#include "RecoVertex/VertexTools/interface/DummyVertexSmoother.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexTrackCompatibilityEstimator.h"
 #include "RecoVertex/VertexTools/interface/LinearizedTrackStateFactory.h"
@@ -42,7 +41,7 @@ public:
       const VertexUpdator & updator = KalmanVertexUpdator(),
       const VertexTrackCompatibilityEstimator & estor =
              KalmanVertexTrackCompatibilityEstimator(),
-      const VertexSmoother & smoother = KalmanVertexSmoother(),
+      const VertexSmoother & smoother = DummyVertexSmoother(),
       const AbstractLTSFactory & ltsf = LinearizedTrackStateFactory() );
 
   AdaptiveVertexFitter( const AdaptiveVertexFitter & original );
@@ -120,7 +119,7 @@ public:
    *   for a track to be considered "significant".
    *   If fewer than two tracks are significant, an exception is thrown.
    */
-  void setParameters( double maxshift=0.0001, double maxlpshift=0.1, 
+  void setParameters( double maxshift=0.0001, double maxlpshift=0.1,
                       unsigned maxstep=30, double weightthreshhold=.001 );
 
   /**

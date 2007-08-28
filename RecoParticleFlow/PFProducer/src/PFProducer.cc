@@ -101,6 +101,7 @@ void PFProducer::produce(Event& iEvent,
  
   pfAlgo_.reconstructParticles( blocks );
 
+
   if(verbose_) {
     ostringstream  str;
     str<<pfAlgo_<<endl;

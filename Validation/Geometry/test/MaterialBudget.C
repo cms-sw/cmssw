@@ -36,7 +36,7 @@ TProfile* prof_x0_str_AIR;
 TProfile2D* prof2d_x0_det_total;
 //
 unsigned int iFirst = 1;
-unsigned int iLast  = 8;
+unsigned int iLast  = 9;
 //
 
 using namespace std;
@@ -63,7 +63,7 @@ MaterialBudget(TString detector) {
   
   if(theDetector == "TrackerSum") {
     iFirst = 1;
-    iLast  = 8;
+    iLast  = 9;
     theDetectorFileName = "matbdg_TIB.root";
   }
   if(theDetector == "Pixel") {
@@ -97,8 +97,12 @@ MaterialBudget(TString detector) {
   createPlots("l_vs_eta");
   createPlots("l_vs_phi");
   //  createPlots("l_vs_R");
-  create2DPlots("x_vs_eta_vs_phi");
-  create2DPlots("l_vs_eta_vs_phi");
+  //create2DPlots("x_vs_eta_vs_phi");
+  //create2DPlots("l_vs_eta_vs_phi");
+  create2DPlots("x_vs_z_vs_R");
+  create2DPlots("l_vs_z_vs_R");
+  create2DPlots("x_vs_z_vs_Rsum");
+  create2DPlots("l_vs_z_vs_Rsum");
   //
   createRatioPlots("x_over_l_vs_eta");
   createRatioPlots("x_over_l_vs_phi");
@@ -120,20 +124,20 @@ void createPlots(TString plot) {
     ordinateName = TString("x/X_{0}");
   } else if(plot.CompareTo("x_vs_R") == 0) {
     plotNumber = 40;
-    abscissaName = TString("R [cm]");
+    abscissaName = TString("R [mm]");
     ordinateName = TString("x/X_{0}");
   } else if(plot.CompareTo("l_vs_eta") == 0) {
     plotNumber = 1010;
     abscissaName = TString("#eta");
-    ordinateName = TString("#lambda/#lambda_{0}");
+    ordinateName = TString("x/#lambda_{0}");
   } else if(plot.CompareTo("l_vs_phi") == 0) {
     plotNumber = 1020;
     abscissaName = TString("#varphi [rad]");
-    ordinateName = TString("#lambda/#lambda_{0}");
+    ordinateName = TString("x/#lambda_{0}");
   } else if(plot.CompareTo("l_vs_R") == 0) {
     plotNumber = 1040;
-    abscissaName = TString("R [cm]");
-    ordinateName = TString("#lambda/#lambda_{0}");
+    abscissaName = TString("R [mm]");
+    ordinateName = TString("x/#lambda_{0}");
   } else {
     cout << " error: chosen plot name not known " << plot << endl;
     return;
@@ -284,6 +288,7 @@ void createPlots(TString plot) {
   can.Update();
   can.SaveAs( Form( "%s/%s_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   can.SaveAs( Form( "%s/%s_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //
   
 }
@@ -293,16 +298,56 @@ void create2DPlots(TString plot) {
   unsigned int plotNumber = 0;
   TString abscissaName = "dummy";
   TString ordinateName = "dummy";
+  Int_t zLog = 0;
+  Int_t zCol = 0; // 0 linear grayscale, 1 quadratic grayscale
+  Double_t histoMin = -1.;
+  Double_t histoMax = -1.;
   if(plot.CompareTo("x_vs_eta_vs_phi") == 0) {
     plotNumber = 30;
     abscissaName = TString("#eta");
     ordinateName = TString("#varphi");
     quotaName    = TString("x/X_{0}");
+    zLog = 0;
   } else if(plot.CompareTo("l_vs_eta_vs_phi") == 0) {
     plotNumber = 1030;
     abscissaName = TString("#eta");
     ordinateName = TString("#varphi");
-    quotaName    = TString("#lambda/#lambda_{0}");
+    quotaName    = TString("x/#lambda_{0}");
+    zLog = 0;
+  } else if(plot.CompareTo("x_vs_z_vs_Rsum") == 0) {
+    plotNumber = 50;
+    abscissaName = TString("z [mm]");
+    ordinateName = TString("R [mm]");
+    quotaName    = TString("#Sigmax/X_{0}");
+    zLog = 0;
+    histoMin = 0.;
+    histoMax = 2.;
+  } else if(plot.CompareTo("x_vs_z_vs_R") == 0) {
+    plotNumber = 60;
+    abscissaName = TString("z [mm]");
+    ordinateName = TString("R [mm]");
+    quotaName    = TString("1/X_{0}");
+    zLog = 1;
+    zCol = 1;
+    histoMin = 0.00001;
+    histoMax = 0.1;  
+  } else if(plot.CompareTo("l_vs_z_vs_Rsum") == 0) {
+    plotNumber = 1050;
+    abscissaName = TString("z [mm]");
+    ordinateName = TString("R [mm]");
+    quotaName    = TString("#Sigmax/#lambda_{0}");
+    histoMin = 0.;
+    histoMax = 0.6;
+    zLog = 0;
+  } else if(plot.CompareTo("l_vs_z_vs_R") == 0) {
+    plotNumber = 1060;
+    abscissaName = TString("z [mm]");
+    ordinateName = TString("R [mm]");
+    quotaName    = TString("1/#lambda_{0}");
+    zLog = 1;
+    zCol = 1;
+    histoMin = 0.000001;
+    histoMax = 0.01;
   } else {
     cout << " error: chosen plot name not known " << plot << endl;
     return;
@@ -374,40 +419,119 @@ void create2DPlots(TString plot) {
   
   // properties
   gStyle->SetPalette(1);
+  gStyle->SetStripDecimals(false);
   //
   
+  // Create "null" histo
+  TH2F *frame = new TH2F("frame","",10,-3100.,3100.,10,-50.,1400.); 
+  frame->SetMinimum(0.1);
+  frame->SetMaximum(10.);
+  frame->GetXaxis()->SetTickLength(frame->GetXaxis()->GetTickLength()*0.50);
+  frame->GetYaxis()->SetTickLength(frame->GetXaxis()->GetTickLength()/4.);
+
   // stack
   TString hist2dTitle = Form( "Material Budget (%s) ",quotaName.Data() ) + theDetector + Form( ";%s;%s;%s",abscissaName.Data(),ordinateName.Data(),quotaName.Data() );
   TH2D* hist2d_x0_total = hist_x0_total; //->Rebin2D(5,5);
   hist2d_x0_total->SetTitle(hist2dTitle);
+  frame->SetTitle(hist2dTitle);
+  frame->SetTitleOffset(0.5,"Y");
+
+  if ( histoMin != -1. ) hist2d_x0_total->SetMinimum(histoMin);      
+  if ( histoMax != -1. ) hist2d_x0_total->SetMaximum(histoMax);      
+
+
   //
-  
-  // canvas
-  TCanvas can("can","can",1200,800);
-  can.Range(0,0,25,25);
+  TCanvas can("can","can",2480+248,580+58+58);
+  can.SetTopMargin(0.1);
+  can.SetBottomMargin(0.1);
+  can.SetLeftMargin(0.04);
+  can.SetRightMargin(0.06);
   can.SetFillColor(kWhite);
   gStyle->SetOptStat(0);
   //
   
-  // Draw
+
+  // Color palette
   gStyle->SetPalette(1);
-  hist2d_x0_total->Draw("COLZ");
+
+  // Log?
+  can.SetLogz(zLog);
+
+  // Draw in colors
+  frame->Draw(); 
+  hist2d_x0_total->Draw("COLZsame");
+
+  // Store
+  can.Update();
+
+  //Aesthetic
+  TPaletteAxis *palette = 
+    (TPaletteAxis*)hist2d_x0_total->GetListOfFunctions()->FindObject("palette");
+  palette->SetX1NDC(0.945);
+  palette->SetX2NDC(0.96);
+  palette->SetY1NDC(0.1);
+  palette->SetY2NDC(0.9);
+  palette->GetAxis()->SetTickSize(.01);
+  if ( zLog==1 ) {  palette->GetAxis()->SetLabelOffset(-0.01); }
+  palette->GetAxis()->SetTitle("");
+  TLatex *paletteTitle = new TLatex(3450.,1400.,quotaName); 
+  paletteTitle->SetTextAngle(90.);
+  paletteTitle->SetTextSize(0.05);
+  paletteTitle->SetTextAlign(31);
+  paletteTitle->Draw();     
+  hist2d_x0_total->GetYaxis()->SetTickLength(hist2d_x0_total->GetXaxis()->GetTickLength()/4.);
+  hist2d_x0_total->GetYaxis()->SetTickLength(hist2d_x0_total->GetXaxis()->GetTickLength()/4.);
+  hist2d_x0_total->SetTitleOffset(0.5,"Y");
+  hist2d_x0_total->GetXaxis()->SetNoExponent(true);
+  hist2d_x0_total->GetYaxis()->SetNoExponent(true);
+
+  //Add eta labels
+  drawEtaValues();
+
+  can.Modified();
+
+  can.SaveAs( Form( "%s/%s_%s_col.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_%s_col.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_%s_col.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //
+  
+  // Grayscale palette
+  Int_t ncol = 100;
+  Int_t colors[100]; 
+  TColor *col; 
+  Double_t dg=1/(Double_t)(ncol-1);
+  Double_t gray=1.;
+  for (Int_t i=0; i<ncol; i++) {     
+    colors[i]= i+100; 
+    col = gROOT->GetColor(colors[i]);  
+    if ( zCol == 0. ) { col->SetRGB(gray, gray,gray); }
+    if ( zCol == 1. ) { col->SetRGB(gray*gray, gray*gray, gray*gray); }
+    gray = gray-dg;
+  }
+  hist2d_x0_total->SetContour(100);      
+  gStyle->SetPalette(100,colors);
   
   
   // Store
   can.Update();
-  can.SaveAs( Form( "%s/%s_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  can.SaveAs( Form( "%s/%s_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+
+  can.Modified();
+
+  can.SaveAs( Form( "%s/%s_%s_bw.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_%s_bw.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_%s_bw.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //
   
+  // restore properties
+  gStyle->SetStripDecimals(true);
+  //
 }
 
 void createRatioPlots(TString plot) {
   unsigned int plotNumber = 0;
   TString abscissaName = "dummy";
   TString ordinateName = "dummy";
-  ordinateName = TString("(x/X_{0})/(#lambda/#lambda_{0})");
+  ordinateName = TString("(x/X_{0})/(x/#lambda_{0})");
   if(plot.CompareTo("x_over_l_vs_eta") == 0) {
     plotNumber = 10;
     abscissaName = TString("#eta");
@@ -510,7 +634,64 @@ void createRatioPlots(TString plot) {
   can.Update();
   can.SaveAs( Form( "%s/%s_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   can.SaveAs( Form( "%s/%s_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //
   
 }
 
+
+void drawEtaValues(){
+
+  //Add eta labels
+  Float_t etas[33] = {-3.4, -3.0, -2.8, -2.6, -2.4, -2.2, -2.0, -1.8, -1.6, -1.4., -1.2, -1., -0.8, -0.6, -0.4, -0.2, 0., 0.2, 0.4, 0.6, 0.8, 1., 1.2, 1.4, 1.6, 1.8, 2., 2.2, 2.4, 2.6, 2.8, 3.0, 3.4};
+  Float_t etax = 2940.;
+  Float_t etay = 1240.;
+  Float_t lineL = 100.;
+  Float_t offT = 10.;
+  Float_t pi = 3.1415926;
+
+
+
+  for (Int_t ieta=0; ieta<33; ieta++){
+    Float_t th = 2*atan(exp(-etas[ieta]));
+    Int_t talign = 21;
+
+    //IP
+    TLine *lineh = new TLine(-20.,0.,20.,0.); 
+    lineh->Draw();  
+    TLine *linev = new TLine(0.,-10.,0.,10.); 
+    linev->Draw();  
+
+    if ( etas[ieta]>-1.6 && etas[ieta]<1.6 ){
+      Float_t x1 = etay/tan(th);
+      Float_t y1 = etay;
+    } else if ( etas[ieta]<=-1.6 ) {
+      Float_t x1 = -etax;
+      Float_t y1 = -etax*tan(th);
+      talign = 11;
+    } else if ( etas[ieta]>=1.6 ){
+      Float_t x1 = etax;
+      Float_t y1 = etax*tan(th);
+      talign = 31;
+    }
+    Float_t x2 = x1+lineL*cos(th);
+    Float_t y2 = y1+lineL*sin(th);
+    Float_t xt = x2;
+    Float_t yt = y2+offT;
+    //      cout << isign << " " << th*180./pi << " " << x1 << " " << y1 << "\n";
+    TLine *line1 = new TLine(x1,y1,x2,y2); 
+    line1->Draw();  
+    char text[20];
+    int rc = sprintf(text, "%3.1f", etas[ieta]);
+    if ( etas[ieta] == 0 ) {
+      TLatex *t1 = new TLatex(xt,yt,"#eta = 0"); 
+    } else {
+      TLatex *t1 = new TLatex(xt,yt,text); 
+    }
+    t1->SetTextSize(0.03);
+    t1->SetTextAlign(talign);
+    t1->Draw();     
+    
+  }
+
+}

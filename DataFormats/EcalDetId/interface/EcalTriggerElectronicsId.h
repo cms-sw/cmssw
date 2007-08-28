@@ -1,7 +1,6 @@
 #ifndef DATAFORMATS_ECALDETID_ECALTRIGGERELECTRONICSID_H
 #define DATAFORMATS_ECALDETID_ECALTRIGGERELECTRONICSID_H 1
 
-#include <boost/cstdint.hpp>
 #include <ostream>
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"

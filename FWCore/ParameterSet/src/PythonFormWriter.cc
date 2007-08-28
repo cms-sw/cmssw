@@ -3,6 +3,7 @@
 #include "FWCore/ParameterSet/src/PythonFormWriter.h"
 #include "FWCore/ParameterSet/interface/Nodes.h"
 #include "FWCore/ParameterSet/interface/PSetNode.h"
+#include "FWCore/ParameterSet/interface/VPSetNode.h"
 #include "FWCore/ParameterSet/interface/EntryNode.h"
 #include "FWCore/ParameterSet/interface/ImplicitIncludeNode.h"
 #include "FWCore/ParameterSet/interface/VEntryNode.h"

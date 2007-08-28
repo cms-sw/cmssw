@@ -80,7 +80,9 @@ class JetCrystalsAssociator : public edm::EDProducer {
 
   // ----------member data ---------------------------
   edm::InputTag m_jetsSrc;
-  edm::InputTag m_towersSrc;
+  edm::InputTag m_EBRecHits;
+  edm::InputTag m_EERecHits;
+
   double m_deltaRCut;
 };
 
@@ -89,7 +91,8 @@ JetCrystalsAssociator::JetCrystalsAssociator(const edm::ParameterSet& iConfig)
   produces<reco::JetCrystalsAssociationCollection>();
   produces<reco::EMLorentzVectorCollection>();
 
-  m_towersSrc = iConfig.getParameter<edm::InputTag>("towers");
+  m_EBRecHits = iConfig.getParameter<edm::InputTag>("EBRecHits");
+  m_EERecHits = iConfig.getParameter<edm::InputTag>("EERecHits");
   m_jetsSrc   = iConfig.getParameter<edm::InputTag>("jets");
   m_deltaRCut = iConfig.getParameter<double>("coneSize");
 }
@@ -128,14 +131,14 @@ JetCrystalsAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    iEvent.getByLabel(m_jetsSrc, jets);
    
    // get calo towers collection
-   Handle<CaloTowerCollection> caloTowers; 
-   iEvent.getByLabel(m_towersSrc, caloTowers);
+   //   Handle<CaloTowerCollection> caloTowers; 
+   //   iEvent.getByLabel(m_towersSrc, caloTowers);
 
    // calculation of ECAL isolation
    Handle<EBRecHitCollection> EBRecHits;
    Handle<EERecHitCollection> EERecHits;
-   iEvent.getByLabel( "ecalRecHit", "EcalRecHitsEB", EBRecHits );
-   iEvent.getByLabel( "ecalRecHit", "EcalRecHitsEE", EERecHits );
+   iEvent.getByLabel( m_EBRecHits, EBRecHits );
+   iEvent.getByLabel( m_EERecHits, EERecHits );
    
    std::auto_ptr<EMLorentzVectorCollection> jetRecHits( new EMLorentzVectorCollection() );
    //loop on jets and associate

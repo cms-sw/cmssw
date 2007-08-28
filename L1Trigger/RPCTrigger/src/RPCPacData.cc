@@ -60,7 +60,8 @@ RPCPacData::RPCPacData(std::string patFilesDir, int tower, int logSector, int lo
  *
  */
 RPCPacData::RPCPacData(const RPCPattern::RPCPatVec &patVec, 
-                       const RPCPattern::TQualityVec &qualVec)
+                       const RPCPattern::TQualityVec &qualVec):
+ m_MaxQuality(0)
 {
   for(unsigned int i = 0; i < qualVec.size(); ++i) {    
     RPCPattern::TQuality quality = qualVec[i];

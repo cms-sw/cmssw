@@ -3,6 +3,9 @@
 #include "Utilities/RFIOAdaptor/interface/RFIOFile.h"
 #include "Utilities/RFIOAdaptor/interface/RFIOError.h"
 #include "Utilities/RFIOAdaptor/interface/RFIO.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "SealBase/DebugAids.h"
 #include "SealBase/StringFormat.h"
 #include <iostream>
@@ -19,30 +22,36 @@
 
 RFIOFile::RFIOFile (void)
     : m_fd (IOFD_INVALID),
-      m_close (false)
+      m_close (false),
+      m_nRetries(0)
 {}
 
 RFIOFile::RFIOFile (IOFD fd)
     : m_fd (fd),
-      m_close (true)
+      m_close (true),
+      m_nRetries(0)
 {}
 
 RFIOFile::RFIOFile (const char *name,
 		    int flags /* = IOFlags::OpenRead */,
 		    FileAcl perms /* = 066 */)
     : m_fd (IOFD_INVALID),
-      m_close (false)
-{ m_close = false; open (name, flags, perms); }
+      m_close (false),
+      m_nRetries(0)
+{ open (name, flags, perms); }
 
 RFIOFile::RFIOFile (const std::string &name,
 		    int flags /* = IOFlags::OpenRead */,
 		    FileAcl perms /* = 066 */)
     : m_fd (IOFD_INVALID),
-      m_close (false)
+      m_close (false),
+      m_nRetries(0)
 { open (name.c_str (), flags, perms); }
 
 RFIOFile::~RFIOFile (void)
 {
+    edm::LogWarning("RFIOFile")
+      << "Total RFIO retries: " << m_nRetries;
     if (m_close)
 	abort ();
 }
@@ -149,6 +158,10 @@ RFIOFile::open (const char *name,
 
     m_fd = newfd;
     m_close = true;
+    m_currentPosition = 0;
+
+    edm::LogInfo("RFIOFile")
+      << "Opened file " << lname;
 }
 
 void
@@ -159,13 +172,20 @@ RFIOFile::close (void)
 
     if (rfio_close64 (m_fd) == -1) {
       //throw RFIOError ("rfio_close()", rfio_errno, serrno);
-      std::cerr << "error in rfio_close() " << rfio_errno
-		<< " " << serrno << std::endl;
+      edm::LogWarning("RFIOFile")
+        << "error in rfio_close() " << rfio_errno
+        << " " << serrno << std::endl;
       sleep(5);
     }
 
     m_close = false;
     m_fd = IOFD_INVALID;
+
+    std::string lname (m_name);
+    if (lname.find ("//")==0) lname.erase(0,1);
+
+    edm::LogInfo("RFIOFile")
+      << "Closed file " << lname;
 }
 
 void
@@ -179,39 +199,19 @@ RFIOFile::abort (void)
     m_fd = IOFD_INVALID;
 }
 
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-
-#include <iostream>
-
-namespace {
-
-  struct CountAndPrint {
-    CountAndPrint(const std::string & message ) : m_n(0), m_message(message) {}
-    ~CountAndPrint() {
-      std::cerr << m_message << ": " << m_n << std::endl;
-    }  
-    int m_n;
-    std::string m_message;
-  };
-
-  void countAndPrint() {
-    static CountAndPrint c("total rfio retries");
-    c.m_n++;
-  }
-
-}
-
-
 /// close and open again...
 void RFIOFile::reOpen() {
-  std::cerr << "reopen " << m_name
-	    << " with " << m_lastIOV.size() << " preseeks" << std::endl;
+
+  // Remember the current position in the file
+  IOOffset l_pos = m_currentPosition;
+
   close();
   sleep(5);
   open(m_name, m_flags, m_perms);
-  if (!m_lastIOV.empty()) preseek(m_lastIOV);
+
+  // Set the position back to the same place it was
+  // before the file close and open
+  position(l_pos);
 }
 
 ssize_t
@@ -219,20 +219,25 @@ RFIOFile::retry_read (void *into, IOSize n, int max_retry /* =10 */) {
   if (max_retry == 0) return -1;
   serrno=0;
   ssize_t s = rfio_read64 (m_fd, into, n);
-  if ( (s == -1 && serrno == 1004) || (s>int(n)) 
-       ) {
-    countAndPrint();
-    if (serrno == 1004) std::cerr << "timeout on RFIO read: retry" << std::endl;
-    std::cerr << "current position " << m_currentPosition << std::endl;
-    if (s>int(n)) std::cerr << "error in read " << n << ", " << s << std::endl;
+  if ( (s == -1 && serrno == 1004) || (s>int(n)) ) {
+    ++m_nRetries;
+    edm::LogWarning("RFIOFile")
+      << "RFIOFile retrying read\n"
+      << "  return value from rfio_read64 = " << s << "  (normally this is bytes read, -1 for error)\n"
+      << "  bytes requested = " << n << "  (this and bytes read are equal unless error or EOF)\n"
+      << "  serrno = " << serrno << "  (an error code rfio sets, 0 = OK, 1004 = timeout, ...)\n"
+      << "  current position = " << m_currentPosition << "  (in bytes, beginning of file is 0)\n"
+      << "  retries left before quitting = " << max_retry << "\n"
+      << "  will close and reopen file " << m_name;
+
     sleep(5);
     max_retry--;
-    // close&open
+
+    // Improve the chances of success by closing and reopening
+    // the file before retrying the read.  This also resets
+    // the position in the file to the correct place.
     reOpen();
-    // re seek
-    IOOffset l_pos = m_currentPosition;
-    // position(0); // hope reset internal rfio state
-    position(l_pos);
+
     return retry_read (into, n, max_retry);
   } 
   return s;
@@ -247,6 +252,7 @@ RFIOFile::read (void *into, IOSize n)
   if (s == -1)
     throw RFIOError ("rfio_read()", rfio_errno, serrno);
   
+  m_currentPosition += s;
   return s;
 }
 
@@ -303,9 +309,11 @@ RFIOFile::preseek(const IOVec& iov) {
     if (max_retry == 0)  
       throw RFIOError ("rfio_preseek()", rfio_errno, serrno);
 
-    std::cerr << "error in RFIO preseek: retry" << std::endl;
+    edm::LogWarning("RFIOFile")
+      << "error in RFIO preseek: retry";
     max_retry--;
     sleep(5);
     serrno = 0;
   }
 }
+

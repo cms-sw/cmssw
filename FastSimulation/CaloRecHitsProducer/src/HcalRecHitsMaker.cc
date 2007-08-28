@@ -177,6 +177,7 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
 
   loadPCaloHits(iEvent);
   noisify();
+  hbheHits.reserve(hbRecHits_.size()+heRecHits_.size());
 
   // HB
   std::map<uint32_t,std::pair<float,bool> >::const_iterator it=hbRecHits_.begin();
@@ -225,7 +226,7 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
 	}
     }
 
-  
+  hoHits.reserve(hoRecHits_.size());
   // HO
   it = hoRecHits_.begin();
   itend = hoRecHits_.end();
@@ -238,6 +239,7 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
     }
   
   // HF
+  hfHits.reserve(hfRecHits_.size());
   it = hfRecHits_.begin();
   itend = hfRecHits_.end();
   for(;it!=itend;++it)

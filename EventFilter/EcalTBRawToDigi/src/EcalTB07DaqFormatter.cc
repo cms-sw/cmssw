@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2007/07/11 17:35:56 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/07/05 07:22:48 $
+ *  $Revision: 1.2 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -495,11 +495,9 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	    // eeId(int i, int j, int iz (+1/-1), int mode = XYMODE)
 	    int ix = getEE_ix(tower, strip, ch);
 	    int iy = getEE_iy(tower, strip, ch);
-
-	    int iz = 1;
-	    if ( tbName_ == "h4" ) iz = -1;
-	    EEDetId  eeId(ix, iy, iz);
-	        
+	    // Hardcopy iz = -1
+	    EEDetId  eeId(ix, iy, 1);
+	    
 	    EBDataFrame theFrame ( id );
 	    EEDataFrame eeFrame (eeId );
 
@@ -516,7 +514,6 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	    for (unsigned short i=0; i<xtalDataSamples.size(); ++i ) {
 	      
 	      theFrame.setSample (i, xtalDataSamples[i] );
-	      eeFrame .setSample (i, xtalDataSamples[i] );
 	      
 	      if((xtalDataSamples[i] & gain_mask) == 0){gainIsOk =false;}
 	      
@@ -940,27 +937,10 @@ std::pair<int,int>  EcalTB07DaqFormatter::cellIndex(int tower_id, int strip, int
 
 int EcalTB07DaqFormatter::getEE_ix(int tower, int strip, int ch){
   // H2 -- ix is in [-90, -80], and iy is in [-5; 5]
-  int ic = cryIc(tower, strip, ch);
-  int ix = 0;
-  if ( tbName_ == "h2" ) 
-    ix = (int)ic/20 + 6;
-
-  if ( tbName_ == "h4" )
-    ix = 66 + (ic-1)%20;
-
-  return ix;
-
+  return (int)cryIc(tower, strip, ch)/20 + 5;
 }
 int EcalTB07DaqFormatter::getEE_iy(int tower, int strip, int ch){
-  int ic = cryIc(tower, strip, ch);
-  int iy = 0;
-  if ( tbName_ == "h2" ) 
-    iy = 55 - (ic-1)%20;
-
-  if ( tbName_ == "h4" )
-    iy = 50 - (int)(ic/20);
-
-  return iy;
+  return cryIc(tower, strip, ch)%20 + 45;
 }
 
 //YM use h2 mapping scheme =============================================================

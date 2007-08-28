@@ -9,6 +9,7 @@
 
 #include "EventFilter/ResourceBroker/interface/FUResource.h"
 #include "EventFilter/Utilities/interface/Crc.h"
+#include "EventFilter/Utilities/interface/GlobalEventNumber.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 #include "interface/shared/frl_header.h"
@@ -41,7 +42,8 @@ using namespace evf;
 
 //______________________________________________________________________________
 bool FUResource::doFedIdCheck_ = true;
-
+unsigned int FUResource::gtpEvmId_ =  FEDNumbering::getTriggerGTPFEDIds().first;
+unsigned int FUResource::gtpDaqId_ =  FEDNumbering::getTriggerGTPFEDIds().second;
 
 ////////////////////////////////////////////////////////////////////////////////
 // construction/destruction
@@ -645,8 +647,14 @@ void FUResource::findFEDs() throw (evf::Exception)
 		      <<" fedid:"<<fedId);
       nbErrors_++;
     }
-    if (fedId<1024) fedSize_[fedId]=fedSize;
     
+    if (fedId<1024) fedSize_[fedId]=fedSize;
+
+    //if gtp daq block is available set cell event number to global partition-independent trigger number
+    //this is to be replaced later with partition-dependent event number from evm block
+    if(fedId == gtpDaqId_)
+      if(evf::evtn::daq_board_sense(fedHeaderAddr)) shmCell_->setEvtNumber(evf::evtn::get(fedHeaderAddr, false));
+
     // crc check
     if (doCrcCheck_) {
       UInt_t conscheck=fedTrailer->conscheck;

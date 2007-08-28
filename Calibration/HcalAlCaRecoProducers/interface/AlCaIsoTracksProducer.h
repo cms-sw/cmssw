@@ -26,13 +26,20 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-//#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "Calibration/Tools/interface/TrackAssociator.h"
+
+#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
+#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
+#include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
+#include "TrackingTools/TrackAssociator/interface/TrackDetMatchInfo.h"
+
 #include "Calibration/Tools/interface/TimerStack.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h" 
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h" 
 
 #include "TH1F.h"
 
@@ -49,16 +56,19 @@ class AlCaIsoTracksProducer : public edm::EDProducer {
       void endJob(void);
 
    private:
-
-      HTrackAssociator trackAssociator_;
-
+      
+   TrackDetectorAssociator trackAssociator_;
+   TrackAssociatorParameters parameters_;
+      
+      
+      const CaloGeometry* geo;
       edm::InputTag hoLabel_;
+      edm::InputTag hbheLabel_;
+      std::vector<edm::InputTag> ecalLabels_;
       bool allowMissingInputs_;
+      
       std::string m_inputTrackLabel;
-      std::string m_ecalLabel;
-      std::string m_ebInstance;
-      std::string m_eeInstance;
-      std::string m_hcalLabel;
+      
       double m_dvCut;
       double m_ddirCut;
       double m_pCut;

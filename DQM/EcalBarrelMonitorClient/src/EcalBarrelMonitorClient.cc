@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/07/14 07:24:54 $
- * $Revision: 1.297 $
+ * $Date: 2007/08/10 12:02:08 $
+ * $Revision: 1.305 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -696,7 +696,7 @@ void EcalBarrelMonitorClient::beginRun(void){
 void EcalBarrelMonitorClient::beginRun(const Run& r, const EventSetup& c) {
 
   cout << endl;
-  cout << "Standard beginRun() for run " << r.id() << endl;
+  cout << "Standard beginRun() for run " << r.id().run() << endl;
   cout << endl;
 
   if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
@@ -823,7 +823,7 @@ void EcalBarrelMonitorClient::endRun(void) {
 void EcalBarrelMonitorClient::endRun(const Run& r, const EventSetup& c) {
 
   cout << endl;
-  cout << "Standard endRun() for run " << r.id() << endl;
+  cout << "Standard endRun() for run " << r.id().run() << endl;
   cout << endl;
 
   if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
@@ -1078,85 +1078,83 @@ void EcalBarrelMonitorClient::writeDb(void) {
   int taskl = 0x0;
   int tasko = 0x0;
 
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    cout << " SM=" << ism << endl;
-    for ( int j = 0; j<int(clients_.size()); ++j ) {
-      bool written; written = false;
-      for ( EBCIMMap::iterator k = chb_.lower_bound(clients_[j]); k != chb_.upper_bound(clients_[j]); ++k ) {
-        if ( h_ && h_->GetBinContent((*k).second+1) != 0 && runtype_ != -1 && runtype_ == (*k).second && !written ) {
-          if ( clientNames_[j] == "Laser" && h_->GetBinContent(EcalDCCHeaderBlock::LASER_STD+1) == 0 ) continue;
-          written = true;
-          taskl |= 0x1 << j;
-          if ( clients_[j]->writeDb(econn, &runiov_, &moniov_, ism) ) {
-            tasko |= 0x1 << j;
-          } else {
-            tasko |= 0x0 << j;
-          }
+  for ( int j = 0; j<int(clients_.size()); ++j ) {
+    bool written; written = false;
+    for ( EBCIMMap::iterator k = chb_.lower_bound(clients_[j]); k != chb_.upper_bound(clients_[j]); ++k ) {
+      if ( h_ && h_->GetBinContent((*k).second+1) != 0 && runtype_ != -1 && runtype_ == (*k).second && !written ) {
+        if ( clientNames_[j] == "Laser" && h_->GetBinContent(EcalDCCHeaderBlock::LASER_STD+1) == 0 ) continue;
+        written = true;
+        taskl |= 0x1 << j;
+        cout << endl;
+        cout << " Writing " << clientNames_[j] << " results to DB " << endl;
+        cout << endl;
+        if ( clients_[j]->writeDb(econn, &runiov_, &moniov_) ) {
+          tasko |= 0x1 << j;
+        } else {
+          tasko |= 0x0 << j;
         }
       }
-      if ( ((taskl >> j) & 0x1) ) {
-        cout << " Task output for " << clientNames_[j] << " = " << ((tasko >> j) & 0x1) << endl;
-      }
     }
+    if ( ((taskl >> j) & 0x1) ) {
+      cout << endl;
+      cout << " Task output for " << clientNames_[j] << " = " << ((tasko >> j) & 0x1) << endl;
+      cout << endl;
+    }
+  }
 
-    summaryClient_->writeDb(econn, &runiov_, &moniov_, ism);
+  summaryClient_->writeDb(econn, &runiov_, &moniov_);
 
-    EcalLogicID ecid;
-    MonRunDat md;
-    map<EcalLogicID, MonRunDat> dataset;
+  EcalLogicID ecid;
+  MonRunDat md;
+  map<EcalLogicID, MonRunDat> dataset;
 
-    MonRunOutcomeDef monRunOutcomeDef;
+  MonRunOutcomeDef monRunOutcomeDef;
 
-    monRunOutcomeDef.setShortDesc("success");
+  monRunOutcomeDef.setShortDesc("success");
 
-    float nevt = -1.;
+  float nevt = -1.;
 
-    if ( h_ ) nevt = h_->GetEntries();
+  if ( h_ ) nevt = h_->GetEntries();
 
-    md.setNumEvents(int(nevt));
-    md.setMonRunOutcomeDef(monRunOutcomeDef);
+  md.setNumEvents(int(nevt));
+  md.setMonRunOutcomeDef(monRunOutcomeDef);
 
-    if ( outputFile_.size() != 0 ) {
-      string fileName = outputFile_;
-      for ( unsigned int i = 0; i < fileName.size(); i++ ) {
-        if( fileName.substr(i, 9) == "RUNNUMBER" )  {
-          char tmp[10];
-          if ( run_ != -1 ) {
-            sprintf(tmp,"%09d", run_);
-          } else {
-            sprintf(tmp,"%09d", 0);
-          }
-          fileName.replace(i, 5, tmp);
+  if ( outputFile_.size() != 0 ) {
+    string fileName = outputFile_;
+    for ( unsigned int i = 0; i < fileName.size(); i++ ) {
+      if( fileName.substr(i, 9) == "RUNNUMBER" )  {
+        char tmp[10];
+        if ( run_ != -1 ) {
+          sprintf(tmp,"%09d", run_);
+        } else {
+          sprintf(tmp,"%09d", 0);
         }
-      }
-      md.setRootfileName(fileName);
-    }
-
-    md.setTaskList(taskl);
-    md.setTaskOutcome(tasko);
-
-    if ( econn ) {
-      try {
-        ecid = LogicID::getEcalLogicID("ECAL");
-        dataset[ecid] = md;
-      } catch (runtime_error &e) {
-        cerr << e.what() << endl;
+        fileName.replace(i, 5, tmp);
       }
     }
+    md.setRootfileName(fileName);
+  }
 
-    if ( econn ) {
-      try {
-        cout << "Inserting MonRunDat ... " << flush;
-        econn->insertDataSet(&dataset, &moniov_);
-        cout << "done." << endl;
-      } catch (runtime_error &e) {
-        cerr << e.what() << endl;
-      }
+  md.setTaskList(taskl);
+  md.setTaskOutcome(tasko);
+
+  if ( econn ) {
+    try {
+      ecid = LogicID::getEcalLogicID("ECAL");
+      dataset[ecid] = md;
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
     }
+  }
 
+  if ( econn ) {
+    try {
+      cout << "Inserting MonRunDat ... " << flush;
+      econn->insertDataSet(&dataset, &moniov_);
+      cout << "done." << endl;
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
   }
 
   if ( econn ) {
@@ -1347,7 +1345,6 @@ void EcalBarrelMonitorClient::analyze(void){
   int updates = mui_->getNumUpdates();
 
   if ( enableStateMachine_ ) updates = -1;
-  // if ( enableStateMachine_ ) forced_update_ = true;
 
   if ( verbose_ ) cout << " updates = " << updates << endl;
 
@@ -1463,7 +1460,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
     last_jevt_ = jevt_;
 
-    if ( run_ != last_run_ ) forced_update_ = true;
+    if ( ! mergeRuns_ && run_ != last_run_ ) forced_update_ = true;
 
   }
 
@@ -1767,6 +1764,8 @@ void EcalBarrelMonitorClient::analyze(void){
 
 void EcalBarrelMonitorClient::analyze(const Event &e, const EventSetup &c) {
 
+  Numbers::initGeometry(c);
+
   run_ = e.id().run();
 
   evt_ = e.id().event();
@@ -1839,7 +1838,16 @@ void EcalBarrelMonitorClient::htmlOutput( bool current ){
     summaryClient_->htmlOutput(run_, htmlDir, htmlName);
     htmlFile << "<li><a href=\"" << htmlName << "\">Data " << "Summary" << "</a></li>" << endl;
     htmlFile << "<br>" << endl;
-    htmlFile << "<img src=EB_global_summary.png border=0>" << endl;
+
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
+
+    htmlFile << "<td><img src=\"EB_global_summary.png\" border=0></td>" << endl;
+
+    htmlFile << "</tr>" << endl;
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
 
   }
 

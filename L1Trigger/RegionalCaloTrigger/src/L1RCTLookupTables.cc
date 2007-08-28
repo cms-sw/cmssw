@@ -87,7 +87,7 @@ unsigned long L1RCTLookupTables::lookup(unsigned short ecal,unsigned short hcal,
       if(ignoreFG_)
 	{
 	  HE_FGBit = calcHEBit(ecalLinear,hcalLinear,false);
-	  //cout << "L1RCT: fine grain bit ignored!" << endl;
+	  //std::cout << "L1RCT: fine grain bit ignored!" << endl;
 	}
       else
 	{
@@ -127,13 +127,13 @@ float L1RCTLookupTables::convertHcal(unsigned short hcal, int iAbsEta){
 }
 
 // calculates activity bit for each tower - assume that noise is well suppressed
-unsigned short L1RCTLookupTables::calcActivityBit(float ecal, float hcal){
+bool L1RCTLookupTables::calcActivityBit(float ecal, float hcal){
   return ((ecal > eActivityCut_) || (hcal > hActivityCut_));
 }
 
 // Calculates h-over-e veto bit (true if hcal/ecal energy > hOeCut)
 // Uses finegrain veto only if the energy is within eActivityCut and eMaxForFGCut
-unsigned short L1RCTLookupTables::calcHEBit(float ecal, float hcal, bool fgbit){
+bool L1RCTLookupTables::calcHEBit(float ecal, float hcal, bool fgbit){
   bool veto = false;
   if(ecal > eMaxForFGCut_)
     {
@@ -143,6 +143,10 @@ unsigned short L1RCTLookupTables::calcHEBit(float ecal, float hcal, bool fgbit){
     {
       if((hcal/ecal) > hOeCut_) veto = true;
       if(fgbit) veto = true;
+    }
+  else
+    {
+      if(hcal > hActivityCut_) veto = true;
     }
   return veto;
 }
@@ -166,26 +170,12 @@ void L1RCTLookupTables::loadLUTConstants(const std::string& filename)
       char junk[1024];
       int answer;
       userfile >> junk >> eActivityCut_;
-      std::cout << "L1RCTLookupTables: Using eActivityCut = " 
-		<< eActivityCut_ << std::endl;
       userfile >> junk >> hActivityCut_;
-      std::cout << "L1RCTLookupTables: Using hActivityCut = " 
-		<< hActivityCut_ << std::endl;
       userfile >> junk >> eMaxForFGCut_;
-      std::cout << "L1RCTLookupTables: Using eMaxForFGCut = " 
-		<< eMaxForFGCut_ << std::endl;
       userfile >> junk >> hOeCut_;
-      std::cout << "L1RCTLookupTables: Using hOeCut = " 
-		<< hOeCut_ << std::endl;
       userfile >> junk >> eGammaLSB_;
-      std::cout << "L1RCTLookupTables: Using eGammaLSB = " 
-		<< eGammaLSB_ << std::endl;
       userfile >> junk >> jetMETLSB_;
-      std::cout << "L1RCTLookupTables: Using jetMETLSB = " 
-		<< jetMETLSB_ << std::endl;
       userfile >> junk >> answer;
-      //      userfile.getline(junk,199);
-      //      std::cout << "junk is " << junk << endl;
       if(answer == 1)
 	{
 	  ignoreFG_ = true;
@@ -196,16 +186,12 @@ void L1RCTLookupTables::loadLUTConstants(const std::string& filename)
 	}
       else
 	{
-	  std::cout << "L1RCTLookupTables: ignoreFineGrain not true or false!" << std::endl; 
-	  //std::cout << "variable 'answer' is " << answer << std::endl;
+	  //std::cout << "L1RCTLookupTables: ignoreFineGrain not true or false!" << std::endl; 
 	}
-      std:: cout << "L1RCTLookupTables: ignoreFineGrain is "
-		 << ignoreFG_ << std::endl;
       userfile >> junk;
       for(int i = 0; i < 26; i++) 
 	{
 	  userfile >> eGammaSCF_[i];
-	  //std::cout << "L1RCTLookupTables: eGammaSCF_[" << i << "] is " << eGammaSCF_[i] << endl;
 	}
       for(int i = 26; i < 32; i++) eGammaSCF_[i] = eGammaSCF_[i-1];
       userfile.close();
@@ -227,12 +213,10 @@ void L1RCTLookupTables::loadHcalLut(const std::string& filename)
       for (int i = 0; i < 26; i++) 
 	{
 	  userfile >> hcalSCF_[i];
-	  //std::cout << "L1RCTLookupTables: hcalSCF_[" << i << "] is " << hcalSCF_[i] << std::endl;
 	}
       for (int i = 26; i < 32; i++) 
 	{
 	  hcalSCF_[i] = hcalSCF_[i-1];
-	  //std::cout << "L1RCTLookupTables: hcalSCF_[" << i << "] is " << hcalSCF_[i] << std::endl;
 	}
       userfile.close();
     }

@@ -2,7 +2,7 @@
 #define Framework_ConfigurableInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.h,v 1.24 2007/07/18 13:22:40 marafino Exp $
+$Id: ConfigurableInputSource.h,v 1.26 2007/07/31 23:58:54 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "boost/shared_ptr.hpp"
@@ -42,14 +42,10 @@ namespace edm {
     void setTime(TimeValue_t t) {presentTime_ = t;}
 
   private:
-    virtual void finishLumi(LuminosityBlockPrincipal& lbp);
-    virtual void finishRun(RunPrincipal& rp);
     virtual void setRunAndEventInfo();
     virtual bool produce(Event & e) = 0;
     virtual void beginRun(Run &) {}
-    virtual void endRun(Run &) {}
     virtual void beginLuminosityBlock(LuminosityBlock &) {}
-    virtual void endLuminosityBlock(LuminosityBlock &) {}
     virtual std::auto_ptr<EventPrincipal> readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
     virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_(boost::shared_ptr<RunPrincipal> rp);
     virtual boost::shared_ptr<RunPrincipal> readRun_();
@@ -74,9 +70,9 @@ namespace edm {
     LuminosityBlockNumber_t origLuminosityBlockNumber_t_;
     bool newRun_;
     bool newLumi_;
+    bool eventAlreadySet_;
     bool isRealData_;
     EventAuxiliary::ExperimentType eType_;
-    std::auto_ptr<EventPrincipal> holder_;
   };
 }
 #endif

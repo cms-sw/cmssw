@@ -17,7 +17,6 @@
 #include <FWCore/MessageLogger/interface/MessageLogger.h> 
 #include <DataFormats/JetReco/interface/CaloJet.h>
 #include <FWCore/ParameterSet/interface/InputTag.h>
-#include "DataFormats/Common/interface/Provenance.h"
 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -25,9 +24,9 @@
 #include "DataFormats/JetReco/interface/GenJet.h"
 
 //rand:
-#include <FWCore/ServiceRegistry/interface/Service.h>
-#include <FWCore/Utilities/interface/RandomNumberGenerator.h>
-#include <CLHEP/Random/RandFlat.h>
+//#include <FWCore/ServiceRegistry/interface/Service.h>
+//#include <FWCore/Utilities/interface/RandomNumberGenerator.h>
+//#include <CLHEP/Random/RandFlat.h>
 
 // C++
 #include <algorithm>
@@ -41,31 +40,33 @@ using namespace edm;
 
 //detruktor
 QCDSingleJetFilter::~QCDSingleJetFilter(){
-  delete theFlatDistrib;
+  //delete theFlatDistrib;
 }
 
 // Constructor
-QCDSingleJetFilter::QCDSingleJetFilter(const edm::ParameterSet& pset):theFlatDistrib(0),theTriggerJetCollectionA(pset.getParameter<edm::InputTag>("TriggerJetCollectionA")),theTrigCollB(pset.getParameter<edm::InputTag>("TriggerJetCollectionB")){
+//QCDSingleJetFilter::QCDSingleJetFilter(const edm::ParameterSet& pset):theFlatDistrib(0),theTriggerJetCollectionA(pset.getParameter<edm::InputTag>("TriggerJetCollectionA")),theTrigCollB(pset.getParameter<edm::InputTag>("TriggerJetCollectionB")){
+QCDSingleJetFilter::QCDSingleJetFilter(const edm::ParameterSet& pset):theTriggerJetCollectionA(pset.getParameter<edm::InputTag>("TriggerJetCollectionA")),theTrigCollB(pset.getParameter<edm::InputTag>("TriggerJetCollectionB")){
 
   // Local Debug flag
   //debug              = pset.getParameter<bool>("DebugHiggsToZZ4LeptonsSkim");
 
   //getConfigParameter:
   theMinPt = pset.getParameter<double>("MinPt");
-  thePreScale = pset.getParameter<double>("PreScale");
-  thePreScale=fabs(thePreScale);
-  if (thePreScale<1) thePreScale=0;
+  //prescale taken out for convenience
+  //thePreScale = pset.getParameter<double>("PreScale");
+  //thePreScale=fabs(thePreScale);
+  //if (thePreScale<1) thePreScale=0;
 
   // Eventually, HLT objects:
   
   //get Random-Service running:
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if (!rng.isAvailable()) {
-    throw cms::Exception("QCDSingleJetFilter")<<"QCDSingleJetFilter requires RandomNumberGeneratorService\n"
-      "--borked setup\n";
-  }
-  CLHEP::HepRandomEngine& engine = rng->getEngine();
-  theFlatDistrib = new CLHEP::RandFlat(engine,0.0,1.0);
+  //edm::Service<edm::RandomNumberGenerator> rng;
+  //if (!rng.isAvailable()) {
+  //  throw cms::Exception("QCDSingleJetFilter")<<"QCDSingleJetFilter requires RandomNumberGeneratorService\n"
+  //    "--borked setup\n";
+  //}
+  //CLHEP::HepRandomEngine& engine = rng->getEngine();
+  //theFlatDistrib = new CLHEP::RandFlat(engine,0.0,1.0);
 }
 
 
@@ -99,9 +100,9 @@ bool QCDSingleJetFilter::filter(edm::Event& event, const edm::EventSetup& setup)
     }
      
     
-    double randval = theFlatDistrib->fire();  
-    if (thePreScale<1) keepEvent=false;
-    else if ((randval>(1.0/thePreScale))&&keepEvent) keepEvent=false;
+    //double randval = theFlatDistrib->fire();  
+    //if (thePreScale<1) keepEvent=false;
+    //else if ((randval>(1.0/thePreScale))&&keepEvent) keepEvent=false;
 //   cout<<"KeepEvent?: "<<keepEvent<<endl;
        
     return keepEvent;

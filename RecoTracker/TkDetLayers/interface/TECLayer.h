@@ -12,7 +12,7 @@
  *  built out of TECPetals
  */
 
-class TECLayer : public ForwardDetLayer , public GeometricSearchDetWithGroups {
+class TECLayer : public ForwardDetLayer{
  public:
   TECLayer(std::vector<const TECPetal*>& innerPetals,
 	   std::vector<const TECPetal*>& outerPetals);
@@ -24,11 +24,19 @@ class TECLayer : public ForwardDetLayer , public GeometricSearchDetWithGroups {
 
   virtual const std::vector<const GeometricSearchDet*>& components() const {return theComps;}
   
-  void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
-			       const Propagator& prop,
-			       const MeasurementEstimator& est,
-			       std::vector<DetGroup> & result) const;
- 
+  virtual std::vector<DetWithState> 
+  compatibleDets( const TrajectoryStateOnSurface& startingState,
+		  const Propagator& prop, 
+		  const MeasurementEstimator& est) const;
+
+  virtual std::vector<DetGroup> 
+  groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
+			 const Propagator& prop,
+			 const MeasurementEstimator& est) const;
+
+
+  virtual bool hasGroups() const {return true;}  
+
   // DetLayer interface
   virtual SubDetector subDetector() const {return GeomDetEnumerators::TEC;}
   
@@ -36,6 +44,10 @@ class TECLayer : public ForwardDetLayer , public GeometricSearchDetWithGroups {
   
  private:
   // private methods for the implementation of groupedCompatibleDets()
+  float calculatePhiWindow(const MeasurementEstimator::Local2DVector& maxDistance,
+			   const TrajectoryStateOnSurface& ts, 
+			   const BoundPlane& plane) const;
+  
   SubLayerCrossings   computeCrossings( const TrajectoryStateOnSurface& startingState,
 					PropagationDirection propDir) const;
 
@@ -52,6 +64,11 @@ class TECLayer : public ForwardDetLayer , public GeometricSearchDetWithGroups {
 			float window, 
 			std::vector<DetGroup>& result,
 			bool checkClosest) const;
+
+  
+  float computeWindowSize( const GeomDet* det, 
+			   const TrajectoryStateOnSurface& tsos, 
+			   const MeasurementEstimator& est) const;
   
 
   bool overlap( const GlobalPoint& gpos, const GeometricSearchDet& petal, float window) const;

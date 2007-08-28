@@ -1,6 +1,7 @@
-// $Id: ServiceManager.cc,v 1.1 2007/02/05 11:19:57 klute Exp $
+// $Id: ServiceManager.cc,v 1.3 2007/08/15 23:16:20 hcheung Exp $
 
 #include <EventFilter/StorageManager/interface/ServiceManager.h>
+#include "EventFilter/StorageManager/interface/Configurator.h"
 #include <FWCore/Utilities/interface/Exception.h>
 
 using namespace std;
@@ -33,12 +34,19 @@ void ServiceManager::stop()
 
 void ServiceManager::manageInitMsg(std::string catalog, uint32 disks, std::string sourceId, InitMsgView& view)
 {
+  boost::shared_ptr<stor::Parameter> smParameter_ = stor::Configurator::instance()->getParameter();
   for(std::vector<ParameterSet>::iterator it = outModPSets_.begin(), itEnd = outModPSets_.end();
       it != itEnd; ++it) {
       shared_ptr<StreamService> stream = shared_ptr<StreamService>(new StreamService((*it),view));
       stream->setCatalog(catalog);
       stream->setNumberOfFileSystems(disks);
       stream->setSourceId(sourceId);
+      stream->setFileName(smParameter_ -> fileName());
+      stream->setFilePath(smParameter_ -> filePath());
+      stream->setMathBoxPath(smParameter_ -> mailboxPath());
+      stream->setSetupLabel(smParameter_ -> setupLabel());
+      stream->setHighWaterMark(smParameter_ -> highWaterMark());
+      stream->setLumiSectionTimeOut(smParameter_ -> lumiSectionTimeOut());
       managedOutputs_.push_back(stream);
       stream->report(cout,3);
   }
@@ -134,6 +142,7 @@ void ServiceManager::collectStreamerPSets(const std::string& config)
      } catch (cms::Exception & e) {
        std::cerr << "cms::Exception: " << e.explainSelf() << std::endl;
        std::cerr << "std::Exception: " << e.what() << std::endl;
+       throw cms::Exception("collectStreamerPSets") << e.explainSelf() << std::endl;
      }
 }
 

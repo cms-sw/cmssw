@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2007/05/22 15:05:47 $
- * $Revision: 1.9 $
+ * $Date: 2007/08/15 09:04:23 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
 */
@@ -13,6 +13,8 @@
 #include <iomanip>
 
 #include "TStyle.h"
+#include "TGraph.h"
+#include "TLine.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -35,7 +37,6 @@
 #include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalEndcapMonitorClient/interface/EETimingClient.h>
-
 
 using namespace cms;
 using namespace edm;
@@ -90,6 +91,8 @@ EETimingClient::EETimingClient(const ParameterSet& ps){
 
     qth01_[ism-1] = 0;
 
+    qtg01_[ism-1] = 0;
+
   }
 
   expectedMean_ = 6.0;
@@ -129,6 +132,13 @@ void EETimingClient::beginJob(MonitorUserInterface* mui){
       qth01_[ism-1]->setMinimumEntries(10*1700);
 
       qth01_[ism-1]->setErrorProb(1.00);
+
+      sprintf(qtname, "EETMT quality test %s", Numbers::sEE(ism).c_str());
+      qtg01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      qtg01_[ism-1]->setMeanRange(1., 6.);
+
+      qtg01_[ism-1]->setErrorProb(1.00);
 
     }
 
@@ -181,7 +191,7 @@ void EETimingClient::setup(void) {
 
     if ( meg01_[ism-1] ) dbe->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EETMT timing quality %s", Numbers::sEE(ism).c_str());
-    meg01_[ism-1] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg01_[ism-1] = dbe->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
 
     if ( mea01_[ism-1] ) dbe->removeElement( mea01_[ism-1]->getName() );
     sprintf(histo, "EETMT timing %s", Numbers::sEE(ism).c_str());
@@ -203,10 +213,17 @@ void EETimingClient::setup(void) {
 
     UtilsClient::resetHisto( meg01_[ism-1] );
 
-    for ( int ie = 1; ie <= 85; ie++ ) {
-      for ( int ip = 1; ip <= 20; ip++ ) {
+    for ( int ix = 1; ix <= 50; ix++ ) {
+      for ( int iy = 1; iy <= 50; iy++ ) {
 
-        meg01_[ism-1]->setBinContent( ie, ip, 2. );
+        meg01_[ism-1]->setBinContent( ix, iy, -1. );
+
+        int jx = ix + Numbers::ix0EE(ism);
+        int jy = iy + Numbers::iy0EE(ism);
+
+        if ( Numbers::validEE(ism, 101 - jx, jy) ) {
+          meg01_[ism-1]->setBinContent( ix, iy, 2. );
+        }
 
       }
     }
@@ -258,11 +275,21 @@ void EETimingClient::cleanup(void) {
 
 }
 
-bool EETimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism) {
+bool EETimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
 
   bool status = true;
 
-  UtilsClient::printBadChannels(qth01_[ism-1]);
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    cout << " SM=" << ism << endl;
+
+    UtilsClient::printBadChannels(qth01_[ism-1]);
+
+//    UtilsClient::printBadChannels(qtg01_[ism-1]);
+
+  }
 
   return status;
 
@@ -316,6 +343,9 @@ void EETimingClient::subscribe(void){
         if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
       }
     }
+
+    sprintf(histo, "EcalEndcap/EETimingClient/EETMT timing quality %s", Numbers::sEE(ism).c_str());
+    if ( qtg01_[ism-1] ) mui_->useQTest(histo, qtg01_[ism-1]->getName());
 
   }
 
@@ -423,10 +453,17 @@ void EETimingClient::analyze(void){
     UtilsClient::resetHisto( mep01_[ism-1] );
     UtilsClient::resetHisto( mer01_[ism-1] );
 
-    for ( int ie = 1; ie <= 85; ie++ ) {
-      for ( int ip = 1; ip <= 20; ip++ ) {
+    for ( int ix = 1; ix <= 50; ix++ ) {
+      for ( int iy = 1; iy <= 50; iy++ ) {
 
-        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent(ie, ip, 2.);
+        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent(ix, iy, -1.);
+
+        int jx = ix + Numbers::ix0EE(ism);
+        int jy = iy + Numbers::iy0EE(ism);
+
+        if ( Numbers::validEE(ism, 101 - jx, jy) ) {
+          if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, 2. );
+        }
 
         bool update01;
 
@@ -434,7 +471,7 @@ void EETimingClient::analyze(void){
         float mean01;
         float rms01;
 
-        update01 = UtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
+        update01 = UtilsClient::getBinStats(h01_[ism-1], ix, iy, num01, mean01, rms01);
 
         if ( update01 ) {
 
@@ -445,12 +482,12 @@ void EETimingClient::analyze(void){
             val = 0.;
           if ( rms01 > RMSThreshold_ )
             val = 0.;
-          if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent(ie, ip, val);
+          if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent(ix, iy, val);
 
           if ( mea01_[ism-1] ) {
             if ( mean01 > 0. ) {
-              mea01_[ism-1]->setBinContent(ip+20*(ie-1), mean01);
-              mea01_[ism-1]->setBinError(ip+20*(ie-1), rms01);
+              mea01_[ism-1]->setBinContent(iy+20*(ix-1), mean01);
+              mea01_[ism-1]->setBinError(iy+20*(ix-1), rms01);
             } else {
               mea01_[ism-1]->setEntries(1.+mea01_[ism-1]->getEntries());
             }
@@ -468,13 +505,20 @@ void EETimingClient::analyze(void){
 
             EcalLogicID ecid = m->first;
 
-            int ic = (ip-1) + 20*(ie-1) + 1;
+            int jx = ix + Numbers::ix0EE(ism);
+            int jy = iy + Numbers::iy0EE(ism);
+ 
+            if ( ! Numbers::validEE(ism, 101 - jx, jy) ) continue;
 
-            if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == ic ) {
+            int ic = Numbers::icEE(ism, ix, iy);
+
+            if ( ic == -1 ) continue;
+
+            if ( ecid.getID1() == Numbers::iSM(ism, EcalEndcap) && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg01_[ism-1] ) {
-                  float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
-                  meg01_[ism-1]->setBinContent( ie, ip, val+3 );
+                  float val = int(meg01_[ism-1]->getBinContent(ix, iy)) % 3;
+                  meg01_[ism-1]->setBinContent( ix, iy, val+3 );
                 }
               }
             }
@@ -545,18 +589,9 @@ void EETimingClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   int pCol3[6] = { 301, 302, 303, 304, 305, 306 };
 
-  TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
-  for ( int i = 0; i < 68; i++ ) {
-    int a = 2 + ( i/4 ) * 5;
-    int b = 2 + ( i%4 ) * 5;
-    dummy.Fill( a, b, i+1 );
-  }
-  dummy.SetMarkerSize(2);
-  dummy.SetMinimum(0.1);
-
   string imgNameQual, imgNameTim, imgNameMean, imgNameRMS, imgName, meName;
 
-  TCanvas* cQual = new TCanvas("cQual", "Temp", 0, 0, 2*csize, csize);
+  TCanvas* cQual = new TCanvas("cQual", "Temp", 0, 0, 2*csize, 2*csize);
   TCanvas* cTim = new TCanvas("cTim", "Temp", 0, 0, csize, csize);
   TCanvas* cMean = new TCanvas("cMean", "Temp", 0, 0, csize, csize);
   TCanvas* cRMS = new TCanvas("cRMS", "Temp", 0, 0, csize, csize);
@@ -592,14 +627,21 @@ void EETimingClient::htmlOutput(int run, string htmlDir, string htmlName){
       cQual->cd();
       gStyle->SetOptStat(" ");
       gStyle->SetPalette(6, pCol3);
-      obj2f->GetXaxis()->SetNdivisions(17);
-      obj2f->GetYaxis()->SetNdivisions(4);
       cQual->SetGridx();
       cQual->SetGridy();
       obj2f->SetMinimum(-0.00000001);
       obj2f->SetMaximum(6.0);
+      obj2f->GetXaxis()->SetLabelSize(0.02);
+      obj2f->GetYaxis()->SetLabelSize(0.02);
       obj2f->Draw("col");
-      dummy.Draw("text,same");
+      cQual->SetBit(TGraph::kClipFrame);
+      TLine l;
+      l.SetLineWidth(1);
+      for ( int i=0; i<201; i=i+1){
+        if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
+          l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
+        }
+      }
       cQual->Update();
       cQual->SaveAs(imgName.c_str());
 

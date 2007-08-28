@@ -65,7 +65,9 @@ namespace edm {
       const_iterator end() const { 
 	return const_iterator( new const_iterator_imp_specific( refs_.end() ) ); 
       }
-
+      virtual const void * product() const {
+	return refs_.product();
+      }
     private:
       virtual boost::shared_ptr<reftobase::RefHolderBase> refBase( size_t idx ) const;
       REFV refs_;

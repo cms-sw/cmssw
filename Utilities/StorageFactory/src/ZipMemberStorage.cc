@@ -35,7 +35,7 @@ namespace {
 }
 
 seal::Storage *
-ZipMemberStorageMaker::open_ (const std::string & /* proto */,
+ZipMemberStorageMaker::doOpen (const std::string & /* proto */,
 		             const std::string &path,
 			     int mode,
 		             const std::string &tmpdir)

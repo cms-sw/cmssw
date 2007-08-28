@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.54 2007/06/25 20:53:32 wmtan Exp $
+$Id: PoolSource.cc,v 1.58 2007/07/26 23:46:36 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
 #include "RootFile.h"
@@ -8,9 +8,8 @@ $Id: PoolSource.cc,v 1.54 2007/06/25 20:53:32 wmtan Exp $
 
 #include "FWCore/Catalog/interface/FileCatalog.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
-#include "FWCore/Framework/interface/RunPrincipal.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/RunID.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -207,7 +206,9 @@ namespace edm {
 
   std::auto_ptr<EventPrincipal>
   PoolSource::read() {
-    if (!next()) {
+    if (next()) {
+      previous();
+    } else {
       if (!primary()) {
 	repeat();
       }

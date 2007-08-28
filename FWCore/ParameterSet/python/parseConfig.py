@@ -58,6 +58,7 @@ class _IncludeFile(file):
         except KeyError:
             raise RuntimeError("The environment variable 'CMSSW_SEARCH_PATH' must be set for include to work")
         lpaths = paths.split(':')
+        lpaths.append('.')
         f = None
         for path in lpaths:
             path +='/'+filename
@@ -334,6 +335,12 @@ class _IncludeNode(cms._ParameterTypeBase):
     """
     def __init__(self,filename):
         self.filename = filename
+    def __repr__(self):
+        # strip out the ".py"
+        import os.path
+        fileRoot = os.path.splitext(self.filename)[0]
+        pythonFileRoot = fileRoot.replace('/','.')
+        return "import "+pythonFileRoot+"\nprocess.extend("+pythonFileRoot+")\n"
 
 def _makeInclude(s,loc,toks):
     return (toks[0][0],_IncludeNode(toks[0][0]))
@@ -384,7 +391,7 @@ vstringParameter =pp.Group(untracked+pp.Keyword("vstring")+label+_equalTo
 fileInPathParameter = pp.Group(untracked+pp.Keyword('FileInPath')+label+_equalTo+
                            quotedString).setParseAction(_makeParameter)
 
-inputTagFormat = pp.Group(letterstart+pp.Optional(pp.Suppress(':')+pp.Optional(pp.NotAny(pp.White())+pp.Word(pp.alphanums))+
+inputTagFormat = pp.Group(letterstart+pp.Optional(pp.Suppress(':')+pp.Optional(pp.NotAny(pp.White())+pp.Word(pp.alphanums),"")+
                           pp.Optional(pp.Suppress(':')+pp.Optional(pp.NotAny(pp.White())+pp.Word(pp.alphanums)))))
 inputTagParameter = pp.Group(untracked+pp.Keyword('InputTag')+label+_equalTo+
                              inputTagFormat
@@ -491,13 +498,14 @@ outputModuleGuess = _guessTypeFromClassName(r"[a-zA-Z]\w*OutputModule",cms.Outpu
 producerGuess = _guessTypeFromClassName(r"[a-zA-Z]\w*Prod(?:ucer)?",cms.EDProducer)
 analyzerGuess = _guessTypeFromClassName(r"[a-zA-Z]\w*Analyzer",cms.EDAnalyzer)
 
-def _labelOptional(alabel,type):
+def _labelOptional(alabel,type,appendToLabel=''):
     def useTypeIfNoLabel(s,loc,toks):
         if len(toks[0])==2:
             alabel = toks[0][0]
             del toks[0][0]
         else:
             alabel = toks[0][0].type_()
+        alabel +=appendToLabel
         return (alabel,toks[0][0])
     #NOTE: must use letterstart instead of label else get exception when no label
     return pp.Group(pp.Suppress(pp.Keyword(alabel))+pp.Optional(letterstart)+_equalTo
@@ -507,7 +515,9 @@ def _labelOptional(alabel,type):
 
 es_module = _labelOptional("es_module",cms.ESProducer)
 es_source = _labelOptional("es_source",cms.ESSource)
-es_prefer = _labelOptional("es_prefer",cms.ESPrefer)
+#need to distinguish the es_prefer labels from the items they are actually choosing
+_es_prefer_label_extension = '@prefer'
+es_prefer = _labelOptional("es_prefer",cms.ESPrefer,_es_prefer_label_extension)
 
 plugin = source|looper|service|outputModuleGuess|producerGuess|analyzerGuess|module|es_module|es_source|es_prefer
 plugin.ignore(pp.cppStyleComment)
@@ -520,19 +530,30 @@ plugin.ignore(pp.pythonStyleComment)
 # so instead, I reverse the order of the tokens and then do the parsing
 # and then build the parse tree from right to left
 pathexp = pp.Forward()
-worker = (letterstart ^ pp.Regex(r"![a-zA-Z][a-zA-Z0-9_\-]"))^pp.Group(pp.Suppress(')')+pathexp+pp.Suppress('('))
+_pathAtom = pp.Combine(pp.Optional("!")+letterstart)
+worker = (_pathAtom)^pp.Group(pp.Suppress(')')+pathexp+pp.Suppress('('))
 pathseq = pp.Forward()
 pathseq << pp.Group(worker + pp.ZeroOrMore(','+pathseq))
 pathexp << pp.Group(pathseq + pp.ZeroOrMore('&'+pathexp))
 
 class _LeafNode(object):
     def __init__(self,label):
+        self.__isNot = False
         self.__label = label
+        if self.__label[0]=='!':
+            self.__label=self.__label[1:]
+            self.__isNot = True
     def __str__(self):
-        return self.__label
+        v=''
+        if self.__isNot:
+            v='!'
+        return v+self.__label
     def make(self,process):
         #print getattr(process,self.__label).label()
-        return getattr(process,self.__label)
+        v = getattr(process,self.__label)
+        if self.__isNot:
+            v= ~v
+        return v
 class _AidsOp(object):
     def __init__(self,left,right):
         self.__left = left
@@ -588,16 +609,22 @@ class _ModuleSeries(object):
                                          self.forErrorMessage[1],
                                          self.type()+" '"
                                          +self.forErrorMessage[2][0][0]+
-                                         "' contains the error: no sequencable item with label "
+                                         "' contains the error: "
                                          +str(e))
         except Exception, e:
             raise pp.ParseFatalException(self.forErrorMessage[0],
                                          self.forErrorMessage[1],
                                          self.type()
                                          +" '"+self.forErrorMessage[2][0][0]
-                                         +"' contains the error "+str(e))
+                                         +"' contains the error: "+str(e))
     def __str__(self):
         return str(self.topNode)
+    def __repr__(self):
+        # extra parentheses never killed anyone
+        return "cms."+self.factory().__name__+"("+str(self)+")"
+    def dumpPython(self, indent, deltaindent):
+        return repr(self)
+    
 
 class _Sequence(_ModuleSeries):
     def factory(self):
@@ -622,7 +649,7 @@ class _MakeSeries(object):
     def __call__(self,s,loc,toks):
         return (toks[0][0],self.factory(toks[0][1],s,loc,toks))
 
-pathtoken = letterstart|pp.Regex(r"![a-zA-Z][a-zA-Z0-9_\-]")|'&'|','|'('|')'
+pathtoken = (pp.Combine(pp.Optional("!")+letterstart))|'&'|','|'('|')'
 pathbody = pp.Group(letterstart+_equalTo
                     +_scopeBegin
                     +pp.Group(pp.OneOrMore(pathtoken)).setParseAction(_parsePathInReverse)
@@ -692,6 +719,10 @@ class _ReplaceNode(object):
             self._setValue(obj,path[0])
             return
         self._recurse(path[1:],getattr(obj,path[0]))
+    def __repr__(self):
+        # translate true/false to True/False
+        s = self.getValue()
+        return '.'.join(self.path)+" = "+repr(self.getValue())
 
 class _ReplaceSetter(object):
     """Used to 'set' an unknown type of value from a Replace node"""
@@ -953,6 +984,7 @@ def _makeProcess(s,loc,toks):
     sequences={}
     series=[] #order matters for a series
     replaces=[]
+    prefers = {}
     schedule = None
 
 
@@ -976,6 +1008,9 @@ def _makeProcess(s,loc,toks):
                     del d[label]
                 else:
                     raise RuntimeError("multiple 'schedule's are present, only one is allowed")
+            elif isinstance(item,cms.ESPrefer):
+                prefers[label[0:-7]]=item
+                del d[label]
         #pset replaces must be done first since PSets can be used in a 'using'
         # statement so we want their changes to be reflected
         class DictAdapter(object):
@@ -1000,6 +1035,11 @@ def _makeProcess(s,loc,toks):
         for replace in replaces:
             if not isinstance(getattr(adapted,replace.rootLabel()),cms.PSet):
                 replace.do(adapted)
+        #NEED to call this a second time so replace statements applying to modules
+        # where the replace statements contain using statements will have the
+        # using statements replaced by their actual values
+        _findAndHandleProcessUsingBlock(values)
+
 
         # adding modules to the process involves cloning.
         # but for the usings we only know the original object
@@ -1011,6 +1051,8 @@ def _makeProcess(s,loc,toks):
         for label,obj in d.iteritems():
             setattr(p,label,obj)
             if not isinstance(obj,list): _lookuptable[obj] = label
+        for label,obj in prefers.iteritems():
+            setattr(p,label,obj)
         pa = _ProcessAdapter(sequences,p)
         for label,obj in sequences.iteritems():
             setattr(pa,label,obj.make(pa))
@@ -1055,6 +1097,15 @@ class _ConfigReturn(object):
     def __init__(self,d):
         for key,value in d.iteritems():
             setattr(self, key, value)
+    def dumpPython(self):
+         # make sure all the top-level Labelables are labelled
+         for key,value in self.__dict__.iteritems():
+             if isinstance(value, cms._Labelable):
+                 value.setLabel(key)
+         result = ''
+         for key,value in self.__dict__.iteritems():
+             result += key+" = "+value.dumpPython('','    ')
+         return result
 
 def parseCfgFile(fileName):
     """Read a .cfg file and create a Process object"""
@@ -1078,6 +1129,20 @@ def parseCffFile(fileName):
     #_allUsingLabels = set() # do I need to reset here?
     d=_finalizeProcessFragment(t,_allUsingLabels)
     return _ConfigReturn(d)
+
+def dump(fileName):
+    """Read a .cff file and return a dictionary"""
+    t=onlyFragment.parseFile(_fileFactory(fileName))
+    result = ''
+    for key,value in t:
+        if isinstance(value,_IncludeNode) or isinstance(value,_ReplaceNode):
+            result += repr(value)+"\n"
+        else:
+            #result += "process."+str(key)+" ="+value.dumpPython('','    ')
+            result += key+" = "+value.dumpPython('','    ')+"\n"
+    return result
+
+
 
 def processFromString(configString):
     """Reads a string containing the equivalent content of a .cfg file and
@@ -1195,6 +1260,12 @@ if __name__=="__main__":
             self.assertEqual(d['blah'].moduleLabel,'tag')
             self.assertEqual(d['blah'].productInstanceLabel,'youIt')
 
+            t = onlyParameters.parseString("InputTag blah = tag::proc")
+            d=dict(iter(t))
+            self.assertEqual(type(d['blah']),cms.InputTag)
+            self.assertEqual(d['blah'].moduleLabel,'tag')
+            self.assertEqual(d['blah'].processName,'proc')
+                                                 
             t = onlyParameters.parseString("InputTag blah = tag:youIt:Now")
             d=dict(iter(t))
             self.assertEqual(type(d['blah']),cms.InputTag)
@@ -1480,6 +1551,28 @@ process RECO = {
             self.assertEqual(str(t[0].p),'((foo*bar)+fii)')
             self.assertEqual(str(t[0].s),'(foo*bar)')
             t[0].dumpConfig()
+
+            _allUsingLabels = set()
+            t=process.parseString(
+"""
+process RECO = {
+   source = PoolSource {
+     untracked vstring fileNames = {"file:foo.root"}
+   }
+   module out = PoolOutputModule {
+     untracked string fileName = "blah.root"
+   }
+   endpath e = {out}
+   module foo = FooProd {}
+   module bar = BarProd {}
+   module fii = FiiProd {}
+   path p = {!s&!fii}
+   sequence s = {foo,bar}
+}""")
+            self.assertEqual(str(t[0].p),'(~(foo*bar)+~fii)')
+            self.assertEqual(str(t[0].s),'(foo*bar)')
+            t[0].dumpConfig()
+            
             s="""
 process RECO = {
     module foo = FooProd {}
@@ -1912,7 +2005,8 @@ process USER =
             self.assertEqual(t[0].m2.x.value(),2)
             self.assertEqual(t[0].J.j.value(),1)
             self.assertEqual(t[0].I.j.value(),1)
-            #print t[0].dumpConfig()
+            #make sure dump succeeds
+            t[0].dumpConfig()
 
             _allUsingLabels = set()
             t=process.parseString("""
@@ -1926,6 +2020,78 @@ process USER =
             self.assertEqual(t[0].b.c.i.value(),1)
             self.assertEqual(t[0].d[0].i.value(),1)
             self.assertEqual(t[0].b.c.e[0].i.value(), 1)
+            #make sure dump succeeds
+            t[0].dumpConfig()
+
+            _allUsingLabels = set()
+            t=process.parseString("""
+process USER = 
+{
+    block a = {int32 i = 1}
+    PSet b = { PSet c = {}
+               VPSet g = {} }
+    replace b.c = {using a
+       VPSet e={{using a} } }
+    VPSet d = {{using a}, {}}
+}""")
+            self.assertEqual(t[0].b.c.i.value(),1)
+            self.assertEqual(t[0].d[0].i.value(),1)
+            self.assertEqual(t[0].b.c.e[0].i.value(), 1)
+            #make sure dump succeeds
+            t[0].dumpConfig()
+
+            _allUsingLabels = set()
+            t=process.parseString("""
+process USER = 
+{
+    block a = {int32 i = 1}
+    PSet b = { PSet c = {} }
+    replace b.c = { PSet d = { using a }
+       VPSet e={{using a} } }
+}""")
+            self.assertEqual(t[0].b.c.d.i.value(),1)
+            self.assertEqual(t[0].b.c.e[0].i.value(), 1)
+            #make sure dump succeeds
+            t[0].dumpConfig()
+
+            t=process.parseString("""
+process USER = 
+{
+    block a = {int32 i = 1}
+    module b = BWorker { PSet c = {} }
+    replace b.c = { PSet d = { using a }
+       VPSet e={{using a} } }
+}""")
+            self.assertEqual(t[0].b.c.d.i.value(),1)
+            self.assertEqual(t[0].b.c.e[0].i.value(), 1)
+            #make sure dump succeeds
+            t[0].dumpConfig()
+
+            _allUsingLabels = set()
+            t=process.parseString(
+"""
+process RECO = {
+   es_prefer label = FooESProd {
+   }
+   es_module label = FooESProd {
+   }
+}""")
+            self.assertEqual(t[0].label.type_(),"FooESProd")
+            print t[0].dumpConfig()
+
+            _allUsingLabels = set()
+            t=process.parseString(
+"""
+process RECO = {
+   es_prefer = FooESProd {
+   }
+   es_module = FooESProd {
+   }
+}""")
+            self.assertEqual(t[0].FooESProd.type_(),"FooESProd")
+            print t[0].dumpConfig()
+
+            
         def testPath(self):
             p = cms.Process('Test')
             p.out = cms.OutputModule('PoolOutputModule')
@@ -1996,6 +2162,16 @@ process USER =
             self.assertEqual(str(t[0][1]),'(d,c)')
             pth = t[0][1].make(p)
             self.assertEqual(str(pth),'((a*b)*c)')
+#            print t[0][1]
+            t=path.parseString('path p = {a&!b}')
+            self.assertEqual(str(t[0][1]),'(a&!b)')
+            pth = t[0][1].make(p)
+            self.assertEqual(str(pth),'(a+~b)')
+#            print t[0][1]
+            t=path.parseString('path p = {!a&!b&!c}')
+            self.assertEqual(str(t[0][1]),'((!a&!b)&!c)')
+            pth = t[0][1].make(p)
+            self.assertEqual(str(pth),'((~a+~b)+~c)')
         def testReplace(self):
             process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.uint32(2))
@@ -2157,6 +2333,20 @@ process USER =
             t = replace.parseString('replace a.b = foobar:')
             t[0][1].do(process)
             self.assertEqual(process.a.b.configValue('',''),'foobar::')                        
+
+            process.a = cms.EDProducer('FooProd', b=cms.VInputTag((cms.InputTag("bar"))))
+            t = replace.parseString('replace a.b = {foobar:}')
+            t[0][1].do(process)
+            #self.assertEqual(process.a.b.configValue('',''),'{\nfoobar::\n}\n')                        
+            self.assertEqual(list(process.a.b),[cms.InputTag('foobar')])                        
+
+            process.a = cms.EDProducer('FooProd', b=cms.VInputTag((cms.InputTag("bar"))))
+            t = replace.parseString('replace a.b += {foobar:}')
+            t[0][1].do(process)
+            #self.assertEqual(process.a.b.configValue('',''),'{\nfoobar::\n}\n')                        
+            self.assertEqual(list(process.a.b),[cms.InputTag("bar"),cms.InputTag('foobar')])                        
+
+
     unittest.main()
 #try:
     #onlyParameters.setDebug()

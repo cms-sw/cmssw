@@ -51,8 +51,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/06/29 23:52:15 $
-// $Revision: 1.23 $
+// $Date: 2007/07/19 21:55:58 $
+// $Revision: 1.25 $
 //
 
 #include <string>
@@ -149,8 +149,11 @@ class RoadSearchCloudMakerAlgorithm
   bool UsePixels;
   bool NoFieldCosmic;
   unsigned int maxDetHitsInCloudPerDetId;
-  unsigned int minNumberOfUsedLayersPerRoad;
-  unsigned int maxNumberOfMissedLayersPerRoad;
+  double       minFractionOfUsedLayersPerCloud;
+  double       maxFractionOfMissedLayersPerCloud;
+  double       maxFractionOfConsecutiveMissedLayersPerCloud;
+  unsigned int increaseMaxNumberOfConsecutiveMissedLayersPerCloud;
+  unsigned int increaseMaxNumberOfMissedLayersPerCloud;
 
   bool doCleaning_;
   double mergingFraction_;

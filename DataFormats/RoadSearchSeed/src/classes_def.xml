@@ -4,6 +4,5 @@
     <field name="set_" transient="true"/>
     <field name="hits_" transient="true"/>
   </class>
-  <class name="std::vector<RoadSearchSeed>"/>
-  <class name="edm::Wrapper<std::vector<RoadSearchSeed> >"/>
+  <class name="std::vector<RoadSearchSeed>" persistent="false"/>
 </lcgdict>

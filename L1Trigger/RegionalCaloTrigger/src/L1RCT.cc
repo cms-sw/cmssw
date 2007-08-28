@@ -497,30 +497,15 @@ unsigned short L1RCT::calcIPhi(unsigned short iCrate, unsigned short iCard, unsi
 
 // Returns the top four isolated electrons from given crate
 // in a vector of L1CaloEmCands
-L1CaloEmCollection L1RCT::getIsolatedEGObjects(int crate){
+L1CaloEmCollection L1RCT::getIsolatedEGObjects(unsigned crate){
   vector<unsigned short> isoEmObjects = crates.at(crate).getIsolatedEGObjects();
   L1CaloEmCollection isoEmCands;
-  // std::cout << "\nCrate " << crate << std::endl;
-  for (int i = 0; i < 4; i++){
-    unsigned short rgn = ((isoEmObjects.at(i)) & 1);
-    unsigned short crd = (((isoEmObjects.at(i))/2) & 7);
+  for (uint16_t i = 0; i < 4; i++){
+    unsigned rgn = ((isoEmObjects.at(i)) & 1);
+    unsigned crd = (((isoEmObjects.at(i))/2) & 7);
     unsigned short energy = ((isoEmObjects.at(i))/16);
-    unsigned short rank;
-    //if (!patternTest_)
-    //  {
-    rank = gctEmScale->rank(energy);
-    //  }
-    //else
-    //{
-    //rank = energy;
-    //if (rank > 0x3f) rank = 0x3f;
-    //  }
-
-    //L1CaloEmCand isoCand(rank, rgn, crd, crate, 1);
+    unsigned rank = gctEmScale->rank(energy);
     L1CaloEmCand isoCand(rank, rgn, crd, crate, 1, i, 0);  // includes emcand index
-
-    // std::cout << "card " << crd << "region " << rgn << "energy " << energy << std::endl;
-
     isoEmCands.push_back(isoCand);
   }
   return isoEmCands;
@@ -529,25 +514,14 @@ L1CaloEmCollection L1RCT::getIsolatedEGObjects(int crate){
 
 // Returns the top four nonisolated electrons from the given crate
 // in a vector of L1CaloEmCands
-L1CaloEmCollection L1RCT::getNonisolatedEGObjects(int crate){
+L1CaloEmCollection L1RCT::getNonisolatedEGObjects(unsigned crate){
   vector<unsigned short> nonIsoEmObjects = crates.at(crate).getNonisolatedEGObjects();
   L1CaloEmCollection nonIsoEmCands;
-  for (int i = 0; i < 4; i++){
-    unsigned short rgn = ((nonIsoEmObjects.at(i)) & 1);
-    unsigned short crd = (((nonIsoEmObjects.at(i))/2) & 7);
+  for (uint16_t i = 0; i < 4; i++){
+    unsigned rgn = ((nonIsoEmObjects.at(i)) & 1);
+    unsigned crd = (((nonIsoEmObjects.at(i))/2) & 7);
     unsigned short energy = ((nonIsoEmObjects.at(i))/16);
-    unsigned short rank;
-    //    if (!patternTest_)
-    //      {
-    rank = gctEmScale->rank(energy);
-    //      }
-    //    else
-    //      {
-    //	rank = energy;
-    //	if (rank > 0x3f) rank = 0x3f;
-    //      }
-
-    //L1CaloEmCand nonIsoCand(rank, rgn, crd, crate, 0);
+    unsigned rank = gctEmScale->rank(energy);
     L1CaloEmCand nonIsoCand(rank, rgn, crd, crate, 0, i, 0);  // includes emcand index
     nonIsoEmCands.push_back(nonIsoCand);
   }
@@ -555,7 +529,7 @@ L1CaloEmCollection L1RCT::getNonisolatedEGObjects(int crate){
 }
 
 
-vector<L1CaloRegion> L1RCT::getRegions(int crate){
+vector<L1CaloRegion> L1RCT::getRegions(unsigned crate){
   // barrel regions
   std::bitset<14> taus( (long) crates.at(crate).getTauBits());
   std::bitset<14> mips( (long) crates.at(crate).getMIPBits());
@@ -563,34 +537,25 @@ vector<L1CaloRegion> L1RCT::getRegions(int crate){
   std::bitset<14> overflows( (long) crates.at(crate).getOverFlowBits());
   vector<unsigned short> barrelEnergies = crates.at(crate).getBarrelRegions();
   vector<L1CaloRegion> regionCollection;
-  for (int card = 0; card < 7; card++){
-    for (int rgn = 0; rgn < 2; rgn++){
-      unsigned short tau = taus[card*2+rgn];
-      //      std::cout << "Crate: " << crate << "\tCard: " << card << "\tRegion: " << rgn << "\tTau veto " << tau << std::endl;
-      unsigned short mip = mips[card*2+rgn];
-      unsigned short quiet = quiets[card*2+rgn];
-      unsigned short overflow = overflows[card*2+rgn];
-      unsigned short barrelEnergy = barrelEnergies.at(card*2+rgn);
+  for (unsigned card = 0; card < 7; card++){
+    for (unsigned rgn = 0; rgn < 2; rgn++){
+      bool tau = taus[card*2+rgn];
+      bool mip = mips[card*2+rgn];
+      bool quiet = quiets[card*2+rgn];
+      bool overflow = overflows[card*2+rgn];
+      unsigned barrelEnergy = barrelEnergies.at(card*2+rgn);
       L1CaloRegion region(barrelEnergy, overflow, tau, mip, quiet, crate, card, rgn); // change if necessary
       regionCollection.push_back(region);
     }
   }
-
   // hf regions
   vector<unsigned short> hfEnergies = crates.at(crate).getHFRegions();
   // fine grain bits -- still have to work out digi input
   vector<unsigned short> hfFineGrainBits = crates.at(crate).getHFFineGrainBits();
-  for (int i = 0; i<8; i++){  // region number, see diagram on paper.  make sure know how hf regions come in. 
-    int hfRgn = 10;
-    if (i <= 3) {
-      hfRgn = 3 - i;     // rearranging index for low phi
-    }
-    else {
-      hfRgn = 11 - i;    // rearranging index for high phi
-    }
-    unsigned short fineGrain = hfFineGrainBits.at(i);
-    unsigned short energy = hfEnergies.at(i);
-    L1CaloRegion hfRegion(energy, fineGrain, crate, i);  // no overflow  // CHANGED hfRgn to i !!  to match rest of hf mapping Sept. 22 J. Leonard
+  for (unsigned hfRgn = 0; hfRgn<8; hfRgn++){  // region number, see diagram on paper.  make sure know how hf regions come in. 
+    unsigned energy = hfEnergies.at(hfRgn);
+    bool fineGrain = hfFineGrainBits.at(hfRgn);
+    L1CaloRegion hfRegion(energy, fineGrain, crate, hfRgn);
     regionCollection.push_back(hfRegion);
   }
   return regionCollection;

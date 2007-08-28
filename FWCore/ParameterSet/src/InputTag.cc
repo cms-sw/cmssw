@@ -1,7 +1,6 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/parse.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include <iosfwd>
 
 namespace edm {
 
@@ -13,10 +12,10 @@ namespace edm {
   }
 
 
-  InputTag::InputTag(const std::string & label, const std::string & instance)
+  InputTag::InputTag(const std::string & label, const std::string & instance, const std::string & processName)
   : label_(label),
     instance_(instance),
-    process_()
+    process_(processName)
   {
   }
 

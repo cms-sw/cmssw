@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/06/24 09:41:11 $
- * $Revision: 1.36 $
+ * $Date: 2007/08/10 18:46:48 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  *
 */
@@ -287,7 +287,7 @@ void EBSummaryClient::cleanup(void) {
 
 }
 
-bool EBSummaryClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism) {
+bool EBSummaryClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
 
   bool status = true;
 
@@ -314,9 +314,9 @@ void EBSummaryClient::subscribe(void){
   if ( qtg03_ ) mui_->useQTest(histo, qtg03_->getName());
   sprintf(histo, "EcalBarrel/EBSummaryClient/EBLT laser quality summary L1");
   if ( qtg04_ ) mui_->useQTest(histo, qtg04_->getName());
-  sprintf(histo, "EcalBarrel/EBSummaryClient/EBPT pedestal quality summary");
+  sprintf(histo, "EcalBarrel/EBSummaryClient/EBLT PN laser quality summary L1");
   if ( qtg04PN_ ) mui_->useQTest(histo, qtg04PN_->getName());
-  sprintf(histo, "EcalBarrel/EBSummaryClient/EBPT PN pedestal quality summary");
+  sprintf(histo, "EcalBarrel/EBSummaryClient/EBPT pedestal quality summary");
   if ( qtg05_ ) mui_->useQTest(histo, qtg05_->getName());
   sprintf(histo, "EcalBarrel/EBSummaryClient/EBPT PN pedestal quality summary");
   if ( qtg05PN_ ) mui_->useQTest(histo, qtg05PN_->getName());
@@ -363,6 +363,7 @@ void EBSummaryClient::analyze(void){
       meTestPulse_->setBinContent( ipx, iex, -1. );
 
       meGlobalSummary_->setBinContent( ipx, iex, -1. );
+
     }
   }
 
@@ -623,6 +624,7 @@ void EBSummaryClient::analyze(void){
 	for( int j = 1; j <= 5; j++ ) { 
 
 	  if ( ebpc ) {
+
 	    me_04 = ebpc->meg04_[ism-1];
 	    me_05 = ebpc->meg05_[ism-1];
 	    
@@ -668,9 +670,11 @@ void EBSummaryClient::analyze(void){
 		mePedestalPN_->setBinContent( ipx, iex, xval );
 	      }
 	    }
+
 	  }
 
 	  if ( ebtpc ) {
+
 	    me_04 = ebtpc->meg04_[ism-1];
 	    me_05 = ebtpc->meg05_[ism-1];
 	    
@@ -719,6 +723,7 @@ void EBSummaryClient::analyze(void){
 	  }
 
 	  if ( eblc ) {
+
 	    me = eblc->meg09_[ism-1];
 
 	    if( me ) {
@@ -740,6 +745,7 @@ void EBSummaryClient::analyze(void){
 		meLaserL1PN_->setBinContent( ipx, iex, xval );
 	      }
 	    }
+
 	  }
 	  
 	}
@@ -837,7 +843,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   labelGridPN.SetMinimum(-18.01);
 
   string imgNameMapI, imgNameMapO, imgNameMapPO, imgNameMapLL1, imgNameMapLL1_PN, imgNameMapP, imgNameMapP_PN, imgNameMapTP, imgNameMapTP_PN, imgName, meName;
-  string imgNameMapSS;
+  string imgNameMapGS;
 
   TCanvas* cMap = new TCanvas("cMap", "Temp", int(360./170.*csize), csize);
   TCanvas* cMapPN = new TCanvas("cMapPN", "Temp", int(360./170.*csize), int(20./90.*360./170.*csize));
@@ -1160,7 +1166,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     gStyle->SetTitleX(saveTitleOffset);
   }
 
-  imgNameMapSS = "";
+  imgNameMapGS = "";
 
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( meGlobalSummary_ );
@@ -1174,8 +1180,8 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
         meName.replace(i, 1 ,"_" );
       }
     }
-    imgNameMapSS = meName + ".png";
-    imgName = htmlDir + imgNameMapSS;
+    imgNameMapGS = meName + ".png";
+    imgName = htmlDir + imgNameMapGS;
 
     cMap->cd();
     gStyle->SetOptStat(" ");
@@ -1202,7 +1208,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<tr align=\"center\">" << endl;
 
   if ( imgNameMapI.size() != 0 )
-    htmlFile << "<td><img src=\"" << imgNameMapI << "\" usemap=""#Integrity"" border=0></td>" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapI << "\" usemap=\"#Integrity\" border=0></td>" << endl;
   else
     htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
@@ -1215,7 +1221,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<tr align=\"center\">" << endl;
 
   if ( imgNameMapO.size() != 0 )
-    htmlFile << "<td><img src=\"" << imgNameMapO << "\" usemap=""#Occupancy"" border=0></td>" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapO << "\" usemap=\"#Occupancy\" border=0></td>" << endl;
   else
     htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
@@ -1228,7 +1234,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<tr align=\"center\">" << endl;
 
   if ( imgNameMapPO.size() != 0 )
-    htmlFile << "<td><img src=\"" << imgNameMapPO << "\" usemap=""#PedestalOnline"" border=0></td>" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapPO << "\" usemap=\"#PedestalOnline\" border=0></td>" << endl;
   else
     htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
@@ -1241,7 +1247,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<tr align=\"center\">" << endl;
 
   if ( imgNameMapLL1.size() != 0 )
-    htmlFile << "<td><img src=\"" << imgNameMapLL1 << "\" usemap=""#LaserL1"" border=0></td>" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapLL1 << "\" usemap=\"#LaserL1\" border=0></td>" << endl;
 
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
@@ -1264,7 +1270,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<tr align=\"center\">" << endl;
 
   if ( imgNameMapP.size() != 0 )
-    htmlFile << "<td><img src=\"" << imgNameMapP << "\" usemap=""#Pedestal"" border=0></td>" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapP << "\" usemap=\"#Pedestal\" border=0></td>" << endl;
   
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
@@ -1286,7 +1292,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<tr align=\"center\">" << endl;
 
   if ( imgNameMapTP.size() != 0 )
-    htmlFile << "<td><img src=\"" << imgNameMapTP << "\" usemap=""#TestPulse"" border=0></td>" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapTP << "\" usemap=\"#TestPulse\" border=0></td>" << endl;
   
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
@@ -1328,33 +1334,35 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
 void EBSummaryClient::writeMap( std::ofstream& hf, std::string mapname ) {
 
- std::map<std::string, std::string> refhtml;
- refhtml["Integrity"] = "EBIntegrityClient.html";
- refhtml["Occupancy"] = "EBIntegrityClient.html";
- refhtml["PedestalOnline"] = "EBPedestalOnlineClient.html";
- refhtml["LaserL1"] = "EBLaserClient.html";
- refhtml["Pedestal"] = "EBPedestalClient.html";
- refhtml["TestPulse"] = "EBTestPulseClient.html";
+  std::map<std::string, std::string> refhtml;
+  refhtml["Integrity"] = "EBIntegrityClient.html";
+  refhtml["Occupancy"] = "EBIntegrityClient.html";
+  refhtml["PedestalOnline"] = "EBPedestalOnlineClient.html";
+  refhtml["LaserL1"] = "EBLaserClient.html";
+  refhtml["Pedestal"] = "EBPedestalClient.html";
+  refhtml["TestPulse"] = "EBTestPulseClient.html";
 
- const int A0 =  85;
- const int A1 = 759;
- const int B0 =  35;
- const int B1 = 334;
+  const int A0 =  85;
+  const int A1 = 759;
+  const int B0 =  35;
+  const int B1 = 334;
 
- hf << "<map name=\"" << mapname << "\">" << std::endl;
- for( unsigned int sm=0; sm<superModules_.size(); sm++ ) {
-  int i=(superModules_[sm]-1)/18;
-  int j=(superModules_[sm]-1)%18;
-  int x0 = A0 + (A1-A0)*j/18;
-  int x1 = A0 + (A1-A0)*(j+1)/18;
-  int y0 = B0 + (B1-B0)*(1-i)/2;
-  int y1 = B0 + (B1-B0)*((1-i)+1)/2;
-  hf << "<area title=\"" << Numbers::sEB((j+1)+18*i).c_str()
-     << "\" shape=\"rect\" href=\"" << refhtml[mapname] << "#"
-     << Numbers::sEB((j+1)+18*i).c_str() << "\" coords=\"";
-  hf << x0 << ", " << y0 << ", " << x1 << ", " << y1 << "\">" << std::endl;
- }
- hf << "</map>" << std::endl;
+  hf << "<map name=\"" << mapname << "\">" << std::endl;
+  for( unsigned int sm=0; sm<superModules_.size(); sm++ ) {
+    int i=(superModules_[sm]-1)/18;
+    int j=(superModules_[sm]-1)%18;
+    int x0 = A0 + (A1-A0)*j/18;
+    int x1 = A0 + (A1-A0)*(j+1)/18;
+    int y0 = B0 + (B1-B0)*(1-i)/2;
+    int y1 = B0 + (B1-B0)*((1-i)+1)/2;
+    hf << "<area title=\"" << Numbers::sEB(superModules_[sm]).c_str()
+       << "\" shape=\"rect\" href=\"" << refhtml[mapname]
+       << "#" << Numbers::sEB(superModules_[sm]).c_str()
+       << "\" coords=\"" << x0 << ", " << y0 << ", "
+                         << x1 << ", " << y1 << "\">"
+       << std::endl;
+  }
+  hf << "</map>" << std::endl;
 
 }
 

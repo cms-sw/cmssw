@@ -35,13 +35,6 @@ FEDS=20
 #
 MODE=USC
 
-# To unpack calibration channels and plot them, 
-# give this variable a string with more than 1 character,
-# OTHERWISE LEAVE IT BLANK, or comment it out, as in:
-#DOCALIB=
-#
-DOCALIB=1234
-
 # "Printf"-style format string for the input filename -
 #                     allows input of run number only
 #      - include the full path to the file in the string.

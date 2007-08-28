@@ -5,7 +5,7 @@
   
 Wrapper: A template wrapper around EDProducts to hold the product ID.
 
-$Id: Wrapper.h,v 1.18 2007/05/24 16:35:46 paterno Exp $
+$Id: Wrapper.h,v 1.19 2007/07/09 07:28:50 llista Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -184,9 +184,6 @@ namespace edm {
       swap_or_assign(obj, *ptr);	
     }
   }
-
-  std::string
-  wrappedClassName(std::string const& className);
 
 }
 

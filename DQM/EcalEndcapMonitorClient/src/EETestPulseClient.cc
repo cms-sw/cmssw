@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2007/07/19 11:54:13 $
- * $Revision: 1.16 $
+ * $Date: 2007/08/15 07:08:42 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -14,6 +14,8 @@
 #include <iomanip>
 
 #include "TStyle.h"
+#include "TGraph.h"
+#include "TLine.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -82,10 +84,6 @@ EETestPulseClient::EETestPulseClient(const ParameterSet& ps){
     hs02_[ism-1] = 0;
     hs03_[ism-1] = 0;
 
-    he01_[ism-1] = 0;
-    he02_[ism-1] = 0;
-    he03_[ism-1] = 0;
-
     i01_[ism-1] = 0;
     i02_[ism-1] = 0;
     i03_[ism-1] = 0;
@@ -120,11 +118,17 @@ EETestPulseClient::EETestPulseClient(const ParameterSet& ps){
     qtha06_[ism-1] = 0;
     qtha07_[ism-1] = 0;
 
+    qtg01_[ism-1] = 0;
+    qtg02_[ism-1] = 0;
+    qtg03_[ism-1] = 0;
+
+    qtg04_[ism-1] = 0;
+    qtg05_[ism-1] = 0;
+
   }
 
   percentVariation_ = 0.2;
   RMSThreshold_ = 300.0;
-  threshold_on_AmplitudeErrorsNumber_ = 0.02;
 
   amplitudeThresholdPnG01_ = 200./16.;
   amplitudeThresholdPnG16_ = 200.;
@@ -218,6 +222,35 @@ void EETestPulseClient::beginJob(MonitorUserInterface* mui){
       qtha06_[ism-1]->setErrorProb(1.00);
       qtha07_[ism-1]->setErrorProb(1.00);
 
+      sprintf(qtname, "EETPT quality test %s G01", Numbers::sEE(ism).c_str());
+      qtg01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      sprintf(qtname, "EETPT quality test %s G06", Numbers::sEE(ism).c_str());
+      qtg02_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      sprintf(qtname, "EETPT quality test %s G12", Numbers::sEE(ism).c_str());
+      qtg03_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      qtg01_[ism-1]->setMeanRange(1., 6.);
+      qtg02_[ism-1]->setMeanRange(1., 6.);
+      qtg03_[ism-1]->setMeanRange(1., 6.);
+
+      qtg01_[ism-1]->setErrorProb(1.00);
+      qtg02_[ism-1]->setErrorProb(1.00);
+      qtg03_[ism-1]->setErrorProb(1.00);
+
+      sprintf(qtname, "EETPT quality test PNs %s G01", Numbers::sEE(ism).c_str());
+      qtg04_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      sprintf(qtname, "EETPT quality test PNs %s G16", Numbers::sEE(ism).c_str());
+      qtg05_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      qtg04_[ism-1]->setMeanRange(1., 6.);
+      qtg05_[ism-1]->setMeanRange(1., 6.);
+
+      qtg04_[ism-1]->setErrorProb(1.00);
+      qtg05_[ism-1]->setErrorProb(1.00);
+
     }
 
   }
@@ -269,13 +302,13 @@ void EETestPulseClient::setup(void) {
 
     if ( meg01_[ism-1] ) dbe->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EETPT test pulse quality G01 %s", Numbers::sEE(ism).c_str());
-    meg01_[ism-1] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg01_[ism-1] = dbe->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
     if ( meg02_[ism-1] ) dbe->removeElement( meg02_[ism-1]->getName() );
     sprintf(histo, "EETPT test pulse quality G06 %s", Numbers::sEE(ism).c_str());
-    meg02_[ism-1] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg02_[ism-1] = dbe->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
     if ( meg03_[ism-1] ) dbe->removeElement( meg03_[ism-1]->getName() );
     sprintf(histo, "EETPT test pulse quality G12 %s", Numbers::sEE(ism).c_str());
-    meg03_[ism-1] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg03_[ism-1] = dbe->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
 
     if ( meg04_[ism-1] ) dbe->removeElement( meg04_[ism-1]->getName() );
     sprintf(histo, "EETPT test pulse quality PNs G01 %s", Numbers::sEE(ism).c_str());
@@ -314,12 +347,21 @@ void EETestPulseClient::setup(void) {
     UtilsClient::resetHisto( meg04_[ism-1] );
     UtilsClient::resetHisto( meg05_[ism-1] );
 
-    for ( int ie = 1; ie <= 85; ie++ ) {
-      for ( int ip = 1; ip <= 20; ip++ ) {
+    for ( int ix = 1; ix <= 50; ix++ ) {
+      for ( int iy = 1; iy <= 50; iy++ ) {
 
-        meg01_[ism-1]->setBinContent( ie, ip, 2. );
-        meg02_[ism-1]->setBinContent( ie, ip, 2. );
-        meg03_[ism-1]->setBinContent( ie, ip, 2. );
+        meg01_[ism-1]->setBinContent( ix, iy, -1. );
+        meg02_[ism-1]->setBinContent( ix, iy, -1. );
+        meg03_[ism-1]->setBinContent( ix, iy, -1. );
+
+        int jx = ix + Numbers::ix0EE(ism);
+        int jy = iy + Numbers::iy0EE(ism);
+
+        if ( Numbers::validEE(ism, 101 - jx, jy) ) {
+          meg01_[ism-1]->setBinContent( ix, iy, 2. );
+          meg02_[ism-1]->setBinContent( ix, iy, 2. );
+          meg03_[ism-1]->setBinContent( ix, iy, 2. );
+        }
 
       }
     }
@@ -357,10 +399,6 @@ void EETestPulseClient::cleanup(void) {
       if ( hs02_[ism-1] ) delete hs02_[ism-1];
       if ( hs03_[ism-1] ) delete hs03_[ism-1];
 
-      if ( he01_[ism-1] ) delete he01_[ism-1];
-      if ( he02_[ism-1] ) delete he02_[ism-1];
-      if ( he03_[ism-1] ) delete he03_[ism-1];
-
       if ( i01_[ism-1] ) delete i01_[ism-1];
       if ( i02_[ism-1] ) delete i02_[ism-1];
       if ( i03_[ism-1] ) delete i03_[ism-1];
@@ -374,10 +412,6 @@ void EETestPulseClient::cleanup(void) {
     hs01_[ism-1] = 0;
     hs02_[ism-1] = 0;
     hs03_[ism-1] = 0;
-
-    he01_[ism-1] = 0;
-    he02_[ism-1] = 0;
-    he03_[ism-1] = 0;
 
     i01_[ism-1] = 0;
     i02_[ism-1] = 0;
@@ -421,147 +455,164 @@ void EETestPulseClient::cleanup(void) {
   
 }
 
-bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism) {
+bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
 
   bool status = true;
 
-  UtilsClient::printBadChannels(qtha01_[ism-1]);
-  UtilsClient::printBadChannels(qtha02_[ism-1]);
-  UtilsClient::printBadChannels(qtha03_[ism-1]);
-
-  UtilsClient::printBadChannels(qtha04_[ism-1]);
-  UtilsClient::printBadChannels(qtha05_[ism-1]);
-  UtilsClient::printBadChannels(qtha06_[ism-1]);
-  UtilsClient::printBadChannels(qtha07_[ism-1]);
-
   EcalLogicID ecid;
+
   MonTestPulseDat adc;
   map<EcalLogicID, MonTestPulseDat> dataset1;
   MonPulseShapeDat shape;
   map<EcalLogicID, MonPulseShapeDat> dataset2;
 
-  for ( int ie = 1; ie <= 85; ie++ ) {
-    for ( int ip = 1; ip <= 20; ip++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
-      bool update01;
-      bool update02;
-      bool update03;
+    int ism = superModules_[i];
 
-      float num01, num02, num03;
-      float mean01, mean02, mean03;
-      float rms01, rms02, rms03;
+    cout << " SM=" << ism << endl;
 
-      update01 = UtilsClient::getBinStats(ha01_[ism-1], ie, ip, num01, mean01, rms01);
-      update02 = UtilsClient::getBinStats(ha02_[ism-1], ie, ip, num02, mean02, rms02);
-      update03 = UtilsClient::getBinStats(ha03_[ism-1], ie, ip, num03, mean03, rms03);
+    UtilsClient::printBadChannels(qtha01_[ism-1]);
+    UtilsClient::printBadChannels(qtha02_[ism-1]);
+    UtilsClient::printBadChannels(qtha03_[ism-1]);
 
-      if ( update01 || update02 || update03 ) {
+//    UtilsClient::printBadChannels(qtg01_[ism-1]);
+//    UtilsClient::printBadChannels(qtg02_[ism-1]);
+//    UtilsClient::printBadChannels(qtg03_[ism-1]);
 
-        if ( ie == 1 && ip == 1 ) {
+    for ( int ix = 1; ix <= 50; ix++ ) {
+      for ( int iy = 1; iy <= 50; iy++ ) {
 
-          cout << "Preparing dataset for SM=" << ism << endl;
-          cout << "G01 (" << ie << "," << ip << ") " << num01 << " " << mean01 << " " << rms01 << endl;
-          cout << "G06 (" << ie << "," << ip << ") " << num02 << " " << mean02 << " " << rms02 << endl;
-          cout << "G12 (" << ie << "," << ip << ") " << num03 << " " << mean03 << " " << rms03 << endl;
+        int jx = ix + Numbers::ix0EE(ism);
+        int jy = iy + Numbers::iy0EE(ism);
 
-          cout << endl;
+        if ( ! Numbers::validEE(ism, 101 - jx, jy) ) continue;
 
-        }
+        bool update01;
+        bool update02;
+        bool update03;
 
-        adc.setADCMeanG1(mean01);
-        adc.setADCRMSG1(rms01);
+        float num01, num02, num03;
+        float mean01, mean02, mean03;
+        float rms01, rms02, rms03;
 
-        adc.setADCMeanG6(mean02);
-        adc.setADCRMSG6(rms02);
+        update01 = UtilsClient::getBinStats(ha01_[ism-1], ix, iy, num01, mean01, rms01);
+        update02 = UtilsClient::getBinStats(ha02_[ism-1], ix, iy, num02, mean02, rms02);
+        update03 = UtilsClient::getBinStats(ha03_[ism-1], ix, iy, num03, mean03, rms03);
 
-        adc.setADCMeanG12(mean03);
-        adc.setADCRMSG12(rms03);
+        if ( update01 || update02 || update03 ) {
 
-        if ( meg01_[ism-1] && int(meg01_[ism-1]->getBinContent( ie, ip )) % 3 == 1. &&
-             meg02_[ism-1] && int(meg02_[ism-1]->getBinContent( ie, ip )) % 3 == 1. &&
-             meg03_[ism-1] && int(meg03_[ism-1]->getBinContent( ie, ip )) % 3 == 1. ) {
-          adc.setTaskStatus(true);
-        } else {
-          adc.setTaskStatus(false);
-        }
+          if ( ix == 1 && iy == 1 ) {
 
-        status = status && UtilsClient::getBinQual(meg01_[ism-1], ie, ip) &&
-                           UtilsClient::getBinQual(meg02_[ism-1], ie, ip) &&
-                           UtilsClient::getBinQual(meg03_[ism-1], ie, ip);
+            cout << "Preparing dataset for SM=" << ism << endl;
+            cout << "G01 (" << ix << "," << iy << ") " << num01 << " " << mean01 << " " << rms01 << endl;
+            cout << "G06 (" << ix << "," << iy << ") " << num02 << " " << mean02 << " " << rms02 << endl;
+            cout << "G12 (" << ix << "," << iy << ") " << num03 << " " << mean03 << " " << rms03 << endl;
 
-        if ( ie == 1 && ip == 1 ) {
+            cout << endl;
 
-          vector<float> sample01, sample02, sample03;
+          }
 
-          sample01.clear();
-          sample02.clear();
-          sample03.clear();
+          adc.setADCMeanG1(mean01);
+          adc.setADCRMSG1(rms01);
 
-          const float n_min_tot = 1000.;
+          adc.setADCMeanG6(mean02);
+          adc.setADCRMSG6(rms02);
 
-          if ( hs01_[ism-1] && hs01_[ism-1]->GetEntries() >= n_min_tot ) {
-            for ( int i = 1; i <= 10; i++ ) {
-              sample01.push_back(int(hs01_[ism-1]->GetBinContent(1, i)));
-            }
+          adc.setADCMeanG12(mean03);
+          adc.setADCRMSG12(rms03);
+
+          if ( meg01_[ism-1] && int(meg01_[ism-1]->getBinContent( ix, iy )) % 3 == 1. &&
+               meg02_[ism-1] && int(meg02_[ism-1]->getBinContent( ix, iy )) % 3 == 1. &&
+               meg03_[ism-1] && int(meg03_[ism-1]->getBinContent( ix, iy )) % 3 == 1. ) {
+            adc.setTaskStatus(true);
           } else {
-            for ( int i = 1; i <= 10; i++ ) { sample01.push_back(-1.); }
+            adc.setTaskStatus(false);
           }
 
-          if ( hs02_[ism-1] && hs02_[ism-1]->GetEntries() >= n_min_tot ) {
-            for ( int i = 1; i <= 10; i++ ) {
-              sample02.push_back(int(hs02_[ism-1]->GetBinContent(1, i)));
+          status = status && UtilsClient::getBinQual(meg01_[ism-1], ix, iy) &&
+                             UtilsClient::getBinQual(meg02_[ism-1], ix, iy) &&
+                             UtilsClient::getBinQual(meg03_[ism-1], ix, iy);
+
+          if ( ix == 1 && iy == 1 ) {
+
+            vector<float> sample01, sample02, sample03;
+
+            sample01.clear();
+            sample02.clear();
+            sample03.clear();
+
+            const float n_min_tot = 1000.;
+
+            if ( hs01_[ism-1] && hs01_[ism-1]->GetEntries() >= n_min_tot ) {
+              for ( int i = 1; i <= 10; i++ ) {
+                sample01.push_back(int(hs01_[ism-1]->GetBinContent(1, i)));
+              }
+            } else {
+              for ( int i = 1; i <= 10; i++ ) { sample01.push_back(-1.); }
             }
-          } else {
-            for ( int i = 1; i <= 10; i++ ) { sample02.push_back(-1.); }
-          }
 
-          if ( hs03_[ism-1] && hs03_[ism-1]->GetEntries() >= n_min_tot ) {
-            for ( int i = 1; i <= 10; i++ ) {
-              sample03.push_back(int(hs03_[ism-1]->GetBinContent(1, i)));
+            if ( hs02_[ism-1] && hs02_[ism-1]->GetEntries() >= n_min_tot ) {
+              for ( int i = 1; i <= 10; i++ ) {
+                sample02.push_back(int(hs02_[ism-1]->GetBinContent(1, i)));
+              }
+            } else {
+              for ( int i = 1; i <= 10; i++ ) { sample02.push_back(-1.); }
             }
-          } else {
-            for ( int i = 1; i <= 10; i++ ) { sample03.push_back(-1.); }
+
+            if ( hs03_[ism-1] && hs03_[ism-1]->GetEntries() >= n_min_tot ) {
+              for ( int i = 1; i <= 10; i++ ) {
+                sample03.push_back(int(hs03_[ism-1]->GetBinContent(1, i)));
+              }
+            } else {
+              for ( int i = 1; i <= 10; i++ ) { sample03.push_back(-1.); }
+            }
+
+            cout << "sample01 = " << flush;
+            for ( unsigned int i = 0; i < sample01.size(); i++ ) {
+              cout << sample01[i] << " " << flush;
+            }
+            cout << endl;
+
+            cout << "sample02 = " << flush;
+            for ( unsigned int i = 0; i < sample02.size(); i++ ) {
+              cout << sample02[i] << " " << flush;
+            }
+            cout << endl;
+
+            cout << "sample03 = " << flush;
+            for ( unsigned int i = 0; i < sample03.size(); i++ ) {
+              cout << sample03[i] << " " << flush;
+            }
+            cout << endl;
+
+            cout << endl; 
+
+            shape.setSamples(sample01,  1);
+            shape.setSamples(sample02,  6);
+            shape.setSamples(sample03, 12);
+
           }
 
-          cout << "sample01 = " << flush;
-          for ( unsigned int i = 0; i < sample01.size(); i++ ) {
-            cout << sample01[i] << " " << flush;
+          int ic = Numbers::icEE(ism, ix, iy);
+
+          if ( ic == -1 ) continue;
+
+          if ( econn ) {
+            try {
+              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
+              dataset1[ecid] = adc;
+              if ( ix == 1 && iy == 1 ) dataset2[ecid] = shape;
+            } catch (runtime_error &e) {
+              cerr << e.what() << endl;
+            }
           }
-          cout << endl;
 
-          cout << "sample02 = " << flush;
-          for ( unsigned int i = 0; i < sample02.size(); i++ ) {
-            cout << sample02[i] << " " << flush;
-          }
-          cout << endl;
-
-          cout << "sample03 = " << flush;
-          for ( unsigned int i = 0; i < sample03.size(); i++ ) {
-            cout << sample03[i] << " " << flush;
-          }
-          cout << endl;
-
-          shape.setSamples(sample01,  1);
-          shape.setSamples(sample02,  6);
-          shape.setSamples(sample03, 12);
-
-        }
-
-        int ic = (ip-1) + 20*(ie-1) + 1;
-
-        if ( econn ) {
-          try {
-            ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
-            dataset1[ecid] = adc;
-            if ( ie == 1 && ip == 1 ) dataset2[ecid] = shape;
-          } catch (runtime_error &e) {
-            cerr << e.what() << endl;
-          }
         }
 
       }
-
     }
+
   }
 
   if ( econn ) {
@@ -575,67 +626,85 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
     }
   }
 
+  cout << endl;
+
   MonPNMGPADat pn;
   map<EcalLogicID, MonPNMGPADat> dataset3;
 
-  for ( int i = 1; i <= 10; i++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
-    bool update01;
-    bool update02;
-    bool update03;
-    bool update04;
+    int ism = superModules_[i];
 
-    float num01, num02, num03, num04;
-    float mean01, mean02, mean03, mean04;
-    float rms01, rms02, rms03, rms04;
+    cout << " SM=" << ism << endl;
 
-    update01 = UtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
-    update02 = UtilsClient::getBinStats(i02_[ism-1], 1, i, num02, mean02, rms02);
-    update03 = UtilsClient::getBinStats(i03_[ism-1], 1, i, num03, mean03, rms03);
-    update04 = UtilsClient::getBinStats(i04_[ism-1], 1, i, num04, mean04, rms04);
+    UtilsClient::printBadChannels(qtha04_[ism-1]);
+    UtilsClient::printBadChannels(qtha05_[ism-1]);
+    UtilsClient::printBadChannels(qtha06_[ism-1]);
+    UtilsClient::printBadChannels(qtha07_[ism-1]);
 
-    if ( update01 || update02 || update03 || update04 ) {
+//    UtilsClient::printBadChannels(qtg04_[ism-1]);
+//    UtilsClient::printBadChannels(qtg05_[ism-1]);
 
-      if ( i == 1 ) {
+    for ( int i = 1; i <= 10; i++ ) {
 
-        cout << "Preparing dataset for SM=" << ism << endl;
+      bool update01;
+      bool update02;
+      bool update03;
+      bool update04;
 
-        cout << "PNs (" << i << ") G01 " << num01  << " " << mean01 << " " << rms01 << " " << num03 << " " << mean03 << " " << rms03 << endl;
-        cout << "PNs (" << i << ") G16 " << num02  << " " << mean02 << " " << rms02 << " " << num04 << " " << mean04 << " " << rms04 << endl;
+      float num01, num02, num03, num04;
+      float mean01, mean02, mean03, mean04;
+      float rms01, rms02, rms03, rms04;
 
-        cout << endl;
+      update01 = UtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
+      update02 = UtilsClient::getBinStats(i02_[ism-1], 1, i, num02, mean02, rms02);
+      update03 = UtilsClient::getBinStats(i03_[ism-1], 1, i, num03, mean03, rms03);
+      update04 = UtilsClient::getBinStats(i04_[ism-1], 1, i, num04, mean04, rms04);
 
-      }
+      if ( update01 || update02 || update03 || update04 ) {
 
-      pn.setADCMeanG1(mean01);
-      pn.setADCRMSG1(rms01);
+        if ( i == 1 ) {
 
-      pn.setPedMeanG1(mean03);
-      pn.setPedRMSG1(rms03);
+          cout << "Preparing dataset for SM=" << ism << endl;
 
-      pn.setADCMeanG16(mean02);
-      pn.setADCRMSG16(rms02);
+          cout << "PNs (" << i << ") G01 " << num01  << " " << mean01 << " " << rms01 << " " << num03 << " " << mean03 << " " << rms03 << endl;
+          cout << "PNs (" << i << ") G16 " << num02  << " " << mean02 << " " << rms02 << " " << num04 << " " << mean04 << " " << rms04 << endl;
 
-      pn.setPedMeanG16(mean04);
-      pn.setPedRMSG16(rms04);
+          cout << endl;
 
-      if ( meg04_[ism-1] && int(meg04_[ism-1]->getBinContent( i, 1 )) % 3 == 1. &&
-           meg05_[ism-1] && int(meg05_[ism-1]->getBinContent( i, 1 )) % 3 == 1. ) {
-        pn.setTaskStatus(true);
-      } else {
-        pn.setTaskStatus(false);
-      }
-
-      status = status && UtilsClient::getBinQual(meg04_[ism-1], i, 1) &&
-                         UtilsClient::getBinQual(meg05_[ism-1], i, 1);
-
-      if ( econn ) {
-        try {
-          ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism), i-1);
-          dataset3[ecid] = pn;
-        } catch (runtime_error &e) {
-          cerr << e.what() << endl;
         }
+
+        pn.setADCMeanG1(mean01);
+        pn.setADCRMSG1(rms01);
+
+        pn.setPedMeanG1(mean03);
+        pn.setPedRMSG1(rms03);
+
+        pn.setADCMeanG16(mean02);
+        pn.setADCRMSG16(rms02);
+
+        pn.setPedMeanG16(mean04);
+        pn.setPedRMSG16(rms04);
+
+        if ( meg04_[ism-1] && int(meg04_[ism-1]->getBinContent( i, 1 )) % 3 == 1. &&
+             meg05_[ism-1] && int(meg05_[ism-1]->getBinContent( i, 1 )) % 3 == 1. ) {
+          pn.setTaskStatus(true);
+        } else {
+          pn.setTaskStatus(false);
+        }
+
+        status = status && UtilsClient::getBinQual(meg04_[ism-1], i, 1) &&
+                           UtilsClient::getBinQual(meg05_[ism-1], i, 1);
+
+        if ( econn ) {
+          try {
+            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalEndcap), i-1);
+            dataset3[ecid] = pn;
+          } catch (runtime_error &e) {
+            cerr << e.what() << endl;
+          }
+        }
+
       }
 
     }
@@ -670,19 +739,13 @@ void EETestPulseClient::subscribe(void){
     mui_->subscribe(histo, ism);
     sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain01/EETPT shape %s G01", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain01/EETPT amplitude error %s G01", Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo, ism);
     sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude %s G06", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
     sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT shape %s G06", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude error %s G06", Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo, ism);
     sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude %s G12", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
     sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT shape %s G12", Numbers::sEE(ism).c_str());
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude error %s G12", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
 
     sprintf(histo, "*/EcalEndcap/EETestPulseTask/PN/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
@@ -733,21 +796,6 @@ void EETestPulseClient::subscribe(void){
       me_hs03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EETestPulseTask/Gain12");
       sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT shape %s G12", Numbers::sEE(ism).c_str());
       mui_->add(me_hs03_[ism-1], histo);
-
-      sprintf(histo, "EETPT amplitude error %s G01", Numbers::sEE(ism).c_str());
-      me_he01_[ism-1] = mui_->collate2D(histo, histo, "EcalEndcap/Sums/EETestPulseTask/Gain01");
-      sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain01/EETPT amplitude error %s G01", Numbers::sEE(ism).c_str());
-      mui_->add(me_he01_[ism-1], histo);
-
-      sprintf(histo, "EETPT amplitude error %s G06", Numbers::sEE(ism).c_str());
-      me_he02_[ism-1] = mui_->collate2D(histo, histo, "EcalEndcap/Sums/EETestPulseTask/Gain06");
-      sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude error %s G06", Numbers::sEE(ism).c_str());
-      mui_->add(me_he02_[ism-1], histo);
-
-      sprintf(histo, "EETPT amplitude error %s G12", Numbers::sEE(ism).c_str());
-      me_he03_[ism-1] = mui_->collate2D(histo, histo, "EcalEndcap/Sums/EETestPulseTask/Gain12");
-      sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude error %s G12", Numbers::sEE(ism).c_str());
-      mui_->add(me_he03_[ism-1], histo);
 
       sprintf(histo, "EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
       me_i01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EETestPulseTask/PN/Gain01");
@@ -826,6 +874,18 @@ void EETestPulseClient::subscribe(void){
       }
     }
 
+    sprintf(histo, "EcalEndcap/EETestPulseTask/EETPT test pulse quality G01 %s", Numbers::sEE(ism).c_str());
+    if ( qtg01_[ism-1] ) mui_->useQTest(histo, qtg01_[ism-1]->getName());
+    sprintf(histo, "EcalEndcap/EETestPulseTask/EETPT test pulse quality G06 %s", Numbers::sEE(ism).c_str());
+    if ( qtg02_[ism-1] ) mui_->useQTest(histo, qtg02_[ism-1]->getName());
+    sprintf(histo, "EcalEndcap/EETestPulseTask/EETPT test pulse quality G12 %s", Numbers::sEE(ism).c_str());
+    if ( qtg03_[ism-1] ) mui_->useQTest(histo, qtg03_[ism-1]->getName());
+
+    sprintf(histo, "EcalEndcap/EETestPulseTask/EETPT test pulse quality PNs G01 %s", Numbers::sEE(ism).c_str());
+    if ( qtg04_[ism-1] ) mui_->useQTest(histo, qtg04_[ism-1]->getName());
+    sprintf(histo, "EcalEndcap/EETestPulseTask/EETPT test pulse quality PNs G16 %s", Numbers::sEE(ism).c_str());
+    if ( qtg05_[ism-1] ) mui_->useQTest(histo, qtg05_[ism-1]->getName());
+
   }
 
 }
@@ -842,19 +902,13 @@ void EETestPulseClient::subscribeNew(void){
     mui_->subscribeNew(histo, ism);
     sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain01/EETPT shape %s G01", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain01/EETPT amplitude error %s G01", Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo, ism);
     sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude %s G06", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
     sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT shape %s G06", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude error %s G06", Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo, ism);
     sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude %s G12", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
     sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT shape %s G12", Numbers::sEE(ism).c_str());
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude error %s G12", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
 
     sprintf(histo, "*/EcalEndcap/EETestPulseTask/PN/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
@@ -892,10 +946,6 @@ void EETestPulseClient::unsubscribe(void){
         mui_->removeCollate(me_hs02_[ism-1]);
         mui_->removeCollate(me_hs03_[ism-1]);
 
-        mui_->removeCollate(me_he01_[ism-1]);
-        mui_->removeCollate(me_he02_[ism-1]);
-        mui_->removeCollate(me_he03_[ism-1]);
-
         mui_->removeCollate(me_i01_[ism-1]);
         mui_->removeCollate(me_i02_[ism-1]);
         mui_->removeCollate(me_i03_[ism-1]);
@@ -917,19 +967,13 @@ void EETestPulseClient::unsubscribe(void){
     mui_->unsubscribe(histo, ism);
     sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain01/EETPT shape %s G01", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain01/EETPT amplitude error %s G01", Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo, ism);
     sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude %s G06", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
     sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT shape %s G06", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude error %s G06", Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo, ism);
     sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude %s G12", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
     sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT shape %s G12", Numbers::sEE(ism).c_str());
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude error %s G12", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
 
     sprintf(histo, "*/EcalEndcap/EETestPulseTask/PN/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
@@ -1050,30 +1094,6 @@ void EETestPulseClient::analyze(void){
     hs03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs03_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain01/EETPT amplitude error %s G01", Numbers::sEE(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/Gain01/EETPT amplitude error %s G01").c_str(), Numbers::sEE(ism).c_str());
-    }
-    me = mui_->get(histo);
-    he01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, he01_[ism-1] );
-
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain06/EETPT amplitude error %s G06", Numbers::sEE(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude error %s G06").c_str(), Numbers::sEE(ism).c_str());
-    }
-    me = mui_->get(histo);
-    he02_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, he02_[ism-1] );
-
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain12/EETPT amplitude error %s G12", Numbers::sEE(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude error %s G12").c_str(), Numbers::sEE(ism).c_str());
-    }
-    me = mui_->get(histo);
-    he03_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, he03_[ism-1] );
-
-    if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/PN/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
     } else {
       sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/PN/Gain01/EEPDT PNs amplitude %s G01").c_str(), Numbers::sEE(ism).c_str());
@@ -1127,8 +1147,8 @@ void EETestPulseClient::analyze(void){
 
     nCry01 = nCry02 = nCry03 = 0;
 
-    for ( int ie = 1; ie <= 85; ie++ ) {
-      for ( int ip = 1; ip <= 20; ip++ ) {
+    for ( int ix = 1; ix <= 50; ix++ ) {
+      for ( int iy = 1; iy <= 50; iy++ ) {
 
         bool update01;
         bool update02;
@@ -1138,9 +1158,9 @@ void EETestPulseClient::analyze(void){
         float mean01, mean02, mean03;
         float rms01, rms02, rms03;
 
-        update01 = UtilsClient::getBinStats(ha01_[ism-1], ie, ip, num01, mean01, rms01);
-        update02 = UtilsClient::getBinStats(ha02_[ism-1], ie, ip, num02, mean02, rms02);
-        update03 = UtilsClient::getBinStats(ha03_[ism-1], ie, ip, num03, mean03, rms03);
+        update01 = UtilsClient::getBinStats(ha01_[ism-1], ix, iy, num01, mean01, rms01);
+        update02 = UtilsClient::getBinStats(ha02_[ism-1], ix, iy, num02, mean02, rms02);
+        update03 = UtilsClient::getBinStats(ha03_[ism-1], ix, iy, num03, mean03, rms03);
 
         if ( update01 ) {
           meanAmpl01 += mean01;
@@ -1164,18 +1184,27 @@ void EETestPulseClient::analyze(void){
     if ( nCry02 > 0 ) meanAmpl02 /= float (nCry02);
     if ( nCry03 > 0 ) meanAmpl03 /= float (nCry03);
 
-    for ( int ie = 1; ie <= 85; ie++ ) {
-      for ( int ip = 1; ip <= 20; ip++ ) {
+    for ( int ix = 1; ix <= 50; ix++ ) {
+      for ( int iy = 1; iy <= 50; iy++ ) {
 	
-        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, 2. );
-        if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, 2. );
-        if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, 2. );
+        if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, -1. );
+        if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, -1. );
+        if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ix, iy, -1. );
+
+        int jx = ix + Numbers::ix0EE(ism);
+        int jy = iy + Numbers::iy0EE(ism);
+
+        if ( Numbers::validEE(ism, 101 - jx, jy) ) {
+          if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, 2. );
+          if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, 2. );
+          if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ix, iy, 2. );
+        }
 
         float numEventsinCry[3] = {0., 0., 0.};
 
-        if ( ha01_[ism-1] ) numEventsinCry[0] = ha01_[ism-1]->GetBinEntries(ha01_[ism-1]->GetBin(ie, ip));
-        if ( ha02_[ism-1] ) numEventsinCry[1] = ha02_[ism-1]->GetBinEntries(ha02_[ism-1]->GetBin(ie, ip));
-        if ( ha03_[ism-1] ) numEventsinCry[2] = ha03_[ism-1]->GetBinEntries(ha03_[ism-1]->GetBin(ie, ip));
+        if ( ha01_[ism-1] ) numEventsinCry[0] = ha01_[ism-1]->GetBinEntries(ha01_[ism-1]->GetBin(ix, iy));
+        if ( ha02_[ism-1] ) numEventsinCry[1] = ha02_[ism-1]->GetBinEntries(ha02_[ism-1]->GetBin(ix, iy));
+        if ( ha03_[ism-1] ) numEventsinCry[2] = ha03_[ism-1]->GetBinEntries(ha03_[ism-1]->GetBin(ix, iy));
 
         bool update01;
         bool update02;
@@ -1185,9 +1214,9 @@ void EETestPulseClient::analyze(void){
         float mean01, mean02, mean03;
         float rms01, rms02, rms03;
 
-        update01 = UtilsClient::getBinStats(ha01_[ism-1], ie, ip, num01, mean01, rms01);
-        update02 = UtilsClient::getBinStats(ha02_[ism-1], ie, ip, num02, mean02, rms02);
-        update03 = UtilsClient::getBinStats(ha03_[ism-1], ie, ip, num03, mean03, rms03);
+        update01 = UtilsClient::getBinStats(ha01_[ism-1], ix, iy, num01, mean01, rms01);
+        update02 = UtilsClient::getBinStats(ha02_[ism-1], ix, iy, num02, mean02, rms02);
+        update03 = UtilsClient::getBinStats(ha03_[ism-1], ix, iy, num03, mean03, rms03);
 
         if ( update01 ) {
 
@@ -1198,18 +1227,18 @@ void EETestPulseClient::analyze(void){
             val = 0.;
           if ( rms01 > RMSThreshold_ )
             val = 0.;
-          if ( he01_[ism-1] && numEventsinCry[0] > 0 ) {
-            float errorRate = he01_[ism-1]->GetBinContent(ie, ip) / numEventsinCry[0];
-            if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
-          }
-          if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, val );
+          if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, val );
 
-          if ( mea01_[ism-1] ) {
-            if ( mean01 > 0. ) {
-              mea01_[ism-1]->setBinContent( ip+20*(ie-1), mean01 );
-              mea01_[ism-1]->setBinError( ip+20*(ie-1), rms01 );
-            } else {
-              mea01_[ism-1]->setEntries( 1.+mea01_[ism-1]->getEntries() );
+          int ic = Numbers::icEE(ism, ix, iy);
+
+          if ( ic != -1 ) {
+            if ( mea01_[ism-1] ) {
+              if ( mean01 > 0. ) {
+                mea01_[ism-1]->setBinContent( ic, mean01 );
+                mea01_[ism-1]->setBinError( ic, rms01 );
+              } else {
+                mea01_[ism-1]->setEntries( 1.+mea01_[ism-1]->getEntries() );
+              }
             }
           }
 
@@ -1224,18 +1253,18 @@ void EETestPulseClient::analyze(void){
             val = 0.;
           if ( rms02 > RMSThreshold_ )
             val = 0.;
-          if ( he02_[ism-1] && numEventsinCry[1] > 0 ) {
-            float errorRate = he02_[ism-1]->GetBinContent(ie, ip) / numEventsinCry[1];
-            if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
-          }
-          if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, val );
+          if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, val );
 
-          if ( mea02_[ism-1] ) {
-            if ( mean02 > 0. ) {
-              mea02_[ism-1]->setBinContent( ip+20*(ie-1), mean02 );
-              mea02_[ism-1]->setBinError( ip+20*(ie-1), rms02 );
-            } else {
-              mea02_[ism-1]->setEntries( 1.+mea02_[ism-1]->getEntries() );
+          int ic = Numbers::icEE(ism, ix, iy);
+
+          if ( ic != -1 ) {
+            if ( mea02_[ism-1] ) {
+              if ( mean02 > 0. ) {
+                mea02_[ism-1]->setBinContent( ic, mean02 );
+                mea02_[ism-1]->setBinError( ic, rms02 );
+              } else {
+                mea02_[ism-1]->setEntries( 1.+mea02_[ism-1]->getEntries() );
+              }
             }
           }
 
@@ -1250,18 +1279,18 @@ void EETestPulseClient::analyze(void){
             val = 0.;
           if ( rms03 > RMSThreshold_ )
             val = 0.;
-          if ( he03_[ism-1] && numEventsinCry[2] > 0 ) {
-            float errorRate = he03_[ism-1]->GetBinContent(ie, ip) / numEventsinCry[2];
-            if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
-          }
-          if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, val );
+          if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ix, iy, val );
 
-          if ( mea03_[ism-1] ) {
-            if ( mean03 > 0. ) {
-              mea03_[ism-1]->setBinContent( ip+20*(ie-1), mean03 );
-              mea03_[ism-1]->setBinError( ip+20*(ie-1), rms03 );
-            } else {
-              mea03_[ism-1]->setEntries( 1.+mea03_[ism-1]->getEntries() );
+          int ic = Numbers::icEE(ism, ix, iy);
+
+          if ( ic != -1 ) {
+            if ( mea03_[ism-1] ) {
+              if ( mean03 > 0. ) {
+                mea03_[ism-1]->setBinContent( ic, mean03 );
+                mea03_[ism-1]->setBinError( ic, rms03 );
+              } else {
+                mea03_[ism-1]->setEntries( 1.+mea03_[ism-1]->getEntries() );
+              }
             }
           }
 
@@ -1273,27 +1302,34 @@ void EETestPulseClient::analyze(void){
           map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
           for (m = mask1.begin(); m != mask1.end(); m++) {
 
+            int jx = ix + Numbers::ix0EE(ism);
+            int jy = iy + Numbers::iy0EE(ism);
+ 
+            if ( ! Numbers::validEE(ism, 101 - jx, jy) ) continue;
+
+            int ic = Numbers::icEE(ism, ix, iy);
+
+            if ( ic == -1 ) continue;
+
             EcalLogicID ecid = m->first;
 
-            int ic = (ip-1) + 20*(ie-1) + 1;
-
-            if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == ic ) {
+            if ( ecid.getID1() == Numbers::iSM(ism, EcalEndcap) && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg01_[ism-1] ) {
-                  float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
-                  meg01_[ism-1]->setBinContent( ie, ip, val+3 );
+                  float val = int(meg01_[ism-1]->getBinContent(ix, iy)) % 3;
+                  meg01_[ism-1]->setBinContent( ix, iy, val+3 );
                 }
               }
               if ( (m->second).getErrorBits() & bits02 ) {
                 if ( meg02_[ism-1] ) {
-                  float val = int(meg02_[ism-1]->getBinContent(ie, ip)) % 3;
-                  meg02_[ism-1]->setBinContent( ie, ip, val+3 );
+                  float val = int(meg02_[ism-1]->getBinContent(ix, iy)) % 3;
+                  meg02_[ism-1]->setBinContent( ix, iy, val+3 );
                 }
               }
               if ( (m->second).getErrorBits() & bits03 ) {
                 if ( meg03_[ism-1] ) {
-                  float val = int(meg03_[ism-1]->getBinContent(ie, ip)) % 3;
-                  meg03_[ism-1]->setBinContent( ie, ip, val+3 );
+                  float val = int(meg03_[ism-1]->getBinContent(ix, iy)) % 3;
+                  meg03_[ism-1]->setBinContent( ix, iy, val+3 );
                 }
               }
             }
@@ -1366,7 +1402,7 @@ void EETestPulseClient::analyze(void){
 
           EcalLogicID ecid = m->first;
 
-          if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == i-1 ) {
+          if ( ecid.getID1() == Numbers::iSM(ism, EcalEndcap) && ecid.getID2() == i-1 ) {
             if ( (m->second).getErrorBits() & (bits01|bits04) ) {
               if ( meg04_[ism-1] ) {
                 float val = int(meg04_[ism-1]->getBinContent(i, 1)) % 3;
@@ -1494,15 +1530,6 @@ void EETestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   int pCol3[6] = { 301, 302, 303, 304, 305, 306 };
 
-  TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
-  for ( int i = 0; i < 68; i++ ) {
-    int a = 2 + ( i/4 ) * 5;
-    int b = 2 + ( i%4 ) * 5;
-    dummy.Fill( a, b, i+1 );
-  }
-  dummy.SetMarkerSize(2);
-  dummy.SetMinimum(0.1);
-
   TH2C dummy1( "dummy1", "dummy1 for sm mem", 10, 0, 10, 5, 0, 5 );
   for ( short i=0; i<2; i++ ) {
     int a = 2 + i*5;
@@ -1514,7 +1541,8 @@ void EETestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   string imgNameQual[3], imgNameAmp[3], imgNameShape[3], imgNameMEPnQual[2], imgNameMEPn[2], imgNameMEPnPed[2], imgNameMEPnPedRms[2], imgName, meName;
 
-  TCanvas* cQual = new TCanvas("cQual", "Temp", 2*csize, csize);
+  TCanvas* cQual = new TCanvas("cQual", "Temp", 2*csize, 2*csize);
+  TCanvas* cQualPN = new TCanvas("cQualPN", "Temp", 2*csize, csize);
   TCanvas* cAmp = new TCanvas("cAmp", "Temp", csize, csize);
   TCanvas* cShape = new TCanvas("cShape", "Temp", csize, csize);
   TCanvas* cPed = new TCanvas("cPed", "Temp", csize, csize);
@@ -1567,14 +1595,21 @@ void EETestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
         cQual->cd();
         gStyle->SetOptStat(" ");
         gStyle->SetPalette(6, pCol3);
-        obj2f->GetXaxis()->SetNdivisions(17);
-        obj2f->GetYaxis()->SetNdivisions(4);
         cQual->SetGridx();
         cQual->SetGridy();
+        obj2f->GetXaxis()->SetLabelSize(0.02);
+        obj2f->GetYaxis()->SetLabelSize(0.02);
         obj2f->SetMinimum(-0.00000001);
         obj2f->SetMaximum(6.0);
         obj2f->Draw("col");
-        dummy.Draw("text,same");
+        cQual->SetBit(TGraph::kClipFrame);
+        TLine l;
+        l.SetLineWidth(1);
+        for ( int i=0; i<201; i=i+1){
+          if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
+            l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
+          }
+        }
         cQual->Update();
         cQual->SaveAs(imgName.c_str());
 
@@ -1710,19 +1745,19 @@ void EETestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
         imgNameMEPnQual[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameMEPnQual[iCanvas-1];
 
-        cQual->cd();
+        cQualPN->cd();
         gStyle->SetOptStat(" ");
         gStyle->SetPalette(6, pCol3);
         obj2f->GetXaxis()->SetNdivisions(10);
         obj2f->GetYaxis()->SetNdivisions(5);
-        cQual->SetGridx();
-        cQual->SetGridy(0);
+        cQualPN->SetGridx();
+        cQualPN->SetGridy(0);
         obj2f->SetMinimum(-0.00000001);
         obj2f->SetMaximum(6.0);
         obj2f->Draw("col");
         dummy1.Draw("text,same");
-        cQual->Update();
-        cQual->SaveAs(imgName.c_str());
+        cQualPN->Update();
+        cQualPN->SaveAs(imgName.c_str());
 
       }
 
@@ -1950,6 +1985,7 @@ void EETestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
   }
 
   delete cQual;
+  delete cQualPN;
   delete cAmp;
   delete cShape;
   delete cPed;

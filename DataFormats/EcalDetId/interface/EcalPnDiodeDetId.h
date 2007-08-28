@@ -2,7 +2,6 @@
 #define ECALDETID_ECALPNDIODEDETID_H
 
 #include <ostream>
-#include <boost/cstdint.hpp>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
@@ -19,7 +18,7 @@
    [9:4]   DCCId (relative to SubDetector. In barrel it is the SupermoduleId from 1-36)
    [3:0]   PnId (In barrel from 1-10 according CMS IN-2005/021)
 
-   $Id: EcalPnDiodeDetId.h,v 1.1 2005/10/07 15:34:19 meridian Exp $
+   $Id: EcalPnDiodeDetId.h,v 1.2 2006/03/14 15:52:54 meridian Exp $
 */
 
 

@@ -8,13 +8,15 @@ void TrackerSeedGenerator::init(const MuonServiceProxy *service)
   theProxyService = service;
 }
 
-void  TrackerSeedGenerator::trackerSeeds(const TrackCand& can, 
-					 const TrackingRegion& region, TrackerSeedGenerator::BTSeedCollection & result)
+TrackerSeedGenerator::BTSeedCollection TrackerSeedGenerator::trackerSeeds(const TrackCand& can, 
+   const TrackingRegion& region)
 {
+  BTSeedCollection result;
   const edm::EventSetup & es = theProxyService->eventSetup();
   run(result, *theEvent, es, region); 
-  return ;
+  return result;
 }
+
 void TrackerSeedGenerator::setEvent(const edm::Event& event)
 {
   theEvent = &event;

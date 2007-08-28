@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2007/04/29 18:13:43 $
- * $Revision: 1.56 $
+ * $Date: 2007/08/09 12:26:57 $
+ * $Revision: 1.58 $
  * \author G. Della Ricca
  *
 */
@@ -73,7 +73,7 @@ void cleanup(void);
 void htmlOutput(int run, string htmlDir, string htmlName);
 
 /// WriteDB
-bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism);
+bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov);
 
 /// Get Functions
 inline int getEvtPerJob() { return ievt_; }
@@ -313,7 +313,6 @@ float amplitudeThresholdPnG16_;
 float pedPnExpectedMean_[2];
 float pedPnDiscrepancyMean_[2];
 float pedPnRMSThreshold_[2];
-
 
 MEContentsTH2FWithinRangeROOT* qtg01_[36];
 MEContentsTH2FWithinRangeROOT* qtg02_[36];

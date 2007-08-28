@@ -19,7 +19,6 @@
 #include "xoap/SOAPBody.h"
 #include "xoap/domutils.h"
 
-
 #include <netinet/in.h>
 #include <sstream>
 
@@ -340,15 +339,10 @@ void BU::I2O_BU_DISCARD_Callback(toolbox::mem::Reference *bufRef)
 void BU::actionPerformed(xdata::Event& e)
 {
   gui_->monInfoSpace()->lock();
-  if (e.type()=="ItemRetrieveEvent") {
-    string item=dynamic_cast<xdata::ItemRetrieveEvent&>(e).itemName();
-    if (item=="mode") {
+  if (e.type()=="urn:xdata-event:ItemGroupRetrieveEvent") {
       mode_=(0==PlaybackRawDataProvider::instance())?"RANDOM":"PLAYBACK";
-    }
-    if (item=="memUsedInMB") {
       if (0!=i2oPool_) memUsedInMB_=i2oPool_->getMemoryUsage().getUsed()*9.53674e-07;
       else             memUsedInMB_=0.0;
-    }
   }
   else if (e.type()=="ItemChangedEvent") {
     string item=dynamic_cast<xdata::ItemChangedEvent&>(e).itemName();
@@ -612,8 +606,6 @@ void BU::exportParameters()
   
   gui_->exportParameters();
 
-  gui_->addItemRetrieveListener("mode",       this);
-  gui_->addItemRetrieveListener("memUsedInMB",this);
   gui_->addItemChangedListener("crc",         this);
   
 }

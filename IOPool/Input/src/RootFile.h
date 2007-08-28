@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.28 2007/06/25 23:22:15 wmtan Exp $
+$Id: RootFile.h,v 1.30 2007/07/26 23:43:54 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -58,6 +58,7 @@ namespace edm {
 
   private:
     void validateFile();
+    void fillEventAuxiliary();
     RootFile(RootFile const&); // disable copy construction
     RootFile & operator=(RootFile const&); // disable assignment
     std::string const file_;
@@ -75,7 +76,6 @@ namespace edm {
     RootTree runTree_;
     RootTreePtrArray treePointers_;
     boost::shared_ptr<ProductRegistry const> productRegistry_;
-    boost::shared_ptr<LuminosityBlockPrincipal> luminosityBlockPrincipal_;
   }; // class RootFile
 
 }

@@ -51,8 +51,9 @@ SiTrivialDigitalConverter::convertRaw(const signal_map_type& analogSignal, edm::
 
 
 int SiTrivialDigitalConverter::truncate(float in_adc) {
- 
-  int adc = int(in_adc);
+
+  //Rounding teh ADC number instaed of truncating it
+  int adc = int(in_adc+0.5);
   /*
     254 ADC: 254<=raw charge < 511
     255 ADC: 512< raw charge < 1023

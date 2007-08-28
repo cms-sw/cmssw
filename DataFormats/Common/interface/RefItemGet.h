@@ -5,7 +5,7 @@
   
 RefItemGet: Free function to get pointer to a referenced item.
 
-$Id: RefItemGet.h,v 1.1 2007/05/15 17:10:24 wmtan Exp $
+$Id: RefItemGet.h,v 1.2 2007/07/09 07:28:49 llista Exp $
 
 ----------------------------------------------------------------------*/
 #include "DataFormats/Common/interface/RefCore.h"
@@ -41,7 +41,11 @@ namespace edm {
   inline
   T const* getPtr(RefCore const& product, RefItem<KEY> const& item) {
     T const* p = static_cast<T const *>(item.ptr());
-    return (p != 0 ? p : getPtr_<C, T, F>(product, item));
+    if(0==p){
+      p=getPtr_<C, T, F>(product,item);
+      item.setPtr(p);
+    }
+    return p;
   }
 }
 

@@ -68,6 +68,8 @@ void EcalBarrelRecHitsMaker::loadEcalBarrelRecHits(edm::Event &iEvent,EBRecHitCo
   unsigned nhit=theFiredCells_.size();
   //  std::cout << " loadEcalBarrelRecHits " << nhit << std::endl;
   unsigned gain, adc;
+  ecalDigis.reserve(nhit);
+  ecalHits.reserve(nhit);
   for(unsigned ihit=0;ihit<nhit;++ihit)
     {      
       unsigned icell = theFiredCells_[ihit];

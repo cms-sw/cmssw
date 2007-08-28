@@ -5,7 +5,6 @@
 #if 1
 #include "DataFormats/TestObjects/interface/StreamTestThing.h"
 #include "DataFormats/TestObjects/interface/StreamTestTmpl.h"
-#include "DataFormats/TestObjects/interface/StreamTestSimple.h"
 typedef edmtestprod::StreamTestThing WriteThis;
 #else
 #include "FWCore/Integration/interface/IntArray.h"
@@ -13,6 +12,7 @@ typedef edmtestprod::IntArray WriteThis;
 #endif
 
 #include "IOPool/Streamer/test/StreamThingProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h" 
 
 #include <sstream>
 

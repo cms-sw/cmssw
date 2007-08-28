@@ -503,10 +503,10 @@ std::ostream& reco::operator<<(std::ostream& out,
      <<"\tenergy: "<<cluster.energy()
      <<"\tpos: "
      <<pos.Rho()<<","<<pos.Eta()<<","<<pos.Phi()<<" | "
-     <<fracs.size()<<" rechits";
-//     for(unsigned i=0; i<fracs.size(); i++) {
-//       out<<fracs[i]<<", ";
-//     }
+     <<fracs.size()<<" rechits: ";
+    for(unsigned i=0; i<fracs.size(); i++) {
+      out<<fracs[i]<<", ";
+    }
 
   return out;
 }

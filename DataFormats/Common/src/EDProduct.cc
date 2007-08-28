@@ -1,12 +1,11 @@
 /*----------------------------------------------------------------------
   
-$Id: EDProduct.cc,v 1.5 2007/05/16 22:32:00 paterno Exp $
+$Id: EDProduct.cc,v 1.6 2007/07/09 07:28:51 llista Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
-#include "DataFormats/Common/interface/RefVectorHolderBase.h"
 
 namespace edm {
   EDProduct::EDProduct() {}

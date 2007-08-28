@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2007/05/31 07:20:01 $
- * $Revision: 1.37 $
+ * $Date: 2007/07/25 07:02:46 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  *
 */
@@ -265,6 +265,8 @@ void EBTriggerTowerTask::endJob(void){
 
 void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
 
+  Numbers::initGeometry(c);
+
   if ( ! init_ ) this->setup();
 
   ievt_++;
@@ -389,17 +391,18 @@ EBTriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
       else {
 	good = false;
 	goodFlag = false;
+	goodVeto = false;
 	str<<"could not find corresponding digi... "<<endl;
       }
       if(!good ) {
 	if ( meEmulError_[ismt-1] ) meEmulError_[ismt-1]->Fill(xiet-1, xipt-1);
       }
       if(!goodFlag) {
-	float zval = compDigiItr->ttFlag();
+	float zval = data.ttFlag();
 	if ( meFlagEmulError_[ismt-1] ) meFlagEmulError_[ismt-1]->Fill(xiet-1, xipt-1, zval);
       }
       if(!goodVeto) {
-	float zval = compDigiItr->fineGrain();
+	float zval = data.fineGrain();
 	if ( meVetoEmulError_[ismt-1] ) meVetoEmulError_[ismt-1]->Fill(xiet-1, xipt-1, zval);
       }
     }

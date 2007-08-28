@@ -35,6 +35,7 @@ This package contains standard configuration fragments (*.cff) for most common u
  - MixingHighLumiPileUp.cff: piles up 25.0 events on average (Poisson statistics), in bunches from -5 to +3.
 
 - \c Additional includes (for HLT/OnSel MC production) 
+ - HLTtable.cff: High-Level Trigger table in form of paths
  - MixingLowLumiPileUp_OnSel.cff: piles up 5.0 events on average (Poisson statistics), IN-TIME PU (for OnSel/HLT studies)
  - MixingLowLumiPileUp_OnSel.cff: piles up 25.0 events on average (Poisson statistics), IN-TIME PU (for OnSel/HLT studies)
  - MixingStartUpLumiPileUp_OnSel.cff: piles up 2.0 events on average (Poisson statistics), IN-TIME PU (for OnSel/HLT studies)

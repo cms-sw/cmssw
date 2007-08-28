@@ -8,13 +8,16 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Wed Jul 26 14:42:56 EDT 2006
-// $Id: L1ParticleMap.cc,v 1.22 2007/07/04 16:23:21 wsun Exp $
+// $Id: L1ParticleMap.cc,v 1.26 2007/08/08 03:49:04 wsun Exp $
 //
 
 // system include files
 
 // user include files
 #include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
+// #include "DataFormats/L1Trigger/interface/L1EmParticle.h" 
+// #include "DataFormats/L1Trigger/interface/L1JetParticle.h" 
+// #include "DataFormats/L1Trigger/interface/L1MuonParticle.h" 
 
 using namespace l1extra ;
 
@@ -73,11 +76,14 @@ L1ParticleMap::triggerNames_[ kNumOfL1TriggerTypes ] = {
    "L1_HTT300",
    "L1_HTT400",
    "L1_HTT500",
+//    "L1_ETM10",
+//    "L1_ETM15",
    "L1_ETM20",
    "L1_ETM30",
    "L1_ETM40",
    "L1_ETM50",
    "L1_ETM60",
+//    "L1_ETT60",
    "L1_DoubleMu3",
    "L1_DoubleIsoEG8",
    "L1_DoubleIsoEG10",
@@ -144,10 +150,11 @@ L1ParticleMap::triggerNames_[ kNumOfL1TriggerTypes ] = {
    "L1_DoubleJet50_ETM20",
    "L1_DoubleTauJet40_ETM20",
    "L1_QuadJet30",
+//    "L1_ExclusiveDoubleIsoEG4", 
    "L1_ExclusiveDoubleIsoEG6", 
-   "L1_ExclusiveDoubleJet10", 
-   "L1_ExclusiveJet20_Gap_Jet20", 
-   "L1_IsoEG15_Jet20_ForJet10",
+   "L1_ExclusiveDoubleJet60", 
+   "L1_ExclusiveJet25_Gap_Jet25", 
+   "L1_IsoEG10_Jet20_ForJet10",
    "L1_MinBias_HTT10",
    "L1_ZeroBias"
 } ;

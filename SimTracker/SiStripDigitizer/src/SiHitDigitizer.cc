@@ -30,7 +30,6 @@ SiHitDigitizer::SiHitDigitizer(const edm::ParameterSet& conf,CLHEP::HepRandomEng
   
   theSiChargeCollectionDrifter = 
     new SiLinearChargeCollectionDrifter(diffusionConstant,
-					temperature,
 					chargeDistributionRMS,
 					depletionVoltage,
 					appliedVoltage);

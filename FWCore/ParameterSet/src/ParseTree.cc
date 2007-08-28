@@ -20,11 +20,17 @@ namespace edm {
   namespace pset {
 
     bool ParseTree::strict_ = false;
+    bool ParseTree::doReplaces_ = true;
 
     /// set the (static) strictness
     void ParseTree::setStrictParsing(bool strict)
     {
       strict_ = strict;
+    }
+
+    void ParseTree::doReplaces(bool doOrNotDo)
+    {
+      doReplaces_ = doOrNotDo;
     }
 
     ParseTree::ParseTree(const string & configString)
@@ -124,7 +130,7 @@ namespace edm {
       std::list<std::string> openFiles;
       std::list<std::string> sameLevelIncludes;
       topLevelNode->resolve(openFiles, sameLevelIncludes, strict_);
-      // make the final backwards linksa.  Needed?
+      // make the final backwards links.  Needed?
       //processNode->setAsChildrensParent();
 
       NodePtrListPtr contents = topLevelNode->nodes();
@@ -153,11 +159,15 @@ namespace edm {
           processRenameNode(*nodeItr, blocks_);
         }
 
-        // now replace nodes
-        for(NodePtrList::iterator nodeItr = blockReplaceNodes_.begin(), nodeItrEnd = blockReplaceNodes_.end();
-            nodeItr != nodeItrEnd; ++nodeItr)
+        if(doReplaces_)
         {
-          processReplaceNode(*nodeItr, blocks_);
+          // now replace nodes
+          for(NodePtrList::iterator nodeItr = blockReplaceNodes_.begin(), 
+              nodeItrEnd = blockReplaceNodes_.end();
+              nodeItr != nodeItrEnd; ++nodeItr)
+          {
+            processReplaceNode(*nodeItr, blocks_);
+          }
         }
 
         // NOTE: We only bother inlining the Using blocks
@@ -179,18 +189,24 @@ namespace edm {
           processRenameNode(*nodeItr, modulesAndSources_);
         }
 
-        // now replace nodes
-        for(NodePtrList::iterator nodeItr = replaceNodes_.begin(), nodeItrEnd = replaceNodes_.end();
-            nodeItr != nodeItrEnd; ++nodeItr)
+        if(doReplaces_)
         {
-          processReplaceNode(*nodeItr, modulesAndSources_);
+          // now replace nodes
+          for(NodePtrList::iterator nodeItr = replaceNodes_.begin(), 
+              nodeItrEnd = replaceNodes_.end();
+              nodeItr != nodeItrEnd; ++nodeItr)
+          {
+            processReplaceNode(*nodeItr, modulesAndSources_);
+          }
         }
-
-        // reassemble(contents);
       }
 
       // check for duplicate names
-      validate();
+      // if replaces aren't being used, this might fail, so disable
+      if(doReplaces_)
+      {
+        validate();
+      }
     }
 
 
@@ -519,8 +535,16 @@ namespace edm {
         string topLevel = tokenize((**modifierItr).name(), ".")[0];
         if(blocks_.find(topLevel) != blocks_.end())
         {
-          blockModifiers.push_back(*modifierItr);
-          modifierNodes.erase(modifierItr);
+          if(strict_)
+          {
+            throw edm::Exception(errors::Configuration)
+              << "Strict parsing disallows modifying blocks";
+          }
+          else 
+          {
+            blockModifiers.push_back(*modifierItr);
+            modifierNodes.erase(modifierItr);
+          }
         }
         modifierItr = next;
       }
@@ -588,15 +612,6 @@ namespace edm {
    
     void ParseTree::validate() const
     {
-//      for(NodePtrMap::const_iterator moduleMapItr = modulesAndSources_.begin(),
-//          moduleMapItrEnd = modulesAndSources_.end();
-//          moduleMapItr != moduleMapItrEnd; ++moduleMapItr)
-//      {
-//        CompositeNode * compositeNode
-//          = dynamic_cast<CompositeNode*>(moduleMapItr->second.get());
-//        assert(compositeNode != 0);
-//        compositeNode->validate();
-//      }
       top()->validate();
     }
 

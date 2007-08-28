@@ -32,6 +32,7 @@ namespace edm {
       virtual BaseHolder<T>* clone() const;
       virtual T const* getPtr() const;
       virtual ProductID id() const;
+      virtual size_t key() const;
       virtual bool isEqualTo(BaseHolder<T> const& rhs) const;
 
       virtual bool fillRefIfMyTypeMatches(RefHolderBase& fillme,
@@ -103,6 +104,13 @@ namespace edm {
     IndirectHolder<T>::id() const
     {
       return helper_->id();
+    }
+
+    template <class T>
+    size_t
+    IndirectHolder<T>::key() const
+    {
+      return helper_->key();
     }
 
     template <class T>

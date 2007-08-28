@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2007/05/21 09:57:46 $
- * $Revision: 1.8 $
+ * $Date: 2007/08/14 17:44:47 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -20,8 +20,8 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDigi/interface/EBDataFrame.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -35,8 +35,6 @@ using namespace edm;
 using namespace std;
 
 EETimingTask::EETimingTask(const ParameterSet& ps){
-
-  Numbers::maxSM = 18;
 
   init_ = false;
 
@@ -79,7 +77,7 @@ void EETimingTask::setup(void){
 
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EETMT timing %s", Numbers::sEE(i+1).c_str());
-      meTimeMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
+      meTimeMap_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
       dbe_->tag(meTimeMap_[i], i+1);
     }
 
@@ -115,6 +113,8 @@ void EETimingTask::endJob(void){
 
 void EETimingTask::analyze(const Event& e, const EventSetup& c){
 
+  Numbers::initGeometry(c);
+
   if ( ! init_ ) this->setup();
 
   ievt_++;
@@ -130,19 +130,18 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
     for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
       EcalUncalibratedRecHit hit = (*hitItr);
-      EBDetId id = hit.id();
+      EEDetId id = hit.id();
 
-      int ic = id.ic();
-      int ie = (ic-1)/20 + 1;
-      int ip = (ic-1)%20 + 1;
+      int ix = 101 - id.ix();
+      int iy = id.iy();
 
-      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( id );
 
-      float xie = ie - 0.5;
-      float xip = ip - 0.5;
+      float xix = ix - 0.5;
+      float xiy = iy - 0.5;
 
       LogDebug("EETimingTask") << " det id = " << id;
-      LogDebug("EETimingTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      LogDebug("EETimingTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
 
       MonitorElement* meTimeMap = 0;
 
@@ -150,7 +149,7 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
 
       float xval = hit.amplitude();
       if ( xval <= 0. ) xval = 0.0;
-      float yval = hit.jitter();
+      float yval = hit.jitter() + 6.0;
       if ( yval <= 0. ) yval = 0.0;
       float zval = hit.pedestal();
       if ( zval <= 0. ) zval = 0.0;
@@ -159,7 +158,7 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
       LogDebug("EETimingTask") << " hit jitter " << yval;
       LogDebug("EETimingTask") << " hit pedestal " << zval;
 
-      if ( meTimeMap ) meTimeMap->Fill(xie, xip, yval);
+      if ( meTimeMap ) meTimeMap->Fill(xix, xiy, yval);
 
     }
 

@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2007/05/22 09:53:47 $
- * $Revision: 1.48 $
+ * $Date: 2007/08/09 12:24:18 $
+ * $Revision: 1.50 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -253,80 +253,89 @@ void EBBeamCaloClient::cleanup(void) {
   meEBBCaloRedGreenSteps_ = 0;
 }
 
-bool EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism) {
+bool EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
 
   bool status = true;
 
   EcalLogicID ecid;
+
   MonOccupancyDat o;
   map<EcalLogicID, MonOccupancyDat> dataset;
 
-  const float n_min_tot = 1000.;
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
-  float num01, num02;
-  float mean01;
+    int ism = superModules_[i];
 
-  for ( int ie = 1; ie <= 85; ie++ ) {
-    for ( int ip = 1; ip <= 20; ip++ ) {
+    cout << " SM=" << ism << endl;
 
-      num01 = num02 = -1.;
-      mean01 = -1.;
+    const float n_min_tot = 1000.;
 
-      bool update_channel = false;
+    float num01, num02;
+    float mean01;
 
-      if ( hBCryOnBeam_ && hBCryOnBeam_->GetEntries() >= n_min_tot ) {
-        num01 = hBCryOnBeam_->GetBinContent(ie, ip);
-        update_channel = true;
-      }
+    for ( int ie = 1; ie <= 85; ie++ ) {
+      for ( int ip = 1; ip <= 20; ip++ ) {
 
-      if ( hBMaxEneCry_ && hBMaxEneCry_->GetEntries() >= n_min_tot ) {
-        num02 = hBMaxEneCry_->GetBinContent(ie, ip);
-        update_channel = true;
-      }
+        num01 = num02 = -1.;
+        mean01 = -1.;
 
-      mean01 = 0.;
-      //int cry = ip+20*(ie-1);
-      int ic = (ip-1) + 20*(ie-1) + 1;
-      int step = 0;
-      if (hBcryDone_){ step = (int) hBcryDone_->GetBinContent(ic);}
-      if( step > 0 && step < 86){
+        bool update_channel = false;
+
+        if ( hBCryOnBeam_ && hBCryOnBeam_->GetEntries() >= n_min_tot ) {
+          num01 = hBCryOnBeam_->GetBinContent(ie, ip);
+          update_channel = true;
+        }
+
+        if ( hBMaxEneCry_ && hBMaxEneCry_->GetEntries() >= n_min_tot ) {
+          num02 = hBMaxEneCry_->GetBinContent(ie, ip);
+          update_channel = true;
+        }
+
+        mean01 = 0.;
+        //int cry = ip+20*(ie-1);
+        int ic = (ip-1) + 20*(ie-1) + 1;
+        int step = 0;
+        if (hBcryDone_){ step = (int) hBcryDone_->GetBinContent(ic);}
+        if( step > 0 && step < 86){
 	//if(hBE3x3vsCry_){mean01 = hBE3x3vsCry_->GetBinContent(step);}// E in the 3x3
 	if( hBE1vsCry_ ){mean01 = hBE1vsCry_->GetBinContent(ic);} // E1
-      }
-      //if(mean01 >0){cout<<"cry: "<<ic<<" ie: "<<ie<<" ip: "<<ip<<" mean: "<< mean01<<endl;}
+        }
+        //if(mean01 >0){cout<<"cry: "<<ic<<" ie: "<<ie<<" ip: "<<ip<<" mean: "<< mean01<<endl;}
 
-      if ( update_channel ) {
+        if ( update_channel ) {
 
-        if ( ie == 1 && ip == 1 ) {
+          if ( ie == 1 && ip == 1 ) {
 	//if ( mean01 !=0) {
 
-          cout << "Preparing dataset for SM=" << ism << endl;
+            cout << "Preparing dataset for SM=" << ism << endl;
 
-          cout << "CryOnBeam (" << ie << "," << ip << ") " << num01  << endl;
-          cout << "MaxEneCry (" << ie << "," << ip << ") " << num02  << endl;
+            cout << "CryOnBeam (" << ie << "," << ip << ") " << num01  << endl;
+            cout << "MaxEneCry (" << ie << "," << ip << ") " << num02  << endl;
 	  cout << "E1 ("        << ie << "," << ip << ") " << mean01 << endl;
 
-          cout << endl;
+            cout << endl;
 
-        }
-
-        o.setEventsOverHighThreshold(int(num01));
-        o.setEventsOverLowThreshold(int(num02));
-
-        o.setAvgEnergy(mean01);
-
-        if ( econn ) {
-          try {
-            ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
-            dataset[ecid] = o;
-          } catch (runtime_error &e) {
-            cerr << e.what() << endl;
           }
+
+          o.setEventsOverHighThreshold(int(num01));
+          o.setEventsOverLowThreshold(int(num02));
+
+          o.setAvgEnergy(mean01);
+
+          if ( econn ) {
+            try {
+              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
+              dataset[ecid] = o;
+            } catch (runtime_error &e) {
+              cerr << e.what() << endl;
+            }
+          }
+
         }
 
       }
-
     }
+
   }
 
   if ( econn ) {

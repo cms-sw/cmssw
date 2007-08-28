@@ -19,7 +19,7 @@
 //         Created:  Fri Nov 11 16:38:19 CST 2005
 //     Major Split:  Tue Feb 14 15:00:00 CST 2006
 //			See FWCore/MessageLogger/MessageLogger.h
-// $Id: MessageLogger.h,v 1.7 2007/03/31 00:16:42 fischler Exp $
+// $Id: MessageLogger.h,v 1.8 2007/06/25 23:22:14 wmtan Exp $
 //
 
 // system include files
@@ -34,7 +34,6 @@
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 

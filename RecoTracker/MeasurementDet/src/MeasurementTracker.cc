@@ -62,6 +62,24 @@ MeasurementTracker::MeasurementTracker(const edm::ParameterSet&              con
   this->initializeStripNoises(stripNoises);
 }
 
+MeasurementTracker::~MeasurementTracker()
+{
+  if (dummyStripNoises) delete dummyStripNoises;
+
+  for(vector<TkPixelMeasurementDet*>::const_iterator it=thePixelDets.begin(); it!=thePixelDets.end(); ++it){
+    delete *it;
+  }
+
+  for(vector<TkStripMeasurementDet*>::const_iterator it=theStripDets.begin(); it!=theStripDets.end(); ++it){
+    delete *it;
+  }
+
+  for(vector<TkGluedMeasurementDet*>::const_iterator it=theGluedDets.begin(); it!=theGluedDets.end(); ++it){
+    delete *it;
+  }
+}
+
+
 void MeasurementTracker::initialize() const
 {  
   addPixelDets( theTrackerGeom->detsPXB());

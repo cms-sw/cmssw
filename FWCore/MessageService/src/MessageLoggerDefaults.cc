@@ -12,7 +12,6 @@
 
 
 #include "FWCore/MessageService/interface/MessageLoggerDefaults.h"
-#include <string>
 
 namespace edm {
 namespace service {

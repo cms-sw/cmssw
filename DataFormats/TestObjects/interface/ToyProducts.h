@@ -15,6 +15,7 @@ Toy EDProducts for testing purposes only.
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 
 namespace edmtest
 {
@@ -123,5 +124,7 @@ namespace edmtest
   typedef edm::DetSetVector<Sortable>   DSVSimpleProduct;
   typedef edm::DetSetVector<Unsortable> DSVWeirdProduct;
 
+  typedef edmNew::DetSetVector<Sortable>      DSTVSimpleProduct;
+  typedef edmNew::DetSetVector<SimpleDerived> DSTVSimpleDerivedProduct;
 }
 #endif

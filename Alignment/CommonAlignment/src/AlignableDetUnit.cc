@@ -10,7 +10,6 @@ AlignableDetUnit::AlignableDetUnit( const GeomDet* geomDet ) :
   Alignable(geomDet),
   theAlignmentPositionError(0)
 {
-  theDeepComponents.push_back(this);
 }
 
 //__________________________________________________________________________________________________

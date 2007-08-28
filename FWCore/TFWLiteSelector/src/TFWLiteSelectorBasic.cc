@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 27 17:58:10 EDT 2006
-// $Id: TFWLiteSelectorBasic.cc,v 1.22 2007/07/18 13:22:46 marafino Exp $
+// $Id: TFWLiteSelectorBasic.cc,v 1.28 2007/08/08 21:51:28 wmtan Exp $
 //
 
 // system include files
@@ -26,7 +26,7 @@
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Common/interface/EDProduct.h"
-#include "DataFormats/Common/interface/Wrapper.h"
+#include "FWCore/Utilities/interface/WrappedClassName.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
@@ -34,10 +34,12 @@
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/Framework/interface/RunPrincipal.h"
 namespace edm {
   namespace root {
     class FWLiteDelayedReader : public DelayedReader {
@@ -265,8 +267,14 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
 	 m_->reader_->setEntry(iEntry);
 	 edm::ProcessConfiguration pc;
 	 boost::shared_ptr<edm::ProductRegistry const> reg(&m_->reg_);
-	 edm::EventPrincipal ep(aux.id(), aux.time(), reg,
-	     1, pc, true, edm::EventAuxiliary::Unspecified, aux.processHistoryID(), m_->reader_);
+	 boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(aux.run(), aux.time(), aux.time(), reg, pc));
+	 boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(1, aux.time(), aux.time(), reg, rp, pc));
+	 edm::EventPrincipal ep(aux.id(), aux.time(), reg, lbp, pc, true,
+				edm::EventAuxiliary::Any,
+                                edm::EventPrincipal::invalidBunchXing,
+				edm::EventPrincipal::invalidStoreNumber,
+			        aux.processHistoryID(),
+				m_->reader_);
          m_->processNames_ = ep.processHistory();
 
 	 using namespace edm;

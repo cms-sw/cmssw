@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/06/12 18:18:05 $
- * $Revision: 1.147 $
+ * $Date: 2007/08/09 12:24:18 $
+ * $Revision: 1.149 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -525,92 +525,95 @@ void EBPedestalClient::cleanup(void) {
 
 }
 
-bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism) {
+bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
 
   bool status = true;
 
-  UtilsClient::printBadChannels(qth01_[ism-1]);
-  UtilsClient::printBadChannels(qth02_[ism-1]);
-  UtilsClient::printBadChannels(qth03_[ism-1]);
-
-  UtilsClient::printBadChannels(qth04_[ism-1]);
-  UtilsClient::printBadChannels(qth05_[ism-1]);
-
-//  UtilsClient::printBadChannels(qtg01_[ism-1]);
-//  UtilsClient::printBadChannels(qtg02_[ism-1]);
-//  UtilsClient::printBadChannels(qtg03_[ism-1]);
-
-//  UtilsClient::printBadChannels(qtg04_[ism-1]);
-//  UtilsClient::printBadChannels(qtg05_[ism-1]);
-
   EcalLogicID ecid;
+
   MonPedestalsDat p;
   map<EcalLogicID, MonPedestalsDat> dataset1;
 
-  for ( int ie = 1; ie <= 85; ie++ ) {
-    for ( int ip = 1; ip <= 20; ip++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
-      bool update01;
-      bool update02;
-      bool update03;
+    int ism = superModules_[i];
 
-      float num01, num02, num03;
-      float mean01, mean02, mean03;
-      float rms01, rms02, rms03;
+    cout << " SM=" << ism << endl;
 
-      update01 = UtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
-      update02 = UtilsClient::getBinStats(h02_[ism-1], ie, ip, num02, mean02, rms02);
-      update03 = UtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
+    UtilsClient::printBadChannels(qth01_[ism-1]);
+    UtilsClient::printBadChannels(qth02_[ism-1]);
+    UtilsClient::printBadChannels(qth03_[ism-1]);
 
-      if ( update01 || update02 || update03 ) {
+//    UtilsClient::printBadChannels(qtg01_[ism-1]);
+//    UtilsClient::printBadChannels(qtg02_[ism-1]);
+//    UtilsClient::printBadChannels(qtg03_[ism-1]);
 
-        if ( ie == 1 && ip == 1 ) {
+    for ( int ie = 1; ie <= 85; ie++ ) {
+      for ( int ip = 1; ip <= 20; ip++ ) {
 
-          cout << "Preparing dataset for SM=" << ism << endl;
+        bool update01;
+        bool update02;
+        bool update03;
 
-          cout << "G01 (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << endl;
-          cout << "G06 (" << ie << "," << ip << ") " << num02  << " " << mean02 << " " << rms02  << endl;
-          cout << "G12 (" << ie << "," << ip << ") " << num03  << " " << mean03 << " " << rms03  << endl;
+        float num01, num02, num03;
+        float mean01, mean02, mean03;
+        float rms01, rms02, rms03;
 
-          cout << endl;
+        update01 = UtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
+        update02 = UtilsClient::getBinStats(h02_[ism-1], ie, ip, num02, mean02, rms02);
+        update03 = UtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
 
-        }
+        if ( update01 || update02 || update03 ) {
 
-        p.setPedMeanG1(mean01);
-        p.setPedRMSG1(rms01);
+          if ( ie == 1 && ip == 1 ) {
 
-        p.setPedMeanG6(mean02);
-        p.setPedRMSG6(rms02);
+            cout << "Preparing dataset for SM=" << ism << endl;
 
-        p.setPedMeanG12(mean03);
-        p.setPedRMSG12(rms03);
+            cout << "G01 (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << endl;
+            cout << "G06 (" << ie << "," << ip << ") " << num02  << " " << mean02 << " " << rms02  << endl;
+            cout << "G12 (" << ie << "," << ip << ") " << num03  << " " << mean03 << " " << rms03  << endl;
 
-        if ( meg01_[ism-1] && int(meg01_[ism-1]->getBinContent( ie, ip )) % 3 == 1. &&
-             meg02_[ism-1] && int(meg02_[ism-1]->getBinContent( ie, ip )) % 3 == 1. &&
-             meg03_[ism-1] && int(meg03_[ism-1]->getBinContent( ie, ip )) % 3 == 1. ) {
-          p.setTaskStatus(true);
-        } else {
-          p.setTaskStatus(false);
-        }
+            cout << endl;
 
-        status = status && UtilsClient::getBinQual(meg01_[ism-1], ie, ip) &&
-                           UtilsClient::getBinQual(meg02_[ism-1], ie, ip) &&
-                           UtilsClient::getBinQual(meg03_[ism-1], ie, ip);
-
-        int ic = (ip-1) + 20*(ie-1) + 1;
-
-        if ( econn ) {
-          try {
-            ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
-            dataset1[ecid] = p;
-          } catch (runtime_error &e) {
-            cerr << e.what() << endl;
           }
+
+          p.setPedMeanG1(mean01);
+          p.setPedRMSG1(rms01);
+
+          p.setPedMeanG6(mean02);
+          p.setPedRMSG6(rms02);
+
+          p.setPedMeanG12(mean03);
+          p.setPedRMSG12(rms03);
+
+          if ( meg01_[ism-1] && int(meg01_[ism-1]->getBinContent( ie, ip )) % 3 == 1. &&
+               meg02_[ism-1] && int(meg02_[ism-1]->getBinContent( ie, ip )) % 3 == 1. &&
+               meg03_[ism-1] && int(meg03_[ism-1]->getBinContent( ie, ip )) % 3 == 1. ) {
+            p.setTaskStatus(true);
+          } else {
+            p.setTaskStatus(false);
+          }
+
+          status = status && UtilsClient::getBinQual(meg01_[ism-1], ie, ip) &&
+                             UtilsClient::getBinQual(meg02_[ism-1], ie, ip) &&
+                             UtilsClient::getBinQual(meg03_[ism-1], ie, ip);
+
+          int ic = (ip-1) + 20*(ie-1) + 1;
+
+          if ( econn ) {
+            try {
+              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
+              dataset1[ecid] = p;
+            } catch (runtime_error &e) {
+              cerr << e.what() << endl;
+            }
+          }
+
         }
 
       }
-
     }
+
   }
 
   if ( econn ) {
@@ -623,57 +626,73 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
     }
   }
 
+  cout << endl;
+
   MonPNPedDat pn;
   map<EcalLogicID, MonPNPedDat> dataset2;
 
-  for ( int i = 1; i <= 10; i++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
-    bool update01;
-    bool update02;
+    int ism = superModules_[i];
 
-    float num01, num02;
-    float mean01, mean02;
-    float rms01, rms02;
+    cout << " SM=" << ism << endl;
 
-    update01 = UtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
-    update02 = UtilsClient::getBinStats(i02_[ism-1], 1, i, num02, mean02, rms02);
+    UtilsClient::printBadChannels(qth04_[ism-1]);
+    UtilsClient::printBadChannels(qth05_[ism-1]);
 
-    if ( update01 || update02 ) {
+//    UtilsClient::printBadChannels(qtg04_[ism-1]);
+//    UtilsClient::printBadChannels(qtg05_[ism-1]);
 
-      if ( i == 1 ) {
+    for ( int i = 1; i <= 10; i++ ) {
 
-        cout << "Preparing dataset for SM=" << ism << endl;
+      bool update01;
+      bool update02;
 
-        cout << "PNs (" << i << ") G01 " << num01  << " " << mean01 << " " << rms01  << endl;
-        cout << "PNs (" << i << ") G16 " << num01  << " " << mean01 << " " << rms01  << endl;
+      float num01, num02;
+      float mean01, mean02;
+      float rms01, rms02;
 
-        cout << endl;
+      update01 = UtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
+      update02 = UtilsClient::getBinStats(i02_[ism-1], 1, i, num02, mean02, rms02);
 
-      }
+      if ( update01 || update02 ) {
 
-      pn.setPedMeanG1(mean01);
-      pn.setPedRMSG1(rms01);
+        if ( i == 1 ) {
 
-      pn.setPedMeanG16(mean02);
-      pn.setPedRMSG16(rms02);
+          cout << "Preparing dataset for SM=" << ism << endl;
 
-      if ( meg04_[ism-1] && int(meg04_[ism-1]->getBinContent( i, 1 )) % 3 == 1. &&
-           meg05_[ism-1] && int(meg05_[ism-1]->getBinContent( i, 1 )) % 3 == 1. ) {
-        pn.setTaskStatus(true);
-      } else {
-        pn.setTaskStatus(false);
-      }
+          cout << "PNs (" << i << ") G01 " << num01  << " " << mean01 << " " << rms01  << endl;
+          cout << "PNs (" << i << ") G16 " << num01  << " " << mean01 << " " << rms01  << endl;
 
-      status = status && UtilsClient::getBinQual(meg04_[ism-1], i, 1) &&
-                         UtilsClient::getBinQual(meg05_[ism-1], i, 1);
+          cout << endl;
 
-      if ( econn ) {
-        try {
-          ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism), i-1);
-          dataset2[ecid] = pn;
-        } catch (runtime_error &e) {
-          cerr << e.what() << endl;
         }
+
+        pn.setPedMeanG1(mean01);
+        pn.setPedRMSG1(rms01);
+
+        pn.setPedMeanG16(mean02);
+        pn.setPedRMSG16(rms02);
+
+        if ( meg04_[ism-1] && int(meg04_[ism-1]->getBinContent( i, 1 )) % 3 == 1. &&
+             meg05_[ism-1] && int(meg05_[ism-1]->getBinContent( i, 1 )) % 3 == 1. ) {
+          pn.setTaskStatus(true);
+        } else {
+          pn.setTaskStatus(false);
+        }
+
+        status = status && UtilsClient::getBinQual(meg04_[ism-1], i, 1) &&
+                           UtilsClient::getBinQual(meg05_[ism-1], i, 1);
+
+        if ( econn ) {
+          try {
+            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalBarrel), i-1);
+            dataset2[ecid] = pn;
+          } catch (runtime_error &e) {
+            cerr << e.what() << endl;
+          }
+        }
+
       }
 
     }
@@ -1200,7 +1219,7 @@ void EBPedestalClient::analyze(void){
 
             int ic = (ip-1) + 20*(ie-1) + 1;
 
-            if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == ic ) {
+            if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg01_[ism-1] ) {
                   float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
@@ -1286,7 +1305,7 @@ void EBPedestalClient::analyze(void){
 
           EcalLogicID ecid = m->first;
 
-          if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == i-1 ) {
+          if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == i-1 ) {
             if ( (m->second).getErrorBits() & bits01 ) {
               if ( meg04_[ism-1] ) {
                 float val = int(meg04_[ism-1]->getBinContent(i, 1)) % 3;
@@ -1363,9 +1382,25 @@ void EBPedestalClient::analyze(void){
         float z3val02;
         float z3val03;
 
+        float x5val01;
+        float x5val02;
+        float x5val03;
+
+        float y5val01;
+        float y5val02;
+        float y5val03;
+
+        float z5val01;
+        float z5val02;
+        float z5val03;
+
         if ( mes01_[ism-1] ) mes01_[ism-1]->setBinContent(ie, ip, -999.);
         if ( mes02_[ism-1] ) mes02_[ism-1]->setBinContent(ie, ip, -999.);
         if ( mes03_[ism-1] ) mes03_[ism-1]->setBinContent(ie, ip, -999.);
+
+        if ( met01_[ism-1] ) met01_[ism-1]->setBinContent(ie, ip, -999.);
+        if ( met02_[ism-1] ) met02_[ism-1]->setBinContent(ie, ip, -999.);
+        if ( met03_[ism-1] ) met03_[ism-1]->setBinContent(ie, ip, -999.);
 
         if ( ie >= 2 && ie <= 84 && ip >= 2 && ip <= 19 ) {
 
@@ -1421,22 +1456,6 @@ void EBPedestalClient::analyze(void){
           if ( mes03_[ism-1] ) mes03_[ism-1]->setBinContent(ie, ip, z3val03);
 
         }
-
-        float x5val01;
-        float x5val02;
-        float x5val03;
-
-        float y5val01;
-        float y5val02;
-        float y5val03;
-
-        float z5val01;
-        float z5val02;
-        float z5val03;
-
-        if ( met01_[ism-1] ) met01_[ism-1]->setBinContent(ie, ip, -999.);
-        if ( met02_[ism-1] ) met02_[ism-1]->setBinContent(ie, ip, -999.);
-        if ( met03_[ism-1] ) met03_[ism-1]->setBinContent(ie, ip, -999.);
 
         if ( ie >= 3 && ie <= 83 && ip >= 3 && ip <= 18 ) {
 
@@ -1569,11 +1588,11 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   string imgNameQual[3], imgNameMean[3], imgNameRMS[3], imgName3Sum[3], imgName5Sum[3], imgNameMEPnQual[2], imgNameMEPnPed[2],imgNameMEPnPedRms[2], imgName, meName;
 
-  TCanvas* cQual = new TCanvas("cQual", "Temp", 2*csize, csize);
+  TCanvas* cQual = new TCanvas("cQual", "Temp", 3*csize, csize);
   TCanvas* cMean = new TCanvas("cMean", "Temp", csize, csize);
   TCanvas* cRMS = new TCanvas("cRMS", "Temp", csize, csize);
-  TCanvas* c3Sum = new TCanvas("c3Sum", "Temp", 2*csize, csize);
-  TCanvas* c5Sum = new TCanvas("c5Sum", "Temp", 2*csize, csize);
+  TCanvas* c3Sum = new TCanvas("c3Sum", "Temp", 3*csize, csize);
+  TCanvas* c5Sum = new TCanvas("c5Sum", "Temp", 3*csize, csize);
   TCanvas* cPed = new TCanvas("cPed", "Temp", csize, csize);
 
   TH2F* obj2f;

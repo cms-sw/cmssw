@@ -41,21 +41,28 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
 
   // Loop over analog signals, run the fractional discriminator on each one,
   // and save the DIGI in the layer.
-  for(CSCSignalMap::iterator mapI = theSignalMap.begin(); 
-      mapI != theSignalMap.end(); ++mapI) {
-    int wireGroup            = (*mapI).first;
-    CSCAnalogSignal signal = (*mapI).second;
-    LogTrace("CSCWireElectronicsSim") << "CSCWireElectronicsSim: dump of wire signal follows... " <<  signal;
+  for(CSCSignalMap::iterator mapI = theSignalMap.begin(),
+      lastSignal = theSignalMap.end();
+      mapI != lastSignal; ++mapI) 
+  {
+    int wireGroup = (*mapI).first;
+    const CSCAnalogSignal & signal = (*mapI).second;
+    LogTrace("CSCWireElectronicsSim") << "CSCWireElectronicsSim: dump of wire signal follows... " 
+       <<  signal;
+    int signalSize = signal.getSize();
+
+    int timeWord = 0; // and this will remain if too early or late (<bx-6 or >bx+9)
+
     // the way we handle noise in this chamber is by randomly varying
     // the threshold
     float threshold = theWireThreshold + theRandGaussQ->fire() * theWireNoise;
-    for(int ibin = 0; ibin < signal.getSize(); ++ibin)
+    for(int ibin = 0; ibin < signalSize; ++ibin)
       if(signal.getBinValue(ibin) > threshold) {
         // jackpot.  Now define this signal as everything up until
         // the signal goes below zero.
-        int lastbin = signal.getSize();
+        int lastbin = signalSize;
         int i;
-        for(i = ibin; i < signal.getSize(); ++i) {
+        for(i = ibin; i < signalSize; ++i) {
           if(signal.getBinValue(i) < 0.) {
             lastbin = i;
             break;
@@ -118,19 +125,20 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
       // Parameter theOffsetOfBxZero = 6 @@WARNING! This offset may be changed (hardware)!
 
       int nBitsToOffset = beamCrossingTag + theOffsetOfBxZero;
-      int timeWord = 0; // and this will remain if too early or late (<bx-6 or >bx+9)
       if ( (nBitsToOffset>= 0) && (nBitsToOffset<16) ) 
- 	 timeWord = (1 << nBitsToOffset ); // set appropriate bit
+ 	 timeWord |= (1 << nBitsToOffset ); // set appropriate bit
 
-      CSCWireDigi newDigi(wireGroup, timeWord);
-      LogTrace("CSCWireElectronicsSim") << newDigi;
-      digis.insertDigi(layerId(), newDigi);
-
-      // we code the channels so strips start at 1, wire groups at 101
-      addLinks(channelIndex(wireGroup));
       // skip over all the time bins used for this digi
       ibin = lastbin;
     } // loop over time bins in signal
+
+    if(timeWord != 0)
+    {
+      CSCWireDigi newDigi(wireGroup, timeWord);
+      LogTrace("CSCWireElectronicsSim") << newDigi;
+      digis.insertDigi(layerId(), newDigi);
+      addLinks(channelIndex(wireGroup));
+    }
   } // loop over wire signals   
 }
 

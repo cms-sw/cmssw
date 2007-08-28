@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Chris D Jones
 //         Created:  Thu Sep  8 03:55:42 EDT 2005
-// $Id: UseValueExampleAnalyzer.cc,v 1.2 2005/09/10 02:08:46 wmtan Exp $
+// $Id: UseValueExampleAnalyzer.cc,v 1.3 2006/10/21 16:44:13 wmtan Exp $
 //
 //
 
@@ -23,13 +23,10 @@ Implementation:
 #include <iostream>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Integration/test/ValueExample.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"

@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2007/05/24 12:28:49 $
- * $Revision: 1.9 $
+ * $Date: 2007/05/24 13:26:12 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
  */
@@ -31,8 +31,6 @@ using namespace edm;
 using namespace std;
 
 EEIntegrityTask::EEIntegrityTask(const ParameterSet& ps){
-
-  Numbers::maxSM = 18;
 
   init_ = false;
 
@@ -102,7 +100,7 @@ void EEIntegrityTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/Gain");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT gain %s", Numbers::sEE(i+1).c_str());
-      meIntegrityGain[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      meIntegrityGain[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
       dbe_->tag(meIntegrityGain[i], i+1);
     }
 
@@ -110,7 +108,7 @@ void EEIntegrityTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/ChId");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT ChId %s", Numbers::sEE(i+1).c_str());
-      meIntegrityChId[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      meIntegrityChId[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
       dbe_->tag(meIntegrityChId[i], i+1);
     }
 
@@ -118,7 +116,7 @@ void EEIntegrityTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/GainSwitch");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT gain switch %s", Numbers::sEE(i+1).c_str());
-      meIntegrityGainSwitch[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      meIntegrityGainSwitch[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
       dbe_->tag(meIntegrityGainSwitch[i], i+1);
     }
 
@@ -126,7 +124,7 @@ void EEIntegrityTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/GainSwitchStay");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT gain switch stay %s", Numbers::sEE(i+1).c_str());
-      meIntegrityGainSwitchStay[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      meIntegrityGainSwitchStay[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
       dbe_->tag(meIntegrityGainSwitchStay[i], i+1);
     }
 
@@ -134,7 +132,7 @@ void EEIntegrityTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/TTId");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT TTId %s", Numbers::sEE(i+1).c_str());
-      meIntegrityTTId[i] = dbe_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
+      meIntegrityTTId[i] = dbe_->book2D(histo, histo, 10, Numbers::ix0EE(i+1)/5+0., Numbers::ix0EE(i+1)/5+10., 10, Numbers::iy0EE(i+1)/5+0., Numbers::iy0EE(i+1)/5+10.);
       dbe_->tag(meIntegrityTTId[i], i+1);
     }
 
@@ -142,7 +140,7 @@ void EEIntegrityTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/TTBlockSize");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT TTBlockSize %s", Numbers::sEE(i+1).c_str());
-      meIntegrityTTBlockSize[i] = dbe_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
+      meIntegrityTTBlockSize[i] = dbe_->book2D(histo, histo, 10, Numbers::ix0EE(i+1)/5+0., Numbers::ix0EE(i+1)/5+10., 10, Numbers::iy0EE(i+1)/5+0., Numbers::iy0EE(i+1)/5+10.);
       dbe_->tag(meIntegrityTTBlockSize[i], i+1);
     }
 
@@ -270,6 +268,8 @@ void EEIntegrityTask::endJob(void){
 
 void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
+  Numbers::initGeometry(c);
+
   if ( ! init_ ) this->setup();
 
   ievt_++;
@@ -283,7 +283,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       EBDetId id = (*idItr);
 
-      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( id );
 
       float xism = ism - 0.5;
 
@@ -310,7 +310,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( id );
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;
@@ -338,7 +338,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( id );
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;
@@ -366,7 +366,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( id );
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;
@@ -394,7 +394,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( id );
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;
@@ -428,7 +428,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       //    if ( id.zside() >0)
       //      { ipt = 5 - ipt;      }
 
-      int ismt = Numbers::iSM( id ); if ( ismt > 18 ) continue;
+      int ismt = Numbers::iSM( id );
 
       float xiet = iet - 0.5;
       float xipt = ipt - 0.5;
@@ -455,7 +455,6 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int iet = id.ieta();
       int ipt = id.iphi();
 
-
       // phi_tower: change the range from global to SM-local
       ipt     = ( (ipt-1) % 4) +1;
 
@@ -463,7 +462,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       //    if ( id.zside() >0)
       //      { ipt = 5 - ipt;      }
 
-      int ismt = Numbers::iSM( id ); if ( ismt > 18 ) continue;
+      int ismt = Numbers::iSM( id );
 
       float xiet = iet - 0.5;
       float xipt = ipt - 0.5;
@@ -487,9 +486,10 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       EcalElectronicsId id = (*idItr);
 
+      int ism = Numbers::iSM( id );
+
       int itt   = id.towerId();
       float iTt = itt + 0.5 - 69;
-      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
 
       if ( meIntegrityMemTTId[ism-1] ) meIntegrityMemTTId[ism-1]->Fill(iTt,0);
 
@@ -510,9 +510,10 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       EcalElectronicsId id = (*idItr);
 
+      int ism = Numbers::iSM( id );
+
       int itt   = id.towerId();
       float iTt = itt + 0.5 - 69;
-      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
 
       if ( meIntegrityMemTTBlockSize[ism-1] ) meIntegrityMemTTBlockSize[ism-1]->Fill(iTt,0);
 
@@ -533,7 +534,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       EcalElectronicsId id = (*idItr);
 
-      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( id );
 
       int chid = id.channelId();
       int ie = EEIntegrityTask::chMemAbscissa[chid-1];
@@ -564,7 +565,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       EcalElectronicsId id = (*idItr);
 
-      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( id );
 
       int chid = id.channelId();
       int ie = EEIntegrityTask::chMemAbscissa[chid-1];

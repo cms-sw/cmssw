@@ -98,33 +98,63 @@ public:
   RKTestMagVolume( const PositionType& pos, const RotationType& rot, 
 		       DDSolidShape shape, const MagneticFieldProvider<float> * mfp) :
     MagVolume( pos, rot, shape, mfp) {}
- 
+
   virtual bool inside( const GlobalPoint& gp, double tolerance=0.) const {return true;}
 
   /// Access to volume faces
   virtual std::vector<VolumeSide> faces() const {return std::vector<VolumeSide>();}
+  
 };
 
+#include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
 
-class RKTestPropagator : public RKPropagatorInS {
-public:
+class RKTestPropagator : public Propagator {
+ public:
 
   explicit RKTestPropagator( const MagneticField* dummyfield, PropagationDirection dir = alongMomentum,
-			     double tolerance = 5.e-5) :  
-    RKField ( RKTestFieldProvider()),
-    RKVol( RKTestMagVolume(MagVolume::PositionType(0,0,0), MagVolume::RotationType(),ddshapeless, &RKField )),    
-    RKPropagatorInS( RKVol, dir, tolerance) {
-    std::cout << " **** WARNING: RKTestPropagator uses its own, hardcoded parametrized field !!! " << std::endl; 
+  			     double tolerance = 5.e-5) :
+    RKField ( RKTestFieldProvider() ),
+    RKVol(RKTestMagVolume(MagVolume::PositionType(0,0,0), MagVolume::RotationType(),ddshapeless, &RKField ) ),
+    theRKProp(new RKPropagatorInS(RKVol, dir, tolerance)) {}  
+
+  virtual TrajectoryStateOnSurface 
+    propagate (const FreeTrajectoryState& state, const Plane& plane) const {return theRKProp->propagate(state,plane);}
+  
+  virtual TrajectoryStateOnSurface 
+    propagate (const FreeTrajectoryState& state, const Cylinder& cyl) const {
+    return theRKProp->propagate(state,cyl);}
+
+  virtual std::pair< TrajectoryStateOnSurface, double> 
+    propagateWithPath (const FreeTrajectoryState& state, const Plane& plane) const {
+    return theRKProp->propagateWithPath(state,plane);}
+
+  virtual std::pair< TrajectoryStateOnSurface, double> 
+    propagateWithPath (const FreeTrajectoryState& state, const Cylinder& cyl) const {return theRKProp->propagateWithPath(state,cyl);}
+
+  TrajectoryStateOnSurface propagate(const TrajectoryStateOnSurface& ts, 
+                                     const Plane& plane) const {return theRKProp->propagate(ts,plane);}
+
+  virtual void setPropagationDirection(PropagationDirection dir) {
+    theRKProp->setPropagationDirection(dir);
+  }
+
+  virtual PropagationDirection propagationDirection() const {
+    return theRKProp->propagationDirection();
+  }
+  
+
+  Propagator* clone() const
+    {
+      return new RKTestPropagator(*this);
     }
 
+  virtual const MagneticField* magneticField() const { return theRKProp->magneticField();}
 
-  ~RKTestPropagator() {}
 
  private:
-  
   RKTestFieldProvider RKField;
   RKTestMagVolume  RKVol;
-
+  DeepCopyPointerByClone<Propagator> theRKProp;  
 };
 
 #endif

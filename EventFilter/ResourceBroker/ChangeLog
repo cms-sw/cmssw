@@ -1,3 +1,22 @@
+2007-08-28  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-07-05
+	* adjust to new XMAS-ready version of Utilties/WebGUI
+
+2007-08-21  Emilio Meschi  <emilio.meschi@cern.ch>
+	* tag V00-07-04
+	* FUResource.cc uses board_sense to avoid crash when running with fake data (inconsistent GTFE block)
+
+	
+2007-08-21  Emilio Meschi  <emilio.meschi@cern.ch>
+	* tag V00-07-03
+	* Modified FUResource to set event number using 32-bit trigger no. from GTP Daq record
+	
+2007-06-06  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-07-02
+	* First pass modifications for xdaq 3.9 (mainly include paths of xdaq headers)
+	
 2007-05-30  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-07-01

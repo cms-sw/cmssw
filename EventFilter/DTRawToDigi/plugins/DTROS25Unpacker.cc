@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/04/26 19:02:07 $
- *  $Revision: 1.35 $
+ *  $Date: 2007/05/07 16:16:39 $
+ *  $Revision: 1.3 $
  *  \author  M. Zanetti - INFN Padova
  *  \revision FRC 060906
  */
@@ -33,7 +33,6 @@ using namespace edm;
 DTROS25Unpacker::DTROS25Unpacker(const edm::ParameterSet& ps): pset(ps) {
   
   if(pset.getUntrackedParameter<bool>("performDataIntegrityMonitor",false)){
-    cout<<"[DTROS25Unpacker]: Enabling Data Integrity Checks"<<endl;
     dataMonitor = edm::Service<DTDataMonitorInterface>().operator->();
   }
   
@@ -41,14 +40,11 @@ DTROS25Unpacker::DTROS25Unpacker(const edm::ParameterSet& ps): pset(ps) {
   writeSC = pset.getUntrackedParameter<bool>("writeSC",false);
   
   globalDAQ = pset.getUntrackedParameter<bool>("globalDAQ",true);
-  if (globalDAQ) cout<<" ANALYZING GLOBAL RUN "<<endl;
-  else cout<<" ANALYZING LOCAL RUN "<<endl;
   
 }
 
 
 DTROS25Unpacker::~DTROS25Unpacker() {
-  cout<<"[DTROS25Unpacker]: Destructor"<<endl;
 }
 
 void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,

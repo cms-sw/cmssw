@@ -177,9 +177,9 @@ void BasicSingleTrajectoryState::checkGlobalParameters() const {
     // calculate global parameters from local
     GlobalPoint  x = surface().toGlobal(theLocalParameters.position());
     GlobalVector p = surface().toGlobal(theLocalParameters.momentum());
-    theFreeState = new FreeTrajectoryState(x, p, 
-                                              theLocalParameters.charge(),
-                                              theField);
+    theFreeState = DeepCopyPointer<FreeTrajectoryState>(new FreeTrajectoryState(x, p, 
+										theLocalParameters.charge(),
+										theField));
   }
 }
 

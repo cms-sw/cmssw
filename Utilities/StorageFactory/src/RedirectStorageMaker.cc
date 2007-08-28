@@ -14,7 +14,7 @@
 //<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
 seal::Storage *
-RedirectStorageMaker::open_ (const std::string &proto,
+RedirectStorageMaker::doOpen (const std::string &proto,
 		            const std::string &path,
 			    int mode,
 		            const std::string &tmpdir)

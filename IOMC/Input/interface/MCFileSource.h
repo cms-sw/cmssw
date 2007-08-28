@@ -1,7 +1,7 @@
 #ifndef Input_MCFileSource_h
 #define Input_MCFileSource_h
 
-// $Id: MCFileSource.h,v 1.4 2007/05/29 21:00:22 weng Exp $
+// $Id:$
 
 /** \class MCFileSource
  *

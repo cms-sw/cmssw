@@ -1,11 +1,11 @@
-// $Id: EBClient.h,v 1.8 2006/12/15 09:44:49 dellaric Exp $
+// $Id: EBClient.h,v 1.9 2007/03/26 17:35:04 dellaric Exp $
 
 /*!
   \file EBClient.h
   \brief Ecal Barrel Monitor Client mom class
   \author B. Gobbo
-  \version $Revision: 1.8 $
-  \date $Date: 2006/12/15 09:44:49 $
+  \version $Revision: 1.9 $
+  \date $Date: 2007/03/26 17:35:04 $
 */
 
 
@@ -87,13 +87,12 @@ class EBClient {
   */
   virtual void htmlOutput(int run, string htmlDir, string htmlName) = 0;
 
-  /*! \fn virtual bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism);
+  /*! \fn virtual bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov);
     \brief Write data to DataBase
     \param econn DB interface
     \param moniov IOV interface
-    \param ism Supermodule id
   */
-  virtual bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism) = 0;
+  virtual bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) = 0;
 
   /*! \fn virtual int getEvtPerJob( void );
     \brief Returns the total number of processed events

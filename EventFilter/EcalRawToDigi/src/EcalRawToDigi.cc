@@ -41,7 +41,7 @@ EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf):
   //formatter = new EcalTBDaqFormatter();
  
   // digis
-  produces<EBDigiCollection>("ebDigis");
+  produces<EBDigiCollection>();
   produces<EcalPnDiodeDigiCollection>();
   produces<EcalRawDataCollection>();
 
@@ -159,7 +159,7 @@ void EcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
   
   // Step D: Put outputs into event 
   e.put(productPN);
-  e.put(productEb,"ebDigis");
+  e.put(productEb);
   e.put(productDCCHeader);
   
   e.put(productDCCSize,"EcalIntegrityDCCSizeErrors");

@@ -10,7 +10,7 @@
  *  built out of TIDRings
  */
 
-class TIDLayer : public RingedForwardLayer, public GeometricSearchDetWithGroups {
+class TIDLayer : public RingedForwardLayer{
  public:
   TIDLayer(std::vector<const TIDRing*>& rings);
   ~TIDLayer();
@@ -21,10 +21,18 @@ class TIDLayer : public RingedForwardLayer, public GeometricSearchDetWithGroups 
   
   virtual const std::vector<const GeometricSearchDet*>& components() const {return theComps;}
 
-  void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
-			       const Propagator& prop,
-			       const MeasurementEstimator& est,
-			       std::vector<DetGroup> & result) const;
+  virtual std::vector<DetWithState> 
+    compatibleDets( const TrajectoryStateOnSurface& startingState,
+		    const Propagator& prop, 
+		    const MeasurementEstimator& est) const;
+  
+  virtual std::vector<DetGroup> 
+  groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
+			 const Propagator& prop,
+			 const MeasurementEstimator& est) const;
+
+
+  virtual bool hasGroups() const {return true;}
 
   // DetLayer interface
   virtual SubDetector subDetector() const {return GeomDetEnumerators::TID;}
@@ -35,15 +43,15 @@ class TIDLayer : public RingedForwardLayer, public GeometricSearchDetWithGroups 
   virtual BoundDisk* computeDisk( const std::vector<const TIDRing*>& rings) const;
 
   virtual std::vector<int> ringIndicesByCrossingProximity(const TrajectoryStateOnSurface& startingState,
-							  const Propagator& prop ) const;
+						     const Propagator& prop ) const;
 
  protected:  
   //  bool isCompatible( const TrajectoryStateOnSurface& ms,
   //	     const MeasurementEstimator& est) const;
 
-  int findClosest( const GlobalPoint[3] ) const;
+  int findClosest( const std::vector<GlobalPoint>& ) const;
   
-  int findNextIndex( const GlobalPoint[3] , int ) const;
+  int findNextIndex( const std::vector<GlobalPoint>& , int ) const;
   
   bool overlapInR( const TrajectoryStateOnSurface& tsos, int i, double ymax) const;
   
@@ -52,12 +60,12 @@ class TIDLayer : public RingedForwardLayer, public GeometricSearchDetWithGroups 
   			   const TrajectoryStateOnSurface& tsos, 
 			   const MeasurementEstimator& est) const;
   
-  static void
-  orderAndMergeLevels(const TrajectoryStateOnSurface& tsos,
-		      const Propagator& prop,
-		      const std::vector<std::vector<DetGroup> > & groups,
-		      const std::vector<int> & indices,
-		      std::vector<DetGroup> & result );
+  std::vector<DetGroup> orderAndMergeLevels(const TrajectoryStateOnSurface& tsos,
+					    const Propagator& prop,
+					    const std::vector<std::vector<DetGroup> > groups,
+					    const std::vector<int> indices ) const;
+
+
 
 
  protected:

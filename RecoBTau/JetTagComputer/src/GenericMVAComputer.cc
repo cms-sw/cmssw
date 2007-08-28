@@ -9,7 +9,7 @@ using namespace reco;
 using namespace PhysicsTools;
 
 // static cache
-GenericMVAComputer::TaggingVariableMapping *GenericMVAComputer::mappingCache = 0;
+GenericMVAComputer::TaggingVariableMapping GenericMVAComputer::mapping;
 
 GenericMVAComputer::TaggingVariableMapping::TaggingVariableMapping()
 {

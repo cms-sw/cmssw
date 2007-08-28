@@ -38,6 +38,8 @@ class int32(_SimpleParameterTypeBase):
         if len(value) >1 and '0x' == value[:2]:
             return int32(int(value,16))
         return int32(int(value))
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addInt32(self.isTracked(), myname, self.value())
 
 
 class uint32(_SimpleParameterTypeBase):
@@ -51,6 +53,9 @@ class uint32(_SimpleParameterTypeBase):
         if len(value) >1 and '0x' == value[:2]:
             return uint32(long(value,16))
         return uint32(long(value))
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addUInt32(self.isTracked(), myname, self.value())
+
 
 
 class int64(_SimpleParameterTypeBase):
@@ -65,6 +70,9 @@ class int64(_SimpleParameterTypeBase):
         if len(value) >1 and '0x' == value[:2]:
             return uint32(long(value,16))
         return int64(long(value))
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addInt64(self.isTracked(), myname, self.value())
+
 
 
 class uint64(_SimpleParameterTypeBase):
@@ -78,6 +86,9 @@ class uint64(_SimpleParameterTypeBase):
         if len(value) >1 and '0x' == value[:2]:
             return uint32(long(value,16))
         return uint64(long(value))
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addUInt64(self.isTracked(), myname, self.value())
+
 
 
 class double(_SimpleParameterTypeBase):
@@ -88,6 +99,9 @@ class double(_SimpleParameterTypeBase):
     def _valueFromString(value):
         """only used for cfg-parsing"""
         return double(float(value))
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addDouble(self.isTracked(), myname, self.value())
+
 
 import __builtin__
 class bool(_SimpleParameterTypeBase):
@@ -106,6 +120,9 @@ class bool(_SimpleParameterTypeBase):
         except:
             pass
         raise RuntimeError('can not make bool from string '+value)
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addBool(self.isTracked(), myname, self.value())
+
 
 
 class string(_SimpleParameterTypeBase):
@@ -116,6 +133,8 @@ class string(_SimpleParameterTypeBase):
         return isinstance(value,type(''))
     def configValue(self,indent,deltaIndent):
         return self.formatValueForConfig(self.value())
+    def pythonValue(self,indent,deltaIndent):
+        return self.configValue('','')
     @staticmethod
     def formatValueForConfig(value):
         l = len(value)
@@ -130,7 +149,8 @@ class string(_SimpleParameterTypeBase):
     def _valueFromString(value):
         """only used for cfg-parsing"""
         return string(value)
-
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addString(self.isTracked(), myname, self.value())
 
 class InputTag(_ParameterTypeBase):
     def __init__(self,moduleLabel,productInstanceLabel='',processName=''):
@@ -155,6 +175,8 @@ class InputTag(_ParameterTypeBase):
     processName = property(getProcessName,setProcessName,"process name for the product")
     def configValue(self,indent,deltaIndent):
         return self.__moduleLabel+':'+self.__productInstance+':'+self.__processName
+    def pythonValue(self,indent,deltaIndent):
+        return "\""+self.configValue(indent,deltaIndent)+"\""
     @staticmethod
     def _isValid(value):
         return True
@@ -165,6 +187,9 @@ class InputTag(_ParameterTypeBase):
             if not v:
                 v=self.__processName <> other.__processName
         return v
+    def value(self):
+        "The only value is itself"
+        return self
     @staticmethod
     def formatValueForConfig(value):
         return value.configValue('','')
@@ -172,29 +197,48 @@ class InputTag(_ParameterTypeBase):
     def _valueFromString(string):
         parts = string.split(":")
         return InputTag(*parts)
+    # convert to the wrapper class for C++ InputTags
+    def cppTag(self, parameterSet):
+        return parameterSet.newInputTag(self.getModuleLabel(),
+                                        self.getProductInstanceLabel(),
+                                        self.getProcessName())
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addInputTag(self.isTracked(), myname, self.cppTag(parameterSet))
 
-
-class SecSource(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
-    def __init__(self,type_,*arg,**args):
-        #need to call the inits separately
-        self.__dict__['_SecSource__type']=type_
-        _ParameterTypeBase.__init__(self)
-        _Parameterizable.__init__(self,*arg,**args)
-    def value(self):
-        return self
-    def type_(self):
-        return self.__type
+class FileInPath(_SimpleParameterTypeBase):
+    def __init__(self,value):
+        super(FileInPath,self).__init__(value)
     @staticmethod
     def _isValid(value):
         return True
+    def configValue(self,indent,deltaIndent):
+        return string.formatValueForConfig(self.value())
+    @staticmethod
+    def formatValueForConfig(value):
+        return string.formatValueForConfig(value)
+    @staticmethod
+    def _valueFromString(value):
+        return FileInPath(value)
+    def insertInto(self, parameterSet, myname):
+      parameterSet.addNewFileInPath( self.isTracked(), myname, self.value() )
+
+class SecSource(_ParameterTypeBase,_TypedParameterizable,_ConfigureComponent,_Labelable):
+    def __init__(self,type_,*arg,**args):
+        _ParameterTypeBase.__init__(self)
+        _TypedParameterizable.__init__(self,type_,*arg,**args)
+    def value(self):
+        return self
+    @staticmethod
+    def _isValid(value):
+        return True
+    def configTypeName(self):
+        return "secsource"
     def configValue(self,indent='',deltaIndent=''):
-        config = self.type_()+' { \n'
-        for name in self.parameterNames_():
-            param = getattr(self,name)
-            config+=indent+deltaIndent+param.configTypeName()+' '+name+' = '+param.configValue(indent+deltaIndent,deltaIndent)+'\n'
-        config += indent+'}\n'
-        return config
+       return self.dumpConfig(indent, deltaIndent)
+    def dumpPython(self, indent, deltaIndent):
+        return "cms.SecSource(\""+self.type_()+"\",\n"+_Parameterizable.dumpPython(self,indent, deltaIndent)+indent+")"
     def copy(self):
+        # TODO is the one in TypedParameterizable better?
         import copy
         return copy.copy(self)
     def _place(self,name,proc):
@@ -219,6 +263,9 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
             config+=indent+deltaIndent+param.configTypeName()+' '+name+' = '+param.configValue(indent+deltaIndent,deltaIndent)+'\n'
         config += indent+'}\n'
         return config
+    def dumpPython(self,indent,deltaIndent):
+        result = "cms.PSet(\n"+_Parameterizable.dumpPython(self, indent,deltaIndent)+indent+")"
+        return result
     def copy(self):
         import copy
         return copy.copy(self)
@@ -226,6 +273,10 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
         proc._placePSet(name,self)
     def __str__(self):
         return object.__str__(self)
+    def insertInto(self, parameterSet, myname):
+        newpset = parameterSet.newPSet()
+        self.insertContentsInto(newpset)
+        parameterSet.addPSet(self.isTracked(), myname, newpset)
 
 
 class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
@@ -250,6 +301,18 @@ class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
         return config
     def configValueForItem(self,item,indent,deltaIndent):
         return str(item)
+    def pythonValueForItem(self,item,indent,deltaIndent):
+        return self.configValueForItem(item,indent,deltaIndent)
+    def dumpPython(self,indent,deltaIndent):
+        result = "cms."+type(self).__name__+"("
+        first = True
+        for value in iter(self):
+            if not first:
+                result+=', '
+            result+=self.pythonValueForItem(value, indent,deltaIndent)
+            first = False
+        result += ')'
+        return result
     @staticmethod
     def _itemsFromStrings(strings,converter):
         return (converter(x).value() for x in strings)
@@ -265,6 +328,9 @@ class vint32(_ValidatingParameterListBase):
     @staticmethod
     def _valueFromString(value):
         return vint32(*_ValidatingParameterListBase._itemsFromStrings(value,int32._valueFromString))
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addVInt32(self.isTracked(), myname, self.value())
+
 
 
 class vuint32(_ValidatingParameterListBase):
@@ -276,6 +342,9 @@ class vuint32(_ValidatingParameterListBase):
     @staticmethod
     def _valueFromString(value):
         return vuint32(*_ValidatingParameterListBase._itemsFromStrings(value,uint32._valueFromString))
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addVUInt32(self.isTracked(), myname, self.value())
+
 
     
 class vint64(_ValidatingParameterListBase):
@@ -287,6 +356,9 @@ class vint64(_ValidatingParameterListBase):
     @staticmethod
     def _valueFromString(value):
         return vint64(*_ValidatingParameterListBase._itemsFromStrings(value,int64._valueFromString))
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addVInt64(self.isTracked(), myname, self.value())
+
 
 
 class vuint64(_ValidatingParameterListBase):
@@ -298,6 +370,9 @@ class vuint64(_ValidatingParameterListBase):
     @staticmethod
     def _valueFromString(value):
         return vuint64(*_ValidatingParameterListBase._itemsFromStrings(value,vuint64._valueFromString))
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addVUInt64(self.isTracked(), myname, self.value())
+
 
     
 class vdouble(_ValidatingParameterListBase):
@@ -309,6 +384,9 @@ class vdouble(_ValidatingParameterListBase):
     @staticmethod
     def _valueFromString(value):
         return vdouble(*_ValidatingParameterListBase._itemsFromStrings(value,double._valueFromString))
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addVDouble(self.isTracked(), myname, self.value())
+
 
 
 class vbool(_ValidatingParameterListBase):
@@ -320,6 +398,9 @@ class vbool(_ValidatingParameterListBase):
     @staticmethod
     def _valueFromString(value):
         return vbool(*_ValidatingParameterListBase._itemsFromStrings(value,bool._valueFromString))
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addVBool(self.isTracked(), myname, self.value())
+
 
 
 class vstring(_ValidatingParameterListBase):
@@ -333,6 +414,9 @@ class vstring(_ValidatingParameterListBase):
     @staticmethod
     def _valueFromString(value):
         return vstring(*_ValidatingParameterListBase._itemsFromStrings(value,string._valueFromString))
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addVString(self.isTracked(), myname, self.value())
+
 
 
 class VInputTag(_ValidatingParameterListBase):
@@ -343,9 +427,28 @@ class VInputTag(_ValidatingParameterListBase):
         return InputTag._isValid(item)
     def configValueForItem(self,item,indent,deltaIndent):
         return InputTag.formatValueForConfig(item)
+    def pythonValueForItem(self,item,indent,deltaIndent):
+        return "\""+self.configValueForItem(item,indent,deltaIndent)+"\""
     @staticmethod
     def _valueFromString(value):
         return VInputTag(*_ValidatingParameterListBase._itemsFromStrings(value,InputTag._valueFromString))
+    def cppTags(self, parameterSet):
+        result = list()
+        for i in self:
+           # reconstruct an inputtag from the strings in the tupl
+           s1 = i[0];
+           s2 = ""
+           s3 = ""
+           if len(i)>1:
+              s2 = i[1]
+           if len(i)>2:
+              s3 = i[2]
+           it = parameterSet.newInputTag(s1,s2,s3)
+           result.append(it) 
+        return result 
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addVInputTag(self.isTracked(), myname, self.cppTags(parameterSet))
+
 
 
 class VPSet(_ValidatingParameterListBase,_ConfigureComponent,_Labelable):
@@ -356,11 +459,16 @@ class VPSet(_ValidatingParameterListBase,_ConfigureComponent,_Labelable):
         return PSet._isValid(item)
     def configValueForItem(self,item,indent,deltaIndent):
         return PSet.configValue(item,indent+deltaIndent,deltaIndent)
+    def pythonValueForItem(self,item,indent,deltaIndent):
+        return PSet.dumpPython(item,indent+deltaIndent,deltaIndent)
     def copy(self):
         import copy
         return copy.copy(self)
     def _place(self,name,proc):
         proc._placeVPSet(name,self)
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addVPSet(self.isTracked(), myname, self.value())
+
 
 
 if __name__ == "__main__":
@@ -425,10 +533,20 @@ if __name__ == "__main__":
             p = untracked.PSet(b=int32(1))
             self.failIf(p.isTracked())
             self.assertEqual(p.b.value(),1)
+        def testInputTag(self):
+            it = InputTag._valueFromString("label::proc")
+            print it.pythonValue('','')
+            self.assertEqual(it.getModuleLabel(), "label")
+            self.assertEqual(it.getProductInstanceLabel(), "")
+            self.assertEqual(it.getProcessName(), "proc")
         def testPSet(self):
             p1 = PSet(anInt = int32(1), a = PSet(b = int32(1)))
             self.assertRaises(ValueError, PSet, "foo")
             self.assertRaises(TypeError, PSet, foo = "bar")
+            print p1.dumpPython('   ', '   ')
+        def testFileInPath(self):
+            f = FileInPath("FWCore/ParameterSet/python/Types.py")
+            self.assertEqual(f.configValue('','   '), "'FWCore/ParameterSet/python/Types.py'")
         def testSecSource(self):
             s1 = SecSource("PoolSource", fileNames = vstring("foo.root"))
             self.assertEqual(s1.type_(), "PoolSource")

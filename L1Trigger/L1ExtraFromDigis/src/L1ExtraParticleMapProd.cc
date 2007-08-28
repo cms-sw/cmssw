@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct 16 23:19:38 EDT 2006
-// $Id: L1ExtraParticleMapProd.cc,v 1.24 2007/07/04 16:23:23 wsun Exp $
+// $Id: L1ExtraParticleMapProd.cc,v 1.28 2007/08/08 03:49:05 wsun Exp $
 //
 //
 
@@ -252,6 +252,14 @@ L1ExtraParticleMapProd::L1ExtraParticleMapProd(
    prescales_[ L1ParticleMap::kHTT500 ] =
       iConfig.getParameter< int >( "L1_HTT500_prescale" ) ;
 
+//    singleThresholds_[ L1ParticleMap::kETM10 ] =
+//       iConfig.getParameter< double >( "L1_ETM10_thresh" ) ;
+//    prescales_[ L1ParticleMap::kETM10 ] =
+//       iConfig.getParameter< int >( "L1_ETM10_prescale" ) ;
+//    singleThresholds_[ L1ParticleMap::kETM15 ] =
+//       iConfig.getParameter< double >( "L1_ETM15_thresh" ) ;
+//    prescales_[ L1ParticleMap::kETM15 ] =
+//       iConfig.getParameter< int >( "L1_ETM15_prescale" ) ;
    singleThresholds_[ L1ParticleMap::kETM20 ] =
       iConfig.getParameter< double >( "L1_ETM20_thresh" ) ;
    prescales_[ L1ParticleMap::kETM20 ] =
@@ -272,6 +280,11 @@ L1ExtraParticleMapProd::L1ExtraParticleMapProd(
       iConfig.getParameter< double >( "L1_ETM60_thresh" ) ;
    prescales_[ L1ParticleMap::kETM60 ] =
       iConfig.getParameter< int >( "L1_ETM60_prescale" ) ;
+
+//    singleThresholds_[ L1ParticleMap::kETT60 ] =
+//       iConfig.getParameter< double >( "L1_ETT60_thresh" ) ;
+//    prescales_[ L1ParticleMap::kETT60 ] =
+//       iConfig.getParameter< int >( "L1_ETT60_prescale" ) ;
 
    // AA triggers
 
@@ -670,22 +683,28 @@ L1ExtraParticleMapProd::L1ExtraParticleMapProd(
         iConfig.getParameter< double >( "L1_ExclusiveDoubleIsoEG6_thresh" ); 
    prescales_[ L1ParticleMap::kExclusiveDoubleIsoEG6 ] =
       iConfig.getParameter< int >( "L1_ExclusiveDoubleIsoEG6_prescale" ) ;
-   singleThresholds_[ L1ParticleMap::kExclusiveDoubleJet10 ] =
-        iConfig.getParameter< double >( "L1_ExclusiveDoubleJet10_thresh"  ); 
-   prescales_[ L1ParticleMap::kExclusiveDoubleJet10 ] =
-      iConfig.getParameter< int >( "L1_ExclusiveDoubleJet10_prescale" ) ;
-   singleThresholds_[ L1ParticleMap::kExclusiveJet20_Gap_Jet20 ] =
-        iConfig.getParameter< double >( "L1_ExclusiveJet20_Gap_Jet20_thresh" );
-   prescales_[ L1ParticleMap::kExclusiveJet20_Gap_Jet20 ] =
-      iConfig.getParameter< int >( "L1_ExclusiveJet20_Gap_Jet20_prescale" ) ;
-   doubleThresholds_[ L1ParticleMap::kIsoEG15_Jet20_ForJet10 ].first =
-      iConfig.getParameter< double >( "L1_IsoEG15_Jet20_ForJet10_thresh1" ) ;
-   doubleThresholds_[ L1ParticleMap::kIsoEG15_Jet20_ForJet10 ].second =
-      iConfig.getParameter< double >( "L1_IsoEG15_Jet20_ForJet10_thresh2" ) ;
-   singleThresholds_[ L1ParticleMap::kIsoEG15_Jet20_ForJet10 ] =
-      iConfig.getParameter< double >( "L1_IsoEG15_Jet20_ForJet10_thresh3" ) ;
-   prescales_[ L1ParticleMap::kIsoEG15_Jet20_ForJet10 ] =
-      iConfig.getParameter< int >( "L1_IsoEG15_Jet20_ForJet10_prescale" ) ;
+//    doubleThresholds_[ L1ParticleMap::kExclusiveDoubleIsoEG4 ].first =
+//         iConfig.getParameter< double >( "L1_ExclusiveDoubleIsoEG4_thresh1" );
+//    doubleThresholds_[ L1ParticleMap::kExclusiveDoubleIsoEG4 ].second =
+//         iConfig.getParameter< double >( "L1_ExclusiveDoubleIsoEG4_thresh2" ); // for jet rejection
+//    prescales_[ L1ParticleMap::kExclusiveDoubleIsoEG4 ] =
+//         iConfig.getParameter< int >( "L1_ExclusiveDoubleIsoEG4_prescale" ) ;
+   singleThresholds_[ L1ParticleMap::kExclusiveDoubleJet60 ] =
+        iConfig.getParameter< double >( "L1_ExclusiveDoubleJet60_thresh"  ); 
+   prescales_[ L1ParticleMap::kExclusiveDoubleJet60 ] =
+        iConfig.getParameter< int >( "L1_ExclusiveDoubleJet60_prescale" ) ;
+   singleThresholds_[ L1ParticleMap::kExclusiveJet25_Gap_Jet25 ] =
+        iConfig.getParameter< double >( "L1_ExclusiveJet25_Gap_Jet25_thresh" );
+   prescales_[ L1ParticleMap::kExclusiveJet25_Gap_Jet25 ] =
+      iConfig.getParameter< int >( "L1_ExclusiveJet25_Gap_Jet25_prescale" ) ;
+   doubleThresholds_[ L1ParticleMap::kIsoEG10_Jet20_ForJet10 ].first =
+      iConfig.getParameter< double >( "L1_IsoEG10_Jet20_ForJet10_thresh1" ) ;
+   doubleThresholds_[ L1ParticleMap::kIsoEG10_Jet20_ForJet10 ].second =
+      iConfig.getParameter< double >( "L1_IsoEG10_Jet20_ForJet10_thresh2" ) ;
+   singleThresholds_[ L1ParticleMap::kIsoEG10_Jet20_ForJet10 ] =
+      iConfig.getParameter< double >( "L1_IsoEG10_Jet20_ForJet10_thresh3" ) ;
+   prescales_[ L1ParticleMap::kIsoEG10_Jet20_ForJet10 ] =
+      iConfig.getParameter< int >( "L1_IsoEG10_Jet20_ForJet10_prescale" ) ;
 
    prescales_[ L1ParticleMap::kMinBias_HTT10 ] =
       iConfig.getParameter< int >( "L1_MinBias_HTT10_prescale" ) ;
@@ -785,6 +804,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 
    double met = metHandle->etMiss() ;
    double ht = metHandle->etHad() ;
+//    double ett = metHandle->etTotal() ;
 
    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    // ~~~ Evaluate trigger conditions and make a L1ParticleMapCollection. ~~~
@@ -808,6 +828,10 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 
    L1JetParticleVectorRef inputForJetRefs ;
    addToVectorRefs( forJetHandle, inputForJetRefs ) ;
+
+   L1JetParticleVectorRef inputCenJetTauJetRefs ;
+   addToVectorRefs( cenJetHandle, inputCenJetTauJetRefs ) ;
+   addToVectorRefs( tauJetHandle, inputCenJetTauJetRefs ) ;
 
    L1MuonParticleVectorRef inputMuonRefsSingle ;
    L1MuonParticleVectorRef inputMuonRefsDouble ;
@@ -938,7 +962,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 	       itrig == L1ParticleMap::kHTT400 ||
 	       itrig == L1ParticleMap::kHTT500 )
       {
-	 objectTypes.push_back( L1ParticleMap::kEtTotal ) ;
+	 objectTypes.push_back( L1ParticleMap::kEtHad ) ;
 
 	 if( ht >= singleThresholds_[ itrig ] )
 	 {
@@ -946,7 +970,9 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 	    metRefTmp = L1EtMissParticleRefProd( metHandle ) ;
 	 }
       }
-      else if( itrig == L1ParticleMap::kETM20 ||
+      else if( //itrig == L1ParticleMap::kETM10 ||
+	       //itrig == L1ParticleMap::kETM15 ||
+	       itrig == L1ParticleMap::kETM20 ||
 	       itrig == L1ParticleMap::kETM30 ||
 	       itrig == L1ParticleMap::kETM40 ||
 	       itrig == L1ParticleMap::kETM50 ||
@@ -960,6 +986,16 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 	    metRefTmp = L1EtMissParticleRefProd( metHandle ) ;
 	 }
       }
+//       else if( itrig == L1ParticleMap::kETT60 )
+//       {
+// 	 objectTypes.push_back( L1ParticleMap::kEtTotal ) ;
+
+// 	 if( ett >= singleThresholds_[ itrig ] )
+// 	 {
+// 	    decision = true ;
+// 	    metRefTmp = L1EtMissParticleRefProd( metHandle ) ;
+// 	 }
+//       }
       else if( itrig == L1ParticleMap::kDoubleMu3 )
       {
 	 objectTypes.push_back( L1ParticleMap::kMuon ) ;
@@ -1184,7 +1220,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
       else if( itrig == L1ParticleMap::kMu3_HTT200 )
       {
 	 objectTypes.push_back( L1ParticleMap::kMuon ) ;
-	 objectTypes.push_back( L1ParticleMap::kEtTotal ) ;
+	 objectTypes.push_back( L1ParticleMap::kEtHad ) ;
 
 	 if( ht >= doubleThresholds_[ itrig ].second )
 	 {
@@ -1202,7 +1238,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
       else if( itrig == L1ParticleMap::kIsoEG10_HTT200 )
       {
 	 objectTypes.push_back( L1ParticleMap::kEM ) ;
-	 objectTypes.push_back( L1ParticleMap::kEtTotal ) ;
+	 objectTypes.push_back( L1ParticleMap::kEtHad ) ;
 
 	 if( ht >= doubleThresholds_[ itrig ].second )
 	 {
@@ -1220,7 +1256,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
       else if( itrig == L1ParticleMap::kEG12_HTT200 )
       {
 	 objectTypes.push_back( L1ParticleMap::kEM ) ;
-	 objectTypes.push_back( L1ParticleMap::kEtTotal ) ;
+	 objectTypes.push_back( L1ParticleMap::kEtHad ) ;
 
 	 if( ht >= doubleThresholds_[ itrig ].second )
 	 {
@@ -1238,7 +1274,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
       else if( itrig == L1ParticleMap::kJet70_HTT200 )
       {
 	 objectTypes.push_back( L1ParticleMap::kJet ) ;
-	 objectTypes.push_back( L1ParticleMap::kEtTotal ) ;
+	 objectTypes.push_back( L1ParticleMap::kEtHad ) ;
 
 	 if( ht >= doubleThresholds_[ itrig ].second )
 	 {
@@ -1256,7 +1292,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
       else if( itrig == L1ParticleMap::kTauJet40_HTT200 )
       {
 	 objectTypes.push_back( L1ParticleMap::kJet ) ;
-	 objectTypes.push_back( L1ParticleMap::kEtTotal ) ;
+	 objectTypes.push_back( L1ParticleMap::kEtHad ) ;
 
 	 if( ht >= doubleThresholds_[ itrig ].second )
 	 {
@@ -1365,7 +1401,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
       }
       else if( itrig == L1ParticleMap::kHTT100_ETM30 )
       {
-	 objectTypes.push_back( L1ParticleMap::kEtTotal ) ;
+	 objectTypes.push_back( L1ParticleMap::kEtHad ) ;
 	 objectTypes.push_back( L1ParticleMap::kEtMiss ) ;
 
 	 if( ht >= doubleThresholds_[ itrig ].first &&
@@ -1503,7 +1539,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
       {
 	 objectTypes.push_back( L1ParticleMap::kMuon ) ;
 	 objectTypes.push_back( L1ParticleMap::kMuon ) ;
-	 objectTypes.push_back( L1ParticleMap::kEtTotal ) ;
+	 objectTypes.push_back( L1ParticleMap::kEtHad ) ;
 
 	 if( ht >= doubleThresholds_[ itrig ].second )
 	 {
@@ -1524,7 +1560,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
       {
 	 objectTypes.push_back( L1ParticleMap::kEM ) ;
 	 objectTypes.push_back( L1ParticleMap::kEM ) ;
-	 objectTypes.push_back( L1ParticleMap::kEtTotal ) ;
+	 objectTypes.push_back( L1ParticleMap::kEtHad ) ;
 
 	 if( ht >= doubleThresholds_[ itrig ].second )
 	 {
@@ -1545,7 +1581,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
       {
 	 objectTypes.push_back( L1ParticleMap::kEM ) ;
 	 objectTypes.push_back( L1ParticleMap::kEM ) ;
-	 objectTypes.push_back( L1ParticleMap::kEtTotal ) ;
+	 objectTypes.push_back( L1ParticleMap::kEtHad ) ;
 
 	 if( ht >= doubleThresholds_[ itrig ].second )
 	 {
@@ -1566,7 +1602,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
       {
 	 objectTypes.push_back( L1ParticleMap::kJet ) ;
 	 objectTypes.push_back( L1ParticleMap::kJet ) ;
-	 objectTypes.push_back( L1ParticleMap::kEtTotal ) ;
+	 objectTypes.push_back( L1ParticleMap::kEtHad ) ;
 
 	 if( ht >= doubleThresholds_[ itrig ].second )
 	 {
@@ -1587,7 +1623,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
       {
 	 objectTypes.push_back( L1ParticleMap::kJet ) ;
 	 objectTypes.push_back( L1ParticleMap::kJet ) ;
-	 objectTypes.push_back( L1ParticleMap::kEtTotal ) ;
+	 objectTypes.push_back( L1ParticleMap::kEtHad ) ;
 
 	 if( ht >= doubleThresholds_[ itrig ].second )
 	 {
@@ -1722,6 +1758,20 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 					outputJetRefsTmp,
 					combosTmp ) ;
       }
+//       else if( itrig == L1ParticleMap::kExclusiveDoubleIsoEG4 )
+//       {
+//          objectTypes.push_back( L1ParticleMap::kEM ) ;
+//          objectTypes.push_back( L1ParticleMap::kEM ) ;
+
+//          evaluateDoubleExclusiveIsoEG(inputIsoEmRefs,
+//                                       inputJetRefs,
+//                                       doubleThresholds_[ itrig ].first,
+//                                       doubleThresholds_[ itrig ].second,
+//                                       decision,
+//                                       outputEmRefsTmp,
+//                                       combosTmp);
+
+//       }
       else if( itrig == L1ParticleMap::kExclusiveDoubleIsoEG6 )
       {
 	 objectTypes.push_back( L1ParticleMap::kEM ) ;
@@ -1736,53 +1786,59 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 					     combosTmp ) ;
          }
       }
-      else if( itrig == L1ParticleMap::kExclusiveDoubleJet10 )
-      {
-         objectTypes.push_back( L1ParticleMap::kJet ) ;
-         objectTypes.push_back( L1ParticleMap::kJet ) ;
-
-	 if( inputJetRefs.size() == 2 )
-	 {
-	    evaluateDoubleSameObjectTrigger( inputJetRefs,
-					     singleThresholds_[ itrig ],
-					     decision,
-					     outputJetRefsTmp,
-					     combosTmp ) ;
-	 }
-      }
-      else if( itrig == L1ParticleMap::kExclusiveJet20_Gap_Jet20 )
+      else if( itrig == L1ParticleMap::kExclusiveDoubleJet60 )
       {
          objectTypes.push_back( L1ParticleMap::kJet ) ;
          objectTypes.push_back( L1ParticleMap::kJet ) ;
 
          if( inputJetRefs.size() == 2 )
          {
-	    evaluateJetGapJetTrigger( inputForJetRefs,  
-				      singleThresholds_[ itrig ],
-				      decision,
-				      outputJetRefsTmp,
-				      combosTmp ) ;
+            evaluateDoubleSameObjectTrigger( inputJetRefs,
+                                             singleThresholds_[ itrig ],
+                                             decision,
+                                             outputJetRefsTmp,
+                                             combosTmp ) ;
          }
       }
-      else if( itrig == L1ParticleMap::kIsoEG15_Jet20_ForJet10  )
+      else if( itrig == L1ParticleMap::kExclusiveJet25_Gap_Jet25 )
+      {
+         objectTypes.push_back( L1ParticleMap::kJet ) ;
+         objectTypes.push_back( L1ParticleMap::kJet ) ;
+
+         if( inputJetRefs.size() == 2 )
+         {
+            evaluateJetGapJetTrigger( inputForJetRefs,  
+                                      singleThresholds_[ itrig ],
+                                      decision,
+                                      outputJetRefsTmp,
+                                      combosTmp ) ;
+         }
+      }
+      else if( itrig == L1ParticleMap::kIsoEG10_Jet20_ForJet10  )
       {
          objectTypes.push_back( L1ParticleMap::kEM ) ;
          objectTypes.push_back( L1ParticleMap::kJet ) ;
 
-         evaluateDoubleObjectPlusForwardRapidityGapTrigger(
-            inputIsoEmRefs,
-            inputJetRefs,
-            doubleThresholds_[ itrig ].first,
-            doubleThresholds_[ itrig ].second,
-            singleThresholds_[ itrig ],
-            decision,
-            outputEmRefsTmp,
-            outputJetRefsTmp,
-            combosTmp ) ;
+         evaluateForwardRapidityGap(inputForJetRefs,
+                                    singleThresholds_[ itrig ],
+                                    decision);
+
+         if(decision){
+           decision = false;
+           evaluateDoubleDifferentCaloObjectTrigger(
+              inputIsoEmRefs,
+	      inputCenJetTauJetRefs,
+	      doubleThresholds_[ itrig ].first,
+	      doubleThresholds_[ itrig ].second,
+	      decision,
+	      outputEmRefsTmp,
+	      outputJetRefsTmp,
+	      combosTmp );
+         }
       }
       else if( itrig == L1ParticleMap::kMinBias_HTT10 )
       {
-	 objectTypes.push_back( L1ParticleMap::kEtTotal ) ;
+	 objectTypes.push_back( L1ParticleMap::kEtHad ) ;
 
 	 if( ht >= 10. )
 	 {
@@ -2556,87 +2612,43 @@ L1ExtraParticleMapProd::evaluateForwardRapidityGap(
    }
 }
 
-template< class TCollection1, class TCollection2 >
-void
-L1ExtraParticleMapProd::evaluateDoubleObjectPlusForwardRapidityGapTrigger(
-   const std::vector< edm::Ref< TCollection1 > >& inputRefs1, // input
-   const std::vector< edm::Ref< TCollection2 > >& inputRefs2, // input
-   const double& etThreshold1,                                // input
-   const double& etThreshold2,                                // input
-   const double& etThreshold3,                                // input
-   bool& decision,                                            // output
-   std::vector< edm::Ref< TCollection1 > >& outputRefs1,      // output
-   std::vector< edm::Ref< TCollection2 > >& outputRefs2,      // output
-   l1extra::L1ParticleMap::L1IndexComboVector& combos )       // output
-{
-   
-   for( size_t i = 0 ; i < inputRefs1.size() ; ++i )
-   {
-      decision = false;
-      const edm::Ref< TCollection1 >& refi = inputRefs1[ i ] ;
-      if( refi.get()->et() >= etThreshold1 )
-      {
-         for( size_t j = 0 ; j < inputRefs2.size() ; ++j )
-         {
-            const edm::Ref< TCollection2 >& refj = inputRefs2[ j ] ;
-
-            if( refj.get()->et() >= etThreshold2 )
-            {
-
-               // first conditions are ok
-               decision = true ;
-               // veto if 1 jets (with e_t(jet)>threshold2)
-	       // in each forward region, i.e. no rapidity gap
-               evaluateForwardRapidityGap( inputRefs2,
-					   etThreshold3,
-					   decision ) ;
-
-               if( decision )
-               {
-                  // If the two objects are already in their respective lists,
-                  // find their indices.
-                  int iInList = kDefault ;
-                  for( size_t iout = 0 ; iout < outputRefs1.size() ; ++iout )
-                  {
-                     if( refi == outputRefs1[ iout ] )
-                     {
-                        iInList = iout ;
-                     }
-                  }
-                  int jInList = kDefault ;
-                  for( size_t jout = 0 ; jout < outputRefs2.size() ; ++jout )
-                  {
-                     if( refj == outputRefs2[ jout ] )
-                     {
-                        jInList = jout ;
-                     }
-                  }
-
-                  // If either object is not in the list, add it, and
-                  // record its index.
-                  if( iInList == kDefault )
-                  {
-                     iInList = outputRefs1.size() ;
-                     outputRefs1.push_back( refi ) ;
-                  }
-
-                  if( jInList == kDefault )
-                  {
-                     jInList = outputRefs2.size() ;
-                     outputRefs2.push_back( refj ) ;
-                  }
-
-                  // Record this object combination.
-                  l1extra::L1ParticleMap::L1IndexCombo combo ;
-                  combo.push_back( iInList ) ;
-                  combo.push_back( jInList ) ;
-                  combos.push_back( combo ) ;
-               } 
-            }
-         }
-      }
-   }
-}
+// void
+// L1ExtraParticleMapProd::evaluateDoubleExclusiveIsoEG(
+//    const l1extra::L1EmParticleVectorRef& inputRefs1,         // input
+//    const l1extra::L1JetParticleVectorRef& inputRefs2,        // input
+//    const double& etThreshold1,                                // input
+//    const double& etThreshold2,                                // input
+//    bool& decision,                                            // output
+//    l1extra::L1EmParticleVectorRef& outputRefs1,               // output
+//    l1extra::L1ParticleMap::L1IndexComboVector& combos )       // output
+// {
+//    if ( inputRefs1.size() ==2 )
+//       {  // 2 iso EG
+//          decision=true;
+//          if (inputRefs2.size()>0)
+//             {   // should veto if there are jets, with pt>thresh
+//                for( size_t j = 0 ; j < inputRefs2.size() ; ++j )
+//                   {
+//                      if(inputRefs2[j].get()->gctJetCand()->regionId() ==
+// 			inputRefs1[0].get()->gctEmCand()->regionId())continue;
+//                      if(inputRefs2[j].get()->gctJetCand()->regionId() ==
+// 			inputRefs1[1].get()->gctEmCand()->regionId())continue;
+//                      if(inputRefs2[j].get()->et( )> etThreshold2  ) {
+// 		       decision=false; break; }
+// 		     // break : for a faster algorithm
+//                   }
+//             }
+//          if(decision)
+//            {   // threshold evaluation for the Exclusive double isoEG
+//               decision = false;
+//               evaluateDoubleSameObjectTrigger( inputRefs1,
+//                                                etThreshold1,
+//                                                decision,
+//                                                outputRefs1,
+//                                                combos ) ;
+//            }
+//       }
+// }
 
 
 //define this as a plug-in

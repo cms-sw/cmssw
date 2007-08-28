@@ -58,6 +58,8 @@ EcalBarrelSimHitsValidation::EcalBarrelSimHitsValidation(const edm::ParameterSet
   meEBe9oe25_  = 0; 
   meEBe16oe25_ = 0;
 
+  myEntries = 0;
+  for (int myStep = 0; myStep<26; myStep++) { eRLength[myStep] = 0.0; }
 
   Char_t histo[200];
    
@@ -123,7 +125,10 @@ void EcalBarrelSimHitsValidation::beginJob(const edm::EventSetup& c){
 }
 
 void EcalBarrelSimHitsValidation::endJob(){
-
+  
+  for (int myStep=0; myStep<26; myStep++){
+    if (meEBLongitudinalShower_) meEBLongitudinalShower_->Fill(float(myStep), eRLength[myStep]/myEntries);
+  }
 }
 
 void EcalBarrelSimHitsValidation::analyze(const edm::Event& e, const edm::EventSetup& c){
@@ -138,6 +143,8 @@ void EcalBarrelSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
 
   std::vector<PCaloHit> theEBCaloHits;
   theEBCaloHits.insert(theEBCaloHits.end(), EcalHitsEB->begin(), EcalHitsEB->end());
+
+  myEntries++;
 
   double EBEnergy_ = 0.;
   std::map<unsigned int, std::vector<PCaloHit>,std::less<unsigned int> > CaloHitMap;
@@ -214,9 +221,7 @@ void EcalBarrelSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
   
   if ( MyPEcalValidInfo->eb1x1() > 0. ) {
     std::vector<float>  BX0 = MyPEcalValidInfo->bX0();
-    for (int ii=0;ii< 26;ii++ ) {
-      if (meEBLongitudinalShower_) meEBLongitudinalShower_->Fill(float(ii), BX0[ii]);
-    }
+    for (int myStep=0; myStep< 26; myStep++ ) { eRLength[myStep] += BX0[myStep]; }
   }
 }
 

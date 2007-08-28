@@ -26,11 +26,10 @@ class CompositeTECWedge : public TECWedge{
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
 	      const MeasurementEstimator&) const;
 
-  virtual void
-  groupedCompatibleDetsV( const TrajectoryStateOnSurface& startingState,
+  virtual std::vector<DetGroup> 
+  groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
 			 const Propagator& prop,
-			 const MeasurementEstimator& est,
-			 std::vector<DetGroup> & result) const;
+			 const MeasurementEstimator& est) const;
 
  private:
   // private methods for the implementation of groupedCompatibleDets()
@@ -50,7 +49,19 @@ class CompositeTECWedge : public TECWedge{
 			float window, 
 			std::vector<DetGroup>& result,
 			bool checkClosest) const;
-  
+
+  bool overlap( const GlobalPoint& gpos, const GeomDet& det, float window) const;
+
+  float computeWindowSize( const GeomDet* det, 
+			   const TrajectoryStateOnSurface& tsos, 
+			   const MeasurementEstimator& est) const;
+
+  float calculatePhiWindow( const MeasurementEstimator::Local2DVector& maxDistance, 
+			    const TrajectoryStateOnSurface& ts, 
+			    const BoundPlane& plane) const;
+
+  std::pair<float, float> computeDetPhiRange( const BoundPlane& plane) const;
+
   int findClosestDet( const GlobalPoint& startPos,int sectorId) const;
 
   const std::vector<const GeomDet*>& subWedge( int ind) const {

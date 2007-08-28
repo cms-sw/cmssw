@@ -28,7 +28,7 @@ reference type.
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Apr  3 16:37:59 EDT 2006
-// $Id: RefToBase.h,v 1.21 2007/07/09 07:28:49 llista Exp $
+// $Id: RefToBase.h,v 1.24 2007/07/24 11:37:36 llista Exp $
 //
 
 // system include files
@@ -58,6 +58,7 @@ namespace edm {
   template<typename T> class RefToBaseVector;
   template<typename C, typename T, typename F> class Ref;
   template<typename C> class RefProd;
+  template<typename T> class RefToBaseProd;
 
   template <class T>
   class RefToBase
@@ -71,6 +72,7 @@ namespace edm {
     explicit RefToBase(Ref<C1, T1, F1> const& r);
     template <typename C> 
     explicit RefToBase(RefProd<C> const& r);
+    explicit RefToBase(RefToBaseProd<T> const& r, size_t i);
     template <typename T1>
     explicit RefToBase(RefToBase<T1> const & r );
     RefToBase(boost::shared_ptr<reftobase::RefHolderBase> p);
@@ -84,6 +86,7 @@ namespace edm {
     value_type const* get() const;
 
     ProductID id() const;
+    size_t key() const;
 
     template <class REF> REF castTo() const;
 
@@ -171,8 +174,8 @@ namespace edm {
   RefToBase<T> const&
   RefToBase<T>:: operator= (RefToBase<T> const& iRHS) 
   {
-    RefToBase<T> temp(iRHS);
-    this->swap(temp);
+    reftobase::BaseHolder<value_type>* h = iRHS.holder_;
+    holder_ = h == 0 ? 0 : h->clone();
     return *this;
   }
 
@@ -192,7 +195,6 @@ namespace edm {
     return getPtrImpl();
   }
 
-
   template <class T>
   inline
   T const* 
@@ -208,7 +210,19 @@ namespace edm {
   { 
     return  holder_ ? holder_->id() : ProductID();
   }
-    
+
+  template <class T>
+  inline
+  size_t 
+  RefToBase<T>::key() const 
+  { 
+    if ( holder_ == 0 )
+	throw edm::Exception(errors::InvalidReference)
+	  << "attempting get key from  null RefToBase;\n"
+	  << "You should check for nullity before calling key().";
+    return  holder_->key();
+  }
+
   /// cast to a concrete type
   template <class T>
   template <class REF>
@@ -312,6 +326,19 @@ namespace edm {
     a.swap(b);
   }
 
+}
+
+#include "DataFormats/Common/interface/RefToBaseProd.h"
+
+namespace edm {
+  template <class T>
+  inline
+  RefToBase<T>::RefToBase(RefToBaseProd<T> const& r, size_t i) {
+    const View<T> * v = r.operator->();
+    RefToBase<T> ri = v->refAt( i );
+    reftobase::BaseHolder<value_type> * h = ri.holder_;
+    holder_ = h->clone();
+  }
 }
 
 #endif

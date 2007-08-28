@@ -1,4 +1,4 @@
-// $Id$
+// $Id: FragmentCollector.cc,v 1.33 2007/05/16 22:55:03 hcheung Exp $
 
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/interface/ProgressMarker.h"
@@ -26,8 +26,28 @@ using namespace std;
 static const bool debugme = getenv("FRAG_DEBUG")!=0;  
 #define FR_DEBUG if(debugme) std::cerr
 
+
 namespace stor
 {
+
+// TODO fixme: this quick fix to give thread status should be reviewed!
+  struct SMFC_thread_data
+  {
+    SMFC_thread_data() {
+      exception_in_thread = false;
+      reason_for_exception = "";
+    }
+
+    volatile bool exception_in_thread;
+    std::string reason_for_exception;
+  };
+
+  static SMFC_thread_data SMFragCollThread;
+
+  bool getSMFC_exceptionStatus() { return SMFragCollThread.exception_in_thread; }
+  std::string getSMFC_reason4Exception() { return SMFragCollThread.reason_for_exception; }
+
+
   FragmentCollector::FragmentCollector(HLTInfo& h,Deleter d,
                                        const string& config_str):
     cmd_q_(&(h.getCommandQueue())),
@@ -65,7 +85,18 @@ namespace stor
 
   void FragmentCollector::run(FragmentCollector* t)
   {
-    t->processFragments();
+    try {
+      t->processFragments();
+    }
+    catch(cms::Exception& e)
+    {
+       edm::LogError("StorageManager") << "Fatal error in FragmentCollector thread: " << "\n"
+                 << e.explainSelf() << std::endl;
+       SMFragCollThread.exception_in_thread = true;
+       SMFragCollThread.reason_for_exception = "Fatal error in FragmentCollector thread: \n" +
+          e.explainSelf();
+    }
+    // just let the thread end here there is no cleanup, no recovery possible
   }
 
   void FragmentCollector::start()

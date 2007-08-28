@@ -1,13 +1,15 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/WrappedClassName.h"
 #include "Reflex/Type.h"
 #include <ostream>
 #include <sstream>
+#include <stdlib.h>
 
 /*----------------------------------------------------------------------
 
-$Id: BranchDescription.cc,v 1.1 2007/03/04 04:48:09 wmtan Exp $
+$Id: BranchDescription.cc,v 1.2 2007/06/14 03:38:31 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -28,7 +30,9 @@ namespace edm {
     produced_(false),
     present_(true),
     provenancePresent_(true),
-    transient_(false)
+    transient_(false),
+    splitLevel_(rootDefaultSplitLevel),
+    basketSize_(rootDefaultBasketSize)
   {
     // do not call init here! It will result in an exception throw.
   }
@@ -57,7 +61,9 @@ namespace edm {
     produced_(true),
     present_(true),
     provenancePresent_(true),
-    transient_(false) 
+    transient_(false),
+    splitLevel_(rootDefaultSplitLevel),
+    basketSize_(rootDefaultBasketSize)
   {
     psetIDs_.insert(modDesc.parameterSetID());
     processConfigurationIDs_.insert(modDesc.processConfigurationID());
@@ -92,7 +98,10 @@ namespace edm {
     produced_(true),
     present_(true),
     provenancePresent_(true),
-    transient_(false) {
+    transient_(false),
+    splitLevel_(rootDefaultSplitLevel),
+    basketSize_(rootDefaultBasketSize)
+  {
     init();
   }
 
@@ -129,6 +138,24 @@ namespace edm {
     ROOT::Reflex::Type t = ROOT::Reflex::Type::ByName(fullClassName());
     ROOT::Reflex::PropertyList p = t.Properties();
     transient_ = (p.HasProperty("persistent") ? p.PropertyAsString("persistent") == std::string("false") : false);
+
+    ROOT::Reflex::Type wt = ROOT::Reflex::Type::ByName(wrappedClassName(fullClassName()));
+    ROOT::Reflex::PropertyList wp = wt.Properties();
+    if (wp.HasProperty("splitLevel")) {
+	splitLevel_ = strtol(wp.PropertyAsString("splitLevel").c_str(), 0, 0);
+	if (splitLevel_ > rootDefaultSplitLevel || splitLevel_ < 0) {
+          throw cms::Exception("IllegalSplitLevel") << "' An illegal ROOT split level of " <<
+	  splitLevel_ - 1 << " is specified for class " << wrappedClassName(fullClassName()) << ".'\n";
+	}
+	++splitLevel_; //Compensate for wrapper
+    }
+    if (wp.HasProperty("basketSize")) {
+	basketSize_ = strtol(wp.PropertyAsString("basketSize").c_str(), 0, 0);
+	if (basketSize_ <= 0) {
+          throw cms::Exception("IllegalBasketSize") << "' An illegal ROOT basket size of " <<
+	  basketSize_ << " is specified for class " << wrappedClassName(fullClassName()) << "'.\n";
+	}
+    }
   }
 
   ParameterSetID const&

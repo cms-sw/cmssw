@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/03/28 20:33:07 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/06/19 11:47:52 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -107,7 +107,7 @@ HLTrigReport::endJob()
   using namespace std;
   const unsigned int n(hlNames_.size());
 
-    cout << endl;
+    cout << dec << endl;
     cout << "HLT-Report " << "---------- Event  Summary ------------\n";
     cout << "HLT-Report"
 	 << " Events total = " << nEvents_

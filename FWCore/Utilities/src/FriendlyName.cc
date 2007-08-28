@@ -37,7 +37,7 @@ namespace edm {
     }
     static boost::regex const reWrapper("edm::Wrapper<(.*)>");
     static boost::regex const reString("std::basic_string<char>");
-    static boost::regex const reSorted("edm::SortedCollection<(.*), *edm::StrictWeakOrdering<(.*)> >");
+    static boost::regex const reSorted("edm::SortedCollection<(.*), *edm::StrictWeakOrdering<\\1 *> >");
     static boost::regex const reUnsigned("unsigned ");
     static boost::regex const reLong("long ");
     static boost::regex const reVector("std::vector");

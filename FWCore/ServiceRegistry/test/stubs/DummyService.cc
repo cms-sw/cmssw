@@ -8,14 +8,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 19:52:01 EDT 2005
-// $Id: DummyService.cc,v 1.1 2005/09/09 17:23:39 chrjones Exp $
+// $Id: DummyService.cc,v 1.2 2005/09/10 02:08:49 wmtan Exp $
 //
 
 // system include files
 
 // user include files
 #include "FWCore/ServiceRegistry/test/stubs/DummyService.h"
-#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
 //
 // constants, enums and typedefs

@@ -126,8 +126,7 @@ void DDTIDModuleAlgo::execute() {
   LogDebug("TIDGeom") << "==>> Constructing DDTIDModuleAlgo...";
 
   DDName parentName = parent().name(); 
-  DDName name, matname;
-  DDMaterial matter;
+  DDName name;
 
   double dzdif = fullHeight + topFrameHeight;
   double topfr = bottomFrameHeight - bottomFrameOver;
@@ -147,10 +146,13 @@ void DDTIDModuleAlgo::execute() {
   double h1    = 0.5 * moduleThick;
   double dz    = 0.5 * (dzdif + topfr);
   
-  DDSolid solid = DDSolidFactory::trap(parentName, dz, 0, 0,
-				       h1, bl1, bl1, 0, h1, bl2, bl2, 0);
+  DDSolid    solid = DDSolidFactory::trap(parentName, dz, 0, 0,
+					  h1, bl1, bl1, 0, h1, bl2, bl2, 0);
+  DDName     matname = DDName(DDSplit(genMat).first, DDSplit(genMat).second);
+  DDMaterial matter  = DDMaterial(matname);
+  DDLogicalPart module(solid.ddname(), matter, solid);
   LogDebug("TIDGeom") << "DDTIDModuleAlgo test:\t" << solid.name() 
-		      << " Trapezoid " << " of dimensions " << dz 
+		      << " Trap made of " << genMat << " of dimensions " << dz 
 		      << ", 0, 0, " << h1  << ", " << bl1 << ", " << bl1 
 		      << ", 0, " << h1 << ", " << bl2  << ", " << bl2 
 		      << ", 0";

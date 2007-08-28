@@ -86,6 +86,22 @@ public:
 
   boost::python::list getVPSet(bool tracked, std::string const& name);
 
+  // no way to interface straight into the other python InputTag
+  edm::InputTag newInputTag(const std::string& label, 
+                            const std::string& instance,
+                            const std::string& process)
+  {
+    return edm::InputTag(label, instance, process);
+  }
+
+  void addNewFileInPath(bool tracked, std::string const & name, std::string const & value);
+
+  PythonParameterSet newPSet() const {return PythonParameterSet();}
+
+  const edm::ParameterSet & pset() const {return theParameterSet;}
+
+  std::string dump() const {return theParameterSet.dump();}
+
 private:
   edm::ParameterSet theParameterSet;
 };

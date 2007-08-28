@@ -159,6 +159,7 @@ namespace edm {
       virtual const_iterator end() const = 0;
       virtual void push_back( const BaseHolder<T> * ) = 0;
       virtual std::auto_ptr<RefVectorHolderBase> vectorHolder() const = 0;
+      virtual const void * product() const = 0;
     };
 
   }

@@ -1,8 +1,4 @@
 <lcgdict>
   <class name="RoadSearchCloud"/>
-  <class name="std::vector<const TrackingRecHit*>"/>
-  <class name="std::vector<RoadSearchCloud>"/>
-  <class name="edm::Wrapper<std::vector<RoadSearchCloud> >"/>
-  <class name="edm::RefVector<std::vector<RoadSearchCloud>,RoadSearchCloud,edm::refhelper::FindUsingAdvance<std::vector<RoadSearchCloud>,RoadSearchCloud> >"/>
-  <class name="edm::Ref<std::vector<RoadSearchCloud>,RoadSearchCloud,edm::refhelper::FindUsingAdvance<std::vector<RoadSearchCloud>,RoadSearchCloud> >"/>
+  <class name="std::vector<RoadSearchCloud>" persistent="false"/>
 </lcgdict>

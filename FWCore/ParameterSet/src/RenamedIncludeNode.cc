@@ -55,6 +55,7 @@ namespace edm {
           << " in file " << name()
           << "\nfrom " << traceback();
       }
+      return found;
     }
 
 

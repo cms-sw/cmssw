@@ -1,3 +1,30 @@
+2007-08-28  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-13-07
+	* *now* the WebGUI should be working properly with xmas ...
+	* removed 'addItemRetrieveListener' method.
+	* the actionPerformed from xdata::ActionListener (the app
+	instantiating the WebGUI) should now recompute all
+	necessary parameters upon any 'ItemGroupRetrieveEvent'.
+	
+
+2007-08-27  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-13-06
+	* fix to WebGUI: monitored parameters were not properly updated
+	for xmas
+
+2007-08-22  Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-13-05
+	* added board sense for DAQ GTFE block (fixes crash when running with fake data)
+
+2007-08-21  Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-13-04
+	* added functions to retrieve global event no. from GT blocks
+	* modified icon paths in webgui and added appl icon in hyperdaq page
+	
 2007-07-03  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-13-03

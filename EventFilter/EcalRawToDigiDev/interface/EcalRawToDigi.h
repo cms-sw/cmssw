@@ -6,12 +6,13 @@
 /*
  *\ Class EcalRawToDigi
  *
- * This class takes care of unpacking ECAL's raw data info
+ * This class takes unpacks ECAL raw data 
+ * produces digis and raw data format prolblems reports
  *
  * \file EcalRawToDigi.h
  *
- * $Date: 2007/05/23 14:37:20 $
- * $Revision: 1.6 $
+ * $Date: 2007/07/24 11:39:35 $
+ * $Revision: 1.8 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -19,7 +20,6 @@
 
 #include <iostream>                                 
 
-#include "ECALUnpackerException.h"
 #include "DCCRawDataDefinitions.h"
 
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>

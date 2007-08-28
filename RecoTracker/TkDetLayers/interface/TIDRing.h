@@ -10,7 +10,7 @@
 /** A concrete implementation for TID rings 
  */
 
-class TIDRing : public GeometricSearchDetWithGroups{
+class TIDRing : public GeometricSearchDet{
  public:
   TIDRing(std::vector<const GeomDet*>& innerDets,
 	  std::vector<const GeomDet*>& outerDets);
@@ -23,16 +23,25 @@ class TIDRing : public GeometricSearchDetWithGroups{
   
   virtual const std::vector<const GeometricSearchDet*>& components() const;
 
-  virtual std::pair<bool, TrajectoryStateOnSurface>
-  compatible( const TrajectoryStateOnSurface&, const Propagator&, 
-		       const MeasurementEstimator&) const;
+    
 
-  void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
-			       const Propagator& prop,
-			       const MeasurementEstimator& est,
-			       std::vector<DetGroup> & result) const;
-  
- 
+  virtual std::pair<bool, TrajectoryStateOnSurface>
+  compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
+	      const MeasurementEstimator&) const;
+
+  virtual std::vector<DetWithState> 
+  compatibleDets( const TrajectoryStateOnSurface& startingState,
+		  const Propagator& prop, 
+		  const MeasurementEstimator& est) const;
+
+  virtual std::vector<DetGroup> 
+  groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
+			 const Propagator& prop,
+			 const MeasurementEstimator& est) const;
+
+
+  virtual bool hasGroups() const {return true;}  
+
   //Extension of interface
   virtual const BoundDisk& specificSurface() const {return *theDisk;}
   
@@ -49,6 +58,17 @@ class TIDRing : public GeometricSearchDetWithGroups{
 		   const SubLayerCrossing& crossing,
 		   std::vector<DetGroup>& result) const;
 
+  float computeWindowSize( const GeomDet* det, 
+			   const TrajectoryStateOnSurface& tsos, 
+			   const MeasurementEstimator& est) const;
+
+  float calculatePhiWindow( const MeasurementEstimator::Local2DVector&  maxDistance, 
+  			    const TrajectoryStateOnSurface& ts, 
+			    const BoundPlane& plane) const;
+
+  std::pair<float, float> computeDetPhiRange( const BoundPlane& plane) const;
+  
+
   void searchNeighbors( const TrajectoryStateOnSurface& tsos,
 			const Propagator& prop,
 			const MeasurementEstimator& est,
@@ -56,6 +76,8 @@ class TIDRing : public GeometricSearchDetWithGroups{
 			float window, 
 			std::vector<DetGroup>& result,
 			bool checkClosest) const;
+
+  bool overlapInPhi( const GlobalPoint& startPoint,const GeomDet* det, float phiWin ) const;  
 
   const std::vector<const GeomDet*>& subLayer( int ind) const {
     return (ind==0 ? theFrontDets : theBackDets);
