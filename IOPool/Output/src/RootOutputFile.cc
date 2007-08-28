@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.6 2007/08/26 15:21:15 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.7 2007/08/28 14:31:01 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h" 
@@ -119,9 +119,6 @@ namespace edm {
 	  increment -= increment/8;	// Prevents overshoot
 	  fileSizeCheckEvent_ = eventCount_ + increment;
 	}
-    }
-    if (eventCount_ % om_->autoSaveInterval_ == 0) {
-	// QQQ
     }
   }
 
