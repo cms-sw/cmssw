@@ -8,12 +8,13 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:12:04 EDT 2006
-// $Id: SiStripElectronAlgo.cc,v 1.26 2007/05/09 19:03:36 duboscq Exp $
+// $Id: SiStripElectronAlgo.cc,v 1.27 2007/05/24 22:18:06 duboscq Exp $
 //
 
 // system include files
 
 // user include files
+#include "DataFormats/EgammaCandidates/interface/SiStripElectronFwd.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/SiStripElectronAlgo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

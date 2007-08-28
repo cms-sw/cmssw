@@ -2,7 +2,7 @@
 // Package:         RecoEgamma/EgammaHLTProducers
 // Class:           EgammaHLTRegionalPixelSeedGeneratorProducers
 //  Modified from TkSeedGeneratorFromTrk by Jeremy Werner, Princeton University, USA
-// $Id: EgammaHLTRegionalPixelSeedGeneratorProducers.cc,v 1.4 2007/05/11 15:47:09 futyand Exp $
+// $Id: EgammaHLTRegionalPixelSeedGeneratorProducers.cc,v 1.6 2007/06/28 16:58:01 ghezzi Exp $
 //
 
 #include <iostream>
@@ -23,6 +23,7 @@
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGeneratorFactory.h"

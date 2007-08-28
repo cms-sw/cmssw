@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "DataFormats/EgammaCandidates/interface/SiStripElectronFwd.h"
 #include "SiStripElectronProducer.h"
 #include "SiStripElectronAssociator.h"
 #include "ElectronPixelSeedProducer.h"

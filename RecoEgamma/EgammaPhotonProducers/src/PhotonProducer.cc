@@ -13,7 +13,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "RecoEgamma/EgammaPhotonProducers/interface/PhotonProducer.h"
 
 

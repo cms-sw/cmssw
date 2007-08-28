@@ -18,6 +18,7 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
 #include "RecoCaloTools/Selectors/interface/CaloConeSelector.h"

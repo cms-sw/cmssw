@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri May 26 16:11:30 EDT 2006
-// $Id: SiStripElectronProducer.cc,v 1.12 2007/03/27 19:32:54 futyand Exp $
+// $Id: SiStripElectronProducer.cc,v 1.1 2007/04/20 14:54:21 uberthon Exp $
 //
 
 // system include files
@@ -16,6 +16,7 @@
 #include <sstream>
 
 // user include files
+#include "DataFormats/EgammaCandidates/interface/SiStripElectronFwd.h"
 #include "SiStripElectronProducer.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/RoadSearchCloud/interface/RoadSearchCloudCollection.h"

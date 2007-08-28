@@ -1,5 +1,6 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "RecoEgamma/EgammaPhotonProducers/interface/PhotonProducer.h"
 #include "RecoEgamma/EgammaPhotonProducers/interface/PhotonCorrectionProducer.h"
 #include "RecoEgamma/EgammaPhotonProducers/interface/ConvertedPhotonProducer.h"

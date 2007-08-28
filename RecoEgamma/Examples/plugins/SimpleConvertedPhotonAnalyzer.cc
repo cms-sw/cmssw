@@ -23,6 +23,7 @@
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/EgammaCandidates/interface/ConvertedPhoton.h"
+#include "DataFormats/EgammaCandidates/interface/ConvertedPhotonFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 //
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"

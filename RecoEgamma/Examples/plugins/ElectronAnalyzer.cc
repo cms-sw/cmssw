@@ -13,7 +13,7 @@
 //
 // Original Author:  Alessandro Palma
 //         Created:  Thu Sep 21 11:41:35 CEST 2006
-// $Id: ElectronAnalyzer.cc,v 1.1 2007/03/22 16:12:08 futyand Exp $
+// $Id: ElectronAnalyzer.cc,v 1.1 2007/07/05 10:34:45 charlot Exp $
 //
 //
 
@@ -31,6 +31,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
+
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Math/interface/LorentzVector.h"

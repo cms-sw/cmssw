@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Tue Aug  1 15:24:02 EDT 2006
-// $Id: SiStripElectronAssociator.cc,v 1.2 2007/06/06 17:25:09 duboscq Exp $
+// $Id: SiStripElectronAssociator.cc,v 1.3 2007/06/15 15:36:47 tboccali Exp $
 //
 //
 
@@ -24,7 +24,7 @@
 #include "SiStripElectronAssociator.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "DataFormats/EgammaCandidates/interface/SiStripElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
