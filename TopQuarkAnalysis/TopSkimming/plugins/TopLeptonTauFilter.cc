@@ -5,8 +5,8 @@
  * default eta thresholds (lepton and jets) set to 3
  * At least two leptons and two jets present for each channel
  *
- * $Date: 2007/08/16 08:50:35 $
- * $Revision: 1.4 $
+ * $Date: 2007/08/17 18:58:42 $
+ * $Revision: 1.5 $
  *
  * \author Michele Gallinaro and Nuno Almeida - LIP
  *
@@ -26,7 +26,7 @@
 #include "TopQuarkAnalysis/TopSkimming/plugins/TopLeptonTauFilter.h"
 
 //electron includes
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
 
 //muon includes
 #include "DataFormats/MuonReco/interface/Muon.h"

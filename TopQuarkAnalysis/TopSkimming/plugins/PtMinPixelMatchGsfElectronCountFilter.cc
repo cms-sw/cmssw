@@ -7,7 +7,7 @@
  *
  */
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
 #include "PhysicsTools/UtilAlgos/interface/ObjectCountFilter.h"
 #include "PhysicsTools/UtilAlgos/interface/PtMinSelector.h"
 

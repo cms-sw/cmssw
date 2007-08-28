@@ -1,8 +1,8 @@
 // Original Author:  Dmytro Kovalskyi, UCSB
-// $Id$
+// $Id: TopDiLeptonFilter.cc,v 1.1 2007/07/31 03:25:14 dmytro Exp $
 #include "TopQuarkAnalysis/TopSkimming/plugins/TopDiLeptonFilter.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
