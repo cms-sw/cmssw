@@ -63,6 +63,14 @@ unsigned CSCDMBHeader::bxn() const
   return dmb_bxn;
 } 
 
+unsigned CSCDMBHeader::bxn12() const
+{
+  return dmb_bxn1;
+}
+
+
+
+
 unsigned CSCDMBHeader::l1a() const 
 {
   return dmb_l1a;

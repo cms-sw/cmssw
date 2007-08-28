@@ -31,6 +31,7 @@ public:
   unsigned crateID() const;
   unsigned dmbID() const;
   unsigned bxn() const;
+  unsigned bxn12() const;
   unsigned l1a() const;
   unsigned cfebAvailable() const;
   unsigned nalct() const;
