@@ -715,3 +715,4 @@ bool DaqMonitorBEInterface::hasOtherReport(const vector<MonitorElement *> &
 
 const string DaqMonitorBEInterface::monitorDirName = "DQMData";
 const string DaqMonitorBEInterface::referenceDirName = "Reference";
+const string DaqMonitorBEInterface::collateDirName = "Collate";

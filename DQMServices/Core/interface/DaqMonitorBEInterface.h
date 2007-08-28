@@ -101,6 +101,7 @@ class DaqMonitorBEInterface: public StringUtil
   /// name of global monitoring folder (containing all sources subdirectories)
   static const std::string monitorDirName;
   static const std::string referenceDirName;
+  static const std::string collateDirName;
   // ---------------- Miscellaneous -----------------------------
   
   /// true if directory exists
@@ -125,6 +126,7 @@ class DaqMonitorBEInterface: public StringUtil
   
   virtual void readReferenceME(std::string filename) = 0 ;
   virtual bool makeReferenceME(MonitorElement* me) = 0 ;
+  virtual bool isCollateME(MonitorElement* me) const = 0 ;
   virtual bool isReferenceME(MonitorElement* me) const = 0 ;
   virtual MonitorElement* getReferenceME(MonitorElement* me) const = 0 ;
   virtual void deleteME(MonitorElement* me) = 0 ;
