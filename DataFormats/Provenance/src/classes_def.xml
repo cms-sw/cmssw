@@ -37,6 +37,7 @@
    <field name="splitLevel_" transient="true"/>
    <field name="basketSize_" transient="true"/>
    <field name="moduleDescriptionID_" transient="true"/>
+   <field name="type_" transient="true"/>
  </class>
  <class name="edm::ParameterSetBlob"/>
  <class name="edm::ProcessConfiguration"/>
