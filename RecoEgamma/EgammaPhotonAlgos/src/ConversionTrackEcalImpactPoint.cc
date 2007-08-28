@@ -65,7 +65,11 @@ std::vector<math::XYZPoint> ConversionTrackEcalImpactPoint::find( const std::vec
 
       }
     }
-    
+
+
+    if ( stateAtECAL_.isValid() ) ecalImpactPosition = stateAtECAL_.globalPosition();
+
+
     result.push_back(ecalImpactPosition  );
 
   }
