@@ -22,7 +22,9 @@
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/JetReco/interface/CaloJetfwd.h"
 #include "DataFormats/JetReco/interface/GenJetfwd.h"
+#include "DataFormats/METReco/interface/GenMET.h"
 #include "DataFormats/METReco/interface/GenMETCollection.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 
 
