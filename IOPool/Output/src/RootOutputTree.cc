@@ -30,8 +30,8 @@ namespace edm {
 	tree_->Branch(prod.branchName().c_str(),
 		       wrappedClassName(prod.className()).c_str(),
 		       &pProd,
-		       prod.basketSize(),
-		       prod.splitLevel());
+		       (prod.basketSize() == BranchDescription::invalidBasketSize ? basketSize_ : prod.basketSize()),
+		       (prod.splitLevel() == BranchDescription::invalidSplitLevel ? splitLevel_ : prod.splitLevel()));
 	// we want the new branch name for the JobReport
 	branchNames_.push_back(prod.branchName());
       }

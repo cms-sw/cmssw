@@ -6,7 +6,7 @@
 BranchDescription: The full description of a Branch.
 This description also applies to every product instance on the branch.  
 
-$Id: BranchDescription.h,v 1.3 2007/08/23 23:32:52 wmtan Exp $
+$Id: BranchDescription.h,v 1.4 2007/08/25 14:46:14 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <iosfwd>
 #include <string>
@@ -19,6 +19,7 @@ $Id: BranchDescription.h,v 1.3 2007/08/23 23:32:52 wmtan Exp $
 #include "DataFormats/Provenance/interface/ModuleDescriptionID.h"
 #include "DataFormats/Provenance/interface/ProcessConfigurationID.h"
 
+#include "Reflex/Type.h"
 /*
   BranchDescription
 
@@ -29,8 +30,8 @@ $Id: BranchDescription.h,v 1.3 2007/08/23 23:32:52 wmtan Exp $
 
 namespace edm {
   struct BranchDescription {
-    static int const rootDefaultSplitLevel = 99;
-    static int const rootDefaultBasketSize = 16384;
+    static int const invalidSplitLevel = -1;
+    static int const invalidBasketSize = 0;
     enum MatchMode { Strict = 0,
 		     Permissive };
 
@@ -153,6 +154,9 @@ namespace edm {
     // Is the class of the branch marked as transient
     // in the data dictionary
     mutable bool transient_;
+
+    // The Reflex Type of the wrapped object.
+    mutable ROOT::Reflex::Type type_;
 
     // The split level of the branch, as marked
     // in the data dictionary.

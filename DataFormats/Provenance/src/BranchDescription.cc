@@ -2,14 +2,13 @@
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
-#include "Reflex/Type.h"
 #include <ostream>
 #include <sstream>
 #include <stdlib.h>
 
 /*----------------------------------------------------------------------
 
-$Id: BranchDescription.cc,v 1.2 2007/06/14 03:38:31 wmtan Exp $
+$Id: BranchDescription.cc,v 1.3 2007/08/23 23:32:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -31,8 +30,9 @@ namespace edm {
     present_(true),
     provenancePresent_(true),
     transient_(false),
-    splitLevel_(rootDefaultSplitLevel),
-    basketSize_(rootDefaultBasketSize)
+    type_(),
+    splitLevel_(invalidSplitLevel),
+    basketSize_(invalidBasketSize)
   {
     // do not call init here! It will result in an exception throw.
   }
@@ -62,8 +62,9 @@ namespace edm {
     present_(true),
     provenancePresent_(true),
     transient_(false),
-    splitLevel_(rootDefaultSplitLevel),
-    basketSize_(rootDefaultBasketSize)
+    type_(),
+    splitLevel_(invalidSplitLevel),
+    basketSize_(invalidBasketSize)
   {
     psetIDs_.insert(modDesc.parameterSetID());
     processConfigurationIDs_.insert(modDesc.processConfigurationID());
@@ -99,8 +100,9 @@ namespace edm {
     present_(true),
     provenancePresent_(true),
     transient_(false),
-    splitLevel_(rootDefaultSplitLevel),
-    basketSize_(rootDefaultBasketSize)
+    type_(),
+    splitLevel_(invalidSplitLevel),
+    basketSize_(invalidBasketSize)
   {
     init();
   }
@@ -139,13 +141,13 @@ namespace edm {
     ROOT::Reflex::PropertyList p = t.Properties();
     transient_ = (p.HasProperty("persistent") ? p.PropertyAsString("persistent") == std::string("false") : false);
 
-    ROOT::Reflex::Type wt = ROOT::Reflex::Type::ByName(wrappedClassName(fullClassName()));
-    ROOT::Reflex::PropertyList wp = wt.Properties();
+    type_ = ROOT::Reflex::Type::ByName(wrappedClassName(fullClassName()));
+    ROOT::Reflex::PropertyList wp = type_.Properties();
     if (wp.HasProperty("splitLevel")) {
 	splitLevel_ = strtol(wp.PropertyAsString("splitLevel").c_str(), 0, 0);
-	if (splitLevel_ > rootDefaultSplitLevel || splitLevel_ < 0) {
+	if (splitLevel_ < 0) {
           throw cms::Exception("IllegalSplitLevel") << "' An illegal ROOT split level of " <<
-	  splitLevel_ - 1 << " is specified for class " << wrappedClassName(fullClassName()) << ".'\n";
+	  splitLevel_ << " is specified for class " << wrappedClassName(fullClassName()) << ".'\n";
 	}
 	++splitLevel_; //Compensate for wrapper
     }
