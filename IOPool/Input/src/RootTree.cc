@@ -62,7 +62,6 @@ namespace edm {
         info.provenanceBranch_ = provBranch;
         info.productBranch_ = 0;
 	if (prod.present_) {
-          info.type = ROOT::Reflex::Type::ByName(wrappedClassName(prod.className()));
           info.productBranch_ = branch;
 	  //we want the new branch name for the JobReport
 	  branchNames_.push_back(prod.branchName());
