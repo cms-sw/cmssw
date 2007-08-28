@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: CaloGeometryBuilder.cc,v 1.1 2007/04/15 23:16:28 wmtan Exp $
+// $Id: CaloGeometryBuilder.cc,v 1.2 2007/04/17 16:15:28 case Exp $
 //
 //
 
@@ -22,6 +22,7 @@
 #include "Geometry/CaloEventSetup/plugins/CaloGeometryBuilder.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -70,8 +71,14 @@ CaloGeometryBuilder::produce(const IdealGeometryRecord& iRecord)
    } catch (...) {
      edm::LogWarning("MissingInput") << "No HCAL Geometry found";
    }
-
-
+   // look for zdc parts
+   try {
+     iRecord.get("ZDC", pG);
+     pCaloGeom->setSubdetGeometry(DetId::Calo, HcalZDCDetId::SubdetectorId,pG.product());
+   } catch(...) {
+     edm::LogWarning("MissingInput") << "No ZDC Geometry found";
+   }
+     
    // TODO: Look for ECAL parts
    try {
      iRecord.get("EcalBarrel", pG); 
