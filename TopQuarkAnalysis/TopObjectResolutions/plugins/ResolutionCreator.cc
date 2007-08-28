@@ -119,16 +119,35 @@ ResolutionCreator::ResolutionCreator(const edm::ParameterSet& iConfig)
   delete [] etbins; 
   
   nrFilled = 0;
+
 }
 
 
 ResolutionCreator::~ResolutionCreator()
 {
   outfile->cd();
-  for(Int_t ro=0; ro<6; ro++) {
-    for(Int_t aor=0; aor<1; aor++) {
+  Int_t ro=0;
+  Int_t aor=0;
+  Double_t et=0.;
+  Double_t eta=0.;
+  Double_t value,error;
+  // CD: create the output tree
+  TTree* tResVar = new TTree("tResVar","Resolution tree");
+  tResVar->Branch("Et",&et,"Et/D");
+  tResVar->Branch("Eta",&eta,"Eta/D");
+  tResVar->Branch("ro",&ro,"ro/I");
+  tResVar->Branch("aor",&aor,"aor/I");
+  tResVar->Branch("value",&value,"value/D");
+  tResVar->Branch("error",&error,"error/D");
+  
+  for(ro=0; ro<6; ro++) {
+    for(aor=0; aor<1; aor++) {
       for(int etab=0; etab<etanrbins; etab++) {	
+	//CD set eta at the center of the bin
+	eta = etanrbins > 1 ? (etabinVals_[etab]+etabinVals_[etab+1])/2. : 2.5 ; 
         for(int etb=0; etb<etnrbins; etb++) {
+	  //CD set et at the center of the bin
+	  et = (eTbinVals_[etb]+eTbinVals_[etb+1])/2.; 
           double maxcontent = 0.;
 	  int maxbin = 0;
 	  for(int nb=1; nb<hResEtEtaBin[ro][etab][etb][aor]->GetNbinsX(); nb ++){
@@ -142,14 +161,27 @@ ResolutionCreator::~ResolutionCreator()
 	  fResEtEtaBin[ro][etab][etb][aor] -> SetParameters(hResEtEtaBin[ro][etab][etb][aor] -> GetMaximum(),
 	                                                    hResEtEtaBin[ro][etab][etb][aor] -> GetMean(),
 							    hResEtEtaBin[ro][etab][etb][aor] -> GetRMS());
-          hResEtEtaBin[ro][etab][etb][aor] -> Fit(fResEtEtaBin[ro][etab][etb][aor]->GetName(),"QL");
+//TODO: CD: what is the best fit ? chi2 or likelihood ???
+          hResEtEtaBin[ro][etab][etb][aor] -> Fit(fResEtEtaBin[ro][etab][etb][aor]->GetName(),"Q");
+          //hResEtEtaBin[ro][etab][etb][aor] -> Fit(fResEtEtaBin[ro][etab][etb][aor]->GetName(),"QL");
           //fResEtEtaBin[ro][etab][etb][aor] -> SetRange(fResEtEtaBin[ro][etab][etb][aor]->GetParameter(1)-1.5*fResEtEtaBin[ro][etab][etb][aor]->GetParameter(2),
 	  //                                            fResEtEtaBin[ro][etab][etb][aor]->GetParameter(1)+1.5*fResEtEtaBin[ro][etab][etb][aor]->GetParameter(2));
           //hResEtEtaBin[ro][etab][etb][aor] -> Fit(fResEtEtaBin[ro][etab][etb][aor]->GetName(),"RQ");
           hResEtEtaBin[ro][etab][etb][aor] -> Write();
           hResEtaBin[ro][etab][aor]        -> SetBinContent(etb+1,fResEtEtaBin[ro][etab][etb][aor]->GetParameter(2));
           hResEtaBin[ro][etab][aor]        -> SetBinError(etb+1,fResEtEtaBin[ro][etab][etb][aor]->GetParError(2));
+	  //CD: Fill the tree
+	  value = fResEtEtaBin[ro][etab][etb][aor]->GetParameter(2); //parameter value
+	  error = fResEtEtaBin[ro][etab][etb][aor]->GetParError(2);  //parameter error
+	  tResVar->Fill();
 	}
+	//CD: add a fake entry in et=0 for the NN training
+	// for that, use a linear extrapolation.
+	et = 0.;
+	value = ((eTbinVals_[0]+eTbinVals_[1])/2.)*(fResEtEtaBin[ro][etab][0][aor]->GetParameter(2)-fResEtEtaBin[ro][etab][1][aor]->GetParameter(2))/((eTbinVals_[2]-eTbinVals_[0])/2.)+fResEtEtaBin[ro][etab][0][aor]->GetParameter(2);
+	error = fResEtEtaBin[ro][etab][0][aor]->GetParError(2)+fResEtEtaBin[ro][etab][1][aor]->GetParError(2);
+	tResVar->Fill();
+	// standard fit
         hResEtaBin[ro][etab][aor] -> Fit(fResEtaBin[ro][etab][aor]->GetName(),"Q");
         hResEtaBin[ro][etab][aor] -> Write();
         if(objectType_ != "met"){
