@@ -47,9 +47,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2007/08/14 22:45:55 $
-// $Revision: 1.48 $
+// $Author: burkett $
+// $Date: 2007/08/27 16:37:55 $
+// $Revision: 1.49 $
 //
 
 #include <vector>
@@ -320,8 +320,11 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<RoadSearchSeedCollection> in
 	    }
               
 	    // calculate range in phi around ringPhi
-	    double upperPhiRangeBorder = map_phi2(ringPhi + theMinimumHalfRoad);
-	    double lowerPhiRangeBorder = map_phi2(ringPhi - theMinimumHalfRoad);
+	    int nDetIds = (*ring)->getNumDetIds();
+	    double theHalfRoad = theMinimumHalfRoad*(2.0*Geom::pi())/((double)nDetIds);
+	    double upperPhiRangeBorder = map_phi2(ringPhi + theHalfRoad);
+	    double lowerPhiRangeBorder = map_phi2(ringPhi - theHalfRoad);
+
               
 	    if ( lowerPhiRangeBorder <= upperPhiRangeBorder ) {
                 
