@@ -5,7 +5,6 @@
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
-#include "Reflex/Type.h"
 #include "TTree.h"
 #include "TFile.h"
 class TBranch;
