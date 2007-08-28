@@ -3,12 +3,16 @@
 
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
-// $Id: CaloJetTester.h,v 1.1 2007/08/20 21:51:36 fedor Exp $
+// $Id: CaloJetTester.h,v 1.2 2007/08/24 17:42:36 fedor Exp $
 
 #include <string>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
+namespace reco {
+  class CaloJet;
+  class GenJet;
+}
 
 class MonitorElement;
 
@@ -23,6 +27,8 @@ public:
   virtual void endJob() ;
  
  private:
+  
+  void fillMatchHists (const reco::GenJet& fGenJet, const reco::CaloJet& fCaloJet);
 
   edm::InputTag mInputCollection;
   edm::InputTag mInputGenCollection;
@@ -64,23 +70,17 @@ public:
   MonitorElement* mMatchedGenJetsEta;
   MonitorElement* mGenJetMatchEnergyFraction;
   MonitorElement* mReverseMatchEnergyFraction;
-  MonitorElement* mDeltaEta_B;
-  MonitorElement* mDeltaEta_E;
-  MonitorElement* mDeltaEta_F;
-  MonitorElement* mDeltaPhi_B;
-  MonitorElement* mDeltaPhi_E;
-  MonitorElement* mDeltaPhi_F;
-  MonitorElement* mEScale_B;
-  MonitorElement* mEScale_E;
-  MonitorElement* mEScale_F;
-  MonitorElement* mDeltaE_B;
-  MonitorElement* mDeltaE_E;
-  MonitorElement* mDeltaE_F;
+  MonitorElement* mRMatch;
+  MonitorElement* mDeltaEta;
+  MonitorElement* mDeltaPhi;
+  MonitorElement* mEScale;
+  MonitorElement* mDeltaE;
 
   // Matching parameters
   double mMatchGenPtThreshold;
   double mGenEnergyFractionThreshold;
   double mReverseEnergyFractionThreshold;
+  double mRThreshold;
 };
 
 #endif

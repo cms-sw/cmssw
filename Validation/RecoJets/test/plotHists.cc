@@ -7,6 +7,7 @@
 #include "TKey.h"
 #include "TH1F.h"
 #include "TH2F.h"
+#include "TH3F.h"
 #include "TF1.h"
 #include "TGraphErrors.h"
 #include "TMultiGraph.h"
@@ -38,13 +39,19 @@ public:
 TH1D* getSlice (const TH2F& fHist, int fSlice, int fNSlices=1) {
   char title[1024];
   sprintf (title, "%s_slice_y%d", fHist.GetName(), fSlice);
-  return fHist.ProjectionY (title, fSlice, fSlice+fNSlices, "e");
+  return fHist.ProjectionY (title, fSlice, fSlice+fNSlices-1, "e");
 }
 
 TH1D* getSlice2 (const TH2F& fHist, int fSlice, int fNSlices=1) {
   char title[1024];
   sprintf (title, "%s_slice_x%d", fHist.GetName(), fSlice);
-  return fHist.ProjectionX (title, fSlice, fSlice+fNSlices, "e");
+  return fHist.ProjectionX (title, fSlice, fSlice+fNSlices-1, "e");
+}
+
+TH1D* getSlice (const TH3F& fHist, int fSliceXMin, int fSliceXMax, int fSliceYMin, int fSliceYMax) {
+  char title[1024];
+  sprintf (title, "%s_slice_xy%d_%d_%d_%d", fHist.GetName(), fSliceXMin, fSliceXMax, fSliceYMin, fSliceYMax);
+  return fHist.ProjectionZ (title, fSliceXMin, fSliceXMax, fSliceYMin, fSliceYMax, "e");
 }
 
 PlotPoint limitedFit (const TH1D& fHist, int fFirstBin, int fLastBin) {
@@ -58,6 +65,7 @@ PlotPoint limitedFit (const TH1D& fHist, int fFirstBin, int fLastBin) {
   //  hist.Fit (&gauss, "QN", "", xmin, xmax);
   hist.Fit (&gauss, "Q", "", xmin, xmax);
   // draw histogram
+  if (0)
   {
     gStyle->SetOptFit (111);
     TCanvas c1 ("c1","A Simple Graph with error bars",500,500);
@@ -79,10 +87,10 @@ PlotPoint limitedFit (const TH1D& fHist, int fFirstBin, int fLastBin) {
   result.width = width;
   result.widtherror = widthError;
   result.valid = true;
-  std::cout << "limitedFit-> " << fFirstBin << '/' << fLastBin
-	    << ", chi2: " << chi2 
-	    << ", result: " << result.y << '/' << result.meanerror << '/' 
-	    << result.width << '/' << result.widtherror << std::endl;
+//   std::cout << "limitedFit-> " << fFirstBin << '/' << fLastBin
+// 	    << ", chi2: " << chi2 
+// 	    << ", result: " << result.y << '/' << result.meanerror << '/' 
+// 	    << result.width << '/' << result.widtherror << std::endl;
   return result;
 }
 
@@ -153,69 +161,107 @@ PlotPoints profileFit (const TH2F& fHist) {
   return result;
 }
 
-PlotPoints getEfficiency (const TH2F& fHistNumerator, const TH2F& fHistDenumerator, int fSlice, int fNSlices=1) {
+double plusepsilon (double x) {
+  return x+fabs(x)*1.e-5;
+}
+
+double minusepsilon (double x) {
+  return x-fabs(x)*1.e-5;
+}
+
+PlotPoints profileFitX (const TH3F& fHist, double fYmin, double fYmax, bool fSymmetric = true) {
   PlotPoints result;
-  TH1D* numerator = getSlice (fHistNumerator, fSlice, fNSlices);
-  TH1D* denumerator = getSlice (fHistDenumerator, fSlice, fNSlices);
-  for (int ibin = 1; ibin <= fHistNumerator.GetNbinsY(); ++ibin) {
-    PlotPoint point;
-    double nn = numerator->GetBinContent (ibin);
-    double dn = denumerator->GetBinContent (ibin);
-    point.x = numerator->GetBinCenter (numerator->GetBin (ibin));
-    point.width = point.syserror = point.widtherror = 0.;
-    if (nn > 0 && dn > 0) {
-      point.y = nn / dn;
-      if (nn > dn/2) point.meanerror = sqrt (dn - nn) / dn;
-      else point.meanerror = sqrt (nn) / dn;
-      point.valid = true;
-    }
-    else {
-      point.y = 0;
-      point.meanerror = 0;
-      point.valid = false;
-    }
-    std::cout << "getEfficiency-> " << fHistNumerator.GetName() << " ibin nn/dn/x/eff/deff: " << ibin << " "
-	      << nn << '/' << dn << '/' << point.x << '/' << point.y << '/' << point.meanerror << std::endl;
-    result.points.push_back (point);
+  TAxis* xAxis = fHist.GetXaxis();
+  TAxis* yAxis = fHist.GetYaxis();
+  int sliceYMin = 0;
+  int sliceYMax = 0;
+  int sliceYMin2 = 0;
+  int sliceYMax2 = 0;
+  for (int iy = 1; iy < yAxis->GetNbins(); ++iy) {
+//      std::cout << "profileFitX->" << iy << '/' << yAxis->GetBinLowEdge (iy) << '/' 
+//  	      << fYmin << '/' << sliceYMin << '/' << (yAxis->GetBinLowEdge (iy) <= fYmin) << std::endl;
+    if (yAxis->GetBinLowEdge (iy) <= plusepsilon(fYmin)) sliceYMin = iy;
   }
+  for (int iy = yAxis->GetNbins(); iy >=1; --iy) {
+//      std::cout << "profileFitX_r->" << iy << '/' << yAxis->GetBinLowEdge (iy+1) << '/' 
+//  	      << fYmax << '/' << sliceYMax << '/' << (yAxis->GetBinLowEdge (iy+1) >= fYmax) << std::endl;
+    if (yAxis->GetBinLowEdge (iy+1) >= minusepsilon(fYmax)) sliceYMax = iy;
+  }
+  std::cout << "profileFitX-> ymin/ymax/binmin/binmax: " << fYmin << '/' << fYmax << '/' << sliceYMin << '/' << sliceYMax << std::endl;
+  if (fSymmetric) {
+    for (int iy = 1; iy < yAxis->GetNbins(); ++iy) {
+      if (yAxis->GetBinLowEdge (iy) <= plusepsilon(-fYmax)) sliceYMin2 = iy;
+    }
+    for (int iy = yAxis->GetNbins(); iy >=1; --iy) {
+      if (yAxis->GetBinLowEdge (iy+1) >= minusepsilon(-fYmin)) sliceYMax2 = iy;
+    }
+    std::cout << "profileFitX-> ymin/ymax/binmin/binmax 2: " << -fYmax << '/' << -fYmin << '/' << sliceYMin2 << '/' << sliceYMax2 << std::endl;
+  }
+  for (int iSlice = 1; iSlice <= xAxis->GetNbins(); ++iSlice) {
+    TH1D* slice = getSlice (fHist, iSlice, iSlice, sliceYMin, sliceYMax);
+    if (fSymmetric) {
+      TH1D* slice2 = getSlice (fHist, iSlice, iSlice, sliceYMin2, sliceYMax2);
+      slice->Add (slice2);
+      delete slice2;
+    }
+    std::cout << "profileFitX-> processing hist " << fHist.GetName() << ", slice " << iSlice << std::endl;
+    PlotPoint fit = fitHist (*slice);
+    fit.x = xAxis->GetBinCenter (iSlice);
+    result.points.push_back (fit);
+    delete slice;
+  }
+  result.name = "somename";
   return result;
 }
 
-PlotPoints getEfficiency2 (const TH2F& fHistNumerator, const TH2F& fHistDenumerator, int fSlice, int fNSlices=1) {
+PlotPoints profileFitY (const TH3F& fHist, double fXmin, double fXmax, bool fSymmetric = true) {
   PlotPoints result;
-  TH1D* numerator = getSlice2 (fHistNumerator, fSlice, fNSlices);
-  TH1D* denumerator = getSlice2 (fHistDenumerator, fSlice, fNSlices);
-  for (int ibin = 1; ibin <= numerator->GetNbinsX(); ++ibin) {
-    PlotPoint point;
-    double nn = numerator->GetBinContent (ibin);
-    double dn = denumerator->GetBinContent (ibin);
-    point.x = numerator->GetBinCenter (numerator->GetBin (ibin));
-    point.width = point.syserror = point.widtherror = 0.;
-    if (nn > 0 && dn > 0) {
-      point.y = nn / dn;
-      if (nn > dn/2) point.meanerror = sqrt (dn - nn) / dn;
-      else point.meanerror = sqrt (nn) / dn;
-      point.valid = true;
-    }
-    else {
-      point.y = 0;
-      point.meanerror = 0;
-      point.valid = false;
-    }
-    std::cout << "getEfficiency-> " << fHistNumerator.GetName() << " ibin nn/dn/x/eff/deff: " << ibin << " "
-	      << nn << '/' << dn << '/' << point.x << '/' << point.y << '/' << point.meanerror << std::endl;
-    result.points.push_back (point);
+  TAxis* xAxis = fHist.GetXaxis();
+  TAxis* yAxis = fHist.GetYaxis();
+  int sliceXMin = 0;
+  int sliceXMax = 0;
+  int sliceXMin2 = 0;
+  int sliceXMax2 = 0;
+  for (int ix = 1; ix < xAxis->GetNbins(); ++ix) {
+    if (xAxis->GetBinLowEdge (ix) <= plusepsilon(fXmin)) sliceXMin = ix;
   }
+  for (int ix = xAxis->GetNbins(); ix >=1; --ix) {
+    if (xAxis->GetBinLowEdge (ix+1) >= minusepsilon(fXmax)) sliceXMax = ix;
+  }
+  std::cout << "profileFitY-> xmin/xmax/binmin/binmax: " << fXmin << '/' << fXmax << '/' << sliceXMin << '/' << sliceXMax << std::endl;
+  if (fSymmetric) {
+    for (int ix = 1; ix < xAxis->GetNbins(); ++ix) {
+      if (xAxis->GetBinLowEdge (ix) <= plusepsilon(-fXmax)) sliceXMin2 = ix;
+    }
+    for (int ix = xAxis->GetNbins(); ix >=1; --ix) {
+      if (xAxis->GetBinLowEdge (ix+1) >= minusepsilon(-fXmin)) sliceXMax2 = ix;
+    }
+    std::cout << "profileFitY-> xmin/xmax/binmin/binmax 2: " << -fXmax << '/' << -fXmin << '/' << sliceXMin2 << '/' << sliceXMax2 << std::endl;
+  }
+  for (int iSlice = 1; iSlice <= yAxis->GetNbins(); ++iSlice) {
+    TH1D* slice = getSlice (fHist, sliceXMin, sliceXMax, iSlice, iSlice);
+    if (fSymmetric) {
+      TH1D* slice2 = getSlice (fHist, sliceXMin2, sliceXMax2, iSlice, iSlice);
+      slice->Add (slice2);
+      delete slice2;
+    }
+    std::cout << "profileFitY-> processing hist " << fHist.GetName() << ", slice " << iSlice << std::endl;
+    PlotPoint fit = fitHist (*slice);
+    fit.x = yAxis->GetBinCenter (iSlice);
+    result.points.push_back (fit);
+    delete slice;
+  }
+  result.name = "somename";
   return result;
 }
 
-PlotPoints getEfficiency (const TH1F& fHistNumerator, const TH1F& fHistDenumerator) {
+PlotPoints getEfficiency (const TH1* fHistNumerator, const TH1* fHistDenumerator) {
   PlotPoints result;
-  for (int ibin = 1; ibin <= fHistNumerator.GetNbinsX(); ++ibin) {
+  for (int ibin = 1; ibin <= fHistNumerator->GetNbinsX(); ++ibin) {
     PlotPoint point;
-    double nn = fHistNumerator.GetBinContent (ibin);
-    double dn = fHistDenumerator.GetBinContent (ibin);
-    point.x = fHistNumerator.GetBinCenter (fHistNumerator.GetBin (ibin));
+    double nn = fHistNumerator->GetBinContent (ibin);
+    double dn = fHistDenumerator->GetBinContent (ibin);
+    point.x = fHistNumerator->GetBinCenter (ibin);
     point.width = point.syserror = point.widtherror = 0.;
     point.valid = true;
     if (nn > 0 && dn > 0) {
@@ -231,6 +277,20 @@ PlotPoints getEfficiency (const TH1F& fHistNumerator, const TH1F& fHistDenumerat
     result.points.push_back (point);
   }
   return result;
+}
+
+PlotPoints getEfficiency (const TH2F& fHistNumerator, const TH2F& fHistDenumerator, int fSlice, int fNSlices=1) {
+  PlotPoints result;
+  TH1D* numerator = getSlice (fHistNumerator, fSlice, fNSlices);
+  TH1D* denumerator = getSlice (fHistDenumerator, fSlice, fNSlices);
+  return getEfficiency (numerator, denumerator);
+}
+
+PlotPoints getEfficiency2 (const TH2F& fHistNumerator, const TH2F& fHistDenumerator, int fSlice, int fNSlices=1) {
+  PlotPoints result;
+  TH1D* numerator = getSlice2 (fHistNumerator, fSlice, fNSlices);
+  TH1D* denumerator = getSlice2 (fHistDenumerator, fSlice, fNSlices);
+  return getEfficiency (numerator, denumerator);
 }
 
 std::vector<std::string> getAllKeys (const TDirectory* fDir, const std::string& fClassName) {
@@ -287,7 +347,7 @@ void plotPoints (PlotOptions fOption,
 		 const std::string& fLabelX, const std::string& fLabelY, 
 		 const std::string& fFilename) {
   int color [4] = {2,4,6,3};
-  TCanvas* c1 = new TCanvas ("c1","A Simple Graph with error bars",500,500);
+  TCanvas* c1 = new TCanvas ("c1","A Simple Graph with error bars",1000,1000);
   
   c1->SetGrid();
   c1->SetFillColor(0);
@@ -402,35 +462,47 @@ void plotPoints (PlotOptions fOption,
 
 void plotEscale (TDirectory* fDir) {
   std::vector <const PlotPoints*> graphs;
-  TH2F* hist;
-  fDir->GetObject ("EScale_B", hist);
-  PlotPoints EScale_B = profileFit (*hist);
+  TH3F* hist;
+  fDir->GetObject ("EScale", hist);
+  PlotPoints EScale_B = profileFitX (*hist,0, 1.4, true);
   EScale_B.name = "0<|eta|<1.4";
   graphs.push_back(&EScale_B);
-  fDir->GetObject ("EScale_E", hist);
-  PlotPoints EScale_E = profileFit (*hist);
+  PlotPoints EScale_E = profileFitX (*hist, 1.4, 3, true);
   EScale_E.name = "1.4<|eta|<3";
   graphs.push_back(&EScale_E);
-  fDir->GetObject ("EScale_F", hist);
-  PlotPoints EScale_F = profileFit (*hist);
+  PlotPoints EScale_F = profileFitX (*hist, 3, 5, true);
   EScale_F.name = "3<|eta|<5";
   graphs.push_back(&EScale_F);
   plotPoints (MEANLOG, graphs, "pT_GenJet (GeV/c)", "(ET_CaloJet)/(ET_GenJet)", "EScale");
 }
 
+void plotEscaleVsEta (TDirectory* fDir) {
+  std::vector <const PlotPoints*> graphs;
+  TH3F* hist;
+  fDir->GetObject ("EScale", hist);
+  PlotPoints pp_1 = profileFitY (*hist, 0.75, 1.25, false);
+  pp_1.name = "5.6<pT(gen)<18";
+  graphs.push_back(&pp_1);
+  PlotPoints pp_2 = profileFitY (*hist, 1.25, 1.75, false);
+  pp_2.name = "18<pT(gen)<56";
+  graphs.push_back(&pp_2);
+  PlotPoints pp_3 = profileFitY (*hist, 1.75, 2.25, false);
+  pp_3.name = "56<pT(gen)<178";
+  graphs.push_back(&pp_3);
+  plotPoints (MEAN, graphs, "eta", "(ET_CaloJet)/(ET_GenJet)", "EScale_Eta");
+}
+
 void plotEResolution (TDirectory* fDir) {
   std::vector <const PlotPoints*> graphs;
-  TH2F* hist;
-  fDir->GetObject ("EScale_B", hist);
-  PlotPoints EScale_B = profileFit (*hist);
+  TH3F* hist;
+  fDir->GetObject ("EScale", hist);
+  PlotPoints EScale_B = profileFitX (*hist,0, 1.4, true);
   EScale_B.name = "0<|eta|<1.4";
   graphs.push_back(&EScale_B);
-  fDir->GetObject ("EScale_E", hist);
-  PlotPoints EScale_E = profileFit (*hist);
+  PlotPoints EScale_E = profileFitX (*hist, 1.4, 3, true);
   EScale_E.name = "1.4<|eta|<3";
   graphs.push_back(&EScale_E);
-  fDir->GetObject ("EScale_F", hist);
-  PlotPoints EScale_F = profileFit (*hist);
+  PlotPoints EScale_F = profileFitX (*hist, 3, 5, true);
   EScale_F.name = "3<|eta|<5";
   graphs.push_back(&EScale_F);
   plotPoints (RELWIDTHLOG, graphs, "pT_GenJet (GeV/c)", "sigma(ET_Calo/ET_Gen)/(ET_Calo/ET_Gen)", "EResolution");
@@ -438,17 +510,15 @@ void plotEResolution (TDirectory* fDir) {
 
 void plotPhiResolution (TDirectory* fDir) {
   std::vector <const PlotPoints*> graphs;
-  TH2F* hist;
-  fDir->GetObject ("DeltaPhi_B", hist);
-  PlotPoints DeltaPhi_B = profileFit (*hist);
+  TH3F* hist;
+  fDir->GetObject ("DeltaPhi", hist);
+  PlotPoints DeltaPhi_B = profileFitX (*hist, 0, 1.4, true);
   DeltaPhi_B.name = "0<|eta|<1.4";
   graphs.push_back(&DeltaPhi_B);
-  fDir->GetObject ("DeltaPhi_E", hist);
-  PlotPoints DeltaPhi_E = profileFit (*hist);
+  PlotPoints DeltaPhi_E = profileFitX (*hist, 1.4, 3, true);
   DeltaPhi_E.name = "1.4<|eta|<3";
   graphs.push_back(&DeltaPhi_E);
-  fDir->GetObject ("DeltaPhi_F", hist);
-  PlotPoints DeltaPhi_F = profileFit (*hist);
+  PlotPoints DeltaPhi_F = profileFitX (*hist, 3, 5, true);
   DeltaPhi_F.name = "3<|eta|<5";
   graphs.push_back(&DeltaPhi_F);
   plotPoints (WIDTHLOG, graphs, "pT_GenJet (GeV/c)", "sigma(phi)", "DeltaPhi");
@@ -456,20 +526,50 @@ void plotPhiResolution (TDirectory* fDir) {
 
 void plotEtaResolution (TDirectory* fDir) {
   std::vector <const PlotPoints*> graphs;
-  TH2F* hist;
-  fDir->GetObject ("DeltaEta_B", hist);
-  PlotPoints DeltaEta_B = profileFit (*hist);
+  TH3F* hist;
+  fDir->GetObject ("DeltaEta", hist);
+  PlotPoints DeltaEta_B = profileFitX (*hist, 0, 1.4, true);
   DeltaEta_B.name = "0<|eta|<1.4";
   graphs.push_back(&DeltaEta_B);
-  fDir->GetObject ("DeltaEta_E", hist);
-  PlotPoints DeltaEta_E = profileFit (*hist);
+  PlotPoints DeltaEta_E = profileFitX (*hist, 1.4, 3, true);
   DeltaEta_E.name = "1.4<|eta|<3";
   graphs.push_back(&DeltaEta_E);
-  fDir->GetObject ("DeltaEta_F", hist);
-  PlotPoints DeltaEta_F = profileFit (*hist);
+  PlotPoints DeltaEta_F = profileFitX (*hist, 3, 5, true);
   DeltaEta_F.name = "3<|eta|<5";
   graphs.push_back(&DeltaEta_F);
   plotPoints (WIDTHLOG, graphs, "pT_GenJet (GeV/c)", "sigma(eta)", "DeltaEta");
+}
+
+void plotEtaMean (TDirectory* fDir) {
+  std::vector <const PlotPoints*> graphs;
+  TH3F* hist;
+  fDir->GetObject ("DeltaEta", hist);
+  PlotPoints DeltaEta_1 = profileFitY (*hist, 0.75, 1.25, false);
+  DeltaEta_1.name = "5.6<pT(gen)<18";
+  graphs.push_back(&DeltaEta_1);
+  PlotPoints DeltaEta_2 = profileFitY (*hist, 1.25, 1.75, false);
+  DeltaEta_2.name = "18<pT(gen)<56";
+  graphs.push_back(&DeltaEta_2);
+  PlotPoints DeltaEta_3 = profileFitY (*hist, 1.75, 2.25, false);
+  DeltaEta_3.name = "56<pT(gen)<178";
+  graphs.push_back(&DeltaEta_3);
+  plotPoints (MEAN, graphs, "eta", "delta(eta)", "DeltaEtaMean");
+}
+
+void plotPhiMean (TDirectory* fDir) {
+  std::vector <const PlotPoints*> graphs;
+  TH3F* hist;
+  fDir->GetObject ("DeltaPhi", hist);
+  PlotPoints DeltaEta_1 = profileFitY (*hist, 0.75, 1.25, false);
+  DeltaEta_1.name = "5.6<pT(gen)<18";
+  graphs.push_back(&DeltaEta_1);
+  PlotPoints DeltaEta_2 = profileFitY (*hist, 1.25, 1.75, false);
+  DeltaEta_2.name = "18<pT(gen)<56";
+  graphs.push_back(&DeltaEta_2);
+  PlotPoints DeltaEta_3 = profileFitY (*hist, 1.75, 2.25, false);
+  DeltaEta_3.name = "56<pT(gen)<178";
+  graphs.push_back(&DeltaEta_3);
+  plotPoints (MEAN, graphs, "eta", "delta(phi)", "DeltaPhiMean");
 }
 
 void plotEtaEff (TDirectory* fDir) {
@@ -478,13 +578,13 @@ void plotEtaEff (TDirectory* fDir) {
   fDir->GetObject ("MatchedGenJetEta", hist1);
   TH2F* hist2;
   fDir->GetObject ("GenJetEta", hist2);
-  PlotPoints p1 = getEfficiency (*hist1, *hist2, 4, 2);
+  PlotPoints p1 = getEfficiency (*hist1, *hist2, 2, 2);
   p1.name = "5.6<pT(gen)<18";
   graphs.push_back(&p1);
-  PlotPoints p2 = getEfficiency (*hist1, *hist2, 6, 2);
+  PlotPoints p2 = getEfficiency (*hist1, *hist2, 4, 2);
   p2.name = "18<pT(gen)<56";
   graphs.push_back(&p2);
-  PlotPoints p3 = getEfficiency (*hist1, *hist2, 8, 2);
+  PlotPoints p3 = getEfficiency (*hist1, *hist2, 6, 2);
   p3.name = "56<pT(gen)<178";
   graphs.push_back(&p3);
   plotPoints (MEAN, graphs, "eta", "efficiency", "EtaEff");
@@ -496,13 +596,13 @@ void plotPtEff (TDirectory* fDir) {
   fDir->GetObject ("MatchedGenJetEta", hist1);
   TH2F* hist2;
   fDir->GetObject ("GenJetEta", hist2);
-  PlotPoints p1 = getEfficiency2 (*hist1, *hist2, 1, 4);
+  PlotPoints p1 = getEfficiency2 (*hist1, *hist2, 19, 14);
   p1.name = "0<|eta|<1.4";
   graphs.push_back(&p1);
-  PlotPoints p2 = getEfficiency2 (*hist1, *hist2, 6, 4);
+  PlotPoints p2 = getEfficiency2 (*hist1, *hist2, 11, 8);
   p2.name = "1.4<|eta|<3";
   graphs.push_back(&p2);
-  PlotPoints p3 = getEfficiency2 (*hist1, *hist2, 11, 6);
+  PlotPoints p3 = getEfficiency2 (*hist1, *hist2, 1, 10);
   p3.name = "3<|eta|<5";
   graphs.push_back(&p3);
   plotPoints (MEANLOG, graphs, "pT_GenJet (GeV/c)", "efficiency", "PtEff");
@@ -532,12 +632,15 @@ int main (int argn, char* argv []) {
 	  TDirectory* dir2 = 0;
 	  dir1->GetObject (dirName2[idir2].c_str(), dir2);
 	  if (dir2) {
-	    plotEResolution (dir2);
-//   	    plotEscale (dir2);
-//   	    plotEtaResolution (dir2);
-//   	    plotPhiResolution (dir2);
-// 	    plotEtaEff (dir2);
-// 	    plotPtEff (dir2);
+  	    plotEResolution (dir2);
+     	    plotEtaResolution (dir2);
+     	    plotPhiResolution (dir2);
+   	    plotEtaEff (dir2);
+  	    plotEtaMean (dir2);
+ 	    plotPhiMean (dir2);
+   	    plotPtEff (dir2);
+     	    plotEscale (dir2);
+	    plotEscaleVsEta (dir2);
 	  }
 	}
       }
