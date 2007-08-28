@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.5 2007/08/23 23:30:38 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.6 2007/08/26 15:21:15 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h" 
@@ -120,7 +120,7 @@ namespace edm {
 	  fileSizeCheckEvent_ = eventCount_ + increment;
 	}
     }
-    if (eventCount_ % om_->commitInterval_ == 0) {
+    if (eventCount_ % om_->autoSaveInterval_ == 0) {
 	// QQQ
     }
   }
@@ -138,7 +138,7 @@ namespace edm {
     return newFileAtEndOfRun_;
   }
 
-  void RootOutputFile::fillBranches(BranchType const& branchType, Principal const& dataBlock) const {
+  void RootOutputFile::fillBranches(BranchType const& branchType, Principal const& principal) const {
 
     OutputItemList const& items = outputItemList_[branchType];
     // Loop over EDProduct branches, fill the provenance, and write the branch.
@@ -152,7 +152,7 @@ namespace edm {
       }
 
       EDProduct const* product = 0;
-      BasicHandle const bh = dataBlock.getForOutput(id, i->selected_);
+      BasicHandle const bh = principal.getForOutput(id, i->selected_);
       if (bh.provenance() == 0) {
 	// No group with this ID is in the event.
 	// Create and write the provenance.
@@ -189,16 +189,8 @@ namespace edm {
       if (i->selected_) {
 	if (product == 0) {
 	  // Add a null product.
-	  std::string const& name = i->branchDescription_->className();
-	  std::string const className = wrappedClassName(name);
-	  TClass *cp = gROOT->GetClass(className.c_str());
-	  if (cp == 0) {
-	    throw edm::Exception(errors::ProductNotFound,"NoMatch")
-	      << "TypeID::className: No dictionary for class " << className << '\n'
-	      << "Add an entry for this class\n"
-	      << "to the appropriate 'classes_def.xml' and 'classes.h' files." << '\n';
-	  }
-	  product = static_cast<EDProduct *>(cp->New());
+          ROOT::Reflex::Object object = i->branchDescription_->type_.Construct();
+    	  product = static_cast<EDProduct *>(object.Address());
 	}
 	i->product_ = product;
       }
