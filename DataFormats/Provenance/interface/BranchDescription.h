@@ -6,7 +6,7 @@
 BranchDescription: The full description of a Branch.
 This description also applies to every product instance on the branch.  
 
-$Id: BranchDescription.h,v 1.4 2007/08/25 14:46:14 wmtan Exp $
+$Id: BranchDescription.h,v 1.5 2007/08/28 14:32:10 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <iosfwd>
 #include <string>
@@ -77,6 +77,7 @@ namespace edm {
     bool const& present() const {return present_;}
     bool const& provenancePresent() const {return provenancePresent_;}
     bool const& transient() const {return transient_;}
+    ROOT::Reflex::Type const& type() const {return type_;}
     int const& splitLevel() const {return splitLevel_;}
     int const& basketSize() const {return basketSize_;}
 
