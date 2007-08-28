@@ -2,7 +2,7 @@
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
- * $Id: HLTElectronOneOEMinusOneOPFilterRegional.cc,v 1.2 2007/04/02 17:14:14 mpieri Exp $
+ * $Id: HLTElectronOneOEMinusOneOPFilterRegional.cc,v 1.1 2007/08/28 15:21:51 ghezzi Exp $
  *
  */
 
@@ -17,6 +17,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
