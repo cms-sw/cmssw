@@ -47,7 +47,7 @@ CSCALCTHeader::CSCALCTHeader(const unsigned short * buf) {
   case 2006:
     memcpy(&header2006, buf, header2006.sizeInWords()*2);///the header part
     buf +=header2006.sizeInWords();
-    alcts.reserve(2);
+    alcts.resize(2);
     for (unsigned int i=0; i<2; ++i) {
       memcpy(&alcts[i], buf, alcts[i].sizeInWords()*2);
       buf += alcts[i].sizeInWords()*2; ///2006 alct consists of 2 words but we are only storing one
@@ -67,21 +67,21 @@ CSCALCTHeader::CSCALCTHeader(const unsigned short * buf) {
       buf +=configRegister.sizeInWords();
       sizeInWords2007_ += configRegister.sizeInWords();
       
-      collisionMasks.reserve(collisionMaskWordcount[header2007.boardType]);
+      collisionMasks.resize(collisionMaskWordcount[header2007.boardType]);
       for (unsigned int i=0; i<collisionMaskWordcount[header2007.boardType]; ++i){
 	memcpy(&collisionMasks[i], buf, collisionMasks[i].sizeInWords()*2);
 	buf += collisionMasks[i].sizeInWords();
 	sizeInWords2007_ += collisionMasks[i].sizeInWords();
       }
 
-      hotChannelMasks.reserve(hotChannelMaskWordcount[header2007.boardType]);
+      hotChannelMasks.resize(hotChannelMaskWordcount[header2007.boardType]);
       for (unsigned int i=0; i<hotChannelMaskWordcount[header2007.boardType]; ++i) {
 	memcpy(&hotChannelMasks[i], buf, hotChannelMasks[i].sizeInWords()*2);
 	buf += hotChannelMasks[i].sizeInWords();
 	sizeInWords2007_ += hotChannelMasks[i].sizeInWords();
       }
 
-      alcts.reserve(header2007.lctBins*2); ///2007 has LCTbins * 2 alct words
+      alcts.resize(header2007.lctBins*2); ///2007 has LCTbins * 2 alct words
       for (unsigned int i=0; i<header2007.lctBins*2; ++i) {
 	memcpy(&alcts[i], buf, alcts[i].sizeInWords()*2);
 	buf += alcts[i].sizeInWords(); 
@@ -123,7 +123,6 @@ int count = 0;
 
 std::vector<CSCALCTDigi> CSCALCTHeader::ALCTDigis() const 
 { 
-
   std::vector<CSCALCTDigi> result;
   result.reserve(alcts.size());
   for (unsigned int i=0; i<alcts.size(); ++i) {///loop over all alct words
