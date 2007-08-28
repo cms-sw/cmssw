@@ -182,10 +182,10 @@ L1GctTwosComplement<12>
 L1GctJetLeafCard::rotateEtValue(const L1GctUnsignedInt<12> etStrip, const unsigned fact) const {
   // These factors correspond to the sine of angles from -90 degrees to
   // 90 degrees in 10 degree steps, multiplied by 256 and written in 20 bits
-  const int factors[19] = {0xfff00, 0xfff04, 0xfff10, 0xfff23, 0xfff3c,
-			   0xfff5c, 0xfff80, 0xfffa9, 0xfffd4, 0x00000,
-			   0x0002c, 0x00057, 0x00080, 0x000a4, 0x000c4,
-			   0x000dd, 0x000f0, 0x000fc, 0x00100};
+  const int factors[19] = {0xfff00, 0xfff04, 0xfff0f, 0xfff22, 0xfff3c,
+			   0xfff5b, 0xfff80, 0xfffa8, 0xfffd4, 0x00000,
+			   0x0002c, 0x00058, 0x00080, 0x000a5, 0x000c4,
+			   0x000de, 0x000f1, 0x000fc, 0x00100};
   const int maxEt=1<<(etStrip.size());
   int myValue, myFact;
 
