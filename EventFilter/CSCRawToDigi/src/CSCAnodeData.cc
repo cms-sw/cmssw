@@ -14,7 +14,8 @@ CSCAnodeData::CSCAnodeData()
 
 CSCAnodeData::CSCAnodeData(const CSCALCTHeader & header) ///for digi->raw packing
   : nAFEBs_(header.nLCTChipRead()), nTimeBins_(header.NTBins()) {
-  
+
+  firmwareVersion=2006;
   if(debug) edm::LogInfo ("CSCAnodeData") << "Making Anode data " 
 					  << nFrames() << " AFEB " << nAFEBs_ 
 					  << " TBINS " << nTimeBins_;
@@ -37,8 +38,8 @@ short unsigned int CSCAnodeData::sizeInWords() const {
     return nFrames();
   case 2007:
     return sizeInWords2007_;
-  default:  edm::LogError("CSCALCTHeader")
-    <<"ALCT firmware version is bad/not defined!";
+  default:  edm::LogError("CSCAnodeData")
+    <<"sizeInWords(): ALCT firmware version is bad/not defined!";
     return 0;
   }
 }
@@ -75,7 +76,7 @@ CSCAnodeData::CSCAnodeData(const CSCALCTHeader & header ,
     break;
   default:
     edm::LogError("CSCAnodeData")
-      <<"ALCT firmware version is bad/not defined!";
+      <<"couldn't construct: ALCT firmware version is bad/not defined!";
     break;
   }
   

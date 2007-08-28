@@ -42,6 +42,8 @@ CSCALCTHeader::CSCALCTHeader(const unsigned short * buf) {
     edm::LogError("CSCALCTHeader") <<"failed to determine ALCT firmware version!!";
   }
 
+  //std::cout<<"firm version - " <<firmwareVersion<<std::endl;
+
   ///Now fill data 
   switch (firmwareVersion) {
   case 2006:
@@ -95,7 +97,7 @@ CSCALCTHeader::CSCALCTHeader(const unsigned short * buf) {
     
   default:
     edm::LogError("CSCALCTHeader")
-      <<"ALCT firmware version is bad/not defined!";
+      <<"coundn't construct: ALCT firmware version is bad/not defined!";
     break;
   }
 }
