@@ -6,13 +6,15 @@
  *
  * \author N.Marinelli  University of Notre Dame, US
  *
- * \version $Id: ConvertedPhoton.h,v 1.9 2007/07/31 15:20:03 ratnik Exp $
+ * \version $Id: ConvertedPhoton.h,v 1.8 2007/05/09 15:37:09 nancy Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h" 
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h" 
+#include "DataFormats/EgammaCandidates/interface/ConvertedPhotonFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 namespace reco {
     class ConvertedPhoton : public RecoCandidate {
