@@ -19,6 +19,7 @@
 
 // Photons:
 #include <DataFormats/EgammaCandidates/interface/Photon.h>
+#include <DataFormats/EgammaCandidates/interface/PhotonFwd.h>
 
 // C++
 #include <iostream>

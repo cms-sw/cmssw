@@ -2,6 +2,8 @@
 // Description:  Example of Analysis driver originally from Jeremy Mans,
 // Date:  13-October-2006
 
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTAnalyzer.h"
 
 // Boiler-plate constructor definition of an analyzer module:

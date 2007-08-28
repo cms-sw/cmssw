@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/04/13 16:06:16 $
- *  $Revision: 1.37 $
+ *  $Date: 2007/08/01 12:36:42 $
+ *  $Revision: 1.38 $
  *
  *  \author Martin Grunewald
  *
@@ -17,14 +17,18 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
 
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/METReco/interface/GenMET.h"
+#include "DataFormats/METReco/interface/GenMETCollection.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"

@@ -9,7 +9,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTEgamma.h"
+
 
 HLTEgamma::HLTEgamma() {
   evtCounter=0;

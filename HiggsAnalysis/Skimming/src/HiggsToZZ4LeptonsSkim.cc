@@ -19,6 +19,7 @@
 
 // Electrons
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
 
 // C++
 #include <iostream>

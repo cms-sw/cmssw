@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/GenMET.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTJets.h"
 
 HLTJets::HLTJets() {

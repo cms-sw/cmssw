@@ -2,7 +2,7 @@
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
- * $Id: HLTElectronEoverpFilter.cc,v 1.3 2007/03/07 10:44:05 monicava Exp $
+ * $Id: HLTElectronEoverpFilter.cc,v 1.4 2007/03/07 19:13:59 monicava Exp $
  *
  */
 
@@ -16,6 +16,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 

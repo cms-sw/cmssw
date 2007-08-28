@@ -3,8 +3,8 @@
  *  
  *  This class is an EDFilter for HWW events
  *
- *  $Date: 2007/08/05 22:09:26 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/08/07 21:47:03 $
+ *  $Revision: 1.7 $
  *
  *  \author Ezio Torassa  -  INFN Padova
  *
@@ -21,6 +21,7 @@
 
 // Electrons
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 
