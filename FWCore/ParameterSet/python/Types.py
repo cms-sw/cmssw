@@ -432,22 +432,11 @@ class VInputTag(_ValidatingParameterListBase):
     @staticmethod
     def _valueFromString(value):
         return VInputTag(*_ValidatingParameterListBase._itemsFromStrings(value,InputTag._valueFromString))
-    def cppTags(self, parameterSet):
-        result = list()
-        for i in self:
-           # reconstruct an inputtag from the strings in the tupl
-           s1 = i[0];
-           s2 = ""
-           s3 = ""
-           if len(i)>1:
-              s2 = i[1]
-           if len(i)>2:
-              s3 = i[2]
-           it = parameterSet.newInputTag(s1,s2,s3)
-           result.append(it) 
-        return result 
     def insertInto(self, parameterSet, myname):
-        parameterSet.addVInputTag(self.isTracked(), myname, self.cppTags(parameterSet))
+        cppTags = list()
+        for i in self:
+           cppTags.append(i.cppTag(parameterSet))
+        parameterSet.addVInputTag(self.isTracked(), myname, cppTags)
 
 
 
@@ -467,8 +456,13 @@ class VPSet(_ValidatingParameterListBase,_ConfigureComponent,_Labelable):
     def _place(self,name,proc):
         proc._placeVPSet(name,self)
     def insertInto(self, parameterSet, myname):
-        parameterSet.addVPSet(self.isTracked(), myname, self.value())
-
+        # translate the PSet members into C++ parameterSets
+        parametersets = list()
+        for pset in self:
+            newparameterset = parameterSet.newPSet()
+            pset.insertContentsInto(newparameterset)
+            parametersets.append(newparameterset)
+        parameterSet.addVPSet(self.isTracked(), myname, parametersets)
 
 
 if __name__ == "__main__":
