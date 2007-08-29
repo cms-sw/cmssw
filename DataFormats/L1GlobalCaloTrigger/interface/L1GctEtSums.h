@@ -35,7 +35,7 @@ class L1GctEtTotal {
   unsigned et() const { return m_data & 0xfff; }
 
   /// get the overflow
-  bool overflow() const { return (m_data & 0x1000)!=0; }
+  bool overFlow() const { return (m_data & 0x1000)!=0; }
 
   /// equality operator
   int operator==(const L1GctEtTotal& e) const { return m_data==e.raw(); }
@@ -125,5 +125,13 @@ class L1GctEtMiss {
   uint32_t m_data;
 
 };
+
+/// Pretty-print operator for L1GctEtTotal
+std::ostream& operator<<(std::ostream& s, const L1GctEtTotal& c);
+/// Pretty-print operator for L1GctEtHad
+std::ostream& operator<<(std::ostream& s, const L1GctEtHad& c);
+/// Pretty-print operator for L1GctEtMiss
+std::ostream& operator<<(std::ostream& s, const L1GctEtMiss& c);
+
 
 #endif

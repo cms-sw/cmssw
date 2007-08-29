@@ -21,3 +21,28 @@ L1GctEtMiss::L1GctEtMiss(unsigned et, unsigned phi, bool oflow) {
   m_data = et | (oflow ? 0x1000 : 0) | ((phi & 0x7f)<<13) ;
 }
 L1GctEtMiss::~L1GctEtMiss() { } 
+
+/// Pretty-print operator for L1GctEtTotal
+std::ostream& operator<<(std::ostream& s, const L1GctEtTotal& c) {
+  s << " L1GctEtTotal: ";
+  s << " et=" << c.et();
+  if (c.overFlow()) { s << "; overflow set"; }
+  return s;
+}
+
+/// Pretty-print operator for L1GctEtHad
+std::ostream& operator<<(std::ostream& s, const L1GctEtHad& c) {
+  s << " L1GctEtHad: ";
+  s << " ht=" << c.et();
+  if (c.overFlow()) { s << "; overflow set"; }
+  return s;
+}
+
+/// Pretty-print operator for L1GctEtMiss
+std::ostream& operator<<(std::ostream& s, const L1GctEtMiss& c) {
+  s << " L1GctEtMiss: ";
+  s << " mag=" << c.et() << ", phi=" << c.phi();
+  if (c.overFlow()) { s << "; overflow set"; }
+  return s;
+}
+
