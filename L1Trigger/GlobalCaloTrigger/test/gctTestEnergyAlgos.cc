@@ -309,7 +309,7 @@ L1CaloRegion gctTestEnergyAlgos::nextRegionFromFile(const unsigned ieta, const u
 //=========================================================================
 int gctTestEnergyAlgos::etComponent(const unsigned Emag, const unsigned fact) const {
   // Copy the Ex, Ey conversion from the hardware emulation
-  const unsigned sinFact[10] = {0, 44, 87, 128, 164, 196, 221, 240, 252, 256};
+  const unsigned sinFact[10] = {0, 44, 88, 128, 165, 196, 222, 241, 252, 256};
   unsigned myFact;
   bool negativeResult;
   int result;
@@ -339,9 +339,9 @@ int gctTestEnergyAlgos::etComponent(const unsigned Emag, const unsigned fact) co
   // twos-complement arithmetic for negative numbers
   if ( negativeResult ) {
     result = (1<<24)-result;
-    result = result>>8;
+    result = (result+0x80)>>8;
     result = result-(1<<16);
-  } else { result = result>>8; }
+  } else { result = (result+0x80)>>8; }
   return result;
 }
 
