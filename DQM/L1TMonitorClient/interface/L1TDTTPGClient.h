@@ -52,6 +52,7 @@ class L1TDTTPGClient : public edm::EDAnalyzer, public L1TBaseClient {
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
+      virtual void endLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
 
       // ----------member data ---------------------------
       int nevents,nupdates;
