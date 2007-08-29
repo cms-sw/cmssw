@@ -34,7 +34,8 @@ private:
   double              connW;         // Connector width
   double              connT;         // Connector thickness
   std::vector<std::string> connM;    // Materials for connectors
-  std::vector<double> coolR;         // Radii for cooling manifold
+  std::vector<double> coolR1;        // Radii for cooling manifold
+  std::vector<double> coolR2;        // Radii for return cooling manifold
   double              coolRin;       // Inner radius of cooling manifold
   double              coolRout1;     // Outer radius of cooling manifold
   double              coolRout2;     // Outer radius of cooling fluid in cooling manifold

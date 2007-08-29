@@ -20,7 +20,7 @@
 
 DDTOBRadCableAlgo::DDTOBRadCableAlgo():
   rodRin(0),rodRout(0),cableM(0),connM(0),
-  coolR(0),coolRin(0),coolRout1(0),coolRout2(0),
+  coolR1(0),coolR2(0),coolRin(0),coolRout1(0),coolRout2(0),
   coolStartPhi1(0),coolDeltaPhi1(0),
   coolStartPhi2(0),coolDeltaPhi2(0),
   names(0) {
@@ -62,7 +62,8 @@ void DDTOBRadCableAlgo::initialize(const DDNumericArguments & nArgs,
   for (int i=0; i<(int)(connM.size()); i++)
     LogDebug("TOBGeom") << "\tconnM[" << i << "] = " << connM[i];
 
-  coolR         = vArgs["CoolR"];    
+  coolR1        = vArgs["CoolR1"];
+  coolR2        = vArgs["CoolR2"];
   coolRin       = nArgs["CoolRin"];
   coolRout1     = nArgs["CoolRout1"];
   coolRout2     = nArgs["CoolRout2"];
@@ -77,15 +78,19 @@ void DDTOBRadCableAlgo::initialize(const DDNumericArguments & nArgs,
 		      << "\t Phi start = " << coolStartPhi1 << " Phi Range = " << coolDeltaPhi1
 		      << "\t Material = " << coolM1
 		      << "\t Radial positions:";
-  for (int i=0; i<(int)(coolR.size()); i++)
-    LogDebug("TOBGeom") << "\t[" << i <<"]\tR = " << coolR[i];
+  for (int i=0; i<(int)(coolR1.size()); i++)
+    LogDebug("TOBGeom") << "\t[" << i <<"]\tR = " << coolR1[i];
+  for (int i=0; i<(int)(coolR2.size()); i++)
+    LogDebug("TOBGeom") << "\t[" << i <<"]\tR = " << coolR2[i];
   LogDebug("TOBGeom") << "DDTOBRadCableAlgo debug: Cooling Fluid Torus Rin = " << coolRin
 		      << " Rout = " << coolRout2
 		      << "\t Phi start = " << coolStartPhi2 << " Phi Range = " << coolDeltaPhi2
 		      << "\t Material = " << coolM2
 		      << "\t Radial positions:";
-  for (int i=0; i<(int)(coolR.size()); i++)
-    LogDebug("TOBGeom") << "\t[" << i <<"]\tR = " << coolR[i];
+  for (int i=0; i<(int)(coolR1.size()); i++)
+    LogDebug("TOBGeom") << "\t[" << i <<"]\tR = " << coolR1[i];
+  for (int i=0; i<(int)(coolR2.size()); i++)
+    LogDebug("TOBGeom") << "\t[" << i <<"]\tR = " << coolR2[i];
   
   names        = vsArgs["RingName"];      
   for (int i=0; i<(int)(names.size()); i++)
@@ -105,19 +110,19 @@ void DDTOBRadCableAlgo::execute() {
     std::string  name;
     double  dz, rin, rout;
     
-    // Cooling Manifold
-    name  = "TOBCoolingManifold" + names[i];
+    // Cooling Manifolds
+    name  = "TOBCoolingManifold" + names[i] + "a";
     dz    = coolRout1;
-    DDName manifoldName(name, idNameSpace);
-    solid = DDSolidFactory::torus(manifoldName,coolRin,coolRout1,coolR[i],coolStartPhi1,coolDeltaPhi1);
+    DDName manifoldName_a(name, idNameSpace);
+    solid = DDSolidFactory::torus(manifoldName_a,coolRin,coolRout1,coolR1[i],coolStartPhi1,coolDeltaPhi1);
     LogDebug("TOBGeom") << "DDTOBRadCableAlgo test: " 
 			<< DDName(name, idNameSpace) << " Torus made of " 
 			<< coolM1 << " from " << coolStartPhi1/deg << " to " << (coolStartPhi1+coolDeltaPhi1)/deg 
 			<< " with Rin " << coolRin << " Rout " << coolRout1
-			<< " R torus " << coolR[i];
-    DDName coolManifoldName(DDSplit(coolM1).first, DDSplit(coolM1).second);
-    DDMaterial coolManifoldMatter(coolManifoldName);
-    DDLogicalPart coolManifoldLogic(DDName(name, idNameSpace), coolManifoldMatter, solid);
+			<< " R torus " << coolR1[i];
+    DDName coolManifoldName_a(DDSplit(coolM1).first, DDSplit(coolM1).second);
+    DDMaterial coolManifoldMatter_a(coolManifoldName_a);
+    DDLogicalPart coolManifoldLogic_a(DDName(name, idNameSpace), coolManifoldMatter_a, solid);
     
     DDTranslation r1(0, 0, (dz-diskDz));
     DDpos(DDName(name,idNameSpace), diskName, i+1, r1, DDRotation());
@@ -126,21 +131,58 @@ void DDTOBRadCableAlgo::execute() {
 			<< " positioned in " << diskName << " at " << r1
 			<< " with no rotation";
     // Cooling Fluid (in Cooling Manifold)
-    name  = "TOBCoolingManifoldFluid" + names[i];
-    solid = DDSolidFactory::torus(DDName(name, idNameSpace),coolRin,coolRout2,coolR[i],coolStartPhi2,coolDeltaPhi2);
+    name  = "TOBCoolingManifoldFluid" + names[i] + "a";
+    solid = DDSolidFactory::torus(DDName(name, idNameSpace),coolRin,coolRout2,coolR1[i],coolStartPhi2,coolDeltaPhi2);
     LogDebug("TOBGeom") << "DDTOBRadCableAlgo test: " 
 			<< DDName(name, idNameSpace) << " Torus made of " 
 			<< coolM2 << " from " << coolStartPhi2/deg << " to " << (coolStartPhi2+coolDeltaPhi2)/deg 
 			<< " with Rin " << coolRin << " Rout " << coolRout2
-			<< " R torus " << coolR[i];
-    DDName coolManifoldFluidName(DDSplit(coolM2).first, DDSplit(coolM2).second);
-    DDMaterial coolManifoldFluidMatter(coolManifoldFluidName);
-    DDLogicalPart coolManifoldFluidLogic(DDName(name, idNameSpace), coolManifoldFluidMatter, solid);
-    DDpos(DDName(name,idNameSpace), manifoldName, i+1, DDTranslation(), DDRotation());
+			<< " R torus " << coolR1[i];
+    DDName coolManifoldFluidName_a(DDSplit(coolM2).first, DDSplit(coolM2).second);
+    DDMaterial coolManifoldFluidMatter_a(coolManifoldFluidName_a);
+    DDLogicalPart coolManifoldFluidLogic_a(DDName(name, idNameSpace), coolManifoldFluidMatter_a, solid);
+    DDpos(DDName(name,idNameSpace), manifoldName_a, i+1, DDTranslation(), DDRotation());
     LogDebug("TOBGeom") << "DDTOBRadCableAlgo test: " 
 			<< DDName(name,idNameSpace) << " number " << i+1 
-			<< " positioned in " << coolManifoldName
+			<< " positioned in " << coolManifoldName_a
 			<< " with no translation and no rotation";
+    //
+    name  = "TOBCoolingManifold" + names[i] + "r";
+    dz    = coolRout1;
+    DDName manifoldName_r(name, idNameSpace);
+    solid = DDSolidFactory::torus(manifoldName_r,coolRin,coolRout1,coolR2[i],coolStartPhi1,coolDeltaPhi1);
+    LogDebug("TOBGeom") << "DDTOBRadCableAlgo test: " 
+			<< DDName(name, idNameSpace) << " Torus made of " 
+			<< coolM1 << " from " << coolStartPhi1/deg << " to " << (coolStartPhi1+coolDeltaPhi1)/deg 
+			<< " with Rin " << coolRin << " Rout " << coolRout1
+			<< " R torus " << coolR2[i];
+    DDName coolManifoldName_r(DDSplit(coolM1).first, DDSplit(coolM1).second);
+    DDMaterial coolManifoldMatter_r(coolManifoldName_r);
+    DDLogicalPart coolManifoldLogic_r(DDName(name, idNameSpace), coolManifoldMatter_r, solid);
+    
+    r1 = DDTranslation(0, 0, (dz-diskDz));
+    DDpos(DDName(name,idNameSpace), diskName, i+1, r1, DDRotation());
+    LogDebug("TOBGeom") << "DDTOBRadCableAlgo test: " 
+			<< DDName(name,idNameSpace) << " number " << i+1 
+			<< " positioned in " << diskName << " at " << r1
+			<< " with no rotation";
+    // Cooling Fluid (in Cooling Manifold)
+    name  = "TOBCoolingManifoldFluid" + names[i] + "r";
+    solid = DDSolidFactory::torus(DDName(name, idNameSpace),coolRin,coolRout2,coolR2[i],coolStartPhi2,coolDeltaPhi2);
+    LogDebug("TOBGeom") << "DDTOBRadCableAlgo test: " 
+			<< DDName(name, idNameSpace) << " Torus made of " 
+			<< coolM2 << " from " << coolStartPhi2/deg << " to " << (coolStartPhi2+coolDeltaPhi2)/deg 
+			<< " with Rin " << coolRin << " Rout " << coolRout2
+			<< " R torus " << coolR2[i];
+    DDName coolManifoldFluidName_r(DDSplit(coolM2).first, DDSplit(coolM2).second);
+    DDMaterial coolManifoldFluidMatter_r(coolManifoldFluidName_r);
+    DDLogicalPart coolManifoldFluidLogic_r(DDName(name, idNameSpace), coolManifoldFluidMatter_r, solid);
+    DDpos(DDName(name,idNameSpace), manifoldName_r, i+1, DDTranslation(), DDRotation());
+    LogDebug("TOBGeom") << "DDTOBRadCableAlgo test: " 
+			<< DDName(name,idNameSpace) << " number " << i+1 
+			<< " positioned in " << coolManifoldName_r
+			<< " with no translation and no rotation";
+    
     // Connectors
     name  = "TOBConn" + names[i];
     dz    = 0.5*connT;
