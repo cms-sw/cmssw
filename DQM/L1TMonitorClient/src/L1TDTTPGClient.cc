@@ -88,7 +88,7 @@ for ( std::vector<GeomDet*>::const_iterator iGeomDet = pDT->dets().begin(); iGeo
 
   nevents++;
   if (!stdalone || (nevents%10 == 0))    LogInfo("TriggerDQM")<<"[TriggerDQM]: event analyzed "<<nevents;
-
+/*
   if (!stdalone || (nevents%50 == 0)){
   
 
@@ -150,7 +150,7 @@ for ( std::vector<GeomDet*>::const_iterator iGeomDet = pDT->dets().begin(); iGeo
  	    }
 
     }
-
+*/
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -174,6 +174,59 @@ void L1TDTTPGClient::beginJob(const edm::EventSetup&)
 void L1TDTTPGClient::endJob() {
 
    LogInfo("TriggerDQM")<<"[TriggerDQM]: endJob";
+
+}
+
+void L1TDTTPGClient::endLuminosityBlock(const edm::LuminosityBlock & iLumiSection, const edm::EventSetup & iSetup) {
+
+  LogInfo("TriggerDQM")<<"[TriggerDQM]: end Lumi Section.";
+
+//  if(stdalone) mui_->doMonitoring();
+
+
+// ----------------- QT examples example
+
+
+
+// ----------------- get bin content and create new ME, then perform QT
+
+  
+  TH1F * bxPhiHisto = this->get1DHisto("Collector/GlobalDQM/L1TMonitor/L1TDTTPG/BxEncoding_PHI", dbe);
+	 
+    if(bxPhiHisto) {
+	
+        int nEntries = bxPhiHisto->GetEntries(); 
+	 
+        int lastBinX=(*bxPhiHisto).GetNbinsX();
+	 
+
+           for(int xBin=1; xBin<=lastBinX; xBin++) {
+
+                float xContent = bxPhiHisto->GetBinContent(xBin);
+                xContent = xContent/nEntries;
+		
+		if(xBin==0) {
+                     LogInfo("TriggerDQM")<<"No DTTF Tracks: empty event ";
+		} 
+		 else if (xBin==3)
+		{
+		
+                     LogInfo("TriggerDQM")<<"Bx is 0, OK!";
+		} 
+ 
+           }
+     }
+
+	  
+
+// ----------------- save results
+   
+	    if(stdalone){
+	     mui_->runQTests();
+             qtHandler->checkGolbalQTStatus(mui_);
+            }
+  
+ 	      dbe->save(outputFile);
 
 }
 
