@@ -26,7 +26,7 @@ GtPsbTextToDigi::GtPsbTextToDigi(const edm::ParameterSet& iConfig):
 
   // Open the input files
   for (int ifile=0; ifile<4; ifile++){
-    //0<->0, 1<->1, 6<->2, 7<->3
+    // gct em cand coll: (noiso) 0<->0, 1<->1, (iso) 6<->2, 7<->3
     int ii = (ifile<2)?ifile:ifile+4;
     std::stringstream fileStream;
     fileStream << m_textFileName << ii << ".txt";
@@ -82,7 +82,10 @@ void GtPsbTextToDigi::putEmptyDigi(edm::Event& iEvent) {
 }
 
 void GtPsbTextToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  
+
+  // specify clock cycle bit sequence 1 0 1 0... or 0 1 0 1...
+  unsigned short cbs[2] = {1,0};
+
   // Skip event if required
   if (m_nevt < m_fileEventOffset){ 
     putEmptyDigi(iEvent);
@@ -100,15 +103,16 @@ void GtPsbTextToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  std::hex(m_file[ifile]);
   	  m_file[ifile] >> buff;
 	  unsigned tmp = (buff>>15)&0x1;
-	  if(tmp!=cycle) {
-	    if(m_bc0[ifile]==-1 && cycle==0 && tmp==1)
+	  if(tmp!=cbs[cycle]) {
+	    if(m_bc0[ifile]==-1 && cycle==1 && tmp==1)
 	      m_bc0[ifile] = ievt;
 	    else 
 	      throw cms::Exception("GtPsbTextToDigiTextFileFormatError") 
+		//std::cout << "GtPsbTextToDigiTextFileFormatError" 
 		<< "GtPsbTextToDigi::produce : "
 		<< " found format inconsistency in file #" << ifile 
 		<< "\n in skipped line:" << ievt*2+1
-		<< " cycle:" << tmp << " is different from " << cycle
+		<< " cycle:" << tmp << " is different from " << cbs[cycle]
 		<< std::endl;
 	  }
   	} 
@@ -164,28 +168,29 @@ void GtPsbTextToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       m_file[ifile] >> uLongBuffer;
       unsigned tmp = (uLongBuffer>>15)&0x1;
       
-      if(tmp!=cycle) 
-	if(m_bc0[ifile]==-1 && cycle==0 && tmp==1)
-	  m_bc0[ifile] = (m_nevt-m_fileEventOffset);
-	else 
-	  throw cms::Exception("GtPsbTextToDigiTextFileFormatError") 
-	    << "GtPsbTextToDigi::produce : "
-	    << " found format inconsistency in file #" << ifile 
-	    << "\n in line:" << (m_nevt-m_fileEventOffset)*2+1  
-	    << " cycle:" << tmp << " is different from " << tmp 
-	    << std::endl;
-      
       /// cycle debuging (temporary)
-      if(false && tmp!=cycle) 
+      if(false && tmp!=cbs[cycle]) 
       	std::cout << "[GtPsbTextToDigi::produce()] asserting " 
       		  << " evt:"   << m_nevt
       		  << " ifile:" << ifile
-      		  << " cycle:" << cycle
+      		  << " cycle:" << cbs[cycle]
       		  << std::hex
       		  << " buffer:"<< uLongBuffer
       		  << " tmp: "  << tmp
       		  << std::dec 
       		  << "\n\n" << std::flush;
+
+      if(tmp!=cbs[cycle]) 
+	if(m_bc0[ifile]==-1 && cycle==1 && tmp==1)
+	  m_bc0[ifile] = (m_nevt-m_fileEventOffset);
+	else 
+	  throw cms::Exception("GtPsbTextToDigiTextFileFormatError") 
+	    //std::cout << "GtPsbTextToDigiTextFileFormatError " 
+	    << "GtPsbTextToDigi::produce : "
+	    << " found format inconsistency in file #" << ifile 
+	    << "\n in line:" << (m_nevt-m_fileEventOffset)*2-1  
+	    << " cycle:" << tmp << " is different from " << cbs[cycle]
+	    << std::endl;
       
       data[ifile][cycle] = (uLongBuffer&0x7fff);
     } //cycle loop
@@ -211,6 +216,7 @@ void GtPsbTextToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(gctForJets, "forJets");
   iEvent.put(gctTauJets, "tauJets");
   //iEvent.put(gctEtTotal);
+
 }
 
 void GtPsbTextToDigi::endJob() {
@@ -227,4 +233,5 @@ void GtPsbTextToDigi::endJob() {
   for(int i=0; i<nmem; i++)
     LogDebug("GtPsbTextToDigi") << " " << m_bc0[i];  
   LogDebug("GtPsbTextToDigi") << std::flush << std::endl;
+
 }

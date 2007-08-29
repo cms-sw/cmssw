@@ -1,7 +1,7 @@
 #ifndef GTPSBTEXTTODIGI_H
 #define GTPSBTEXTTODIGI_H
 
-/*\class GtPsbToDigi
+/*\class GtPsbTextToDigi
  *\description makes digis from GT PSB captured data file
  *\author Nuno Leonardo (CERN)
  *\date 08.08

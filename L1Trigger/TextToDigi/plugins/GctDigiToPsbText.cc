@@ -55,6 +55,9 @@ GctDigiToPsbText::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   else  
     sstrm.unsetf(std::ios::uppercase);
 
+  // specify cycle bit sequence 1 0 1 0 ... or 0 1 0 1 ...
+  unsigned short cbs[2] = {1,0};
+
   unsigned int ifile;
   unsigned int cycle;
   unsigned iIsola, iNoIso;
@@ -72,11 +75,11 @@ GctDigiToPsbText::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     //print electrons
     sstrm.str("");
     sstrm << setw(4) << setfill('0') << std::hex 
-	  << (data[iIsola][cycle] & 0x7fff) + ((cycle&0x1)<<15);
+	  << (data[iIsola][cycle] & 0x7fff) + ((cbs[cycle]&0x1)<<15);
     m_file[iIsola] << sstrm.str() << std::endl;
     sstrm.str("");
     sstrm << setw(4) << setfill('0') << std::hex 
-	  << (data[iNoIso][cycle] & 0x7fff) + ((cycle&0x1)<<15);
+	  << (data[iNoIso][cycle] & 0x7fff) + ((cbs[cycle]&0x1)<<15);
     m_file[iNoIso] << sstrm.str() << std::endl;
   }
   
