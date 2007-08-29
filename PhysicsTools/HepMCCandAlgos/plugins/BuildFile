@@ -7,6 +7,14 @@
   <use name=SimDataFormats/HepMCProduct>
 </library>
 
+<library file=GenEventProcIDProducer.cc>
+  <use name=SimDataFormats/HepMCProduct>
+</library>
+
+<library file=GenEventScaleProducer.cc>
+  <use name=SimDataFormats/HepMCProduct>
+</library>
+
 <library file=FastGenParticleCandidateProducer.cc>
   <use name=SimGeneral/HepPDTRecord>
   <use name=SimDataFormats/HepMCProduct>
