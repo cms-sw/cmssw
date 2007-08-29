@@ -174,10 +174,31 @@ BaseParticlePropagator::propagate() {
     double sinPhiProp = 
       (rProp*rProp-radius*radius-dist*dist)/( 2.*dist*radius);
     //
-    if ( 1.-fabs(sinPhiProp) > 1E-12 ) { 
+    double deltaPhi = 1E99;
 
-      //    phiProp =  fabs(sinPhiProp) < 0.99999999  ? 
-      //      std::asin(sinPhiProp) : M_PI/2. * sinPhiProp;
+    // Taylor development up to third order for large momenta 
+    if ( 1.-fabs(sinPhiProp) < 1E-12 ) { 
+
+      double cphi0 = std::cos(phi0);
+      double sphi0 = std::sin(phi0);
+      double r0 = (X()*cphi0 + Y()*sphi0)/radius;
+      double q0 = (X()*sphi0 - Y()*cphi0)/radius;
+      double rcyl2 = (rCyl2 - X()*X() - Y()*Y())/(radius*radius);
+      double delta = r0*r0 + rcyl2*(1.-q0);
+
+      // This is a solution of a second order equation, assuming phi = phi0 + epsilon
+      // and epsilon is small. 
+      deltaPhi = radius > 0 ? 
+	( -r0 + std::sqrt(delta ) ) / (1.-q0) :   
+	( -r0 - std::sqrt(delta ) ) / (1.-q0); 
+      
+    }
+
+    // Use complete calculation otherwise, or if the delta phi is large anyway.
+    if ( fabs(deltaPhi) > 1E-3 ) { 
+
+    //    phiProp =  fabs(sinPhiProp) < 0.99999999  ? 
+    //      std::asin(sinPhiProp) : M_PI/2. * sinPhiProp;
       phiProp =  std::asin(sinPhiProp);
 
       //
@@ -199,23 +220,13 @@ BaseParticlePropagator::propagate() {
       //
       if ( (phiProp-phi0)*radius < 0.0 )
 	radius > 0.0 ? phiProp += 2 * M_PI : phiProp -= 2 * M_PI;
-
-    // Taylor development up to third order for large momenta 
+      
     } else { 
-      
-      double cphi0 = std::cos(phi0);
-      double sphi0 = std::sin(phi0);
-      double r0 = (X()*cphi0 + Y()*sphi0)/radius;
-      double q0 = (X()*sphi0 - Y()*cphi0)/radius;
-      double rcyl2 = (rCyl2 - X()*X() - Y()*Y())/(radius*radius);
-      double delta = r0*r0 + rcyl2*(1.-q0);
-      // This is a solution of a second order equation, assuming phi = phi0 + epsilon
-      // and epsilon is small. 
-      phiProp = radius > 0 ? 
-	phi0 + ( -r0 + std::sqrt(delta ) ) / (1.-q0) :   
-	phi0 + ( -r0 - std::sqrt(delta ) ) / (1.-q0);  
-      
-    } 
+
+      // Use Taylor
+      phiProp = phi0 + deltaPhi;
+
+    }
 
     //
     // Check that the particle does not exit from the endcaps first.
