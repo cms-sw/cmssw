@@ -17,17 +17,18 @@ NuclearTester::NuclearTester(unsigned int max_hits, const MeasurementEstimator* 
 
 //----------------------------------------------------------------------
 bool NuclearTester::isNuclearInteraction( ) {
- 	 
+// TODO : if energy of primary track is below a threshold don't use checkWithMultiplicity but only checkwith compatible_hits.front
+
         // 1. we require at least 3 TM vectors to check if nuclear interactions occurs
         if(nHitsChecked()<3) return false;
 
         // 2. check with multiplicity :
-	if( checkWithMultiplicity() == true ) return true;
-	else  { 
-               // 3. last case : uncompleted track with at least 2 compatible hits in the last layer
-               if( nHitsChecked() >= maxHits && compatible_hits.front()>1) {NuclearIndex=1; return true; }
+	   if( checkWithMultiplicity() == true ) return true;
+    	else  {
+               // 3. last case : uncompleted track with at least 1 compatible hits in the last layer
+               if( nHitsChecked() >= maxHits && compatible_hits.front()>0) {NuclearIndex=1; return true; }
         }
-      
+
 	return false;
 }
 //----------------------------------------------------------------------
@@ -46,15 +47,15 @@ bool NuclearTester::checkWithMultiplicity() {
 
     // if the previous nb of compatible TM is > min+2 and if the next compatible TM is min+-1 -> NUCLEAR
     // example : Nhits = 5, 8, 2, 2, ...
-    if((*(min_it-1) - *min_it) > 2 && (*(min_it+1) - *min_it) < 2 ) { 
+    if((*(min_it-1) - *min_it) > 2 && (*(min_it+1) - *min_it) < 2 ) {
             NuclearIndex = index<std::vector<int>::iterator>(compatible_hits.begin(),compatible_hits.end(),min_it);
             return true;
     }
-  
+
     // case of : Nhits = 5, 8, 3, 2, 2, ...
     if(min_it-1 != compatible_hits.begin())  //because min_it must be at least at the third position
     {
-      if(min_it-1 != compatible_hits.begin() && (*(min_it-1) - *min_it) < 2 && (*(min_it-2) - *(min_it-1)) > 2 ) { 
+      if(min_it-1 != compatible_hits.begin() && (*(min_it-1) - *min_it) < 2 && (*(min_it-2) - *(min_it-1)) > 2 ) {
            NuclearIndex = index<std::vector<int>::const_iterator>(compatible_hits.begin(),compatible_hits.end(),min_it-1);
            return true;
       }
@@ -96,7 +97,7 @@ std::vector<GlobalPoint> NuclearTester::HitPositions(const std::vector<Trajector
 //----------------------------------------------------------------------
 double NuclearTester::fwdEstimate(const std::vector<TrajectoryMeasurement>& vecTM) const {
        if(vecTM.empty()) return 0;
-       
+
        const TransientTrackingRecHit* hit = vecTM.front().recHit().get();
        if( hit->isValid() )
           return theEstimator->estimate( vecTM.front().forwardPredictedState(), *hit ).second;

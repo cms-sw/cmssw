@@ -10,7 +10,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#define RESCALE_FACTOR 10
+#define RESCALE_FACTOR 20
 
 
 SeedFromNuclearInteraction::SeedFromNuclearInteraction(const Propagator* prop, const TrackerGeometry* geom, const edm::ParameterSet& iConfig):
@@ -70,7 +70,7 @@ void SeedFromNuclearInteraction::setMeasurements(TangentHelix& thePrimaryHelix, 
        initialTSOS_.reset( new TrajectoryStateOnSurface(rescaled_TSOS) );
 
        // calculate the initial FreeTrajectoryState from the inner and outer TM assuming that the helix equation is already known.
-       freeTS_.reset(stateWithError(helix)); 
+       freeTS_.reset(stateWithError(helix));
 
        if(freeTS_->momentum().perp() < ptMin) { isValid_ = false; }
        else {
@@ -112,7 +112,7 @@ FreeTrajectoryState* SeedFromNuclearInteraction::stateWithError(TangentHelix& he
 
 /*
    //rotation around the z-axis by  -phi
-   Rotation tmpRotz ( cos(dirAtVtx.phi()), -sin(dirAtVtx.phi()), 0., 
+   Rotation tmpRotz ( cos(dirAtVtx.phi()), -sin(dirAtVtx.phi()), 0.,
                         sin(dirAtVtx.phi()), cos(dirAtVtx.phi()), 0.,
                          0.,              0.,              1. );
 
@@ -122,12 +122,12 @@ FreeTrajectoryState* SeedFromNuclearInteraction::stateWithError(TangentHelix& he
                               -sin(dirAtVtx.theta()), 0., cos(dirAtVtx.theta()) );
 
    Rotation position(m(0,0), 0, 0, 0, m(1,1), 0, 0, 0, m(2,2) );
-   Rotation momentum(m(3,3), 0, 0, 0, m(4,4), 0, 0, 0, m(5,5) ); 
+   Rotation momentum(m(3,3), 0, 0, 0, m(4,4), 0, 0, 0, m(5,5) );
 
    // position = position * tmpRoty * tmpRotz
    // momentum = momentum * tmpRoty * tmpRotz
-   position *= tmpRoty;   momentum *= tmpRoty; 
-   position *= tmpRotz;   momentum *= tmpRotz; 
+   position *= tmpRoty;   momentum *= tmpRoty;
+   position *= tmpRotz;   momentum *= tmpRotz;
 
    m(0,0) = position.xx();
    m(1,0) = position.yx();
@@ -147,7 +147,7 @@ FreeTrajectoryState* SeedFromNuclearInteraction::stateWithError(TangentHelix& he
    m(3,5) = momentum.xz();
    m(4,5) = momentum.yz();
    m(5,5) = momentum.zz();
- */  
+ */
 
 
    return new FreeTrajectoryState( gtp, CurvilinearTrajectoryError(m) );
@@ -163,16 +163,16 @@ bool SeedFromNuclearInteraction::construct() {
 
    for ( unsigned int iHit = 0; iHit < theHits.size(); iHit++) {
      hit = theHits[iHit]->hit();
-     TrajectoryStateOnSurface state = (iHit==0) ? 
+     TrajectoryStateOnSurface state = (iHit==0) ?
         thePropagator->propagate( *freeTS_, theTrackerGeom->idToDet(hit->geographicalId())->surface())
        : thePropagator->propagate( *updatedTSOS_, theTrackerGeom->idToDet(hit->geographicalId())->surface());
 
-     if (!state.isValid()) return false; 
- 
-     const TransientTrackingRecHit::ConstRecHitPointer& tth = theHits[iHit]; 
+     if (!state.isValid()) return false;
+
+     const TransientTrackingRecHit::ConstRecHitPointer& tth = theHits[iHit];
      updatedTSOS_.reset( new TrajectoryStateOnSurface(theUpdator.update(state, *tth)) );
 
-   } 
+   }
 
    TrajectoryStateTransform transformer;
 
@@ -183,10 +183,10 @@ bool SeedFromNuclearInteraction::construct() {
 }
 
 //----------------------------------------------------------------------
-edm::OwnVector<TrackingRecHit>  SeedFromNuclearInteraction::hits() const { 
+edm::OwnVector<TrackingRecHit>  SeedFromNuclearInteraction::hits() const {
     recHitContainer      _hits;
     for( ConstRecHitContainer::const_iterator it = theHits.begin(); it!=theHits.end(); it++ ){
            _hits.push_back( it->get()->hit()->clone() );
     }
-    return _hits; 
+    return _hits;
 }
