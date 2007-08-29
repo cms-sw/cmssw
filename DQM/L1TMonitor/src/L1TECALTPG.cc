@@ -1,13 +1,20 @@
 /*
  * \file L1TECALTPG.cc
  *
- * $Date: 2007/02/22 19:43:53 $
- * $Revision: 1.4 $
+ * $Date: 2007/05/25 15:45:48 $
+ * $Revision: 1.5 $
  * \author J. Berryhill
  *
  * - initial version stolen from GCTMonnitor (thanks!) (wittich 02/07)
  *
  * $Log: L1TECALTPG.cc,v $
+ * Revision 1.5  2007/05/25 15:45:48  berryhil
+ *
+ *
+ *
+ * added exception handling for each edm Handle
+ * updated cfg and cff to reflect recent usage at point 5
+ *
  * Revision 1.4  2007/02/22 19:43:53  berryhil
  *
  *
@@ -48,7 +55,8 @@ const float TPETAMAX = 32.5;
 
 
 L1TECALTPG::L1TECALTPG(const ParameterSet & ps):
-  ecaltpgSource_(ps.getParameter<edm::InputTag>("ecaltpgSource"))
+  ecaltpgSourceB_(ps.getParameter<edm::InputTag>("ecaltpgSourceB")),
+  ecaltpgSourceE_(ps.getParameter<edm::InputTag>("ecaltpgSourceE"))
 {
 
   // verbosity switch
@@ -117,14 +125,25 @@ void L1TECALTPG::beginJob(const EventSetup & c)
 
   if (dbe) {
     dbe->setCurrentFolder("L1TMonitor/L1TECALTPG");
-    ecalTpEtEtaPhi_ = 
-      dbe->book2D("EcalTpEtEtaPhi", "ECAL TP E_{T}", TPPHIBINS, TPPHIMIN,
-		  TPPHIMAX, TPETABINS, TPETAMIN, TPETAMAX);
-    ecalTpOccEtaPhi_ =
-	dbe->book2D("EcalTpOccEtaPhi", "ECAL TP OCCUPANCY", TPPHIBINS,
+    ecalTpEtEtaPhiB_ = 
+      dbe->book2D("EcalTpEtEtaPhiB", "ECAL TP E_{T} Barrel", TPPHIBINS, 
+		  TPPHIMIN, TPPHIMAX, TPETABINS, TPETAMIN, TPETAMAX);
+    ecalTpOccEtaPhiB_ =
+	dbe->book2D("EcalTpOccEtaPhiB", "ECAL TP OCCUPANCY Barrel", TPPHIBINS,
 		    TPPHIMIN, TPPHIMAX, TPETABINS, TPETAMIN, TPETAMAX);
-    ecalTpRank_ =
-      dbe->book1D("EcalTpRank", "ECAL TP RANK", RTPBINS, RTPMIN, RTPMAX);
+    ecalTpRankB_ =
+      dbe->book1D("EcalTpRankB", "ECAL TP RANK Barrel", RTPBINS, RTPMIN,
+		  RTPMAX);
+
+    ecalTpEtEtaPhiE_ = 
+      dbe->book2D("EcalTpEtEtaPhiE", "ECAL TP E_{T} Endcap", TPPHIBINS, 
+		  TPPHIMIN, TPPHIMAX, TPETABINS, TPETAMIN, TPETAMAX);
+    ecalTpOccEtaPhiE_ =
+	dbe->book2D("EcalTpOccEtaPhiE", "ECAL TP OCCUPANCY Endcap", TPPHIBINS,
+		    TPPHIMIN, TPPHIMAX, TPETABINS, TPETAMIN, TPETAMAX);
+    ecalTpRankE_ =
+      dbe->book1D("EcalTpRankE", "ECAL TP RANK Endcap", RTPBINS, RTPMIN,
+		  RTPMAX);
 
   }
 }
@@ -150,24 +169,56 @@ void L1TECALTPG::analyze(const Event & e, const EventSetup & c)
   }
 
   // Get the ECAL TPGs
-  edm::Handle < EcalTrigPrimDigiCollection > eTP;
+  edm::Handle < EcalTrigPrimDigiCollection > eeTP;
+  edm::Handle < EcalTrigPrimDigiCollection > ebTP;
 
   try {
-  e.getByLabel(ecaltpgSource_,eTP);
+    e.getByLabel(ecaltpgSourceE_,ebTP);
   }
   catch (...) {
-    edm::LogInfo("L1TECALTPG") << "can't find EcalTrigPrimCollection with label "
-			       << ecaltpgSource_.label() ;
+    edm::LogInfo("L1TECALTPG") << "can't find EcalTrigPrimCollection with "
+      " endcap label " << ecaltpgSourceE_.label() ;
+    return;
+  }
+  try {
+    e.getByLabel(ecaltpgSourceE_,eeTP);
+  }
+  catch (...) {
+    edm::LogInfo("L1TECALTPG") << "can't find EcalTrigPrimCollection with "
+      " barrel label " << ecaltpgSourceB_.label() ;
     return;
   }
 
   // Fill the ECAL TPG histograms
-  for (EcalTrigPrimDigiCollection::const_iterator ieTP = eTP->begin();
-       ieTP != eTP->end(); ieTP++) {
-    ecalTpEtEtaPhi_->Fill(ieTP->id().iphi(), ieTP->id().ieta(),
-			  ieTP->compressedEt());
-    ecalTpOccEtaPhi_->Fill(ieTP->id().iphi(), ieTP->id().ieta());
-    ecalTpRank_->Fill(ieTP->compressedEt());
+  if ( verbose_ ) {
+    std::cout << "L1TECALTPG: barrel size is " << ebTP->size() << std::endl;
+    std::cout << "L1TECALTPG: endcap size is " << eeTP->size() << std::endl;
+  }
+  for (EcalTrigPrimDigiCollection::const_iterator iebTP = ebTP->begin();
+       iebTP != ebTP->end(); iebTP++) {
+    if ( verbose_ ) {
+      std::cout << "barrel: " << iebTP->id().iphi() << ", " 
+		<< iebTP->id().ieta()
+		<< std::endl;
+    }
+    ecalTpEtEtaPhiB_->Fill(iebTP->id().iphi(), iebTP->id().ieta(),
+			  iebTP->compressedEt());
+    ecalTpOccEtaPhiB_->Fill(iebTP->id().iphi(), iebTP->id().ieta());
+    ecalTpRankB_->Fill(iebTP->compressedEt());
+
+  }
+  // endcap
+  for (EcalTrigPrimDigiCollection::const_iterator ieeTP = eeTP->begin();
+       ieeTP != eeTP->end(); ieeTP++) {
+    if ( verbose_ ) {
+      std::cout << "endcap: " << ieeTP->id().iphi() << ", " 
+		<< ieeTP->id().ieta()
+		<< std::endl;
+    }
+    ecalTpEtEtaPhiE_->Fill(ieeTP->id().iphi(), ieeTP->id().ieta(),
+			  ieeTP->compressedEt());
+    ecalTpOccEtaPhiE_->Fill(ieeTP->id().iphi(), ieeTP->id().ieta());
+    ecalTpRankE_->Fill(ieeTP->compressedEt());
 
   }
 

@@ -5,11 +5,17 @@
 /*
  * \file L1TECALTPG.h
  *
- * $Date: 2007/02/20 22:48:59 $
- * $Revision: 1.3 $
+ * $Date: 2007/02/22 19:43:52 $
+ * $Revision: 1.4 $
  * \author J. Berryhill
  *
  * $Log: L1TECALTPG.h,v $
+ * Revision 1.4  2007/02/22 19:43:52  berryhil
+ *
+ *
+ *
+ * InputTag parameters added for all modules
+ *
  * Revision 1.3  2007/02/20 22:48:59  wittich
  * - change from getByType to getByLabel in ECAL TPG,
  *   and make it configurable.
@@ -74,9 +80,13 @@ private:
   DaqMonitorBEInterface * dbe;
 
   // what we monitor
-  MonitorElement *ecalTpEtEtaPhi_;
-  MonitorElement *ecalTpOccEtaPhi_;
-  MonitorElement *ecalTpRank_;
+  MonitorElement *ecalTpEtEtaPhiB_;
+  MonitorElement *ecalTpOccEtaPhiB_;
+  MonitorElement *ecalTpRankB_;
+
+  MonitorElement *ecalTpEtEtaPhiE_;
+  MonitorElement *ecalTpOccEtaPhiE_;
+  MonitorElement *ecalTpRankE_;
 
   int nev_;			// Number of events processed
   std::string outputFile_;	//file name for ROOT ouput
@@ -84,7 +94,8 @@ private:
   bool monitorDaemon_;
   ofstream logFile_;
 
-  edm::InputTag ecaltpgSource_;
+  edm::InputTag ecaltpgSourceB_; // barrel
+  edm::InputTag ecaltpgSourceE_; // endcap
 
 };
 
