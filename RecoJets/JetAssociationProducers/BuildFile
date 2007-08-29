@@ -1,0 +1,10 @@
+<flags EDM_PLUGIN=1>
+<use name=boost>
+<use name=RecoJets/JetAssociationAlgorithms>
+<use name=FWCore/Framework>
+<use name=DataFormats/JetReco>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/Math>
+<export>
+ <lib name=RecoJetsJetAssociationProducers>
+</export>
