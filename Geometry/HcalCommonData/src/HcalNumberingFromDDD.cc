@@ -113,7 +113,7 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det,
       if (hetaR < rTable[i]) ieta = etaMin[2] + nR - i - 1;
     fibin   = phibin[nEta+ieta-etaMin[2]-1];
     if  (ieta > etaMax[2]-2 ) {   // HF double-phi  
-      //      fioff += 0.5*fibin;
+      fioff += 0.5*fibin;
     }
   } else { // Barrel or Endcap
     ieta  = 1;
@@ -242,6 +242,7 @@ HcalCellType::HcalCell HcalNumberingFromDDD::cell(int det, int zside,
     } else {
       fioff = phioff[2];
       fibin = phibin[nEta+etaR-etaMin[2]-1];
+      if  (etaR > etaMax[2]-2 ) fioff += 0.5*fibin; 
     }
     phi  = fioff + (iphi - 0.5)*fibin;
     dphi = 0.5*fibin;
