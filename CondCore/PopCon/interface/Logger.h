@@ -23,14 +23,12 @@ namespace popcon
 			Logger(std::string connectionString, std::string payloadName, bool debug);
 			virtual ~Logger();
 
-			void disconnect();
 			void finalizePayload(std::string ok="OK");
 			void finalizeExecution(std::string ok="OK");
 			void newPayload();
 			void newExecution();
 			void lock();
 			void unlock();
-			void blah(std::string);
 
 
 		private:
@@ -38,10 +36,12 @@ namespace popcon
 			void updateExecID();
 			void updatePayloadID();
 			void payloadIDMap();
+			void disconnect();
 
 			std::string m_obj_name;
 			std::string m_connect;
 			bool m_debug;
+			bool m_established;
 
 			unsigned int m_exec_id;
 			unsigned int m_payload_id;

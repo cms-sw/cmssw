@@ -80,11 +80,12 @@ namespace popcon
 								catch(std::exception& er){
 									//TODO info in main log (now OK)
 									std::cerr << "DB output exception: " << er.what();
-									lgr->finalizePayload("Output Service Exception"+(std::string)er.what());
-									continue;
+									lgr->finalizePayload("Output Service Exception");
+									std::ostringstream os;
+									os <<"Problem with output service " << m_payload_vect->size() << "should have been written";
+									logMsg =os.str(); 
+									break;
 								}
-
-								//delete (*it).first;
 								lgr->finalizePayload();
 							}
 						}  
@@ -97,6 +98,9 @@ namespace popcon
 					catch(popcon::Exception& er){
 						std::cerr << er.what() << std::endl;
 						logMsg = "IOV sequence Exception";
+					}
+					catch(std::exception& er){
+						std::cerr << "DBSrevice exception - outer try\n";
 					}
 
 				}

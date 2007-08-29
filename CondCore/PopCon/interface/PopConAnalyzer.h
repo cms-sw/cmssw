@@ -35,7 +35,7 @@ namespace popcon
 
 				//One needs to inherit this class and implement the constructor to 
 				// instantiate handler object
-				explicit PopConAnalyzer(const edm::ParameterSet& pset, std::string objetct_name):tryToValidate(false),corrupted(false), greenLight (false), fixed(true), m_payload_name(objetct_name) 
+				explicit PopConAnalyzer(const edm::ParameterSet& pset, std::string objetct_name):tryToValidate(false),corrupted(true), greenLight (false), fixed(true), m_payload_name(objetct_name) 
 
 				{
 					//TODO set the policy (cfg or global configuration?)
@@ -58,7 +58,7 @@ namespace popcon
 						if (!fixed || corrupted)
 						{	
 							if(m_debug)
-								std::cerr << "Corrupted or unfixed state\n";
+								std::cerr << "Corrupted | unfixed state | problem with PopCon DB\n";
 							lgr->finalizeExecution(logMsg);
 						}
 						else //ok
@@ -68,10 +68,11 @@ namespace popcon
 							lgr->finalizeExecution(logMsg);
 							stc->generateStatusData();
 							stc->storeStatusData();
+							std::cerr << "Deleting stc\n";	
+							delete stc;
 						}
 
 						lgr->unlock();
-						lgr->disconnect();
 
 					}
 					catch(std::exception& e)
@@ -83,8 +84,6 @@ namespace popcon
 						std::cerr << "Deleting the source handler\n";	
 						delete m_handler_object;
 					}
-					std::cerr << "Deleting stc\n";	
-					delete stc;
 					std::cerr << "Deleting lgr\n";	
 					delete lgr;
 
@@ -119,23 +118,7 @@ namespace popcon
 						lgr->lock();
 						//log the new app execution
 						lgr->newExecution();
-					}
-					catch(popcon::Exception & er)
-					{
-						std::cerr << "Begin Job exception\n";
-						//throw;
-					}
-
-				}
-
-				//this method handles the transformation algorithm, 
-				//Subdetector responsibility ends with returning the payload vector.
-				//Therefore this code is stripped of DBOutput service, state management etc.	
-				virtual void analyze(const edm::Event& evt, const edm::EventSetup& est)
-				{
-					if(m_debug)
-						std::cerr << "Analyze Begins\n"; 
-					try{
+						
 						stc = new StateCreator(m_popcon_db, m_offline_connection, m_payload_name, m_debug);
 
 						//checks the exceptions, validates new data if necessary
@@ -144,7 +127,8 @@ namespace popcon
 							std::cerr << "There's been a problem with a previous run" << std::endl;
 							if (!fixed)
 							{	
-								logMsg="Running with unfixed state";
+								//TODO - set the flag
+								logMsg="Running with unfixed state, EXITING";
 								return;
 							}
 							else
@@ -159,6 +143,7 @@ namespace popcon
 							std::cerr << "State OK" << std::endl;
 							greenLight = true;
 							logMsg="OK";
+							corrupted = false;
 							//	safe to run;
 						}
 						else
@@ -167,17 +152,38 @@ namespace popcon
 							if (tryToValidate)
 							{
 								std::cerr << "attempting to validate" << std::endl;
+								corrupted = false;
 							}
 							else 
 							{
 								//Report an error 	
 								std::cerr << "State Corruption with no validation flag set, EXITING!!!\n";
-								corrupted = true;
 								logMsg="State corruption";
 								return;
 							}
 						}
+					}
+					catch(popcon::Exception & er)
+					{
+						std::cerr << "Begin Job PopCon exception\n";
+						greenLight = false;
+					}
+					catch(std::exception& e)
+					{
+						greenLight = false;
+						std::cerr << "Begin Job std-based exception\n";
+					}
 
+				}
+
+				//this method handles the transformation algorithm, 
+				//Subdetector responsibility ends with returning the payload vector.
+				//Therefore this code is stripped of DBOutput service, state management etc.	
+				virtual void analyze(const edm::Event& evt, const edm::EventSetup& est)
+				{
+					if(m_debug)
+						std::cerr << "Analyze Begins\n"; 
+					try{
 						if (greenLight)
 						{
 							//create source handling object, pass the eventsetup reference
@@ -207,7 +213,6 @@ namespace popcon
 					}
 
 				}
-
 
 				virtual void endJob()
 				{	
