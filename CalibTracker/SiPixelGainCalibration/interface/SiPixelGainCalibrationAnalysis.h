@@ -15,7 +15,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon May  7 14:22:37 CEST 2007
-// $Id: SiPixelGainCalibrationAnalysis.h,v 1.5 2007/08/15 12:24:07 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.h,v 1.6 2007/08/16 13:50:31 fblekman Exp $
 //
 //
 
@@ -87,6 +87,7 @@ class SiPixelGainCalibrationAnalysis : public edm::EDAnalyzer {
       bool save_histos_;
       uint32_t usethisdetid_;
       bool only_one_detid_;
+      bool do_scurveinstead_;
       // and the containers
       
       // tracking geometry
@@ -94,8 +95,12 @@ class SiPixelGainCalibrationAnalysis : public edm::EDAnalyzer {
       std::map < uint32_t, TString> detnames_;
       std::map < uint32_t, TH1F*> summaries1D_pedestal_;
       std::map < uint32_t, TH1F*> summaries1D_gain_;
+      std::map < uint32_t, TH1F*> summaries1D_chi2_;
+      std::map < uint32_t, TH1F*> summaries1D_plat_;
       std::map < uint32_t, TH2F*> summaries_pedestal_;
       std::map < uint32_t, TH2F*> summaries_gain_;
+      std::map < uint32_t, TH2F*> summaries_chi2_;
+      std::map < uint32_t, TH2F*> summaries_plat_;
       std::map < uint32_t , uint32_t > detIDmap_;// keeps track of all used detector IDs
       std::map < uint32_t, std::vector < std::pair<uint32_t, uint32_t> > > colrowpairs_;
       std::map < uint32_t, std::vector < PixelROCGainCalibPixel > > calibPixels_;

@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon May  7 14:22:37 CEST 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.5 2007/08/15 12:21:56 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.6 2007/08/16 13:49:58 fblekman Exp $
 //
 //
 
@@ -83,7 +83,8 @@ SiPixelGainCalibrationAnalysis::SiPixelGainCalibrationAnalysis(const edm::Parame
   test_(iConfig.getUntrackedParameter<bool>("dummyData",false)),
   fitfuncrootformula_(iConfig.getUntrackedParameter<std::string>("rootFunctionForFit","pol1")),
   only_one_detid_(iConfig.getUntrackedParameter<bool>("onlyOneDetID",false)),
-  usethisdetid_(0)
+  usethisdetid_(0),
+  do_scurveinstead_(iConfig.getUntrackedParameter<bool>("doSCurve",false))
 {
    //now do what ever initialization is needed
   if(test_)
@@ -135,9 +136,21 @@ bool SiPixelGainCalibrationAnalysis::doFits(){
       for(uint32_t ipoint=0; ipoint<calibPixels_[detid][ipixel].npoints(); ipoint++){
 
 	float response = calibPixels_[detid][ipixel].getpoint(ipoint,1);
-	float error = sqrt(response)/sqrt(calib_.nTriggers()); 
-	gr.SetBinContent(ipoint,response/calib_.nTriggers());
-	gr.SetBinError(ipoint,error/calib_.nTriggers());
+	float error = calibPixels_[detid][ipixel].geterror(ipoint,1);
+	if(do_scurveinstead_){
+	  float m = calibPixels_[detid][ipixel].getentries(ipoint);
+	  float n = calib_.nTriggers();
+	  response = m/n;
+	  float d = n *n *(1+2.*m)-4.*n*(1.+n)*m*m;
+	  //only fill the largest of the two (asymmetric) binomial errors
+	  float temperror = ( n*(1.0+2.0*m) + sqrt(d) )/(2.0*n*(1.0+n));
+	  error = fabs(temperror-response);
+	  temperror = ( n*(1.0+2.0*m) - sqrt(d) )/(2.0*n*(1.0+n));
+	  if(fabs(temperror-response)>error)
+	    error = fabs(temperror-response);
+	}
+	gr.SetBinContent(ipoint,response);
+	gr.SetBinError(ipoint,error);
 	///	std::cout << "filled hist: " << gr.GetBinCenter(ipoint) << " " << gr.GetBinContent(ipoint) << " " << gr.GetBinError(ipoint) << std::endl;
 	
 	if(ipoint>3 && plateaustart<0){
@@ -157,13 +170,15 @@ bool SiPixelGainCalibrationAnalysis::doFits(){
       }
       
       if(plateaustart>0)
-	func->SetRange(vcal_fitmin_,plateaustart);
+	func->SetRange(vcal_fitmin_,0.8*plateaustart);
       else
 	continue;
       // copy to a new object that is saved in the file service:
       
       float ped = 255;
       float gain = 255;
+      float chi2 = -1;
+      float plat = -1;
       if(!save_histos_){
 	gr.Fit(func,"RQ0");
       }
@@ -182,8 +197,11 @@ bool SiPixelGainCalibrationAnalysis::doFits(){
       gain = func->GetParameter(1);
       summaries1D_pedestal_[detid]->Fill(ped);
       summaries1D_gain_[detid]->Fill(gain);
-      summaries_pedestal_[detid]->Fill(colrowpairs_[detid][ipixel].first,colrowpairs_[detid][ipixel].second,ped);
-      summaries_gain_[detid]->Fill(colrowpairs_[detid][ipixel].first,colrowpairs_[detid][ipixel].second,gain);
+      summaries1D_plat_[detid]->Fill(plat);
+      summaries_pedestal_[detid]->Fill(colrowpairs_[detid][ipixel].second,colrowpairs_[detid][ipixel].first,ped);
+      summaries_gain_[detid]->Fill(colrowpairs_[detid][ipixel].second,colrowpairs_[detid][ipixel].first,gain);
+      summaries_plat_[detid]->Fill(colrowpairs_[detid][ipixel].second,colrowpairs_[detid][ipixel].first,plat);
+      summaries_chi2_[detid]->Fill(colrowpairs_[detid][ipixel].second,colrowpairs_[detid][ipixel].first,chi2);
       calibPixels_[detid][ipixel].clearAllPoints();
     }
   }
@@ -292,14 +310,26 @@ SiPixelGainCalibrationAnalysis::analyze(const edm::Event& iEvent, const edm::Eve
        titleped1d+=" pedestals in all pixels";
        TString titlegain1d = detstring;
        titlegain1d+=" gain in all pixels";
+       TString titleplat1d = detstring;
+       titleplat1d+=" plateau in all pixels";
+       TString titlechi21d = detstring;
+       titlechi21d+=" #Chi^{2} / NDOF in all pixels";
        TString titleped2d = detstring;
        titleped2d+=" pedestals";
        TString titlegain2d = detstring;
        titlegain2d+=" gains";
+       TString titlechi22d = detstring;
+       titlechi22d+=" #Chi^{2} / NDOF";
+       TString titleplat2d = detstring;
+       titleplat2d+=" plateau";
        summaries1D_pedestal_[detid]=therootfileservice_->make<TH1F>(titleped1d.Data(),titleped1d.Data(),256,0,256);
        summaries1D_gain_[detid]=therootfileservice_->make<TH1F>(titlegain1d.Data(),titlegain1d.Data(),100,0,10);
-       summaries_pedestal_[detid]=therootfileservice_->make<TH2F>(titleped2d.Data(),titleped2d.Data(),maxrow,0,maxrow,maxcol,0,maxcol);
-       summaries_gain_[detid]=therootfileservice_->make<TH2F>(titlegain2d.Data(),titlegain2d.Data(),maxrow,0,maxrow,maxcol,0,maxcol);
+       summaries1D_chi2_[detid]=therootfileservice_->make<TH1F>(titlechi21d.Data(),titlechi21d.Data(),100,0,20);
+       summaries1D_plat_[detid]=therootfileservice_->make<TH1F>(titleplat1d.Data(),titleplat1d.Data(),256,0,256);
+       summaries_pedestal_[detid]=therootfileservice_->make<TH2F>(titleped2d.Data(),titleped2d.Data(),maxcol,0,maxcol,maxrow,0,maxrow);
+       summaries_gain_[detid]=therootfileservice_->make<TH2F>(titlegain2d.Data(),titlegain2d.Data(),maxcol,0,maxcol,maxrow,0,maxrow);
+       summaries_chi2_[detid]=therootfileservice_->make<TH2F>(titlechi22d.Data(),titlechi22d.Data(),maxcol,0,maxcol,maxrow,0,maxrow);
+       summaries_plat_[detid]=therootfileservice_->make<TH2F>(titleplat2d.Data(),titleplat2d.Data(),maxcol,0,maxcol,maxrow,0,maxrow);
        //       std::cout << detIDmap_.size() << " " << detnames_.size() << " " << colrowpairs_.size() << " " << calibPixels_.size() << std::endl;
      }
      

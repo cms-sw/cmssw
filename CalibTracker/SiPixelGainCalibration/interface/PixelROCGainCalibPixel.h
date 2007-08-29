@@ -19,6 +19,7 @@ class PixelROCGainCalibPixel
  
   std::vector<uint32_t> adcvalues;
   std::vector<uint32_t> nentries;
+  std::vector<uint32_t> sumsquares;
  public :
 
   PixelROCGainCalibPixel(uint32_t npoints=60); 
@@ -32,6 +33,10 @@ class PixelROCGainCalibPixel
   void init(uint32_t nvcal);
   void clearAllPoints();
   double getpoint(uint32_t icalpoint, uint32_t ntimes);
+  double geterror(uint32_t icalpoint, uint32_t ntimes);
+  uint32_t getsquaresum(uint32_t icalpoint) {return sumsquares[icalpoint];}
+  uint32_t getsum(uint32_t icalpoint) {return adcvalues[icalpoint];}
+  uint32_t getentries(uint32_t icalpoint){return nentries[icalpoint];}
   bool isfilled();
 
 };

@@ -3,20 +3,31 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "CalibTracker/SiPixelGainCalibration/interface/PixelROCGainCalibElement.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include <math>
 
+double PixelROCGainCalibPixel::geterror(uint32_t icalpoint, uint32_t ntimes){
+  double res=0;
+  
+  if(nentries[icalpoint]>0){
+    double meansq = adcvalues[icalpoint]*adcvalues[icalpoint];
+    res = fabs( meansq - sumsquares[icalpoint] );
+    res /= (double) nentries[icalpoint];
+  }
+  return sqrt(res);
+}
 double PixelROCGainCalibPixel::getpoint(uint32_t icalpoint, uint32_t ntimes){
   //  std::cout << "getting point " << icalpoint << ", value " << adcvalues[icalpoint] << std::endl;
   double res=0.;
   res+=adcvalues[icalpoint];
   double denom = nentries[icalpoint];
-  if(nentries[icalpoint]!=ntimes && ntimes>1)
+  if(nentries[icalpoint]!=ntimes && ntimes>0)
     edm::LogError("PixelROCGainCalibPixel") << " error: expected "<< ntimes << " points, but only received " << nentries[icalpoint] << " point" << std::endl;
-  if(ntimes>1){
+  if(denom>1){
     res/=denom;
   }
   return res;
 }
-PixelROCGainCalibPixel::PixelROCGainCalibPixel(uint32_t npoints):adcvalues(npoints,0),nentries(npoints,0){
+PixelROCGainCalibPixel::PixelROCGainCalibPixel(uint32_t npoints):adcvalues(npoints,0),nentries(npoints,0),sumsquares(npoints,0){
 }
 
 PixelROCGainCalibPixel::~PixelROCGainCalibPixel(){
@@ -26,6 +37,7 @@ void PixelROCGainCalibPixel::clearAllPoints(){
   for(uint32_t i=0; i<adcvalues.size(); i++){
     adcvalues[i]=0;
     nentries[i]=0;
+    sumsquares[i]=0;
   }
 }
 //******************
@@ -41,6 +53,7 @@ void PixelROCGainCalibPixel::init(uint32_t nvcal)
 {
    adcvalues.resize(nvcal,0);  
    nentries.resize(nvcal,0);
+   sumsquares.resize(nvcal,0);
 }
 
 //******************
@@ -52,6 +65,7 @@ void PixelROCGainCalibPixel::addPoint(uint32_t icalpoint, uint32_t adcval){
   }
   //  std::cout << icalpoint << " " << adcvalues[icalpoint] << " + " << adcval << " = ";
   adcvalues[icalpoint] += adcval;
+  sumsquares[icalpoint] += adcval*adcval;
   nentries[icalpoint]++;
   
 }
