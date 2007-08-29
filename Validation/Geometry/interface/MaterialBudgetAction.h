@@ -65,7 +65,9 @@ class MaterialBudgetAction : public SimProducer,
   MaterialBudgetTxt* theTxt;
   TestHistoMgr* theHistoMgr;
   bool saveToTxt, saveToTree, saveToHistos;
-
+  bool storeDecay;
+  double Ekin;
+  
   std::vector<G4String> theVolumeList; 
   G4String theProcessToStop;
   std::string theHistoList;

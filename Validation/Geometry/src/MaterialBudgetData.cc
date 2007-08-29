@@ -11,7 +11,7 @@
 
 MaterialBudgetData::MaterialBudgetData() 
 {
-  //instantiate categorizer to assing an ID to volumes and materials
+  //instantiate categorizer to assign an ID to volumes and materials
   myMaterialBudgetCategorizer = 0;
   allStepsToTree = false;
   densityConvertionFactor = 6.24E18;
@@ -166,6 +166,7 @@ void MaterialBudgetData::dataEndTrack( const G4Track* aTrack )
 {
   //-  std::cout << "[OVAL] MaterialBudget " << G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID() << " " << theEta << " " << thePhi << " " << theTotalMB << std::endl;
   // rr
+  std::cout << "Recorded steps " << theStepN << std::endl;
   std::cout << " Material Budget: Radiation Length   " << G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID() << " eta " << theEta << " phi " << thePhi << " total X " << theTotalMB << " SUP " << theSupportMB << " SEN " << theSensitiveMB << " CAB " << theCablesMB << " COL " << theCoolingMB << " ELE " << theElectronicsMB << " other " << theOtherMB << " Air " << theAirMB << std::endl;
   std::cout << " Material Budget: Interaction Length " << G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID() << " eta " << theEta << " phi " << thePhi << " total L " << theTotalIL << " SUP " << theSupportIL << " SEN " << theSensitiveIL << " CAB " << theCablesIL << " COL " << theCoolingIL << " ELE " << theElectronicsIL << " other " << theOtherIL << " Air " << theAirIL << std::endl;
   // rr
@@ -244,7 +245,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
   const G4VProcess*        interactionPost   = postPoint->GetProcessDefinedStep();
   
   G4Track* track = aStep->GetTrack();
-  if(theStepN==0) std::cout << " Simulated Particle " << theID << "\tMass " << theMass
+  if(theStepN==0) std::cout << " Simulated Particle " << theID << "\tMass " << theMass << " MeV/c2"
 			    << "\tPt = " << thePt  << " MeV/c" << "\tEta = " << theEta << "\tPhi = " << thePhi 
 			    << "\tEnergy = " << theEnergy << " MeV"
 		    //			    << std::endl
@@ -412,6 +413,15 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
 	      << theVolumeZaxis2[theStepN] << "," 
 	      << theVolumeZaxis3[theStepN] << ")"
 	      << std::endl;
+    std::cout << "\tSecondaries"
+	      << std::endl;
+    for(G4TrackVector::iterator iSec = aStep->GetSecondary()->begin(); iSec!=aStep->GetSecondary()->end(); iSec++) {
+      std::cout << "\t\tid " << (*iSec)->GetDefinition()->GetPDGEncoding()
+		<< " created through process "
+		<< " type " << (*iSec)->GetCreatorProcess()->GetProcessType()
+		<< " " << (*iSec)->GetCreatorProcess()->GetProcessTypeName(G4ProcessType((*iSec)->GetCreatorProcess()->GetProcessType()))
+		<< std::endl;
+    }
 #endif
   }
   
