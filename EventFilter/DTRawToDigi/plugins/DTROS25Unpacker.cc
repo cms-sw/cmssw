@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/05/07 16:16:39 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/08/06 11:09:06 $
+ *  $Revision: 1.4 $
  *  \author  M. Zanetti - INFN Padova
  *  \revision FRC 060906
  */
@@ -216,8 +216,16 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 
 
 	      // Map the RO channel to the DetId and wire
-	      DTWireId detId;
-	      if ( ! mapping->readOutToGeometry(dduID, rosID, robID, tdcID, tdcChannel, detId)) {
+ 	      DTWireId detId;
+// 	      if ( ! mapping->readOutToGeometry(dduID, rosID, robID, tdcID, tdcChannel, detId)) {
+	      int wheelId, stationId, sectorId, slId,layerId, cellId; 
+	      if ( ! mapping->readOutToGeometry(dduID, rosID, robID, tdcID, tdcChannel, 
+						wheelId, stationId, sectorId, slId, layerId, cellId)) {
+
+		// skip the digi if the detId is invalid 
+		if (sectorId==0 || stationId == 0) continue;
+		else detId = DTWireId(wheelId, stationId, sectorId, slId, layerId, cellId); 
+
 		if (debug) cout<<"[DTROS25Unpacker] "<<detId<<endl;
 		int wire = detId.wire();
 
