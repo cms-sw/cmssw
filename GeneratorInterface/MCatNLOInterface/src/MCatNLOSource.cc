@@ -1476,6 +1476,18 @@ bool MCatNLOSource::give(const std::string& iParm )
     params.mmxmhl = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
   else if(!strncmp(iParm.c_str(),"HMASSSUP",8))
     params.mmxmhu = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"T1GAMMAX",8))
+    para331.mmgammay1 = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"T1MASSINF",9))
+    para331.mmym1low = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"T1MASSSUP",9))
+    para331.mmym1upp = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"T2GAMMAX",8))
+    para331.mmgammay2 = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"T2MASSINF",9))
+    para331.mmym2low = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"T2MASSSUP",9))
+    para331.mmym2upp = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
   else if(!strncmp(iParm.c_str(),"UMASS",5))
     params.mmxmass1 = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
   else if(!strncmp(iParm.c_str(),"DMASS",5))
