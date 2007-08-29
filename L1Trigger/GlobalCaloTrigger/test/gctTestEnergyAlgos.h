@@ -37,8 +37,7 @@ public:
   void fillRawJetData(const L1GlobalCaloTrigger* gct);
 
   /// Check the energy sums algorithms
-  //bool checkEnergySums(const L1GlobalCaloTrigger* gct) const;
-  bool checkEnergySums(const L1GlobalCaloTrigger* gct);
+  bool checkEnergySums(const L1GlobalCaloTrigger* gct) const;
 
 private:
 
@@ -59,11 +58,6 @@ private:
   /// Calculate et vector from ex and ey, using floating arithmetic and conversion back to integer
   etmiss_vec trueMissingEt(const int ex, const int ey) const;
   //=========================================================================
-
-  float thePhiCount;
-  float thePhiSum;
-  float thePhiSumSq;
-  std::vector<unsigned> countPhiValues;
 
   std::vector<unsigned> etStripSums; 
   bool inMinusOvrFlow;
