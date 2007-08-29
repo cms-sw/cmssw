@@ -68,8 +68,10 @@ WebGUI::WebGUI(xdaq::Application* app,StateMachine* fsm)
 
   // set itemGroupListener
   itemGroupListener_ = dynamic_cast<xdata::ActionListener*>(app_);
-  if (0!=itemGroupListener_)
+  if (0!=itemGroupListener_) {
     appInfoSpace()->addGroupRetrieveListener(itemGroupListener_);
+    monInfoSpace()->addGroupRetrieveListener(itemGroupListener_);
+  }
 }
 
 
@@ -259,23 +261,6 @@ void WebGUI::addItemChangedListener(CString_t& name,xdata::ActionListener* l)
   }
   
 }
-
-
-//______________________________________________________________________________
-void WebGUI::lockInfoSpaces()
-{
-  appInfoSpace()->lock();
-  monInfoSpace()->lock();
-}
-
-
-//______________________________________________________________________________
-void WebGUI::unlockInfoSpaces()
-{
-  appInfoSpace()->unlock();
-  monInfoSpace()->unlock();
-}
-
 
 
 ////////////////////////////////////////////////////////////////////////////////

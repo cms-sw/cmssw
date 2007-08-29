@@ -1,3 +1,9 @@
+2007-08-29  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-13-08
+	* I think the XMAS monitoring would only now work properly, as the
+	itemGroupListener is registered with both (app&mon) info spaces.
+
 2007-08-28  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-13-07

@@ -68,9 +68,6 @@ namespace evf {
     
     void addItemChangedListener(CString_t& name,xdata::ActionListener* l);
 
-    void lockInfoSpaces();
-    void unlockInfoSpaces();
-
     xdata::InfoSpace* appInfoSpace() { return appInfoSpace_; }
     xdata::InfoSpace* monInfoSpace() { return monInfoSpace_; }
     
