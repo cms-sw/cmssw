@@ -5,7 +5,7 @@
 # language and the Python representation of the configuration
 # description that is used by the Data Management tools.
 #
-# $Id: complete.py,v 1.2 2007/08/17 02:21:10 rpw Exp $
+# $Id: complete.py,v 1.3 2007/08/17 03:26:14 rpw Exp $
 #
 #------------------------------------------------------------
 
@@ -61,10 +61,9 @@ process.b = cms.EDProducer("BProducer",
    d = cms.VPSet(cms.PSet(i=cms.int32(10101),
                   b = cms.bool(False) ), cms.PSet() ),
    e = cms.VPSet(),
-   #f = cms.VPSet(inner = cms.VPSet(), cms.PSet() ),
-   f = cms.VPSet(cms.PSet(), cms.PSet() ),
+   f = cms.VPSet(cms.PSet(inner = cms.VPSet()), cms.PSet() ),
    tag = cms.InputTag("y:z"),
-   #tags = cms.VInputTag(cms.InputTag("a:b"), cms.InputTag("c"), cms.InputTag("d:e"))
+   tags = cms.VInputTag(cms.InputTag("a:b"), cms.InputTag("c"), cms.InputTag("d:e"))
   )
 
 
@@ -148,7 +147,7 @@ process.mix = cms.EDProducer("MixingModule",
     input = cms.SecSource("PoolSource",
       fileNames = cms.untracked.vstring("file:pileup.root")
     ),
-    mixtyp = cms.string("fixed"),
+    mixtype = cms.string("fixed"),
     average_number = cms.double(14.3),
     min_bunch = cms.int32(-5),
     max_bunch = cms.int32(3)
