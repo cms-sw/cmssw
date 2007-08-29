@@ -115,7 +115,7 @@ PixelRecoRange<float> InnerDeltaPhi::phiRange(const Point2D& hitXY,float hitZ,fl
   double  dLayer = 0.;
   double dL = 0.;
   //
-  // comput crossing of stright track with inner layer
+  // compute crossing of stright track with inner layer
   //
   if (!theRDefined) {
     double t = theA/(hitZ-theB); double dt = fabs(theThickness/(hitZ-theB));
@@ -132,7 +132,6 @@ PixelRecoRange<float> InnerDeltaPhi::phiRange(const Point2D& hitXY,float hitZ,fl
 
   //
   // compute crossing of track with layer
-  // rVTX - from 0,0 to vertex
   // dHit - from VTX to outer hit
   // rLayer - layer radius
   // dLayer - distance from VTX to inner layer in direction of dHit
@@ -163,12 +162,22 @@ PixelRecoRange<float> InnerDeltaPhi::phiRange(const Point2D& hitXY,float hitZ,fl
   // track is crossing layer with angle such as:
   // this factor should be taken in computation of eror projection
      double cosCross = fabs( dHit.unit().dot(crossing.unit()));
+
   
   double alphaHit = asin( dHitmag/(2*theRCurvature));
   double deltaPhi = fabs( alphaHit - asin( dLayer/(2*theRCurvature)));
         deltaPhi *= (dLayer/rLayer/cosCross);  
 
-  double dPhiCrossing = dL * sqrt(1-sqr(cosCross)) / rLayer;
+  // additinal angle due to not perpendicular stright line crossing  (for displaced beam)
+  double dPhiCrossing = (cosCross > 0.9999) ? 0 : dL *  sqrt(1-sqr(cosCross))/ rLayer;
+  Point2D crossing2 = theVtx + dHit.unit()* (dLayer+dL);
+  double phicross2 = crossing2.phi();  
+  double phicross1 = crossing.phi();
+  double dphicross = phicross2-phicross1;
+  if (dphicross < -M_PI) dphicross += 2*M_PI;
+  if (dphicross >  M_PI) dphicross -= 2*M_PI;
+  if (dphicross > M_PI/2) dphicross = 0.;  // something wrong?
+  phicross2 = phicross1 + dphicross;
         
 
   // compute additional delta phi due to origin radius
@@ -179,10 +188,10 @@ PixelRecoRange<float> InnerDeltaPhi::phiRange(const Point2D& hitXY,float hitZ,fl
   double deltaPhiHit = theHitError / rLayer;
 
   // outer hit error
-  double deltaPhiHitOuter = errRPhi/rLayer; 
-//    double deltaPhiHitOuter = errRPhi/hitXY.mag();
+//   double deltaPhiHitOuter = errRPhi/rLayer; 
+    double deltaPhiHitOuter = errRPhi/hitXY.mag();
 
-  double margin = deltaPhi+deltaPhiOrig+deltaPhiHit+deltaPhiHitOuter + dPhiCrossing;
+  double margin = deltaPhi+deltaPhiOrig+deltaPhiHit+deltaPhiHitOuter ;
 
   if (thePrecise) {
     // add multiple scattering correction
@@ -193,7 +202,8 @@ PixelRecoRange<float> InnerDeltaPhi::phiRange(const Point2D& hitXY,float hitZ,fl
     margin += scatt ;
   }
   
-  return PixelRecoRange<float>(crossing.phi()-margin, crossing.phi()+margin);
+  return PixelRecoRange<float>( std::min(phicross1,phicross2)-margin, 
+                                std::max(phicross1,phicross2)+margin);
 }
 
 float InnerDeltaPhi::operator()( float rHit, float zHit, float errRPhi) const
