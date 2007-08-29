@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.78 2007/08/02 23:10:50 wmtan Exp $
+$Id: RootFile.cc,v 1.79 2007/08/10 22:11:26 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -29,6 +29,20 @@ $Id: RootFile.cc,v 1.78 2007/08/02 23:10:50 wmtan Exp $
 #include "Rtypes.h"
 
 namespace edm {
+  namespace {
+    void
+    kludgeZeroRun(RunID *id) {
+      if (id->run() == 0) (*id) = RunID(1);
+    }
+    void
+    kludgeZeroRun(LuminosityBlockID *id) {
+      if (id->run() == 0) (*id) = LuminosityBlockID(1, id->luminosityBlock());
+    }
+    void
+    kludgeZeroRun(EventID *id) {
+      if (id->run() == 0) (*id) = EventID(1, id->event());
+    }
+  }
 //---------------------------------------------------------------------
   RootFile::RootFile(std::string const& fileName,
 		     std::string const& catalogName,
@@ -187,6 +201,7 @@ namespace edm {
         eventAux_.luminosityBlock_ = 1;
       }
     }
+    kludgeZeroRun(&eventAux_.id_);
   }
 
   // readEvent() is responsible for creating, and setting up, the
@@ -258,6 +273,7 @@ namespace edm {
       EventAux eventAux;
       EventAux *pEvAux = &eventAux;
       eventTree().fillAux<EventAux>(pEvAux);
+      kludgeZeroRun(&eventAux.id_);
       // back up, so event will not be skipped.
       eventTree().previous();
       return boost::shared_ptr<RunPrincipal>(
@@ -277,7 +293,8 @@ namespace edm {
       RunAux *pRunAux = &runAux;
       runTree().fillAux<RunAux>(pRunAux);
       conversion(runAux, runAux_);
-    }
+    } 
+    kludgeZeroRun(&runAux_.id_);
     if (runAux_.beginTime() == Timestamp::invalidTimestamp()) {
       // RunAuxiliary did not contain a valid timestamp.  Take it from the next event.
       if (eventTree().next()) {
@@ -311,6 +328,7 @@ namespace edm {
       EventAux eventAux;
       EventAux *pEvAux = &eventAux;
       eventTree().fillAux<EventAux>(pEvAux);
+      kludgeZeroRun(&eventAux.id_);
       // back up, so event will not be skipped.
       eventTree().previous();
       if (eventAux.id_.run() != rp->run()) {
@@ -338,6 +356,7 @@ namespace edm {
       lumiTree().fillAux<LuminosityBlockAux>(pLumiAux);
       conversion(lumiAux, lumiAux_);
     }
+    kludgeZeroRun(&lumiAux_.id_);
 
     if (lumiAux_.run() != rp->run()) {
       // The lumi block is in a different run.  Back up, and return a null pointer.
