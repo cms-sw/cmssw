@@ -372,23 +372,23 @@
  <PosPart copyNumber="11">
    <rParent name="TBHcal06BeamLine:HcalTestBeamLine"/>
    <rChild name="TBHcal06BeamLine:HcalTestBeamLineHaloCounter"/>
-  <Translation x="[bhX]"  y="[bhY]"  z="([bhZ]+[upstreamZ]-[chambDzby2])" />
+  <Translation x="0*fm"  y="[bhY]" z="([bhZ]-[bhDzby2]+[upstreamZ]-[chambDzby2])" />
  </PosPart>
  <PosPart copyNumber="12">
    <rParent name="TBHcal06BeamLine:HcalTestBeamLine"/>
    <rChild name="TBHcal06BeamLine:HcalTestBeamLineHaloCounter"/>
-  <Translation x="-[bhY]" y="[bhX]"  z="([bhZ]+[upstreamZ]-[chambDzby2])" />
-  <rRotation name="TBHcal06BeamLine:R1"/>
+  <Translation x="0*fm" y="-[bhY]" z="([bhZ]-[bhDzby2]+[upstreamZ]-[chambDzby2])" />
  </PosPart>
  <PosPart copyNumber="13">
    <rParent name="TBHcal06BeamLine:HcalTestBeamLine"/>
    <rChild name="TBHcal06BeamLine:HcalTestBeamLineHaloCounter"/>
-  <Translation x="-[bhX]" y="-[bhY]" z="([bhZ]+[upstreamZ]-[chambDzby2])" />
+  <Translation x="-[bhY]" y="0*fm" z="([bhZ]+[bhDzby2]+[upstreamZ]-[chambDzby2])" />
+  <rRotation name="TBHcal06BeamLine:R1"/>
  </PosPart>
  <PosPart copyNumber="14">
    <rParent name="TBHcal06BeamLine:HcalTestBeamLine"/>
    <rChild name="TBHcal06BeamLine:HcalTestBeamLineHaloCounter"/>
-  <Translation x="[bhY]"  y="-[bhX]" z="([bhZ]+[upstreamZ]-[chambDzby2])" />
+  <Translation x="[bhY]"  y="0*fm" z="([bhZ]+[bhDzby2]+[upstreamZ]-[chambDzby2])" />
   <rRotation name="TBHcal06BeamLine:R1"/>
  </PosPart>
  <PosPart copyNumber="0">
