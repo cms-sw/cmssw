@@ -19,11 +19,11 @@
 #include "CondCore/PopCon/interface/Exception.h"
 
 
-popcon::Logger::Logger (std::string connectionString,std::string name, bool dbg) : m_obj_name(name), m_connect(connectionString), m_debug(dbg) {
+popcon::Logger::Logger (std::string connectionString,std::string name, bool dbg) : m_obj_name(name), m_connect(connectionString), m_debug(dbg), m_established(false) {
 
 	//W A R N I N G - session has to be alive throughout object lifetime
 	//otherwiese there will be problems with currvals of the sequences
-	
+
 
 	session=new cond::DBSession(false);
 	session->sessionConfiguration().setAuthenticationMethod( cond::XML );
@@ -35,12 +35,11 @@ popcon::Logger::Logger (std::string connectionString,std::string name, bool dbg)
 	session->connectionConfiguration().enableConnectionSharing();
 	session->connectionConfiguration().enableReadOnlySessionOnUpdateConnections();
 	initialize();
-	//FIXME - subquery instead
-	payloadIDMap();
 }
 
 popcon::Logger::~Logger ()
 {	
+	disconnect();
 	delete m_coraldb;
 	delete session;
 }
@@ -49,20 +48,22 @@ void  popcon::Logger::initialize()
 {		
 	try{
 
+		if (m_debug)
+			std::cerr << "Logger::initialize - session.open\n";
 		session->open();
 		m_coraldb = new cond::RelationalStorageManager(m_connect,session);
 		m_coraldb->connect(cond::ReadWrite);
 		m_coraldb->startTransaction(false);
+		m_established = true;
+		//FIXME - subquery instead
+		payloadIDMap();
 
 	}catch(cond::Exception& er){
-		std::cerr<< "Logger::initialize " << er.what()<<std::endl;
-		throw popcon::Exception("Logger::initialize cond::Exception ");
+		std::cerr<< "Logger::initialize cond " << er.what()<<std::endl;
 	}catch(std::exception& er){
-		std::cerr<< "Logger::initialize " << er.what()<<std::endl;
-		throw popcon::Exception("Logger::initialize std::exception ");
+		std::cerr<< "Logger::initialize std " << er.what()<<std::endl;
 	}catch(...){
 		std::cerr<<"Unknown error"<<std::endl;
-		throw popcon::Exception("Logger::initialize unknown error ");
 	}
 }
 
@@ -70,6 +71,11 @@ void  popcon::Logger::initialize()
 
 void popcon::Logger::disconnect()
 {
+	if (!m_established)
+	{
+		std::cerr << " Logger::disconnect - connection has not been established, skipping\n";
+		return;
+	}
 	if (m_debug)
 		std::cerr << "Disconnecting\n";
 	m_coraldb->disconnect();	
@@ -106,6 +112,8 @@ void popcon::Logger::payloadIDMap()
 void popcon::Logger::lock()
 {
 	std::cerr<< " Locking\n";
+	if (!m_established)
+		throw popcon::Exception("Logger::lock exception ");
 	try{
 		//m_coraldb->startTransaction(false);
 		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("O2O_LOCK");
@@ -118,26 +126,22 @@ void popcon::Logger::lock()
 		std::string setClause("LOCK_COL = :id");
 		std::string condition("NAME = :name");
 		dataEditor.updateRows( setClause, condition, inputData );
-		//DO NOT COMMIT
-		////m_coraldb->commit();	
+		//DO NOT COMMIT - DBMS holds the row exclusive lock till commit
 	}
 	catch(std::exception& er){
 		std::cerr << "Logger::lock " << er.what();
+		throw popcon::Exception("Logger::lock exception ");
 	}
 }
 
 void popcon::Logger::unlock()
 {
-	
+
+	if (!m_established)
+		return;
 	std::cerr<< " Unlocking\n";
 	m_coraldb->commit();	
 }
-
-void popcon::Logger::blah(std::string s)
-{
-	std::cerr << "Blah of " << s << std::endl;
-}
-
 
 void popcon::Logger::updateExecID()
 {
@@ -163,6 +167,8 @@ void popcon::Logger::updateExecID()
 
 void popcon::Logger::updatePayloadID()
 {
+	if (m_debug)
+		std::cerr << "Logger::updatePayloadID\n";
 	try{
 		//m_coraldb->startTransaction(false);
 		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("O2O_EXECUTION_PAYLOAD");
@@ -183,6 +189,11 @@ void popcon::Logger::updatePayloadID()
 }
 void popcon::Logger::newExecution()
 {
+	if (m_debug)
+		std::cerr << "Logger::newExecution\n";
+
+	if (!m_established)
+		throw popcon::Exception("Logger::newExecution log exception ");
 	try{
 		//m_coraldb->startTransaction(false);
 		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("O2O_EXECUTION");
@@ -197,10 +208,13 @@ void popcon::Logger::newExecution()
 	}
 	catch(std::exception& er){
 		std::cerr << er.what();
+		throw popcon::Exception("Logger::newExecution log exception ");
 	}
 }
 void popcon::Logger::newPayload()
 {
+	if (m_debug)
+		std::cerr << "Logger::newPayload\n";
 	//m_coraldb->startTransaction(false);
 	coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("O2O_EXECUTION_PAYLOAD");
 	coral::AttributeList rowBuffer;
@@ -218,6 +232,13 @@ void popcon::Logger::newPayload()
 
 void popcon::Logger::finalizeExecution(std::string ok)
 {
+	if (m_debug)
+		std::cerr << "Logger::finalizeExecution\n";
+	if (!m_established)
+	{
+		std::cerr << " Logger::finalizeExecution - connection has not been established, skipping\n";
+		return;
+	}
 	updateExecID();
 	try{
 		//m_coraldb->startTransaction(false);
@@ -241,6 +262,8 @@ void popcon::Logger::finalizeExecution(std::string ok)
 }
 void popcon::Logger::finalizePayload(std::string ok)
 {
+	if (m_debug)
+		std::cerr << "Logger::finalizePayload\n";
 	updatePayloadID();
 	try{
 		//m_coraldb->startTransaction(false);
