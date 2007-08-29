@@ -6,15 +6,17 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalEnergyAlgos.h"
 
 #include <math.h>
-#include <iostream>
 
+#include <iostream>
 using namespace std;
 
 //=================================================================================================================
 //
 /// Constructor and destructor
 
-gctTestEnergyAlgos::gctTestEnergyAlgos() : etStripSums(36) {}
+gctTestEnergyAlgos::gctTestEnergyAlgos() : thePhiSum(0), thePhiSumSq(0), countPhiValues(8), etStripSums(36) { 
+  countPhiValues.assign(8,0);
+}
 gctTestEnergyAlgos::~gctTestEnergyAlgos() {}
 
 //=================================================================================================================
@@ -112,7 +114,8 @@ void gctTestEnergyAlgos::loadEvent(L1GlobalCaloTrigger* &gct, const std::string 
 //=================================================================================================================
 //
 /// Check the energy sums algorithms
-bool gctTestEnergyAlgos::checkEnergySums(const L1GlobalCaloTrigger* gct) const
+//bool gctTestEnergyAlgos::checkEnergySums(const L1GlobalCaloTrigger* gct) const
+bool gctTestEnergyAlgos::checkEnergySums(const L1GlobalCaloTrigger* gct)
 {
   bool testPass=true;
   L1GctGlobalEnergyAlgos* myGlobalEnergy = gct->getEnergyFinalStage();
@@ -197,6 +200,26 @@ bool gctTestEnergyAlgos::checkEnergySums(const L1GlobalCaloTrigger* gct) const
   if (!myGlobalEnergy->getInputEtValPlusWheel().overFlow() && !etPlusOverFlow &&
       (myGlobalEnergy->getInputEtValPlusWheel().value()!=etPlusVal)) { cout << "et Plus " << etPlusVal <<endl; testPass = false; }
  
+  //DEBUG
+  float mEtPhi = (float) myGlobalEnergy->getEtMissPhi().value();
+  thePhiCount += 1.0;
+  thePhiSum   += mEtPhi;
+  thePhiSumSq += mEtPhi*mEtPhi;
+
+  float av = thePhiSum/thePhiCount;
+  float sd = sqrt(thePhiSumSq/thePhiCount - av*av);
+
+  unsigned phiValCoarse = myGlobalEnergy->getEtMissPhi().value()/9;
+  countPhiValues.at(phiValCoarse)++;
+
+  std::cout << "After " << thePhiCount << " events: Average phi is now " << av
+            << ", std dev " << sd << std::endl;
+  std::cout << "number of phi values ";
+  for (unsigned j=0; j<countPhiValues.size(); j++) {
+    std::cout << " val " << j << ": " << countPhiValues.at(j);
+  } std::cout << std::endl;
+  //DEBUG
+
   //
   // Now check the processing in the final stage GlobalEnergyAlgos
   //--------------------------------------------------------------------------------------
