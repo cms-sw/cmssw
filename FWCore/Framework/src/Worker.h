@@ -6,7 +6,7 @@
 Worker: this is a basic scheduling unit - an abstract base class to
 something that is really a producer or filter.
 
-$Id: Worker.h,v 1.24 2007/08/02 23:16:03 wmtan Exp $
+$Id: Worker.h,v 1.25 2007/08/03 16:25:59 wmtan Exp $
 
 A worker will not actually call through to the module unless it is
 in a Ready state.  After a module is actually run, the state will not
@@ -89,10 +89,14 @@ namespace edm {
 
     class CallPrePost {
     public:
-      CallPrePost(Worker::Sigs& s, ModuleDescription& md):s_(&s),md_(&md)
-      { (*(s_->preModuleSignal))(*md_); }
-      ~CallPrePost()
-      { (*(s_->postModuleSignal))(*md_); }
+      CallPrePost(EventPrincipal const& , Worker::Sigs& s, ModuleDescription& md) : s_(&s), md_(&md) {
+	(*(s_->preModuleSignal))(*md_);
+      }
+      CallPrePost(LuminosityBlockPrincipal const& , Worker::Sigs&, ModuleDescription& md) : s_(0), md_(&md) {}
+      CallPrePost(RunPrincipal const& , Worker::Sigs&, ModuleDescription& md):s_(0),md_(&md) {}
+      ~CallPrePost() {
+	if (s_ != 0) (*(s_->postModuleSignal))(*md_);
+      }
     private:
       Worker::Sigs* s_;
       ModuleDescription* md_;
@@ -187,7 +191,7 @@ namespace edm {
 
     try {
 
-	CallPrePost cpp(sigs_,md_);
+	CallPrePost cpp(ep, sigs_, md_);
 	rc = implDoWork(ep, es, bat, cpc);
 
 	if (rc) {

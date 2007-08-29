@@ -734,7 +734,7 @@ namespace edm {
       ServiceRegistry::Operate operate(serviceToken_);
       
       {
-        CallPrePost holder(*actReg_);
+        // CallPrePost holder(*actReg_);
 	input_->repeat();
         input_->rewind();
       }
@@ -999,7 +999,7 @@ namespace edm {
   EventProcessor::beginLuminosityBlock(boost::shared_ptr<RunPrincipal> rp) {
     boost::shared_ptr<LuminosityBlockPrincipal> lbp;
     {
-      CallPrePost holder(*actReg_);
+      // CallPrePost holder(*actReg_);
       lbp = input_->readLuminosityBlock(rp);
     }
     if(lbp) {
@@ -1014,7 +1014,7 @@ namespace edm {
   EventProcessor::beginRun() {
     boost::shared_ptr<RunPrincipal> rp;
     {
-      CallPrePost holder(*actReg_);
+      // CallPrePost holder(*actReg_);
       rp = input_->readRun();
     }
     if(rp) {
@@ -1059,7 +1059,7 @@ namespace edm {
   void 
   EventProcessor::endLuminosityBlock(LuminosityBlockPrincipal *lbp) {
     {
-      CallPrePost holder(*actReg_);
+      // CallPrePost holder(*actReg_);
       input_->doFinishLumi(*lbp);
     }
     IOVSyncValue ts(EventID(lbp->runNumber(),EventID::maxEventNumber()), lbp->endTime());
@@ -1070,7 +1070,7 @@ namespace edm {
   void 
   EventProcessor::endRun(RunPrincipal *rp) {
     {
-      CallPrePost holder(*actReg_);
+      // CallPrePost holder(*actReg_);
       input_->doFinishRun(*rp);
     }
     IOVSyncValue ts(EventID(rp->run(), EventID::maxEventNumber()), rp->endTime());
@@ -1129,7 +1129,7 @@ namespace edm {
       ServiceRegistry::Operate operate(serviceToken_);
       
       {
-        CallPrePost holder(*actReg_);
+        // CallPrePost holder(*actReg_);
         input_->skipEvents(numberToSkip);
       }
       changeState(mCountComplete);
