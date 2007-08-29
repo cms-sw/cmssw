@@ -26,6 +26,8 @@ namespace { // anonymous
 	};
 } // anonymous namespace
 
+std::allocator<char> IdCache::stringAllocator;
+
 IdCache::~IdCache()
 {
 	for(std::multiset<const char*, StringLess>::iterator iter =
