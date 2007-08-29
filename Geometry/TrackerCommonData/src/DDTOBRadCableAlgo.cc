@@ -165,8 +165,9 @@ void DDTOBRadCableAlgo::execute() {
 			<< " with no rotation";
 
     // Now the radial cable
-    name  = "TOBRadCable" + names[i];
+    name  = "TOBRadServices" + names[i];
     rin   = 0.5*(rodRin[i]+rodRout[i]);
+    rout = ( i+1 == (int)(names.size()) ? rMax : 0.5*(rodRin[i+1]+rodRout[i+1]) );
     std::vector<double> pgonZ;
     pgonZ.push_back(-0.5*cableT); 
     pgonZ.push_back(cableT*(rin/rMax-0.5));
@@ -176,9 +177,9 @@ void DDTOBRadCableAlgo::execute() {
     pgonRmin.push_back(rin); 
     pgonRmin.push_back(rin); 
     std::vector<double> pgonRmax;
-    pgonRmax.push_back(rMax); 
-    pgonRmax.push_back(rMax); 
-    pgonRmax.push_back(rin); 
+    pgonRmax.push_back(rout); 
+    pgonRmax.push_back(rout); 
+    pgonRmax.push_back(rout); 
     solid = DDSolidFactory::polycone(DDName(name, idNameSpace), 0, twopi,
 				     pgonZ, pgonRmin, pgonRmax);
     LogDebug("TOBGeom") << "DDTOBRadCableAlgo test: " 
