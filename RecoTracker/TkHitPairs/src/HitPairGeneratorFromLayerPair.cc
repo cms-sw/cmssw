@@ -145,11 +145,8 @@ void HitPairGeneratorFromLayerPair::
    RecHitsSortedInPhi innerSortedHits(innerHits,trackerGeometry);
    
 				   
-  float zMinOrigin = region.origin().z() - region.originZBound();
-  float zMaxOrigin = region.origin().z() + region.originZBound();
   InnerDeltaPhi deltaPhi(
-      *(theInnerLayer.detLayer()), region.ptMin(), region.originRBound(),
-      zMinOrigin, zMaxOrigin,iSetup);
+      *(theInnerLayer.detLayer()), region, iSetup);
 
   typedef vector<const TrackingRecHit*>::const_iterator  HI;
   float nSigmaRZ = sqrt(12.);
