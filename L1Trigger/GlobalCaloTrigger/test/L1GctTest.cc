@@ -84,6 +84,8 @@ L1GctTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   bool endOfFile;
 
+  configureGct(iSetup);
+
    // Initialise the gct
    m_gct->reset();
 
