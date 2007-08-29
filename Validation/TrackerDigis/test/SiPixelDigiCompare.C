@@ -13,6 +13,60 @@ void SiPixelDigiCompare()
  TFile * sfile = new TFile(sfilename);
  Char_t histo[200];
 
+
+ TLegend leg(0.3, 0.83, 0.55, 0.90);
+ //Get list of Keys from the Reference file.
+  TList* ref_list = rfile->GetListOfKeys() ;
+  if (!ref_list) {
+      std::cout<<"=========>> AutoComaprison:: There is no Keys available in the Reference file."<<std::endl;
+      exit(1) ;
+   }
+
+  //Get list of Keys from the New file.
+  TList* new_list = sfile->GetListOfKeys() ;
+  if (!new_list) {
+      std::cout<<"=========>> AutoComaprison:: There is no Keys available in New file."<<std::endl;
+      exit(1) ;
+   }
+
+
+  //Iterate on the List of Keys of the  Reference file.
+  TIter     refkey_iter( ref_list) ;
+  TKey*     ref_key ;
+  TObject*  ref_obj ;
+
+  char rver[50];
+  char cver[50];
+  while ( ref_key = (TKey*) refkey_iter() ) {
+      ref_obj = ref_key->ReadObj() ;
+      if (strcmp(ref_obj->IsA()->GetName(),"TObjString")==0) {
+
+         TObjString * rversion = dynamic_cast< TObjString*> (ref_obj);
+         sprintf(rver, "%s", rversion->GetName());
+         std::cout<<" Ref. version =" << rver<<std::endl;
+         break;
+
+      }
+  }
+
+  //Iterate on the List of Keys of the  Reference file.
+  TIter     newkey_iter( new_list) ;
+  TKey*     new_key ;
+  TObject*  new_obj ;
+  while ( new_key = (TKey*) newkey_iter() ) {
+      new_obj = new_key->ReadObj() ;
+      if (strcmp(new_obj->IsA()->GetName(),"TObjString")==0) {
+
+         TObjString * cversion = dynamic_cast< TObjString*> (new_obj);
+         sprintf(cver, "%s", cversion->GetName());
+         std::cout<<" Cur version =" << cver<<std::endl;
+         break;
+
+      }
+  }
+
+
+
  rfile->cd("DQMData/TrackerDigis/Pixel");
  //gDirectory->ls();
 
@@ -47,6 +101,12 @@ if (1) {
       newmeAdcLadder_[i]->SetLineStyle(2);
       newmeAdcLadder_[i]->Draw("Sames"); 
       myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcLadder_[i],rver , "l");
+      leg.AddEntry(newmeAdcLadder_[i],cver , "l");
+      leg.Draw();
+
+
     }
    
    Pixel->Print("AdcOfPXBLayer1_compare.eps");
@@ -74,6 +134,11 @@ if (1) {
       newmeAdcLadder_[i]->SetLineStyle(2); 
       newmeAdcLadder_[i]->Draw("Sames");
       myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcLadder_[i],rver , "l");
+      leg.AddEntry(newmeAdcLadder_[i],cver , "l");
+      leg.Draw();
+
     }
 
    Pixel->Print("RowOfPXBLayer1_compare.eps");
@@ -100,6 +165,10 @@ if (1) {
       newmeAdcLadder_[i]->SetLineStyle(2);   
       newmeAdcLadder_[i]->Draw("Sames");
       myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcLadder_[i],rver , "l");
+      leg.AddEntry(newmeAdcLadder_[i],cver , "l");
+      leg.Draw();
 
     }
 
@@ -128,6 +197,10 @@ if (1) {
       newmeAdcLadder_[i]->SetLineStyle(2);
       newmeAdcLadder_[i]->Draw("Sames");
       myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcLadder_[i],rver , "l");
+      leg.AddEntry(newmeAdcLadder_[i],cver , "l");
+      leg.Draw();
 
     }
 
@@ -158,6 +231,10 @@ if (1) {
       newmeAdcLadder_[i]->SetLineStyle(2);
       newmeAdcLadder_[i]->Draw("Sames");
       myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcLadder_[i],rver , "l");
+      leg.AddEntry(newmeAdcLadder_[i],cver , "l");
+      leg.Draw();
   
     }
 
@@ -184,6 +261,10 @@ if (1) {
       newmeAdcLadder_[i]->SetLineStyle(2);
       newmeAdcLadder_[i]->Draw("Sames");
       myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcLadder_[i],rver , "l");
+      leg.AddEntry(newmeAdcLadder_[i],cver , "l");
+      leg.Draw();
 
     }
 
@@ -210,6 +291,11 @@ if (1) {
       newmeAdcLadder_[i]->SetLineStyle(2);
       newmeAdcLadder_[i]->Draw("Sames");
       myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcLadder_[i],rver , "l");
+      leg.AddEntry(newmeAdcLadder_[i],cver , "l");
+      leg.Draw();
+
     }
   
    Pixel->Print("ColOfPXBLayer2_compare.eps");
@@ -236,6 +322,10 @@ if (1) {
       newmeAdcLadder_[i]->SetLineStyle(2);
       newmeAdcLadder_[i]->Draw("Sames");
       myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcLadder_[i],rver , "l");
+      leg.AddEntry(newmeAdcLadder_[i],cver , "l");
+      leg.Draw();
 
     }
 
@@ -266,6 +356,10 @@ if (1) {
       newmeAdcLadder_[i]->SetLineStyle(2);
       newmeAdcLadder_[i]->Draw("Sames");
       myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcLadder_[i],rver , "l");
+      leg.AddEntry(newmeAdcLadder_[i],cver , "l");
+      leg.Draw();
  
     }
 
@@ -292,6 +386,10 @@ if (1) {
       newmeAdcLadder_[i]->SetLineStyle(2);
       newmeAdcLadder_[i]->Draw("Sames");
       myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcLadder_[i],rver , "l");
+      leg.AddEntry(newmeAdcLadder_[i],cver , "l");
+      leg.Draw();
 
     }
 
@@ -319,6 +417,10 @@ if (1) {
       newmeAdcLadder_[i]->SetLineStyle(2);
       newmeAdcLadder_[i]->Draw("Sames");
       myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcLadder_[i],rver , "l");
+      leg.AddEntry(newmeAdcLadder_[i],cver , "l");
+      leg.Draw();
 
     }
 
@@ -348,6 +450,10 @@ if (1) {
       newmeAdcLadder_[i]->SetLineStyle(2);
       newmeAdcLadder_[i]->Draw("Sames");
       myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcLadder_[i],rver , "l");
+      leg.AddEntry(newmeAdcLadder_[i],cver , "l");
+      leg.Draw();
 
     }
 
@@ -377,6 +483,10 @@ if (1) {
       newmeLadder_[i]->SetLineStyle(2);
       newmeLadder_[i]->Draw("Sames");
       myPV->PVCompute(meLadder_[i] , newmeLadder_[i] , te );
+      leg.Clear();
+      leg.AddEntry(meAdcLadder_[i],rver , "l");
+      leg.AddEntry(newmeAdcLadder_[i],cver , "l");
+      leg.Draw();
 
     }
 
@@ -408,6 +518,11 @@ if (1) {
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);  
+      leg.Clear();
+      leg.AddEntry(meAdc_[i],rver , "l");
+      leg.AddEntry(newmeAdc_[i],cver , "l");
+      leg.Draw();
+
     }
 
    Pixel->Print("AdcZmDisk1Panel1_compare.eps");
@@ -432,6 +547,11 @@ if (1) {
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdc_[i],rver , "l");
+      leg.AddEntry(newmeAdc_[i],cver , "l");
+      leg.Draw();
+
     }
 
    Pixel->Print("RowZmDisk1Panel1_compare.eps");
@@ -458,6 +578,10 @@ if (1) {
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdc_[i],rver , "l");
+      leg.AddEntry(newmeAdc_[i],cver , "l");
+      leg.Draw();
 
     }
 
@@ -485,6 +609,11 @@ if (1) {
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdc_[i],rver , "l");
+      leg.AddEntry(newmeAdc_[i],cver , "l");
+      leg.Draw();
+
     }
 
    Pixel->Print("AdcZmDisk1Panel2_compare.eps");
@@ -511,6 +640,11 @@ if (1) {
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdc_[i],rver , "l");
+      leg.AddEntry(newmeAdc_[i],cver , "l");
+      leg.Draw();
+
     }
 
    Pixel->Print("RowZmDisk1Panel2_compare.eps");
@@ -536,6 +670,11 @@ if (1) {
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdc_[i],rver , "l");
+      leg.AddEntry(newmeAdc_[i],cver , "l");
+      leg.Draw();
+
     }
 
    Pixel->Print("ColZmDisk1Panel2_compare.eps");
@@ -563,6 +702,11 @@ if (1) {
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdc_[i],rver , "l");
+      leg.AddEntry(newmeAdc_[i],cver , "l");
+      leg.Draw();
+
     }
 
    Pixel->Print("AdcZmDisk2Panel1_compare.eps");
@@ -587,6 +731,11 @@ if (1) {
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdc_[i],rver , "l");
+      leg.AddEntry(newmeAdc_[i],cver , "l");
+      leg.Draw();
+
     }
 
    Pixel->Print("RowZmDisk2Panel1_compare.eps");
@@ -612,6 +761,11 @@ if (1) {
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdc_[i],rver , "l");
+      leg.AddEntry(newmeAdc_[i],cver , "l");
+      leg.Draw();
+
     }
 
    Pixel->Print("ColZmDisk2Panel1_compare.eps");
@@ -639,6 +793,11 @@ if (1) {
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdc_[i],rver , "l");
+      leg.AddEntry(newmeAdc_[i],cver , "l");
+      leg.Draw();
+
     }
 
    Pixel->Print("AdcZmDisk2Panel2_compare.eps");
@@ -664,6 +823,11 @@ if (1) {
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdc_[i],rver , "l");
+      leg.AddEntry(newmeAdc_[i],cver , "l");
+      leg.Draw();
+
     }
 
    Pixel->Print("RowZmDisk2Panel2_compare.eps");
@@ -689,6 +853,11 @@ if (1) {
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdc_[i],rver , "l");
+      leg.AddEntry(newmeAdc_[i],cver , "l");
+      leg.Draw();
+
     }
 
    Pixel->Print("ColZmDisk2Panel2_compare.eps");
@@ -717,6 +886,11 @@ if (1) {
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdc_[i],rver , "l");
+      leg.AddEntry(newmeAdc_[i],cver , "l");
+      leg.Draw();
+
     }
 
    Pixel->Print("AdcZpDisk1Panel1_compare.eps");
@@ -743,6 +917,10 @@ if (1) {
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdc_[i],rver , "l");
+      leg.AddEntry(newmeAdc_[i],cver , "l");
+      leg.Draw();
 
     }
 
@@ -769,6 +947,11 @@ if (1) {
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdc_[i],rver , "l");
+      leg.AddEntry(newmeAdc_[i],cver , "l");
+      leg.Draw();
+
     }
 
    Pixel->Print("ColZpDisk1Panel1_compare.eps");
@@ -796,6 +979,11 @@ if (1) {
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdc_[i],rver , "l");
+      leg.AddEntry(newmeAdc_[i],cver , "l");
+      leg.Draw();
+
     }
 
    Pixel->Print("AdcZpDisk1Panel2_compare.eps");
@@ -821,6 +1009,10 @@ if (1) {
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdc_[i],rver , "l");
+      leg.AddEntry(newmeAdc_[i],cver , "l");
+      leg.Draw();
 
     }
 
@@ -847,6 +1039,11 @@ if (1) {
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdc_[i],rver , "l");
+      leg.AddEntry(newmeAdc_[i],cver , "l");
+      leg.Draw();
+
     }
 
    Pixel->Print("ColZpDisk1Panel2_compare.eps");
@@ -875,6 +1072,11 @@ if (1) {
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdc_[i],rver , "l");
+      leg.AddEntry(newmeAdc_[i],cver , "l");
+      leg.Draw();
+
     }
 
    Pixel->Print("AdcZpDisk2Panel1_compare.eps");
@@ -899,6 +1101,10 @@ if (1) {
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdc_[i],rver , "l");
+      leg.AddEntry(newmeAdc_[i],cver , "l");
+      leg.Draw();
 
     }
 
@@ -925,6 +1131,11 @@ if (1) {
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdc_[i],rver , "l");
+      leg.AddEntry(newmeAdc_[i],cver , "l");
+      leg.Draw();
+
     }
 
    Pixel->Print("ColZpDisk2Panel1_compare.eps");
@@ -953,6 +1164,11 @@ if (1) {
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdc_[i],rver , "l");
+      leg.AddEntry(newmeAdc_[i],cver , "l");
+      leg.Draw();
+
     }
 
    Pixel->Print("AdcZpDisk2Panel2_compare.eps");
@@ -979,6 +1195,11 @@ if (1) {
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdc_[i],rver , "l");
+      leg.AddEntry(newmeAdc_[i],cver , "l");
+      leg.Draw();
+
     }
 
    Pixel->Print("RowZpDisk2Panel2_compare.eps");
@@ -1004,6 +1225,10 @@ if (1) {
       meAdc_[i]->Draw();
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
+      leg.Clear();
+      leg.AddEntry(meAdc_[i],rver , "l");
+      leg.AddEntry(newmeAdc_[i],cver , "l");
+      leg.Draw();
 
     }
 
@@ -1061,6 +1286,11 @@ if (1) {
       meMulti_[i]->Draw();
       newmeMulti_[i]->Draw("sames");
       myPV->PVCompute(meMulti_[i],newmeMulti_[i],te);
+      leg.Clear();
+      leg.AddEntry(meMulti_[i],rver , "l");
+      leg.AddEntry(newmeMulti_[i],cver , "l");
+      leg.Draw();
+
    }
  
    Pixel->Print("DigiMultiOfEndcap_compare.eps");
