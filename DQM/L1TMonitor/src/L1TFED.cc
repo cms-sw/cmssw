@@ -1,20 +1,18 @@
 /*
  * \file L1TFED.cc
  *
- * $Date: 2007/02/22 19:43:53 $
- * $Revision: 1.2 $
+ * $Date: 2007/08/29 08:10:09 $
+ * $Revision: 1.1 $
  * \author J. Berryhill
  *
  */
 
 #include "DQM/L1TMonitor/interface/L1TFED.h"
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 using namespace std;
 using namespace edm;
 
 L1TFED::L1TFED(const ParameterSet& ps)
-  : fedSource_( ps.getParameter< InputTag >("fedSource") )
 {
 
   // verbosity switch
@@ -109,12 +107,33 @@ void L1TFED::analyze(const Event& e, const EventSetup& c)
   nev_++; 
   if(verbose_) cout << "L1TFED: analyze...." << endl;
 
-  int ntest = 5;
-      fedtest->Fill(ntest);
-      if (verbose_)
-	{     
-     std::cout << "\tFED test " << ntest
-   	    << std::endl;
+  edm::Handle<FEDRawDataCollection> rawdata;
+  e.getByType(rawdata);
+  for (int i = 0; i<FEDNumbering::lastFEDId(); i++){
+    const FEDRawData& data = rawdata->FEDData(i);
+    if(size_t size=data.size()) {
+       hfedsize->Fill(float(size));
+       hfedprof->Fill(float(i),float(size));
+       if(i<1024)
+	 {
+	  if(hindfed[i]==0)
+	  {
+	   DaqMonitorBEInterface *dbe = 
+	   edm::Service<DaqMonitorBEInterface>().operator->();
+	   dbe->setCurrentFolder("L1TMonitor/L1TFED/Details");
+	   std::ostringstream os1;
+	   std::ostringstream os2;
+	   os1 << "fed" << i;
+	   os2 << "FED #" << i << " Size Distribution";
+	   hindfed[i] = dbe->book1D(os1.str(),os2.str(),100,0.,3.*size);
+	   hindfed[i]->setResetMe(true);
+	  }
+	  hindfed[i]->Fill(float(size));
+	 }
 	}
+       }
+	  
 }
+
+
 
