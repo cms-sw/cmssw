@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.11 $
-///  last update: $Date: 2007/07/17 21:25:22 $
-///  by         : $Author: pivarski $
+///  Revision   : $Revision: 1.12 $
+///  last update: $Date: 2007/08/16 09:50:10 $
+///  by         : $Author: innocent $
 
 #include "Alignment/CommonAlignmentProducer/plugins/AlignmentProducer.h"
 
@@ -562,7 +562,10 @@ void AlignmentProducer::createGeometries_( const edm::EventSetup& iSetup )
       DTGeometryBuilderFromDDD DTGeometryBuilder;
       CSCGeometryBuilderFromDDD CSCGeometryBuilder;
       theMuonDT = boost::shared_ptr<DTGeometry>(DTGeometryBuilder.build(&(*cpv), *mdc));
-      theMuonCSC = boost::shared_ptr<CSCGeometry>(CSCGeometryBuilder.build(&(*cpv), *mdc));
+
+      //theMuonCSC = boost::shared_ptr<CSCGeometry>(CSCGeometryBuilder.build(&(*cpv), *mdc));
+      theMuonCSC = boost::shared_ptr<CSCGeometry>( new CSCGeometry );
+      CSCGeometryBuilder.build( theMuonCSC, &(*cpv), *mdc );
    }
 }
 

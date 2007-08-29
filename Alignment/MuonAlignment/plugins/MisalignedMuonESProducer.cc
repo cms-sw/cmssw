@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/04/17 12:10:20 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/04/18 14:09:59 $
+ *  $Revision: 1.2 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -71,7 +71,9 @@ MisalignedMuonESProducer::produce( const MuonGeometryRecord& iRecord )
   CSCGeometryBuilderFromDDD CSCGeometryBuilder;
 
   theDTGeometry   = boost::shared_ptr<DTGeometry>(  DTGeometryBuilder.build( &(*cpv), *mdc ) );
-  theCSCGeometry  = boost::shared_ptr<CSCGeometry>( CSCGeometryBuilder.build( &(*cpv), *mdc ) );
+  //theCSCGeometry  = boost::shared_ptr<CSCGeometry>( CSCGeometryBuilder.build( &(*cpv), *mdc ) );
+  theCSCGeometry  = boost::shared_ptr<CSCGeometry>( new CSCGeometry );
+  CSCGeometryBuilder.build( theCSCGeometry,  &(*cpv), *mdc );
 
 
   // Create the alignable hierarchy
