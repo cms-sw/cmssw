@@ -1,8 +1,8 @@
 /*
  * \file MonitorClient.cc
  * 
- * $Date: 2007/06/21 15:05:55 $
- * $Revision: 1.1.2.1 $
+ * $Date: 2007/06/24 15:13:20 $
+ * $Revision: 1.2 $
  * \author M. Zanetti - CERN
  *
  */
@@ -36,19 +36,19 @@ using namespace std;
 MonitorClient::MonitorClient(const edm::ParameterSet& ps){
   
   edm::LogVerbatim ("monitorClient") <<"[MonitorClient]: Constructor";
-
   parameters = ps;
   
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
   dbe->setVerbose(1);
 
+  prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
 
 }
 
 
 MonitorClient::~MonitorClient(){
 
-  edm::LogVerbatim ("monitorClient") <<"MonitorClient: analyzed " << nevents << " events";
+  edm::LogVerbatim ("monitorClient") <<"MonitorClient: analyzed " << nLumiSegs << " events";
 
 }
 
@@ -67,24 +67,34 @@ void MonitorClient::beginJob(const edm::EventSetup& context){
 
   clientHisto = dbe->book1D("clientHisto", "Guassian fit results.", 2, 0, 1);
   
-  nevents = 0;
+  nLumiSegs = 0;
 
 }
 
 
-
+void MonitorClient::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
   
+  edm::LogVerbatim ("monitorClient") <<"[MonitorClient]: Begin of LS transition";
+
+}
 
 void MonitorClient::analyze(const edm::Event& e, const edm::EventSetup& context){
 
-  // counts number of updats (online mode) or number of events (standalone mode)
-  nevents++;
-  // if running in standalone perform diagnostic only after a reasonalbe amount of events
-  if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) && 
-       nevents%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;
+  //cout<<"[MonitorClient]: LumiBlock "<<e.luminosityBlock()<<endl;
 
-  edm::LogVerbatim ("monitorClient") <<"[MonitorClient]: "<<nevents<<" updates";
+}
 
+void MonitorClient::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
+
+  edm::LogVerbatim ("monitorClient") <<"[MonitorClient]: End of LS transition, performing the DQM client operation";
+
+  // counts number of lumiSegs 
+  nLumiSegs++;
+
+  // prescale factor
+  if ( nLumiSegs%prescaleFactor != 0 ) return;
+
+  edm::LogVerbatim ("monitorClient") <<"[MonitorClient]: "<<nLumiSegs<<" updates";
 
   string folderRoot = parameters.getUntrackedParameter<string>("folderRoot", "Collector/FU0/");
   string histoName = folderRoot + "C1/C2/histo4";
