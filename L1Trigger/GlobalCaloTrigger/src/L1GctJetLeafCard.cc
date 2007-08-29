@@ -202,7 +202,9 @@ L1GctJetLeafCard::rotateEtValue(const L1GctUnsignedInt<12> etStrip, const unsign
   // Multiply the 12-bit Et value by the 20-bit factor.
   // Discard the eight LSB and interpret the result as
   // a 12-bit twos complement integer.
-  myValue = (static_cast<int>(etStrip.value())*myFact) >> 8;
+  // Adjust the value to avoid truncation errors since these
+  // accumulate and cause problems for the missing Et measurement.
+  myValue = (( static_cast<int>(etStrip.value()) * myFact ) + 0x80)>>8;
   myValue = myValue & (maxEt-1);
   if (myValue >= (maxEt/2)) {
     myValue = myValue - maxEt;
