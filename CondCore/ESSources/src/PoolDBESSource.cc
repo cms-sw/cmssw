@@ -138,7 +138,9 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
 	if(!datatop) throw cond::Exception("CMSSW_DATA_PATH is not set");
 	fs::path full_path(datatop);
 	full_path/=fs::path("data-CondCore-SQLiteData");
-	full_path/=fs::path("1.0");
+	full_path/=fs::path("1");
+        full_path/=fs::path("CondCore");
+	full_path/=fs::path("SQLiteData");
 	full_path/=fs::path("data");
 	full_path/=fs::path("localCondDBCatalog.xml");
 	std::string fullname=full_path.string();
