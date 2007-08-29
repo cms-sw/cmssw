@@ -9,6 +9,7 @@
 <use name=DataFormats/L1DTTrackFinder>
 <use name=DataFormats/L1GlobalMuonTrigger>
 <use name=DataFormats/L1GlobalTrigger>
+<use name=DataFormats/FEDRawData>
 <use name=DataFormats/EcalDigi>
 <use name=DQMServices/Core>
 <use name=DQMServices/NodeROOT>
@@ -34,6 +35,7 @@
    <use name=DataFormats/L1GlobalMuonTrigger>
    <use name=DataFormats/L1GlobalTrigger>
    <use name=DataFormats/EcalDigi>
+   <use name=DataFormats/FEDRawData>
  <use name=root>
  <use name=boost>
  <use name=DQMServices/Core>
