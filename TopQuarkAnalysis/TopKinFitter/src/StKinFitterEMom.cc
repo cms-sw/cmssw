@@ -55,37 +55,37 @@ StEvtSolution StKinFitterEMom::addKinFitInfo(StEvtSolution * asol) {
     
     
 // jet resolutions (covM in vector<double> form -> (0,0)=[0], (1,1)=[4], (2,2)=[8])
-  m1(0,0) = pow(fitsol.getCalBottom().getResPinv(),  2);
-  m1(1,1) = pow(fitsol.getCalBottom().getResTheta(), 2);
-  m1(2,2) = pow(fitsol.getCalBottom().getResPhi(), 2);
+  m1(0,0) = pow(fitsol.getCalBottom().getResA(),  2);
+  m1(1,1) = pow(fitsol.getCalBottom().getResB(), 2);
+  m1(2,2) = pow(fitsol.getCalBottom().getResC(), 2);
   m1(3,3) = pow(fitsol.getCalBottom().getResD(), 2);
-  m2(0,0) = pow(fitsol.getCalLight().getResPinv(),  2); 
-  m2(1,1) = pow(fitsol.getCalLight().getResTheta(), 2); 
-  m2(2,2) = pow(fitsol.getCalLight().getResPhi(), 2);
+  m2(0,0) = pow(fitsol.getCalLight().getResA(),  2); 
+  m2(1,1) = pow(fitsol.getCalLight().getResB(), 2); 
+  m2(2,2) = pow(fitsol.getCalLight().getResC(), 2);
   m2(3,3) = pow(fitsol.getCalLight().getResD(), 2);
   /*
-  m3(0,0) = pow(fitsol.getCalHadb().getResPinv(),  2); 
-  m3(1,1) = pow(fitsol.getCalHadb().getResTheta(), 2); 
-  m3(2,2) = pow(fitsol.getCalHadb().getResPhi(), 2);
+  m3(0,0) = pow(fitsol.getCalHadb().getResA(),  2); 
+  m3(1,1) = pow(fitsol.getCalHadb().getResB(), 2); 
+  m3(2,2) = pow(fitsol.getCalHadb().getResC(), 2);
   m3(3,3) = pow(fitsol.getCalHadb().getResD(), 2);
-  m4(0,0) = pow(fitsol.getCalLepb().getResPinv(),  2); 
-  m4(1,1) = pow(fitsol.getCalLepb().getResTheta(), 2); 
-  m4(2,2) = pow(fitsol.getCalLepb().getResPhi(), 2);
+  m4(0,0) = pow(fitsol.getCalLepb().getResA(),  2); 
+  m4(1,1) = pow(fitsol.getCalLepb().getResB(), 2); 
+  m4(2,2) = pow(fitsol.getCalLepb().getResC(), 2);
   m4(3,3) = pow(fitsol.getCalLepb().getResD(), 2);
   */
   if(fitsol.getDecay()== "electron"){
-    m3(0,0) = pow(fitsol.getRecLepe().getResET(),  2);
-    m3(1,1) = pow(fitsol.getRecLepe().getResTheta(), 2); 
-    m3(2,2) = pow(fitsol.getRecLepe().getResPhi(), 2);
+    m3(0,0) = pow(fitsol.getRecLepe().getResA(),  2);
+    m3(1,1) = pow(fitsol.getRecLepe().getResB(), 2); 
+    m3(2,2) = pow(fitsol.getRecLepe().getResC(), 2);
   }
   if(fitsol.getDecay()== "muon"){
-    m3(0,0) = pow(fitsol.getRecLepm().getResET(),  2);
-    m3(1,1) = pow(fitsol.getRecLepm().getResTheta(), 2); 
-    m3(2,2) = pow(fitsol.getRecLepm().getResPhi(), 2);
+    m3(0,0) = pow(fitsol.getRecLepm().getResA(),  2);
+    m3(1,1) = pow(fitsol.getRecLepm().getResB(), 2); 
+    m3(2,2) = pow(fitsol.getRecLepm().getResC(), 2);
   }
-  m4(0,0) = pow(fitsol.getRecLepn().getResET(),  2);
-  m4(1,1) = pow(fitsol.getRecLepn().getResTheta(),  2);
-  m4(2,2) = pow(fitsol.getRecLepn().getResPhi(), 2);
+  m4(0,0) = pow(fitsol.getRecLepn().getResA(),  2);
+  m4(1,1) = pow(fitsol.getRecLepn().getResB(),  2);
+  m4(2,2) = pow(fitsol.getRecLepn().getResC(), 2);
   
   fitBottom->setIni4Vec(&bottomVec); fitBottom->setCovMatrix(&m1);
   fitLight->setIni4Vec(&lightVec); fitLight->setCovMatrix(&m2);
@@ -105,24 +105,24 @@ StEvtSolution StKinFitterEMom::addKinFitInfo(StEvtSolution * asol) {
 
     TMatrixD Vb(4,4);  Vb  = (*fitBottom->getCovMatrixFit()); 
     TMatrixD Vq(4,4);  Vq  = (*fitLight->getCovMatrixFit()); 
-    aFitBottom.setResPinv (Vb(0,0));  
-    aFitBottom.setResTheta(Vb(1,1));
-    aFitBottom.setResPhi(Vb(2,2)); 
+    aFitBottom.setResA (Vb(0,0));  
+    aFitBottom.setResB(Vb(1,1));
+    aFitBottom.setResC(Vb(2,2)); 
     aFitBottom.setResD(Vb(3,3)); 
-    aFitLight.setResPinv (Vq(0,0));  
-    aFitLight.setResTheta(Vq(1,1));
-    aFitLight.setResPhi(Vq(2,2));
+    aFitLight.setResA (Vq(0,0));  
+    aFitLight.setResB(Vq(1,1));
+    aFitLight.setResC(Vq(2,2));
     aFitLight.setResD(Vq(3,3));
     
     TMatrixD Vl(3,3); Vl = (*fitLepl->getCovMatrixFit()); 
-    aFitLepl.setResET (Vl(0,0));  
-    aFitLepl.setResTheta(Vl(1,1));
-    aFitLepl.setResPhi(Vl(2,2));
+    aFitLepl.setResA (Vl(0,0));  
+    aFitLepl.setResB(Vl(1,1));
+    aFitLepl.setResC(Vl(2,2));
     
     TMatrixD Vn(3,3); Vn = (*fitLepn->getCovMatrixFit()); 
-    aFitLepn.setResPinv (Vn(0,0));  
-    aFitLepn.setResTheta(Vn(1,1));
-    aFitLepn.setResPhi(Vn(2,2));
+    aFitLepn.setResA (Vn(0,0));  
+    aFitLepn.setResB(Vn(1,1));
+    aFitLepn.setResC(Vn(2,2));
     
 /*
     TopJet  aFitBottomObj(fitsol.getBottom()); aFitBottomObj.setFitJet(aFitBottom); fitsol.setBottom(aFitBottomObj);

@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiKinFitter.cc,v 1.2 2007/07/26 08:41:05 lowette Exp $
+// $Id: TtSemiKinFitter.cc,v 1.2.2.3 2007/08/30 16:59:29 heyninck Exp $
 //
 
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtSemiKinFitter.h"
@@ -85,21 +85,21 @@ TtSemiEvtSolution TtSemiKinFitter::addKinFitInfo(TtSemiEvtSolution * asol) {
 
   // jet resolutions
   if (jetParam_ == EMom) {
-    m1b(0,0) = pow(fitsol.getCalHadp().getResPinv(), 2);
-    m1b(1,1) = pow(fitsol.getCalHadp().getResTheta(), 2);
-    m1b(2,2) = pow(fitsol.getCalHadp().getResPhi(), 2);
+    m1b(0,0) = pow(fitsol.getCalHadp().getResA(), 2);
+    m1b(1,1) = pow(fitsol.getCalHadp().getResB(), 2);
+    m1b(2,2) = pow(fitsol.getCalHadp().getResC(), 2);
     m1b(3,3) = pow(fitsol.getCalHadp().getResD(), 2);
-    m2b(0,0) = pow(fitsol.getCalHadq().getResPinv(), 2); 
-    m2b(1,1) = pow(fitsol.getCalHadq().getResTheta(), 2); 
-    m2b(2,2) = pow(fitsol.getCalHadq().getResPhi(), 2);
+    m2b(0,0) = pow(fitsol.getCalHadq().getResA(), 2); 
+    m2b(1,1) = pow(fitsol.getCalHadq().getResB(), 2); 
+    m2b(2,2) = pow(fitsol.getCalHadq().getResC(), 2);
     m2b(3,3) = pow(fitsol.getCalHadq().getResD(), 2);
-    m3b(0,0) = pow(fitsol.getCalHadb().getResPinv(), 2); 
-    m3b(1,1) = pow(fitsol.getCalHadb().getResTheta(), 2); 
-    m3b(2,2) = pow(fitsol.getCalHadb().getResPhi(), 2);
+    m3b(0,0) = pow(fitsol.getCalHadb().getResA(), 2); 
+    m3b(1,1) = pow(fitsol.getCalHadb().getResB(), 2); 
+    m3b(2,2) = pow(fitsol.getCalHadb().getResC(), 2);
     m3b(3,3) = pow(fitsol.getCalHadb().getResD(), 2);
-    m4b(0,0) = pow(fitsol.getCalLepb().getResPinv(), 2); 
-    m4b(1,1) = pow(fitsol.getCalLepb().getResTheta(), 2); 
-    m4b(2,2) = pow(fitsol.getCalLepb().getResPhi(), 2);
+    m4b(0,0) = pow(fitsol.getCalLepb().getResA(), 2); 
+    m4b(1,1) = pow(fitsol.getCalLepb().getResB(), 2); 
+    m4b(2,2) = pow(fitsol.getCalLepb().getResC(), 2);
     m4b(3,3) = pow(fitsol.getCalLepb().getResD(), 2);
   } else if (jetParam_ == EtEtaPhi) {
     m1(0,0) = pow(fitsol.getCalHadp().getResET(), 2);
@@ -131,14 +131,14 @@ TtSemiEvtSolution TtSemiKinFitter::addKinFitInfo(TtSemiEvtSolution * asol) {
   // lepton resolutions
   if (lepParam_ == EMom) {
     if(fitsol.getDecay()== "electron"){
-      m5(0,0) = pow(fitsol.getCalLepe().getResPinv(), 2);
-      m5(1,1) = pow(fitsol.getCalLepe().getResTheta(), 2); 
-      m5(2,2) = pow(fitsol.getCalLepe().getResPhi(), 2);
+      m5(0,0) = pow(fitsol.getCalLepe().getResA(), 2);
+      m5(1,1) = pow(fitsol.getCalLepe().getResB(), 2); 
+      m5(2,2) = pow(fitsol.getCalLepe().getResC(), 2);
     }
     if(fitsol.getDecay()== "muon"){
-      m5(0,0) = pow(fitsol.getCalLepm().getResPinv(), 2);
-      m5(1,1) = pow(fitsol.getCalLepm().getResTheta(), 2); 
-      m5(2,2) = pow(fitsol.getCalLepm().getResPhi(), 2);
+      m5(0,0) = pow(fitsol.getCalLepm().getResA(), 2);
+      m5(1,1) = pow(fitsol.getCalLepm().getResB(), 2); 
+      m5(2,2) = pow(fitsol.getCalLepm().getResC(), 2);
     }
   } else if (lepParam_ == EtEtaPhi) {
     if(fitsol.getDecay()== "electron"){
@@ -165,9 +165,9 @@ TtSemiEvtSolution TtSemiKinFitter::addKinFitInfo(TtSemiEvtSolution * asol) {
   }
   // neutrino resolutions
   if (metParam_ == EMom) {
-    m6(0,0) = pow(fitsol.getCalLepn().getResPinv(), 2);
-    m6(1,1) = pow(fitsol.getCalLepn().getResTheta(), 2);
-    m6(2,2) = pow(fitsol.getCalLepn().getResPhi(), 2);
+    m6(0,0) = pow(fitsol.getCalLepn().getResA(), 2);
+    m6(1,1) = pow(fitsol.getCalLepn().getResB(), 2);
+    m6(2,2) = pow(fitsol.getCalLepn().getResC(), 2);
   } else if (metParam_ == EtEtaPhi) {
     m6(0,0) = pow(fitsol.getRecLepn().getResET(), 2);
     m6(1,1) = pow(fitsol.getRecLepn().getResEta(), 2);
@@ -218,21 +218,21 @@ TtSemiEvtSolution TtSemiKinFitter::addKinFitInfo(TtSemiEvtSolution * asol) {
       aFitHadq.setCovM(this->translateCovM(Vq));
       aFitHadb.setCovM(this->translateCovM(Vbh));
       aFitLepb.setCovM(this->translateCovM(Vbl));
-      aFitHadp.setResPinv(sqrt(Vp(0,0)));  
-      aFitHadp.setResTheta(sqrt(Vp(1,1)));
-      aFitHadp.setResPhi(sqrt(Vp(2,2))); 
+      aFitHadp.setResA(sqrt(Vp(0,0)));  
+      aFitHadp.setResB(sqrt(Vp(1,1)));
+      aFitHadp.setResC(sqrt(Vp(2,2))); 
       aFitHadp.setResD(sqrt(Vp(3,3))); 
-      aFitHadq.setResPinv(sqrt(Vq(0,0)));  
-      aFitHadq.setResTheta(sqrt(Vq(1,1)));
-      aFitHadq.setResPhi(sqrt(Vq(2,2)));
+      aFitHadq.setResA(sqrt(Vq(0,0)));  
+      aFitHadq.setResB(sqrt(Vq(1,1)));
+      aFitHadq.setResC(sqrt(Vq(2,2)));
       aFitHadq.setResD(sqrt(Vq(3,3)));
-      aFitHadb.setResPinv(sqrt(Vbh(0,0)));  
-      aFitHadb.setResTheta(sqrt(Vbh(1,1)));
-      aFitHadb.setResPhi(sqrt(Vbh(2,2)));
+      aFitHadb.setResA(sqrt(Vbh(0,0)));  
+      aFitHadb.setResB(sqrt(Vbh(1,1)));
+      aFitHadb.setResC(sqrt(Vbh(2,2)));
       aFitHadb.setResD(sqrt(Vbh(3,3)));
-      aFitLepb.setResPinv(sqrt(Vbl(0,0)));  
-      aFitLepb.setResTheta(sqrt(Vbl(1,1)));
-      aFitLepb.setResPhi(sqrt(Vbl(2,2)));
+      aFitLepb.setResA(sqrt(Vbl(0,0)));  
+      aFitLepb.setResB(sqrt(Vbl(1,1)));
+      aFitLepb.setResC(sqrt(Vbl(2,2)));
       aFitLepb.setResD(sqrt(Vbl(3,3)));
     } else if (jetParam_ == EtEtaPhi) {
       TMatrixD Vp(3,3);  Vp  = (*fitHadp_->getCovMatrixFit()); 
@@ -282,9 +282,9 @@ TtSemiEvtSolution TtSemiKinFitter::addKinFitInfo(TtSemiEvtSolution * asol) {
     TMatrixD Vl(3,3); Vl = (*fitLepl_->getCovMatrixFit()); 
     aFitLepl.setCovM(this->translateCovM(Vl));
     if (lepParam_ == EMom) {
-      aFitLepl.setResPinv(Vl(0,0));
-      aFitLepl.setResTheta(Vl(1,1));
-      aFitLepl.setResPhi(Vl(2,2));
+      aFitLepl.setResA(Vl(0,0));
+      aFitLepl.setResB(Vl(1,1));
+      aFitLepl.setResC(Vl(2,2));
     } else if (lepParam_ == EtEtaPhi) {
       aFitLepl.setResET (sqrt(Vl(0,0)));  
       aFitLepl.setResTheta(sqrt(Vl(1,1)));
@@ -299,9 +299,9 @@ TtSemiEvtSolution TtSemiKinFitter::addKinFitInfo(TtSemiEvtSolution * asol) {
     TMatrixD Vn(3,3); Vn = (*fitLepn_->getCovMatrixFit()); 
     aFitLepn.setCovM(this->translateCovM(Vn));
     if (metParam_ == EMom) {
-      aFitLepn.setResPinv(Vn(0,0));
-      aFitLepn.setResTheta(Vn(1,1));
-      aFitLepn.setResPhi(Vn(2,2));
+      aFitLepn.setResA(Vn(0,0));
+      aFitLepn.setResB(Vn(1,1));
+      aFitLepn.setResC(Vn(2,2));
     } else if (metParam_ == EtEtaPhi) {
       aFitLepn.setResET (sqrt(Vn(0,0)));  
       aFitLepn.setResEta(sqrt(Vn(1,1)));
@@ -331,6 +331,32 @@ TtSemiEvtSolution TtSemiKinFitter::addKinFitInfo(TtSemiEvtSolution * asol) {
 
 /// Method to setup the fitter
 void TtSemiKinFitter::setupFitter() {
+  
+  cout<<endl<<endl<<"+++++++++++ KINFIT SETUP ++++++++++++"<<endl;
+  cout<<"  jet parametrisation:     ";
+  if(jetParam_ == EMom) cout<<"EMomDev"<<endl;
+  if(jetParam_ == EtEtaPhi) cout<<"EtEtaPhi"<<endl;
+  if(jetParam_ == EtThetaPhi) cout<<"EtThetaPhi"<<endl;
+  cout<<"  lepton parametrisation:  ";
+  if(lepParam_ == EMom) cout<<"EScaledMomDev"<<endl;
+  if(lepParam_ == EtEtaPhi) cout<<"EtEtaPhi"<<endl;
+  if(lepParam_ == EtThetaPhi) cout<<"EtThetaPhi"<<endl;
+  cout<<"  met parametrisation:     ";
+  if(metParam_ == EMom) cout<<"EScaledMomDev"<<endl;
+  if(metParam_ == EtEtaPhi) cout<<"EtEtaPhi"<<endl;
+  if(metParam_ == EtThetaPhi) cout<<"EtThetaPhi"<<endl;
+  cout<<"  constraints:  "<<endl;
+  for(unsigned int i=0; i<constraints_.size(); i++){
+    if(constraints_[i] == 1) cout<<"    - hadronic W-mass"<<endl;
+    if(constraints_[i] == 2) cout<<"    - leptonic W-mass"<<endl;
+    if(constraints_[i] == 3) cout<<"    - hadronic top mass"<<endl;
+    if(constraints_[i] == 4) cout<<"    - leptonic top mass"<<endl;
+    if(constraints_[i] == 5) cout<<"    - neutrino mass"<<endl;
+  }
+  cout<<"Max. number of iterations: "<<maxNrIter_<<endl;
+  cout<<"Max. deltaS: "<<maxDeltaS_<<endl;
+  cout<<"Max. F: "<<maxF_<<endl;
+  cout<<"++++++++++++++++++++++++++++++++++++++++++++"<<endl<<endl<<endl;
   
   theFitter_ = new TKinFitter("TtFit", "TtFit");
 
