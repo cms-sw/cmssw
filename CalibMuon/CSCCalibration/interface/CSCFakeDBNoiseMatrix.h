@@ -30,7 +30,6 @@ class CSCFakeDBNoiseMatrix: public edm::ESProducer, public edm::EventSetupRecord
  private:
       void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
       CSCDBNoiseMatrix *cndbmatrix ;
-      
 };
 
 #endif
