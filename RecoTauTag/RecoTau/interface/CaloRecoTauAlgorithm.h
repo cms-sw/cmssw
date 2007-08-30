@@ -9,10 +9,9 @@
 
 #include "RecoTauTag/TauTagTools/interface/CaloTauElementsOperators.h"
 
-#include "RecoBTag/BTagTools/interface/SignedTransverseImpactParameter.h"
-
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/IPTools/interface/IPTools.h"
 
 using namespace std;
 using namespace reco;

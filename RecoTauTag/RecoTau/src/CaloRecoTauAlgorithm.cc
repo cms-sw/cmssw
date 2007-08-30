@@ -2,7 +2,7 @@
 
 Tau CaloRecoTauAlgorithm::tag(const CombinedTauTagInfo& myTagInfo,const Vertex& myPV){
   CaloJetRef myCaloJet=myTagInfo.isolatedtautaginfoRef()->jet().castTo<CaloJetRef>(); // catch a ref to the initial CaloJet  
-  Tau myTau(numeric_limits<int>::quiet_NaN(),myCaloJet->p4()); //create the Tau with the modified Lorentz-vector
+  Tau myTau(numeric_limits<int>::quiet_NaN(),myCaloJet->p4()); //create the Tau with the initial CaloJet Lorentz-vector
   
   myTau.setcalojetRef(myCaloJet);
 
@@ -32,10 +32,9 @@ Tau CaloRecoTauAlgorithm::tag(const CombinedTauTagInfo& myTagInfo,const Vertex& 
   if(myleadTk.isNonnull()){
     myTau.setleadTrack(myleadTk);
     if(TransientTrackBuilder_!=0){ 
-      SignedTransverseImpactParameter myleadTk_signediptMeasure;
       const TransientTrack myleadTransientTk=TransientTrackBuilder_->build(&(*myleadTk));
       GlobalVector myCaloJetdir((*myCaloJet).px(),(*myCaloJet).py(),(*myCaloJet).pz());
-      myTau.setleadTracksignedSipt(myleadTk_signediptMeasure.apply(myleadTransientTk,myCaloJetdir,myPV).second.significance());
+      myTau.setleadTracksignedSipt(IPTools::signedTransverseImpactParameter(myleadTransientTk,myCaloJetdir,myPV).second.significance());
     }
     if((*myleadTk).innerOk()){
       myTau_refInnerPosition_x=(*myleadTk).innerPosition().x(); 

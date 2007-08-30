@@ -4,17 +4,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/BTauReco/interface/PFIsolatedTauTagInfo.h"
-#include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/TauReco/interface/Tau.h"
 
 #include "RecoTauTag/TauTagTools/interface/PFTauElementsOperators.h"
 #include "RecoTauTag/TauTagTools/interface/CaloTauElementsOperators.h"
 
-#include "RecoBTag/BTagTools/interface/SignedTransverseImpactParameter.h"
-
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/IPTools/interface/IPTools.h"
 
 using namespace std;
 using namespace reco;

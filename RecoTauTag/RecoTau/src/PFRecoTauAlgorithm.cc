@@ -47,10 +47,9 @@ Tau PFRecoTauAlgorithm::tag(const PFIsolatedTauTagInfo& myTagInfo,const Vertex& 
 	  TrackRef myleadPFCand_rectk=(*iPFBlock).trackRef();
 	  if(myleadPFCand_rectk.isNonnull()){
 	    if(TransientTrackBuilder_!=0){ 
-	      SignedTransverseImpactParameter myleadPFCand_rectk_signediptMeasure;
 	      const TransientTrack myleadPFCand_rectransienttk=TransientTrackBuilder_->build(&(*myleadPFCand_rectk));
 	      GlobalVector myPFJetdir((*myPFJet).px(),(*myPFJet).py(),(*myPFJet).pz());
-	      myTau.setleadPFChargedHadrCandsignedSipt(myleadPFCand_rectk_signediptMeasure.apply(myleadPFCand_rectransienttk,myPFJetdir,myPV).second.significance());
+	      myTau.setleadPFChargedHadrCandsignedSipt(IPTools::signedTransverseImpactParameter(myleadPFCand_rectransienttk,myPFJetdir,myPV).second.significance());
 	    }
 	    if((*myleadPFCand_rectk).innerOk()){
 	      myTau_refInnerPosition_x=(*myleadPFCand_rectk).innerPosition().x(); 
