@@ -40,6 +40,8 @@ void gctTestEnergyAlgos::loadEvent(L1GlobalCaloTrigger* &gct, const bool simpleE
     unsigned etaRegion = i;
     unsigned phiRegion = etVector.phi/4;
 
+    if (etaRegion<4 || etaRegion>=18) etVector.mag = etVector.mag >> 2; 
+
     gct->setRegion(etVector.mag, etaRegion, phiRegion);
         
     // Here we fill the expected values. Et values restricted to
