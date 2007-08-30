@@ -22,6 +22,7 @@
 #include "HLTrigger/Egamma/interface/HLTElectronTrackIsolFilterRegional.h"
 
 #include "HLTrigger/Egamma/interface/HLTEgammaDoubleEtPhiFilter.h"
+#include "HLTrigger/Egamma/interface/HLTElectronOneOEMinusOneOPFilterRegional.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(HLTEgammaL1MatchFilter);
@@ -45,3 +46,5 @@ DEFINE_ANOTHER_FWK_MODULE(HLTElectronEoverpFilterRegional);
 DEFINE_ANOTHER_FWK_MODULE(HLTElectronTrackIsolFilterRegional);
 
 DEFINE_ANOTHER_FWK_MODULE(HLTEgammaDoubleEtPhiFilter);
+
+DEFINE_ANOTHER_FWK_MODULE(HLTElectronOneOEMinusOneOPFilterRegional);

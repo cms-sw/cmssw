@@ -1,6 +1,6 @@
 /** \class HLTEgammaHcalIsolFilter
  *
- * $Id: HLTEgammaHcalIsolFilter.cc,v 1.4 2007/03/07 19:13:59 monicava Exp $
+ * $Id: HLTEgammaHcalIsolFilter.cc,v 1.5 2007/04/02 17:14:14 mpieri Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -32,6 +32,7 @@ HLTEgammaHcalIsolFilter::HLTEgammaHcalIsolFilter(const edm::ParameterSet& iConfi
   nonIsoTag_ = iConfig.getParameter< edm::InputTag > ("nonIsoTag");
   hcalisolbarrelcut_  = iConfig.getParameter<double> ("hcalisolbarrelcut");
   hcalisolendcapcut_  = iConfig.getParameter<double> ("hcalisolendcapcut");
+  HoverEcut_          = iConfig.getParameter<double> ("HoverEcut");
   ncandcut_  = iConfig.getParameter<int> ("ncandcut");
   doIsolated_ = iConfig.getParameter<bool> ("doIsolated");
 
@@ -81,18 +82,18 @@ HLTEgammaHcalIsolFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     }
      float vali = mapi->val;
      //std::cout<<"MARCO HLTEgammaHcalIsolFilter vali "<<vali<<" "<<std::endl;
-     
+     float HoE = mapi->val / candref.get()->et();
      if(fabs(recoecalcands->getParticleRef(i).get()->eta()) < 1.5){
-       if ( vali < hcalisolbarrelcut_) {
+       if ( vali < hcalisolbarrelcut_ || HoE < HoverEcut_ ) {
 	 n++;
 	 filterproduct->putParticle(candref);
        }
      }
      if(
-	(fabs(recoecalcands->getParticleRef(i).get()->eta()) > 1.5) && 
+	(fabs(recoecalcands->getParticleRef(i).get()->eta()) >= 1.5) && 
 	(fabs(recoecalcands->getParticleRef(i).get()->eta()) < 2.5)
 	){
-       if ( vali < hcalisolendcapcut_) {
+       if ( vali < hcalisolendcapcut_ || HoE < HoverEcut_) {
 	 n++;
 	 filterproduct->putParticle(candref);
        }
