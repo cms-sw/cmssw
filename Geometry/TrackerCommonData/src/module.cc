@@ -16,6 +16,7 @@
 #include "Geometry/TrackerCommonData/interface/DDTIDRingAlgo.h"
 #include "Geometry/TrackerCommonData/interface/DDTOBRodAlgo.h"
 #include "Geometry/TrackerCommonData/interface/DDTOBRadCableAlgo.h"
+#include "Geometry/TrackerCommonData/interface/DDTOBAxCableAlgo.h"
 #include "Geometry/TrackerCommonData/interface/DDTrackerAngular.h"
 #include "Geometry/TrackerCommonData/interface/DDTrackerLinear.h"
 #include "Geometry/TrackerCommonData/interface/DDTrackerLinearXY.h"
@@ -40,6 +41,7 @@ DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTIDModulePosAlgo,  "track:DDTIDModulePo
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTIDRingAlgo,       "track:DDTIDRingAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTOBRodAlgo,        "track:DDTOBRodAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTOBRadCableAlgo,   "track:DDTOBRadCableAlgo");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTOBAxCableAlgo,    "track:DDTOBAxCableAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTrackerAngular,    "track:DDTrackerAngular");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTrackerLinear,     "track:DDTrackerLinear");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTrackerLinearXY,   "track:DDTrackerLinearXY");
