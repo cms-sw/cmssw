@@ -112,8 +112,8 @@ private:
     edm::ParameterSet m_pStackingAction;
     edm::ParameterSet m_pTrackingAction;
     edm::ParameterSet m_pSteppingAction;
+    std::vector<std::string> m_G4Commands;
     edm::ParameterSet m_p;
-
     ExceptionHandler* m_CustomExceptionHandler ;
 
     AttachSD * m_attach;

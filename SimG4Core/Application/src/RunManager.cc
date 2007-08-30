@@ -126,7 +126,9 @@ RunManager::RunManager(edm::ParameterSet const & p)
       m_pStackingAction(p.getParameter<edm::ParameterSet>("StackingAction")),
       m_pTrackingAction(p.getParameter<edm::ParameterSet>("TrackingAction")),
       m_pSteppingAction(p.getParameter<edm::ParameterSet>("SteppingAction")),
+      m_G4Commands(p.getParameter<std::vector<std::string> >("G4Commands")),
       m_p(p)
+
 {    
     m_kernel = G4RunManagerKernel::GetRunManagerKernel();
     if (m_kernel==0) m_kernel = new G4RunManagerKernel();
@@ -231,6 +233,12 @@ void RunManager::initG4(const edm::EventSetup & es)
     m_registry.beginOfJobSignal_(&aBeginOfJob);
 
     initializeUserActions();
+
+    for (unsigned it=0; it<m_G4Commands.size(); it++) {
+      edm::LogInfo("SimG4CoreApplication") << "RunManager:: Requests UI: "
+					   << m_G4Commands[it];
+      G4UImanager::GetUIpointer()->ApplyCommand(m_G4Commands[it]);
+    }
 
     initializeRun();
 
