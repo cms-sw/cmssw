@@ -36,7 +36,7 @@ double VertexHigherPtSquared::sumPtSquared(const Vertex & v) const
 {
   double sum = 0.;
   double pT;
-  for (track_iterator it = v.tracks_begin(); it != v.tracks_end(); it++) {
+  for (Vertex::trackRef_iterator it = v.tracks_begin(); it != v.tracks_end(); it++) {
     pT = (**it).pt();
     sum += pT*pT;
   }

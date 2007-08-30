@@ -12,15 +12,15 @@ int reco::NbSharedTracks::sharedTracks(const reco::Vertex &v1,
   int nSharedTracks = 0;
 
   // for first vertex
-  track_iterator v1TrackIter;
-  track_iterator v1TrackBegin = v1.tracks_begin();
-  track_iterator v1TrackEnd   = v1.tracks_end();
+  Vertex::trackRef_iterator v1TrackIter;
+  Vertex::trackRef_iterator v1TrackBegin = v1.tracks_begin();
+  Vertex::trackRef_iterator v1TrackEnd   = v1.tracks_end();
   
 
   // for second vertex
-  track_iterator v2TrackIter;
-  track_iterator v2TrackBegin = v2.tracks_begin();
-  track_iterator v2TrackEnd   = v2.tracks_end();
+  Vertex::trackRef_iterator v2TrackIter;
+  Vertex::trackRef_iterator v2TrackBegin = v2.tracks_begin();
+  Vertex::trackRef_iterator v2TrackEnd   = v2.tracks_end();
   
   for (v1TrackIter = v1TrackBegin; v1TrackIter != v1TrackEnd; v1TrackIter++) {
     for (v2TrackIter = v2TrackBegin; v2TrackIter != v2TrackEnd; v2TrackIter++) {
