@@ -280,7 +280,7 @@ L1GctGlobalEnergyAlgos::calculate_etmiss_vec (const L1GctTwosComplement<12> ex, 
 
   const unsigned root2fact = 181;
   const unsigned corrFact[11] = {24, 39, 51, 60, 69, 77, 83, 89, 95, 101, 106};
-  const unsigned corrDphi[11] = { 0,  1,  2,  2,  3,  3,  3,  3,  4,   4,   4};
+  const unsigned corrDphi[11] = { 0,  1,  1,  2,  2,  3,  3,  3,  3,   4,   4};
 
   vector<bool> s(3);
   unsigned Mx, My, Mw;
@@ -295,7 +295,7 @@ L1GctGlobalEnergyAlgos::calculate_etmiss_vec (const L1GctTwosComplement<12> ex, 
   //
   My = static_cast<unsigned>(abs(ey.value()));
   Mx = static_cast<unsigned>(abs(ex.value()));
-  Mw = ((Mx+My)*root2fact)>>8;
+  Mw = (((Mx+My)*root2fact)+0x80)>>8;
 
   s.at(0) = (ey.value()<0);
   s.at(1) = (ex.value()<0);
@@ -316,8 +316,8 @@ L1GctGlobalEnergyAlgos::calculate_etmiss_vec (const L1GctTwosComplement<12> ex, 
   for (eFact=0; eFact<10; eFact++) {
     Dx = (Mx*corrFact[eFact])>>8;
     Dy = (My*corrFact[eFact])>>8;
-    if         ((Dx>My) || (Dy>Mx))         {midphi=false; break;}
-    if ((Mx+Dx)>(My-Dy) && (My+Dy)>(Mx-Dx)) {midphi=true;  break;}
+    if         ((Dx>=My) || (Dy>=Mx))         {midphi=false; break;}
+    if ((Mx+Dx)>=(My-Dy) && (My+Dy)>=(Mx-Dx)) {midphi=true;  break;}
   }
   eneCorect = (eneCoarse*(128+eFact))>>7;
   if (midphi ^ (b==1)) {
