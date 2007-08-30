@@ -83,6 +83,45 @@ struct CSCALCT {
   unsigned reserved: 4;
 };
 
+struct CSCALCTs2006 {
+  CSCALCTs2006() {
+    bzero(this, 8); ///size of ALCT = 2bytes
+  }
+
+  short unsigned int sizeInWords() const { ///size of ALCT
+    return 4;
+  }
+  /// 1st LCT lower 15 bits
+  /// http://www.phys.ufl.edu/cms/emu/dqm/data_formats/ALCT_data_format_notes.pdf
+  unsigned alct0_valid   : 1;
+  unsigned alct0_quality : 2;  
+  unsigned alct0_accel   : 1;
+  unsigned alct0_pattern : 1;
+  unsigned alct0_key_wire: 7;
+  unsigned alct0_bxn_low : 3;
+  ///  DDU+LCT special word flags
+  unsigned flag_4 : 1;
+ 
+  unsigned alct0_bxn_high :2;
+  unsigned alct0_reserved :13;
+  ///  DDU+LCT special word flags
+  unsigned flag_5 : 1;
+
+  /// 2nd LCT lower 15 bits
+  unsigned alct1_valid   : 1;
+  unsigned alct1_quality : 2;  
+  unsigned alct1_accel   : 1;
+  unsigned alct1_pattern : 1;
+  unsigned alct1_key_wire: 7;
+  unsigned alct1_bxn_low : 3;
+  unsigned flag_6 : 1;
+
+  unsigned alct1_bxn_high :2;
+  unsigned alct1_reserved :13;
+  unsigned flag_7 : 1;
+};
+
+
 struct CSCALCTHeader2007 {
   CSCALCTHeader2007()  {
     bzero(this,  sizeInWords()*2); ///size of 2007 header w/o variable parts = 16 bytes
@@ -314,6 +353,7 @@ class CSCALCTHeader {
   CSCALCTHeader2007 header2007;
   CSCALCTHeader2006 header2006;
   std::vector<CSCALCT> alcts;   
+  CSCALCTs2006 alcts2006;
   CSCVirtexID virtexID;
   CSCConfigurationRegister configRegister;
   std::vector<CSCCollisionMask> collisionMasks;
@@ -327,7 +367,7 @@ class CSCALCTHeader {
   static unsigned short int firmwareVersion;
 
   ///size of the 2007 header in words
-  unsigned short int sizeInWords2007_;
+  unsigned short int sizeInWords2007_, bxn0, bxn1;
 };
 
 std::ostream & operator<<(std::ostream & os, const CSCALCTHeader & header);

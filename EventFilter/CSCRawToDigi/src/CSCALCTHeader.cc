@@ -20,6 +20,10 @@ CSCALCTHeader::CSCALCTHeader(int chamberType) { //constructor for digi->raw pack
   if (debug)
     edm::LogInfo ("CSCALCTHeader") << "MAKING ALCTHEADER " << chamberType 
 				   << " " << header2006.activeFEBs << " " << header2006.nTBins;
+
+  ///in order to be able to return header via data()
+  memcpy(theOriginalBuffer, &header2006, header2006.sizeInWords()*2);
+
 }
 
 CSCALCTHeader::CSCALCTHeader(const unsigned short * buf) {
@@ -49,11 +53,8 @@ CSCALCTHeader::CSCALCTHeader(const unsigned short * buf) {
   case 2006:
     memcpy(&header2006, buf, header2006.sizeInWords()*2);///the header part
     buf +=header2006.sizeInWords();
-    alcts.resize(2);
-    for (unsigned int i=0; i<2; ++i) {
-      memcpy(&alcts[i], buf, alcts[i].sizeInWords()*2);
-      buf += alcts[i].sizeInWords()*2; ///2006 alct consists of 2 words but we are only storing one
-    }
+    memcpy(&alcts2006, buf, alcts2006.sizeInWords()*2);///the alct0 and alct1
+    buf +=alcts2006.sizeInWords();
     break;
 
   case 2007:
@@ -92,14 +93,16 @@ CSCALCTHeader::CSCALCTHeader(const unsigned short * buf) {
     }
     break;
 
-    ///also store raw data buffer too; it is later returned by data() method
-    memcpy(theOriginalBuffer, buf, sizeInWords()*2); 
-    
   default:
     edm::LogError("CSCALCTHeader")
       <<"coundn't construct: ALCT firmware version is bad/not defined!";
     break;
   }
+
+  ///also store raw data buffer too; it is later returned by data() method
+  if ((firmwareVersion==2006)||(firmwareVersion==2007))
+    memcpy(theOriginalBuffer, buf-sizeInWords(), sizeInWords()*2);
+  
 }
 
 
@@ -127,13 +130,37 @@ std::vector<CSCALCTDigi> CSCALCTHeader::ALCTDigis() const
 { 
   std::vector<CSCALCTDigi> result;
   result.reserve(alcts.size());
-  for (unsigned int i=0; i<alcts.size(); ++i) {///loop over all alct words
-    CSCALCTDigi digi(alcts[i].valid, alcts[i].quality, alcts[i].accel, alcts[i].pattern,
-		     alcts[i].keyWire, 0, 1);
-    digi.setFullBX(BXNCount());
-    result.push_back(digi);
+
+  switch (firmwareVersion) {
+  case 2006:
+    {
+      CSCALCTDigi digi0(alcts2006.alct0_valid, alcts2006.alct0_quality, alcts2006.alct0_accel,
+			alcts2006.alct0_pattern, alcts2006.alct0_key_wire,
+			alcts2006.alct0_bxn_low|(alcts2006.alct0_bxn_high<<3),0);
+      CSCALCTDigi digi1(alcts2006.alct1_valid, alcts2006.alct1_quality, alcts2006.alct1_accel,
+			alcts2006.alct1_pattern, alcts2006.alct1_key_wire,
+			alcts2006.alct1_bxn_low|(alcts2006.alct1_bxn_high<<3),1);
+      digi0.setFullBX(BXNCount()); digi1.setFullBX(BXNCount());
+      result.push_back(digi0); result.push_back(digi1);
+      break;
+    }
+  case 2007:
+    {
+      for (unsigned int i=0; i<alcts.size(); ++i) {///loop over all alct words
+	CSCALCTDigi digi(alcts[i].valid, alcts[i].quality, alcts[i].accel, alcts[i].pattern,
+			 alcts[i].keyWire, (int)i/2, i);
+	digi.setFullBX(BXNCount());
+	result.push_back(digi);
+      }
+      break;
+    }
+  default:
+    edm::LogError("CSCALCTHeader")
+      <<"Empty Digis: ALCT firmware version is bad/not defined!"; 
+    break;
   }
   return result;
+
 }
 
 
