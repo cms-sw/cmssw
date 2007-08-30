@@ -42,7 +42,9 @@
 #include "L1Trigger/GlobalMuonTrigger/interface/L1MuGlobalMuonTrigger.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/MessageLogger/interface/MessageDrop.h"
 
 // forward declarations
 
@@ -128,7 +130,7 @@ void L1GlobalTriggerGTL::receiveData(edm::Event& iEvent, int iBxInEvent) {
 
     for ( unsigned int iMuon = 0; iMuon < L1GlobalTriggerReadoutSetup::NumberL1Muons; iMuon++ ) {
 
-        MuonDataWord dataword = 0; 
+        L1MuGMTCand muCand;
         unsigned int nMuon = 0;
 
         for ( std::vector<L1MuGMTCand>::const_iterator itMuon = muonData->begin(); 
@@ -137,17 +139,19 @@ void L1GlobalTriggerGTL::receiveData(edm::Event& iEvent, int iBxInEvent) {
             // retrieving info for a given bx only
             if ( (*itMuon).bx() == iBxInEvent ) {
                 if ( nMuon == iMuon ) {
-                    dataword = (*itMuon).getDataWord();
+                    muCand = (*itMuon);
                     break;
                 }
                 nMuon++;
             }
         }
-        (*glt_muonCand)[iMuon] = new L1MuGMTCand( dataword );
+        
+        (*glt_muonCand)[iMuon] = new L1MuGMTCand( muCand );
     }
     
-    printGmtData(iBxInEvent);    
-
+    if ( edm::isDebugEnabled() ) {
+        printGmtData(iBxInEvent);    
+    }
 }
 
 // run GTL
@@ -397,13 +401,10 @@ void L1GlobalTriggerGTL::reset() {
 void L1GlobalTriggerGTL::printGmtData(int iBxInEvent) const {
     
     LogTrace("L1GlobalTriggerGTL") 
-        << "\nMuon data received by GTL:" << std::endl;
+        << "\nMuon data received by GTL for BxInEvent = " << iBxInEvent << std::endl;
     
     for ( GMTVector::iterator iter = glt_muonCand->begin(); 
             iter < glt_muonCand->end(); iter++ ) {
-
-        LogTrace("L1GlobalTriggerGTL") 
-            << "\nIterator value = " << (*iter) << std::endl;
 
         (*iter)->print();
         
