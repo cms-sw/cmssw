@@ -44,7 +44,10 @@ public:
 
     // use namespace?   
     // Moved/duplicated from RPCConst 
-    enum TPatternType {PAT_TYPE_T, PAT_TYPE_E};
+//    enum TPatternType {PAT_TYPE_T, PAT_TYPE_E};
+    typedef int TPatternType;
+    static const TPatternType PAT_TYPE_T = 0;
+    static const TPatternType PAT_TYPE_E = 1;
     static const int m_LOGPLANES_COUNT = 6;
     static const int m_FIRST_PLANE = 0;
     static const int m_LAST_PLANE = 5;

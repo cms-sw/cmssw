@@ -10,5 +10,8 @@
 #include "CondCore/PluginSystem/interface/registration_macros.h"
 #include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
 #include "CondFormats/DataRecord/interface/RPCReadOutMappingRcd.h"
+#include "CondFormats/RPCObjects/interface/L1RPCConfig.h"
+#include "CondFormats/DataRecord/interface/L1RPCConfigRcd.h"
 DEFINE_SEAL_MODULE();
 REGISTER_PLUGIN(RPCReadOutMappingRcd,RPCReadOutMapping);
+REGISTER_PLUGIN(L1RPCConfigRcd,L1RPCConfig);

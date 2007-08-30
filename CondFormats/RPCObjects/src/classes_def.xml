@@ -25,6 +25,11 @@
   <class name="std::map<int,DccSpec>"/>
 
   <class name="L1RPCConfig"/>
+  <class name="RPCPattern"/>
+  <class name="RPCPattern::RPCLogicalStrip"/>
+  <class name="RPCPattern::TQuality"/>
+  <class name="std::vector<std::vector<std::vector<std::vector<RPCPattern::TQuality> > > >"/>
+  <class name="std::vector<std::vector<std::vector<std::vector<RPCPattern> > > >"/>
 
   <class pattern="*vector*"/>
   <class pattern="*map*"/>
