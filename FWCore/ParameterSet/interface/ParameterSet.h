@@ -2,7 +2,7 @@
 #define FWCore_ParameterSet_ParameterSet_h
 
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.h,v 1.38 2007/07/09 00:48:51 lsexton Exp $
+// $Id: ParameterSet.h,v 1.39 2007/07/26 00:27:07 rpw Exp $
 //
 // Declaration for ParameterSet(parameter set) and related types
 // ----------------------------------------------------------------------
@@ -48,6 +48,9 @@ namespace edm {
     // encode
     std::string toString() const;
     std::string toStringOfTracked() const;
+    // decode
+    bool fromString(std::string const&);
+
 
     template <class T>
     T
@@ -150,9 +153,6 @@ private:
     // make the id invalid.  This function is logically const, because
     // it affects only the cached value of the id_.
     void invalidate() const;
-
-    // decode
-    bool fromString(std::string const&);
 
     // get the untracked Entry object, throwing an exception if it is
     // not found.
