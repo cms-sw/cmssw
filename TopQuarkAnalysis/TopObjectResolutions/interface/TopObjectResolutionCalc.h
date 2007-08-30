@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: TopObjectResolutionCalc.h,v 1.5.2.1 2007/08/24 13:52:26 delaer Exp $
+// $Id: TopObjectResolutionCalc.h,v 1.5.2.2 2007/08/30 17:08:24 heyninck Exp $
 //
 
 #ifndef TopObjectResolutionCalc_h
@@ -11,7 +11,7 @@
 /**
   \class    TopObjectResolutionCalc TopObjectResolutionCalc.h "TopQuarkAnalysis/TopLeptonSelection/interface/TopObjectResolutionCalc.h"
   \author   Jan Heyninck
-  \version  $Id: TopObjectResolutionCalc.h,v 1.5.2.1 2007/08/24 13:52:26 delaer Exp $
+  \version  $Id: TopObjectResolutionCalc.h,v 1.5.2.2 2007/08/30 17:08:24 heyninck Exp $
 */
 
 
@@ -31,7 +31,7 @@
 #include "TKey.h"
 #include "TString.h"
 #include "TMultiLayerPerceptron.h"
-
+using namespace std;
 
 class TopObjectResolutionCalc {
 
@@ -41,14 +41,16 @@ class TopObjectResolutionCalc {
     ~TopObjectResolutionCalc();	
 
     double getObsRes(int, int, double);
-    void  operator()(TopJet&);
-    void  operator()(TopMET&);
-    void  operator()(TopTau&);
-    void  operator()(TopMuon&);
-    void  operator()(TopElectron&);
+    int    getEtaBin(double);
+    void   operator()(TopJet&);
+    void   operator()(TopMET&);
+    void   operator()(TopTau&);
+    void   operator()(TopMuon&);
+    void   operator()(TopElectron&);
 
   private:
     TFile * resoFile;
+    vector<double> etabinVals;
     TF1 fResVsET[10][10];
     TMultiLayerPerceptron* network[10];
     bool useNN;
