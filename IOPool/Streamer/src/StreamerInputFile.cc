@@ -263,7 +263,8 @@ int StreamerInputFile::readEventMessage()
   seal::IOSize nGot = readBytes(&eventBuf_[0], nWant);
   if (nGot != nWant) {
     throw cms::Exception("readEventMessage", "StreamerInputFile")
-      << "Failed reading streamer file, first read in readEventMessage\n";
+      << "Failed reading streamer file, first read in readEventMessage\n"
+      << "Requested " << nWant << " bytes, read function returned " << nGot << " bytes\n";
   }
 
   HeaderView head(&eventBuf_[0]);
@@ -291,7 +292,8 @@ int StreamerInputFile::readEventMessage()
     nGot = readBytes(&eventBuf_[sizeof(HeaderView)], nWant);
     if (nGot != nWant) {
       throw cms::Exception("readEventMessage", "StreamerInputFile")
-        << "Failed reading streamer file, second read in readEventMessage\n";
+        << "Failed reading streamer file, second read in readEventMessage\n"
+        << "Requested " << nWant << " bytes, read function returned " << nGot << " bytes\n";
     }
   }
   else {
