@@ -5,8 +5,8 @@
 //   L1 DT Track Finder Raw-to-Digi
 //
 //
-//   $Date: 2006/06/01 00:00:00 $
-//   $Revision: 1.1 $
+//   $Date: 2007/07/03 12:24:40 $
+//   $Revision: 1.5 $
 //
 //   Author :
 //   J. Troconiz  UAM Madrid
@@ -103,13 +103,12 @@ void DTTFFEDReader::process(edm::Event& e) {
   // Trailer constituents
   int evtLgth , CRC;
 
-  bool goOn = true;
-
   //--> Header
 
   edm::Handle<FEDRawDataCollection> data;
   e.getByType(data);
   FEDRawData dttfdata = data->FEDData(0x030C);
+  if ( dttfdata.size() == 0 ) return;
 
   long* dataWord1 = new long;
   long* dataWord2 = new long;
@@ -124,7 +123,9 @@ void DTTFFEDReader::process(edm::Event& e) {
 
   if( (BOEevTy != 0x50) || ( DTTFId != 0x030C) ){
     cout << "Not a DTTF header " << hex << *dataWord1 << endl;
-    goOn = false;
+    delete dataWord1;
+    delete dataWord2;
+    return;
   }
 
   int newCRC =  0xFFFF;
@@ -158,7 +159,9 @@ void DTTFFEDReader::process(edm::Event& e) {
 
     if(lines > 3026){
       cout << "Warning : number of DTTF lines > 3026 " << endl; // 3026 = 1(header) + 3024(max # PHTF-ETTF 64 bits words) + 1(trailer)
-      goOn = false;
+      delete dataWord1;
+      delete dataWord2;
+      return;
     }
 
   } // end while-Data loop
@@ -173,22 +176,20 @@ void DTTFFEDReader::process(edm::Event& e) {
   if( newCRC != CRC){
     cout << "Calculated CRC " ;
     cout << hex << newCRC << " differs from CRC in trailer " << hex << CRC << endl;
-    goOn = false;
-  }
-
-  if( lines != evtLgth){
-    cout << "Number of words read != event length " << dec << lines << " " << evtLgth << endl;
-    goOn = false;
-  }
-
-
-  // --> analyse event    
-
-  if( !goOn ) {
     delete dataWord1;
     delete dataWord2;
     return;
   }
+
+  if( lines != evtLgth){
+    cout << "Number of words read != event length " << dec << lines << " " << evtLgth << endl;
+    delete dataWord1;
+    delete dataWord2;
+    return;
+  }
+
+
+  // --> analyse event    
 
   for( DTTFiterator =  DTTFWordContainer.begin();
        DTTFiterator != DTTFWordContainer.end();
