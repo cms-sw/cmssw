@@ -53,7 +53,7 @@ public:
   static const int N_WHEEL_CARDS;
   
   /// Number of jet counter per wheel
-  static const unsigned int N_JET_COUNTERS_PER_WHEEL;
+  static const unsigned int N_JET_COUNTERS;
 
   /// construct the GCT
   L1GlobalCaloTrigger(L1GctJetLeafCard::jetFinderType jfType = L1GctJetLeafCard::tdrJetFinder);
@@ -120,6 +120,7 @@ public:
 
   // Jet Count output to GT
   L1GctJetCount<5> getJetCount(unsigned jcnum) const;
+  std::vector<unsigned> getJetCountValues() const;
 
   /// get the Jet Leaf cards
   std::vector<L1GctJetLeafCard*> getJetLeafCards() const { return theJetLeafCards; }

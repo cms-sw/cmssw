@@ -31,10 +31,14 @@ class L1GctWheelJetFpga;
 class L1GctGlobalEnergyAlgos : public L1GctProcessor
 {
 public:
+  
+        /// Number of jet counter per wheel
+        static const unsigned int N_JET_COUNTERS;
+
         /// Constructor needs the Wheel card Fpgas set up first
-	L1GctGlobalEnergyAlgos(std::vector<L1GctWheelEnergyFpga*> WheelFpga,
+	 L1GctGlobalEnergyAlgos(std::vector<L1GctWheelEnergyFpga*> WheelFpga,
 			       std::vector<L1GctWheelJetFpga*> WheelJetFpga);
-	/// Destructor
+	 /// Destructor
 	~L1GctGlobalEnergyAlgos();
 
         /// Overload << operator
@@ -101,6 +105,9 @@ public:
 	inline L1GctUnsignedInt<12> getEtHad()     const { return m_outputEtHad; }
 	/// return output jet count (number 0-11)
 	inline L1GctJetCount<5> getJetCount(unsigned jcnum) const { return m_outputJetCounts.at(jcnum); }
+
+       /// return vector of jet count values
+       std::vector<unsigned> getJetCountValues() const;
 	
 private:
 	
