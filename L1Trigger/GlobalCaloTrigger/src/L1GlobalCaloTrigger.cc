@@ -13,8 +13,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include <iostream>
-
 using std::vector;
 
 //DEFINE STATICS
@@ -22,7 +20,7 @@ const int L1GlobalCaloTrigger::N_JET_LEAF_CARDS = 6;
 const int L1GlobalCaloTrigger::N_EM_LEAF_CARDS = 2;
 const int L1GlobalCaloTrigger::N_WHEEL_CARDS = 2;
 
-const unsigned int L1GlobalCaloTrigger::N_JET_COUNTERS_PER_WHEEL = L1GctWheelJetFpga::N_JET_COUNTERS;
+const unsigned int L1GlobalCaloTrigger::N_JET_COUNTERS = L1GctGlobalEnergyAlgos::N_JET_COUNTERS;
 
 
 // constructor
@@ -365,6 +363,11 @@ L1GctUnsignedInt<7> L1GlobalCaloTrigger::getEtMissPhi() const {
 L1GctJetCount<5> L1GlobalCaloTrigger::getJetCount(unsigned jcnum) const {
   return theEnergyFinalStage->getJetCount(jcnum);
 }
+
+std::vector<unsigned> L1GlobalCaloTrigger::getJetCountValues() const {
+  return theEnergyFinalStage->getJetCountValues();
+}
+
 
 
 
