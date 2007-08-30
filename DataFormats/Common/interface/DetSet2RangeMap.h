@@ -19,7 +19,7 @@ namespace edmNew {
     // copy from DS to RM
     template<typename B>
     struct ToRM {
-      ToRm(edm::RangeMap<DetId, edm::OwnVector<B> > & irm) : rm(irm){}
+      ToRM(edm::RangeMap<DetId, edm::OwnVector<B> > & irm) : rm(irm){}
       edm::RangeMap<DetId, edm::OwnVector<B> > & rm;
       template<typename T>
       void operator()(edmNew::DetSet<T> const&  ds) {
@@ -36,9 +36,9 @@ namespace edmNew {
   void copy(DetSetVector<T> const&  dstv,
        edm::RangeMap<DetId, edm::OwnVector<B> > & rm) {
     dstvdetails::ToRM<B> torm(rm);
-    std::for_each(dstv.begin(), dstv.end(), boost::ref(torm));
+    std::for_each(dstv.begin(), dstv.end(), torm);
   }
 
 }
  
-#endif Common_DetSet2RangeMap_H
+#endif // Common_DetSet2RangeMap_H

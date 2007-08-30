@@ -5,6 +5,7 @@
 #include "DataFormats/Common/interface/DetSetNew.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/DetSetAlgorithm.h"
+#include "DataFormats/Common/interface/DetSet2RangeMap.h"
 #undef private
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -12,11 +13,27 @@
 #include<vector>
 #include<algorithm>
 
-struct T {
+struct B{
+  virtual ~B(){}
+  virtual B * clone() const=0;
+};
+
+struct T : public B {
   T(float iv=0) : v(iv){}
   float v;
   bool operator==(T t) const { return v==t.v;}
+
+  virtual T * clone() const { return new T(*this); }
 };
+
+bool operator==(T const& t, B const& b) {
+  T const * p = dynamic_cast<T const *>(&b);
+  return p && p->v==t.v;
+}
+
+bool operator==(B const& b, T const& t) {
+  return t==b;
+}
 
 typedef edmNew::DetSetVector<T> DSTV;
 typedef edmNew::DetSet<T> DST;
@@ -32,21 +49,24 @@ class TestDetSet: public CppUnit::TestFixture
   CPPUNIT_TEST(iterator);
   CPPUNIT_TEST(algorithm);
   CPPUNIT_TEST(onDemand);
-
+  CPPUNIT_TEST(toRangeMap);
+  
   CPPUNIT_TEST_SUITE_END();
-
- public:
+  
+public:
   TestDetSet(); 
   ~TestDetSet() {}
   void setUp() {}
   void tearDown() {}
-
+  
   void default_ctor();
   void inserting();
   void filling();
   void iterator();
   void algorithm();
   void onDemand();
+  void toRangeMap();
+  
 
 public:
   std::vector<DSTV::data_type> sv;
@@ -446,5 +466,51 @@ void TestDetSet::onDemand() {
   } 
   catch (edm::Exception const & err) {
        CPPUNIT_ASSERT(err.categoryCode()==edm::errors::InvalidReference);
+  }
+}
+
+
+void TestDetSet::toRangeMap() {
+  DSTV detsets(2);
+  for (unsigned int n=1;n<5;++n) {
+    unsigned int id=20+n;
+    FF ff(detsets,id);
+    ff.resize(n);
+    std::copy(sv.begin(),sv.begin()+n,ff.begin());
+  }
+  {
+    FF ff(detsets,31);
+    ff.resize(2);
+    std::copy(sv.begin(),sv.begin()+2,ff.begin());
+  }
+  {
+    FF ff(detsets,11);
+    ff.resize(2);
+    std::copy(sv.begin(),sv.begin()+2,ff.begin());
+  }
+  {
+    FF ff(detsets,34);
+    ff.resize(4);
+    std::copy(sv.begin(),sv.begin()+4,ff.begin());
+  }
+
+  typedef edm::RangeMap<DetId, edm::OwnVector<B> > RM;
+  edm::RangeMap<DetId, edm::OwnVector<B> > rm;
+  try {
+    edmNew::copy(detsets,rm);
+    rm.post_insert();
+    std::vector<DetId> ids = rm.ids();
+    CPPUNIT_ASSERT(ids.size()==detsets.size());
+    CPPUNIT_ASSERT(rm.size()==detsets.dataSize());
+    for (int i=0; i<int(ids.size()); i++) {
+      RM::range r = rm.get(ids[i]);
+      DST df = *detsets.find(ids[i]);
+      CPPUNIT_ASSERT((r.second-r.first)==df.size());
+      CPPUNIT_ASSERT(std::equal(r.first,r.second,df.begin()));
+    }
+  }
+  catch (edm::Exception const & err) {
+    std::cout << err.what() << std::endl;
+    CPPUNIT_ASSERT(err.what()==0);
   }
 }
