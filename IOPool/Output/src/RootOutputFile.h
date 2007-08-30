@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: RootOutputFile.h,v 1.3 2007/08/22 17:56:11 wmtan Exp $
+// $Id: RootOutputFile.h,v 1.4 2007/08/28 14:28:10 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -73,6 +73,7 @@ namespace edm {
     unsigned int fileSizeCheckEvent_;
     PoolOutputModule const* om_;
     boost::shared_ptr<TFile> filePtr_;
+    std::string fid_;
     TTree * metaDataTree_;
     EventAuxiliary eventAux_;
     LuminosityBlockAuxiliary lumiAux_;

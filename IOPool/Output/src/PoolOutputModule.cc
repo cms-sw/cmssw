@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.82 2007/08/28 14:29:52 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.83 2007/08/28 18:22:39 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "boost/array.hpp" 
@@ -21,7 +21,9 @@
 namespace edm {
   PoolOutputModule::PoolOutputModule(ParameterSet const& pset) :
     OutputModule(pset),
-    catalog_(pset),
+    fileName_(pset.getUntrackedParameter<std::string>("fileName")),
+    logicalFileName_(pset.getUntrackedParameter<std::string>("logicalFileName", std::string())),
+    catalog_(pset.getUntrackedParameter<std::string>("catalog", std::string())),
     maxFileSize_(pset.getUntrackedParameter<int>("maxSize", 0x7f000000)),
     compressionLevel_(pset.getUntrackedParameter<int>("compressionLevel", 1)),
     basketSize_(pset.getUntrackedParameter<int>("basketSize", 16384)),

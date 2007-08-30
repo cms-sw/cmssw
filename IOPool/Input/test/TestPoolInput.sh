@@ -3,7 +3,6 @@
 function die { echo $1: status $2 ;  exit $2; }
 
 rm -f ${LOCAL_TMP_DIR}/PoolInputTest.root ${LOCAL_TMP_DIR}/PoolInputOther.root
-rm -f ${LOCAL_TMP_DIR}/PoolInputTestCatalog.xml ${LOCAL_TMP_DIR}/PoolInputTestCatalog.xml.BAK
 rm -f ${LOCAL_TMP_DIR}/PrePoolInputTest.cfg ${LOCAL_TMP_DIR}/PoolInputTest.cfg
 
 cat > ${LOCAL_TMP_DIR}/PrePoolInputTest.cfg << !
@@ -15,8 +14,6 @@ process TESTPROD = {
 	module Thing = ThingProducer {untracked int32 debugLevel = 1}
 	module output = PoolOutputModule {
 		untracked string fileName = '${LOCAL_TMP_DIR}/PoolInputTest.root'
-		untracked string catalog = '${LOCAL_TMP_DIR}/PoolInputTestCatalog.xml'
-		untracked string logicalFileName = 'PoolTest.root'
 		untracked int32 maxSize = 100000
 	}
 	source = EmptySource {
@@ -43,10 +40,8 @@ process TESTRECO = {
 	source = PoolSource {
 		untracked vstring fileNames = {
 			'file:${LOCAL_TMP_DIR}/PoolInputTest.root',
-			'PoolTest.root',
 			'file:${LOCAL_TMP_DIR}/PoolInputOther.root'
 		}
-		untracked string catalog = '${LOCAL_TMP_DIR}/PoolInputTestCatalog.xml'
 	}
 }
 !

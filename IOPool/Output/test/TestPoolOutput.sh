@@ -2,8 +2,6 @@
 # Pass in name and status
 function die { echo $1: status $2 ;  exit $2; }
 
-rm -f ${LOCAL_TMP_DIR}/PoolOutputTestCatalog.xml
-rm -f ${LOCAL_TMP_DIR}/PoolOutputTestCatalog.xml.BAK
 rm -f ${LOCAL_TMP_DIR}/PoolOutputTest.root
 rm -f ${LOCAL_TMP_DIR}/PoolOutputTest.cfg
 rm -f ${LOCAL_TMP_DIR}/PoolOutputRead.cfg
@@ -25,8 +23,6 @@ process TESTOUTPUT = {
 	module OtherThing = OtherThingProducer {untracked int32 debugLevel = 1}
 	module output = PoolOutputModule {
 		untracked string fileName = '${LOCAL_TMP_DIR}/PoolOutputTest.root'
-		untracked string catalog = '${LOCAL_TMP_DIR}/PoolOutputTestCatalog.xml'
-		untracked string logicalFileName = 'PoolOutputTest.root'
 		untracked int32 maxSize = 100000
 	}
 	source = EmptySource {}
@@ -45,8 +41,6 @@ process TESTDROP = {
 	module OtherThing = OtherThingProducer {untracked int32 debugLevel = 1}
 	module output = PoolOutputModule {
 		untracked string fileName = '${LOCAL_TMP_DIR}/PoolDropTest.root'
-		untracked string catalog = '${LOCAL_TMP_DIR}/PoolOutputTestCatalog.xml'
-		untracked string logicalFileName = 'PoolDropTest.root'
 		untracked int32 maxSize = 100000
 		untracked vstring outputCommands = {'drop *',
 		    'keep *_dummy_*_*'
@@ -67,8 +61,6 @@ process TESTMISSING = {
 	module Thing = ThingProducer {untracked bool noPut = true}
 	module output = PoolOutputModule {
 		untracked string fileName = '${LOCAL_TMP_DIR}/PoolMissingTest.root'
-		untracked string catalog = '${LOCAL_TMP_DIR}/PoolOutputTestCatalog.xml'
-		untracked string logicalFileName = 'PoolMissingTest.root'
 		untracked int32 maxSize = 100000
 	}
 	source = EmptySource {}
@@ -86,7 +78,6 @@ process TESTOUTPUTREAD = {
                 untracked vstring fileNames = {
                         'file:${LOCAL_TMP_DIR}/PoolOutputTest.root'
                 }
-                untracked string catalog = '${LOCAL_TMP_DIR}/PoolOutputTestCatalog.xml'
         }
 }
 !
@@ -101,7 +92,6 @@ process TESTDROPREAD = {
                 untracked vstring fileNames = {
                         'file:${LOCAL_TMP_DIR}/PoolDropTest.root'
                 }
-                untracked string catalog = '${LOCAL_TMP_DIR}/PoolDropTestCatalog.xml'
         }
 }
 !
@@ -116,7 +106,6 @@ process TESTDROPREAD = {
                 untracked vstring fileNames = {
                         'file:${LOCAL_TMP_DIR}/PoolMissingTest.root'
                 }
-                untracked string catalog = '${LOCAL_TMP_DIR}/PoolMissingTestCatalog.xml'
         }
 }
 !

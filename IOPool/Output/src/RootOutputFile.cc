@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.7 2007/08/28 14:31:01 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.8 2007/08/28 18:22:39 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h" 
@@ -10,7 +10,6 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/Catalog/interface/FileCatalog.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
@@ -23,6 +22,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "POOLCore/Guid.h"
 
 #include "TTree.h"
 #include "TFile.h"
@@ -41,6 +42,7 @@ namespace edm {
       fileSizeCheckEvent_(100),
       om_(om),
       filePtr_(TFile::Open(file_.c_str(), "update", "", om_->compressionLevel())),
+      fid_(),
       metaDataTree_(0),
       eventAux_(),
       lumiAux_(),
@@ -81,7 +83,10 @@ namespace edm {
     // Don't split metadata tree.
     metaDataTree_ = RootOutputTree::makeTree(filePtr_.get(), poolNames::metaDataTreeName(), 0);
 
-    pool::FileCatalog::FileID fid = om_->catalog_.registerFile(file_, logicalFile_);
+    pool::Guid guid;
+    pool::Guid::create(guid);
+
+    fid_ = guid.toString();
 
     // Register the output file with the JobReport service
     // and get back the token for it.
@@ -89,10 +94,10 @@ namespace edm {
     Service<JobReport> reportSvc;
     reportToken_ = reportSvc->outputFileOpened(
 		      file_, logicalFile_,  // PFN and LFN
-		      om_->catalog_.url(),  // catalog
+		      om_->catalog_,  // catalog
 		      moduleName,   // module class name
 		      om_->moduleLabel_,  // module label
-		      fid, // file id (guid)
+		      fid_, // file id (guid)
 		      eventTree_.branchNames()); // branch names being written
   }
 
@@ -230,7 +235,6 @@ namespace edm {
       treePointers_[branchType]->writeTree();
     }
 
-    om_->catalog_.commitCatalog();
     // report that file has been closed
     Service<JobReport> reportSvc;
     reportSvc->outputFileClosed(reportToken_);

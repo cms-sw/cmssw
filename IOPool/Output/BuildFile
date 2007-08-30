@@ -2,12 +2,12 @@
 <use name=DataFormats/Common>
 <use name=DataFormats/Provenance>
 <use name=FWCore/Framework>
-<use name=FWCore/Catalog>
 <use name=FWCore/Utilities>
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 <use name=IOPool/Common>
+<use name=POOLCore>
 <use name=boost>
 <use name=rootcore>
 <use name=root>
