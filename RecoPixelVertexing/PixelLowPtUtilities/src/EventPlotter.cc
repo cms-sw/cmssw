@@ -31,9 +31,15 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 
 #include <fstream>
 #include <string>
+
+using namespace std;
+using namespace reco;
+using namespace edm;
 
 struct sortByPabs
 {
@@ -44,7 +50,7 @@ struct sortByPabs
 };
 
 /*****************************************************************************/
-EventPlotter::EventPlotter(const edm::EventSetup& es)
+EventPlotter::EventPlotter(const edm::EventSetup& es, string& trackCollectionLabel_)
 {
   // Get tracker geometry
   edm::ESHandle<TrackerGeometry> tracker;
@@ -55,6 +61,13 @@ EventPlotter::EventPlotter(const edm::EventSetup& es)
   edm::ESHandle<MagneticField> magField;
   es.get<IdealMagneticFieldRecord>().get(magField);
   theMagField = magField.product();
+
+  // Get transient track builder
+  edm::ESHandle<TransientTrackBuilder> builder;
+  es.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
+  theTTBuilder = builder.product();
+
+  trackCollectionLabel = trackCollectionLabel_;
 }
 
 /*****************************************************************************/
@@ -178,9 +191,55 @@ void EventPlotter::printSimTracks
 }
 
 /*****************************************************************************/
+pair<float,float> EventPlotter::refitWithVertex
+  (const reco::Track & recTrack,
+   const reco::VertexCollection* vertices)
+{
+  TransientTrack theTransientTrack = theTTBuilder->build(recTrack);
+
+  // If there are vertices found
+  if(vertices->size() > 0)
+  {
+    float dzmin = -1.;
+    const reco::Vertex * closestVertex = 0;
+
+    // Look for the closest vertex in z
+    for(reco::VertexCollection::const_iterator
+        vertex = vertices->begin(); vertex!= vertices->end(); vertex++)
+    {
+      float dz = fabs(recTrack.vertex().z() - vertex->position().z());
+      if(vertex == vertices->begin() || dz < dzmin)
+      { dzmin = dz ; closestVertex = &(*vertex); }
+    }
+
+
+    // Get vertex position and error matrix
+    GlobalPoint vertexPosition(closestVertex->position().x(),
+                               closestVertex->position().y(),
+                               closestVertex->position().z());
+
+    float beamSize = 15e-4; // 15 um
+    GlobalError vertexError(beamSize*beamSize, 0,
+                            beamSize*beamSize, 0,
+                            0,closestVertex->covariance(2,2));
+
+    // Refit track with vertex constraint
+    SingleTrackVertexConstraint stvc;
+    pair<TransientTrack, float> result =
+      stvc.constrain(theTransientTrack, vertexPosition, vertexError);
+
+    return pair<float,float>(result.first.impactPointTSCP().pt(),
+                             result.second);
+  }
+  else
+    return pair<float,float>(recTrack.pt(), -9999);
+}
+
+/*****************************************************************************/
 void EventPlotter::printRecTracks
   (const reco::TrackCollection* recTracks,
-   const vector<Trajectory>*    recTrajes)
+   const vector<Trajectory>*    recTrajes,
+   const reco::VertexCollection* vertices)
 {
   // Hits
   ofstream pixelFile("pixelRecHits.m");
@@ -192,6 +251,12 @@ void EventPlotter::printRecTracks
                                             recTrack++, i++)
   {
     int j = 0;
+
+/*
+    float ptv  = refitWithVertex(*recTrack,vertices).first;
+    float chi2 = refitWithVertex(*recTrack,vertices).second;
+    if(fabs(recTrack->eta()) < 1.5 && fabs(ptv-1) < 0.001 && log10(chi2) < 1.5)
+*/
 
     for(trackingRecHit_iterator recHit = recTrack->recHitsBegin();
                                 recHit!= recTrack->recHitsEnd();
@@ -212,9 +277,57 @@ void EventPlotter::printRecTracks
         SiPixelRecHit::ClusterRef const& cluster = pixelRecHit->cluster();
         vector<SiPixelCluster::Pixel> pixels = cluster->pixels();
 
+/*
+{
+  DetId id = pixelRecHit->geographicalId();
+         
+  // DetUnit
+  double x = theTracker->idToDet(id)->surface().bounds().width() /2;
+  double y = theTracker->idToDet(id)->surface().bounds().length()/2;
+  double z = 0.;
+
+  GlobalPoint p00 =  theTracker->idToDet(id)->toGlobal(LocalPoint(-x,-y,z));
+  GlobalPoint p01 =  theTracker->idToDet(id)->toGlobal(LocalPoint(-x, y,z));
+  GlobalPoint p10 =  theTracker->idToDet(id)->toGlobal(LocalPoint( x,-y,z));
+  GlobalPoint p11 =  theTracker->idToDet(id)->toGlobal(LocalPoint( x, y,z));
+  
+  pixelFile
+    << ", Line[{{"<< p00.x()<<","<<p00.y()<<","<<p00.z()/2<<"}, {"
+                  << p01.x()<<","<<p01.y()<<","<<p01.z()/2<<"}}]"
+    << ", Line[{{"<< p01.x()<<","<<p01.y()<<","<<p01.z()/2<<"}, {"
+                  << p11.x()<<","<<p11.y()<<","<<p11.z()/2<<"}}]"
+    << ", Line[{{"<< p11.x()<<","<<p11.y()<<","<<p11.z()/2<<"}, {"
+                  << p10.x()<<","<<p10.y()<<","<<p10.z()/2<<"}}]"
+    << ", Line[{{"<< p10.x()<<","<<p10.y()<<","<<p10.z()/2<<"}, {"
+                  << p00.x()<<","<<p00.y()<<","<<p00.z()/2<<"}}]" << endl;
+}
+*/
+
         ostringstream o; o << i; 
         string pixelInfo = " Text[StyleForm[\""  + o.str() +
                            "\", URL -> \"Track " + o.str();
+
+
+        if(theTracker->idToDet(id)->subDetector() ==
+             GeomDetEnumerators::PixelBarrel)
+        {
+          // 0 + (layer-1)<<1 + (ladder-1)%2 : 0-5
+          PXBDetId pid(id);
+          ostringstream o;
+          o << " (" << pid.layer()  << "|" << pid.ladder()
+            <<  "|" << pid.module() << ")";
+          pixelInfo += o.str();
+        }
+        else
+        {
+          // 6 + (disk-1)<<1 + (panel-1)%2
+          PXFDetId pid(id);
+          ostringstream o;
+          o << " (" << pid.side()   << "|" << pid.disk()
+            <<  "|" << pid.blade()  << "|" << pid.panel()
+            <<  "|" << pid.module() << ")";
+          pixelInfo += o.str();
+        }
  
         for(vector<SiPixelCluster::Pixel>::const_iterator
           pixel = pixels.begin(); pixel!= pixels.end(); pixel++)
@@ -231,7 +344,7 @@ void EventPlotter::printRecTracks
          << pixelInfo
 //         << " Text[StyleForm[\"" << i << "\", URL -> \"Track " << i << "\"],"
          << " {" << p.x() << "," << p.y() << "," << p.z()/2 << "},"
-         << " {0,-1}]" << endl;
+         << " {" << 0 << "," << -1 << "}]" << endl;
       }
       else
       {
@@ -239,7 +352,7 @@ void EventPlotter::printRecTracks
          << ", Point[{" << p.x() << "," << p.y() << "," << p.z()/2 << "}],"
          << " Text[StyleForm[\"" << i << "\", URL -> \"Track " << i << "\"],"
          << " {" << p.x() << "," << p.y() << "," << p.z()/2 << "},"
-         << " {0,-1}]" << endl;
+         << " {" << 5-i%10 << "," << -1 << "}]" << endl;
       }
     }
   }
@@ -250,10 +363,17 @@ void EventPlotter::printRecTracks
   ofstream trajeFile("recTracks.m");
 
   reco::TrackCollection::const_iterator recTrack = recTracks->begin();
+
   for(vector<Trajectory>::const_iterator it = recTrajes->begin();
                                          it!= recTrajes->end(); it++)
   {
     vector<TrajectoryMeasurement> meas = it->measurements();
+
+/*
+    float ptv  = refitWithVertex(*recTrack,vertices).first;
+    float chi2 = refitWithVertex(*recTrack,vertices).second;
+    if(fabs(ptv-1) < 0.01 && log10(chi2) > 2.0) // 1.5
+*/
 
     for(vector<TrajectoryMeasurement>::reverse_iterator im = meas.rbegin();
                                                         im!= meas.rend(); im++)
@@ -555,11 +675,11 @@ void EventPlotter::printEvent(const edm::Event& ev)
   ev.getByType(simCollection);
 
   // Get reconstructed
-  edm::Handle<reco::TrackCollection> recCollection;
-  ev.getByLabel("ctfTripletTracks",recCollection);
+  edm::Handle<reco::TrackCollection>  recCollection;
+  ev.getByLabel(trackCollectionLabel, recCollection);
 
-  edm::Handle<vector<Trajectory> > trajCollection;
-  ev.getByLabel("ctfTripletTracks",trajCollection);
+  edm::Handle<vector<Trajectory> >    trajCollection;
+  ev.getByLabel(trackCollectionLabel, trajCollection);
 
   // Get vzeros
   edm::Handle<reco::VZeroCollection> vZeroCollection;
@@ -586,7 +706,7 @@ void EventPlotter::printEvent(const edm::Event& ev)
   labelFile.close();
 
   printSimTracks(simTracks);
-  printRecTracks(recTracks, recTrajes);
+  printRecTracks(recTracks, recTrajes, vertices);
   printVZeros   (vZeros);
   printVertices (vertices);
 

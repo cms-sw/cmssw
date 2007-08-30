@@ -93,7 +93,7 @@ bool ClusterShapeTrackFilter::isCompatible
   ClusterShape theClusterShape;
 
   DetId id = recHit->geographicalId();
-// !!!!!!!!!!!
+// FIXME
   const PixelGeomDetUnit* pixelDet = 0; // =
 //    dynamic_cast<const PixelGeomDetUnit*> (theTracker->idToDet(id));
   theClusterShape.getExtra(*pixelDet, *recHit, data);
@@ -127,9 +127,8 @@ bool ClusterShapeTrackFilter::isCompatible
 bool ClusterShapeTrackFilter::operator()
   (const reco::Track* track, std::vector<const TrackingRecHit *> hits) const
 {
-// !!!!!!!!!!!!!!!
+  // DEACTIVATED
   return true;
-
 
   bool ok = true;
   vector<const TrackingRecHit*> recHits;

@@ -36,11 +36,6 @@ SiPixelRecHitRemover::~SiPixelRecHitRemover()
 }  
   
 /*****************************************************************************/
-//void SiPixelRecHitRemover::beginJob(const edm::EventSetup& es) 
-//{
-//}
-
-/*****************************************************************************/
 void SiPixelRecHitRemover::produce
   (edm::Event& ev, const edm::EventSetup& es)
 {
@@ -48,7 +43,6 @@ void SiPixelRecHitRemover::produce
   set<const SiPixelRecHit*, HitComparator> allHits,usedHits,freeHits;
 
   // Get hits
-//cerr << " !!!!!!!!!!! hitcoll = " << hitCollectionLabel << endl;
   edm::Handle<SiPixelRecHitCollection> pixelCollection;
   ev.getByLabel(hitCollectionLabel,    pixelCollection);
   const SiPixelRecHitCollection* recHits = pixelCollection.product();
@@ -68,7 +62,6 @@ void SiPixelRecHitRemover::produce
   for(vector<string>::const_iterator label = removeHitsList.begin();
                                      label!= removeHitsList.end(); label++)
   { 
-//cerr << " !!!!!!!!!! remove " << *label << endl;
     ev.getByLabel(*label,  recCollection); 
     const reco::TrackCollection* recTracks = recCollection.product();
 

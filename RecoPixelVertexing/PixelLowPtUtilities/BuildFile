@@ -8,6 +8,7 @@
 <use name=RecoPixelVertexing/PixelTrackFitting>
 <use name=SimDataFormats/HepMCProduct>
 <use name=RecoVertex/VertexTools>
+<use name=RecoVertex/KalmanVertexFit>
 
 <export>
  <lib name=RecoPixelVertexingPixelLowPtUtilities>
@@ -21,4 +22,5 @@
  <use name=RecoPixelVertexing/PixelTrackFitting>
  <use name=SimDataFormats/HepMCProduct>
  <use name=RecoVertex/VertexTools>
+ <use name=RecoVertex/KalmanVertexFit>
 </export>

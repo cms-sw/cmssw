@@ -53,17 +53,20 @@ public:
       }
       else
       {
+        float theOriginHalfLength_ = 15.9;
+
         std::cerr << " [TrackProducer] no vertices found" << std::endl;
         result.push_back(
           new GlobalTrackingRegion(thePtMin, theOriginRadius,
-              theOriginHalfLength, theOriginZPos, thePrecise) );
+              theOriginHalfLength_, theOriginZPos, thePrecise) );
       }
     }
     else
     {
+      float theOriginHalfLength_ = 15.9;
       result.push_back(
         new GlobalTrackingRegion(thePtMin, theOriginRadius,
-            theOriginHalfLength, theOriginZPos, thePrecise) );
+            theOriginHalfLength_, theOriginZPos, thePrecise) );
     }
 
     return result;
