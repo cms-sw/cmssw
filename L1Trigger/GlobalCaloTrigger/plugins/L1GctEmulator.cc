@@ -158,6 +158,9 @@ void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
   std::auto_ptr<L1GctEtHad> etHadResult(new L1GctEtHad(m_gct->getEtHad().value(), m_gct->getEtHad().overFlow() ) );
   std::auto_ptr<L1GctEtMiss> etMissResult(new L1GctEtMiss(m_gct->getEtMiss().value(), m_gct->getEtMissPhi().value(), m_gct->getEtMiss().overFlow() ) );
 
+  // create the jet counts digis
+  std::auto_ptr<L1GctJetCounts> jetCountResult(new L1GctJetCounts(m_gct->getJetCountValues() ) );
+
   // put the collections into the event
   e.put(isoEmResult,"isoEm");
   e.put(nonIsoEmResult,"nonIsoEm");
@@ -167,6 +170,7 @@ void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
   e.put(etTotResult);
   e.put(etHadResult);
   e.put(etMissResult);
+  e.put(jetCountResult);
 
 }
 
