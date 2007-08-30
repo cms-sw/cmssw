@@ -2,8 +2,6 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-using namespace std;
-
 //DEFINE STATICS
 const int L1GctWheelJetFpga::MAX_JETS_OUT = 4;
 const unsigned int L1GctWheelJetFpga::MAX_LEAF_CARDS = 3;
@@ -104,8 +102,9 @@ L1GctWheelJetFpga::~L1GctWheelJetFpga()
   }
 }
 
-ostream& operator << (ostream& os, const L1GctWheelJetFpga& fpga)
+std::ostream& operator << (std::ostream& os, const L1GctWheelJetFpga& fpga)
 {
+  using std::endl;
   os << "===L1GctWheelJetFPGA===" << endl;
   os << "ID = " << fpga.m_id << endl;
   os << "No of Input Leaf Cards " << fpga.m_inputLeafCards.size() << endl;
@@ -290,12 +289,6 @@ void L1GctWheelJetFpga::classifyJets()
   m_rawTauJets.clear();
   setupRawTauJetsVec();
 
-  //Holds which jet finder we are on, in phi (from 0 to 8).
-  unsigned short int jetFinderIndex = 0;
-
-  //counter to help in calculation of jetFinderIndex.
-  unsigned short int inputJetIndex = 0;
-
   JetVector::iterator currentJet;  
   
   //counters for entering the classified jets into the different raw jet vectors
@@ -308,31 +301,32 @@ void L1GctWheelJetFpga::classifyJets()
     if (!currentJet->empty()) {
       if(currentJet->isForward())  //forward jet
 	{
+         assert(numFJets<MAX_RAW_FJETS);
 	  m_rawForwardJets.at(numFJets++) = *currentJet;
 	}
       else
 	{
 	  if(currentJet->isCentral())  //central non-tau jet.
 	    {
+             assert(numCJets<MAX_RAW_CJETS);
 	      m_rawCentralJets.at(numCJets++) = *currentJet;
 	    }
 	  else  //must be central tau-jet
 	    {
 	    if(currentJet->isTau())
 	      {
+             assert(numTJets<MAX_RAW_TJETS);
 		m_rawTauJets.at(numTJets++) = *currentJet;
 	      }
 	    else
 	      { //shouldn't get here!
 		throw cms::Exception("L1GctProcessingError")
 		  << "Unclassified jet found by WheelJetFpga id " << m_id
-		  << ". Jet details follow." << endl << *currentJet << endl;
+		  << ". Jet details follow." << std::endl << *currentJet << std::endl;
 	      }
 	    }
 	}
     }
-    //move onto the next jet finder phi position every 6 jets
-    if(++inputJetIndex % L1GctJetFinderBase::MAX_JETS_OUT == 0) { ++jetFinderIndex; }
   }
 }
 
