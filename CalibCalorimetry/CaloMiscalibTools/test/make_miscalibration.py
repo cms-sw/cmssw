@@ -2,7 +2,7 @@
 import commands,string,time,thread,random,math,sys
 
 #global variables
-MINRES=0.02
+MINRES=0.04
 SEED=-1
 ENDCAPSINGLE=0
 NPOINT=3
@@ -25,7 +25,12 @@ def miscalibecal(lumi,endcap,z,etaindex,phiindex,randval):
     #return a random factor according to  eta
     if lumi==0:
         if randval==1:
-            return random.gauss(1,MINRES)
+            # from CSA07 discussion
+           if endcap != 1:
+               gauss_smear=0.014+(etaindex-1)*(0.022-0.014)/(85.-1.)
+           else:
+               gauss_smear=MINRES
+           return random.gauss(1,gauss_smear)
 #            return 1.0
         else:
             return MINRES
@@ -169,6 +174,7 @@ if len(sys.argv)>=6:
     random.seed(SEED)
     
 # now open file
+txtfile=open(fileout+'.txt','w')
 xmlfile=open(fileout,'w')
 # write header
 xmlfile.write('<?xml version="1.0" ?>\n')
@@ -203,16 +209,22 @@ if ecalbarrel==1 or ecalendcap==1:
                 if ecalbarrel==1:
                     if zindex==-1:
                         line='        <Cell eta_index="'+str(-etaindex)+'" phi_index="'+str(phiindex)+'" scale_factor="'+str(miscal_fac)+'"/>\n'
+                        txtline=str(etaindex)+' '+str(phiindex)+' '+str(miscal_fac)+'\n'    
                         xmlfile.write(line)
+                        txtfile.write(txtline)
                         count=count+1
                     else:
                         line='        <Cell eta_index="'+str(+etaindex)+'" phi_index="'+str(phiindex)+'" scale_factor="'+str(miscal_fac)+'"/>\n'
+                        txtline=str(-etaindex)+' '+str(phiindex)+' '+str(miscal_fac)+'\n'    
                         xmlfile.write(line)
+                        txtfile.write(txtline)
                         count=count+1
                 else:
                     goodxtal=1
                     line='        <Cell x_index="'+str(etaindex)+'" y_index="'+str(phiindex)+'" z_index="'+str(zindex)+'" scale_factor="'+str(miscal_fac)+'"/>\n'
+                    txtline=str(etaindex)+' '+str(phiindex)+' '+str(zindex)+' '+str(miscal_fac)+'\n'    
                     xmlfile.write(line)
+                    txtfile.write(txtline)
                     count=count+1
                     
 ############################## HERE HCAL    
@@ -252,7 +264,9 @@ elif hcal==1:
 
 xmlfile.write('</CalibrationConstants>\n')
 xmlfile.close()
+txtfile.close()
 print 'File '+fileout+' written with '+str(count)+' lines'
+print 'File '+fileout+'.txt'+' written with '+str(count)+' lines'
 #print miscalibecal(5,0,1,85,1,0)
 #print miscalibecal(5,1,-1,10,1,0)
 #print miscalibecal(5,1,-1,10,1,1)
