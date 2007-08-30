@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Vertex.h,v 1.26 2007/05/30 07:44:32 llista Exp $
+ * \version $Id: Vertex.h,v 1.27 2007/05/30 07:47:37 llista Exp $
  *
  */
 #include <Rtypes.h>
@@ -16,8 +16,6 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/Common/interface/AssociationMap.h"
-// #include "DataFormats/Common/interface/OneToValue.h"
 #include <iostream>
 
 namespace reco {
@@ -26,6 +24,8 @@ namespace reco {
 
   class Vertex {
   public:
+    /// The iteratator for the vector<TrackRef>
+    typedef std::vector<TrackRef>::const_iterator trackRef_iterator;
     /// point in the space
     typedef math::XYZPoint Point;
     /// error matrix dimension
@@ -50,9 +50,9 @@ namespace reco {
     ///returns the weight with which a Track has contributed to the vertex-fit.
     float trackWeight ( const TrackRef & r ) const;
     /// first iterator over tracks
-    track_iterator tracks_begin() const;
+    trackRef_iterator tracks_begin() const;
     /// last iterator over tracks
-    track_iterator tracks_end() const;
+    trackRef_iterator tracks_end() const;
     /// number of tracks
     size_t tracksSize() const;
     /// chi-squares
@@ -127,10 +127,10 @@ namespace reco {
     /// covariance matrix (3x3) as vector
     Double32_t covariance_[ size ];
     /// reference to tracks
-    TrackRefVector tracks_;
+    std::vector<TrackRef> tracks_;
     /// The vector of refitted tracks
     std::vector<Track> refittedTracks_;
-    edm::AssociationMap< edm::OneToValue<reco::TrackCollection, float> > weights_;
+    std::vector<float> weights_;
 
 
     /// position index

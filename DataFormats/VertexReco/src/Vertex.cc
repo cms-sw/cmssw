@@ -1,6 +1,6 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
-// $Id: Vertex.cc,v 1.10 2007/05/30 07:44:33 llista Exp $
+// $Id: Vertex.cc,v 1.11 2007/05/30 07:47:38 llista Exp $
 using namespace reco;
 using namespace std;
 
@@ -25,12 +25,12 @@ size_t Vertex::tracksSize() const
   return weights_.size();
 }
 
-track_iterator Vertex::tracks_begin() const
+Vertex::trackRef_iterator Vertex::tracks_begin() const
 {
   return tracks_.begin();
 }
 
-track_iterator Vertex::tracks_end() const
+Vertex::trackRef_iterator Vertex::tracks_end() const
 {
 //   if ( !(tracks_.size() ) ) createTracks();
   return tracks_.end();
@@ -39,15 +39,16 @@ track_iterator Vertex::tracks_end() const
 
 void Vertex::add ( const TrackRef & r, float w )
 {
-  tracks_.push_back ( r ); // FIXME should be removed
-  weights_.insert(r,w);
+  tracks_.push_back ( r );
+  weights_.push_back(w);
+
 }
 
 void Vertex::add ( const TrackRef & r, const Track & refTrack, float w )
 {
   tracks_.push_back ( r );
   refittedTracks_.push_back ( refTrack );
-  weights_.insert(r,w);
+  weights_.push_back(w);
 }
 
 void Vertex::removeTracks()
@@ -57,9 +58,12 @@ void Vertex::removeTracks()
   refittedTracks_.clear();
 }
 
-float Vertex::trackWeight ( const TrackRef & r ) const
+float Vertex::trackWeight ( const TrackRef & track ) const
 {
-  return weights_.find(r)->val;
+  trackRef_iterator it = find(tracks_begin(), tracks_end(), track);
+  if (it==tracks_end()) return 0.0;
+  size_t pos = it - tracks_begin();
+  return weights_[pos];
 }
 
 TrackRef Vertex::originalTrack(const Track & refTrack) const
@@ -78,7 +82,7 @@ Track Vertex::refittedTrack(const TrackRef & track) const
 {
   if (refittedTracks_.empty())
 	 throw cms::Exception("Vertex") << "No refitted tracks stored in vertex\n";
-  track_iterator it = find(tracks_begin(), tracks_end(), track);
+  trackRef_iterator it = find(tracks_begin(), tracks_end(), track);
   if (it==tracks_end()) throw cms::Exception("Vertex") << "Track not found in list\n";
   size_t pos = it - tracks_begin();
   return refittedTracks_[pos];
