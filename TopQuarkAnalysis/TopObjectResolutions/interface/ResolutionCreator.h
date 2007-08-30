@@ -19,8 +19,7 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 
-#include "AnalysisDataFormats/TopObjects/interface/TopLepton.h" //added to work with the TopElectron
-
+#include "AnalysisDataFormats/TopObjects/interface/TopLepton.h" //added to work with the TopElectron and TopMuon (tmp)
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "TH1.h"
 #include "TF1.h"
@@ -51,13 +50,12 @@ class ResolutionCreator : public edm::EDAnalyzer {
       
    private:
       TFile 	*outfile;
-      TH1F  	*hResEtEtaBin[10][20][20][2];
-      TF1   	*fResEtEtaBin[10][20][20][2];
-      TH1F  	*hResEtaBin[10][20][2];
-      TF1   	*fResEtaBin[10][20][2];
-      TH1F  	*hResPar[10][2][3];
-      TF1   	*fResPar[10][2][3];
-      std::string	objectType_, jetmetLabel_;
+      TH1F  	*hResEtEtaBin[10][20][20];
+      TF1   	*fResEtEtaBin[10][20][20];
+      TH1F  	*hResEtaBin[10][20];
+      TF1   	*fResEtaBin[10][20];
+      TH1F   	*hEtaBins;
+      std::string	objectType_, labelName_;
       std::vector	<double> etabinVals_, eTbinVals_;
       double	minDR_;
       int 	etnrbins, etanrbins;
