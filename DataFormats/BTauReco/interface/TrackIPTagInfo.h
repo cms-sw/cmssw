@@ -53,7 +53,25 @@ class TrackIPTagInfo : public JTATagInfo
   const edm::RefVector<TrackCollection> & selectedTracks() const { return m_selectedTracks; }
   const std::vector<float> & probabilities(int ip) const {return (ip==0)?m_prob3d:m_prob2d; }
 
-//  std::vector<size_t> sortedIndedx(SortCriteria mode)
+  typedef enum {IP3DSig = 0, Prob3D = 1, IP2DSig = 2, Prob2D =3 , 
+                IP3DValue =4, IP2DValue=5 } SortCriteria;
+
+  /**
+   Return the list of track index sorted by mode
+   A cut can is specified to select only tracks with
+   IP value or significance > cut 
+   or
+   probability < cut
+   (according to the specified mode)
+  */
+  std::vector<size_t> sortedIndexesWithCut(float cut, SortCriteria mode = IP3DSig) const;
+
+  /**
+   Return the list of track index sorted by mode
+  */ 
+  std::vector<size_t> sortedIndexes(SortCriteria mode = IP3DSig) const;
+
+  reco::TrackRefVector tracks(std::vector<size_t> indexes) const;
 
   virtual TaggingVariableList taggingVariables(void) const; 
    
