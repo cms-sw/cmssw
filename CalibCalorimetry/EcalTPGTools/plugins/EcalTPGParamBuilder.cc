@@ -72,6 +72,7 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   std::string outFileEE = pSet.getParameter<std::string>("outFileEE") ;
   out_fileEE_ = new std::ofstream(outFileEE.c_str(), std::ios::out) ;  
   diffFile_   = new std::ofstream("diffFile.txt", std::ios::out) ;  
+  geomFile_   = new std::ofstream("geomFile.txt", std::ios::out) ;  
 }
 
 EcalTPGParamBuilder::~EcalTPGParamBuilder()
@@ -146,6 +147,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     towerListEB.push_back(towid.rawId()) ;
     const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(id) ;
     stripListEB.push_back(elId.rawId() & 0xfffffff8) ;
+    int dccNb = theMapping_->DCCid(towid) ;
     int tccNb = theMapping_->TCCid(towid) ;
     int towerInTCC = theMapping_->iTT(towid) ;
     int stripInTower = elId.pseudoStripId() ;
@@ -187,6 +189,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     towerListEE.push_back(towid.rawId()) ;
     const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(id) ;
     stripListEE.push_back(elId.rawId() & 0xfffffff8) ;
+    int dccNb = theMapping_->DCCid(towid) ;
     int tccNb = theMapping_->TCCid(towid) ;
     int towerInTCC = theMapping_->iTT(towid) ;
     int stripInTower = elId.pseudoStripId() ;
@@ -299,9 +302,15 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   towerListEB.unique() ;
   cout<<"Number of EB towers="<<towerListEB.size()<<endl ;
   (*out_fileEB_) <<std::endl ;
+  (*geomFile_)<<"BARREL"<<endl ;
   for (itList = towerListEB.begin(); itList != towerListEB.end(); itList++ ) {
     (*out_fileEB_) <<"TOWER "<<dec<<(*itList)<<endl ;
     (*out_fileEB_) <<" 0\n 0\n" ;
+    EcalTrigTowerDetId towerId((*itList)) ;
+    int dccNb = theMapping_->DCCid(towerId) ;
+    int tccNb = theMapping_->TCCid(towerId) ;
+    int towerInTCC = theMapping_->iTT(towerId) ;
+    (*geomFile_)<<"towerId="<<(*itList)<<" ieta="<<towerId.ietaAbs()<<" iphi="<<towerId.iphi()<<" dccNb="<<dccNb<<" tccNb="<<tccNb<<" towerInTCC="<<towerInTCC<<endl ;
   }
 
   // Endcap
@@ -320,10 +329,17 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   towerListEE.unique() ;
   cout<<"Number of EE towers="<<towerListEE.size()<<endl ;
   (*out_fileEE_) <<std::endl ;
+  (*geomFile_)<<"ENDCAP"<<endl ;
   for (itList = towerListEE.begin(); itList != towerListEE.end(); itList++ ) {
     (*out_fileEE_) <<"TOWER "<<dec<<(*itList)<<endl ;
     (*out_fileEE_) <<" 0\n" ;
     (*out_fileEE_)<<hex<<"0x"<<lut_tower<<std::endl ;
+    EcalTrigTowerDetId towerId((*itList)) ;
+    int dccNb = theMapping_->DCCid(towerId) ;
+    int tccNb = theMapping_->TCCid(towerId) ;
+    int towerInTCC = theMapping_->iTT(towerId) ;
+    (*geomFile_)<<"towerId="<<(*itList)<<" ieta="<<towerId.ietaAbs()<<" iphi="<<towerId.iphi()<<" dccNb="<<dccNb<<" tccNb="<<tccNb<<" towerInTCC="<<towerInTCC<<endl ;
+
   }
 
 }

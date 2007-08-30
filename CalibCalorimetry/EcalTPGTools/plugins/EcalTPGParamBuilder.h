@@ -90,6 +90,6 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   std::ofstream * out_fileEB_ ;
   std::ofstream * out_fileEE_ ;
   std::ofstream * diffFile_ ;
-
+  std::ofstream * geomFile_ ;
 };
 #endif
