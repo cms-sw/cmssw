@@ -5,7 +5,6 @@
 
 #include "FWCore/Utilities/interface/Exception.h"  
 
-#include <iostream>
 using namespace std;
 
 //DEFINE STATICS
