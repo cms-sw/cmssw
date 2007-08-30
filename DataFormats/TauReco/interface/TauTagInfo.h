@@ -35,7 +35,7 @@ namespace reco{
     virtual ~TauTagInfo(){};
     virtual TauTagInfo* clone()const{return new TauTagInfo(*this);}
     
-    //get the rec. tk's which are components of JetTracksAssociator object which were filtered by RecoTauTag/RecoTau/ PFRecoTauTagInfoAlgorithm::filteredTracks or CaloRecoTauTagInfoAlgorithm::filteredTracks
+    //get the rec. tk's which are components of JetTracksAssociator object and which were filtered by RecoTauTag/RecoTau/ PFRecoTauTagInfoAlgorithm::filteredTracks(.,...) or CaloRecoTauTagInfoAlgorithm::filteredTracks(.,...) function
     const TrackRefVector& Tracks()const{return Tracks_;}
     void  setTracks(const TrackRefVector x){Tracks_=x;}
     

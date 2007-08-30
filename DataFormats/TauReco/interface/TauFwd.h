@@ -1,5 +1,5 @@
-#ifndef TauReco_MuonFwd_h
-#define TauReco_MuonFwd_h
+#ifndef TauReco_TauFwd_h
+#define TauReco_TauFwd_h
 #include <vector>
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
