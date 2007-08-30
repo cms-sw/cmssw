@@ -58,6 +58,7 @@ void CSCDbStripConditions::initializeEvent(const edm::EventSetup & es)
 
 void CSCDbStripConditions::print() const
 {
+/*
   std::cout << "SIZES: GAINS: " << theGains->gains.size()
             << "   PEDESTALS: " << thePedestals->pedestals.size()
             << "   NOISES "  << theNoiseMatrix->matrix.size() << std::endl;;
@@ -96,37 +97,21 @@ void CSCDbStripConditions::print() const
      << crosstalkItr->second[5].xtalk_intercept_left << " " 
      << crosstalkItr->second[5].xtalk_intercept_right << std::endl;
   }
+*/
 }
 
 
 float CSCDbStripConditions::gain(const CSCDetId & detId, int channel) const
 {
   assert(theGains != 0);
-  int index = dbIndex(detId, channel);
-  std::map< int,std::vector<CSCGains::Item> >::const_iterator layerGainsItr
-    = theGains->gains.find(index);
-  if(layerGainsItr == theGains->gains.end())
-  {
-    throw cms::Exception("CSCDbStripConditions")
-     << "Cannot find gain for layer " << detId;
-  }
-
-  return layerGainsItr->second.at(channel-1).gain_slope * theGainsConstant;
+  return theGains->item(detId, channel).gain_slope * theGainsConstant;
 }
 
 
 CSCPedestals::Item CSCDbStripConditions::pedestalObject(const CSCDetId & detId, int channel) const
 {
   assert(thePedestals != 0);
-  int index = dbIndex(detId, channel);
-  std::map< int,std::vector<CSCPedestals::Item> >::const_iterator pedestalItr
-    = thePedestals->pedestals.find(index);
-  if(pedestalItr == thePedestals->pedestals.end())
-  {
-    throw cms::Exception("CSCDbStripConditions")
-     << "Cannot find pedestals for layer " << detId;
-  }
-  return pedestalItr->second.at(channel-1);
+  return thePedestals->item(detId, channel);
 }
 
 
@@ -147,16 +132,8 @@ void CSCDbStripConditions::crosstalk(const CSCDetId&detId, int channel,
                  float & capacitive, float & resistive) const
 {
   assert(theCrosstalk != 0);
-  int index = dbIndex(detId, channel);
-  std::map< int,std::vector<CSCcrosstalk::Item> >::const_iterator crosstalkItr
-    = theCrosstalk->crosstalk.find(index);
-  if(crosstalkItr == theCrosstalk->crosstalk.end())
-  {
-    throw cms::Exception("CSCDbStripConditions")
-     << "Cannot find crosstalk for layer " << detId;
-  }
+  const CSCcrosstalk::Item & item = theCrosstalk->item(detId, channel);
 
-  const CSCcrosstalk::Item & item = crosstalkItr->second.at(channel-1);
   // resistive fraction is at the peak, where t=0
   resistive = leftRight ? item.xtalk_intercept_right 
                         : item.xtalk_intercept_left;
@@ -176,17 +153,7 @@ void CSCDbStripConditions::crosstalk(const CSCDetId&detId, int channel,
 void CSCDbStripConditions::fetchNoisifier(const CSCDetId & detId, int istrip)
 {
   assert(theNoiseMatrix != 0);
-
-  int index = dbIndex(detId, istrip);
-  std::map< int,std::vector<CSCNoiseMatrix::Item> >::const_iterator matrixItr
-    = theNoiseMatrix->matrix.find(index);
-  if(matrixItr == theNoiseMatrix->matrix.end())
-  {
-    throw cms::Exception("CSCDbStripConditions")
-     << "Cannot find noise matrix for layer " << detId;
-  }
-
-  const CSCNoiseMatrix::Item & item = matrixItr->second.at(istrip-1);
+  const CSCNoiseMatrix::Item & item = theNoiseMatrix->item(detId, istrip);
 
   HepSymMatrix matrix(8);
   //TODO get the pedestals right
