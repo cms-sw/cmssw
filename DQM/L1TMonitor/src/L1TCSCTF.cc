@@ -1,8 +1,8 @@
 /*
  * \file L1TCSCTF.cc
  *
- * $Date: 2007/02/22 19:43:53 $
- * $Revision: 1.3 $
+ * $Date: 2007/07/19 16:48:23 $
+ * $Revision: 1.5 $
  * \author J. Berryhill
  *
  */
@@ -55,7 +55,7 @@ L1TCSCTF::L1TCSCTF(const ParameterSet& ps)
   }
 
 ///KK
-  emulation = ps.getUntrackedParameter<bool>("emulation", true);
+  emulation = ps.getUntrackedParameter<bool>("emulation", false);
   LogDebug("L1TCSCTF")<<"Emulation is set to "<<emulation;
   // Initialize slot<->sector assignment
   slot2sector = ps.getUntrackedParameter< std::vector<int> >("slot2sector",std::vector<int>(0));
@@ -274,6 +274,6 @@ if(emulation){
     }
     // Unpacking related problems
     if( pCSCTFstatus->first ) csctf_errors->Fill(13);
-}
+    }
 ///
 }

@@ -1,8 +1,8 @@
 /*
  * \file L1TGT.cc
  *
- * $Date: 2007/07/19 16:48:23 $
- * $Revision: 1.8 $
+ * $Date: 2007/07/25 15:05:21 $
+ * $Revision: 1.9 $
  * \author J. Berryhill
  *
  */
@@ -95,7 +95,8 @@ void L1TGT::beginJob(const EventSetup& c)
 
     gtfeboardId = dbe->book1D("GT FE board Id", "GT FE board Id",100,0., 100.);
     gtferecordlength = dbe->book1D("GT FE record length", "GT FE record length",100,0., 100.);
-    gtfebx = dbe->book1D("GT FE Bx","GT FE Bx",100, 0., 5000.);
+    //    gtfebx = dbe->book1D("GT FE Bx","GT FE Bx",100, 0., 3500.);
+    gtfebx = dbe->book1D("GT FE Bx","GT FE Bx",3500, 0., 3500.);
     gtfesetupversion = dbe->book1D("GT FE setup version","GT FE setup version",100,0.,100.);
     gtfeactiveboards = dbe->book1D("GT FE active boards","GT FE active boards",100,0.,1000.);
     gtfetotaltrigger = dbe->book1D("GT FE total triggers","GT FE total triggers",100,0.,5000.);
