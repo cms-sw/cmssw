@@ -8,8 +8,8 @@
  *
  * \author    : Gero Flucke
  * date       : October 2006
- * $Date: 2007/06/21 17:01:30 $
- * $Revision: 1.10 $
+ * $Date: 2007/07/12 17:32:39 $
+ * $Revision: 1.11 $
  * (last update by $Author: flucke $)
  */
 
@@ -20,6 +20,8 @@
 // forward ofstream:
 #include <iosfwd> 
 
+#include "PedeLabeler.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class Alignable;
@@ -27,30 +29,19 @@ class AlignableTracker;
 class AlignableMuon;
 class AlignmentParameterStore;
 
+
 /***************************************
 ****************************************/
 class PedeSteerer
 {
  public:
-  /// constructor from e.g. AlignableTracker/AlignableMuon and the AlignmentParameterStore
-  PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon,
-	      AlignmentParameterStore *store, const edm::ParameterSet &config,
-	      const std::string &defaultDir = "");
-  /** non-virtual destructor: do not inherit from this class */
+  /// constructor from AlignableTracker/AlignableMuon, their AlignmentParameterStore
+  /// (NOTE: The latter must live longer than the constructed PedeSteerer!)
+  PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon, AlignmentParameterStore *store,
+	      const edm::ParameterSet &config, const std::string &defaultDir = "");
+  /** non-virtual destructor: do not inherit from this class **/
   ~PedeSteerer();
     
-  /// uniqueId of Alignable, 0 if alignable not known
-  /// between this ID and the next there is enough 'space' to add parameter
-  /// numbers 0...nPar-1 to make unique IDs for the labels of active parameters
-  unsigned int alignableLabel(Alignable *alignable) const;
-  unsigned int parameterLabel(unsigned int aliLabel, unsigned int parNum) const;
-  
-  /// parameter number, 0 <= .. < theMaxNumParam, belonging to unique parameter label
-  unsigned int paramNumFromLabel(unsigned int paramLabel) const;
-  /// alignable label from parameter label (works also for alignable label...)
-  unsigned int alignableLabelFromLabel(unsigned int label) const;
-  /// alignable from alignable or parameter label
-  Alignable* alignableFromLabel(unsigned int label) const;
   /// True if 'ali' was deselected from hierarchy and any ancestor (e.g. mother) has parameters.
   bool isNoHiera(const Alignable* ali) const;
 
@@ -67,15 +58,11 @@ class PedeSteerer
   int parameterSign() const { return myParameterSign; }
   /// directory from constructor input, '/' is attached if needed
   const std::string& directory() const { return myDirectory;}
+  inline const PedeLabeler& labels() const { return myLabels;}
 
  private:
-  typedef std::map <Alignable*, unsigned int> AlignableToIdMap;
-  typedef AlignableToIdMap::value_type AlignableToIdPair;
-  typedef std::map <unsigned int, Alignable*> IdToAlignableMap;
   typedef std::map<const Alignable*,std::vector<float> > AlignablePresigmasMap;
 
-  unsigned int buildMap(Alignable *highestLevelAli1, Alignable *highestLevelAli2);
-  unsigned int buildReverseMap();
   /// Store Alignables that have SelectionUserVariables attached to their AlignmentParameters
   /// (these must exist) that indicate removal from hierarchy, i.e. make it 'top level'.
   unsigned int buildNoHierarchyCollection(const std::vector<Alignable*> &alis);
@@ -116,21 +103,18 @@ class PedeSteerer
   std::ofstream* createSteerFile(const std::string &name, bool addToList);
 
   // data members
-  const AlignmentParameterStore *myParameterStore;
+  const AlignmentParameterStore *myParameterStore; // not the owner!
+  const PedeLabeler              myLabels;
+
   edm::ParameterSet myConfig;
   std::string myDirectory; /// directory of all files
   int myParameterSign; /// old pede versions (before May '07) need a sign flip...
 
   std::vector<std::string> mySteeringFiles; /// keeps track of created 'secondary' steering files
-  AlignableToIdMap  myAlignableToIdMap; /// providing unique ID for alignable, space for param IDs
-  IdToAlignableMap  myIdToAlignableMap; /// reverse map
 
   std::set<const Alignable*> myNoHieraCollection; /// Alignables deselected for hierarchy constr.
   Alignable *theCoordMaster;                      /// master coordinates, must (?) be global frame
   std::vector<Alignable*> theCoordDefiners;      /// Alignables selected to define coordinates
-  
-  static const unsigned int theMaxNumParam;
-  static const unsigned int theMinLabel;
 };
 
 #endif

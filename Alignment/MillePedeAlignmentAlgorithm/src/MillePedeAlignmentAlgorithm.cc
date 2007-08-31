@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.16.2.7 $
- *  $Date: 2007/08/15 08:38:19 $
+ *  $Revision: 1.23 $
+ *  $Date: 2007/08/15 10:00:05 $
  *  (last update by $Author: flucke $)
  */
 
@@ -26,6 +26,7 @@
 #include "Mille.h"       // 'unpublished' interface located in src
 #include "PedeSteerer.h" // dito
 #include "PedeReader.h" // dito
+#include "PedeLabeler.h" // dito
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectoryBase.h"
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"
@@ -296,7 +297,7 @@ bool MillePedeAlignmentAlgorithm
   if (params) {
     if (!lowestParams) lowestParams = params; // set parameters of lowest level
 
-    const unsigned int alignableLabel = thePedeSteer->alignableLabel(ali);
+    const unsigned int alignableLabel = thePedeSteer->labels().alignableLabel(ali);
     if (0 == alignableLabel) { // FIXME: what about regardAllHits in Markus' code?
       edm::LogWarning("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::globalDerivativesHierarchy"
                                    << "Label not found, skip Alignable.";
@@ -310,7 +311,7 @@ bool MillePedeAlignmentAlgorithm
       if (selPars[iSel]) {
         globalDerivativesX.push_back(derivs[iSel][kLocalX]
 				     /thePedeSteer->cmsToPedeFactor(iSel));
-        globalLabels.push_back(thePedeSteer->parameterLabel(alignableLabel, iSel));
+        globalLabels.push_back(thePedeSteer->labels().parameterLabel(alignableLabel, iSel));
         if (is2DHit) {
 	  globalDerivativesY.push_back(derivs[iSel][kLocalY]
 				       /thePedeSteer->cmsToPedeFactor(iSel));

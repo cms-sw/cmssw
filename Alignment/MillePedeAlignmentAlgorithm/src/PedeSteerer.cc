@@ -3,12 +3,13 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.13 $
- *  $Date: 2007/06/21 17:01:30 $
+ *  $Revision: 1.14 $
+ *  $Date: 2007/07/12 17:32:39 $
  *  (last update by $Author: flucke $)
  */
 
 #include "PedeSteerer.h"
+#include "PedeLabeler.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -37,14 +38,10 @@
 #include <TSystem.h>
 #include <TMath.h>
 
-// NOTE: The '+4', is backward incompatible for results with older binary files...
-const unsigned int PedeSteerer::theMaxNumParam = RigidBodyAlignmentParameters::N_PARAM + 4;
-const unsigned int PedeSteerer::theMinLabel = 1; // must be > 0
-
 PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon,
 			 AlignmentParameterStore *store,
-			 const edm::ParameterSet &config, const std::string &defaultDir) :
-  myParameterStore(store), myConfig(config),
+                         const edm::ParameterSet &config, const std::string &defaultDir) :
+  myParameterStore(store), myLabels(aliTracker, aliMuon), myConfig(config),
   myDirectory(myConfig.getUntrackedParameter<std::string>("fileDir")),
   myParameterSign(myConfig.getUntrackedParameter<int>("parameterSign")),
   theCoordMaster(0)
@@ -60,7 +57,6 @@ PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon,
     myDirectory += '/'; // directory may need '/'
   }
 
-  this->buildMap(aliTracker, aliMuon); //has to be done first
   const std::vector<Alignable*> &alis = myParameterStore->alignables();
 
   // Coordinate system selection and correction before fixing, at least for fixing at truth:
@@ -121,101 +117,6 @@ PedeSteerer::~PedeSteerer()
 {
 }
 
-//___________________________________________________________________________
-/// Return 32-bit unique label for alignable, 0 indicates failure.
-unsigned int PedeSteerer::alignableLabel(Alignable *alignable) const
-{
-  if (!alignable) return 0;
-
-  AlignableToIdMap::const_iterator position = myAlignableToIdMap.find(alignable);
-  if (position != myAlignableToIdMap.end()) {
-    return position->second;
-  } else {
-    //throw cms::Exception("LogicError") 
-    edm::LogWarning("LogicError")
-      << "@SUB=PedeSteerer::alignableLabel" << "Alignable "
-      << typeid(*alignable).name() << " not in map";
-    return 0;
-  }
-
-  /*
-// following ansatz does not work since the maximum label allowed by pede is 99 999 999...
-//   TrackerAlignableId idProducer;
-//   const DetId detId(alignable->geomDetId()); // does not work: only AlignableDet(Unit) has DetId...
-//  if (detId.det() != DetId::Tracker) {
-  const unsigned int detOffset = 28; // would like to use definition from DetId
-  const TrackerAlignableId::UniqueId uniqueId(idProducer.alignableUniqueId(alignable));
-  const uint32_t detId = uniqueId.first; // uniqueId is a pair...
-  const uint32_t det = detId >> detOffset; // most significant bits are detector part
-  if (det != DetId::Tracker) {
-    //throw cms::Exception("LogicError") 
-    edm::LogWarning("LogicError") << "@SUB=PedeSteerer::alignableLabel "
-      << "Expecting DetId::Tracker (=" << DetId::Tracker << "), but found "
-      << det << " which would make the pede labels ambigous. "
-      << typeid(*alignable).name() << " " << detId;
-    return 0;
-  }
-  // FIXME: Want: const AlignableObjectId::AlignableObjectIdType type = 
-  const unsigned int aType = static_cast<unsigned int>(uniqueId.second);// alignable->alignableObjectId();
-  if (aType != ((aType << detOffset) >> detOffset)) {
-    // i.e. too many bits (luckily we are  not the muon system...)
-    throw cms::Exception("LogicError")  << "@SUB=PedeSteerer::alignableLabel "
-      << "Expecting alignableTypeId with at most " << 32 - detOffset
-      << " bits, but the number is " << aType
-      << " which would make the pede labels ambigous.";
-    return 0;
-  }
-
-  const uint32_t detIdWithoutDet = (detId - (det << detOffset));
-  return detIdWithoutDet + (aType << detOffset);
-*/
-}
-
-//_________________________________________________________________________
-unsigned int PedeSteerer::parameterLabel(unsigned int aliLabel, unsigned int parNum) const
-{
-  if (parNum >= theMaxNumParam) {
-    throw cms::Exception("Alignment") << "@SUB=PedeSteerer::parameterLabel" 
-                                      << "Parameter number " << parNum 
-                                      << " out of range 0 <= num < " << theMaxNumParam;
-  }
-  return aliLabel + parNum;
-}
-
-//___________________________________________________________________________
-unsigned int PedeSteerer::paramNumFromLabel(unsigned int paramLabel) const
-{
-  if (paramLabel < theMinLabel) {
-    edm::LogError("LogicError") << "@SUB=PedeSteerer::paramNumFromLabel"
-                                << "Label " << paramLabel << " should be >= " << theMinLabel;
-    return 0;
-  }
-  return (paramLabel - theMinLabel) % theMaxNumParam;
-}
-
-//___________________________________________________________________________
-unsigned int PedeSteerer::alignableLabelFromLabel(unsigned int paramLabel) const
-{
-  return paramLabel - this->paramNumFromLabel(paramLabel);
-}
-
-//___________________________________________________________________________
-Alignable* PedeSteerer::alignableFromLabel(unsigned int label) const
-{
-  const unsigned int aliLabel = this->alignableLabelFromLabel(label);
-  if (aliLabel < theMinLabel) return 0; // error already given
-  
-  if (myIdToAlignableMap.empty()) const_cast<PedeSteerer*>(this)->buildReverseMap();
-  IdToAlignableMap::const_iterator position = myIdToAlignableMap.find(aliLabel);
-  if (position != myIdToAlignableMap.end()) {
-    return position->second;
-  } else {
-    edm::LogError("LogicError") << "@SUB=PedeSteerer::alignableFromLabel"
-                                << "Alignable label " << aliLabel << " not in map";
-    return 0;
-  }
-}
-
 //_________________________________________________________________________
 bool PedeSteerer::isNoHiera(const Alignable* ali) const
 {
@@ -241,50 +142,6 @@ double PedeSteerer::cmsToPedeFactor(unsigned int parNum) const
   default:
     return 1.;
   }
-}
-
-//_________________________________________________________________________
-unsigned int PedeSteerer::buildMap(Alignable *highestLevelAli1, Alignable *highestLevelAli2)
-{
-
-  myAlignableToIdMap.clear(); // just in case of re-use...
-
-  std::vector<Alignable*> allComps;
-
-  if (highestLevelAli1) {
-    allComps.push_back(highestLevelAli1);
-    highestLevelAli1->recursiveComponents(allComps);
-  }
-  if (highestLevelAli2) {
-    allComps.push_back(highestLevelAli2);
-    highestLevelAli2->recursiveComponents(allComps);
-  }
-
-  unsigned int id = theMinLabel;
-  for (std::vector<Alignable*>::const_iterator iter = allComps.begin();
-       iter != allComps.end(); ++iter) {
-    myAlignableToIdMap.insert(AlignableToIdPair(*iter, id));
-    id += theMaxNumParam;
-  }
-  
-  return allComps.size();
-}
-
-
-//_________________________________________________________________________
-unsigned int PedeSteerer::buildReverseMap()
-{
-
-  myIdToAlignableMap.clear();  // just in case of re-use...
-
-  for (AlignableToIdMap::iterator it = myAlignableToIdMap.begin();
-       it != myAlignableToIdMap.end(); ++it) {
-    const unsigned int key = (*it).second;
-    Alignable *ali = (*it).first;
-    myIdToAlignableMap[key] = ali;
-  }
-
-  return myIdToAlignableMap.size();
 }
 
 //_________________________________________________________________________
@@ -386,8 +243,8 @@ int PedeSteerer::fixParameter(Alignable *ali, unsigned int iParam, char selector
     }
     std::ofstream &file = *filePtr;
 
-    const unsigned int aliLabel = this->alignableLabel(ali);
-    file << this->parameterLabel(aliLabel, iParam) << "  " 
+    const unsigned int aliLabel = myLabels.alignableLabel(ali);
+    file << myLabels.parameterLabel(aliLabel, iParam) << "  " 
          << fixAt * this->cmsToPedeFactor(iParam) << " -1.0";
     if (0) { // debug
       const GlobalPoint position(ali->globalPosition());
@@ -571,8 +428,8 @@ void PedeSteerer::hierarchyConstraint(const Alignable *ali,
 	if (0) aConstr << "* Taken out of hierarchy: "; // conflict with !aConstr.str().empty()
 	else continue;
       }
-      const unsigned int aliLabel = this->alignableLabel(aliSubComp);
-      const unsigned int paramLabel = this->parameterLabel(aliLabel, compParNum);
+      const unsigned int aliLabel = myLabels.alignableLabel(aliSubComp);
+      const unsigned int paramLabel = myLabels.parameterLabel(aliLabel, compParNum);
       // FIXME: multiply by cmsToPedeFactor(subcomponent)/cmsToPedeFactor(mother) (or vice a versa?)
       aConstr << paramLabel << "    " << factors[iParam];
       if (true) { // debug
@@ -587,7 +444,7 @@ void PedeSteerer::hierarchyConstraint(const Alignable *ali,
       if (true) { //debug
 	const TrackerAlignableId aliId;
 	file << "\n* Nr. " << iConstr << " of a '" << aliId.alignableTypeName(ali) << "' (label "
-	     << this->alignableLabel(const_cast<Alignable*>(ali)) // ugly cast: FIXME!
+	     << myLabels.alignableLabel(const_cast<Alignable*>(ali)) // ugly cast: FIXME!
 	     << "), layer " << aliId.typeAndLayerFromAlignable(ali).second
 	     << ", position " << ali->globalPosition()
 	     << ", r = " << ali->globalPosition().perp();
@@ -676,8 +533,8 @@ unsigned int PedeSteerer::presigmasFile(const std::string &fileName,
         filePtr = this->createSteerFile(fileName, true);
         (*filePtr) << "* Presigma values for active parameters: \nParameter\n";
       }
-      const unsigned int aliLabel = this->alignableLabel(*iAli);
-      (*filePtr) << this->parameterLabel(aliLabel, iParam) << "   0.   " 
+      const unsigned int aliLabel = myLabels.alignableLabel(*iAli);
+      (*filePtr) << myLabels.parameterLabel(aliLabel, iParam) << "   0.   " 
                  << presigmas[iParam] * fabs(this->cmsToPedeFactor(iParam)) 
 		 << "  ! for a " << aliObjId.typeToName((*iAli)->alignableObjectId()) << '\n';
       ++nPresiParam;
