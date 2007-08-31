@@ -1,5 +1,5 @@
 from Mixins import _SimpleParameterTypeBase, _ParameterTypeBase, _Parameterizable, _ConfigureComponent, _Labelable, _TypedParameterizable, _Unlabelable
-from Mixins import _ValidatingListBase
+from Mixins import _ValidatingParameterListBase
 from ExceptionHandling import format_typename, format_outerframe
 
 import codecs
@@ -277,45 +277,6 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
         newpset = parameterSet.newPSet()
         self.insertContentsInto(newpset)
         parameterSet.addPSet(self.isTracked(), myname, newpset)
-
-
-class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
-    def __init__(self,*arg,**args):
-        _ParameterTypeBase.__init__(self)
-        super(_ValidatingParameterListBase,self).__init__(*arg,**args)
-    def value(self):
-        return list(self)
-    def setValue(self,v):
-        self[:] = []
-        self.extend(v)
-    def configValue(self,indent,deltaIndent):
-        config = '{\n'
-        first = True
-        for value in iter(self):
-            config +=indent+deltaIndent
-            if not first:
-                config+=', '
-            config+=  self.configValueForItem(value,indent,deltaIndent)+'\n'
-            first = False
-        config += indent+'}\n'
-        return config
-    def configValueForItem(self,item,indent,deltaIndent):
-        return str(item)
-    def pythonValueForItem(self,item,indent,deltaIndent):
-        return self.configValueForItem(item,indent,deltaIndent)
-    def dumpPython(self,indent,deltaIndent):
-        result = "cms."+type(self).__name__+"("
-        first = True
-        for value in iter(self):
-            if not first:
-                result+=', '
-            result+=self.pythonValueForItem(value, indent,deltaIndent)
-            first = False
-        result += ')'
-        return result
-    @staticmethod
-    def _itemsFromStrings(strings,converter):
-        return (converter(x).value() for x in strings)
 
 
 class vint32(_ValidatingParameterListBase):
