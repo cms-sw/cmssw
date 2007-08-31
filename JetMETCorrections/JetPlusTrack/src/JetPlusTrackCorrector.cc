@@ -94,7 +94,7 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
       double pto = 0.;
       
       vector<reco::Track>  tmp;
-      for (reco::track_iterator track = (*pv).tracks_begin();
+      for (reco::Vertex::trackRef_iterator track = (*pv).tracks_begin();
                 track != (*pv).tracks_end(); track++)
 		{
 		   pto = pto + (*track)->pt();
