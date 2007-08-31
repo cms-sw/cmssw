@@ -15,7 +15,7 @@
 // Modified by Eduardo Luiggi
 //
 //         Created:  Tue Oct 31 10:52:41 CET 2006
-// $Id: JetVertexAssociation.cc,v 1.5 2007/05/03 22:47:48 wmtan Exp $
+// $Id: JetVertexAssociation.cc,v 1.6 2007/08/23 17:15:26 ratnik Exp $
 //
 //
 
@@ -94,7 +94,7 @@ namespace cms{
 
                 SIGNAL_V_Z = vert->z();
                 double pt = 0.;
-                reco::track_iterator tr = vert->tracks_begin();
+                reco::Vertex::trackRef_iterator tr = vert->tracks_begin();
                 for (; tr != vert->tracks_end(); tr++)  pt += (*tr)->pt();
                 if( pt >= ptmax ){
  
