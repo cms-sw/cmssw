@@ -6,8 +6,8 @@
  *  Makes histograms of high level Muon objects/quantities
  *  for Alignment Scenarios/DB comparison
  *
- *  $Date: 2007/07/24 15:15:24 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/08/29 17:53:05 $
+ *  $Revision: 1.9 $
  *  \author J. Fernandez - IFCA (CSIC-UC) <Javier.Fernandez@cern.ch>
  */
 
@@ -67,16 +67,16 @@ private:
   // Histograms
 
   //# muons per event
-  TH1F  *hGBNmuons;
-  TH1F  *hSANmuons;
-  TH1F  *hSimNmuons;
-  TH1F  *hGBNmuons_Barrel;
-  TH1F  *hSANmuons_Barrel;
-  TH1F  *hSimNmuons_Barrel;
-  TH1F  *hGBNmuons_Endcap;
-  TH1F  *hSANmuons_Endcap;
-  TH1F  *hSimNmuons_Endcap;
-  
+  TH1F	*hGBNmuons;
+  TH1F	*hSANmuons;
+  TH1F	*hSimNmuons;
+  TH1F	*hGBNmuons_Barrel;
+  TH1F	*hSANmuons_Barrel;
+  TH1F	*hSimNmuons_Barrel;
+  TH1F	*hGBNmuons_Endcap;
+  TH1F	*hSANmuons_Endcap;
+  TH1F	*hSimNmuons_Endcap;
+
   // # hits per track
   TH1F  *hGBNhits;
   TH1F  *hGBNhits_Barrel;
@@ -128,6 +128,11 @@ private:
   TH2F *hSimPTvsEta;
   TH2F *hSimPTvsPhi;
 
+  // For reco efficiency calculations
+  TH2F *hSimPhivsEta;
+  TH2F *hSAPhivsEta;
+  TH2F *hGBPhivsEta;
+
   // pT resolution
   TH1F *hSAPTres;
   TH1F *hSAinvPTres;
@@ -144,11 +149,12 @@ private:
   TH2F *hSAPTDiffvsPhi;
   TH2F *hGBPTDiffvsEta;
   TH2F *hGBPTDiffvsPhi;
-  TH2F	*hGBinvPTvsEta;
-  TH2F	*hGBinvPTvsPhi;
-  TH2F	*hSAinvPTvsEta;
-  TH2F	*hSAinvPTvsPhi;
-
+  TH2F *hGBinvPTvsEta;
+  TH2F *hGBinvPTvsPhi;
+  TH2F *hSAinvPTvsEta;
+  TH2F *hSAinvPTvsPhi;
+  TH2F *hSAinvPTvsNhits;
+  TH2F *hGBinvPTvsNhits;
 
   // Vector of chambers Residuals
   std::vector<TH1F *> unitsRPhi;

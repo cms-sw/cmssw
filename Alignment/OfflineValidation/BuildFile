@@ -6,6 +6,7 @@
 <use name=FWCore/ServiceRegistry>
 <use name=RecoMuon/TrackingTools>
 <use name=TrackingTools/TransientTrack>
+<use name=SimDataFormats/Track>
 <use name=CLHEP>
 <use name=root>
 <flags EDM_PLUGIN=1>
