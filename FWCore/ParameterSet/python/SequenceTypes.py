@@ -1,7 +1,7 @@
 
 from Mixins import _ConfigureComponent
 from Mixins import _Labelable, _Unlabelable
-from Mixins import _ValidatingListBase
+from Mixins import _ValidatingParameterListBase
 from ExceptionHandling import *
 
 class _Sequenceable(object):
@@ -183,7 +183,7 @@ class Sequence(_ModuleSequenceType,_Sequenceable):
         return lookuptable[id(self)]
 
 
-class Schedule(_ValidatingListBase,_ConfigureComponent,_Unlabelable):
+class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
     def __init__(self,*arg,**argv):
         super(Schedule,self).__init__(*arg,**argv)
     @staticmethod
@@ -194,3 +194,4 @@ class Schedule(_ValidatingListBase,_ConfigureComponent,_Unlabelable):
         return copy.copy(self)
     def _place(self,label,process):
         process.setSchedule_(self)
+
