@@ -36,6 +36,9 @@
 CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet& pset):edm::EDProducer(),mapping(0),monitor(0){
 	LogDebug("CSCTFUnpacker|ctor")<<"Started ...";
 
+	m_minBX = pset.getUntrackedParameter<int>("MinBX",-3);
+	m_maxBX = pset.getUntrackedParameter<int>("MaxBX",3);
+
 	// Initialize slot<->sector assignment
 	slot2sector = pset.getUntrackedParameter< std::vector<int> >("slot2sector",std::vector<int>(0));
 	if( slot2sector.size() != 22 ){
@@ -44,14 +47,14 @@ CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet& pset):edm::EDProducer(),ma
 		// Use default assignment
 		LogDebug("CSCTFUnpacker|ctor")<<"Creating default slot<->sector assignment";
 		slot2sector.resize(22);
-		slot2sector[0] = 0; slot2sector[1] = 0; slot2sector[2] = 0;
+		slot2sector[0] = 6; slot2sector[1] = 0; slot2sector[2] = 0;
 		slot2sector[3] = 0; slot2sector[4] = 0; slot2sector[5] = 0;
-		slot2sector[6] = 1; slot2sector[7] = 2; slot2sector[8] = 3;
-		slot2sector[9] = 4; slot2sector[10]= 5; slot2sector[11]= 6;
+		slot2sector[6] = 0; slot2sector[7] = 0; slot2sector[8] = 0;
+		slot2sector[9] = 0; slot2sector[10]= 0; slot2sector[11]= 0;
 		slot2sector[12]= 0; slot2sector[13]= 0;
 		slot2sector[14]= 0; slot2sector[15]= 0;
-		slot2sector[16]= 7; slot2sector[17]= 8; slot2sector[18]= 9;
-		slot2sector[19]=10; slot2sector[20]=11; slot2sector[21]=12;
+		slot2sector[16]= 0; slot2sector[17]= 0; slot2sector[18]= 0;
+		slot2sector[19]= 0; slot2sector[20]= 0; slot2sector[21]= 0;
 	} else {
 		LogDebug("CSCTFUnpacker|ctor")<<"Reassigning slot<->sector map according to 'untracked vint32 slot2sector'";
 		for(int slot=0; slot<22; slot++)
@@ -123,6 +126,14 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 				status.l1a_bxn    = sp->header().BXN();
 				status.fmm_status = sp->header().status();
 
+				// Finds central LCT BX
+				// assumes window is odd number of bins
+				int central_lct_bx = (m_maxBX + m_minBX)/2;
+
+				// Find central SP BX
+				// assumes window is odd number of bins
+				int central_sp_bx = int(sp->header().nTBINs()/2);
+
 				for(unsigned int tbin=0; tbin<sp->header().nTBINs(); tbin++){
 
 					status.se |= sp->record(tbin).SEs();
@@ -160,7 +171,8 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 								// corrlcts now have no layer associated with them
 								LCTProduct->insertDigi(id,CSCCorrelatedLCTDigi(0,lct[0].vp(),lct[0].quality(),lct[0].wireGroup(),
 													       lct[0].strip(),lct[0].pattern(),lct[0].l_r(),
-													       lct[0].tbin(),lct[0].link() ));
+													       (lct[0].tbin()+(central_lct_bx-central_sp_bx)),
+													       lct[0].link() ));
 
 // LogDebug("CSCUnpacker|produce") << "Unpacked digi: "<< aFB.frontDigiData(FPGA,MPClink);
 
@@ -186,8 +198,9 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 
 						track.first.m_lphi      = iter->phi();
 						track.first.m_ptAddress = iter->ptLUTaddress();
+						track.first.m_ptAddress|=(iter->f_r() << 21);
 						track.first.setStationIds(iter->ME1_id(),iter->ME2_id(),iter->ME3_id(),iter->ME4_id(),iter->MB_id());
-						track.first.setBx(iter->tbin());
+						track.first.setBx(iter->tbin()-central_sp_bx);
 
 						track.first.setPhiPacked(iter->phi());
 						track.first.setEtaPacked(iter->eta());
@@ -213,8 +226,9 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 							try{
 								CSCDetId id = mapping->detId(track.first.m_endcap,station,track.first.m_sector,subsector,lct->csc(),0);
 								track.second.insertDigi(id,CSCCorrelatedLCTDigi(0,lct->vp(),lct->quality(),lct->wireGroup(),
-													     lct->strip(),lct->pattern(),lct->l_r(),
-													     lct->tbin(),lct->link() ));
+														lct->strip(),lct->pattern(),lct->l_r(),
+														(lct->tbin()+(central_lct_bx-central_sp_bx)),
+														lct->link() ));
 							} catch(cms::Exception &e) {
 								edm::LogInfo("CSCTFUnpacker|produce") << e.what() << "Not adding track digi to collection in event"
 								      <<sp->header().L1A()<<" (endcap="<<track.first.m_endcap<<",station="<<station<<",sector="<<track.first.m_sector<<",subsector="<<subsector<<",cscid="<<lct->csc()<<",spSlot="<<sp->header().slot()<<")";

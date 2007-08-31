@@ -16,6 +16,8 @@ class CSCTFMonitorInterface;
 
 class CSCTFUnpacker: public edm::EDProducer {
 private:
+	int m_minBX, m_maxBX;
+
 	CSCTriggerMapping     *mapping; // redundant, but needed
 	CSCTFMonitorInterface *monitor; // not in use so far
 
