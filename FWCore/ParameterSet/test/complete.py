@@ -5,7 +5,7 @@
 # language and the Python representation of the configuration
 # description that is used by the Data Management tools.
 #
-# $Id: complete.py,v 1.3 2007/08/17 03:26:14 rpw Exp $
+# $Id: complete.py,v 1.4 2007/08/29 23:26:43 rpw Exp $
 #
 #------------------------------------------------------------
 
@@ -104,6 +104,8 @@ process.p1 = cms.Path((process.a+process.b)* process.c )
 process.p2 = cms.Path(process.s1+ (process.s3*process.s2) )
   
 process.ep1 = cms.EndPath(process.y*process.z)
+
+process.schedule = cms.Schedule(process.p1, process.p2, process.ep1)
 
 process.ess1 = cms.ESSource("ESSType1",
     b=cms.int32(2)
