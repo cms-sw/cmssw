@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.14 $
- *  $Date: 2007/07/12 17:32:39 $
+ *  $Revision: 1.15 $
+ *  $Date: 2007/08/31 17:24:28 $
  *  (last update by $Author: flucke $)
  */
 
@@ -40,9 +40,11 @@
 
 PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon,
 			 AlignmentParameterStore *store,
-                         const edm::ParameterSet &config, const std::string &defaultDir) :
+                         const edm::ParameterSet &config, const std::string &defaultDir,
+			 bool noSteerFiles) :
   myParameterStore(store), myLabels(aliTracker, aliMuon), myConfig(config),
   myDirectory(myConfig.getUntrackedParameter<std::string>("fileDir")),
+  myNoSteerFiles(noSteerFiles),
   myParameterSign(myConfig.getUntrackedParameter<int>("parameterSign")),
   theCoordMaster(0)
 {
@@ -548,14 +550,16 @@ unsigned int PedeSteerer::presigmasFile(const std::string &fileName,
 //_________________________________________________________________________
 std::ofstream* PedeSteerer::createSteerFile(const std::string &name, bool addToList)
 {
-  std::ofstream *result = new std::ofstream(name.c_str(), std::ios::out);
+  const std::string realName(myNoSteerFiles ? "/dev/null" : name.c_str());
+
+  std::ofstream *result = new std::ofstream(realName.c_str(), std::ios::out);
   if (!result || !result->is_open()) {
     delete result; // needed before exception in case just open failed
     throw cms::Exception("FileOpenProblem") << "[PedeSteerer::createSteerFile]" 
-					    << "Could not open " << name 
+					    << "Could not open " << realName 
 					    << " as output file.";
   } else if (addToList) {
-    mySteeringFiles.push_back(name); // keep track
+    mySteeringFiles.push_back(realName); // keep track
   }
 
   return result;

@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.23 $
- *  $Date: 2007/08/15 10:00:05 $
+ *  $Revision: 1.24 $
+ *  $Date: 2007/08/31 17:24:28 $
  *  (last update by $Author: flucke $)
  */
 
@@ -97,7 +97,8 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
   theAlignables = theAlignmentParameterStore->alignables();
 
   edm::ParameterSet pedeSteerCfg(theConfig.getParameter<edm::ParameterSet>("pedeSteerer"));
-  thePedeSteer = new PedeSteerer(tracker, muon, theAlignmentParameterStore, pedeSteerCfg, theDir);
+  thePedeSteer = new PedeSteerer(tracker, muon, theAlignmentParameterStore, pedeSteerCfg, theDir,
+				 !this->isMode(myPedeSteerBit));
   // After (!) PedeSteerer which uses the SelectionUserVariables attached to the parameters:
   this->buildUserVariables(theAlignables); // for hit statistics and/or pede result
 
@@ -523,7 +524,7 @@ unsigned int MillePedeAlignmentAlgorithm::decodeMode(const std::string &mode) co
   } else if (mode == "pedeSteer") {
     return myPedeSteerBit;
   } else if (mode == "pedeRun") {
-    return myPedeRunBit + myPedeReadBit; // sic! Including reading of result.
+    return myPedeSteerBit + myPedeRunBit + myPedeReadBit; // sic! Including steering and reading of result.
   } else if (mode == "pedeRead") {
     return myPedeReadBit;
   }

@@ -8,8 +8,8 @@
  *
  * \author    : Gero Flucke
  * date       : October 2006
- * $Date: 2007/07/12 17:32:39 $
- * $Revision: 1.11 $
+ * $Date: 2007/08/31 17:24:29 $
+ * $Revision: 1.12 $
  * (last update by $Author: flucke $)
  */
 
@@ -38,7 +38,8 @@ class PedeSteerer
   /// constructor from AlignableTracker/AlignableMuon, their AlignmentParameterStore
   /// (NOTE: The latter must live longer than the constructed PedeSteerer!)
   PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon, AlignmentParameterStore *store,
-	      const edm::ParameterSet &config, const std::string &defaultDir = "");
+	      const edm::ParameterSet &config, const std::string &defaultDir,
+	      bool noSteerFiles);
   /** non-virtual destructor: do not inherit from this class **/
   ~PedeSteerer();
     
@@ -108,6 +109,7 @@ class PedeSteerer
 
   edm::ParameterSet myConfig;
   std::string myDirectory; /// directory of all files
+  bool myNoSteerFiles; /// flag to write steering files to /dev/null
   int myParameterSign; /// old pede versions (before May '07) need a sign flip...
 
   std::vector<std::string> mySteeringFiles; /// keeps track of created 'secondary' steering files
