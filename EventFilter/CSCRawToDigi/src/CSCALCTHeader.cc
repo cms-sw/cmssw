@@ -136,10 +136,10 @@ std::vector<CSCALCTDigi> CSCALCTHeader::ALCTDigis() const
     {
       CSCALCTDigi digi0(alcts2006.alct0_valid, alcts2006.alct0_quality, alcts2006.alct0_accel,
 			alcts2006.alct0_pattern, alcts2006.alct0_key_wire,
-			alcts2006.alct0_bxn_low|(alcts2006.alct0_bxn_high<<3),0);
+			alcts2006.alct0_bxn_low|(alcts2006.alct0_bxn_high<<3),1);
       CSCALCTDigi digi1(alcts2006.alct1_valid, alcts2006.alct1_quality, alcts2006.alct1_accel,
 			alcts2006.alct1_pattern, alcts2006.alct1_key_wire,
-			alcts2006.alct1_bxn_low|(alcts2006.alct1_bxn_high<<3),1);
+			alcts2006.alct1_bxn_low|(alcts2006.alct1_bxn_high<<3),2);
       digi0.setFullBX(BXNCount()); digi1.setFullBX(BXNCount());
       result.push_back(digi0); result.push_back(digi1);
       break;
@@ -148,7 +148,7 @@ std::vector<CSCALCTDigi> CSCALCTHeader::ALCTDigis() const
     {
       for (unsigned int i=0; i<alcts.size(); ++i) {///loop over all alct words
 	CSCALCTDigi digi(alcts[i].valid, alcts[i].quality, alcts[i].accel, alcts[i].pattern,
-			 alcts[i].keyWire, (int)i/2, i);
+			 alcts[i].keyWire, (int)i/2, i+1);
 	digi.setFullBX(BXNCount());
 	result.push_back(digi);
       }
