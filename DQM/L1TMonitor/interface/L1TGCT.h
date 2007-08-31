@@ -5,11 +5,17 @@
 /*
  * \file L1TGCT.h
  *
- * $Date: 2007/02/19 22:49:53 $
- * $Revision: 1.3 $
+ * $Date: 2007/02/22 19:43:52 $
+ * $Revision: 1.4 $
  * \author J. Berryhill
- * $Id: L1TGCT.h,v 1.3 2007/02/19 22:49:53 wittich Exp $
+ * $Id: L1TGCT.h,v 1.4 2007/02/22 19:43:52 berryhil Exp $
  * $Log: L1TGCT.h,v $
+ * Revision 1.4  2007/02/22 19:43:52  berryhil
+ *
+ *
+ *
+ * InputTag parameters added for all modules
+ *
  * Revision 1.3  2007/02/19 22:49:53  wittich
  * - Add RCT monitor
  *
@@ -41,7 +47,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // DQM
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"

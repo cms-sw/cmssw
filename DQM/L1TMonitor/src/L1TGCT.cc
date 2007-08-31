@@ -1,13 +1,19 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2007/02/20 22:49:00 $
- * $Revision: 1.5 $
+ * $Date: 2007/02/22 19:43:53 $
+ * $Revision: 1.6 $
  * \author J. Berryhill
  *
  *  Initial version largely stolen from GCTMonitor (wittich 2/07)
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.6  2007/02/22 19:43:53  berryhil
+ *
+ *
+ *
+ * InputTag parameters added for all modules
+ *
  * Revision 1.5  2007/02/20 22:49:00  wittich
  * - change from getByType to getByLabel in ECAL TPG,
  *   and make it configurable.
@@ -31,6 +37,7 @@
  */
 
 #include "DQM/L1TMonitor/interface/L1TGCT.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Trigger Headers
 
@@ -275,7 +282,8 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
     e.getByLabel(gctSource_, l1eEtMiss);
   }
   catch (...) {
-    std::cerr << "L1TGCT: could not find one of the classes?" << std::endl;
+    edm::LogInfo("L1TGCT") << " Could not find one of the requested data "
+      "elements." ;
     return;
   }
 
