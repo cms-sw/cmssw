@@ -46,16 +46,13 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
   // These declarations create handles to the types of records that you want
   // to retrieve from event "e".
   //
-  /*
-    edm::Handle<CSCWireDigiCollection> wires;
-    edm::Handle<CSCStripDigiCollection> strips;
-    edm::Handle<CSCComparatorDigiCollection> comparators;
-    edm::Handle<CSCALCTDigiCollection> alcts;
-    edm::Handle<CSCCLCTDigiCollection> clcts;
-    edm::Handle<CSCRPCDigiCollection> rpcs;
-    edm::Handle<CSCCorrelatedLCTDigiCollection> correlatedlcts;
-  */
-
+  edm::Handle<CSCWireDigiCollection> wires;
+  edm::Handle<CSCStripDigiCollection> strips;
+  edm::Handle<CSCComparatorDigiCollection> comparators;
+  edm::Handle<CSCALCTDigiCollection> alcts;
+  edm::Handle<CSCCLCTDigiCollection> clcts;
+  edm::Handle<CSCRPCDigiCollection> rpcs;
+  edm::Handle<CSCCorrelatedLCTDigiCollection> correlatedlcts;
   edm::Handle<CSCDDUStatusDigiCollection> dduStatusDigi;
 
   // Pass the handle to the method "getByType", which is used to retrieve
@@ -63,22 +60,21 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
   // zero or more than one instance exists in the event an exception is thrown.
   //
 
-  e.getByLabel("cscunpacker","MuonCSCDDUStatusDigi", dduStatusDigi);
-
-  /*e.getByLabel("cscunpacker","MuonCSCWireDigi",wires);
-    e.getByLabel("cscunpacker","MuonCSCStripDigi",strips);
-    e.getByLabel("cscunpacker","MuonCSCComparatorDigi",comparators);
-    e.getByLabel("cscunpacker","MuonCSCALCTDigi",alcts);
-    e.getByLabel("cscunpacker","MuonCSCCLCTDigi",clcts);
-    e.getByLabel("cscunpacker","MuonCSCRPCDigi",rpcs);
-    e.getByLabel("cscunpacker","MuonCSCCorrelatedLCTDigi",correlatedlcts);
-  */
+  // e.getByLabel("muonCSCDigis","MuonCSCDDUStatusDigi", dduStatusDigi);
+  //e.getByLabel("muonCSCDigis","MuonCSCWireDigi",wires);
+  //  e.getByLabel("muonCSCDigis","MuonCSCStripDigi",strips);
+  //   e.getByLabel("muonCSCDigis","MuonCSCComparatorDigi",comparators);
+  e.getByLabel("muonCSCDigis","MuonCSCALCTDigi",alcts);
+  //  e.getByLabel("muonCSCDigis","MuonCSCCLCTDigi",clcts);
+  // e.getByLabel("muonCSCDigis","MuonCSCRPCDigi",rpcs);
+  //e.getByLabel("muonCSCDigis","MuonCSCCorrelatedLCTDigi",correlatedlcts);
+  
   
    
   // read digi collections and print digis
   //
   
-  for (CSCDDUStatusDigiCollection::DigiRangeIterator j=dduStatusDigi->begin(); j!=dduStatusDigi->end(); j++) {
+  /*for (CSCDDUStatusDigiCollection::DigiRangeIterator j=dduStatusDigi->begin(); j!=dduStatusDigi->end(); j++) {
     std::vector<CSCDDUStatusDigi>::const_iterator digiItr = (*j).second.first;
     std::vector<CSCDDUStatusDigi>::const_iterator last = (*j).second.second;
     for( ; digiItr != last; ++digiItr) {
@@ -87,7 +83,7 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
       std::cout <<"DDU number = " << header.source_id() << std::endl;
     }
   }
-  
+  */
   /*
   for (CSCStripDigiCollection::DigiRangeIterator j=strips->begin(); j!=strips->end(); j++) {
     std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
@@ -108,7 +104,7 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
   }
 
 
-
+  */
   for (CSCALCTDigiCollection::DigiRangeIterator j=alcts->begin(); j!=alcts->end(); j++) {
  
     std::vector<CSCALCTDigi>::const_iterator digiItr = (*j).second.first;
@@ -117,7 +113,7 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
       digiItr->print();
     }
   }
-
+  /*
 
 
   for (CSCCLCTDigiCollection::DigiRangeIterator j=clcts->begin(); j!=clcts->end(); j++) {
