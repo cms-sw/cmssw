@@ -6,6 +6,9 @@
 <use name=DataFormats/V0Candidate>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/VertexReco>
+<use name=Geometry/CommonDetUnit>
+<use name=Geometry/Records>
+<use name=Geometry/TrackerGeometryBuilder>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=MagneticField/Records>
@@ -20,6 +23,9 @@
   <use name=DataFormats/Common>
   <use name=DataFormats/RecoCandidate>
   <use name=DataFormats/V0Candidate>
+  <use name=Geometry/CommonDetUnit>
+  <use name=Geometry/Records>
+  <use name=Geometry/TrackerGeometryBuilder>
   <use name=DataFormats/TrackReco>
   <use name=DataFormats/VertexReco>
   <use name=FWCore/Framework>

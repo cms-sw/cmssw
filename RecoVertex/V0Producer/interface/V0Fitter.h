@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.h,v 1.1 2007/07/05 12:25:39 drell Exp $
+// $Id: V0Fitter.h,v 1.2 2007/07/09 12:58:51 drell Exp $
 //
 //
 
@@ -35,6 +35,14 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 #include <string>
 
@@ -73,6 +81,9 @@ class V0Fitter {
 
   // Vector used to temporarily hold candidates before cuts and selection
   std::vector<reco::V0Candidate> preCutCands;
+
+  // Tracker geometry for discerning hit positions
+  const TrackerGeometry* trackerGeom;
 
   std::string recoAlg;
   int useRefTrax;

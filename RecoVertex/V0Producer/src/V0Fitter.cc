@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.3 2007/07/09 14:48:00 drell Exp $
+// $Id: V0Fitter.cc,v 1.4 2007/07/10 09:48:39 drell Exp $
 //
 //
 
@@ -61,15 +61,19 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   vector<Track> theTracks;
   vector<TrackRef> theTrackRefs;
 
-  // Handles for tracks and B-field
+  // Handles for tracks, B-field, and tracker geometry
   Handle<reco::TrackCollection> theTrackHandle;
   ESHandle<MagneticField> bFieldHandle;
+  ESHandle<TrackerGeometry> trackerGeomHandle;
 
 
   // Get the tracks from the event, and get the B-field record
   //  from the EventSetup
   iEvent.getByLabel(recoAlg, theTrackHandle);
   iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);
+  iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeomHandle);
+
+  trackerGeom = trackerGeomHandle.product();
 
 
   // Fill our std::vector<Track> with the reconstructed tracks from
@@ -134,11 +138,66 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       TransientVertex theRecoVertex;
       theRecoVertex = theFitter.vertex(transTracks);
 
+      bool continue_ = true;
+      
+      // ADDED 8-27, loop over RecHits on both tracks to see if the position
+      //  is inside that of the reconstructed vertex.  If it is, chuck the Vee.
 
+      bool yesorno = false;
+
+      if( thePositiveTransTrack.recHitsSize() 
+	 && theNegativeTransTrack.recHitsSize() ) {
+	trackingRecHit_iterator posTrackHitIt 
+	  = thePositiveTransTrack.recHitsBegin();
+	trackingRecHit_iterator negTrackHitIt
+	  = theNegativeTransTrack.recHitsBegin();
+	
+	//std::cout << "Doing the recHit thing." << std::endl;
+	
+	for( ; posTrackHitIt < thePositiveTransTrack.recHitsEnd();
+	     posTrackHitIt++) {
+	  if( (*posTrackHitIt)->isValid() && theRecoVertex.isValid() ) {
+	    GlobalPoint posHitPosition 
+	      = trackerGeom->idToDet((*posTrackHitIt)->
+				     geographicalId())->
+	      surface().toGlobal((*posTrackHitIt)->localPosition());
+
+	    //std::cout << "@@POS: " << posHitPosition.perp() << std::endl;
+	  
+	    if( posHitPosition.perp() < theRecoVertex.position().perp() ) {
+	      std::cout << "Hit discovered inside reconstructed vertex on + track." 
+			<< std::endl;
+	      yesorno = true;
+	    }
+	  }
+	}
+	
+	for( ; negTrackHitIt < theNegativeTransTrack.recHitsEnd();
+	     negTrackHitIt++) {
+	  if( (*negTrackHitIt)->isValid() && theRecoVertex.isValid() ) {
+	    GlobalPoint negHitPosition 
+	      = trackerGeom->idToDet((*negTrackHitIt)->
+				     geographicalId())->
+	      surface().toGlobal((*negTrackHitIt)->localPosition());
+	    
+	    //std::cout << "@@NEG: " << negHitPosition.perp() << std::endl;
+	    
+	    if( negHitPosition.perp() < theRecoVertex.position().perp() ) {
+	      std::cout << "Hit discovered inside reconstructed vertex on - track." 
+			<< std::endl;
+	      yesorno = true;
+	    }
+	  }
+	}
+      }
+      if(yesorno) {
+	std::cout << "End of track pair hits." << std::endl;
+      }
+      
       // If the vertex is valid, make a V0Candidate with it
       //  to be stored in the Event
       //  Also implementing a chi2 cut of 20.
-      bool continue_ = true;
+
       if( !theRecoVertex.isValid() ) {
 	continue_ = false;
       }
