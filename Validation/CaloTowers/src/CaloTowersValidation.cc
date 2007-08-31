@@ -7,6 +7,10 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
   // DQM ROOT output
   outputFile_ = conf.getUntrackedParameter<std::string>("outputFile", "myfile.root");
 
+  hcalselector_ = conf.getUntrackedParameter<std::string>("hcalselector", "all");
+
+  etaMax = 2.95;
+  if(hcalselector_ == "HF" || hcalselector_ == "all") etaMax = 5.2;
   
   if ( outputFile_.size() != 0 ) {
     edm::LogInfo("OutputInfo") << " Hcal RecHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
@@ -132,7 +136,7 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
     
     //  simple sums
 
-    if(fabs(etaT) < 3.0) {
+    if(fabs(etaT) < etaMax) {
     
       sumEnergyHcal += eH;
       sumEnergyEcal += eE;

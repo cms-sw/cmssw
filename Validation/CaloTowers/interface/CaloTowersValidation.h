@@ -40,11 +40,14 @@ class CaloTowersValidation : public edm::EDAnalyzer {
   
   DaqMonitorBEInterface* dbe_;
   std::string outputFile_;
+  std::string hcalselector_;
 
   typedef math::RhoEtaPhiVector Vector;
 
   std::string theCaloTowerCollectionLabel;
 
+  // eta limit to calcualte MET, SET (not to include HF if not needed)
+  double etaMax;
 
   MonitorElement* meEnergyHcalvsEcal;
   MonitorElement* meEnergyHO; 
