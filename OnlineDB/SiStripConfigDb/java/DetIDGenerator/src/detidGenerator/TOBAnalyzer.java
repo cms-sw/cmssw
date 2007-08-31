@@ -168,7 +168,7 @@ public class TOBAnalyzer implements IDetIdGenerator{
 	    if(layer<3){
 		glued = true;
 		
-		if(((modPos+forwadBackward+((modPos-1)/6))%2)==1)
+		if(((modPos+(forwadBackward-1)+((modPos-1)/6))%2)==1)
 		    stereo=true;
 	    }
 	    modPos = modPos%6;//Position 7 in DB is position 1
