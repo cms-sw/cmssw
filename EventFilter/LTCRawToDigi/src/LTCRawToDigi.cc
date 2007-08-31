@@ -13,7 +13,7 @@
 //
 // Original Author:  Peter Wittich
 //         Created:  Tue May  9 07:47:59 CDT 2006
-// $Id: LTCRawToDigi.cc,v 1.4 2006/10/27 01:35:24 wmtan Exp $
+// $Id: LTCRawToDigi.cc,v 1.5 2007/08/31 10:46:46 wittich Exp $
 //
 //
 
@@ -115,7 +115,7 @@ LTCRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.put(pOut); 
   }
   else {
-    edm::LogDebug("LTCRawToDigi") << "Asked to run but no FED found?" ;
+    edm::LogInfo("LTCRawToDigi") << "Asked to run but no FED found?" ;
   }
 }
 
