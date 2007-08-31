@@ -1,8 +1,8 @@
 /*
  * \file MonitorClient.cc
  * 
- * $Date: 2007/06/24 15:13:20 $
- * $Revision: 1.2 $
+ * $Date: 2007/08/29 13:49:01 $
+ * $Revision: 1.3 $
  * \author M. Zanetti - CERN
  *
  */
@@ -89,7 +89,7 @@ void MonitorClient::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetu
   edm::LogVerbatim ("monitorClient") <<"[MonitorClient]: End of LS transition, performing the DQM client operation";
 
   // counts number of lumiSegs 
-  nLumiSegs++;
+  nLumiSegs = lumiSeg.id().luminosityBlock();
 
   // prescale factor
   if ( nLumiSegs%prescaleFactor != 0 ) return;
