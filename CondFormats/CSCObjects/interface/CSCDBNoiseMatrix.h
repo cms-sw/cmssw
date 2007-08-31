@@ -1,6 +1,7 @@
 #ifndef CSCDBNoiseMatrix_h
 #define CSCDBNoiseMatrix_h
 
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include <vector>
 #include <map>
 
@@ -14,7 +15,7 @@ class CSCDBNoiseMatrix{
           elem55,elem56,elem57,elem66,elem67,elem77;
   };
 
-  //  const Item & item(int cscId, int strip) const;
+  const Item & item(const CSCDetId & cscId, int strip) const;
   
   typedef std::vector<Item> NoiseMatrixContainer;
   NoiseMatrixContainer matrix;

@@ -1,6 +1,7 @@
 #ifndef CSCObjects_CSCDBCrosstalk_h
 #define CSCObjects_CSCDBCrosstalk_h
 
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include <vector>
 #include <map>
 
@@ -19,7 +20,7 @@ class CSCDBCrosstalk
     float xtalk_chi2_left;
   };
 
-  //  const Item & item(int cscId, int strip) const;
+  const Item & item(const CSCDetId & cscId, int strip) const;
 
   typedef std::vector<Item> CrosstalkContainer;
   CrosstalkContainer crosstalk;
