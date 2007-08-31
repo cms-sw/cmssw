@@ -53,7 +53,7 @@ DetId ZdcGeometry::getClosestCell(const GlobalPoint& r) const
   z = fabs(z);
   
   // figure out if is closer to EM, HAD or LUM section
-  HcalZDCDetId::Section section;
+  HcalZDCDetId::Section section = HcalZDCDetId::Unknown;
   if(z<= theZSectionBoundaries[1])section = HcalZDCDetId::EM;
   if(theZSectionBoundaries[1]<z<= theZSectionBoundaries[2])section = HcalZDCDetId::LUM;
   if(z>theZSectionBoundaries[2])section = HcalZDCDetId::HAD;
