@@ -250,6 +250,7 @@ namespace edm {
       { sStopping,      mStopAsync,      sStopping },     // stay
       //{ sStopping,      mAny,            sJobReady },     // <- ??????
       { sShuttingDown,  mException,      sError },
+      { sShuttingDown,  mShutdownSignal, sShuttingDown },
       { sShuttingDown,  mCountComplete,  sDone }, // needed?
       { sShuttingDown,  mInputExhausted, sDone }, // needed?
       { sShuttingDown,  mFinished,       sDone },
