@@ -41,7 +41,6 @@ L1TDTTPGClient::L1TDTTPGClient(const edm::ParameterSet& iConfig): L1TBaseClient(
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
   dbe->showDirStructure();
   dbe->setVerbose(1);
-  dbe->setCurrentFolder("L1TMonitor/QTests");
 
   if(stdalone){ 
   getMESubscriptionListFromFile = iConfig.getUntrackedParameter<bool>("getMESubscriptionListFromFile", true);
@@ -161,6 +160,7 @@ void L1TDTTPGClient::beginJob(const edm::EventSetup&)
   LogInfo("TriggerDQM")<<"[TriggerDQM]: Begin Job";
   LogInfo("TriggerDQM")<<"[TriggerDQM]: Standalone = "<<stdalone;
   nevents = 0;
+  dbe->setCurrentFolder("L1TMonitor/QTests");
 
 
   if(stdalone){
@@ -181,6 +181,7 @@ void L1TDTTPGClient::endLuminosityBlock(const edm::LuminosityBlock & iLumiSectio
 
   LogInfo("TriggerDQM")<<"[TriggerDQM]: end Lumi Section.";
 
+  int ilumi = iLumiSection.id().luminosityBlock();
 //  if(stdalone) mui_->doMonitoring();
 
 

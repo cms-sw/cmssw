@@ -121,6 +121,7 @@ void L1TGTClient::endLuminosityBlock(const edm::LuminosityBlock & iLumiSection, 
 
   LogInfo("TriggerDQM")<<"[TriggerDQM]: end Lumi Section.";
 
+  int ilumi = iLumiSection.id().luminosityBlock();
 // if(stdalone) mui_->doMonitoring();
 
 
