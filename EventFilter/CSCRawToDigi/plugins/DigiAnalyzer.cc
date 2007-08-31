@@ -61,10 +61,10 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
   //
 
   // e.getByLabel("muonCSCDigis","MuonCSCDDUStatusDigi", dduStatusDigi);
-  //e.getByLabel("muonCSCDigis","MuonCSCWireDigi",wires);
-  //  e.getByLabel("muonCSCDigis","MuonCSCStripDigi",strips);
+  e.getByLabel("muonCSCDigis","MuonCSCWireDigi",wires);
+  e.getByLabel("muonCSCDigis","MuonCSCStripDigi",strips);
   //   e.getByLabel("muonCSCDigis","MuonCSCComparatorDigi",comparators);
-  e.getByLabel("muonCSCDigis","MuonCSCALCTDigi",alcts);
+  //e.getByLabel("muonCSCDigis","MuonCSCALCTDigi",alcts);
   //  e.getByLabel("muonCSCDigis","MuonCSCCLCTDigi",clcts);
   // e.getByLabel("muonCSCDigis","MuonCSCRPCDigi",rpcs);
   //e.getByLabel("muonCSCDigis","MuonCSCCorrelatedLCTDigi",correlatedlcts);
@@ -84,7 +84,7 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
     }
   }
   */
-  /*
+ 
   for (CSCStripDigiCollection::DigiRangeIterator j=strips->begin(); j!=strips->end(); j++) {
     std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
     std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
@@ -94,6 +94,17 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
   }
 
 
+  for (CSCWireDigiCollection::DigiRangeIterator j=wires->begin(); j!=wires->end(); j++) {
+    std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
+    std::vector<CSCWireDigi>::const_iterator last = (*j).second.second;
+    for( ; digiItr != last; ++digiItr) {
+      digiItr->print();
+    }
+  }
+
+
+
+  /*
   for (CSCComparatorDigiCollection::DigiRangeIterator j=comparators->begin(); j!=comparators->end(); j++) {
  
     std::vector<CSCComparatorDigi>::const_iterator digiItr = (*j).second.first;
@@ -104,7 +115,7 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
   }
 
 
-  */
+ 
   for (CSCALCTDigiCollection::DigiRangeIterator j=alcts->begin(); j!=alcts->end(); j++) {
  
     std::vector<CSCALCTDigi>::const_iterator digiItr = (*j).second.first;
@@ -113,7 +124,6 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
       digiItr->print();
     }
   }
-  /*
 
 
   for (CSCCLCTDigiCollection::DigiRangeIterator j=clcts->begin(); j!=clcts->end(); j++) {
