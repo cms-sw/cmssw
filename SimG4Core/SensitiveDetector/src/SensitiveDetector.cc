@@ -98,12 +98,14 @@ void SensitiveDetector::NaNTrap( G4Step* aStep )
     xyz[1] = CurrentPos.y() ;
     xyz[2] = CurrentPos.z() ;
     
-    // double protection (in principal, just isnan() should do the job...)
     //
-    if ( !(xyz[0]==xyz[0]) || !(xyz[1]==xyz[1]) || !(xyz[2]==xyz[2]) ||
-         isnan(xyz[0]) != 0 || isnan(xyz[1]) != 0 || isnan(xyz[2]) != 0 )
+    // this is another trick to check on a NaN, maybe it's even CPU-faster...
+    // but ler's stick to system function isnan(...) for now
+    //
+    // if ( !(xyz[0]==xyz[0]) || !(xyz[1]==xyz[1]) || !(xyz[2]==xyz[2]) )
+    if( isnan(xyz[0]+xyz[1]+xyz[2]) != 0 )
     {
-       std::cout << " NaN detected in volume " << NameOfVol << std::endl ;
+       // std::cout << " NaN detected in volume " << NameOfVol << std::endl ;
        throw SimG4Exception( "SimG4CoreSensitiveDetector: Corrupted Event - NaN detected (position)" ) ;
     }
 
