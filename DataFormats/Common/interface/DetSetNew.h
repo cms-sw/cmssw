@@ -70,6 +70,9 @@ namespace edmNew {
     
     inline
     size_type size() const { return m_size; }
+
+    inline
+    bool empty() const { return m_size==0;}
     
   private:
     data_type const * data() const {

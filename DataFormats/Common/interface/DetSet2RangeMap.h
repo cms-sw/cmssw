@@ -19,14 +19,14 @@ namespace edmNew {
     // copy from DS to RM
     template<typename B>
     struct ToRM {
-      ToRM(edm::RangeMap<DetId, edm::OwnVector<B> > & irm) : rm(irm){}
-      edm::RangeMap<DetId, edm::OwnVector<B> > & rm;
+      ToRM(edm::RangeMap<DetId, edm::OwnVector<B> > & irm) : rm(&irm){}
+      edm::RangeMap<DetId, edm::OwnVector<B> > * rm;
       template<typename T>
       void operator()(edmNew::DetSet<T> const&  ds) {
 	// make it easy
 	// std::vector<T const *> v(ds.size());
 	//std::transform(ds.begin(),ds.end(),v.begin(),dstvdetails::Pointer());
-	rm.put(ds.id(), ds.begin(), ds.end());
+	if (!ds.empty()) rm->put(ds.id(), ds.begin(), ds.end());
       }
     };
   }
