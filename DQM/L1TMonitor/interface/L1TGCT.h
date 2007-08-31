@@ -5,11 +5,14 @@
 /*
  * \file L1TGCT.h
  *
- * $Date: 2007/02/22 19:43:52 $
- * $Revision: 1.4 $
+ * $Date: 2007/08/31 11:02:55 $
+ * $Revision: 1.5 $
  * \author J. Berryhill
- * $Id: L1TGCT.h,v 1.4 2007/02/22 19:43:52 berryhil Exp $
+ * $Id: L1TGCT.h,v 1.5 2007/08/31 11:02:55 wittich Exp $
  * $Log: L1TGCT.h,v $
+ * Revision 1.5  2007/08/31 11:02:55  wittich
+ * cerr -> LogInfo
+ *
  * Revision 1.4  2007/02/22 19:43:52  berryhil
  *
  *
@@ -85,28 +88,30 @@ private:
   DaqMonitorBEInterface * dbe;
 
   // L1Extra stuff
-  MonitorElement* l1ExtraCenJetsEtEtaPhi_; 
-  MonitorElement* l1ExtraForJetsEtEtaPhi_;
-  MonitorElement* l1ExtraTauJetsEtEtaPhi_;
-  MonitorElement* l1ExtraIsoEmEtEtaPhi_;
-  MonitorElement* l1ExtraNonIsoEmEtEtaPhi_;
+  MonitorElement* l1GctCenJetsEtEtaPhi_; 
+  MonitorElement* l1GctForJetsEtEtaPhi_;
+  MonitorElement* l1GctTauJetsEtEtaPhi_;
+  MonitorElement* l1GctIsoEmEtEtaPhi_;
+  MonitorElement* l1GctNonIsoEmEtEtaPhi_;
 
-  MonitorElement* l1ExtraCenJetsOccEtaPhi_;
-  MonitorElement* l1ExtraForJetsOccEtaPhi_;  
-  MonitorElement* l1ExtraTauJetsOccEtaPhi_;  
-  MonitorElement* l1ExtraIsoEmOccEtaPhi_;    
-  MonitorElement* l1ExtraNonIsoEmOccEtaPhi_; 
+  MonitorElement* l1GctCenJetsOccEtaPhi_;
+  MonitorElement* l1GctForJetsOccEtaPhi_;  
+  MonitorElement* l1GctTauJetsOccEtaPhi_;  
+  MonitorElement* l1GctIsoEmOccEtaPhi_;    
+  MonitorElement* l1GctNonIsoEmOccEtaPhi_; 
 
-  MonitorElement* l1ExtraCenJetsRank_;
-  MonitorElement* l1ExtraForJetsRank_;
-  MonitorElement* l1ExtraTauJetsRank_;
-  MonitorElement* l1ExtraIsoEmRank_;
-  MonitorElement* l1ExtraNonIsoEmRank_;
+  MonitorElement* l1GctCenJetsRank_;
+  MonitorElement* l1GctForJetsRank_;
+  MonitorElement* l1GctTauJetsRank_;
+  MonitorElement* l1GctIsoEmRank_;
+  MonitorElement* l1GctNonIsoEmRank_;
 
-  MonitorElement* l1ExtraEtMiss_;
-  MonitorElement* l1ExtraEtMissPhi_;
-  MonitorElement* l1ExtraEtTotal_;
-  MonitorElement* l1ExtraEtHad_;
+  MonitorElement* l1GctEtMiss_;
+  MonitorElement* l1GctEtMissPhi_;
+
+  // AFAIK, these don't have phi values
+  MonitorElement* l1GctEtTotal_;
+  MonitorElement* l1GctEtHad_;
 
 
   int nev_; // Number of events processed

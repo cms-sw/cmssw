@@ -1,13 +1,16 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2007/02/22 19:43:53 $
- * $Revision: 1.6 $
+ * $Date: 2007/08/31 11:02:56 $
+ * $Revision: 1.7 $
  * \author J. Berryhill
  *
  *  Initial version largely stolen from GCTMonitor (wittich 2/07)
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.7  2007/08/31 11:02:56  wittich
+ * cerr -> LogInfo
+ *
  * Revision 1.6  2007/02/22 19:43:53  berryhil
  *
  *
@@ -89,10 +92,20 @@ const unsigned int R12BINS = 4096;
 const float R12MIN = -0.5;
 const float R12MAX = 4095.5;
 
-// Physical bins 1 Gev - 1 TeV in 1 GeV steps
-const unsigned int TEVBINS = 1001;
-const float TEVMIN = -0.5;
-const float TEVMAX = 1000.5;
+// // Physical bins 1 Gev - 1 TeV in 1 GeV steps
+// const unsigned int TEVBINS = 1001;
+// const float TEVMIN = -0.5;
+// const float TEVMAX = 1000.5;
+
+const unsigned int METBINS = 4096;
+const float METMIN = -0.5;
+const float METMAX = 4095.5;
+
+// simple helper functions to take eta to a signed quantity
+static int etaBin( unsigned int etaIndex)
+{
+  return (etaIndex&0x7U)*(etaIndex&0x08U?-1:1);
+}
 
 
 L1TGCT::L1TGCT(const edm::ParameterSet & ps) :
@@ -165,79 +178,77 @@ void L1TGCT::beginJob(const edm::EventSetup & c)
   if (dbe) {
     dbe->setCurrentFolder("L1TMonitor/L1TGCT");
 
-    // Book L1Extra histograms
-    //dbe->setCurrentFolder("L1Extra"); // Add subfolder
 
-    l1ExtraCenJetsEtEtaPhi_ =
-	dbe->book2D("L1ExtraCenJetsEtEtaPhi", "CENTRAL JET E_{T}",
-		    L1EPHIBINS, L1EPHIMIN, L1EPHIMAX, L1EETABINS,
-		    L1EETAMIN, L1EETAMAX);
-    l1ExtraForJetsEtEtaPhi_ =
-	dbe->book2D("L1ExtraForJetsEtEtaPhi", "FORWARD JET E_{T}",
-		    L1EPHIBINS, L1EPHIMIN, L1EPHIMAX, L1EETABINS,
-		    L1EETAMIN, L1EETAMAX);
-    l1ExtraTauJetsEtEtaPhi_ =
-	dbe->book2D("L1ExtraTauJetsEtEtaPhi", "TAU JET E_{T}", L1EPHIBINS,
-		    L1EPHIMIN, L1EPHIMAX, L1EETABINS, L1EETAMIN,
-		    L1EETAMAX);
-    l1ExtraIsoEmEtEtaPhi_ =
-	dbe->book2D("L1ExtraIsoEmEtEtaPhi", "ISO EM E_{T}", L1EPHIBINS,
-		    L1EPHIMIN, L1EPHIMAX, L1EETABINS, L1EETAMIN,
-		    L1EETAMAX);
-    l1ExtraNonIsoEmEtEtaPhi_ =
-	dbe->book2D("L1ExtraNonIsoEmEtEtaPhi", "NON-ISO EM E_{T}",
-		    L1EPHIBINS, L1EPHIMIN, L1EPHIMAX, L1EETABINS,
-		    L1EETAMIN, L1EETAMAX);
+    l1GctCenJetsEtEtaPhi_ =
+	dbe->book2D("CenJetsEtEtaPhi", "CENTRAL JET E_{T}",
+		    PHIBINS, PHIMIN, PHIMAX, ETABINS,
+		    ETAMIN, ETAMAX);
+    l1GctForJetsEtEtaPhi_ =
+	dbe->book2D("ForJetsEtEtaPhi", "FORWARD JET E_{T}",
+		    PHIBINS, PHIMIN, PHIMAX, ETABINS,
+		    ETAMIN, ETAMAX);
+    l1GctTauJetsEtEtaPhi_ =
+	dbe->book2D("TauJetsEtEtaPhi", "TAU JET E_{T}", PHIBINS,
+		    PHIMIN, PHIMAX, ETABINS, ETAMIN,
+		    ETAMAX);
+    l1GctIsoEmEtEtaPhi_ =
+	dbe->book2D("IsoEmEtEtaPhi", "ISO EM E_{T}", PHIBINS,
+		    PHIMIN, PHIMAX, ETABINS, ETAMIN,
+		    ETAMAX);
+    l1GctNonIsoEmEtEtaPhi_ =
+	dbe->book2D("NonIsoEmEtEtaPhi", "NON-ISO EM E_{T}",
+		    PHIBINS, PHIMIN, PHIMAX, ETABINS,
+		    ETAMIN, ETAMAX);
 
-    l1ExtraCenJetsOccEtaPhi_ =
-	dbe->book2D("L1ExtraCenJetsOccEtaPhi", "CENTRAL JET OCCUPANCY",
-		    L1EPHIBINS, L1EPHIMIN, L1EPHIMAX, L1EETABINS,
-		    L1EETAMIN, L1EETAMAX);
-    l1ExtraForJetsOccEtaPhi_ =
-	dbe->book2D("L1ExtraForJetsOccEtaPhi", "FORWARD JET OCCUPANCY",
-		    L1EPHIBINS, L1EPHIMIN, L1EPHIMAX, L1EETABINS,
-		    L1EETAMIN, L1EETAMAX);
-    l1ExtraTauJetsOccEtaPhi_ =
-	dbe->book2D("L1ExtraTauJetsOccEtaPhi", "TAU JET OCCUPANCY",
-		    L1EPHIBINS, L1EPHIMIN, L1EPHIMAX, L1EETABINS,
-		    L1EETAMIN, L1EETAMAX);
-    l1ExtraIsoEmOccEtaPhi_ =
-	dbe->book2D("L1ExtraIsoEmOccEtaPhi", "ISO EM OCCUPANCY",
-		    L1EPHIBINS, L1EPHIMIN, L1EPHIMAX, L1EETABINS,
-		    L1EETAMIN, L1EETAMAX);
-    l1ExtraNonIsoEmOccEtaPhi_ =
-	dbe->book2D("L1ExtraNonIsoEmOccEtaPhi", "NON-ISO EM OCCUPANCY",
-		    L1EPHIBINS, L1EPHIMIN, L1EPHIMAX, L1EETABINS,
-		    L1EETAMIN, L1EETAMAX);
+    l1GctCenJetsOccEtaPhi_ =
+	dbe->book2D("CenJetsOccEtaPhi", "CENTRAL JET OCCUPANCY",
+		    PHIBINS, PHIMIN, PHIMAX, ETABINS,
+		    ETAMIN, ETAMAX);
+    l1GctForJetsOccEtaPhi_ =
+	dbe->book2D("ForJetsOccEtaPhi", "FORWARD JET OCCUPANCY",
+		    PHIBINS, PHIMIN, PHIMAX, ETABINS,
+		    ETAMIN, ETAMAX);
+    l1GctTauJetsOccEtaPhi_ =
+	dbe->book2D("TauJetsOccEtaPhi", "TAU JET OCCUPANCY",
+		    PHIBINS, PHIMIN, PHIMAX, ETABINS,
+		    ETAMIN, ETAMAX);
+    l1GctIsoEmOccEtaPhi_ =
+	dbe->book2D("IsoEmOccEtaPhi", "ISO EM OCCUPANCY",
+		    PHIBINS, PHIMIN, PHIMAX, ETABINS,
+		    ETAMIN, ETAMAX);
+    l1GctNonIsoEmOccEtaPhi_ =
+	dbe->book2D("NonIsoEmOccEtaPhi", "NON-ISO EM OCCUPANCY",
+		    PHIBINS, PHIMIN, PHIMAX, ETABINS,
+		    ETAMIN, ETAMAX);
 
-    l1ExtraCenJetsRank_ =
-	dbe->book1D("L1ExtraCenJetsRank", "CENTRAL JET RANK", TEVBINS,
-		    TEVMIN, TEVMAX);
-    l1ExtraForJetsRank_ =
-	dbe->book1D("L1ExtraForJetsRank", "FORWARD JET RANK", TEVBINS,
-		    TEVMIN, TEVMAX);
-    l1ExtraTauJetsRank_ =
-	dbe->book1D("L1ExtraTauJetsRank", "TAU JET RANK", TEVBINS, TEVMIN,
-		    TEVMAX);
-    l1ExtraIsoEmRank_ =
-	dbe->book1D("L1ExtraIsoEmRank", "ISO EM RANK", TEVBINS, TEVMIN,
-		    TEVMAX);
-    l1ExtraNonIsoEmRank_ =
-	dbe->book1D("L1ExtraNonIsoEmRank", "NON-ISO EM RANK", TEVBINS,
-		    TEVMIN, TEVMAX);
+    l1GctCenJetsRank_ =
+	dbe->book1D("CenJetsRank", "CENTRAL JET RANK", R6BINS,
+		    R6MIN, R6MAX);
+    l1GctForJetsRank_ =
+	dbe->book1D("ForJetsRank", "FORWARD JET RANK", R6BINS,
+		    R6MIN, R6MAX);
+    l1GctTauJetsRank_ =
+	dbe->book1D("TauJetsRank", "TAU JET RANK", R6BINS, R6MIN,
+		    R6MAX);
+    l1GctIsoEmRank_ =
+	dbe->book1D("IsoEmRank", "ISO EM RANK", R6BINS, R6MIN,
+		    R6MAX);
+    l1GctNonIsoEmRank_ =
+	dbe->book1D("NonIsoEmRank", "NON-ISO EM RANK", R6BINS,
+		    R6MIN, R6MAX);
 
-    l1ExtraEtMiss_ =
-	dbe->book1D("L1ExtraEtMiss", "MISSING E_{T}", TEVBINS, TEVMIN,
-		    TEVMAX);
-    l1ExtraEtMissPhi_ =
-	dbe->book1D("L1ExtraEtMissPhi", "MISSING E_{T} #phi", METPHIBINS,
-		    L1EPHIMIN, L1EPHIMAX);
-    l1ExtraEtTotal_ =
-	dbe->book1D("L1ExtraEtTotal", "TOTAL E_{T}", TEVBINS, TEVMIN,
-		    TEVMAX);
-    l1ExtraEtHad_ =
-	dbe->book1D("L1ExtraEtHad", "TOTAL HAD E_{T}", TEVBINS, TEVMIN,
-		    TEVMAX);
+    l1GctEtMiss_ =
+	dbe->book1D("EtMiss", "MISSING E_{T}", METBINS, METMIN,
+		    METMAX);
+    l1GctEtMissPhi_ =
+	dbe->book1D("EtMissPhi", "MISSING E_{T} #phi", METPHIBINS,
+		    PHIMIN, PHIMAX);
+    l1GctEtTotal_ =
+	dbe->book1D("EtTotal", "TOTAL E_{T}", METBINS, METMIN,
+		    METMAX);
+    l1GctEtHad_ =
+	dbe->book1D("EtHad", "TOTAL HAD E_{T}", METBINS, METMIN,
+		    METMAX);
   }
 }
 
@@ -262,80 +273,85 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
     std::cout << "L1TGCT: analyze...." << std::endl;
   }
 
-  // L1 Extra information - these are in physics quantities
-  // get the L1Extra collections
-  edm::Handle < L1EmParticleCollection > l1eIsoEm;
-  edm::Handle < L1EmParticleCollection > l1eNonIsoEm;
-  edm::Handle < L1JetParticleCollection > l1eCenJets;
-  edm::Handle < L1JetParticleCollection > l1eForJets;
-  edm::Handle < L1JetParticleCollection > l1eTauJets;
-  edm::Handle < L1EtMissParticle > l1eEtMiss;
+  // update to those generated in GctRawToDigi
+  edm::Handle < L1GctEmCandCollection > l1IsoEm;
+  edm::Handle < L1GctEmCandCollection > l1NonIsoEm;
+  edm::Handle < L1GctJetCandCollection > l1CenJets;
+  edm::Handle < L1GctJetCandCollection > l1ForJets;
+  edm::Handle < L1GctJetCandCollection > l1TauJets;
+  edm::Handle < L1GctEtMiss >  l1EtMiss;
+  edm::Handle < L1GctEtHad >   l1EtHad;
+  edm::Handle < L1GctEtTotal > l1EtTotal;
 
   // should get rid of this try/catch?
+  // do I need three 
   try {
-    e.getByLabel(gctSource_.label(), "Isolated", l1eIsoEm);
-    e.getByLabel(gctSource_.label(), "NonIsolated", l1eNonIsoEm);
-    e.getByLabel(gctSource_.label(), "Central", l1eCenJets);
-    e.getByLabel(gctSource_.label(), "Forward", l1eForJets);
-    e.getByLabel(gctSource_.label(), "Tau", l1eTauJets);
+    e.getByLabel(gctSource_.label(), "Isolated", l1IsoEm);
+    e.getByLabel(gctSource_.label(), "NonIsolated", l1NonIsoEm);
+    e.getByLabel(gctSource_.label(), "Central", l1CenJets);
+    e.getByLabel(gctSource_.label(), "Forward", l1ForJets);
+    e.getByLabel(gctSource_.label(), "Tau", l1TauJets);
 
-    e.getByLabel(gctSource_, l1eEtMiss);
+    e.getByLabel(gctSource_, l1EtMiss);
+    e.getByLabel(gctSource_, l1EtHad);
+    e.getByLabel(gctSource_, l1EtTotal);
   }
   catch (...) {
     edm::LogInfo("L1TGCT") << " Could not find one of the requested data "
-      "elements." ;
+      "elements, label was" << gctSource_.label() ;
     return;
   }
 
 
-  // Fill the L1Extra histograms
+  // Fill the histograms for the jets
 
   // Central jets
-  for (L1JetParticleCollection::const_iterator cj = l1eCenJets->begin();
-       cj != l1eCenJets->end(); cj++) {
-    l1ExtraCenJetsEtEtaPhi_->Fill(cj->phi(), cj->eta(), cj->et());
-    l1ExtraCenJetsOccEtaPhi_->Fill(cj->phi(), cj->eta());
-    l1ExtraCenJetsRank_->Fill(cj->et());
+  for (L1GctJetCandCollection::const_iterator cj = l1CenJets->begin();
+       cj != l1CenJets->end(); cj++) {
+    l1GctCenJetsEtEtaPhi_->Fill(cj->phiIndex(), etaBin(cj->etaIndex()), cj->rank());
+    l1GctCenJetsOccEtaPhi_->Fill(cj->phiIndex(), etaBin(cj->etaIndex()));
+    l1GctCenJetsRank_->Fill(cj->rank());
   }
 
   // Forward jets
-  for (L1JetParticleCollection::const_iterator fj = l1eForJets->begin();
-       fj != l1eForJets->end(); fj++) {
-    l1ExtraForJetsEtEtaPhi_->Fill(fj->phi(), fj->eta(), fj->et());
-    l1ExtraForJetsOccEtaPhi_->Fill(fj->phi(), fj->eta());
-    l1ExtraForJetsRank_->Fill(fj->et());
+  for (L1GctJetCandCollection::const_iterator fj = l1ForJets->begin();
+       fj != l1ForJets->end(); fj++) {
+    l1GctForJetsEtEtaPhi_->Fill(fj->phiIndex(), etaBin(fj->etaIndex()), fj->rank());
+    l1GctForJetsOccEtaPhi_->Fill(fj->phiIndex(), etaBin(fj->etaIndex()));
+    l1GctForJetsRank_->Fill(fj->rank());
   }
 
   // Tau jets
-  for (L1JetParticleCollection::const_iterator tj = l1eTauJets->begin();
-       tj != l1eTauJets->end(); tj++) {
-    l1ExtraTauJetsEtEtaPhi_->Fill(tj->phi(), tj->eta(), tj->et());
-    l1ExtraTauJetsOccEtaPhi_->Fill(tj->phi(), tj->eta());
-    l1ExtraTauJetsRank_->Fill(tj->et());
+  for (L1GctJetCandCollection::const_iterator tj = l1TauJets->begin();
+       tj != l1TauJets->end(); tj++) {
+    l1GctTauJetsEtEtaPhi_->Fill(tj->phiIndex(), etaBin(tj->etaIndex()), tj->rank());
+    l1GctTauJetsOccEtaPhi_->Fill(tj->phiIndex(), etaBin(tj->etaIndex()));
+    l1GctTauJetsRank_->Fill(tj->rank());
   }
 
   // Isolated EM
-  for (L1EmParticleCollection::const_iterator ie = l1eIsoEm->begin();
-       ie != l1eIsoEm->end(); ie++) {
-    l1ExtraIsoEmEtEtaPhi_->Fill(ie->phi(), ie->eta(), ie->et());
-    l1ExtraIsoEmOccEtaPhi_->Fill(ie->phi(), ie->eta());
-    l1ExtraIsoEmRank_->Fill(ie->et());
+  for (L1GctEmCandCollection::const_iterator ie = l1IsoEm->begin();
+       ie != l1IsoEm->end(); ie++) {
+    l1GctIsoEmEtEtaPhi_->Fill(ie->phiIndex(), etaBin(ie->etaIndex()), ie->rank());
+    l1GctIsoEmOccEtaPhi_->Fill(ie->phiIndex(), etaBin(ie->etaIndex()));
+    l1GctIsoEmRank_->Fill(ie->rank());
   }
 
   // Non-isolated EM
-  for (L1EmParticleCollection::const_iterator ne = l1eNonIsoEm->begin();
-       ne != l1eNonIsoEm->end(); ne++) {
-    l1ExtraNonIsoEmEtEtaPhi_->Fill(ne->phi(), ne->eta(), ne->et());
-    l1ExtraNonIsoEmOccEtaPhi_->Fill(ne->phi(), ne->eta());
-    l1ExtraNonIsoEmRank_->Fill(ne->et());
+  for (L1GctEmCandCollection::const_iterator ne = l1NonIsoEm->begin();
+       ne != l1NonIsoEm->end(); ne++) {
+    l1GctNonIsoEmEtEtaPhi_->Fill(ne->phiIndex(), etaBin(ne->etaIndex()), ne->rank());
+    l1GctNonIsoEmOccEtaPhi_->Fill(ne->phiIndex(), etaBin(ne->etaIndex()));
+    l1GctNonIsoEmRank_->Fill(ne->rank());
   }
 
   // Energy sums
-  l1ExtraEtMiss_->Fill(l1eEtMiss->et());
-  l1ExtraEtMissPhi_->Fill(l1eEtMiss->phi());
-  l1ExtraEtTotal_->Fill(l1eEtMiss->etTotal());
-  l1ExtraEtHad_->Fill(l1eEtMiss->etHad());
+  l1GctEtMiss_->Fill(l1EtMiss->et());
+  l1GctEtMissPhi_->Fill(l1EtMiss->phi());
 
+  // these don't have phi values
+  l1GctEtHad_->Fill(l1EtHad->et());
+  l1GctEtTotal_->Fill(l1EtTotal->et());
 
 
 
