@@ -13,7 +13,7 @@
 //
 // Original Author:  Peter Wittich
 //         Created:  Tue May  9 07:47:59 CDT 2006
-// $Id: LTCRawToDigi.cc,v 1.3 2006/06/27 11:26:51 meschi Exp $
+// $Id: LTCRawToDigi.cc,v 1.4 2006/10/27 01:35:24 wmtan Exp $
 //
 //
 
@@ -29,6 +29,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //FEDRawData 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -98,16 +100,23 @@ LTCRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<LTCDigiCollection> pOut(new LTCDigiCollection());
 
   // Loop over all possible FED's with the appropriate FED ID
+  bool didSomething = false;
   for ( int id = LTCFedIDLo; id <= LTCFedIDHi; ++id ) {
     /// Take a reference to this FED's data
     const FEDRawData & fedData = rawdata->FEDData(id);
     unsigned short int length =  fedData.size();
     if ( ! length ) 
       continue; // bank does not exist
+    didSomething = true;
     LTCDigi ltcDigi(fedData.data());
     pOut->push_back(ltcDigi);
   }
-  iEvent.put(pOut);
+  if ( didSomething ) { // don't pollute event with bogus data
+    iEvent.put(pOut); 
+  }
+  else {
+    edm::LogDebug("LTCRawToDigi") << "Asked to run but no FED found?" ;
+  }
 }
 
 //define this as a plug-in
