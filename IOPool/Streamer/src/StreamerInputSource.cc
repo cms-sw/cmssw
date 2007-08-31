@@ -48,7 +48,9 @@ namespace edm {
     processHistoryID_(),
     tc_(getTClass(typeid(SendEvent))),
     dest_(init_size),
-    xbuf_(TBuffer::kRead, init_size)
+    xbuf_(TBuffer::kRead, init_size),
+    runEndingFlag_(false),
+    inputExhausted_(false)
   {
   }
 
@@ -153,10 +155,22 @@ namespace edm {
     psetRegistry->insertMapped(trigger_pset);
   }
 
-  boost::shared_ptr<RunPrincipal>
-  StreamerInputSource::readRun_() {
+  void
+  StreamerInputSource::readAhead() {
+    if (inputExhausted_ || runEndingFlag_) return;
     if (holder_.get() == 0) holder_ = read();
     if (holder_.get() == 0) {
+      if (!runEndingFlag_) inputExhausted_ = true;
+    } else {
+      inputExhausted_ = runEndingFlag_ = false;
+    }
+  }
+
+  boost::shared_ptr<RunPrincipal>
+  StreamerInputSource::readRun_() {
+    readAhead();
+    if (holder_.get() == 0) {
+      inputExhausted_ = runEndingFlag_ = false;
       return boost::shared_ptr<RunPrincipal>();
     }
     return rp_;
@@ -164,8 +178,9 @@ namespace edm {
 
   boost::shared_ptr<LuminosityBlockPrincipal>
   StreamerInputSource::readLuminosityBlock_(boost::shared_ptr<RunPrincipal> rp) {
-    if (holder_.get() == 0) holder_ = read();
+    readAhead();
     if (holder_.get() == 0 || rp->run() != rp_->run()) {
+      runEndingFlag_ = false;
       return boost::shared_ptr<LuminosityBlockPrincipal>();
     }
     return lbp_;
@@ -173,7 +188,7 @@ namespace edm {
 
   std::auto_ptr<EventPrincipal>
   StreamerInputSource::readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
-    if (holder_.get() == 0) holder_ = read();
+    readAhead();
     if (holder_.get() == 0 ||
 	lbp->runNumber() != rp_->run() ||
         lbp->luminosityBlock() != lbp_->luminosityBlock()) {

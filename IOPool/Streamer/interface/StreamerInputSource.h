@@ -58,6 +58,7 @@ namespace edm {
     void declareStreamers(SendDescs const& descs);
     void buildClassCache(SendDescs const& descs);
     void saveTriggerNames(InitMsgView const* header);
+    void setEndRun() {runEndingFlag_ = true;}
 
   private:
     virtual std::auto_ptr<EventPrincipal> read() = 0;
@@ -70,6 +71,8 @@ namespace edm {
     virtual std::auto_ptr<EventPrincipal>
     readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
 
+    void readAhead();
+
     std::auto_ptr<EventPrincipal> holder_;
     boost::shared_ptr<LuminosityBlockPrincipal> lbp_;
     boost::shared_ptr<RunPrincipal> rp_;
@@ -78,6 +81,8 @@ namespace edm {
     TClass* tc_;
     std::vector<unsigned char> dest_;
     TBuffer xbuf_;
+    bool runEndingFlag_;
+    bool inputExhausted_;
 
     //Do not like these to be static, but no choice as deserializeRegistry() that sets it is a static memeber 
     static std::string processName_;
