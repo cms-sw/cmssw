@@ -226,9 +226,13 @@ TransientVertex::operator reco::Vertex() const
     if ((ttt!=0) && (ttt->persistentTrackRef().isNonnull()))
     {
       if (withRefittedTracks) {
-	vertex.add(ttt->persistentTrackRef(), refittedTrack(*i).track(), trackWeight ( *i ) );
+        try {
+          vertex.add(ttt->persistentTrackRef(), refittedTrack(*i).track(), trackWeight ( *i ) );
+        } catch ( ... ) {
+	        vertex.add(ttt->persistentTrackRef(), trackWeight ( *i ) );
+        }
       } else { 
-	vertex.add(ttt->persistentTrackRef(), trackWeight ( *i ) );
+	      vertex.add(ttt->persistentTrackRef(), trackWeight ( *i ) );
       }
     }
   }
