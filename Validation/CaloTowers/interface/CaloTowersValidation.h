@@ -16,6 +16,10 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
+#include "DataFormats/Math/interface/Vector3D.h"
+
 #include <vector>
 #include <utility>
 #include <ostream>
@@ -37,6 +41,7 @@ class CaloTowersValidation : public edm::EDAnalyzer {
   DaqMonitorBEInterface* dbe_;
   std::string outputFile_;
 
+  typedef math::RhoEtaPhiVector Vector;
 
   std::string theCaloTowerCollectionLabel;
 
@@ -50,6 +55,15 @@ class CaloTowersValidation : public edm::EDAnalyzer {
   MonitorElement* meEnergyEcalTower;
   MonitorElement* meEnergyHcalTower;
   MonitorElement* meTotEnergy;
+
+  MonitorElement* mapEnergy;
+  MonitorElement* mapEnergyEcal;
+  MonitorElement* mapEnergyHcal;
+  MonitorElement* MET;
+  MonitorElement* SET;
+  MonitorElement* phiMET;
+
+
 };
 
 #endif

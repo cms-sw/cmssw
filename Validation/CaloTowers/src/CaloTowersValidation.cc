@@ -19,10 +19,7 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
   // get hold of back-end interface
   dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
    
-
   Char_t histo[20];
-
- 
 
   if ( dbe_ ) {
     std::cout << " dbe_->setCurrentFolder" << std::endl; 
@@ -52,6 +49,22 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
     sprintf  (histo, "CaloTowersTask_energy_HcalPlusEcalPlusHO" ) ;
     meTotEnergy = dbe_->book1D(histo, histo,100, 0. , 200. ) ;
     
+    sprintf  (histo, "CaloTowersTask_map_energy" );
+    mapEnergy = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+    sprintf  (histo, "CaloTowersTask_map_energy_HCAL");
+    mapEnergyHcal = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+    sprintf  (histo, "CaloTowersTask_map_energy_ECAL" );
+    mapEnergyEcal = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+
+    sprintf  (histo, "CaloTowersTask_MET" ) ;
+    MET = dbe_->book1D(histo, histo, 100, 0. , 200. ) ;
+    
+    sprintf  (histo, "CaloTowersTask_SET" ) ;
+    SET = dbe_->book1D(histo, histo, 100, 0. , 200. ) ;
+    
+    sprintf  (histo, "CaloTowersTask_phi_MET" ) ;
+    phiMET = dbe_->book1D(histo, histo, 72, -3.1415926535898, 3.1415926535898 ) ;
+
   }
 }
 
@@ -80,40 +93,90 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
   event.getByLabel(theCaloTowerCollectionLabel,towers);
   CaloTowerCollection::const_iterator cal;
 
-  // sum of et for HCAL part of tower   
-  Double_t sumEnergyHcal =0.;
-  // sum of et for ECAL part of tower  
-  Double_t sumEnergyEcal =0.;
-  //
-  Double_t sumEnergyHO =0.;
+  // energy sum of HCAL part of tower   
+  double sumEnergyHcal = 0.;
+  double sumEnergyEcal = 0.;
+  double sumEnergyHO   = 0.;
   //
   Int_t numFiredTowers = 0;
+  //
+  double met;
+  double metx   =  0.;
+  double mety   =  0.;
+  double metz   =  0.;
+  double sEt    =  0.;
+  double phimet =  0.;
 
- for ( cal = towers->begin(); cal != towers->end(); ++cal ) {
+  for ( cal = towers->begin(); cal != towers->end(); ++cal ) {
+    
+    double eE   = cal->emEnergy();
+    double eH   = cal->hadEnergy();
+    double eHO  = cal->outerEnergy();
+    double etaT = cal->eta();
+    //      double phiT = cal->eta();
+    double en   = cal->energy();
+    Vector mom  = cal->momentum(); 
+  
 
-      double eE = cal->emEnergy();
-//      std::cout << " e_ecal = " << eE << std::endl;
-      double eH = cal->hadEnergy();
-//      std::cout << " e_hcal = " << eH << std::endl;
-      double eHO = cal->outerEnergy();
-//      std::cout << " e_HO = " << eHO << std::endl;
+    // cell properties
+    
+    CaloTowerDetId idT = cal->id();
+    int ieta = idT.ieta();
+    int iphi = idT.iphi();
+    
+    mapEnergy     -> Fill(double(ieta), double(iphi), en); 
+    mapEnergyHcal -> Fill(double(ieta), double(iphi), eH); 
+    mapEnergyEcal -> Fill(double(ieta), double(iphi), eE); 
+    
+    //      std::cout << " e_ecal = " << eE << std::endl;
+    
+    //  simple sums
+
+    if(fabs(etaT) < 3.0) {
+    
       sumEnergyHcal += eH;
       sumEnergyEcal += eE;
-      sumEnergyHO += eHO;
+      sumEnergyHO   += eHO;
       
       numFiredTowers++;
-
-
+      
       meEnergyEcalTower->Fill(eE);
       meEnergyHcalTower->Fill(eH);    
- }
+      
+    /*    
+00032   const Vector & momentum() const { return momentum_; }
+00033   double et() const { return momentum_.rho(); }
+00034   double energy() const { return momentum_.r(); }
+00035   double eta() const { return momentum_.eta(); }
+00036   double phi() const { return momentum_.phi(); }
+00037   double emEnergy() const { return emEt_ * cosh( eta() ); }
+00038   double hadEnergy() const { return hadEt_ * cosh( eta() ); }
+00039   double outerEnergy() const { return outerEt_ * cosh( eta() ); }
+    */
 
- meEnergyHcalvsEcal->Fill(sumEnergyEcal, sumEnergyHcal);
- meEnergyHO -> Fill(sumEnergyHO);
- meEnergyHcal-> Fill(sumEnergyHcal);
- meEnergyEcal-> Fill(sumEnergyEcal);
- meNumFiredTowers->Fill(numFiredTowers);
- meTotEnergy->Fill(sumEnergyHcal+sumEnergyEcal+sumEnergyHO);
+    // MET, SET & phimet
+    //  double  etT = cal->et();
+      metx += mom.x();   
+      mety += mom.y();  //etT * sin(phiT);          
+      sEt  += en;    
+    }
+  }
+  
+  met    = sqrt(metx*metx + mety*mety);
+  Vector metv(metx,mety,metz);
+  phimet = metv.phi();
+    
+  meEnergyHcalvsEcal->Fill(sumEnergyEcal, sumEnergyHcal);
+  meEnergyHO -> Fill(sumEnergyHO);
+  meEnergyHcal-> Fill(sumEnergyHcal);
+  meEnergyEcal-> Fill(sumEnergyEcal);
+  meNumFiredTowers->Fill(numFiredTowers);
+  meTotEnergy->Fill(sumEnergyHcal+sumEnergyEcal+sumEnergyHO);
+
+  MET    -> Fill (met); 
+  SET    -> Fill (sEt); 
+  phiMET -> Fill (phimet); 
+
 }
 
 
