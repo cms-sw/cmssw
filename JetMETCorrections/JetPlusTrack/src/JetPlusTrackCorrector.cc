@@ -25,6 +25,8 @@ JetPlusTrackCorrector::JetPlusTrackCorrector(const edm::ParameterSet& iConfig)
 			  theRcalo = iConfig.getParameter<double>("rcalo");
 			  theRvert = iConfig.getParameter<double>("rvert");
 			  theResponseAlgo = iConfig.getParameter<int>("respalgo");
+                          theZeroSuppressionCorr = iConfig.getParameter<int>("zspcurve");
+// If theZeroSuppressionCorr = -1 (no correction for ZSP)
        m_inputTrackLabel = iConfig.getUntrackedParameter<std::string>("inputTrackLabel","ctfWithMaterialTracks");
 
        edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
@@ -73,11 +75,23 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
    const reco::TrackCollection tC = *(trackCollection.product());
    reco::VertexCollection::const_iterator pv = primary_vertices->begin();
 
+   double NewResponse = fJet.energy();
+
+   if(theZeroSuppressionCorr > 0.)
+   {
+
+// 
+     double OldResponse =  NewResponse;
+     NewResponse = OldResponse/(1.+(0.2-52.72/(OldResponse+100.)));
+
+   }
+
+
    if( primary_vertices->size() == 0 )
    {
 // No PV correction for this event, try track collection
      if( tC.size() == 0 ) {
-      return 1.;    
+      return NewResponse/fJet.energy();    
      }
    }	 
 	 
@@ -122,7 +136,7 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
     
 //==================================================================================      
 
-      double NewResponse = fJet.energy(); double echar = 0.; double echarsum = 0.;
+      double echar = 0.; double echarsum = 0.;
       
       for (vector<reco::Track>::const_iterator track = theTrack.begin();
                 track != theTrack.end(); track++)
