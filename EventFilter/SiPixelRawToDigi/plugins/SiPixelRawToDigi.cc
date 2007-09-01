@@ -42,6 +42,7 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
   edm::LogInfo("SiPixelRawToDigi")<< " HERE ** constructor!" << endl;
   bool timing = config_.getUntrackedParameter<bool>("Timing",false);
   includeErrors = config_.getUntrackedParameter<bool>("IncludeErrors",false);
+  checkOrder = config_.getUntrackedParameter<bool>("CheckPixelOrder",false);
   // Products
   produces< edm::DetSetVector<PixelDigi> >();
   if(includeErrors) produces< edm::DetSetVector<SiPixelRawDataError> >();
@@ -94,6 +95,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   static int nwords = 0;
 
   PixelDataFormatter formatter(map.product());
+  formatter.setErrorStatus(includeErrors, checkOrder);
 
   if (theTimer) theTimer->start();
 
@@ -111,7 +113,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
     const FEDRawData& fedRawData = buffers->FEDData( fedId );
 
     //convert data to digi and strip off errors
-    formatter.interpretRawData( fedId, fedRawData, digis, includeErrors, errors);
+    formatter.interpretRawData( fedId, fedRawData, digis, errors);
 
     //pack digi into collection
     typedef PixelDataFormatter::Digis::iterator ID;

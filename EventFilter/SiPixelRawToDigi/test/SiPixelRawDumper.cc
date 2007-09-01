@@ -49,9 +49,6 @@ void SiPixelRawDumper::analyze(const  edm::Event& ev, const edm::EventSetup& es)
   static std::string instance = theConfig.getUntrackedParameter<std::string>("InputInstance","");
   ev.getByLabel( label, instance, buffers);
 
-  // determine if error information should be included
-  bool includeErrors = theConfig.getUntrackedParameter<bool>("IncludeErrors",false);
-
   FEDNumbering fednum;
   std::pair<int,int> fedIds = fednum.getSiPixelFEDIds();
 
@@ -66,7 +63,7 @@ void SiPixelRawDumper::analyze(const  edm::Event& ev, const edm::EventSetup& es)
     const FEDRawData& fedRawData = buffers->FEDData( fedId );
 
     //convert data to digi
-    formatter.interpretRawData( fedId, fedRawData, digis, includeErrors, errors);
+    formatter.interpretRawData( fedId, fedRawData, digis, errors);
   }
 
 }

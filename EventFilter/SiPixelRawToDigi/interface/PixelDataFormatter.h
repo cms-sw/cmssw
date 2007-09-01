@@ -34,6 +34,7 @@
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "EventFilter/SiPixelRawToDigi/interface/ErrorChecker.h"
 
 #include <boost/cstdint.hpp>
 #include <vector>
@@ -58,10 +59,12 @@ public:
 
   PixelDataFormatter(const SiPixelFedCablingMap * map);
 
+  void setErrorStatus(bool ErrorStatus, bool OrderStatus);
+
   int nDigis() const { return theDigiCounter; }
   int nWords() const { return theWordCounter; }
 
-  void interpretRawData(int fedId,  const FEDRawData & data, Digis & digis, bool includeErrors, Errors & errors);
+  void interpretRawData(int fedId,  const FEDRawData & data, Digis & digis, Errors & errors);
 
   FEDRawData * formatData( int fedId, const Digis & digis);
 
@@ -70,6 +73,9 @@ private:
   mutable int theWordCounter;
 
   const SiPixelFedCablingMap * theCablingMap;
+  bool includeErrors;
+  bool checkOrder;
+  ErrorChecker errorcheck;
 
   typedef unsigned int Word32;
   typedef long long Word64;
@@ -95,7 +101,6 @@ private:
 
   static const int LINK_bits,  ROC_bits,  DCOL_bits,  PXID_bits,  ADC_bits;
   static const int LINK_shift, ROC_shift, DCOL_shift, PXID_shift, ADC_shift;
-  static const uint32_t dummyDetId;
 };
 
 #endif

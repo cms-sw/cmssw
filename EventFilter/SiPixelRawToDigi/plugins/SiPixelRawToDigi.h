@@ -45,5 +45,6 @@ private:
   TFile * rootFile;
   R2DTimerObserver * theTimer;
   bool includeErrors;
+  bool checkOrder;
 };
 #endif
