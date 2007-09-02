@@ -41,7 +41,7 @@ L1TGTClient::L1TGTClient(const edm::ParameterSet& iConfig): L1TBaseClient()
   
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
   dbe->showDirStructure();
-  dbe->setVerbose(1);
+  dbe->setVerbose(1); 
 
   if(stdalone){ 
   getMESubscriptionListFromFile = iConfig.getUntrackedParameter<bool>("getMESubscriptionListFromFile", true);
@@ -121,7 +121,7 @@ void L1TGTClient::endLuminosityBlock(const edm::LuminosityBlock & iLumiSection, 
 
   LogInfo("TriggerDQM")<<"[TriggerDQM]: end Lumi Section.";
 
-  int ilumi = iLumiSection.id().luminosityBlock();
+  //int ilumi = iLumiSection.id().luminosityBlock();
 // if(stdalone) mui_->doMonitoring();
 
 
@@ -135,7 +135,7 @@ void L1TGTClient::endLuminosityBlock(const edm::LuminosityBlock & iLumiSection, 
 	 
     if(bxHisto) {
 	
-        int nEntries = bxHisto->GetEntries(); 
+        int nEntries = (int)bxHisto->GetEntries(); 
 	 
         int lastBinX=(*bxHisto).GetNbinsX();
 	 

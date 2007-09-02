@@ -15,7 +15,7 @@
 //
 // Original Author:  Lorenzo Agostino
 //         Created:  Thu Jun 28 11:32:01 CEST 2007
-// $Id: L1TDTTPGClient.h,v 1.2 2007/08/14 15:55:19 lorenzo Exp $
+// $Id: L1TDTTPGClient.h,v 1.2 2007/08/29 16:48:33 lorenzo Exp $
 //
 //
 
@@ -26,6 +26,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

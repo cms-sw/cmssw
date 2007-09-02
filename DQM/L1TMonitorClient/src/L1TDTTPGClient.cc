@@ -181,7 +181,7 @@ void L1TDTTPGClient::endLuminosityBlock(const edm::LuminosityBlock & iLumiSectio
 
   LogInfo("TriggerDQM")<<"[TriggerDQM]: end Lumi Section.";
 
-  int ilumi = iLumiSection.id().luminosityBlock();
+  //int ilumi = iLumiSection.id().luminosityBlock();
 //  if(stdalone) mui_->doMonitoring();
 
 
@@ -196,7 +196,7 @@ void L1TDTTPGClient::endLuminosityBlock(const edm::LuminosityBlock & iLumiSectio
 	 
     if(bxPhiHisto) {
 	
-        int nEntries = bxPhiHisto->GetEntries(); 
+        int nEntries = (int)bxPhiHisto->GetEntries(); 
 	 
         int lastBinX=(*bxPhiHisto).GetNbinsX();
 	 
