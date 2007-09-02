@@ -39,7 +39,7 @@ void VZeroProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 
   // Get tracks
   edm::Handle<reco::TrackCollection> trackCollection;
-  ev.getByLabel("ctfTripletTracks",  trackCollection);
+  ev.getByLabel("globalSecoTracks",  trackCollection);
   const reco::TrackCollection tracks = *(trackCollection.product());
 
   // Get primary vertices
