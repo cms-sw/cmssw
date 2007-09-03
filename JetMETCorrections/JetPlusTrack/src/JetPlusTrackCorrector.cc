@@ -5,6 +5,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -108,7 +110,7 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
       double pto = 0.;
       
       vector<reco::Track>  tmp;
-      for (reco::Vertex::trackRef_iterator track = (*pv).tracks_begin();
+      for (reco::track_iterator track = (*pv).tracks_begin();
                 track != (*pv).tracks_end(); track++)
 		{
 		   pto = pto + (*track)->pt();
