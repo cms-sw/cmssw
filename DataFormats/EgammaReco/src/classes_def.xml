@@ -8,7 +8,9 @@
   <class name="edm::RefVector<std::vector<reco::BasicCluster>,reco::BasicCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicCluster>,reco::BasicCluster> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::BasicCluster>,reco::BasicCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicCluster>,reco::BasicCluster> > >"/>
 
-  <class name="reco::SuperCluster"/>  
+  <class name="reco::SuperCluster">
+    <field name="rawEnergy_" transient="true"/>
+  </class>
   <class name="std::vector<reco::SuperCluster>"/>
   <class name="edm::Wrapper<std::vector<reco::SuperCluster> >"/>
   <class name="edm::Ref<std::vector<reco::SuperCluster>,reco::SuperCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::SuperCluster>,reco::SuperCluster> >"/>
