@@ -26,9 +26,8 @@
 
   void cscmap::crate0_chamber (int crate0, int dmb, std::string *chamber_id,
   int *chamber_num, int *sector, int *first_strip_index,
-  int *strips_per_layer)
+  int *strips_per_layer, int *chamber_index)
   {
-    //int ch_ind;
     oracle::occi::Statement *stmt = con->createStatement();
     stmt->setSQL("begin cscmap.chamber0(:1, :2, :3, :4, :5, :6, :7, :8); end;");
 
@@ -45,7 +44,7 @@
 
     *chamber_id = stmt->getString(3);
     *chamber_num = stmt->getInt(4);
-    //ch_ind = stmt->getInt(5);
+    *chamber_index = stmt->getInt(5);
     *first_strip_index = stmt->getInt(6);
     *strips_per_layer = stmt->getInt(7);
     *sector = stmt->getInt(8);
@@ -55,7 +54,7 @@
 
   void cscmap::crate_chamber (int crate, int dmb, std::string *chamber_id,
   int *chamber_num, int *sector, int *first_strip_index,
-  int *strips_per_layer)
+  int *strips_per_layer, int *chamber_index)
   {
     oracle::occi::Statement *stmt = con->createStatement();
     stmt->setSQL("begin cscmap.chamber(:1, :2, :3, :4, :5, :6, :7, :8); end;");
@@ -73,6 +72,7 @@
 
     *chamber_id = stmt->getString(3);
     *chamber_num = stmt->getInt(4);
+    *chamber_index = stmt->getInt(5);
     *first_strip_index = stmt->getInt(6);
     *strips_per_layer = stmt->getInt(7);
     *sector = stmt->getInt(8);
@@ -82,7 +82,8 @@
 
   void cscmap::chamber_crate (std::string chamber_id, int *crate, int *dmb,
 		      int *sector, int *chamber_num, int *crate0,
-                      int *first_strip_index, int *strips_per_layer)
+                      int *first_strip_index, int *strips_per_layer,
+                      int *chamber_index)
   {
     oracle::occi::Statement *stmt = con->createStatement();
     stmt->setSQL("begin cscmap.crate0_proc(:1, :2, :3, :4, :5, :6, :7, :8, :9); end;");
@@ -104,6 +105,7 @@
     *dmb    = stmt->getInt(4);
     *sector = stmt->getInt(5);
     *chamber_num = stmt->getInt(6);
+    *chamber_index = stmt->getInt(7);
     *first_strip_index = stmt->getInt(8);
     *strips_per_layer = stmt->getInt(9);
 

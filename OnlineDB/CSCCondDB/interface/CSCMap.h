@@ -38,7 +38,8 @@ class cscmap
 */
   void crate0_chamber (int crate0, int dmb, std::string *chamber_id,
 		       int *chamber_num, int *sector,
-                       int *first_strip_index, int *strips_per_layer);
+                       int *first_strip_index, int *strips_per_layer,
+                       int *chamber_index);
 /* Method 'crate_chamber' returns similar to previous information,
 |   but for physical (installed) 'crate' number. By now (2005/11/16)
 |   only 2 crates are installed (0 and 1).
@@ -46,7 +47,8 @@ class cscmap
 */
   void crate_chamber (int crate, int dmb, std::string *chamber_id,
 		       int *chamber_num, int *sector,
-                       int *first_strip_index, int *strips_per_layer);
+                       int *first_strip_index, int *strips_per_layer,
+                       int *chamber_index);
 /* Method 'chamber_crate' returns information for a given chamber,
 |   'chamber_id', (like 'ME+2/2/27'). 'crate' - physical (installed)
 |   crate number (-1 means that crate for the given chamber is not
@@ -57,7 +59,8 @@ class cscmap
 */
   void chamber_crate (std::string chamber_id, int *crate, int *dmb,
 		      int *sector, int *chamber_num, int *crate0,
-                      int *first_strip_index, int *strips_per_layer);
+                      int *first_strip_index, int *strips_per_layer,
+                      int *chamber_index);
 
 }; // end of class cscmap
 #endif
