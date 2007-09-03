@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2007/08/17 17:03:51 $
- * $Revision: 1.7 $
+ * $Date: 2007/08/21 21:52:53 $
+ * $Revision: 1.8 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -80,8 +80,14 @@ SiStripAnalyser::SiStripAnalyser(const edm::ParameterSet& ps) :
 SiStripAnalyser::~SiStripAnalyser(){
 
   edm::LogInfo("SiStripAnalyser") <<  " Deleting SiStripAnalyser " << "\n" ;
-  if (sistripWebInterface_) delete sistripWebInterface_;
-  if (trackerMapCreator_) delete trackerMapCreator_;
+//  if (sistripWebInterface_) {
+//     delete sistripWebInterface_;
+//     sistripWebInterface_ = 0;
+//  }
+//  if (trackerMapCreator_) {
+//    delete trackerMapCreator_;
+//    trackerMapCreator_ = 0;
+//  }
 
 }
 //
@@ -97,7 +103,7 @@ void SiStripAnalyser::endJob(){
 //
 void SiStripAnalyser::beginJob(const edm::EventSetup& eSetup){
 
-  nevents = 0;
+  nLumiBlock = 0;
   runNumber_ = 0;
   sistripWebInterface_->readConfiguration(summaryFrequency_);
   edm::LogInfo("SiStripAnalyser") << " Configuration files read out correctly" 
@@ -118,21 +124,31 @@ void SiStripAnalyser::beginJob(const edm::EventSetup& eSetup){
 //  -- Analyze 
 //
 void SiStripAnalyser::analyze(const edm::Event& e, const edm::EventSetup& eSetup){
-  nevents++;
   runNumber_ = e.id().run();
+}
+void SiStripAnalyser::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) {
+  
+  edm::LogVerbatim ("monitorClient") <<"[MonitorClient]: Begin of LS transition";
+
+}
+void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
+
+  edm::LogVerbatim ("monitorClient") <<"[MonitorClient]: End of LS transition, performing the DQM client operation";
+
+  
+  nLumiBlock++;
+
   eSetup.get<SiStripFedCablingRcd>().get(fedCabling_);
  
-  if (nevents <= 3) return;
-
-  cout << " ===> Iteration #" << nevents << endl;
+  cout << " ===> Iteration # " << nLumiBlock << endl;
   // -- Create summary monitor elements according to the frequency
-  if (summaryFrequency_ != -1 && nevents%summaryFrequency_ == 1) {
+  if (summaryFrequency_ != -1 && nLumiBlock%summaryFrequency_ == 1) {
     cout << " Creating Summary " << endl;
     sistripWebInterface_->setActionFlag(SiStripWebInterface::Summary);
     sistripWebInterface_->performAction();
   }
   // -- Create TrackerMap  according to the frequency
-  if (tkMapFrequency_ != -1 && nevents%tkMapFrequency_ == 1) {
+  if (tkMapFrequency_ != -1 && nLumiBlock%tkMapFrequency_ == 1) {
     cout << " Creating Tracker Map " << endl;
     //    trackerMapCreator_->create(dbe);
     trackerMapCreator_->create(fedCabling_, dbe);
@@ -140,15 +156,17 @@ void SiStripAnalyser::analyze(const edm::Event& e, const edm::EventSetup& eSetup
 
   }
   // Create predefined plots
-  if (nevents%10  == 1) {
+  if (nLumiBlock%100  == 1) {
     cout << " Creating predefined plots " << endl;
     sistripWebInterface_->setActionFlag(SiStripWebInterface::PlotHistogramFromLayout);
     sistripWebInterface_->performAction();
   }
 
-  if (nevents % fileSaveFrequency_ == 1) {
+  if (nLumiBlock % fileSaveFrequency_ == 1) {
     saveAll();
   }
+
+
 }
 //
 // -- Save file
@@ -186,6 +204,6 @@ void SiStripAnalyser::defaultWebPage(xgi::Input *in, xgi::Output *out)
   }
   
   // Handles all HTTP requests of the form
-  sistripWebInterface_->handleAnalyserRequest(in, out,nevents);
+  sistripWebInterface_->handleAnalyserRequest(in, out,nLumiBlock);
 
 }

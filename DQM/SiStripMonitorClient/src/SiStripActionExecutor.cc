@@ -55,16 +55,6 @@ bool SiStripActionExecutor::readConfiguration(int& sum_freq) {
   else return true;
 }
 //
-// -- Create and Fill Tracker Map
-//
-//void SiStripActionExecutor::createTkMap(DaqMonitorBEInterface* bei) {
-//  bei->cd();
-//  if (collationDone) bei->cd("Collector/Collated/SiStrip");
-//
-//  tkMapCreator_->create(bei);
-//  
-//  bei->cd();  
-//}
 // -- Create and Fill Summary Monitor Elements
 //
 void SiStripActionExecutor::createSummary(DaqMonitorBEInterface* bei) {

@@ -4,8 +4,8 @@
 /** \class SiStripAnalyser
  * *
  *  SiStrip SiStripAnalyser
- *  $Date: 2007/07/31 08:07:26 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/08/13 18:01:35 $
+ *  $Revision: 1.6 $
  *  \author  S. Dutta INFN-Pisa
  *   
  */
@@ -18,6 +18,7 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include <iostream>
 #include <fstream>
@@ -59,6 +60,11 @@ protected:
   /// Endjob
   void endJob();
 
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
+
+  /// DQM Client Diagnostic
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
+
   /// Save histograms to a root file
 
   void saveAll();
@@ -67,7 +73,7 @@ private:
 
   void createFedTrackerMap();
 
-  int nevents;
+  int nLumiBlock;
 
   DaqMonitorBEInterface* dbe;
   MonitorUserInterface* mui_;

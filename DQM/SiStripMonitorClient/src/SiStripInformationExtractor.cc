@@ -76,7 +76,7 @@ void SiStripInformationExtractor::readConfiguration() {
 // --  Fill Histo and Module List
 // 
 void SiStripInformationExtractor::fillModuleAndHistoList(DaqMonitorBEInterface * bei, vector<string>& modules, vector<string>& histos) {
-  string currDir = bei->pwd();
+   string currDir = bei->pwd();
   if (currDir.find("module_") != string::npos)  {
     string mId = currDir.substr(currDir.find("module_")+7, 9);
     modules.push_back(mId);
@@ -119,7 +119,7 @@ void SiStripInformationExtractor::printSummaryHistoList(DaqMonitorBEInterface * 
   for (vector<string>::const_iterator it = meVec.begin();
        it != meVec.end(); it++) {
     if ((*it).find("Summary") == 0) {
-      str_val << "<li class=\"dhtmlgoodies_sheet.gif\"><a href=\"javascript:DrawSingleHisto('"
+      str_val << "<li class=\"dhtmlgoodies_sheet.gif\"><a href=\"javascript:RequestHistos.DrawSingleHisto('"
            << currDir << "/"<< (*it) << "')\">" << (*it) << "</a></li>" << endl;
     }
   }
@@ -173,7 +173,7 @@ void SiStripInformationExtractor::printAlarmList(DaqMonitorBEInterface * bei, os
         if (my_map.size() > 0) {
 	  string image_name1;
 	  selectImage(image_name1,my_map);
-	  str_val << "<li class=\"dhtmlgoodies_sheet.gif\"><a href=\"javascript:ReadStatus('"
+	  str_val << "<li class=\"dhtmlgoodies_sheet.gif\"><a href=\"javascript:RequestHistos.ReadStatus('"
 		<< full_path<< "')\">" << (*it) << "</a><img src=\""
 		<< image_name1 << "\""<< "</li>" << endl;
         }
@@ -640,6 +640,7 @@ void SiStripInformationExtractor::readGlobalHistoList(DaqMonitorBEInterface* bei
 void SiStripInformationExtractor::readSummaryHistoTree(DaqMonitorBEInterface* bei, string& str_name, xgi::Output * out, bool coll_flag) {
  
   ostringstream sumtree;
+  bei->cd();
   if (goToDir(bei, str_name, coll_flag)) {
     sumtree << "<ul id=\"dhtmlgoodies_tree\" class=\"dhtmlgoodies_tree\">" << endl;
     printSummaryHistoList(bei,sumtree);
@@ -720,7 +721,7 @@ void SiStripInformationExtractor::fillImageBuffer() {
   TImage *image = imgdump.GetImage();
 
   char *buf;
-  int sz;
+ int sz;
   image->GetImageBuffer(&buf, &sz);         /* raw buffer */
 
   pictureBuffer_.str("");
@@ -739,23 +740,26 @@ const ostringstream&  SiStripInformationExtractor::getImage() const {
 // go to a specific directory after scanning
 //
 bool SiStripInformationExtractor::goToDir(DaqMonitorBEInterface* bei, string& sname, bool flg){ 
-  bei->cd();
-  bei->cd("Collector");
-  cout << bei->pwd() << endl;
-  vector<string> subdirs;
-  subdirs = bei->getSubdirs();
-  if (subdirs.size() == 0) return false;
-  
-  if (flg) bei->cd("Collated");
-  else bei->cd(subdirs[0]);
-  cout << bei->pwd() << endl;
-  subdirs.clear();
-  subdirs = bei->getSubdirs();
-  if (subdirs.size() == 0) return false;
-  bei->cd(sname);
-  string dirName = bei->pwd();
-  if (dirName.find(sname) != string::npos) return true;
-  else return false;  
+  string currDir = bei->pwd();
+  if (currDir.find("SiStrip") != string::npos)  {
+    bei->cd(sname);
+    string dname = bei->pwd();
+    if (dname.find(sname) != string::npos) return true;
+    else return false;
+  } else {
+    vector<string> subdirs = bei->getSubdirs();
+    for (vector<string>::const_iterator it = subdirs.begin();
+	 it != subdirs.end(); it++) {
+      if (flg) {
+        if ((*it) == "Collated") bei->cd("Collated"); 
+      } else {
+	bei->cd(*it);
+      }
+      if (goToDir(bei, sname, flg)) return true;
+      else   return false;
+      bei->goUp();
+    }
+  }  
 }
 //
 // -- Get Image name from status

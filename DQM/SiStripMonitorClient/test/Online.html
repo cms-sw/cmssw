@@ -49,21 +49,21 @@
                   id="collate_me"
                   value="Collate ME" 
                   style="width:20%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"                  
-                  onClick="CollateME()" 
+                  onClick="ClientActions.CollateME()" 
                   type="submit">
                </input>
 	       <input name="summary" 
                   id="create_summary"
                   value="Update Summary" 
                   style="width:30%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"                  
-                  onClick="CreateSummary()" 
+                  onClick="ClientActions.CreateSummary()" 
                   type="submit">
                </input>
                <input name="UpdateTrackerMap" 
                  id="create_tkmap"
                  value="Create Tk Map"
 		 style="width:30%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
-                 onClick="OpenTrackerMap()"
+                 onClick="ClientActions.OpenTrackerMap()"
                  type="submit">                   
              </input>
           </fieldset>
@@ -87,7 +87,7 @@
                       id="draw_summary"
                       value="DrawSummary" 
                       style="width:30%;"
-                      onClick="DrawSelectedSummary();" 
+                      onClick="RequestHistos.DrawSelectedSummary();" 
                       type="submit">
                  </input>
 		   <br/>
@@ -99,42 +99,42 @@
                  <input name="StartSLShow" 
                         id="start_slide_show"
                         value="|<<" 
-                        onClick="ShowFirst();" 
+                        onClick="SlideShow.ShowFirst();" 
                         type="image"
                         src="images/player_start.png">
                  </input>
                  <input name="PreviousSLShow" 
                         id="previous_slide_show"
                         value="<<" 
-                        onClick="ShowPrev();" 
+                        onClick="SlideShow.ShowPrev();" 
                         type="image"
                         src="images/player_rew.png">
                  </input>
                  <input name="PlaySLShow" 
                         id="play_slide_show"
                         value=">" 
-                        onClick="StartSlideShow();" 
+                        onClick="SlideShow.StartSlideShow();" 
                         type="image"
                         src="images/player_play.png">
                  </input>
                  <input name="StopSLShow" 
                         id="stop_slide_show"
                         value="||" 
-                        onClick="StopSlideShow();" 
+                        onClick="SlideShow.StopSlideShow();" 
                         type="image"
                         src="images/player_stop.png">
                  </input>
                  <input name="NextSLShow" 
                         id="next_slide_show"
                         value=">>" 
-                        onClick="ShowNext();" 
+                        onClick="SlideShow.ShowNext();" 
                         type="image"
                         src="images/player_fwd.png">
                  </input>
                  <input name="EndSLShow" 
                         id="end_slide_show"
                         value=">>|" 
-                        onClick="ShowLast();" 
+                        onClick="SlideShow.ShowLast();" 
                         type="image"
                         src="images/player_end.png">
                  </input>
@@ -144,14 +144,14 @@
                    id="check_qtest_result_lite"
                    value="QTest Result" 
                    style="width:30%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
-                   onClick="CheckQualityTestResultsLite()" 
+                   onClick="RequestHistos.CheckQualityTestResultsLite()" 
                    type="submit">
                  </input>  
                  <input name="QtestResultDetail" 
                    id="check_qtest_result_detail"
                    value="QTest Result Detail" 
                    style="width:30%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
-                   onClick="CheckQualityTestResultsDetail()" 
+                   onClick="RequestHistos.CheckQualityTestResultsDetail()" 
                    type="submit">
                  </input>  
                </fieldset>
@@ -173,18 +173,18 @@
                   <select name="struc_name" 
                        id="structure_name"
                        style="width:20%;height:5%;text-align;margin-right:2%">
-                       <option value="SiStrip/MechanicalView/TIB" SELECTED> TIB </option>
-                       <option value="SiStrip/MechanicalView/TOB"> TOB </option>
-                       <option value="SiStrip/MechanicalView/TEC/side_2"> TECF </option>
-                       <option value="SiStrip/MechanicalView/TID/side_2"> TIDF </option>
-                       <option value="SiStrip/MechanicalView/TEC/side_1"> TECB </option>
-                       <option value="SiStrip/MechanicalView/TID/side_1"> TIDB </option>
+                       <option value="MechanicalView/TIB" SELECTED> TIB </option>
+                       <option value="MechanicalView/TOB"> TOB </option>
+                       <option value="MechanicalView/TEC/side_2"> TECF </option>
+                       <option value="MechanicalView/TID/side_2"> TIDF </option>
+                       <option value="MechanicalView/TEC/side_1"> TECB </option>
+                       <option value="MechanicalView/TID/side_1"> TIDB </option>
                   </select>
                   <input name="listsummary" 
                         id="list_summary"
                         value="Get Tree" 
                         style="width:30%;margin-left:2%;margin-top:2%"
-                        onClick="RequestSummaryHistoList()" 
+                        onClick="RequestHistos.RequestSummaryHistoList()" 
                         type="submit">
                    </input>
 	        </fieldset>
@@ -207,18 +207,18 @@
                   <select name="struc_alarm" 
                        id="structure_for_alarm"
                        style="width:20%;height:5%;text-align;margin-right:2%">
-                       <option value="SiStrip/MechanicalView/TIB" SELECTED> TIB </option>
-                       <option value="SiStrip/MechanicalView/TOB"> TOB </option>
-                       <option value="SiStrip/MechanicalView/TEC/side_2"> TECF </option>
-                       <option value="SiStrip/MechanicalView/TID/side_2"> TIDF </option>
-                       <option value="SiStrip/MechanicalView/TEC/side_1"> TECB </option>
-                       <option value="SiStrip/MechanicalView/TID/side_1"> TIDB </option>
+                       <option value="MechanicalView/TIB" SELECTED> TIB </option>
+                       <option value="MechanicalView/TOB"> TOB </option>
+                       <option value="MechanicalView/TEC/side_2"> TECF </option>
+                       <option value="MechanicalView/TID/side_2"> TIDF </option>
+                       <option value="MechanicalView/TEC/side_1"> TECB </option>
+                       <option value="MechanicalView/TID/side_1"> TIDB </option>
                   </select>
                   <input name="listalarm" 
                         id="read_alarm"
                         value="Get Alarms" 
                         style="width:30%;margin-left:2%;margin-top:2%"
-                        onClick="RequestAlarmList()" 
+                        onClick="RequestHistos.RequestAlarmList()" 
                         type="submit">
                    </input>
 	        </fieldset>
@@ -269,7 +269,7 @@
                         style="margin-left:0%;margin-top:-4%;float:right;"
                         onmouseover="ddrivetip('Get list of histograms for selected choice','#EAFFF9',200);"
                         onmouseout="hideddrivetip();"
-                        onClick="RequestHistoList()" 
+                        onClick="RequestHistos.RequestHistoList()" 
                         type="submit">
                   </input>
 	        </fieldset>
@@ -357,7 +357,7 @@
                         id="draw_histos"
                         value="Draw Histogram(s)" 
                         style="width:35%;margin-left:60%;"
-                        onClick="DrawSelectedHistos();" 
+                        onClick="RequestHistos.DrawSelectedHistos();" 
                         type="submit">
                    </input>
                   <br/>
