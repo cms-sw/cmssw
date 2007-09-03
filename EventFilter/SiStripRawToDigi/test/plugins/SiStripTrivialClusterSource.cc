@@ -1,19 +1,14 @@
 #include "EventFilter/SiStripRawToDigi/test/plugins/SiStripTrivialClusterSource.h"
-// FWCore
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-// CalibTracker
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-// DataFormats
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/Handle.h"
-// clhep
 #include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/RandFlat.h"
-// std
 #include <cstdlib>
 #include <iostream>
 #include <string>
@@ -32,8 +27,8 @@ SiStripTrivialClusterSource::SiStripTrivialClusterSource( const edm::ParameterSe
   separation_( pset.getUntrackedParameter<unsigned int>("Separation",2) ),
   maxAdc_( pset.getUntrackedParameter<bool>("MaxAdc",false) ),
   detCabling_(),
-  detids_(),
-  nstrips_(0)
+  nstrips_(0),
+  detids_()
 {
   LogTrace("TrivialClusterSource") 
     << "[SiStripTrivialClusterSource::" 
@@ -62,51 +57,53 @@ void SiStripTrivialClusterSource::beginJob( const edm::EventSetup& setup) {
     << __func__
     << "]";
 
-  edm::ESHandle<SiStripDetCabling> cabling_;
-  setup.get<SiStripDetCablingRcd>().get( cabling_ );
-  detCabling_ = cabling_->getDetCabling();
+  edm::ESHandle<SiStripDetCabling> cabling;
+  setup.get<SiStripDetCablingRcd>().get( cabling );
+  detCabling_ = cabling->getDetCabling();
 
  //Store Det-ids and Calculate number of strips in tracker
-  detids_.reserve(detCabling_.size());
   map< uint32_t, vector<FedChannelConnection> >::const_iterator iconn = detCabling_.begin();
   for (;iconn != detCabling_.end();iconn++) {
-    if ((!iconn->first) || (iconn->first == sistrip::invalid32_)) {continue;}
+    if ((!iconn->first) || (iconn->first == sistrip::invalid32_)) continue;
     detids_.push_back(iconn->first);
     nstrips_+=(iconn->second.size()*256);
- 
   }
 }
 
 // -----------------------------------------------------------------------------
 /** */
-void SiStripTrivialClusterSource::endJob() {;}
+void SiStripTrivialClusterSource::endJob() {
+
+  LogTrace("TrivialClusterSource") 
+    << "[SiStripTrivialClusterSource::" 
+    << __func__
+    << "]";
+}
 
 // -----------------------------------------------------------------------------
 /** */
 void SiStripTrivialClusterSource::produce( edm::Event& iEvent, 
 					const edm::EventSetup& iSetup ) {
 
-  LogDebug("TrivialClusterSource") 
+  LogTrace("TrivialClusterSource") 
+    << "[SiStripTrivialClusterSource::" 
     << __func__
-    << "] "
-    << "Event: "
-    << iEvent.id();
-
+    << "]";
+  
+  //Product
   auto_ptr< edm::DetSetVector<SiStripDigi> > clusters( new edm::DetSetVector<SiStripDigi>() );
-
+  
   //Occupancy
-  double occupancy = RandFlat::shoot() * (maxOcc_ - minOcc_) + minOcc_;
+  double occupancy = randflat(minOcc_,maxOcc_);
   uint32_t ndigis = (uint32_t)(nstrips_ * occupancy);
 
   //Fill collection with clusters
-  uint16_t csize = randflat(minCluster_,maxCluster_);
-
+  uint32_t csize = randflat(minCluster_,maxCluster_);
   while (ndigis > csize) {
  
     bool accepted = false;
     uint32_t safetyCounter = 0;
-    while (!accepted && 
-	   (safetyCounter < 10000)) {
+    while (!accepted && (safetyCounter < 10000)) {
       
       //Generate det-id and strip number
       uint32_t index = randflat(0,detCabling_.size()-1);
@@ -118,19 +115,25 @@ void SiStripTrivialClusterSource::produce( edm::Event& iEvent,
       detset.data.reserve(768);
       
       //Update detset with cluster at chosen strip position if clear
-      CandidateCluster candidate(strip,csize,separation_);
-      if (find_if(detset.begin(),detset.end(),candidate)==detset.end()) {
-	
+      bool empty = true;
+      for (unsigned int i = 0; i < detset.size(); i++) {
+	int detstrip = detset.data[i].strip();
+	if (detstrip >= (strip-separation_) && detstrip < static_cast<int>(strip+csize+separation_) && detset.data[i].adc()) {
+	  empty = false; break;
+	}
+      }
+      
+      if (empty) {
 	for (unsigned int istrip=0;istrip<csize;++istrip) { 
-	  uint16_t adc = (maxAdc_) ? 255 : randflat(1,255);
+	  uint16_t adc = (maxAdc_) ? 255 : randflat((uint32_t)1,(uint32_t)255);
 	  detset.data.push_back(SiStripDigi(strip+istrip,adc));
 	}
 	accepted = true;
       }
       else safetyCounter++;
     }
-    
-    if (safetyCounter > 10000) {
+
+    if (safetyCounter >= 10000) {
       edm::LogError("TrivialClusterSource")
 	<< "[SiStripTrivialClusterSource::"
 	<< __func__
@@ -145,26 +148,12 @@ void SiStripTrivialClusterSource::produce( edm::Event& iEvent,
   }
   
   iEvent.put( clusters );
+}
 
- LogDebug("TrivialClusterSource")
-   << "[SiStripTrivialClusterSource::"
-   << __func__
-   <<"]"
-   << " Generated " << occupancy*nstrips_
-   << " digis for " << nstrips_/256.
-   << " channels with a mean occupancy of " 
-   << occupancy *100.
-   << " %";
-  }
+double SiStripTrivialClusterSource::randflat(double min, double max) {
+  return RandFlat::shoot() * (maxOcc_ - minOcc_) + minOcc_;
+}
 
-uint32_t SiStripTrivialClusterSource::randflat(uint32_t min,uint32_t max) {
-
-  if (max < min)
-    edm::LogError("TrivialClusterSource")
-      << "[SiStripTrivialClusterSource::"
-      << __func__
-      <<"]"
-      << " Min > Max";
-  
+uint32_t SiStripTrivialClusterSource::randflat(uint32_t min, uint32_t max) {
   return (uint32_t)(RandFlat::shoot() * (max - min +1)) + min; 
 }
