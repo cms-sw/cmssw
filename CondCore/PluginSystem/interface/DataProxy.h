@@ -5,11 +5,11 @@
 #include <string>
 // user include files
 #include "FWCore/Framework/interface/DataProxyTemplate.h"
-//#include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/Connection.h"
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
-#include "CondCore/DBCommon/interface/TypedRef.h"
+#include "DataSvc/Ref.h"
+//#include <iostream>
 
 template< class RecordT, class DataT >
   class DataProxy : public edm::eventsetup::DataProxyTemplate<RecordT, DataT>{
@@ -41,17 +41,15 @@ template< class RecordT, class DataT >
     try{
       //std::cout<<"DataT make "<<std::endl;
       cond::PoolTransaction& pooldb=m_connection->poolTransaction(true);
-      pooldb.start();
-      cond::TypedRef<DataT> data(pooldb,m_pProxyToToken->second);
-      *data;
-      result=data.ptr();
+      pooldb.start();      
+      pool::Ref<DataT> mydata(&(pooldb.poolDataSvc()),m_pProxyToToken->second);
+      result=mydata.ptr();
+      m_data.copyShallow(mydata);
       pooldb.commit();
     }catch( const cond::Exception& er ){
       throw er;
     }catch( const std::exception& er ){
       throw cond::Exception( er.what() );
-    }catch( ... ){
-      throw cond::Exception( "Unknown error" );
     }
     if(!result){
       throw cond::Exception("DataProxy::make: null result");
@@ -59,8 +57,7 @@ template< class RecordT, class DataT >
     return result;
   }
   virtual void invalidateCache() {
-    //m_data.clear();
-    //std::cout<<"end invalidateCache"<<std::endl;
+    m_data.clear();
   }
   private:
   //DataProxy(); // stop default
@@ -68,6 +65,6 @@ template< class RecordT, class DataT >
   // ---------- member data --------------------------------
   cond::Connection* m_connection;
   std::map<std::string,std::string>::iterator m_pProxyToToken;
-  //cond::TypedRef<DataT> m_data;
+  pool::Ref<DataT> m_data;
 };
 #endif /* CONDCORE_PLUGINSYSTEM_DATAPROXY_H */
