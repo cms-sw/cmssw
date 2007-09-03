@@ -1,7 +1,7 @@
 // system include files
 #include "boost/shared_ptr.hpp"
-#include "boost/filesystem/path.hpp"
-#include "boost/filesystem/operations.hpp"
+//#include "boost/filesystem/path.hpp"
+//#include "boost/filesystem/operations.hpp"
 // user include files
 #include "CondCore/ESSources/interface/PoolDBESSource.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
@@ -111,14 +111,19 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   std::string connect;
   bool usingDefaultCatalog=false;
   connect=iConfig.getParameter<std::string>("connect");
-  catStr=iConfig.getUntrackedParameter<std::string>("catalog","");
-  bool siteLocalConfig=iConfig.getUntrackedParameter<bool>("siteLocalConfig",false);
+  if( iConfig.exists("InPathCatalog") ){
+    edm::FileInPath inpathcat=iConfig.getParameter<edm::FileInPath>("InPathCatalog");
+    catStr="file://" + inpathcat.fullPath();
+    //std::cout<<"full path "<<catStr<<std::endl;
+  }else{
+    catStr=iConfig.getUntrackedParameter<std::string>("catalog","");
+  }
   if( catStr.empty() ){
     usingDefaultCatalog=true;
   }else{
     catconnect=catStr;
   }
-
+  bool siteLocalConfig=iConfig.getUntrackedParameter<bool>("siteLocalConfig",false);
   cond::DBCatalog mycat;
   std::pair<std::string,std::string> logicalService=mycat.logicalservice(connect);
   std::string logicalServiceName=logicalService.first;
@@ -130,22 +135,6 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
 	catconnect=mycat.defaultOnlineCatalogName();
       }else if( logicalServiceName=="offline" ){
 	catconnect=mycat.defaultOfflineCatalogName();
-	//}else if( logicalServiceName=="integration" ){
-	//catconnect=mycat.defaultIntegrationCatalogName();
-      }else if( logicalServiceName=="local" ){
-	//if catalog string empty, and service level is local assuming local xml catalog with default name and $CMSSW_DATA_PATH/data-CondCore-SQLiteData/1.0/data/localCondDBCatalog.xml
-	const char* datatop = getenv("CMSSW_DATA_PATH");
-	if(!datatop) throw cond::Exception("CMSSW_DATA_PATH is not set");
-	fs::path full_path(datatop);
-	full_path/=fs::path("data-CondCore-SQLiteData");
-	full_path/=fs::path("1");
-        full_path/=fs::path("CondCore");
-	full_path/=fs::path("SQLiteData");
-	full_path/=fs::path("data");
-	full_path/=fs::path("localCondDBCatalog.xml");
-	std::string fullname=full_path.string();
-	if( !fs::exists(full_path) ) throw cond::Exception(std::string("default catalog ")+fullname+" not found"); 
-	catconnect=std::string("xmlcatalog_file://")+fullname;
       }else{
 	throw cond::Exception(std::string("no default catalog found for ")+logicalServiceName);
       }
