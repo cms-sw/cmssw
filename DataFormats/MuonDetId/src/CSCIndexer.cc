@@ -136,3 +136,20 @@ CSCIndexer::IndexType CSCIndexer::checkLabel( IndexType ici ) const {
   if (chamberLabel.empty()) fillChamberLabel();
   return chamberLabel[ici];  
 }
+
+int CSCIndexer::dbIndex(const CSCDetId & id, int & channel)
+{
+  int ec = id.endcap();
+  int st = id.station();
+  int rg = id.ring();
+  int ch = id.chamber();
+  int la = id.layer();
+
+  // The channels of ME1A are channels 65-80 of ME11
+  if(st == 1 && rg == 4)
+    {
+      rg = 1;
+      if(channel <= 16) channel += 64; // no trapping for any bizarreness
+    }
+  return ec*100000 + st*10000 + rg*1000 + ch*10 + la;
+}
