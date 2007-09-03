@@ -25,7 +25,7 @@ void HcalHitCorrection::fillChargeSums(MixCollection<PCaloHit> & hits)
     LogDebug("HcalHitCorrection") << "HcalHitCorrection::Hit tbin" << tbin;
     if(tbin >= 0 && tbin < 10) 
     {  
-      theChargeSumsForTimeBin[tbin][hitItr->id()] += charge(*hitItr);
+      theChargeSumsForTimeBin[tbin][DetId(hitItr->id())] += charge(*hitItr);
     }
   }
 }
@@ -65,7 +65,7 @@ double HcalHitCorrection::delay(const PCaloHit & hit) const
   int tbin = timeBin(hit);
   if(tbin >= 0 && tbin < 10)
   {
-    ChargeSumsByChannel::const_iterator totalChargeItr = theChargeSumsForTimeBin[tbin].find(hcalDetId);
+    ChargeSumsByChannel::const_iterator totalChargeItr = theChargeSumsForTimeBin[tbin].find(detId);
     if(totalChargeItr == theChargeSumsForTimeBin[tbin].end())
     {
       throw cms::Exception("HcalHitCorrection") << "Cannot find HCAL charge sum for hit " << hit;
@@ -91,7 +91,7 @@ void HcalHitCorrection::correct(PCaloHit & hit) const {
 int HcalHitCorrection::timeBin(const PCaloHit & hit) const
 {
   const CaloSimParameters & parameters = theParameterMap->simParameters(DetId(hit.id()));
-  double t = hit.time() - timeOfFlight(HcalDetId(hit.id())) + parameters.timePhase();
+  double t = hit.time() - timeOfFlight(DetId(hit.id())) + parameters.timePhase();
   return static_cast<int> (t / 25) + parameters.binOfMaximum() - 1;
 }
 
