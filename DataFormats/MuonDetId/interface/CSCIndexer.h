@@ -33,12 +33,13 @@
 
 class CSCIndexer {
 
+public:
+
   //  typedef unsigned short int IndexType;
   //  typedef unsigned       int LongIndexType;
   typedef uint16_t IndexType;
   typedef uint32_t LongIndexType;
 
-public:
   CSCIndexer(){};
   ~CSCIndexer(){};
 
@@ -52,7 +53,7 @@ public:
    * No sanity checking on input value: if you supply an ME1a CSCDetId then you'll get nonsense.
    */
 
-   IndexType chamberIndex( CSCDetId& id ) const {
+   IndexType chamberIndex( const CSCDetId& id ) const {
      return chamberIndex( id.endcap(), id.station(), id.ring(), id.chamber() );
    }
 
@@ -66,7 +67,7 @@ public:
    * No sanity checking on input value: if you supply an ME1a CSCDetId then you'll get nonsense.
    */
 
-   IndexType layerIndex( CSCDetId& id ) const {
+   IndexType layerIndex( const CSCDetId& id ) const {
      return layerIndex(id.endcap(), id.station(), id.ring(), id.chamber(), id.layer());
    }
 
@@ -169,7 +170,7 @@ public:
    * No trapping on out-of-range values!
    */
 
-   LongIndexType stripChannelIndex( CSCDetId& id, IndexType istrip ) const {
+   LongIndexType stripChannelIndex( const CSCDetId& id, IndexType istrip ) const {
       return stripChannelIndex(id.endcap(), id.station(), id.ring(), id.chamber(), id.layer(), istrip );
    }
 
@@ -184,6 +185,15 @@ public:
 
   IndexType checkLabel( IndexType ) const;
 
+  /**
+   * Build index used internally in online CSC conditions databases (the 'Igor Index')
+   *
+   * This is the decimal integer ie*100000 + is*10000 + ir*1000 + ic*10 + il <br>
+   * (ie=1-2, is=1-4, ir=1-4, ic=1-36, il=1-6) <br>
+   * Channels 1-16 in ME1A are reset to channels 65-80 of ME11.
+   */
+  int dbIndex(const CSCDetId & id, int & channel);
+
 private:
   void fillChamberLabel() const; // const so it can be called in const function detIdFromChamberIndex
 
@@ -193,4 +203,9 @@ private:
 };
 
 #endif
+
+
+
+
+
 
