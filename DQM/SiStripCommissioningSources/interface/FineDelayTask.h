@@ -2,6 +2,8 @@
 #define DQM_SiStripCommissioningSources_FineDelayTask_h
 
 #include "DQM/SiStripCommissioningSources/interface/CommissioningTask.h"
+#include <map>
+#include <string>
 
 /**
    @class FineDelayTask
@@ -20,7 +22,9 @@ class FineDelayTask : public CommissioningTask {
 		     const edm::DetSet<SiStripRawDigi>& );
   virtual void update();
   
-  HistoSet timing_;
+  static std::map<std::string, HistoSet> timingMap_;
+  HistoSet dummy_;
+  HistoSet& timing_;
 
   uint16_t nBins_;
   float fiberLengthCorrection_;

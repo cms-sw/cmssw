@@ -601,10 +601,9 @@ void SiStripCommissioningSource::fillHistos( const SiStripEventSummary* const su
 					SiStripFedKey::feChan(iconn->fedCh()) ).key();
       if ( !(iconn->fedId()) ) { continue; }
 
-      if ( task_ != sistrip::FINE_DELAY ) {
-       // Retrieve digis for given FED key and check if found
-       std::vector< edm::DetSet<SiStripRawDigi> >::const_iterator digis = raw.find( fed_key ); 
-       if ( digis != raw.end() ) { 
+      // Retrieve digis for given FED key and check if found
+      std::vector< edm::DetSet<SiStripRawDigi> >::const_iterator digis = raw.find( fed_key ); 
+      if ( digis != raw.end() ) { 
  	if ( tasks_[iconn->fedId()][iconn->fedCh()] ) { 
 	  tasks_[iconn->fedId()][iconn->fedCh()]->fillHistograms( *summary, *digis );
 	} else {
@@ -618,18 +617,7 @@ void SiStripCommissioningSource::fillHistos( const SiStripEventSummary* const su
 	     << " Unable to fill histograms!";
 	  edm::LogWarning(mlDqmSource_) << ss.str();
 	}
-       }
-      } else {
-        // for a fine delay task, the detset key is the detid
-        // we start by checking that there is a task for the fedid/fedch pair since in fine delay this is often not the case
-        if ( tasks_[iconn->fedId()][iconn->fedCh()] ) {
-          // Retrieve digis for given detid and check if found
-          std::vector< edm::DetSet<SiStripRawDigi> >::const_iterator digis = raw.find( iconn->detId() );
-          if ( digis != raw.end() ) {
-            tasks_[iconn->fedId()][iconn->fedCh()]->fillHistograms( *summary, *digis );
-          }
-        }
-      } // fine delay task
+      }
     } // fed channel loop
   } // fed id loop
 
@@ -868,9 +856,6 @@ void SiStripCommissioningSource::createCablingTasks() {
 //
 void SiStripCommissioningSource::createTasks( sistrip::RunType run_type ) {
 
-  // List of already used detids
-  std::map<uint32_t,bool> detids;
-
   // Iterate through FED ids and channels 
   uint16_t booked = 0;
   std::vector<uint16_t>::const_iterator ifed = fedCabling_->feds().begin();
@@ -910,15 +895,7 @@ void SiStripCommissioningSource::createTasks( sistrip::RunType run_type ) {
 	else if ( task_ == sistrip::VPSP_SCAN ) { tasks_[iconn->fedId()][iconn->fedCh()] = new VpspScanTask( dqm(), *iconn ); }
 	else if ( task_ == sistrip::PEDESTALS ) { tasks_[iconn->fedId()][iconn->fedCh()] = new PedestalsTask( dqm(), *iconn ); }
 	else if ( task_ == sistrip::DAQ_SCOPE_MODE ) { tasks_[iconn->fedId()][iconn->fedCh()] = new DaqScopeModeTask( dqm(), *iconn ); }
-        else if ( task_ == sistrip::FINE_DELAY ) {
-          //only create one task per module
-          //it would be simpler if tasks were stored in a map, but here we reuse the vector of vectors.
-          //a task is created for the first fedid/fedch pair of each module
-          if(detids.find(iconn->detId())==detids.end()) {
-            detids[iconn->detId()] = 1;
-            tasks_[iconn->fedId()][iconn->fedCh()] = new FineDelayTask( dqm(), *iconn );
-          } else tasks_[iconn->fedId()][iconn->fedCh()] = 0;
-        }
+        else if ( task_ == sistrip::FINE_DELAY ) { tasks_[iconn->fedId()][iconn->fedCh()] = new FineDelayTask( dqm(), *iconn ); }
 	else if ( task_ == sistrip::UNDEFINED_RUN_TYPE ) { 
 	  edm::LogWarning(mlDqmSource_)  
 	    << "[SiStripCommissioningSource::" << __func__ << "]"

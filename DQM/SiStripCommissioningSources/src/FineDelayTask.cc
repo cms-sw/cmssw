@@ -6,10 +6,15 @@
 
 // -----------------------------------------------------------------------------
 //
+std::map<std::string, CommissioningTask::HistoSet> FineDelayTask::timingMap_;
+
+// -----------------------------------------------------------------------------
+//
 FineDelayTask::FineDelayTask( DaqMonitorBEInterface* dqm,
 			      const FedChannelConnection& conn ) :
   CommissioningTask( dqm, conn, "FineDelayTask" ),
-  timing_(),
+  dummy_(),
+  timing_(dummy_),
   nBins_(100) //TODO: tune this to the expected PLL step/range
 {
   LogDebug("Commissioning") << "[FineDelayTask::FineDelayTask] Constructing object...";
@@ -33,19 +38,31 @@ FineDelayTask::~FineDelayTask() {
 void FineDelayTask::book() {
   LogDebug("Commissioning") << "[FineDelayTask::book]";
 
+  // construct the histo title
+  // by setting the granularity to sistrip::TRACKER, the title will be identical for all detkeys.
+  // therefore, only one histo will be booked/analyzed
   std::string title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
 					 sistrip::FINE_DELAY, 
   					 sistrip::DET_KEY, 
 					 connection().detId(),
-					 sistrip::MODULE, 
+					 sistrip::TRACKER, 
 					 0 ).title(); 
-  timing_.histo_ = dqm()->bookProfile( title, title,    // name and title
-				       nBins_, -25, 25, // binning + range
-				       100, 0., -1. );  // Y range : automatic
+  // look if such an histogram is already booked
+  if(timingMap_.find(title)!=timingMap_.end()) {
+    // if already booked, use it
+    timing_ = timingMap_[title];
+  } else {
+    // if not, book it
+    timingMap_[title] = HistoSet();
+    timing_ = timingMap_[title];
+    timing_.histo_ = dqm()->bookProfile( title, title,    // name and title
+  				         nBins_, -25, 25, // binning + range
+				         100, 0., -1. );  // Y range : automatic
   
-  timing_.vNumOfEntries_.resize(nBins_,0);
-  timing_.vSumOfContents_.resize(nBins_,0);
-  timing_.vSumOfSquares_.resize(nBins_,0);
+    timing_.vNumOfEntries_.resize(nBins_,0);
+    timing_.vSumOfContents_.resize(nBins_,0);
+    timing_.vSumOfSquares_.resize(nBins_,0);
+  }
   LogDebug("Commissioning") << "[FineDelayTask::book] done";
   
 }
