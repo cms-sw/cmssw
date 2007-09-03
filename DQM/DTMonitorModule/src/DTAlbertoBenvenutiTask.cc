@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/08/24 08:54:40 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/08/24 11:21:05 $
+ *  $Revision: 1.2 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -163,38 +163,67 @@ void DTAlbertoBenvenutiTask::bookHistos(const DTWireId dtWire) {
   stringstream wheel; wheel << dtWire.layerId().superlayerId().chamberId().wheel();	
   stringstream station; station << dtWire.layerId().superlayerId().chamberId().station();	
   stringstream sector; sector << dtWire.layerId().superlayerId().chamberId().sector();	
-  stringstream superLayer; superLayer << dtWire.layerId().superlayerId().superlayer();
-  stringstream layer; layer << dtWire.layerId().layer();
-  stringstream wire; wire << dtWire.wire();
-
-  string histoTag = "TimeBox";
-  string histoName = histoTag
-    + "_W" + wheel.str() 
-    + "_St" + station.str() 
-    + "_Sec" + sector.str() 
-    + "_SL" + superLayer.str()
-    + "_L" + layer.str()
-    + "_wire" + wire.str();
-
-  if (debug) cout<<"[DTAlbertoBenvenutiTask]: histoName "<<histoName<<endl;
-
-  if ( parameters.getUntrackedParameter<bool>("readDB", false) ) 
-    tTrigMap->slTtrig(dtWire.layerId().superlayerId(), tTrig, tTrigRMS); 
-  else tTrig = parameters.getParameter<int>("defaultTtrig");
   
-  string histoTitle = histoName + " (TDC Counts)";
-  int timeBoxGranularity = parameters.getUntrackedParameter<int>("timeBoxGranularity",4);
-  
-  if (!parameters.getUntrackedParameter<bool>("readDB", true)) {
-    int maxTDCCounts = 6400 * parameters.getUntrackedParameter<int>("tdcRescale", 1);
-    TH1F *TB = new TH1F(histoName.c_str(),histoTitle.c_str(), maxTDCCounts/timeBoxGranularity, 0, maxTDCCounts);
-    TBMap[dtWire] = TB;
-  }    
-  else {
-    TH1F *TB = new TH1F(histoName.c_str(),histoTitle.c_str(), 2*tMax/timeBoxGranularity, tTrig-tMax, tTrig+2*tMax);
-    TBMap[dtWire] = TB;
-  }
+  // Loop over all the chambers
+  vector<DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
+  vector<DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
+  // Loop over the SLs
+  for (; ch_it != ch_end; ++ch_it) {
+    DTChamberId ch = (*ch_it)->id();
+    if(ch == dtWire.layerId().superlayerId().chamberId()){
+      vector<const DTSuperLayer*>::const_iterator sl_it = (*ch_it)->superLayers().begin(); 
+      vector<const DTSuperLayer*>::const_iterator sl_end = (*ch_it)->superLayers().end();
+      // Loop over the SLs
+      for(; sl_it != sl_end; ++sl_it) {
+	DTSuperLayerId sl = (*sl_it)->id();
+	stringstream superLayer; superLayer << sl.superlayer();
+	vector<const DTLayer*>::const_iterator l_it = (*sl_it)->layers().begin(); 
+	vector<const DTLayer*>::const_iterator l_end = (*sl_it)->layers().end();
+	// Loop over the Ls
+	for(; l_it != l_end; ++l_it) {
+	  DTLayerId layerId = (*l_it)->id();
+	  stringstream layer; layer << layerId.layer();
+	  const int firstWire = muonGeom->layer(layerId)->specificTopology().firstChannel();
+	  const int lastWire = muonGeom->layer(layerId)->specificTopology().lastChannel();
+	  // Loop overt the wires
+	  for(int wr=firstWire; wr <= lastWire; wr++) {
 
+	    stringstream wire; wire << wr;
+	    DTWireId wrId(layerId, wr);
+
+	    string histoTag = "TimeBox";
+	    string histoName = histoTag
+	      + "_W" + wheel.str() 
+	      + "_St" + station.str() 
+	      + "_Sec" + sector.str() 
+	      + "_SL" + superLayer.str()
+	      + "_L" + layer.str()
+	      + "_wire" + wire.str();
+
+	    if (debug) cout<<"[DTAlbertoBenvenutiTask]: histoName "<<histoName<<endl;
+
+	    if ( parameters.getUntrackedParameter<bool>("readDB", false) ) 
+	      tTrigMap->slTtrig(dtWire.layerId().superlayerId(), tTrig, tTrigRMS); 
+	    else tTrig = parameters.getParameter<int>("defaultTtrig");
+  
+	    string histoTitle = histoName + " (TDC Counts)";
+	    int timeBoxGranularity = parameters.getUntrackedParameter<int>("timeBoxGranularity",4);
+  
+	    if (!parameters.getUntrackedParameter<bool>("readDB", true)) {
+	      int maxTDCCounts = 6400 * parameters.getUntrackedParameter<int>("tdcRescale", 1);
+	      TH1F *TB = new TH1F(histoName.c_str(),histoTitle.c_str(), maxTDCCounts/timeBoxGranularity, 0, maxTDCCounts);
+	      TBMap[wrId] = TB;
+	    }    
+	    else {
+	      TH1F *TB = new TH1F(histoName.c_str(),histoTitle.c_str(), 2*tMax/timeBoxGranularity, tTrig-tMax, tTrig+2*tMax);
+	      TBMap[wrId] = TB;
+	    }
+
+	  } // loopover  wires
+	} // loop over Ls
+      } // loop over SLs
+    } // if is the right chamber to book
+  } // loop over chambers
 }
 
 
@@ -266,8 +295,10 @@ void DTAlbertoBenvenutiTask::analyze(const edm::Event& e, const edm::EventSetup&
 	// TimeBoxes per wire
 	if (TBMap.find(wireId) == TBMap.end()){
 	  bookHistos(wireId);
+	  TBMap[wireId]->Fill(tdcTime);
 	}
-        TBMap[wireId]->Fill(tdcTime);
+	else
+	  TBMap[wireId]->Fill(tdcTime);
       }
     }
   }
