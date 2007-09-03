@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: SuperCluster.h,v 1.9 2007/02/13 20:16:19 futyand Exp $
+ * \version $Id: SuperCluster.h,v 1.10 2007/07/31 15:20:04 ratnik Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -22,7 +22,7 @@ namespace reco {
     typedef math::XYZPoint Point;
 
     /// default constructor
-    SuperCluster() : EcalCluster(0., Point(0.,0.,0.)) { }
+    SuperCluster() : EcalCluster(0., Point(0.,0.,0.)), rawEnergy_(-1.) {}
 
     /// constructor defined by EcalCluster - will have to use setSeed and add() separately
     SuperCluster( double energy, const Point& position );
@@ -71,6 +71,8 @@ namespace reco {
     std::vector<DetId> usedHits_;
 
     double preshowerEnergy_;
+
+    mutable double rawEnergy_;
 
   };
 
