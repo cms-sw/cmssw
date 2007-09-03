@@ -12,7 +12,7 @@ using namespace sistrip;
 
 SiStripRawToClustersLazyUnpacker::SiStripRawToClustersLazyUnpacker(const SiStripRegionCabling& regioncabling, const SiStripClusterizerFactory& clustfact, const FEDRawDataCollection& data) :
 
-  Base(regioncabling.getRegionCabling().size()*SiStripRegionCabling::MAXSUBDETS*SiStripRegionCabling::MAXLAYERS),
+  Base(regioncabling.getRegionCabling().size()*SiStripRegionCabling::ALLSUBDETS*SiStripRegionCabling::ALLLAYERS),
   raw_(&data),
   regions_(&(regioncabling.getRegionCabling())),
   clusterizer_(&clustfact),
@@ -37,9 +37,9 @@ SiStripRawToClustersLazyUnpacker::~SiStripRawToClustersLazyUnpacker() {
 void SiStripRawToClustersLazyUnpacker::fill(uint32_t& index) {
   
   //Get region, subdet and layer from element-index
-  SiStripRegionCabling::Region region = SiStripRegionCabling::region(index);
+  uint32_t region = SiStripRegionCabling::region(index);
   uint32_t subdet = static_cast<uint32_t>(SiStripRegionCabling::subdet(index));
-  SiStripRegionCabling::Layer layer = SiStripRegionCabling::layer(index);
+  uint32_t layer = SiStripRegionCabling::layer(index);
  
   //Retrieve cabling for element
   const SiStripRegionCabling::ElementCabling& element = (*regions_)[region][subdet][layer];
