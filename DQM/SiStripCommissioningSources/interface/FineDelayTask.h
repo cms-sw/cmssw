@@ -23,6 +23,7 @@ class FineDelayTask : public CommissioningTask {
   HistoSet timing_;
 
   uint16_t nBins_;
+  float fiberLengthCorrection_;
 
 };
 

@@ -42,6 +42,7 @@ SiStripCommissioningSource::SiStripCommissioningSource( const edm::ParameterSet&
   fedCabling_(0),
   fecCabling_(0),
   inputModuleLabel_( pset.getParameter<std::string>( "InputModuleLabel" ) ),
+  inputModuleLabelSummary_( pset.getParameter<std::string>( "SummaryInputModuleLabel" ) ),
   filename_( pset.getUntrackedParameter<std::string>("RootFileName",sistrip::dqmSourceFileName_) ),
   run_(0),
   time_(0),
@@ -277,8 +278,6 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
 
   // Retrieve commissioning information from "event summary" 
   edm::Handle<SiStripEventSummary> summary;
-  //@@ BUG? why below added? why not initialized?
-  inputModuleLabelSummary_ = inputModuleLabel_;
   event.getByLabel( inputModuleLabelSummary_, summary );
 
   // Check if EventSummary has info attached

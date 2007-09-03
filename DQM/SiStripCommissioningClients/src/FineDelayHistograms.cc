@@ -35,33 +35,32 @@ void FineDelayHistograms::histoAnalysis( bool debug ) {
   // Clear map holding analysis objects
   data_.clear();
   
-//   // Iterate through map containing vectors of profile histograms
-//   CollationsMap::const_iterator iter = collations().begin();
-//   for ( ; iter != collations().end(); iter++ ) {
+  // Iterate through map containing vectors of profile histograms
+  HistosMap::const_iterator iter = histos().begin();
+  for ( ; iter != histos().end(); iter++ ) {
+    // Check vector of histos is not empty (should be 1 histo)
+    if ( iter->second.empty() ) {
+      edm::LogWarning(mlDqmClient_)
+ 	   << "[FineDelayHistograms::" << __func__ << "]"
+ 	   << " Zero collation histograms found!";
+      continue;
+    }
     
-//     // Check vector of histos is not empty (should be 1 histo)
-//     if ( iter->second.empty() ) {
-//       cerr << endl // edm::LogWarning(mlDqmClient_) 
-// 	   << "[FineDelayHistograms::" << __func__ << "]"
-// 	   << " Zero collation histograms found!";
-//       continue;
-//     }
-    
-//     // Retrieve pointers to profile histos for this FED channel 
-//     vector<TH1*> profs;
-//     Collations::const_iterator ihis = iter->second.begin(); 
-//     for ( ; ihis != iter->second.end(); ihis++ ) {
-//       TProfile* prof = ExtractTObject<TProfile>().extract( ihis->second->getMonitorElement() );
-//       if ( prof ) { profs.push_back(prof); }
-//     } 
+    // Retrieve pointers to profile histos for this FED channel 
+    vector<TH1*> profs;
+    Histos::const_iterator ihis = iter->second.begin();
+    for ( ; ihis != iter->second.end(); ihis++ ) {
+      TProfile* prof = ExtractTObject<TProfile>().extract( (*ihis)->me_ );
+      if ( prof ) { profs.push_back(prof); }
+    } 
 
-//     // Perform histo analysis
-//     FineDelayAnalysis anal( iter->first );
-//     anal.analysis( profs );
-//     data_[iter->first] = anal; 
+    // Perform histo analysis
+    FineDelayAnalysis anal( iter->first );
+    anal.analysis( profs );
+    data_[iter->first] = anal; 
     
-//   }
-  
+ }
+ 
 }
 
 // -----------------------------------------------------------------------------

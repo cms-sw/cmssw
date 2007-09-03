@@ -114,6 +114,15 @@ void FineDelayAnalysis::analyse() {
     return;
   }
   
+  // we will run on a tmp copy of the histogram, for security
+  TProfile* prof = (TProfile*)((TProfile*)(histo_.first))->Clone();
+  // prune the profile
+  pruneProfile(prof);
+  // correct for the binning
+  correctBinning(prof);
+  // correct for clustering effects
+  correctProfile(prof);
+  // fit
   histo_.first->Fit(deconv_fitter_,"QL");
   
   // Set monitorables
@@ -121,3 +130,64 @@ void FineDelayAnalysis::analyse() {
   error_ = deconv_fitter_->GetParError(1);
 
 }
+
+// ----------------------------------------------------------------------------
+//
+void FineDelayAnalysis::pruneProfile(TProfile* profile) const
+{
+  // loop over bins to find the max stat
+  uint32_t nbins=profile->GetNbinsX();
+  uint32_t max = 0;
+  for(uint32_t bin=1;bin<=nbins;++bin) max = max < profile->GetBinEntries(bin) ? uint32_t(profile->GetBinEntries(bin)) : max;
+  // loop over bins to clean
+  uint32_t min = max/10;
+  for(uint32_t bin=1;bin<=nbins;++bin)
+    if(profile->GetBinEntries(bin)<min) {
+      profile->SetBinContent(bin,0.);
+      profile->SetBinError(bin,0.);
+    }
+}
+
+// ----------------------------------------------------------------------------
+//
+void FineDelayAnalysis::correctBinning(TProfile* prof) const
+{
+  prof->GetXaxis()->SetLimits(prof->GetXaxis()->GetXmin()-prof->GetBinWidth(1)/2.,
+                              prof->GetXaxis()->GetXmax()-prof->GetBinWidth(1)/2.);
+}
+
+// ----------------------------------------------------------------------------
+//
+float FineDelayAnalysis::limit(float SoNcut) const
+{
+  return 3.814567e+00+8.336601e+00*SoNcut-1.511334e-01*pow(SoNcut,2);
+}
+
+// ----------------------------------------------------------------------------
+//
+float FineDelayAnalysis::correctMeasurement(float mean, float SoNcut) const
+{
+  if(mean>limit(SoNcut))
+    return -8.124872e+00+9.860108e-01*mean-3.618158e-03*pow(mean,2)+2.037263e-05*pow(mean,3);
+  else return 0.;
+}
+
+// ----------------------------------------------------------------------------
+//
+void FineDelayAnalysis::correctProfile(TProfile* profile, float SoNcut) const
+{
+  uint32_t nbins=profile->GetNbinsX();
+  float min = limit(SoNcut);
+  for(uint32_t bin=1;bin<=nbins;++bin)
+    if(profile->GetBinContent(bin)<min) {
+      profile->SetBinContent(bin,0.);
+      profile->SetBinError(bin,0.);
+      profile->SetBinEntries(bin,0);
+    }
+    else {
+      profile->SetBinContent(bin,
+                             profile->GetBinEntries(bin)*
+                             correctMeasurement(profile->GetBinContent(bin),SoNcut));
+    }
+}
+

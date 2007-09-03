@@ -13,6 +13,13 @@ FineDelayTask::FineDelayTask( DaqMonitorBEInterface* dqm,
   nBins_(100) //TODO: tune this to the expected PLL step/range
 {
   LogDebug("Commissioning") << "[FineDelayTask::FineDelayTask] Constructing object...";
+  // compute the fiber length correction
+  float length=conn.fiberLength();
+  // TODO: check the units... this is subject to change.
+  // convert cm to ns
+  float c=30; //speed of light in cm/ns
+  float refractionIndex = 1.4; // refraction index of the optical fibers
+  fiberLengthCorrection_ =  length/c*refractionIndex;
 }
 
 // -----------------------------------------------------------------------------
@@ -55,8 +62,11 @@ void FineDelayTask::fill( const SiStripEventSummary& summary,
   // loop on the strips to find the (maybe) non-zero digi
   for(unsigned int strip=0;strip<digis.data.size();strip++) {
     if(digis.data[strip].adc()!=0) {
-      // decode the digi as leadingCharge + (int(round(it->second*10))<<8)
+      // apply the TOF correction
       correctedDelay = delay - (digis.data[strip].adc()>>8)/10.;
+      if((digis.data[strip].adc()>>8)==255) continue; // skip hit if TOF is in overflow
+      // apply the fiber length correction
+      correctedDelay += fiberLengthCorrection_;
       LogDebug("Commissioning") << "[FineDelayTask::fill]; using a hit with value " << ( digis.data[strip].adc()&0xff )
                                 << " at corrected delay of " << correctedDelay;
       updateHistoSet( timing_,int(correctedDelay),digis.data[strip].adc()&0xff);

@@ -35,6 +35,11 @@ class FineDelayAnalysis : public CommissioningAnalysis {
   void reset();
   virtual void extract( const std::vector<TH1*>& );
   void analyse();
+  void pruneProfile(TProfile* profile) const;
+  void correctBinning(TProfile* prof) const;
+  float limit(float SoNcut) const;
+  float correctMeasurement(float mean, float SoNcut=3.) const;
+  void correctProfile(TProfile* profile, float SoNcut=3.) const;
   
  private:
   
