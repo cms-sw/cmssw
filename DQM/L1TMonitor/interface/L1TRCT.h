@@ -5,11 +5,14 @@
 /*
  * \file L1TRCT.h
  *
- * $Date: 2007/02/19 22:49:53 $
- * $Revision: 1.1 $
+ * $Date: 2007/02/23 21:58:43 $
+ * $Revision: 1.2 $
  * \author P. Wittich
- * $Id: L1TRCT.h,v 1.1 2007/02/19 22:49:53 wittich Exp $
+ * $Id: L1TRCT.h,v 1.2 2007/02/23 21:58:43 wittich Exp $
  * $Log: L1TRCT.h,v $
+ * Revision 1.2  2007/02/23 21:58:43  wittich
+ * change getByType to getByLabel and add InputTag
+ *
  * Revision 1.1  2007/02/19 22:49:53  wittich
  * - Add RCT monitor
  *
@@ -76,15 +79,34 @@ private:
   // ----------member data ---------------------------
   DaqMonitorBEInterface * dbe;
 
-  // RCT stuff
+  // region global coordinates
   MonitorElement* rctRegionsEtEtaPhi_;
   MonitorElement* rctRegionsOccEtaPhi_;
+
+  // region local coordinates
+  MonitorElement* rctRegionsLocalEtEtaPhi_;
+  MonitorElement* rctRegionsLocalOccEtaPhi_;
+  MonitorElement* rctTauVetoLocalEtaPhi_;
+
+  // Region rank
+  MonitorElement* rctRegionRank_;
+
+
   MonitorElement* rctTauVetoEtaPhi_;
+  
+  // Bx
+  MonitorElement *rctRegionBx_;
+  MonitorElement *rctEmBx_;
+
+  // em
+  // HW coordinates
+  MonitorElement *rctEmCardRegion_;
+
+
   MonitorElement* rctIsoEmEtEtaPhi_;
   MonitorElement* rctIsoEmOccEtaPhi_;
   MonitorElement* rctNonIsoEmEtEtaPhi_;
   MonitorElement* rctNonIsoEmOccEtaPhi_;
-  MonitorElement* rctRegionRank_;
   MonitorElement* rctIsoEmRank_;
   MonitorElement* rctNonIsoEmRank_;
 
