@@ -27,6 +27,9 @@ cond::PoolConnectionProxy::PoolConnectionProxy(const std::string& con,
   //}
 }
 cond::PoolConnectionProxy::~PoolConnectionProxy(){
+  //std::cout<<"PoolConnectionProxy::~PoolConnectionProxy"<<std::endl;
+  //m_catalog->disconnect();
+  //m_datasvc->session().disconnectAll();
   delete m_transaction;
   delete m_datasvc;
   m_datasvc=0;
@@ -72,9 +75,9 @@ cond::PoolConnectionProxy::connect(){
 void
 cond::PoolConnectionProxy::disconnect(){
   m_datasvc->transaction().commit();
-  m_datasvc->session().disconnectAll();
   m_catalog->commit();
   m_catalog->disconnect();
+  m_datasvc->session().disconnectAll();
   //delete m_datasvc;
   //m_datasvc=0;
 }
