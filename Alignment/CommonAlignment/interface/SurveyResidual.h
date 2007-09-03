@@ -8,8 +8,8 @@
  *  For more info, please refer to
  *    http://www.pha.jhu.edu/~gritsan/cms/cms-note-survey.pdf
  *
- *  $Date: 2007/04/07 03:29:38 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/06/24 01:08:20 $
+ *  $Revision: 1.3 $
  *  \author Chung Khim Lae
  */
 
@@ -72,6 +72,8 @@ class SurveyResidual
 
   align::GlobalVectors theNominalVs; // nominal points from mother's pos
   align::GlobalVectors theCurrentVs; // current points rotated to nominal surf
+
+  align::ErrorMatrix theInverseCovariance;
 };
 
 #endif
