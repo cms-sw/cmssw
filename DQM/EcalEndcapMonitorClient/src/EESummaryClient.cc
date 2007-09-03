@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/08/21 13:35:19 $
- * $Revision: 1.26 $
+ * $Date: 2007/08/21 13:55:35 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  *
 */
@@ -508,53 +508,53 @@ void EESummaryClient::subscribe(void){
   Char_t histo[200];
 
   sprintf(histo, "EcalEndcap/EESummaryClient/EEIT EE - integrity quality summary");
-  if ( qtg01_[0] ) mui_->useQTest(histo, qtg01_[0]->getName());
+  if ( qtg01_[0] ) dbe_->useQTest(histo, qtg01_[0]->getName());
   sprintf(histo, "EcalEndcap/EESummaryClient/EEIT EE + integrity quality summary");
-  if ( qtg01_[1] ) mui_->useQTest(histo, qtg01_[1]->getName());
+  if ( qtg01_[1] ) dbe_->useQTest(histo, qtg01_[1]->getName());
   sprintf(histo, "EcalEndcap/EESummaryClient/EEOT EE - occupancy summary");
-  if ( qtg02_[0] ) mui_->useQTest(histo, qtg02_[0]->getName());
+  if ( qtg02_[0] ) dbe_->useQTest(histo, qtg02_[0]->getName());
   sprintf(histo, "EcalEndcap/EESummaryClient/EEOT EE + occupancy summary");
-  if ( qtg02_[1] ) mui_->useQTest(histo, qtg02_[1]->getName());
+  if ( qtg02_[1] ) dbe_->useQTest(histo, qtg02_[1]->getName());
   sprintf(histo, "EcalEndcap/EESummaryClient/EEPOT EE - pedestal quality summary G12");
-  if ( qtg03_[0] ) mui_->useQTest(histo, qtg03_[0]->getName());
+  if ( qtg03_[0] ) dbe_->useQTest(histo, qtg03_[0]->getName());
   sprintf(histo, "EcalEndcap/EESummaryClient/EEPOT EE + pedestal quality summary G12");
-  if ( qtg03_[1] ) mui_->useQTest(histo, qtg03_[1]->getName());
+  if ( qtg03_[1] ) dbe_->useQTest(histo, qtg03_[1]->getName());
   sprintf(histo, "EcalBarrel/EESummaryClient/EELT EE - laser quality summary L1");
-  if ( qtg04_[0] ) mui_->useQTest(histo, qtg04_[0]->getName());
+  if ( qtg04_[0] ) dbe_->useQTest(histo, qtg04_[0]->getName());
   sprintf(histo, "EcalBarrel/EESummaryClient/EELT EE + laser quality summary L1");
-  if ( qtg04_[1] ) mui_->useQTest(histo, qtg04_[1]->getName());
+  if ( qtg04_[1] ) dbe_->useQTest(histo, qtg04_[1]->getName());
   sprintf(histo, "EcalBarrel/EESummaryClient/EELT EE - PN laser quality summary L1");
-  if ( qtg04PN_[0] ) mui_->useQTest(histo, qtg04PN_[0]->getName());
+  if ( qtg04PN_[0] ) dbe_->useQTest(histo, qtg04PN_[0]->getName());
   sprintf(histo, "EcalBarrel/EESummaryClient/EELT EE + PN laser quality summary L1");
-  if ( qtg04PN_[1] ) mui_->useQTest(histo, qtg04PN_[1]->getName());
+  if ( qtg04PN_[1] ) dbe_->useQTest(histo, qtg04PN_[1]->getName());
   sprintf(histo, "EcalBarrel/EESummaryClient/EELDT EE - led quality summary");
-  if ( qtg05_[0] ) mui_->useQTest(histo, qtg05_[1]->getName());
+  if ( qtg05_[0] ) dbe_->useQTest(histo, qtg05_[1]->getName());
   sprintf(histo, "EcalBarrel/EESummaryClient/EELDT EE + led quality summary");
-  if ( qtg05_[1] ) mui_->useQTest(histo, qtg05_[1]->getName());
+  if ( qtg05_[1] ) dbe_->useQTest(histo, qtg05_[1]->getName());
   sprintf(histo, "EcalBarrel/EESummaryClient/EELDT EE - PN led quality summary");
-  if ( qtg05PN_[0] ) mui_->useQTest(histo, qtg05PN_[0]->getName());
+  if ( qtg05PN_[0] ) dbe_->useQTest(histo, qtg05PN_[0]->getName());
   sprintf(histo, "EcalBarrel/EESummaryClient/EELDT EE + PN led quality summary");
-  if ( qtg05PN_[1] ) mui_->useQTest(histo, qtg05PN_[1]->getName());
+  if ( qtg05PN_[1] ) dbe_->useQTest(histo, qtg05PN_[1]->getName());
   sprintf(histo, "EcalBarrel/EESummaryClient/EEPT EE - PN pedestal quality summary");
-  if ( qtg06_[0] ) mui_->useQTest(histo, qtg06_[0]->getName());
+  if ( qtg06_[0] ) dbe_->useQTest(histo, qtg06_[0]->getName());
   sprintf(histo, "EcalBarrel/EESummaryClient/EEPT EE + PN pedestal quality summary");
-  if ( qtg06_[1] ) mui_->useQTest(histo, qtg06_[1]->getName());
+  if ( qtg06_[1] ) dbe_->useQTest(histo, qtg06_[1]->getName());
   sprintf(histo, "EcalBarrel/EESummaryClient/EEPT EE - PN pedestal quality summary");
-  if ( qtg06PN_[0] ) mui_->useQTest(histo, qtg06PN_[0]->getName());
+  if ( qtg06PN_[0] ) dbe_->useQTest(histo, qtg06PN_[0]->getName());
   sprintf(histo, "EcalBarrel/EESummaryClient/EEPT EE + PN pedestal quality summary");
-  if ( qtg06PN_[1] ) mui_->useQTest(histo, qtg06PN_[1]->getName());
+  if ( qtg06PN_[1] ) dbe_->useQTest(histo, qtg06PN_[1]->getName());
   sprintf(histo, "EcalBarrel/EESummaryClient/EETPT EE - test pulse quality summary");
-  if ( qtg07_[0] ) mui_->useQTest(histo, qtg07_[0]->getName());
+  if ( qtg07_[0] ) dbe_->useQTest(histo, qtg07_[0]->getName());
   sprintf(histo, "EcalBarrel/EESummaryClient/EETPT EE + test pulse quality summary");
-  if ( qtg07_[1] ) mui_->useQTest(histo, qtg07_[1]->getName());
+  if ( qtg07_[1] ) dbe_->useQTest(histo, qtg07_[1]->getName());
   sprintf(histo, "EcalBarrel/EESummaryClient/EETPT EE - PN test pulse quality summary");
-  if ( qtg07PN_[0] ) mui_->useQTest(histo, qtg07PN_[0]->getName());
+  if ( qtg07PN_[0] ) dbe_->useQTest(histo, qtg07PN_[0]->getName());
   sprintf(histo, "EcalBarrel/EESummaryClient/EETPT EE + PN test pulse quality summary");
-  if ( qtg07PN_[1] ) mui_->useQTest(histo, qtg07PN_[1]->getName());
+  if ( qtg07PN_[1] ) dbe_->useQTest(histo, qtg07PN_[1]->getName());
   sprintf(histo, "EcalEndcap/EESummaryClient/EE global summary EE -");
-  if ( qtg08_[0] ) mui_->useQTest(histo, qtg08_[0]->getName());
+  if ( qtg08_[0] ) dbe_->useQTest(histo, qtg08_[0]->getName());
   sprintf(histo, "EcalEndcap/EESummaryClient/EE global summary EE +");
-  if ( qtg08_[1] ) mui_->useQTest(histo, qtg08_[1]->getName());
+  if ( qtg08_[1] ) dbe_->useQTest(histo, qtg08_[1]->getName());
 
 }
 

@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/08/21 13:55:34 $
- * $Revision: 1.51 $
+ * $Date: 2007/08/21 14:12:15 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  *
 */
@@ -305,25 +305,25 @@ void EBSummaryClient::subscribe(void){
   Char_t histo[200];
 
   sprintf(histo, "EcalBarrel/EBSummaryClient/EBIT integrity quality summary");
-  if ( qtg01_ ) mui_->useQTest(histo, qtg01_->getName());
+  if ( qtg01_ ) dbe_->useQTest(histo, qtg01_->getName());
   sprintf(histo, "EcalBarrel/EBSummaryClient/EBOT occupancy summary");
-  if ( qtg02_ ) mui_->useQTest(histo, qtg02_->getName());
+  if ( qtg02_ ) dbe_->useQTest(histo, qtg02_->getName());
   sprintf(histo, "EcalBarrel/EBSummaryClient/EBPOT pedestal quality summary G12");
-  if ( qtg03_ ) mui_->useQTest(histo, qtg03_->getName());
+  if ( qtg03_ ) dbe_->useQTest(histo, qtg03_->getName());
   sprintf(histo, "EcalBarrel/EBSummaryClient/EBLT laser quality summary L1");
-  if ( qtg04_ ) mui_->useQTest(histo, qtg04_->getName());
+  if ( qtg04_ ) dbe_->useQTest(histo, qtg04_->getName());
   sprintf(histo, "EcalBarrel/EBSummaryClient/EBLT PN laser quality summary L1");
-  if ( qtg04PN_ ) mui_->useQTest(histo, qtg04PN_->getName());
+  if ( qtg04PN_ ) dbe_->useQTest(histo, qtg04PN_->getName());
   sprintf(histo, "EcalBarrel/EBSummaryClient/EBPT pedestal quality summary");
-  if ( qtg05_ ) mui_->useQTest(histo, qtg05_->getName());
+  if ( qtg05_ ) dbe_->useQTest(histo, qtg05_->getName());
   sprintf(histo, "EcalBarrel/EBSummaryClient/EBPT PN pedestal quality summary");
-  if ( qtg05PN_ ) mui_->useQTest(histo, qtg05PN_->getName());
+  if ( qtg05PN_ ) dbe_->useQTest(histo, qtg05PN_->getName());
   sprintf(histo, "EcalBarrel/EBSummaryClient/EBTPT test pulse quality summary");
-  if ( qtg06_ ) mui_->useQTest(histo, qtg06_->getName());
+  if ( qtg06_ ) dbe_->useQTest(histo, qtg06_->getName());
   sprintf(histo, "EcalBarrel/EBSummaryClient/EBTPT PN test pulse quality summary");
-  if ( qtg06PN_ ) mui_->useQTest(histo, qtg06PN_->getName());
+  if ( qtg06PN_ ) dbe_->useQTest(histo, qtg06PN_->getName());
   sprintf(histo, "EcalBarrel/EBSummaryClient/EB global summary");
-  if ( qtg07_ ) mui_->useQTest(histo, qtg07_->getName());
+  if ( qtg07_ ) dbe_->useQTest(histo, qtg07_->getName());
 
 }
 

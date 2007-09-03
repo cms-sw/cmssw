@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2007/08/17 18:25:28 $
- * $Revision: 1.23 $
+ * $Date: 2007/08/21 11:31:47 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -844,52 +844,52 @@ void EEPedestalClient::subscribe(void){
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain01/EEPT pedestal %s G01", Numbers::sEE(ism).c_str());
-      if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
+      if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
       sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain06/EEPT pedestal %s G06", Numbers::sEE(ism).c_str());
-      if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
+      if ( qth02_[ism-1] ) dbe_->useQTest(histo, qth02_[ism-1]->getName());
       sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain12/EEPT pedestal %s G12", Numbers::sEE(ism).c_str());
-      if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
+      if ( qth03_[ism-1] ) dbe_->useQTest(histo, qth03_[ism-1]->getName());
       sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/PN/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
-      if ( qth04_[ism-1] ) mui_->useQTest(histo, qth04_[ism-1]->getName());
+      if ( qth04_[ism-1] ) dbe_->useQTest(histo, qth04_[ism-1]->getName());
       sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
-      if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
+      if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
     } else {
       if ( enableMonitorDaemon_ ) {
         sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal %s G01", Numbers::sEE(ism).c_str());
-        if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
+        if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
         sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal %s G06", Numbers::sEE(ism).c_str());
-        if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
+        if ( qth02_[ism-1] ) dbe_->useQTest(histo, qth02_[ism-1]->getName());
         sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal %s G12", Numbers::sEE(ism).c_str());
-        if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
+        if ( qth03_[ism-1] ) dbe_->useQTest(histo, qth03_[ism-1]->getName());
         sprintf(histo, "*/EcalEndcap/EEPedestalTask/PN/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
-        if ( qth04_[ism-1] ) mui_->useQTest(histo, qth04_[ism-1]->getName());
+        if ( qth04_[ism-1] ) dbe_->useQTest(histo, qth04_[ism-1]->getName());
         sprintf(histo, "*/EcalEndcap/EEPedestalTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
-        if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
+        if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
       } else {
         sprintf(histo, "EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal %s G01", Numbers::sEE(ism).c_str());
-        if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
+        if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
         sprintf(histo, "EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal %s G06", Numbers::sEE(ism).c_str());
-        if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
+        if ( qth02_[ism-1] ) dbe_->useQTest(histo, qth02_[ism-1]->getName());
         sprintf(histo, "EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal %s G12", Numbers::sEE(ism).c_str());
-        if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
+        if ( qth03_[ism-1] ) dbe_->useQTest(histo, qth03_[ism-1]->getName());
         sprintf(histo, "EcalEndcap/EEPedestalTask/PN/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
-        if ( qth04_[ism-1] ) mui_->useQTest(histo, qth04_[ism-1]->getName());
+        if ( qth04_[ism-1] ) dbe_->useQTest(histo, qth04_[ism-1]->getName());
         sprintf(histo, "EcalEndcap/EEPedestalTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
-        if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
+        if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
       }
     }
 
     sprintf(histo, "EcalEndcap/EEPedestalClient/EEPT pedestal quality G01 %s", Numbers::sEE(ism).c_str());
-    if ( qtg01_[ism-1] ) mui_->useQTest(histo, qtg01_[ism-1]->getName());
+    if ( qtg01_[ism-1] ) dbe_->useQTest(histo, qtg01_[ism-1]->getName());
     sprintf(histo, "EcalEndcap/EEPedestalClient/EEPT pedestal quality G06 %s", Numbers::sEE(ism).c_str());
-    if ( qtg02_[ism-1] ) mui_->useQTest(histo, qtg02_[ism-1]->getName());
+    if ( qtg02_[ism-1] ) dbe_->useQTest(histo, qtg02_[ism-1]->getName());
     sprintf(histo, "EcalEndcap/EEPedestalClient/EEPT pedestal quality G12 %s", Numbers::sEE(ism).c_str());
-    if ( qtg03_[ism-1] ) mui_->useQTest(histo, qtg03_[ism-1]->getName());
+    if ( qtg03_[ism-1] ) dbe_->useQTest(histo, qtg03_[ism-1]->getName());
 
     sprintf(histo, "EcalEndcap/EEPedestalClient/EEPT pedestal quality PNs G01 %s", Numbers::sEE(ism).c_str());
-    if ( qtg04_[ism-1] ) mui_->useQTest(histo, qtg04_[ism-1]->getName());
+    if ( qtg04_[ism-1] ) dbe_->useQTest(histo, qtg04_[ism-1]->getName());
     sprintf(histo, "EcalEndcap/EEPedestalClient/EEPT pedestal quality PNs G16 %s", Numbers::sEE(ism).c_str());
-    if ( qtg05_[ism-1] ) mui_->useQTest(histo, qtg05_[ism-1]->getName());
+    if ( qtg05_[ism-1] ) dbe_->useQTest(histo, qtg05_[ism-1]->getName());
 
   }
 

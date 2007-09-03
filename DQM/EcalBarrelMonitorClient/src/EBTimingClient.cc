@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2007/08/14 17:43:05 $
- * $Revision: 1.33 $
+ * $Date: 2007/08/17 09:05:09 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  *
 */
@@ -323,19 +323,19 @@ void EBTimingClient::subscribe(void){
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBTimingTask/EBTMT timing %s", Numbers::sEB(ism).c_str());
-      if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
+      if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
     } else {
       if ( enableMonitorDaemon_ ) {
         sprintf(histo, "*/EcalBarrel/EBTimingTask/EBTMT timing %s", Numbers::sEB(ism).c_str());
-        if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
+        if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
       } else {
         sprintf(histo, "EcalBarrel/EBTimingTask/EBTMT timing %s", Numbers::sEB(ism).c_str());
-        if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
+        if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
       }
     }
 
     sprintf(histo, "EcalBarrel/EBTimingClient/EBTMT timing quality %s", Numbers::sEB(ism).c_str());
-    if ( qtg01_[ism-1] ) mui_->useQTest(histo, qtg01_[ism-1]->getName());
+    if ( qtg01_[ism-1] ) dbe_->useQTest(histo, qtg01_[ism-1]->getName());
 
   }
 

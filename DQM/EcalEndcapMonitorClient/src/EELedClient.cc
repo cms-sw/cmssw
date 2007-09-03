@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2007/08/17 18:25:28 $
- * $Revision: 1.11 $
+ * $Date: 2007/08/21 11:31:47 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -897,55 +897,55 @@ void EELedClient::subscribe(void){
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EELedTask/EELDT amplitude %s A", Numbers::sEE(ism).c_str());
-      if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
+      if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
       sprintf(histo, "EcalEndcap/Sums/EELedTask/EELDT amplitude %s B", Numbers::sEE(ism).c_str());
-      if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
+      if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
       sprintf(histo, "EcalEndcap/Sums/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
-      if ( qth09_[ism-1] ) mui_->useQTest(histo, qth09_[ism-1]->getName());
+      if ( qth09_[ism-1] ) dbe_->useQTest(histo, qth09_[ism-1]->getName());
       sprintf(histo, "EcalEndcap/Sums/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
-      if ( qth13_[ism-1] ) mui_->useQTest(histo, qth13_[ism-1]->getName());
+      if ( qth13_[ism-1] ) dbe_->useQTest(histo, qth13_[ism-1]->getName());
       sprintf(histo, "EcalEndcap/Sums/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
-      if ( qth17_[ism-1] ) mui_->useQTest(histo, qth17_[ism-1]->getName());
+      if ( qth17_[ism-1] ) dbe_->useQTest(histo, qth17_[ism-1]->getName());
       sprintf(histo, "EcalEndcap/Sums/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
-      if ( qth21_[ism-1] ) mui_->useQTest(histo, qth21_[ism-1]->getName());
+      if ( qth21_[ism-1] ) dbe_->useQTest(histo, qth21_[ism-1]->getName());
     } else {
       if ( enableMonitorDaemon_ ) {
         sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude %s A", Numbers::sEE(ism).c_str());
-        if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
+        if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
         sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude %s B", Numbers::sEE(ism).c_str());
-        if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
+        if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
         sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
-        if ( qth09_[ism-1] ) mui_->useQTest(histo, qth09_[ism-1]->getName());
+        if ( qth09_[ism-1] ) dbe_->useQTest(histo, qth09_[ism-1]->getName());
         sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
-        if ( qth13_[ism-1] ) mui_->useQTest(histo, qth13_[ism-1]->getName());
+        if ( qth13_[ism-1] ) dbe_->useQTest(histo, qth13_[ism-1]->getName());
         sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
-        if ( qth17_[ism-1] ) mui_->useQTest(histo, qth17_[ism-1]->getName());
+        if ( qth17_[ism-1] ) dbe_->useQTest(histo, qth17_[ism-1]->getName());
         sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
-        if ( qth21_[ism-1] ) mui_->useQTest(histo, qth21_[ism-1]->getName());
+        if ( qth21_[ism-1] ) dbe_->useQTest(histo, qth21_[ism-1]->getName());
       } else {
         sprintf(histo, "EcalEndcap/EELedTask/EELDT amplitude %s A", Numbers::sEE(ism).c_str());
-        if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
+        if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
         sprintf(histo, "EcalEndcap/EELedTask/EELDT amplitude %s B", Numbers::sEE(ism).c_str());
-        if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
+        if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
         sprintf(histo, "EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
-        if ( qth09_[ism-1] ) mui_->useQTest(histo, qth09_[ism-1]->getName());
+        if ( qth09_[ism-1] ) dbe_->useQTest(histo, qth09_[ism-1]->getName());
         sprintf(histo, "EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
-        if ( qth13_[ism-1] ) mui_->useQTest(histo, qth13_[ism-1]->getName());
+        if ( qth13_[ism-1] ) dbe_->useQTest(histo, qth13_[ism-1]->getName());
         sprintf(histo, "EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
-        if ( qth17_[ism-1] ) mui_->useQTest(histo, qth17_[ism-1]->getName());
+        if ( qth17_[ism-1] ) dbe_->useQTest(histo, qth17_[ism-1]->getName());
         sprintf(histo, "EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
-        if ( qth21_[ism-1] ) mui_->useQTest(histo, qth21_[ism-1]->getName());
+        if ( qth21_[ism-1] ) dbe_->useQTest(histo, qth21_[ism-1]->getName());
       }
     }
 
     sprintf(histo, "EcalEndcap/EELaserTask/EELDT led quality %s", Numbers::sEE(ism).c_str());
-    if ( qtg01_[ism-1] ) mui_->useQTest(histo, qtg01_[ism-1]->getName());
+    if ( qtg01_[ism-1] ) dbe_->useQTest(histo, qtg01_[ism-1]->getName());
 
     sprintf(histo, "EcalEndcap/EELaserTask/EELDT led quality PNs %s G01", Numbers::sEE(ism).c_str());
-    if ( qtg05_[ism-1] ) mui_->useQTest(histo, qtg05_[ism-1]->getName());
+    if ( qtg05_[ism-1] ) dbe_->useQTest(histo, qtg05_[ism-1]->getName());
 
     sprintf(histo, "EcalEndcap/EELaserTask/EELDT led quality PNs %s G16", Numbers::sEE(ism).c_str());
-    if ( qtg09_[ism-1] ) mui_->useQTest(histo, qtg09_[ism-1]->getName());
+    if ( qtg09_[ism-1] ) dbe_->useQTest(histo, qtg09_[ism-1]->getName());
 
   }
 

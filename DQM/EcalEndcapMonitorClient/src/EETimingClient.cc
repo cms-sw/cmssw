@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2007/08/17 18:25:29 $
- * $Revision: 1.18 $
+ * $Date: 2007/08/21 11:31:48 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  *
 */
@@ -333,19 +333,19 @@ void EETimingClient::subscribe(void){
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EETimingTask/EETMT timing %s", Numbers::sEE(ism).c_str());
-      if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
+      if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
     } else {
       if ( enableMonitorDaemon_ ) {
         sprintf(histo, "*/EcalEndcap/EETimingTask/EETMT timing %s", Numbers::sEE(ism).c_str());
-        if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
+        if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
       } else {
         sprintf(histo, "EcalEndcap/EETimingTask/EETMT timing %s", Numbers::sEE(ism).c_str());
-        if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
+        if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
       }
     }
 
     sprintf(histo, "EcalEndcap/EETimingClient/EETMT timing quality %s", Numbers::sEE(ism).c_str());
-    if ( qtg01_[ism-1] ) mui_->useQTest(histo, qtg01_[ism-1]->getName());
+    if ( qtg01_[ism-1] ) dbe_->useQTest(histo, qtg01_[ism-1]->getName());
 
   }
 

@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/08/14 17:43:05 $
- * $Revision: 1.154 $
+ * $Date: 2007/08/17 09:05:08 $
+ * $Revision: 1.155 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -888,76 +888,76 @@ void EBIntegrityClient::subscribe(void){
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/Gain/EBIT gain %s", Numbers::sEB(ism).c_str());
-      if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
+      if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/ChId/EBIT ChId %s", Numbers::sEB(ism).c_str());
-      if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
+      if ( qth02_[ism-1] ) dbe_->useQTest(histo, qth02_[ism-1]->getName());
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/GainSwitch/EBIT gain switch %s", Numbers::sEB(ism).c_str());
-      if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
+      if ( qth03_[ism-1] ) dbe_->useQTest(histo, qth03_[ism-1]->getName());
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/GainSwitchStay/EBIT gain switch stay %s", Numbers::sEB(ism).c_str());
-      if ( qth04_[ism-1] ) mui_->useQTest(histo, qth04_[ism-1]->getName());
+      if ( qth04_[ism-1] ) dbe_->useQTest(histo, qth04_[ism-1]->getName());
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/TTId/EBIT TTId %s", Numbers::sEB(ism).c_str());
-      if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
+      if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize %s", Numbers::sEB(ism).c_str());
-      if ( qth06_[ism-1] ) mui_->useQTest(histo, qth06_[ism-1]->getName());
+      if ( qth06_[ism-1] ) dbe_->useQTest(histo, qth06_[ism-1]->getName());
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/MemChId/EBIT MemChId %s", Numbers::sEB(ism).c_str());
-      if ( qth07_[ism-1] ) mui_->useQTest(histo, qth07_[ism-1]->getName());
+      if ( qth07_[ism-1] ) dbe_->useQTest(histo, qth07_[ism-1]->getName());
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/MemGain %s", Numbers::sEB(ism).c_str());
-      if ( qth08_[ism-1] ) mui_->useQTest(histo, qth08_[ism-1]->getName());
+      if ( qth08_[ism-1] ) dbe_->useQTest(histo, qth08_[ism-1]->getName());
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/MemTTId/EBIT MemTTId %s", Numbers::sEB(ism).c_str());
-      if ( qth09_[ism-1] ) mui_->useQTest(histo, qth09_[ism-1]->getName());
+      if ( qth09_[ism-1] ) dbe_->useQTest(histo, qth09_[ism-1]->getName());
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/MemSize/EBIT MemSize %s", Numbers::sEB(ism).c_str());
-      if ( qth10_[ism-1] ) mui_->useQTest(histo, qth10_[ism-1]->getName());
+      if ( qth10_[ism-1] ) dbe_->useQTest(histo, qth10_[ism-1]->getName());
     } else {
       if ( enableMonitorDaemon_ ) {
         sprintf(histo, "*/EcalBarrel/EBIntegrityTask/Gain/EBIT gain %s", Numbers::sEB(ism).c_str());
-        if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
+        if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
         sprintf(histo, "*/EcalBarrel/EBIntegrityTask/ChId/EBIT ChId %s", Numbers::sEB(ism).c_str());
-        if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
+        if ( qth02_[ism-1] ) dbe_->useQTest(histo, qth02_[ism-1]->getName());
         sprintf(histo, "*/EcalBarrel/EBIntegrityTask/GainSwitch/EBIT gain switch %s", Numbers::sEB(ism).c_str());
-        if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
+        if ( qth03_[ism-1] ) dbe_->useQTest(histo, qth03_[ism-1]->getName());
         sprintf(histo, "*/EcalBarrel/EBIntegrityTask/GainSwitchStay/EBIT gain switch stay %s", Numbers::sEB(ism).c_str());
-        if ( qth04_[ism-1] ) mui_->useQTest(histo, qth04_[ism-1]->getName());
+        if ( qth04_[ism-1] ) dbe_->useQTest(histo, qth04_[ism-1]->getName());
         sprintf(histo, "*/EcalBarrel/EBIntegrityTask/TTId/EBIT TTId %s", Numbers::sEB(ism).c_str());
-        if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
+        if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
         sprintf(histo, "*/EcalBarrel/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize %s", Numbers::sEB(ism).c_str());
-        if ( qth06_[ism-1] ) mui_->useQTest(histo, qth06_[ism-1]->getName());
+        if ( qth06_[ism-1] ) dbe_->useQTest(histo, qth06_[ism-1]->getName());
         sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemChId/EBIT MemChId %s", Numbers::sEB(ism).c_str());
-        if ( qth07_[ism-1] ) mui_->useQTest(histo, qth07_[ism-1]->getName());
+        if ( qth07_[ism-1] ) dbe_->useQTest(histo, qth07_[ism-1]->getName());
         sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemGain %s", Numbers::sEB(ism).c_str());
-        if ( qth08_[ism-1] ) mui_->useQTest(histo, qth08_[ism-1]->getName());
+        if ( qth08_[ism-1] ) dbe_->useQTest(histo, qth08_[ism-1]->getName());
         sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemTTId/EBIT MemTTId %s", Numbers::sEB(ism).c_str());
-        if ( qth09_[ism-1] ) mui_->useQTest(histo, qth09_[ism-1]->getName());
+        if ( qth09_[ism-1] ) dbe_->useQTest(histo, qth09_[ism-1]->getName());
         sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemSize/EBIT MemSize %s", Numbers::sEB(ism).c_str());
-        if ( qth10_[ism-1] ) mui_->useQTest(histo, qth10_[ism-1]->getName());
+        if ( qth10_[ism-1] ) dbe_->useQTest(histo, qth10_[ism-1]->getName());
       } else {
         sprintf(histo, "EcalBarrel/EBIntegrityTask/Gain/EBIT gain %s", Numbers::sEB(ism).c_str());
-        if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
+        if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
         sprintf(histo, "EcalBarrel/EBIntegrityTask/ChId/EBIT ChId %s", Numbers::sEB(ism).c_str());
-        if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
+        if ( qth02_[ism-1] ) dbe_->useQTest(histo, qth02_[ism-1]->getName());
         sprintf(histo, "EcalBarrel/EBIntegrityTask/GainSwitch/EBIT gain switch %s", Numbers::sEB(ism).c_str());
-        if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
+        if ( qth03_[ism-1] ) dbe_->useQTest(histo, qth03_[ism-1]->getName());
         sprintf(histo, "EcalBarrel/EBIntegrityTask/GainSwitchStay/EBIT gain switch stay %s", Numbers::sEB(ism).c_str());
-        if ( qth04_[ism-1] ) mui_->useQTest(histo, qth04_[ism-1]->getName());
+        if ( qth04_[ism-1] ) dbe_->useQTest(histo, qth04_[ism-1]->getName());
         sprintf(histo, "EcalBarrel/EBIntegrityTask/TTId/EBIT TTId %s", Numbers::sEB(ism).c_str());
-        if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
+        if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
         sprintf(histo, "EcalBarrel/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize %s", Numbers::sEB(ism).c_str());
-        if ( qth06_[ism-1] ) mui_->useQTest(histo, qth06_[ism-1]->getName());
+        if ( qth06_[ism-1] ) dbe_->useQTest(histo, qth06_[ism-1]->getName());
         sprintf(histo, "EcalBarrel/EBIntegrityTask/MemChId/EBIT MemChId %s", Numbers::sEB(ism).c_str());
-        if ( qth07_[ism-1] ) mui_->useQTest(histo, qth07_[ism-1]->getName());
+        if ( qth07_[ism-1] ) dbe_->useQTest(histo, qth07_[ism-1]->getName());
         sprintf(histo, "EcalBarrel/EBIntegrityTask/MemGain %s", Numbers::sEB(ism).c_str());
-        if ( qth08_[ism-1] ) mui_->useQTest(histo, qth08_[ism-1]->getName());
+        if ( qth08_[ism-1] ) dbe_->useQTest(histo, qth08_[ism-1]->getName());
         sprintf(histo, "EcalBarrel/EBIntegrityTask/MemTTId/EBIT MemTTId %s", Numbers::sEB(ism).c_str());
-        if ( qth09_[ism-1] ) mui_->useQTest(histo, qth09_[ism-1]->getName());
+        if ( qth09_[ism-1] ) dbe_->useQTest(histo, qth09_[ism-1]->getName());
         sprintf(histo, "EcalBarrel/EBIntegrityTask/MemSize/EBIT MemSize %s", Numbers::sEB(ism).c_str());
-        if ( qth10_[ism-1] ) mui_->useQTest(histo, qth10_[ism-1]->getName());
+        if ( qth10_[ism-1] ) dbe_->useQTest(histo, qth10_[ism-1]->getName());
       }
     }
 
     sprintf(histo, "EcalBarrel/EBIntegrityClient/EBIT data integrity quality %s", Numbers::sEB(ism).c_str());
-    if ( qtg01_[ism-1] ) mui_->useQTest(histo, qtg01_[ism-1]->getName());
+    if ( qtg01_[ism-1] ) dbe_->useQTest(histo, qtg01_[ism-1]->getName());
 
     sprintf(histo, "EcalBarrel/EBIntegrityClient/EBIT data integrity quality MEM %s", Numbers::sEB(ism).c_str());
-    if ( qtg02_[ism-1] ) mui_->useQTest(histo, qtg02_[ism-1]->getName());
+    if ( qtg02_[ism-1] ) dbe_->useQTest(histo, qtg02_[ism-1]->getName());
 
   }
 

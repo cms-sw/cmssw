@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/08/14 17:43:05 $
- * $Revision: 1.151 $
+ * $Date: 2007/08/17 09:05:09 $
+ * $Revision: 1.152 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -807,64 +807,64 @@ void EBTestPulseClient::subscribe(void){
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain01/EBTPT amplitude %s G01", Numbers::sEB(ism).c_str());
-      if ( qtha01_[ism-1] ) mui_->useQTest(histo, qtha01_[ism-1]->getName());
+      if ( qtha01_[ism-1] ) dbe_->useQTest(histo, qtha01_[ism-1]->getName());
       sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain06/EBTPT amplitude %s G06", Numbers::sEB(ism).c_str());
-      if ( qtha02_[ism-1] ) mui_->useQTest(histo, qtha02_[ism-1]->getName());
+      if ( qtha02_[ism-1] ) dbe_->useQTest(histo, qtha02_[ism-1]->getName());
       sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain12/EBTPT amplitude %s G12", Numbers::sEB(ism).c_str());
-      if ( qtha03_[ism-1] ) mui_->useQTest(histo, qtha03_[ism-1]->getName());
+      if ( qtha03_[ism-1] ) dbe_->useQTest(histo, qtha03_[ism-1]->getName());
       sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/PN/Gain01/EBPDT PNs amplitude %s G01", Numbers::sEB(ism).c_str());
-      if ( qtha04_[ism-1] ) mui_->useQTest(histo, qtha04_[ism-1]->getName());
+      if ( qtha04_[ism-1] ) dbe_->useQTest(histo, qtha04_[ism-1]->getName());
       sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/PN/Gain16/EBPDT PNs amplitude %s G16", Numbers::sEB(ism).c_str());
-      if ( qtha05_[ism-1] ) mui_->useQTest(histo, qtha05_[ism-1]->getName());
+      if ( qtha05_[ism-1] ) dbe_->useQTest(histo, qtha05_[ism-1]->getName());
       sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/PN/Gain01/EBPDT PNs pedestal %s G01", Numbers::sEB(ism).c_str());
-      if ( qtha06_[ism-1] ) mui_->useQTest(histo, qtha06_[ism-1]->getName());
+      if ( qtha06_[ism-1] ) dbe_->useQTest(histo, qtha06_[ism-1]->getName());
       sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/PN/Gain16/EBPDT PNs pedestal %s G16", Numbers::sEB(ism).c_str());
-      if ( qtha07_[ism-1] ) mui_->useQTest(histo, qtha07_[ism-1]->getName());
+      if ( qtha07_[ism-1] ) dbe_->useQTest(histo, qtha07_[ism-1]->getName());
     } else {
       if ( enableMonitorDaemon_ ) {
         sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude %s G01", Numbers::sEB(ism).c_str());
-        if ( qtha01_[ism-1] ) mui_->useQTest(histo, qtha01_[ism-1]->getName());
+        if ( qtha01_[ism-1] ) dbe_->useQTest(histo, qtha01_[ism-1]->getName());
         sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude %s G06", Numbers::sEB(ism).c_str());
-        if ( qtha02_[ism-1] ) mui_->useQTest(histo, qtha02_[ism-1]->getName());
+        if ( qtha02_[ism-1] ) dbe_->useQTest(histo, qtha02_[ism-1]->getName());
         sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude %s G12", Numbers::sEB(ism).c_str());
-        if ( qtha03_[ism-1] ) mui_->useQTest(histo, qtha03_[ism-1]->getName());
+        if ( qtha03_[ism-1] ) dbe_->useQTest(histo, qtha03_[ism-1]->getName());
         sprintf(histo, "*/EcalBarrel/EBTestPulseTask/PN/Gain01/EBPDT PNs amplitude %s G01", Numbers::sEB(ism).c_str());
-        if ( qtha04_[ism-1] ) mui_->useQTest(histo, qtha04_[ism-1]->getName());
+        if ( qtha04_[ism-1] ) dbe_->useQTest(histo, qtha04_[ism-1]->getName());
         sprintf(histo, "*/EcalBarrel/EBTestPulseTask/PN/Gain16/EBPDT PNs amplitude %s G16", Numbers::sEB(ism).c_str());
-        if ( qtha05_[ism-1] ) mui_->useQTest(histo, qtha05_[ism-1]->getName());
+        if ( qtha05_[ism-1] ) dbe_->useQTest(histo, qtha05_[ism-1]->getName());
         sprintf(histo, "*/EcalBarrel/EBTestPulseTask/PN/Gain01/EBPDT PNs pedestal %s G01", Numbers::sEB(ism).c_str());
-        if ( qtha06_[ism-1] ) mui_->useQTest(histo, qtha06_[ism-1]->getName());
+        if ( qtha06_[ism-1] ) dbe_->useQTest(histo, qtha06_[ism-1]->getName());
         sprintf(histo, "*/EcalBarrel/EBTestPulseTask/PN/Gain16/EBPDT PNs pedestal %s G16", Numbers::sEB(ism).c_str());
-        if ( qtha07_[ism-1] ) mui_->useQTest(histo, qtha07_[ism-1]->getName());
+        if ( qtha07_[ism-1] ) dbe_->useQTest(histo, qtha07_[ism-1]->getName());
       } else {
         sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude %s G01", Numbers::sEB(ism).c_str());
-        if ( qtha01_[ism-1] ) mui_->useQTest(histo, qtha01_[ism-1]->getName());
+        if ( qtha01_[ism-1] ) dbe_->useQTest(histo, qtha01_[ism-1]->getName());
         sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude %s G06", Numbers::sEB(ism).c_str());
-        if ( qtha02_[ism-1] ) mui_->useQTest(histo, qtha02_[ism-1]->getName());
+        if ( qtha02_[ism-1] ) dbe_->useQTest(histo, qtha02_[ism-1]->getName());
         sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude %s G12", Numbers::sEB(ism).c_str());
-        if ( qtha03_[ism-1] ) mui_->useQTest(histo, qtha03_[ism-1]->getName());
+        if ( qtha03_[ism-1] ) dbe_->useQTest(histo, qtha03_[ism-1]->getName());
         sprintf(histo, "EcalBarrel/EBTestPulseTask/PN/Gain01/EBPDT PNs amplitude %s G01", Numbers::sEB(ism).c_str());
-        if ( qtha04_[ism-1] ) mui_->useQTest(histo, qtha04_[ism-1]->getName());
+        if ( qtha04_[ism-1] ) dbe_->useQTest(histo, qtha04_[ism-1]->getName());
         sprintf(histo, "EcalBarrel/EBTestPulseTask/PN/Gain16/EBPDT PNs amplitude %s G16", Numbers::sEB(ism).c_str());
-        if ( qtha05_[ism-1] ) mui_->useQTest(histo, qtha05_[ism-1]->getName());
+        if ( qtha05_[ism-1] ) dbe_->useQTest(histo, qtha05_[ism-1]->getName());
         sprintf(histo, "EcalBarrel/EBTestPulseTask/PN/Gain01/EBPDT PNs pedestal %s G01", Numbers::sEB(ism).c_str());
-        if ( qtha06_[ism-1] ) mui_->useQTest(histo, qtha06_[ism-1]->getName());
+        if ( qtha06_[ism-1] ) dbe_->useQTest(histo, qtha06_[ism-1]->getName());
         sprintf(histo, "EcalBarrel/EBTestPulseTask/PN/Gain16/EBPDT PNs pedestal %s G16", Numbers::sEB(ism).c_str());
-        if ( qtha07_[ism-1] ) mui_->useQTest(histo, qtha07_[ism-1]->getName());
+        if ( qtha07_[ism-1] ) dbe_->useQTest(histo, qtha07_[ism-1]->getName());
       }
     }
 
     sprintf(histo, "EcalBarrel/EBTestPulseClient/EBTPT test pulse quality G01 %s", Numbers::sEB(ism).c_str());
-    if ( qtg01_[ism-1] ) mui_->useQTest(histo, qtg01_[ism-1]->getName());
+    if ( qtg01_[ism-1] ) dbe_->useQTest(histo, qtg01_[ism-1]->getName());
     sprintf(histo, "EcalBarrel/EBTestPulseClient/EBTPT test pulse quality G06 %s", Numbers::sEB(ism).c_str());
-    if ( qtg02_[ism-1] ) mui_->useQTest(histo, qtg02_[ism-1]->getName());
+    if ( qtg02_[ism-1] ) dbe_->useQTest(histo, qtg02_[ism-1]->getName());
     sprintf(histo, "EcalBarrel/EBTestPulseClient/EBTPT test pulse quality G12 %s", Numbers::sEB(ism).c_str());
-    if ( qtg03_[ism-1] ) mui_->useQTest(histo, qtg03_[ism-1]->getName());
+    if ( qtg03_[ism-1] ) dbe_->useQTest(histo, qtg03_[ism-1]->getName());
 
     sprintf(histo, "EcalBarrel/EBTestPulseClient/EBTPT test pulse quality PNs G01 %s", Numbers::sEB(ism).c_str());
-    if ( qtg04_[ism-1] ) mui_->useQTest(histo, qtg04_[ism-1]->getName());
+    if ( qtg04_[ism-1] ) dbe_->useQTest(histo, qtg04_[ism-1]->getName());
     sprintf(histo, "EcalBarrel/EBTestPulseClient/EBTPT test pulse quality PNs G16 %s", Numbers::sEB(ism).c_str());
-    if ( qtg05_[ism-1] ) mui_->useQTest(histo, qtg05_[ism-1]->getName());
+    if ( qtg05_[ism-1] ) dbe_->useQTest(histo, qtg05_[ism-1]->getName());
 
   }
 

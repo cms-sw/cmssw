@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2007/08/17 18:25:28 $
- * $Revision: 1.21 $
+ * $Date: 2007/08/21 11:31:47 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -907,76 +907,76 @@ void EEIntegrityClient::subscribe(void){
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/Gain/EEIT gain %s", Numbers::sEE(ism).c_str());
-      if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
+      if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
       sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/ChId/EEIT ChId %s", Numbers::sEE(ism).c_str());
-      if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
+      if ( qth02_[ism-1] ) dbe_->useQTest(histo, qth02_[ism-1]->getName());
       sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/GainSwitch/EEIT gain switch %s", Numbers::sEE(ism).c_str());
-      if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
+      if ( qth03_[ism-1] ) dbe_->useQTest(histo, qth03_[ism-1]->getName());
       sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/GainSwitchStay/EEIT gain switch stay %s", Numbers::sEE(ism).c_str());
-      if ( qth04_[ism-1] ) mui_->useQTest(histo, qth04_[ism-1]->getName());
+      if ( qth04_[ism-1] ) dbe_->useQTest(histo, qth04_[ism-1]->getName());
       sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/TTId/EEIT TTId %s", Numbers::sEE(ism).c_str());
-      if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
+      if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
       sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize %s", Numbers::sEE(ism).c_str());
-      if ( qth06_[ism-1] ) mui_->useQTest(histo, qth06_[ism-1]->getName());
+      if ( qth06_[ism-1] ) dbe_->useQTest(histo, qth06_[ism-1]->getName());
       sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/MemChId/EEIT MemChId %s", Numbers::sEE(ism).c_str());
-      if ( qth07_[ism-1] ) mui_->useQTest(histo, qth07_[ism-1]->getName());
+      if ( qth07_[ism-1] ) dbe_->useQTest(histo, qth07_[ism-1]->getName());
       sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/MemGain %s", Numbers::sEE(ism).c_str());
-      if ( qth08_[ism-1] ) mui_->useQTest(histo, qth08_[ism-1]->getName());
+      if ( qth08_[ism-1] ) dbe_->useQTest(histo, qth08_[ism-1]->getName());
       sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/MemTTId/EEIT MemTTId %s", Numbers::sEE(ism).c_str());
-      if ( qth09_[ism-1] ) mui_->useQTest(histo, qth09_[ism-1]->getName());
+      if ( qth09_[ism-1] ) dbe_->useQTest(histo, qth09_[ism-1]->getName());
       sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/MemSize/EEIT MemSize %s", Numbers::sEE(ism).c_str());
-      if ( qth10_[ism-1] ) mui_->useQTest(histo, qth10_[ism-1]->getName());
+      if ( qth10_[ism-1] ) dbe_->useQTest(histo, qth10_[ism-1]->getName());
     } else {
       if ( enableMonitorDaemon_ ) {
         sprintf(histo, "*/EcalEndcap/EEIntegrityTask/Gain/EEIT gain %s", Numbers::sEE(ism).c_str());
-        if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
+        if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
         sprintf(histo, "*/EcalEndcap/EEIntegrityTask/ChId/EEIT ChId %s", Numbers::sEE(ism).c_str());
-        if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
+        if ( qth02_[ism-1] ) dbe_->useQTest(histo, qth02_[ism-1]->getName());
         sprintf(histo, "*/EcalEndcap/EEIntegrityTask/GainSwitch/EEIT gain switch %s", Numbers::sEE(ism).c_str());
-        if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
+        if ( qth03_[ism-1] ) dbe_->useQTest(histo, qth03_[ism-1]->getName());
         sprintf(histo, "*/EcalEndcap/EEIntegrityTask/GainSwitchStay/EEIT gain switch stay %s", Numbers::sEE(ism).c_str());
-        if ( qth04_[ism-1] ) mui_->useQTest(histo, qth04_[ism-1]->getName());
+        if ( qth04_[ism-1] ) dbe_->useQTest(histo, qth04_[ism-1]->getName());
         sprintf(histo, "*/EcalEndcap/EEIntegrityTask/TTId/EEIT TTId %s", Numbers::sEE(ism).c_str());
-        if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
+        if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
         sprintf(histo, "*/EcalEndcap/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize %s", Numbers::sEE(ism).c_str());
-        if ( qth06_[ism-1] ) mui_->useQTest(histo, qth06_[ism-1]->getName());
+        if ( qth06_[ism-1] ) dbe_->useQTest(histo, qth06_[ism-1]->getName());
         sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemChId/EEIT MemChId %s", Numbers::sEE(ism).c_str());
-        if ( qth07_[ism-1] ) mui_->useQTest(histo, qth07_[ism-1]->getName());
+        if ( qth07_[ism-1] ) dbe_->useQTest(histo, qth07_[ism-1]->getName());
         sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemGain %s", Numbers::sEE(ism).c_str());
-        if ( qth08_[ism-1] ) mui_->useQTest(histo, qth08_[ism-1]->getName());
+        if ( qth08_[ism-1] ) dbe_->useQTest(histo, qth08_[ism-1]->getName());
         sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemTTId/EEIT MemTTId %s", Numbers::sEE(ism).c_str());
-        if ( qth09_[ism-1] ) mui_->useQTest(histo, qth09_[ism-1]->getName());
+        if ( qth09_[ism-1] ) dbe_->useQTest(histo, qth09_[ism-1]->getName());
         sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemSize/EEIT MemSize %s", Numbers::sEE(ism).c_str());
-        if ( qth10_[ism-1] ) mui_->useQTest(histo, qth10_[ism-1]->getName());
+        if ( qth10_[ism-1] ) dbe_->useQTest(histo, qth10_[ism-1]->getName());
       } else {
         sprintf(histo, "EcalEndcap/EEIntegrityTask/Gain/EEIT gain %s", Numbers::sEE(ism).c_str());
-        if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
+        if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
         sprintf(histo, "EcalEndcap/EEIntegrityTask/ChId/EEIT ChId %s", Numbers::sEE(ism).c_str());
-        if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
+        if ( qth02_[ism-1] ) dbe_->useQTest(histo, qth02_[ism-1]->getName());
         sprintf(histo, "EcalEndcap/EEIntegrityTask/GainSwitch/EEIT gain switch %s", Numbers::sEE(ism).c_str());
-        if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
+        if ( qth03_[ism-1] ) dbe_->useQTest(histo, qth03_[ism-1]->getName());
         sprintf(histo, "EcalEndcap/EEIntegrityTask/GainSwitchStay/EEIT gain switch stay %s", Numbers::sEE(ism).c_str());
-        if ( qth04_[ism-1] ) mui_->useQTest(histo, qth04_[ism-1]->getName());
+        if ( qth04_[ism-1] ) dbe_->useQTest(histo, qth04_[ism-1]->getName());
         sprintf(histo, "EcalEndcap/EEIntegrityTask/TTId/EEIT TTId %s", Numbers::sEE(ism).c_str());
-        if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
+        if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
         sprintf(histo, "EcalEndcap/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize %s", Numbers::sEE(ism).c_str());
-        if ( qth06_[ism-1] ) mui_->useQTest(histo, qth06_[ism-1]->getName());
+        if ( qth06_[ism-1] ) dbe_->useQTest(histo, qth06_[ism-1]->getName());
         sprintf(histo, "EcalEndcap/EEIntegrityTask/MemChId/EEIT MemChId %s", Numbers::sEE(ism).c_str());
-        if ( qth07_[ism-1] ) mui_->useQTest(histo, qth07_[ism-1]->getName());
+        if ( qth07_[ism-1] ) dbe_->useQTest(histo, qth07_[ism-1]->getName());
         sprintf(histo, "EcalEndcap/EEIntegrityTask/MemGain %s", Numbers::sEE(ism).c_str());
-        if ( qth08_[ism-1] ) mui_->useQTest(histo, qth08_[ism-1]->getName());
+        if ( qth08_[ism-1] ) dbe_->useQTest(histo, qth08_[ism-1]->getName());
         sprintf(histo, "EcalEndcap/EEIntegrityTask/MemTTId/EEIT MemTTId %s", Numbers::sEE(ism).c_str());
-        if ( qth09_[ism-1] ) mui_->useQTest(histo, qth09_[ism-1]->getName());
+        if ( qth09_[ism-1] ) dbe_->useQTest(histo, qth09_[ism-1]->getName());
         sprintf(histo, "EcalEndcap/EEIntegrityTask/MemSize/EEIT MemSize %s", Numbers::sEE(ism).c_str());
-        if ( qth10_[ism-1] ) mui_->useQTest(histo, qth10_[ism-1]->getName());
+        if ( qth10_[ism-1] ) dbe_->useQTest(histo, qth10_[ism-1]->getName());
       }
     }
 
     sprintf(histo, "EcalEndcap/EEIntegrityTask/EEIT data integrity quality %s", Numbers::sEE(ism).c_str());
-    if ( qtg01_[ism-1] ) mui_->useQTest(histo, qtg01_[ism-1]->getName());
+    if ( qtg01_[ism-1] ) dbe_->useQTest(histo, qtg01_[ism-1]->getName());
 
     sprintf(histo, "EcalEndcap/EEIntegrityTask/EEIT data integrity quality MEM %s", Numbers::sEE(ism).c_str());
-    if ( qtg02_[ism-1] ) mui_->useQTest(histo, qtg02_[ism-1]->getName());
+    if ( qtg02_[ism-1] ) dbe_->useQTest(histo, qtg02_[ism-1]->getName());
 
   }
 
