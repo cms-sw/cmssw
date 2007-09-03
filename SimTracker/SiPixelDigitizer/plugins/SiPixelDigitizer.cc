@@ -13,7 +13,7 @@
 //
 // Original Author:  Michele Pioppi-INFN perugia
 //         Created:  Mon Sep 26 11:08:32 CEST 2005
-// $Id: SiPixelDigitizer.cc,v 1.26 2007/03/09 08:12:40 dkotlins Exp $
+// $Id: SiPixelDigitizer.cc,v 1.1 2007/04/23 10:05:14 chiochia Exp $
 //
 //
 
@@ -104,10 +104,14 @@ namespace cms
   SiPixelDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   {
     // Step A: Get Inputs
-    edm::Handle<CrossingFrame> cf;
-    iEvent.getByType(cf);
-
-    std::auto_ptr<MixCollection<PSimHit> > allPixelTrackerHits(new MixCollection<PSimHit>(cf.product(),trackerContainers));
+    edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
+    std::vector<const CrossingFrame<PSimHit> *> cf_simhitvec;
+    for(uint32_t i = 0; i< trackerContainers.size();i++){
+      iEvent.getByLabel("mix",trackerContainers[i],cf_simhit);
+      cf_simhitvec.push_back(cf_simhit.product());
+    }
+    
+    std::auto_ptr<MixCollection<PSimHit> > allPixelTrackerHits(new MixCollection<PSimHit>(cf_simhitvec));
 
     edm::ESHandle<TrackerGeometry> pDD;
     

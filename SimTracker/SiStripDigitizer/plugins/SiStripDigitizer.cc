@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.3 2007/07/12 13:14:39 fambrogl Exp $
+// $Id: SiStripDigitizer.cc,v 1.4 2007/07/24 17:36:07 fambrogl Exp $
 //
 //
 
@@ -110,13 +110,17 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 {
 
   // Step A: Get Inputs
-  edm::Handle<CrossingFrame> cf;
-  iEvent.getByType(cf);
-
   edm::ESHandle < ParticleDataTable > pdt;
   iSetup.getData( pdt );
-  
-  std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf.product(),trackerContainers));
+
+  edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
+  std::vector<const CrossingFrame<PSimHit> *> cf_simhitvec;
+  for(uint32_t i = 0; i< trackerContainers.size();i++){
+    iEvent.getByLabel("mix",trackerContainers[i],cf_simhit);
+    cf_simhitvec.push_back(cf_simhit.product());
+  }
+
+  std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf_simhitvec));
   
   //Loop on PSimHit
   SimHitMap.clear();
