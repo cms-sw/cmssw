@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/08/06 10:30:07 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/08/21 13:22:11 $
+ *  $Revision: 1.5 $
  *  \author M. Zanetti
  */
 
@@ -120,7 +120,10 @@ bool DTSpyReader::fillRawData(EventID& eID, Timestamp& tstamp, FEDRawDataCollect
   
   copy(reinterpret_cast<unsigned char*>(&eventData[0]),
        reinterpret_cast<unsigned char*>(&eventData[0]) + eventDataSize, fedRawData.data());
-  
+
+
+  mySpy->setlastPointer( (char*) rawDTData32 );
+
   return true;
     
 }

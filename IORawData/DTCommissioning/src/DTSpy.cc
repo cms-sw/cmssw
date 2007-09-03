@@ -18,6 +18,7 @@
 DTSpy::DTSpy():DTCtcp(0)
 {
   spybuf=(char *)malloc(DTSPY_MAX_MSG);
+  givenonce=0;
 }
 
 
@@ -30,13 +31,19 @@ DTSpy::~DTSpy()
 DTSpy::DTSpy(char *hostaddr,int port):DTCtcp(0)
 {
      Connect(hostaddr,port);
+     givenonce=0;
 }
 
 
 int
 DTSpy::getNextBuffer()
 {
-   	if (!connected) return -1;
+
+	if (!connected) return -1;
+	if (givenonce)
+		if ((lastpointer - spybuf) < getBuffSize())
+			return (getBuffSize() - (lastpointer - spybuf));
+	givenonce=0;
 
 	memset(spybuf,0x0,DTSPY_MAX_MSG); /* init buffer */
     
@@ -75,5 +82,14 @@ DTSpy::getRunNo()
 const char *
 DTSpy::getEventPointer()
 {
-  	return (spybuf+DTSPY_HEAD_SIZE);
+  if (givenonce) return lastpointer;
+  lastpointer = spybuf+DTSPY_HEAD_SIZE;
+  givenonce = 1;
+  return lastpointer;
+}
+
+void 
+DTSpy::setlastPointer(char * thep)
+{
+  lastpointer=thep;
 }
