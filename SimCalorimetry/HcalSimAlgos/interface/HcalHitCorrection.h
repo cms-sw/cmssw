@@ -10,7 +10,7 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVHitCorrection.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVSimParameterMap.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include <map>
 
