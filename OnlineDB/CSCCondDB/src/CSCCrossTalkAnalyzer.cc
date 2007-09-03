@@ -34,12 +34,13 @@ CSCCrossTalkAnalyzer::CSCCrossTalkAnalyzer(edm::ParameterSet const& conf) {
   debug = conf.getUntrackedParameter<bool>("debug",false);
   eventNumber=0, Nddu=0,chamber=0;
   strip=0,misMatch=0,max1 =-9999999.,max2=-9999999., min1=9999999.;
-  layer=0,reportedChambers=0;
+  layer=0,reportedChambers=0,myNcham=-999;
   length=1,myevt=0,flagRMS=-9,flagNoise=-9;
   aPeak=0.0,sumFive=0.0,maxPed=-99999.0,maxRMS=-99999.0;
   maxPeakTime=-9999.0, maxPeakADC=-999.0;
   minPeakTime=9999.0, minPeakADC=999.0;
   pedMean=0.0,evt=0,NChambers=0;
+  myIndex=0;
   
   //definition of histograms
   xtime = TH1F("time", "time", 50, 0, 500 );
@@ -158,8 +159,8 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
 	///get a reference to chamber data
 	const std::vector<CSCEventData> & cscData = dduData[iDDU].cscData();
 	//exclude empty events with no DMB/CFEB data
-        if(dduData[iDDU].cscData().size()==0) continue;
-        if(dduData[iDDU].cscData().size() !=0) evt++;
+        //if(dduData[iDDU].cscData().size()==0) continue;
+        //if(dduData[iDDU].cscData().size() !=0) evt++;
 
 	Nddu = dduData.size();
 	reportedChambers += dduData[iDDU].header().ncsc();
@@ -167,6 +168,9 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
 	int repChambers = dduData[iDDU].header().ncsc();
 	std::cout << " Reported Chambers = " << repChambers <<"   "<<NChambers<< std::endl;
 	if (NChambers!=repChambers) { std::cout<< "misMatched size!!!" << std::endl; misMatch++; continue;}
+	if(NChambers > myNcham){
+	  myNcham=NChambers;
+	}
 
 	for (int chamber = 0; chamber < NChambers; chamber++){
 	  
@@ -352,13 +356,14 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 
   for (int iii=0; iii<Nddu; iii++){
     
-    for (int i=0; i<NChambers; i++){
+    for (int i=0; i<myNcham; i++){
       
       //get chamber ID from DB mapping        
       int new_crateID = crateID[i];
       int new_dmbID   = dmbID[i];
+      int counter=0;
       std::cout<<" Crate: "<<new_crateID<<" and DMB:  "<<new_dmbID<<std::endl;
-      map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector);
+      map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector,&first_strip_index,&strips_per_layer,&chamber_index);
       std::cout<<"Data is for chamber:: "<< chamber_num<<" in sector:  "<<sector<<std::endl;
 
       meanPedestal = 0.0;
@@ -561,7 +566,7 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 	  meanPedestal = arrayOfPed[iii][i][j][k]/evt;
 	  newPed[fff]  = meanPedestal;
 	  meanPedestalSquare = arrayOfPedSquare[iii][i][j][k]/evt;
-	  theRMS       = sqrt(abs(meanPedestalSquare - meanPedestal*meanPedestal));
+	  theRMS       = sqrt(fabs(meanPedestalSquare - meanPedestal*meanPedestal));
 
 	  newRMS[fff]  = theRMS;
 	  theRSquare   = (thePedestal-meanPedestal)*(thePedestal-meanPedestal)/(theRMS*theRMS*theRMS*theRMS);
@@ -569,7 +574,7 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 	  thePeakMin   = arrayPeakMin[iii][i][j][k];
 	  meanPeak     = arrayOfPeak[iii][i][j][k]/evt;
 	  meanPeakSquare = arrayOfPeakSquare[iii][i][j][k]/evt;
-	  thePeakRMS   = sqrt(abs(meanPeakSquare - meanPeak*meanPeak));
+	  thePeakRMS   = sqrt(fabs(meanPeakSquare - meanPeak*meanPeak));
 	  newPeakRMS[fff] = thePeakRMS;
 	  newPeak[fff] = thePeak;
 	  newPeakMin[fff] = thePeakMin;
@@ -605,7 +610,10 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 	  if (meanPedestal >200. && meanPedestal<1000.)  flagNoise = 1; // ok
 
 	  //dump values to ASCII file
-	  myfile <<layer_id<<"  "<<k<<"  "<<the_xtalk_right_b<<"  "<<the_xtalk_right_a<<"  "<<the_chi2_right<<"  "<<the_xtalk_left_b<<"  "<<the_xtalk_left_a<<"  "<<the_chi2_left<<"  "<<meanPedestal<<"  "<<theRMS<<std::endl;
+	  counter++; 
+	  myIndex = first_strip_index+counter-1;
+	  if (counter>size[i]*LAYERS_xt) counter=0;
+	  myfile <<layer_id<<"  "<<myIndex<<"  "<<k<<"  "<<the_xtalk_right_b<<"  "<<the_xtalk_right_a<<"  "<<the_chi2_right<<"  "<<the_xtalk_left_b<<"  "<<the_xtalk_left_a<<"  "<<the_chi2_left<<"  "<<meanPedestal<<"  "<<theRMS<<std::endl;
 
 	  calib_evt.xtalk_slope_left  = xtalk_slope_left[iii][i][j][k]; 
 	  calib_evt.xtalk_slope_right = xtalk_slope_right[iii][i][j][k]; 

@@ -33,8 +33,8 @@
 
 CSCGainAnalyzer::CSCGainAnalyzer(edm::ParameterSet const& conf) {
   debug = conf.getUntrackedParameter<bool>("debug",false);
-  eventNumber=0,evt=0,counterzero=0,Nddu=0,flagGain=-9,flagIntercept=-9;
-  strip=0,misMatch=0,NChambers=0;
+  eventNumber=0,evt=0,counterzero=0,Nddu=0,flagGain=-9,flagIntercept=-9,flagRun=-9;
+  strip=0,misMatch=0,myIndex=0,myNcham=-999;
   i_chamber=0,i_layer=0,reportedChambers=0;
   length=1,gainSlope=-999.0,gainIntercept=-999.0;
   
@@ -106,7 +106,7 @@ void CSCGainAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup
       CSCDCCEventData dccData((short unsigned int *) fedData.data()); 
       
       const std::vector<CSCDDUEventData> & dduData = dccData.dduData(); 
-      
+      //evt++;      
       for (unsigned int iDDU=0; iDDU<dduData.size(); ++iDDU) {  ///loop over DDUs
 
 	///get a reference to chamber data
@@ -118,7 +118,13 @@ void CSCGainAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup
 	int repChambers = dduData[iDDU].header().ncsc();
 	std::cout << " Reported Chambers = " << repChambers <<"   "<<NChambers<< std::endl;
 	if (NChambers!=repChambers) { std::cout<< "misMatched size!!!" << std::endl; misMatch++;}
+	//if(NChambers==0) continue;
+	if(NChambers > myNcham){
+	  myNcham=NChambers;
+	}
+
 	float ped=0.0;
+
 	for (int i_chamber=0; i_chamber<NChambers; i_chamber++) {   
 	  
 	  for (int i_layer = 1; i_layer <=6; ++i_layer) {
@@ -167,7 +173,7 @@ void CSCGainAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup
 	  }
 	}
       	eventNumber++;
-	edm::LogInfo ("CSCGainAnalyzer")  << "end of event number " <<eventNumber<< " and non-zero event " << evt;
+	edm::LogInfo ("CSCGainAnalyzer")  <<"end of event number "<<eventNumber<<" and non-zero event "<<evt;
       }
     }
   }
@@ -214,25 +220,26 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
   CSCobject *cn = new CSCobject();
   cscmap *map = new cscmap();
   condbon *dbon = new condbon();
-  
+
   //root ntuple information
   TCalibGainEvt calib_evt;
   TFile calibfile(myNewName, "RECREATE");
   TTree calibtree("Calibration","Gains");
-  calibtree.Branch("EVENT", &calib_evt, "slope/F:intercept/F:chi2/F:strip/I:layer/I:cham/I:id/I:flagGain/I:flagIntercept/I");
-  
-  
+  calibtree.Branch("EVENT", &calib_evt, "slope/F:intercept/F:chi2/F:strip/I:layer/I:cham/I:id/I:flagGain/I:flagIntercept/I:flagRun/I");
+
   for (int dduiter=0;dduiter<Nddu;dduiter++){
-    for(int chamberiter=0; chamberiter<NChambers; chamberiter++){
-      for (int cham=0;cham<NChambers;cham++){
-	if (cham !=chamberiter) continue;
-	
+     for(int chamberiter=0; chamberiter<myNcham; chamberiter++){
+       for (int cham=0;cham<myNcham;cham++){
+	 if (cham !=chamberiter) continue;
+ 
 	//get chamber ID from DB mapping        
 	int new_crateID = crateID[cham];
 	int new_dmbID   = dmbID[cham];
+	int counter=0;
 	std::cout<<" Crate: "<<new_crateID<<" and DMB:  "<<new_dmbID<<std::endl;
-	map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector);
-	std::cout<<"Data is for chamber:: "<< chamber_id<<" in sector:  "<<sector<<std::endl;
+	//	myIndex=0;
+	map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector,&first_strip_index,&strips_per_layer,&chamber_index);
+	std::cout<<"Data is for chamber:: "<<chamber_id<<" in sector:  "<<sector<<" index "<<first_strip_index<<std::endl;
 	
 	calib_evt.id=chamber_num;
 
@@ -243,7 +250,8 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
 	      if (j != layeriter) continue;
 	      
 	      int layer_id=chamber_num+j+1;
-	      if(sector==-100)continue;
+
+	      //if(sector==-100)continue;
 	      cn->obj[layer_id].resize(size[cham]);
 	      for (int k=0; k<size[cham]; k++){//strip
 		if (k != stripiter) continue;
@@ -257,7 +265,7 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
 		
 		//now start at 0.1V and step 0.25 inbetween
 		float charge[NUMBERPLOTTED_ga]={11.2, 39.2, 67.2, 95.2, 123.2, 151.2, 179.2, 207.2, 235.2, 263.2, 291.2, 319.2, 347.2, 375.2, 403.2, 431.2, 459.2, 487.2, 515.2, 543.2};
- 
+		//float charge[NUMBERPLOTTED_ga]={11.2, 39.2, 67.2, 95.2, 123.2, 151.2, 179.2, 207.2, 235.2, 263.2};
 		for(int ii=0; ii<FITNUMBERS_ga; ii++){//numbers    
 		  sumOfX  += charge[ii];
 		  sumOfY  += maxmodten[ii][cham][j][k];
@@ -299,7 +307,12 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
 		if (gainIntercept> 15.)                        flagIntercept = 3 ;  
 
 		//dump values to ASCII file
-		myGainsFile <<layer_id<<"  "<<k<<"  "<<gainSlope<<"  "<<gainIntercept<<"  "<<chi2<<std::endl;
+		counter++; 
+		myIndex = first_strip_index+counter-1;
+		if (size[cham] != strips_per_layer) flagRun = 1; //bad run
+		if (size[cham] == strips_per_layer) flagRun = 0; //good run 
+		if (counter>size[cham]*LAYERS_ga) counter=0;
+		myGainsFile <<layer_id<<"  "<<"  "<<myIndex-1<<"  "<<k<<"  "<<gainSlope<<"  "<<gainIntercept<<"  "<<chi2<<std::endl;
 		calib_evt.slope     = gainSlope;
 		calib_evt.intercept = gainIntercept;
 		calib_evt.chi2      = chi2;
@@ -308,6 +321,7 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
 		calib_evt.cham      = cham;
 		calib_evt.flagGain  = flagGain;
 		calib_evt.flagIntercept  = flagIntercept;
+		calib_evt.flagRun   = flagRun;
 		
 		calibtree.Fill();
 		

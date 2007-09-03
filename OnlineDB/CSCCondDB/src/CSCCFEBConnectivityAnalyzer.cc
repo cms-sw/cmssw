@@ -204,7 +204,7 @@ CSCCFEBConnectivityAnalyzer::~CSCCFEBConnectivityAnalyzer(){
       int new_crateID = crateID[i];
       int new_dmbID   = dmbID[i];
       std::cout<<" Crate: "<<new_crateID<<" and DMB:  "<<new_dmbID<<std::endl;
-      map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector);
+      map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector,&first_strip_index,&strips_per_layer,&chamber_index);
       std::cout<<"Data is for chamber:: "<< chamber_id<<" in sector:  "<<sector<<std::endl;
       
       for (int j=0; j<LAYERS_con; j++){
@@ -213,7 +213,7 @@ CSCCFEBConnectivityAnalyzer::~CSCCFEBConnectivityAnalyzer(){
 	  my_diff =  adcMean_max[iii][i][j][k]- adcMean_min[iii][i][j][k];
 	  my_diffSquare = my_diff*my_diff;
 	  std::cout<<"Chamber "<<i<<" Layer "<<j<<" Strip "<<k<<" diff "<<my_diff<<" RMS "<<theRMS<<std::endl;
-	  theRMS       = sqrt(abs(my_diffSquare - my_diff*my_diff));
+	  theRMS       = sqrt(fabs(my_diffSquare - my_diff*my_diff));
 	  calib_evt.strip=k;
 	  calib_evt.layer=j;
 	  calib_evt.cham=i;

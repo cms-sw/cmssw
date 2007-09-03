@@ -32,7 +32,7 @@
 CSCNoiseMatrixAnalyzer::CSCNoiseMatrixAnalyzer(edm::ParameterSet const& conf) {
   debug = conf.getUntrackedParameter<bool>("debug",false);
   eventNumber=0,evt=0,NChambers=0,Nddu=0,counterzero=0;
-  strip=0,misMatch=0;
+  strip=0,misMatch=0,myIndex=0,myNcham=-999;
   i_chamber=0,i_layer=0,reportedChambers=0;
   length=1,flagMatrix=-9;
   for(int k=0;k<CHAMBERS_ma;k++) cam[k].zero();
@@ -102,6 +102,9 @@ void CSCNoiseMatrixAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&
 	int repChambers = dduData[iDDU].header().ncsc();
 	std::cout << " Reported Chambers = " << repChambers <<"   "<<NChambers<< std::endl;
 	if (NChambers!=repChambers) { std::cout<< "misMatched size!!!" << std::endl; misMatch++;}
+	if(NChambers > myNcham){
+	  myNcham=NChambers;
+	}
 
 	for (int i_chamber=0; i_chamber<NChambers; i_chamber++) { 
 	  
@@ -183,13 +186,13 @@ CSCNoiseMatrixAnalyzer::~CSCNoiseMatrixAnalyzer(){
   calibtree.Branch("EVENT", &calib_evt, "elem[12]/F:strip/I:layer/I:cham/I:id/I:flagMatrix/I");
   
   //for (int myDDU; myDDU<Nddu; myDDU++){
-  for (int i=0; i<NChambers; i++){
+  for (int i=0; i<myNcham; i++){
     
     //get chamber ID from DB mapping        
     int new_crateID = crateID[i];
     int new_dmbID   = dmbID[i];
     std::cout<<" Crate: "<<new_crateID<<" and DMB:  "<<new_dmbID<<std::endl;
-    map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector);
+    map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector,&first_strip_index,&strips_per_layer,&chamber_index);
     std::cout<<"Data is for chamber:: "<< chamber_id<<" in sector:  "<<sector<<std::endl;
        
     calib_evt.id=chamber_num;
@@ -197,7 +200,8 @@ CSCNoiseMatrixAnalyzer::~CSCNoiseMatrixAnalyzer(){
       int layer_id=chamber_num+j+1;
       if(sector==-100)continue;
       cn->obj[layer_id].resize(size[i]);
-      
+      int counter=0;
+
       for (int k=0; k<size[i]; k++){
 	for (int max=0; max<12;max++){
 	  tmp=cam[i].autocorrmat(j,k);
@@ -357,7 +361,10 @@ CSCNoiseMatrixAnalyzer::~CSCNoiseMatrixAnalyzer(){
 	  
 	}
 
-	myfile<<layer_id<<"  "<<k<<"  "<<tmp[0]<<"  "<<tmp[1]<<"  "<<tmp[3]<<"  "<<tmp[2]<<"  "<<tmp[4]<<"  "<<tmp[6]<<"  "<<tmp[5]<<"  "<<tmp[7]<<"  "<<tmp[9]<<"  "<<tmp[8]<<"  "<<tmp[10]<<"  "<<tmp[11]<<std::endl;
+	counter++; 
+	myIndex = first_strip_index+(counter-1);
+	if (counter>size[i]*LAYERS_ma) counter=0;
+	myfile<<layer_id<<"  "<<myIndex-1<<"  "<<k<<"  "<<tmp[0]<<"  "<<tmp[1]<<"  "<<tmp[3]<<"  "<<tmp[2]<<"  "<<tmp[4]<<"  "<<tmp[6]<<"  "<<tmp[5]<<"  "<<tmp[7]<<"  "<<tmp[9]<<"  "<<tmp[8]<<"  "<<tmp[10]<<"  "<<tmp[11]<<std::endl;
       }
     }
   }

@@ -43,7 +43,7 @@ class CSCCompThreshAnalyzer : public edm::EDAnalyzer {
   
   std::string chamber_id;
   int eventNumber,evt,event,pedSum, strip, misMatch,fff,ret_code,NChambers,Nddu;
-  int length,i_chamber,i_layer,reportedChambers,chamber_num,sector; 
+  int length,i_chamber,i_layer,reportedChambers,chamber_num,sector,first_strip_index,strips_per_layer,chamber_index; 
   int timebin,mycompstrip,comparator,compstrip,compadc;
   int dmbID[CHAMBERS_ct],crateID[CHAMBERS_ct],size[CHAMBERS_ct]; 
   float meanThresh;

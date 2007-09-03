@@ -72,11 +72,15 @@ void CSCscaAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
       
       const std::vector<CSCDDUEventData> & dduData = dccData.dduData(); 
       
-      evt++;      
+      //evt++;      
       for (unsigned int iDDU=0; iDDU<dduData.size(); ++iDDU) { 
 	
 	///get a reference to chamber data
 	const std::vector<CSCEventData> & cscData = dduData[iDDU].cscData();
+	//exclude empty events with no DMB/CFEB data
+	if(dduData[iDDU].cscData().size()==0) continue;
+	if(dduData[iDDU].cscData().size() !=0) evt++;
+	
 	Nddu = dduData.size();
 	reportedChambers += dduData[iDDU].header().ncsc();
 	NChambers = cscData.size();
@@ -118,7 +122,7 @@ void CSCscaAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
 		    if(strip>=icfeb*16+1 && strip<=icfeb*16+16){
 		      value_adc[iDDU][chamber][layer][strip][scaNumber] = adc[itime];
 		    }
-		    value_adc_mean[iDDU][chamber][layer][strip][scaNumber] += adc[itime]/20. ;		 
+		    value_adc_mean[iDDU][chamber][layer][strip][scaNumber] += adc[itime]/evt ;		 
 		  }
 		}//8 timeslice
 	      }//layer
@@ -166,22 +170,26 @@ CSCscaAnalyzer::~CSCscaAnalyzer(){
   //get name of run file from .cfg and name root output after that
   std::string::size_type runNameStart = name.find("\"",0);
   std::string::size_type runNameEnd   = name.find("raw",0);
-  std::string::size_type rootStart    = name.find("Crosstalk",0);
+  std::string::size_type rootStart    = name.find("SCAPed",0);
   int nameSize = runNameEnd+3-runNameStart;
   int myRootSize = rootStart-runNameStart+8;
   std::string myname= name.substr(runNameStart+1,nameSize);
   std::string myRootName= name.substr(runNameStart+1,myRootSize);
   std::string myRootEnd = "_sca.root";
+  std::string myASCIIFileEnd = ".dat";
   std::string runFile= myRootName;
   std::string myRootFileName = runFile+myRootEnd;
+  std::string myASCIIFileName= runFile+myASCIIFileEnd;
   const char *myNewName=myRootFileName.c_str();
-  
+  const char *myFileName=myASCIIFileName.c_str();
+
   struct tm* clock;			    
   struct stat attrib;			    
   stat(myname.c_str(), &attrib);          
   clock = localtime(&(attrib.st_mtime));  
   std::string myTime=asctime(clock);
-  
+  std::ofstream myfile(myFileName,std::ios::out);
+
   //root ntuple
   TCalibSCAEvt calib_evt;
   TFile calibfile(myNewName, "RECREATE");
@@ -202,16 +210,18 @@ CSCscaAnalyzer::~CSCscaAnalyzer(){
       int new_dmbID   = dmbID[cham];
       
       std::cout<<" Crate: "<<new_crateID<<" and DMB:  "<<new_dmbID<<std::endl;
-      map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector);
+      map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector,&first_strip_index,&strips_per_layer,&chamber_index);
       std::cout<<"Data is for chamber:: "<< chamber_id<<" in sector:  "<<sector<<std::endl;
       
       for (int layeriter=0; layeriter<LAYERS_sca; layeriter++){
+	int layer_id=chamber_num+layeriter+1;
 	for (int stripiter=0; stripiter<STRIPS_sca; stripiter++){
 	  for (int k=0;k<Number_sca;k++){
 	    my_scaValue = value_adc[dduiter][cham][layeriter][stripiter][k];
 	    my_scaValueMean = value_adc_mean[dduiter][cham][layeriter][stripiter][k];
 	    
-	    std::cout<<"Ch "<<cham<<" Layer "<<layeriter<<" strip "<<stripiter<<" sca_nr "<<k<<" Mean ADC "<<my_scaValueMean <<std::endl;
+	    myfile<<layer_id<<"  "<<stripiter<<"  "<<my_scaValueMean<<std::endl;
+	    //	    std::cout<<"Ch "<<cham<<" Layer "<<layeriter<<" strip "<<stripiter<<" sca_nr "<<k<<" Mean ADC "<<my_scaValueMean <<std::endl;
 	    calib_evt.strip=stripiter;
 	    calib_evt.layer=layeriter;
 	    calib_evt.cham=cham;

@@ -241,7 +241,7 @@ CSCCompThreshAnalyzer::~CSCCompThreshAnalyzer(){
   
   //DB object and map
   CSCobject *cn = new CSCobject();
-  //cscmap *map = new cscmap();
+  cscmap *map = new cscmap();
   //condbon *dbon = new condbon();
  
  //root ntuple information
@@ -260,8 +260,8 @@ CSCCompThreshAnalyzer::~CSCCompThreshAnalyzer(){
 	int new_crateID = crateID[cham];
 	int new_dmbID   = dmbID[cham];
 	std::cout<<" Crate: "<<new_crateID<<" and DMB:  "<<new_dmbID<<std::endl;
-	//map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector);
-	//std::cout<<"Data is for chamber:: "<< chamber_id<<" in sector:  "<<sector<<std::endl;
+	map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector,&first_strip_index,&strips_per_layer,&chamber_index);
+	std::cout<<"Data is for chamber:: "<< chamber_id<<" in sector:  "<<sector<<std::endl;
 	
 	calib_evt.id=chamber_num;
 	

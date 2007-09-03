@@ -28,6 +28,7 @@ class TCalibGainEvt {
   Int_t id;
   Int_t flagGain;
   Int_t flagIntercept;
+  Int_t flagRun;
 };
 
 class CSCGainAnalyzer : public edm::EDAnalyzer {
@@ -39,9 +40,12 @@ class CSCGainAnalyzer : public edm::EDAnalyzer {
 #define LAYERS_ga 6
 #define STRIPS_ga 80
 #define NUMBERPLOTTED_ga 20
+  //#define NUMBERPLOTTED_ga 10
 #define PULSES_ga 25
+  //#define PULSES_ga 10
 #define FITNUMBERS_ga 10 
 #define NUMMODTEN_ga 500
+  //#define NUMMODTEN_ga 200
 #define DDU_ga 4
 
   ~CSCGainAnalyzer();
@@ -49,8 +53,8 @@ class CSCGainAnalyzer : public edm::EDAnalyzer {
  private:
   std::vector<int> newadc; 
   std::string chamber_id;
-  int eventNumber,evt,counterzero,chamber_num,sector,i_chamber,i_layer,reportedChambers;
-  int fff,ret_code,length,strip,misMatch,NChambers,Nddu,record;
+  int eventNumber,evt,counterzero,chamber_num,sector,i_chamber,i_layer,reportedChambers,first_strip_index,strips_per_layer,chamber_index;
+  int fff,ret_code,length,strip,misMatch,NChambers,Nddu,record,myNcham;
   time_t rawtime;
   int dmbID[CHAMBERS_ga],crateID[CHAMBERS_ga],size[CHAMBERS_ga]; 
   float gainSlope,gainIntercept;
@@ -61,7 +65,7 @@ class CSCGainAnalyzer : public edm::EDAnalyzer {
   float newIntercept[480];
   float newChi2[480];
   float myCharge[20];
-  int lines,flagGain,flagIntercept;
+  int lines,flagGain,flagIntercept,myIndex,flagRun;
   std::ifstream filein;
   std::string PSet,name;
   bool debug;

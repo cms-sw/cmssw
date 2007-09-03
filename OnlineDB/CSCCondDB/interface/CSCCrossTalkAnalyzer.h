@@ -64,8 +64,8 @@ class CSCCrossTalkAnalyzer : public edm::EDAnalyzer {
 #define NUMMODTEN_xt 10 
 
  private:
-  int eventNumber,evt,strip,misMatch,fff,ret_code,length,Nddu,myevt;
-  int chamber,layer,reportedChambers,chamber_num,sector,record,NChambers ;
+  int eventNumber,evt,strip,misMatch,fff,ret_code,length,Nddu,myevt,myNcham,myIndex;
+  int chamber,layer,reportedChambers,chamber_num,sector,record,NChambers,first_strip_index,strips_per_layer,chamber_index ;
   int dmbID[CHAMBERS_xt],crateID[CHAMBERS_xt],size[CHAMBERS_xt];
   std::vector<int> adc;
   std::string chamber_id;

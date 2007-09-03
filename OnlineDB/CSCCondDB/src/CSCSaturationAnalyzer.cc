@@ -31,7 +31,7 @@
 
 CSCSaturationAnalyzer::CSCSaturationAnalyzer(edm::ParameterSet const& conf) {
   debug = conf.getUntrackedParameter<bool>("debug",false);
-  eventNumber=0,evt=0,Nddu=0;
+  eventNumber=0,evt=0,counterzero=0,Nddu=0,myIndex=0,myNcham=-999;
   strip=0,misMatch=0,NChambers=0;
   i_chamber=0,i_layer=0,reportedChambers=0;
   length=1;
@@ -86,7 +86,9 @@ void CSCSaturationAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& 
   
   edm::Handle<FEDRawDataCollection> rawdata;
   e.getByType(rawdata);
-  
+  counterzero=counterzero+1;
+  evt=(counterzero+1)/2;
+
   for (int id=FEDNumbering::getCSCFEDIds().first;
        id<=FEDNumbering::getCSCFEDIds().second; ++id){ //for each of our DCCs    
     
@@ -104,8 +106,8 @@ void CSCSaturationAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& 
 	///get a reference to chamber data
 	const std::vector<CSCEventData> & cscData = dduData[iDDU].cscData();
 	//exclude empty events with no DMB/CFEB data
-        if(dduData[iDDU].cscData().size()==0) continue;
-        if(dduData[iDDU].cscData().size() !=0) evt++;
+        //if(dduData[iDDU].cscData().size()==0) continue;
+        //if(dduData[iDDU].cscData().size() !=0) evt++;
 	
 	Nddu = dduData.size();
 	reportedChambers += dduData[iDDU].header().ncsc();
@@ -113,6 +115,9 @@ void CSCSaturationAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& 
 	int repChambers = dduData[iDDU].header().ncsc();
 	//std::cout << " Reported Chambers = " << repChambers <<"   "<<NChambers<< std::endl;
 	if (NChambers!=repChambers) { std::cout<< "misMatched size!!!" << std::endl; misMatch++;}
+	if(NChambers > myNcham){
+	  myNcham=NChambers;
+	}
 	
 	for (int i_chamber=0; i_chamber<NChambers; i_chamber++) {   
 	  
@@ -208,11 +213,11 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
   stat(myname.c_str(), &attrib);          
   clock = localtime(&(attrib.st_mtime));  
   std::string myTime=asctime(clock);
-  std::ofstream myfile(myFileName,std::ios::out);
-    
+  std::ofstream mySatFile(myFileName,std::ios::out);
+ 
   //DB object and map
   CSCobject *cn = new CSCobject();
-  //cscmap *map = new cscmap();
+  cscmap *map = new cscmap();
   //condbon *dbon = new condbon();
 
   //root ntuple information
@@ -222,16 +227,17 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
   calibtree.Branch("EVENT", &calib_evt, "strip/I:layer/I:cham/I:id/I:N/F:a/F:b/F:c/F");
 
   for (int dduiter=0;dduiter<Nddu;dduiter++){
-    for(int chamberiter=0; chamberiter<NChambers; chamberiter++){
-      for (int cham=0;cham<NChambers;cham++){
+    for(int chamberiter=0; chamberiter<myNcham; chamberiter++){
+      for (int cham=0;cham<myNcham;cham++){
 	if (cham !=chamberiter) continue;
 	
 	//get chamber ID from DB mapping        
 	int new_crateID = crateID[cham];
 	int new_dmbID   = dmbID[cham];
+	int counter=0;
 	std::cout<<" Crate: "<<new_crateID<<" and DMB:  "<<new_dmbID<<std::endl;
-	//map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector);
-	//std::cout<<"Data is for chamber:: "<< chamber_id<<" in sector:  "<<sector<<std::endl;
+	map->crate_chamber(new_crateID,new_dmbID,&chamber_id,&chamber_num,&sector,&first_strip_index,&strips_per_layer,&chamber_index);
+	std::cout<<"Data is for chamber:: "<< chamber_id<<" in sector:  "<<sector<<std::endl;
 	
 	calib_evt.id=chamber_num;
 	
@@ -281,7 +287,11 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
 		SaturationFit s(NUMBERPLOTTED_sat,myCharge,mySatADC,&u0_ptr, &u1_ptr, &u2_ptr, &u3_ptr);
 		//u0_ptr=N,u1_ptr=a,u2_ptr=b,u3_ptr=c
 		//std::cout<<"Fitresults: " <<cham<<" lay "<<j<<" strip " <<k<<" param0-3  "<< u0_ptr<<" "<<u1_ptr<<" "<<u2_ptr<<" "<<u3_ptr<<std::endl;
-
+		counter++; 
+		myIndex = first_strip_index+counter-1;
+		if (counter>size[cham]*LAYERS_sat) counter=0;
+		mySatFile <<layer_id<<"  "<<"  "<<myIndex-1<<"  "<<k<<"  "<<u0_ptr<<"  "<<u1_ptr<<"  "<<u2_ptr<<"  "<<u3_ptr<<std::endl;
+		
 		calib_evt.strip = k;
 		calib_evt.layer = j;
 		calib_evt.cham  = cham;
@@ -291,8 +301,6 @@ CSCSaturationAnalyzer::~CSCSaturationAnalyzer(){
 		calib_evt.c     = u3_ptr;
 
 		calibtree.Fill();
-
-		myfile<<u0_ptr<<"  "<<u1_ptr<<"  "<<u2_ptr<<"  "<<u3_ptr<<std::endl;
 
 		//send constants to DB
 		/*

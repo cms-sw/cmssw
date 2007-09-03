@@ -50,7 +50,7 @@ class CSCCFEBConnectivityAnalyzer : public edm::EDAnalyzer {
 
  private:
   int eventNumber,evt,strip,misMatch,fff,ret_code,length,Nddu,myevt;
-  int chamber,layer,reportedChambers,chamber_num,sector,record,NChambers ;
+  int chamber,layer,reportedChambers,chamber_num,sector,record,NChambers,first_strip_index,strips_per_layer, chamber_index;
   int dmbID[CHAMBERS_con],crateID[CHAMBERS_con],size[CHAMBERS_con];
   float adcMin[DDU_con][CHAMBERS_con][LAYERS_con][STRIPS_con];
   float adcMax[DDU_con][CHAMBERS_con][LAYERS_con][STRIPS_con];

@@ -50,7 +50,7 @@ class CSCscaAnalyzer : public edm::EDAnalyzer {
  private:
   
   int eventNumber,evt,strip,misMatch,fff,ret_code,length,Nddu,myevt;
-  int chamber,layer,reportedChambers,chamber_num,sector,run,NChambers ;
+  int chamber,layer,reportedChambers,chamber_num,sector,run,NChambers,first_strip_index,strips_per_layer,chamber_index ;
   int dmbID[CHAMBERS_sca],crateID[CHAMBERS_sca],size[CHAMBERS_sca];
   int value_adc[DDU_sca][CHAMBERS_sca][LAYERS_sca][STRIPS_sca][Number_sca];
   float value_adc_mean[DDU_sca][CHAMBERS_sca][LAYERS_sca][STRIPS_sca][Number_sca];
