@@ -65,7 +65,7 @@ double HcalHitCorrection::delay(const PCaloHit & hit) const
   int tbin = timeBin(hit);
   if(tbin >= 0 && tbin < 10)
   {
-    ChargeSumsByChannel::const_iterator totalChargeItr = theChargeSumsForTimeBin[tbin].find(detId);
+    ChargeSumsByChannel::const_iterator totalChargeItr = theChargeSumsForTimeBin[tbin].find(hcalDetId);
     if(totalChargeItr == theChargeSumsForTimeBin[tbin].end())
     {
       throw cms::Exception("HcalHitCorrection") << "Cannot find HCAL charge sum for hit " << hit;
