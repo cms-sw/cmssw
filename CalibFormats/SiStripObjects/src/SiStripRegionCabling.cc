@@ -1,11 +1,5 @@
-
-//FWCore
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
-
-//CalibFormats
 #include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
-
-//DataFormats
+#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
@@ -23,51 +17,60 @@ SiStripRegionCabling::SiStripRegionCabling(const uint32_t etadivisions, const ui
 {}
 
 const SiStripRegionCabling::PositionIndex SiStripRegionCabling::positionIndex(const Position position) const {
-  int eta = (etamax_) ? static_cast<int>((position.first+etamax_)*etadivisions_/(2.*etamax_)) : 0;
+  int eta = static_cast<int>((position.first+etamax_)*etadivisions_/(2.*etamax_));
   int phi = static_cast<int>((position.second+M_PI)*phidivisions_/(2.*M_PI));
-  if (eta > etadivisions_-1) eta = etadivisions_-1;
-  else if (eta < 0) eta = 0;
   return PositionIndex(static_cast<uint32_t>(eta),static_cast<uint32_t>(phi));
 }
 
-const SiStripRegionCabling::Region SiStripRegionCabling::region(const Position position) const {
+const uint32_t SiStripRegionCabling::region(const Position position) const {
   PositionIndex index = positionIndex(position); 
   return region(index);
 }
 
-void SiStripRegionCabling::increment(PositionIndex& index, int deta, int dphi) const {
+SiStripRegionCabling::PositionIndex SiStripRegionCabling::increment(const PositionIndex index, int deta, int dphi) const {
   
-  int eta = static_cast<int>(index.first);
-  eta+=deta;
+  int eta = static_cast<int>(index.first)+deta;
   if (eta > etadivisions_-1) eta = etadivisions_-1;
   else if (eta < 0) eta = 0;
-  index.first = static_cast<uint32_t>(eta);
-  
-  int phi = static_cast<int>(index.second);
-  phi+=dphi;
+ 
+  int phi = static_cast<int>(index.second)+dphi;
   while (phi<0) phi+=phidivisions_;
   while (phi>phidivisions_-1) phi-=phidivisions_;
-  index.second = static_cast<uint32_t>(phi);
+
+  return PositionIndex(static_cast<uint32_t>(eta),static_cast<uint32_t>(phi));
 }
 
 const SiStripRegionCabling::SubDet SiStripRegionCabling::subdetFromDetId(const uint32_t detid) {
 
   SiStripDetId::SubDetector subdet = SiStripDetId(detid).subDetector();
-  if (subdet == 3) return SiStripRegionCabling::TIB;
-  else if (subdet == 5) return SiStripRegionCabling::TOB;
-  else if (subdet == 4) return SiStripRegionCabling::TID;
-  else if (subdet == 6) return SiStripRegionCabling::TEC;
-  else return SiStripRegionCabling::UNKNOWN;
+  if (subdet == 3) return TIB;
+  else if (subdet == 4) return TID;
+  else if (subdet == 5) return TOB;
+  else if (subdet == 6) return TEC;
+  else return ALLSUBDETS;
 }
 
-const SiStripRegionCabling::Layer SiStripRegionCabling::layerFromDetId(const uint32_t detid) {
+const uint32_t SiStripRegionCabling::layerFromDetId(const uint32_t detid) {
  
   SiStripRegionCabling::SubDet subdet = subdetFromDetId(detid);
-  if (subdet == SiStripRegionCabling::TIB) return TIBDetId(detid).layer();
-  else if (subdet == SiStripRegionCabling::TOB) return TOBDetId(detid).layer(); 
-  else if (subdet == SiStripRegionCabling::TEC) return TECDetId(detid).wheel();
-  else if (subdet == SiStripRegionCabling::TID) return TIDDetId(detid).wheel();
-  else return 0;
+  if (subdet == TIB) return TIBDetId(detid).layer();
+  else if (subdet == TID) return TIDDetId(detid).wheel();
+  else if (subdet == TOB) return TOBDetId(detid).layer(); 
+  else if (subdet == TEC) return TECDetId(detid).wheel();
+  else return ALLLAYERS;
+}
+
+const uint32_t SiStripRegionCabling::physicalLayerFromDetId(const uint32_t detid) {
+  return physicalLayer(subdetFromDetId(detid),layerFromDetId(detid));
+}
+
+const uint32_t SiStripRegionCabling::physicalLayer(const SubDet subdet, const uint32_t layer) {
+
+  if (subdet == TIB) return layer;
+  else if (subdet == TOB) return TIBLAYERS + layer;
+  else if (subdet == TID) return layer;
+  else if (subdet == TEC) return TIDLAYERS + layer;
+  else return ALLLAYERS;
 }
 
 EVENTSETUP_DATA_REG(SiStripRegionCabling);
