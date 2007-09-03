@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: JetPartonMatching.cc,v 1.8 2007/06/18 11:40:21 heyninck Exp $
+// $Id: JetPartonMatching.cc,v 1.1 2007/07/04 16:51:38 heyninck Exp $
 //
 #include "TopQuarkAnalysis/TopTools/interface/JetPartonMatching.h"
 
@@ -52,8 +52,7 @@ void 	JetPartonMatching::calculate(){
     for(unsigned int ij=0; ij<jets.size(); ij++){
       double qjang = 0;
       if(spaceAngleOrDeltaR == 1){
-        qjang = acos( ( jets[ij]->px()*partons[iq]->px() + jets[ij]->py()*partons[iq]->py() + jets[ij]->pz()*partons[iq]->pz() )
-                    / ( jets[ij]->p4().R()*partons[iq]->p4().R()) );
+        qjang = ROOT::Math::VectorUtil::Angle( jets[ij]->p4(), partons[iq]->p4() );
       }
       else if(spaceAngleOrDeltaR == 2){
         qjang = ROOT::Math::VectorUtil::DeltaR( jets[ij]->p4(), partons[iq]->p4() );
@@ -126,8 +125,7 @@ double 	JetPartonMatching::getAngleForParton(unsigned int partonIndex){
   double qjAngle = -999.;
   if(ij > -1){
     if(spaceAngleOrDeltaR == 1){
-      qjAngle = acos( ( jets[ij]->px()*partons[iq]->px() + jets[ij]->py()*partons[iq]->py() + jets[ij]->pz()*partons[iq]->pz() )
-                  / ( jets[ij]->p4().R()*partons[iq]->p4().R()) );
+      qjAngle = ROOT::Math::VectorUtil::Angle( jets[ij]->p4(), partons[iq]->p4() );
     }
     else if(spaceAngleOrDeltaR == 2){
       qjAngle = ROOT::Math::VectorUtil::DeltaR( jets[ij]->p4(), partons[iq]->p4() );
