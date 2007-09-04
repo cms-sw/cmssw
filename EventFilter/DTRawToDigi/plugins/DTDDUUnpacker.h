@@ -4,8 +4,8 @@
 /** \class DTDDUUnpacker
  *  The unpacker for DTs' FED.
  *
- *  $Date: 2007/04/24 12:08:20 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/05/07 16:16:39 $
+ *  $Revision: 1.3 $
  * \author M. Zanetti INFN Padova
  * FRC 060906
  */
@@ -36,7 +36,13 @@ class DTDDUUnpacker : public DTUnpacker {
 
  private:
 
-  const edm::ParameterSet pset;
+  const edm::ParameterSet dduPSet;
+
+  /// if data are read locally, status words are swapped
+  bool localDAQ;
+  
+  /// perform DQM for DDU
+  bool performDataIntegrityMonitor;
 
   bool debug;
 

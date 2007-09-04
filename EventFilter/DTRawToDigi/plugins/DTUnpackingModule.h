@@ -4,8 +4,8 @@
 /** \class DTUnpackingModule
  *  The unpacking module for DTs.
  *
- *  $Date: 2007/04/26 18:53:06 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/05/07 16:16:40 $
+ *  $Revision: 1.3 $
  * \author N. Amapane - S. Argiro' - M. Zanetti
  */
 
@@ -31,13 +31,13 @@ class DTUnpackingModule: public edm::EDProducer {
 
   DTUnpacker * unpacker;
 
-  int numOfEvents;
-
-  int eventScanning;
-  
+  /// get the FED payload by type?
   bool fedbyType_;
+  /// if not you need the label
   std::string fedColl_;
+  /// do you want to use the standard DT FED ID's, i.e. [770-775]? (why the hell 6??)
   bool useStandardFEDid_;
+  /// if not you need to set the range by hand
   int minFEDid_;
   int maxFEDid_;
 };

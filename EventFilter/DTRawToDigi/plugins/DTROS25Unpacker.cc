@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/08/06 11:09:06 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/08/29 12:54:30 $
+ *  $Revision: 1.5 $
  *  \author  M. Zanetti - INFN Padova
  *  \revision FRC 060906
  */
@@ -14,6 +14,7 @@
 
 #include <EventFilter/DTRawToDigi/interface/DTDataMonitorInterface.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <EventFilter/DTRawToDigi/plugins/DTROSErrorNotifier.h>
 #include <EventFilter/DTRawToDigi/plugins/DTTDCErrorNotifier.h>
@@ -30,37 +31,39 @@ using namespace edm;
 
 
 
-DTROS25Unpacker::DTROS25Unpacker(const edm::ParameterSet& ps): pset(ps) {
+DTROS25Unpacker::DTROS25Unpacker(const edm::ParameterSet& ps) {
   
-  if(pset.getUntrackedParameter<bool>("performDataIntegrityMonitor",false)){
-    dataMonitor = edm::Service<DTDataMonitorInterface>().operator->();
-  }
-  
-  debug = pset.getUntrackedParameter<bool>("debugMode",false);
-  writeSC = pset.getUntrackedParameter<bool>("writeSC",false);
-  
-  globalDAQ = pset.getUntrackedParameter<bool>("globalDAQ",true);
+
+  localDAQ = ps.getUntrackedParameter<bool>("localDAQ",false);
+  readingDDU = ps.getUntrackedParameter<bool>("readingDDU",true);
+
+  readDDUIDfromDDU = ps.getUntrackedParameter<bool>("readDDUIDfromDDU",true);
+  hardcodedDDUID = ps.getUntrackedParameter<int>("dduID",770);
+
+  writeSC = ps.getUntrackedParameter<bool>("writeSC",false);
+  performDataIntegrityMonitor = ps.getUntrackedParameter<bool>("performDataIntegrityMonitor",false);
+  debug = ps.getUntrackedParameter<bool>("debug",false);
+
+  if (performDataIntegrityMonitor) dataMonitor = edm::Service<DTDataMonitorInterface>().operator->();
   
 }
 
 
-DTROS25Unpacker::~DTROS25Unpacker() {
-}
+DTROS25Unpacker::~DTROS25Unpacker() {}
+
 
 void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 				       int dduIDfromDDU,
 				       edm::ESHandle<DTReadOutMapping>& mapping,
-				       std::auto_ptr<DTDigiCollection>& product,
-				       std::auto_ptr<DTLocalTriggerCollection>& product2,
+				       std::auto_ptr<DTDigiCollection>& detectorProduct,
+				       std::auto_ptr<DTLocalTriggerCollection>& triggerProduct,
 				       uint16_t rosList) {
 
 
   int dduID;
-  if (pset.getUntrackedParameter<bool>("readDDUIDfromDDU",true))
-    dduID = dduIDfromDDU;
-  else
-    dduID = pset.getUntrackedParameter<int>("dduID",770);
-  
+  if (readDDUIDfromDDU) dduID = dduIDfromDDU;
+  else dduID = hardcodedDDUID;
+
   const int wordLength = 4;
   int numberOfWords = datasize / wordLength;
   
@@ -88,11 +91,10 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
     
     rosID++; // to be mapped;
 
-    if ( pset.getUntrackedParameter<bool>("readingDDU",true) ) {
+    if ( readingDDU ) {
       // matching the ROS number with the enabled DDU channel
       if ( rosID <= 12 && !((rosList & int(pow(2., (rosID-1) )) ) >> (rosID-1) ) ) continue;
-      if (debug) cout<<"[DTROS25Unpacker]: ros list: "<<rosList
-		     <<" ROS ID "<<rosID<<endl;
+      if (debug) cout<<"[DTROS25Unpacker]: ros list: "<<rosList <<" ROS ID "<<rosID<<endl;
     }
 
     // FRC prepare info for DTLocalTrigger: wheel and sector corresponding to this ROS
@@ -217,7 +219,7 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 
 	      // Map the RO channel to the DetId and wire
  	      DTWireId detId;
-// 	      if ( ! mapping->readOutToGeometry(dduID, rosID, robID, tdcID, tdcChannel, detId)) {
+	      // if ( ! mapping->readOutToGeometry(dduID, rosID, robID, tdcID, tdcChannel, detId)) {
 	      int wheelId, stationId, sectorId, slId,layerId, cellId; 
 	      if ( ! mapping->readOutToGeometry(dduID, rosID, robID, tdcID, tdcChannel, 
 						wheelId, stationId, sectorId, slId, layerId, cellId)) {
@@ -233,9 +235,14 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 		DTDigi digi( wire, tdcMeasurementWord.tdcTime(), hitOrder[channelIndex.getCode()]-1);
 
 		// Commit to the event
-		product->insertDigi(detId.layerId(),digi);
+		detectorProduct->insertDigi(detId.layerId(),digi);
 	      }
-	      else if (debug) cout<<"[DTROS25Unpacker] Missing wire!"<<endl;
+	      else {
+		edm::LogError ("dtUnpacker") <<"Unable to map the RO channel. DDU"<<dduID
+					     <<"ROS"<<rosID<<"ROB"<<robID<<"TDC"<<tdcID<<"TDC channel"<<tdcChannel;
+		if (debug) cout<<"[DTROS25Unpacker] ***ERROR***  Missing wire: DDU"<<dduID
+			       <<"ROS"<<rosID<<"ROB"<<robID<<"TDC"<<tdcID<<"TDC channel"<<tdcChannel<<endl;
+	      }
 
 	    } // TDC information
 
@@ -267,7 +274,7 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 	    int leftword = numofscword;
 
 	    if(debug)  cout<<"[DTROS25Unpacker]: SCPrivateHeader (number of data + subheader = " <<
-			 scPrivateHeaderWord.NumberOf16bitWords() << " " <<endl;
+			 scPrivateHeaderWord.NumberOf16bitWords() << ")" <<endl;
 
 	    // if no SC data -> no loop ;
 	    // otherwise subtract 1 word (subheader) and countdown for bx assignment
@@ -338,9 +345,9 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 			DTLocalTrigger localtrigger(bx_counter,(scDataWord.SCData()) & 0xFF);
 			// ... and commit it to the event
 			DTChamberId chamberId (SCwheel,SCstation,SCsector);
-			product2->insertDigi(chamberId,localtrigger);
+			triggerProduct->insertDigi(chamberId,localtrigger);
 			if (debug) { 
-			  cout<<"FRC: just put in product2: "<<chamberId.wheel()
+			  cout<<"FRC: just put in triggerProduct: "<<chamberId.wheel()
 			      <<" "<<chamberId.station()<<" "<<chamberId.sector()
 			      <<endl;;
 			  localtrigger.print(); }
@@ -353,9 +360,9 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 			DTLocalTrigger localtrigger(bx_counter,(scDataWord.SCData()) >> 8);
 			// ... and commit it to the event
 			DTChamberId chamberId (SCwheel,SCstation,SCsector);
-			product2->insertDigi(chamberId,localtrigger);
+			triggerProduct->insertDigi(chamberId,localtrigger);
 			if (debug) { 
-			  cout<<"FRC: just put in product2: "
+			  cout<<"FRC: just put in triggerProduct: "
 			      <<chamberId.wheel()<<" "<<chamberId.station()<<" "<<chamberId.sector()
 			      <<endl;;
 			localtrigger.print(); }
@@ -388,7 +395,7 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
       
       // Perform dqm if requested:
       // DQM IS PERFORMED FOR EACH ROS SEPARATELY
-      if (pset.getUntrackedParameter<bool>("performDataIntegrityMonitor",false)) {
+      if (performDataIntegrityMonitor) {
 	dataMonitor->processROS25(controlData, dduID, rosID);
 	// fill the vector with ROS's control data
 	controlDataFromAllROS.push_back(controlData);
@@ -420,7 +427,7 @@ int DTROS25Unpacker::swap(int n) {
 
   int result=n;
 
-  if (globalDAQ) {
+  if ( !localDAQ ) {
     if (n%2==0) result = (n+1);
     if (n%2==1) result = (n-1);
   }

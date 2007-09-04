@@ -5,8 +5,8 @@
  *  The unpacker for DTs' ROS25: 
  *  final version of Read Out Sector board with 25 channels.
  *
- *  $Date: 2007/04/26 18:56:03 $
- *  $Revision: 1.15 $
+ *  $Date: 2007/05/07 16:16:39 $
+ *  $Revision: 1.3 $
  * \author M. Zanetti INFN Padova
  * FRC 060906
  */
@@ -44,12 +44,24 @@ private:
 
   int swap(int x);
 
-  bool globalDAQ;
+  /// if reading data locally, words, being assembled as 32-bits, do not need to be swapped
+  bool localDAQ;
 
-  const edm::ParameterSet pset;
+  /// if data are read from ROS directly, no information on the ROS Id is present
+  bool readingDDU;
+
+  /// since June 2007, local DAQ, provides FED number
+  bool readDDUIDfromDDU;
+  /// to analyze older data..
+  int hardcodedDDUID;
+
+  /// make the local SC spy data persistent
+  bool writeSC;
+
+  /// perform DQM on ROS data
+  bool performDataIntegrityMonitor;
 
   bool debug;
-  bool writeSC;
 
   DTDataMonitorInterface * dataMonitor;
 

@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/05/07 16:16:40 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/08/06 11:09:07 $
+ *  $Revision: 1.4 $
  *  \author S. Argiro - N. Amapane - M. Zanetti 
  * FRC 060906
  */
@@ -39,20 +39,21 @@ using namespace std;
 #define SLINK_WORD_SIZE 8 
 
 
-DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& ps) :
-  unpacker(0), numOfEvents(0)
-{
+DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& ps) : unpacker(0) {
 
-  eventScanning = ps.getUntrackedParameter<int>("eventScanning",1000);
+  const string & dataType = ps.getParameter<string>("dataType");
 
-  const string &  dataType = ps.getParameter<string>("dataType");
+  ParameterSet unpackerParameters = ps.getParameter<ParameterSet>("readOutParameters");
+  
 
   if (dataType == "DDU") {
-    unpacker = new DTDDUUnpacker(ps);
-  } else if (dataType == "ROS8") {
-    unpacker = new DTROS8Unpacker(ps);
-  } else if (dataType == "ROS25") {
-    unpacker = new DTROS25Unpacker(ps);
+    unpacker = new DTDDUUnpacker(unpackerParameters);
+  } 
+  else if (dataType == "ROS25") {
+    unpacker = new DTROS25Unpacker(unpackerParameters.getParameter<ParameterSet>("rosParameters"));
+  } 
+  else if (dataType == "ROS8") {
+    unpacker = new DTROS8Unpacker(unpackerParameters);
   } 
   else {
     throw cms::Exception("InvalidParameter") << "DTUnpackingModule: dataType "
@@ -62,7 +63,7 @@ DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& ps) :
   fedbyType_ = ps.getUntrackedParameter<bool>("fedbyType", true);
   fedColl_ = ps.getUntrackedParameter<string>("fedColl", "source");
   useStandardFEDid_ = ps.getUntrackedParameter<bool>("useStandardFEDid", true);
-  minFEDid_ = ps.getUntrackedParameter<int>("minFEDid", 731);
+  minFEDid_ = ps.getUntrackedParameter<int>("minFEDid", 73);
   maxFEDid_ = ps.getUntrackedParameter<int>("maxFEDid", 735);
 
   produces<DTDigiCollection>();
@@ -75,10 +76,6 @@ DTUnpackingModule::~DTUnpackingModule(){
 
 
 void DTUnpackingModule::produce(Event & e, const EventSetup& context){
-
-  // Get the data from the event 
-//   Handle<FEDRawDataCollection> rawdata;
-//   e.getByLabel("DaqSource", rawdata);
 
   Handle<FEDRawDataCollection> rawdata;
   if (fedbyType_) {
@@ -93,8 +90,8 @@ void DTUnpackingModule::produce(Event & e, const EventSetup& context){
   context.get<DTReadOutMappingRcd>().get(mapping);
   
   // Create the result i.e. the collections of MB Digis and SC local triggers
-  auto_ptr<DTDigiCollection> product(new DTDigiCollection);
-  auto_ptr<DTLocalTriggerCollection> product2(new DTLocalTriggerCollection);
+  auto_ptr<DTDigiCollection> detectorProduct(new DTDigiCollection);
+  auto_ptr<DTLocalTriggerCollection> triggerProduct(new DTLocalTriggerCollection);
 
 
   // Loop over the DT FEDs
@@ -114,20 +111,14 @@ void DTUnpackingModule::produce(Event & e, const EventSetup& context){
     
     if (feddata.size()){
       
-      // Unpack the DDU data
-
+      // Unpack the data
       unpacker->interpretRawData(reinterpret_cast<const unsigned int*>(feddata.data()), 
- 				 feddata.size(), id, mapping, product, product2);
-      
-      numOfEvents++;      
-      //if (numOfEvents%eventScanning == 0) 
-      //  cout<<"[DTUnpackingModule]: "<<numOfEvents<<" events analyzed"<<endl;
-      
+ 				 feddata.size(), id, mapping, detectorProduct, triggerProduct);
     }
   }
 
   // commit to the event  
-  e.put(product);
-  e.put(product2);
+  e.put(detectorProduct);
+  e.put(triggerProduct);
 }
 
