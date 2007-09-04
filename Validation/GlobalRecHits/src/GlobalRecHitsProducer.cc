@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/04/30 13:49:00 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/04/30 19:52:19 $
+ *  $Revision: 1.10 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -226,13 +226,14 @@ void GlobalRecHitsProducer::fillECal(edm::Event& iEvent,
     eventout = "\nGathering info:";  
 
   // extract crossing frame from event
-  edm::Handle<CrossingFrame> crossingFrame;
-  iEvent.getByType(crossingFrame);
-  if (!crossingFrame.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
-      << "Unable to find crossingFrame in event!";
-    return;
-  }
+  //edm::Handle<CrossingFrame> crossingFrame;
+  edm::Handle<CrossingFrame<PCaloHit> > crossingFrame;
+  //iEvent.getByType(crossingFrame);
+  //if (!crossingFrame.isValid()) {
+  //  edm::LogWarning(MsgLoggerCat)
+  //    << "Unable to find crossingFrame in event!";
+  //  return;
+  //}
 
   ////////////////////////
   //extract EB information
@@ -255,10 +256,18 @@ void GlobalRecHitsProducer::fillECal(edm::Event& iEvent,
 
   // loop over simhits
   const std::string barrelHitsName("EcalHitsEB");
+  iEvent.getByLabel("mix",barrelHitsName,crossingFrame);
+  if (!crossingFrame.isValid()) {
+    edm::LogWarning(MsgLoggerCat)
+      << "Unable to find cal barrel crossingFrame in event!";
+    return;
+  }
+  //std::auto_ptr<MixCollection<PCaloHit> >
+  //  barrelHits(new MixCollection<PCaloHit>
+  //	       (crossingFrame.product(), barrelHitsName));
   std::auto_ptr<MixCollection<PCaloHit> >
-    barrelHits(new MixCollection<PCaloHit>
-	       (crossingFrame.product(), barrelHitsName));
-  
+    barrelHits(new MixCollection<PCaloHit>(crossingFrame.product()));  
+
   // keep track of sum of simhit energy in each crystal
   MapType ebSimMap;
   for (MixCollection<PCaloHit>::MixItr hitItr 
@@ -320,10 +329,18 @@ void GlobalRecHitsProducer::fillECal(edm::Event& iEvent,
 
   // loop over simhits
   const std::string endcapHitsName("EcalHitsEE");
+  iEvent.getByLabel("mix",endcapHitsName,crossingFrame);
+  if (!crossingFrame.isValid()) {
+    edm::LogWarning(MsgLoggerCat)
+      << "Unable to find cal endcap crossingFrame in event!";
+    return;
+  }
+  //std::auto_ptr<MixCollection<PCaloHit> >
+  //  endcapHits(new MixCollection<PCaloHit>
+  //	       (crossingFrame.product(), endcapHitsName));
   std::auto_ptr<MixCollection<PCaloHit> >
-    endcapHits(new MixCollection<PCaloHit>
-	       (crossingFrame.product(), endcapHitsName));
-  
+    endcapHits(new MixCollection<PCaloHit>(crossingFrame.product()));  
+
   // keep track of sum of simhit energy in each crystal
   MapType eeSimMap;
   for (MixCollection<PCaloHit>::MixItr hitItr 
@@ -377,10 +394,18 @@ void GlobalRecHitsProducer::fillECal(edm::Event& iEvent,
 
   // loop over simhits
   const std::string preshowerHitsName("EcalHitsES");
+  iEvent.getByLabel("mix",preshowerHitsName,crossingFrame);
+  if (!crossingFrame.isValid()) {
+    edm::LogWarning(MsgLoggerCat)
+      << "Unable to find cal preshower crossingFrame in event!";
+    return;
+  }
+  //std::auto_ptr<MixCollection<PCaloHit> >
+  //  preshowerHits(new MixCollection<PCaloHit>
+  //	       (crossingFrame.product(), preshowerHitsName));
   std::auto_ptr<MixCollection<PCaloHit> >
-    preshowerHits(new MixCollection<PCaloHit>
-	       (crossingFrame.product(), preshowerHitsName));
-  
+    preshowerHits(new MixCollection<PCaloHit>(crossingFrame.product()));  
+
   // keep track of sum of simhit energy in each crystal
   MapType esSimMap;
   for (MixCollection<PCaloHit>::MixItr hitItr 
@@ -1680,14 +1705,22 @@ void GlobalRecHitsProducer::fillMuon(edm::Event& iEvent,
   // get CSC Strip information
   // get map of sim hits
   theMap.clear();
-  edm::Handle<CrossingFrame> cf;
-  iEvent.getByType(cf);
+  //edm::Handle<CrossingFrame> cf;
+  edm::Handle<CrossingFrame<PSimHit> > cf;
+  //iEvent.getByType(cf);
+  //if (!cf.isValid()) {
+  //  edm::LogWarning(MsgLoggerCat)
+  //    << "Unable to find CrossingFrame in event!";
+  //  return;
+  //}    
+  //MixCollection<PSimHit> simHits(cf.product(), "MuonCSCHits");
+  iEvent.getByLabel("mix","MuonCSCHits",cf);
   if (!cf.isValid()) {
     edm::LogWarning(MsgLoggerCat)
-      << "Unable to find CrossingFrame in event!";
+      << "Unable to find muo CSC  crossingFrame in event!";
     return;
-  }    
-  MixCollection<PSimHit> simHits(cf.product(), "MuonCSCHits");
+  }
+  MixCollection<PSimHit> simHits(cf.product());
 
   // arrange the hits by detUnit
   for(MixCollection<PSimHit>::MixItr hitItr = simHits.begin();
