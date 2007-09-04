@@ -3,7 +3,7 @@
 // Class:      SiStripGainTickMarkCalculator
 // Original Author:  G. Bruno
 //         Created:  Mon May 20 10:04:31 CET 2007
-// $Id: SiStripGainTickMarkCalculator.cc,v 1.1 2007/07/09 11:13:08 gbruno Exp $
+// $Id: SiStripGainTickMarkCalculator.cc,v 1.2 2007/07/30 13:41:48 gbruno Exp $
 
 #include "CalibTracker/SiStripChannelGain/plugins/SiStripGainTickMarkCalculator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -105,6 +105,10 @@ SiStripApvGain * SiStripGainTickMarkCalculator::getNewObject() {
   //collate if necessary
   //histos_->createCollations( contents );
   histos_->extractHistograms( contents );
+
+
+  //if ( mui_ ) { mui_->doSummary(); }
+
   //perform analysis 
   histos_->histoAnalysis(printdebug_);
 
@@ -116,9 +120,10 @@ SiStripApvGain * SiStripGainTickMarkCalculator::getNewObject() {
 
   sistrip::Monitorable mymon = sistrip::OPTO_SCAN_MEASURED_GAIN;
   sistrip::Presentation mypres = sistrip::HISTO_1D;
-  sistrip::Granularity mygran = sistrip::APV;
+  //  sistrip::Granularity mygran = sistrip::APV;
+  sistrip::Granularity mygran = sistrip::FED_CHANNEL;
 
-  histos_->createSummaryHisto(mymon, mypres, "DetectorView", mygran);
+  histos_->createSummaryHisto(mymon, mypres, "ControlView", mygran);
 
   // histos_->createSummaryHisto(summ0, summ1 );
 
