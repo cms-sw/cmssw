@@ -45,12 +45,17 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e)  :
   trackerContainers.push_back("TrackerHitsPixelEndcapHighTof");
 
   // Step A: Get Inputs
-  edm::Handle<CrossingFrame> cf;
-  e.getByType(cf);
+  edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
+  std::vector<const CrossingFrame<PSimHit> *> cf_simhitvec;
+  for(uint32_t i = 0; i< trackerContainers.size();i++){
+    e.getByLabel("mix",trackerContainers[i],cf_simhit);
+    cf_simhitvec.push_back(cf_simhit.product());
+  }
   
-  std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf.product(),trackerContainers));
+  std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf_simhitvec));
   
-  //Loop on PSimHit
+
+ //Loop on PSimHit
   SimHitMap.clear();
   
   MixCollection<PSimHit>::iterator isim;
@@ -79,10 +84,14 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e, const edm::Param
   if(!doTrackAssoc_) {
 
     // Step A: Get Inputs
-    edm::Handle<CrossingFrame> cf;
-    e.getByType(cf);
+    edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
+    std::vector<const CrossingFrame<PSimHit> *> cf_simhitvec;
+    for(uint32_t i = 0; i< trackerContainers.size();i++){
+      e.getByLabel("mix",trackerContainers[i],cf_simhit);
+      cf_simhitvec.push_back(cf_simhit.product());
+    }
     
-    std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf.product(),trackerContainers));
+    std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf_simhitvec));
     
     //Loop on PSimHit
     SimHitMap.clear();
