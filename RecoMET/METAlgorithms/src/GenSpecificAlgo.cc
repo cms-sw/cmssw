@@ -10,7 +10,8 @@ using namespace std;
 // and MET cleaning.  This list is not exhaustive and additional 
 // information will be added in the future. 
 //-------------------------------------
-reco::GenMET GenSpecificAlgo::addInfo(const CandidateCollection *towers, CommonMETData met)
+//reco::GenMET GenSpecificAlgo::addInfo(const CandidateCollection *particles, CommonMETData met)
+reco::GenMET GenSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > particles, CommonMETData met)
 { 
   // Instantiate the container to hold the calorimeter specific information
   SpecificGenMETData specific;

@@ -14,7 +14,8 @@ using namespace std;
 // and MET cleaning.  This list is not exhaustive and additional 
 // information will be added in the future. 
 //-------------------------------------
-reco::CaloMET CaloSpecificAlgo::addInfo(const CandidateCollection *towers, CommonMETData met)
+//reco::CaloMET CaloSpecificAlgo::addInfo(const CandidateCollection *towers, CommonMETData met)
+reco::CaloMET CaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > towers, CommonMETData met)
 { 
   // Instantiate the container to hold the calorimeter specific information
   SpecificCaloMETData specific;
@@ -43,13 +44,17 @@ reco::CaloMET CaloSpecificAlgo::addInfo(const CandidateCollection *towers, Commo
       CaloMET specificmet( specific, met.sumet, p4, vtx );
       return specificmet;
     }
+  /*
   //retreive calo tower information from candidates
   //start with the first element of the candidate list
   CandidateCollection::const_iterator tower = towers->begin();
   //get the EDM references to the CaloTowers from the candidate list
   edm::Ref<CaloTowerCollection> towerRef = tower->get<CaloTowerRef>();
+  */
+  edm::Ref<CaloTowerCollection> towerRef = towers->begin()->get<CaloTowerRef>();
   //finally instantiate now, a list of pointers to the CaloTowers
   const CaloTowerCollection *towerCollection = towerRef.product();
+
   //iterate over all CaloTowers and record information
   CaloTowerCollection::const_iterator calotower = towerCollection->begin();
   for( ; calotower != towerCollection->end(); calotower++ ) 

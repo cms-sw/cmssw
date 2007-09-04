@@ -25,7 +25,8 @@ class METAlgo
   typedef std::vector<const reco::Candidate> InputCollection;
   METAlgo();
   virtual ~METAlgo();
-  virtual void run(const reco::CandidateCollection*, CommonMETData*,  double );
+  //virtual void run(const reco::CandidateCollection*, CommonMETData*,  double );
+  virtual void run(edm::Handle<edm::View<reco::Candidate> >, CommonMETData*,  double );
  private:
 };
 

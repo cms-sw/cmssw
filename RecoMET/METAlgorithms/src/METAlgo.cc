@@ -37,15 +37,21 @@ METAlgo::~METAlgo() {}
 // since it _may_ be useful for Data Quality Monitering as it should be 
 // symmetrically distributed about the origin.)
 //----------------------------------
-void METAlgo::run(const CandidateCollection *input, CommonMETData *met, double globalThreshold) 
+//void METAlgo::run(const CandidateCollection *input, CommonMETData *met, double globalThreshold) 
+void METAlgo::run(edm::Handle<edm::View<Candidate> > input, CommonMETData *met, double globalThreshold) 
 { 
   double sum_et = 0.0;
   double sum_ex = 0.0;
   double sum_ey = 0.0;
   double sum_ez = 0.0;
   // Loop over Candidate Objects and calculate MET and related quantities
+  /*
   CandidateCollection::const_iterator candidate;
   for( candidate = input->begin(); candidate != input->end(); candidate++ )
+  */
+  for (unsigned int candidate_i = 0; candidate_i < input->size(); candidate_i++)
+  {
+    const Candidate *candidate = &((*input)[candidate_i]);
     if( candidate->et() > globalThreshold )
       {
 	double phi   = candidate->phi();
@@ -57,6 +63,7 @@ void METAlgo::run(const CandidateCollection *input, CommonMETData *met, double g
 	sum_ex += et*cos(phi);
 	sum_ey += et*sin(phi);
       }
+  }
   met->mex   = -sum_ex;
   met->mey   = -sum_ey;
   met->mez   = -sum_ez;
