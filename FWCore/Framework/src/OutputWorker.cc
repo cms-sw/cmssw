@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: OutputWorker.cc,v 1.23 2007/06/29 03:43:21 wmtan Exp $
+$Id: OutputWorker.cc,v 1.24 2007/07/09 07:29:51 llista Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -19,6 +19,17 @@ namespace edm {
   OutputWorker::~OutputWorker() {
   }
 
+  void
+  OutputWorker::maybeEndFile() {
+    mod_->maybeEndFile();
+  }
+
+  void
+  OutputWorker::doEndFile() {
+    mod_->doEndFile();
+  }
+
+
   bool 
   OutputWorker::implDoWork(EventPrincipal& ep, EventSetup const&,
 			   BranchActionType,
@@ -28,7 +39,7 @@ namespace edm {
     bool rc = false;
 
     mod_->writeEvent(ep,description(), cpc);
-    rc=true;
+    rc = true;
     return rc;
   }
 

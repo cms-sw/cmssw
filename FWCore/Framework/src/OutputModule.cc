@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
 
-$Id: OutputModule.cc,v 1.34 2007/06/29 03:43:21 wmtan Exp $
+$Id: OutputModule.cc,v 1.35 2007/07/09 07:29:51 llista Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -336,6 +336,25 @@ namespace edm {
     assert (current_md_ == c->moduleDescription());
     FDEBUG(2) << "endLuminosityBlock called\n";
     endLuminosityBlock(lbp);
+  }
+
+  void OutputModule::maybeEndFile()
+  {
+    if (isFileOpen() && isFileFull()) doEndFile();
+    // Where should we open a new file? It does not seem that here is
+    // the right place...
+  }
+  
+  void OutputModule::doEndFile()
+  {
+    startEndFile();
+    writeFileFormatVersion();
+    writeProcessConfigurationRegistry();
+    writeProcessHistoryRegistry();
+    writeModuleDescriptionRegistry();
+    writeParameterSetRegistry();
+    writeProductDescriptionRegistry();
+    finishEndFile();
   }
 
   CurrentProcessingContext const*

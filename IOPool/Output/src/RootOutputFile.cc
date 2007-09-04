@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.8 2007/08/28 18:22:39 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.9 2007/08/30 22:34:53 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h" 
@@ -140,7 +140,70 @@ namespace edm {
     return newFileAtEndOfRun_;
   }
 
-  void RootOutputFile::fillBranches(BranchType const& branchType, Principal const& principal) const {
+  void RootOutputFile::writeFileFormatVersion() {
+    FileFormatVersion fileFormatVersion(edm::getFileFormatVersion());
+    FileFormatVersion * pFileFmtVsn = &fileFormatVersion;
+    TBranch* b = metaDataTree_->Branch(poolNames::fileFormatVersionBranchName().c_str(), &pFileFmtVsn, om_->basketSize(), 0);
+    assert(b);
+    b->Fill();
+  }
+
+  void RootOutputFile::writeProcessConfigurationRegistry() {
+    // We don't do this yet; currently we're storing a slightly bloated ProcessHistoryRegistry.
+  }
+
+  void RootOutputFile::writeProcessHistoryRegistry() { 
+    ProcessHistoryMap *pProcHistMap = &ProcessHistoryRegistry::instance()->data();
+    TBranch* b = metaDataTree_->Branch(poolNames::processHistoryMapBranchName().c_str(), &pProcHistMap, om_->basketSize(), 0);
+    assert(b);
+    b->Fill();
+  }
+
+  void RootOutputFile::writeModuleDescriptionRegistry() { 
+    ModuleDescriptionMap *pModDescMap = &ModuleDescriptionRegistry::instance()->data();
+    TBranch* b = metaDataTree_->Branch(poolNames::moduleDescriptionMapBranchName().c_str(), &pModDescMap, om_->basketSize(), 0);
+    assert(b);
+    b->Fill();
+  }
+
+  void RootOutputFile::writeParameterSetRegistry() { 
+    typedef std::map<ParameterSetID, ParameterSetBlob> ParameterSetMap;
+    ParameterSetMap psetMap;
+    pset::Registry const* psetRegistry = pset::Registry::instance();    
+    for (pset::Registry::const_iterator it = psetRegistry->begin(), itEnd = psetRegistry->end(); it != itEnd; ++it) {
+      psetMap.insert(std::make_pair(it->first, ParameterSetBlob(it->second.toStringOfTracked())));
+    }
+    ParameterSetMap *pPsetMap = &psetMap;
+    TBranch* b = metaDataTree_->Branch(poolNames::parameterSetMapBranchName().c_str(), &pPsetMap, om_->basketSize(), 0);
+    assert(b);
+    b->Fill();
+  }
+
+  void RootOutputFile::writeProductDescriptionRegistry() { 
+    Service<ConstProductRegistry> reg;
+    ProductRegistry pReg = reg->productRegistry();
+    ProductRegistry * ppReg = &pReg;
+    TBranch* b = metaDataTree_->Branch(poolNames::productDescriptionBranchName().c_str(), &ppReg, om_->basketSize(), 0);
+    assert(b);
+    b->Fill();
+  }
+
+  void RootOutputFile::finishEndFile() { 
+    metaDataTree_->SetEntries(-1);
+    RootOutputTree::writeTTree(metaDataTree_);
+    for (int i = InEvent; i < EndBranchType; ++i) {
+      BranchType branchType = static_cast<BranchType>(i);
+      buildIndex(treePointers_[branchType]->tree(), branchType);
+      setBranchAliases(treePointers_[branchType]->tree(), om_->descVec()[branchType]);
+      treePointers_[branchType]->writeTree();
+    }
+
+    // report that file has been closed
+    Service<JobReport> reportSvc;
+    reportSvc->outputFileClosed(reportToken_);
+  }
+
+  void RootOutputFile::RootOutputFile::fillBranches(BranchType const& branchType, Principal const& principal) const {
 
     OutputItemList const& items = outputItemList_[branchType];
     // Loop over EDProduct branches, fill the provenance, and write the branch.
@@ -200,45 +263,6 @@ namespace edm {
     treePointers_[branchType]->fillTree();
   }
 
-  void RootOutputFile::endFile() {
-    FileFormatVersion fileFormatVersion(edm::getFileFormatVersion());
-    FileFormatVersion * pFileFmtVsn = &fileFormatVersion;
-    metaDataTree_->Branch(poolNames::fileFormatVersionBranchName().c_str(), &pFileFmtVsn, om_->basketSize(), 0);
-
-    ModuleDescriptionMap *pModDescMap = &ModuleDescriptionRegistry::instance()->data();
-    metaDataTree_->Branch(poolNames::moduleDescriptionMapBranchName().c_str(), &pModDescMap, om_->basketSize(), 0);
-
-    ProcessHistoryMap *pProcHistMap = &ProcessHistoryRegistry::instance()->data();
-    metaDataTree_->Branch(poolNames::processHistoryMapBranchName().c_str(), &pProcHistMap, om_->basketSize(), 0);
-
-    typedef std::map<ParameterSetID, ParameterSetBlob> ParameterSetMap;
-    ParameterSetMap psetMap;
-    pset::Registry const* psetRegistry = pset::Registry::instance();    
-    for (pset::Registry::const_iterator it = psetRegistry->begin(), itEnd = psetRegistry->end(); it != itEnd; ++it) {
-      psetMap.insert(std::make_pair(it->first, ParameterSetBlob(it->second.toStringOfTracked())));
-    }
-    ParameterSetMap *pPsetMap = &psetMap;
-    metaDataTree_->Branch(poolNames::parameterSetMapBranchName().c_str(), &pPsetMap, om_->basketSize(), 0);
-
-    Service<ConstProductRegistry> reg;
-    ProductRegistry pReg = reg->productRegistry();
-    ProductRegistry * ppReg = &pReg;
-    metaDataTree_->Branch(poolNames::productDescriptionBranchName().c_str(), &ppReg, om_->basketSize(), 0);
-
-    metaDataTree_->Fill();
-
-    RootOutputTree::writeTTree(metaDataTree_);
-    for (int i = InEvent; i < EndBranchType; ++i) {
-      BranchType branchType = static_cast<BranchType>(i);
-      buildIndex(treePointers_[branchType]->tree(), branchType);
-      setBranchAliases(treePointers_[branchType]->tree(), om_->descVec()[branchType]);
-      treePointers_[branchType]->writeTree();
-    }
-
-    // report that file has been closed
-    Service<JobReport> reportSvc;
-    reportSvc->outputFileClosed(reportToken_);
-  }
 
 
   void

@@ -1066,6 +1066,7 @@ namespace edm {
     IOVSyncValue ts(EventID(lbp->runNumber(),EventID::maxEventNumber()), lbp->endTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->runOneEvent(*lbp, es, BranchActionEnd);
+    schedule_->maybeEndFile();
   }
 
   void 
@@ -1077,6 +1078,10 @@ namespace edm {
     IOVSyncValue ts(EventID(rp->run(), EventID::maxEventNumber()), rp->endTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);      
     schedule_->runOneEvent(*rp, es, BranchActionEnd);
+    // Do we really need to call maybeEndFile() here? Are we not
+    // assured to have called endLuminosityBlock() immediately before
+    // calling endRun()?
+    schedule_->maybeEndFile();
   }
 
   EventProcessor::StatusCode
@@ -1199,6 +1204,7 @@ namespace edm {
     }
     try {
 	schedule_->endJob();
+	schedule_->doEndFile();
     }
     catch(...) {
       try {
@@ -1509,7 +1515,7 @@ namespace edm {
     }
 
     Status rc = epException;
-    FDEBUG(2) << "asyncRun starting >>>>>>>>>>>>>>>>>>>>>>\n";
+    FDEBUG(2) << "asyncRun starting ......................\n";
 
     try {
 	rc = me->processRuns(-1, false, mRunAsync);
@@ -1544,7 +1550,7 @@ namespace edm {
       ++me->stop_count_;
       me->stopper_.notify_all();
     }
-    FDEBUG(2) << "asyncRun ending >>>>>>>>>>>>>>>>>>>>>>\n";
+    FDEBUG(2) << "asyncRun ending ......................\n";
   }
 
 }

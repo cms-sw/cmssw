@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.28 2007/08/28 18:22:39 wmtan Exp $
+// $Id: PoolOutputModule.h,v 1.29 2007/08/30 22:34:53 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -41,6 +41,18 @@ namespace edm {
     virtual void endLuminosityBlock(LuminosityBlockPrincipal const& lb);
     virtual void beginRun(RunPrincipal const& r);
     virtual void endRun(RunPrincipal const& r);
+
+    virtual void startEndFile();
+    virtual void writeFileFormatVersion();
+    virtual void writeProcessConfigurationRegistry();
+    virtual void writeProcessHistoryRegistry();
+    virtual void writeModuleDescriptionRegistry();
+    virtual void writeParameterSetRegistry();
+    virtual void writeProductDescriptionRegistry();
+    virtual void finishEndFile();
+
+    virtual bool isFileOpen() const;
+    virtual bool isFileFull() const;
 
     std::string const fileName_;
     std::string const logicalFileName_;

@@ -81,6 +81,7 @@ process TESTOUTPUTREAD = {
         }
 }
 !
+#totalview cmsRun -a --parameter-set ${LOCAL_TMP_DIR}/PoolOutputRead.cfg || die 'Failure using PoolOutputRead.cfg' $?
 cmsRun --parameter-set ${LOCAL_TMP_DIR}/PoolOutputRead.cfg || die 'Failure using PoolOutputRead.cfg' $?
 
 cat > ${LOCAL_TMP_DIR}/PoolDropRead.cfg << !

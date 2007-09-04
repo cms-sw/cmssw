@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: RootOutputFile.h,v 1.4 2007/08/28 14:28:10 wmtan Exp $
+// $Id: RootOutputFile.h,v 1.5 2007/08/30 22:34:53 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -41,9 +41,19 @@ namespace edm {
     explicit RootOutputFile(PoolOutputModule * om, std::string const& fileName, std::string const& logicalFileName);
     ~RootOutputFile() {}
     void writeOne(EventPrincipal const& e);
-    void endFile();
+    //void endFile();
     void writeLuminosityBlock(LuminosityBlockPrincipal const& lb);
     bool writeRun(RunPrincipal const& r);
+
+    void writeFileFormatVersion();
+    void writeProcessConfigurationRegistry();
+    void writeProcessHistoryRegistry();
+    void writeModuleDescriptionRegistry();
+    void writeParameterSetRegistry();
+    void writeProductDescriptionRegistry();
+    void finishEndFile();
+
+    bool isFileFull() const {return newFileAtEndOfRun_;}
 
   private:
     void buildIndex(TTree *tree, BranchType const& branchType);
@@ -53,7 +63,7 @@ namespace edm {
     struct OutputItem {
       OutputItem() : branchDescription_(0), selected_(false) {}
       OutputItem(BranchDescription const* bd, bool sel) :
-		branchDescription_(bd), selected_(sel), branchEntryDescription_(0), product_(0) {}
+	branchDescription_(bd), selected_(sel), branchEntryDescription_(0), product_(0) {}
       ~OutputItem() {}
       BranchDescription const* branchDescription_;
       bool selected_;

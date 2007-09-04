@@ -6,7 +6,7 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.44 2007/07/30 22:40:57 wmtan Exp $
+$Id: OutputModule.h,v 1.45 2007/08/16 23:38:49 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -48,6 +48,13 @@ namespace edm {
 		    CurrentProcessingContext const* c);
     void doEndLuminosityBlock(LuminosityBlockPrincipal const& e, ModuleDescription const& d,
 		    CurrentProcessingContext const* c);
+    /// Tell the OutputModule this is a convenient time to end the
+    /// current file, in case it wants to do so.
+    void maybeEndFile();
+
+    /// Tell the OutputModule that is must end the current file.
+    void doEndFile();
+
     bool selected(BranchDescription const& desc) const;
 
     unsigned int nextID() const;
@@ -105,6 +112,18 @@ namespace edm {
     virtual void endRun(RunPrincipal const& r) = 0;
     virtual void beginLuminosityBlock(LuminosityBlockPrincipal const& lb){}
     virtual void endLuminosityBlock(LuminosityBlockPrincipal const& lb) = 0;
+
+    virtual void startEndFile() {}
+    virtual void writeFileFormatVersion() {}
+    virtual void writeProcessConfigurationRegistry() {}
+    virtual void writeProcessHistoryRegistry() {}
+    virtual void writeModuleDescriptionRegistry() {}
+    virtual void writeParameterSetRegistry() {}
+    virtual void writeProductDescriptionRegistry() {}
+    virtual void finishEndFile() {}
+
+    virtual bool isFileOpen() const { return true; }
+    virtual bool isFileFull() const { return false; }
 
     std::string process_name_;
     GroupSelector groupSelector_;

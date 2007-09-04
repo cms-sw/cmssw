@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.83 2007/08/28 18:22:39 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.84 2007/08/30 22:34:53 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "boost/array.hpp" 
@@ -41,10 +41,11 @@ namespace edm {
   }
 
   void PoolOutputModule::endJob() {
-    if (rootFile_.get() != 0) {
-      rootFile_->endFile();
-      rootFile_.reset();
-    }
+    // doEndFile should be called from the framework, not internally...
+//     if (rootFile_.get() != 0) {
+//       rootFile_->endFile();
+//       rootFile_.reset();
+//     }
   }
 
   PoolOutputModule::~PoolOutputModule() {
@@ -88,8 +89,23 @@ namespace edm {
   void PoolOutputModule::endRun(RunPrincipal const& r) {
       if (hasNewlyDroppedBranch()[InRun]) r.addToProcessHistory();
       if (rootFile_->writeRun(r)) {
-	rootFile_->endFile();
-	rootFile_.reset();
+	// maybeEndFile should be called from the framework, not internally
+// 	rootFile_->endFile();
+// 	rootFile_.reset();
       }
   }
+
+  // At some later date, we may move functionality from finishEndFile() to here.
+  void PoolOutputModule::startEndFile() { }
+
+  void PoolOutputModule::writeFileFormatVersion() { rootFile_->writeFileFormatVersion(); }
+  void PoolOutputModule::writeProcessConfigurationRegistry() { rootFile_->writeProcessConfigurationRegistry(); }
+  void PoolOutputModule::writeProcessHistoryRegistry() { rootFile_->writeProcessHistoryRegistry(); }
+  void PoolOutputModule::writeModuleDescriptionRegistry() { rootFile_->writeModuleDescriptionRegistry(); }
+  void PoolOutputModule::writeParameterSetRegistry() { rootFile_->writeParameterSetRegistry(); }
+  void PoolOutputModule::writeProductDescriptionRegistry() { rootFile_->writeProductDescriptionRegistry(); }
+  void PoolOutputModule::finishEndFile() { rootFile_->finishEndFile(); }
+  bool PoolOutputModule::isFileOpen() const { return rootFile_.get() != 0; }
+  // Ask Bill how to do this correctly.
+  bool PoolOutputModule::isFileFull() const { return false; }
 }
