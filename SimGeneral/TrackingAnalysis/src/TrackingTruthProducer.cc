@@ -80,6 +80,9 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   }
   const HepMC::GenEvent *genEvent = mcp -> GetEvent();
 
+  /*
+//old CF
+
   edm::Handle<CrossingFrame> cf;
   try {
     event.getByType(cf);
@@ -87,9 +90,30 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     edm::LogWarning (MessageCategory) << "Crossing frame not found.";
     return;
   }
+
   std::auto_ptr<MixCollection<SimTrack> >   trackCollection(new MixCollection<SimTrack>(cf.product()));
   std::auto_ptr<MixCollection<SimVertex> > vertexCollection(new MixCollection<SimVertex>(cf.product()));
   std::auto_ptr<MixCollection<PSimHit> >      hitCollection(new MixCollection<PSimHit>(cf.product(),hitLabelsVector_));
+  */
+
+  //new Templated CF
+  edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
+  std::vector<const CrossingFrame<PSimHit> *> cf_simhitvec;
+  for(uint32_t i = 0; i< hitLabelsVector_.size();i++){
+    event.getByLabel("mix",hitLabelsVector_[i],cf_simhit);
+    cf_simhitvec.push_back(cf_simhit.product());
+  }
+  std::auto_ptr<MixCollection<PSimHit> > hitCollection(new MixCollection<PSimHit>(cf_simhitvec));
+
+  edm::Handle<CrossingFrame<SimTrack> > cf_simtrack;
+  event.getByLabel("mix",cf_simtrack);
+  std::auto_ptr<MixCollection<SimTrack> > trackCollection(new MixCollection<SimTrack>(cf_simtrack.product()));
+
+  edm::Handle<CrossingFrame<SimVertex> > cf_simvertex;
+  event.getByLabel("mix",cf_simvertex);
+  std::auto_ptr<MixCollection<SimVertex> > vertexCollection(new MixCollection<SimVertex>(cf_simvertex.product()));
+
+
 
 // Create collections of things we will put in event,
   auto_ptr<TrackingParticleCollection> tPC(new TrackingParticleCollection);
