@@ -19,6 +19,7 @@
 #include "DataFormats/Candidate/interface/Particle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats//Common/interface/View.h"
 
 using namespace edm;
 using namespace std;
@@ -72,43 +73,27 @@ namespace cms
   //--------------------------------------------------------------------------
 
   //--------------------------------------------------------------------------
-  // Convert input product to type CandidateCollection
-  //-----------------------------------
-  const CandidateCollection* METProducer::convert( const CaloJetCollection* mycol )
-  {
-    tempCol.clear();
-    tempCol.reserve( mycol->size() );
-    for( int i = 0; i < (int) mycol->size(); i++)
-      {
-	const Jet* jet = (Jet*) &mycol->at(i);
-        tempCol.push_back( new LeafCandidate( 0, Particle::LorentzVector( jet->px(), jet->py(), jet->pz(), jet->energy() ) ) );
-      }//memory leak????  ...unclear...depends how OwnVector.clear() works...
-    return  &tempCol;
-  }
-  //--------------------------------------------------------------------------
-
-  //--------------------------------------------------------------------------
   // Run Algorithm and put results into event
   //-----------------------------------
   void METProducer::produce(Event& event, const EventSetup& setup) 
   {
+
     //-----------------------------------
     // Step A: Get Inputs.  Create an empty collection of candidates
-    edm::Handle<CaloJetCollection>   calojetInputs;
-    edm::Handle<CandidateCollection> candidateInputs;
-    if( inputType == "CaloJetCollection" ) event.getByLabel( inputLabel, calojetInputs );
-    else                                   event.getByLabel( inputLabel, candidateInputs );
+    edm::Handle<edm::View<Candidate> > input;
+    event.getByLabel(inputLabel,input);
     //-----------------------------------
     // Step B: Create an empty MET struct output.
     CommonMETData output;
+    /*
     //-----------------------------------
     // Step C: Convert input source to type CandidateCollection
-    const CandidateCollection* inputCol; 
-    if( inputType == "CaloJetCollection" ) inputCol = convert( calojetInputs.product() );
-    else                                   inputCol = candidateInputs.product();
+    const RefToBaseVector<Candidate> inputCol = inputHandle->refVector();
+    const CandidateCollection *input = (const CandidateCollection *)inputCol.product();
+    */
     //-----------------------------------
     // Step C2: Invoke the MET algorithm, which runs on any CandidateCollection input. 
-    alg_.run(inputCol, &output, globalThreshold);
+    alg_.run(input, &output, globalThreshold);
     //-----------------------------------
     // Step D: Invoke the specific "afterburner", which adds information
     //         depending on the input type, given via the config parameter.
@@ -119,7 +104,7 @@ namespace cms
       CaloSpecificAlgo calo;
       std::auto_ptr<CaloMETCollection> calometcoll; 
       calometcoll.reset(new CaloMETCollection);
-      calometcoll->push_back( calo.addInfo(candidateInputs.product(), output) );
+      calometcoll->push_back( calo.addInfo(input, output) );
       event.put( calometcoll );
     }
     //-----------------------------------
@@ -128,7 +113,7 @@ namespace cms
       GenSpecificAlgo gen;
       std::auto_ptr<GenMETCollection> genmetcoll;
       genmetcoll.reset (new GenMETCollection);
-      genmetcoll->push_back( gen.addInfo(candidateInputs.product(), output) );
+      genmetcoll->push_back( gen.addInfo(input, output) );
       event.put( genmetcoll );
     }
     //-----------------------------------

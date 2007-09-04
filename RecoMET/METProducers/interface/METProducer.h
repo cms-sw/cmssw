@@ -39,7 +39,7 @@ namespace cms
       explicit METProducer(const edm::ParameterSet&);
       explicit METProducer();
       virtual ~METProducer();
-      const CandidateCollection* convert( const reco::CaloJetCollection* );
+      //const CandidateCollection* convert( const reco::CaloJetCollection* );
       virtual void produce(edm::Event&, const edm::EventSetup&);
     private:
       METAlgo alg_; 
@@ -48,7 +48,7 @@ namespace cms
       std::string METtype;
       std::string alias;
       double globalThreshold;
-      CandidateCollection tempCol;
+      //CandidateCollection tempCol;
     };
 }
 
