@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/04/30 19:47:45 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/08/09 18:23:26 $
+ *  $Revision: 1.9 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -250,13 +250,14 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
     eventout = "\nGathering info:";  
 
   // extract crossing frame from event
-  edm::Handle<CrossingFrame> crossingFrame;
-  iEvent.getByType(crossingFrame);
-  if (!crossingFrame.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
-      << "Unable to find crossingFrame in event!";
-    return;
-  }
+  //edm::Handle<CrossingFrame> crossingFrame;
+  edm::Handle<CrossingFrame<PCaloHit> > crossingFrame;
+  //iEvent.getByType(crossingFrame);
+  //if (!crossingFrame.isValid()) {
+  //  edm::LogWarning(MsgLoggerCat)
+  //    << "Unable to crossingFrame in event!";
+  //  return;
+  //}
 
   ////////////////////////
   //extract EB information
@@ -277,9 +278,17 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
     
     // loop over simhits
     const std::string barrelHitsName("EcalHitsEB");
+    iEvent.getByLabel("mix",barrelHitsName,crossingFrame);
+    if (!crossingFrame.isValid()) {
+      edm::LogWarning(MsgLoggerCat)
+	<< "Unable to find cal barrel crossingFrame in event!";
+      return;
+    }
+    //std::auto_ptr<MixCollection<PCaloHit> >
+    //barrelHits(new MixCollection<PCaloHit>
+    //		 (crossingFrame.product(), barrelHitsName));
     std::auto_ptr<MixCollection<PCaloHit> >
-      barrelHits(new MixCollection<PCaloHit>
-		 (crossingFrame.product(), barrelHitsName));
+      barrelHits(new MixCollection<PCaloHit>(crossingFrame.product()));
 
     // keep track of sum of simhit energy in each crystal
     MapType ebSimMap;
@@ -392,9 +401,17 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
 
     // loop over simhits
     const std::string endcapHitsName("EcalHitsEE");
+    iEvent.getByLabel("mix",endcapHitsName,crossingFrame);
+    if (!crossingFrame.isValid()) {
+      edm::LogWarning(MsgLoggerCat)
+	<< "Unable to find cal endcap crossingFrame in event!";
+      return;
+    }
+    //std::auto_ptr<MixCollection<PCaloHit> >
+    //  endcapHits(new MixCollection<PCaloHit>
+    //	 (crossingFrame.product(), endcapHitsName));
     std::auto_ptr<MixCollection<PCaloHit> >
-      endcapHits(new MixCollection<PCaloHit>
-		 (crossingFrame.product(), endcapHitsName));
+      endcapHits(new MixCollection<PCaloHit>(crossingFrame.product()));
 
     // keep track of sum of simhit energy in each crystal
     MapType eeSimMap;
@@ -507,9 +524,17 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
 
     // loop over simhits
     const std::string preshowerHitsName("EcalHitsES");
-    std::auto_ptr<MixCollection<PCaloHit> >
-      preshowerHits(new MixCollection<PCaloHit>
-		 (crossingFrame.product(), preshowerHitsName));
+    iEvent.getByLabel("mix",preshowerHitsName,crossingFrame);
+    if (!crossingFrame.isValid()) {
+      edm::LogWarning(MsgLoggerCat)
+	<< "Unable to find cal preshower crossingFrame in event!";
+      return;
+    }
+    //std::auto_ptr<MixCollection<PCaloHit> >
+    //  preshowerHits(new MixCollection<PCaloHit>
+    //		 (crossingFrame.product(), preshowerHitsName));
+   std::auto_ptr<MixCollection<PCaloHit> >
+      preshowerHits(new MixCollection<PCaloHit>(crossingFrame.product()));
 
     // keep track of sum of simhit energy in each crystal
     MapType esSimMap;
