@@ -81,10 +81,12 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         return deps
     def nameInProcessDesc_(self, myname):
         return myname
+    def fillNamesList(self, l):
+        return self._seq.fillNamesList(l)
     def insertInto(self, parameterSet, myname):
         # represented just as a list of names in the ParameterSet
         l = []
-        self._seq.fillNamesList(l)
+        self.fillNamesList(l)
         parameterSet.addVString(True, myname, l)
 
 class _SequenceOpAids(_Sequenceable):
@@ -194,4 +196,6 @@ class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
         return copy.copy(self)
     def _place(self,label,process):
         process.setSchedule_(self)
-
+    def fillNamesList(self, l):
+        for seq in self:
+            seq.fillNamesList(l)

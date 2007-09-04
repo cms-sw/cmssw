@@ -377,8 +377,7 @@ class Process(object):
         result+=self._dumpPythonList(self.psets.iteritems())
         result+=self._dumpPythonList(self.vpsets.iteritems())
         if self.schedule:
-            pathNames = [p.label() for p in self.schedule]
-            result +=indent+'schedule = ('+','.join(pathNames)+')\n'
+            result += "process.schedule = "+self.schedule.dumpPython('','')
         return result
 
     def insertOneInto(self, parameterSet, label, item):
@@ -398,14 +397,38 @@ class Process(object):
     def insertServices(self, processDesc, itemDict):
         for name,value in itemDict.iteritems():
            value.insertInto(processDesc)
-    def insertTriggerPaths(self, processDesc):
+    def insertPaths(self, processDesc, processPSet):
+        scheduledPaths = []
+        triggerPaths = []
+        endpaths = []
+        if self.schedule_() == None:
+            # make one from triggerpaths & endpaths
+            for name,value in self.paths_().iteritems():
+                scheduledPaths.append(name)
+                triggerPaths.append(name)
+            for name,value in self.endpaths_().iteritems():
+                scheduledPaths.append(name)
+                endpaths.append(name)
+        else:
+            for path in self.schedule_():
+               pathname = path.label()
+               scheduledPaths.append(pathname)
+               if self.endpaths_().has_key(pathname):
+                   endpaths.append(pathname)
+               else:
+                   triggerPaths.append(pathname)
+        processPSet.addVString(True, "@end_paths", endpaths)
+        processPSet.addVString(True, "@paths", scheduledPaths)
+        # trigger_paths are a little different
         p = processDesc.newPSet()
-        l = []
-        for name,value in self.paths_().iteritems():
-          l.append(name)
-          value.insertInto(processDesc, name)
-        p.addVString(True, "@trigger_paths", l)
-        processDesc.addPSet(False, "@trigger_paths", p)
+        p.addVString(True, "@trigger_paths", triggerPaths)
+        processPSet.addPSet(False, "@trigger_paths", p)
+        # add all these paths
+        for triggername in triggerPaths:
+            self.paths_()[triggername].insertInto(processPSet, triggername)
+        for endpathname in endpaths:
+            self.endpaths_()[endpathname].insertInto(processPSet, endpathname)
+        
     def fillProcessDesc(self, processDesc, processPSet):
         processPSet.addString(True, "@process_name", self.name_())
         all_modules = self.producers_().copy()
@@ -418,9 +441,7 @@ class Process(object):
         self.insertManyInto(processPSet, "@all_esmodules", self.es_producers_())
         self.insertManyInto(processPSet, "@all_essources", self.es_sources_())
         self.insertManyInto(processPSet, "@all_esprefers", self.es_prefers_())
-        self.insertTriggerPaths(processPSet)
-        self.insertManyInto(processPSet, "@end_paths", self.endpaths_())
-        self.insertOneInto(processPSet,  "@paths", self.schedule_())
+        self.insertPaths(processDesc, processPSet)
         self.insertServices(processDesc, self.services_())
         return processDesc
 
