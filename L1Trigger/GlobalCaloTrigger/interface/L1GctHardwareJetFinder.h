@@ -57,6 +57,9 @@ private:
   /// Threshold value to find a local et maximum
   static const unsigned int JET_THRESHOLD;
 
+  /// Positive/negative eta flag used in the initial clustering
+  bool m_positiveEtaWheel;
+
   /// Vector of pre-clustered jets formatted as a search array for the final clustering
   RegionsVector m_protoJetRegions;
 
@@ -79,16 +82,6 @@ private:
   void findProtoClusters();
   /// Convert protojets to final jets
   void findFinalClusters();
-
-  // Comparison operator for sorting local maxima
-  // In the case where the two et values are equal, we favour
-  // the more central region
-/*   struct etGreaterThan : public std::binary_function<L1CaloRegion, L1CaloRegion, bool>  */
-/*   { */
-/*     bool operator()(const L1CaloRegion& x, const L1CaloRegion& y) { */
-/*       return ( (x.et() > y.et()) || ((x.et() == y.et()) && (x.rctEta() < y.rctEta())) ) ; */
-/*     } */
-/*   }; */
 
   /// Fill search array for the second stage of clustering based on the pre-clustered jets
   void fillRegionsFromProtoJets();
