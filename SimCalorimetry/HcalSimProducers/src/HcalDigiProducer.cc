@@ -41,7 +41,8 @@ HcalDigiProducer::HcalDigiProducer(const edm::ParameterSet& ps)
   theHBHEHits(),
   theHOHits(),
   theHFHits(),
-  theZDCHits()
+  theZDCHits(),
+  doZDC(true)
 {
   
   produces<HBHEDigiCollection>();
@@ -127,19 +128,19 @@ void HcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   theZDCHits.clear();
 
   // Step A: Get Inputs
-  edm::Handle<CrossingFrame> cf;
-  e.getByType(cf);
+  edm::Handle<CrossingFrame<PCaloHit> > cf, zdccf;
+  e.getByLabel("mix", "HcalHits",cf);
+  e.getByLabel("mix", "ZDCHITS", zdccf);
 
   // test access to SimHits for HcalHits and ZDC hits
-  const std::string subdet("HcalHits");
-  const std::string subdetzdc("ZDCHITS");
-  std::auto_ptr<MixCollection<PCaloHit> > col(new MixCollection<PCaloHit>(cf.product(), subdet));
-  std::auto_ptr<MixCollection<PCaloHit> > colzdc(new MixCollection<PCaloHit>(cf.product(), subdetzdc));
+  std::auto_ptr<MixCollection<PCaloHit> > col(new MixCollection<PCaloHit>(cf.product()));
+  std::auto_ptr<MixCollection<PCaloHit> > colzdc(new MixCollection<PCaloHit>(zdccf.product()));
 
   //fillFakeHits();
 
   if(theHitCorrection != 0)
   {
+    theHitCorrection->clear();
     theHitCorrection->fillChargeSums(*col);
     theHitCorrection->fillChargeSums(*colzdc);
   }
@@ -154,7 +155,9 @@ void HcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   theHBHEDigitizer->run(*col, *hbheResult);
   theHODigitizer->run(*col, *hoResult);
   theHFDigitizer->run(*col, *hfResult);
-  theZDCDigitizer->run(*colzdc, *zdcResult);
+  if(doZDC) {
+    theZDCDigitizer->run(*colzdc, *zdcResult);
+  }
 
   edm::LogInfo("HcalDigiProducer") << "HCAL HBHE digis : " << hbheResult->size();
   edm::LogInfo("HcalDigiProducer") << "HCAL HO digis   : " << hoResult->size();
@@ -238,6 +241,7 @@ void HcalDigiProducer::checkGeometry(const edm::EventSetup & eventSetup) {
   vector<DetId> zdcCells = geometry->getValidDetIds(DetId::Calo, HcalZDCDetId::SubdetectorId);
 
   //std::cout<<"HcalDigiProducer::CheckGeometry number of cells: "<<zdcCells.size()<<std::endl;
+  if(zdcCells.size()==0) doZDC = false;
   // combine HB & HE
 
   vector<DetId> hbheCells = hbCells;
