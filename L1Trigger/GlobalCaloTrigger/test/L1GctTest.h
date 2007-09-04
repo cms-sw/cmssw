@@ -11,7 +11,7 @@
 //
 // Original Author:  Gregory Heath
 //         Created:  Mon Mar 12 16:36:35 CET 2007
-// $Id$
+// $Id: L1GctTest.h,v 1.1 2007/03/16 13:31:07 heath Exp $
 //
 //
 
@@ -64,4 +64,5 @@ class L1GctTest : public edm::EDAnalyzer {
       std::string theReferenceDataFileName;
 
       unsigned m_eventNo;
+      bool m_allGood;
 };

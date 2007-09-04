@@ -36,7 +36,7 @@ L1GctTest::L1GctTest(const edm::ParameterSet& iConfig) :
   theFirmwareTestIsEnabled   (iConfig.getUntrackedParameter<bool>("doFirmware",    false)),
   theInputDataFileName       (iConfig.getUntrackedParameter<std::string>("inputFile",     "")),
   theReferenceDataFileName   (iConfig.getUntrackedParameter<std::string>("referenceFile", "")),
-  m_eventNo(0)
+  m_eventNo(0), m_allGood(true)
 {
   //now do what ever initialization is needed
   // check the files are specified if required
@@ -129,6 +129,7 @@ L1GctTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    theFirmwareTestIsEnabled &= !endOfFile;
 
    // bale out if we fail any test
+   m_allGood &= passAllTests;
    if (passAllTests)
    {
       //std::cout << "All tests passed for this event!" << std::endl;
@@ -148,7 +149,12 @@ L1GctTest::beginJob(const edm::EventSetup& c)
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 L1GctTest::endJob() {
-  std::cout << "\n\n=== All tests passed Ok! ===\n\n" << std::endl;
+  if (m_allGood) {
+    std::cout << "\n\n=== All tests passed Ok! ===\n\n" << std::endl;
+  } else {
+    std::cout << "\n\n=== Tests unsuccessful, exiting after "
+              << m_eventNo << " events ===\n\n" << std::endl;
+  }
 }
 
 void 
