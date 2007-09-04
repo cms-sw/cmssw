@@ -100,11 +100,11 @@ int main() {
   hits.push_back(zdcHit);
 
   string hitsName = "HcalHits";
-  vector<string> caloDets, trackingDets;
-  caloDets.push_back(hitsName);
+  vector<string> caloDets;
 
-  CrossingFrame crossingFrame(-5, 5, 25,  trackingDets, caloDets);
-  crossingFrame.addSignalCaloHits(hitsName, &hits);
+  CrossingFrame<PCaloHit> crossingFrame(-5, 5, 25,  hitsName);
+  edm::EventID eventId;
+  crossingFrame.addSignals(&hits, eventId);
 
   // make 1 GeV pileup hit
   PCaloHit barrelPileup(barrelDetId.rawId(), 0.00855, 0.);
@@ -210,7 +210,7 @@ int main() {
   auto_ptr<HFDigiCollection> hfResult(new HFDigiCollection);
   auto_ptr<ZDCDigiCollection> zdcResult(new ZDCDigiCollection);
 
-  MixCollection<PCaloHit> hitCollection(&crossingFrame, hitsName);
+  MixCollection<PCaloHit> hitCollection(&crossingFrame);
 
   testHitCorrection(&hitCorrection, hitCollection);
 
