@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/04/23 08:29:35 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/04/23 08:44:09 $
+ *  $Revision: 1.9 $
  *  \author M. Zanetti
  */
 
@@ -31,7 +31,7 @@ using namespace edm;
 DTROS25FileReader::DTROS25FileReader(const edm::ParameterSet& pset) : 
   runNumber(1), eventNumber(0) {
       
-  const string & filename = pset.getParameter<string>("fileName");
+  const string & filename = pset.getUntrackedParameter<string>("fileName");
 
   inputFile.open(filename.c_str());
   if( inputFile.fail() ) {

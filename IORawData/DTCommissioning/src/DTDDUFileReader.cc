@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/03/12 01:01:57 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/06/25 08:07:52 $
+ *  $Revision: 1.12 $
  *  \author M. Zanetti
  */
 
@@ -31,10 +31,11 @@ using namespace edm;
 DTDDUFileReader::DTDDUFileReader(const edm::ParameterSet& pset) : 
   runNumber(1), eventNumber(0) {
 
-  const string & filename = pset.getParameter<string>("fileName");
+  const string & filename = pset.getUntrackedParameter<string>("fileName");
 
-  readFromDMA = pset.getUntrackedParameter<bool>("isRaw",false);
-  
+  readFromDMA = pset.getUntrackedParameter<bool>("readFromDMA",true);
+  numberOfHeaderWords = pset.getUntrackedParameter<int>("numberOfHeaderWords",10);
+  skipEvents = pset.getUntrackedParameter<int>("skipEvents",0);  
 
   inputFile.open(filename.c_str());
   if( inputFile.fail() ) {
@@ -44,10 +45,8 @@ DTDDUFileReader::DTDDUFileReader(const edm::ParameterSet& pset) :
     cout << "DTDDUFileReader: DaqSource file '" << filename << "' was succesfully opened" << endl;
   }
   
-  //else if (readFromDMA) 
-  inputFile.ignore(4*pset.getUntrackedParameter<int>("numberOfHeaderWords",10));
+  inputFile.ignore(4*numberOfHeaderWords);
   
-  skipEvents = pset.getUntrackedParameter<int>("skipEvents",0);
   if (skipEvents) { 
     cout<<""<<endl;
     cout<<"   Dear user, pleas be patient, "<<skipEvents<<" are being skipped .."<<endl;
@@ -67,7 +66,7 @@ bool DTDDUFileReader::fillRawData(EventID& eID,
   data = new FEDRawDataCollection();
 
   vector<uint64_t> eventData;
-  size_t estimatedEventDimension = 1024; // dimensione hardcoded
+  size_t estimatedEventDimension = 102400; // dimensione hardcoded
   eventData.reserve(estimatedEventDimension); 
   uint64_t word = 0;
 

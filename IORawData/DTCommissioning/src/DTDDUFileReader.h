@@ -4,8 +4,8 @@
 /** \class DTDDUFileReader
  *  Read DT ROS8 raw data files
  *
- *  $Date: 2006/10/29 09:26:37 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/03/12 01:01:57 $
+ *  $Revision: 1.8 $
  *  \author M. Zanetti - INFN Padova
  */
 
@@ -57,6 +57,7 @@ class DTDDUFileReader : public DaqBaseReader {
 
   bool readFromDMA;
   int skipEvents;
+  int numberOfHeaderWords;
 
   static const int dduWordLength = 8;
 
