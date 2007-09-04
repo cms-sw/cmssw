@@ -9,9 +9,9 @@ double PixelROCGainCalibPixel::geterror(uint32_t icalpoint, uint32_t ntimes){
   double res=0;
   
   if(nentries[icalpoint]>0){
-    double meansq = adcvalues[icalpoint]*adcvalues[icalpoint];
-    res = fabs( meansq - sumsquares[icalpoint] );
-    res /= (double) nentries[icalpoint];
+    double meansq = (adcvalues[icalpoint]*adcvalues[icalpoint])*1.0/(nentries[icalpoint]*nentries[icalpoint]);
+    res = fabs( meansq - (sumsquares[icalpoint]*1.0/nentries[icalpoint] ));
+    //res /= (double) nentries[icalpoint];
   }
   return sqrt(res);
 }
