@@ -142,14 +142,7 @@ void L1GctGlobalEnergyAlgos::fetchInput() {
   m_htVlMinusWheel = m_minusWheelJetFpga->getOutputHt();
 
   //
-  std::cout << "Getting jet count values for adding" << std::endl;
   for (unsigned i=0; i<N_JET_COUNTERS; i++) {
-    std::cout << "Jc " << i
-              << " W+ value " << m_plusWheelJetFpga->getJetCounter(i)->getValue().value()
-              << " read as " << m_plusWheelJetFpga->getOutputJc(i).value()
-              << " W- value " << m_minusWheelJetFpga->getJetCounter(i)->getValue().value()
-              << " read as " << m_minusWheelJetFpga->getOutputJc(i).value()
-              << std::endl;
     m_jcValPlusWheel.at(i) = m_plusWheelJetFpga->getOutputJc(i);
     m_jcVlMinusWheel.at(i) = m_minusWheelJetFpga->getOutputJc(i);
   }
@@ -182,16 +175,10 @@ void L1GctGlobalEnergyAlgos::process()
   //
   //-----------------------------------------------------------------------------
   // Add the jet counts.
-  std::cout << "Adding jet count values" << std::endl;
   for (unsigned i=0; i<N_JET_COUNTERS; i++) {
     m_outputJetCounts.at(i) =
       L1GctJetCount<5>(m_jcValPlusWheel.at(i)) +
       L1GctJetCount<5>(m_jcVlMinusWheel.at(i));
-    std::cout << "Jc " << i
-              << " W+ input " << m_jcValPlusWheel.at(i).value()
-              << " W- input " << m_jcVlMinusWheel.at(i).value()
-              << " result " << m_outputJetCounts.at(i).value()
-              << std::endl;
   }
 }
 
