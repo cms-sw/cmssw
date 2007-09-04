@@ -23,15 +23,16 @@ class CSCGainsDBConditions: public edm::ESProducer, public edm::EventSetupRecord
   
   float mean,min,minchi;
   int seed;long int M;
-  int old_chamber_id,old_strip,new_chamber_id,new_strip;
-  float old_gainslope,old_intercpt, old_chisq;
-  std::vector<int> old_cham_id;
-  std::vector<int> old_strips;
-  std::vector<float> old_slope;
-  std::vector<float> old_intercept;
-  std::vector<float> old_chi2;
+  int new_chamber_id,db_index,new_strip;
+  float db_gainslope,db_intercpt, db_chisq;
+  std::vector<int> db_index_id;
+  std::vector<float> db_slope;
+  std::vector<float> db_intercept;
+  std::vector<float> db_chi2;
+  int new_index;
   float new_gainslope,new_intercpt, new_chisq;
   std::vector<int> new_cham_id;
+  std::vector<int> new_index_id;
   std::vector<int> new_strips;
   std::vector<float> new_slope;
   std::vector<float> new_intercept;

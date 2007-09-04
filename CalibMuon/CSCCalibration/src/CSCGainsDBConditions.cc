@@ -9,43 +9,43 @@
 void CSCGainsDBConditions::prefillDBGains()
 {
   cndbgains = new CSCDBGains();
-  const CSCDetId& detId = CSCDetId();
+  //const CSCDetId& detId = CSCDetId();
       
-  int max_istrip,id_layer,max_ring,max_cham;
-  unsigned int old_nrlines=0;
-  unsigned int new_nrlines=0;
+  int counter;
+  int db_nrlines=0;
+  int new_nrlines=0;
   seed = 10000;	
   srand(seed);
   mean=6.8, min=-10.0, minchi=1.0, M=1000;
   
-  std::ifstream olddata; 
-  olddata.open("old_gains.dat",std::ios::in); 
-  if(!olddata) {
-    std::cerr <<"Error: old_gains.dat -> no such file!"<< std::endl;
+  std::ifstream dbdata; 
+  dbdata.open("dbgains.dat",std::ios::in); 
+  if(!dbdata) {
+    std::cerr <<"Error: dbgains.dat -> no such file!"<< std::endl;
     exit(1);
   }
   
-  while (!olddata.eof() ) { 
-    olddata >> old_chamber_id >> old_strip >> old_gainslope >> old_intercpt >> old_chisq ; 
-    old_cham_id.push_back(old_chamber_id);
-    old_strips.push_back(old_strip);
-    old_slope.push_back(old_gainslope);
-    old_intercept.push_back(old_intercpt);
-    old_chi2.push_back(old_chisq);
-    old_nrlines++;
+  while (!dbdata.eof() ) { 
+    dbdata >> db_index >> db_gainslope >> db_intercpt >> db_chisq ; 
+    db_index_id.push_back(db_index);
+    db_slope.push_back(db_gainslope);
+    db_intercept.push_back(db_intercpt);
+    db_chi2.push_back(db_chisq);
+    db_nrlines++;
   }
-  olddata.close();
+  dbdata.close();
 
   std::ifstream newdata;
-  newdata.open("new_gains.txt",std::ios::in); 
+  newdata.open("gains.dat",std::ios::in); 
   if(!newdata) {
-    std::cerr <<"Error: new_gains.txt -> no such file!"<< std::endl;
+    std::cerr <<"Error: gains.dat -> no such file!"<< std::endl;
     exit(1);
   }
   
   while (!newdata.eof() ) { 
-    newdata >> new_chamber_id >> new_strip >> new_gainslope >> new_intercpt >> new_chisq ; 
+    newdata >> new_chamber_id >> new_index>> new_strip >> new_gainslope >> new_intercpt >> new_chisq ; 
     new_cham_id.push_back(new_chamber_id);
+    new_index_id.push_back(new_index);
     new_strips.push_back(new_strip);
     new_slope.push_back(new_gainslope);
     new_intercept.push_back(new_intercpt);
@@ -54,123 +54,28 @@ void CSCGainsDBConditions::prefillDBGains()
   }
   newdata.close();
   
-  //endcap=1 to 2,station=1 to 4, ring=1 to 4,chamber=1 to 36,layer=1 to 6 
-  for(int iendcap=detId.minEndcapId(); iendcap<=detId.maxEndcapId(); iendcap++){
-    for(int istation=detId.minStationId() ; istation<=detId.maxStationId(); istation++){
-      max_ring=detId.maxRingId();
-      //station 4 ring 4 not there(36 chambers*2 missing)
-      //3 rings max this way of counting (ME1a & b)
-      if(istation==1)    max_ring=3;
-      if(istation==2)    max_ring=2;
-      if(istation==3)    max_ring=2;
-      if(istation==4)    max_ring=1;
-      
-      for(int iring=detId.minRingId(); iring<=max_ring; iring++){
-	max_istrip=80;	    
-	max_cham=detId.maxChamberId();  
-	if(istation==1 && iring==1)    max_cham=36;
-	if(istation==1 && iring==2)    max_cham=36;
-	if(istation==1 && iring==3)    max_cham=36;
-	if(istation==2 && iring==1)    max_cham=18;
-	if(istation==2 && iring==2)    max_cham=36;
-	if(istation==3 && iring==1)    max_cham=18;
-	if(istation==3 && iring==2)    max_cham=36;
-	if(istation==4 && iring==1)    max_cham=18;
-	
-	for(int ichamber=detId.minChamberId(); ichamber<=max_cham; ichamber++){
-	  for(int ilayer=detId.minLayerId(); ilayer<=detId.maxLayerId(); ilayer++){
-	    //station 1 ring 3 has 64 strips per layer instead of 80 
-	    if(istation==1 && iring==3)   max_istrip=64;
-	    std::vector<CSCDBGains::Item> itemvector;
-	    itemvector.resize(max_istrip);
-	    id_layer = 100000*iendcap + 10000*istation + 1000*iring + 10*ichamber + ilayer;
-	    for(int istrip=0;istrip<max_istrip;istrip++){
-	      itemvector[istrip].gain_slope=((double)rand()/((double)(RAND_MAX)+(double)(1)))+mean;
-	      itemvector[istrip].gain_intercept=((double)rand()/((double)(RAND_MAX)+(double)(1)))+min;
-	      itemvector[istrip].gain_chi2=((double)rand()/((double)(RAND_MAX)+(double)(1)))+minchi;
-	    }
-	    std::copy(itemvector.begin(), itemvector.end(), std::back_inserter(cndbgains->gains));
-	  }
-	}
-      }
-    }
-  }
-
-
-  
-  //overwrite fakes with old values from DB
-  int istrip = 0;
   std::vector<CSCDBGains::Item> itemvector;
-  itemvector.resize(80);
-  
-  for(unsigned int mystrip=0; mystrip<old_nrlines-1; mystrip++){
-    if(old_strips[mystrip]==0) istrip = 0;
-    itemvector[istrip].gain_slope=old_slope[mystrip];
-    itemvector[istrip].gain_intercept=old_intercept[mystrip]; 
-    itemvector[istrip].gain_chi2=old_chi2[mystrip];
-    istrip++;
-  }  
-  std::copy(itemvector.begin(), itemvector.end(), std::back_inserter(cndbgains->gains));
-  
-  
-  itemvector.resize(64);
-  for(unsigned int mystrip=0; mystrip<old_nrlines-1; mystrip++){
-    if(old_strips[mystrip]==0) istrip = 0;
-    if(old_cham_id[mystrip] >= 113000 && old_cham_id[mystrip] <= 113999){
-      itemvector[istrip].gain_slope=old_slope[mystrip];
-      itemvector[istrip].gain_intercept=old_intercept[mystrip]; 
-      itemvector[istrip].gain_chi2=old_chi2[mystrip];
-      istrip++;
-    }
-    std::copy(itemvector.begin(), itemvector.end(), std::back_inserter(cndbgains->gains));
-  } 
-  
-  itemvector.resize(64);
-  for(unsigned int mystrip=0; mystrip<old_nrlines-1; mystrip++){
-    if(old_strips[mystrip]==0) istrip = 0;
-    if(old_cham_id[mystrip] >= 213000 && old_cham_id[mystrip] <= 213999){
-      itemvector[istrip].gain_slope=old_slope[mystrip];
-      itemvector[istrip].gain_intercept=old_intercept[mystrip]; 
-      itemvector[istrip].gain_chi2=old_chi2[mystrip];
-      istrip++;
-    }
-    std::copy(itemvector.begin(), itemvector.end(), std::back_inserter(cndbgains->gains));
-  }   
-  
-  //overwrite old values with ones from new runs
-  itemvector.resize(80);
-  for(unsigned int mystrip=0; mystrip<new_nrlines-1; mystrip++){
-    if(new_strips[mystrip]==0) istrip = 0;
-    itemvector[istrip].gain_slope=new_slope[mystrip];
-    itemvector[istrip].gain_intercept=new_intercept[mystrip]; 
-    itemvector[istrip].gain_chi2=new_chi2[mystrip];
-    istrip++;
+   itemvector.resize(217728);
+
+  for(int i=0; i<217728;++i){
+    itemvector[i].gain_slope= db_slope[i];
+    itemvector[i].gain_intercept= db_intercept[i];
+    itemvector[i].gain_chi2= db_chi2[i];
   }
-  std::copy(itemvector.begin(), itemvector.end(), std::back_inserter(cndbgains->gains));
-    
-  itemvector.resize(64);
-  for(unsigned int mystrip=0; mystrip<new_nrlines-1; mystrip++){
-    if(new_strips[mystrip]==0) istrip = 0;
-    if(new_cham_id[mystrip] >= 113000 && new_cham_id[mystrip] <= 113999){
-      itemvector[istrip].gain_slope=new_slope[mystrip];
-      itemvector[istrip].gain_intercept=new_intercept[mystrip]; 
-      itemvector[istrip].gain_chi2=new_chi2[mystrip];
-      istrip++;
+
+  for(int i=0; i<217728;++i){
+    counter=db_index_id[i];  
+    for (unsigned int k=0;k<new_index_id.size()-1;k++){
+      if(counter==new_index_id[k]){
+	itemvector[counter].gain_slope= new_slope[k];
+	itemvector[counter].gain_intercept= new_intercept[k];
+	itemvector[counter].gain_chi2= new_chi2[k];
+	itemvector[i] = itemvector[counter];
+      }  
     }
-    std::copy(itemvector.begin(), itemvector.end(), std::back_inserter(cndbgains->gains));
-  } 
+  }
   
-  itemvector.resize(64);
-  for(unsigned int mystrip=0; mystrip<new_nrlines-1; mystrip++){
-    if(new_strips[mystrip]==0) istrip = 0;
-    if(new_cham_id[mystrip] >= 213000 && new_cham_id[mystrip] <= 213999){
-      itemvector[istrip].gain_slope=new_slope[mystrip];
-      itemvector[istrip].gain_intercept=new_intercept[mystrip]; 
-      itemvector[istrip].gain_chi2=new_chi2[mystrip];
-      istrip++;
-    }
-    std::copy(itemvector.begin(), itemvector.end(), std::back_inserter(cndbgains->gains));
-  }  
+  std::copy(itemvector.begin(), itemvector.end(), std::back_inserter(cndbgains->gains));
 }
   
 
