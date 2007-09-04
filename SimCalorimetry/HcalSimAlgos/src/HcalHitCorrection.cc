@@ -15,7 +15,6 @@ HcalHitCorrection::HcalHitCorrection(const CaloVSimParameterMap * parameterMap)
 
 void HcalHitCorrection::fillChargeSums(MixCollection<PCaloHit> & hits)
 {
-  clear();
   for(MixCollection<PCaloHit>::MixItr hitItr = hits.begin();
       hitItr != hits.end(); ++hitItr)
   {
