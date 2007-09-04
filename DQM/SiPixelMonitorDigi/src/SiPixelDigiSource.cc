@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.12 2007/03/30 15:10:47 chiochia Exp $
+// $Id: SiPixelDigiSource.cc,v 1.14 2007/04/04 13:57:05 chiochia Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -99,7 +99,7 @@ SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   }
 
   // slow down...
-  usleep(100000);
+  //usleep(100000);
   
 }
 

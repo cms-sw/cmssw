@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterSource.cc,v 1.0 2007/04/16 chiochia Exp $
+// $Id: SiPixelClusterSource.cc,v 1.3 2007/04/16 21:35:44 andrewdc Exp $
 //
 //
 #include "DQM/SiPixelMonitorCluster/interface/SiPixelClusterSource.h"
@@ -99,7 +99,7 @@ SiPixelClusterSource::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   }
 
   // slow down...
-  usleep(100000);
+  //usleep(100000);
   
 }
 
