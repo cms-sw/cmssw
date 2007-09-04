@@ -1,13 +1,16 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2007/08/31 11:02:56 $
- * $Revision: 1.7 $
+ * $Date: 2007/08/31 18:14:21 $
+ * $Revision: 1.8 $
  * \author J. Berryhill
  *
  *  Initial version largely stolen from GCTMonitor (wittich 2/07)
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.8  2007/08/31 18:14:21  wittich
+ * update GCT packages to reflect GctRawToDigi, and move to raw plots
+ *
  * Revision 1.7  2007/08/31 11:02:56  wittich
  * cerr -> LogInfo
  *
@@ -73,13 +76,13 @@ const float PHIMIN = -0.5;
 const float PHIMAX = 17.5;
 
 
-const unsigned int L1EETABINS = 22;
-const float L1EETAMIN = -5;
-const float L1EETAMAX = 5;
+// const unsigned int L1EETABINS = 22;
+// const float L1EETAMIN = -5;
+// const float L1EETAMAX = 5;
 
-const unsigned int L1EPHIBINS = 18;
-const float L1EPHIMIN = -M_PI;
-const float L1EPHIMAX = M_PI;
+// const unsigned int L1EPHIBINS = 18;
+// const float L1EPHIMIN = -M_PI;
+// const float L1EPHIMAX = M_PI;
 
 // Ranks 6, 10 and 12 bits
 const unsigned int R6BINS = 64;
@@ -97,7 +100,7 @@ const float R12MAX = 4095.5;
 // const float TEVMIN = -0.5;
 // const float TEVMAX = 1000.5;
 
-const unsigned int METBINS = 4096;
+const unsigned int METBINS = 256;
 const float METMIN = -0.5;
 const float METMAX = 4095.5;
 
@@ -179,47 +182,50 @@ void L1TGCT::beginJob(const edm::EventSetup & c)
     dbe->setCurrentFolder("L1TMonitor/L1TGCT");
 
 
+    const int nJetEta = 256;
+    const int JetEtaMin = -127.5;
+    const int JetEtaMax =  127.5;
     l1GctCenJetsEtEtaPhi_ =
 	dbe->book2D("CenJetsEtEtaPhi", "CENTRAL JET E_{T}",
-		    PHIBINS, PHIMIN, PHIMAX, ETABINS,
-		    ETAMIN, ETAMAX);
+		    PHIBINS, PHIMIN, PHIMAX, 
+		    nJetEta, JetEtaMin, JetEtaMax);
     l1GctForJetsEtEtaPhi_ =
 	dbe->book2D("ForJetsEtEtaPhi", "FORWARD JET E_{T}",
-		    PHIBINS, PHIMIN, PHIMAX, ETABINS,
-		    ETAMIN, ETAMAX);
+		    PHIBINS, PHIMIN, PHIMAX, 
+		    nJetEta, JetEtaMin, JetEtaMax);
     l1GctTauJetsEtEtaPhi_ =
 	dbe->book2D("TauJetsEtEtaPhi", "TAU JET E_{T}", PHIBINS,
-		    PHIMIN, PHIMAX, ETABINS, ETAMIN,
-		    ETAMAX);
+		    PHIMIN, PHIMAX, 
+		    nJetEta, JetEtaMin, JetEtaMax);
     l1GctIsoEmEtEtaPhi_ =
 	dbe->book2D("IsoEmEtEtaPhi", "ISO EM E_{T}", PHIBINS,
-		    PHIMIN, PHIMAX, ETABINS, ETAMIN,
-		    ETAMAX);
+		    PHIMIN, PHIMAX, 		    
+		    nJetEta, JetEtaMin, JetEtaMax);
     l1GctNonIsoEmEtEtaPhi_ =
 	dbe->book2D("NonIsoEmEtEtaPhi", "NON-ISO EM E_{T}",
-		    PHIBINS, PHIMIN, PHIMAX, ETABINS,
-		    ETAMIN, ETAMAX);
+		    PHIBINS, PHIMIN, PHIMAX, 
+		    nJetEta, JetEtaMin, JetEtaMax);
 
     l1GctCenJetsOccEtaPhi_ =
 	dbe->book2D("CenJetsOccEtaPhi", "CENTRAL JET OCCUPANCY",
-		    PHIBINS, PHIMIN, PHIMAX, ETABINS,
-		    ETAMIN, ETAMAX);
+		    PHIBINS, PHIMIN, PHIMAX, 
+		    nJetEta, JetEtaMin, JetEtaMax);
     l1GctForJetsOccEtaPhi_ =
 	dbe->book2D("ForJetsOccEtaPhi", "FORWARD JET OCCUPANCY",
-		    PHIBINS, PHIMIN, PHIMAX, ETABINS,
-		    ETAMIN, ETAMAX);
+		    PHIBINS, PHIMIN, PHIMAX,
+		    nJetEta, JetEtaMin, JetEtaMax);
     l1GctTauJetsOccEtaPhi_ =
 	dbe->book2D("TauJetsOccEtaPhi", "TAU JET OCCUPANCY",
-		    PHIBINS, PHIMIN, PHIMAX, ETABINS,
-		    ETAMIN, ETAMAX);
+		    PHIBINS, PHIMIN, PHIMAX, 
+		    nJetEta, JetEtaMin, JetEtaMax);
     l1GctIsoEmOccEtaPhi_ =
 	dbe->book2D("IsoEmOccEtaPhi", "ISO EM OCCUPANCY",
-		    PHIBINS, PHIMIN, PHIMAX, ETABINS,
-		    ETAMIN, ETAMAX);
+		    PHIBINS, PHIMIN, PHIMAX, 
+		    nJetEta, JetEtaMin, JetEtaMax);
     l1GctNonIsoEmOccEtaPhi_ =
 	dbe->book2D("NonIsoEmOccEtaPhi", "NON-ISO EM OCCUPANCY",
-		    PHIBINS, PHIMIN, PHIMAX, ETABINS,
-		    ETAMIN, ETAMAX);
+		    PHIBINS, PHIMIN, PHIMAX, 
+		    nJetEta, JetEtaMin, JetEtaMax);
 
     l1GctCenJetsRank_ =
 	dbe->book1D("CenJetsRank", "CENTRAL JET RANK", R6BINS,
@@ -285,22 +291,29 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
 
   // should get rid of this try/catch?
   // do I need three 
-  try {
-    e.getByLabel(gctSource_.label(), "Isolated", l1IsoEm);
-    e.getByLabel(gctSource_.label(), "NonIsolated", l1NonIsoEm);
-    e.getByLabel(gctSource_.label(), "Central", l1CenJets);
-    e.getByLabel(gctSource_.label(), "Forward", l1ForJets);
-    e.getByLabel(gctSource_.label(), "Tau", l1TauJets);
+//   try {
+    // observed in emulator data
+    e.getByLabel(gctSource_.label(), "isoEm", l1IsoEm);
+    e.getByLabel(gctSource_.label(), "nonIsoEm", l1NonIsoEm);
+    e.getByLabel(gctSource_.label(), "cenJets", l1CenJets);
+    e.getByLabel(gctSource_.label(), "forJets", l1ForJets);
+    e.getByLabel(gctSource_.label(), "tauJets", l1TauJets);
+    // defaults in rawToDigi
+//     e.getByLabel(gctSource_.label(), "Isolated", l1IsoEm);
+//     e.getByLabel(gctSource_.label(), "NonIsolated", l1NonIsoEm);
+//     e.getByLabel(gctSource_.label(), "Central", l1CenJets);
+//     e.getByLabel(gctSource_.label(), "Forward", l1ForJets);
+//     e.getByLabel(gctSource_.label(), "Tau", l1TauJets);
 
     e.getByLabel(gctSource_, l1EtMiss);
     e.getByLabel(gctSource_, l1EtHad);
     e.getByLabel(gctSource_, l1EtTotal);
-  }
-  catch (...) {
-    edm::LogInfo("L1TGCT") << " Could not find one of the requested data "
-      "elements, label was" << gctSource_.label() ;
-    return;
-  }
+//   }
+//   catch (...) {
+//     edm::LogInfo("L1TGCT") << " Could not find one of the requested data "
+//       "elements, label was " << gctSource_.label() ;
+//     return;
+//   }
 
 
   // Fill the histograms for the jets
@@ -308,14 +321,22 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   // Central jets
   for (L1GctJetCandCollection::const_iterator cj = l1CenJets->begin();
        cj != l1CenJets->end(); cj++) {
+    if ( cj->rank() == 0 ) continue;
     l1GctCenJetsEtEtaPhi_->Fill(cj->phiIndex(), etaBin(cj->etaIndex()), cj->rank());
     l1GctCenJetsOccEtaPhi_->Fill(cj->phiIndex(), etaBin(cj->etaIndex()));
     l1GctCenJetsRank_->Fill(cj->rank());
+    if ( verbose_ ) {
+      std::cout << "L1TGCT: Central jet " 
+		<< cj->phiIndex() << ", " << etaBin(cj->etaIndex())
+		<< ", (" << cj->etaIndex() << "), " << cj->rank()
+		<< std::endl;
+    }
   }
 
   // Forward jets
   for (L1GctJetCandCollection::const_iterator fj = l1ForJets->begin();
        fj != l1ForJets->end(); fj++) {
+    if ( fj->rank() == 0 ) continue;
     l1GctForJetsEtEtaPhi_->Fill(fj->phiIndex(), etaBin(fj->etaIndex()), fj->rank());
     l1GctForJetsOccEtaPhi_->Fill(fj->phiIndex(), etaBin(fj->etaIndex()));
     l1GctForJetsRank_->Fill(fj->rank());
@@ -324,6 +345,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   // Tau jets
   for (L1GctJetCandCollection::const_iterator tj = l1TauJets->begin();
        tj != l1TauJets->end(); tj++) {
+    if ( tj->rank() == 0 ) continue;
     l1GctTauJetsEtEtaPhi_->Fill(tj->phiIndex(), etaBin(tj->etaIndex()), tj->rank());
     l1GctTauJetsOccEtaPhi_->Fill(tj->phiIndex(), etaBin(tj->etaIndex()));
     l1GctTauJetsRank_->Fill(tj->rank());
@@ -332,14 +354,23 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   // Isolated EM
   for (L1GctEmCandCollection::const_iterator ie = l1IsoEm->begin();
        ie != l1IsoEm->end(); ie++) {
+    if ( ie->rank() == 0 ) continue;
     l1GctIsoEmEtEtaPhi_->Fill(ie->phiIndex(), etaBin(ie->etaIndex()), ie->rank());
     l1GctIsoEmOccEtaPhi_->Fill(ie->phiIndex(), etaBin(ie->etaIndex()));
     l1GctIsoEmRank_->Fill(ie->rank());
+    if ( verbose_ ) {
+      std::cout << "L1TGCT: iso em " 
+		<< ie->phiIndex() << ", " << etaBin(ie->etaIndex())
+		<< ", (" << ie->etaIndex() << "), " << ie->rank()
+		<< std::endl;
+    }
+
   }
 
   // Non-isolated EM
   for (L1GctEmCandCollection::const_iterator ne = l1NonIsoEm->begin();
        ne != l1NonIsoEm->end(); ne++) {
+    if ( ne->rank() == 0 ) continue;
     l1GctNonIsoEmEtEtaPhi_->Fill(ne->phiIndex(), etaBin(ne->etaIndex()), ne->rank());
     l1GctNonIsoEmOccEtaPhi_->Fill(ne->phiIndex(), etaBin(ne->etaIndex()));
     l1GctNonIsoEmRank_->Fill(ne->rank());

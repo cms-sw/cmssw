@@ -5,11 +5,14 @@
 /*
  * \file L1TGCT.h
  *
- * $Date: 2007/08/31 11:02:55 $
- * $Revision: 1.5 $
+ * $Date: 2007/08/31 18:14:20 $
+ * $Revision: 1.6 $
  * \author J. Berryhill
- * $Id: L1TGCT.h,v 1.5 2007/08/31 11:02:55 wittich Exp $
+ * $Id: L1TGCT.h,v 1.6 2007/08/31 18:14:20 wittich Exp $
  * $Log: L1TGCT.h,v $
+ * Revision 1.6  2007/08/31 18:14:20  wittich
+ * update GCT packages to reflect GctRawToDigi, and move to raw plots
+ *
  * Revision 1.5  2007/08/31 11:02:55  wittich
  * cerr -> LogInfo
  *
@@ -121,7 +124,6 @@ private:
   ofstream logFile_;
 
   edm::InputTag gctSource_;
-
 
 };
 

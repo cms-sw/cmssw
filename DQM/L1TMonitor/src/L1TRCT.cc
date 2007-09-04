@@ -1,8 +1,8 @@
 /*
  * \file L1TRCT.cc
  *
- * $Date: 2007/05/25 15:45:48 $
- * $Revision: 1.3 $
+ * $Date: 2007/09/03 15:14:43 $
+ * $Revision: 1.4 $
  * \author P. Wittich
  *
  */
@@ -145,15 +145,15 @@ void L1TRCT::beginJob(const EventSetup & c)
     const float locetamin = -0.5;
     const float locetamax = 10.5;
     rctRegionsLocalEtEtaPhi_ =
-	dbe->book2D("RctRegionsEtEtaPhi", "REGION E_{T}", 
+	dbe->book2D("RctRegionsLocalEtEtaPhi", "REGION E_{T} (Local)", 
 		    nlocphibins, locphimin, locphimax,
 		    nlocetabins, locetamin, locetamax);
     rctRegionsLocalOccEtaPhi_ =
-	dbe->book2D("RctRegionsOccEtaPhi", "REGION OCCUPANCY", 
+	dbe->book2D("RctRegionsLocalOccEtaPhi", "REGION OCCUPANCY (Local)", 
 		    nlocphibins, locphimin, locphimax,
 		    nlocetabins, locetamin, locetamax);
     rctTauVetoLocalEtaPhi_ =
-	dbe->book2D("RctTauVetoEtaPhi", "TAU VETO OCCUPANCY",
+	dbe->book2D("RctTauLocalVetoEtaPhi", "TAU VETO OCCUPANCY (Local)",
 		    nlocphibins, locphimin, locphimax,
 		    nlocetabins, locetamin, locetamax);
 
@@ -206,7 +206,7 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
   // need to change to getByLabel
  
   try {
-  e.getByLabel(rctSource_,em);
+    e.getByLabel(rctSource_,em);
   }
   catch (...) {
     edm::LogInfo("L1TRCT") << "can't find L1CaloEmCollection with label "
@@ -215,7 +215,7 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
   }
 
   try {
-  e.getByLabel(rctSource_,rgn);
+    e.getByLabel(rctSource_,rgn);
   }
   catch (...) {
     edm::LogInfo("L1TRCT") << "can't find L1CaloRegionCollection with label "
