@@ -80,6 +80,8 @@ private:
 
   std::vector<PCaloHit> theHBHEHits, theHOHits, theHFHits, theZDCHits;
 
+  bool doZDC;
+
 };
 
 #endif
