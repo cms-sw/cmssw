@@ -17,17 +17,17 @@
 
 #=============BEGIN CONFIGURATION=================
 
-#Release versions to be compared
-setenv OLDRELEASE CMSSW_1_6_0_pre4
-setenv NEWRELEASE CMSSW_1_6_0_pre9
+#Input root trees for the two cases to be compared 
+setenv NEWFILE ~/scratch0/CMSSW_1_6_0/src/RecoEgamma/Examples/test/gsfElectronHistos_Zee_pre14A.root
+setenv OLDFILE ~/scratch0/CMSSW_1_5_4/src/RecoEgamma/Examples/test/gsfElectronHistos_zee.root
+
+#Release versions to be compared (affects output directory name and html description only)
+setenv NEWRELEASE 160pre14A
+setenv OLDRELEASE 154
 #Name of sample (affects output directory name and html description only)
-setenv SAMPLE SingleEPt35
+setenv SAMPLE Zee
 #TYPE must be one of PixelMatchGsfElectron, Photon or ConvertedPhoton
 setenv TYPE PixelMatchGsfElectron
-
-#Input root trees for the two cases to be compared 
-setenv OLDFILE ~/scratch0/$OLDRELEASE/src/RecoEgamma/Examples/test/gsfElectronHistos.root
-setenv NEWFILE ~/scratch0/$NEWRELEASE/src/RecoEgamma/Examples/test/gsfElectronHistos.root
 
 #Location of output
 setenv OUTPATH ~/www/egammaValidation
@@ -42,7 +42,7 @@ endif
 
 #The list of histograms to be compared for each TYPE can be configured below:
 
-setenv OUTDIR $OUTPATH/${NEWRELEASE}_$SAMPLE
+setenv OUTDIR $OUTPATH/${NEWRELEASE}_${OLDRELEASE}_$SAMPLE
 if (! -d $OUTDIR) then
   cd $OUTPATH
   mkdir $OUTDIR
@@ -212,12 +212,12 @@ cat > begin.html <<EOF
 <html>
 <head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-<title>$NEWRELEASE $TYPE validation</title>
+<title>$NEWRELEASE vs $OLDRELEASE $TYPE validation</title>
 </head>
 
-<h1>$NEWRELEASE $TYPE validation</h1>
+<h1>$NEWRELEASE vs $OLDRELEASE $TYPE validation</h1>
 
-<p>The following plots were made using <a href="http://cmslxr.fnal.gov/lxr/source/RecoEgamma/Examples/plugins/$ANALYZER.cc?v=$NEWRELEASE">RecoEgamma/Examples/plugins/$ANALYZER</a>, using <a href="http://cmslxr.fnal.gov/lxr/source/RecoEgamma/Examples/test/$CFG.cfg?v=$NEWRELEASE">RecoEgamma/Examples/test/$CFG.cfg</a>, using $SAMPLE RelVal samples as input.
+<p>The following plots were made using <a href="http://cmslxr.fnal.gov/lxr/source/RecoEgamma/Examples/plugins/$ANALYZER.cc">RecoEgamma/Examples/plugins/$ANALYZER</a>, using <a href="http://cmslxr.fnal.gov/lxr/source/RecoEgamma/Examples/test/$CFG.cfg">RecoEgamma/Examples/test/$CFG.cfg</a>, using $SAMPLE RelVal samples as input.
 <p>The script used to make the plots is <a href="validation.C">here</a>.
 
 <p>In all plots below, $OLDRELEASE is in blue, $NEWRELEASE in red.
