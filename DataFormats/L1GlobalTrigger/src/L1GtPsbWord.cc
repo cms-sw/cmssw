@@ -104,13 +104,18 @@ bool L1GtPsbWord::operator==(const L1GtPsbWord& result) const
         return false;
     }
 
-    if (m_aData != result.m_aData) {
-        return false;
-    }
-    if (m_bData != result.m_bData) {
-        return false;
+    for (int iA = 0; iA < NumberAData; ++iA) {        
+        if (m_aData[iA] != result.m_aData[iA]) {
+            return false;
+        }    
     }
 
+    for (int iB = 0; iB < NumberBData; ++iB) {
+        if (m_bData[iB] != result.m_bData[iB]) {
+            return false;
+        }
+    }
+    
     if (m_localBxNr != result.m_localBxNr) {
         return false;
     }
