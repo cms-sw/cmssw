@@ -84,11 +84,11 @@ namespace cms
     //--- Execute the position estimator algorithm(s).
     //--- New interface with DetSetVector
     void run(const edm::DetSetVector<SiPixelCluster>& input,
-	     SiPixelRecHitCollection & output,
+	     SiPixelRecHitCollectionNew & output,
 	     edm::ESHandle<TrackerGeometry> & geom);
 
     void run(edm::Handle<edm::DetSetVector<SiPixelCluster> >  inputhandle,
-	     SiPixelRecHitCollection & output,
+	     SiPixelRecHitCollectionNew & output,
 	     edm::ESHandle<TrackerGeometry> & geom);
 
   private:
@@ -100,6 +100,7 @@ namespace cms
     bool ready_;                            // needed CPE's valid => good to go!
     edm::InputTag src_;
     int   theVerboseLevel;              // algorithm's verbosity
+    bool m_newCont; // save also in emdNew::DetSetVector
   };
 }
 

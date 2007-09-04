@@ -41,15 +41,22 @@ class SiStripRecHitConverterAlgorithm
 
   /// Runs the algorithm
 
-    void run(edm::Handle<edm::DetSetVector<SiStripCluster> >  input,SiStripMatchedRecHit2DCollection & outmatched,SiStripRecHit2DCollection & outrphi, SiStripRecHit2DCollection & outstereo,const TrackerGeometry& tracker,const StripClusterParameterEstimator &stripcpe, const SiStripRecHitMatcher &clustermatch_);
-    void run(edm::Handle<edm::DetSetVector<SiStripCluster> >  input, SiStripMatchedRecHit2DCollection&  output, SiStripRecHit2DCollection&  outrphi,SiStripRecHit2DCollection&  outstereo,const TrackerGeometry & tracker,const StripClusterParameterEstimator &stripcpe ,const SiStripRecHitMatcher &clustermatch_, LocalVector trackdirection);
-    void run(edm::Handle<edm::SiStripRefGetter<SiStripCluster> >  input,SiStripMatchedRecHit2DCollection & outmatched,SiStripRecHit2DCollection & outrphi, SiStripRecHit2DCollection & outstereo,const TrackerGeometry& tracker,const StripClusterParameterEstimator &parameterestimator, const SiStripRecHitMatcher & matcher);
+    void run(edm::Handle<edm::DetSetVector<SiStripCluster> >  input, 
+	     SiStripMatchedRecHit2DCollectionNew & outmatched, SiStripRecHit2DCollectionNew & outrphi, SiStripRecHit2DCollectionNew & outstereo,
+	     const TrackerGeometry& tracker,const StripClusterParameterEstimator &stripcpe, const SiStripRecHitMatcher &clustermatch_);
+    void run(edm::Handle<edm::DetSetVector<SiStripCluster> >  input, 
+	     SiStripMatchedRecHit2DCollectionNew & outmatched, SiStripRecHit2DCollectionNew & outrphi, SiStripRecHit2DCollectionNew & outstereo,
+	     const TrackerGeometry & tracker,const StripClusterParameterEstimator &stripcpe ,const SiStripRecHitMatcher &clustermatch_, LocalVector trackdirection);
+    void run(edm::Handle<edm::SiStripRefGetter<SiStripCluster> > input,
+	     SiStripMatchedRecHit2DCollectionNew & outmatched, SiStripRecHit2DCollectionNew & outrphi, SiStripRecHit2DCollectionNew & outstereo,
+	     const TrackerGeometry& tracker,const StripClusterParameterEstimator &parameterestimator, const SiStripRecHitMatcher & matcher);
 
  private:
 
     //void convert(const SiStripCluster& cluster,SiStripRecHit2DCollection & outrphi, SiStripRecHit2DCollection & outstereo,const TrackerGeometry& tracker,const StripClusterParameterEstimator &parameterestimator);
     
-    void match(SiStripMatchedRecHit2DCollection & outmatched,SiStripRecHit2DCollection & outrphi, SiStripRecHit2DCollection & outstereo,const TrackerGeometry& tracker, const SiStripRecHitMatcher & matcher,LocalVector trackdirection) const;
+    void match(SiStripMatchedRecHit2DCollectionNew & outmatched,SiStripRecHit2DCollectionNew & outrphi, SiStripRecHit2DCollectionNew & outstereo,
+	       const TrackerGeometry& tracker, const SiStripRecHitMatcher & matcher,LocalVector trackdirection) const;
       
   edm::ParameterSet conf_;
 };

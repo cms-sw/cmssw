@@ -38,6 +38,9 @@ namespace cms
     SiStripRecHitConverterAlgorithm recHitConverterAlgorithm_;
     edm::ParameterSet conf_;
     std::string matchedRecHitsTag_, rphiRecHitsTag_, stereoRecHitsTag_;
+    std::string np_;
+    bool m_newCont; // save also in emdNew::DetSetVector
+
   };
 }
 

@@ -4,6 +4,7 @@
  * Authors:  P. Maksimovic (JHU), V.Chiochia (Uni Zurich)
  * History: Feb 27, 2006 -  initial version
  *          May 30, 2006 -  edm::DetSetVector and edm::Ref
+ *          Aug 30, 2007 -  edmNew::DetSetVector
  * ------------------------------------------------------
  */
 
@@ -22,6 +23,7 @@
 // Data Formats
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/DetSet2RangeMap.h"
 
 // Framework Already defined in the *.h file
 //#include "DataFormats/Common/interface/Handle.h"
@@ -52,13 +54,15 @@ namespace cms
     cpeName_("None"),     // bogus
     cpe_(0),              // the default, in case we fail to make one
     ready_(false),        // since we obviously aren't
-    src_( conf.getParameter<edm::InputTag>( "src" ) )
+    src_( conf.getParameter<edm::InputTag>( "src" ) ),
+    theVerboseLevel(conf.getUntrackedParameter<int>("VerboseLevel",0)),
+    m_newCont(conf.getUntrackedParameter<bool>("newContainer",false))
   {
     //--- Declare to the EDM what kind of collections we will be making.
     produces<SiPixelRecHitCollection>();
-    //--- Algorithm's verbosity
-    theVerboseLevel = 
-      conf.getUntrackedParameter<int>("VerboseLevel",0);
+    if (m_newCont)
+      produces<SiPixelRecHitCollectionNew>();
+   
   }
   
   // Destructor
@@ -92,14 +96,23 @@ namespace cms
     es.get<TrackerDigiGeometryRecord>().get( geom );
     
     // Step B: create empty output collection
-    std::auto_ptr<SiPixelRecHitCollection> output(new SiPixelRecHitCollection);
+    std::auto_ptr<SiPixelRecHitCollectionNew> output(new SiPixelRecHitCollectionNew);
 
     // Step C: Iterate over DetIds and invoke the strip CPE algorithm
     // on each DetUnit
     run( input, *output, geom );
+
+
+    // Step Z: temporary write also the old collection
+    std::auto_ptr<SiPixelRecHitCollection> old(new SiPixelRecHitCollection);
+    edmNew::copy(*output,*old);
+    e.put(old);
+    
     
     // Step D: write output to file
-    e.put(output);
+    if (m_newCont)
+      e.put(output);
+		  
   }
 
   //---------------------------------------------------------------------------
@@ -154,7 +167,7 @@ namespace cms
   //!  New interface reading DetSetVector by V.Chiochia (May 30th, 2006)
   //---------------------------------------------------------------------------
   void SiPixelRecHitConverter::run(edm::Handle<edm::DetSetVector<SiPixelCluster> >  inputhandle,
-				   SiPixelRecHitCollection &output,
+				   SiPixelRecHitCollectionNew &output,
 				   edm::ESHandle<TrackerGeometry> & geom) 
   {
     if ( ! ready_ ) 
@@ -180,7 +193,7 @@ namespace cms
 	const GeomDetUnit * genericDet = geom->idToDetUnit( detIdObject );
 	const PixelGeomDetUnit * pixDet = dynamic_cast<const PixelGeomDetUnit*>(genericDet);
 	assert(pixDet); 
-	edm::OwnVector<SiPixelRecHit> recHitsOnDetUnit;
+	SiPixelRecHitCollectionNew::FastFiller recHitsOnDetUnit(output,detid);
 	
 	edm::DetSet<SiPixelCluster>::const_iterator clustIt = DSViter->data.begin();
 	for ( ; clustIt != DSViter->data.end(); clustIt++) 
@@ -195,9 +208,9 @@ namespace cms
 	    edm::Ref< edm::DetSetVector<SiPixelCluster>, SiPixelCluster > cluster =
 	      edm::makeRefTo( inputhandle, detid, clustIt);
 	    
-	    // Make a RecHit and add it to the temporary OwnVector.
+	    // Make a RecHit and add it to the DetSet
 	    // old : recHitsOnDetUnit.push_back( new SiPixelRecHit( lp, le, detIdObject, &*clustIt) );
-	    SiPixelRecHit * hit =  new SiPixelRecHit( lp, le, detIdObject, cluster);
+	    SiPixelRecHit hit( lp, le, detIdObject, cluster);
 
 #ifdef SIPIXELRECHIT_HAS_EXTRA_INFO
 	    // Copy the extra stuff; unfortunately, only the derivatives of PixelCPEBase
@@ -206,11 +219,11 @@ namespace cms
 	    // &&& This cast can be moved to the setupCPE, so that it's done once per job.
 	    PixelCPEBase * cpeBase = dynamic_cast< PixelCPEBase* >( cpe_ );
 	    if (cpeBase) {
-	      hit->setProbabilityX( cpeBase->probabilityX() );
-	      hit->setProbabilityY( cpeBase->probabilityY() );
-	      hit->setQBin( cpeBase->qBin() );
-	      hit->setCotAlphaFromCluster( cpeBase->cotAlphaFromCluster() );
-	      hit->setCotBetaFromCluster ( cpeBase->cotBetaFromCluster()  );
+	      hit.setProbabilityX( cpeBase->probabilityX() );
+	      hit.setProbabilityY( cpeBase->probabilityY() );
+	      hit.setQBin( cpeBase->qBin() );
+	      hit.setCotAlphaFromCluster( cpeBase->cotAlphaFromCluster() );
+	      hit.setCotBetaFromCluster ( cpeBase->cotBetaFromCluster()  );
 	    }
 #endif
 	    // 
@@ -221,8 +234,6 @@ namespace cms
 	
 	if ( recHitsOnDetUnit.size()>0 ) 
 	  {
-	    output.put(detIdObject, 
-		       recHitsOnDetUnit.begin(), recHitsOnDetUnit.end());
 	    if (theVerboseLevel > 2) 
 	      LogDebug("SiPixelRecHitConverter") << " Found " 
 						 << recHitsOnDetUnit.size() << " RecHits on " << detid;	
