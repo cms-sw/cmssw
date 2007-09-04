@@ -44,10 +44,10 @@ L1GctJetCounts::~L1GctJetCounts()
 
 // return counts by index
 unsigned L1GctJetCounts::count(unsigned i) const {
-  if (i>0 && i<6) {
+  if (i>=0 && i<6) {
     return (m_data0>>(i*5)) & 0x1f;
   }
-  else if (i>6 && i<12) {
+  else if (i>=6 && i<12) {
     return (m_data1>>((i-6)*5)) & 0x1f;
   }    
   else {
@@ -57,9 +57,9 @@ unsigned L1GctJetCounts::count(unsigned i) const {
 
 // pretty print
 ostream& operator<<(ostream& s, const L1GctJetCounts& c) {
-  s << "L1GctJetCounts : ";
+  s << "L1GctJetCounts : " << endl;
   for (int i=0; i<12; i++) {
-    s << " count" << i<< "=" << c.count(i) << endl;
+    s << "     count " << i<< "=" << c.count(i) << endl;
   }
   return s;
 }
