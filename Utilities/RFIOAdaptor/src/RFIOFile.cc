@@ -1,5 +1,5 @@
 
-// $Id: RFIOFile.cc,v 1.16 2007/08/21 18:26:28 wdd Exp $
+// $Id: RFIOFile.cc,v 1.17 2007/08/21 19:31:28 wdd Exp $
 
 #include "Utilities/RFIOAdaptor/interface/RFIOFile.h"
 #include "Utilities/RFIOAdaptor/interface/RFIO.h"
@@ -12,36 +12,30 @@
 
 RFIOFile::RFIOFile (void)
     : m_fd (IOFD_INVALID),
-      m_close (false),
-      m_nRetries(0)
+      m_close (false)
 {}
 
 RFIOFile::RFIOFile (IOFD fd)
     : m_fd (fd),
-      m_close (true),
-      m_nRetries(0)
+      m_close (true)
 {}
 
 RFIOFile::RFIOFile (const char *name,
 		    int flags /* = IOFlags::OpenRead */,
 		    FileAcl perms /* = 066 */)
     : m_fd (IOFD_INVALID),
-      m_close (false),
-      m_nRetries(0)
+      m_close (false)
 { open (name, flags, perms); }
 
 RFIOFile::RFIOFile (const std::string &name,
 		    int flags /* = IOFlags::OpenRead */,
 		    FileAcl perms /* = 066 */)
     : m_fd (IOFD_INVALID),
-      m_close (false),
-      m_nRetries(0)
+      m_close (false)
 { open (name.c_str (), flags, perms); }
 
 RFIOFile::~RFIOFile (void)
 {
-    edm::LogWarning("RFIOFileWarning")
-      << "Total RFIO retries: " << m_nRetries;
     if (m_close) {
       edm::LogError("RFIOFileError")
         << "RFIOFile destructor called but file is still open";
@@ -225,7 +219,6 @@ RFIOFile::retry_read (void *into, IOSize n, int max_retry /* =10 */) {
   serrno=0;
   ssize_t s = rfio_read64 (m_fd, into, n);
   if ( (s == -1 && serrno == 1004) || (s>int(n)) ) {
-    ++m_nRetries;
     edm::LogWarning("RFIOFileRetry")
       << "RFIOFile retrying read\n"
       << "  return value from rfio_read64 = " << s << "  (normally this is bytes read, -1 for error)\n"

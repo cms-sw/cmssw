@@ -93,8 +93,6 @@ private:
   
 
   IOOffset              m_currentPosition;
-
-  int m_nRetries;
 };
 
 //<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
