@@ -246,12 +246,22 @@ bool SiPixelSCurveCalibrationAnalysis::makeHistogram(const SCurveContainer& sc, 
   TH1F* histo = new TH1F(name.c_str(), title.c_str(), calib_->nVcal(), vcalmin_, vcalmax_ + vcalstep_);
   histo->GetXaxis()->SetTitle("Vcal");
   histo->GetYaxis()->SetTitle("Efficiency");
+  double last0 = 0.0;
+  double first1 = 0.0;
+  bool first1found = false;
   for(int l = vcalmin_; l != vcalmax_ + vcalstep_; l += vcalstep_)
   {
     double tempy = sc.getEff(l, row, col);
+    if(tempy < 0.05) last0 = l;
+    if(tempy > 0.95 && !first1found)
+    {
+      first1 = l;
+      first1found = true;
+    }
     histo->Fill(l, tempy);
-  } 
-  fitfunc_->SetParameters(1.0, (vcalmax_ - vcalmin_)/4.0 + vcalmin_, 1.0/vcalstep_);
+  }
+  double diff = (first1 - last0)/2.0; 
+  fitfunc_->SetParameters(1.0, diff + last0, diff*0.682);
   histo->Fit("fit", "RQ0");
   bool check = isPeculiar(histo);
   if(printHistos_ || iter%1000 == 0 || check)
@@ -259,6 +269,7 @@ bool SiPixelSCurveCalibrationAnalysis::makeHistogram(const SCurveContainer& sc, 
     fs_->mkdir("pixels");
     histo->Write(); 
     edm::LogInfo("SCurve Calibration") << "Making histogram " << iter << " out of " << histoNum_;
+    if(check) edm::LogInfo("SCurve Calibration") << "Check " << histo->GetTitle();
   }
   delete histo;
   return !check;
