@@ -393,7 +393,7 @@ PixelTracksMaker::produce(edm::Event& e, const edm::EventSetup& es) {
   
   e.put(tracks);
   
-  
+  /*  
   std::cout << " PixelTracksMaker: Total SimTracks           = " << nSimTracks <<  std::endl
 	    << "                   Total SimTracksWithHits   = " << nTracksWithHits  <<  std::endl
 	    << "                   Total SimTracksWithPT     = " << nTracksWithPT  <<  std::endl 
@@ -402,6 +402,7 @@ PixelTracksMaker::produce(edm::Event& e, const edm::EventSetup& es) {
 	    << "                   Total Filtered Tracks     = " << nFilterTracks <<std::endl
 	    << "                   Total Pixel Tracks        = " << nPixelTracks <<std::endl
 	    << std::endl;
+  */
 
 }
 
