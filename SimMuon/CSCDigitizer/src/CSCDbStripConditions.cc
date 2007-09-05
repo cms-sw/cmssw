@@ -2,10 +2,10 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "CondFormats/DataRecord/interface/CSCGainsRcd.h"
-#include "CondFormats/DataRecord/interface/CSCPedestalsRcd.h"
-#include "CondFormats/DataRecord/interface/CSCNoiseMatrixRcd.h"
-#include "CondFormats/DataRecord/interface/CSCcrosstalkRcd.h"
+#include "CondFormats/DataRecord/interface/CSCDBGainsRcd.h"
+#include "CondFormats/DataRecord/interface/CSCDBPedestalsRcd.h"
+#include "CondFormats/DataRecord/interface/CSCDBNoiseMatrixRcd.h"
+#include "CondFormats/DataRecord/interface/CSCDBCrosstalkRcd.h"
 
 
 CSCDbStripConditions::CSCDbStripConditions() 
@@ -35,21 +35,21 @@ CSCDbStripConditions::~CSCDbStripConditions()
 void CSCDbStripConditions::initializeEvent(const edm::EventSetup & es)
 {
   // Strip gains
-  edm::ESHandle<CSCGains> hGains;
-  es.get<CSCGainsRcd>().get( hGains );
+  edm::ESHandle<CSCDBGains> hGains;
+  es.get<CSCDBGainsRcd>().get( hGains );
   theGains = &*hGains.product();
   // Strip X-talk
-  edm::ESHandle<CSCcrosstalk> hCrosstalk;
-  es.get<CSCcrosstalkRcd>().get( hCrosstalk );
+  edm::ESHandle<CSCDBCrosstalk> hCrosstalk;
+  es.get<CSCDBCrosstalkRcd>().get( hCrosstalk );
   theCrosstalk = &*hCrosstalk.product();
   // Strip pedestals
-  edm::ESHandle<CSCPedestals> hPedestals;
-  es.get<CSCPedestalsRcd>().get( hPedestals );
+  edm::ESHandle<CSCDBPedestals> hPedestals;
+  es.get<CSCDBPedestalsRcd>().get( hPedestals );
   thePedestals = &*hPedestals.product();
 
   // Strip autocorrelation noise matrix
-  edm::ESHandle<CSCNoiseMatrix> hNoiseMatrix;
-  es.get<CSCNoiseMatrixRcd>().get(hNoiseMatrix);
+  edm::ESHandle<CSCDBNoiseMatrix> hNoiseMatrix;
+  es.get<CSCDBNoiseMatrixRcd>().get(hNoiseMatrix);
   theNoiseMatrix = &*hNoiseMatrix.product();
 
 //  print();
@@ -63,7 +63,7 @@ void CSCDbStripConditions::print() const
             << "   PEDESTALS: " << thePedestals->pedestals.size()
             << "   NOISES "  << theNoiseMatrix->matrix.size() << std::endl;;
 
-  std::map< int,std::vector<CSCGains::Item> >::const_iterator layerGainsItr = theGains->gains.begin(), 
+  std::map< int,std::vector<CSCDBGains::Item> >::const_iterator layerGainsItr = theGains->gains.begin(), 
       lastGain = theGains->gains.end();
   for( ; layerGainsItr != lastGain; ++layerGainsItr)
   {
@@ -73,7 +73,7 @@ void CSCDbStripConditions::print() const
               << " " << layerGainsItr->second[0].gain_intercept << std::endl;
   }
 
-  std::map< int,std::vector<CSCPedestals::Item> >::const_iterator pedestalItr = thePedestals->pedestals.begin(), 
+  std::map< int,std::vector<CSCDBPedestals::Item> >::const_iterator pedestalItr = thePedestals->pedestals.begin(), 
                                                                   lastPedestal = thePedestals->pedestals.end();
   for( ; pedestalItr != lastPedestal; ++pedestalItr)
   {
@@ -86,7 +86,7 @@ void CSCDbStripConditions::print() const
      std::cout << std::endl;
   }
 
-  std::map< int,std::vector<CSCcrosstalk::Item> >::const_iterator crosstalkItr = theCrosstalk->crosstalk.begin(),
+  std::map< int,std::vector<CSCDBCrosstalk::Item> >::const_iterator crosstalkItr = theCrosstalk->crosstalk.begin(),
                                                                   lastCrosstalk = theCrosstalk->crosstalk.end();
   for( ; crosstalkItr != lastCrosstalk; ++crosstalkItr)
   {
@@ -108,7 +108,7 @@ float CSCDbStripConditions::gain(const CSCDetId & detId, int channel) const
 }
 
 
-CSCPedestals::Item CSCDbStripConditions::pedestalObject(const CSCDetId & detId, int channel) const
+CSCDBPedestals::Item CSCDbStripConditions::pedestalObject(const CSCDetId & detId, int channel) const
 {
   assert(thePedestals != 0);
   return thePedestals->item(detId, channel);
@@ -132,7 +132,7 @@ void CSCDbStripConditions::crosstalk(const CSCDetId&detId, int channel,
                  float & capacitive, float & resistive) const
 {
   assert(theCrosstalk != 0);
-  const CSCcrosstalk::Item & item = theCrosstalk->item(detId, channel);
+  const CSCDBCrosstalk::Item & item = theCrosstalk->item(detId, channel);
 
   // resistive fraction is at the peak, where t=0
   resistive = leftRight ? item.xtalk_intercept_right 
@@ -153,7 +153,7 @@ void CSCDbStripConditions::crosstalk(const CSCDetId&detId, int channel,
 void CSCDbStripConditions::fetchNoisifier(const CSCDetId & detId, int istrip)
 {
   assert(theNoiseMatrix != 0);
-  const CSCNoiseMatrix::Item & item = theNoiseMatrix->item(detId, istrip);
+  const CSCDBNoiseMatrix::Item & item = theNoiseMatrix->item(detId, istrip);
 
   HepSymMatrix matrix(8);
   //TODO get the pedestals right

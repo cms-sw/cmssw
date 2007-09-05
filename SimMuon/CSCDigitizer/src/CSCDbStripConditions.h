@@ -2,10 +2,10 @@
 #define CSCDigitizer_CSCDbStripConditions_h
 
 #include "SimMuon/CSCDigitizer/src/CSCStripConditions.h"
-#include "CondFormats/CSCObjects/interface/CSCNoiseMatrix.h"
-#include "CondFormats/CSCObjects/interface/CSCGains.h"
-#include "CondFormats/CSCObjects/interface/CSCPedestals.h"
-#include "CondFormats/CSCObjects/interface/CSCcrosstalk.h"
+#include "CondFormats/CSCObjects/interface/CSCDBNoiseMatrix.h"
+#include "CondFormats/CSCObjects/interface/CSCDBGains.h"
+#include "CondFormats/CSCObjects/interface/CSCDBPedestals.h"
+#include "CondFormats/CSCObjects/interface/CSCDBCrosstalk.h"
 
 class CSCDbStripConditions : public CSCStripConditions
 {
@@ -34,18 +34,18 @@ public:
 private:
   virtual void fetchNoisifier(const CSCDetId & detId, int istrip);  
 
-  CSCPedestals::Item pedestalObject(const CSCDetId & detId, int channel) const;
+  CSCDBPedestals::Item pedestalObject(const CSCDetId & detId, int channel) const;
 
   // might change the channel # for ME1A
   static int dbIndex(const CSCDetId & id, int & channel);
 
-  const CSCNoiseMatrix * theNoiseMatrix;
+  const CSCDBNoiseMatrix * theNoiseMatrix;
   
-  const CSCGains * theGains;
+  const CSCDBGains * theGains;
 
-  const CSCPedestals * thePedestals;
+  const CSCDBPedestals * thePedestals;
 
-  const CSCcrosstalk * theCrosstalk;
+  const CSCDBCrosstalk * theCrosstalk;
 
   // nominal constant to give 100% crosstalk
   float theCapacitiveCrosstalk;
