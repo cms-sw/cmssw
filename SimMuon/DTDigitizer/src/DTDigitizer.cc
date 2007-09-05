@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/05/22 12:18:01 $
- *  $Revision: 1.26 $
+ *  $Date: 2007/09/05 09:53:20 $
+ *  $Revision: 1.27 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
@@ -533,7 +533,7 @@ void DTDigitizer::storeDigis(DTWireId &wireId,
       // theAssociationMap.createLinks(localId, stat->det().simDet());
 
       //************ 7D ***************
-      if(digi.countsTDC() < (2e18 - 1)){
+      if(digi.countsTDC() <= pow(2.,18)){
 	DTLayerId layerID = wireId.layerId();  //taking the layer in which reside the wire
 	output.insertDigi(layerID, digi); // ordering Digis by layer
 	digiN++;
