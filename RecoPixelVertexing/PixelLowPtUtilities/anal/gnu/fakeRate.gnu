@@ -10,7 +10,7 @@ set style line 1 lt 7 lw 3 pt 4
 
 set ylabel "Fake track rate"
 
-set yrange [0:0.5]
+set yrange [0:0.05]
 set size xsize,ysize
 set origin 0,0
 
@@ -52,7 +52,7 @@ set output "eps/fakeRateLogPt.eps"
 set xlabel "p_T [GeV/c]"
 set ylabel "Fake track rate"
 
-set yrange [0:0.5]
+set yrange [0:0.05]
 
 set origin 0,0
 set size xsize,ysize
@@ -81,8 +81,8 @@ set origin 0,0
 set size xsize,ysize
 
 set missing "?"
-#set log cb ; set format cb "10^{%T}"
-#set cbrange [1e-4:*]
+set log cb ; set format cb "10^{%T}"
+set cbrange [1e-4:*]
 
 set auto
 set pm3d map corners2color c1 ; set size 1.5*1,1.5*1.2

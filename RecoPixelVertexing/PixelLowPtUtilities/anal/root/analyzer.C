@@ -1,7 +1,7 @@
 #include "analyzer.h"
 
 // EtaMax = 1.6
-#define Factor 8
+#define Factor 2
 
 static char sourceName[256], fileName[256], path[256];
 
@@ -311,10 +311,12 @@ void analyzer()
     cerr << "========================================================" << endl;
     cerr << types[h] << endl;
 
-    for(int i = 1; i < 2; i++) // prod
+    for(int i = 0; i < 1; i++) // prod
     {
-      sprintf(sourceName, "/tmp/sikler/result%sTracks_%s_*.root",
-                          types[h], prods[i]);
+//      sprintf(sourceName, "../data/result%sTracks_%s_*.root",
+//                          types[h], prods[i]);
+       sprintf(sourceName, "../data/result%sTracks_*.root",
+                            types[h], prods[i]);
 
       sprintf(path, "../out/%s%s", prods[i],types[h]);
 

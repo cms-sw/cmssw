@@ -36,4 +36,4 @@ set key top right Left reverse samplen 2 noauto box
 #set palette gray negative
 
 # Fit
-f = 0
+f = 1

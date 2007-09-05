@@ -3,14 +3,15 @@
 ##########################################
 # root
 cd root
-  root -q -b -l analyzer.C
+#  root -q -b -l analyzer.C
 cd ..
 endif
 
 ##########################################
 # gnu
+echo "========================================================"
 cd gnu
-foreach prod (PbPb)
+foreach prod (pp)
 foreach type (Pixel Global)
 
   set dir = {$prod}{$type}
@@ -43,8 +44,8 @@ cd tex
   perl -pe 's|xxx|ppPixel|g'    plots.tex >> performance.tex
   perl -pe 's|xxx|ppGlobal|g'   plots.tex >> performance.tex
 
-  perl -pe 's|xxx|PbPbPixel|g'  plots.tex >> performance.tex
-  perl -pe 's|xxx|PbPbGlobal|g' plots.tex >> performance.tex
+# perl -pe 's|xxx|PbPbPixel|g'  plots.tex >> performance.tex
+# perl -pe 's|xxx|PbPbGlobal|g' plots.tex >> performance.tex
 
   cat footer.tex                          >> performance.tex
 

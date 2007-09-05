@@ -156,7 +156,7 @@ set missing "0"
 
 ####################################
 set ylabel "Multiple counting"
-set yrange [0:0.5]
+set yrange [0:0.05]
 
 set key top right
 
@@ -183,7 +183,7 @@ unset label
 set key on
 
 set auto y
-set cbrange [0:0.5]
+set cbrange [0:0.05]
 
 set missing "?"
 
