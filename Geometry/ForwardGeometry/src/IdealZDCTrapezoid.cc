@@ -2,67 +2,67 @@
 #include <math.h>
 
 namespace calogeom {
-  
-  IdealZDCTrapezoid::IdealZDCTrapezoid(const GlobalPoint& faceCenter, float tiltAngle, float dx, float dy, float dz):
-    CaloCellGeometry(faceCenter),
-    deltaX_(dx),
-    deltaY_(dy),
-    deltaZ_(dz),
-    tiltAngle_(tiltAngle){ }
-  
-  const std::vector<GlobalPoint> & IdealZDCTrapezoid::getCorners() const {
-    if (points_.empty()) {
-      float z1 = 0;
-      float z2 = 0;
-      GlobalPoint p=getPosition();
-      if(p.z() >= 0){
-	z1 = p.z()- cos(tiltAngle_)*deltaY_/2.;
-	z2 = p.z()+ cos(tiltAngle_)*deltaY_/2.;
-      } 
-      else{
-	z1 = p.z()+ cos(tiltAngle_)*deltaY_/2.;
-	z2 = p.z()- cos(tiltAngle_)*deltaY_/2.;
-      } 
-      float z3 = z1 + deltaZ_;
-      float z4 = z2 + deltaZ_;
-      float x1 =  deltaX_/2;
-      float x2 = -deltaX_/2;
-      float y1 = p.y() + sin(tiltAngle_)*deltaY_/2;
-      float y2 = p.y() - sin(tiltAngle_)*deltaY_/2;
-      points_.push_back(GlobalPoint(x1,y1,z1)); 
-      points_.push_back(GlobalPoint(x2,y1,z1));
-      points_.push_back(GlobalPoint(x2,y2,z2));
-      points_.push_back(GlobalPoint(x1,y2,z2));
-      points_.push_back(GlobalPoint(x1,y1,z3));
-      points_.push_back(GlobalPoint(x2,y1,z3));
-      points_.push_back(GlobalPoint(x2,y2,z4));
-      points_.push_back(GlobalPoint(x1,y2,z4));
-    }
-    return points_;
-  }
 
-  bool IdealZDCTrapezoid::inside(const GlobalPoint& point) const {
-    bool is_inside=true;
-    float m = 0;
-    float blow =0;
-    float bhigh =0;
-    const GlobalPoint& face = getPosition();
-    // x
-    is_inside=is_inside && (fabs(point.x() - face.x()) <= deltaX_/2);
-    // y
-    is_inside=is_inside && (fabs(point.y() - face.y()) <= (sin(tiltAngle_)*deltaY_/2));
-    // z 
-    m = tan(tiltAngle_);
-    blow = face.y() - m*face.z();
-    if(point.z()>0){
-      bhigh = face.y() - m*(face.z() + deltaZ_);
-      is_inside=is_inside && (point.z()> (point.y()- blow)/m)  && (point.z()<=((point.y()-bhigh)/m));
-    } 
-    else {
-      m = -m;
-      bhigh = face.y() - m*(face.z() - deltaZ_);
-      is_inside=is_inside && (point.z()> (point.y()- blow)/m)  && (point.z()<=((point.y()-bhigh)/m));
-    }
-    return is_inside;
-  }
+   const CaloCellGeometry::CornersVec& 
+   IdealZDCTrapezoid::getCorners() const 
+   {
+      const CornersVec& co ( CaloCellGeometry::getCorners() ) ;
+      if( co.empty() ) 
+      {
+	 CaloCellGeometry::CornersVec& corners ( setCorners() ) ;
+	 const GlobalPoint& p ( getPosition() ) ;
+	 const float zz   ( p.z() ) ;
+	 const float yy   ( p.y() ) ;
+	 const float cdy  ( cos( m_an )*m_dy/2. ) ;
+	 const float sdy  ( sin( m_an )*m_dy/2. ) ;
+	 const float sign ( zz<0 ? 1 : -1 ) ;
+	 const float z1   ( zz + sign*cdy ) ;
+	 const float z2   ( zz - sign*cdy ) ;
+	 const float z3   ( z1 + m_dz ) ;
+	 const float z4   ( z2 + m_dz ) ;
+	 const float x1   (  m_dx/2 );
+	 const float x2   ( -m_dx/2 );
+	 const float y1   ( yy + sdy ) ;
+	 const float y2   ( yy - sdy ) ;
+	 corners[ 0 ] = GlobalPoint( x1, y1, z1 ) ; 
+	 corners[ 1 ] = GlobalPoint( x2, y1, z1 ) ;
+	 corners[ 2 ] = GlobalPoint( x2, y2, z2 ) ;
+	 corners[ 3 ] = GlobalPoint( x1, y2, z2 ) ;
+	 corners[ 4 ] = GlobalPoint( x1, y1, z3 ) ;
+	 corners[ 5 ] = GlobalPoint( x2, y1, z3 ) ;
+	 corners[ 6 ] = GlobalPoint( x2, y2, z4 ) ;
+	 corners[ 7 ] = GlobalPoint( x1, y2, z4 ) ;
+      }
+      return co ;
+   }
+
+   bool 
+   IdealZDCTrapezoid::inside( const GlobalPoint& point ) const 
+   {
+      bool is_inside ( false ) ;
+
+      const GlobalPoint& face ( getPosition() ) ;
+
+      if( fabs( point.x() - face.x() ) <= m_dx/2   &&
+	  fabs( point.y() - face.y() ) <= sin( m_an )*m_dy/2 )
+      {
+	 const float sl   ( tan( m_an ) ) ;
+	 const float blow ( face.y() - sl*face.z() ) ;
+
+	 const float sign ( 0 < point.z() ? 1 : -1 ) ;
+	 const float bhigh ( face.y() - sl*sign*( face.z() + sign*m_dz ) ) ;
+
+	 is_inside = ( ( point.z() >  sign*( point.y() - blow  )/sl )  &&
+		       ( point.z() <= sign*( point.y() - bhigh )/sl )     ) ;
+      }
+      return is_inside;
+   }
+
+   std::ostream& operator<<( std::ostream& s, const IdealZDCTrapezoid& cell ) 
+   {
+      s << "Center: " <<  cell.getPosition() << std::endl ;
+      s << "TiltAngle = " << cell.an() << ", dx = " << cell.dx() 
+	<< ", dy = " << cell.dy() << ", dz = " << cell.dz() << std::endl ;
+      return s;
+   }
 }

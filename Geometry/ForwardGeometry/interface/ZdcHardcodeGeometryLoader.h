@@ -5,12 +5,13 @@
 #include "Geometry/ForwardGeometry/interface/ZdcTopology.h"
 
 class CaloCellGeometry;
+class CaloSubdetectorGeometry;
 class HcalZDCDetId;
 
 /** \class ZdcHardcodeGeometryLoader
  *
- * $Date: 2007/08/09 12:23:57 $
- * $Revision: 1.0 $
+ * $Date: 2007/08/28 18:10:10 $
+ * $Revision: 1.1 $
  * \author E. Garcia - UIC
 */
 
@@ -26,7 +27,8 @@ public:
 private:
   void init();
   void fill(HcalZDCDetId::Section section,CaloSubdetectorGeometry* cg);
-  const CaloCellGeometry * makeCell(const HcalZDCDetId & detId) const;
+  const CaloCellGeometry * makeCell(const HcalZDCDetId & detId,
+				    CaloSubdetectorGeometry* geom) const;
 
   ZdcTopology theTopology;
 

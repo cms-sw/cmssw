@@ -65,12 +65,14 @@ void ZdcHardcodeGeometryLoader::fill(HcalZDCDetId::Section section, CaloSubdetec
  for(std::vector<HcalZDCDetId>::const_iterator zdcIdItr = zdcIds.begin();
      zdcIdItr != zdcIds.end(); ++zdcIdItr)
    {
-     const CaloCellGeometry * geometry = makeCell(*zdcIdItr);
+     const CaloCellGeometry * geometry = makeCell(*zdcIdItr, geom );
      geom->addCell(*zdcIdItr, geometry);
    }
 }
 
-const CaloCellGeometry * ZdcHardcodeGeometryLoader::makeCell(const HcalZDCDetId & detId) const {
+const CaloCellGeometry*
+ZdcHardcodeGeometryLoader::makeCell(const HcalZDCDetId & detId,
+				    CaloSubdetectorGeometry* geom) const {
   
   float zside = detId.zside();
   HcalZDCDetId::Section section = detId.section();
@@ -117,7 +119,7 @@ const CaloCellGeometry * ZdcHardcodeGeometryLoader::makeCell(const HcalZDCDetId 
     zfaceCenter = (zMother + theZLUMChannelBoundaries[channel-1])*zside;
   }
   GlobalPoint faceCenter(xfaceCenter, yfaceCenter, zfaceCenter);
-  return new calogeom::IdealZDCTrapezoid(faceCenter, theTiltAngle, dx, dy, dz);
+  return new calogeom::IdealZDCTrapezoid(faceCenter, theTiltAngle, dx, dy, dz, geom->cornersMgr());
 }
 
 
