@@ -18,6 +18,10 @@
 
   <class name="SiStripLorentzAngle"/>
 
+  <class name="SiStripPerformanceSummary"/>
+  <class name="SiStripPerformanceSummary::DetSummary"/>
+  <class name="std::vector<SiStripPerformanceSummary::DetSummary>"/>
+
   <class name="SiStripBadStrip"/>
   <class name="SiStripBadStrip::DetRegistry"/>
   <class name="std::vector<SiStripBadStrip::DetRegistry>"/>

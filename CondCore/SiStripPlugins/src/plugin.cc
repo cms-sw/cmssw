@@ -23,6 +23,8 @@
 #include "CondFormats/DataRecord/interface/SiStripModuleHVRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripRunSummary.h"
 #include "CondFormats/DataRecord/interface/SiStripRunSummaryRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripPerformanceSummary.h"
+#include "CondFormats/DataRecord/interface/SiStripPerformanceSummaryRcd.h"
 
 DEFINE_SEAL_MODULE();
 REGISTER_PLUGIN(SiStripPedestalsRcd,SiStripPedestals);
@@ -33,4 +35,5 @@ REGISTER_PLUGIN(SiStripApvGainRcd,SiStripApvGain);
 REGISTER_PLUGIN(SiStripBadStripRcd,SiStripBadStrip);
 REGISTER_PLUGIN(SiStripModuleHVRcd,SiStripModuleHV);
 REGISTER_PLUGIN(SiStripRunSummaryRcd,SiStripRunSummary);
+REGISTER_PLUGIN(SiStripPerformanceSummaryRcd,SiStripPerformanceSummary);
 

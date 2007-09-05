@@ -7,6 +7,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "CondFormats/SiStripObjects/interface/SiStripModuleHV.h"
 #include "CondFormats/SiStripObjects/interface/SiStripRunSummary.h"
+#include "CondFormats/SiStripObjects/interface/SiStripPerformanceSummary.h"
 
 namespace {
 
@@ -38,5 +39,9 @@ namespace {
 
   std::vector<float>::iterator tmp18;
   std::vector<float>::const_iterator tmp19;
+
+  std::vector< SiStripPerformanceSummary::DetSummary >::iterator tmp20;
+  std::vector< SiStripPerformanceSummary::DetSummary >::const_iterator tmp21;
+
 }  
   
