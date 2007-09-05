@@ -7,8 +7,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/Common/interface/OwnVector.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+//view #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
+#include "DataFormats/Common/interface/View.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
@@ -109,9 +110,11 @@ namespace cms{
     
     std::string seedProducer = conf_.getParameter<std::string>("SeedProducer");
     std::string seedLabel = conf_.getParameter<std::string>("SeedLabel");
-    edm::Handle<TrajectorySeedCollection> collseed;
+
+    edm::Handle<View<TrajectorySeed> > collseed;
+    //edm::Handle<TrajectorySeedCollection> collseed;
     e.getByLabel(seedProducer, seedLabel, collseed);
-    TrajectorySeedCollection const & theSeedColl = *collseed;
+    //view TrajectorySeedCollection const & theSeedColl = *collseed;
     
     // Step C: Create empty output collection
     std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection);    
@@ -120,20 +123,22 @@ namespace cms{
     // Step D: Invoke the building algorithm
     if ((*collseed).size()>0){
       vector<Trajectory> theFinalTrajectories;
-      TrajectorySeedCollection::const_iterator iseed;
-      TrajectorySeedCollection::const_iterator end = lastSeed(theSeedColl);
+      //view TrajectorySeedCollection::const_iterator iseed;
+      //view TrajectorySeedCollection::const_iterator end = lastSeed(theSeedColl);
 
       vector<Trajectory> rawResult;
       if (theSeedCleaner) theSeedCleaner->init( &rawResult );
       
       // method for debugging
       countSeedsDebugger();
-
-      for(iseed=theSeedColl.begin();iseed!=end;iseed++){
+      
+      size_t collseed_size = collseed->size(); 
+      for (size_t j = 0; j < collseed_size; j++){
+	//for(iseed=theSeedColl.begin();iseed!=end;iseed++){
 	vector<Trajectory> theTmpTrajectories;
-    
-	if (theSeedCleaner && !theSeedCleaner->good(&(*iseed))) continue;
-	theTmpTrajectories = theTrajectoryBuilder->trajectories(*iseed);
+      
+	if (theSeedCleaner && !theSeedCleaner->good( &((*collseed)[j])) ) continue;
+	theTmpTrajectories = theTrajectoryBuilder->trajectories( (*collseed)[j] );
 	
        
 	LogDebug("CkfPattern") << "======== CkfTrajectoryBuilder returned " << theTmpTrajectories.size()
@@ -209,7 +214,7 @@ namespace cms{
       edm::LogVerbatim("CkfPattern") << "========== CkfTrackCandidateMaker Info ==========";
       edm::ESHandle<TrackerGeometry> tracker;
       es.get<TrackerDigiGeometryRecord>().get(tracker);
-      edm::LogVerbatim("CkfPattern") << "number of Seed: " << theSeedColl.size();
+      edm::LogVerbatim("CkfPattern") << "number of Seed: " << collseed->size();
       
       /*
       for(iseed=theSeedColl.begin();iseed!=theSeedColl.end();iseed++){
