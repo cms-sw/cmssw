@@ -1,9 +1,9 @@
 #include "RecoTracker/CkfPattern/interface/SeedCleanerBySharedInput.h"
 
 bool SeedCleanerBySharedInput::good(const TrajectorySeed *seed) {
-    typedef BasicTrajectorySeed::const_iterator SI;
+    typedef TrajectorySeed::const_iterator SI;
     typedef Trajectory::RecHitContainer::const_iterator TI;
-    BasicTrajectorySeed::range range = seed->recHits();
+    TrajectorySeed::range range = seed->recHits();
     SI first = range.first, curr = range.first, last = range.second;
 //     for (std::vector<Trajectory>::const_iterator trj = trajectories->begin(),
 //             trjEnd =trajectories->end();

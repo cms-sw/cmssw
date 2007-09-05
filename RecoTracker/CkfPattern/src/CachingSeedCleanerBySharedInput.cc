@@ -2,6 +2,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+
 #include<boost/bind.hpp>
 #include<algorithm>
 
@@ -41,9 +43,9 @@ void CachingSeedCleanerBySharedInput::add(const Trajectory *trj) {
 }
 
 bool CachingSeedCleanerBySharedInput::good(const TrajectorySeed *seed) {
-    typedef BasicTrajectorySeed::const_iterator SI;
+    typedef TrajectorySeed::const_iterator SI;
     typedef Trajectory::RecHitContainer::const_iterator TI;
-    BasicTrajectorySeed::range range = seed->recHits();
+    TrajectorySeed::range range = seed->recHits();
 
     SI first = range.first, last = range.second, curr;
     uint32_t detid = first->geographicalId().rawId();

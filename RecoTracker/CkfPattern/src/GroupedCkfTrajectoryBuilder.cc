@@ -30,7 +30,6 @@
 #include "TrackingTools/TrajectoryState/interface/BasicSingleTrajectoryState.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//B.M. #include "CommonDet/BasicDet/interface/DetType.h"
 
 // only included for RecHit comparison operator:
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
@@ -609,10 +608,10 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion
   KFTrajectoryFitter fitter(*theBackwardPropagator,updator(),estimator());
   //
   TempTrajectoryContainer reFitted;
-  BasicTrajectorySeed::range rseedHits = startingTraj.seed().recHits();
+  TrajectorySeed::range rseedHits = startingTraj.seed().recHits();
   std::vector<const TrackingRecHit*> seedHits;
   //seedHits.insert(seedHits.end(), rseedHits.first, rseedHits.second);
-  //for (BasicTrajectorySeed::recHitContainer::const_iterator iter = rseedHits.first; iter != rseedHits.second; iter++){
+  //for (TrajectorySeed::recHitContainer::const_iterator iter = rseedHits.first; iter != rseedHits.second; iter++){
   //	seedHits.push_back(&*iter);
   //}
 
@@ -829,7 +828,7 @@ GroupedCkfTrajectoryBuilder::backwardFit (Trajectory& candidate, unsigned int nS
   // create input trajectory for backward fit
   //
   Trajectory fwdTraj(candidate.seed(),oppositeDirection(candidate.direction()));
-  //const TrajectorySeed seed = TrajectorySeed(PTrajectoryStateOnDet(), BasicTrajectorySeed::recHitContainer(), oppositeDirection(candidate.direction()));
+  //const TrajectorySeed seed = TrajectorySeed(PTrajectoryStateOnDet(), TrajectorySeed::recHitContainer(), oppositeDirection(candidate.direction()));
   //Trajectory fwdTraj(seed, oppositeDirection(candidate.direction()));
   std::vector<const DetLayer*> bwdDetLayer; 
   for ( vector<TM>::reverse_iterator im=oldMeasurements.rbegin();
@@ -875,7 +874,7 @@ GroupedCkfTrajectoryBuilder::backwardFit (Trajectory& candidate, unsigned int nS
   firstTsos.rescaleError(100.);
   //TrajectoryContainer bwdFitted(fitter.fit(fwdTraj.seed(),fwdTraj.recHits(),firstTsos));
   TrajectoryContainer bwdFitted(fitter.fit(
-  		TrajectorySeed(PTrajectoryStateOnDet(), BasicTrajectorySeed::recHitContainer(), oppositeDirection(candidate.direction())),
+  		TrajectorySeed(PTrajectoryStateOnDet(), TrajectorySeed::recHitContainer(), oppositeDirection(candidate.direction())),
   		fwdTraj.recHits(),firstTsos));
   if (bwdFitted.size()){
 #ifdef DBG2_GCTB
