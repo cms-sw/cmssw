@@ -1,9 +1,12 @@
 #include "CondFormats/CSCObjects/interface/CSCcrosstalk.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/CSCIndexer.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-const CSCcrosstalk::Item & CSCcrosstalk::item(int cscId, int strip) const
+const CSCcrosstalk::Item & CSCcrosstalk::item(const CSCDetId & cscId, int strip) const
 {
-  CrosstalkMap::const_iterator mapItr = crosstalk.find(cscId);
+  CSCIndexer indexer;
+  CrosstalkMap::const_iterator mapItr = crosstalk.find( indexer.dbIndex(cscId, strip) );
   if(mapItr == crosstalk.end())
   {
     throw cms::Exception("CSCCrosstalk") 

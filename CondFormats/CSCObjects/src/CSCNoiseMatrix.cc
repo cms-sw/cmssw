@@ -1,5 +1,5 @@
 #include "CondFormats/CSCObjects/interface/CSCNoiseMatrix.h"
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/CSCIndexer.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
@@ -7,9 +7,10 @@
 CSCNoiseMatrix::CSCNoiseMatrix(){}
 CSCNoiseMatrix::~CSCNoiseMatrix(){}
 
-const CSCNoiseMatrix::Item & CSCNoiseMatrix::item(int cscId, int strip) const
+const CSCNoiseMatrix::Item & CSCNoiseMatrix::item(const CSCDetId & cscId, int strip) const
 {
-  NoiseMatrixMap::const_iterator mapItr = matrix.find(cscId);
+  CSCIndexer indexer;
+  NoiseMatrixMap::const_iterator mapItr = matrix.find( indexer.dbIndex(cscId, strip) );
   if(mapItr == matrix.end())
   {
     throw cms::Exception("CSCNoiseMatrix")

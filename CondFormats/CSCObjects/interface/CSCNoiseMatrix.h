@@ -1,6 +1,7 @@
 #ifndef CSCNoiseMatrix_h
 #define CSCNoiseMatrix_h
 
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include <vector>
 #include <map>
 
@@ -15,7 +16,7 @@ class CSCNoiseMatrix{
     std::string print() const;
   };
 
-  const Item & item(int cscId, int strip) const;
+  const Item & item(const CSCDetId & cscId, int strip) const;
   std::string print() const;
   
   typedef std::map< int,std::vector<Item> > NoiseMatrixMap;
