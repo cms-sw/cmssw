@@ -111,15 +111,9 @@ void popcon::Logger::payloadIDMap()
 
 void popcon::Logger::lock()
 {
-<<<<<<< Logger.cpp
-	std::cerr<< "Locking\n";
-	if (!m_established)
-		throw popcon::Exception("Logger::lock exception ");
-=======
 	std::cerr<< " Locking\n";
 	if (!m_established)
 		throw popcon::Exception("Logger::lock exception ");
->>>>>>> 1.2
 	try{
 		//m_coraldb->startTransaction(false);
 		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("O2O_LOCK");
@@ -142,17 +136,9 @@ void popcon::Logger::lock()
 
 void popcon::Logger::unlock()
 {
-<<<<<<< Logger.cpp
-
-	if (!m_established)
-		return;
-	std::cerr<< "Unlocking\n";
-=======
-
 	if (!m_established)
 		return;
 	std::cerr<< " Unlocking\n";
->>>>>>> 1.2
 	m_coraldb->commit();	
 }
 
