@@ -23,4 +23,5 @@ std::ostream& operator<<(std::ostream& s, const L1GctFibreWord& fw) {
   s << std::hex << fw.data() << ", block " << fw.block();
   s << ", index : " << fw.index() << ", bx : " << fw.bx() << std::endl;
   s << std::dec;
+  return s;
 }
