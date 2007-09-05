@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/09/05 09:53:20 $
- *  $Revision: 1.27 $
+ *  $Date: 2007/09/05 10:00:48 $
+ *  $Revision: 1.28 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
@@ -121,13 +121,11 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
   //  iEvent.getByLabel("g4SimHits","MuonDTHits",simHits);
     
   // use MixCollection instead of the previous
-  Handle<CrossingFrame> xFrame;
-  iEvent.getByType(xFrame);
+  Handle<CrossingFrame<PSimHit> > xFrame;
+  iEvent.getByLabel("mix","MuonDTHits",xFrame);
   
   auto_ptr<MixCollection<PSimHit> > 
-    simHits( new MixCollection<PSimHit>(xFrame.product(),"MuonDTHits"));
-  //simHits( new MixCollection<PSimHit>(xFrame.product(),"MuonDTHits",pair<int,int>(-1,2)));
-  
+    simHits( new MixCollection<PSimHit>(xFrame.product()) );
 
    // create the pointer to the Digi container
   auto_ptr<DTDigiCollection> output(new DTDigiCollection());
