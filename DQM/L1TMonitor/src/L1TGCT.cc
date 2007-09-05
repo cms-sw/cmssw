@@ -1,13 +1,16 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2007/08/31 18:14:21 $
- * $Revision: 1.8 $
+ * $Date: 2007/09/04 02:54:19 $
+ * $Revision: 1.9 $
  * \author J. Berryhill
  *
- *  Initial version largely stolen from GCTMonitor (wittich 2/07)
- *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.9  2007/09/04 02:54:19  wittich
+ * - fix dupe ME in RCT
+ * - put in rank>0 req in GCT
+ * - various small other fixes
+ *
  * Revision 1.8  2007/08/31 18:14:21  wittich
  * update GCT packages to reflect GctRawToDigi, and move to raw plots
  *
@@ -19,24 +22,6 @@
  *
  *
  * InputTag parameters added for all modules
- *
- * Revision 1.5  2007/02/20 22:49:00  wittich
- * - change from getByType to getByLabel in ECAL TPG,
- *   and make it configurable.
- * - fix problem in the GCT with incorrect labels. Not the ultimate
- *   solution - will probably have to go to many labels.
- *
- * Revision 1.4  2007/02/19 22:49:54  wittich
- * - Add RCT monitor
- *
- * Revision 1.3  2007/02/19 22:07:26  wittich
- * - Added three monitorables to the ECAL TPG monitoring (from GCTMonitor)
- * - other minor tweaks in GCT, etc
- *
- * Revision 1.2  2007/02/19 21:11:23  wittich
- * - Updates for integrating GCT monitor.
- *   + Adapted right now only the L1E elements thereof.
- *   + added DataFormats/L1Trigger to build file.
  *
  *
  *
@@ -183,8 +168,8 @@ void L1TGCT::beginJob(const edm::EventSetup & c)
 
 
     const int nJetEta = 256;
-    const int JetEtaMin = -127.5;
-    const int JetEtaMax =  127.5;
+    const float JetEtaMin = -127.5;
+    const float JetEtaMax =  127.5;
     l1GctCenJetsEtEtaPhi_ =
 	dbe->book2D("CenJetsEtEtaPhi", "CENTRAL JET E_{T}",
 		    PHIBINS, PHIMIN, PHIMAX, 
@@ -289,101 +274,134 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   edm::Handle < L1GctEtHad >   l1EtHad;
   edm::Handle < L1GctEtTotal > l1EtTotal;
 
-  // should get rid of this try/catch?
-  // do I need three 
-//   try {
+  // Split this into two parts as this appears to be the way the 
+  // HW works.
+  bool doJet = true;
+  bool doEm = true;
+  try {
     // observed in emulator data
-    e.getByLabel(gctSource_.label(), "isoEm", l1IsoEm);
-    e.getByLabel(gctSource_.label(), "nonIsoEm", l1NonIsoEm);
-    e.getByLabel(gctSource_.label(), "cenJets", l1CenJets);
-    e.getByLabel(gctSource_.label(), "forJets", l1ForJets);
-    e.getByLabel(gctSource_.label(), "tauJets", l1TauJets);
-    // defaults in rawToDigi
-//     e.getByLabel(gctSource_.label(), "Isolated", l1IsoEm);
-//     e.getByLabel(gctSource_.label(), "NonIsolated", l1NonIsoEm);
-//     e.getByLabel(gctSource_.label(), "Central", l1CenJets);
-//     e.getByLabel(gctSource_.label(), "Forward", l1ForJets);
-//     e.getByLabel(gctSource_.label(), "Tau", l1TauJets);
+      e.getByLabel(gctSource_.label(), "cenJets", l1CenJets);
+      e.getByLabel(gctSource_.label(), "forJets", l1ForJets);
+      e.getByLabel(gctSource_.label(), "tauJets", l1TauJets);
 
-    e.getByLabel(gctSource_, l1EtMiss);
-    e.getByLabel(gctSource_, l1EtHad);
-    e.getByLabel(gctSource_, l1EtTotal);
-//   }
-//   catch (...) {
-//     edm::LogInfo("L1TGCT") << " Could not find one of the requested data "
-//       "elements, label was " << gctSource_.label() ;
-//     return;
-//   }
+      e.getByLabel(gctSource_, l1EtMiss);
+      e.getByLabel(gctSource_, l1EtHad);
+      e.getByLabel(gctSource_, l1EtTotal);
+   }
+   catch (...) {
+     edm::LogInfo("L1TGCT") << " Could not find one of the requested data JET"
+       "elements, label was " << gctSource_.label() ;
+     doJet = false;
+   }
 
+  // EM data
+  try {
+      e.getByLabel(gctSource_.label(), "isoEm", l1IsoEm);
+      e.getByLabel(gctSource_.label(), "nonIsoEm", l1NonIsoEm);
+   }
+   catch (...) {
+     edm::LogInfo("L1TGCT") << " Could not find one of the requested EM data "
+       "elements, label was " << gctSource_.label() ;
+     doEm = false;
+   }
 
   // Fill the histograms for the jets
-
-  // Central jets
-  for (L1GctJetCandCollection::const_iterator cj = l1CenJets->begin();
-       cj != l1CenJets->end(); cj++) {
-    if ( cj->rank() == 0 ) continue;
-    l1GctCenJetsEtEtaPhi_->Fill(cj->phiIndex(), etaBin(cj->etaIndex()), cj->rank());
-    l1GctCenJetsOccEtaPhi_->Fill(cj->phiIndex(), etaBin(cj->etaIndex()));
-    l1GctCenJetsRank_->Fill(cj->rank());
+  if ( doJet ) {
+    // Central jets
     if ( verbose_ ) {
-      std::cout << "L1TGCT: Central jet " 
-		<< cj->phiIndex() << ", " << etaBin(cj->etaIndex())
-		<< ", (" << cj->etaIndex() << "), " << cj->rank()
-		<< std::endl;
+      std::cout << "L1TGCT: number of central jets = " 
+		<< l1CenJets->size() << std::endl;
     }
-  }
-
-  // Forward jets
-  for (L1GctJetCandCollection::const_iterator fj = l1ForJets->begin();
-       fj != l1ForJets->end(); fj++) {
-    if ( fj->rank() == 0 ) continue;
-    l1GctForJetsEtEtaPhi_->Fill(fj->phiIndex(), etaBin(fj->etaIndex()), fj->rank());
-    l1GctForJetsOccEtaPhi_->Fill(fj->phiIndex(), etaBin(fj->etaIndex()));
-    l1GctForJetsRank_->Fill(fj->rank());
-  }
-
-  // Tau jets
-  for (L1GctJetCandCollection::const_iterator tj = l1TauJets->begin();
-       tj != l1TauJets->end(); tj++) {
-    if ( tj->rank() == 0 ) continue;
-    l1GctTauJetsEtEtaPhi_->Fill(tj->phiIndex(), etaBin(tj->etaIndex()), tj->rank());
-    l1GctTauJetsOccEtaPhi_->Fill(tj->phiIndex(), etaBin(tj->etaIndex()));
-    l1GctTauJetsRank_->Fill(tj->rank());
-  }
-
-  // Isolated EM
-  for (L1GctEmCandCollection::const_iterator ie = l1IsoEm->begin();
-       ie != l1IsoEm->end(); ie++) {
-    if ( ie->rank() == 0 ) continue;
-    l1GctIsoEmEtEtaPhi_->Fill(ie->phiIndex(), etaBin(ie->etaIndex()), ie->rank());
-    l1GctIsoEmOccEtaPhi_->Fill(ie->phiIndex(), etaBin(ie->etaIndex()));
-    l1GctIsoEmRank_->Fill(ie->rank());
-    if ( verbose_ ) {
-      std::cout << "L1TGCT: iso em " 
-		<< ie->phiIndex() << ", " << etaBin(ie->etaIndex())
-		<< ", (" << ie->etaIndex() << "), " << ie->rank()
-		<< std::endl;
+    for (L1GctJetCandCollection::const_iterator cj = l1CenJets->begin();
+	 cj != l1CenJets->end(); cj++) {
+      if ( cj->rank() == 0 ) continue;
+      l1GctCenJetsEtEtaPhi_->Fill(cj->phiIndex(), etaBin(cj->etaIndex()), 
+				  cj->rank());
+      l1GctCenJetsOccEtaPhi_->Fill(cj->phiIndex(), etaBin(cj->etaIndex()));
+      l1GctCenJetsRank_->Fill(cj->rank());
+      if ( verbose_ ) {
+	std::cout << "L1TGCT: Central jet " 
+		  << cj->phiIndex() << ", " << etaBin(cj->etaIndex())
+		  << ", (" << cj->etaIndex() << "), " << cj->rank()
+		  << std::endl;
+      }
     }
 
+    // Forward jets
+    if ( verbose_ ) {
+      std::cout << "L1TGCT: number of forward jets = " 
+		<< l1ForJets->size() << std::endl;
+    }
+    for (L1GctJetCandCollection::const_iterator fj = l1ForJets->begin();
+	 fj != l1ForJets->end(); fj++) {
+      if ( fj->rank() == 0 ) continue;
+      l1GctForJetsEtEtaPhi_->Fill(fj->phiIndex(), etaBin(fj->etaIndex()), 
+				  fj->rank());
+      l1GctForJetsOccEtaPhi_->Fill(fj->phiIndex(), etaBin(fj->etaIndex()));
+      l1GctForJetsRank_->Fill(fj->rank());
+    }
+
+    // Tau jets
+    if ( verbose_ ) {
+      std::cout << "L1TGCT: number of tau jets = " 
+		<< l1TauJets->size() << std::endl;
+    }
+    for (L1GctJetCandCollection::const_iterator tj = l1TauJets->begin();
+	 tj != l1TauJets->end(); tj++) {
+      if ( tj->rank() == 0 ) continue;
+      l1GctTauJetsEtEtaPhi_->Fill(tj->phiIndex(), etaBin(tj->etaIndex()), 
+				  tj->rank());
+      l1GctTauJetsOccEtaPhi_->Fill(tj->phiIndex(), etaBin(tj->etaIndex()));
+      l1GctTauJetsRank_->Fill(tj->rank());
+    }
+
+    // Energy sums
+    l1GctEtMiss_->Fill(l1EtMiss->et());
+    l1GctEtMissPhi_->Fill(l1EtMiss->phi());
+
+    // these don't have phi values
+    l1GctEtHad_->Fill(l1EtHad->et());
+    l1GctEtTotal_->Fill(l1EtTotal->et());
+
   }
 
-  // Non-isolated EM
-  for (L1GctEmCandCollection::const_iterator ne = l1NonIsoEm->begin();
-       ne != l1NonIsoEm->end(); ne++) {
-    if ( ne->rank() == 0 ) continue;
-    l1GctNonIsoEmEtEtaPhi_->Fill(ne->phiIndex(), etaBin(ne->etaIndex()), ne->rank());
-    l1GctNonIsoEmOccEtaPhi_->Fill(ne->phiIndex(), etaBin(ne->etaIndex()));
-    l1GctNonIsoEmRank_->Fill(ne->rank());
+
+  if ( doEm ) {
+    // Isolated EM
+    if ( verbose_ ) {
+      std::cout << "L1TGCT: number of iso em cands: " 
+		<< l1IsoEm->size() << std::endl;
+    }
+    for (L1GctEmCandCollection::const_iterator ie = l1IsoEm->begin();
+	 ie != l1IsoEm->end(); ie++) {
+      if ( ie->rank() == 0 ) continue;
+      l1GctIsoEmEtEtaPhi_->Fill(ie->phiIndex(), etaBin(ie->etaIndex()), 
+				ie->rank());
+      l1GctIsoEmOccEtaPhi_->Fill(ie->phiIndex(), etaBin(ie->etaIndex()));
+      l1GctIsoEmRank_->Fill(ie->rank());
+      if ( verbose_ ) {
+	std::cout << "L1TGCT: iso em " 
+		  << ie->phiIndex() << ", " << etaBin(ie->etaIndex())
+		  << ", (" << ie->etaIndex() << "), " << ie->rank()
+		  << std::endl;
+      }
+
+    }
+
+    // Non-isolated EM
+    if ( verbose_ ) {
+      std::cout << "L1TGCT: number of non-iso em cands: " 
+		<< l1NonIsoEm->size() << std::endl;
+    }
+    for (L1GctEmCandCollection::const_iterator ne = l1NonIsoEm->begin();
+	 ne != l1NonIsoEm->end(); ne++) {
+      if ( ne->rank() == 0 ) continue;
+      l1GctNonIsoEmEtEtaPhi_->Fill(ne->phiIndex(), etaBin(ne->etaIndex()), 
+				   ne->rank());
+      l1GctNonIsoEmOccEtaPhi_->Fill(ne->phiIndex(), etaBin(ne->etaIndex()));
+      l1GctNonIsoEmRank_->Fill(ne->rank());
+    }
   }
-
-  // Energy sums
-  l1GctEtMiss_->Fill(l1EtMiss->et());
-  l1GctEtMissPhi_->Fill(l1EtMiss->phi());
-
-  // these don't have phi values
-  l1GctEtHad_->Fill(l1EtHad->et());
-  l1GctEtTotal_->Fill(l1EtTotal->et());
-
 
 
 
