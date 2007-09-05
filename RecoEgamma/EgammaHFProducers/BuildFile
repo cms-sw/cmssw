@@ -1,0 +1,18 @@
+<use name=DataFormats/HcalRecHit>
+<use name=Geometry/CaloGeometry>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/EgammaReco>
+<use name=Geometry/Records>
+<use name=Geometry/CaloEventSetup>
+<flags EDM_PLUGIN=1>
+<export>
+  <lib name=RecoEgammaEgammaHFProducers>
+  <use name=DataFormats/HcalRecHit>
+  <use name=Geometry/CaloGeometry>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=DataFormats/EgammaReco>
+  <use name=Geometry/Records>
+  <use name=Geometry/CaloEventSetup>
+</export>
