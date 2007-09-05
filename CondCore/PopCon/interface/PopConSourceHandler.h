@@ -5,8 +5,8 @@
 #include <string>
 #include <iostream>
 #include <typeinfo>
-#include "IOVPair.h"
-#include "OfflineDBInterface.h"
+#include "CondCore/PopCon/interface/IOVPair.h"
+#include "CondCore/PopCon/interface/OfflineDBInterface.h"
 #include "FWCore/Framework/interface/Event.h"
 
 namespace popcon

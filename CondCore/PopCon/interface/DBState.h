@@ -1,5 +1,5 @@
-#ifndef DBSTATE_H
-#define DBSTATE_H
+#ifndef POPCON_DBSTATE_H
+#define POPCON_DBSTATE_H
 
 #include <string>
 #include "CoralBase/AttributeList.h"
@@ -26,11 +26,7 @@ namespace popcon
 			DBState(std::string,std::string,int);
 			~DBState(){}
 			void set_state(coral::AttributeList);
-
 			coral::AttributeList update_helper(std::string& updateAction, std::string& updateCondition);
-
-
-			//TODO maybe private - ?
 		public:
 			std::string name;
 			std::string schema;

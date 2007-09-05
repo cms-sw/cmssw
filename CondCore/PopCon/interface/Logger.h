@@ -30,7 +30,6 @@ namespace popcon
 			void lock();
 			void unlock();
 
-
 		private:
 			void initialize();
 			void updateExecID();

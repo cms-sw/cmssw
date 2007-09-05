@@ -3,19 +3,13 @@
 
 popcon::OfflineDBInterface::OfflineDBInterface (std::string cstring, std::string catalog) : m_connect(cstring), m_catalog(catalog) {
 
-	//TODO db passwd, catalog etc should be parametrized
-
 	session=new cond::DBSession(true);
 	session->sessionConfiguration().setAuthenticationMethod( cond::XML );
 	//session->sessionConfiguration().setMessageLevel( cond::Debug );
 	session->sessionConfiguration().setMessageLevel( cond::Error );
-	session->connectionConfiguration().setConnectionRetrialTimeOut( 600 );
+	session->connectionConfiguration().setConnectionRetrialTimeOut(10);
 	session->connectionConfiguration().enableConnectionSharing();
 	session->connectionConfiguration().enableReadOnlySessionOnUpdateConnections();
-	//std::string userenv(std::string("CORAL_AUTH_USER=")+m_user);
-	//std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+m_pass);
-	//::putenv(const_cast<char*>(userenv.c_str()));
-	//::putenv(const_cast<char*>(passenv.c_str()));
 }
 
 popcon::OfflineDBInterface::~OfflineDBInterface ()

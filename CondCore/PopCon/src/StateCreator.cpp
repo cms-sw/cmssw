@@ -106,7 +106,6 @@ void popcon::StateCreator::storeStatusData()
 
 
 		int rowsUpdated = editor.updateRows( ua, uc, rowBuffer );
-		std::cerr << "Updated " << rowsUpdated << " rows." << std::endl;
 		if ( rowsUpdated != 1 ) {
 			throw std::runtime_error( "Unexpected number of rows updated" );
 		}

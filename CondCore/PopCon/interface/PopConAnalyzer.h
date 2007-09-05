@@ -9,7 +9,7 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 //#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "OutputServiceWrapper.h"
+#include "CondCore/PopCon/interface/OutputServiceWrapper.h"
 
 
 // user include files
@@ -18,7 +18,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "PopConSourceHandler.h"
+#include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "CondCore/PopCon/interface/StateCreator.h"
 //#include "CondCore/PopCon/interface/Logger.h"
 
@@ -46,7 +46,7 @@ namespace popcon
 					m_offline_connection = pset.getParameter<std::string> ("OfflineDBSchema");
 					m_catalog = pset.getParameter<std::string> ("catalog");
 					sinceAppend = pset.getParameter<bool> ("SinceAppendMode");
-					m_handler_object = NULL;
+					m_handler_object = 0;
 				}
 				~PopConAnalyzer()
 				{
@@ -68,7 +68,8 @@ namespace popcon
 							lgr->finalizeExecution(logMsg);
 							stc->generateStatusData();
 							stc->storeStatusData();
-							std::cerr << "Deleting stc\n";	
+							if(m_debug)
+								std::cerr << "Deleting stc\n";	
 							delete stc;
 						}
 
@@ -80,11 +81,13 @@ namespace popcon
 						std::cerr << "Exception caught in destructor: "<< e.what();
 					}
 
-					if (m_handler_object != NULL){
-						std::cerr << "Deleting the source handler\n";	
+					if (m_handler_object != 0){
+						if(m_debug)
+							std::cerr << "Deleting the source handler\n";	
 						delete m_handler_object;
 					}
-					std::cerr << "Deleting lgr\n";	
+					if(m_debug)
+						std::cerr << "Deleting lgr\n";	
 					delete lgr;
 
 					if(m_debug)
@@ -101,10 +104,10 @@ namespace popcon
 				bool tryToValidate;
 				//corrupted data detected, just write the log and exit
 				bool corrupted;
+				bool greenLight;
 				//Someone claims to have fixed the problem indicated in exception section
 				//TODO log it as well
 				bool fixed;
-				bool greenLight;
 				bool sinceAppend;
 				std::string logMsg;
 
@@ -118,7 +121,7 @@ namespace popcon
 						lgr->lock();
 						//log the new app execution
 						lgr->newExecution();
-						
+
 						stc = new StateCreator(m_popcon_db, m_offline_connection, m_payload_name, m_debug);
 
 						//checks the exceptions, validates new data if necessary
@@ -140,7 +143,7 @@ namespace popcon
 
 						if (stc->checkAndCompareState())
 						{
-							std::cerr << "State OK" << std::endl;
+							//std::cerr << "State OK" << std::endl;
 							greenLight = true;
 							logMsg="OK";
 							corrupted = false;

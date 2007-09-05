@@ -10,7 +10,7 @@
 #include "RelationalAccess/ICursor.h"
 #include "RelationalAccess/IQuery.h"
 #include "RelationalAccess/ITableDataEditor.h"
-//#include "CoralBase/Exception.h"
+#include "CoralBase/Exception.h"
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/AttributeSpecification.h"
 #include "CoralBase/Attribute.h"
@@ -111,9 +111,15 @@ void popcon::Logger::payloadIDMap()
 
 void popcon::Logger::lock()
 {
+<<<<<<< Logger.cpp
+	std::cerr<< "Locking\n";
+	if (!m_established)
+		throw popcon::Exception("Logger::lock exception ");
+=======
 	std::cerr<< " Locking\n";
 	if (!m_established)
 		throw popcon::Exception("Logger::lock exception ");
+>>>>>>> 1.2
 	try{
 		//m_coraldb->startTransaction(false);
 		coral::ITable& mytable=m_coraldb->sessionProxy().nominalSchema().tableHandle("O2O_LOCK");
@@ -136,10 +142,17 @@ void popcon::Logger::lock()
 
 void popcon::Logger::unlock()
 {
+<<<<<<< Logger.cpp
+
+	if (!m_established)
+		return;
+	std::cerr<< "Unlocking\n";
+=======
 
 	if (!m_established)
 		return;
 	std::cerr<< " Unlocking\n";
+>>>>>>> 1.2
 	m_coraldb->commit();	
 }
 
@@ -205,6 +218,11 @@ void popcon::Logger::newExecution()
 		rowBuffer["EXEC_START"].data<coral::TimeStamp>() = coral::TimeStamp::now();
 		dataEditor.insertRow( rowBuffer );
 		//m_coraldb->commit();	
+	}
+	catch(coral::Exception& er)
+	{
+		std::cerr << " Probably there's no entry related to " << m_obj_name << " " << er.what() << std::endl;
+		throw popcon::Exception("Logger::newExecution log exception ");
 	}
 	catch(std::exception& er){
 		std::cerr << er.what();

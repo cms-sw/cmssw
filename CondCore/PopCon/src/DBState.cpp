@@ -2,8 +2,6 @@
 
 bool popcon::operator==(const DBState& a, const DBState& b)
 {
-	//return ::memcmp(&a, &b, sizeof(popcon::DBState))==0; 
-	//TODO compare only the size
 	return a.payload_size == b.payload_size ? true : false;
 }
 
