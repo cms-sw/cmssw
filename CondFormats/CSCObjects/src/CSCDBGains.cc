@@ -11,3 +11,15 @@ const CSCDBGains::Item & CSCDBGains::item(const CSCDetId & cscId, int strip) con
   return gains.at( indexer.stripChannelIndex(cscId, strip) );
 }
 
+std::ostream & operator<<(std::ostream & os, const CSCDBGains & cscDbGains)
+{
+  CSCIndexer indexer;
+  for(int i = 0; i < cscDbGains.gains.size(); ++i)
+  {
+    std::pair<CSCDetId, CSCIndexer::IndexType> indexPair = indexer.detIdFromStripChannelIndex(i);
+    os << indexPair.first << " strip:" << indexPair.second 
+       << " slope:" << cscDbGains.gains[i].gain_slope 
+       << " intercept:" << cscDbGains.gains[i].gain_intercept << "\n";
+  }
+  return os;
+}

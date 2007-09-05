@@ -2,6 +2,7 @@
 #define CSCDBGains_h
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include <iosfwd>
 #include <vector>
 #include <map>
 
@@ -22,6 +23,8 @@ class CSCDBGains{
   typedef std::vector<Item> GainsContainer;
   GainsContainer gains;
 };
+
+std::ostream & operator<<(std::ostream & os, const CSCDBGains & cscDbGains);
 
 #endif
 
