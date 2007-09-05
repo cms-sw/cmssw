@@ -14,11 +14,13 @@
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 NuclearInteractionFinder::NuclearInteractionFinder(const edm::EventSetup& es, const edm::ParameterSet& iConfig) :
-ptMin(iConfig.getParameter<double>("ptMin")),
 maxHits(iConfig.getParameter<int>("maxHits")),
 rescaleErrorFactor(iConfig.getParameter<double>("rescaleErrorFactor")),
 checkCompletedTrack(iConfig.getParameter<bool>("checkCompletedTrack"))
 {
+
+   std::string measurementTrackerName = iConfig.getParameter<std::string>("MeasurementTrackerName");
+
    edm::ESHandle<Propagator> prop;
    edm::ESHandle<TrajectoryStateUpdator> upd;
    edm::ESHandle<Chi2MeasurementEstimatorBase> est;
@@ -29,8 +31,8 @@ checkCompletedTrack(iConfig.getParameter<bool>("checkCompletedTrack"))
    es.get<TrackerDigiGeometryRecord> ().get (theTrackerGeom);
    es.get<TrackingComponentsRecord>().get("PropagatorWithMaterial",prop);
    es.get<TrackingComponentsRecord>().get("Chi2",est);
-   es.get<CkfComponentsRecord>().get(measurementTrackerHandle);
-   es.get<TrackerRecoGeometryRecord>().get( theGeomSearchTrackerHandle );
+   es.get<CkfComponentsRecord>().get(measurementTrackerName, measurementTrackerHandle);
+   es.get<TrackerRecoGeometryRecord>().get(theGeomSearchTrackerHandle );
    es.get<IdealMagneticFieldRecord>().get(theMagField);
 
    thePropagator = prop.product();
@@ -43,7 +45,6 @@ checkCompletedTrack(iConfig.getParameter<bool>("checkCompletedTrack"))
    // set the correct navigation
    NavigationSetter setter( *theNavigationSchool);
    LogDebug("NuclearSeedGenerator") << "New NuclearInteractionFinder instance with parameters : \n"
-                                        << "ptMin : " << ptMin << "\n"
                                         << "maxHits : " << maxHits << "\n"
                                         << "rescaleErrorFactor : " << rescaleErrorFactor << "\n"
                                         << "checkCompletedTrack : " << checkCompletedTrack << "\n";

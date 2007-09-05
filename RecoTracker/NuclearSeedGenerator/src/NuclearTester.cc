@@ -2,15 +2,6 @@
 #include "RecoTracker/CkfPattern/src/RecHitIsInvalid.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-template <class T>
-int index(T it_begin, T it_end, T it_)
-{
-           int indx=0;
-           for(T the_it=it_begin; the_it!=it_end; the_it++, indx++)
-                   if(the_it == it_) return indx;
-           return indx;
-}
-
 //----------------------------------------------------------------------
 NuclearTester::NuclearTester(unsigned int max_hits, const MeasurementEstimator* est, const TrackerGeometry* track_geom) :
     maxHits(max_hits), theEstimator(est), trackerGeom(track_geom) { NuclearIndex=0; }
@@ -48,7 +39,7 @@ bool NuclearTester::checkWithMultiplicity() {
     // if the previous nb of compatible TM is > min+2 and if the next compatible TM is min+-1 -> NUCLEAR
     // example : Nhits = 5, 8, 2, 2, ...
     if((*(min_it-1) - *min_it) > 2 && (*(min_it+1) - *min_it) < 2 ) {
-            NuclearIndex = index<std::vector<int>::iterator>(compatible_hits.begin(),compatible_hits.end(),min_it);
+            NuclearIndex = min_it - compatible_hits.begin();
             return true;
     }
 
@@ -56,7 +47,7 @@ bool NuclearTester::checkWithMultiplicity() {
     if(min_it-1 != compatible_hits.begin())  //because min_it must be at least at the third position
     {
       if(min_it-1 != compatible_hits.begin() && (*(min_it-1) - *min_it) < 2 && (*(min_it-2) - *(min_it-1)) > 2 ) {
-           NuclearIndex = index<std::vector<int>::const_iterator>(compatible_hits.begin(),compatible_hits.end(),min_it-1);
+           NuclearIndex = min_it - 1 - compatible_hits.begin();
            return true;
       }
     }
