@@ -21,7 +21,6 @@ inspired by a StandAloneMuon.
 <!-- List the classes that are provided for use in other packages (if any) -->
 
 - MuonSeedFromConsecutiveHits
-- PrimitiveMuonSeed
 - TrackerSeedGeneratorFactory
 - TrackerSeedGenerator
 
@@ -96,17 +95,6 @@ Which is
 \htmlinclude TSGForRoadSearch.cfi
 </pre>
 
-- TrackerSeedGeneratorBC
-In your <b>.cfg</b> file, include
-\htmlonly
-<pre>
-include "RecoMuon/TrackerSeedGenerator/data/TrackerSeedGeneratorBC.cfi"
-</pre>
-\endhtmlonly
-Which is
-<pre>
-\htmlinclude TrackerSeedGeneratorBC.cfi
-</pre>
 
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->
@@ -115,10 +103,14 @@ Unknown
 \section status Status and planned development 
 <!-- e.g. completed, stable, missing features --> 
 Recent development in RecoTracker/TkSeedGenerator has spurred
-reorganization and development of RecoMuon/TrackerSeedGenerator.  Soon,
-RecoMuon/TrackerSeedGenerator will use standard RecoTracker classes.
-Until then, TrackerSeedGeneratorBC is currently the default algorithm,
-but it will soon be removed.
+reorganization and development of RecoMuon/TrackerSeedGenerator so that
+RecoMuon/TrackerSeedGenerator uses standard RecoTracker classes.  <br>
+Current development includes a SmartSeeder which will start with seeds
+from hit triplets and then attemp a seed from hit pairs if the hit
+triplet seed fails.  Also, the smart seeder will attemt to use different
+seed types based on the position in the detector (for example, it will
+use a pixel-strip seed in the very forward region).
+
 
 <hr>
 Last updated:
