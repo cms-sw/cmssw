@@ -6,9 +6,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/EventID.h"
-#include "DataFormats/Common/interface/RunID.h"
-#include "DataFormats/Common/interface/Timestamp.h"
+#include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/RunID.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
@@ -37,7 +37,7 @@ void HistoricOfflineClient::analyze(const edm::Event& iEvent, const edm::EventSe
 void HistoricOfflineClient::beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
   pSummary_ = new SiStripPerformanceSummary();
   pSummary_->clear(); // just in case
-  pSummary_->setRunNr(run.id());
+  pSummary_->setRunNr(run.run());
   firstEventInRun=true;
 }
 
@@ -46,6 +46,7 @@ void HistoricOfflineClient::endRun(const edm::Run& run , const edm::EventSetup& 
   firstEventInRun=false;
   retrievePointersToModuleMEs(iSetup);
   fillSummaryObjects(run);
+  std::cout<<"HistoricOfflineClient::endRun() nevents = "<<nevents<<std::endl;
   pSummary_->print();
   writeToDB(run);
 }
@@ -57,8 +58,11 @@ void HistoricOfflineClient::beginJob(const edm::EventSetup&) {
 
 //-----------------------------------------------------------------------------------------------
 void HistoricOfflineClient::endJob() {
-  if ( parameters.getUntrackedParameter<bool>("writeHisto", true) )
-   dbe_->save(parameters.getUntrackedParameter<std::string>("outputFile", "historicOffline.root"));
+  if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ){
+    std::string outputfile = parameters.getUntrackedParameter<std::string>("outputFile", "historicOffline.root");
+    std::cout<<"HistoricOfflineClient::endJob() outputFile = "<<outputfile<<std::endl;
+    dbe_->save(outputfile);
+  }
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -81,7 +85,7 @@ void HistoricOfflineClient::retrievePointersToModuleMEs(const edm::EventSetup& i
 
 //-----------------------------------------------------------------------------------------------
 void HistoricOfflineClient::fillSummaryObjects(const edm::Run& run) const {
-  std::cout<<"HistoricOfflineClient::fillSummaryObjects() called. ClientPointersToModuleMEs.size()="<<ClientPointersToModuleMEs.size()<<" runnr="<<run.id()<<std::endl;
+  std::cout<<"HistoricOfflineClient::fillSummaryObjects() called. ClientPointersToModuleMEs.size()="<<ClientPointersToModuleMEs.size()<<" runnr="<<run.run()<<std::endl;
   for(std::map<uint32_t , std::vector<MonitorElement *> >::const_iterator imapmes = ClientPointersToModuleMEs.begin(); imapmes != ClientPointersToModuleMEs.end(); imapmes++){
      uint32_t local_detid = imapmes->first;
      std::vector<MonitorElement*> locvec = imapmes->second;
@@ -106,7 +110,7 @@ void HistoricOfflineClient::fillSummaryObjects(const edm::Run& run) const {
 
 //-----------------------------------------------------------------------------------------------
 void HistoricOfflineClient::writeToDB(const edm::Run& run) const {
-  unsigned int l_run  = run.id();
+  unsigned int l_run  = run.run();
   std::cout<<"HistoricOfflineClient::writeToDB()  run="<<l_run<<std::endl;
   //now write SiStripPerformanceSummary data in DB
   edm::Service<cond::service::PoolDBOutputService> mydbservice;

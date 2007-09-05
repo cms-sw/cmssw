@@ -6,9 +6,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/EventID.h"
-#include "DataFormats/Common/interface/RunID.h"
-#include "DataFormats/Common/interface/Timestamp.h"
+#include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/RunID.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
@@ -57,7 +57,7 @@ void CopyPerformanceSummary::endJob() {
 
 //-----------------------------------------------------------------------------------------------
 void CopyPerformanceSummary::writeToDB(const edm::Run& run) const {
-  unsigned int l_run  = run.id();
+  unsigned int l_run  = run.run();
   std::cout<<"CopyPerformanceSummary::writeToDB()  run="<<l_run<<std::endl;
   //now write SiStripPerformanceSummary data in DB
   edm::Service<cond::service::PoolDBOutputService> mydbservice;

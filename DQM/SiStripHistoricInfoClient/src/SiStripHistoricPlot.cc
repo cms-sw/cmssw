@@ -68,10 +68,19 @@ void SiStripHistoricPlot::fillHistograms(edm::ESHandle<SiStripPerformanceSummary
     pS->getSummary(*idet, allValues);
     if(allValues.size()==7){
       std::ostringstream osdetid; osdetid<<*idet; TString sdetid = osdetid.str();
+      int jbin;
       ClusterSizesAllDets->Fill(sdetid,allValues[0]);
+      jbin = ClusterSizesAllDets->GetXaxis()->FindBin(sdetid);
+      ClusterSizesAllDets->SetBinError(jbin,allValues[1]);
       ClusterChargeAllDets->Fill(sdetid,allValues[2]);
+      jbin = ClusterChargeAllDets->GetXaxis()->FindBin(sdetid);
+      ClusterChargeAllDets->SetBinError(jbin,allValues[3]);
       OccupancyAllDets->Fill(sdetid,allValues[4]);
-      PercentNoisyStripsAllDets->Fill(sdetid,allValues[6]);
+      jbin = OccupancyAllDets->GetXaxis()->FindBin(sdetid);
+      OccupancyAllDets->SetBinError(jbin,allValues[5]);
+      float percent_noisy_strips = allValues[6];
+      if(percent_noisy_strips>0.5) percent_noisy_strips = 0.; // this value makes no sense, probably 0/0 division, check in historic producer
+      PercentNoisyStripsAllDets->Fill(sdetid,percent_noisy_strips);
       // 
       std::vector<uint32_t>::const_iterator aDet = std::find(activeDets.begin(),activeDets.end(), *idet);
       if( aDet!=activeDets.end() ){
