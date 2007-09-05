@@ -47,6 +47,8 @@ int main (){
   char throwaway[2000];
   //Now we pull in the data from the crate.input file
   fstream input("crate.input",ios::in);
+  if ( ! input.is_open() ) return 0;
+
   fstream output("lut.out",ios::out);
   fstream rctoutput("rct.out",ios::out);
   input.getline(throwaway,2000);
