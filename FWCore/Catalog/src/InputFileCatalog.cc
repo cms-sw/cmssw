@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: InputFileCatalog.cc,v 1.4 2007/06/29 03:43:19 wmtan Exp $
+// $Id: InputFileCatalog.cc,v 1.1 2007/08/06 19:53:57 wmtan Exp $
 //
 // Original Author: Luca Lista
 // Current Author: Bill Tanenbaum
@@ -20,7 +20,7 @@
 
 namespace edm {
   InputFileCatalog::InputFileCatalog(ParameterSet const& pset, bool noThrow) :
-    FileCatalog(pset),
+    FileCatalog(),
     logicalFileNames_(pset.getUntrackedParameter<std::vector<std::string> >("fileNames")),
     fileNames_(logicalFileNames_),
     fileCatalogItems_() {
@@ -46,12 +46,8 @@ namespace edm {
       } else {
         boost::trim(*lt);
 	if (!active()) {
-	  if (url().empty()) {
-	    // For reading use the catalog specified in the site-local config file
-	    url() = Service<edm::SiteLocalConfig>()->dataCatalog();
-	  } else {
-	    url() = toPhysical(url());
-	  }
+	  // For reading use the catalog specified in the site-local config file
+	  url() = Service<edm::SiteLocalConfig>()->dataCatalog();
 	  pool::URIParser parser(url());
 	  parser.parse();
 

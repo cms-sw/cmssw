@@ -2,7 +2,7 @@
 #define FWCore_Catalog_FileCatalog_h
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: FileCatalog.h,v 1.1 2007/03/04 04:43:30 wmtan Exp $
+// $Id: FileCatalog.h,v 1.2 2007/08/06 19:53:05 wmtan Exp $
 //
 // Class FileCatalog. Common services to manage File catalog
 //
@@ -30,14 +30,11 @@ namespace edm {
   class ParameterSet;
   class FileCatalog {
   public:
-    explicit FileCatalog(ParameterSet const& pset);
+    explicit FileCatalog();
     virtual ~FileCatalog() = 0;
     void commitCatalog();
     static bool const isPhysical(std::string const& name) {
       return (name.empty() || name.find(':') != std::string::npos);
-    }
-    static std::string const toPhysical(std::string const& name) {
-      return (isPhysical(name) ?  name : "file:" + name);
     }
     pool::IFileCatalog& catalog() {return catalog_;}
     std::string& url() {return url_;}

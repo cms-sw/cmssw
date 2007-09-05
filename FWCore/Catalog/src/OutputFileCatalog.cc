@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: OutputFileCatalog.cc,v 1.4 2007/06/29 03:43:19 wmtan Exp $
+// $Id: OutputFileCatalog.cc,v 1.1 2007/08/06 19:53:57 wmtan Exp $
 //
 // Original Author: Luca Lista
 // Current Author: Bill Tanenbaum
@@ -18,7 +18,7 @@
 
 namespace edm {
   OutputFileCatalog::OutputFileCatalog(ParameterSet const& pset) :
-      FileCatalog(pset),
+      FileCatalog(),
       fileName_(pset.getUntrackedParameter<std::string>("fileName")),
       logicalFileName_(pset.getUntrackedParameter<std::string>("logicalFileName", std::string())) {
     boost::trim(fileName_);
@@ -27,11 +27,7 @@ namespace edm {
 	  << "Empty 'fileName' parameter specified for output module.\n";
     }
     boost::trim(logicalFileName_);
-    if (url().empty()) {
-      url() = "file:PoolFileCatalog.xml"; // always for the output case
-    } else {
-      url() = toPhysical(url());
-    }
+    url() = "file:PoolFileCatalog.xml"; // always for the output case
     pool::URIParser parser(url());
     parser.parse();
     catalog().setWriteCatalog(parser.contactstring());

@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: FileCatalog.cc,v 1.4 2007/06/29 03:43:19 wmtan Exp $
+// $Id: FileCatalog.cc,v 1.5 2007/08/06 19:53:06 wmtan Exp $
 //
 // Original Author: Luca Lista
 // Current Author: Bill Tanenbaum
@@ -8,17 +8,13 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "FWCore/Catalog/interface/FileCatalog.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include <boost/algorithm/string.hpp>
 
 namespace edm {
 
-  FileCatalog::FileCatalog(ParameterSet const& pset) :
+  FileCatalog::FileCatalog() :
       catalog_(),
-      url_(pset.getUntrackedParameter<std::string>("catalog", std::string())),
+      url_(),
       active_(false) {
-    boost::trim(url_);
   }
 
   FileCatalog::~FileCatalog() {
