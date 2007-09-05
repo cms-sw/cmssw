@@ -15,8 +15,8 @@
 
    \brief A base class to handle the shape of preshower strips.
 
-$Date: 2006/10/26 08:57:10 $
-$Revision: 1.2 $
+$Date: 2007/04/12 17:47:43 $
+$Revision: 1.3 $
 \author F. Cossutti
    
 */
@@ -24,37 +24,37 @@ $Revision: 1.2 $
 
 class PreshowerStrip : public CaloCellGeometry
 {
-public:
+   public:
 
-  PreshowerStrip() ;
+      PreshowerStrip( const GlobalPoint& po ,
+		      float              dx , 
+		      float              dy , 
+		      float              dz ,
+		      const CornersMgr*  mgr ) :
+	 CaloCellGeometry ( po , mgr ) ,
+	 m_dx             ( dx ) ,
+	 m_dy             ( dy ) ,
+	 m_dz             ( dz ) {}
 
-  PreshowerStrip(double dx, double dy, double dz);
+      virtual ~PreshowerStrip() {}
 
-  virtual ~PreshowerStrip(){};
-
-  //! Inside the volume?
-  virtual bool inside(const GlobalPoint & point) const;  
+      virtual bool inside( const GlobalPoint& p ) const ;
   
-  //! Access to data
-  virtual const std::vector<GlobalPoint> & getCorners() const;  
+      virtual const CornersVec& getCorners() const ;
 
-  /** Transform (e.g. move or rotate) this box.
-      Transforms the corner points and the reference point.
-  */
-  void hepTransform(const HepTransform3D &transformation);
+      const float dx() const { return m_dx ; }
+      const float dy() const { return m_dy ; }
+      const float dz() const { return m_dz ; }
 
-protected:
-  
-  //! Keep corners info
-  std::vector<GlobalPoint> corners;
+   protected:
 
- private:
+   private:
 
-  double dx_;
-  double dy_;
-  double dz_;
-
+      float m_dx ;
+      float m_dy ;
+      float m_dz ;
 };
 
-std::ostream& operator<<(std::ostream& s,const PreshowerStrip& cell);
+std::ostream& operator<<( std::ostream& s , const PreshowerStrip& cell) ;
+
 #endif

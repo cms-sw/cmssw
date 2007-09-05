@@ -5,403 +5,170 @@
 
 //----------------------------------------------------------------------
 
-TruncatedPyramid::TruncatedPyramid()
- {}
+// the following function is static and a helper for the endcap & barrel loader classes
+// when initializing from DDD: fills corners vector from trap params plus transform
 
-//----------------------------------------------------------------------
-
-TruncatedPyramid::TruncatedPyramid(double dz, double theta, double phi, 
-                                   double h1, double bl1, double tl1, double alpha1, 
-                                   double h2, double bl2, double tl2, double alpha2)
-{
-  bool frontSideIsPositiveZ = (trapeziumArea(h2,tl2,bl2) < trapeziumArea(h1,tl1,bl1));
-  init(dz,theta,phi,h1,bl1,tl1,alpha1,h2,bl2,tl2,alpha2,frontSideIsPositiveZ);
-  // calculate the center of the front face
-  int i;
-  int offset ( 0 ) ;
-
-  if( dz<11.2*cm ) // only for endcap
-  {
-     if (frontSideIsPositiveZ)
-	offset = 4;                 // calculate the center of the front
-                                    // face from the second four points
-     else
-	offset = 0;                 // or from the first four points
-  }
-  HepGeom::Point3D<double> position;
-  for (i=0; i<4; ++i)
-    position += HepGeom::Point3D<double>(corners[i + offset].x(),
-					 corners[i + offset].y(),
-					 corners[i + offset].z());
-
-  //While waiting for *= operator
-  position *= 0.25;
-  setPosition(GlobalPoint(position.x(),position.y(),position.z()));
-}
-
-//----------------------------------------------------------------------
-
-void TruncatedPyramid::init(double dz, double theta, double phi, 
-			    double h1, double bl1, double tl1, double alpha1, 
-			    double h2, double bl2, double tl2, double alpha2,
-			    bool frontSideIsPositiveZ)
-{
-  corners.resize(8);
-  
-  double tan_alpha1 = tan(alpha1); // lower plane
-  double tan_alpha2 = tan(alpha2); // upper plane
-
-  double tan_theta_cos_phi = tan(theta) * cos(phi);
-  double tan_theta_sin_phi = tan(theta) * sin(phi);
-
-  //                       shift due to trapezoid| shift due to the                                               // approximate coordinate 
-  //                       axis not parallel to  | fact that the top                                              // signs
-  //                       z axis                | and bottom lines
-  //                                             | of the trapezium
-  //                                             | don't have their
-  //                                             | center at the same 
-  //                                             | x value (alpha !=0)       
-  std::vector<GlobalPoint> tcorners;
-  tcorners.resize(8);
-/*
-  corners[0] = GlobalPoint(-dz*tan_theta_cos_phi - h1 * tan_alpha1       - bl1, -dz*tan_theta_sin_phi - h1 , -dz); // (-,-,-)
-  corners[1] = GlobalPoint(-dz*tan_theta_cos_phi + h1 * tan_alpha1       - tl1, -dz*tan_theta_sin_phi + h1 , -dz); // (-,+,-)
-  corners[2] = GlobalPoint(-dz*tan_theta_cos_phi + h1 * tan_alpha1       + tl1, -dz*tan_theta_sin_phi + h1 , -dz); // (+,+,-)
-  corners[3] = GlobalPoint(-dz*tan_theta_cos_phi - h1 * tan_alpha1       + bl1, -dz*tan_theta_sin_phi - h1 , -dz); // (+,-,-)
-  
-  corners[4] = GlobalPoint(dz*tan_theta_cos_phi  - h2 * tan_alpha2       - bl2,  dz*tan_theta_sin_phi - h2  , dz); // (-,-,+)
-  corners[5] = GlobalPoint(dz*tan_theta_cos_phi  + h2 * tan_alpha2       - tl2,  dz*tan_theta_sin_phi + h2  , dz); // (-,+,+)
-  corners[6] = GlobalPoint(dz*tan_theta_cos_phi  + h2 * tan_alpha2       + tl2,  dz*tan_theta_sin_phi + h2  , dz); // (+,+,+)
-  corners[7] = GlobalPoint(dz*tan_theta_cos_phi  - h2 * tan_alpha2       + bl2,  dz*tan_theta_sin_phi - h2  , dz); // (+,-,+)
-*/
-
-  tcorners[0] = GlobalPoint(-dz*tan_theta_cos_phi - h1 * tan_alpha1       - bl1, -dz*tan_theta_sin_phi - h1 , -dz); // (-,-,-)
-  tcorners[1] = GlobalPoint(-dz*tan_theta_cos_phi + h1 * tan_alpha1       - tl1, -dz*tan_theta_sin_phi + h1 , -dz); // (-,+,-)
-  tcorners[2] = GlobalPoint(-dz*tan_theta_cos_phi + h1 * tan_alpha1       + tl1, -dz*tan_theta_sin_phi + h1 , -dz); // (+,+,-)
-  tcorners[3] = GlobalPoint(-dz*tan_theta_cos_phi - h1 * tan_alpha1       + bl1, -dz*tan_theta_sin_phi - h1 , -dz); // (+,-,-)
-  
-  tcorners[4] = GlobalPoint(dz*tan_theta_cos_phi  - h2 * tan_alpha2       - bl2,  dz*tan_theta_sin_phi - h2  , dz); // (-,-,+)
-  tcorners[5] = GlobalPoint(dz*tan_theta_cos_phi  + h2 * tan_alpha2       - tl2,  dz*tan_theta_sin_phi + h2  , dz); // (-,+,+)
-  tcorners[6] = GlobalPoint(dz*tan_theta_cos_phi  + h2 * tan_alpha2       + tl2,  dz*tan_theta_sin_phi + h2  , dz); // (+,+,+)
-  tcorners[7] = GlobalPoint(dz*tan_theta_cos_phi  - h2 * tan_alpha2       + bl2,  dz*tan_theta_sin_phi - h2  , dz); // (+,-,+)
-
-
-// modified code to work with new barrel geometry (brian heltsley 4/2007)
-
-  int i0 ( 0 ) ;
-  int i1 ( 1 ) ;
-  int i2 ( 2 ) ;
-  int i3 ( 3 ) ;
-  int i4 ( 4 ) ;
-  int i5 ( 5 ) ;
-  int i6 ( 6 ) ;
-  int i7 ( 7 ) ;
-
-  if( dz > 11.2*cm )
-  {
-     const double sign ( bl1<tl1 ? 1. : -1. ) ;
-     for( int k ( 0 ) ; k != 4 ; ++k )
-     {
-	const unsigned int j ( frontSideIsPositiveZ ? k+4 : k ) ;
-	if( sign*tcorners[j].x()>0 &&
-	    sign*tcorners[j].y()<0    ) i0 = j ;
-	if( sign*tcorners[j].x()>0 &&
-	    sign*tcorners[j].y()>0    ) i1 = j ;
-	if( sign*tcorners[j].x()<0 &&
-	    sign*tcorners[j].y()>0    ) i2 = j ;
-	if( sign*tcorners[j].x()<0 &&
-	    sign*tcorners[j].y()<0    ) i3 = j ;
-
-	const unsigned int m ( frontSideIsPositiveZ ? k : k+4 ) ;
-	if( sign*tcorners[m].x()>0 &&
-	    sign*tcorners[m].y()<0    ) i4 = m ;
-	if( sign*tcorners[m].x()>0 &&
-	    sign*tcorners[m].y()>0    ) i5 = m ;
-	if( sign*tcorners[m].x()<0 &&
-	    sign*tcorners[m].y()>0    ) i6 = m ;
-	if( sign*tcorners[m].x()<0 &&
-	    sign*tcorners[m].y()<0    ) i7 = m ;
-     }
-  }
-
-  corners[0] =  tcorners[i0] ;
-  corners[1] =  tcorners[i1] ;
-  corners[2] =  tcorners[i2] ;
-  corners[3] =  tcorners[i3] ;
-  corners[4] =  tcorners[i4] ;
-  corners[5] =  tcorners[i5] ;
-  corners[6] =  tcorners[i6] ;
-  corners[7] =  tcorners[i7] ;
-
-  // corners[0],corners[3] and corners[1],corners[2] make the parallel lines of the -dz trapezium
-  // corners[4],corners[7] and corners[5],corners[6] make the parallel lines of the +dz trapezium
-
-  // determine which one is the front face
-
-  
-  //--------------------
-
-  thetaAxis =  ( dz > 11.2*cm ? M_PI   - theta : theta ) ;
-  phiAxis   =  ( dz > 11.2*cm ? M_PI   + phi   : phi   ) ;
-  if( M_PI < phiAxis ) phiAxis -= 2*M_PI ;
-
-  // create the boundary planes, the first boundary plane will be the
-  // front side
-
-  if (frontSideIsPositiveZ)
-    {
-      boundaries.push_back(HepPlane3D(HepGeom::Point3D<float>(corners[4].x(),corners[4].y(),corners[4].z()), HepGeom::Point3D<float>(corners[5].x(),corners[5].y(),corners[5].z()), HepGeom::Point3D<float>(corners[6].x(),corners[6].y(),corners[6].z())));
-      boundaries.push_back(HepPlane3D(HepGeom::Point3D<float>(corners[0].x(),corners[0].y(),corners[0].z()),HepGeom::Point3D<float>(corners[1].x(),corners[1].y(),corners[1].z()),HepGeom::Point3D<float>(corners[2].x(),corners[2].y(),corners[2].z())));
-    }
-  else
-    {
-      boundaries.push_back(HepPlane3D(HepGeom::Point3D<float>(corners[0].x(),corners[0].y(),corners[0].z()),HepGeom::Point3D<float>(corners[1].x(),corners[1].y(),corners[1].z()),HepGeom::Point3D<float>(corners[2].x(),corners[2].y(),corners[2].z())));
-      boundaries.push_back(HepPlane3D(HepGeom::Point3D<float>(corners[4].x(),corners[4].y(),corners[4].z()), HepGeom::Point3D<float>(corners[5].x(),corners[5].y(),corners[5].z()), HepGeom::Point3D<float>(corners[6].x(),corners[6].y(),corners[6].z())));
-    }
-  
-  // now generate the other boundaries
-  boundaries.push_back(HepPlane3D(HepGeom::Point3D<float>(corners[0].x(),corners[0].y(),corners[0].z()),HepGeom::Point3D<float>(corners[1].x(),corners[1].y(),corners[1].z()),HepGeom::Point3D<float>(corners[4].x(),corners[4].y(),corners[4].z())));
-  boundaries.push_back(HepPlane3D(HepGeom::Point3D<float>(corners[1].x(),corners[1].y(),corners[1].z()),HepGeom::Point3D<float>(corners[2].x(),corners[2].y(),corners[2].z()),HepGeom::Point3D<float>(corners[5].x(),corners[5].y(),corners[5].z())));
-  boundaries.push_back(HepPlane3D(HepGeom::Point3D<float>(corners[0].x(),corners[0].y(),corners[0].z()),HepGeom::Point3D<float>(corners[3].x(),corners[3].y(),corners[3].z()),HepGeom::Point3D<float>(corners[4].x(),corners[4].y(),corners[4].z())));
-  boundaries.push_back(HepPlane3D(HepGeom::Point3D<float>(corners[2].x(),corners[2].y(),corners[2].z()),HepGeom::Point3D<float>(corners[3].x(),corners[3].y(),corners[3].z()),HepGeom::Point3D<float>(corners[6].x(),corners[6].y(),corners[6].z())));
-  
-  // normalize the planes
-  for (unsigned i=0; i < boundaries.size(); ++i)
-    boundaries[i] = boundaries[i].normalize();
-}
-
-//----------------------------------------------------------------------
-
-bool TruncatedPyramid::inside(const GlobalPoint & Point) const
-{
-
-  const HepGeom::Point3D<float> testPoint(Point.x(),Point.y(),Point.z());
-  const HepGeom::Point3D<float> testPointb(Point.x(),Point.y(),Point.z());
-  // with ordered planes this method becomes simpler
-  if ((testPoint-boundaries[0].point(testPointb))*(testPoint-boundaries[1].point(testPointb))>0){
-   return false ;
-  } 
-  if ((testPoint-boundaries[2].point(testPointb))*(testPoint-boundaries[5].point(testPointb))>0){   
-   return false ;
-  } 
-  if ((testPoint-boundaries[3].point(testPointb))*(testPoint-boundaries[4].point(testPointb))>0){ 
-   return false ;
-  }
-  return true;
-}
-
-
-const std::vector<GlobalPoint> & TruncatedPyramid::getCorners() const
-{ return corners ; }
-
-//----------------------------------------------------------------------
 void 
-TruncatedPyramid::hepTransform(const HepTransform3D &transformation)
+TruncatedPyramid::createCorners( const std::vector<double>&    pv ,
+				 const HepTransform3D&         tr ,
+				 CaloCellGeometry::CornersVec& co   )
 {
+   assert(  8 == co.size() ) ;
+   assert( 11 == pv.size() ) ;
 
+   // to get the ordering right for fast sim, we have to use their convention
+   // which were based on the old static geometry. Some gymnastics required here.
 
-  unsigned int i;
+   const double dz  ( pv[0] ) ;
+   const double thx ( pv[1] ) ;
+   const double phx ( pv[2] ) ;
+   const double h1x ( pv[3] ) ;
+   const double b1x ( pv[4] ) ;
+   const double t1x ( pv[5] ) ;
+   const double a1x ( pv[6] ) ;
+   const double h2x ( pv[7] ) ;
+   const double b2x ( pv[8] ) ;
+   const double t2x ( pv[9] ) ;
+   const double a2x ( pv[10]) ;
 
-  //Updating reference position
-  const GlobalPoint& position_=CaloCellGeometry::getPosition();
-  HepGeom::Point3D<float> newPosition(position_.x(),position_.y(),position_.z());
-  newPosition.transform(transformation);
-  setPosition(GlobalPoint(newPosition.x(),newPosition.y(),newPosition.z()));
+   double th, ph, h1, b1, t1, a1, h2, b2, t2, a2 ;
 
-  //Updating Bondaries
-  for (i=0; i<boundaries.size(); ++i)
-    boundaries[i].transform(transformation);
+   if( h1x < h2x ) // small end is z<0
+   {
+      th = thx ; ph = phx ;
+      h1 = h1x ; h2 = h2x ;
+      b1 = ( b1x<t1x ? b1x : t1x ) ; b2 = ( b2x<t2x ? b2x : t2x ) ;
+      t1 = ( b1x<t1x ? t1x : b1x ) ; t2 = ( b2x<t2x ? t2x : b2x ) ;
+      a1 = a1x ; a2 = a2x ;
+   }
+   else
+   {
+      th = thx ; ph = M_PI - phx ;
+      h1 = h2x ; h2 = h1x ;
+      b1 = ( b2x<t2x ? b2x : t2x ) ; b2 = ( b1x<t1x ? b1x : t1x ) ;
+      t1 = ( b2x<t2x ? t2x : b2x ) ; t2 = ( b1x<t1x ? t1x : b1x ) ;
+      a1 = a2x ; a2 = a1x ;
+   }
 
-  //Updating Theta and Phi
-  HepVector3D axe(1.,1.,1.); 
-  axe.setMag(1.); // must do this first
-  axe.setTheta(thetaAxis);
-  axe.setPhi(phiAxis);
-  axe.transform(transformation);
-  thetaAxis = axe.getTheta();
-  phiAxis = axe.getPhi();
-
-  // brian heltsley  April 13 2007
-  // if the transformation contains a reflection 
-  // the corners must be swapped accordingly.
-  // we know there is one such reflection in the barrel
-
-  std::vector< HepGeom::Point3D<float> > tlocal;
-  tlocal.resize(8);
-
-  //Updating corners
-  for (i=0; i<corners.size(); ++i)
-  {
-     HepGeom::Point3D<float> newCorner(corners[i].x(),
-				       corners[i].y(),
-				       corners[i].z());
-     newCorner.transform(transformation);
-     corners[i]=GlobalPoint(newCorner.x(),
-			    newCorner.y(),
-			    newCorner.z());
-     tlocal[i] = HepGeom::Point3D<float>(corners[i].x(),
-					 corners[i].y(),
-					 corners[i].z()  ) ;
-  }
-
-  if( fabs( corners[4].z() ) < 300. ) // not for endcap
-  {
-     const HepVector3D one ( tlocal[0] - newPosition ) ;
-     const HepVector3D two ( tlocal[1] - newPosition ) ;
-     const HepVector3D zax ( tlocal[4] - tlocal[0] ) ;
-
-     if( (one.cross( two )).dot(zax) > 0 ) // swap condition for barrel
-     {
-	GlobalPoint temp ( corners[0] ) ;
-	corners[0] = corners[3] ; 
-	corners[3] = temp ; 
-	temp = corners[1] ;
-	corners[1] = corners[2] ;
-	corners[2] = temp ;
-	temp = corners[4] ;
-	corners[4] = corners[7] ;
-	corners[7] = temp ;
-	temp = corners[5] ;
-	corners[5] = corners[6] ;
-	corners[6] = temp ;
-     }
-  }
-  else // this for endcaps... goal for now is to preserve old ording. B. Heltsley August 2007
-  {
-     std::vector< HepGeom::Point3D<float> > tsort;
-     tsort.resize(8);
-
-     // sort by fabs(z) so front of crystal comes first
-     std::sort( tlocal.begin(), tlocal.end(), ByFabsZ() ) ;
-
-     const HepGeom::Point3D<float>  ctrf ( 0.25*( tlocal[0] +
-						  tlocal[1] +
-						  tlocal[2] +
-						  tlocal[3]  ) ) ;
-
-     const HepGeom::Point3D<float>  ctrb ( 0.25*( tlocal[4] +
-						  tlocal[5] +
-						  tlocal[6] +
-						  tlocal[7]  ) ) ;
-
-     for( unsigned int m ( 0 ) ; m != 4; ++m )
-     {
-	const HepGeom::Point3D<float> trelf ( tlocal[m] - ctrf ) ;
-	tsort[ ( 0 > trelf.x() &&
-		 0 < trelf.y()    ? 0 :
-		 (  0 < trelf.x() &&
-		    0 < trelf.y()    ? 1 :
-		    (  0 > trelf.x() &&
-		       0 > trelf.y()    ? 3 : 2 ) ) ) ] = tlocal[m] ;
-	const HepGeom::Point3D<float> trelb ( tlocal[m+4] - ctrb ) ;
-	tsort[ 4 + ( 0 > trelb.x() &&
-		     0 < trelb.y()    ? 0 :
-		     (  0 < trelb.x() &&
-			0 < trelb.y()    ? 1 :
-			(  0 > trelb.x() &&
-			   0 > trelb.y()    ? 3 : 2 ) ) ) ] = tlocal[m+4] ;
-     }
-
-     const unsigned int off ( 0 < ctrf.x() && 0 < ctrf.y() ? 3 :
-			      ( 0 < ctrf.x() && 0 > ctrf.y() ? 0 :
-				( 0 > ctrf.x() && 0 < ctrf.y() ? 2 : 1 ) ) ) ;
-
-     const int kz ( 0 < ctrf.z() ? 1 : -1 ) ;
-
-     for( unsigned int i=0 ; i != 4 ; ++i )
-     {
-	const int ind ( ( kz*i + off )%4 ) ;
-	const HepGeom::Point3D<float> ts ( tsort[     ind] ) ;
-	corners[i  ]=GlobalPoint( ts.x(), ts.y(), ts.z() ) ;
-	const HepGeom::Point3D<float> tt ( tsort[ 4 + ind ] ) ;
-	corners[i+4]=GlobalPoint( tt.x(), tt.y(), tt.z() ) ;
-     }
-  }
-}
-
-//----------------------------------------------------------------------
-double 
-TruncatedPyramid::trapeziumArea(double halfHeight, double
-                                halfTopLength, double
-                                halfBottomLength)
-{
-  return (halfTopLength + halfTopLength) * halfHeight * 2;
-}
-
-
-const GlobalPoint 
-TruncatedPyramid::getPosition(float depth) const 
-{
-  GlobalPoint point = CaloCellGeometry::getPosition();
-
-  if (depth <= 0)
-    return point;
-
-  // only add the vector if depth is positive
-  Hep3Vector move(1.,1.,1.); 
-  move.setMag(depth); // must do this first
-  move.setTheta(thetaAxis);
-  move.setPhi(phiAxis);
-
-  // Bart Van de Vyver 10/5/2002 explicit GlobalPoint constructor 
-  // to avoid compiler warning
-
-  point = point + GlobalVector(move.x(),move.y(),move.z());
-
-  return point;
-}
-
-//----------------------------------------------------------------------
-
-const GlobalPoint TruncatedPyramid::getPosition(float depth, GlobalVector dir) const 
-{
-  GlobalPoint point = CaloCellGeometry::getPosition();
+   std::vector<HepPoint3D> to ( 8, HepPoint3D(0,0,0) ) ;
+   std::vector<HepPoint3D> ko ( 8, HepPoint3D(0,0,0) ) ;
   
-  if (depth <= 0)
-    return point;
+   const double ta1 ( tan( a1 ) ) ; // lower plane
+   const double ta2 ( tan( a2 ) ) ; // upper plane
 
-  // only add the vector if depth is non-zero      
-  Hep3Vector move(1.,1.,1.); 
-  depth *= cos(thetaAxis - dir.theta()); // project onto crystal axis
-  move.setMag(depth); // must do this first
-  move.setTheta(thetaAxis);
-  move.setPhi(phiAxis);
-  // Bart Van de Vyver 10/5/2002 explicit GlobalPoint constructor 
-  // to avoid compiler warning
-  point = point + GlobalVector(move.x(),move.y(),move.z());
-  return point;
+   const double tth   ( tan( th )       ) ;
+   const double tthcp ( tth * cos( ph ) ) ;
+   const double tthsp ( tth * sin( ph ) ) ;
+
+   to[0] = HepPoint3D( -dz*tthcp - h1*ta1 - b1, -dz*tthsp - h1 , -dz ); // (-,-,-)
+   to[1] = HepPoint3D( -dz*tthcp + h1*ta1 - t1, -dz*tthsp + h1 , -dz ); // (-,+,-)
+   to[2] = HepPoint3D( -dz*tthcp + h1*ta1 + t1, to[1].y()      , -dz ); // (+,+,-)
+   to[3] = HepPoint3D( -dz*tthcp - h1*ta1 + b1, to[0].y()      , -dz ); // (+,-,-)
+   to[4] = HepPoint3D(  dz*tthcp - h2*ta2 - b2, -dz*tthsp - h2 ,  dz ); // (-,-,+)
+   to[5] = HepPoint3D(  dz*tthcp + h2*ta2 - t2, -dz*tthsp + h2 ,  dz ); // (-,+,+)
+   to[6] = HepPoint3D(  dz*tthcp + h2*ta2 + t2, to[5].y()      ,  dz ); // (+,+,+)
+   to[7] = HepPoint3D(  dz*tthcp - h2*ta2 + b2, to[4].y()      ,  dz ); // (+,-,+)
+
+   for( unsigned int i ( 0 ) ; i != 8 ; ++i )
+   {
+      ko[i] = tr * to[i] ; // apply transformation
+   }
+
+   // if reflection, different things for barrel and endcap
+   static const HepVector3D x ( 1, 0, 0 ) ;
+   static const HepVector3D y ( 0, 1, 0 ) ;
+   static const HepVector3D z ( 0, 0, 1 ) ;
+   const bool refl ( ( ( tr*x ).cross( tr*y ) ).dot( tr*z ) < 0 ) ; // has reflection!
+   if( refl )
+   {
+      if( 11.2 < dz ) //barrel
+      {
+	 to[0] = ko[3] ;
+	 to[1] = ko[2] ;
+	 to[2] = ko[1] ;
+	 to[3] = ko[0] ;
+	 to[4] = ko[7] ;
+	 to[5] = ko[6] ;
+	 to[6] = ko[5] ;      
+	 to[7] = ko[4] ;      
+      }
+      else //endcap
+      {
+	 to[0] = ko[0] ;
+	 to[1] = ko[3] ;
+	 to[2] = ko[2] ;
+	 to[3] = ko[1] ;
+	 to[4] = ko[4] ;
+	 to[5] = ko[7] ;
+	 to[6] = ko[6] ;      
+	 to[7] = ko[5] ;      
+      }
+      copy( to.begin(), to.end(), ko.begin() ) ; // faster than ko = to ? maybe.
+   }
+   for( unsigned int i ( 0 ) ; i != 8 ; ++i )
+   {
+      const HepPoint3D& p ( ko[i] ) ;
+      co[ i ] = GlobalPoint( p.x(), p.y(), p.z() ) ;
+   }
 }
-
 //----------------------------------------------------------------------
 
 
+bool 
+TruncatedPyramid::inside( const GlobalPoint& point ) const
+{
+   if( 0 == m_bou )
+   {
+      const CornersVec& cog ( getCorners() ) ;
+      std::vector<HepPoint3D> co ( 8, HepPoint3D(0,0,0) ) ;
+      for( unsigned int i ( 0 ) ; i != 8 ; ++i )
+      {
+	 co[i] = HepPoint3D( cog[i].x(), cog[i].y(), cog[i].z() ) ;
+      }
+      m_bou = new BoundaryVec ;
+      m_bou->reserve( 6 ) ; // order is important for this function!
+      m_bou->push_back( HepPlane3D( co[0], co[1], co[2] ) ) ; // z<0
+      m_bou->push_back( HepPlane3D( co[6], co[5], co[4] ) ) ; // z>0
+      m_bou->push_back( HepPlane3D( co[0], co[4], co[5] ) ) ; // x<0
+      m_bou->push_back( HepPlane3D( co[2], co[6], co[7] ) ) ; // x>0
+      m_bou->push_back( HepPlane3D( co[0], co[3], co[7] ) ) ; // y<0
+      m_bou->push_back( HepPlane3D( co[1], co[5], co[6] ) ) ; // y>0
+   }
+   const BoundaryVec& b ( *m_bou ) ;
 
-void TruncatedPyramid::dump(const char * prefix="") const {
+   const HepPoint3D p ( point.x(), point.y(), point.z() ) ;
 
-  // a crystal must have eight corners (not only the front face...)
-  assert(getCorners().size() == 8);
-  std::cout << prefix << "Center: " <<  CaloCellGeometry::getPosition() << std::endl;
-  float thetaaxis_= getThetaAxis();
-  float phiaxis_= getPhiAxis();
-  std::cout << prefix << "Axis: " <<  thetaaxis_ << " " << phiaxis_ << std::endl;
-  //  vector<HepPoint3D> xtCorners=getCorners();
-  for ( unsigned int  ci=0; ci !=corners.size(); ci++) {
-    std::cout << prefix << "Corner: " << corners[ci] << std::endl;
-  }
+   return ( ( p - b[0].point(p) ).dot( p - b[1].point(p) ) <= 0 &&
+	    ( p - b[2].point(p) ).dot( p - b[3].point(p) ) <= 0 &&
+	    ( p - b[4].point(p) ).dot( p - b[5].point(p) ) <= 0    ) ;
 }
+/*
+void TruncatedPyramid::dump( const char * prefix ) const 
+{
+   std::cout << prefix << "Center: " <<  CaloCellGeometry::getPosition() << std::endl;
+   const float thetaaxis ( getThetaAxis() ) ;
+   const float phiaxis   ( getPhiAxis()   ) ;
+   std::cout << prefix << "Axis: " <<  thetaaxis << " " << phiaxis << std::endl ;
+   const CaloCellGeometry::CornerVec& corners ( getCorners() ) ;
+   for ( unsigned int  ci=0; ci != corners.size(); ++ci ) 
+   {
+      std::cout << prefix << "Corner: " << corners[ci] << std::endl;
+   }
+}
+*/
 //----------------------------------------------------------------------
 
-std::ostream& operator<<(std::ostream& s,const TruncatedPyramid& cell) {
-  assert(cell.getCorners().size() == 8);
-  s  << "Center: " <<  cell.getPosition(0.) << std::endl;
-  float thetaaxis_= cell.getThetaAxis();
-  float phiaxis_= cell.getPhiAxis();
-  s  << "Axis: " <<  thetaaxis_ << " " << phiaxis_ << std::endl;
-  const std::vector<GlobalPoint>& corners=cell.getCorners(); 
-  //  vector<HepPoint3D> xtCorners=getCorners();
-  for ( unsigned int  ci=0; ci !=corners.size(); ci++) {
-    s  << "Corner: " << corners[ci] << std::endl;
-  }
-  return s;
+std::ostream& operator<<( std::ostream& s, const TruncatedPyramid& cell ) 
+{
+   s << "Center: " <<  ( (const CaloCellGeometry&) cell).getPosition() << std::endl;
+   const float thetaaxis ( cell.getThetaAxis() ) ;
+   const float phiaxis   ( cell.getPhiAxis()   ) ;
+   s << "Axis: " <<  thetaaxis << " " << phiaxis << std::endl ;
+   const CaloCellGeometry::CornersVec& corners ( cell.getCorners() ) ;
+   for ( unsigned int i=0 ; i != corners.size() ; ++i ) 
+   {
+      s << "Corner: " << corners[i] << std::endl;
+   }
+  return s ;
 }
   

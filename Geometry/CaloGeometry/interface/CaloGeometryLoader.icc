@@ -1,0 +1,133 @@
+#ifndef GEOMETRY_ECALGEOMETRYLOADER_ICC
+#define GEOMETRY_ECALGEOMETRYLOADER_ICC 1
+
+#include "Geometry/CaloGeometry/interface/CaloGeometryLoader.h"
+
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDExpandedView.h"
+#include "DetectorDescription/Core/interface/DDNodes.h"
+#include "DetectorDescription/Core/interface/DDSpecifics.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDScope.h"
+#include "DetectorDescription/Core/interface/DDFilter.h"
+#include "DetectorDescription/Core/interface/DDQuery.h"
+#include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+
+#include "CLHEP/Units/SystemOfUnits.h"
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+template <class T>
+CaloGeometryLoader<T>::CaloGeometryLoader<T>() 
+{
+   m_filter.setCriteria( DDValue( "SensitiveDetector",
+				  "EcalSensitiveDetector",
+				  0                        ),
+			 DDSpecificsFilter::equals,
+			 DDSpecificsFilter::AND,
+			 true,
+			 true                               ) ;
+
+   m_filter.setCriteria( DDValue( "ReadOutName",
+				  T::hitString(),
+				  0                  ),
+			 DDSpecificsFilter::equals,
+			 DDSpecificsFilter::AND,
+			 true,
+			 true                       ) ;
+}
+
+template <class T>
+typename CaloGeometryLoader<T>::PtrType
+CaloGeometryLoader<T>::load( const DDCompactView* cpv ) 
+{
+   PtrType geom ( new T ) ;
+
+   makeGeometry( cpv,
+		 dynamic_cast<T*>( geom.get() ) ) ;
+   
+   return geom ;
+}
+
+template <class T>
+void 
+CaloGeometryLoader<T>::makeGeometry( const DDCompactView* cpv  ,
+				     T*                   geom  )
+{
+   DDFilteredView fv( *cpv ) ;
+   fv.addFilter( m_filter ) ;
+
+   fillNamedParams( fv, geom ) ;
+
+   unsigned int counter ( 0 ) ;
+  
+   for( bool doSubDets = fv.firstChild(); doSubDets ; doSubDets = fv.nextSibling() )
+   {
+      ++counter ;
+   } 
+
+   geom->allocateCorners( counter ) ;
+ 
+   for( bool doSubDets = fv.firstChild(); doSubDets ; doSubDets = fv.nextSibling() )
+   {
+      const DDSolid& solid ( fv.logicalPart().solid() ) ;
+      if( solid.shape() != ddtrap )
+	 throw DDException( std::string( __FILE__ ) 
+			    + "\n CaloGeometryLoader: only trapezoidal crystal shapes supported " ) ;
+      
+      const ParmVec& parameters ( solid.parameters() ) ;
+
+      DD3Vector x, y, z;
+      fv.rotation().GetComponents( x, y, z ) ;
+      const HepRep3x3 temp( x.X(), y.X(), z.X(),
+			    x.Y(), y.Y(), z.Y(),
+			    x.Z(), y.Z(), z.Z() );
+      const HepRotation hr ( temp );
+      const Hep3Vector h3v( fv.translation().X(),
+			    fv.translation().Y(),
+			    fv.translation().Z()  ) ;
+      const HepTransform3D ht3d ( HepScale3D( 0.1 )*HepTransform3D( hr, h3v ) ) ;    
+
+      const DetId id ( getDetIdForDDDNode( fv ) ) ;
+
+      fillGeom( geom, parameters, ht3d, id ) ;
+   }
+
+   extraStuff( geom ) ;
+}
+
+template <class T>
+unsigned int 
+CaloGeometryLoader<T>::getDetIdForDDDNode( const DDFilteredView& fv )
+{
+  // perform some consistency checks
+  // get the parents and grandparents of this node
+
+  const DDGeoHistory& parents ( fv.geoHistory() ) ;
+  const size_t psize ( parents.size() ) ;
+
+  EcalBaseNumber baseNumber ;
+  baseNumber.setSize( psize ) ;
+
+  for( unsigned int i=1 ; i<=psize ; ++i )
+  {
+     baseNumber.addLevel( parents[psize-i].logicalPart().name().name(),
+			  parents[psize-i].copyno() ) ;
+  }
+
+  return m_scheme.getUnitID( baseNumber );  
+}
+
+#endif

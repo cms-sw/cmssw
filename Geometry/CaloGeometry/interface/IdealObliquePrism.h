@@ -24,23 +24,44 @@ namespace calogeom {
   is encoded in the sign of the thickness.  (positive = parallel to
   z-axis, negative = perpendicular)
 
-  $Date: 2005/09/30 13:42:44 $
-  $Revision: 1.1 $
+  $Date: 2005/10/03 22:35:23 $
+  $Revision: 1.2 $
   \author J. Mans - Minnesota
   */
-  class IdealObliquePrism : public CaloCellGeometry {
-  public:
-    IdealObliquePrism(const GlobalPoint& faceCenter, float widthEta, float widthPhi, float thickness, bool parallelToZaxis);
-    IdealObliquePrism(float eta, float phi, float radialDistanceToFront, float widthEta, float widthPhi, float thickness, bool parallelToZaxis);
-    virtual ~IdealObliquePrism() { }
-    virtual bool inside(const GlobalPoint & point) const;  
-    /// The corners in the oblique prism are stored transiently.
-    virtual const std::vector<GlobalPoint> & getCorners() const;
-  private:
-    float hwidthEta_, hwidthPhi_; // half-widths
-    float thickness_;
-    mutable std::vector<GlobalPoint> points_; // required for now...  Maybe reorganized later for speed.
-  };
+   class IdealObliquePrism : public CaloCellGeometry 
+   {
+      public:
+
+	 IdealObliquePrism( const GlobalPoint& faceCenter, 
+			    float              wEta, 
+			    float              wPhi, 
+			    float              thick, 
+			    bool               parallelToZaxis,
+			    const CornersMgr*  mgr               ) : 
+	    CaloCellGeometry ( faceCenter, mgr ) ,
+	    m_wEta           ( wEta/2 ) ,
+	    m_wPhi           ( wPhi/2 ) ,
+	    m_thick          ( parallelToZaxis ? thick : -thick ) {}
+
+	 virtual ~IdealObliquePrism() {}
+
+	 virtual const CornersVec& getCorners() const ;
+
+	 virtual bool inside( const GlobalPoint & point ) const ;  
+
+	 float wEta()  const { return m_wEta ; }
+	 float wPhi()  const { return m_wPhi ; }
+	 float thick() const { return m_thick ; }
+
+      private:
+	 
+	 float m_wEta  ;
+	 float m_wPhi  ; // half-widths
+	 float m_thick ;
+   };
+
+   std::ostream& operator<<( std::ostream& s , const IdealObliquePrism& cell ) ;
 }
+
 
 #endif

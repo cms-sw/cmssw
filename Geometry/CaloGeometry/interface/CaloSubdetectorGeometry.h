@@ -6,8 +6,7 @@
 #include <set>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-
-class CaloCellGeometry;
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
 /** \class CaloSubdetectorGeometry
       
@@ -15,63 +14,78 @@ Base class for a geometry container for a specific calorimetry
 subdetector.
 
 
-$Date: 2007/06/15 06:04:07 $
-$Revision: 1.9 $
+$Date: 2007/06/15 06:09:54 $
+$Revision: 1.10 $
 \author J. Mans - Minnesota
 */
 class CaloSubdetectorGeometry {
-public:
-  typedef  __gnu_cxx::hash_map< unsigned int, CaloCellGeometry const *> CellCont;
 
-  CaloSubdetectorGeometry(){}
-  /// The base class DOES assume that it owns the CaloCellGeometry objects
-  virtual ~CaloSubdetectorGeometry();
-private:
+   public:
 
-  /// avoid copies
-  CaloSubdetectorGeometry(CaloSubdetectorGeometry const &){}
-  CaloSubdetectorGeometry& operator=(CaloSubdetectorGeometry const &){return *this;}
+      typedef  __gnu_cxx::hash_map< unsigned int, const CaloCellGeometry *> CellCont;
 
-public:
-  /// the cells
-  CellCont const & cellGeometries() const { return cellGeometries_; }  
+      typedef std::set<DetId> DetIdSet;
 
-  /// Add a cell to the geometry
-  void addCell(const DetId& id, const CaloCellGeometry* ccg);
+      CaloSubdetectorGeometry() : m_cmgr ( 0 ) {}
 
-  /// is this detid present in the geometry?
-  virtual bool present(const DetId& id) const;
+      /// The base class DOES assume that it owns the CaloCellGeometry objects
+      virtual ~CaloSubdetectorGeometry();
 
-  /// Get the cell geometry of a given detector id.  Should return false if not found.
-  virtual const CaloCellGeometry* getGeometry(const DetId& id) const;
+   public:
+      /// the cells
+      const CellCont& cellGeometries() const { return m_cellG ; }  
 
-  /** \brief Get a list of valid detector ids (for the given subdetector)
-      \note The implementation in this class is relevant for SubdetectorGeometries which handle only
-      a single subdetector at a time.  It does not look at the det and subdet arguments.
-  */
-  virtual std::vector<DetId> const & getValidDetIds(DetId::Detector det, int subdet) const;
+      /// Add a cell to the geometry
+      void addCell( const DetId& id, 
+		    const CaloCellGeometry* ccg ) ;
 
-  // Get closest cell, etc...
-  virtual DetId getClosestCell(const GlobalPoint& r) const ;
+      /// is this detid present in the geometry?
+      virtual bool present( const DetId& id ) const;
 
-  typedef std::set<DetId> DetIdSet;
+      /// Get the cell geometry of a given detector id.  Should return false if not found.
+      virtual const CaloCellGeometry* getGeometry( const DetId& id ) const ;
 
-  /** \brief Get a list of all cells within a dR of the given cell
+      /** \brief Get a list of valid detector ids (for the given subdetector)
+	  \note The implementation in this class is relevant for SubdetectorGeometries which handle only
+	  a single subdetector at a time.  It does not look at the det and subdet arguments.
+      */
+      virtual const std::vector<DetId>& getValidDetIds( DetId::Detector det, 
+							int subdet  ) const ;
 
+      // Get closest cell, etc...
+      virtual DetId getClosestCell( const GlobalPoint& r ) const ;
+
+      /** \brief Get a list of all cells within a dR of the given cell
+	  
       The default implementation makes a loop over all cell geometries.
       Cleverer implementations are suggested to use rough conversions between
       eta/phi and ieta/iphi and test on the boundaries.
-  */
-  virtual DetIdSet getCells(const GlobalPoint& r, double dR) const;
+      */
+      virtual DetIdSet getCells( const GlobalPoint& r, double dR ) const ;
 
-  static double deltaR(const GlobalPoint& p1, const GlobalPoint& p2);
+      //FIXME: Hcal implements its own  getValidDetId....
 
-  //FIXME: Hcal implements its own  getValidDetId....
-protected:
-  mutable std::vector<DetId> validIds_;
+      void allocateCorners( CaloCellGeometry::CornersVec::size_type n ) ;
 
-private:
-  CellCont cellGeometries_;    
+      CaloCellGeometry::CornersMgr* cornersMgr() { return m_cmgr ; }
+
+   protected:
+
+      mutable std::vector<DetId> m_validIds ;
+
+      static double deltaR( const GlobalPoint& p1,
+			    const GlobalPoint& p2  ) ;
+
+   private:
+
+      CaloCellGeometry::CornersMgr* m_cmgr ;
+
+      /// avoid copies
+      CaloSubdetectorGeometry(            const CaloSubdetectorGeometry& ) ;
+      CaloSubdetectorGeometry& operator=( const CaloSubdetectorGeometry& ) ;
+
+      CellCont m_cellG ;    
+
 };
 
 

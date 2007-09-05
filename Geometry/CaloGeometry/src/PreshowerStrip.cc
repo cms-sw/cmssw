@@ -1,83 +1,50 @@
 #include "Geometry/CaloGeometry/interface/PreshowerStrip.h"
-//#include <algorithm>
 #include <iostream>
-//#include "assert.h"
 
 using namespace std;
 
-//----------------------------------------------------------------------
-
-PreshowerStrip::PreshowerStrip()
- {}
-
-//----------------------------------------------------------------------
-
-PreshowerStrip::PreshowerStrip(double dx, double dy, double dz)
+bool
+PreshowerStrip::inside( const GlobalPoint& p ) const
 {
-
-  dx_ = dx;
-  dy_ = dy;
-  dz_ = dz;
-
-  corners.resize(8);
-  
-  corners[0] = GlobalPoint(-dx , -dy , -dz); // (-,-,-)
-  corners[1] = GlobalPoint(-dx ,  dy , -dz); // (-,+,-)
-  corners[2] = GlobalPoint( dx ,  dy , -dz); // (+,+,-)
-  corners[3] = GlobalPoint( dx , -dy , -dz); // (+,-,-)
-                           
-  corners[4] = GlobalPoint(-dx , -dy , dz);  // (-,-,+)
-  corners[5] = GlobalPoint(-dx ,  dy , dz);  // (-,+,+)
-  corners[6] = GlobalPoint( dx ,  dy , dz);  // (+,+,+)
-  corners[7] = GlobalPoint( dx , -dy , dz);  // (+,-,+)
-
-
-  // set the reference position as the geometric center of the box
-  HepGeom::Point3D<double> position;
-  position == HepGeom::Point3D<double>(0.,0.,0.);
-  setPosition(GlobalPoint(position.x(),position.y(),position.z()));
+   const GlobalPoint& c ( getPosition() ) ;
+   return ( fabs( p.x() - c.x() ) < m_dx && 
+	    fabs( p.y() - c.y() ) < m_dy &&
+	    fabs( p.z() - c.z() ) < m_dz    ) ; 
 }
 
-bool PreshowerStrip::inside(const GlobalPoint & Point) const
+const CaloCellGeometry::CornersVec& 
+PreshowerStrip::getCorners() const 
 {
+   const CornersVec& co ( CaloCellGeometry::getCorners() ) ;
+   if( co.empty() ) 
+   {
+      CornersVec& corners ( setCorners() ) ;
 
-  const GlobalPoint& center = getPosition();
-  if ( abs(Point.x()-center.x()) > dx_ || abs(Point.y()-center.y()) > dy_ || abs(Point.z()-center.z()) > dz_ ) return false;
-  return true;
+      const GlobalPoint& ctr ( getPosition() ) ;
+      const float x ( ctr.x() ) ;
+      const float y ( ctr.y() ) ;
+      const float z ( ctr.z() ) ;
+
+      corners[ 0 ] = GlobalPoint( x - m_dx, y - m_dy, z - m_dz ) ;
+      corners[ 1 ] = GlobalPoint( x - m_dx, y + m_dy, z - m_dz ) ;
+      corners[ 2 ] = GlobalPoint( x + m_dx, y + m_dy, z - m_dz ) ;
+      corners[ 3 ] = GlobalPoint( x + m_dx, y - m_dy, z - m_dz ) ;
+      corners[ 4 ] = GlobalPoint( x - m_dx, y - m_dy, z + m_dz ) ;
+      corners[ 5 ] = GlobalPoint( x - m_dx, y + m_dy, z + m_dz ) ;
+      corners[ 6 ] = GlobalPoint( x + m_dx, y + m_dy, z + m_dz ) ;
+      corners[ 7 ] = GlobalPoint( x + m_dx, y - m_dy, z + m_dz ) ;
+   }
+   return co ;
 }
 
-
-const vector<GlobalPoint> & PreshowerStrip::getCorners() const
-{ return corners ; }
-
-void PreshowerStrip::hepTransform(const HepTransform3D &transformation)
+std::ostream& operator<<( std::ostream& s, const PreshowerStrip& cell ) 
 {
-
-  unsigned int i;
-
-  //Updating corners
-  for (i=0; i<corners.size(); ++i)
-    {
-      HepGeom::Point3D<float> newCorner(corners[i].x(),corners[i].y(),corners[i].z());
-      newCorner.transform(transformation);
-      corners[i]=GlobalPoint(newCorner.x(),newCorner.y(),newCorner.z());
-    }
-
-  //Updating reference position
-  const GlobalPoint& position_=getPosition();
-  HepGeom::Point3D<float> newPosition(position_.x(),position_.y(),position_.z());
-  newPosition.transform(transformation);
-  setPosition(GlobalPoint(newPosition.x(),newPosition.y(),newPosition.z()));
-
-}
-
-std::ostream& operator<<(std::ostream& s,const PreshowerStrip& cell) {
-  assert(cell.getCorners().size() == 8);
-  s  << "Center: " <<  cell.getPosition() << std::endl;
-  const std::vector<GlobalPoint>& corners=cell.getCorners(); 
-  //  vector<HepPoint3D> xtCorners=getCorners();
-  for ( unsigned int  ci=0; ci !=corners.size(); ci++) {
-    s  << "Corner: " << corners[ci] << std::endl;
-  }
-  return s;
+   s << "Center: " <<  cell.getPosition() << std::endl ;
+   s << "dx = " << cell.dx() << ", dy = " << cell.dy() << ", dz = " << cell.dz() << std::endl ;
+/*   const CaloCellGeometry::CornerVec& corners ( cell.getCorners() ) ; 
+   for( unsigned int ci ( 0 ) ; ci != corners.size(); ci++ ) 
+   {
+      s  << "Corner: " << corners[ci] << std::endl;
+   }*/
+   return s;
 }
