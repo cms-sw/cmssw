@@ -3,8 +3,8 @@
  *  Makes histograms of high level Muon objects/quantities
  *  for Alignment Scenarios/DB comparison
  *
- *  $Date: 2007/08/29 17:53:06 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/07/19 17:53:06 $
+ *  $Revision: 1.5 $
  *  \author J. Fernandez - IFCA (CSIC-UC) <Javier.Fernandez@cern.ch>
  */
 
@@ -68,7 +68,7 @@ MuonAlignmentAnalyzer::MuonAlignmentAnalyzer(const ParameterSet& pset){
   doResplots = pset.getUntrackedParameter<bool>("doResplots");
  
   if(theDataType != "RealData" && theDataType != "SimData")
-    edm::LogError("MuonAlignmentAnalyzer") << "Error in Data Type!!"<<endl;
+    edm::LogError("MuonAlignmentAnalyzer")  << "Error in Data Type!!"<<endl;
 
   numberOfSimTracks=0;
   numberOfSARecTracks=0;
@@ -107,13 +107,13 @@ void MuonAlignmentAnalyzer::beginJob(const EventSetup& eventSetup){
   if(theDataType == "SimData"){
   hGBPTDiff = fs->make<TH1F>("GBpTDiff","p_{T}^{rec} - p_{T}^{gen} ",250,-120,120);
   hGBPTDiffvsEta = fs->make<TH2F> ("GBPTDiffvsEta","p_{T}^{rec} - p_{T}^{gen} VS #eta",100,-2.5,2.5,250,-120,120);
-  hGBPTDiffvsPhi = fs->make<TH2F> ("GBPTDiffvsPhi","p_{T}^{rec} - p_{T}^{gen} VS #phi",100,-6,6,250,-120,120);
+  hGBPTDiffvsPhi = fs->make<TH2F> ("GBPTDiffvsPhi","p_{T}^{rec} - p_{T}^{gen} VS #phi",100,-3.1416,3.1416,250,-120,120);
   hGBPTres = fs->make<TH1F>("GBpTRes","pT Resolution",100,-2,2);
   hGBPTres_Barrel = fs->make<TH1F>("GBpTRes_Barrel","pT Resolution",100,-2,2);
   hGBPTres_Endcap = fs->make<TH1F>("GBpTRes_Endcap","pT Resolution",100,-2,2);
   hGBinvPTres = fs->make<TH1F>("GBinvPTRes","#sigma (q/p_{T}) Resolution",100,-2,2);  
   hGBinvPTvsEta = fs->make<TH2F> ("GBinvPTvsEta","#sigma (q/p_{T}) VS #eta",100,-2.5,2.5,100,-2,2);
-  hGBinvPTvsPhi = fs->make<TH2F> ("GBinvPTvsPhi","#sigma (q/p_{T}) VS #phi",100,-6,6,100,-2,2);
+  hGBinvPTvsPhi = fs->make<TH2F> ("GBinvPTvsPhi","#sigma (q/p_{T}) VS #phi",100,-3.1416,3.1416,100,-2,2);
   hGBinvPTvsNhits = fs->make<TH2F> ("GBinvPTvsNhits","#sigma (q/p_{T}) VS Nhits",100,0,100,100,-2,2);
   }
   
@@ -144,14 +144,14 @@ void MuonAlignmentAnalyzer::beginJob(const EventSetup& eventSetup){
   if(theDataType == "SimData"){
   hSAPTDiff = fs->make<TH1F>("SApTDiff","p_{T}^{rec} - p_{T}^{gen} ",250,-120,120);
   hSAPTDiffvsEta = fs->make<TH2F> ("SAPTDiffvsEta","p_{T}^{rec} - p_{T}^{gen} VS #eta",100,-2.5,2.5,250,-120,120);
-  hSAPTDiffvsPhi = fs->make<TH2F> ("SAPTDiffvsPhi","p_{T}^{rec} - p_{T}^{gen} VS #phi",100,-6,6,250,-120,120);
+  hSAPTDiffvsPhi = fs->make<TH2F> ("SAPTDiffvsPhi","p_{T}^{rec} - p_{T}^{gen} VS #phi",100,-3.1416,3.1416,250,-120,120);
   hSAPTres = fs->make<TH1F>("SApTRes","pT Resolution",100,-2,2);
   hSAPTres_Barrel = fs->make<TH1F>("SApTRes_Barrel","pT Resolution",100,-2,2);
   hSAPTres_Endcap = fs->make<TH1F>("SApTRes_Endcap","pT Resolution",100,-2,2);
   hSAinvPTres = fs->make<TH1F>("SAinvPTRes","1/pT Resolution",100,-2,2);
 
   hSAinvPTvsEta = fs->make<TH2F> ("SAinvPTvsEta","#sigma (q/p_{T}) VS #eta",100,-2.5,2.5,100,-2,2);
-  hSAinvPTvsPhi = fs->make<TH2F> ("SAinvPTvsPhi","#sigma (q/p_{T}) VS #phi",100,-6,6,100,-2,2);
+  hSAinvPTvsPhi = fs->make<TH2F> ("SAinvPTvsPhi","#sigma (q/p_{T}) VS #phi",100,-3.1416,3.1416,100,-2,2);
   hSAinvPTvsNhits = fs->make<TH2F> ("SAinvPTvsNhits","#sigma (q/p_{T}) VS Nhits",100,0,100,100,-2,2);
 }
   hSAInvM = fs->make<TH1F>("SAInvM","M_{inv}^{rec}",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
@@ -331,22 +331,22 @@ void MuonAlignmentAnalyzer::beginJob(const EventSetup& eventSetup){
 void MuonAlignmentAnalyzer::endJob(){
 
 
-    edm::LogError("MuonAlignmentAnalyzer") << "----------------- " << endl << endl;
+    edm::LogInfo("MuonAlignmentAnalyzer")  << "----------------- " << endl << endl;
 
   if(theDataType == "SimData")
-    edm::LogError("MuonAlignmentAnalyzer") << "Number of Sim tracks: " << numberOfSimTracks << endl << endl;
+    edm::LogInfo("MuonAlignmentAnalyzer")  << "Number of Sim tracks: " << numberOfSimTracks << endl << endl;
 
   if(doSAplots)
-    edm::LogError("MuonAlignmentAnalyzer") << "Number of SA Reco tracks: " << numberOfSARecTracks << endl << endl;
+    edm::LogInfo("MuonAlignmentAnalyzer")  << "Number of SA Reco tracks: " << numberOfSARecTracks << endl << endl;
 
   if(doGBplots)
-  edm::LogError("MuonAlignmentAnalyzer") << "Number of GB Reco tracks: " << numberOfGBRecTracks << endl << endl;
+  edm::LogInfo("MuonAlignmentAnalyzer")  << "Number of GB Reco tracks: " << numberOfGBRecTracks << endl << endl;
 
   if(doResplots){
 
   delete thePropagator;
 
-  edm::LogError("MuonAlignmentAnalyzer") << "Number of Hits considered for residuals: " << numberOfHits << endl << endl;
+  edm::LogInfo("MuonAlignmentAnalyzer")  << "Number of Hits considered for residuals: " << numberOfHits << endl << endl;
 
   }
 
@@ -392,6 +392,7 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 	hSimPTvsPhi->Fill(simPhi,simPt);
 	hSimPhivsEta->Fill(simEta,simPhi);
 
+        simPar[0].push_back(simPt);
 	simPar[1].push_back(simEta);
 	simPar[2].push_back(simPhi);
         simPar[3].push_back((*simTrack).charge());
@@ -502,7 +503,7 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
   if(abs(p1.eta())<1.04 && abs(p2.eta())<1.04) hSAInvM_Barrel->Fill(Minv);
   else if(abs(p1.eta())>=1.04 && abs(p2.eta())>=1.04) hSAInvM_Endcap->Fill(Minv);
   else hSAInvM_Overlap->Fill(Minv);
-  }
+  } // 2 first muons
 
   }//end doSAplots
 
@@ -562,6 +563,9 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 	else hGBPTres_Endcap->Fill((GBrecPt-simPt)/simPt);
 
       hGBPTDiff->Fill(GBrecPt-simPt);
+
+      hGBPTDiffvsEta->Fill(GBeta,GBrecPt-simPt);
+      hGBPTDiffvsPhi->Fill(GBphi,GBrecPt-simPt);
 
        double ptInvRes= ( ich/GBrecPt - simPar[3][iCand]/simPt)/ (simPar[3][iCand]/simPt);
       hGBinvPTres->Fill( ptInvRes);
@@ -881,7 +885,7 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 
 
 	}catch(...) {
-	  edm::LogError("MuonAlignmentAnalyzer")<<" Error!! Exception in propagator catched" << endl;
+	  edm::LogError("MuonAlignmentAnalyzer") <<" Error!! Exception in propagator catched" << endl;
 	  continue;
 	}
 
