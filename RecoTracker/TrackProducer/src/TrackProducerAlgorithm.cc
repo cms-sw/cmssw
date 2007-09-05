@@ -6,6 +6,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 
@@ -107,7 +108,7 @@ void TrackProducerAlgorithm::runWithTrack(const TrackingGeometry * theG,
 
 	// the seed has dummy state and hits.What matters for the fitting is the seedDirection;
 	const TrajectorySeed seed = TrajectorySeed(PTrajectoryStateOnDet(),
-						   BasicTrajectorySeed::recHitContainer(), seedDir);
+						   TrajectorySeed::recHitContainer(), seedDir);
 	// =========================
 	//LogDebug("TrackProducer") << "seed.direction()=" << seed.direction();
 
@@ -167,7 +168,7 @@ void TrackProducerAlgorithm::runWithMomentum(const TrackingGeometry * theG,
 	
 	// the seed has dummy state and hits.What matters for the fitting is the seedDirection;
 	const TrajectorySeed seed = TrajectorySeed(PTrajectoryStateOnDet(),
-						   BasicTrajectorySeed::recHitContainer(), seedDir);
+						   TrajectorySeed::recHitContainer(), seedDir);
 	// =========================
 	//LogDebug("TrackProducer") << "seed.direction()=" << seed.direction();
 	
@@ -243,7 +244,7 @@ void TrackProducerAlgorithm::runWithVertex(const TrackingGeometry * theG,
 
 	// the seed has dummy state and hits.What matters for the fitting is the seedDirection;
 	const TrajectorySeed seed = TrajectorySeed(PTrajectoryStateOnDet(),
-						   BasicTrajectorySeed::recHitContainer(), seedDir);
+						   TrajectorySeed::recHitContainer(), seedDir);
 	// =========================
 	//LogDebug("TrackProducer") << "seed.direction()=" << seed.direction();
 
