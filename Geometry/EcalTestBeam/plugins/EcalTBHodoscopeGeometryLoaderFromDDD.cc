@@ -73,10 +73,9 @@ void EcalTBHodoscopeGeometryLoaderFromDDD::makeGeometry(const DDCompactView* cpv
         edm::LogWarning("EcalTBHodoscopeGeometry") << "Wrong shape for sensitive volume!" << solid;
       }
        
-       vector<double> parameters = solid.parameters();      
+       vector<double> pv = solid.parameters();      
 
       // use preshower strip as box in space representation
-      PreshowerStrip* theGeometry = new PreshowerStrip(parameters[0], parameters[1], parameters[2]);
 
        // rotate the box and then move it
       DD3Vector x, y, z;
@@ -86,11 +85,18 @@ void EcalTBHodoscopeGeometryLoaderFromDDD::makeGeometry(const DDCompactView* cpv
       Hep3Vector hz(z.X(), z.Y(), z.Z());
       HepRotation hrot(hx, hy, hz);
       Hep3Vector htran(fv.translation().X(), fv.translation().Y(), fv.translation().Z());
-      theGeometry->hepTransform(HepScale3D(0.1) * // convert from mm (DDD) to cm (G3)
-				HepTransform3D(hrot,htran));
-      
+
+      const HepPoint3D ctr ( htran*HepPoint3D(0,0,-pv[2]) ) ;
+
+      const GlobalPoint refPoint ( ctr.x(), ctr.y(), ctr.z() ) ;
+
+      PreshowerStrip* cell ( new PreshowerStrip( refPoint,
+						 pv[0], pv[1], pv[2],
+						 ebg->cornersMgr() ) ) ;
+
+
       //Adding cell to the Geometry
-      ebg->addCell(DetId(getDetIdForDDDNode(fv)),theGeometry);
+      ebg->addCell(DetId(getDetIdForDDDNode(fv)),cell);
     } // loop over all children (i.e. crystals)
 }
 
