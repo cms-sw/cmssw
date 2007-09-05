@@ -6,7 +6,7 @@
  author: Victor Bazterra, UIC
          Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BTagValidator.cc,v 1.10 2007/08/04 09:00:34 elmer Exp $
+ version $Id: BTagValidator.cc,v 1.11 2007/08/04 09:05:25 elmer Exp $
 
 ________________________________________________________________**/
 
@@ -29,7 +29,8 @@ ________________________________________________________________**/
 #include "RecoBTag/Analysis/interface/TrackCountingTagPlotter.h"
 #include "RecoBTag/Analysis/interface/TrackProbabilityTagPlotter.h"
 #include "RecoBTag/Analysis/interface/SoftLeptonTagPlotter.h"
-
+#include "RecoBTag/Analysis/interface/CombinedTagPlotter.h"
+#include "RecoBTag/Analysis/interface/TrackIPTagPlotter.h"
 #include "Validation/RecoB/interface/HistoCompare.h"
 
 //
@@ -57,6 +58,12 @@ BTagValidator::BTagValidator(const edm::ParameterSet& iConfig) {
 			petBase_ = new BTagPABase< TrackProbabilityTagPlotter>(iConfig);
 		else if (algorithm_ == "SoftLepton")
 			petBase_ = new BTagPABase< SoftLeptonTagPlotter>(iConfig);
+		else if (algorithm_ == "CombinedSV")
+			petBase_ = new BTagPABase< CombinedTagPlotter>(iConfig);
+		else if (algorithm_ == "CombinedSVMVA")
+			petBase_ = new BTagPABase< CombinedTagPlotter>(iConfig);
+		else if (algorithm_ == "TrackIP")
+			petBase_ = new BTagPABase< TrackIPTagPlotter>(iConfig);
 		else 
 			throw cms::Exception("UnknownAlgorithm") << algorithm_ << " possible options are TrackCounting, TrackProbability and SoftLepton. ";
 	}
