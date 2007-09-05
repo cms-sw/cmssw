@@ -3,16 +3,17 @@
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 #include "Math/GenVector/VectorUtil.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
+#include <algorithm>
+#include <iostream>
 
-class JetProbabilityComputer : public JetTagComputer
+class JetBProbabilityComputer : public JetTagComputer
 {
  public:
-  JetProbabilityComputer(const edm::ParameterSet  & parameters )
+  JetBProbabilityComputer(const edm::ParameterSet  & parameters )
   { 
      m_ipType           = parameters.getParameter<int>("impactParamterType");
      m_minTrackProb     = parameters.getParameter<double>("minimumProbability");
      m_deltaR           = parameters.getParameter<double>("deltaR");
-     m_trackSign        = parameters.getParameter<int>("TrackIpSign");
 
   }
  
@@ -23,28 +24,27 @@ class JetProbabilityComputer : public JetTagComputer
           const edm::RefVector<reco::TrackCollection> & tracks(tkip->selectedTracks());
           const std::vector<float> & allProbabilities((tkip->probabilities(m_ipType)));
           std::vector<float> probabilities;
+          std::vector<float> probabilitiesB;
           int i=0;
           for(std::vector<float>::const_iterator it = allProbabilities.begin(); it!=allProbabilities.end(); ++it, i++)
            {
-              float p;
-              if(m_trackSign ==0 )
-              { 
-               if (*it >=0){p=*it/2.;}else{p=1.+*it/2.;}
-              }
-              else if(m_trackSign > 0)
-              {
-                if(*it >=0 ) p=*it; else continue; 
-              } else
-              {
-                if(*it <=0 ) p= -*it; else continue; 
-              } 
-                double delta  = -2.; 
-                if(m_deltaR > 0) delta = ROOT::Math::VectorUtil::DeltaR((*tkip->jet()).p4().Vect(), (*tracks[i]).momentum());
-              if(delta < m_deltaR || m_deltaR <= 0)
-             probabilities.push_back(p);
+              // Use only positive tracks for B
+              if (*it >=0){probabilitiesB.push_back(*it);}
+               
+               float p=fabs(*it);
+               double delta = -2;
+               if(m_deltaR > 0)   delta  = ROOT::Math::VectorUtil::DeltaR((*tkip->jet()).p4().Vect(), (*tracks[i]).momentum());
+               if(delta < m_deltaR || m_deltaR < 0)
+                   probabilities.push_back(p);
            }
-           return jetProbability(probabilities); 
-      }
+
+          float all = jetProbability(probabilities); 
+          std::sort(probabilitiesB.begin(), probabilitiesB.end());
+          if(probabilitiesB.size() > 4 )  probabilitiesB.resize(4);
+          float b = jetProbability(probabilitiesB);
+        
+	  return -log(b)/4-log(all)/4; ///log(all);
+          }
         else { 
                  //FIXME: report an  error?
                 return 0;
@@ -84,7 +84,7 @@ double jetProbability( const std::vector<float> & v ) const
 
   //double LogProbJet=-log(ProbJet);
   //  //return 1.-ProbJet;
-      return -log10(ProbJet)/4.;
+      return ProbJet;
   }
  private:
    double m_minTrackProb;
