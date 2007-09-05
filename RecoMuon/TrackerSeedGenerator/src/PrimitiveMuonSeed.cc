@@ -3,8 +3,8 @@
  *   Primitive tracker seed from muon which
  *   consists of one measurement and a trajectory state
  *
- *   $Date: 2006/07/27 08:49:59 $
- *   $Revision: 1.5 $
+ *   $Date: 2006/11/08 08:04:54 $
+ *   $Revision: 1.6 $
  *
  *   \author   N. Neumeister   - Purdue University
  */
@@ -45,7 +45,7 @@ std::vector<TrajectoryMeasurement> PrimitiveMuonSeed::measurements() const {
 //
 //
 //
-bool PrimitiveMuonSeed::share(const BasicTrajectorySeed&) const {
+bool PrimitiveMuonSeed::share(const TrajectorySeed&) const {
 
   return false;
   
@@ -85,7 +85,7 @@ bool PrimitiveMuonSeed::share(const BasicTrajectorySeed&) const {
 //
 //
 //
-//BasicTrajectorySeed::range PrimitiveMuonSeed::recHits() const {
+//TrajectorySeed::range PrimitiveMuonSeed::recHits() const {
 //
 //  range result;
 //  return result;

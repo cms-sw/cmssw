@@ -3,8 +3,8 @@
 /** \class TrackerSeedGeneratorBC
  *  Generate seed from muon trajectory.
  *
- *  $Date: 2007/05/10 18:34:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/07/18 17:29:46 $
+ *  $Revision: 1.3 $
  *  \author Norbert Neumeister - Purdue University
  *  \porting author Chang Liu - Purdue University
  */
@@ -622,7 +622,7 @@ void  TrackerSeedGeneratorBC::rsSeeds(const reco::Track& muon) {
   TrajectoryStateTransform tsTransform;
   PTrajectoryStateOnDet & PTSOD = *tsTransform.persistentState(compatible[0].second,compatible[0].first->geographicalId().rawId());
   
-  BasicTrajectorySeed::recHitContainer rhContainer;
+  TrajectorySeed::recHitContainer rhContainer;
   //copy the muon rechit into the seed
   for (trackingRecHit_iterator trit = muon.recHitsBegin(); trit!=muon.recHitsEnd();trit++) {
     rhContainer.push_back( (*trit).get()->clone() );

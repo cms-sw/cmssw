@@ -326,7 +326,7 @@ void TSGForRoadSearch::pushTrajectorySeed(const reco::Track & muon, std::vector<
       for (std::vector<TrajectoryMeasurement>::iterator Mit = tmp.begin(); Mit!=tmp.end();++Mit){
 	TrajectoryStateOnSurface predState(Mit->predictedState());
 	TrajectoryMeasurement::ConstRecHitPointer hit = Mit->recHit();
-	BasicTrajectorySeed::recHitContainer rhContainer;
+	TrajectorySeed::recHitContainer rhContainer;
 	if (theCopyMuonRecHit){
 	  LogDebug(theCategory)<<"copying ("<<muon.recHitsSize()<<") muon recHits";
 	  //copy the muon rechit into the seed
@@ -372,7 +372,7 @@ void TSGForRoadSearch::pushTrajectorySeed(const reco::Track & muon, std::vector<
     LogDebug(theCategory)<<"state used to build a bare trajectory seed: \n"<<compatible.front().second
 		       <<"on detector: "<<compatible.front().first->geographicalId().rawId();
     
-    BasicTrajectorySeed::recHitContainer rhContainer;
+    TrajectorySeed::recHitContainer rhContainer;
     if (theCopyMuonRecHit){
       LogDebug(theCategory)<<"copying ("<<muon.recHitsSize()<<") muon recHits";
       //copy the muon rechit into the seed

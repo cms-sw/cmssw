@@ -4,13 +4,12 @@
 /** \class TrackerSeedGeneratorBC
  *  Generate seed from muon trajectory.
  *
- *  $Date: 2007/05/10 18:34:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/07/18 17:29:44 $
+ *  $Revision: 1.3 $
  *  \author Norbert Neumeister - Purdue University
  *  \porting author Chang Liu - Purdue University
  */
 
-#include "DataFormats/TrajectorySeed/interface/BasicTrajectorySeed.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "RecoMuon/TrackingTools/interface/MuonSeedDetLayer.h"
