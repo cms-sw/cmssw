@@ -124,7 +124,6 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
 
   // Get input
   edm::Handle<CrossingFrame> crossingFrame;
-  event.getByType(crossingFrame);
 
   // test access to SimHits
   const std::string barrelHitsName("EcalHitsEB");
@@ -132,35 +131,29 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
   const std::string preshowerHitsName("EcalHitsES");
 
   bool isEB = true;
+  event.getByLabel("mix",barrelHitsName,crossingFrame);
   MixCollection<PCaloHit> * EBHits = 0 ;
   try {
-    EBHits = new MixCollection<PCaloHit>(crossingFrame.product(), barrelHitsName);
+    EBHits = new MixCollection<PCaloHit>(crossingFrame.product());
   } catch ( cms::Exception &e ) { isEB = false; }
   if ( ! EBHits->inRegistry() || theBarrelDets.size() == 0 ) isEB = false;
   
-  //  std::auto_ptr<MixCollection<PCaloHit> > 
-  //    barrelHits( new MixCollection<PCaloHit>(crossingFrame.product(), barrelHitsName) );
-
   bool isEE = true;
+  event.getByLabel("mix",endcapHitsName,crossingFrame);
   MixCollection<PCaloHit> * EEHits = 0 ;
   try {
-    EEHits = new MixCollection<PCaloHit>(crossingFrame.product(), endcapHitsName);
+    EEHits = new MixCollection<PCaloHit>(crossingFrame.product());
   } catch ( cms::Exception &e ) { isEE = false; }
   if ( ! EEHits->inRegistry() || theEndcapDets.size() == 0 ) isEE = false;
 
-  //  std::auto_ptr<MixCollection<PCaloHit> > 
-  //    endcapHits( new MixCollection<PCaloHit>(crossingFrame.product(),endcapHitsName) );
-
   bool isES = true;
+  event.getByLabel("mix",preshowerHitsName,crossingFrame);
   MixCollection<PCaloHit> * ESHits = 0 ;
   try {
-    ESHits = new MixCollection<PCaloHit>(crossingFrame.product(), preshowerHitsName);
+    ESHits = new MixCollection<PCaloHit>(crossingFrame.product());
   } catch ( cms::Exception &e ) { isES = false; }
   if ( ! ESHits->inRegistry() || theESDets.size() == 0 ) isES = false;
 
-  //    std::auto_ptr<MixCollection<PCaloHit> >
-  //      preshowerHits( new MixCollection<PCaloHit>(crossingFrame.product(), preshowerHitsName) ); 
-  
   // Step B: Create empty output
   std::auto_ptr<EBDigiCollection> barrelResult(new EBDigiCollection());
   std::auto_ptr<EEDigiCollection> endcapResult(new EEDigiCollection());
