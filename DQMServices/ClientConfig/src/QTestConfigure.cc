@@ -2,14 +2,14 @@
  *
  *  Implementation of QTestConfigure
  *
- *  $Date: 2006/11/20 09:33:41 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/07/08 21:03:54 $
+ *  $Revision: 1.4.2.1 $
  *  \author Ilaria Segoni
  */
 #include "DQMServices/ClientConfig/interface/QTestConfigure.h"
 #include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
-bool QTestConfigure::enableTests(std::map<std::string, std::map<std::string, std::string> > tests,MonitorUserInterface * mui){
+bool QTestConfigure::enableTests(std::map<std::string, std::map<std::string, std::string> > tests,DaqMonitorBEInterface *bei){
 	
 	testsConfigured.clear();
 	
@@ -21,12 +21,12 @@ bool QTestConfigure::enableTests(std::map<std::string, std::map<std::string, std
 		std::string testName = itr->first; 
 		std::string testType = params["type"]; 
 
-		if(!std::strcmp(testType.c_str(),ContentsXRangeROOT::getAlgoName().c_str())) this->EnableXRangeTest(testName, params,mui);       
-		if(!std::strcmp(testType.c_str(),ContentsYRangeROOT::getAlgoName().c_str())) this->EnableYRangeTest(testName, params,mui);       
-		if(!std::strcmp(testType.c_str(),DeadChannelROOT::getAlgoName().c_str()))   this->EnableDeadChannelTest(testName, params,mui);       
-		if(!std::strcmp(testType.c_str(),NoisyChannelROOT::getAlgoName().c_str()))  this->EnableNoisyChannelTest(testName, params,mui);       
-		if(!std::strcmp(testType.c_str(),MeanWithinExpectedROOT::getAlgoName().c_str()))  this->EnableMeanWithinExpectedTest(testName, params,mui);       
-                if(!std::strcmp(testType.c_str(),MostProbableLandauROOT::getAlgoName().c_str()))  this->EnableMostProbableLandauTest(testName, params, mui);
+		if(!std::strcmp(testType.c_str(),ContentsXRangeROOT::getAlgoName().c_str())) this->EnableXRangeTest(testName, params,bei);       
+		if(!std::strcmp(testType.c_str(),ContentsYRangeROOT::getAlgoName().c_str())) this->EnableYRangeTest(testName, params,bei);       
+		if(!std::strcmp(testType.c_str(),DeadChannelROOT::getAlgoName().c_str()))   this->EnableDeadChannelTest(testName, params,bei);       
+		if(!std::strcmp(testType.c_str(),NoisyChannelROOT::getAlgoName().c_str()))  this->EnableNoisyChannelTest(testName, params,bei);       
+		if(!std::strcmp(testType.c_str(),MeanWithinExpectedROOT::getAlgoName().c_str()))  this->EnableMeanWithinExpectedTest(testName, params,bei);       
+                if(!std::strcmp(testType.c_str(),MostProbableLandauROOT::getAlgoName().c_str()))  this->EnableMostProbableLandauTest(testName, params, bei);
 	}
 	
 	return false;	
@@ -34,13 +34,13 @@ bool QTestConfigure::enableTests(std::map<std::string, std::map<std::string, std
 
 
 
-void QTestConfigure::EnableXRangeTest(std::string testName, std::map<std::string, std::string> params, MonitorUserInterface * mui){
+void QTestConfigure::EnableXRangeTest(std::string testName, std::map<std::string, std::string> params, DaqMonitorBEInterface *bei){
 	QCriterion * qc1;	
-  	if(! mui->getQCriterion(testName) ){
+  	if(! bei->getQCriterion(testName) ){
 		testsConfigured.push_back(testName);
-		qc1 = mui->createQTest(ContentsXRangeROOT::getAlgoName(),testName);
+		qc1 = bei->createQTest(ContentsXRangeROOT::getAlgoName(),testName);
 	}else{
-		qc1 = mui->getQCriterion(testName);
+		qc1 = bei->getQCriterion(testName);
 		
 	}	
 	MEContentsXRangeROOT * me_qc1 = (MEContentsXRangeROOT *) qc1;
@@ -56,13 +56,13 @@ void QTestConfigure::EnableXRangeTest(std::string testName, std::map<std::string
 	me_qc1->setErrorProb(error);
 }
 
-void QTestConfigure::EnableYRangeTest(std::string testName, std::map<std::string, std::string> params, MonitorUserInterface * mui){
+void QTestConfigure::EnableYRangeTest(std::string testName, std::map<std::string, std::string> params, DaqMonitorBEInterface *bei){
 	QCriterion * qc1;	
-  	if(! mui->getQCriterion(testName) ){
+  	if(! bei->getQCriterion(testName) ){
 		testsConfigured.push_back(testName);
-		qc1 = mui->createQTest(ContentsYRangeROOT::getAlgoName(),testName);
+		qc1 = bei->createQTest(ContentsYRangeROOT::getAlgoName(),testName);
 	}else{
-		qc1 = mui->getQCriterion(testName);	
+		qc1 = bei->getQCriterion(testName);	
 	}	
 	MEContentsYRangeROOT * me_qc1 = (MEContentsYRangeROOT *) qc1;
 	
@@ -76,13 +76,13 @@ void QTestConfigure::EnableYRangeTest(std::string testName, std::map<std::string
 	me_qc1->setErrorProb(error);
 }
 
-void QTestConfigure::EnableDeadChannelTest(std::string testName, std::map<std::string, std::string> params, MonitorUserInterface * mui){
+void QTestConfigure::EnableDeadChannelTest(std::string testName, std::map<std::string, std::string> params, DaqMonitorBEInterface *bei){
 	QCriterion * qc1;
-  	if(! mui->getQCriterion(testName) ){
+  	if(! bei->getQCriterion(testName) ){
 		testsConfigured.push_back(testName);
-		qc1 = mui->createQTest(DeadChannelROOT::getAlgoName(),testName);
+		qc1 = bei->createQTest(DeadChannelROOT::getAlgoName(),testName);
 	}else{
-		qc1 = mui->getQCriterion(testName);	
+		qc1 = bei->getQCriterion(testName);	
 	
 	}	
 	MEDeadChannelROOT * me_qc1 = ( MEDeadChannelROOT *) qc1;
@@ -96,14 +96,14 @@ void QTestConfigure::EnableDeadChannelTest(std::string testName, std::map<std::s
 	me_qc1->setErrorProb(error);
 }
 
-void QTestConfigure::EnableNoisyChannelTest(std::string testName, std::map<std::string, std::string> params, MonitorUserInterface * mui){
+void QTestConfigure::EnableNoisyChannelTest(std::string testName, std::map<std::string, std::string> params, DaqMonitorBEInterface *bei){
 
 	QCriterion * qc1;
-  	if(! mui->getQCriterion(testName) ){
+  	if(! bei->getQCriterion(testName) ){
 		testsConfigured.push_back(testName);
-		qc1 = mui->createQTest(NoisyChannelROOT::getAlgoName(),testName);
+		qc1 = bei->createQTest(NoisyChannelROOT::getAlgoName(),testName);
 	}else{
-		qc1 = mui->getQCriterion(testName);			
+		qc1 = bei->getQCriterion(testName);			
 	}
 	MENoisyChannelROOT * me_qc1 = ( MENoisyChannelROOT *) qc1;
 	
@@ -118,14 +118,14 @@ void QTestConfigure::EnableNoisyChannelTest(std::string testName, std::map<std::
 	me_qc1->setErrorProb(error);
 }
 
-void QTestConfigure::EnableMeanWithinExpectedTest(std::string testName, std::map<std::string, std::string> params, MonitorUserInterface * mui){
+void QTestConfigure::EnableMeanWithinExpectedTest(std::string testName, std::map<std::string, std::string> params, DaqMonitorBEInterface *bei){
 	
 	QCriterion * qc1;
-  	if(! mui->getQCriterion(testName) ){
+  	if(! bei->getQCriterion(testName) ){
 		testsConfigured.push_back(testName);
-		qc1 = mui->createQTest(MeanWithinExpectedROOT::getAlgoName(),testName);
+		qc1 = bei->createQTest(MeanWithinExpectedROOT::getAlgoName(),testName);
 	}else{
-		qc1 = mui->getQCriterion(testName);				
+		qc1 = bei->getQCriterion(testName);				
 	}
 	MEMeanWithinExpectedROOT * me_qc1 = (MEMeanWithinExpectedROOT *) qc1;
 	
@@ -165,17 +165,17 @@ void QTestConfigure::EnableMeanWithinExpectedTest(std::string testName, std::map
 void QTestConfigure::EnableMostProbableLandauTest( 
        const std::string                        &roTEST_NAME,
        std::map<std::string, std::string> &roMParams,
-       MonitorUserInterface                     *poMui) {
+       DaqMonitorBEInterface                     *bei) {
 
   // Create QTest or Get already assigned one
   MEMostProbableLandauROOT *poQTest = 0;
-  if( QCriterion *poQCriteration = poMui->getQCriterion( roTEST_NAME)) {
+  if( QCriterion *poQCriteration = bei->getQCriterion( roTEST_NAME)) {
     // Current already assigned to given ME.
     poQTest = dynamic_cast<MEMostProbableLandauROOT *>( poQCriteration);
   } else {
     // Test does not exist: create one
     testsConfigured.push_back( roTEST_NAME);
-    poQCriteration = poMui->createQTest( MostProbableLandauROOT::getAlgoName(),
+    poQCriteration = bei->createQTest( MostProbableLandauROOT::getAlgoName(),
                                          roTEST_NAME);
 
     poQTest = dynamic_cast<MEMostProbableLandauROOT *>( poQCriteration);
@@ -191,11 +191,11 @@ void QTestConfigure::EnableMostProbableLandauTest(
   poQTest->setSigma        ( atof( roMParams["sigma"].c_str()) );
 }
 
-void QTestConfigure::desableTests(std::vector<std::string> testsOFFList, MonitorUserInterface * mui){
+void QTestConfigure::desableTests(std::vector<std::string> testsOFFList, DaqMonitorBEInterface *bei){
  std::vector<std::string>::iterator testsItr;
  for(testsItr= testsOFFList.begin(); testsItr != testsOFFList.end();++testsItr){ 
-	if( mui->getQCriterion(*testsItr) ){
-		QCriterion * qc1=mui->getQCriterion(*testsItr);
+	if( bei->getQCriterion(*testsItr) ){
+		QCriterion * qc1=bei->getQCriterion(*testsItr);
 		qc1->disable();	
 	}  
  }

@@ -2,8 +2,8 @@
  *
  *  Implementation of  QTestHandle
  *
- *  $Date: 2006/05/22 10:20:35 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/07/08 21:03:54 $
+ *  $Revision: 1.3.4.1 $
  *  \author Ilaria Segoni
  */
 
@@ -30,7 +30,8 @@ QTestHandle::~QTestHandle(){
 	   
 }
 
-bool QTestHandle::configureTests(std::string configFile, MonitorUserInterface * mui){
+bool QTestHandle::configureTests(std::string configFile, DaqMonitorBEInterface *
+bei){
 	
 	if(testsConfigured) {
 		qtParser->getNewDocument(configFile);
@@ -42,8 +43,8 @@ bool QTestHandle::configureTests(std::string configFile, MonitorUserInterface * 
 	if(! qtParser->parseQTestsConfiguration() ){
 	      std::map<std::string, std::map<std::string, std::string> > testsONList=qtParser->testsList();
 	      std::vector<std::string> testsOFFList=qtParser->testsOff();
-	      qtConfigurer->desableTests(testsOFFList,mui);
-	      if(qtConfigurer->enableTests(testsONList,mui)) return true;
+	      qtConfigurer->desableTests(testsOFFList,bei);
+	      if(qtConfigurer->enableTests(testsONList,bei)) return true;
 	
 	}else{
 	      return true;
@@ -54,33 +55,35 @@ bool QTestHandle::configureTests(std::string configFile, MonitorUserInterface * 
 
 }
 
-void QTestHandle::attachTests(MonitorUserInterface * mui){
+void QTestHandle::attachTests(DaqMonitorBEInterface * bei){
 		std::map<std::string, std::vector<std::string> > mapMeToTests= qtParser->meToTestsList();
 
 	for(std::map<std::string, std::vector<std::string> >::iterator itr = mapMeToTests.begin();
 	          itr != mapMeToTests.end();++itr){   
 	    
 		std::string meName=itr->first;
-		mui->subscribe(meName);
+//		bei->subscribe(meName);
 		std::vector<std::string> tests=itr->second;
 		for(std::vector<std::string>::iterator testsItr=tests.begin(); 
 			testsItr!=tests.end(); ++testsItr){
-			mui->useQTest(meName, *testsItr);
+			bei->useQTest(meName, *testsItr);
 		}	
 	}
 
 
 }
 
-std::pair<std::string,std::string> QTestHandle::checkGolbalQTStatus(MonitorUserInterface * mui) const{
+std::pair<std::string,std::string>
+QTestHandle::checkGlobalQTStatus(DaqMonitorBEInterface * bei) const{
 
-	return qtChecker->checkGlobalStatus(mui);
+	return qtChecker->checkGlobalStatus(bei);
 
 }
 
 
-std::map< std::string, std::vector<std::string> > QTestHandle::checkDetailedQTStatus(MonitorUserInterface * mui) const {
+std::map< std::string, std::vector<std::string> >
+QTestHandle::checkDetailedQTStatus(DaqMonitorBEInterface * bei) const {
 
-		return qtChecker->checkDetailedStatus(mui);
+		return qtChecker->checkDetailedStatus(bei);
 		
 }
