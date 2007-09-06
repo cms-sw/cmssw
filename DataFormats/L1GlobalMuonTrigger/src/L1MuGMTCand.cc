@@ -5,8 +5,8 @@
 //   Description: L1 Global Muon Trigger Candidate
 //
 //
-//   $Date: 2007/03/23 18:52:18 $
-//   $Revision: 1.4 $
+//   $Date: 2007/04/02 15:44:09 $
+//   $Revision: 1.5 $
 //
 //   Author :
 //   N. Neumeister            CERN EP 
@@ -167,16 +167,31 @@ bool L1MuGMTCand::operator!=(const L1MuGMTCand& cand) const {
 void L1MuGMTCand::print() const {
 
   if ( !empty() ) {
-    edm::LogVerbatim("GMT_Candidate_info")
-         << setiosflags(ios::right | ios::adjustfield | ios::showpoint | ios::fixed)
-         << "bx = " << setw(2) << bx() << " " << endl
-         << "pt = "  << setw(5) << setprecision(1) << ptValue() << " GeV  "
-         << "charge = " << setw(2) << charge() << "  "
-         << "eta = " << setw(5) << setprecision(2) << etaValue() << "  "
-         << "phi = " << setw(5) << setprecision(3) << phiValue() << " rad  "
-         << "quality = " << setw(1) << quality() << "  "
-         << "isolated = " << setw(1) << isol() << "  "
-         << "mip = " << setw(1) << mip() << endl;
+    if(m_phiValue == m_invalidValue ||
+       m_etaValue == m_invalidValue ||
+       m_ptValue == m_invalidValue) {
+      edm::LogVerbatim("GMT_Candidate_info")
+           << setiosflags(ios::right | ios::adjustfield | ios::showpoint | ios::fixed)
+           << "bx = " << setw(2) << bx() << " " << endl
+           << "pt(index) = "  << setw(2) << ptIndex() << "  "
+           << "charge = " << setw(2) << charge() << "  "
+           << "eta(index) = " << setw(2) << etaIndex() << "  "
+           << "phi(index) = " << setw(3) << phiIndex() << "  "
+           << "quality = " << setw(1) << quality() << "  "
+           << "isolated = " << setw(1) << isol() << "  "
+           << "mip = " << setw(1) << mip() << endl;
+    } else {
+      edm::LogVerbatim("GMT_Candidate_info")
+           << setiosflags(ios::right | ios::adjustfield | ios::showpoint | ios::fixed)
+           << "bx = " << setw(2) << bx() << " " << endl
+           << "pt = "  << setw(5) << setprecision(1) << ptValue() << " GeV  "
+           << "charge = " << setw(2) << charge() << "  "
+           << "eta = " << setw(5) << setprecision(2) << etaValue() << "  "
+           << "phi = " << setw(5) << setprecision(3) << phiValue() << " rad  "
+           << "quality = " << setw(1) << quality() << "  "
+           << "isolated = " << setw(1) << isol() << "  "
+           << "mip = " << setw(1) << mip() << endl;
+    }
   }
 
 }
