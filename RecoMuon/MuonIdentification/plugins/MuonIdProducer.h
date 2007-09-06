@@ -20,7 +20,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.h,v 1.1 2007/05/12 22:14:39 dmytro Exp $
+// $Id: MuonIdProducer.h,v 1.2 2007/05/15 18:31:05 jribnik Exp $
 //
 //
 
@@ -39,6 +39,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "Utilities/Timing/interface/TimerStack.h"

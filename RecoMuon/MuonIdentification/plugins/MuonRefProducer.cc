@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonRefProducer.cc,v 1.1 2007/07/16 23:57:32 dmytro Exp $
+// $Id: MuonRefProducer.cc,v 1.2 2007/07/26 00:27:03 dmytro Exp $
 //
 //
 
@@ -20,6 +20,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 #include "RecoMuon/MuonIdentification/plugins/MuonRefProducer.h"
 #include "DataFormats/Common/interface/Ref.h"
