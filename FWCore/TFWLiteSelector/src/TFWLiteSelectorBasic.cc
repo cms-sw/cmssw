@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 27 17:58:10 EDT 2006
-// $Id: TFWLiteSelectorBasic.cc,v 1.28 2007/08/08 21:51:28 wmtan Exp $
+// $Id: TFWLiteSelectorBasic.cc,v 1.29 2007/08/23 23:20:53 wmtan Exp $
 //
 
 // system include files
@@ -25,6 +25,7 @@
 
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -281,11 +282,12 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
 	 std::vector<BranchEntryDescription>::iterator pit = m_->prov_.begin();
 	 std::vector<BranchEntryDescription>::iterator pitEnd = m_->prov_.end();
 	 for (; pit != pitEnd; ++pit) {
+            if (not pit->productID_.isValid()) continue;
 	    if (pit->status_ != BranchEntryDescription::Success) continue;
 	    BranchDescription &product = m_->productMap_[pit->productID_];
-	    std::auto_ptr<Provenance> prov(new Provenance(product, *pit));
+	    //std::auto_ptr<Provenance> prov(new Provenance(product, *pit));
             //std::cout<< "adding group for ID "<<prov->event.productID_<<std::endl;
-	    ep.addGroup(prov);
+	    ep.addGroup(edm::ConstBranchDescription(product));
 	 }
 
 	 edm::ModuleDescription md;
@@ -376,13 +378,17 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
   for (edm::ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
        it != itEnd; ++it, ++itB) {
     edm::BranchDescription const& prod = it->second;
-    prod.init();
-    m_->productMap_.insert(std::make_pair(it->second.productID_, it->second));
-    //std::cout <<"id "<<it->second.productID_<<" branch "<<it->second.branchName()<<std::endl;
-    m_->pointerToBranchBuffer_.push_back( & (*itB));
-    void* tmp = &(m_->pointerToBranchBuffer_.back());
-    //edm::BranchEntryDescription* tmp = & (*itB);
-    m_->metaTree_->SetBranchAddress( prod.branchName().c_str(), tmp);
+    if( prod.branchType() == edm::InEvent) {
+      prod.init();
+      //NEED to do this and check to see if branch exists
+      //prod.present_ = (branch != 0);
+      m_->productMap_.insert(std::make_pair(it->second.productID_, it->second));
+      //std::cout <<"id "<<it->second.productID_<<" branch "<<it->second.branchName()<<std::endl;
+      m_->pointerToBranchBuffer_.push_back( & (*itB));
+      void* tmp = &(m_->pointerToBranchBuffer_.back());
+      //edm::BranchEntryDescription* tmp = & (*itB);
+      m_->metaTree_->SetBranchAddress( prod.branchName().c_str(), tmp);
+    }
   }  
   //std::cout <<"Notify end"<<std::endl;
   everythingOK_ = true;
