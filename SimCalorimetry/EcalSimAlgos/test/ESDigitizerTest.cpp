@@ -15,6 +15,7 @@ using namespace std;
 using namespace cms;
 
 int main() {
+
   // make a silly little hit in each subdetector, which should
   // correspond to a 300 keV particle
   ESDetId ESDetId(1, 1, 1, 1, 1);
@@ -23,15 +24,14 @@ int main() {
   vector<DetId> ESDetIds;
   ESDetIds.push_back(ESDetId);
 
-  edm::PCaloHitContainer ESHits;
+  vector<PCaloHit> ESHits;
   ESHits.push_back(ESHit);
 
   string ESName = "EcalHitsES";
-  vector<string> caloDets, trackingDets;
-  caloDets.push_back(ESName);
 
-  CrossingFrame crossingFrame(-5, 5, 25, trackingDets, caloDets);
-  crossingFrame.addSignalCaloHits(ESName, &ESHits);
+  edm::EventID id;
+  CrossingFrame<PCaloHit> crossingFrame(-5, 5, 25, ESName);
+  crossingFrame.addSignals(&ESHits,id);
 
   EcalSimParameterMap parameterMap;
   ESShape shape(1);
@@ -46,7 +46,7 @@ int main() {
 
   auto_ptr<ESDigiCollection> ESResult(new ESDigiCollection);
 
-  MixCollection<PCaloHit> ESHitCollection(&crossingFrame, ESName);
+  MixCollection<PCaloHit> ESHitCollection(&crossingFrame);
 
   ESDigitizer.run(ESHitCollection, *ESResult);
 
