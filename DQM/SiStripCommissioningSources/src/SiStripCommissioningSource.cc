@@ -17,6 +17,8 @@
 #include "DQM/SiStripCommissioningSources/interface/PedestalsTask.h"
 #include "DQM/SiStripCommissioningSources/interface/DaqScopeModeTask.h"
 #include "DQM/SiStripCommissioningSources/interface/FineDelayTask.h"
+#include "DQM/SiStripCommissioningSources/interface/CalibrationTask.h"
+#include "DQM/SiStripCommissioningSources/interface/CalibrationScanTask.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -321,6 +323,8 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
        task_ == sistrip::DAQ_SCOPE_MODE ) { 
     event.getByLabel( inputModuleLabel_, "ScopeMode", raw );
   } else if ( task_ == sistrip::VPSP_SCAN ||
+              task_ == sistrip::CALIBRATION_SCAN ||
+              task_ == sistrip::CALIBRATION_SCAN_DECO ||
 	      task_ == sistrip::PEDESTALS ) {
     event.getByLabel( inputModuleLabel_, "VirginRaw", raw );
   } else if ( task_ == sistrip::FINE_DELAY ) {
@@ -896,6 +900,10 @@ void SiStripCommissioningSource::createTasks( sistrip::RunType run_type ) {
 	else if ( task_ == sistrip::PEDESTALS ) { tasks_[iconn->fedId()][iconn->fedCh()] = new PedestalsTask( dqm(), *iconn ); }
 	else if ( task_ == sistrip::DAQ_SCOPE_MODE ) { tasks_[iconn->fedId()][iconn->fedCh()] = new DaqScopeModeTask( dqm(), *iconn ); }
         else if ( task_ == sistrip::FINE_DELAY ) { tasks_[iconn->fedId()][iconn->fedCh()] = new FineDelayTask( dqm(), *iconn ); }
+        else if ( task_ == sistrip::CALIBRATION_SCAN || task_ == sistrip::CALIBRATION_SCAN_DECO ) { 
+	  tasks_[iconn->fedId()][iconn->fedCh()] = new CalibrationScanTask( dqm(), *iconn, task_, filename_.c_str() ); }
+        else if ( task_ == sistrip::CALIBRATION || task_ == sistrip::CALIBRATION_DECO ) { 
+	  tasks_[iconn->fedId()][iconn->fedCh()] = new CalibrationTask( dqm(), *iconn, task_, filename_.c_str() ); }
 	else if ( task_ == sistrip::UNDEFINED_RUN_TYPE ) { 
 	  edm::LogWarning(mlDqmSource_)  
 	    << "[SiStripCommissioningSource::" << __func__ << "]"

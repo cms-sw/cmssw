@@ -184,25 +184,27 @@ void CommissioningTask::updateHistoSet( HistoSet& histo_set,
     return;
   }
   
-  // Set entries
-  histo_set.vNumOfEntries_[bin]++;
-  
   // Check if histo is TProfile or not
-  if ( !histo_set.isProfile_ ) { return; }
-  
-  // Check bin number
-  if ( bin >= histo_set.vSumOfContents_.size() || 
-       bin >= histo_set.vSumOfSquares_.size() ) { 
-    edm::LogWarning(mlDqmSource_)
-      << "[CommissioningTask::" << __func__ << "]"
-      << " Unexpected bin when filling histogram: " << bin;
-    return;
+  if ( !histo_set.isProfile_ ) {
+    // Set entries
+    histo_set.vNumOfEntries_[bin]+=value;
+  } else {
+    // Set entries
+    histo_set.vNumOfEntries_[bin]++;
+    
+    // Check bin number
+    if ( bin >= histo_set.vSumOfContents_.size() || 
+         bin >= histo_set.vSumOfSquares_.size() ) { 
+      edm::LogWarning(mlDqmSource_)
+        << "[CommissioningTask::" << __func__ << "]"
+        << " Unexpected bin when filling histogram: " << bin;
+      return;
+    }
+    
+    // Set sum of contents and squares
+    histo_set.vSumOfContents_[bin] += value;
+    histo_set.vSumOfSquares_[bin] += value*value;
   }
-  
-  // Set sum of contents and squares
-  histo_set.vSumOfContents_[bin] += value;
-  histo_set.vSumOfSquares_[bin] += value*value;
-
 }
 
 // -----------------------------------------------------------------------------

@@ -8,6 +8,7 @@
 #include "DQM/SiStripCommissioningClients/interface/OptoScanHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/VpspScanHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/FineDelayHistograms.h"
+#include "DQM/SiStripCommissioningClients/interface/CalibrationHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/PedestalsHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/DaqScopeModeHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/HistogramDisplayHandler.h"
@@ -220,6 +221,10 @@ void SiStripCommissioningClient::createHistograms( const sistrip::RunType& task 
   else if ( task == sistrip::VPSP_SCAN )          { histos_ = new VpspScanHistograms( mui_ ); }
   else if ( task == sistrip::PEDESTALS )          { histos_ = new PedestalsHistograms( mui_ ); }
   else if ( task == sistrip::FINE_DELAY )         { histos_ = new FineDelayHistograms( mui_ ); }
+  else if ( task == sistrip::CALIBRATION ||
+            task == sistrip::CALIBRATION_DECO ||
+	    task == sistrip::CALIBRATION_SCAN ||
+	    task == sistrip::CALIBRATION_SCAN_DECO){histos_ = new CalibrationHistograms( mui_,task ); }
   else if ( task == sistrip::DAQ_SCOPE_MODE )     { histos_ = new DaqScopeModeHistograms( mui_ ); }
   else if ( task == sistrip::UNDEFINED_RUN_TYPE ) { histos_ = 0; }
   else if ( task == sistrip::UNKNOWN_RUN_TYPE )   {
