@@ -458,7 +458,7 @@ double DDCons::deltaPhi() const { return rep().parameters()[6]; }
 
 DDTorus::DDTorus(const DDSolid& s) 
   : DDSolid(s) {
-  if (s.shape() != ddcons) {
+  if (s.shape() != ddtorus) {
     std::string ex  = "Solid [" + s.name().ns() + ":" + s.name().name() + "] is not a DDTorus.\n";
     ex = ex + "Use a different solid interface!";
     throw DDException(ex);
