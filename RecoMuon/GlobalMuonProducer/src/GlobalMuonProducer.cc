@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a standalone reonstructed muon.
  *
- *   $Date: 2007/03/20 15:58:13 $
- *   $Revision: 1.29 $
+ *   $Date: 2007/05/09 20:04:49 $
+ *   $Revision: 1.30 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -33,6 +33,8 @@
 
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 
 using namespace edm;
 using namespace std;
@@ -75,6 +77,7 @@ GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet) {
   produces<TrackingRecHitCollection>().setBranchAlias(theAlias + "RecHits");
   produces<reco::TrackExtraCollection>().setBranchAlias(theAlias + "TrackExtras");
   produces<vector<Trajectory> >().setBranchAlias(theAlias + "Trajectories") ;
+  produces<TrajTrackAssociationCollection>().setBranchAlias(theAlias + "TrajTrackMap");
   produces<reco::MuonTrackLinksCollection>().setBranchAlias(theAlias + "s");
 }
 
@@ -105,22 +108,37 @@ void GlobalMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
   theService->update(eventSetup);
 
   // Take the STA muon container(s)
-
-
   Handle<reco::TrackCollection> staMuons;
   event.getByLabel(theSTACollectionLabel,staMuons);
 
   LogTrace(metname) << "Taking " << staMuons->size() << " Stand Alone Muons "<<theSTACollectionLabel<<endl;
 
-  Handle<vector<Trajectory> > staMuonsTraj;
+  vector<MuonTrajectoryBuilder::TrackCand> staTrackCands;
 
-  if(theSTATrajectoryFlag) {
-    event.getByLabel(theSTACollectionLabel.label(),staMuonsTraj);      
-    LogTrace(metname)<<"Track Reconstruction (tracks, trajs) "<< staMuons.product()->size() << " " << staMuonsTraj.product()->size() <<endl;
-  } 
-
-  theTrackFinder->reconstruct(staMuons, staMuonsTraj, event);      
-
+  if(theSTATrajectoryFlag) {    
+    edm::Handle<TrajTrackAssociationCollection> staAssoMap;
+    event.getByLabel(theSTACollectionLabel.label(),staAssoMap);
+    
+    edm::Handle<reco::TrackToTrackMap> updatedStaAssoMap;
+    event.getByLabel(theSTACollectionLabel.label(),updatedStaAssoMap);
+    
+    for(TrajTrackAssociationCollection::const_iterator it = staAssoMap->begin(); it != staAssoMap->end(); ++it){	
+      const Ref<vector<Trajectory> > traj = it->key;
+      const reco::TrackRef tk = (theSTACollectionLabel.instance() == "UpdatedAtVtx" ) ? (*updatedStaAssoMap)[it->val] : it->val;
+      MuonTrajectoryBuilder::TrackCand tkCand = MuonTrajectoryBuilder::TrackCand(0,tk);
+      if( traj->isValid() ) tkCand.first = &*traj ;
+      staTrackCands.push_back(tkCand);
+    }
+  } else {
+    for ( unsigned int position = 0; position != staMuons->size(); ++position ) {
+      reco::TrackRef staTrackRef(staMuons,position);
+      MuonTrajectoryBuilder::TrackCand staCand = MuonTrajectoryBuilder::TrackCand(0,staTrackRef);
+      staTrackCands.push_back(staCand); 
+    }
+  }
+    
+  theTrackFinder->reconstruct(staTrackCands, event);      
+  
   
   LogTrace(metname)<<"Event loaded"
                    <<"================================"

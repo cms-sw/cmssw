@@ -1,8 +1,8 @@
 /** \class MuonTrackFinder
  *  Concrete Track finder for the Muon Reco
  *
- *  $Date: 2007/03/06 18:21:23 $
- *  $Revision: 1.34 $
+ *  $Date: 2007/04/12 08:48:07 $
+ *  $Revision: 1.35 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -106,8 +106,7 @@ MuonTrackFinder::reconstruct(const edm::Handle<TrajectorySeedCollection>& seeds,
 
 
 // reconstruct trajectories
-void MuonTrackFinder::reconstruct(const Handle<reco::TrackCollection>& staTracks,
-				  const Handle<vector<Trajectory> >& staTrajs,
+void MuonTrackFinder::reconstruct(const std::vector<TrackCand>& staCandColl,
 				  Event& event){
 
   const string metname = "Muon|RecoMuon|MuonTrackFinder";
@@ -118,33 +117,9 @@ void MuonTrackFinder::reconstruct(const Handle<reco::TrackCollection>& staTracks
   // Muon Candidate container
   CandidateContainer muonCandidates;
 
-  const vector<Trajectory>* trajCollection = 0;
-
-  bool validTrajs = staTrajs.isValid();
-  
-  if ( validTrajs && staTrajs->size()!=staTracks->size()){
-    LogError(metname) << "MuonTrackFinder::reconstruct: Size of trajectory and track collections do not match";
-    validTrajs=false;
-  } 
-  
-  if (validTrajs) {
-    trajCollection = staTrajs.product();
-  }
-
   // reconstruct the muon candidates
-  for (unsigned int position = 0; position != staTracks->size(); ++position) {
-    LogTrace(metname)<<"+++ New Track +++"<<endl;
-    reco::TrackRef staTrack(staTracks,position);
-
-    MuonTrajectoryBuilder::TrackCand staCand(0,staTrack);
-
-    if (validTrajs) {
-      vector<Trajectory>::const_iterator it = trajCollection->begin()+position;
-      const Trajectory* trajRef(&*it);  
-      if ( trajRef->isValid() ) staCand.first = trajRef;
-    }
-
-    CandidateContainer muonCands_temp = theTrajBuilder->trajectories(staCand);
+  for (vector<TrackCand>::const_iterator staCand = staCandColl.begin(); staCand != staCandColl.end(); ++staCand) {
+    CandidateContainer muonCands_temp = theTrajBuilder->trajectories(*staCand);
     muonCandidates.insert(muonCandidates.end(), muonCands_temp.begin(),muonCands_temp.end());
   }                                  
   

@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2007/07/13 20:37:37 $
- *  $Revision: 1.50 $
+ *  $Date: 2007/07/30 13:16:40 $
+ *  $Revision: 1.51 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -16,6 +16,7 @@
 #include "RecoMuon/TrackingTools/interface/MuonUpdatorAtVertex.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/GeomPropagators/interface/TrackerBounds.h"
 #include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
@@ -69,25 +70,25 @@ MuonTrackLoader::~MuonTrackLoader(){
 OrphanHandle<reco::TrackCollection> 
 MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
 			    Event& event, const string& instance, bool reallyDoSmoothing) {
-
+  
   const bool doSmoothing = theSmoothingStep && reallyDoSmoothing;
   
   const string metname = "Muon|RecoMuon|MuonTrackLoader";
-
+  
   // the track collectios; they will be loaded in the event  
   auto_ptr<reco::TrackCollection> trackCollection(new reco::TrackCollection());
   // ... and its reference into the event
   reco::TrackRefProd trackCollectionRefProd = event.getRefBeforePut<reco::TrackCollection>(instance);
-
+  
   // track collection for the tracks updated at vertex
   auto_ptr<reco::TrackCollection> updatedAtVtxTrackCollection(new reco::TrackCollection());
   // ... and its (eventually) reference into the event
   reco::TrackRefProd trackUpdatedCollectionRefProd;
   if(theUpdatingAtVtx)  trackUpdatedCollectionRefProd = event.getRefBeforePut<reco::TrackCollection>(instance+"UpdatedAtVtx");
- 
+  
   // Association map between updated and non updated at vtx tracks
   auto_ptr<reco:: TrackToTrackMap> trackToTrackmap(new reco::TrackToTrackMap);
-
+  
   // the track extra collection, it will be loaded in the event  
   auto_ptr<reco::TrackExtraCollection> trackExtraCollection(new reco::TrackExtraCollection() );
   // ... and its reference into the event
@@ -97,10 +98,13 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   auto_ptr<TrackingRecHitCollection> recHitCollection(new TrackingRecHitCollection() );
   // ... and its reference into the event
   TrackingRecHitRefProd recHitCollectionRefProd = event.getRefBeforePut<TrackingRecHitCollection>(instance);
-
+  
   // Collection of Trajectory
   auto_ptr<vector<Trajectory> > trajectoryCollection(new vector<Trajectory>);
-
+  
+  // Association map between track and trajectory
+  std::auto_ptr<TrajTrackAssociationCollection> trajTrackMap( new TrajTrackAssociationCollection() );
+  
   // don't waste any time...
   if ( trajectories.empty() ) { 
     event.put(recHitCollection,instance);
@@ -114,36 +118,43 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   }
   
   LogTrace(metname) << "Create the collection of Tracks";
-
+  
   reco::TrackRef::key_type trackIndex = 0;
   reco::TrackRef::key_type trackUpdatedIndex = 0;
-
+  
   reco::TrackExtraRef::key_type trackExtraIndex = 0;
   TrackingRecHitRef::key_type recHitsIndex = 0;
-
-   if(doSmoothing)
-     theService->eventSetup().get<TrackingComponentsRecord>().get(theSmootherName,theSmoother);
   
-
+  edm::Ref<reco::TrackCollection>::key_type iTkRef = 0;
+  edm::Ref< std::vector<Trajectory> >::key_type iTjRef = 0;
+  std::map<unsigned int, unsigned int> tjTkMap;
+  
+  if(doSmoothing)
+    theService->eventSetup().get<TrackingComponentsRecord>().get(theSmootherName,theSmoother);
+  
+  
   for(TrajectoryContainer::const_iterator rawTrajectory = trajectories.begin();
       rawTrajectory != trajectories.end(); ++rawTrajectory){
     
     Trajectory &trajectory = **rawTrajectory;
-
-      if(doSmoothing){
-	vector<Trajectory> trajectoriesSM = theSmoother->trajectories(**rawTrajectory);
+    
+    if(doSmoothing){
+      vector<Trajectory> trajectoriesSM = theSmoother->trajectories(**rawTrajectory);
       
       if(!trajectoriesSM.empty())
 	trajectory = trajectoriesSM.front();
       else
 	LogWarning(metname)<<"The trajectory has not been smoothed!"<<endl;
     }
-
-    if(theTrajectoryFlag) trajectoryCollection->push_back(trajectory);
+    
+    if(theTrajectoryFlag) {
+      trajectoryCollection->push_back(trajectory);
+      iTjRef++;
+    }    
     
     // get the transient rechit from the trajectory
     Trajectory::RecHitContainer transHits = trajectory.recHits();
-
+    
     if ( trajectory.direction() == oppositeToMomentum)
       reverse(transHits.begin(),transHits.end());
     
@@ -153,29 +164,29 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     
     // Check if the extrapolation went well    
     if(!resultOfTrackExtrapAtPCA.first) continue;
-
+    
     // take the "bare" track at PCA
     reco::Track &track = resultOfTrackExtrapAtPCA.second;
-       
+    
     // build the "bare" track extra from the trajectory
     reco::TrackExtra trackExtra = buildTrackExtra( trajectory );
-
+    
     // get the TrackExtraRef (persitent reference of the track extra)
     reco::TrackExtraRef trackExtraRef(trackExtraCollectionRefProd, trackExtraIndex++ );
-
+    
     // set the persistent track-extra reference to the Track
     track.setExtra(trackExtraRef);
-
+    
     // build the updated-at-vertex track, starting from the previous track
     reco::Track updatedTrack;
-
+    
     if(theUpdatingAtVtx){
       // build the "bare" track UPDATED at vtx
       updatedTrack = buildTrackUpdatedAtPCA(track);
-
+      
       // set the persistent track-extra reference to the Track
       updatedTrack.setExtra(trackExtraRef);
-
+      
       // Fill the map
       trackToTrackmap->insert(reco::TrackRef(trackCollectionRefProd,trackIndex++),
 			      reco::TrackRef(trackUpdatedCollectionRefProd,trackUpdatedIndex++));
@@ -194,36 +205,60 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
 	trackExtra.add(TrackingRecHitRef(recHitCollectionRefProd, recHitsIndex++ ));
       }
     }
-
+    
     // fill the TrackExtraCollection
     trackExtraCollection->push_back(trackExtra);
-
+    
     // fill the TrackCollection
     trackCollection->push_back(track);
+    iTkRef++;
     LogTrace(metname) << "Debug Track being loaded pt "<<  track.pt();
     // fill the TrackCollection updated at vtx
     if(theUpdatingAtVtx) updatedAtVtxTrackCollection->push_back(updatedTrack);
-
+    
     // We don't need the original trajectory anymore.
     // It has been copied by value in the trajectoryCollection, if 
     // it is required to put it into the event.
-     delete *rawTrajectory;
+    delete *rawTrajectory;
+
+    if(theTrajectoryFlag) tjTkMap[iTjRef-1] = iTkRef-1;
   }
+  
+
   
   // Put the Collections in the event
   LogTrace(metname) << "put the Collections in the event";
-  
   event.put(recHitCollection,instance);
   event.put(trackExtraCollection,instance);
-  if ( theTrajectoryFlag ) event.put(trajectoryCollection,instance);
 
+  OrphanHandle<reco::TrackCollection> returnTrackHandle;
+  OrphanHandle<reco::TrackCollection> nonUpdatedHandle;
   if(theUpdatingAtVtx){
-    event.put(trackCollection,instance);
+    nonUpdatedHandle = event.put(trackCollection,instance);
     event.put(trackToTrackmap);
-    return  event.put(updatedAtVtxTrackCollection,instance+"UpdatedAtVtx");
+    returnTrackHandle = event.put(updatedAtVtxTrackCollection,instance+"UpdatedAtVtx");
   }
-  else
-    return event.put(trackCollection,instance);
+  else {
+    returnTrackHandle = event.put(trackCollection,instance);
+    nonUpdatedHandle = returnTrackHandle;
+  }
+
+  if ( theTrajectoryFlag ) {
+    OrphanHandle<std::vector<Trajectory> > rTrajs = event.put(trajectoryCollection,instance);
+    // Now Create traj<->tracks association map
+    std::auto_ptr<TrajTrackAssociationCollection> trajTrackMap( new TrajTrackAssociationCollection() );
+    for ( std::map<unsigned int, unsigned int>::iterator i = tjTkMap.begin(); 
+          i != tjTkMap.end(); i++ ) {
+      //edm::Ref<std::vector<Trajectory> > trajRef( rTrajs, (*i).first );
+      //edm::Ref<reco::TrackCollection>    tkRef( returnTrackHandle, (*i).second );
+
+      trajTrackMap->insert( edm::Ref<std::vector<Trajectory> >( rTrajs, (*i).first ),
+                            edm::Ref<reco::TrackCollection>( nonUpdatedHandle, (*i).second ) );
+    }
+    event.put( trajTrackMap, instance );
+  }
+
+  return returnTrackHandle;
 }
 
 OrphanHandle<reco::MuonTrackLinksCollection> 
