@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2007/08/21 11:31:48 $
- * $Revision: 1.19 $
+ * $Date: 2007/09/03 18:27:25 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  *
 */
@@ -380,7 +380,7 @@ void EETimingClient::unsubscribe(void){
 
         int ism = superModules_[i];
 
-        mui_->removeCollate(me_h01_[ism-1]);
+        dbe_->removeCollate(me_h01_[ism-1]);
 
       }
 

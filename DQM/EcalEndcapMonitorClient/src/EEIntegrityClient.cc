@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2007/08/21 11:31:47 $
- * $Revision: 1.22 $
+ * $Date: 2007/09/03 18:27:24 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1032,25 +1032,25 @@ void EEIntegrityClient::unsubscribe(void){
 
     if ( mui_ ) {
 
-      mui_->removeCollate(me_h00_);
+      dbe_->removeCollate(me_h00_);
 
       for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
         int ism = superModules_[i];
 
-        mui_->removeCollate(me_h_[ism-1]);
-        mui_->removeCollate(me_hmem_[ism-1]);
+        dbe_->removeCollate(me_h_[ism-1]);
+        dbe_->removeCollate(me_hmem_[ism-1]);
 
-        mui_->removeCollate(me_h01_[ism-1]);
-        mui_->removeCollate(me_h02_[ism-1]);
-        mui_->removeCollate(me_h03_[ism-1]);
-        mui_->removeCollate(me_h04_[ism-1]);
-        mui_->removeCollate(me_h05_[ism-1]);
-        mui_->removeCollate(me_h06_[ism-1]);
-        mui_->removeCollate(me_h07_[ism-1]);
-        mui_->removeCollate(me_h08_[ism-1]);
-        mui_->removeCollate(me_h09_[ism-1]);
-        mui_->removeCollate(me_h10_[ism-1]);
+        dbe_->removeCollate(me_h01_[ism-1]);
+        dbe_->removeCollate(me_h02_[ism-1]);
+        dbe_->removeCollate(me_h03_[ism-1]);
+        dbe_->removeCollate(me_h04_[ism-1]);
+        dbe_->removeCollate(me_h05_[ism-1]);
+        dbe_->removeCollate(me_h06_[ism-1]);
+        dbe_->removeCollate(me_h07_[ism-1]);
+        dbe_->removeCollate(me_h08_[ism-1]);
+        dbe_->removeCollate(me_h09_[ism-1]);
+        dbe_->removeCollate(me_h10_[ism-1]);
 
       }
 

@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/08/14 17:43:05 $
- * $Revision: 1.306 $
+ * $Date: 2007/08/17 09:05:09 $
+ * $Revision: 1.307 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1299,7 +1299,7 @@ void EcalBarrelMonitorClient::unsubscribe(void) {
 
     if ( mui_ ) {
 
-      mui_->removeCollate(me_h_);
+      dbe_->removeCollate(me_h_);
 
     }
 

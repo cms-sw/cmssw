@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2007/08/21 11:31:47 $
- * $Revision: 1.22 $
+ * $Date: 2007/09/03 18:27:25 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -447,7 +447,7 @@ void EEPedestalOnlineClient::unsubscribe(void){
 
         int ism = superModules_[i];
 
-        mui_->removeCollate(me_h03_[ism-1]);
+        dbe_->removeCollate(me_h03_[ism-1]);
 
       }
 

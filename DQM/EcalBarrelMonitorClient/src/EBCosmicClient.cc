@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  *
- * $Date: 2007/08/14 17:43:05 $
- * $Revision: 1.79 $
+ * $Date: 2007/08/17 09:05:08 $
+ * $Revision: 1.80 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -335,9 +335,9 @@ void EBCosmicClient::unsubscribe(void){
 
         int ism = superModules_[i];
 
-        mui_->removeCollate(me_h01_[ism-1]);
-        mui_->removeCollate(me_h02_[ism-1]);
-        mui_->removeCollate(me_h03_[ism-1]);
+        dbe_->removeCollate(me_h01_[ism-1]);
+        dbe_->removeCollate(me_h02_[ism-1]);
+        dbe_->removeCollate(me_h03_[ism-1]);
 
       }
 

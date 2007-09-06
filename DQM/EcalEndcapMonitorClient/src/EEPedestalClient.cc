@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2007/08/21 11:31:47 $
- * $Revision: 1.24 $
+ * $Date: 2007/09/03 18:27:25 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -947,20 +947,20 @@ void EEPedestalClient::unsubscribe(void){
 
         int ism = superModules_[i];
 
-        mui_->removeCollate(me_h01_[ism-1]);
-        mui_->removeCollate(me_h02_[ism-1]);
-        mui_->removeCollate(me_h03_[ism-1]);
+        dbe_->removeCollate(me_h01_[ism-1]);
+        dbe_->removeCollate(me_h02_[ism-1]);
+        dbe_->removeCollate(me_h03_[ism-1]);
 
-        mui_->removeCollate(me_j01_[ism-1]);
-        mui_->removeCollate(me_j02_[ism-1]);
-        mui_->removeCollate(me_j03_[ism-1]);
+        dbe_->removeCollate(me_j01_[ism-1]);
+        dbe_->removeCollate(me_j02_[ism-1]);
+        dbe_->removeCollate(me_j03_[ism-1]);
 
-        mui_->removeCollate(me_k01_[ism-1]);
-        mui_->removeCollate(me_k02_[ism-1]);
-        mui_->removeCollate(me_k03_[ism-1]);
+        dbe_->removeCollate(me_k01_[ism-1]);
+        dbe_->removeCollate(me_k02_[ism-1]);
+        dbe_->removeCollate(me_k03_[ism-1]);
 
-        mui_->removeCollate(me_i01_[ism-1]);
-        mui_->removeCollate(me_i02_[ism-1]);
+        dbe_->removeCollate(me_i01_[ism-1]);
+        dbe_->removeCollate(me_i02_[ism-1]);
 
       }
 

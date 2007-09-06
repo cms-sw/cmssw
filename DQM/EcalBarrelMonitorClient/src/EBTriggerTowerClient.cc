@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/08/14 17:43:05 $
- * $Revision: 1.47 $
+ * $Date: 2007/08/17 09:05:09 $
+ * $Revision: 1.48 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -406,22 +406,22 @@ void EBTriggerTowerClient::unsubscribe( const char* nameext,
 
         int ism = superModules_[i];
 
-        mui_->removeCollate((!emulated) ? me_h01_[ism-1] : me_h02_[ism-1]);
+        dbe_->removeCollate((!emulated) ? me_h01_[ism-1] : me_h02_[ism-1]);
 
-        mui_->removeCollate((!emulated) ? me_i01_[ism-1] : me_i02_[ism-1]);
+        dbe_->removeCollate((!emulated) ? me_i01_[ism-1] : me_i02_[ism-1]);
 
-        mui_->removeCollate((!emulated) ? me_j01_[ism-1] : me_j02_[ism-1]);
+        dbe_->removeCollate((!emulated) ? me_j01_[ism-1] : me_j02_[ism-1]);
 
 	if(!emulated) {
-	  mui_->removeCollate(me_l01_[ism-1]);
-	  mui_->removeCollate(me_m01_[ism-1]);
-	  mui_->removeCollate(me_n01_[ism-1]);
+	  dbe_->removeCollate(me_l01_[ism-1]);
+	  dbe_->removeCollate(me_m01_[ism-1]);
+	  dbe_->removeCollate(me_n01_[ism-1]);
 	}
 //         for (int j = 0; j < 68 ; j++) {
 
-//           mui_->removeCollate(me_k01_[ism-1][j]);
+//           dbe_->removeCollate(me_k01_[ism-1][j]);
 
-//           mui_->removeCollate(me_k02_[ism-1][j]);
+//           dbe_->removeCollate(me_k02_[ism-1][j]);
 
 //         }
 

@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2007/08/17 09:05:12 $
- * $Revision: 1.15 $
+ * $Date: 2007/08/17 18:25:28 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -501,30 +501,30 @@ void EEClusterClient::unsubscribe(void){
 
     if ( mui_ ) {
 
-      mui_->removeCollate(me_allEEBasic_[0]);
-      mui_->removeCollate(me_allEEBasic_[1]);
-      mui_->removeCollate(me_allEEBasic_[2]);
-      mui_->removeCollate(me_eneEEBasic_[0]);
-      mui_->removeCollate(me_eneEEBasic_[1]);
-      mui_->removeCollate(me_enePolarEEBasic_[0]);
-      mui_->removeCollate(me_enePolarEEBasic_[1]);
-      mui_->removeCollate(me_numEEBasic_[0]);
-      mui_->removeCollate(me_numEEBasic_[1]);
-      mui_->removeCollate(me_numPolarEEBasic_[0]);
-      mui_->removeCollate(me_numPolarEEBasic_[1]);
+      dbe_->removeCollate(me_allEEBasic_[0]);
+      dbe_->removeCollate(me_allEEBasic_[1]);
+      dbe_->removeCollate(me_allEEBasic_[2]);
+      dbe_->removeCollate(me_eneEEBasic_[0]);
+      dbe_->removeCollate(me_eneEEBasic_[1]);
+      dbe_->removeCollate(me_enePolarEEBasic_[0]);
+      dbe_->removeCollate(me_enePolarEEBasic_[1]);
+      dbe_->removeCollate(me_numEEBasic_[0]);
+      dbe_->removeCollate(me_numEEBasic_[1]);
+      dbe_->removeCollate(me_numPolarEEBasic_[0]);
+      dbe_->removeCollate(me_numPolarEEBasic_[1]);
 
-      mui_->removeCollate(me_allEE_[0]);
-      mui_->removeCollate(me_allEE_[1]);
-      mui_->removeCollate(me_allEE_[2]);
-      mui_->removeCollate(me_eneEE_[0]);
-      mui_->removeCollate(me_eneEE_[1]);
-      mui_->removeCollate(me_enePolarEE_[0]);
-      mui_->removeCollate(me_enePolarEE_[1]);
-      mui_->removeCollate(me_numEE_[0]);
-      mui_->removeCollate(me_numEE_[1]);
-      mui_->removeCollate(me_numPolarEE_[0]);
-      mui_->removeCollate(me_numPolarEE_[1]);
-      mui_->removeCollate(me_s_);
+      dbe_->removeCollate(me_allEE_[0]);
+      dbe_->removeCollate(me_allEE_[1]);
+      dbe_->removeCollate(me_allEE_[2]);
+      dbe_->removeCollate(me_eneEE_[0]);
+      dbe_->removeCollate(me_eneEE_[1]);
+      dbe_->removeCollate(me_enePolarEE_[0]);
+      dbe_->removeCollate(me_enePolarEE_[1]);
+      dbe_->removeCollate(me_numEE_[0]);
+      dbe_->removeCollate(me_numEE_[1]);
+      dbe_->removeCollate(me_numPolarEE_[0]);
+      dbe_->removeCollate(me_numPolarEE_[1]);
+      dbe_->removeCollate(me_s_);
 
     }
 

@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2007/08/17 18:25:28 $
- * $Revision: 1.16 $
+ * $Date: 2007/08/21 11:31:47 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -346,9 +346,9 @@ void EECosmicClient::unsubscribe(void){
 
         int ism = superModules_[i];
 
-        mui_->removeCollate(me_h01_[ism-1]);
-        mui_->removeCollate(me_h02_[ism-1]);
-        mui_->removeCollate(me_h03_[ism-1]);
+        dbe_->removeCollate(me_h01_[ism-1]);
+        dbe_->removeCollate(me_h02_[ism-1]);
+        dbe_->removeCollate(me_h03_[ism-1]);
 
       }
 

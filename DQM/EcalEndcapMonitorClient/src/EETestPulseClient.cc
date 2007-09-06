@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2007/08/21 11:31:48 $
- * $Revision: 1.27 $
+ * $Date: 2007/09/03 18:27:25 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -940,18 +940,18 @@ void EETestPulseClient::unsubscribe(void){
 
         int ism = superModules_[i];
 
-        mui_->removeCollate(me_ha01_[ism-1]);
-        mui_->removeCollate(me_ha02_[ism-1]);
-        mui_->removeCollate(me_ha03_[ism-1]);
+        dbe_->removeCollate(me_ha01_[ism-1]);
+        dbe_->removeCollate(me_ha02_[ism-1]);
+        dbe_->removeCollate(me_ha03_[ism-1]);
 
-        mui_->removeCollate(me_hs01_[ism-1]);
-        mui_->removeCollate(me_hs02_[ism-1]);
-        mui_->removeCollate(me_hs03_[ism-1]);
+        dbe_->removeCollate(me_hs01_[ism-1]);
+        dbe_->removeCollate(me_hs02_[ism-1]);
+        dbe_->removeCollate(me_hs03_[ism-1]);
 
-        mui_->removeCollate(me_i01_[ism-1]);
-        mui_->removeCollate(me_i02_[ism-1]);
-        mui_->removeCollate(me_i03_[ism-1]);
-        mui_->removeCollate(me_i04_[ism-1]);
+        dbe_->removeCollate(me_i01_[ism-1]);
+        dbe_->removeCollate(me_i02_[ism-1]);
+        dbe_->removeCollate(me_i03_[ism-1]);
+        dbe_->removeCollate(me_i04_[ism-1]);
 
       }
 

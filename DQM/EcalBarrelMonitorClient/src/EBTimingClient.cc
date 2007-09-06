@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2007/08/17 09:05:09 $
- * $Revision: 1.34 $
+ * $Date: 2007/09/03 18:27:23 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  *
 */
@@ -370,7 +370,7 @@ void EBTimingClient::unsubscribe(void){
 
         int ism = superModules_[i];
 
-        mui_->removeCollate(me_h01_[ism-1]);
+        dbe_->removeCollate(me_h01_[ism-1]);
 
       }
 

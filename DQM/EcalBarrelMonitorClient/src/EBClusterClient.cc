@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2007/08/12 07:12:00 $
- * $Revision: 1.32 $
+ * $Date: 2007/08/17 09:05:08 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -411,24 +411,24 @@ void EBClusterClient::unsubscribe(void){
 
     if ( mui_ ) {
 
-      mui_->removeCollate(me_h01_[0]);
-      mui_->removeCollate(me_h01_[1]);
-      mui_->removeCollate(me_h01_[2]);
-      mui_->removeCollate(me_h02_[0]);
-      mui_->removeCollate(me_h02_[1]);
-      mui_->removeCollate(me_h03_);
-      mui_->removeCollate(me_h04_);
+      dbe_->removeCollate(me_h01_[0]);
+      dbe_->removeCollate(me_h01_[1]);
+      dbe_->removeCollate(me_h01_[2]);
+      dbe_->removeCollate(me_h02_[0]);
+      dbe_->removeCollate(me_h02_[1]);
+      dbe_->removeCollate(me_h03_);
+      dbe_->removeCollate(me_h04_);
 
-      mui_->removeCollate(me_i01_[0]);
-      mui_->removeCollate(me_i01_[1]);
-      mui_->removeCollate(me_i01_[2]);
-      mui_->removeCollate(me_i02_[0]);
-      mui_->removeCollate(me_i02_[1]);
-      mui_->removeCollate(me_i03_);
-      mui_->removeCollate(me_i04_);
+      dbe_->removeCollate(me_i01_[0]);
+      dbe_->removeCollate(me_i01_[1]);
+      dbe_->removeCollate(me_i01_[2]);
+      dbe_->removeCollate(me_i02_[0]);
+      dbe_->removeCollate(me_i02_[1]);
+      dbe_->removeCollate(me_i03_);
+      dbe_->removeCollate(me_i04_);
 
-      mui_->removeCollate(me_s01_[0]);
-      mui_->removeCollate(me_s01_[1]);
+      dbe_->removeCollate(me_s01_[0]);
+      dbe_->removeCollate(me_s01_[1]);
 
     }
 

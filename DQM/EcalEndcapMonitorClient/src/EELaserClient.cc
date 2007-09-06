@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2007/08/21 11:31:47 $
- * $Revision: 1.28 $
+ * $Date: 2007/09/03 18:27:24 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -2384,61 +2384,61 @@ void EELaserClient::unsubscribe(void){
 
         int ism = superModules_[i];
 
-        mui_->removeCollate(me_h01_[ism-1]);
-        mui_->removeCollate(me_h02_[ism-1]);
-        mui_->removeCollate(me_h03_[ism-1]);
-        mui_->removeCollate(me_h04_[ism-1]);
-        mui_->removeCollate(me_h05_[ism-1]);
-        mui_->removeCollate(me_h06_[ism-1]);
-        mui_->removeCollate(me_h07_[ism-1]);
-        mui_->removeCollate(me_h08_[ism-1]);
+        dbe_->removeCollate(me_h01_[ism-1]);
+        dbe_->removeCollate(me_h02_[ism-1]);
+        dbe_->removeCollate(me_h03_[ism-1]);
+        dbe_->removeCollate(me_h04_[ism-1]);
+        dbe_->removeCollate(me_h05_[ism-1]);
+        dbe_->removeCollate(me_h06_[ism-1]);
+        dbe_->removeCollate(me_h07_[ism-1]);
+        dbe_->removeCollate(me_h08_[ism-1]);
 
-        mui_->removeCollate(me_h09_[ism-1]);
-        mui_->removeCollate(me_h10_[ism-1]);
-        mui_->removeCollate(me_h11_[ism-1]);
-        mui_->removeCollate(me_h12_[ism-1]);
+        dbe_->removeCollate(me_h09_[ism-1]);
+        dbe_->removeCollate(me_h10_[ism-1]);
+        dbe_->removeCollate(me_h11_[ism-1]);
+        dbe_->removeCollate(me_h12_[ism-1]);
 
-        mui_->removeCollate(me_h13_[ism-1]);
-        mui_->removeCollate(me_h14_[ism-1]);
-        mui_->removeCollate(me_h15_[ism-1]);
-        mui_->removeCollate(me_h16_[ism-1]);
-        mui_->removeCollate(me_h17_[ism-1]);
-        mui_->removeCollate(me_h18_[ism-1]);
-        mui_->removeCollate(me_h19_[ism-1]);
-        mui_->removeCollate(me_h20_[ism-1]);
+        dbe_->removeCollate(me_h13_[ism-1]);
+        dbe_->removeCollate(me_h14_[ism-1]);
+        dbe_->removeCollate(me_h15_[ism-1]);
+        dbe_->removeCollate(me_h16_[ism-1]);
+        dbe_->removeCollate(me_h17_[ism-1]);
+        dbe_->removeCollate(me_h18_[ism-1]);
+        dbe_->removeCollate(me_h19_[ism-1]);
+        dbe_->removeCollate(me_h20_[ism-1]);
 
-        mui_->removeCollate(me_h21_[ism-1]);
-        mui_->removeCollate(me_h22_[ism-1]);
-        mui_->removeCollate(me_h23_[ism-1]);
-        mui_->removeCollate(me_h24_[ism-1]);
+        dbe_->removeCollate(me_h21_[ism-1]);
+        dbe_->removeCollate(me_h22_[ism-1]);
+        dbe_->removeCollate(me_h23_[ism-1]);
+        dbe_->removeCollate(me_h24_[ism-1]);
 
-        mui_->removeCollate(me_hs01_[ism-1]);
-        mui_->removeCollate(me_hs02_[ism-1]);
-        mui_->removeCollate(me_hs03_[ism-1]);
-        mui_->removeCollate(me_hs04_[ism-1]);
+        dbe_->removeCollate(me_hs01_[ism-1]);
+        dbe_->removeCollate(me_hs02_[ism-1]);
+        dbe_->removeCollate(me_hs03_[ism-1]);
+        dbe_->removeCollate(me_hs04_[ism-1]);
 
-        mui_->removeCollate(me_hs05_[ism-1]);
-        mui_->removeCollate(me_hs06_[ism-1]);
-        mui_->removeCollate(me_hs07_[ism-1]);
-        mui_->removeCollate(me_hs08_[ism-1]);
+        dbe_->removeCollate(me_hs05_[ism-1]);
+        dbe_->removeCollate(me_hs06_[ism-1]);
+        dbe_->removeCollate(me_hs07_[ism-1]);
+        dbe_->removeCollate(me_hs08_[ism-1]);
 
-        mui_->removeCollate(me_i01_[ism-1]);
-        mui_->removeCollate(me_i02_[ism-1]);
-        mui_->removeCollate(me_i03_[ism-1]);
-        mui_->removeCollate(me_i04_[ism-1]);
-        mui_->removeCollate(me_i05_[ism-1]);
-        mui_->removeCollate(me_i06_[ism-1]);
-        mui_->removeCollate(me_i07_[ism-1]);
-        mui_->removeCollate(me_i08_[ism-1]);
+        dbe_->removeCollate(me_i01_[ism-1]);
+        dbe_->removeCollate(me_i02_[ism-1]);
+        dbe_->removeCollate(me_i03_[ism-1]);
+        dbe_->removeCollate(me_i04_[ism-1]);
+        dbe_->removeCollate(me_i05_[ism-1]);
+        dbe_->removeCollate(me_i06_[ism-1]);
+        dbe_->removeCollate(me_i07_[ism-1]);
+        dbe_->removeCollate(me_i08_[ism-1]);
 
-        mui_->removeCollate(me_i09_[ism-1]);
-        mui_->removeCollate(me_i10_[ism-1]);
-        mui_->removeCollate(me_i11_[ism-1]);
-        mui_->removeCollate(me_i12_[ism-1]);
-        mui_->removeCollate(me_i13_[ism-1]);
-        mui_->removeCollate(me_i14_[ism-1]);
-        mui_->removeCollate(me_i15_[ism-1]);
-        mui_->removeCollate(me_i16_[ism-1]);
+        dbe_->removeCollate(me_i09_[ism-1]);
+        dbe_->removeCollate(me_i10_[ism-1]);
+        dbe_->removeCollate(me_i11_[ism-1]);
+        dbe_->removeCollate(me_i12_[ism-1]);
+        dbe_->removeCollate(me_i13_[ism-1]);
+        dbe_->removeCollate(me_i14_[ism-1]);
+        dbe_->removeCollate(me_i15_[ism-1]);
+        dbe_->removeCollate(me_i16_[ism-1]);
 
       }
 

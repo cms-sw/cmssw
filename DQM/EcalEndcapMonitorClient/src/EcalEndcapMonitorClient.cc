@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/08/17 09:05:12 $
- * $Revision: 1.62 $
+ * $Date: 2007/08/17 18:15:10 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1324,7 +1324,7 @@ void EcalEndcapMonitorClient::unsubscribe(void) {
 
     if ( mui_ ) {
 
-      mui_->removeCollate(me_h_);
+      dbe_->removeCollate(me_h_);
 
     }
 
