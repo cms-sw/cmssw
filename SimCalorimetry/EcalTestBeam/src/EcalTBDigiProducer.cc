@@ -128,15 +128,13 @@ void EcalTBDigiProducer::produce(edm::Event& event, const edm::EventSetup& event
   checkGeometry(eventSetup);
   checkCalibrations(eventSetup);
 
-  // Get input
-  edm::Handle<CrossingFrame> crossingFrame;
-  event.getByType(crossingFrame);
-
-  // test access to SimHits
   const std::string barrelHitsName("EcalHitsEB");
 
+  // Get input
+  edm::Handle<CrossingFrame<PCaloHit> > crossingFrame;
+  event.getByLabel("mix",barrelHitsName,crossingFrame);
   std::auto_ptr<MixCollection<PCaloHit> > 
-    barrelHits( new MixCollection<PCaloHit>(crossingFrame.product(), barrelHitsName) );
+    barrelHits( new MixCollection<PCaloHit>(crossingFrame.product()));
 
   std::auto_ptr<EcalTBTDCRawInfo> TDCproduct(new EcalTBTDCRawInfo(1));
 
