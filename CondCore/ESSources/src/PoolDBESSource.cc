@@ -100,6 +100,7 @@ fillRecordToTypeMap(std::multimap<std::string, std::string>& oToFill){
 //
 // constructors and destructor
 //
+static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
 PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   m_timetype(iConfig.getParameter<std::string>("timetype") ),
   m_session( 0 )
@@ -150,10 +151,9 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   //std::cout<<"using connect "<<connect<<std::endl;
   //std::cout<<"using catalog "<<catconnect<<std::endl;
   m_session=new cond::DBSession;
-  
+ 
   edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>("DBParameters"); 
   cond::ConfigSessionFromParameterSet configConnection(*m_session,connectionPset);
-  static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
   conHandler.registerConnection("inputdb",connect,catconnect,0);
   m_session->open();
   conHandler.connect(m_session);
