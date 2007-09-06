@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2007/05/24 13:20:26 $
- * $Revision: 1.24 $
+ * $Date: 2007/08/14 17:43:06 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -28,6 +28,8 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
