@@ -14,6 +14,13 @@ cond::ConnectionHandler::registerConnection(const std::string& name,
 					    unsigned int connectionTimeout){
   m_registry.insert(std::make_pair<std::string,cond::Connection*>(name, new cond::Connection(con,connectionTimeout)));
 }
+void
+cond::ConnectionHandler::removeConnection(const std::string& name ){
+  std::map<std::string,cond::Connection*>::iterator pos=m_registry.find(name);
+  if( pos!=m_registry.end() ){
+    m_registry.erase(pos);
+  }
+}
 cond::ConnectionHandler& 
 cond::ConnectionHandler::Instance(){
   static cond::ConnectionHandler me;

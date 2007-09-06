@@ -22,6 +22,8 @@ namespace cond{
     void registerConnection(const std::string& name,
 			    const std::string& con,
 			    unsigned int timeOutInSec=0);
+    /// remove connection from connection pool
+    void removeConnection( const std::string& name );
     /// global connect
     /// delegate all the registered proxy to connect 
     /// if timeOutInSec !=0, cleanup idle connections with given parameter
