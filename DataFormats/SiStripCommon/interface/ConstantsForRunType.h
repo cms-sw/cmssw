@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForRunType.h,v 1.4 2007/06/19 12:16:52 bainbrid Exp $
+// Last commit: $Id: ConstantsForRunType.h,v 1.5 2007/07/11 11:13:59 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForRunType_H
 #define DataFormats_SiStripCommon_ConstantsForRunType_H
@@ -19,17 +19,21 @@ namespace sistrip {
   static const std::string unknownRunType_   = "UnknownRunType";
   static const std::string undefinedRunType_ = "UndefinedRunType";
   
-  static const std::string fastCabling_ = "FastCabling";
-  static const std::string fedCabling_     = "FedCabling";
-  static const std::string apvTiming_      = "ApvTiming";
-  static const std::string fedTiming_      = "FedTiming";
-  static const std::string optoScan_       = "OptoScan";
-  static const std::string vpspScan_       = "VpspScan";
-  static const std::string pedestals_      = "Pedestals";
-  static const std::string apvLatency_     = "ApvLatency";
-  static const std::string fineDelay_      = "FineDelay";
-  static const std::string daqScopeMode_   = "DaqScopeMode";
-  static const std::string physics_        = "Physics";
+  static const std::string fastCabling_      = "FastCabling";
+  static const std::string fedCabling_       = "FedCabling";
+  static const std::string apvTiming_        = "ApvTiming";
+  static const std::string fedTiming_        = "FedTiming";
+  static const std::string optoScan_         = "OptoScan";
+  static const std::string vpspScan_         = "VpspScan";
+  static const std::string pedestals_        = "Pedestals";
+  static const std::string apvLatency_       = "ApvLatency";
+  static const std::string fineDelay_        = "FineDelay";
+  static const std::string calibrationP_     = "CalibrationPeak";
+  static const std::string calibrationD_     = "CalibrationDeco";
+  static const std::string calibrationScanP_ = "CalibrationScanPeak";
+  static const std::string calibrationScanD_ = "CalibrationScanDeco";
+  static const std::string daqScopeMode_     = "DaqScopeMode";
+  static const std::string physics_          = "Physics";
   
   // ---------- Enumerated type ---------- 
   
@@ -51,23 +55,29 @@ namespace sistrip {
    * fine (1ns) TTC delay scan for beam (DELAY_TTC = 8), 
    * APV pulse shape tuning using peak mode operation (CALIBRATION = 3), 
    * APV pulse shape tuning using deconvolution mode operation (CALIBRATION_DECO = 33), 
+   * APV pulse shape tuning with isha/vfs scan using peak mode operation (CALIBRATION = 3), 
+   * APV pulse shape tuning with isha/vfs scan using deconvolution mode operation (CALIBRATION_DECO = 33), 
    * physics data-taking run (PHYSIC = 1), 
    * scope mode running (SCOPE_MODE = 15) 
    * multi mode operation (PHYSIC10 = 10), 
    */
   enum RunType { UNKNOWN_RUN_TYPE   = sistrip::unknown_,
 		 UNDEFINED_RUN_TYPE = sistrip::invalid_,
-		 FAST_CABLING   = 21,
-		 FED_CABLING        = 13,
-		 APV_TIMING         = 5,
-		 FED_TIMING         = 12,
-		 OPTO_SCAN          = 4,
-		 VPSP_SCAN          = 14,
-		 PEDESTALS          = 2,
-		 APV_LATENCY        = 6,
-                 FINE_DELAY         = 7,
-		 DAQ_SCOPE_MODE     = 15,
-		 PHYSICS            = 1
+		 FAST_CABLING          = 21,
+		 FED_CABLING           = 13,
+		 APV_TIMING            = 5,
+		 FED_TIMING            = 12,
+		 OPTO_SCAN             = 4,
+		 VPSP_SCAN             = 14,
+		 PEDESTALS             = 2,
+		 APV_LATENCY           = 6,
+                 FINE_DELAY            = 17,
+		 DAQ_SCOPE_MODE        = 15,
+		 CALIBRATION_SCAN      = 19,
+		 CALIBRATION_SCAN_DECO = 20,
+		 CALIBRATION           = 3,
+		 CALIBRATION_DECO      = 33,
+		 PHYSICS               = 1
   };
 
 }

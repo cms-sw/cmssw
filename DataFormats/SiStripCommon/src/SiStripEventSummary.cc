@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripEventSummary.cc,v 1.2 2007/05/24 15:27:33 bainbrid Exp $
+// Last commit: $Id: SiStripEventSummary.cc,v 1.3 2007/06/19 12:16:53 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -22,7 +22,7 @@ SiStripEventSummary::SiStripEventSummary() :
   nApvsInSync_(0),
   nApvsOutOfSync_(0),
   nApvsErrors_(0),
-  params_(4,0)
+  params_(5,0)
 {;}
 
 // -----------------------------------------------------------------------------
@@ -59,6 +59,8 @@ void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer,
     params_[0] = buffer[11]; // latency
     params_[1] = buffer[12]; // cal_chan
     params_[2] = buffer[13]; // cal_sel
+    params_[3] = buffer[15]; // isha
+    params_[4] = buffer[16]; // vfs
 
   } else if ( buffer[10] == 4 ) { // Laser driver tuning
 
@@ -66,6 +68,7 @@ void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer,
     params_[1] = buffer[12]; // opto bias
 
   } else if ( buffer[10] == 7 ||
+	      buffer[10] == 17||
 	      buffer[10] == 8 ||
 	      buffer[10] == 5 ||
 	      buffer[10] == 12 ) { // Synchronisation and delay scans

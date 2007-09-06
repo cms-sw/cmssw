@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripEventSummary.h,v 1.3 2007/06/19 12:16:52 bainbrid Exp $
+// Last commit: $Id: SiStripEventSummary.h,v 1.4 2007/07/31 15:20:24 ratnik Exp $
 
 #ifndef DataFormats_SiStripEventSummary_SiStripEventSummary_H
 #define DataFormats_SiStripEventSummary_SiStripEventSummary_H
@@ -88,6 +88,12 @@ class SiStripEventSummary {
   
   /** Returns APV calibration timing (CSEL). */
   inline const uint32_t& calSel() const;
+  
+  /** Returns APV ISHA. */
+  inline const uint32_t& isha() const;
+  
+  /** Returns APV VFS. */
+  inline const uint32_t& vfs() const;
   
   /** Returns TTCrx delay setting. */
   inline const uint32_t& ttcrx() const;
@@ -199,6 +205,8 @@ const uint32_t& SiStripEventSummary::pllFine() const { return params_[1]; }
 const uint32_t& SiStripEventSummary::latency() const { return params_[0]; }
 const uint32_t& SiStripEventSummary::calChan() const { return params_[1]; }
 const uint32_t& SiStripEventSummary::calSel() const { return params_[2]; }
+const uint32_t& SiStripEventSummary::isha() const { return params_[3]; }
+const uint32_t& SiStripEventSummary::vfs() const { return params_[4]; }
 const uint32_t& SiStripEventSummary::ttcrx() const { return params_[0]; }
 const uint32_t& SiStripEventSummary::vpsp() const { return params_[0]; }
 const uint32_t& SiStripEventSummary::vpspCcuChan() const { return params_[1]; }

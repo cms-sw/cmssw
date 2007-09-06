@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForMonitorable.h,v 1.5 2007/07/11 11:13:59 bainbrid Exp $
+// Last commit: $Id: ConstantsForMonitorable.h,v 1.6 2007/07/13 14:07:53 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForMonitorable_H
 #define DataFormats_SiStripCommon_ConstantsForMonitorable_H
@@ -93,6 +93,14 @@ namespace sistrip {
   static const std::string fineDelayPos_       = "FineDelayPosition";
   static const std::string fineDelayErr_       = "FineDelayError";
 
+  // Calibration
+  static const std::string calibrationAmplitude_    = "CalibrationAmplitude";
+  static const std::string calibrationTail_         = "CalibrationTail";
+  static const std::string calibrationRiseTime_     = "CalibrationRiseTime";
+  static const std::string calibrationTimeConstant_ = "CalibrationTimeConstant";
+  static const std::string calibrationSmearing_     = "CalibrationSmearing";
+  static const std::string calibrationChi2_         = "CalibrationChi2";
+
   // daq scope mode
   static const std::string daqScopeModeMeanSignal_ = "DaqScopeMode_MeanSignal";
 
@@ -164,6 +172,13 @@ namespace sistrip {
 
                      FINE_DELAY_POS = 601,
                      FINE_DELAY_ERROR = 602,
+
+		     CALIBRATION_AMPLITUDE    = 701,
+		     CALIBRATION_TAIL         = 702,
+		     CALIBRATION_RISETIME     = 703,
+		     CALIBRATION_TIMECONSTANT = 704,
+		     CALIBRATION_SMEARING     = 705,
+		     CALIBRATION_CHI2         = 706,
 
 		     DAQ_SCOPE_MODE_MEAN_SIGNAL = 1501
   };
