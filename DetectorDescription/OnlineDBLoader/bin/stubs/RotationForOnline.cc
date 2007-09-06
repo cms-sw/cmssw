@@ -1,7 +1,7 @@
 //
 // Original Author:  Jie Chen
 //         Created:  Mon Apr  9 11:36:53 CDT 2007
-// $Id$
+// $Id: RotationForOnline.cc,v 1.1 2007/08/09 00:12:18 case Exp $
 //
 //
 
@@ -12,7 +12,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include <FWCore/Framework/interface/ESHandle.h>
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -32,6 +32,8 @@
 #include "DetectorDescription/OfflineDBLoader/interface/GeometryInfoDump.h"
 #include <Geometry/Records/interface/IdealGeometryRecord.h>
 #include <MagneticField/Records/interface/IdealMagneticFieldRecord.h>
+
+#include "CLHEP/Units/SystemOfUnits.h"
 
 #include <iostream>
 #include <istream>
@@ -101,36 +103,50 @@ RotationForOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 void 
 RotationForOnline::beginJob(const edm::EventSetup& iSetup)
 {
+  // set tolerance for "near zero"
+  double tolerance= 1.0e-3;
   std::string rotationFileName("ROTATIONS.dat");
   std::ofstream rotationOS(rotationFileName.c_str());
   std::cout << "RotationForOnline Analyzer..." << std::endl;
 
+
   edm::ESHandle<DDCompactView> pDD;
 
   iSetup.get<IdealGeometryRecord>().get( "", pDD );
+  DDRotationMatrix ident;
 
   DDRotation::iterator<DDRotation> rit(DDRotation::begin()), red(DDRotation::end());
   for (; rit != red; ++rit) {
     if (! rit->isDefined().second) continue;
-    if ( rit->matrix()->isIdentity() ) continue;
+    //    if ( rit->matrix()->isIdentity() ) continue;
+    if ( *(rit->matrix()) == ident ) continue;
     const DDRotation& rota = *rit;
     bool reflection = false;
 
-    Hep3Vector xv=rota.rotation()->colX();
-    Hep3Vector yv = rota.rotation()->colY();
-    Hep3Vector zv = rota.rotation()->colZ();
-    if ( xv.cross(yv) * zv  < 0) {
-                reflection = true;
+    DD3Vector x, y, z;
+    rit->matrix()->GetComponents(x, y, z);
+    if ( (1.0 + (x.Cross(y)).Dot(z)) <= tolerance ) {
+      reflection = true;
     }
  
     rotationOS<< *(rota.isDefined().first); //rota name
+    double thetaX, phiX, thetaY, phiY, thetaZ, phiZ;
 
-    rotationOS<< "," << rota.rotation()->thetaX()
-	      << "," << rota.rotation()->phiX()
-	      << "," << rota.rotation()->thetaY()
-	      << "," << rota.rotation()->phiY()
-	      << "," << rota.rotation()->thetaZ()
-	      << "," << rota.rotation()->phiZ()
+    thetaX = std::acos(x.z());
+    phiX = ( x.y() == 0 && x.x() == 0.0) ? 0.0 : std::atan2(x.y(), x.x());
+
+    thetaY = std::acos(y.z());
+    phiY = ( y.y() == 0 && y.x() == 0.0) ? 0.0 : std::atan2(y.y(), y.x());
+
+    thetaZ = std::acos(z.z());
+    phiZ = ( z.y() == 0 && z.x() == 0.0) ? 0.0 : std::atan2(z.y(), z.x());
+
+    rotationOS<< "," << thetaX
+    	      << "," << phiX
+    	      << "," << thetaY
+    	      << "," << phiY
+	      << "," << thetaZ
+	      << "," << phiZ
 	      << "," << (int)reflection
 	      <<std::endl;
   } 

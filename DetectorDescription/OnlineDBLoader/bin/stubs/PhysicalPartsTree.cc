@@ -63,7 +63,8 @@ void PhysicalPartsTree::analyze( const edm::Event& iEvent, const edm::EventSetup
 }
 
 void PhysicalPartsTree::beginJob( const edm::EventSetup& iSetup ) {
-
+  //set a tolerance for "near zero"
+  double tolerance = 1.0e-3;
 
   std::string physicalPartsTreeFileName("PHYSICALPARTSTREE.dat");
   std::string logicalPartTypesFileName("LOGICALPARTTYPES.dat");
@@ -105,26 +106,41 @@ void PhysicalPartsTree::beginJob( const edm::EventSetup& iSetup ) {
     //for table nominalPlacements
     bool reflection = false;
 
-    Hep3Vector xv = epv.rotation().colX();
-    Hep3Vector yv = epv.rotation().colY();
-    Hep3Vector zv = epv.rotation().colZ();
-    if ( xv.cross(yv) * zv  < 0) {
-                reflection = true;
-              }
- 
+    DD3Vector x, y, z;
+    epv.rotation().GetComponents(x, y, z);
+    //Hep3Vector xv = epv.rotation().colX();
+    //Hep3Vector yv = epv.rotation().colY();
+    //Hep3Vector zv = epv.rotation().colZ();
+    //if ( xv.cross(yv) * zv  < 0) {
+    //            reflection = true;
+    //          }
+    if ( (1.0 + (x.Cross(y)).Dot(z)) <= tolerance ) {
+      reflection = true;
+    }
+    std::vector<double> comps(9);
+    epv.rotation().GetComponents(comps.begin(), comps.end());
     nominalPlacementsOS<< logicalpartid.str()<<","
-		       << epv.translation().x() << "," 
-		       << epv.translation().y() << ","  
-		       << epv.translation().z()<< "," 
-		       << epv.rotation().xx()<< "," 
-		       << epv.rotation().xy()<< "," 
-		       << epv.rotation().xz()<< "," 
-		       << epv.rotation().yx()<< "," 
-		       << epv.rotation().yy()<< "," 
-		       << epv.rotation().yz()<< "," 
-		       << epv.rotation().zx()<< "," 
-		       << epv.rotation().zy()<< "," 
-		       << epv.rotation().zz()<< "," 
+		       << epv.translation().X() << "," 
+		       << epv.translation().Y() << ","  
+		       << epv.translation().Z()<< "," 
+// 		       << epv.rotation().xx()<< "," 
+// 		       << epv.rotation().xy()<< "," 
+// 		       << epv.rotation().xz()<< "," 
+// 		       << epv.rotation().yx()<< "," 
+// 		       << epv.rotation().yy()<< "," 
+// 		       << epv.rotation().yz()<< "," 
+// 		       << epv.rotation().zx()<< "," 
+// 		       << epv.rotation().zy()<< "," 
+// 		       << epv.rotation().zz()<< "," 
+		       << comps[0]<<","
+		       << comps[1]<<","
+		       << comps[2]<<","
+		       << comps[3]<<","
+		       << comps[4]<<","
+		       << comps[5]<<","
+		       << comps[6]<<","
+		       << comps[7]<<","
+		       << comps[8]<<","
 		       << (int)reflection
 		       <<std::endl;
 

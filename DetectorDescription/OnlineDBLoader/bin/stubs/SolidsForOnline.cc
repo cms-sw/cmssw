@@ -45,15 +45,10 @@ private:
   std::string filename_;  
 };
 
-SolidsForOnline::SolidsForOnline( const edm::ParameterSet& iConfig )
-{
-
-}
+SolidsForOnline::SolidsForOnline( const edm::ParameterSet& iConfig ) { }
 
 
-SolidsForOnline::~SolidsForOnline()
-{
-}
+SolidsForOnline::~SolidsForOnline() { }
 
 void SolidsForOnline::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup ) { 
   std::cout << "analyze does nothing" << std::endl;
@@ -74,6 +69,7 @@ void SolidsForOnline::beginJob( const edm::EventSetup& iSetup ) {
   std::string trapFileName("TRAPEZOIDS.dat");
   std::string boolSolidsFileName("BOOLEANSOLIDS.dat");
   std::string reflectionSolidsFileName("REFLECTIONSOLIDS.dat");
+  std::string torusFileName("TORUS.dat");
 
   std::ofstream solidsOS(solidsFileName.c_str());
   std::ofstream boxOS(boxFileName.c_str());
@@ -85,6 +81,7 @@ void SolidsForOnline::beginJob( const edm::EventSetup& iSetup ) {
   std::ofstream trapOS(trapFileName.c_str());
   std::ofstream boolOS(boolSolidsFileName.c_str());
   std::ofstream reflectionOS(reflectionSolidsFileName.c_str());
+  std::ofstream torusOS(torusFileName.c_str());
 
   std::cout << "SolidsForOnline Analyzer..." << std::endl;
 
@@ -193,7 +190,7 @@ void SolidsForOnline::beginJob( const edm::EventSetup& iSetup ) {
 	    //catch(...){
 	    // std::cout<<solid.shape()<<std::endl;
 	    //std::cout<<"You're trapped"<<std::endl;
-	    std::cout<<ddexcept.message()<<std::endl;
+	    std::cout<<ddexcept<<std::endl;
 	    //std::cout<<ddexcept<<std::endl;
 
 	  }
@@ -289,6 +286,15 @@ void SolidsForOnline::beginJob( const edm::EventSetup& iSetup ) {
 		<<tubs.cutInside()
 		<<std::endl;
 	  break;
+      }
+
+      case ddtorus: {
+	DDTorus torus(solid);
+	torusOS<<torus.name()<<","<<torus.rMin()<<","
+	       <<torus.rMax()<<","<<torus.rTorus()<<","
+	       <<torus.startPhi()<<","<<torus.deltaPhi()
+	       <<std::endl;
+	break;
       }
 
       case ddshapeless:{
