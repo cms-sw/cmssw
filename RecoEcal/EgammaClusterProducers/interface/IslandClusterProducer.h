@@ -15,8 +15,9 @@
 #include "RecoEcal/EgammaClusterAlgos/interface/IslandClusterAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "RecoEcal/EgammaCoreTools/interface/ClusterShapeAlgo.h"
-
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
+
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 
 //
 

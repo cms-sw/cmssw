@@ -8,7 +8,7 @@
 //
 // Original Author:  Shahram Rahatlou
 //         Created:  10 May 200
-// $Id: PreshowerAnalyzer.cc,v 1.3 2006/12/06 16:48:37 dbanduri Exp $
+// $Id: PreshowerAnalyzer.cc,v 1.4 2007/03/08 19:11:10 futyand Exp $
 //
 
 #include "RecoEcal/EgammaClusterProducers/interface/PreshowerAnalyzer.h"
@@ -20,8 +20,10 @@
 #include "TFile.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
+#include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h"
 #include "RecoEcal/EgammaClusterProducers/interface/PreshowerClusterProducer.h"
 
 //========================================================================
