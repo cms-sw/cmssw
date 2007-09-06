@@ -8,11 +8,11 @@
  * - they receive ME data from the SM 
  * - they are run together with the producers (standalone mode)
  *
- * $Date: 2007/06/24 15:17:35 $
- * $Revision: 1.1 $
+ * $Date: 2007/09/06 13:21:30 $
+ * $Revision: 1.2 $
  * \author M. Zanetti - CERN PH
  *
-*/
+ */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
@@ -20,6 +20,7 @@
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <FWCore/Framework/interface/LuminosityBlock.h>
 
 #include <memory>
 #include <iostream>
@@ -43,12 +44,16 @@ public:
 protected:
 
   /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) {};
+
+  /// perform the actual quality tests
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
 
 
 private:
 
-  int nevents;
+  int prescaleFactor;
+  bool getQualityTestsFromFile;
 
   edm::ParameterSet parameters;
 

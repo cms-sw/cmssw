@@ -1,8 +1,8 @@
 /*
  * \file QualityTester.cc
  * 
- * $Date: 2007/07/08 21:03:55 $
- * $Revision: 1.4.2.1 $
+ * $Date: 2007/09/06 13:21:32 $
+ * $Revision: 1.5 $
  * \author M. Zanetti - CERN PH
  *
  */
@@ -33,9 +33,8 @@ using namespace std;
 
 QualityTester::QualityTester(const ParameterSet& ps){
   
-  parameters = ps;
-
-  nevents = 0;
+  prescaleFactor = ps.getUntrackedParameter<int>("prescaleFactor", 1);
+  getQualityTestsFromFile = ps.getUntrackedParameter<bool>("getQualityTestsFromFile", true);
 
   mui = new MonitorUIRoot();
   bei = mui->getBEInterface();
@@ -43,9 +42,8 @@ QualityTester::QualityTester(const ParameterSet& ps){
   qtHandler=new QTestHandle;
 
   // if you use this module, it's non-sense not to provide the QualityTests.xml
-  if (parameters.getUntrackedParameter<bool>("getQualityTestsFromFile", true))
-    qtHandler->configureTests(parameters.getUntrackedParameter<string>("qtList",
-    "QualityTests.xml"),bei);
+  if (getQualityTestsFromFile)
+    qtHandler->configureTests(ps.getUntrackedParameter<string>("qtList", "QualityTests.xml"),bei);
   
 }
 
@@ -58,13 +56,11 @@ QualityTester::~QualityTester() {
 }
 
 
-void QualityTester::analyze(const Event& e, const EventSetup& c){
+//void QualityTester::analyze(const Event& e, const EventSetup& c){
 
-  nevents++;
+void QualityTester::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
-  // run QT test every "QualityTestPrescaler" event
-  if (parameters.getUntrackedParameter<bool>("getQualityTestsFromFile", true) &&
-      nevents%parameters.getUntrackedParameter<int>("QualityTestPrescaler", 1000) == 0) {
+  if (getQualityTestsFromFile && lumiSeg.id().luminosityBlock()%prescaleFactor == 0) {
 
     // always needed..
     mui->doMonitoring();
