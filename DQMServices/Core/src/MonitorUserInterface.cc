@@ -630,6 +630,11 @@ void MonitorUserInterface::doSummary(void)
 bool MonitorUserInterface::update(void)
 {
 
+  cout << " In MonitorUserInterface::update: " ;
+  cout << " This method will be deprecated soon, please replace mui->update() by: " << endl; 
+  cout << "     bool ret = mui->doMonitoring(); " << endl;
+  cout << "     bei->runQTests(); " << endl;
+
   // retrieval of monitoring, sending of subscription requests/cancellations,
   // calculation of "collate"-type Monitoring Elements;
   bool ret = doMonitoring();
@@ -641,116 +646,3 @@ bool MonitorUserInterface::update(void)
   return ret;
 }
 
-// remove CollateMonitorElement
-void MonitorUserInterface::removeCollate(CollateMonitorElement * cme)
-{
-  if(!cme)
-    {
-      cerr << " *** Attempt to remove null CollateMonitorElement ! " << endl;
-      return;
-    }
-  if(bei->collate_set.find(cme) == bei->collate_set.end())
-    {
-      cerr << " *** Cannot remove CollateMonitorElement! " << endl;
-      cerr << " (maybe it has already been removed?) " << endl;
-      return;
-    }
-  bei->removeCollate(cme);
-}
-
-// attach quality test <qtname> to all ME matching <search_string>;
-// <search_string> could : (a) be exact pathname (e.g. A/B/C/histo): FAST
-// (b) include wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*): SLOW
-// this action applies to all MEs already available or future ones
-// void MonitorUserInterface::useQTest(string search_string, string qtname) const
-// {
-//   useQTest(0, search_string, qtname); // "0" means no tag
-// }
-//   
-// // same as above for tagged MEs
-// void MonitorUserInterface::useQTest(unsigned int tag, string search_string,
-// 				    string qtname) const
-// {
-//   if(search_string.empty())
-//     return;
-// 
-//   QCriterion * qc = getQCriterion(qtname);
-//   if(!qc)
-//     {
-//       cerr << " *** Quality test " << qtname << " does not exist! " << endl;
-//       return;
-//     }
-// 
-//   if(tag == 0) // "0" means no tag
-//     bei->useQTest(0, search_string, bei->Own, qc);
-//   else
-//     {
-//       tdir_it tg = bei->Tags.find(tag);
-//       if(tg != bei->Tags.end())
-// 	bei->useQTest(tag, search_string, tg->second, qc);
-//       else
-// 	qc->add2search_path(search_string, tag);
-//     }
-//    
-// }
-// 
-// // attach quality test <qtname> to directory contents ==> FAST
-// // (need exact pathname without wildcards, e.g. A/B/C);
-// // use flag to specify whether subfolders (and their contents) should be included;
-// // this action applies to all MEs already available or future ones
-// void MonitorUserInterface::useQTest(string pathname, bool useSubfolds, 
-// 				    string qtname) const
-// {
-//   useQTest(0, pathname, useSubfolds, qtname);
-// }
-// 
-// // same as above for tagged MEs
-// void MonitorUserInterface::useQTest(unsigned int tag, string pathname, 
-// 				    bool useSubfolds, string qtname) const
-// {
-//   if(pathname.empty())
-//     return;
-// 
-//   QCriterion * qc = getQCriterion(qtname);
-//   if(!qc)
-//     {
-//       cerr << " *** Quality test " << qtname << " does not exist! " << endl;
-//       return;
-//     }
-// 
-//   chopLastSlash(pathname);
-// 
-//   if(tag == 0) // "0" means no tag
-//     bei->useQTest(0, pathname, useSubfolds, bei->Own, qc);
-//   else
-//     {
-//       tdir_it tg = bei->Tags.find(tag);
-//       if(tg != bei->Tags.end())
-// 	bei->useQTest(tag, pathname, useSubfolds, tg->second, qc);
-//       else
-// 	qc->add2folders(pathname, useSubfolds, tag);
-//     } 
-// }
-// 
-// // attach quality test <qtname> to tagged MEs ==> FAST
-// // this action applies to all MEs already available or future ones
-// void MonitorUserInterface::useQTest(unsigned int tag, string qtname) const
-// {
-//   QCriterion * qc = getQCriterion(qtname);
-//   if(!qc)
-//     {
-//       cerr << " *** Quality test " << qtname << " does not exist! " << endl;
-//       return;
-//     }
-//   if(tag == 0)
-//     {
-//       cerr << " *** Tag must be positive number! \n";
-//       return;
-//     }
-//   
-//   tdir_it tg = bei->Tags.find(tag);
-//   if(tg != bei->Tags.end())
-//     bei->useQTest(tag, tg->second, qc);
-//   else
-//     qc->add2tags(tag); 
-// }
