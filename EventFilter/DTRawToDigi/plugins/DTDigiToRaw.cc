@@ -92,22 +92,28 @@ FEDRawData* DTDigiToRaw::createFedBuffers(const DTDigiCollection& digis,
        //create FED corresponding to current ddu
        if (dduID_ != dduId) continue;
        
-       if (rosId <= NROS && rosId > 0) b_ros[rosId - 1] = true;
-       else if (debug) {
-         cout << "[DTDigiToRaw]: invalid value for rosId" << endl;
-       }
-
 
        DTTDCMeasurementWord dttdc_mw;
        uint32_t word;
        int ntdc = (*digi).countsTDC();
        dttdc_mw.set(word, 0, 0, 0, tdcId, channelId, ntdc*4);//FIXME
 
-       NTDCMeaWords++;
+       //provisional fix
+       DTTDCMeasurementWord tdcMeasurementWord(word);
+       int tdcIDCheck = tdcMeasurementWord.tdcID();
+       int tdcChannelCheck = tdcMeasurementWord.tdcChannel();
+       int tdcCountsCheck = tdcMeasurementWord.tdcTime();
+       if (tdcIDCheck == tdcId && channelId ==tdcChannelCheck && ntdc == tdcCountsCheck) {
+         
+	 if (rosId <= NROS && rosId > 0) b_ros[rosId - 1] = true;
+         else if (debug) {
+           cout << "[DTDigiToRaw]: invalid value for rosId" << endl;
+         }
        
-       w_ROBROS[rosId - 1][robId].push_back(word);
-
-        
+	 NTDCMeaWords++;
+         w_ROBROS[rosId - 1][robId].push_back(word);
+      
+       }
      }
    }
    
