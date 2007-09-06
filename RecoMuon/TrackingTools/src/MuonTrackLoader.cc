@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2007/07/30 13:16:40 $
- *  $Revision: 1.51 $
+ *  $Date: 2007/09/06 17:39:02 $
+ *  $Revision: 1.52 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -109,7 +109,10 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   if ( trajectories.empty() ) { 
     event.put(recHitCollection,instance);
     event.put(trackExtraCollection,instance);
-    if(theTrajectoryFlag) event.put(trajectoryCollection,instance);
+    if(theTrajectoryFlag) {
+      event.put(trajectoryCollection,instance);
+      event.put( trajTrackMap, instance );
+    }
     if(theUpdatingAtVtx){
       event.put(trackToTrackmap);
       event.put(updatedAtVtxTrackCollection,instance+"UpdatedAtVtx");
@@ -246,18 +249,14 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   if ( theTrajectoryFlag ) {
     OrphanHandle<std::vector<Trajectory> > rTrajs = event.put(trajectoryCollection,instance);
     // Now Create traj<->tracks association map
-    std::auto_ptr<TrajTrackAssociationCollection> trajTrackMap( new TrajTrackAssociationCollection() );
     for ( std::map<unsigned int, unsigned int>::iterator i = tjTkMap.begin(); 
           i != tjTkMap.end(); i++ ) {
-      //edm::Ref<std::vector<Trajectory> > trajRef( rTrajs, (*i).first );
-      //edm::Ref<reco::TrackCollection>    tkRef( returnTrackHandle, (*i).second );
-
       trajTrackMap->insert( edm::Ref<std::vector<Trajectory> >( rTrajs, (*i).first ),
                             edm::Ref<reco::TrackCollection>( nonUpdatedHandle, (*i).second ) );
     }
     event.put( trajTrackMap, instance );
   }
-
+  
   return returnTrackHandle;
 }
 
