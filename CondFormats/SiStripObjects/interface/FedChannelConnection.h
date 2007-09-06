@@ -134,6 +134,9 @@ class FedChannelConnection {
 
   /** Indicates whether Linear Laser Driver ASIC is found. */ 
   inline const bool& lld() const;
+
+  /** Returns the length of the optical fiber */
+  inline const uint16_t& fiberLength() const;
   
  private:
   
@@ -194,6 +197,7 @@ uint16_t FedChannelConnection::nApvs() const { return 2*nApvPairs(); }
 
 const uint16_t& FedChannelConnection::fedId() const { return fedId_; }
 const uint16_t& FedChannelConnection::fedCh() const { return fedCh_; }
+const uint16_t& FedChannelConnection::fiberLength() const { return length_; }
 
 void FedChannelConnection::fedId( uint16_t& fed_id ) { fedId_ = fed_id; }
 void FedChannelConnection::fedCh( uint16_t& fed_ch ) { fedCh_ = fed_ch; }
