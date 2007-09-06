@@ -9,8 +9,13 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include <fstream>
+#include <iostream>
 #include <vector>
 #include <algorithm>
+
+#include "TROOT.h"
+#include "TH1F.h"
+#include "TF1.h"
 
 /*****************************************************************************/
 struct ComparePairs
@@ -65,24 +70,54 @@ void PixelVertexProducerMedian::produce
     }
   }
 
-  std::cerr << " [VertexProducer] selected tracks "
-            << tracks.size() << " (" << tracks_.size() << ")" << std::endl; 
+  std::cerr << " [VertexProducer] selected tracks: "
+            << tracks.size() << " (out of " << tracks_.size()
+            << ")" << std::endl; 
 
   // Sort along vertex z position
   std::sort(tracks.begin(), tracks.end(), ComparePairs());
   
-  float vz;
+  // Median
+  float med;
   if(tracks.size() % 2 == 0)
-    vz = (tracks[tracks.size()/2-1]->vz() + tracks[tracks.size()/2]->vz())/2;
+    med = (tracks[tracks.size()/2-1]->vz() + tracks[tracks.size()/2]->vz())/2;
   else
-    vz =  tracks[tracks.size()/2  ]->vz();
+    med =  tracks[tracks.size()/2  ]->vz();
 
-  std::cerr << " [VertexProducer] median = " << vz << " cm" << std::endl;
+  std::cerr << "  [vertex position] median    = " << med << " cm" << std::endl;
+
+  // Binning around med, halfWidth
+  int nBin = 100;
+  float halfWidth = 0.1; // cm
+
+  // Most probable
+  TH1F histo("histo","histo", nBin, -halfWidth,halfWidth);
+
+  for(std::vector<const reco::Track *>::const_iterator
+      track = tracks.begin(); track!= tracks.end(); track++)
+    if(fabs((*track)->vz() - med) < halfWidth)
+      histo.Fill((*track)->vz() - med);
+  std::cerr << "  [vertex position] most prob = "
+            << med + histo.GetBinCenter(histo.GetMaximumBin())
+            << " cm" << std::endl;
+
+  // Fit above max/2
+  histo.Sumw2();
+
+  TF1 f1("f1","[0]*exp(-0.5 * ((x-[1])/[2])^2) + [3]");
+  f1.SetParameters(10.,0.,0.01, 1.);
+
+  histo.Fit("f1","QN");
+
+  std::cerr << "  [vertex position] fitted    = "
+            << med + f1.GetParameter(1) << " +- " << f1.GetParError(1)
+            << " cm" << std::endl;
 
   // Store
   reco::Vertex::Error err;
-  err(2,2) = 1e-4*1e-4; // guess 10 um
-  reco::Vertex        ver(reco::Vertex::Point(0,0,vz), err, 0, 1, 1);
+  err(2,2) = f1.GetParError(1) * f1.GetParError(1); 
+  reco::Vertex ver(reco::Vertex::Point(0,0,med + f1.GetParameter(1)),
+                                       err, 0, 1, 1);
   
   std::auto_ptr<reco::VertexCollection> vertices(new reco::VertexCollection);
   vertices->push_back(ver);
