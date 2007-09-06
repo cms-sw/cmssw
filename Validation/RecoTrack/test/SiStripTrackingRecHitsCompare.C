@@ -40,7 +40,7 @@ void SiStripTrackingRecHitsCompare()
  gROOT ->Reset();
 
  char*  rfilename = "striptrackingrechitshisto.root";
- char*  sfilename = "../data/striptrackingrechitshisto.root";
+ char*  sfilename = "../data/striptrackingrechitshisto_REF.root";
 
  delete gROOT->GetListOfFiles()->FindObject(rfilename);
  delete gROOT->GetListOfFiles()->FindObject(sfilename); 
@@ -1549,14 +1549,9 @@ void SiStripTrackingRecHitsCompare()
    if (refplotsTID[i]->GetEntries() == 0 || newplotsTID[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
    SetUpHistograms(refplotsTID[i],newplotsTID[i]);
-   refplotsTID[i]->SetLineColor(2);
-   refplotsTID[i]->Add( refplotsTID[i],refplotsTID[i], 1/(refplotsTID[i]->GetEntries()),0.);
-   newplotsTID[i]->SetLineColor(4);
-   newplotsTID[i]->Add( newplotsTID[i],newplotsTID[i], 1/(newplotsTID[i]->GetEntries()),0.);
-    newplotsTID[i]->SetLineStyle(2);
-    refplotsTID[i]->Draw();
-    newplotsTID[i]->Draw("sames");
-    myPV->PVCompute(refplotsTID[i] , newplotsTID[i] , te );
+   refplotsTID[i]->Draw();
+   newplotsTID[i]->Draw("sames");
+   myPV->PVCompute(refplotsTID[i] , newplotsTID[i] , te );
  }
  
  Strip->Print("ExpectedwidthTIDCompare.eps");
@@ -1579,14 +1574,9 @@ void SiStripTrackingRecHitsCompare()
    if (refplotsTID[i]->GetEntries() == 0 || newplotsTID[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
    SetUpHistograms(refplotsTID[i],newplotsTID[i]);
-   refplotsTID[i]->SetLineColor(2);
-   refplotsTID[i]->Add( refplotsTID[i],refplotsTID[i], 1/(refplotsTID[i]->GetEntries()),0.);
-   newplotsTID[i]->SetLineColor(4);
-   newplotsTID[i]->Add( newplotsTID[i],newplotsTID[i], 1/(newplotsTID[i]->GetEntries()),0.);
-    newplotsTID[i]->SetLineStyle(2);
-    refplotsTID[i]->Draw();
-    newplotsTID[i]->Draw("sames");
-    myPV->PVCompute(refplotsTID[i] , newplotsTID[i] , te );
+   refplotsTID[i]->Draw();
+   newplotsTID[i]->Draw("sames");
+   myPV->PVCompute(refplotsTID[i] , newplotsTID[i] , te );
  }
  
  Strip->Print("CategoryTIDCompare.eps");
@@ -1759,11 +1749,6 @@ void SiStripTrackingRecHitsCompare()
    if (refplotsTID[i]->GetEntries() == 0 || newplotsTID[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
    SetUpHistograms(refplotsTID[i],newplotsTID[i]);
-   refplotsTID[i]->SetLineColor(2);
-   refplotsTID[i]->Add( refplotsTID[i],refplotsTID[i], 1/(refplotsTID[i]->GetEntries()),0.);
-   newplotsTID[i]->SetLineColor(4);
-   newplotsTID[i]->Add( newplotsTID[i],newplotsTID[i], 1/(newplotsTID[i]->GetEntries()),0.);
-   newplotsTID[i]->SetLineStyle(2);
    refplotsTID[i]->Draw();
    newplotsTID[i]->Draw("sames");
    myPV->PVCompute(refplotsTID[i] , newplotsTID[i] , te );
@@ -1789,11 +1774,6 @@ void SiStripTrackingRecHitsCompare()
    if (refplotsTID[i]->GetEntries() == 0 || newplotsTID[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
    SetUpHistograms(refplotsTID[i],newplotsTID[i]);
-   refplotsTID[i]->SetLineColor(2);
-   refplotsTID[i]->Add( refplotsTID[i],refplotsTID[i], 1/(refplotsTID[i]->GetEntries()),0.);
-   newplotsTID[i]->SetLineColor(4);
-   newplotsTID[i]->Add( newplotsTID[i],newplotsTID[i], 1/(newplotsTID[i]->GetEntries()),0.);
-   newplotsTID[i]->SetLineStyle(2);
    refplotsTID[i]->Draw();
    newplotsTID[i]->Draw("sames");
    myPV->PVCompute(refplotsTID[i] , newplotsTID[i] , te );
@@ -1818,16 +1798,11 @@ void SiStripTrackingRecHitsCompare()
   Strip->Divide(2,3);
   for (Int_t i=0; i<5; i++) {
    if (refplotsTID[i]->GetEntries() == 0 || newplotsTID[i]->GetEntries() == 0) continue;
-    Strip->cd(i+1);
+   Strip->cd(i+1);
    SetUpHistograms(refplotsTID[i],newplotsTID[i]);
-    refplotsTID[i]->SetLineColor(2);
-   refplotsTID[i]->Add( refplotsTID[i],refplotsTID[i], 1/(refplotsTID[i]->GetEntries()),0.);
-    newplotsTID[i]->SetLineColor(4);
-   newplotsTID[i]->Add( newplotsTID[i],newplotsTID[i], 1/(newplotsTID[i]->GetEntries()),0.);
-    newplotsTID[i]->SetLineStyle(2);
-    refplotsTID[i]->Draw();
-    newplotsTID[i]->Draw("sames");
-    myPV->PVCompute(refplotsTID[i] , newplotsTID[i] , te );
+   refplotsTID[i]->Draw();
+   newplotsTID[i]->Draw("sames");
+   myPV->PVCompute(refplotsTID[i] , newplotsTID[i] , te );
   }
   
   Strip->Print("ErrxLFTIDCompare.eps");
@@ -1848,16 +1823,11 @@ void SiStripTrackingRecHitsCompare()
   Strip->Divide(2,3);
   for (Int_t i=0; i<5; i++) {
    if (refplotsTID[i]->GetEntries() == 0 || newplotsTID[i]->GetEntries() == 0) continue;
-    Strip->cd(i+1);
+   Strip->cd(i+1);
    SetUpHistograms(refplotsTID[i],newplotsTID[i]);
-    refplotsTID[i]->SetLineColor(2);
-   refplotsTID[i]->Add( refplotsTID[i],refplotsTID[i], 1/(refplotsTID[i]->GetEntries()),0.);
-    newplotsTID[i]->SetLineColor(4);
-   newplotsTID[i]->Add( newplotsTID[i],newplotsTID[i], 1/(newplotsTID[i]->GetEntries()),0.);
-    newplotsTID[i]->SetLineStyle(2);
-    refplotsTID[i]->Draw();
-    newplotsTID[i]->Draw("sames");
-    myPV->PVCompute(refplotsTID[i] , newplotsTID[i] , te );
+   refplotsTID[i]->Draw();
+   newplotsTID[i]->Draw("sames");
+   myPV->PVCompute(refplotsTID[i] , newplotsTID[i] , te );
   }
   
   Strip->Print("ErrxMFTIDCompare.eps");
@@ -1879,16 +1849,11 @@ void SiStripTrackingRecHitsCompare()
   Strip->Divide(2,3);
   for (Int_t i=0; i<5; i++) {
    if (refplotsTID[i]->GetEntries() == 0 || newplotsTID[i]->GetEntries() == 0) continue;
-    Strip->cd(i+1);
+   Strip->cd(i+1);
    SetUpHistograms(refplotsTID[i],newplotsTID[i]);
-    refplotsTID[i]->SetLineColor(2);
-   refplotsTID[i]->Add( refplotsTID[i],refplotsTID[i], 1/(refplotsTID[i]->GetEntries()),0.);
-    newplotsTID[i]->SetLineColor(4);
-   newplotsTID[i]->Add( newplotsTID[i],newplotsTID[i], 1/(newplotsTID[i]->GetEntries()),0.);
-    newplotsTID[i]->SetLineStyle(2);
-    refplotsTID[i]->Draw();
-    newplotsTID[i]->Draw("sames");
-    myPV->PVCompute(refplotsTID[i] , newplotsTID[i] , te );
+   refplotsTID[i]->Draw();
+   newplotsTID[i]->Draw("sames");
+   myPV->PVCompute(refplotsTID[i] , newplotsTID[i] , te );
   }
   
   Strip->Print("ResLFTIDCompare.eps");
@@ -1910,16 +1875,11 @@ void SiStripTrackingRecHitsCompare()
   Strip->Divide(2,3);
   for (Int_t i=0; i<5; i++) {
    if (refplotsTID[i]->GetEntries() == 0 || newplotsTID[i]->GetEntries() == 0) continue;
-    Strip->cd(i+1);
+   Strip->cd(i+1);
    SetUpHistograms(refplotsTID[i],newplotsTID[i]);
-    refplotsTID[i]->SetLineColor(2);
-   refplotsTID[i]->Add( refplotsTID[i],refplotsTID[i], 1/(refplotsTID[i]->GetEntries()),0.);
-    newplotsTID[i]->SetLineColor(4);
-   newplotsTID[i]->Add( newplotsTID[i],newplotsTID[i], 1/(newplotsTID[i]->GetEntries()),0.);
-    newplotsTID[i]->SetLineStyle(2);
-    refplotsTID[i]->Draw();
-    newplotsTID[i]->Draw("sames");
-    myPV->PVCompute(refplotsTID[i] , newplotsTID[i] , te );
+   refplotsTID[i]->Draw();
+   newplotsTID[i]->Draw("sames");
+   myPV->PVCompute(refplotsTID[i] , newplotsTID[i] , te );
   }
   
   Strip->Print("ResMFTIDCompare.eps");
@@ -1992,11 +1952,6 @@ void SiStripTrackingRecHitsCompare()
    if (matchedtid[i]->GetEntries() == 0 || newmatchedtid[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
    SetUpHistograms(matchedtid[i],newmatchedtid[i]);
-   matchedtid[i]->SetLineColor(2);
-   matchedtid[i]->Add( matchedtid[i],matchedtid[i], 1/(matchedtid[i]->GetEntries()),0.);
-   newmatchedtid[i]->SetLineColor(4);
-   newmatchedtid[i]->Add( newmatchedtid[i],newmatchedtid[i], 1/(newmatchedtid[i]->GetEntries()),0.);
-   newmatchedtid[i]->SetLineStyle(2);
    matchedtid[i]->Draw();
    newmatchedtid[i]->Draw("sames");
    myPV->PVCompute(matchedtid[i] , newmatchedtid[i] , te );
@@ -2055,13 +2010,9 @@ void SiStripTrackingRecHitsCompare()
  Strip = new TCanvas("Strip","Strip",1000,1000);
  Strip->Divide(4,3);
  for (Int_t i=0; i<10; i++) {
+   if (refplotsTEC[i]->GetEntries() == 0 || newplotsTEC[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
    SetUpHistograms(refplotsTEC[i],newplotsTEC[i]);
-   refplotsTEC[i]->SetLineColor(2);
-   refplotsTEC[i]->Add( refplotsTEC[i],refplotsTEC[i], 1/(refplotsTEC[i]->GetEntries()),0.);
-   newplotsTEC[i]->SetLineColor(4);
-   newplotsTEC[i]->Add( newplotsTEC[i],newplotsTEC[i], 1/(newplotsTEC[i]->GetEntries()),0.);
-   newplotsTEC[i]->SetLineStyle(2);
    refplotsTEC[i]->Draw();
    newplotsTEC[i]->Draw("sames");
    myPV->PVCompute(refplotsTEC[i] , newplotsTEC[i] , te );
@@ -2094,13 +2045,9 @@ void SiStripTrackingRecHitsCompare()
  Strip = new TCanvas("Strip","Strip",1000,1000);
  Strip->Divide(4,3);
  for (Int_t i=0; i<10; i++) {
+   if (refplotsTEC[i]->GetEntries() == 0 || newplotsTEC[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
    SetUpHistograms(refplotsTEC[i],newplotsTEC[i]);
-   refplotsTEC[i]->SetLineColor(2);
-   refplotsTEC[i]->Add( refplotsTEC[i],refplotsTEC[i], 1/(refplotsTEC[i]->GetEntries()),0.);
-   newplotsTEC[i]->SetLineColor(4);
-   newplotsTEC[i]->Add( newplotsTEC[i],newplotsTEC[i], 1/(newplotsTEC[i]->GetEntries()),0.);
-   newplotsTEC[i]->SetLineStyle(2);
    refplotsTEC[i]->Draw();
    newplotsTEC[i]->Draw("sames");
    myPV->PVCompute(refplotsTEC[i] , newplotsTEC[i] , te );
@@ -2133,13 +2080,9 @@ void SiStripTrackingRecHitsCompare()
  Strip = new TCanvas("Strip","Strip",1000,1000);
  Strip->Divide(4,3);
  for (Int_t i=0; i<10; i++) {
+   if (refplotsTEC[i]->GetEntries() == 0 || newplotsTEC[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
    SetUpHistograms(refplotsTEC[i],newplotsTEC[i]);
-   refplotsTEC[i]->SetLineColor(2);
-   refplotsTEC[i]->Add( refplotsTEC[i],refplotsTEC[i], 1/(refplotsTEC[i]->GetEntries()),0.);
-   newplotsTEC[i]->SetLineColor(4);
-   newplotsTEC[i]->Add( newplotsTEC[i],newplotsTEC[i], 1/(newplotsTEC[i]->GetEntries()),0.);
-   newplotsTEC[i]->SetLineStyle(2);
    refplotsTEC[i]->Draw();
    newplotsTEC[i]->Draw("sames");
    myPV->PVCompute(refplotsTEC[i] , newplotsTEC[i] , te );
@@ -2172,13 +2115,9 @@ void SiStripTrackingRecHitsCompare()
  Strip = new TCanvas("Strip","Strip",1000,1000);
  Strip->Divide(4,3);
  for (Int_t i=0; i<10; i++) {
+   if (refplotsTEC[i]->GetEntries() == 0 || newplotsTEC[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
    SetUpHistograms(refplotsTEC[i],newplotsTEC[i]);
-   refplotsTEC[i]->SetLineColor(2);
-   refplotsTEC[i]->Add( refplotsTEC[i],refplotsTEC[i], 1/(refplotsTEC[i]->GetEntries()),0.);
-   newplotsTEC[i]->SetLineColor(4);
-   newplotsTEC[i]->Add( newplotsTEC[i],newplotsTEC[i], 1/(newplotsTEC[i]->GetEntries()),0.);
-   newplotsTEC[i]->SetLineStyle(2);
    refplotsTEC[i]->Draw();
    newplotsTEC[i]->Draw("sames");
    myPV->PVCompute(refplotsTEC[i] , newplotsTEC[i] , te );
@@ -2211,13 +2150,9 @@ void SiStripTrackingRecHitsCompare()
  Strip = new TCanvas("Strip","Strip",1000,1000);
  Strip->Divide(4,3);
  for (Int_t i=0; i<10; i++) {
+   if (refplotsTEC[i]->GetEntries() == 0 || newplotsTEC[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
    SetUpHistograms(refplotsTEC[i],newplotsTEC[i]);
-   refplotsTEC[i]->SetLineColor(2);
-   refplotsTEC[i]->Add( refplotsTEC[i],refplotsTEC[i], 1/(refplotsTEC[i]->GetEntries()),0.);
-   newplotsTEC[i]->SetLineColor(4);
-   newplotsTEC[i]->Add( newplotsTEC[i],newplotsTEC[i], 1/(newplotsTEC[i]->GetEntries()),0.);
-   newplotsTEC[i]->SetLineStyle(2);
    refplotsTEC[i]->Draw();
    newplotsTEC[i]->Draw("sames");
    myPV->PVCompute(refplotsTEC[i] , newplotsTEC[i] , te );
@@ -2250,13 +2185,9 @@ void SiStripTrackingRecHitsCompare()
  Strip = new TCanvas("Strip","Strip",1000,1000);
  Strip->Divide(4,3);
  for (Int_t i=0; i<10; i++) {
+   if (refplotsTEC[i]->GetEntries() == 0 || newplotsTEC[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
    SetUpHistograms(refplotsTEC[i],newplotsTEC[i]);
-   refplotsTEC[i]->SetLineColor(2);
-   refplotsTEC[i]->Add( refplotsTEC[i],refplotsTEC[i], 1/(refplotsTEC[i]->GetEntries()),0.);
-   newplotsTEC[i]->SetLineColor(4);
-   newplotsTEC[i]->Add( newplotsTEC[i],newplotsTEC[i], 1/(newplotsTEC[i]->GetEntries()),0.);
-   newplotsTEC[i]->SetLineStyle(2);
    refplotsTEC[i]->Draw();
    newplotsTEC[i]->Draw("sames");
    myPV->PVCompute(refplotsTEC[i] , newplotsTEC[i] , te );
@@ -2289,13 +2220,9 @@ void SiStripTrackingRecHitsCompare()
  Strip = new TCanvas("Strip","Strip",1000,1000);
  Strip->Divide(4,3);
  for (Int_t i=0; i<10; i++) {
+   if (refplotsTEC[i]->GetEntries() == 0 || newplotsTEC[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
    SetUpHistograms(refplotsTEC[i],newplotsTEC[i]);
-   refplotsTEC[i]->SetLineColor(2);
-   refplotsTEC[i]->Add( refplotsTEC[i],refplotsTEC[i], 1/(refplotsTEC[i]->GetEntries()),0.);
-   newplotsTEC[i]->SetLineColor(4);
-   newplotsTEC[i]->Add( newplotsTEC[i],newplotsTEC[i], 1/(newplotsTEC[i]->GetEntries()),0.);
-   newplotsTEC[i]->SetLineStyle(2);
    refplotsTEC[i]->Draw();
    newplotsTEC[i]->Draw("sames");
    myPV->PVCompute(refplotsTEC[i] , newplotsTEC[i] , te );
@@ -2399,13 +2326,9 @@ void SiStripTrackingRecHitsCompare()
  Strip = new TCanvas("Strip","Strip",1000,1000);
  Strip->Divide(4,3);
  for (Int_t i=0; i<10; i++) {
+   if (refplotsTEC[i]->GetEntries() == 0 || newplotsTEC[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
    SetUpHistograms(refplotsTEC[i],newplotsTEC[i]);
-   refplotsTEC[i]->SetLineColor(2);
-   refplotsTEC[i]->Add( refplotsTEC[i],refplotsTEC[i], 1/(refplotsTEC[i]->GetEntries()),0.);
-   newplotsTEC[i]->SetLineColor(4);
-   newplotsTEC[i]->Add( newplotsTEC[i],newplotsTEC[i], 1/(newplotsTEC[i]->GetEntries()),0.);
-   newplotsTEC[i]->SetLineStyle(2);
    refplotsTEC[i]->Draw();
    newplotsTEC[i]->Draw("sames");
    myPV->PVCompute(refplotsTEC[i] , newplotsTEC[i] , te );
@@ -2438,13 +2361,9 @@ void SiStripTrackingRecHitsCompare()
  Strip = new TCanvas("Strip","Strip",1000,1000);
  Strip->Divide(4,3);
  for (Int_t i=0; i<10; i++) {
+   if (refplotsTEC[i]->GetEntries() == 0 || newplotsTEC[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
    SetUpHistograms(refplotsTEC[i],newplotsTEC[i]);
-   refplotsTEC[i]->SetLineColor(2);
-   refplotsTEC[i]->Add( refplotsTEC[i],refplotsTEC[i], 1/(refplotsTEC[i]->GetEntries()),0.);
-   newplotsTEC[i]->SetLineColor(4);
-   newplotsTEC[i]->Add( newplotsTEC[i],newplotsTEC[i], 1/(newplotsTEC[i]->GetEntries()),0.);
-   newplotsTEC[i]->SetLineStyle(2);
    refplotsTEC[i]->Draw();
    newplotsTEC[i]->Draw("sames");
    myPV->PVCompute(refplotsTEC[i] , newplotsTEC[i] , te );
@@ -2478,13 +2397,9 @@ void SiStripTrackingRecHitsCompare()
  Strip = new TCanvas("Strip","Strip",1000,1000);
  Strip->Divide(4,3);
  for (Int_t i=0; i<10; i++) {
+   if (refplotsTEC[i]->GetEntries() == 0 || newplotsTEC[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
    SetUpHistograms(refplotsTEC[i],newplotsTEC[i]);
-   refplotsTEC[i]->SetLineColor(2);
-   refplotsTEC[i]->Add( refplotsTEC[i],refplotsTEC[i], 1/(refplotsTEC[i]->GetEntries()),0.);
-   newplotsTEC[i]->SetLineColor(4);
-   newplotsTEC[i]->Add( newplotsTEC[i],newplotsTEC[i], 1/(newplotsTEC[i]->GetEntries()),0.);
-   newplotsTEC[i]->SetLineStyle(2);
    refplotsTEC[i]->Draw();
    newplotsTEC[i]->Draw("sames");
    myPV->PVCompute(refplotsTEC[i] , newplotsTEC[i] , te );
@@ -2517,13 +2432,9 @@ void SiStripTrackingRecHitsCompare()
  Strip = new TCanvas("Strip","Strip",1000,1000);
  Strip->Divide(4,3);
  for (Int_t i=0; i<10; i++) {
+   if (refplotsTEC[i]->GetEntries() == 0 || newplotsTEC[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
    SetUpHistograms(refplotsTEC[i],newplotsTEC[i]);
-   refplotsTEC[i]->SetLineColor(2);
-   refplotsTEC[i]->Add( refplotsTEC[i],refplotsTEC[i], 1/(refplotsTEC[i]->GetEntries()),0.);
-   newplotsTEC[i]->SetLineColor(4);
-   newplotsTEC[i]->Add( newplotsTEC[i],newplotsTEC[i], 1/(newplotsTEC[i]->GetEntries()),0.);
-   newplotsTEC[i]->SetLineStyle(2);
    refplotsTEC[i]->Draw();
    newplotsTEC[i]->Draw("sames");
    myPV->PVCompute(refplotsTEC[i] , newplotsTEC[i] , te );
@@ -2557,13 +2468,9 @@ void SiStripTrackingRecHitsCompare()
  Strip = new TCanvas("Strip","Strip",1000,1000);
  Strip->Divide(4,3);
  for (Int_t i=0; i<10; i++) {
+   if (refplotsTEC[i]->GetEntries() == 0 || newplotsTEC[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
    SetUpHistograms(refplotsTEC[i],newplotsTEC[i]);
-   refplotsTEC[i]->SetLineColor(2);
-   refplotsTEC[i]->Add( refplotsTEC[i],refplotsTEC[i], 1/(refplotsTEC[i]->GetEntries()),0.);
-   newplotsTEC[i]->SetLineColor(4);
-   newplotsTEC[i]->Add( newplotsTEC[i],newplotsTEC[i], 1/(newplotsTEC[i]->GetEntries()),0.);
-   newplotsTEC[i]->SetLineStyle(2);
    refplotsTEC[i]->Draw();
    newplotsTEC[i]->Draw("sames");
    myPV->PVCompute(refplotsTEC[i] , newplotsTEC[i] , te );
@@ -2597,13 +2504,9 @@ void SiStripTrackingRecHitsCompare()
  Strip = new TCanvas("Strip","Strip",1000,1000);
  Strip->Divide(4,3);
  for (Int_t i=0; i<10; i++) {
+   if (refplotsTEC[i]->GetEntries() == 0 || newplotsTEC[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
    SetUpHistograms(refplotsTEC[i],newplotsTEC[i]);
-   refplotsTEC[i]->SetLineColor(2);
-   refplotsTEC[i]->Add( refplotsTEC[i],refplotsTEC[i], 1/(refplotsTEC[i]->GetEntries()),0.);
-   newplotsTEC[i]->SetLineColor(4);
-   newplotsTEC[i]->Add( newplotsTEC[i],newplotsTEC[i], 1/(newplotsTEC[i]->GetEntries()),0.);
-   newplotsTEC[i]->SetLineStyle(2);
    refplotsTEC[i]->Draw();
    newplotsTEC[i]->Draw("sames");
    myPV->PVCompute(refplotsTEC[i] , newplotsTEC[i] , te );

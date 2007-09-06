@@ -1003,7 +1003,7 @@ SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const edm::ParameterSet
 
 void SiStripTrackingRecHitsValid::endJob() {
 
-  
+  /*  
   dbe_->setCurrentFolder("TrackingRecHits/Strip/ALL");
   
   PullvsTrackwidth->FitSlicesY();
@@ -1174,7 +1174,7 @@ void SiStripTrackingRecHitsValid::endJob() {
     PullRMSvsTrackanglebetaTEC->setBinContent(i,PullvsTrackanglebetaTEC_2 ->GetBinContent(i));
     PullRMSvsTrackanglebetaTEC->setBinError(i,PullvsTrackanglebetaTEC_2 ->GetBinError(i));
   }  
-  
+*/  
 
 
   
@@ -1267,7 +1267,7 @@ SiStripTrackingRecHitsValid::~SiStripTrackingRecHitsValid() {
 // Functions that gets called by framework every event
 void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es)
 {
-
+  
   // EventID e.id() ;
 
   float diff=0;
@@ -1336,7 +1336,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
   edm::LogVerbatim("TrajectoryAnalyzer") << "trajColl->size(): " << trajCollectionHandle->size() ;
 
   //cout<<"trajColl->size() = "<<trajCollectionHandle->size()<<endl;
-
+  
   for(vector<Trajectory>::const_iterator it = trajCollectionHandle->begin(); it!=trajCollectionHandle->end();it++){
      
     edm::LogVerbatim("TrajectoryAnalyzer") << "this traj has " << it->foundHits() << " valid hits"  << " , "
@@ -1345,15 +1345,15 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
     vector<TrajectoryMeasurement> tmColl = it->measurements();
     for(vector<TrajectoryMeasurement>::const_iterator itTraj = tmColl.begin(); itTraj!=tmColl.end(); itTraj++){
       if(! itTraj->updatedState().isValid()) continue;
-      /*     
-       edm::LogVerbatim("TrajectoryAnalyzer") << "tm number: " << (itTraj - tmColl.begin()) + 1<< " , "
-	  << "tm.backwardState.pt: " << itTraj->backwardPredictedState().globalMomentum().perp() << " , "
-	  << "tm.forwardState.pt:  " << itTraj->forwardPredictedState().globalMomentum().perp() << " , "
-	  << "tm.updatedState.pt:  " << itTraj->updatedState().globalMomentum().perp()  << " , "
-	  << "tm.globalPos.perp: "   << itTraj->updatedState().globalPosition().perp() ;       
-       */
+           
+//        edm::LogVerbatim("TrajectoryAnalyzer") << "tm number: " << (itTraj - tmColl.begin()) + 1<< " , "
+// 	  << "tm.backwardState.pt: " << itTraj->backwardPredictedState().globalMomentum().perp() << " , "
+// 	  << "tm.forwardState.pt:  " << itTraj->forwardPredictedState().globalMomentum().perp() << " , "
+// 	  << "tm.updatedState.pt:  " << itTraj->updatedState().globalMomentum().perp()  << " , "
+// 	  << "tm.globalPos.perp: "   << itTraj->updatedState().globalPosition().perp() ;       
+       
                if ( itTraj->updatedState().globalMomentum().perp() < 1.) continue;
-
+	       
       TrajectoryStateOnSurface tsos=itTraj->updatedState();
       LocalVector trackdirection=tsos.localDirection();
 
@@ -1373,7 +1373,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
       StripSubdetector StripSubdet = (StripSubdetector) detid;
 
       isrechitmatched  = 0;
-
+      
       if(matchedhit){
 
 	isrechitmatched = 1;
@@ -1485,7 +1485,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	}
 	      
       }
-
+      
 	      
       ///////////////////////////////////////////////////////
       // simple hits from matched hits
@@ -1737,12 +1737,12 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 		  rechitsasresMF = Mposition.x() - (topol.measurementPosition(closest.localPosition())).x();
 		  rechitsaspullLF = rechitsasresLF/sqrt(rechitsaserrxLF);
 		  rechitsaspullMF = rechitsasresMF/sqrt(rechitsaserrxMF);
-		  /*
-		  cout<<"rechitsasresMF == "<<rechitsasresMF<<endl;
-		  cout<<"rechitsaserrxMF == "<<rechitsaserrxMF<<endl;
-		  cout<<"rechitsaserrxLF == "<<rechitsaserrxLF<<endl;
-		  cout<<"rechitsaspullMF == "<<rechitsaspullMF<<endl;
-		  */
+		  
+// 		  cout<<"rechitsasresMF == "<<rechitsasresMF<<endl;
+// 		  cout<<"rechitsaserrxMF == "<<rechitsaserrxMF<<endl;
+// 		  cout<<"rechitsaserrxLF == "<<rechitsaserrxLF<<endl;
+// 		  cout<<"rechitsaspullMF == "<<rechitsaspullMF<<endl;
+		  
 		}
 	      }
 	      rechitsastrackangle = anglealpha;
@@ -1770,7 +1770,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 
       //    isrechitrphi = 0;
       //isrechitsas = 0;
-
+      
       
       if(hit){
 	// simple hits are mono or stereo
@@ -1885,79 +1885,79 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	    iopt = 4;
 	  }
 	  rechitrphicategory = iopt;
-	  /*
-	  if (rechitrphiexpectedwidth == 1 && clusterWidth == 3) {
-	  //if ( clusterWidth == 3) {
-	    cout<<"TRUE"<<endl;
-	    cout<<"TestClus2:Position SH = "<<(closest).localPosition().x()<<" , "<<(topol.measurementPosition(closest.localPosition())).x()<<endl;
-	    cout<<"TestClus2:Position RH = "<<thit->localPosition().x()<<" ,"<<Mposition.x()<<endl;
-	    cout<<"TestClus2:residue = "<<rechitrphiresMF<<endl;
-	    short firstStrip = cluster->firstStrip();
-	    short lastStrip = firstStrip + clusterWidth - 1;
-	    cout<<"TestClus2:firstStrip = "<<firstStrip<<endl;
-	    cout<<"TestClus2:lastStrip = "<<lastStrip<<endl;
-	    cout<<"TestClus2:detid = "<<detid.subdetId()<<endl;
-	    for(size_t ia=0; ia<amplitudes.size();ia++){
-	      cout<<"ia, TestClus2:charge= "<<ia<<" , "<<amplitudes[ia]<<endl;
-	    }
-	    cout<<"TestClus2:Trackwidth = "<<Wtrack<<endl;
-	  }
-	  */
+	  
+// 	  if (rechitrphiexpectedwidth == 1 && clusterWidth == 3) {
+// 	  //if ( clusterWidth == 3) {
+// 	    cout<<"TRUE"<<endl;
+// 	    cout<<"TestClus2:Position SH = "<<(closest).localPosition().x()<<" , "<<(topol.measurementPosition(closest.localPosition())).x()<<endl;
+// 	    cout<<"TestClus2:Position RH = "<<thit->localPosition().x()<<" ,"<<Mposition.x()<<endl;
+// 	    cout<<"TestClus2:residue = "<<rechitrphiresMF<<endl;
+// 	    short firstStrip = cluster->firstStrip();
+// 	    short lastStrip = firstStrip + clusterWidth - 1;
+// 	    cout<<"TestClus2:firstStrip = "<<firstStrip<<endl;
+// 	    cout<<"TestClus2:lastStrip = "<<lastStrip<<endl;
+// 	    cout<<"TestClus2:detid = "<<detid.subdetId()<<endl;
+// 	    for(size_t ia=0; ia<amplitudes.size();ia++){
+// 	      cout<<"ia, TestClus2:charge= "<<ia<<" , "<<amplitudes[ia]<<endl;
+// 	    }
+// 	    cout<<"TestClus2:Trackwidth = "<<Wtrack<<endl;
+// 	  }
+	  
 	
 	  //cout<<"rechitrphicategory = "<<rechitrphicategory<<endl;
 
 	  //	  if ((detid.subdetId() == int(StripSubdetector::TID)) || (detid.subdetId() == int(StripSubdetector::TEC))) {
 	    //if ((detid.subdetId() == int(StripSubdetector::TIB))) {
-	  /*  
-	    if (clusterWidth ==2 && Wexp == 1 && Wtrack<0.1) {
-	      cout<<"TestClus:begin"<<endl;
-	      LocalVector  drift2 = drift * fabs(thickness/drift.z());       
-	      LocalPoint result2=LocalPoint(position.x()-drift2.x()/2,position.y()-drift2.y()/2,0);
-	      MeasurementPoint mpoint=topol.measurementPosition(result2);
-	      cout<<"TestClus:Position SH = "<<(closest).localPosition().x()<<" , "<<(topol.measurementPosition(closest.localPosition())).x()<<endl;
-	      cout<<"TestClus:Position RH = "<<thit->localPosition().x()<<" ,"<<Mposition.x()<<endl;
-	      cout<<"TestClus:Position RH no drift= "<<thit->localPosition().x() - drift2.x()/2<<" , "<<mpoint.x()<<endl;
-	      cout<<"TestClus:Drift= "<<drift.x()<<endl;
-	      cout<<"TestClus:residue = "<<rechitrphiresMF<<endl;
-	      for(size_t ia=0; ia<amplitudes.size();ia++){
-		cout<<"ia, TestClus:charge= "<<ia<<" , "<<amplitudes[ia]<<endl;
-	      }
-	      cout<<"TestClus:Trackwidth = "<<Wtrack<<endl;
-	      short firstStrip = cluster->firstStrip();
-	      short lastStrip = firstStrip + clusterWidth - 1;
-	      cout<<"TestClus:firstStrip = "<<firstStrip<<endl;
-	      cout<<"TestClus:lastStrip = "<<lastStrip<<endl;
-	      cout<<"TestClus:detid = "<<detid.subdetId()<<endl;
-	      int nstrips = topol.nstrips(); 
-	      cout<<"TestClus:nstrips = "<<nstrips<<endl;
-	      cout<<"TestClus:anglealpha = "<<anglealpha<<endl;
-	      cout<<"TestClus:end"<<endl;
-	      positionshx = (topol.measurementPosition(closest.localPosition())).x();
+	   
+// 	    if (clusterWidth ==2 && Wexp == 1 && Wtrack<0.1) {
+// 	      cout<<"TestClus:begin"<<endl;
+// 	      LocalVector  drift2 = drift * fabs(thickness/drift.z());       
+// 	      LocalPoint result2=LocalPoint(position.x()-drift2.x()/2,position.y()-drift2.y()/2,0);
+// 	      MeasurementPoint mpoint=topol.measurementPosition(result2);
+// 	      cout<<"TestClus:Position SH = "<<(closest).localPosition().x()<<" , "<<(topol.measurementPosition(closest.localPosition())).x()<<endl;
+// 	      cout<<"TestClus:Position RH = "<<thit->localPosition().x()<<" ,"<<Mposition.x()<<endl;
+// 	      cout<<"TestClus:Position RH no drift= "<<thit->localPosition().x() - drift2.x()/2<<" , "<<mpoint.x()<<endl;
+// 	      cout<<"TestClus:Drift= "<<drift.x()<<endl;
+// 	      cout<<"TestClus:residue = "<<rechitrphiresMF<<endl;
+// 	      for(size_t ia=0; ia<amplitudes.size();ia++){
+// 		cout<<"ia, TestClus:charge= "<<ia<<" , "<<amplitudes[ia]<<endl;
+// 	      }
+// 	      cout<<"TestClus:Trackwidth = "<<Wtrack<<endl;
+// 	      short firstStrip = cluster->firstStrip();
+// 	      short lastStrip = firstStrip + clusterWidth - 1;
+// 	      cout<<"TestClus:firstStrip = "<<firstStrip<<endl;
+// 	      cout<<"TestClus:lastStrip = "<<lastStrip<<endl;
+// 	      cout<<"TestClus:detid = "<<detid.subdetId()<<endl;
+// 	      int nstrips = topol.nstrips(); 
+// 	      cout<<"TestClus:nstrips = "<<nstrips<<endl;
+// 	      cout<<"TestClus:anglealpha = "<<anglealpha<<endl;
+// 	      cout<<"TestClus:end"<<endl;
+// 	      positionshx = (topol.measurementPosition(closest.localPosition())).x();
 
-	      if ((positionshx - int(positionshx)) > 0.5) {
-		if (lastStrip > int(positionshx)) secondstrip = 1;
-		if (lastStrip = int(positionshx)) secondstrip = -1;
-	      }
-	      if ((positionshx - int(positionshx)) < 0.5) {
-		if (lastStrip > int(positionshx)) secondstrip = -1;
-		if (lastStrip = int(positionshx)) secondstrip = 1;
-	      }
+// 	      if ((positionshx - int(positionshx)) > 0.5) {
+// 		if (lastStrip > int(positionshx)) secondstrip = 1;
+// 		if (lastStrip = int(positionshx)) secondstrip = -1;
+// 	      }
+// 	      if ((positionshx - int(positionshx)) < 0.5) {
+// 		if (lastStrip > int(positionshx)) secondstrip = -1;
+// 		if (lastStrip = int(positionshx)) secondstrip = 1;
+// 	      }
 
-	    }
-*/
+// 	    }
+
 	    //}
-	  /*
-	  cout<<"int() = "<<int((topol.measurementPosition(closest.localPosition())).x())<<endl;
-	  diff = int((topol.measurementPosition(closest.localPosition())).x()) -topol.measurementPosition(closest.localPosition()).x();
-	  cout<<"diff = "<<diff<<endl;
-	  if (clusterWidth ==2 && Wexp == 1 && Wtrack<1) {
-	    if ((abs(1 + diff) <0.2) || (abs(diff) <0.2)) {
-	      //	      isrechitrphi = 0;
-	      cout<<"vire"<<endl;
-	    }
-	  }
-	  positionshx = (topol.measurementPosition(closest.localPosition())).x();
-*/
+	  
+// 	  cout<<"int() = "<<int((topol.measurementPosition(closest.localPosition())).x())<<endl;
+// 	  diff = int((topol.measurementPosition(closest.localPosition())).x()) -topol.measurementPosition(closest.localPosition()).x();
+// 	  cout<<"diff = "<<diff<<endl;
+// 	  if (clusterWidth ==2 && Wexp == 1 && Wtrack<1) {
+// 	    if ((abs(1 + diff) <0.2) || (abs(diff) <0.2)) {
+// 	      //	      isrechitrphi = 0;
+// 	      cout<<"vire"<<endl;
+// 	    }
+// 	  }
+// 	  positionshx = (topol.measurementPosition(closest.localPosition())).x();
+
 
 	}
 
@@ -2069,33 +2069,39 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 
       if(isrechitrphi>0 || isrechitsas>0){
 
-
+	
 	if (isrechitrphi>0) {
 	  
 	  //cout<<"rechitrphitrackwidth,rechitrphipullMF = "<<rechitrphitrackwidth<<" "<<rechitrphipullMF<<endl;
+	  /*
 	  if (rechitrphithickness > CutThickness)
 	    {
-	      PullvsTrackwidth->Fill(rechitrphitrackwidth,rechitrphipullMF);
+	      	      PullvsTrackwidth->Fill(rechitrphitrackwidth,rechitrphipullMF);
+		      
 	      if (clusizrphi ==2 && rechitrphiexpectedwidth == 1 && rechitrphitrackwidth<0.1) {
-		Diff->Fill(-diff);
+		//Diff->Fill(-diff);
 
 		//		if ((detid.subdetId() == int(StripSubdetector::TID)) || (detid.subdetId() == int(StripSubdetector::TEC))) {
-		SecondStrip->Fill(secondstrip);
+		//SecondStrip->Fill(secondstrip);
 		//		}
 	      }
 	      //	      Diff->Fill(-diff);
-	      PositionSHx->Fill(positionshx);
+	      
+	      //PositionSHx->Fill(positionshx);
 
-	      ErrxMF->Fill(sqrt(rechitrphierrxMF));
+	      //    ErrxMF->Fill(sqrt(rechitrphierrxMF));
 	      //cout<<"ICI1:rechitrphitrackwidth = "<<rechitrphitrackwidth<<endl;
-	      ErrxMFvsTrackwidth->Fill(rechitrphitrackwidth,sqrt(rechitrphierrxMF));
+	      //ErrxMFvsTrackwidth->Fill(rechitrphitrackwidth,sqrt(rechitrphierrxMF));
 	      ResMFvsTrackwidth->Fill(rechitrphitrackwidth,rechitrphiresMF);
-
+	      
 	      PullvsClusterwidth->Fill(clusizrphi,rechitrphipullMF);
 	      PullvsExpectedwidth->Fill(rechitrphiexpectedwidth,rechitrphipullMF);
 	      PullvsTrackangle->Fill(rechitrphitrackangle,rechitrphipullMF);
 	      PullvsTrackanglebeta->Fill(rechitrphitrackanglebeta,rechitrphipullMF);
+	     
 	    }
+	  */
+	  
 	  meCategory->Fill(rechitrphicategory);
 	  meTrackwidth->Fill(rechitrphitrackwidth);
 	  meExpectedwidth->Fill(rechitrphiexpectedwidth);
@@ -2113,12 +2119,14 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	      {
 		//if ((detid.subdetId() == int(StripSubdetector::TIB)) || (detid.subdetId() == int(StripSubdetector::TOB)))
 		//{
-		    ResMFvsTrackwidthWClus1->Fill(rechitrphitrackwidth,rechitrphiresMF);
+		/*
+		ResMFvsTrackwidthWClus1->Fill(rechitrphitrackwidth,rechitrphiresMF);
 		    if (rechitrphiexpectedwidth==1) ResMFvsTrackwidthWClus1Wexp1->Fill(rechitrphitrackwidth,rechitrphiresMF);
 		    if (rechitrphiexpectedwidth==2) ResMFvsTrackwidthWClus1Wexp2->Fill(rechitrphitrackwidth,rechitrphiresMF);
 		    if (rechitrphiexpectedwidth==3) ResMFvsTrackwidthWClus1Wexp3->Fill(rechitrphitrackwidth,rechitrphiresMF);
 		    if (rechitrphiexpectedwidth==4) ResMFvsTrackwidthWClus1Wexp4->Fill(rechitrphitrackwidth,rechitrphiresMF);
 		    ErrxMFvsTrackwidthWClus1->Fill(rechitrphitrackwidth,sqrt(rechitrphierrxMF));
+		*/
 		    //}
 	      }
 	  }
@@ -2133,16 +2141,16 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 		//		if ((detid.subdetId() == int(StripSubdetector::TIB)) || (detid.subdetId() == int(StripSubdetector::TOB)))
 		//{
 		if ((detid.subdetId() == int(StripSubdetector::TID)) || (detid.subdetId() == int(StripSubdetector::TEC))){
-		ResMFvsTrackwidthWClus2->Fill(rechitrphitrackwidth,rechitrphiresMF);
+		  /*	ResMFvsTrackwidthWClus2->Fill(rechitrphitrackwidth,rechitrphiresMF);
 		if (rechitrphiexpectedwidth==1) ResMFvsTrackwidthWClus2Wexp1->Fill(rechitrphitrackwidth,rechitrphiresMF);
 		if (rechitrphiexpectedwidth==2) ResMFvsTrackwidthWClus2Wexp2->Fill(rechitrphitrackwidth,rechitrphiresMF);
 		if (rechitrphiexpectedwidth==3) ResMFvsTrackwidthWClus2Wexp3->Fill(rechitrphitrackwidth,rechitrphiresMF);
-		if (rechitrphiexpectedwidth==4) ResMFvsTrackwidthWClus2Wexp4->Fill(rechitrphitrackwidth,rechitrphiresMF);
+		if (rechitrphiexpectedwidth==4) ResMFvsTrackwidthWClus2Wexp4->Fill(rechitrphitrackwidth,rechitrphiresMF);*/
 		}
 		//	    meResMFTrackwidthProfileWClus22->Fill(rechitrphitrackwidth,rechitrphiresMF);
 		//cout<<"ICI2:rechitrphitrackwidth = "<<rechitrphitrackwidth<<endl;
 
-		ErrxMFvsTrackwidthWClus2->Fill(rechitrphitrackwidth,sqrt(rechitrphierrxMF));
+		//ErrxMFvsTrackwidthWClus2->Fill(rechitrphitrackwidth,sqrt(rechitrphierrxMF));
 		    // }
 	      }
 	  }
@@ -2153,13 +2161,14 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	      {
 		//if ((detid.subdetId() == int(StripSubdetector::TIB)) || (detid.subdetId() == int(StripSubdetector::TOB)))
 		//{
-
+		/*
 		ResMFvsTrackwidthWClus3->Fill(rechitrphitrackwidth,rechitrphiresMF);
 		if (rechitrphiexpectedwidth==1) ResMFvsTrackwidthWClus3Wexp1->Fill(rechitrphitrackwidth,rechitrphiresMF);
 		if (rechitrphiexpectedwidth==2) ResMFvsTrackwidthWClus3Wexp2->Fill(rechitrphitrackwidth,rechitrphiresMF);
 		if (rechitrphiexpectedwidth==3) ResMFvsTrackwidthWClus3Wexp3->Fill(rechitrphitrackwidth,rechitrphiresMF);
 		if (rechitrphiexpectedwidth==4) ResMFvsTrackwidthWClus3Wexp4->Fill(rechitrphitrackwidth,rechitrphiresMF);
 		ErrxMFvsTrackwidthWClus3->Fill(rechitrphitrackwidth,sqrt(rechitrphierrxMF));
+		*/
 		//  }
 	      }
 	  }
@@ -2170,37 +2179,38 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	      {
 		//if ((detid.subdetId() == int(StripSubdetector::TIB)) || (detid.subdetId() == int(StripSubdetector::TOB)))
 		//{
-		ResMFvsTrackwidthWClus4->Fill(rechitrphitrackwidth,rechitrphiresMF);
+		/*	ResMFvsTrackwidthWClus4->Fill(rechitrphitrackwidth,rechitrphiresMF);
 		if (rechitrphiexpectedwidth==1) ResMFvsTrackwidthWClus4Wexp1->Fill(rechitrphitrackwidth,rechitrphiresMF);
 		if (rechitrphiexpectedwidth==2) ResMFvsTrackwidthWClus4Wexp2->Fill(rechitrphitrackwidth,rechitrphiresMF);
 		if (rechitrphiexpectedwidth==3) ResMFvsTrackwidthWClus4Wexp3->Fill(rechitrphitrackwidth,rechitrphiresMF);
 		if (rechitrphiexpectedwidth==4) ResMFvsTrackwidthWClus4Wexp4->Fill(rechitrphitrackwidth,rechitrphiresMF);
-		ErrxMFvsTrackwidthWClus4->Fill(rechitrphitrackwidth,sqrt(rechitrphierrxMF));
+		ErrxMFvsTrackwidthWClus4->Fill(rechitrphitrackwidth,sqrt(rechitrphierrxMF));*/
 		    //}
 	      }
 	  }
-
+	  
 	  if (rechitrphicategory == 1) {
 	    meErrxMFTrackwidthProfileCategory1->Fill(rechitrphitrackwidth,sqrt(rechitrphierrxMF));
 	    meErrxMFClusterwidthProfileCategory1->Fill(clusizrphi,sqrt(rechitrphierrxMF));
 	  }
 	  if (rechitrphicategory == 2) {
 	    meErrxMFTrackwidthProfileCategory2->Fill(rechitrphitrackwidth,sqrt(rechitrphierrxMF));
-	    ResMFvsTrackwidthCategory2->Fill(rechitrphitrackwidth,rechitrphiresMF);
-	    ErrxMFvsTrackwidthCategory2->Fill(rechitrphitrackwidth,sqrt(rechitrphierrxMF));
+	    //ResMFvsTrackwidthCategory2->Fill(rechitrphitrackwidth,rechitrphiresMF);
+	    //  ErrxMFvsTrackwidthCategory2->Fill(rechitrphitrackwidth,sqrt(rechitrphierrxMF));
 	  }
 	  if (rechitrphicategory == 3) {
 	    meErrxMFTrackwidthProfileCategory3->Fill(rechitrphitrackwidth,sqrt(rechitrphierrxMF));
-	    ResMFvsTrackwidthCategory3->Fill(rechitrphitrackwidth,rechitrphiresMF);
-	    ErrxMFvsTrackwidthCategory3->Fill(rechitrphitrackwidth,sqrt(rechitrphierrxMF));
+	    //ResMFvsTrackwidthCategory3->Fill(rechitrphitrackwidth,rechitrphiresMF);
+	    //ErrxMFvsTrackwidthCategory3->Fill(rechitrphitrackwidth,sqrt(rechitrphierrxMF));
 	  }
 	  if (rechitrphicategory == 4) {
 	    meErrxMFTrackwidthProfileCategory4->Fill(rechitrphitrackwidth,sqrt(rechitrphierrxMF));
-	    ResMFvsTrackwidthCategory4->Fill(rechitrphitrackwidth,rechitrphiresMF);
-	    ErrxMFvsTrackwidthCategory4->Fill(rechitrphitrackwidth,sqrt(rechitrphierrxMF));
+	    //ResMFvsTrackwidthCategory4->Fill(rechitrphitrackwidth,rechitrphiresMF);
+	    //ErrxMFvsTrackwidthCategory4->Fill(rechitrphitrackwidth,sqrt(rechitrphierrxMF));
 	  }
 	  //const unsigned int NBINS = meErrxMFTrackwidthProfile->getNbinsX();
 	  //cout<<"NBINS2 = "<<NBINS<<endl;
+	  
           meErrxMF->Fill(sqrt(rechitrphierrxMF));
 	  //const unsigned int NBINS3 = meErrxMF->getNbinsX();
 	  //cout<<"NBINS3 = "<<NBINS<<endl;
@@ -2211,28 +2221,37 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
           mePullLF->Fill(rechitrphipullLF);
 	  
 	}
+
 	if (isrechitsas>0) {
+	  
 	  if (rechitsasthickness > CutThickness)
 	    {
-	      PullvsTrackwidth->Fill(rechitsastrackwidth,rechitsaspullMF);
-	      ErrxMF->Fill(sqrt(rechitsaserrxMF));
+	      /*
+	      	      PullvsTrackwidth->Fill(rechitsastrackwidth,rechitsaspullMF);
+		      //cout<<"rechitsaserrxMF"<<rechitsaserrxMF<<endl;
+		      // ErrxMF->Fill(sqrt(rechitsaserrxMF));
 	      ErrxMFvsTrackwidth->Fill(rechitsastrackwidth,sqrt(rechitsaserrxMF));
 	      ResMFvsTrackwidth->Fill(rechitsastrackwidth,rechitsasresMF);
+
+	      
 	      PullvsClusterwidth->Fill(clusizsas,rechitsaspullMF);
 	      PullvsExpectedwidth->Fill(rechitsasexpectedwidth,rechitsaspullMF);
 	      PullvsTrackangle->Fill(rechitsastrackangle,rechitsaspullMF);
 	      PullvsTrackanglebeta->Fill(rechitsastrackanglebeta,rechitsaspullMF);
-
+	      */
 	    }
+	  
+	  
 	  meCategory->Fill(rechitsascategory);
 	  meTrackwidth->Fill(rechitsastrackwidth);
 	  meExpectedwidth->Fill(rechitsasexpectedwidth);
 	  meClusterwidth->Fill(clusizsas);
 	  meTrackanglealpha->Fill(rechitsastrackangle);
 	  meTrackanglebeta->Fill(rechitsastrackanglebeta);
+	  
 	  meErrxMFAngleProfile->Fill(rechitsastrackangle,sqrt(rechitsaserrxMF));
 	  meErrxMFTrackwidthProfile->Fill(rechitsastrackwidth,sqrt(rechitsaserrxMF));
-
+	  
 	  if (clusizsas == 1) {
 	    meErrxMFTrackwidthProfileWClus1->Fill(rechitsastrackwidth,sqrt(rechitsaserrxMF));
 	    meResMFTrackwidthProfileWClus1->Fill(rechitsastrackwidth,rechitsasresMF);
@@ -2240,17 +2259,18 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	      {
 		//if ((detid.subdetId() == int(StripSubdetector::TIB)) || (detid.subdetId() == int(StripSubdetector::TOB)))
 		//{
-		  
+		/*  
 		ResMFvsTrackwidthWClus1->Fill(rechitsastrackwidth,rechitsasresMF);
 		if (rechitsasexpectedwidth==1) ResMFvsTrackwidthWClus1Wexp1->Fill(rechitsastrackwidth,rechitsasresMF);
 		if (rechitsasexpectedwidth==2) ResMFvsTrackwidthWClus1Wexp2->Fill(rechitsastrackwidth,rechitsasresMF);
 		if (rechitsasexpectedwidth==3) ResMFvsTrackwidthWClus1Wexp3->Fill(rechitsastrackwidth,rechitsasresMF);
 		if (rechitsasexpectedwidth==4) ResMFvsTrackwidthWClus1Wexp4->Fill(rechitsastrackwidth,rechitsasresMF);
 		ErrxMFvsTrackwidthWClus1->Fill(rechitsastrackwidth,sqrt(rechitsaserrxMF));
-		  
+		*/
 		       //}
 	      }
 	  }
+	  
 	  if (clusizsas == 2) {
 	    meErrxMFTrackwidthProfileWClus2->Fill(rechitsastrackwidth,sqrt(rechitsaserrxMF));
 	    meResMFTrackwidthProfileWClus2->Fill(rechitsastrackwidth,rechitsasresMF);
@@ -2258,12 +2278,14 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	      {
 		//		if ((detid.subdetId() == int(StripSubdetector::TIB)) || (detid.subdetId() == int(StripSubdetector::TOB)))
 		//{
+		/*
 		ResMFvsTrackwidthWClus2->Fill(rechitsastrackwidth,rechitsasresMF);
 		if (rechitsasexpectedwidth==1) ResMFvsTrackwidthWClus2Wexp1->Fill(rechitsastrackwidth,rechitsasresMF);
 		if (rechitsasexpectedwidth==2) ResMFvsTrackwidthWClus2Wexp2->Fill(rechitsastrackwidth,rechitsasresMF);
 		if (rechitsasexpectedwidth==3) ResMFvsTrackwidthWClus2Wexp3->Fill(rechitsastrackwidth,rechitsasresMF);
 		if (rechitsasexpectedwidth==4) ResMFvsTrackwidthWClus2Wexp4->Fill(rechitsastrackwidth,rechitsasresMF);
 		ErrxMFvsTrackwidthWClus2->Fill(rechitsastrackwidth,sqrt(rechitsaserrxMF));
+		*/
 		    //}
 	      }
 	  }
@@ -2274,12 +2296,14 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	      {
 		//if ((detid.subdetId() == int(StripSubdetector::TIB)) || (detid.subdetId() == int(StripSubdetector::TOB)))
 		// {
+		/*
 		ResMFvsTrackwidthWClus3->Fill(rechitsastrackwidth,rechitsasresMF);
 		if (rechitsasexpectedwidth==1) ResMFvsTrackwidthWClus3Wexp1->Fill(rechitsastrackwidth,rechitsasresMF);
 		if (rechitsasexpectedwidth==2) ResMFvsTrackwidthWClus3Wexp2->Fill(rechitsastrackwidth,rechitsasresMF);
 		if (rechitsasexpectedwidth==3) ResMFvsTrackwidthWClus3Wexp3->Fill(rechitsastrackwidth,rechitsasresMF);
 		if (rechitsasexpectedwidth==4) ResMFvsTrackwidthWClus3Wexp4->Fill(rechitsastrackwidth,rechitsasresMF);
 		ErrxMFvsTrackwidthWClus3->Fill(rechitsastrackwidth,sqrt(rechitsaserrxMF));
+		*/
 		//}
 	      }
 	  }
@@ -2290,12 +2314,14 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	      {
 		//if ((detid.subdetId() == int(StripSubdetector::TIB)) || (detid.subdetId() == int(StripSubdetector::TOB)))
 		//{
+		/*
 		ResMFvsTrackwidthWClus4->Fill(rechitsastrackwidth,rechitsasresMF);
 		if (rechitsasexpectedwidth==1) ResMFvsTrackwidthWClus4Wexp1->Fill(rechitsastrackwidth,rechitsasresMF);
 		if (rechitsasexpectedwidth==2) ResMFvsTrackwidthWClus4Wexp2->Fill(rechitsastrackwidth,rechitsasresMF);
 		if (rechitsasexpectedwidth==3) ResMFvsTrackwidthWClus4Wexp3->Fill(rechitsastrackwidth,rechitsasresMF);
 		if (rechitsasexpectedwidth==4) ResMFvsTrackwidthWClus4Wexp4->Fill(rechitsastrackwidth,rechitsasresMF);
 		ErrxMFvsTrackwidthWClus4->Fill(rechitsastrackwidth,sqrt(rechitsaserrxMF));
+		*/
 		    // }
 	      }
 	  }
@@ -2305,18 +2331,18 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  }
 	  if (rechitsascategory == 2) {
 	    meErrxMFTrackwidthProfileCategory2->Fill(rechitsastrackwidth,sqrt(rechitsaserrxMF));
-	    ResMFvsTrackwidthCategory2->Fill(rechitsastrackwidth,rechitsasresMF);
-	    ErrxMFvsTrackwidthCategory2->Fill(rechitsastrackwidth,sqrt(rechitsaserrxMF));
+	    //ResMFvsTrackwidthCategory2->Fill(rechitsastrackwidth,rechitsasresMF);
+	    //ErrxMFvsTrackwidthCategory2->Fill(rechitsastrackwidth,sqrt(rechitsaserrxMF));
 	  }
 	  if (rechitsascategory == 3) {
 	    meErrxMFTrackwidthProfileCategory3->Fill(rechitsastrackwidth,sqrt(rechitsaserrxMF));
-	    ResMFvsTrackwidthCategory3->Fill(rechitsastrackwidth,rechitsasresMF);
-	    ErrxMFvsTrackwidthCategory3->Fill(rechitsastrackwidth,sqrt(rechitsaserrxMF));
+	    //ResMFvsTrackwidthCategory3->Fill(rechitsastrackwidth,rechitsasresMF);
+	    //ErrxMFvsTrackwidthCategory3->Fill(rechitsastrackwidth,sqrt(rechitsaserrxMF));
 	  }
 	  if (rechitsascategory == 4) {
 	    meErrxMFTrackwidthProfileCategory4->Fill(rechitsastrackwidth,sqrt(rechitsaserrxMF));
-	    ResMFvsTrackwidthCategory4->Fill(rechitsastrackwidth,rechitsasresMF);
-	    ErrxMFvsTrackwidthCategory4->Fill(rechitsastrackwidth,sqrt(rechitsaserrxMF));
+	    //ResMFvsTrackwidthCategory4->Fill(rechitsastrackwidth,rechitsasresMF);
+	    //ErrxMFvsTrackwidthCategory4->Fill(rechitsastrackwidth,sqrt(rechitsaserrxMF));
 	  }
 	  
           meErrxMF->Fill(sqrt(rechitsaserrxMF));
@@ -2325,8 +2351,10 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
           meResLF->Fill(rechitsasresLF);
           mePullMF->Fill(rechitsaspullMF);
           mePullLF->Fill(rechitsaspullLF);
+	   
 	}
 
+	
 	if (detid.subdetId() == int(StripSubdetector::TIB)){
 	  TIBDetId tibid(myid);
 	  int Tibisrechitrphi    = isrechitrphi;
@@ -2337,11 +2365,11 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  if(Tibisrechitrphi!=0){
 	    if (rechitrphithickness > CutThickness)
 	      {
-		PullvsTrackwidthTIB->Fill(rechitrphitrackwidth,rechitrphipullMF);
+		/*PullvsTrackwidthTIB->Fill(rechitrphitrackwidth,rechitrphipullMF);
 		PullvsClusterwidthTIB->Fill(clusizrphi,rechitrphipullMF);
 		PullvsExpectedwidthTIB->Fill(rechitrphiexpectedwidth,rechitrphipullMF);
 		PullvsTrackangleTIB->Fill(rechitrphitrackangle,rechitrphipullMF);
-		PullvsTrackanglebetaTIB->Fill(rechitrphitrackanglebeta,rechitrphipullMF);
+		PullvsTrackanglebetaTIB->Fill(rechitrphitrackanglebeta,rechitrphipullMF);*/
 	      }
 	    //cout<<"TIB:rechitrphitrackwidth,rechitrphipullMF = "<<rechitrphitrackwidth<<" "<<rechitrphipullMF<<endl;
 	    //cout<<"ilay2 = "<<ilay<<endl;
@@ -2403,11 +2431,11 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  if(Tibisrechitsas!=0){
 	    if (rechitsasthickness > CutThickness)
 	      {
-		PullvsTrackwidthTIB->Fill(rechitsastrackwidth,rechitsaspullMF);
+		/*	PullvsTrackwidthTIB->Fill(rechitsastrackwidth,rechitsaspullMF);
 		PullvsClusterwidthTIB->Fill(clusizsas,rechitsaspullMF);
 		PullvsExpectedwidthTIB->Fill(rechitsasexpectedwidth,rechitsaspullMF);
 		PullvsTrackangleTIB->Fill(rechitsastrackangle,rechitsaspullMF);
-		PullvsTrackanglebetaTIB->Fill(rechitsastrackanglebeta,rechitsaspullMF);
+		PullvsTrackanglebetaTIB->Fill(rechitsastrackanglebeta,rechitsaspullMF);*/
 	      }
 	    meNstpSasTIB[ilay]->Fill(clusizsas);
 	    meAdcSasTIB[ilay]->Fill(cluchgsas);
@@ -2446,7 +2474,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	    meErrxMFAngleProfileSasTIB[ilay]->Fill(rechitsastrackangle,rechitsaserrxMF);
 	  }
 	}
-
+	
 	if (detid.subdetId() == int(StripSubdetector::TOB)){
 	  TOBDetId tobid(myid);
 	  int Tobisrechitrphi    = isrechitrphi;
@@ -2455,11 +2483,11 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  if(Tobisrechitrphi!=0){
 	    if (rechitrphithickness > CutThickness)
 	      {
-		PullvsTrackwidthTOB->Fill(rechitrphitrackwidth,rechitrphipullMF);
+		/*PullvsTrackwidthTOB->Fill(rechitrphitrackwidth,rechitrphipullMF);
 		PullvsClusterwidthTOB->Fill(clusizrphi,rechitrphipullMF);
 		PullvsExpectedwidthTOB->Fill(rechitrphiexpectedwidth,rechitrphipullMF);
 		PullvsTrackangleTOB->Fill(rechitrphitrackangle,rechitrphipullMF);
-		PullvsTrackanglebetaTOB->Fill(rechitrphitrackanglebeta,rechitrphipullMF);
+		PullvsTrackanglebetaTOB->Fill(rechitrphitrackanglebeta,rechitrphipullMF);*/
 	      }
 	    //cout<<"TOB:rechitrphitrackwidth,rechitrphipullMF = "<<rechitrphitrackwidth<<" "<<rechitrphipullMF<<endl;
 	    meNstpRphiTOB[ilay]->Fill(clusizrphi);
@@ -2519,12 +2547,13 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  } 
 	  if(Tobisrechitsas!=0){
 	    if (rechitsasthickness > CutThickness)
-	      {
+	      {/*
 		PullvsTrackwidthTOB->Fill(rechitsastrackwidth,rechitsaspullMF);
 		PullvsClusterwidthTOB->Fill(clusizsas,rechitsaspullMF);
 		PullvsExpectedwidthTOB->Fill(rechitsasexpectedwidth,rechitsaspullMF);
 		PullvsTrackangleTOB->Fill(rechitsastrackangle,rechitsaspullMF);
 		PullvsTrackanglebetaTOB->Fill(rechitsastrackanglebeta,rechitsaspullMF);
+	       */
 	      }
 	    meNstpSasTOB[ilay]->Fill(clusizsas);
 	    meAdcSasTOB[ilay]->Fill(cluchgsas);
@@ -2563,7 +2592,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	    meErrxMFAngleProfileSasTOB[ilay]->Fill(rechitsastrackangle,rechitsaserrxMF);
 	  }
 	}
-	      
+	
 	if (detid.subdetId() == int(StripSubdetector::TID)){
 	  TIDDetId tidid(myid);
 	  int Tidisrechitrphi    = isrechitrphi;
@@ -2572,11 +2601,11 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  if(Tidisrechitrphi!=0){
 	    if (rechitrphithickness > CutThickness)
 	      {
-		PullvsTrackwidthTID->Fill(rechitrphitrackwidth,rechitrphipullMF);
+		/*PullvsTrackwidthTID->Fill(rechitrphitrackwidth,rechitrphipullMF);
 		PullvsClusterwidthTID->Fill(clusizrphi,rechitrphipullMF);
 		PullvsExpectedwidthTID->Fill(rechitrphiexpectedwidth,rechitrphipullMF);
 		PullvsTrackangleTID->Fill(rechitrphitrackangle,rechitrphipullMF);
-		PullvsTrackanglebetaTID->Fill(rechitrphitrackanglebeta,rechitrphipullMF);
+		PullvsTrackanglebetaTID->Fill(rechitrphitrackanglebeta,rechitrphipullMF);*/
 	      }
 	    //cout<<"TID:rechitrphitrackwidth,rechitrphipullMF = "<<rechitrphitrackwidth<<" "<<rechitrphipullMF<<endl;
 	    meNstpRphiTID[ilay]->Fill(clusizrphi);
@@ -2618,11 +2647,11 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  if(Tidisrechitsas!=0){
 	    if (rechitsasthickness > CutThickness)
 	      {
-		PullvsTrackwidthTID->Fill(rechitsastrackwidth,rechitsaspullMF);
+		/*PullvsTrackwidthTID->Fill(rechitsastrackwidth,rechitsaspullMF);
 		PullvsClusterwidthTID->Fill(clusizsas,rechitsaspullMF);
 		PullvsExpectedwidthTID->Fill(rechitsasexpectedwidth,rechitsaspullMF);
 		PullvsTrackangleTID->Fill(rechitsastrackangle,rechitsaspullMF);
-		PullvsTrackanglebetaTID->Fill(rechitsastrackanglebeta,rechitsaspullMF);
+		PullvsTrackanglebetaTID->Fill(rechitsastrackanglebeta,rechitsaspullMF);*/
 	      }
 	    meNstpSasTID[ilay]->Fill(clusizsas);
 	    meAdcSasTID[ilay]->Fill(cluchgsas);
@@ -2670,11 +2699,11 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  if(Tecisrechitrphi!=0){
 	    if (rechitrphithickness > CutThickness)
 	      {
-		PullvsTrackwidthTEC->Fill(rechitrphitrackwidth,rechitrphipullMF);
+		/*PullvsTrackwidthTEC->Fill(rechitrphitrackwidth,rechitrphipullMF);
 		PullvsClusterwidthTEC->Fill(clusizrphi,rechitrphipullMF);
 		PullvsExpectedwidthTEC->Fill(rechitrphiexpectedwidth,rechitrphipullMF);
 		PullvsTrackangleTEC->Fill(rechitrphitrackangle,rechitrphipullMF);
-		PullvsTrackanglebetaTEC->Fill(rechitrphitrackanglebeta,rechitrphipullMF);
+		PullvsTrackanglebetaTEC->Fill(rechitrphitrackanglebeta,rechitrphipullMF);*/
 	      }
 	    //cout<<"TEC:rechitrphitrackwidth,rechitrphipullMF = "<<rechitrphitrackwidth<<" "<<rechitrphipullMF<<endl;
 	    meNstpRphiTEC[ilay]->Fill(clusizrphi);
@@ -2716,11 +2745,11 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  if(Tecisrechitsas!=0){
 	    if (rechitsasthickness > CutThickness)
 	      {
-		PullvsTrackwidthTEC->Fill(rechitsastrackwidth,rechitsaspullMF);
+		/*PullvsTrackwidthTEC->Fill(rechitsastrackwidth,rechitsaspullMF);
 		PullvsClusterwidthTEC->Fill(clusizsas,rechitsaspullMF);
 		PullvsExpectedwidthTEC->Fill(rechitsasexpectedwidth,rechitsaspullMF);
 		PullvsTrackangleTEC->Fill(rechitsastrackangle,rechitsaspullMF);
-		PullvsTrackanglebetaTEC->Fill(rechitsastrackanglebeta,rechitsaspullMF);
+		PullvsTrackanglebetaTEC->Fill(rechitsastrackanglebeta,rechitsaspullMF);*/
 	      }
 	    meNstpSasTEC[ilay]->Fill(clusizsas);
 	    meAdcSasTEC[ilay]->Fill(cluchgsas);
@@ -2760,11 +2789,13 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  }
 	
 	}
-
+	
       } //simplehits
       //cout<<"DebugLine301"<<endl;
+      
     }
     //cout<<"DebugLine302"<<endl;
+    
   }
   //cout<<"DebugLine303"<<endl;
 
