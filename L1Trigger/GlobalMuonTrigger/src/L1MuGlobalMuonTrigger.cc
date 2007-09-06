@@ -5,8 +5,8 @@
 //   Description: L1 Global Muon Trigger
 //
 //
-//   $Date: 2007/07/06 15:35:37 $
-//   $Revision: 1.7 $
+//   $Date: 2007/08/07 13:48:16 $
+//   $Revision: 1.8 $
 //
 //   Author :
 //   Norbert Neumeister              CERN EP
@@ -147,6 +147,12 @@ L1MuGlobalMuonTrigger::~L1MuGlobalMuonTrigger() {
 
 void L1MuGlobalMuonTrigger::beginJob(const edm::EventSetup& es) {
     
+}
+
+void L1MuGlobalMuonTrigger::produce(edm::Event& e, const edm::EventSetup& es) {
+  
+  // configure from the event setup
+  
   edm::ESHandle< L1MuGMTScales > gmtscales_h;
   es.get< L1MuGMTScalesRcd >().get( gmtscales_h );
   m_config->setGMTScales( gmtscales_h.product() );
@@ -161,6 +167,8 @@ void L1MuGlobalMuonTrigger::beginJob(const edm::EventSetup& es) {
   
   m_config->setDefaults();
   
+  // write LUTs and Regs if required
+  
   if(m_writeLUTsAndRegs) {
     std::string dir = "gmtconfig";
   
@@ -169,10 +177,6 @@ void L1MuGlobalMuonTrigger::beginJob(const edm::EventSetup& es) {
     m_config->dumpLUTs(dir);
     m_config->dumpRegs(dir);
   }
-  
-}
-
-void L1MuGlobalMuonTrigger::produce(edm::Event& e, const edm::EventSetup& es) {
   
   // process the event
   if ( L1MuGMTConfig::Debug(2) ) edm::LogVerbatim("GMT_info");
@@ -265,6 +269,8 @@ void L1MuGlobalMuonTrigger::produce(edm::Event& e, const edm::EventSetup& es) {
 
       // reset GMT
       reset();
+      // delete registers and LUTs
+      m_config->clear();
 
     }
   }

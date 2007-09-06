@@ -5,8 +5,8 @@
 //   Description: Configuration parameters for L1GlobalMuonTrigger
 //
 //
-//   $Date: 2007/04/02 15:45:38 $
-//   $Revision: 1.5 $
+//   $Date: 2007/07/06 15:35:37 $
+//   $Revision: 1.6 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -189,6 +189,44 @@ void L1MuGMTConfig::setDefaults() {
   m_MIAUPhiPro2LUT = new L1MuGMTMIAUPhiPro2LUT();
   m_PhiLUT = new L1MuGMTPhiLUT();
 
+}
+
+void L1MuGMTConfig::clear() {
+  // delete Registers
+  delete m_RegCDLConfig;
+  delete m_RegMMConfigPhi;
+  delete m_RegMMConfigEta;
+  delete m_RegMMConfigPt;
+  delete m_RegMMConfigCharge;
+  delete m_RegMMConfigMIP;
+  delete m_RegMMConfigISO;
+  delete m_RegMMConfigSRK;
+  delete m_RegSortRankOffset;
+
+  // delete LUTs
+  delete m_EtaLUT;
+  delete m_LFCOUDeltaEtaLUT;
+  delete m_LFDeltaEtaLUT;
+  delete m_LFDisableHotLUT;
+  delete m_LFEtaConvLUT;
+  delete m_LFMatchQualLUT;
+  delete m_LFMergeRankCombineLUT;
+  delete m_LFMergeRankEtaPhiLUT;
+  delete m_LFMergeRankEtaQLUT;
+  delete m_LFMergeRankPtQLUT;
+  delete m_LFOvlEtaConvLUT;
+  delete m_LFPhiProEtaConvLUT;
+  delete m_LFPhiProLUT;
+  delete m_LFPtMixLUT;
+  delete m_LFSortRankCombineLUT;
+  delete m_LFSortRankEtaPhiLUT;
+  delete m_LFSortRankEtaQLUT;
+  delete m_LFSortRankPtQLUT;
+  delete m_MIAUEtaConvLUT;
+  delete m_MIAUEtaProLUT;
+  delete m_MIAUPhiPro1LUT;
+  delete m_MIAUPhiPro2LUT;
+  delete m_PhiLUT;
 }
 
 void L1MuGMTConfig::dumpLUTs(std::string dir) {

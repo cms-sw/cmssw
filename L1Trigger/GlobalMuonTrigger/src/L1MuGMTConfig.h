@@ -4,8 +4,8 @@
  *  Configuration parameters for L1GlobalMuonTrigger.
 */
 //
-//   $Date: 2007/04/02 15:45:38 $
-//   $Revision: 1.5 $
+//   $Date: 2007/07/06 15:35:37 $
+//   $Revision: 1.6 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -172,6 +172,7 @@ class L1MuGMTConfig {
     void dumpRegs(std::string dir);
 
     void setDefaults();
+    void clear();
   
   private:
 
