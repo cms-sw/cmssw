@@ -1,7 +1,7 @@
 /*
  * \file EcalRecHitsValidation.cc
  *
- * $Date: 2007/01/04 09:34:43 $
+ * $Date: 2007/03/20 13:07:22 $
  * \author C. Rovelli
  *
 */
@@ -126,10 +126,10 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
     e.getByLabel(HepMCLabel, MCEvt);  
   } catch ( cms::Exception &e ) { skipMC = true; }
 
-  Handle<CrossingFrame> crossingFrame;    
-  try { 
-    e.getByType(crossingFrame);
-  } catch ( cms::Exception &e ) { return; }
+  edm::Handle<CrossingFrame<PCaloHit> > crossingFrame;
+  //try { 
+  //  e.getByType(crossingFrame);
+  //} catch ( cms::Exception &e ) { return; }
 
   Handle< EBUncalibratedRecHitCollection > EcalUncalibRecHitEB;
   Handle< EEUncalibratedRecHitCollection > EcalUncalibRecHitEE;
@@ -191,8 +191,9 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 
   // 1) loop over simHits  
   const std::string barrelHitsName ("EcalHitsEB");
+  e.getByLabel("mix",barrelHitsName,crossingFrame);
   std::auto_ptr<MixCollection<PCaloHit> > 
-    barrelHits (new MixCollection<PCaloHit>(crossingFrame.product (), barrelHitsName)) ;
+    barrelHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
   
   MapType ebSimMap;
   
@@ -242,8 +243,9 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 
   // 1) loop over simHits
   const std::string endcapHitsName ("EcalHitsEE") ;
+  e.getByLabel("mix",endcapHitsName,crossingFrame);
   std::auto_ptr<MixCollection<PCaloHit> > 
-    endcapHits (new MixCollection<PCaloHit>(crossingFrame.product (), endcapHitsName)) ;
+    endcapHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
   
   MapType eeSimMap;
   
@@ -292,9 +294,10 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 
   // 1) loop over simHits
   const std::string preshowerHitsName ("EcalHitsES") ;
+  e.getByLabel("mix",preshowerHitsName,crossingFrame);
   std::auto_ptr<MixCollection<PCaloHit> > 
-    preshowerHits (new MixCollection<PCaloHit>(crossingFrame.product (), preshowerHitsName)) ;
-  
+    preshowerHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
+
   MapType esSimMap;
   
   for (MixCollection<PCaloHit>::MixItr hitItr = preshowerHits->begin(); hitItr != preshowerHits->end(); ++hitItr) 
