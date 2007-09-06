@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_CALOGEOMETRY_CALOCELLGEOMETRY_H
 #define GEOMETRY_CALOGEOMETRY_CALOCELLGEOMETRY_H 1
 
-#include "Geometry/CaloGeometry/interface/EZArraySafe.h"
+#include "Geometry/CaloGeometry/interface/EZArrayFL.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include <vector>
@@ -11,8 +11,8 @@
 
 Abstract base class for an individual cell's geometry.
     
-$Date: 2007/06/14 14:00:20 $
-$Revision: 1.7 $
+$Date: 2007/09/05 19:53:08 $
+$Revision: 1.8 $
 \author J. Mans, P. Meridiani
 */
 
@@ -20,8 +20,8 @@ class CaloCellGeometry
 {
    public:
 
-      typedef EZArraySafe< GlobalPoint > CornersVec ;
-      typedef EZMgr< GlobalPoint >       CornersMgr ;
+      typedef EZArrayFL< GlobalPoint > CornersVec ;
+      typedef EZMgrFL< GlobalPoint >   CornersMgr ;
 
       enum CornersSize { k_cornerSize = 8 };
 

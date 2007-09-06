@@ -66,26 +66,28 @@ void
 CaloGeometryLoader<T>::makeGeometry( const DDCompactView* cpv  ,
 				     T*                   geom  )
 {
-   DDFilteredView fv( *cpv ) ;
-   fv.addFilter( m_filter ) ;
+   DDFilteredView fv0 ( *cpv ) ;
+   fv0.addFilter( m_filter ) ;
 
-   fillNamedParams( fv, geom ) ;
+   fillNamedParams( fv0, geom ) ;
 
+   DDFilteredView fv1 ( *cpv ) ;
+   fv1.addFilter( m_filter ) ;
    unsigned int counter ( 0 ) ;
   
-   for( bool doSubDets = fv.firstChild(); doSubDets ; doSubDets = fv.nextSibling() )
+   for( bool doSubDets = fv1.firstChild(); doSubDets ; doSubDets = fv1.nextSibling() )
    {
       ++counter ;
    } 
 
    geom->allocateCorners( counter ) ;
+
+   DDFilteredView fv( *cpv ) ;
+   fv.addFilter( m_filter ) ;
  
    for( bool doSubDets = fv.firstChild(); doSubDets ; doSubDets = fv.nextSibling() )
    {
       const DDSolid& solid ( fv.logicalPart().solid() ) ;
-      if( solid.shape() != ddtrap )
-	 throw DDException( std::string( __FILE__ ) 
-			    + "\n CaloGeometryLoader: only trapezoidal crystal shapes supported " ) ;
       
       const ParmVec& parameters ( solid.parameters() ) ;
 

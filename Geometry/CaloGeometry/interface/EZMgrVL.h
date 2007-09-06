@@ -17,14 +17,13 @@ class EZMgrVL
       typedef typename VecType::value_type      value_type ;
       typedef typename VecType::size_type       size_type ;
 
-      EZMgrVL< T >( size_type vecSize ) : m_vecSize ( vecSize ) ,
-					m_counter ( 0 )
+      EZMgrVL< T >( size_type vecSize ) : m_vecSize ( vecSize )
       {
 	 m_vec.resize(0); 
 	 assert( m_vec.capacity() == 0 ) ;
       }
 
-      virtual ~EZMgrVL< T >() { assert( 0 == m_counter ) ; } 
+      virtual ~EZMgrVL< T >() {} 
 
       iterator reserve( size_type size ) const { return assign( size ) ; }
       iterator resize(  size_type size ) const { return assign( size ) ; }
@@ -37,22 +36,11 @@ class EZMgrVL
 	    m_vec.reserve( m_vecSize ) ;
 	    assert( m_vecSize == m_vec.capacity() ) ;
 	 }
-	 iterator start ( m_vec.end() ) ;
 	 for( size_type  i ( 0 ) ; i != size ; ++i )
 	 {
 	    m_vec.push_back( t ) ;
 	 }
-	 ++m_counter ;
-	 return start ;
-      }
-
-      void release( iterator it ) const 
-      {
-	 assert( 0 != m_counter ) ;
-	 if( 0 == --m_counter ) 
-	 {
-	    m_vec.erase( m_vec.begin(), m_vec.end() ) ;
-	 }
+	 return ( m_vec.end() - size )  ;
       }
 
    private:
@@ -63,7 +51,6 @@ class EZMgrVL
 
       const size_type m_vecSize ;
       mutable VecType m_vec     ;
-      mutable unsigned int m_counter ;
 };
 
 #endif

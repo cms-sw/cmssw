@@ -31,8 +31,6 @@ namespace calogeom {
       if( co.empty() )
       {
 	 CornersVec& corners ( setCorners() ) ;
-	 corners.resize( k_cornerSize ) ;
-
 	 if( m_thick>0 ) 
 	 { 
 	    /* In this case, the faces are parallel to the zaxis.  

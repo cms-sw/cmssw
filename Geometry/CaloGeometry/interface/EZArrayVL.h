@@ -19,15 +19,15 @@ class EZArrayVL
       EZArrayVL< T >( const MgrType* mgr       , 
 		      size_type      size = 0  ,
 		      const T&       t    = T()  ) :
-	 m_begin ( 0==size ? (iterator)0 : mgr->assign( size, t ) ) ,
-	 m_end   ( 0==size ? (iterator)0 : m_begin + size         ) ,
+	 m_begin ( 0 ) ,
+	 m_size  ( size ) ,
 	 m_mgr   ( mgr )   {}
 
       EZArrayVL< T >( const MgrType* mgr   , 
 		      const_iterator start ,
 		      const_iterator finis       ) :
 	 m_begin ( 0==finis-start ? (iterator)0 : mgr->assign( finis - start ) ) ,
-	 m_end   ( 0==finis-start ? (iterator)0 : m_begin    + finis - start   ) ,
+	 m_size  ( finis - start ) ,
 	 m_mgr   ( mgr )
       {
 	 assert( ( finis - start ) > 0 ) ;
@@ -38,7 +38,7 @@ class EZArrayVL
 	 }
       }
 
-      virtual ~EZArrayVL< T >() { m_mgr->release( m_begin ) ; }
+      virtual ~EZArrayVL< T >() {}
 
       virtual void resize( size_type size ) { m_mgr->assign( size ) ; }
 
@@ -46,21 +46,22 @@ class EZArrayVL
 			   const T&  t = T() ) const 
       {
 	 assert( (iterator)0 == m_begin ) ;
+	 m_size = size ;
 	 m_begin = m_mgr->assign( size, t ) ;
-	 m_end   = m_begin + size ;
       }
 
       const_iterator begin() const { return m_begin ; } 
-      const_iterator end()   const { return m_end ; }
+      const_iterator end()   const { return m_size + m_begin ; }
 
       reference operator[]( const unsigned int i ) 
       {
+	 if( (iterator)0 == m_begin ) assign( m_size ) ;
 	 return *( m_begin + i ) ; 
       }
 
       const_reference operator[]( const unsigned int i ) const 
       {
-	 return (reference)(*this)[i] ;
+	 return *( m_begin + i ) ;
       }
 
       bool uninitialized() const { return ( 0 == m_begin ) ;  }
@@ -79,7 +80,7 @@ class EZArrayVL
       //EZArrayVL( const EZArrayVL& ) ; //stop
       //EZArrayVL& operator=( const EZArrayVL& ) ; //stop
       mutable iterator m_begin   ;
-      mutable iterator m_end     ;
+      size_type        m_size    ;
       const MgrType*   m_mgr   ;
 };
 

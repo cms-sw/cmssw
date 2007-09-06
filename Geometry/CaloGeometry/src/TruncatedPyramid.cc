@@ -13,7 +13,6 @@ TruncatedPyramid::createCorners( const std::vector<double>&    pv ,
 				 const HepTransform3D&         tr ,
 				 CaloCellGeometry::CornersVec& co   )
 {
-   assert(  8 == co.size() ) ;
    assert( 11 == pv.size() ) ;
 
    // to get the ordering right for fast sim, we have to use their convention

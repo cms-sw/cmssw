@@ -16,10 +16,8 @@ class EZArrayFL
       typedef typename MgrType::size_type       size_type ;
       typedef typename MgrType::value_type      value_type ;
 
-      EZArrayFL< T >( const MgrType* mgr       , 
-		      const T&       t    = T()  ) :
-	 m_begin ( 0==size ? (iterator)0 : mgr->assign( t ) ) ,
-	 m_mgr   ( mgr )   {}
+      EZArrayFL< T >( const MgrType* mgr  ) : m_begin ( 0 ) ,
+					      m_mgr   ( mgr )   {}
 
       EZArrayFL< T >( const MgrType* mgr   , 
 		      const_iterator start ,
@@ -35,15 +33,14 @@ class EZArrayFL
 	 }
       }
 
-      virtual ~EZArrayFL< T >() { m_mgr->release( m_begin ) ; }
+      virtual ~EZArrayFL< T >() {}
 
-      virtual void resize() { m_mgr->assign() ; }
+      void resize() const { assign() ; }
 
-      virtual void assign( const T&  t = T() ) const 
+      void assign( const T& t = T() ) const 
       {
 	 assert( (iterator)0 == m_begin ) ;
 	 m_begin = m_mgr->assign( t ) ;
-	 m_end   = m_begin + m_mgr->subSize() ;
       }
 
       const_iterator begin() const { return m_begin ; } 
@@ -51,12 +48,13 @@ class EZArrayFL
 
       reference operator[]( const unsigned int i ) 
       {
+	 if( (iterator)0 == m_begin ) assign() ;
 	 return *( m_begin + i ) ; 
       }
 
       const_reference operator[]( const unsigned int i ) const 
       {
-	 return (reference)(*this)[i] ;
+	 return *( m_begin + i ) ;
       }
 
       bool uninitialized() const { return ( 0 == m_begin ) ;  }

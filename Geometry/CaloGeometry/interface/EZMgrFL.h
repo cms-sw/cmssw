@@ -19,8 +19,7 @@ class EZMgrFL
 
       EZMgrFL< T >( size_type vecSize ,
 		    size_type subSize   ) : m_vecSize ( vecSize ) ,
-					    m_subSize ( subSize ) ,
-					    m_counter ( 0 )
+					    m_subSize ( subSize )
       {
 	 m_vec.resize(0); 
 	 assert( subSize > 0 ) ;
@@ -28,35 +27,24 @@ class EZMgrFL
 	 assert( 0 == m_vec.capacity() ) ;
       }
 
-      virtual ~EZMgrFL< T >() { assert( 0 == m_counter ) ; } 
+      virtual ~EZMgrFL< T >() {}
 
-      iterator reserve( size_type size = m_subSize ) const { return assign() ; }
-      iterator resize(  size_type size = m_subSize ) const { return assign() ; }
+      iterator reserve() const { return assign() ; }
+      iterator resize()  const { return assign() ; }
 
       iterator assign( const T& t = T() ) const
       {
-	 assert( ( m_vec.size() + size ) <= m_vecSize ) ;
+	 assert( ( m_vec.size() + m_subSize ) <= m_vecSize ) ;
 	 if( 0 == m_vec.capacity() )
 	 {
 	    m_vec.reserve( m_vecSize ) ;
 	    assert( m_vecSize == m_vec.capacity() ) ;
 	 }
-	 iterator start ( m_vec.end() ) ;
 	 for( size_type  i ( 0 ) ; i != m_subSize ; ++i )
 	 {
 	    m_vec.push_back( t ) ;
 	 }
-	 ++m_counter ;
-	 return start ;
-      }
-
-      void release( iterator it ) const 
-      {
-	 assert( 0 != m_counter ) ;
-	 if( 0 == --m_counter ) 
-	 {
-	    m_vec.erase( m_vec.begin(), m_vec.end() ) ;
-	 }
+	 return ( m_vec.end() - m_subSize ) ;
       }
 
       size_type subSize() const { return m_subSize ; }
@@ -70,7 +58,6 @@ class EZMgrFL
       const size_type m_vecSize ;
       const size_type m_subSize ;
       mutable VecType m_vec     ;
-      mutable unsigned int m_counter ;
 };
 
 #endif
