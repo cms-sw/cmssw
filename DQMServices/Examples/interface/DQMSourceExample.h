@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/08/29 13:49:00 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/09/06 12:32:54 $
+ *  $Revision: 1.1 $
  *  \author  M. Zanetti CERN
  *   
  */
@@ -65,6 +65,7 @@ private:
   MonitorElement * i1;
   MonitorElement * f1;
   MonitorElement * s1;
+  MonitorElement * p1;
   float XMIN; float XMAX;
   // event counter
   int counter;

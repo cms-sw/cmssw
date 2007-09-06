@@ -38,6 +38,10 @@ DQMSourceExample::DQMSourceExample( const edm::ParameterSet& iConfig )
 //  dbe->readReferenceME("ref_test.root");
 //  dbe->open("ref_test.root",false,"","prep");
 
+// use this to collate histograms from files
+//  dbe->open("test1.root",true,"","Collate");
+//  dbe->open("test2.root",true,"","Collate");
+
 /// use this to retrieve CMSSW version of file
 //  cout << dbe->getFileReleaseVersion("ref_test.root") << endl;
 
@@ -50,6 +54,7 @@ DQMSourceExample::DQMSourceExample( const edm::ParameterSet& iConfig )
   h1 = dbe->book1D("histo", "Example 1D histogram.", NBINS, XMIN, XMAX);
   h2 = dbe->book2D("histo2", "Example 2 2D histogram.", NBINS, XMIN, XMAX, 
 		   NBINS, XMIN, XMAX);
+  p1 = dbe->bookProfile("prof1","my profile",NBINS,XMIN,XMAX,NBINS,XMIN,XMAX,"");
   // create and cd into new folder
   dbe->setCurrentFolder("C1/C2");
   h3 = dbe->book1D("histo3", "Example 3 1D histogram.", NBINS, XMIN, XMAX);
@@ -165,6 +170,7 @@ void DQMSourceExample::analyze(const edm::Event& iEvent,
       float x = gRandom->Gaus(15, 7);
       float y = gRandom->Gaus(20, 5);
       h2->Fill(x,y);
+      p1->Fill(x,y);
     }
   //      (*(*i1))++;
   usleep(100);
