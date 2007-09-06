@@ -54,8 +54,8 @@ class MonitorUserInterface : public StringUtil
 
   // ---------------- Getters -----------------------------
   /// get ME from full pathname (e.g. "my/long/dir/my_histo")
-  MonitorElement * get(const std::string & fullpath) const
-  {return bei->get(fullpath);}
+//  MonitorElement * get(const std::string & fullpath) const
+//  {return bei->get(fullpath);}
   /** this is the "main" loop where we receive monitoring or
       send subscription requests;
       if client acts as server, method runQTests is also sending monitoring & 
@@ -72,8 +72,8 @@ class MonitorUserInterface : public StringUtil
   /** 2. Run quality tests on all MonitorElements that have been updated (or added)
       since last monitoring cycle;
       Method is overloaded if client acts as server to other clients downstream */
-  virtual void runQTests(void)
-  {bei->runQTests();}
+//  virtual void runQTests(void)
+//  {bei->runQTests();}
   // *****************  NOTE ******************************************
 
   /// allow downstream clients to connect to this client
@@ -92,66 +92,66 @@ class MonitorUserInterface : public StringUtil
 
   /// get all contents
   /// return vector<string> of the form <dir pathname>:<obj1>,<obj2>,<obj3>
-  void getContents(std::vector<std::string> & put_here) const
-  {bei->getContents(put_here);}
+//  void getContents(std::vector<std::string> & put_here) const
+//  {bei->getContents(put_here);}
   /// get monitorable
   /// return vector<string> of the form <dir pathname>:<obj1>,<obj2>,<obj3>
-  void getMonitorable(std::vector<std::string> & put_here) const
-  {bei->getMonitorable(put_here);}
+//  void getMonitorable(std::vector<std::string> & put_here) const
+//  {bei->getMonitorable(put_here);}
   /// get added monitorable (since last cycle)
   /// return vector<string> of the form: <dir pathname>:<obj1>,<obj2>,...
-  void getAddedMonitorable(std::vector<std::string> & put_here) const
-  {bei->getAddedMonitorable(put_here);}
+//  void getAddedMonitorable(std::vector<std::string> & put_here) const
+//  {bei->getAddedMonitorable(put_here);}
   /// get removed monitorable (since last cycle)
   /// return vector<string> of the form: <dir pathname>:<obj1>,<obj2>,...
-  void getRemovedMonitorable(std::vector<std::string> & put_here) const
-  {bei->getRemovedMonitorable(put_here);}
+//  void getRemovedMonitorable(std::vector<std::string> & put_here) const
+//  {bei->getRemovedMonitorable(put_here);}
   /// get added contents (since last cycle)
   /// return vector<string> of the form: <dir pathname>:<obj1>,<obj2>,...
-  void getAddedContents(std::vector<std::string> & put_here) const
-  {bei->getAddedContents(put_here);}
+//  void getAddedContents(std::vector<std::string> & put_here) const
+//  {bei->getAddedContents(put_here);}
   /// get removed contents (since last cycle)
   /// return vector<string> of the form: <dir pathname>:<obj1>,<obj2>,...
-  void getRemovedContents(std::vector<std::string> & put_here) const
-  {bei->getRemovedContents(put_here);}
+//  void getRemovedContents(std::vector<std::string> & put_here) const
+//  {bei->getRemovedContents(put_here);}
   /// get updated contents (since last cycle)
   /// *** included added content!
   /// return vector<string> of the form: <dir pathname>:<obj1>,<obj2>,...
-  void getUpdatedContents(std::vector<std::string> & put_here) const
-  {bei->getUpdatedContents(put_here);}
+//  void getUpdatedContents(std::vector<std::string> & put_here) const
+//  {bei->getUpdatedContents(put_here);}
   // ---------------- Browsing -----------------------------
   /// get list of subdirectories of current directory
-  std::vector<std::string> getSubdirs(void) const
-    {return bei->getSubdirs();}
+//  std::vector<std::string> getSubdirs(void) const
+//    {return bei->getSubdirs();}
   /// get list of (non-dir) MEs of current directory (includes null MEs)
-  std::vector<std::string> getMEs(void) const
-    {return bei->getMEs();}
+//  std::vector<std::string> getMEs(void) const
+//   {return bei->getMEs();}
   /// retun pathname of current directory
-  std::string pwd(void) const
-    {return bei->pwd();}
+//  std::string pwd(void) const
+//    {return bei->pwd();}
   /// go to top directory (ie. root)
-  void cd(void) const
-  {bei->cd();}
+//  void cd(void) const
+//  {bei->cd();}
   /// equivalent to "cd .."
-  void goUp(void)
-  {bei->goUp();}
+//  void goUp(void)
+//  {bei->goUp();}
   /// set the last directory in fullpath as the current directory (create if needed)
   /// to be invoked by user to specify directories for monitoring objects b4 booking
   /// commands book1D (etc) & removeElement(name) imply elements in this directory!
-  void setCurrentFolder(std::string fullpath)
-  {bei->setCurrentFolder(fullpath);}
+//  void setCurrentFolder(std::string fullpath)
+//  {bei->setCurrentFolder(fullpath);}
   /// cd to subdirectory (if there)
-  void cd(std::string subdir_path)
-  {bei->cd(subdir_path);}
+//  void cd(std::string subdir_path)
+//  {bei->cd(subdir_path);}
 
   /// true if directory (or any subfolder at any level below it) contains
   /// at least one valid (i.e. non-null) monitoring element
-  bool containsAnyMEs(const std::string & pathname) const
-  {return bei->containsAnyMEs(pathname);}
+//  bool containsAnyMEs(const std::string & pathname) const
+//  {return bei->containsAnyMEs(pathname);}
   /// true if directory (or any subfolder at any level below it) contains
   /// at least one monitorable element
-  bool containsAnyMonitorable(const std::string & pathname) const
-  {return bei->containsAnyMonitorable(pathname);}
+//  bool containsAnyMonitorable(const std::string & pathname) const
+//  {return bei->containsAnyMonitorable(pathname);}
 
   // ---------------- Subscriptions -----------------------------
   
@@ -196,10 +196,10 @@ class MonitorUserInterface : public StringUtil
   /// include quality test results with status >= minimum_status 
   /// (defined in Core/interface/QTestStatus.h);
   /// if dir_fullpath="", save full monitoring structure
-  void save(std::string filename, std::string dir_fullpath="",
-	    int minimum_status=dqm::qstatus::STATUS_OK) const;
+//  void save(std::string filename, std::string dir_fullpath="",
+//	    int minimum_status=dqm::qstatus::STATUS_OK) const;
   /// cycle through all monitoring objects, draw one at time
-  void drawAll(void) const;
+//  void drawAll(void) const;
   /// attempt to connect (to be used if ctor failed to connect)
   virtual void connect(std::string host, unsigned port) = 0;
   /// opposite action of that of connect method
@@ -210,23 +210,23 @@ class MonitorUserInterface : public StringUtil
   /// use delay < 0 for no reconnection attempts
   virtual void setReconnectDelay(int delay) = 0;
   /// set verbose level (0 turns all non-error messages off)
-  void setVerbose(unsigned level) const
-  {bei->setVerbose(level);}
+//  void setVerbose(unsigned level) const
+//  {bei->setVerbose(level);}
 
   // ------------ Operations for MEs that are normally never reset ---------
 
   /// reset contents (does not erase contents permanently)
   /// (makes copy of current contents; will be subtracted from future contents)
-  void softReset(MonitorElement * me);
+//  void softReset(MonitorElement * me);
 
   /// reverts action of softReset
-  void disableSoftReset(MonitorElement * me);
+//  void disableSoftReset(MonitorElement * me);
 
   // --- Operations on MEs that are normally reset at end of monitoring cycle ---
 
   /// if true, will accumulate ME contents (over many periods)
   /// until method is called with flag = false again
-  void setAccumulate(MonitorElement * me, bool flag);
+//  void setAccumulate(MonitorElement * me, bool flag);
 
   // --------------------- Collation of MEs --------------------------------
   /// collate 1D histograms, store in <pathname>
@@ -281,45 +281,45 @@ class MonitorUserInterface : public StringUtil
   /// create quality test with unique name <qtname> (analogous to ME name);
   /// quality test can then be attached to ME with useQTest method
   /// (<algo_name> must match one of known algorithms)
-  QCriterion * createQTest(std::string algo_name, std::string qtname)
-  {return bei->createQTest(algo_name, qtname);}
+//  QCriterion * createQTest(std::string algo_name, std::string qtname)
+//  {return bei->createQTest(algo_name, qtname);}
   
   /// attach quality test <qtname> to all ME matching <search_string>;
   /// <search_string> could : (a) be exact pathname (e.g. A/B/C/histo): FAST
   /// (b) include wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*): SLOW
   /// this action applies to all MEs already available or future ones
-  void useQTest(std::string search_string, std::string qtname) const;
+//  void useQTest(std::string search_string, std::string qtname) const;
   /// same as above for tagged MEs
-  void useQTest(unsigned int tag, std::string search_string, 
-		std::string qtname) const;
+//  void useQTest(unsigned int tag, std::string search_string, 
+//		std::string qtname) const;
   /// attach quality test <qtname> to directory contents ==> FAST
   /// (need exact pathname without wildcards, e.g. A/B/C);
   /// use flag to specify whether subfolders (& their contents) should be included;
   /// this action applies to all MEs already available or future ones
-  void useQTest(std::string pathname, bool useSubfolds, std::string qtname) 
-    const;
+//  void useQTest(std::string pathname, bool useSubfolds, std::string qtname) 
+//    const;
   /// same as above for tagged MEs
-  void useQTest(unsigned int tag, std::string pathname, bool useSubfolds,
-		std::string qtname) const;
+//  void useQTest(unsigned int tag, std::string pathname, bool useSubfolds,
+//		std::string qtname) const;
   /// attach quality test <qtname> to tagged MEs ==> FAST
   /// this action applies to all MEs already available or future ones
-  void useQTest(unsigned int tag, std::string qtname) const;
+//  void useQTest(unsigned int tag, std::string qtname) const;
 
   /// get quality test with name <qtname> (null pointer if no such test)
-  QCriterion * getQCriterion(std::string qtname) const
-  {return bei->getQCriterion(qtname);}
+//  QCriterion * getQCriterion(std::string qtname) const
+//  {return bei->getQCriterion(qtname);}
 
   /// get "global" system status (one of: STATUS_OK, WARNING, ERROR, OTHER);
   /// returns most sever error, where ERROR > WARNING > OTHER > STATUS_OK;
   /// see Core/interface/QTestStatus.h for details on "OTHER" 
-  int getSystemStatus(void) const{return bei->getStatus();}
+//  int getSystemStatus(void) const{return bei->getStatus();}
   /// same as above for any pathname
-  int getStatus(std::string pathname) const{return bei->getStatus(pathname);}
+//  int getStatus(std::string pathname) const{return bei->getStatus(pathname);}
   /// same as above for a tag
-  int getStatus(unsigned int tag) const{return bei->getStatus(tag);}
+//  int getStatus(unsigned int tag) const{return bei->getStatus(tag);}
   /// same as above for vector with MonitorElements
-  int getStatus(std::vector<MonitorElement *> & ME_group) const
-  {return bei->getStatus(ME_group);}
+//  int getStatus(std::vector<MonitorElement *> & ME_group) const
+//  {return bei->getStatus(ME_group);}
 
  protected:
 
@@ -376,6 +376,5 @@ class MonitorUserInterface : public StringUtil
      const MonitorElementRootFolder * folder) = 0;
   
 };
-
 
 #endif

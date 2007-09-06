@@ -477,36 +477,36 @@ void MonitorUserInterface::finishSubscription(const vector<string> & monit,
 // include quality test results with status >= minimum_status 
 // (defined in Core/interface/QTestStatus.h);
 // if dir_fullpath="", save full monitoring structure
-void MonitorUserInterface::save(string filename, string dir_fullpath,
-				int minimum_status) const
-{
-  bei->save(filename, dir_fullpath, minimum_status);
-}
+//void MonitorUserInterface::save(string filename, string dir_fullpath,
+//				int minimum_status) const
+//{
+//  bei->save(filename, dir_fullpath, minimum_status);
+//}
 
 // draw all monitoring objects
-void MonitorUserInterface::drawAll(void) const
-{
-  bei->drawAll();
-}
+//void MonitorUserInterface::drawAll(void) const
+//{
+//  bei->drawAll();
+//}
 
 // reset ME contents (does not permanently reset contents)
-void MonitorUserInterface::softReset(MonitorElement * me)
-{
-  bei->softReset(me);
-}
+//void MonitorUserInterface::softReset(MonitorElement * me)
+//{
+//  bei->softReset(me);
+//}
 
 // reverts action of softReset
-void MonitorUserInterface::disableSoftReset(MonitorElement * me)
-{
-  bei->disableSoftReset(me);
-}
+//void MonitorUserInterface::disableSoftReset(MonitorElement * me)
+//{
+//  bei->disableSoftReset(me);
+//}
 
 // if true, will accumulate ME contents (over many periods)
 // until method is called with flag = false again
-void MonitorUserInterface::setAccumulate(MonitorElement * me, bool flag)
-{
-  bei->setAccumulate(me, flag);
-}
+//void MonitorUserInterface::setAccumulate(MonitorElement * me, bool flag)
+//{
+//  bei->setAccumulate(me, flag);
+//}
 
 // add <search_string> to summary ME; 
 // <search_string> could : (a) be exact pathname (e.g. A/B/C/histo): FAST
@@ -636,7 +636,7 @@ bool MonitorUserInterface::update(void)
 
   // Run quality tests (and determine updated contents);
   // Method is overloaded if client acts as server to other clients downstream
-  runQTests();
+  bei->runQTests();
 
   return ret;
 }
@@ -662,95 +662,95 @@ void MonitorUserInterface::removeCollate(CollateMonitorElement * cme)
 // <search_string> could : (a) be exact pathname (e.g. A/B/C/histo): FAST
 // (b) include wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*): SLOW
 // this action applies to all MEs already available or future ones
-void MonitorUserInterface::useQTest(string search_string, string qtname) const
-{
-  useQTest(0, search_string, qtname); // "0" means no tag
-}
-  
-// same as above for tagged MEs
-void MonitorUserInterface::useQTest(unsigned int tag, string search_string,
-				    string qtname) const
-{
-  if(search_string.empty())
-    return;
-
-  QCriterion * qc = getQCriterion(qtname);
-  if(!qc)
-    {
-      cerr << " *** Quality test " << qtname << " does not exist! " << endl;
-      return;
-    }
-
-  if(tag == 0) // "0" means no tag
-    bei->useQTest(0, search_string, bei->Own, qc);
-  else
-    {
-      tdir_it tg = bei->Tags.find(tag);
-      if(tg != bei->Tags.end())
-	bei->useQTest(tag, search_string, tg->second, qc);
-      else
-	qc->add2search_path(search_string, tag);
-    }
-   
-}
-
-// attach quality test <qtname> to directory contents ==> FAST
-// (need exact pathname without wildcards, e.g. A/B/C);
-// use flag to specify whether subfolders (and their contents) should be included;
-// this action applies to all MEs already available or future ones
-void MonitorUserInterface::useQTest(string pathname, bool useSubfolds, 
-				    string qtname) const
-{
-  useQTest(0, pathname, useSubfolds, qtname);
-}
-
-// same as above for tagged MEs
-void MonitorUserInterface::useQTest(unsigned int tag, string pathname, 
-				    bool useSubfolds, string qtname) const
-{
-  if(pathname.empty())
-    return;
-
-  QCriterion * qc = getQCriterion(qtname);
-  if(!qc)
-    {
-      cerr << " *** Quality test " << qtname << " does not exist! " << endl;
-      return;
-    }
-
-  chopLastSlash(pathname);
-
-  if(tag == 0) // "0" means no tag
-    bei->useQTest(0, pathname, useSubfolds, bei->Own, qc);
-  else
-    {
-      tdir_it tg = bei->Tags.find(tag);
-      if(tg != bei->Tags.end())
-	bei->useQTest(tag, pathname, useSubfolds, tg->second, qc);
-      else
-	qc->add2folders(pathname, useSubfolds, tag);
-    } 
-}
-
-// attach quality test <qtname> to tagged MEs ==> FAST
-// this action applies to all MEs already available or future ones
-void MonitorUserInterface::useQTest(unsigned int tag, string qtname) const
-{
-  QCriterion * qc = getQCriterion(qtname);
-  if(!qc)
-    {
-      cerr << " *** Quality test " << qtname << " does not exist! " << endl;
-      return;
-    }
-  if(tag == 0)
-    {
-      cerr << " *** Tag must be positive number! \n";
-      return;
-    }
-  
-  tdir_it tg = bei->Tags.find(tag);
-  if(tg != bei->Tags.end())
-    bei->useQTest(tag, tg->second, qc);
-  else
-    qc->add2tags(tag); 
-}
+// void MonitorUserInterface::useQTest(string search_string, string qtname) const
+// {
+//   useQTest(0, search_string, qtname); // "0" means no tag
+// }
+//   
+// // same as above for tagged MEs
+// void MonitorUserInterface::useQTest(unsigned int tag, string search_string,
+// 				    string qtname) const
+// {
+//   if(search_string.empty())
+//     return;
+// 
+//   QCriterion * qc = getQCriterion(qtname);
+//   if(!qc)
+//     {
+//       cerr << " *** Quality test " << qtname << " does not exist! " << endl;
+//       return;
+//     }
+// 
+//   if(tag == 0) // "0" means no tag
+//     bei->useQTest(0, search_string, bei->Own, qc);
+//   else
+//     {
+//       tdir_it tg = bei->Tags.find(tag);
+//       if(tg != bei->Tags.end())
+// 	bei->useQTest(tag, search_string, tg->second, qc);
+//       else
+// 	qc->add2search_path(search_string, tag);
+//     }
+//    
+// }
+// 
+// // attach quality test <qtname> to directory contents ==> FAST
+// // (need exact pathname without wildcards, e.g. A/B/C);
+// // use flag to specify whether subfolders (and their contents) should be included;
+// // this action applies to all MEs already available or future ones
+// void MonitorUserInterface::useQTest(string pathname, bool useSubfolds, 
+// 				    string qtname) const
+// {
+//   useQTest(0, pathname, useSubfolds, qtname);
+// }
+// 
+// // same as above for tagged MEs
+// void MonitorUserInterface::useQTest(unsigned int tag, string pathname, 
+// 				    bool useSubfolds, string qtname) const
+// {
+//   if(pathname.empty())
+//     return;
+// 
+//   QCriterion * qc = getQCriterion(qtname);
+//   if(!qc)
+//     {
+//       cerr << " *** Quality test " << qtname << " does not exist! " << endl;
+//       return;
+//     }
+// 
+//   chopLastSlash(pathname);
+// 
+//   if(tag == 0) // "0" means no tag
+//     bei->useQTest(0, pathname, useSubfolds, bei->Own, qc);
+//   else
+//     {
+//       tdir_it tg = bei->Tags.find(tag);
+//       if(tg != bei->Tags.end())
+// 	bei->useQTest(tag, pathname, useSubfolds, tg->second, qc);
+//       else
+// 	qc->add2folders(pathname, useSubfolds, tag);
+//     } 
+// }
+// 
+// // attach quality test <qtname> to tagged MEs ==> FAST
+// // this action applies to all MEs already available or future ones
+// void MonitorUserInterface::useQTest(unsigned int tag, string qtname) const
+// {
+//   QCriterion * qc = getQCriterion(qtname);
+//   if(!qc)
+//     {
+//       cerr << " *** Quality test " << qtname << " does not exist! " << endl;
+//       return;
+//     }
+//   if(tag == 0)
+//     {
+//       cerr << " *** Tag must be positive number! \n";
+//       return;
+//     }
+//   
+//   tdir_it tg = bei->Tags.find(tag);
+//   if(tg != bei->Tags.end())
+//     bei->useQTest(tag, tg->second, qc);
+//   else
+//     qc->add2tags(tag); 
+// }
