@@ -1,8 +1,8 @@
 /*
  * \file EcalMixingModuleValidation.cc
  *
- * $Date: 2007/05/28 17:08:56 $
- * $Revision: 1.10 $
+ * $Date: 2007/08/08 08:05:56 $
+ * $Revision: 1.11 $
  * \author F. Cossutti
  *
 */
@@ -298,7 +298,7 @@ void EcalMixingModuleValidation::analyze(const Event& e, const EventSetup& c){
   vector<SimVertex> theSimVertexes;
 
   Handle<HepMCProduct> MCEvt;
-  Handle<CrossingFrame> crossingFrame;
+  Handle<CrossingFrame<PCaloHit> > crossingFrame;
   Handle<EBDigiCollection> EcalDigiEB;
   Handle<EEDigiCollection> EcalDigiEE;
   Handle<ESDigiCollection> EcalDigiES;
@@ -308,7 +308,7 @@ void EcalMixingModuleValidation::analyze(const Event& e, const EventSetup& c){
   try {
   e.getByLabel(HepMCLabel, MCEvt);
   } catch ( cms::Exception &e ) { skipMC = true; }
-  e.getByType(crossingFrame);
+  //e.getByType(crossingFrame);
 
   const EBDigiCollection* EBdigis =0;
   const EEDigiCollection* EEdigis =0;
@@ -357,8 +357,9 @@ void EcalMixingModuleValidation::analyze(const Event& e, const EventSetup& c){
   if ( isBarrel ) {
 
     const std::string barrelHitsName ("EcalHitsEB") ;
+    e.getByLabel("mix",barrelHitsName,crossingFrame);
     std::auto_ptr<MixCollection<PCaloHit> > 
-      barrelHits (new MixCollection<PCaloHit>(crossingFrame.product (), barrelHitsName)) ;
+      barrelHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
     
     MapType ebSignalSimMap;
 
@@ -458,8 +459,9 @@ void EcalMixingModuleValidation::analyze(const Event& e, const EventSetup& c){
   if ( isEndcap ) {
 
     const std::string endcapHitsName ("EcalHitsEE") ;
+    e.getByLabel("mix",endcapHitsName,crossingFrame);
     std::auto_ptr<MixCollection<PCaloHit> > 
-      endcapHits (new MixCollection<PCaloHit>(crossingFrame.product (), endcapHitsName)) ;
+      endcapHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
     
     MapType eeSignalSimMap;
 
@@ -553,8 +555,9 @@ void EcalMixingModuleValidation::analyze(const Event& e, const EventSetup& c){
   if ( isPreshower) {
 
     const std::string preshowerHitsName ("EcalHitsES") ;
+    e.getByLabel("mix",preshowerHitsName,crossingFrame);
     std::auto_ptr<MixCollection<PCaloHit> > 
-      preshowerHits (new MixCollection<PCaloHit>(crossingFrame.product (), preshowerHitsName)) ;
+      preshowerHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
     
     MapType esSignalSimMap;
     

@@ -1,8 +1,8 @@
 /*
  * \file EcalDigisValidation.cc
  *
- * $Date: 2007/05/28 17:08:56 $
- * $Revision: 1.21 $
+ * $Date: 2007/08/08 08:05:56 $
+ * $Revision: 1.22 $
  * \author F. Cossutti
  *
 */
@@ -143,7 +143,7 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
   Handle<HepMCProduct> MCEvt;
   Handle<SimTrackContainer> SimTk;
   Handle<SimVertexContainer> SimVtx;
-  Handle<CrossingFrame> crossingFrame;
+  Handle<CrossingFrame<PCaloHit> > crossingFrame;
   Handle<EBDigiCollection> EcalDigiEB;
   Handle<EEDigiCollection> EcalDigiEE;
   Handle<ESDigiCollection> EcalDigiES;
@@ -155,9 +155,9 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
   e.getByLabel(g4InfoLabel,SimTk);
   e.getByLabel(g4InfoLabel,SimVtx);
 
-  try { 
-    e.getByType(crossingFrame);
-  } catch ( cms::Exception &e ) { return; }
+  // try { 
+  //  e.getByType(crossingFrame);
+  //} catch ( cms::Exception &e ) { return; }
 
   const EBDigiCollection* EBdigis =0;
   const EEDigiCollection* EEdigis =0;
@@ -229,8 +229,9 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
   if ( isBarrel ) {
 
     const std::string barrelHitsName ("EcalHitsEB") ;
+    e.getByLabel("mix",barrelHitsName,crossingFrame);
     std::auto_ptr<MixCollection<PCaloHit> > 
-      barrelHits (new MixCollection<PCaloHit>(crossingFrame.product (), barrelHitsName)) ;
+      barrelHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
     
     MapType ebSimMap;
     
@@ -322,9 +323,10 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
   if ( isEndcap ) {
 
     const std::string endcapHitsName ("EcalHitsEE") ;
+    e.getByLabel("mix",endcapHitsName,crossingFrame);
     std::auto_ptr<MixCollection<PCaloHit> > 
-      endcapHits (new MixCollection<PCaloHit>(crossingFrame.product (), endcapHitsName)) ;
-    
+      endcapHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
+
     MapType eeSimMap;
     
     for (MixCollection<PCaloHit>::MixItr hitItr = endcapHits->begin () ;
@@ -409,8 +411,9 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
   if ( isPreshower) {
 
     const std::string preshowerHitsName ("EcalHitsES") ;
+    e.getByLabel("mix",preshowerHitsName,crossingFrame);
     std::auto_ptr<MixCollection<PCaloHit> > 
-      preshowerHits (new MixCollection<PCaloHit>(crossingFrame.product (), preshowerHitsName)) ;
+      preshowerHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
     
     for (MixCollection<PCaloHit>::MixItr hitItr = preshowerHits->begin () ;
          hitItr != preshowerHits->end () ;
