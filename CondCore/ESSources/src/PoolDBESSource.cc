@@ -151,13 +151,12 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   //std::cout<<"using connect "<<connect<<std::endl;
   //std::cout<<"using catalog "<<catconnect<<std::endl;
   m_session=new cond::DBSession;
- 
   edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>("DBParameters"); 
   cond::ConfigSessionFromParameterSet configConnection(*m_session,connectionPset);
   conHandler.registerConnection("inputdb",connect,catconnect,0);
   m_session->open();
   conHandler.connect(m_session);
-  m_connection=conHandler.getConnection("inputdb");
+  //m_connection=conHandler.getConnection("inputdb");
   using namespace edm;
   using namespace edm::eventsetup;  
   fillRecordToTypeMap(m_recordToTypes);
@@ -172,74 +171,44 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   std::string tagName;
   std::string recordName;
   std::string typeName;
-  if( 1==toGet.size() && (toGet[0].getParameter<std::string>("record") =="all") ) {
-    //User wants us to read all known records
-    // NOTE: In the future, we should only read all known Records for the data that is in the actual database
-    //  Can this be done looking at the available IOVs?
-
-    //by forcing this to load, we also load the definition of the Records which 
-    //will allow EventSetupRecordKey::TypeTag::findType(...) method to find them
-    for(RecordToTypes::iterator itRec = m_recordToTypes.begin();itRec != m_recordToTypes.end();	++itRec ) {
-      m_proxyToToken.insert( make_pair(buildName(itRec->first, itRec->second ),"") );
-      //fill in dummy tokens now, change in setIntervalFor
-      pProxyToToken pos=m_proxyToToken.find(buildName(itRec->first, itRec->second));
-      boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create( buildName(itRec->first, itRec->second),m_connection,pos));
+  std::vector< std::pair<std::string, cond::TagMetadata> > tagcollection;
+  
+  std::string lastRecordName;
+  for(Parameters::iterator itToGet = toGet.begin(); itToGet != toGet.end(); ++itToGet ) {
+    cond::TagMetadata m;
+    m.pfn="inputdb";
+    m.recordname = itToGet->getParameter<std::string>("record");
+    tagName = itToGet->getParameter<std::string>("tag");
+    
+    //load proxy code now to force in the Record code
+    //std::cout<<"recordName "<<recordName<<std::endl;
+    //std::cout<<"tagName "<<tagName<<std::endl;
+    std::multimap<std::string, std::string>::iterator itFound=m_recordToTypes.find(m.recordname);
+    if(itFound == m_recordToTypes.end()){
+      throw cond::Exception("NoRecord")<<" The record \""<<m.recordname<<"\" is not known by the PoolDBESSource";
     }
-    tagName = toGet[0].getParameter<std::string>("tag");
-    //NOTE: should delay setting what  records until all 
-    std::string lastRecordName;
-    for(RecordToTypes::const_iterator itName = m_recordToTypes.begin();itName != m_recordToTypes.end();++itName) {
-      if(lastRecordName != itName->first) {
-	lastRecordName = itName->first;
-	//std::cout<<"lastRecordName "<<lastRecordName<<std::endl;
-	EventSetupRecordKey recordKey = EventSetupRecordKey::TypeTag::findType(itName->first);
-	if (recordKey == EventSetupRecordKey()) {
-	  LogDebug ("")<< "The Record type named \""<<itName->first<<"\" could not be found.  We therefore assume it is not needed for this job";
-	} else {
-	  findingRecordWithKey(recordKey);
-	  //std::cout<<"using Record with key"<<std::endl;
-	  usingRecordWithKey(recordKey);
-	  recordToTag.push_back(std::make_pair(itName->first, tagName));
-	}
-      }
+    m.objectname=itFound->second;
+    std::string proxyName = buildName(m.recordname,m.objectname);
+    //std::cout<<"typeName "<<typeName<<std::endl;
+    //std::cout<<"proxyName "<<proxyName<<std::endl;
+    m_proxyToToken.insert( make_pair(proxyName,"") );
+    //fill in dummy tokens now, change in setIntervalFor
+    pProxyToToken pos=m_proxyToToken.find(proxyName);
+    cond::Connection* c=conHandler.getConnection(m.pfn);
+    boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create(proxyName,c,pos));
+    eventsetup::EventSetupRecordKey recordKey(eventsetup::EventSetupRecordKey::TypeTag::findType( m.recordname ) );
+    if( recordKey.type() == eventsetup::EventSetupRecordKey::TypeTag() ) {
+      //record not found
+      throw cond::Exception("NoRecord")<<"The record \""<< m.recordname <<"\" does not exist ";
     }
-  } else {
-    std::string lastRecordName;
-    for(Parameters::iterator itToGet = toGet.begin(); itToGet != toGet.end(); ++itToGet ) {
-      recordName = itToGet->getParameter<std::string>("record");
-      tagName = itToGet->getParameter<std::string>("tag");     
-      //load proxy code now to force in the Record code
-      //std::cout<<"recordName "<<recordName<<std::endl;
-      //std::cout<<"tagName "<<tagName<<std::endl;
-      std::multimap<std::string, std::string>::iterator itFound=m_recordToTypes.find(recordName);
-      if(itFound == m_recordToTypes.end()){
-	throw cond::Exception("NoRecord")<<" The record \""<<recordName<<"\" is not known by the PoolDBESSource";
-      }
-      typeName = itFound->second;
-      std::string proxyName = buildName(recordName,typeName);
-      //std::cout<<"typeName "<<typeName<<std::endl;
-      //std::cout<<"proxyName "<<proxyName<<std::endl;
-      m_proxyToToken.insert( make_pair(proxyName,"") );
-      //fill in dummy tokens now, change in setIntervalFor
-      pProxyToToken pos=m_proxyToToken.find(proxyName);
-      boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create(proxyName,m_connection,pos));
-      eventsetup::EventSetupRecordKey recordKey(eventsetup::EventSetupRecordKey::TypeTag::findType( recordName ) );
-      if( recordKey.type() == eventsetup::EventSetupRecordKey::TypeTag() ) {
-	//record not found
-	throw cond::Exception("NoRecord")<<"The record \""<< recordName <<"\" does not exist ";
-      }
-      recordToTag.push_back(std::make_pair(recordName, tagName));
-      if( lastRecordName != recordName ) {
-	lastRecordName = recordName;
-	findingRecordWithKey( recordKey );
-	usingRecordWithKey( recordKey );
-      }
+    recordToTag.push_back(std::make_pair(m.recordname, tagName));
+    if( lastRecordName != m.recordname ) {
+      lastRecordName = m.recordname;
+      findingRecordWithKey( recordKey );
+      usingRecordWithKey( recordKey );
     }
+    tagcollection.push_back(std::make_pair<std::string,cond::TagMetadata>(tagName,m));
   }
-  //std::string authpath("CORAL_AUTH_PATH=");
-  //authpath+=m_session->sessionConfiguration().authName();
-  //::putenv(const_cast<char*>(authpath.c_str()));
-  //m_session->open();
   if( siteLocalConfig ){
     edm::Service<edm::SiteLocalConfig> localconfservice;
     if( !localconfservice.isAvailable() ){
@@ -253,24 +222,10 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     std::string logicalconnect=localconfservice->calibLogicalServer();
   }
   m_con=connect;
-  cond::TagMetadata m;
-  m.pfn="inputdb";
-  m.recordname=recordName;
-  m.objectname=typeName;
-  std::vector< std::pair<std::string, cond::TagMetadata> > tagcollection;
-  tagcollection.push_back(std::make_pair<std::string,cond::TagMetadata>(tagName,m));
   this->tagToToken(tagcollection);
 }
 PoolDBESSource::~PoolDBESSource()
 {
-  // std::cout<<"PoolDBESSource::~PoolDBESSource"<<std::endl;
-  /* if(m_session->isActive()){
-    m_pooldb->disconnect();
-    m_session->close();
-  }
-  delete m_iovservice;
-  delete m_pooldb;
-  */
   delete m_session;
 }
 //
@@ -308,7 +263,8 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   //check if current run exceeds iov upperbound
   /*standalone    
    */
-  cond::PoolTransaction& pooldb=m_connection->poolTransaction(true);
+  cond::Connection* c=conHandler.getConnection("inputdb");
+  cond::PoolTransaction& pooldb=c->poolTransaction(true);
   cond::IOVService iovservice(pooldb);  
   pooldb.start();
   if( !iovservice.isValid(iovToken,abtime) ){
@@ -362,7 +318,8 @@ PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRec
     eventsetup::TypeTag type = eventsetup::TypeTag::findType( itType->second );
     if( type != defaultType ) {
       pProxyToToken pos=m_proxyToToken.find(buildName(iRecordKey.name(), type.name()));
-      boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create( buildName(iRecordKey.name(), type.name() ), m_connection, pos));
+      cond::Connection* c=conHandler.getConnection("inputdb");
+      boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create( buildName(iRecordKey.name(), type.name() ), c, pos));
       if(0 != proxy.get()) {
 	eventsetup::DataKey key( type, "");
 	aProxyList.push_back(KeyedProxies::value_type(key,proxy));
@@ -378,31 +335,9 @@ PoolDBESSource::newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordT
   LogDebug ("PoolDBESSource")<<"newInterval";
   invalidateProxies(iRecordType);
 }
-/*
-void PoolDBESSource::tagToToken( cond::Connection* connection,
-				 const std::vector< std::pair < std::string, std::string> >& recordToTag ){
-  try{
-    if( recordToTag.size()==0 ) return;
-    cond::CoralTransaction& coraldb=connection->coralTransaction(true);
-    cond::MetaData metadata(coraldb);
-    coraldb.start();
-    std::vector< std::pair<std::string, std::string> >::const_iterator it;
-    for(it=recordToTag.begin(); it!=recordToTag.end(); ++it){
-      std::string iovToken=metadata.getToken(it->second);
-      if( iovToken.empty() ){
-	throw cond::Exception("PoolDBESSource::tagToToken: tag "+it->second+std::string(" has empty iov token") );
-      }
-      m_recordToIOV.insert(std::make_pair(it->first,iovToken));
-    }
-    coraldb.commit();
-  }catch(const cond::Exception&e ){
-    throw e;
-  }catch(const cms::Exception&e ){
-    throw e;
-  }
-}
-*/
-void PoolDBESSource::tagToToken( std::vector< std::pair<std::string, cond::TagMetadata> >& tagcollection ){
+
+void 
+PoolDBESSource::tagToToken( std::vector< std::pair<std::string, cond::TagMetadata> >& tagcollection ){
   std::vector< std::pair<std::string, cond::TagMetadata> >::iterator it;
   std::vector< std::pair<std::string, cond::TagMetadata> >::iterator itbeg=tagcollection.begin();
   std::vector< std::pair<std::string, cond::TagMetadata> >::iterator itend=tagcollection.end();

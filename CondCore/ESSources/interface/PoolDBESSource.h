@@ -7,6 +7,7 @@
 // user include files
 #include "FWCore/Framework/interface/DataProxyProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "CondCore/DBCommon/interface/TagMetadata.h"
 namespace edm{
   class ParameterSet;
 }
@@ -41,13 +42,14 @@ class PoolDBESSource : public edm::eventsetup::DataProxyProvider,
   //std::vector< std::pair < std::string, std::string> > m_recordToTag;
   std::string m_timetype;
   cond::DBSession* m_session;
-  cond::Connection* m_connection;
+  //cond::Connection* m_connection;
   //bool m_tagTranslated;
   //std::string m_catalog; 
   //bool m_connected;
  private:
-  void tagToToken(cond::Connection* connection,
-		  const std::vector< std::pair < std::string, std::string> >& recordToTag);
+  //void tagToToken(cond::Connection* connection,
+  //const std::vector< std::pair < std::string, std::string> >& recordToTag);
+  void tagToToken( std::vector< std::pair<std::string, cond::TagMetadata> >& tagcollection );
   //void initIOV();
 };
 #endif
