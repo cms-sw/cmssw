@@ -123,7 +123,7 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
   checkCalibrations(eventSetup);
 
   // Get input
-  edm::Handle<CrossingFrame> crossingFrame;
+  edm::Handle<CrossingFrame<PCaloHit> > crossingFrame;
 
   // test access to SimHits
   const std::string barrelHitsName("EcalHitsEB");
