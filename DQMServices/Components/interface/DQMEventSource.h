@@ -9,8 +9,8 @@
  *  in the FF.
  *  The method mui->doMonitoring() is called to excute the clients
  *  analysis during the "onUpdate" status. 
- *  $Date: 2007/04/03 09:51:56 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/07/08 21:03:55 $
+ *  $Revision: 1.4.2.1 $
  *  \author S. Bolognesi - M. Zanetti
  */
 
@@ -27,6 +27,7 @@ namespace edm {
 }
 
 class MonitorUserInterface;
+class DaqMonitorBEInterface;
 class SubscriptionHandle;
 class QTestHandle;
 
@@ -45,6 +46,7 @@ class DQMEventSource : public edm::RawInputSource {
   virtual std::auto_ptr<edm::Event> readOneEvent();
 
   MonitorUserInterface * mui;
+  DaqMonitorBEInterface * bei;
 
   SubscriptionHandle *subscriber;
   QTestHandle * qtHandler;

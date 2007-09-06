@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2007/04/03 09:51:57 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/06/24 14:25:10 $
+ *  $Revision: 1.7 $
  *  \author S. Bolognesi - M. Zanetti
  */
 
@@ -32,7 +32,7 @@ DQMEventSource::DQMEventSource(const ParameterSet& pset,
 			  pset.getUntrackedParameter<string>("name", "DTDQMClient"), 
 			  pset.getUntrackedParameter<int>("reconnect_delay_secs", 5), 
 			  pset.getUntrackedParameter<bool>("actAsServer", true));
-
+  bei = mui->getBEInterface();			  
   subscriber=new SubscriptionHandle;
   qtHandler=new QTestHandle;
 
@@ -44,8 +44,8 @@ DQMEventSource::DQMEventSource(const ParameterSet& pset,
   if (getMESubscriptionListFromFile)
   subscriber->getMEList(pset.getUntrackedParameter<string>("meSubscriptionList", "MESubscriptionList.xml")); 
   // configure quality tests (default false, as this should usually be done in a separate module and NOT in the source)
-  if (getQualityTestsFromFile)
-    qtHandler->configureTests(pset.getUntrackedParameter<string>("qtList", "QualityTests.xml"),mui);
+  if (getQualityTestsFromFile) 
+    qtHandler->configureTests(pset.getUntrackedParameter<string>("qtList","QualityTests.xml"),bei);
 
   iRunMEName = pset.getUntrackedParameter<string>("iRunMEName", "Collector/FU0/EventInfo/iRun");
   iEventMEName = pset.getUntrackedParameter<string>("iEventMEName", "Collector/FU0/EventInfo/iEvent");
@@ -62,21 +62,21 @@ std::auto_ptr<Event> DQMEventSource::readOneEvent() {
 
   if (getMESubscriptionListFromFile) subscriber->makeSubscriptions(mui);
 
-  if (getQualityTestsFromFile) qtHandler->attachTests(mui);
+  if (getQualityTestsFromFile) qtHandler->attachTests(bei);
   
   // getting the run coordinates 
   RunNumber_t iRun = 0;
-  MonitorElementInt * iRun_p = dynamic_cast<MonitorElementInt*>(mui->get(iRunMEName));
+  MonitorElementInt * iRun_p = dynamic_cast<MonitorElementInt*>(bei->get(iRunMEName));
   if (iRun_p) iRun = iRun_p->getValue(); 
   setRunNumber(iRun); // <<=== here is where the run is set
 
   EventNumber_t iEvent = 0;
-  MonitorElementInt * iEvent_p = dynamic_cast<MonitorElementInt*>(mui->get(iEventMEName));
+  MonitorElementInt * iEvent_p = dynamic_cast<MonitorElementInt*>(bei->get(iEventMEName));
   if (iEvent_p) iEvent = iEvent_p->getValue(); 
   else iEvent=updatesCounter; // if the event is not received set number of updates as eventId 
 
   TimeValue_t tStamp = 0;
-  MonitorElementInt * tStamp_p = dynamic_cast<MonitorElementInt*>(mui->get(timeStampMEName));
+  MonitorElementInt * tStamp_p = dynamic_cast<MonitorElementInt*>(bei->get(timeStampMEName));
   if (tStamp_p) tStamp = tStamp_p->getValue(); 
   else tStamp = 1;
   
@@ -89,7 +89,7 @@ std::auto_ptr<Event> DQMEventSource::readOneEvent() {
   // run the quality tests: skip the first when the ME created by the Clients are not yet there
   if (updatesCounter > skipUpdates && getQualityTestsFromFile) {
     cout<<"[DQMEventSource]: Running the quality tests"<<endl;
-    mui->runQTests();
+    bei->runQTests();
   }
 
   // counting the updates

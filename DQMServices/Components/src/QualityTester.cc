@@ -1,8 +1,8 @@
 /*
  * \file QualityTester.cc
  * 
- * $Date: 2007/06/18 10:08:50 $
- * $Revision: 1.3 $
+ * $Date: 2007/07/08 21:03:55 $
+ * $Revision: 1.4.2.1 $
  * \author M. Zanetti - CERN PH
  *
  */
@@ -38,12 +38,14 @@ QualityTester::QualityTester(const ParameterSet& ps){
   nevents = 0;
 
   mui = new MonitorUIRoot();
+  bei = mui->getBEInterface();
 
   qtHandler=new QTestHandle;
 
   // if you use this module, it's non-sense not to provide the QualityTests.xml
   if (parameters.getUntrackedParameter<bool>("getQualityTestsFromFile", true))
-    qtHandler->configureTests(parameters.getUntrackedParameter<string>("qtList", "QualityTests.xml"),mui);
+    qtHandler->configureTests(parameters.getUntrackedParameter<string>("qtList",
+    "QualityTests.xml"),bei);
   
 }
 
@@ -68,15 +70,12 @@ void QualityTester::analyze(const Event& e, const EventSetup& c){
     mui->doMonitoring();
 
     // done here because new ME can appear while processing data
-    qtHandler->attachTests(mui);
+    qtHandler->attachTests(bei);
 
     edm::LogVerbatim ("QualityTester") <<"Running the Quality Test";    
 
-    mui->runQTests();
+    bei->runQTests();
 
   }
 
 }
-
-
-

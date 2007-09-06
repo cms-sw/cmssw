@@ -8,8 +8,8 @@
  * - they receive ME data from the SM 
  * - they are run together with the producers (standalone mode)
  *
- * $Date: 2007/06/18 10:08:50 $
- * $Revision: 1.3 $
+ * $Date: 2007/06/24 15:17:35 $
+ * $Revision: 1.1 $
  * \author M. Zanetti - CERN PH
  *
 */
@@ -26,6 +26,7 @@
 #include <string>
 
 class MonitorUserInterface;
+class DaqMonitorBEInterface;
 class QTestHandle;
 
 
@@ -52,6 +53,7 @@ private:
   edm::ParameterSet parameters;
 
   MonitorUserInterface * mui;
+  DaqMonitorBEInterface * bei;
 
   QTestHandle * qtHandler;
 
