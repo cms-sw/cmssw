@@ -121,6 +121,16 @@ class MonitorUserInterface : public StringUtil
   void unsubscribe(unsigned int tag);
 
   // ---------------- Miscellaneous -----------------------------
+  
+  /// attempt to connect (to be used if ctor failed to connect)
+  virtual void connect(std::string host, unsigned port) = 0;
+  /// opposite action of that of connect method
+  virtual void disconnect(void) = 0; 
+  /// true if connection was succesful
+  virtual bool isConnected(void) const = 0;
+  /// set reconnect delay parameter (in secs);
+  /// use delay < 0 for no reconnection attempts
+  virtual void setReconnectDelay(int delay) = 0;
 
   // --------------------- Collation of MEs --------------------------------
   /// collate 1D histograms, store in <pathname>
