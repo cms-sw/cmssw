@@ -15,7 +15,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon May  7 14:22:37 CEST 2007
-// $Id: SiPixelGainCalibrationAnalysis.h,v 1.7 2007/08/29 15:53:59 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.h,v 1.8 2007/09/04 14:49:10 friis Exp $
 //
 //
 
@@ -124,7 +124,8 @@ class SiPixelGainCalibrationAnalysis : public edm::EDAnalyzer {
       edm::Service < TFileService >  therootfileservice_; // for saving into root files
       TFileDirectory * errordir_; // directory to store bad gain curves
      
-      std::string fitfuncrootformula_;
+      std::string fitfuncrootformulaGain_;
+      std::string fitfuncrootformulaSCurve_;
 };
 
 #endif

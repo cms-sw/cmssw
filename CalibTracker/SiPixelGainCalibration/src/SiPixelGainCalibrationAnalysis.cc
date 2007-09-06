@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon May  7 14:22:37 CEST 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.7 2007/08/29 15:52:41 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.8 2007/09/04 14:49:10 friis Exp $
 //
 //
 
@@ -81,7 +81,8 @@ SiPixelGainCalibrationAnalysis::SiPixelGainCalibrationAnalysis(const edm::Parame
   minimum_gain_(iConfig.getUntrackedParameter<double>("minimumGain",5.)),
   save_histos_(iConfig.getUntrackedParameter<bool>("saveAllHistos",false)),
   test_(iConfig.getUntrackedParameter<bool>("dummyData",false)),
-  fitfuncrootformula_(iConfig.getUntrackedParameter<std::string>("rootFunctionForFit","pol1")),
+  fitfuncrootformulaGain_(iConfig.getUntrackedParameter<std::string>("rootFunctionForFitGain","pol1")),
+  fitfuncrootformulaSCurve_(iConfig.getUntrackedParameter<std::string>("rootFunctionForFitSCurve", "0.5*[2]*(1+TMath::Erf((x-[0])/([1]*sqrt(2))))")),
   only_one_detid_(iConfig.getUntrackedParameter<bool>("onlyOneDetID",false)),
   usethisdetid_(0),
   do_scurveinstead_(iConfig.getUntrackedParameter<bool>("doSCurve",false)),
@@ -134,10 +135,10 @@ bool SiPixelGainCalibrationAnalysis::doFits(){
   for(std::map<uint32_t,uint32_t>::iterator imap = detIDmap_.begin(); imap!=detIDmap_.end(); ++imap){
     uint32_t detid= imap->first;
     TString detidname = detnames_[detid];
-    //    std::cout << detidname << " " << calibPixels_[detid].size()<< std::endl;
+    std::cout << detidname << " " << calibPixels_[detid].size()<< std::endl;
     TFileDirectory thisdir = therootfileservice_->mkdir(detidname.Data(),detidname.Data());
     for(uint32_t ipixel=0; ipixel<calibPixels_[detid].size(); ipixel++){
-      //std::cout << "event : " << eventno_counter_ << " summary for pixel : " << ipixel << "(="<< detid << ","<< colrowpairs_[detid][ipixel].first << "," << colrowpairs_[detid][ipixel].second<<")"<<  std::endl;
+      std::cout << "event : " << eventno_counter_ << " summary for pixel : " << ipixel << "(="<< detid << ","<< colrowpairs_[detid][ipixel].first << "," << colrowpairs_[detid][ipixel].second<<")"<<  std::endl;
 	
       TString histname = detidname;
       histname += ", row " ;
@@ -157,6 +158,8 @@ bool SiPixelGainCalibrationAnalysis::doFits(){
 	  float m = calibPixels_[detid][ipixel].getentries(ipoint);
 	  float n = calib_.nTriggers();
 	  response = m/n;
+	  //debug
+	  std::cout << " nEntries: " << m << "  nTrigs: " << n << " response: " << m/n << "  ipoint: " << ipoint << std::endl;
 	  float d = n *n *(1+2.*m)-4.*n*(1.+n)*m*m;
 	  //only fill the largest of the two (asymmetric) binomial errors
 	  float temperror = ( n*(1.0+2.0*m) + sqrt(d) )/(2.0*n*(1.0+n));
@@ -164,6 +167,8 @@ bool SiPixelGainCalibrationAnalysis::doFits(){
 	  temperror = ( n*(1.0+2.0*m) - sqrt(d) )/(2.0*n*(1.0+n));
 	  if(fabs(temperror-response)>error)
 	    error = fabs(temperror-response);
+	  //debug
+	  error = 0;
 	}
 	gr.SetBinContent(ipoint,response);
 	gr.SetBinError(ipoint,error);
@@ -171,10 +176,10 @@ bool SiPixelGainCalibrationAnalysis::doFits(){
 	   firstNonZeroBin = ipoint;
 	///	std::cout << "filled hist: " << gr.GetBinCenter(ipoint) << " " << gr.GetBinContent(ipoint) << " " << gr.GetBinError(ipoint) << std::endl;
 	
-	if (useFirstNonZeroBinForFitMin_)
+	if (useFirstNonZeroBinForFitMin_ && !do_scurveinstead_)
 	   vcal_fitmin_ = gr.GetBinLowEdge(firstNonZeroBin);
 	//only start looking once we've found the first non zero bin
-	if(firstNonZeroBin > 0 && ipoint-firstNonZeroBin > 3 && plateaustart<0){
+	if(!do_scurveinstead_ && firstNonZeroBin > 0 && ipoint-firstNonZeroBin > 3 && plateaustart<0){
 	  float npoints=0;
 	  slope_last3points = 0;
 	  for(int ii=ipoint; ii>0 && npoints<3; ii--){
@@ -184,7 +189,7 @@ bool SiPixelGainCalibrationAnalysis::doFits(){
 	    }
 	  }
 	  slope_last3points /= npoints;
-	  if(fabs(slope_last3points)<0.5 || gr.GetBinLowEdge(ipoint + 1) > 50) {
+	  if(fabs(slope_last3points)<0.5 || gr.GetBinLowEdge(ipoint) > 50) {
 	     if (!useFirstNonZeroBinForFitMin_ || (useFirstNonZeroBinForFitMin_ && ipoint - firstNonZeroBin > 5))
 	     {
 		plateaustart = gr.GetBinLowEdge(ipoint);
@@ -195,9 +200,9 @@ bool SiPixelGainCalibrationAnalysis::doFits(){
 	}
       }
 
-      if(plateaustart>0)
-	func->SetRange(vcal_fitmin_,0.8*plateaustart);
-      else
+      if(!do_scurveinstead_ && plateaustart>0)
+	func->SetRange(vcal_fitmin_, plateaustart);
+      else if (!do_scurveinstead_)
 	continue;
       // copy to a new object that is saved in the file service:
 
@@ -206,8 +211,10 @@ bool SiPixelGainCalibrationAnalysis::doFits(){
       // Do not use unless you are sure you know why the points are bad in the first place!
       bool redoFit = false;
       gr.Fit(func, "RQ");
+      //std::cout << "***********************************************************************************EK**********************" << std::endl;
+      //std::cout << "fit 0 " << func->GetParameter(0) << "   fit 1 " << func->GetParameter(1) << std::endl;
 
-      if (func->GetChisquare()/func->GetNDF() > maximumChi2overNDF_ && dropLowVcalOutliersForCurvesWithBadChi2_ ) { 
+      if (!do_scurveinstead_ && func->GetChisquare()/func->GetNDF() > maximumChi2overNDF_ && dropLowVcalOutliersForCurvesWithBadChi2_ ) { 
 	 //std::cout << "Found bad fit in " << detidname << "[" << colrowpairs_[detid][ipixel].first << "],[" << colrowpairs_[detid][ipixel].second << "] with a chi-square of " << func->GetChisquare() << std::endl;
 	 int testPoint = firstNonZeroBin+1;
 	 bool doneWithOutlierCheck = false;
@@ -287,7 +294,7 @@ bool SiPixelGainCalibrationAnalysis::doFits(){
       }
 
       //save the gain curves that had to be refit to a seperate directory
-      if (redoFit || (saveGainCurvesWithBadChi2_ && func->GetChisquare()/func->GetNDF() > maximumChi2overNDF_)) {
+      if (redoFit || (!do_scurveinstead_ && saveGainCurvesWithBadChi2_ && func->GetChisquare()/func->GetNDF() > maximumChi2overNDF_)) {
 	 assert(errordir_);
 	 TH1F *gr3 = errordir_->make<TH1F>(histname.Data(),histname.Data(),calib_.nVcal(),calib_.vcal_first(),calib_.vcal_last());
 	 gr3->Sumw2();
@@ -522,7 +529,10 @@ void SiPixelGainCalibrationAnalysis::beginJob(const edm::EventSetup&)
     vcal_fitmax_=vcal_fitmax_fixed_;
   if(vcal_fitmin_>vcal_fitmax_)
     vcal_fitmin_=0;
-  func = new TF1("func",fitfuncrootformula_.c_str(),vcal_fitmin_,vcal_fitmax_);
+  if (!do_scurveinstead_)
+     func = new TF1("func",fitfuncrootformulaGain_.c_str(),vcal_fitmin_,vcal_fitmax_);
+  else
+     func = new TF1("func",fitfuncrootformulaSCurve_.c_str(),vcal_fitmin_,vcal_fitmax_);
 
 }
 
