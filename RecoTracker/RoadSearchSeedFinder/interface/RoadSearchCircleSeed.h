@@ -11,9 +11,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Mon Jan 22 21:42:35 UTC 2007
 //
-// $Author: gutsche $
-// $Date: 2007/08/19 16:51:36 $
-// $Revision: 1.5 $
+// $Author: mkirn $
+// $Date: 2007/08/27 22:37:15 $
+// $Revision: 1.6 $
 //
 
 #include <utility>
@@ -64,6 +64,7 @@ class RoadSearchCircleSeed
   inline double       ImpactParameter() const { return impactParameter_;}
   inline double       Eta()             const { return calculateEta(Theta());}
   inline double       Type()            const { return type_; }
+  inline bool         InBarrel()        const { return inBarrel_; }
 
   inline void                   setSeed(const Roads::RoadSeed *input) { seed_ = input; }
   inline const Roads::RoadSeed* getSeed()                             { return seed_;  }
@@ -86,6 +87,7 @@ class RoadSearchCircleSeed
 			    unsigned int differentHitsCut) const;
 
   double determinant(double array[][3], unsigned int bins);
+  bool   calculateInBarrel();
   double calculateImpactParameter(GlobalPoint &center,
 				  double radius);
   double calculateEta(double theta) const;
@@ -101,6 +103,7 @@ class RoadSearchCircleSeed
   std::vector<const TrackingRecHit*> hits_;
 
   type             type_;
+  bool             inBarrel_;
   GlobalPoint      center_;
   double           radius_;
   double           impactParameter_;

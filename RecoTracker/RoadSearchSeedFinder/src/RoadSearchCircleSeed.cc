@@ -8,9 +8,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Mon Jan 22 21:42:35 UTC 2007
 //
-// $Author: gutsche $
-// $Date: 2007/08/19 16:51:37 $
-// $Revision: 1.4 $
+// $Author: mkirn $
+// $Date: 2007/08/27 22:37:17 $
+// $Revision: 1.5 $
 //
 
 #include <cmath>
@@ -19,6 +19,8 @@
 #include "RecoTracker/TkSeedGenerator/interface/FastCircle.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 RoadSearchCircleSeed::RoadSearchCircleSeed(const TrackingRecHit *hit1,
 					   const TrackingRecHit *hit2,
@@ -44,11 +46,13 @@ RoadSearchCircleSeed::RoadSearchCircleSeed(const TrackingRecHit *hit1,
   if ( !kreis.isValid() ) {
     // line
     type_ = straightLine;
+    inBarrel_ = true; // Not used for lines
     center_ = GlobalPoint(0,0,0);
     radius_ = 0;
     impactParameter_ = 0;
   } else {
     type_ = circle;
+    inBarrel_        = calculateInBarrel();
     radius_          = kreis.rho();
     center_          = GlobalPoint(kreis.x0(),kreis.y0(),0);
     impactParameter_ = calculateImpactParameter(center_,radius_);
@@ -73,6 +77,7 @@ RoadSearchCircleSeed::RoadSearchCircleSeed(const TrackingRecHit *hit1,
   points_.push_back(point2);
 
   type_ = straightLine;
+  inBarrel_ = true; // Not used for lines
   center_ = GlobalPoint(0,0,0);
   radius_ = 0;
   impactParameter_ = 0;
@@ -80,6 +85,22 @@ RoadSearchCircleSeed::RoadSearchCircleSeed(const TrackingRecHit *hit1,
 }
 
 RoadSearchCircleSeed::~RoadSearchCircleSeed() {
+}
+
+bool RoadSearchCircleSeed::calculateInBarrel() {
+  //
+  // returns true if all hits are in the barrel,
+  // otherwise returns false
+  //
+
+  for (std::vector<const TrackingRecHit*>::const_iterator hit = hits_.begin();
+       hit != hits_.end(); ++hit) {
+    if ((*hit)->geographicalId().subdetId() == StripSubdetector::TEC) {
+      return false;
+    }
+  }
+  
+  return true;
 }
 
 double RoadSearchCircleSeed::calculateImpactParameter(GlobalPoint &center,
@@ -245,6 +266,7 @@ std::string RoadSearchCircleSeed::print() const {
   } else {
     ost << "Circle: number of points: " << points_.size() << "\n";
     ost << "    Radius         : " << radius_  << "\n";
+    ost << "    In the barrel  : " << inBarrel_ << "\n";
     ost << "    ImpactParameter: " << impactParameter_ << "\n";
     ost << "    Center         : " << center_.x() << "," << center_.y() << "\n";
     unsigned int counter = 0;
@@ -276,6 +298,7 @@ std::ostream& operator<<(std::ostream& ost, const RoadSearchCircleSeed & seed) {
   } else {
     ost << "Circle: number of points: " << seed.Points().size() << "\n";
     ost << "    Radius         : " << seed.Radius()  << "\n";
+    ost << "    In the barrel  : " << seed.InBarrel() << "\n";
     ost << "    ImpactParameter: " << seed.ImpactParameter() << "\n";
     ost << "    Center         : " << seed.Center().x() << "," << seed.Center().y() << "\n";
     unsigned int counter = 0;
