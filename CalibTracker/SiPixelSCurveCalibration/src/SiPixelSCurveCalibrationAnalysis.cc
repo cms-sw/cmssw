@@ -266,7 +266,6 @@ bool SiPixelSCurveCalibrationAnalysis::makeHistogram(const SCurveContainer& sc, 
   bool check = isPeculiar(histo);
   if(printHistos_ || iter%1000 == 0 || check)
   {
-    fs_->mkdir("pixels");
     histo->Write(); 
     edm::LogInfo("SCurve Calibration") << "Making histogram " << iter << " out of " << histoNum_;
     if(check) edm::LogInfo("SCurve Calibration") << "Check " << histo->GetTitle();
@@ -281,7 +280,7 @@ bool SiPixelSCurveCalibrationAnalysis::isPeculiar(const TH1F* hist)
   double mean = hist->GetFunction("fit")->GetParameter(1);
   double sigma = hist->GetFunction("fit")->GetParameter(2);
   double integral = hist->Integral();
-  bool peculiar = (plateau < 0.9) || (plateau > 1.01) || (mean > vcalmax_) || (mean < vcalmin_) || (sigma < 0.0) || (integral < 1.0);
+  bool peculiar = (plateau < 0.99) || (plateau > 1.01) || (mean > vcalmax_) || (mean < vcalmin_) || (sigma < 0.0) || (integral < 1.0);
   return peculiar;
 }
 
