@@ -10,9 +10,10 @@
 */
 //
 // Original Author:  Monica Vazquez Acosta (CERN)
-// $Id: EgammaHLTPixelMatchElectronAlgo.cc,v 1.2 2007/02/16 17:38:52 monicava Exp $
+// $Id: EgammaHLTPixelMatchElectronAlgo.cc,v 1.3 2007/03/07 09:07:54 monicava Exp $
 //
 //
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "RecoEgamma/EgammaHLTAlgos/interface/EgammaHLTPixelMatchElectronAlgo.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
