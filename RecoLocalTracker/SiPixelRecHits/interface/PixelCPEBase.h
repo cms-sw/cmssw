@@ -11,6 +11,7 @@
 
 #include <utility>
 #include <vector>
+#include "TMath.h"
 
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/EtaCorrection.h"
@@ -37,7 +38,7 @@ class MagneticField;
 class PixelCPEBase : public PixelClusterParameterEstimator {
  public:
   // PixelCPEBase( const DetUnit& det );
-  PixelCPEBase(edm::ParameterSet const& conf, const MagneticField*);
+  PixelCPEBase(edm::ParameterSet const& conf, const MagneticField * mag = 0);
     
   //--------------------------------------------------------------------------
   // Obtain the angles from the position of the DetUnit.
@@ -72,16 +73,23 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
 				      const GeomDetUnit    & det, 
 				      float alpha, float beta) const 
   {
-    nRecHitsTotal_++ ;
-    alpha_ = alpha;
-    beta_  = beta;
-    cotalpha_ = 1.0/tan(alpha_);
-    cotbeta_  = 1.0/tan(beta_ );
-    setTheDet( det );
-    return std::make_pair( localPosition(cl,det), localError(cl,det) );
-  } 
+		nRecHitsTotal_++ ;
+		alpha_ = alpha;
+		beta_  = beta;
+		double HalfPi = 0.5*TMath::Pi();
+		cotalpha_ = tan(HalfPi - alpha_);
+    cotbeta_  = tan(HalfPi - beta_ );
+		setTheDet( det );
+		return std::make_pair( localPosition(cl,det), localError(cl,det) );
+  }
 
+
+	//--------------------------------------------------------------------------
+  // Allow the magnetic field to be set/updated later.
   //--------------------------------------------------------------------------
+  inline void setMagField(const MagneticField *mag) const { magfield_ = mag; }
+
+	//--------------------------------------------------------------------------
   // This is where the action happens.
   //--------------------------------------------------------------------------
   virtual LocalPoint localPosition(const SiPixelCluster& cl, const GeomDetUnit & det) const;  // = 0, take out dk 8/06
@@ -169,7 +177,7 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
   mutable float theTanLorentzAnglePerTesla;   // tan(Lorentz angle)/Tesla
   int     theVerboseLevel;                    // algorithm's verbosity
 
-  const   MagneticField * magfield_;          // magnetic field
+  mutable const   MagneticField * magfield_;          // magnetic field
   
   bool  alpha2Order;                          // switch on/off E.B effect.
 
