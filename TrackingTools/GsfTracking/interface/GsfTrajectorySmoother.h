@@ -56,7 +56,7 @@ public:
   }
 
 private:
-  const GsfPropagatorWithMaterial* thePropagator;
+  GsfPropagatorWithMaterial* thePropagator;
   const GsfPropagatorAdapter* theGeomPropagator;
   const FullConvolutionWithMaterial* theConvolutor;
   const TrajectoryStateUpdator* theUpdator;

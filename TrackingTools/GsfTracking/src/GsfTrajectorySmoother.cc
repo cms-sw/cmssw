@@ -2,11 +2,8 @@
 
 #include "TrackingTools/GsfTracking/interface/MultiTrajectoryStateMerger.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-// #include "CommonDet/BasicDet/interface/Det.h"
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
-// #include "CommonReco/TrackFitters/interface/TrajectoryStateWithArbitraryError.h"
-// #include "Utilities/Notification/interface/Verbose.h"
-// #include "Utilities/Notification/interface/TimingReport.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 GsfTrajectorySmoother::GsfTrajectorySmoother(const GsfPropagatorWithMaterial& aPropagator,
@@ -56,12 +53,17 @@ GsfTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
   
   if(aTraj.empty()) return std::vector<Trajectory>();
   
+  if (  aTraj.direction() == alongMomentum) {
+    thePropagator->setPropagationDirection(oppositeToMomentum);
+  }
+  else {
+    thePropagator->setPropagationDirection(alongMomentum);
+  }
+
   Trajectory myTraj(aTraj.seed(), propagator()->propagationDirection());
   
   std::vector<TM> avtm = aTraj.measurements();
   
-  //  TSOS predTsos = 
-  //    TrajectoryStateWithArbitraryError()(avtm.back().predictedState());
   TSOS predTsos = avtm.back().forwardPredictedState();
   predTsos.rescaleError(theErrorRescaling);
 
@@ -82,17 +84,20 @@ GsfTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
       edm::LogInfo("GsfTrajectorySmoother") << "GsfTrajectorySmoother: tsos not valid after update!";
       return std::vector<Trajectory>();
     }
-    myTraj.push(TM(predTsos, 
-		   currTsos,
+    myTraj.push(TM(avtm.back().forwardPredictedState(), 
+		   predTsos,
+		   avtm.back().updatedState(),
 		   avtm.back().recHit(),
-		   estimator()->estimate(predTsos,*avtm.back().recHit()).second), 
+		   avtm.back().estimate()), 
 		avtm.back().estimate());
   } else {
     currTsos = predTsos;
-    myTraj.push(TM(avtm.back().predictedState(),
+    myTraj.push(TM(avtm.back().forwardPredictedState(),
 		   avtm.back().recHit()));
   }
   
+  TrajectoryStateCombiner combiner;
+
   for(std::vector<TM>::reverse_iterator itm = avtm.rbegin() + 1; 
       itm < avtm.rend() - 1; ++itm) {
     {
@@ -139,19 +144,49 @@ GsfTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
 	  << "GsfTrajectorySmoother: tsos not valid after update / material effects!";
 	return std::vector<Trajectory>();
       }
-      //
-      // for tests: no combination with forward filter!
-      //
-      myTraj.push(TM(predTsos,
-		     currTsos,
+      //3 different possibilities to calculate smoothed state:
+      //1: update combined predictions with hit
+      //2: combine fwd-prediction with bwd-filter
+      //3: combine bwd-prediction with fwd-filter
+      TSOS combTsos = combiner(predTsos, (*itm).forwardPredictedState());
+      if(!combTsos.isValid()) {
+	LogDebug("GsfTrajectorySmoother") << 
+	  "KFTrajectorySmoother: combined tsos not valid!\n"<<
+	  "pred Tsos pos: "<<predTsos.globalPosition()<< "\n" <<
+	  "pred Tsos mom: "<<predTsos.globalMomentum()<< "\n" <<
+	  "TrackingRecHit: "<<(*itm).recHit()->surface()->toGlobal((*itm).recHit()->localPosition())<< "\n" ;
+	return std::vector<Trajectory>();
+      }
+
+      TSOS smooTsos = combiner((*itm).updatedState(), predTsos);
+
+      if(!smooTsos.isValid()) {
+	LogDebug("GsfTrajectorySmoother") <<
+	  "KFTrajectorySmoother: smoothed tsos not valid!";
+	return std::vector<Trajectory>();
+      }
+
+      myTraj.push(TM((*itm).forwardPredictedState(),
+		     predTsos,
+		     smooTsos,
 		     (*itm).recHit(),
-		     estimator()->estimate(predTsos, *(*itm).recHit()).second),
+		     estimator()->estimate(combTsos, *(*itm).recHit()).second),
 		  (*itm).estimate());
     } 
     else {
       currTsos = predTsos;
-      myTraj.push(TM(predTsos,
-		     (*itm).recHit()));
+      TSOS combTsos = combiner(predTsos, (*itm).forwardPredictedState());
+      
+      if(!combTsos.isValid()) {
+    	LogDebug("GsfTrajectorySmoother") << 
+    	  "KFTrajectorySmoother: combined tsos not valid!";
+    	return std::vector<Trajectory>();
+      }
+
+      myTraj.push(TM((*itm).forwardPredictedState(),
+    		     predTsos,
+    		     combTsos,
+    		     (*itm).recHit()));
     }
     if ( theMerger )  currTsos = theMerger->merge(currTsos);
   }
@@ -186,7 +221,8 @@ GsfTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
       return std::vector<Trajectory>();
     }
   
-    myTraj.push(TM(predTsos,
+    myTraj.push(TM(avtm.front().forwardPredictedState(),
+		   predTsos,
 		   currTsos,
 		   avtm.front().recHit(),
 		   estimator()->estimate(predTsos, *avtm.front().recHit()).second),
@@ -194,7 +230,7 @@ GsfTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
     //estimator()->estimate(predTsos, avtm.front().recHit()));
   } 
   else {
-    myTraj.push(TM(predTsos,
+    myTraj.push(TM(avtm.front().forwardPredictedState(),
 		   avtm.front().recHit()));
   }
 
