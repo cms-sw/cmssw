@@ -44,7 +44,6 @@ StripCPE::StripCPE(edm::ParameterSet & conf, const MagneticField * mag, const Tr
 {
   magfield_  = mag;
   geom_ = geom;
-  theCachedDetId=0;
   LorentzAngleMap_=LorentzAngle;
 }
 
@@ -65,19 +64,18 @@ StripClusterParameterEstimator::LocalValues StripCPE::localParameters( const SiS
 }
 
 LocalVector StripCPE::driftDirection(const StripGeomDetUnit* det)const{
-  if ( theCachedDetId != det->geographicalId().rawId() ){
-    LocalVector lbfield=(det->surface()).toLocal(magfield_->inTesla(det->surface().position()));
-    
-    float tanLorentzAnglePerTesla=LorentzAngleMap_->getLorentzAngle(det->geographicalId().rawId());
-    
-    
-    float dir_x =-tanLorentzAnglePerTesla * lbfield.y();
-    float dir_y =tanLorentzAnglePerTesla * lbfield.x();
-    float dir_z = 1.; // E field always in z direction
-      
-    theCachedDrift = LocalVector(dir_x,dir_y,dir_z);
-  }
-  //  if((drift-drift_old).mag()>1.E-7)std::cout<<"old drift= "<<drift_old<<" new drift="<<drift<<std::endl;
-  return theCachedDrift;
-
+ 
+  LocalVector lbfield=(det->surface()).toLocal(magfield_->inTesla(det->surface().position()));
+  
+  float tanLorentzAnglePerTesla=LorentzAngleMap_->getLorentzAngle(det->geographicalId().rawId());
+  
+  
+  float dir_x =-tanLorentzAnglePerTesla * lbfield.y();
+  float dir_y =tanLorentzAnglePerTesla * lbfield.x();
+  float dir_z = 1.; // E field always in z direction
+  
+  LocalVector theDrift = LocalVector(dir_x,dir_y,dir_z);
+ 
+  return theDrift;
+  
 }

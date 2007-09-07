@@ -36,9 +36,6 @@ public:
   const TrackerGeometry * geom_;
   const MagneticField * magfield_ ;
   const SiStripLorentzAngle* LorentzAngleMap_;
-  mutable LocalVector theCachedDrift;
-  mutable unsigned int theCachedDetId;
-
 
 public:
   
@@ -49,7 +46,7 @@ public:
 public:
   struct Param {
     Param() : topology(0){}
-      StripTopology const * topology;
+    StripTopology const * topology;
     LocalVector drift;
     float thickness;
     float maxLength;
