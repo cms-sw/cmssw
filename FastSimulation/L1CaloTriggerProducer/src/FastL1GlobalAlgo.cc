@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.cc,v 1.13 2007/08/21 15:39:07 chinhan Exp $
+// $Id: FastL1GlobalAlgo.cc,v 1.17 2007/08/23 04:48:42 chinhan Exp $
 //
 
 // No BitInfos for release versions
@@ -164,16 +164,26 @@ FastL1GlobalAlgo::findJets() {
     // barrel/endcap part only right now
     //if ((i%22)>3 && (i%22)<18) {
     // Test HF!!!
+  std::pair<double, double> p = m_RMap->getRegionCenterEtaPhi(i);
+
+  double eta   = p.first;
+  double phi   = p.second;
+
+  m_Regions[i].BitInfo.setEta ( eta);
+  m_Regions[i].BitInfo.setPhi ( phi);
+
     if (m_Regions.at(i).SumEt()>m_L1Config.JetSeedEtThreshold) {
       if (isMaxEtRgn_Window33(i)) {
 	if (isTauJet(i)) {
 	  addJet(i,true);    
 	} else {
+m_Regions[i].BitInfo.setIsolationVeto ( true);
 	  addJet(i,false);    
 	}
       }
+else {m_Regions[i].BitInfo.setMaxEt ( true);}
     } else {
-      //m_Regions[i].BitInfo.SumEtBelowThres = true;
+      m_Regions[i].BitInfo.setSumEtBelowThres ( true);
     }
     //}
   }
@@ -218,8 +228,11 @@ FastL1GlobalAlgo::addJet(int iRgn, bool taubit) {
   double e = ex/sin(theta)/cos(phi);
   double ez = e*cos(theta);
 
-  //m_Regions[iRgn].BitInfo.eta = eta;
-  //m_Regions[iRgn].BitInfo.phi = phi;
+//sm
+m_Regions[iRgn].BitInfo.setEt ( et);
+m_Regions[iRgn].BitInfo.setEnergy ( e);
+//ms
+
 
   reco::Particle::LorentzVector rp4(ex,ey,ez,e); 
   l1extra::L1JetParticle tjet(rp4);
@@ -229,12 +242,15 @@ FastL1GlobalAlgo::addJet(int iRgn, bool taubit) {
   //  std::cout << "reg lv et, eta, phi: "<< tjet.et()<<" "<< tjet.eta()<<" "<< tjet.phi()<<" " << std::endl;
   //}
 
-  if (et>=5.) {
+  if (et>=2.) { // set from 5. by hands
     if ((taubit || et>m_L1Config.noTauVetoLevel) && (std::abs(eta)<3.0) ) {
       m_TauJets.push_back(tjet);
       // sort by et 
       std::sort(m_TauJets.begin(),m_TauJets.end(), myspace::greaterEt);
     } else {
+//sm
+m_Regions[iRgn].BitInfo.setSoft ( true);
+//ms
       if (std::abs(eta)<3.0) {
 	m_CenJets.push_back(tjet);
 	std::sort(m_CenJets.begin(),m_CenJets.end(), myspace::greaterEt);
@@ -244,7 +260,7 @@ FastL1GlobalAlgo::addJet(int iRgn, bool taubit) {
       }
     }
   }
- 
+//else{m_Regions[iRgn].BitInfo.setSoft ( true);} 
 }
 
 
@@ -479,7 +495,12 @@ FastL1GlobalAlgo::InitL1Regions()
   // init regions
   for (int i=0; i<396; i++) {
     m_Regions[i].SetParameters(m_L1Config);
-    
+/*/ sm
+for (unsigned int j = 0; j < 16; ++j){
+ m_Regions[i].BitInfo.ecal[j];
+ m_Regions[i].BitInfo.hcal[j];
+}
+//ms */     
     std::pair<int, int> p = m_RMap->getRegionEtaPhiIndex(i);
     m_Regions[i].SetEtaPhiIndex(p.first,p.second,i);
     CaloTower c;
@@ -580,6 +601,12 @@ FastL1GlobalAlgo::FillL1RegionsTP(edm::Event const& e, const edm::EventSetup& s)
 
   for (int i=0; i<396; i++) {
     for (int j=0; j<16; j++) {
+/* sm
+if  (emEtV[i][j] == 0 && hEtV[i][j] == 0){
+m_Regions[i].BitInfo.ecal.push_back(0);
+m_Regions[i].BitInfo.hcal.push_back(0);
+}
+*///ms
       if (emEtV[i][j]>0 || hEtV[i][j]>0) {
 	
 
@@ -599,7 +626,10 @@ FastL1GlobalAlgo::FillL1RegionsTP(edm::Event const& e, const edm::EventSetup& s)
 	}
 
 	double et = emEt + hadEt;
-
+/*/ sm
+m_Regions[i].BitInfo.ecal[j] = emEt;
+m_Regions[i].BitInfo.hcal[j] = hadEt;
+//ms */
 	math::RhoEtaPhiVector lvec(et,eta,phi);
 	
 	CaloTowerDetId towerDetId;  
@@ -716,7 +746,6 @@ FastL1GlobalAlgo::FillL1Regions(edm::Event const& e, const edm::EventSetup& iCon
 }
 
 
-/*
 // Fill Bitwords
 void 
 FastL1GlobalAlgo::FillBitInfos() {
@@ -725,7 +754,6 @@ FastL1GlobalAlgo::FillBitInfos() {
     m_BitInfos.push_back(m_Regions[i].getBitInfo());
   }
 }
-*/
 
 // ------------ Check if jet is taujet ------------
 bool 
@@ -800,7 +828,7 @@ FastL1GlobalAlgo::isTauJet(int cRgn) {
     return false;
   }
 
-  /*
+/*
   if (
       m_Regions[nwid].GetTauBit() ||
       m_Regions[nid].GetTauBit()  ||
@@ -811,8 +839,8 @@ FastL1GlobalAlgo::isTauJet(int cRgn) {
       m_Regions[seid].GetTauBit() ||
       m_Regions[sid].GetTauBit()
       ) 
-    m_Regions[cRgn].BitInfo.IsolationVeto = true;
-  */
+    m_Regions[cRgn].BitInfo.setIsolationVeto ( true);
+*/
 
   if (
       m_Regions[nwid].GetTauBit() ||
