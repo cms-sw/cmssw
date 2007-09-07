@@ -4,8 +4,8 @@
 /*
  * \file EBCosmicClient.h
  *
- * $Date: 2007/08/09 12:26:57 $
- * $Revision: 1.36 $
+ * $Date: 2007/08/17 09:05:06 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -25,7 +25,6 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Core/interface/CollateMonitorElement.h"
 
 #include "DQM/EcalBarrelMonitorClient/interface/EBClient.h"
 
@@ -85,7 +84,6 @@ private:
 int ievt_;
 int jevt_;
 
-bool collateSources_;
 bool cloneME_;
 bool enableQT_;
 
@@ -99,10 +97,6 @@ vector<int> superModules_;
 
 MonitorUserInterface* mui_;
 DaqMonitorBEInterface* dbe_;
-
-CollateMonitorElement* me_h01_[36];
-CollateMonitorElement* me_h02_[36];
-CollateMonitorElement* me_h03_[36];
 
 MonitorElement* meh01_[36];
 MonitorElement* meh02_[36];

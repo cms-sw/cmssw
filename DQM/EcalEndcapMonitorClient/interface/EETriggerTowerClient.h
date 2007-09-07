@@ -4,8 +4,8 @@
 /*
  * \file EETriggerTowerClient.h
  *
- * $Date: 2007/08/09 14:36:54 $
- * $Revision: 1.4 $
+ * $Date: 2007/08/17 09:05:11 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -26,7 +26,6 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Core/interface/CollateMonitorElement.h"
 
 #include "DQM/EcalEndcapMonitorClient/interface/EEClient.h"
 
@@ -90,7 +89,6 @@ private:
 int ievt_;
 int jevt_;
 
-bool collateSources_;
 bool cloneME_;
 bool enableQT_;
 
@@ -105,10 +103,6 @@ vector<int> superModules_;
 MonitorUserInterface* mui_;
 DaqMonitorBEInterface* dbe_;
 
-CollateMonitorElement* me_h01_[18];
-CollateMonitorElement* me_i01_[18];
-CollateMonitorElement* me_j01_[18];
-
 MonitorElement* meh01_[18];
 MonitorElement* mei01_[18];
 MonitorElement* mej01_[18];
@@ -116,9 +110,6 @@ MonitorElement* mej01_[18];
 TProfile2D* h01_[18];
 TH3F* i01_[18];
 TH3F* j01_[18];
-
-CollateMonitorElement* me_k01_[18][68];
-CollateMonitorElement* me_k02_[18][68];
 
 MonitorElement* mek01_[18][68];
 MonitorElement* mek02_[18][68];

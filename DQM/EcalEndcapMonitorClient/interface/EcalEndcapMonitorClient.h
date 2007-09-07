@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2007/08/09 14:36:54 $
- * $Revision: 1.19 $
+ * $Date: 2007/08/17 09:05:11 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -125,7 +125,6 @@ private:
 int ievt_;
 int jevt_;
 
-bool collateSources_;
 bool cloneME_;
 bool enableQT_;
 
@@ -212,8 +211,6 @@ int last_jevt_;
  
 int unknowns_;
  
-CollateMonitorElement* me_h_;
-
 TH1F* h_;
 
 };

@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2007/06/15 08:36:45 $
- * $Revision: 1.136 $
+ * $Date: 2007/06/21 13:40:06 $
+ * $Revision: 1.137 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -373,8 +373,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5);
 
   // this should give enough time to all the MEs to reach the Collector,
-  // and then hopefully the Client, especially when using CollateMEs,
-  // even for short runs
+  // and then hopefully the Client, even for short runs
 
   if ( ievt_ == 1 ) {
     if ( enableMonitorDaemon_ ) sleep(5);

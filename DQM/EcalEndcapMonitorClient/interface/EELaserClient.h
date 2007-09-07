@@ -4,8 +4,8 @@
 /*
  * \file EELaserClient.h
  *
- * $Date: 2007/08/09 14:36:54 $
- * $Revision: 1.4 $
+ * $Date: 2007/08/17 09:05:11 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */
@@ -25,7 +25,6 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Core/interface/CollateMonitorElement.h"
 
 #include "DQM/EcalEndcapMonitorClient/interface/EEClient.h"
 
@@ -85,7 +84,6 @@ private:
 int ievt_;
 int jevt_;
 
-bool collateSources_;
 bool cloneME_;
 bool enableQT_;
 
@@ -99,44 +97,6 @@ vector<int> superModules_;
 
 MonitorUserInterface* mui_;
 DaqMonitorBEInterface* dbe_;
-
-CollateMonitorElement* me_h01_[18];
-CollateMonitorElement* me_h02_[18];
-CollateMonitorElement* me_h03_[18];
-CollateMonitorElement* me_h04_[18];
-CollateMonitorElement* me_h05_[18];
-CollateMonitorElement* me_h06_[18];
-CollateMonitorElement* me_h07_[18];
-CollateMonitorElement* me_h08_[18];
-
-CollateMonitorElement* me_h09_[18];
-CollateMonitorElement* me_h10_[18];
-CollateMonitorElement* me_h11_[18];
-CollateMonitorElement* me_h12_[18];
-
-CollateMonitorElement* me_h13_[18];
-CollateMonitorElement* me_h14_[18];
-CollateMonitorElement* me_h15_[18];
-CollateMonitorElement* me_h16_[18];
-CollateMonitorElement* me_h17_[18];
-CollateMonitorElement* me_h18_[18];
-CollateMonitorElement* me_h19_[18];
-CollateMonitorElement* me_h20_[18];
-
-CollateMonitorElement* me_h21_[18];
-CollateMonitorElement* me_h22_[18];
-CollateMonitorElement* me_h23_[18];
-CollateMonitorElement* me_h24_[18];
-
-CollateMonitorElement* me_hs01_[18];
-CollateMonitorElement* me_hs02_[18];
-CollateMonitorElement* me_hs03_[18];
-CollateMonitorElement* me_hs04_[18];
-
-CollateMonitorElement* me_hs05_[18];
-CollateMonitorElement* me_hs06_[18];
-CollateMonitorElement* me_hs07_[18];
-CollateMonitorElement* me_hs08_[18];
 
 TProfile2D* h01_[18];
 TProfile2D* h02_[18];
@@ -269,23 +229,6 @@ MonitorElement* mepnprms05_[18];
 MonitorElement* mepnprms06_[18];
 MonitorElement* mepnprms07_[18];
 MonitorElement* mepnprms08_[18];
-
-CollateMonitorElement* me_i01_[18];
-CollateMonitorElement* me_i02_[18];
-CollateMonitorElement* me_i03_[18];
-CollateMonitorElement* me_i04_[18];
-CollateMonitorElement* me_i05_[18];
-CollateMonitorElement* me_i06_[18];
-CollateMonitorElement* me_i07_[18];
-CollateMonitorElement* me_i08_[18];
-CollateMonitorElement* me_i09_[18];
-CollateMonitorElement* me_i10_[18];
-CollateMonitorElement* me_i11_[18];
-CollateMonitorElement* me_i12_[18];
-CollateMonitorElement* me_i13_[18];
-CollateMonitorElement* me_i14_[18];
-CollateMonitorElement* me_i15_[18];
-CollateMonitorElement* me_i16_[18];
 
 TProfile2D* i01_[18];
 TProfile2D* i02_[18];

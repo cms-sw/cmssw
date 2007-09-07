@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/09/03 18:27:23 $
- * $Revision: 1.156 $
+ * $Date: 2007/09/06 18:59:05 $
+ * $Revision: 1.157 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -50,9 +50,6 @@ using namespace edm;
 using namespace std;
 
 EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps){
-
-  // collateSources switch
-  collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -805,152 +802,52 @@ void EBIntegrityClient::subscribe(void){
 
   }
 
-  if ( collateSources_ ) {
-
-    if ( verbose_ ) cout << "EBIntegrityClient: collate" << endl;
-
-    sprintf(histo, "EBIT DCC size error");
-    me_h00_ = mui_->collate1D(histo, histo, "EcalBarrel/Sums/EBIntegrityTask");
-    sprintf(histo, "*/EcalBarrel/EBIntegrityTask/EBIT DCC size error");
-    mui_->add(me_h00_, histo);
-
-    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-      int ism = superModules_[i];
-
-      sprintf(histo, "EBOT occupancy %s", Numbers::sEB(ism).c_str());
-      me_h_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBOccupancyTask");
-      sprintf(histo, "*/EcalBarrel/EBOccupancyTask/EBOT occupancy %s", Numbers::sEB(ism).c_str());
-      mui_->add(me_h_[ism-1], histo);
-
-      sprintf(histo, "EBOT MEM occupancy %s", Numbers::sEB(ism).c_str());
-      me_hmem_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBOccupancyTask");
-      sprintf(histo, "*/EcalBarrel/EBOccupancyTask/EBOT MEM occupancy %s", Numbers::sEB(ism).c_str());
-      mui_->add(me_hmem_[ism-1], histo);
-
-      sprintf(histo, "EBIT gain %s", Numbers::sEB(ism).c_str());
-      me_h01_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EBIntegrityTask/Gain");
-      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/Gain/EBIT gain %s", Numbers::sEB(ism).c_str());
-      mui_->add(me_h01_[ism-1], histo);
-
-      sprintf(histo, "EBIT ChId %s", Numbers::sEB(ism).c_str());
-      me_h02_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EBIntegrityTask/ChId");
-      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/ChId/EBIT ChId %s", Numbers::sEB(ism).c_str());
-      mui_->add(me_h02_[ism-1], histo);
-
-      sprintf(histo, "EBIT gain switch %s", Numbers::sEB(ism).c_str());
-      me_h03_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EBIntegrityTask/GainSwitch");
-      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/GainSwitch/EBIT gain switch %s", Numbers::sEB(ism).c_str());
-      mui_->add(me_h03_[ism-1], histo);
-
-      sprintf(histo, "EBIT gain switch stay %s", Numbers::sEB(ism).c_str());
-      me_h04_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EBIntegrityTask/GainSwitchStay");
-      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/GainSwitchStay/EBIT gain switch stay %s", Numbers::sEB(ism).c_str());
-      mui_->add(me_h04_[ism-1], histo);
-
-      sprintf(histo, "EBIT TTId %s", Numbers::sEB(ism).c_str());
-      me_h05_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EBIntegrityTask/TTId");
-      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/TTId/EBIT TTId %s", Numbers::sEB(ism).c_str());
-      mui_->add(me_h05_[ism-1], histo);
-
-      sprintf(histo, "EBIT TTBlockSize %s", Numbers::sEB(ism).c_str());
-      me_h06_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EBIntegrityTask/TTBlockSize");
-      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize %s", Numbers::sEB(ism).c_str());
-      mui_->add(me_h06_[ism-1], histo);
-
-      sprintf(histo, "EBIT MemChId %s", Numbers::sEB(ism).c_str());
-      me_h07_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EBIntegrityTask/MemChId");
-      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemChId/EBIT MemChId %s", Numbers::sEB(ism).c_str());
-      mui_->add(me_h07_[ism-1], histo);
-
-      sprintf(histo, "EBIT MemGain %s", Numbers::sEB(ism).c_str());
-      me_h08_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EBIntegrityTask/MemGain");
-      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemGain/EBIT MemGain %s", Numbers::sEB(ism).c_str());
-      mui_->add(me_h08_[ism-1], histo);
-
-      sprintf(histo, "EBIT MemTTId %s", Numbers::sEB(ism).c_str());
-      me_h09_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EBIntegrityTask/MemTTId");
-      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemTTId/EBIT MemTTId %s", Numbers::sEB(ism).c_str());
-      mui_->add(me_h09_[ism-1], histo);
-
-      sprintf(histo, "EBIT MemSize %s", Numbers::sEB(ism).c_str());
-      me_h10_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EBIntegrityTask/MemSize");
-      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemSize/EBIT MemSize %s", Numbers::sEB(ism).c_str());
-      mui_->add(me_h10_[ism-1], histo);
-
-    }
-
-  }
-
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/Gain/EBIT gain %s", Numbers::sEB(ism).c_str());
+    if ( enableMonitorDaemon_ ) {
+      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/Gain/EBIT gain %s", Numbers::sEB(ism).c_str());
       if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/ChId/EBIT ChId %s", Numbers::sEB(ism).c_str());
+      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/ChId/EBIT ChId %s", Numbers::sEB(ism).c_str());
       if ( qth02_[ism-1] ) dbe_->useQTest(histo, qth02_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/GainSwitch/EBIT gain switch %s", Numbers::sEB(ism).c_str());
+      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/GainSwitch/EBIT gain switch %s", Numbers::sEB(ism).c_str());
       if ( qth03_[ism-1] ) dbe_->useQTest(histo, qth03_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/GainSwitchStay/EBIT gain switch stay %s", Numbers::sEB(ism).c_str());
+      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/GainSwitchStay/EBIT gain switch stay %s", Numbers::sEB(ism).c_str());
       if ( qth04_[ism-1] ) dbe_->useQTest(histo, qth04_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/TTId/EBIT TTId %s", Numbers::sEB(ism).c_str());
+      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/TTId/EBIT TTId %s", Numbers::sEB(ism).c_str());
       if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize %s", Numbers::sEB(ism).c_str());
+      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize %s", Numbers::sEB(ism).c_str());
       if ( qth06_[ism-1] ) dbe_->useQTest(histo, qth06_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/MemChId/EBIT MemChId %s", Numbers::sEB(ism).c_str());
+      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemChId/EBIT MemChId %s", Numbers::sEB(ism).c_str());
       if ( qth07_[ism-1] ) dbe_->useQTest(histo, qth07_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/MemGain %s", Numbers::sEB(ism).c_str());
+      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemGain %s", Numbers::sEB(ism).c_str());
       if ( qth08_[ism-1] ) dbe_->useQTest(histo, qth08_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/MemTTId/EBIT MemTTId %s", Numbers::sEB(ism).c_str());
+      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemTTId/EBIT MemTTId %s", Numbers::sEB(ism).c_str());
       if ( qth09_[ism-1] ) dbe_->useQTest(histo, qth09_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/MemSize/EBIT MemSize %s", Numbers::sEB(ism).c_str());
+      sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemSize/EBIT MemSize %s", Numbers::sEB(ism).c_str());
       if ( qth10_[ism-1] ) dbe_->useQTest(histo, qth10_[ism-1]->getName());
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "*/EcalBarrel/EBIntegrityTask/Gain/EBIT gain %s", Numbers::sEB(ism).c_str());
-        if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBIntegrityTask/ChId/EBIT ChId %s", Numbers::sEB(ism).c_str());
-        if ( qth02_[ism-1] ) dbe_->useQTest(histo, qth02_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBIntegrityTask/GainSwitch/EBIT gain switch %s", Numbers::sEB(ism).c_str());
-        if ( qth03_[ism-1] ) dbe_->useQTest(histo, qth03_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBIntegrityTask/GainSwitchStay/EBIT gain switch stay %s", Numbers::sEB(ism).c_str());
-        if ( qth04_[ism-1] ) dbe_->useQTest(histo, qth04_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBIntegrityTask/TTId/EBIT TTId %s", Numbers::sEB(ism).c_str());
-        if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize %s", Numbers::sEB(ism).c_str());
-        if ( qth06_[ism-1] ) dbe_->useQTest(histo, qth06_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemChId/EBIT MemChId %s", Numbers::sEB(ism).c_str());
-        if ( qth07_[ism-1] ) dbe_->useQTest(histo, qth07_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemGain %s", Numbers::sEB(ism).c_str());
-        if ( qth08_[ism-1] ) dbe_->useQTest(histo, qth08_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemTTId/EBIT MemTTId %s", Numbers::sEB(ism).c_str());
-        if ( qth09_[ism-1] ) dbe_->useQTest(histo, qth09_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBIntegrityTask/MemSize/EBIT MemSize %s", Numbers::sEB(ism).c_str());
-        if ( qth10_[ism-1] ) dbe_->useQTest(histo, qth10_[ism-1]->getName());
-      } else {
-        sprintf(histo, "EcalBarrel/EBIntegrityTask/Gain/EBIT gain %s", Numbers::sEB(ism).c_str());
-        if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBIntegrityTask/ChId/EBIT ChId %s", Numbers::sEB(ism).c_str());
-        if ( qth02_[ism-1] ) dbe_->useQTest(histo, qth02_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBIntegrityTask/GainSwitch/EBIT gain switch %s", Numbers::sEB(ism).c_str());
-        if ( qth03_[ism-1] ) dbe_->useQTest(histo, qth03_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBIntegrityTask/GainSwitchStay/EBIT gain switch stay %s", Numbers::sEB(ism).c_str());
-        if ( qth04_[ism-1] ) dbe_->useQTest(histo, qth04_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBIntegrityTask/TTId/EBIT TTId %s", Numbers::sEB(ism).c_str());
-        if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize %s", Numbers::sEB(ism).c_str());
-        if ( qth06_[ism-1] ) dbe_->useQTest(histo, qth06_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBIntegrityTask/MemChId/EBIT MemChId %s", Numbers::sEB(ism).c_str());
-        if ( qth07_[ism-1] ) dbe_->useQTest(histo, qth07_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBIntegrityTask/MemGain %s", Numbers::sEB(ism).c_str());
-        if ( qth08_[ism-1] ) dbe_->useQTest(histo, qth08_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBIntegrityTask/MemTTId/EBIT MemTTId %s", Numbers::sEB(ism).c_str());
-        if ( qth09_[ism-1] ) dbe_->useQTest(histo, qth09_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBIntegrityTask/MemSize/EBIT MemSize %s", Numbers::sEB(ism).c_str());
-        if ( qth10_[ism-1] ) dbe_->useQTest(histo, qth10_[ism-1]->getName());
-      }
+      sprintf(histo, "EcalBarrel/EBIntegrityTask/Gain/EBIT gain %s", Numbers::sEB(ism).c_str());
+      if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/EBIntegrityTask/ChId/EBIT ChId %s", Numbers::sEB(ism).c_str());
+      if ( qth02_[ism-1] ) dbe_->useQTest(histo, qth02_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/EBIntegrityTask/GainSwitch/EBIT gain switch %s", Numbers::sEB(ism).c_str());
+      if ( qth03_[ism-1] ) dbe_->useQTest(histo, qth03_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/EBIntegrityTask/GainSwitchStay/EBIT gain switch stay %s", Numbers::sEB(ism).c_str());
+      if ( qth04_[ism-1] ) dbe_->useQTest(histo, qth04_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/EBIntegrityTask/TTId/EBIT TTId %s", Numbers::sEB(ism).c_str());
+      if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize %s", Numbers::sEB(ism).c_str());
+      if ( qth06_[ism-1] ) dbe_->useQTest(histo, qth06_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/EBIntegrityTask/MemChId/EBIT MemChId %s", Numbers::sEB(ism).c_str());
+      if ( qth07_[ism-1] ) dbe_->useQTest(histo, qth07_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/EBIntegrityTask/MemGain %s", Numbers::sEB(ism).c_str());
+      if ( qth08_[ism-1] ) dbe_->useQTest(histo, qth08_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/EBIntegrityTask/MemTTId/EBIT MemTTId %s", Numbers::sEB(ism).c_str());
+      if ( qth09_[ism-1] ) dbe_->useQTest(histo, qth09_[ism-1]->getName());
+      sprintf(histo, "EcalBarrel/EBIntegrityTask/MemSize/EBIT MemSize %s", Numbers::sEB(ism).c_str());
+      if ( qth10_[ism-1] ) dbe_->useQTest(histo, qth10_[ism-1]->getName());
     }
 
     sprintf(histo, "EcalBarrel/EBIntegrityClient/EBIT data integrity quality %s", Numbers::sEB(ism).c_str());
@@ -1006,38 +903,6 @@ void EBIntegrityClient::subscribeNew(void){
 void EBIntegrityClient::unsubscribe(void){
 
   if ( verbose_ ) cout << "EBIntegrityClient: unsubscribe" << endl;
-
-  if ( collateSources_ ) {
-
-    if ( verbose_ ) cout << "EBIntegrityClient: uncollate" << endl;
-
-    if ( mui_ ) {
-
-      dbe_->removeCollate(me_h00_);
-
-      for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-        int ism = superModules_[i];
-
-        dbe_->removeCollate(me_h_[ism-1]);
-        dbe_->removeCollate(me_hmem_[ism-1]);
-
-        dbe_->removeCollate(me_h01_[ism-1]);
-        dbe_->removeCollate(me_h02_[ism-1]);
-        dbe_->removeCollate(me_h03_[ism-1]);
-        dbe_->removeCollate(me_h04_[ism-1]);
-        dbe_->removeCollate(me_h05_[ism-1]);
-        dbe_->removeCollate(me_h06_[ism-1]);
-        dbe_->removeCollate(me_h07_[ism-1]);
-        dbe_->removeCollate(me_h08_[ism-1]);
-        dbe_->removeCollate(me_h09_[ism-1]);
-        dbe_->removeCollate(me_h10_[ism-1]);
-
-      }
-
-    }
-
-  }
 
   Char_t histo[200];
 
@@ -1121,11 +986,7 @@ void EBIntegrityClient::analyze(void){
 
   MonitorElement* me;
 
-  if ( collateSources_ ) {
-    sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/EBIT DCC size error");
-  } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/EBIT DCC size error").c_str());
-  }
+  sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/EBIT DCC size error").c_str());
   me = dbe_->get(histo);
   h00_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, h00_ );
 
@@ -1133,99 +994,51 @@ void EBIntegrityClient::analyze(void){
 
     int ism = superModules_[i];
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBOccupancyTask/EBOT occupancy %s", Numbers::sEB(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT occupancy %s").c_str(), Numbers::sEB(ism).c_str());
-    }
+    sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT occupancy %s").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     h_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h_[ism-1] );
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBOccupancyTask/EBOT MEM occupancy %s", Numbers::sEB(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT MEM occupancy %s").c_str(), Numbers::sEB(ism).c_str());
-    }
+    sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT MEM occupancy %s").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     hmem_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, hmem_[ism-1] );
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/Gain/EBIT gain %s", Numbers::sEB(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/Gain/EBIT gain %s").c_str(), Numbers::sEB(ism).c_str());
-    }
+    sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/Gain/EBIT gain %s").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h01_[ism-1] );
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/ChId/EBIT ChId %s", Numbers::sEB(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/ChId/EBIT ChId %s").c_str(), Numbers::sEB(ism).c_str());
-    }
+    sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/ChId/EBIT ChId %s").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h02_[ism-1] );
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/GainSwitch/EBIT gain switch %s", Numbers::sEB(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/GainSwitch/EBIT gain switch %s").c_str(), Numbers::sEB(ism).c_str());
-    }
+    sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/GainSwitch/EBIT gain switch %s").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h03_[ism-1] );
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/GainSwitchStay/EBIT gain switch stay %s", Numbers::sEB(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/GainSwitchStay/EBIT gain switch stay %s").c_str(), Numbers::sEB(ism).c_str());
-    }
+    sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/GainSwitchStay/EBIT gain switch stay %s").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     h04_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h04_[ism-1] );
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/TTId/EBIT TTId %s", Numbers::sEB(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/TTId/EBIT TTId %s").c_str(), Numbers::sEB(ism).c_str());
-    }
+    sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/TTId/EBIT TTId %s").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     h05_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h05_[ism-1] );
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize %s", Numbers::sEB(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize %s").c_str(), Numbers::sEB(ism).c_str());
-    }
+    sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize %s").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     h06_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h06_[ism-1] );
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/MemChId/EBIT MemChId %s", Numbers::sEB(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/MemChId/EBIT MemChId %s").c_str(), Numbers::sEB(ism).c_str());
-    }
+    sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/MemChId/EBIT MemChId %s").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     h07_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h07_[ism-1] );
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/MemGain/EBIT MemGain %s", Numbers::sEB(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/MemGain/EBIT MemGain %s").c_str(), Numbers::sEB(ism).c_str());
-    }
+    sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/MemGain/EBIT MemGain %s").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     h08_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h08_[ism-1] );
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/MemTTId/EBIT MemTTId %s", Numbers::sEB(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/MemTTId/EBIT MemTTId %s").c_str(), Numbers::sEB(ism).c_str());
-    }
+    sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/MemTTId/EBIT MemTTId %s").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     h09_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h09_[ism-1] );
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/MemSize/EBIT MemSize %s", Numbers::sEB(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/MemSize/EBIT MemSize %s").c_str(), Numbers::sEB(ism).c_str());
-    }
+    sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/MemSize/EBIT MemSize %s").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     h10_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h10_[ism-1] );
 

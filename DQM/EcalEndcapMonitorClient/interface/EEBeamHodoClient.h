@@ -4,8 +4,8 @@
 /*
  * \file EEBeamHodoClient.h
  *
- * $Date: 2007/08/09 14:36:54 $
- * $Revision: 1.2 $
+ * $Date: 2007/08/17 09:05:11 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -26,7 +26,6 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Core/interface/CollateMonitorElement.h"
 
 #include "DQM/EcalEndcapMonitorClient/interface/EEClient.h"
 
@@ -88,7 +87,6 @@ private:
 int ievt_;
 int jevt_;
 
-bool collateSources_;
 bool cloneME_;
 bool enableQT_;
 

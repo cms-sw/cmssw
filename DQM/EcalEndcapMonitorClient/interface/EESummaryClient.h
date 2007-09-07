@@ -4,8 +4,8 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2007/08/14 17:44:45 $
- * $Revision: 1.3 $
+ * $Date: 2007/08/17 09:05:11 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -26,7 +26,6 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Core/interface/CollateMonitorElement.h"
 
 #include "DQM/EcalEndcapMonitorClient/interface/EEClient.h"
 
@@ -89,7 +88,6 @@ void writeMap( std::ofstream& hf, std::string mapname );
 int ievt_;
 int jevt_;
 
-bool collateSources_;
 bool cloneME_;
 bool enableQT_;
 

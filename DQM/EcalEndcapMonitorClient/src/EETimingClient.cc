@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2007/09/03 18:27:25 $
- * $Revision: 1.20 $
+ * $Date: 2007/09/06 18:59:06 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  *
 */
@@ -42,9 +42,6 @@ using namespace edm;
 using namespace std;
 
 EETimingClient::EETimingClient(const ParameterSet& ps){
-
-  // collateSources switch
-  collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -310,38 +307,16 @@ void EETimingClient::subscribe(void){
 
   }
 
-  if ( collateSources_ ) {
-
-    if ( verbose_ ) cout << "EETimingClient: collate" << endl;
-
-    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-      int ism = superModules_[i];
-
-      sprintf(histo, "EETMT timing %s", Numbers::sEE(ism).c_str());
-      me_h01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EETimingTask");
-      sprintf(histo, "*/EcalEndcap/EETimingTask/EETMT timing %s", Numbers::sEE(ism).c_str());
-      mui_->add(me_h01_[ism-1], histo);
-
-    }
-
-  }
-
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EETimingTask/EETMT timing %s", Numbers::sEE(ism).c_str());
+    if ( enableMonitorDaemon_ ) {
+      sprintf(histo, "*/EcalEndcap/EETimingTask/EETMT timing %s", Numbers::sEE(ism).c_str());
       if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "*/EcalEndcap/EETimingTask/EETMT timing %s", Numbers::sEE(ism).c_str());
-        if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
-      } else {
-        sprintf(histo, "EcalEndcap/EETimingTask/EETMT timing %s", Numbers::sEE(ism).c_str());
-        if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
-      }
+      sprintf(histo, "EcalEndcap/EETimingTask/EETMT timing %s", Numbers::sEE(ism).c_str());
+      if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
     }
 
     sprintf(histo, "EcalEndcap/EETimingClient/EETMT timing quality %s", Numbers::sEE(ism).c_str());
@@ -369,24 +344,6 @@ void EETimingClient::subscribeNew(void){
 void EETimingClient::unsubscribe(void){
 
   if ( verbose_ ) cout << "EETimingClient: unsubscribe" << endl;
-
-  if ( collateSources_ ) {
-
-    if ( verbose_ ) cout << "EETimingClient: uncollate" << endl;
-
-    if ( mui_ ) {
-
-      for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-        int ism = superModules_[i];
-
-        dbe_->removeCollate(me_h01_[ism-1]);
-
-      }
-
-    }
-
-  }
 
   Char_t histo[200];
 
@@ -439,11 +396,7 @@ void EETimingClient::analyze(void){
 
     int ism = superModules_[i];
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EETimingTask/EETMT timing %s", Numbers::sEE(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EETimingTask/EETMT timing %s").c_str(), Numbers::sEE(ism).c_str());
-    }
+    sprintf(histo, (prefixME_+"EcalEndcap/EETimingTask/EETMT timing %s").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;

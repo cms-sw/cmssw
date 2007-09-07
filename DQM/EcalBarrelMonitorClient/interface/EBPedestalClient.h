@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalClient.h
  *
- * $Date: 2007/08/09 12:26:57 $
- * $Revision: 1.55 $
+ * $Date: 2007/08/17 09:05:06 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -26,7 +26,6 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Core/interface/CollateMonitorElement.h"
 
 #include "DQM/EcalBarrelMonitorClient/interface/EBClient.h"
 
@@ -86,7 +85,6 @@ private:
 int ievt_;
 int jevt_;
 
-bool collateSources_;
 bool cloneME_;
 bool enableQT_;
 
@@ -101,24 +99,12 @@ vector<int> superModules_;
 MonitorUserInterface* mui_;
 DaqMonitorBEInterface* dbe_;
 
-CollateMonitorElement* me_h01_[36];
-CollateMonitorElement* me_h02_[36];
-CollateMonitorElement* me_h03_[36];
-
 MEContentsProf2DWithinRangeROOT* qth01_[36];
 MEContentsProf2DWithinRangeROOT* qth02_[36];
 MEContentsProf2DWithinRangeROOT* qth03_[36];
 
 MEContentsProf2DWithinRangeROOT* qth04_[36];
 MEContentsProf2DWithinRangeROOT* qth05_[36];
-
-CollateMonitorElement* me_j01_[36];
-CollateMonitorElement* me_j02_[36];
-CollateMonitorElement* me_j03_[36];
-
-CollateMonitorElement* me_k01_[36];
-CollateMonitorElement* me_k02_[36];
-CollateMonitorElement* me_k03_[36];
 
 TProfile2D* h01_[36];
 TProfile2D* h02_[36];
@@ -157,9 +143,6 @@ MonitorElement* mes03_[36];
 MonitorElement* met01_[36];
 MonitorElement* met02_[36];
 MonitorElement* met03_[36];
-
-CollateMonitorElement* me_i01_[36];
-CollateMonitorElement* me_i02_[36];
 
 TProfile2D* i01_[36];
 TProfile2D* i02_[36];

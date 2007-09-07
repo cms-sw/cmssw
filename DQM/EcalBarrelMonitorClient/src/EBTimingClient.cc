@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2007/09/03 18:27:23 $
- * $Revision: 1.35 $
+ * $Date: 2007/09/06 18:59:05 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  *
 */
@@ -41,9 +41,6 @@ using namespace edm;
 using namespace std;
 
 EBTimingClient::EBTimingClient(const ParameterSet& ps){
-
-  // collateSources switch
-  collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -300,38 +297,16 @@ void EBTimingClient::subscribe(void){
 
   }
 
-  if ( collateSources_ ) {
-
-    if ( verbose_ ) cout << "EBTimingClient: collate" << endl;
-
-    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-      int ism = superModules_[i];
-
-      sprintf(histo, "EBTMT timing %s", Numbers::sEB(ism).c_str());
-      me_h01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBTimingTask");
-      sprintf(histo, "*/EcalBarrel/EBTimingTask/EBTMT timing %s", Numbers::sEB(ism).c_str());
-      mui_->add(me_h01_[ism-1], histo);
-
-    }
-
-  }
-
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBTimingTask/EBTMT timing %s", Numbers::sEB(ism).c_str());
+    if ( enableMonitorDaemon_ ) {
+      sprintf(histo, "*/EcalBarrel/EBTimingTask/EBTMT timing %s", Numbers::sEB(ism).c_str());
       if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "*/EcalBarrel/EBTimingTask/EBTMT timing %s", Numbers::sEB(ism).c_str());
-        if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
-      } else {
-        sprintf(histo, "EcalBarrel/EBTimingTask/EBTMT timing %s", Numbers::sEB(ism).c_str());
-        if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
-      }
+      sprintf(histo, "EcalBarrel/EBTimingTask/EBTMT timing %s", Numbers::sEB(ism).c_str());
+      if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
     }
 
     sprintf(histo, "EcalBarrel/EBTimingClient/EBTMT timing quality %s", Numbers::sEB(ism).c_str());
@@ -359,24 +334,6 @@ void EBTimingClient::subscribeNew(void){
 void EBTimingClient::unsubscribe(void){
 
   if ( verbose_ ) cout << "EBTimingClient: unsubscribe" << endl;
-
-  if ( collateSources_ ) {
-
-    if ( verbose_ ) cout << "EBTimingClient: uncollate" << endl;
-
-    if ( mui_ ) {
-
-      for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-        int ism = superModules_[i];
-
-        dbe_->removeCollate(me_h01_[ism-1]);
-
-      }
-
-    }
-
-  }
 
   Char_t histo[200];
 
@@ -429,11 +386,7 @@ void EBTimingClient::analyze(void){
 
     int ism = superModules_[i];
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBTimingTask/EBTMT timing %s", Numbers::sEB(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBTimingTask/EBTMT timing %s").c_str(), Numbers::sEB(ism).c_str());
-    }
+    sprintf(histo, (prefixME_+"EcalBarrel/EBTimingTask/EBTMT timing %s").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;

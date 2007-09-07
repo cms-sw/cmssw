@@ -4,8 +4,8 @@
 /*
  * \file EETimingClient.h
  *
- * $Date: 2007/08/09 14:36:54 $
- * $Revision: 1.3 $
+ * $Date: 2007/08/17 09:05:11 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -25,7 +25,6 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Core/interface/CollateMonitorElement.h"
 
 #include "DQM/EcalEndcapMonitorClient/interface/EEClient.h"
 
@@ -85,7 +84,6 @@ private:
 int ievt_;
 int jevt_;
 
-bool collateSources_;
 bool cloneME_;
 bool enableQT_;
 
@@ -99,8 +97,6 @@ vector<int> superModules_;
 
 MonitorUserInterface* mui_;
 DaqMonitorBEInterface* dbe_;
-
-CollateMonitorElement* me_h01_[18];
 
 MEContentsProf2DWithinRangeROOT* qth01_[18];
 

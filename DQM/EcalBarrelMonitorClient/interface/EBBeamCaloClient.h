@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloClient.h
  *
- * $Date: 2007/08/09 12:26:40 $
- * $Revision: 1.22 $
+ * $Date: 2007/08/17 09:05:06 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -27,7 +27,6 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Core/interface/CollateMonitorElement.h"
 
 #include "DQM/EcalBarrelMonitorClient/interface/EBClient.h"
 
@@ -89,7 +88,6 @@ const static int cryInArray_ = 9;
 int ievt_;
 int jevt_;
 
-bool collateSources_;
 bool cloneME_;
 bool enableQT_;
 

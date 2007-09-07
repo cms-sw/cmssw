@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  *
- * $Date: 2007/08/17 09:05:08 $
- * $Revision: 1.80 $
+ * $Date: 2007/09/06 18:59:05 $
+ * $Revision: 1.81 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -39,9 +39,6 @@ using namespace edm;
 using namespace std;
 
 EBCosmicClient::EBCosmicClient(const ParameterSet& ps){
-
-  // collateSources switch
-  collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -273,33 +270,6 @@ void EBCosmicClient::subscribe(void){
 
   }
 
-  if ( collateSources_ ) {
-
-    if ( verbose_ ) cout << "EBCosmicClient: collate" << endl;
-
-    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-      int ism = superModules_[i];
-
-      sprintf(histo, "EBCT energy sel %s", Numbers::sEB(ism).c_str());
-      me_h01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBCosmicTask/Sel");
-      sprintf(histo, "*/EcalBarrel/EBCosmicTask/Sel/EBCT energy sel %s", Numbers::sEB(ism).c_str());
-      mui_->add(me_h01_[ism-1], histo);
-
-      sprintf(histo, "EBCT energy cut %s", Numbers::sEB(ism).c_str());
-      me_h02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBCosmicTask/Cut");
-      sprintf(histo, "*/EcalBarrel/EBCosmicTask/Cut/EBCT energy cut %s", Numbers::sEB(ism).c_str());
-      mui_->add(me_h02_[ism-1], histo);
-
-      sprintf(histo, "EBCT energy spectrum %s", Numbers::sEB(ism).c_str());
-      me_h03_[ism-1] = mui_->collate1D(histo, histo, "EcalBarrel/Sums/EBCosmicTask/Spectrum");
-      sprintf(histo, "*/EcalBarrel/EBCosmicTask/Spectrum/EBCT energy spectrum %s", Numbers::sEB(ism).c_str());
-      mui_->add(me_h03_[ism-1], histo);
-
-    }
-
-  }
-
 }
 
 void EBCosmicClient::subscribeNew(void){
@@ -324,26 +294,6 @@ void EBCosmicClient::subscribeNew(void){
 void EBCosmicClient::unsubscribe(void){
 
   if ( verbose_ ) cout << "EBCosmicClient: unsubscribe" << endl;
-
-  if ( collateSources_ ) {
-
-    if ( verbose_ ) cout << "EBCosmicClient: uncollate" << endl;
-
-    if ( mui_ ) {
-
-      for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-        int ism = superModules_[i];
-
-        dbe_->removeCollate(me_h01_[ism-1]);
-        dbe_->removeCollate(me_h02_[ism-1]);
-        dbe_->removeCollate(me_h03_[ism-1]);
-
-      }
-
-    }
-
-  }
 
   Char_t histo[200];
 
@@ -392,29 +342,17 @@ void EBCosmicClient::analyze(void){
 
     int ism = superModules_[i];
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBCosmicTask/Sel/EBCT energy sel %s", Numbers::sEB(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBCosmicTask/Sel/EBCT energy sel %s").c_str(), Numbers::sEB(ism).c_str());
-    }
+    sprintf(histo, (prefixME_+"EcalBarrel/EBCosmicTask/Sel/EBCT energy sel %s").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBCosmicTask/Cut/EBCT energy cut %s", Numbers::sEB(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBCosmicTask/Cut/EBCT energy cut %s").c_str(), Numbers::sEB(ism).c_str());
-    }
+    sprintf(histo, (prefixME_+"EcalBarrel/EBCosmicTask/Cut/EBCT energy cut %s").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
     meh02_[ism-1] = me;
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBCosmicTask/Spectrum/EBCT energy spectrum %s", Numbers::sEB(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBCosmicTask/Spectrum/EBCT energy spectrum %s").c_str(), Numbers::sEB(ism).c_str());
-    }
+    sprintf(histo, (prefixME_+"EcalBarrel/EBCosmicTask/Spectrum/EBCT energy spectrum %s").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03_[ism-1] );
     meh03_[ism-1] = me;

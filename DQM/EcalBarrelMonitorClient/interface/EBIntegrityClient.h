@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityClient.h
  *
- * $Date: 2007/08/09 12:26:57 $
- * $Revision: 1.49 $
+ * $Date: 2007/08/17 09:05:06 $
+ * $Revision: 1.50 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -26,7 +26,6 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Core/interface/CollateMonitorElement.h"
 
 #include "DQM/EcalBarrelMonitorClient/interface/EBClient.h"
 
@@ -86,7 +85,6 @@ private:
 int ievt_;
 int jevt_;
 
-bool collateSources_;
 bool cloneME_;
 bool enableQT_;
 
@@ -100,19 +98,6 @@ vector<int> superModules_;
 
 MonitorUserInterface* mui_;
 DaqMonitorBEInterface* dbe_;
-
-CollateMonitorElement* me_h00_;
-
-CollateMonitorElement* me_h01_[36];
-CollateMonitorElement* me_h02_[36];
-CollateMonitorElement* me_h03_[36];
-CollateMonitorElement* me_h04_[36];
-CollateMonitorElement* me_h05_[36];
-CollateMonitorElement* me_h06_[36];
-CollateMonitorElement* me_h07_[36];
-CollateMonitorElement* me_h08_[36];
-CollateMonitorElement* me_h09_[36];
-CollateMonitorElement* me_h10_[36];
 
 TH1F* h00_;
 
@@ -140,9 +125,6 @@ MEContentsTH2FWithinRangeROOT* qth10_[36];
 
 MonitorElement* meg01_[36];
 MonitorElement* meg02_[36];
-
-CollateMonitorElement* me_h_[36];
-CollateMonitorElement* me_hmem_[36];
 
 TH2F* h_[36];
 TH2F* hmem_[36];

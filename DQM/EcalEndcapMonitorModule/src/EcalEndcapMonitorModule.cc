@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2007/06/15 08:36:44 $
- * $Revision: 1.9 $
+ * $Date: 2007/06/21 13:40:07 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -372,8 +372,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
   if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5);
 
   // this should give enough time to all the MEs to reach the Collector,
-  // and then hopefully the Client, especially when using CollateMEs,
-  // even for short runs
+  // and then hopefully the Client, even for short runs
 
   if ( ievt_ == 1 ) {
     if ( enableMonitorDaemon_ ) sleep(5);

@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/08/17 18:15:10 $
- * $Revision: 1.63 $
+ * $Date: 2007/09/06 18:59:06 $
+ * $Revision: 1.64 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -42,8 +42,6 @@
 #include <DQM/EcalCommon/interface/UtilsClient.h>
 #include <DQM/EcalCommon/interface/Numbers.h>
 #include <DQM/EcalCommon/interface/LogicID.h>
-
-#include "DQMServices/Core/interface/CollateMonitorElement.h"
 
 #include <DQM/EcalEndcapMonitorClient/interface/EcalEndcapMonitorClient.h>
 
@@ -202,16 +200,6 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
          << " baseHtmlDir = '" << baseHtmlDir_ << "'" << endl;
   } else {
     cout << " HTML output is OFF" << endl;
-  }
-
-  // collateSources switch
-
-  collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
-
-  if ( collateSources_ ) {
-    cout << " collateSources switch is ON" << endl;
-  } else {
-    cout << " collateSources switch is OFF" << endl;
   }
 
   // cloneME switch
@@ -1286,19 +1274,6 @@ void EcalEndcapMonitorClient::subscribe(void){
   mui_->subscribe("*/EcalEndcap/EcalInfo/EVTTYPE");
   mui_->subscribe("*/EcalEndcap/EcalInfo/RUNTYPE");
 
-  if ( collateSources_ ) {
-
-    if ( verbose_ ) cout << "EcalEndcapMonitorClient: collate" << endl;
-
-    Char_t histo[200];
-
-    sprintf(histo, "EVTTYPE");
-    me_h_ = mui_->collate1D(histo, histo, "EcalEndcap/Sums/EcalInfo");
-    sprintf(histo, "*/EcalEndcap/EcalInfo/EVTTYPE");
-    mui_->add(me_h_, histo);
-
-  }
-
 }
 
 void EcalEndcapMonitorClient::subscribeNew(void){
@@ -1317,18 +1292,6 @@ void EcalEndcapMonitorClient::subscribeNew(void){
 void EcalEndcapMonitorClient::unsubscribe(void) {
 
   if ( verbose_ ) cout << "EcalEndcapMonitorClient: unsubscribe" << endl;
-
-  if ( collateSources_ ) {
-
-    if ( verbose_ ) cout << "EcalEndcapMonitorClient: uncollate" << endl;
-
-    if ( mui_ ) {
-
-      dbe_->removeCollate(me_h_);
-
-    }
-
-  }
 
   mui_->unsubscribe("*/FU0_is_done");
   mui_->unsubscribe("*/FU0_is_dead");
@@ -1427,11 +1390,7 @@ void EcalEndcapMonitorClient::analyze(void){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EcalInfo/EVTTYPE");
-    } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EcalInfo/EVTTYPE").c_str());
-    }
+    sprintf(histo, (prefixME_+"EcalEndcap/EcalInfo/EVTTYPE").c_str());
     me = dbe_->get(histo);
     h_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, h_ );
 

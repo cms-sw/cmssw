@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2007/08/17 18:25:29 $
- * $Revision: 1.11 $
+ * $Date: 2007/09/06 18:59:06 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -44,9 +44,6 @@ using namespace edm;
 using namespace std;
 
 EETriggerTowerClient::EETriggerTowerClient(const ParameterSet& ps){
-
-  // collateSources switch
-  collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -219,47 +216,6 @@ void EETriggerTowerClient::subscribe(void){
 
   }
 
-  if ( collateSources_ ) {
-
-    if ( verbose_ ) cout << "EETriggerTowerClient: collate" << endl;
-
-    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-      int ism = superModules_[i];
-
-      sprintf(histo, "EETTT Et map SM%02d", ism);
-      me_h01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EETriggerTowerTask");
-      sprintf(histo, "*/EcalEndcap/EETriggerTowerTask/EETTT Et map SM%02d", ism);
-      mui_->add(me_h01_[ism-1], histo);
-
-      sprintf(histo, "EETTT FineGrainVeto SM%02d", ism);
-      me_i01_[ism-1] = mui_->collate3D(histo, histo, "EcalEndcap/Sums/EETriggerTowerTask");
-      sprintf(histo, "*/EcalEndcap/EETriggerTowerTask/EETTT FineGrainVeto SM%02d", ism);
-      mui_->add(me_i01_[ism-1], histo);
-
-      sprintf(histo, "EETTT Flags SM%02d", ism);
-      me_j01_[ism-1] = mui_->collate3D(histo, histo, "EcalEndcap/Sums/EETriggerTowerTask");
-      sprintf(histo, "*/EcalEndcap/EETriggerTowerTask/EETTT Flags SM%02d", ism);
-      mui_->add(me_j01_[ism-1], histo);
-
-      for (int j = 0; j < 68 ; j++) {
-
-        sprintf(histo, "EETTT Et T SM%02d TT%02d", ism, j+1);
-        me_k01_[ism-1][j] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EETriggerTowerTask/EnergyMaps");
-        sprintf(histo, "*/EcalEndcap/EETriggerTowerTask/EnergyMaps/EETTT Et T SM%02d TT%02d", ism, j+1);
-        mui_->add(me_k01_[ism-1][j], histo);
-
-        sprintf(histo, "EETTT Et R SM%02d TT%02d", ism, j+1);
-        me_k02_[ism-1][j] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EETriggerTowerTask/EnergyMaps");
-        sprintf(histo, "*/EcalEndcap/EETriggerTowerTask/EnergyMaps/EETTT Et R SM%02d TT%02d", ism, j+1);
-        mui_->add(me_k02_[ism-1][j], histo);
-
-      }
-
-    }
-
-  }
-
 }
 
 void EETriggerTowerClient::subscribeNew(void){
@@ -291,36 +247,6 @@ void EETriggerTowerClient::subscribeNew(void){
 void EETriggerTowerClient::unsubscribe(void){
 
   if ( verbose_ ) cout << "EETriggerTowerClient: unsubscribe" << endl;
-
-  if ( collateSources_ ) {
-
-    if ( verbose_ ) cout << "EETriggerTowerClient: uncollate" << endl;
-
-    if ( mui_ ) {
-
-      for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-        int ism = superModules_[i];
-
-        dbe_->removeCollate(me_h01_[ism-1]);
-
-        dbe_->removeCollate(me_i01_[ism-1]);
-
-        dbe_->removeCollate(me_j01_[ism-1]);
-
-        for (int j = 0; j < 68 ; j++) {
-
-          dbe_->removeCollate(me_k01_[ism-1][j]);
-
-          dbe_->removeCollate(me_k02_[ism-1][j]);
-
-        }
-
-      }
-
-    }
-
-  }
 
   Char_t histo[200];
 
@@ -383,49 +309,29 @@ void EETriggerTowerClient::analyze(void){
 
     int ism = superModules_[i];
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EETriggerTowerTask/EETTT Et map SM%02d", ism);
-    } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EETriggerTowerTask/EETTT Et map SM%02d").c_str(), ism);
-    }
+    sprintf(histo, (prefixME_+"EcalEndcap/EETriggerTowerTask/EETTT Et map SM%02d").c_str(), ism);
     me = dbe_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EETriggerTowerTask/EETTT FineGrainVeto SM%02d", ism);
-    } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EETriggerTowerTask/EETTT FineGrainVeto SM%02d").c_str(), ism);
-    }
+    sprintf(histo, (prefixME_+"EcalEndcap/EETriggerTowerTask/EETTT FineGrainVeto SM%02d").c_str(), ism);
     me = dbe_->get(histo);
     i01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, i01_[ism-1] );
     mei01_[ism-1] = me;
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EETriggerTowerTask/EETTT Flags SM%02d", ism);
-    } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EETriggerTowerTask/EETTT Flags SM%02d").c_str(), ism);
-    }
+    sprintf(histo, (prefixME_+"EcalEndcap/EETriggerTowerTask/EETTT Flags SM%02d").c_str(), ism);
     me = dbe_->get(histo);
     j01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, j01_[ism-1] );
     mej01_[ism-1] = me;
 
     for (int j = 0; j < 68 ; j++) {
 
-      if ( collateSources_ ) {
-        sprintf(histo, "EcalEndcap/Sums/EETriggerTowerTask/EnergyMaps/EETTT Et T SM%02d TT%02d", ism, j+1);;
-      } else {
-        sprintf(histo, (prefixME_+"EcalEndcap/EETriggerTowerTask/EnergyMaps/EETTT Et T SM%02d TT%02d").c_str(), ism, j+1);
-      }
+      sprintf(histo, (prefixME_+"EcalEndcap/EETriggerTowerTask/EnergyMaps/EETTT Et T SM%02d TT%02d").c_str(), ism, j+1);
       me = dbe_->get(histo);
       k01_[ism-1][j] = UtilsClient::getHisto<TH1F*>( me, cloneME_, k01_[ism-1][j] );
       mek01_[ism-1][j] = me;
 
-      if ( collateSources_ ) {
-        sprintf(histo, "EcalEndcap/Sums/EETriggerTowerTask/EnergyMaps/EETTT Et R SM%02d TT%02d", ism, j+1);;
-      } else {
-        sprintf(histo, (prefixME_+"EcalEndcap/EETriggerTowerTask/EnergyMaps/EETTT Et R SM%02d TT%02d").c_str(), ism, j+1);
-      }
+      sprintf(histo, (prefixME_+"EcalEndcap/EETriggerTowerTask/EnergyMaps/EETTT Et R SM%02d TT%02d").c_str(), ism, j+1);
       me = dbe_->get(histo);
       k02_[ism-1][j] = UtilsClient::getHisto<TH1F*>( me, cloneME_, k02_[ism-1][j] );
       mek02_[ism-1][j] = me;

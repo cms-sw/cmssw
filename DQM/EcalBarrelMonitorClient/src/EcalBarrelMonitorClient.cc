@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/08/17 09:05:09 $
- * $Revision: 1.307 $
+ * $Date: 2007/09/06 18:59:05 $
+ * $Revision: 1.308 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -42,8 +42,6 @@
 #include <DQM/EcalCommon/interface/UtilsClient.h>
 #include <DQM/EcalCommon/interface/Numbers.h>
 #include <DQM/EcalCommon/interface/LogicID.h>
-
-#include "DQMServices/Core/interface/CollateMonitorElement.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EcalBarrelMonitorClient.h>
 
@@ -199,16 +197,6 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
          << " baseHtmlDir = '" << baseHtmlDir_ << "'" << endl;
   } else {
     cout << " HTML output is OFF" << endl;
-  }
-
-  // collateSources switch
-
-  collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
-
-  if ( collateSources_ ) {
-    cout << " collateSources switch is ON" << endl;
-  } else {
-    cout << " collateSources switch is OFF" << endl;
   }
 
   // cloneME switch
@@ -1261,19 +1249,6 @@ void EcalBarrelMonitorClient::subscribe(void){
   mui_->subscribe("*/EcalBarrel/EcalInfo/EVTTYPE");
   mui_->subscribe("*/EcalBarrel/EcalInfo/RUNTYPE");
 
-  if ( collateSources_ ) {
-
-    if ( verbose_ ) cout << "EcalBarrelMonitorClient: collate" << endl;
-
-    Char_t histo[200];
-
-    sprintf(histo, "EVTTYPE");
-    me_h_ = mui_->collate1D(histo, histo, "EcalBarrel/Sums/EcalInfo");
-    sprintf(histo, "*/EcalBarrel/EcalInfo/EVTTYPE");
-    mui_->add(me_h_, histo);
-
-  }
-
 }
 
 void EcalBarrelMonitorClient::subscribeNew(void){
@@ -1292,18 +1267,6 @@ void EcalBarrelMonitorClient::subscribeNew(void){
 void EcalBarrelMonitorClient::unsubscribe(void) {
 
   if ( verbose_ ) cout << "EcalBarrelMonitorClient: unsubscribe" << endl;
-
-  if ( collateSources_ ) {
-
-    if ( verbose_ ) cout << "EcalBarrelMonitorClient: uncollate" << endl;
-
-    if ( mui_ ) {
-
-      dbe_->removeCollate(me_h_);
-
-    }
-
-  }
 
   mui_->unsubscribe("*/FU0_is_done");
   mui_->unsubscribe("*/FU0_is_dead");
@@ -1402,11 +1365,7 @@ void EcalBarrelMonitorClient::analyze(void){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EcalInfo/EVTTYPE");
-    } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EcalInfo/EVTTYPE").c_str());
-    }
+    sprintf(histo, (prefixME_+"EcalBarrel/EcalInfo/EVTTYPE").c_str());
     me = dbe_->get(histo);
     h_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, h_ );
 

@@ -4,8 +4,8 @@
 /*
  * \file EBClusterClient.h
  *
- * $Date: 2007/08/09 12:26:52 $
- * $Revision: 1.11 $
+ * $Date: 2007/08/17 09:05:06 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -27,7 +27,6 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Core/interface/CollateMonitorElement.h"
 
 #include "DQM/EcalBarrelMonitorClient/interface/EBClient.h"
 
@@ -87,7 +86,6 @@ private:
 int ievt_;
 int jevt_;
 
-bool collateSources_;
 bool cloneME_;
 bool enableQT_;
 
@@ -101,18 +99,6 @@ vector<int> superModules_;
 
 MonitorUserInterface* mui_;
 DaqMonitorBEInterface* dbe_;
-
-CollateMonitorElement* me_h01_[3];
-CollateMonitorElement* me_h02_[2];
-CollateMonitorElement* me_h03_;
-CollateMonitorElement* me_h04_;
-
-CollateMonitorElement* me_i01_[3];
-CollateMonitorElement* me_i02_[2];
-CollateMonitorElement* me_i03_;
-CollateMonitorElement* me_i04_;
-
-CollateMonitorElement* me_s01_[2];
 
 TH1F* h01_[3];
 TProfile2D* h02_[2];

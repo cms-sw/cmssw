@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2007/08/17 18:25:28 $
- * $Revision: 1.16 $
+ * $Date: 2007/09/06 18:59:06 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -39,9 +39,6 @@ using namespace edm;
 using namespace std;
 
 EEClusterClient::EEClusterClient(const ParameterSet& ps){
-
-  // collateSources switch
-  collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -293,127 +290,6 @@ void EEClusterClient::subscribe(void){
   sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT dicluster invariant mass");
   mui_->subscribe(histo);
 
-
-  if ( collateSources_ ) {
-
-    if ( verbose_ ) cout << "EEClusterClient: collate" << endl;
-
-    sprintf(histo, "EECLT BC energy");
-    me_allEEBasic_[0] = mui_->collate1D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
-    sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC energy");
-    mui_->add(me_allEEBasic_[0], histo);
-
-    sprintf(histo, "EECLT BC number");
-    me_allEEBasic_[1] = mui_->collate1D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
-    sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC number");
-    mui_->add(me_allEEBasic_[1], histo);
-
-    sprintf(histo, "EECLT BC size");
-    me_allEEBasic_[2] = mui_->collate1D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
-    sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC size");
-    mui_->add(me_allEEBasic_[2], histo);
-
-    sprintf(histo, "EECLT BC energy map EE -");
-    me_eneEEBasic_[0] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
-    sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC energy map EE -");
-    mui_->add(me_eneEEBasic_[0], histo);
-
-    sprintf(histo, "EECLT BC number map EE -");
-    me_numEEBasic_[0] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
-    sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC number map EE -");
-    mui_->add(me_numEEBasic_[0], histo);
-
-    sprintf(histo, "EECLT BC energy polar map EE -");
-    me_enePolarEEBasic_[0] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
-    sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC energy polar map EE -");
-    mui_->add(me_enePolarEEBasic_[0], histo);
-
-    sprintf(histo, "EECLT BC number polar map EE -");
-    me_numPolarEEBasic_[0] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
-    sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC number map EE -");
-    mui_->add(me_numPolarEEBasic_[0], histo);
-
-    sprintf(histo, "EECLT BC energy map EE +");
-    me_eneEEBasic_[1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
-    sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC energy map EE +");
-    mui_->add(me_eneEEBasic_[1], histo);
-
-    sprintf(histo, "EECLT BC number map EE +");
-    me_numEEBasic_[1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
-    sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC number map EE +");
-    mui_->add(me_numEEBasic_[1], histo);
-
-    sprintf(histo, "EECLT BC energy polar map EE +");
-    me_enePolarEEBasic_[1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
-    sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC energy polar map EE +");
-    mui_->add(me_enePolarEEBasic_[1], histo);
-
-    sprintf(histo, "EECLT BC number polar map EE +");
-    me_numPolarEEBasic_[1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
-    sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC number polar map EE +");
-    mui_->add(me_numPolarEEBasic_[1], histo);
-
-    sprintf(histo, "EECLT SC energy");
-    me_allEE_[0] = mui_->collate1D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
-    sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT SC energy");
-    mui_->add(me_allEE_[0], histo);
-
-    sprintf(histo, "EECLT SC number");
-    me_allEE_[1] = mui_->collate1D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
-    sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT SC number");
-    mui_->add(me_allEE_[1], histo);
-
-    sprintf(histo, "EECLT SC size");
-    me_allEE_[2] = mui_->collate1D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
-    sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT SC size");
-    mui_->add(me_allEE_[2], histo);
-
-    sprintf(histo, "EECLT SC energy map EE -");
-    me_eneEE_[0] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
-    sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT SC energy map EE -");
-    mui_->add(me_eneEE_[0], histo);
-
-    sprintf(histo, "EECLT SC number map EE -");
-    me_numEE_[0] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
-    sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT SC number map EE -");
-    mui_->add(me_numEE_[0], histo);
-
-    sprintf(histo, "EECLT SC energy polar map EE -");
-    me_enePolarEE_[0] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
-    sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT SC energy polar map EE -");
-    mui_->add(me_enePolarEE_[0], histo);
-
-    sprintf(histo, "EECLT SC number polar map EE -");
-    me_numPolarEE_[0] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
-    sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT SC number map EE -");
-    mui_->add(me_numPolarEE_[0], histo);
-
-    sprintf(histo, "EECLT SC energy map EE +");
-    me_eneEE_[1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
-    sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT SC energy map EE +");
-    mui_->add(me_eneEE_[1], histo);
-
-    sprintf(histo, "EECLT SC number map EE +");
-    me_numEE_[1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
-    sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT SC number map EE +");
-    mui_->add(me_numEE_[1], histo);
-
-    sprintf(histo, "EECLT SC energy polar map EE +");
-    me_enePolarEE_[1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
-    sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT SC energy polar map EE +");
-    mui_->add(me_enePolarEE_[1], histo);
-
-    sprintf(histo, "EECLT SC number polar map EE +");
-    me_numPolarEE_[1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
-    sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT SC number polar map EE +");
-    mui_->add(me_numPolarEE_[1], histo);
-
-    sprintf(histo, "EECLT dicluster invariant mass");
-    me_s_ = mui_->collate1D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
-    sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT dicluster invariant mass");
-    mui_->add(me_s_, histo);
-  }
-
 }
 
 void EEClusterClient::subscribeNew(void){
@@ -494,41 +370,6 @@ void EEClusterClient::subscribeNew(void){
 void EEClusterClient::unsubscribe(void){
 
   if ( verbose_ ) cout << "EEClusterClient: unsubscribe" << endl;
-
-  if ( collateSources_ ) {
-
-    if ( verbose_ ) cout << "EEClusterClient: uncollate" << endl;
-
-    if ( mui_ ) {
-
-      dbe_->removeCollate(me_allEEBasic_[0]);
-      dbe_->removeCollate(me_allEEBasic_[1]);
-      dbe_->removeCollate(me_allEEBasic_[2]);
-      dbe_->removeCollate(me_eneEEBasic_[0]);
-      dbe_->removeCollate(me_eneEEBasic_[1]);
-      dbe_->removeCollate(me_enePolarEEBasic_[0]);
-      dbe_->removeCollate(me_enePolarEEBasic_[1]);
-      dbe_->removeCollate(me_numEEBasic_[0]);
-      dbe_->removeCollate(me_numEEBasic_[1]);
-      dbe_->removeCollate(me_numPolarEEBasic_[0]);
-      dbe_->removeCollate(me_numPolarEEBasic_[1]);
-
-      dbe_->removeCollate(me_allEE_[0]);
-      dbe_->removeCollate(me_allEE_[1]);
-      dbe_->removeCollate(me_allEE_[2]);
-      dbe_->removeCollate(me_eneEE_[0]);
-      dbe_->removeCollate(me_eneEE_[1]);
-      dbe_->removeCollate(me_enePolarEE_[0]);
-      dbe_->removeCollate(me_enePolarEE_[1]);
-      dbe_->removeCollate(me_numEE_[0]);
-      dbe_->removeCollate(me_numEE_[1]);
-      dbe_->removeCollate(me_numPolarEE_[0]);
-      dbe_->removeCollate(me_numPolarEE_[1]);
-      dbe_->removeCollate(me_s_);
-
-    }
-
-  }
 
   Char_t histo[200];
 
@@ -620,187 +461,95 @@ void EEClusterClient::analyze(void){
 
   MonitorElement* me;
 
-  if ( collateSources_ ) {
-    sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT BC energy");
-  } else {
-    sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC energy").c_str());
-  }
+  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC energy").c_str());
   me = dbe_->get(histo);
   allEEBasic_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, allEEBasic_[0] );
 
-  if ( collateSources_ ) {
-    sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT BC number");
-  } else {
-    sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC number").c_str());
-  }
+  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC number").c_str());
   me = dbe_->get(histo);
   allEEBasic_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, allEEBasic_[1] );
 
-  if ( collateSources_ ) {
-    sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT BC size");
-  } else {
-    sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC size").c_str());
-  }
+  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC size").c_str());
   me = dbe_->get(histo);
   allEEBasic_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, allEEBasic_[2] );
 
-  if ( collateSources_ ) {
-    sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT BC energy map EE -");
-  } else {
-    sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC energy map EE -").c_str());
-  }
+  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC energy map EE -").c_str());
   me = dbe_->get(histo);
   eneEEBasic_[0] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, eneEEBasic_[0] );
 
-  if ( collateSources_ ) {
-    sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT BC number map EE -");
-  } else {
-    sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC number map EE -").c_str());
-  }
+  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC number map EE -").c_str());
   me = dbe_->get(histo);
   numEEBasic_[0] = UtilsClient::getHisto<TH2F*>( me, cloneME_, numEEBasic_[0] );
 
-  if ( collateSources_ ) {
-    sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT BC energy polar map EE -");
-  } else {
-    sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC energy polar map EE -").c_str());
-  }
+  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC energy polar map EE -").c_str());
   me = dbe_->get(histo);
   enePolarEEBasic_[0] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, enePolarEEBasic_[0] );
 
-  if ( collateSources_ ) {
-    sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT BC number polar map EE -");
-  } else {
-    sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC number polar map EE -").c_str());
-  }
+  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC number polar map EE -").c_str());
   me = dbe_->get(histo);
   numPolarEEBasic_[0] = UtilsClient::getHisto<TH2F*>( me, cloneME_, numPolarEEBasic_[0] );
 
-  if ( collateSources_ ) {
-    sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT BC energy map EE +");
-  } else {
-    sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC energy map EE +").c_str());
-  }
+  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC energy map EE +").c_str());
   me = dbe_->get(histo);
   eneEEBasic_[1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, eneEEBasic_[1] );
 
-  if ( collateSources_ ) {
-    sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT BC number map EE +");
-  } else {
-    sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC number map EE +").c_str());
-  }
+  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC number map EE +").c_str());
   me = dbe_->get(histo);
   numEEBasic_[1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, numEEBasic_[1] );
 
-  if ( collateSources_ ) {
-    sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT BC energy polar map EE +");
-  } else {
-    sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC energy polar map EE +").c_str());
-  }
+  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC energy polar map EE +").c_str());
   me = dbe_->get(histo);
   enePolarEEBasic_[1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, enePolarEEBasic_[1] );
 
-  if ( collateSources_ ) {
-    sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT BC number polar map EE +");
-  } else {
-    sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC number polar map EE +").c_str());
-  }
+  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC number polar map EE +").c_str());
   me = dbe_->get(histo);
   numPolarEEBasic_[1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, numPolarEEBasic_[1] );
 
-  if ( collateSources_ ) {
-    sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT SC energy");
-  } else {
-    sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT SC energy").c_str());
-  }
+  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT SC energy").c_str());
   me = dbe_->get(histo);
   allEE_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, allEE_[0] );
 
-  if ( collateSources_ ) {
-    sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT SC number");
-  } else {
-    sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT SC number").c_str());
-  }
+  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT SC number").c_str());
   me = dbe_->get(histo);
   allEE_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, allEE_[1] );
 
-  if ( collateSources_ ) {
-    sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT SC size");
-  } else {
-    sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT SC size").c_str());
-  }
+  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT SC size").c_str());
   me = dbe_->get(histo);
   allEE_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, allEE_[2] );
 
-  if ( collateSources_ ) {
-    sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT SC energy map EE -");
-  } else {
-    sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT SC energy map EE -").c_str());
-  }
+  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT SC energy map EE -").c_str());
   me = dbe_->get(histo);
   eneEE_[0] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, eneEE_[0] );
 
-  if ( collateSources_ ) {
-    sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT SC number map EE -");
-  } else {
-    sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT SC number map EE -").c_str());
-  }
+  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT SC number map EE -").c_str());
   me = dbe_->get(histo);
   numEE_[0] = UtilsClient::getHisto<TH2F*>( me, cloneME_, numEE_[0] );
 
-  if ( collateSources_ ) {
-    sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT SC energy polar map EE -");
-  } else {
-    sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT SC energy polar map EE -").c_str());
-  }
+  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT SC energy polar map EE -").c_str());
   me = dbe_->get(histo);
   enePolarEE_[0] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, enePolarEE_[0] );
 
-  if ( collateSources_ ) {
-    sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT SC number polar map EE -");
-  } else {
-    sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT SC number polar map EE -").c_str());
-  }
+  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT SC number polar map EE -").c_str());
   me = dbe_->get(histo);
   numPolarEE_[0] = UtilsClient::getHisto<TH2F*>( me, cloneME_, numPolarEE_[0] );
 
-  if ( collateSources_ ) {
-    sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT SC energy map EE +");
-  } else {
-    sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT SC energy map EE +").c_str());
-  }
+  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT SC energy map EE +").c_str());
   me = dbe_->get(histo);
   eneEE_[1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, eneEE_[1] );
 
-  if ( collateSources_ ) {
-    sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT SC number map EE +");
-  } else {
-    sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT SC number map EE +").c_str());
-  }
+  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT SC number map EE +").c_str());
   me = dbe_->get(histo);
   numEE_[1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, numEE_[1] );
 
-  if ( collateSources_ ) {
-    sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT SC energy polar map EE +");
-  } else {
-    sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT SC energy polar map EE +").c_str());
-  }
+  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT SC energy polar map EE +").c_str());
   me = dbe_->get(histo);
   enePolarEE_[1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, enePolarEE_[1] );
 
-  if ( collateSources_ ) {
-    sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT SC number polar map EE +");
-  } else {
-    sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT SC number polar map EE +").c_str());
-  }
+  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT SC number polar map EE +").c_str());
   me = dbe_->get(histo);
   numPolarEE_[1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, numPolarEE_[1] );
 
-  if ( collateSources_ ) {
-    sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT dicluster invariant mass");
-  } else {
-    sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT dicluster invariant mass").c_str());
-  }
+  sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT dicluster invariant mass").c_str());
   me = dbe_->get(histo);
   s_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, s_ );
 

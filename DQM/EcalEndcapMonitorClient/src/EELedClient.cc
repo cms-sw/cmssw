@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2007/09/03 18:27:24 $
- * $Revision: 1.13 $
+ * $Date: 2007/09/06 18:59:06 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -47,9 +47,6 @@ using namespace edm;
 using namespace std;
 
 EELedClient::EELedClient(const ParameterSet& ps){
-
-  // collateSources switch
-  collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -819,123 +816,36 @@ void EELedClient::subscribe(void){
 
   }
 
-  if ( collateSources_ ) {
-
-    if ( verbose_ ) cout << "EELedClient: collate" << endl;
-
-    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-      int ism = superModules_[i];
-
-      sprintf(histo, "EELDT amplitude %s A", Numbers::sEE(ism).c_str());
-      me_h01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELedTask");
-      sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude %s A", Numbers::sEE(ism).c_str());
-      mui_->add(me_h01_[ism-1], histo);
-
-      sprintf(histo, "EELDT amplitude over PN %s A", Numbers::sEE(ism).c_str());
-      me_h02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELedTask");
-      sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude over PN %s A", Numbers::sEE(ism).c_str());
-      mui_->add(me_h02_[ism-1], histo);
-
-      sprintf(histo, "EELDT timing %s A", Numbers::sEE(ism).c_str());
-      me_h09_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELedTask");
-      sprintf(histo, "*/EcalEndcap/EELedTask/EELDT timing %s A", Numbers::sEE(ism).c_str());
-      mui_->add(me_h09_[ism-1], histo);
-
-      sprintf(histo, "EELDT amplitude %s B", Numbers::sEE(ism).c_str());
-      me_h13_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELedTask");
-      sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude %s B", Numbers::sEE(ism).c_str());
-      mui_->add(me_h13_[ism-1], histo);
-
-      sprintf(histo, "EELDT amplitude over PN %s B", Numbers::sEE(ism).c_str());
-      me_h14_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELedTask");
-      sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude over PN %s B", Numbers::sEE(ism).c_str());
-      mui_->add(me_h14_[ism-1], histo);
-
-      sprintf(histo, "EELDT timing %s B", Numbers::sEE(ism).c_str());
-      me_h21_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELedTask");
-      sprintf(histo, "*/EcalEndcap/EELedTask/EELDT timing %s B", Numbers::sEE(ism).c_str());
-      mui_->add(me_h21_[ism-1], histo);
-
-      sprintf(histo, "EELDT shape %s A", Numbers::sEE(ism).c_str());
-      me_hs01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELedTask");
-      sprintf(histo, "*/EcalEndcap/EELedTask/EELDT shape %s A", Numbers::sEE(ism).c_str());
-      mui_->add(me_hs01_[ism-1], histo);
-
-      sprintf(histo, "EELDT shape %s B", Numbers::sEE(ism).c_str());
-      me_hs05_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELedTask");
-      sprintf(histo, "*/EcalEndcap/EELedTask/EELDT shape %s B", Numbers::sEE(ism).c_str());
-      mui_->add(me_hs05_[ism-1], histo);
-
-      sprintf(histo, "EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
-      me_i01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELedTask/PN/Gain01");
-      sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
-      mui_->add(me_i01_[ism-1], histo);
-
-      sprintf(histo, "EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
-      me_i05_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELedTask/PN/Gain01");
-      sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
-      mui_->add(me_i05_[ism-1], histo);
-
-      sprintf(histo, "EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
-      me_i09_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELedTask/PN/Gain16");
-      sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
-      mui_->add(me_i09_[ism-1], histo);
-
-      sprintf(histo, "EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
-      me_i13_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EELedTask/PN/Gain16");
-      sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
-      mui_->add(me_i13_[ism-1], histo);
-
-    }
-
-  }
-
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/EELDT amplitude %s A", Numbers::sEE(ism).c_str());
+    if ( enableMonitorDaemon_ ) {
+      sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude %s A", Numbers::sEE(ism).c_str());
       if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/EELDT amplitude %s B", Numbers::sEE(ism).c_str());
+      sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude %s B", Numbers::sEE(ism).c_str());
       if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
+      sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
       if ( qth09_[ism-1] ) dbe_->useQTest(histo, qth09_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
+      sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
       if ( qth13_[ism-1] ) dbe_->useQTest(histo, qth13_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
+      sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
       if ( qth17_[ism-1] ) dbe_->useQTest(histo, qth17_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
+      sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
       if ( qth21_[ism-1] ) dbe_->useQTest(histo, qth21_[ism-1]->getName());
     } else {
-      if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude %s A", Numbers::sEE(ism).c_str());
-        if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EELedTask/EELDT amplitude %s B", Numbers::sEE(ism).c_str());
-        if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
-        if ( qth09_[ism-1] ) dbe_->useQTest(histo, qth09_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
-        if ( qth13_[ism-1] ) dbe_->useQTest(histo, qth13_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
-        if ( qth17_[ism-1] ) dbe_->useQTest(histo, qth17_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
-        if ( qth21_[ism-1] ) dbe_->useQTest(histo, qth21_[ism-1]->getName());
-      } else {
-        sprintf(histo, "EcalEndcap/EELedTask/EELDT amplitude %s A", Numbers::sEE(ism).c_str());
-        if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EELedTask/EELDT amplitude %s B", Numbers::sEE(ism).c_str());
-        if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
-        if ( qth09_[ism-1] ) dbe_->useQTest(histo, qth09_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
-        if ( qth13_[ism-1] ) dbe_->useQTest(histo, qth13_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
-        if ( qth17_[ism-1] ) dbe_->useQTest(histo, qth17_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
-        if ( qth21_[ism-1] ) dbe_->useQTest(histo, qth21_[ism-1]->getName());
-      }
+      sprintf(histo, "EcalEndcap/EELedTask/EELDT amplitude %s A", Numbers::sEE(ism).c_str());
+      if ( qth01_[ism-1] ) dbe_->useQTest(histo, qth01_[ism-1]->getName());
+      sprintf(histo, "EcalEndcap/EELedTask/EELDT amplitude %s B", Numbers::sEE(ism).c_str());
+      if ( qth05_[ism-1] ) dbe_->useQTest(histo, qth05_[ism-1]->getName());
+      sprintf(histo, "EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
+      if ( qth09_[ism-1] ) dbe_->useQTest(histo, qth09_[ism-1]->getName());
+      sprintf(histo, "EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
+      if ( qth13_[ism-1] ) dbe_->useQTest(histo, qth13_[ism-1]->getName());
+      sprintf(histo, "EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
+      if ( qth17_[ism-1] ) dbe_->useQTest(histo, qth17_[ism-1]->getName());
+      sprintf(histo, "EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
+      if ( qth21_[ism-1] ) dbe_->useQTest(histo, qth21_[ism-1]->getName());
     }
 
     sprintf(histo, "EcalEndcap/EELaserTask/EELDT led quality %s", Numbers::sEE(ism).c_str());
@@ -996,44 +906,6 @@ void EELedClient::subscribeNew(void){
 void EELedClient::unsubscribe(void){
 
   if ( verbose_ ) cout << "EELedClient: unsubscribe" << endl;
-
-  if ( collateSources_ ) {
-
-    if ( verbose_ ) cout << "EELedClient: uncollate" << endl;
-
-    if ( mui_ ) {
-
-      for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-        int ism = superModules_[i];
-
-        dbe_->removeCollate(me_h01_[ism-1]);
-        dbe_->removeCollate(me_h02_[ism-1]);
-
-        dbe_->removeCollate(me_h09_[ism-1]);
-
-        dbe_->removeCollate(me_h13_[ism-1]);
-        dbe_->removeCollate(me_h14_[ism-1]);
-
-        dbe_->removeCollate(me_h21_[ism-1]);
-
-        dbe_->removeCollate(me_hs01_[ism-1]);
-
-        dbe_->removeCollate(me_hs05_[ism-1]);
-
-        dbe_->removeCollate(me_i01_[ism-1]);
-
-        dbe_->removeCollate(me_i05_[ism-1]);
-
-        dbe_->removeCollate(me_i09_[ism-1]);
-
-        dbe_->removeCollate(me_i13_[ism-1]);
-
-      }
-
-    }
-
-  }
 
   Char_t histo[200];
 
@@ -1125,99 +997,51 @@ void EELedClient::analyze(void){
 
     int ism = superModules_[i];
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/EELDT amplitude %s A", Numbers::sEE(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELDT amplitude %s A").c_str(), Numbers::sEE(ism).c_str());
-    }
+    sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELDT amplitude %s A").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/EELDT amplitude over PN %s A", Numbers::sEE(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELDT amplitude over PN %s A").c_str(), Numbers::sEE(ism).c_str());
-    }
+    sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELDT amplitude over PN %s A").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/EELDT timing %s A", Numbers::sEE(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELDT timing %s A").c_str(), Numbers::sEE(ism).c_str());
-    }
+    sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELDT timing %s A").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
     h09_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h09_[ism-1] );
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/EELDT amplitude %s B", Numbers::sEE(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELDT amplitude %s B").c_str(), Numbers::sEE(ism).c_str());
-    }
+    sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELDT amplitude %s B").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
     h13_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h13_[ism-1] );
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/EELDT amplitude over PN %s B", Numbers::sEE(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELDT amplitude over PN %s B").c_str(), Numbers::sEE(ism).c_str());
-    }
+    sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELDT amplitude over PN %s B").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
     h14_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h14_[ism-1] );
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/EELDT timing %s B", Numbers::sEE(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELDT timing %s B").c_str(), Numbers::sEE(ism).c_str());
-    }
+    sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELDT timing %s B").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
     h21_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h21_[ism-1] );
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/EELDT shape %s A", Numbers::sEE(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELDT shape %s A").c_str(), Numbers::sEE(ism).c_str());
-    }
+    sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELDT shape %s A").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
     hs01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs01_[ism-1] );
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/EELDT shape %s B", Numbers::sEE(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELDT shape %s B").c_str(), Numbers::sEE(ism).c_str());
-    }
+    sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/EELDT shape %s B").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
     hs05_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs05_[ism-1] );
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01").c_str(), Numbers::sEE(ism).c_str());
-    }
+    sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs amplitude %s G01").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
     i01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i01_[ism-1] );
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01").c_str(), Numbers::sEE(ism).c_str());
-    }
+    sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs pedestal %s G01").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
     i05_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i05_[ism-1] );
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16").c_str(), Numbers::sEE(ism).c_str());
-    }
+    sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs amplitude %s G16").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
     i09_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i09_[ism-1] );
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16").c_str(), Numbers::sEE(ism).c_str());
-    }
+    sprintf(histo, (prefixME_+"EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal %s G16").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
     i13_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i13_[ism-1] );
 

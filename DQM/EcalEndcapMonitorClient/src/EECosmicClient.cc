@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2007/08/21 11:31:47 $
- * $Revision: 1.17 $
+ * $Date: 2007/09/06 18:59:06 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -41,9 +41,6 @@ using namespace edm;
 using namespace std;
 
 EECosmicClient::EECosmicClient(const ParameterSet& ps){
-
-  // collateSources switch
-  collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -284,33 +281,6 @@ void EECosmicClient::subscribe(void){
 
   }
 
-  if ( collateSources_ ) {
-
-    if ( verbose_ ) cout << "EECosmicClient: collate" << endl;
-
-    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-      int ism = superModules_[i];
-
-      sprintf(histo, "EECT energy sel %s", Numbers::sEE(ism).c_str());
-      me_h01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EECosmicTask/Sel");
-      sprintf(histo, "*/EcalEndcap/EECosmicTask/Sel/EECT energy sel %s", Numbers::sEE(ism).c_str());
-      mui_->add(me_h01_[ism-1], histo);
-
-      sprintf(histo, "EECT energy cut %s", Numbers::sEE(ism).c_str());
-      me_h02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EECosmicTask/Cut");
-      sprintf(histo, "*/EcalEndcap/EECosmicTask/Cut/EECT energy cut %s", Numbers::sEE(ism).c_str());
-      mui_->add(me_h02_[ism-1], histo);
-
-      sprintf(histo, "EECT energy spectrum %s", Numbers::sEE(ism).c_str());
-      me_h03_[ism-1] = mui_->collate1D(histo, histo, "EcalEndcap/Sums/EECosmicTask/Spectrum");
-      sprintf(histo, "*/EcalEndcap/EECosmicTask/Spectrum/EECT energy spectrum %s", Numbers::sEE(ism).c_str());
-      mui_->add(me_h03_[ism-1], histo);
-
-    }
-
-  }
-
 }
 
 void EECosmicClient::subscribeNew(void){
@@ -335,26 +305,6 @@ void EECosmicClient::subscribeNew(void){
 void EECosmicClient::unsubscribe(void){
 
   if ( verbose_ ) cout << "EECosmicClient: unsubscribe" << endl;
-
-  if ( collateSources_ ) {
-
-    if ( verbose_ ) cout << "EECosmicClient: uncollate" << endl;
-
-    if ( mui_ ) {
-
-      for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-        int ism = superModules_[i];
-
-        dbe_->removeCollate(me_h01_[ism-1]);
-        dbe_->removeCollate(me_h02_[ism-1]);
-        dbe_->removeCollate(me_h03_[ism-1]);
-
-      }
-
-    }
-
-  }
 
   Char_t histo[200];
 
@@ -403,29 +353,17 @@ void EECosmicClient::analyze(void){
 
     int ism = superModules_[i];
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EECosmicTask/Sel/EECT energy sel %s", Numbers::sEE(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EECosmicTask/Sel/EECT energy sel %s").c_str(), Numbers::sEE(ism).c_str());
-    }
+    sprintf(histo, (prefixME_+"EcalEndcap/EECosmicTask/Sel/EECT energy sel %s").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EECosmicTask/Cut/EECT energy cut %s", Numbers::sEE(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EECosmicTask/Cut/EECT energy cut %s").c_str(), Numbers::sEE(ism).c_str());
-    }
+    sprintf(histo, (prefixME_+"EcalEndcap/EECosmicTask/Cut/EECT energy cut %s").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
     meh02_[ism-1] = me;
 
-    if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EECosmicTask/Spectrum/EECT energy spectrum %s", Numbers::sEE(ism).c_str());
-    } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EECosmicTask/Spectrum/EECT energy spectrum %s").c_str(), Numbers::sEE(ism).c_str());
-    }
+    sprintf(histo, (prefixME_+"EcalEndcap/EECosmicTask/Spectrum/EECT energy spectrum %s").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03_[ism-1] );
     meh03_[ism-1] = me;

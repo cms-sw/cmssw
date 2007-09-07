@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/08/21 13:55:35 $
- * $Revision: 1.27 $
+ * $Date: 2007/09/03 18:27:25 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  *
 */
@@ -50,9 +50,6 @@ using namespace edm;
 using namespace std;
 
 EESummaryClient::EESummaryClient(const ParameterSet& ps){
-
-  // collateSources switch
-  collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
