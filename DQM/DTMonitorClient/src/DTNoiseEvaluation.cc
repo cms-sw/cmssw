@@ -1,8 +1,8 @@
 /*
  * \file DTTestPulseRange.cc
  *
- * $Date: 2006/08/13 15:07:24 $
- * $Revision: 1.5 $
+ * $Date: 2007/04/11 16:45:36 $
+ * $Revision: 1.1 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -54,9 +54,6 @@ DTNoiseEvaluation::DTNoiseEvaluation(const edm::ParameterSet& ps): parameters(ps
   // get hold of back-end interface
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
 
-  // instantiate Monitor UI without connecting to any monitoring server
-  // (i.e. "standalone mode")
-  mui = new MonitorUIRoot();
 
 
 }
@@ -65,7 +62,6 @@ DTNoiseEvaluation::~DTNoiseEvaluation() {
 
   if ( outputFile.size() != 0 ) dbe->save(outputFile);
 
-  delete mui;
 }
 
 
@@ -181,12 +177,11 @@ void DTNoiseEvaluation::analyze(const edm::Event& e, const edm::EventSetup& c){
 void DTNoiseEvaluation::createQualityTests() {
 
 
-  theNoiseTest = dynamic_cast<MENoisyChannelROOT*> (mui->createQTest(NoisyChannelROOT::getAlgoName(), 
-								     criterionName ));
+  theNoiseTest = dynamic_cast<MENoisyChannelROOT*> (dbe->createQTest(NoisyChannelROOT::getAlgoName(), criterionName ));
   
   for (vector<string>::iterator n_it = histoNamesCollection.begin(); 
        n_it != histoNamesCollection.end(); n_it++) 
-    mui->useQTest((*n_it), criterionName);
+    dbe->useQTest((*n_it), criterionName);
   
   // set tolerance for noisy channel
   theNoiseTest->setTolerance(parameters.getUntrackedParameter<double>("tolerance",0.30));
@@ -199,25 +194,25 @@ void DTNoiseEvaluation::createQualityTests() {
 
 void DTNoiseEvaluation::runDQMTest() {
 
-  mui->runQTests(); // mui->update() would have the same result
+  dbe->runQTests(); // dbe->update() would have the same result
 
   // determine the "global" status of the system
-  int status = mui->getSystemStatus();
-  switch(status)
-    {
-    case dqm::qstatus::ERROR:
-      LogError("NoiseTestPrintOut")<<" Error: Some channels have been found to be noisy";
-      break;
-    case dqm::qstatus::WARNING:
-      LogWarning("NoiseTestPrintOut")<<" Warning: Some channels have been found to be noisy";
-      cout << " Warning: Some channels have been found to be noisy";
-      break;
-    case dqm::qstatus::OTHER:
-      LogWarning("NoiseTestPrintOut")<<"  Some tests did not run";
-      break; 
-    default:
-      LogInfo("NoiseTestPrintOut")<<"  No channels have been found to be noisy";
-    }
+  //   int status = dbe->getSystemStatus();
+  //   switch(status)
+  //     {
+  //     case dqm::qstatus::ERROR:
+  //       LogError("NoiseTestPrintOut")<<" Error: Some channels have been found to be noisy";
+  //       break;
+  //     case dqm::qstatus::WARNING:
+  //       LogWarning("NoiseTestPrintOut")<<" Warning: Some channels have been found to be noisy";
+  //       cout << " Warning: Some channels have been found to be noisy";
+  //       break;
+  //     case dqm::qstatus::OTHER:
+  //       LogWarning("NoiseTestPrintOut")<<"  Some tests did not run";
+  //       break; 
+  //     default:
+  //       LogInfo("NoiseTestPrintOut")<<"  No channels have been found to be noisy";
+  //     }
 
   // looping of the existent noise histograms
   for (map< uint32_t, MonitorElement*>::iterator h_it = occupancyHistos.begin();

@@ -4,8 +4,8 @@
 /*
  * \file DTNoiseEvaluation.h
  *
- * $Date: 2006/08/10 16:27:18 $
- * $Revision: 1.2 $
+ * $Date: 2007/04/11 16:45:36 $
+ * $Revision: 1.1 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -88,9 +88,6 @@ private:
 
   // back-end interface
   DaqMonitorBEInterface * dbe;
-
-  // Monitor UI
-  MonitorUserInterface * mui;
 
   // histograms: < DetID, Histogram >
   std::map< uint32_t , MonitorElement* > occupancyHistos;
