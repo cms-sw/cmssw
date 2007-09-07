@@ -16,7 +16,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: LuminosityBlock.h,v 1.12 2007/07/31 23:58:54 wmtan Exp $
+$Id: LuminosityBlock.h,v 1.13 2007/08/14 18:54:07 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -54,6 +54,9 @@ namespace edm {
     LuminosityBlockID id() const {
       return aux_.id();
     }
+
+    Timestamp const& beginTime() const {return aux_.beginTime();}
+    Timestamp const& endTime() const {return aux_.endTime();}
 
     using DataViewImpl::get;
     using DataViewImpl::getAllProvenance;

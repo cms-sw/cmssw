@@ -15,7 +15,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: Run.h,v 1.8 2007/07/31 23:58:54 wmtan Exp $
+$Id: Run.h,v 1.9 2007/08/14 18:54:07 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -43,6 +43,8 @@ namespace edm {
     // AUX functions.
     RunID const& id() const {return aux_.id();}
     RunNumber_t run() const {return aux_.run();}
+    Timestamp const& beginTime() const {return aux_.beginTime();}
+    Timestamp const& endTime() const {return aux_.endTime();}
 
     using DataViewImpl::get;
     using DataViewImpl::getAllProvenance;
