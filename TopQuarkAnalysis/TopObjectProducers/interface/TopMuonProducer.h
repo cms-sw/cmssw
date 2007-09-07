@@ -1,8 +1,5 @@
 //
-// Author:  Jan Heyninck, Steven Lowette
-// Created: Tue Apr  10 12:01:49 CEST 2007
-//
-// $Id: TopMuonProducer.h,v 1.8 2007/08/28 22:35:59 rwolf Exp $
+// $Id: TopMuonProducer.h,v 1.9 2007/09/07 18:12:11 lowette Exp $
 //
 
 #ifndef TopObjectProducers_TopMuonProducer_h
@@ -17,17 +14,21 @@
    calculation of a lepton likelihood ratio
 
   \author   Jan Heyninck, Steven Lowette
-  \version  $Id: TopMuonProducer.h,v 1.7 2007/08/27 11:04:31 tsirig Exp $
+  \version  $Id: TopMuonProducer.h,v 1.9 2007/09/07 18:12:11 lowette Exp $
 */
+
+
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
+
+#include "PhysicsTools/Utilities/interface/PtComparator.h"
+
+#include "AnalysisDataFormats/TopObjects/interface/TopLepton.h"
 
 #include <string>
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "PhysicsTools/Utilities/interface/PtComparator.h"
-#include "AnalysisDataFormats/TopObjects/interface/TopLepton.h"
 
 class TopObjectResolutionCalc;
 class TopLeptonTrackerIsolationPt;
@@ -41,31 +42,39 @@ class TopMuonProducer : public edm::EDProducer {
   
     explicit TopMuonProducer(const edm::ParameterSet & iConfig);
     ~TopMuonProducer();
+
     virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
   
   private:
 
-    void matchTruth(const reco::CandidateCollection&, TopMuonTypeCollection&);  
-    reco::GenParticleCandidate findTruth(const reco::CandidateCollection&, const TopMuonType&);  
+    reco::GenParticleCandidate findTruth(const reco::CandidateCollection & parts, const TopMuonType & muon);  
+    void matchTruth(const reco::CandidateCollection & parts, std::vector<TopMuonType> & muons);
   
   private:
   
     // configurables
-    edm::InputTag muonSrc_, genPartSrc_, tracksTag_;
-    bool useTrkIso_, useCalIso_; 
-    bool addResolutions_, useNNReso_;  
-    bool addLRValues_;
-    bool doGenMatch_;
-    std::string muonResoFile_;
-    std::string muonLRFile_;
-    double minRecoOnGenEt_, maxRecoOnGenEt_, maxDeltaR_;  
+    edm::InputTag muonSrc_;
+    bool          doGenMatch_;
+    edm::InputTag genPartSrc_;
+    double        maxDeltaR_;
+    double        minRecoOnGenEt_;
+    double        maxRecoOnGenEt_;
+    bool          addResolutions_;
+    bool          useNNReso_;
+    std::string   muonResoFile_;
+    bool          doTrkIso_;
+    edm::InputTag tracksSrc_;
+    bool          doCalIso_;
+    bool          addLRValues_;
+    std::string   muonLRFile_;
     // tools
-    TopObjectResolutionCalc *theResoCalc_;
-    TopLeptonTrackerIsolationPt  *trkIsolation_;
-    TopLeptonCaloIsolationEnergy *calIsolation_;
-    TopLeptonLRCalc *theLeptonLRCalc_;
-    std::vector<std::pair<const reco::Candidate *, TopMuonType*> > pairGenRecoMuonsVector_;
-    GreaterByPt<TopMuon> pTComparator_;
+    TopObjectResolutionCalc      * theResoCalc_;
+    TopLeptonTrackerIsolationPt  * trkIsolation_;
+    TopLeptonCaloIsolationEnergy * calIsolation_;
+    TopLeptonLRCalc              * theLeptonLRCalc_;
+    GreaterByPt<TopMuon>           pTComparator_;
+    // other
+    std::vector<std::pair<const reco::Candidate *, TopMuonType *> > pairGenRecoMuonsVector_;
 
 };
 
