@@ -32,7 +32,7 @@ CSCscaAnalyzer::CSCscaAnalyzer(edm::ParameterSet const& conf) {
   strip=0,misMatch=0;
   chamber=0,layer=0,reportedChambers=0;
   length=1,myevt=0,flag=-9;
-  pedMean=0.0,NChambers=0;
+  pedMean=0.0,NChambers=0,myNcham=0;
 
   for (int i=0;i<DDU_sca;i++){
     for (int j=0;j<CHAMBERS_sca;j++){
@@ -59,7 +59,9 @@ void CSCscaAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
   edm::Handle<FEDRawDataCollection> rawdata;
   e.getByType(rawdata); //before 0_7_0_pre4 use getByLabel("DaqSource", rawdata)
   //myevt=e.id().event();
-  
+  counterzero=counterzero+1;
+  evt=(counterzero+1)/2;
+
   for (int id=FEDNumbering::getCSCFEDIds().first;
        id<=FEDNumbering::getCSCFEDIds().second; ++id){ //for each of our DCCs
     
@@ -87,7 +89,9 @@ void CSCscaAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
 	int repChambers = dduData[iDDU].header().ncsc();
 	std::cout << " Reported Chambers = " << repChambers <<"   "<<NChambers<< std::endl;
 	if (NChambers!=repChambers) { std::cout<< "misMatched size!!!" << std::endl; misMatch++; continue;}
-	
+	if(NChambers > myNcham){
+	  myNcham=NChambers;
+	}
 
 	for (int chamber = 0; chamber < NChambers; chamber++){
 	  const CSCDMBHeader &thisDMBheader = cscData[chamber].dmbHeader();
@@ -130,6 +134,7 @@ void CSCscaAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
 	  }//CFEB available
 	}//chamber
 	
+	//???????????
 	if((evt-1)%20==0){
 	  for(int iii=0;iii<DDU_sca;iii++){
 	    for(int ii=0; ii<CHAMBERS_sca; ii++){
@@ -143,9 +148,10 @@ void CSCscaAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
 	    }
 	  }
 	}
+	
 
 	eventNumber++;
-	edm::LogInfo ("CSCscaAnalyzer")  << "end of event number " << eventNumber;
+	edm::LogInfo ("CSCscaAnalyzer")  << "end of event number " << eventNumber<<" and non-zero event "<<evt;
 	
       }
     }
@@ -188,7 +194,7 @@ CSCscaAnalyzer::~CSCscaAnalyzer(){
   stat(myname.c_str(), &attrib);          
   clock = localtime(&(attrib.st_mtime));  
   std::string myTime=asctime(clock);
-  std::ofstream myfile(myFileName,std::ios::out);
+  std::ofstream mySCAfile(myFileName,std::ios::out);
 
   //root ntuple
   TCalibSCAEvt calib_evt;
@@ -197,13 +203,13 @@ CSCscaAnalyzer::~CSCscaAnalyzer(){
   calibtree.Branch("EVENT", &calib_evt, "strip/I:layer/I:cham/I:ddu/I:scaMeanVal/F");
   
   //DB object and map
-  //CSCobject *cn = new CSCobject();
+  CSCobject *cn = new CSCobject();
   //CSCobject *cn1 = new CSCobject();
   cscmap *map = new cscmap();
-    //condbon *dbon = new condbon();
+  condbon *dbon = new condbon();
   
   for (int dduiter=0;dduiter<Nddu;dduiter++){ 
-    for (int cham=0;cham<NChambers;cham++){ 
+    for (int cham=0;cham<myNcham;cham++){ 
       
       //get chamber ID from DB mapping
       int new_crateID = crateID[cham];
@@ -220,14 +226,14 @@ CSCscaAnalyzer::~CSCscaAnalyzer(){
 	    my_scaValue = value_adc[dduiter][cham][layeriter][stripiter][k];
 	    my_scaValueMean = value_adc_mean[dduiter][cham][layeriter][stripiter][k];
 	    
-	    myfile<<layer_id<<"  "<<stripiter<<"  "<<my_scaValueMean<<std::endl;
-	    //	    std::cout<<"Ch "<<cham<<" Layer "<<layeriter<<" strip "<<stripiter<<" sca_nr "<<k<<" Mean ADC "<<my_scaValueMean <<std::endl;
+	    mySCAfile<<cham<<"  "<<stripiter<<"  "<<k<<"  "<<layer_id<<"  "<<my_scaValueMean<<std::endl;
+	    //std::cout<<"Ch "<<cham<<" Layer "<<layeriter<<" strip "<<stripiter<<" sca_nr "<<k<<" Mean ADC "<<my_scaValueMean <<std::endl;
 	    calib_evt.strip=stripiter;
 	    calib_evt.layer=layeriter;
 	    calib_evt.cham=cham;
 	    calib_evt.ddu=dduiter;
 	    calib_evt.scaMeanVal=my_scaValueMean;
-	    
+    
 	    calibtree.Fill();
 	  }
 	}

@@ -35,14 +35,14 @@ class CSCscaAnalyzer : public edm::EDAnalyzer {
   explicit CSCscaAnalyzer(edm::ParameterSet const& conf);
   virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
    
-#define CHAMBERS_sca 18
+#define CHAMBERS_sca 9
 #define LAYERS_sca 6
 #define STRIPS_sca 80
 #define TIMEBINS_sca 8
 #define DDU_sca 2
 #define Number_sca 96
 #define TOTALSTRIPS_sca 480
-#define TOTALEVENTS_sca 320
+#define TOTALEVENTS_sca 10000
 
   ~CSCscaAnalyzer();
 
@@ -60,9 +60,9 @@ class CSCscaAnalyzer : public edm::EDAnalyzer {
   std::ifstream filein;
   std::string PSet,name;
   bool debug;
-  int flag,my_scaValue;
+  int flag,my_scaValue,counterzero;
   float pedMean,my_scaValueMean;
-  int scaBlock,trigTime,lctPhase,power,cap,scaNumber;
+  int scaBlock,trigTime,lctPhase,power,cap,scaNumber,myNcham;
 
   //root ntuple
   TCalibSCAEvt calib_evt;
