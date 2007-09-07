@@ -2,6 +2,7 @@
 #include <cstdlib>
 
 #include "FWCore/Services/src/UnixSignalService.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 
@@ -11,9 +12,10 @@ namespace edm {
 
   UnixSignalService::UnixSignalService(edm::ParameterSet const& pset,
                                        edm::ActivityRegistry& registry)
+    : enableSigInt_(pset.getUntrackedParameter<bool>("EnableCtrlC",false))
   {
     edm::installCustomHandler(SIGUSR2,edm::ep_sigusr2);
-    edm::installCustomHandler(SIGINT ,edm::ep_sigusr2);
+    if(enableSigInt_)  edm::installCustomHandler(SIGINT ,edm::ep_sigusr2);
   }
 
   UnixSignalService::~UnixSignalService() {}

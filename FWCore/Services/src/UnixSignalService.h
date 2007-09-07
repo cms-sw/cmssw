@@ -20,6 +20,8 @@ namespace edm {
 
   class UnixSignalService
   {
+  private:
+    bool enableSigInt_;
 
   public:
     UnixSignalService(edm::ParameterSet const& ps, edm::ActivityRegistry& ac); 
