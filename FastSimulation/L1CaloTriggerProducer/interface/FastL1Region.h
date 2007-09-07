@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1Region.h,v 1.11 2007/08/22 18:28:38 chinhan Exp $
+// $Id: FastL1Region.h,v 1.12 2007/09/07 19:37:25 smaruyam Exp $
 //
 
 // user include files
@@ -129,7 +129,7 @@ class FastL1Region {
   int GetNEId(); 
   int GetSEId(); 
 
-  void SetRegionBits(edm::Event const& e);
+  void SetRegionBits(edm::Event const& e,bool bitinfo);
   void SetTowerBits();
   void SetRegionEnergy();
 
@@ -172,7 +172,7 @@ class FastL1Region {
   void SetHOEBit(int twrid,bool FGBIT);
 
  private:
-  void SetTauBit(edm::Event const& e);
+  void SetTauBit(edm::Event const& e, bool bitinfo);
   void SetFGBit();
   void SetHOEBit();
   void SetQuietBit();

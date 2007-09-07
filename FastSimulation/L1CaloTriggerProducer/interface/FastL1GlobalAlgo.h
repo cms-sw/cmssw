@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.h,v 1.9 2007/08/23 04:48:42 chinhan Exp $
+// $Id: FastL1GlobalAlgo.h,v 1.10 2007/09/07 19:37:09 smaruyam Exp $
 //
 
 // system include files
@@ -118,7 +118,7 @@ class FastL1GlobalAlgo {
 
       std::vector<FastL1Region> m_Regions;
       FastL1RegionMap* m_RMap;
-
+     bool m_DoBitInfo;
       FastL1Config m_L1Config;
       double m_hcaluncomp[33][256];
 };

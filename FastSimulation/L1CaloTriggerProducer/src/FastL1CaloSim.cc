@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1CaloSim.cc,v 1.7 2007/08/18 02:11:41 chinhan Exp $
+// $Id: FastL1CaloSim.cc,v 1.8 2007/08/23 04:48:42 chinhan Exp $
 //
 //
 
@@ -46,14 +46,10 @@ FastL1CaloSim::FastL1CaloSim(const edm::ParameterSet& iConfig)
   m_AlgorithmSource = iConfig.getParameter<std::string>("AlgorithmSource");
 
   // No BitInfos for release versions
-  /*
   m_DoBitInfo = iConfig.getParameter<bool>("DoBitInfo");
-
   if (m_DoBitInfo)
     produces<FastL1BitInfoCollection>("FastL1BitInfos");
-  */
 
-  //now do what ever other initialization is needed
   m_L1GlobalAlgo = new FastL1GlobalAlgo(iConfig);
 }
 
@@ -87,10 +83,8 @@ FastL1CaloSim::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   m_L1GlobalAlgo->FillMET();     // using Regions
   m_L1GlobalAlgo->FillJets(iSetup);
   
-  /*
   if (m_DoBitInfo)
     m_L1GlobalAlgo->FillBitInfos();
-  */
 
   std::auto_ptr<l1extra::L1EtMissParticle> METResult(new l1extra::L1EtMissParticle);
   std::auto_ptr<l1extra::L1JetParticleCollection> TauJetResult(new l1extra::L1JetParticleCollection);
@@ -100,8 +94,6 @@ FastL1CaloSim::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<l1extra::L1EmParticleCollection> isoEgammaResult(new l1extra::L1EmParticleCollection);
   // muon is dummy!
   std::auto_ptr<l1extra::L1MuonParticleCollection> muonDummy(new l1extra::L1MuonParticleCollection);
-  //std::auto_ptr<FastL1BitInfoCollection> FastL1BitInfoResult(new FastL1BitInfoCollection);
-
   //
   *METResult = m_L1GlobalAlgo->getMET();
   for (int i=0; i<std::min(4,(int)m_L1GlobalAlgo->getTauJets().size()); i++) {
@@ -120,13 +112,13 @@ FastL1CaloSim::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     isoEgammaResult->push_back(m_L1GlobalAlgo->getisoEgammas().at(i));
   }
 
-  /*
   if (m_DoBitInfo) {
+  std::auto_ptr<FastL1BitInfoCollection> FastL1BitInfoResult(new FastL1BitInfoCollection);
     for (int i=0; i<(int)m_L1GlobalAlgo->getBitInfos().size(); i++) {
       FastL1BitInfoResult->push_back(m_L1GlobalAlgo->getBitInfos().at(i));
     }
+    iEvent.put(FastL1BitInfoResult,"FastL1BitInfos");
   }
-  */
 
   // put the collections into the event
   /* old labels
@@ -145,10 +137,6 @@ FastL1CaloSim::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(isoEgammaResult,"Isolated");
   iEvent.put(muonDummy);
 
-  /*
-  if (m_DoBitInfo) 
-    iEvent.put(FastL1BitInfoResult,"FastL1BitInfos");
-  */
 }
 
 

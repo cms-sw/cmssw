@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1Region.cc,v 1.8 2007/08/18 02:12:01 chinhan Exp $
+// $Id: FastL1Region.cc,v 1.12 2007/08/23 04:48:42 chinhan Exp $
 //
 
 // No BitInfos for release versions
@@ -42,16 +42,6 @@ FastL1Region::FastL1Region()
       EMCrystalEnergy[i][j] = 0. ; // 16x25 Crystals
     }
   }
-
-  /*
-  BitInfo.eta = -9999.;
-  BitInfo.phi = -9999.;
-  BitInfo.TauVeto = false;
-  BitInfo.EmTauVeto = false;
-  BitInfo.HadTauVeto = false;
-  BitInfo.SumEtBelowThres = false;
-  BitInfo.IsolationVeto = false;
-  */
 
   // default values
   Config.EMSeedEnThreshold = 2.;
@@ -110,9 +100,9 @@ FastL1Region::SetRegionEnergy()
 }
 
 void 
-FastL1Region::SetRegionBits(edm::Event const& e)
+FastL1Region::SetRegionBits(edm::Event const& e,bool bitinfo)
 {
-  SetTauBit(e);
+  SetTauBit(e,bitinfo);
   SetQuietBit();
   SetMIPBit();
 }
@@ -523,7 +513,7 @@ FastL1Region::SetFGBit()
 
 
 void 
-FastL1Region::SetTauBit(edm::Event const& iEvent)
+FastL1Region::SetTauBit(edm::Event const& iEvent, bool bitinfo)
 {
   float emThres = Config.EMActiveLevel;
   float hadThres = Config.HadActiveLevel;
@@ -587,8 +577,7 @@ FastL1Region::SetTauBit(edm::Event const& iEvent)
       //if(emEtaPat == *i || emPhiPat == *i || hadEtaPat == *i || hadPhiPat == *i)
       {
 	tauBit = true;
-	//BitInfo.TauVeto = true;
-
+if (bitinfo) BitInfo.setTauVeto( true);
 	
 	return;
       }  

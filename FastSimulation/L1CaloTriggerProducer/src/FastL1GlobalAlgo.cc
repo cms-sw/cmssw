@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.cc,v 1.17 2007/08/23 04:48:42 chinhan Exp $
+// $Id: FastL1GlobalAlgo.cc,v 1.18 2007/09/07 19:38:07 smaruyam Exp $
 //
 
 // No BitInfos for release versions
@@ -32,6 +32,7 @@ FastL1GlobalAlgo::FastL1GlobalAlgo(const edm::ParameterSet& iConfig)
   // Get L1 config
   m_L1Config.DoEMCorr = iConfig.getParameter<bool>("DoEMCorr");
   m_L1Config.DoJetCorr = iConfig.getParameter<bool>("DoJetCorr");
+ m_DoBitInfo = iConfig.getParameter<bool>("DoBitInfo");
 
   // get uncompressed hcal et
   m_L1Config.HcalLUT = iConfig.getParameter<edm::FileInPath>("HcalLUT");
@@ -168,22 +169,23 @@ FastL1GlobalAlgo::findJets() {
 
   double eta   = p.first;
   double phi   = p.second;
-
+  if (m_DoBitInfo){
   m_Regions[i].BitInfo.setEta ( eta);
   m_Regions[i].BitInfo.setPhi ( phi);
+}
 
     if (m_Regions.at(i).SumEt()>m_L1Config.JetSeedEtThreshold) {
       if (isMaxEtRgn_Window33(i)) {
 	if (isTauJet(i)) {
 	  addJet(i,true);    
 	} else {
-m_Regions[i].BitInfo.setIsolationVeto ( true);
+  if (m_DoBitInfo) m_Regions[i].BitInfo.setIsolationVeto ( true);
 	  addJet(i,false);    
 	}
       }
-else {m_Regions[i].BitInfo.setMaxEt ( true);}
+else {  if (m_DoBitInfo) m_Regions[i].BitInfo.setMaxEt ( true);}
     } else {
-      m_Regions[i].BitInfo.setSumEtBelowThres ( true);
+  if (m_DoBitInfo)      m_Regions[i].BitInfo.setSumEtBelowThres ( true);
     }
     //}
   }
@@ -229,10 +231,11 @@ FastL1GlobalAlgo::addJet(int iRgn, bool taubit) {
   double ez = e*cos(theta);
 
 //sm
+  if (m_DoBitInfo){
 m_Regions[iRgn].BitInfo.setEt ( et);
 m_Regions[iRgn].BitInfo.setEnergy ( e);
+}
 //ms
-
 
   reco::Particle::LorentzVector rp4(ex,ey,ez,e); 
   l1extra::L1JetParticle tjet(rp4);
@@ -249,7 +252,7 @@ m_Regions[iRgn].BitInfo.setEnergy ( e);
       std::sort(m_TauJets.begin(),m_TauJets.end(), myspace::greaterEt);
     } else {
 //sm
-m_Regions[iRgn].BitInfo.setSoft ( true);
+  if (m_DoBitInfo) m_Regions[iRgn].BitInfo.setSoft ( true);
 //ms
       if (std::abs(eta)<3.0) {
 	m_CenJets.push_back(tjet);
@@ -260,7 +263,7 @@ m_Regions[iRgn].BitInfo.setSoft ( true);
       }
     }
   }
-//else{m_Regions[iRgn].BitInfo.setSoft ( true);} 
+else{  if (m_DoBitInfo) m_Regions[iRgn].BitInfo.setSoft ( true);} 
 }
 
 
@@ -667,7 +670,7 @@ m_Regions[i].BitInfo.hcal[j] = hadEt;
 	else
 	  m_Regions[i].SetHOEBit(j,false);
 	
-	m_Regions[i].SetRegionBits(e);
+	m_Regions[i].SetRegionBits(e, m_DoBitInfo);
       }
       
 
@@ -727,7 +730,7 @@ FastL1GlobalAlgo::FillL1Regions(edm::Event const& e, const edm::EventSetup& iCon
 
       if (rgnid<396 && twrid<16) {
 	m_Regions[rgnid].FillTower_Scaled(*cnd,twrid);
-	m_Regions[rgnid].SetRegionBits(e);
+	m_Regions[rgnid].SetRegionBits(e, m_DoBitInfo);
       } else {
 	//std::cerr << "FastL1GlobalAlgo::FillL1Regions(): ERROR - invalid region or tower ID: " << rgnid << " | " << twrid  << std::endl;
       }
@@ -749,10 +752,12 @@ FastL1GlobalAlgo::FillL1Regions(edm::Event const& e, const edm::EventSetup& iCon
 // Fill Bitwords
 void 
 FastL1GlobalAlgo::FillBitInfos() {
+  if (m_DoBitInfo){
   m_BitInfos.clear();
   for (int i=0; i<396; i++) {
     m_BitInfos.push_back(m_Regions[i].getBitInfo());
   }
+}
 }
 
 // ------------ Check if jet is taujet ------------
