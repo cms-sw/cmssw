@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2007/05/24 16:57:27 $
- * $Revision: 1.8 $
+ * $Date: 2007/08/14 17:44:47 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -28,6 +28,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
 #include <DQM/EcalCommon/interface/Numbers.h>
