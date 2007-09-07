@@ -22,13 +22,14 @@ RPCDigiProducer::~RPCDigiProducer() {
 
 void RPCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
 
-  edm::Handle<CrossingFrame> cf;
-  e.getByType(cf);
+  edm::Handle<CrossingFrame<PSimHit> > cf;
+
   // test access to SimHits
   const std::string hitsName("MuonRPCHits");
+  e.getByLabel("mix",hitsName,cf);
 
   std::auto_ptr<MixCollection<PSimHit> > 
-    hits( new MixCollection<PSimHit>(cf.product(), hitsName) );
+    hits( new MixCollection<PSimHit>(cf.product()));
 
 
   // Create empty output
