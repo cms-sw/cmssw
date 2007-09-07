@@ -311,7 +311,7 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
   }
   
   // Create commissioning task objects 
-  if ( !tasksExist_ ) { createTask( summary.product() ); }
+  if ( !tasksExist_ ) { createTask( summary.product(),setup); }
 
   // Retrieve raw digis with mode appropriate to task 
   edm::Handle< edm::DetSetVector<SiStripRawDigi> > raw;
@@ -649,7 +649,7 @@ void SiStripCommissioningSource::createRunNumber() {
 
 // -----------------------------------------------------------------------------
 //
-void SiStripCommissioningSource::createTask( const SiStripEventSummary* const summary ) {
+void SiStripCommissioningSource::createTask( const SiStripEventSummary* const summary, const edm::EventSetup& setup ) {
   
   // Set commissioning task to default ("undefined") value
   task_ = sistrip::UNDEFINED_RUN_TYPE;
@@ -710,7 +710,7 @@ void SiStripCommissioningSource::createTask( const SiStripEventSummary* const su
     << "[SiStripCommissioningSource::" << __func__ << "]"
     << " Creating CommissioningTask objects and booking histograms...";
   if ( cablingTask_ ) { createCablingTasks(); }
-  else { createTasks( task_ ); }
+  else { createTasks( task_ , setup); }
   edm::LogVerbatim(mlDqmSource_)
     << "[SiStripCommissioningSource::" << __func__ << "]"
     << " Finished booking histograms!";
@@ -858,7 +858,7 @@ void SiStripCommissioningSource::createCablingTasks() {
 
 // -----------------------------------------------------------------------------
 //
-void SiStripCommissioningSource::createTasks( sistrip::RunType run_type ) {
+void SiStripCommissioningSource::createTasks( sistrip::RunType run_type, const edm::EventSetup& setup ) {
 
   // Iterate through FED ids and channels 
   uint16_t booked = 0;
@@ -901,9 +901,9 @@ void SiStripCommissioningSource::createTasks( sistrip::RunType run_type ) {
 	else if ( task_ == sistrip::DAQ_SCOPE_MODE ) { tasks_[iconn->fedId()][iconn->fedCh()] = new DaqScopeModeTask( dqm(), *iconn ); }
         else if ( task_ == sistrip::FINE_DELAY ) { tasks_[iconn->fedId()][iconn->fedCh()] = new FineDelayTask( dqm(), *iconn ); }
         else if ( task_ == sistrip::CALIBRATION_SCAN || task_ == sistrip::CALIBRATION_SCAN_DECO ) { 
-	  tasks_[iconn->fedId()][iconn->fedCh()] = new CalibrationScanTask( dqm(), *iconn, task_, filename_.c_str() ); }
+	  tasks_[iconn->fedId()][iconn->fedCh()] = new CalibrationScanTask( dqm(), *iconn, task_, filename_.c_str(), setup ); }
         else if ( task_ == sistrip::CALIBRATION || task_ == sistrip::CALIBRATION_DECO ) { 
-	  tasks_[iconn->fedId()][iconn->fedCh()] = new CalibrationTask( dqm(), *iconn, task_, filename_.c_str() ); }
+	  tasks_[iconn->fedId()][iconn->fedCh()] = new CalibrationTask( dqm(), *iconn, task_, filename_.c_str(), setup ); }
 	else if ( task_ == sistrip::UNDEFINED_RUN_TYPE ) { 
 	  edm::LogWarning(mlDqmSource_)  
 	    << "[SiStripCommissioningSource::" << __func__ << "]"

@@ -3,19 +3,36 @@
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "CommonTools/SiStripZeroSuppression/interface/SiStripPedestalsService.h"
 
 // -----------------------------------------------------------------------------
 //
 CalibrationTask::CalibrationTask( DaqMonitorBEInterface* dqm,
 			      const FedChannelConnection& conn,
 			      const sistrip::RunType& rtype,
-			      const char* filename ) :
+			      const char* filename,
+			      const edm::EventSetup& setup) :
   CommissioningTask( dqm, conn, "CalibrationTask" ),
   runType_(rtype),
   nBins_(65),lastCalChan_(0),
   filename_(filename)
 {
   LogDebug("Commissioning") << "[CalibrationTask::CalibrationTask] Constructing object...";
+  // load the pedestals
+  edm::ESHandle<SiStripPedestals> pedestalsHandle;
+  setup.get<SiStripPedestalsRcd>().get(pedestalsHandle);
+  SiStripPedestals::Range detPedRange = pedestalsHandle->getRange(conn.detId());
+  int start = conn.apvPairNumber()*256; 
+  int stop  = start + 256;
+  int value = 0;
+  ped.reserve(256);
+  for(int strip = start; strip < stop; ++strip) {
+    value = int(pedestalsHandle->getPed(strip,detPedRange));
+    if(value>895) value -= 1024;
+    ped.push_back(value);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -64,8 +81,7 @@ void CalibrationTask::fill( const SiStripEventSummary& summary,
   isub = ical<4 ? ical+4 : ical-4;
   for (int apv=0; apv<2; ++apv) {
     for (int k=0;k<16;++k)  {
-      //TODO: we must substract the pedestal (simplest would be to read it when constructing the task)
-      updateHistoSet( calib_[apv*16+ical+k*8],bin,digis.data[apv*128+k].adc());
+      updateHistoSet( calib_[apv*16+ical+k*8],bin,digis.data[apv*128+k].adc()-ped[apv*128+k]);
     }
   }
 }

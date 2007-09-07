@@ -11,7 +11,8 @@ class CalibrationScanTask : public CommissioningTask {
 
  public:
   
-  CalibrationScanTask( DaqMonitorBEInterface*, const FedChannelConnection&, const sistrip::RunType&, const char* filename );
+  CalibrationScanTask( DaqMonitorBEInterface*, const FedChannelConnection&, const sistrip::RunType&, 
+                       const char* filename, const edm::EventSetup& setup );
   virtual ~CalibrationScanTask();
   
  private:
@@ -29,6 +30,7 @@ class CalibrationScanTask : public CommissioningTask {
   uint16_t nBins_;
   uint16_t lastISHA_,lastVFS_;
   std::string filename_;
+  std::vector<uint16_t> ped;
 
 };
 

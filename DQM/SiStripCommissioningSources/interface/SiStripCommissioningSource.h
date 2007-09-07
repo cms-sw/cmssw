@@ -49,13 +49,13 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
   void createRunNumber();
 
   /** */
-  void createTask( const SiStripEventSummary* const );
+  void createTask( const SiStripEventSummary* const, const edm::EventSetup& );
   
   /** */
   void createCablingTasks();
 
   /** */
-  void createTasks( sistrip::RunType );
+  void createTasks( sistrip::RunType, const edm::EventSetup& );
   
   /** */
   void clearCablingTasks();

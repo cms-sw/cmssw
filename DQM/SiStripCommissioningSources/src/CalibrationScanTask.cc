@@ -3,13 +3,17 @@
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "CommonTools/SiStripZeroSuppression/interface/SiStripPedestalsService.h"
 
 // -----------------------------------------------------------------------------
 //
 CalibrationScanTask::CalibrationScanTask( DaqMonitorBEInterface* dqm,
 			      const FedChannelConnection& conn,
 			      const sistrip::RunType& rtype,
-			      const char* filename ) :
+			      const char* filename,
+                              const edm::EventSetup& setup ) :
   CommissioningTask( dqm, conn, "CalibrationScanTask" ),
   runType_(rtype),
   calib1_(),calib2_(),
@@ -17,6 +21,19 @@ CalibrationScanTask::CalibrationScanTask( DaqMonitorBEInterface* dqm,
   filename_(filename)
 {
   LogDebug("Commissioning") << "[CalibrationScanTask::CalibrationScanTask] Constructing object...";
+  // load the pedestals
+  edm::ESHandle<SiStripPedestals> pedestalsHandle;
+  setup.get<SiStripPedestalsRcd>().get(pedestalsHandle);
+  SiStripPedestals::Range detPedRange = pedestalsHandle->getRange(conn.detId());
+  int start = conn.apvPairNumber()*256;
+  int stop  = start + 256;
+  int value = 0;
+  ped.reserve(256);
+  for(int strip = start; strip < stop; ++strip) {
+    value = int(pedestalsHandle->getPed(strip,detPedRange));
+    if(value>895) value -= 1024;
+    ped.push_back(value);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -76,10 +93,9 @@ void CalibrationScanTask::fill( const SiStripEventSummary& summary,
   int isub,ical = summary.calChan();
   isub = ical<4 ? ical+4 : ical-4;
   for (int k=ical;k<128;k+=8)  {
-  //TODO: we must substract the pedestal (simplest would be to read it when constructing the task)
     // all strips of the APV are merged in 
-    updateHistoSet( calib1_,bin,digis.data[k].adc());
-    updateHistoSet( calib2_,bin,digis.data[k+128].adc());
+    updateHistoSet( calib1_,bin,digis.data[k].adc()-ped[k]);
+    updateHistoSet( calib2_,bin,digis.data[k+128].adc()-ped[k+128]);
   }
 
 }
