@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2007/09/06 17:39:02 $
- *  $Revision: 1.52 $
+ *  $Date: 2007/09/06 19:31:58 $
+ *  $Revision: 1.53 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -278,6 +278,14 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
     event.put(recHitCollection);
     event.put(trackExtraCollection);
     event.put(trackCollection);
+
+    //need to also put the tracker tracks collection if requested
+    if(thePutTkTrackFlag){
+      //will take care of putting nothing in the event but the empty collection
+      TrajectoryContainer trackerTrajs;
+      loadTracks(trackerTrajs, event, theL2SeededTkLabel, theSmoothTkTrackFlag);
+    } 
+
     return event.put(trackLinksCollection);
   }
   
