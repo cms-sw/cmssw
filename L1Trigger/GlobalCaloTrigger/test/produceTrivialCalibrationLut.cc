@@ -1,5 +1,7 @@
 #include "L1Trigger/GlobalCaloTrigger/test/produceTrivialCalibrationLut.h"
 
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
+
 #include <math.h>
 
 produceTrivialCalibrationLut::produceTrivialCalibrationLut() :
@@ -73,11 +75,6 @@ void produceTrivialCalibrationLut::setOrcaStyleCorrectionType()
     m_tauCalibFunc.at(i).push_back(C[i]);
   }
   setOrcaStyleParams();
-}
-
-void produceTrivialCalibrationLut::setOldOrcaStyleCorrectionType()
-{
-  m_corrFunType = L1GctJetEtCalibrationFunction::OLD_ORCA_STYLE_CORRECTION;
 }
 
 L1GctJetEtCalibrationLut* produceTrivialCalibrationLut::produce()
