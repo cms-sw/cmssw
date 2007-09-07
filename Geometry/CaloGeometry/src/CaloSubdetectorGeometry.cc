@@ -101,3 +101,4 @@ CaloSubdetectorGeometry::allocateCorners( CaloCellGeometry::CornersVec::size_typ
    m_cmgr = new CaloCellGeometry::CornersMgr( n*( CaloCellGeometry::k_cornerSize ),
 					      CaloCellGeometry::k_cornerSize        ) ; 
 }
+

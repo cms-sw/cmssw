@@ -2,7 +2,7 @@
 #define GEOMETRY_ECALGEOMETRYLOADER_H 1
 
 #include "DetectorDescription/Core/interface/DDSolid.h"
-//#include "Geometry/CaloGeometry/interface/CaloVGeometryLoader.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
@@ -17,7 +17,6 @@
 */
 
 class DDCompactView;
-class CaloSubdetectorGeometry;
 
 template < class T >
 class CaloGeometryLoader
@@ -27,6 +26,9 @@ class CaloGeometryLoader
       typedef std::vector< double > ParmVec ;
 
       typedef std::auto_ptr< CaloSubdetectorGeometry > PtrType ;
+
+      typedef CaloSubdetectorGeometry::ParVec    ParVec ;
+      typedef CaloSubdetectorGeometry::ParVecVec ParVecVec ;
 
       CaloGeometryLoader< T >() ;
 

@@ -14,8 +14,8 @@ Base class for a geometry container for a specific calorimetry
 subdetector.
 
 
-$Date: 2007/06/15 06:09:54 $
-$Revision: 1.10 $
+$Date: 2007/09/05 19:53:08 $
+$Revision: 1.11 $
 \author J. Mans - Minnesota
 */
 class CaloSubdetectorGeometry {
@@ -24,9 +24,12 @@ class CaloSubdetectorGeometry {
 
       typedef  __gnu_cxx::hash_map< unsigned int, const CaloCellGeometry *> CellCont;
 
-      typedef std::set<DetId> DetIdSet;
+      typedef std::set<DetId>       DetIdSet;
 
-      CaloSubdetectorGeometry() : m_cmgr ( 0 ) {}
+      typedef std::vector<float>  ParVec ;
+      typedef std::vector<ParVec> ParVecVec ;
+
+      CaloSubdetectorGeometry() : m_cmgr   ( 0 ) {}
 
       /// The base class DOES assume that it owns the CaloCellGeometry objects
       virtual ~CaloSubdetectorGeometry();
@@ -69,7 +72,11 @@ class CaloSubdetectorGeometry {
 
       CaloCellGeometry::CornersMgr* cornersMgr() { return m_cmgr ; }
 
+      ParVecVec& parVecVec() { return m_parVecVec ; }
+
    protected:
+
+      ParVecVec m_parVecVec ;
 
       mutable std::vector<DetId> m_validIds ;
 

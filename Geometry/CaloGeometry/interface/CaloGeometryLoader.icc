@@ -132,4 +132,5 @@ CaloGeometryLoader<T>::getDetIdForDDDNode( const DDFilteredView& fv )
   return m_scheme.getUnitID( baseNumber );  
 }
 
+
 #endif

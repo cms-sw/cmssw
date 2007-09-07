@@ -15,8 +15,8 @@
 
    \brief A base class to handle the shape of preshower strips.
 
-$Date: 2007/04/12 17:47:43 $
-$Revision: 1.3 $
+$Date: 2007/09/05 19:53:09 $
+$Revision: 1.4 $
 \author F. Cossutti
    
 */
@@ -27,14 +27,10 @@ class PreshowerStrip : public CaloCellGeometry
    public:
 
       PreshowerStrip( const GlobalPoint& po ,
-		      float              dx , 
-		      float              dy , 
-		      float              dz ,
-		      const CornersMgr*  mgr ) :
+		      const CornersMgr*  mgr,
+		      const float*       parm ) :
 	 CaloCellGeometry ( po , mgr ) ,
-	 m_dx             ( dx ) ,
-	 m_dy             ( dy ) ,
-	 m_dz             ( dz ) {}
+	 m_parms          ( parm ) {}
 
       virtual ~PreshowerStrip() {}
 
@@ -42,17 +38,15 @@ class PreshowerStrip : public CaloCellGeometry
   
       virtual const CornersVec& getCorners() const ;
 
-      const float dx() const { return m_dx ; }
-      const float dy() const { return m_dy ; }
-      const float dz() const { return m_dz ; }
-
-   protected:
+      const float dx() const { return param()[0] ; }
+      const float dy() const { return param()[1] ; }
+      const float dz() const { return param()[2] ; }
 
    private:
 
-      float m_dx ;
-      float m_dy ;
-      float m_dz ;
+      const float* param() const { return m_parms ; }
+
+      const float* m_parms ;
 };
 
 std::ostream& operator<<( std::ostream& s , const PreshowerStrip& cell) ;

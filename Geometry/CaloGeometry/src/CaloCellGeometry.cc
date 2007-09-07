@@ -24,3 +24,44 @@ std::ostream& operator<<( std::ostream& s, const CaloCellGeometry& cell )
    }
    return s ;
 }
+
+const float* 
+CaloCellGeometry::getParmPtr(
+   const std::vector<double>& vd ,
+   const unsigned int         np ,
+   CaloCellGeometry::ParVecVec& pvv  )
+{
+   const float* pP ( 0 ) ;
+
+   ParVec vv ;
+   vv.resize( np ) ;
+
+   for( unsigned int i ( 0 ) ; i != vd.size() ; ++i )
+   {
+      vv.push_back( vd[i] ) ;
+   }
+
+   for( unsigned int ii ( 0 ) ; ii != vd.size() ; ++ii )
+   {
+      const ParVec& v ( pvv[ii] ) ;
+      assert( v.size() == np ) ;
+
+      bool same ( true ) ;
+      for( unsigned int j ( 0 ) ; j != np ; ++j )
+      {
+	 same = same && ( vv[j] == v[j] ) ;
+      }
+
+      if( same )
+      {
+	 pP = &(*v.begin()) ;
+	 break ;
+      }
+   }
+   if( 0 == pP )
+   {
+      pvv.push_back( vv ) ;
+      pP = &(*pvv.back().begin()) ;
+   }
+   return pP ;
+}

@@ -119,7 +119,16 @@ ZdcHardcodeGeometryLoader::makeCell(const HcalZDCDetId & detId,
     zfaceCenter = (zMother + theZLUMChannelBoundaries[channel-1])*zside;
   }
   GlobalPoint faceCenter(xfaceCenter, yfaceCenter, zfaceCenter);
-  return new calogeom::IdealZDCTrapezoid(faceCenter, theTiltAngle, dx, dy, dz, geom->cornersMgr());
+
+  std::vector<double> zz ;
+  zz.resize(3) ;
+  zz.push_back( dx ) ;
+  zz.push_back( dy ) ;
+  zz.push_back( dz ) ;
+  return new calogeom::IdealZDCTrapezoid( 
+     faceCenter, 
+     geom->cornersMgr(),
+     CaloCellGeometry::getParmPtr( zz, 3, geom->parVecVec() ) );
 }
 
 

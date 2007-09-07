@@ -90,10 +90,12 @@ void EcalTBHodoscopeGeometryLoaderFromDDD::makeGeometry(const DDCompactView* cpv
 
       const GlobalPoint refPoint ( ctr.x(), ctr.y(), ctr.z() ) ;
 
-      PreshowerStrip* cell ( new PreshowerStrip( refPoint,
-						 pv[0], pv[1], pv[2],
-						 ebg->cornersMgr() ) ) ;
 
+      const float* pP ( CaloCellGeometry::getParmPtr( pv, 3, ebg->parVecVec() ) ) ;
+
+      PreshowerStrip* cell ( new PreshowerStrip( refPoint,
+						 ebg->cornersMgr(),
+						 pP ) ) ;
 
       //Adding cell to the Geometry
       ebg->addCell(DetId(getDetIdForDDDNode(fv)),cell);

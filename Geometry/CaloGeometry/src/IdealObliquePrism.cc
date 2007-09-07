@@ -31,25 +31,25 @@ namespace calogeom {
       if( co.empty() )
       {
 	 CornersVec& corners ( setCorners() ) ;
-	 if( m_thick>0 ) 
+	 if( thick()>0 ) 
 	 { 
 	    /* In this case, the faces are parallel to the zaxis.  
 	       This implies that all corners will have the same 
 	       cylindrical radius. 
 	    */
 	    const GlobalPoint p      ( getPosition() ) ;
-	    const float       r_near ( p.perp()/cos(m_wPhi) ) ;
-	    const float       r_far  ( r_near*( ( p.mag() + m_thick )/p.mag() ) ) ;
+	    const float       r_near ( p.perp()/cos(wPhi()) ) ;
+	    const float       r_far  ( r_near*( ( p.mag() + thick() )/p.mag() ) ) ;
 	    const float       eta    ( p.eta() ) ;
 	    const float       phi    ( p.phi() ) ;
-	    corners[ 0 ] = etaPhiPerp( eta + m_wEta , phi + m_wPhi , r_near ) ; // (+,+,near)
-	    corners[ 1 ] = etaPhiPerp( eta + m_wEta , phi - m_wPhi , r_near ) ; // (+,-,near)
-	    corners[ 2 ] = etaPhiPerp( eta - m_wEta , phi - m_wPhi , r_near ) ; // (-,-,near)
-	    corners[ 3 ] = etaPhiPerp( eta - m_wEta , phi + m_wPhi , r_near ) ; // (-,+,near)
-	    corners[ 4 ] = etaPhiPerp( eta + m_wEta , phi + m_wPhi , r_far ) ; // (+,+,far)
-	    corners[ 5 ] = etaPhiPerp( eta + m_wEta , phi - m_wPhi , r_far ) ; // (+,-,far)
-	    corners[ 6 ] = etaPhiPerp( eta - m_wEta , phi - m_wPhi , r_far ) ; // (-,-,far)
-	    corners[ 7 ] = etaPhiPerp( eta - m_wEta , phi + m_wPhi , r_far ) ; // (-,+,far)
+	    corners[ 0 ] = etaPhiPerp( eta + wEta() , phi + wPhi() , r_near ) ; // (+,+,near)
+	    corners[ 1 ] = etaPhiPerp( eta + wEta() , phi - wPhi() , r_near ) ; // (+,-,near)
+	    corners[ 2 ] = etaPhiPerp( eta - wEta() , phi - wPhi() , r_near ) ; // (-,-,near)
+	    corners[ 3 ] = etaPhiPerp( eta - wEta() , phi + wPhi() , r_near ) ; // (-,+,near)
+	    corners[ 4 ] = etaPhiPerp( eta + wEta() , phi + wPhi() , r_far ) ; // (+,+,far)
+	    corners[ 5 ] = etaPhiPerp( eta + wEta() , phi - wPhi() , r_far ) ; // (+,-,far)
+	    corners[ 6 ] = etaPhiPerp( eta - wEta() , phi - wPhi() , r_far ) ; // (-,-,far)
+	    corners[ 7 ] = etaPhiPerp( eta - wEta() , phi + wPhi() , r_far ) ; // (-,+,far)
 	 } 
 	 else 
 	 {
@@ -60,18 +60,18 @@ namespace calogeom {
 	    const GlobalPoint p      ( getPosition() ) ;
 	    const float       z_near ( p.z() ) ;
 	    const float       mag    ( p.mag() ) ;
-	    const float       z_far  ( z_near*( 1 - m_thick/mag ) ) ; // negative to correct sign
+	    const float       z_far  ( z_near*( 1 - thick()/mag ) ) ; // negative to correct sign
 	    const float       eta    ( p.eta() ) ;
 	    const float       phi    ( p.phi() ) ;
 	    
-	    corners[ 0 ] = etaPhiZ( eta + m_wEta, phi + m_wPhi, z_near ) ; // (+,+,near)
-	    corners[ 1 ] = etaPhiZ( eta + m_wEta, phi - m_wPhi, z_near ) ; // (+,-,near)
-	    corners[ 2 ] = etaPhiZ( eta - m_wEta, phi - m_wPhi, z_near ) ; // (-,-,near)
-	    corners[ 3 ] = etaPhiZ( eta - m_wEta, phi + m_wPhi, z_near ) ; // (-,+,near)
-	    corners[ 4 ] = etaPhiZ( eta + m_wEta, phi + m_wPhi, z_far  ) ; // (+,+,far)
-	    corners[ 5 ] = etaPhiZ( eta + m_wEta, phi - m_wPhi, z_far  ) ; // (+,-,far)
-	    corners[ 6 ] = etaPhiZ( eta - m_wEta, phi - m_wPhi, z_far  ) ; // (-,-,far)
-	    corners[ 7 ] = etaPhiZ( eta - m_wEta, phi + m_wPhi, z_far  ) ; // (-,+,far)
+	    corners[ 0 ] = etaPhiZ( eta + wEta(), phi + wPhi(), z_near ) ; // (+,+,near)
+	    corners[ 1 ] = etaPhiZ( eta + wEta(), phi - wPhi(), z_near ) ; // (+,-,near)
+	    corners[ 2 ] = etaPhiZ( eta - wEta(), phi - wPhi(), z_near ) ; // (-,-,near)
+	    corners[ 3 ] = etaPhiZ( eta - wEta(), phi + wPhi(), z_near ) ; // (-,+,near)
+	    corners[ 4 ] = etaPhiZ( eta + wEta(), phi + wPhi(), z_far  ) ; // (+,+,far)
+	    corners[ 5 ] = etaPhiZ( eta + wEta(), phi - wPhi(), z_far  ) ; // (+,-,far)
+	    corners[ 6 ] = etaPhiZ( eta - wEta(), phi - wPhi(), z_far  ) ; // (-,-,far)
+	    corners[ 7 ] = etaPhiZ( eta - wEta(), phi + wPhi(), z_far  ) ; // (-,+,far)
 	 }
       }
       return co ;
@@ -86,14 +86,14 @@ namespace calogeom {
       const GlobalPoint& face ( getPosition() ) ;
 
       // eta
-      if( fabs( point.eta() - face.eta() ) <= m_wEta  &&
-	  fabs( point.phi() - face.phi() ) <= m_wPhi     )
+      if( fabs( point.eta() - face.eta() ) <= wEta()  &&
+	  fabs( point.phi() - face.phi() ) <= wPhi()     )
       {
 	 // distance (trickier)
 	 GlobalPoint face2 ( etaPhiR( face.eta(), 
 				      face.phi(), 
-				      face.mag() + fabs( m_thick ) ) );
-	 if( m_thick > 0 ) 
+				      face.mag() + fabs( thick() ) ) );
+	 if( thick() > 0 ) 
 	 { // 
 	    const float projection ( point.perp()*cos( point.phi() - face.phi() ) ) ;
 	    is_inside = ( projection >= face.perp() &&

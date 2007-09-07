@@ -16,43 +16,36 @@ namespace calogeom {
   
   Total: 7 parameters 
   
-  $Date: 2007/08/28 18:10:10 $
-  $Revision: 1.1 $
+  $Date: 2007/09/05 20:04:13 $
+  $Revision: 1.2 $
   \author E. Garcia - UIC
   */
-  class IdealZDCTrapezoid: public CaloCellGeometry 
-  {
-     public:
+   class IdealZDCTrapezoid: public CaloCellGeometry 
+   {
+      public:
 
-	IdealZDCTrapezoid( const GlobalPoint& faceCenter,
-			   float              an , 
-			   float              dx , 
-			   float              dy , 
-			   float              dz ,
-			   const CornersMgr*  mgr           ) :  
-	   CaloCellGeometry ( faceCenter, mgr ) ,
-	   m_an             ( an ) ,    
-	   m_dx             ( dx ) ,
-	   m_dy             ( dy ) ,
-	   m_dz             ( dz )    {}
-    
+	 IdealZDCTrapezoid( const GlobalPoint& faceCenter,
+			    const CornersMgr*  mgr       ,
+			    const float*       parm        ) :  
+	    CaloCellGeometry ( faceCenter, mgr ) ,
+	    m_parms          ( parm )                   {}
+	 
 	virtual ~IdealZDCTrapezoid() {}
 
 	virtual bool inside( const GlobalPoint & point ) const;  
 
 	virtual const CornersVec& getCorners() const;
 
-	const float an() const { return m_an ; }
-	const float dx() const { return m_dx ; }
-	const float dy() const { return m_dy ; }
-	const float dz() const { return m_dz ; }
+	const float an() const { return param()[0] ; }
+	const float dx() const { return param()[1] ; }
+	const float dy() const { return param()[2] ; }
+	const float dz() const { return param()[3] ; }
     
      private:
 
-	float m_an ;
-	float m_dx ;
-	float m_dy ;
-	float m_dz ;
+	const float* param() const { return m_parms ; }
+
+	const float* m_parms ;
   };
 
    std::ostream& operator<<( std::ostream& s , const IdealZDCTrapezoid& cell ) ;

@@ -13,15 +13,15 @@ namespace calogeom {
 	 const GlobalPoint& p ( getPosition() ) ;
 	 const float zz   ( p.z() ) ;
 	 const float yy   ( p.y() ) ;
-	 const float cdy  ( cos( m_an )*m_dy/2. ) ;
-	 const float sdy  ( sin( m_an )*m_dy/2. ) ;
+	 const float cdy  ( cos( an() )*dy()/2. ) ;
+	 const float sdy  ( sin( an() )*dy()/2. ) ;
 	 const float sign ( zz<0 ? 1 : -1 ) ;
 	 const float z1   ( zz + sign*cdy ) ;
 	 const float z2   ( zz - sign*cdy ) ;
-	 const float z3   ( z1 + m_dz ) ;
-	 const float z4   ( z2 + m_dz ) ;
-	 const float x1   (  m_dx/2 );
-	 const float x2   ( -m_dx/2 );
+	 const float z3   ( z1 + dz() ) ;
+	 const float z4   ( z2 + dz() ) ;
+	 const float x1   (  dx()/2 );
+	 const float x2   ( -dx()/2 );
 	 const float y1   ( yy + sdy ) ;
 	 const float y2   ( yy - sdy ) ;
 	 corners[ 0 ] = GlobalPoint( x1, y1, z1 ) ; 
@@ -43,14 +43,14 @@ namespace calogeom {
 
       const GlobalPoint& face ( getPosition() ) ;
 
-      if( fabs( point.x() - face.x() ) <= m_dx/2   &&
-	  fabs( point.y() - face.y() ) <= sin( m_an )*m_dy/2 )
+      if( fabs( point.x() - face.x() ) <= dx()/2   &&
+	  fabs( point.y() - face.y() ) <= sin( an() )*dy()/2 )
       {
-	 const float sl   ( tan( m_an ) ) ;
+	 const float sl   ( tan( an() ) ) ;
 	 const float blow ( face.y() - sl*face.z() ) ;
 
 	 const float sign ( 0 < point.z() ? 1 : -1 ) ;
-	 const float bhigh ( face.y() - sl*sign*( face.z() + sign*m_dz ) ) ;
+	 const float bhigh ( face.y() - sl*sign*( face.z() + sign*dz() ) ) ;
 
 	 is_inside = ( ( point.z() >  sign*( point.y() - blow  )/sl )  &&
 		       ( point.z() <= sign*( point.y() - bhigh )/sl )     ) ;

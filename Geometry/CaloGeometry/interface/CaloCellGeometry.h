@@ -11,8 +11,8 @@
 
 Abstract base class for an individual cell's geometry.
     
-$Date: 2007/09/05 19:53:08 $
-$Revision: 1.8 $
+$Date: 2007/09/06 21:40:14 $
+$Revision: 1.9 $
 \author J. Mans, P. Meridiani
 */
 
@@ -22,6 +22,9 @@ class CaloCellGeometry
 
       typedef EZArrayFL< GlobalPoint > CornersVec ;
       typedef EZMgrFL< GlobalPoint >   CornersMgr ;
+
+      typedef std::vector<float>  ParVec ;
+      typedef std::vector<ParVec> ParVecVec ;
 
       enum CornersSize { k_cornerSize = 8 };
 
@@ -38,11 +41,17 @@ class CaloCellGeometry
 
       bool emptyCorners() const { return m_corners.empty() ; }
 
+
+      static const float* getParmPtr( const std::vector<double>& vd ,
+				      const unsigned int         np ,
+				      ParVecVec&                 pvv ) ;
+
    protected:
 
       CaloCellGeometry( CornersVec::const_reference gp ,
-			const CornersMgr*           mgr ) : m_refPoint ( gp ) ,
-							    m_corners  ( mgr ) {}
+			const CornersMgr*           mgr  ) :
+	 m_refPoint ( gp  ),
+	 m_corners  ( mgr ) {}
 
       CaloCellGeometry( const CornersVec& cv ) : 
 	 m_refPoint ( GlobalPoint( 0.25*( cv[0].x() + cv[1].x() + cv[2].x() + cv[3].x() ),

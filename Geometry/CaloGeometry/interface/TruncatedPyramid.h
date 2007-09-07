@@ -25,9 +25,8 @@ class TruncatedPyramid : public CaloCellGeometry
 
       TruncatedPyramid( const CornersVec& corn  ) :
 	 CaloCellGeometry ( corn ) , 
-	 m_axis           ( GlobalVector( backCtr() -
-					  CaloCellGeometry::getPosition() ).unit() ) ,
-	 m_bou            ( 0 ) {}
+	 m_axis           ( axis() ) ,
+	 m_bou            ( 0      ) {}
 
       virtual ~TruncatedPyramid() { delete m_bou ; }
 
@@ -60,6 +59,12 @@ class TruncatedPyramid : public CaloCellGeometry
       /// print out the element, with an optional string prefix, maybe OVAL identifier
       // why is this here with operator<< also? void dump( const char * prefix = "" ) const ;
    private:
+
+      GlobalVector axis() 
+      { 
+	 return GlobalVector( backCtr() -
+			      CaloCellGeometry::getPosition() ).unit() ;
+      }
 
       const GlobalPoint backCtr() const 
       {
