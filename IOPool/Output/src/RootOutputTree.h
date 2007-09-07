@@ -1,16 +1,17 @@
-#ifndef IOPool_Input_RootOutputTree_h
-#define IOPool_Input_RootOutputTree_h
+#ifndef IOPool_Output_RootOutputTree_h
+#define IOPool_Output_RootOutputTree_h
 
 /*----------------------------------------------------------------------
 
-RootOutputTree.h // used by ROOT input sources
+RootOutputTree.h // used by ROOT output modules
 
-$Id: RootOutputTree.h,v 1.2 2007/08/21 23:50:46 wmtan Exp $
+$Id: RootOutputTree.h,v 1.3 2007/08/22 17:56:11 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "boost/shared_ptr.hpp"
 
@@ -40,6 +41,8 @@ namespace edm {
       tree_(makeTree(filePtr.get(), BranchTypeToProductTreeName(branchType), splitLevel)),
       metaTree_(makeTree(filePtr.get(), BranchTypeToMetaDataTreeName(branchType), 0)),
       auxBranch_(tree_->Branch(BranchTypeToAuxiliaryBranchName(branchType).c_str(), &pAux, bufSize, 0)),
+      branches_(),
+      metaBranches_(),
       basketSize_(bufSize),
       splitLevel_(splitLevel),
       branchNames_() {
@@ -56,10 +59,7 @@ namespace edm {
 
     std::vector<std::string> const& branchNames() const {return branchNames_;}
 
-    void fillTree() const {
-      tree_->Fill();
-      metaTree_->Fill();
-    }
+    void fillTree() const;
 
     void writeTree() const;
 
@@ -67,6 +67,8 @@ namespace edm {
       return tree_;
     }
   private:
+    static void fillTTree(std::vector<TBranch *> const& branches);
+    static void fillHelper(TBranch * br) {br->Fill();}
 // We use bare pointers for pointers to some ROOT entities.
 // Root owns them and uses bare pointers internally.
 // Therefore,using smart pointers here will do no good.
@@ -74,6 +76,8 @@ namespace edm {
     TTree *const tree_;
     TTree *const metaTree_;
     TBranch *const auxBranch_;
+    std::vector<TBranch *> branches_; // does not include cloned branches
+    std::vector<TBranch *> metaBranches_; // does not include cloned branches
     int basketSize_;
     int splitLevel_;
     std::vector<std::string> branchNames_;

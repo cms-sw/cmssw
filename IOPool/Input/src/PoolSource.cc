@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.58 2007/07/26 23:46:36 wmtan Exp $
+$Id: PoolSource.cc,v 1.59 2007/08/07 22:51:32 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
 #include "RootFile.h"
@@ -15,6 +15,7 @@ $Id: PoolSource.cc,v 1.58 2007/07/26 23:46:36 wmtan Exp $
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "CLHEP/Random/RandFlat.h"
+#include "TChain.h"
 #include "TTree.h"
 #include "TFile.h"
 
@@ -31,6 +32,12 @@ namespace edm {
     if (matchMode == std::string("strict")) matchMode_ = BranchDescription::Strict;
     ClassFiller();
     if (primary()) {
+      RootChains & chains = RootChains::instance();
+      chains.makeChains();
+      for (std::vector<FileCatalogItem>::const_iterator it = fileCatalogItems().begin(), itEnd = fileCatalogItems().end();
+	   it != itEnd; ++it) {
+	chains.addFile(it->fileName());
+      }
       init(*fileIter_);
       updateProductRegistry();
       setInitialPosition(pset);
@@ -328,5 +335,32 @@ namespace edm {
         processConfiguration(), file.logicalFileName()));
     eventsRemainingInFile_ = rootFile_->eventTree().entries();
     rootFile_->eventTree().setEntryNumber(flatDistribution_->fireInt(eventsRemainingInFile_));
+  }
+
+  PoolSource::RootChains &
+  PoolSource::RootChains::instance() {
+    static RootChains chains;
+    return chains;
+  }
+ 
+  void
+  PoolSource::RootChains::makeChains() {
+    if (!event_) event_ = boost::shared_ptr<TChain>(new TChain(BranchTypeToProductTreeName(InEvent).c_str()));
+    if (!eventMeta_) eventMeta_ = boost::shared_ptr<TChain>(new TChain(BranchTypeToMetaDataTreeName(InEvent).c_str()));
+    // if (!lumi_) lumi_ = boost::shared_ptr<TChain>(new TChain(BranchTypeToProductTreeName(InLumi).c_str()));
+    // if (!lumiMeta_) lumiMeta_ = boost::shared_ptr<TChain>(new TChain(BranchTypeToMetaDataTreeName(InLumi).c_str()));
+    // if (!run_) run_ = boost::shared_ptr<TChain>(new TChain(BranchTypeToProductTreeName(InRun).c_str()));
+    // if (!runMeta_) runMeta_ = boost::shared_ptr<TChain>(new TChain(BranchTypeToMetaDataTreeName(InRun).c_str()));
+  }
+
+  void
+  PoolSource::RootChains::addFile(std::string const& fileName) {
+    char const* fn = fileName.c_str();
+    if (event_) event_->AddFile(fn);
+    if (eventMeta_) eventMeta_->AddFile(fn);
+    if (lumi_) lumi_->AddFile(fn);
+    if (lumiMeta_) lumiMeta_->AddFile(fn);
+    if (run_) run_->AddFile(fn);
+    if (runMeta_) runMeta_->AddFile(fn);
   }
 }

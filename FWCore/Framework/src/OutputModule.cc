@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
 
-$Id: OutputModule.cc,v 1.35 2007/07/09 07:29:51 llista Exp $
+$Id: OutputModule.cc,v 1.36 2007/09/04 19:39:37 paterno Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -115,6 +115,8 @@ namespace edm {
     nextID_(),
     descVec_(),
     droppedVec_(),
+    descProducedVec_(),
+    droppedProducedVec_(),
     hasNewlyDroppedBranch_(),
     process_name_(),
     groupSelector_(pset),
@@ -183,26 +185,47 @@ namespace edm {
 
     for (; it != end; ++it) {
       BranchDescription const& desc = it->second;
-      if(!desc.provenancePresent() & !desc.produced()) {
-	// If the branch containing the provenance has been previously dropped,
-	// and the product has not been produced again, output nothing
-	continue;
-      } else if(desc.transient()) {
-	// else if the class of the branch is marked transient, drop the product branch
-	droppedVec_[desc.branchType()].push_back(&desc);
-      } else if(!desc.present() & !desc.produced()) {
-	// else if the branch containing the product has been previously dropped,
-	// and the product has not been produced again, drop the product branch again.
-	droppedVec_[desc.branchType()].push_back(&desc);
-      } else if (selected(desc)) {
-	// else if the branch has been selected, put it in the list of selected branches
-	descVec_[desc.branchType()].push_back(&desc);
+      if (desc.produced()) {
+	if(desc.transient()) {
+	  // if the class of the branch is marked transient, output nothing
+	  continue;
+	} else if (selected(desc)) {
+	  // else if the branch has been selected, put it in the list of selected branches
+	  descVec_[desc.branchType()].push_back(&desc);
+	  descProducedVec_[desc.branchType()].push_back(&desc);
+	} else {
+	  // otherwise, drop the product branch.
+	  droppedVec_[desc.branchType()].push_back(&desc);
+	  droppedProducedVec_[desc.branchType()].push_back(&desc);
+	  // mark the fact that there is a newly dropped branch of this type.
+	  hasNewlyDroppedBranch_[desc.branchType()] = true;
+	}
       } else {
-	// otherwise, drop the product branch.
-	droppedVec_[desc.branchType()].push_back(&desc);
-	// mark the fact that there is a newly dropped branch of this type.
-	hasNewlyDroppedBranch_[desc.branchType()] = true;
+	if(!desc.provenancePresent()) {
+	  // If the branch containing the provenance has been previously dropped,
+	  // and the product has not been produced again, output nothing
+	  continue;
+	} else if(desc.transient()) {
+	  // else if the class of the branch is marked transient, output nothing
+	  continue;
+	} else if(!desc.present()) {
+	  // else if the branch containing the product has been previously dropped,
+	  // drop the product branch again.
+	  droppedVec_[desc.branchType()].push_back(&desc);
+	  droppedPriorVec_[desc.branchType()].push_back(&desc);
+	} else if (selected(desc)) {
+	  // else if the branch has been selected, put it in the list of selected branches
+	  descVec_[desc.branchType()].push_back(&desc);
+	  descPriorVec_[desc.branchType()].push_back(&desc);
+	} else {
+	  // otherwise, drop the product branch.
+	  droppedVec_[desc.branchType()].push_back(&desc);
+	  droppedPriorVec_[desc.branchType()].push_back(&desc);
+	  // mark the fact that there is a newly dropped branch of this type.
+	  hasNewlyDroppedBranch_[desc.branchType()] = true;
+	}
       }
+
     }
   }
 

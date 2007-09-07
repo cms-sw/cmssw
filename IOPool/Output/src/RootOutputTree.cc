@@ -2,6 +2,8 @@
 #include "TFile.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 
+#include <algorithm>
+
 namespace edm {
 
   TTree *
@@ -13,7 +15,15 @@ namespace edm {
 
   void
   RootOutputTree::writeTTree(TTree *tree) {
+    if (tree->GetNbranches() != 0) {
+      tree->SetEntries(-1);
+    }
     tree->AutoSave();
+  }
+
+  void
+  RootOutputTree::fillTTree(std::vector<TBranch *> const& branches) {
+    for_each(branches.begin(), branches.end(), fillHelper);
   }
 
   void
@@ -22,16 +32,24 @@ namespace edm {
     writeTTree(metaTree_);
   }
 
+  void RootOutputTree::fillTree() const {
+    auxBranch_->Fill();
+    fillTTree(metaBranches_);
+    fillTTree(branches_);
+  }
+
   void
   RootOutputTree::addBranch(BranchDescription const& prod, bool selected, BranchEntryDescription const*& pProv, void const*& pProd) {
       prod.init();
-      metaTree_->Branch(prod.branchName().c_str(), &pProv, basketSize_, 0);
+      TBranch * meta = metaTree_->Branch(prod.branchName().c_str(), &pProv, basketSize_, 0);
+      metaBranches_.push_back(meta);
       if (selected) {
-	tree_->Branch(prod.branchName().c_str(),
+	TBranch * branch = tree_->Branch(prod.branchName().c_str(),
 		       wrappedClassName(prod.className()).c_str(),
 		       &pProd,
 		       (prod.basketSize() == BranchDescription::invalidBasketSize ? basketSize_ : prod.basketSize()),
 		       (prod.splitLevel() == BranchDescription::invalidSplitLevel ? splitLevel_ : prod.splitLevel()));
+        branches_.push_back(branch);
 	// we want the new branch name for the JobReport
 	branchNames_.push_back(prod.branchName());
       }

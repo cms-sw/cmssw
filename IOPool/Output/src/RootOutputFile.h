@@ -1,9 +1,9 @@
-#ifndef Output_RootOutputFile_h
-#define Output_RootOutputFile_h
+#ifndef IOPool_Output_RootOutputFile_h
+#define IOPool_Output_RootOutputFile_h
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: RootOutputFile.h,v 1.5 2007/08/30 22:34:53 wmtan Exp $
+// $Id: RootOutputFile.h,v 1.6 2007/09/04 19:39:38 paterno Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
