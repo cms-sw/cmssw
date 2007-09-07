@@ -58,7 +58,8 @@ void SiPixelWebClient::configure()
 				    updateFrequencyForEndcapSummary_,
 				    updateFrequencyForGrandBarrelSummary_,
 				    updateFrequencyForGrandEndcapSummary_,
-				    messageLimitForQTests_);
+				    messageLimitForQTests_,
+				    source_type_);
 //  cout<<"leaving configure"<<endl;
 }
 

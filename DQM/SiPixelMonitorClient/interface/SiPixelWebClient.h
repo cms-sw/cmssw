@@ -62,6 +62,7 @@ private:
   int updateFrequencyForGrandBarrelSummary_;
   int updateFrequencyForGrandEndcapSummary_;
   int messageLimitForQTests_;
+  int source_type_;
 };
 
 // You always need to have this line! Do not remove:

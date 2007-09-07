@@ -5,8 +5,8 @@
  * *
  *  Class that handles the SiPixel Quality Tests
  * 
- *  $Date: 2007/06/28 22:55:18 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/07/09 20:09:32 $
+ *  $Revision: 1.6 $
  *  \author Petra Merkel
   */
 
@@ -34,6 +34,7 @@ class SiPixelConfigParser : public DQMParserBase {
   bool getMENamesForTree(std::string &structure_name, std::vector<std::string>& me_names);
   bool getMENamesForBarrelSummary(std::string &structure_name, std::vector<std::string>& me_names);
   bool getMENamesForEndcapSummary(std::string &structure_name, std::vector<std::string>& me_names);
+  bool getMENamesForFEDErrorSummary(std::string &structure_name, std::vector<std::string>& me_names);
   bool getFrequencyForBarrelSummary(int& u_freq);
   bool getFrequencyForEndcapSummary(int& u_freq);
   bool getMENamesForGrandBarrelSummary(std::string &structure_name, std::vector<std::string>& me_names);
@@ -41,6 +42,7 @@ class SiPixelConfigParser : public DQMParserBase {
   bool getFrequencyForGrandBarrelSummary(int& u_freq);
   bool getFrequencyForGrandEndcapSummary(int& u_freq);
   bool getMessageLimitForQTests(int& u_freq);
+  bool getSourceType(int& u_freq);
 
  private:
   

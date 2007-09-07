@@ -242,7 +242,42 @@ bool SiPixelConfigParser::getMENamesForEndcapSummary(string& structure_name,
   
 }
 
-//
+
+bool SiPixelConfigParser::getMENamesForFEDErrorSummary(string& structure_name,
+						       vector<string>& me_names) {
+  //cout<<"Entering SiPixelConfigParser::getMENamesForFEDErrorSummary..."<<endl;
+  if (!doc) {
+    cout << " SiPixelConfigParser::Configuration File is not set!!! " << endl;
+    return false;
+  }
+
+  me_names.clear();
+  unsigned int structureNodes = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureNonDetId"))->getLength();
+  if (structureNodes == 0) return false;
+  /// Get Node
+  DOMNode* structureNode = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureNonDetId"))->item(0);
+ //Get QTEST name
+  if (! structureNode) return false;
+  DOMElement* structureElement = static_cast<DOMElement *>(structureNode);          
+  if (! structureElement) return false;		 
+		
+  structure_name = qtxml::_toString(structureElement->getAttribute(qtxml::_toDOMS("name"))); 
+
+  DOMNodeList * meList = structureElement->getElementsByTagName(qtxml::_toDOMS("MonElement"));
+  for (unsigned int k = 0; k < meList->getLength(); k++) {
+    DOMNode* meNode = meList->item(k);
+    if (!meNode) return false;
+    DOMElement* meElement = static_cast<DOMElement *>(meNode);          
+    if (!meElement) return false;
+    string me_name = qtxml::_toString(meElement->getAttribute (qtxml::_toDOMS ("name"))); 
+    me_names.push_back(me_name);    
+  }
+  if (me_names.size() == 0) return false;
+  else return true;
+  //cout<<"...leaving SiPixelConfigParser::getMENamesForFEDErrorSummary!"<<endl;
+  
+}
+////
 // -- Get List of MEs for the summary plot and the
 //
 bool SiPixelConfigParser::getFrequencyForBarrelSummary(int& u_freq) {
@@ -260,9 +295,11 @@ bool SiPixelConfigParser::getFrequencyForBarrelSummary(int& u_freq) {
   DOMElement* structureElement = static_cast<DOMElement *>(structureNode);          
   if (! structureElement) return false;		 
 		
-  u_freq = atoi(qtxml::_toString(structureElement->getAttribute(qtxml::_toDOMS("name"))).c_str());
+  u_freq = atoi(qtxml::_toString(structureElement->getAttribute(qtxml::_toDOMS("update_frequency"))).c_str());
   return true;
 }
+
+
 bool SiPixelConfigParser::getFrequencyForEndcapSummary(int& u_freq) {
   if (!doc) {
     cout << " SiPixelConfigParser::Configuration File is not set!!! " << endl;
@@ -278,9 +315,11 @@ bool SiPixelConfigParser::getFrequencyForEndcapSummary(int& u_freq) {
   DOMElement* structureElement = static_cast<DOMElement *>(structureNode);          
   if (! structureElement) return false;		 
 		
-  u_freq = atoi(qtxml::_toString(structureElement->getAttribute(qtxml::_toDOMS("name"))).c_str());
+  u_freq = atoi(qtxml::_toString(structureElement->getAttribute(qtxml::_toDOMS("update_frequency"))).c_str());
   return true;
 }
+
+
 bool SiPixelConfigParser::getMENamesForGrandBarrelSummary(string& structure_name,
 						vector<string>& me_names) {
   //cout<<"Entering SiPixelConfigParser::getMENamesForGrandBarrelSummary..."<<endl;
@@ -315,6 +354,8 @@ bool SiPixelConfigParser::getMENamesForGrandBarrelSummary(string& structure_name
   //cout<<"...leaving SiPixelConfigParser::getMENamesForGrandBarrelSummary!"<<endl;
   
 }
+
+
 bool SiPixelConfigParser::getMENamesForGrandEndcapSummary(string& structure_name,
 						vector<string>& me_names) {
   //cout<<"Entering SiPixelConfigParser::getMENamesForGrandEndcapSummary..."<<endl;
@@ -349,6 +390,8 @@ bool SiPixelConfigParser::getMENamesForGrandEndcapSummary(string& structure_name
   //cout<<"...leaving SiPixelConfigParser::getMENamesForGrandEndcapSummary!"<<endl;
   
 }
+
+
 bool SiPixelConfigParser::getFrequencyForGrandBarrelSummary(int& u_freq) {
   if (!doc) {
     cout << " SiPixelConfigParser::Configuration File is not set!!! " << endl;
@@ -364,9 +407,11 @@ bool SiPixelConfigParser::getFrequencyForGrandBarrelSummary(int& u_freq) {
   DOMElement* structureElement = static_cast<DOMElement *>(structureNode);          
   if (! structureElement) return false;		 
 		
-  u_freq = atoi(qtxml::_toString(structureElement->getAttribute(qtxml::_toDOMS("name"))).c_str());
+  u_freq = atoi(qtxml::_toString(structureElement->getAttribute(qtxml::_toDOMS("update_frequency"))).c_str());
   return true;
 }
+
+
 bool SiPixelConfigParser::getFrequencyForGrandEndcapSummary(int& u_freq) {
   if (!doc) {
     cout << " SiPixelConfigParser::Configuration File is not set!!! " << endl;
@@ -382,9 +427,10 @@ bool SiPixelConfigParser::getFrequencyForGrandEndcapSummary(int& u_freq) {
   DOMElement* structureElement = static_cast<DOMElement *>(structureNode);          
   if (! structureElement) return false;		 
 		
-  u_freq = atoi(qtxml::_toString(structureElement->getAttribute(qtxml::_toDOMS("name"))).c_str());
+  u_freq = atoi(qtxml::_toString(structureElement->getAttribute(qtxml::_toDOMS("update_frequency"))).c_str());
   return true;
 }
+
 
 bool SiPixelConfigParser::getMessageLimitForQTests(int& u_freq) {
   if (!doc) {
@@ -396,17 +442,34 @@ bool SiPixelConfigParser::getMessageLimitForQTests(int& u_freq) {
   /// Get Node
   DOMNode* structureNode = doc->getElementsByTagName(qtxml::_toDOMS("QTestMessageLimit"))->item(0);
  //Get Node name
-  if (! structureNode){
-   return false;
-  }
+  if (! structureNode) return false;
   DOMElement* structureElement = static_cast<DOMElement *>(structureNode);          
-  if (! structureElement){
-   return false;
-  }		 
+  if (! structureElement) return false;
 		
-  u_freq = atoi(qtxml::_toString(structureElement->getAttribute(qtxml::_toDOMS("update_frequency"))).c_str());
+  u_freq = atoi(qtxml::_toString(structureElement->getAttribute(qtxml::_toDOMS("value"))).c_str());
   return true;
 }
+
+
+
+bool SiPixelConfigParser::getSourceType(int& u_freq) {
+  if (!doc) {
+    cout << " SiPixelConfigParser::Configuration File is not set!!! " << endl;
+    return false;
+  }
+  unsigned int structureNodes = doc->getElementsByTagName(qtxml::_toDOMS("SourceType"))->getLength();
+  if (structureNodes == 0) return false;
+  /// Get Node
+  DOMNode* structureNode = doc->getElementsByTagName(qtxml::_toDOMS("SourceType"))->item(0);
+ //Get Node name
+  if (! structureNode) return false;
+  DOMElement* structureElement = static_cast<DOMElement *>(structureNode);          
+  if (! structureElement) return false;
+		
+  u_freq = atoi(qtxml::_toString(structureElement->getAttribute(qtxml::_toDOMS("code"))).c_str());
+  return true;
+}
+
 
 
 

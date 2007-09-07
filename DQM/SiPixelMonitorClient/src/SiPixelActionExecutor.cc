@@ -49,7 +49,8 @@ bool SiPixelActionExecutor::readConfiguration(int& tkmap_freq,
                                               int& sum_endcap_freq, 
 					      int& sum_grandbarrel_freq, 
 					      int& sum_grandendcap_freq, 
-					      int& message_limit_) {
+					      int& message_limit_,
+					      int& source_type_) {
 //cout<<"Entering SiPixelActionExecutor::readConfiguration..."<<endl;
   string localPath = string("DQM/SiPixelMonitorClient/test/sipixel_monitorelement_config.xml");
   if (configParser_ == 0) {
@@ -79,6 +80,10 @@ bool SiPixelActionExecutor::readConfiguration(int& tkmap_freq,
   }
   if (!configParser_->getMessageLimitForQTests(message_limit_)){
     edm::LogInfo("SiPixelActionExecutor")  << "Failed to read QTest Message Limit" << "\n" ;
+    return false;
+  }
+  if (!configParser_->getSourceType(source_type_)){
+    edm::LogInfo("SiPixelActionExecutor")  << "Failed to read Source Type" << "\n" ;
     return false;
   }
 //cout<<"...leaving SiPixelActionExecutor::readConfiguration..."<<endl;
@@ -113,6 +118,7 @@ void SiPixelActionExecutor::createSummary(MonitorUserInterface* mui) {
     cout << "SiPixelActionExecutor::createSummary: Failed to read Barrel Summary configuration parameters!! ";
     return;
   }
+  configParser_->getSourceType(source_type_); 
   mui->cd();
   fillBarrelSummary(mui, barrel_structure_name, barrel_me_names);
   mui->cd();
@@ -125,6 +131,17 @@ void SiPixelActionExecutor::createSummary(MonitorUserInterface* mui) {
   mui->cd();
   fillEndcapSummary(mui, endcap_structure_name, endcap_me_names);
   mui->cd();
+  if(source_type_==0||source_type_>4){//do this only if RawData source is present
+    string federror_structure_name;
+    vector<string> federror_me_names;
+    if (!configParser_->getMENamesForFEDErrorSummary(federror_structure_name, federror_me_names)){
+      cout << "SiPixelActionExecutor::createSummary: Failed to read FED Error Summary configuration parameters!! ";
+      return;
+    }
+    mui->cd();
+    fillFEDErrorSummary(mui, federror_structure_name, federror_me_names);
+    mui->cd();
+  }
   createLayout(mui);
   string fname = "test.xml";
   configWriter_->write(fname);
@@ -136,21 +153,42 @@ void SiPixelActionExecutor::fillBarrelSummary(MonitorUserInterface* mui,
                                string dir_name,vector<string>& me_names) {
   //cout<<"entering SiPixelActionExecutor::fillBarrelSummary..."<<endl;
   string currDir = mui->pwd();
+  string prefix;
+  if(source_type_==0) prefix="SUMRAW";
+  else if (source_type_==1) prefix="SUMDIG";
+  else if (source_type_==2) prefix="SUMCLU";
+  else if (source_type_==3) prefix="SUMRES";
+  else if (source_type_==4) prefix="SUMHIT";
   if (currDir.find(dir_name) != string::npos)  {
     vector<MonitorElement*> sum_mes;
     for (vector<string>::const_iterator iv = me_names.begin();
 	 iv != me_names.end(); iv++) {
+      if(source_type_>4){
+        if((*iv)=="errorType"||(*iv)=="NErrors"||(*iv)=="fullType"||(*iv)=="chanNmbr"||
+	   (*iv)=="TBMType"||(*iv)=="EvtNbr"||(*iv)=="evtSize"||(*iv)=="linkId"||
+	   (*iv)=="ROCId"||(*iv)=="DCOLId"||(*iv)=="PXId"||(*iv)=="ROCNmbr"||
+	   (*iv)=="TBMMessage"||(*iv)=="Type36Hitmap") 
+	  prefix="SUMRAW";
+	else if((*iv)=="ndigis"||(*iv)=="adc")
+	  prefix="SUMDIG";
+	else if((*iv)=="nclusters"||(*iv)=="x"||(*iv)=="y"||(*iv)=="charge"||
+	   (*iv)=="size"||(*iv)=="sizeX"||(*iv)=="sizeY"||(*iv)=="minrow"||
+	   (*iv)=="maxrow"||(*iv)=="mincol"||(*iv)=="maxcol")
+	  prefix="SUMCLU";
+	else if((*iv)=="residualX"||(*iv)=="residualY")
+          prefix="SUMRES";
+      }
       if((*iv).find("residual")!=string::npos){ // track residuals
-        string tag = "Summary_" + (*iv) + "_mean_in_" 
+        string tag = prefix + "_" + (*iv) + "_mean_" 
                                 + currDir.substr(currDir.find(dir_name));
         MonitorElement* temp = getSummaryME(mui, tag);
         sum_mes.push_back(temp);
-        tag = "Summary_" + (*iv) + "_RMS_in_" 
+        tag = prefix + "_" + (*iv) + "_RMS_" 
                                 + currDir.substr(currDir.find(dir_name));
         temp = getSummaryME(mui, tag);
         sum_mes.push_back(temp);
       }else{
-        string tag = "Summary_" + (*iv) + "_in_" 
+        string tag = prefix + "_" + (*iv) + "_" 
                                 + currDir.substr(currDir.find(dir_name));
         MonitorElement* temp = getSummaryME(mui, tag);
         sum_mes.push_back(temp);
@@ -174,7 +212,7 @@ void SiPixelActionExecutor::fillBarrelSummary(MonitorUserInterface* mui,
 	     im != contents.end(); im++) {
           string sname = ((*isum)->getName());
 	  string tname = " ";
-          tname = sname.substr(8,(sname.find("_",8)-8)) + "_";
+          tname = sname.substr(7,(sname.find("_",7)-6));
 	  //cout<<"sname="<<sname<<" , tname="<<tname<<endl;
 	  if (((*im)).find(tname) == 0) {
 	    string fullpathname = mui->pwd() + "/" + (*im); 
@@ -189,9 +227,9 @@ void SiPixelActionExecutor::fillBarrelSummary(MonitorUserInterface* mui,
               (*isum)->setAxisTitle("modules",1);
 	      string title = " ";
 	      if (sname.find("residual")!=string::npos && sname.find("_RMS_")!=string::npos){
-                title = "RMS of " + sname.substr(8,(sname.find("_",8)-8)) + " per module"; 
+                title = "RMS of " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
               }else{
-                title = "Mean " + sname.substr(8,(sname.find("_",8)-8)) + " per module"; 
+                title = "Mean " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
 	      }
 	      (*isum)->setAxisTitle(title,2);
 	    }
@@ -205,8 +243,12 @@ void SiPixelActionExecutor::fillBarrelSummary(MonitorUserInterface* mui,
     vector<string> subdirs = mui->getSubdirs();
     for (vector<string>::const_iterator it = subdirs.begin();
        it != subdirs.end(); it++) {
-      if((*it).find("PixelEndcap")!=string::npos) continue;
+      if(mui->pwd()=="Collector/Collated" && (*it).find("FU")==0) continue;
+      if((mui->pwd()).find("PixelEndcap")!=string::npos ||
+         (mui->pwd()).find("AdditionalPixelErrors")!=string::npos) mui->goUp();
       mui->cd(*it);
+      if((*it).find("PixelEndcap")!=string::npos ||
+         (*it).find("AdditionalPixelErrors")!=string::npos) continue;
       fillBarrelSummary(mui, dir_name, me_names);
       mui->goUp();
     }
@@ -225,21 +267,43 @@ void SiPixelActionExecutor::fillEndcapSummary(MonitorUserInterface* mui,
                                string dir_name,vector<string>& me_names) {
   //cout<<"entering SiPixelActionExecutor::fillEndcapSummary..."<<endl;
   string currDir = mui->pwd();
+  string prefix;
+  if(source_type_==0) prefix="SUMRAW";
+  else if (source_type_==1) prefix="SUMDIG";
+  else if (source_type_==2) prefix="SUMCLU";
+  else if (source_type_==3) prefix="SUMRES";
+  else if (source_type_==4) prefix="SUMHIT";
+  
   if (currDir.find(dir_name) != string::npos)  {
     vector<MonitorElement*> sum_mes;
     for (vector<string>::const_iterator iv = me_names.begin();
 	 iv != me_names.end(); iv++) {
+      if(source_type_>4){
+        if((*iv)=="errorType"||(*iv)=="NErrors"||(*iv)=="fullType"||(*iv)=="chanNmbr"||
+	   (*iv)=="TBMType"||(*iv)=="EvtNbr"||(*iv)=="evtSize"||(*iv)=="linkId"||
+	   (*iv)=="ROCId"||(*iv)=="DCOLId"||(*iv)=="PXId"||(*iv)=="ROCNmbr"||
+	   (*iv)=="TBMMessage"||(*iv)=="Type36Hitmap") 
+	  prefix="SUMRAW";
+	else if((*iv)=="ndigis"||(*iv)=="adc")
+	  prefix="SUMDIG";
+	else if((*iv)=="nclusters"||(*iv)=="x"||(*iv)=="y"||(*iv)=="charge"||
+	   (*iv)=="size"||(*iv)=="sizeX"||(*iv)=="sizeY"||(*iv)=="minrow"||
+	   (*iv)=="maxrow"||(*iv)=="mincol"||(*iv)=="maxcol")
+	  prefix="SUMCLU";
+	else if((*iv)=="residualX"||(*iv)=="residualY")
+          prefix="SUMRES";
+      }
       if((*iv).find("residual")!=string::npos){ // track residuals
-        string tag = "Summary_" + (*iv) + "_mean_in_" 
+        string tag = prefix + "_" + (*iv) + "_mean_" 
                                 + currDir.substr(currDir.find(dir_name));
         MonitorElement* temp = getSummaryME(mui, tag);
         sum_mes.push_back(temp);
-        tag = "Summary_" + (*iv) + "_RMS_in_" 
+        tag = prefix + "_" + (*iv) + "_RMS_" 
                                 + currDir.substr(currDir.find(dir_name));
         temp = getSummaryME(mui, tag);
         sum_mes.push_back(temp);
       }else{
-        string tag = "Summary_" + (*iv) + "_in_" 
+        string tag = prefix + "_" + (*iv) + "_" 
                                 + currDir.substr(currDir.find(dir_name));
         MonitorElement* temp = getSummaryME(mui, tag);
         sum_mes.push_back(temp);
@@ -263,7 +327,7 @@ void SiPixelActionExecutor::fillEndcapSummary(MonitorUserInterface* mui,
 	     im != contents.end(); im++) {
           string sname = ((*isum)->getName());
 	  string tname = " ";
-          tname = sname.substr(8,(sname.find("_",8)-8)) + "_";
+          tname = sname.substr(7,(sname.find("_",7)-6));
 	  if (((*im)).find(tname) == 0) {
 	    string fullpathname = mui->pwd() + "/" + (*im); 
 	    MonitorElement *  me = mui->get(fullpathname);
@@ -276,9 +340,9 @@ void SiPixelActionExecutor::fillEndcapSummary(MonitorUserInterface* mui,
               (*isum)->setAxisTitle("modules",1);
 	      string title = " ";
 	      if (sname.find("residual")!=string::npos && sname.find("_RMS_")!=string::npos){
-                title = "RMS of " + sname.substr(8,(sname.find("_",8)-8)) + " per module"; 
+                title = "RMS of " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
               }else{
-                title = "Mean " + sname.substr(8,(sname.find("_",8)-8)) + " per module"; 
+                title = "Mean " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
 	      }
               (*isum)->setAxisTitle(title,2);
 	    }
@@ -292,9 +356,11 @@ void SiPixelActionExecutor::fillEndcapSummary(MonitorUserInterface* mui,
     vector<string> subdirs = mui->getSubdirs();
     for (vector<string>::const_iterator it = subdirs.begin();
        it != subdirs.end(); it++) {
-      if((mui->pwd()).find("PixelBarrel")!=string::npos) mui->goUp();
+      if((mui->pwd()).find("PixelBarrel")!=string::npos ||
+         (mui->pwd()).find("AdditionalPixelErrors")!=string::npos) mui->goUp();
       mui->cd((*it));
-      if ((*it).find("PixelBarrel")!=string::npos) continue;
+      if ((*it).find("PixelBarrel")!=string::npos ||
+          (*it).find("AdditionalPixelErrors")!=string::npos) continue;
       fillEndcapSummary(mui, dir_name, me_names);
       mui->goUp();
     }
@@ -308,6 +374,86 @@ void SiPixelActionExecutor::fillEndcapSummary(MonitorUserInterface* mui,
   }
   //cout<<"...leaving SiPixelActionExecutor::fillEndcapSummary!"<<endl;
 }
+
+
+void SiPixelActionExecutor::fillFEDErrorSummary(MonitorUserInterface* mui,
+                               string dir_name,vector<string>& me_names) {
+  //cout<<"entering SiPixelActionExecutor::fillFEDErrorSummary..."<<endl;
+  string currDir = mui->pwd();
+  //cout<<"currDir="<<currDir<<endl;
+  
+  string prefix;
+  if(source_type_==0) prefix="SUMRAW";
+  //cout<<"currDir="<<currDir<<" , dir_name="<<dir_name<<endl;
+  if (currDir.find(dir_name) != string::npos)  {
+    vector<MonitorElement*> sum_mes;
+    for (vector<string>::const_iterator iv = me_names.begin();
+	 iv != me_names.end(); iv++) {
+      if(source_type_>4){
+        if((*iv)=="errorType"||(*iv)=="NErrors"||(*iv)=="fullType"||(*iv)=="chanNmbr"||
+	   (*iv)=="TBMType"||(*iv)=="EvtNbr"||(*iv)=="evtSize"||(*iv)=="linkId"||
+	   (*iv)=="ROCId"||(*iv)=="DCOLId"||(*iv)=="PXId"||(*iv)=="ROCNmbr"||
+	   (*iv)=="TBMMessage"||(*iv)=="Type36Hitmap") 
+	  prefix="SUMRAW";
+      }
+      string tag = prefix + "_" + (*iv) + "_FEDErrors";
+      MonitorElement* temp = getFEDSummaryME(mui, tag);
+      sum_mes.push_back(temp);
+    }
+    if (sum_mes.size() == 0) {
+      edm::LogInfo("SiPixelActionExecutor") << " Summary MEs can not be created" << "\n" ;
+      return;
+    }
+    vector<string> subdirs = mui->getSubdirs();
+    int ndet = 0;
+    for (vector<string>::const_iterator it = subdirs.begin();
+       it != subdirs.end(); it++) {
+      if ( (*it).find("FED_") == string::npos) continue;
+      mui->cd(*it);
+      ndet++;
+      vector<string> contents = mui->getMEs(); 
+      for (vector<MonitorElement*>::const_iterator isum = sum_mes.begin();
+	   isum != sum_mes.end(); isum++) {
+	for (vector<string>::const_iterator im = contents.begin();
+	     im != contents.end(); im++) {
+          string sname = ((*isum)->getName());
+	  string tname = " ";
+          tname = sname.substr(7,(sname.find("_",7)-6));
+	  //cout<<"sname="<<sname<<" , tname="<<tname<<" , (*im)="<<(*im)<<endl;
+	  if (((*im)).find(tname) == 0) {
+	    string fullpathname = mui->pwd() + "/" + (*im); 
+	    MonitorElement *  me = mui->get(fullpathname);
+	    if (me){ 
+	    //cout<<"we have the ME in "<<fullpathname<<endl;
+	    //cout<"ME: "<<me->getRMS()<<" , "<<me->getMean()<<endl;
+	      (*isum)->Fill(ndet, me->getMean());
+              (*isum)->setAxisTitle("FED #",1);
+	      string title = " ";
+              title = "Mean " + sname.substr(7,(sname.find("_",7)-7)) + " per FED"; 
+	      (*isum)->setAxisTitle(title,2);
+	    }
+            break;
+          }
+	}
+      }
+      mui->goUp();
+    }
+  } else {  
+    vector<string> subdirs = mui->getSubdirs();
+    for (vector<string>::const_iterator it = subdirs.begin();
+       it != subdirs.end(); it++) {
+      //cout<<"3 - now in "<<mui->pwd()<<" , going to cd into "<<(*it)<<endl;
+      if((*it).find("PixelEndcap")!=string::npos ||
+         (*it).find("PixelBarrel")!=string::npos) continue;
+      mui->cd(*it);
+      fillFEDErrorSummary(mui, dir_name, me_names);
+      mui->goUp();
+    }
+  }
+  //cout<<"...leaving SiPixelActionExecutor::fillFEDErrorSummary!"<<endl;
+}
+
+
 void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(MonitorUserInterface* mui,
                                  vector<string>& me_names) {
 //cout<<"Entering SiPixelActionExecutor::fillGrandBarrelSummaryHistos..."<<endl;
@@ -317,6 +463,7 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(MonitorUserInterface* m
   if ((dir_name.find("Collector") == 0) ||
       (dir_name.find("FU") == 0) ||
       (dir_name.find("Tracker") == 0) ||
+      (dir_name.find("AdditionalPixelErrors") == 0) ||
       (dir_name.find("PixelEndcap") == 0) ||
       (dir_name.find("HalfCylinder") == 0) ||
       (dir_name.find("Disk") == 0) ||
@@ -335,10 +482,33 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(MonitorUserInterface* m
     mui->cd(*it);
     vector<string> contents = mui->getMEs();
     mui->goUp();
+    
+    string prefix;
+    if(source_type_==0) prefix="SUMRAW";
+    else if (source_type_==1) prefix="SUMDIG";
+    else if (source_type_==2) prefix="SUMCLU";
+    else if (source_type_==3) prefix="SUMRES";
+    else if (source_type_==4) prefix="SUMHIT";
+  
     for (vector<string>::const_iterator im = contents.begin();
 	 im != contents.end(); im++) {
       for (vector<string>::const_iterator iv = me_names.begin();
 	   iv != me_names.end(); iv++) {
+        if(source_type_>4){
+          if((*iv)=="errorType"||(*iv)=="NErrors"||(*iv)=="fullType"||(*iv)=="chanNmbr"||
+	     (*iv)=="TBMType"||(*iv)=="EvtNbr"||(*iv)=="evtSize"||(*iv)=="linkId"||
+	     (*iv)=="ROCId"||(*iv)=="DCOLId"||(*iv)=="PXId"||(*iv)=="ROCNmbr"||
+	   (*iv)=="TBMMessage"||(*iv)=="Type36Hitmap") 
+	    prefix="SUMRAW";
+	  else if((*iv)=="ndigis"||(*iv)=="adc")
+	    prefix="SUMDIG";
+	  else if((*iv)=="nclusters"||(*iv)=="x"||(*iv)=="y"||(*iv)=="charge"||
+	     (*iv)=="size"||(*iv)=="sizeX"||(*iv)=="sizeY"||(*iv)=="minrow"||
+	     (*iv)=="maxrow"||(*iv)=="mincol"||(*iv)=="maxcol")
+	    prefix="SUMCLU";
+	  else if((*iv)=="residualX"||(*iv)=="residualY")
+            prefix="SUMRES";
+        }
 	string var = "_" + (*iv) + "_";
 	if ((*im).find(var) != string::npos) {
 	  string full_path = path_name + "/" + (*it) + "/" +(*im);
@@ -351,7 +521,7 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(MonitorUserInterface* m
 	       TH1F * root_obh1 = dynamic_cast<TH1F *> (obh1->operator->());
 	       if (root_obh1) nbin = root_obh1->GetNbinsX();        
 	     } else nbin = 7777;
-             string me_name = "Summary_" + (*iv) + "_in_" + dir_name;
+             string me_name = prefix + "_" + (*iv) + "_" + dir_name;
              if(dir_name=="PixelBarrel") nbin=768;
 	     else if(dir_name.find("Shell")!=string::npos) nbin=192;
 	     else nbin=nbin*nDirs;
@@ -399,6 +569,7 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(MonitorUserInterface* m
   if ((dir_name.find("Collector") == 0) ||
       (dir_name.find("FU") == 0) ||
       (dir_name.find("Tracker") == 0) ||
+      (dir_name.find("AdditionalPixelErrors") == 0) ||
       (dir_name.find("PixelBarrel") == 0) ||
       (dir_name.find("Shell") == 0) ||
       (dir_name.find("Layer") == 0) ||
@@ -416,10 +587,32 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(MonitorUserInterface* m
     vector<string> contents = mui->getMEs();
     mui->goUp();
     
+    string prefix;
+    if(source_type_==0) prefix="SUMRAW";
+    else if (source_type_==1) prefix="SUMDIG";
+    else if (source_type_==2) prefix="SUMCLU";
+    else if (source_type_==3) prefix="SUMRES";
+    else if (source_type_==4) prefix="SUMHIT";
+  
     for (vector<string>::const_iterator im = contents.begin();
 	 im != contents.end(); im++) {
       for (vector<string>::const_iterator iv = me_names.begin();
 	   iv != me_names.end(); iv++) {
+        if(source_type_>4){
+          if((*iv)=="errorType"||(*iv)=="NErrors"||(*iv)=="fullType"||(*iv)=="chanNmbr"||
+	     (*iv)=="TBMType"||(*iv)=="EvtNbr"||(*iv)=="evtSize"||(*iv)=="linkId"||
+	     (*iv)=="ROCId"||(*iv)=="DCOLId"||(*iv)=="PXId"||(*iv)=="ROCNmbr"||
+	   (*iv)=="TBMMessage"||(*iv)=="Type36Hitmap") 
+	    prefix="SUMRAW";
+	  else if((*iv)=="ndigis"||(*iv)=="adc")
+	    prefix="SUMDIG";
+	  else if((*iv)=="nclusters"||(*iv)=="x"||(*iv)=="y"||(*iv)=="charge"||
+	     (*iv)=="size"||(*iv)=="sizeX"||(*iv)=="sizeY"||(*iv)=="minrow"||
+	     (*iv)=="maxrow"||(*iv)=="mincol"||(*iv)=="maxcol")
+	    prefix="SUMCLU";
+	  else if((*iv)=="residualX"||(*iv)=="residualY")
+            prefix="SUMRES";
+        }
 	string var = "_" + (*iv) + "_";
 	if ((*im).find(var) != string::npos) {
 	  string full_path = path_name + "/" + (*it) + "/" +(*im);
@@ -432,7 +625,7 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(MonitorUserInterface* m
 	       TH1F * root_obh1 = dynamic_cast<TH1F *> (obh1->operator->());
 	       if (root_obh1) nbin = root_obh1->GetNbinsX();        
 	     } else nbin = 7777;
-             string me_name = "Summary_" + (*iv) + "_in_" + dir_name;
+             string me_name = prefix + "_" + (*iv) + "_" + dir_name;
              if(dir_name=="PixelEndcap") nbin=672;
 	     else if(dir_name.find("HalfCylinder")!=string::npos) nbin=168;
 	     else if(dir_name.find("Disk")!=string::npos) nbin=84;
@@ -533,6 +726,33 @@ MonitorElement* SiPixelActionExecutor::getSummaryME(MonitorUserInterface* mui,st
   return me;
   //cout<<"...leaving SiPixelActionExecutor::getSummaryME!"<<endl;
 }
+
+
+MonitorElement* SiPixelActionExecutor::getFEDSummaryME(MonitorUserInterface* mui,string me_name) {
+//cout<<"Entering SiPixelActionExecutor::getFEDSummaryME..."<<endl;
+  MonitorElement* me = 0;
+  // If already booked
+  vector<string> contents = mui->getMEs();    
+  for (vector<string>::const_iterator it = contents.begin();
+       it != contents.end(); it++) {
+    if ((*it).find(me_name) == 0) {
+      string fullpathname = mui->pwd() + "/" + (*it); 
+      me = mui->get(fullpathname);
+      if (me) {
+	MonitorElementT<TNamed>* obh1 = dynamic_cast<MonitorElementT<TNamed>*> (me);
+	if (obh1) {
+	  TH1F * root_obh1 = dynamic_cast<TH1F *> (obh1->operator->());
+	  if (root_obh1) root_obh1->Reset();        
+	}
+	return me;
+      }
+    }
+  }
+  DaqMonitorBEInterface * bei = mui->getBEInterface();
+  me = bei->book1D(me_name.c_str(), me_name.c_str(),40,-0.5,39.5);
+  return me;
+  //cout<<"...leaving SiPixelActionExecutor::getFEDSummaryME!"<<endl;
+}
 //
 // -- Setup Quality Tests 
 //
@@ -626,7 +846,8 @@ void SiPixelActionExecutor::createCollation(MonitorUserInterface * mui){
   mui->getContents(contentVec);
   for (vector<string>::iterator it = contentVec.begin();
       it != contentVec.end(); it++) {
-    if ((*it).find("Module_") == string::npos) continue;
+    if ((*it).find("Module_") == string::npos &&
+        (*it).find("FED_") == string::npos) continue;
     string dir_path;
     vector<string> contents;
     SiPixelUtility::getMEList((*it), dir_path, contents);
@@ -721,7 +942,8 @@ void SiPixelActionExecutor::fillLayout(MonitorUserInterface * mui){
 //      
 void SiPixelActionExecutor::saveMEs(MonitorUserInterface* mui, string fname){
   if (collationDone) {
-    mui->save(fname,"Collector/Collated/SiPixel");
+    //mui->save(fname,"Collector/Collated/SiPixel");
+     mui->save(fname,mui->pwd(),90);
   } else {
      mui->save(fname,mui->pwd(),90);
   }

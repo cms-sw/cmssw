@@ -33,7 +33,8 @@ class SiPixelActionExecutor {
 				    int 			 & sum_endcap_freq, 
 				    int 			 & sum_grandbarrel_freq, 
 				    int 			 & sum_grandendcap_freq,
-				    int 			 & message_limit);
+				    int 			 & message_limit,
+                                    int                          & source_type);
  void readConfiguration(	    );
  void createLayout(     	    MonitorUserInterface    	 * mui);
  void fillLayout(       	    MonitorUserInterface    	 * mui);
@@ -45,10 +46,15 @@ class SiPixelActionExecutor {
  private:
   MonitorElement* getSummaryME(     MonitorUserInterface     	 * mui, 
                                     std::string 	     	   me_name);
+  MonitorElement* getFEDSummaryME(  MonitorUserInterface     	 * mui, 
+                                    std::string 	     	   me_name);
   void fillBarrelSummary(           MonitorUserInterface     	 * mui, 
                                     std::string 	     	   dir_name,
                                     std::vector<std::string> 	 & me_names);
   void fillEndcapSummary(           MonitorUserInterface     	 * mui, 
+                                    std::string 	     	   dir_name,
+                                    std::vector<std::string> 	 & me_names);
+  void fillFEDErrorSummary(         MonitorUserInterface     	 * mui, 
                                     std::string 	     	   dir_name,
                                     std::vector<std::string> 	 & me_names);
   void fillGrandBarrelSummaryHistos(MonitorUserInterface     	 * mui, 
@@ -70,6 +76,7 @@ class SiPixelActionExecutor {
   bool collationDone;
   
   int message_limit_;
+  int source_type_;
   
   QTestHandle* qtHandler_;
   
