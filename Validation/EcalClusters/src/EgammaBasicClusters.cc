@@ -6,6 +6,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 
 EgammaBasicClusters::EgammaBasicClusters( const edm::ParameterSet& ps )
 {
