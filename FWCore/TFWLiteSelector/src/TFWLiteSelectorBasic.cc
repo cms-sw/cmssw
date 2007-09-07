@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 27 17:58:10 EDT 2006
-// $Id: TFWLiteSelectorBasic.cc,v 1.29 2007/08/23 23:20:53 wmtan Exp $
+// $Id: TFWLiteSelectorBasic.cc,v 1.30 2007/09/06 21:09:23 chrjones Exp $
 //
 
 // system include files
@@ -45,18 +45,18 @@ namespace edm {
   namespace root {
     class FWLiteDelayedReader : public DelayedReader {
      public:
-      FWLiteDelayedReader(): entry_(-1),eventTree_(0),reg_(0) {}
+      FWLiteDelayedReader(): entry_(-1),eventTree_(0),reg_() {}
       virtual std::auto_ptr<EDProduct> getProduct(BranchKey const& k, EDProductGetter const* ep) const;
       virtual std::auto_ptr<BranchEntryDescription> getProvenance(BranchKey const&) const {
         return std::auto_ptr<BranchEntryDescription>();
       }
       void setEntry(Long64_t iEntry) { entry_ = iEntry; }
       void setTree(TTree* iTree) {eventTree_ = iTree;}
-      void set(const edm::ProductRegistry* iReg) { reg_ = iReg;}
+      void set(boost::shared_ptr<const edm::ProductRegistry> iReg) { reg_ = iReg;}
      private:
       Long64_t entry_;
       TTree* eventTree_;
-      const edm::ProductRegistry* reg_;
+      boost::shared_ptr<const edm::ProductRegistry>(reg_);
     };
     
     std::auto_ptr<EDProduct> 
@@ -124,14 +124,14 @@ namespace edm {
       TFWLiteSelectorMembers():
       tree_(0),
       metaTree_(0),
-      reg_(),
+      reg_(new edm::ProductRegistry()),
       processNames_(),
       reader_(new FWLiteDelayedReader),
       productMap_(),
       prov_(),
       pointerToBranchBuffer_()
       {
-        reader_->set(&reg_);}
+        reader_->set(reg_);}
       void setTree( TTree* iTree) {
         tree_ = iTree;
         reader_->setTree(iTree);
@@ -141,7 +141,7 @@ namespace edm {
       }
       TTree* tree_;
       TTree* metaTree_;
-      ProductRegistry reg_;
+      boost::shared_ptr<ProductRegistry> reg_;
       ProcessHistory processNames_;
       boost::shared_ptr<FWLiteDelayedReader> reader_;
       typedef std::map<ProductID, BranchDescription> ProductMap;
@@ -267,7 +267,7 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
       try {
 	 m_->reader_->setEntry(iEntry);
 	 edm::ProcessConfiguration pc;
-	 boost::shared_ptr<edm::ProductRegistry const> reg(&m_->reg_);
+	 boost::shared_ptr<edm::ProductRegistry const> reg(m_->reg_);
 	 boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(aux.run(), aux.time(), aux.time(), reg, pc));
 	 boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(1, aux.time(), aux.time(), reg, rp, pc));
 	 edm::EventPrincipal ep(aux.id(), aux.time(), reg, lbp, pc, true,
@@ -321,7 +321,7 @@ void
 TFWLiteSelectorBasic::setupNewFile(TFile& iFile) { 
   //look up meta-data
   //get product registry
-  edm::ProductRegistry* pReg = &(m_->reg_);
+  edm::ProductRegistry* pReg = &(*m_->reg_);
   typedef std::map<edm::ParameterSetID, edm::ParameterSetBlob> PsetMap;
   PsetMap psetMap;
   edm::ProcessHistoryMap pHistMap;
@@ -337,7 +337,7 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
     metaDataTree->SetBranchAddress(edm::poolNames::processHistoryMapBranchName().c_str(), &pHistMapPtr);
     metaDataTree->SetBranchAddress(edm::poolNames::moduleDescriptionMapBranchName().c_str(), &mdMapPtr);
     metaDataTree->GetEntry(0);
-    m_->reg_.setFrozen();
+    m_->reg_->setFrozen();
   } else {
     std::cout <<"could not find TTree "<<edm::poolNames::metaDataTreeName() <<std::endl;
     everythingOK_ = false;
