@@ -24,7 +24,7 @@
 #include <TFile.h>
 #include <TProfile3D.h>
 #include <TString.h>
-
+#include <TAxis.h>
 
 
 class MuonErrorMatrix{
@@ -53,6 +53,9 @@ class MuonErrorMatrix{
   /// provide the numerical value used. sigma or correlation factor
   static double Term(const AlgebraicSymMatrix55 & curv, int i, int j);
 
+  ///method to get the bin index, taking care of under/overlow: first(1)/last(GetNbins())returned
+  int findBin(TAxis * axis, double value);
+
  private:
   /// log category: "MuonErrorMatrix"
   std::string theCategory;
@@ -70,6 +73,7 @@ class MuonErrorMatrix{
   /// internal method to get access to the profiles
   inline TProfile3D * Index(int i , int j) {
     return theData[Pindex(i,j)];}
+
 
   /// internal method that retreives the value of the parametrization for term i,j  
   double Value(GlobalVector & momentum, int i, int j);

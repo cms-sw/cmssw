@@ -243,16 +243,23 @@ MuonErrorMatrixAnalyzer::analyze_from_pull(const edm::Event& iEvent, const edm::
 	      uint iH=theErrorMatrixStore_Residual->index(i,j);
 	      TProfile3D * ij = theErrorMatrixStore_Residual->get(i,j);
 	      if (!ij){edm::LogError(theCategory)<<i<<" "<<j<<" not vali indexes. TProfile3D not found."; continue;}
-	      int iPt=ij->GetXaxis()->FindBin(pT)-1;
-	      if (iPt==-1 || iPt==ij->GetNbinsX())
+
+	      /*	
+		int iPt=ij->GetXaxis()->FindBin(pT)-1;
+		if (iPt==-1 || iPt==ij->GetNbinsX())
 		{edm::LogError(theCategory)<<"there is an under/over flow entry in pT: "<<pT;continue;}
-	      int iEta=ij->GetYaxis()->FindBin(eta)-1;
-	      if (iEta==-1 || iEta==ij->GetNbinsY())
+		int iEta=ij->GetYaxis()->FindBin(eta)-1;
+		if (iEta==-1 || iEta==ij->GetNbinsY())
 		{edm::LogError(theCategory)<<"there is an under/over flow entry in Eta: "<<eta;continue;}
-	      int iPhi=ij->GetZaxis()->FindBin(phi)-1;
-	      if (iPhi==-1 || iPhi==ij->GetNbinsZ())
+		int iPhi=ij->GetZaxis()->FindBin(phi)-1;
+		if (iPhi==-1 || iPhi==ij->GetNbinsZ())
 		{edm::LogError(theCategory)<<"there is an under/over flow entry in Phi: "<<phi;continue;}
-	      
+	      */
+
+	      int iPt=theErrorMatrixStore_Residual->findBin(ij->GetXaxis(),pT)-1;// between 0 and maxbin-1;
+	      int iEta=theErrorMatrixStore_Residual->findBin(ij->GetYaxis(),eta)-1;// between 0 and maxbin-1;
+	      int iPhi=theErrorMatrixStore_Residual->findBin(ij->GetZaxis(),phi)-1;// between 0 and maxbin-1;
+
 	      TH1ptr & theH = (theHist_array_residual[iH])[index(ij,iPt,iEta,iPhi)];
 	      
 	      if (i==j){
@@ -270,15 +277,10 @@ MuonErrorMatrixAnalyzer::analyze_from_pull(const edm::Event& iEvent, const edm::
 	      uint iH=theErrorMatrixStore_Pull->index(i,j);
               TProfile3D* ij=theErrorMatrixStore_Pull->get(i,j);
               if (!ij){edm::LogError(theCategory)<<i<<" "<<j<<" not vali indexes. TProfile3D not found."; continue;}
-              int iPt=ij->GetXaxis()->FindBin(pT)-1;
-              if (iPt==-1 || iPt==ij->GetNbinsX())
-                {edm::LogError(theCategory)<<"there is an under/over flow entry in pT: "<<pT;continue;}
-              int iEta=ij->GetYaxis()->FindBin(eta)-1;
-              if (iEta==-1 || iEta==ij->GetNbinsY())
-                {edm::LogError(theCategory)<<"there is an under/over flow entry in Eta: "<<eta;continue;}
-              int iPhi=ij->GetZaxis()->FindBin(phi)-1;
-              if (iPhi==-1 || iPhi==ij->GetNbinsZ())
-                {edm::LogError(theCategory)<<"there is an under/over flow entry in Phi: "<<phi;continue;}
+
+	      int iPt=theErrorMatrixStore_Pull->findBin(ij->GetXaxis(),pT)-1;// between 0 and maxbin-1;
+	      int iEta=theErrorMatrixStore_Pull->findBin(ij->GetYaxis(),eta)-1;// between 0 and maxbin-1;
+	      int iPhi=theErrorMatrixStore_Pull->findBin(ij->GetZaxis(),phi)-1;// between 0 and maxbin-1;
 	      
               TH1ptr & theH = (theHist_array_pull[iH])[index(ij,iPt,iEta,iPhi)];
 	      

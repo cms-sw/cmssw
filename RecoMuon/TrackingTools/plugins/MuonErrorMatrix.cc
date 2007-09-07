@@ -164,6 +164,13 @@ CurvilinearTrajectoryError MuonErrorMatrix::get(GlobalVector momentum)  {
       return CurvilinearTrajectoryError(V);  }
 */
 
+int MuonErrorMatrix::findBin(TAxis * axis, double value){
+  //find the proper bin, protecting against under/over flow
+  int result = axis->FindBin(value);
+  if (result <= 0) result=1; //protect against under flow
+  else if (result > axis->GetNbins() ) result = axis->GetNbins();
+  return result;}
+
 
 double MuonErrorMatrix::Value(GlobalVector & momentum, int i, int j)  {
   double result=0;
@@ -174,11 +181,9 @@ double MuonErrorMatrix::Value(GlobalVector & momentum, int i, int j)  {
   double eta = fabs(momentum.eta());
   double phi = momentum.phi();
 
-
-  //  int iBin= ij->FindBin(pT,eta,phi);
-  int iBin_x= ij->GetXaxis()->FindBin(pT);
-  int iBin_y= ij->GetYaxis()->FindBin(eta);
-  int iBin_z= ij->GetZaxis()->FindBin(phi);
+  int iBin_x= findBin(ij->GetXaxis(),pT);
+  int iBin_y= findBin(ij->GetYaxis(),eta);
+  int iBin_z= findBin(ij->GetZaxis(),phi);
 
   if (i!=j){
     //return the covariance = correlation*sigma_1 *sigma_2;
