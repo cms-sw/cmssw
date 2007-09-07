@@ -8,8 +8,8 @@
  *   starting from Level-1 trigger seeds.
  *
  *
- *   $Date: 2007/03/06 08:49:22 $
- *   $Revision: 1.19 $
+ *   $Date: 2007/03/13 10:26:11 $
+ *   $Revision: 1.20 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -29,6 +29,7 @@
 #include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -70,6 +71,7 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet){
   produces<reco::TrackToTrackMap>();
 
   produces<std::vector<Trajectory> >();
+  produces<TrajTrackAssociationCollection>();
 }
   
 /// destructor

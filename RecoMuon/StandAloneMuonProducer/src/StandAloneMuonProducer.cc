@@ -6,8 +6,8 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2007/03/13 10:26:12 $
- *   $Revision: 1.25 $
+ *   $Date: 2007/03/20 15:57:44 $
+ *   $Revision: 1.26 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -32,6 +32,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 #include <string>
 
@@ -70,6 +71,7 @@ StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet)
   produces<reco::TrackToTrackMap>().setBranchAlias(theAlias + "TrackToTrackMap");
   
   produces<std::vector<Trajectory> >().setBranchAlias(theAlias + "Trajectories");
+  produces<TrajTrackAssociationCollection>().setBranchAlias(theAlias + "TrajToTrackMap");
 }
   
 /// destructor
