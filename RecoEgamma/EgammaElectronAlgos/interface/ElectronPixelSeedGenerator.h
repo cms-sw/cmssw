@@ -14,6 +14,7 @@
  ************************************************************/
 
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"  
+#include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"  
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
