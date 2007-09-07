@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1Region.h,v 1.10 2007/08/18 02:11:24 chinhan Exp $
+// $Id: FastL1Region.h,v 1.11 2007/08/22 18:28:38 chinhan Exp $
 //
 
 // user include files
@@ -48,7 +48,7 @@
 
 #include "FastSimulation/L1CaloTriggerProducer/interface/FastL1RegionMap.h"
 // No BitInfos for release versions
-//#include "DataFormats/FastL1/interface/FastL1BitInfo.h" // FastL1BitInfo is not yet for publication
+#include "FastSimDataFormats/External/interface/FastL1BitInfo.h" // FastL1BitInfo is not yet for publication
 
 struct FastL1Config {
   bool DoJetCorr;
@@ -162,10 +162,10 @@ class FastL1Region {
 
   std::pair<int, int> GetTowerNorthEtaPhi(int ieta, int iphi); 
 
-  //FastL1BitInfo getBitInfo() { return BitInfo; }
+  FastL1BitInfo getBitInfo() { return BitInfo; }
 
   // public - has to bechanged!!!
-  //FastL1BitInfo BitInfo;
+  FastL1BitInfo BitInfo;
 
   void SetFGBit(int twrid,bool FGBIT);
   void SetHCFGBit(int twrid,bool FGBIT);
