@@ -13,7 +13,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO
 //         Created:  Tue Jul 18 12:17:01 CEST 2006
-// $Id: miscalibExample.cc,v 1.2 2006/09/20 12:22:25 malgeri Exp $
+// $Id: miscalibExample.cc,v 1.3 2006/10/27 01:35:17 wmtan Exp $
 //
 //
 
@@ -36,6 +36,7 @@
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TFile.h"
