@@ -1,5 +1,6 @@
 #include "RecoMuon/TrackingTools/plugins/MuonErrorMatrix.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "TString.h"
 #include "TRandom2.h"
@@ -14,7 +15,6 @@ MuonErrorMatrix::MuonErrorMatrix(const edm::ParameterSet & iConfig){
   theCategory="MuonErrorMatrix";
   std::string action = iConfig.getParameter<std::string>("action");
   std::string fileName = iConfig.getParameter<std::string>("rootFileName");
-  const char * filename = fileName.c_str();
   MuonErrorMatrix::action a= use;
 
    int NPt=5;
@@ -73,12 +73,19 @@ MuonErrorMatrix::MuonErrorMatrix(const edm::ParameterSet & iConfig){
     else { get>>maxPhi;}
   }
 
-  edm::LogInfo(theCategory)<<((a==use)?"using":"creating")
-					 <<" an error matrix object: "<<filename;
-  theF = new TFile(filename,((a==use)?"":"recreate"));
-  
+  if (a==use){
+    edm::LogInfo(theCategory)<<"using an error matrix object: "<<fileName;
+    edm::FileInPath data(fileName);
+    string fullpath = data.fullPath();
+    theF = new TFile(fullpath.c_str());
+  }
+  else{
+    edm::LogInfo(theCategory)<<"creating  an error matrix object: "<<fileName;
+    theF = new TFile(fileName.c_str(),"recreate");
+  }
+
   if (!theF->IsOpen()){
-    edm::LogError(theCategory)<<" cannot read file "<<filename;}
+    edm::LogError(theCategory)<<" cannot read file "<<fileName;}
   else{
     if (a==use){gROOT->cd();}
     else {theF->cd();}
@@ -87,7 +94,7 @@ MuonErrorMatrix::MuonErrorMatrix(const edm::ParameterSet & iConfig){
 	TString pfname(Form("pf3_V%1d%1d",i+1,j+1));
 	TProfile3D * pf =0;
 	if (a==use){
-	  edm::LogVerbatim(theCategory)<<"getting "<<pfname<<" from "<<filename;
+	  edm::LogVerbatim(theCategory)<<"getting "<<pfname<<" from "<<fileName;
 	  pf = (TProfile3D *)theF->Get(pfname);
 	  //	  pf = new TProfile3D(*pf); //make a copy of it
 	  theData[Pindex(i,j)]=pf;
@@ -99,7 +106,7 @@ MuonErrorMatrix::MuonErrorMatrix(const edm::ParameterSet & iConfig){
 	  TString pftitle;
 	  if (i==j){pftitle="#sigma_{"+vars[i]+"}";}
 	  else{pftitle="#rho("+vars[i]+","+vars[j]+")";}
-	  edm::LogVerbatim(theCategory)<<"booking "<<pfname<<" into "<<filename;
+	  edm::LogVerbatim(theCategory)<<"booking "<<pfname<<" into "<<fileName;
 	  pf = new TProfile3D(pfname,pftitle,NPt,minPt,maxPt,NEta,minEta,maxEta,NPhi,minPhi,maxPhi,"S");	    
 	  pf->SetXTitle("muon p_{T} [GeV]");
 	  pf->SetYTitle("muon |#eta|");
@@ -115,7 +122,7 @@ MuonErrorMatrix::MuonErrorMatrix(const edm::ParameterSet & iConfig){
 	LogDebug(theCategory)<<" index "<<i<<":"<<j<<" -> "<<Pindex(i,j);
 	theData[Pindex(i,j)]=pf;
 	if (!pf){
-	  edm::LogError(theCategory)<<" profile "<<pfname<<" in file "<<filename<<" is not valid. exiting.";
+	  edm::LogError(theCategory)<<" profile "<<pfname<<" in file "<<fileName<<" is not valid. exiting.";
 	  exit(1);
 	}
       }}
