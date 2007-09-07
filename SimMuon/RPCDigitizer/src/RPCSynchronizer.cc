@@ -155,7 +155,7 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
 int RPCSynchronizer::getDigiBx(const PSimHit* simhit, int centralstrip, int strip)
 {
 
-  int diffstrip = abs(strip - centralstrip);
+  unsigned int diffstrip = abs(strip - centralstrip);
 
   float csdt_tot = 0.;
   if(diffstrip > 0){
