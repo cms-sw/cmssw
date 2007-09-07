@@ -36,7 +36,7 @@ namespace edm {
 
   bool
   RootTree::isValid() const {
-    if (metaTree_ == 0) {
+    if (metaTree_ == 0 || metaTree_->GetNbranches() == 0) {
       return tree_ != 0 && auxBranch_ != 0 &&
 	 tree_->GetNbranches() == 1; 
     }
@@ -71,7 +71,7 @@ namespace edm {
 
   void
   RootTree::fillGroups(Principal& item) {
-    if (metaTree_ == 0) return;
+    if (metaTree_ == 0 || metaTree_->GetNbranches() == 0) return;
     // Loop over provenance
     BranchMap::const_iterator pit = branches_->begin(), pitEnd = branches_->end();
     for (; pit != pitEnd; ++pit) {
