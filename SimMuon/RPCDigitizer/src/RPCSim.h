@@ -19,8 +19,6 @@ class RPCSim
 {
  public:
   virtual ~RPCSim(){};
-  virtual void simulate(const RPCRoll* roll,
-			const edm::PSimHitContainer& rpcHits )=0;
 
   virtual void simulate(const RPCRoll* roll,
 			const edm::PSimHitContainer& rpcHits, 

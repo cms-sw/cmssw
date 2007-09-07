@@ -18,19 +18,11 @@ namespace CLHEP {
   class RandFlat;
 }
 
-namespace CLHEP {
-  class HepRandomEngine;
-  class RandFlat;
-}
-
 class RPCSimParam : public RPCSim
 {
  public:
   RPCSimParam(const edm::ParameterSet& config);
   ~RPCSimParam(){}
-
-  void simulate(const RPCRoll* roll,
-		const edm::PSimHitContainer& rpcHits ){};
 
   void simulate(const RPCRoll* roll,
 		const edm::PSimHitContainer& rpcHits, const RPCGeometry*);

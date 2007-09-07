@@ -25,14 +25,13 @@ namespace CLHEP {
   class HepRandomEngine;
   class RandFlat;
 }
+
 class RPCSimAverage : public RPCSim
 {
  public:
 
   RPCSimAverage(const edm::ParameterSet& config);
   ~RPCSimAverage(){}
-  void simulate(const RPCRoll* roll,
-		const edm::PSimHitContainer& rpcHits){};
 
   void simulate(const RPCRoll* roll,
 		const edm::PSimHitContainer& rpcHits, const RPCGeometry*);
