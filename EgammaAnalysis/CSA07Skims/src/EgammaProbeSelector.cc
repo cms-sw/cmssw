@@ -12,6 +12,7 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream> 
 #include <TMath.h>
