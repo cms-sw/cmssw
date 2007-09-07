@@ -1,5 +1,5 @@
 //
-// $Id: TopElectronProducer.cc,v 1.18 2007/08/28 22:36:00 rwolf Exp $
+// $Id: TopElectronProducer.cc,v 1.19 2007/09/07 22:23:07 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopElectronProducer.h"
@@ -32,14 +32,14 @@ TopElectronProducer::TopElectronProducer(const edm::ParameterSet & iConfig) {
   maxRecoOnGenEt_   = iConfig.getParameter<double>       ( "maxRecoOnGenEt" );
   // resolution configurables
   addResolutions_   = iConfig.getParameter<bool>         ( "addResolutions" );
-  useNNReso_        = iConfig.getParameter<bool>         ( "useNNresolution" );
+  useNNReso_        = iConfig.getParameter<bool>         ( "useNNResolution" );
   electronResoFile_ = iConfig.getParameter<std::string>  ( "electronResoFile" );
   // isolation configurables
   doTrkIso_         = iConfig.getParameter<bool>         ( "doTrkIsolation" );
   tracksSrc_        = iConfig.getParameter<edm::InputTag>( "tracksSrc" );
   doCalIso_         = iConfig.getParameter<bool>         ( "doCalIsolation" );
   // electron ID configurables
-  addElecID_        = iConfig.getParameter<bool>         ( "useElectronID"  );
+  addElecID_        = iConfig.getParameter<bool>         ( "addElectronID" );
   elecIDSrc_        = iConfig.getParameter<edm::InputTag>( "electronIDSource" );
   // likelihood ratio configurables
   addLRValues_      = iConfig.getParameter<bool>         ( "addLRValues" );
@@ -82,7 +82,7 @@ void TopElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 
   // prepare isolation calculation
   if (doTrkIso_) trkIsolation_= new TopLeptonTrackerIsolationPt (iSetup, tracksSrc_);
-  if (doCalIso_) calIsolation_= new TopLeptonCaloIsolationEnergy(iSetup );
+  if (doCalIso_) calIsolation_= new TopLeptonCaloIsolationEnergy(iSetup);
   
   // prepare ID extraction
   edm::Handle<reco::ElectronIDAssociationCollection> elecIDs;

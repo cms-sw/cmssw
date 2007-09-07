@@ -1,5 +1,5 @@
 //
-// $Id: TopMuonProducer.cc,v 1.11 2007/08/28 22:36:00 rwolf Exp $
+// $Id: TopMuonProducer.cc,v 1.12 2007/09/07 22:23:07 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopMuonProducer.h"
@@ -30,7 +30,7 @@ TopMuonProducer::TopMuonProducer(const edm::ParameterSet & iConfig) {
   maxRecoOnGenEt_= iConfig.getParameter<double>       ( "maxRecoOnGenEt" );
   // resolution configurables
   addResolutions_= iConfig.getParameter<bool>         ( "addResolutions" );
-  useNNReso_     = iConfig.getParameter<bool>         ( "useNNresolution" );
+  useNNReso_     = iConfig.getParameter<bool>         ( "useNNResolution" );
   muonResoFile_  = iConfig.getParameter<std::string>  ( "muonResoFile" );
   // isolation configurables
   doTrkIso_      = iConfig.getParameter<bool>         ( "doTrkIsolation" );
