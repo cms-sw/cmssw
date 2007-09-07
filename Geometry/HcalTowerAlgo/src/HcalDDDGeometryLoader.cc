@@ -3,6 +3,7 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/IdealObliquePrism.h"
 #include "Geometry/CaloGeometry/interface/IdealZPrism.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometryLoader.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include<string>
@@ -70,7 +71,7 @@ void HcalDDDGeometryLoader::fill(HcalSubdetector subdet,
 			   << depthBin;
       HcalDetId id(subdet, etaRing, iphi, depthBin);
       hcalIds.push_back(id);
-      const CaloCellGeometry * geometry = makeCell(id,hcalCells[i],phi,dphi);
+      const CaloCellGeometry * geometry = makeCell(id,hcalCells[i],phi,dphi,geom);
       geom->addCell(id, geometry);
       if (hcalCells[i].nHalves() > 1) {
 	LogDebug("HCalGeom") << "HcalDDDGeometryLoader::fill Cell " << i
@@ -79,7 +80,7 @@ void HcalDDDGeometryLoader::fill(HcalSubdetector subdet,
 			     << depthBin;
 	HcalDetId id(subdet, -etaRing, iphi, depthBin);
 	hcalIds.push_back(id);
-	const CaloCellGeometry * geometry = makeCell(id,hcalCells[i],phi,dphi);
+	const CaloCellGeometry * geometry = makeCell(id,hcalCells[i],phi,dphi,geom);
 	geom->addCell(id, geometry);
       }
       iphi += phiInc;
@@ -91,11 +92,13 @@ void HcalDDDGeometryLoader::fill(HcalSubdetector subdet,
 			   << " is " << hcalIds.size();
 }
 
-const CaloCellGeometry* HcalDDDGeometryLoader::makeCell(const HcalDetId& detId,
-							HcalCellType::HcalCellType hcalCell,
-							double phi, 
-							double dphi) const {
-
+const CaloCellGeometry* 
+HcalDDDGeometryLoader::makeCell(const HcalDetId& detId,
+				HcalCellType::HcalCellType hcalCell,
+				double phi, 
+				double dphi,
+				CaloSubdetectorGeometry* geom) const 
+{
   // the two eta boundaries of the cell
   double          eta1   = hcalCell.etaMin();
   double          eta2   = hcalCell.etaMax();
@@ -135,9 +138,31 @@ const CaloCellGeometry* HcalDDDGeometryLoader::makeCell(const HcalDetId& detId,
 		       << " Point " << point << " deta = " << deta 
 		       << " dphi = " << dphi << " thickness = " << thickness
 		       << " isBarrel = " << isBarrel;
-  if (subdet==HcalForward) {
-    return new calogeom::IdealZPrism(point, deta, dphi, thickness);
-  } else {
-    return new calogeom::IdealObliquePrism(point, deta, dphi, thickness, isBarrel);
-  }
+
+  
+  if (subdet==HcalForward) 
+  {
+     std::vector<double> hf ;
+     hf.resize(3) ;
+     hf.push_back( deta ) ;
+     hf.push_back( dphi ) ;
+     hf.push_back( thickness ) ;
+     return new calogeom::IdealZPrism( 
+	point, 
+	geom->cornersMgr(),
+	CaloCellGeometry::getParmPtr( hf, 3, geom->parVecVec() ) );
+  } 
+  else 
+  { 
+     const double sign ( isBarrel ? 1 : -1 ) ;
+     std::vector<double> hh ;
+     hh.resize(3) ;
+     hh.push_back( deta ) ;
+     hh.push_back( dphi ) ;
+     hh.push_back( sign*thickness ) ;
+     return new calogeom::IdealObliquePrism(
+	point,
+	geom->cornersMgr(),
+	CaloCellGeometry::getParmPtr( hh, 3, geom->parVecVec() ) );
+ }
 }

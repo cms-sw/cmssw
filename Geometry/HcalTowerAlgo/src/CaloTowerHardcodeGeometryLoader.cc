@@ -14,7 +14,7 @@ std::auto_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load() {
     for (int iphi=1; iphi<=72; iphi++) {
       if (abs(ieta)>=limits.firstHFQuadPhiRing() && ((iphi-1)%4)==0) continue;
       if (abs(ieta)>=limits.firstHEDoublePhiRing() && ((iphi-1)%2)!=0) continue;
-      geom->addCell(CaloTowerDetId(ieta,iphi),makeCell(ieta,iphi));
+      geom->addCell(CaloTowerDetId(ieta,iphi),makeCell(ieta,iphi, geom));
       n++;
     }
   }
@@ -22,7 +22,8 @@ std::auto_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load() {
   return std::auto_ptr<CaloSubdetectorGeometry>(geom); 
 }
 
-const CaloCellGeometry* CaloTowerHardcodeGeometryLoader::makeCell(int ieta, int iphi) const {
+const CaloCellGeometry* CaloTowerHardcodeGeometryLoader::makeCell(int ieta, int iphi,
+								  CaloSubdetectorGeometry* geom) const {
   const double EBradius = 143.0; // cm
   const double HOradius = 406.0+1.0;
   const double EEz = 320.0; // rough (cm)
@@ -76,6 +77,15 @@ const CaloCellGeometry* CaloTowerHardcodeGeometryLoader::makeCell(int ieta, int 
   z*=sign;
   GlobalPoint point(x,y,z);
 
-  return new calogeom::IdealObliquePrism(point, deta, dphi_half*2, thickness, !alongZ);
-
+  const double mysign ( !alongZ ? 1 : -1 ) ;
+  std::vector<double> hh ;
+  hh.resize(3) ;
+  hh.push_back( deta ) ;
+  hh.push_back( dphi_half*2 ) ;
+  hh.push_back( mysign*thickness ) ;
+  class DummyClass ;
+  return new calogeom::IdealObliquePrism(
+     point,
+     geom->cornersMgr(),
+     CaloCellGeometry::getParmPtr( hh, 3, geom->parVecVec() ) );
 }

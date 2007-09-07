@@ -96,9 +96,9 @@ int main() {
     HcalDetId hid=(*i);
     if (hid.iphi()!=1) continue;
     const CaloCellGeometry* geom=b->getGeometry(hid);
-    std::vector<GlobalPoint> corners=geom->getCorners();
+    const CaloCellGeometry::CornersVec& corners=geom->getCorners();
     std::cout << hid << std::endl;
-    for (std::vector<GlobalPoint>::iterator j=corners.begin(); j!=corners.end(); j++) {
+    for (CaloCellGeometry::CornersVec::const_iterator j=corners.begin(); j!=corners.end(); j++) {
       std::cout << "  " << *j << std::endl;
     }
   }
@@ -111,8 +111,8 @@ int main() {
     std::cout << hid << std::endl;
     
     const CaloCellGeometry* geom=f->getGeometry(hid);
-    std::vector<GlobalPoint> corners=geom->getCorners();
-    for (std::vector<GlobalPoint>::iterator j=corners.begin(); j!=corners.end(); j++) {
+    const CaloCellGeometry::CornersVec& corners=geom->getCorners();
+    for (CaloCellGeometry::CornersVec::const_iterator j=corners.begin(); j!=corners.end(); j++) {
       std::cout << "  " << *j << std::endl;
     }
   }
@@ -125,8 +125,8 @@ int main() {
     std::cout << hid << std::endl;
     
     const CaloCellGeometry* geom=e->getGeometry(hid);
-    std::vector<GlobalPoint> corners=geom->getCorners();
-    for (std::vector<GlobalPoint>::iterator j=corners.begin(); j!=corners.end(); j++) {
+    const CaloCellGeometry::CornersVec& corners=geom->getCorners();
+    for (CaloCellGeometry::CornersVec::const_iterator j=corners.begin(); j!=corners.end(); j++) {
       std::cout << "  " << *j << std::endl;
     }
   }

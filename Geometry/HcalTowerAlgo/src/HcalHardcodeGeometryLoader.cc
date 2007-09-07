@@ -89,7 +89,7 @@ void HcalHardcodeGeometryLoader::fill(HcalSubdetector subdet, int firstEtaRing, 
   for(std::vector<HcalDetId>::const_iterator hcalIdItr = hcalIds.begin();
       hcalIdItr != hcalIds.end(); ++hcalIdItr)
     {
-      const CaloCellGeometry * geometry = makeCell(*hcalIdItr);
+      const CaloCellGeometry * geometry = makeCell(*hcalIdItr,geom);
       geom->addCell(*hcalIdItr, geometry);
     }
 }
@@ -97,7 +97,8 @@ void HcalHardcodeGeometryLoader::fill(HcalSubdetector subdet, int firstEtaRing, 
 
 inline double theta_from_eta(double eta){return (2.0*atan(exp(-eta)));}
 
-const CaloCellGeometry * HcalHardcodeGeometryLoader::makeCell(const HcalDetId & detId) const {
+const CaloCellGeometry * HcalHardcodeGeometryLoader::makeCell(const HcalDetId & detId,
+							      CaloSubdetectorGeometry* geom) const {
 
   // the two eta boundaries of the cell
   double eta1, eta2;
@@ -192,11 +193,33 @@ const CaloCellGeometry * HcalHardcodeGeometryLoader::makeCell(const HcalDetId & 
   y = r * sin(phi);
   GlobalPoint point(x,y,z);
 
-  if (subdet==HcalForward) {
-    return new calogeom::IdealZPrism(point, deta*2, dphi_half*2, thickness);
-  } else {
-    return new calogeom::IdealObliquePrism(point, deta*2, dphi_half*2, thickness, isBarrel);
-  }
+  
+  if (subdet==HcalForward) 
+  {
+     std::vector<double> hf ;
+     hf.resize(3) ;
+     hf.push_back( deta*2 ) ;
+     hf.push_back( dphi_half*2 ) ;
+     hf.push_back( thickness ) ;
+     return new calogeom::IdealZPrism( 
+	point, 
+	geom->cornersMgr(),
+	CaloCellGeometry::getParmPtr( hf, 3, geom->parVecVec() ) );
+  } 
+  else 
+  { 
+     const double mysign ( isBarrel ? 1 : -1 ) ;
+     std::vector<double> hh ;
+     hh.resize(3) ;
+     hh.push_back( deta*2 ) ;
+     hh.push_back( dphi_half*2 ) ;
+     hh.push_back( mysign*thickness ) ;
+     return new calogeom::IdealObliquePrism(
+	point,
+	geom->cornersMgr(),
+	CaloCellGeometry::getParmPtr( hh, 3, geom->parVecVec() ) );
+ }
+
 }
 
 
