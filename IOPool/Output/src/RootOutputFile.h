@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: RootOutputFile.h,v 1.6 2007/09/04 19:39:38 paterno Exp $
+// $Id: RootOutputFile.h,v 1.7 2007/09/07 19:34:22 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -31,6 +31,7 @@ class TTree;
 class TFile;
 
 namespace edm {
+  class RootChains;
   class ParameterSet;
   class PoolOutputModule;
   typedef std::vector<BranchDescription const *> Selections;
@@ -75,6 +76,7 @@ namespace edm {
 
     void fillBranches(BranchType const& branchType, Principal const& principal) const;
 
+    RootChains const& chains_;
     OutputItemListArray outputItemList_;
     std::string file_;
     std::string logicalFile_;

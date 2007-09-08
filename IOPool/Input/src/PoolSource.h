@@ -5,13 +5,12 @@
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.38 2007/07/23 23:42:36 wmtan Exp $
+$Id: PoolSource.h,v 1.39 2007/09/07 19:34:31 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <memory>
 #include <vector>
-#include <string>
 #include <string>
 
 #include "Inputfwd.h"
@@ -26,8 +25,6 @@ namespace CLHEP {
   class RandFlat;
 }
 
-class TChain;
-
 namespace edm {
 
   class RootFile;
@@ -40,24 +37,6 @@ namespace edm {
     /// Called by framework at end of job
     virtual void endJob();
 
-    class RootChains {
-      friend class PoolSource;
-      friend class PoolOutputModule;
-    private:
-      RootChains() : event_(), eventMeta_(), lumi_(), lumiMeta_(), run_(), runMeta_() {}
-      ~RootChains() {}
-
-      void addFile(std::string const& fileName);
-      void makeChains();
-      static RootChains & instance();
-
-      boost::shared_ptr<TChain> event_;
-      boost::shared_ptr<TChain> eventMeta_;
-      boost::shared_ptr<TChain> lumi_;
-      boost::shared_ptr<TChain> lumiMeta_;
-      boost::shared_ptr<TChain> run_;
-      boost::shared_ptr<TChain> runMeta_;
-    };
 
   private:
     typedef boost::shared_ptr<RootFile> RootFileSharedPtr;

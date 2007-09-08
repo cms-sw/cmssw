@@ -1,10 +1,11 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.59 2007/08/07 22:51:32 wmtan Exp $
+$Id: PoolSource.cc,v 1.60 2007/09/07 19:34:31 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
 #include "RootFile.h"
 #include "RootTree.h"
 #include "IOPool/Common/interface/ClassFiller.h"
+#include "IOPool/Common/interface/RootChains.h"
 
 #include "FWCore/Catalog/interface/FileCatalog.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -15,7 +16,6 @@ $Id: PoolSource.cc,v 1.59 2007/08/07 22:51:32 wmtan Exp $
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "CLHEP/Random/RandFlat.h"
-#include "TChain.h"
 #include "TTree.h"
 #include "TFile.h"
 
@@ -335,32 +335,5 @@ namespace edm {
         processConfiguration(), file.logicalFileName()));
     eventsRemainingInFile_ = rootFile_->eventTree().entries();
     rootFile_->eventTree().setEntryNumber(flatDistribution_->fireInt(eventsRemainingInFile_));
-  }
-
-  PoolSource::RootChains &
-  PoolSource::RootChains::instance() {
-    static RootChains chains;
-    return chains;
-  }
- 
-  void
-  PoolSource::RootChains::makeChains() {
-    if (!event_) event_ = boost::shared_ptr<TChain>(new TChain(BranchTypeToProductTreeName(InEvent).c_str()));
-    if (!eventMeta_) eventMeta_ = boost::shared_ptr<TChain>(new TChain(BranchTypeToMetaDataTreeName(InEvent).c_str()));
-    // if (!lumi_) lumi_ = boost::shared_ptr<TChain>(new TChain(BranchTypeToProductTreeName(InLumi).c_str()));
-    // if (!lumiMeta_) lumiMeta_ = boost::shared_ptr<TChain>(new TChain(BranchTypeToMetaDataTreeName(InLumi).c_str()));
-    // if (!run_) run_ = boost::shared_ptr<TChain>(new TChain(BranchTypeToProductTreeName(InRun).c_str()));
-    // if (!runMeta_) runMeta_ = boost::shared_ptr<TChain>(new TChain(BranchTypeToMetaDataTreeName(InRun).c_str()));
-  }
-
-  void
-  PoolSource::RootChains::addFile(std::string const& fileName) {
-    char const* fn = fileName.c_str();
-    if (event_) event_->AddFile(fn);
-    if (eventMeta_) eventMeta_->AddFile(fn);
-    if (lumi_) lumi_->AddFile(fn);
-    if (lumiMeta_) lumiMeta_->AddFile(fn);
-    if (run_) run_->AddFile(fn);
-    if (runMeta_) runMeta_->AddFile(fn);
   }
 }

@@ -33,7 +33,6 @@ namespace edm {
   }
 
   void RootOutputTree::fillTree() const {
-    auxBranch_->Fill();
     fillTTree(metaBranches_);
     fillTTree(branches_);
   }

@@ -5,7 +5,7 @@
 
 RootOutputTree.h // used by ROOT output modules
 
-$Id: RootOutputTree.h,v 1.3 2007/08/22 17:56:11 wmtan Exp $
+$Id: RootOutputTree.h,v 1.4 2007/09/07 19:34:22 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -26,13 +26,16 @@ $Id: RootOutputTree.h,v 1.3 2007/08/22 17:56:11 wmtan Exp $
 #include "TBranch.h"
 #include "TTree.h"
 class TFile;
+class TChain;
 
 namespace edm {
 
   class RootOutputTree {
   public:
     template <typename T>
-    RootOutputTree(boost::shared_ptr<TFile> filePtr,
+    RootOutputTree(TChain * chain,
+		   TChain * metaChain,
+		   boost::shared_ptr<TFile> filePtr,
 		   BranchType const& branchType,
 		   T const*& pAux,
 		   int bufSize,
@@ -46,6 +49,7 @@ namespace edm {
       basketSize_(bufSize),
       splitLevel_(splitLevel),
       branchNames_() {
+      branches_.push_back(auxBranch_);
     }
     ~RootOutputTree() {}
     

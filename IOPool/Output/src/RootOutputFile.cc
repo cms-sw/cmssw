@@ -1,8 +1,10 @@
-// $Id: RootOutputFile.cc,v 1.9 2007/08/30 22:34:53 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.10 2007/09/04 19:39:38 paterno Exp $
 
-#include "IOPool/Output/src/PoolOutputModule.h"
+#include "RootOutputFile.h"
+#include "PoolOutputModule.h"
+
 #include "DataFormats/Provenance/interface/EventAuxiliary.h" 
-#include "IOPool/Output/src/RootOutputFile.h"
+#include "IOPool/Common/interface/RootChains.h"
 
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
 #include "FWCore/Utilities/interface/GetFileFormatVersion.h"
@@ -34,6 +36,7 @@
 
 namespace edm {
   RootOutputFile::RootOutputFile(PoolOutputModule *om, std::string const& fileName, std::string const& logicalFileName) :
+      chains_(RootChains::instance()),
       outputItemList_(), 
       file_(fileName),
       logicalFile_(logicalFileName),
@@ -50,9 +53,12 @@ namespace edm {
       pEventAux_(&eventAux_),
       pLumiAux_(&lumiAux_),
       pRunAux_(&runAux_),
-      eventTree_(filePtr_, InEvent, pEventAux_, om_->basketSize(), om_->splitLevel()),
-      lumiTree_(filePtr_, InLumi, pLumiAux_, om_->basketSize(), om_->splitLevel()),
-      runTree_(filePtr_, InRun, pRunAux_, om_->basketSize(), om_->splitLevel()),
+      eventTree_(chains_.event_.get(), chains_.eventMeta_.get(),
+		 filePtr_, InEvent, pEventAux_, om_->basketSize(), om_->splitLevel()),
+      lumiTree_(chains_.lumi_.get(), chains_.lumiMeta_.get(),
+		 filePtr_, InLumi, pLumiAux_, om_->basketSize(), om_->splitLevel()),
+      runTree_(chains_.run_.get(), chains_.runMeta_.get(),
+		 filePtr_, InRun, pRunAux_, om_->basketSize(), om_->splitLevel()),
       treePointers_(),
       provenances_(),
       newFileAtEndOfRun_(false) {
