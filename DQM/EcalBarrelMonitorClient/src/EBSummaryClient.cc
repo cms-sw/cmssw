@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/09/03 18:27:23 $
- * $Revision: 1.53 $
+ * $Date: 2007/09/07 22:30:04 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  *
 */
@@ -77,7 +77,9 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
   mePedestalPN_     = 0;
   meTestPulse_      = 0;
   meTestPulsePN_    = 0;
-  meGlobalSummary_    = 0;
+  meGlobalSummary_  = 0;
+
+  meCosmic_         = 0;
 
   qtg01_ = 0;
   qtg02_ = 0;
@@ -88,7 +90,10 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
   qtg05PN_ = 0;
   qtg06_ = 0;
   qtg06PN_ = 0;
-  qtg07_  = 0;
+
+  qtg07_ = 0;
+
+  qtg99_  = 0;
 
 }
 
@@ -137,11 +142,14 @@ void EBSummaryClient::beginJob(MonitorUserInterface* mui){
     sprintf(qtname, "EBTPT PN summary quality test");
     qtg06PN_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
-    sprintf(qtname, "EB global summary quality test");
+    sprintf(qtname, "EBCT summary quality test");
     qtg07_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
+    sprintf(qtname, "EB global summary quality test");
+    qtg99_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (dbe_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
     qtg01_->setMeanRange(1., 6.);
-    qtg02_->setMeanRange(1., 6.);
+//    qtg02_->setMeanRange(1., 6.);
     qtg03_->setMeanRange(1., 6.);
     qtg04_->setMeanRange(1., 6.);
     qtg04PN_->setMeanRange(1., 6.);
@@ -149,10 +157,13 @@ void EBSummaryClient::beginJob(MonitorUserInterface* mui){
     qtg05PN_->setMeanRange(1., 6.);
     qtg06_->setMeanRange(1., 6.);
     qtg06PN_->setMeanRange(1., 6.);
-    qtg07_->setMeanRange(1., 6.);
+
+//    qtg07_->setMeanRange(1., 6.);
+
+    qtg99_->setMeanRange(1., 6.);
 
     qtg01_->setErrorProb(1.00);
-    qtg02_->setErrorProb(1.00);
+//    qtg02_->setErrorProb(1.00);
     qtg03_->setErrorProb(1.00);
     qtg04_->setErrorProb(1.00);
     qtg04PN_->setErrorProb(1.00);
@@ -160,7 +171,10 @@ void EBSummaryClient::beginJob(MonitorUserInterface* mui){
     qtg05PN_->setErrorProb(1.00);
     qtg06_->setErrorProb(1.00);
     qtg06PN_->setErrorProb(1.00);
-    qtg07_->setErrorProb(1.00);
+
+//    qtg07_->setErrorProb(1.00);
+
+    qtg99_->setErrorProb(1.00);
 
   }
 
@@ -240,6 +254,10 @@ void EBSummaryClient::setup(void) {
   sprintf(histo, "EBTPT PN test pulse quality summary");
   meTestPulsePN_ = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
 
+  if( meCosmic_ ) dbe_->removeElement( meCosmic_->getName() );
+  sprintf(histo, "EBCT cosmic quality summary");
+  meCosmic_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+
   if( meGlobalSummary_ ) dbe_->removeElement( meGlobalSummary_->getName() );
   sprintf(histo, "EB global summary");
   meGlobalSummary_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
@@ -277,6 +295,9 @@ void EBSummaryClient::cleanup(void) {
   if ( meTestPulsePN_ ) dbe_->removeElement( meTestPulsePN_->getName() );
   meTestPulsePN_ = 0;
 
+  if ( meCosmic_ ) dbe_->removeElement( meCosmic_->getName() );
+  meCosmic_ = 0;
+
   if ( meGlobalSummary_ ) dbe_->removeElement( meGlobalSummary_->getName() );
   meGlobalSummary_ = 0;
 
@@ -290,6 +311,15 @@ bool EBSummaryClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRun
 //  UtilsClient::printBadChannels(qtg02_);
 //  UtilsClient::printBadChannels(qtg03_);
 //  UtilsClient::printBadChannels(qtg04_);
+//  UtilsClient::printBadChannels(qtg04PN_);
+//  UtilsClient::printBadChannels(qtg05_);
+//  UtilsClient::printBadChannels(qtg05PN_);
+//  UtilsClient::printBadChannels(qtg06_);
+//  UtilsClient::printBadChannels(qtg06PN_);
+
+//  UtilsClient::printBadChannels(qtg07_);
+
+//  UtilsClient::printBadChannels(qtg99_);
 
   return status;
 
@@ -319,8 +349,12 @@ void EBSummaryClient::subscribe(void){
   if ( qtg06_ ) dbe_->useQTest(histo, qtg06_->getName());
   sprintf(histo, "EcalBarrel/EBSummaryClient/EBTPT PN test pulse quality summary");
   if ( qtg06PN_ ) dbe_->useQTest(histo, qtg06PN_->getName());
-  sprintf(histo, "EcalBarrel/EBSummaryClient/EB global summary");
+
+  sprintf(histo, "EcalBarrel/EBSummaryClient/EBCT cosmic quality summary");
   if ( qtg07_ ) dbe_->useQTest(histo, qtg07_->getName());
+
+  sprintf(histo, "EcalBarrel/EBSummaryClient/EB global summary");
+  if ( qtg99_ ) dbe_->useQTest(histo, qtg99_->getName());
 
 }
 
@@ -357,6 +391,8 @@ void EBSummaryClient::analyze(void){
       mePedestal_->setBinContent( ipx, iex, -1. );
       meTestPulse_->setBinContent( ipx, iex, -1. );
 
+      meCosmic_->setBinContent( ipx, iex, -1. );
+
       meGlobalSummary_->setBinContent( ipx, iex, -1. );
 
     }
@@ -365,9 +401,9 @@ void EBSummaryClient::analyze(void){
   for (int iex = 1; iex <= 20; iex++ ) {
     for(int ipx = 1; ipx <= 90; ipx++ ) {
       
+      meLaserL1PN_->setBinContent( ipx, iex, -1. );
       mePedestalPN_->setBinContent( ipx, iex, -1. );
       meTestPulsePN_->setBinContent( ipx, iex, -1. );
-      meLaserL1PN_->setBinContent( ipx, iex, -1. );
 
     }
   }
@@ -379,6 +415,8 @@ void EBSummaryClient::analyze(void){
   meTestPulse_->setEntries( 0 );
   meTestPulsePN_->setEntries( 0 );
 
+  meCosmic_->setEntries( 0 );
+
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
 
     EBIntegrityClient* ebic = dynamic_cast<EBIntegrityClient*>(clients_[i]);
@@ -388,10 +426,13 @@ void EBSummaryClient::analyze(void){
     EBPedestalClient* ebpc = dynamic_cast<EBPedestalClient*>(clients_[i]);
     EBTestPulseClient* ebtpc = dynamic_cast<EBTestPulseClient*>(clients_[i]);
 
+    EBCosmicClient* ebcc = dynamic_cast<EBCosmicClient*>(clients_[i]);
+
     MonitorElement* me;
     MonitorElement *me_01, *me_02, *me_03;
     MonitorElement *me_04, *me_05;
     TH2F* h2;
+    TProfile2D* h2d;
 
     // fill the gain value priority map<id,priority>
     std::map<float,float> priority;
@@ -507,7 +548,6 @@ void EBSummaryClient::analyze(void){
 
           }
 
-
 	  if ( ebpc ) {
 	    
 	    me_01 = ebpc->meg01_[ism-1];
@@ -610,6 +650,31 @@ void EBSummaryClient::analyze(void){
 	    }
 	    
 	  }
+
+          if ( ebcc ) {
+
+            h2d = ebcc->h01_[ism-1];
+
+            if ( h2d ) {
+
+              float xval = h2d->GetBinContent( ie, ip );
+
+              int iex;
+              int ipx;
+
+              if ( ism <= 18 ) {
+                iex = 1+(85-ie);
+                ipx = ip+20*(ism-1);
+              } else {
+                iex = 85+ie;
+                ipx = 1+(20-ip)+20*(ism-19);
+              }
+
+              meCosmic_->setBinContent( ipx, iex, xval );
+
+            }
+
+          }
 
         }
       }
@@ -837,7 +902,13 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   labelGridPN.SetMarkerSize(4);
   labelGridPN.SetMinimum(-18.01);
 
-  string imgNameMapI, imgNameMapO, imgNameMapPO, imgNameMapLL1, imgNameMapLL1_PN, imgNameMapP, imgNameMapP_PN, imgNameMapTP, imgNameMapTP_PN, imgName, meName;
+  string imgNameMapI, imgNameMapO;
+  string imgNameMapPO;
+  string imgNameMapLL1, imgNameMapLL1_PN;
+  string imgNameMapP, imgNameMapP_PN;
+  string imgNameMapTP, imgNameMapTP_PN;
+  string imgNameMapC;
+  string imgName, meName;
   string imgNameMapGS;
 
   TCanvas* cMap = new TCanvas("cMap", "Temp", int(360./170.*csize), csize);
@@ -1172,6 +1243,41 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     gStyle->SetTitleX(saveTitleOffset);
   }
 
+  imgNameMapC = "";
+
+  obj2f = 0;
+  obj2f = UtilsClient::getHisto<TH2F*>( meCosmic_ );
+
+  if ( obj2f ) {
+
+    meName = obj2f->GetName();
+
+    for ( unsigned int i = 0; i < meName.size(); i++ ) {
+      if ( meName.substr(i, 1) == " " )  {
+        meName.replace(i, 1 ,"_" );
+      }
+    }
+    imgNameMapC = meName + ".png";
+    imgName = htmlDir + imgNameMapC;
+
+    cMap->cd();
+    gStyle->SetOptStat(" ");
+    gStyle->SetPalette(10, pCol4);
+    obj2f->GetXaxis()->SetNdivisions(18, kFALSE);
+    obj2f->GetYaxis()->SetNdivisions(2);
+    cMap->SetGridx();
+    cMap->SetGridy();
+    obj2f->SetMinimum(0.0);
+    obj2f->GetXaxis()->SetLabelSize(0.03);
+    obj2f->GetYaxis()->SetLabelSize(0.03);
+    obj2f->GetZaxis()->SetLabelSize(0.03);
+    obj2f->Draw("colz");
+    labelGrid.Draw("text,same");
+    cMap->Update();
+    cMap->SaveAs(imgName.c_str());
+
+  }
+
   imgNameMapGS = "";
 
   obj2f = 0;
@@ -1316,6 +1422,19 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
 
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+
+  if ( imgNameMapC.size() != 0 )
+    htmlFile << "<td><img src=\"" << imgNameMapC << "\" usemap=\"#Cosmic\" border=0></td>" << endl;
+  else
+    htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
+
   delete cMap;
   delete cMapPN;
 
@@ -1327,6 +1446,8 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   if ( imgNameMapLL1.size() != 0 ) this->writeMap( htmlFile, "LaserL1" );
   if ( imgNameMapP.size() != 0 ) this->writeMap( htmlFile, "Pedestal" );
   if ( imgNameMapTP.size() != 0 ) this->writeMap( htmlFile, "TestPulse" );
+
+  if ( imgNameMapC.size() != 0 ) this->writeMap( htmlFile, "Cosmic" );
 
   // html page footer
   htmlFile << "</body> " << endl;
@@ -1348,6 +1469,8 @@ void EBSummaryClient::writeMap( std::ofstream& hf, std::string mapname ) {
   refhtml["LaserL1"] = "EBLaserClient.html";
   refhtml["Pedestal"] = "EBPedestalClient.html";
   refhtml["TestPulse"] = "EBTestPulseClient.html";
+
+  refhtml["Cosmic"] = "EBCosmicClient.html";
 
   const int A0 =  85;
   const int A1 = 759;

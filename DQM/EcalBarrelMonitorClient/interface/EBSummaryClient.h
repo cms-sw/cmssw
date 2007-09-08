@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2007/08/17 09:05:07 $
- * $Revision: 1.13 $
+ * $Date: 2007/09/07 22:30:03 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
 */
@@ -113,7 +113,8 @@ MonitorElement* mePedestal_;
 MonitorElement* mePedestalPN_;
 MonitorElement* meTestPulse_;
 MonitorElement* meTestPulsePN_;
-MonitorElement* meGlobalSummary_;
+
+MonitorElement* meCosmic_;
 
 MEContentsTH2FWithinRangeROOT* qtg01_;
 MEContentsTH2FWithinRangeROOT* qtg02_;
@@ -124,7 +125,12 @@ MEContentsTH2FWithinRangeROOT* qtg05_;
 MEContentsTH2FWithinRangeROOT* qtg05PN_;
 MEContentsTH2FWithinRangeROOT* qtg06_;
 MEContentsTH2FWithinRangeROOT* qtg06PN_;
+
 MEContentsTH2FWithinRangeROOT* qtg07_;
+
+MonitorElement* meGlobalSummary_;
+
+MEContentsTH2FWithinRangeROOT* qtg99_;
 
 };
 
