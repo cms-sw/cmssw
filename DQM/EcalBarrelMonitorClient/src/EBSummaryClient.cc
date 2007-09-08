@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/09/07 22:30:04 $
- * $Revision: 1.54 $
+ * $Date: 2007/09/08 05:15:34 $
+ * $Revision: 1.55 $
  * \author G. Della Ricca
  *
 */
@@ -1316,124 +1316,105 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   gStyle->SetPaintTextFormat();
 
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
-  htmlFile << "<tr align=\"center\">" << endl;
-
-  if ( imgNameMapI.size() != 0 )
+  if ( imgNameMapI.size() != 0 ) {
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
     htmlFile << "<td><img src=\"" << imgNameMapI << "\" usemap=\"#Integrity\" border=0></td>" << endl;
-  else
-    htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+    htmlFile << "</tr>" << endl;
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
+  }
 
-  htmlFile << "</tr>" << endl;
-  htmlFile << "</table>" << endl;
-  htmlFile << "<br>" << endl;
-
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
-  htmlFile << "<tr align=\"center\">" << endl;
-
-  if ( imgNameMapO.size() != 0 )
+  if ( imgNameMapO.size() != 0 ) {
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
     htmlFile << "<td><img src=\"" << imgNameMapO << "\" usemap=\"#Occupancy\" border=0></td>" << endl;
-  else
-    htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+    htmlFile << "</tr>" << endl;
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
+  }
 
-  htmlFile << "</tr>" << endl;
-  htmlFile << "</table>" << endl;
-  htmlFile << "<br>" << endl;
-
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
-  htmlFile << "<tr align=\"center\">" << endl;
-
-  if ( imgNameMapPO.size() != 0 )
+  if ( imgNameMapPO.size() != 0 ) {
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
     htmlFile << "<td><img src=\"" << imgNameMapPO << "\" usemap=\"#PedestalOnline\" border=0></td>" << endl;
-  else
-    htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+    htmlFile << "</tr>" << endl;
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
+  }
 
-  htmlFile << "</tr>" << endl;
-  htmlFile << "</table>" << endl;
-  htmlFile << "<br>" << endl;
-
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
-  htmlFile << "<tr align=\"center\">" << endl;
-
-  if ( imgNameMapLL1.size() != 0 )
+  if ( imgNameMapLL1.size() != 0 ) {
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
     htmlFile << "<td><img src=\"" << imgNameMapLL1 << "\" usemap=\"#LaserL1\" border=0></td>" << endl;
+    htmlFile << "</tr>" << endl;
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
+  }
 
-  htmlFile << "</tr>" << endl;
-  htmlFile << "</table>" << endl;
-  htmlFile << "<br>" << endl;
-
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
-  htmlFile << "<tr align=\"center\">" << endl;
-
-  if ( imgNameMapLL1_PN.size() != 0 )
+  if ( imgNameMapLL1_PN.size() != 0 ) {
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
     htmlFile << "<td><img src=\"" << imgNameMapLL1_PN << "\" border=0></td>" << endl;
-  
-  htmlFile << "</tr>" << endl;
-  htmlFile << "</table>" << endl;
-  htmlFile << "<br>" << endl;
+    htmlFile << "</tr>" << endl;
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
+  }
 
-
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
-  htmlFile << "<tr align=\"center\">" << endl;
-
-  if ( imgNameMapP.size() != 0 )
+  if ( imgNameMapP.size() != 0 ) {
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
     htmlFile << "<td><img src=\"" << imgNameMapP << "\" usemap=\"#Pedestal\" border=0></td>" << endl;
-  
-  htmlFile << "</tr>" << endl;
-  htmlFile << "</table>" << endl;
-  htmlFile << "<br>" << endl;
-  
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
-  htmlFile << "<tr align=\"center\">" << endl;
+    htmlFile << "</tr>" << endl;
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
+  }
 
-  if ( imgNameMapP_PN.size() != 0 )
+  if ( imgNameMapP_PN.size() != 0 ) {
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
     htmlFile << "<td><img src=\"" << imgNameMapP_PN << "\" border=0></td>" << endl;
-  
-  htmlFile << "</tr>" << endl;
-  htmlFile << "</table>" << endl;
-  htmlFile << "<br>" << endl;
-  
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
-  htmlFile << "<tr align=\"center\">" << endl;
+    htmlFile << "</tr>" << endl;
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
+  }
 
-  if ( imgNameMapTP.size() != 0 )
+  if ( imgNameMapTP.size() != 0 ) {
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
     htmlFile << "<td><img src=\"" << imgNameMapTP << "\" usemap=\"#TestPulse\" border=0></td>" << endl;
-  
-  htmlFile << "</tr>" << endl;
-  htmlFile << "</table>" << endl;
-  htmlFile << "<br>" << endl;
+    htmlFile << "</tr>" << endl;
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
+  }
 
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
-  htmlFile << "<tr align=\"center\">" << endl;
-
-  if ( imgNameMapTP_PN.size() != 0 )
+  if ( imgNameMapTP_PN.size() != 0 ) {
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
     htmlFile << "<td><img src=\"" << imgNameMapTP_PN << "\" border=0></td>" << endl;
-  
-  htmlFile << "</tr>" << endl;
-  htmlFile << "</table>" << endl;
-  htmlFile << "<br>" << endl;
+    htmlFile << "</tr>" << endl;
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
+  }
 
-  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
-  htmlFile << "<tr align=\"center\">" << endl;
-
-  if ( imgNameMapC.size() != 0 )
+  if ( imgNameMapC.size() != 0 ) {
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
     htmlFile << "<td><img src=\"" << imgNameMapC << "\" usemap=\"#Cosmic\" border=0></td>" << endl;
-  else
-    htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
-
-  htmlFile << "</tr>" << endl;
-  htmlFile << "</table>" << endl;
-  htmlFile << "<br>" << endl;
+    htmlFile << "</tr>" << endl;
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
+  }
 
   delete cMap;
   delete cMapPN;
