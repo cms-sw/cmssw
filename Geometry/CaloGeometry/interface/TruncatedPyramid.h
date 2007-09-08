@@ -25,10 +25,11 @@ class TruncatedPyramid : public CaloCellGeometry
 
       TruncatedPyramid( const CornersVec& corn  ) :
 	 CaloCellGeometry ( corn ) , 
-	 m_axis           ( axis() ) ,
-	 m_bou            ( 0      ) {}
+	 m_axis           ( axis() ) {} 
+/*,
+  m_bou            ( 0      ) {}*/
 
-      virtual ~TruncatedPyramid() { delete m_bou ; }
+      virtual ~TruncatedPyramid() {}// delete m_bou ; }
 
       virtual bool inside( const GlobalPoint& point ) const ;  
 
@@ -78,7 +79,7 @@ class TruncatedPyramid : public CaloCellGeometry
       
       GlobalVector         m_axis ;
 
-      mutable BoundaryVec* m_bou  ;
+//      mutable BoundaryVec* m_bou  ;
 };
 
 std::ostream& operator<<( std::ostream& s, const TruncatedPyramid& cell ) ;

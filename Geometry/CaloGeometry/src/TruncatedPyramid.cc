@@ -114,8 +114,17 @@ TruncatedPyramid::createCorners( const std::vector<double>&    pv ,
 
 
 bool 
-TruncatedPyramid::inside( const GlobalPoint& point ) const
+TruncatedPyramid::inside( const GlobalPoint& p ) const
 {
+   const CornersVec& c ( getCorners() ) ;
+   return ( ( (  ( ( c[0] - p ) + ( c[1] - p ) + ( c[2] - p ) )*
+		 ( ( c[4] - p ) + ( c[5] - p ) + ( c[6] - p ) )  ) <=0 ) &&
+	    ( (  ( ( c[1] - p ) + ( c[2] - p ) + ( c[6] - p ) )*
+		 ( ( c[0] - p ) + ( c[3] - p ) + ( c[7] - p ) )  ) <=0 ) &&
+	    ( (  ( ( c[0] - p ) + ( c[1] - p ) + ( c[5] - p ) )*
+		 ( ( c[2] - p ) + ( c[3] - p ) + ( c[7] - p ) )  ) <=0 ) ) ;
+	    
+/*
    if( 0 == m_bou )
    {
       const CornersVec& cog ( getCorners() ) ;
@@ -140,6 +149,7 @@ TruncatedPyramid::inside( const GlobalPoint& point ) const
    return ( ( p - b[0].point(p) ).dot( p - b[1].point(p) ) <= 0 &&
 	    ( p - b[2].point(p) ).dot( p - b[3].point(p) ) <= 0 &&
 	    ( p - b[4].point(p) ).dot( p - b[5].point(p) ) <= 0    ) ;
+*/
 }
 /*
 void TruncatedPyramid::dump( const char * prefix ) const 
