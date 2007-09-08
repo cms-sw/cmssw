@@ -92,13 +92,15 @@ void HcalTBDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetu
   theHOHits.clear();
 
   // Step A: Get Inputs
-  edm::Handle<CrossingFrame> cf;
-  e.getByType(cf);
+  edm::Handle<CrossingFrame<PCaloHit> > cf;
+  // e.getByType(cf);
 
   LogDebug("HcalSim") << "HcalTBDigiProducer::produce trying to ger SimHit";
   // test access to SimHits
   const std::string subdet("HcalHits");
-  std::auto_ptr<MixCollection<PCaloHit> > col(new MixCollection<PCaloHit>(cf.product(), subdet));
+  // std::auto_ptr<MixCollection<PCaloHit> > col(new MixCollection<PCaloHit>(cf.product(), subdet));
+  e.getByLabel("mix", subdet, cf);
+  std::auto_ptr<MixCollection<PCaloHit> > col(new MixCollection<PCaloHit>(cf.product() ));
 
   LogDebug("HcalSim") << "HcalTBDigiProducer::produce Collection of SimHit found";
   if(theHitCorrection != 0) {
