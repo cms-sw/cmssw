@@ -117,12 +117,25 @@ bool
 TruncatedPyramid::inside( const GlobalPoint& p ) const
 {
    const CornersVec& c ( getCorners() ) ;
-   return ( ( (  ( ( c[0] - p ) + ( c[1] - p ) + ( c[2] - p ) )*
-		 ( ( c[4] - p ) + ( c[5] - p ) + ( c[6] - p ) )  ) <=0 ) &&
-	    ( (  ( ( c[1] - p ) + ( c[2] - p ) + ( c[6] - p ) )*
-		 ( ( c[0] - p ) + ( c[3] - p ) + ( c[7] - p ) )  ) <=0 ) &&
-	    ( (  ( ( c[0] - p ) + ( c[1] - p ) + ( c[5] - p ) )*
-		 ( ( c[2] - p ) + ( c[3] - p ) + ( c[7] - p ) )  ) <=0 ) ) ;
+   const GlobalPoint& c0 ( c[0] ) ;
+   const GlobalPoint& c1 ( c[1] ) ;
+   const GlobalPoint& c2 ( c[2] ) ;
+   const GlobalPoint& c3 ( c[3] ) ;
+   const GlobalPoint& c4 ( c[4] ) ;
+   const GlobalPoint& c5 ( c[5] ) ;
+   const GlobalPoint& c6 ( c[6] ) ;
+   const GlobalPoint& c7 ( c[7] ) ;
+
+   // this implementation requires that the dot product of the
+   // vectors from the point to the sum of corners on opposite
+   // sides of the pyramid have opposite signs, one pair at a time.
+   // this is predicated on a known corner ordering
+   return ( ( (  ( ( c0 - p ) + ( c1 - p ) + ( c2 - p ) )*
+		 ( ( c4 - p ) + ( c5 - p ) + ( c6 - p ) )  ) <=0 ) &&
+	    ( (  ( ( c1 - p ) + ( c2 - p ) + ( c6 - p ) )*
+		 ( ( c0 - p ) + ( c3 - p ) + ( c7 - p ) )  ) <=0 ) &&
+	    ( (  ( ( c0 - p ) + ( c1 - p ) + ( c5 - p ) )*
+		 ( ( c2 - p ) + ( c3 - p ) + ( c7 - p ) )  ) <=0 ) ) ;
 	    
 /*
    if( 0 == m_bou )
