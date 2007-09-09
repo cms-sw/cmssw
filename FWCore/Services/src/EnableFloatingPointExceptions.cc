@@ -9,7 +9,7 @@
 // Original Author:  E. Sexton-Kennedy
 //         Created:  Tue Apr 11 13:43:16 CDT 2006
 //
-// $Id: EnableFloatingPointExceptions.cc,v 1.11 2007/05/24 22:14:04 marafino Exp $
+// $Id: EnableFloatingPointExceptions.cc,v 1.12 2007/06/14 21:03:39 wmtan Exp $
 //
 
 // system include files
@@ -208,31 +208,23 @@ EnableFloatingPointExceptions::controlFpe()
 {
   // Local Declarations
 
+  unsigned short int FE_PRECISION = 1<<5;
+  unsigned short int suppress;
+
 #ifdef __linux__
 
 /*
  * NB: We are not letting users control signaling inexact (FE_INEXACT).
  */
 
-  if ( enableDivByZeroEx_ )
-    (void) feenableexcept( FE_DIVBYZERO );
-  else 
-    (void) fedisableexcept( FE_DIVBYZERO );
-
-  if ( enableInvalidEx_ )
-    (void) feenableexcept( FE_INVALID );
-  else 
-    (void) fedisableexcept( FE_INVALID );
-
-  if ( enableOverFlowEx_ )
-    (void) feenableexcept( FE_OVERFLOW );
-  else 
-    (void) fedisableexcept( FE_OVERFLOW );
-
-  if ( enableUnderFlowEx_ )
-    (void) feenableexcept( FE_UNDERFLOW );
-  else 
-    (void) fedisableexcept( FE_UNDERFLOW );
+  suppress = FE_PRECISION;
+  if ( !enableDivByZeroEx_ ) suppress |= FE_DIVBYZERO;
+  if ( !enableInvalidEx_ )   suppress |= FE_INVALID;
+  if ( !enableOverFlowEx_ )  suppress |= FE_OVERFLOW;
+  if ( !enableUnderFlowEx_ ) suppress |= FE_UNDERFLOW;
+  fegetenv( &fpuState_ );
+  fpuState_.__control_word = suppress;
+  fesetenv( &fpuState_ );
 
 #ifdef __i386__
 
