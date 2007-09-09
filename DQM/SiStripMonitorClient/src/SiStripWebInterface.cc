@@ -266,7 +266,7 @@ void SiStripWebInterface::configureCustomRequest(xgi::Input * in, xgi::Output * 
 // -- Setup Quality Tests
 // 
 void SiStripWebInterface::setupQTests() {
-  actionExecutor_->setupQTests((*mui_p));
+  actionExecutor_->setupQTests((*mui_p)->getBEInterface());
 }
 //
 // -- Read Configurations 

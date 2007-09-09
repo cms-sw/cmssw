@@ -69,17 +69,17 @@ void SiStripActionExecutor::createSummary(DaqMonitorBEInterface* bei) {
 //
 // -- Setup Quality Tests 
 //
-void SiStripActionExecutor::setupQTests(MonitorUserInterface* mui) {
-  mui->cd();
-  if (collationDone) mui->cd("Collector/Collated/SiStrip");
+void SiStripActionExecutor::setupQTests(DaqMonitorBEInterface* bei) {
+  bei->cd();
+  if (collationDone) bei->cd("Collector/Collated/SiStrip");
   string localPath = string("DQM/SiStripMonitorClient/test/sistrip_qualitytest_config.xml");
   if (!qtHandler_) {
     qtHandler_ = new QTestHandle();
   }
-  if(!qtHandler_->configureTests(edm::FileInPath(localPath).fullPath(),mui)){
+  if(!qtHandler_->configureTests(edm::FileInPath(localPath).fullPath(),bei)){
     cout << " Setting Up Quality Tests " << endl;
-    qtHandler_->attachTests(mui);			
-    mui->cd();
+    qtHandler_->attachTests(bei);			
+    bei->cd();
   } else {
     cout << " Problem to Set Up Quality Tests " << endl;
   }

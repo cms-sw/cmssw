@@ -21,7 +21,7 @@ class SiStripActionExecutor {
   SiStripActionExecutor();
   virtual ~SiStripActionExecutor();
 
- void setupQTests(MonitorUserInterface* mui);
+ void setupQTests(DaqMonitorBEInterface* bei);
  void createCollation(MonitorUserInterface* mui);
  void createTkMap(DaqMonitorBEInterface* bei);
  bool readConfiguration(int& sum_freq);

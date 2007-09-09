@@ -13,7 +13,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.10 2007/04/05 21:06:44 samvel Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.11 2007/08/17 17:03:52 dutta Exp $
 //
 //
 
@@ -22,8 +22,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "DQM/SiStripMonitorClient/interface/SiStripOfflineDQM.h"
 
@@ -40,15 +41,16 @@ SiStripOfflineDQM::SiStripOfflineDQM( const edm::ParameterSet &roPARAMETER_SET)
   : bVERBOSE_( roPARAMETER_SET.getUntrackedParameter<bool>( "bVerbose")),
     bSAVE_IN_FILE_( roPARAMETER_SET.getUntrackedParameter<bool>( "bOutputMEsInRootFile")),
     oOUT_FILE_NAME_( roPARAMETER_SET.getUntrackedParameter<std::string>( "oOutputFile")),
-    poMui_( new MonitorUIRoot()),
     oActionExecutor_() {
 
   // Create MessageSender
   LogInfo( "SiStripOfflineDQM");
+
+  poBei_ = edm::Service<DaqMonitorBEInterface>().operator->();
+
 }
 
 SiStripOfflineDQM::~SiStripOfflineDQM() {
-  delete poMui_;
 }
 
 /** 
@@ -61,7 +63,7 @@ SiStripOfflineDQM::~SiStripOfflineDQM() {
 void SiStripOfflineDQM::beginJob( const edm::EventSetup &roEVENT_SETUP) {
   // Essential: creates some object that are used in createSummary
   oActionExecutor_.readConfiguration();
-  oActionExecutor_.setupQTests( poMui_);
+  oActionExecutor_.setupQTests( poBei_);
 
   if( bVERBOSE_) {
     LogInfo( "SiStripOfflineDQM") << "[beginJob] done";
@@ -90,32 +92,32 @@ void SiStripOfflineDQM::endJob() {
     LogInfo( "SiStripOfflineDQM") << "[endJob] start";
   }
 
-  poMui_->runQTests();
+  poBei_->runQTests();
 
   LogInfo( "SiStripOfflineDQM")
     << "Summary";
   LogInfo( "SiStripOfflineDQM")
-    << oActionExecutor_.getQTestSummary( poMui_->getBEInterface());
+    << oActionExecutor_.getQTestSummary( poBei_);
 
   LogInfo( "SiStripOfflineDQM")
     << "SummaryLite";
   LogInfo( "SiStripOfflineDQM")
-    << oActionExecutor_.getQTestSummaryLite( poMui_->getBEInterface());
+    << oActionExecutor_.getQTestSummaryLite( poBei_);
 
   LogInfo( "SiStripOfflineDQM")
     << "SummaryXML";
   LogInfo( "SiStripOfflineDQM")
-    << oActionExecutor_.getQTestSummaryXML( poMui_->getBEInterface());
+    << oActionExecutor_.getQTestSummaryXML( poBei_);
 
   LogInfo( "SiStripOfflineDQM")
     << "SummaryXMLLite";
   LogInfo( "SiStripOfflineDQM")
-    << oActionExecutor_.getQTestSummaryXMLLite( poMui_->getBEInterface());
+    << oActionExecutor_.getQTestSummaryXMLLite( poBei_);
 
-  oActionExecutor_.createSummary( poMui_->getBEInterface());
+  oActionExecutor_.createSummary( poBei_);
 
   if( bSAVE_IN_FILE_) {
-    oActionExecutor_.saveMEs( poMui_->getBEInterface(), oOUT_FILE_NAME_);
+    oActionExecutor_.saveMEs( poBei_, oOUT_FILE_NAME_);
   }
 
   if( bVERBOSE_) {
