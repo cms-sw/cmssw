@@ -54,18 +54,13 @@ class  EcalTestDevDB : public edm::EDAnalyzer {
   EcalGainRatios* generateEcalGainRatios();
   EcalWeightXtalGroups* generateEcalWeightXtalGroups();
   EcalTBWeights* generateEcalTBWeights();
-  EcalLaserAPDPNRatios* generateEcalLaserAPDPNRatios();
+  EcalLaserAPDPNRatios* generateEcalLaserAPDPNRatios(uint32_t i_run);
   EcalLaserAlphas* generateEcalLaserAlphas();
   EcalLaserAPDPNRatiosRef* generateEcalLaserAPDPNRatiosRef();
   
 
  private:
  
-  //  EcalWeightXtalGroups* generateEcalWeightXtalGroups();
-  // EcalTBWeights* generateEcalTBWeights();
-  // EcalADCToGeVConstant* generateEcalADCToGeVConstant();
-  // EcalIntercalibConstants* generateEcalIntercalibConstants();
-  // EcalGainRatios* generateEcalGainRatios();
   std::string m_timetype;
   std::map<std::string, unsigned long long> m_cacheIDs;
   std::map<std::string, std::string> m_records;
