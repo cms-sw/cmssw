@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2007/09/06 18:59:05 $
- * $Revision: 1.36 $
+ * $Date: 2007/09/07 22:30:04 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  *
 */
@@ -198,7 +198,7 @@ void EBTimingClient::setup(void) {
 
     if ( mer01_[ism-1] ) dbe_->removeElement( mer01_[ism-1]->getName() );
     sprintf(histo, "EBTMT timing rms %s", Numbers::sEB(ism).c_str());
-    mer01_[ism-1] = dbe_->book1D(histo, histo, 100, 0.0,  2.5);
+    mer01_[ism-1] = dbe_->book1D(histo, histo, 100, 0.0,  5.0);
 
   }
 
