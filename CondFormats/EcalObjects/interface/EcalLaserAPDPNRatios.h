@@ -3,9 +3,9 @@
 /**
  *Author: Vladlen Timciuc, Caltech
  * Created: 10 July 2007
- * $Id: EcalLaserAPDPNRatios.h,v 1.2 2007/07/16 22:01:29 meridian Exp $
+ * $Id: EcalLaserAPDPNRatios.h,v 1.3 2007/07/27 13:56:53 xiezhen Exp $
  **/
-#include <map>
+#include <vector>
 #include <boost/cstdint.hpp>
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
@@ -20,21 +20,17 @@ class EcalLaserAPDPNRatios {
     edm::Timestamp t2;
   };
   
-  typedef std::map<uint32_t, EcalLaserAPDPNpair> EcalLaserAPDPNRatiosMap;
-  typedef std::map<uint32_t, EcalLaserTimeStamp> EcalLaserTimeStampMap;
-  typedef std::map<uint32_t, EcalLaserAPDPNpair>::const_iterator EcalLaserAPDPNRatiosMapIterator;
-  typedef std::map<uint32_t, EcalLaserTimeStamp>::const_iterator EcalLaserTimeStampMapIterator;
+  typedef std::vector<EcalLaserAPDPNpair> EcalLaserAPDPNRatiosMap;
+  typedef std::vector<EcalLaserTimeStamp> EcalLaserTimeStampMap;
 
   EcalLaserAPDPNRatios();
   ~EcalLaserAPDPNRatios();
-
    
-  void  setValue(const uint32_t& id, const EcalLaserAPDPNpair& value);
+  void  setValue(int hashedIndex, const EcalLaserAPDPNpair& value) { laser_map[hashedIndex] = value; };
   const EcalLaserAPDPNRatiosMap& getLaserMap() const { return laser_map; }
   
-  void setTime(const int& id, const EcalLaserTimeStamp& value);
-  const EcalLaserTimeStampMap& getTimeMap() const { return time_map; }
-  
+  void setTime(int hashedIndex, const EcalLaserTimeStamp& value) { time_map[hashedIndex] = value; };
+  const EcalLaserTimeStampMap& getTimeMap() const { return time_map; }  
 
  private:
   EcalLaserAPDPNRatiosMap laser_map;

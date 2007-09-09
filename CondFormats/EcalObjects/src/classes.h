@@ -1,4 +1,5 @@
 #include <boost/cstdint.hpp>
+
 namespace{
   namespace{
     uint32_t i32;
@@ -90,15 +91,15 @@ namespace {
 namespace {
   namespace {
     EcalLaserAlphas laserAplhas;
-    std::map<uint32_t, EcalLaserAlphas::EcalLaserAlpha> laserAlphaMap;
+    std::vector<EcalLaserAlphas::EcalLaserAlpha> laserAlphaMap;
   }
 }
 
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
 namespace {
   namespace {
-    std::map< uint32_t, EcalLaserAPDPNRatios::EcalLaserAPDPNpair>  laser_map;
-    std::map< uint32_t, EcalLaserAPDPNRatios::EcalLaserTimeStamp> time_map  ;
+    std::vector<EcalLaserAPDPNRatios::EcalLaserAPDPNpair> laser_map;
+    std::vector<EcalLaserAPDPNRatios::EcalLaserTimeStamp> time_map ;
   }
 }
 
@@ -106,7 +107,7 @@ namespace {
 namespace {
   namespace {
     EcalLaserAPDPNRatiosRef laserAPDPNRatiosRef;
-    std::map<uint32_t, EcalLaserAPDPNRatiosRef::EcalLaserAPDPNref> laserAPDPNRatiosRefMap;
+    std::vector<EcalLaserAPDPNRatiosRef::EcalLaserAPDPNref> laserAPDPNRatiosRefMap;
   }
 }
 

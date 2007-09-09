@@ -1,4 +1,5 @@
 <lcgdict>
+
  <class name="EcalPedestals">
   <field name="m_hashedCont" transient="true"/>
  </class>
@@ -31,8 +32,15 @@
 
  <class name="EcalMonitoringCorrections"/>
 
- <class name="EcalLaserAlphas"/>
  <class name="EcalLaserAPDPNRatios"/>
+
+ <class name="EcalLaserAPDPNRatios::EcalLaserTimeStamp"/>
+ <class name="std::vector<EcalLaserAPDPNRatios::EcalLaserTimeStamp>"/>
+
+ <class name="EcalLaserAPDPNRatios::EcalLaserAPDPNpair"/>
+ <class name="std::vector<EcalLaserAPDPNRatios::EcalLaserAPDPNpair>"/>
+
+ <class name="EcalLaserAlphas"/>
  <class name="EcalLaserAPDPNRatiosRef"/>
 
  <class name="EcalTPGFineGrainConstEB"/>
@@ -50,7 +58,8 @@
  <class name="EcalTPGSlidingWindow"/>
  <class name="EcalTPGWeightIdMap"/>
  <class name="EcalTPGWeights"/>
- 
+
  <class pattern="*pair*"/>
  <class pattern="*map*"/>
+
 </lcgdict>

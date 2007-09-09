@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialObjectAnalyzer.cc,v 1.10 2007/07/31 19:05:13 torimoto Exp $
+// $Id: EcalTrivialObjectAnalyzer.cc,v 1.11 2007/08/01 10:04:45 meridian Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -10,6 +10,7 @@
 #include <iostream>
 #include <iomanip>
 #include <map>
+#include <vector>
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -45,9 +46,6 @@
  
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRcd.h"
-
-//#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
-//#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
 
 #include "CLHEP/Matrix/Matrix.h"
 
@@ -151,6 +149,9 @@ using namespace std;
    const EcalTBWeights* wgts = pWgts.product();
    std::cout << "EcalTBWeightMap.size(): " << std::setprecision(3) << wgts->getMap().size() << std::endl;
 
+
+   
+
    // look up the correct weights for this  xtal
    //EcalXtalGroupId gid( git->second );
    EcalTBWeights::EcalTDCId tdcid(1);
@@ -191,96 +192,61 @@ using namespace std;
   }
 
    // laser correction
-
+   
    // laser alphas
    edm::ESHandle<EcalLaserAlphas> pAlpha; 
    context.get<EcalLaserAlphasRcd>().get(pAlpha);
    const EcalLaserAlphas* lalpha = pAlpha.product();
-   
-   EcalLaserAlphas::EcalLaserAlphaMapIterator lalphait;
-   lalphait = lalpha->getMap().find(ebid.rawId());
+
    EcalLaserAlphas::EcalLaserAlpha lalphaconst;
+   const EcalLaserAlphas::EcalLaserAlphaMap& laserAlphaMap =  lalpha->getMap();
 
-   if( lalphait!=lalpha->getMap().end() ){
-     lalphaconst = lalphait->second;     
-     std::cout << "EcalLaserAlpha: "
-       //	       <<e.id().run() << " " << e.id().event() << " " 
-	       <<std::setprecision(6)
-	       << lalphaconst
-	       << std::endl;
-   } else {
-     std::cout << "No laser alpha found for this xtal! something wrong with EcalLaserAlphas in your DB? "
-               << std::endl;
-   }
-
+   int hi = ebid.hashedIndex();
+   lalphaconst = laserAlphaMap[hi];
+   std::cout << "EcalLaserAlpha: "
+	     <<std::setprecision(6)
+	     << lalphaconst
+	     << std::endl;
+      
    // laser apdpnref
    edm::ESHandle<EcalLaserAPDPNRatiosRef> pAPDPNRatiosRef;          
    context.get<EcalLaserAPDPNRatiosRefRcd>().get(pAPDPNRatiosRef);  
    const EcalLaserAPDPNRatiosRef* lref = pAPDPNRatiosRef.product(); 
    
-   EcalLaserAPDPNRatiosRef::EcalLaserAPDPNRatiosRefMapIterator lrefit;
-   lrefit = lref->getMap().find(ebid.rawId());
-   EcalLaserAPDPNRatiosRef::EcalLaserAPDPNref lrefconst;      
-
-   if( lrefit!=lref->getMap().end() ){
-     lrefconst = lrefit->second;     
-     std::cout << "EcalLaserAPDPNRatiosRef: "
-       //	       <<e.id().run() << " " << e.id().event() << " " 
-  	       <<std::setprecision(6)
-  	       << lrefconst
-  	       << std::endl;
-   } else {
-     std::cout << "No laser apd/pn ref found for this xtal! something wrong with EcalLaserAPDPNRatiosRef in your DB? "
-	       << std::endl;
-   }
-
+   EcalLaserAPDPNRatiosRef::EcalLaserAPDPNref lrefconst;               
+   const EcalLaserAPDPNRatiosRef::EcalLaserAPDPNRatiosRefMap& laserRefMap =  lref->getMap();
+   lrefconst = laserRefMap[hi];   
+   std::cout << "EcalLaserAPDPNRatios: "
+	     << std::setprecision(6) 
+	     << lrefconst 
+	     << std::endl;   
 
    // laser apdpn ratios 
    edm::ESHandle<EcalLaserAPDPNRatios> pAPDPNRatios;          
    context.get<EcalLaserAPDPNRatiosRcd>().get(pAPDPNRatios);  
    const EcalLaserAPDPNRatios* lratio = pAPDPNRatios.product();
-
-   EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMapIterator lratioit; 
-   lratioit = lratio->getLaserMap().find(ebid.rawId());
-   EcalLaserAPDPNRatios::EcalLaserAPDPNpair lratioconst;
    
-   if( lratioit!=lratio->getLaserMap().end() ){
-     lratioconst = lratioit->second;
-     
-     std::cout << "EcalLaserAPDPNRatios: "
-       //	       <<e.id().run() << " " << e.id().event() << " " 
-    	       << std::setprecision(6)
-    	       << lratioconst.p1 << " " << lratioconst.p2
-    	       << std::endl;
-   } else {
-     std::cout << "No laser apd/pn ratio found for this xtal! something wrong with EcalLaserAPDPNRatios in your DB? "
-  	       << std::endl;
-   }
-
+   EcalLaserAPDPNRatios::EcalLaserAPDPNpair lratioconst;   
+   const EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap& laserRatiosMap = lratio->getLaserMap();
+   lratioconst = laserRatiosMap[hi];
+   
+   std::cout << "EcalLaserAPDPNRatios: "
+	     << std::setprecision(6)
+	     << lratioconst.p1 << " " << lratioconst.p2
+	     << std::endl;
+   
    // laser timestamps
-   EcalLaserAPDPNRatios::EcalLaserTimeStampMapIterator ltimeit;
    EcalLaserAPDPNRatios::EcalLaserTimeStamp ltimestamp;
-   
+   const EcalLaserAPDPNRatios::EcalLaserTimeStampMap& laserTimeMap =  lratio->getTimeMap();   
+
    std::cout << "EcalLaserTimeStamp: ";
-   for (int i=1; i<=92; i++) {     
-     ltimeit = lratio->getTimeMap().find(i);
-     if( ltimeit != lratio->getTimeMap().end() ) {
-       ltimestamp = ltimeit->second;
-       
-	 //		 <<e.id().run() << " " << e.id().event() << " " 
-       std::cout << std::setprecision(6)
-		   << ltimestamp.t1.value() << " " << ltimestamp.t2.value() << " : " ;
-     } else {
-       std::cout << "No laser timestamp found for this xtal! something wrong with EcalLaserAPDPNRatios in your DB? "
-		 << std::endl;
-     }
+   for (int i=0; i<92; i++) {     
+     ltimestamp = laserTimeMap[i];  
+     std::cout << std::setprecision(6)
+	       << ltimestamp.t1.value() << " " << ltimestamp.t2.value() << " : " ;     
    }
    std::cout << std::endl;
-
-
-   // laser transparency correction
    
-
 
 /*
     std::cout << "make CLHEP matrices from vector<vector<Ecalweight>>" << std::endl;

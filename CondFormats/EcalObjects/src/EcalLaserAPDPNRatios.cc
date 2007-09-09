@@ -1,26 +1,21 @@
 /**
  * Author: Vladlen Timciuc, Caltech
  * Created: 14 May 2007
- * $Id: EcalLaserAPDPNRatios.cc, 1.1 2007/05/16 11:45:00 Vladlen Exp $
+ * $Id: EcalLaserAPDPNRatios.cc,v 1.1 2007/06/21 13:56:37 meridian Exp $
  **/
 
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
 
-EcalLaserAPDPNRatios::EcalLaserAPDPNRatios() {
+EcalLaserAPDPNRatios::EcalLaserAPDPNRatios() :
+laser_map(EBDetId::MAX_HASH + EEDetId::MAX_HASH + 2),
+time_map(92) // FIXME
+{
 }
 
 EcalLaserAPDPNRatios::~EcalLaserAPDPNRatios() {
 
-}
-
-void 
-EcalLaserAPDPNRatios::setValue(const uint32_t& id, const EcalLaserAPDPNpair& value) {
-  laser_map[id] = value;
-}
-
-void 
-EcalLaserAPDPNRatios::setTime(const int& id, const EcalLaserTimeStamp& value) {
-  time_map[id] = value;
 }
 
 

@@ -37,7 +37,6 @@
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
 using namespace std;
-//using namespace oracle::occi;
 
 
 class EcalLaserDbAnalyzer : public edm::EDAnalyzer {
@@ -48,11 +47,6 @@ public:
   
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
 private:
-  //  std::string m_timetype;
-  //  std::map<std::string, unsigned long long> m_cacheIDs;
-  //  std::map<std::string, std::string> m_records;
-  //  unsigned long m_firstRun ;
-  //  unsigned long m_lastRun ;
 
   // ----------member data ---------------------------
 };
@@ -69,30 +63,7 @@ private:
 // constructors and destructor
 //
 EcalLaserDbAnalyzer::EcalLaserDbAnalyzer( const edm::ParameterSet& iConfig )
-  //:
-  //  m_timetype(iConfig.getParameter<std::string>("timetype")),
-  //  m_cacheIDs(),
-  //  m_records()
 {
-  //   std::cout << "EcalLaserDbAnalyzer::EcalLaserDbAnalyzer->... construct me!" << std::endl;
-   //now do what ever initialization is needed
-
-//    std::string container;
-//    std::string tag;
-//    std::string record;
-  
-//    //   m_firstRun=(unsigned long)atoi( iConfig.getParameter<std::string>("firstRun").c_str());
-//    //   m_lastRun=(unsigned long)atoi( iConfig.getParameter<std::string>("lastRun").c_str());
-  
-//    typedef std::vector< edm::ParameterSet > Parameters;
-//    Parameters toGet = iConfig.getParameter<Parameters>("toGet");
-//    for(Parameters::iterator i = toGet.begin(); i != toGet.end(); ++i) {
-//      container = i->getParameter<std::string>("container");
-//      record = i->getParameter<std::string>("record");
-//      m_cacheIDs.insert( std::make_pair(container, 0) );
-//      m_records.insert( std::make_pair(container, record) );
-
-//    } 
 
 }
 
@@ -100,9 +71,6 @@ EcalLaserDbAnalyzer::EcalLaserDbAnalyzer( const edm::ParameterSet& iConfig )
 EcalLaserDbAnalyzer::~EcalLaserDbAnalyzer()
 {
  
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
 }
 
 
@@ -115,8 +83,6 @@ void
 EcalLaserDbAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
 
-  //   using namespace edm;
-
   // get record from offline DB
   edm::ESHandle<EcalLaserDbService> pSetup;
   iSetup.get<EcalLaserDbRecord>().get( pSetup );
@@ -127,9 +93,8 @@ EcalLaserDbAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
   const EcalLaserAPDPNRatios* myapdpn =  pSetup->getAPDPNRatios();
   const EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap& laserRatiosMap =  myapdpn->getLaserMap();
 
-  EcalLaserAPDPNRatios::EcalLaserTimeStamp timestamp;
-  //  const EcalLaserAPDPNRatios* myapdpn =  pSetup->getAPDPNRatios();
-  const EcalLaserAPDPNRatios::EcalLaserTimeStampMap& laserTimeMap =  myapdpn->getTimeMap();
+//   EcalLaserAPDPNRatios::EcalLaserTimeStamp timestamp;
+//   const EcalLaserAPDPNRatios::EcalLaserTimeStampMap& laserTimeMap =  myapdpn->getTimeMap();
 
   EcalLaserAPDPNRatiosRef::EcalLaserAPDPNref apdpnref;
   const EcalLaserAPDPNRatiosRef* myapdpnref =  pSetup->getAPDPNRatiosRef();
@@ -139,23 +104,23 @@ EcalLaserDbAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
   const EcalLaserAlphas* myalpha =  pSetup->getAlphas();
   const EcalLaserAlphas::EcalLaserAlphaMap& laserAlphaMap =  myalpha->getMap();
 
-  EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMapIterator laserRatiosIter; // Laser iterator
-  EcalLaserAPDPNRatios::EcalLaserTimeStampMapIterator laserTimeIter;
-  EcalLaserAPDPNRatiosRef::EcalLaserAPDPNRatiosRefMapIterator laserRefIter; 
-  EcalLaserAlphas::EcalLaserAlphaMapIterator laserAlphaIter; 	  
-
-//   int ieta = 83;
-//   int iphi = 168;
-//   EBDetId ebdetid(ieta,iphi);
-
-//   // use a channel to fetch values from DB
-//   double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
-//   int ieta =  int( 1 + r1*85 );
-//   r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
-//   int iphi =  int( 1 + r1*20 );
-//   EBDetId ebdetid(ieta,iphi); //eta,phi
-//   std::cout << "*** XTAL: " << ebdetid << std::endl;
-
+  //  EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMapIterator laserRatiosIter; // Laser iterator
+  //  EcalLaserAPDPNRatios::EcalLaserTimeStampMapIterator laserTimeIter;
+  //  EcalLaserAPDPNRatiosRef::EcalLaserAPDPNRatiosRefMapIterator laserRefIter; 
+  //  EcalLaserAlphas::EcalLaserAlphaMapIterator laserAlphaIter; 	  
+  
+  //   int ieta = 83;
+  //   int iphi = 168;
+  //   EBDetId ebdetid(ieta,iphi);
+  
+  //   // use a channel to fetch values from DB
+  //   double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
+  //   int ieta =  int( 1 + r1*85 );
+  //   r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
+  //   int iphi =  int( 1 + r1*20 );
+  //   EBDetId ebdetid(ieta,iphi); //eta,phi
+  //   std::cout << "*** XTAL: " << ebdetid << std::endl;
+  
 
    for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
      if(ieta==0) continue;
@@ -163,58 +128,50 @@ EcalLaserDbAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
        try
  	{
  	  EBDetId ebdetid(ieta,iphi);
+          int hi = ebdetid.hashedIndex();
 
-	  edm::ESHandle< EcalElectronicsMapping > ecalmapping;
-	  iSetup.get< EcalMappingRcd >().get(ecalmapping);
-	  const EcalElectronicsMapping* TheMapping = ecalmapping.product();
- 	  int dccid = TheMapping-> DCCid(ebdetid);
- 	  int tccid = TheMapping-> TCCid(ebdetid);
+	  // 	  edm::ESHandle< EcalElectronicsMapping > ecalmapping;
+	  // 	  iSetup.get< EcalMappingRcd >().get(ecalmapping);
+	  // 	  const EcalElectronicsMapping* TheMapping = ecalmapping.product();
+	  //  	  int dccid = TheMapping-> DCCid(ebdetid);
+	  //  	  int tccid = TheMapping-> TCCid(ebdetid);
 	  
-	  std::cout << ebdetid << " " 
-		    << ebdetid.ietaSM() << " " << ebdetid.iphiSM() << " "
-		    << ebdetid.rawId() << " " 
-		    << dccid << " " << tccid 
-		    << std::endl;
-
-
-
- 	  //	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
- 	  //	  ical->setValue( ebid.rawId(), laserAlphaMean_ + r*laserAlphaSigma_ );
+ 	  std::cout << ebdetid << " " 
+ 		    << ebdetid.ietaSM() << " " << ebdetid.iphiSM() << " "
+		    << hi << std::endl;
+	  //<< ebdetid.rawId() << " " 
+	  //<< dccid << " " << tccid 
+	  //<< std::endl;
 	  
-	  laserRatiosIter = laserRatiosMap.find(ebdetid.rawId());
-	  if( laserRatiosIter != laserRatiosMap.end() ) {
-	    apdpnpair = laserRatiosIter->second;
-	    std::cout << " APDPN pair " << ieta << " " << iphi << " " << apdpnpair.p1 << " , " << apdpnpair.p2 << std::endl;
+	  if (hi< (int)laserRatiosMap.size()) {
+	    apdpnpair = laserRatiosMap[hi];
+	    std::cout << " APDPN pair " 
+		      << apdpnpair.p1 << " , " << apdpnpair.p2 << std::endl;
 	  } else {
-	    std::cout << " ERROR!  you screwed up!" << std::endl;
-	  }
-
-	  laserTimeIter = laserTimeMap.find(ebdetid.ism());
-	  if( laserTimeIter != laserTimeMap.end() ) {
-	    timestamp = laserTimeIter->second;
-	    std::cout << " TIME pair " << ieta << " " << iphi << " " << timestamp.t1.value() << " , " << timestamp.t2.value() << std::endl;
-	  } else {
-	    std::cout << " ERROR!  you screwed up!" << std::endl;
+	    edm::LogError("EcalLaserDbAnalyzer") << "error with laserRatiosMap!" << endl;     
 	  }
 	  
-	  laserRefIter = laserRefMap.find(ebdetid.rawId());
-	  if( laserRefIter != laserRefMap.end() ) {
-	    apdpnref = laserRefIter->second;
-	    std::cout << " APDPN ref " << ieta << " " << iphi << " " << apdpnref << std::endl;
-	  } else {
-	    std::cout << " ERROR!  you screwed up!" << std::endl;
+// 	  if (iLM-1< (int)laserTimeMap.size()) {
+// 	    timestamp = laserTimeMap[iLM-1];  
+// 	    std::cout << " TIME pair " 
+// 		      << timestamp.t1.value() << " , " << timestamp.t2.value() << std::endl;
+// 	  } else {
+// 	    edm::LogError("EcalLaserDbAnalyzer") << "error with laserTimeMap!" << endl;     
+// 	  }
+	  
+	  if (hi< (int)laserRefMap.size()) {
+	    apdpnref = laserRefMap[hi];
+	    std::cout << " APDPN ref " << apdpnref << std::endl;
+	  } else { 
+	    edm::LogError("EcalLaserDbAnalyzer") << "error with laserRefMap!" << endl;     
 	  }
 	  
-	  laserAlphaIter = laserAlphaMap.find(ebdetid.rawId());
-	  if( laserAlphaIter != laserAlphaMap.end() ) {
-	    alpha = laserAlphaIter->second;    
-	    std::cout << " ALPHA " << ieta << " " << iphi << " " << alpha << std::endl;
-	    
+	  if (hi< (int)laserAlphaMap.size()) {
+	    alpha = laserAlphaMap[hi];
+	    std::cout << " ALPHA " << alpha << std::endl;
 	  } else {
-	    std::cout << " ERROR!  you screwed up!" << std::endl;
+	    edm::LogError("EcalLaserDbAnalyzer") << "error with laserAlphaMap!" << endl;     
 	  }
-	  
-	  
 	  
  	}
        catch (...)

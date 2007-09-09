@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.18 2007/07/31 19:05:13 torimoto Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.19 2007/08/01 10:04:45 meridian Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -454,8 +454,9 @@ EcalTrivialConditionRetriever::produceEcalLaserAlphas( const EcalLaserAlphasRcd&
       try
 	{
 	  EBDetId ebid(ieta,iphi);
+	  int hi = ebid.hashedIndex();
 	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
-	  ical->setValue( ebid.rawId(), laserAlphaMean_ + r*laserAlphaSigma_ );
+	  ical->setValue( hi, laserAlphaMean_ + r*laserAlphaSigma_ );
 	}
       catch (...)
 	{
@@ -463,23 +464,26 @@ EcalTrivialConditionRetriever::produceEcalLaserAlphas( const EcalLaserAlphasRcd&
     }
   }
 
-  for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
-    for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
-      // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
-      try 
-	{
-	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
-	  EEDetId eedetidpos(iX,iY,1);
-	  ical->setValue( eedetidpos.rawId(), laserAlphaMean_ + r*laserAlphaSigma_ );
-	  double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
-	  EEDetId eedetidneg(iX,iY,-1);
-	  ical->setValue( eedetidneg.rawId(), laserAlphaMean_ + r1*laserAlphaSigma_ );
-	}
-      catch (...)
-	{
-	}
-    }
-  }
+   for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
+     for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
+       // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
+       try 
+ 	{
+ 	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
+ 	  EEDetId eedetidpos(iX,iY,1);
+	  int hipos = eedetidpos.hashedIndex() + EBDetId::MAX_HASH + 1;
+	  ical->setValue( hipos, laserAlphaMean_ + r*laserAlphaSigma_ );
+
+ 	  double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
+ 	  EEDetId eedetidneg(iX,iY,-1);
+	  int hineg = eedetidneg.hashedIndex() + EBDetId::MAX_HASH + 1;
+ 	  ical->setValue( hineg, laserAlphaMean_ + r1*laserAlphaSigma_ );
+ 	}
+       catch (...)
+ 	{
+ 	}
+     }
+   }
   
   return ical;
 }
@@ -495,8 +499,9 @@ EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatiosRef( const EcalLaserAP
       try
  	{
  	  EBDetId ebid(ieta,iphi);
+	  int hi = ebid.hashedIndex();	 
 	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
- 	  ical->setValue( ebid.rawId(), laserAPDPNRefMean_ + r*laserAPDPNRefSigma_ );
+ 	  ical->setValue( hi, laserAPDPNRefMean_ + r*laserAPDPNRefSigma_ );
  	}
       catch (...)
  	{
@@ -504,23 +509,26 @@ EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatiosRef( const EcalLaserAP
     }
   }
 
-  for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
-    for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
-      // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
-      try 
-	{
-	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
-	  EEDetId eedetidpos(iX,iY,1);
-	  ical->setValue( eedetidpos.rawId(), laserAPDPNRefMean_ + r*laserAPDPNRefSigma_ );
-	  double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
-	  EEDetId eedetidneg(iX,iY,-1);
-	  ical->setValue( eedetidneg.rawId(), laserAPDPNRefMean_ + r1*laserAPDPNRefSigma_ );
-	}
+   for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
+     for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
+       // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
+       try 
+ 	{
+ 	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
+ 	  EEDetId eedetidpos(iX,iY,1);
+	  int hipos = eedetidpos.hashedIndex() + EBDetId::MAX_HASH + 1;
+	  ical->setValue( hipos, laserAPDPNRefMean_ + r*laserAPDPNRefSigma_ );
+
+ 	  double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
+ 	  EEDetId eedetidneg(iX,iY,-1);
+	  int hineg = eedetidneg.hashedIndex() + EBDetId::MAX_HASH + 1;
+ 	  ical->setValue( hineg, laserAPDPNRefMean_ + r1*laserAPDPNRefSigma_ );
+ 	}
       catch (...)
-	{
-	}
-    }
-  }
+ 	{
+ 	}
+     }
+   }
   
   return ical;
 }
@@ -537,13 +545,13 @@ EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatios( const EcalLaserAPDPN
       try
    	{
   	  EBDetId ebid(ieta,iphi);
+	  int hi = ebid.hashedIndex();
 	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
 
 	  EcalLaserAPDPNRatios::EcalLaserAPDPNpair pairAPDPN;
 	  pairAPDPN.p1 = laserAPDPNMean_ + r*laserAPDPNSigma_;
 	  pairAPDPN.p2 = laserAPDPNMean_ + r*laserAPDPNSigma_;
- 	  ical->setValue( ebid.rawId(), pairAPDPN);
-
+	  ical->setValue( hi, pairAPDPN );
   	}
       catch (...)
   	{
@@ -551,36 +559,41 @@ EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatios( const EcalLaserAPDPN
      }
   }
 
-  for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
-    for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
-      // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
-      try 
-	{
-	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
-	  EEDetId eedetidpos(iX,iY,1);
-	  EcalLaserAPDPNRatios::EcalLaserAPDPNpair pairAPDPN;
-	  pairAPDPN.p1 = laserAPDPNMean_ + r*laserAPDPNSigma_;
-	  pairAPDPN.p2 = laserAPDPNMean_ + r*laserAPDPNSigma_;
-	  ical->setValue( eedetidpos.rawId(), pairAPDPN);
+   for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
+     for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
+       // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
+       try 
+ 	{
+ 	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
+ 	  EEDetId eedetidpos(iX,iY,1);
+	  int hipos = eedetidpos.hashedIndex() + EBDetId::MAX_HASH + 1;
 
-	  double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
-	  EEDetId eedetidneg(iX,iY,-1);
-	  pairAPDPN.p1 = laserAPDPNMean_ + r1*laserAPDPNSigma_;
-	  pairAPDPN.p2 = laserAPDPNMean_ + r1*laserAPDPNSigma_;
-	  ical->setValue( eedetidneg.rawId(), pairAPDPN);
+ 	  EcalLaserAPDPNRatios::EcalLaserAPDPNpair pairAPDPN;
+ 	  pairAPDPN.p1 = laserAPDPNMean_ + r*laserAPDPNSigma_;
+ 	  pairAPDPN.p2 = laserAPDPNMean_ + r*laserAPDPNSigma_;
+ 	  ical->setValue( hipos, pairAPDPN );
 
-	}
-      catch (...)
-	{
-	}
-    }
-  }
+ 	  double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
+ 	  EEDetId eedetidneg(iX,iY,-1);
+	  int hineg = eedetidneg.hashedIndex() + EBDetId::MAX_HASH + 1;
+
+ 	  pairAPDPN.p1 = laserAPDPNMean_ + r1*laserAPDPNSigma_;
+ 	  pairAPDPN.p2 = laserAPDPNMean_ + r1*laserAPDPNSigma_;
+ 	  ical->setValue( hineg, pairAPDPN );
+
+ 	}
+       catch (...)
+ 	{
+ 	}
+     }
+   }
 
   EcalLaserAPDPNRatios::EcalLaserTimeStamp TimeStamp;
-  for(int i=1; i<=92; i++){
+  //  for(int i=1; i<=92; i++){
+  for(int i=0; i<92; i++){
     TimeStamp.t1 = 1;
     TimeStamp.t2 = edm::Timestamp::endOfTime().value();
-    ical->setTime(i, TimeStamp);
+    ical->setTime( i, TimeStamp );
   }
   
   return ical;
