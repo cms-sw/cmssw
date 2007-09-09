@@ -10,8 +10,6 @@
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
 #include "RecoTracker/CkfPattern/interface/GroupedTrajCandLess.h"
 #include "RecoTracker/CkfPattern/interface/TrajectoryFilter.h"
-#include "RecoTracker/CkfPattern/interface/MinPtTrajectoryFilter.h"
-#include "RecoTracker/CkfPattern/interface/MaxHitsTrajectoryFilter.h"
 #include "RecoTracker/CkfPattern/interface/RegionalTrajectoryFilter.h"
 #include "RecoTracker/CkfPattern/interface/TempTrajectory.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
@@ -66,26 +64,20 @@ GroupedCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
 			    const Propagator*                     propagatorAlong,
 			    const Propagator*                     propagatorOpposite,
 			    const Chi2MeasurementEstimatorBase*   estimator,
-			    const TransientTrackingRecHitBuilder* RecHitBuilder,
+			    const TransientTrackingRecHitBuilder* recHitBuilder,
 			    const MeasurementTracker*             measurementTracker):
 
-  theUpdator(updator),thePropagatorAlong(propagatorAlong),
-  thePropagatorOpposite(propagatorOpposite),theEstimator(estimator),
-  theTTRHBuilder(RecHitBuilder),theMeasurementTracker(measurementTracker),
-  theLayerMeasurements(new LayerMeasurements(theMeasurementTracker)),
-  theForwardPropagator(0),theBackwardPropagator(0),
-  theMinPtCondition(new MinPtTrajectoryFilter(conf.getParameter<double>("ptCut"))),
-  theMaxHitsCondition(new MaxHitsTrajectoryFilter(conf.getParameter<int>("maxNumberOfHits")))
+  TrackerTrajectoryBuilder(conf.getParameter<edm::ParameterSet>("TrackerTrajectoryBuilderParameters"),
+			   updator, propagatorAlong,propagatorOpposite,
+			   estimator, recHitBuilder, measurementTracker)
 {
   // fill data members from parameters (eventually data members could be dropped)
   //
   theMaxCand                  = conf.getParameter<int>("maxCand");
-  theMaxLostHit               = conf.getParameter<int>("maxLostHit");
-  theMaxConsecLostHit         = conf.getParameter<int>("maxConsecLostHit");
+
   theLostHitPenalty           = conf.getParameter<double>("lostHitPenalty");
   theFoundHitBonus            = conf.getParameter<double>("foundHitBonus");
   theIntermediateCleaning     = conf.getParameter<bool>("intermediateCleaning");
-  theMinHits                  = conf.getParameter<int>("minimumNumberOfHits");
   theAlwaysUseInvalid         = conf.getParameter<bool>("alwaysUseInvalidHits");
   theLockHits                 = conf.getParameter<bool>("lockHits");
   theBestHitOnly              = conf.getParameter<bool>("bestHitOnly");
@@ -106,12 +98,6 @@ GroupedCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
 
 }
 
-GroupedCkfTrajectoryBuilder::~GroupedCkfTrajectoryBuilder()
-{
-  //B.M. delete theConfigurableCondition;
-  delete theMinPtCondition;
-  delete theMaxHitsCondition;
-}
 
 void GroupedCkfTrajectoryBuilder::setEvent(const edm::Event& event) const
 {
@@ -170,85 +156,6 @@ GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
   return result;
 }
 
-TempTrajectory 
-GroupedCkfTrajectoryBuilder::createStartingTrajectory( const TrajectorySeed& seed) const
-{
-  TempTrajectory result( seed, seed.direction());
-  if (  seed.direction() == alongMomentum) {
-    theForwardPropagator = &(*thePropagatorAlong);
-    theBackwardPropagator = &(*thePropagatorOpposite);
-  }
-  else {
-    theForwardPropagator = &(*thePropagatorOpposite);
-    theBackwardPropagator = &(*thePropagatorAlong);
-  }
-
-  vector<TM> seedMeas = seedMeasurements(seed);
-  if ( !seedMeas.empty()) {
-    for (vector<TM>::const_iterator i=seedMeas.begin(); i!=seedMeas.end(); i++){
-      result.push(*i);
-    }
-  }
-  return result;
-}
-  
-bool GroupedCkfTrajectoryBuilder::qualityFilter( const TempTrajectory& traj) const
-{
-
-//    cout << "qualityFilter called for trajectory with " 
-//         << traj.foundHits() << " found hits and Chi2 = "
-//         << traj.chiSquared() << endl;
-
-  if ( traj.foundHits() >= theMinHits) {
-    return true;
-  }
-  else {
-    return false;
-  }
-}
-
-bool 
-GroupedCkfTrajectoryBuilder::toBeContinued (const TempTrajectory& traj,
-					    const TrajectoryFilter* regionalCondition) const
-{
-  if ( traj.lostHits() > theMaxLostHit) return false;
-
-  // check for conscutive lost hits only at the end 
-  // (before the last valid hit),
-  // since if there was an unacceptable gap before the last 
-  // valid hit the trajectory would have been stopped already
-
-  int consecLostHit = 0;
-  const TempTrajectory::DataContainer & tms = traj.measurements();
-  for(  TempTrajectory::DataContainer::const_iterator itm=tms.rbegin(), itb = tms.rend(); itm != itb; --itm ) {
-    if (itm->recHit()->isValid()) break;
-    else if ( // FIXME: !Trajectory::inactive(itm->recHit()->det()) &&
-	     Trajectory::lost(*itm->recHit())) consecLostHit++;
-  }
-  if (consecLostHit > theMaxConsecLostHit) return false; 
-
-  // stopping condition from region has highest priority
-  //FIXME,restore this: if ( regionalCondition && !(*regionalCondition)(traj) )  return false;
-  // next: pt-cut
-  if ( !(*theMinPtCondition)(traj) )  return false;
-  if ( !(*theMaxHitsCondition)(traj) )  return false;
-  // finally: configurable condition
-  //FIXME,restore this: if ( !(*theConfigurableCondition)(traj) )  return false;
-
-  return true;
-}
-
-void 
-GroupedCkfTrajectoryBuilder::addToResult (TempTrajectory& tmptraj, 
-					  TrajectoryContainer& result) const
-{
-  // quality check
-  if ( !qualityFilter(tmptraj) )  return;
-  Trajectory traj = tmptraj.toTrajectory();	
-  // discard latest dummy measurements
-  while (!traj.empty() && !traj.lastMeasurement().recHit()->isValid()) traj.pop();
-  result.push_back( traj);
-}
 
 
 void 
@@ -424,7 +331,8 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
       TempTrajectory newTraj(traj);
       for ( vector<TM>::const_iterator im=measurements.begin();
 	    im!=measurements.end(); im++ )  newTraj.push(*im);
-      if ( toBeContinued(newTraj,regionalCondition) ) {
+      //if ( toBeContinued(newTraj,regionalCondition) ) { TOBE FIXED
+      if ( toBeContinued(newTraj) ) {
 
 #ifdef DBG_GCTB
 	cout << "GCTB: adding new trajectory to candidates" << endl;
@@ -953,56 +861,4 @@ GroupedCkfTrajectoryBuilder::verifyHits (vector<TM>::const_iterator tmBegin,
 
 
 
-// method copied from CkfTrajectoryBuilder.cc
-// it should be put in a common place for both algos
 
-#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-
-std::vector<TrajectoryMeasurement> 
-GroupedCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
-{
-  std::vector<TrajectoryMeasurement> result;
-  TrajectoryStateTransform tsTransform;
-
-  TrajectorySeed::range hitRange = seed.recHits();
-  for (TrajectorySeed::const_iterator ihit = hitRange.first; 
-       ihit != hitRange.second; ihit++) {
-    //RC TransientTrackingRecHit* recHit = TTRHbuilder->build(&(*ihit));
-    TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder->build(&(*ihit));
-    const GeomDet* hitGeomDet = 
-      theMeasurementTracker->geomTracker()->idToDet( ihit->geographicalId());
-
-    const DetLayer* hitLayer = 
-      theMeasurementTracker->geometricSearchTracker()->detLayer(ihit->geographicalId());
-
-    TSOS invalidState( new BasicSingleTrajectoryState( hitGeomDet->surface()));
-    if (ihit == hitRange.second - 1) {
-      // the seed trajectory state should correspond to this hit
-      PTrajectoryStateOnDet pState( seed.startingState());
-      const GeomDet* gdet = theMeasurementTracker->geomTracker()->idToDet( DetId(pState.detId()));
-      if (&gdet->surface() != &hitGeomDet->surface()) {
-	edm::LogError("CkfPattern") << "CkfTrajectoryBuilder error: the seed state is not on the surface of the detector of the last seed hit";
-	return std::vector<TrajectoryMeasurement>(); // FIXME: should throw exception
-      }
-
-      TSOS updatedState = tsTransform.transientState( pState, &(gdet->surface()), 
-						      theForwardPropagator->magneticField());
-      result.push_back(TM( invalidState, updatedState, recHit, 0, hitLayer));
-    }
-    else {
-      PTrajectoryStateOnDet pState( seed.startingState());
-
-      TSOS outerState = tsTransform.transientState(pState,
-						   &((theMeasurementTracker->geomTracker()->idToDet(
-										     (hitRange.second - 1)->geographicalId()))->surface()),  
-						   theForwardPropagator->magneticField());
-      TSOS innerState   = theBackwardPropagator->propagate(outerState,hitGeomDet->surface());
-      if(innerState.isValid()) {
-	TSOS innerUpdated = theUpdator->update(innerState,*recHit);
-	result.push_back(TM( invalidState, innerUpdated, recHit, 0, hitLayer));
-      }
-    }
-  }
-  return result;
-}

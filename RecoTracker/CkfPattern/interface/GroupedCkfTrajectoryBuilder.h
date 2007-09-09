@@ -12,26 +12,7 @@
 
 #include <vector>
 
-class Propagator;
-class TrajectoryStateUpdator;
-class Chi2MeasurementEstimatorBase;
-class MeasurementEstimator;
-class NavigationSchool;
-class Trajectory;
-class TrajectorySeed;
-class TrajectoryContainer;
-class TrajectoryStateOnSurface;
-class FreeTrajectoryState;
-class TrajectoryMeasurement;
-class TrajectoryFilter;
-class TrackingRegion;
-class TrajectoryMeasurementGroup;
-class MeasurementTracker;
-class LayerMeasurements;
-class DetGroup;
-//B.M. class RecHitEqualByChannels;
-class TrajectoryFitter;
-class TransientTrackingRecHitBuilder;
+
 
 
 /** A highly configurable trajectory builder that allows full
@@ -40,14 +21,6 @@ class TransientTrackingRecHitBuilder;
  */
 
 class GroupedCkfTrajectoryBuilder : public TrackerTrajectoryBuilder {
-
- protected:
-  // short names
-  typedef FreeTrajectoryState         FTS;
-  typedef TrajectoryStateOnSurface    TSOS;
-  typedef TrajectoryMeasurement       TM;
-  typedef std::vector<Trajectory>     TrajectoryContainer;
-  typedef std::vector<TempTrajectory> TempTrajectoryContainer;
   
  public:
   /// constructor from ParameterSet
@@ -60,7 +33,7 @@ class GroupedCkfTrajectoryBuilder : public TrackerTrajectoryBuilder {
 			      const MeasurementTracker*             measurementTracker);
 
   /// destructor
-  virtual ~GroupedCkfTrajectoryBuilder();
+  virtual ~GroupedCkfTrajectoryBuilder(){}
 
   /// set Event for the internal MeasurementTracker data member
   virtual void setEvent(const edm::Event& event) const;
@@ -72,7 +45,6 @@ class GroupedCkfTrajectoryBuilder : public TrackerTrajectoryBuilder {
   TrajectoryContainer trajectories(const TrajectorySeed&, const TrackingRegion&) const;
 
   // Access to lower level components
-  //B.M. const Propagator&           propagator() const {return *thePropagator;}
   const TrajectoryStateUpdator&  updator() const    {return *theUpdator;}
   const Chi2MeasurementEstimatorBase&    estimator() const  {return *theEstimator;}
 
@@ -84,11 +56,6 @@ class GroupedCkfTrajectoryBuilder : public TrackerTrajectoryBuilder {
   /** Maximum number of trajectory candidates to propagate to the next layer. */
   int 		maxCand()		{return theMaxCand;}
 
-  /** Maximum number of lost hits per trajectory candidate. */
-  int 		maxLostHit()		{return theMaxLostHit;}
-
-  /** Maximum number of consecutive lost hits per trajectory candidate. */
-  int 		maxConsecLostHit()	{return theMaxConsecLostHit;}
 
   /** Chi**2 Penalty for each lost hit. */
   float 	lostHitPenalty()	{return theLostHitPenalty;}
@@ -120,19 +87,7 @@ private :
   /// common part of both public trajectory building methods
   TrajectoryContainer buildTrajectories (const TrajectorySeed&,
 					 const TrajectoryFilter*) const;
-
-  TempTrajectory createStartingTrajectory( const TrajectorySeed&) const;
-
-  std::vector<TrajectoryMeasurement> seedMeasurements(const TrajectorySeed& seed) const;
-
-  void addToResult( TempTrajectory& traj, TrajectoryContainer& result) const;
   
-  bool qualityFilter( const TempTrajectory& traj) const;
-  bool toBeContinued( const TempTrajectory& traj, const TrajectoryFilter* regionalCondition) const;
-
-  //B.M.TrajectoryContainer intermediaryClean(TrajectoryContainer& theTrajectories);
-  // to be ported later
-
   inline bool tkxor(bool a, bool b) const {return (a||b) && !(a&&b);}
   // to be ported later
 
@@ -185,20 +140,6 @@ private :
 
 
 private:
-  const TrajectoryStateUpdator*         theUpdator;
-  const Propagator*                     thePropagatorAlong;
-  const Propagator*                     thePropagatorOpposite;
-  const Chi2MeasurementEstimatorBase*   theEstimator;
-  const TransientTrackingRecHitBuilder* theTTRHBuilder;
-  const MeasurementTracker*             theMeasurementTracker;
-  const LayerMeasurements*              theLayerMeasurements;
-
-  // these may change from seed to seed
-  mutable const Propagator*             theForwardPropagator;
-  mutable const Propagator*             theBackwardPropagator;
-
-  TrajectoryFilter*              theMinPtCondition;
-  TrajectoryFilter*              theMaxHitsCondition;
   TrajectoryFilter*              theConfigurableCondition;
 
   //   typedef deque< const TrajectoryFilter*>   StopCondContainer;
@@ -212,15 +153,12 @@ private:
 
   int theMaxCand;               /**< Maximum number of trajectory candidates 
 		                     to propagate to the next layer. */
-  int theMaxLostHit;            /**< Maximum number of lost hits per trajectory candidate.*/
-  int theMaxConsecLostHit;      /**< Maximum number of consecutive lost hits 
-                                     per trajectory candidate. */
   float theLostHitPenalty;      /**< Chi**2 Penalty for each lost hit. */
   float theFoundHitBonus;       /**< Chi**2 bonus for each found hit (favours candidates with
 				     more measurements) */
   bool theIntermediateCleaning;	/**< Tells whether an intermediary cleaning stage 
                                      should take place during TB. */
-  int theMinHits;               /**< Minimum number of hits for a trajectory to be returned.*/
+
   bool theAlwaysUseInvalid;
 
   bool theLockHits;             /**< Lock hits when building segments in a layer */

@@ -3,16 +3,32 @@
 
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+class CkfDebugger;
+class Chi2MeasurementEstimatorBase;
+class DetGroup;
+class FreeTrajectoryState;
+class IntermediateTrajectoryCleaner;
+class LayerMeasurements;
+class MeasurementTracker;
+class MeasurementEstimator;
+class NavigationSchool;
+class Propagator;
+class TrajectoryStateUpdator;
+class TrajectoryMeasurement;
+class TrajectorySeed;
+class TrajectoryContainer;
+class TrajectoryStateOnSurface;
+class TrajectoryFitter;
+class TransientTrackingRecHitBuilder;
 class Trajectory;
 class TempTrajectory;
-class TrajectorySeed;
-class CkfDebugger;
-class MeasurementTracker;
-class Propagator;
-class Chi2MeasurementEstimatorBase;
-class TransientTrackingRecHitBuilder;
-class IntermediateTrajectoryCleaner;
+class TrajectoryFilter;
+class TrackingRegion;
+class TrajectoryMeasurementGroup;
+
+
 
 /** The component of track reconstruction that, strating from a seed,
  *  reconstructs all possible trajectories.
@@ -22,21 +38,42 @@ class IntermediateTrajectoryCleaner;
  */
 
 class TrackerTrajectoryBuilder {
+protected:
+  // short names
+  typedef FreeTrajectoryState         FTS;
+  typedef TrajectoryStateOnSurface    TSOS;
+  typedef TrajectoryMeasurement       TM;
+  typedef std::vector<Trajectory>     TrajectoryContainer;
+
 public:
 
   typedef std::vector<Trajectory> TrajectoryContainer;
   typedef std::vector<TempTrajectory> TempTrajectoryContainer;
   typedef TrajectoryContainer::iterator TrajectoryIterator;
+  
+  TrackerTrajectoryBuilder(const edm::ParameterSet&              conf,
+			   const TrajectoryStateUpdator*         updator,
+			   const Propagator*                     propagatorAlong,
+			   const Propagator*                     propagatorOpposite,
+			   const Chi2MeasurementEstimatorBase*   estimator,
+			   const TransientTrackingRecHitBuilder* RecHitBuilder,
+			   const MeasurementTracker*             measurementTracker);
 
-  virtual ~TrackerTrajectoryBuilder() {};
+  virtual ~TrackerTrajectoryBuilder();
 
   virtual TrajectoryContainer trajectories(const TrajectorySeed&) const = 0;
 
   virtual void setEvent(const edm::Event& event) const = 0;
 
   virtual void setDebugger( CkfDebugger * dbg) const {;}
+ 
+  /** Maximum number of lost hits per trajectory candidate. */
+  int 		maxLostHit()		{return theMaxLostHit;}
 
- protected:  
+  /** Maximum number of consecutive lost hits per trajectory candidate. */
+  int 		maxConsecLostHit()	{return theMaxConsecLostHit;}
+
+ protected:    
   //methods for dubugging 
   virtual bool analyzeMeasurementsDebugger(Trajectory& traj, std::vector<TrajectoryMeasurement> meas,
 					   const MeasurementTracker* theMeasurementTracker, 
@@ -50,6 +87,44 @@ public:
 					   const TransientTrackingRecHitBuilder * theTTRHBuilder) const {return true;} 
   virtual void fillSeedHistoDebugger(std::vector<TrajectoryMeasurement>::iterator begin, 
                                      std::vector<TrajectoryMeasurement>::iterator end) const {;}
+
+ protected:
+  TempTrajectory createStartingTrajectory( const TrajectorySeed& seed) const;
+
+  bool toBeContinued( const TempTrajectory& traj) const;
+
+  bool qualityFilter( const TempTrajectory& traj) const;
+  
+  void addToResult( TempTrajectory& traj, TrajectoryContainer& result) const;    
+ 
+ private:
+  void seedMeasurements(const TrajectorySeed& seed, std::vector<TrajectoryMeasurement> & result) const;
+
+
+
+ protected:
+  const TrajectoryStateUpdator*         theUpdator;
+  const Propagator*                     thePropagatorAlong;
+  const Propagator*                     thePropagatorOpposite;
+  const Chi2MeasurementEstimatorBase*   theEstimator;
+  const TransientTrackingRecHitBuilder* theTTRHBuilder;
+  const MeasurementTracker*             theMeasurementTracker;
+  const LayerMeasurements*              theLayerMeasurements;
+
+  // these may change from seed to seed
+  mutable const Propagator*             theForwardPropagator;
+  mutable const Propagator*             theBackwardPropagator;
+
+
+ private:
+  int theMaxLostHit;            /**< Maximum number of lost hits per trajectory candidate.*/
+  int theMaxConsecLostHit;      /**< Maximum number of consecutive lost hits 
+                                     per trajectory candidate. */
+  int theMinimumNumberOfHits;   /**< Minimum number of hits for a trajectory to be returned.*/
+
+  TrajectoryFilter*              theMinPtCondition;
+  TrajectoryFilter*              theMaxHitsCondition;
+
 
 };
 
