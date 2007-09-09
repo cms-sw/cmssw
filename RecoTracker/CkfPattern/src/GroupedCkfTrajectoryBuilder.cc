@@ -248,17 +248,10 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
 					      TempTrajectoryContainer& newCand, 
 					      TrajectoryContainer& result) const
 {
-  TSOS currentState(traj.lastMeasurement().updatedState());
+  std::pair<TSOS,std::vector<const DetLayer*> > stateAndLayers = findStateAndLayers(traj);
+  vector<const DetLayer*>::iterator layerBegin = stateAndLayers.second.begin();
+  vector<const DetLayer*>::iterator layerEnd   = stateAndLayers.second.end();
 
-  if ( traj.lastLayer()==0 ) {
-    cout << "traj.lastLayer()==0; "
-	 << "lastmeas pos r / z = " << currentState.globalPosition().perp() << " "
-	 << currentState.globalPosition().z() << endl;
-    return false;
-  }
-
-  vector<const DetLayer*> nl = 
-    traj.lastLayer()->nextLayers( *currentState.freeState(), traj.direction());
   //   if (nl.empty()) {
   //     addToResult(traj,result);
   //     return false;
@@ -289,8 +282,8 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
 
   bool foundSegments(false);
   bool foundNewCandidates(false);
-  for ( vector<const DetLayer*>::iterator il=nl.begin(); 
-	il!=nl.end(); il++) {
+  for ( vector<const DetLayer*>::iterator il=layerBegin; 
+	il!=layerEnd; il++) {
     TrajectorySegmentBuilder layerBuilder(theMeasurementTracker,
 					  theLayerMeasurements,
 					  **il,*propagator,
@@ -298,18 +291,18 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
 					  theLockHits,theBestHitOnly);
     
 #ifdef DBG_GCTB
-    cout << "GCTB: starting from r / z = " << currentState.globalPosition().perp()
-	 << " / " << currentState.globalPosition().z() << " , pt / pz = " 
-	 << currentState.globalMomentum().perp() << " / " 
-	 << currentState.globalMomentum().z() << " for layer at "
+    cout << "GCTB: starting from r / z = " << stateAndLayers.first.globalPosition().perp()
+	 << " / " << stateAndLayers.first.globalPosition().z() << " , pt / pz = " 
+	 << stateAndLayers.first.globalMomentum().perp() << " / " 
+	 << stateAndLayers.first.globalMomentum().z() << " for layer at "
 	 << *il << endl;
     cout << "     errors:";
-    for ( int i=0; i<5; i++ )  cout << " " << sqrt(currentState.curvilinearError().matrix()(i,i));
+    for ( int i=0; i<5; i++ )  cout << " " << sqrt(stateAndLayers.first.curvilinearError().matrix()(i,i));
     cout << endl;
 #endif
 
     TrajectoryContainer segments=
-      layerBuilder.segments(traj.lastMeasurement().updatedState());
+      layerBuilder.segments(stateAndLayers.first);
 
 #ifdef DBG_GCTB
     cout << "GCTB: number of segments = " << segments.size() << endl;

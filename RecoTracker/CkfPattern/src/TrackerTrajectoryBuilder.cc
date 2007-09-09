@@ -179,3 +179,30 @@ TrackerTrajectoryBuilder::addToResult (TempTrajectory& tmptraj,
   while (!traj.empty() && !traj.lastMeasurement().recHit()->isValid()) traj.pop();
   result.push_back( traj);
 }
+
+
+TrackerTrajectoryBuilder::StateAndLayers
+TrackerTrajectoryBuilder::findStateAndLayers(const TempTrajectory& traj) const
+{
+  if (traj.empty())
+    {
+      //set the currentState to be the one from the trajectory seed starting point
+      PTrajectoryStateOnDet ptod = traj.seed().startingState();
+      DetId id(ptod.detId());
+      const GeomDet * g = theMeasurementTracker->geomTracker()->idToDet(id);                    
+      const Surface * surface=&g->surface();
+      TrajectoryStateTransform tsTransform;
+      
+      TSOS currentState = TrajectoryStateOnSurface(tsTransform.transientState(ptod,surface,theForwardPropagator->magneticField()));      
+      const DetLayer* lastLayer = theMeasurementTracker->geometricSearchTracker()->detLayer(id);      
+      return StateAndLayers(currentState,lastLayer->nextLayers( *currentState.freeState(), traj.direction()) );
+    }
+  else
+    {  
+      TSOS currentState = traj.lastMeasurement().updatedState();
+      return StateAndLayers(currentState,traj.lastLayer()->nextLayers( *currentState.freeState(), traj.direction()) );
+    }
+}
+
+
+

@@ -21,6 +21,7 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
 #include "RecoTracker/CkfPattern/interface/IntermediateTrajectoryCleaner.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
 using namespace std;
 
@@ -155,18 +156,14 @@ CkfTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj,
 						  std::vector<TrajectoryMeasurement> & result) const
 {
   int invalidHits = 0;
+  std::pair<TSOS,std::vector<const DetLayer*> > stateAndLayers = findStateAndLayers(traj);
+  if (stateAndLayers.second.empty()) return;
 
-  //TSOS currentState( traj.lastMeasurement().updatedState());
-  const TrajectoryStateOnSurface currentState( traj.lastMeasurement().updatedState());
-
-  vector<const DetLayer*> nl = 
-    traj.lastLayer()->nextLayers( *currentState.freeState(), traj.direction());
-  
-  if (nl.empty()) return;
-
-  for (vector<const DetLayer*>::iterator il = nl.begin(); 
-       il != nl.end(); il++) {
-    vector<TrajectoryMeasurement> tmp = theLayerMeasurements->measurements((**il),currentState, *theForwardPropagator, *theEstimator);
+  vector<const DetLayer*>::iterator layerBegin = stateAndLayers.second.begin();
+  vector<const DetLayer*>::iterator layerEnd  = stateAndLayers.second.end();
+  for (vector<const DetLayer*>::iterator il = layerBegin; 
+       il != layerEnd; il++) {
+    vector<TrajectoryMeasurement> tmp = theLayerMeasurements->measurements((**il),stateAndLayers.first, *theForwardPropagator, *theEstimator);
 
     if ( !tmp.empty()) {
       if ( result.empty()) result = tmp;

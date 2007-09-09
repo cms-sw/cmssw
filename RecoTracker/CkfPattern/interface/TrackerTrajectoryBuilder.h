@@ -44,6 +44,7 @@ protected:
   typedef TrajectoryStateOnSurface    TSOS;
   typedef TrajectoryMeasurement       TM;
   typedef std::vector<Trajectory>     TrajectoryContainer;
+  typedef std::pair<TSOS,std::vector<const DetLayer*> > StateAndLayers;
 
 public:
 
@@ -89,6 +90,7 @@ public:
                                      std::vector<TrajectoryMeasurement>::iterator end) const {;}
 
  protected:
+
   TempTrajectory createStartingTrajectory( const TrajectorySeed& seed) const;
 
   bool toBeContinued( const TempTrajectory& traj) const;
@@ -97,6 +99,8 @@ public:
   
   void addToResult( TempTrajectory& traj, TrajectoryContainer& result) const;    
  
+  StateAndLayers findStateAndLayers(const TempTrajectory& traj) const;
+
  private:
   void seedMeasurements(const TrajectorySeed& seed, std::vector<TrajectoryMeasurement> & result) const;
 
