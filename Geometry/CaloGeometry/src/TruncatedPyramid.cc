@@ -112,33 +112,38 @@ TruncatedPyramid::createCorners( const std::vector<double>&    pv ,
 }
 //----------------------------------------------------------------------
 
-
 bool 
-TruncatedPyramid::inside( const GlobalPoint& p ) const
+TruncatedPyramid::inside( const GlobalPoint& point ) const
 {
-   const CornersVec& c ( getCorners() ) ;
-   const GlobalPoint& c0 ( c[0] ) ;
-   const GlobalPoint& c1 ( c[1] ) ;
-   const GlobalPoint& c2 ( c[2] ) ;
-   const GlobalPoint& c3 ( c[3] ) ;
-   const GlobalPoint& c4 ( c[4] ) ;
-   const GlobalPoint& c5 ( c[5] ) ;
-   const GlobalPoint& c6 ( c[6] ) ;
-   const GlobalPoint& c7 ( c[7] ) ;
+   bool ans ( false ) ;
+   const HepPoint3D p ( point.x(), point.y(), point.z() ) ;
+   const CornersVec& cog ( getCorners() ) ;
+   HepPoint3D co[8] ;
+   for( unsigned int i ( 0 ) ; i != 8 ; ++i )
+   {
+      co[i] = HepPoint3D( cog[i].x(), cog[i].y(), cog[i].z() ) ;
+   }
 
-   // this implementation requires that the dot product of the
-   // vectors from the point to the sum of corners on opposite
-   // sides of the pyramid have opposite signs, one pair at a time.
-   // this is predicated on a known corner ordering
-   return ( ( (  ( ( c0 - p ) + ( c1 - p ) + ( c2 - p ) )*
-		 ( ( c4 - p ) + ( c5 - p ) + ( c6 - p ) )  ) <=0 ) &&
-	    ( (  ( ( c1 - p ) + ( c2 - p ) + ( c6 - p ) )*
-		 ( ( c0 - p ) + ( c3 - p ) + ( c7 - p ) )  ) <=0 ) &&
-	    ( (  ( ( c0 - p ) + ( c1 - p ) + ( c5 - p ) )*
-		 ( ( c2 - p ) + ( c3 - p ) + ( c7 - p ) )  ) <=0 ) ) ;
-	    
-/*
-   if( 0 == m_bou )
+   const HepPlane3D AA ( co[0], co[1], co[2] ) ; // z<0
+   const HepPlane3D BB ( co[6], co[5], co[4] ) ; // z>0
+   if( ( p - AA.point(p) ).dot( p - BB.point(p) ) <= 0 )
+   {
+      const HepPlane3D CC ( co[0], co[4], co[5] ) ; // x<0
+      const HepPlane3D DD ( co[2], co[6], co[7] ) ; // x>0
+      if( ( p - CC.point(p) ).dot( p - DD.point(p) ) <= 0 )
+      {
+	 const HepPlane3D EE ( co[0], co[3], co[7] ) ; // y<0
+	 const HepPlane3D FF ( co[1], co[5], co[6] ) ; // y>0
+	 if( ( p - EE.point(p) ).dot( p - FF.point(p) ) <= 0 )
+	 {
+	    ans = true ;
+	 }
+      }
+   }
+   return ans ;
+}
+
+/*   if( 0 == m_bou )
    {
       const CornersVec& cog ( getCorners() ) ;
       std::vector<HepPoint3D> co ( 8, HepPoint3D(0,0,0) ) ;
@@ -162,8 +167,7 @@ TruncatedPyramid::inside( const GlobalPoint& p ) const
    return ( ( p - b[0].point(p) ).dot( p - b[1].point(p) ) <= 0 &&
 	    ( p - b[2].point(p) ).dot( p - b[3].point(p) ) <= 0 &&
 	    ( p - b[4].point(p) ).dot( p - b[5].point(p) ) <= 0    ) ;
-*/
-}
+	    }*/
 /*
 void TruncatedPyramid::dump( const char * prefix ) const 
 {
