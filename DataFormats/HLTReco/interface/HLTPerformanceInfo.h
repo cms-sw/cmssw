@@ -30,35 +30,30 @@ class HLTPerformanceInfo
   class Module {
   private:
     std::string name_; // module instance name
-      double dt_; // Wall-clock time
-      double dtCPU_ ; // CPU time
+    double dt_;
     // I am using this even for modules....
     edm::HLTPathStatus status_;
   public:
   Module() 
     : name_("unknown")
     {}
-      // new constructor adding cpu time
-      Module(const char *n, const double dt, const double dtCPU, 
+  Module(const char *n, const double dt, 
 	 edm::HLTPathStatus stat = edm::hlt::Ready)
-    : name_(n), dt_(dt), dtCPU_(dtCPU), status_(stat)
+    : name_(n), dt_(dt), status_(stat)
     { }
     std::string name() const {
       return name_;
     }
     double time() const { return dt_; }
-      double cputime() const { return dtCPU_; }
     edm::HLTPathStatus status() const { return status_; }
     bool operator==(const char *tname ) {
       return std::string(tname) == name();
     }
     void clear() {
-      dt_ = 0 ;
-      dtCPU_ = 0 ; 
+      dt_ = 0;
       status_.reset();// = edm::hlt::Ready;
     }
     void setTime(double t) { dt_=t;}
-    void setCPUTime(double t) { dtCPU_=t;}
     void setStatus(edm::HLTPathStatus status) { status_=status;} 
     void setStatusByPath(Path *p) ; 
     int indexInPath(Path path) const ; 
@@ -125,10 +120,8 @@ class HLTPerformanceInfo
       return (std::string(tname) == name());
     }
     double time() const;
-    double cputime() const;
 
     double lastModuleTime() const;
-    double lastModuleCPUTime() const;
 
     void addModuleRef( size_t m) {
       moduleView_.push_back(m);
@@ -187,11 +180,8 @@ class HLTPerformanceInfo
   }
 
   double totalTime() const;
-  double totalCPUTime() const;
   double longestModuleTime() const;
-  double longestModuleCPUTime() const;
   const char* longestModuleTimeName() const;
-  const char* longestModuleCPUTimeName() const;
 };
 
 typedef std::vector<HLTPerformanceInfo> HLTPerformanceInfoCollection;
