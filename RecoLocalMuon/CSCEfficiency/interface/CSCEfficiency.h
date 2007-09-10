@@ -26,7 +26,7 @@
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 //IBL - test to read simhits a la digi/rechit validation
-#include "Validation/MuonCSCDigis/interface/PSimHitMap.h"
+//#include "Validation/MuonCSCDigis/interface/PSimHitMap.h"
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
@@ -124,7 +124,7 @@ namespace edm {
   class EventSetup;
 }
 
-class PSimHit;
+//class PSimHit;
 class TFile;
 class CSCLayer;
 class CSCDetId;
@@ -266,7 +266,7 @@ private:
   double Extrapolate1D(double initPosition, double initDirection, double ParameterOfTheLine);
   double LineParam(double z1Position, double z2Position, double z1Direction);
   //IBL - test to read simhits a la digi/rechit validation
-  PSimHitMap theSimHitMap;
+  //PSimHitMap theSimHitMap;
 };
 
 #endif

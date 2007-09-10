@@ -32,9 +32,9 @@ using namespace std;
 using namespace edm;
 
 // Constructor
-//CSCEfficiency::CSCEfficiency(const ParameterSet& pset){
+CSCEfficiency::CSCEfficiency(const ParameterSet& pset){
 //---- this allows access to MC (if needed)
-CSCEfficiency::CSCEfficiency(const ParameterSet& pset) : theSimHitMap("MuonCSCHits"){
+//CSCEfficiency::CSCEfficiency(const ParameterSet& pset) : theSimHitMap("MuonCSCHits"){
   const float Xmin = XMIN;
   const float Xmax = XMAX;
   const int nXbins = int(4.*(Xmax - Xmin));
@@ -933,10 +933,10 @@ void CSCEfficiency::analyze(const Event & event, const EventSetup& eventSetup){
 
   //----IBL - test to read simhits a la digi/rechit validation
   //---- MC treatment is reserved in case 
-  if(!DATA){
+  //if(!DATA){
     //theSimHitMap.reset();
-    theSimHitMap.fill(event);
-  }
+    //theSimHitMap.fill(event);
+  //}
 
   // printalot debug output
   printalot = (nEventsAnalyzed < 100);
