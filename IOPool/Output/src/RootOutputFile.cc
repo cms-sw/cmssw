@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.10 2007/09/04 19:39:38 paterno Exp $
+// $Id: RootOutputFile.cc,v 1.11 2007/09/08 02:16:33 wmtan Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
@@ -36,7 +36,7 @@
 
 namespace edm {
   RootOutputFile::RootOutputFile(PoolOutputModule *om, std::string const& fileName, std::string const& logicalFileName) :
-      chains_(RootChains::instance()),
+      chains_(om->wantAllEvents() ? RootChains::instance() : RootChains()),
       outputItemList_(), 
       file_(fileName),
       logicalFile_(logicalFileName),
@@ -53,12 +53,12 @@ namespace edm {
       pEventAux_(&eventAux_),
       pLumiAux_(&lumiAux_),
       pRunAux_(&runAux_),
-      eventTree_(chains_.event_.get(), chains_.eventMeta_.get(),
-		 filePtr_, InEvent, pEventAux_, om_->basketSize(), om_->splitLevel()),
-      lumiTree_(chains_.lumi_.get(), chains_.lumiMeta_.get(),
-		 filePtr_, InLumi, pLumiAux_, om_->basketSize(), om_->splitLevel()),
-      runTree_(chains_.run_.get(), chains_.runMeta_.get(),
-		 filePtr_, InRun, pRunAux_, om_->basketSize(), om_->splitLevel()),
+      eventTree_(filePtr_, InEvent, pEventAux_, om_->basketSize(), om_->splitLevel(),
+		  chains_.event_.get(), chains_.eventMeta_.get(), om_->droppedPriorVec()[InEvent]),
+      lumiTree_(filePtr_, InLumi, pLumiAux_, om_->basketSize(), om_->splitLevel(),
+		 chains_.lumi_.get(), chains_.lumiMeta_.get(), om_->droppedPriorVec()[InLumi]),
+      runTree_(filePtr_, InRun, pRunAux_, om_->basketSize(), om_->splitLevel(),
+		chains_.run_.get(), chains_.runMeta_.get(), om_->droppedPriorVec()[InRun]),
       treePointers_(),
       provenances_(),
       newFileAtEndOfRun_(false) {
@@ -87,7 +87,7 @@ namespace edm {
     }
 
     // Don't split metadata tree.
-    metaDataTree_ = RootOutputTree::makeTree(filePtr_.get(), poolNames::metaDataTreeName(), 0);
+    metaDataTree_ = RootOutputTree::makeTree(filePtr_.get(), poolNames::metaDataTreeName(), 0, 0);
 
     pool::Guid guid;
     pool::Guid::create(guid);

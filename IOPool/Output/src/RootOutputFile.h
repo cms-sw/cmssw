@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: RootOutputFile.h,v 1.7 2007/09/07 19:34:22 wmtan Exp $
+// $Id: RootOutputFile.h,v 1.8 2007/09/08 02:16:33 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -25,6 +25,7 @@
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
+#include "DataFormats/Provenance/interface/Selections.h"
 #include "IOPool/Output/src/RootOutputTree.h"
 
 class TTree;
@@ -34,7 +35,6 @@ namespace edm {
   class RootChains;
   class ParameterSet;
   class PoolOutputModule;
-  typedef std::vector<BranchDescription const *> Selections;
 
   class RootOutputFile {
   public:

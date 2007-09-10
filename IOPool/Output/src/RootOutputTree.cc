@@ -7,10 +7,20 @@
 namespace edm {
 
   TTree *
-  RootOutputTree::makeTree(TFile * filePtr, std::string const& name, int splitLevel) {
-    TTree *tree = new TTree(name.c_str(), "", splitLevel);
+  RootOutputTree::makeTree(TFile * filePtr,
+			   std::string const& name,
+			   int splitLevel,
+			   TChain * chain,
+			   Selections const&) {
+    TTree *tree;
+    if (chain != 0) {
+      tree = new TTree(name.c_str(), "", splitLevel);
+    } else {
+      tree = new TTree(name.c_str(), "", splitLevel);
+    }
     tree->SetDirectory(filePtr);
     return tree;
+    
   }
 
   void
