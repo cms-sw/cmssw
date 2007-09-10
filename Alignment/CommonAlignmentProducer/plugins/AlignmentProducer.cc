@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.12 $
-///  last update: $Date: 2007/08/16 09:50:10 $
-///  by         : $Author: innocent $
+///  Revision   : $Revision: 1.13 $
+///  last update: $Date: 2007/08/29 02:24:34 $
+///  by         : $Author: ratnik $
 
 #include "Alignment/CommonAlignmentProducer/plugins/AlignmentProducer.h"
 
@@ -452,23 +452,31 @@ AlignmentProducer::duringLoop( const edm::Event& event,
     if ( nevent_<10*i && (nevent_%i)==0 )
       edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::duringLoop" 
                                 << "Events processed: " << nevent_;
-
-  // Retrieve trajectories and tracks from the event
-  edm::InputTag tjTag = theParameterSet.getParameter<edm::InputTag>("tjTkAssociationMapTag");
-  edm::Handle<TrajTrackAssociationCollection> m_TrajTracksMap;
-  event.getByLabel( tjTag, m_TrajTracksMap );
-
-  // Form pairs of trajectories and tracks
-  ConstTrajTrackPairCollection trajTracks;
-  for ( TrajTrackAssociationCollection::const_iterator iPair = m_TrajTracksMap->begin();
-        iPair != m_TrajTracksMap->end(); iPair++ )
-    trajTracks.push_back( ConstTrajTrackPair( &(*(*iPair).key), &(*(*iPair).val) ) );
-
-  // Run the alignment algorithm
-  theAlignmentAlgo->run(  setup, trajTracks );
-
-  for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = theMonitors.begin();  monitor != theMonitors.end();  ++monitor) {
-     (*monitor)->duringLoop(setup, trajTracks);
+  
+  try {
+    // Retrieve trajectories and tracks from the event
+    edm::InputTag tjTag = theParameterSet.getParameter<edm::InputTag>("tjTkAssociationMapTag");
+    edm::Handle<TrajTrackAssociationCollection> m_TrajTracksMap;
+    event.getByLabel( tjTag, m_TrajTracksMap );
+    
+    // Form pairs of trajectories and tracks
+    ConstTrajTrackPairCollection trajTracks;
+    for ( TrajTrackAssociationCollection::const_iterator iPair = m_TrajTracksMap->begin();
+	  iPair != m_TrajTracksMap->end(); iPair++ )
+      trajTracks.push_back( ConstTrajTrackPair( &(*(*iPair).key), &(*(*iPair).val) ) );
+    
+    // Run the alignment algorithm
+    theAlignmentAlgo->run(  setup, trajTracks );
+    
+    for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = theMonitors.begin();  monitor != theMonitors.end();  ++monitor) {
+      (*monitor)->duringLoop(setup, trajTracks);
+    }
+    
+  } catch(const edm::Exception& e) {
+    if ( e.categoryCode() != edm::errors::ProductNotFound ) {
+      // empty track collection
+      throw;
+    }
   }
 
   return kContinue;
