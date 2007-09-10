@@ -25,7 +25,7 @@ using namespace reco;
 class CaloRecoTauDiscriminationByIsolation : public EDProducer {
  public:
   explicit CaloRecoTauDiscriminationByIsolation(const ParameterSet& iConfig){   
-    TauProducer_                           = iConfig.getParameter<string>("TauProducer");
+    CaloTauProducer_                       = iConfig.getParameter<string>("CaloTauProducer");
     ApplyDiscriminationByTrackerIsolation_ = iConfig.getParameter<bool>("ApplyDiscriminationByTrackerIsolation");
     TrackerIsolAnnulus_Tracksmaxn_         = iConfig.getParameter<int>("TrackerIsolAnnulus_Tracksmaxn");   
     
@@ -35,7 +35,7 @@ class CaloRecoTauDiscriminationByIsolation : public EDProducer {
   virtual void produce(Event&, const EventSetup&);
  private:  
   double discriminator(const TauRef&);
-  string TauProducer_;
+  string CaloTauProducer_;
   bool ApplyDiscriminationByTrackerIsolation_;
   int TrackerIsolAnnulus_Tracksmaxn_;   
 };

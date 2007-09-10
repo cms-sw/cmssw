@@ -2,7 +2,7 @@
 
 void CaloRecoTauDiscriminationByIsolation::produce(Event& iEvent,const EventSetup& iEventSetup){
   Handle<CaloTauCollection> theCaloTauCollection;
-  iEvent.getByLabel(TauProducer_,theCaloTauCollection);
+  iEvent.getByLabel(CaloTauProducer_,theCaloTauCollection);
 
   // fill the AssociationVector object
   auto_ptr<CaloTauDiscriminatorByIsolation> theCaloTauDiscriminatorByIsolation(new CaloTauDiscriminatorByIsolation(CaloTauRefProd(theCaloTauCollection)));
@@ -12,6 +12,7 @@ void CaloRecoTauDiscriminationByIsolation::produce(Event& iEvent,const EventSetu
     CaloTau theCaloTau=*theCaloTauRef;
     math::XYZVector theCaloTau_XYZVector=theCaloTau.momentum();   
     CaloTauElementsOperators theCaloTauElementsOperators(theCaloTau); 	
+    
     if (ApplyDiscriminationByTrackerIsolation_){  
       // optional selection by a tracker isolation : ask for 0 reco::Track in an isolation annulus around a leading reco::Track axis
       double theTrackerIsolationDiscriminator;

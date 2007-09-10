@@ -25,7 +25,7 @@ using namespace reco;
 class PFRecoTauDiscriminationByIsolation : public EDProducer {
  public:
   explicit PFRecoTauDiscriminationByIsolation(const ParameterSet& iConfig){   
-    TauProducer_                           = iConfig.getParameter<string>("TauProducer");
+    PFTauProducer_                      = iConfig.getParameter<string>("PFTauProducer");
     ApplyDiscriminationByTrackerIsolation_ = iConfig.getParameter<bool>("ApplyDiscriminationByTrackerIsolation");
     ManipulateTracks_insteadofChargedHadrCands_ = iConfig.getParameter<bool>("ManipulateTracks_insteadofChargedHadrCands");
     TrackerIsolAnnulus_Candsmaxn_       = iConfig.getParameter<int>("TrackerIsolAnnulus_Candsmaxn");       
@@ -44,7 +44,7 @@ class PFRecoTauDiscriminationByIsolation : public EDProducer {
   virtual void produce(Event&, const EventSetup&);
  private:  
   double discriminator(const TauRef&);
-  string TauProducer_;
+  string PFTauProducer_;
   bool ApplyDiscriminationByTrackerIsolation_;
   bool ManipulateTracks_insteadofChargedHadrCands_;
   int TrackerIsolAnnulus_Candsmaxn_;   

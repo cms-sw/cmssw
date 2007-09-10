@@ -2,7 +2,7 @@
 
 void PFRecoTauDiscriminationByIsolation::produce(Event& iEvent,const EventSetup& iEventSetup){
   Handle<PFTauCollection> thePFTauCollection;
-  iEvent.getByLabel(TauProducer_,thePFTauCollection);
+  iEvent.getByLabel(PFTauProducer_,thePFTauCollection);
   
   // fill the AssociationVector object
   auto_ptr<PFTauDiscriminatorByIsolation> thePFTauDiscriminatorByIsolation(new PFTauDiscriminatorByIsolation(PFTauRefProd(thePFTauCollection)));
@@ -12,6 +12,7 @@ void PFRecoTauDiscriminationByIsolation::produce(Event& iEvent,const EventSetup&
     PFTau thePFTau=*thePFTauRef;
     math::XYZVector thePFTau_XYZVector=thePFTau.momentum();   
     PFTauElementsOperators thePFTauElementsOperators(thePFTau);
+    
     if (ApplyDiscriminationByTrackerIsolation_){  
       // optional selection by a tracker isolation : ask for 0 charged hadron PFCand / reco::Track in an isolation annulus around a leading PFCand / reco::Track axis
       double theTrackerIsolationDiscriminator;
@@ -23,6 +24,7 @@ void PFRecoTauDiscriminationByIsolation::produce(Event& iEvent,const EventSetup&
 	continue;
       }
     }    
+    
     if (ApplyDiscriminationByECALIsolation_){
       // optional selection by an ECAL isolation : ask for 0 gamma PFCand in an isolation annulus around a leading PFCand
       double theECALIsolationDiscriminator;
