@@ -139,7 +139,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // Do we save the nuclear interactions?
   saveNU = p.getParameter<bool>("SaveNuclearInteractions");
   maxNU = p.getParameter<unsigned>("MaxNumberOfNuclearInteractions");
-  std::cout << "Nuclear Interactions will be saved ! " << std::endl;
+  if ( saveNU ) 
+    std::cout << "Nuclear Interactions will be saved ! " << std::endl;
 
   // For the full sim
   mySimEvent[0] = new FSimEvent(particleFilter_);
