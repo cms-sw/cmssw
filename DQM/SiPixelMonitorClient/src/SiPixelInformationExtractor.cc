@@ -208,11 +208,12 @@ void SiPixelInformationExtractor::selectSingleModuleHistos(MonitorUserInterface 
 							   vector<MonitorElement*> & mes) 
 {  
   string currDir = mui->pwd();
-  QRegExp rx("(\\w+)_siPixel") ;
+  //QRegExp rx("(\\w+)_siPixel") ;
   //QRegExp rx2("(\\w+)_ctfWithMaterialTracks") ;
-  //QRegExp rx("(\\w+)_3") ;
+  QRegExp rx("(\\w+)_3") ;
   QString theME ;
-  if (currDir.find("Module_") != string::npos)  
+  if (currDir.find("Module_") != string::npos ||
+      currDir.find("FED_") != string::npos)  
   {
     vector<string> contents = mui->getMEs();    
     for (vector<string>::const_iterator it = contents.begin(); it != contents.end(); it++) 
@@ -687,7 +688,8 @@ void SiPixelInformationExtractor::fillModuleAndHistoList(MonitorUserInterface * 
 							 map<string,string>   & histos) {
 //cout<<"entering SiPixelInformationExtractor::fillModuleAndHistoList"<<endl;
   string currDir = mui->pwd();
-  if (currDir.find("Module_") != string::npos)  {
+  if (currDir.find("Module_") != string::npos ||
+      currDir.find("FED_") != string::npos)  {
     if (histos.size() == 0) {
       //cout<<"currDir="<<currDir<<endl;
       vector<string> contents = mui->getMEs();    
@@ -787,7 +789,8 @@ void SiPixelInformationExtractor::printModuleHistoList(MonitorUserInterface * mu
   str_val << "\n   <ul>" << endl; 
   for (vector<string>::const_iterator it  = meVec.begin();
                                       it != meVec.end(); it++) {
-    if ((*it).find("_siPixel")!=string::npos) {
+    if ((*it).find("_siPixel")!=string::npos || 
+        (*it).find("_ctfWithMaterialTracks")!=string::npos) {
       QString qit = (*it) ;
       QRegExp rx("(\\w+)_(siPixel|ctfWithMaterialTracks|_3)") ;
       if( rx.search(qit) > -1 ) {qit = rx.cap(1);} 
@@ -800,7 +803,8 @@ void SiPixelInformationExtractor::printModuleHistoList(MonitorUserInterface * mu
 	      << "            value   = \"" << (*it) << "\""
 	      << "            onclick = \"javascript:IMGC.selectedIMGCItems()\" />\n"
 	      << "     <a href=\"javascript:IMGC.updateIMGC('" << currDir << "')\">\n       " 
-	      <<        qit << "\n"
+//	      <<        qit << "\n"
+	      <<        (*it) << "\n"
 	      << "     </a>\n"
 	      << "    </li>" 
 	      << endl;
@@ -858,7 +862,7 @@ void SiPixelInformationExtractor::printSummaryHistoList(MonitorUserInterface * m
   static string indent_str = "";
   string currDir = mui->pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
-  if (dname.find("Module_") ==0) return;
+  if (dname.find("Module_") ==0 || dname.find("FED_")==0) return;
   str_val << " <li>\n"
           << "  <a href=\"#\" id=\"" << currDir << "\">\n   " 
 	  <<     dname 
@@ -873,7 +877,7 @@ void SiPixelInformationExtractor::printSummaryHistoList(MonitorUserInterface * m
   str_val << "\n   <ul>" << endl;      
   for (vector<string>::const_iterator it = meVec.begin();
        it != meVec.end(); it++) {
-    if ((*it).find("Summary") == 0) {
+    if ((*it).find("SUM") == 0) {
       QString qit = (*it) ;
       //QRegExp rx1("(\\w+)_siPixel") ;
       //QRegExp rx2("(\\w+)_ctfWithMaterialTracks") ;
@@ -1594,13 +1598,14 @@ void SiPixelInformationExtractor::selectMEList(MonitorUserInterface    * mui,
 {  
   string currDir = mui->pwd();
    
-  QRegExp rx("(\\w+)_siPixel") ;
+  //QRegExp rx("(\\w+)_siPixel") ;
   //QRegExp rx2("(\\w+)_ctfWithMaterialTracks") ;
-  //QRegExp rx("(\\w+)_3") ;
+  QRegExp rx("(\\w+)_3") ;
   QString theME ;
    
   // Get ME from Collector/FU0/Tracker/PixelEndcap/HalfCylinder_pX/Disk_X/Blade_XX/Panel_XX/Module_XX
-  if (currDir.find("Module_") != string::npos)  
+  if (currDir.find("Module_") != string::npos ||
+      currDir.find("FED_") != string::npos)  
   {
     vector<string> contents = mui->getMEs();    
     for (vector<string>::const_iterator it = contents.begin(); it != contents.end(); it++) 
@@ -1828,7 +1833,8 @@ void SiPixelInformationExtractor::getMEList(MonitorUserInterface     * mui,
   QString theME ;
    
   // Get ME from Collector/FU0/Tracker/PixelEndcap/HalfCylinder_pX/Disk_X/Blade_XX/Panel_XX/Module_XX
-  if (currDir.find("Module_") != string::npos)  
+  if (currDir.find("Module_") != string::npos ||
+      currDir.find("FED_") != string::npos)  
   {
     vector<string> contents = mui->getMEs();    
     for (vector<string>::const_iterator it = contents.begin(); it != contents.end(); it++) 
