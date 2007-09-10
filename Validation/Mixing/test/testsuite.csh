@@ -34,9 +34,9 @@ while ( $i <= $bcrend )
 end
    
     echo "===================> Step3: Global comparisons "
-    cmsRun globalTest1.cfg
-    cmsRun globalTest2.cfg
-    cp  GlobalHistos.root ../data/GlobalHistos.root  # for test preparation only!
+    cmsRun globalTest1.cfg  # execute mixing
+    cmsRun globalTest2.cfg  # look at results
+####    cp  GlobalHistos.root ../data/GlobalHistos.root  # for test preparation only!
     root -b -p -q DoCompare.C\(\"GlobalHistos\",\"../data/GlobalHistos\"\)
 
     echo "===================> MM Validation finished "

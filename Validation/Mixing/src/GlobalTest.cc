@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: GlobalTest.cc,v 1.2 2007/02/28 15:23:33 uberthon Exp $
+// $Id: GlobalTest.cc,v 1.3 2007/03/09 10:23:35 uberthon Exp $
 //
 //
 
@@ -57,33 +57,33 @@ void GlobalTest::beginJob(edm::EventSetup const&iSetup) {
   dbe_->showDirStructure();
   dbe_->setCurrentFolder("Mixing");
   //book histos
-    const int nrHistos=6;
-    char * labels[nrHistos];
-    labels[0]="NrPileupEvts";
-    labels[1]="NrVertices";
-    labels[2]="NrTracks";
-    labels[3]="TrackPartId";
-    labels[4]="CaloEnergyEB";
-    labels[5]="CaloEnergyEE";
+  const int nrHistos=6;
+  char * labels[nrHistos];
+  labels[0]="NrPileupEvts";
+  labels[1]="NrVertices";
+  labels[2]="NrTracks";
+  labels[3]="TrackPartId";
+  labels[4]="CaloEnergyEB";
+  labels[5]="CaloEnergyEE";
 
-    /////    MonitorElement * vtxhistsig = dbe_->book1D(
-    //FIXME: test for max nr of histos
-    for (int i=minbunch_;i<=maxbunch_;++i) {
-      int ii=i-minbunch_;
-      char label[50];
-      sprintf(label,"%s_%d",labels[0],i);
-      nrPileupsH_[ii]    = dbe_->book1D(label,label,100,0,100);
-      sprintf(label,"%s_%d",labels[1],i);
-      nrVerticesH_[ii]   = dbe_->book1D(label,label,100,0,5000);
-      sprintf(label,"%s_%d",labels[2],i);
-      nrTracksH_[ii]     = dbe_->book1D(label,label,100,0,10000);
-      sprintf(label,"%s_%d",labels[3],i);
-      trackPartIdH_[ii]  =  dbe_->book1D(label,label,100,0,100);
-      sprintf(label,"%s_%d",labels[4],i);
-      caloEnergyEBH_ [ii]  = dbe_->book1D(label,label,100,0.,1000.);
-      sprintf(label,"%s_%d",labels[5],i);
-      caloEnergyEEH_ [ii]  = dbe_->book1D(label,label,100,0.,1000.);
-    }
+  /////    MonitorElement * vtxhistsig = dbe_->book1D(
+  //FIXME: test for max nr of histos
+  for (int i=minbunch_;i<=maxbunch_;++i) {
+    int ii=i-minbunch_;
+    char label[50];
+    sprintf(label,"%s_%d",labels[0],i);
+    nrPileupsH_[ii]    = dbe_->book1D(label,label,100,0,100);
+    sprintf(label,"%s_%d",labels[1],i);
+    nrVerticesH_[ii]   = dbe_->book1D(label,label,100,0,5000);
+    sprintf(label,"%s_%d",labels[2],i);
+    nrTracksH_[ii]     = dbe_->book1D(label,label,100,0,10000);
+    sprintf(label,"%s_%d",labels[3],i);
+    trackPartIdH_[ii]  =  dbe_->book1D(label,label,100,0,100);
+    sprintf(label,"%s_%d",labels[4],i);
+    caloEnergyEBH_ [ii]  = dbe_->book1D(label,label,100,0.,1000.);
+    sprintf(label,"%s_%d",labels[5],i);
+    caloEnergyEEH_ [ii]  = dbe_->book1D(label,label,100,0.,1000.);
+  }
 } 
 
 
@@ -102,34 +102,39 @@ GlobalTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace edm;
 
 // Get input
-    edm::Handle<CrossingFrame> cf;
-    iEvent.getByType(cf);
+    edm::Handle<CrossingFrame<SimTrack> > cf_track;
+    edm::Handle<CrossingFrame<SimTrack> > cf_vertex;
+    edm::Handle<CrossingFrame<PCaloHit> > cf_calohitE;
+    edm::Handle<CrossingFrame<PCaloHit> > cf_calohitB;
+    std::string ecalsubdetb("EcalHitsEB");
+    std::string ecalsubdete("EcalHitsEE");
+    iEvent.getByType(cf_track);
+    iEvent.getByType(cf_vertex);
+    iEvent.getByLabel("mix",ecalsubdetb,cf_calohitB);
+    iEvent.getByLabel("mix",ecalsubdete,cf_calohitE);
 
     // number of events/bcr ??
 
     // number of tracks 
     for (int i=minbunch_;i<=maxbunch_;++i) {
-       nrTracksH_[i-minbunch_]->Fill(cf->getNrPileupTracks(i));
+       nrTracksH_[i-minbunch_]->Fill(cf_track->getNrPileups(i));
     }
 
     // number of vertices
     for (int i=minbunch_;i<=maxbunch_;++i) {
-       nrVerticesH_[i-minbunch_]->Fill(cf->getNrPileupVertices(i));
+       nrVerticesH_[i-minbunch_]->Fill(cf_vertex->getNrPileups(i));
     }
 
    // part id for each track
-    std::auto_ptr<MixCollection<SimTrack> > coltr(new MixCollection<SimTrack>(cf.product()));
+    std::auto_ptr<MixCollection<SimTrack> > coltr(new MixCollection<SimTrack>(cf_track.product()));
     MixCollection<SimTrack>::iterator cfitr;
     for (cfitr=coltr->begin(); cfitr!=coltr->end();cfitr++) {
-      //       if (cfitr.getTrigger()==0) {
 	 trackPartIdH_[cfitr.bunch()-minbunch_]->Fill(cfitr->type());
-	 //       }
      }
 
     // energy sum
     double sumE[10]={0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
-    std::string ecalsubdetb("EcalHitsEB");
-    std::auto_ptr<MixCollection<PCaloHit> > colecalb(new MixCollection<PCaloHit>(cf.product(),std::string(ecalsubdetb)));
+    std::auto_ptr<MixCollection<PCaloHit> > colecalb(new MixCollection<PCaloHit>(cf_calohitB.product()));
     MixCollection<PCaloHit>::iterator cfiecalb;
     for (cfiecalb=colecalb->begin(); cfiecalb!=colecalb->end();cfiecalb++) {
        sumE[cfiecalb.bunch()-minbunch_]+=cfiecalb->energy();
@@ -140,8 +145,7 @@ GlobalTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        caloEnergyEBH_[i-minbunch_]->Fill(sumE[i-minbunch_]);
     }
     double sumEE[10]={0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
-    std::string ecalsubdete("EcalHitsEE");
-    std::auto_ptr<MixCollection<PCaloHit> > colecale(new MixCollection<PCaloHit>(cf.product(),std::string(ecalsubdete)));
+    std::auto_ptr<MixCollection<PCaloHit> > colecale(new MixCollection<PCaloHit>(cf_calohitE.product()));
     MixCollection<PCaloHit>::iterator cfiecale;
     for (cfiecale=colecale->begin(); cfiecale!=colecale->end();cfiecale++) {
        sumEE[cfiecale.bunch()-minbunch_]+=cfiecale->energy();
