@@ -6,6 +6,7 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/PluginManager>
 <use name=PhysicsTools/IsolationUtils>
+<use name=TrackingTools/GeomPropagators>
 <use name=root>
 <export>
   <use name=DataFormats/BTauReco>

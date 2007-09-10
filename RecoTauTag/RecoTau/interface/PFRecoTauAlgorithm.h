@@ -1,11 +1,12 @@
-#ifndef PFRecoTauAlgorithm_H
-#define PFRecoTauAlgorithm_H
+#ifndef RecoTauTag_RecoTau_PFRecoTauAlgorithm_H
+#define RecoTauTag_RecoTau_PFRecoTauAlgorithm_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/BTauReco/interface/PFIsolatedTauTagInfo.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/TauReco/interface/PFTauTagInfo.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/TauReco/interface/Tau.h"
 
 #include "RecoTauTag/TauTagTools/interface/PFTauElementsOperators.h"
 #include "RecoTauTag/TauTagTools/interface/CaloTauElementsOperators.h"
@@ -20,57 +21,23 @@ using namespace edm;
 
 class  PFRecoTauAlgorithm  {
  public:
-  PFRecoTauAlgorithm() : TransientTrackBuilder_(0){}  
-  PFRecoTauAlgorithm(const ParameterSet& iConfig) : TransientTrackBuilder_(0){
-    LeadChargedHadrCand_minPt_             = iConfig.getParameter<double>("LeadChargedHadrCand_minPt"); 
-    ChargedHadrCand_minPt_                 = iConfig.getParameter<double>("ChargedHadrCand_minPt");
-    NeutrHadrCand_minPt_                   = iConfig.getParameter<double>("NeutrHadrCand_minPt");
-    GammaCand_minPt_                       = iConfig.getParameter<double>("GammaCand_minPt");       
-    LeadTrack_minPt_                       = iConfig.getParameter<double>("LeadTrack_minPt");
-    Track_minPt_                           = iConfig.getParameter<double>("Track_minPt");
-     
-    MatchingConeMetric_                    = iConfig.getParameter<string>("MatchingConeMetric");
-    MatchingConeSizeFormula_               = iConfig.getParameter<string>("MatchingConeSizeFormula");
-    MatchingConeVariableSize_min_          = iConfig.getParameter<double>("MatchingConeVariableSize_min");
-    MatchingConeVariableSize_max_          = iConfig.getParameter<double>("MatchingConeVariableSize_max");
-    TrackerSignalConeMetric_               = iConfig.getParameter<string>("TrackerSignalConeMetric");
-    TrackerSignalConeSizeFormula_          = iConfig.getParameter<string>("TrackerSignalConeSizeFormula");
-    TrackerSignalConeVariableSize_min_     = iConfig.getParameter<double>("TrackerSignalConeVariableSize_min");
-    TrackerSignalConeVariableSize_max_     = iConfig.getParameter<double>("TrackerSignalConeVariableSize_max");
-    TrackerIsolConeMetric_                 = iConfig.getParameter<string>("TrackerIsolConeMetric"); 
-    TrackerIsolConeSizeFormula_            = iConfig.getParameter<string>("TrackerIsolConeSizeFormula"); 
-    TrackerIsolConeVariableSize_min_       = iConfig.getParameter<double>("TrackerIsolConeVariableSize_min");
-    TrackerIsolConeVariableSize_max_       = iConfig.getParameter<double>("TrackerIsolConeVariableSize_max");
-    ECALSignalConeMetric_               = iConfig.getParameter<string>("ECALSignalConeMetric");
-    ECALSignalConeSizeFormula_          = iConfig.getParameter<string>("ECALSignalConeSizeFormula");    
-    ECALSignalConeVariableSize_min_     = iConfig.getParameter<double>("ECALSignalConeVariableSize_min");
-    ECALSignalConeVariableSize_max_     = iConfig.getParameter<double>("ECALSignalConeVariableSize_max");
-    ECALIsolConeMetric_                 = iConfig.getParameter<string>("ECALIsolConeMetric");
-    ECALIsolConeSizeFormula_            = iConfig.getParameter<string>("ECALIsolConeSizeFormula");      
-    ECALIsolConeVariableSize_min_       = iConfig.getParameter<double>("ECALIsolConeVariableSize_min");
-    ECALIsolConeVariableSize_max_       = iConfig.getParameter<double>("ECALIsolConeVariableSize_max");
-    HCALSignalConeMetric_               = iConfig.getParameter<string>("HCALSignalConeMetric");
-    HCALSignalConeSizeFormula_          = iConfig.getParameter<string>("HCALSignalConeSizeFormula");    
-    HCALSignalConeVariableSize_min_     = iConfig.getParameter<double>("HCALSignalConeVariableSize_min");
-    HCALSignalConeVariableSize_max_     = iConfig.getParameter<double>("HCALSignalConeVariableSize_max");
-    HCALIsolConeMetric_                 = iConfig.getParameter<string>("HCALIsolConeMetric");
-    HCALIsolConeSizeFormula_            = iConfig.getParameter<string>("HCALIsolConeSizeFormula");      
-    HCALIsolConeVariableSize_min_       = iConfig.getParameter<double>("HCALIsolConeVariableSize_min");
-    HCALIsolConeVariableSize_max_       = iConfig.getParameter<double>("HCALIsolConeVariableSize_max");
-      
-    AreaMetric_recoElements_maxabsEta_  = iConfig.getParameter<double>("AreaMetric_recoElements_maxabsEta");
-  }
+  PFRecoTauAlgorithm();
+  PFRecoTauAlgorithm(const ParameterSet&);
   ~PFRecoTauAlgorithm(){}
-  void setTransientTrackBuilder(const TransientTrackBuilder* x){TransientTrackBuilder_=x;}
-  Tau tag(const PFIsolatedTauTagInfo&,const Vertex&); 
+  void setTransientTrackBuilder(const TransientTrackBuilder*);
+  PFTau buildPFTau(const PFTauTagInfoRef&,const Vertex&); 
  private:
   const TransientTrackBuilder* TransientTrackBuilder_;
   double LeadChargedHadrCand_minPt_;
   double ChargedHadrCand_minPt_;
+  bool UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint_;
+  double ChargedHadrCandLeadChargedHadrCand_tksmaxDZ_;
   double NeutrHadrCand_minPt_;
   double GammaCand_minPt_;
   double LeadTrack_minPt_;
   double Track_minPt_;
+  bool UseTrackLeadTrackDZconstraint_;
+  double TrackLeadTrack_maxDZ_;
   string MatchingConeMetric_;
   string MatchingConeSizeFormula_;
   double MatchingConeVariableSize_min_;

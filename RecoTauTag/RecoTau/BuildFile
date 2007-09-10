@@ -7,9 +7,15 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/PluginManager>
+<use name=Geometry/CaloGeometry>
+<use name=Geometry/CaloEventSetup>
+<use name=Geometry/CaloTopology>
+<use name=Geometry/Records>
+<use name=Geometry/CommonDetUnit>
 <use name=TrackingTools/Records>
 <use name=TrackingTools/TransientTrack>
 <use name=TrackingTools/IPTools>
+<use name=RecoJets/JetAlgorithms>
 <use name=RecoTauTag/TauTagTools>
 <flags EDM_PLUGIN=1>
 <export>

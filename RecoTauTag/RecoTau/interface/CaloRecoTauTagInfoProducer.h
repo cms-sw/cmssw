@@ -2,17 +2,15 @@
 #define RecoTauTag_CaloRecoTauTagInfoProducer
 
 /* class CaloRecoTauTagInfoProducer 
- * returns a TauTagInfo collection starting from a JetTrackAssociations <a CaloJet,a list of Track's> collection,
+ * returns a CaloTauTagInfo collection starting from a JetTrackAssociations <a CaloJet,a list of Track's> collection,
  * created: Aug 28 2007,
  * revised: ,
  * authors: Ludovic Houchu
  */
 
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
-#include "DataFormats/TauReco/interface/TauTagInfo.h"
+#include "DataFormats/TauReco/interface/CaloTauTagInfo.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 #include "RecoTauTag/RecoTau/interface/CaloRecoTauTagInfoAlgorithm.h"
 
@@ -28,6 +26,8 @@
 
 #include "CLHEP/Random/RandGauss.h"
 
+#include "Math/GenVector/VectorUtil.h"
+
 #include <memory>
 
 using namespace reco;
@@ -36,23 +36,13 @@ using namespace std;
 
 class CaloRecoTauTagInfoProducer : public EDProducer {
  public:
-  explicit CaloRecoTauTagInfoProducer(const ParameterSet& iConfig){
-    CaloJetTracksAssociatormodule_ = iConfig.getParameter<string>("CaloJetTracksAssociatormodule");
-    PVmodule_                      = iConfig.getParameter<string>("PVmodule");
-    smearedPVsigmaX_               = iConfig.getParameter<double>("smearedPVsigmaX");
-    smearedPVsigmaY_               = iConfig.getParameter<double>("smearedPVsigmaY");
-    smearedPVsigmaZ_               = iConfig.getParameter<double>("smearedPVsigmaZ");	
-    CaloRecoTauTagInfoAlgo_=new CaloRecoTauTagInfoAlgorithm(iConfig);
-    produces<TauTagInfoCollection>();      
-  }
-  ~CaloRecoTauTagInfoProducer(){
-    delete CaloRecoTauTagInfoAlgo_;
-  }
+  explicit CaloRecoTauTagInfoProducer(const ParameterSet&);
+  ~CaloRecoTauTagInfoProducer();
   virtual void produce(Event&,const EventSetup&);
  private:
   CaloRecoTauTagInfoAlgorithm* CaloRecoTauTagInfoAlgo_;
-  string CaloJetTracksAssociatormodule_;
-  string PVmodule_;
+  string CaloJetTracksAssociatorProducer_;
+  string PVProducer_;
   double smearedPVsigmaX_;
   double smearedPVsigmaY_;
   double smearedPVsigmaZ_;  

@@ -2,7 +2,7 @@
 #define RecoTauTag_PFRecoTauTagInfoProducer
 
 /* class PFRecoTauTagInfoProducer
- * returns a PFTauTagInfo collection starting from a JetTrackAssociations <a PFJet,a list of Track's> collection,
+ * returns a PFTauTagInfo collection starting from a JetTrackAssociations <a PFJet,a list of Tracks> collection,
  * created: Aug 28 2007,
  * revised: ,
  * authors: Ludovic Houchu
@@ -11,8 +11,6 @@
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 #include "DataFormats/TauReco/interface/TauTagInfo.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 #include "RecoTauTag/RecoTau/interface/PFRecoTauTagInfoAlgorithm.h"
 
@@ -28,6 +26,8 @@
 
 #include "CLHEP/Random/RandGauss.h"
 
+#include "Math/GenVector/VectorUtil.h"
+
 #include <memory>
 
 using namespace reco;
@@ -36,23 +36,13 @@ using namespace std;
 
 class PFRecoTauTagInfoProducer : public EDProducer {
  public:
-  explicit PFRecoTauTagInfoProducer(const ParameterSet& iConfig){
-    PFJetTracksAssociatormodule_        = iConfig.getParameter<string>("PFJetTracksAssociatormodule");
-    PVmodule_                           = iConfig.getParameter<string>("PVmodule");
-    smearedPVsigmaX_                    = iConfig.getParameter<double>("smearedPVsigmaX");
-    smearedPVsigmaY_                    = iConfig.getParameter<double>("smearedPVsigmaY");
-    smearedPVsigmaZ_                    = iConfig.getParameter<double>("smearedPVsigmaZ");	
-    PFRecoTauTagInfoAlgo_=new PFRecoTauTagInfoAlgorithm(iConfig);
-    produces<TauTagInfoCollection>();      
-  }
-  ~PFRecoTauTagInfoProducer(){
-    delete PFRecoTauTagInfoAlgo_;
-  }
+  explicit PFRecoTauTagInfoProducer(const ParameterSet& iConfig);
+  ~PFRecoTauTagInfoProducer();
   virtual void produce(Event&,const EventSetup&);
  private:
   PFRecoTauTagInfoAlgorithm* PFRecoTauTagInfoAlgo_;
-  string PFJetTracksAssociatormodule_;
-  string PVmodule_;
+  string PFJetTracksAssociatorProducer_;
+  string PVProducer_;
   double smearedPVsigmaX_;
   double smearedPVsigmaY_;
   double smearedPVsigmaZ_;  

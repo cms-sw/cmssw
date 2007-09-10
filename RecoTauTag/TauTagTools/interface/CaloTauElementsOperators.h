@@ -1,7 +1,9 @@
-#ifndef CaloTauElementsOperators_H_
-#define CaloTauElementsOperators_H_
+#ifndef RecoTauTag_RecoTau_CaloTauElementsOperators_H_
+#define RecoTauTag_RecoTau_CaloTauElementsOperators_H_
 
-#include "DataFormats/TauReco/interface/Tau.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/TauReco/interface/CaloTau.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 
@@ -18,44 +20,33 @@ using namespace reco;
 
 class CaloTauElementsOperators : public TauElementsOperators {
  public:
-  CaloTauElementsOperators(Tau& theTau) : TauElementsOperators(theTau),Tau_(theTau),AreaMetric_recoElements_maxabsEta_(2.5){
-    Tracks_=theTau.getSelectedTracks();
-    IsolTracks_=theTau.getIsolationTracks();
-  }
+  CaloTauElementsOperators(CaloTau&);
   ~CaloTauElementsOperators(){} 
-  void setAreaMetricrecoElementsmaxabsEta(const double x) {AreaMetric_recoElements_maxabsEta_=x;} 
-  // get leading (i.e. highest Pt track)
-  const TrackRef leadTk(string matchingConeMetric,double matchingConeSize,double ptTrackMin)const;
-  const TrackRef leadTk(const math::XYZVector& jetAxis,string matchingConeMetric,double matchingConeSize,double ptTrackMin)const;
   
-  // get list of selected tracks within cone given as function argument;
-  const TrackRefVector tracksInCone(const math::XYZVector& coneAxis,const string coneMetric,const double coneSize,const double ptTrackMin)const;
-  // get list of selected tracks within annulus given as function argument;
-  const TrackRefVector tracksInAnnulus(const math::XYZVector& coneAxis,const string innerconeMetric,const double innerconeSize,const string outerconeMetric,const double outerconeSize,const double ptTrackMin)const;
+  // return all Ecal RecHits in a cone of metric* "coneMetric" and size "coneSize" around a direction "coneAxis" 
+  vector<pair<math::XYZPoint,float> > EcalRecHitsInCone(const math::XYZVector& coneAxis,const string coneMetric,const double coneSize,const double EcalRecHit_minEt)const;
+  // return all Ecal RecHits in an annulus defined by inner(metric* "innerconeMetric" and size "innerconeSize") and outer(metric* "outerconeMetric" and size "outerconeSize") cones around a direction "coneAxis" 
+  vector<pair<math::XYZPoint,float> > EcalRecHitsInAnnulus(const math::XYZVector& coneAxis,const string innerconeMetric,const double innerconeSize,const string outerconeMetric,const double outerconeSize,const double EcalRecHit_minEt)const; 
   
-  double discriminator(unsigned int isolationAnnulus_Tracksmaxn)const;
-  double discriminator(const math::XYZVector& coneAxes, 
-		       string matchingConeMetric,double matchingConeSize, double ptLeadingTrackMin, double ptOtherTracksMin, 
-		       string signalConeMetric,double signalConeSize,string isolationConeMetric,double isolationConeSize, 
-		       unsigned int isolationAnnulus_Tracksmaxn)const;
-  // axes of signal and isolation cone taken as jet-axis;
-  double discriminator(string matchingConeMetric,double matchingConeSize, double ptLeadingTrackMin, double ptOtherTracksMin, 
-		       string signalConeMetric,double signalConeSize,string isolationConeMetric,double isolationConeSize, 
-		       unsigned int isolationAnnulus_Tracksmaxn)const;
+  // return all neutral Ecal BasicClusters in a cone of metric* "coneMetric" and size "coneSize" around a direction "coneAxis" 
+  vector<pair<math::XYZPoint,float> > neutralEcalBasicClustersInCone(const math::XYZVector& coneAxis,const string coneMetric,const double coneSize,const double neutralEcalBasicCluster_minEt)const;
+  // return all neutral Ecal BasicClusters in an annulus defined by inner(metric* "innerconeMetric" and size "innerconeSize") and outer(metric* "outerconeMetric" and size "outerconeSize") cones around a direction "coneAxis" 
+  vector<pair<math::XYZPoint,float> > neutralEcalBasicClustersInAnnulus(const math::XYZVector& coneAxis,const string innerconeMetric,const double innerconeSize,const string outerconeMetric,const double outerconeSize,const double neutralEcalBasicCluster_minEt)const; 
+  
+  void setAreaMetricrecoElementsmaxabsEta(const double x) {AreaMetric_recoElements_maxabsEta_=x;}   
  private:
-  Tau& Tau_;
+  CaloTau& CaloTau_;
+  vector<pair<math::XYZPoint,float> > EcalRecHits_;
   double AreaMetric_recoElements_maxabsEta_;
-  TrackRefVector Tracks_;  // track selection criteria applied
-  TrackRefVector IsolTracks_;  // tracks in an isolation annulus, track selection criteria applied; 
   // template objects for DR and Angle metrics
-  DeltaR<math::XYZVector> metricDR_;
-  Angle<math::XYZVector> metricAngle_;
-  ElementsInCone<math::XYZVector,DeltaR<math::XYZVector>,reco::TrackCollection> TracksinCone_DRmetric_;
-  ElementsInCone<math::XYZVector,Angle<math::XYZVector>,reco::TrackCollection> TracksinCone_Anglemetric_; 
-  ElementsInAnnulus<math::XYZVector,DeltaR<math::XYZVector>,DeltaR<math::XYZVector>,reco::TrackCollection> TracksinAnnulus_innerDRouterDRmetrics_;
-  ElementsInAnnulus<math::XYZVector,DeltaR<math::XYZVector>,Angle<math::XYZVector>,reco::TrackCollection> TracksinAnnulus_innerDRouterAnglemetrics_; 
-  ElementsInAnnulus<math::XYZVector,Angle<math::XYZVector>,Angle<math::XYZVector>,reco::TrackCollection> TracksinAnnulus_innerAngleouterAnglemetrics_;
-  ElementsInAnnulus<math::XYZVector,Angle<math::XYZVector>,DeltaR<math::XYZVector>,reco::TrackCollection> TracksinAnnulus_innerAngleouterDRmetrics_; 
+  DeltaR<math::XYZVector,math::XYZPoint> metricDR_;
+  Angle<math::XYZVector,math::XYZPoint> metricAngle_;
+  ElementsInCone<math::XYZVector,DeltaR<math::XYZVector,math::XYZPoint>,pair<math::XYZPoint,float> > EcalRecHitsinCone_DRmetric_;
+  ElementsInCone<math::XYZVector,Angle<math::XYZVector,math::XYZPoint>,pair<math::XYZPoint,float> > EcalRecHitsinCone_Anglemetric_; 
+  ElementsInAnnulus<math::XYZVector,DeltaR<math::XYZVector,math::XYZPoint>,DeltaR<math::XYZVector,math::XYZPoint>,pair<math::XYZPoint,float> > EcalRecHitsinAnnulus_innerDRouterDRmetrics_;
+  ElementsInAnnulus<math::XYZVector,DeltaR<math::XYZVector,math::XYZPoint>,Angle<math::XYZVector,math::XYZPoint>,pair<math::XYZPoint,float> > EcalRecHitsinAnnulus_innerDRouterAnglemetrics_; 
+  ElementsInAnnulus<math::XYZVector,Angle<math::XYZVector,math::XYZPoint>,Angle<math::XYZVector,math::XYZPoint>,pair<math::XYZPoint,float> > EcalRecHitsinAnnulus_innerAngleouterAnglemetrics_;
+  ElementsInAnnulus<math::XYZVector,Angle<math::XYZVector,math::XYZPoint>,DeltaR<math::XYZVector,math::XYZPoint>,pair<math::XYZPoint,float> > EcalRecHitsinAnnulus_innerAngleouterDRmetrics_; 
 };
 #endif
 

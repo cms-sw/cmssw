@@ -1,68 +1,103 @@
 #include "RecoTauTag/TauTagTools/interface/PFTauElementsOperators.h"
 
- PFCandidateRefVector PFTauElementsOperators::PFCandsInCone(const PFCandidateRefVector thePFCands,const math::XYZVector myVector,const string conemetric,const double conesize,const double minPt)const{     
-  PFCandidateRefVector tmp;
+ PFTauElementsOperators::PFTauElementsOperators(PFTau& thePFTau): TauElementsOperators(thePFTau),AreaMetric_recoElements_maxabsEta_(2.5){
+   PFJetRef_=thePFTau.pfTauTagInfoRef()->pfjetRef();
+   PFCands_=thePFTau.pfTauTagInfoRef()->PFCands();
+   PFChargedHadrCands_=thePFTau.pfTauTagInfoRef()->PFChargedHadrCands();
+   PFNeutrHadrCands_=thePFTau.pfTauTagInfoRef()->PFNeutrHadrCands();
+   PFGammaCands_=thePFTau.pfTauTagInfoRef()->PFGammaCands();
+   IsolPFCands_=thePFTau.isolationPFCands();
+   IsolPFChargedHadrCands_=thePFTau.isolationPFChargedHadrCands();
+   IsolPFNeutrHadrCands_=thePFTau.isolationPFNeutrHadrCands();
+   IsolPFGammaCands_=thePFTau.isolationPFGammaCands();
+   Tracks_=thePFTau.pfTauTagInfoRef()->Tracks();
+}
+void PFTauElementsOperators::setAreaMetricrecoElementsmaxabsEta( double x) {AreaMetric_recoElements_maxabsEta_=x;}
+
+PFCandidateRefVector PFTauElementsOperators::PFCandsInCone(const PFCandidateRefVector thePFCands,const math::XYZVector myVector,const string conemetric,const double conesize,const double minPt)const{     
+  PFCandidateRefVector theFilteredPFCands;
+  for (PFCandidateRefVector::const_iterator iPFCand=thePFCands.begin();iPFCand!=thePFCands.end();++iPFCand) {
+    if ((**iPFCand).pt()>minPt)theFilteredPFCands.push_back(*iPFCand);
+  }  
+  PFCandidateRefVector theFilteredPFCandsInCone;
   if (conemetric=="DR"){
-    tmp=PFCandsinCone_DRmetric_(myVector,metricDR_,conesize,thePFCands);
+    theFilteredPFCandsInCone=PFCandsinCone_DRmetric_(myVector,metricDR_,conesize,theFilteredPFCands);
   }else if(conemetric=="angle"){
-    tmp=PFCandsinCone_Anglemetric_(myVector,metricAngle_,conesize,thePFCands);
+    theFilteredPFCandsInCone=PFCandsinCone_Anglemetric_(myVector,metricAngle_,conesize,theFilteredPFCands);
   }else if(conemetric=="area"){
     int errorFlag=0;
     FixedAreaIsolationCone theFixedAreaCone;
     theFixedAreaCone.setAcceptanceLimit(AreaMetric_recoElements_maxabsEta_);
     double coneangle=theFixedAreaCone(myVector.theta(),myVector.phi(),0,conesize,errorFlag); 
-    if (errorFlag!=0)return tmp;   
-    tmp=PFCandsinCone_Anglemetric_(myVector,metricAngle_,coneangle,thePFCands);
+    if (errorFlag!=0)return theFilteredPFCandsInCone;   
+    theFilteredPFCandsInCone=PFCandsinCone_Anglemetric_(myVector,metricAngle_,coneangle,theFilteredPFCands);
   }else return PFCandidateRefVector();
-  PFCandidateRefVector selectedPFCands;
-  for (PFCandidateRefVector::const_iterator iPFCand=tmp.begin();iPFCand!=tmp.end();++iPFCand) {
-    if ((**iPFCand).pt()>minPt)selectedPFCands.push_back(*iPFCand);
-  }  
-  return selectedPFCands;
+  return theFilteredPFCandsInCone;
 }
- PFCandidateRefVector PFTauElementsOperators::PFCandsInCone(const math::XYZVector myVector,const string conemetric,const double conesize,const double minPt)const{     
-  PFCandidateRefVector tmp=PFCandsInCone(PFCands_,myVector,conemetric,conesize,minPt);
-  return tmp;
+PFCandidateRefVector PFTauElementsOperators::PFCandsInCone(const math::XYZVector myVector,const string conemetric,const double conesize,const double minPt)const{     
+  PFCandidateRefVector theFilteredPFCandsInCone=PFCandsInCone(PFCands_,myVector,conemetric,conesize,minPt);
+  return theFilteredPFCandsInCone;
 }
- PFCandidateRefVector PFTauElementsOperators::PFChargedHadrCandsInCone(const math::XYZVector myVector,const string conemetric,const double conesize,const double minPt)const{     
-  PFCandidateRefVector tmp=PFCandsInCone(PFChargedHadrCands_,myVector,conemetric,conesize,minPt);
-  return tmp;
+PFCandidateRefVector PFTauElementsOperators::PFChargedHadrCandsInCone(const math::XYZVector myVector,const string conemetric,const double conesize,const double minPt)const{     
+  PFCandidateRefVector theFilteredPFCandsInCone=PFCandsInCone(PFChargedHadrCands_,myVector,conemetric,conesize,minPt);
+  return theFilteredPFCandsInCone;
+}
+PFCandidateRefVector PFTauElementsOperators::PFChargedHadrCandsInCone(const math::XYZVector myVector,const string conemetric,const double conesize,const double minPt,const double PFChargedHadrCand_tracktorefpoint_maxDZ,const double refpoint_Z)const{     
+  PFCandidateRefVector filteredPFChargedHadrCands;
+  for(PFCandidateRefVector::const_iterator iPFCand=PFChargedHadrCands_.begin();iPFCand!=PFChargedHadrCands_.end();iPFCand++){
+    TrackRef PFChargedHadrCand_track;
+    if ((**iPFCand).block()->elements().size()!=0){
+      for (OwnVector<PFBlockElement>::const_iterator iPFBlock=(**iPFCand).block()->elements().begin();iPFBlock!=(**iPFCand).block()->elements().end();iPFBlock++){
+	if ((*iPFBlock).type()==PFBlockElement::TRACK){
+	  PFChargedHadrCand_track=(*iPFBlock).trackRef();
+	}
+      }
+    }else continue;
+    if (!PFChargedHadrCand_track)continue;
+    if (fabs((*PFChargedHadrCand_track).dz()-refpoint_Z)<=PFChargedHadrCand_tracktorefpoint_maxDZ) filteredPFChargedHadrCands.push_back(*iPFCand);
   }
- PFCandidateRefVector PFTauElementsOperators::PFNeutrHadrCandsInCone(const math::XYZVector myVector,const string conemetric,const double conesize,const double minPt)const{     
-  PFCandidateRefVector tmp=PFCandsInCone(PFNeutrHadrCands_,myVector,conemetric,conesize,minPt);
-  return tmp;
+  PFCandidateRefVector theFilteredPFCandsInCone=PFCandsInCone(filteredPFChargedHadrCands,myVector,conemetric,conesize,minPt);
+  return theFilteredPFCandsInCone;
+}
+PFCandidateRefVector PFTauElementsOperators::PFNeutrHadrCandsInCone(const math::XYZVector myVector,const string conemetric,const double conesize,const double minPt)const{     
+  PFCandidateRefVector theFilteredPFCandsInCone=PFCandsInCone(PFNeutrHadrCands_,myVector,conemetric,conesize,minPt);
+  return theFilteredPFCandsInCone;
 }
  PFCandidateRefVector PFTauElementsOperators::PFGammaCandsInCone(const math::XYZVector myVector,const string conemetric,const double conesize,const double minPt)const{     
-  PFCandidateRefVector tmp=PFCandsInCone(PFGammaCands_,myVector,conemetric,conesize,minPt);
-  return tmp;
+  PFCandidateRefVector theFilteredPFCandsInCone=PFCandsInCone(PFGammaCands_,myVector,conemetric,conesize,minPt);
+  return theFilteredPFCandsInCone;
 }
  PFCandidateRefVector PFTauElementsOperators::PFCandsInAnnulus(const PFCandidateRefVector thePFCands,const math::XYZVector myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt)const{     
-  PFCandidateRefVector tmp;
+  PFCandidateRefVector theFilteredPFCands;
+  for (PFCandidateRefVector::const_iterator iPFCand=thePFCands.begin();iPFCand!=thePFCands.end();++iPFCand) {
+    if ((**iPFCand).pt()>minPt)theFilteredPFCands.push_back(*iPFCand);
+  }  
+  PFCandidateRefVector theFilteredPFCandsInAnnulus;
   if (outercone_metric=="DR"){
     if (innercone_metric=="DR"){
-      tmp=PFCandsinAnnulus_innerDRouterDRmetrics_(myVector,metricDR_,innercone_size,metricDR_,outercone_size,thePFCands);
+      theFilteredPFCandsInAnnulus=PFCandsinAnnulus_innerDRouterDRmetrics_(myVector,metricDR_,innercone_size,metricDR_,outercone_size,theFilteredPFCands);
     }else if(innercone_metric=="angle"){
-      tmp=PFCandsinAnnulus_innerAngleouterDRmetrics_(myVector,metricAngle_,innercone_size,metricDR_,outercone_size,thePFCands);
+      theFilteredPFCandsInAnnulus=PFCandsinAnnulus_innerAngleouterDRmetrics_(myVector,metricAngle_,innercone_size,metricDR_,outercone_size,theFilteredPFCands);
     }else if(innercone_metric=="area"){
       int errorFlag=0;
       FixedAreaIsolationCone theFixedAreaSignalCone;
       theFixedAreaSignalCone.setAcceptanceLimit(AreaMetric_recoElements_maxabsEta_);
       double innercone_angle=theFixedAreaSignalCone(myVector.theta(),myVector.phi(),0,innercone_size,errorFlag);
-      if (errorFlag!=0)return tmp;
-      tmp=PFCandsinAnnulus_innerAngleouterDRmetrics_(myVector,metricAngle_,innercone_angle,metricDR_,outercone_size,thePFCands);
+      if (errorFlag!=0)return theFilteredPFCandsInAnnulus;
+      theFilteredPFCandsInAnnulus=PFCandsinAnnulus_innerAngleouterDRmetrics_(myVector,metricAngle_,innercone_angle,metricDR_,outercone_size,theFilteredPFCands);
     }else return PFCandidateRefVector();
   }else if(outercone_metric=="angle"){
     if (innercone_metric=="DR"){
-      tmp=PFCandsinAnnulus_innerDRouterAnglemetrics_(myVector,metricDR_,innercone_size,metricAngle_,outercone_size,thePFCands);
+      theFilteredPFCandsInAnnulus=PFCandsinAnnulus_innerDRouterAnglemetrics_(myVector,metricDR_,innercone_size,metricAngle_,outercone_size,theFilteredPFCands);
     }else if(innercone_metric=="angle"){
-      tmp=PFCandsinAnnulus_innerAngleouterAnglemetrics_(myVector,metricAngle_,innercone_size,metricAngle_,outercone_size,thePFCands);
+      theFilteredPFCandsInAnnulus=PFCandsinAnnulus_innerAngleouterAnglemetrics_(myVector,metricAngle_,innercone_size,metricAngle_,outercone_size,theFilteredPFCands);
     }else if(innercone_metric=="area"){
       int errorFlag=0;
       FixedAreaIsolationCone theFixedAreaSignalCone;
       theFixedAreaSignalCone.setAcceptanceLimit(AreaMetric_recoElements_maxabsEta_);
       double innercone_angle=theFixedAreaSignalCone(myVector.theta(),myVector.phi(),0,innercone_size,errorFlag);
-      if (errorFlag!=0)return tmp;
-      tmp=PFCandsinAnnulus_innerAngleouterAnglemetrics_(myVector,metricAngle_,innercone_angle,metricAngle_,outercone_size,thePFCands);
+      if (errorFlag!=0)return theFilteredPFCandsInAnnulus;
+      theFilteredPFCandsInAnnulus=PFCandsinAnnulus_innerAngleouterAnglemetrics_(myVector,metricAngle_,innercone_angle,metricAngle_,outercone_size,theFilteredPFCands);
     }else return PFCandidateRefVector();
   }else if(outercone_metric=="area"){
     int errorFlag=0;
@@ -72,46 +107,59 @@
       // not implemented yet
     }else if(innercone_metric=="angle"){
       double outercone_angle=theFixedAreaSignalCone(myVector.theta(),myVector.phi(),innercone_size,outercone_size,errorFlag);    
-      if (errorFlag!=0)return tmp;
-      tmp=PFCandsinAnnulus_innerAngleouterAnglemetrics_(myVector,metricAngle_,innercone_size,metricAngle_,outercone_angle,thePFCands);
+      if (errorFlag!=0)return theFilteredPFCandsInAnnulus;
+      theFilteredPFCandsInAnnulus=PFCandsinAnnulus_innerAngleouterAnglemetrics_(myVector,metricAngle_,innercone_size,metricAngle_,outercone_angle,theFilteredPFCands);
     }else if(innercone_metric=="area"){
       double innercone_angle=theFixedAreaSignalCone(myVector.theta(),myVector.phi(),0,innercone_size,errorFlag);    
-      if (errorFlag!=0)return tmp;
+      if (errorFlag!=0)return theFilteredPFCandsInAnnulus;
       double outercone_angle=theFixedAreaSignalCone(myVector.theta(),myVector.phi(),innercone_angle,outercone_size,errorFlag);
-      if (errorFlag!=0)return tmp;
-      tmp=PFCandsinAnnulus_innerAngleouterAnglemetrics_(myVector,metricAngle_,innercone_angle,metricAngle_,outercone_angle,thePFCands);
+      if (errorFlag!=0)return theFilteredPFCandsInAnnulus;
+      theFilteredPFCandsInAnnulus=PFCandsinAnnulus_innerAngleouterAnglemetrics_(myVector,metricAngle_,innercone_angle,metricAngle_,outercone_angle,theFilteredPFCands);
     }else return PFCandidateRefVector();
   }
-  PFCandidateRefVector selectedPFCands;
-  for (PFCandidateRefVector::const_iterator iPFCand=tmp.begin();iPFCand!=tmp.end();++iPFCand) {
-    if ((**iPFCand).pt()>minPt)selectedPFCands.push_back(*iPFCand);
-  }  
-  return selectedPFCands;
+  return theFilteredPFCandsInAnnulus;
 }
  PFCandidateRefVector PFTauElementsOperators::PFCandsInAnnulus(const math::XYZVector myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt)const{     
-  PFCandidateRefVector tmp=PFCandsInAnnulus(PFCands_,myVector,innercone_metric,innercone_size,outercone_metric,outercone_size,minPt);
-  return tmp;
+  PFCandidateRefVector theFilteredPFCandsInAnnulus=PFCandsInAnnulus(PFCands_,myVector,innercone_metric,innercone_size,outercone_metric,outercone_size,minPt);
+  return theFilteredPFCandsInAnnulus;
 }
- PFCandidateRefVector PFTauElementsOperators::PFChargedHadrCandsInAnnulus(const math::XYZVector myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt){     
-  PFCandidateRefVector tmp=PFCandsInAnnulus(PFChargedHadrCands_,myVector,innercone_metric,innercone_size,outercone_metric,outercone_size,minPt);
-  return tmp;
+ PFCandidateRefVector PFTauElementsOperators::PFChargedHadrCandsInAnnulus(const math::XYZVector myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt)const{     
+  PFCandidateRefVector theFilteredPFCandsInAnnulus=PFCandsInAnnulus(PFChargedHadrCands_,myVector,innercone_metric,innercone_size,outercone_metric,outercone_size,minPt);
+  return theFilteredPFCandsInAnnulus;
+}
+PFCandidateRefVector PFTauElementsOperators::PFChargedHadrCandsInAnnulus(const math::XYZVector myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt,const double PFChargedHadrCand_tracktorefpoint_maxDZ,const double refpoint_Z)const{     
+  PFCandidateRefVector filteredPFChargedHadrCands;
+  for(PFCandidateRefVector::const_iterator iPFCand=PFChargedHadrCands_.begin();iPFCand!=PFChargedHadrCands_.end();iPFCand++){
+    TrackRef PFChargedHadrCand_track;
+    if ((**iPFCand).block()->elements().size()!=0){
+      for (OwnVector<PFBlockElement>::const_iterator iPFBlock=(**iPFCand).block()->elements().begin();iPFBlock!=(**iPFCand).block()->elements().end();iPFBlock++){
+	if ((*iPFBlock).type()==PFBlockElement::TRACK){
+	  PFChargedHadrCand_track=(*iPFBlock).trackRef();
+	}
+      }
+    }else continue;
+    if (!PFChargedHadrCand_track)continue;
+    if (fabs((*PFChargedHadrCand_track).dz()-refpoint_Z)<=PFChargedHadrCand_tracktorefpoint_maxDZ) filteredPFChargedHadrCands.push_back(*iPFCand);
+  }
+  PFCandidateRefVector theFilteredPFCandsInAnnulus=PFCandsInAnnulus(filteredPFChargedHadrCands,myVector,innercone_metric,innercone_size,outercone_metric,outercone_size,minPt);
+  return theFilteredPFCandsInAnnulus;
 }
  PFCandidateRefVector PFTauElementsOperators::PFNeutrHadrCandsInAnnulus(const math::XYZVector myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt)const{     
-  PFCandidateRefVector tmp=PFCandsInAnnulus(PFNeutrHadrCands_,myVector,innercone_metric,innercone_size,outercone_metric,outercone_size,minPt);
-  return tmp;
+  PFCandidateRefVector theFilteredPFCandsInAnnulus=PFCandsInAnnulus(PFNeutrHadrCands_,myVector,innercone_metric,innercone_size,outercone_metric,outercone_size,minPt);
+  return theFilteredPFCandsInAnnulus;
 }
  PFCandidateRefVector PFTauElementsOperators::PFGammaCandsInAnnulus(const math::XYZVector myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt)const{     
-  PFCandidateRefVector tmp=PFCandsInAnnulus(PFGammaCands_,myVector,innercone_metric,innercone_size,outercone_metric,outercone_size,minPt);
-  return tmp;
+  PFCandidateRefVector theFilteredPFCandsInAnnulus=PFCandsInAnnulus(PFGammaCands_,myVector,innercone_metric,innercone_size,outercone_metric,outercone_size,minPt);
+  return theFilteredPFCandsInAnnulus;
 }
 PFCandidateRef PFTauElementsOperators::leadPFCand(const string matchingcone_metric,const double matchingcone_size,const double minPt)const{
   PFCandidateRef myleadPFCand;
   if (!PFJetRef_) return myleadPFCand;
   math::XYZVector PFJet_XYZVector=(*PFJetRef_).momentum();
-  const PFCandidateRefVector tmp=PFCandsInCone(PFJet_XYZVector,matchingcone_metric,matchingcone_size,minPt);
+  const PFCandidateRefVector theFilteredPFCandsInCone=PFCandsInCone(PFJet_XYZVector,matchingcone_metric,matchingcone_size,minPt);
   double pt_cut=minPt;
-  if (tmp.size()>0.){
-    for(PFCandidateRefVector::const_iterator iPFCand =tmp.begin();iPFCand!=tmp.end();iPFCand++){
+  if (theFilteredPFCandsInCone.size()>0.){
+    for(PFCandidateRefVector::const_iterator iPFCand =theFilteredPFCandsInCone.begin();iPFCand!=theFilteredPFCandsInCone.end();iPFCand++){
       if((*iPFCand)->pt()>pt_cut) {
 	myleadPFCand=*iPFCand;
 	pt_cut=(**iPFCand).pt();
@@ -122,10 +170,10 @@ PFCandidateRef PFTauElementsOperators::leadPFCand(const string matchingcone_metr
 }
 PFCandidateRef PFTauElementsOperators::leadPFCand(const math::XYZVector myVector,const string matchingcone_metric,const double matchingcone_size,const double minPt)const{
   PFCandidateRef myleadPFCand;
-  const PFCandidateRefVector tmp=PFCandsInCone(myVector,matchingcone_metric,matchingcone_size,minPt);
+  const PFCandidateRefVector theFilteredPFCandsInCone=PFCandsInCone(myVector,matchingcone_metric,matchingcone_size,minPt);
   double pt_cut=minPt;
-  if (tmp.size()>0){
-    for(PFCandidateRefVector::const_iterator iPFCand=tmp.begin();iPFCand!=tmp.end();iPFCand++){
+  if (theFilteredPFCandsInCone.size()>0){
+    for(PFCandidateRefVector::const_iterator iPFCand=theFilteredPFCandsInCone.begin();iPFCand!=theFilteredPFCandsInCone.end();iPFCand++){
       if((*iPFCand)->pt()>pt_cut) {
 	myleadPFCand=*iPFCand;
 	pt_cut=(**iPFCand).pt();
@@ -138,10 +186,10 @@ PFCandidateRef PFTauElementsOperators::leadPFChargedHadrCand(const string matchi
   PFCandidateRef myleadPFCand;
   if (!PFJetRef_) return myleadPFCand;
   math::XYZVector PFJet_XYZVector=(*PFJetRef_).momentum();
-  const PFCandidateRefVector tmp=PFChargedHadrCandsInCone(PFJet_XYZVector,matchingcone_metric,matchingcone_size,minPt);
+  const PFCandidateRefVector theFilteredPFCandsInCone=PFChargedHadrCandsInCone(PFJet_XYZVector,matchingcone_metric,matchingcone_size,minPt);
   double pt_cut=minPt;
-  if (tmp.size()>0.){
-    for(PFCandidateRefVector::const_iterator iPFCand =tmp.begin();iPFCand!=tmp.end();iPFCand++){
+  if (theFilteredPFCandsInCone.size()>0.){
+    for(PFCandidateRefVector::const_iterator iPFCand =theFilteredPFCandsInCone.begin();iPFCand!=theFilteredPFCandsInCone.end();iPFCand++){
       if((*iPFCand)->pt()>pt_cut) {
 	myleadPFCand=*iPFCand;
 	pt_cut=(**iPFCand).pt();
@@ -152,10 +200,10 @@ PFCandidateRef PFTauElementsOperators::leadPFChargedHadrCand(const string matchi
 }
 PFCandidateRef PFTauElementsOperators::leadPFChargedHadrCand(const math::XYZVector myVector,const string matchingcone_metric,const double matchingcone_size,const double minPt)const{
   PFCandidateRef myleadPFCand;
-  const PFCandidateRefVector tmp=PFChargedHadrCandsInCone(myVector,matchingcone_metric,matchingcone_size,minPt);
+  const PFCandidateRefVector theFilteredPFCandsInCone=PFChargedHadrCandsInCone(myVector,matchingcone_metric,matchingcone_size,minPt);
   double pt_cut=minPt;
-  if (tmp.size()>0){
-    for(PFCandidateRefVector::const_iterator iPFCand=tmp.begin();iPFCand!=tmp.end();iPFCand++){
+  if (theFilteredPFCandsInCone.size()>0){
+    for(PFCandidateRefVector::const_iterator iPFCand=theFilteredPFCandsInCone.begin();iPFCand!=theFilteredPFCandsInCone.end();iPFCand++){
       if((*iPFCand)->pt()>pt_cut) {
 	myleadPFCand=*iPFCand;
 	pt_cut=(**iPFCand).pt();
@@ -168,10 +216,10 @@ PFCandidateRef PFTauElementsOperators::leadPFNeutrHadrCand(const string matching
   PFCandidateRef myleadPFCand;
   if (!PFJetRef_) return myleadPFCand;
   math::XYZVector PFJet_XYZVector=(*PFJetRef_).momentum();
-  const PFCandidateRefVector tmp=PFNeutrHadrCandsInCone(PFJet_XYZVector,matchingcone_metric,matchingcone_size,minPt);
+  const PFCandidateRefVector theFilteredPFCandsInCone=PFNeutrHadrCandsInCone(PFJet_XYZVector,matchingcone_metric,matchingcone_size,minPt);
   double pt_cut=minPt;
-  if (tmp.size()>0.){
-    for(PFCandidateRefVector::const_iterator iPFCand =tmp.begin();iPFCand!=tmp.end();iPFCand++){
+  if (theFilteredPFCandsInCone.size()>0.){
+    for(PFCandidateRefVector::const_iterator iPFCand =theFilteredPFCandsInCone.begin();iPFCand!=theFilteredPFCandsInCone.end();iPFCand++){
       if((*iPFCand)->pt()>pt_cut) {
 	myleadPFCand=*iPFCand;
 	pt_cut=(**iPFCand).pt();
@@ -182,10 +230,10 @@ PFCandidateRef PFTauElementsOperators::leadPFNeutrHadrCand(const string matching
 }
 PFCandidateRef PFTauElementsOperators::leadPFNeutrHadrCand(const math::XYZVector myVector,const string matchingcone_metric,const double matchingcone_size,const double minPt)const{
   PFCandidateRef myleadPFCand;
-  const PFCandidateRefVector tmp=PFNeutrHadrCandsInCone(myVector,matchingcone_metric,matchingcone_size,minPt);
+  const PFCandidateRefVector theFilteredPFCandsInCone=PFNeutrHadrCandsInCone(myVector,matchingcone_metric,matchingcone_size,minPt);
   double pt_cut=minPt;
-  if (tmp.size()>0){
-    for(PFCandidateRefVector::const_iterator iPFCand=tmp.begin();iPFCand!=tmp.end();iPFCand++){
+  if (theFilteredPFCandsInCone.size()>0){
+    for(PFCandidateRefVector::const_iterator iPFCand=theFilteredPFCandsInCone.begin();iPFCand!=theFilteredPFCandsInCone.end();iPFCand++){
       if((*iPFCand)->pt()>pt_cut) {
 	myleadPFCand=*iPFCand;
 	pt_cut=(**iPFCand).pt();
@@ -198,10 +246,10 @@ PFCandidateRef PFTauElementsOperators::leadPFGammaCand(const string matchingcone
   PFCandidateRef myleadPFCand;
   if (!PFJetRef_) return myleadPFCand;
   math::XYZVector PFJet_XYZVector=(*PFJetRef_).momentum();
-  const PFCandidateRefVector tmp=PFGammaCandsInCone(PFJet_XYZVector,matchingcone_metric,matchingcone_size,minPt);
+  const PFCandidateRefVector theFilteredPFCandsInCone=PFGammaCandsInCone(PFJet_XYZVector,matchingcone_metric,matchingcone_size,minPt);
   double pt_cut=minPt;
-  if (tmp.size()>0.){
-    for(PFCandidateRefVector::const_iterator iPFCand =tmp.begin();iPFCand!=tmp.end();iPFCand++){
+  if (theFilteredPFCandsInCone.size()>0.){
+    for(PFCandidateRefVector::const_iterator iPFCand =theFilteredPFCandsInCone.begin();iPFCand!=theFilteredPFCandsInCone.end();iPFCand++){
       if((*iPFCand)->pt()>pt_cut) {
 	myleadPFCand=*iPFCand;
 	pt_cut=(**iPFCand).pt();
@@ -212,10 +260,10 @@ PFCandidateRef PFTauElementsOperators::leadPFGammaCand(const string matchingcone
 }
 PFCandidateRef PFTauElementsOperators::leadPFGammaCand(const math::XYZVector myVector,const string matchingcone_metric,const double matchingcone_size,const double minPt)const{
   PFCandidateRef myleadPFCand;
-  const PFCandidateRefVector tmp=PFGammaCandsInCone(myVector,matchingcone_metric,matchingcone_size,minPt);
+  const PFCandidateRefVector theFilteredPFCandsInCone=PFGammaCandsInCone(myVector,matchingcone_metric,matchingcone_size,minPt);
   double pt_cut=minPt;
-  if (tmp.size()>0){
-    for(PFCandidateRefVector::const_iterator iPFCand=tmp.begin();iPFCand!=tmp.end();iPFCand++){
+  if (theFilteredPFCandsInCone.size()>0){
+    for(PFCandidateRefVector::const_iterator iPFCand=theFilteredPFCandsInCone.begin();iPFCand!=theFilteredPFCandsInCone.end();iPFCand++){
       if((*iPFCand)->pt()>pt_cut) {
 	myleadPFCand=*iPFCand;
 	pt_cut=(**iPFCand).pt();
