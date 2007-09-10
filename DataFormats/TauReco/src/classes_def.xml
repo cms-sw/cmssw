@@ -1,10 +1,17 @@
 <lcgdict>
-  <class name="reco::TauTagInfo"/>
-  <class name="std::vector<reco::TauTagInfo>"/>
-  <class name="edm::Wrapper<std::vector<reco::TauTagInfo> >"/>
-  <class name="edm::Ref<std::vector<reco::TauTagInfo>,reco::TauTagInfo,edm::refhelper::FindUsingAdvance<std::vector<reco::TauTagInfo>,reco::TauTagInfo> >"/>
-  <class name="edm::RefProd<std::vector<reco::TauTagInfo> >"/>
-  <class name="edm::RefVector<std::vector<reco::TauTagInfo>,reco::TauTagInfo,edm::refhelper::FindUsingAdvance<std::vector<reco::TauTagInfo>,reco::TauTagInfo> >"/>
+  <class name="reco::BaseTauTagInfo"/>
+  <class name="std::vector<reco::BaseTauTagInfo>"/>
+  <class name="edm::Wrapper<std::vector<reco::BaseTauTagInfo> >"/>
+  <class name="edm::Ref<std::vector<reco::BaseTauTagInfo>,reco::BaseTauTagInfo,edm::refhelper::FindUsingAdvance<std::vector<reco::BaseTauTagInfo>,reco::BaseTauTagInfo> >"/>
+  <class name="edm::RefProd<std::vector<reco::BaseTauTagInfo> >"/>
+  <class name="edm::RefVector<std::vector<reco::BaseTauTagInfo>,reco::BaseTauTagInfo,edm::refhelper::FindUsingAdvance<std::vector<reco::BaseTauTagInfo>,reco::BaseTauTagInfo> >"/>
+  
+  <class name="reco::CaloTauTagInfo"/>
+  <class name="std::vector<reco::CaloTauTagInfo>"/>
+  <class name="edm::Wrapper<std::vector<reco::CaloTauTagInfo> >"/>
+  <class name="edm::Ref<std::vector<reco::CaloTauTagInfo>,reco::CaloTauTagInfo,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloTauTagInfo>,reco::CaloTauTagInfo> >"/>
+  <class name="edm::RefProd<std::vector<reco::CaloTauTagInfo> >"/>
+  <class name="edm::RefVector<std::vector<reco::CaloTauTagInfo>,reco::CaloTauTagInfo,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloTauTagInfo>,reco::CaloTauTagInfo> >"/>
   
   <class name="reco::PFTauTagInfo"/>
   <class name="std::vector<reco::PFTauTagInfo>"/>
@@ -13,18 +20,41 @@
   <class name="edm::RefProd<std::vector<reco::PFTauTagInfo> >"/>
   <class name="edm::RefVector<std::vector<reco::PFTauTagInfo>,reco::PFTauTagInfo,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTauTagInfo>,reco::PFTauTagInfo> >"/>
   
-  <class name="reco::Tau"/>
-  <class name="std::vector<reco::Tau>"/>
-  <class name="edm::Wrapper<std::vector<reco::Tau> >"/>
-  <class name="edm::Ref<std::vector<reco::Tau>,reco::Tau,edm::refhelper::FindUsingAdvance<std::vector<reco::Tau>,reco::Tau> >"/>
-  <class name="edm::RefProd<std::vector<reco::Tau> >"/>
-  <class name="edm::RefVector<std::vector<reco::Tau>,reco::Tau,edm::refhelper::FindUsingAdvance<std::vector<reco::Tau>,reco::Tau> >"/>
-  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::Tau>,reco::Tau,edm::refhelper::FindUsingAdvance<std::vector<reco::Tau>,reco::Tau> > >" />
+  <class name="reco::BaseTau"/>
+  <class name="std::vector<reco::BaseTau>"/>
+  <class name="edm::Wrapper<std::vector<reco::BaseTau> >"/>
+  <class name="edm::Ref<std::vector<reco::BaseTau>,reco::BaseTau,edm::refhelper::FindUsingAdvance<std::vector<reco::BaseTau>,reco::BaseTau> >"/>
+  <class name="edm::RefProd<std::vector<reco::BaseTau> >"/>
+  <class name="edm::RefVector<std::vector<reco::BaseTau>,reco::BaseTau,edm::refhelper::FindUsingAdvance<std::vector<reco::BaseTau>,reco::BaseTau> >"/>
+  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::BaseTau>,reco::BaseTau,edm::refhelper::FindUsingAdvance<std::vector<reco::BaseTau>,reco::BaseTau> > >" />
   
-  <class name="reco::TauDiscriminatorByIsolation"/>
+  <class name="reco::CaloTau"/>
+  <class name="std::vector<reco::CaloTau>"/>
+  <class name="edm::Wrapper<std::vector<reco::CaloTau> >"/>
+  <class name="edm::Ref<std::vector<reco::CaloTau>,reco::CaloTau,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloTau>,reco::CaloTau> >"/>
+  <class name="edm::RefProd<std::vector<reco::CaloTau> >"/>
+  <class name="edm::RefVector<std::vector<reco::CaloTau>,reco::CaloTau,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloTau>,reco::CaloTau> >"/>
+  <class name="edm::reftobase::Holder<reco::BaseTau, edm::Ref<std::vector<reco::CaloTau>,reco::CaloTau,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloTau>,reco::CaloTau> > >" />
+  
+  <class name="reco::PFTau"/>
+  <class name="std::vector<reco::PFTau>"/>
+  <class name="edm::Wrapper<std::vector<reco::PFTau> >"/>
+  <class name="edm::Ref<std::vector<reco::PFTau>,reco::PFTau,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTau>,reco::PFTau> >"/>
+  <class name="edm::RefProd<std::vector<reco::PFTau> >"/>
+  <class name="edm::RefVector<std::vector<reco::PFTau>,reco::PFTau,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTau>,reco::PFTau> >"/>
+  <class name="edm::reftobase::Holder<reco::BaseTau, edm::Ref<std::vector<reco::PFTau>,reco::PFTau,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTau>,reco::PFTau> > >" />
+  
+  <class name="reco::CaloTauDiscriminatorByIsolation"/>
   <class pattern="edm::AssociationVector<*>">
      <field name="transientVector_" transient="true"/>
      <field name="fixed_" transient="true"/>
-   </class>
-   <class pattern="edm::Wrapper<edm::AssociationVector<*>"/>
+  </class>
+  <class pattern="edm::Wrapper<edm::AssociationVector<*>"/>
+
+  <class name="reco::PFTauDiscriminatorByIsolation"/>
+  <class pattern="edm::AssociationVector<*>">
+     <field name="transientVector_" transient="true"/>
+     <field name="fixed_" transient="true"/>
+  </class>
+  <class pattern="edm::Wrapper<edm::AssociationVector<*>"/>
 </lcgdict>
