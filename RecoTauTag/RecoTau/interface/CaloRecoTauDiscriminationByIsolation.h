@@ -12,7 +12,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/TauReco/interface/Tau.h"
+#include "DataFormats/TauReco/interface/CaloTau.h"
 #include "DataFormats/TauReco/interface/CaloTauDiscriminatorByIsolation.h"
 
 #include "RecoTauTag/TauTagTools/interface/CaloTauElementsOperators.h"
@@ -34,7 +34,6 @@ class CaloRecoTauDiscriminationByIsolation : public EDProducer {
   ~CaloRecoTauDiscriminationByIsolation(){} 
   virtual void produce(Event&, const EventSetup&);
  private:  
-  double discriminator(const TauRef&);
   string CaloTauProducer_;
   bool ApplyDiscriminationByTrackerIsolation_;
   int TrackerIsolAnnulus_Tracksmaxn_;   
