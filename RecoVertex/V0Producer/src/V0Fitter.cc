@@ -13,11 +13,18 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.4 2007/07/10 09:48:39 drell Exp $
+// $Id: V0Fitter.cc,v 1.5 2007/08/31 00:45:39 drell Exp $
 //
 //
 
 #include "RecoVertex/V0Producer/interface/V0Fitter.h"
+
+#include <typeinfo>
+
+// Constants
+
+const double piMass = 0.13957018;
+const double piMassSquared = piMass*piMass;
 
 // Constructor and (empty) destructor
 V0Fitter::V0Fitter(const edm::Event& iEvent, const edm::EventSetup& iSetup,
@@ -59,6 +66,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Create std::vectors for Tracks and TrackRefs (required for
   //  passing to the KalmanVertexFitter)
   vector<Track> theTracks;
+  //vector<Track> theTracks_;
+  vector<TrackRef> theTrackRefs_;
   vector<TrackRef> theTrackRefs;
 
   // Handles for tracks, B-field, and tracker geometry
@@ -75,23 +84,49 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   trackerGeom = trackerGeomHandle.product();
 
+  // Create a vector of TrackRef objects to store in reco::Vertex later
+  for(unsigned int indx = 0; indx < theTrackHandle->size(); indx++) {
+    TrackRef tmpRef( theTrackHandle, indx );
+    theTrackRefs_.push_back( tmpRef );
+    //theTracks_.push_back( *tmpRef );
+  }
 
   // Fill our std::vector<Track> with the reconstructed tracks from
   //  the handle
-  theTracks.insert( theTracks.end(), theTrackHandle->begin(),
-		    theTrackHandle->end() );
+  /*  theTracks.insert( theTracks.end(), theTrackHandle->begin(),
+      theTrackHandle->end() );*/
 
-  // Create a vector of TrackRef objects to store in reco::Vertex later
-  for(unsigned int indx = 0; indx < theTrackHandle->size(); indx++) {
-    theTrackRefs.push_back( TrackRef(theTrackHandle, indx) );
+  // Beam spot.  I'm hardcoding to (0,0,0) right now, but will use 
+  //  reco::BeamSpot later.
+  reco::TrackBase::Point beamSpot(0,0,0);
+
+  //
+  //----->> Preselection cuts on tracks.
+  //
+
+  // Check track refs, look at closest approach point to beam spot,
+  //  and fill track vector with ones that pass the cut (> 1 cm).
+  for( unsigned int indx2 = 0; indx2 < theTrackRefs_.size(); indx2++ ) {
+    if( sqrt(  theTrackRefs_[indx2]->dxy( beamSpot )
+	     * theTrackRefs_[indx2]->dxy( beamSpot )
+	     + theTrackRefs_[indx2]->dsz( beamSpot )
+	     * theTrackRefs_[indx2]->dsz( beamSpot ) ) > 0. ) {
+      theTrackRefs.push_back( theTrackRefs_[indx2] );
+      theTracks.push_back( *(theTrackRefs_[indx2]) );
+    }
   }
 
+  // UNUSED:
   // Call private method that does initial cutting of the reconstructed
   //  tracks.  Passes theTracks by reference.
-  applyPreFitCuts(theTracks);
+  //applyPreFitCuts(theTracks);
+
+  //----->> Initial cuts finished.
+
+
 
   // Loop over tracks and vertex good charged track pairs
-  for(unsigned int trdx1 = 0; trdx1 < theTracks.size(); trdx1++) {
+  for(unsigned int trdx1 = 0; trdx1 < theTracks.size()-1; trdx1++) {
     for(unsigned int trdx2 = trdx1 + 1; trdx2 < theTracks.size(); trdx2++) {
       
       vector<TransientTrack> transTracks;
@@ -121,6 +156,26 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       // If they're not 2 oppositely charged tracks, loop back to the
       //  beginning and try the next pair.
       else continue;
+
+      //
+      //----->> Carry out in-loop preselection cuts on tracks.
+      //
+
+      // Assume pion masses and do a wide mass cut.  First, we need the
+      //  track momenta.
+      double posESq = positiveIter->momentum().Mag2() + piMassSquared;
+      double negESq = negativeIter->momentum().Mag2() + piMassSquared;
+      double posE = sqrt(posESq);
+      double negE = sqrt(negESq);
+      double totalE = posE + negE;
+      double totalESq = totalE*totalE;
+      double totalPSq = 
+	(positiveIter->momentum() + negativeIter->momentum()).Mag2();
+      double mass = sqrt( totalESq - totalPSq);
+
+      //std::cout << "Calculated m-pi-pi: " << mass << std::endl;
+
+      //----->> Finished making cuts.
 
       // Create TransientTrack objects.  They're needed for the KVF.
       TransientTrack thePositiveTransTrack( *positiveIter, &(*bFieldHandle) );
@@ -156,6 +211,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	
 	for( ; posTrackHitIt < thePositiveTransTrack.recHitsEnd();
 	     posTrackHitIt++) {
+	  const TrackingRecHit* posHitPtr = (*posTrackHitIt).get();
 	  if( (*posTrackHitIt)->isValid() && theRecoVertex.isValid() ) {
 	    GlobalPoint posHitPosition 
 	      = trackerGeom->idToDet((*posTrackHitIt)->
@@ -165,8 +221,10 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	    //std::cout << "@@POS: " << posHitPosition.perp() << std::endl;
 	  
 	    if( posHitPosition.perp() < theRecoVertex.position().perp() ) {
-	      std::cout << "Hit discovered inside reconstructed vertex on + track." 
-			<< std::endl;
+	      std::cout << typeid(*posHitPtr).name()
+		<< "+" << theRecoVertex.position().perp() -
+		posHitPosition.perp() 
+		<< std::endl;
 	      yesorno = true;
 	    }
 	  }
@@ -174,6 +232,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	
 	for( ; negTrackHitIt < theNegativeTransTrack.recHitsEnd();
 	     negTrackHitIt++) {
+	  const TrackingRecHit* negHitPtr = (*negTrackHitIt).get();
 	  if( (*negTrackHitIt)->isValid() && theRecoVertex.isValid() ) {
 	    GlobalPoint negHitPosition 
 	      = trackerGeom->idToDet((*negTrackHitIt)->
@@ -183,8 +242,10 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	    //std::cout << "@@NEG: " << negHitPosition.perp() << std::endl;
 	    
 	    if( negHitPosition.perp() < theRecoVertex.position().perp() ) {
-	      std::cout << "Hit discovered inside reconstructed vertex on - track." 
-			<< std::endl;
+	      std::cout << typeid(*negHitPtr).name()
+		<< "-" << theRecoVertex.position().perp() -
+		negHitPosition.perp()
+		<< std::endl;
 	      yesorno = true;
 	    }
 	  }
@@ -409,10 +470,28 @@ void V0Fitter::applyPostFitCuts() {
     double rVtxMag = sqrt( theIt->vertex().x()*theIt->vertex().x() +
 			   theIt->vertex().y()*theIt->vertex().y() +
 			   theIt->vertex().z()*theIt->vertex().z() );
-    double sigmaRvtxMag = 
+    // WRONG!
+
+    /*    double sigmaRvtxMag = 
       sqrt( theIt->vertex().xError()*theIt->vertex().xError() *
 	    theIt->vertex().yError()*theIt->vertex().yError() *
-	    theIt->vertex().zError()*theIt->vertex().zError() );
+	    theIt->vertex().zError()*theIt->vertex().zError() );*/
+
+    double x_ = theIt->vertex().x();
+    double y_ = theIt->vertex().y();
+    double z_ = theIt->vertex().z();
+    double sig00 = theIt->vertex().error(0,0);
+    double sig11 = theIt->vertex().error(0,0);
+    double sig22 = theIt->vertex().error(0,0);
+    double sig01 = theIt->vertex().error(0,1);
+    double sig02 = theIt->vertex().error(0,2);
+    double sig12 = theIt->vertex().error(1,2);
+
+    double sigmaRvtxMag =
+      2*sqrt( sig00*sig00*(x_*x_) + sig11*sig11*(y_*y_) + sig22*sig22*(z_*z_)
+	      + 2*(sig01*sig01*(x_*y_) + sig02*sig02*(x_*z_) 
+		   + sig12*sig12*(y_*z_)) ) / rVtxMag;
+
     if( theIt->vertex().chi2() < chi2Cut &&
 	rVtxMag > rVtxCut &&
 	rVtxMag/sigmaRvtxMag > vtxSigCut ) {
