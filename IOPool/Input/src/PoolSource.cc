@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.60 2007/09/07 19:34:31 wmtan Exp $
+$Id: PoolSource.cc,v 1.61 2007/09/08 02:16:32 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
 #include "RootFile.h"
@@ -32,15 +32,18 @@ namespace edm {
     if (matchMode == std::string("strict")) matchMode_ = BranchDescription::Strict;
     ClassFiller();
     if (primary()) {
-      RootChains & chains = RootChains::instance();
-      chains.makeChains();
-      for (std::vector<FileCatalogItem>::const_iterator it = fileCatalogItems().begin(), itEnd = fileCatalogItems().end();
-	   it != itEnd; ++it) {
-	chains.addFile(it->fileName());
-      }
       init(*fileIter_);
       updateProductRegistry();
       setInitialPosition(pset);
+      if (fileIter_ == fileCatalogItems().begin() && rootFile_->eventTree().entryNumber() == -1) {
+	// Set up TChains for fast cloning if and only if we start from the beginning of the first file.
+        RootChains & chains = RootChains::instance();
+        chains.makeChains();
+        for (std::vector<FileCatalogItem>::const_iterator it = fileCatalogItems().begin(), itEnd = fileCatalogItems().end();
+	     it != itEnd; ++it) {
+	  chains.addFile(it->fileName());
+        }
+      }
     } else {
       Service<RandomNumberGenerator> rng;
       if (!rng.isAvailable()) {
