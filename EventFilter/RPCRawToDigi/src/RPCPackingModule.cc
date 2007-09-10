@@ -74,6 +74,7 @@ void RPCPackingModule::produce( edm::Event& ev,
     FEDRawData& fedRawData = buffers->FEDData(id);
 
     fedRawData = *rawData;
+    delete rawData;
   }
   ev.put( buffers );  
 }
