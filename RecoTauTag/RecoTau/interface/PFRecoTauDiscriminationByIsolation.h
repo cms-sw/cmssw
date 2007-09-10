@@ -12,7 +12,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/TauReco/interface/Tau.h"
+#include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h"
 
 #include "RecoTauTag/TauTagTools/interface/PFTauElementsOperators.h"
@@ -43,7 +43,6 @@ class PFRecoTauDiscriminationByIsolation : public EDProducer {
   } 
   virtual void produce(Event&, const EventSetup&);
  private:  
-  double discriminator(const TauRef&);
   string PFTauProducer_;
   bool ApplyDiscriminationByTrackerIsolation_;
   bool ManipulateTracks_insteadofChargedHadrCands_;
