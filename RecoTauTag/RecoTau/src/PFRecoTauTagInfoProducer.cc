@@ -7,7 +7,7 @@ PFRecoTauTagInfoProducer::PFRecoTauTagInfoProducer(const ParameterSet& iConfig){
   smearedPVsigmaY_                    = iConfig.getParameter<double>("smearedPVsigmaY");
   smearedPVsigmaZ_                    = iConfig.getParameter<double>("smearedPVsigmaZ");	
   PFRecoTauTagInfoAlgo_=new PFRecoTauTagInfoAlgorithm(iConfig);
-  produces<TauTagInfoCollection>();      
+  produces<PFTauTagInfoCollection>();      
 }
 PFRecoTauTagInfoProducer::~PFRecoTauTagInfoProducer(){
   delete PFRecoTauTagInfoAlgo_;
