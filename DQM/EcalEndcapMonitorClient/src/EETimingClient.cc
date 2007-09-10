@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2007/09/07 22:30:07 $
- * $Revision: 1.22 $
+ * $Date: 2007/09/09 18:40:47 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  *
 */
@@ -199,7 +199,7 @@ void EETimingClient::setup(void) {
 
     if ( mer01_[ism-1] ) dbe_->removeElement( mer01_[ism-1]->getName() );
     sprintf(histo, "EETMT timing rms %s", Numbers::sEE(ism).c_str());
-    mer01_[ism-1] = dbe_->book1D(histo, histo, 100, 0.0,  5.0);
+    mer01_[ism-1] = dbe_->book1D(histo, histo, 100, 0.0, 6.0);
 
   }
 
