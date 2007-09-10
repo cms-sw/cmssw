@@ -5,6 +5,8 @@
 <use name=DataFormats/JetReco>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/Math>
+<use name=MagneticField/Records>
+<use name=TrackingTools/Records>
 <export>
  <lib name=RecoJetsJetAssociationProducers>
 </export>
