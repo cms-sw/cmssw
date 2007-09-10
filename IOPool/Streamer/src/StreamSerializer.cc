@@ -29,7 +29,7 @@ namespace edm
   /**
    * Creates a translator instance for the specified product registry.
    */
-  StreamSerializer::StreamSerializer(OutputModule::Selections const* selections):
+  StreamSerializer::StreamSerializer(Selections const* selections):
     selections_(selections),
     //data_(init_size),
     comp_buf_(init_size),
@@ -50,7 +50,7 @@ namespace edm
     TClass* prog_reg = getTClass(typeid(SendJobHeader));
     SendJobHeader sd;
 
-    OutputModule::Selections::const_iterator i(selections_->begin()),e(selections_->end());
+    Selections::const_iterator i(selections_->begin()),e(selections_->end());
 
     FDEBUG(9) << "Product List: " << std::endl;
 
@@ -124,7 +124,7 @@ namespace edm
   {
     SendEvent se(eventPrincipal.id(),eventPrincipal.time());
 
-    OutputModule::Selections::const_iterator i(selections_->begin()),ie(selections_->end());
+    Selections::const_iterator i(selections_->begin()),ie(selections_->end());
     // Loop over EDProducts, fill the provenance, and write.
 
     for(; i != ie; ++i) {

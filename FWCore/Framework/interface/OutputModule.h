@@ -6,7 +6,7 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.47 2007/09/07 19:34:44 wmtan Exp $
+$Id: OutputModule.h,v 1.48 2007/09/10 16:38:46 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -15,6 +15,7 @@ $Id: OutputModule.h,v 1.47 2007/09/07 19:34:44 wmtan Exp $
 
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/Selections.h"
 
 #include "FWCore/Framework/interface/CachedProducts.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -31,8 +32,6 @@ namespace edm {
   public:
     friend class OutputWorker;
     typedef OutputModule ModuleType;
-    typedef std::vector<BranchDescription const *> Selections;
-    typedef boost::array<Selections, EndBranchType> SelectionsArray;
 
     explicit OutputModule(ParameterSet const& pset);
     virtual ~OutputModule();

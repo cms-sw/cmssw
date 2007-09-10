@@ -8,7 +8,7 @@
  * EventPrincipal) into streamer message objects.
  */
 
-#include "FWCore/Framework/interface/OutputModule.h"
+#include "DataFormats/Provenance/interface/Selections.h"
 #include "TBuffer.h"
 #include <vector>
 
@@ -23,7 +23,7 @@ namespace edm
 
   public:
 
-    StreamSerializer(OutputModule::Selections const* selections);
+    StreamSerializer(Selections const* selections);
 
     int serializeRegistry(InitMsgBuilder& initMessage);   
     int serializeEvent(EventPrincipal const& eventPrincipal,
@@ -58,7 +58,7 @@ namespace edm
       char* ptr_;
     };
 
-    OutputModule::Selections const* selections_;
+    Selections const* selections_;
     // Arr data_;
     std::vector<unsigned char> comp_buf_; // space for compressed data
     unsigned int curr_event_size_;

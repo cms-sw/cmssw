@@ -25,6 +25,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/OutputModule.h"
+#include "DataFormats/Provenance/interface/Selections.h"
 
 #include <iostream>
 #include <vector>
@@ -40,7 +41,6 @@ namespace edm
   {
   public:
     typedef std::vector<char> ProdRegBuf;
-    typedef OutputModule::Selections Selections;
 
     EventStreamerImpl(ParameterSet const& ps,
 		      Selections const* selections,

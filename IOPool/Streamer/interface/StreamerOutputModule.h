@@ -1,13 +1,14 @@
 #ifndef StreamerOutputModule_h_
 #define StreamerOutputModule_h_
 
-// $Id: StreamerOutputModule.h,v 1.27 2007/08/16 23:39:07 wmtan Exp $
+// $Id: StreamerOutputModule.h,v 1.28 2007/08/20 20:23:24 hcheung Exp $
 
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/Selections.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
@@ -82,7 +83,6 @@ namespace
 
 namespace edm
 {
-  typedef edm::OutputModule::Selections Selections;
   typedef std::vector<char> SBuffer;
   
   template <class Consumer>
