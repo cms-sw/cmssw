@@ -233,7 +233,7 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
   for(;it!=itend;++it)
     {
       if(it->second.second) continue;
-      if(it->second.first<thresholdHE_) continue;
+      if(it->second.first<thresholdHO_) continue;
       HcalDetId detid(it->first);
       hoHits.push_back(HORecHit(detid,it->second.first,0));
     }
