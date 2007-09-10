@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.5 2007/08/31 00:45:39 drell Exp $
+// $Id: V0Fitter.cc,v 1.6 2007/09/10 21:13:07 drell Exp $
 //
 //
 
@@ -79,6 +79,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Get the tracks from the event, and get the B-field record
   //  from the EventSetup
   iEvent.getByLabel(recoAlg, theTrackHandle);
+  if( !theTrackHandle->size() ) return;
   iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);
   iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeomHandle);
 
@@ -90,6 +91,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     theTrackRefs_.push_back( tmpRef );
     //theTracks_.push_back( *tmpRef );
   }
+
+  //std::cout << "@@@@ " << theTrackHandle->size() << std::endl;
 
   // Fill our std::vector<Track> with the reconstructed tracks from
   //  the handle
@@ -106,6 +109,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // Check track refs, look at closest approach point to beam spot,
   //  and fill track vector with ones that pass the cut (> 1 cm).
+
   for( unsigned int indx2 = 0; indx2 < theTrackRefs_.size(); indx2++ ) {
     if( sqrt(  theTrackRefs_[indx2]->dxy( beamSpot )
 	     * theTrackRefs_[indx2]->dxy( beamSpot )
@@ -124,9 +128,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //----->> Initial cuts finished.
 
 
-
   // Loop over tracks and vertex good charged track pairs
-  for(unsigned int trdx1 = 0; trdx1 < theTracks.size()-1; trdx1++) {
+  for(unsigned int trdx1 = 0; trdx1 < theTracks.size(); trdx1++) {
     for(unsigned int trdx2 = trdx1 + 1; trdx2 < theTracks.size(); trdx2++) {
       
       vector<TransientTrack> transTracks;
@@ -441,7 +444,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
   }
 
-  applyPostFitCuts();
+  if( preCutCands.size() )
+    applyPostFitCuts();
 
 }
 
@@ -480,17 +484,17 @@ void V0Fitter::applyPostFitCuts() {
     double x_ = theIt->vertex().x();
     double y_ = theIt->vertex().y();
     double z_ = theIt->vertex().z();
-    double sig00 = theIt->vertex().error(0,0);
-    double sig11 = theIt->vertex().error(0,0);
-    double sig22 = theIt->vertex().error(0,0);
-    double sig01 = theIt->vertex().error(0,1);
-    double sig02 = theIt->vertex().error(0,2);
-    double sig12 = theIt->vertex().error(1,2);
+    double sig00 = theIt->vertex().covariance(0,0);
+    double sig11 = theIt->vertex().covariance(1,1);
+    double sig22 = theIt->vertex().covariance(2,2);
+    double sig01 = theIt->vertex().covariance(0,1);
+    double sig02 = theIt->vertex().covariance(0,2);
+    double sig12 = theIt->vertex().covariance(1,2);
 
     double sigmaRvtxMag =
-      2*sqrt( sig00*sig00*(x_*x_) + sig11*sig11*(y_*y_) + sig22*sig22*(z_*z_)
-	      + 2*(sig01*sig01*(x_*y_) + sig02*sig02*(x_*z_) 
-		   + sig12*sig12*(y_*z_)) ) / rVtxMag;
+      sqrt( sig00*(x_*x_) + sig11*(y_*y_) + sig22*(z_*z_)
+	    + 2*(sig01*(x_*y_) + sig02*(x_*z_) + sig12*(y_*z_)) ) 
+      / rVtxMag;
 
     if( theIt->vertex().chi2() < chi2Cut &&
 	rVtxMag > rVtxCut &&
