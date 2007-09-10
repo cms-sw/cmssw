@@ -65,6 +65,8 @@ class CrossingFrame
   void getPileups(typename std::vector<T>::const_iterator &first, typename std::vector<T>::const_iterator &last) const;
   unsigned int getNrSignals() const {return signals_.size();} 
   unsigned int getNrPileups() const {return pileups_.size();} 
+  unsigned int getNrPileups(int bcr) const {
+    return bcr==lastCrossing_ ? pileups_.size()-pileupOffsetsBcr_[lastCrossing_-firstCrossing_] :pileupOffsetsBcr_[bcr-firstCrossing_+1]- pileupOffsetsBcr_[bcr-firstCrossing_];} 
 
   // limits for tof to be considered for trackers
   static const int lowTrackTof; //nsec
