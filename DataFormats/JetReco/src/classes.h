@@ -2,6 +2,14 @@
 #define JetObjects_classes_h
 
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
+#include "DataFormats/Common/interface/RefProd.h" 
+#include "DataFormats/JetReco/interface/BasicJet.h" 
+#include "Rtypes.h" 
+#include "Math/Cartesian3D.h" 
+#include "Math/Polar3D.h" 
+#include "Math/CylindricalEta3D.h" 
+#include "Math/PtEtaPhiM4D.h" 
+#include "Math/PxPyPzE4D.h" 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h" 
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
