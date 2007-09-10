@@ -5,8 +5,8 @@
  * default eta thresholds (lepton and jets) set to 3
  * At least two leptons and two jets present for each channel
  *
- * $Date: 2007/08/28 19:14:16 $
- * $Revision: 1.6 $
+ * $Date: 2007/08/28 22:24:24 $
+ * $Revision: 1.7 $
  *
  * \author Michele Gallinaro and Nuno Almeida - LIP
  *
@@ -31,7 +31,7 @@
 //muon includes
 #include "DataFormats/MuonReco/interface/Muon.h"
 //tau includes
-#include "DataFormats/TauReco/interface/Tau.h"
+#include "DataFormats/TauReco/interface/BaseTau.h"
 //jet includes
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
@@ -155,15 +155,15 @@ bool TopLeptonTauFilter::muonFilter( edm::Event& iEvent, const edm::EventSetup
 bool TopLeptonTauFilter::tauFilter( edm::Event& iEvent, const edm::EventSetup
 & iSetup ){
 
-  Handle<TauCollection> TauHandle;
+  Handle<BaseTauCollection> TauHandle;
   iEvent.getByLabel(Tausrc_,TauHandle);
-  const TauCollection& myTauCollection=*(TauHandle.product());
+  const BaseTauCollection& myTauCollection=*(TauHandle.product());
   if ( myTauCollection.empty() && NminTau_!=0 ) return false;
   
   int nTau = 0;
-  for(TauCollection::const_iterator it =myTauCollection.begin();it !=myTauCollection.end();it++)
+  for(BaseTauCollection::const_iterator it =myTauCollection.begin();it !=myTauCollection.end();it++)
     {
-      TrackRef theLeadTk = it->getLeadingTrack();
+      TrackRef theLeadTk = it->leadTrack();
       if(!theLeadTk) {}
       else{
         double leadTkPt  = (*theLeadTk).pt();
