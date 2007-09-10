@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/08/02 16:11:09 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/08/02 16:13:32 $
+ *  $Revision: 1.4 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -64,6 +64,14 @@ void DTT0Analyzer::endJob() {
 
     DTLayerId layerId = wireId.layerId();
     const int nWires = dtGeom->layer(layerId)->specificTopology().channels();
+    //  const int nWires1 = dtGeom->layer(layerId)->specificTopology().firstChannel();
+    //  const int nWires2 = dtGeom->layer(layerId)->specificTopology().lastChannel();
+
+    //cout << "nWires:" << nWires <<endl;
+    //cout << "nWires1:" << nWires1 <<endl;
+    //cout << "nWires2:" << nWires2 <<endl;
+
+
 
     //Define an histo for means and an histo for sigmas for each layer
     TH1D *hT0Histo = theMeanHistoMap[layerId];
@@ -87,8 +95,9 @@ void DTT0Analyzer::endJob() {
      }
 
     //Fill the histos
-    hT0Histo->SetBinContent(hT0Histo->GetBin(wireId.wire()),t0mean);  
-    hSigmaT0Histo->SetBinContent(hSigmaT0Histo->GetBin(wireId.wire()),t0rms);  
+    int nBin= hT0Histo->GetXaxis()->FindFixBin(wireId.wire());
+    hT0Histo->SetBinContent(nBin,t0mean);  
+    hSigmaT0Histo->SetBinContent(nBin,t0rms);  
   }
 
   //Write histos in a .root file
