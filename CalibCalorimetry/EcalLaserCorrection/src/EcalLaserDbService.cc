@@ -63,7 +63,7 @@ float EcalLaserDbService::getLaserCorrection (DetId const & xid, edm::Timestamp 
   int hi = -1;
   if (xid.subdetId()==EcalBarrel) {
     //    std::cout << "EcalBarrel" << std::endl;
-    std::cout << "--> rawId() = " << xid.rawId() << "   id() = " << EBDetId( xid ).hashedIndex() << std::endl;
+    //    std::cout << "--> rawId() = " << xid.rawId() << "   id() = " << EBDetId( xid ).hashedIndex() << std::endl;
     hi = EBDetId( xid ).hashedIndex();
   } else if (xid.subdetId()==EcalEndcap) {
     //    std::cout << "EcalEndcap" << std::endl;
