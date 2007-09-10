@@ -1,6 +1,11 @@
 <use name=DataFormats/Math>
 <use name=DataFormats/JetReco>
 <use name=DataFormats/TrackReco>
+<use name=DataFormats/GeometrySurface>
+<use name=TrackingTools/GeomPropagators>
+<use name=TrackingTools/TrajectoryParametrization>
+<use name=TrackingTools/TrajectoryState>
+<use name=MagneticField/Engine>
 <export>
  <lib name=RecoJetsJetAssociationAlgorithms>
   <use name=DataFormats/JetReco>
