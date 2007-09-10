@@ -6,7 +6,6 @@ PFRecoTauAlgorithm::PFRecoTauAlgorithm(const ParameterSet& iConfig) : TransientT
   ChargedHadrCand_minPt_                 = iConfig.getParameter<double>("ChargedHadrCand_minPt");
   UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint_ = iConfig.getParameter<bool>("UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint");
   ChargedHadrCandLeadChargedHadrCand_tksmaxDZ_ = iConfig.getParameter<double>("ChargedHadrCandLeadChargedHadrCand_tksmaxDZ");
-  TrackLeadTrack_maxDZ_                  = iConfig.getParameter<double>("TrackLeadTrack_maxDZ");
   NeutrHadrCand_minPt_                   = iConfig.getParameter<double>("NeutrHadrCand_minPt");
   GammaCand_minPt_                       = iConfig.getParameter<double>("GammaCand_minPt");       
   LeadTrack_minPt_                       = iConfig.getParameter<double>("LeadTrack_minPt");
