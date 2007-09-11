@@ -28,11 +28,30 @@ namespace
     if (find(names.begin(), names.end(), std::string("input"))
 	!= names.end())
       {
-	// We have the parameter... make the PileUp
-// 	edm::PileUp* pu = new edm::PileUp(ps.getParameter<edm::ParameterSet>("input"));
-// 	boost::shared_ptr<edm::PileUp> newguy(pu);
-// 	pileup = newguy;
-	pileup.reset(new edm::PileUp(ps.getParameter<edm::ParameterSet>("input")));
+	// We have the parameter
+	// and if we have either averageNumber or cfg by luminosity... make the PileUp
+        
+        double averageNumber;
+        edm::ParameterSet psin=ps.getParameter<edm::ParameterSet>("input");
+        vector<string> namesIn = psin.getParameterNames();
+        if (find(namesIn.begin(), namesIn.end(), std::string("nbPileupEvents"))
+	    != namesIn.end()) {
+	  edm::ParameterSet psin_average=psin.getParameter<edm::ParameterSet>("nbPileupEvents");
+	  vector<string> namesAverage = psin_average.getParameterNames();
+	  if (find(namesAverage.begin(), namesAverage.end(), std::string("averageNumber"))
+	      != namesAverage.end()) 
+	    {
+              averageNumber=psin_average.getParameter<double>("averageNumber");
+	      pileup.reset(new edm::PileUp(ps.getParameter<edm::ParameterSet>("input"),averageNumber));
+	    }
+	
+	  else if (find(namesAverage.begin(), namesAverage.end(), std::string("Lumi")) 
+		   != namesAverage.end() && find(namesAverage.begin(), namesAverage.end(), std::string("sigmaTot"))
+		   != namesAverage.end()) {
+	    averageNumber=psin_average.getParameter<double>("Lumi")*psin_average.getParameter<double>("sigmaTot")*ps.getParameter<int>("bunchspace")/1000;
+	    pileup.reset(new edm::PileUp(ps.getParameter<edm::ParameterSet>("input"),averageNumber));
+	  }
+	}
       }
 
     return pileup;
