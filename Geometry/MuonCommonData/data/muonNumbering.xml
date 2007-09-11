@@ -208,8 +208,10 @@
  <SpecPar name="MuonRpcPlane4">
    <PartSelector path="//MB4RPC_P"/>
    <PartSelector path="//MB4RPC_N"/>
-   <PartSelector path="//MB4SmallRPC_P"/>
-   <PartSelector path="//MB4SmallRPC_N"/>
+   <PartSelector path="//MB4SmallRPC_PS8"/>
+   <PartSelector path="//MB4SmallRPC_NS8"/>
+   <PartSelector path="//MB4SmallRPC_PS12"/>
+   <PartSelector path="//MB4SmallRPC_NS12"/>
    <PartSelector path="//MB4TopRPC_P"/>
    <PartSelector path="//MB4TopRPC_N"/>
    <PartSelector path="//MB4FeetRPC_P"/>
