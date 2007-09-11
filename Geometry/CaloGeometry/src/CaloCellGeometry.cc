@@ -34,14 +34,13 @@ CaloCellGeometry::getParmPtr(
    const float* pP ( 0 ) ;
 
    ParVec vv ;
-   vv.resize( np ) ;
+   vv.reserve( np ) ;
 
    for( unsigned int i ( 0 ) ; i != vd.size() ; ++i )
    {
       vv.push_back( vd[i] ) ;
    }
-
-   for( unsigned int ii ( 0 ) ; ii != vd.size() ; ++ii )
+   for( unsigned int ii ( 0 ) ; ii != pvv.size() ; ++ii )
    {
       const ParVec& v ( pvv[ii] ) ;
       assert( v.size() == np ) ;
