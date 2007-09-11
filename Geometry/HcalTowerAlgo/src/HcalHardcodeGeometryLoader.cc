@@ -193,11 +193,11 @@ const CaloCellGeometry * HcalHardcodeGeometryLoader::makeCell(const HcalDetId & 
   y = r * sin(phi);
   GlobalPoint point(x,y,z);
 
-  
+
   if (subdet==HcalForward) 
   {
      std::vector<double> hf ;
-     hf.resize(3) ;
+     hf.reserve(3) ;
      hf.push_back( deta*2 ) ;
      hf.push_back( dphi_half*2 ) ;
      hf.push_back( thickness ) ;
@@ -210,7 +210,7 @@ const CaloCellGeometry * HcalHardcodeGeometryLoader::makeCell(const HcalDetId & 
   { 
      const double mysign ( isBarrel ? 1 : -1 ) ;
      std::vector<double> hh ;
-     hh.resize(3) ;
+     hh.reserve(3) ;
      hh.push_back( deta*2 ) ;
      hh.push_back( dphi_half*2 ) ;
      hh.push_back( mysign*thickness ) ;

@@ -143,7 +143,7 @@ HcalDDDGeometryLoader::makeCell(const HcalDetId& detId,
   if (subdet==HcalForward) 
   {
      std::vector<double> hf ;
-     hf.resize(3) ;
+     hf.reserve(3) ;
      hf.push_back( deta ) ;
      hf.push_back( dphi ) ;
      hf.push_back( thickness ) ;
@@ -156,7 +156,7 @@ HcalDDDGeometryLoader::makeCell(const HcalDetId& detId,
   { 
      const double sign ( isBarrel ? 1 : -1 ) ;
      std::vector<double> hh ;
-     hh.resize(3) ;
+     hh.reserve(3) ;
      hh.push_back( deta ) ;
      hh.push_back( dphi ) ;
      hh.push_back( sign*thickness ) ;

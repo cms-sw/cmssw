@@ -79,11 +79,10 @@ const CaloCellGeometry* CaloTowerHardcodeGeometryLoader::makeCell(int ieta, int 
 
   const double mysign ( !alongZ ? 1 : -1 ) ;
   std::vector<double> hh ;
-  hh.resize(3) ;
+  hh.reserve(3) ;
   hh.push_back( deta ) ;
   hh.push_back( dphi_half*2 ) ;
   hh.push_back( mysign*thickness ) ;
-  class DummyClass ;
   return new calogeom::IdealObliquePrism(
      point,
      geom->cornersMgr(),
