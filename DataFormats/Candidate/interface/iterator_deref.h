@@ -1,8 +1,11 @@
 #ifndef Candidate_iterator_deref_h
 #define Candidate_iterator_deref_h
 
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include<boost/static_assert.hpp>
+#include "DataFormats/Common/interface/OwnVector.h"
+#include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/Common/interface/RefToBase.h"
+#include <boost/static_assert.hpp>
+#include <vector>
 
 namespace reco {
   namespace candidate {
@@ -12,23 +15,30 @@ namespace reco {
       BOOST_STATIC_ASSERT(sizeof(C) == 0); 
     };
 
-    template<>
-    struct iterator_deref<CandidateCollection> {
-      static const Candidate & deref( const CandidateCollection::const_iterator & i ) {
+    template<typename T>
+    struct iterator_deref<std::vector<T> > {
+      static const Candidate & deref( const typename std::vector<T>::const_iterator & i ) {
 	return * i;
       }
     };
 
-    template<>
-    struct iterator_deref<CandidateRefVector> {
-      static const Candidate & deref( const CandidateRefVector::const_iterator & i ) {
+    template<typename T>
+    struct iterator_deref<edm::OwnVector<T> > {
+      static const Candidate & deref( const typename edm::OwnVector<T>::const_iterator & i ) {
+	return * i;
+      }
+    };
+
+    template<typename C>
+    struct iterator_deref<edm::RefVector<C> > {
+      static const Candidate & deref( const typename edm::RefVector<C>::const_iterator & i ) {
 	return * * i;
       }
     };    
 
-    template<>
-    struct iterator_deref<std::vector<CandidateBaseRef> > {
-      static const Candidate & deref( const std::vector<CandidateBaseRef>::const_iterator & i ) {
+    template<typename T>
+    struct iterator_deref<std::vector<edm::RefToBase<T> > > {
+      static const Candidate & deref( const typename std::vector<edm::RefToBase<T> >::const_iterator & i ) {
 	return * * i;
       }
     };    

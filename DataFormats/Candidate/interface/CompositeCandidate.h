@@ -1,5 +1,5 @@
-#ifndef Candidate_CompositeCandidate_H
-#define Candidate_CompositeCandidate_H
+#ifndef Candidate_CompositeCandidate_h
+#define Candidate_CompositeCandidate_h
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include <memory>
 /** \class reco::CompositeCandidate
@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeCandidate.h,v 1.15 2007/05/14 11:59:26 llista Exp $
+ * \version $Id: CompositeCandidate.h,v 1.16 2007/06/12 21:27:21 llista Exp $
  *
  */
 
